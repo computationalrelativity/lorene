@@ -30,6 +30,11 @@ char time_slice_conf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/04/05 21:25:02  e_gourgoulhon
+ * -- Added constructor as standard time slice of Minkowski spacetime.
+ * -- Added some calls to Scalar::std_spectral_base() after
+ *    non-arithmetical operations.
+ *
  * Revision 1.5  2004/04/05 12:38:45  j_novak
  * Minor modifs to prevent some warnings.
  *
@@ -113,18 +118,58 @@ Time_slice_conf::Time_slice_conf(const Scalar& lapse_in, const Vector& shift_in,
                     
     set_der_0x0() ; // put here in order not to erase p_psi4
 
+    double time_init = the_time[jtime] ; 
+
     p_psi4 = new Scalar( pow( p_gamma->determinant() / ff.determinant(), 
                          0.3333333333333333) ) ;
+    p_psi4->std_spectral_base() ;
 
-    psi_evol.update( pow(*p_psi4, 0.25), jtime, the_time[jtime] ) ; 
+    Scalar tmp = pow(*p_psi4, 0.25) ;
+    tmp.std_spectral_base() ;
+    psi_evol.update(tmp , jtime, time_init ) ; 
     
     hh_evol.update( (*p_psi4) * p_gamma->con() - ff.con(), 
-                    jtime, the_time[jtime] ) ; 
+                    jtime, time_init ) ; 
     
     aa_evol.update( (*p_psi4) *( Time_slice::k_uu() 
                     - 0.3333333333333333 * trk_evol[jtime] * p_gamma->con() ), 
-                    jtime, the_time[jtime] ) ; 
+                    jtime, time_init ) ; 
                                 
+}
+
+// Constructor as standard time slice of flat spacetime (Minkowski)
+// ----------------------------------------------------------------
+
+Time_slice_conf::Time_slice_conf(const Map& mp, const Base_vect& triad, 
+                                 const Metric_flat& ff_in, int depth_in) 
+        : Time_slice(mp, triad, depth_in),
+          ff(ff_in), 
+          psi_evol(depth_in), 
+          qq_evol(depth_in),
+          hh_evol(depth_in), 
+          aa_evol(depth_in) {
+    
+    double time_init = the_time[jtime] ; 
+    
+    // Psi identically one:
+    Scalar tmp(mp) ; 
+    tmp.set_etat_one() ; 
+    tmp.std_spectral_base() ;
+    psi_evol.update(tmp, jtime, time_init) ; 
+    
+    // Q identically one:
+    qq_evol.update(tmp, jtime, time_init) ; 
+    
+    // h^{ij} identically zero:
+    Sym_tensor stmp(mp, CON, triad) ; 
+    stmp.set_etat_zero() ; 
+    hh_evol.update(stmp, jtime, time_init) ; 
+    
+    // A^{ij} identically zero:
+    aa_evol.update(stmp, jtime, time_init) ; 
+
+    set_der_0x0() ; 
+
 }
 
 
@@ -281,8 +326,9 @@ const Scalar& Time_slice_conf::psi() const {
         assert( n_evol.is_known(jtime) ) ; 
         assert( qq_evol.is_known(jtime) ) ; 
         
-        psi_evol.update( sqrt( qq_evol[jtime] / n_evol[jtime] ), jtime, 
-                         the_time[jtime] ) ; 
+        Scalar tmp = sqrt( qq_evol[jtime] / n_evol[jtime] ) ; 
+        tmp.std_spectral_base() ;
+        psi_evol.update(tmp, jtime, the_time[jtime] ) ; 
     }
 
     return psi_evol[jtime] ;
@@ -294,6 +340,7 @@ const Scalar& Time_slice_conf::psi4() const {
     if (p_psi4 == 0x0)  {
 
         p_psi4 = new Scalar( pow( psi(), 4.) ) ; 
+        p_psi4->std_spectral_base() ;
     }
 
     return *p_psi4 ;
@@ -305,6 +352,7 @@ const Scalar& Time_slice_conf::ln_psi() const {
     if (p_ln_psi == 0x0)  {
 
         p_ln_psi = new Scalar( log( psi() ) ) ; 
+        p_ln_psi->std_spectral_base() ;
     }
 
     return *p_ln_psi ;
