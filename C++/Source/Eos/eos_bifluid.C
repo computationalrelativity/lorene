@@ -31,6 +31,9 @@ char eos_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/09/01 09:50:34  r_prix
+ * adapted to change in read_variable() for strings
+ *
  * Revision 1.12  2003/12/17 23:12:32  r_prix
  * replaced use of C++ <string> by standard ANSI char* to be backwards compatible
  * with broken compilers like MIPSpro Compiler 7.2 on SGI Origin200. ;-)
@@ -149,9 +152,15 @@ Eos_bifluid::Eos_bifluid(FILE* fich)
 Eos_bifluid::Eos_bifluid(char *fname)
 {
   int res=0;
-  res += read_variable (fname, "name", name);
+  char *dummy = NULL;
+  res += read_variable (fname, "name", &dummy);
   res += read_variable (fname, "m_1", m_1);
   res += read_variable (fname, "m_2", m_2);
+
+  if (dummy != NULL)
+    name = dummy;
+  else
+    res = 1;
 
   if (res)
     {

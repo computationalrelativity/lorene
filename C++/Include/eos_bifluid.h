@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2004/09/01 09:49:46  r_prix
+ * adapted to change in read_variable() for strings
+ *
  * Revision 1.16  2004/03/22 13:12:41  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -157,7 +160,7 @@ class Eos_bifluid {
     // -----
 
     protected: 
-	char name[MAX_EOSNAME];	    ///< EOS name
+	char *name;	    ///< EOS name
 
 	/** Individual particle mass \f$m_1\f$  
 	 *  [unit: \f$m_B = 1.66\ 10^{-27} \ {\rm kg}\f$]. 
