@@ -35,6 +35,9 @@ char scalar_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/05 21:16:41  e_gourgoulhon
+ * Added methods div_r_ced() and div_rsint_ced().
+ *
  * Revision 1.1  2003/09/25 09:12:01  e_gourgoulhon
  * First version (uses Cmp as intermediate variable).
  *
@@ -47,9 +50,9 @@ char scalar_r_manip_C[] = "$Header$" ;
 #include "cmp.h" 
 
 
-			//---------------------------//
-			//	    div_r	     //
-			//---------------------------//
+			//-------------------//
+			//	    div_r        //
+			//-------------------//
 
 void Scalar::div_r() {
     
@@ -62,6 +65,45 @@ void Scalar::div_r() {
     del_deriv() ;   // Delete the derived members
 
 }
+
+
+			//---------------------//
+			//	    div_r_ced      //
+			//---------------------//
+
+
+void Scalar::div_r_ced() {
+    
+	if (etat == ETATZERO) {
+		dzpuis += 2 ; 
+		return ; 
+	}
+	
+	assert(etat == ETATQCQ) ; 
+	
+	int nzm1 = mp->get_mg()->get_nzone() - 1 ; // index of the CED
+	
+	// Copy of the CED part of *this into uu_ext and multiplication by r
+	Scalar uu_ext(*mp) ; 
+	uu_ext.allocate_all() ;
+	uu_ext.annule(0,nzm1-2) ; // zero in all domains but the CED
+	uu_ext.set_domain(nzm1) = domain(nzm1) ; 
+	uu_ext.set_spectral_base(va.base) ; 
+	uu_ext.mult_r_zec() ; // multiplication by r in the CED
+
+	// Division by r in all domains but the CED
+	annule(nzm1, nzm1) ; 	// zero in the CED
+	div_r() ; 
+	
+	// Add the CED part
+	set_domain(nzm1) = uu_ext.domain(nzm1) ; 
+	
+	dzpuis += 2 ; 
+	
+    del_deriv() ;   // Delete the derived members
+
+}
+
 			//---------------------------//
 			//	    mult_r	     //
 			//---------------------------//
@@ -125,6 +167,54 @@ void Scalar::div_rsint() {
     del_deriv() ;   // Delete the derived members
 
 }
+
+
+			//-------------------------//
+			//	    div_rsint_ced      //
+			//-------------------------//
+
+
+void Scalar::div_rsint_ced() {
+    
+	if (etat == ETATZERO) {
+		dzpuis += 2 ; 
+		return ; 
+	}
+	
+	assert(etat == ETATQCQ) ; 
+	
+	int nzm1 = mp->get_mg()->get_nzone() - 1 ; // index of the CED
+	
+	// Copy of the CED part of *this into uu_ext and multiplication by r
+	Scalar uu_ext(*mp) ; 
+	uu_ext.allocate_all() ;
+	uu_ext.annule(0,nzm1-2) ; // zero in all domains but the CED
+	uu_ext.set_domain(nzm1) = domain(nzm1) ; 
+	uu_ext.set_spectral_base(va.base) ; 
+	uu_ext.mult_r_zec() ; // multiplication by r in the CED
+
+	// Division by sin(theta) in the CED :
+
+	// what follows does not apply if the mapping is not radial:
+	assert( dynamic_cast<const Map_radial*>(mp) != 0x0 ) ; 
+	Valeur vtmp = (uu_ext.get_spectral_va()).ssint() ;
+	uu_ext.set_spectral_va() = vtmp ;  
+
+	// Division by r sin(theta) in all domains but the CED
+	annule(nzm1, nzm1) ; 	// zero in the CED
+	div_rsint() ; 
+	
+	// Add the CED part
+	set_domain(nzm1) = uu_ext.domain(nzm1) ; 
+	
+	dzpuis += 2 ; 
+	
+    del_deriv() ;   // Delete the derived members
+
+}
+
+
+
 
 			//---------------------------//
 			//	    dec_dzpuis	     //
