@@ -31,6 +31,9 @@ char star_bin_hydro_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/27 09:54:48  f_limousin
+ * Many minor changes.
+ *
  * Revision 1.2  2004/01/20 15:18:31  f_limousin
  * First version
  *
@@ -57,7 +60,7 @@ void Star_bin::hydro_euler(){
     hhh.std_spectral_base() ;
 
     //---------------------------------------------------
-    // Lorentz factor between the co-orbiting	          ---> gam0
+    // Lorentz factor between the co-orbiting	          ---> gam00
     // observer and the Eulerian one
     // See Eq (23) and (24) from Gourgoulhon et al. (2001)
     //---------------------------------------------------
@@ -79,10 +82,10 @@ void Star_bin::hydro_euler(){
 
 	gam_euler.std_spectral_base() ; 
 
-	Scalar a_car = psi4 * pow(flat.determinant(), 1./3.) ;
-
+	u_euler = contract(gamma.con(), 0, d_psi, 0)/( hhh % gam_euler ) ; 
+/*
 	// See Eq (31) from Gourgoulhon et al. (2001)
-	Vector vtmp = d_psi / ( hhh % gam_euler % a_car ) ; 
+	Vector vtmp = contract(gamma.con(), 0, d_psi, 0)/( hhh % gam_euler ) ; 
 
 	// The assignment of u_euler is performed component by component 
 	//  because u_euler is contravariant and d_psi is covariant
@@ -92,7 +95,7 @@ void Star_bin::hydro_euler(){
 	    u_euler.set(i) = vtmp(i) ;
 	}
 	u_euler.set_triad( *(vtmp.get_triad()) ) ; 
-	
+*/
 	u_euler.std_spectral_base() ; 
 
     }
@@ -101,11 +104,9 @@ void Star_bin::hydro_euler(){
 	// --------------
 
 	gam_euler = gam0 ; 
-	gam_euler.std_spectral_base() ; // sets the standard spectral bases for
-	// a scalar field
-
+	gam_euler.std_spectral_base() ; 
 	u_euler = - bsn ; 
-
+	
     }
     
     //------------------------------------
@@ -130,12 +131,22 @@ void Star_bin::hydro_euler(){
     // to the Eulerian observer. 
     //-------------------------------------------
 
+    stress_euler.change_triad(mp.get_bvect_cart()) ;
+    
     for(int i=1; i<=3; i++){
 	for(int j=1; j<=3; j++){
+/*	    Scalar gtildeij( gtilde.con()(i,j) ) ;
+	    Scalar u_euler_i (u_euler(i)) ;
+	    Scalar u_euler_j (u_euler(j)) ;
+	    gtildeij.std_spectral_base() ;
+	    u_euler_i.std_spectral_base() ;
+	    u_euler_j.std_spectral_base() ;
+*/
 	    stress_euler.set(i,j) = (ener_euler + press )*u_euler(i)
 		*u_euler(j) + press*gtilde.con()(i,j) ;
 	}
     }
+    stress_euler.change_triad(mp.get_bvect_spher()) ;
     stress_euler.std_spectral_base() ;
     
     //-------------------------------------------
@@ -194,5 +205,24 @@ void Star_bin::hydro_euler(){
     
     del_deriv() ;                
     
+/*    cout << " comparaison " << endl ;
+    cout << "a_car" << endl << norme(psi4) << endl ;
+    cout << "logn_auto" << endl << norme(logn_auto) << endl ;
     
+    shift_auto.change_triad(mp.get_bvect_cart()) ;
+    cout << "shift_x" << endl << norme(shift_auto(1)) << endl ;
+    cout << "shift_y" << endl << norme(shift_auto(2)) << endl ;
+    cout << "shift_z" << endl << norme(shift_auto(3)) << endl ;
+    shift_auto.change_triad(mp.get_bvect_spher()) ;
+    
+    cout << "qq" << endl << norme(qq) << endl ;
+    cout << "hij" << endl << norme(hij(1,1)) << endl ;
+  
+    u_euler.change_triad(mp.get_bvect_cart()) ;
+    cout << "u_euler_x" << endl << norme(u_euler(1)) << endl ;
+    cout << "u_euler_y" << endl << norme(u_euler(2)) << endl ;
+    cout << "u_euler_z" << endl << norme(u_euler(3)) << endl ;
+    u_euler.change_triad(mp.get_bvect_spher()) ;
+*/
+
 }

@@ -26,12 +26,14 @@
  *
  */
 
-
 char star_binupmetr_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/02/27 09:56:42  f_limousin
+ * Many minor changes.
+ *
  * Revision 1.3  2004/02/21 17:05:13  e_gourgoulhon
  * Method Scalar::point renamed Scalar::val_grid_point.
  * Method Scalar::set_point renamed Scalar::set_grid_point.
@@ -44,8 +46,10 @@ char star_binupmetr_C[] = "$Header$" ;
  */
 
 // Headers Lorene
+#include "cmp.h"
 #include "star.h"
 #include "graphique.h"
+#include "utilitaires.h"
 
 //----------------------------------//
 //	 Version without relaxation //
@@ -56,7 +60,7 @@ void Star_bin::update_metric(const Star_bin& comp) {
     // Computation of quantities coming from the companion
     // ---------------------------------------------------
 
-    int nzone = mp.get_mg()->get_nzone() ;
+    int nz = mp.get_mg()->get_nzone() ;
     int nr = mp.get_mg()->get_nr(0);
     int nt = mp.get_mg()->get_nt(0);
     int np = mp.get_mg()->get_np(0);
@@ -86,11 +90,9 @@ void Star_bin::update_metric(const Star_bin& comp) {
     (shift_comp.set(2)).import( comp_shift(2) ) ;  //
     (shift_comp.set(3)).import( comp_shift(3) ) ;  //
 
+    shift_comp.std_spectral_base() ;   
     shift_comp.change_triad(mp.get_bvect_spher()) ;
-    shift_comp.std_spectral_base() ;   // set the bases for spectral expansions
-
-
-
+ 
 
     if ( (comp.qq_auto).get_etat()  == ETATZERO ) {
 	qq_comp.set_etat_zero() ;
@@ -118,32 +120,29 @@ void Star_bin::update_metric(const Star_bin& comp) {
 	    hij_comp.set(i,j).import( (comp_hij)(i,j) ) ;
 	}
  
-    hij_comp.change_triad( mp.get_bvect_spher() ) ;
     hij_comp.std_spectral_base() ;   // set the bases for spectral expansions
-  
+    hij_comp.change_triad( mp.get_bvect_spher() ) ;
+   
 // Lapse function N
 // ----------------
 
-    Scalar logn_total = logn_auto + logn_comp ; 
+    logn = logn_auto + logn_comp ; 
 
-    nnn = exp( logn_total ) ;
+    nnn = exp( logn ) ;
 
     nnn.std_spectral_base() ;   // set the bases for spectral expansions
 
-// Shift vector beta^i
-// -------------------
-
-    shift = shift_auto + shift_comp ;
-    shift.std_spectral_base() ;
- 
 // Quantity qq = psi^2*N
 // ----------------------
 
     qq = qq_auto + qq_comp ;
-    qq.std_spectral_base() ;
+  
+    psi4 = qq * qq / (nnn * nnn) ;
 
-    psi4 = qq * qq / (nnn*nnn) ;
-    psi4.std_spectral_base() ;
+// Shift vector 
+// -------------
+
+    shift = shift_auto + shift_comp ;
 
 // Coefficients of the 3-metric tilde
 // ----------------------------------
@@ -156,34 +155,28 @@ void Star_bin::update_metric(const Star_bin& comp) {
 	    hij.set(i,j) = hij_auto(i,j) + hij_comp(i,j) ;
 	    gtilde_con.set(i,j) = hij(i,j) + flat.con()(i,j) ;
 	}
-    
+
     gtilde_con.std_spectral_base() ;
     gtilde = gtilde_con ;
+
     Sym_tensor tens_gamma = gtilde_con / psi4 ;
-    tens_gamma.std_spectral_base() ;
-
-    Sym_tensor cov1 (gtilde.cov()) ;
-    Sym_tensor con1 (gtilde.con()) ;
-
-
     gamma = tens_gamma ;
-    hij.std_spectral_base() ;
-      
-// Determinant of gtilde
+
+    // Determinant of gtilde
 
     Scalar det_gtilde (gtilde.determinant()) ;
        
-    double* max_det = new double[nzone] ;
-    double* min_det = new double[nzone] ;
-    double* moy_det = new double[nzone] ;
+    double* max_det = new double[nz] ;
+    double* min_det = new double[nz] ;
+    double* moy_det = new double[nz] ;
       
-    for (int i=0; i<nzone; i++){
+    for (int i=0; i<nz; i++){
 	min_det[i] = 2 ;
 	moy_det[i] = 0 ;
 	max_det[i] = 0 ;
     }
 
-    for (int l=0; l<nzone; l++)
+    for (int l=0; l<nz; l++)
 	for (int k=0; k<np; k++)
 	    for (int j=0; j<nt; j++)
 		for (int i=0; i<nr; i++){
@@ -198,20 +191,20 @@ void Star_bin::update_metric(const Star_bin& comp) {
 		}
      
     cout << "average determinant of gtilde in each zone : " << endl ; 
-    for (int l=0; l<nzone; l++){
+    for (int l=0; l<nz; l++){
 	cout << moy_det[l]/(nr*nt*np) << "  " ;
     }
     cout << endl ;
 
       
     cout << "maximum of the determinant of gtilde in each zone : " << endl ; 
-    for (int l=0; l<nzone; l++){
+    for (int l=0; l<nz; l++){
 	cout << max_det[l] << "  " ;
     }
     cout << endl ;
 
     cout << "minimum of the determinant of gtilde in each zone : " << endl ; 
-    for (int l=0; l<nzone; l++){
+    for (int l=0; l<nz; l++){
 	cout << min_det[l] << "  " ;
     }
     cout << endl ;
@@ -235,13 +228,13 @@ void Star_bin::update_metric(const Star_bin& comp) {
 //----------------------------------//
 
 void Star_bin::update_metric(const Star_bin& comp,
-			       const Star_bin& star_jm1, double relax) {
+			     const Star_bin& star_jm1, double relax) {
 
 
      // Computation of quantities coming from the companion
     // ---------------------------------------------------
 
-    int nzone = mp.get_mg()->get_nzone() ;
+    int nz = mp.get_mg()->get_nzone() ;
     int nr = mp.get_mg()->get_nr(0);
     int nt = mp.get_mg()->get_nt(0);
     int np = mp.get_mg()->get_np(0);
@@ -271,12 +264,10 @@ void Star_bin::update_metric(const Star_bin& comp,
     (shift_comp.set(2)).import( comp_shift(2) ) ;  //
     (shift_comp.set(3)).import( comp_shift(3) ) ;  //
 
+    shift_comp.std_spectral_base() ;   
     shift_comp.change_triad(mp.get_bvect_spher()) ;
-    shift_comp.std_spectral_base() ;   // set the bases for spectral expansions
-
-
-
-    if ( (comp.qq_auto).get_etat()  == ETATZERO ) {
+ 
+   if ( (comp.qq_auto).get_etat()  == ETATZERO ) {
 	qq_comp.set_etat_zero() ;
     }
     else{
@@ -287,6 +278,7 @@ void Star_bin::update_metric(const Star_bin& comp,
     }	
 
     hij_comp.set_triad(mp.get_bvect_cart()) ;
+
     Tensor comp_hij(comp.hij_auto) ;
     comp_hij.change_triad(mp_comp.get_bvect_cart()) ;
     comp_hij.change_triad(mp.get_bvect_cart()) ;
@@ -301,19 +293,19 @@ void Star_bin::update_metric(const Star_bin& comp,
 	    hij_comp.set(i,j).import( (comp_hij)(i,j) ) ;
 	}
  
+    hij_comp.std_spectral_base() ;
     hij_comp.change_triad( mp.get_bvect_spher() ) ;
-    hij_comp.std_spectral_base() ;   // set the bases for spectral expansions
-  
 
 
   
-// Relaxation on logn_comp, shift_comp, qq_comp, hij_comp
+// Relaxation on logn_comp, beta_tilde_comp, qq_comp, hij_comp
 // ---------------------------------------------------------------
     double relaxjm1 = 1. - relax ; 
     
     logn_comp = relax * logn_comp + relaxjm1 * (star_jm1.logn_comp) ; 
     
-    shift_comp = relax * shift_comp + relaxjm1 * (star_jm1.shift_comp) ; 
+    shift_comp = relax * shift_comp + relaxjm1 
+	                               * (star_jm1.shift_comp) ; 
 
     qq_comp = relax * qq_comp + relaxjm1 * (star_jm1.qq_comp) ;
 
@@ -329,32 +321,31 @@ void Star_bin::update_metric(const Star_bin& comp,
 // Lapse function N
 // ----------------
 
-    Scalar logn_total = logn_auto + logn_comp ; 
+    logn = logn_auto + logn_comp ; 
 
-    nnn = exp( logn_total ) ;
+    nnn = exp( logn ) ;
 
     nnn.std_spectral_base() ;   // set the bases for spectral expansions
+
+
+// Quantity qq = psi^2*N
+// ----------------------
+
+    qq = qq_auto + qq_comp ;
+
+    psi4 = qq * qq / (nnn*nnn) ;
 
 // Shift vector beta^i
 // -------------------
 
     shift = shift_auto + shift_comp ;
-    shift.std_spectral_base() ;
- 
-// Quantity qq = psi^2*N
-// ----------------------
-
-    qq = qq_auto + qq_comp ;
-    qq.std_spectral_base() ;
-
-    psi4 = qq * qq / (nnn*nnn) ;
-    psi4.std_spectral_base() ;
-
+    
 // Coefficients of the 3-metric tilde
 // ----------------------------------
      
     Sym_tensor gtilde_con(mp, CON, mp.get_bvect_spher()) ;
-  
+    hij_auto.std_spectral_base() ;
+
     for(int i=1; i<=3; i++) 
 	for(int j=i; j<=3; j++) {
    
@@ -365,25 +356,24 @@ void Star_bin::update_metric(const Star_bin& comp,
     gtilde_con.std_spectral_base() ;
     gtilde = gtilde_con ;
     Tensor tens_gamma(gtilde_con / psi4) ;
-    tens_gamma.std_spectral_base() ;
     gamma = tens_gamma ;
-    hij.std_spectral_base() ;
       
+
 // Determinant of gtilde
 
     Scalar det_gtilde (gtilde.determinant()) ;
        
-    double* max_det = new double[nzone] ;
-    double* min_det = new double[nzone] ;
-    double* moy_det = new double[nzone] ;
+    double* max_det = new double[nz] ;
+    double* min_det = new double[nz] ;
+    double* moy_det = new double[nz] ;
       
-    for (int i=0; i<nzone; i++){
+    for (int i=0; i<nz; i++){
 	min_det[i] = 2 ;
 	moy_det[i] = 0 ;
 	max_det[i] = 0 ;
     }
 
-    for (int l=0; l<nzone; l++)
+    for (int l=0; l<nz; l++)
 	for (int k=0; k<np; k++)
 	    for (int j=0; j<nt; j++)
 		for (int i=0; i<nr; i++){
@@ -398,20 +388,20 @@ void Star_bin::update_metric(const Star_bin& comp,
 		}
      
     cout << "average determinant of gtilde in each zone : " << endl ; 
-    for (int l=0; l<nzone; l++){
+    for (int l=0; l<nz; l++){
 	cout << moy_det[l]/(nr*nt*np) << "  " ;
     }
     cout << endl ;
 
       
     cout << "maximum of the determinant of gtilde in each zone : " << endl ; 
-    for (int l=0; l<nzone; l++){
+    for (int l=0; l<nz; l++){
 	cout << max_det[l] << "  " ;
     }
     cout << endl ;
 
     cout << "minimum of the determinant of gtilde in each zone : " << endl ; 
-    for (int l=0; l<nzone; l++){
+    for (int l=0; l<nz; l++){
 	cout << min_det[l] << "  " ;
     }
     cout << endl ;
@@ -428,12 +418,41 @@ void Star_bin::update_metric(const Star_bin& comp,
 
 }
 
-void Star_bin::update_metric_init() {
+void Star_bin::update_metric_init1(const Star_bin& comp) {
 
-    logn_auto = logn - 1 + decouple ;
-    qq_auto = qq - 1 + decouple ;
-
+    logn_auto = logn ;
     
+    if ( (comp.logn).get_etat() == ETATZERO ) {
+	logn_comp.set_etat_zero() ;
+    }
+    else{
+	logn_comp.set_etat_qcq() ;
+	logn_comp.import_symy( comp.logn ) ;
+	logn_comp.std_spectral_base() ;  // set the bases for spectral expansions
+    }
+    
+    logn = logn_auto + logn_comp ; 
 }
 
+void Star_bin::update_metric_init2(const Star_bin& comp) {
 
+    logn_auto = logn ;
+    
+    if ( (comp.logn_auto).get_etat() == ETATZERO ) {
+	logn_comp.set_etat_zero() ;
+    }
+    else{
+	logn_comp.set_etat_qcq() ;
+	logn_comp.import_symy( comp.logn_auto ) ;
+	logn_comp.std_spectral_base() ;  // set the bases for spectral expansions
+    }
+    
+    logn = logn_auto + logn_comp ; 
+}
+
+void Star_bin::update_metric_init3() {
+
+    logn_auto = logn ;
+    qq_auto = qq - 1 + decouple ;
+
+}
