@@ -25,6 +25,10 @@ char map_af_dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/06/08 10:02:41  j_novak
+ * One can use any initial profile with enhanced (type 2) boundary
+ * conditions (no more need to satisfy Sommerfeld at the beginning).
+ *
  * Revision 1.11  2004/03/04 15:15:48  e_gourgoulhon
  * Treatment of case fj in state ETATZERO at the end.
  *
@@ -279,14 +283,37 @@ void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar&
       par.add_tbl_mod(*tbc3,1) ;
       // Hereafter the enhanced outgoing-wave condition needs 2 auxiliary
       // functions phij and phijm1 to define the evolution on the boundary
-      // surface (outer sphere).
+      // surface (outer sphere). These are defined using the initial values
+      // of the field.
       if (par.get_int(0) == 2) {
 	phijm1 = new Tbl(np2,nt) ;
 	phij = new Tbl(np2,nt) ;
 	par.add_tbl_mod(*phijm1,2) ;
 	par.add_tbl_mod(*phij,3) ;
-	phij->annule_hard() ;
-	phijm1->annule_hard() ;
+	Scalar tmpj = fj.dsdr() ;
+	tmpj.dec_dzpuis(tmpj.get_dzpuis()) ;
+	tmpj +=  (fj-fjm1)/dt + fj/R ;
+	Scalar tmpjm1 = fjm1.dsdr() ;
+	tmpjm1.dec_dzpuis(2) ;
+	tmpjm1 =+ (fj-fjm1)/dt +fjm1/R ;
+	tmpj.set_spectral_va().ylm() ;
+	tmpjm1.set_spectral_va().ylm() ;
+	phij->set_etat_qcq() ;
+	phijm1->set_etat_qcq() ;
+	for (int k=0; k<np2; k++) {
+	  for (int j=0; j<nt; j++) {
+	    double val = 0 ;
+	    if (tmpj.get_etat() != ETATZERO) 
+	      for (int i=0; i<nr; i++) val += 
+		 tmpj.get_spectral_va().c_cf->operator()(nz0-1, k, j, i) ;
+	    phij->set(k,j) = val ;
+	    val = 0 ;
+	    if (tmpj.get_etat() != ETATZERO) 
+	      for (int i=0; i<nr; i++) val += 
+		 tmpjm1.get_spectral_va().c_cf->operator()(nz0-1, k, j, i) ;
+	    phijm1->set(k,j) = val ;
+	  }
+	}
       }
       nap = 1 ;
     }
