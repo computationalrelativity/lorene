@@ -32,9 +32,6 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.3  2003/10/03 14:10:32  e_gourgoulhon
- * Added constructor from Tensor.
- *
  * Revision 1.2  2003/10/03 14:08:46  j_novak
  * Removed old change_trid...
  *
@@ -79,15 +76,6 @@ Vector::Vector (const Vector& source) :
   assert(valence == 1) ;
 
 }   
-
-
-// Constructor from a {\tt Tensor}.
-//--------------------------------
-Vector::Vector(const Tensor& uu) : Tensor(uu) {
-
-	assert(valence == 1) ;
-
-}
 
 
 // Constructor from a file
