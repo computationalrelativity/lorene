@@ -36,6 +36,12 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.36  2004/01/08 09:21:39  e_gourgoulhon
+ * Added arithmetics of Tensor_sym.
+ * Added arithmetics with Scalar (to solve some ambiguities with respect
+ * to the Scalar arithmetics).
+ * Added Tensor_sym tensorial product.
+ *
  * Revision 1.35  2004/01/04 20:47:37  e_gourgoulhon
  * -- Introduction of new derived class Tensor_sym to store tensor with
  *    two symmetric indices
@@ -798,8 +804,13 @@ class Tensor {
     // Mathematical operators
     // ----------------------
     
-    friend Tensor operator* (const Tensor&, const Tensor&) ; 
- 	
+    friend Scalar operator+(const Tensor&, const Scalar&) ;
+    friend Scalar operator+(const Scalar&, const Tensor&) ;
+    friend Scalar operator-(const Tensor&, const Scalar&) ;
+    friend Scalar operator-(const Scalar&, const Tensor&) ;
+    friend Tensor operator*(const Tensor&, const Tensor&) ; 
+    friend Tensor_sym operator*(const Tensor&, const Tensor_sym&) ; 
+    friend Tensor_sym operator*(const Tensor_sym&, const Tensor&) ; 	
    
 };
 
@@ -981,6 +992,12 @@ class Tensor_sym : public Tensor {
     public:
 	virtual void sauve(FILE *) const ;      /// Save in a binary file
 	
+    // Mathematical operators
+    // ----------------------
+    
+    friend Tensor_sym operator*(const Tensor&, const Tensor_sym&) ; 
+    friend Tensor_sym operator*(const Tensor_sym&, const Tensor&) ; 
+ 	
 }; 
 
 
@@ -989,8 +1006,14 @@ class Tensor_sym : public Tensor {
  * @name Tensor calculus
  */
 //@{
-/// Tensorial product.
-Tensor operator*(const Tensor&, const Tensor&) ; 
+/// Tensorial product
+Tensor operator*(const Tensor& a, const Tensor& b) ; 
+
+/// Tensorial product with symmetries
+Tensor_sym operator*(const Tensor& a, const Tensor_sym& b) ; 
+
+/// Tensorial product with symmetries
+Tensor_sym operator*(const Tensor_sym& a, const Tensor& b) ; 
 
 /** Contraction of two tensors. 
  *
@@ -1080,20 +1103,110 @@ Tbl diffrelmax(const Tensor& aa, const Tensor& bb, ostream& ost = cout) ;
 
 
 /**
- * @name Tensor mathematics
+ * @name Tensor arithmetics
  */
     //@{
 Tensor operator+(const Tensor& ) ;			/// + Tensor
 Tensor operator-(const Tensor& ) ;			/// - Tensor
-Tensor operator+(const Tensor&, const Tensor &) ;	/// Tensor + Tensor
-Tensor operator-(const Tensor&, const Tensor &) ;       /// Tensor - Tensor
+Tensor operator+(const Tensor& a, const Tensor& b) ;	/// Tensor + Tensor
+
+/// Tensor + Scalar. The {\tt Tensor} must be of valence 0.
+Scalar operator+(const Tensor& a, const Scalar& b) ;	
+
+/// Scalar + Tensor. The {\tt Tensor} must be of valence 0.
+Scalar operator+(const Scalar& a, const Tensor& b) ;	
+
+Tensor operator-(const Tensor& a, const Tensor& b) ;    /// Tensor - Tensor
+
+/// Tensor - Scalar. The {\tt Tensor} must be of valence 0.
+Scalar operator-(const Tensor& a, const Scalar& b) ;	
+
+/// Scalar - Tensor. The {\tt Tensor} must be of valence 0.
+Scalar operator-(const Scalar& a, const Tensor& b) ;	
+
+Tensor operator*(const Scalar& a , const Tensor& b) ;   /// Scalar * Tensor
+Tensor operator*(const Tensor& a, const Scalar& b) ;    /// Tensor * Scalar 
 Tensor operator*(double , const Tensor&) ;              /// double * Tensor
 Tensor operator* (const Tensor&, double) ;              /// Tensor * double
 Tensor operator*(int, const Tensor &) ;                 /// int* Tensor
-Tensor operator* (const Tensor&, int) ;                 /// Tensor * int
-Tensor operator/ (const Tensor&, const Scalar&) ;       /// Tensor / Scalar
-Tensor operator/ (const Tensor&, double) ;              /// Tensor / double
-Tensor operator/ (const Tensor&, int) ;                 /// Tensor / int
+Tensor operator*(const Tensor&, int) ;                 /// Tensor * int
+Tensor operator/(const Tensor&, const Scalar&) ;       /// Tensor / Scalar
+Tensor operator/(const Tensor&, double) ;              /// Tensor / double
+Tensor operator/(const Tensor&, int) ;                 /// Tensor / int
+
+    //@}
+
+/**
+ * @name Tensor\_sym arithmetics
+ */
+    //@{
+/** + Tensor\_sym.  For efficiency reasons this function is 
+ *  distinct from {\tt Tensor operator+(const Tensor\& )}.
+ */
+Tensor_sym operator+(const Tensor_sym&) ;  
+
+/** - Tensor\_sym.  For efficiency reasons this function is 
+ *  distinct from {\tt Tensor operator+(const Tensor\& )}.
+ */
+Tensor_sym operator-(const Tensor_sym&) ;  
+
+/** Tensor\_sym + Tensor\_sym.  For efficiency reasons this function is 
+ *  distinct
+ *  from {\tt Tensor operator+(const Tensor\&, const Tensor\&)}.
+ */
+Tensor_sym operator+(const Tensor_sym&, const Tensor_sym&) ;  
+
+Tensor operator-(const Tensor&, const Tensor &) ;       /// Tensor - Tensor
+/** Tensor\_sym - Tensor\_sym. For efficiency reasons this function is 
+ *  distinct
+ *  from {\tt Tensor operator-(const Tensor\&, const Tensor\&)}.
+ */
+Tensor_sym operator-(const Tensor_sym&, const Tensor_sym&) ;  
+
+/** Scalar * Tensor\_sym. For efficiency reasons this function is distinct
+ *  from {\tt Tensor operator*(const Scalar\&, const Tensor\&)}.
+ */
+Tensor_sym operator*(const Scalar& a, const Tensor_sym& b) ;   
+
+/** Tensor\_sym * Scalar. For efficiency reasons this function is distinct
+ *  from {\tt Tensor operator*(const Tensor\&, const Scalar\&)}.
+ */
+Tensor_sym operator*(const Tensor_sym& a, const Scalar& b) ;  
+
+/** double * Tensor\_sym. For efficiency reasons this function is distinct
+ *  from {\tt Tensor operator*(double, const Tensor\&)}.
+ */
+Tensor_sym operator*(double, const Tensor_sym&) ;  
+
+/**  Tensor\_sym * double. For efficiency reasons this function is distinct
+ *  from {\tt Tensor operator*(const Tensor\&, double)}.
+ */
+Tensor_sym operator*(const Tensor_sym&, double) ;  
+
+/** int * Tensor\_sym. For efficiency reasons this function is distinct
+ *  from {\tt Tensor operator*(int, const Tensor\&)}.
+ */
+Tensor_sym operator*(int, const Tensor_sym&) ;  
+
+/**  Tensor\_sym * int. For efficiency reasons this function is distinct
+ *  from {\tt Tensor operator*(const Tensor\&, int)}.
+ */
+Tensor_sym operator*(const Tensor_sym&, int) ;  
+
+/** Tensor\_sym / Scalar. For efficiency reasons this function is distinct
+ *  from {\tt Tensor operator/(const Tensor\&, const Scalar\&)}.
+ */
+Tensor_sym operator/(const Tensor_sym&, const Scalar&) ;  
+
+/**  Tensor\_sym / double. For efficiency reasons this function is distinct
+ *  from {\tt Tensor operator/(const Tensor\&, double)}.
+ */
+Tensor_sym operator/(const Tensor_sym&, double) ;  
+
+/**  Tensor\_sym / int. For efficiency reasons this function is distinct
+ *  from {\tt Tensor operator/(const Tensor\&, int)}.
+ */
+Tensor_sym operator/(const Tensor_sym&, int) ;  
 
     //@}
 
