@@ -28,6 +28,17 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/26 08:22:13  e_gourgoulhon
+ * *** Full reorganization of class Evolution ***
+ * Introduction of the notion of absoluteuniversal time steps,
+ * stored in the new array 'step'.
+ * The new function position(int j) makes a correspondence
+ * between a universal time step j and the position in the
+ * arrays step, the_time and val.
+ * Only method update is now virtual.
+ * Methods operator[], position, is_known, downdate belong to
+ * the base class.
+ *
  * Revision 1.4  2004/03/23 14:50:41  e_gourgoulhon
  * Added methods is_updated, downdate, get_jlast, get_size,
  * as well as constructors without any initial value.
@@ -64,9 +75,9 @@
 
                     
 template<typename TyT> 
-Evolution_full<TyT>::Evolution_full(const TyT& initial_value, 
+Evolution_full<TyT>::Evolution_full(const TyT& initial_value, int initial_j,
                             double initial_time, int fact_resize_i)
-      : Evolution<TyT>(initial_value, initial_time, 100), 
+      : Evolution<TyT>(initial_value, initial_j, initial_time, 100), 
         fact_resize(fact_resize_i) 
 { }    
                        
@@ -119,109 +130,80 @@ void Evolution_full<TyT>::operator=(const Evolution<TyT>& ) {
 
                     
 template<typename TyT> 
-void Evolution_full<TyT>::update(const TyT& new_value, double new_time) {
+void Evolution_full<TyT>::update(const TyT& new_value, int j, 
+                                 double time_j) {
 
-    jlast++ ; 
-         
-    if (jlast == size) {  // re-organization of arrays val and the_time is necessary
     
-        int size_new = fact_resize * size ; 
-
-        TyT** val_new = new TyT*[size_new] ; 
-        for (int j=0; j<size; j++) {
-            val_new[j] = val[j] ; 
-        }
-        for (int j=size; j<size_new; j++) {
-            val_new[j] = 0x0 ; 
-        }
-            
-        double* the_time_new = new double[size_new] ;
-        for (int j=0; j<size; j++) {
-            the_time_new[j] = the_time[j] ; 
-        }
-        for (int j=size; j<size_new; j++) {
-            the_time_new[j] = -1e20 ; 
-        }
-            
-        size = size_new ;
-        delete [] val ; 
-        val = val_new ;  
-        delete [] the_time ; 
-        the_time = the_time_new ; 
-            
+    if (is_known(j)) {   // Case of a time step already stored
+                         //-----------------------------------
+        int pos = position(j) ; 
+        assert( fabs(the_time[pos] - time_j) < 1.e-14 ) ;   
+        delete val[pos] ; 
+        val[pos] = new TyT(new_value) ; 
     }
-    else {
-        assert( jlast < size ) ; 
-        assert( val[jlast] == 0x0 ) ; 
-    }
+    else {              // Storage of a new time step
+                        //---------------------------
+        if ( (pos_jtop != -1) && (j < step[pos_jtop]) ) {
+            cerr << 
+                "Evolution_full<TyT>::update : the time step j = "
+                << j << " must be in the future\n" 
+                << "  of the last stored time step (" <<  step[pos_jtop] << ") !"
+                << endl ; 
+            abort() ; 
+        }
+          
+        pos_jtop++ ; 
+            
+        if (pos_jtop == size) {  // re-organization of arrays step, the_time 
+                                // and val is necessary
     
-    val[jlast] = new TyT( new_value ) ; 
-    the_time[jlast] = new_time ; 
+            int size_new = fact_resize * size ; 
 
+            int* step_new = new int[size_new] ;
+            for (int i=0; i<size; i++) {
+                step_new[i] = step[i] ; 
+            }
+            for (int i=size; i<size_new; i++) {
+                step_new[i] = -10000 ; 
+            }
+            
+            double* the_time_new = new double[size_new] ;
+            for (int i=0; i<size; i++) {
+                the_time_new[i] = the_time[i] ; 
+            }
+            for (int i=size; i<size_new; i++) {
+                the_time_new[i] = -1e20 ; 
+            }
+            
+            TyT** val_new = new TyT*[size_new] ; 
+            for (int i=0; i<size; i++) {
+                val_new[i] = val[i] ; 
+            }
+            for (int i=size; i<size_new; i++) {
+                val_new[i] = 0x0 ; 
+            }
+            
+            size = size_new ;
+            delete [] step ; 
+            step = step_new ;  
+            delete [] the_time ; 
+            the_time = the_time_new ; 
+            delete [] val ; 
+            val = val_new ;  
+            
+        }
+        else {
+            assert( pos_jtop < size ) ; 
+            assert( val[pos_jtop] == 0x0 ) ; 
+        }
+    
+        step[pos_jtop] = j ;
+        the_time[pos_jtop] = time_j ; 
+        val[pos_jtop] = new TyT( new_value ) ; 
+    }
 }                   
                     
 
-template<typename TyT> 
-void Evolution_full<TyT>::downdate() {
-
-    if (jlast == -1) return ;  // a never updated Evolution_full cannot
-                               // be downdated
-    
-    assert( val[jlast] != 0x0) ; 
-
-    delete val[jlast] ; 
-    val[jlast] = 0x0 ; 
-    the_time[jlast] = -1e20 ; 
-
-    jlast-- ; 
-    
-}
 
 
 
-                    
-                    //-----------------------//
-                    //      Accessors        //
-                    //-----------------------//
-
-                 
-template<typename TyT> 
-const TyT& Evolution_full<TyT>::operator[](int j) const {
-
-    assert(j >= 0) ;
-    assert(j < size) ; 
-    
-    if (j > jlast) {
-        cerr << 
-        "Evolution_full<TyT>::operator[] : required time step too far\n" 
-        << "  in the future !" << endl ; 
-        abort() ; 
-    }
-    
-    TyT* pval = val[j] ; 
-    assert(pval != 0x0) ; 
-    
-    return *pval ; 
-
-}                  
-                    
-                    
-template<typename TyT> 
-double Evolution_full<TyT>::get_time(int j) const {
-
-    assert(j >= 0) ;
-    assert(j < size) ; 
-        
-    return the_time[j] ; 
-
-}                  
-                    
-template<typename TyT> 
-bool Evolution_full<TyT>::is_updated(int j) const {
-
-    if ((j < 0) || (j >= size)) return false ;
-    
-    return ( val[j] != 0x0 ) ; 
-
-}                  
-                    

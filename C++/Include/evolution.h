@@ -31,6 +31,17 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/03/26 08:22:12  e_gourgoulhon
+ * *** Full reorganization of class Evolution ***
+ * Introduction of the notion of absoluteuniversal time steps,
+ * stored in the new array 'step'.
+ * The new function position(int j) makes a correspondence
+ * between a universal time step j and the position in the
+ * arrays step, the_time and val.
+ * Only method update is now virtual.
+ * Methods operator[], position, is_known, downdate belong to
+ * the base class.
+ *
  * Revision 1.7  2004/03/24 14:55:46  e_gourgoulhon
  * Added method last_value().
  *
@@ -84,17 +95,22 @@ template<typename TyT> class Evolution {
     // -----
     
     protected: 
-        /// Maximum number of stored time steps
+        /// Maximum number of stored time steps.
         int size ; 
         
-        /// Array of pointers onto the values (size = \c size) 
-        TyT** val ; 
+        /// Array of time step indices (size = \c size).
+        int* step ; 
         
-        /// Array of successive time steps
+        /// Array of values of t at the various time steps (size = \c size).
         double* the_time ; 
       
-        /// Index of last updated time step for the object
-        int jlast ; 
+        /// Array of pointers onto the values (size = \c size). 
+        TyT** val ; 
+        
+        /** Position in the arrays \c step, \c the_time and \c val 
+         *  of the most evolved time step.
+         */ 
+        int pos_jtop ; 
       
         
     // Constructors - Destructor
@@ -103,11 +119,12 @@ template<typename TyT> class Evolution {
         /** Constructor from some initial value.
          *
          */
-        Evolution(const TyT& initial_value, double initial_time, int size_i) ;			
+        Evolution(const TyT& initial_value, int initial_j, 
+                  double initial_time, int initial_size) ;			
 	
         /** Constructor without any initial value. 
          */
-        Evolution(int size_i) ;			
+        Evolution(int initial_size) ;			
 	
         Evolution(const Evolution<TyT>& t_in) ;		///< Copy constructor
 
@@ -117,16 +134,15 @@ template<typename TyT> class Evolution {
  
     // Mutators 
     // --------
-        /** Updates: sets a new value at a new time step.
-         *  Increases accordingly \c jlast. 
+    public:
+        /** Sets a new value at a given time step.
          */
-        virtual void update(const TyT& new_value, double new_time) = 0 ; 
+        virtual void update(const TyT& new_value, int j, 
+                            double time_j) = 0 ; 
         
-        /** Suppresses the latest stored value. 
-         *  Decreases accordingly \c jlast.
-         *  This operation is the reverse of \c update. 
+        /** Suppresses a stored value. 
          */
-        virtual void downdate() = 0 ; 
+        void downdate(int j) ; 
         
         /// Assignement
         virtual void operator=(const Evolution<TyT>& t_in) ;
@@ -134,30 +150,34 @@ template<typename TyT> class Evolution {
     
     // Accessors
     // ---------
+    protected: 
+        /** Gives the position in the arrays \c step, \c the_time and
+         * \c val corresponding to the time step j
+         */
+        int position(int j) const ; 
+        
+    public:
         /// Returns the value at time step j
-        virtual const TyT& operator[](int j) const = 0 ;
+        const TyT& operator[](int j) const ;
 
-        /// Returns the latest stored element
-        const TyT& last_value() const ; 
-
+        /// Returns the time t at time step j
+        double get_time(int j) const {return the_time[position(j)];} ;
+        
         /// Returns the value at time t
         TyT operator()(double t) const ;
 
-        /// Returns the time t at time step j
-        virtual double get_time(int j) const = 0 ;
-        
         /// Returns the member \c size
         int get_size() const {return size; } ; 
 
-        /// Returns the member \c jlast
-        int get_jlast() const {return jlast; } ; 
+        /// Returns the member \c jtop
+        int get_jtop() const {return jtop; } ; 
 
         /** Checks whether the value a given time step has been set
          * @param j time step index
          * @return \c true if the value at time step j is known, \c false
          *  otherwise
          */
-        virtual bool is_updated(int j) const = 0 ; 
+        bool is_known(int j) const ; 
         
         
 
@@ -218,15 +238,16 @@ template<typename TyT> class Evolution_full : public Evolution<TyT> {
     public:
         /** Constructor from initial value.
          *  
-         * @param initial_value value to be stored at time step 0
-         * @param initial_time  time t corresponding to time step 0
+         * @param initial_value value to be stored at time step \c initial_j
+         * @param initial_j index \c j of first time step to be stored
+         * @param initial_time  time t corresponding to time step \c initial_j
          * @param fact_resize_i factor by which the size \c size of the arrays 
          *  \c val and \c the_time are to be multiplied when 
          *  their limits have been reached.
          *
          */
-        Evolution_full(const TyT& initial_value, double initial_time, 
-                  int fact_resize_i = 2) ;			
+        Evolution_full(const TyT& initial_value, int initial_j = 0,
+                       double initial_time = 0., int fact_resize_i = 2) ;			
 	
         /** Constructor without any initial value.
          *  
@@ -244,20 +265,14 @@ template<typename TyT> class Evolution_full : public Evolution<TyT> {
  
     // Mutators 
     // --------
-        /** Updates: sets a new value at a new time step.
-         *  Increases accordingly \c jlast. 
-         *  If the size of the array of stored values (member \c val) is not 
-         *  sufficient, 
-         *  it is increased by multiplication by \c fact_resize. 
+    public:
+        /** Sets a new value at a given time step.
+         *  If the size of the arrays of stored values 
+         * (members \c step, \c the_time, \c val) is not 
+         *  sufficient, it is increased by multiplication by \c fact_resize. 
          */
-        virtual void update(const TyT& new_value, double new_time) ; 
-    
-        /** Suppresses the latest stored value. 
-         *  Decreases accordingly \c jlast.
-         *  This operation is the reverse of \c update, except that the 
-         *  size of the array of stored values (member \c val) is never reduced.  
-         */
-        virtual void downdate() ; 
+        virtual void update(const TyT& new_value, int j, 
+                            double time_j) ; 
         
         /// Assignement to another \c Evolution_full
         virtual void operator=(const Evolution_full<TyT>& t_in) ;
@@ -268,18 +283,6 @@ template<typename TyT> class Evolution_full : public Evolution<TyT> {
     
     // Accessors
     // ---------
-        /// Returns the value at time step j
-        virtual const TyT& operator[](int j) const ;
-
-        /// Returns the time t at time step j
-        virtual double get_time(int j) const ;
-
-        /** Checks whether the value a given time step has been set
-         * @param j time step index
-         * @return \c true if the value at time step j is known, \c false
-         *  otherwise
-         */
-        virtual bool is_updated(int j) const ; 
 
     // Outputs
     // -------
@@ -308,28 +311,19 @@ template<typename TyT> class Evolution_full : public Evolution<TyT> {
 template<typename TyT> class Evolution_std : public Evolution<TyT> {
 
         
-    // Data:
-    // -----
-    protected:
-    
-        /** Position of the time step jlast in the arrays 
-         * \c val and \c the_time
-         */
-        int pos_jlast ; 
-    
-        
     // Constructors - Destructor
     // -------------------------
     public:
         /** Constructor from initial value.
          *  
-         * @param initial_value value to be stored at time step 0
-         * @param initial_time  time t corresponding to time step 0
+         * @param initial_value value to be stored at time step \c initial_j
+         * @param initial_j index \c j of first time step to be stored
+         * @param initial_time  time t corresponding to time step \c initial_j
          * @param nstored total number of time steps to be stored
          *
          */
-        Evolution_std(const TyT& initial_value, double initial_time, 
-                  int nstored) ;			
+        Evolution_std(const TyT& initial_value, int nstored, 
+                      int initial_j = 0, double initial_time = 0.) ;			
 	
         /** Constructor without any initial value.
          *  
@@ -345,22 +339,13 @@ template<typename TyT> class Evolution_std : public Evolution<TyT> {
  
     // Mutators 
     // --------
-        /** Updates: sets a new value at a new time step.
-         *  Increases accordingly \c jlast. 
-         *  If the size of the array of stored values (member \c val) 
-         *  is not sufficient, 
-         *  this method suppresses the oldest stored value. 
+        /** Sets a new value at a given time step.
+         *  If the size of the arrays of stored values 
+         * (members \c step, \c the_time, \c val) is not 
+         *  sufficient, this method suppresses the oldest stored value. 
          */
-        virtual void update(const TyT& new_value, double new_time) ; 
+        virtual void update(const TyT& new_value, int j, double time_j) ; 
     
-        /** Suppresses the latest stored value. 
-         *  Decreases accordingly \c jlast.
-         *  This operation is the reverse of \c update, except that 
-         *  the oldest time step stored before the call to \c update
-         *  is not recovered. 
-         */
-        virtual void downdate() ; 
-        
         /// Assignement to another \c Evolution_std
         virtual void operator=(const Evolution_std<TyT>& t_in) ;
 
@@ -369,18 +354,6 @@ template<typename TyT> class Evolution_std : public Evolution<TyT> {
 
     // Accessors
     // ---------
-        /// Returns the value at time step j
-        virtual const TyT& operator[](int j) const ;
-
-        /// Returns the time t at time step j
-        virtual double get_time(int j) const ;
-
-        /** Checks whether the value a given time step has been set
-         * @param j time step index
-         * @return \c true if the value at time step j is known, \c false
-         *  otherwise
-         */
-        virtual bool is_updated(int j) const ; 
 
     // Outputs
     // -------

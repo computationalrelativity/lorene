@@ -28,6 +28,17 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/03/26 08:22:13  e_gourgoulhon
+ * *** Full reorganization of class Evolution ***
+ * Introduction of the notion of absoluteuniversal time steps,
+ * stored in the new array 'step'.
+ * The new function position(int j) makes a correspondence
+ * between a universal time step j and the position in the
+ * arrays step, the_time and val.
+ * Only method update is now virtual.
+ * Methods operator[], position, is_known, downdate belong to
+ * the base class.
+ *
  * Revision 1.6  2004/03/24 14:55:47  e_gourgoulhon
  * Added method last_value().
  *
@@ -70,48 +81,51 @@
 
                     
 template<typename TyT> 
-Evolution<TyT>::Evolution(const TyT& initial_value, double initial_time,
-    int size_i)
+Evolution<TyT>::Evolution(const TyT& initial_value, int initial_step,
+                          double initial_time, int size_i)
       : size(size_i),
-        jlast(0) {
+        pos_jtop(0) {
 
-    val = new TyT*[size] ; 
-    
-    val[0] = new TyT(initial_value) ; 
-
+    step = new int[size] ; 
+    step[0] = initial_step ; 
     for (int j=1; j<size; j++) {
-        val[j] = 0x0 ; 
+        step[j] = -10000 ; 
     }
     
     the_time = new double[size] ; 
-    
     the_time[0] = initial_time ; 
-
     for (int j=1; j<size; j++) {
         the_time[j] = -1e20 ; 
     }
     
-    
+    val = new TyT*[size] ; 
+    val[0] = new TyT(initial_value) ; 
+    for (int j=1; j<size; j++) {
+        val[j] = 0x0 ; 
+    }
+        
 }                    
 
                     
 template<typename TyT> 
 Evolution<TyT>::Evolution(int size_i)
       : size(size_i),
-        jlast(-1) {
+        pos_jtop(-1) {
 
-    val = new TyT*[size] ; 
-    
+    step = new int[size] ; 
     for (int j=0; j<size; j++) {
-        val[j] = 0x0 ; 
+        step[j] = -10000 ; 
     }
     
     the_time = new double[size] ; 
-    
     for (int j=0; j<size; j++) {
         the_time[j] = -1e20 ; 
     }
     
+    val = new TyT*[size] ; 
+    for (int j=0; j<size; j++) {
+        val[j] = 0x0 ; 
+    }    
     
 }                    
                     
@@ -120,10 +134,19 @@ Evolution<TyT>::Evolution(int size_i)
 template<typename TyT> 
 Evolution<TyT>::Evolution(const Evolution<TyT>& evo)
       : size(evo.size),
-        jlast(evo.jlast) {
+        pos_jtop(evo.pos_jtop) {
 
-    val = new TyT*[size] ; 
+    step = new int[size] ; 
+    for (int j=0; j<size; j++) {
+        step[j] = evo.step[j] ; 
+    }
     
+    the_time = new double[size] ; 
+    for (int j=0; j<size; j++) {
+        the_time[j] = evo.the_time[j] ; 
+    }
+    
+    val = new TyT*[size] ; 
     for (int j=0; j<size; j++) {
         if (evo.val[j] != 0x0) {
             val[j] = new TyT( *(evo.val[j]) ) ; 
@@ -131,12 +154,6 @@ Evolution<TyT>::Evolution(const Evolution<TyT>& evo)
         else {
             val[j] = 0x0 ; 
         }
-    }
-    
-    the_time = new double[size] ; 
-    
-    for (int j=0; j<size; j++) {
-        the_time[j] = evo.the_time[j] ; 
     }
     
     
@@ -153,26 +170,18 @@ Evolution<TyT>::Evolution(const Evolution<TyT>& evo)
 template<typename TyT> 
 Evolution<TyT>::~Evolution(){
 
+    delete [] step ; 
+    delete [] the_time ; 
+
     for (int j=0; j<size; j++) {
         if (val[j] != 0x0) delete val[j] ; 
     }
     
     delete [] val ;
-    delete [] the_time ; 
     
 }
                     
                     
-                    //---------------------//
-                    //    Accessors        //
-                    //---------------------//
-
-template<typename TyT> 
-const TyT& Evolution<TyT>::last_value() const {
-
-    return operator[](jlast)  ; 
-} 
-
 
                     //-----------------------//
                     //      Mutators         //
@@ -188,8 +197,100 @@ void Evolution<TyT>::operator=(const Evolution<TyT>& ) {
 }
 
 
+template<typename TyT> 
+void Evolution<TyT>::downdate(int j) {
+
+    if ( !(is_known(j)) ) return ;  // a never updated step cannot
+                                    // be downdated
+    
+    int pos = position(j) ; 
+    
+    assert( val[pos] != 0x0) ; 
+
+    delete val[pos] ; 
+    val[pos] = 0x0 ; 
+    step[pos] = -10000 ; 
+    the_time[pos] = -1e20 ; 
+
+    if (pos == pos_jtop) {  // pos_jtop must be decreased
+        pos_jtop-- ; 
+        while ( (val[pos_jtop] == 0x0) && (pos_jtop>=0) ) pos_jtop-- ;
+    }
+    
+}
+
+
                     
                     
+                        //------------//
+                        // Accessors  //
+                        //------------//
+
+template<typename TyT> 
+int Evolution<TyT>::position(int j) const {
+    
+    assert(pos_jtop >= 0) ; 
+    int jmax = step[pos_jtop] ; 
+    
+    if (j == jmax) return pos_jtop ;   // for efficiency purpose
+    
+    int pos = - 1 ; 
+
+    if ( (j>=step[0]) && (j<jmax) ) {
+
+        for (int i=pos_jtop-1; i>=0; i--) {  // cas i=pos_jtop treated above
+            if (step[i] == j) {
+                pos = i ;
+                break ; 
+            }
+        }
+    }
+    
+    if (pos == -1) {
+        cerr << "Evolution<TyT>::position: time step j = " <<
+            j << " not found !" << endl ; 
+        abort() ; 
+    }
+    
+    return pos ; 
+}
+                 
+                    
+template<typename TyT> 
+bool Evolution<TyT>::is_known(int j) const {
+
+    if (pos_jtop == -1) return false ; 
+    
+    assert(pos_jtop >= 0) ; 
+    
+    int jmax = step[pos_jtop] ; 
+    
+    if (j == jmax) {
+        return ( val[pos_jtop] != 0x0 ) ; 
+    }
+
+    if ( (j>=step[0]) && (j<jmax) ) {
+
+        for (int i=pos_jtop-1; i>=0; i--) {  // cas i=pos_jtop treated above
+
+            if (step[i] == j) return ( val[i] != 0x0 ) ; 
+        }
+    }
+    
+    return false ; 
+}                  
+                    
+
+template<typename TyT> 
+const TyT& Evolution<TyT>::operator[](int j) const {
+
+    TyT* pval = val[position(j)] ; 
+    assert(pval != 0x0) ; 
+    return *pval ; 
+
+}
+
+
 template<typename TyT> 
 TyT Evolution<TyT>::operator()(double ) const {
 
@@ -200,6 +301,10 @@ TyT Evolution<TyT>::operator()(double ) const {
 
 }                  
  
+
+
+
+
                     //-----------------------//
                     //   Time derivative     //
                     //-----------------------//

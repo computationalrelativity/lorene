@@ -28,6 +28,17 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/26 08:22:13  e_gourgoulhon
+ * *** Full reorganization of class Evolution ***
+ * Introduction of the notion of absoluteuniversal time steps,
+ * stored in the new array 'step'.
+ * The new function position(int j) makes a correspondence
+ * between a universal time step j and the position in the
+ * arrays step, the_time and val.
+ * Only method update is now virtual.
+ * Methods operator[], position, is_known, downdate belong to
+ * the base class.
+ *
  * Revision 1.4  2004/03/23 14:50:41  e_gourgoulhon
  * Added methods is_updated, downdate, get_jlast, get_size,
  * as well as constructors without any initial value.
@@ -63,24 +74,21 @@
 
                     
 template<typename TyT> 
-Evolution_std<TyT>::Evolution_std(const TyT& initial_value, double initial_time,
-    int nstored) 
-      : Evolution<TyT>(initial_value, initial_time, nstored), 
-        pos_jlast(0)
+Evolution_std<TyT>::Evolution_std(const TyT& initial_value, int nstored, 
+                                  int initial_j, double initial_time) 
+      : Evolution<TyT>(initial_value, initial_j, initial_time, nstored)
 { }                    
                                         
 
 template<typename TyT> 
 Evolution_std<TyT>::Evolution_std(int nstored) 
-      : Evolution<TyT>(nstored), 
-        pos_jlast(-1)
+      : Evolution<TyT>(nstored)
 { }                    
                                         
 
 template<typename TyT> 
 Evolution_std<TyT>::Evolution_std(const Evolution_std<TyT>& evo)
-      : Evolution<TyT>(evo), 
-        pos_jlast(evo.pos_jlast) 
+      : Evolution<TyT>(evo)
 { }
 
 
@@ -120,99 +128,56 @@ void Evolution_std<TyT>::operator=(const Evolution<TyT>& ) {
 
                     
 template<typename TyT> 
-void Evolution_std<TyT>::update(const TyT& new_value, double new_time) {
+void Evolution_std<TyT>::update(const TyT& new_value, int j, double time_j) {
 
-    jlast++ ; 
-    pos_jlast++ ; 
-         
-    if (pos_jlast == size) {  // re-organization of arrays val and the_time is necessary
-    
-        assert( val[0] != 0x0 ) ; 
-        delete val[0] ; 
-            
-        for (int j=0; j<size-1; j++) {
-            val[j] = val[j+1] ; 
-        }
-        
-        for (int j=0; j<size-1; j++) {
-            the_time[j] = the_time[j+1] ; 
-        }
-            
-        pos_jlast-- ;
-        
+
+    if (is_known(j)) {   // Case of a time step already stored
+                         //-----------------------------------
+        int pos = position(j) ; 
+        assert( fabs(the_time[pos] - time_j) < 1.e-14 ) ;   
+        delete val[pos] ; 
+        val[pos] = new TyT(new_value) ; 
     }
-    else {
-        assert( pos_jlast < size ) ; 
-        assert( val[pos_jlast] == 0x0 ) ; 
-    }
+    else {              // Storage of a new time step
+                        //---------------------------
+
+        if ( (pos_jtop != -1) && (j < step[pos_jtop]) ) {
+            cerr << 
+                "Evolution_std<TyT>::update : the time step j = "
+                << j << " must be in the future\n" 
+                << "  of the last stored time step (" <<  step[pos_jtop] << ") !"
+                << endl ; 
+            abort() ; 
+        }
+          
+        pos_jtop++ ; 
+            
+        if (pos_jtop == size) {  // re-organization of arrays step, the_time 
+                                // and val is necessary
     
-    val[pos_jlast] = new TyT( new_value ) ; 
-    the_time[pos_jlast] = new_time ; 
+            assert( val[0] != 0x0 ) ; 
+            delete val[0] ; 
+
+            for (int i=0; i<size-1; i++) {
+                step[i] = step[i+1] ; 
+                the_time[i] = the_time[i+1] ; 
+                val[i] = val[i+1] ; 
+            }
+        
+            pos_jtop-- ;        // pos_jtop = size-1
+        
+        }
+        else {
+            assert( pos_jtop < size ) ; 
+            assert( val[pos_jtop] == 0x0 ) ; 
+        }
+    
+        step[pos_jtop] = j ;
+        the_time[pos_jtop] = time_j ; 
+        val[pos_jtop] = new TyT( new_value ) ; 
+    }
 
 }                   
                     
 
-template<typename TyT> 
-void Evolution_std<TyT>::downdate() {
-
-    if (pos_jlast == -1) return ;  // a never updated Evolution_std cannot
-                                   // be downdated
-    
-    assert( val[pos_jlast] != 0x0) ; 
-    
-    delete val[pos_jlast] ; 
-    val[pos_jlast] = 0x0 ; 
-    the_time[pos_jlast] = -1e20 ; 
-
-    jlast-- ; 
-    pos_jlast-- ; 
-    
-}
-
-
-                    
-                    //-----------------------//
-                    //      Accessors        //
-                    //-----------------------//
-
-                 
-template<typename TyT> 
-const TyT& Evolution_std<TyT>::operator[](int j) const {
-
-    int pos = j - jlast + pos_jlast ; 
-
-    assert(pos >= 0) ;
-    assert(pos < size) ; 
-    
-    TyT* pval = val[pos] ; 
-    assert(pval != 0x0) ; 
-    
-    return *pval ; 
-
-}                  
-                    
-                    
-
-template<typename TyT> 
-double Evolution_std<TyT>::get_time(int j) const {
-
-    int pos = j - jlast + pos_jlast ; 
-
-    assert(pos >= 0) ;
-    assert(pos < size) ; 
-            
-    return the_time[pos] ; 
-
-}                  
-                    
-template<typename TyT> 
-bool Evolution_std<TyT>::is_updated(int j) const {
-
-    int pos = j - jlast + pos_jlast ; 
-
-    if ((pos < 0) || (pos >= size)) return false ;
-    
-    return ( val[pos] != 0x0 ) ; 
-
-}                  
                     
