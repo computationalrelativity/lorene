@@ -29,6 +29,9 @@ char einstein_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/04/05 07:00:49  e_gourgoulhon
+ * Corrected minor error in the computation of taa: ff --> tgam.
+ *
  * Revision 1.12  2004/03/31 20:28:57  e_gourgoulhon
  * Update to take into account the new prototypes of
  * Evolution_std<TyT>::Evolution_std<TyT> and
@@ -391,7 +394,7 @@ int main() {
                 - 0.6666666666666666 * div_beta * hh ) / (2.*nn) ; 
     
         Sym_tensor taa(map, COV, otriad) ;  // {\tilde A}_{ij}
-        taa = aa.up_down(ff) ;
+        taa = aa.up_down(tgam) ;
 
         des_meridian(aa(2,3), 0., 5., "A\\u\\gh\\gf\\d", 20) ; 
         des_meridian(aa(3,3), 0., 5., "A\\u\\gf\\gf\\d", 21) ; 
