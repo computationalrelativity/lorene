@@ -29,6 +29,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/11/03 17:15:46  f_limousin
+ * Change the standart constructor. Add 4 memebers : trK, trK_point,
+ * gamt and gamt_point.
+ * Add also a constructor from a file.
+ *
  * Revision 1.9  2004/11/02 17:42:33  f_limousin
  * New method sauve(...) to save in a binary file.
  *
@@ -96,13 +101,27 @@ class Isol_hor : public Time_slice_conf {
   // -----
  protected: 
 
+    /// 3 metric tilde
+    const Sym_tensor& gamt ;
+
+    /// Time derivative of the 3-metric tilde
+    const Sym_tensor& gamt_point ;
+
+    /// Trace of the extrinsic curvature
+    const Scalar& trK ;
+    
+    /// Time derivative of the trace of the extrinsic curvature 
+    const Scalar& trK_point ;
+
 
   // Constructors - Destructor
   // -------------------------
  public:
   ///Standard 
   Isol_hor(const Scalar& lapse_in, const Vector& shift_in,
-	   const Sym_tensor& gamma_in, const Sym_tensor kk_in, 
+	   const Scalar& psi_in, const Sym_tensor& aa_in, 
+	   const Metric& gamt, const Sym_tensor& gamt_point, 
+	   const Scalar& trK, const Scalar& trK_point, 
 	   const Metric_flat& ff_in, int depth_in = 3) ;	
   
   Isol_hor(const Isol_hor& ) ;   /// Copy constructor
@@ -162,8 +181,7 @@ class Isol_hor : public Time_slice_conf {
   //---------------------
  public:
   
-  void init_data(const Sym_tensor& uu, const Scalar& trk_in, 
-		 const Scalar& trk_point, double precis = 1.e-12,
+  void init_data(double precis = 1.e-12,
 		 double relax = 1., int niter = 100, double ang_vel = 0.,
 		 const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
 		 const Scalar* trace_stress=0x0 ) ; 
@@ -178,7 +196,7 @@ class Isol_hor : public Time_slice_conf {
 		 const Scalar* trace_stress=0x0) ;
 
   // Source NN
-  Scalar source_nn( const Scalar& trk_in, const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
+  Scalar source_nn(const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
 		 const Scalar* trace_stress=0x0) ;
 
   // Source beta

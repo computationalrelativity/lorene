@@ -31,8 +31,10 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.2  2004/11/02 16:15:47  f_limousin
- * Add new argument ang_vel in init_data(...).
+ * Revision 1.3  2004/11/03 17:15:31  f_limousin
+ * Change the standart constructor. Add 4 memebers : trK, trK_point,
+ * gamt and gamt_point.
+ * Add also a constructor from a file.
  *
  * Revision 1.1  2004/10/29 12:54:53  jl_jaramillo
  * First version
@@ -69,35 +71,19 @@ char init_data_C[] = "$Header$" ;
 #include "tenseur.h"
 #include "utilitaires.h"
 
-void Isol_hor::init_data(const Sym_tensor& uu, 
-                const Scalar& trk_in, const Scalar& trk_point, 
-		double precis, double relax, int niter, double ang_vel, 
-                const Scalar* p_ener_dens, const Vector* p_mom_dens, 
-                const Scalar* p_trace_stress) {
+void Isol_hor::init_data( double precis, double relax, int niter, 
+			  double ang_vel, const Scalar* p_ener_dens, 
+			  const Vector* p_mom_dens, 
+			  const Scalar* p_trace_stress) {
 
     using namespace Unites ;
    
-    // Verifications
-    // -------------
-    double tr_uu = max(maxabs(uu.trace(tgam()), "trace tgam_{ij} u^{ij}")) ; 
-    if (tr_uu > 1.e-8) {
-        cerr << 
-        "Time_slice_conf::initial_data_cts : the trace of u^{ij} with respect\n"
-        << "  to the conformal metric tgam_{ij} is not zero !\n" 
-        << "  error = " << tr_uu << endl ; 
-        abort() ; 
-    }
-
-    assert(trk_point.check_dzpuis(4)) ;
-    assert(trk_in.check_dzpuis(2)) ; 
-    assert(trk_point.check_dzpuis(4)) ; 
-
     // Initialisations
     // ---------------
     double ttime = the_time[jtime] ;    
 
-    const Map& map = uu.get_mp() ; 
-    const Base_vect& triad = *(uu.get_triad()) ;
+    const Map& map = nn().get_mp() ; 
+    const Base_vect& triad = *(nn().get_triad()) ;
     
     Scalar tmp(map) ;
     Scalar tmp_scal(map) ; 
@@ -107,7 +93,7 @@ void Isol_hor::init_data(const Sym_tensor& uu,
     k_dd_evol.downdate(jtime) ; 
     k_uu_evol.downdate(jtime) ; 
 
-    set_aa( ( beta().ope_killing_conf(tgam()) +  uu) / (2.* nn()) ) ; 
+    set_aa( ( beta().ope_killing_conf(tgam()) +  gamt_point) / (2.* nn()) ) ; 
 
     ofstream conv("resconv.d") ; 
     conv << " # diff_nn   diff_psi   diff_beta " << endl ;
@@ -140,11 +126,11 @@ void Isol_hor::init_data(const Sym_tensor& uu,
      
 	
 	
-	Scalar nn_jp1 = source_nn(trk_point)
-	    .poisson_dirichlet(nn_bound, 0.2) + 1. ; 
+	Scalar nn_jp1 = source_nn()
+	    .poisson_dirichlet(nn_bound, 0) + 1. ; 
 
      // Test:
-      maxabs(nn_jp1.laplacian() - source_nn(trk_point),
+      maxabs(nn_jp1.laplacian() - source_nn(),
 	     "Absolute error in the resolution of the equation for N") ;  
       
       // Relaxation (relax=1 -> new ; relax=0 -> old )  
@@ -255,12 +241,12 @@ void Isol_hor::init_data(const Sym_tensor& uu,
 	  }
 
       if (check == 0)
-	  aa_jp1 = ( beta().ope_killing_conf(tgam()) + uu ) 
+	  aa_jp1 = ( beta().ope_killing_conf(tgam()) + gamt_point ) 
 	      / (2.* nn()) ;            
       else {
 	  Scalar nn_sxpun (division_xpun (Cmp(nn()), 0)) ;
 	  
-	  Sym_tensor aa_sxpun = beta().ope_killing_conf(tgam()) + uu ;
+	  Sym_tensor aa_sxpun = beta().ope_killing_conf(tgam()) + gamt_point ;
 	  
 	  for(int i=1; i<=3; i++)
 	      for(int j=1; j<=i; j++){

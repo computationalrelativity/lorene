@@ -30,8 +30,10 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.4  2004/11/02 17:42:16  f_limousin
- * New method sauve(...) to save in a binary file.
+ * Revision 1.5  2004/11/03 17:16:06  f_limousin
+ * Change the standart constructor. Add 4 memebers : trK, trK_point,
+ * gamt and gamt_point.
+ * Add also a constructor from a file.
  *
  * Revision 1.3  2004/10/29 15:44:45  jl_jaramillo
  * Remove two members
@@ -73,10 +75,20 @@ char isol_hor_C[] = "$Header$" ;
 // ----------------------------------------
 
 Isol_hor::Isol_hor(const Scalar& lapse_in, const Vector& shift_in,
-		   const Sym_tensor& gamma_in, const Sym_tensor kk_in, 
+		   const Scalar& psi_in, const Sym_tensor& aa_in, 
+		   const Metric& met_gamt, const Sym_tensor& gamt_point_in, 
+		   const Scalar& trK_in, const Scalar& trK_point_in,
 		   const Metric_flat& ff_in, int depth_in) 	  
-  : Time_slice_conf( lapse_in, shift_in, gamma_in, kk_in, ff_in, depth_in){}
-                 
+    : Time_slice_conf(lapse_in, shift_in, psi_in*psi_in*psi_in*psi_in*
+		      met_gamt.cov(), psi_in*psi_in*psi_in*psi_in*aa_in 
+		      +1./3.*trK*met_gamt.con()/(psi_in*psi_in*psi_in*psi_in),
+		      ff_in, depth_in),
+      gamt(met_gamt.cov()),
+      gamt_point(gamt_point_in),
+      trK(trK_in),
+      trK_point(trK_point_in){
+}
+
 
 
 
@@ -84,17 +96,27 @@ Isol_hor::Isol_hor(const Scalar& lapse_in, const Vector& shift_in,
 // ----------------
 
 Isol_hor::Isol_hor(const Isol_hor& isolhor_in) 
-                    : Time_slice_conf(isolhor_in){}
-
+    : Time_slice_conf(isolhor_in),
+      gamt(isolhor_in.gamt),
+      gamt_point(isolhor_in.gamt_point),
+      trK(isolhor_in.trK),
+      trK_point(isolhor_in.trK_point){
+}
+/*
 // Constructor from a file
 // -----------------------
 
 Isol_hor::Isol_hor(const Map& mp, const Base_vect& triad, 
 		   const Metric_flat& ff_in, FILE* fich, 
 		   bool partial_read, int depth_in)
-    : Time_slice_conf(mp, triad, ff_in, fich, partial_read, depth_in){}
+    : Time_slice_conf(mp, triad, ff_in, fich, partial_read, depth_in),
+      gamt(mp, triad, fich),
+      gamt_point(mp, triad, fich),
+      trK(mp, *(mp.get_&mg()), fich),
+      trK_point(mp, *(mp.get_mg()), fich){
+}
 
-
+*/
 
 			    //--------------//
 			    //  Destructor  //
@@ -141,5 +163,10 @@ void Isol_hor::sauve(FILE* fich, bool partial_save) const {
     
     // Writing of quantities common to all derived classes of Isol_hor
     // ---------------------------------------------------------------
+
+    gamt.sauve(fich) ;
+    gamt_point.sauve(fich) ;    
+    trK.sauve(fich) ;
+    trK_point.sauve(fich) ;
 
 }
