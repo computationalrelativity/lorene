@@ -30,6 +30,10 @@ char connection_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2004/01/23 07:58:38  e_gourgoulhon
+ * Method p_derive_cov: treatment of dzpuis: entry with dzpuis = 2 is now
+ * allowed (output: dzpuis=3).
+ *
  * Revision 1.14  2004/01/22 16:15:53  e_gourgoulhon
  * First operational version of ricci().
  *
@@ -308,6 +312,17 @@ Tensor* Connection::p_derive_cov(const Tensor& uu) const {
     Itbl ind0(valence0) ; // working Itbl to store the indices of uu
     Itbl ind(valence0) ;  // working Itbl to store the indices of uu
 	
+    Scalar tmp(*mp) ;	// working scalar
+
+    // Determination of the dzpuis parameter of the input  --> dz_in
+    // ---------------------------------------------------
+    int dz_in = 0 ;
+    for (int ic=0; ic<uu.get_n_comp(); ic++) {
+        int dzp = uu(uu.indices(ic)).get_dzpuis() ; 
+        assert(dzp >= 0) ; 
+        if (dzp > dz_in) dz_in = dzp ; 
+    }
+        
     *resu = uu.derive_cov(*flat_met) ;   // Initialisation to the flat derivative 
 	
     // Loop on all the components of the output tensor
@@ -317,9 +332,6 @@ Tensor* Connection::p_derive_cov(const Tensor& uu) const {
         // indices corresponding to the component no. ic in the output tensor
         ind1 = resu->indices(ic) ; 
     
-        // Component no. ic:
-        Scalar& cresu = resu->set(ind1) ; 
-		
         // Indices of the input tensor
         for (int id = 0; id < valence0; id++) {
             ind0.set(id) = ind1(id) ; 
@@ -327,6 +339,8 @@ Tensor* Connection::p_derive_cov(const Tensor& uu) const {
  
         // Value of last index (derivation index)
         int k = ind1(valence1m1) ; 
+                
+        tmp = 0 ; 
         
         // Loop on the number of indices of uu 
         for (int id=0; id<valence0; id++) {
@@ -338,7 +352,7 @@ Tensor* Connection::p_derive_cov(const Tensor& uu) const {
                 case CON : {
                     for (int l=1; l<=3; l++) {
                         ind.set(id) = l ; 
-                        cresu += delta(ind0(id), k, l) * uu(ind) ;
+                        tmp += delta(ind0(id), k, l) * uu(ind) ;
                     }
                     break ; 
                 }
@@ -346,7 +360,7 @@ Tensor* Connection::p_derive_cov(const Tensor& uu) const {
                 case COV : {
                     for (int l=1; l<=3; l++) {
                         ind.set(id) = l ; 
-                        cresu -= delta(l, k, ind0(id)) * uu(ind) ;
+                        tmp -= delta(l, k, ind0(id)) * uu(ind) ;
                     }
                     break ; 
                 }
@@ -362,6 +376,10 @@ Tensor* Connection::p_derive_cov(const Tensor& uu) const {
                 
         }   // end of loop on the number of indices of uu               
         
+        if (dz_in > 0) tmp.dec_dzpuis() ;
+
+        resu->set(ind1) += tmp ;         
+
     }   // end of loop on all the components of the output tensor
 
     // C'est fini !
