@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/11/18 10:53:03  jl_jaramillo
+ * Declarations for Berlin boundary conditions
+ *
  * Revision 1.12  2004/11/05 11:01:13  f_limousin
  * Delete arguments ener_dens, mom_dens and trace_stress in all functions
  * source_nn, source_psi, source_beta, init_data. Delete also
@@ -121,7 +124,7 @@ class Isol_hor : public Time_slice_conf {
     /// Time derivative of the trace of the extrinsic curvature 
     const Scalar& trK_point ;
 
-
+ 
   // Constructors - Destructor
   // -------------------------
  public:
@@ -160,8 +163,14 @@ class Isol_hor : public Time_slice_conf {
   /** Vector radial normal tilde */
   Vector tradial_vect_hor() ;
 
+  /// Radial component of the shift respcto to the conformal metric
+  Scalar b_tilde() ;
+
+
   /** Element of area of the horizon */
   Scalar darea_hor()  ;
+
+
   
   
   /** Radius of the horizon */
@@ -191,7 +200,10 @@ class Isol_hor : public Time_slice_conf {
   
   void init_data(double precis = 1.e-12,
 		 double relax = 1., int niter = 100, double ang_vel = 0.) ; 
-        
+
+
+  void init_data_berlin(double precis = 1.e-12,
+		 double relax = 1., int niter = 100, double ang_vel = 0.) ; 
 
 
   //Sources
@@ -205,6 +217,12 @@ class Isol_hor : public Time_slice_conf {
 
   // Source beta
   Vector source_beta() ;
+
+  // Source b_tilde
+  Scalar source_b_tilde() ;
+
+  // Source vector_b
+  Vector source_vector_b() ;
   
 
   // BOUNDARY CONDITIONS
@@ -265,6 +283,24 @@ class Isol_hor : public Time_slice_conf {
 
   /// Vector beta for boundary conditions in cartesian  
   Vector beta_bound_cart(double) ;
+  
+  ///  Vector V^i for boundary conditions in cartesian  
+  Vector vv_bound_cart(double velang) ;
+
+  /// Component x of boundary value of v^i
+  Valeur boundary_vv_x(double velang) ;
+
+  /// Component y of boundary value of v^i
+  Valeur boundary_vv_y(double velang) ;
+  
+  /// Component z of boundary value of v^i
+  Valeur boundary_vv_z(double velang) ;
+
+  /// Neumann boundary condition for b_tilde
+  Valeur boundary_b_tilde_Neu() ;
+
+  /// Dirichlet boundary condition for b_tilde
+  Valeur boundary_b_tilde_Dir() ;
 
 
   // Outputs
