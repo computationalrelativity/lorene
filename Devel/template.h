@@ -29,9 +29,15 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.2  2001/12/11 06:44:41  e_gourgoulhon
- * template files
+ * Revision 1.3  2004/03/23 12:39:31  e_gourgoulhon
+ * Formatted comments for Doxygen instead of Doc++.
  *
+ *
+ * *** Suppress all lines (including those of this comment) which are not
+ * *** between two $ characters. The lines between two $ must not be
+ * *** changed: they will be processed by CVS when committing this file:
+ * *** for instance, templace.h will be replaced by the actual name of this
+ * *** file, etc... 
  *
  *
  * $Header$
@@ -48,9 +54,9 @@
 #include ""
 
 /**
- * Extended description of the class for Doc++ documentation
+ * Extended description of the class for Doc++ documentation.
+ * \ingroup(???)
  * 
- * @version #$Id$#
  */
 class XXX {
 
@@ -61,18 +67,18 @@ class XXX {
     // Derived data : 
     // ------------
     protected:
-	mutable ?? p_?? ;   /// Comment for Doc++
+	mutable ?? p_?? ;   ///< Comment for Doxygen
 
     // Constructors - Destructor
     // -------------------------
     public:
-	XXX(??) ;			/// Standard constructor
-	XXX(const XXX& ) ;		/// Copy constructor
+	XXX(??) ;			///< Standard constructor
+	XXX(const XXX& ) ;		///< Copy constructor
 
-	/// Constructor from a file (see {\tt sauve(FILE* )})
+	/// Constructor from a file (see \c sauve(FILE*) )
 	XXX(FILE* ) ;    		
 
-	virtual ~XXX() ;			/// Destructor
+	virtual ~XXX() ;			///< Destructor
  
 
     // Memory management
@@ -84,7 +90,7 @@ class XXX {
 	/// Deletes all the derived quantities
 	virtual void del_deriv() const ; 
 	
-	/// Sets to {\tt 0x0} all the pointers on derived quantities
+	/// Sets to \c 0x0 all the pointers on derived quantities
 	virtual void set_der_0x0() const ; 
 
 
@@ -101,7 +107,7 @@ class XXX {
     // Outputs
     // -------
     public:
-	virtual void sauve(FILE *) const ;	    /// Save in a file
+	virtual void sauve(FILE *) const ;	    ///< Save in a file
     
 	/// Display
 	friend ostream& operator<<(ostream& , const XXX& ) ;	
