@@ -8,6 +8,15 @@
 ###############################################################
 
 #===============================#
+#           MAKEDEPEND          #
+#===============================#
+
+# Flag for makedepend commands:
+# WARNING: this flag should only be used in conjunction with the CXXFLAG
+# otherwise (C++ compliant cimpiler) see local_settings_linux file
+INCDEP  = -DOBSOLETE_HEADERS
+
+#===============================#
 #           COMPILERS		#
 #===============================#
 
