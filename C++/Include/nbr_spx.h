@@ -5,8 +5,10 @@
 
 /*
  *   Copyright (c) 1999-2000 Jean-Alain Marck
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2003 Eric Gourgoulhon
  *   Copyright (c) 2001 Joachim Frieben
+ *   Copyright (c) 2003 Jerome Novak
+ *   Copyright (c) 2003 Christian Klein
  *
  *   This file is part of LORENE.
  *
@@ -87,6 +89,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/02/05 13:51:40  e_gourgoulhon
+ * Added the case __ppc__ for MacOS X.
+ *
  * Revision 1.2  2002/09/09 12:57:22  e_gourgoulhon
  * Added the case of IBM AIX with xlC compiler.
  *
@@ -135,7 +140,12 @@
 #include <math.h>
 #define __infinity HUGE_VAL
 #else
+#ifdef __ppc__
+#include <math.h>
+#define __infinity INFINITY
+#else
 extern double __infinity ;
+#endif
 #endif
 #endif
 #endif
