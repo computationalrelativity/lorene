@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/06/20 14:23:38  f_limousin
+ * Add the functions compare().
+ *
  * Revision 1.9  2002/10/16 14:36:29  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -948,6 +951,14 @@ class Tenseur {
     void poisson_vect_regu(int k_div, int nzet, double unsgam1,
                            double lambda, Param& par, Tenseur& shift,
                            Tenseur& vect, Tenseur& scal) const ;
+   
+    
+    /// Functions to compare the values of tensors.
+
+    void compare( const Tenseur& tens, const char* name ) ;
+    void compare( FILE* fich, const char* name_i ) ;
+    
+
 
     // Friend classes 
     // ---------------
@@ -961,6 +972,8 @@ class Tenseur {
     friend Tenseur operator% (const Tenseur&, const Tenseur&) ; 
     friend Tenseur contract(const Tenseur&, int id1, int id2) ;
     friend Tenseur contract(const Tenseur&, int id1, const Tenseur&, 
+			    int id2) ;
+    friend Tenseur contract_desal(const Tenseur&, int id1, const Tenseur&, 
 			    int id2) ;
     friend Tenseur flat_scalar_prod(const Tenseur& t1, const Tenseur& t2) ;
     friend Tenseur flat_scalar_prod_desal(const Tenseur& t1, 
