@@ -32,6 +32,10 @@ char sym_tensor_tt_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/05/05 14:24:54  e_gourgoulhon
+ * Corrected a bug in method set_khi_mu: the division of khi by r^2
+ * was ommitted in the case dzp=2 !!!
+ *
  * Revision 1.10  2004/04/08 16:38:43  e_gourgoulhon
  * Sym_tensor_tt::set_khi_mu: added argument dzp (dzpuis of resulting h^{ij}).
  *
@@ -268,13 +272,16 @@ void Sym_tensor_tt::set_khi_mu(const Scalar& khi_i, const Scalar& mu_i,
   set(1,1) = khi_i ; 
                         // calls del_deriv() and therefore delete previous
                         // p_eta and p_mu
+
+  assert( khi_i.check_dzpuis(0) ) ; 
   if (dzp == 0) {
     set(1,1).div_r() ;
     set(1,1).div_r() ;	// h^{rr}
   }
   else {
     assert(dzp == 2) ; //## temporary: the other cases are not treated yet
-    set(1,1).set_dzpuis(2) ; 
+    set(1,1).div_r_dzpuis(1) ;
+    set(1,1).div_r_dzpuis(2) ;
   }		
   
   p_khi = new Scalar ( khi_i ) ;  // khi
