@@ -30,6 +30,9 @@ char tslice_conf_init_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/05/17 19:53:13  e_gourgoulhon
+ * Added arguments graph_device and  method_poisson_vect.
+ *
  * Revision 1.7  2004/05/12 15:24:20  e_gourgoulhon
  * Reorganized the #include 's, taking into account that
  * time_slice.h contains now an #include "metric.h".
@@ -74,9 +77,9 @@ char tslice_conf_init_C[] = "$Header$" ;
 
 void Time_slice_conf::initial_data_cts(const Sym_tensor& uu, 
                 const Scalar& trk_in, const Scalar& trk_point, 
-                double pdt, double precis,
-                const Scalar* p_ener_dens, const Vector* p_mom_dens, 
-                const Scalar* p_trace_stress) {
+                double pdt, double precis, int method_poisson_vect,
+                const char* graph_device, const Scalar* p_ener_dens, 
+                const Vector* p_mom_dens, const Scalar* p_trace_stress) {
 
     using namespace Unites ;
 
@@ -108,6 +111,12 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& uu,
 
     const Map& map = uu.get_mp() ; 
     const Base_vect& triad = *(uu.get_triad()) ;
+    
+    // For graphical outputs:
+    int ngraph0 = 10 ;  // index of the first graphic device to be used
+    int nz = map.get_mg()->get_nzone() ; 
+    double ray_des = 1.25 * map.val_r(nz-2, 1., 0., 0.) ; // outermost radius
+                                                          // for plots
 
     Scalar ener_dens(map) ; 
     if (p_ener_dens != 0x0) ener_dens = *(p_ener_dens) ; 
@@ -211,7 +220,7 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& uu,
         maxabs(psi_jp1.laplacian() - source_psi,
                 "Absolute error in the resolution of the equation for Psi") ;  
 
-        des_meridian(psi_jp1, 0., 5., "Psi", 1) ; 
+        des_meridian(psi_jp1, 0., ray_des, "Psi", ngraph0, graph_device) ; 
 
         // Resolution of the Poisson equation for the lapse
         // ------------------------------------------------
@@ -224,16 +233,20 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& uu,
         maxabs(nn_jp1.laplacian() - source_nn,
                 "Absolute error in the resolution of the equation for N") ;  
 
-        // des_meridian(nn_jp1, 0., 5., "N", 2) ; 
+        des_meridian(nn_jp1, 0., ray_des, "N", ngraph0+1, graph_device) ; 
         
         // Resolution of the vector Poisson equation for the shift
         //---------------------------------------------------------
         
-        Vector beta_jp1 = source_beta.poisson(0.3333333333333333, 1) ; 
+        Vector beta_jp1 = source_beta.poisson(0.3333333333333333, ff, 
+                                              method_poisson_vect) ; 
         
-        des_meridian(beta_jp1(1), 0., 5., "\\gb\\ur\\d", 3) ; 
-        // des_meridian(beta_jp1(2), 0., 5., "\\gb\\u\\gh\\d", 4) ; 
-        // des_meridian(beta_jp1(3), 0., 5., "\\gb\\u\\gf\\d", 5) ; 
+        des_meridian(beta_jp1(1), 0., ray_des, "\\gb\\ur\\d", ngraph0+2, 
+                     graph_device) ; 
+        des_meridian(beta_jp1(2), 0., ray_des, "\\gb\\u\\gh\\d", ngraph0+3, 
+                     graph_device) ; 
+        des_meridian(beta_jp1(3), 0., ray_des, "\\gb\\u\\gf\\d", ngraph0+4, 
+                     graph_device) ; 
         
         // Test:
         Vector test_beta = (beta_jp1.derive_con(ff)).divergence(ff)
