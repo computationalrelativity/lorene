@@ -31,6 +31,9 @@ char star_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2005/02/11 18:11:57  f_limousin
+ * Introduction of a new member Map_af.
+ *
  * Revision 1.12  2004/11/11 16:29:49  j_novak
  * set_der_0x0 is no longer virtual (to be coherent with Tensor/Scalar classes).
  *
@@ -91,6 +94,7 @@ Cmp raccord_c1(const Cmp& uu, int l1) ;
 Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i, 
 		     bool irrot, bool conf_flat0)
     : Star(mpi, nzet_i, eos_i), 
+      mpaff(mpi),
       irrotational(irrot), 
       psi0(mpi), 
       d_psi(mpi, COV, mpi.get_bvect_cart()), 
@@ -181,6 +185,7 @@ Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i,
 // ----------------
 Star_bin::Star_bin(const Star_bin& star)
 		       : Star(star), 
+			 mpaff(star.mpaff),
 			 irrotational(star.irrotational), 
 			 psi0(star.psi0), 
 			 d_psi(star.d_psi), 
@@ -231,6 +236,7 @@ Star_bin::Star_bin(const Star_bin& star)
 // -----------------------
 Star_bin::Star_bin(Map& mpi, const Eos& eos_i, FILE* fich)
 		       : Star(mpi, eos_i, fich), 
+			 mpaff(mpi),
 			 psi0(mpi), 
 			 d_psi(mpi, COV, mpi.get_bvect_cart()), 
 			 wit_w(mpi, CON, mpi.get_bvect_cart()), 
@@ -374,6 +380,7 @@ void Star_bin::operator=(const Star_bin& star) {
     Star::operator=(star) ;	    
 
     // Assignement of proper quantities of class Star_bin
+    mpaff = star.mpaff ;
     irrotational = star.irrotational ; 
     psi0 = star.psi0 ; 
     d_psi = star.d_psi ;
@@ -707,13 +714,12 @@ void Star_bin::test_K_Hi() const {
     cout << "Le maximal slicing est il bien satisfait ??" 
 	 << endl ;
     cout << "Tensor Kij" << endl ;
-    for (int i=1; i<=3; i++)
-	cout << "  Comp. 1 1 : " << norme(tkij.down(1, gamma)(i,i)
-					  /(nr*nt*np)) << endl ;
-
+    cout << "  Comp. 1 1 : " << norme(tkij.down(1, gamma)(1,1)
+				      /(nr*nt*np)) << endl ;
+    
     cout << endl << "Trace of Kij : "<< norme(tkij.down(1, gamma).trace()
 					      /(nr*nt*np))<< endl ;
-     
+    
 
     cout << "La jauge de Dirac est elle bien satisfaite ??" << endl ;
     cout << "Vector Hi" << endl ;
