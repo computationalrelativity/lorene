@@ -31,6 +31,9 @@ char binary_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/27 10:03:04  f_limousin
+ * The computation of mass_adm() and mass_komar() is now OK !
+ *
  * Revision 1.2  2004/01/20 15:21:36  f_limousin
  * First version
  *
@@ -50,7 +53,7 @@ char binary_global_C[] = "$Header$" ;
 		    //---------------------------------//
 
 double Binary::mass_adm() const {
-    /* 
+    
 
     if (p_mass_adm == 0x0) {	    // a new computation is requireed
 	
@@ -63,29 +66,27 @@ double Binary::mass_adm() const {
     
     *p_mass_adm = 0 ; 
     
-    const Metric&  gamij = (et[0]->get_gamij()) ;
+    const Metric& gamij = (et[0]->get_gamma()) ;
     const Metric& flat = (et[0]->get_flat()) ;
-    Map_af map0 (et[0]->get_mp()) ; 
+    const Map_af& map0 (et[0]->get_mp()) ;
     
     Sym_tensor gamij_cov = gamij.cov() ;
     gamij_cov.std_spectral_base() ;
-    Tensor dcov_gamij = gamij_cov.derive_cov(flat) ;
+    const Tensor& dcov_gamij = gamij_cov.derive_cov(flat) ;
     
-    Vector dgamma_1 (map0, CON, map0.get_bvect_spher()) ; 
-    dgamma_1 =  contract( flat.con(), 1, contract(flat.con()
-       			   , 0, dcov_gamij, 0).scontract(0, 2), 0) ;
+    Vector dgamma_1 =  contract( flat.con(), 1, contract(contract(flat.con()
+       			   , 0, dcov_gamij, 2), 0, 2), 0) ;
     Scalar integrant_1 (dgamma_1(1)) ;
     
-    Vector dgamma_2 (map0, CON, map0.get_bvect_spher()) ; 
-    dgamma_2 =  contract( flat.con(), 1, contract(flat.con()
-			   , 0, dcov_gamij, 1).scontract(0, 2), 0) ;
+    Vector dgamma_2 =  contract( flat.con(), 1, contract(contract(flat.con()
+			   , 0, dcov_gamij, 0), 0, 1), 0) ;
     Scalar integrant_2 (dgamma_2(1)) ;
 
     *p_mass_adm = map0.integrale_surface_infini (integrant_1 - integrant_2)/(4*qpig) ;
 
 		
     }	// End of the case where a new computation was necessary
-    */
+    
     return *p_mass_adm ; 
     
 }
@@ -96,7 +97,7 @@ double Binary::mass_adm() const {
 		    //---------------------------------//
 
 double Binary::mass_kom() const {
-    /*
+    
   if (p_mass_kom == 0x0) {	    // a new computation is requireed
     
     p_mass_kom = new double ; 
@@ -109,7 +110,7 @@ double Binary::mass_kom() const {
     *p_mass_kom = 0 ; 
     
     const Tensor& logn = et[0]->get_logn() ;
-    const Metric&  gamij = (et[0]->get_gamij()) ;
+    const Metric&  gamij = (et[0]->get_gamma()) ;
     Map_af map0 (et[0]->get_mp()) ; 
     
     Vector vect (map0, CON, map0.get_bvect_spher()) ;  
@@ -119,7 +120,7 @@ double Binary::mass_kom() const {
     *p_mass_kom = map0.integrale_surface_infini (integrant) / qpig ;
     
   }	// End of the case where a new computation was necessary
-    */
+    
   return *p_mass_kom ; 
     
 }
@@ -130,7 +131,7 @@ double Binary::mass_kom() const {
 		    //---------------------------------//
 
 const Tbl& Binary::angu_mom() const {
-    /*
+    
     if (p_angu_mom == 0x0) {	    // a new computation is requireed
 	
       p_angu_mom = new Tbl(3) ; 
@@ -138,25 +139,26 @@ const Tbl& Binary::angu_mom() const {
       p_angu_mom->annule_hard() ;	// fills the double array with zeros
       
       
-      Map_af map0 (et[0]->get_mp()) ; 
+      //     Map_af map0 (et[0]->get_mp()) ; 
+      const Metric& flat = et[0]->get_flat() ;
       const Sym_tensor& kij_auto = et[0]->get_tkij_auto() ;
       const Sym_tensor& kij_comp = et[0]->get_tkij_auto() ;
-      
-      Sym_tensor kij = kij_auto + kij_comp ;
+      const Tensor& psi4 = et[0]->get_psi4() ;
+      const Map_af& map0 (kij_auto.get_mp()) ;
+
+      Sym_tensor kij = (kij_auto + kij_comp) * psi4 ;
       kij.change_triad(map0.get_bvect_cart()) ;
  
       // X component
       // -----------
 
-      Vector vect_x(map0, CON, map0.get_bvect_cart()) ;
+      Vector vect_x(psi4.derive_cov(flat)) ;
+      vect_x.change_triad(map0.get_bvect_cart()) ;
        
-      Scalar kij_mod1(map0) ;
-      Scalar kij_mod2(map0) ;
-     
       for (int i=1; i<=3; i++) {
 
-	  kij_mod1 = kij(3, i) ;
-	  kij_mod2 = kij(2, i) ;
+	  Scalar kij_mod1 = kij(3, i) ;
+	  Scalar kij_mod2 = kij(2, i) ;
 	  	  
 	  kij_mod1.mult_rsint() ;
 	  kij_mod1.get_spectral_va().mult_sp() ;
@@ -169,7 +171,7 @@ const Tbl& Binary::angu_mom() const {
       }
       vect_x.std_spectral_base() ;
       vect_x.change_triad(map0.get_bvect_spher()) ;
-      Scalar integrant_x (vect_x(0)) ;
+      Scalar integrant_x (vect_x(1)) ;
       
       p_angu_mom->set(0) = map0.integrale_surface_infini (integrant_x) 
 	                  / (8*M_PI) ;
@@ -177,12 +179,13 @@ const Tbl& Binary::angu_mom() const {
       // Y component
       // -----------
       
-      Vector vect_y(map0, CON, map0.get_bvect_cart()) ;
+      Vector vect_y(psi4.derive_cov(flat)) ;
+      vect_y.change_triad(map0.get_bvect_cart()) ; 
    
       for (int i=1; i<=3; i++) {
 
-	  kij_mod1 = kij(1, i) ;
-	  kij_mod2 = kij(3, i) ;	  
+	  Scalar kij_mod1 = kij(1, i) ;
+	  Scalar kij_mod2 = kij(3, i) ;	  
 	  
 	  kij_mod1.mult_r() ;
 	  kij_mod1.get_spectral_va().mult_ct() ;
@@ -195,20 +198,21 @@ const Tbl& Binary::angu_mom() const {
       }
       vect_y.std_spectral_base() ;
       vect_y.change_triad(map0.get_bvect_spher()) ;
-      Scalar integrant_y (vect_y(0)) ;
+      Scalar integrant_y (vect_y(1)) ;
       
       p_angu_mom->set(1) = map0.integrale_surface_infini (integrant_y) 
 	                  / (8*M_PI) ;
       
       // Z component
       // -----------
-      
-      Vector vect_z(map0, CON, map0.get_bvect_cart()) ;
+      Vector vect_z(psi4.derive_cov(flat)) ;
+      vect_z.change_triad(map0.get_bvect_cart()) ;      
+ 
   
-      for (int i=0; i<=2; i++) {
+      for (int i=1; i<=3; i++) {
 
-	  kij_mod1 = kij(2, i) ;
-	  kij_mod2 = kij(1, i) ;
+	  Scalar kij_mod1 = kij(2, i) ;
+	  Scalar kij_mod2 = kij(1, i) ;
 	  	  
 	  kij_mod1.mult_rsint() ;
 	  kij_mod1.get_spectral_va().mult_cp() ;
@@ -221,15 +225,14 @@ const Tbl& Binary::angu_mom() const {
        
       vect_z.std_spectral_base() ;
       vect_z.change_triad(map0.get_bvect_spher()) ;
-      Scalar integrant_z (vect_z(0)) ;
+      Scalar integrant_z (vect_z(1)) ;
       
       p_angu_mom->set(2) = map0.integrale_surface_infini (integrant_z) 
 	                 / (8*M_PI) ;
       
-      (*p_angu_mom).change_triad(map0.get_bvect_spher()) ;
       
     }	// End of the case where a new computation was necessary
-    */
+    
     return *p_angu_mom ; 
     
 }
