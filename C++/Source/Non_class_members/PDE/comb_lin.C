@@ -25,6 +25,9 @@ char comb_lin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/02/09 09:33:56  j_novak
+ * Minor modif.
+ *
  * Revision 1.4  2004/02/06 10:53:54  j_novak
  * New dzpuis = 5 -> dzpuis = 3 case (not ready yet).
  *
@@ -579,9 +582,9 @@ Matrice _cl_r_chebu_cinq (const Matrice &source, int l) {
 	for (int j=0 ; j<n ; j++)
 	    res.set(i, j) = (tilde(i, j)+tilde(i+1, j)) ;
 
-    cout << "Apres comb. lin. : " << endl ;
-    cout << res ;
-    int fg ; cin >> fg ;
+//     cout << "Apres comb. lin. : " << endl ;
+//     cout << res ;
+//     int fg ; cin >> fg ;
 
     return res ;
     } 

@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/02/09 09:33:54  j_novak
+ * Minor modif.
+ *
  * Revision 1.7  2004/02/04 14:28:12  p_grandclement
  * Ajout de la version Scalar de des_profile
  *
@@ -139,6 +142,7 @@ class Valeur ;
 class Map ; 
 class Map_et ; 
 class Cmp ; 
+class Scalar ;
 class Tenseur ; 
 class Etoile ; 
 class Binaire ; 
