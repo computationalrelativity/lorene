@@ -83,6 +83,10 @@ char cftcos_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/01/31 10:31:23  e_gourgoulhon
+ * Suppressed the directive #include <malloc.h> for malloc is defined
+ * in <stdlib.h>
+ *
  * Revision 1.1  2002/11/12 17:43:53  j_novak
  * Added transformatin functions for T_COS basis.
  *
@@ -93,7 +97,6 @@ char cftcos_C[] = "$Header$" ;
 
 // headers du C
 #include <assert.h>
-#include <malloc.h>
 #include <stdlib.h>
 
 // Prototypes of F77 subroutines

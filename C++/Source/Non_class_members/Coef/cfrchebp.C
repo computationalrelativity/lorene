@@ -86,6 +86,10 @@ char cfrchebp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/01/31 10:31:23  e_gourgoulhon
+ * Suppressed the directive #include <malloc.h> for malloc is defined
+ * in <stdlib.h>
+ *
  * Revision 1.3  2002/10/16 14:36:44  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -110,7 +114,6 @@ char cfrchebp_C[] = "$Header$" ;
 
 // headers du C
 #include <assert.h>
-#include <malloc.h>
 #include <stdlib.h>
 
 // Prototypes of F77 subroutines
