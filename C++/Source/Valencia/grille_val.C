@@ -32,6 +32,9 @@ char Grille_val_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/12/19 15:05:14  j_novak
+ * Trying to avoid shadowed variables
+ *
  * Revision 1.3  2003/10/03 16:17:17  j_novak
  * Corrected some const qualifiers
  *
@@ -275,8 +278,8 @@ Gval_cart::Gval_cart(const double izmin, const double izmax, const int nz,
 // Constructeur 2D
 Gval_cart::Gval_cart(const double ixmin, const double ixmax, const 
 		     double izmin, const double izmax, const int nx, 
-		     const int nz, const int type_t, const int fantome)
-  :Grille_val(izmin, izmax, nx, nz, type_t, fantome),
+		     const int nz, const int itype_t, const int fantome)
+  :Grille_val(izmin, izmax, nx, nz, itype_t, fantome),
    ymin(0x0), ymax(0x0),
    y(0x0), yi(0x0) 
 {
@@ -526,8 +529,8 @@ Gval_spher::Gval_spher(const double irmin, const double irmax, const int nr,
 
 // Constructeur 2D
 Gval_spher::Gval_spher(const double irmin, const double irmax, const int nt, 
-		     const int nr, const int type_t, const int fantome)
-  :Grille_val(irmin, irmax, nt, nr, type_t, fantome),
+		     const int nr, const int itype_t, const int fantome)
+  :Grille_val(irmin, irmax, nt, nr, itype_t, fantome),
    phi(0x0), phii(0x0) 
 {
   assert (irmin >= double(0)) ;

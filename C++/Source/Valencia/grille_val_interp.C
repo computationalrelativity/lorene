@@ -32,6 +32,9 @@ char grille_val_interp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/12/19 15:05:14  j_novak
+ * Trying to avoid shadowed variables
+ *
  * Revision 1.6  2003/12/05 14:51:54  j_novak
  * problem with new SGI compiler
  *
@@ -474,8 +477,8 @@ Tbl Gval_cart::interpol2c(const Tbl& zdep, const Tbl& xdep, const Tbl& fdep,
     }
   }
   
-  void* base = (void*) zlk ;
-  size_t nel = (size_t) narr ;
+  void* base = reinterpret_cast<void*>(zlk) ;
+  size_t nel = size_t(narr) ;
   size_t width = sizeof(Point) ;
   qsort (base, nel, width, copar) ; 
   
@@ -534,8 +537,8 @@ Tbl Gval_cart::interpol2c(const Tbl& zdep, const Tbl& xdep, const Tbl& fdep,
       nxline ++ ; inum ++ ;
       inum1 = (inum < narr ? inum : 0) ;
     } while ( ( (zlk[inum1].x - zlk[inum-1].x) < x12 ) && (inum < narr)) ;
-    void* bas2 = (void*) xlk ;
-    size_t ne2 = (size_t) nxline ;
+    void* bas2 = reinterpret_cast<void*>(xlk) ;
+    size_t ne2 = size_t(nxline) ;
     qsort (bas2, ne2, width, copar) ;
     
     int inum2 = 0 ;
@@ -748,7 +751,7 @@ double* Gval_cart::somme_spectrale2(const Cmp& meudon) const {
   const Map* mp = meudon.get_mp() ;
   double* resu = new double[taille] ;
   int l ;
-  double xi, rr, theta ;
+  double xi0, rr, theta ;
   double phi = 0 ;
   int inum = 0 ;
   for (int ix=0; ix<nfantome; ix++) {
@@ -766,8 +769,8 @@ double* Gval_cart::somme_spectrale2(const Cmp& meudon) const {
     for (int iz=nfantome; iz<nzv; iz++) {
       rr = sqrt((zr->t[iz])*(zr->t[iz]) + xx2) ;
       theta = acos((zr->t[iz])/rr) ;
-      mp->val_lx(rr, theta, phi, l, xi) ;
-      resu[inum] = meudon.va.val_point(l, xi, theta, phi) ;
+      mp->val_lx(rr, theta, phi, l, xi0) ;
+      resu[inum] = meudon.va.val_point(l, xi0, theta, phi) ;
       inum++ ;
     }
     for (int iz=nzv; iz<nzv2; iz++) {
@@ -795,7 +798,7 @@ double* Gval_cart::somme_spectrale3(const Cmp& meudon) const{
   const Map* mp = meudon.get_mp() ;
   double* resu = new double[taille] ;
   int l ;
-  double xi, rr, theta, phi ;
+  double xi0, rr, theta, phi ;
   int inum = 0 ;
   for (int iy=0; iy<nfantome; iy++) {
     for (int ix=0; ix<nxv2; ix++) {
@@ -825,8 +828,8 @@ double* Gval_cart::somme_spectrale3(const Cmp& meudon) const{
 	rr = sqrt((zr->t[iz])*(zr->t[iz]) + xx2 + yy2) ;
 	theta = acos((zr->t[iz])/rr) ;
 	phi = atan2(yy, xx) ; // return value in [-M_PI,M_PI], should work
-	mp->val_lx(rr, theta, phi, l, xi) ;
-	resu[inum] = meudon.va.val_point(l, xi, theta, phi) ;
+	mp->val_lx(rr, theta, phi, l, xi0) ;
+	resu[inum] = meudon.va.val_point(l, xi0, theta, phi) ;
 	inum++ ;
       }
       for (int iz=nzv; iz<nzv2; iz++) {
@@ -862,7 +865,7 @@ double* Gval_spher::somme_spectrale2(const Cmp& meudon) const {
   double* resu = new double[taille] ;
   int l ;
   double xi, rr, theta ;
-  double phi = 0 ;
+  double phi0 = 0 ;
   int inum = 0 ;
   for (int it=0; it<nfantome; it++) {
     for (int ir=0; ir<nrv2; ir++) {
@@ -878,8 +881,8 @@ double* Gval_spher::somme_spectrale2(const Cmp& meudon) const {
     theta = tet->t[it] ;
     for (int ir=nfantome; ir<nrv; ir++) {
       rr = zr->t[ir] ;
-      mp->val_lx(rr, theta, phi, l, xi) ;
-      resu[inum] = meudon.va.val_point(l, xi, theta, phi) ;
+      mp->val_lx(rr, theta, phi0, l, xi) ;
+      resu[inum] = meudon.va.val_point(l, xi, theta, phi0) ;
       inum++ ;
     }
     for (int ir=nrv; ir<nrv2; ir++) {
@@ -906,7 +909,7 @@ double* Gval_spher::somme_spectrale2ri(const Cmp& meudon) const {
   double* resu = new double[taille] ;
   int l ;
   double xi, rr, theta ;
-  double phi = 0 ;
+  double phi0 = 0 ;
   int inum = 0 ;
   for (int it=0; it<nfantome; it++) {
     for (int ir=0; ir<nrv2; ir++) {
@@ -922,8 +925,8 @@ double* Gval_spher::somme_spectrale2ri(const Cmp& meudon) const {
     theta = tet->t[it] ;
     for (int ir=nfantome; ir<nrv; ir++) {
       rr = zri->t[ir] ;
-      mp->val_lx(rr, theta, phi, l, xi) ;
-      resu[inum] = meudon.va.val_point(l, xi, theta, phi) ;
+      mp->val_lx(rr, theta, phi0, l, xi) ;
+      resu[inum] = meudon.va.val_point(l, xi, theta, phi0) ;
       inum++ ;
     }
     for (int ir=nrv; ir<nrv2; ir++) {
@@ -950,7 +953,7 @@ double* Gval_spher::somme_spectrale2ti(const Cmp& meudon) const {
   double* resu = new double[taille] ;
   int l ;
   double xi, rr, theta ;
-  double phi = 0 ;
+  double phi0 = 0 ;
   int inum = 0 ;
   for (int it=0; it<nfantome; it++) {
     for (int ir=0; ir<nrv2; ir++) {
@@ -966,8 +969,8 @@ double* Gval_spher::somme_spectrale2ti(const Cmp& meudon) const {
     theta = teti->t[it] ;
     for (int ir=nfantome; ir<nrv; ir++) {
       rr = zr->t[ir] ;
-      mp->val_lx(rr, theta, phi, l, xi) ;
-      resu[inum] = meudon.va.val_point(l, xi, theta, phi) ;
+      mp->val_lx(rr, theta, phi0, l, xi) ;
+      resu[inum] = meudon.va.val_point(l, xi, theta, phi0) ;
       inum++ ;
     }
     for (int ir=nrv; ir<nrv2; ir++) {

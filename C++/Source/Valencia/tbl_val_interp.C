@@ -32,6 +32,9 @@ char TBL_VAL_INTER_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/12/19 15:05:15  j_novak
+ * Trying to avoid shadowed variables
+ *
  * Revision 1.5  2003/10/03 16:17:17  j_novak
  * Corrected some const qualifiers
  *
@@ -159,10 +162,9 @@ Cmp Tbl_val::to_spectral(const Map& mp, const int lmax, const int lmin,
       int tsizez = dim->dim[0] + 2*fant ;
       Tbl fdep(tsizex, tsizez) ;
       fdep.set_etat_qcq() ;
-      int l ;
       for (int j=0; j<tsizex; j++) {
 	for (int i=0; i<tsizez; i++) {
-	  l = tsizez*j + i ;
+	  int l = tsizez*j + i ;
 	  fdep.t[l] = t[l] ;
 	}
       }
@@ -211,11 +213,10 @@ Cmp Tbl_val::to_spectral(const Map& mp, const int lmax, const int lmin,
       int tsizez = dim->dim[0] + 2*fant ;
       Tbl fdep(tsizey, tsizex, tsizez) ;
       fdep.set_etat_qcq() ;
-      int l ;
       for (int k=0; k<tsizey; k++) {
 	for (int j=0; j<tsizex; j++) {
 	  for (int i=0; i<tsizez; i++) {
-	    l = (k*tsizex+j)*tsizez+i ;
+	    int l = (k*tsizex+j)*tsizez+i ;
 	    fdep.t[l] = t[l];
 	  }
 	}
