@@ -29,6 +29,9 @@ char einstein_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/03/04 16:25:56  e_gourgoulhon
+ * Still in progress...
+ *
  * Revision 1.5  2004/03/03 11:35:25  e_gourgoulhon
  * First version with Evolution_std's and d'Alembert.
  *
@@ -54,6 +57,7 @@ char einstein_C[] = "$Header$" ;
 
 // C headers
 #include <stdlib.h>
+#include <math.h>
 
 // Lorene headers
 #include "metric.h"
@@ -61,6 +65,11 @@ char einstein_C[] = "$Header$" ;
 #include "param.h"
 #include "nbr_spx.h"
 #include "utilitaires.h"
+#include "graphique.h"
+
+
+void des_meridian(const Scalar& uu, double r_min, double r_max,
+                  const char* nomy, int ngraph) ; 
 
 int main() {
 
@@ -73,9 +82,8 @@ int main() {
     // ------------------------------------------------
   
     int nz = 3 ; 	// Number of domains
-    int nzm1 = nz - 1 ;
-    int nr = 17 ; 	// Number of collocation points in r in each domain
-    int nt = 5 ; 	// Number of collocation points in theta in each domain
+    int nr = 33 ; 	// Number of collocation points in r in each domain
+    int nt = 17 ; 	// Number of collocation points in theta in each domain
     int np = 8 ; 	// Number of collocation points in phi in each domain
     int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
     int symmetry_phi = NONSYM ; // no symmetry in phi
@@ -91,7 +99,7 @@ int main() {
     // --------------------------------------------------------------------------
 
     // radial boundaries of each domain:
-    double r_limits[] = {0., 2., 3., __infinity} ; 
+    double r_limits[] = {0., 0.9, 1.5, __infinity} ; 
     assert( nz == 3 ) ;  // since the above array described only 3 domains
   
     Map_af map(mgrid, r_limits) ;   // Mapping construction
@@ -111,7 +119,7 @@ int main() {
     // Parameter for the initial data 
     //-------------------------------
     
-    double relativistic_init = 0.1 ;     // 0 = flat space
+    double relativistic_init = 0.05 ;     // 0 = flat space
     
     
     // Set up of tensor h
@@ -123,34 +131,44 @@ int main() {
     
     // Test with the tensor h^{ij} = D^i D^j Phi  with Lap(Phi) = 0
     
-    const Coord& x = map.x ; 
-    const Coord& y = map.y ; 
-    const Coord& z = map.z ; 
+    // const Coord& x = map.x ; 
+    // const Coord& y = map.y ; 
+    // const Coord& z = map.z ; 
     const Coord& r = map.r ; 
     const Coord& cost = map.cost ; 
     const Coord& sint = map.sint ; 
     const Coord& cosp = map.cosp ; 
-    const Coord& sinp = map.sinp ; 
-    const Coord& phi = map.phi ; 
+    // const Coord& sinp = map.sinp ; 
     
-    Sym_tensor_tt htt(map, otriad, ff) ;  // htt is the TT part of hh
+    Scalar khi_init(map) ; 
+    khi_init = 0. * (3*cost*cost-1) / 
+        ( (r*r + 1./(r*r)) * sqrt(1.+r*r) ) ; 
+    khi_init.std_spectral_base() ; 
     
-    Scalar htt_rr(map) ; 
-    htt_rr = relativistic_init * (3*cost*cost-1) / (r*r*r*r + 1./(r*r)) ; 
-    htt_rr.std_spectral_base() ; 
+    //khi_init.spectral_display("khi_init") ;   
+    //des_profile(khi_init, 0., 4., 0., 0, "khi_init") ;
+        
+    Scalar mu_init(map) ; 
+    mu_init = relativistic_init / (1+r*r*r*r*r*r) ; 
+    mu_init.std_spectral_base() ; 
+    mu_init.mult_r() ; 
+    mu_init.mult_r() ; 
+    mu_init.mult_r() ; 
+    mu_init.mult_cost() ; 
     
-    Scalar htt_mu(map) ; 
-    htt_mu = relativistic_init / (1+r*r*r*r*r*r) ; 
-    htt_mu.std_spectral_base() ; 
-    htt_mu.mult_r() ; 
-    htt_mu.mult_cost() ; 
-    
-    htt.set_rr_mu(htt_rr, htt_mu) ; 
-    
-    hh_init = htt ; 
-    
-    hh_init.annule_domain(nzm1) ;           // h set to zero in the CED     
+    //mu_init.spectral_display("mu_init") ;   
+    //des_profile(mu_init, 0., 4., 0., 0, "mu_init") ;
 
+    Sym_tensor_tt htt_init(map, otriad, ff) ;  // htt is the TT part of hh
+        
+    htt_init.set_khi_mu(khi_init, mu_init) ; 
+    
+    hh_init = htt_init ; 
+    
+    maxabs( hh_init.divergence(ff), "Divergence of hh_init") ; 
+    maxabs( hh_init.trace(ff), "Trace of hh_init") ; 
+
+    arrete() ; 
 
     // Set up of field Q = Psi^2 N
     // ---------------------------
@@ -158,9 +176,7 @@ int main() {
     Scalar qq_init(map) ; 
     Scalar tmp(map) ; 
     
-    qq_init = 1. + relativistic_init * r*r ; 
-    tmp = 1. + relativistic_init / (r*r) ; 
-    qq_init.set_domain(nzm1) = tmp.domain(nzm1) ; 
+    qq_init = 1. - relativistic_init / (1. + r*r) ;  
      
     qq_init.std_spectral_base() ;    // sets standard spectral bases
 
@@ -186,9 +202,7 @@ int main() {
     
     Scalar nn_init(map) ; 
 
-    nn_init = 1. - relativistic_init * r*r ; 
-    tmp = 1. - relativistic_init / (r*r) ; 
-    nn_init.set_domain(nzm1) = tmp.domain(nzm1) ; 
+    nn_init = 1. - relativistic_init / sqrt(1. + r*r) ; 
 
     nn_init.std_spectral_base() ;    // sets standard spectral bases
 
@@ -210,31 +224,25 @@ int main() {
     Evolution_std<Vector> beta_time(beta_init, ttime, 3) ; 
     Evolution_std<Scalar> qq_time(qq_init, ttime, 3) ; 
     Evolution_std<Sym_tensor_trans> hh_time(hh_init, ttime, 3) ; 
+    Evolution_std<Scalar> khi_time(khi_init, ttime, 3) ; 
+    Evolution_std<Scalar> mu_time(mu_init, ttime, 3) ; 
     
     ttime += pdt ; 
     nn_time.update(nn_init, ttime) ; 
     beta_time.update(beta_init, ttime) ; 
     qq_time.update(qq_init, ttime) ; 
     hh_time.update(hh_init, ttime) ; 
+    khi_time.update(khi_init, ttime) ; 
+    mu_time.update(mu_init, ttime) ; 
     
     ttime += pdt ; 
     nn_time.update(nn_init, ttime) ; 
     beta_time.update(beta_init, ttime) ; 
     qq_time.update(qq_init, ttime) ; 
     hh_time.update(hh_init, ttime) ; 
+    khi_time.update(khi_init, ttime) ; 
+    mu_time.update(mu_init, ttime) ; 
     
-    // khi and mu at previous time step for the resolution 
-    // of the wave equation for h^{ij}_TT
-    //-----------------------------------------------------
-    Scalar khi_prev = ((hh_time[1]).tt_part())(1,1) ;  
-    khi_prev.annule_domain(nzm1) ; 
-    khi_prev.mult_r() ; 
-    khi_prev.mult_r() ; 
-    
-    
-    Scalar mu_prev = ((hh_time[1]).tt_part()).mu() ;  
-    mu_prev.annule_domain(nzm1) ; 
-
     
     // Parameters for the d'Alembert equations
     // ----------------------------------------
@@ -265,9 +273,8 @@ int main() {
         Scalar source_nn(map) ; 
         Vector source_beta(map, CON, otriad) ;
         Scalar source_qq(map) ; 
-        Sym_tensor_trans source_hh(map, otriad, ff) ;  
+        Sym_tensor source_hh(map, CON, otriad) ;  
         
-
         {
         //==============================================
         //  Definition of references on derivatives: 
@@ -399,6 +406,7 @@ int main() {
 
         ricci_star = 0.5 * ricci_star ; 
         
+        // des_meridian(ricci_star(1,1), 0., 4., "Ricci_star^rr", 12) ; 
         
         // Curvature scalar of conformal metric :
         // -------------------------------------
@@ -408,8 +416,7 @@ int main() {
                              contract(dhh, 0, 1, dtgam, 0, 1), 0, 1 ) 
           - 0.5  * contract( tgam_uu, 0, 1,
                              contract(dhh, 0, 1, dtgam, 0, 2), 0, 1 ) ;  
-                                             
-          
+                                                       
         // Full quadratic part of source for h : S^{ij}
         // --------------------------------------------
         
@@ -429,13 +436,10 @@ int main() {
         // ------------
                  
         source_hh = (nn*nn/psi4 - 1.) * hh.derive_con(ff).divergence(ff) ;
-        
         source_hh.inc_dzpuis() ; 
-        
 
         source_hh += 2. * nn * ss ;       
         
-
         }
         //==============================================
         //  End of scope for references on derivatives
@@ -445,33 +449,54 @@ int main() {
         // Resolution of wave equation for h
         //=============================================
     
-        const Sym_tensor_tt& source_htt = source_hh.tt_part() ;
+        source_hh.spectral_display("source_hh") ; 
+        maxabs(source_hh, "Maxabs source_hh") ; 
+
+        maxabs( source_hh.divergence(ff), "Divergence of source_hh") ; 
+        maxabs( source_hh.transverse(ff).divergence(ff), 
+                "Divergence of source_hh_transverse") ; 
+        maxabs( source_hh.transverse(ff).trace(ff), 
+                "Trace of source_hh_transverse") ; 
+
+        arrete() ; 
+
+//##        const Sym_tensor_tt& source_htt = source_hh.transverse(ff).tt_part() ;
+  
+        Sym_tensor_tt source_htt(map, otriad, ff) ; 
+        source_htt = source_hh ; 
         
-        Scalar khi_source = source_htt(1,1) ; 
-        khi_source.mult_r() ;  
-        khi_source.mult_r() ;  
+        maxabs( source_htt.divergence(ff), "Divergence of source_htt") ; 
+        maxabs( source_htt.trace(ff), "Trace of source_hhtt") ; 
+
+        const Scalar& khi_source = source_htt.khi() ; 
         
         const Scalar& mu_source = source_htt.mu() ; 
+       
+        des_meridian(source_hh(1,1), 0., 2., "source_hh^rr", 4) ; 
+
+        des_meridian(khi_source, 0., 2., "khi_source", 6) ; 
+
+                     
+        Scalar khi_jp1 = khi_time[jtime].avance_dalembert(par_khi,
+                                         khi_time[jtime-1], khi_source) ;
         
-        Scalar khi_j = hh.tt_part()(1,1) ; 
-        khi_j.mult_r() ; 
-        khi_j.mult_r() ; 
-             
-        Scalar khi_jp1 = khi_j.avance_dalembert(par_khi, khi_prev, khi_source) ;
+        const Scalar* khides[] = {&(khi_time[jtime]), &khi_jp1} ; 
+        double thetades[] = {0., 0.} ; 
+        double phides[] = {0., 0.} ; 
+        des_profile_mult(khides, 2, 0., 2., thetades, phides, 1, false, "khi") ;
         
-        Scalar mu_jp1 = hh.tt_part().mu().avance_dalembert(par_mu, mu_prev, 
-                                                            mu_source) ;
+        maxabs(khi_jp1 - khi_time[jtime], "Variation of khi") ;  
+        
+        //Scalar mu_jp1 = mu_time[jtime].avance_dalembert(par_mu,  
+        //                                  mu_time[jtime-1], mu_source) ;
+        
+        Scalar mu_jp1 = mu_init ; 
         
         Sym_tensor_tt htt_jp1(map, otriad, ff) ;
         
-	    khi_jp1.div_r() ;   		// division 
-	    khi_jp1.div_r() ;   		// by r^2 --> khi_jp1 now contains h^{rr}
-
-        htt_jp1.set_rr_mu(khi_jp1, mu_jp1) ;
-         
-        htt_jp1.annule_domain(nzm1) ; 
-        
-        Sym_tensor_trans hh_jp1 = htt_jp1 ;    
+        htt_jp1.set_khi_mu(khi_jp1, mu_jp1) ;
+                 
+        Sym_tensor_trans hh_jp1 = htt_jp1 ;     //## the trace should be added
 
         cout << "Next step ?" << endl ; 
         arrete() ;  
@@ -481,17 +506,12 @@ int main() {
         
         ttime += pdt ; 
         
-        khi_prev = khi_j ; 
-        khi_prev.annule_domain(nzm1) ; 
-
-        mu_prev = hh.tt_part().mu() ; 
-        mu_prev.annule_domain(nzm1) ; 
-                
-
         nn_time.update(nn, ttime) ; 
         beta_time.update(beta, ttime) ; 
         qq_time.update(qq, ttime) ; 
         hh_time.update(hh_jp1, ttime) ; 
+        khi_time.update(khi_jp1, ttime) ; 
+        mu_time.update(mu_jp1, ttime) ; 
         
     }
 
@@ -501,3 +521,27 @@ int main() {
 
     return EXIT_SUCCESS ; 
 }
+
+
+void des_meridian(const Scalar& uu, double r_min, double r_max,
+                  const char* nomy, int ngraph) {
+
+        const Scalar* des[] = {&uu, &uu, &uu} ; 
+        double phi1[] = {0., 0., 0.} ; 
+        double theta1[] = {0., 0.4*M_PI, 0.5*M_PI} ;
+         
+        des_profile_mult(des, 3, r_min, r_max, theta1, phi1, 1., false, 
+            nomy, 
+            "Meridional plane phi=0: plot for theta=0, pi/4, pi/2",
+            ngraph) ;
+        
+        double phi2[] = {0.5*M_PI, 0.5*M_PI, 0.5*M_PI} ; 
+    
+ //       des_profile_mult(des, 3, r_min, r_max, theta1, phi2, 1., false, 
+ //           nomy, 
+ //           "Meridional plane phi=pi/2: plot for theta=0, pi/4, pi/2",
+ //           ngraph+1) ;
+       
+}
+
+
