@@ -33,8 +33,11 @@ char dim_tbl[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
- * Initial revision
+ * Revision 1.1  2001/11/23 09:37:51  e_gourgoulhon
+ * dim_tbl.C now in directory Tbl
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.5  1999/11/23  12:16:49  eric
  * Dimension 0 autorisee dans le constructeur 1D.
