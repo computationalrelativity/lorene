@@ -38,6 +38,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.66  2005/04/04 21:28:57  e_gourgoulhon
+ * Added argument lambda to method poisson_angu
+ * to deal with the generalized angular Poisson equation:
+ *    Lap_ang u + lambda u = source.
+ *
  * Revision 1.65  2004/12/14 09:09:39  f_limousin
  * Modif. comments.
  *
@@ -1214,16 +1219,20 @@ class Scalar : public Tensor {
   Tbl test_poisson(const Scalar& uu, ostream& ostr, 
 		   bool detail = false) const ;  
 
-	/** Solves the angular Poisson equation with \c *this  as source. 
-	 * The angular Poisson equation is \f$\Delta_{\theta\varphi} u = \sigma\f$,
+	/** Solves the (generalized) angular Poisson equation with \c *this  
+         * as source. 
+	 * The generalized angular Poisson equation is 
+         * \f$\Delta_{\theta\varphi} u + \lambda u = \sigma\f$,
 	 * where \f$\Delta_{\theta\varphi} u := \frac{\partial^2 u}
 	 *  {\partial \theta^2} + \frac{1}{\tan \theta} \frac{\partial u}
 	 *  {\partial \theta} +\frac{1}{\sin^2 \theta}\frac{\partial^2 u}
 	 *  {\partial \varphi^2}\f$.
 	 * 
+         *    @param lambda [input] coefficient \f$\lambda\f$ in the above equation
+         *      (default value = 0)
 	 *   @return solution \e u . 
 	 */
-	Scalar poisson_angu() const ;
+	Scalar poisson_angu(double lambda =0) const ;
 
   /** Performs one time-step integration (from \f$t=J \to J+1\f$) of the 
    *   scalar d'Alembert equation with \c *this  being the value of 
