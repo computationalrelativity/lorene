@@ -35,6 +35,9 @@ char scalar_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2004/01/28 10:34:27  j_novak
+ * Corrected some errors.
+ *
  * Revision 1.15  2004/01/27 15:10:02  j_novak
  * New methods Scalar::div_r_dzpuis(int) and Scalar_mult_r_dzpuis(int)
  * which replace div_r_inc*. Tried to clean the dzpuis handling.
@@ -176,12 +179,8 @@ void Scalar::div_r_ced() {
 
 void Scalar::mult_r() {
     
-	Cmp cuu(*this) ; 
-
-    mp->mult_r(cuu) ;   // Call of the appropriate routine of the mapping
+    mp->mult_r(*this) ;   // Call of the appropriate routine of the mapping
     
-	operator=(cuu) ; 
-	
     del_deriv() ;   // Delete the derived members
     
 }
@@ -282,8 +281,11 @@ void Scalar::mult_rsint_dzpuis(int ced_mult_r) {
     uu_ext.annule(0,nzm1-1) ; // zero in all domains but the CED
     uu_ext.set_domain(nzm1) = domain(nzm1) ; 
     uu_ext.set_spectral_base(va.get_base()) ; 
-    int diff_dzpuis = ced_mult_r - dzpuis ;
-    (diff_dzpuis >= 0) ? inc_dzpuis(diff_dzpuis) : dec_dzpuis(-diff_dzpuis) ;
+    int dzpuis_ext = dzpuis - 1 ;
+    uu_ext.set_dzpuis(dzpuis_ext) ;
+    int diff_dzpuis = ced_mult_r - dzpuis_ext ;
+    (diff_dzpuis >= 0) ? uu_ext.inc_dzpuis(diff_dzpuis) 
+      : uu_ext.dec_dzpuis(-diff_dzpuis) ;
 
     // Multiplication by sin(theta) in the CED :
     // what follows does not apply if the mapping is not radial:
@@ -299,9 +301,7 @@ void Scalar::mult_rsint_dzpuis(int ced_mult_r) {
 	
   }
   
-  else {                  //ETATZERO
-    dzpuis = ced_mult_r ;
-  }
+  dzpuis = ced_mult_r ;
  
   lbase.mult_x() ;
   lbase.mult_sint() ; 
@@ -349,13 +349,16 @@ void Scalar::div_rsint_dzpuis(int ced_mult_r) {
     uu_ext.annule(0,nzm1-1) ; // zero in all domains but the CED
     uu_ext.set_domain(nzm1) = domain(nzm1) ; 
     uu_ext.set_spectral_base(va.get_base()) ; 
-    int diff_dzpuis = ced_mult_r - dzpuis ;
-    (diff_dzpuis >= 0) ? inc_dzpuis(diff_dzpuis) : dec_dzpuis(-diff_dzpuis) ;
+    int dzpuis_ext = dzpuis + 1 ;
+    uu_ext.set_dzpuis(dzpuis_ext) ;
+    int diff_dzpuis = ced_mult_r - dzpuis_ext ;
+    (diff_dzpuis >= 0) ? uu_ext.inc_dzpuis(diff_dzpuis) 
+      : uu_ext.dec_dzpuis(-diff_dzpuis) ;
 
     // Division by sin(theta) in the CED :
     // what follows does not apply if the mapping is not radial:
     assert( dynamic_cast<const Map_radial*>(mp) != 0x0 ) ; 
-    uu_ext.set_spectral_va().ssint() ;
+    uu_ext.div_sint() ;
 
     // Division by r sin(theta) in all domains but the CED
     annule(nzm1, nzm1) ; 	// zero in the CED
@@ -366,9 +369,7 @@ void Scalar::div_rsint_dzpuis(int ced_mult_r) {
 	
   }
   
-  else {
-    dzpuis = ced_mult_r ;
-  }
+  dzpuis = ced_mult_r ;
 	
   lbase.sx() ;
   lbase.ssint() ;
