@@ -6,7 +6,8 @@
  */
 
 /*
- *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2005 Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2005 Michael Forot
  *
  *   This file is part of LORENE.
  *
@@ -32,6 +33,11 @@ char mtbl_cf_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/04/04 21:32:13  e_gourgoulhon
+ * Added argument lambda to method poisson_angu
+ * to deal with the generalized angular Poisson equation:
+ *     Lap_ang u + lambda u = source.
+ *
  * Revision 1.2  2004/12/17 13:35:03  m_forot
  * Add the case T_LEG
  *
@@ -51,21 +57,21 @@ char mtbl_cf_pde_C[] = "$Header$" ;
 
 
 // Prototypage des fonctions utilisees:
-void _poisangu_pas_prevu(Mtbl_cf *, int) ;
-void _poisangu_t_leg_p(Mtbl_cf *, int) ;
-void _poisangu_t_leg_i(Mtbl_cf *, int) ;
-void _poisangu_t_leg_pp(Mtbl_cf *, int) ;
-void _poisangu_t_leg_ip(Mtbl_cf *, int) ;
-void _poisangu_t_leg_pi(Mtbl_cf *, int) ;
-void _poisangu_t_leg_ii(Mtbl_cf *, int) ;
-void _poisangu_t_leg(Mtbl_cf *, int) ;
+void _poisangu_pas_prevu(Mtbl_cf *, int, double) ;
+void _poisangu_t_leg_p(Mtbl_cf *, int, double) ;
+void _poisangu_t_leg_i(Mtbl_cf *, int, double) ;
+void _poisangu_t_leg_pp(Mtbl_cf *, int, double) ;
+void _poisangu_t_leg_ip(Mtbl_cf *, int, double) ;
+void _poisangu_t_leg_pi(Mtbl_cf *, int, double) ;
+void _poisangu_t_leg_ii(Mtbl_cf *, int, double) ;
+void _poisangu_t_leg(Mtbl_cf *, int, double) ;
 
 //*****************************************************************************
 
-void Mtbl_cf::poisson_angu() {
+void Mtbl_cf::poisson_angu(double lambda) {
 
 	// Routines de derivation
-	static void (*poisangu[MAX_BASE])(Mtbl_cf *, int) ;
+	static void (*poisangu[MAX_BASE])(Mtbl_cf *, int, double) ;
 	static int nap = 0 ;
 
     // Premier appel
@@ -86,7 +92,7 @@ void Mtbl_cf::poisson_angu() {
     // Boucle sur les zones
     for (int l=0 ; l<get_mg()->get_nzone() ; l++) {
 		int base_t = (base.b[l] & MSQ_T) >> TRA_T ;
-		poisangu[base_t](this, l) ;
+		poisangu[base_t](this, l, lambda) ;
     }
     
 }

@@ -5,7 +5,8 @@
  */
 
 /*
- *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2005 Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2004 Philippe Grandclement
  *
  *   Copyright (c) 1999-2001 Eric Gourgoulhon (for preceding class Cmp)
  *   Copyright (c) 1999-2001 Philippe Grandclement (for preceding class Cmp)
@@ -35,6 +36,11 @@ char scalar_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2005/04/04 21:34:44  e_gourgoulhon
+ * Added argument lambda to method poisson_angu
+ * to deal with the generalized angular Poisson equation:
+ *     Lap_ang u + lambda u = source.
+ *
  * Revision 1.12  2004/08/24 09:14:52  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -132,17 +138,15 @@ void Scalar::poisson(Param& par, Scalar& uu) const {
 		    //      Angular Poisson equation	 //
 		    //-----------------------------------//
 
-// Version without parameters
-// --------------------------
 
-Scalar Scalar::poisson_angu() const {
+Scalar Scalar::poisson_angu(double lambda) const {
     
     Param bidon ;
 
     Scalar resu(*mp) ; 
     resu = 0. ;
 		
-    mp->poisson_angu(*this, bidon, resu) ; 
+    mp->poisson_angu(*this, bidon, resu, lambda) ; 
 
     return resu ;          
 }
