@@ -32,6 +32,10 @@ char et_rot_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2002/05/20 15:44:55  e_marcq
+ *
+ * Dimension errors corrected, parmag.d input file created and read
+ *
  * Revision 1.8  2002/05/20 08:27:59  j_novak
  * *** empty log message ***
  *
@@ -214,7 +218,7 @@ ostream& Et_rot_mag::operator>>(ostream& ost) const {
 
   int theta_eq = mp.get_mg()->get_nt(nzet-1)-1 ;
 
-  ost << "Central pressure : "<< 1/(2*mu_si)*(pow(Magn()(0)(0,0,0,0),2)+pow(Magn()(1)(0,0,0,0),2)+pow(Magn()(2)(0,0,0,0),2)) << endl ;
+  ost << "Central pressure : "<< 1/(2*mu_si)*(pow(Magn()(0)(0,0,0,0),2)+pow(Magn()(1)(0,0,0,0),2)+pow(Magn()(2)(0,0,0,0),2))*rho_unit*pow(v_unit,2) << endl ;
   ost << "Tangent magnetic field equatorial value : " << 
   Magn()(1).va.val_point(l_surf()(0,theta_eq),xi_surf()(0,theta_eq),M_PI_2,0.) 
       << endl;

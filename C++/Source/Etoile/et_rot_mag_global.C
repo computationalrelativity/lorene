@@ -33,6 +33,10 @@ char et_rot_mag_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2002/05/20 15:44:55  e_marcq
+ *
+ * Dimension errors corrected, parmag.d input file created and read
+ *
  * Revision 1.10  2002/05/20 10:31:59  j_novak
  * *** empty log message ***
  *
@@ -121,7 +125,7 @@ Tenseur Et_rot_mag::Elec() const {
   E.set(1) = E_t ;
   E.set(2) = 0. ;
 
-    return E*elec_unit*1e12 ;
+    return E*elec_unit ;
 
 }
 
@@ -139,7 +143,7 @@ Tenseur Et_rot_mag::Magn() const {
   B.set(1) = B_t ;
   B.set(2) = 0. ;
 
-    return B*mag_unit*1e9 ;
+    return B*mag_unit ;
 
 }
 
@@ -154,7 +158,7 @@ double Et_rot_mag::MagMom() const {
   }else{
 
     Valeur** asymp = A_phi.asymptot(1) ;
-    mm = -4*M_PI/mu0*(*asymp[1])(Z-1,0,mp.get_mg()->get_nt(0)-1,0) ;
+    mm = 4*M_PI/mu0*(*asymp[1])(Z-1,0,mp.get_mg()->get_nt(0)-1,0) ;
     
     delete asymp[0] ;
     delete asymp[1] ;
@@ -162,7 +166,7 @@ double Et_rot_mag::MagMom() const {
     delete [] asymp ;
   }
   
-  return mm*j_unit*pow(r_unit,4)/1e27 ;
+  return mm*(j_unit*pow(r_unit,4)) ;
 
 }
 
@@ -181,13 +185,13 @@ double Et_rot_mag::Q_comput() const {
 
   delete [] asymp ;
 
-  return Q_c * (j_unit/v_unit*pow(r_unit,3))/(1e23/c_si) ;}
+  return Q_c *(j_unit/v_unit*pow(r_unit,3)) ;}
   }
 
 double Et_rot_mag::GyroMag() const {
   // Q et MM en SI, J et Mg en Lorene : facteur de conversion
 
-  return 2*MagMom()*mass_g()/(Q_comput()*angu_mom()*c_si*pow(r_unit,2)); 
+  return 2*MagMom()*mass_g()/(Q_comput()*angu_mom()*v_unit*r_unit); 
   }
 			//----------------------------//
 			//	Gravitational mass    //

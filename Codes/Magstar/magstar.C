@@ -140,6 +140,27 @@ int main(){
 
     fich.close();
 
+    // Magnetic quantities input
+    // -------------------------
+
+    double Q0, a_j0, Q_ini, a_j_ini ;
+    int mer_mag, mer_change_mag, mer_fix_mag ;
+
+    ifstream fichm("parmag.d");
+    fichm.getline(blabla,120);
+    fichm >> Q0 ; fichm.getline(blabla,120) ;
+    fichm >> a_j0 ; fichm.getline(blabla,120) ;
+    fichm.getline(blabla,120);
+    fichm >> Q_ini; fichm.getline(blabla,120) ;
+    fichm >> a_j_ini ; fichm.getline(blabla,120) ;
+    fichm >> mer_mag ; fichm.getline(blabla,120) ;
+    fichm >> mer_change_mag ; fichm.getline(blabla,120) ;
+    fichm >> mer_fix_mag ;
+    fichm.close();
+
+
+
+
     // Particular cases
     // ----------------
 
@@ -318,7 +339,7 @@ int main(){
     double omega = 2 * M_PI * freq_si / f_unit ; 
     double omega_ini = 2 * M_PI * freq_ini_si / f_unit ; 
 
-    Itbl icontrol(8) ;
+    Itbl icontrol(11) ;
     icontrol.set_etat_qcq() ; 
     icontrol.set(0) = mer_max ; 
     icontrol.set(1) = mer_rot ; 
@@ -328,8 +349,11 @@ int main(){
     icontrol.set(5) = mermax_poisson ; 
     icontrol.set(6) = mer_triax ; 
     icontrol.set(7) = delta_mer_kep ; 
+    icontrol.set(8) = mer_mag ;
+    icontrol.set(9) = mer_change_mag ;
+    icontrol.set(10)= mer_fix_mag ;
     
-    Tbl control(7) ; 
+    Tbl control(9) ; 
     control.set_etat_qcq() ; 
     control.set(0) = precis ; 
     control.set(1) = omega_ini ; 
@@ -338,13 +362,11 @@ int main(){
     control.set(4) = thres_adapt ; 
     control.set(5) = ampli_triax ; 
     control.set(6) = precis_adapt ; 
+    control.set(7) = Q_ini ;
+    control.set(8) = a_j_ini ;
 
     Tbl diff(8) ;     
     
-    // temporaire
-    double Q0 = 10. ;
-    double a_j0 = 0. ;
-
     star.equilibrium_mag(ent_c, omega, fact_omega, nzadapt, ent_limit, 
 			 icontrol, control, mbar_wanted, aexp_mass, diff, 
 			 Q0, a_j0, &f_j, &M_j) ;
@@ -461,7 +483,7 @@ int main(){
 	int nzdes = star.get_nzet() ; 
 
 	des_coupe_y(star.get_At(), 0., nzdes, "A\\dt\\u Potential", &surf) ; 
-	des_coupe_y(star.get_Aphi(), 0., nzdes, "Magnetic field", &surf) ; 
+	des_coupe_y(star.get_Aphi(), 0., nzdes, "A\\d\\gf\\u Potential", &surf) ; 
 	des_coupe_y(star.get_ent()(), 0., nzdes, "Enthalpy", &surf) ; 
 
 	if (mer_triax < mer_max) { 

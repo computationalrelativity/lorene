@@ -34,6 +34,10 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2002/05/20 15:44:55  e_marcq
+ *
+ * Dimension errors corrected, parmag.d input file created and read
+ *
  * Revision 1.6  2002/05/17 15:08:01  e_marcq
  *
  * Rotation progressive plug-in, units corrected, Q and a_j new member data
@@ -123,6 +127,9 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
     int mer_mass = icontrol(4) ; 
     int mermax_poisson = icontrol(5) ; 
     int delta_mer_kep = icontrol(7) ; 
+    int mer_mag = icontrol(8) ;
+    int mer_change_mag = icontrol(9) ;
+    int mer_fix_mag = icontrol(10) ;
 
     // Protections:
     if (mer_change_omega < mer_rot) {
@@ -154,7 +161,8 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
     double relax_poisson = control(3) ; 
     double thres_adapt = control(4) ; 
     double precis_adapt = control(6) ; 
-
+    double Q_ini = control(7) ;
+    double a_j_ini = control (8) ;
 
     // Error indicators
     // ----------------
@@ -284,14 +292,7 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
     // Initializations
     // ---------------
 
-    // Temporaire : lecture dans fichier a implementer
-    double Q_ini= 0;
-    double a_j_ini = 0;
-    int mer_fix_mag = 15 ;
-    int mer_change_mag = 10 ;
-    int mer_mag = 8 ;
-
-    // Initial angular velocity
+    // Initial angular velocity / magnetic quantities
     omega = 0 ; 
     Q = 0 ;
     a_j = 0 ;
