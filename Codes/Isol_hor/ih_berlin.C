@@ -23,40 +23,17 @@
  *
  */
 
-char isolhor_C[] = "$Header$" ;
+char ih_berlin_C[] = "$Header$" ;
 
 /* 
  * $Id$
  * $Log$
+ * Revision 1.2  2005/02/08 11:50:05  f_limousin
+ * Many modifs... Introduction of a non conformally flat metric.
+ *
+ *
  * Revision 1.1  2004/11/24 19:27:41  jl_jaramillo
  * Principal code Berlin boundary conditions
- *
- * Revision 1.14  2004/11/18 10:02:37  jl_jaramillo
- * gamt and gamt_point well constructed as tensor in spaherical
- * components
- *
- * Revision 1.13  2004/11/09 12:40:08  f_limousin
- * Add some printing
- *
- * Revision 1.12  2004/11/05 17:53:26  f_limousin
- * Perturbations of the conformal metric and its time derivative.
- *
- * Revision 1.8  2004/11/02 17:42:00  f_limousin
- * New method sauve(...) to save in a binary file.
- *
- * Revision 1.6  2004/10/29 15:41:02  jl_jaramillo
- * ADM angular momentum added
- *
- * Revision 1.5  2004/10/01 16:48:47  f_limousin
- * *** empty log message ***
- *
- * Revision 1.4  2004/09/28 15:57:45  f_limousin
- * Add the 2 lines  $Id and $Log to see the comments
- *
- *
- * Revision 1.1  2004/02/18 19:16:28  jl_jaramillo
- * First version: c'est loin d'etre pret tout ca !!!
- *
  *
  * $Header$
  *
@@ -145,25 +122,25 @@ int main() {
     // ---------------------------------------------------------------
 
     const Coord& r = map.r ;        // r field 
-    const Coord& cost = map.cost ;  // cos(theta) field
-    const Coord& sint = map.sint ;  // sin(theta) field
-    const Coord& cosp = map.cosp ;  // cos(phi) field
-    const Coord& sinp = map.sinp ;  // sin(phi) field
+    const Coord& costt = map.cost ;  // cos(theta) field
+    const Coord& sintt = map.sint ;  // sin(theta) field
+    const Coord& cospp = map.cosp ;  // cos(phi) field
+    const Coord& sinpp = map.sinp ;  // sin(phi) field
 
- 
+    Scalar cost (map) ;
+    cost = costt ;
+    Scalar cosp (map) ;
+    cosp = cospp ;
+    Scalar sint (map) ;
+    sint = sintt ;
+    Scalar sinp (map) ;
+    sinp = sinpp ;
+  
     // Flat metric f
     // -------------
 
     const Metric_flat& ff = map.flat_met_spher() ; 
-
-
-    Scalar det = ff.determinant() ;
-
-    // Triad orthonormal with respect to the flat metric f
-    // ----------------------------------------------------
-
     const Base_vect_spher& otriad = map.get_bvect_spher() ;
-    
 
     // Working stuff
     // -------------
@@ -212,12 +189,8 @@ int main() {
 
     Vector beta_init(map, CON, otriad ) ; 
     beta_init.set_etat_zero() ; 
-
-    Scalar comp1(map) ;
-    comp1 = 0.001 * unsr*unsr ;// 0.001*(3*unsr - 2* unsr*unsr);
-    comp1.set_spectral_va().set_base(beta_init(1).get_spectral_va().get_base()) ;
     
-    beta_init.set(1) = comp1 ;
+    beta_init.set(1) = 0.001 * unsr*unsr ;
     beta_init.set(2) = 0. ;
     beta_init.set(3) = 0. ;
     beta_init.annule_domain(0) ;
@@ -229,13 +202,13 @@ int main() {
     // --------------
 
     Scalar trK (map) ;
-    trK = 0. ;
+    trK = 0. ;//0.01*unsr*unsr ;
     trK.std_spectral_base() ;
 
     Scalar trK_point (map) ;
     trK_point = 0. ;
-
     trK_point.std_spectral_base() ;
+    trK_point.inc_dzpuis(2) ;
 	
     // gamt, gamt_point
     // ----------------
@@ -243,10 +216,12 @@ int main() {
     Scalar khi (map) ;
     khi = 0. ;
     khi.std_spectral_base() ;
+    khi.annule_domain(0) ;
     
     Scalar mu (map) ;
     mu = 0. ;
     mu.std_spectral_base() ;
+    mu.annule_domain(0) ;
     
     Sym_tensor_tt hh_tmp (map, otriad, ff) ;
     hh_tmp.set_khi_mu(khi, mu) ;
@@ -258,17 +233,98 @@ int main() {
     Sym_tensor gamt(map, COV, map.get_bvect_spher()) ;
 
     gamt = ff.cov() + hh_tmp.up_down(ff) ;
-    cout << gamt ;
+    cout << "norme de gamt" << endl << norme(gamt(1,1)) << endl << norme(gamt(2,1)) << endl << norme(gamt(3,1)) << endl << norme(gamt(2,2)) << endl << norme(gamt(3,2)) << endl << norme(gamt(3,3)) << endl ;
 
-    /*
-    gamt.set(1,1) = 1. ;
-    gamt.set(2,2) = 1. ;
-    gamt.set(3,3) = 1. ;
-    gamt.set(2,1) = 0. ;
-    gamt.set(3,1) = 0. ;
-    gamt.set(3,2) = 0.01*expmrr ;
-    gamt.std_spectral_base() ;
-    */
+
+
+/*
+    // Construction de la metrique de Kerr
+    
+    Scalar a2(map) ;
+    Scalar b2(map) ;
+    double hh = 2. ;
+    double aaa = 0.7 ;
+    double mm ;
+    mm = pow(hh*hh+aaa*aaa, 0.5) ;
+
+    const Coord& rr = map.r ;
+    const Coord& theta = map.tet ;
+
+    a2 = 1. + 2.*mm/rr + (3.*mm*mm + aaa*aaa*cos(2.*theta))/(2.*rr*rr)
+	+ (hh*hh*mm)/(2.*pow(rr, 3.)) + pow(hh,4.)/(16.*pow(rr,4.)) ;
+
+    a2.std_spectral_base() ;
+
+    b2 = ( pow(rr,8.) + 4.*mm*pow(rr,7.) + (7.*mm*mm + 
+	   aaa*aaa*cos(theta)*cos(theta))*pow(rr,6.) + mm*(7.*mm*mm+aaa*aaa)
+	   *pow(rr,5.) + (4.*pow(mm,4.) + hh*hh*(3.*hh*hh/4.+aaa*aaa*sin(theta)
+	   *sin(theta))/2.)*pow(rr,4.) + hh*hh*mm*(2.*mm*mm-hh*hh/4.)
+	   *pow(rr,3.) + pow(hh,4.)/16.*(7.*mm*mm + aaa*aaa*cos(theta)
+	   *cos(theta))*rr*rr + pow(hh,6.)*mm/16.*rr + pow(hh,8.)/256. ) 
+	   / ( pow(rr,8.) + 2.*mm*pow(rr,7.) + (3.*mm*mm + aaa*aaa
+           *cos(2.*theta))/2.*pow(rr,6.) + hh*hh*mm/2.*pow(rr,5.) 
+	   + pow(hh,4.)/16.*pow(rr,4.)) ;
+
+    b2.set_outer_boundary(nz-1 ,1.) ;
+    b2.std_spectral_base() ;
+
+    Sym_tensor h_uu(map, CON, map.get_bvect_spher()) ;
+    
+    for (int i=1; i<=3; i++)
+	for (int j=1; j<=i; j++){
+	    if(i != j){
+		h_uu.set(i,j) = 0 ;
+	    }   
+	}
+
+    h_uu.set(1,1) = pow(b2/a2, 1./3.) - 1 ;
+    h_uu.set(2,2) = pow(b2/a2, 1./3.) - 1 ;
+    h_uu.set(3,3) = pow(a2/b2, 2./3.) - 1 ;
+    h_uu.annule_domain(0) ;
+    h_uu.std_spectral_base() ;
+
+    gamt = ff.cov() + h_uu.up_down(ff) ;
+
+    ang_vel = aaa / (2*mm*(mm+pow(mm*mm-aaa*aaa, 0.5))) ;
+    cout << "ang_vel = " << ang_vel << endl ;
+    
+
+    Scalar nnn (map) ;
+    nnn = ( pow(rr, 8) + 2*mm*pow(rr, 7) + (mm*mm+aaa*aaa*cos(theta)
+					    *cos(theta))*pow(rr, 6) 
+	    - 0.5*hh*hh*mm*pow(rr, 5) - 0.5*hh*hh*(mm*mm+0.25*hh*hh
+	    +aaa*aaa*cos(theta)*cos(theta))*pow(rr,4) 
+	    - pow(hh,4)*mm/8.*rr*rr*rr + pow(hh,4)/16.*(mm*mm +
+	      aaa*aaa*cos(theta)*cos(theta))*rr*rr + pow(hh,6)*mm/32.*rr
+	    + pow(hh,8)/256.) / (pow(rr,8) + 4*mm*pow(rr,7) 
+	    + (7*mm*mm+aaa*aaa*cos(theta)*cos(theta))*pow(rr,6) 
+	    + mm*(7*mm*mm+aaa*aaa)*pow(rr,5) + (4*mm*mm*mm*mm
+	    + 0.5*hh*hh*(0.75*hh*hh+aaa*aaa*sin(theta)*sin(theta)))*pow(rr,4)
+ 	    + hh*hh*mm*(2*mm*mm-0.25*hh*hh)*pow(rr,3) 
+	    + pow(hh,4)/16.*(7*mm*mm+aaa*aaa*cos(theta)*cos(theta))*rr*rr 
+			+ pow(hh,6)*mm/16.*rr + pow(hh,8)/256.) ;
+			       
+    nnn.std_spectral_base() ;
+    nnn = pow(nnn, 0.5) ;
+    nnn.set_outer_boundary(nz-1 ,1.) ;
+    nnn.std_spectral_base() ;
+    
+    Scalar beta_phi (map) ;
+    beta_phi = 2*aaa*mm*unsr*unsr*unsr/(a2*b2)*(1+mm*unsr+0.25*hh*hh*unsr) ;
+    beta_phi.std_spectral_base() ;
+    
+    Vector beta_kerr (map, CON, map.get_bvect_spher()) ;
+    beta_kerr.set(1) = 0. ;
+    beta_kerr.set(2) = 0. ;
+    beta_kerr.set(3) = beta_phi ;
+    beta_kerr.std_spectral_base() ;
+
+    Scalar psi_kerr (pow(a2, 1./6.) * pow(b2,1./12.)) ;
+    psi_kerr.std_spectral_base() ;
+
+*/
+
+
     Metric met_gamt_tmp (gamt) ;     
         
     Scalar det_ust = pow(met_gamt_tmp.determinant(), -1./3.) ;
@@ -277,6 +333,7 @@ int main() {
     gamt = gamt*det_ust ;
     Metric met_gamt (gamt) ; 
 
+    cout << "norme de gamt" << endl << norme(gamt(1,1)) << endl << norme(gamt(2,1)) << endl << norme(gamt(3,1)) << endl << norme(gamt(2,2)) << endl << norme(gamt(3,2)) << endl << norme(gamt(3,3)) << endl ;
 
     // Gamma-tilde_point
     //------------------
@@ -291,16 +348,6 @@ int main() {
     Sym_tensor gamt_point(map, CON, map.get_bvect_spher()) ;
     gamt_point = hh_tmp ;
     gamt_point.inc_dzpuis(2) ;
-    /*
-    gamt_point.set(1,1) = 0. ;
-    gamt_point.set(2,2) = 0. ;
-    gamt_point.set(3,3) = 0. ;
-    gamt_point.set(2,1) = 0. ;
-    gamt_point.set(3,1) = 0. ;
-    gamt_point.set(3,2) = 0.1*unsr*unsr ;
-    gamt_point.std_spectral_base() ;
-    */
-
 
     // Set up of extrinsic curvature
     // -----------------------------
@@ -324,7 +371,7 @@ int main() {
     //     Construction of the space-time
     //-------------------------------------
 
-    Isol_hor isolhor(nn_init, beta_init, psi_init, aa_init, met_gamt,
+    Isol_hor isolhor(map, nn_init, psi_init, beta_init, aa_init, met_gamt,
 		     gamt_point, trK, trK_point, ff, 3) ;
  
 
@@ -334,10 +381,6 @@ int main() {
     //    des_profile(met_gam.radial_vect()(2), 1.00001, 10, M_PI/2., 0., "Radial component using metric.c") ; 
     //    des_profile(met_gam.radial_vect()(3), 1.00001, 10, M_PI/2., 0., "Radial component using metric.c") ;
    
-
-
-    //    des_profile(isolhor.radial_vect_hor()(1), 1.00001, 10, M_PI/2., 0., "Radial component using isolhor.c") ;
-    //    cout<<met_gam.radial_vect()(1)-isolhor.radial_vect_hor()(1)<<endl;
     //    arrete() ;
     
   
@@ -345,33 +388,13 @@ int main() {
     //          "Call to init_data.C" 
     //-----------------------------------------
     
-    //isolhor.init_data(seuil, relax, niter, ang_vel) ;
-
     isolhor.init_data_b_neumann(seuil, relax, niter, ang_vel) ;
-
-
-    /*
-    tmp_scal.set_etat_zero() ;
-    tmp_sym.set_etat_zero() ;
-    tmp_scal.set_dzpuis(4) ;
-
-    isolhor.init_data_berlin(seuil, relax, niter, ang_vel) ;
-
-    isolhor.boundary_b_tilde_Neu() ;
-
-    isolhor.boundary_b_tilde_Dir() ;
-
-    isolhor.source_vector_b() ;
-
-    isolhor.vv_bound_cart(0.2) ;
-
-    */
 
     // Save in a file
     // --------------
     
     FILE* fresu = fopen("resu.d", "w") ;
-    isolhor.sauve(fresu) ;
+    isolhor.sauve(fresu, true) ;
     fclose(fresu) ;     
     
     // Test of the constraints
@@ -386,7 +409,6 @@ int main() {
  
     // Graphic output of the different fields
     //---------------------------------------
-
 
     des_profile(isolhor.nn(), 1.00001, 10, 1., 1., "nn") ;    
     des_profile(isolhor.psi(), 1.00001, 10, 1., 1., "psi") ;
