@@ -1,5 +1,5 @@
 /*
- * Method Etoile_bin::update_metric_der_comp
+ * Methods Etoile_bin::update_metric_der_comp
  *
  * (see file etoile.h for documentation)
  *
@@ -32,6 +32,11 @@ char et_bin_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/12/19 14:53:38  e_gourgoulhon
+ * Added the new function
+ * 	void update_metric_der_comp(const Bhole& comp)
+ * to treat the case where the companion is a black hole
+ *
  * Revision 1.3  2002/12/10 15:12:07  k_taniguchi
  * Change the multiplication "*" to "%".
  *
@@ -64,14 +69,15 @@ char et_bin_upmetr_der_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "etoile.h"
+#include "bhole.h"
 
 void Etoile_bin::update_metric_der_comp(const Etoile_bin& comp) {
-    
+
     // Computation of d_logn_comp
     // --------------------------
-    
+
     if ( (comp.d_logn_auto).get_etat() == ETATZERO ) {
-	d_logn_comp.set_etat_zero() ; 
+	d_logn_comp.set_etat_zero() ;
     }
     else{
       d_logn_comp = logn_comp.gradient() ;
@@ -83,7 +89,7 @@ void Etoile_bin::update_metric_der_comp(const Etoile_bin& comp) {
     // --------------------------
 
     if ( (comp.d_beta_auto).get_etat() == ETATZERO ) {
-	d_beta_comp.set_etat_zero() ; 
+	d_beta_comp.set_etat_zero() ;
     }
     else {
       d_beta_comp = beta_comp.gradient() ;
@@ -95,7 +101,7 @@ void Etoile_bin::update_metric_der_comp(const Etoile_bin& comp) {
     // ------------------------
 
     if ( (comp.tkij_auto).get_etat() == ETATZERO ) {
-	tkij_comp.set_etat_zero() ; 
+	tkij_comp.set_etat_zero() ;
     }
     else{
 
@@ -130,26 +136,26 @@ void Etoile_bin::update_metric_der_comp(const Etoile_bin& comp) {
       tkij_comp = - 0.5 * tkij_comp / nnn ;
 
     }
-    
-    tkij_comp.set_triad( *((comp.tkij_auto).get_triad()) ) ; 
+
+    tkij_comp.set_triad( *((comp.tkij_auto).get_triad()) ) ;
     tkij_comp.set_std_base() ;
 
     if (relativistic) {
 	// Computation of akcar_comp
 	// -------------------------
     
-	akcar_comp.set_etat_qcq() ; 
+	akcar_comp.set_etat_qcq() ;
     
-	akcar_comp.set() = 0 ; 
-    
+	akcar_comp.set() = 0 ;
+
 	for (int i=0; i<3; i++) {
 	    for (int j=0; j<3; j++) {
-	
-		akcar_comp.set() += tkij_auto(i, j) % tkij_comp(i, j) ; 
-	
+
+		akcar_comp.set() += tkij_auto(i, j) % tkij_comp(i, j) ;
+
 	    }
 	}
-    
+
 	akcar_comp.set_std_base() ;
 	akcar_comp = a_car % akcar_comp ;
 
@@ -168,49 +174,49 @@ void Etoile_bin::update_metric_der_comp(const Etoile_bin& comp) {
 
     //#################################
     /*
-    int nz = mp.get_mg()->get_nzone() ; 
-    int nzm1 = nz - 1 ; 
+    int nz = mp.get_mg()->get_nzone() ;
+    int nzm1 = nz - 1 ;
 
     // Computation of d_logn_comp
     // --------------------------
-    
+
     if ( (comp.d_logn_auto).get_etat() == ETATZERO ) {
-	d_logn_comp.set_etat_zero() ; 
+	d_logn_comp.set_etat_zero() ;
     }
     else{
-    
+
 	// 1/ Division by r^2 of comp.d_logn_auto in the ZEC
-	Tenseur vecttmp = comp.d_logn_auto ; 
-	vecttmp.dec2_dzpuis() ;	    
+	Tenseur vecttmp = comp.d_logn_auto ;
+	vecttmp.dec2_dzpuis() ;
 
-	// 2/ Interpolation of the result 
-	//## OUTSIDE THE ZEC 
+	// 2/ Interpolation of the result
+	//## OUTSIDE THE ZEC
 
-	d_logn_comp.set_etat_qcq() ; 
+	d_logn_comp.set_etat_qcq() ;
 	(d_logn_comp.set(0)).import_symy(nzm1, vecttmp(0) ) ;  // d/dx sym.
 	(d_logn_comp.set(1)).import_asymy(nzm1, vecttmp(1) ) ; // d/dy antisym.
 	(d_logn_comp.set(2)).import_symy(nzm1, vecttmp(2) ) ;  // d/dz sym.
-	
+
     }
     
-    d_logn_comp.set_triad( *((comp.d_logn_auto).get_triad()) ) ;  
+    d_logn_comp.set_triad( *((comp.d_logn_auto).get_triad()) ) ;
 
-    
+
     // Computation of d_beta_comp
     // --------------------------
-    
+
     if ( (comp.d_beta_auto).get_etat() == ETATZERO ) {
 	d_beta_comp.set_etat_zero() ; 
     }
     else {
 	// 1/ Division by r^2 of comp.d_logn_auto in the ZEC
-	Tenseur vecttmp = comp.d_beta_auto ; 
-	vecttmp.dec2_dzpuis() ; 		    
+	Tenseur vecttmp = comp.d_beta_auto ;
+	vecttmp.dec2_dzpuis() ;
 
 	// 2/ Interpolation of the result 
-	//## OUTSIDE THE ZEC 
+	//## OUTSIDE THE ZEC
 
-	d_beta_comp.set_etat_qcq() ; 
+	d_beta_comp.set_etat_qcq() ;
 
 	(d_beta_comp.set(0)).import_symy(nzm1, vecttmp(0) ) ;  // d/dx sym.
 	(d_beta_comp.set(1)).import_asymy(nzm1, vecttmp(1) ) ; // d/dy antisym.
@@ -218,24 +224,24 @@ void Etoile_bin::update_metric_der_comp(const Etoile_bin& comp) {
 
     }
 
-    d_beta_comp.set_triad( *((comp.d_beta_auto).get_triad()) ) ;  
-    
+    d_beta_comp.set_triad( *((comp.d_beta_auto).get_triad()) ) ;
+
     // Computation of tkij_comp
     // ------------------------
     
     if ( (comp.tkij_auto).get_etat() == ETATZERO ) {
-	tkij_comp.set_etat_zero() ; 
+	tkij_comp.set_etat_zero() ;
     }
     else{
 
 	// 1/ Division by r^2 of comp.d_logn_auto in the ZEC
-	Tenseur_sym tenstmp = comp.tkij_auto ; 
-	tenstmp.dec2_dzpuis() ;		    
+	Tenseur_sym tenstmp = comp.tkij_auto ;
+	tenstmp.dec2_dzpuis() ;
 
-	// 2/ Interpolation of the result 
-	//## OUTSIDE THE ZEC 
+	// 2/ Interpolation of the result
+	//## OUTSIDE THE ZEC
 
-	tkij_comp.set_etat_qcq() ; 
+	tkij_comp.set_etat_qcq() ;
 
 	(tkij_comp.set(0, 0)).import_asymy(nzm1, tenstmp(0, 0) ) ; // K_xx antisym
 	(tkij_comp.set(0, 1)).import_symy(nzm1, tenstmp(0, 1) ) ;  // K_xy sym.
@@ -245,34 +251,98 @@ void Etoile_bin::update_metric_der_comp(const Etoile_bin& comp) {
 	(tkij_comp.set(2, 2)).import_asymy(nzm1, tenstmp(2, 2) ) ; // K_zz antisym.
 
     }
-    
-    tkij_comp.set_triad( *((comp.tkij_auto).get_triad()) ) ;  
+
+    tkij_comp.set_triad( *((comp.tkij_auto).get_triad()) ) ;
 
     if (relativistic) {
 	// Computation of akcar_comp
 	// -------------------------
-    
-	akcar_comp.set_etat_qcq() ; 
-    
-	akcar_comp.set() = 0 ; 
+
+	akcar_comp.set_etat_qcq() ;
+
+	akcar_comp.set() = 0 ;
     
 	for (int i=0; i<3; i++) {
 	    for (int j=0; j<3; j++) {
-	
+
 		akcar_comp.set() += tkij_auto(i, j) * tkij_comp(i, j) ; 
-	
+
 	    }
 	}
-    
-	akcar_comp = a_car * akcar_comp ; 
+
+	akcar_comp = a_car * akcar_comp ;
     }
-    
+
 
     // The derived quantities are obsolete
     // -----------------------------------
-    
-    del_deriv() ;                
+
+    del_deriv() ;
     */
     //#################################
-    
+
 }
+
+        //---------------------------------------//
+	//      Version with BH companion       //
+        //---------------------------------------//
+
+
+void Etoile_bin::update_metric_der_comp(const Bhole& comp) {
+
+    // Computation of Grad(N) ---> stored in d_logn_comp
+    // -------------------------------------------------
+
+    Tenseur dncomp = ( comp.get_n_auto() ).gradient() ;
+
+    if ( dncomp.get_etat() == ETATZERO ) {
+	d_logn_comp.set_etat_zero() ;
+    }
+    else{
+
+	// 1/ Division by r^2 of comp.d_logn_auto in the ZEC
+	dncomp.dec2_dzpuis() ;
+
+	// 2/ Interpolation of the result
+
+	d_logn_comp.set_etat_qcq() ;
+	(d_logn_comp.set(0)).import_symy( dncomp(0) ) ;  // d/dx sym.
+	(d_logn_comp.set(1)).import_asymy( dncomp(1) ) ; // d/dy antisym.
+	(d_logn_comp.set(2)).import_symy( dncomp(2) ) ;  // d/dz sym.
+
+    }
+
+    d_logn_comp.set_triad( *(dncomp.get_triad()) ) ;
+
+
+    // Computation of Grad(Psi) ---> stored in d_beta_comp
+    // ---------------------------------------------------
+
+    Tenseur dpsicomp = ( comp.get_psi_auto() ).gradient() ;
+
+    if ( dpsicomp.get_etat() == ETATZERO ) {
+	d_beta_comp.set_etat_zero() ;
+    }
+    else {
+	// 1/ Division by r^2 of comp.d_logn_auto in the ZEC
+        dpsicomp.dec2_dzpuis() ;
+
+	// 2/ Interpolation of the result
+
+	d_beta_comp.set_etat_qcq() ;
+
+	(d_beta_comp.set(0)).import_symy(dpsicomp(0) ) ;  // d/dx sym.
+	(d_beta_comp.set(1)).import_asymy(dpsicomp(1) ) ; // d/dy antisym.
+	(d_beta_comp.set(2)).import_symy(dpsicomp(2) ) ;  // d/dz sym.
+
+    }
+
+    d_beta_comp.set_triad( *(dpsicomp.get_triad()) ) ;
+
+    // The derived quantities are obsolete
+    // -----------------------------------
+
+    del_deriv() ;
+
+}
+
