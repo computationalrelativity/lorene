@@ -30,6 +30,10 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/05/20 20:32:01  e_gourgoulhon
+ * Added arguments check_mod and save_mod.
+ * Argument graph_device passed to des_evol.
+ *
  * Revision 1.9  2004/05/17 19:55:10  e_gourgoulhon
  * Added arguments method_poisson_vect, nopause and graph_device
  *
@@ -77,6 +81,7 @@ const Tbl& monitor_scalar(const Scalar& uu, Tbl& resu) ;
 
 void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
                               int niter_elliptic, double relax, 
+                              int check_mod, int save_mod,
                               int method_poisson_vect, int nopause,  
                               const char* graph_device) {
 
@@ -103,6 +108,7 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
 
     // For graphical outputs:
     int ngraph0 = 20 ;  // index of the first graphic device to be used
+    int ngraph0_mon = 70 ;  // for monitoring global quantities
     int nz = map.get_mg()->get_nzone() ; 
     double ray_des = 1.25 * map.val_r(nz-2, 1., 0., 0.) ; // outermost radius
                                                           // for plots
@@ -148,7 +154,8 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
         // ---------- 
         cout << "ADM mass : " << adm_mass() << endl ; 
         m_adm.update(adm_mass(), jtime, the_time[jtime]) ;
-        if (jt > 0) des_evol(m_adm, "ADM mass", "Variation of ADM mass", 80) ;          
+        if (jt > 0) des_evol(m_adm, "ADM mass", "Variation of ADM mass", 
+                             ngraph0_mon, graph_device) ;          
         
         
         nn_monitor.update(monitor_scalar(nn(), select_scalar), 
@@ -175,7 +182,6 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
         aa_monitor_maxabs.update(maxabs_all_domains(aa()), 
                                     jtime, the_time[jtime]) ; 
         
-        int check_mod = 2 ; 
         if (jt%check_mod == 0) {
 
             int jt_graph = jt / check_mod ; 
@@ -188,7 +194,7 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
             }
             test_ham_constr.update(max_error, jt_graph, the_time[jtime]) ; 
             if (jt > 0) des_evol(test_ham_constr, "Absolute error", 
-                "Check of Hamiltonian constraint", 81) ; 
+              "Check of Hamiltonian constraint", ngraph0_mon+1, graph_device) ; 
 
             Tbl tmom = check_momentum_constraint() ; 
             max_error = tmom(0,0) ;
@@ -198,7 +204,8 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
             }
             test_mom_constr_r.update(max_error, jt_graph, the_time[jtime]) ; 
             if (jt > 0) des_evol(test_mom_constr_r, "Absolute error", 
-                "Check of momentum constraint (r comp.)", 82) ; 
+                "Check of momentum constraint (r comp.)", ngraph0_mon+2, 
+                graph_device) ; 
 
             max_error = tmom(1,0) ;
             for (int l=1; l<nz-1; l++) {    // all domains but the last one
@@ -207,7 +214,8 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
             }
             test_mom_constr_t.update(max_error, jt_graph, the_time[jtime]) ; 
             if (jt > 0) des_evol(test_mom_constr_t, "Absolute error", 
-                "Check of momentum constraint (\\gh comp.)", 83) ; 
+                "Check of momentum constraint (\\gh comp.)", ngraph0_mon+3,
+                 graph_device) ; 
 
             max_error = tmom(2,0) ;
             for (int l=1; l<nz-1; l++) {    // all domains but the last one
@@ -216,11 +224,11 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
             }
             test_mom_constr_p.update(max_error, jt_graph, the_time[jtime]) ; 
             if (jt > 0) des_evol(test_mom_constr_p, "Absolute error", 
-                "Check of momentum constraint (\\gf comp.)", 84) ; 
+                "Check of momentum constraint (\\gf comp.)", ngraph0_mon+4, 
+                graph_device) ; 
                 
         }
 
-        int save_mod = 10 ; 
         if (jt%save_mod == 0) { 
             m_adm.save("adm_mass.d") ; 
             nn_monitor.save("nn_monitor.d") ;
