@@ -35,6 +35,9 @@ char scalar_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/10/15 10:44:21  e_gourgoulhon
+ * Added new method div_tant.
+ *
  * Revision 1.7  2003/10/13 20:50:16  e_gourgoulhon
  * Replaced "va.base" by "va.get_base()".
  *
@@ -229,7 +232,18 @@ void Scalar::div_rsint_ced() {
 }
 
 
+			//-------------------//
+			//	    div_tant     //
+			//-------------------//
 
+
+void Scalar::div_tant() {
+
+    mp->div_tant(*this) ;   // Call of the appropriate routine of the mapping 
+    
+    del_deriv() ;   // Delete the derived members
+
+}
 
 			//---------------------------//
 			//	    dec_dzpuis	     //

@@ -4,7 +4,7 @@
  */
 
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2003 Eric Gourgoulhon
  *   Copyright (c) 2000-2001 Philippe Grandclement
  *   Copyright (c) 2001 Jerome Novak
  *
@@ -32,6 +32,9 @@ char map_radial_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/15 10:41:49  e_gourgoulhon
+ * Added new method div_tant.
+ *
  * Revision 1.2  2002/08/13 08:02:45  j_novak
  * Handling of spherical vector/tensor components added in the classes
  * Mg3d and Tenseur. Minor corrections for the class Metconf.
@@ -101,6 +104,7 @@ char map_radial_r_manip_C[] = "$Header$" ;
 
 #include "map.h"
 #include "cmp.h"
+#include "tensor.h"
 
 
 			//---------------------------//
@@ -662,3 +666,31 @@ void Map_radial::inc2_dzpuis(Cmp& ci) const {
     ci.set_dzpuis( ci.get_dzpuis() + 2 ) ; 
 
 }
+
+
+
+
+			//---------------------------//
+			//          div_tant         //
+			//---------------------------//
+
+void Map_radial::div_tant(Scalar& ci) const {
+    
+    assert(ci.get_etat() != ETATNONDEF) ;
+    
+    if (ci.get_etat() == ETATZERO) {
+		return ;			 // Nothing to do if the Scalar is null 
+    }
+
+    assert(ci.get_etat() == ETATQCQ) ;
+            
+    Valeur& val = ci.set_spectral_va() ; 
+
+    assert(val.get_mg() == mg) ; 
+     
+    val = val.ssint() ;		// Division by sin(theta)
+
+	val = val.mult_ct() ; 	// Multiplication by cos(theta) 
+    
+}
+
