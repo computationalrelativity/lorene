@@ -28,6 +28,9 @@ char test_sym_tensor_tt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/11/03 22:37:12  e_gourgoulhon
+ * New version.
+ *
  * Revision 1.5  2003/10/30 17:29:07  e_gourgoulhon
  * new version
  *
@@ -229,6 +232,30 @@ int main() {
 	cout << "Max of trace of hhs : " << endl ; 
 	cout << max( abs(hhs.trace()) ) << endl ; 	
 		
-		
+	arrete() ; 
+	
+	Sym_tensor_tt  htt(map, map.get_bvect_spher(), mets ) ; 
+	
+	htt = hhs ; 
+	
+	cout << "Eta : " << endl ; 
+	htt.eta().spectral_display() ; 
+
+	cout << "Mu : " << endl ; 
+	htt.mu().spectral_display() ; 
+	
+	
+	arrete() ; 
+	
+	Sym_tensor_tt htt2(map, map.get_bvect_spher(), mets ) ; 
+	
+	htt2.set_eta_mu(htt.eta(), htt.mu()) ; 
+	for (int i=2; i<=3; i++) {
+		Scalar diff = htt2(1,i) - htt(1, i) ; 
+		cout << "Component 1, " << i << " : " << endl ; 
+		diff.spectral_display() ; 
+		cout << "  max: " << max(abs(diff)) << endl ; 
+	}
+	
 	return EXIT_SUCCESS ; 
 }
