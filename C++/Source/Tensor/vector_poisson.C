@@ -30,6 +30,10 @@ char vector_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/03/11 08:48:45  f_limousin
+ * Implement method Vector::poisson with parameters, only with method
+ * 2 yet.
+ *
  * Revision 1.10  2004/03/10 16:38:38  e_gourgoulhon
  * Modified the prototype of poisson with param. to let it
  * agree with declaration in vector.h.
@@ -197,9 +201,59 @@ Vector Vector::poisson(double lambda, int method) const {
 // Version with parameters
 // -----------------------
 
-void Vector::poisson(double, Param&, Vector&, int ) const {
+void Vector::poisson(const double lambda, Param& par, Vector& shift,
+		     int method) const {
 
-  cout << "Vector::poisson with parameters not ready yet!" << endl ;
-  abort() ;
+    
+    for (int i=0; i<3; i++)
+	assert(cmp[i]->check_dzpuis(4)) ;
 
+    assert ((method==0) || (method==2)) ;
+  
+    switch (method) {
+	
+	case 2 : {
+	
+    Tenseur source_p(*mp, 1, CON, mp->get_bvect_spher() ) ;
+    source_p.set_etat_qcq() ;
+    for (int i=0; i<3; i++) {
+      source_p.set(i) = Cmp(*cmp[i]) ;
+    }
+    source_p.change_triad(mp->get_bvect_cart()) ;
+
+    Tenseur vect_auxi (*mp, 1, CON, mp->get_bvect_cart()) ;
+    vect_auxi.set_etat_qcq() ;
+    for (int i=0; i<3 ;i++){
+	vect_auxi.set(i) = 0. ;
+    }
+    Tenseur scal_auxi (*mp) ;
+    scal_auxi.allocate_all() ;
+    scal_auxi.set_std_base() ;
+
+    Tenseur resu_p(*mp, 1, CON, mp->get_bvect_cart() ) ;
+    resu_p.set_etat_qcq() ;
+    source_p.poisson_vect(lambda, par, resu_p, vect_auxi, scal_auxi) ;
+    resu_p.change_triad(mp->get_bvect_spher() ) ;
+
+     for (int i=1; i<=3; i++) 
+       shift.set(i) = resu_p(i-1) ;
+
+     break ;
+  }
+
+  default : {
+    cout << "Vector::poisson : unexpected type of method !" << endl 
+	 << "  method = " << method << endl ; 
+
+
+    abort() ;
+    break ; 
+  
+
+  } // End of switch  
+    }
 }
+
+
+
+
