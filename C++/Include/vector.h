@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2003/10/16 21:36:01  e_gourgoulhon
+ * Added method Vector_divfree::update_vtvp().
+ *
  * Revision 1.11  2003/10/16 15:25:00  e_gourgoulhon
  * Changes in documentation.
  *
@@ -335,6 +338,20 @@ class Vector_divfree: public Vector {
 	 * \end{equation} 
 	 */
 	const Scalar& mu() const ;
+	
+	/** Computes the components $V^\theta$ and $V^\varphi$ from the
+	 *  potential $\eta$ and  $\mu$, according to:
+	 * \begin{equation}
+	 *	V^\theta =  {\partial \eta \over \partial\theta}
+	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi}
+	 * \end{equation} 
+	 * \begin{equation}
+	 *	V^\varphi =  {1\over\sin\theta} 
+	 *				{\partial \eta \over \partial\varphi}
+	 *				+ {\partial \mu \over \partial\theta} 
+	 * \end{equation} 
+	 */
+	void update_vtvp() ;
 	
 	
 };
