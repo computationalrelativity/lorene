@@ -41,23 +41,30 @@
     	//@Include:valeur.h_r
     //@}
 
-   /**@name Mapping grid -> physical space
+   /**@name Mapping grid -> physical space  for spherical coordinates
      *
      * These classes implement the mapping between the
-     * grid coordinates $(\xi, \theta', \phi')$ (described by the {\tt Mg3d} 
+     * grid coordinates $(\xi, \theta', \phi')$ (described by the {\tt Mg3d}
      * class) and the physical coordinates
      * $(r, \theta, \phi)$ [cf. Bonazzola, Gourgoulhon \& Marck, {\sl Phys. Rev. D}
-     * {\bf 58}, 104020 (1998)]. 
+     * {\bf 58}, 104020 (1998)].
      *
-     * The class {\tt Map} and its derived classes determine the methods for 
+     * The class {\tt Map} and its derived classes determine the methods for
      * partial derivatives with respect to the physical coordinates, as well
      * as resolution of basic partial differential equations (e.g. Poisson
-     * equations). 
+     * equations).
      *
      */
     //@{
 	//@Include:map.h_r
 	//@Include:coord.h_r
+    //@}
+
+   /**@name Mapping grid -> physical space  for  Cartesian coordinates
+     *
+     */
+    //@{
+	//@Include:map_cart.h_r
     //@}
 
 
