@@ -33,8 +33,12 @@ char et_bin_vel_pot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/12/10 14:44:21  k_taniguchi
+ * Change the multiplication "*" to "%"
+ *   and flat_scalar_prod to flat_scalar_prod_desal.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.9  2001/02/23  15:18:59  eric
  * Modification du calcul de zeta_h pour eviter division par zero
@@ -93,12 +97,13 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
     //----------------------------------
     
     Tenseur hhh = exp(unsurc2 * ent) ;  // = 1 at the Newtonian limit
- 
+    hhh.set_std_base() ;
+
     //----------------------------------------------
     //  Computation of W^i = - A^2 h Gamma_n B^i/N
     //----------------------------------------------
 
-    Tenseur www = - a_car * hhh * gam_euler * bsn ; 
+    Tenseur www = - a_car % hhh % gam_euler % bsn ; 
     
     www.change_triad( mp.get_bvect_cart() ) ;	// components on the mapping
 						// Cartesian basis
@@ -114,7 +119,8 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
 	v_orb.set(i) = www(i)(0, 0, 0, 0) ; 
     }
     
-    v_orb.set_triad( *(www.get_triad()) ) ;     
+    v_orb.set_triad( *(www.get_triad()) ) ;  
+    v_orb.set_std_base() ;
    
     //-------------------------------------------------
     // Source and coefficients a,b for poisson_compact (idenpendent from psi0)
@@ -129,20 +135,23 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
     }
     
     Tenseur zeta_h( ent() / dndh_log ) ;
-    
+    zeta_h.set_std_base() ;
+
     Tenseur beta = beta_auto + beta_comp ; 
 
-    Tenseur bb = (1- unsurc2 * zeta_h) * ent.gradient_spher() 
-		    + unsurc2 * zeta_h * beta.gradient_spher() ; 
+    Tenseur tmp_zeta = 1 - unsurc2 * zeta_h ;
+    tmp_zeta.set_std_base() ;
+
+    Tenseur bb = tmp_zeta % ent.gradient_spher()
+		    + unsurc2 * zeta_h % beta.gradient_spher() ; 
 		    
     Tenseur entmb = ent - beta ; 
 		    
-    Tenseur source = flat_scalar_prod( www - v_orb, ent.gradient() )
-		     + unsurc2 * zeta_h * ( 
-			 flat_scalar_prod( v_orb, entmb.gradient() )
-		      +  flat_scalar_prod( www, gam_euler.gradient() ) 
-		         / gam_euler 
-			         ) ; 
+    Tenseur source = flat_scalar_prod_desal( www - v_orb, ent.gradient() )
+		     + unsurc2 * zeta_h % (
+			 flat_scalar_prod_desal( v_orb, entmb.gradient() )
+		       + flat_scalar_prod_desal( www, gam_euler.gradient() )
+		         / gam_euler ) ; 
 				 
     source.annule(nzet, nzm1) ; 
     			
@@ -163,16 +172,20 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
 	psi0.set() = 0 ; 
     }
 
+    source.set().va.ylm() ;
+
     mp.poisson_compact(source(), zeta_h(), bb, par, psi0.set() ) ;
     
     //---------------------------------------------------
     // Check of the solution  
     //---------------------------------------------------
     
-    Tenseur bb_dpsi0 = flat_scalar_prod( bb, psi0.gradient_spher() ) ; 
+    Tenseur bb_dpsi0 = flat_scalar_prod_desal( bb, psi0.gradient_spher() ) ;
     
-    Cmp oper = zeta_h() * psi0().laplacien() + bb_dpsi0() ; 
+    Cmp oper = zeta_h() % psi0().laplacien() + bb_dpsi0() ; 
     
+    source.set().va.ylm_i() ;
+
     double erreur = diffrel(oper, source())(0) ; 
 
     cout << "Check of the resolution of the continuity equation : " 
@@ -209,7 +222,6 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
     assert( d_psi.get_triad() == &(mp.get_bvect_cart()) ) ; 
 
     d_psi.change_triad(ref_triad) ; 
-    
     
     return erreur ; 
  
