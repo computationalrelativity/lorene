@@ -1,3 +1,25 @@
+/*
+ *   Copyright (c) 2002, 2003 Jerome Novak
+ *   Copyright (c) 2003, 2004 Reinhard Prix
+ * 
+ *   This file is part of LORENE.
+ *
+ *   LORENE is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 2 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LORENE is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LORENE; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
 /***********************************************************************
  *   calculate stationary configuration of superfluid neutron star
  ***********************************************************************/
@@ -17,9 +39,9 @@
 // Local prototype (for drawings only)
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
 
-void compare_analytic (Et_rot_bifluid& star); 
+void compare_analytic (Et_rot_bifluid& star, int adapt); 
 string get_file_base (double xp, double sig);
-string get_file_base (double xp, double sig, double eps, double om1, double om2);
+string get_file_base (double xp, double sig, double eps, double om1, double om2, int typeos, int nzet, int adapt);
 
 // some global EOS parameters 
 double kap1, kap2, kap3, beta, m1, m2, detA, k1, k2, kk, R;
@@ -418,7 +440,7 @@ int main(){
     // now print out key-values of the configuration in such a "translated" way
     // that we can compare the results to the analytic solution of PCA02:
     if (eos.identify() == 2)  // only do that if type = eos_bf_poly_newt
-      compare_analytic (star);
+      compare_analytic (star, nzadapt);
  
     // Cleaning
     // --------
@@ -438,7 +460,7 @@ int main(){
 // we can compare them to the analytic solution of PCA02
 //----------------------------------------------------------------------
 void 
-compare_analytic (Et_rot_bifluid& star)
+compare_analytic (Et_rot_bifluid& star, int adapt)
 {
   bool is_static = false;
 
@@ -533,62 +555,40 @@ compare_analytic (Et_rot_bifluid& star)
   string resdir = "Results/";
   string fname;
 
-  fname = resdir + get_file_base (xp, sigma, eps, om_n, om_p);
+  fname = resdir + get_file_base (xp, sigma, eps, om_n, om_p, eos.get_typeos(), star.get_nzet(), adapt);
 
+
+  Map_et &map = (Map_et&)(star.get_mp());
+  const Mg3d* mg = map.get_mg() ;	// Multi-grid
 
   // --------------------------------------------------------------------------------
   // try to check EOS inversion: 
   // here we output enthalpy and density profiles in some theta-direction
-  std::ofstream prof((fname+".prof").c_str());
-  prof << setprecision(17);
+
+//   std::ofstream prof((fname+".prof").c_str());
+//   prof << setprecision(17);
   
-  Map_et &map = (Map_et&)(star.get_mp());
+//   int j = mg->get_nt(0)-1;   // theta 
 
-  const Mg3d* mg = map.get_mg() ;	// Multi-grid
-
-  int j = mg->get_nt(0)-1;   // theta 
-
-  Cmp ent1 = star.get_ent()();
-  Cmp ent2 = star.get_ent2()();
-  Cmp delta2 = star.get_delta_car()();
+//   Cmp ent1 = star.get_ent()();
+//   Cmp ent2 = star.get_ent2()();
+//   Cmp delta2 = star.get_delta_car()();
 
 
-  cout << "Equator,  xi=1: R = " << map.val_r(0, 1.0, M_PI/2, 0) << "; ent1 = " << ent1.va.val_point(0,1.0,M_PI/2,1.0);
-  cout << "  ent2 = " << ent2.va.val_point(0,1.0,M_PI/2,1.0) << endl;
-  cout << "dens1 = " << nn.va.val_point(0,1.0,M_PI/2,1.0) << "  nbar2 = " << np.va.val_point(0,1.0,M_PI/2,1.0) <<endl;
+//   cout << "Equator,  xi=1: R = " << map.val_r(0, 1.0, M_PI/2, 0) << "; ent1 = " << ent1.va.val_point(0,1.0,M_PI/2,1.0);
+//   cout << "  ent2 = " << ent2.va.val_point(0,1.0,M_PI/2,1.0) << endl;
+//   cout << "dens1 = " << nn.va.val_point(0,1.0,M_PI/2,1.0) << "  nbar2 = " << np.va.val_point(0,1.0,M_PI/2,1.0) <<endl;
 
-  for (int i=0; i<mg->get_nr(0); i++) {
-    double xi, rr;
+//   for (int i=0; i<mg->get_nr(0); i++) {
+//     double xi, rr;
 
-    xi = mg->get_grille3d(0)->x[i] ;
-    rr = map.val_r_jk (0, xi, j, 0);
+//     xi = mg->get_grille3d(0)->x[i] ;
+//     rr = map.val_r_jk (0, xi, j, 0);
 
-    prof << rr << "\t" << ent1(0,0,j,i) << "\t" << ent2(0,0,j,i) << "\t" << delta2(0,0,j,i) << "\t";
-    prof << star.get_nbar()()(0,0,j,i) << "\t" << star.get_nbar2()()(0,0,j,i) << endl;
+//     prof << rr << "\t" << ent1(0,0,j,i) << "\t" << ent2(0,0,j,i) << "\t" << delta2(0,0,j,i) << "\t";
+//     prof << star.get_nbar()()(0,0,j,i) << "\t" << star.get_nbar2()()(0,0,j,i) << endl;
+//   }
 
-  }
-  //--------------------------------------------------------------------------------
-
-
-//   double theta = M_PI/2 ;   // start with equator
-
-// #define NUM_POINTS 100 		// number of points in density profiles
-//   Tbl rr (NUM_POINTS);
-//   rr.set_etat_qcq();
-
-//   for (int i=0; i < NUM_POINTS; i++)
-//     {
-//       rr.set(i) = 1.2 * R * i / (NUM_POINTS-1);
-//       prof << rr(i) << "\t" ;
-      
-//       prof << ent.val_point(rr(i), theta, 0) << "\t";
-//       prof << ent2.val_point(rr(i), theta, 0) << "\t";
-      
-//       prof << nn.val_point(rr(i), theta, 0) << "\t";
-//       prof << np.val_point(rr(i), theta, 0) << "\t";
-      
-//       prof << endl;
-//     }
 
   //----------------------------------------------------------------------
   // get radii at intermediate angle, ~pi/4
@@ -615,6 +615,8 @@ compare_analytic (Et_rot_bifluid& star)
 
   data << "muc_n = " <<  star.get_ent()()(0,0,0,0) << endl;
   data << "muc_p = " << star.get_ent2()()(0,0,0,0) << endl;
+
+  data << "slow_rot_style = " << ( (eos.get_typeos() == 5) ? 1 : 0)  << endl;
 
   data << "rhoc = " << nc << " rho_nuc" << endl;
   data << "Om0 = " << om0 << endl;
@@ -665,7 +667,7 @@ get_file_base (double xp0, double sig0)
 }
 
 string
-get_file_base (double xp0, double sig0, double eps0, double om1, double om2)
+get_file_base (double xp0, double sig0, double eps0, double om1, double om2, int typeos, int nzet, int adapt)
 {
   ostringstream s;
   char cbuf[50]; // man, <ios> does not seem to exist here... 
@@ -678,7 +680,10 @@ get_file_base (double xp0, double sig0, double eps0, double om1, double om2)
 
   s << get_file_base (xp0, sig0);
 
-  sprintf (cbuf, "_eps%4.2f_Om%8.6f_R%4.2f", eps0, om2, relOm);
+  sprintf (cbuf, "_eps%4.2f_Om%8.6f_R%4.2f%s%s%s", eps0, om2, relOm, 
+	   (typeos==5)? "_sr" : "",
+	   (nzet==2)? "_2dom" : "",
+	   (adapt>0)? "_adapt" : "");
 
   s << cbuf;
   
