@@ -30,6 +30,9 @@ char time_slice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/26 13:33:02  j_novak
+ * New methods for accessing/updating members (nn(), beta(), gam_uu(), k_uu(), ...)
+ *
  * Revision 1.2  2004/03/26 08:22:56  e_gourgoulhon
  * Modifications to take into account the new setting of class
  * Evolution.
@@ -65,6 +68,7 @@ Time_slice::Time_slice(const Scalar& lapse_in, const Vector& shift_in,
                const Sym_tensor& gamma_in, const Sym_tensor kk_in,
                int depth_in) 
                : depth(depth_in),
+		 scheme_order(depth_in-1),
                  jtime(0),
                  the_time(0., depth_in),
                  gamma_dd(depth_in),
@@ -100,7 +104,8 @@ Time_slice::Time_slice(const Scalar& lapse_in, const Vector& shift_in,
 Time_slice::Time_slice(const Scalar& lapse_in, const Vector& shift_in,
                const Evolution_std<Sym_tensor>& gamma_in) 
                : depth(gamma_in.get_size()), 
-                 jtime(0),
+ 		 scheme_order(gamma_in.get_size()-1),
+		 jtime(0),
                  the_time(0., gamma_in.get_size()),
                  gamma_dd( gamma_in.get_size() ),
                  gamma_uu( gamma_in.get_size() ),
@@ -121,6 +126,7 @@ Time_slice::Time_slice(const Scalar& lapse_in, const Vector& shift_in,
 //-----------------------------------------------------------------               
 Time_slice::Time_slice(const Map& mp, const Base_vect& triad, int depth_in)  
                : depth(depth_in),
+		 scheme_order(depth_in-1),
                  jtime(0),
                  the_time(0., depth_in),
                  gamma_dd(depth_in),
@@ -168,6 +174,7 @@ Time_slice::Time_slice(const Map& mp, const Base_vect& triad, int depth_in)
 // ----------------
 Time_slice::Time_slice(const Time_slice& tin) 
                : depth(tin.depth),
+		 scheme_order(tin.scheme_order),
                  jtime(tin.jtime),
                  the_time(tin.the_time),
                  gamma_dd(tin.gamma_dd),
@@ -216,6 +223,7 @@ void Time_slice::set_der_0x0() const {
 void Time_slice::operator=(const Time_slice& tin) {
 
     depth = tin.depth;
+    scheme_order = tin.scheme_order ;
     jtime = tin.jtime;
     the_time = tin.the_time;
     gamma_dd = tin.gamma_dd;

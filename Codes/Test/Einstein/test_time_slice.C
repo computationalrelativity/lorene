@@ -30,6 +30,9 @@ char test_time_slice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/03/26 13:33:03  j_novak
+ * New methods for accessing/updating members (nn(), beta(), gam_uu(), k_uu(), ...)
+ *
  * Revision 1.1  2004/03/24 14:58:19  e_gourgoulhon
  * First version
  *
@@ -49,6 +52,7 @@ char test_time_slice_C[] = "$Header$" ;
 #include "tensor.h"
 #include "metric.h"
 #include "time_slice.h"
+#include "utilitaires.h"
 #include "graphique.h"
 
 int main() {
@@ -85,8 +89,22 @@ int main() {
     // ------------------------------------
     
     Time_slice sigma(map, map.get_bvect_spher()) ; 
+
+    sigma.set_scheme_order(0) ; //stationary space-time
     
     cout << sigma << endl ; 
+
+    cout << sigma.nn() ;
+    arrete() ;
+    cout << sigma.beta() ;
+    arrete() ;
+    cout << sigma.gam_uu() ;
+    arrete() ;
+    cout << sigma.gam_dd() ;
+    arrete() ;
+    cout << sigma.k_dd() ;
+    arrete() ;
+    cout << sigma.k_uu() << endl ;
     
 
     return EXIT_SUCCESS ; 
