@@ -29,6 +29,9 @@ char test_vpoisson_l_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/07/27 09:40:34  j_novak
+ * test of method 5.
+ *
  * Revision 1.3  2004/05/07 15:33:24  j_novak
  * Treated the case where all components are null.
  *
@@ -57,10 +60,10 @@ int main() {
   
 	const int nz = 3 ; 	// Number of domains
 	int nr =33 ; 	// Number of collocation points in r in each domain
-	int nt =17 ; 	// Number of collocation points in theta in each domain
-	int np = 32 ; 	// Number of collocation points in phi in each domain
+	int nt =9 ; 	// Number of collocation points in theta in each domain
+	int np = 8 ; 	// Number of collocation points in phi in each domain
 	int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
-	int symmetry_phi = NONSYM ; // no symmetry in phi
+	int symmetry_phi = SYM ; // no symmetry in phi
 
 	int nbr[] = {nr, nr, nr};
 	int nbt[] =  {nt, nt, nt} ;
@@ -136,6 +139,8 @@ int main() {
 	Vector sol_num1 = source.poisson(lambda, 1) ;
 	Vector sol_num2 = source.poisson(lambda, 2) ;
 	Vector sol_num3 = source.poisson(lambda, 3) ;
+	Vector sol_num4 = source.poisson(lambda, 4) ;
+	Vector sol_num5 = source.poisson(lambda, 5) ;
 
 	cout << endl ;
 
@@ -148,6 +153,8 @@ int main() {
 	maxabs(sol_num1 - sol, "Methode 1 (Comp. spheriques)") ;
 	maxabs(sol_num2 - sol, "Methode 2 (Comp. cartesiennes)") ;
 	maxabs(sol_num3 - sol, "Methode 3 (Comp. cartesiennes)") ;
+	maxabs(sol_num4 - sol, "Methode 4 (Comp. spheriques)") ;
+	maxabs(sol_num5 - sol, "Methode 5 (Comp. spheriques)") ;
 
 
 	return EXIT_SUCCESS ;
