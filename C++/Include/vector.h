@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2003/11/03 14:02:17  e_gourgoulhon
+ * Class Vector_divfree: the members p_eta and p_mu are no longer declared
+ * "const".
+ *
  * Revision 1.16  2003/10/20 15:12:17  j_novak
  * New method Vector::poisson
  *
@@ -337,7 +341,7 @@ class Vector_divfree: public Vector {
 	 *				+ {\partial \mu \over \partial\theta} 
 	 * \end{equation} 
 	 */
-	mutable const Scalar* p_eta ;
+	mutable Scalar* p_eta ;
 	
 	/** Field $\mu$ such that the angular components $(V^r,V^\theta)$
 	 * of the vector are written:
@@ -351,7 +355,7 @@ class Vector_divfree: public Vector {
 	 *				+ {\partial \mu \over \partial\theta} 
 	 * \end{equation} 
 	 */
-	mutable const Scalar* p_mu ;
+	mutable Scalar* p_mu ;
 	
     // Constructors - Destructor
     // -------------------------
