@@ -30,6 +30,9 @@ char metric_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/06 16:17:30  j_novak
+ * Calculation of contravariant derivative and Ricci scalar.
+ *
  * Revision 1.3  2003/10/06 13:58:47  j_novak
  * The memory management has been improved.
  * Implementation of the covariant derivative with respect to the exact Tensor
@@ -281,8 +284,9 @@ void Metric::fait_ricci_scal() const {
 
   assert( p_ricci_scal == 0x0 ) ;
 
-  cout << "Metric::fait_ricci_scal : not implemented yet!" << endl ;
-  abort() ;
+  Tensor tmp = ricci().up(0, *this) ;
+
+  p_ricci_scal = new Scalar(tmp.contract(0,1)) ;
 
 }
 

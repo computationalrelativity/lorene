@@ -34,6 +34,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2003/10/06 16:17:31  j_novak
+ * Calculation of contravariant derivative and Ricci scalar.
+ *
  * Revision 1.11  2003/10/06 13:58:48  j_novak
  * The memory management has been improved.
  * Implementation of the covariant derivative with respect to the exact Tensor
@@ -752,11 +755,14 @@ const Tensor& Tensor::derive_cov(const Metric& metre) const {
 
 const Tensor& Tensor::derive_con(const Metric& metre) const {
   
-  cout << "Tensor::derive_con : not implemented yet!" << endl ;
-
-  abort() ;
-
-  return *this ;
+  set_dependance(metre) ;
+  int j = get_place_met(metre) ;
+  assert ((j>=0) && (j<N_MET_MAX)) ;
+  if (p_derive_con[j] == 0x0) {
+    p_derive_con[j] = new Tensor(derive_cov(metre).up(0, metre)) ;
+  }
+  
+  return *p_derive_con[j] ;
 
 }
 
