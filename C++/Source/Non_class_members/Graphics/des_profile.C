@@ -29,6 +29,9 @@ char des_profile_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/03/25 19:56:28  e_gourgoulhon
+ * Added plot of domain boundaries (new arguments nbound and xbound).
+ *
  * Revision 1.6  2004/02/17 22:19:22  e_gourgoulhon
  * Changed prototype of des_profile_mult.
  * Added version of des_profile_mult with arbitrary x sampling.
@@ -73,7 +76,8 @@ char des_profile_C[] = "$Header$" ;
 
 void des_profile(const float* uutab, int nx, float xmin, float xmax, 
 		 const char* nomx, const char* nomy, 
-                 const char* title, const char* device) {
+                 const char* title, const char* device,
+                 int nbound, float* xbound) {
 		 
     // Search for the extremal values of the field : 
     // -------------------------------------------
@@ -126,9 +130,30 @@ void des_profile(const float* uutab, int nx, float xmin, float xmax,
     float uumax1 = uumax + 0.05 * uuamp ; 
     cpgenv(xmin, xmax, uumin1, uumax1, 0, 0 ) ; 
     cpglab(nomx,nomy,title) ;
-     
+    
+    // Drawing of curve 
     cpgline(nx, xx, uutab) ; 
     
+    
+    // Plot of domain boundaries
+    // -------------------------
+    
+    if (nbound > 0) {
+        float xb[2] ; 
+        float yb[2] ; 
+        yb[0] = uumin1 ; 
+        yb[1] = uumax1 ; 
+        cpgsls(3) ;		// lignes en trait mixte
+        cpgsci(3) ;		// couleur verte
+        for (int i=0; i<nbound; i++) {
+            xb[0] = xbound[i] ; 
+            xb[1] = xbound[i] ; 
+            cpgline(2, xb, yb) ; 
+        }
+        cpgsls(1) ;		// retour aux lignes en trait plein
+        cpgsci(1) ;		// couleur noire
+    }
+
     cpgend() ; 
     
     delete [] xx ; 
@@ -144,7 +169,8 @@ void des_profile(const float* uutab, int nx, float xmin, float xmax,
 void des_profile_mult(const float* uutab, int nprof, int nx,
             float xmin, float xmax, const char* nomx, const char* nomy, 
 	    const char* title, const int* line_style, 
-            int ngraph, bool closeit, const char* device) {
+            int ngraph, bool closeit, const char* device,
+            int nbound, float* xbound) {
 
     const int ngraph_max = 100 ; 
     static int graph_list[ngraph_max] ; 
@@ -248,6 +274,26 @@ void des_profile_mult(const float* uutab, int nprof, int nx,
         cpgline(nx, xx, uudes) ; 
     }
 	
+    // Plot of domain boundaries
+    // -------------------------
+    
+    if (nbound > 0) {
+        float xb[2] ; 
+        float yb[2] ; 
+        yb[0] = uumin1 ; 
+        yb[1] = uumax1 ; 
+        cpgsls(3) ;		// lignes en trait mixte
+        cpgsci(3) ;		// couleur verte
+        for (int i=0; i<nbound; i++) {
+            xb[0] = xbound[i] ; 
+            xb[1] = xbound[i] ; 
+            cpgline(2, xb, yb) ; 
+        }
+        cpgsls(1) ;		// retour aux lignes en trait plein
+        cpgsci(1) ;		// couleur noire
+    }
+
+
     if (closeit) {
         cpgclos() ; 
         graph_list[ngraph] = 0 ; 
@@ -266,7 +312,7 @@ void des_profile_mult(const float* uutab, int nprof, int nx,
 void des_profile_mult(const float* uutab, int nprof, int nx, const float* xtab, 
             const char* nomx, const char* nomy, const char* title, 
             const int* line_style, int ngraph, bool closeit,
-            const char* device) {
+            const char* device, int nbound, float* xbound) {
 
     const int ngraph_max = 100 ; 
     static int graph_list[ngraph_max] ; 
@@ -370,6 +416,25 @@ void des_profile_mult(const float* uutab, int nprof, int nx, const float* xtab,
         cpgline(nx, xdes, uudes) ; 
     }
 	
+    // Plot of domain boundaries
+    // -------------------------
+    
+    if (nbound > 0) {
+        float xb[2] ; 
+        float yb[2] ; 
+        yb[0] = uumin1 ; 
+        yb[1] = uumax1 ; 
+        cpgsls(3) ;		// lignes en trait mixte
+        cpgsci(3) ;		// couleur verte
+        for (int i=0; i<nbound; i++) {
+            xb[0] = xbound[i] ; 
+            xb[1] = xbound[i] ; 
+            cpgline(2, xb, yb) ; 
+        }
+        cpgsls(1) ;		// retour aux lignes en trait plein
+        cpgsci(1) ;		// couleur noire
+    }
+
     if (closeit) {
         cpgclos() ; 
         graph_list[ngraph] = 0 ; 
