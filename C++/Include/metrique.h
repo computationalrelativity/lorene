@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2003/06/20 14:22:20  f_limousin
+ * The functions set_con() and set_cov() now returns a Tenseur&.
+ *
  * Revision 1.11  2003/03/03 19:13:46  f_limousin
  * Add two new methods : set_con() and set_cov().
  *
@@ -253,10 +256,10 @@ class Metrique {
 	Cmp& set_con(int i, int j) ; 
 
 	/// Sets the covariant representation of the metric.
-	Tenseur_sym set_cov() ;
+	Tenseur_sym& set_cov() ;
     
 	/// Sets the contravariant representation of the metric.
-	Tenseur_sym set_con() ;
+	Tenseur_sym& set_con() ;
  
     // Accessors
     // ---------
