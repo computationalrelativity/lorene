@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/28 21:22:51  e_gourgoulhon
+ * Class Sym_tensor_trans: added methods trace() and tt_part().
+ *
  * Revision 1.1  2003/10/27 10:45:19  e_gourgoulhon
  * New derived classes Sym_tensor_trans and Sym_tensor_tt.
  *
@@ -281,7 +284,13 @@ class Sym_tensor_trans: public Sym_tensor {
 	
 	// Computational methods
 	// ---------------------
+	/// Returns the trace of the tensor with respect to metric {\tt *met\_div}
+	const Scalar& trace() const ; 
 	
+	/** Returns the transverse traceless part of the tensor, the trace being defined
+	 * with respect to metric {\tt *met\_div}
+	 */
+	const Sym_tensor_tt& tt_part() const ; 
 	
 } ; 
 	
