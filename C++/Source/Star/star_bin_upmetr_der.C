@@ -32,6 +32,9 @@ char star_bin_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/02/27 09:53:14  f_limousin
+ * Correction of an error on the computation of kcar_comp.
+ *
  * Revision 1.4  2004/02/18 18:47:01  e_gourgoulhon
  * divshift_comp now computed via Tensor::divergence, the
  * method Tensor::scontract having disappeared.
@@ -83,30 +86,20 @@ void Star_bin::update_metric_der_comp(const Star_bin& comp) {
 	for (int j=i; j<=3; j++) {
 
 	  tkij_comp.set(i, j) = dshift_comp(i, j) + dshift_comp(j, i) - 
-	    double(2) /double(3) * divshift_comp % (gtilde.con())(i,j) ; 
+	    double(2) /double(3) * divshift_comp * (gtilde.con())(i,j) ; 
 	}
       
-      tkij_comp = - 0.5 * tkij_comp / nnn ;
+      tkij_comp = 0.5 * tkij_comp / nnn ;
       tkij_comp.std_spectral_base() ;
       
       // Computation of kcar_comp
-      // -------------------------
-      
-      Tensor temp11 = contract(gtilde.cov(),1, contract( 
-					  gtilde.cov(),1, tkij_auto,1),1) ;
+      // ------------------------
 
-      Tensor tkij_auto_cov = tkij_auto ;
+      Tensor tkij_auto_cov = tkij_auto.down(0, gtilde).down(1, gtilde) ;
 
-      for (int i=1; i<=3; i++) 
-	for (int j=i; j<=3; j++) {
-	  
-	  tkij_auto_cov.set(i,j) = temp11(i,j) ;
-	  
-	  kcar_comp += tkij_auto_cov(i,j) % tkij_comp(i,j) ; 	
-      }
-      
-      Scalar a_car = psi4 * pow(flat.determinant(), 1./3.) ;
-      kcar_comp =  a_car % kcar_comp ; 
+      kcar_comp = contract(tkij_auto_cov, 0, 1, tkij_comp, 0, 1, true) ; 
+        
       kcar_comp.std_spectral_base() ;
+
 }      
 
