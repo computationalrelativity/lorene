@@ -32,6 +32,10 @@ char etoile_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/01/31 16:57:12  p_grandclement
+ * addition of the member Cmp decouple used to compute the K_ij auto, once
+ * the K_ij total is known
+ *
  * Revision 1.3  2003/01/17 13:39:51  f_limousin
  * Modification of sprod routine
  *
@@ -198,7 +202,8 @@ Etoile_bin::Etoile_bin(Map& mpi, int nzet_i, bool relat, const Eos& eos_i,
 			 ssjm1_logn(mpi), 
 			 ssjm1_beta(mpi), 			 
 			 ssjm1_khi(mpi), 
-			 ssjm1_wshift(mpi, 1, CON, mp.get_bvect_cart())			 
+                         ssjm1_wshift(mpi, 1, CON, mp.get_bvect_cart()),
+                         decouple(mpi)
 {
     
     // Pointers of derived quantities initialized to zero : 
@@ -278,7 +283,8 @@ Etoile_bin::Etoile_bin(const Etoile_bin& et)
 			 ssjm1_logn(et.ssjm1_logn), 
 			 ssjm1_beta(et.ssjm1_beta), 
 			 ssjm1_khi(et.ssjm1_khi), 
-			 ssjm1_wshift(et.ssjm1_wshift)
+                         ssjm1_wshift(et.ssjm1_wshift),
+                         decouple(et.decouple)
 {
     set_der_0x0() ;    
 
@@ -314,7 +320,8 @@ Etoile_bin::Etoile_bin(Map& mpi, const Eos& eos_i, const Base_vect& ref_triad_i,
 			 ssjm1_logn(mpi), 
 			 ssjm1_beta(mpi), 
 			 ssjm1_khi(mpi), 
-			 ssjm1_wshift(mpi, 1, CON, mp.get_bvect_cart())
+                         ssjm1_wshift(mpi, 1, CON, mp.get_bvect_cart()),
+                         decouple(mpi)
 {
 
     // The reference triad is assigned to the vectors u_euler and shift :
@@ -470,6 +477,7 @@ void Etoile_bin::operator=(const Etoile_bin& et) {
     ssjm1_beta = et.ssjm1_beta ; 
     ssjm1_khi = et.ssjm1_khi ;
     ssjm1_wshift = et.ssjm1_wshift ; 
+    decouple = et.decouple ;
     
     del_deriv() ;  // Deletes all derived quantities
 
@@ -528,7 +536,6 @@ void Etoile_bin::sauve(FILE* fich) const {
     ssjm1_beta.sauve(fich) ; 
     ssjm1_khi.sauve(fich) ; 
     ssjm1_wshift.sauve(fich) ;
-        
 }
 
 // Printing

@@ -32,6 +32,10 @@ char bhole_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/01/31 16:57:12  p_grandclement
+ * addition of the member Cmp decouple used to compute the K_ij auto, once
+ * the K_ij total is known
+ *
  * Revision 1.3  2002/10/16 14:36:31  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -128,6 +132,7 @@ char bhole_C[] = "$Header$" ;
 #include "bhole.h"
 #include "proto.h"
 #include "utilitaires.h"
+#include "etoile.h"
 
 // Constructeur standard
 Bhole::Bhole (Map_af& mpi) : mp(mpi),
@@ -203,9 +208,9 @@ void Bhole::operator= (const Bhole& source) {
     decouple = source.decouple ;
 }
 
-// Importe le lapse du compagnon 
+// Importe le lapse du compagnon (Bhole case)
 
-void Bhole::fait_n_comp (Bhole comp) {
+void Bhole::fait_n_comp (const Bhole& comp) {
      // Alignes ou non ?
     double orientation = mp.get_rot_phi() ;
     assert ((orientation==0) || (orientation==M_PI)) ;
@@ -233,9 +238,9 @@ void Bhole::fait_n_comp (Bhole comp) {
     grad_n_tot = n_auto.gradient() + grad_comp ;
 }
 
-// Importe le facteur conforme du compagnon
+// Importe le facteur conforme du compagnon (Bhole case)
 
-void Bhole::fait_psi_comp (Bhole comp) {
+void Bhole::fait_psi_comp (const Bhole& comp) {
   
     // Alignes ou non ?
     double orientation = mp.get_rot_phi() ;
@@ -253,6 +258,67 @@ void Bhole::fait_psi_comp (Bhole comp) {
     
     Tenseur grad_comp (mp, 1, COV, mp.get_bvect_cart()) ;
     Tenseur auxi (comp.psi_auto.gradient()) ;
+    auxi.dec2_dzpuis() ;
+    grad_comp.set_etat_qcq() ;
+    grad_comp.set(0).import_symy(same_orient*auxi(0)) ;
+    grad_comp.set(1).import_asymy(same_orient*auxi(1)) ;
+    grad_comp.set(2).import_symy(auxi(2)) ;
+    grad_comp.set_std_base() ;
+    grad_comp.inc2_dzpuis() ;
+    
+    grad_psi_tot = psi_auto.gradient() + grad_comp ;
+}
+
+
+// Importe le lapse du compagnon (NS case)
+void Bhole::fait_n_comp (const Etoile_bin& comp) {
+     // Alignes ou non ?
+    double orientation = mp.get_rot_phi() ;
+    assert ((orientation==0) || (orientation==M_PI)) ;
+    double orientation_comp = comp.get_mp().get_rot_phi() ;
+    assert ((orientation_comp==0) || (orientation_comp==M_PI)) ;
+    int same_orient = (orientation == orientation_comp) ? 1 : -1 ;
+    
+    n_comp.set_etat_qcq() ;
+    n_comp.set().import_symy(comp.get_logn_auto()()) ;
+    n_comp.set_std_base() ;
+    
+    n_tot = n_comp + n_auto ;
+    n_tot.set_std_base() ;
+    
+    Tenseur grad_comp (mp, 1, COV, mp.get_bvect_cart()) ;
+    Tenseur auxi (comp.get_d_logn_auto()) ;
+    auxi.dec2_dzpuis() ;
+    grad_comp.set_etat_qcq() ;
+    grad_comp.set(0).import_symy(same_orient*auxi(0)) ;
+    grad_comp.set(1).import_asymy(same_orient*auxi(1)) ;
+    grad_comp.set(2).import_symy(auxi(2)) ;
+    grad_comp.set_std_base() ;
+    grad_comp.inc2_dzpuis() ;
+    
+    grad_n_tot = n_auto.gradient() + grad_comp ;
+}
+
+// Importe le facteur conforme du compagnon (Bhole case)
+
+void Bhole::fait_psi_comp (const Etoile_bin& comp) {
+  
+    // Alignes ou non ?
+    double orientation = mp.get_rot_phi() ;
+    assert ((orientation==0) || (orientation==M_PI)) ;
+    double orientation_comp = comp.get_mp().get_rot_phi() ;
+    assert ((orientation_comp==0) || (orientation_comp==M_PI)) ;
+    int same_orient = (orientation == orientation_comp) ? 1 : -1 ;
+    
+    psi_comp.set_etat_qcq() ;
+    psi_comp.set().import_symy(comp.get_beta_auto()()) ;
+    psi_comp.set_std_base() ;
+    
+    psi_tot = psi_comp + psi_auto ;
+    psi_tot.set_std_base() ;
+    
+    Tenseur grad_comp (mp, 1, COV, mp.get_bvect_cart()) ;
+    Tenseur auxi (comp.get_d_beta_auto()) ;
     auxi.dec2_dzpuis() ;
     grad_comp.set_etat_qcq() ;
     grad_comp.set(0).import_symy(same_orient*auxi(0)) ;
