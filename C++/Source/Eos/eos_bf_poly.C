@@ -31,6 +31,9 @@ char eos_bf_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2003/03/17 10:28:04  j_novak
+ * Removed too strong asserts on beta and kappa
+ *
  * Revision 1.11  2003/02/07 10:47:43  j_novak
  * The possibility of having gamma5 xor gamma6 =0 has been introduced for
  * tests. The corresponding parameter files have been added.
@@ -258,9 +261,6 @@ void Eos_bf_poly::set_auxiliary() {
     gam2m1 = gam2 - double(1) ; 
     gam34m1 = gam3 + gam4 - double(1) ; 
     gam56m1 = gam5 + gam6 - double(1) ;
-
-    assert(kap3>=0.) ;
-    assert(beta>=0.) ;
 
     if (fabs(kap3*kap3-kap2*kap1) < 1.e-15) {
       cout << "WARNING!: Eos_bf_poly: the parameters are degenerate!" << endl ;
