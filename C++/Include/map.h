@@ -38,6 +38,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2003/12/30 22:52:47  e_gourgoulhon
+ * Class Map: added methods flat_met_spher() and flat_met_cart() to get
+ * flat metric associated with the coordinates described by the mapping.
+ *
  * Revision 1.15  2003/12/11 14:48:47  p_grandclement
  * Addition of ALL (and that is a lot !) the files needed for the general elliptic solver ... UNDER DEVELOPEMENT...
  *
@@ -471,6 +475,7 @@ class Map_af ;
 class Map_et ; 
 class Tenseur ;
 class Param_elliptic ;
+class Metric_flat ; 
 
 			//------------------------------------//
 			//            class Map               //
@@ -536,6 +541,16 @@ class Map {
 	 */
 	Base_vect_cart bvect_cart ; 
 	
+        /** Pointer onto the flat metric associated with the spherical coordinates
+         *  and with components expressed in the triad {\tt bvect\_spher}
+         */
+        mutable Metric_flat* p_flat_met_spher ; 
+
+        /** Pointer onto the flat metric associated with the Cartesian coordinates
+         *  and with components expressed in the triad {\tt bvect\_cart}
+         */
+        mutable Metric_flat* p_flat_met_cart ; 
+
 	/** The null Cmp. 
 	 *  To be used by the {\tt Tenseur} class when necessary to 
 	 *  return a null {\tt Cmp}. 
@@ -614,6 +629,16 @@ class Map {
 	 * $(r, \theta, \phi)$ by means of usual formulae. 
 	 */
 	const Base_vect_cart& get_bvect_cart() const {return bvect_cart;} ; 
+
+        /** Returns the flat metric associated with the spherical coordinates
+         *  and with components expressed in the triad {\tt bvect\_spher}
+         */
+        const Metric_flat& flat_met_spher() const ; 
+
+        /** Returns the flat metric associated with the Cartesian coordinates
+         *  and with components expressed in the triad {\tt bvect\_cart}
+         */
+        const Metric_flat& flat_met_cart() const ; 
 
 	/** Returns the null {\tt Cmp} defined on {\tt *this}. 
 	 *  To be used by the {\tt Tenseur} class when necessary to 
