@@ -25,8 +25,11 @@ char laplacien_mat_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/09 12:47:32  j_novak
+ * Execution speed improved
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.15  2000/05/22  13:36:33  phil
  * ajout du cas dzpuis == 3
@@ -593,7 +596,7 @@ Matrice _laplacien_mat_r_cheb (int n, int l, double echelle, int) {
 	vect[i] = 1 ;
 	d2sdx2_1d (n, &vect, R_CHEB) ;  // appel dans le cas fin
 	multx_1d (n, &vect, R_CHEB) ;
-	for (int j=0 ; j<n ; j++)
+	for (int j=0 ; j<(n>i+1 ? i+1 : n) ; j++)
 	    dd.set(j, i) += 2*echelle*vect[j] ;
     }
     
@@ -604,7 +607,7 @@ Matrice _laplacien_mat_r_cheb (int n, int l, double echelle, int) {
 	d2sdx2_1d (n, &vect, R_CHEB) ;  // appel dans le cas fin
 	multx_1d (n, &vect, R_CHEB) ;
 	multx_1d (n, &vect, R_CHEB) ;
-	for (int j=0 ; j<n ; j++)
+	for (int j=0 ; j<(n>i+1 ? i+1 : n) ; j++)
 	    dd.set(j, i) += vect[j] ;
     }
     
@@ -623,7 +626,7 @@ Matrice _laplacien_mat_r_cheb (int n, int l, double echelle, int) {
 	vect[i] = 1 ;
 	sxdsdx_1d (n, &vect, R_CHEB) ;
 	multx_1d (n, &vect, R_CHEB) ;
-	for (int j=0 ; j<n ; j++)
+	for (int j=0 ; j<(n>i+1 ? i+1 : n) ; j++)
 	    xd.set(j, i) += vect[j] ;
 	}
 	   

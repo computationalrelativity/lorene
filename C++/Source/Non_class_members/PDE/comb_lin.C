@@ -25,8 +25,11 @@ char comb_lin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/09 12:47:31  j_novak
+ * Execution speed improved
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.15  2000/09/07  12:52:04  phil
  * *** empty log message ***
@@ -167,7 +170,7 @@ Matrice _cl_r_cheb (const Matrice &source, int l, double echelle, int) {
     Matrice barre(source) ;
     int dirac = 1 ;
     for (int i=0 ; i<n-2 ; i++) {
-	for (int j=0 ; j<n ; j++)
+	for (int j=i ; j<(n>(i+7)? i+7 : n) ; j++)
 	    barre.set(i, j) = ((1+dirac)*source(i, j)-source(i+2, j))
 				/(i+1) ;
 	if (i==0) dirac = 0 ;
@@ -175,7 +178,7 @@ Matrice _cl_r_cheb (const Matrice &source, int l, double echelle, int) {
     
     Matrice res(barre) ;
     for (int i=0 ; i<n-4 ; i++)
-	for (int j=0 ; j<n ; j++)
+	for (int j=i ; j<(n>(i+5)? i+5 : n) ; j++)
 	    res.set(i, j) = barre(i, j)-barre(i+2, j) ;
     tab[nb_dejafait] = new Matrice(res) ;
     nb_dejafait ++ ;	
