@@ -29,6 +29,9 @@ char et_bin_ncp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/03/03 19:20:29  f_limousin
+ * Add new members : tensor stress and Cmp ssjm1_gtildeij. And modify the triad on which the tensors are calculated. Now this triad is the mapping triad.
+ *
  * Revision 1.6  2003/02/12 18:44:26  f_limousin
  * Add members metgamma_auto and metgamma_comp.
  *
@@ -68,8 +71,8 @@ char et_bin_ncp_C[] = "$Header$" ;
 // --------------------
 
 Et_bin_ncp::Et_bin_ncp(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
-		       bool irrot, const Base_vect& ref_triad_i, const Metrique& flat0, const Tenseur_sym& source) 
-             : Etoile_bin(mp_i, nzet_i, relat, eos_i, irrot, ref_triad_i),
+		       bool irrot, const Base_vect& map_triad, const Metrique& flat0, const Tenseur_sym& source) 
+             : Etoile_bin(mp_i, nzet_i, relat, eos_i, irrot, map_triad),
                met_gamma(source),
 	       flat(flat0),
                gtilde(pow(met_gamma.determinant(),(-1./3.))*source, flat0),
@@ -77,24 +80,42 @@ Et_bin_ncp::Et_bin_ncp(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
 	       metgamma_comp(source),
 	       gamma(met_gamma.determinant()),
 	       loggamma(log(gamma)),
-	       loggamma_auto(mp_i),
-	       loggamma_comp(mp_i),
-	       gtilde_auto(pow(met_gamma.determinant(),(-1./3.))*source, flat0),
-	       gtilde_comp(pow(met_gamma.determinant(),(-1./3.))*source, flat0),
+	       loggamma_auto(log(gamma)),
+	       loggamma_comp(log(gamma)),
+	       gtilde_auto(pow(met_gamma.determinant(),-1./3.)*source, flat0),
+	       gtilde_comp(pow(met_gamma.determinant(),-1./3.)*source, flat0),
 	       kcar_auto(mp_i),
-	       kcar_comp(mp_i) {
-
-
+	       kcar_comp(mp_i),
+	       stress(mp_i, 2, COV, map_triad),
+      	       ssjm1_loggamma(mp_i),
+	       ssjm1_gtilde00(mp_i),
+	       ssjm1_gtilde10(mp_i),
+	       ssjm1_gtilde20(mp_i),
+	       ssjm1_gtilde11(mp_i),
+	       ssjm1_gtilde21(mp_i),
+	       ssjm1_gtilde22(mp_i)
+{
 
   // All quantities are initialized to zero : 
   kcar_auto = 0 ;
   kcar_comp = 0 ;
+  stress = 0 ;
+  ssjm1_loggamma = 0 ;
+  ssjm1_gtilde00 = 0 ;
+  ssjm1_gtilde10 = 0 ;
+  ssjm1_gtilde20 = 0 ;
+  ssjm1_gtilde11 = 0 ;
+  ssjm1_gtilde21 = 0 ;
+  ssjm1_gtilde22 = 0 ;
 
   // The metric is initialized to the flat one
   gamma = 1 ; 
   loggamma = 0 ;
   loggamma_auto = 0 ;
   loggamma_comp = 0 ;
+
+  
+  
   
 }
 
@@ -115,33 +136,56 @@ Et_bin_ncp::Et_bin_ncp(const Et_bin_ncp& et)
 	     gtilde_auto(et.gtilde_auto),
 	     gtilde_comp(et.gtilde_comp),
 	     kcar_auto(et.kcar_auto),
-	     kcar_comp(et.kcar_comp) {}
+	     kcar_comp(et.kcar_comp),
+	     stress(et.stress),
+             ssjm1_loggamma(et.ssjm1_loggamma),
+	     ssjm1_gtilde00(et.ssjm1_gtilde00),
+	     ssjm1_gtilde10(et.ssjm1_gtilde10),
+	     ssjm1_gtilde20(et.ssjm1_gtilde20),
+	     ssjm1_gtilde11(et.ssjm1_gtilde11),
+	     ssjm1_gtilde21(et.ssjm1_gtilde21),
+	     ssjm1_gtilde22(et.ssjm1_gtilde22)
+{}
 
 
 // Constructor from a file
 // -----------------------
-Et_bin_ncp::Et_bin_ncp(Map& mp_i, const Eos& eos_i, const Base_vect& ref_triad_i,
-		       const Metrique& flat0, FILE* fich)
-  : Etoile_bin(mp_i, eos_i, ref_triad_i, fich),
-    met_gamma(mp_i,ref_triad_i, fich),
+Et_bin_ncp::Et_bin_ncp(Map& mp_i, const Eos& eos_i, const Base_vect& 
+		       map_triad, const Metrique& flat0, FILE* fich)
+  : Etoile_bin(mp_i, eos_i, map_triad, fich),
+    met_gamma(flat0),
     flat(flat0),
-    gtilde(mp_i, met_gamma, flat0),
-    metgamma_auto(mp_i,ref_triad_i, fich),
+    gtilde(pow(met_gamma.determinant(),(-1./3.))*met_gamma.cov(), 
+	   met_gamma, flat0),
+    metgamma_auto(mp_i, map_triad, fich),
     metgamma_comp(metgamma_auto),
-    gamma(met_gamma.determinant()),
+    gamma((metgamma_auto.determinant()()), &met_gamma, 2),
     loggamma(log(gamma)),
-    loggamma_auto(metgamma_auto.determinant()),
-    loggamma_comp(mp_i),
-    gtilde_auto(mp_i, ref_triad_i, metgamma_auto, flat0, fich),
+    loggamma_auto(log(metgamma_auto.determinant())),
+    loggamma_comp(loggamma_auto),
+    gtilde_auto(pow(metgamma_auto.determinant(),(-1./3.))*metgamma_auto.cov()
+		, flat0),
     gtilde_comp(gtilde_auto),
     kcar_auto(mp_i),
-    kcar_comp(mp_i) {
+    kcar_comp(mp_i),
+    stress(mp_i, 2, COV, map_triad),
+    ssjm1_loggamma(mp_i, *(mp_i.get_mg()), fich),
+    ssjm1_gtilde00(mp_i, *(mp_i.get_mg()), fich),
+    ssjm1_gtilde10(mp_i, *(mp_i.get_mg()), fich),
+    ssjm1_gtilde20(mp_i, *(mp_i.get_mg()), fich),
+    ssjm1_gtilde11(mp_i, *(mp_i.get_mg()), fich),
+    ssjm1_gtilde21(mp_i, *(mp_i.get_mg()), fich),
+    ssjm1_gtilde22(mp_i, *(mp_i.get_mg()), fich)
+{
 
   // All quantities are initialized to zero : 
   kcar_auto = 0 ;
   kcar_comp = 0 ;
+  stress = 0 ;
 
-  loggamma_comp = 0 ;
+  loggamma_auto.set_std_base() ;
+
+  cout << "constructor from file" << endl ;
 
 
 }
@@ -164,20 +208,27 @@ Et_bin_ncp::~Et_bin_ncp(){}
 void Et_bin_ncp::operator=(const Et_bin_ncp& et) {
 
 // Assignement of proper quantities of class Etoile_bin
-met_gamma = et.met_gamma ; 
-flat = et.flat ;
-gtilde = et.gtilde ;
-metgamma_auto = et.metgamma_auto ;
-metgamma_comp = et.metgamma_comp ;
-gamma = et.gamma ;
-loggamma = et.loggamma ;
-loggamma_auto = et.loggamma_auto ;
-loggamma_comp = et.loggamma_comp ;
-gtilde_auto = et.gtilde_auto ;
-gtilde_comp = et.gtilde_comp ;
-kcar_auto = et.kcar_auto ;
-kcar_comp = et.kcar_comp ;
-
+  met_gamma = et.met_gamma ; 
+  flat = et.flat ;
+  gtilde = et.gtilde ;
+  metgamma_auto = et.metgamma_auto ;
+  metgamma_comp = et.metgamma_comp ;
+  gamma = et.gamma ;
+  loggamma = et.loggamma ;
+  loggamma_auto = et.loggamma_auto ;
+  loggamma_comp = et.loggamma_comp ;
+  gtilde_auto = et.gtilde_auto ;
+  gtilde_comp = et.gtilde_comp ;
+  kcar_auto = et.kcar_auto ;
+  kcar_comp = et.kcar_comp ;
+  stress = et.stress ;
+  ssjm1_loggamma = et.ssjm1_loggamma ;
+  ssjm1_gtilde00 = et.ssjm1_gtilde00 ;
+  ssjm1_gtilde10 = et.ssjm1_gtilde10 ;
+  ssjm1_gtilde20 = et.ssjm1_gtilde20 ;
+  ssjm1_gtilde11 = et.ssjm1_gtilde11 ;
+  ssjm1_gtilde21 = et.ssjm1_gtilde21 ;
+  ssjm1_gtilde22 = et.ssjm1_gtilde22 ;
 }
 
 
@@ -191,10 +242,16 @@ kcar_comp = et.kcar_comp ;
 void Et_bin_ncp::sauve(FILE* fich) const {
     
     Etoile_bin::sauve(fich) ; 
-    
-    met_gamma.sauve(fich) ; 
     metgamma_auto.sauve(fich) ;
-    gtilde_auto.sauve(fich) ;
+
+    ssjm1_loggamma.sauve(fich) ;
+    ssjm1_gtilde00.sauve(fich) ;
+    ssjm1_gtilde10.sauve(fich) ;
+    ssjm1_gtilde20.sauve(fich) ;
+    ssjm1_gtilde11.sauve(fich) ;
+    ssjm1_gtilde21.sauve(fich) ;
+    ssjm1_gtilde22.sauve(fich) ;
+
 }
 
 // Printing
