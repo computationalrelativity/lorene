@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/06/14 15:07:10  j_novak
+ * New methods for the construction of the elliptic operator appearing in
+ * the vector Poisson equation (acting on eta).
+ *
  * Revision 1.5  2004/05/10 15:28:21  j_novak
  * First version of functions for the solution of the r-component of the
  * vector Poisson equation.
@@ -262,10 +266,9 @@ class Ope_elementary {
    **/
   virtual Tbl get_solh() const = 0 ;
   /**
-   * Increases the quatum number \f$l\f$ by one unit.
+   * Increases the quatum number \e l by one unit.
    **/
   virtual void inc_l_quant() = 0 ;
-
 } ;
 
 /**
@@ -288,7 +291,7 @@ class Ope_poisson : public Ope_elementary {
    * @param baser [input] radial basis of decomposition.
    * @param alf [input] parameter \f$\alpha\f$ of the mapping.
    * @param bet [input] parameter \f$\beta\f$ of the mapping.
-   * @param lq [input] quantum number \f$l\f$.
+   * @param lq [input] quantum number \e l .
    * @param dz [input] dzpuis of the source.
    **/
   Ope_poisson (int nbr, int baser, double alf, double bet, int lq, int dz) ;
@@ -325,9 +328,13 @@ class Ope_poisson : public Ope_elementary {
    **/
   virtual Tbl get_solh() const ;
   /**
-   * Increases the quatum number \f$l\f$ by one unit.
+   * Increases the quatum number \e l by one unit.
    **/
   virtual void inc_l_quant() ;
+  /**
+   * Decreases the quatum number \e l by one unit.
+   **/
+  virtual void dec_l_quant() ;
 } ;
 
 /**
@@ -338,7 +345,7 @@ class Ope_poisson : public Ope_elementary {
 class Ope_helmholtz_minus : public Ope_elementary {
 
  protected:
-  double masse ; ///< The mass parameter \f$m\f$.
+  double masse ; ///< The mass parameter \e m .
 
  public:
    /**
@@ -348,7 +355,7 @@ class Ope_helmholtz_minus : public Ope_elementary {
    * @param baser [input] radial basis of decomposition.
    * @param alf [input] parameter \f$\alpha\f$ of the mapping.
    * @param bet [input] parameter \f$\beta\f$ of the mapping.
-   * @param mas [input] mass parameter \f$m\f$.
+   * @param mas [input] mass parameter \e m .
    **/
   Ope_helmholtz_minus (int nbr, int baser, double alf, double bet, 
 		       double mas) ;
@@ -379,20 +386,20 @@ class Ope_helmholtz_minus : public Ope_elementary {
    **/
   virtual Tbl get_solh() const ;
   /**
-   * Increases the quatum number \f$l\f$ by one unit (CURRENTLY NOT IMPLEMENTED)
+   * Increases the quatum number \e l by one unit (CURRENTLY NOT IMPLEMENTED)
    **/
   virtual void inc_l_quant() ;
 } ;
 
 /**
- * Class for the Helmholtz operator \f$\Delta + m^2\f$ (\f$m > 0\f$).
+ * Class for the Helmholtz operator \f$\Delta + m^2\f$ (\e m > 0).
  * 
  * It is implemented only in the shells.
  **/
 class Ope_helmholtz_plus : public Ope_elementary {
 
  protected:
-  double masse ; ///< The mass parameter \f$m\f$.
+  double masse ; ///< The mass parameter \e m .
 
  public:
   /**
@@ -402,7 +409,7 @@ class Ope_helmholtz_plus : public Ope_elementary {
    * @param baser [input] radial basis of decomposition.
    * @param alf [input] parameter \f$\alpha\f$ of the mapping.
    * @param bet [input] parameter \f$\beta\f$ of the mapping.
-   * @param mas [input] mass parameter \f$m\f$.
+   * @param mas [input] mass parameter \e m .
    **/
   Ope_helmholtz_plus (int nbr, int baser, double alf, double bet, 
 		      double mas) ;
@@ -433,7 +440,7 @@ class Ope_helmholtz_plus : public Ope_elementary {
    **/
   virtual Tbl get_solh() const ;
   /**
-   * Increases the quatum number \f$l\f$ by one unit (CURRENTLY NOT IMPLEMENTED)
+   * Increases the quatum number \e l  by one unit (CURRENTLY NOT IMPLEMENTED)
    **/
   virtual void inc_l_quant() ;
 } ;
@@ -448,9 +455,9 @@ class Ope_sec_order_r2 : public Ope_elementary {
 
  protected:
 
-  double a_param ; ///< The parameter \f$a\f$.
-  double b_param ; ///< The parameter \f$b\f$.
-  double c_param ; ///< The parameter \f$c\f$.
+  double a_param ; ///< The parameter \e a .
+  double b_param ; ///< The parameter \e b .
+  double c_param ; ///< The parameter \e c .
 
  public:
   /**
@@ -460,9 +467,9 @@ class Ope_sec_order_r2 : public Ope_elementary {
    * @param baser [input] radial basis of decomposition.
    * @param alf [input] parameter \f$\alpha\f$ of the mapping.
    * @param bet [input] parameter \f$\beta\f$ of the mapping.
-   * @param a [input] parameter \f$a\f$ .
-   * @param b [input] parameter \f$b\f$ .    
-   * @param c [input] parameter \f$c\f$ .
+   * @param a [input] parameter \e a  .
+   * @param b [input] parameter \e b .    
+   * @param c [input] parameter \e c .
    **/
 
   Ope_sec_order_r2 (int nbr, int baser, double alf, double bet, 
@@ -495,7 +502,7 @@ class Ope_sec_order_r2 : public Ope_elementary {
    **/
   virtual Tbl get_solh() const ;
   /**
-   * Increases the quatum number \f$l\f$ by one unit (CURRENTLY NOT IMPLEMENTED)
+   * Increases the quatum number \e l  by one unit (CURRENTLY NOT IMPLEMENTED)
    **/
   virtual void inc_l_quant() ;
 } ;
@@ -521,7 +528,7 @@ class Ope_pois_vect_r : public Ope_poisson {
    * @param baser [input] radial basis of decomposition.
    * @param alf [input] parameter \f$\alpha\f$ of the mapping.
    * @param bet [input] parameter \f$\beta\f$ of the mapping.
-   * @param lq [input] quantum number \f$l\f$.
+   * @param lq [input] quantum number \e l .
    * @param dz [input] dzpuis of the source.
    **/
   Ope_pois_vect_r (int nbr, int baser, double alf, double bet, int lq, int dz) ;

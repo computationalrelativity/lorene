@@ -23,6 +23,10 @@ char param_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/06/14 15:07:12  j_novak
+ * New methods for the construction of the elliptic operator appearing in
+ * the vector Poisson equation (acting on eta).
+ *
  * Revision 1.10  2004/05/17 15:50:54  j_novak
  * Removed unused nr variables
  *
@@ -261,6 +265,33 @@ void Param_elliptic::set_poisson_vect_r(int zone) {
 	  delete operateurs[conte] ;
 	  operateurs[conte] = new Ope_pois_vect_r(nr, old_base,alpha, 
 						  beta, lq_old, dzp) ;
+	}
+	conte ++ ;
+      }
+  }
+}
+
+void Param_elliptic::set_poisson_vect_eta(int zone) {
+ 
+  int nz = mp->get_mg()->get_nzone() ;
+  
+  int conte = 0 ;
+  for (int l=0 ; l<nz ; l++) {
+    
+    bool ced = (mp->get_mg()->get_type_r(l) == UNSURR ) ;
+    for (int k=0 ; k<mp->get_mg()->get_np(l)+1 ; k++)
+      for (int j=0 ; j<mp->get_mg()->get_nt(l) ; j++) {
+	if ((operateurs[conte] != 0x0) && (l==zone)) {
+	  Ope_poisson* op_pois = 
+	    dynamic_cast<Ope_poisson*>(operateurs[conte]) ;
+	  assert (op_pois !=0x0) ;
+	  int lq_old = op_pois->get_lquant() ;
+	  if (lq_old == 0) {
+	    delete operateurs[conte] ;
+	    operateurs[conte] = 0x0 ;
+	  }
+	  else 
+	    ced ? op_pois->inc_l_quant() : op_pois->dec_l_quant() ;
 	}
 	conte ++ ;
       }

@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/06/14 15:07:10  j_novak
+ * New methods for the construction of the elliptic operator appearing in
+ * the vector Poisson equation (acting on eta).
+ *
  * Revision 1.8  2004/05/14 08:51:00  p_grandclement
  * *** empty log message ***
  *
@@ -135,14 +139,27 @@ class Param_elliptic {
   
    /**
     * Sets the operator to \f$\Delta + \frac{2}{r} \frac{\partial}{\partial r} 
-    * + \frac{2}{r^2} \f$ in all domains, for \f$ l \not= 0 \f$; and to 
-    * \f$\frac{\partial^2}{\partial r^2} + \frac{2}{r} 
-    * \frac{\partial}{\partial r} - \frac{2}{r^2} \f$ 
-    * in all domains otherwise.
+    * + \frac{2 - l(l+1)}{r^2} \f$ in all domains, for \f$ l \not= 0 \f$; 
+    * and to \f$\frac{\partial^2}{\partial r^2} + \frac{2}{r} 
+    * \frac{\partial}{\partial r} - \frac{2}{r^2} \f$ in all domains otherwise.
     *
     * @param zone [input] : the domain.
     **/
   void set_poisson_vect_r(int zone) ; 
+
+   /**
+    * Sets the operator to \f$\Delta + \frac{2}{r} \frac{\partial}{\partial r} 
+    * - \frac{l(l-1)}{r^2} \f$ (Poisson with the decrease of \e l by one unit)
+    * in all domains but the CED, for \f$ l \not= 0 \f$; it is not defined 
+    * for \e l = 0. In the CED, the operator is also the Laplace one, but 
+    * with \e l increased by one unit: \f$\Delta + \frac{2}{r} 
+    * \frac{\partial}{\partial r} - \frac{(l+1)(l+2)}{r^2} \f$. 
+    * This is intended to solve the equation for \f$ \eta \f$ arising in 
+    * the decomposition of the vector Poisson equation.
+    *
+    * @param zone [input] : the domain.
+    **/
+  void set_poisson_vect_eta(int zone) ; 
 
   /**
    * Increases the quantum number \e l in the domain \c zone .

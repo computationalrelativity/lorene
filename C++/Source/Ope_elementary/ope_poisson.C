@@ -23,6 +23,10 @@ char ope_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/06/14 15:07:11  j_novak
+ * New methods for the construction of the elliptic operator appearing in
+ * the vector Poisson equation (acting on eta).
+ *
  * Revision 1.1  2003/12/11 14:48:50  p_grandclement
  * Addition of ALL (and that is a lot !) the files needed for the general elliptic solver ... UNDER DEVELOPEMENT...
  *
@@ -142,4 +146,25 @@ void Ope_poisson::inc_l_quant() {
     non_dege = 0x0 ;
   } 
   l_quant ++ ;
+}
+
+void Ope_poisson::dec_l_quant() {
+  
+  assert(l_quant > 0) ;
+
+  if (ope_mat != 0x0) {
+    delete ope_mat ;
+    ope_mat = 0x0 ;
+  }
+  
+  if (ope_cl != 0x0) {
+    delete ope_cl ;
+    ope_cl = 0x0 ;
+  }
+
+  if (non_dege != 0x0) {
+    delete non_dege ;
+    non_dege = 0x0 ;
+  } 
+  l_quant -- ;
 }
