@@ -32,6 +32,11 @@ char matrice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/09/24 10:51:16  e_gourgoulhon
+ *
+ * The case of a 1D Tbl in the constructor from Tbl is now taken into account
+ * (resulting in a single-column matrix).
+ *
  * Revision 1.4  2002/09/24 08:36:44  e_gourgoulhon
  *
  * Corrected error in output (operator<<) : permutted number of rows and columns
@@ -171,7 +176,23 @@ Matrice::Matrice (const Tbl & source) {
     etat = source.get_etat() ;
     kl = 0 ;
     ku = 0 ;
-    std = new Tbl(source) ;
+    if (source.get_ndim() == 1) {     // column vector
+        int n = source.get_taille() ;
+        std = new Tbl(n,1) ;
+        if (source.get_etat() == ETATZERO) {
+	        std->set_etat_zero() ;
+        }
+	else  {
+                assert( source.get_etat() == ETATQCQ ) ;
+                std->set_etat_qcq() ;
+                for (int i=0; i<n; i++) {
+                        std->t[i] = source.t[i] ;
+                }
+	}
+    }
+    else {                        // 2D Tbl
+        std = new Tbl(source) ;
+    }
     band = 0x0 ;
     lu = 0x0 ;
     permute = 0x0 ;
