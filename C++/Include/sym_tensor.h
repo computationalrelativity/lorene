@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/02/26 22:45:13  e_gourgoulhon
+ * Added method derive_lie.
+ *
  * Revision 1.12  2004/02/18 18:43:22  e_gourgoulhon
  * Method trace() renamed the_trace() in order to avoid
  * any confusion with new method Tensor::trace().
@@ -218,6 +221,11 @@ class Sym_tensor : public Tensor_sym {
 	 * The indices are assumed to be contravariant.
 	 */
 	const Vector& divergence(const Metric&) const ; 
+
+        /** Computes the Lie derivative of {\tt this} with respect to some
+         *  vector field {\tt v}
+         */
+        Sym_tensor derive_lie(const Vector& v) const ; 
 
 	/** Computes the transverse part ${}^t T^{ij}$ of the tensor with respect 
 	 * to a given metric, transverse meaning divergence-free with respect

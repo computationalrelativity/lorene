@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2004/02/26 22:45:44  e_gourgoulhon
+ * Added method derive_lie.
+ *
  * Revision 1.23  2004/02/22 15:47:45  j_novak
  * Added 2 more methods to solve the vector pôisson equation. Method 1 is not
  * tested yet.
@@ -303,6 +306,11 @@ class Vector: public Tensor {
 	 * The {\tt Vector} is assumed to be contravariant.
 	 */
 	const Scalar& divergence(const Metric&) const ; 
+
+        /** Computes the Lie derivative of {\tt this} with respect to some
+         *  vector field {\tt v}
+         */
+        Vector derive_lie(const Vector& v) const ; 
 
 	/**Solves the vector Poisson equation with {\tt *this} as a source.
 	 * 
