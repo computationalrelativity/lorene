@@ -30,6 +30,9 @@ char time_slice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/29 11:59:23  e_gourgoulhon
+ * Added operator>>.
+ *
  * Revision 1.4  2004/03/28 21:29:45  e_gourgoulhon
  * Evolution_std's renamed with suffix "_evol"
  * Method gam() modified
@@ -267,36 +270,43 @@ void Time_slice::operator=(const Time_slice& tin) {
                 //      output      //
                 //------------------//
 
-ostream& operator<<(ostream& flux, const Time_slice& sigma) {
+ostream& Time_slice::operator>>(ostream& flux) const {
 
     flux << '\n' ;
-    flux << "Lorene class : " << typeid(sigma).name() << '\n' ; 
-    int jlast = sigma.jtime ; 
-    flux << "Time label t = " << sigma.the_time[jlast] << '\n' ; 
-    flux << "Index of time step j = " << jlast << '\n' ; 
+    flux << "Lorene class : " << typeid(*this).name() << '\n' ; 
+    flux << "Time label t = " << the_time[jtime] << '\n' ; 
+    flux << "Index of time step j = " << jtime << '\n' ; 
     flux << "------------------------------------------------------------\n" 
         <<  "Max. of absolute values of the various fields in each domain: \n" ;
-    if (sigma.gam_dd_evol.is_known(jlast)) {
-        maxabs( sigma.gam_dd_evol[jlast], "gam_dd", flux) ;
+    if (gam_dd_evol.is_known(jtime)) {
+        maxabs( gam_dd_evol[jtime], "gam_{ij}", flux) ;
     }
-    if (sigma.gam_uu_evol.is_known(jlast)) {
-        maxabs( sigma.gam_uu_evol[jlast], "gam_uu", flux) ;
+    if (gam_uu_evol.is_known(jtime)) {
+        maxabs( gam_uu_evol[jtime], "gam^{ij}", flux) ;
     }
-    if (sigma.k_dd_evol.is_known(jlast)) {
-        maxabs( sigma.k_dd_evol[jlast], "k_dd", flux) ;
+    if (k_dd_evol.is_known(jtime)) {
+        maxabs( k_dd_evol[jtime], "K_{ij}", flux) ;
     }
-    if (sigma.k_uu_evol.is_known(jlast)) {
-        maxabs( sigma.k_uu_evol[jlast], "k_uu", flux) ;
+    if (k_uu_evol.is_known(jtime)) {
+        maxabs( k_uu_evol[jtime], "K^{ij}", flux) ;
     }
-    if (sigma.n_evol.is_known(jlast)) {
-        maxabs( sigma.n_evol[jlast], "N", flux) ;
+    if (n_evol.is_known(jtime)) {
+        maxabs( n_evol[jtime], "N", flux) ;
     }
-    if (sigma.beta_evol.is_known(jlast)) {
-        maxabs( sigma.beta_evol[jlast], "beta", flux) ;
+    if (beta_evol.is_known(jtime)) {
+        maxabs( beta_evol[jtime], "beta^i", flux) ;
     }
 
-    if (sigma.p_gamma != 0x0) flux << *sigma.p_gamma << endl ; 
+    if (p_gamma != 0x0) flux << "Metric gamma is up to date" << endl ; 
     
+    return flux ; 
+
+}
+
+
+ostream& operator<<(ostream& flux, const Time_slice& sigma) {
+
+    sigma >> flux ;     
     return flux ; 
 
 }
