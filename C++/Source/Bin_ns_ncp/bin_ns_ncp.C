@@ -28,6 +28,9 @@ char Binaire_ncp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/01/20 17:13:25  j_novak
+ * Modif des include <math.h> pour eviter les warning sous SGI.
+ *
  * Revision 1.2  2003/01/20 09:38:17  f_limousin
  * Modification of the standard constructor
  *
@@ -44,7 +47,7 @@ char Binaire_ncp_C[] = "$Header$" ;
  */
 
 // Headers C
-#include "math.h"
+#include <math.h>
 
 // Headers Lorene
 #include "bin_ns_ncp.h"

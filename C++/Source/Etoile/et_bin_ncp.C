@@ -29,6 +29,9 @@ char et_bin_ncp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/01/20 17:13:26  j_novak
+ * Modif des include <math.h> pour eviter les warning sous SGI.
+ *
  * Revision 1.3  2003/01/20 17:07:05  f_limousin
  * add <math.h>
  *
@@ -45,10 +48,10 @@ char et_bin_ncp_C[] = "$Header$" ;
  *
  */
 
+#include <math.h>
 
 // Lorene headers
 #include "et_bin_ncp.h"
-#include <math.h>
 
 
 			    //--------------//
