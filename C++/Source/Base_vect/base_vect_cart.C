@@ -32,6 +32,9 @@ char base_vect_cart_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/04/06 08:15:03  p_grandclement
+ * Correction of change_triad when using sym tensors...
+ *
  * Revision 1.5  2002/10/16 14:36:31  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -294,6 +297,8 @@ void Base_vect_cart::change_basis(Tenseur& ti) const {
 	
 	int ind = align * (bvc->align) ; 
 	
+	Tenseur copie (ti) ;
+	
 	switch (ind) {
 	    
 	    case 1 : {	// the two basis are aligned : nothing to do
@@ -315,10 +320,10 @@ void Base_vect_cart::change_basis(Tenseur& ti) const {
 		    }
 		    
 		    case 2 : { // rank 2 tensor
-			ti.set(0, 2) = - ti(0, 2) ; // {xz} --> - {xz}
-			ti.set(1, 2) = - ti(1, 2) ; // {yz} --> - {yz}
-			ti.set(2, 0) = - ti(2, 0) ; // {zx} --> - {zx}
-			ti.set(2, 1) = - ti(2, 1) ; // {zy} --> - {zy}
+			ti.set(0, 2) = - copie(0, 2) ; // {xz} --> - {xz}
+			ti.set(1, 2) = - copie(1, 2) ; // {yz} --> - {yz}
+			ti.set(2, 0) = - copie(2, 0) ; // {zx} --> - {zx}
+			ti.set(2, 1) = - copie(2, 1) ; // {zy} --> - {zy}
 					// all other components are unchanged
 			break ; 
 		    }
