@@ -30,6 +30,9 @@ char test_time_slice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/04/05 11:54:43  j_novak
+ * First operational (but not tested!) version of checks of Eintein equation.
+ *
  * Revision 1.4  2004/03/30 14:02:05  j_novak
  * Test of the class Tslide_dirac_max (preliminary version).
  *
@@ -97,7 +100,7 @@ int main() {
     Time_slice sigma(map, map.get_bvect_spher()) ; 
 
     sigma.set_scheme_order(0) ; //stationary space-time
-    
+
 //     cout << sigma << endl ; 
 //     arrete() ; 
 
@@ -157,8 +160,15 @@ int main() {
 				 map.flat_met_spher(), sigma_c.psi(), 
 				 hij, sigma_c.aa()) ;
 
+    dirac_slice.set_scheme_order(0) ; //stationary space-time
     cout << dirac_slice ;
 
+    dirac_slice.check_hamiltonian_constraint() ;
+
+    dirac_slice.check_momentum_constraint() ;
+
+    dirac_slice.check_dynamical_equations() ;
+    
 
     return EXIT_SUCCESS ; 
 }

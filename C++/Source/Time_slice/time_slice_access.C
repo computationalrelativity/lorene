@@ -30,6 +30,9 @@ char time_slice_access_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/04/05 11:52:36  j_novak
+ * First operational (but not tested!) version of checks of Eintein equation.
+ *
  * Revision 1.4  2004/04/01 16:09:02  j_novak
  * Trace of K_ij is now member of Time_slice (it was member of Time_slice_conf).
  * Added new methods for checking 3+1 Einstein equations (preliminary).
@@ -166,9 +169,9 @@ const Scalar& Time_slice::trk() const {
   if ( ! (trk_evol.is_known(jtime)) ) {
 
     if ( k_uu_evol.is_known(jtime) )
-      trk_evol.update( k_dd().trace(gam()), jtime, the_time[jtime] ) ;
-    else 
       trk_evol.update( k_uu().trace(gam()), jtime, the_time[jtime] ) ;
+    else 
+      trk_evol.update( k_dd().trace(gam()), jtime, the_time[jtime] ) ;
 
   }
 
