@@ -36,6 +36,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.45  2004/02/18 15:52:39  e_gourgoulhon
+ * -- Added optional argument desaliasing in function contract.
+ * -- Added new function contract for double contraction.
+ *
  * Revision 1.44  2004/02/16 10:48:06  e_gourgoulhon
  * Added "class Tensor_sym;" at the beginning.
  *
@@ -1088,13 +1092,46 @@ Tensor_sym operator*(const Tensor_sym& a, const Tensor_sym& b) ;
  *  ({\tt ind1} must thus be in the range 0...t1.valence-1)  
  * @param t2 [input] second tensor 
  * @param ind2 [input] index of the second tensor for the contraction, with 
- *   the same convention as {\tt ind1} 
+ *   the same convention as {\tt ind1}
+ * @param desaliasing [input] determines whether the products are performed
+ *      with desaliasing or not  
  * @return tensor resulting of the contraction of the index {\tt ind1} of
  *  {\tt t1} with the index {\tt ind2} of {\tt t2}.
  * NB: the types ({\tt COV} or {\tt CON}) of the indices {\tt ind1} and
  * {\tt ind2} must be different. 
  */
-Tensor contract(const Tensor& t1, int ind1, const Tensor& t2, int ind2) ;
+Tensor contract(const Tensor& t1, int ind1, const Tensor& t2, int ind2, 
+        bool desaliasing = false) ;
+
+/** Double contraction of two tensors. 
+ *
+ * @param t1 [input] first tensor 
+ * @param ind_i1 [input] position of the first index {\it i1} in the first 
+ *      tensor for the contraction, 
+ *    obeying to the following convention : \\
+ *    {\tt ind\_i1} = 0 : first index of the tensor \\
+ *    {\tt ind\_i1} = 1 : second index of the tensor \\
+ *    and so on... \\
+ *  ({\tt ind\_i1} must thus be in the range 0...t1.valence-1)  
+ * @param ind_j1 [input] position of the second index {\it j1} in the first 
+ *      tensor for the contraction; one must have {\tt ind\_i1 < ind\_ j1}
+ * @param t2 [input] second tensor 
+ * @param ind_i2 [input] position of the first index {\it i2} in the second 
+ *      tensor for the contraction 
+ * @param ind_j2 [input] position of the second index {\it j2} in the second 
+ *      tensor for the contraction; one must have {\tt ind\_i2 < ind\_ j2}
+ * @param desaliasing [input] determines whether the products are performed
+ *      with desaliasing or not  
+ * @return tensor resulting of the contraction of the index {\tt ind\_i1} 
+ *  of {\tt t1} with the index {\tt ind\_i2} of {\tt t2} and of the 
+ * contraction of the index {\tt ind\_j1} 
+ *  of {\tt t1} with the index {\tt ind\_j2} of {\tt t2}
+ * NB: the types ({\tt COV} or {\tt CON}) of the indices {\tt ind\_i1} and
+ * {\tt ind\_i2} (resp. {\tt ind\_j1} and {\tt ind\_j2}) must be different. 
+ */
+Tensor contract(const Tensor& t1, int ind_i1, int ind_j1, 
+                const Tensor& t2, int ind_i2, int ind_j2,
+                bool desaliasing = false) ;
 
 
 /** Contraction of two tensors and with desaliasing
