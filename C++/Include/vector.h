@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/09/29 13:48:17  j_novak
+ * New class Delta.
+ *
  * Revision 1.2  2003/09/29 12:52:56  j_novak
  * Methods for changing the triad are implemented.
  *
@@ -46,6 +49,7 @@
  * 
  * @version #$Id$#
  */
+
 class Vector: public Tensor {
 
     // Constructors - Destructor

@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/09/29 13:48:17  j_novak
+ * New class Delta.
+ *
  * Revision 1.8  2003/09/26 14:33:51  j_novak
  * Arithmetic functions for the class Tensor
  *
@@ -511,6 +514,7 @@ class Tensor {
 	friend class Scalar ;
 	friend class Vector ;
 	friend class Sym_tensor ;
+	friend class Delta ;
     
 };
 
@@ -666,6 +670,122 @@ class Sym_tensor : public Tensor {
  
 } ;
 
+
+			//----------------------------//
+			//        class Delta         //
+			//----------------------------//
+			
+/**
+ * Class describing valence-3 tensors, symmetric on the last two indices.
+ * These object typically represent the difference between two connections
+ * (see the class {\tt Connection}). The storage and the calculations are 
+ * different and quicker than with a usual {\tt Tensor}.
+ * 
+ * The valence must be 3.
+ */
+class Delta : public Tensor {
+
+    // Constructors - Destructor :
+    // -------------------------
+	
+    public:
+	/** Standard constructor.
+	 * 
+	 * @param map   the mapping 
+	 * @param tipe  1-D array of integers (class {\tt Itbl}) of size 3 
+	 *		containing the type 
+	 *		of each index, {\tt COV} for a covariant one 
+	 *		and {\tt CON} for a contravariant one,  with the 
+	 *		following storage convention: \\
+	 *			{\tt tipe(0)} : type of the first index \\
+	 *			{\tt tipe(1)} : type of the second index, etc..
+	 * @param triad_i  vectorial basis (triad) with respect to which 
+	 *			  the tensor components are defined
+	 */
+	Delta(const Map& map, const Itbl& tipe,const Base_vect& triad_i) ;
+
+	/** Standard constructor when both indices are of the same type.
+	 * 
+	 * @param map   the mapping 
+	 * @param tipe  the type of the indices.
+	 * @param triad_i  vectorial basis (triad) with respect to which 
+	 *			  the tensor components are defined
+	 * 
+	 */
+	Delta(const Map& map, int tipe, const Base_vect& triad_i) ;
+
+	Delta(const Delta&) ; /// Copy constructor
+
+	/** Constructor from a {\tt Tensor}.
+	 *  The symmetry of the input tensor is assumed to be true but not checked.
+	 */
+	explicit Delta(const Tensor&) ;
+	
+	/** Constructor from a file (see {\tt sauve(FILE* )}).
+	 * 
+	 * @param map  the mapping
+	 * @param triad_i   vectorial basis (triad) with respect to which 
+	 *			  the tensor components are defined. It will
+	 *			  be checked that it coincides with the basis
+	 *			  saved in the file.
+	 * @param fich  file which has been created by 
+	 *			    the function {\tt sauve(FILE* )}.
+	 */
+	Delta(const Map& map, const Base_vect& triad_i, FILE* fich) ;
+
+	virtual ~Delta() ;    /// Destructor
+	
+    // Mutators / assignment
+    // ---------------------
+    public:
+	/**
+	 * Assignment from a {\tt Tensor}.
+	 * 
+	 * The symmetry is assumed but not checked.
+	 */
+	virtual void operator= (const Tensor&) ;
+    
+
+    // Accessors
+    // ---------
+    public:
+	/**
+	 * Returns the position in the array {\tt cmp} of a 
+	 * component given by its indices.  
+	 *
+	 * @param ind [input] 1-D array of integers (class {\tt Itbl})
+	 *		 of size 3 giving the 
+	 *		values of each index specifing the component,  with the 
+	 *		following storage convention: \\
+	 *		   {\tt ind(0)} : value of the first index (1, 2 or 3) \\
+	 *		   {\tt ind(1)} : value of the second index (1, 2 or 3)\\
+	 *                 {\it etc ...}
+	 *
+	 * @return position in the array {\tt cmp} of the pointer to the
+	 *  	{\tt Scalar} containing the component specified by {\tt ind}
+	 */
+	virtual int position(const Itbl& ind) const ;
+
+
+	/**
+	 * Returns the indices of a component given by its position in the 
+	 * array {\tt cmp}. 
+	 *
+	 * @param pos [input] position in the array {\tt cmp}
+	 *		of the pointer to the {\tt Scalar} representing a component
+	 *
+	 * @return 1-D array of integers (class {\tt Itbl}) of
+	 *         size 3 giving the value of each index 
+	 *	   for the component located at the position {\tt pos} in
+	 *		the array [\tt cmp}, with the 
+	 *		following storage convention: \\
+	 *		     {\tt Itbl(0)} : value of the first index (1, 2 or 3) \\
+	 *		     {\tt Itbl(1)} : value of the second index (1, 2 or 3)\\
+	 *                   {\it etc...}
+	 */
+	virtual Itbl indices(int pos) const ;
+	
+} ;
 
 #include "scalar.h"
 
