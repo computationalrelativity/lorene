@@ -30,6 +30,10 @@ char tslice_dirac_max_solve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/05/12 15:24:20  e_gourgoulhon
+ * Reorganized the #include 's, taking into account that
+ * time_slice.h contains now an #include "metric.h".
+ *
  * Revision 1.5  2004/05/05 14:47:05  e_gourgoulhon
  * Modified text and graphical outputs.
  *
@@ -57,8 +61,6 @@ char tslice_dirac_max_solve_C[] = "$Header$" ;
 
 // Lorene headers
 #include "time_slice.h"
-#include "metric.h"
-#include "evolution.h"
 #include "unites.h"
 #include "graphique.h"
 

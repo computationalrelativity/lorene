@@ -30,6 +30,10 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/05/12 15:24:20  e_gourgoulhon
+ * Reorganized the #include 's, taking into account that
+ * time_slice.h contains now an #include "metric.h".
+ *
  * Revision 1.6  2004/05/11 20:15:10  e_gourgoulhon
  * Added Evolution_full's for ADM mass and checks of the constraint,
  * as well as the corresponding plots and write to files.
@@ -58,8 +62,6 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 
 // Lorene headers
 #include "time_slice.h"
-#include "metric.h"
-#include "evolution.h"
 #include "param.h"
 #include "graphique.h"
 #include "utilitaires.h"

@@ -30,6 +30,10 @@ char time_slice_conf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/05/12 15:24:20  e_gourgoulhon
+ * Reorganized the #include 's, taking into account that
+ * time_slice.h contains now an #include "metric.h".
+ *
  * Revision 1.10  2004/05/10 09:10:05  e_gourgoulhon
  * Added "adm_mass_evol.downdate(jtime)" in methods set_*.
  *
@@ -76,9 +80,6 @@ char time_slice_conf_C[] = "$Header$" ;
 
 // Lorene headers
 #include "time_slice.h"
-#include "tensor.h"
-#include "metric.h"
-#include "evolution.h"
 
 
 

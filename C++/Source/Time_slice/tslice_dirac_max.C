@@ -30,6 +30,10 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/05/12 15:24:20  e_gourgoulhon
+ * Reorganized the #include 's, taking into account that
+ * time_slice.h contains now an #include "metric.h".
+ *
  * Revision 1.6  2004/05/10 09:16:32  e_gourgoulhon
  * -- Method initial_data_cts: added a call to del_deriv() at the end.
  * -- Methods set_trh and hh_det_one: added "adm_mass_evol.downdate(jtime)".
@@ -61,8 +65,6 @@ char tslice_dirac_max_C[] = "$Header$" ;
 
 // Lorene headers
 #include "time_slice.h"
-#include "metric.h"
-#include "evolution.h"
 #include "utilitaires.h"
 
 

@@ -30,6 +30,10 @@ char tslice_check_einstein_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/05/12 15:24:20  e_gourgoulhon
+ * Reorganized the #include 's, taking into account that
+ * time_slice.h contains now an #include "metric.h".
+ *
  * Revision 1.3  2004/04/07 07:58:21  e_gourgoulhon
  * Constructor as Minkowski slice: added call to std_spectral_base()
  * after setting the lapse to 1.
@@ -51,9 +55,6 @@ char tslice_check_einstein_C[] = "$Header$" ;
 
 // Lorene headers
 #include "time_slice.h"
-#include "tensor.h"
-#include "metric.h"
-#include "evolution.h"
 #include "unites.h"
 
 Tbl Time_slice::check_hamiltonian_constraint(const Scalar* energy_density,

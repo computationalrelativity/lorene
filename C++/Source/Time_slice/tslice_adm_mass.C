@@ -31,6 +31,10 @@ char tslice_adm_mass_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/05/12 15:24:20  e_gourgoulhon
+ * Reorganized the #include 's, taking into account that
+ * time_slice.h contains now an #include "metric.h".
+ *
  * Revision 1.2  2004/05/10 09:11:20  e_gourgoulhon
  * Corrected bug in Time_slice::adm_mass().
  * Reorganized outputs.
@@ -48,7 +52,6 @@ char tslice_adm_mass_C[] = "$Header$" ;
 #include <math.h>
 
 // Lorene headers
-#include "metric.h"
 #include "time_slice.h"
 
 //--------------------

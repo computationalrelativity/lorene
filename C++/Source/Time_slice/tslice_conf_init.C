@@ -30,6 +30,10 @@ char tslice_conf_init_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/05/12 15:24:20  e_gourgoulhon
+ * Reorganized the #include 's, taking into account that
+ * time_slice.h contains now an #include "metric.h".
+ *
  * Revision 1.6  2004/05/10 09:12:01  e_gourgoulhon
  * Added a call to del_deriv() at the end.
  *
@@ -64,8 +68,6 @@ char tslice_conf_init_C[] = "$Header$" ;
 
 // Lorene headers
 #include "time_slice.h"
-#include "metric.h"
-#include "evolution.h"
 #include "unites.h"
 #include "graphique.h"
 #include "utilitaires.h"
