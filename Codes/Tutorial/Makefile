@@ -19,10 +19,16 @@ EXE2 = $(SRC2:.C=)
 $(EXE1): $(OBJ1) $(LIBLOR) 
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
+	cp $(HOME_LORENE)/Visu/OpenDX/visu_scalar_box.net .
+	cp $(HOME_LORENE)/Visu/OpenDX/visu_section.net .
+	cp $(HOME_LORENE)/Visu/OpenDX/visu_vector3d.net .
 
 $(EXE2): $(OBJ2) $(LIBLOR) 
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ2) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
+	cp $(HOME_LORENE)/Visu/OpenDX/visu_scalar_box.net .
+	cp $(HOME_LORENE)/Visu/OpenDX/visu_section.net .
+	cp $(HOME_LORENE)/Visu/OpenDX/visu_vector3d.net .
 
 all: $(EXE1) $(EXE2) 
 
@@ -32,5 +38,7 @@ all: $(EXE1) $(EXE2)
 
 uninstall:
 	rm -f $(OBJ1) $(OBJ2) 
-	rm -f $(EXE1) $(EXE2) 
+	rm -f $(EXE1) $(EXE2)
+	rm -f visu*.net
+
 
