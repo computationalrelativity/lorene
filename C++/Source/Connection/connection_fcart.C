@@ -30,6 +30,11 @@ char connection_fcart_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/12/27 14:59:52  e_gourgoulhon
+ * -- Method derive_cov() suppressed.
+ * -- Change of the position of the derivation index from the first one
+ *    to the last one in methods p_derive_cov() and p_divergence().
+ *
  * Revision 1.8  2003/10/17 13:46:15  j_novak
  * The argument is now between 1 and 3 (instead of 0->2)
  *
@@ -73,9 +78,9 @@ char connection_fcart_C[] = "$Header$" ;
 #include "connection.h"
 
 
-//------------------------------//
-//	       Constructors     //
-//------------------------------//
+        //------------------------------//
+        //          Constructors        //
+        //------------------------------//
 
 
 
@@ -93,9 +98,9 @@ Connection_fcart::Connection_fcart(const Connection_fcart& ci)
 }		
 
 	
-//----------------------------//
-//	       Destructor     //
-//----------------------------//
+        //----------------------------//
+        //          Destructor        //
+        //----------------------------//
 
 
 Connection_fcart::~Connection_fcart(){
@@ -103,9 +108,9 @@ Connection_fcart::~Connection_fcart(){
 }
 
 
-//-----------------------------//
-//     Mutators / assignment   //
-//-----------------------------//
+        //--------------------------------//
+        //      Mutators / assignment     //
+        //--------------------------------//
 
 
 void Connection_fcart::operator=(const Connection_fcart& ) {
@@ -117,162 +122,52 @@ void Connection_fcart::operator=(const Connection_fcart& ) {
 
 
 
-//-----------------------------//
-//    Computational methods    //
-//-----------------------------//
-
-// Covariant derivative, returning a value.
-//-----------------------------------------
-
-Tensor Connection_fcart::derive_cov(const Tensor& uu) const {
-
-  int valence0 = uu.get_valence() ; 
-  int ncomp0 = uu.get_n_comp() ;
-	
-  // Protections
-  // -----------
-  if (valence0 >= 1) {
-    assert(uu.get_triad() == triad) ; 
-  }
-
-  // Indices of the result
-  // ---------------------
-  Itbl tipe(valence0+1) ; 
-  tipe.set(0) = COV ; 
-  const Itbl tipeuu = uu.get_index_type() ;  
-  for (int id = 1; id<=valence0; id++) {
-    tipe.set(id) = tipeuu(id-1) ; 
-  }
-
-  // Creation of the result tensor
-  // -----------------------------
-  Tensor resu(*mp, valence0+1, tipe, *triad) ;
-	
-  Itbl ind1(valence0+1) ; // working Itbl to store the indices of resu
-	
-  Itbl ind0(valence0) ; // working Itbl to store the indices of uu
-	
-
-  // Derivation index = x
-  // --------------------
-  int k = 1 ; 	
-
-  // Loop on all the components of the input tensor
-  for (int ic=0; ic<ncomp0; ic++) {
-	
-    // indices corresponding to the component no. ic in the input tensor
-    ind0 = uu.indices(ic) ; 
-		
-    // indices (k,ind0) in the output tensor
-    ind1.set(0) = k ; 
-    for (int id = 1; id<=valence0; id++) {
-      ind1.set(id) = ind0(id-1) ; 
-    }
-		
-    Scalar& cresu = resu.set(ind1) ; 
-		
-    cresu = (uu(ind0)).dsdx() ; 	// d/dx
-		
-  }
-
-
-
-  // Derivation index = y
-  // ---------------------
-  k = 2 ; 	
-
-  // Loop on all the components of the input tensor
-  for (int ic=0; ic<ncomp0; ic++) {
-	
-    // indices corresponding to the component no. ic in the input tensor
-    ind0 = uu.indices(ic) ; 
-		
-    // indices (k,ind0) in the output tensor
-    ind1.set(0) = k ; 
-    for (int id = 1; id<=valence0; id++) {
-      ind1.set(id) = ind0(id-1) ; 
-    }
-		
-    Scalar& cresu = resu.set(ind1) ; 
-		
-    cresu = (uu(ind0)).dsdy() ;  	// d/dy	
-		
-  }
-
-
-  // Derivation index = z
-  // --------------------
-  k = 3 ; 	
-
-  // Loop on all the components of the input tensor
-  for (int ic=0; ic<ncomp0; ic++) {
-	
-    // indices corresponding to the component no. ic in the input tensor
-    ind0 = uu.indices(ic) ; 
-		
-    // indices (k,ind0) in the output tensor
-    ind1.set(0) = k ; 
-    for (int id = 1; id<=valence0; id++) {
-      ind1.set(id) = ind0(id-1) ; 
-    }
-		
-    Scalar& cresu = resu.set(ind1) ; 
-		
-    cresu = (uu(ind0)).dsdz() ;  	// d/dz
-
-  }
-
-
-  // C'est fini !
-  // -----------
-  return resu ; 
-
-}
-
+        //-----------------------------//
+        //    Computational methods    //
+        //-----------------------------//
 
 // Covariant derivative, returning a pointer.
 //-------------------------------------------
 
 Tensor* Connection_fcart::p_derive_cov(const Tensor& uu) const {
 
+    // Notations: suffix 0 in name <=> input tensor
+    //            suffix 1 in name <=> output tensor
+
   int valence0 = uu.get_valence() ; 
   int ncomp0 = uu.get_n_comp() ;
-	
+  int valence1 = valence0 + 1 ; 
+  int valence1m1 = valence1 - 1 ; // same as valence0, but introduced for 
+                                  // the sake of clarity
+  	
   // Protections
   // -----------
   if (valence0 >= 1) {
     assert(uu.get_triad() == triad) ; 
   }
 
-  // Indices of the result
-  // ---------------------
-  Itbl tipe(valence0+1) ; 
-
   // Creation of the result pointer
   // ------------------------------
-  Tensor* resu ;
+    Tensor* resu ;
 
-  // If u is a Scalar, the result is a vector
-  //----------------------------------------
-  if (valence0 == 0) 
-    resu = new Vector(*mp, COV, triad) ;
-  else {
-    tipe.set(0) = COV ; 
-    const Itbl tipeuu = uu.get_index_type() ;  
-    for (int id = 1; id<=valence0; id++) {
-      tipe.set(id) = tipeuu(id-1) ; 
+    // If uu is a Scalar, the result is a vector
+    if (valence0 == 0) 
+        resu = new Vector(*mp, COV, triad) ;
+    else {
+
+        // Type of indices of the result :
+        Itbl tipe(valence1) ; 
+        const Itbl& tipeuu = uu.get_index_type() ;  
+        for (int id = 0; id<valence0; id++) {
+            tipe.set(id) = tipeuu(id) ;   // First indices = same as uu
+        }
+        tipe.set(valence1m1) = COV ;  // last index is the derivation index
+
+        resu = new Tensor(*mp, valence1, tipe, *triad) ;
     }
-    const Sym_tensor* stuu 
-      = dynamic_cast<const Sym_tensor*>(&uu) ;
-    if (stuu != 0x0) { //Then the type Tensor_delta reduces the storage
-      resu = new Tensor_delta(*mp, tipe, *triad) ;
-    }
-    else { //Most general case...
-      resu = new Tensor(*mp, valence0+1, tipe, *triad) ;
-    }
-  }
+
 	
-  Itbl ind1(valence0+1) ; // working Itbl to store the indices of resu
+  Itbl ind1(valence1) ; // working Itbl to store the indices of resu
 	
   Itbl ind0(valence0) ; // working Itbl to store the indices of uu
 	
@@ -287,11 +182,11 @@ Tensor* Connection_fcart::p_derive_cov(const Tensor& uu) const {
     // indices corresponding to the component no. ic in the input tensor
     ind0 = uu.indices(ic) ; 
 		
-    // indices (k,ind0) in the output tensor
-    ind1.set(0) = k ; 
-    for (int id = 1; id<=valence0; id++) {
-      ind1.set(id) = ind0(id-1) ; 
+    // indices (ind0,k) in the output tensor
+    for (int id = 0; id < valence0; id++) {
+      ind1.set(id) = ind0(id) ; 
     }
+    ind1.set(valence1m1) = k ; 
 		
     Scalar& cresu = resu->set(ind1) ; 
 		
@@ -311,12 +206,12 @@ Tensor* Connection_fcart::p_derive_cov(const Tensor& uu) const {
     // indices corresponding to the component no. ic in the input tensor
     ind0 = uu.indices(ic) ; 
 		
-    // indices (k,ind0) in the output tensor
-    ind1.set(0) = k ; 
-    for (int id = 1; id<=valence0; id++) {
-      ind1.set(id) = ind0(id-1) ; 
+    // indices (ind0,k) in the output tensor
+    for (int id = 0; id < valence0; id++) {
+      ind1.set(id) = ind0(id) ; 
     }
-		
+    ind1.set(valence1m1) = k ; 
+				
     Scalar& cresu = resu->set(ind1) ; 
 		
     cresu = (uu(ind0)).dsdy() ;  	// d/dy	
@@ -334,12 +229,12 @@ Tensor* Connection_fcart::p_derive_cov(const Tensor& uu) const {
     // indices corresponding to the component no. ic in the input tensor
     ind0 = uu.indices(ic) ; 
 		
-    // indices (k,ind0) in the output tensor
-    ind1.set(0) = k ; 
-    for (int id = 1; id<=valence0; id++) {
-      ind1.set(id) = ind0(id-1) ; 
+    // indices (ind0,k) in the output tensor
+    for (int id = 0; id < valence0; id++) {
+      ind1.set(id) = ind0(id) ; 
     }
-		
+    ind1.set(valence1m1) = k ; 
+						
     Scalar& cresu = resu->set(ind1) ; 
 		
     cresu = (uu(ind0)).dsdz() ;  	// d/dz
@@ -353,57 +248,57 @@ Tensor* Connection_fcart::p_derive_cov(const Tensor& uu) const {
 
 }
 
+
+
 // Divergence, returning a pointer.
 //---------------------------------
 
 Tensor* Connection_fcart::p_divergence(const Tensor& uu) const {
 
+    // Notations: suffix 0 in name <=> input tensor
+    //            suffix 1 in name <=> output tensor
+
   int valence0 = uu.get_valence() ; 
+  int valence1 = valence0 - 1 ; 
 	
   // Protections
   // -----------
   assert (valence0 >= 1) ;
   assert (uu.get_triad() == triad) ; 
-  assert (uu.get_index_type(0) == CON) ;
+  
+  // Last index must be contravariant:
+  assert (uu.get_index_type(valence0-1) == CON) ;
 
-
-  // Indices of the result
-  // ---------------------
-  Itbl tipe(valence0-1) ; 
 
   // Creation of the pointer on the result tensor
   // --------------------------------------------
-  Tensor* resu ;
+    Tensor* resu ;
 
-  // If u is a Vector, the result is a Scalar
-  //----------------------------------------
-  if (valence0 == 1) 
-    resu = new Scalar(*mp) ;
-  else {
-    const Itbl tipeuu = uu.get_index_type() ;  
-    for (int id = 0; id<valence0-1; id++) {
-      tipe.set(id) = tipeuu(id+1) ; 
-    }
-    if (valence0 == 2) {
-      resu = new Vector(*mp, tipe(0), *triad) ;
-    }
+    if (valence0 == 1)      // if u is a Vector, the result is a Scalar
+        resu = new Scalar(*mp) ;
     else {
-      const Tensor_delta* del_uu 
-	= dynamic_cast<const Tensor_delta*>(&uu) ;
-      if (del_uu != 0x0) { //Then the type Sym_tensor reduces the storage
-	resu = new Sym_tensor(*mp, tipe, *triad) ;
-      }
-      else { //Most general case...
-	resu = new Tensor(*mp, valence0-1, tipe, *triad) ;
-      }
+    
+        // Type of indices of the result :
+        Itbl tipe(valence1) ; 
+        const Itbl& tipeuu = uu.get_index_type() ;  
+        for (int id = 0; id<valence1; id++) {
+            tipe.set(id) = tipeuu(id) ;     // type of remaining indices = 
+        }                                   //  same as uu indices
+
+        if (valence0 == 2) {  // if u is a rank 2 tensor, the result is a Vector
+            resu = new Vector(*mp, tipe(0), *triad) ;
+        }
+        else {
+	    resu = new Tensor(*mp, valence1, tipe, *triad) ;
+        }
     }
-  }
+
 
   int ncomp1 = resu->get_n_comp() ;
 	
   Itbl ind0(valence0) ; // working Itbl to store the indices of uu
 	
-  Itbl ind1(valence0-1) ; // working Itbl to store the indices of resu
+  Itbl ind1(valence1) ; // working Itbl to store the indices of resu
 	
   // Loop on all the components of the output tensor
   for (int ic=0; ic<ncomp1; ic++) {
@@ -414,11 +309,12 @@ Tensor* Connection_fcart::p_divergence(const Tensor& uu) const {
 
     for (int k=1; k<=3; k++) {
       
-      // indices (k,ind1) in the input tensor
-      ind0.set(0) = k ; 
-      for (int id = 1; id<valence0; id++) {
-	ind0.set(id) = ind1(id-1) ; 
+      // indices (ind1,k) in the input tensor
+      for (int id = 0; id < valence1; id++) {
+	ind0.set(id) = ind1(id) ; 
       }
+      ind0.set(valence0-1) = k ; 
+
       cresu += uu(ind0).deriv(k) ; //Addition of dT^i/dx^i
     }
 

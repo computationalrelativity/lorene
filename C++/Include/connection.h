@@ -29,6 +29,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/12/27 14:56:20  e_gourgoulhon
+ * -- Method derive_cov() suppressed.
+ * -- Change of the position of the derivation index from the first one
+ *    to the last one in methods p_derive_cov() and p_divergence().
+ *
  * Revision 1.9  2003/10/16 14:21:33  j_novak
  * The calculation of the divergence of a Tensor is now possible.
  *
@@ -79,7 +84,7 @@ class Connection_flat ;
 /**
  * Class Connection.
  *
- * The class deals only with torsion-free connections. 
+ * This class deals only with torsion-free connections. 
  * 
  * Note that we use the MTW convention for the indices of the connection 
  * coefficients with respect to a given triad $(e_i)$:
@@ -223,21 +228,55 @@ class Connection {
 	
 	public: 
 
-	/// Covariant derivative of a tensor (with respect to the current connection)
-	virtual Tensor derive_cov(const Tensor&) const ; 
-
-	/** Pointer on the covariant derivative of a tensor 
-	 * (with respect to the current connection). This method allocates memory
-	 * that must be deallocated by the user afterwards.
+	/** Computes the covariant derivative $\nabla T$ of a tensor $T$
+	 * (with respect to the current connection). 
+         * 
+         * The extra index (with respect to the indices of $T$)
+         * of $\nabla T$ is chosen to be the {\bf last} one.
+         * This convention agrees with that of MTW (see Eq. (10.17) of MTW).
+         * For instance, if $T$ is a 1-form, whose components
+         * w.r.t. the triad $e^i$ are $T_i$: $T=T_i \; e^i$,
+         * then the covariant derivative of $T$ is the bilinear form
+         * $\nabla T$ whose components $\nabla_j T_i$ are
+         * such that 
+         * \begin{equation}
+         *  \nabla T = \nabla_j T_i \; e^i \otimes e^j
+         * \end{equation}
+         *
+         * @param tens tensor $T$
+         * @return pointer on the covariant derivative $\nabla T$ ; 
+         * this pointer is
+         * polymorphe, i.e. it is a pointer on a {\tt Vector}
+         * if the argument is a {\tt Scalar}, and on a {\tt Tensor} otherwise.
+         * NB: The corresponding memory is allocated by the method 
+         * {\tt p\_derive\_cov()} and 
+         * must be deallocated by the user afterwards. 
 	 */
-	virtual Tensor* p_derive_cov(const Tensor&) const ; 
+	virtual Tensor* p_derive_cov(const Tensor& tens) const ; 
 
-	/** Pointer on the divergence of a tensor 
-	 * (with respect to the current connection). This method allocates memory
-	 * that must be deallocated by the user afterwards. It is also
-	 * assumed that the first index of the {\tt Tensor} is contravariant.
+	/** Computes the divergence of a tensor $T$
+	 * (with respect to the current connection). 
+         * The divergence is taken with respect of the last index of $T$
+         * which thus must be contravariant.
+         * For instance if $T$ is a twice contravariant tensor, whose 
+         * components w.r.t. the
+         * triad $e_i$ are $T^{ij}$: $T = T^{ij} \; e_i \otimes e_j$,
+         * the divergence of $T$ is the vector 
+         * \begin{equation}
+         *   {\rm div}\, T = \nabla_k T^{ik} \; e_i
+         * \end{equation}
+         * where $\nabla$ denotes the current connection. 
+         * @param tens tensor $T$
+         * @return pointer on the divergence of $T$ ; 
+         * this pointer is
+         * polymorphe, i.e. its is a pointer on a {\tt Scalar}
+         * if $T$ is a {\tt Vector}, on a {\tt Vector} if $T$ is a tensor
+         * of valence 2, and on a {\tt Tensor} otherwise.
+         * NB: The corresponding memory is allocated by the method 
+         * {\tt p\_divergence()} and 
+         * must be deallocated by the user afterwards. 
 	 */
-	virtual Tensor* p_divergence(const Tensor&) const ; 
+	virtual Tensor* p_divergence(const Tensor& tens) const ; 
 
 	/// Returns the Ricci tensor associated with the current connection
 	const Tensor& ricci() const ; 
@@ -299,7 +338,7 @@ class Connection_flat : public Connection {
 
  public:
 
-	Connection_flat(const Connection_flat & ) ;		/// Copy constructor
+	Connection_flat(const Connection_flat & ) ;	/// Copy constructor
 
   virtual ~Connection_flat() ; /// destructor
 
@@ -317,21 +356,55 @@ class Connection_flat : public Connection {
   
  public: 
 
-  /// Covariant derivative of a tensor (with respect to the current connection)
-  virtual Tensor derive_cov(const Tensor&) const = 0 ; 
+	/** Computes the covariant derivative $\nabla T$ of a tensor $T$
+	 * (with respect to the current connection). 
+         * 
+         * The extra index (with respect to the indices of $T$)
+         * of $\nabla T$ is chosen to be the {\bf last} one.
+         * This convention agrees with that of MTW (see Eq. (10.17) of MTW).
+         * For instance, if $T$ is a 1-form, whose components
+         * w.r.t. the triad $e^i$ are $T_i$: $T=T_i \; e^i$,
+         * then the covariant derivative of $T$ is the bilinear form
+         * $\nabla T$ whose components $\nabla_j T_i$ are
+         * such that 
+         * \begin{equation}
+         *  \nabla T = \nabla_j T_i \; e^i \otimes e^j
+         * \end{equation}
+         *
+         * @param tens tensor $T$
+         * @return pointer on the covariant derivative $\nabla T$ ; 
+         * this pointer is
+         * polymorphe, i.e. it is a pointer on a {\tt Vector}
+         * if the argument is a {\tt Scalar}, and on a {\tt Tensor} otherwise.
+         * NB: The corresponding memory is allocated by the method 
+         * {\tt p\_derive\_cov()} and 
+         * must be deallocated by the user afterwards. 
+	 */
+  virtual Tensor* p_derive_cov(const Tensor& tens) const = 0 ; 
 
-  /** Pointer on the covariant derivative of a tensor 
-   * (with respect to the current connection). This method allocates memory
-   * that must be deallocated by the user afterwards.
-   */
-  virtual Tensor* p_derive_cov(const Tensor&) const = 0 ; 
-
-  /** Pointer on the divergence of a tensor 
-   * (with respect to the current connection). This method allocates memory
-   * that must be deallocated by the user afterwards. It is also
-   * assumed that the first index of the {\tt Tensor} is contravariant.
-   */
-  virtual Tensor* p_divergence(const Tensor&) const = 0 ; 
+	/** Computes the divergence of a tensor $T$
+	 * (with respect to the current connection). 
+         * The divergence is taken with respect of the last index of $T$
+         * which thus must be contravariant.
+         * For instance if $T$ is a twice contravariant tensor, whose 
+         * components w.r.t. the
+         * triad $e_i$ are $T^{ij}$: $T = T^{ij} \; e_i \otimes e_j$,
+         * the divergence of $T$ is the vector 
+         * \begin{equation}
+         *   {\rm div} T = \nabla_k T^{ik} \; e_i
+         * \end{equation}
+         * where $\nabla$ denotes the current connection. 
+         * @param tens tensor $T$
+         * @return pointer on the divergence of $T$ ; 
+         * this pointer is
+         * polymorphe, i.e. its is a pointer on a {\tt Scalar}
+         * if $T$ is a {\tt Vector}, on a {\tt Vector} if $T$ is a tensor
+         * of valence 2, and on a {\tt Tensor} otherwise.
+         * NB: The corresponding memory is allocated by the method 
+         * {\tt p\_divergence()} and 
+         * must be deallocated by the user afterwards. 
+	 */
+  virtual Tensor* p_divergence(const Tensor& tens) const = 0 ; 
 
  protected:
 
@@ -382,21 +455,55 @@ class Connection_fspher : public Connection_flat {
   // ---------------------
   
  public: 
-  /// Covariant derivative of a tensor (with respect to the current connection)
-  virtual Tensor derive_cov(const Tensor&) const ; 
+	/** Computes the covariant derivative $\nabla T$ of a tensor $T$
+	 * (with respect to the current connection). 
+         * 
+         * The extra index (with respect to the indices of $T$)
+         * of $\nabla T$ is chosen to be the {\bf last} one.
+         * This convention agrees with that of MTW (see Eq. (10.17) of MTW).
+         * For instance, if $T$ is a 1-form, whose components
+         * w.r.t. the triad $e^i$ are $T_i$: $T=T_i \; e^i$,
+         * then the covariant derivative of $T$ is the bilinear form
+         * $\nabla T$ whose components $\nabla_j T_i$ are
+         * such that 
+         * \begin{equation}
+         *  \nabla T = \nabla_j T_i \; e^i \otimes e^j
+         * \end{equation}
+         *
+         * @param tens tensor $T$
+         * @return pointer on the covariant derivative $\nabla T$ ; 
+         * this pointer is
+         * polymorphe, i.e. it is a pointer on a {\tt Vector}
+         * if the argument is a {\tt Scalar}, and on a {\tt Tensor} otherwise.
+         * NB: The corresponding memory is allocated by the method 
+         * {\tt p\_derive\_cov()} and 
+         * must be deallocated by the user afterwards. 
+	 */
+	virtual Tensor* p_derive_cov(const Tensor& tens) const ; 
 
-  /** Pointer on the covariant derivative of a tensor 
-   * (with respect to the current connection). This method allocates memory
-   * that must be deallocated by the user afterwards.
-   */
-  virtual Tensor* p_derive_cov(const Tensor&) const ; 
-
-  /** Pointer on the covariant derivative of a tensor 
-   * (with respect to the current connection). This method allocates memory
-   * that must be deallocated by the user afterwards.
-   */
-  virtual Tensor* p_divergence(const Tensor&) const ; 
-
+	/** Computes the divergence of a tensor $T$
+	 * (with respect to the current connection). 
+         * The divergence is taken with respect of the last index of $T$
+         * which thus must be contravariant.
+         * For instance if $T$ is a twice contravariant tensor, whose 
+         * components w.r.t. the
+         * triad $e_i$ are $T^{ij}$: $T = T^{ij} \; e_i \otimes e_j$,
+         * the divergence of $T$ is the vector 
+         * \begin{equation}
+         *   {\rm div} T = \nabla_k T^{ik} \; e_i
+         * \end{equation}
+         * where $\nabla$ denotes the current connection. 
+         * @param tens tensor $T$
+         * @return pointer on the divergence of $T$ ; 
+         * this pointer is
+         * polymorphe, i.e. its is a pointer on a {\tt Scalar}
+         * if $T$ is a {\tt Vector}, on a {\tt Vector} if $T$ is a tensor
+         * of valence 2, and on a {\tt Tensor} otherwise.
+         * NB: The corresponding memory is allocated by the method 
+         * {\tt p\_divergence()} and 
+         * must be deallocated by the user afterwards. 
+	 */
+	virtual Tensor* p_divergence(const Tensor& tens) const ; 
   
 };
 
@@ -443,20 +550,55 @@ class Connection_fcart : public Connection_flat {
   // ---------------------
   
  public: 
-  /// Covariant derivative of a tensor (with respect to the current connection)
-  virtual Tensor derive_cov(const Tensor&) const ; 
+	/** Computes the covariant derivative $\nabla T$ of a tensor $T$
+	 * (with respect to the current connection). 
+         * 
+         * The extra index (with respect to the indices of $T$)
+         * of $\nabla T$ is chosen to be the {\bf last} one.
+         * This convention agrees with that of MTW (see Eq. (10.17) of MTW).
+         * For instance, if $T$ is a 1-form, whose components
+         * w.r.t. the triad $e^i$ are $T_i$: $T=T_i \; e^i$,
+         * then the covariant derivative of $T$ is the bilinear form
+         * $\nabla T$ whose components $\nabla_j T_i$ are
+         * such that 
+         * \begin{equation}
+         *  \nabla T = \nabla_j T_i \; e^i \otimes e^j
+         * \end{equation}
+         *
+         * @param tens tensor $T$
+         * @return pointer on the covariant derivative $\nabla T$ ; 
+         * this pointer is
+         * polymorphe, i.e. it is a pointer on a {\tt Vector}
+         * if the argument is a {\tt Scalar}, and on a {\tt Tensor} otherwise.
+         * NB: The corresponding memory is allocated by the method 
+         * {\tt p\_derive\_cov()} and 
+         * must be deallocated by the user afterwards. 
+	 */
+	virtual Tensor* p_derive_cov(const Tensor& tens) const ; 
 
-  /** Pointer on the covariant derivative of a tensor 
-   * (with respect to the current connection). This method allocates memory
-   * that must be deallocated by the user afterwards.
-   */
-  virtual Tensor* p_derive_cov(const Tensor&) const  ; 
-
-  /** Pointer on the covariant derivative of a tensor 
-   * (with respect to the current connection). This method allocates memory
-   * that must be deallocated by the user afterwards.
-   */
-  virtual Tensor* p_divergence(const Tensor&) const ; 
+	/** Computes the divergence of a tensor $T$
+	 * (with respect to the current connection). 
+         * The divergence is taken with respect of the last index of $T$
+         * which thus must be contravariant.
+         * For instance if $T$ is a twice contravariant tensor, whose 
+         * components w.r.t. the
+         * triad $e_i$ are $T^{ij}$: $T = T^{ij} \; e_i \otimes e_j$,
+         * the divergence of $T$ is the vector 
+         * \begin{equation}
+         *   {\rm div} T = \nabla_k T^{ik} \; e_i
+         * \end{equation}
+         * where $\nabla$ denotes the current connection. 
+         * @param tens tensor $T$
+         * @return pointer on the divergence of $T$ ; 
+         * this pointer is
+         * polymorphe, i.e. its is a pointer on a {\tt Scalar}
+         * if $T$ is a {\tt Vector}, on a {\tt Vector} if $T$ is a tensor
+         * of valence 2, and on a {\tt Tensor} otherwise.
+         * NB: The corresponding memory is allocated by the method 
+         * {\tt p\_divergence()} and 
+         * must be deallocated by the user afterwards. 
+	 */
+	virtual Tensor* p_divergence(const Tensor& tens) const ; 
 
   
 };
