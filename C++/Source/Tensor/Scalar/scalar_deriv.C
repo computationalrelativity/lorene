@@ -34,6 +34,9 @@ char scalar_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/01/28 14:02:06  j_novak
+ * Suppressed base handling.
+ *
  * Revision 1.10  2004/01/28 13:25:42  j_novak
  * The ced_mult_r arguments have been suppressed from the Scalar::*dsd* methods.
  * In the div/mult _r_dzpuis, there is no more default value.
@@ -101,9 +104,6 @@ const Scalar& Scalar::dsdr() const {
       }
     }
      
-    Base_val base = va.base ;
-    base.dsdx() ;
-    p_dsdr->set_spectral_base(base) ;
     int dzp = (dzpuis == 0) ? 2 : dzpuis+1 ;
     p_dsdr->set_dzpuis(dzp) ;
 
@@ -133,9 +133,6 @@ const Scalar& Scalar::srdsdt() const {
 	}
     }
 
-    Base_val base = va.base ;
-    base.sx() ; base.dsdt() ;
-    p_srdsdt->set_spectral_base(base) ;
     int dzp = (dzpuis == 0) ? 2 : dzpuis+1 ;
     p_srdsdt->set_dzpuis(dzp) ;
 
@@ -166,9 +163,6 @@ const Scalar& Scalar::srstdsdp() const {
       }
     }
 
-    Base_val base = va.base ;
-    base.sx() ; base.ssint() ;
-    p_srstdsdp->set_spectral_base(base) ;
     int dzp = (dzpuis == 0) ? 2 : dzpuis+1 ;
     p_srstdsdp->set_dzpuis(dzp) ;
 
@@ -200,9 +194,6 @@ const Scalar& Scalar::dsdt() const {
 	}
 	
 	
-	Base_val base = va.base ;
-	base.dsdt() ;
-	p_dsdt->set_spectral_base(base) ;
 	p_dsdt->set_dzpuis(dzpuis) ;
 
 	return *p_dsdt ;
@@ -231,9 +222,6 @@ const Scalar& Scalar::stdsdp() const {
 			mp->stdsdp(*this, *p_stdsdp) ;
 		}
     }
-	Base_val base = va.base ;
-	base.ssint() ;
-	p_stdsdp->set_spectral_base(base) ;
 	p_stdsdp->set_dzpuis(dzpuis) ;
 
     return *p_stdsdp ;
