@@ -30,6 +30,10 @@ char star_bin_extr_curv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/02/17 17:33:38  f_limousin
+ * Change the name of some quantities to be consistent with other classes
+ * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
+ *
  * Revision 1.5  2004/05/25 14:19:01  f_limousin
  * Correction of an error : kcar_comp was computed instead
  * ok kcar_auto.
@@ -58,10 +62,10 @@ void Star_bin::extrinsic_curvature(){
     //           of the mapping)
     // D~_j beta^i 
     
-    const Tensor& dshift = shift_auto.derive_con(gtilde) ; 
+    const Tensor& dbeta = beta_auto.derive_con(gtilde) ; 
     
      // Trace of D~_j beta^i : 
-    Scalar div_shift = shift_auto.divergence(gtilde) ; 
+    Scalar div_beta = beta_auto.divergence(gtilde) ; 
 
     // Computation of K^{ij}
     // See Eq (49) from Gourgoulhon et al. (2001)
@@ -69,20 +73,17 @@ void Star_bin::extrinsic_curvature(){
 
     for (int i=1; i<=3; i++) 
 	for (int j=1; j<=i; j++) {
-	    tkij_auto.set(i, j) = dshift(i, j) + dshift(j, i) - 
-		double(2) /double(3) * div_shift * (gtilde.con())(i,j) ; 
+	    aa_auto.set(i, j) = dbeta(i, j) + dbeta(j, i) - 
+		0.66666666666666666 * div_beta * (gtilde.con())(i,j) ; 
 	}
     
-    
-    tkij_auto = 0.5 * tkij_auto / nnn ;   
+    aa_auto = 0.5 * aa_auto / nn ;   
      
     // Computation of K_{ij} K^{ij}
     // ----------------------------
     
-    Tensor tkij_auto_cov = tkij_auto.down(0, gtilde).down(1, gtilde) ;
+    Tensor aa_auto_cov = aa_auto.down(0, gtilde).down(1, gtilde) ;
   
-    kcar_auto = contract(tkij_auto_cov, 0, 1, tkij_auto, 0, 1, true) ; 
+    aa_quad_auto = contract(aa_auto_cov, 0, 1, aa_auto, 0, 1, true) ; 
       
-    kcar_auto.std_spectral_base() ; 
-    
 }

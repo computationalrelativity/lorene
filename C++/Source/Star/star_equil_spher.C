@@ -32,6 +32,10 @@ char star_equil_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2005/02/17 17:32:35  f_limousin
+ * Change the name of some quantities to be consistent with other classes
+ * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
+ *
  * Revision 1.9  2004/06/22 12:45:31  f_limousin
  * Improve the convergence
  *
@@ -104,8 +108,8 @@ void Star::equilibrium_spher(double ent_c, double precis){
 
     Scalar a_car(mp) ;
     a_car = 1 ;	    
-    beta = 0 ;
-    beta.std_spectral_base() ;
+    lnq = 0 ;
+    lnq.std_spectral_base() ;
 
     // Auxiliary quantities
     // --------------------
@@ -126,7 +130,7 @@ void Star::equilibrium_spher(double ent_c, double precis){
     logn_quad = 0 ; 
 
     Scalar dlogn(mp) ; 
-    Scalar dbeta(mp) ; 
+    Scalar dlnq(mp) ; 
     
     double diff_ent = 1 ;     
     int mermax = 200 ;	    // Max number of iterations
@@ -169,9 +173,9 @@ void Star::equilibrium_spher(double ent_c, double precis){
 	// -----------------------
 
 	mpaff.dsdr(logn, dlogn) ;
-	mpaff.dsdr(beta, dbeta) ;
+	mpaff.dsdr(lnq, dlnq) ;
 		
-	source = - dlogn * dbeta ; 
+	source = - dlogn * dlnq ; 
 
 	Cmp source_logn_quad (source) ;
 	Cmp logn_quad_cmp (logn_quad) ;
@@ -222,33 +226,33 @@ void Star::equilibrium_spher(double ent_c, double precis){
 	equation_of_state() ; 
 	
 	//---------------------
-	// Equation for beta_auto
+	// Equation for lnq_auto
 	//---------------------
 	
 	mpaff.dsdr(logn, dlogn) ;
-	mpaff.dsdr(beta, dbeta) ;
+	mpaff.dsdr(lnq, dlnq) ;
 	
 	source = 3 * qpig * a_car * press ;
 	
-	source = source - 0.5 * ( dbeta * dbeta + dlogn * dlogn ) ;
+	source = source - 0.5 * ( dlnq * dlnq + dlogn * dlogn ) ;
 
 	source.std_spectral_base() ;
-	Cmp source_beta (source) ;
-	Cmp beta_cmp (logn_quad) ;
-	beta_cmp.set_etat_qcq() ;
+	Cmp source_lnq (source) ;
+	Cmp lnq_cmp (lnq) ;
+	lnq_cmp.set_etat_qcq() ;
 
-	mpaff.poisson(source_beta, par_nul, beta_cmp) ; 
+	mpaff.poisson(source_lnq, par_nul, lnq_cmp) ; 
 
-	beta = beta_cmp ;
+	lnq = lnq_cmp ;
 
 	// Metric coefficient psi4 update
 	
-	nnn = exp( logn ) ; 
+	nn = exp( logn ) ; 
 
-	Scalar exp_beta = exp( beta ) ;
-	exp_beta.std_spectral_base() ;
+	Scalar exp_lnq = exp(lnq  ) ;
+	exp_lnq.std_spectral_base() ;
 
-	a_car = exp_beta * exp_beta / ( nnn * nnn ) ;
+	a_car = exp_lnq * exp_lnq / ( nn * nn ) ;
 	a_car.std_spectral_base() ;
 
     // Relative difference with enthalpy at the previous step
@@ -275,12 +279,12 @@ void Star::equilibrium_spher(double ent_c, double precis){
     // Sets value to all the Tenseur's of the star
     // -------------------------------------------
     
-    nnn = exp( logn ) ; 
+    nn = exp( logn ) ; 
    
-    Scalar exp_beta = exp( beta ) ;
-    exp_beta.std_spectral_base() ;
+    Scalar exp_lnq = exp( lnq ) ;
+    exp_lnq.std_spectral_base() ;
     
-    a_car = exp_beta * exp_beta / ( nnn * nnn ) ;
+    a_car = exp_lnq * exp_lnq / ( nn * nn ) ;
    
     Sym_tensor gamma_cov(mp, COV, mp.get_bvect_spher()) ;
     gamma_cov.set_etat_zero() ;
@@ -331,7 +335,7 @@ void Star::equilibrium_spher(double ent_c, double precis){
     
     //... Gravitational term
 
-    Scalar tmp = beta - logn ; 
+    Scalar tmp = lnq- logn ; 
 
     source =  - ( logn.dsdr() * logn.dsdr() 
 		      - 0.5 * tmp.dsdr() * tmp.dsdr() ) 

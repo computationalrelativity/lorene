@@ -31,6 +31,10 @@ char strot_dirac_solvenq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/02/17 17:31:29  f_limousin
+ * Change the name of some quantities to be consistent with other classes
+ * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
+ *
  * Revision 1.2  2005/02/02 09:23:20  lm_lin
  *
  * Correct a mistake in the calculation of log(N).
@@ -118,8 +122,8 @@ void Star_rot_Dirac::solve_qqq(Scalar& q_new) const {
           - 0.125 * contract( dhh, 0, 1, dtgam, 0, 2 ).trace(tgamma) 
           + 2.* contract( dln_psi, 0, ln_psi.derive_con(tgamma), 0) ; 
      
-    source_qq += psi2 * ( nnn * tmp 
-                + 2*contract(dln_psi, 0, nnn.derive_con(tgamma), 0) ) ; 
+    source_qq += psi2 * ( nn * tmp 
+                + 2*contract(dln_psi, 0, nn.derive_con(tgamma), 0) ) ; 
                              
                
     q_new = source_qq.poisson() + 1. ; 

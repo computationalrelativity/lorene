@@ -31,6 +31,10 @@ char strot_dirac_solveshift_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/02/17 17:31:12  f_limousin
+ * Change the name of some quantities to be consistent with other classes
+ * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
+ *
  * Revision 1.1  2005/01/31 08:51:48  j_novak
  * New files for rotating stars in Dirac gauge (still under developement).
  *
@@ -43,37 +47,38 @@ char strot_dirac_solveshift_C[] = "$Header$" ;
 #include "star_rot_dirac.h"
 #include "unites.h"
 
-void Star_rot_Dirac::solve_shift(Vector& shift_new) const {
+void Star_rot_Dirac::solve_shift(Vector& beta_new) const {
 
     using namespace Unites ;
     
     const Metric_flat& mets = mp.flat_met_spher() ;
     
     const Vector& dln_psi = ln_psi.derive_cov(mets) ; // D_i ln(Psi)
-    const Vector& dnn = nnn.derive_cov(mets) ;         // D_i N
+    const Vector& dnn = nn.derive_cov(mets) ;         // D_i N
 
-    Vector source_shift = 2.* contract(aa, 1, 
-                                   dnn - 6.*nnn * dln_psi, 0) ;
+    Vector source_beta = 2.* contract(aa, 1, 
+                                   dnn - 6.*nn * dln_psi, 0) ;
 
-    source_shift += 2.* nnn * ( 2.*qpig* psi4 * j_euler 
+    source_beta += 2.* nn * ( 2.*qpig* psi4 * j_euler 
                         - contract(tgamma.connect().get_delta(), 1, 2, 
                                    aa, 0, 1) ) ;
             
     Vector vtmp = contract(hh, 0, 1, 
-                           shift.derive_cov(mets).derive_cov(mets), 1, 2)
+                           beta.derive_cov(mets).derive_cov(mets), 1, 2)
                 + 0.3333333333333333*
-                  contract(hh, 1, shift.divergence(mets).derive_cov(mets), 0) ; 
+                  contract(hh, 1, beta.divergence(mets).derive_cov(mets), 0) ; 
     vtmp.inc_dzpuis() ; // dzpuis: 3 -> 4
                     
-    source_shift -= vtmp ; 
-    source_shift.set(1).set_dzpuis(4) ; //## these components are null
-    source_shift.set(2).set_dzpuis(4) ; //## in axial symmetry
+    source_beta -= vtmp ; 
+    source_beta.set(1).set_dzpuis(4) ; //## these components are null
+    source_beta.set(2).set_dzpuis(4) ; //## in axial symmetry
 
-    Vector_divfree sou_shift_df = source_shift.div_free(mets) ;
+    Vector_divfree sou_beta_df = source_beta.div_free(mets) ;
 
-    shift_new = sou_shift_df.poisson() ;
-    shift_new.set(1) = 0 ; //## these components are null
-    shift_new.set(2) = 0 ; //## in axial symmetry
+    beta_new = sou_beta_df.poisson() ;
+    beta_new.set(1) = 0 ; //## these components are null
+    
+    beta_new.set(2) = 0 ; //## in axial symmetry
 
 
 

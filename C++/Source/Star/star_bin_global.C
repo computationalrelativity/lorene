@@ -31,6 +31,10 @@ char star_bin_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/02/17 17:33:25  f_limousin
+ * Change the name of some quantities to be consistent with other classes
+ * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
+ *
  * Revision 1.3  2004/02/27 09:54:24  f_limousin
  * Generalisation of the formulas for mass_b and mass_g for non
  * conformally flat metrics.
@@ -83,7 +87,7 @@ double Star_bin::mass_g() const {
 	
 	Scalar det_gamma = gamma.determinant() ;
 
-	Scalar dens = sqrt(det_gamma) * nnn
+	Scalar dens = sqrt(det_gamma) * nn
 	    * ( ener_euler + s_euler ) ;
 	
 	dens.std_spectral_base() ; 

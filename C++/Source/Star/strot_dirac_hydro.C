@@ -30,6 +30,10 @@ char strot_dirac_hydro_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/02/17 17:31:56  f_limousin
+ * Change the name of some quantities to be consistent with other classes
+ * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
+ *
  * Revision 1.1  2005/01/31 08:51:48  j_novak
  * New files for rotating stars in Dirac gauge (still under developement).
  *
@@ -62,10 +66,10 @@ void Star_rot_Dirac::hydro_euler(){
   u_euler.set(3).annule(nzet,nzm1) ;   // nzet is defined in class Star 
   u_euler.set(3).std_spectral_base() ;
   u_euler.set(3).mult_rsint() ;
-  u_euler.set(3) += shift(3) ;
+  u_euler.set(3) += beta(3) ;
   u_euler.set(3).annule(nzet,nzm1) ;
 
-  u_euler = u_euler / nnn ;
+  u_euler = u_euler / nn ;
 
   // v2 (square of the norm of u_euler)
   // ----------------------------------

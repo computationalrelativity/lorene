@@ -30,6 +30,10 @@ char strot_dirac_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/02/17 17:30:09  f_limousin
+ * Change the name of some quantities to be consistent with other classes
+ * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
+ *
  * Revision 1.2  2005/02/09 13:36:42  lm_lin
  *
  * Calculate GRV2 during iterations.
@@ -146,7 +150,7 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
   Scalar ent_prev = ent ;
   Scalar logn_prev = logn ;
   Scalar qqq_prev = qqq ;
-  //  Vector shift_prev = shift ;
+  //  Vector beta_prev = beta ;
   // Sym_tensor_trans hh_prev = hh ;
 
   // Output files
@@ -232,9 +236,9 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
  // Resolution of the Poisson equation for shift     //
  //--------------------------------------------------//
 
- Vector shift_new(mp, CON, mp.get_bvect_spher()) ;
+ Vector beta_new(mp, CON, mp.get_bvect_spher()) ;
 
- solve_shift( shift_new ) ;
+ solve_shift( beta_new ) ;
 
  //----------------------------------------------//
  // Resolution of the Poisson equation for hh    //
@@ -246,7 +250,7 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
 
  hh = hij_new ; 
  qqq = q_new ;
- shift = shift_new ; 
+ beta = beta_new ; 
 
  //------------------------------------
  // Determination of the fluid velocity
@@ -278,10 +282,10 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
      u_euler.set(3).annule(nzet,nzm1) ;   // nzet is defined in class Star
      u_euler.set(3).std_spectral_base() ;
      u_euler.set(3).mult_rsint() ;
-     u_euler.set(3) += shift(3) ;
+     u_euler.set(3) += beta(3) ;
      u_euler.set(3).annule(nzet,nzm1) ;
      
-     u_euler = u_euler / nnn ; 
+     u_euler = u_euler / nn ; 
 
 
      // v2 (square of norm of u_euler)

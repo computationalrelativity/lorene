@@ -30,6 +30,10 @@ char strot_dirac_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/02/17 17:30:42  f_limousin
+ * Change the name of some quantities to be consistent with other classes
+ * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
+ *
  * Revision 1.4  2005/02/09 13:36:01  lm_lin
  *
  * Add the calculations of GRV2, T/W, R_circ, and flattening.
@@ -89,10 +93,10 @@ double Star_rot_Dirac::mass_g() const {
   if (p_mass_g == 0x0) {    // a new computation is required
 
     Scalar j_source = 2.* contract(contract(gamma.cov(), 0, j_euler, 0), 
-				   0, shift, 0) ;
+				   0, beta, 0) ;
            
     Scalar dens = sqrt( gamma.determinant() ) *  
-	      ( nnn * (ener_euler + s_euler) - j_source ) ;
+	      ( nn * (ener_euler + s_euler) - j_source ) ;
 
     dens.std_spectral_base() ;
 

@@ -32,6 +32,10 @@ char star_bin_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2005/02/17 17:34:28  f_limousin
+ * Change the name of some quantities to be consistent with other classes
+ * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
+ *
  * Revision 1.9  2004/06/22 12:52:47  f_limousin
  * Change qq, qq_auto and qq_comp to beta, beta_auto and beta_comp.
  *
@@ -75,58 +79,48 @@ void Star_bin::update_metric_der_comp(const Star_bin& comp) {
     dcov_logn = logn.derive_cov(flat) ;
     dcon_logn = logn.derive_con(flat) ;
 
-    Scalar lnpsi = 0.5 * (beta - logn) ;
+    Scalar lnpsi = 0.5 * (lnq - logn) ;
     dcov_lnpsi = lnpsi.derive_cov(flat) ;
     dcon_lnpsi = lnpsi.derive_con(flat) ;
 
-    // We update hij only now to preserve symmetry between the two stars
-    // -----------------------------------------------------------------
+    // New value of hh_auto and hh_comp
+    // ----------------------------------
 
-/*    
-    hij_auto.set(3,3) = hij(3,3) * decouple ;
-    hij_comp.set(3,3) = hij(3,3) * (1 - decouple) ;
+    // The old hij_auto and hij_comp are TT but hij is not.
+    hh_auto = hh_auto + (hh - hh_auto - hh_comp) * decouple ;
+    hh_comp = hh_comp + (hh - hh_auto - hh_comp) * (1-decouple) ;
 
-    Sym_tensor gtilde_con(mp, CON, mp.get_bvect_spher()) ;
 
-    for(int i=1; i<=3; i++) 
-	for(int j=i; j<=3; j++) {
-	    gtilde_con.set(i,j) = hij(i,j) + flat.con()(i,j) ;
-	}
-    
-    gtilde = gtilde_con ;
-    Tensor tens_gamma(gtilde_con / psi4) ;
-    gamma = tens_gamma ;
-*/
-    // Computation of tkij_comp
+    // Computation of aa_comp
     // ------------------------
     
     // Gradient tilde (partial derivatives with respect to
     //           the Spherical coordinates of the mapping)
     // D~^j beta^i
     
-    const Tensor& dshift_comp = shift_comp.derive_con(gtilde) ;
+    const Tensor& dbeta_comp = beta_comp.derive_con(gtilde) ;
     
     // Trace of D~_j beta^i  :
-    Scalar divshift_comp = shift_comp.divergence(gtilde) ;
+    Scalar divbeta_comp = beta_comp.divergence(gtilde) ;
     
-    // Computation of K^{ij}
+    // Computation of A^{ij}
     // -------------------------
       
     for (int i=1; i<=3; i++) 
 	for (int j=i; j<=3; j++) {
 
-	  tkij_comp.set(i, j) = dshift_comp(i, j) + dshift_comp(j, i) - 
-	    double(2) /double(3) * divshift_comp * (gtilde.con())(i,j) ; 
+	  aa_comp.set(i, j) = dbeta_comp(i, j) + dbeta_comp(j, i) - 
+	    double(2) /double(3) * divbeta_comp * (gtilde.con())(i,j) ; 
 	}
       
-      tkij_comp = 0.5 * tkij_comp / nnn ;
+      aa_comp = 0.5 * aa_comp / nn ;
       
-      // Computation of kcar_comp
+      // Computation of aa_quad_comp
       // ------------------------
 
-      Tensor tkij_auto_cov = tkij_auto.down(0, gtilde).down(1, gtilde) ;
+      Tensor aa_auto_cov = aa_auto.down(0, gtilde).down(1, gtilde) ;
 
-      kcar_comp = contract(tkij_auto_cov, 0, 1, tkij_comp, 0, 1, true) ; 
+      aa_quad_comp = contract(aa_auto_cov, 0, 1, aa_comp, 0, 1, true) ; 
 
 }      
 

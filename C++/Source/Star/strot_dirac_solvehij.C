@@ -30,6 +30,10 @@ char strot_dirac_solvehij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/02/17 17:32:16  f_limousin
+ * Change the name of some quantities to be consistent with other classes
+ * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
+ *
  * Revision 1.3  2005/02/16 12:51:49  j_novak
  * Corrected an error on the matter source terms.
  *
@@ -68,8 +72,8 @@ void Star_rot_Dirac::solve_hij(Sym_tensor_trans& hij_new) const {
     const Sym_tensor& tgam_dd = tgamma.cov() ;    // {\tilde \gamma}_{ij}
     const Sym_tensor& tgam_uu = tgamma.con() ;    // {\tilde \gamma}^{ij}
     const Vector& tdln_psi_u = ln_psi.derive_con(tgamma) ; // tD^i ln(Psi)
-    const Vector& tdnn_u = nnn.derive_con(tgamma) ;       // tD^i N
-    const Scalar& div_beta = shift.divergence(mets) ;  // D_k beta^k
+    const Vector& tdnn_u = nn.derive_con(tgamma) ;       // tD^i N
+    const Scalar& div_beta = beta.divergence(mets) ;  // D_k beta^k
 
     Scalar tmp(mp) ;
     Sym_tensor sym_tmp(mp, CON, bspher) ; 
@@ -134,10 +138,10 @@ void Star_rot_Dirac::solve_hij(Sym_tensor_trans& hij_new) const {
         
   Sym_tensor ss(mp, CON, bspher) ; 
         
-  sym_tmp = nnn * (ricci_star + 8.* tdln_psi_u * tdln_psi_u)
+  sym_tmp = nn * (ricci_star + 8.* tdln_psi_u * tdln_psi_u)
     + 4.*( tdln_psi_u * tdnn_u + tdnn_u * tdln_psi_u ) 
     - 0.3333333333333333 * 
-    ( nnn * (tricci_scal  + 8.* contract(dln_psi, 0, tdln_psi_u, 0) )
+    ( nn * (tricci_scal  + 8.* contract(dln_psi, 0, tdln_psi_u, 0) )
       + 8.* contract(dln_psi, 0, tdnn_u, 0) ) *tgam_uu ;
 
   ss = sym_tmp / psi4  ;
@@ -179,7 +183,7 @@ void Star_rot_Dirac::solve_hij(Sym_tensor_trans& hij_new) const {
     }
   }
         
-  ss += (2.*nnn) * ( sym_tmp - qpig*( psi4* stress_euler
+  ss += (2.*nn) * ( sym_tmp - qpig*( psi4* stress_euler
                                        - 0.3333333333333333 * s_euler * tgam_uu ) 
                     )   ; 
 
@@ -188,15 +192,15 @@ void Star_rot_Dirac::solve_hij(Sym_tensor_trans& hij_new) const {
   // Source for h^{ij} 
   // -----------------
                  
-  Sym_tensor lbh = hh.derive_lie(shift) ; 
+  Sym_tensor lbh = hh.derive_lie(beta) ; 
 
-  Sym_tensor source_hh = - lbh.derive_lie(shift) ;
+  Sym_tensor source_hh = - lbh.derive_lie(beta) ;
   source_hh.inc_dzpuis() ; 
         
-  source_hh += 2.* nnn * ss ;
+  source_hh += 2.* nn * ss ;
               
   source_hh += - 1.3333333333333333 * div_beta* lbh
-    - 2. * nnn.derive_lie(shift) * aa  ;
+    - 2. * nn.derive_lie(beta) * aa  ;
               
 
   for (int i=1; i<=3; i++) {
@@ -211,9 +215,9 @@ void Star_rot_Dirac::solve_hij(Sym_tensor_trans& hij_new) const {
     }
   }
             
-  source_hh -= nnn / (psi4*psi2) * sym_tmp ; 
+  source_hh -= nn / (psi4*psi2) * sym_tmp ; 
          
-  tmp = - div_beta.derive_lie(shift) ; 
+  tmp = - div_beta.derive_lie(beta) ; 
   tmp.inc_dzpuis() ; 
   source_hh += 0.6666666666666666* 
     ( tmp - 0.6666666666666666* div_beta * div_beta ) * hh ; 
@@ -221,9 +225,9 @@ void Star_rot_Dirac::solve_hij(Sym_tensor_trans& hij_new) const {
         
   // Term (d/dt - Lie_beta) (L beta)^{ij}--> sym_tmp        
   // ---------------------------------------
-  Sym_tensor l_beta = shift.ope_killing_conf(mets) ; 
+  Sym_tensor l_beta = beta.ope_killing_conf(mets) ; 
 
-  sym_tmp = - l_beta.derive_lie(shift) ;
+  sym_tmp = - l_beta.derive_lie(beta) ;
   
   sym_tmp.inc_dzpuis() ; 
   
@@ -231,7 +235,7 @@ void Star_rot_Dirac::solve_hij(Sym_tensor_trans& hij_new) const {
   // ------------
   source_hh += 0.6666666666666666* div_beta * l_beta - sym_tmp ; 
 
-  source_hh = - ( psi4/nnn/nnn )*source_hh ;
+  source_hh = - ( psi4/nn/nn )*source_hh ;
 
   cout << " Max( trace of source_hh ) " << endl ;
   cout << max(abs(source_hh.trace(mets))) ;

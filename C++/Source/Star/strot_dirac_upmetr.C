@@ -30,6 +30,10 @@ char strot_dirac_upmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/02/17 17:30:55  f_limousin
+ * Change the name of some quantities to be consistent with other classes
+ * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
+ *
  * Revision 1.1  2005/01/31 08:51:48  j_novak
  * New files for rotating stars in Dirac gauge (still under developement).
  *
@@ -50,16 +54,16 @@ void Star_rot_Dirac::update_metric(){
   // Lapse function 
   // ---------------
 
-  nnn = exp( logn ) ;
+  nn = exp( logn ) ;
 
-  nnn.std_spectral_base() ; // set the bases for spectral expansions
+  nn.std_spectral_base() ; // set the bases for spectral expansions
 
 
 
   // Comformal factor $\Psi^4$
   // -------------------------
 
-  psi4 = (qqq * qqq) / (nnn * nnn) ;
+  psi4 = (qqq * qqq) / (nn * nn) ;
 
   psi4.std_spectral_base() ;
 
@@ -93,8 +97,8 @@ void Star_rot_Dirac::update_metric(){
   // Quantities $A^{ij}$, $\tilde{A}_{ij}, and $\tilde{A}_{ij} A^{ij}$
   // -----------------------------------------------------------------
 
-  aa = ( shift.ope_killing_conf(flat) - hh.derive_lie(shift)) 
-    / ( 2*nnn ) ;
+  aa = ( beta.ope_killing_conf(flat) - hh.derive_lie(beta)) 
+    / ( 2*nn ) ;
 
   taa = aa.up_down(tgamma) ;
 

@@ -31,6 +31,10 @@ char star_binupmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2005/02/17 17:34:10  f_limousin
+ * Change the name of some quantities to be consistent with other classes
+ * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
+ *
  * Revision 1.9  2004/06/22 12:52:26  f_limousin
  * Change qq, qq_auto and qq_comp to beta, beta_auto and beta_comp.
  *
@@ -66,6 +70,7 @@ char star_binupmetr_C[] = "$Header$" ;
 #include "star.h"
 #include "graphique.h"
 #include "utilitaires.h"
+#include "param.h"
 
 //----------------------------------//
 //	 Version without relaxation //
@@ -92,71 +97,70 @@ void Star_bin::update_metric(const Star_bin& comp) {
     }
 
 
-    shift_comp.set_etat_qcq() ; 
-    shift_comp.set_triad(mp.get_bvect_cart()) ;
+    beta_comp.set_etat_qcq() ; 
+    beta_comp.set_triad(mp.get_bvect_cart()) ;
 
-    Vector comp_shift(comp.shift_auto) ;
-    comp_shift.change_triad(mp_comp.get_bvect_cart()) ;
-    comp_shift.change_triad(mp.get_bvect_cart()) ;
+    Vector comp_beta(comp.beta_auto) ;
+    comp_beta.change_triad(mp_comp.get_bvect_cart()) ;
+    comp_beta.change_triad(mp.get_bvect_cart()) ;
 
-    assert ( *(shift_comp.get_triad()) == *(comp_shift.get_triad())) ;
+    assert ( *(beta_comp.get_triad()) == *(comp_beta.get_triad())) ;
 
-    (shift_comp.set(1)).import( comp_shift(1) ) ;  
-    (shift_comp.set(2)).import( comp_shift(2) ) ;  
-    (shift_comp.set(3)).import( comp_shift(3) ) ;  
+    (beta_comp.set(1)).import( comp_beta(1) ) ;  
+    (beta_comp.set(2)).import( comp_beta(2) ) ;  
+    (beta_comp.set(3)).import( comp_beta(3) ) ;  
 
-    shift_comp.std_spectral_base() ;   
-    shift_comp.change_triad(mp.get_bvect_spher()) ;
+    beta_comp.std_spectral_base() ;   
+    beta_comp.change_triad(mp.get_bvect_spher()) ;
  
 
-    if ( (comp.beta_auto).get_etat()  == ETATZERO ) {
-	beta_comp.set_etat_zero() ;
+    if ( (comp.lnq_auto).get_etat()  == ETATZERO ) {
+	lnq_comp.set_etat_zero() ;
     }
     else{
-	beta_comp.set_etat_qcq() ;  
-	beta_comp.import_symy( comp.beta_auto ) ;
+	lnq_comp.set_etat_qcq() ;  
+	lnq_comp.import_symy( comp.lnq_auto ) ;
     }	
 
 
-    hij_comp.set_triad(mp.get_bvect_cart()) ;
-    Tensor comp_hij(comp.hij_auto) ;
-    comp_hij.change_triad(mp_comp.get_bvect_cart()) ;
-    comp_hij.change_triad(mp.get_bvect_cart()) ;
+    hh_comp.set_triad(mp.get_bvect_cart()) ;
+    Tensor comp_hh(comp.hh_auto) ;
+    comp_hh.change_triad(mp_comp.get_bvect_cart()) ;
+    comp_hh.change_triad(mp.get_bvect_cart()) ;
 
-    assert ( *(hij_comp.get_triad()) == *(comp_hij.get_triad())) ;
-
+    assert ( *(hh_comp.get_triad()) == *(comp_hh.get_triad())) ;
 
     for(int i=1; i<=3; i++) 
 	for(int j=i; j<=3; j++) {
     
-	    hij_comp.set(i,j).set_etat_qcq() ;
-	    hij_comp.set(i,j).import( (comp_hij)(i,j) ) ;
+	    hh_comp.set(i,j).set_etat_qcq() ;
+	    hh_comp.set(i,j).import( (comp_hh)(i,j) ) ;
 	}
  
-    hij_comp.std_spectral_base() ;   // set the bases for spectral expansions
-    hij_comp.change_triad( mp.get_bvect_spher() ) ;
+    hh_comp.std_spectral_base() ;   // set the bases for spectral expansions
+    hh_comp.change_triad( mp.get_bvect_spher() ) ;
    
 // Lapse function N
 // ----------------
 
     logn = logn_auto + logn_comp ; 
 
-    nnn = exp( logn ) ;
+    nn = exp( logn ) ;
 
-    nnn.std_spectral_base() ;   // set the bases for spectral expansions
+    nn.std_spectral_base() ;   // set the bases for spectral expansions
 
-// Quantity beta = log(psi^2*N)
+// Quantity lnq = log(psi^2*N)
 // ----------------------
 
-    beta = beta_auto + beta_comp ;
+    lnq = lnq_auto + lnq_comp ;
     
-    psi4 = exp(2*beta) / (nnn * nnn) ;
+    psi4 = exp(2*lnq) / (nn * nn) ;
     psi4.std_spectral_base() ;
 
-// Shift vector 
+// Beta vector 
 // -------------
 
-    shift = shift_auto + shift_comp ;
+    beta = beta_auto + beta_comp ;
 
 // Coefficients of the 3-metric tilde
 // ----------------------------------
@@ -166,8 +170,8 @@ void Star_bin::update_metric(const Star_bin& comp) {
      for(int i=1; i<=3; i++) 
 	for(int j=i; j<=3; j++) {
    
-	    hij.set(i,j) = hij_auto(i,j) + hij_comp(i,j) ;
-	    gtilde_con.set(i,j) = hij(i,j) + flat.con()(i,j) ;
+	    hh.set(i,j) = hh_auto(i,j) + hh_comp(i,j) ;
+	    gtilde_con.set(i,j) = hh(i,j) + flat.con()(i,j) ;
 	}
 
      gtilde = gtilde_con ;
@@ -180,9 +184,9 @@ void Star_bin::update_metric(const Star_bin& comp) {
     // ----------------------------
 
     if (conf_flat) {
-	hij_auto.set_etat_zero() ; 
-	hij_comp.set_etat_zero() ; 
-	hij.set_etat_zero() ; 
+	hh_auto.set_etat_zero() ; 
+	hh_comp.set_etat_zero() ; 
+	hh.set_etat_zero() ; 
 	gtilde = flat ;
 	tens_gamma = flat.con() / psi4 ;
 	gamma = tens_gamma ;
@@ -236,7 +240,7 @@ void Star_bin::update_metric(const Star_bin& comp) {
     }
     cout << endl ;
          
-    // ... extrinsic curvature (tkij_auto and kcar_auto)
+    // ... extrinsic curvature (aa_auto and aa_quad_auto)
     extrinsic_curvature() ;
 
    
@@ -277,68 +281,69 @@ void Star_bin::update_metric(const Star_bin& comp,
     }
 
 
-    shift_comp.set_etat_qcq() ; 
-    shift_comp.set_triad(mp.get_bvect_cart()) ;
+    beta_comp.set_etat_qcq() ; 
+    beta_comp.set_triad(mp.get_bvect_cart()) ;
 
-    Vector comp_shift(comp.shift_auto) ;
-    comp_shift.change_triad(mp_comp.get_bvect_cart()) ;
-    comp_shift.change_triad(mp.get_bvect_cart()) ;
+    Vector comp_beta(comp.beta_auto) ;
+    comp_beta.change_triad(mp_comp.get_bvect_cart()) ;
+    comp_beta.change_triad(mp.get_bvect_cart()) ;
 
-    assert ( *(shift_comp.get_triad()) == *(comp_shift.get_triad())) ;
+    assert ( *(beta_comp.get_triad()) == *(comp_beta.get_triad())) ;
 
-    (shift_comp.set(1)).import( comp_shift(1) ) ;  
-    (shift_comp.set(2)).import( comp_shift(2) ) ;  
-    (shift_comp.set(3)).import( comp_shift(3) ) ;  
+    (beta_comp.set(1)).import( comp_beta(1) ) ;  
+    (beta_comp.set(2)).import( comp_beta(2) ) ;  
+    (beta_comp.set(3)).import( comp_beta(3) ) ;  
 
-    shift_comp.std_spectral_base() ;   
-    shift_comp.change_triad(mp.get_bvect_spher()) ;
+    beta_comp.std_spectral_base() ;   
+    beta_comp.change_triad(mp.get_bvect_spher()) ;
+
  
-   if ( (comp.beta_auto).get_etat()  == ETATZERO ) {
-	beta_comp.set_etat_zero() ;
+   if ( (comp.lnq_auto).get_etat()  == ETATZERO ) {
+	lnq_comp.set_etat_zero() ;
     }
     else{
-	beta_comp.set_etat_qcq() ;
-	beta_comp.import_symy( comp.beta_auto ) ;
+	lnq_comp.set_etat_qcq() ;
+	lnq_comp.import_symy( comp.lnq_auto ) ;
     }	
 
-    hij_comp.set_triad(mp.get_bvect_cart()) ;
+    hh_comp.set_triad(mp.get_bvect_cart()) ;
 
-    Tensor comp_hij(comp.hij_auto) ;
-    comp_hij.change_triad(mp_comp.get_bvect_cart()) ;
-    comp_hij.change_triad(mp.get_bvect_cart()) ;
+    Tensor comp_hh(comp.hh_auto) ;
+    comp_hh.change_triad(mp_comp.get_bvect_cart()) ;
+    comp_hh.change_triad(mp.get_bvect_cart()) ;
 
-    assert ( *(hij_comp.get_triad()) == *(comp_hij.get_triad())) ;
+    assert ( *(hh_comp.get_triad()) == *(comp_hh.get_triad())) ;
 
 
     for(int i=1; i<=3; i++) 
 	for(int j=i; j<=3; j++) {
     
-	    hij_comp.set(i,j).set_etat_qcq() ;
-	    hij_comp.set(i,j).import( (comp_hij)(i,j) ) ;
+	    hh_comp.set(i,j).set_etat_qcq() ;
+	    hh_comp.set(i,j).import( (comp_hh)(i,j) ) ;
 	}
  
-    hij_comp.std_spectral_base() ;
-    hij_comp.change_triad( mp.get_bvect_spher() ) ;
+    hh_comp.std_spectral_base() ;
+    hh_comp.change_triad( mp.get_bvect_spher() ) ;
 
 
   
-// Relaxation on logn_comp, shift_comp, beta_comp, hij_comp
+// Relaxation on logn_comp, beta_comp, lnq_comp, hh_comp
 // ---------------------------------------------------------------
     double relaxjm1 = 1. - relax ; 
     
     logn_comp = relax * logn_comp + relaxjm1 * (star_jm1.logn_comp) ; 
     
-    shift_comp = relax * shift_comp + relaxjm1 
-	                               * (star_jm1.shift_comp) ; 
+    beta_comp = relax * beta_comp + relaxjm1 
+	                               * (star_jm1.beta_comp) ; 
 
-    beta_comp = relax * beta_comp + relaxjm1 * (star_jm1.beta_comp) ;
+    lnq_comp = relax * lnq_comp + relaxjm1 * (star_jm1.lnq_comp) ;
 
        
     for(int i=1; i<=3; i++) 
 	for(int j=i; j<=3; j++) {
 
-	    hij_comp.set(i,j) = relax * hij_comp(i,j) 
-		+ relaxjm1 * (star_jm1.hij_comp)(i,j) ; 
+	    hh_comp.set(i,j) = relax * hh_comp(i,j) 
+		+ relaxjm1 * (star_jm1.hh_comp)(i,j) ; 
 	
 	}
 
@@ -347,24 +352,130 @@ void Star_bin::update_metric(const Star_bin& comp,
 
     logn = logn_auto + logn_comp ; 
 
-    nnn = exp( logn ) ;
+    nn = exp( logn ) ;
 
-    nnn.std_spectral_base() ;   // set the bases for spectral expansions
+    nn.std_spectral_base() ;   // set the bases for spectral expansions
 
 
-// Quantity beta = log(psi^2*N)
+// Quantity lnq = log(psi^2 * N)
 // --------------------------
+
+    lnq = lnq_auto + lnq_comp ;
+    
+    psi4 = exp(2*lnq) / (nn * nn) ;
+    psi4.std_spectral_base() ;
+
+// Beta vector
+// ------------
 
     beta = beta_auto + beta_comp ;
     
-    psi4 = exp(2*beta) / (nnn * nnn) ;
-    psi4.std_spectral_base() ;
 
-// Shift vector
-// ------------
-
-    shift = shift_auto + shift_comp ;
+// Computation of hh (at this point we only have h^{ij} TT))
+// ---------------------------------------------------
+     
+    hh_auto.std_spectral_base() ;
+    for(int i=1; i<=3; i++) 
+	for(int j=i; j<=3; j++) 
+	    hh.set(i,j) = hh_auto(i,j) + hh_comp(i,j) ;
+	
+     
+    // Computation of h ( See eq. 116 of BGGN )
+    // ----------------------------------------
     
+    int it_max = 200 ;
+    double precis = 1.e-4 ;
+	    
+    // The trace h = f_{ij} h^{ij} :
+    Scalar htrace(mp) ;
+    
+    hh.inc_dzpuis(2) ;
+
+    Sym_tensor_tt hh_tt (mp, mp.get_bvect_spher(), flat) ;
+    hh_tt = hh ;
+    
+    // Value of h at previous step of the iterative procedure below :
+    Scalar htrace_prev(mp) ;
+    htrace_prev.set_etat_zero() ;   // initialisation to zero
+     // Parameters for the poisson equation in set_tt_trace
+    Param par ;
+    int mermax_poisson = 4 ;
+    double relax_poisson = 0.5 ;
+    double precis_poisson = 1.e-15 ;
+    int niter ;
+    Cmp ssjm1_htrace (mp) ;
+    ssjm1_htrace = 0 ;
+
+    par.add_int(mermax_poisson,  0) ;  // maximum number of iterations
+    par.add_double(relax_poisson,  0) ; // relaxation parameter
+    par.add_double(precis_poisson, 1) ; // required precision
+    par.add_int_mod(niter, 0) ; // number of iterations actually used 
+    par.add_cmp_mod( ssjm1_htrace ) ; 
+
+
+    int it ;
+    for (it=0; it<it_max; it++) {
+      
+	// Trace h from the condition det(f^{ij} + h^{ij}) = det f^{ij} :
+      
+	htrace = hh(1,1) * hh(2,3) * hh(2,3) 
+	    + hh(2,2) * hh(1,3) * hh(1,3) 
+	    + hh(3,3) * hh(1,2) * hh(1,2)
+	    - 2.* hh(1,2) * hh(1,3) * hh(2,3) 
+	    - hh(1,1) * hh(2,2) * hh(3,3) ;
+     
+        
+	htrace.dec_dzpuis(2) ; // dzpuis: 6 --> 4
+        
+	htrace += hh(1,2) * hh(1,2) 
+	    + hh(1,3) * hh(1,3) 
+	    + hh(2,3) * hh(2,3) 
+	    - hh(1,1) * hh(2,2) 
+	    - hh(1,1) * hh(3,3) 
+	    - hh(2,2) * hh(3,3) ;
+
+	// New value of hh from htrace and hh_tt 
+	// (obtained by solving 
+	// the Poisson equation for Phi) : 
+		
+	htrace.std_spectral_base() ;
+	Sym_tensor_trans hh_trans (mp, mp.get_bvect_spher(), flat) ;
+	if (htrace.get_etat() == ETATQCQ){
+	    hh_trans.set_tt_trace(hh_tt, htrace, &par) ; 
+	    hh = hh_trans ;
+	}
+	else
+	    hh.set_etat_zero() ;
+
+	    cout << "hh_trans :" << endl ;
+	    for (int i=1; i<=3; i++)
+		for (int j=1; j<=i; j++) {
+		    cout << "  Comp. " << i << " " << j << " :  " ;
+		    for (int l=0; l<nz; l++){
+			cout << norme(hh(i,j)/(nr*nt*np))(l) << " " ;
+		    }
+		    cout << endl ;
+		}
+	    cout << endl ;
+	    cout << "h trace" << endl << norme(htrace) << endl ;
+
+	double diff = max(max(abs(htrace - htrace_prev))) ;
+	cout << " det gtilde = 1: "  
+	     << "iteration : " << it << " difference : " << diff << endl ;
+	if (diff < precis) break ;
+	else htrace_prev = htrace ;
+
+    }
+
+    if (it == it_max) {
+	cerr << "hh_auto det = 1 : convergence not reached \n" ;
+	cerr << "  for the required accuracy (" << precis << ") ! " << endl ;
+	abort() ;
+    }
+
+    hh.dec_dzpuis(2) ;
+    
+
 // Coefficients of the 3-metric tilde
 // ----------------------------------
      
@@ -373,8 +484,8 @@ void Star_bin::update_metric(const Star_bin& comp,
     for(int i=1; i<=3; i++) 
 	for(int j=i; j<=3; j++) {
    
-	    hij.set(i,j) = hij_auto(i,j) + hij_comp(i,j) ;
-	    gtilde_con.set(i,j) = hij(i,j) + flat.con()(i,j) ;
+	    hh.set(i,j) = hh_auto(i,j) + hh_comp(i,j) ;
+	    gtilde_con.set(i,j) = hh(i,j) + flat.con()(i,j) ;
 	}
     
     gtilde = gtilde_con ;
@@ -386,47 +497,19 @@ void Star_bin::update_metric(const Star_bin& comp,
     // ----------------------------
 
     if (conf_flat) {
-	hij_auto.set_etat_zero() ; 
-	hij_comp.set_etat_zero() ; 
-	hij.set_etat_zero() ; 
+	hh_auto.set_etat_zero() ; 
+	hh_comp.set_etat_zero() ; 
+	hh.set_etat_zero() ; 
 	gtilde = flat ;
 	tens_gamma = flat.con() / psi4 ;
 	gamma = tens_gamma ;
     }
 
 
-/*
-    // Determination of h33 in order to have det(gtilde) = 1
-    // -----------------------------------------------------
 
-    Scalar gtilde11 (gtilde.cov()(1,1)) ;
-    Scalar gtilde21 (gtilde.cov()(2,1)) ;
-    Scalar gtilde31 (gtilde.cov()(3,1)) ;
-    Scalar gtilde22 (gtilde.cov()(2,2)) ;
-    Scalar gtilde32 (gtilde.cov()(3,2)) ;
-    Scalar gtilde33 (gtilde.cov()(3,3)) ;
 
-    gtilde33 = ( 1 - (gtilde21*gtilde32*gtilde31 + gtilde31*gtilde21*gtilde32
-	       - gtilde31*gtilde22*gtilde31 - gtilde11*gtilde32*gtilde32) ) /
-	  ( gtilde11*gtilde22 - gtilde21*gtilde21 ) ;
 
-    Sym_tensor gtilde_cov(mp, COV, mp.get_bvect_spher()) ;
-    gtilde_cov.set(1,1) = gtilde11 ;
-    gtilde_cov.set(2,1) = gtilde21 ;
-    gtilde_cov.set(3,1) = gtilde31 ;
-    gtilde_cov.set(2,2) = gtilde22 ;
-    gtilde_cov.set(3,2) = gtilde32 ;
-    gtilde_cov.set(3,3) = gtilde33 ;
-
-//    gtilde_cov.std_spectral_base() ;
-    gtilde = gtilde_cov ;
-    tens_gamma = gtilde_con / psi4 ;
-    gamma = tens_gamma ;
- 
-    hij.set(3,3) = gtilde.con()(3,3) - 1 ;
-//    hij.std_spectral_base() ;
-*/
-// Determinant of gtilde
+// Computation of det(gtilde)
 
     Scalar det_gtilde (gtilde.determinant()) ;
        
@@ -473,14 +556,8 @@ void Star_bin::update_metric(const Star_bin& comp,
     }
     cout << endl ;
             
-    //## Juste pour des test de convergence
 
-//    tens_gamma = flat.con() / psi4 ;
-//   gamma = tens_gamma ;
-
-
-
-    // ... extrinsic curvature (tkij_auto and kcar_auto)
+    // ... extrinsic curvature (aa_auto and aa_quad_auto)
     extrinsic_curvature() ;
 
    
@@ -495,7 +572,7 @@ void Star_bin::update_metric(const Star_bin& comp,
 void Star_bin::update_metric_init1() {
 
     logn_auto = logn ;
-    beta_auto = beta ;
+    lnq_auto = lnq ;
 
 }
 

@@ -34,6 +34,10 @@ char star_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2005/02/17 17:29:04  f_limousin
+ * Change the name of some quantities to be consistent with other classes
+ * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
+ *
  * Revision 1.12  2005/01/05 17:43:03  f_limousin
  * u_euler is now constructed in the spherical triad to be consistent
  * with all the others vectors ans tensors.
@@ -105,9 +109,9 @@ Star::Star(Map& mpi, int nzet_i, const Eos& eos_i)
 		   u_euler(mpi, CON, mp.get_bvect_spher()), 
 		   stress_euler(mpi, 2, CON, mp.get_bvect_spher()),
 		   logn(mpi), 
-		   nnn(mpi), 
-		   shift(mpi, CON, mp.get_bvect_spher()),
-		   beta(mpi),
+		   nn(mpi), 
+		   beta(mpi, CON, mp.get_bvect_spher()),
+		   lnq(mpi),
 		   gamma(mp.flat_met_spher()){
     
  
@@ -156,10 +160,10 @@ Star::Star(Map& mpi, int nzet_i, const Eos& eos_i)
     //## gamma = flat ;
 
     logn = 0 ; 
-    nnn = 1. ; 
-    nnn.std_spectral_base() ; 
-    shift.set_etat_zero() ; 
-    beta = 0 ;
+    nn = 1. ; 
+    nn.std_spectral_base() ; 
+    beta.set_etat_zero() ; 
+    lnq = 0 ;
 
 }
 
@@ -179,9 +183,9 @@ Star::Star(const Star& et)
 		   u_euler(et.u_euler), 
 		   stress_euler(et.stress_euler),
 		   logn(et.logn), 
-		   nnn(et.nnn), 
-		   shift(et.shift),
+		   nn(et.nn), 
 		   beta(et.beta),
+		   lnq(et.lnq),
 		   gamma(et.gamma){
 	       
     set_der_0x0() ;
@@ -203,9 +207,9 @@ Star::Star(Map& mpi, const Eos& eos_i, FILE* fich)
 		   u_euler(mpi, CON, mp.get_bvect_spher()), 
 		   stress_euler(mpi, 2, CON, mp.get_bvect_spher()), 
 		   logn(mpi, *(mpi.get_mg()), fich), 
-		   nnn(mpi), 
-		   shift(mpi, CON, mp.get_bvect_spher()),
-		   beta(mpi, *(mpi.get_mg()), fich),
+		   nn(mpi), 
+		   beta(mpi, CON, mp.get_bvect_spher()),
+		   lnq(mpi, *(mpi.get_mg()), fich),
 		   gamma(mpi.flat_met_spher()){
 
     // Star parameters
@@ -241,8 +245,8 @@ Star::Star(Map& mpi, const Eos& eos_i, FILE* fich)
     ent = ent_file ; 
     u_euler.set_etat_zero() ; 
     stress_euler.set_etat_zero() ;
-    nnn = 1 ;
-    shift.set_etat_zero() ;
+    nn = 1 ;
+    beta.set_etat_zero() ;
 
     // Pointers of derived quantities initialized to zero 
     // --------------------------------------------------
@@ -332,9 +336,9 @@ void Star::operator=(const Star& et) {
     u_euler = et.u_euler ;
     stress_euler = et.stress_euler ;
     logn = et.logn ;
-    nnn = et.nnn ;
-    shift = et.shift ;
+    nn = et.nn ;
     beta = et.beta ;
+    lnq = et.lnq ;
     gamma = et.gamma ;
 
     del_deriv() ;  // Deletes all derived quantities
@@ -365,7 +369,7 @@ void Star::set_enthalpy(const Scalar& ent_i) {
 void Star::sauve(FILE* fich) const {
     
     logn.sauve(fich) ;
-    beta.sauve(fich) ;
+    lnq.sauve(fich) ;
 
     int xx = nzet ;     
     fwrite_be(&xx, sizeof(int), 1, fich) ;			
@@ -402,8 +406,8 @@ ostream& Star::operator>>(ostream& ost) const {
 	<< " rho_nuc c^2" << endl ; 
     
     ost << endl ;
-    ost << "Central lapse N :      " << nnn.val_grid_point(0,0,0,0) <<  endl ; 
-    ost << "Central value of beta : " << beta.val_grid_point(0,0,0,0) <<  endl ; 
+    ost << "Central lapse N :      " << nn.val_grid_point(0,0,0,0) <<  endl ; 
+    ost << "Central value of beta : " << lnq.val_grid_point(0,0,0,0) <<  endl ; 
   
     ost << endl 
 	<< "Coordinate equatorial radius (phi=0) a1 =    " 

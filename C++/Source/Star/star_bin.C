@@ -31,6 +31,10 @@ char star_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2005/02/17 17:29:28  f_limousin
+ * Change the name of some quantities to be consistent with other classes
+ * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
+ *
  * Revision 1.13  2005/02/11 18:11:57  f_limousin
  * Introduction of a new member Map_af.
  *
@@ -106,34 +110,26 @@ Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i,
       logn_comp(mpi), 
       dcov_logn(mpi, COV, mpi.get_bvect_spher()),
       dcon_logn(mpi, CON, mpi.get_bvect_spher()),
-      beta_auto(mpi),
-      beta_comp(mpi),
+      lnq_auto(mpi),
+      lnq_comp(mpi),
       psi4(mpi),
       dcov_lnpsi(mpi, COV, mpi.get_bvect_spher()),
       dcon_lnpsi(mpi, CON, mpi.get_bvect_spher()),
       flat(mpi, mpi.get_bvect_spher()),
       gtilde(flat),
-      shift_auto(mpi, CON, mpi.get_bvect_spher()), 
-      shift_comp(mpi, CON, mpi.get_bvect_spher()), 
-      hij(mpi, CON, mpi.get_bvect_spher()),
-      hij_auto(mpi, CON, mpi.get_bvect_spher()),
-      hij_comp(mpi, CON, mpi.get_bvect_spher()), 
-      tkij_auto(mpi, CON, mpi.get_bvect_spher()), 
-      tkij_comp(mpi, CON, mpi.get_bvect_spher()), 
-      kcar_auto(mpi), 
-      kcar_comp(mpi), 
+      beta_auto(mpi, CON, mpi.get_bvect_spher()), 
+      beta_comp(mpi, CON, mpi.get_bvect_spher()), 
+      hh(mpi, CON, mpi.get_bvect_spher()),
+      hh_auto(mpi, CON, mpi.get_bvect_spher()),
+      hh_comp(mpi, CON, mpi.get_bvect_spher()), 
+      aa_auto(mpi, CON, mpi.get_bvect_spher()), 
+      aa_comp(mpi, CON, mpi.get_bvect_spher()), 
+      aa_quad_auto(mpi), 
+      aa_quad_comp(mpi), 
       ssjm1_logn(mpi),
-      ssjm1_beta(mpi),
-      ssjm1_phi(mpi),
+      ssjm1_lnq(mpi),
       ssjm1_khi(mpi),
-      ssjm1_mu(mpi),
       ssjm1_wshift(mpi, CON, mpi.get_bvect_cart()),
-      ssjm1_h11(mpi),
-      ssjm1_h21(mpi),
-      ssjm1_h31(mpi),
-      ssjm1_h22(mpi),
-      ssjm1_h32(mpi),
-      ssjm1_h33(mpi),
       decouple(mpi),
       conf_flat(conf_flat0){
     
@@ -152,34 +148,27 @@ Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i,
     logn_comp = 0 ; 
     dcov_logn.set_etat_zero() ;
     dcon_logn.set_etat_zero() ;
-    shift_auto.set_etat_zero() ; 
-    shift_comp.set_etat_zero() ; 
-    beta_auto = 0 ;
-    beta_comp = 0 ;
+    beta_auto.set_etat_zero() ; 
+    beta_comp.set_etat_zero() ; 
+    lnq_auto = 0 ;
+    lnq_comp = 0 ;
     psi4 = 1 ;
     dcov_lnpsi.set_etat_zero() ;
     dcon_lnpsi.set_etat_zero() ;
-    hij.set_etat_zero() ;
-    hij_auto.set_etat_zero() ;
-    hij_comp.set_etat_zero() ;
+    hh.set_etat_zero() ;
+    hh_auto.set_etat_zero() ;
+    hh_comp.set_etat_zero() ;
 
-    tkij_auto.set_etat_zero() ; 
-    tkij_comp.set_etat_zero() ; 
-    kcar_auto = 0 ;
-    kcar_comp = 0 ; 
+    aa_auto.set_etat_zero() ; 
+    aa_comp.set_etat_zero() ; 
+    aa_quad_auto = 0 ;
+    aa_quad_comp = 0 ; 
     ssjm1_logn = 0 ;
-    ssjm1_beta = 0 ;
-    ssjm1_phi = 0 ;
+    ssjm1_lnq = 0 ;
     ssjm1_khi = 0 ;
-    ssjm1_mu = 0 ;
     ssjm1_wshift.set_etat_zero() ;
-    ssjm1_h11 = 0 ;
-    ssjm1_h21 = 0 ;
-    ssjm1_h31 = 0 ;
-    ssjm1_h22 = 0 ;
-    ssjm1_h32 = 0 ;
-    ssjm1_h33 = 0 ;
 }
+
 
 // Copy constructor
 // ----------------
@@ -197,34 +186,26 @@ Star_bin::Star_bin(const Star_bin& star)
 			 logn_comp(star.logn_comp), 
 			 dcov_logn(star.dcov_logn),
 			 dcon_logn(star.dcon_logn),
-			 beta_auto(star.beta_auto),
-			 beta_comp(star.beta_comp),
+			 lnq_auto(star.lnq_auto),
+			 lnq_comp(star.lnq_comp),
 			 psi4(star.psi4),
 			 dcov_lnpsi(star.dcov_lnpsi),
 			 dcon_lnpsi(star.dcon_lnpsi),
 			 flat(star.flat),
 			 gtilde(star.gtilde),
-			 shift_auto(star.shift_auto), 
-			 shift_comp(star.shift_comp), 
-			 hij(star.hij),
-			 hij_auto(star.hij_auto),
-			 hij_comp(star.hij_comp),
-			 tkij_auto(star.tkij_auto), 
-			 tkij_comp(star.tkij_comp), 
-			 kcar_auto(star.kcar_auto), 
-			 kcar_comp(star.kcar_comp), 
+			 beta_auto(star.beta_auto), 
+			 beta_comp(star.beta_comp), 
+			 hh(star.hh),
+			 hh_auto(star.hh_auto),
+			 hh_comp(star.hh_comp),
+			 aa_auto(star.aa_auto), 
+			 aa_comp(star.aa_comp), 
+			 aa_quad_auto(star.aa_quad_auto), 
+			 aa_quad_comp(star.aa_quad_comp), 
 			 ssjm1_logn(star.ssjm1_logn),
-			 ssjm1_beta(star.ssjm1_beta),
-			 ssjm1_phi(star.ssjm1_phi),
-			 ssjm1_khi(star.ssjm1_khi),
-			 ssjm1_mu(star.ssjm1_mu),
-			 ssjm1_wshift(star.ssjm1_wshift),
-			 ssjm1_h11(star.ssjm1_h11),
-			 ssjm1_h21(star.ssjm1_h21),
-			 ssjm1_h31(star.ssjm1_h31),
-			 ssjm1_h22(star.ssjm1_h22),
-			 ssjm1_h32(star.ssjm1_h32),
-			 ssjm1_h33(star.ssjm1_h33),
+			 ssjm1_lnq(star.ssjm1_lnq),
+                         ssjm1_khi(star.ssjm1_khi),
+                         ssjm1_wshift(star.ssjm1_wshift),
 			 decouple(star.decouple),
 			 conf_flat(star.conf_flat)
 {
@@ -247,35 +228,27 @@ Star_bin::Star_bin(Map& mpi, const Eos& eos_i, FILE* fich)
 			 logn_comp(mpi), 
 			 dcov_logn(mpi, COV, mpi.get_bvect_spher()),
 			 dcon_logn(mpi, CON, mpi.get_bvect_spher()),
-			 beta_auto(mpi, *(mpi.get_mg()), fich),
-			 beta_comp(mpi),
+			 lnq_auto(mpi, *(mpi.get_mg()), fich),
+			 lnq_comp(mpi),
 			 psi4(mpi),
 			 dcov_lnpsi(mpi, COV, mpi.get_bvect_spher()),
 			 dcon_lnpsi(mpi, CON, mpi.get_bvect_spher()),
 			 flat(mpi, mpi.get_bvect_spher()),
 			 gtilde(flat),
-			 shift_auto(mpi, mpi.get_bvect_spher(), fich), 
-			 shift_comp(mpi, CON, mpi.get_bvect_spher()), 
-			 hij(mpi, CON, mpi.get_bvect_spher()),
-			 hij_auto(mpi, mpi.get_bvect_spher(), fich),
-			 hij_comp(mpi, CON, mpi.get_bvect_spher()),
-     			 tkij_auto(mpi, CON, mpi.get_bvect_spher()), 
-			 tkij_comp(mpi, CON, mpi.get_bvect_spher()), 
-			 kcar_auto(mpi), 
-			 kcar_comp(mpi), 
+			 beta_auto(mpi, mpi.get_bvect_spher(), fich), 
+			 beta_comp(mpi, CON, mpi.get_bvect_spher()), 
+			 hh(mpi, CON, mpi.get_bvect_spher()),
+			 hh_auto(mpi, mpi.get_bvect_spher(), fich),
+			 hh_comp(mpi, CON, mpi.get_bvect_spher()),
+     			 aa_auto(mpi, CON, mpi.get_bvect_spher()), 
+			 aa_comp(mpi, CON, mpi.get_bvect_spher()), 
+			 aa_quad_auto(mpi), 
+			 aa_quad_comp(mpi), 
 			 ssjm1_logn(mpi, *(mpi.get_mg()), fich),
-			 ssjm1_beta(mpi, *(mpi.get_mg()), fich),
-			 ssjm1_phi(mpi, *(mpi.get_mg()), fich),
-			 ssjm1_khi(mpi, *(mpi.get_mg()), fich),
-			 ssjm1_mu(mpi, *(mpi.get_mg()), fich),
-			 ssjm1_wshift(mpi, mpi.get_bvect_cart(), fich),
-			 ssjm1_h11(mpi, *(mpi.get_mg()), fich),
-			 ssjm1_h21(mpi, *(mpi.get_mg()), fich),
-			 ssjm1_h31(mpi, *(mpi.get_mg()), fich),
-			 ssjm1_h22(mpi, *(mpi.get_mg()), fich),
-			 ssjm1_h32(mpi, *(mpi.get_mg()), fich),
-			 ssjm1_h33(mpi, *(mpi.get_mg()), fich),
-			 decouple(mpi){
+			 ssjm1_lnq(mpi, *(mpi.get_mg()), fich),
+                         ssjm1_khi(mpi, *(mpi.get_mg()), fich),
+                         ssjm1_wshift(mpi, mpi.get_bvect_cart(), fich),
+                         decouple(mpi){
 
     // Etoile parameters
     // -----------------
@@ -307,18 +280,18 @@ Star_bin::Star_bin(Map& mpi, const Eos& eos_i, FILE* fich)
     logn_comp = 0 ; 
     dcov_logn.set_etat_zero() ;
     dcon_logn.set_etat_zero() ;
-    shift_comp.set_etat_zero() ; 
-    beta_comp = 0 ;
+    beta_comp.set_etat_zero() ; 
+    lnq_comp = 0 ;
     psi4 = 1 ;
     dcov_lnpsi.set_etat_zero() ;
     dcon_lnpsi.set_etat_zero() ;
-    hij.set_etat_zero() ;
-    hij_comp.set_etat_zero() ;
+    hh.set_etat_zero() ;
+    hh_comp.set_etat_zero() ;
 
-    tkij_auto.set_etat_zero() ; 
-    tkij_comp.set_etat_zero() ; 
-    kcar_auto = 0 ;
-    kcar_comp = 0 ; 
+    aa_auto.set_etat_zero() ; 
+    aa_comp.set_etat_zero() ; 
+    aa_quad_auto = 0 ;
+    aa_quad_comp = 0 ; 
  
     // Pointers of derived quantities initialized to zero 
     // --------------------------------------------------
@@ -392,34 +365,26 @@ void Star_bin::operator=(const Star_bin& star) {
     logn_comp = star.logn_comp ;
     dcov_logn = star.dcov_logn ;
     dcon_logn = star.dcon_logn ;
-    beta_auto = star.beta_auto ;
-    beta_comp = star.beta_comp ;
+    lnq_auto = star.lnq_auto ;
+    lnq_comp = star.lnq_comp ;
     psi4 = star.psi4 ;
     dcov_lnpsi = star.dcov_lnpsi ;
     dcon_lnpsi = star.dcon_lnpsi ;
     flat = star.flat ;
     gtilde = star.gtilde ;
-    shift_auto = star.shift_auto ;
-    shift_comp = star.shift_comp ; 
-    hij = star.hij ;
-    hij_auto = star.hij_auto ;
-    hij_comp = star.hij_comp ; 
-    tkij_auto = star.tkij_auto ;
-    tkij_comp = star.tkij_comp ;
-    kcar_auto = star.kcar_auto ;
-    kcar_comp = star.kcar_comp ;
+    beta_auto = star.beta_auto ;
+    beta_comp = star.beta_comp ; 
+    hh = star.hh ;
+    hh_auto = star.hh_auto ;
+    hh_comp = star.hh_comp ; 
+    aa_auto = star.aa_auto ;
+    aa_comp = star.aa_comp ;
+    aa_quad_auto = star.aa_quad_auto ;
+    aa_quad_comp = star.aa_quad_comp ;
     ssjm1_logn = star.ssjm1_logn ;
-    ssjm1_beta = star.ssjm1_beta ;
-    ssjm1_phi = star.ssjm1_phi ;
+    ssjm1_lnq = star.ssjm1_lnq ;
     ssjm1_khi = star.ssjm1_khi ;
-    ssjm1_mu = star.ssjm1_mu ;
     ssjm1_wshift = star.ssjm1_wshift ;
-    ssjm1_h11 = star.ssjm1_h11 ;
-    ssjm1_h21 = star.ssjm1_h21 ;
-    ssjm1_h31 = star.ssjm1_h31 ;
-    ssjm1_h22 = star.ssjm1_h22 ;
-    ssjm1_h32 = star.ssjm1_h32 ;
-    ssjm1_h33 = star.ssjm1_h33 ;
     decouple = star.decouple ;
     conf_flat = star.conf_flat ;
     
@@ -441,17 +406,17 @@ Scalar& Star_bin::set_logn_comp() {
     
 } 
 
-Vector& Star_bin::set_shift_auto() {
+Vector& Star_bin::set_beta_auto() {
     
     del_deriv() ;	// sets to 0x0 all the derived quantities
-    return shift_auto ;
+    return beta_auto ;
     
 } 
 
-Vector& Star_bin::set_shift() {
+Vector& Star_bin::set_beta() {
 
     del_deriv() ;	// sets to 0x0 all the derived quantities
-   return shift ;
+   return beta ;
     
 } 
 
@@ -467,22 +432,14 @@ void Star_bin::sauve(FILE* fich) const {
     Star::sauve(fich) ; 
     
     logn_auto.sauve(fich) ;
+    lnq_auto.sauve(fich) ;
     beta_auto.sauve(fich) ;
-    shift_auto.sauve(fich) ;
-    hij_auto.sauve(fich) ;
+    hh_auto.sauve(fich) ;
 
     ssjm1_logn.sauve(fich) ;
-    ssjm1_beta.sauve(fich) ;
-    ssjm1_phi.sauve(fich) ;
+    ssjm1_lnq.sauve(fich) ;
     ssjm1_khi.sauve(fich) ;
-    ssjm1_mu.sauve(fich) ;
     ssjm1_wshift.sauve(fich) ;
-    ssjm1_h11.sauve(fich) ;
-    ssjm1_h21.sauve(fich) ;
-    ssjm1_h31.sauve(fich) ;
-    ssjm1_h22.sauve(fich) ;
-    ssjm1_h32.sauve(fich) ;
-    ssjm1_h33.sauve(fich) ;
 
     fwrite(&irrotational, sizeof(bool), 1, fich) ;		
     fwrite(&conf_flat, sizeof(bool), 1, fich) ;		
@@ -571,15 +528,15 @@ ostream& Star_bin::operator>>(ostream& ost) const {
 	<< logn_auto.val_grid_point(0, 0, 0, 0) << "  " 
 	<< logn_comp.val_grid_point(0, 0, 0, 0) << endl ; 
 
-    ost << "Central value of shift (N^r, N^t, N^p) [c] : " 
-	<< shift(1).val_grid_point(0, 0, 0, 0) << "  " 
-	<< shift(2).val_grid_point(0, 0, 0, 0) << "  " 
-	<< shift(3).val_grid_point(0, 0, 0, 0) << endl ; 
+    ost << "Central value of beta : " 
+	<< beta(1).val_grid_point(0, 0, 0, 0) << "  " 
+	<< beta(2).val_grid_point(0, 0, 0, 0) << "  " 
+	<< beta(3).val_grid_point(0, 0, 0, 0) << endl ; 
 
-    ost << "  ... shift_auto part of it [c] :            " 
-	<< shift_auto(1).val_grid_point(0, 0, 0, 0) << "  " 
-	<< shift_auto(2).val_grid_point(0, 0, 0, 0) << "  " 
-	<< shift_auto(3).val_grid_point(0, 0, 0, 0) << endl ; 
+    ost << "  ... beta_auto part of it [c] :            " 
+	<< beta_auto(1).val_grid_point(0, 0, 0, 0) << "  " 
+	<< beta_auto(2).val_grid_point(0, 0, 0, 0) << "  " 
+	<< beta_auto(3).val_grid_point(0, 0, 0, 0) << endl ; 
 
     ost << endl << "Central value of (B^r, B^t, B^p)/N [c] : " 
 	<< bsn(1).val_grid_point(0, 0, 0, 0) << "  " 
@@ -587,30 +544,30 @@ ostream& Star_bin::operator>>(ostream& ost) const {
 	<< bsn(3).val_grid_point(0, 0, 0, 0) << endl ; 
 
 
-    ost << endl << "Central A^2 K^{ij} [c/km] : " << endl ; 
-    ost << "  A^2 K^{rr} auto, comp : " 
-	<< tkij_auto(1, 1).val_grid_point(0, 0, 0, 0) * km  << "  "
-	<< tkij_comp(1, 1).val_grid_point(0, 0, 0, 0) * km << endl ; 
-    ost << "  A^2 K^{rt} auto, comp : " 
-	<< tkij_auto(1, 2).val_grid_point(0, 0, 0, 0) * km  << "  "
-	<< tkij_comp(1, 2).val_grid_point(0, 0, 0, 0) * km << endl ; 
-    ost << "  A^2 K^{rp} auto, comp : " 
-	<< tkij_auto(1, 3).val_grid_point(0, 0, 0, 0) * km  << "  "
-	<< tkij_comp(1, 3).val_grid_point(0, 0, 0, 0) * km << endl ; 
-    ost << "  A^2 K^{tt} auto, comp : " 
-	<< tkij_auto(2, 2).val_grid_point(0, 0, 0, 0) * km  << "  "
-	<< tkij_comp(2, 2).val_grid_point(0, 0, 0, 0) * km << endl ; 
-    ost << "  A^2 K^{tp} auto, comp : " 
-	<< tkij_auto(2, 3).val_grid_point(0, 0, 0, 0) * km  << "  "
-	<< tkij_comp(2, 3).val_grid_point(0, 0, 0, 0) * km << endl ; 
-    ost << "  A^2 K^{pp} auto, comp : " 
-	<< tkij_auto(3, 3).val_grid_point(0, 0, 0, 0) * km  << "  "
-	<< tkij_comp(3, 3).val_grid_point(0, 0, 0, 0) * km << endl ; 
+    ost << endl << "Central A^{ij} [c/km] : " << endl ; 
+    ost << "  A^{rr} auto, comp : " 
+	<< aa_auto(1, 1).val_grid_point(0, 0, 0, 0) * km  << "  "
+	<< aa_comp(1, 1).val_grid_point(0, 0, 0, 0) * km << endl ; 
+    ost << "  A^{rt} auto, comp : " 
+	<< aa_auto(1, 2).val_grid_point(0, 0, 0, 0) * km  << "  "
+	<< aa_comp(1, 2).val_grid_point(0, 0, 0, 0) * km << endl ; 
+    ost << "  A^{rp} auto, comp : " 
+	<< aa_auto(1, 3).val_grid_point(0, 0, 0, 0) * km  << "  "
+	<< aa_comp(1, 3).val_grid_point(0, 0, 0, 0) * km << endl ; 
+    ost << "  A^{tt} auto, comp : " 
+	<< aa_auto(2, 2).val_grid_point(0, 0, 0, 0) * km  << "  "
+	<< aa_comp(2, 2).val_grid_point(0, 0, 0, 0) * km << endl ; 
+    ost << "  A^{tp} auto, comp : " 
+	<< aa_auto(2, 3).val_grid_point(0, 0, 0, 0) * km  << "  "
+	<< aa_comp(2, 3).val_grid_point(0, 0, 0, 0) * km << endl ; 
+    ost << "  A^{pp} auto, comp : " 
+	<< aa_auto(3, 3).val_grid_point(0, 0, 0, 0) * km  << "  "
+	<< aa_comp(3, 3).val_grid_point(0, 0, 0, 0) * km << endl ; 
 
-    ost << endl << "Central A^2 K_{ij} K^{ij} [c^2/km^2] : " << endl ; 
-    ost << "   A^2 K_{ij} K^{ij}  auto, comp : " 
-	<< kcar_auto.val_grid_point(0, 0, 0, 0) * km*km  << "  "
-	<< kcar_comp.val_grid_point(0, 0, 0, 0) * km*km << endl ; 
+    ost << endl << "Central A_{ij} A^{ij} [c^2/km^2] : " << endl ; 
+    ost << "   A_{ij} A^{ij}  auto, comp : " 
+	<< aa_quad_auto.val_grid_point(0, 0, 0, 0) * km*km  << "  "
+	<< aa_quad_comp.val_grid_point(0, 0, 0, 0) * km*km << endl ; 
 
     
     return ost ; 
@@ -687,13 +644,13 @@ void Star_bin::relaxation(const Star_bin& star_jm1, double relax_ent,
     if ( (mer != 0) && (mer % fmer_met == 0)) {
 
 	logn_auto = relax_met * logn_auto + relax_met_jm1 * star_jm1.logn_auto ;
-	beta_auto = relax_met * beta_auto + relax_met_jm1 * star_jm1.beta_auto ;
+	lnq_auto = relax_met * lnq_auto + relax_met_jm1 * star_jm1.lnq_auto ;
 	
-	shift_auto = relax_met * shift_auto 
-				   + relax_met_jm1 * star_jm1.shift_auto ;
+	beta_auto = relax_met * beta_auto 
+				   + relax_met_jm1 * star_jm1.beta_auto ;
 	
 
-	hij_auto = relax_met * hij_auto + relax_met_jm1 * star_jm1.hij_auto ;
+	hh_auto = relax_met * hh_auto + relax_met_jm1 * star_jm1.hh_auto ;
 	
     }
 
@@ -703,24 +660,14 @@ void Star_bin::relaxation(const Star_bin& star_jm1, double relax_ent,
 
 }
 
-void Star_bin::test_K_Hi() const {
+void Star_bin::test_dirac() const {
 
     int nr = mp.get_mg()->get_nr(0) ;
     int nt = mp.get_mg()->get_nt(0) ;
     int np = mp.get_mg()->get_np(0) ;
     
-    Sym_tensor tkij = tkij_auto + tkij_comp ;
+    Sym_tensor aa = aa_auto + aa_comp ;
     
-    cout << "Le maximal slicing est il bien satisfait ??" 
-	 << endl ;
-    cout << "Tensor Kij" << endl ;
-    cout << "  Comp. 1 1 : " << norme(tkij.down(1, gamma)(1,1)
-				      /(nr*nt*np)) << endl ;
-    
-    cout << endl << "Trace of Kij : "<< norme(tkij.down(1, gamma).trace()
-					      /(nr*nt*np))<< endl ;
-    
-
     cout << "La jauge de Dirac est elle bien satisfaite ??" << endl ;
     cout << "Vector Hi" << endl ;
     for (int i=1; i<=3; i++)

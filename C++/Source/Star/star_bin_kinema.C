@@ -32,6 +32,10 @@ char star_bin_kinema_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/02/17 17:33:54  f_limousin
+ * Change the name of some quantities to be consistent with other classes
+ * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
+ *
  * Revision 1.5  2004/06/22 12:51:59  f_limousin
  * Simplify the computation of gam_pot to improve the convergence of the code.
  *
@@ -87,27 +91,10 @@ void Star_bin::kinematics(double omega, double x_axe) {
     
     //	2/ Addition of shift and division by lapse
     // See Eq (47) from Gourgoulhon et al. (2001)
-  
-    cout << "bsn1" << endl << norme(bsn(1)) << endl ;
-    cout << "bsn2" << endl << norme(bsn(2)) << endl ;
-    cout << "bsn3" << endl << norme(bsn(3)) << endl ;
-    shift.change_triad(mp.get_bvect_cart()) ;
-    cout << "shift1" << endl << norme(shift(1)) << endl ;
-    cout << "shift2" << endl << norme(shift(2)) << endl ;
-    cout << "shift3" << endl << norme(shift(3)) << endl ;
-    shift.change_triad(mp.get_bvect_spher()) ;
-    cout << "nnn" << endl << norme(nnn) << endl ;
  
     bsn.change_triad(mp.get_bvect_spher()) ;
-    bsn = ( bsn - shift ) / nnn ; 
+    bsn = ( bsn - beta ) / nn ; 
     bsn.change_triad(mp.get_bvect_cart()) ;
-
-    cout << "bsn1" << endl << norme(bsn(1)) << endl ;
-    cout << "bsn2" << endl << norme(bsn(2)) << endl ;
-    cout << "bsn3" << endl << norme(bsn(3)) << endl ;
-
-    
-    
 
     bsn.annule(nzm1, nzm1) ;	// set to zero in the ZEC
         
@@ -122,14 +109,15 @@ void Star_bin::kinematics(double omega, double x_axe) {
     flat_cov.change_triad(mp.get_bvect_cart()) ;
     Sym_tensor gamma_cov (gamma.cov()) ;
     gamma_cov.change_triad(mp.get_bvect_cart()) ;
+
     //## For the convergence of the code, we introduce a flat scalar 
     // product to compute gam_pot and so pot_centri. 
     Scalar gam_pot = 1 / sqrt( 1 - contract(flat_cov, 0, 1, bsn * bsn, 0, 1)) ;
 
     Scalar gam0 = 1 / sqrt(1 - contract(gamma_cov, 0, 1, bsn * bsn, 0, 1)) ;
     
-    // Error made when we take gam_pot instead of gam0 for the computation
-    // of pot_centri. 
+    // Relative error make when we take gam_pot instead of gam0 for 
+    // the computation of pot_centri. 
 
     cout << "gam_pot" << endl << norme(gam_pot) << endl ;
     cout << "gam0" << endl << norme(gam0) << endl ;

@@ -33,6 +33,10 @@ char star_bin_vel_pot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/02/17 17:33:11  f_limousin
+ * Change the name of some quantities to be consistent with other classes
+ * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
+ *
  * Revision 1.3  2004/06/22 12:53:09  f_limousin
  * Change qq, qq_auto and qq_comp to beta, beta_auto and beta_comp.
  *
@@ -110,21 +114,25 @@ double Star_bin::velocity_potential(int mermax, double precis, double relax) {
     zeta_h.std_spectral_base() ;
 
     Vector bb = (1 - zeta_h) * ent.derive_con(flat) + 
-	zeta_h * beta.derive_con(flat) ;
+	zeta_h * lnq.derive_con(flat) ;
 
-    Scalar entmb = ent - beta ;  
+    Scalar entmb = ent - lnq ;  
 
     www.change_triad(mp.get_bvect_spher()) ;
     v_orb.change_triad(mp.get_bvect_spher()) ;
+
+    Tensor dcovdcov_psi0 = psi0.derive_cov(flat).derive_cov(flat) ;
+    dcovdcov_psi0.inc_dzpuis() ;
 
     // See Eq (63) from Gourgoulhon et al. (2001)
     Scalar source = contract(www - v_orb, 0, ent.derive_cov(flat), 0)
 	+ zeta_h * ( contract(v_orb, 0, entmb.derive_cov(flat), 0) +
 		     contract(www/gam_euler, 0, gam_euler.derive_cov(flat), 0)
-		     + contract(hij, 0, 1, (psi0.derive_cov(flat)  
+		     + contract(hh, 0, 1, (psi0.derive_cov(flat)  
 				+ v_orb.down(0, flat))*entmb.derive_cov(flat),
-				0, 1) )
-	- contract(hij, 0, 1, ent.derive_cov(flat) * (psi0.derive_cov(flat) 
+				0, 1) 
+		     - contract(hh, 0, 1, dcovdcov_psi0, 0, 1))
+	- contract(hh, 0, 1, ent.derive_cov(flat) * (psi0.derive_cov(flat) 
 						      + v_orb.down(0, flat)), 
 						      0, 1) ;
   
