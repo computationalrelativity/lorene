@@ -4,8 +4,8 @@
  */
 
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
- *   Copyright (c) 2000-2001 Jerome Novak
+ *   Copyright (c) 1999-2004 Eric Gourgoulhon, Jerome Novak 
+ *                           & Philippe Grandclement
  *
  *   This file is part of LORENE.
  *
@@ -32,6 +32,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/02/12 16:19:34  e_gourgoulhon
+ * Added function des_profile_mult for Scalars.
+ * Modified prototype of des_profile_mult(const float*,...)
+ *
  * Revision 1.8  2004/02/09 09:33:54  j_novak
  * Minor modif.
  *
@@ -148,7 +152,7 @@ class Etoile ;
 class Binaire ; 
 class Bin_ns_ncp ;
 
-    /** @name Basic routines.
+    /** @name Basic 2-D routines.
      */
     //@{     
 
@@ -178,6 +182,12 @@ void des_profile(float* uutab, int nx, float xmin, float xmax,
  *			 (the x sampling is supposed to be uniform).
  *  @param nprof [input] Number of profiles
  *  @param nx [input] Number of points for each profile
+ *  @param ngraph [input] Index of the graphic device (in the range [0,99])
+ *  to be used for the plot: if this device has never been used or is closed, 
+ *    it will be opened with the name {\tt device} provided by the last
+ *      argument. 
+ *  @param closeit [input] determines whether the device must be closed or not
+ *      after the plot has been performed
  *  @param xmin [input] lowest value of x
  *  @param xmax [input] highest value of x
  *  @param nomx [input] x legend of the figure
@@ -186,9 +196,9 @@ void des_profile(float* uutab, int nx, float xmin, float xmax,
  *  @param device [input] PGPLOT device (default value = 0x0)
  *
  */
-void des_profile_mult(const float* uutab, int nprof, int nx, 
-			float xmin, float xmax, const char* nomx, const char* nomy, 
-			const char* title, const char* device = 0x0) ; 
+void des_profile_mult(const float* uutab, int nprof, int nx, int ngraph,
+            bool closeit, float xmin, float xmax, const char* nomx, 
+            const char* nomy, const char* title, const char* device = 0x0) ; 
 
 
 /** Basic routine for drawing isocontours.
@@ -465,7 +475,7 @@ void des_map_et(const Map_et& mp, int lz) ;
 
 
 
-    /** @name Plot of a scalar field
+    /** @name 2-D plot of a scalar field
      */
     //@{     
 
@@ -552,6 +562,35 @@ void des_profile(const Scalar& uu, double r_min, double r_max,
 void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
 		     double theta, double phi, char* nomx = 0x0, 
 		     char* nomy = 0x0, char* title= 0x0) ;
+
+
+/** Draws the profile of {\tt Scalar}'s along some radial axis determined by
+ *  a fixed value of $(\theta, \phi)$. 
+ *
+ *  @param uu [input] Address of the first {\tt Scalar} to be drawn
+ *  @param nprof [input] Number of {\tt Scalar}'s to be drawn; if nprof > 1,
+ *       the addresses of the various {\tt Scalar}'s must be stored 
+ *       in sequence from {\tt uu} 
+ *  @param r_min [input] Minimal value of {\it r} for the drawing
+ *  @param r_max [input] Maximal value of {\it r} for the drawing
+ *  @param theta [input] Value of $\theta$ which defines the profile axis
+ *  @param phi [input] Value of $\phi$ which defines the profile axis
+ *  @param ngraph [input] Index of the graphic device (in the range [0,99])
+ *  to be used for the plot: if this device has never been used or is closed, 
+ *    it will be opened with the name {\tt device} provided by the last
+ *      argument. 
+ *  @param closeit [input] determines whether the device must be closed or not
+ *      after the plot has been performed
+ *  @param nomy [input] y legend of the figure (default value = 0x0,  
+ *		        corresponds to no y legend)
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ * 
+ */
+ 
+void des_profile_mult(const Scalar* uu, int nprof, double r_min, double r_max, 
+        double theta, double phi, int ngraph = 0, bool closeit = true, 
+        char* nomy  = 0x0, char* title = 0x0) ;
 
 
 /** Basic routine for drawing a stellar surface in a plane X=constant.
@@ -1179,7 +1218,7 @@ void des_coupe_bin_z(const Cmp& uu1, const Cmp& uu2, double z0, double x_min,
     //@}
 
 
-    /** @name Plot of a vector field
+    /** @name 2-D plot of a vector field
      */
     //@{     
 
