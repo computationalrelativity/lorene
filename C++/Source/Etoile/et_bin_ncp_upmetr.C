@@ -115,13 +115,21 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp) {
 
     shift = shift_auto + shift_comp ;
 
-    // log (determinant )
-    // ------------------
+    // log (determinant ) and determinant
+    // ----------------------------------
 
     loggamma = loggamma_auto + loggamma_comp ;
 
-    /// Coefficients of the 3-metric tilde
-    /// ----------------------------------
+    gamma = exp (loggamma) ;
+
+    // Conformal factor A^2
+    // ---------------------
+ 
+    a_car = pow(gamma(), 1./6.) ;
+    a_car.set_std_base() ;   // set the bases for spectral expansions    
+
+   // Coefficients of the 3-metric tilde
+    // ----------------------------------
 
     for(int i=0; i<=2; i++) {
       for(int j=i; j<=2; j++) {
@@ -130,6 +138,33 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp) {
       }
     }
 
+
+    // Coefficients of the 3-metric
+    // ----------------------------
+
+    for(int i=0; i<=2; i++) {
+      for(int j=i; j<=2; j++) {
+     
+	met_gamma.set_cov(i,j) = pow(gamma(), 1./3.) * gtilde.cov()(i,j) ;
+      }
+    }    
+
+    // Coefficients of the 3-metric auto and comp
+    // ------------------------------------------
+
+    for(int i=0; i<=2; i++) {
+      for(int j=i; j<=2; j++) {
+     
+	metgamma_auto.set_cov(i,j) = pow(gamma(), 1./3.) * gtilde_auto.cov()(i,j) ;
+      }
+    }    
+
+    for(int i=0; i<=2; i++) {
+      for(int j=i; j<=2; j++) {
+     
+	metgamma_comp.set_cov(i,j) = pow(gamma(), 1./3.) * gtilde_comp.cov()(i,j) ;
+      }
+    }    
 
 
     // Derivatives of metric coefficients
@@ -271,6 +306,8 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp,
 
     loggamma = loggamma_auto + loggamma_comp ;
 
+    gamma = exp (loggamma) ;
+
  
    // Coefficients of the 3-metric tilde
    // ----------------------------------
@@ -282,6 +319,32 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp,
       }
     }
 
+    // Coefficients of the 3-metric
+    // ----------------------------
+
+    for(int i=0; i<=2; i++) {
+      for(int j=i; j<=2; j++) {
+     
+	met_gamma.set_cov(i,j) = pow(gamma(), 1./3.) * gtilde.cov()(i,j) ;
+      }
+    }    
+
+    // Coefficients of the 3-metric auto and comp
+    // ------------------------------------------
+
+    for(int i=0; i<=2; i++) {
+      for(int j=i; j<=2; j++) {
+     
+	metgamma_auto.set_cov(i,j) = pow(gamma(), 1./3.) * gtilde_auto.cov()(i,j) ;
+      }
+    }    
+
+    for(int i=0; i<=2; i++) {
+      for(int j=i; j<=2; j++) {
+     
+	metgamma_comp.set_cov(i,j) = pow(gamma(), 1./3.) * gtilde_comp.cov()(i,j) ;
+      }
+    }    
 
 
     // Derivatives of metric coefficients
