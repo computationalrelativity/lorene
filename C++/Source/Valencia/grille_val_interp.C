@@ -32,6 +32,9 @@ char grille_val_interp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/03/25 14:52:33  j_novak
+ * Suppressed some documentation/
+ *
  * Revision 1.7  2003/12/19 15:05:14  j_novak
  * Trying to avoid shadowed variables
  *
@@ -429,11 +432,15 @@ Tbl Gval_spher::interpol2(const Tbl& fdep, const Tbl& rarr,
   return farr ;
 }
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 struct Point {
   double x ;
   int l ;
   int k ;
 };
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */ 
 
 int copar(const void* a, const void* b) {
   double x = (reinterpret_cast<const Point*>(a))->x ;

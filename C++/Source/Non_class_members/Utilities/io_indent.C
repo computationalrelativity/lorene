@@ -32,6 +32,8 @@ ostream& iendl(ostream& o) {
     return o ;
 }
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 static struct CInitStdStream {
     CInitStdStream() {
 	cout << resetindent ;
@@ -39,4 +41,4 @@ static struct CInitStdStream {
 	clog << resetindent ;
     }
 } InitStdStream ;
-
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */ 
