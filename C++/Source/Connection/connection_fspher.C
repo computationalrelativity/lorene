@@ -30,6 +30,9 @@ char connection_fspher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/05 21:09:23  e_gourgoulhon
+ * Method derive_cov: multiplication by r^2 in the CED.
+ *
  * Revision 1.2  2003/10/01 21:49:45  e_gourgoulhon
  * First version of derive_cov --- not tested yet.
  *
@@ -138,6 +141,7 @@ Tensor Connection_fspher::derive_cov(const Tensor& uu) const {
 	
 	Scalar tmp(*mp) ;	// working scalar
 
+	
 	// Derivation index = r
 	// --------------------
 	int k = 1 ; 	
@@ -192,8 +196,11 @@ Tensor Connection_fspher::derive_cov(const Tensor& uu) const {
 							// or -Gamma^l_{r theta} V_l 
 					ind = ind0 ; 
 					ind.set(id) = 2 ;   // l = theta
+
+					// Division by r in all domains but the CED (where a
+					//  multiplication by r is performed instead)
 					tmp = uu(ind) ; 
-					tmp.div_r() ; 
+					tmp.div_r_ced() ; 
 					cresu -= tmp ; 
 					break ; 
 				}
@@ -203,7 +210,7 @@ Tensor Connection_fspher::derive_cov(const Tensor& uu) const {
 					ind = ind0 ; 
 					ind.set(id) = 1 ;   // l = r
 					tmp = uu(ind) ; 
-					tmp.div_r() ; 
+					tmp.div_r_ced() ; 
 					cresu += tmp ; 
 					break ; 
 				}
@@ -256,7 +263,7 @@ Tensor Connection_fspher::derive_cov(const Tensor& uu) const {
 					ind = ind0 ; 
 					ind.set(id) = 3 ;   // l = phi
 					tmp = uu(ind) ; 
-					tmp.div_r() ; 
+					tmp.div_r_ced() ; 
 					cresu -= tmp ; 
 					break ; 
 				}
@@ -266,9 +273,13 @@ Tensor Connection_fspher::derive_cov(const Tensor& uu) const {
 					ind = ind0 ; 
 					ind.set(id) = 3 ;   // l = phi
 					tmp = uu(ind) ; 
-					tmp.div_rsint() ; 
+					tmp.div_rsint_ced() ; 
+					
+					// what follows does not apply if the mapping is not radial:
+					assert( dynamic_cast<const Map_radial*>(mp) != 0x0 ) ; 
 					Valeur vtmp = (tmp.get_spectral_va()).mult_ct() ; 
 					tmp.set_spectral_va() = vtmp ; 
+					
 					cresu -= tmp ; 
 					break ; 
 				}
@@ -280,14 +291,18 @@ Tensor Connection_fspher::derive_cov(const Tensor& uu) const {
 
 					ind.set(id) = 1 ;   // l = r
 					tmp = uu(ind) ; 
-					tmp.div_r() ; 
+					tmp.div_r_ced() ; 
 					cresu += tmp ; 
 
 					ind.set(id) = 2 ;   // l = theta
 					tmp = uu(ind) ; 
-					tmp.div_rsint() ; 
+					tmp.div_rsint_ced() ; 
+
+					// what follows does not apply if the mapping is not radial:
+					assert( dynamic_cast<const Map_radial*>(mp) != 0x0 ) ; 
 					Valeur vtmp = (tmp.get_spectral_va()).mult_ct() ; 
 					tmp.set_spectral_va() = vtmp ; 
+
 					cresu += tmp ; 
 					break ; 
 				}
