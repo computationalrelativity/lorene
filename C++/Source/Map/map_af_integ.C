@@ -4,7 +4,7 @@
  */
 
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2003 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -30,8 +30,11 @@ char map_af_integ_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/10/15 10:35:27  e_gourgoulhon
+ * Changed cast (double *) into static_cast<double*>.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.2  2000/01/28  16:09:37  eric
  * Remplacement du ci.get_dzpuis() == 4 par ci.check_dzpuis(4).
@@ -121,7 +124,7 @@ Tbl* Map_af::integrale(const Cmp& ci) const {
 	    case T_COS_P: case T_COSSIN_CP: {
 		if (nt > nt_cp_pre) {  // Initialization of factors for summation
 		    nt_cp_pre = nt ;
-		    cx_tcp = (double *)(realloc(cx_tcp, nt*sizeof(double))) ;
+		    cx_tcp = static_cast<double*>(realloc(cx_tcp, nt*sizeof(double))) ;
 		    for (int j=0 ; j<nt ; j++) {
 			cx_tcp[j] = 2./(1. - 4.*j*j) ;  // Factor 2 symmetry
 		    }
@@ -160,7 +163,7 @@ Tbl* Map_af::integrale(const Cmp& ci) const {
 		assert(beta[l] == 0) ;
 		if (nr > nr_p_pre) {  // Initialization of factors for summation
 		    nr_p_pre = nr ;
-		    cx_rrp = (double *)(realloc(cx_rrp, nr*sizeof(double))) ;
+		    cx_rrp = static_cast<double*>(realloc(cx_rrp, nr*sizeof(double))) ;
 		    for (int i=0 ; i<nr ; i++) {
 			cx_rrp[i] = (3. - 4.*i*i) / 
 				    (9. - 40. * i*i + 16. * i*i*i*i) ;
@@ -178,9 +181,9 @@ Tbl* Map_af::integrale(const Cmp& ci) const {
 	    case R_CHEB: {
 		if (nr > nr_f_pre) {  // Initialization of factors for summation
 		    nr_f_pre = nr ;
-		    cx_rf_x2 = (double *)(realloc(cx_rf_x2, nr*sizeof(double))) ;
-		    cx_rf_x  = (double *)(realloc(cx_rf_x, nr*sizeof(double))) ;
-		    cx_rf    = (double *)(realloc(cx_rf, nr*sizeof(double))) ;
+		    cx_rf_x2 = static_cast<double*>(realloc(cx_rf_x2, nr*sizeof(double))) ;
+		    cx_rf_x  = static_cast<double*>(realloc(cx_rf_x, nr*sizeof(double))) ;
+		    cx_rf    = static_cast<double*>(realloc(cx_rf, nr*sizeof(double))) ;
 		    for (int i=0 ; i<nr ; i +=2 ) {
 			cx_rf_x2[i] = 2.*(3. - i*i)/(9. - 10. * i*i + i*i*i*i) ;
 			cx_rf_x[i] = 0 ;
@@ -212,7 +215,7 @@ Tbl* Map_af::integrale(const Cmp& ci) const {
 		assert(beta[l] == - alpha[l]) ;
 		if (nr > nr_f_pre) {  // Initialization of factors for summation
 		    nr_f_pre = nr ;
-		    cx_rf    = (double *)(realloc(cx_rf, nr*sizeof(double))) ;
+		    cx_rf    = static_cast<double*>(realloc(cx_rf, nr*sizeof(double))) ;
 		    for (int i=0 ; i<nr ; i +=2 ) {
 			cx_rf[i] = 2./(1. - i*i) ;
 		    }
