@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/05/06 15:23:10  e_gourgoulhon
+ * initial_data_cts is know a virtual function of class Time_slice_conf
+ * and is implemented also for class Tslice_dirac_max.
+ *
  * Revision 1.13  2004/05/03 14:46:11  e_gourgoulhon
  * Class Tslice_dirac_max: -- changed prototype of method solve_hij
  *                         -- added new method evolve
@@ -704,7 +708,7 @@ class Time_slice_conf : public Time_slice {
          *      by the Eulerian observer; this quantity is passed as a pointer,
          *      the null value of which (default) meaning \e S=0.
          */
-         void initial_data_cts(const Sym_tensor& uu, const Scalar& trk_in, 
+         virtual void initial_data_cts(const Sym_tensor& uu, const Scalar& trk_in, 
                 const Scalar& trk_point, double pdt, double precis = 1.e-12,
                 const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
                 const Scalar* trace_stress=0x0 ) ; 
@@ -819,6 +823,38 @@ class Tslice_dirac_max : public Time_slice_conf {
          */        
         virtual void set_hh(const Sym_tensor& hh_in) ; 
 
+        /** Computes valid initial data by solving the constraint 
+         *  equations in the conformal thin-sandwich approach.
+         *
+         *  @param uu value of 
+         *    \f$ {\tilde u}^{ij} = \partial h^{ij} /\partial t \f$ 
+         *                  (freely specifiable data).
+         *  This quantity must be trace-free with respect to the conformal
+         *  metric \f$\tilde\gamma_{ij}\f$, reflecting the unimodular 
+         *  character of \f$\tilde\gamma_{ij}\f$.
+         *  @param trk_in value of \f$ K = K_i^{\ i} \f$ 
+         *      (freely specifiable data)
+         *  @param trk_point value of \f$ \partial K / \partial t \f$ 
+         *      (freely specifiable data)
+         *  @param pdt time step, to be used in order to fill \c depth
+         *      slices
+         *  @param precis convergence threshold required to stop the 
+         *          iteration
+         *  @param ener_dens matter energy density \e E as measured by the 
+         *      Eulerian observer; this quantity is passed as a pointer,
+         *      the null value of which (default) meaning \e E=0.
+         *  @param mom_dens matter momentum density \e J as measured by the 
+         *      Eulerian observer; this quantity is passed as a pointer,
+         *      the null value of which (default) meaning \e J=0.
+         *  @param trace_stress trace of the matter stress \e S as measured 
+         *      by the Eulerian observer; this quantity is passed as a pointer,
+         *      the null value of which (default) meaning \e S=0.
+         */
+         virtual void initial_data_cts(const Sym_tensor& uu, const Scalar& trk_in, 
+                const Scalar& trk_point, double pdt, double precis = 1.e-12,
+                const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
+                const Scalar* trace_stress=0x0 ) ; 
+        
         // Virtual functions from this class:
         // ----------------------------------
 
