@@ -28,6 +28,10 @@ char test_kerr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/02/19 22:13:46  e_gourgoulhon
+ * Usage of new argument comment in Tensor::spectral_display and
+ * in functions maxabs.
+ *
  * Revision 1.11  2004/02/18 18:53:41  e_gourgoulhon
  * -- Trace of K now computed directly, thanks to the new
  *    method Tensor::trace.
@@ -214,18 +218,15 @@ int main() {
         vtmp.set(3) = 0 ; 
         vtmp.std_spectral_base() ;
         vtmp -= dpsi4 ; 
-        cout << "Error on Grad(Psi^4) : " << endl ; 
-        vtmp.spectral_display() ; 
-        cout << "Error on Grad(Psi^4) (max absolute value in each domain) : \n " ; 
-        maxabs(vtmp) ; 
+        vtmp.spectral_display("Error on Grad(Psi^4)") ; 
+        maxabs(vtmp, "Error on Grad(Psi^4) (max absolute value in each domain)") ; 
         arrete() ; 
     
         Sym_tensor gij_schw = psi4 * fmet.cov() ; 
     
         Sym_tensor diff_schw = gam.cov() - gij_schw ; 
-        cout << 
-        "Comparison with the Schwarzschild metric (max absolute error): \n" ; 
-        maxabs(diff_schw) ; 
+        maxabs(diff_schw, 
+             "Comparison with the Schwarzschild metric (max absolute error)") ; 
         arrete() ; 
 
         // Test: covariant derivative of the metric / flat metric:
@@ -235,10 +236,9 @@ int main() {
         Tensor_sym d_gij_schw = fmet.cov() * dpsi4 ;
     
         Tensor diff_dg = dg_cov - d_gij_schw ; 
-        cout << "Error on the covariant derivative of the metric / flat metric:" << endl ; 
-        diff_dg.spectral_display() ; 
-        cout << "Error on the covariant derivative of the metric / flat metric:" << endl ; 
-        maxabs(diff_dg) ; 
+        diff_dg.spectral_display("Error on the covariant derivative of the metric / flat metric") ; 
+        maxabs(diff_dg,
+          "Error on the covariant derivative of the metric / flat metric") ; 
         arrete() ; 
 
     }
@@ -269,10 +269,8 @@ int main() {
 
     nn.std_spectral_base() ;
     
-    cout << "Minimum value of the lapse N in each domain : " << endl ; 
-    min(nn, cout) ;
-    cout << "Maximum value of the lapse N in each domain : " << endl ; 
-    max(nn, cout) ;
+    min(nn, "Minimum value of the lapse N in each domain", cout) ;
+    max(nn, "Maximum value of the lapse N in each domain", cout) ;
     arrete() ;  
 
     // Shift vector
