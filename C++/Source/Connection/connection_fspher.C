@@ -30,6 +30,9 @@ char connection_fspher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2003/11/03 13:37:58  j_novak
+ * Still dzpuis...
+ *
  * Revision 1.12  2003/11/03 11:14:18  j_novak
  * Treatment of the case dzpuis = 4.
  *
@@ -170,6 +173,8 @@ Tensor Connection_fspher::derive_cov(const Tensor& uu) const {
 	
   Scalar tmp(*mp) ;	// working scalar
 
+  int dz_resu = 2 ; //The dzpuis for the result
+  bool dz4 = false ;
 	
   // Derivation index = r
   // --------------------
@@ -180,6 +185,9 @@ Tensor Connection_fspher::derive_cov(const Tensor& uu) const {
 	
     // indices corresponding to the component no. ic in the input tensor
     ind0 = uu.indices(ic) ; 
+    dz_resu = uu(ind0).get_dzpuis() ;
+    dz4 = (dz_resu == 4) ;
+    dz_resu += dz4 ? 0 : 2 ;
 		
     // indices (k,ind0) in the output tensor
     ind1.set(0) = k ; 
@@ -189,7 +197,7 @@ Tensor Connection_fspher::derive_cov(const Tensor& uu) const {
 		
     Scalar& cresu = resu.set(ind1) ; 
 		
-    cresu = (uu(ind0)).dsdr() ; 	// d/dr
+    cresu = (uu(ind0)).dsdr(dz_resu) ; 	// d/dr
 		
     // all the connection coefficients Gamma^i_{jk} are zero for k=1
   }
@@ -205,6 +213,9 @@ Tensor Connection_fspher::derive_cov(const Tensor& uu) const {
 	
     // indices corresponding to the component no. ic in the input tensor
     ind0 = uu.indices(ic) ; 
+    dz_resu = uu(ind0).get_dzpuis() ;
+    dz4 = (dz_resu == 4) ;
+    dz_resu += dz4 ? 0 : 2 ;
 		
     // indices (k,ind0) in the output tensor
     ind1.set(0) = k ; 
@@ -213,9 +224,8 @@ Tensor Connection_fspher::derive_cov(const Tensor& uu) const {
     }
 		
     Scalar& cresu = resu.set(ind1) ; 
-    bool dz4 = (cresu.get_dzpuis() == 4) ;
 		
-    cresu = (uu(ind0)).srdsdt() ;  // 1/r d/dtheta 	
+    cresu = (uu(ind0)).srdsdt(dz_resu) ;  // 1/r d/dtheta 	
 		
     // Loop on all the indices of uu
     for (int id=0; id<valence0; id++) {
@@ -272,6 +282,9 @@ Tensor Connection_fspher::derive_cov(const Tensor& uu) const {
 	
     // indices corresponding to the component no. ic in the input tensor
     ind0 = uu.indices(ic) ; 
+    dz_resu = uu(ind0).get_dzpuis() ;
+    dz4 = (dz_resu == 4) ;
+    dz_resu += dz4 ? 0 : 2 ;
 		
     // indices (k,ind0) in the output tensor
     ind1.set(0) = k ; 
@@ -280,9 +293,8 @@ Tensor Connection_fspher::derive_cov(const Tensor& uu) const {
     }
 		
     Scalar& cresu = resu.set(ind1) ; 
-    bool dz4 = (cresu.get_dzpuis() == 4) ;
 		
-    cresu = (uu(ind0)).srstdsdp() ;  // 1/(r sin(theta)) d/dphi 	
+    cresu = (uu(ind0)).srstdsdp(dz_resu) ;  // 1/(r sin(theta)) d/dphi 	
 		
     // Loop on all the indices of uu
     for (int id=0; id<valence0; id++) {
@@ -402,6 +414,8 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
 	
   Scalar tmp(*mp) ;	// working scalar
 
+  int dz_resu = 2 ; //The dzpuis for the result
+  bool dz4 = false ;
 	
   // Derivation index = r
   // --------------------
@@ -412,6 +426,9 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
 	
     // indices corresponding to the component no. ic in the input tensor
     ind0 = uu.indices(ic) ; 
+    dz_resu = uu(ind0).get_dzpuis() ;
+    dz4 = (dz_resu == 4) ;
+    dz_resu += dz4 ? 0 : 2 ;
 		
     // indices (k,ind0) in the output tensor
     ind1.set(0) = k ; 
@@ -421,7 +438,7 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
 		
     Scalar& cresu = resu->set(ind1) ; 
 		
-    cresu = (uu(ind0)).dsdr() ; 	// d/dr
+    cresu = (uu(ind0)).dsdr(dz_resu) ; 	// d/dr
 		
     // all the connection coefficients Gamma^i_{jk} are zero for k=1
   }
@@ -437,6 +454,9 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
 	
     // indices corresponding to the component no. ic in the input tensor
     ind0 = uu.indices(ic) ; 
+    dz_resu = uu(ind0).get_dzpuis() ;
+    dz4 = (dz_resu == 4) ;
+    dz_resu += dz4 ? 0 : 2 ;
 		
     // indices (k,ind0) in the output tensor
     ind1.set(0) = k ; 
@@ -446,8 +466,7 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
 		
     Scalar& cresu = resu->set(ind1) ; 
 		
-    cresu = (uu(ind0)).srdsdt() ;  // 1/r d/dtheta 
-    bool dz4 = (cresu.get_dzpuis() == 4) ;
+    cresu = (uu(ind0)).srdsdt(dz_resu) ;  // 1/r d/dtheta 
 		
     // Loop on all the indices of uu
     for (int id=0; id<valence0; id++) {
@@ -504,6 +523,9 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
 	
     // indices corresponding to the component no. ic in the input tensor
     ind0 = uu.indices(ic) ; 
+    dz_resu = uu(ind0).get_dzpuis() ;
+    dz4 = (dz_resu == 4) ;
+    dz_resu += dz4 ? 0 : 2 ;
 		
     // indices (k,ind0) in the output tensor
     ind1.set(0) = k ; 
@@ -513,8 +535,7 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
 		
     Scalar& cresu = resu->set(ind1) ; 
 		
-    cresu = (uu(ind0)).srstdsdp() ;  // 1/(r sin(theta)) d/dphi 	
-    bool dz4 = (cresu.get_dzpuis() == 4) ;
+    cresu = (uu(ind0)).srstdsdp(dz_resu) ;  // 1/(r sin(theta)) d/dphi 	
 		
     // Loop on all the indices of uu
     for (int id=0; id<valence0; id++) {
@@ -604,8 +625,6 @@ Tensor* Connection_fspher::p_divergence(const Tensor& uu) const {
   // --------------------------------------------
   Tensor* resu ;
 
-  //##  int sym_flag = 1 ;
-
   // If u is a Vector, the result is a Scalar
   //----------------------------------------
   if (valence0 == 1) {
@@ -619,9 +638,6 @@ Tensor* Connection_fspher::p_divergence(const Tensor& uu) const {
     }
     if (valence0 == 2) {
       resu = new Vector(*mp, tipe(0), *triad) ;
-//       const Sym_tensor* sym_uu 
-// 	= dynamic_cast<const Sym_tensor*>(&uu) ;
-//       if (sym_uu != 0x0) sym_flag = 2 ;
     }
     else {
       const Tensor_delta* del_uu 
@@ -663,7 +679,13 @@ Tensor* Connection_fspher::p_divergence(const Tensor& uu) const {
       ind0.set(id) = ind1(id-1) ; 
     }
 
-    cresu = uu(ind0).dsdr() ; //dT^{r l}/dr
+    // dzpuis of the result
+    //---------------------
+    int dz_resu = uu(ind0).get_dzpuis() ;
+    bool dz4 = (dz_resu == 4) ;
+    dz_resu += dz4 ? 0 : 2 ;
+
+    cresu = uu(ind0).dsdr(dz_resu) ; //dT^{r l}/dr
 
   // Derivation index = theta
   // ------------------------
@@ -679,7 +701,7 @@ Tensor* Connection_fspher::p_divergence(const Tensor& uu) const {
 
     ind = ind0 ;
     ind.set(0) = 1 ;
-    tmp1 += uu(ind) ;//##Gamma^theta_{r theta}T^{r l} (div_r later)+sym_flag
+    tmp1 += uu(ind) ;//Gamma^theta_{r theta}T^{r l} (div_r is done later)
     
 
     // Loop on all the indices of uu
@@ -728,9 +750,9 @@ Tensor* Connection_fspher::p_divergence(const Tensor& uu) const {
     
     ind = ind0 ;
     ind.set(0) = 1 ;
-    tmp1 += uu(ind) ;//##Gamma^phi_{r phi}T^{r l} (div_r later)+sym_flag
+    tmp1 += uu(ind) ;//Gamma^phi_{r phi}T^{r l} (div_r is done later)
     ind.set(0) = 2 ;
-    tmp2 = uu(ind) ;//##Gamma^phi_{theta phi}T^{theta l} (div_r later)+sym_flag
+    tmp2 = uu(ind) ;//Gamma^phi_{theta phi}T^{theta l} (div_r is done later)
 
     // Loop on all the indices of uu
     for (int id=1; id<valence0; id++) {
@@ -776,7 +798,7 @@ Tensor* Connection_fspher::p_divergence(const Tensor& uu) const {
     //----------------------------------------------
     tmp2.div_tant() ;
     tmp1 += tmp2 ;
-    (tmp1.get_dzpuis() == 4) ? tmp1.div_r() : tmp1.div_r_inc2() ;
+    dz4 ? tmp1.div_r() : tmp1.div_r_inc2() ;
 
     cresu += tmp1 ; // the d/dr term...
 

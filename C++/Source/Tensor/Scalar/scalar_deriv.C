@@ -34,6 +34,9 @@ char scalar_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/11/03 13:37:59  j_novak
+ * Still dzpuis...
+ *
  * Revision 1.7  2003/10/29 13:14:03  e_gourgoulhon
  * Added integer argument to derivative functions dsdr, etc...
  * so that one can choose the dzpuis of the result (default=2).
@@ -81,8 +84,8 @@ const Scalar& Scalar::dsdr(int ced_mult_r) const {
     // If the derivative has not been previously computed, the 
     //  computation must be done by the appropriate routine of the mapping : 
 
-	if (p_dsdr == 0x0) {
-		if (etat == ETATUN) {
+    if (p_dsdr == 0x0) {
+      if (etat == ETATUN) {
 	p_dsdr = new Scalar(*mp) ;
 	p_dsdr->set_etat_zero() ;
       }
@@ -92,27 +95,12 @@ const Scalar& Scalar::dsdr(int ced_mult_r) const {
 	mp->dsdr(orig, derivee) ;
 	p_dsdr = new Scalar(derivee) ; 
 
-		switch (ced_mult_r) {
-			case 0 : {
-				p_dsdr->dec_dzpuis(2) ; 
-				break ;
-			}
-
-			case 2 : break ; 
-			
-			default : {
-				cout << "Scalar::dsdr : unexpected value of ced_mult_r !"
-					 << endl << "  ced_mult_r = " << ced_mult_r << endl ; 
-				abort() ;
-				break ; 
-			}
-
-		}	  
-
-      }	  
-	  
+	int diff_dzpuis = ced_mult_r - p_dsdr->get_dzpuis() ;
+	(diff_dzpuis >= 0) ? p_dsdr->inc_dzpuis(diff_dzpuis) : 
+	  p_dsdr->dec_dzpuis(-diff_dzpuis) ;
+      }
     }
-    
+     
     return *p_dsdr ;
 
 }
@@ -139,26 +127,13 @@ const Scalar& Scalar::srdsdt(int ced_mult_r) const {
 	Cmp derivee(mp) ;
 	mp->srdsdt(orig, derivee) ;
 	p_srdsdt = new Scalar(derivee) ;
-		switch (ced_mult_r) {
-			case 0 : {
-				p_srdsdt->dec_dzpuis(2) ; 
-				break ;
-			}
 
-			case 2 : break ; 
-			
-			default : {
-				cout << "Scalar::srdsdt : unexpected value of ced_mult_r !"
-					 << endl << "  ced_mult_r = " << ced_mult_r << endl ; 
-				abort() ;
-				break ; 
-			}
-
-		}	  
-
+	int diff_dzpuis = ced_mult_r - p_srdsdt->get_dzpuis() ;
+	(diff_dzpuis >= 0) ? p_srdsdt->inc_dzpuis(diff_dzpuis) : 
+	  p_srdsdt->dec_dzpuis(-diff_dzpuis) ;
       }
-	  
     }
+     
     return *p_srdsdt ;
 
 }
@@ -186,26 +161,13 @@ const Scalar& Scalar::srstdsdp(int ced_mult_r) const {
 	Cmp derivee(mp) ;
 	mp->srstdsdp(orig, derivee) ;
 	p_srstdsdp = new Scalar(derivee) ; 
-		switch (ced_mult_r) {
-			case 0 : {
-				p_srstdsdp->dec_dzpuis(2) ; 
-				break ;
-			}
 
-			case 2 : break ; 
-			
-			default : {
-				cout << "Scalar::srstdsdp : unexpected value of ced_mult_r !"
-					 << endl << "  ced_mult_r = " << ced_mult_r << endl ; 
-				abort() ;
-				break ; 
-			}
-
-		}	  
-
+	int diff_dzpuis = ced_mult_r - p_srstdsdp->get_dzpuis() ;
+	(diff_dzpuis >= 0) ? p_srstdsdp->inc_dzpuis(diff_dzpuis) : 
+	  p_srstdsdp->dec_dzpuis(-diff_dzpuis) ;
       }
-	  
     }
+     
     return *p_srstdsdp ;
 
 }
@@ -290,25 +252,12 @@ const Scalar& Scalar::dsdx(int ced_mult_r) const {
 	mp->comp_x_from_spherical(deriv_r, deriv_t, deriv_p, deriv_x) ;
 	p_dsdx = new Scalar(deriv_x) ; 
 
-		switch (ced_mult_r) {
-			case 0 : {
-				p_dsdx->dec_dzpuis(2) ; 
-				break ;
-			}
-
-			case 2 : break ; 
-			
-			default : {
-				cout << "Scalar::dsdx : unexpected value of ced_mult_r !"
-					 << endl << "  ced_mult_r = " << ced_mult_r << endl ; 
-				abort() ;
-				break ; 
-			}
-
-		}	  
+	int diff_dzpuis = ced_mult_r - p_dsdx->get_dzpuis() ;
+	(diff_dzpuis >= 0) ? p_dsdx->inc_dzpuis(diff_dzpuis) : 
+	  p_dsdx->dec_dzpuis(-diff_dzpuis) ;
       }
     }
-    
+     
     return *p_dsdx ;
 
 }
@@ -339,25 +288,12 @@ const Scalar& Scalar::dsdy(int ced_mult_r) const {
 	mp->comp_y_from_spherical(deriv_r, deriv_t, deriv_p, deriv_y) ;
 	p_dsdy = new Scalar(deriv_y) ; 
 
-		switch (ced_mult_r) {
-			case 0 : {
-				p_dsdy->dec_dzpuis(2) ; 
-				break ;
-			}
-
-			case 2 : break ; 
-			
-			default : {
-				cout << "Scalar::dsdy : unexpected value of ced_mult_r !"
-					 << endl << "  ced_mult_r = " << ced_mult_r << endl ; 
-				abort() ;
-				break ; 
-			}
-
-		}	  
-
+	int diff_dzpuis = ced_mult_r - p_dsdy->get_dzpuis() ;
+	(diff_dzpuis >= 0) ? p_dsdy->inc_dzpuis(diff_dzpuis) : 
+	  p_dsdy->dec_dzpuis(-diff_dzpuis) ;
       }
     }
+     
     return *p_dsdy ;
 
 }
@@ -388,24 +324,12 @@ const Scalar& Scalar::dsdz(int ced_mult_r) const {
 	mp->comp_z_from_spherical(deriv_r, deriv_t, deriv_z) ;
 	p_dsdz = new Scalar(deriv_z) ; 
 
-		switch (ced_mult_r) {
-			case 0 : {
-				p_dsdz->dec_dzpuis(2) ; 
-				break ;
-			}
-
-			case 2 : break ; 
-			
-			default : {
-				cout << "Scalar::dsdz : unexpected value of ced_mult_r !"
-					 << endl << "  ced_mult_r = " << ced_mult_r << endl ; 
-				abort() ;
-				break ; 
-			}
-
-		}	  
+	int diff_dzpuis = ced_mult_r - p_dsdz->get_dzpuis() ;
+	(diff_dzpuis >= 0) ? p_dsdz->inc_dzpuis(diff_dzpuis) : 
+	  p_dsdz->dec_dzpuis(-diff_dzpuis) ;
       }
     }
+
     return *p_dsdz ;
 
 }
