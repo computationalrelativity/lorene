@@ -29,6 +29,12 @@ char wave_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/05/17 20:00:09  e_gourgoulhon
+ * Added parameters ampli_tgam_dot, method_poisson_vect, precis_init,
+ * nopause from the input file. These arguments are passed to
+ * Tslice_dirac_max::initial_data_cts and Tslice_dirac_max::evolve
+ * (thanks to their new prototypes).
+ *
  * Revision 1.8  2004/05/17 12:59:55  e_gourgoulhon
  * Parameters of the computation are now read in file par_wave_evol.d.
  *
@@ -88,19 +94,24 @@ int main() {
     }
     
     // Reading of physical paramaters
-    double ampli_init_khi, ampli_init_mu ;
+    double ampli_init_khi, ampli_init_mu, ampli_tgam_dot ;
     fpar.ignore(1000,'\n') ;    // skip title
     fpar >> ampli_init_khi ; fpar.ignore(1000,'\n') ;
     fpar >> ampli_init_mu ; fpar.ignore(1000,'\n') ;
+    fpar >> ampli_tgam_dot ; fpar.ignore(1000,'\n') ;
     
     // Reading of computational paramaters
-    int nb_time_steps, niter_elliptic, graph, graph_init ;
-    double pdt, relax_elliptic ; 
+    int nb_time_steps, niter_elliptic, nopause, graph, graph_init,
+        method_poisson_vect ;
+    double pdt, relax_elliptic, precis_init ; 
     fpar.ignore(1000,'\n') ;    // skip title
     fpar >> pdt ; fpar.ignore(1000,'\n') ;
     fpar >> nb_time_steps ; fpar.ignore(1000,'\n') ;
     fpar >> niter_elliptic ; fpar.ignore(1000,'\n') ;
     fpar >> relax_elliptic ; fpar.ignore(1000,'\n') ;
+    fpar >> method_poisson_vect ; fpar.ignore(1000,'\n') ;
+    fpar >> precis_init ; fpar.ignore(1000,'\n') ;
+    fpar >> nopause ; fpar.ignore(1000,'\n') ;
     fpar >> graph ; fpar.ignore(1000,'\n') ;
     fpar >> graph_init ; fpar.ignore(1000,'\n') ;
 
@@ -142,19 +153,21 @@ int main() {
     }
     r_limits[nz] = __infinity ; 
     
-    // fpar >> ; fpar.ignore(1000,'\n') ;
     fpar.close() ; 
 
     cout << "Physical parameters: \n"
          << "-------------------  \n" ; 
     cout << "   ampli_init_khi = " <<  ampli_init_khi << endl ;        
     cout << "   ampli_init_mu = " <<  ampli_init_mu << endl ;        
+    cout << "   ampli_tgam_dot = " <<  ampli_tgam_dot << endl ;        
     cout << "Computational parameters: \n"
          << "------------------------ \n" ; 
     cout << "   pdt = " << pdt << endl ; 
     cout << "   nb_time_steps = " << nb_time_steps << endl ; 
     cout << "   niter_elliptic = " << niter_elliptic << endl ; 
     cout << "   relax_elliptic = " << relax_elliptic << endl ; 
+    cout << "   method_poisson_vect = " << method_poisson_vect << endl ;
+    cout << "   precis_init = " << precis_init << endl ;
     cout << "   graph_device = " << graph_device << endl ;
     cout << "   graph_device_init = " << graph_device_init << endl ;
 
@@ -220,7 +233,8 @@ int main() {
 
     khi_init.spectral_display("khi_init") ;   
     if (khi_init.get_etat() == ETATQCQ) 
-        des_meridian(khi_init, 0., 5., "khi_init", 1) ; 
+        des_meridian(khi_init, 0., 1.25*r_limits[nz-1], "khi_init", 1, 
+                     graph_device_init) ; 
     
     Scalar mu_init(map) ; 
     mu_init = ampli_init_mu * x*y* exp( - r*r ) ;
@@ -231,8 +245,9 @@ int main() {
     mu_init.mult_cost() ; 
     
     mu_init.spectral_display("mu_init") ;   
-    // if (mu_init.get_etat() == ETATQCQ) 
-    //    des_meridian(mu_init, 0., 5., "mu_init", 1) ; 
+    if (mu_init.get_etat() == ETATQCQ) 
+        des_meridian(mu_init, 0., 1.25*r_limits[nz-1], "mu_init", 2, 
+                     graph_device_init) ; 
     
     
                   
@@ -254,19 +269,27 @@ int main() {
 
     // u^{ij} = d/dt h^{ij}
     Sym_tensor_trans uu_init(map, otriad, ff) ;  
-    uu_init.set_etat_zero() ; 
     
-    // uu_init = 0.5 * ( sigmat.hh() 
-    //    - 0.33333333333333333 * sigmat.hh().trace(sigmat.tgam())
-    //        * sigmat.tgam().con() ) ;
-    //  uu_init.inc_dzpuis(2) ;  
+    uu_init = ampli_tgam_dot * ( sigmat.hh() 
+        - 0.33333333333333333 * sigmat.hh().trace(sigmat.tgam())
+            * sigmat.tgam().con() ) ;
+    uu_init.inc_dzpuis(2) ;  
     
     // tr K = K
     Scalar tmp(map) ; 
     tmp.set_etat_zero() ; 
     
-    sigmat.initial_data_cts(uu_init, tmp, tmp, pdt, 1.e-10) ;
+    arrete(nopause) ; 
+
+    cout << "=======================================================\n" 
+         <<  "   Computation of initial data (Conf. Thin Sandwich)\n" 
+         << "=======================================================\n" ;
+         
+    sigmat.initial_data_cts(uu_init, tmp, tmp, pdt, precis_init, 
+                            method_poisson_vect, graph_device_init) ;
         
+    arrete(nopause) ; 
+
     sigmat.khi() ;  // forces updates 
     sigmat.mu() ;   //
     sigmat.trh() ;  //   
@@ -327,13 +350,14 @@ int main() {
     // psitest = 1. ; 
     // sigmat.set_psi_del_q(psitest) ; 
 
-    arrete() ; 
+    arrete(nopause) ; 
 
     //======================================================================
     //          Time evolution 
     //======================================================================    
     
-    sigmat.evolve(pdt, nb_time_steps, niter_elliptic, relax_elliptic) ; 
+    sigmat.evolve(pdt, nb_time_steps, niter_elliptic, relax_elliptic,
+                  method_poisson_vect, nopause, graph_device) ; 
     
     // Freeing dynamically allocated memory
     // ------------------------------------
