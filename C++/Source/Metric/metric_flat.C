@@ -30,6 +30,11 @@ char metric_flat_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/12/30 23:07:29  e_gourgoulhon
+ * Suppression of virtual methods fait_* : the actual computations
+ *      are now performed via the virtual methods con(), cov(), connect(),
+ *      ricci(), ricci_scal(), determinant().
+ *
  * Revision 1.2  2003/10/11 14:40:39  e_gourgoulhon
  * Suppressed declaration of unusued argument in method operator=.
  *
@@ -48,6 +53,10 @@ char metric_flat_C[] = "$Header$" ;
 // Lorene headers
 #include "metric.h"
 #include "utilitaires.h"
+
+                    //-----------------//
+                    //  Constructors   //
+                    //-----------------//
 
 Metric_flat::Metric_flat(const Map& mpi, const Base_vect& triadi) :
   Metric(mpi), triad(&triadi) {
@@ -69,9 +78,18 @@ Metric_flat::Metric_flat(const Map& mpi, FILE* fd) : Metric(mpi, fd) {
 }
 
 
+                    //---------------//
+                    //  Destructor   //
+                    //---------------//
+
 Metric_flat::~Metric_flat() {
 
 }
+
+
+                    //-----------------------//
+                    // Mutators / assignment //
+                    //-----------------------//
 
 void Metric_flat::operator=(const Metric_flat& meti) {
 
@@ -90,72 +108,112 @@ void Metric_flat::operator=(const Sym_tensor& ) {
 }
   
 
-void Metric_flat::fait_cov() const {
+            //----------------//
+            //   Accessors    //
+            //----------------//
+
+
+const Sym_tensor& Metric_flat::cov() const {
   
-  assert( p_met_cov == 0x0 ) ;
+    if (p_met_cov == 0x0) {   // a new computation is necessary
 
-  p_met_cov = new Sym_tensor(*mp, COV, *triad) ;
-  p_met_cov->set_etat_zero() ;
-  for (int i=1; i<=3; i++) 
-    p_met_cov->set(i,i) = 1 ;
+        p_met_cov = new Sym_tensor(*mp, COV, *triad) ;
 
+        p_met_cov->set(1,1) = 1 ; 
+        p_met_cov->set(1,2) = 0 ; 
+        p_met_cov->set(1,3) = 0 ; 
+        p_met_cov->set(2,2) = 1 ; 
+        p_met_cov->set(2,3) = 0 ; 
+        p_met_cov->set(3,3) = 1 ; 
+    }
+
+    return *p_met_cov ; 
 }
 
-void Metric_flat::fait_con() const {
-
-  assert( p_met_con == 0x0 ) ;
-
-  p_met_con = new Sym_tensor(*mp, CON, *triad) ;
-  p_met_con->set_etat_zero() ;
-  for (int i=1; i<=3; i++) 
-    p_met_con->set(i,i) = 1 ;
-
-}
-
-void Metric_flat::fait_connection() const {
-
-  assert( p_connect == 0x0 ) ;
-
-  const Base_vect_spher* bvs =
-    dynamic_cast<const Base_vect_spher*>(triad) ;
+const Sym_tensor& Metric_flat::con() const {
   
-  const Base_vect_cart* bvc =
-    dynamic_cast<const Base_vect_cart*>(triad) ;
+    if (p_met_con == 0x0) {   // a new computation is necessary
+  
+        p_met_con = new Sym_tensor(*mp, CON, *triad) ;
 
-  if (bvs != 0x0) {
-    assert (bvc == 0x0) ;
-    p_connect = new Connection_fspher(*mp, *bvs) ;
-  }
-  else {
-    assert(bvc != 0x0) ;
-    p_connect = new Connection_fcart(*mp, *bvc) ;
-  }
+        p_met_con->set(1,1) = 1 ; 
+        p_met_con->set(1,2) = 0 ; 
+        p_met_con->set(1,3) = 0 ; 
+        p_met_con->set(2,2) = 1 ; 
+        p_met_con->set(2,3) = 0 ; 
+        p_met_con->set(3,3) = 1 ; 
+    }
+
+
+    return *p_met_con ; 
+}
+
+
+const Connection& Metric_flat::connect() const {
+
+    if (p_connect == 0x0) {   // a new computation is necessary
+    
+        const Base_vect_spher* bvs =
+            dynamic_cast<const Base_vect_spher*>(triad) ;
+  
+        const Base_vect_cart* bvc =
+            dynamic_cast<const Base_vect_cart*>(triad) ;
+
+        if (bvs != 0x0) {
+            assert (bvc == 0x0) ;
+            p_connect = new Connection_fspher(*mp, *bvs) ;
+        }
+        else {
+            assert(bvc != 0x0) ;
+            p_connect = new Connection_fcart(*mp, *bvc) ;
+        }
+    }
+
+    return *p_connect ; 
 
 }
 
-void Metric_flat::fait_ricci_scal() const {
 
-  assert( p_ricci_scal == 0x0 ) ;
 
-  p_ricci_scal = new Scalar(*mp) ;
-  p_ricci_scal->set_etat_zero() ;
+const Scalar& Metric_flat::ricci_scal() const {
+
+    if (p_ricci_scal == 0x0) {   // a new computation is necessary
+
+        p_ricci_scal = new Scalar(*mp) ;
+        p_ricci_scal->set_etat_zero() ;
+    }
+
+    return *p_ricci_scal  ; 
+
 }
 
-void Metric_flat::fait_determinant() const {
 
-  assert( p_determinant == 0x0 ) ;
+const Scalar& Metric_flat::determinant() const {
 
-  p_determinant = new Scalar(*mp) ;
-  *p_determinant = 1 ;
+    if (p_determinant == 0x0) {   // a new computation is necessary
+
+        p_determinant = new Scalar(*mp) ;
+        p_determinant->set_etat_one() ;
+    }
+
+    return *p_determinant ; 
 }
+
+
+                //---------//
+                // Outputs //
+                //---------//
+
  
 void Metric_flat::sauve(FILE* ) const {
 
   cout << "Metric_flat::sauve(FILE*) : not implemented yet!" << endl ;
 
-  abort() ; //## What to do with the connection, triad ... ?
+  abort() ; //## What to do with the  triad ... ?
 
 }
+
+
 
 ostream& Metric_flat::operator>>(ostream& ost) const {
 
