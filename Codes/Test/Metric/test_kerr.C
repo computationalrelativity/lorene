@@ -28,6 +28,10 @@ char test_kerr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/02/26 22:53:08  e_gourgoulhon
+ * The Lie derivative of K along beta is now computed thanks to the
+ * new method Sym_tensor::derive_lie.
+ *
  * Revision 1.12  2004/02/19 22:13:46  e_gourgoulhon
  * Usage of new argument comment in Tensor::spectral_display and
  * in functions maxabs.
@@ -426,11 +430,7 @@ int main() {
     Sym_tensor dyn3 = nn * ( trkk * kk - 2 * contract(kk_du, 1, kk, 0) ) ; 
     dyn3.dec_dzpuis() ; 
     
-    // Lie derivative of K along beta:
-    Sym_tensor dyn4 = contract( beta.derive_cov(gam), 0, kk, 0)
-                + contract( kk, 0, beta.derive_cov(gam), 0) ;
-    dyn4.dec_dzpuis() ; 
-    dyn4 += contract(beta, 0, kk.derive_cov(gam), 2)  ;  
+    Sym_tensor dyn4 = kk.derive_lie(beta) ;  // Lie derivative of K along beta
 
     Sym_tensor dyn_einstein = dyn1 + dyn2 + dyn3 + dyn4; 
     
@@ -605,11 +605,7 @@ int main() {
         - 2 * contract(kk_du_c, 1, kk_c, 0) ) ; 
     dyn3_c.dec_dzpuis() ; 
     
-    // Lie derivative of K along beta:
-    Sym_tensor dyn4_c = contract( beta_c.derive_cov(gam_c), 0, kk_c, 0)
-                + contract( kk_c, 0, beta_c.derive_cov(gam_c), 0) ;
-    dyn4_c.dec_dzpuis() ; 
-    dyn4_c += contract(beta_c, 0, kk_c.derive_cov(gam_c), 2)  ;  
+    Sym_tensor dyn4_c = kk_c.derive_lie(beta_c) ; // Lie derivative of K along beta:
 
     Sym_tensor dyn_einstein_c = dyn1_c + dyn2_c + dyn3_c + dyn4_c ; 
     
