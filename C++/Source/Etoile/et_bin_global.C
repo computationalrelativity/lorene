@@ -31,6 +31,9 @@ char et_bin_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/12/16 16:59:39  k_taniguchi
+ * Set some Cmp to the state of "std_base_scal()".
+ *
  * Revision 1.3  2002/12/16 14:36:39  k_taniguchi
  * Introduce a new Cmp for the calculation of gravitational mass.
  *
@@ -77,6 +80,11 @@ double Etoile_bin::mass_b() const {
 
 	    Cmp sqrt_acar = sqrt(a_car()) ;
 	    sqrt_acar.std_base_scal() ;
+
+	    a_car().std_base_scal() ;
+	    gam_euler().std_base_scal() ;
+	    nbar().std_base_scal() ;
+
 	    Cmp dens = a_car() % sqrt_acar % gam_euler() % nbar() ;
 	    
 	    dens.std_base_scal() ; 
@@ -109,6 +117,9 @@ double Etoile_bin::mass_g() const {
 
 	    Cmp sqrt_acar = sqrt(a_car()) ;
 	    sqrt_acar.std_base_scal() ;
+
+	    a_car().std_base_scal() ;
+	    nnn().std_base_scal() ;
 
 	    Cmp tmp_euler = ener_euler() + s_euler() ;
 	    tmp_euler.std_base_scal() ;
@@ -143,6 +154,11 @@ double Etoile_bin::xa_barycenter() const {
 
 	Cmp sqrt_acar = sqrt(a_car()) ;
 	sqrt_acar.std_base_scal() ;
+
+	a_car().std_base_scal() ;
+	gam_euler().std_base_scal() ;
+	nbar().std_base_scal() ;
+
 	Cmp dens = a_car() % sqrt_acar % gam_euler() % nbar() % xxa ; 
 	
 	dens.std_base_scal() ; 
