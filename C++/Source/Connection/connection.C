@@ -30,6 +30,9 @@ char connection_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/01/22 16:15:53  e_gourgoulhon
+ * First operational version of ricci().
+ *
  * Revision 1.13  2004/01/19 16:57:44  e_gourgoulhon
  * First implementation of method ricci().
  * Not tested yet.
@@ -390,7 +393,7 @@ const Tensor& Connection::ricci() const {
         }
         
         const Tensor& d_delta = delta.derive_cov(*flat_met) ; 
-        
+                
         for (int i=1; i<=3; i++) {
         
             int jmax = assoc_metric ? i : 3 ; 
@@ -416,6 +419,7 @@ const Tensor& Connection::ricci() const {
                         tmp3 += delta(k,k,m) * delta(m,i,j) ; 
                     }
                 } 
+                tmp3.dec_dzpuis() ;  // dzpuis 4 -> 3
                 
                 Scalar tmp4(*mp) ;
                 tmp4.set_etat_zero() ; 
@@ -424,6 +428,7 @@ const Tensor& Connection::ricci() const {
                         tmp4 += delta(k,j,m) * delta(m,i,k) ; 
                     }
                 } 
+                tmp4.dec_dzpuis() ;  // dzpuis 4 -> 3
                 
                 p_ricci->set(i,j) = tmp1 - tmp2 + tmp3 - tmp4 ; 
                 
