@@ -30,6 +30,10 @@ char test_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/02/15 22:01:36  e_gourgoulhon
+ * New version to take into account the split of Evolution
+ * into Evolution_full and Evolution_std.
+ *
  * Revision 1.1  2004/02/13 15:54:03  e_gourgoulhon
  * First version.
  *
@@ -56,8 +60,8 @@ int main() {
     //      Test with a double
     //------------------------------------------------
 
-    Evolution<double> aa(2., 0.) ; 
-    Evolution<double> bb(2., 0., 3) ; 
+    Evolution_full<double> aa(2., 0.) ; 
+    Evolution_std<double> bb(2., 0., 3) ; 
     
     cout << "aa[0] : " << aa[0] << endl ; 
     cout << "bb[0] : " << bb[0] << endl ; 
@@ -79,8 +83,9 @@ int main() {
         double t_j = double(j) / double(10) ;
         bb.update(sqrt(double(j)), t_j) ; 
         
+        cout << "time : " << bb.get_time(j) << " :  "  ; 
         if (j==0) cout << bb[0] << "  " << bb[1] << endl ; 
-        if (j>=1) cout << bb[0] << "  " << bb[1] << "  " << bb[2] << endl ; 
+        if (j>=1) cout << bb[j-1] << "  " << bb[j] << "  " << bb[j+1] << endl ; 
         
 
     }
@@ -130,7 +135,7 @@ int main() {
                                  // to the standard ones for a scalar field
 
     
-    Evolution<Scalar> evol(source, 0.) ; 
+    Evolution_std<Scalar> evol(source, 0., 3) ; 
     
     cout << evol[0] << endl ; 
 
