@@ -32,6 +32,10 @@ char sym_tensor__aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/04/05 09:22:15  j_novak
+ * Use of the right formula with poisson_angu(2) for the determination of W and
+ * X.
+ *
  * Revision 1.2  2005/04/04 15:25:24  j_novak
  * Added new members www, xxx, ttt and the associated methods.
  *
@@ -175,7 +179,7 @@ const Scalar& Sym_tensor::www() const {
     source_w -= ppp.lapang() ;
     
     // Resolution of the angular Poisson equation for W
-    p_www = new Scalar( source_w.poisson_angu().poisson_angu() ) ; //### to modify!
+    p_www = new Scalar( source_w.poisson_angu().poisson_angu(2) ) ; 
 
   }
 
@@ -206,7 +210,7 @@ const Scalar& Sym_tensor::xxx() const {
     source_x -= operator()(2,3).lapang() ;
     
     // Resolution of the angular Poisson equation for W
-    p_xxx = new Scalar( source_x.poisson_angu().poisson_angu() ) ;//### to modify! 
+    p_xxx = new Scalar( source_x.poisson_angu().poisson_angu(2) ) ;
 
   }
 
