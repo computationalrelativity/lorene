@@ -29,6 +29,9 @@ char etoile_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/01/17 20:40:56  k_taniguchi
+ * Addition of ray_eq_3pis2().
+ *
  * Revision 1.2  2003/12/05 14:50:26  j_novak
  * To suppress some warnings...
  *
@@ -241,6 +244,59 @@ double Etoile::ray_eq_pi() const {
     }
     
     return *p_ray_eq_pi ; 
+
+} 
+
+double Etoile::ray_eq_3pis2() const {
+
+    if (p_ray_eq_3pis2 == 0x0) {    // a new computation is required
+	
+	const Mg3d& mg = *(mp.get_mg()) ;
+	
+	int type_t = mg.get_type_t() ; 
+	int type_p = mg.get_type_p() ; 
+	int nt = mg.get_nt(0) ; 	
+	int np = mg.get_np(0) ; 	
+	
+	if ( type_t == SYM ) {
+	
+	    int j = nt-1 ; 
+	    double theta = M_PI / 2 ; 
+	    double phi = 3. * M_PI / 2 ;
+	    
+	    switch (type_p) {
+	    
+		case SYM : {
+		    p_ray_eq_3pis2 = new double( ray_eq_pis2() ) ;
+		    break ; 
+		}
+	    
+		case NONSYM : {
+		    assert( np % 4 == 0 ) ; 
+		    int k = 3 * np / 4  ; 
+		    int l = l_surf()(k, j) ; 
+		    double xi = xi_surf()(k, j) ; 
+		    p_ray_eq_3pis2 = new double( mp.val_r(l,xi,theta,phi) ) ;
+		    break ; 
+		}
+	    
+		default : {
+		    cout << "Etoile::ray_eq_3pis2 : the case type_p = " 
+			<< type_p << " is not contemplated yet !" << endl ;
+		    abort() ; 
+		}
+	    } 
+
+	}
+	else {
+	    cout << "Etoile::ray_eq_3pis2 : the case type_t = " << type_t
+	         << " is not contemplated yet !" << endl ;
+	    abort() ; 
+	}
+
+    }
+    
+    return *p_ray_eq_3pis2 ; 
 
 } 
 

@@ -32,6 +32,9 @@ char etoile_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/01/17 20:40:25  k_taniguchi
+ * Addition of ray_eq_3pis2().
+ *
  * Revision 1.5  2004/03/25 10:29:06  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -366,6 +369,7 @@ void Etoile::del_deriv() const {
     if (p_ray_eq != 0x0) delete p_ray_eq ; 
     if (p_ray_eq_pis2 != 0x0) delete p_ray_eq_pis2 ; 
     if (p_ray_eq_pi != 0x0) delete p_ray_eq_pi ; 
+    if (p_ray_eq_3pis2 != 0x0) delete p_ray_eq_3pis2 ; 
     if (p_ray_pole != 0x0) delete p_ray_pole ; 
     if (p_l_surf != 0x0) delete p_l_surf ; 
     if (p_xi_surf != 0x0) delete p_xi_surf ; 
@@ -383,6 +387,7 @@ void Etoile::set_der_0x0() const {
     p_ray_eq = 0x0 ; 
     p_ray_eq_pis2 = 0x0 ; 
     p_ray_eq_pi = 0x0 ; 
+    p_ray_eq_3pis2 = 0x0 ; 
     p_ray_pole = 0x0 ; 
     p_l_surf = 0x0 ; 
     p_xi_surf = 0x0 ; 
