@@ -32,6 +32,9 @@ char et_bin_kinema_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/03/03 19:18:12  f_limousin
+ * Suppression of bsn.set_triad(ref_triad).
+ *
  * Revision 1.3  2003/01/17 13:35:48  f_limousin
  * Add comments and replace A^2*flat_scalar_prod by sprod
  *
@@ -86,8 +89,6 @@ void Etoile_bin::kinematics(double omega, double x_axe) {
     
     bsn.annule(nzm1, nzm1) ;	// set to zero in the ZEC
     
-    bsn.set_triad(ref_triad) ; 
-
     //	2/ Addition of shift and division by lapse
     // See Eq (47) from Gourgoulhon et al. (2001)
 
