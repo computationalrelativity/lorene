@@ -35,6 +35,9 @@ char cmp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/01 15:49:33  e_gourgoulhon
+ * Method Scalar::get_mp() now returns a reference onto a mapping.
+ *
  * Revision 1.5  2003/09/24 20:54:24  e_gourgoulhon
  * Added constructor by conversion of a Scalar.
  *
@@ -213,7 +216,7 @@ Cmp::Cmp(const Cmp& ci)  : mp(ci.mp), etat(ci.etat), dzpuis(ci.dzpuis),
 
 // Conversion of a Scalar
 //-----------------------
-Cmp::Cmp(const Scalar& uu) : mp(uu.get_mp()), 
+Cmp::Cmp(const Scalar& uu) : mp(&(uu.get_mp())), 
 							 etat(uu.get_etat()),
 							 dzpuis(uu.get_dzpuis()),
 							 va(uu.get_spectral_va()) {							 
