@@ -31,6 +31,10 @@ char eos_bf_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2003/12/05 15:09:47  r_prix
+ * adapted Eos_bifluid class and subclasses to use read_variable() for
+ * (formatted) file-reading.
+ *
  * Revision 1.14  2003/12/04 14:24:41  r_prix
  * a really dirty hack: gam1 < 0 signals to use 'slow-rot-style' EOS
  * inversion  (i.e. typeos=5). This only works for the 'analytic EOS'.
@@ -198,27 +202,39 @@ Eos_bf_poly::Eos_bf_poly(FILE* fich) :
 
 // Constructor from a formatted file
 // ---------------------------------
-Eos_bf_poly::Eos_bf_poly(ifstream& fich) : 
-	Eos_bifluid(fich) {
+Eos_bf_poly::Eos_bf_poly( char *fname ) : 
+	Eos_bifluid(fname) 
+{
+  int res = 0;
 
-    char blabla[80] ;
-        
-    fich >> gam1 ; fich.getline(blabla, 80) ;
-    fich >> gam2 ; fich.getline(blabla, 80) ;
-    fich >> gam3 ; fich.getline(blabla, 80) ;
-    fich >> gam4 ; fich.getline(blabla, 80) ;
-    fich >> gam5 ; fich.getline(blabla, 80) ;
-    fich >> gam6 ; fich.getline(blabla, 80) ;
-    fich >> kap1 ; fich.getline(blabla, 80) ;
-    fich >> kap2 ; fich.getline(blabla, 80) ;
-    fich >> kap3 ; fich.getline(blabla, 80) ;
-    fich >> beta ; fich.getline(blabla, 80) ;
-    fich >> relax ; fich.getline(blabla, 80) ;
-    fich >> precis ; fich.getline(blabla, 80) ;
-    fich >> ecart ; fich.getline(blabla, 80) ;
+  res += read_variable (fname, "gamma1", gam1);
+  res += read_variable (fname, "gamma2", gam2);
+  res += read_variable (fname, "gamma3", gam3);
+  res += read_variable (fname, "gamma4", gam4);
+  res += read_variable (fname, "gamma5", gam5);
+  res += read_variable (fname, "gamma6", gam6);
+  res += read_variable (fname, "kappa1", kap1);
+  res += read_variable (fname, "kappa2", kap2);
+  res += read_variable (fname, "kappa3", kap3);
+  res += read_variable (fname, "beta", beta);
 
-    determine_type() ;
-    set_auxiliary() ; 
+  determine_type() ;
+
+  if (get_typeos() == 4)
+    {
+      res += read_variable (fname, "relax", relax);
+      res += read_variable (fname, "precis", precis);
+      res += read_variable (fname, "ecart", ecart);
+    }
+
+  if (res != 0)
+    {
+      cerr << "ERROR: could not read all required eos-paramters for Eos_bf_poly()" << endl;
+      exit (-1);
+    }
+
+
+  set_auxiliary() ; 
 
 }
 			//--------------//

@@ -31,6 +31,10 @@ char eos_bf_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/12/05 15:09:47  r_prix
+ * adapted Eos_bifluid class and subclasses to use read_variable() for
+ * (formatted) file-reading.
+ *
  * Revision 1.4  2002/10/16 14:36:34  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -109,25 +113,28 @@ Eos_bifluid* Eos_bifluid::eos_from_file(FILE* fich) {
 		//    EOS construction from a formatted file    //
 		//----------------------------------------------//
 
-Eos_bifluid* Eos_bifluid::eos_from_file(ifstream& fich) {
+Eos_bifluid* Eos_bifluid::eos_from_file(char *fname) {
     
     int identificator ; 
-    char blabla[80] ;
 
     // EOS identificator : 
-    fich >> identificator ; fich.getline(blabla, 80) ;
+    if (read_variable (fname, "ident", identificator) != 0)
+      {
+	cerr << "ERROR: Could not read the required variable 'ident' in " << fname << endl;
+	exit (-1);
+      }
 
     Eos_bifluid* p_eos ; 
     
     switch(identificator) {
 	
 	case 1 : {
-	    p_eos = new Eos_bf_poly(fich) ; 
+	    p_eos = new Eos_bf_poly(fname) ; 
 	    break ; 
 	}
 	
 	case 2 : {
-	    p_eos = new Eos_bf_poly_newt(fich) ; 
+	    p_eos = new Eos_bf_poly_newt(fname) ; 
 	    break ; 
 	}
 	

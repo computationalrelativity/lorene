@@ -31,6 +31,10 @@ char eos_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/12/05 15:09:47  r_prix
+ * adapted Eos_bifluid class and subclasses to use read_variable() for
+ * (formatted) file-reading.
+ *
  * Revision 1.10  2003/12/04 14:17:26  r_prix
  * new 2-fluid EOS subtype 'typeos=5': this is identical to typeos=0
  * (analytic EOS), but we perform the EOS inversion "slow-rot-style",
@@ -129,9 +133,12 @@ Eos_bifluid::Eos_bifluid(const Eos_bifluid& eos_i) :
 
 // Constructor from a binary file
 // ------------------------------
-Eos_bifluid::Eos_bifluid(FILE* fich){
-        
-    fread(name, sizeof(char), 100, fich) ;		
+Eos_bifluid::Eos_bifluid(FILE* fich)
+{
+  char tmp[101];
+
+    fread(tmp, sizeof(char), 100, fich) ;
+    name = tmp;
     fread_be(&m_1, sizeof(double), 1, fich) ;		
     fread_be(&m_2, sizeof(double), 1, fich) ;	
     
@@ -139,14 +146,20 @@ Eos_bifluid::Eos_bifluid(FILE* fich){
 
 // Constructor from a formatted file
 // ---------------------------------
-Eos_bifluid::Eos_bifluid(ifstream& fich){
-        
-    char blabla[80] ;
+Eos_bifluid::Eos_bifluid(char *fname)
+{
+  int res=0;
+  res += read_variable (fname, "name", name);
+  res += read_variable (fname, "m_1", m_1);
+  res += read_variable (fname, "m_2", m_2);
 
-    fich.getline(name, 100) ;
-    fich >> m_1 ; fich.getline(blabla, 80) ;
-    fich >> m_2 ; fich.getline(blabla, 80) ;
-    
+  if (res)
+    {
+      cerr << "ERROR: Eos_bifluid(char*): could not read either of \
+the variables 'name', 'm_1, or 'm_2' from file " << fname << endl;
+      exit (-1);
+    }
+
 }
 
 
@@ -180,13 +193,14 @@ void Eos_bifluid::operator=(const Eos_bifluid& eosi) {
 			//-------------------------//
 			
 			
-void Eos_bifluid::set_name(const char* name_i) {
+void Eos_bifluid::set_name(const string name_i) {
 
-    strncpy(name, name_i,  100) ; 
+  //    strncpy(name, name_i,  100) ; 
+  name = name_i;
     
 }
 
-const char* Eos_bifluid::get_name() const {
+const string &Eos_bifluid::get_name() const {
     
     return name ; 
     
@@ -201,7 +215,7 @@ void Eos_bifluid::sauve(FILE* fich) const {
     int ident = identify() ; 
     fwrite_be(&ident, sizeof(int), 1, fich) ;	
     	
-    fwrite(name, sizeof(char), 100, fich) ;
+    fwrite(name.c_str(), sizeof(char), 100, fich) ;
     fwrite_be(&m_1, sizeof(double), 1, fich) ;	
     fwrite_be(&m_2, sizeof(double), 1, fich) ;	
    

@@ -31,6 +31,10 @@ char eos_bf_poly_newt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/12/05 15:09:47  r_prix
+ * adapted Eos_bifluid class and subclasses to use read_variable() for
+ * (formatted) file-reading.
+ *
  * Revision 1.10  2003/12/04 14:22:33  r_prix
  * removed enthalpy restrictions in eos-inversion
  *
@@ -128,8 +132,8 @@ Eos_bf_poly_newt::Eos_bf_poly_newt(FILE* fich) :
 
 // Constructor from a formatted file
 // ---------------------------------
-Eos_bf_poly_newt::Eos_bf_poly_newt(ifstream& fich) : 
-  Eos_bf_poly(fich) {} 
+Eos_bf_poly_newt::Eos_bf_poly_newt(char *fname) : 
+  Eos_bf_poly(fname) {} 
 
 			//--------------//
 			//  Destructor  //
