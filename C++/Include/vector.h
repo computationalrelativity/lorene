@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2003/10/17 16:36:53  e_gourgoulhon
+ * Class Vector_divfree: Added new methods set_vr_eta_mu and set_vr_mu.
+ *
  * Revision 1.12  2003/10/16 21:36:01  e_gourgoulhon
  * Added method Vector_divfree::update_vtvp().
  *
@@ -232,7 +235,7 @@ class Vector_divfree: public Vector {
 	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} 
 	 * \end{equation} 
 	 * \begin{equation}
-	 *	V^\varphi =  \left( {1\over\sin\theta} 
+	 *	V^\varphi =  {1\over\sin\theta} 
 	 *				{\partial \eta \over \partial\varphi}
 	 *				+ {\partial \mu \over \partial\theta} 
 	 * \end{equation} 
@@ -306,6 +309,33 @@ class Vector_divfree: public Vector {
 	
 	/// Assignment from a {\tt Tensor}
 	virtual void operator=(const Tensor&) ;	
+	
+	/** Sets the angular potentials $\eta$ and $\mu$ (see members
+	 *  {\tt p\_eta} and {\tt p\_mu}), as well as the $V^r$ component
+	 *  of the vector. 
+	 *  The components $V^\theta$ and $V^\varphi$ are updated consistently
+	 *  by a call to the method {\tt update\_vtvp()}.
+	 *
+	 *	@param vr_i [input] component $V^r$ of the vector
+	 *	@param eta_i [input] angular potential $\eta$
+	 *	@param mu_i [input] angular potential $\mu$
+	 *
+	 */
+	void set_vr_eta_mu(const Scalar& vr_i, const Scalar eta_i,
+		const Scalar mu_i) ; 
+
+	/** Sets the angular potentials $\mu$ (see member
+	 *  {\tt p\_mu}), and the $V^r$ component
+	 *  of the vector. The potential $\eta$ is then deduced from
+	 *  $V^r$ by the divergence-free condition. 
+	 *  The components $V^\theta$ and $V^\varphi$ are updated consistently
+	 *  by a call to the method {\tt update\_vtvp()}.
+	 *
+	 *	@param vr_i [input] component $V^r$ of the vector
+	 *	@param mu_i [input] angular potential $\mu$
+	 *
+	 */
+	void set_vr_mu(const Scalar& vr_i, const Scalar mu_i) ; 
 	
 
 	// Computational methods
