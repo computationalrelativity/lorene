@@ -32,6 +32,9 @@ char cmp_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/06/20 13:59:59  f_limousin
+ * L'assert pour le mapping est realise a partir du mapping lui meme et non a partir du pointeur sur le mapping.
+ *
  * Revision 1.2  2002/10/16 14:36:34  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -337,7 +340,7 @@ Cmp operator*(const Cmp& c1, const Cmp& c2) {
     assert(c2.get_etat() == ETATQCQ) ;  // sinon...
     
     // Protection
-    assert(c1.get_mp() == c2.get_mp()) ;
+    assert(*(c1.get_mp()) == *(c2.get_mp())) ;
     
     // Cas general
     Cmp r(c1) ;	    // Le resultat
