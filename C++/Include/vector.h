@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.26  2004/03/10 12:52:19  f_limousin
+ * Add a new argument "method" in poisson method.
+ *
  * Revision 1.25  2004/03/03 09:07:02  j_novak
  * In Vector::poisson(double, int), the flat metric is taken from the mapping.
  *
@@ -372,7 +375,9 @@ class Vector: public Tensor {
 	 *   @param uu [input/output] solution {\it u} with the 
 	 *              boundary condition {\it u}=0 at spatial infinity. 
 	 */
-	void poisson(double lambda, Param& par, Scalar& uu ) const ;
+
+	void poisson(const double lambda, Param& par, Vector& uu , 
+		     int method = 0) const ;
         
         // Graphics
         // --------
@@ -596,6 +601,16 @@ class Vector_divfree: public Vector {
 	 */
 	Vector_divfree poisson() const ; 
 	
+	/** Computes the solution of a vectorial Poisson equation
+	 *  with {\tt *this} $= \vec{V}$ as a source:
+	 * \begin{equation}
+	 *    \Delta \vec{W} = \vec{V}
+	 * \end{equation} 
+	 * 
+	 * @return solution $\vec{W}$ of the above equation with the boundary
+	 *	condition $\vec{W}=0$ at spatial infinity.
+	 */
+	Vector_divfree poisson(Param& par) const ; 
 	
 };
 
