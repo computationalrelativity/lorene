@@ -29,6 +29,9 @@ char et_bin_ncp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/01/17 13:38:29  f_limousin
+ * Add computational routines
+ *
  * Revision 1.1  2002/12/09 10:46:50  f_limousin
  * Methods for class Et_bin_ncp.
  *
@@ -44,6 +47,7 @@ char et_bin_ncp_C[] = "$Header$" ;
 #include "et_bin_ncp.h"
 
 
+
 			    //--------------//
 			    // Constructors //
 			    //--------------//
@@ -52,9 +56,9 @@ char et_bin_ncp_C[] = "$Header$" ;
 // --------------------
 
 Et_bin_ncp::Et_bin_ncp(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
-		       bool irrot, const Base_vect& ref_triad_i, const Metrique& flat0) 
+		       bool irrot, const Base_vect& ref_triad_i, const Metrique& flat0, const Tenseur_sym &source) 
              : Etoile_bin(mp_i, nzet_i, relat, eos_i, irrot, ref_triad_i),
-               gamma(mp_i),
+               gamma(source),
 	       flat(flat0),
                gamma_tilde(mp_i, gamma, flat0) {
 
@@ -68,6 +72,19 @@ Et_bin_ncp::Et_bin_ncp(const Et_bin_ncp& et)
 	     gamma(et.gamma),
 	     flat(et.flat),
              gamma_tilde(et.gamma_tilde){}
+
+
+// Constructor from a file
+// -----------------------
+Et_bin_ncp::Et_bin_ncp(Map& mp_i, const Eos& eos_i, const Base_vect& ref_triad_i,
+		       const Metrique& flat0, FILE* fich)
+  : Etoile_bin(mp_i, eos_i, ref_triad_i, fich),
+    gamma(mp_i),
+    flat(flat0),
+    gamma_tilde(mp_i, gamma, flat0){
+
+}
+  
 
 
 			    //------------//
@@ -129,5 +146,104 @@ ostream& Et_bin_ncp::operator>>(ostream& ost) const {
     ost << "Gamma_tilde : " << gamma_tilde << endl ; 
 
     return ost ; 
+}
+            		    //-------------------------//
+			    //	Computational routines //
+			    //-------------------------// 
+
+Tenseur Et_bin_ncp::sprod(const Tenseur& t1, const Tenseur& t2) const {
+     
+  Tenseur* p_tens_metr  ;
+  
+   // Both indices should be contravariant or both covariant : 
+    if (t1.get_type_indice(t1.get_valence()-1) == CON) {
+      assert( t2.get_type_indice(0) == CON ) ;
+      p_tens_metr = new Tenseur(gamma.cov()) ;
+	}
+    
+    if (t1.get_type_indice(t1.get_valence()-1) == COV) {
+      assert( t2.get_type_indice(0) == COV ) ;
+      p_tens_metr = new Tenseur(gamma.con()) ;
+       }
+
+
+  assert ((t1.get_etat() != ETATNONDEF) && (t2.get_etat() != ETATNONDEF)) ;
+    // Verifs :
+    assert (t1.get_mp() == t2.get_mp()) ;
+    
+    // Contraction possible ?
+     if ( (t1.get_valence() != 0) && (t2.get_valence() != 0) ) {
+	    assert ( *(t1.get_triad()) == *(t2.get_triad()) ) ;
+    }
+    
+    int val_res = t1.get_valence() + t2.get_valence() - 2;
+    double poids_res = t1.get_poids() + t2.get_poids() ;
+    poids_res = (fabs(poids_res) < 1.e-10 ? 0. : poids_res) ;
+    const Metrique* met_res = 0x0 ;
+    if (poids_res != 0.) {
+      assert((t1.get_metric() != 0x0) || (t2.get_metric() != 0x0)) ;
+      if (t1.get_metric() != 0x0) met_res = t1.get_metric() ;
+      else met_res = t2.get_metric() ;
+    }
+    Itbl tipe(val_res) ;
+    tipe.set_etat_qcq() ;
+
+    for (int i=0 ; i<t1.get_valence() - 1 ; i++)
+	tipe.set(i) = t1.get_type_indice(i) ;
+    for (int i = t1.get_valence()-1 ; i<val_res ; i++)
+	tipe.set(i) = t2.get_type_indice(i-t1.get_valence()+2) ;
+	
+    Tenseur res(*t1.get_mp(), val_res, tipe, t1.get_triad(), met_res, poids_res) ;
+
+    // Cas particulier ou l'un des deux tenseurs est nul
+    if ( (t1.get_etat() == ETATZERO) || (t2.get_etat() == ETATZERO) ) {
+	res.set_etat_zero() ; 
+	return res ; 
+    }
+
+    res.set_etat_qcq() ;
+	
+    Cmp work(t1.get_mp()) ;
+    
+    // Boucle sur les composantes de res :
+	
+    Itbl jeux_indice_t1(t1.get_valence()) ;
+    Itbl jeux_indice_t2(t2.get_valence()) ;
+    jeux_indice_t1.set_etat_qcq() ;
+    jeux_indice_t2.set_etat_qcq() ;
+    
+    for (int ir=0 ; ir<res.get_n_comp() ; ir++) {    // Boucle sur les composantes
+					       // du resultat 
+
+	// Indices du resultat correspondant a la position ir : 
+	Itbl jeux_indice_res = res.donne_indices(ir) ;
+
+	// Premiers indices correspondant dans t1 : 
+	for (int i=0 ; i<t1.get_valence() - 1 ; i++) {
+	    jeux_indice_t1.set(i) = jeux_indice_res(i) ;
+	}
+	
+	// Derniers indices correspondant dans t2 : 
+	for (int i=1 ; i<t2.get_valence() ; i++) {
+	    jeux_indice_t2.set(i) = jeux_indice_res(t1.get_valence()+i-2) ;
+	}
+	
+	work.set_etat_zero() ;
+
+	// Sommation sur le dernier indice de t1 et le premier de t2 : 
+	
+	for (int i=0 ; i<3 ; i++) {
+	  for (int j=0 ; j<3 ; j++) {
+	    jeux_indice_t1.set(t1.get_valence() - 1) = i ;
+	    jeux_indice_t2.set(0) = j ;
+	    work = work + (*p_tens_metr)(i,j)*t1(jeux_indice_t1)*t2(jeux_indice_t2) ;
+	    }
+	}
+	res.set(jeux_indice_res) = work ;
+    
+    }	// fin de la boucle sur les composantes du resultat
+    delete p_tens_metr ; 
+    return res ;
 
 }
+
