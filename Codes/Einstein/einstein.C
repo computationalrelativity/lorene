@@ -29,6 +29,11 @@ char einstein_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/03/06 21:16:38  e_gourgoulhon
+ * First version with all equations implemented, with full sources,
+ * including the time derivatives.
+ * The only missing part is the trace of h.
+ *
  * Revision 1.8  2004/03/05 15:11:18  e_gourgoulhon
  * Use of new method Scalar::smooth_decay on khi_jp1.
  *
@@ -65,6 +70,7 @@ char einstein_C[] = "$Header$" ;
 // C headers
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 // Lorene headers
 #include "metric.h"
@@ -78,8 +84,23 @@ char einstein_C[] = "$Header$" ;
 void des_meridian(const Scalar& uu, double r_min, double r_max,
                   const char* nomy, int ngraph) ; 
 
+void des_meridian(const Sym_tensor& hh, double r_min, double r_max,
+                  const char* name) ;
+
 int main() {
 
+    //======================================================================
+    //      Parameters of the computation
+    //======================================================================
+
+    double pdt = 0.01 ; 
+    int jmax = 1000 ; 
+    int jstop = jmax ; 
+    bool compute_source = true ; 
+
+    double relativistic_init = 0. ;     // 0 = flat space
+    double ampli_h_init = 0.01 ;     // 0 = flat space
+        
 
     //======================================================================
     //      Construction and initialization of the various objects
@@ -88,12 +109,12 @@ int main() {
     // Setup of a multi-domain grid (Lorene class Mg3d)
     // ------------------------------------------------
   
-    int nz = 3 ; 	// Number of domains
-    int nr = 25 ; 	// Number of collocation points in r in each domain
-    int nt = 13 ; 	// Number of collocation points in theta in each domain
+    int nz = 4 ; 	// Number of domains
+    int nr = 17 ; 	// Number of collocation points in r in each domain
+    int nt = 9 ; 	// Number of collocation points in theta in each domain
     int np = 8 ; 	// Number of collocation points in phi in each domain
     int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
-    int symmetry_phi = NONSYM ; // no symmetry in phi
+    int symmetry_phi = SYM ; // no symmetry in phi
     bool compact = true ; // external domain is compactified
   
     // Multi-domain grid construction:
@@ -106,8 +127,8 @@ int main() {
     // --------------------------------------------------------------------------
 
     // radial boundaries of each domain:
-    double r_limits[] = {0., 0.9, 1.5, __infinity} ; 
-    assert( nz == 3 ) ;  // since the above array described only 3 domains
+    double r_limits[] = {0., 1., 2., 4., __infinity} ; 
+    assert( nz == 4 ) ;  // since the above array described only 3 domains
   
     Map_af map(mgrid, r_limits) ;   // Mapping construction
   	
@@ -123,12 +144,6 @@ int main() {
 
     const Base_vect_spher& otriad = map.get_bvect_spher() ;
     
-    // Parameter for the initial data 
-    //-------------------------------
-    
-    double relativistic_init = 0. ;     // 0 = flat space
-    double ampli_h_init = 0.05 ;     // 0 = flat space
-    
     
     // Set up of tensor h
     // ------------------
@@ -139,19 +154,24 @@ int main() {
     
     // Test with the tensor h^{ij} = D^i D^j Phi  with Lap(Phi) = 0
     
-    // const Coord& x = map.x ; 
-    // const Coord& y = map.y ; 
+    const Coord& x = map.x ; 
+    const Coord& y = map.y ; 
     // const Coord& z = map.z ; 
     const Coord& r = map.r ; 
-    const Coord& cost = map.cost ; 
-    const Coord& sint = map.sint ; 
-    const Coord& cosp = map.cosp ; 
+    //const Coord& cost = map.cost ; 
+    //const Coord& sint = map.sint ; 
+    //const Coord& cosp = map.cosp ; 
     // const Coord& sinp = map.sinp ; 
     
     Scalar khi_init(map) ; 
-    khi_init = 0.* ampli_h_init * (3*cost*cost-1) / 
-        ( (r*r + 1./(r*r)) * sqrt(1.+r*r) ) ; 
+
+    khi_init = ampli_h_init * exp( - r*r ) * x*y ;
+    
+    //khi_init = ampli_h_init * (3*cost*cost-1) / 
+    //   ( (r*r + 1./(r*r)) * sqrt(1.+r*r) ) ; 
     khi_init.std_spectral_base() ; 
+
+    khi_init.smooth_decay(2, 1) ; 
     
     //##
     // des_meridian(khi_init, 0., 3., "khi_init before", 1) ; 
@@ -161,9 +181,9 @@ int main() {
     // des_meridian(khi_init, 0., 3., "khi_init after", 2) ; 
     // arrete() ; 
     //## 
-                  
+                 
     Scalar mu_init(map) ; 
-    mu_init = ampli_h_init / (1+r*r*r*r*r*r) ; 
+    mu_init = 0. * ampli_h_init / (1+r*r*r*r*r*r) ; 
     mu_init.std_spectral_base() ; 
     mu_init.mult_r() ; 
     mu_init.mult_r() ; 
@@ -186,7 +206,7 @@ int main() {
     
     hh_init = htt_init ; 
         
-    
+    // des_meridian(hh_init, 0., 5., "hh_init") ; 
     maxabs( hh_init.divergence(ff), "Divergence of hh_init") ; 
     maxabs( hh_init.trace(ff), "Trace of hh_init") ; 
 
@@ -236,9 +256,7 @@ int main() {
     //                  Start of time evolution
     //======================================================================
     
-    double pdt = 0.01 ; 
     double ttime = 0 ; 
-    
 
     Evolution_std<Scalar> nn_time(nn_init, ttime, 3) ; 
     Evolution_std<Vector> beta_time(beta_init, ttime, 3) ; 
@@ -280,22 +298,37 @@ int main() {
     int *workflag_mu = new int(0) ; // working flag 
     par_mu.add_int_mod(*workflag_mu) ; 
 
-    int jmax = 3 ; 
     
     for (int jtime = 2; jtime <= jmax; jtime++) {
     
-        
+        cout << 
+        "==============================================================\n"
+        << "  step: " << jtime << "   time = " << ttime << endl  
+        << "==============================================================\n" ;
+    
+        // Values at time step jtime: 
         const Scalar& nn = nn_time[jtime] ; 
         const Vector& beta = beta_time[jtime] ; 
         const Scalar& qq = qq_time[jtime] ; 
         const Sym_tensor_trans& hh = hh_time[jtime] ;
         
+        // Time derivatives:
+        Scalar nn_point = nn_time.time_derive(jtime) ; 
+        nn_point.inc_dzpuis(2) ; // dzpuis : 0 -> 2
+        
+        Vector beta_point = beta_time.time_derive(jtime) ; 
+        beta_point.inc_dzpuis(2) ; // dzpuis : 0 -> 2
+        
+        Sym_tensor_trans hh_point = hh_time.time_derive(jtime) ; 
+        hh_point.inc_dzpuis(2) ; // dzpuis : 0 -> 2
+        
+        // Sources of the Einstein equations:
         Scalar source_nn(map) ; 
         Vector source_beta(map, CON, otriad) ;
         Scalar source_qq(map) ; 
         Sym_tensor source_hh(map, CON, otriad) ;  
         
-        {
+        if (compute_source) {
         //==============================================
         //  Definition of references on derivatives: 
         //   the source objects should not be modified
@@ -320,28 +353,31 @@ int main() {
         const Vector& dnn = nn.derive_cov(ff) ;         // D_i N
         const Vector& tdnn_u = nn.derive_con(tgam) ;       // tD^i N
         const Vector& dqq = qq.derive_cov(ff) ;         // D_i Q
+        const Scalar& div_beta = beta.divergence(ff) ;  // D_k beta^k
+        
+        // Conformal Killing operator applied to beta
+        // ------------------------------------------
+        Sym_tensor l_beta(map, CON, otriad) ;   // (L beta)^{ij}
+        for (int i=1; i<=3; i++) {
+            for (int j=1; j<=i; j++) {
+                l_beta.set(i,j) = beta.derive_con(ff)(i,j)  
+                                + beta.derive_con(ff)(j,i) 
+                                - 0.6666666666666666* div_beta * ff.con()(i,j) ;
+            }
+        }
 
         // Conformal extrinsic curvature A
         // -------------------------------
-    
         Sym_tensor aa(map, CON, otriad) ;   // A^{ij}
-        for (int i=1; i<=3; i++) {
-            for (int j=1; j<=i; j++) {
-                aa.set(i,j) = beta.derive_con(ff)(i,j)  
-                            + beta.derive_con(ff)(j,i) 
-                            - 0.6666666666666666 * beta.divergence(ff) 
-                                * tgam_uu(i,j) ;
-            }
-        }
-        
-        aa -= hh.derive_lie(beta) ;         
- 
-        //### time derivative of h is missing
-        
-        aa = aa / (2.*nn) ; 
+
+        aa = ( hh_point - hh.derive_lie(beta) + l_beta 
+                - 0.6666666666666666 * div_beta * hh ) / (2.*nn) ; 
     
         Sym_tensor taa(map, COV, otriad) ;  // {\tilde A}_{ij}
         taa = aa.up_down(ff) ;
+
+        des_meridian(aa(2,3), 0., 5., "A\\u\\gh\\gf\\d", 20) ; 
+        des_meridian(aa(3,3), 0., 5., "A\\u\\gf\\gf\\d", 21) ; 
         
 
        // Source for Q  [ Eq. (76) ]
@@ -366,7 +402,7 @@ int main() {
         
         source_qq += psi2 * ( nn * tmp + tmp0 ) ; 
                              
-        source_qq.spectral_display("source_qq") ; 
+        // source_qq.spectral_display("source_qq") ; 
 
 
         // Source for N  [ Eq. (80) ]
@@ -379,7 +415,7 @@ int main() {
         
         source_nn -= tmp + tmp0 ; 
                     
-        source_nn.spectral_display("source_nn") ; 
+        // source_nn.spectral_display("source_nn") ; 
 
         // Source for beta [ Eq. (79) ]
         // ---------------
@@ -391,12 +427,12 @@ int main() {
         Vector vtmp = contract(hh, 0, 1, 
                            beta.derive_cov(ff).derive_cov(ff), 1, 2)
                 + 0.3333333333333333 *
-                  contract(hh, 1, beta.divergence(ff).derive_cov(ff), 0) ; 
+                  contract(hh, 1, div_beta.derive_cov(ff), 0) ; 
         vtmp.inc_dzpuis() ; // dzpuis: 3 -> 4
                     
         source_beta -= vtmp ; 
         
-        source_beta.spectral_display("source_beta") ; 
+        // source_beta.spectral_display("source_beta") ; 
         
 
         // Quadratic part of the Ricci tensor of gam_tilde 
@@ -512,20 +548,62 @@ int main() {
         // Source for h 
         // ------------
                  
-        source_hh = (nn*nn/psi4 - 1.) * hh.derive_con(ff).divergence(ff) ;
+        Sym_tensor lbh = hh.derive_lie(beta) ; 
+
+        source_hh = (nn*nn/psi4 - 1.) * hh.derive_con(ff).divergence(ff) 
+            + 2.* hh_point.derive_lie(beta) - lbh.derive_lie(beta) ;
         source_hh.inc_dzpuis() ; 
-
-        source_hh += 2. * nn * ss ;       
         
-        }
-        //==============================================
-        //  End of scope for references on derivatives
-        //==============================================  
+        source_hh += 2.* nn * ss ;
+              
+        //## Provisory: waiting for the Lie derivative to allow
+        //  derivation with respect to a vector with dzpuis != 0
+        vtmp = beta_point ; 
+        vtmp.dec_dzpuis(2) ; 
+        sym_tmp = hh.derive_lie(vtmp) ; 
+        sym_tmp.inc_dzpuis(2) ;             
 
-        //=============================================
-        // Resolution of wave equation for h
-        //=============================================
-    
+        source_hh += sym_tmp 
+              + 1.3333333333333333 * div_beta* (hh_point - lbh)
+              + 2. * (nn_point - nn.derive_lie(beta)) * aa  ;
+              
+
+        for (int i=1; i<=3; i++) {
+            for (int j=1; j<=i; j++) {
+                tmp = 0 ; 
+                for (int k=1; k<=3; k++) {
+                    tmp += ( hh.derive_con(ff)(k,j,i) 
+                           + hh.derive_con(ff)(i,k,j) 
+                           - hh.derive_con(ff)(i,j,k) ) * dqq(k) ;
+                }
+                sym_tmp.set(i,j) = tmp ; 
+            }
+        }
+            
+        source_hh -= nn / (psi4*psi2) * sym_tmp ; 
+         
+        tmp =  beta_point.divergence(ff) - div_beta.derive_lie(beta) ; 
+        tmp.inc_dzpuis() ; 
+        source_hh += 0.6666666666666666* ( tmp
+             - 0.6666666666666666* div_beta * div_beta ) * hh ; 
+               
+        
+        // (L beta_point)^ij --> sym_tmp
+        for (int i=1; i<=3; i++) {
+            for (int j=1; j<=i; j++) {
+                sym_tmp.set(i,j) = beta_point.derive_con(ff)(i,j)  
+                                 + beta_point.derive_con(ff)(j,i) 
+                                 - 0.6666666666666666* 
+                                    beta_point.divergence(ff) * ff.con()(i,j) ;
+            }
+        }
+        sym_tmp -= l_beta.derive_lie(beta) ;
+        sym_tmp.inc_dzpuis() ; 
+        
+        source_hh += 0.6666666666666666* div_beta * l_beta - sym_tmp ; 
+           
+        // des_meridian(source_hh(1,1), 0., 2., "source_hh^rr", 10) ; 
+
         source_hh.spectral_display("source_hh") ; 
         maxabs(source_hh, "Maxabs source_hh") ; 
 
@@ -535,12 +613,48 @@ int main() {
         maxabs( source_hh.transverse(ff).trace(ff), 
                 "Trace of source_hh_transverse") ; 
 
-        arrete() ; 
+        arrete(jtime%jstop) ;  
 
+        }
+        else{
+            source_hh.set_etat_zero() ; 
+        }
+        //==============================================
+        //  End of scope for references on derivatives
+        //==============================================  
+
+        //=============================================
+        // Resolution of elliptic equations
+        //=============================================
+        
+        // Resolution of the Poisson equation for the lapse
+        // ------------------------------------------------
+        
+        Scalar nn_jp1 = source_nn.poisson() + 1. ; 
+        des_meridian(nn_jp1, 0., 5., "N", 40) ; 
+
+        // Resolution of the Poisson equation for Q
+        // -----------------------------------------
+        
+        Scalar qq_jp1 = source_qq.poisson() + 1. ; 
+        des_meridian(qq_jp1, 0., 5., "Q", 41) ; 
+        
+        // Resolution of the vector Poisson equation for the shift
+        //---------------------------------------------------------
+        
+        Vector beta_jp1 = source_beta.poisson(0.3333333333333333, 0) ; 
+        des_meridian(beta_jp1(1), 0., 5., "\\gb\\ur\\d", 42) ; 
+        des_meridian(beta_jp1(2), 0., 5., "\\gb\\u\\gh\\d", 43) ; 
+        des_meridian(beta_jp1(3), 0., 5., "\\gb\\u\\gf\\d", 44) ; 
+        
+        //=============================================
+        // Resolution of wave equation for h
+        //=============================================
+    
         const Sym_tensor_tt& source_htt = source_hh.transverse(ff).tt_part() ;
   
         //## Sym_tensor_tt source_htt(map, otriad, ff) ; 
-        //## source_htt = source_hh ; 
+        //## source_htt.set_etat_zero() ; 
         
         maxabs( source_htt.divergence(ff), "Divergence of source_htt") ; 
         maxabs( source_htt.trace(ff), "Trace of source_hhtt") ; 
@@ -549,46 +663,51 @@ int main() {
         
         const Scalar& mu_source = source_htt.mu() ; 
        
-        des_meridian(source_hh(1,1), 0., 2., "source_hh^rr", 10) ; 
-
-        des_meridian(khi_source, 0., 2., "khi_source", 11) ; 
-
+        // des_meridian(khi_source, 0., 2., "khi_source", 11) ; 
                      
         Scalar khi_jp1 = khi_time[jtime].avance_dalembert(par_khi,
                                          khi_time[jtime-1], khi_source) ;
-                                         
-        khi_jp1.smooth_decay(2,1) ; 
-        des_meridian(khi_jp1, 0., 3., "khi_jp1", 12) ; 
+        khi_jp1.smooth_decay(2,2) ; 
         
-        const Scalar* khides[] = {&khi_jp1, &(khi_time[jtime])} ; 
-        double thetades[] = {0., 0.} ; 
-        double phides[] = {0., 0.} ; 
-        des_profile_mult(khides, 2, 0., 2., thetades, phides, 1, false, "khi") ;
+        // des_meridian(khi_jp1, 0., 5., "khi_jp1", 12) ; 
+        
+        // const Scalar* khides[] = {&khi_jp1, &(khi_time[jtime]), 
+        //                           &(khi_time[jtime-1])} ; 
+        // double thetades[] = {0., 0., 0.} ; 
+        // double phides[] = {0., 0., 0.} ; 
+        // des_profile_mult(khides, 3, 0., 4., thetades, phides, 1, false, "khi") ;
         
         maxabs(khi_jp1 - khi_time[jtime], "Variation of khi") ;  
         
-        //Scalar mu_jp1 = mu_time[jtime].avance_dalembert(par_mu,  
-        //                                  mu_time[jtime-1], mu_source) ;
+        Scalar mu_jp1 = mu_time[jtime].avance_dalembert(par_mu,  
+                                         mu_time[jtime-1], mu_source) ;
+        mu_jp1.smooth_decay(2,2) ; 
+                                        
+        // des_meridian(mu_jp1, 0., 5., "mu_jp1", 14) ; 
         
-        Scalar mu_jp1 = mu_init ; 
-        
+                
         Sym_tensor_tt htt_jp1(map, otriad, ff) ;
         
         htt_jp1.set_khi_mu(khi_jp1, mu_jp1) ;
                  
         Sym_tensor_trans hh_jp1 = htt_jp1 ;     //## the trace should be added
+    
+        // des_meridian(hh_jp1, 0., 5., "hh") ; 
+        des_meridian(hh(2,3), 0., 5., "h\\u\\gh\\gf\\d", 30) ; 
+        // des_meridian(hh(3,3), 0., 5., "h\\u\\gf\\gf\\d", 31) ; 
+        
 
-        cout << "Next step ?" << endl ; 
-        arrete() ;  
+        cout << "Next step : " << jtime + 1 << endl ; 
+        arrete(jtime%jstop) ;  
 
         // Next time step         
         // --------------
         
         ttime += pdt ; 
         
-        nn_time.update(nn, ttime) ; 
-        beta_time.update(beta, ttime) ; 
-        qq_time.update(qq, ttime) ; 
+        nn_time.update(nn_jp1, ttime) ; 
+        beta_time.update(beta_jp1, ttime) ; 
+        qq_time.update(qq_jp1, ttime) ; 
         hh_time.update(hh_jp1, ttime) ; 
         khi_time.update(khi_jp1, ttime) ; 
         mu_time.update(mu_jp1, ttime) ; 
@@ -607,14 +726,40 @@ void des_meridian(const Scalar& uu, double r_min, double r_max,
                   const char* nomy, int ngraph) {
 
         const Scalar* des[] = {&uu, &uu, &uu, &uu, &uu} ; 
-        double phi1[] = {0., 0., 0., 0.5*M_PI, 0.5*M_PI} ; 
+        double phi1[] = {0., 0., 0., 0.25*M_PI, 0.25*M_PI} ; 
         double theta1[] = {0., 0.25*M_PI, 0.5*M_PI, 0., 0.25*M_PI} ;
          
         des_profile_mult(des, 5, r_min, r_max, theta1, phi1, 1., false, 
             nomy, 
-            "phi=0: th=0, pi/4, pi/2, phi=pi/2: th=0, pi/4",
+            "phi=0: th=0, pi/4, pi/2, phi=pi/4: th=0, pi/4",
             ngraph) ;
         
 }
 
+
+void des_meridian(const Sym_tensor& hh, double r_min, double r_max,
+                  const char* name) {
+    
+    char nomy[80] ;
+    
+    int k = 0 ; 
+    for (int i=1; i<=3; i++) {
+        for (int j=i; j<=3; j++) {
+
+                char nom_i[3] ; 
+                sprintf(nom_i, "%d", i) ; 
+                char nom_j[3] ; 
+                sprintf(nom_j, "%d", j) ; 
+                strncpy(nomy, name, 40) ; 
+                strcat(nomy, "  comp. ") ; 
+	        strcat(nomy, nom_i) ; 
+	        strcat(nomy, nom_j) ; 
+    
+                des_meridian(hh(i,j), r_min, r_max, nomy, 50+k) ; 
+                k++ ; 
+                                
+        }
+    }              
+
+}
 
