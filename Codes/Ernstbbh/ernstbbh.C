@@ -90,7 +90,7 @@ cout << "mass: " << Mc <<"\t" << J <<"\t" << Om  << endl;
   // Construction of a multi-grid (Mg3d)
   // -----------------------------------
   
-  Mg3d mgrid(nz, nr, nt, np, SYM, NONSYM, true) ;
+  Mg3d mgrid(nz, nr, nt, np, SYM, SYM, true) ;
 
   cout << "Mult_grid : " << mgrid << endl ; 
 
@@ -158,7 +158,8 @@ cout << "mass: " << Mc <<"\t" << J <<"\t" << Om  << endl;
   F = F +Un;
   F.std_base_scal();		
   B.std_base_scal();
-  B.va.set_base_t(T_COSSIN_CI) ;
+//   B.va.set_base_t(T_COSSIN_CI) ;
+  B.va.set_base_t(T_COS_I);
   A.std_base_scal();
   
 
@@ -261,8 +262,8 @@ cout << "mass: " << Mc <<"\t" << J <<"\t" << Om  << endl;
   V = U;
   V.annule_hard();
   V.std_base_scal() ;
-  V.va.set_base_t(T_COSSIN_CI) ;
-
+//   V.va.set_base_t(T_COSSIN_CI) ;
+  V.va.set_base_t(T_COS_I);
 
   // No stopping criterion provided for the moment
   
@@ -305,8 +306,8 @@ cout << "mass: " << Mc <<"\t" << J <<"\t" << Om  << endl;
  		+Ustemp;
       Cmp test = Usource;
       
-      
-      
+//       cout << test << endl;
+//       arrete();
       Usource = Usource/Urot-Usource1;
        
    
@@ -322,19 +323,19 @@ cout << "mass: " << Mc <<"\t" << J <<"\t" << Om  << endl;
       Vsource.set(0) = 1.0;
       test.set(0) = 1.0;
       LHS.set(0) = 1.0;
-      for (int i=0;i<np;i++) // set at infinity
-  {
-    for(int j=0; j<nt;j++)
-    {
-	test.set(nz-1,i,j,nr-1) = 0.0;
-	Usource.set(nz-1,i,j,nr-1) = 0.0;
-	Vsource.set(nz-1,i,j,nr-1) = 0.0;
-    }
-  }      
-   Valeur ** Coeff = Usource.asymptot(3);
-   cout <<*Coeff [1];
-   des_profile(test,1.0001,20.0,1.2,0);
-   des_profile(LHS,1.0001,20.0,1.2,0);
+//       for (int i=0;i<np;i++) // set at infinity
+//   {
+//     for(int j=0; j<nt;j++)
+//     {
+// 	test.set(nz-1,i,j,nr-1) = 0.0;
+// 	Usource.set(nz-1,i,j,nr-1) = 0.0;
+// 	Vsource.set(nz-1,i,j,nr-1) = 0.0;
+//     }
+//   }      
+//    Valeur ** Coeff = Usource.asymptot(3);
+//    cout <<*Coeff [1];
+   des_profile(test-LHS,1.0001,20.0,1.2,0);
+//    des_profile(LHS,1.0001,20.0,1.2,0);
 
       Usource.inc2_dzpuis();
       Usource.inc_dzpuis();
