@@ -33,6 +33,9 @@ char tensor_calculus_ext_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/02/19 22:11:00  e_gourgoulhon
+ * Added argument "comment" in functions max, min, etc...
+ *
  * Revision 1.8  2004/02/18 18:51:04  e_gourgoulhon
  * Tensorial product moved from file tensor_calculus.C, since
  * it is not a method of class Tensor.
@@ -456,7 +459,10 @@ Tensor contract(const Tensor& source, int ind_1, int ind_2) {
 				//------------------//
 
 
-Tbl diffrel(const Tensor& aa, const Tensor& bb, ostream& ost) {
+Tbl diffrel(const Tensor& aa, const Tensor& bb, const char* comment,
+            ostream& ost) {
+
+        if (comment != 0x0) ost << comment << " : " << endl ; 
 
 	int val = aa.get_valence() ; 
 
@@ -509,7 +515,10 @@ Tbl diffrel(const Tensor& aa, const Tensor& bb, ostream& ost) {
 				//--------------------//
 
 
-Tbl diffrelmax(const Tensor& aa, const Tensor& bb, ostream& ost) {
+Tbl diffrelmax(const Tensor& aa, const Tensor& bb, const char* comment,
+               ostream& ost) {
+
+        if (comment != 0x0) ost << comment << " : " << endl ; 
 
 	int val = aa.get_valence() ; 
 
@@ -563,7 +572,9 @@ Tbl diffrelmax(const Tensor& aa, const Tensor& bb, ostream& ost) {
 				//----------------//
 
 
-Tbl max(const Tensor& aa, ostream& ost) {
+Tbl max(const Tensor& aa, const char* comment, ostream& ost) {
+
+        if (comment != 0x0) ost << comment << " : " << endl ; 
 
 	int val = aa.get_valence() ; 
 
@@ -604,7 +615,9 @@ Tbl max(const Tensor& aa, ostream& ost) {
 				//----------------//
 
 
-Tbl min(const Tensor& aa, ostream& ost) {
+Tbl min(const Tensor& aa, const char* comment, ostream& ost) {
+
+        if (comment != 0x0) ost << comment << " : " << endl ; 
 
 	int val = aa.get_valence() ; 
 
@@ -644,7 +657,9 @@ Tbl min(const Tensor& aa, ostream& ost) {
 				//--------------------//
 
 
-Tbl maxabs(const Tensor& aa, ostream& ost) {
+Tbl maxabs(const Tensor& aa, const char* comment, ostream& ost) {
+
+        if (comment != 0x0) ost << comment << " : " << endl ; 
 
 	int val = aa.get_valence() ; 
 
