@@ -33,6 +33,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/09/23 08:52:17  e_gourgoulhon
+ * new version
+ *
  * Revision 1.1  2003/09/22 12:52:51  e_gourgoulhon
  * First version: not ready yet !
  *
@@ -162,10 +165,21 @@ Tensor::Tensor(const Map& mapping, const Base_vect& triad_i, FILE* fd)
 	cmp[i] = 0x0 ;
     if (etat == ETATQCQ)
 	for (int i=0 ; i<n_comp ; i++)
-	    cmp[i] = new Scalar(*mp, *mp->get_mg(), fd) ;
+	    cmp[i] = new Scalar(*mp, *(mp->get_mg()), fd) ;
 
 }
 
+
+//  Constructor for a scalar field: to be used by the derived
+//  class {\tt Scalar}
+//-----------------------------------------------------------
+Tensor::Tensor(const Map& map) : mp(&map), valence(0), triad(0x0),
+		type_indice(0), n_comp(1), etat(ETATNONDEF) {
+		
+		cmp = new Scalar*[n_comp] ; 
+		cmp[0] = 0x0 ; 
+		
+}
 
 
 // Constructor used by the derived classes
@@ -254,7 +268,10 @@ void Tensor::set_etat_qcq() {
     etat = ETATQCQ ;
 }
 
+
 void Tensor::set_etat_zero() { 
+
+    if (etat == ETATZERO) return ;
 
     del_t() ;
 
@@ -268,10 +285,14 @@ void Tensor::set_etat_zero() {
     etat = ETATZERO ;
 }
 
+
 void Tensor::set_etat_nondef() { 
-    del_t() ;
+	
+	if (etat == ETATNONDEF) return ;
+   	del_t() ;
     etat = ETATNONDEF ;
 }
+
 
 // Allocates everything
 // --------------------
@@ -336,7 +357,7 @@ void Tensor::operator=(const Tensor& t) {
     triad = t.triad ; 
 
     for (int i=0 ; i<valence ; i++)
-	assert (t.type_indice(i) == type_indice(i)) ;
+		assert(t.type_indice(i) == type_indice(i)) ;
 	
     switch (t.etat) {
 	case ETATNONDEF: {
