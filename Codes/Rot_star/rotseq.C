@@ -4,7 +4,7 @@
  */
 
 /*
- *   Copyright (c) 2001-2002 Eric Gourgoulhon
+ *   Copyright (c) 2001-2003 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -29,6 +29,11 @@ char rotseq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/05/25 19:56:49  e_gourgoulhon
+ *
+ * Added the possibility to choose the factor a = R_eq / R0, instead of R0
+ * in the differential rotation law.
+ *
  * Revision 1.4  2003/05/14 20:06:09  e_gourgoulhon
  * Suppressed the qualifier ios::nocreate in call to fstream::open
  * (not supported by gcc 3.2).
@@ -97,8 +102,7 @@ int main(){
 	nt, np, mer_triax, n_conf, diffrot_i ;
     double entc_min, entc_max, fact_omega, mbar_wanted, precis, freq_min_si,
 	    freq_max_si, thres_adapt, aexp_mass, relax, relax_poisson,
-	    ampli_triax, 
-	   precis_adapt, rrot_km ;  
+	    ampli_triax, precis_adapt, rrot_km, arot ;  
     
     ifstream fich("parrotseq.d") ;
     fich.getline(blabla, 120) ;
@@ -116,7 +120,15 @@ int main(){
     }
 
     fich >> diffrot_i ;  fich.getline(blabla, 120) ;
-    fich >> rrot_km ; fich.getline(blabla, 120) ;
+    if (diffrot_i <= 1) {
+    	fich >> rrot_km ; fich.getline(blabla, 120) ;
+	arot = 0 ; 
+    }
+    else {
+    	assert (diffrot_i == 2) ; 
+    	fich >> arot ; fich.getline(blabla, 120) ;
+	rrot_km = 0 ; 	
+    }
     fact_omega = 1 ; 
     fich >> mbar_wanted ; fich.getline(blabla, 120) ;
     mbar_wanted *= msol ; 
@@ -295,16 +307,17 @@ int main(){
 
     double rrot = rrot_km * km ; 
 
-    Tbl parfrot(2) ;
+    Tbl parfrot(3) ;
     parfrot.set_etat_qcq() ; 
     parfrot.set(0) = 0 ;  
     parfrot.set(1) = rrot ;  
+    parfrot.set(2) = arot ;      
     
     //-----------------------------------------------------------------------
     //		Construction of the star
     //-----------------------------------------------------------------------
 
-    bool diffrot = (diffrot_i == 1) ;
+    bool diffrot = (diffrot_i >= 1) ;
     Etoile_rot* p_star ;
     Et_rot_diff* p_star_diff = 0x0 ;
 

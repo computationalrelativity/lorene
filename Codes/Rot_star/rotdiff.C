@@ -4,7 +4,7 @@
  */
 
 /*
- *   Copyright (c) 2001 Eric Gourgoulhon
+ *   Copyright (c) 2001-2003 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -29,6 +29,11 @@ char rotdiff_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/05/25 19:56:49  e_gourgoulhon
+ *
+ * Added the possibility to choose the factor a = R_eq / R0, instead of R0
+ * in the differential rotation law.
+ *
  * Revision 1.3  2003/05/14 20:06:09  e_gourgoulhon
  * Suppressed the qualifier ios::nocreate in call to fstream::open
  * (not supported by gcc 3.2).
@@ -93,10 +98,10 @@ int main(){
 
     int relat_i, mer_max, mer_rot, mer_change_omega, mer_fix_omega, 
 	delta_mer_kep, mer_mass, mermax_poisson, graph, nz, nzet, nzadapt,
-	nt, np, mer_triax ; 
+	nt, np, mer_triax, type_rot ; 
     double ent_c, freq_si, fact_omega, mbar_wanted, precis, freq_ini_si, 
 	   thres_adapt, aexp_mass, relax, relax_poisson, ampli_triax, 
-	   precis_adapt, rrot_si ;  
+	   precis_adapt, rrot_si, arot ;  
     
     ifstream fich("parrotdiff.d") ;
     fich.getline(blabla, 120) ;
@@ -104,7 +109,16 @@ int main(){
     bool relat = (relat_i == 1) ; 
     fich >> ent_c ; fich.getline(blabla, 120) ;
     fich >> freq_si ; fich.getline(blabla, 120) ;
-    fich >> rrot_si ; fich.getline(blabla, 120) ;
+    fich >> type_rot ; fich.getline(blabla, 120) ;
+    if (type_rot == 0) {
+    	fich >> rrot_si ; fich.getline(blabla, 120) ;
+	arot = 0 ; 
+    }
+    else {
+    	assert (type_rot == 1) ; 
+    	fich >> arot ; fich.getline(blabla, 120) ;
+	rrot_si = 0 ; 	
+    }
     fich >> fact_omega ; fich.getline(blabla, 120) ;
     fich >> mbar_wanted ; fich.getline(blabla, 120) ;
     mbar_wanted *= msol ; 
@@ -291,10 +305,11 @@ int main(){
     double omega_c_ini = 2 * M_PI * freq_ini_si / f_unit ; 
     double rrot = rrot_si * km ; 
 
-    Tbl parfrot(2) ;
+    Tbl parfrot(3) ;
     parfrot.set_etat_qcq() ; 
     parfrot.set(0) = omega_c_ini ;  
-    parfrot.set(1) = rrot ;  
+    parfrot.set(1) = rrot ; 
+    parfrot.set(2) = arot ;
     
     //-----------------------------------------------------------------------
     //		Construction of the star
