@@ -160,22 +160,26 @@
     
     /**@name Graphical outputs
      *
-     * The (online) graphical outputs of the various Lorene objects 
+     * The 2-D graphical outputs of various Lorene objects 
      * are performed via the PGPLOT library:
      *
      * \URL[http://astro.caltech.edu/~tjp/pgplot/]{http://astro.caltech.edu/~tjp/pgplot/}
      *
-    *
+     *
      * To open an X11 display area, use the command 'pgdisp'.
      *
-     * Offline 3-D visualization of various Lorene objects can be done
-     * by means of IRIS Explorer:
+     * 3-D visualization of various Lorene objects is performed by
+     * means of OpenDX:
     *
-    * \URL[http://www.nag.com/Welcome_IEC.html]{http://www.nag.com/Welcome_IEC.html}
+    * \URL[http://www.opendx.org/]{http://www.opendx.org/}
     *
-    * The functions {\tt des\_explorer} construct from Lorene
-     * objects some files in a format readable by IRIS Explorer.
-     */
+    * OpenDX is called from the methods {\tt Scalar::visu\_section}, 
+    *  {\tt Scalar::visu\_box}, {\tt Vector::visu\_arrows}, etc...
+    * The corresponding OpenDX scripts are provided in the 
+    * directory {\tt Lorene/Visu/OpenDX}. They must be copied to the
+    * working directory in order to use the above methods.  
+    *
+    */
     //@{
 	//@Include:graphique.h_r
     //@}
