@@ -32,6 +32,10 @@ char sym_tensor_trans_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/05/25 15:07:12  f_limousin
+ * Add parameters in argument of the function tt_part for the case
+ * of a Map_et.
+ *
  * Revision 1.9  2004/03/30 14:01:19  j_novak
  * Copy constructors and operator= now copy the "derived" members.
  *
@@ -71,6 +75,7 @@ char sym_tensor_trans_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "metric.h"
+#include "param.h"
 
 			//--------------//
 			// Constructors //
@@ -200,14 +205,21 @@ void Sym_tensor_trans::operator=(const Tensor& source) {
 }
 
 void Sym_tensor_trans::set_tt_trace(const Sym_tensor_tt& htt, 
-				    const Scalar& htrace ) {
+				    const Scalar& htrace, Param* par ) {
   
   assert (met_div == &htt.get_met_div() ) ;
 
   assert (htrace.check_dzpuis(4)) ;
 
-  Scalar pot = htrace.poisson() ;
-    
+  Scalar pot (*mp) ;
+  if (dynamic_cast<const Map_af*>(mp) != 0x0) {
+      pot = htrace.poisson() ;
+  }
+  else {
+      pot = 0. ;
+      htrace.poisson(*par, pot) ;
+  }
+
   Sym_tensor tmp = (pot.derive_con(*met_div)).derive_con(*met_div) ; 
   tmp.dec_dzpuis() ;  
         
@@ -221,7 +233,6 @@ void Sym_tensor_trans::set_tt_trace(const Sym_tensor_tt& htt,
   p_tt = new Sym_tensor_tt( htt ) ;
 
 }
-
 
 
 			//-----------------------------//
@@ -242,7 +253,7 @@ const Scalar& Sym_tensor_trans::the_trace() const {
 }
 
 
-const Sym_tensor_tt& Sym_tensor_trans::tt_part() const {
+const Sym_tensor_tt& Sym_tensor_trans::tt_part(Param* par) const {
   
   if (p_tt == 0x0) {   // a new computation is necessary
 
@@ -251,8 +262,15 @@ const Sym_tensor_tt& Sym_tensor_trans::tt_part() const {
     assert((dzp == 0) || (dzp == 4)) ;
 
     p_tt = new Sym_tensor_tt(*mp, *triad, *met_div) ; 
-        
-    Scalar pot =  the_trace().poisson() ; 
+
+    Scalar pot (*mp) ;        
+    if (dynamic_cast<const Map_af*>(mp) != 0x0) {
+	pot =  the_trace().poisson() ; 
+    }
+    else {
+	pot = 0. ;
+	the_trace().poisson(*par, pot) ; 
+    }
 
     Sym_tensor tmp = (pot.derive_con(*met_div)).derive_con(*met_div) ; 
     (dzp == 4) ? tmp.inc_dzpuis() : tmp.dec_dzpuis(3) ;  //## to be improved ?
@@ -264,7 +282,6 @@ const Sym_tensor_tt& Sym_tensor_trans::tt_part() const {
   return *p_tt ; 
 
 }
-
 
 
 
