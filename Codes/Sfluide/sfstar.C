@@ -3,9 +3,6 @@
  *
  ***********************************************************************/
 
-
-// just testing syncmail log-mailing here...
-
 // headers C
 #include <stdlib.h>
 #include <math.h>
