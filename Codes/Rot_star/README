@@ -64,6 +64,27 @@ To use them, simply type
 	cp Parameters/Rotseq/parrotseq.d .
 	cp Parameters/Rotseq/par_eos.d .
 
+A constant baryon number sequence can be constructed either
+
+(i) either by varying the central enthalpy (parameters
+   [entc_min, entc_max] of the input file parrotseq.d); the code then
+   automatically adjusts the rotation frequency to get a fixed baryon
+   mass
+
+(ii) or by varying the rotation frequency (parameters
+   [freq_min_si,freq_max_si] of the input file parrotseq.d);
+   the code then automatically adjusts the central enthalpy to get
+   a fixed baryon mass
+
+The choice of the type of sequence is performed by setting
+
+-- entc_min != entc_max and freq_min_si  = freq_max_si for
+   a sequence of type (i)
+-- entc_min  = entc_max and freq_min_si != freq_max_si for
+   a sequence of type (ii)
+
+
+
 4/ Running
    =======
 
