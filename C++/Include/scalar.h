@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/09/25 07:17:58  j_novak
+ * Method asymptot implemented.
+ *
  * Revision 1.5  2003/09/24 20:53:38  e_gourgoulhon
  * Added  -- constructor by conversion from a Cmp
  *        -- assignment from Cmp
@@ -386,9 +389,23 @@ class Scalar : public Tensor {
      */
     void set_dzpuis(int ) ; 
 
+    /** Asymptotic expansion at r = infinity. 
+     * 
+     *  Determines the coefficients $a_k(\theta, \phi)$ of the expansion
+     *  \begin{equation}
+     *	\sum_{k=0}^n {a_k(\theta, \phi) \over r^k}
+     *  \end{equation} 
+     *  of {\tt *this} when $r \rightarrow \infty$. 
+     *
+     *	@param n order of the expansion
+     *	@param flag : output
+     *	@return Array of {\tt n}+1 {\tt Valeur}s on {\tt mg->angu} 
+     *		describing the coefficients $a_k(\theta, \phi)$. 
+     *		This array is allocated by the routine. 
+     * 
+     */
+    Valeur** asymptot(int n, const int flag = 0) const ; 
 	
-
-
 friend Scalar operator-(const Scalar& ) ;			
 friend Scalar operator+(const Scalar&, const Scalar &) ;	
 friend Scalar operator+(const Scalar&, double ) ;		
