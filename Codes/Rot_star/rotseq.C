@@ -1,5 +1,5 @@
 /*
- * Main code for computing a sequence of stationary axisymmetric differentially 
+ * Main code for computing a sequence of stationary axisymmetric differentially
  * rotating stars
  */
 
@@ -29,8 +29,12 @@ char rotseq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:31  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/03/27 22:00:23  e_gourgoulhon
+ * Now can computes sequences of rigidly rotating stars (class Etoile_rot)
+ * as well as differentially rotating stars (class Et_rot_diff)
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:31  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.1  2001/10/26  17:02:18  eric
  * Initial revision
@@ -59,23 +63,24 @@ char rotseq_C[] = "$Header$" ;
 #include "nbr_spx.h"
 
 // Function defining the rotation profile
-double frotlin(double omega, const Tbl& par) ; 
-double primfrotlin(double omega, const Tbl& par) ; 
+double frotlin(double omega, const Tbl& par) ;
+double primfrotlin(double omega, const Tbl& par) ;
 
 // Local prototype (for drawings only)
-Cmp raccord_c1(const Cmp& uu, int l1) ; 
+Cmp raccord_c1(const Cmp& uu, int l1) ;
 
 //******************************************************************************
 
+
 int main(){
 
-    // For the display : 
+    // For the display :
     char display_bold[]="x[1m" ; display_bold[0] = 27 ;
 
-    #include "unites.h"	    
+    #include "unites.h"
     // To avoid some compilation warnings
     if (display_bold == 0x0) {
-	cout << qpig << f_unit << km << mevpfm3 << endl ; 
+	cout << qpig << f_unit << km << mevpfm3 << endl ;
     }    
     
     //------------------------------------------------------------------
@@ -86,9 +91,9 @@ int main(){
 
     int relat_i, mer_max, mer_rot, mer_change_omega, mer_fix_omega, 
 	delta_mer_kep, mer_mass, mermax_poisson, graph, nz, nzet, nzadapt,
-	nt, np, mer_triax, n_conf ; 
-    double ent_c, fact_omega, mbar_wanted, precis, freq_min_si,
-	    freq_max_si, thres_adapt, aexp_mass, relax, relax_poisson, 
+	nt, np, mer_triax, n_conf, diffrot_i ;
+    double entc_min, entc_max, fact_omega, mbar_wanted, precis, freq_min_si,
+	    freq_max_si, thres_adapt, aexp_mass, relax, relax_poisson,
 	    ampli_triax, 
 	   precis_adapt, rrot_km ;  
     
@@ -96,15 +101,18 @@ int main(){
     fich.getline(blabla, 120) ;
     fich >> relat_i ; fich.getline(blabla, 120) ;
     bool relat = (relat_i == 1) ; 
-    fich >> ent_c ; fich.getline(blabla, 120) ;
+    fich >> entc_min ; fich.getline(blabla, 120) ;
+    fich >> entc_max ; fich.getline(blabla, 120) ;
     fich >> freq_min_si ; fich.getline(blabla, 120) ;
     fich >> freq_max_si ; fich.getline(blabla, 120) ;
     fich >> n_conf ; fich.getline(blabla, 120) ;
     
     if (n_conf > 1000) {
-	cout << "rotseq: n_conf must be smaller than 1000" << endl ; 
+	cout << "rotseq: n_conf must be smaller than 1000" << endl ;
+        abort() ; 
     }
-    
+
+    fich >> diffrot_i ;  fich.getline(blabla, 120) ;
     fich >> rrot_km ; fich.getline(blabla, 120) ;
     fact_omega = 1 ; 
     fich >> mbar_wanted ; fich.getline(blabla, 120) ;
@@ -193,7 +201,7 @@ int main(){
 
     for (int l=0; l<nzet-1; l++) {
 
-    	bornes[l+1] = bornes[nzet] * sqrt(1 - ent_limit(l) / ent_c) ;
+    	bornes[l+1] = bornes[nzet] * sqrt(1 - ent_limit(l) / entc_min) ;
 
     }
 
@@ -235,14 +243,15 @@ int main(){
 	 << endl << "=================   " << endl ;
     cout << eos << endl ; 
 
-    cout << "Central enthalpy : " << ent_c << " c^2" << endl ; 
+    cout << "Central enthalpy range: " << entc_min << " - " << entc_max << " c^2" << endl ;
     cout << "Rotation frequency range : " << freq_min_si 
         << " - " << freq_max_si << " Hz" << endl ; 
     if ( abs(mer_mass) < mer_max ) {
 	cout << "Required Baryon mass [M_sol] : " 
 	     << mbar_wanted / msol << endl ; 
     }
-    
+
+
     cout << endl 
 	 << "==========================================================" << endl
 	 << "               Computational parameters                   " << endl
@@ -261,7 +270,7 @@ int main(){
 	 << relax_poisson << endl ; 
     cout << "Step from which the baryon mass is forced to converge : " 
 	 << mer_mass << endl ; 
-    cout << "Exponent for the increase factor of the central enthalpy : " 
+    cout << "Exponent for the increase factor of the central enthalpy or frequency : "
 	 << aexp_mass << endl ; 
     cout << 
     "Threshold on |dH/dr|_eq / |dH/dr|_pole for the adaptation of the mapping"
@@ -280,7 +289,7 @@ int main(){
     
     double omega_c_min = 2 * M_PI * freq_min_si / f_unit ; 
     double omega_c_max = 2 * M_PI * freq_max_si / f_unit ; 
-    
+
     double rrot = rrot_km * km ; 
 
     Tbl parfrot(2) ;
@@ -291,9 +300,20 @@ int main(){
     //-----------------------------------------------------------------------
     //		Construction of the star
     //-----------------------------------------------------------------------
-    
-    Et_rot_diff star(mp, nzet, relat, eos, frotlin, primfrotlin, parfrot) ; 
-    
+
+    bool diffrot = (diffrot_i == 1) ;
+    Etoile_rot* p_star ;
+    Et_rot_diff* p_star_diff = 0x0 ;
+
+    if ( diffrot ) {
+        p_star_diff = new Et_rot_diff(mp, nzet, relat, eos, frotlin, primfrotlin, parfrot) ;
+    	p_star = p_star_diff ;
+    }
+    else {
+        p_star = new Etoile_rot(mp, nzet, relat, eos) ;
+    }
+    Etoile_rot& star = *p_star ;
+
     if ( star.is_relativistic() ) {
 	cout << "========================" << endl ;
 	cout << "Relativistic computation" << endl ;
@@ -311,24 +331,24 @@ int main(){
 
 
     const Coord& r = mp.r ;
-    double ray0 = mp.val_r(nzet-1, 1., 0., 0.) ;  
-    Cmp ent0(mp) ; 
-    ent0 = ent_c * ( 1 - r*r / (ray0*ray0) ) ; 
-    ent0.annule(nz-1) ; 
-    ent0.std_base_scal() ; 
-    star.set_enthalpy(ent0) ;  
-    
+    double ray0 = mp.val_r(nzet-1, 1., 0., 0.) ;
+    Cmp ent0(mp) ;
+    ent0 = entc_min * ( 1 - r*r / (ray0*ray0) ) ;
+    ent0.annule(nz-1) ;
+    ent0.std_base_scal() ;
+    star.set_enthalpy(ent0) ;
+
     // Initialization of (n,e,p) from H
-    star.equation_of_state() ; 
+    star.equation_of_state() ;
 
     // Initialization of (E,S,U,etc...) (quantities relative to the Eulerian obs)
-    star.hydro_euler() ; 
+    star.hydro_euler() ;
 
-    cout << endl << "Initial star : " 
+    cout << endl << "Initial star : "
 	 << endl << "============   " << endl ;
 
-    cout << star << endl ; 
-    
+    cout << star << endl ;
+
     //---------------------------------------------------
     //  Sequence parameters saved in file "calcul_seq.d"
     //---------------------------------------------------
@@ -340,7 +360,7 @@ int main(){
     fichseq <<
     "================================================================" << endl ;
     fichseq.close() ;
-    system("cat parrotseq.d >> calcul_seq.d") ; 
+    system("cat parrotseq.d >> calcul_seq.d") ;
 
     fichseq.open("calcul_seq.d", ios::app | ios::nocreate) ;
     fichseq << endl <<
@@ -352,74 +372,101 @@ int main(){
     fichseq.close() ;
     system("cat par_eos.d >> calcul_seq.d") ;
 
-    // Identification du code et de ses sous-routines (no. de version RCS) :     	
-    fichseq.open("calcul_seq.d", ios::app | ios::nocreate) ; 
+    // Identification du code et de ses sous-routines (no. de version RCS) :
+    fichseq.open("calcul_seq.d", ios::app | ios::nocreate) ;
     fichseq << endl <<
-    "================================================================" << endl ; 
-    fichseq << "	    IDENTIFICATION OF THE CODE : " << endl ; 
-    fichseq << 
-    "================================================================" << endl ; 
-    fichseq.close() ; 
-    system("ident rotseq >> calcul_seq.d") ; 
+    "================================================================" << endl ;
+    fichseq << "	    IDENTIFICATION OF THE CODE : " << endl ;
+    fichseq <<
+    "================================================================" << endl ;
+    fichseq.close() ;
+    system("ident rotseq >> calcul_seq.d") ;
 
 
-    
+
     //-----------------------------------------------------------------------
     //		Computation of the equilibrium sequence
     //-----------------------------------------------------------------------
 
 
     Itbl icontrol(8) ;
-    icontrol.set_etat_qcq() ; 
-    icontrol.set(0) = mer_max ; 
-    icontrol.set(1) = mer_rot ; 
-    icontrol.set(2) = mer_change_omega ; 
-    icontrol.set(3) = mer_fix_omega ; 
-    icontrol.set(4) = mer_mass ; 
-    icontrol.set(5) = mermax_poisson ; 
-    icontrol.set(6) = mer_triax ; 
-    icontrol.set(7) = delta_mer_kep ; 
-    
-    Tbl control(7) ; 
-    control.set_etat_qcq() ; 
-    control.set(0) = precis ; 
-    control.set(2) = relax ; 
-    control.set(3) = relax_poisson ; 
-    control.set(4) = thres_adapt ; 
-    control.set(5) = ampli_triax ; 
-    control.set(6) = precis_adapt ; 
+    icontrol.set_etat_qcq() ;
+    icontrol.set(0) = mer_max ;
+    icontrol.set(1) = mer_rot ;
+    icontrol.set(2) = mer_change_omega ;
+    icontrol.set(3) = mer_fix_omega ;
+    icontrol.set(4) = mer_mass ;
+    icontrol.set(5) = mermax_poisson ;
+    icontrol.set(6) = mer_triax ;
+    icontrol.set(7) = delta_mer_kep ;
 
-    Tbl diff(8) ;     
+    Tbl control(7) ;
+    control.set_etat_qcq() ;
+    control.set(0) = precis ;
+    control.set(2) = relax ;
+    control.set(3) = relax_poisson ;
+    control.set(4) = thres_adapt ;
+    control.set(5) = ampli_triax ;
+    control.set(6) = precis_adapt ;
+
+    Tbl diff(8) ;
 
     ofstream fichresu("seq.d") ;
     fichresu << "# J [G M_sol^2/c] M [M_sol]   f_c [Hz]     H_c     r_p/r_e"
-             << "       T/W       M_B [M_sol]    GRV2       GRV3   " << endl ;   
+             << "       T/W       M_B [M_sol]    GRV2       GRV3   " << endl ;
 
     // Loop on the configurations
     // --------------------------
-    
-    double domega = (omega_c_max - omega_c_min) / double(n_conf-1) ; 
-    
+
+    bool seq_freq = ( entc_min == entc_max ) ;
+    if ( !seq_freq ) {
+          if ( omega_c_min != omega_c_max ) {
+          	cout << "rotseq : one must have freq_min == freq_max "
+          	<< "when entc_min != entc_max !" << endl ;
+          	abort() ;
+          }
+    }
+
+    double domega = (omega_c_max - omega_c_min) / double(n_conf-1) ;
+    double dent = (entc_max - entc_min) / double(n_conf-1) ;
+
     for (int jj = 0; jj < n_conf; jj++) {
 
-	double omega_c = omega_c_min + jj * domega ; 
+    	double omega_c, ent_c ;
 
-	control.set(1) = omega_c ; 
-	
-	ent_c = star.get_ent()()(0, 0, 0, 0) ; 
-	
-	Et_rot_diff starj(star) ; 
-	
-	starj.equilibrium(ent_c, omega_c, fact_omega, nzadapt, ent_limit, 
+	if ( seq_freq ) {
+		ent_c = star.get_ent()()(0, 0, 0, 0) ;
+		omega_c = omega_c_min + jj * domega ;
+	}
+	else {
+
+		icontrol.set(4) = - mer_mass ;
+
+		ent_c = entc_min + jj * dent ;
+		omega_c = star.get_omega_c() ;
+		if (omega_c == double(0)) {
+			omega_c = omega_c_min ;
+			icontrol.set(1) = 10 ; 	// mer_rot = 10
+    			icontrol.set(2) = 10 ;
+    			icontrol.set(3) = 11 ;
+		}
+		else {
+			icontrol.set(1) = 0 ; 	// mer_rot = 0
+    			icontrol.set(2) = 0 ;
+    			icontrol.set(3) = 1 ;
+		}
+	}
+
+	control.set(1) = omega_c ;
+
+        star.equilibrium(ent_c, omega_c, fact_omega, nzadapt, ent_limit,
 			  icontrol, control, mbar_wanted, aexp_mass, diff) ;
-	     
-	star = starj ; 
 
 	int precisaff = 8 ;
-	int tailleaff = precisaff + 3 ; 
-	fichresu.precision(precisaff) ; 
-	fichresu << setw(tailleaff) 
-		 << star.angu_mom()/( qpig / (4* M_PI) * msol*msol) << " " 
+	int tailleaff = precisaff + 3 ;
+	fichresu.precision(precisaff) ;
+	fichresu << setw(tailleaff)
+		 << star.angu_mom()/( qpig / (4* M_PI) * msol*msol) << " "
 	         << setw(tailleaff)
 		 << star.mass_g() / msol << " "
 		 << setw(tailleaff)
@@ -435,13 +482,13 @@ int main(){
 		 << setw(tailleaff)
 		 << star.grv2() << " "
 		 << setw(tailleaff)
-		 << star.grv3() << endl ; 
+		 << star.grv3() << endl ;
 
-	cout << endl << "Configuration " << jj << " : "   
+	cout << endl << "Configuration " << jj << " : "
 	     << endl << "===========================" << endl ;
 
-	cout.precision(10) ; 
-	cout << starj << endl ; 
+	cout.precision(10) ;
+	cout << star << endl ;
 
 	//-----------------------------------------------
 	//  General features of the final configuration
@@ -449,28 +496,28 @@ int main(){
 	//-----------------------------------------------
 
 	char nomfich[20] ;
-	strcpy(nomfich, "calcul") ; 
+	strcpy(nomfich, "calcul") ;
 
 	char numero[3] ;
-	sprintf(numero, "%3.3d", jj) ; 
-	strcat(nomfich, numero) ; 
-	strcat(nomfich, ".d") ; 
-	cout << endl << "File name : " << nomfich << endl ; 
-	
+	sprintf(numero, "%3.3d", jj) ;
+	strcat(nomfich, numero) ;
+	strcat(nomfich, ".d") ;
+	cout << endl << "File name : " << nomfich << endl ;
+
 	ofstream fichfinal(nomfich) ;
-	fichfinal.precision(10) ; 
-    
+	fichfinal.precision(10) ;
+
 	if ( star.is_relativistic() ) {
 	    fichfinal << "Relativistic computation" << endl ;
 	}
 	else {
 	    fichfinal << "Newtonian computation" << endl ;
 	}
-    
+
 	fichfinal << star.get_eos() << endl ;
-    
+
 	fichfinal << endl << "Total CPU time  : " << endl ;
-	fichfinal << "Memory size : " << endl << endl ; 
+	fichfinal << "Memory size : " << endl << endl ;
 
 	fichfinal << endl << endl ; 
 	fichfinal << "Grid : " << endl ; 
@@ -516,36 +563,40 @@ int main(){
 	des_coupe_y(star.get_ent()(), 0., nzdes, "Enthalpy", &surf) ; 
 	
 	if (mer_triax < mer_max) { 
-	    des_coupe_z(star.get_ent()(), 0., nzdes, "Enthalpy (equatorial plane)", 
-			&surf) ; 
+	    des_coupe_z(star.get_ent()(), 0., nzdes, "Enthalpy (equatorial plane)",
+			&surf) ;
 	}
-	    
-	Cmp tmpdes = star.get_omega_field()() / (2*M_PI) * f_unit ; 
-	des_profile(tmpdes, 0., star.ray_eq(),
-		    M_PI/2., 0., "\\gW/2\\gp  [Hz]", 
-		    "Angular velocity in equatorial plane") ; 
 
-	des_coupe_y(star.get_omega_field()(), 0., nzdes, "\\gW", &surf) ; 
+	if (diffrot) {
+		Cmp tmpdes = p_star_diff->get_omega_field()() / (2*M_PI) * f_unit ;
+		des_profile(tmpdes, 0., star.ray_eq(),
+			    M_PI/2., 0., "\\gW/2\\gp  [Hz]",
+			"Angular velocity in equatorial plane") ;
+         	
+		des_coupe_y(p_star_diff->get_omega_field()(), 0., nzdes,
+				"\\gW", &surf) ;
+	}
 
-	des_coupe_y(star.get_logn()(), 0., nzdes, 
-		    "Gravitational potential \\gn", &surf) ; 
-	
+	des_coupe_y(star.get_logn()(), 0., nzdes,
+		    "Gravitational potential \\gn", &surf) ;
+
 	if (star.is_relativistic()) {
 
-	    des_coupe_y(star.get_nphi()(), 0., nzdes, 
-		    "Azimuthal shift N\\u\\gf", &surf) ; 
-	
-	    des_coupe_y(star.get_dzeta()(), 0., nzdes, 
-		    "Metric potential \\gz", &surf) ; 
-	
-	    des_coupe_y(star.get_tggg()(), 0., nzdes, 
-		    "Metric potential (NB-1) r sin\\gh", &surf) ; 
+	    des_coupe_y(star.get_nphi()(), 0., nzdes,
+		    "Azimuthal shift N\\u\\gf", &surf) ;
+
+	    des_coupe_y(star.get_dzeta()(), 0., nzdes,
+		    "Metric potential \\gz", &surf) ;
+
+	    des_coupe_y(star.get_tggg()(), 0., nzdes,
+		    "Metric potential (NB-1) r sin\\gh", &surf) ;
 	
 	    des_coupe_y(star.get_ak_car()(), 0., nzdes, 
 		    "A\\u2\\d K\\dij\\u K\\uij\\d", &surf) ; 
 	}
 	
 	}
+
 
     } // End of the loop on the configurations
 
@@ -554,7 +605,9 @@ int main(){
     // Cleaning
     // --------
 
-    delete peos ;    
+    delete p_star ;
+
+    delete peos ;
 
     exit(EXIT_SUCCESS) ; 
     
