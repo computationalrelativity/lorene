@@ -5,8 +5,9 @@
 
 /*
  *   Copyright (c) 1999-2000 Jean-Alain Marck
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
  *   Copyright (c) 1999-2001 Philippe Grandclement
+ *   Copyright (c) 1999-2002 Eric Gourgoulhon
+ *   Copyright (c) 2002 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -34,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/05/05 16:24:48  e_gourgoulhon
+ * Added som_tet_cossin_sp
+ *
  * Revision 1.3  2002/01/03 15:30:27  j_novak
  * Some comments modified.
  *
@@ -390,6 +394,8 @@ void som_tet_sin_i
 void som_tet_cossin_cp
     (double*, const int, const int, const double, double* ) ;
 void som_tet_cossin_ci
+    (double*, const int, const int, const double, double* ) ;
+void som_tet_cossin_sp
     (double*, const int, const int, const double, double* ) ;
 void som_tet_cossin_cp_symy
     (double*, const int, const int, const double, double* ) ;
