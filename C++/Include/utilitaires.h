@@ -32,8 +32,13 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:24:33  e_gourgoulhon
+ *
+ * New functions fwrite_be and fread_be for writing/reading in a
+ * binary file according to the big endian convention.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.6  2001/09/14  14:23:53  eric
  * Ajout de la fonction zero_list.
@@ -58,7 +63,10 @@
  *
  */
  
-class Param ; 
+#include "stdio.h"
+
+class Param ;
+class Tbl ;
 
     /** @name Miscellaneous.
      */
@@ -149,7 +157,83 @@ double zerosec( double (*f)(double, const Param&), const Param& par,
 void zero_list( double (*f)(double, const Param&), const Param& par,
 		double xmin, double xmax, int nsub, 
 		Tbl*& az, Tbl*& bz ) ;  
-		 
+		
+/** Writes integer(s) into a binary file according to the
+ *  big endian convention.
+ *
+ *  This function has the same prototype and return value than
+ *  the {\tt fwrite} function of the {\tt stdio} C library.
+ *  The difference is that it ensures that the binary file is
+ *  written in the big endian format, whatever the system is
+ *  using little endian or big endian.
+ *	@param aa [input] integer array to be written (in case of one
+ *		element, address of this integer)
+ *	@param size [input] number of bytes of one {\tt int} (must
+ *		be 4)
+ *	@param nb [input] number of elements in the array {\tt aa}
+ *	@param fich [input] binary file (must have been
+ *		open by {\tt fopen})
+ *	@return number of integers effectively written in the file
+ */		
+int fwrite_be(const int* aa, int size, int nb, FILE* fich) ;
+
+/** Writes double precision number(s) into a binary file according to the
+ *  big endian convention.
+ *
+ *  This function has the same prototype and return value than
+ *  the {\tt fwrite} function of the {\tt stdio} C library.
+ *  The difference is that it ensures that the binary file is
+ *  written in the big endian format, whatever the system is
+ *  using little endian or big endian.
+ *	@param aa [input] array of {\tt double} to be written (in case of one
+ *		element, address of this {\tt double})
+ *	@param size [input] number of bytes of one {\tt double} (must
+ *		be 8)
+ *	@param nb [input] number of elements in the array {\tt aa}
+ *	@param fich [input] binary file (must have been
+ *		open by {\tt fopen})
+ *	@return number of {\tt double} effectively written in the file
+ */		
+int fwrite_be(const double* aa, int size, int nb, FILE* fich) ;
+
+/** Reads integer(s) from a binary file according to the
+ *  big endian convention.
+ *
+ *  This function has the same prototype and return value than
+ *  the {\tt fread} function of the {\tt stdio} C library.
+ *  The difference is that it assumes that the binary file is
+ *  written in the big endian format, whatever the system is
+ *  using little endian or big endian.
+ *	@param aa [output] integer array to be read (in case of one
+ *		element, address of this integer)
+ *	@param size [input] number of bytes of one {\tt int} (must
+ *		be 4)
+ *	@param nb [input] number of elements in the array {\tt aa}
+ *	@param fich [input] binary file (must have been
+ *		open by {\tt fopen})
+ *	@return number of integers effectively read in the file
+ */		
+int fread_be(int* aa, int size, int nb, FILE* fich) ;
+
+/** Reads double precision number(s) from a binary file according to the
+ *  big endian convention.
+ *
+ *  This function has the same prototype and return value than
+ *  the {\tt fread} function of the {\tt stdio} C library.
+ *  The difference is that it assumes that the binary file is
+ *  written in the big endian format, whatever the system is
+ *  using little endian or big endian.
+ *	@param aa [output] array of {\tt double} to be read (in case of one
+ *		element, address of this {\tt double})
+ *	@param size [input] number of bytes of one {\tt double} (must
+ *		be 8)
+ *	@param nb [input] number of elements in the array {\tt aa}
+ *	@param fich [input] binary file (must have been
+ *		open by {\tt fopen})
+ *	@return number of {\tt double} effectively read in the file
+ */		
+int fread_be(double* aa, int size, int nb, FILE* fich) ;
+
 
     
     //@}
