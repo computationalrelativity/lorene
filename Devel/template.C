@@ -1,6 +1,8 @@
 /*
  *  Short description of the file contents
  *
+ *    (see file ??? for documentation).
+ *
  */
 
 /*
@@ -28,10 +30,15 @@ char name_of_this_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.2  2001/12/11 06:44:41  e_gourgoulhon
- * template files
+ * Revision 1.3  2003/10/19 19:59:59  e_gourgoulhon
+ * Template file
  *
  *
+ * *** Suppress all lines (including those of this comment) which are not
+ * *** between two $ characters. The lines between two $ must not be
+ * *** changed: they will be processed by CVS when committing this file:
+ * *** for instance, templace.C will be replaced by the actual name of this
+ * *** file, etc... 
  *
  * $Header$
  *
