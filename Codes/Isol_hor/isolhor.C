@@ -28,6 +28,10 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.16  2005/03/03 10:18:57  f_limousin
+ * Addition of the boost in x and z-direction.
+ * The grid and the mapping are now saved in the output file.
+ *
  * Revision 1.15  2004/12/31 12:30:07  f_limousin
  * Change the construction of an Isol_hor and the function sauve(FILE*, bool).
  *
@@ -106,14 +110,21 @@ int main() {
     int type_t = SYM ; // symmetry with respect to the equatorial plane
     int type_p = NONSYM ; // no symmetry in phi
   
-    int niter ;
-    double radius, relax, seuil, ang_vel ;
+    int niter, bound_nn, bound_psi, bound_beta ;
+    double radius, relax, seuil, ang_vel, boost_x, boost_z, lim_nn ;
     fpar >> radius; fpar.ignore(1000, '\n');
     fpar >> relax; fpar.ignore(1000, '\n');
     fpar >> seuil; fpar.ignore(1000, '\n');
     fpar >> niter; fpar.ignore(1000, '\n');
     fpar >> ang_vel; fpar.ignore(1000, '\n');
+    fpar >> boost_x ;
+    fpar >> boost_z; fpar.ignore(1000, '\n');
+    fpar >> bound_nn ;
+    fpar >> lim_nn ;  fpar.ignore(1000, '\n');
+    fpar >> bound_psi ;  fpar.ignore(1000, '\n');
+    fpar >> bound_beta ;  fpar.ignore(1000, '\n');
     
+
     int* nr_tab = new int[nz];
     int* nt_tab = new int[nz];
     int* np_tab = new int[nz];
@@ -164,13 +175,7 @@ int main() {
     // -------------
 
     const Metric_flat& ff = map.flat_met_spher() ; 
-    //   Scalar det = ff.determinant() ;
-
-    // Triad orthonormal with respect to the flat metric f
-    // ----------------------------------------------------
-
-    const Base_vect_spher& otriad = map.get_bvect_spher() ;
-    
+    const Base_vect_spher& otriad = map.get_bvect_spher() ;    
 
     // Working stuff
     // -------------
@@ -187,16 +192,18 @@ int main() {
     unsr.set_domain(0) = 1 ; // scalar set to 1 in the nucleus 
     unsr.std_spectral_base() ;
 
-    Mtbl expr = exp(-r) ;
+    Mtbl expr = exp (- 1/((r-1)*(r-1))) ;
     Scalar expmr(map) ;
     expmr = expr ;
-
+    expmr.std_spectral_base() ;
+//    cout << "expmr" << endl << expmr << endl ;
+//    des_meridian(expmr, 0, 5, "expunsr", 0) ;
+//    arrete() ;
 
     Mtbl exprr = exp(-pow(r-3,2.)) ;
     Scalar expmrr(map) ;
     expmrr = exprr ;
  
-
     // Physical Parameters
     //--------------------
     
@@ -204,29 +211,25 @@ int main() {
     // --------------------------
     
     Scalar nn_init(map) ; 
-    nn_init = 1 - 0.5*unsr ;
+    nn_init = 1. - 0.5*unsr ;
     nn_init.std_spectral_base() ;    // sets standard spectral bases
 
     // Set up of field Psi 
     // -------------------
 
     Scalar psi_init(map) ; 
-    psi_init =  1 + unsr ;
+    psi_init =  1. + unsr ;
     psi_init.std_spectral_base() ;    // sets standard spectral bases
 
     // Set up of shift vector beta
     // ---------------------------    
 
-    Vector beta_init(map, CON, otriad ) ; 
-    beta_init.set_etat_zero() ; 
-
-    beta_init.set(1) = 0*0.01*unsr*unsr  ;
+    Vector beta_init(map, CON, map.get_bvect_spher()) ; 
+    beta_init.set(1) = 0.001*unsr*unsr ;
     beta_init.set(2) = 0. ;
     beta_init.set(3) = 0. ;
     beta_init.annule_domain(0) ;
-    
     beta_init.std_spectral_base() ;
-        
 
     // TrK, TrK_point
     // --------------
@@ -245,12 +248,14 @@ int main() {
     // ----------------
 
     Scalar khi (map) ;
-    khi = 0.01 ; //0.02*unsr*unsr*cost ;
+    khi = 0*0.05*unsr*unsr*sint*sint ;
     khi.std_spectral_base() ;
+    khi.annule_domain(0) ;
     
     Scalar mu (map) ;
-    mu = 0.01 ;// 0.02*unsr*unsr*sint ;
+    mu = 0*0.05*unsr*unsr ;
     mu.std_spectral_base() ;
+    mu.annule_domain(0) ;
     
     Sym_tensor_tt hh_tmp (map, otriad, ff) ;
     hh_tmp.set_khi_mu(khi, mu) ;
@@ -263,16 +268,15 @@ int main() {
 
 
     gamt = ff.cov() + hh_tmp.up_down(ff) ;
-//    cout << gamt ;
     cout << "norme de gamt" << endl << norme(gamt(1,1)) << endl << norme(gamt(2,1)) << endl << norme(gamt(3,1)) << endl << norme(gamt(2,2)) << endl << norme(gamt(3,2)) << endl << norme(gamt(3,3)) << endl ;
 
-
+/*
     // Construction de la metrique de Kerr
     
     Scalar a2(map) ;
     Scalar b2(map) ;
     double hh = 2. ;
-    double aaa = 0. ;
+    double aaa = 0.7 ;
     double mm ;
     mm = pow(hh*hh+aaa*aaa, 0.5) ;
 
@@ -351,7 +355,7 @@ int main() {
     Scalar psi_kerr (pow(a2, 1./6.) * pow(b2,1./12.)) ;
     psi_kerr.std_spectral_base() ;
 
-
+*/
     // Construction de Kerr Shild
 /*
     const Coord& rr = map.r ;
@@ -463,13 +467,24 @@ int main() {
     //          "Call to init_data.C" 
     //-----------------------------------------
 
-    isolhor.init_data(seuil, relax, niter, ang_vel) ;
+    isolhor.set_omega(ang_vel) ;
+    isolhor.set_boost_x(boost_x) ;
+    isolhor.set_boost_z(boost_z) ;
+
+    if(bound_beta != 1)
+	isolhor.init_data(bound_nn, lim_nn, bound_psi, bound_beta, 
+			  seuil, relax, niter) ;
+    else
+	isolhor.init_data_b_neumann(bound_psi, bound_beta, 
+				    seuil, relax, niter) ;
 
 
     // Save in a file
     // --------------
     
     FILE* fresu = fopen("resu.d", "w") ;
+    mgrid.sauve(fresu) ;
+    map.sauve(fresu) ;
     isolhor.sauve(fresu, true) ;
     fclose(fresu) ;     
     
@@ -484,7 +499,7 @@ int main() {
     cout<< "----------------------------------------" <<endl ;
  
 
-
+/*
     // Comparaison avec Kerr en isotropique
 
     des_profile(isolhor.nn(), 1.00001, 10, M_PI/2., 0., "isolhor.nn()") ;
@@ -498,6 +513,8 @@ int main() {
     des_profile(isolhor.beta()(3), 1.00001, 10, M_PI/2., 0., "isolhor.beta()(3)") ;
     des_profile(beta_phi, 1.00001, 10, M_PI/2., 0., "beta_phi pour Kerr") ;
     des_profile(beta_phi-isolhor.beta()(3), 1.00001, 10, M_PI/2., 0., "diff beta") ;
+*/
+
 /*
     // Comparaison avec Kerr en isotropique
 
@@ -514,17 +531,6 @@ int main() {
     des_profile(beta_r-isolhor.beta()(1), 1.00001, 10, M_PI/2., 0., "diff beta") ;
 */
 
-    // Graphic output of the different fields
-    //---------------------------------------
-
-/*
-    des_profile(isolhor.nn(), 1.00001, 10, 1., 1., "nn") ;    
-    des_profile(isolhor.psi(), 1.00001, 10, 1., 1., "psi") ;
-    des_profile(isolhor.beta()(1), 1.00001, 10, 1., 1., "beta_r") ;
-    des_profile(isolhor.beta()(3), 1.00001, 10, 1., 1., "beta_phi en 1,1") ;
-    des_profile(isolhor.beta()(3), 1.00001, 10, M_PI/2., 0., "beta_phi en pi/2") ;
-*/
-   
     // Physical parameters of the Black Hole
     //--------------------------------------
     
