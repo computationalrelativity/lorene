@@ -34,6 +34,9 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2004/03/25 10:43:04  j_novak
+ * Some units forgotten...
+ *
  * Revision 1.16  2003/11/19 22:01:57  e_gourgoulhon
  * -- Relaxation on logn and dzeta performed only if mer >= 10.
  * -- err_grv2 is now evaluated also in the Newtonian case.
@@ -93,6 +96,7 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 // Headers Lorene
 #include "et_rot_mag.h"
 #include "param.h"
+#include "unites.h"
 
 void Et_rot_mag::equilibrium_mag(double ent_c, double omega0, 
      double fact_omega, int nzadapt, const Tbl& ent_limit, 
@@ -103,12 +107,7 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 			     
     // Fundamental constants and units
     // -------------------------------
-    #include "unites_mag.h"	    
-    // To avoid some compilation warnings
-    if (ent_c < 0) {
-	cout << f_unit << msol << km << mevpfm3 << endl ; 
-	cout << mag_unit << elec_unit << endl ;
-    }    
+  using namespace Unites_mag ;
     
     // For the display 
     // ---------------
