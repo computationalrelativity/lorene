@@ -34,8 +34,11 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/06 15:11:43  jl_zdunik
+ * Introduction of the new function f_eq() in the class Etoile_rot
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.61  2001/10/25  08:32:57  eric
  * Etoile_rot::display_poly passe de protected a public.
@@ -1484,7 +1487,8 @@ class Etoile_rot : public Etoile {
 	mutable double* p_espec_isco ;	
 	/// Specific angular momentum of a particle on the ISCO
 	mutable double* p_lspec_isco ;	
-
+        mutable double* p_f_eq ;        /// Orbital frequency at the equator
+	
 	 
 
     // Constructors - Destructor
@@ -1720,6 +1724,9 @@ class Etoile_rot : public Etoile {
 	virtual double f_eccentric(double ecc, double periast, 
 				   ostream* ost = 0x0) const ; 
 
+        /// Orbital frequency at the equator.
+	virtual double f_eq() const ;
+	
 
     // Computational routines
     // ----------------------

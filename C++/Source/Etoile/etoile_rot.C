@@ -31,6 +31,9 @@ char etoile_rot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2001/12/06 15:11:43  jl_zdunik
+ * Introduction of the new function f_eq() in the class Etoile_rot
+ *
  * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -333,7 +336,8 @@ void Etoile_rot::del_deriv() const {
     if (p_f_isco != 0x0) delete p_f_isco ;
     if (p_lspec_isco != 0x0) delete p_lspec_isco ;
     if (p_espec_isco != 0x0) delete p_espec_isco ;
-
+    if (p_f_eq != 0x0) delete p_f_eq ;
+    
     Etoile_rot::set_der_0x0() ; 
 }			    
 
@@ -358,7 +362,8 @@ void Etoile_rot::set_der_0x0() const {
     p_f_isco = 0x0 ;
     p_lspec_isco = 0x0 ;
     p_espec_isco = 0x0 ;
-
+    p_f_eq = 0x0 ;
+    
 }			    
 
 void Etoile_rot::del_hydro_euler() {

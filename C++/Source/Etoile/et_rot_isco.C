@@ -33,8 +33,11 @@ char et_rot_isco_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/06 15:11:43  jl_zdunik
+ * Introduction of the new function f_eq() in the class Etoile_rot
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.2  2001/03/26  09:31:13  jlz
  * New functions: espec_isco() and lspec_isco().
@@ -226,6 +229,19 @@ double Etoile_rot::r_isco(ostream* ost) const {
 	(ucor_msplus/sqrt(1.-ucor_msplus*ucor_msplus)*
 	((bbb().va).val_point(l_ms, xi_ms, theta_ms, phi_ms)) * r_ms ));
 
+        // Determination of the Keplerian frequency at the equator
+	// -------------------------------------------------------------
+
+
+	double ucor_eqplus = (ucor_plus.va).val_point(l_ms, -1, theta_ms,phi_ms)
+	  ;
+	double nobeq = (bsn.va).val_point(l_ms, -1, theta_ms, phi_ms) ;
+	double nphieq = (nphi().va).val_point(l_ms, -1, theta_ms, phi_ms) ;
+
+	p_f_eq = new double ( ( ucor_eqplus / nobeq / ray_eq() + nphieq ) /
+			      (double(2) * M_PI) ) ;
+
+	
 
     }  // End of computation
 
@@ -286,6 +302,23 @@ double Etoile_rot::espec_isco() const {
 
 }
 
+
+//=============================================================================
+//              f_eq()
+//=============================================================================
+
+double Etoile_rot::f_eq() const {
+  
+  if (p_f_eq == 0x0) {    // a new computation is required
+
+    r_isco() ;              // f_eq is computed in the method r_isco()
+
+    assert(p_f_eq != 0x0) ;
+  }
+
+  return *p_f_eq ;
+
+}
 
 
 //=============================================================================
