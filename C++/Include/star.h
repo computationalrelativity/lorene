@@ -48,7 +48,7 @@ class Eos ;
 			//---------------------------//
 
 /**
- * Base class for stars.
+ * Base class for stars. *** UNDER DEVELOPMENT ***
  * 
  * A {\tt Star} is constructed upon (i) a mapping 
  * (derived class of {\tt Map}), the center of which defines the center of the 
@@ -356,7 +356,7 @@ ostream& operator<<(ostream& , const Star& ) ;
 			//---------------------------//
 
 /**
- * Class for stars in binary system.
+ * Class for stars in binary system. *** UNDER DEEVELOPMENT ***
  *
  * A {\tt Star\_bin} can be construted in two states, represented by
  * the {\tt bool} member {\tt irrotational}: (i) irrotational

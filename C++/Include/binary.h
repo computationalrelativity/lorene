@@ -34,6 +34,11 @@
 // Lorene headers
 #include "star.h"
 
+/**
+ * Binary systems. *** UNDER DEVELOPMENT ***
+ * 
+ * @version #$Id$#
+ */
 
 class Binary {
 
