@@ -32,6 +32,10 @@ char map_radial_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/11/07 10:10:20  e_gourgoulhon
+ * In the constructor from a grid, changed the name of the argument
+ * from "mg" to "mgi" in order not to shadow data member.
+ *
  * Revision 1.2  2003/10/15 10:41:10  e_gourgoulhon
  * Added new Coord's drdt and stdrdp.
  *
@@ -74,7 +78,7 @@ char map_radial_C[] = "$Header$" ;
 
 // Constructor from a grid
 // -----------------------
-Map_radial::Map_radial(const Mg3d& mg) : Map(mg)
+Map_radial::Map_radial(const Mg3d& mgi) : Map(mgi)
 {
         // The Coord's are constructed by the default Coord constructor
 }
