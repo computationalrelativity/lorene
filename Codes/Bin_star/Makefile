@@ -22,9 +22,13 @@ SRC4 = coal_regu.C
 OBJ4 = $(SRC4:.C=.o)
 EXE4 = $(SRC4:.C=)
 
-SRC5 = analyse.C
-OBJ5 = $(SRC5:.C=.o) asymptot.o
+SRC5 = init_bin_regu.C
+OBJ5 = $(SRC5:.C=.o)
 EXE5 = $(SRC5:.C=)
+
+SRC6 = analyse.C
+OBJ6 = $(SRC6:.C=.o) asymptot.o
+EXE6 = $(SRC6:.C=)
 
 $(EXE1): $(OBJ1)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
@@ -46,11 +50,15 @@ $(EXE5): $(OBJ5)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ5) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_PGPLOT) $(LIB_CXX)
 
+$(EXE6): $(OBJ6)
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ6) $(LIB_G) $(LIB_LAPACK) \
+					$(LIB_PGPLOT) $(LIB_CXX)
+
 .C.o:
 	$(CXX)  -c $(CXXFLAGS_G) $(INC) $<
 
 uninstall:
-	rm -f $(OBJ1) $(OBJ2) $(OBJ3)
-	rm -f $(EXE1) $(EXE2) $(EXE3)
+	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5) $(OBJ6)
+	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5) $(EXE6)
 	rm -f *.d
 
