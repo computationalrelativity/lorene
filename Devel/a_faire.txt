@@ -1,4 +1,11 @@
 
+ -- Map_af::dsdr(const Scalar&, Scalar& ) : le traitement du cas
+    dzpuis != 0 n'est pas optimal: la ligne
+          tmp_ced.set(nzm1) -= dzp * uuva(nzm1) ; 
+    fait passer par des coef_i() inutiles. Il vaudrait mieux ne pas
+    utiliser Valeur::operator(), mais des Valeurs nulles sauf dans
+    le CED.  
+    
  -- interface Coord arithmetique = Scalar et non plus Mtbl 
 
  -- Classe Valeur: rendre prive tous les champs (surtout base).
