@@ -31,8 +31,12 @@ char et_bin_hydro_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/12/10 15:29:29  k_taniguchi
+ * Change the multiplication "*" to "%"
+ *   and flat_scalar_prod to flat_scalar_prod_desal.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.11  2000/12/22  13:10:32  eric
  * Modif des annulations en dehors de l'etoile.
@@ -93,14 +97,16 @@ void Etoile_bin::hydro_euler(){
     //----------------------------------
     
     Tenseur hhh = exp(unsurc2 * ent) ;  // = 1 at the Newtonian limit
- 
+    hhh.set_std_base() ;
+
     //------------------------------------------
     // Lorentz factor between the co-orbiting	    ---> gam0
     // observer and the Eulerian one
     //------------------------------------------
 
-    Tenseur gam0 = 1 / sqrt( 1 -  unsurc2 * sprod(bsn, bsn) ) ;  
-	
+    Tenseur gam0 = 1/sqrt(1-unsurc2*a_car%flat_scalar_prod_desal(bsn,bsn)) ;
+    gam0.set_std_base() ;
+
     //------------------------------------------
     // Lorentz factor and 3-velocity of the fluid 
     //  with respect to the Eulerian observer
@@ -112,13 +118,14 @@ void Etoile_bin::hydro_euler(){
 //	cout << "   d_psi.d_psi would be better computed in spher. coord. !"
 //##	     << endl ; 
 
-	gam_euler = sqrt( 1 + unsurc2 * flat_scalar_prod(d_psi, d_psi)
-				    / a_car / (hhh*hhh) ) ; 
+        d_psi.set_std_base() ;
+	gam_euler = sqrt( 1 + unsurc2 * flat_scalar_prod_desal(d_psi, d_psi)
+				    / a_car / (hhh%hhh) ) ; 
 
 	gam_euler.set_std_base() ;  // sets the standard spectral bases for
 				    // a scalar field
 
-	Tenseur vtmp = d_psi / ( hhh * gam_euler * a_car ) ; 
+	Tenseur vtmp = d_psi / ( hhh % gam_euler % a_car ) ; 
 
 	// The assignment of u_euler is performed component by component 
 	//  because u_euler is contravariant and d_psi is covariant
@@ -152,13 +159,14 @@ void Etoile_bin::hydro_euler(){
     //  Energy density E with respect to the Eulerian observer
     //------------------------------------
     
-    ener_euler = gam_euler * gam_euler * ( ener + press ) - press ; 
+    ener_euler = gam_euler % gam_euler % ( ener + press ) - press ; 
     
     //------------------------------------
     // Trace of the stress tensor with respect to the Eulerian observer
     //------------------------------------
     
-    s_euler = 3 * press  +  ( ener_euler + press ) * sprod(u_euler, u_euler) ;
+    s_euler = 3 * press  +  ( ener_euler + press ) %
+      a_car % flat_scalar_prod_desal(u_euler, u_euler) ;
     
 
     //-------------------------------------------
@@ -166,14 +174,16 @@ void Etoile_bin::hydro_euler(){
     //	co-orbiting observers
     //--------------------------------------------
     
-    Tenseur gam = gam0 * gam_euler * ( 1 + unsurc2 * sprod(bsn, u_euler) ) ; 
-		
+    Tenseur tmp = ( 1+unsurc2*a_car%flat_scalar_prod_desal(bsn,u_euler) ) ;
+    tmp.set_std_base() ;
+    Tenseur gam = gam0 % gam_euler % tmp ;
+
     //-------------------------------------------
     //	Spatial projection of the fluid 3-velocity
     //  with respect to the co-orbiting observer
     //--------------------------------------------
 
-    wit_w = gam_euler / gam * u_euler + gam0 * bsn ; 
+    wit_w = gam_euler / gam % u_euler + gam0 % bsn ; 
 
     wit_w.set_std_base() ;  // set the bases for spectral expansions
 
@@ -193,7 +203,7 @@ void Etoile_bin::hydro_euler(){
     }
     else {
 
-	loggam = 0.5 * flat_scalar_prod(wit_w, wit_w) ;
+	loggam = 0.5 * flat_scalar_prod_desal(wit_w, wit_w) ;
 
         loggam.set_std_base() ;   // set the bases for spectral expansions
 
