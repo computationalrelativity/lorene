@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/10/06 06:52:26  e_gourgoulhon
+ * Corrected documentation.
+ *
  * Revision 1.6  2003/10/05 21:04:25  e_gourgoulhon
  * Improved comments
  *
@@ -73,7 +76,7 @@ class Connection_flat ;
  * Note that we use the MTW convention for the indices of the connection 
  * coefficients with respect to a given triad $(e_i)$:
  * \begin{equation}
- *  \Gamma^i_[\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle 
+ *  \Gamma^i_{\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle 
  * \end{equation} 
  *  
  * @version #$Id$#
@@ -100,7 +103,7 @@ class Connection {
 	 * triad $(e_i)$ are defined
 	 * according to the MTW convention:
 	 * \begin{equation}
-	 *  \Gamma^i_[\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle
+	 *  \Gamma^i_{\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle
 	 * \end{equation} 
 	 *
 	 */
@@ -143,7 +146,7 @@ class Connection {
 	 * flat connection. The connection coefficients with respect to the 
 	 * triad $(e_i)$ are defined according to the MTW convention:
 	 * \begin{equation}
-	 *  \Gamma^i_[\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle
+	 *  \Gamma^i_{\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle
 	 * \end{equation} 
 	 *
 	 */
@@ -200,7 +203,7 @@ class Connection {
 	 * flat connection. The connection coefficients with respect to the 
 	 * triad $(e_i)$ are defined according to the MTW convention:
 	 * \begin{equation}
-	 *  \Gamma^i_[\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle
+	 *  \Gamma^i_{\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle
 	 * \end{equation} 
 	 *
 	 * @return {\tt delta}(i,j,k) = $\Delta^i_{\ jk}$
