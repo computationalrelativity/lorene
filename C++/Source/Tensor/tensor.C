@@ -34,6 +34,10 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2003/10/19 19:57:00  e_gourgoulhon
+ * -- Added new method spectral_display
+ * -- slightly rearranged the operator<<
+ *
  * Revision 1.21  2003/10/16 15:27:46  e_gourgoulhon
  * Name of method annule(int ) changed to annule_domain(int ).
  *
@@ -656,46 +660,74 @@ void Tensor::mult_r_ced() {
 // Le cout :
 ostream& operator<<(ostream& flux, const Tensor &source ) {
 
-  flux << '\n' ;
-  flux << typeid(source).name() << '\n' ;
+  	flux << '\n' ;
+  	flux << typeid(source).name() << '\n' ;
     
     flux << "Valence : " << source.valence << '\n' ;
 
     if (source.get_triad() != 0x0) {
-	flux << "Vectorial basis (triad) on which the components are defined :" 
+		flux << "Vectorial basis (triad) on which the components are defined :" 
 	     << '\n' ; 
-	flux << *(source.get_triad()) << '\n' ;
+		flux << *(source.get_triad()) << '\n' ;
     }
     
-    if (source.valence != 0)
-	flux << "Type of the indices : " << '\n' ;
-    for (int i=0 ; i<source.valence ; i++) {
-	flux << "Index " << i << " : " ;
-	if (source.type_indice(i) == CON)
-	    flux << " contravariant." << '\n' ;
-	else
-	    flux << " covariant." << '\n' ;
+    if (source.valence != 0) {
+		flux <<    "Type of the indices : " ;
+		for (int i=0 ; i<source.valence ; i++) {
+			flux << "index " << i << " : " ;
+			if (source.type_indice(i) == CON)
+	    		flux << " contravariant." << '\n' ;
+			else
+	    		flux << " covariant." << '\n' ;
+			if ( i < source.valence-1 ) flux << "                     " ;
+		}
+		flux << '\n' ; 
 	}
     
     for (int i=0 ; i<source.n_comp ; i++) {
 
-      Itbl num_indices (source.indices(i)) ;
-      flux << "Component " ;
-		
-      if (source.valence != 0) {
-	for (int j=0 ; j<source.valence ; j++)
-	  flux << "  " << num_indices(j) ;
-      }
-      else
-	flux << "  " << 0 ;
-      flux << " : " << '\n' ;
-      flux << "-------------" << '\n' ; 
+		if (source.valence == 0) {
+			flux << 
+			"===================== Scalar field ========================= \n" ;
+		}
+		else { 
+      		flux << "================ Component " ;
+			Itbl num_indices = source.indices(i) ;
+			for (int j=0 ; j<source.valence ; j++) {
+	  			flux << " " << num_indices(j) ;
+      		}
+			flux << " ================ \n" ; 
+		}
+		flux << '\n' ; 
       
-      flux << *source.cmp[i] << '\n' ;
+      	flux << *source.cmp[i] << '\n' ;
     }
-    
-    flux << " -----------------------------------------------------" << endl ;
-    return flux ;
+	
+	return flux ;
+}
+
+
+void Tensor::spectral_display(double thres, int precis, ostream& ost) const {
+
+	for (int ic=0; ic<n_comp; ic++) {
+		
+		if (valence == 0) {
+			ost << 
+			"===================== Scalar field ========================= \n" ;
+		}
+		else { 
+      		ost << "================ Component " ;
+			Itbl num_indices = indices(ic) ;
+			for (int j=0 ; j<valence ; j++) {
+	  			ost << " " << num_indices(j) ;
+      		}
+			ost << " ================ \n" ; 
+		}
+		ost << '\n' ; 
+		
+		cmp[ic]->spectral_display(thres, precis, ost) ; 
+		ost << '\n' ; 			
+	}
 }
 
 
