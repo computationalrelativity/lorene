@@ -33,6 +33,9 @@ char et_rot_mag_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2002/10/17 11:30:54  j_novak
+ * Corrected mistake in angu_mom()
+ *
  * Revision 1.14  2002/06/03 13:00:45  e_marcq
  *
  * conduc parameter read in parmag.d
@@ -273,8 +276,8 @@ double Et_rot_mag::angu_mom() const {
 	dens.va = (dens.va).mult_st() ;	//    r sin(theta)
 
 	if (relativistic) {
-	    dens = a_car() * b_car() * (ener_euler() + press()) 
-			* dens + bbb() * Jp_em() ; 
+	    dens = a_car() * (b_car() * (ener_euler() + press()) 
+			* dens + bbb() * Jp_em()) ; 
 	}
 	else {    // Newtonian case 
 	    dens = nbar() * dens ; 
