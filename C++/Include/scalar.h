@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2003/10/13 13:52:39  j_novak
+ * Better managment of derived quantities.
+ *
  * Revision 1.19  2003/10/10 15:57:27  j_novak
  * Added the state one (ETATUN) to the class Scalar
  *
@@ -321,7 +324,7 @@ class Scalar : public Tensor {
   // -----------------
  protected:
   void del_t() ;		    /// Logical destructor
-  void del_deriv() const;	    /// Logical destructor of the derivatives
+  virtual void del_deriv() const;	    /// Logical destructor of the derivatives
   void set_der_0x0() const;	    /// Sets the pointers for derivatives to 0x0
   
  public:

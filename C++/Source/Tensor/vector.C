@@ -32,6 +32,9 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/13 13:52:40  j_novak
+ * Better managment of derived quantities.
+ *
  * Revision 1.5  2003/10/06 13:58:48  j_novak
  * The memory management has been improved.
  * Implementation of the covariant derivative with respect to the exact Tensor
@@ -120,7 +123,9 @@ Vector::Vector(const Map& mapping, const Base_vect& triad_i, FILE* fd) :
 
 
 Vector::~Vector () {
-  del_deriv() ;
+
+  Vector::del_deriv() ;
+
 }
 
 
@@ -139,11 +144,21 @@ void Vector::set_der_0x0() const {
 
 }
 
+void Vector::operator=(const Vector& t) {
+    
+    triad = t.triad ; 
+
+    assert(t.type_indice(0) == type_indice(0)) ;
+
+    for (int i=0 ; i<3 ; i++) {
+      *cmp[i] = *t.cmp[i] ;
+    }
+    del_deriv() ;
+}
+
 void Vector::operator=(const Tensor& t) {
     
     assert (t.valence == 1) ;
-
-    del_deriv() ;
 
     triad = t.triad ; 
 

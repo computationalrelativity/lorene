@@ -32,6 +32,9 @@ char tensor_delta_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/13 13:52:40  j_novak
+ * Better managment of derived quantities.
+ *
  * Revision 1.2  2003/10/11 16:47:10  e_gourgoulhon
  * Suppressed the call to Ibtl::set_etat_qcq() after the construction
  * of the Itbl's, thanks to the new property of the Itbl class.
@@ -119,9 +122,26 @@ Tensor_delta::Tensor_delta(const Map& map, const Base_vect& triad_i, FILE* fd)
 			//  Destructor  //
 			//--------------//
 
-Tensor_delta::~Tensor_delta() {}
+Tensor_delta::~Tensor_delta() {
 
+  Tensor_delta::del_deriv() ;
 
+}
+
+			//-------------------//
+			// Memory managment  //
+			//-------------------//
+
+void Tensor_delta::del_deriv() const {
+
+  set_der_0x0() ;
+  Tensor::del_deriv() ;
+
+}
+
+void Tensor_delta::set_der_0x0() const {
+
+}
 
 
 	

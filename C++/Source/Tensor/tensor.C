@@ -34,6 +34,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2003/10/13 13:52:40  j_novak
+ * Better managment of derived quantities.
+ *
  * Revision 1.18  2003/10/11 16:47:10  e_gourgoulhon
  * Suppressed the call to Ibtl::set_etat_qcq() after the construction
  * of the Itbl's, thanks to the new property of the Itbl class.
@@ -294,10 +297,12 @@ Tensor::Tensor (const Map& map, int val, int tipe, int compo,
 
 Tensor::~Tensor () {
     
-    del_deriv() ;
+    Tensor::del_deriv() ;
 
-    for (int i=0 ; i<n_comp ; i++)
-      delete cmp[i] ;
+    for (int i=0 ; i<n_comp ; i++) {
+      if (cmp[i] != 0x0)
+	delete cmp[i] ;
+    }
     delete [] cmp ;
 }
 

@@ -35,6 +35,9 @@ char sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/10/13 13:52:39  j_novak
+ * Better managment of derived quantities.
+ *
  * Revision 1.8  2003/10/11 16:47:10  e_gourgoulhon
  * Suppressed the call to Ibtl::set_etat_qcq() after the construction
  * of the Itbl's, thanks to the new property of the Itbl class.
@@ -144,7 +147,7 @@ Sym_tensor::Sym_tensor(const Map& map, const Base_vect& triad_i, FILE* fd)
 
 Sym_tensor::~Sym_tensor() {
 
-  del_deriv() ;
+  Sym_tensor::del_deriv() ;
 
 }
 

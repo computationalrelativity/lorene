@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/10/13 13:52:39  j_novak
+ * Better managment of derived quantities.
+ *
  * Revision 1.7  2003/10/12 20:33:15  e_gourgoulhon
  * Added new derived class Vector_divfree (preliminary).
  *
@@ -113,7 +116,7 @@ class Vector: public Tensor {
     // Memory management
     // -----------------
     protected:
-	void del_deriv() const;	/// Deletes the derived quantities
+	virtual void del_deriv() const;	/// Deletes the derived quantities
 
 	/// Sets the pointers on derived quantities to 0x0
 	void set_der_0x0() const ; 
@@ -127,6 +130,9 @@ class Vector: public Tensor {
 	 */
 	virtual void change_triad(const Base_vect& ) ; 
 
+	/// Assignment from a Vector
+	virtual void operator=(const Vector&) ;	
+	
 	/// Assignment from a Tensor
 	virtual void operator=(const Tensor&) ;	
 	
@@ -265,7 +271,7 @@ class Vector_divfree: public Vector {
     // Memory management
     // -----------------
     protected:
-	void del_deriv() const;	/// Deletes the derived quantities
+	virtual void del_deriv() const;	/// Deletes the derived quantities
 
 	/// Sets the pointers on derived quantities to 0x0
 	void set_der_0x0() const ; 
@@ -278,7 +284,10 @@ class Vector_divfree: public Vector {
 	/// Assignment from another {\tt Vector\_divfree}
 	void operator=(const Vector_divfree&) ;	
 	
-	/// Assignment from a Tensor
+	/// Assignment from a {\tt Vector}
+	virtual void operator=(const Vector&) ;	
+	
+	/// Assignment from a [\tt Tensor}
 	virtual void operator=(const Tensor&) ;	
 	
 

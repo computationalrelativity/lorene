@@ -34,6 +34,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2003/10/13 13:52:40  j_novak
+ * Better managment of derived quantities.
+ *
  * Revision 1.12  2003/10/11 14:42:16  e_gourgoulhon
  * Suppressed unusued argument new_triad in method change_triad.
  *
@@ -176,7 +179,7 @@ void Scalar::del_t() {
 
     va.del_t() ;
     va.set_etat_nondef() ;
-    del_deriv() ;
+    Scalar::del_deriv() ;
 
 }
 

@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2003/10/13 13:52:39  j_novak
+ * Better managment of derived quantities.
+ *
  * Revision 1.19  2003/10/08 14:24:08  j_novak
  * replaced mult_r_zec with mult_r_ced
  *
@@ -313,7 +316,7 @@ class Tensor {
     // Memory management
     // -----------------
     protected:
-	void del_deriv() const ;	/// Deletes the derived quantities
+	virtual void del_deriv() const ;	/// Deletes the derived quantities
 
 	/// Sets the pointers on derived quantities to 0x0
 	void set_der_0x0() const ; 
@@ -780,7 +783,7 @@ class Sym_tensor : public Tensor {
     // Memory management
     // -----------------
     protected:
-	void del_deriv() const;	/// Deletes the derived quantities
+	virtual void del_deriv() const;	/// Deletes the derived quantities
 
 	/// Sets the pointers on derived quantities to 0x0
 	void set_der_0x0() const ; 
@@ -931,6 +934,15 @@ class Tensor_delta : public Tensor {
 
 	virtual ~Tensor_delta() ;    /// Destructor
 	
+    // Memory management
+    // -----------------
+    protected:
+	virtual void del_deriv() const;	/// Deletes the derived quantities
+
+	/// Sets the pointers on derived quantities to 0x0
+	void set_der_0x0() const ; 
+
+
     // Mutators / assignment
     // ---------------------
     public:
