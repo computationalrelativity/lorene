@@ -31,6 +31,10 @@ char binary_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/07/21 11:46:24  f_limousin
+ * Add function mass_adm_vol() to compute the ADM mass of the system
+ * with a volume integral instead of a surface one.
+ *
  * Revision 1.7  2004/05/25 14:25:53  f_limousin
  * Add the virial theorem for conformally flat configurations.
  *
@@ -61,6 +65,7 @@ char binary_global_C[] = "$Header$" ;
 #include "binary.h"
 #include "map.h"
 #include "unites.h"
+#include "coord.h"
 
 		    //---------------------------------//
 		    //		ADM mass	       //
@@ -80,7 +85,6 @@ double Binary::mass_adm() const {
     const Map_af map0 (et[0]->get_mp()) ;
     
     Sym_tensor gamij_cov = gamij.cov() ;
-    gamij_cov.std_spectral_base() ;
     const Tensor& dcov_gamij = gamij_cov.derive_cov(flat) ;
     
     Vector dgamma_1 =  contract( flat.con(), 1, contract(contract(flat.con()
@@ -100,6 +104,64 @@ double Binary::mass_adm() const {
     
 }
 
+double Binary::mass_adm_vol() const {
+
+  using namespace Unites ;
+
+  double mass_adm ;
+  mass_adm = 0. ;
+
+  for (int i=0; i<=1; i++) {	    // loop on the stars
+
+      const Scalar& psi4 = et[i]->get_psi4() ;
+      const Scalar& ener_euler = et[i]->get_ener_euler() ;
+      const Scalar& kcar_auto = et[i]->get_kcar_auto() ;
+      const Scalar& kcar_comp = et[i]->get_kcar_comp() ;
+      const Metric& gtilde = et[i]->get_gtilde() ;
+      const Metric& flat = et[i]->get_flat() ;
+      const Sym_tensor& hij_auto = et[i]->get_hij_auto() ;
+      const Scalar& beta = et[i]->get_beta_auto() + et[i]->get_beta_comp() ;
+      const Scalar& logn = et[i]->get_logn_auto() + et[i]->get_logn_comp() ;
+
+      const Sym_tensor& gtilde_cov = gtilde.cov() ;
+      const Sym_tensor& gtilde_con = gtilde.con() ;
+      const Scalar& lnpsi = 0.5 * (beta - logn) ;
+      Scalar nnn = exp(logn) ;
+      nnn.std_spectral_base() ;
+      Scalar qq = exp(beta) ;
+      qq.std_spectral_base() ;
+
+      const Tensor& dcov_hij_auto = hij_auto.derive_cov(flat) ;
+      const Tensor& dcov_gtilde = gtilde_cov.derive_cov(flat) ;
+      const Tensor& dcov_lnpsi = lnpsi.derive_cov(flat) ;
+      const Tensor& dcov_logn = logn.derive_cov(flat) ;
+      Tensor dcovdcov_qq = qq.derive_cov(flat).derive_cov(flat) ;
+      dcovdcov_qq.inc_dzpuis() ;
+      Tensor dcovdcov_nnn = nnn.derive_cov(flat).derive_cov(flat) ;
+      dcovdcov_nnn.inc_dzpuis() ;
+      
+      
+      Scalar source = pow(psi4, 1.25) * (ener_euler + (kcar_auto + kcar_comp)
+					 / (4.*qpig)) ;
+
+      source += - pow(psi4, 0.25) / (4.*qpig) * 
+	  (0.0625 * contract(gtilde_con, 0, 1, contract(
+			      dcov_hij_auto, 0, 1, dcov_gtilde, 0, 1), 0, 1) - 
+           0.125 * contract(gtilde_con, 0, 1, contract(dcov_hij_auto, 
+			      0, 1, dcov_gtilde, 0, 2), 0, 1) + 
+	   contract(hij_auto, 0, 1, 2*dcov_lnpsi * dcov_lnpsi +
+		    4*dcov_lnpsi * dcov_logn - dcovdcov_qq / qq +
+		    dcovdcov_nnn / nnn, 0, 1) ) ;
+
+      source.std_spectral_base() ;
+
+      mass_adm += source.integrale() ;
+	  
+  }
+
+  return mass_adm ;
+
+}
 
 		    //---------------------------------//
 		    //		Komar mass	       //
@@ -143,38 +205,35 @@ const Tbl& Binary::angu_mom() const {
       
       p_angu_mom->annule_hard() ;	// fills the double array with zeros
       
-      
-      //     Map_af map0 (et[0]->get_mp()) ; 
-      const Metric& flat = et[0]->get_flat() ;
       const Sym_tensor& kij_auto = et[0]->get_tkij_auto() ;
-      const Sym_tensor& kij_comp = et[0]->get_tkij_auto() ;
+      const Sym_tensor& kij_comp = et[0]->get_tkij_comp() ;
       const Tensor& psi4 = et[0]->get_psi4() ;
       const Map_af map0 (kij_auto.get_mp()) ;
 
-      Sym_tensor kij = (kij_auto + kij_comp) * psi4 ;
+      Sym_tensor kij = (kij_auto + kij_comp) / psi4 ;
       kij.change_triad(map0.get_bvect_cart()) ;
  
       // X component
       // -----------
 
-      Vector vect_x(psi4.derive_cov(flat)) ;
-      vect_x.change_triad(map0.get_bvect_cart()) ;
+      Vector vect_x(et[0]->get_mp(), CON, map0.get_bvect_cart()) ;      
        
       for (int i=1; i<=3; i++) {
 
-	  Scalar kij_mod1 = kij(3, i) ;
-	  Scalar kij_mod2 = kij(2, i) ;
+	  Scalar kij_1 = kij(3, i) ;
+	  Scalar kij_2 = kij(2, i) ;
 	  	  
-	  kij_mod1.mult_rsint() ;
-	  kij_mod1.get_spectral_va().mult_sp() ;
+	  kij_1.mult_rsint() ;
+	  Valeur vtmp = kij_1.get_spectral_va().mult_sp() ;
+	  kij_1.set_spectral_va() = vtmp ; 
 	  
-	  kij_mod2.mult_r() ;
-	  kij_mod2.get_spectral_va().mult_cp() ;
+	  kij_2.mult_r() ;
+	  vtmp = kij_2.get_spectral_va().mult_ct() ;
+	  kij_2.set_spectral_va() = vtmp ; 
 
-	  vect_x.set(i) = kij_mod1 - kij_mod2 ;
-      
+	  vect_x.set(i) = kij_1 - kij_2 ;
       }
-      vect_x.std_spectral_base() ;
+ 
       vect_x.change_triad(map0.get_bvect_spher()) ;
       Scalar integrant_x (vect_x(1)) ;
       
@@ -184,24 +243,24 @@ const Tbl& Binary::angu_mom() const {
       // Y component
       // -----------
       
-      Vector vect_y(psi4.derive_cov(flat)) ;
-      vect_y.change_triad(map0.get_bvect_cart()) ; 
+      Vector vect_y(et[0]->get_mp(), CON, map0.get_bvect_cart()) ;      
    
       for (int i=1; i<=3; i++) {
 
-	  Scalar kij_mod1 = kij(1, i) ;
-	  Scalar kij_mod2 = kij(3, i) ;	  
+	  Scalar kij_1 = kij(1, i) ;
+	  Scalar kij_2 = kij(3, i) ;	  
 	  
-	  kij_mod1.mult_r() ;
-	  kij_mod1.get_spectral_va().mult_ct() ;
+	  kij_1.mult_r() ;
+	  Valeur vtmp = kij_1.get_spectral_va().mult_ct() ;
+	  kij_1.set_spectral_va() = vtmp ; 
 	  
-	  kij_mod2.mult_rsint() ;
-	  kij_mod2.get_spectral_va().mult_cp() ;
+	  kij_2.mult_rsint() ;
+	  vtmp = kij_2.get_spectral_va().mult_cp() ;
+	  kij_2.set_spectral_va() = vtmp ; 
 	 
-	  vect_y.set(i) = kij_mod1 - kij_mod2 ;
- 
+	  vect_y.set(i) = kij_1 - kij_2 ;
       }
-      vect_y.std_spectral_base() ;
+
       vect_y.change_triad(map0.get_bvect_spher()) ;
       Scalar integrant_y (vect_y(1)) ;
       
@@ -210,30 +269,30 @@ const Tbl& Binary::angu_mom() const {
       
       // Z component
       // -----------
-      Vector vect_z(psi4.derive_cov(flat)) ;
-      vect_z.change_triad(map0.get_bvect_cart()) ;      
- 
-  
+
+      Vector vect_z(et[0]->get_mp(), CON, map0.get_bvect_cart()) ;      
+
       for (int i=1; i<=3; i++) {
 
-	  Scalar kij_mod1 = kij(2, i) ;
-	  Scalar kij_mod2 = kij(1, i) ;
-	  	  
-	  kij_mod1.mult_rsint() ;
-	  kij_mod1.get_spectral_va().mult_cp() ;
+	  Scalar kij_1 = kij(2, i) ;
+	  Scalar kij_2 = kij(1, i) ;	  	  
 
-	  kij_mod2.mult_rsint() ;
-	  kij_mod2.get_spectral_va().mult_sp() ;
-	  
-	vect_z.set(i) = kij_mod1 - kij_mod2 ;
+	  kij_1.mult_rsint() ;
+	  Valeur vtmp = kij_1.get_spectral_va().mult_cp() ;
+	  kij_1.set_spectral_va() = vtmp ; 
+
+	  kij_2.mult_rsint() ;
+	  vtmp =  kij_2.get_spectral_va().mult_sp() ;
+	  kij_2.set_spectral_va() = vtmp ;
+
+	  vect_z.set(i) = kij_1 - kij_2 ;
       }
        
-      vect_z.std_spectral_base() ;
       vect_z.change_triad(map0.get_bvect_spher()) ;
       Scalar integrant_z (vect_z(1)) ;
       
       p_angu_mom->set(2) = map0.integrale_surface_infini (integrant_z) 
-	                 / (8*M_PI) ;
+	                 ;// (8*M_PI) ;
       
       
     }	// End of the case where a new computation was necessary

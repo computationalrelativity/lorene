@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/07/21 11:45:20  f_limousin
+ * Add function mass_adm_vol() to compute the ADM mass of the system
+ * with a volume integral instead of a surface one.
+ *
  * Revision 1.4  2004/05/25 14:50:06  f_limousin
  * Add the virial theorem for conformally flat configurations.
  *
@@ -221,6 +225,9 @@ class Binary {
 
 	/// Total ADM mass
     	double mass_adm() const ;
+
+	/// Total ADM mass (computed by a volume integral)
+    	double mass_adm_vol() const ;
 
 	/// Total Komar mass
     	double mass_kom() const ;
