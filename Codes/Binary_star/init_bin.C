@@ -29,8 +29,8 @@ char init_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.3  2004/03/25 12:35:42  j_novak
- * now using namespace Unites
+ * Revision 1.4  2004/09/16 12:14:30  f_limousin
+ * *** empty log message ***
  *
  * Revision 1.2  2004/01/22 10:12:50  f_limousin
  * First version
@@ -45,18 +45,17 @@ char init_bin_C[] = "$Header$" ;
 #include <math.h>
 
 // headers Lorene
+#include "unites.h"
 #include "binary.h"
 #include "eos.h"
 #include "utilitaires.h"
 #include "graphique.h"
 #include "nbr_spx.h"
-#include "unites.h"	    
 
 //******************************************************************************
 
 int  main(){
     
-  using namespace Unites ;
 
     // Identification of all the subroutines called by the code : 
     
@@ -225,6 +224,8 @@ int  main(){
     //		Physical parameters imput
     //-----------------------------------------------------------------------
 
+    using namespace Unites ;
+
     fich.open("par_init.d") ;
     fich.getline(blabla, 80) ;
     fich.getline(blabla, 80) ;
@@ -254,7 +255,7 @@ int  main(){
     //-----------------------------------------------------------------------
     //		Construction of a binary system
     //-----------------------------------------------------------------------
-  
+
     Binary star(mp1, nzet1, eos1, irrot1, 
 		 mp2, nzet2, eos2, irrot2, conf_flat) ;			
     
@@ -266,7 +267,7 @@ int  main(){
     
     cout << endl << "Computation of a static configuration for star 1"
 	 << endl << "================================================" << endl ;
-    (star.set(1)).equilibrium_spher(ent_c2, precis) ; 
+    (star.set(1)).equilibrium_spher(ent_c1, precis) ; 
 
     cout << endl << "Computation of a static configuration for star 2"
 	 << endl << "================================================" << endl ; 

@@ -29,8 +29,8 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.3  2004/03/25 12:35:40  j_novak
- * now using namespace Unites
+ * Revision 1.4  2004/09/16 12:14:23  f_limousin
+ * *** empty log message ***
  *
  * Revision 1.2  2004/01/22 10:15:20  f_limousin
  * First version
@@ -45,18 +45,19 @@ char coal_C[] = "$Header$" ;
 #include <time.h>
 
 // headers Lorene
+#include "unites.h"
+#include "cmp.h"
+#include "tenseur.h"
 #include "binary.h"
 #include "eos.h"
 #include "utilitaires.h"
 #include "graphique.h"
-#include "unites.h"	    
+#include "param.h"
 
 // Local prototype
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
 
 int main(){
-
-  using namespace Unites ;
 
     // Identification of all the subroutines called by the code : 
     
@@ -66,6 +67,8 @@ int main(){
     char display_bold[]="x[1m" ; display_bold[0] = 27 ;
     char display_normal[] = "x[0m" ; display_normal[0] = 27 ;
 
+    using namespace Unites ;
+    
     //------------------------------------------------------------------
     //	    Parameters of the computation 
     //------------------------------------------------------------------
@@ -230,14 +233,21 @@ int main(){
     //	    Update of the initial conditions 
     //------------------------------------------------------------------
 
-    // Initialisation of psi4, N, etc...
+    // Initialisation of logn, beta, psi4 etc...
     // ---------------------------------
 
     star.fait_decouple() ;
+    for (int i=1; i<=2; i++) {
+	(star.set(i)).update_metric_init1() ; 
+    }
 
     for (int i=1; i<=2; i++) {
-	(star.set(i)).update_metric_init() ; 
+	(star.set(i)).update_metric_init2(star(3-i)) ; 
     }
+     for (int i=1; i<=2; i++) {
+	(star.set(i)).update_decouple(star(3-i)) ; 
+    }
+
 
 
     for (int i=1; i<=2; i++) {
@@ -261,18 +271,23 @@ int main(){
 	(star.set(i)).hydro_euler() ; 
     }
 
+ 
+    // New initial of value Omega (taking into account the fact
+    //  that the separation has changed)
+    
+    star.analytical_omega() ; 
+   
     // If the shift vector has not been set previously, it is set to
     //  some analytical value
     // -------------------------------------------------------------
     
     star.analytical_shift() ;
+    for (int i=1; i<=2; i++) {
+	star.set(i).set_shift_auto() = reduce_shift*star(i).get_shift_auto() ; 
+    }
 
-    // New initial of value Omega (taking into account the fact
-    //  that the separation has changed)
+    cout << reduce_shift << endl ;
     
-    star.analytical_omega() ; 
-
-	
     // A second call to update_metric must be performed to update
     //  shift_comp, tkij_auto and akcar_auto. 
     for (int i=1; i<=2; i++) {
@@ -294,7 +309,8 @@ int main(){
 	(star.set(i)).hydro_euler() ; 
     }
 	
-	
+    //   abort() ;
+
 
 //##
     FILE* fresu = fopen("resu.d", "w") ; 
@@ -339,19 +355,25 @@ int main(){
     fact_resize[1].set_etat_qcq() ; 
 
 // Error indicators in each star
-    Tbl differ[] = {Tbl(7), Tbl(7)} ;
+    Tbl differ[] = {Tbl(13), Tbl(13)} ;
     differ[0].set_etat_qcq() ; 
     differ[1].set_etat_qcq() ; 
 
     for (int i=1 ; i<=2 ; i++) {
-	ent_c[i-1] = star(i).get_ent().point(0, 0, 0, 0) ;  
+	ent_c[i-1] = star(i).get_ent().val_grid_point(0, 0, 0, 0) ;  
 	differ[i-1].set(0) = 1 ;	    // diff_ent = 1
 	differ[i-1].set(1) = 1 ;	    // err_psi = 1
 	differ[i-1].set(2) = 1 ;	    // err_logn = 1
-	differ[i-1].set(3) = 1 ;	    // err_qq = 1
+	differ[i-1].set(3) = 1 ;	    // err_beta = 1
 	differ[i-1].set(4) = 1 ;	    // err_shift_x = 1
 	differ[i-1].set(5) = 1 ;	    // err_shift_y = 1
 	differ[i-1].set(6) = 1 ;	    // err_shift_z = 1
+	differ[i-1].set(7) = 1 ;	    // err_h11 = 1
+	differ[i-1].set(8) = 1 ;	    // err_h21 = 1
+	differ[i-1].set(9) = 1 ;	    // err_h31 = 1
+	differ[i-1].set(10) = 1 ;	    // err_h22 = 1
+	differ[i-1].set(11) = 1 ;	    // err_h32 = 1
+	differ[i-1].set(12) = 1 ;	    // err_h33 = 1
     }
     
     double relax_jm1 = 1. - relax ; 
@@ -373,6 +395,7 @@ int main(){
 	star_jm1.set(i).set_pot_centri() = 0 ; 
     }
     
+
 //----------------------------------------------------------------
 //	 Openning of log files
 //----------------------------------------------------------------
@@ -408,7 +431,7 @@ int main(){
 
     for (int i=1; i<=2; i++) {
 	fichconv[i-1] << 
-	    "#     diff_ent           err_psi         err_logn          err_qq        err_shift_x         err_shift_y         err_shift_z"
+	    "#     diff_ent           err_psi         err_logn          err_beta        err_shift_x         err_shift_y         err_shift_z"
 		      << endl ; 
 
 	fichet[i-1] << 
@@ -417,7 +440,7 @@ int main(){
     }      
 
     double omega_kep, diff_mass ; 
-    int mer ; 
+    int mer ;
     
 //============================================================================
 //		Start of iteration 
@@ -507,7 +530,6 @@ int main(){
 	cout << "New X coordinate of the rotation axis : " 
 	     << star.get_x_axe() / km << " km" << endl ; 
 
-	arrete(prompt) ; 
 
 	fichresu << star.get_x_axe() / km ; 
 	fichresu << "    abscidia of the rotation axis [km] " << endl ; 
@@ -551,13 +573,16 @@ int main(){
     
 	    Scalar tmp = star(i).get_logn_auto() + star(i).get_logn_comp() 
 		+ star(i).get_loggam() ;
-	    double grad1 = tmp.dsdx().point(0, 0, 0, 0) ;
+	    double grad1 = tmp.dsdx().val_grid_point(0, 0, 0, 0) ;
 
-	    double grad2 = star(i).get_pot_centri().dsdx().point(0, 0, 0, 0) ; 
+	    double grad2 = star(i).get_pot_centri().dsdx()
+		.val_grid_point(0, 0, 0, 0) ; 
 
-	    dentdx[i-1] = star(i).get_ent().dsdx().point(0, 0, 0, 0) ; 
+	    dentdx[i-1] = star(i).get_ent().dsdx()
+		.val_grid_point(0, 0, 0, 0) ; 
 
-	    double grad3 = star(i).get_loggam().dsdx().point(0, 0, 0, 0) ; 
+	    double grad3 = star(i).get_loggam().dsdx()
+		.val_grid_point(0, 0, 0, 0) ; 
 
 	    cout << "Star " << i << " : " << endl ; 
 	    cout << "  central dH/dx  : " <<  dentdx[i-1] << endl ; 
@@ -595,8 +620,10 @@ int main(){
 		(star.separation() - ray_eq_comp)/ray_eq_auto ;
 	    fact_resize[i-1].set(0) =
 		(lambda_resize < 2.*num_resize) ? lambda_resize : 2.*num_resize ;
-
 	}
+
+
+	cout << "ok" << endl ;
 
 	for (int i=1; i<=2; i++) {
 
@@ -617,11 +644,10 @@ int main(){
 	    // Call to Star_bin::equilibrium
 	    // --------------------------------
 	
-	    (star.set(i)).equilibrium(ent_c[i-1], mermax_eqb, mermax_poisson, 
-				      relax_poisson, mermax_potvit,
+	    (star.set(i)).equilibrium(ent_c[i-1], mermax_eqb, mermax_potvit, 
+				      mermax_poisson, relax_poisson,
 				      relax_potvit, thres_adapt[i-1],
-				      fact_resize[i-1], differ[i-1]) ;
-
+				      fact_resize[i-1], differ[i-1], mer) ;
 	}
 
 
@@ -672,46 +698,6 @@ int main(){
 
 	cout << star << endl ; 
 
-
-	// Graphical output
-	// ----------------
-/*    
-      if ( (graph==1) && (mer % 5 == 0) ) {
-      double xdes_min = - star(1).ray_eq_pi() + star(1).get_mp().get_ori_x() ; 
-      xdes_min *= 1.5 ; 
-      double xdes_max = star(2).ray_eq_pi() + star(2).get_mp().get_ori_x() ; 
-      xdes_max *= 1.5 ; 
-      double ydes_min = - 2.5 * star(1).ray_eq_pis2() ; 
-      double ydes_max =  2.5 * star(2).ray_eq_pis2() ; 
-
-      Cmp surf1 = star(1).get_ent()() ; 
-      Cmp surf1_ext(mp1) ; 
-      surf1_ext = - 0.2 * surf1(0, 0, 0, 0) ; 
-      surf1_ext.annule(0, star(1).get_nzet()-1) ; 
-      surf1.annule(star(1).get_nzet(), mg1.get_nzone()-1) ; 
-      surf1 = surf1 + surf1_ext ;
-    
-      surf1 = raccord_c1(surf1, star(1).get_nzet()) ; 
-
-      Cmp surf2 = star(2).get_ent()() ; 
-      Cmp surf2_ext(mp2) ; 
-      surf2_ext = - 0.2 * surf2(0, 0, 0, 0) ; 
-      surf2_ext.annule(0, star(2).get_nzet()-1) ; 
-      surf2.annule(star(2).get_nzet(), mg2.get_nzone()-1) ; 
-      surf2 = surf2 + surf2_ext ;
-
-      surf2 = raccord_c1(surf2, star(2).get_nzet()) ; 
-
-      des_coupe_bin_z(star(1).get_nbar()(), star(2).get_nbar()(), 0., 
-      xdes_min, xdes_max, ydes_min, ydes_max, 
-      "Baryon density (z=0)", &surf1, &surf2 ) ; 
-
-      des_coupe_bin_y(star(1).get_nbar()(), star(2).get_nbar()(), 0., 
-      xdes_min, xdes_max, ydes_min, ydes_max, 
-      "Baryon density (y=0)", &surf1, &surf2 ) ; 
-      }
-
-*/  
 
 	//-----------------------------------------------------------------------
 	//		The whole configuration is saved in a file
@@ -848,9 +834,23 @@ int main(){
 	      << " km" << endl ; 
     fichfinal << "1/2 ADM mass :        " << 0.5 * star.mass_adm() / msol 
 	      << " Mo" << endl ;
+    fichfinal << "1/2 ADM mass (vol) :  " << 0.5 * star.mass_adm_vol() / msol 
+	      << " Mo" << endl ;
     fichfinal << "Total angular momentum : "  
 	      << star.angu_mom()(2)/ ( qpig / (4* M_PI) * msol*msol)
 	      << " G M_sol^2 / c" << endl ;
+ 
+    
+    
+    star(1).test_K_Hi() ;
+
+    cout << "1/2 ADM mass :        " << 0.5 * star.mass_adm() / msol 
+	      << " Mo" << endl ;
+    cout << "1/2 ADM mass (vol) :  " << 0.5 * star.mass_adm_vol() / msol 
+	      << " Mo" << endl ;
+    cout << "Total angular momentum : "  
+	 << star.angu_mom()(2)/ ( qpig / (4* M_PI) * msol*msol)
+	 << " G M_sol^2 / c" << endl ;
 
     fichfinal << endl << "Number of steps : " << mer << endl ;
 
@@ -885,8 +885,8 @@ int main(){
 	      << "   star 2 : " << dentdx[1] << endl ; 
 
 
-    fichfinal << "Relative error on the virial theorem : " << endl ; 
-    fichfinal << "   VE(M)= " << star.virial() ;
+//    fichfinal << "Relative error on the virial theorem : " << endl ; 
+//    fichfinal << "   VE(M)= " << star.virial() ;
       
     fichfinal << endl <<
 	"================================================================" << endl ; 
