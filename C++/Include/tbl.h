@@ -37,6 +37,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2002/10/16 14:36:29  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.5  2002/09/24 10:49:42  e_gourgoulhon
  *
  * Modif commentaires.
@@ -102,7 +106,6 @@
 
 
 // Fichiers includes
-#include <iostream.h>
 #include <assert.h>
 #include <stdlib.h>
 

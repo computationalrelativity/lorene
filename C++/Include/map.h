@@ -38,6 +38,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2002/10/16 14:36:29  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.5  2002/09/13 09:17:33  j_novak
  * Modif. commentaires
  *
@@ -1174,6 +1178,11 @@ class Map_radial : public Map {
     // -----------------
     protected:
 	virtual void reset_coord() ;  /// Resets all the member {\tt Coord}s	
+    // Modification of the mapping
+    // ---------------------------
+    public:
+	/// Assignment to an affine mapping. 
+	virtual void operator=(const Map_af& ) = 0 ;
 		
     // Outputs
     // -------

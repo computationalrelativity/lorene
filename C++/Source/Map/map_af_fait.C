@@ -26,8 +26,12 @@ char map_af_fait_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:36:41  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.6  1999/10/15  09:16:38  eric
  * Changement prototypes: const.
@@ -64,7 +68,6 @@ char map_af_fait_C[] = "$Header$" ;
 // Includes
 #include <assert.h>
 #include <stdlib.h>
-#include <iostream.h>
 #include <math.h>
 
 #include "mtbl.h"

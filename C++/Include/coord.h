@@ -33,6 +33,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/10/16 14:36:28  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.2  2002/06/17 14:05:16  j_novak
  * friend functions are now also declared outside the class definition
  *
@@ -60,7 +64,6 @@
 // Fichier includes
 #include <stdlib.h>
 #include <stdio.h>
-#include <iostream.h>
 #include "mtbl.h"
 
 class Map ;

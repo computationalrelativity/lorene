@@ -32,8 +32,12 @@ char et_rot_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:36:36  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.19  2000/11/23  15:44:10  eric
  * Ajout de l'argument ent_limit.
@@ -107,10 +111,6 @@ char et_rot_equilibrium_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// Entetes du C++
-#include <iostream.h>
-#include <fstream.h>
 
 // Headers C
 #include <math.h>

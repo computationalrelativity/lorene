@@ -31,6 +31,10 @@ char cmp_asymptot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/10/16 14:36:34  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.2  2002/05/22 13:57:25  f_limousin
  * Corrected error in determination of min and max values on the sphere.
  *
@@ -50,9 +54,6 @@ char cmp_asymptot_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// Headers C++
-#include <iomanip.h> 
 
 // Headers C
 #include <math.h>

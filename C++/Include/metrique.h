@@ -33,6 +33,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2002/10/16 14:36:29  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.7  2002/09/13 09:17:33  j_novak
  * Modif. commentaires
  *
@@ -78,9 +82,6 @@
  *
  */
  
-// Headers C++
-#include <iostream.h>
-
 // Headers Lorene 
 #include "tenseur.h"
 

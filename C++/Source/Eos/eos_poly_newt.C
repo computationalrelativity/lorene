@@ -31,6 +31,10 @@ char eos_poly_newt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/10/16 14:36:35  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.2  2002/04/09 14:32:15  e_gourgoulhon
  * 1/ Added extra parameters in EOS computational functions (argument par)
  * 2/ New class MEos for multi-domain EOS
@@ -64,11 +68,6 @@ char eos_poly_newt_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-
-// Headers C++
-#include <iostream.h>
-#include <fstream.h>
 
 // Headers C
 #include <stdlib.h>

@@ -31,6 +31,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/10/16 14:36:29  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.1  2001/11/22 13:38:09  j_novak
  * added Include files for Valencia objects: tbl_val.h and grille_val.h
  *
@@ -40,7 +44,6 @@
  */
 
 // Fichiers includes
-#include <iostream.h>
 #include <assert.h>
 #include <stdlib.h>
 

@@ -29,6 +29,10 @@ char champ_cart_coef_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/10/16 14:36:33  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.1  2002/03/28 10:47:29  n_chamel
  * New class Champ_cart for fields on Cartesian grids.
  *
@@ -39,10 +43,8 @@ char champ_cart_coef_C[] = "$Header$" ;
  *
  */
 
-// C++ headers
-#include <iostream.h>
-
 // Lorene headers
+#include "headcpp.h"
 #include "champ_cart.h"
 #include "type_parite.h"
 #include "utilitaires.h"

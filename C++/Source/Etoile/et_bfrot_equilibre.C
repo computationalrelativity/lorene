@@ -32,6 +32,10 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/10/16 14:36:35  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.4  2002/04/05 09:09:36  j_novak
  * The inversion of the EOS for 2-fluids polytrope has been modified.
  * Some errors in the determination of the surface were corrected.
@@ -52,10 +56,6 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// Entetes du C++
-#include <iostream.h>
-#include <fstream.h>
 
 // Headers C
 #include <math.h>

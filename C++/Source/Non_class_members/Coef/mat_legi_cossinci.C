@@ -67,8 +67,12 @@ char mat_legi_cossinci_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:36:55  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.0  1999/02/22  15:34:21  hyc
  * *** empty log message ***
@@ -78,15 +82,12 @@ char mat_legi_cossinci_C[] = "$Header$" ;
  *
  */
 
-
-// headers du C++
-#include <iostream.h>
-
 // headers du C
 #include <stdlib.h>
 #include <math.h>
 
 // Prototypage
+#include "headcpp.h"
 #include "proto.h"
 
 // Variable de loch

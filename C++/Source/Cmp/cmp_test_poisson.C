@@ -33,8 +33,12 @@ char cmp_test_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:36:34  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.0  2000/10/05  14:22:24  eric
  * *** empty log message ***
@@ -43,9 +47,6 @@ char cmp_test_poisson_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// Headers C++
-#include <iostream.h>
 
 // Headers Lorene
 #include "cmp.h"

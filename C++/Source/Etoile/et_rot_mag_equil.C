@@ -34,6 +34,10 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2002/10/16 14:36:36  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.12  2002/10/11 11:47:35  j_novak
  * Et_rot_mag::MHD_comput is now virtual.
  * Use of standard constructor for Tenseur mtmp in Et_rot_mag::equilibrium_mag
@@ -71,10 +75,6 @@ char et_rot_mag_equil_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// Entetes du C++
-#include <iostream.h>
-#include <fstream.h>
 
 // Headers C
 #include <math.h>

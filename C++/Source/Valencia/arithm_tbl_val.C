@@ -32,6 +32,10 @@ char ARITHM_TBL_VAL_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/10/16 14:37:15  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.1  2001/11/22 13:41:54  j_novak
  * Added all source files for manipulating Valencia type objects and making
  * interpolations to and from Meudon grids.
@@ -40,9 +44,6 @@ char ARITHM_TBL_VAL_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// headers C++
-#include <iostream.h>
 
 // headers Lorene
 #include "tbl_val.h"

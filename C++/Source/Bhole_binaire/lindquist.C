@@ -25,8 +25,12 @@ char lindquist_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:36:33  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.0  2000/12/13  15:42:57  phil
  * *** empty log message ***
@@ -40,7 +44,6 @@ char lindquist_C[] = "$Header$" ;
 //standard
 #include <stdlib.h>
 #include <math.h>
-#include <fstream.h>
 
 // LORENE
 #include "type_parite.h"

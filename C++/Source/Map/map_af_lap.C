@@ -28,8 +28,12 @@ char map_af_lap_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:36:41  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.16  2000/08/16  10:35:41  eric
  * Suppression de Mtbl::dzpuis.
@@ -93,7 +97,6 @@ char map_af_lap_C[] = "$Header$" ;
 
 // Fichiers include
 // ----------------
-#include <iostream.h>
 #include <stdlib.h>
 #include <math.h>
 

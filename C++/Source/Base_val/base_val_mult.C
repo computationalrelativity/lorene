@@ -27,6 +27,10 @@ char base_val_mult_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/10/16 14:36:30  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.3  2002/08/02 15:07:41  j_novak
  * Member function determinant has been added to the class Metrique.
  * A better handling of spectral bases is now implemented for the class Tenseur.
@@ -58,9 +62,9 @@ char base_val_mult_C[] = "$Header$" ;
 // Fichier includes
 #include <stdlib.h>
 #include <stdio.h>
-#include <iostream.h>
 #include <assert.h>
 
+#include "headcpp.h"
 #include "type_parite.h"
 #include "base_val.h"
 

@@ -20,11 +20,15 @@
  */
 
 
-char et_bfort_global_C[] = "$Header$" ;
+char et_bfrot_global_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2002/10/16 14:36:36  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.6  2002/10/14 14:20:08  j_novak
  * Error corrected for angu_mom()
  *

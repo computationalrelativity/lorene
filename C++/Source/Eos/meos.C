@@ -28,6 +28,10 @@ char meos_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/10/16 14:36:35  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.2  2002/04/09 14:42:29  e_gourgoulhon
  * Dummy argument in assignment.
  *
@@ -40,14 +44,11 @@ char meos_C[] = "$Header$" ;
  *
  */
 
-// C++ headers
-#include <iostream.h>
-#include <fstream.h>
-
 // C headers
 #include <stdlib.h>
 
 // Lorene headers
+#include "headcpp.h"
 #include "eos.h"
 #include "utilitaires.h"
 #include "param.h"

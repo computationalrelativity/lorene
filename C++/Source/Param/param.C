@@ -33,6 +33,10 @@ char param_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/10/16 14:37:12  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.2  2002/09/19 09:52:42  j_novak
  * Added objects Qtenseur and Qmetrique for 4D tensor and metric handling.
  *
@@ -73,9 +77,6 @@ char param_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// Headers C++
-#include <iostream.h>
 
 // Headers C
 #include <stdlib.h>

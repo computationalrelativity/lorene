@@ -28,6 +28,10 @@ char test_cmp_val_point_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/10/16 14:37:16  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.2  2002/05/11 12:40:55  e_gourgoulhon
  * Added test for the basis T_COSSIN_SI.
  *
@@ -38,9 +42,6 @@ char test_cmp_val_point_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// C++ headers
-#include <iostream.h>
 
 // C headers
 #include <stdlib.h>

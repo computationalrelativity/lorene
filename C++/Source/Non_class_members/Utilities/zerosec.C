@@ -31,6 +31,10 @@ char zerosec_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/10/16 14:37:12  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.3  2002/04/11 09:19:46  j_novak
  * Back to old version of zerosec
  *
@@ -61,16 +65,13 @@ char zerosec_C[] = "$Header$" ;
  *
  */
 
- 
-// Headers C++
-#include <iostream.h>
-
 // Headers C
 #include <stdlib.h>
 #include <math.h>
 #include <assert.h>
 
 // Headers Lorene 
+#include "headcpp.h"
 #include "param.h"
 //****************************************************************************
 

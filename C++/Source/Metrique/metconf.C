@@ -32,6 +32,10 @@ char metconf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/10/16 14:36:42  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.4  2002/08/14 15:31:17  j_novak
  * The ZEC is now correctly treated in Metconf. A test code is added in
  * Codes/Test/Metrique
@@ -50,9 +54,6 @@ char metconf_C[] = "$Header$" ;
  * $Header$ 
  *
  */
-
-// Headers C++
- #include <iostream.h>
 
 // Headers C
  #include <stdlib.h>

@@ -31,8 +31,12 @@ char grille3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:36:36  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.10  2001/05/26  14:50:46  eric
  * *** empty log message ***
@@ -75,7 +79,6 @@ char grille3d_C[] = "$Header$" ;
 // ----------------
 #include <stdlib.h>
 #include <math.h>
-#include <iostream.h>
 #include <assert.h>
 
 #include "grilles.h"

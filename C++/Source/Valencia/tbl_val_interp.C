@@ -32,6 +32,10 @@ char TBL_VAL_INTER_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/10/16 14:37:15  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.2  2001/11/23 16:03:07  j_novak
  *
  *  minor modifications on the grid check.
@@ -45,13 +49,11 @@ char TBL_VAL_INTER_C[] = "$Header$" ;
  *
  */
 
-// headers C++
-#include <iomanip.h> 
-
 // headers C
 #include <math.h>
 
 // headers Lorene
+#include "headcpp.h"
 #include "tbl_val.h"
 
 

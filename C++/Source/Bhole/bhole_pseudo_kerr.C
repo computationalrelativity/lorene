@@ -25,8 +25,12 @@ char bhole_pseudo_kerr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:36:32  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.9  2001/05/16  14:51:36  phil
  * correction calcul de kij
@@ -68,8 +72,6 @@ char bhole_pseudo_kerr_C[] = "$Header$" ;
 #include <math.h>
 
 // Lorene
-#include "valeur.h"
-#include "cmp.h"
 #include "tenseur.h"
 #include "bhole.h"
 #include "unites.h"

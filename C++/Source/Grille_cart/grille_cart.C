@@ -29,6 +29,10 @@ char grille_cart_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/10/16 14:36:37  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.2  2002/03/15 13:14:56  n_chamel
  * Introduced the private method init_grid_points, to be called by
  * the constructors
@@ -43,9 +47,6 @@ char grille_cart_C[] = "$Header$" ;
  *
  */
 
-// C++ headers
-#include <iostream.h>
-
 // C headers
 #include <stdlib.h>
 #include <math.h>
@@ -53,6 +54,7 @@ char grille_cart_C[] = "$Header$" ;
 
 
 // Lorene headers
+#include "headcpp.h"
 #include "grille_cart.h"
 #include "type_parite.h"
 #include "utilitaires.h"

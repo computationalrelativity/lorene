@@ -25,8 +25,12 @@ char prepa_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:37:12  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.17  2000/05/22  13:40:27  phil
  * ajout du cas dzpuis == 3
@@ -88,7 +92,6 @@ char prepa_poisson_C[] = "$Header$" ;
  */
 
 //fichiers includes
-#include <iostream.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

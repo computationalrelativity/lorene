@@ -25,8 +25,12 @@ char poisson_compact_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:37:12  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.2  2000/03/16  16:28:06  phil
  * Version entirement revue et corrigee
@@ -41,10 +45,6 @@ char poisson_compact_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-
-// Headers C++
-#include <iostream.h>
 
 // Headers C
 #include <stdlib.h>

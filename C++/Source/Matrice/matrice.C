@@ -32,6 +32,10 @@ char matrice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2002/10/16 14:36:42  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.5  2002/09/24 10:51:16  e_gourgoulhon
  *
  * The case of a 1D Tbl in the constructor from Tbl is now taken into account
@@ -94,7 +98,6 @@ char matrice_C[] = "$Header$" ;
 
 
 //fichiers includes
-#include <iostream.h>
 #include <stdlib.h>
 #include "type_parite.h"
 #include "tbl.h"

@@ -31,8 +31,12 @@ char arrete_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:37:12  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.1  1999/12/15  15:40:50  eric
  * L'argument par defaut a=0 est desormais precise dans le prototypage
@@ -48,7 +52,7 @@ char arrete_C[] = "$Header$" ;
 
 
 // headers du C++
-#include <iostream.h>
+#include"headcpp.h"
 
 void arrete(int a) {
     char c ;

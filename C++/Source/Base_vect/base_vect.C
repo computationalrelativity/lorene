@@ -32,6 +32,10 @@ char base_vect_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/10/16 14:36:31  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.2  2001/12/04 21:27:52  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -58,14 +62,12 @@ char base_vect_C[] = "$Header$" ;
  *
  */
 
-// Headers C++
-#include <iostream.h>
-
 // Headers C
 #include <stdlib.h>
 #include <string.h>
 
 // Headers Lorene
+#include "headcpp.h"
 #include "base_vect.h"
 #include "utilitaires.h"
 

@@ -31,8 +31,12 @@ char base_val_phi_funct_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:36:30  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.2  1999/12/29  10:49:35  eric
  * Methode const.
@@ -45,15 +49,13 @@ char base_val_phi_funct_C[] = "$Header$" ;
  *
  */
 
-// Headers C++
-#include <iostream.h>
-
 // Headers C
 #include <stdlib.h>
 #include <math.h>
 
 
 // Headers Lorene
+#include "headcpp.h"
 #include "base_val.h"
 #include "type_parite.h"
 #include "tbl.h"

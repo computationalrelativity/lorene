@@ -29,6 +29,10 @@ char map_et_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/10/16 14:36:41  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.4  2002/05/07 07:10:44  e_gourgoulhon
  * Compatibilty with xlC compiler on IBM SP2:
  * 	suppressed the parenthesis around argument of instruction new:
@@ -87,9 +91,6 @@ char map_et_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// headers C++
-#include <iostream.h>
 
 // headers C
 #include <math.h>

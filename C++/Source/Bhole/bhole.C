@@ -32,6 +32,10 @@ char bhole_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/10/16 14:36:31  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.2  2001/12/04 21:27:52  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -120,8 +124,6 @@ char bhole_C[] = "$Header$" ;
 #include <math.h>
 
 // Lorene
-#include "map.h"
-#include "cmp.h"
 #include "tenseur.h"
 #include "bhole.h"
 #include "proto.h"

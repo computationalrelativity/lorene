@@ -31,8 +31,12 @@ char tbl_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:37:14  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.4  2000/09/27  14:20:39  eric
  * Remplacement du text x == 0. par x == double(0)
@@ -53,9 +57,6 @@ char tbl_arithm_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// headers C++
-#include <iostream.h>
 
 // headers Lorene
 #include "tbl.h"

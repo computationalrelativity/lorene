@@ -86,6 +86,10 @@ char circheb_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/10/16 14:36:53  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.3  2002/09/09 14:04:22  e_gourgoulhon
  *
  * Correction of an error : fft991_  ->  F77_fft991
@@ -107,15 +111,13 @@ char circheb_C[] = "$Header$" ;
  *
  */
 
-// headers du C++
-#include <iostream.h>
-
 // headers du C
 #include <assert.h>
 #include <malloc.h>
 #include <stdlib.h>
 
 // Prototypes of F77 subroutines
+#include "headcpp.h"
 #include "proto_f77.h"
 
 // Prototypage des sous-routines utilisees:

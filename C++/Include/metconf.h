@@ -31,6 +31,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/10/16 14:36:29  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.3  2002/09/11 08:50:56  j_novak
  * Modifs. des commentaires
  *
@@ -46,9 +50,6 @@
  *
  */
  
-// Headers C++
-#include <iostream.h>
-
 // Headers Lorene 
 #include "metrique.h"
 

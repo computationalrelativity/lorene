@@ -31,6 +31,10 @@ char c_est_pas_fait_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/10/16 14:37:12  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.2  2001/11/29 16:17:54  e_gourgoulhon
  * minor modifs
  *
@@ -52,7 +56,7 @@ char c_est_pas_fait_C[] = "$Header$" ;
  */
 
 // headers du C++
-#include <iostream.h>
+#include"headcpp.h"
 #include <stdlib.h>
 
 void c_est_pas_fait(char * fichier) {

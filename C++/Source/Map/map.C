@@ -33,6 +33,10 @@ char map_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/10/16 14:36:40  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.3  2002/05/22 12:44:04  f_limousin
  * Added print of ori_x, ori_y, ori_z and rot_phi in operator<<.
  *
@@ -90,9 +94,6 @@ char map_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// headers C++
-#include <iostream.h>
 
 // headers C
 #include <math.h>

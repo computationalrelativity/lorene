@@ -35,6 +35,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2002/10/16 14:36:29  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.8  2002/09/19 14:12:37  e_gourgoulhon
  * Modif documentation for LaTeX compliance.
  *
@@ -229,9 +233,6 @@
 #define CON +1
 
 #define N_MET_MAX 5
-
-// Headers C++
-#include <iostream.h>
 
 // Headers Lorene 
 #include "cmp.h"

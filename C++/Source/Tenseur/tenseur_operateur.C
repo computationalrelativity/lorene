@@ -27,6 +27,10 @@ char tenseur_operateur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/10/16 14:37:14  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.4  2002/09/10 13:44:17  j_novak
  * The method "manipule" of one indice has been removed for Tenseur_sym objects
  * (the result cannot be a Tenseur_sym).
@@ -85,9 +89,6 @@ char tenseur_operateur_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// Headers C++
-#include <iostream.h>
 
 // Headers C
 #include <stdlib.h>

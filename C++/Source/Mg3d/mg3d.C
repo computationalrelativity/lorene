@@ -31,6 +31,10 @@ char mg3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2002/10/16 14:36:42  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.5  2002/05/07 07:36:03  e_gourgoulhon
  * Compatibilty with xlC compiler on IBM SP2:
  *    suppressed the parentheses around argument of instruction new:
@@ -86,10 +90,6 @@ char mg3d_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-
-// C++ Headers
-#include <iostream.h>
 
 // C Headers
 #include <stdlib.h>

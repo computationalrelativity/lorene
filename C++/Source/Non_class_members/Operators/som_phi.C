@@ -40,6 +40,10 @@ char som_phi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/10/16 14:36:58  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.2  2002/05/05 16:21:28  e_gourgoulhon
  * Error message (for unknown basis) in English.
  *
@@ -60,13 +64,11 @@ char som_phi_C[] = "$Header$" ;
  *
  */
 
-
-// Headers C++
-#include <iostream.h>
-
 // Headers C
 #include <stdlib.h>
 #include <math.h>
+
+#include "headcpp.h"
 
 void som_phi_pas_prevu
     (double*, const int, const double, double*) {

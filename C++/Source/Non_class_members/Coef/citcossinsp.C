@@ -84,6 +84,10 @@ char citcossinsp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/10/16 14:36:54  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.2  2002/09/09 13:00:40  e_gourgoulhon
  * Modification of declaration of Fortran 77 prototypes for
  * a better portability (in particular on IBM AIX systems):
@@ -102,15 +106,13 @@ char citcossinsp_C[] = "$Header$" ;
  */
 
 
-// headers du C++
-#include <iostream.h>
-
 // headers du C
 #include <assert.h>
 #include <malloc.h>
 #include <stdlib.h>
 
 // Prototypes of F77 subroutines
+#include "headcpp.h"
 #include "proto_f77.h"
 
 // Prototypage des sous-routines utilisees:

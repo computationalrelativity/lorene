@@ -33,6 +33,10 @@ char mtbl_cf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/10/16 14:36:43  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.3  2002/05/07 07:36:03  e_gourgoulhon
  * Compatibilty with xlC compiler on IBM SP2:
  *    suppressed the parentheses around argument of instruction new:
@@ -88,10 +92,6 @@ char mtbl_cf_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// headers C++
-#include <iostream.h>
-
 // headers C
 #include <assert.h>
 #include <stdlib.h>

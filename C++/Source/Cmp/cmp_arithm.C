@@ -32,8 +32,12 @@ char cmp_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:36:34  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.11  2001/05/26  15:07:47  eric
  * Ajout de operator% : multiplication de deux Cmp avec desaliasage
@@ -74,9 +78,6 @@ char cmp_arithm_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// headers C++
-#include <iostream.h>
 
 // headers C
 #include <assert.h>

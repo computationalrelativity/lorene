@@ -34,6 +34,10 @@ char tenseur_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/10/16 14:37:14  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.3  2002/09/06 14:49:25  j_novak
  * Added method lie_derive for Tenseur and Tenseur_sym.
  * Corrected various errors for derive_cov and arithmetic.
@@ -71,9 +75,6 @@ char tenseur_arithm_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// Headers C++
-#include <iostream.h>
 
 // Headers C
 #include <stdlib.h>

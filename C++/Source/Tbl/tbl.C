@@ -33,6 +33,10 @@ char tbl_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/10/16 14:37:13  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.3  2002/09/24 08:32:07  e_gourgoulhon
  *
  * Added constructor from Matrice.
@@ -97,9 +101,6 @@ char tbl_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// headers C++
-#include <iomanip.h> 
 
 // headers C
 #include <math.h>

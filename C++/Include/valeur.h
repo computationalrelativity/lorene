@@ -35,6 +35,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/10/16 14:36:30  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.3  2002/09/13 09:17:33  j_novak
  * Modif. commentaires
  *
@@ -210,8 +214,6 @@
 
 // Fichier includes
 #include <stdio.h>
-#include <iostream.h>
-
 
 #include "mtbl.h"
 #include "mtbl_cf.h"

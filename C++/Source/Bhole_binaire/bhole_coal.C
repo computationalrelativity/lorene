@@ -25,8 +25,12 @@ char bhole_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:36:32  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.15  2001/05/07  09:12:17  phil
  * *** empty log message ***
@@ -83,10 +87,8 @@ char bhole_coal_C[] = "$Header$" ;
 
 //standard
 #include <stdlib.h>
-#include <fstream.h>
 
 // Lorene
-#include "cmp.h"
 #include "tenseur.h"
 #include "bhole.h"
 

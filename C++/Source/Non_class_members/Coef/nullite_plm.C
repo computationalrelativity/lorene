@@ -26,8 +26,12 @@ char nullite_plm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:36:57  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.8  2000/10/04  14:56:34  eric
  * nullite_plm_nonsym_anti : borne_sup est mise toujours egale a nt-2
@@ -63,14 +67,11 @@ char nullite_plm_C[] = "$Header$" ;
  *
  */
 
-
-// Entetes C++
-#include <iostream.h>
-
 // Entetes C
 #include <stdlib.h>
 
 // Entete Lorene
+#include "headcpp.h"
 #include "type_parite.h"
 #include "base_val.h"
 

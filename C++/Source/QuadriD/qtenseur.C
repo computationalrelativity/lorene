@@ -31,6 +31,10 @@ char qtenseur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/10/16 14:37:13  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.1  2002/09/19 09:52:43  j_novak
  * Added objects Qtenseur and Qmetrique for 4D tensor and metric handling.
  *
@@ -38,9 +42,6 @@ char qtenseur_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// Headers C++
-#include <iostream.h>
 
 // Headers C
 #include <stdlib.h>

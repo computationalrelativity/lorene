@@ -25,8 +25,12 @@ char d2sdx2_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:36:58  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.4  1999/10/11  15:18:14  phil
  * *** empty log message ***
@@ -49,11 +53,8 @@ char d2sdx2_1d_C[] = "$Header$" ;
  */
 
 
-// Includes
-#include <iostream.h>
-#include <stdlib.h>
-
 #include "type_parite.h"
+#include "headcpp.h"
 
 /*
  * Routine appliquant l'operateur d2sdx2.

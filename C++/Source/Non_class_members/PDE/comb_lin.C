@@ -25,6 +25,10 @@ char comb_lin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/10/16 14:37:11  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.2  2002/10/09 12:47:31  j_novak
  * Execution speed improved
  *
@@ -85,7 +89,6 @@ char comb_lin_C[] = "$Header$" ;
  */
 
 //fichiers includes
-#include <iostream.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

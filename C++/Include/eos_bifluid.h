@@ -32,6 +32,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2002/10/16 14:36:29  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.9  2002/09/13 09:17:31  j_novak
  * Modif. commentaires
  *
@@ -83,8 +87,7 @@
  */
 
 // Standard C++
-class ostream ; 
-class ifstream ; 
+#include "headcpp.h"
 
 // Headers C
 #include <stdio.h>

@@ -34,6 +34,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2002/10/16 14:36:29  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.5  2002/08/13 08:02:45  j_novak
  * Handling of spherical vector/tensor components added in the classes
  * Mg3d and Tenseur. Minor corrections for the class Metconf.
@@ -105,7 +109,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <iostream.h>
+#include "headcpp.h"
 
 #include "indent.h"
 

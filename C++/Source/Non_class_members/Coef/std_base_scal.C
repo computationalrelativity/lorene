@@ -31,8 +31,12 @@ char std_base_scal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:36:57  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.2  1999/10/20  15:31:52  eric
  * La routine Valeur::std_base_scal() se trouve desormais dans le
@@ -49,13 +53,11 @@ char std_base_scal_C[] = "$Header$" ;
  *
  */
 
-// Headers C++
-#include <iostream.h>
-
 // Headers C
 #include <stdlib.h>
 
 // Lorene
+#include "headcpp.h"
 #include "type_parite.h"
 
 

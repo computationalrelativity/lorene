@@ -39,6 +39,10 @@ char som_tet_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/10/16 14:36:59  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.4  2002/05/11 12:36:54  e_gourgoulhon
  * Added basis T_COSSIN_SI.
  *
@@ -80,14 +84,11 @@ char som_tet_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// Headers C++
-#include <iostream.h>
-
 // Headers C
 #include <stdlib.h>
 #include <math.h>
 
+#include "headcpp.h"
 
 			//--------------------
 			//- Cas Non-Prevu ---

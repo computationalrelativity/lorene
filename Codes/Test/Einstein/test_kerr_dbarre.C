@@ -29,6 +29,10 @@ char test_kerr_dbarre_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/10/16 14:37:18  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.1  2002/09/11 16:11:04  j_novak
  * *** empty log message ***
  *
@@ -39,7 +43,6 @@ char test_kerr_dbarre_C[] = "$Header$" ;
 
 //standard
 #include <math.h>
-#include <fstream.h>
 
 // Headers Lorene :
 #include "utilitaires.h"

@@ -30,8 +30,12 @@ char zero_premier_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:37:12  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.2  2000/01/04  10:57:51  eric
  * Le test f1*f2 < 0. est remplace par f1*f2 <= double(0).
@@ -44,10 +48,8 @@ char zero_premier_C[] = "$Header$" ;
  *
  */
 
-// Headers C++
-#include <iostream.h>
-
 // Headers Lorene 
+#include "headcpp.h"
 #include "param.h"
 //****************************************************************************
 

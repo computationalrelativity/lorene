@@ -81,8 +81,12 @@ char cipcossini_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:36:53  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.1  2000/09/08  15:55:21  eric
  * Premiere version testee.
@@ -95,11 +99,10 @@ char cipcossini_C[] = "$Header$" ;
  *
  */
 
-// Headers C++
-#include <iostream.h>
-
 // Headers C
 #include <stdlib.h>
+
+#include "headcpp.h"
 
 // Headers Lorene
 #include "proto.h"

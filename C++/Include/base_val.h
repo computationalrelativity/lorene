@@ -34,6 +34,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/10/16 14:36:28  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.3  2002/09/13 09:17:31  j_novak
  * Modif. commentaires
  *
@@ -114,6 +118,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include "headcpp.h"
 
 
 #include "type_parite.h"

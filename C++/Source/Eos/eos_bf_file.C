@@ -31,6 +31,10 @@ char eos_bf_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/10/16 14:36:34  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.3  2002/01/11 14:09:34  j_novak
  * Added newtonian version for 2-fluid stars
  *
@@ -51,14 +55,11 @@ char eos_bf_file_C[] = "$Header$" ;
  *
  */
  
-// Headers C++
-#include <iostream.h>
-#include <fstream.h>
-
 // Headers C
 #include <stdlib.h>
 
 // Header Lorene
+#include "headcpp.h"
 #include "eos_bifluid.h"
 #include "utilitaires.h"
 

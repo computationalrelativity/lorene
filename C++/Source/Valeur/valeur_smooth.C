@@ -32,8 +32,12 @@ char valeur_smooth_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:37:16  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.4  2001/10/10  13:56:07  eric
  * Modif Joachim: pow(-1,i) --> pow(-1.,i).
@@ -52,9 +56,6 @@ char valeur_smooth_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// Headers C++
-#include <iostream.h>
 
 // Headers C
 #include <stdlib.h>

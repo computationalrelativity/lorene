@@ -41,6 +41,10 @@ char som_r_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/10/16 14:36:59  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.2  2002/05/05 16:20:40  e_gourgoulhon
  * Error message (in unknwon basis case) in English
  * Added the basis T_COSSIN_SP
@@ -70,13 +74,10 @@ char som_r_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// Headers C++
-#include <iostream.h>
-
 // Headers C
 #include <stdlib.h>
 
+#include "headcpp.h"
 			//-------------------
 			//- Cas Non-Prevu ---
 			//-------------------

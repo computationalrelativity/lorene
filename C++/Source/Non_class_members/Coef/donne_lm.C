@@ -28,8 +28,12 @@ char donne_lm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:36:54  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 3.0  2000/10/09  09:15:01  novak
  * correction pour les cas de bases en r alternees
@@ -69,14 +73,11 @@ char donne_lm_C[] = "$Header$" ;
  *
  */
 
-
-// Entetes C++
-#include <iostream.h>
-
 // Entetes C
 #include <stdlib.h>
 
 // Entete Lorene
+#include "headcpp.h"
 #include "type_parite.h"
 #include "base_val.h"
 

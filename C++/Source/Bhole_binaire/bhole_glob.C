@@ -25,8 +25,12 @@ char bhole_glob_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:36:33  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.5  2001/06/28  12:11:19  eric
  * Correction d'un memory leak dans Bhole_binaire::moment_systeme_inf()
@@ -57,13 +61,9 @@ char bhole_glob_C[] = "$Header$" ;
 //standard
 #include <stdlib.h>
 #include <math.h>
-#include <fstream.h>
 
 // Lorene
 #include "nbr_spx.h"
-#include "map.h"
-#include "valeur.h"
-#include "cmp.h"
 #include "tenseur.h"
 #include "bhole.h"
 #include "proto.h"

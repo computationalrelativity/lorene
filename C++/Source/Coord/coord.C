@@ -33,8 +33,12 @@ char coord_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:36:34  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.3  1999/10/15  09:16:11  eric
  * Depoussierage.
@@ -55,7 +59,6 @@ char coord_C[] = "$Header$" ;
 // Fichier includes
 #include <stdlib.h>
 #include <stdio.h>
-#include <iostream.h>
 #include "indent.h"
 #include "coord.h"
 #include "mtbl.h"

@@ -33,6 +33,10 @@ char dim_tbl[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/10/16 14:37:13  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.2  2001/12/04 21:27:54  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -67,9 +71,6 @@ char dim_tbl[] = "$Header$" ;
  * $Header$
  *
  */
-
-// Headers C++
-#include <iostream.h>
 
 // Headers C
 #include <assert.h>

@@ -32,8 +32,12 @@ char valeur_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:37:15  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.20  2001/08/31  15:23:48  eri * operator% : traitement du cas ou le Tbl est zero dans une zone.
  *
@@ -111,7 +115,6 @@ char valeur_arithm_C[] = "$Header$" ;
 // Fichiers include
 // ----------------
 #include <math.h>
-#include <iostream.h>
 #include <assert.h>
 #include <stdlib.h>
 

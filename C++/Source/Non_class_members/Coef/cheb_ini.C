@@ -36,8 +36,12 @@ char cheb_ini_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/10/16 14:36:53  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.1  1999/11/24  16:16:25  eric
  * Modif affichage.
@@ -50,13 +54,12 @@ char cheb_ini_C[] = "$Header$" ;
  *
  */
 
-// headers du C++
-#include <iostream.h>
-
 // headers du C
 #include <math.h>
 #include <stdlib.h>
 #include <malloc.h>
+
+#include "headcpp.h"
 
 // Variables externes de loch
 int loch_cheb_ini = 0 ;

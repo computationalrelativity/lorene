@@ -33,6 +33,10 @@ char zerosec_borne_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/10/16 14:37:12  j_novak
+ * Reorganization of #include instructions of standard C++, in order to
+ * use experimental version 3 of gcc.
+ *
  * Revision 1.4  2002/05/02 15:16:22  j_novak
  * Added functions for more general bi-fluid EOS
  *
@@ -44,15 +48,13 @@ char zerosec_borne_C[] = "$Header$" ;
  *
  */
  
-// Headers C++
-#include <iostream.h>
-
 // Headers C
 #include <stdlib.h>
 #include <math.h>
 #include <assert.h>
 
 // Headers Lorene 
+#include "headcpp.h"
 #include "param.h"
 //****************************************************************************
 
