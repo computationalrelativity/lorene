@@ -32,6 +32,10 @@ char sym_tensor_tt_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/06/04 09:25:58  e_gourgoulhon
+ * Method eta(): eta is no longer computed from h^rr but from khi (in the
+ *   case where khi is known).
+ *
  * Revision 1.13  2004/05/25 15:08:44  f_limousin
  * Add parameters in argument of the functions update, eta and mu for
  * the case of a Map_et.
@@ -123,42 +127,63 @@ const Scalar& Sym_tensor_tt::eta(Param* par) const {
 
 
     if (p_eta == 0x0) {   // a new computation is necessary
-		
-	// All this has a meaning only for spherical components:
-	assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
+	
+
+	    // All this has a meaning only for spherical components:
+	    assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
 
         // eta is computed from the divergence-free condition:
 
         int dzp = operator()(1,1).get_dzpuis() ; 
+        int dzp_resu = ((dzp == 0) ? 0 : dzp-1) ;
+
+        Scalar source_eta(*mp) ; 
         
-	Scalar dhrr = - operator()(1,1).dsdr() ; 	
+        if (p_khi == 0x0) { //  eta is computed from h^rr
+                            //  -------------------------
+        
+	        source_eta = - operator()(1,1).dsdr() ; 	
         
         // dhrr contains - dh^{rr}/dr in all domains but the CED,                                           
         // in the CED:   - r^2 dh^{rr}/dr        if dzp = 0          (1)
         //               - r^(dzp+1) dh^{rr}/dr  if dzp > 0          (2)
                                                     
 		        
-	// Multiplication by r of (-d h^{rr}/dr) (with the same dzpuis as h^{rr})
-	dhrr.mult_r_dzpuis( dzp ) ;                           
+	        // Multiplication by r of (-d h^{rr}/dr) (with the same dzpuis as h^{rr})
+	        source_eta.mult_r_dzpuis( dzp ) ;                           
 
-        // Substraction of the h^rr part and multiplication by r :
-        dhrr -= 3. * operator()(1,1) ;                          
+            // Substraction of the h^rr part and multiplication by r :
+            source_eta -= 3. * operator()(1,1) ;                          
 
-        int dzp_resu = ((dzp == 0) ? 0 : dzp-1) ;
+            source_eta.mult_r_dzpuis(dzp_resu) ;
+        }
+        else {      // eta is computed from khi
+                    // ------------------------
 
-        dhrr.mult_r_dzpuis(dzp_resu) ;
+            source_eta = - p_khi->dsdr() ;
+            int diff_dzp = source_eta.get_dzpuis() - dzp_resu ; 
+            assert( diff_dzp >= 0 ) ;
+            source_eta.dec_dzpuis(diff_dzp) ;
+            
+            Scalar tmp(*p_khi) ; 
+            tmp.div_r_dzpuis(dzp_resu) ; 
+            
+            source_eta -= tmp ;  
+            
+        }
+
         
-	// Resolution of the angular Poisson equation for eta
-	// --------------------------------------------------
-	if (dynamic_cast<const Map_af*>(mp) != 0x0) {
-	p_eta = new Scalar( dhrr.poisson_angu() ) ; 
-	}
-	else {
-	    Scalar resu (*mp) ;
-	    resu = 0. ;
-	    mp->poisson_angu(dhrr, *par, resu) ;
-	    p_eta = new Scalar( resu ) ;  	    
-	}
+	    // Resolution of the angular Poisson equation for eta
+	    // --------------------------------------------------
+	    if (dynamic_cast<const Map_af*>(mp) != 0x0) {
+	        p_eta = new Scalar( source_eta.poisson_angu() ) ; 
+	    }
+	    else {
+	        Scalar resu (*mp) ;
+	        resu = 0. ;
+	        mp->poisson_angu(source_eta, *par, resu) ;
+	        p_eta = new Scalar( resu ) ;  	    
+	    }
 	
     }
 
