@@ -616,8 +616,6 @@ compare_analytic (Et_rot_bifluid& star, int adapt)
   data << "muc_n = " <<  star.get_ent()()(0,0,0,0) << endl;
   data << "muc_p = " << star.get_ent2()()(0,0,0,0) << endl;
 
-  data << "slow_rot_style = " << ( (eos.get_typeos() == 5) ? 1 : 0)  << endl;
-
   data << "rhoc = " << nc << " rho_nuc" << endl;
   data << "Om0 = " << om0 << endl;
   data << "Relativity-parameter = " << rel << endl;
@@ -644,6 +642,16 @@ compare_analytic (Et_rot_bifluid& star, int adapt)
   data << "\n# Viriel identity violations:" << endl;
   data << "GRV3 = " << star.grv3() << endl;
   data << "GRV2 = " << star.grv2() << endl;
+
+
+  // in order to uniquely idenfity the run, we append the output of "calcul.d" to this file:
+  data << "\n======================================================================\n";
+  data << "               Identification of the run: calcul.d\n";
+  data << "======================================================================\n";
+  data.close();
+
+  system(("cat calcul.d >> "+fname+".d").c_str()) ; 
+
 
   return;
 
