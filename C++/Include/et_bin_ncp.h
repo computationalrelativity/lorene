@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/01/14 14:13:25  f_limousin
+ * Binary NS with Nonconformally flat metric.
+ *
  * Revision 1.1  2002/12/09 10:45:06  f_limousin
  * Definition of class Et_bin_ncp
  *
@@ -137,6 +140,60 @@ class Et_bin_ncp : public Etoile_bin {
 	/// Operator >> (virtual function called by the operator <<). 
 	virtual ostream& operator>>(ostream& ) const ;    
 
+
+    // Computational routines
+    // ----------------------
+    public: 
+	/** Performs the scalar product of two tensors by contracting
+	 *  the last index of {\tt t1} with the first index of {\tt t2}.
+	 *  Both indices are supposed to be contravariant, so that a 
+	 *  multiplication by $A^2$ is performed to lower one index. 
+	 *  For instance, for two vectors $V^i$ and $W^i$, this function
+	 *  returns the scalar $h_{ij} V^i W^j = A^2 f_{ij} V^i W^j$.  
+	 */
+	virtual Tenseur sprod(const Tenseur& t1, const Tenseur& t2) const ; 
+
+
+	/** Computes an equilibrium configuration.
+	 * 
+	 *  The values of {\tt logn\_comp}, {\tt beta\_comp}, {\tt pot\_centri}
+	 *  are held fixed during the iteration. 
+	 *  
+	 *  @param ent_c  [input] Central enthalpy
+	 *  @param mermax [input] Maximum number of steps 
+	 *  @param mermax_poisson [input]   Maximum number of steps in 
+	 *				    Map\_et::poisson
+	 *  @param relax_poisson [input]  Relaxation factor in Map\_et::poisson
+	 *  @param mermax_potvit [input]  Maximum number of steps in 
+	 *				  Map\_radial::poisson\_compact
+	 *  @param relax_potvit [input]   Relaxation factor in 
+	 *				  Map\_radial::poisson\_compact
+	 *  @param thres_adapt  [input]   Threshold on dH/dr for the adaptation 
+	 *				  of the mapping
+	 *  @param fact [input]    1-D {\tt Tbl} for the input
+	 *                          of some factors : \\
+	 *          {\tt fact(0)} : A resizing factor for the first shell
+	 *  @param diff [output]   1-D {\tt Tbl} for the storage of some
+	 *			    error indicators : \\
+	 *	    {\tt diff(0)} : Relative change in the enthalpy field
+	 *			      between two successive steps \\
+	 *	    {\tt diff(1)} : Relative error returned by the routine
+	 *				{\tt Etoile\_bin::velocity\_potential}  
+	 *	    {\tt diff(2)} : Relative error in the resolution of the
+	 *			    Poisson equation for {\tt logn\_auto} \\  
+	 *	    {\tt diff(3)} : Relative error in the resolution of the
+	 *			    Poisson equation for {\tt beta\_auto} \\  
+	 *	    {\tt diff(4)} : Relative error in the resolution of the
+	 *			    equation for {\tt shift\_auto} (x comp.) \\  
+	 *	    {\tt diff(5)} : Relative error in the resolution of the
+	 *			    equation for {\tt shift\_auto} (y comp.) \\  
+	 *	    {\tt diff(6)} : Relative error in the resolution of the
+	 *			    equation for {\tt shift\_auto} (z comp.)   
+	 */
+	virtual void equilibrium(double ent_c, int mermax, int mermax_poisson, 
+			 double relax_poisson, int mermax_potvit, 
+			 double relax_potvit, double thres_adapt, 
+			 const Tbl& fact, Tbl& diff) ;	
 
 };
 
