@@ -30,6 +30,11 @@ char lit_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/09/18 07:31:49  e_gourgoulhon
+ * -- Test of good opening of files
+ * -- Suppressed the call to des_explorer_symz
+ * -- Enlarged view of log(N) in the z=0 plane
+ *
  * Revision 1.7  2003/09/16 09:17:15  e_gourgoulhon
  * Changed the name of the output file "seq.d" to "resformat0.d".
  *
@@ -138,10 +143,10 @@ int main(int argc, char** argv){
     // system("ident lit_bin") ; 
     
     if (argc < 2) {
-	cout << 
-	"lit_bin : the name of a file containing a binary configuration"
-	<< endl << " must be given in argument !" << endl ; 
-	abort() ; 
+		cout << 
+		"lit_bin : the name of a file containing a binary configuration"
+		<< endl << " must be given in argument !" << endl ; 
+		abort() ; 
     }
     
     char* nomresu = argv[1] ; 
@@ -162,6 +167,12 @@ int main(int argc, char** argv){
     
     
     FILE* fich = fopen(nomresu, "r") ; 
+    if (fich == 0x0) {
+    	cout << "Problem in opening the file " << nomresu << " ! " << endl ; 
+		perror(" reason") ; 
+		abort() ; 
+    }
+
 
     int mer ; 
     fread(&mer, sizeof(int), 1, fich) ;	// mer
@@ -259,7 +270,7 @@ int main(int argc, char** argv){
     //  Drawings
     //==============================================================
 
-    des_explorer_symz(star, "latbin") ; 
+    // des_explorer_symz(star, "latbin") ; 
     
     int nzdes1 = star(1).get_nzet() ; 
     
@@ -308,6 +319,10 @@ int main(int argc, char** argv){
     char bslash[2] = {92,  '\0'} ;  // 92 is the ASCII code for backslash 
 
     ofstream fent("enthalpy.d") ; 
+	if ( !fent.good() ) {
+		cout << "lit_bin : problem with opening the file enthalpy.d !" << endl ;
+		abort() ;
+	}
     
     fent << "Enthalpy field at the boundary of last inner domain of star 1 : " 
 	 << endl ; 
@@ -357,6 +372,15 @@ int main(int argc, char** argv){
 
     des_coupe_bin_z(logn1(), logn2(), 0, 
 			xdes_min, xdes_max, ydes_min, ydes_max, 
+		    "ln(N) (z=0)",  &surf1, &surf2, draw_bound ) ; 
+
+	double xdes_min_large = 2 * xdes_min ; 
+	double xdes_max_large = 2 * xdes_max ; 
+	double ydes_min_large = 2 * ydes_min ; 
+	double ydes_max_large = 2 * ydes_max ; 
+
+    des_coupe_bin_z(logn1(), logn2(), 0, 
+			xdes_min_large, xdes_max_large, ydes_min_large, ydes_max_large, 
 		    "ln(N) (z=0)",  &surf1, &surf2, draw_bound ) ; 
 
     des_coupe_bin_x(logn1(), logn2(),
