@@ -96,6 +96,8 @@ load_file_buffered (char *fname)
 
 #define ERR -1
 #define OK  0
+#define FMT_QUOTED_STRING "string"    // reading in quoted strings needs some special treatment
+
 /*----------------------------------------------------------------------
  *  parser for config-files: can read config-variables of the form
  *	VARIABLE [=: \t] VALUE
@@ -112,6 +114,7 @@ read_variable (char *fname, char *var_name, char *fmt, void *varp)
   int ret;
   int before, after;
   char *data;
+  int len;
 
   if ( (data = load_file_buffered (fname)) == NULL )
     return ERR;
@@ -156,11 +159,31 @@ read_variable (char *fname, char *var_name, char *fmt, void *varp)
 
   found += strlen (var_name);
   
-  // skip whitespace,tab, =, : 
+  // skip {space,tab,=,:}
   found += strspn(found, " \t=:");
 
-  ret = sscanf (found, fmt, varp);
-  if ( (ret == 0) && (ret == EOF) )
+  // now read the value into the variable
+  
+  // reading a quoted string needs some special treatment:
+  if ( !strcmp(fmt, FMT_QUOTED_STRING) )
+    {
+      if ( (*found != '"') ||  ((pos = strchr(found+1, '"')) == NULL)  )  // find delimiting quotes
+	ret = 0;
+      else   // NOTE: varp here is supposed to be a pointer to char* !!
+	{
+	  char **cstr = static_cast<char**>(varp);
+	  len = pos - found;  // length of quoted string, excluding quotes, including \0
+	  (*cstr) = static_cast<char*>(MyMalloc(len)); 
+	  strncpy ((*cstr), found+1, len-1);
+	  (*cstr)[len-1] = '\0'; 
+	  ret = 1;  
+	}
+    }
+  else  // but the default case is just sscanf...
+    ret = sscanf (found, fmt, varp);
+
+
+  if ( (ret == 0) || (ret == EOF) )
     {
       cout << "WARNING: Variable " << var_name <<" was not readable using the format '"<<fmt<<"'\n";
       return (ERR);
@@ -206,7 +229,22 @@ read_variable (char *fname, char *var_name, double &var)
   return (ret);
 }
 
+int
+read_variable (char *fname, char *var_name, string &str)
+{
+  char *cstr;
 
+  int ret = read_variable(fname, var_name, FMT_QUOTED_STRING, &cstr);
+
+  if ((ret == OK) && cstr)
+    {
+      str = cstr;
+      free (cstr);
+    }
+
+  return (ret);
+
+}
 
 
 
