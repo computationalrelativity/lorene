@@ -328,12 +328,14 @@ EXCLUDE                = $(HOME_LORENE)/C++/Include_extra \
 	$(HOME_LORENE)/C++/Include/indent.h \
 	$(HOME_LORENE)/C++/Include/map_cart.h \
 	$(HOME_LORENE)/C++/Include/champ_cart.h \
+	$(HOME_LORENE)/C++/Include/et_bin_ncp.h \
 	$(HOME_LORENE)/C++/Include/metrique.h \
 	$(HOME_LORENE)/C++/Include/metconf.h \
 	$(HOME_LORENE)/C++/Include/nbr_spx.h \
 	$(HOME_LORENE)/C++/Include/proto_f77.h \
 	$(HOME_LORENE)/C++/Include/qmetrique.h \
-	$(HOME_LORENE)/C++/Include/qtenseur.h 
+	$(HOME_LORENE)/C++/Include/qtenseur.h \
+	$(HOME_LORENE)/C++/Source/Bin_ns_ncp 
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or directories 
 # that are symbolic links (a Unix filesystem feature) are excluded from the input.

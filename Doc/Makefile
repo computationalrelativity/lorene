@@ -8,10 +8,15 @@ features.dvi: features.tex
 	latex features
 	rm -f *.aux *.log
 
-refguide: $(SRC)
+refguide: $(SRC) doxyfile
 	mv refguide html
-	doxygen lorene.dox
+	doxygen doxyfile
 	mv html refguide
+
+doxyfile: lorene.dox
+	rm -f doxyfile
+	cp lorene.dox doxyfile
+	doxygen -u doxyfile
 
 uninstall:
 	cd $(HOME_LORENE)/C++/Doc++; $(MAKE) -i uninstall
