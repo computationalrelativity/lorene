@@ -29,6 +29,9 @@ char star_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2005/02/24 16:27:21  f_limousin
+ * Add mermax_poisson and relax_poisson in the parameters of the function.
+ *
  * Revision 1.18  2005/02/24 16:04:13  f_limousin
  * Change the name of some variables (for instance dcov_logn --> dlogn).
  * Improve the resolution of the tensorial poisson equation for hh.
@@ -106,9 +109,9 @@ char star_bin_equilibrium_C[] = "$Header$" ;
 
 
 void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit, 
-			   int , double , 
+			   int mermax_poisson, double relax_poisson, 
 			   double relax_potvit, double thres_adapt,
-			   const Tbl& fact_resize, Tbl& diff, int ,
+			   const Tbl& fact_resize, Tbl& diff, int,
 			   double omega) {
 
     // Fundamental constants and units
@@ -1046,14 +1049,20 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 
 	    Sym_tensor_trans source_hht(mpaff, mpaff.get_bvect_spher(), flat_aff) ;
 	    source_hht = source_hh_aff ;
-	    const Sym_tensor_tt& source_htt = source_hht.tt_part() ;
+	    const Sym_tensor_tt& source_htt_temp = source_hht.tt_part() ;
 	    
 //	    cout << mpaff << endl ;
 
 	    Sym_tensor hh_aff (mpaff, CON, mpaff.get_bvect_spher()) ;
 
-	    des_meridian(source_htt, 1.2, 1.7, "source_htt", 12) ;
-	    	    
+	    des_meridian(source_htt_temp, 1.2, 1.7, "source_htt", 12) ;
+	    
+	    Sym_tensor_tt source_htt (source_htt_temp) ;
+	    source_htt.annule_domain(1) ;
+	    for(int i=1; i<=3; i++)
+		for(int j=i; j<=3; j++)
+		    source_htt.set(i,j).raccord(2) ;
+
 	    hh_aff = source_htt.poisson(0) ;
 	
 	    des_meridian(hh_aff, 1.2, 1.7, "hh_aff", 24) ;
