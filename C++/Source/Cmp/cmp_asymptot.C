@@ -4,7 +4,7 @@
  */
 
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2002 Eric Gourgoulhon
  *   Copyright (c) 1999-2001 Philippe Grandclement
  *
  *   This file is part of LORENE.
@@ -31,8 +31,11 @@ char cmp_asymptot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/05/22 13:57:25  f_limousin
+ * Corrected error in determination of min and max values on the sphere.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.2  2000/11/15  13:24:43  phil
  * modification output
@@ -114,8 +117,8 @@ Valeur** Cmp::asymptot(int n0, const int flag) const {
 	    cout << "-------------" << endl ; 
 
 	    double ndec = 0 ; 
-	    double vmin = 0 ; 
-	    double vmax = 0 ; 
+	    double vmin = (*vu[h])(nzm1, 0, 0, 0) ; 
+	    double vmax = vmin ; 
 
 	    cout << "            Values at the point (phi_k, theta_j) : " << endl ; 
 	    cout.precision(precis) ;
