@@ -6,11 +6,11 @@ LIB_G = -L$(HOME_LORENE)/Lib -llorene_g -llorenef77_g
 
 .SUFFIXES : .o .C
 
-SRC1 = test_tensor.C
+SRC1 = test_connect.C
 OBJ1 = $(SRC1:.C=.o)
 EXE1 = $(SRC1:.C=)
 
-SRC2 = test_connect.C
+SRC2 = test_tensor.C
 OBJ2 = $(SRC2:.C=.o)
 EXE2 = $(SRC2:.C=)
 
