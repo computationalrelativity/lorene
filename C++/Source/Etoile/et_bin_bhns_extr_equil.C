@@ -31,6 +31,9 @@ char et_bin_bhns_extr_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/01/25 17:33:19  k_taniguchi
+ * Suppression of the filter for the source term of the shift vector.
+ *
  * Revision 1.7  2005/01/03 18:01:12  k_taniguchi
  * Addition of the method to fix the position of the neutron star
  * in the coordinate system.
@@ -701,14 +704,14 @@ void Et_bin_bhns_extr::equil_bhns_extr(double ent_c, const double& mass,
 	    // ----------------------------------
 
 	    // Filter for the source of shift vector :
-
+	    /*
 	    for (int i=0; i<3; i++) {
 
 	        if (source_shift(i).get_etat() != ETATZERO)
 		    source_shift.set(i).filtre(4) ;
 
 	    }
-
+	    */
 	    // For Tenseur::poisson_vect, the triad must be the mapping
 	    // triad, not the reference one:
 
