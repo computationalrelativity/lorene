@@ -32,6 +32,9 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2004/03/29 11:57:45  e_gourgoulhon
+ * Added methods ope_killing and ope_killing_conf.
+ *
  * Revision 1.18  2004/02/26 22:48:50  e_gourgoulhon
  * -- Method divergence: call to Tensor::divergence and cast of the
  *    result.
@@ -322,6 +325,59 @@ Vector Vector::derive_lie(const Vector& vv) const {
     return resu ; 
     
 }
+
+
+Sym_tensor Vector::ope_killing(const Metric& gam) const {
+
+    Sym_tensor resu(*mp, type_indice(0), *triad) ; 
+
+    if (type_indice(0) == CON ) {
+        for (int i=1; i<=3; i++) {
+            for (int j=i; j<=3; j++) {
+                resu.set(i,j) = derive_con(gam)(i,j) + derive_con(gam)(j,i)  ;
+            }
+        }
+    }
+    else {
+        for (int i=1; i<=3; i++) {
+            for (int j=i; j<=3; j++) {
+                resu.set(i,j) = derive_cov(gam)(i,j) + derive_cov(gam)(j,i)  ;
+            }
+        }
+    }
+    
+    return resu ; 
+
+} 
+
+
+Sym_tensor Vector::ope_killing_conf(const Metric& gam) const {
+
+    Sym_tensor resu(*mp, type_indice(0), *triad) ; 
+
+    if (type_indice(0) == CON ) {
+        for (int i=1; i<=3; i++) {
+            for (int j=i; j<=3; j++) {
+                resu.set(i,j) = derive_con(gam)(i,j) + derive_con(gam)(j,i)  
+                                - 0.6666666666666666* divergence(gam) 
+                                            * gam.con()(i,j) ;
+            }
+        }
+    }
+    else {
+        for (int i=1; i<=3; i++) {
+            for (int j=i; j<=3; j++) {
+                resu.set(i,j) = derive_cov(gam)(i,j) + derive_cov(gam)(j,i)  
+                                - 0.6666666666666666* derive_con(gam).trace() 
+                                            * gam.cov()(i,j) ;
+            }
+        }
+    }
+
+    return resu ; 
+
+} 
+
 
 
 

@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.30  2004/03/29 11:57:13  e_gourgoulhon
+ * Added methods ope_killing and ope_killing_conf.
+ *
  * Revision 1.29  2004/03/28 21:25:14  e_gourgoulhon
  * Minor modif comments (formula for V^\theta in Vector_divfree).
  *
@@ -321,10 +324,32 @@ class Vector: public Tensor {
 	 */
 	const Scalar& divergence(const Metric&) const ; 
 
-        /** Computes the Lie derivative of \c this  with respect to some
-         *  vector field \c v 
-         */
-        Vector derive_lie(const Vector& v) const ; 
+    /** Computes the Lie derivative of \c this  with respect to some
+     *  vector field \c v 
+     */
+    Vector derive_lie(const Vector& v) const ; 
+        
+    /** Computes the Killing operator associated with a given metric.
+     *  The Killing operator is defined by \f$ D^i V^j + D^j V^i \f$
+     *  for a contravariant vector and by \f$ D_i V_j + D_j V_i \f$
+     *  for a covariant vector.
+     * @param gam metric with respect to which the covariant derivative
+     *  \f$ D_i \f$ is defined. 
+     */
+     Sym_tensor ope_killing(const Metric& gam) const ; 
+     
+    /** Computes the conformal Killing operator associated with a given metric.
+     *  The conformal Killing operator is defined by 
+     *  \f$ D^i V^j + D^j V^i - \frac{2}{3} D_k V^k \, \gamma^{ij} \f$
+     *  for a contravariant vector and by 
+     *  \f$ D_i V_j + D_j V_i - \frac{2}{3} D^k V_k \, \gamma_{ij}\f$
+     *  for a covariant vector.
+     * @param gam metric \f$\gamma_{ij}\f$ with respect to which the covariant 
+     *  derivative \f$ D_i \f$ is defined. 
+     */
+     Sym_tensor ope_killing_conf(const Metric& gam) const ; 
+     
+      
 
 	/**Solves the vector Poisson equation with \c *this  as a source.
 	 * 
