@@ -28,6 +28,9 @@ char test_kerr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/01/28 15:28:27  e_gourgoulhon
+ * Added tests with Cartesian components.
+ *
  * Revision 1.5  2004/01/23 13:28:14  e_gourgoulhon
  * Scalar::set_val_hor --> Scalar::set_inner_boundary.
  *
@@ -67,14 +70,18 @@ char test_kerr_C[] = "$Header$" ;
 
 int main() {
 
+    cout << "Value of the Kerr parameter a/M ?" << endl ; 
+    double aasm ; 
+    cin >> aasm ; 
+
     // Setup of a multi-domain grid (Lorene class Mg3d)
     // ------------------------------------------------
   
     int nz = 3 ; 	// Number of domains
     int nzm1 = nz - 1 ; // Index of outermost domain
-    int nr = 17 ; 	// Number of collocation points in r in each domain
-    int nt = 9 ; 	// Number of collocation points in theta in each domain
-    int np = 4 ; 	// Number of collocation points in phi in each domain
+    int nr = 25 ; 	// Number of collocation points in r in each domain
+    int nt = 17 ; 	// Number of collocation points in theta in each domain
+    int np = 8 ; 	// Number of collocation points in phi in each domain
     int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
     int symmetry_phi = NONSYM ; // no symmetry in phi
     bool compact = true ; // external domain is compactified
@@ -103,13 +110,16 @@ int main() {
     const Coord& cost = map.cost ;  // cos(theta) field
     const Coord& sint = map.sint ;  // sin(theta) field
     
+    cout << "*********************************************************" << endl 
+     << "                 Tests in spherical components"  << endl 
+     <<  "*********************************************************"
+     << endl ; 
+
     // Kerr metric in quasi-isotropic coordinates
     // ------------------------------------------
     
     // Twice the radius at the horizon:
     double hh = 2. * map.val_r(0, 1., 0., 0.) ; 
-    
-    double aasm = 0.5 ; // Kerr parameter a/M = J/M^2
     
     double mm = hh / sqrt(1. - aasm*aasm) ; // total mass M
     
@@ -117,29 +127,22 @@ int main() {
     
 
     // R (Boyer-Lindquist radial coordinate):
-    Mtbl rs = r + mm + (mm*mm - aa*aa) / (4*r) ;
+    Mtbl r_bl = r + mm + (mm*mm - aa*aa) / (4*r) ;
 
-    Mtbl erre = 1 + mm/r + (mm*mm - aa*aa) / (4*r*r) ; // ratio R / r :
+    Mtbl r_blsr = 1 + mm/r + (mm*mm - aa*aa) / (4*r*r) ; // ratio R / r :
     
-    Mtbl sigmasr = rs + (aa*aa* cost*cost)/rs ;  // Sigma / R
+    Mtbl sigmasr = r_bl + (aa*aa* cost*cost) / r_bl ;  // Sigma / R
     
     Scalar a2(map) ; Scalar b2(map) ;
-    a2 = erre*erre + (aa*aa*cost*cost)/(r*r) ;  // A^2 = Sigma^2 / r^2
+    a2 = r_blsr * r_blsr + (aa*aa*cost*cost)/(r*r) ;  // A^2 = Sigma^2 / r^2
     
-    b2 = erre*erre + aa*aa/(r*r) + 2*aa*aa*sint*sint*mm/(sigmasr*r*r) ; // B^2
+    b2 = r_blsr * r_blsr + aa*aa/(r*r) + 2*aa*aa*sint*sint*mm/(sigmasr*r*r) ; // B^2
     
     a2.set_domain(0) = 1. ; 
     b2.set_domain(0) = 1. ; 
     a2.std_spectral_base() ;
     b2.std_spectral_base() ;
 
-    /*
-    des_coef_xi(a2.get_spectral_va(), 1, 0, 0, 1.e-14, "a2") ; 
-    des_coef_xi(b2.get_spectral_va(), 1, 0, 0, 1.e-14, "b2") ; 
-    des_coef_theta(a2.get_spectral_va(), 1, 0, 0, 1.e-14, "a2") ; 
-    des_coef_theta(b2.get_spectral_va(), 1, 0, 0, 1.e-14, "b2") ; 
-    */
-    
     // Spatial metric
     // --------------
     
@@ -155,109 +158,64 @@ int main() {
    
     cout << gam << endl ; 
     
-//    cout << "Contravariant components of the metric: " << endl ; 
-//    cout << gam.con() << endl ; 
-
     // Flat metric :
     // -----------
     const Metric_flat& fmet = map.flat_met_spher() ; 
 
+    Scalar tmp(map) ; // working scalar
 
-    // Schwartzchild metric
-    // --------------------
+    // Comparison with Schwarzschild metric in the non-rotating case
+    // -------------------------------------------------------------
+    if (aasm == double(0)) {    
     
-    Scalar psi4(map) ; 
-    psi4 = pow( 1 + mm / (2*r), 4) ; 
-    psi4.set_domain(0) = 1 ; 
-    psi4.std_spectral_base() ;
-
-    Vector dpsi4 = psi4.derive_cov( fmet ) ; 
-    Scalar tmp(map) ; 
-    tmp = - 2 * mm / (r*r) * pow( 1 + mm / (2*r), 3) ;
-    tmp.set_domain(0) = 0 ;  
-    Vector vtmp(map, COV, map.get_bvect_spher()) ; 
-    vtmp.set(1) = tmp ;
-    tmp = - 2 * mm * pow( 1 + mm / (2*r), 3) ; 
-    vtmp.set(1).set_domain(nzm1) = tmp.domain(nzm1) ; 
-    vtmp.set(1).set_dzpuis(2) ; 
-    vtmp.set(2) = 0 ; 
-    vtmp.set(3) = 0 ; 
-    vtmp.std_spectral_base() ;
-    vtmp -= dpsi4 ; 
-    cout << "Error on Grad(Psi^4) : " << endl ; 
-    vtmp.spectral_display() ; 
-    maxabs(vtmp) ; 
-    arrete() ; 
+        // Schwartzchild metric
     
-    Sym_tensor gij_schw = psi4 * fmet.cov() ; 
+        Scalar psi4(map) ; 
+        psi4 = pow( 1 + mm / (2*r), 4) ; 
+        psi4.set_domain(0) = 1 ; 
+        psi4.std_spectral_base() ;
+
+        Vector dpsi4 = psi4.derive_cov( fmet ) ; 
+        tmp = - 2 * mm / (r*r) * pow( 1 + mm / (2*r), 3) ;
+        tmp.set_domain(0) = 0 ;  
+        Vector vtmp(map, COV, map.get_bvect_spher()) ; 
+        vtmp.set(1) = tmp ;
+        tmp = - 2 * mm * pow( 1 + mm / (2*r), 3) ; 
+        vtmp.set(1).set_domain(nzm1) = tmp.domain(nzm1) ; 
+        vtmp.set(1).set_dzpuis(2) ; 
+        vtmp.set(2) = 0 ; 
+        vtmp.set(3) = 0 ; 
+        vtmp.std_spectral_base() ;
+        vtmp -= dpsi4 ; 
+        cout << "Error on Grad(Psi^4) : " << endl ; 
+        vtmp.spectral_display() ; 
+        maxabs(vtmp) ; 
+        arrete() ; 
     
-    Sym_tensor diff_schw = gam.cov() - gij_schw ; 
-    cout << "Comparison with Schwarzschild: \n" ; 
-    maxabs(diff_schw) ; 
-    arrete() ; 
-
-    // Test: covariant derivative of the metric / flat metric:
+        Sym_tensor gij_schw = psi4 * fmet.cov() ; 
     
-    const Tensor& dg_cov = gam.cov().derive_cov( fmet ) ; 
+        Sym_tensor diff_schw = gam.cov() - gij_schw ; 
+        cout << 
+        "Comparison with the Schwarzschild metric (max absolute error): \n" ; 
+        maxabs(diff_schw) ; 
+        arrete() ; 
+
+        // Test: covariant derivative of the metric / flat metric:
+
+        const Tensor& dg_cov = gam.cov().derive_cov( fmet ) ; 
     
-    Tensor_sym d_gij_schw = fmet.cov() * dpsi4 ;
+        Tensor_sym d_gij_schw = fmet.cov() * dpsi4 ;
     
-    Tensor diff_dg = dg_cov - d_gij_schw ; 
-    cout << "Error on the covariant derivative of the metric / flat metric:" << endl ; 
-    diff_dg.spectral_display() ; 
-    maxabs(diff_dg) ; 
-    arrete() ; 
+        Tensor diff_dg = dg_cov - d_gij_schw ; 
+        cout << "Error on the covariant derivative of the metric / flat metric:" << endl ; 
+        diff_dg.spectral_display() ; 
+        cout << "Error on the covariant derivative of the metric / flat metric:" << endl ; 
+        maxabs(diff_dg) ; 
+        arrete() ; 
 
-    // Test: Connection symbols Delta
-    // ------------------------------
-    const Tensor_sym& delta =  gam.connect().get_delta() ;     
-    cout << "Connection (delta) : " << endl ; 
-    delta.spectral_display() ; 
-    maxabs(delta) ; 
+    }
 
-    Scalar diff = delta(1,1,1) - 0.5 * dpsi4(1) / psi4 ; 
-    cout << "Error on Delta^r_rr: \n " ; maxabs(diff) ; 
-
-    diff = delta(1,2,1) - 0 ; 
-    cout << "Error on Delta^r_rt: \n " ; maxabs(diff) ; 
-    diff = delta(1,3,1) - 0 ; 
-    cout << "Error on Delta^r_rp: \n " ; maxabs(diff) ; 
-    
-    diff = delta(1,2,2) + 0.5 * dpsi4(1) / psi4 ; 
-    cout << "Error on Delta^r_tt: \n " ; maxabs(diff) ; 
-
-    diff = delta(1,3,2) - 0  ; 
-    cout << "Error on Delta^r_tp: \n " ; maxabs(diff) ; 
-
-    diff = delta(2,1,1) - 0 ; 
-    cout << "Error on Delta^t_rr: \n " ; maxabs(diff) ; 
-
-    diff = delta(2,2,1) - 0.5 * dpsi4(1) / psi4 ; 
-    cout << "Error on Delta^t_rt: \n " ; maxabs(diff) ; 
-
-    diff = delta(2,3,1) - 0 ; 
-    cout << "Error on Delta^t_rp: \n " ; maxabs(diff) ; 
-
-    diff = delta(2,2,2) - 0 ; 
-    cout << "Error on Delta^t_tt: \n " ; maxabs(diff) ; 
-
-    diff = delta(2,3,2) - 0 ; 
-    cout << "Error on Delta^t_tp: \n " ; maxabs(diff) ; 
-
-    diff = delta(2,3,3) - 0 ; 
-    cout << "Error on Delta^t_pp: \n " ; maxabs(diff) ; 
-
-    diff = delta(3,1,1) - 0 ; 
-    cout << "Error on Delta^p_rr: \n " ; maxabs(diff) ; 
-
-    diff = delta(3,2,1) - 0 ; 
-    cout << "Error on Delta^p_rt: \n " ; maxabs(diff) ; 
-
-    diff = delta(3,3,1) - 0.5 * dpsi4(1) / psi4 ; 
-    cout << "Error on Delta^p_rp: \n " ; maxabs(diff) ; 
-
-    arrete() ; 
-    
+        
     // Test: covariant derivative of the metric / itself:
     // --------------------------------------------------
     
@@ -271,10 +229,9 @@ int main() {
     // Lapse function
     // --------------
     
-    
     tmp = 1 - 2*mm / sigmasr 
             + 4*aa*aa*mm*mm* sint* sint / 
-            ( sigmasr* (sigmasr * ( rs*rs + aa*aa)
+            ( sigmasr* (sigmasr * ( r_bl * r_bl + aa*aa)
               + 2*aa*aa*mm* sint*sint ) ) ; 
     tmp.set_domain(0) = 1 ; 
     
@@ -290,7 +247,7 @@ int main() {
     // ------------
     
     Scalar nphi(map) ; 
-    nphi = ( 2*aa*mm / (sigmasr * ( erre*rs + aa*aa/r) 
+    nphi = ( 2*aa*mm / (sigmasr * ( r_blsr * r_bl + aa*aa/r) 
                                 + 2*aa*aa*mm* sint*sint/r ) ) * sint ; 
     nphi.annule_domain(0) ; 
                                     
@@ -300,16 +257,9 @@ int main() {
     beta.set(3) = nphi ; 
     beta.std_spectral_base() ;
 
-    /*
-	des_coef_xi(beta(3).get_spectral_va(), 1, 0, 0, 1.e-14, "beta^phi") ; 
-    des_coef_xi(beta(3).get_spectral_va(), 1, 0, 1, 1.e-14, "beta^phi") ; 
-    des_coef_theta(beta(3).get_spectral_va(), 1, 0, 0, 1.e-14, "beta^phi") ; 
-	*/
-
     cout << "Shift vector beta: " << beta << endl ; 
 	arrete() ; 
-	
-    
+	    
         
     // Extrinsic curvature
     // -------------------
@@ -321,6 +271,7 @@ int main() {
     
     cout << "Dbeta: " << endl ; 
     beta_cov.derive_cov(gam).spectral_display() ; 
+    cout << "Dbeta: " << endl ; 
     maxabs(beta_cov.derive_cov(gam)) ; 
     arrete() ; 
     
@@ -335,9 +286,8 @@ int main() {
             tmp = 0.5 * ( beta_cov.derive_cov(gam)(i,j)
                         + beta_cov.derive_cov(gam)(j,i) ) ; 
 
-            tmp.set_inner_boundary(1, 0.) ;
-
-            cout << "######### Component " << i << " " << j << endl ; 
+            cout << "## Horizon values of D_(i beta_j) component " << i 
+                 << " " << j << endl ; 
             for (int k=0; k<mgrid.get_np(1); k++) {
                 for (int jj=0; jj<mgrid.get_nt(1); jj++) {
                     cout << "  " << tmp.get_spectral_va()(1,k,jj,0) ; 
@@ -345,18 +295,14 @@ int main() {
                 cout << endl ; 
             }
             
+            tmp.set_inner_boundary(1, 0.) ;
            
             kk.set(i,j) = Scalar( division_xpun(Cmp(tmp), 0) ) / nn_xip1 ;  
             
-   /*
-    des_coef_xi(kk(i,j).get_spectral_va(), 1, 0, 0, 1.e-14, "K^ij") ; 
-    des_coef_xi(kk(i,j).get_spectral_va(), 1, 0, 1, 1.e-14, "K^ij") ; 
-    des_coef_theta(kk(i,j).get_spectral_va(), 1, 0, 0, 1.e-14, "K^ij") ; 
-    */
-  
         }
     } 
-    
+    arrete() ; 
+        
     cout << "Extrinsic curvature : " << endl ;  
     kk.spectral_display() ; 
     maxabs(kk) ; 
@@ -367,16 +313,16 @@ int main() {
     Tensor kk_du = kk.up(1, gam) ; 
     Scalar trkk = kk_du.scontract(0,1) ; 
     cout << "Trace of K:" << endl ; 
-    trkk.spectral_display() ;
     maxabs(trkk) ; 
-    arrete() ; 
     
     const Tensor& dkk = kk_du.derive_cov(gam) ; 
     
     Vector mom_constr = dkk.scontract(1,2) - trkk.derive_cov(gam) ; 
     cout << "Momentum constraint : " << endl ; 
     mom_constr.spectral_display() ;     
+    cout << "Momentum constraint (max absolute error): " << endl ; 
     maxabs(mom_constr) ; 
+    arrete() ; 
 
     // Hamiltonian constraint
     // ----------------------
@@ -397,7 +343,9 @@ int main() {
         
     cout << "Hamiltonian constraint : " << endl ; 
     ham_constr.spectral_display() ;     
+    cout << "Hamiltonian constraint (max absolute error): " << endl ; 
     maxabs(ham_constr) ; 
+    arrete() ; 
 
    // ham_constr.visu_section('y', 0., 0., 5., 0., 5., "Ham. constr.") ; 
     
@@ -421,6 +369,7 @@ int main() {
     
     cout << "Dynamical Einstein equations:" << endl ; 
     dyn_einstein.spectral_display() ;     
+    cout << "Dynamical Einstein equations (max absolute error): " << endl ; 
     maxabs(dyn_einstein) ; 
     
     cout << "maxabs(dyn1) : " << endl ; 
@@ -432,9 +381,164 @@ int main() {
     cout << "maxabs(dyn4) : " << endl ; 
     maxabs(dyn4) ; 
     
-    cout << "Relative error:" << endl ; 
+    cout << "Dynamical Einstein equations (relative error): " << endl ; 
     diffrel(dyn2+dyn3+dyn4, -dyn1) ; 
+    arrete() ; 
+    
+    //==============================================================//
+    //                  Tests in Cartesian components               //
+    //==============================================================//
 
+    cout << "*********************************************************" << endl 
+     << "                 Tests in Cartesian components"  << endl 
+     <<  "*********************************************************"
+     << endl ; 
+
+    Sym_tensor gij_cart = gam.cov() ; 
+    gij_cart.change_triad( map.get_bvect_cart() ) ; 
+    
+    Metric gam_c(gij_cart) ; // construction from the covariant components 
+   
+    cout << "Metric in Cartesian components : \n" ; 
+    gam_c.cov().spectral_display() ; 
+    arrete() ; 
+    
+    Vector beta_c = beta ; 
+    beta_c.change_triad( map.get_bvect_cart() ) ; 
+
+    cout << "Shift vector in Cartesian components : \n" ; 
+    beta_c.spectral_display() ; 
+    arrete() ; 
+    
+    // Extrinsic curvature in Cartesian components
+    // -------------------------------------------
+    
+    Vector beta_c_cov = beta_c.down(0, gam_c) ; 
+    cout << "beta_c_cov : " << endl ; 
+    maxabs(beta_c_cov) ; 
+    arrete() ; 
+        
+    Sym_tensor kk_c(map, COV, map.get_bvect_cart()) ; 
+    
+    for (int i=1; i<=3; i++) {
+        for (int j=1; j<=i; j++) {
+
+            tmp = 0.5 * ( beta_c_cov.derive_cov(gam_c)(i,j)
+                        + beta_c_cov.derive_cov(gam_c)(j,i) ) ; 
+
+
+            cout << "## Horizon values of D_(i beta_j) component " << i 
+                 << " " << j << endl ; 
+
+            for (int k=0; k<mgrid.get_np(1); k++) {
+                for (int jj=0; jj<mgrid.get_nt(1); jj++) {
+                    cout << "  " << tmp.get_spectral_va()(1,k,jj,0) ; 
+                }
+                cout << endl ; 
+            }
+            
+            // tmp.set_inner_boundary(1, 0.) ;
+          
+            kk_c.set(i,j) = Scalar( division_xpun(Cmp(tmp), 0) ) / nn_xip1 ;  
+            
+        }
+    } 
+    arrete() ; 
+    
+    cout << "Extrinsic curvature (Cartesian components) : " << endl ;  
+    kk_c.spectral_display() ; 
+    maxabs(kk_c) ; 
+    
+    // Test :
+    Sym_tensor kk_test = kk ; 
+    kk_test.change_triad( map.get_bvect_cart() ) ;
+    cout << "Relative error on the Cartesian components of K_{ij}: \n" ;
+    diffrelmax(kk_c, kk_test) ;  
+    arrete() ; 
+    
+    // Momentum constraint
+    // -------------------
+    
+    Tensor kk_du_c = kk_c.up(1, gam_c) ; 
+    Scalar trkk_c = kk_du_c.scontract(0,1) ; 
+    cout << "Trace of K:" << endl ; 
+    maxabs(trkk_c) ; 
+    
+    const Tensor& dkk_c = kk_du_c.derive_cov(gam_c) ; 
+    
+    Vector mom_constr_c = dkk_c.scontract(1,2) - trkk_c.derive_cov(gam_c) ; 
+    cout << "Momentum constraint (Cart.) : " << endl ; 
+    mom_constr_c.spectral_display() ;     
+    cout << "Momentum constraint (Cart.) (max absolute error): " << endl ; 
+    maxabs(mom_constr_c) ; 
+    arrete() ; 
+
+    // Hamiltonian constraint
+    // ----------------------
+    
+    const Tensor& ricci_c = gam_c.ricci() ; 
+    
+    // Test :
+    Sym_tensor ricci_test = ricci ; 
+    ricci_test.change_triad( map.get_bvect_cart() ) ;
+    cout << "Relative error on the Cartesian components of Ricci: \n" ;
+    diffrelmax(ricci_c, ricci_test) ;  
+    arrete() ; 
+    
+    const Scalar& ricci_scal_c = gam_c.ricci_scal() ; 
+    
+    cout << "Ricci scalar (Cart)  : " << endl ; 
+    ricci_scal_c.spectral_display() ; 
+    maxabs(ricci_scal_c) ; 
+
+    Tensor kk_uu_c = kk_du_c.up(0, gam_c) ; 
+    
+    tmp = trkk_c * trkk_c - contract( contract(kk_c, 1, kk_uu_c, 1), 0, 1) ; 
+    tmp.dec_dzpuis() ; 
+    Scalar ham_constr_c = ricci_scal_c + tmp ;
+        
+    cout << "Hamiltonian constraint (Cart) : " << endl ; 
+    ham_constr_c.spectral_display() ;     
+    cout << "Hamiltonian constraint (max absolute error): " << endl ; 
+    maxabs(ham_constr_c) ; 
+    arrete() ; 
+
+    // Dynamical Einstein equations
+    //-----------------------------
+    
+    Sym_tensor dyn1_c = - (nn.derive_cov(gam_c)).derive_cov(gam_c) ;
+    
+    Sym_tensor dyn2_c = nn * ricci_c ; 
+        
+    Sym_tensor dyn3_c = nn * ( trkk_c * kk_c 
+        - 2 * contract(kk_du_c, 1, kk_c, 0) ) ; 
+    dyn3_c.dec_dzpuis() ; 
+    
+    // Lie derivative of K along beta:
+    Sym_tensor dyn4_c = contract( beta_c.derive_cov(gam_c), 0, kk_c, 0)
+                + contract( kk_c, 0, beta_c.derive_cov(gam_c), 0) ;
+    dyn4_c.dec_dzpuis() ; 
+    dyn4_c += contract(beta_c, 0, kk_c.derive_cov(gam_c), 2)  ;  
+
+    Sym_tensor dyn_einstein_c = dyn1_c + dyn2_c + dyn3_c + dyn4_c ; 
+    
+    cout << "Dynamical Einstein equations:" << endl ; 
+    dyn_einstein_c.spectral_display() ;     
+    cout << "Dynamical Einstein equations (max absolute error): " << endl ; 
+    maxabs(dyn_einstein_c) ; 
+    
+    cout << "maxabs(dyn1_c) : " << endl ; 
+    maxabs(dyn1_c) ; 
+    cout << "maxabs(dyn2_c) : " << endl ; 
+    maxabs(dyn2_c) ; 
+    cout << "maxabs(dyn3_c) : " << endl ; 
+    maxabs(dyn3_c) ; 
+    cout << "maxabs(dyn4_c) : " << endl ; 
+    maxabs(dyn4_c) ; 
+    
+    cout << "Dynamical Einstein equations (relative error): " << endl ; 
+    diffrel(dyn2_c+dyn3_c+dyn4_c, -dyn1_c) ; 
+    
     return EXIT_SUCCESS ; 
 
 }
