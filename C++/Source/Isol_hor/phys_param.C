@@ -30,6 +30,9 @@ char phys_param_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/11/18 12:30:01  jl_jaramillo
+ * Definition of b_tilde
+ *
  * Revision 1.4  2004/10/29 15:44:13  jl_jaramillo
  * ADM angular momentum added.
  *
@@ -103,6 +106,17 @@ Vector Isol_hor::tradial_vect_hor()  {
   return get_radial_vect ;
 
 }
+
+
+Scalar Isol_hor::b_tilde() {
+
+  Scalar tmp = contract( beta(), 0, met_gamt.radial_vect().down(0, met_gamt), 0) ;
+  
+  return tmp ;
+
+}
+
+
 
 
 Scalar Isol_hor::darea_hor() {
