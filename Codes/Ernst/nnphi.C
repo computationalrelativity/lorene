@@ -28,6 +28,9 @@ char name_of_this_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/12/09 16:07:25  j_frauendiener
+ * binary output added
+ *
  * Revision 1.2  2002/10/28 15:48:29  j_frauendiener
  * Multiplication with cos(phi) added in comparison of results
  *
@@ -257,22 +260,30 @@ int main() {
 
   V.mult_rsint();
   bcV = bcV/cos(mpa.phi+shift);
-  cout.setf(ios::scientific,ios::floatfield);
-  cout.precision(7);
-  
+
+  ofstream out("out.dat");
+  //  out.setf(ios::scientific,ios::floatfield);
+  //  out.precision(7);
+
+  double a[nt][4];
+
   for (int j=0; j<nt; j++)
     {
-      cout << "U: " << U(1,0,j,nr-1) << "\t" << bcU(1,0,j,0) << "\t"
-	   << U(1,0,j,nr-1) - bcU(1,0,j,0) << endl;
-      cout << "V: " << V(1,0,j,nr-1) << "\t" << bcV(1,0,j,0) << "\t"
-	   << V(1,0,j,nr-1) - bcV(1,0,j,0) << endl;
-      cout << "------------------------------------------------------------------------------" << endl;
-      
+      //      cout <<  U(1,0,j,nr-1) << "\t" << bcU(1,0,j,0) << "\t"
+      //	   << U(1,0,j,nr-1) - bcU(1,0,j,0) << endl;
+      //      cout <<  V(1,0,j,nr-1) << "\t" << bcV(1,0,j,0) << "\t"
+      //	   << V(1,0,j,nr-1) - bcV(1,0,j,0) << endl;
+      //      cout << "------------------------------------------------------------------------------" << endl;
+      //out << U(1,0,j,nr-1) << "\t" << bcU(1,0,j,0) << "\t"
+      //	   << V(1,0,j,nr-1) << "\t" << bcV(1,0,j,0) << endl;
+      a[j][0] = U(1,0,j,nr-1);    
+      a[j][1] = V(1,0,j,nr-1);    
+      a[j][2] = bcU(1,0,j,0);    
+      a[j][3] = bcV(1,0,j,0);    
     }
 
-  //      des_profile(U1,1.01,20.0,M_PI/2,M_PI/2);
-  //  des_profile(V,1.01,20.0,M_PI/2,M_PI/2);
- 
+  out.write(a,4*nt*sizeof(double));
+  
   return EXIT_SUCCESS ; 
 
 }
