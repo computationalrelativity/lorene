@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2004/03/03 13:54:16  j_novak
+ * Error in comments corrected.
+ *
  * Revision 1.14  2004/03/03 13:16:20  j_novak
  * New potential khi (p_khi) and the functions manipulating it.
  *
@@ -388,7 +391,7 @@ class Sym_tensor_tt: public Sym_tensor_trans {
     // -----
 
     protected:
-	/** Field $\khi$ such that the component $h^{rr} = \frac{\khi}{r^2}$.
+	/** Field $\chi$ such that the component $h^{rr} = \frac{\chi}{r^2}$.
 	 */
 	mutable Scalar* p_khi ;
 	
@@ -509,13 +512,13 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	void set_rr_mu(const Scalar& hrr, const Scalar& mu_i) ; 
 	
 	
-	/** Sets the component $\khi$, as well as the angular potentials 
-	 * $\eta$ and $\mu$ (see members {\tt p_\khi},
+	/** Sets the component $\chi$, as well as the angular potentials 
+	 * $\eta$ and $\mu$ (see members {\tt p\_\chi},
 	 *  {\tt p\_eta} and {\tt p\_mu}). 
 	 *  The components are updated consistently
 	 *  by a call to the method {\tt update()}.
 	 *
-	 *	@param khi_i [input] value of $\khi$
+	 *	@param khi_i [input] value of $\chi$
 	 *	@param eta_i [input] angular potential $\eta$
 	 *	@param mu_i [input] angular potential $\mu$
 	 *
@@ -523,14 +526,14 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	void set_khi_eta_mu(const Scalar& khi_i, const Scalar& eta_i, 
 						const Scalar& mu_i) ; 
 		
-	/** Sets the component $\khi$, as well as the angular potential
-	 * $\mu$ (see member {\tt p_\khi} and {\tt p\_mu}). 
+	/** Sets the component $\chi$, as well as the angular potential
+	 * $\mu$ (see member {\tt p\_\chi} and {\tt p\_mu}). 
 	 * The angular potential $\eta$ (member {\tt p\_eta}) is deduced from
 	 * the divergence free condition. 
 	 * The tensor components are updated consistently
 	 * by a call to the method {\tt update()}.
 	 *
-	 *	@param khi_i [input] value of $\khi$
+	 *	@param khi_i [input] value of $\chi$
 	 *	@param mu_i [input] angular potential $\mu$
 	 *
 	 */
@@ -540,7 +543,7 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	// ---------------------
 	
 	public:
-	/** Gives the field $\khi$ such that the component $h^{rr} = \frac{\khi}{r^2}$.
+	/** Gives the field $\chi$ such that the component $h^{rr} = \frac{\chi}{r^2}$.
 	 */
 	const Scalar& khi() const ;
 	
