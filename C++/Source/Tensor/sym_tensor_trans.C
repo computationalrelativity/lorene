@@ -32,6 +32,10 @@ char sym_tensor_trans_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/02/18 18:48:39  e_gourgoulhon
+ * Method trace() renamed the_trace() to avoid any confusion with
+ * the new method Tensor::trace().
+ *
  * Revision 1.4  2004/02/09 12:57:13  e_gourgoulhon
  * First implementation of method tt_part().
  *
@@ -184,15 +188,12 @@ void Sym_tensor_trans::operator=(const Tensor& source) {
 			//    Computational methods    //
 			//-----------------------------//
 
-const Scalar& Sym_tensor_trans::trace() const {
+const Scalar& Sym_tensor_trans::the_trace() const {
 
 	if (p_trace == 0x0) {   // a new computation is necessary
-
+        
 		assert( (type_indice(0)==CON) && (type_indice(1)==CON) ) ; 
-		
-		Tensor tmp = contract( met_div->cov(), 0, *this, 0 ) ;
-		 
-		p_trace = new Scalar( tmp.scontract(0,1) ) ; 
+        p_trace = new Scalar( trace(*met_div) ) ; 
 		
 	}
 	
@@ -207,12 +208,12 @@ const Sym_tensor_tt& Sym_tensor_trans::tt_part() const {
 
         p_tt = new Sym_tensor_tt(*mp, *triad, *met_div) ; 
         
-        Scalar pot =  trace().poisson() ; 
+        Scalar pot =  the_trace().poisson() ; 
 
         Sym_tensor tmp = (pot.derive_con(*met_div)).derive_con(*met_div) ; 
         tmp.inc_dzpuis() ;  //## to be improved ?
         
-        *p_tt = *this - 0.5 * ( trace() * met_div->con() - tmp ) ; 
+        *p_tt = *this - 0.5 * ( the_trace() * met_div->con() - tmp ) ; 
 		
 	}
 	
