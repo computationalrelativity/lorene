@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/09/22 12:50:47  e_gourgoulhon
+ * First version: not ready yet!
+ *
  * Revision 1.4  2003/06/03 10:00:37  e_gourgoulhon
  * Added a new version of des_profile for Cmp with scale and nomx
  * specified in the argument list
@@ -140,7 +143,7 @@ class Bin_ns_ncp ;
     //@{     
 
 
-/** Basic routine for drawing profiles.
+/** Basic routine for drawing a single profile.
  *  A profile is a function y=y(x). 
  *
  *  @param uutab [input] Array (size: {\tt nx}) of y values to be drawn
@@ -156,6 +159,26 @@ class Bin_ns_ncp ;
  */
 void des_profile(float* uutab, int nx, float xmin, float xmax, 
 		 char* nomx, char* nomy, char* title, char* device = 0x0) ;
+
+
+/** Basic routine for drawing multiple profiles.
+ *  A profile is a function y=y(x). 
+ *
+ *  @param uutab [input] Array (size: {\tt nprof}*{\tt nx}) of y values to be drawn
+ *			 (the x sampling is supposed to be uniform).
+ *  @param nprof [input] Number of profiles
+ *  @param nx [input] Number of points for each profile
+ *  @param xmin [input] lowest value of x
+ *  @param xmax [input] highest value of x
+ *  @param nomx [input] x legend of the figure
+ *  @param nomy [input] y legend of the figure
+ *  @param title [input] title of the figure
+ *  @param device [input] PGPLOT device (default value = 0x0)
+ *
+ */
+void des_profile_mult(const float* uutab, int nprof, int nx, 
+			float xmin, float xmax, const char* nomx, const char* nomy, 
+			const char* title, const char* device = 0x0) ; 
 
 
 /** Basic routine for drawing isocontours.
