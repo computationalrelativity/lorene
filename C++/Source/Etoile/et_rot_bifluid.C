@@ -32,6 +32,10 @@ char et_rot_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/11/17 13:49:43  r_prix
+ * - moved superluminal check into hydro_euler()
+ * - removed some warnings
+ *
  * Revision 1.7  2003/11/13 12:07:57  r_prix
  * *) changed xxx2 -> Delta_car
  * *) added (non 2-fluid specific!) members sphph_euler J_euler
@@ -94,9 +98,9 @@ Et_rot_bifluid::Et_rot_bifluid(Map& mpi, int nzet_i, bool relat,
   ent2(mpi),
   nbar2(mpi),
   Delta_car(mpi),
-  gam_euler2(mpi),
   sphph_euler(mpi),
   J_euler(mpi, 1, CON, mp.get_bvect_cart()), 
+  gam_euler2(mpi),
   uuu2(mpi)
 {
   // All the matter quantities are initialized to zero :
@@ -126,9 +130,9 @@ Et_rot_bifluid::Et_rot_bifluid(const Et_rot_bifluid& et)
   ent2(et.ent2),
   nbar2(et.nbar2),
   Delta_car(et.Delta_car),
-  gam_euler2(et.gam_euler2),
   sphph_euler(et.sphph_euler),
   J_euler(et.J_euler),
+  gam_euler2(et.gam_euler2),
   uuu2(et.uuu2)
 {
   omega2 = et.omega2 ; 
@@ -537,8 +541,9 @@ void Et_rot_bifluid::equation_of_state() {
 
 void Et_rot_bifluid::hydro_euler(){
 
-    int nz = mp.get_mg()->get_nzone() ; 
-    int nzm1 = nz - 1 ; 
+  const Mg3d* mg = mp.get_mg(); 
+  int nz = mg->get_nzone() ; 
+  int nzm1 = nz - 1 ; 
 
     // RP: I prefer to use the 3-vector J_euler instead of u_euler
     // for better physical "encapsulation" 
@@ -574,6 +579,36 @@ void Et_rot_bifluid::hydro_euler(){
 	(uuu2.set()).mult_rsint();
       }
     uuu2.set_std_base();
+
+    // Sanity check:
+    // Is one of the new velocities larger than c in the equatorial plane ?
+    //----------------------------------------
+
+    // Index of the point at phi=0, theta=pi/2 at the surface of the star:
+    int l_b = nzet - 1 ; 
+    int j_b = mg->get_nt(l_b) - 1 ; 
+
+    bool superlum = false ; 
+    if (relativistic) {
+      for (int l=0; l<nzet; l++) {
+	for (int i=0; i<mg->get_nr(l); i++) {
+	  
+	  double u1 = uuu()(l, 0, j_b, i) ; 
+	  double u2 = uuu2()(l, 0, j_b, i) ;
+	  if ((u1 >= 1.) || (u2>=1.)) {	    // superluminal velocity
+	    superlum = true ; 
+	    cout << "U > c  for l, i : " << l << "  " << i 
+		 << "   U1 = " << u1 << endl ;
+	    cout << "   U2 = " << u2 << endl ;
+	  }
+	}
+      }
+      if ( superlum ) {
+	cout << "**** VELOCITY OF LIGHT REACHED ****" << endl ; 
+	abort() ;
+      }
+    }
+
 
     Tenseur uuu_car = uuu * uuu;
     Tenseur uuu2_car = uuu2 * uuu2;

@@ -32,6 +32,10 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/11/17 13:49:43  r_prix
+ * - moved superluminal check into hydro_euler()
+ * - removed some warnings
+ *
  * Revision 1.6  2003/11/13 12:14:35  r_prix
  * *) removed all use of etoile-type specific u_euler, press
  *   and use 3+1 components of Tmunu instead
@@ -143,7 +147,7 @@ void Et_rot_bifluid::equilibrium_spher_bi(double ent_c, double ent2_c,
   ent2_jm1 = 0 ;
 
   Tenseur source(mp) ; 
-  Tenseur logn(mp) ; 
+  // Tenseur logn(mp) ; 
   Tenseur logn_quad(mp) ; 
   logn = 0 ; 
   logn_quad = 0 ; 
@@ -364,12 +368,12 @@ void Et_rot_bifluid::equilibrium_spher_bi(double ent_c, double ent2_c,
 
   //... Relative error on the virial identity GRV3
     
-  double grv3 = ( vir_mat + vir_grav ) / vir_mat ;
+  double l_grv3 = ( vir_mat + vir_grav ) / vir_mat ;
 
   cout << "Virial theorem GRV3 : " << endl ; 
   cout << "     3P term    : " << vir_mat << endl ; 
   cout << "     grav. term : " << vir_grav << endl ; 
-  cout << "     relative error : " << grv3 << endl ; 
+  cout << "     relative error : " << l_grv3 << endl ; 
     
     
 }
@@ -404,8 +408,6 @@ void Et_rot_bifluid::equilibrium_bi
   // ---------------
     
   const Mg3d* mg = mp.get_mg() ; 
-  int nz = mg->get_nzone() ;	    // total number of domains
-  int nzm1 = nz - 1 ; 
     
     // Index of the point at phi=0, theta=pi/2 at the surface of the star:
   assert(mg->get_type_t() == SYM) ; 
@@ -752,58 +754,6 @@ void Et_rot_bifluid::equilibrium_bi
 	
     }
 
-    //------------------------------------------------
-    // Determination of the fluid velocities U1 and U2
-    //------------------------------------------------
-	
-    Cmp tmp = omega - nphi() ; 
-    tmp.annule(nzm1) ; 
-    tmp.std_base_scal() ;
-	
-    tmp.mult_rsint() ;	    //  Multiplication by r sin(theta)
-	
-    uuu = bbb() / nnn() * tmp ; 
-	
-    if (uuu.get_etat() == ETATQCQ) {
-      // Same basis as (Omega -N^phi) r sin(theta) :
-      ((uuu.set()).va).set_base( (tmp.va).base ) ;   
-    }
-	
-    tmp = omega2 - nphi() ; 
-    tmp.annule(nzm1) ; 
-    tmp.std_base_scal() ;
-	
-    tmp.mult_rsint() ;	    //  Multiplication by r sin(theta)
-	
-    uuu2 = bbb() / nnn() * tmp ; 
-	
-    if (uuu2.get_etat() == ETATQCQ) {
-      // Same basis as (Omega -N^phi) r sin(theta) :
-      ((uuu2.set()).va).set_base( (tmp.va).base ) ;   
-    }
-	
-    // Is one of the new velocities larger than c in the equatorial plane ?
-	
-    bool superlum = false ; 
-    if (relativistic) {
-      for (int l=0; l<nzet; l++) {
-	for (int i=0; i<mg->get_nr(l); i++) {
-	  
-	  double u1 = uuu()(l, 0, j_b, i) ; 
-	  double u2 = uuu2()(l, 0, j_b, i) ;
-	  if ((u1 >= 1.) || (u2>=1.)) {	    // superluminal velocity
-	    superlum = true ; 
-	    cout << "U > c  for l, i : " << l << "  " << i 
-		 << "   U1 = " << u1 << endl ;
-	    cout << "   U2 = " << u2 << endl ;
-	  }
-	}
-      }
-      if ( superlum ) {
-	cout << "**** VELOCITY OF LIGHT REACHED ****" << endl ; 
-	abort() ;
-      }
-    }
     // New computation of Delta_car, gam_euler, ener_euler, etc...
     // ------------------------------------------------------
 	
