@@ -30,6 +30,9 @@ char connection_fspher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2004/01/23 07:57:06  e_gourgoulhon
+ * Slight change in some comment.
+ *
  * Revision 1.17  2004/01/22 16:14:22  e_gourgoulhon
  * Method p_derive_cov: reorganization of the dzpuis treatment.
  * Added the case of input dzpuis = 2.
@@ -207,7 +210,7 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
 	
     Scalar tmp(*mp) ;	// working scalar
 
-    // Determination of the dzpuis parameter of the result  --> dz_in
+    // Determination of the dzpuis parameter of the result  --> dz_resu
     // ---------------------------------------------------
     int dz_in = 0 ;
     for (int ic=0; ic<uu.get_n_comp(); ic++) {
