@@ -28,6 +28,9 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.7  2004/11/02 16:27:07  f_limousin
+ * Add new parameter ang_vel in function init_data(...).
+ *
  * Revision 1.6  2004/10/29 15:41:02  jl_jaramillo
  * ADM angular momentum added
  *
@@ -290,8 +293,9 @@ int main() {
     tmp_sym.set_etat_zero() ;
     tmp_scal.set_dzpuis(4) ;
 
+    double ang_vel = 0.01 ;
     isolhor.init_data(tmp_sym, trk, tmp_scal, seuil, relax, 
-			     niter) ;
+			     niter, ang_vel) ;
 
     //    FILE* fresu = fopen("resu.d", "w") ; 
     //    isolhor.sauve(fresu) ;
