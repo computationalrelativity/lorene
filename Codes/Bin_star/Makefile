@@ -18,6 +18,14 @@ SRC3 = init_bin.C
 OBJ3 = $(SRC3:.C=.o)
 EXE3 = $(SRC3:.C=)
 
+SRC4 = coal_regu.C
+OBJ4 = $(SRC4:.C=.o)
+EXE4 = $(SRC4:.C=)
+
+SRC5 = analyse.C
+OBJ5 = $(SRC5:.C=.o) asymptot.o
+EXE5 = $(SRC5:.C=)
+
 $(EXE1): $(OBJ1)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_PGPLOT) $(LIB_CXX)
@@ -28,6 +36,14 @@ $(EXE2): $(OBJ2)
 
 $(EXE3): $(OBJ3)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ3) $(LIB_G) $(LIB_LAPACK) \
+					$(LIB_PGPLOT) $(LIB_CXX)
+
+$(EXE4): $(OBJ4)
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ4) $(LIB_G) $(LIB_LAPACK) \
+					$(LIB_PGPLOT) $(LIB_CXX)
+
+$(EXE5): $(OBJ5)
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ5) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_PGPLOT) $(LIB_CXX)
 
 .C.o:
