@@ -1,9 +1,19 @@
 SHELL=/bin/sh
 
-install: 
+all: doc cpp fortran export
+
+install: all
+
+doc:
 	cd Doc; $(MAKE) -i
+
+cpp:
 	cd C++; $(MAKE)
+
+fortran:
 	cd F77; $(MAKE)
+
+export:
 	cd Export/C++; $(MAKE)
 
 uninstall:
