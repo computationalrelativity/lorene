@@ -30,6 +30,11 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/05/10 09:16:32  e_gourgoulhon
+ * -- Method initial_data_cts: added a call to del_deriv() at the end.
+ * -- Methods set_trh and hh_det_one: added "adm_mass_evol.downdate(jtime)".
+ * -- Method trh() : the update is now performed via a call to hh_det_one().
+ *
  * Revision 1.5  2004/05/06 15:23:55  e_gourgoulhon
  * Added method initial_data_cts.
  *
@@ -199,7 +204,10 @@ void Tslice_dirac_max::initial_data_cts(const Sym_tensor& uu,
     maxabs(khi_evol[jtime] - khi_evol[jtime-1], "khi^J - khi^{J-1}") ; 
     
     maxabs(mu_evol[jtime] - mu_evol[jtime-1], "mu^J - mu^{J-1}") ; 
-    arrete() ; 
+    
+    // Reset of derived quantities (at the new time step jtime)
+    // ---------------------------
+    del_deriv() ; 
     
 }
 
@@ -240,6 +248,7 @@ void Tslice_dirac_max::set_trh(const Scalar& trh_in) {
     }
     gam_dd_evol.downdate(jtime) ; 
     gam_uu_evol.downdate(jtime) ; 
+    adm_mass_evol.downdate(jtime) ;  
      
 } 
 
@@ -332,7 +341,8 @@ void Tslice_dirac_max::hh_det_one() const {
         p_gamma = 0x0 ;
     }
     gam_dd_evol.downdate(jtime) ; 
-    gam_uu_evol.downdate(jtime) ; 
+    gam_uu_evol.downdate(jtime) ;
+    adm_mass_evol.downdate(jtime) ;  
          
     maxabs(tgam().determinant() - 1, 
     "Max. of absolute value of deviation from det tgam = 1") ; 
@@ -429,10 +439,9 @@ const Scalar& Tslice_dirac_max::trh() const {
 
     if( !(trh_evol.is_known(jtime)) ) {
     
-        assert( hh_evol.is_known(jtime) ) ; 
+        // Computation of tr(h) to ensure det tgam_{ij} = det f_{ij} :
+        hh_det_one() ;
         
-        trh_evol.update( hh().trace(ff), jtime, the_time[jtime] ) ; 
-           
     }
     
     return trh_evol[jtime] ; 
