@@ -32,6 +32,10 @@ char TBL_VAL_INTER_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2001/11/23 16:03:07  j_novak
+ *
+ *  minor modifications on the grid check.
+ *
  * Revision 1.1  2001/11/22 13:41:54  j_novak
  * Added all source files for manipulating Valencia type objects and making
  * interpolations to and from Meudon grids.
@@ -191,7 +195,7 @@ Cmp Tbl_val::to_spectral(const Map& mp, int lmax, int lmin,
       if (type_inter == 0) {
 	cout << "The use of routine INSMTS is not well suited" << endl ;
 	cout << "for 3D interpolation." << endl ;
-	abort() ;
+	//	abort() ;
       }
       int tsizey = dim->dim[2] + 2*fant ;
       int tsizex = dim->dim[1] + 2*fant ;
@@ -276,6 +280,7 @@ void Tbl_val::from_spectral(const Cmp& meudon, const int lmax, const int lmin)
     return ;
   }
   else {
+    assert(meudon.get_etat() == ETATQCQ) ;
     set_etat_qcq() ;
     int dim_spec = 1 ;
     const Mg3d* mgrid = mp->get_mg() ;

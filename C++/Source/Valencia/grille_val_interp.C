@@ -32,6 +32,10 @@ char grille_val_interp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2001/11/23 16:03:07  j_novak
+ *
+ *  minor modifications on the grid check.
+ *
  * Revision 1.1  2001/11/22 13:41:54  j_novak
  * Added all source files for manipulating Valencia type objects and making
  * interpolations to and from Meudon grids.
@@ -85,43 +89,40 @@ bool Gval_cart::compatible(const Map* mp, const int lmax, const int lmin)
   bool dimension = true ;
   const Coord& rr = mp->r ;
 
-  int i_b = mgrid->get_nr(lmax-1) - 1 ;
-  int j_p = 0 ;
-  int j_e = ( mgrid->get_type_t() == SYM ? mgrid->get_nt(lmax-1) - 1 : 
-	      mgrid->get_nt(lmax-1)/2) ;
-  int j_p2 = ( mgrid->get_type_t() == SYM ? 0 : mgrid->get_nt(lmax-1)-1) ;
-  int k_x = 0 ;
-  int k_y = ( mgrid->get_type_p() == SYM ? mgrid->get_np(lmax-1)/2 : 
-	      mgrid->get_np(lmax-1)/4) ;
-  int k_x2 = ( mgrid->get_type_p() == SYM ? 0 : mgrid->get_np(lmax-1)/2) ;
-  int k_y2 = ( mgrid->get_type_p() == SYM ? mgrid->get_np(lmax-1)/2 : 
-	       mgrid->get_np(lmax-1)/4*3) ;
+  double rout = (+rr)(lmax-1, 0, 0, mgrid->get_nr(lmax-1) - 1) ;
 
-  dimension &= ((+rr)(lmax-1, k_x, j_p, i_b) <= *zrmax) ;
-  if (dim_spec ==1) dimension &= ((+rr)(lmin,0,0,0) >= *zrmin) ;
-  if (dim_spec ==2) { //a transformer en switch...
-    if (mgrid->get_type_t() == SYM) 
-      {dimension &= (*zrmin <= 0.) ;}
-    else {
-      dimension &= (*zrmin <= (-rr)(lmax-1,k_x,j_p2, i_b) ) ;}
-    dimension &= (*xmin <= 0.) ;
-    dimension &= (*xmax >= (+rr)(lmax-1, k_x, j_e, i_b)) ;
+  dimension &= (rout <= *zrmax) ;
+  switch (dim_spec) {
+  case 1:{
+    dimension &= ((+rr)(lmin,0,0,0) >= *zrmin) ;
+    break ;
   }
-  if (dim_spec == 3) {
+  case 2: {
     if (mgrid->get_type_t() == SYM) 
       {dimension &= (*zrmin <= 0.) ;}
     else {
-      dimension &= (*zrmin <= (-rr)(lmax-1,k_x,j_p2, i_b) ) ;}
+      dimension &= (*zrmin <= -rout ) ;}
+    dimension &= (*xmin <= 0.) ;
+    dimension &= (*xmax >= rout ) ;
+    break ;
+  }
+  case 3: {
+    if (mgrid->get_type_t() == SYM) 
+      {dimension &= (*zrmin <= 0.) ;}
+    else {
+      dimension &= (*zrmin <= -rout) ;}
     if (mgrid->get_type_p() == SYM) {
       dimension &= (*ymin <= 0.) ;
-      dimension &= (*xmin <= (-rr)(lmax-1, k_x, j_e, i_b)) ;
+      dimension &= (*xmin <= -rout) ;
     }
     else {
-      dimension &= (*xmin <= (-rr)(lmax-1, k_x2, j_e, i_b)) ;
-      dimension &= (*ymin <= (-rr)(lmax-1, k_y2, j_e, i_b)) ;
+      dimension &= (*xmin <= -rout ) ;
+      dimension &= (*ymin <= -rout ) ;
     }
-    dimension &= (*xmax >= (+rr)(lmax-1, k_x, j_e, i_b)) ;
-    dimension &= (*ymax >= (+rr)(lmax-1, k_y, j_e, i_b)) ;
+    dimension &= (*xmax >= rout) ;
+    dimension &= (*ymax >= rout) ;
+    break ;
+  }
   }
   return dimension ;
 
@@ -265,8 +266,10 @@ bool Gval_spher::contenue_dans(const Map* mp, const int lmax, const int lmin)
 
   double rmax = (+rr)(lmax-1, 0, 0, i_b) ;
   double rmin = (+rr)(lmin, 0, 0, 0) ;
+  double valmin = get_zr(0) ;
+  double valmax = get_zr(dim.dim[0] - 1) ;
 
-  bool dimension = ((rmax >= (*zrmax)) && (rmin<= (*zrmin))) ;
+  bool dimension = ((rmax >= valmax) && (rmin<= valmin)) ;
 
   return dimension ;
 }
