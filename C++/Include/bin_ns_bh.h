@@ -30,6 +30,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/02/13 16:40:24  p_grandclement
+ * Addition of various things for the Bin_ns_bh project, non of them being
+ * completely tested
+ *
  * Revision 1.3  2002/12/19 14:46:16  e_gourgoulhon
  *
  * Modified prototype of functions set_omega and set_x_axe
@@ -181,7 +185,6 @@ class Bin_ns_bh {
 	/// Sets the absolute coordinate X of the rotation axis [{\tt r\_unit}]
 	void set_x_axe(double ) ;
 
-
     // Accessors
     // ---------
     public:
@@ -193,6 +196,17 @@ class Bin_ns_bh {
 	const Bhole& get_bh() const
 	    { return hole ;} ;
 
+	/// Returns the orbital velocity
+	double get_omega() const
+	    { return omega ;} ;
+
+	/// Returns a constant reference to the black hole
+	double get_x_axe() const
+	    { return x_axe ;} ;
+
+	/// Return the separation
+	double separation() const 
+	  {return star.mp.get_ori_x()-hole.mp.get_ori_x() ;} 
 
     // Outputs
     // -------
@@ -206,6 +220,16 @@ class Bin_ns_bh {
 	/// Operator >> (function called by the operator <<).
 	ostream& operator>>(ostream& ) const ;
 
+	/** Function used to compute the {\tt decouple} functions for both
+	 * the NS and the BH
+	 **/
+	void fait_decouple() ;
+
+    public:
+	/** Computation of the extrinsic curvature tensor for both
+	 * {\tt star} and {\tt bhole}.
+	 **/
+	void fait_tkij() ;
 };
 ostream& operator<<(ostream& , const Bin_ns_bh& ) ;
 

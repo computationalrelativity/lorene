@@ -32,6 +32,10 @@ char bhole_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/02/13 16:40:25  p_grandclement
+ * Addition of various things for the Bin_ns_bh project, non of them being
+ * completely tested
+ *
  * Revision 1.4  2003/01/31 16:57:12  p_grandclement
  * addition of the member Cmp decouple used to compute the K_ij auto, once
  * the K_ij total is known
@@ -133,6 +137,7 @@ char bhole_C[] = "$Header$" ;
 #include "proto.h"
 #include "utilitaires.h"
 #include "etoile.h"
+#include "graphique.h"
 
 // Constructeur standard
 Bhole::Bhole (Map_af& mpi) : mp(mpi),
@@ -349,13 +354,13 @@ void Bhole::fait_taij_auto () {
 	}
     
 	for (int i=0 ; i<3 ; i++)
-	    for (int j=0 ; j<3 ; j++)
+	  for (int j=0 ; j<3 ; j++)
 		taij_auto.set(i, j).raccord(1) ;
     }
 }
 
 // Regularise le shift, untilisant le compagnon.
-void Bhole::regularise_shift (Tenseur& shift_comp) {
+void Bhole::regularise_shift (const Tenseur& shift_comp) {
     regul = regle (shift_auto, shift_comp, omega) ;
 }
 
@@ -365,7 +370,7 @@ void Bhole::init_bhole () {
     
     Cmp auxi(mp) ;
     
-    auxi = 1./2.-2*rayon/mp.r ;
+    auxi = 1./2.-rayon/mp.r ;
     auxi.annule(0);
     auxi.set_dzpuis(0) ;
     n_auto = auxi;
@@ -374,7 +379,7 @@ void Bhole::init_bhole () {
     n_comp =0.5;
     n_comp.set_std_base() ;
     n_tot = n_comp+n_auto ;
-    
+  
     auxi = 0.5+rayon/mp.r ;
     auxi.annule(0);
     auxi.set_dzpuis(0) ;

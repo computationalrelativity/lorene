@@ -34,6 +34,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/02/13 16:40:24  p_grandclement
+ * Addition of various things for the Bin_ns_bh project, non of them being
+ * completely tested
+ *
  * Revision 1.10  2003/02/04 16:20:35  f_limousin
  * Change to virtual the routine extrinsic_curvature
  *
@@ -1117,6 +1121,9 @@ class Etoile_bin : public Etoile {
 	/// Operator >> (virtual function called by the operator <<). 
 	virtual ostream& operator>>(ostream& ) const ;    
 
+	/// Computes the auto part of $\left(L\beta\right)^{ij} (not stored)
+	Tenseur_sym fait_taij_auto() const ;
+
     // Global quantities
     // -----------------
     public:
@@ -1373,6 +1380,7 @@ class Etoile_bin : public Etoile {
 			double relax_met, int mer, int fmer_met) ;
 
 
+	friend class Bin_ns_bh ; /// Friend class Bin_ns_bh
 };
 
 

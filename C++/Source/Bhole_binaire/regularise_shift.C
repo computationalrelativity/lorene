@@ -25,8 +25,12 @@ char regularise_shift_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/02/13 16:40:25  p_grandclement
+ * Addition of various things for the Bin_ns_bh project, non of them being
+ * completely tested
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.6  2001/05/07  09:11:48  phil
  * *** empty log message ***
@@ -65,8 +69,9 @@ char regularise_shift_C[] = "$Header$" ;
 #include "valeur.h"
 #include "cmp.h"
 #include "tenseur.h"
+#include "graphique.h"
 
-double regle (Tenseur& shift_auto, Tenseur& shift_comp, double omega) {
+double regle (Tenseur& shift_auto, const Tenseur& shift_comp, double omega) {
     
     Tenseur shift_old (shift_auto) ;
     
@@ -83,14 +88,14 @@ double regle (Tenseur& shift_auto, Tenseur& shift_comp, double omega) {
     int nr = shift_auto.get_mp()->get_mg()->get_nr(1) ;
     
     // On minimise la valeur de la derivee de B sur R :
-    Tenseur shift_tot (*shift_auto.get_mp(), 1, CON, shift_auto.get_mp()->get_bvect_cart()) ;
+    Tenseur shift_tot (*shift_auto.get_mp(), 1, CON, *shift_auto.get_triad()) ;
     shift_tot.set_etat_qcq() ;
     shift_tot.set(0).import_asymy (alignes*shift_comp(0)) ;
     shift_tot.set(1).import_symy (alignes*shift_comp(1)) ;
     shift_tot.set(2).import_asymy (shift_comp(2)) ;
 
     shift_tot = shift_tot + shift_auto ;
-    
+ 
     double indic = (orientation == 0) ? 1 : -1 ;
     
     Tenseur tbi (shift_tot) ;
@@ -106,8 +111,8 @@ double regle (Tenseur& shift_auto, Tenseur& shift_comp, double omega) {
 	tbi.set(0).annule(nz-1) ;
 	tbi.set(1).annule(nz-1) ;
     }
-    
-    Tenseur derive_r (*shift_auto.get_mp(), 1, CON, shift_auto.get_mp()->get_bvect_cart()) ;
+      
+    Tenseur derive_r (*shift_auto.get_mp(), 1, CON, *shift_auto.get_triad()) ;
     derive_r.set_etat_qcq() ;
     for (int i=0 ; i<3 ; i++) {
 	if (tbi(i).get_etat() != ETATZERO)

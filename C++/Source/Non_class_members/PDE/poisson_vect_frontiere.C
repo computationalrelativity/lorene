@@ -25,8 +25,12 @@ char poisson_vect_frontiere_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/02/13 16:40:25  p_grandclement
+ * Addition of various things for the Bin_ns_bh project, non of them being
+ * completely tested
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.2  2000/10/26  09:08:06  phil
  * *** empty log message ***
@@ -86,11 +90,12 @@ void poisson_vect_frontiere (double lambda, const Tenseur& source, Tenseur& shif
     if (source_scal.get_etat()== ETATZERO) {
 	source_scal.annule_hard() ;
 	source_scal.std_base_scal() ;
+	source_scal.set_dzpuis(4) ;
 	}
 
     Tenseur copie_so (so) ;
     copie_so.dec_dzpuis() ;
-    
+     
     Tenseur source_vect (*so.get_mp(), 1, CON, *source.get_triad()) ;
     Tenseur auxi (*so.get_mp(), 1, COV, *source.get_triad()) ;
     Cmp grad_shift (source_scal.get_mp()) ;
@@ -101,7 +106,7 @@ void poisson_vect_frontiere (double lambda, const Tenseur& source, Tenseur& shif
     
     int conte = 0 ;
     int indic = 1 ;
-    
+   
     while (indic ==1) {
 	
 	shift_old = shift ;
@@ -109,24 +114,26 @@ void poisson_vect_frontiere (double lambda, const Tenseur& source, Tenseur& shif
 	grad_shift = contract(shift.gradient(), 0, 1)() ;
 	grad_shift.dec2_dzpuis() ;
 	grad_shift.va.coef_i() ;
-	
+	   
+   
+  
 	lim_scal = 1 ; // Permet d'affecter les trucs qui vont bien !
 	for (int k=0 ; k<np ; k++)
 	    for (int j=0 ; j<nt ; j++)
 		lim_scal.set(num_front, k, j, 0) = 
 		    grad_shift.va (num_front+1, k, j, 0) ;
 	lim_scal.std_base_scal() ;
-		        
+   
 	// On resout la scalaire :
 	scal.set() = source_scal.poisson_dirichlet (lim_scal, num_front) ;
-	
+    
 	// La source vectorielle :
 	source_vect.set_etat_qcq() ;
 	auxi = scal.gradient() ;
 	auxi.inc_dzpuis() ;
 	for (int i=0 ; i<3 ; i++)
 	    source_vect.set(i) = copie_so(i) - lambda * auxi(i) ;
-	
+    
 	indic = 0;
 	for (int i=0 ; i<3 ; i++)
 	    if (source_vect(i).get_etat()==ETATQCQ)
@@ -136,7 +143,7 @@ void poisson_vect_frontiere (double lambda, const Tenseur& source, Tenseur& shif
 		source_vect.set(i).annule_hard() ;
 	    source_vect.set_std_base() ;
 	}
-	
+   
 	// On resout les equations de poisson sur le shift :
 	shift.set(0) = source_vect(0).poisson_dirichlet (lim_x, num_front) ;
 	shift.set(1) = source_vect(1).poisson_dirichlet (lim_y, num_front) ;

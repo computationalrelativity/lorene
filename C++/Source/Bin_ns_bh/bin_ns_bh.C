@@ -29,6 +29,10 @@ char bin_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/02/13 16:40:25  p_grandclement
+ * Addition of various things for the Bin_ns_bh project, non of them being
+ * completely tested
+ *
  * Revision 1.3  2002/12/19 14:51:19  e_gourgoulhon
  * Added the new functions set_omega and set_x_axe
  *
@@ -71,7 +75,6 @@ Bin_ns_bh::Bin_ns_bh(Map& mp_ns, int nzet, const Eos& eos, bool irrot_ns,
 
      // Pointers of derived quantities initialized to zero :
     set_der_0x0() ;
-
 }
 
 // Copy constructor
@@ -102,7 +105,6 @@ Bin_ns_bh::Bin_ns_bh(Map& mp_ns, const Eos& eos, Map_af& mp_bh, FILE* fich)
 
     // Pointers of derived quantities initialized to zero :
     set_der_0x0() ;
-
 }
 
 			    //------------//

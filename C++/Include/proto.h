@@ -35,6 +35,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/02/13 16:40:24  p_grandclement
+ * Addition of various things for the Bin_ns_bh project, non of them being
+ * completely tested
+ *
  * Revision 1.7  2002/11/12 17:45:19  j_novak
  * Added transformation function for T_COS basis.
  *
@@ -511,7 +515,7 @@ void poisson_vect_binaire ( double lambda,
 		Tenseur& sol_un, Tenseur& sol_deux, int num_front, double precision) ;
 
 // Regularisation du shift :
-double regle (Tenseur& shift_auto, Tenseur& shift_comp, double omega) ;
+double regle (Tenseur& shift_auto, const Tenseur& shift_comp, double omega) ;
 
 // Trucs pour la solution de Misner-Lindquist
 double serie_lindquist_plus (double rayon, double distance, double xa, double ya, 

@@ -30,6 +30,10 @@ char et_bin_extr_curv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/02/13 16:40:25  p_grandclement
+ * Addition of various things for the Bin_ns_bh project, non of them being
+ * completely tested
+ *
  * Revision 1.3  2003/01/17 13:33:35  f_limousin
  * Add comments
  *
@@ -105,4 +109,37 @@ void Etoile_bin::extrinsic_curvature(){
     akcar_auto = a_car % akcar_auto ; 
     
     
+}
+
+/**
+ * Computes (LB)^{ij} auto.
+ * To be used only when computing the total extrinsic curvature tensor
+ * in the case of a Bin_ns_bh
+ **/
+
+Tenseur_sym Etoile_bin::fait_taij_auto() const {
+
+  Tenseur_sym res (mp, 2, CON, mp.get_bvect_cart()) ;
+
+  Tenseur copie_shift (shift_auto) ;
+  copie_shift.change_triad(mp.get_bvect_cart()) ;
+
+  if (shift_auto.get_etat() == ETATZERO)
+    res.set_etat_zero() ;
+  else {
+    Tenseur grad (copie_shift.gradient()) ;
+    Tenseur trace (mp) ;    
+    trace = grad(0, 0)+grad(1, 1)+grad(2, 2) ;
+    res.set_etat_qcq() ;
+    res.set_std_base() ;
+    for (int i=0 ; i<3 ; i++) {
+      for (int j=i+1 ; j<3 ; j++)
+	res.set(i, j) = grad(i, j)+grad(j, i) ;
+      res.set(i, i) = 2*grad(i, i) -2./3.*trace() ;
+    }
+  }
+
+  res.change_triad (ref_triad) ;
+
+  return res ;
 }
