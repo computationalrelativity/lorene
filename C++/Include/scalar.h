@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.36  2003/12/16 06:32:20  e_gourgoulhon
+ * Added method visu_box.
+ *
  * Revision 1.35  2003/12/14 21:46:35  e_gourgoulhon
  * Added argument start_dx in visu_section.
  *
@@ -766,6 +769,32 @@ class Scalar : public Tensor {
         double vmax, const char* title = 0x0, const char* filename = 0x0,
         bool start_dx = true, int nu = 200, int nv = 200) const ;   
 
+  /** 3D visualization (volume rendering) via OpenDX.
+   * Prepares files for visualization by OpenDX of the values of the field in
+   * some rectangular box.
+   *
+   * @param xmin [input] defines with {\tt xmax} the x range of the visualization box 
+   * @param xmax [input] defines with {\tt xmin} the x range of the visualization box 
+   * @param ymin [input] defines with {\tt ymax} the y range of the visualization box 
+   * @param ymax [input] defines with {\tt ymin} the y range of the visualization box 
+   * @param zmin [input] defines with {\tt zmax} the z range of the visualization box 
+   * @param zmax [input] defines with {\tt zmin} the z range of the visualization box 
+   * @param title [input] title for the graph (for OpenDX legend)
+   * @param filename [input] name for the file which will be the input for 
+   *    OpenDX; the default 0x0 is transformed into "scalar_box"
+   * @param start_dx [input] determines whether OpenDX must be launched (as a
+   *     subprocess) to view the field; if set to {\tt false}, only input files
+   *     for future usage of OpenDX are created 
+   * @param nx [input] number of points in the x direction (uniform sampling)   
+   * @param ny [input] number of points in the y direction (uniform sampling)   
+   * @param nz [input] number of points in the z direction (uniform sampling)   
+   *
+   */
+    void visu_box(double xmin, double xmax, double ymin, double ymax,
+        double zmin, double zmax, const char* title0 = 0x0, 
+        const char* filename0 = 0x0, bool start_dx = true, int nx = 40, int ny = 40, 
+        int nz = 40) const ;      
+        
 
 
   // Member arithmetics

@@ -30,6 +30,9 @@ char scalar_visu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/12/16 06:32:57  e_gourgoulhon
+ * Added method visu_box.
+ *
  * Revision 1.3  2003/12/15 08:30:40  p_grandclement
  * Addition of #include <string.h>
  *
@@ -315,4 +318,194 @@ void Scalar::visu_section(const Tbl& plane, double umin, double umax,
 }   
 
 
+                    //------------------------------//
+                    //          visu_box            //
+                    //------------------------------//
+
+void Scalar::visu_box(double xmin, double xmax, double ymin, double ymax,
+    double zmin, double zmax, const char* title0, const char* filename0, 
+    bool start_dx, int nx, int ny, int nz) const {
+
+    const Scalar* scal ; 
+    Scalar* scal_tmp = 0x0 ; 
+        
+    // Decrease of dzpuis if dzpuis != 0 
+    if ( !check_dzpuis(0) ) {
+        scal_tmp = new Scalar(*this) ;                
+        scal_tmp->dec_dzpuis(dzpuis) ; 
+        scal = scal_tmp ; 
+    }
+    else{
+        scal = this ; 
+    }
+    
+    char* title ;
+    char* title_quotes ;
+    if (title0 == 0x0) {
+        title = new char[2] ; 
+        strcpy(title, " ") ; 
+
+        title_quotes = new char[4] ; 
+        strcpy(title_quotes, "\" \"") ; 
+    }
+    else {
+        title = new char[ strlen(title0)+1 ] ; 
+        strcpy(title, title0) ;
+         
+        title_quotes = new char[ strlen(title0)+3 ] ; 
+        strcpy(title_quotes, "\"") ; 
+        strcat(title_quotes, title0) ; 
+        strcat(title_quotes, "\"") ; 
+    }
+    
+    // --------------------------------------------------------
+    // Data file for OpenDX
+    // --------------------------------------------------------
+
+    char* filename ;
+    if (filename0 == 0x0) {
+        filename = new char[30] ; 
+        strcpy(filename, "scalar_box.dxdata") ; 
+    }
+    else {
+        filename = new char[ strlen(filename0)+8 ] ; 
+        strcpy(filename, filename0) ; 
+        strcat(filename, ".dxdata") ; 
+    }
+
+    ofstream fdata(filename) ; // output file
+    
+    fdata << title << "\n" ; 
+    fdata << "size : " << nx << " x " << ny << " x " << nz << "\n" ;
+    fdata << "x_min = " << xmin << "  x_max = " << xmax << "\n" ; 
+    fdata << "y_min = " << ymin << "  y_max = " << ymax << "\n" ; 
+    fdata << "z_min = " << zmin << "  z_max = " << zmax << "\n" ; 
+    
+    // The spectral coefficients are required
+    const Valeur& va = scal->va ; 
+    va.coef() ; 
+    const Mtbl_cf& cva = *(va.c_cf) ; 
+    
+    // What follows assumes that the mapping is radial:
+    assert( dynamic_cast<const Map_radial*>(mp) != 0x0 ) ; 
+    
+    fdata.precision(5) ; 
+    fdata.setf(ios::scientific) ; 
+    
+    // Loop on the points of the drawing box
+    // ---------------------------------------
+    double dx = (xmax - xmin) / double(nx-1) ; 
+    double dy = (ymax - ymin) / double(ny-1) ; 
+    double dz = (zmax - zmin) / double(nz-1) ; 
+    
+    int npoint = 0 ;    // number of data points per line in the file
+
+    for (int k=0; k<nz; k++) {
+
+        double zz = zmin + dz * k ;
+
+        for (int j=0; j<ny; j++) {
+            
+            double yy = ymin + dy * j ; 
+            
+            for (int i=0; i<nx; i++) {
+                
+                double xx = xmin + dx * i ; 
+                    
+                // Values of (r,theta,phi) corresponding to (xa,ya,za) :
+                double rr, th, ph ;  // polar coordinates of the mapping associated
+                                     // to *this
+            
+                mp->convert_absolute(xx, yy, zz, rr, th, ph) ; 
+
+                // Values of (l,xi,theta',phi') corresponding to (r,theta,phi):
+                double xi ; int l ; 
+            
+                mp->val_lx(rr, th, ph, l, xi) ;   // radial mapping assumption
+            
+                // Field value at this point:
+            
+                double ff = cva.val_point(l, xi, th, ph) ;
+
+                fdata.width(14) ; 
+                fdata << ff ; 
+                npoint++ ; 
+             
+                if (npoint == 9) {
+                    fdata << "\n" ; 
+                    npoint = 0 ; 
+                }
+            
+            }
+        }
+
+    }
+    
+    if (npoint != 0) fdata << "\n" ; 
+
+    fdata.close() ; 
+    
+    // --------------------------------------------------------
+    // Header file for OpenDX
+    // --------------------------------------------------------
+
+    char* headername ;
+    if (filename0 == 0x0) {
+        headername = new char[30] ; 
+        strcpy(headername, "scalar_box.dxhead") ; 
+    }
+    else {
+        headername = new char[ strlen(filename0)+9 ] ; 
+        strcpy(headername, filename0) ; 
+        strcat(headername, ".dxhead") ; 
+    }
+
+    ofstream fheader(headername) ;
+    
+    fheader << "file = " << filename << endl ; 
+    fheader << "grid = " << nx << " x " << ny << " x " << nz << endl ; 
+    fheader << "format = ascii" << endl ;  
+    fheader << "interleaving = record"  << endl ;
+    fheader << "majority = column" << endl ; 
+    fheader << "header = lines 5" << endl ; 
+    fheader << "field = " << title_quotes << endl ; 
+    fheader << "structure = scalar" << endl ; 
+    fheader << "type = float" << endl ; 
+    fheader << "dependency = positions" << endl ; 
+    fheader << "positions = regular, regular, regular, " 
+            << xmin << ", " << dx << ", " 
+            << ymin << ", " << dy << ", " 
+            << zmin << ", " << dz << endl ; 
+    fheader << endl ; 
+    fheader << "end" << endl ; 
+    
+    fheader.close() ; 
+    
+
+    if ( start_dx ) {       // Launch of OpenDX
+        
+        char* commande = new char[ strlen(headername) + 60 ] ;
+        strcpy(commande, "ln -s ") ; 
+        strcat(commande, headername) ; 
+        strcat(commande, " visu_scalar_box.dxhead") ; 
+    
+        system("rm -f visu_scalar_box.dxhead") ; 
+        system(commande) ;                      // ln -s headername visu_section.general
+        system("dx -image visu_scalar_box.net &") ; 
+    
+        delete [] commande ;    
+    }
+
+
+    // Final cleaning
+    // --------------
+    
+    if (scal_tmp != 0x0) delete scal_tmp ;
+    delete [] title ; 
+    delete [] title_quotes ; 
+    delete [] filename ; 
+    delete [] headername ;    
+   
+
+}
 
