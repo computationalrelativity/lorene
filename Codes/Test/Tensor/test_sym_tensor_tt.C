@@ -28,6 +28,9 @@ char test_sym_tensor_tt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/11/04 15:01:16  e_gourgoulhon
+ * Pretty general test for eta.
+ *
  * Revision 1.6  2003/11/03 22:37:12  e_gourgoulhon
  * New version.
  *
@@ -71,8 +74,8 @@ int main() {
 	int nz = 3 ; 	// Number of domains
 	int nzm1 = nz - 1 ;  
 	int nr = 9 ; 	// Number of collocation points in r in each domain
-	int nt = 9 ; 	// Number of collocation points in theta in each domain
-	int np = 12 ; 	// Number of collocation points in phi in each domain
+	int nt = 7 ; 	// Number of collocation points in theta in each domain
+	int np = 16 ; 	// Number of collocation points in phi in each domain
 	int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
 	int symmetry_phi = NONSYM ; // no symmetry in phi
 	bool compact = true ; // external domain is compactified
@@ -108,6 +111,7 @@ int main() {
 	const Coord& sint = map.sint ; 
 	const Coord& cosp = map.cosp ; 
 	const Coord& sinp = map.sinp ; 
+	const Coord& phi = map.phi ; 
 
 	
 	cout << "========================================================" << endl ;
@@ -125,7 +129,8 @@ int main() {
 	hhc.set(3,3) = 3 ; 
 	hhc.std_spectral_base() ; 
 
-	cout << "Cartesian components : hhc : " << hhc << endl ;
+	cout << "Cartesian components : hhc : " << endl ;
+	hhc.spectral_display() ; 
 	arrete() ; 
 
 	Tensor tmp = hhc ; 
@@ -158,11 +163,12 @@ int main() {
 	}
 		
 	arrete() ;
-	 
-	cout << "Trace of hhc : " << hhc.trace() << endl ; 	
-	arrete() ; 
+	
+	Scalar trace =  hhc.trace() ; 
+	cout << "Trace of hhc : " << max(abs(trace)) << endl ; 	
 		
-	cout << "Trace of hhs : " << hhs.trace() << endl ; 	
+	trace = hhs.trace() ; 
+	cout << "Trace of hhs : " << max(abs(trace)) << endl ; 	
 	
 
 	cout << "========================================================" << endl ;
@@ -173,9 +179,30 @@ int main() {
 	arrete() ; 
 	
 	Scalar pot(map) ; 
-	pot = x*y ; 
+	pot =  1 					// P_0^0
+		   + x					// P_1^1 cos(p)
+		   + y					// P_1^1 sin(p)
+		   + (3*z*z - r*r) 		// P_2^0
+		   + (x*x - y*y ) 		// P_2^2 cos(2p)
+		   + x*y 	 			// P_2^2 sin(2p)
+		   + x*(5*z*z-r*r)		// P_3^1 cos(p)
+		   + y*(5*z*z-r*r)		// P_3^1 sin(p)
+		   + x*(x*x-3*y*y)		// P_3^3 cos(3p)
+		   + y*(y*y-3*x*x) ;	// P_3^3 sin(3p)
+		   
 	pot.annule_domain(nzm1) ; 
-	Mtbl potced = 1 / r ; 
+
+	Mtbl potced = 1 / r 		// P_0^0
+		   + sint*cosp / pow(r,2)	// P_1^1 cos(p)
+		   + sint*sinp / pow(r,2)	// P_1^1 sin(p)
+		   + (3*cost*cost - 1) / pow(r,3)			// P_2^0
+		   + sint*sint*cos(2*phi) / pow(r,3)		// P_2^2 cos(2p)
+		   + sint*sint*sin(2*phi) / pow(r,3)	 	// P_2^2 sin(2p)
+		   + sint*(15*cost*cost-3)*cosp / pow(r,4)		// P_3^1 cos(p)
+		   + sint*(15*cost*cost-3)*sinp / pow(r,4)		// P_3^1 sin(p)
+		   + pow(sint,3) * cos(3*phi) / pow(r,4)		// P_3^3 cos(3p)
+		   + pow(sint,3) * sin(3*phi) / pow(r,4) ;		// P_3^3 sin(3p)
+		   
 	pot.set_domain(nzm1) = potced(nzm1) ; 
 	pot.std_spectral_base() ; 
 
