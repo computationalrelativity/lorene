@@ -1,3 +1,50 @@
+/*
+ * Reads a binary black hole configuration 
+ *
+ */
+
+/*
+ *   Copyright (c) 2002 Philippe Grandclement
+ *
+ *   This file is part of LORENE.
+ *
+ *   LORENE is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License version 2
+ *   as published by the Free Software Foundation.
+ *
+ *   LORENE is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LORENE; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+char lit_holes_bin_C[] = "$Header$" ;
+
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.2  2003/04/09 15:05:09  e_gourgoulhon
+ * Added copyright and log messages.
+ *
+ *
+ * Revision 1.1
+ * date: 2003/03/31 16:08:23;  author: p_grandclement;  state: Exp;
+ * Add codes for the binary black holes computation :
+ *       - init_bh.C : computes the Misner-Lindquist solution (used as initial guess for the coal code)
+ *       - param_statiques.d : example of parameter file for init_bh
+ *       - coal_bh.C : computation of the binary
+ *       - param_coal.d : example of the paramater file for coal_bh
+ *       - lit_holes_bin.C : reads a configuration.
+ * 
+ * $Header$
+ *
+ */
+
 //standard
 #include <stdlib.h>
 #include <math.h>
