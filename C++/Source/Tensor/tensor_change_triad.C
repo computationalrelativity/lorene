@@ -29,6 +29,9 @@ char tensor_change_triad_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/06 14:25:51  j_novak
+ * Added a test #ifndef... to prevent a warning
+ *
  * Revision 1.2  2003/10/05 21:12:19  e_gourgoulhon
  * - Modified some assert.
  * - Corrected bug on index range in line 200.
@@ -54,7 +57,10 @@ void Tensor::change_triad(const Base_vect& new_triad) {
   assert(triad != 0x0) ; 
   
   const Base_vect_cart* nbvc = dynamic_cast<const Base_vect_cart*>(&new_triad) ; 
-  const Base_vect_spher* nbvs = dynamic_cast<const Base_vect_spher*>(&new_triad) ; 
+#ifndef NDEBUG
+  const Base_vect_spher* nbvs 
+    = dynamic_cast<const Base_vect_spher*>(&new_triad) ; 
+#endif
 
   assert((nbvc != 0x0) || (nbvs != 0x0)) ;
    
