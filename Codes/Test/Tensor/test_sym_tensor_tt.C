@@ -28,6 +28,9 @@ char test_sym_tensor_tt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/28 12:36:52  e_gourgoulhon
+ * improved version
+ *
  * Revision 1.1  2003/10/27 10:56:57  e_gourgoulhon
  * Test code for class Sym_tensor_*.
  *
@@ -102,12 +105,12 @@ int main() {
 
 	Sym_tensor_trans hhc(map, map.get_bvect_cart(), metc ) ; 
 	
-	hhc.set(1,1) = 0 ; 
-	hhc.set(1,2) = 1 ; 
-	hhc.set(1,3) = 2 ; 
-	hhc.set(2,2) = -1 ; 
-	hhc.set(2,3) = 3 ; 
-	hhc.set(3,3) = 1 ; 
+	hhc.set(1,1) = 1 ; 
+	hhc.set(1,2) = 2 ; 
+	hhc.set(1,3) = 0 ; 
+	hhc.set(2,2) = -4 ; 
+	hhc.set(2,3) = 0 ; 
+	hhc.set(3,3) = 3 ; 
 	hhc.std_spectral_base() ; 
 
 	cout << "Cartesian components : hhc : " << hhc << endl ;
@@ -121,11 +124,24 @@ int main() {
 	arrete() ; 
 	
 	hhc.divergence(metc) ; 
-	cout << "Norme divergence hhc : " << norme( hhc.divergence(metc) ) << endl ; 
-	cout << "Norme divergence hhs : " << norme( hhs.divergence(mets) ) << endl ; 
-	cout << "Max divergence hhc : " << max( abs(hhc.divergence(metc)) ) << endl ; 
-	cout << "Max divergence hhs : " << max( abs(hhs.divergence(mets)) ) << endl ; 
-	arrete() ; 	
+	cout << "Norme divergence hhc : " << endl ; 
+	for (int i=1; i<=3; i++) {
+		cout << norme( hhc.divergence(metc)(i) ) << endl ; 
+	}
+	cout << "Norme divergence hhs : " << endl ; 
+	for (int i=1; i<=3; i++) {
+		cout << norme( hhs.divergence(mets)(i) ) << endl ; 
+	}
+
+	cout << "Max divergence hhc : " << endl ; 
+	for (int i=1; i<=3; i++) {
+		cout << max( hhc.divergence(metc)(i) ) << endl ; 
+	}
 	
+	cout << "Max divergence hhs : " << endl ; 
+	for (int i=1; i<=3; i++) {
+		cout << max( hhs.divergence(mets)(i) ) << endl ; 
+	}
+		
 	return EXIT_SUCCESS ; 
 }
