@@ -38,6 +38,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.31  2003/11/06 14:43:37  e_gourgoulhon
+ * Gave a name to const arguments in certain method prototypes (e.g.
+ * constructors) to correct a bug of DOC++.
+ *
  * Revision 1.30  2003/11/04 22:55:50  e_gourgoulhon
  * Added new methods mult_cost(), mult_sint() and div_sint().
  *
@@ -240,14 +244,14 @@ class Scalar : public Tensor {
   
  public:
   
-  explicit Scalar(const Map& ) ;	/// Constructor from mapping
+  explicit Scalar(const Map& mpi) ;	/// Constructor from mapping
 
   /// Constructor from a Tensor (must be of valence 0)
-  Scalar(const Tensor& ) ;     
+  Scalar(const Tensor& a) ;     
 
-  Scalar(const Scalar& ) ;		/// Copy constructor
+  Scalar(const Scalar& a) ;		/// Copy constructor
   
-  explicit Scalar(const Cmp& ) ;	/// Constructor by conversion of a Cmp
+  explicit Scalar(const Cmp& a) ;	/// Constructor by conversion of a Cmp
   
   /// Constructor from a file (see {\tt sauve(FILE* )})
   Scalar(const Map&, const Mg3d&, FILE* ) ;    		
@@ -298,14 +302,14 @@ class Scalar : public Tensor {
   // -----------
  public: 
   /// Assignment to another {\tt Scalar} defined on the same mapping
-  void operator=(const Scalar&) ;	
+  void operator=(const Scalar& a) ;	
   
   /// Assignment to a {\tt Tensor} (of valence 0)
-  virtual void operator=(const Tensor&) ; 
+  virtual void operator=(const Tensor& a) ; 
 
-  void operator=(const Cmp& ) ; 	/// Assignment to a {\tt Cmp}
-  void operator=(const Valeur& ) ; /// Assignment to a {\tt Valeur}
-  void operator=(const Mtbl& ) ;	 /// Assignment to a {\tt Mtbl}
+  void operator=(const Cmp& a) ; 	/// Assignment to a {\tt Cmp}
+  void operator=(const Valeur& a) ; /// Assignment to a {\tt Valeur}
+  void operator=(const Mtbl& a) ;	 /// Assignment to a {\tt Mtbl}
   void operator=(double ) ;	 /// Assignment to a {\tt double}
   void operator=(int ) ;		 /// Assignment to an {\tt int}
   

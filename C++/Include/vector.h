@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2003/11/06 14:43:37  e_gourgoulhon
+ * Gave a name to const arguments in certain method prototypes (e.g.
+ * constructors) to correct a bug of DOC++.
+ *
  * Revision 1.18  2003/11/03 22:31:02  e_gourgoulhon
  * Class Vector_divfree: parameters of methods set_vr_eta_mu and set_vr_mu
  * are now all references.
@@ -95,6 +99,11 @@
 
 class Vector_divfree ;
 
+			//-------------------------//
+			//       class Vector      //
+			//-------------------------//
+			
+
 /**
  * Tensor field of valence 1.
  * 
@@ -142,12 +151,12 @@ class Vector: public Tensor {
 	 */
 	Vector(const Map& map, int tipe, const Base_vect* triad_i) ;
 
-	Vector(const Vector& ) ;       /// Copy constructor
+	Vector(const Vector& a) ;       /// Copy constructor
 
 	/** Constructor from a {\tt Tensor}.
 	 *  The {\tt Tensor} must be of valence one.
 	 */
-	Vector(const Tensor& ) ;	
+	Vector(const Tensor& a) ;	
 
 	/** Constructor from a file (see {\tt Tensor::sauve(FILE* )}).
 	 * 
@@ -194,10 +203,10 @@ class Vector: public Tensor {
 	virtual void change_triad(const Base_vect& ) ; 
 
 	/// Assignment from a Vector
-	virtual void operator=(const Vector&) ;	
+	virtual void operator=(const Vector& a) ;	
 	
 	/// Assignment from a Tensor
-	virtual void operator=(const Tensor&) ;	
+	virtual void operator=(const Tensor& a) ;	
 
 	/**Makes the Helmholtz decomposition (see documentation of
 	 * {\tt p_potential}) of {\tt this} with respect to a given
@@ -315,6 +324,12 @@ class Vector: public Tensor {
 };
 
 
+
+			//---------------------------------//
+			//       class Vector_divfree      //
+			//---------------------------------//
+			
+
 /**
  * Divergence-free vectors.
  *
@@ -407,13 +422,13 @@ class Vector_divfree: public Vector {
 
 	public:
 	/// Assignment from another {\tt Vector\_divfree}
-	void operator=(const Vector_divfree&) ;	
+	void operator=(const Vector_divfree& a) ;	
 	
 	/// Assignment from a {\tt Vector}
-	virtual void operator=(const Vector&) ;	
+	virtual void operator=(const Vector& a) ;	
 	
 	/// Assignment from a {\tt Tensor}
-	virtual void operator=(const Tensor&) ;	
+	virtual void operator=(const Tensor& a) ;	
 	
 	/** Sets the angular potentials $\eta$ and $\mu$ (see members
 	 *  {\tt p\_eta} and {\tt p\_mu}), as well as the $V^r$ component

@@ -31,6 +31,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/11/06 14:43:37  e_gourgoulhon
+ * Gave a name to const arguments in certain method prototypes (e.g.
+ * constructors) to correct a bug of DOC++.
+ *
  * Revision 1.4  2003/10/06 15:30:32  j_novak
  * Defined methods for flat metric.
  *
@@ -110,15 +114,15 @@ class Metric {
 	 *  The symmetric tensor can be either the covariant or
 	 *  the contravariant representation of the metric.
 	 */
-	Metric(const Sym_tensor& ) ;   
-	Metric(const Metric& ) ;		/// Copy constructor
+	Metric(const Sym_tensor& tens) ;   
+	Metric(const Metric& met) ;		/// Copy constructor
 
 	/// Constructor from a file (see {\tt sauve(FILE* )})
 	Metric(const Map&, FILE* ) ;    		
 
     protected:
 	///Simplified constructor used by derived classes.
-	Metric(const Map&) ;
+	Metric(const Map& mpi) ;
 
     public:
 	virtual ~Metric() ;			/// Destructor
@@ -138,7 +142,7 @@ class Metric {
     // ---------------------
     public:
 	/// Assignment to another Metric
-	void operator=(const Metric&) ;	
+	void operator=(const Metric& met) ;	
 
 	/**
 	 * Assignment from a {\tt Sym\_tensor}.
@@ -146,7 +150,7 @@ class Metric {
 	 * input tensor indices.
 	 * All the other members are deleted.
 	 */
-	virtual void operator= (const Sym_tensor& sym_t) ;
+	virtual void operator=(const Sym_tensor& tens) ;
 	
      protected:
 	/**
@@ -285,7 +289,7 @@ class Metric_flat: public Metric {
 	 * Assignment from a {\tt Sym\_tensor}.
 	 * In principle, this method should not be used for a {\tt Metric\_flat}.
 	 */
-	virtual void operator= (const Sym_tensor& sym_t) ;
+	virtual void operator=(const Sym_tensor& tens) ;
 
     // Accessors
     // ---------

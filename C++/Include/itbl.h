@@ -36,6 +36,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/11/06 14:43:37  e_gourgoulhon
+ * Gave a name to const arguments in certain method prototypes (e.g.
+ * constructors) to correct a bug of DOC++.
+ *
  * Revision 1.4  2003/10/11 16:43:05  e_gourgoulhon
  *
  * IMPORTANT CHANGE: the standard constructors sets now the logical state
@@ -340,8 +344,8 @@ Itbl operator+(const Itbl&) ;			/// + Ibl
 Itbl operator-(const Itbl&) ;			/// - Itbl
 Itbl operator+(const Itbl&, const Itbl&) ;	/// Itbl + Itbl
 Itbl operator+(const Itbl&, int) ;		/// Itbl + int
-Itbl operator+(int, const Itbl&) ;		/// int + Itbl
-Itbl operator+(const Itbl&, int) ;		/// Itbl + int
+Itbl operator+(int a, const Itbl& b) ;		/// int + Itbl
+Itbl operator+(const Itbl& b, int a) ;		/// Itbl + int
 Itbl operator-(const Itbl&, const Itbl&) ;	/// Itbl - Itbl
 Itbl operator-(const Itbl&, int) ;		/// Itbl - int
 Itbl operator-(int, const Itbl&) ;		/// int - Itbl

@@ -32,6 +32,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/11/06 14:43:37  e_gourgoulhon
+ * Gave a name to const arguments in certain method prototypes (e.g.
+ * constructors) to correct a bug of DOC++.
+ *
  * Revision 1.3  2002/09/13 09:17:33  j_novak
  * Modif. commentaires
  *
@@ -118,12 +122,12 @@ class Mtbl {
     // -------------------------
 	
     public:
-	explicit Mtbl(const Mg3d& ) ;	/// Constructor
-	explicit Mtbl(const Mg3d* ) ;	/// Constructor
+	explicit Mtbl(const Mg3d& mgrid) ;	/// Constructor
+	explicit Mtbl(const Mg3d* p_mgrid) ;	/// Constructor
 	/// Constructor from a file (see {\tt sauve(FILE* )})
 	Mtbl(const Mg3d&, FILE* ) ;		    
-	Mtbl(const Coord& ) ;		/// Constructor from a Coord
-	Mtbl(const Mtbl& ) ;		    /// Copy constructor
+	Mtbl(const Coord& c) ;		/// Constructor from a Coord
+	Mtbl(const Mtbl& a) ;		    /// Copy constructor
 	~Mtbl() ;			    /// Destructor
 
     // Assignement

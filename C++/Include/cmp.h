@@ -36,6 +36,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/11/06 14:43:37  e_gourgoulhon
+ * Gave a name to const arguments in certain method prototypes (e.g.
+ * constructors) to correct a bug of DOC++.
+ *
  * Revision 1.9  2003/09/24 20:52:37  e_gourgoulhon
  * Added constructor by conversion of a Scalar.
  *
@@ -462,10 +466,10 @@ class Cmp {
     // -------------------------
 	
     public:
-	explicit Cmp(const Map& ) ;	/// Constructor from mapping
-	explicit Cmp(const Map* ) ;	/// Constructor from mapping
-	Cmp(const Cmp& ) ;		/// Copy constructor
-	explicit Cmp(const Scalar& ) ; 	/// Constructor by conversion of a {\tt Scalar} 
+	explicit Cmp(const Map& map) ;	/// Constructor from mapping
+	explicit Cmp(const Map* p_map) ;	/// Constructor from mapping
+	Cmp(const Cmp& a) ;		/// Copy constructor
+	explicit Cmp(const Scalar& a) ; 	/// Constructor by conversion of a {\tt Scalar} 
 
 	/// Constructor from a file (see {\tt sauve(FILE* )})
 	Cmp(const Map&, const Mg3d&, FILE* ) ;    		
@@ -476,10 +480,10 @@ class Cmp {
     // -----------
     public: 
 	/// Assignment to another {\tt Cmp} defined on the same mapping
-	void operator=(const Cmp&) ;	
+	void operator=(const Cmp& a) ;	
 
-	void operator=(const Valeur& ) ; /// Assignment to a {\tt Valeur}
-	void operator=(const Mtbl& ) ;	 /// Assignment to a {\tt Mtbl}
+	void operator=(const Valeur& a) ; /// Assignment to a {\tt Valeur}
+	void operator=(const Mtbl& a) ;	 /// Assignment to a {\tt Mtbl}
 	void operator=(double ) ;	 /// Assignment to a {\tt double}
 	void operator=(int ) ;		 /// Assignment to an {\tt int}
 	    

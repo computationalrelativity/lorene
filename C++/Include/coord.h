@@ -33,6 +33,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/11/06 14:43:37  e_gourgoulhon
+ * Gave a name to const arguments in certain method prototypes (e.g.
+ * constructors) to correct a bug of DOC++.
+ *
  * Revision 1.3  2002/10/16 14:36:28  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -154,17 +158,17 @@ ostream& operator<<(ostream& , const Coord& ) ;
 Mtbl operator+(const Coord&) ;			/// + {\tt Coord}
 Mtbl operator-(const Coord&) ;			/// - {\tt Coord}
 
-Mtbl operator+(const Coord&, const Coord&) ;	/// {\tt Coord} + {\tt Coord}
-Mtbl operator-(const Coord&, const Coord&) ;	/// {\tt Coord} - {\tt Coord} 
-Mtbl operator*(const Coord&, const Coord&) ;	/// {\tt Coord} * {\tt Coord}
+Mtbl operator+(const Coord& a, const Coord& b) ;	/// {\tt Coord} + {\tt Coord}
+Mtbl operator-(const Coord& a, const Coord& b) ;	/// {\tt Coord} - {\tt Coord} 
+Mtbl operator*(const Coord& a, const Coord& b) ;	/// {\tt Coord} * {\tt Coord}
 
-Mtbl operator+(const Coord&, const Mtbl&) ;	/// {\tt Coord} + {\tt Mtbl}
-Mtbl operator-(const Coord&, const Mtbl&) ;	/// {\tt Coord} - {\tt Mtbl}
-Mtbl operator*(const Coord&, const Mtbl&) ;	/// {\tt Coord} * {\tt Mtbl}
+Mtbl operator+(const Coord& a, const Mtbl& b) ;	/// {\tt Coord} + {\tt Mtbl}
+Mtbl operator-(const Coord& a, const Mtbl& b) ;	/// {\tt Coord} - {\tt Mtbl}
+Mtbl operator*(const Coord& a, const Mtbl& b) ;	/// {\tt Coord} * {\tt Mtbl}
 
-Mtbl operator+(const Mtbl&, const Coord&) ;	/// {\tt Mtbl} + {\tt Coord}
-Mtbl operator-(const Mtbl&, const Coord&) ;	/// {\tt Mtbl} - {\tt Coord}
-Mtbl operator*(const Mtbl&, const Coord&) ;	/// {\tt Mtbl} * {\tt Coord}
+Mtbl operator+(const Mtbl& a, const Coord& b) ;	/// {\tt Mtbl} + {\tt Coord}
+Mtbl operator-(const Mtbl& a, const Coord& b) ;	/// {\tt Mtbl} - {\tt Coord}
+Mtbl operator*(const Mtbl& a, const Coord& b) ;	/// {\tt Mtbl} * {\tt Coord}
     //@}
 
 #endif

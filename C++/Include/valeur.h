@@ -35,6 +35,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/11/06 14:43:37  e_gourgoulhon
+ * Gave a name to const arguments in certain method prototypes (e.g.
+ * constructors) to correct a bug of DOC++.
+ *
  * Revision 1.7  2003/10/19 19:48:31  e_gourgoulhon
  * Introduced new method display_coef.
  *
@@ -286,8 +290,8 @@ class Valeur {
     // -------------------------
 	
     public:
-	explicit Valeur(const Mg3d& ) ;		/// Constructor
-	explicit Valeur(const Mg3d* ) ;		/// Constructor
+	explicit Valeur(const Mg3d& mgrid) ;		/// Constructor
+	explicit Valeur(const Mg3d* p_mgrid) ;		/// Constructor
 
 	/// Constructor from a file (see {\tt sauve(FILE* )})
 	Valeur(const Mg3d&, FILE* ) ;    		
@@ -298,9 +302,9 @@ class Valeur {
     // Assignement
     // -----------
     public: 
-	void operator=(const Valeur& ) ; /// Assignement to another {\tt Valeur}
-	void operator=(const Mtbl& ) ;	 /// Assignement to a {\tt Mtbl}
-	void operator=(const Mtbl_cf& ) ; /// Assignement to a {\tt Mtbl\_cf}
+	void operator=(const Valeur& a) ; /// Assignement to another {\tt Valeur}
+	void operator=(const Mtbl& mt) ;	 /// Assignement to a {\tt Mtbl}
+	void operator=(const Mtbl_cf& mtcf) ; /// Assignement to a {\tt Mtbl\_cf}
 	void operator=(double ) ;	/// Assignement to a {\tt double}	    
 
     // Access to individual elements
@@ -776,17 +780,17 @@ Valeur operator*(const Valeur&, double ) ;	  /// Valeur * double
 Valeur operator*(double, const Valeur& ) ;	  /// double * Valeur 
 Valeur operator*(const Valeur&, int ) ;		  /// Valeur * int
 Valeur operator*(int, const Valeur& ) ;		  /// int * Valeur 
-Valeur operator*(const Valeur&, const Mtbl& ) ;	  /// Valeur * Mtbl
-Valeur operator*(const Mtbl&, const Valeur& ) ;	  /// Mtbl * Valeur
-Valeur operator*(const Valeur&, const Coord& ) ;  /// Valeur * Coord
-Valeur operator*(const Coord&, const Valeur& ) ;  /// Coord * Coord
-Valeur operator/(const Valeur&, const Valeur& ) ; /// Valeur / Valeur
+Valeur operator*(const Valeur& a, const Mtbl& b) ;	  /// Valeur * Mtbl
+Valeur operator*(const Mtbl& b, const Valeur& a) ;	  /// Mtbl * Valeur
+Valeur operator*(const Valeur& a, const Coord& c) ;  /// Valeur * Coord
+Valeur operator*(const Coord& c, const Valeur& a) ;  /// Coord * Coord
+Valeur operator/(const Valeur& a, const Valeur& b) ; /// Valeur / Valeur
 Valeur operator/(const Valeur&, double ) ;	  /// Valeur / double
 Valeur operator/(double, const Valeur& ) ;	  /// double / Valeur 
 Valeur operator/(const Valeur&, int ) ;		  /// Valeur / int
 Valeur operator/(int, const Valeur& ) ;		  /// int / Valeur 
-Valeur operator/(const Valeur&, const Mtbl& ) ;	  /// Valeur / Mtbl
-Valeur operator/(const Mtbl&, const Valeur& ) ;	  /// Mtbl / Valeur
+Valeur operator/(const Valeur& a, const Mtbl& b) ;	  /// Valeur / Mtbl
+Valeur operator/(const Mtbl& b, const Valeur& a) ;	  /// Mtbl / Valeur
 
 Valeur sin(const Valeur& ) ;	    /// Sine
 Valeur cos(const Valeur& ) ;	    /// Cosine

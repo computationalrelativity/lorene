@@ -34,6 +34,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/11/06 14:43:37  e_gourgoulhon
+ * Gave a name to const arguments in certain method prototypes (e.g.
+ * constructors) to correct a bug of DOC++.
+ *
  * Revision 1.5  2003/10/19 19:44:41  e_gourgoulhon
  * Introduced new method display (to replace the old affiche_seuil).
  *
@@ -188,8 +192,8 @@ class Mtbl_cf {
     // -------------------------
 	
     public:
-	Mtbl_cf(const Mg3d&, const Base_val& ) ; /// Constructor 
-	Mtbl_cf(const Mg3d*, const Base_val& ) ; /// Constructor
+	Mtbl_cf(const Mg3d& mgrid, const Base_val& basis) ; /// Constructor 
+	Mtbl_cf(const Mg3d* p_mgrid, const Base_val& basis) ; /// Constructor
 
 	/// Constructor from a file (see {\tt sauve(FILE* )})
 	Mtbl_cf(const Mg3d&, FILE* ) ;		    

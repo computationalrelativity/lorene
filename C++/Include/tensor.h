@@ -36,6 +36,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.32  2003/11/06 14:43:37  e_gourgoulhon
+ * Gave a name to const arguments in certain method prototypes (e.g.
+ * constructors) to correct a bug of DOC++.
+ *
  * Revision 1.31  2003/11/05 15:25:57  e_gourgoulhon
  * Added declaration of external functions:
  * max, min, maxabs, diffrel and diffrelmax.
@@ -903,12 +907,12 @@ class Tensor_delta : public Tensor {
 	 */
 	Tensor_delta(const Map& map, int tipe, const Base_vect& triad_i) ;
 
-	Tensor_delta(const Tensor_delta&) ; /// Copy constructor
+	Tensor_delta(const Tensor_delta& a) ; /// Copy constructor
 
 	/** Constructor from a {\tt Tensor}.
 	 *  The symmetry of the input tensor is assumed to be true but not checked.
 	 */
-	Tensor_delta(const Tensor&) ;
+	Tensor_delta(const Tensor& a) ;
 	
 	/** Constructor from a file (see {\tt sauve(FILE* )}).
 	 * 

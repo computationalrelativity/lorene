@@ -30,6 +30,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/11/06 14:43:37  e_gourgoulhon
+ * Gave a name to const arguments in certain method prototypes (e.g.
+ * constructors) to correct a bug of DOC++.
+ *
  * Revision 1.4  2002/09/13 09:17:33  j_novak
  * Modif. commentaires
  *
@@ -89,8 +93,8 @@ class Map_cart{
     // Constructors - Destructor
     // -------------------------
     protected:
-	Map_cart(const Grille_cart& ) ;	/// Standard constructor
-	Map_cart(const Map_cart& ) ;		/// Copy constructor
+	Map_cart(const Grille_cart& grid) ;	/// Standard constructor
+	Map_cart(const Map_cart& mp) ;		/// Copy constructor
 
               virtual ~Map_cart() ;			/// Destructor
 

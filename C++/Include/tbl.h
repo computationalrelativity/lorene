@@ -37,6 +37,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/11/06 14:43:37  e_gourgoulhon
+ * Gave a name to const arguments in certain method prototypes (e.g.
+ * constructors) to correct a bug of DOC++.
+ *
  * Revision 1.6  2002/10/16 14:36:29  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -183,17 +187,17 @@ class Tbl {
 	 */ 
 	Tbl(int size2, int size1, int size0) ;		
 	
-	explicit Tbl(const Grille3d& ) ; /// Constructor from a 3D grid
-	explicit Tbl(const Dim_tbl& ) ;	 /// Constructor from a {\tt Dim\_tbl}
+	explicit Tbl(const Grille3d& grid) ; /// Constructor from a 3D grid
+	explicit Tbl(const Dim_tbl& dim) ;	 /// Constructor from a {\tt Dim\_tbl}
 	/// Constructor from a file (see {\tt sauve(FILE* )})
 	explicit Tbl(FILE* ) ;	
-	Tbl(const Tbl& ) ;		/// Copy constructor
+	Tbl(const Tbl& a) ;		/// Copy constructor
 	
 	/** Constructor from a matrix.
 	 *  If the matrix has only one row or one column, the {\tt Tbl}
 	 *  is 1D, otherwise it is 2D.
 	 */
-	explicit Tbl(const Matrice& ) ;
+	explicit Tbl(const Matrice& mat) ;
 	
 
 	~Tbl() ;			/// Destructor

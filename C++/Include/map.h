@@ -38,6 +38,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2003/11/06 14:43:37  e_gourgoulhon
+ * Gave a name to const arguments in certain method prototypes (e.g.
+ * constructors) to correct a bug of DOC++.
+ *
  * Revision 1.13  2003/11/04 22:54:49  e_gourgoulhon
  * Added new virtual methods mult_cost, mult_sint and div_sint.
  *
@@ -1266,8 +1270,8 @@ class Map_radial : public Map {
 
     protected:
 	/// Constructor from a grid (protected to make {\tt Map\_radial} an abstract class) 
-	Map_radial(const Mg3d& ) ;		    
-	Map_radial(const Map_radial& ) ;   /// Copy constructor
+	Map_radial(const Mg3d& mgrid ) ;		    
+	Map_radial(const Map_radial& mp) ;   /// Copy constructor
 	Map_radial (const Mg3d&, FILE* ) ; /// Constructor from a file (see {\tt sauve(FILE* )})
 
     public: 
@@ -2170,10 +2174,10 @@ class Map_et : public Map_radial {
     // ----------
     public:
 	/// Assignment to another {\tt Map\_et} 
-	virtual void operator=(const Map_et& ) ;
+	virtual void operator=(const Map_et& mp) ;
 	
 	/// Assignment to an affine mapping. 
-	virtual void operator=(const Map_af& ) ;
+	virtual void operator=(const Map_af& mpa) ;
 	
 	/// Assigns a given value to the function $F(\theta',\phi')$ 
 	void set_ff(const Valeur& ) ; 

@@ -30,6 +30,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/11/06 14:43:37  e_gourgoulhon
+ * Gave a name to const arguments in certain method prototypes (e.g.
+ * constructors) to correct a bug of DOC++.
+ *
  * Revision 1.6  2003/11/05 15:26:31  e_gourgoulhon
  * Modif documentation.
  *
@@ -105,12 +109,12 @@ class Sym_tensor : public Tensor {
 	 */
 	Sym_tensor(const Map& map, int tipe, const Base_vect& triad_i) ;
 
-	Sym_tensor(const Sym_tensor&) ; /// Copy constructor
+	Sym_tensor(const Sym_tensor& a) ; /// Copy constructor
 
 	/** Constructor from a {\tt Tensor}.
 	 *  The symmetry of the input tensor is assumed to be true but not checked.
 	 */
-	Sym_tensor(const Tensor&) ;
+	Sym_tensor(const Tensor& a) ;
 	
 	/** Constructor from a file (see {\tt sauve(FILE* )}).
 	 * 
@@ -139,14 +143,14 @@ class Sym_tensor : public Tensor {
     // ---------------------
     public:
 	/// Assignment to a {\tt Sym\_tensor}
-	virtual void operator=(const Sym_tensor&) ;
+	virtual void operator=(const Sym_tensor& a) ;
 
 	/**
 	 * Assignment from a {\tt Tensor}.
 	 * 
 	 * The symmetry is assumed but not checked.
 	 */
-	virtual void operator= (const Tensor&) ;
+	virtual void operator=(const Tensor& a) ;
     
 
     // Accessors
@@ -288,13 +292,13 @@ class Sym_tensor_trans: public Sym_tensor {
 
 	public:
 	/// Assignment from another {\tt Sym\_tensor\_trans}
-	virtual void operator=(const Sym_tensor_trans&) ;	
+	virtual void operator=(const Sym_tensor_trans& a) ;	
 	
 	/// Assignment from a {\tt Sym_tensor}
-	virtual void operator=(const Sym_tensor&) ;	
+	virtual void operator=(const Sym_tensor& a) ;	
 	
 	/// Assignment from a {\tt Tensor}
-	virtual void operator=(const Tensor&) ;	
+	virtual void operator=(const Tensor& a) ;	
 	
 	// Computational methods
 	// ---------------------
@@ -406,16 +410,16 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 
 	public:
 	/// Assignment from another {\tt Sym\_tensor\_tt}
-	virtual void operator=(const Sym_tensor_tt&) ;	
+	virtual void operator=(const Sym_tensor_tt& a) ;	
 	
 	/// Assignment from a {\tt Sym_tensor\_trans}
-	virtual void operator=(const Sym_tensor_trans&) ;	
+	virtual void operator=(const Sym_tensor_trans& a) ;	
 	
 	/// Assignment from a {\tt Sym_tensor}
-	virtual void operator=(const Sym_tensor&) ;	
+	virtual void operator=(const Sym_tensor& a) ;	
 	
 	/// Assignment from a {\tt Tensor}
-	virtual void operator=(const Tensor&) ;	
+	virtual void operator=(const Tensor& a) ;	
 	
 	/** Sets the component $h^{rr}$, as well as the angular potentials 
 	 * $\eta$ and $\mu$ (see members

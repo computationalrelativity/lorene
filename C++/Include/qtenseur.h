@@ -32,6 +32,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/11/06 14:43:37  e_gourgoulhon
+ * Gave a name to const arguments in certain method prototypes (e.g.
+ * constructors) to correct a bug of DOC++.
+ *
  * Revision 1.2  2002/09/19 10:11:17  j_novak
  * Modif. commentaires
  *
@@ -334,10 +338,10 @@ class Qtenseur {
 	void set_triad(const Base_vect& new_triad) ; 
     
 	/// Assignment to another {\tt Qtenseur}
-	virtual void operator=(const Qtenseur&) ; 
+	virtual void operator=(const Qtenseur& a) ; 
 	
 	/// Assignment to a {\tt Cmp} (scalar field only)
-	void operator=(const Cmp&) ; 
+	void operator=(const Cmp& a) ; 
 	
 	 /// Assignment to a {\tt double} (scalar field only, except for zero)
 	void operator=(double ) ;	
