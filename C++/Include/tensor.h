@@ -36,6 +36,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.49  2004/02/27 21:12:44  e_gourgoulhon
+ * Suppressed function contract_desal (since contract has now the
+ * boolean argument "desaliasing").
+ *
  * Revision 1.48  2004/02/26 22:44:37  e_gourgoulhon
  * -- constructor of Tensor from Map is now declared explicit.
  * -- class Tensor: added methods compute_derive_lie and derive_lie
@@ -1218,26 +1222,7 @@ Tensor contract(const Tensor& t1, int ind_i1, int ind_j1,
                 bool desaliasing = false) ;
 
 
-/** Contraction of two tensors and with desaliasing
- *
- * @param t1 [input] first tensor 
- * @param ind1 [input] index of the first tensor for the contraction, 
- *    obeying to the following convention : \\
- *    {\tt ind1} = 0 : first index of the tensor \\
- *    {\tt ind1} = 1 : second index of the tensor \\
- *    and so on... \\
- *  ({\tt ind1} must thus be in the range 0...t1.valence-1)  
- * @param t2 [input] second tensor 
- * @param ind2 [input] index of the second tensor for the contraction, with 
- *   the same convention as {\tt ind1} 
- * @return tensor resulting of the contraction of the index {\tt ind1} of
- *  {\tt t1} with the index {\tt ind2} of {\tt t2}.
- * NB: the types ({\tt COV} or {\tt CON}) of the indices {\tt ind1} and
- * {\tt ind2} must be different. 
- */
-Tensor contract_desal(const Tensor& t1, int ind1, const Tensor& t2, int ind2) ;
-
-/** Contraction of a tensor. 
+/** Contraction on two indices of a single tensor (trace). 
  *
  * @param t1 [input] tensor 
  * @param ind1 [input] first index of the tensor for the contraction, 
