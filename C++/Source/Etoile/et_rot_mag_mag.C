@@ -32,6 +32,9 @@ char et_rot_mag_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/05/15 09:54:00  j_novak
+ * First operational version
+ *
  * Revision 1.3  2002/05/14 13:38:36  e_marcq
  *
  *
@@ -62,24 +65,24 @@ extern "C" {
 
 // Algo du papier de 1995
 
-void Et_rot_mag::magnet_comput(const double Q, const double a_j,Cmp (*f_j)(const Cmp& x,const double a_j), 
-	    Param& par_poisson_At, Param& par_poisson_Avect){
-
-  double mu0=4*M_PI*.0000001 ; // a demenager dans <unites.h> Un Jour (tm)
+void Et_rot_mag::magnet_comput(const double Q, const double a_j,
+			       Cmp (*f_j)(const Cmp& x,const double a_j), 
+			       Param& par_poisson_At, 
+			       Param& par_poisson_Avect){
+  double relax_mag = 0.5 ;
 
   // Calcul de A_0t dans l'etoile (conducteur parfait)
 
 
   Cmp A_0t(- omega * A_phi) ;
-
-  double Z = mp.get_mg()->get_nzone();
-  A_0t.annule(nzet,Z-1); // annulation en dehors de l'etoile en supposant zones adaptees
-
+ 
+  int Z = mp.get_mg()->get_nzone();
 
   Tenseur ATTENS(A_t) ; 
   Tenseur APTENS(A_phi) ;
-  Tenseur BMN(logn) ;
-  BMN = logn + log(bbb) ;
+  Tenseur BMN(-logn) ;
+  BMN =  BMN + log(bbb) ;
+  BMN.set_std_base() ;
 
 
   Cmp grad1(flat_scalar_prod_desal(ATTENS.gradient_spher(),nphi.gradient_spher())());
@@ -96,22 +99,28 @@ void Et_rot_mag::magnet_comput(const double Q, const double a_j,Cmp (*f_j)(const
   BLAH -= (1+b_car()/(nnn()*nnn())*tnphi()*tnphi())*grad2  ;
   Cmp nphisr(nphi()) ;
   nphisr.div_r() ;
-  BLAH -=  grad3 - 2*nphisr*(A_phi.dsdr()+ATANT ) ;
-
+  Cmp npgrada(2*nphisr*(A_phi.dsdr()+ATANT )) ;
+  npgrada.inc2_dzpuis() ;
+  BLAH -=  grad3 + npgrada ;
+  Cmp gtt(-nnn()*nnn()+b_car()*tnphi()*tnphi()) ;
+  Cmp gtphi( - b_car()*ttnphi) ;
 
   // Calcul de j_t grace a Maxwell-Gauss
 
-  j_t = (A_0t.laplacien()/(mu0*a_car())-BLAH+2*b_car()*ttnphi*j_phi)/(nnn()*nnn()-b_car()*tnphi()*tnphi());
-
+  j_t = ((BLAH - A_0t.laplacien())/a_car() - gtphi*j_phi)
+    / gtt;
+  j_t.annule(nzet, Z-1) ;
 
   // Calcul du courant j_phi
 
-  j_phi = omega * j_t + (ener() + press())*f_j(A_phi,a_j) ;
+  j_phi = omega * j_t + (ener() + press())*f_j(A_phi, a_j) ;
   j_phi.std_base_scal() ;
 
   // Resolution de Maxwell Ampere (-> A_phi)
+  // Calcul des termes sources avec A-t du pas precedent.
 
-  Cmp grad4(flat_scalar_prod_desal(APTENS.gradient_spher(),BMN.gradient_spher())());
+  Cmp grad4(flat_scalar_prod_desal(APTENS.gradient_spher(),
+				   BMN.gradient_spher())());
 
   Tenseur source_tAphi(mp, 1, CON, mp.get_bvect_spher()) ;
 
@@ -124,7 +133,7 @@ void Et_rot_mag::magnet_comput(const double Q, const double a_j,Cmp (*f_j)(const
   d_grad4.div_rsint() ;
   source_tAphi.set(0)=0 ;
   source_tAphi.set(1)=0 ;
-  source_tAphi.set(2)= -mu0*b_car()*a_car()*(tjphi-tnphi()*j_t)
+  source_tAphi.set(2)= -b_car()*a_car()*(tjphi-tnphi()*j_t)
     + b_car()/(nnn()*nnn())*(tgrad1+tnphi()*grad2)+d_grad4 ;
 
   source_tAphi.change_triad(mp.get_bvect_cart());
@@ -156,14 +165,12 @@ void Et_rot_mag::magnet_comput(const double Q, const double a_j,Cmp (*f_j)(const
   source_tAphi.poisson_vect(lambda_mag, par_poisson_Avect, AVECT, WORK_VECT,
 			    WORK_SCAL) ;
   AVECT.change_triad(mp.get_bvect_spher());
-  A_phi = AVECT(2);
-  A_phi.mult_rsint() ;
+  Cmp A_phi_n(AVECT(2));
+  A_phi_n.mult_rsint() ;
 
   // Resolution de Maxwell-Ampere : A_1
 
-  Cmp source_A_1t(
-		  -mu0*a_car()*(j_t*(nnn()*nnn()-b_car()*tnphi()*tnphi())+j_phi*(-2*ttnphi*b_car())) + BLAH
-		  );
+  Cmp source_A_1t(-a_car()*(j_t*gtt + j_phi*gtphi + BLAH ));
 
   Cmp A_1t(mp);
   A_1t = 0 ;
@@ -199,10 +206,12 @@ void Et_rot_mag::magnet_comput(const double Q, const double a_j,Cmp (*f_j)(const
 
       if(l==0){leg.set(k,l)=1.;}
       if(l==1){leg.set(k,l)=cos((*theta)(l_surf()(0,k),0,k,0));}
-      if(l>=2){leg.set(k,l)=2*cos((*theta)(l_surf()(0,k),0,k,0))*leg(k,l-1)-(l-1)/l*leg(k,l-2);}
+      if(l>=2){
+	leg.set(k,l)= (2*l-1)/l*cos((*theta)(l_surf()(0,k),0,k,0))
+	  * leg(k,l-1)-(l-1)/l*leg(k,l-2);}
 
 
-      MAT.set(k,l) = leg(k,l)/pow(Rsurf,l+1);
+      MAT.set(l,k) = leg(k,l)/pow(Rsurf,l+1);
 
     }
   }
@@ -246,20 +255,32 @@ void Et_rot_mag::magnet_comput(const double Q, const double a_j,Cmp (*f_j)(const
       }
     }
   }
+  psi.annule(0) ; // psi et psi2 ne sont pas harmoniques!
+  psi2.annule(0) ;
   psi.std_base_scal() ;
   psi2.std_base_scal() ;
 
-  if (A_1t.get_etat() == ETATZERO) A_0t = psi ;
-  else {
-    A_0t.allocate_all() ;
-    for(int i=nzet;i<Z;i++){
-      A_0t.set(i) = A_1t(i) + psi(i) ; // dehors seulement
-    }
+  A_0t.allocate_all() ;
+  if (A_1t.get_etat() == ETATZERO) {
+    if (A_phi.get_etat() == ETATZERO) 
+      for(int i=0; i<nzet; i++) A_0t.set(i) = 0 ;
+    else 
+      for(int i=0; i<nzet; i++) A_0t.set(i) = - omega * A_phi(i) ;
+    for(int i=nzet; i<Z; i++) A_0t.set(i) = psi(i) ;
   }
-  
+  else {
+    if (A_phi.get_etat() == ETATZERO) 
+      for(int i=0; i<nzet; i++) A_0t.set(i) = 0 ;
+    else 
+      for(int i=0; i<nzet; i++) A_0t.set(i) = - omega * A_phi(i) ;
+    for(int i=nzet;i<Z;i++)
+      A_0t.set(i) = A_1t(i) + psi(i) ; // dehors seulement
+  }
+
   A_0t.std_base_scal() ;
+
   Valeur** asymp = A_0t.asymptot(1) ;
-  double Q_0 = -4*M_PI/mu0*(*asymp[1])(Z-1,0,0,0) ; // utilise A_0t plutot que E
+  double Q_0 = -4*M_PI*(*asymp[1])(Z-1,0,0,0) ; // utilise A_0t plutot que E
   delete asymp[0] ;
   delete asymp[1] ;
 
@@ -267,49 +288,29 @@ void Et_rot_mag::magnet_comput(const double Q, const double a_j,Cmp (*f_j)(const
 
   asymp = psi2.asymptot(1) ;
 
-  double Q_2 = 4*M_PI/mu0*(*asymp[1])(Z-1,0,0,0)  ; // A_2t = psi2 a l'infini
+  double Q_2 = 4*M_PI*(*asymp[1])(Z-1,0,0,0)  ; // A_2t = psi2 a l'infini
   delete asymp[0] ;
   delete asymp[1] ;
 
   delete [] asymp ;
 
   // solution definitive :
-  
-  double C = (Q-Q_0)/Q_2 ;
-  
-    A_t.allocate_all() ;
-    for(int i=0;i<Z;i++){
-      if(i<nzet){A_t.set(i) = A_0t(i) + C;}
-      if(i>nzet-1){A_t.set(i) = A_0t(i) + C * psi2(i);}
-    }
-    A_t.std_base_scal() ;
 
-    // calcul des quantites pour hydro_euler ici ou dans hydro_euler ?
-    // je les ecris ici quand meme.
+    double C = (Q-Q_0)/Q_2 ;
 
-    Cmp grad5 ( flat_scalar_prod_desal(APTENS.gradient_spher(),APTENS.gradient_spher())() );
-    Cmp truc ( A_phi.dsdr()*A_phi.dsdr() - A_phi.srdsdt()*A_phi.srdsdt() );
-    truc.div_rsint() ;
-    truc.div_rsint() ;
-    Tenseur TRUC(truc) ;
+  if (C != 0.) cout << "Q, Q_0, C:" << Q << ", " << Q_0 << ", " << C << endl ;
 
-    // Attention aux versions APTENS et A_phi !!
-
-
-    Cmp d_grad5(grad5) ;
-    d_grad5.div_rsint() ;
-    Cmp dd_grad5(d_grad5) ;
-    dd_grad5.div_rsint() ;
-    Tenseur DD_grad5(dd_grad5) ;
-    Tenseur D_grad5(d_grad5);
-
-    E_em = (1+uuu*uuu)/(8*M_PI*a_car*b_car)*DD_grad5 ;
-    Jp_em = 1/(4*M_PI*a_car)*D_grad5; // a multiplier par u_euler ou uuu suivant les besoins. 
-    Srr_em = (1-uuu*uuu)/(8*M_PI*a_car*b_car)*TRUC ;
-    // Stt_em = -Srr_em
-    Spp_em = (1-uuu*uuu)/(8*M_PI*a_car*b_car)*DD_grad5 ;
-
+  Cmp A_t_n(A_t) ;
+  A_t_n.allocate_all() ;
+  for(int i=0;i<Z;i++){
+    if(i<nzet){A_t_n.set(i) = A_0t(i) + C;}
+    if(i>nzet-1){A_t_n.set(i) = A_0t(i) + C * psi2(i);}
   }
+  A_t_n.std_base_scal() ;
+
+  A_t = relax_mag*A_t_n + (1.-relax_mag)*A_t ;
+  A_phi = relax_mag*A_phi_n + (1. - relax_mag)*A_phi ;
+}
 
 
 

@@ -7,7 +7,7 @@
 
 /*
  *   Copyright (c) 2002 Emmanuel Marcq
- *   Copyright (c) 2002 Jérôme Novak
+ *   Copyright (c) 2002 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -32,6 +32,9 @@ char et_rot_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/05/15 09:53:59  j_novak
+ * First operational version
+ *
  * Revision 1.3  2002/05/14 13:38:36  e_marcq
  *
  *
@@ -63,8 +66,8 @@ char et_rot_mag_C[] = "$Header$" ;
 
 Et_rot_mag::Et_rot_mag(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i)
   : Etoile_rot(mp_i, nzet_i, relat, eos_i),
-    A_phi(mp_i),
     A_t(mp_i),
+    A_phi(mp_i),
     j_t(mp_i),
     j_phi(mp_i),
     E_em(mp_i),
@@ -81,7 +84,7 @@ Et_rot_mag::Et_rot_mag(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i)
   j_phi = 0 ;
 
 
-set_der_0x0() ;  
+  set_der_0x0() ;  
 }
 
 
@@ -90,14 +93,14 @@ set_der_0x0() ;
 
 Et_rot_mag::Et_rot_mag(const Et_rot_mag& et)
   : Etoile_rot(et),
-  A_phi(et.A_phi),
-  A_t(et.A_t),
-  j_phi(et.j_phi),
-  j_t(et.j_t),
-  E_em(et.E_em),
-  Jp_em(et.Jp_em),
-  Srr_em(et.Srr_em),
-  Spp_em(et.Spp_em)
+    A_phi(et.A_phi),
+    A_t(et.A_t),
+    j_phi(et.j_phi),
+    j_t(et.j_t),
+    E_em(et.E_em),
+    Jp_em(et.Jp_em),
+    Srr_em(et.Srr_em),
+    Spp_em(et.Spp_em)
 
 {
   set_der_0x0() ;
@@ -150,10 +153,10 @@ void Et_rot_mag::operator=(const Et_rot_mag& et) {
 
   // Assignement of quantities common to all the derived classes of Etoile
   Etoile_rot::operator=(et) ;
-  A_phi  = et.A_phi  ;
   A_t    = et.A_t    ;
-  j_phi  = et.j_phi  ;
+  A_phi  = et.A_phi  ;
   j_t    = et.j_t    ;
+  j_phi  = et.j_phi  ;
   E_em   = et.E_em   ;
   Jp_em  = et.Jp_em  ;
   Srr_em = et.Srr_em ;

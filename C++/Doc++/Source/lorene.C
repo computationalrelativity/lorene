@@ -115,6 +115,7 @@
 	//@Include:etoile.h_r
         //@Include:et_rot_bifluid.h_r
         //@Include:et_rot_diff.h_r
+        //@Include:et_rot_mag.h_r
 	//@Include:binaire.h_r
 	//@Include:bhole.h_r
     //@}

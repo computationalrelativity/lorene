@@ -7,9 +7,9 @@
  */
 
 /*
- *   Copyright (c) 2002 Éric Gourgoulhon
+ *   Copyright (c) 2002 Eric Gourgoulhon
  *   Copyright (c) 2002 Emmanuel Marcq
- *   Copyright (c) 2002 Jérôme Novak
+ *   Copyright (c) 2002 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -34,6 +34,9 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/05/15 09:53:59  j_novak
+ * First operational version
+ *
  * Revision 1.3  2002/05/14 13:38:36  e_marcq
  *
  *
@@ -62,16 +65,20 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 #include "utilitaires.h"
 
 
-void Et_rot_mag::equilibrium_mag(double ent_c, double omega0, double fact_omega, int nzadapt, const Tbl& ent_limit, const Itbl& icontrol, const Tbl& control, double mbar_wanted, double aexp_mass, Tbl& diff,
-
-const double Q, const double a_j, Cmp (*f_j)(const Cmp& x, const double a_j), Cmp (*M_j)(const Cmp& x, const double a_j)) {
+void Et_rot_mag::equilibrium_mag(double ent_c, double omega0, 
+     double fact_omega, int nzadapt, const Tbl& ent_limit, 
+     const Itbl& icontrol, const Tbl& control, double mbar_wanted, 
+     double aexp_mass, Tbl& diff, const double Q, const double a_j, 
+     Cmp (*f_j)(const Cmp& x, const double a_j), 
+     Cmp (*M_j)(const Cmp& x, const double a_j)) {
 			     
     // Fundamental constants and units
     // -------------------------------
-    #include "unites.h"	    
+    #include "unites_mag.h"	    
     // To avoid some compilation warnings
     if (ent_c < 0) {
 	cout << f_unit << msol << km << mevpfm3 << endl ; 
+	cout << mag_unit << elec_unit << endl ;
     }    
     
     // For the display 
@@ -153,7 +160,6 @@ const double Q, const double a_j, Cmp (*f_j)(const Cmp& x, const double a_j), Cm
 //    double& diff_ggg = diff.set(4) ; 
     double& diff_shift_x = diff.set(5) ; 
     double& diff_shift_y = diff.set(6) ; 
-    double& vit_triax = diff.set(7) ; 
 
     // Parameters for the function Map_et::adapt
     // -----------------------------------------
@@ -372,6 +378,14 @@ const double Q, const double a_j, Cmp (*f_j)(const Cmp& x, const double a_j), Cm
 	}
 
 	//-----------------------------------------------
+	// Computation of electromagnetic potentials :
+	// -------------------------------------------
+
+	magnet_comput(Q, a_j, f_j, par_poisson_At, par_poisson_Avect) ;
+
+	MHD_comput() ; // computes EM contributions to T_{mu,nu}
+
+	//-----------------------------------------------
 	//  Sources of the Poisson equations
 	//-----------------------------------------------
 	
@@ -381,12 +395,11 @@ const double Q, const double a_j, Cmp (*f_j)(const Cmp& x, const double a_j), Cm
 	beta.set_std_base() ; 
 
 	if (relativistic) {
-	    source_nuf =  qpig * a_car *( ener_euler + s_euler) ; 
-
-	    source_nuq = ak_car - flat_scalar_prod(logn.gradient_spher(), 
-			logn.gradient_spher() + beta.gradient_spher())
-	                 + qpig*a_car*Spp_em ;
-	    // Champ EM mis ici car à support non compact 
+	  source_nuf =  qpig * a_car *( ener_euler + s_euler) ; 
+	  
+	  source_nuq = ak_car - flat_scalar_prod(logn.gradient_spher(), 
+		       logn.gradient_spher() + beta.gradient_spher()) 
+	               + qpig * a_car * 2*E_em ;
 	}
 	else {
 	    source_nuf = qpig * nbar ; 
@@ -401,8 +414,8 @@ const double Q, const double a_j, Cmp (*f_j)(const Cmp& x, const double a_j), Cm
 	source_dzf = 2 * qpig * a_car * (press + (ener_euler+press) * uuu*uuu ) ;
 	source_dzf.set_std_base() ; 
   
-	source_dzq = 2*qpig*a_car*Spp_em + 1.5 * ak_car 
-	  - flat_scalar_prod(logn.gradient_spher(),logn.gradient_spher() ) ;	    
+	source_dzq = 2 * qpig * a_car * E_em + 1.5 * ak_car - 
+	  flat_scalar_prod(logn.gradient_spher(), logn.gradient_spher() ) ;  
 	source_dzq.set_std_base() ; 	
 	
 	// Source for tggg
@@ -419,18 +432,20 @@ const double Q, const double a_j, Cmp (*f_j)(const Cmp& x, const double a_j), Cm
 	    
 	// Matter term: 
 	
-	Cmp jpem_rsint(Jp_em()) ;
-	jpem_rsint.div_rsint() ;
-	Tenseur Jpem_rsint(jpem_rsint) ;
-	// Jpem_rsint tenseur scalaire (?, norme selon u_euler de Jpem)
-	Jpem_rsint.set_std_base();
+	Cmp tjpem(Jp_em()) ;
+	tjpem.div_rsint() ;
 
-	source_shift = (-4*qpig) * nnn * a_car  * ( (ener_euler + press)
-				* u_euler + 
-				Jpem_rsint/(a_car*bbb)*u_euler );
+	source_shift = (-4*qpig) * nnn * a_car  * (ener_euler + press)
+				* u_euler ;
 
 	// Quadratic terms:
 	Tenseur vtmp =  6 * beta.gradient_spher() - 2 * logn.gradient_spher() ;
+	Tenseur mtmp(vtmp) ;
+	mtmp.set(0) = 0 ;
+	mtmp.set(1) = 0 ;
+	mtmp.set(2) = (-4*qpig)*tjpem*nnn()*a_car()/b_car() ;
+	mtmp.change_triad(mp.get_bvect_cart()) ; 
+
 	vtmp.change_triad(mp.get_bvect_cart()) ; 
 
 	Tenseur squad  = nnn * flat_scalar_prod(tkij, vtmp) ;     
@@ -441,7 +456,7 @@ const double Q, const double a_j, Cmp (*f_j)(const Cmp& x, const double a_j), Cm
 		
 	if (squad.get_etat() == ETATQCQ) {
 	    for (int i=0; i<3; i++) {
-		source_shift.set(i) += squad(i) ; 
+		source_shift.set(i) += squad(i) + mtmp(i); 
 	    }
 	}
 
@@ -600,20 +615,25 @@ const double Q, const double a_j, Cmp (*f_j)(const Cmp& x, const double a_j), Cm
 		mlngamma = - 0.5 * uuu*uuu ; 
 	    }
 	
+	    Tenseur mag(mu0*M_j(A_phi, a_j)) ;
+
 	    // Equatorial values of various potentials :
 	    double nuf_b  = nuf()(l_b, k_b, j_b, i_b) ; 
 	    double nuq_b  = nuq()(l_b, k_b, j_b, i_b) ; 
 	    double mlngamma_b  = mlngamma()(l_b, k_b, j_b, i_b) ; 
+	    double mag_b = mag()(l_b, k_b, j_b, i_b) ; 
 
 	    // Central values of various potentials :
 	    double nuf_c = nuf()(0,0,0,0) ; 
 	    double nuq_c = nuq()(0,0,0,0) ; 
 	    double mlngamma_c = 0 ;
+	    double mag_c = mag()(0,0,0,0) ;
 	
 	    // Scale factor to ensure that the enthalpy is equal to ent_b at 
 	    //  the equator
 	    double alpha_r2 = ( ent_c - ent_b + mlngamma_c - mlngamma_b
-				+ nuq_c - nuq_b) / ( nuf_b - nuf_c  ) ;
+				+ nuq_c - nuq_b + mag_c - mag_b) 
+	      / ( nuf_b - nuf_c  ) ;
 	    alpha_r = sqrt(alpha_r2) ;
 	    cout << "alpha_r = " << alpha_r << endl ; 
 
@@ -624,18 +644,10 @@ const double Q, const double a_j, Cmp (*f_j)(const Cmp& x, const double a_j), Cm
 	    double nu_c =  logn()(0,0,0,0) ;
 
 
-	    // Computation of electromagnetic potentials :
-	    // -------------------------------------------
-
-
-	    magnet_comput(Q, a_j, f_j, par_poisson_At, par_poisson_Avect) ;
-
 	    // First integral	--> enthalpy in all space
 	    //-----------------
-	    Tenseur mag(M_j(A_phi,a_j)) ;
-	    ent = (ent_c + nu_c + mlngamma_c) - logn - mlngamma 
-
-	      + mag; // argument de M = Cmp ???
+	    ent = (ent_c + nu_c + mlngamma_c + mag_c) - logn - mlngamma
+	      - mag ;
 
 	    // Test: is the enthalpy negative somewhere in the equatorial plane
 	    //  inside the star ? If yes, this means that the Keplerian velocity
@@ -737,9 +749,6 @@ const double Q, const double a_j, Cmp (*f_j)(const Cmp& x, const double a_j), Cm
 
 	hydro_euler() ;		// computes new values for ener_euler (E), 
 				// s_euler (S) and u_euler (U^i)
-
-	MHD_comput() ; // computes EM contributions to T_{mu,nu}
-
 
 	if (relativistic) {
 

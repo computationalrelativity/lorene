@@ -7,7 +7,7 @@
 /*
  *   Copyright (c) 2000-2001 Eric Gourgoulhon
  *   Copyright (c) 2002 Emmanuel Marcq
- *   Copyright (c) 2002 Jérôme Novak
+ *   Copyright (c) 2002 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -28,11 +28,12 @@
  */
 
 
-char et_rot_global_C[] = "$Header$" ;
-
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/05/15 09:53:59  j_novak
+ * First operational version
+ *
  * Revision 1.4  2002/05/14 13:45:30  e_marcq
  *
  * Correction de la formule du rapport gyromagnetique
@@ -58,31 +59,29 @@ char et_rot_global_C[] = "$Header$" ;
 
 void Et_rot_mag::MHD_comput() {
   // Calcule les grandeurs du tenseur impulsion-energie EM a partir des champs
-
-  Tenseur APTENS(A_phi) ;
+  #include"unites_mag.h"
+  if (mu0<0.) { //to avoid compilation warnings
+    cout << qpig << f_unit << msol << km << mevpfm3 << endl ; 
+    cout << mag_unit << elec_unit << endl ;
+  }    
   
-  Cmp grad5 ( flat_scalar_prod_desal(APTENS.gradient_spher(),APTENS.gradient_spher())() );
-  Cmp truc ( A_phi.dsdr()*A_phi.dsdr() - A_phi.srdsdt()*A_phi.srdsdt() );
-  truc.div_rsint() ;
-  truc.div_rsint() ;
-  Tenseur TRUC(truc) ;
-
-  // Attention aux versions APTENS et A_phi !!
-
-
-  Cmp d_grad5(grad5) ;
-  d_grad5.div_rsint() ;
-  Cmp dd_grad5(d_grad5) ;
-  dd_grad5.div_rsint() ;
-  Tenseur DD_grad5(dd_grad5) ;
-  Tenseur D_grad5(d_grad5);
-
-  E_em = (1+uuu*uuu)/(8*M_PI*a_car*b_car)*DD_grad5 ;
-  Jp_em = 1/(4*M_PI*a_car)*D_grad5; // a multiplier par u_euler ou uuu suivant les besoins. 
-  Srr_em = (1-uuu*uuu)/(8*M_PI*a_car*b_car)*TRUC ;
+  Tenseur APTENS(A_t) ;
+  Tenseur ATTENS(A_phi) ;
+  
+  Tenseur ApAp ( flat_scalar_prod_desal(APTENS.gradient_spher(),
+					APTENS.gradient_spher())() );
+  Tenseur ApAt ( flat_scalar_prod_desal(APTENS.gradient_spher(),
+					ATTENS.gradient_spher())() );
+  Tenseur AtAt ( flat_scalar_prod_desal(ATTENS.gradient_spher(),
+					ATTENS.gradient_spher())() );
+  
+  E_em = 0.5*mu0 * ( 1/(a_car*nnn*nnn) * (AtAt + 2*tnphi*ApAt)
+	      + ( (tnphi*tnphi/(a_car*nnn*nnn)) + 1/(a_car*b_car) )*ApAp );
+  Jp_em = -mu0 * (ApAt + tnphi*ApAp) * bbb /(a_car*nnn) ;
+  if (Jp_em.get_etat() != ETATZERO) Jp_em.set().mult_rsint() ;
+  Srr_em = 0 ;
   // Stt_em = -Srr_em
-  Spp_em = (1-uuu*uuu)/(8*M_PI*a_car*b_car)*DD_grad5 ;
-
+  Spp_em = E_em ;
 }
 
 Tenseur Et_rot_mag::Elec() const {
@@ -479,13 +478,4 @@ double Et_rot_mag::mom_quad() const {
     return *p_mom_quad ; 
 
 }
-
-
-
-
-
-
-
-
-
 

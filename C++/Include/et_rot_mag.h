@@ -5,7 +5,7 @@
 
 /*
  *   Copyright (c) 2002 Emmanuel Marcq
- *   Copyright (c) 2002 Jérôme Novak
+ *   Copyright (c) 2002 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -26,12 +26,15 @@
  */
 
 
- #ifndef __ET_ROT_MAG_H_ 
- #define __ET_ROT_MAG_H_ 
+#ifndef __ET_ROT_MAG_H_ 
+#define __ET_ROT_MAG_H_ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/05/15 09:53:59  j_novak
+ * First operational version
+ *
  * Revision 1.3  2002/05/14 13:38:36  e_marcq
  *
  *
@@ -45,6 +48,13 @@
  *
  */
 
+// Headers Lorene
+
+#include "etoile.h"
+
+// Local prototype (for determining the surface)
+Cmp prolonge_c1(const Cmp& uu, const int nzet) ;
+
 /**
  * Class for magnetized (perfect conductor), rigidly rotating stars.
  *
@@ -53,15 +63,6 @@
  *
  * @version #$Id$#
  */
-
-
-// Headers Lorene
-
-#include "etoile.h"
-
-// Local prototype (for determining the surface)
-Cmp prolonge_c1(const Cmp& uu, const int nzet) ;
-
 class Et_rot_mag : public Etoile_rot {
   
   // Data : 
@@ -73,10 +74,10 @@ class Et_rot_mag : public Etoile_rot {
   Cmp j_t;
   Cmp j_phi;
 
-Tenseur E_em;
-Tenseur Jp_em;
-Tenseur Srr_em; // Stt_em = - Srr_em...
-Tenseur Spp_em; 
+  Tenseur E_em;
+  Tenseur Jp_em;
+  Tenseur Srr_em; // Stt_em = - Srr_em...
+  Tenseur Spp_em; 
 
   
   // Constructors - Destructor
@@ -203,16 +204,16 @@ Tenseur Spp_em;
    *  {\tt ener\_euler}, {\tt s\_euler}. 
    * 
    */
-
-  virtual void magnet_comput(const double Q, const double a_j, Cmp (*f_j)(const Cmp& x, const double a_j), 
-		      Param& par_poisson_At, Param& par_poisson_Avect) ;
+  virtual void magnet_comput(const double Q, const double a_j, 
+			     Cmp (*f_j)(const Cmp& x, const double a_j), 
+			     Param& par_poisson_At, Param& par_poisson_Avect) ;
 	
   void equilibrium_mag(double ent_c, double omega0, double fact_omega, 
-		 int nzadapt, const Tbl& ent_limit, const Itbl& icontrol, 
-		 const Tbl& control, double mbar_wanted, double aexp_mass, 
-		 Tbl& diff, const double Q, const double a_j, Cmp (*f_j)(const Cmp& x, const double a_j), 
-		 Cmp (*M_j)(const Cmp& x,const double a_j));
-
+		     int nzadapt, const Tbl& ent_limit, const Itbl& icontrol, 
+		     const Tbl& control, double mbar_wanted, double aexp_mass, 
+		     Tbl& diff, const double Q, const double a_j, 
+		     Cmp (*f_j)(const Cmp& x, const double a_j), 
+		     Cmp (*M_j)(const Cmp& x,const double a_j)) ;
 };
 
 #endif
