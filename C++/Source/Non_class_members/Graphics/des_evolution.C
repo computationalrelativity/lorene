@@ -30,6 +30,9 @@ char des_evolution_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/05/20 20:29:31  e_gourgoulhon
+ * Added argument 'device'.
+ *
  * Revision 1.2  2004/05/11 20:09:47  e_gourgoulhon
  * Corrected bug when j_min != 0.
  * Added version of des_evol for plot on the whole Evolution's time range.
@@ -51,13 +54,13 @@ char des_evolution_C[] = "$Header$" ;
 //------------------------------
 
 void des_evol(const Evolution<double>& uu, const char* nomy, 
-    const char* title, int ngraph, bool closeit, bool show_time, 
-    const char* nomx) {
+    const char* title, int ngraph, const char* device,
+    bool closeit, bool show_time, const char* nomx) {
     
     int jmin = uu.j_min() ; 
     int jmax = uu.j_max() ; 
 
-    des_evol(uu, jmin, jmax, nomy, title, ngraph, closeit,
+    des_evol(uu, jmin, jmax, nomy, title, ngraph, device, closeit,
              show_time, nomx) ; 
 }
 
@@ -66,8 +69,13 @@ void des_evol(const Evolution<double>& uu, const char* nomy,
 //------------------------------------
 
 void des_evol(const Evolution<double>& uu, int j_min, int j_max, 
-    const char* nomy, const char* title, int ngraph, bool closeit, 
-    bool show_time, const char* nomx) {
+    const char* nomy, const char* title, int ngraph, const char* device,
+    bool closeit, bool show_time, const char* nomx) {
+
+    // Special case of no graphical output:
+    if (device != 0x0) {
+        if ((device[0] == '/') && (device[1] == 'n')) return ; 
+    }
 
     int npt = j_max - j_min + 1 ; 
 
@@ -96,7 +104,7 @@ void des_evol(const Evolution<double>& uu, int j_min, int j_max,
     if (title == 0x0) title = "" ;
    
     des_profile_mult(uutab, 1, npt, xtab, nomx, nomy, title, 0x0, ngraph,
-        closeit) ; 
+        closeit, device) ; 
     
     delete [] uutab ; 
     
