@@ -28,6 +28,9 @@ char test_sym_tensor_tt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/11/06 10:33:41  e_gourgoulhon
+ * Added tests for the mu part.
+ *
  * Revision 1.9  2003/11/05 15:32:12  e_gourgoulhon
  * Use of new functions maxabs and diffrelmax acting on tensors.
  *
@@ -93,7 +96,7 @@ int main() {
   	// ------------------------------------------
 
 	// Boundaries of each domains
-	double r_limits[] = {0., 1., 2., __infinity} ; 
+	double r_limits[] = {0., 2., 3., __infinity} ; 
   	assert( nz == 3 ) ;  // since the above array described only 3 domains
   
 	Map_af map(mgrid, r_limits) ; 
@@ -265,6 +268,63 @@ int main() {
 
 	cout << "Relative difference (max) between htt2 and htt : " << endl ; 
 	diffrelmax(htt2, htt) ; 
+
+	cout << endl << "========================================================" << endl ;
+	cout << "                Test with an ad hoc mu" << endl ;
+	cout << "========================================================" << endl ;
 	
+	arrete() ; 
+	
+	Scalar mu0(map) ; 
+	mu0 = z * pot.get_spectral_va() ;
+		   
+	mu0.annule_domain(nzm1) ; 
+
+	Mtbl mu0ced = cost * potced  ;	
+		   
+	mu0.set_domain(nzm1) = mu0ced(nzm1) ; 
+	mu0.std_spectral_base() ; 
+	mu0.set_spectral_va().set_base_r(0, R_CHEBPIM_I) ; 
+	mu0.set_spectral_va().set_base_t(T_COSSIN_CI) ; 
+	
+
+	cout << "mu0 : " << endl ; 
+	mu0.spectral_display() ; 
+	arrete() ; 
+
+	Sym_tensor_tt htt3 = htt ; 
+		
+	htt3.set_rr_mu(htt(1,1), mu0) ; 
+
+	cout << "Eta htt3 : " << endl ; 
+	htt3.eta().spectral_display() ; 
+
+	cout << "Mu htt3 : " << endl ; 
+	htt3.mu().spectral_display() ; 
+	
+	arrete() ; 
+
+	cout << "htt3 : " << endl ; 
+	htt3.spectral_display() ; 
+	arrete() ; 
+
+	Sym_tensor_tt htt4(map, map.get_bvect_spher(), mets ) ; 
+		
+	htt4.set_rr_eta_mu(htt3(1,1), htt3.eta(), htt3.mu()) ; 
+
+	cout << "Relative difference (max) between htt4 and htt3 : " << endl ; 
+	diffrelmax(htt4, htt3) ; 
+
+	arrete() ; 
+
+	Sym_tensor_tt htt5 = htt3 ; 
+	htt5.set(1,1) = htt3(1,1) ; // To force the deletion of eta and mu
+
+	cout << "Relative difference (max) between htt5.eta and htt3.eta : " << endl ; 
+	diffrelmax(htt5.eta(), htt3.eta(), cout) ; 
+	cout << "Relative difference (max) between htt5.mu and htt3.mu : " << endl ; 
+	diffrelmax(htt5.mu(), htt3.mu(), cout) ; 
+
+		
 	return EXIT_SUCCESS ; 
 }
