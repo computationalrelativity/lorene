@@ -30,6 +30,9 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/04/06 15:49:46  j_novak
+ * Error corrected.
+ *
  * Revision 1.1  2005/04/06 15:43:59  j_novak
  * New method Sym_tensor_trans::T_from_det_one(...).
  *
@@ -85,7 +88,7 @@ void Sym_tensor_trans::T_from_det_one( const Scalar& hrr, const Scalar& eta_in,
 	(1 - ppp)*(operator()(1,2)*operator()(1,2)) -
 	2*operator()(1,2)*operator()(1,3)*operator()(2,3) + hrr ;
 
-    Scalar t_new = -C/(B + sqrt(B*B - 4*A*C))  ;
+    Scalar t_new = (-2*C)/(B + sqrt(B*B - 4*A*C))  ;
     t_new.std_spectral_base() ;
 
     set(2,2) = 0.5*ttt() + ppp ;
