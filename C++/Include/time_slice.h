@@ -29,6 +29,14 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2004/05/17 19:52:16  e_gourgoulhon
+ * -- Method initial_data_cts: added arguments graph_device and
+ *    method_poisson_vect.
+ * -- Method Tslice_dirac_max::solve_beta : added argument method
+ * -- Method Tslice_dirac_max::solve_hij : added argument graph_device
+ * -- Method Tslice_dirac_max::evolve : added arguments
+ *    method_poisson_vect, nopause and graph_device.
+ *
  * Revision 1.16  2004/05/12 15:16:25  e_gourgoulhon
  * Added #include "metric.h" before #include "evolution.h".
  *
@@ -712,6 +720,12 @@ class Time_slice_conf : public Time_slice {
          *      slices
          *  @param precis convergence threshold required to stop the 
          *          iteration
+         *  @param method_poisson_vect method to be used for solving 
+         *      vector Poisson equation (for the shift), see 
+         *      \c Vector::poisson(double, const Metric_flat&, int) const.  
+         *  @param graph_device  name of type of graphical device: 0x0 
+         *      (default value) will result in interactive choice; 
+         *      "/xwin" in X-Window display and "/n" in no output.
          *  @param ener_dens matter energy density \e E as measured by the 
          *      Eulerian observer; this quantity is passed as a pointer,
          *      the null value of which (default) meaning \e E=0.
@@ -724,8 +738,9 @@ class Time_slice_conf : public Time_slice {
          */
          virtual void initial_data_cts(const Sym_tensor& uu, const Scalar& trk_in, 
                 const Scalar& trk_point, double pdt, double precis = 1.e-12,
-                const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
-                const Scalar* trace_stress=0x0 ) ; 
+                int method_poisson_vect = 1, const char* graph_device = 0x0, 
+                const Scalar* ener_dens = 0x0, const Vector* mom_dens = 0x0, 
+                const Scalar* trace_stress = 0x0 ) ; 
         
         /** Returns the ADM mass (geometrical units) at the current step.
          * Moreover this method updates \c adm_mass_evol if
@@ -860,6 +875,12 @@ class Tslice_dirac_max : public Time_slice_conf {
          *      slices
          *  @param precis convergence threshold required to stop the 
          *          iteration
+         *  @param method_poisson_vect method to be used for solving 
+         *      vector Poisson equation (for the shift), see 
+         *      \c Vector::poisson(double, const Metric_flat&, int) const.  
+         *  @param graph_device  name of type of graphical device: 0x0 
+         *      (default value) will result in interactive choice; 
+         *      "/xwin" in X-Window display and "/n" in no output.
          *  @param ener_dens matter energy density \e E as measured by the 
          *      Eulerian observer; this quantity is passed as a pointer,
          *      the null value of which (default) meaning \e E=0.
@@ -872,8 +893,9 @@ class Tslice_dirac_max : public Time_slice_conf {
          */
          virtual void initial_data_cts(const Sym_tensor& uu, const Scalar& trk_in, 
                 const Scalar& trk_point, double pdt, double precis = 1.e-12,
-                const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
-                const Scalar* trace_stress=0x0 ) ; 
+                int method_poisson_vect = 1, const char* graph_device = 0x0, 
+                const Scalar* ener_dens = 0x0, const Vector* mom_dens = 0x0, 
+                const Scalar* trace_stress = 0x0 ) ; 
         
         // Virtual functions from this class:
         // ----------------------------------
@@ -928,12 +950,16 @@ class Tslice_dirac_max : public Time_slice_conf {
      *  @param mom_dens matter momentum density \e J as measured by the 
      *      Eulerian observer; this quantity is passed as a pointer,
      *      the null value of which (default) meaning \e J=0.
+     *  @param method method to be used for solving 
+     *      vector Poisson equation (for the shift), see 
+     *      \c Vector::poisson(double, const Metric_flat&, int) const.  
      *  @return solution \f$\beta^i_{\rm new}\f$ of the elliptic equation 
      *  (flat vector Laplacian) for the shift with the source computed from the
      *  quantities at the current time step. 
      *  
      */
-    virtual Vector solve_beta(const Vector* mom_dens = 0x0) const ; 
+    virtual Vector solve_beta(const Vector* mom_dens = 0x0,
+                              int method = 1) const ; 
         
     /** Solves the evolution equation for the deviation \f$ h^{ij} \f$ 
      * of the conformal metric \f$ \tilde\gamma^{ij} \f$ from 
@@ -946,6 +972,9 @@ class Tslice_dirac_max : public Time_slice_conf {
      *      time step 
      *  @param mu_new [output] : solution \f$\mu_{\rm new}\f$ at the next
      *      time step 
+     *  @param graph_device [input] : name of type of graphical device: 0x0 
+     *      (default value) will result in interactive choice; 
+     *      "/xwin" in X-Window display and "/n" in no output.
      *  @param strain_tensor [input] : a pointer on the strain_tensor 
      *      \f$ S^{ij} \f$ measured by the Eulerian observer of 4-velocity 
      *      \f$\mbox{\boldmath{$n $}}\f$ ; if this is the null pointer
@@ -953,19 +982,28 @@ class Tslice_dirac_max : public Time_slice_conf {
      */
     virtual void solve_hij(Param& par_khi, Param& par_mu,
                            Scalar& khi_new, Scalar& mu_new,
+                           const char* graph_device = 0x0, 
                            const Sym_tensor* strain_tensor = 0x0) const ; 
         
     /** Time evolution by resolution of Einstein equations.
      *  
-     *  @param pdt : time step \e dt.
-     *  @param nb_time_steps : number of time steps for the evolution
-     *  @param niter_elliptic : number of iterations if the resolution 
+     *  @param pdt  time step \e dt.
+     *  @param nb_time_steps  number of time steps for the evolution
+     *  @param niter_elliptic  number of iterations if the resolution 
      *      of elliptic equations
-     *  @param relax_elliptic : relaxation factor for the elliptic
+     *  @param relax_elliptic  relaxation factor for the elliptic
      *      equations
+     *  @param method method_poisson_vect to be used for solving 
+     *      vector Poisson equation (for the shift), see 
+     *      \c Vector::poisson(double, const Metric_flat&, int) const.  
+     *  @param nopause  = 1 if no pause between each time step, 0 otherwise
+     *  @param graph_device  name of type of graphical device: 0x0 
+     *      (default value) will result in interactive choice; 
+     *      "/xwin" in X-Window display and "/n" in no output.
      */
     void evolve(double pdt, int nb_time_steps, int niter_elliptic,
-                double relax_elliptic) ; 
+                double relax_elliptic, int method_poisson_vect = 1, 
+                int nopause = 1, const char* graph_device = 0x0) ; 
         
     /** Returns the ADM mass at (geometrical units) the current step.
      * Moreover this method updates \c adm_mass_evol if
