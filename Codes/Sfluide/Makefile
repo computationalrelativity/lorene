@@ -12,7 +12,7 @@ OBJ = $(SRC:.C=.o)
 
 CXXFLAGS_G = -g -Wall
 
-$(EXE): $(OBJ)
+$(EXE): $(OBJ) 
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
@@ -24,3 +24,6 @@ uninstall:
 	rm -f $(EXE)
 	rm -f *.d
 
+
+clean: 
+	rm *.o

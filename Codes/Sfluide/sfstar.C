@@ -165,6 +165,22 @@ int main(){
 	  cout << "WARNING: some adaptive-grid variables were not found! Using default ... \n";
       }
 
+    // Read parameters specific to Kepler-limit
+    // ----------------------------------------
+    int kepler_fluid	= 1; 	// Kepler limit for which fluid? 1,2; 3 = both
+    int kepler_wait_steps = 1; 	// how many steps after mer_fix_omega shall we start?
+    double kepler_factor = 1.01; // factor to increase omega in each step to approach Kepler (>1!)
+
+    res = 0;
+    if( (read_variable (NULL, "kepler_fluid", kepler_fluid) == 0) && (kepler_fluid > 0) )
+      {
+	res += read_variable (NULL, "kepler_wait_steps", kepler_wait_steps);
+	res += read_variable (NULL, "kepler_factor", kepler_factor);
+	
+	if (res != 0)
+	  cout << "WARNING: some Kepler-limit paramters were not found in settings.par! Using default ... \n";
+      }
+
 
     // Particular cases
     // ----------------
@@ -301,17 +317,18 @@ int main(){
     double omega2 = 2 * M_PI * freq2_si / f_unit ; 
     double omega2_ini = 2 * M_PI * freq2_ini_si / f_unit ; 
 
-    Itbl icontrol(6) ;
+    Itbl icontrol(8) ;
     icontrol.set_etat_qcq() ; 
     icontrol.set(0) = mer_max ; 
     icontrol.set(1) = mer_rot ; 
     icontrol.set(2) = mer_change_omega ; 
     icontrol.set(3) = mer_fix_omega ; 
     icontrol.set(4) = mermax_poisson ; 
-    icontrol.set(5) = nzadapt;  // nb of domains for adaptive grid
+    icontrol.set(5) = nzadapt;  	// nb of domains for adaptive grid
+    icontrol.set(6) = kepler_fluid;  	// index of fluid for Kepler-search (0=none)
+    icontrol.set(7) = kepler_wait_steps;
 
-    
-    Tbl control(7) ; 
+    Tbl control(8) ; 
     control.set_etat_qcq() ; 
     control.set(0) = precis ; 
     control.set(1) = omega_ini ;
@@ -320,6 +337,7 @@ int main(){
     control.set(4) = relax_poisson ; 
     control.set(5) = thres_adapt;
     control.set(6) = precis_adapt;
+    control.set(7) = kepler_factor;
 
 
     Tbl diff(8) ;     
