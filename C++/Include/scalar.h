@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.35  2003/12/14 21:46:35  e_gourgoulhon
+ * Added argument start_dx in visu_section.
+ *
  * Revision 1.34  2003/12/11 16:19:38  e_gourgoulhon
  * Added method visu_section for visualization with OpenDX.
  *
@@ -717,16 +720,19 @@ class Scalar : public Tensor {
    * @param umax [input] defines with {\tt umin} the range of the plane coordinate u 
    * @param vmin [input] defines with {\tt vmax} the range of the plane coordinate v 
    * @param vmax [input] defines with {\tt vmin} the range of the plane coordinate v 
-   * @param title [input] title for the graph
+   * @param title [input] title for the graph (for OpenDX legend)
    * @param filename [input] name for the file which will be the input for 
    *    OpenDX; the default 0x0 is transformed into "scalar_section"
+   * @param start_dx [input] determines whether OpenDX must be launched (as a
+   *     subprocess) to view the field; if set to {\tt false}, only input files
+   *     for future usage of OpenDX are created 
    * @param nu [input] number of points in the u direction (uniform sampling)   
    * @param nv [input] number of points in the v direction (uniform sampling)   
    *
    */
     void visu_section(const char section_type, double aa, double umin, double umax, double vmin,
         double vmax, const char* title = 0x0, const char* filename = 0x0,
-        int nu = 200, int nv = 200) const ;   
+        bool start_dx = true, int nu = 200, int nv = 200) const ;   
 
   /** 3D visualization via a plane section.
    * Prepares files for visualization by OpenDX of the values of the field in
@@ -746,16 +752,19 @@ class Scalar : public Tensor {
    * @param umax [input] defines with {\tt umin} the range of the plane coordinate u 
    * @param vmin [input] defines with {\tt vmax} the range of the plane coordinate v 
    * @param vmax [input] defines with {\tt vmin} the range of the plane coordinate v 
-   * @param title [input] title for the graph
+   * @param title [input] title for the graph (for OpenDX legend)
    * @param filename [input] name for the file which will be the input for 
    *    OpenDX; the default 0x0 is transformed into "scalar_section"
+   * @param start_dx [input] determines whether OpenDX must be launched (as a
+   *     subprocess) to view the field; if set to {\tt false}, only input files
+   *     for future usage of OpenDX are created 
    * @param nu [input] number of points in the u direction (uniform sampling)   
    * @param nv [input] number of points in the v direction (uniform sampling)   
    *
    */
     void visu_section(const Tbl& plane, double umin, double umax, double vmin,
         double vmax, const char* title = 0x0, const char* filename = 0x0,
-        int nu = 200, int nv = 200) const ;   
+        bool start_dx = true, int nu = 200, int nv = 200) const ;   
 
 
 
