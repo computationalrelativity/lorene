@@ -33,6 +33,10 @@ char et_bin_vel_pot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/01/13 15:31:50  e_gourgoulhon
+ * Suppressed the desaliasing
+ *  (did not worked due to missing basis in ylm).
+ *
  * Revision 1.2  2002/12/10 14:44:21  k_taniguchi
  * Change the multiplication "*" to "%"
  *   and flat_scalar_prod to flat_scalar_prod_desal.
@@ -103,7 +107,7 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
     //  Computation of W^i = - A^2 h Gamma_n B^i/N
     //----------------------------------------------
 
-    Tenseur www = - a_car % hhh % gam_euler % bsn ; 
+    Tenseur www = - a_car * hhh * gam_euler * bsn ; 
     
     www.change_triad( mp.get_bvect_cart() ) ;	// components on the mapping
 						// Cartesian basis
@@ -118,7 +122,7 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
     for (int i=0; i<3; i++) {
 	v_orb.set(i) = www(i)(0, 0, 0, 0) ; 
     }
-    
+
     v_orb.set_triad( *(www.get_triad()) ) ;  
     v_orb.set_std_base() ;
    
@@ -142,15 +146,15 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
     Tenseur tmp_zeta = 1 - unsurc2 * zeta_h ;
     tmp_zeta.set_std_base() ;
 
-    Tenseur bb = tmp_zeta % ent.gradient_spher()
-		    + unsurc2 * zeta_h % beta.gradient_spher() ; 
+    Tenseur bb = tmp_zeta * ent.gradient_spher()
+		    + unsurc2 * zeta_h * beta.gradient_spher() ;
 		    
     Tenseur entmb = ent - beta ; 
 		    
-    Tenseur source = flat_scalar_prod_desal( www - v_orb, ent.gradient() )
-		     + unsurc2 * zeta_h % (
-			 flat_scalar_prod_desal( v_orb, entmb.gradient() )
-		       + flat_scalar_prod_desal( www, gam_euler.gradient() )
+    Tenseur source = flat_scalar_prod( www - v_orb, ent.gradient() )
+		     + unsurc2 * zeta_h * (
+			 flat_scalar_prod( v_orb, entmb.gradient() )
+		       + flat_scalar_prod( www, gam_euler.gradient() )
 		         / gam_euler ) ; 
 				 
     source.annule(nzet, nzm1) ; 
@@ -180,9 +184,9 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
     // Check of the solution  
     //---------------------------------------------------
     
-    Tenseur bb_dpsi0 = flat_scalar_prod_desal( bb, psi0.gradient_spher() ) ;
+    Tenseur bb_dpsi0 = flat_scalar_prod( bb, psi0.gradient_spher() ) ;
     
-    Cmp oper = zeta_h() % psi0().laplacien() + bb_dpsi0() ; 
+    Cmp oper = zeta_h() * psi0().laplacien() + bb_dpsi0() ; 
     
     source.set().va.ylm_i() ;
 
