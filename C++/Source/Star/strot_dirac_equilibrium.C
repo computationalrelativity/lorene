@@ -30,6 +30,9 @@ char strot_dirac_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/04/05 09:24:05  j_novak
+ * minor modifs
+ *
  * Revision 1.4  2005/03/10 09:39:19  j_novak
  * The order of resolution has been changed in the iteration step.
  *
@@ -428,16 +431,18 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
  // ** On logn and qqq?
  //--------------------------------------
 
-// if (mer >= 10) {
+ if (mer >= 10) {
    logn = relax * logn + relax_prev * logn_prev ;
 
    qqq = relax * qqq + relax_prev * qqq_prev ;
 
-   //}
+ }
 
  // Update of the metric quantities :
 
    update_metric() ;
+
+   maxabs(lnq, "ln(Q)") ;
 
 
  //---------------------------

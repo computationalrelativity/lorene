@@ -30,6 +30,9 @@ char strot_dirac_solvehij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/04/05 09:24:05  j_novak
+ * minor modifs
+ *
  * Revision 1.4  2005/02/17 17:32:16  f_limousin
  * Change the name of some quantities to be consistent with other classes
  * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
@@ -73,7 +76,9 @@ void Star_rot_Dirac::solve_hij(Sym_tensor_trans& hij_new) const {
     const Sym_tensor& tgam_uu = tgamma.con() ;    // {\tilde \gamma}^{ij}
     const Vector& tdln_psi_u = ln_psi.derive_con(tgamma) ; // tD^i ln(Psi)
     const Vector& tdnn_u = nn.derive_con(tgamma) ;       // tD^i N
-    const Scalar& div_beta = beta.divergence(mets) ;  // D_k beta^k
+//    const Scalar& div_beta = beta.divergence(mets) ;  // D_k beta^k
+    Scalar div_beta(mp) ; //##
+    div_beta.set_etat_zero() ;
 
     Scalar tmp(mp) ;
     Sym_tensor sym_tmp(mp, CON, bspher) ; 
@@ -228,7 +233,7 @@ void Star_rot_Dirac::solve_hij(Sym_tensor_trans& hij_new) const {
   Sym_tensor l_beta = beta.ope_killing_conf(mets) ; 
 
   sym_tmp = - l_beta.derive_lie(beta) ;
-  
+
   sym_tmp.inc_dzpuis() ; 
   
   // Final source:
@@ -247,7 +252,7 @@ void Star_rot_Dirac::solve_hij(Sym_tensor_trans& hij_new) const {
   
     Sym_tensor_trans source_hht(mp, bspher, mets) ;
     source_hht = source_hh ;
-//   const Sym_tensor_tt& source_htt = source_hh.transverse(mets, 0x0, 6).tt_part() ;
+ //  const Sym_tensor_tt& source_htt = source_hh.transverse(mets, 0x0, 4).tt_part() ;
     const Sym_tensor_tt& source_htt = source_hht.tt_part() ;
 
   maxabs(source_htt, "source_htt tot") ; 
@@ -255,6 +260,7 @@ void Star_rot_Dirac::solve_hij(Sym_tensor_trans& hij_new) const {
   cout << " Max( divergence of source_hh ) " << endl ;
   for (int i=1; i<=3; i++) 
       cout << max(abs(source_htt.divergence(mets)(i))) ;
+
 
   hij_new.trace_from_det_one(source_htt.poisson()) ;
   hij_new.dec_dzpuis(2) ;
