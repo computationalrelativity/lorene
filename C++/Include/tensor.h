@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2003/10/06 20:48:23  e_gourgoulhon
+ * Added methods down and up_down.
+ *
  * Revision 1.17  2003/10/06 16:17:29  j_novak
  * Calculation of contravariant derivative and Ricci scalar.
  *
@@ -498,6 +501,29 @@ class Tensor {
 	 * 
 	 */
 	Tensor up(int ind, const Metric& met) const ; 
+
+	/** Computes a new tensor by lowering an index of {\tt *this}
+	 *
+	 *  @param ind index to be lowered, with the 
+ 	 *   following convention : \\
+ 	 *    {\tt ind1} = 0 : first index of the tensor \\
+ 	 *    {\tt ind1} = 1 : second index of the tensor \\
+	 *    and so on... \\
+	 *   ({\tt ind} must be of covariant type ({\tt CON})).
+	 *  @param met metric used to lower the index (contraction with the
+	 *    twice covariant form of the metric on the index {\tt ind}). 
+	 * 
+	 */
+	Tensor down(int ind, const Metric& met) const ; 
+
+	/** Computes a new tensor by raising or lowering all the indices 
+	 *  of {\tt *this}.
+	 *
+	 *  @param met metric used to lower the contravariant indices
+	 *    and raising the covariant ones. 
+	 * 
+	 */
+	Tensor up_down(const Metric& met) const ; 
 
     // Accessors
     // ---------
