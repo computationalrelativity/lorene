@@ -30,6 +30,9 @@ char map_af_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/20 19:45:27  e_gourgoulhon
+ * Treatment of dzpuis in dsdt and stdsdp.
+ *
  * Revision 1.2  2003/10/15 10:34:07  e_gourgoulhon
  * Added new methods dsdt and stdsdp.
  *
@@ -231,6 +234,8 @@ void Map_af::dsdt(const Scalar& ci, Scalar& resu) const {
 		assert( ci.get_etat() == ETATQCQ ) ; 
 
 		resu = ci.get_spectral_va().dsdt() ; 	// d/dtheta
+		
+		resu.set_dzpuis( ci.get_dzpuis() ) ; 	// dzpuis unchanged
 	
     }
 
@@ -256,6 +261,8 @@ void Map_af::stdsdp(const Scalar& ci, Scalar& resu) const {
 
 		resu = ci.get_spectral_va().stdsdp() ; 	// 1/sin(theta) d/dphi
 	
+		resu.set_dzpuis( ci.get_dzpuis() ) ; 	// dzpuis unchanged
+
     }
 
 }
