@@ -35,6 +35,9 @@ char scalar_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/10/13 20:50:16  e_gourgoulhon
+ * Replaced "va.base" by "va.get_base()".
+ *
  * Revision 1.6  2003/10/10 15:57:29  j_novak
  * Added the state one (ETATUN) to the class Scalar
  *
@@ -100,7 +103,7 @@ void Scalar::div_r_ced() {
 	uu_ext.allocate_all() ;
 	uu_ext.annule(0,nzm1-1) ; // zero in all domains but the CED
 	uu_ext.set_domain(nzm1) = domain(nzm1) ; 
-	uu_ext.set_spectral_base(va.base) ; 
+	uu_ext.set_spectral_base(va.get_base()) ; 
 	uu_ext.mult_r_ced() ; // multiplication by r in the CED
 
 	// Division by r in all domains but the CED
@@ -202,7 +205,7 @@ void Scalar::div_rsint_ced() {
 	uu_ext.allocate_all() ;
 	uu_ext.annule(0,nzm1-1) ; // zero in all domains but the CED
 	uu_ext.set_domain(nzm1) = domain(nzm1) ; 
-	uu_ext.set_spectral_base(va.base) ; 
+	uu_ext.set_spectral_base(va.get_base()) ; 
 	uu_ext.mult_r_ced() ; // multiplication by r in the CED
 
 	// Division by sin(theta) in the CED :
