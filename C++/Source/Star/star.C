@@ -34,6 +34,10 @@ char star_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/02/27 09:36:46  f_limousin
+ * u_euler is now constructed on a cartesian basis instead
+ * of a spherical one.
+ *
  * Revision 1.4  2004/02/21 17:05:13  e_gourgoulhon
  * Method Scalar::point renamed Scalar::val_grid_point.
  * Method Scalar::set_point renamed Scalar::set_grid_point.
@@ -73,7 +77,7 @@ Star::Star(Map& mpi, int nzet_i, const Eos& eos_i)
 		   ener_euler(mpi), 
 		   s_euler(mpi), 
 		   gam_euler(mpi), 
-		   u_euler(mpi, CON, mp.get_bvect_spher()), 
+		   u_euler(mpi, CON, mp.get_bvect_cart()), 
 		   stress_euler(mpi, 2, CON, mp.get_bvect_spher()),
 		   logn(mpi), 
 		   nnn(mpi), 
@@ -122,6 +126,10 @@ Star::Star(Map& mpi, int nzet_i, const Eos& eos_i)
     stress_euler.set_etat_zero() ;
 
     // The metric is initialized to the flat one : 
+    Metric_flat flat(mp.flat_met_spher()) ;
+    flat.cov() ;
+    gamma = flat ;
+
     logn = 0 ; 
     nnn = 1 ; 
     nnn.std_spectral_base() ; 
@@ -167,7 +175,7 @@ Star::Star(Map& mpi, const Eos& eos_i, FILE* fich)
 		   ener_euler(mpi), 
 		   s_euler(mpi), 
 		   gam_euler(mpi), 
-		   u_euler(mpi, CON, mp.get_bvect_spher()), 
+		   u_euler(mpi, CON, mp.get_bvect_cart()), 
 		   stress_euler(mpi, 2, CON, mp.get_bvect_spher()), 
 		   logn(mpi, *(mpi.get_mg()), fich), 
 		   nnn(mpi), 
@@ -206,6 +214,8 @@ Star::Star(Map& mpi, const Eos& eos_i, FILE* fich)
     // ------------------------
     Scalar ent_file(mp, *(mp.get_mg()), fich) ; 
     ent = ent_file ; 
+    u_euler.set_etat_zero() ; 
+    stress_euler.set_etat_zero() ;
     nnn = 1 ;
     shift.set_etat_zero() ;
 
@@ -494,9 +504,6 @@ void Star::equation_of_state() {
     ener.std_spectral_base() ; 
     press.std_spectral_base() ; 
 
-    // The Eulerian quantities are obsolete
-    //## del_hydro_euler() ; 
-    
     // The derived quantities are obsolete
     del_deriv() ; 
     
