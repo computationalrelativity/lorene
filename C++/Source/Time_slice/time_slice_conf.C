@@ -30,6 +30,9 @@ char time_slice_conf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/05/10 09:10:05  e_gourgoulhon
+ * Added "adm_mass_evol.downdate(jtime)" in methods set_*.
+ *
  * Revision 1.9  2004/05/05 14:31:14  e_gourgoulhon
  * Method aa(): added *as a comment*  annulation of hh_point in the compactified
  * domain.
@@ -307,6 +310,7 @@ void Time_slice_conf::set_psi_del_q(const Scalar& psi_in) {
     qq_evol.downdate(jtime) ; 
     gam_dd_evol.downdate(jtime) ; 
     gam_uu_evol.downdate(jtime) ; 
+    adm_mass_evol.downdate(jtime) ;  
      
 }
 
@@ -330,6 +334,7 @@ void Time_slice_conf::set_psi_del_n(const Scalar& psi_in) {
     n_evol.downdate(jtime) ; 
     gam_dd_evol.downdate(jtime) ; 
     gam_uu_evol.downdate(jtime) ; 
+    adm_mass_evol.downdate(jtime) ;  
      
 }
 
@@ -354,6 +359,7 @@ void Time_slice_conf::set_qq_del_psi(const Scalar& qq_in) {
     }
     gam_dd_evol.downdate(jtime) ; 
     gam_uu_evol.downdate(jtime) ; 
+    adm_mass_evol.downdate(jtime) ;  
      
 }
 
@@ -364,6 +370,7 @@ void Time_slice_conf::set_qq_del_n(const Scalar& qq_in) {
 
     // Reset of quantities depending on Q:
     n_evol.downdate(jtime) ; 
+    adm_mass_evol.downdate(jtime) ;  
      
 }
 
@@ -408,6 +415,7 @@ void Time_slice_conf::set_hh(const Sym_tensor& hh_in) {
     }
     gam_dd_evol.downdate(jtime) ; 
     gam_uu_evol.downdate(jtime) ; 
+    adm_mass_evol.downdate(jtime) ;  
      
 }
 
