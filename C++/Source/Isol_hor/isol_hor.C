@@ -31,6 +31,9 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2005/03/24 17:05:34  f_limousin
+ * Small change
+ *
  * Revision 1.17  2005/03/24 16:50:28  f_limousin
  * Add parameters solve_shift and solve_psi in par_isol.d and in function
  * init_dat(...). Implement Isolhor::kerr_perturb().
@@ -671,8 +674,8 @@ void Isol_hor::update_aa() {
 
 void Isol_hor::kerr_perturb() {
 
-    Sym_tensor gam (gam().cov()) ;
-    Sym_tensor gamt (gam / gam(3,3)) ;
+    Sym_tensor gamm (gam().cov()) ;
+    Sym_tensor gamt (gamm / gamm(3,3)) ;
 
     Metric metgamt (gamt) ;
     met_gamt = metgamt ;
