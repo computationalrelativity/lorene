@@ -30,6 +30,9 @@ char sh_pvect_r_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/12/23 16:00:10  j_novak
+ * Modif. comments.
+ *
  * Revision 1.2  2004/05/10 15:36:42  j_novak
  * Corrected a missing #include
  *
@@ -53,11 +56,18 @@ char sh_pvect_r_C[] = "$Header$" ;
 /*
  * 
  * Renvoie une ou 2 solution homogene
- *  Si base_r = R_CHEB deux solutions (x+echelle)^l dans (0, *) et
- *				1/(x+echelle)^(l+1) dans (1, *)
- *  Si base_r = R_CHEBU 1 solution (x-1)^l+1 dans (*) 
- *  Si base_r = R_CHEBP ou R_CHEBI x^l dans (*)
+ * Si l <> 0 :
+ *  Si base_r = R_CHEB deux solutions (x+echelle)^(l-1) dans (0, *) et
+ *				1/(x+echelle)^(l+2) dans (1, *)
+ *  Si base_r = R_CHEBU 1 solution (x-1)^(l+2) dans (*) 
+ *  Si base_r = R_CHEBP ou R_CHEBI x^(l-1) dans (*)
  * 
+ * Si l = 0:
+ *  Si base_r = R_CHEB deux solutions (x+echelle) dans (0, *) et
+ *				1/(x+echelle)^(l+2) dans (1, *)
+ *  Si base_r = R_CHEBU 1 solution (x-1)^(l+2) dans (*) 
+ *  Si base_r = R_CHEBP ou R_CHEBI x dans (*)
+ *
  * Entree : 
  *	n : nbre de points en r
  *	l : nbre quantique associe
