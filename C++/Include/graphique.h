@@ -32,6 +32,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/05/11 20:08:11  e_gourgoulhon
+ * des_evol: modified the ordering of the argument list; the default
+ * value of closeit is now 'false'.
+ * New version of des_evol without specifying the index range.
+ *
  * Revision 1.13  2004/04/05 14:41:38  e_gourgoulhon
  * Added functions des_meridian.
  *
@@ -1706,30 +1711,52 @@ void des_vect_bin_z(const Tenseur& vv1, const Tenseur& vv2, double x0,
  * @{
  */
 
-/** Plots the variation of some quantity against time
+/** Plots the variation of some quantity against time.
  *
  *  @param uu [input] evolving scalar quantity
- *  @param j_min [input] minimal time step for the plot
- *  @param j_max [input] maximal time step for the plot
- *  @param closeit [input] determines whether the graphic device must be closed or not
- *      after the plot has been performed
  *  @param nomy [input] y legend of the figure (default value = 0x0,  
  *		        corresponds to no y legend)
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
- *  @param show_time [input] determines whether the x axis is labelled with
- *      time or with time step
  *  @param ngraph [input] Index of the graphic device (in the range [0,99])
  *  to be used for the plot: if this device has never been used or is closed, 
  *    it will be opened. 
+ *  @param closeit [input] determines whether the graphic device must be closed or not
+ *      after the plot has been performed
+ *  @param show_time [input] determines whether the x axis is labelled with
+ *      time or with time step
+ *  @param nomx [input] x legend of the figure (default value = 0x0,  
+ *		        corresponds to "t" if \c show_time=true  and
+ *                      to "j" if \c show_time=false )
+ */
+void des_evol(const Evolution<double>& uu, const char* nomy = 0x0, 
+    const char* title = 0x0, int ngraph = 0,  bool closeit = false, 
+    bool show_time = true, const char* nomx = 0x0) ;
+
+/** Plots the variation of some quantity against time on a specified time interval.
+ *
+ *  @param uu [input] evolving scalar quantity
+ *  @param j_min [input] minimal time step for the plot
+ *  @param j_max [input] maximal time step for the plot
+ *  @param nomy [input] y legend of the figure (default value = 0x0,  
+ *		        corresponds to no y legend)
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ *  @param ngraph [input] Index of the graphic device (in the range [0,99])
+ *  to be used for the plot: if this device has never been used or is closed, 
+ *    it will be opened. 
+ *  @param closeit [input] determines whether the graphic device must be closed or not
+ *      after the plot has been performed
+ *  @param show_time [input] determines whether the x axis is labelled with
+ *      time or with time step
  *  @param nomx [input] x legend of the figure (default value = 0x0,  
  *		        corresponds to "t" if \c show_time=true  and
  *                      to "j" if \c show_time=false )
  */
 void des_evol(const Evolution<double>& uu, int j_min, int j_max, 
-    bool closeit = true, const char* nomy = 0x0, 
-    const char* title = 0x0, bool show_time = true,
-    int ngraph = 0, const char* nomx = 0x0) ;
+    const char* nomy = 0x0, const char* title = 0x0, 
+    int ngraph = 0, bool closeit = false, 
+    bool show_time = true, const char* nomx = 0x0) ;
 
 
 /** @} */
