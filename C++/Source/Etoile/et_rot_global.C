@@ -31,6 +31,9 @@ char et_rot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/11/03 16:47:13  e_gourgoulhon
+ * Corrected error in grv2() in the Newtonian case.
+ *
  * Revision 1.2  2002/04/05 09:09:37  j_novak
  * The inversion of the EOS for 2-fluids polytrope has been modified.
  * Some errors in the determination of the surface were corrected.
@@ -239,9 +242,15 @@ double Etoile_rot::grv2() const {
 	    	cout << f_unit << msol << km << mevpfm3 << endl ;
 		}
 
-        Tenseur sou_m =  2 * qpig * a_car * (press + (ener_euler+press)
+		Tenseur sou_m(mp) ; 
+		if (relativistic) {
+			sou_m =  2 * qpig * a_car * (press + (ener_euler+press)
         						* uuu*uuu ) ;
-        						
+        }
+		else {
+			sou_m = 2 * qpig * (press + nbar * uuu*uuu ) ;
+		}
+														        						
         Tenseur sou_q =  1.5 * ak_car
         				 - flat_scalar_prod(logn.gradient_spher(),
 						     				logn.gradient_spher() ) ;	
