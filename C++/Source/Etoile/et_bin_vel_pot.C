@@ -33,6 +33,9 @@ char et_bin_vel_pot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/04/08 17:02:00  f_limousin
+ * Modif to avoid an error in the compilation
+ *
  * Revision 1.7  2004/04/08 16:52:58  f_limousin
  * Minor change
  *
@@ -352,8 +355,7 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax, C
 	
 	erreur = diffrel(laplacien_psi0, source())(0) ; 
 
-	cout << "Check of the resolution of the continuity equation 
-                 for strange stars: " 
+	cout << "Check of the resolution of the continuity equation for strange stars: " 
 	     << endl ; 
 	cout << "norme(source) : " << norme(source())(0) << endl 
 	     << "Error in the solution : " << erreur << endl ; 
