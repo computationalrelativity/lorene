@@ -30,6 +30,9 @@ char time_slice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/05/05 14:26:25  e_gourgoulhon
+ * Minor modif. in operator>>(ostream& ).
+ *
  * Revision 1.7  2004/04/07 07:58:21  e_gourgoulhon
  * Constructor as Minkowski slice: added call to std_spectral_base()
  * after setting the lapse to 1.
@@ -295,12 +298,13 @@ void Time_slice::operator=(const Time_slice& tin) {
 
 ostream& Time_slice::operator>>(ostream& flux) const {
 
-    flux << '\n' ;
-    flux << "Lorene class : " << typeid(*this).name() << '\n' ; 
-    flux << "Time label t = " << the_time[jtime] << '\n' ; 
-    flux << "Index of time step j = " << jtime << '\n' ; 
-    flux << "------------------------------------------------------------\n" 
-        <<  "Max. of absolute values of the various fields in each domain: \n" ;
+    flux << "\n------------------------------------------------------------\n" 
+         << "Lorene class : " << typeid(*this).name() << '\n' ; 
+    flux << "Number of stored slices : " << depth  
+        << "     order of time scheme : " << scheme_order << '\n' 
+        << "Time label t = " << the_time[jtime]  
+        << "               index of time step j = " << jtime << '\n' << '\n' 
+        << "Max. of absolute values of the various fields in each domain: \n" ;
     if (gam_dd_evol.is_known(jtime)) {
         maxabs( gam_dd_evol[jtime], "gam_{ij}", flux) ;
     }
