@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/10/16 15:25:00  e_gourgoulhon
+ * Changes in documentation.
+ *
  * Revision 1.10  2003/10/16 14:21:33  j_novak
  * The calculation of the divergence of a Tensor is now possible.
  *
@@ -222,13 +225,13 @@ class Vector_divfree: public Vector {
 	/** Field $\eta$ such that the angular components $(V^r,V^\theta)$
 	 * of the vector are written:
 	 * \begin{equation}
-	 *	V^\theta = {1\over r} \left( {\partial \eta \over \partial\theta}
-	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right)
+	 *	V^\theta =   {\partial \eta \over \partial\theta}
+	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} 
 	 * \end{equation} 
 	 * \begin{equation}
-	 *	V^\varphi = {1\over r} \left( {1\over\sin\theta} 
+	 *	V^\varphi =  \left( {1\over\sin\theta} 
 	 *				{\partial \eta \over \partial\varphi}
-	 *				+ {\partial \mu \over \partial\theta} \right)
+	 *				+ {\partial \mu \over \partial\theta} 
 	 * \end{equation} 
 	 */
 	mutable const Scalar* p_eta ;
@@ -236,13 +239,13 @@ class Vector_divfree: public Vector {
 	/** Field $\mu$ such that the angular components $(V^r,V^\theta)$
 	 * of the vector are written:
 	 * \begin{equation}
-	 *	V^\theta = {1\over r} \left( {\partial \eta \over \partial\theta}
-	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right)
+	 *	V^\theta =  {\partial \eta \over \partial\theta}
+	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} 
 	 * \end{equation} 
 	 * \begin{equation}
-	 *	V^\varphi = {1\over r} \left( {1\over\sin\theta} 
+	 *	V^\varphi =  {1\over\sin\theta} 
 	 *				{\partial \eta \over \partial\varphi}
-	 *				+ {\partial \mu \over \partial\theta} \right)
+	 *				+ {\partial \mu \over \partial\theta} 
 	 * \end{equation} 
 	 */
 	mutable const Scalar* p_mu ;
@@ -308,13 +311,13 @@ class Vector_divfree: public Vector {
 	/** Gives the field $\eta$ such that the angular components $(V^r,V^\theta)$
 	 * of the vector are written:
 	 * \begin{equation}
-	 *	V^\theta = {1\over r} \left( {\partial \eta \over \partial\theta}
-	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right)
+	 *	V^\theta =  {\partial \eta \over \partial\theta}
+	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} 
 	 * \end{equation} 
 	 * \begin{equation}
-	 *	V^\varphi = {1\over r} \left( {1\over\sin\theta} 
+	 *	V^\varphi =  {1\over\sin\theta} 
 	 *				{\partial \eta \over \partial\varphi}
-	 *				+ {\partial \mu \over \partial\theta} \right)
+	 *				+ {\partial \mu \over \partial\theta} 
 	 * \end{equation} 
 	 */
 	const Scalar& eta() const ;
@@ -322,13 +325,13 @@ class Vector_divfree: public Vector {
 	/** Gives the field $\mu$ such that the angular components $(V^r,V^\theta)$
 	 * of the vector are written:
 	 * \begin{equation}
-	 *	V^\theta = {1\over r} \left( {\partial \eta \over \partial\theta}
-	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right)
+	 *	V^\theta =  {\partial \eta \over \partial\theta}
+	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi}
 	 * \end{equation} 
 	 * \begin{equation}
-	 *	V^\varphi = {1\over r} \left( {1\over\sin\theta} 
+	 *	V^\varphi =  {1\over\sin\theta} 
 	 *				{\partial \eta \over \partial\varphi}
-	 *				+ {\partial \mu \over \partial\theta} \right)
+	 *				+ {\partial \mu \over \partial\theta} 
 	 * \end{equation} 
 	 */
 	const Scalar& mu() const ;
