@@ -340,11 +340,14 @@ int main(){
     control.set(6) = precis_adapt ; 
 
     Tbl diff(8) ;     
-
+    
+    // temporaire
+    double Q0 = 10. ;
+    double a_j0 = 0. ;
 
     star.equilibrium_mag(ent_c, omega, fact_omega, nzadapt, ent_limit, 
 			 icontrol, control, mbar_wanted, aexp_mass, diff, 
-			 0., 1.e4, &f_j, &M_j) ;
+			 Q0, a_j0, &f_j, &M_j) ;
 
      
     cout << endl << "Final star : " 

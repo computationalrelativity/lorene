@@ -32,6 +32,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/05/17 15:08:01  e_marcq
+ *
+ * Rotation progressive plug-in, units corrected, Q and a_j new member data
+ *
  * Revision 1.4  2002/05/15 09:53:59  j_novak
  * First operational version
  *
@@ -78,6 +82,9 @@ class Et_rot_mag : public Etoile_rot {
   Tenseur Jp_em;
   Tenseur Srr_em; // Stt_em = - Srr_em...
   Tenseur Spp_em; 
+
+  double Q ;
+  double a_j ;
 
   
   // Constructors - Destructor
@@ -129,6 +136,8 @@ class Et_rot_mag : public Etoile_rot {
   const Tenseur& get_Jpem() const {return Jp_em ;} ;
   const Tenseur& get_Srrem() const {return Srr_em ; } ;
   const Tenseur& get_Sppem() const {return Spp_em ;} ;
+  const double get_Q() const {return Q ;} ;
+  const double get_a_j() const {return a_j ;} ;
 
   // Outputs
   // -------
@@ -157,7 +166,7 @@ class Et_rot_mag : public Etoile_rot {
   virtual double grv2() const ;	/// Error on the virial identity GRV2
   virtual double tsw() const ; // Ratio T/W
   double MagMom() const ; // Magnetic Momentum
-  double Q_comput() const ; // Computed charge
+  double Q_comput() const; // Computed charge
   double GyroMag() const ; // Gyromagnetic ratio
 
   /** Error on the virial identity GRV3.
@@ -204,16 +213,17 @@ class Et_rot_mag : public Etoile_rot {
    *  {\tt ener\_euler}, {\tt s\_euler}. 
    * 
    */
-  virtual void magnet_comput(const double Q, const double a_j, 
-			     Cmp (*f_j)(const Cmp& x, const double a_j), 
-			     Param& par_poisson_At, Param& par_poisson_Avect) ;
+
+  virtual void magnet_comput(Cmp (*f_j)(const Cmp& x, const double a_j), 
+		      Param& par_poisson_At, Param& par_poisson_Avect) ;
 	
   void equilibrium_mag(double ent_c, double omega0, double fact_omega, 
-		     int nzadapt, const Tbl& ent_limit, const Itbl& icontrol, 
-		     const Tbl& control, double mbar_wanted, double aexp_mass, 
-		     Tbl& diff, const double Q, const double a_j, 
-		     Cmp (*f_j)(const Cmp& x, const double a_j), 
-		     Cmp (*M_j)(const Cmp& x,const double a_j)) ;
+		 int nzadapt, const Tbl& ent_limit, const Itbl& icontrol, 
+		 const Tbl& control, double mbar_wanted, double aexp_mass, 
+		 Tbl& diff, const double Q0, const double a_j0, 
+		       Cmp (*f_j)(const Cmp& x, const double a_j), 
+		       Cmp (*M_j)(const Cmp& x,const double a_j));
+
 };
 
 #endif

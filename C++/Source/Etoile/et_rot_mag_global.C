@@ -28,9 +28,15 @@
  */
 
 
+char et_rot_global_C[] = "$Header$" ;
+
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2002/05/17 15:08:01  e_marcq
+ *
+ * Rotation progressive plug-in, units corrected, Q and a_j new member data
+ *
  * Revision 1.7  2002/05/16 13:27:11  j_novak
  * *** empty log message ***
  *
@@ -64,7 +70,7 @@
 
 
 void Et_rot_mag::MHD_comput() {
-  // Calcule les grandeurs du tenseur impulsion-energie EM a partir des champs
+// Calcule les grandeurs du tenseur impulsion-energie EM a partir des champs
   #include"unites_mag.h"
   if (mu0<0.) { //to avoid compilation warnings
     cout << qpig << f_unit << msol << km << mevpfm3 << endl ; 
@@ -98,13 +104,10 @@ void Et_rot_mag::MHD_comput() {
 }
 
 Tenseur Et_rot_mag::Elec() const {
-  // Penser à redimensionner.
-
 
   Cmp E_r(A_t); Cmp E_t(A_t);
-  E_r = 1/nnn()*(A_t.dsdr()+nphi()*A_phi.dsdr()) ;
-  E_t = 1/nnn()*(A_t.srdsdt()+nphi()*A_phi.srdsdt()) ;
-  E_t.mult_r() ; /// ??? homogeneite ?
+  E_r = bbb()/(a_car()*nnn())*(A_t.dsdr()+nphi()*A_phi.dsdr()) ;
+  E_t = bbb()/(a_car()*nnn())*(A_t.srdsdt()+nphi()*A_phi.srdsdt()) ;
 
   Tenseur E(mp, 1, CON, mp.get_bvect_spher()) ;
   E.set_etat_qcq() ;
@@ -112,17 +115,16 @@ Tenseur Et_rot_mag::Elec() const {
   E.set(1) = E_t ;
   E.set(2) = 0. ;
 
-    return E*elec_unit ;
+    return E*elec_unit*1e12 ;
 
 }
 
 Tenseur Et_rot_mag::Magn() const {
   // À redimensionner.
-  Cmp B_r(A_t); Cmp B_t(A_t);
-  B_r = 1/bbb()*A_phi.srdsdt();
+  Cmp B_r(A_phi); Cmp B_t(A_phi);
+  B_r = 1/(a_car()*a_car())*A_phi.srdsdt();
   B_r.div_rsint();
-  B_t = 1/bbb()*A_phi.dsdr();
-  B_t.mult_r();
+  B_t = -1/(a_car()*a_car())*A_phi.dsdr();
   B_t.div_rsint();
 
   Tenseur B(mp, 1, CON, mp.get_bvect_spher()) ;
@@ -131,7 +133,7 @@ Tenseur Et_rot_mag::Magn() const {
   B.set(1) = B_t ;
   B.set(2) = 0. ;
 
-    return B*mag_unit ;
+    return B*mag_unit*1e9 ;
 
 }
 
@@ -140,7 +142,6 @@ double Et_rot_mag::MagMom() const {
   // idem : redimensionner comme il faut.
 
   int Z = mp.get_mg()->get_nzone();   
-  double mu0= 0.0000001 ;
   double mm ;
 
   // régler la base de A_phi ?
@@ -160,12 +161,16 @@ double Et_rot_mag::MagMom() const {
   delete [] asymp ;
   }
 
-  return mm*mag_unit*r_unit*r_unit ;
+  return mm*j_unit*pow(r_unit,4)/1e27 ;
 
 }
 
 double Et_rot_mag::Q_comput() const {
-  int Z = mp.get_mg()->get_nzone();
+  double Z = mp.get_mg()->get_nzone() ;
+  
+  if(A_t.get_etat()==ETATZERO) {
+    return 0 ;
+  }else{
   Valeur** asymp = A_t.asymptot(1) ;
   double Q_c = -4*M_PI/mu0*(*asymp[1])(Z-1,0,0,0) ;
   delete asymp[0] ;
@@ -173,11 +178,13 @@ double Et_rot_mag::Q_comput() const {
 
   delete [] asymp ;
 
-  return Q_c * j_unit/v_unit*pow(r_unit,3) ;
+  return Q_c * (j_unit/v_unit*pow(r_unit,3))/(1e23/c_si) ;}
   }
 
 double Et_rot_mag::GyroMag() const {
-  return 2*MagMom()*mass_b()/(Q_comput()*angu_mom()); 
+  // Q et MM en SI, J et Mg en Lorene : facteur de conversion
+
+  return 2*MagMom()*mass_g()/(Q_comput()*angu_mom()*c_si*pow(r_unit,2)); 
   }
 			//----------------------------//
 			//	Gravitational mass    //
@@ -491,4 +498,13 @@ double Et_rot_mag::mom_quad() const {
     return *p_mom_quad ; 
 
 }
+
+
+
+
+
+
+
+
+
 

@@ -32,6 +32,10 @@ char et_rot_mag_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2002/05/17 15:08:01  e_marcq
+ *
+ * Rotation progressive plug-in, units corrected, Q and a_j new member data
+ *
  * Revision 1.5  2002/05/16 10:02:09  j_novak
  * Errors in stress energy tensor corrected
  *
@@ -68,8 +72,7 @@ extern "C" {
 
 // Algo du papier de 1995
 
-void Et_rot_mag::magnet_comput(const double Q, const double a_j,
-			       Cmp (*f_j)(const Cmp& x,const double a_j), 
+void Et_rot_mag::magnet_comput(Cmp (*f_j)(const Cmp& x,const double a_j), 
 			       Param& par_poisson_At, 
 			       Param& par_poisson_Avect){
   double relax_mag = 0.5 ;

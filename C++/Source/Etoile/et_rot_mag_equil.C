@@ -34,6 +34,10 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2002/05/17 15:08:01  e_marcq
+ *
+ * Rotation progressive plug-in, units corrected, Q and a_j new member data
+ *
  * Revision 1.5  2002/05/16 10:02:09  j_novak
  * Errors in stress energy tensor corrected
  *
@@ -71,7 +75,7 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 void Et_rot_mag::equilibrium_mag(double ent_c, double omega0, 
      double fact_omega, int nzadapt, const Tbl& ent_limit, 
      const Itbl& icontrol, const Tbl& control, double mbar_wanted, 
-     double aexp_mass, Tbl& diff, const double Q, const double a_j, 
+     double aexp_mass, Tbl& diff, const double Q0, const double a_j0, 
      Cmp (*f_j)(const Cmp& x, const double a_j), 
      Cmp (*M_j)(const Cmp& x, const double a_j)) {
 			     
@@ -280,12 +284,24 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
     // Initializations
     // ---------------
 
+    // Temporaire : lecture dans fichier a implementer
+    double Q_ini= 0;
+    double a_j_ini = 0;
+    int mer_fix_mag = 15 ;
+    int mer_change_mag = 10 ;
+    int mer_mag = 8 ;
+
     // Initial angular velocity
     omega = 0 ; 
-  
+    Q = 0 ;
+    a_j = 0 ;
+
     double accrois_omega = (omega0 - omega_ini) / 
 			    double(mer_fix_omega - mer_change_omega) ; 
-
+    double accrois_Q = (Q0 - Q_ini) /
+                            double(mer_fix_mag - mer_change_mag);
+    double accrois_a_j = (a_j0 - a_j_ini) / 
+                            double(mer_fix_mag - mer_change_mag); 
 
     update_metric() ;	// update of the metric coefficients
 
@@ -380,11 +396,27 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 
 	}
 
+	if (mer >= mer_mag) {
+	  if (mer < mer_change_mag) {
+	    Q   = Q_ini ;
+	    a_j = a_j_ini ;
+	  }
+	  else {
+	    if (mer <= mer_fix_mag) {
+	      Q = Q_ini + accrois_Q * (mer - mer_change_mag) ;
+	      a_j = a_j_ini + accrois_a_j * (mer - mer_change_mag) ;
+	    }
+	  }
+	}
+
+
 	//-----------------------------------------------
 	// Computation of electromagnetic potentials :
 	// -------------------------------------------
 
-	magnet_comput(Q, a_j, f_j, par_poisson_At, par_poisson_Avect) ;
+	magnet_comput(f_j, par_poisson_At, par_poisson_Avect) ;
+
+	cout << "mer, Q, a_j : " << mer << ";" << Q << ";" << a_j << endl ;
 
 	MHD_comput() ; // computes EM contributions to T_{mu,nu}
 

@@ -32,6 +32,10 @@ char et_rot_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2002/05/17 15:08:01  e_marcq
+ *
+ * Rotation progressive plug-in, units corrected, Q and a_j new member data
+ *
  * Revision 1.6  2002/05/16 13:27:11  j_novak
  * *** empty log message ***
  *
@@ -54,14 +58,13 @@ char et_rot_mag_C[] = "$Header$" ;
  *
  */
 
-
 // Headers C
 #include "math.h"
 
 // Headers Lorene
 #include "et_rot_mag.h"
 #include "utilitaires.h"
-
+#include "unites_mag.h"
 
 			    //--------------//
 			    // Constructors //
@@ -72,15 +75,14 @@ char et_rot_mag_C[] = "$Header$" ;
 
 Et_rot_mag::Et_rot_mag(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i)
   : Etoile_rot(mp_i, nzet_i, relat, eos_i),
-    A_t(mp_i),
     A_phi(mp_i),
+    A_t(mp_i),
     j_t(mp_i),
     j_phi(mp_i),
     E_em(mp_i),
     Jp_em(mp_i),
     Srr_em(mp_i),
     Spp_em(mp_i)
-
 
 {
 
@@ -89,8 +91,10 @@ Et_rot_mag::Et_rot_mag(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i)
   j_t = 0 ;
   j_phi = 0 ;
 
+  Q = 0 ;
+  a_j = 0 ;
 
-  set_der_0x0() ;  
+set_der_0x0() ;  
 }
 
 
@@ -99,14 +103,14 @@ Et_rot_mag::Et_rot_mag(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i)
 
 Et_rot_mag::Et_rot_mag(const Et_rot_mag& et)
   : Etoile_rot(et),
-    A_t(et.A_t),
-    A_phi(et.A_phi),
-    j_t(et.j_t),
-    j_phi(et.j_phi),
-    E_em(et.E_em),
-    Jp_em(et.Jp_em),
-    Srr_em(et.Srr_em),
-    Spp_em(et.Spp_em)
+  A_phi(et.A_phi),
+  A_t(et.A_t),
+  j_phi(et.j_phi),
+  j_t(et.j_t),
+  E_em(et.E_em),
+  Jp_em(et.Jp_em),
+  Srr_em(et.Srr_em),
+  Spp_em(et.Spp_em)
 
 {
   set_der_0x0() ;
@@ -159,14 +163,16 @@ void Et_rot_mag::operator=(const Et_rot_mag& et) {
 
   // Assignement of quantities common to all the derived classes of Etoile
   Etoile_rot::operator=(et) ;
-  A_t    = et.A_t    ;
   A_phi  = et.A_phi  ;
-  j_t    = et.j_t    ;
+  A_t    = et.A_t    ;
   j_phi  = et.j_phi  ;
+  j_t    = et.j_t    ;
   E_em   = et.E_em   ;
   Jp_em  = et.Jp_em  ;
   Srr_em = et.Srr_em ;
   Spp_em = et.Spp_em ;
+  Q      = et.Q      ;
+  a_j    = et.a_j    ;
 
   del_deriv() ;
 
@@ -189,8 +195,10 @@ ostream& Et_rot_mag::operator>>(ostream& ost) const {
   ost << endl ;
   ost << "Electromagnetic quantities" << endl ;
   ost << "----------------------" << endl ;
-  ost << "In construction..." << endl ;
+  ost << "In construction. ALL OUTPUTS IN SI UNITS HERE" << endl ;
   ost << endl ;
+  ost << "Prescribed charge : " << Q*j_unit*pow(r_unit,3)/v_unit << endl;
+  ost << "Prescribed current amplitude : " << a_j*j_unit << endl ;
   ost << "Magnetic Momentum : " << MagMom() << endl ;
   ost << "Radial magnetic field polar value : " << 
     Magn()(0).va.val_point(l_surf()(0,0),xi_surf()(0,0),0.,0.) << endl;
@@ -201,9 +209,9 @@ ostream& Et_rot_mag::operator>>(ostream& ost) const {
   ost << "Radial electric field polar value : " << 
     Elec()(0).va.val_point(l_surf()(0,0),xi_surf()(0,0),0.,0.) << endl;
 
-
   int theta_eq = mp.get_mg()->get_nt(nzet-1)-1 ;
 
+  ost << "Central pressure : "<< 1/(2*mu_si)*(pow(Magn()(0)(0,0,0,0),2)+pow(Magn()(1)(0,0,0,0),2)+pow(Magn()(2)(0,0,0,0),2)) << endl ;
   ost << "Tangent magnetic field equatorial value : " << 
   Magn()(1).va.val_point(l_surf()(0,theta_eq),xi_surf()(0,theta_eq),M_PI_2,0.) 
       << endl;
@@ -219,6 +227,13 @@ ostream& Et_rot_mag::operator>>(ostream& ost) const {
 
   return ost ;
 }
+
+
+
+
+
+
+
 
 
 
