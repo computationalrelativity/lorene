@@ -34,6 +34,9 @@ char star_bin_vel_pot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/06/07 16:26:01  f_limousin
+ * Many modif...
+ *
  * Revision 1.1  2004/04/08 16:34:08  f_limousin
  * First version
  *
@@ -102,24 +105,20 @@ double Star_bin::velocity_potential(int mermax, double precis, double relax) {
     Scalar zeta_h( ent / dndh_log ) ;
     zeta_h.std_spectral_base() ;
 
-    Scalar tmp_zeta = 1 - zeta_h ;
-    tmp_zeta.std_spectral_base() ;
-
-    Vector bb = tmp_zeta * ent.derive_con(flat)
-		    + zeta_h * logn.derive_con(flat) ;
-		    
+    Vector bb = ent.derive_con(gamma) ;
+		  		    
     Scalar entmnu = ent - logn ; 
 
-    const Coord& xe = mp.x ; 
-    const Coord& ye = mp.y ; 
-    const Coord& ze = mp.z ; 
+    const Coord& xx = mp.x ; 
+    const Coord& yy = mp.y ; 
+    const Coord& zz = mp.z ; 
 
-    Vector re (mp, COV, mp.get_bvect_cart()) ;
-    re.set(1) = xe ;
-    re.set(2) = ye ;
-    re.set(3) = ze ;
+    Vector rr (mp, COV, mp.get_bvect_cart()) ;
+    rr.set(1) = xx ;
+    rr.set(2) = yy ;
+    rr.set(3) = zz ;
     
-    Scalar psi = psi0 + contract(www, 0, re, 0) ;
+    Scalar psi = psi0 + contract(www, 0, rr, 0) ;
     psi.std_spectral_base() ;
 
     Scalar laplacian_psi = - contract(psi.derive_con(gamma).derive_cov(gamma), 
@@ -128,18 +127,17 @@ double Star_bin::velocity_potential(int mermax, double precis, double relax) {
     laplacian_psi.inc_dzpuis() ;
     laplacian_psi += psi0.laplacian() ;
 
-    Scalar dhdpsi = contract(contract(flat.con() - gamma.con(), 0, 
-		       ent.derive_cov(flat), 0), 0, psi.derive_cov(flat), 0) ;
+//    Scalar dhdpsi = contract(contract(flat.con() - gamma.con(), 0, 
+//		       ent.derive_cov(flat), 0), 0, psi.derive_cov(flat), 0) ;
 
     www.change_triad(mp.get_bvect_spher()) ;
     v_orb.change_triad(mp.get_bvect_spher()) ;
 
     // See Eq (63) from Gourgoulhon et al. (2001)
-    Scalar source = sprod( www - v_orb, ent.derive_con(flat) )
-	+ zeta_h * (sprod( v_orb, entmnu.derive_con(flat) )
-	+ sprod( www, gam_euler.derive_con(flat) )
-		    / gam_euler ) 
-	+ zeta_h * laplacian_psi + dhdpsi ; 
+    Scalar source = contract(www - v_orb, 0, ent.derive_cov(flat), 0)
+	+ zeta_h * (contract(psi.derive_con(gamma),0,entmnu.derive_cov(flat),0)
+		 + contract(www, 0, gam_euler.derive_cov(flat), 0)/gam_euler ) 
+	+ zeta_h * laplacian_psi ; 
 
     www.change_triad(mp.get_bvect_cart()) ;
     v_orb.change_triad(mp.get_bvect_cart()) ;
