@@ -30,6 +30,9 @@ char phys_param_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/03/03 10:10:14  f_limousin
+ * Add the function area_hor().
+ *
  * Revision 1.7  2005/02/07 10:35:42  f_limousin
  * Minor changes.
  *
@@ -62,7 +65,6 @@ char phys_param_C[] = "$Header$" ;
 #include <assert.h>
 
 // Lorene headers
-#include "time_slice.h"
 #include "isol_hor.h"
 #include "metric.h"
 #include "evolution.h"
@@ -73,8 +75,7 @@ char phys_param_C[] = "$Header$" ;
 #include "utilitaires.h"
 
 
-
-Vector Isol_hor::radial_vect_hor()  {
+const Vector Isol_hor::radial_vect_hor() const {
 
   Vector get_radial_vect (ff.get_mp(), CON, *(ff.get_triad()) ) ;
        
@@ -93,8 +94,9 @@ Vector Isol_hor::radial_vect_hor()  {
 
 }
 
+
 // Think of defining this as a pointer
-Vector Isol_hor::tradial_vect_hor()  {
+const Vector Isol_hor::tradial_vect_hor() const {
 
   Vector get_radial_vect (ff.get_mp(), CON, *(ff.get_triad()) ) ;
        
@@ -114,20 +116,20 @@ Vector Isol_hor::tradial_vect_hor()  {
 }
 
 
-Scalar Isol_hor::b_tilde() {
+const Scalar Isol_hor::b_tilde()const {
 
-  Scalar tmp = contract( beta(), 0, met_gamt.radial_vect().down(0, met_gamt), 0) ;
+  Scalar tmp = contract( beta(), 0, met_gamt.radial_vect()
+			 .down(0, met_gamt), 0) ;
   
   return tmp ;
 
 }
 
 
-
-
-Scalar Isol_hor::darea_hor() {
+const Scalar Isol_hor::darea_hor() const {
   
-  Scalar tmp = sqrt( gam_dd()(2,2) * gam_dd()(3,3) - gam_dd()(2,3) * gam_dd()(2,3)) ;
+  Scalar tmp = sqrt( gam_dd()(2,2) * gam_dd()(3,3) - gam_dd()(2,3) 
+		     * gam_dd()(2,3)) ;
   
   tmp.std_spectral_base() ;
   
@@ -135,13 +137,22 @@ Scalar Isol_hor::darea_hor() {
   
 }
 
+double Isol_hor::area_hor() const {
+    
+    Scalar integrand (darea_hor()) ;
+    integrand.raccord(1) ;
+
+    return mp.integrale_surface(integrand, radius + 1e-15) ;
+
+}
 
 
-double Isol_hor::radius_hor()  {
+double Isol_hor::radius_hor() const {
 
   Map_af map_affine (ff.get_mp()) ; 
 
-  double resu =  map_affine.integrale_surface(darea_hor(), 1.0000000001) / (4. * M_PI);
+  double resu =  map_affine.integrale_surface(darea_hor(), radius + 1e-15) 
+      / (4. * M_PI);
 
   resu = pow(resu, 1./2.) ;
 
@@ -150,9 +161,7 @@ double Isol_hor::radius_hor()  {
 }
 
 
-
-
-double Isol_hor::ang_mom_hor() {
+double Isol_hor::ang_mom_hor()const {
 
 
   // Vector \partial_phi
@@ -171,9 +180,11 @@ double Isol_hor::ang_mom_hor() {
   phi.std_spectral_base() ;
  
   
-  Scalar k_rphi = contract(contract( radial_vect_hor(), 0, k_dd(), 0), 0, phi, 0) / (8. * M_PI) ;
+  Scalar k_rphi = contract(contract( radial_vect_hor(), 0, k_dd(), 0), 0, 
+			   phi, 0) / (8. * M_PI) ;
 
-  Scalar integrand = k_rphi * darea_hor() ;   // we correct with the curved element of area 
+  Scalar integrand = k_rphi * darea_hor() ;   // we correct with the curved 
+                                              // element of area 
 
   Map_af map_affine (ff.get_mp() ) ;
 
@@ -185,39 +196,34 @@ double Isol_hor::ang_mom_hor() {
 
 
 // Mass  (fundamental constants made 1)
-double Isol_hor::mass_hor() {
+double Isol_hor::mass_hor()const {
   
   double rr = radius_hor() ;
 
   double  tmp = sqrt( pow( rr, 4) + 4 * pow( ang_mom_hor(), 2) ) / ( 2 * rr ) ;
-											
+									      
   return tmp ;
 
 }
 
 
-
-
-
 // Surface gravity
-double Isol_hor::kappa_hor() {
+double Isol_hor::kappa_hor() const{
   
   double rr = radius_hor() ;
 
   double jj = ang_mom_hor() ;
 
-  double tmp = (pow( rr, 4) - 4 * pow( jj, 2)) / ( 2 * pow( rr, 3) *  sqrt( pow( rr, 4) + 4 * pow( jj, 2) ) ) ;
+  double tmp = (pow( rr, 4) - 4 * pow( jj, 2)) / ( 2 * pow( rr, 3) 
+			 *  sqrt( pow( rr, 4) + 4 * pow( jj, 2) ) ) ;
   
-
   return tmp ;
-
 
 }
 
 
-
 // Orbital velocity
-double Isol_hor::omega_hor() {
+double Isol_hor::omega_hor()const {
   
   double rr = radius_hor() ;
 
@@ -225,21 +231,19 @@ double Isol_hor::omega_hor() {
 
   double tmp = 2 * jj / ( rr *  sqrt( pow( rr, 4) + 4 * pow( jj, 2) ) ) ;
   
-
   return tmp ;
-
 
 }
 
 
-
 // ADM angular momentum
 
-double Isol_hor::ang_mom_adm() {
+double Isol_hor::ang_mom_adm()const {
 
   Scalar integrand =  (k_dd()(1,3) - gam_dd()(1,3) * trk()) / (8. * M_PI)  ;
 
-  integrand.mult_rsint() ;  // in order to pass from the triad component to the coordinate basis
+  integrand.mult_rsint() ;  // in order to pass from the triad 
+                            // component to the coordinate basis
 
   double tmp = mp.integrale_surface_infini(integrand) ;
 
