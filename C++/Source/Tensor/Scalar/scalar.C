@@ -34,6 +34,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2003/10/11 14:42:16  e_gourgoulhon
+ * Suppressed unusued argument new_triad in method change_triad.
+ *
  * Revision 1.11  2003/10/10 15:57:29  j_novak
  * Added the state one (ETATUN) to the class Scalar
  *
@@ -809,7 +812,7 @@ Tbl Scalar::multipole_spectrum() {
   return resu ;
 }
 
-void Scalar::change_triad(const Base_vect& new_triad) {
+void Scalar::change_triad(const Base_vect& ) {
 
   cout << "WARNING: Scalar::change_triad : "<< endl ;
   cout << "This method does nothing ... " << endl ;
