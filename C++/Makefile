@@ -14,6 +14,7 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Bin_ns_ncp; $(MAKE)
 	cd Source/Binaire; $(MAKE)
 	cd Source/Champ_cart; $(MAKE)
+	cd Source/Change_var; $(MAKE)
 	cd Source/Cmp; $(MAKE)
 	cd Source/Connection; $(MAKE)
 	cd Source/Coord; $(MAKE)
@@ -34,7 +35,9 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Non_class_members/Operators; $(MAKE)
 	cd Source/Non_class_members/PDE; $(MAKE)
 	cd Source/Non_class_members/Utilities; $(MAKE)
+	cd Source/Ope_elementary; $(MAKE)
 	cd Source/Param; $(MAKE)
+	cd Source/Param_elliptic; $(MAKE)
 	cd Source/QuadriD; $(MAKE)
 	cd Source/Tbl; $(MAKE)
 	cd Source/Tenseur; $(MAKE)
@@ -56,6 +59,7 @@ uninstall:
 	cd Source/Bin_ns_ncp; $(MAKE) -i uninstall
 	cd Source/Binaire; $(MAKE) -i uninstall
 	cd Source/Champ_cart; $(MAKE) -i uninstall
+	cd Source/Change_var; $(MAKE) -i uninstall
 	cd Source/Cmp; $(MAKE) -i uninstall
 	cd Source/Connection; $(MAKE) -i uninstall
 	cd Source/Coord; $(MAKE) -i uninstall
@@ -76,7 +80,9 @@ uninstall:
 	cd Source/Non_class_members/Operators; $(MAKE) -i uninstall
 	cd Source/Non_class_members/PDE; $(MAKE) -i uninstall
 	cd Source/Non_class_members/Utilities; $(MAKE) -i uninstall
+	cd Source/Ope_elementary; $(MAKE) -i uninstall
 	cd Source/Param; $(MAKE) -i uninstall
+	cd Source/Param_elliptic; $(MAKE) -i uninstall
 	cd Source/QuadriD; $(MAKE) -i uninstall
 	cd Source/Tbl; $(MAKE) -i uninstall
 	cd Source/Tenseur; $(MAKE) -i uninstall

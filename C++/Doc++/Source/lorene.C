@@ -69,7 +69,18 @@
     //@{
 	//@Include:map_cart.h_r
     //@}
-
+  
+    /**@name General elliptic solver (***under development***)
+     *
+     * These classes are needed for using the general elliptic solver, for
+     * which the variables and the operators can be different from one domain
+     * to the other.
+     */
+    //@{
+	//@Include:change_var.h_r
+        //@Include:ope_elementary.h_r
+        //@Include:param_elliptic.h_r
+    //@}  
 
    /**@name Tensorial fields
      *

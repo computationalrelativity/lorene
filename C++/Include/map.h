@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2003/12/11 14:48:47  p_grandclement
+ * Addition of ALL (and that is a lot !) the files needed for the general elliptic solver ... UNDER DEVELOPEMENT...
+ *
  * Revision 1.14  2003/11/06 14:43:37  e_gourgoulhon
  * Gave a name to const arguments in certain method prototypes (e.g.
  * constructors) to correct a bug of DOC++.
@@ -466,7 +469,8 @@ class Cmp ;
 class Param ; 
 class Map_af ; 
 class Map_et ; 
-class Tenseur ; 
+class Tenseur ;
+class Param_elliptic ;
 
 			//------------------------------------//
 			//            class Map               //
@@ -1878,6 +1882,27 @@ class Map_af : public Map_radial {
 	 */
 	double integrale_surface_infini (const Cmp& ci) const ;
 	
+	
+	/**
+	 * General elliptic solver. The field is zero at infinity.
+	 *
+	 * @param params [input] : the operators and variables to be uses.
+	 * @param so [input] : the source.
+	 * @param uu [output] : the solution.
+	 **/
+	void sol_elliptic (const Param_elliptic& params, 
+			   const Scalar& so,  Scalar& uu) const ;
+
+	/**
+	 * General elliptic solver. The field is zero at the outermost shell.
+	 * The equation is not solved in the compactified domain.
+	 *
+	 * @param params [input] : the operators and variables to be uses.
+	 * @param so [input] : the source.
+	 * @param uu [output] : the solution.
+	 **/
+	void sol_elliptic_no_zec (const Param_elliptic& params, 
+				  const Scalar& so, Scalar& uu) const ;
 	
 	/** Computes the solution of a 2-D Poisson equation.
 	 *  The 2-D Poisson equation writes

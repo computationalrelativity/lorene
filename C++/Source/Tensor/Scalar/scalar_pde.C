@@ -35,6 +35,9 @@ char scalar_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/12/11 14:48:51  p_grandclement
+ * Addition of ALL (and that is a lot !) the files needed for the general elliptic solver ... UNDER DEVELOPEMENT...
+ *
  * Revision 1.2  2003/10/15 21:14:23  e_gourgoulhon
  * Added method poisson_angu().
  *
@@ -51,7 +54,8 @@ char scalar_pde_C[] = "$Header$" ;
 #include "tensor.h"
 #include "param.h"
 #include "cmp.h"
-
+#include "param_elliptic.h"
+  
 		    //-----------------------------------//
 		    //      Scalar Poisson equation      //
 		    //-----------------------------------//
@@ -122,4 +126,52 @@ Scalar Scalar::avance_dalembert(Param& par, const Scalar& fjm1,
 	Scalar fjp1(cfjp1) ; 
 	
 	return fjp1 ;
+}
+
+
+		    //-----------------------------------//
+		    //      General elliptic equation	 //
+		    //-----------------------------------//
+
+
+Scalar Scalar::sol_elliptic(const Param_elliptic& ope_var) const {
+
+  // Right now, only applicable with affine mapping
+  const Map_af* map_affine = dynamic_cast <const Map_af*> (mp) ;
+  
+  if (map_affine == 0x0) {
+    cout << "sol_elliptic only defined for affine mapping" << endl ;
+    abort() ;
+  }
+  
+  Scalar res (*mp) ;
+  res.set_etat_qcq() ;
+  
+  map_affine->sol_elliptic (ope_var, *this, res) ;
+
+  return (res) ;
+}
+
+     
+		    //-----------------------------------//
+		    //      General elliptic equation	 //
+                    //             with no ZEC           //
+		    //-----------------------------------//
+
+Scalar Scalar::sol_elliptic_no_zec(const Param_elliptic& ope_var) const {
+
+  // Right now, only applicable with affine mapping
+  const Map_af* map_affine = dynamic_cast <const Map_af*> (mp) ;
+  
+  if (map_affine == 0x0) {
+    cout << "sol_elliptic_no_zec only defined for affine mapping" << endl ;
+    abort() ;
+  }
+  
+  Scalar res (*mp) ;
+  res.set_etat_qcq() ;
+  
+  map_affine->sol_elliptic_no_zec (ope_var, *this, res) ;
+
+  return (res) ;
 }

@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.33  2003/12/11 14:48:47  p_grandclement
+ * Addition of ALL (and that is a lot !) the files needed for the general elliptic solver ... UNDER DEVELOPEMENT...
+ *
  * Revision 1.32  2003/11/13 13:43:53  p_grandclement
  * Addition of things needed for Bhole::update_metric (const Etoile_bin&, double, double)
  *
@@ -158,6 +161,7 @@
 
 class Param ; 
 class Cmp ;
+class Param_elliptic ;
 
 /**
  * Tensor field of valence 0 (or component of a tensorial field).
@@ -898,6 +902,20 @@ class Scalar : public Tensor {
    */
   Scalar avance_dalembert(Param& par, const Scalar& fjm1, const Scalar& source) 
     const ;
+
+ /**
+   * Resolution of a general elliptic equation, putting zero at infinity.
+   * @param params [input] the operators and variables to be used.
+   **/
+  Scalar sol_elliptic(const Param_elliptic& params) const ;
+
+   /**
+   * Resolution of a general elliptic equation, putting zero at the outermost 
+   * shell and not solving in the compactified domain.
+   * @param params [input] the operators and variables to be used.
+   **/
+  Scalar sol_elliptic_no_zec(const Param_elliptic& params) const ;
+  
 	
   // Import from other mapping 
   // -------------------------

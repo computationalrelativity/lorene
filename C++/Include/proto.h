@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2003/12/11 14:48:47  p_grandclement
+ * Addition of ALL (and that is a lot !) the files needed for the general elliptic solver ... UNDER DEVELOPEMENT...
+ *
  * Revision 1.11  2003/09/16 13:07:40  j_novak
  * New files for coefficient trnasformation to/from the T_LEG_II base.
  *
@@ -175,6 +178,7 @@ class Valeur ;
 class Base_val ;
 class Cmp ;
 class Tenseur ;
+class Param_elliptic ;
 
 // Routines calcul de coefficients
 // -------------------------------
@@ -337,6 +341,33 @@ Tbl _solh_r_chebp (int, int, double) ;
 Tbl _solh_r_chebi (int, int, double) ;
 Tbl _solh_r_chebu (int, int, double) ;
 Tbl solh (int, int, double, int) ;
+
+// Routines helmholtz minus :
+Matrice helmholtz_minus_mat(int , double , double , double, int ) ;
+Matrice cl_helmholtz_minus (const Matrice&, double, double, double, int) ;
+Tbl cl_helmholtz_minus (const Tbl&, int) ;
+Matrice prepa_helmholtz_minus_nondege (const Matrice&, double, double, 
+				       double, int) ;
+Tbl solp_helmholtz_minus (const Matrice&, const Matrice&, const Tbl&, 
+			  double, double, int) ;
+Tbl solh_helmholtz_minus (int, double, double, double, int) ;
+
+// Routines helmholtz plus :
+Matrice helmholtz_plus_mat(int , double , double , double, int ) ;
+Matrice cl_helmholtz_plus (const Matrice&, double, double, double, int) ;
+Tbl cl_helmholtz_plus (const Tbl&, int) ;
+Matrice prepa_helmholtz_plus_nondege (const Matrice&, double, double, 
+				       double, int) ;
+Tbl solp_helmholtz_plus (const Matrice&, const Matrice&, const Tbl&, 
+			  double, double, int) ;
+Tbl solh_helmholtz_plus (int, double, double, double, int) ;
+
+
+//Routines de calcul des valeurs limites 
+Tbl val_solh (int, double, double, int) ;
+Tbl val_solp (const Tbl&, double, int) ;
+
+
 
 //Routines de derivations version 1d
 void _d2sdx2_1d_pas_prevu(int, double*, double* ) ;
@@ -530,6 +561,16 @@ void poisson_vect_binaire ( double lambda,
 		const Valeur& bound_z_un, const Valeur& bound_x_deux, 
 		const Valeur& bound_y_deux, const Valeur& bound_z_deux, 
 		Tenseur& sol_un, Tenseur& sol_deux, int num_front, double precision) ;
+
+// Elliptic solvers :
+Mtbl_cf elliptic_solver  (const Param_elliptic&, const Mtbl_cf&) ;
+
+Mtbl_cf elliptic_solver_no_zec  (const Param_elliptic&, const Mtbl_cf&) ;
+
+Mtbl_cf elliptic_solver_no_zec_no_raccord  (double, 
+					    const Param_elliptic&, 
+					    const Mtbl_cf&) ;
+
 
 // Regularisation du shift :
 double regle (Tenseur& shift_auto, const Tenseur& shift_comp, double omega) ;
