@@ -5,7 +5,7 @@
  */
 
 /*
- *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2004 Eric Gourgoulhon & Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -29,6 +29,9 @@ char test_sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/09 13:01:35  e_gourgoulhon
+ * Added test of the TT decomposition.
+ *
  * Revision 1.2  2003/12/10 10:18:24  e_gourgoulhon
  * First operational version.
  *
@@ -59,8 +62,8 @@ int main() {
   
 	int nz = 3 ; 	// Number of domains
 	int nzm1 = nz - 1 ;  
-	int nr = 9 ; 	// Number of collocation points in r in each domain
-	int nt = 7 ; 	// Number of collocation points in theta in each domain
+	int nr = 17 ; 	// Number of collocation points in r in each domain
+	int nt = 9 ; 	// Number of collocation points in theta in each domain
 	int np = 16 ; 	// Number of collocation points in phi in each domain
 	int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
 	int symmetry_phi = NONSYM ; // no symmetry in phi
@@ -103,6 +106,40 @@ int main() {
 	
 	Scalar tmp(map) ; 
 		
+    hhc.set(1,1) = 2 ; 
+    tmp = 1 / (r*r*r*r)  ; 
+	hhc.set(1,1).set_domain(nzm1) = tmp.domain(nzm1)  ; 
+    hhc.set(1,1).set_dzpuis(4) ; 
+
+    hhc.set(1,2) = x ;
+    tmp = sint*cosp / (r*r) ; 
+	hhc.set(1,2).set_domain(nzm1) = tmp.domain(nzm1)  ; 
+	hhc.set(1,2).set_dzpuis(4); 	 
+
+	hhc.set(1,3) = y * z ; 
+	tmp = sint*sinp*cost / (r*r*r) ;
+	hhc.set(1,3).set_domain(nzm1) = tmp.domain(nzm1)  ; 
+	hhc.set(1,3).set_dzpuis(4); 	 
+
+	hhc.set(2,2) = x*y ; 
+	tmp = sint*sint*cosp*sinp / (r*r*r) ;
+	hhc.set(2,2).set_domain(nzm1) = tmp.domain(nzm1)  ; 
+	hhc.set(2,2).set_dzpuis(4); 	 
+
+	hhc.set(2,3) = z  ; 
+	tmp = cost / (r*r) ;
+	hhc.set(2,3).set_domain(nzm1) = tmp.domain(nzm1)  ; 
+	hhc.set(2,3).set_dzpuis(4); 	 
+
+	hhc.set(3,3) = x ; 
+	tmp = sint*cosp / (r*r) ;
+	hhc.set(3,3).set_domain(nzm1) = tmp.domain(nzm1)  ; 
+	hhc.set(3,3).set_dzpuis(4); 	 
+
+
+
+
+/*
 	hhc.set(1,1) = 1. / (1 + pow(r,4)) ; ;
 	tmp = 1. / (1. + 1./pow(r,4)) ;
 	hhc.set(1,1).set_domain(nzm1) = tmp.domain(nzm1) ; 
@@ -133,7 +170,7 @@ int main() {
 		- sint*sinp*cost*cost / (1. + 1./pow(r,7)) ;
 	hhc.set(3,3).set_domain(nzm1) = tmp.domain(nzm1)  ; 
 	hhc.set(3,3).set_dzpuis(4); 	 
-
+*/
 
 	hhc.std_spectral_base() ; 
 
@@ -144,16 +181,42 @@ int main() {
 	hhs.spectral_display() ; 
 	arrete() ; 
 	
+    // Transverse part
+    // ---------------
+    
 	const Sym_tensor_trans& thhs = hhs.transverse(mets) ; 
+	arrete() ; 
 
 	cout << "Transverse part thhs : " << endl ;
 	thhs.spectral_display() ; 
 	arrete() ; 
 	
-	
-	
-	
-	
+    cout << "Max abs(trace) of the transverse part thhs : \n" ; 
+    maxabs( thhs.trace() ) ; 
+    
+	cout << "Divergence of the transverse part thhs : " << endl ;
+    Vector divt = thhs.divergence(mets) ; 
+	// divt.spectral_display() ; 
+	cout << "Max abs(divergence) of the transverse part thhs : " << endl ;
+    maxabs( divt ) ; 
+    
+    // TT part
+    // -------
+    
+
+    const Sym_tensor_tt& tthhs = thhs.tt_part() ; 
+    
+    cout << "TT part tthhs : \n" ; 
+    // tthhs.spectral_display() ; 
+
+    Scalar tr_tthhs = (tthhs.down(1, mets)).scontract(0,1) ;
+	cout << "Max abs(trace) of the TT part tthhs : " << endl ;
+    maxabs( tr_tthhs ) ; 
+    
+    Vector divtt = tthhs.divergence(mets) ; 
+	cout << "Max abs(divergence) of the TT part tthhs : " << endl ;
+    maxabs( divtt ) ; 
 		
+        
 	return EXIT_SUCCESS ; 
 }
