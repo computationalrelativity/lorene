@@ -35,6 +35,9 @@ char sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/02 15:45:51  j_novak
+ * New class Metric
+ *
  * Revision 1.3  2003/10/01 15:39:43  e_gourgoulhon
  * Added assert to insure that both indices have the same type.
  *
@@ -199,5 +202,13 @@ void Sym_tensor::operator= (const Tensor& t) {
       int place_t = t.position(indices(i)) ;
       *cmp[i] = *t.cmp[place_t] ;
     }
+}
+
+Sym_tensor Sym_tensor::inverse() const {
+
+  cout << "Sym_tensor::inverse : not ready yet! " << endl ;
+
+  abort() ;
+
 }
 

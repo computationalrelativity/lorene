@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2003/10/02 15:45:48  j_novak
+ * New class Metric
+ *
  * Revision 1.11  2003/10/01 15:41:14  e_gourgoulhon
  * class name Delta changed to Tensor_delta.
  *
@@ -674,6 +677,9 @@ class Sym_tensor : public Tensor {
 
     // Mathematical operators
     // ----------------------
+
+	///Returns the inverse of the {\tt Sym\_tensor} (seen as a matrix).
+	Sym_tensor inverse() const ;
  
 } ;
 
