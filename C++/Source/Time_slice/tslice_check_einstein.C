@@ -30,6 +30,10 @@ char tslice_check_einstein_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/04/07 07:58:21  e_gourgoulhon
+ * Constructor as Minkowski slice: added call to std_spectral_base()
+ * after setting the lapse to 1.
+ *
  * Revision 1.2  2004/04/05 12:38:45  j_novak
  * Minor modifs to prevent some warnings.
  *
@@ -58,8 +62,11 @@ Tbl Time_slice::check_hamiltonian_constraint(const Scalar* energy_density,
 
   bool vacuum = ( energy_density == 0x0 ) ;
   
-  Scalar field = gam().ricci_scal() + trk() * trk()
-    - contract( k_uu(), 0, 1, k_dd(), 0, 1 ) ;
+  Scalar field = trk() * trk() - contract( k_uu(), 0, 1, k_dd(), 0, 1 ) ;
+  
+  field.dec_dzpuis() ;  // dzpuis: 4 -> 3 
+    
+  field += gam().ricci_scal() ;
 
   const Scalar* matter ;
   if (vacuum) 

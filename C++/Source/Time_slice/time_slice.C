@@ -30,6 +30,10 @@ char time_slice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/04/07 07:58:21  e_gourgoulhon
+ * Constructor as Minkowski slice: added call to std_spectral_base()
+ * after setting the lapse to 1.
+ *
  * Revision 1.6  2004/04/01 16:09:02  j_novak
  * Trace of K_ij is now member of Time_slice (it was member of Time_slice_conf).
  * Added new methods for checking 3+1 Einstein equations (preliminary).
@@ -178,6 +182,7 @@ Time_slice::Time_slice(const Map& mp, const Base_vect& triad, int depth_in)
     // Lapse identically one:
     Scalar tmp(mp) ; 
     tmp.set_etat_one() ; 
+    tmp.std_spectral_base() ; 
     n_evol.update(tmp, jtime, time_init) ; 
     
     // shift identically zero:

@@ -30,6 +30,10 @@ char tslice_conf_init_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/04/07 07:58:21  e_gourgoulhon
+ * Constructor as Minkowski slice: added call to std_spectral_base()
+ * after setting the lapse to 1.
+ *
  * Revision 1.1  2004/04/05 21:25:37  e_gourgoulhon
  * First version.
  *
@@ -180,13 +184,13 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& hh_in,
                            beta().derive_cov(ff).derive_cov(ff), 1, 2)
                 + 0.3333333333333333*
                   contract(hh(), 1, beta().divergence(ff).derive_cov(ff), 0) 
-                - hdirac().derive_lie(beta()) ; 
+                - hdirac().derive_lie(beta()) 
+                + uu.divergence(ff) ; 
         vtmp.inc_dzpuis() ; // dzpuis: 3 -> 4
                     
         source_beta -= vtmp ; 
         
-        source_beta += 0.66666666666666666* beta().divergence(ff) * hdirac()
-                        - uu.divergence(ff) ;
+        source_beta += 0.66666666666666666* beta().divergence(ff) * hdirac() ;
         
 
         //=============================================
@@ -293,7 +297,7 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& hh_in,
         k_dd_evol.downdate(jtime) ; 
         k_uu_evol.downdate(jtime) ; 
 
-        arrete() ; 
+        // arrete() ; 
 
     }
 
