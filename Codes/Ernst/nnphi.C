@@ -1,5 +1,5 @@
 /*
- * Code for solving the statinary axisymmetric Einstein equations for given boundary data
+ * Code for solving the stationary axisymmetric Einstein equations for given boundary data
  *
  */
 
@@ -28,6 +28,9 @@ char name_of_this_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/02/23 20:54:17  c_klein
+ * new output format
+ *
  * Revision 1.4  2003/01/09 11:07:50  j_novak
  * headcpp.h is now compliant with C++ norm.
  * The include files have been ordered, as well as the local_settings_linux
@@ -45,6 +48,11 @@ char name_of_this_file_C[] = "$Header$" ;
  *
  */
 
+
+// C++ headers
+#include "headcpp.h"
+
+
 // C headers
 #include <stdlib.h>
 
@@ -54,7 +62,7 @@ char name_of_this_file_C[] = "$Header$" ;
 #include "graphique.h"
 
 
-const int MaxIt = 200;
+const int MaxIt = 500;
 const double shift = 0.1;	// used to shift the cos-term
 
 
@@ -261,29 +269,30 @@ int main() {
   V.mult_rsint();
   bcV = bcV/cos(mpa.phi+shift);
 
-  ofstream out("out.dat");
-  //  out.setf(ios::scientific,ios::floatfield);
-  //  out.precision(7);
+     ofstream out("out.dat");
+     out.setf(ios::scientific,ios::floatfield);
+     out.precision(7);
 
-  double a[nt][4];
+//   double a[nt][4];
 
-  for (int j=0; j<nt; j++)
+   for (int j=0; j<nt; j++)
     {
-      //      cout <<  U(1,0,j,nr-1) << "\t" << bcU(1,0,j,0) << "\t"
-      //	   << U(1,0,j,nr-1) - bcU(1,0,j,0) << endl;
-      //      cout <<  V(1,0,j,nr-1) << "\t" << bcV(1,0,j,0) << "\t"
-      //	   << V(1,0,j,nr-1) - bcV(1,0,j,0) << endl;
-      //      cout << "------------------------------------------------------------------------------" << endl;
-      //out << U(1,0,j,nr-1) << "\t" << bcU(1,0,j,0) << "\t"
-      //	   << V(1,0,j,nr-1) << "\t" << bcV(1,0,j,0) << endl;
-      a[j][0] = U(1,0,j,nr-1);    
-      a[j][1] = V(1,0,j,nr-1);    
-      a[j][2] = bcU(1,0,j,0);    
-      a[j][3] = bcV(1,0,j,0);    
+            cout <<  U(1,0,j,nr-1) << "\t" << bcU(1,0,j,0) << "\t"
+      	   << U(1,0,j,nr-1) - bcU(1,0,j,0) << endl;
+            cout <<  V(1,0,j,nr-1) << "\t" << bcV(1,0,j,0) << "\t"
+      	   << V(1,0,j,nr-1) - bcV(1,0,j,0) << endl;
+            cout << "------------------------------------------------------------------------------" << endl;
+	     out << bcU(1,0,j,0)  - U(1,0,j,nr-1) << endl;
+//       a[j][0] = U(1,0,j,nr-1);    
+//       a[j][1] = V(1,0,j,nr-1);    
+//       a[j][2] = bcU(1,0,j,0);    
+//       a[j][3] = bcV(1,0,j,0);    
     }
 
-  out.write(a,4*nt*sizeof(double));
-  
+ 
+
+     
+    out.close();  
   return EXIT_SUCCESS ; 
 
 }
