@@ -32,6 +32,10 @@ char TBL_VAL_INTER_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/11/13 11:22:57  j_novak
+ * Version "provisoire" de l'interpolation (sommation depuis la grille
+ * spectrale) aux interfaces de la grille de Valence.
+ *
  * Revision 1.3  2002/10/16 14:37:15  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -271,7 +275,8 @@ Cmp Tbl_val::to_spectral(const Map& mp, int lmax, int lmin,
   }
 }
 
-void Tbl_val::from_spectral(const Cmp& meudon, const int lmax, const int lmin)
+void Tbl_val::from_spectral(const Cmp& meudon, int lmax, int lmin,
+			    bool interfr, bool interft)
 {
   assert(meudon.get_etat() != ETATNONDEF) ;
   const Map* mp = meudon.get_mp() ;
@@ -302,6 +307,18 @@ void Tbl_val::from_spectral(const Cmp& meudon, const int lmax, const int lmin)
     case 2: {
       delete [] t ;
       t = gval->somme_spectrale2(meudon) ;
+      if (interfr) {
+	delete [] tzri ;
+	const Gval_spher* gvs = dynamic_cast<const Gval_spher*>(gval) ; //## A modifier
+	assert (gvs != 0x0) ;
+	tzri = gvs->somme_spectrale2ri(meudon) ;
+      }
+      if (interft) {
+	delete [] txti ;
+	const Gval_spher* gvs = dynamic_cast<const Gval_spher*>(gval) ; //## A modifier
+	assert (gvs != 0x0) ;
+	txti = gvs->somme_spectrale2ti(meudon) ;
+      }
       break ;
     }
     

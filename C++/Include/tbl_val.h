@@ -31,6 +31,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/11/13 11:22:57  j_novak
+ * Version "provisoire" de l'interpolation (sommation depuis la grille
+ * spectrale) aux interfaces de la grille de Valence.
+ *
  * Revision 1.3  2002/11/12 10:03:53  j_novak
  * The method "Tbl_val::get_gval" has been changed to "get_grid".
  *
@@ -524,7 +528,8 @@ class Tbl_val {
    * @param lmax [input] index of the outer zone {\bf +1}
    * @param lmin [input] index of the inner zone 
    */
-  void from_spectral(const Cmp& meudon, const int lmax, const int lmin=0) ;
+  void from_spectral(const Cmp& meudon, int lmax, int lmin=0,
+		     bool interfr = false, bool interft = false) ;
 } ;
 
 

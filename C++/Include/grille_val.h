@@ -31,6 +31,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/11/13 11:22:57  j_novak
+ * Version "provisoire" de l'interpolation (sommation depuis la grille
+ * spectrale) aux interfaces de la grille de Valence.
+ *
  * Revision 1.3  2002/10/16 14:36:29  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -737,6 +741,12 @@ class Gval_spher : public Grille_val {
    * grid points.
    */
   virtual double* somme_spectrale2(const Cmp& meudon) const  ;
+
+  /// Same as before but at radial grid interfaces
+  double* somme_spectrale2ri(const Cmp& meudon) const ;
+
+  /// Same as before but at angular grid interfaces
+  double* somme_spectrale2ti(const Cmp& meudon) const ;
 
   /// Same as before but for the 3D case
   virtual double* somme_spectrale3(const Cmp& meudon) const  ;

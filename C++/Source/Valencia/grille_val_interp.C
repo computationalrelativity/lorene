@@ -32,6 +32,10 @@ char grille_val_interp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/11/13 11:22:57  j_novak
+ * Version "provisoire" de l'interpolation (sommation depuis la grille
+ * spectrale) aux interfaces de la grille de Valence.
+ *
  * Revision 1.3  2002/09/09 13:00:40  e_gourgoulhon
  * Modification of declaration of Fortran 77 prototypes for
  * a better portability (in particular on IBM AIX systems):
@@ -864,6 +868,94 @@ double* Gval_spher::somme_spectrale2(const Cmp& meudon) const {
       inum++ ;
     }
     theta = tet->t[it] ;
+    for (int ir=nfantome; ir<nrv; ir++) {
+      rr = zr->t[ir] ;
+      mp->val_lx(rr, theta, phi, l, xi) ;
+      resu[inum] = meudon.va.val_point(l, xi, theta, phi) ;
+      inum++ ;
+    }
+    for (int ir=nrv; ir<nrv2; ir++) {
+      resu[inum] = 0. ;
+      inum++ ;
+    }
+  }
+  for (int it=ntv; it<ntv2; it++) {
+    for (int ir=0; ir<nrv2; ir++) {
+      resu[inum] = 0. ;
+      inum++ ;
+    }
+  }  
+  return resu ;
+}
+
+double* Gval_spher::somme_spectrale2ri(const Cmp& meudon) const {
+  int nrv = dim.dim[0] + 1 + nfantome ;
+  int ntv = dim.dim[1] + nfantome ;
+  int nrv2 = dim.dim[0] + 1 + 2*nfantome ;
+  int ntv2 = dim.dim[1] + 2*nfantome ;
+  int taille = ntv2*nrv2 ;
+  const Map* mp = meudon.get_mp() ;
+  double* resu = new double[taille] ;
+  int l ;
+  double xi, rr, theta ;
+  double phi = 0 ;
+  int inum = 0 ;
+  for (int it=0; it<nfantome; it++) {
+    for (int ir=0; ir<nrv2; ir++) {
+      resu[inum] = 0. ;
+      inum++ ;
+    }
+  }
+  for (int it=nfantome; it<ntv; it++) {
+    for (int ir=0; ir<nfantome; ir++) {
+      resu[inum] = 0. ;
+      inum++ ;
+    }
+    theta = tet->t[it] ;
+    for (int ir=nfantome; ir<nrv; ir++) {
+      rr = zri->t[ir] ;
+      mp->val_lx(rr, theta, phi, l, xi) ;
+      resu[inum] = meudon.va.val_point(l, xi, theta, phi) ;
+      inum++ ;
+    }
+    for (int ir=nrv; ir<nrv2; ir++) {
+      resu[inum] = 0. ;
+      inum++ ;
+    }
+  }
+  for (int it=ntv; it<ntv2; it++) {
+    for (int ir=0; ir<nrv2; ir++) {
+      resu[inum] = 0. ;
+      inum++ ;
+    }
+  }  
+  return resu ;
+}
+
+double* Gval_spher::somme_spectrale2ti(const Cmp& meudon) const {
+  int nrv = dim.dim[0] + nfantome ;
+  int ntv = dim.dim[1] + 1 + nfantome ;
+  int nrv2 = dim.dim[0] + 2*nfantome ;
+  int ntv2 = dim.dim[1] + 1 + 2*nfantome ;
+  int taille = ntv2*nrv2 ;
+  const Map* mp = meudon.get_mp() ;
+  double* resu = new double[taille] ;
+  int l ;
+  double xi, rr, theta ;
+  double phi = 0 ;
+  int inum = 0 ;
+  for (int it=0; it<nfantome; it++) {
+    for (int ir=0; ir<nrv2; ir++) {
+      resu[inum] = 0. ;
+      inum++ ;
+    }
+  }
+  for (int it=nfantome; it<ntv; it++) {
+    for (int ir=0; ir<nfantome; ir++) {
+      resu[inum] = 0. ;
+      inum++ ;
+    }
+    theta = teti->t[it] ;
     for (int ir=nfantome; ir<nrv; ir++) {
       rr = zr->t[ir] ;
       mp->val_lx(rr, theta, phi, l, xi) ;
