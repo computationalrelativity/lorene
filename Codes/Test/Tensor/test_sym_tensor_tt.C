@@ -28,6 +28,10 @@ char test_sym_tensor_tt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/02/09 13:24:56  e_gourgoulhon
+ * Added test of the TT decomposition from scratch.
+ * Passed in the nucleus and shells only, and only for dzpuis=4.
+ *
  * Revision 1.11  2004/02/05 13:46:21  e_gourgoulhon
  * Take into account the new dzpuis conventions for derivatives.
  * Tests passed in the generic case with htt dzpuis = 0, 2, 3 and 4.
@@ -175,7 +179,7 @@ int main() {
     arrete() ; 
     
     Scalar pot(map) ; 
-    pot =  1                    // P_0^0
+    pot =  // 1                    // P_0^0
            + x                  // P_1^1 cos(p)
            + y                  // P_1^1 sin(p)
            + (3*z*z - r*r)      // P_2^0
@@ -188,7 +192,7 @@ int main() {
            
     pot.annule_domain(nzm1) ; 
 
-    Mtbl potced = 1 / r         // P_0^0
+    Mtbl potced = // 1 / r         // P_0^0
            + sint*cosp / pow(r,2)   // P_1^1 cos(p)
            + sint*sinp / pow(r,2)   // P_1^1 sin(p)
            + (3*cost*cost - 1) / pow(r,3)           // P_2^0
@@ -217,7 +221,7 @@ int main() {
     hhc.set(2,3) = pot.dsdy().dsdz() ; 
     hhc.set(3,3) = pot.dsdz().dsdz() ; 
 
-    // hhc.dec_dzpuis(1) ; 
+    hhc.inc_dzpuis(1) ; 
 
     cout << "Cartesian components : hhc : " <<  endl ;
     hhc.spectral_display() ; 
@@ -232,12 +236,13 @@ int main() {
     arrete() ; 
     
     Sym_tensor hhs2 = pot.derive_con(mets).derive_con(mets) ; 
-    // hhs2.dec_dzpuis(1) ; 
+    hhs2.inc_dzpuis(1) ; 
     
     cout << "### Difference between hhs2 and hhs" << endl ; 
     maxabs( hhs2 - hhs ) ; 
     arrete() ; 
     
+    hhs = hhs2 ; 
     
     Vector divc = hhc.divergence(metc) ; 
     cout << "Divergence of hhc : " << endl ; 
@@ -340,6 +345,29 @@ int main() {
     cout << "Relative difference (max) between htt5.mu and htt3.mu : " << endl ; 
     diffrelmax(htt5.mu(), htt3.mu(), cout) ; 
 
+    // Test : TT decomposition of hht5 from scratch
+    // --------------------------------------------
+    
+    Sym_tensor aa = htt5 ;  // initialization of a generic symmetric tensor
+    
+    const Sym_tensor_trans& taa = aa.transverse(mets) ; 
+    
+    cout << "Longitudinal part of aa : \n " ; 
+    maxabs( aa.longit_pot(mets) ) ; 
+    
+    Sym_tensor diff = aa - taa ; 
+    
+    cout << "Difference between aa and its transverse part : \n " ; 
+    maxabs( diff ) ; 
+    
+    const Sym_tensor_tt& ttaa = taa.tt_part() ; 
+    cout << "Trace of taa : \n" ; 
+    maxabs( taa.trace() ) ; 
+    
+    diff = aa - ttaa ; 
+    cout << "Difference between aa and its TT part : \n " ; 
+    maxabs( diff ) ; 
+    
         
     return EXIT_SUCCESS ; 
 }
