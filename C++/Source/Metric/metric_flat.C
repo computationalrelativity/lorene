@@ -30,6 +30,9 @@ char metric_flat_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/11 14:40:39  e_gourgoulhon
+ * Suppressed declaration of unusued argument in method operator=.
+ *
  * Revision 1.1  2003/10/06 15:30:33  j_novak
  * Defined methods for flat metric.
  *
@@ -77,7 +80,7 @@ void Metric_flat::operator=(const Metric_flat& meti) {
   triad = meti.triad ;
 }
 
-void Metric_flat::operator=(const Sym_tensor& symti) {
+void Metric_flat::operator=(const Sym_tensor& ) {
   
   cout << "Metric_flat::operator=(const Sym_tensor& ) :" << '\n' ;
   cout << "Error: a flat metric should not be specified" << '\n' ;
