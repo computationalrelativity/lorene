@@ -36,6 +36,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.48  2004/02/26 22:44:37  e_gourgoulhon
+ * -- constructor of Tensor from Map is now declared explicit.
+ * -- class Tensor: added methods compute_derive_lie and derive_lie
+ * -- class Tensor_sym: added methods derive_cov, derive_con and derive_lie.
+ *
  * Revision 1.47  2004/02/19 22:08:51  e_gourgoulhon
  * Added argument "comment" in method spectral_display,
  * as well as in external functions min, max, maxabs, etc...
@@ -378,7 +383,7 @@ class Tensor {
 	 *  class {\tt Scalar}.
 	 *
 	 */
-	 Tensor(const Map& map) ;
+	 explicit Tensor(const Map& map) ;
 
 	/**
 	 * Constructor to be used by derived classes, with symmetries among
@@ -604,6 +609,15 @@ class Tensor {
     // Computational methods
     // ---------------------
     
+    protected: 
+        /** Computes the Lie derivative of {\tt this} with respect to some
+         *  vector field {\tt v} (protected method; the public interface
+         *  is method {\tt derive\_lie}).
+         */
+        void compute_derive_lie(const Vector& v, Tensor& resu) const ; 
+
+    
+    public:
 	/** Returns the covariant derivative of {\tt this} with respect to some 
          * metric $\gamma$.
          * $T$ denoting the tensor represented by {\tt this} and
@@ -635,7 +649,7 @@ class Tensor {
 	 */
 	const Tensor& derive_con(const Metric& gam) const ; 
 
-	/** Computes the divergence of a {\tt this} with respect to 
+	/** Computes the divergence of {\tt this} with respect to 
          * some metric $\gamma$. 
          * The divergence is taken with respect of the last index of {\tt this}
          * which thus must be contravariant.
@@ -654,6 +668,11 @@ class Tensor {
 	 */
 	const Tensor& divergence(const Metric& gam) const ; 
 
+
+        /** Computes the Lie derivative of {\tt this} with respect to some
+         *  vector field {\tt v}
+         */
+        Tensor derive_lie(const Vector& v) const ; 
 
 	/** Computes a new tensor by raising an index of {\tt *this}
 	 *
@@ -1078,6 +1097,40 @@ class Tensor_sym : public Tensor {
     public:
 	virtual void sauve(FILE *) const ;      /// Save in a binary file
 	
+
+    // Tensor calculus
+    // ---------------
+    public:
+    
+	/** Returns the covariant derivative of {\tt this} with respect to some 
+         * metric $\gamma$.
+         * $T$ denoting the tensor represented by {\tt this} and
+         * $\nabla T$ its covariant derivative with respect to 
+         * the metric $\gamma$, 
+         * the extra index (with respect to the indices of $T$)
+         * of $\nabla T$ is chosen to be the {\bf last} one.
+         * This convention agrees with that of MTW (see Eq. (10.17) of MTW).
+         *
+         * @param gam metric $\gamma$
+         * @return covariant derivative $\nabla T$ of {\tt this} with 
+         *  respect to the connection $\nabla$ associated with the
+         *  metric $\gamma$ 
+	 */
+	const Tensor_sym& derive_cov(const Metric& gam) const ; 
+
+	/** Returns the "contravariant" derivative of {\tt this} with respect 
+	 * to some metric $\gamma$, by raising the last index of the
+         * covariant derivative (cf. method {\tt derive\_cov()}) with 
+         * $\gamma$.
+	 */
+	const Tensor_sym& derive_con(const Metric& gam) const ; 
+
+        /** Computes the Lie derivative of {\tt this} with respect to some
+         *  vector field {\tt v}
+         */
+        Tensor_sym derive_lie(const Vector& v) const ; 
+
+
     // Mathematical operators
     // ----------------------
     
