@@ -25,6 +25,9 @@ char prepa_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/01/31 08:49:58  e_gourgoulhon
+ * Increased the number nmax of stored matrices from 100 to 200.
+ *
  * Revision 1.2  2002/10/16 14:37:12  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -147,7 +150,7 @@ Matrice _prepa_nondege_r_cheb (const Matrice &lap, int l, double echelle, int) {
     
     int n = lap.get_dim(0) ;
     
-   const int nmax = 100 ; // Nombre de Matrices stockees
+   const int nmax = 200 ; // Nombre de Matrices stockees
    static Matrice* tab[nmax] ;  // les matrices calculees
    static int nb_dejafait = 0 ; // nbre de matrices calculees
    static int l_dejafait[nmax] ;
@@ -217,7 +220,7 @@ Matrice _prepa_nondege_r_chebp (const Matrice &lap, int l, double, int) {
     int n = lap.get_dim(0) ;
     
        
-   const int nmax = 100 ; // Nombre de Matrices stockees
+   const int nmax = 200 ; // Nombre de Matrices stockees
    static Matrice* tab[nmax] ;  // les matrices calculees
    static int nb_dejafait = 0 ; // nbre de matrices calculees
    static int l_dejafait[nmax] ;
@@ -287,7 +290,7 @@ Matrice _prepa_nondege_r_chebi (const Matrice &lap, int l, double, int) {
     
     int n = lap.get_dim(0) ;
        
-   const int nmax = 100 ; // Nombre de Matrices stockees
+   const int nmax = 200 ; // Nombre de Matrices stockees
    static Matrice* tab[nmax] ;  // les matrices calculees
    static int nb_dejafait = 0 ; // nbre de matrices calculees
    static int l_dejafait[nmax] ;

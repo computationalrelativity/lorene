@@ -25,6 +25,9 @@ char laplacien_mat_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/01/31 08:49:58  e_gourgoulhon
+ * Increased the number nmax of stored matrices from 100 to 200.
+ *
  * Revision 1.3  2002/10/16 14:37:11  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -537,7 +540,7 @@ Matrice _laplacien_mat_r_chebu_deux (int n, int l) {
 
 Matrice _laplacien_mat_r_cheb (int n, int l, double echelle, int) {
             
-   const int nmax = 100 ;// Nombre de Matrices stockees
+   const int nmax = 200 ;// Nombre de Matrices stockees
    static Matrice* tab[nmax] ;  // les matrices calculees
    static int nb_dejafait = 0 ; // nbre de matrices calculees
    static int l_dejafait[nmax] ;

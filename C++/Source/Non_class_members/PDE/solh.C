@@ -25,6 +25,9 @@ char solh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/01/31 08:49:58  e_gourgoulhon
+ * Increased the number nmax of stored matrices from 100 to 200.
+ *
  * Revision 1.2  2002/10/16 14:37:12  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -132,7 +135,7 @@ Tbl _solh_pas_prevu (int n, int l, double echelle) {
 
 Tbl _solh_r_cheb (int n, int l, double echelle) {
                 
-   const int nmax = 100 ; // Nombre de Tbl stockes
+   const int nmax = 200 ; // Nombre de Tbl stockes
    static Tbl* tab[nmax] ;  // les Tbl calcules
    static int nb_dejafait = 0 ; // nbre de Tbl calcules
    static int l_dejafait[nmax] ;
@@ -224,7 +227,7 @@ Tbl _solh_r_cheb (int n, int l, double echelle) {
 
 Tbl _solh_r_chebp (int n, int l, double) {
    
-   const int nmax = 100 ; // Nombre de Tbl stockes
+   const int nmax = 200 ; // Nombre de Tbl stockes
    static Tbl* tab[nmax] ;  // les Tbl calcules
    static int nb_dejafait = 0 ; // nbre de Tbl calcules
    static int l_dejafait[nmax] ;
@@ -293,7 +296,7 @@ Tbl _solh_r_chebp (int n, int l, double) {
 	
 Tbl _solh_r_chebi (int n, int l, double) {
        
-   const int nmax = 100 ; // Nombre de Tbl stockes
+   const int nmax = 200 ; // Nombre de Tbl stockes
    static Tbl* tab[nmax] ;  // les Tbl calcules
    static int nb_dejafait = 0 ; // nbre de Tbl calcules
    static int l_dejafait[nmax] ;
