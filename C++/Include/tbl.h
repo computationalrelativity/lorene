@@ -37,8 +37,12 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/01/03 13:18:40  j_novak
+ * Optimization: the members set(i,j) and operator(i,j) of class Matrice are
+ * now defined inline. Matrice is a friend class of Tbl.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.11  1999/12/02  17:52:59  phil
  * *** empty log message ***
@@ -115,6 +119,8 @@ class Grille3d ;
  * @version #$Id$#
  */
 class Tbl {
+
+  friend class Matrice ;
 
     // Data : 
     // -----

@@ -31,8 +31,12 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/01/03 13:18:40  j_novak
+ * Optimization: the members set(i,j) and operator(i,j) of class Matrice are
+ * now defined inline. Matrice is a friend class of Tbl.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.12  1999/11/30  17:45:28  phil
  * changement de prototypage
@@ -207,18 +211,43 @@ class Matrice {
 	 * Read/write of a particuliar element.
 	 * This is done in {\tt *std} and all the other representations are no
 	 * longer valid.
-	 * @param i [input] line coordinate.
-	 * @param j [input] column coordinate.
+	 * @param j [input] line coordinate.
+	 * @param i [input] column coordinate.
 	 * 
 	 */
-	double& set(int i, int j) ;
+	double& set(int j, int i) {
+	  assert (etat == ETATQCQ) ;
+	  assert ((i>=0) && (i<std->dim.dim[0])) ;
+	  assert( (j>=0) && (j<std->dim.dim[1]) ) ;
+	  if (band != 0x0) {
+	    delete band ;
+	    band = 0x0 ;
+	  }
+	  
+	  if (lu != 0x0) {
+	    delete lu ;
+	    delete permute ;
+	    lu = 0x0 ;
+	    permute = 0x0 ;
+	  }
+	  return std->t[std->dim.dim[0] * j + i] ;
+	} ;
 	
 	/**
 	 * Read-only of a particuliar element.
-	 * @param i [input] line coordinate.
-	 * @param j [input] column coordinate. 
+	 * @param j [input] line coordinate.
+	 * @param i [input] column coordinate. 
 	 */	
-	double operator()(int i , int j) const;
+	double operator()(int j , int i) const {
+	  assert(etat != ETATNONDEF) ;
+	  assert( (i>=0) && (i<std->dim.dim[0]) ) ;
+	  assert( (j>=0) && (j<std->dim.dim[1]) ) ;
+	  if (etat == ETATZERO) {
+		double zero = 0. ;
+		return zero ; 
+	  }
+	  else return std->t[std->dim.dim[0] * j + i] ;
+	};
 	
     // Passage matrice a bande
 	/**

@@ -25,6 +25,10 @@ char dal_inverse_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/01/03 13:18:41  j_novak
+ * Optimization: the members set(i,j) and operator(i,j) of class Matrice are
+ * now defined inline. Matrice is a friend class of Tbl.
+ *
  * Revision 1.2  2002/01/02 14:07:57  j_novak
  * Dalembert equation is now solved in the shells. However, the number of
  * points in theta and phi must be the same in each domain. The solver is not
@@ -90,16 +94,21 @@ Tbl _dal_inverse_r_cheb_o2d_s(const Matrice &op, const Tbl &source,
 
   // Operator is put into banded form (changing the image base)
 
-  int dirac = 1 ; // Don't forget the factor 2 for T_0!!
+  int dirac = 2 ; // Don't forget the factor 2 for T_0!!
   for (int i=0; i<nr-4; i++) {
-    for (int j=0; j<nr; j++) 
-      barre.set(i,j) = (op(i+2,j) - (1+dirac)*op(i,j))/(i+1) ;
+    int nrmin = (i>1 ? i-1 : 0) ;
+    int nrmax = (i<nr-9 ? i+10 : nr) ;
+    for (int j=nrmin; j<nrmax; j++) 
+      barre.set(i,j) = (op(i+2,j) - dirac*op(i,j))/(i+1) ;
     if (part)
-      aux.set(i) = (source(i+2) - (1+dirac)*source(i))/(i+1) ;
-    if (i==0) dirac = 0 ;
+      aux.set(i) = (source(i+2) - dirac*source(i))/(i+1) ;
+    if (i==0) dirac = 1 ;
   }
   for (int i=0; i<nr-4; i++) {
-    for (int j=0; j<nr; j++) barre.set(i,j) = barre(i+2,j) - barre(i,j) ;
+    int nrmin = (i>1 ? i-1 : 0) ;
+    int nrmax = (i<nr-9 ? i+10 : nr) ;
+    for (int j=nrmin; j<nrmax; j++) 
+      barre.set(i,j) = barre(i+2,j) - barre(i,j) ;
     if (part) aux.set(i) = aux(i+2) - aux(i) ;
   }
 
@@ -125,16 +134,21 @@ Tbl _dal_inverse_r_cheb_o2d_l(const Matrice &op, const Tbl &source,
 
   // Operator is put into banded form (changing the image base)
 
-  int dirac = 1 ; // Don't forget the factor 2 for T_0!!
+  int dirac = 2 ; // Don't forget the factor 2 for T_0!!
   for (int i=0; i<nr-4; i++) {
-    for (int j=0; j<nr; j++) 
-      barre.set(i,j) = (op(i+2,j) - (1+dirac)*op(i,j))/(i+1) ;
+    int nrmin = (i>1 ? i-1 : 0) ;
+    int nrmax = (i<nr-9 ? i+10 : nr) ;
+    for (int j=nrmin; j<nrmax; j++) 
+      barre.set(i,j) = (op(i+2,j) - dirac*op(i,j))/(i+1) ;
     if (part)
-      aux.set(i) = (source(i+2) - (1+dirac)*source(i))/(i+1) ;
-    if (i==0) dirac = 0 ;
+      aux.set(i) = (source(i+2) - dirac*source(i))/(i+1) ;
+    if (i==0) dirac = 1 ;
   }
   for (int i=0; i<nr-4; i++) {
-    for (int j=0; j<nr; j++) barre.set(i,j) = barre(i+2,j) - barre(i,j) ;
+    int nrmin = (i>1 ? i-1 : 0) ;
+    int nrmax = (i<nr-9 ? i+10 : nr) ;
+    for (int j=nrmin; j<nrmax; j++) 
+      barre.set(i,j) = barre(i+2,j) - barre(i,j) ;
     if (part) aux.set(i) = aux(i+2) - aux(i) ;
   }
 
@@ -147,7 +161,9 @@ Tbl _dal_inverse_r_cheb_o2d_l(const Matrice &op, const Tbl &source,
   temp1 = aux(nr-1) ;
   temp2 = aux(nr-2) ;
   for (int i=nr-3; i>=0; i--) {
-    for (int j=0; j<nr; j++) 
+    int nrmin = (i>1 ? i-1 : 0) ;
+    int nrmax = (i<nr-9 ? i+10 : nr) ;
+    for (int j=nrmin; j<nrmax; j++) 
       barre.set(i+2,j) = barre(i,j) ;
     aux.set(i+2) = aux(i) ;
   }
@@ -189,16 +205,21 @@ Tbl _dal_inverse_r_cheb_o2_s(const Matrice &op, const Tbl &source,
 
   // Operator is put into banded form (changing the image base)
 
-  int dirac = 1 ; // Don't forget the factor 2 for T_0!!
+  int dirac = 2 ; // Don't forget the factor 2 for T_0!!
   for (int i=0; i<nr-4; i++) {
-    for (int j=0; j<nr; j++) 
-      barre.set(i,j) = (op(i+2,j) - (1+dirac)*op(i,j))/(i+1) ;
+    int nrmin = (i>2 ? i-2 : 0) ;
+    int nrmax = (i<nr-10 ? i+11 : nr) ;
+    for (int j=nrmin; j<nrmax; j++) 
+      barre.set(i,j) = (op(i+2,j) - dirac*op(i,j))/(i+1) ;
     if (part)
-      aux.set(i) = (source(i+2) - (1+dirac)*source(i))/(i+1) ;
-    if (i==0) dirac = 0 ;
+      aux.set(i) = (source(i+2) - dirac*source(i))/(i+1) ;
+    if (i==0) dirac = 1 ;
   }
   for (int i=0; i<nr-4; i++) {
-    for (int j=0; j<nr; j++) barre.set(i,j) = barre(i+2,j) - barre(i,j) ;
+    int nrmin = (i>2 ? i-2 : 0) ;
+    int nrmax = (i<nr-10 ? i+11 : nr) ;
+    for (int j=nrmin; j<nrmax; j++) 
+      barre.set(i,j) = barre(i+2,j) - barre(i,j) ;
     if (part) aux.set(i) = aux(i+2) - aux(i) ;
   }
 
@@ -224,16 +245,21 @@ Tbl _dal_inverse_r_cheb_o2_l(const Matrice &op, const Tbl &source,
 
   // Operator is put into banded form (changing the image base)
 
-  int dirac = 1 ; // Don't forget the factor 2 for T_0!!
+  int dirac = 2 ; // Don't forget the factor 2 for T_0!!
   for (int i=0; i<nr-4; i++) {
-    for (int j=0; j<nr; j++) 
-      barre.set(i,j) = (op(i+2,j) - (1+dirac)*op(i,j))/(i+1) ;
+    int nrmin = (i>2 ? i-2 : 0) ;
+    int nrmax = (i<nr-10 ? i+11 : nr) ;
+    for (int j=nrmin; j<nrmax; j++) 
+      barre.set(i,j) = (op(i+2,j) - dirac*op(i,j))/(i+1) ;
     if (part)
-      aux.set(i) = (source(i+2) - (1+dirac)*source(i))/(i+1) ;
-    if (i==0) dirac = 0 ;
+      aux.set(i) = (source(i+2) - dirac*source(i))/(i+1) ;
+    if (i==0) dirac = 1 ;
   }
   for (int i=0; i<nr-4; i++) {
-    for (int j=0; j<nr; j++) barre.set(i,j) = barre(i+2,j) - barre(i,j) ;
+    int nrmin = (i>2 ? i-2 : 0) ;
+    int nrmax = (i<nr-10 ? i+11 : nr) ;
+    for (int j=nrmin; j<nrmax; j++) 
+      barre.set(i,j) = barre(i+2,j) - barre(i,j) ;
     if (part) aux.set(i) = aux(i+2) - aux(i) ;
   }
 
@@ -246,7 +272,9 @@ Tbl _dal_inverse_r_cheb_o2_l(const Matrice &op, const Tbl &source,
   temp1 = aux(nr-1) ;
   temp2 = aux(nr-2) ;
   for (int i=nr-3; i>=0; i--) {
-    for (int j=0; j<nr; j++) 
+    int nrmin = (i>2 ? i-2 : 0) ;
+    int nrmax = (i<nr-10 ? i+11 : nr) ;
+    for (int j=nrmin; j<nrmax; j++) 
       barre.set(i+2,j) = barre(i,j) ;
     aux.set(i+2) = aux(i) ;
   }
@@ -302,28 +330,30 @@ Tbl _dal_inverse_r_chebp_o2d_s(const Matrice &op, const Tbl &source,
 
   // Operator is put into banded form (changing the image base)
 
-  int dirac = 1 ; // Don't forget the factor 2 for T_0!!
+  int dirac = 2 ; // Don't forget the factor 2 for T_0!!
   for (int i=0; i<nr-4; i++) {
-    for (int j=i; j<nr; j++) 
-      barre.set(i,j) = (op(i+2,j) - (1+dirac)*op(i,j))/(i+1) ;
+    int nrmax = (i<nr-7 ? i+8 : nr) ;
+    for (int j=i; j<nrmax; j++) 
+      barre.set(i,j) = (op(i+2,j) - dirac*op(i,j))/(i+1) ;
     if (part)
-      aux.set(i) = (source(i+2) - (1+dirac)*source(i))/(i+1) ;
-    if (i==0) dirac = 0 ;
+      aux.set(i) = (source(i+2) - dirac*source(i))/(i+1) ;
+    if (i==0) dirac = 1 ;
   }
   for (int i=0; i<nr-4; i++) {
-    for (int j=i; j<nr; j++) barre.set(i,j) = barre(i+1,j) - barre(i,j) ;
+    int nrmax = (i<nr-7 ? i+8 : nr) ;
+    for (int j=i; j<nrmax; j++) barre.set(i,j) = barre(i+1,j) - barre(i,j) ;
     if (part) aux.set(i) = aux(i+1) - aux(i) ;
   }
   if (fabs(barre(nr-5,nr-1)) >= 1.e-16) {
     if (fabs(barre(nr-5,nr-1)) > fabs(barre(nr-2,nr-1))) {
       double lambda = barre(nr-2,nr-1)/barre(nr-5,nr-1) ; 
-      for (int j=0; j<nr; j++) barre.set(nr-5,j) = barre(nr-5,j)*lambda
+      for (int j=nr-5; j<nr; j++) barre.set(nr-5,j) = barre(nr-5,j)*lambda
 				 -barre(nr-2,j) ;
       if (part) aux.set(nr-5) = aux(nr-5)*lambda - aux(nr-2) ;
     }
     else {
       double lambda = barre(nr-5,nr-1)/barre(nr-2,nr-1) ; 
-      for (int j=0; j<nr; j++) barre.set(nr-5,j) -= lambda*barre(nr-2,j) ;
+      for (int j=nr-5; j<nr; j++) barre.set(nr-5,j) -= lambda*barre(nr-2,j) ;
       if (part) aux.set(nr-5) -= lambda*aux(nr-2) ;
     }
   }
@@ -360,28 +390,30 @@ Tbl _dal_inverse_r_chebp_o2d_l(const Matrice &op, const Tbl &source,
 
   // Operator is put into banded form (changing the image base)
 
-  int dirac = 1 ; // Don't forget the factor 2 for T_0!!
+  int dirac = 2 ; // Don't forget the factor 2 for T_0!!
   for (int i=0; i<nr-4; i++) {
-    for (int j=i; j<nr; j++) 
-      barre.set(i,j) = (op(i+2,j) - (1+dirac)*op(i,j))/(i+1) ;
+    int nrmax = (i<nr-7 ? i+8 : nr) ;
+    for (int j=i; j<nrmax; j++) 
+      barre.set(i,j) = (op(i+2,j) - dirac*op(i,j))/(i+1) ;
     if (part)
-      aux.set(i) = (source(i+2) - (1+dirac)*source(i))/(i+1) ;
-    if (i==0) dirac = 0 ;
+      aux.set(i) = (source(i+2) - dirac*source(i))/(i+1) ;
+    if (i==0) dirac = 1 ;
   }
   for (int i=0; i<nr-4; i++) {
-    for (int j=i; j<nr; j++) barre.set(i,j) = barre(i+1,j) - barre(i,j) ;
+    int nrmax = (i<nr-7 ? i+8 : nr) ;
+    for (int j=i; j<nrmax; j++) barre.set(i,j) = barre(i+1,j) - barre(i,j) ;
     if (part) aux.set(i) = aux(i+1) - aux(i) ;
   }
   if (fabs(barre(nr-5,nr-1)) >= 1.e-16) {
     if (fabs(barre(nr-5,nr-1)) > fabs(barre(nr-2,nr-1))) {
       double lambda = barre(nr-2,nr-1)/barre(nr-5,nr-1) ; 
-      for (int j=0; j<nr; j++) barre.set(nr-5,j) = barre(nr-5,j)*lambda
+      for (int j=nr-5; j<nr; j++) barre.set(nr-5,j) = barre(nr-5,j)*lambda
 				 -barre(nr-2,j) ;
       if (part) aux.set(nr-5) = aux(nr-5)*lambda - aux(nr-2) ;
     }
     else {
       double lambda = barre(nr-5,nr-1)/barre(nr-2,nr-1) ; 
-      for (int j=0; j<nr; j++) barre.set(nr-5,j) -= lambda*barre(nr-2,j) ;
+      for (int j=nr-5; j<nr; j++) barre.set(nr-5,j) -= lambda*barre(nr-2,j) ;
       if (part) aux.set(nr-5) -= lambda*aux(nr-2) ;
     }
   }
@@ -435,16 +467,18 @@ Tbl _dal_inverse_r_chebp_o2_s(const Matrice &op, const Tbl &source,
 
   // Operator is put into banded form (changing the image base ...)
 
-  int dirac = 1 ;// Don't forget the factor 2 for T_0!!
+  int dirac = 2 ;// Don't forget the factor 2 for T_0!!
   for (int i=0; i<nr-4; i++) {
-    for (int j=i; j<nr; j++) 
-      barre.set(i,j) = (op(i+2,j) - (1+dirac)*op(i,j))/(i+1) ;
+    int nrmax = (i<nr-7 ? i+8 : nr) ;
+    for (int j=i; j<nrmax; j++) 
+      barre.set(i,j) = (op(i+2,j) - dirac*op(i,j))/(i+1) ;
     if (part)
-      aux.set(i) = (source(i+2) - (1+dirac)*source(i))/(i+1) ;
-    if (i==0) dirac = 0 ;
+      aux.set(i) = (source(i+2) - dirac*source(i))/(i+1) ;
+    if (i==0) dirac = 1 ;
   }
   for (int i=0; i<nr-4; i++) {
-    for (int j=i; j<nr; j++) barre.set(i,j) = barre(i+1,j) - barre(i,j) ;
+    int nrmax = (i<nr-7 ? i+8 : nr) ;
+    for (int j=i; j<nrmax; j++) barre.set(i,j) = barre(i+1,j) - barre(i,j) ;
     if (part) aux.set(i) = aux(i+1) - aux(i) ;
   }
 
@@ -495,17 +529,19 @@ Tbl _dal_inverse_r_chebp_o2_l(const Matrice &op, const Tbl &source,
 
   // Operator is put into banded form (changing the image base ...)
 
-  int dirac = 1 ;// Don't forget the factor 2 for T_0!!
+  int dirac = 2 ;// Don't forget the factor 2 for T_0!!
   for (int i=0; i<nr-4; i++) {
-    for (int j=i; j<nr; j++) {
-      barre.set(i,j) = (op(i+2,j) - (1+dirac)*op(i,j))/(i+1) ;
+    int nrmax = (i<nr-7 ? i+8 : nr) ;
+    for (int j=i; j<nrmax; j++) {
+      barre.set(i,j) = (op(i+2,j) - dirac*op(i,j))/(i+1) ;
     }
     if (part) 
-      aux.set(i) = (source(i+2) - (1+dirac)*source(i))/(i+1) ;
-    if (i==0) dirac = 0 ;
+      aux.set(i) = (source(i+2) - dirac*source(i))/(i+1) ;
+    if (i==0) dirac = 1 ;
   }
   for (int i=0; i<nr-4; i++) {
-    for (int j=i; j<nr; j++) barre.set(i,j) = barre(i+1,j) - barre(i,j) ;
+    int nrmax = (i<nr-7 ? i+8 : nr) ;
+    for (int j=i; j<nrmax; j++) barre.set(i,j) = barre(i+1,j) - barre(i,j) ;
     if (part) aux.set(i) = aux(i+1) - aux(i) ;
   }
   

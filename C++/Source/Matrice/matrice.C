@@ -32,8 +32,12 @@ char matrice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/01/03 13:18:41  j_novak
+ * Optimization: the members set(i,j) and operator(i,j) of class Matrice are
+ * now defined inline. Matrice is a friend class of Tbl.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.9  1999/12/24  10:19:16  eric
  * Suppression des definitions de nbl et nbc lignes 149 et 150.
@@ -246,30 +250,6 @@ ostream& operator<< (ostream& flux, const Matrice & source) {
 	cout << "Factorisation LU faite." << endl ;
 
 return flux ;
-}
-
-// Extraction d'un element
-double& Matrice::set (int i, int j) {
-    assert (etat == ETATQCQ) ;
-    if (band != 0x0) {
-	delete band ;
-	band = 0x0 ;
-    }
-    
-    if (lu != 0x0) {
-	delete lu ;
-	delete permute ;
-	lu = 0x0 ;
-	permute = 0x0 ;
-    }
-    
-    return std->set(i, j) ;
-}
-
-
-double Matrice::operator() (int i, int j) const {
-    assert (etat != ETATNONDEF) ;
-    return (*std)(i, j) ;
 }
 
 // Passage matrice a bande : stockage LAPACK

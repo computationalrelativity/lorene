@@ -25,6 +25,10 @@ char get_operateur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/01/03 13:18:41  j_novak
+ * Optimization: the members set(i,j) and operator(i,j) of class Matrice are
+ * now defined inline. Matrice is a friend class of Tbl.
+ *
  * Revision 1.2  2002/01/02 14:07:57  j_novak
  * Dalembert equation is now solved in the shells. However, the number of
  * points in theta and phi must be the same in each domain. The solver is not
@@ -164,12 +168,16 @@ int& type_dal, Matrice& operateur)
       for (int j=0 ; j<nr ; j++) vect[j] = 0 ;
       vect[i] = 1 ;
       multx_1d (nr, &vect, R_CHEB) ;
-      
-      for (int j=0 ; j<nr ; j++)
+
+      int nrmin = (i>10 ? i-10 : 0) ;
+      int nrmax = (i<nr-2 ? i+3 : nr) ;
+
+      if (fabs(a01)>1.e-15)
+	for (int j=nrmin ; j<nrmax; j++)
 	  operateur.set(j, i) += a01*vect[j] ; 
-      if (!dege) { 
+      if ((!dege)&&(fabs(a02)>1.e-15)) { 
 	multx_1d (nr, &vect, R_CHEB) ;
-	for (int j=0 ; j<nr ; j++)
+	for (int j=nrmin; j<nrmax ; j++)
 	  operateur.set(j, i) += a02*vect[j] ; 
       }
     }
@@ -179,19 +187,25 @@ int& type_dal, Matrice& operateur)
       vect[i] = 1 ;
       sxdsdx_1d (nr, &vect, R_CHEB) ;
       
-      for (int j=0 ; j<nr ; j++)
+      int nrmin = (i>10 ? i-10 : 0) ;
+      int nrmax = (i<nr-2 ? i+3 : nr) ;
+
+      if (fabs(a10)>1.e-15)
+	for (int j=nrmin ; j<nrmax ; j++)
 	  operateur.set(j, i) += a10*vect[j] ; 
       multx_1d (nr, &vect, R_CHEB) ;
       
-      for (int j=0 ; j<nr ; j++)
+      if (fabs(a11)>1.e-15)
+	for (int j=nrmin ; j<nrmax ; j++)
 	  operateur.set(j, i) += a11*vect[j] ; 
       multx_1d (nr, &vect, R_CHEB) ;
       
-      for (int j=0 ; j<nr ; j++)
+      if (fabs(a12)>1.e-15)
+	for (int j=nrmin ; j<nrmax ; j++)
 	  operateur.set(j, i) += a12*vect[j] ; 
-      if (!dege) {
+      if ((!dege)&&(fabs(a13)>1.e-15)) {
 	multx_1d (nr, &vect, R_CHEB) ;
-	for (int j=0 ; j<nr ; j++)
+	for (int j=nrmin ; j<nrmax ; j++)
 	  operateur.set(j, i) += a13*vect[j] ; 
       }
     }
@@ -201,20 +215,30 @@ int& type_dal, Matrice& operateur)
       vect[i] = 1 ;
       d2sdx2_1d (nr, &vect, R_CHEB) ;
       
-      for (int j=0 ; j<nr ; j++)
+      int nrmin = (i>10 ? i-10 : 0) ;
+      int nrmax = (i<nr-2 ? i+3 : nr) ;
+
+      if (fabs(a20)>1.e-15)
+	for (int j=nrmin ; j<nrmax ; j++)
 	  operateur.set(j, i) += a20*vect[j] ; 
+
       multx_1d (nr, &vect, R_CHEB) ;
-      for (int j=0; j<nr; j++) 
+      if (fabs(a21)>1.e-15)
+	for (int j=nrmin; j<nrmax ; j++) 
 	  operateur.set(j, i) += a21*vect[j] ;
+
       multx_1d (nr, &vect, R_CHEB) ;
-      for (int j=0; j<nr; j++) 
+      if (fabs(a22)>1.e-15)
+	for (int j=nrmin; j<nrmax; j++) 
 	  operateur.set(j, i) += a22*vect[j] ;
+
       multx_1d (nr, &vect, R_CHEB) ;
-      for (int j=0; j<nr; j++) 
+      if (fabs(a23)>1.e-15)
+	for (int j=nrmin; j<nrmax; j++) 
 	  operateur.set(j, i) += a23*vect[j] ;
-      if (!dege) {
+      if ((!dege)&&(fabs(a24)>1.e-15)) {
 	multx_1d (nr, &vect, R_CHEB) ;
-	for (int j=0; j<nr; j++) 
+	for (int j=nrmin; j<nrmax; j++) 
 	  operateur.set(j, i) += a24*vect[j] ;
       }
     }

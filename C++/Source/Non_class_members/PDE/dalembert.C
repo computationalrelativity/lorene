@@ -25,6 +25,10 @@ char dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/01/03 13:18:41  j_novak
+ * Optimization: the members set(i,j) and operator(i,j) of class Matrice are
+ * now defined inline. Matrice is a friend class of Tbl.
+ *
  * Revision 1.2  2002/01/02 14:07:57  j_novak
  * Dalembert equation is now solved in the shells. However, the number of
  * points in theta and phi must be the same in each domain. The solver is not
@@ -431,9 +435,7 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
 	  //--------------------------------------
 	  //   Solution of the linear system
 	  //--------------------------------------
-	  //cout << systeme ;
-	  //int gh ;
-	  //cin >> gh ;
+	  
 	  systeme.set_band(sup, inf) ;
 	  systeme.set_lu() ;
 	  Tbl facteur(systeme.inverse(deuz)) ;
