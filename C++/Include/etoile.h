@@ -34,6 +34,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2002/12/17 21:17:08  e_gourgoulhon
+ * Class Etoile_bin: suppression of the member p_companion
+ *                   as well as the associated functions set_companion
+ *   		  and get_companion.
+ *
  * Revision 1.6  2002/09/13 09:17:33  j_novak
  * Modif. commentaires
  *
@@ -697,9 +702,6 @@ class Etoile_bin : public Etoile {
 	 *  are defined, except for {\tt w\_shift} and {\tt ssjm1\_wshift}.
 	 */
 	const Base_vect& ref_triad ; 
-
-	/// Pointer on the companion star
-	const Etoile_bin* p_companion ; 
 	
 	/** Scalar potential $\Psi_0$ of the non-translational part of
 	 *  fluid 4-velocity (in the irrotational case)
@@ -939,10 +941,7 @@ class Etoile_bin : public Etoile {
 	
 	/// Read/write of {\tt khi\_shift}
 	Tenseur& set_khi_shift() ;
-	
-	/// Sets the pointer onto the companion star
-	void set_companion(const Etoile_bin& comp) ;  
-	
+		
     // Accessors
     // ---------
     public:
@@ -951,10 +950,7 @@ class Etoile_bin : public Etoile {
 	 */
 	bool is_irrotational() const {return irrotational; } ; 
 
-	/// Returns the companion star 
-	const Etoile_bin& get_companion() const {return *p_companion; } ; 
-
-	/// Returns the non-translational part of the velocity potential 
+	/// Returns the non-translational part of the velocity potential
 	const Tenseur& get_psi0() const {return psi0;} ;
 
 	/** Returns the gradient of the velocity potential 
