@@ -29,6 +29,9 @@ char et_bin_ncp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/01/20 17:07:05  f_limousin
+ * add <math.h>
+ *
  * Revision 1.2  2003/01/17 13:38:29  f_limousin
  * Add computational routines
  *
@@ -45,7 +48,7 @@ char et_bin_ncp_C[] = "$Header$" ;
 
 // Lorene headers
 #include "et_bin_ncp.h"
-
+#include <math.h>
 
 
 			    //--------------//
