@@ -30,6 +30,9 @@ char tslice_dirac_max_solve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/05/05 14:47:05  e_gourgoulhon
+ * Modified text and graphical outputs.
+ *
  * Revision 1.4  2004/05/03 15:06:27  e_gourgoulhon
  * Added matter source in solve_hij.
  *
@@ -57,6 +60,7 @@ char tslice_dirac_max_solve_C[] = "$Header$" ;
 #include "metric.h"
 #include "evolution.h"
 #include "unites.h"
+#include "graphique.h"
 
                     //--------------------------//
                     //      Equation for N      //
@@ -203,7 +207,20 @@ Vector Tslice_dirac_max::solve_beta(const Vector* p_mom_dens) const {
     vtmp.inc_dzpuis() ; // dzpuis: 3 -> 4
                     
     source_beta -= vtmp ; 
-
+    
+    //##
+    //for (int i=1; i<=3; i++) {
+    //    if (source_beta(i).get_etat() != ETATZERO) {
+    //        const Mg3d& mg = *(beta().get_mp().get_mg()) ;
+    //        int nz = mg.get_nzone() ;
+    //        int nr = mg.get_nr(nz-1) ; 
+    //        int nt = mg.get_nt(nz-1) ; 
+    //        int np = mg.get_np(nz-1) ; 
+    //        Tbl tb(np, nt, nr) ;
+    //        tb.annule_hard() ; 
+    //        source_beta.set(i).set_domain(nz-1) = tb ; 
+    //    }
+    // }
 
     // Resolution of the vector Poisson equation 
     //------------------------------------------
@@ -249,8 +266,13 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
   beta_point.inc_dzpuis(2) ; // dzpuis : 0 -> 2
   
   Sym_tensor hh_point = hh_evol.time_derive(jtime, scheme_order) ; 
+  
   hh_point.inc_dzpuis(2) ; // dzpuis : 0 -> 2
         
+  des_meridian(hh_point(1,1), 0., 6., "dot h\\urr\\d", 25) ; 
+  des_meridian(hh_point(2,3), 0., 6., "dot h\\u\\gh\\gf\\d", 26) ; 
+  des_meridian(hh_point(3,3), 0., 6., "dot h\\u\\gf\\gf\\d", 27) ; 
+
   //==================================
   // Source for hij
   //==================================
@@ -379,6 +401,8 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
                                        - 0.3333333333333333 * tmp * tgam_uu ) 
                     )   ; 
 
+  maxabs(ss, "ss tot") ; 
+  
   // Source for h^{ij} 
   // -----------------
                  
@@ -435,6 +459,15 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
   // ------------
   source_hh += 0.6666666666666666* div_beta * l_beta - sym_tmp ; 
            
+    maxabs(hh(), "h^{ij}") ;
+    maxabs(source_hh, "Maxabs source_hh") ; 
+
+    maxabs( source_hh.divergence(ff), "Divergence of source_hh") ; 
+    maxabs( source_hh.transverse(ff).divergence(ff), 
+                "Divergence of source_hh_transverse") ; 
+    maxabs( source_hh.transverse(ff).trace(ff), 
+                "Trace of source_hh_transverse") ; 
+
 
     //=============================================
     // Resolution of wave equation for h
@@ -448,14 +481,12 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
     const Scalar& khi_source = source_htt.khi() ; 
         
     const Scalar& mu_source = source_htt.mu() ; 
-       
-    // des_meridian(khi_source, 0., 2., "khi_source", 11) ; 
-                     
+                            
     khi_new = khi_evol[jtime].avance_dalembert(par_khi,
                                          khi_evol[jtime-1], khi_source) ;
     khi_new.smooth_decay(2,2) ; 
         
-    // des_meridian(khi_jp1, 0., 5., "khi_jp1", 12) ; 
+    // des_meridian(khi_new, 0., 5., "khi_new", 32) ; 
         
     maxabs(khi_new - khi_evol[jtime], "Variation of khi") ;  
         
@@ -463,7 +494,7 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
                                          mu_evol[jtime-1], mu_source) ;
     mu_new.smooth_decay(2,2) ; 
                                         
-    // des_meridian(mu_jp1, 0., 5., "mu_jp1", 14) ; 
+    // des_meridian(mu_new, 0., 5., "mu_new", 33) ; 
         
 
 
