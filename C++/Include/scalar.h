@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.55  2004/05/24 14:07:31  e_gourgoulhon
+ * Method set_domain now includes a call to del_deriv() for safety.
+ *
  * Revision 1.54  2004/05/07 11:26:10  f_limousin
  * New method filtre_r(int*)
  *
@@ -446,21 +449,23 @@ class Scalar : public Tensor {
   Valeur& set_spectral_va() {return va;} ; 
   
   /** Read/write of the value in a given domain.
-   * CAUTION: to gain in efficiency, the method \c del_deriv()  (to delete
-   *     the derived members) is not called by this function. It must
-   *     thus be invoqued by the user.  
+   *  This method should be used only to set the value in a given
+   *  domain (it performs a call to \c del_deriv); for reading the
+   *  value in a domain without changing it, the method \c domain(int )
+   *  is preferable.
    *
    * @param l [input] domain index
-   * @return Tbl containing the value of the field in domain \c l .
+   * @return writable \c Tbl containing the value of the field in domain \c l .
    */ 
   Tbl& set_domain(int l) {
     assert(etat == ETATQCQ) ;
+    del_deriv() ; 
     return va.set(l) ;
   };
   
   /** Read-only of the value in a given domain.
    * @param l [input] domain index
-   * @return Tbl containing the value of the field in domain \c l .
+   * @return \c Tbl containing the value of the field in domain \c l .
    */ 
   const Tbl& domain(int l) const {
     assert( (etat == ETATQCQ) || (etat == ETATUN) ) ;
