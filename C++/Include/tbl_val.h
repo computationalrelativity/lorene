@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/11/26 17:02:18  j_novak
+ * Added a function giving a smooth transition to the atmosphere.
+ *
  * Revision 1.5  2004/03/22 13:12:43  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -532,6 +535,9 @@ class Tbl_val {
    */
   void from_spectral(const Cmp& meudon, int lmax, int lmin=0,
 		     bool interfr = false, bool interft = false) ;
+
+
+  void smooth_atmosphere(double atmosphere_thr) ;
 } ;
 
 
