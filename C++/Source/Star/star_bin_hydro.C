@@ -31,6 +31,9 @@ char star_bin_hydro_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/04/08 16:34:39  f_limousin
+ * Changes for irrotationnal binaries.
+ *
  * Revision 1.3  2004/02/27 09:54:48  f_limousin
  * Many minor changes.
  *
@@ -81,21 +84,12 @@ void Star_bin::hydro_euler(){
 	gam_euler = sqrt( 1 + sprod(d_psi, d_psi) / (hhh%hhh) ) ; 
 
 	gam_euler.std_spectral_base() ; 
+	
+	d_psi.change_triad(mp.get_bvect_spher()) ;
+	u_euler = contract(gamma.con(), 0, d_psi, 0)/( hhh % gam_euler ) ;
+	u_euler.change_triad(mp.get_bvect_cart()) ;
+	d_psi.change_triad(mp.get_bvect_cart()) ;
 
-	u_euler = contract(gamma.con(), 0, d_psi, 0)/( hhh % gam_euler ) ; 
-/*
-	// See Eq (31) from Gourgoulhon et al. (2001)
-	Vector vtmp = contract(gamma.con(), 0, d_psi, 0)/( hhh % gam_euler ) ; 
-
-	// The assignment of u_euler is performed component by component 
-	//  because u_euler is contravariant and d_psi is covariant
-
-	u_euler.set_etat_qcq() ; 
-	for (int i=1; i<=3; i++) {
-	    u_euler.set(i) = vtmp(i) ;
-	}
-	u_euler.set_triad( *(vtmp.get_triad()) ) ; 
-*/
 	u_euler.std_spectral_base() ; 
 
     }
@@ -135,19 +129,13 @@ void Star_bin::hydro_euler(){
     
     for(int i=1; i<=3; i++){
 	for(int j=1; j<=3; j++){
-/*	    Scalar gtildeij( gtilde.con()(i,j) ) ;
-	    Scalar u_euler_i (u_euler(i)) ;
-	    Scalar u_euler_j (u_euler(j)) ;
-	    gtildeij.std_spectral_base() ;
-	    u_euler_i.std_spectral_base() ;
-	    u_euler_j.std_spectral_base() ;
-*/
 	    stress_euler.set(i,j) = (ener_euler + press )*u_euler(i)
 		*u_euler(j) + press*gtilde.con()(i,j) ;
 	}
     }
-    stress_euler.change_triad(mp.get_bvect_spher()) ;
     stress_euler.std_spectral_base() ;
+    stress_euler.change_triad(mp.get_bvect_spher()) ;
+
     
     //-------------------------------------------
     //	Lorentz factor between the fluid and		---> gam
@@ -166,7 +154,7 @@ void Star_bin::hydro_euler(){
 	//  with respect to the co-orbiting observer
 	//--------------------------------------------
 	
-	wit_w = gam_euler / gam % u_euler + gam0 % bsn ; 
+	wit_w = gam_euler / gam * u_euler + gam0 * bsn ; 
 	
 	wit_w.std_spectral_base() ;  // set the bases for spectral expansions
 	
