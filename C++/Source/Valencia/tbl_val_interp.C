@@ -32,6 +32,9 @@ char TBL_VAL_INTER_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/03 16:17:17  j_novak
+ * Corrected some const qualifiers
+ *
  * Revision 1.4  2002/11/13 11:22:57  j_novak
  * Version "provisoire" de l'interpolation (sommation depuis la grille
  * spectrale) aux interfaces de la grille de Valence.
@@ -61,7 +64,7 @@ char TBL_VAL_INTER_C[] = "$Header$" ;
 #include "tbl_val.h"
 
 
-Cmp Tbl_val::to_spectral(const Map& mp, int lmax, int lmin, 
+Cmp Tbl_val::to_spectral(const Map& mp, const int lmax, const int lmin, 
 			     int type_inter) const {
 
   assert(etat != ETATNONDEF) ;

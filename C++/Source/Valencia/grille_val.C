@@ -32,6 +32,9 @@ char Grille_val_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/03 16:17:17  j_novak
+ * Corrected some const qualifiers
+ *
  * Revision 1.2  2001/12/04 21:27:54  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -522,7 +525,7 @@ Gval_spher::Gval_spher(const double irmin, const double irmax, const int nr,
 }
 
 // Constructeur 2D
-Gval_spher::Gval_spher(double irmin, const double irmax, const int nt, 
+Gval_spher::Gval_spher(const double irmin, const double irmax, const int nt, 
 		     const int nr, const int type_t, const int fantome)
   :Grille_val(irmin, irmax, nt, nr, type_t, fantome),
    phi(0x0), phii(0x0) 

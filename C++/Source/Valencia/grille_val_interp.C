@@ -32,6 +32,9 @@ char grille_val_interp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/03 16:17:17  j_novak
+ * Corrected some const qualifiers
+ *
  * Revision 1.4  2002/11/13 11:22:57  j_novak
  * Version "provisoire" de l'interpolation (sommation depuis la grille
  * spectrale) aux interfaces de la grille de Valence.
@@ -437,7 +440,7 @@ Tbl Gval_cart::interpol2(const Tbl& fdep, const Tbl& rarr,
 }
 
 Tbl Gval_cart::interpol2c(const Tbl& zdep, const Tbl& xdep, const Tbl& fdep, 
-	      const Tbl& rarr, const Tbl& tarr, int inter_type) const {
+	      const Tbl& rarr, const Tbl& tarr, const int inter_type) const {
   
   assert(fdep.get_ndim() == 2) ;
   assert(zdep.get_ndim() == 1) ;
