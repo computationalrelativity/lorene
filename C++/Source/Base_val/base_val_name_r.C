@@ -1,0 +1,192 @@
+/*
+ *  Method Base_val::name_r
+ *
+ *	(see file base_val.h for documentation). 
+ *
+ */
+
+/*
+ *   Copyright (c) 2003 Eric Gourgoulhon. 
+ *
+ *   This file is part of LORENE.
+ *
+ *   LORENE is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License version 2
+ *   as published by the Free Software Foundation.
+ *
+ *   LORENE is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LORENE; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+char base_val_name_r_C[] = "$Header$" ;
+
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.1  2003/10/19 19:49:40  e_gourgoulhon
+ * First version
+ *
+ *
+ *
+ * $Header$
+ *
+ */
+
+// C headers
+#include <string.h>
+#include <stdlib.h>
+
+// Lorene headers
+#include "base_val.h"
+
+// Local prototypes
+void basename_r_unknown(int, int, int, char*) ; 
+void basename_r_cheb(int, int, int, char*) ; 
+void basename_r_chebp(int, int, int, char*) ; 
+void basename_r_chebi(int, int, int, char*) ; 
+void basename_r_chebpim_p(int, int, int, char*) ; 
+void basename_r_chebpim_i(int, int, int, char*) ; 
+
+			//----------------------------//
+			//      Base_val method       //
+			//----------------------------//
+
+void Base_val::name_r(int l, int k, int j, int i, char* name) const {
+
+	// Array of actual base name functions
+    static void(*vbasename_r[MAX_BASE])(int, int, int, char*) ;  
+
+    static bool first_call = true ;
+
+    // Initializations at first call
+    // -----------------------------
+    if ( first_call ) {
+
+		first_call = false ;
+
+		for (int ib=0 ; ib<MAX_BASE ; ib++) {
+	    	vbasename_r[ib] = basename_r_unknown ;
+		}
+
+		vbasename_r[R_CHEB >> TRA_R] = basename_r_cheb ;
+		vbasename_r[R_CHEBP >> TRA_R] = basename_r_chebp ;
+		vbasename_r[R_CHEBI >> TRA_R] = basename_r_chebi ;
+		vbasename_r[R_CHEBPIM_P >> TRA_R] = basename_r_chebpim_p ;
+		vbasename_r[R_CHEBPIM_I >> TRA_R] = basename_r_chebpim_i ;
+		vbasename_r[R_CHEBU >> TRA_R] = basename_r_cheb ;
+
+    }
+	
+	// Call to the function adapted to the basis in domain l
+	//------------------------------------------------------
+	
+	assert( (l>=0) && (l<nzone) ) ; 
+	
+    int base_r = ( b[l] & MSQ_R ) >> TRA_R ;
+	
+	vbasename_r[base_r](k, j, i, name) ; 
+
+}
+	
+	
+			//-------------------------------//
+            //  individual basis functions   //
+			//-------------------------------//
+	
+void basename_r_unknown(int, int, int, char*) {
+	cout << "Base_val::name_r : unknwon basis !" << endl ; 
+	abort() ; 
+} 
+
+
+void basename_r_cheb(int, int, int i, char* name) {
+
+	assert( i>=0 ) ; 
+
+	strcpy(name, "T") ; 
+		
+	char cxr[4] ;
+	assert( i < 1000) ; 
+	sprintf(cxr, "%d", i) ; 
+	strcat(name, cxr) ; 
+}	
+
+
+void basename_r_chebp(int, int, int i, char* name) {
+
+	assert( i>=0 ) ; 
+
+	strcpy(name, "T") ; 
+		
+	int xr = 2*i ; 
+	char cxr[4] ;
+	assert( xr < 1000) ; 
+	sprintf(cxr, "%d", xr) ; 
+	strcat(name, cxr) ; 
+}	
+
+
+void basename_r_chebi(int, int, int i, char* name) {
+
+	assert( i>=0 ) ; 
+
+	strcpy(name, "T") ; 
+		
+	int xr = 2*i + 1 ; 
+	char cxr[4] ;
+	assert( xr < 1000) ; 
+	sprintf(cxr, "%d", xr) ; 
+	strcat(name, cxr) ; 
+}	
+
+
+void basename_r_chebpim_p(int k, int, int i, char* name) {
+
+	assert( k>=0 ) ; 
+	assert( i>=0 ) ; 
+
+	int m = k / 2 ; 
+	int xr = (m%2 == 0) ? 2*i : 2*i + 1 ; 
+
+	strcpy(name, "T") ; 
+		
+	char cxr[4] ;
+	assert( xr < 1000) ; 
+	sprintf(cxr, "%d", xr) ; 
+	strcat(name, cxr) ; 
+}	
+
+
+void basename_r_chebpim_i(int k, int, int i, char* name) {
+
+	assert( k>=0 ) ; 
+	assert( i>=0 ) ; 
+
+	int m = k / 2 ; 
+	int xr = (m%2 == 0) ? 2*i + 1 : 2*i ; 
+
+	strcpy(name, "T") ; 
+		
+	char cxr[4] ;
+	assert( xr < 1000) ; 
+	sprintf(cxr, "%d", xr) ; 
+	strcat(name, cxr) ; 
+}	
+
+
+
+
+
+
+
+
+
+
+

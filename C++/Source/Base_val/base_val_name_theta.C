@@ -1,0 +1,482 @@
+/*
+ *  Method Base_val::name_theta
+ *
+ *	(see file base_val.h for documentation). 
+ *
+ */
+
+/*
+ *   Copyright (c) 2003 Eric Gourgoulhon. 
+ *
+ *   This file is part of LORENE.
+ *
+ *   LORENE is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License version 2
+ *   as published by the Free Software Foundation.
+ *
+ *   LORENE is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LORENE; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+char base_val_name_theta_C[] = "$Header$" ;
+
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.1  2003/10/19 19:49:40  e_gourgoulhon
+ * First version
+ *
+ *
+ *
+ * $Header$
+ *
+ */
+
+// C headers
+#include <string.h>
+#include <stdlib.h>
+
+// Lorene headers
+#include "base_val.h"
+
+// Local prototypes
+void basename_t_unknown(int, int, char*) ; 
+void basename_t_cos_p(int, int, char*) ; 
+void basename_t_sin_p(int, int, char*) ; 
+void basename_t_cos_i(int, int, char*) ; 
+void basename_t_sin_i(int, int, char*) ; 
+void basename_t_cossin_cp(int, int, char*) ; 
+void basename_t_cossin_sp(int, int, char*) ; 
+void basename_t_cossin_ci(int, int, char*) ; 
+void basename_t_cossin_si(int, int, char*) ; 
+void basename_t_leg_p(int, int, char*) ; 
+void basename_t_leg_pp(int, int, char*) ; 
+void basename_t_leg_i(int, int, char*) ; 
+void basename_t_leg_ip(int, int, char*) ; 
+void basename_t_leg_pi(int, int, char*) ; 
+void basename_t_leg_ii(int, int, char*) ; 
+
+			//----------------------------//
+			//      Base_val method       //
+			//----------------------------//
+
+void Base_val::name_theta(int l, int k, int j, char* name) const {
+
+	// Array of actual base name functions
+    static void(*vbasename_t[MAX_BASE])(int, int, char*) ;  
+
+    static bool first_call = true ;
+
+    // Initializations at first call
+    // -----------------------------
+    if ( first_call ) {
+
+		first_call = false ;
+
+		for (int i=0 ; i<MAX_BASE ; i++) {
+	    	vbasename_t[i] = basename_t_unknown ;
+		}
+
+		vbasename_t[T_COS_P >> TRA_T] = basename_t_cos_p ;
+		vbasename_t[T_SIN_P >> TRA_T] = basename_t_sin_p ;
+		vbasename_t[T_COS_I >> TRA_T] = basename_t_cos_i ;
+		vbasename_t[T_SIN_I >> TRA_T] = basename_t_sin_i ;
+		vbasename_t[T_COSSIN_CP >> TRA_T] = basename_t_cossin_cp ;
+		vbasename_t[T_COSSIN_SP >> TRA_T] = basename_t_cossin_sp ;
+		vbasename_t[T_COSSIN_CI >> TRA_T] = basename_t_cossin_ci ;
+		vbasename_t[T_COSSIN_SI >> TRA_T] = basename_t_cossin_si ;
+		vbasename_t[T_LEG_P >> TRA_T] = basename_t_leg_p ;
+		vbasename_t[T_LEG_PP >> TRA_T] = basename_t_leg_pp ;
+		vbasename_t[T_LEG_I >> TRA_T] = basename_t_leg_i ;
+		vbasename_t[T_LEG_IP >> TRA_T] = basename_t_leg_ip ;
+		vbasename_t[T_LEG_PI >> TRA_T] = basename_t_leg_pi ;
+		vbasename_t[T_LEG_II >> TRA_T] = basename_t_leg_ii ;
+
+    }
+	
+	// Call to the function adapted to the basis in domain l
+	//------------------------------------------------------
+	
+	assert( (l>=0) && (l<nzone) ) ; 
+	
+    int base_t = ( b[l] & MSQ_T ) >> TRA_T ;
+	
+	vbasename_t[base_t](k, j, name) ; 
+
+}
+	
+	
+			//-------------------------------//
+            //  individual basis functions   //
+			//-------------------------------//
+	
+void basename_t_unknown(int, int, char*) {
+	cout << "Base_val::name_theta : unknwon basis !" << endl ; 
+	abort() ; 
+} 
+
+
+void basename_t_cos_p(int , int j, char* name) {
+
+	assert( j>=0 ) ; 
+
+	strcpy(name, "cos") ; 
+		
+	int xt = 2*j ; 
+		
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "t") ; 
+}	
+
+
+void basename_t_sin_p(int , int j, char* name) {
+
+	assert( j>=0 ) ; 
+
+	if (j == 0) {
+		strcpy(name, "unused") ; 
+		return ;
+	}
+
+	strcpy(name, "sin") ; 
+		
+	int xt = 2*j ; 
+		
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "t") ; 
+}	
+
+	
+void basename_t_cos_i(int , int j, char* name) {
+
+	assert( j>=0 ) ; 
+
+	strcpy(name, "cos") ; 
+		
+	int xt = 2*j + 1 ; 
+		
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "t") ; 
+}	
+
+
+void basename_t_sin_i(int , int j, char* name) {
+
+	assert( j>=0 ) ; 
+
+	strcpy(name, "sin") ; 
+		
+	int xt = 2*j + 1 ; 
+		
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "t") ; 
+}	
+
+	
+void basename_t_cossin_cp(int k, int j, char* name) {
+
+	assert( k>=0 ) ; 
+	assert( j>=0 ) ; 
+
+	int m = k / 2 ; 
+	int xt ; 
+	if (m%2 == 0) {
+		strcpy(name, "cos") ; 
+		xt = 2*j ; 
+	}
+	else {
+		strcpy(name, "sin") ; 
+		xt = 2*j + 1 ; 
+	}
+	
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "t") ; 
+}	
+
+
+void basename_t_cossin_sp(int k, int j, char* name) {
+
+	assert( k>=0 ) ; 
+	assert( j>=0 ) ; 
+
+	int m = k / 2 ; 
+	int xt ; 
+	if (m%2 == 0) {
+		if (j == 0) {
+			strcpy(name, "unused") ;
+			return ;  
+		}
+		else {
+			strcpy(name, "sin") ; 
+			xt = 2*j ;
+		} 
+	}
+	else {
+		strcpy(name, "cos") ; 
+		xt = 2*j + 1 ; 
+	}
+	
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "t") ; 
+}	
+
+
+void basename_t_cossin_ci(int k, int j, char* name) {
+
+	assert( k>=0 ) ; 
+	assert( j>=0 ) ; 
+
+	int m = k / 2 ; 
+	int xt ; 
+	if (m%2 == 0) {
+		strcpy(name, "cos") ; 
+		xt = 2*j + 1; 
+	}
+	else {
+		if (j == 0) {
+			strcpy(name, "unused") ;
+			return ;  
+		}
+		else {
+			strcpy(name, "sin") ; 
+			xt = 2*j ; 
+		}
+	}
+	
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "t") ; 
+}	
+
+
+void basename_t_cossin_si(int k, int j, char* name) {
+
+	assert( k>=0 ) ; 
+	assert( j>=0 ) ; 
+
+	int m = k / 2 ; 
+	int xt ; 
+	if (m%2 == 0) {
+		strcpy(name, "sin") ; 
+		xt = 2*j + 1; 
+	}
+	else {
+		strcpy(name, "cos") ; 
+		xt = 2*j ; 
+	}
+	
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "t") ; 
+}	
+
+
+void basename_t_leg_p(int k, int j, char* name) {
+
+	assert( k>=0 ) ; 
+	assert( j>=0 ) ; 
+
+	int m = k / 2 ;
+	 
+	if (j < m/2) {
+		strcpy (name, "unused") ; 
+		return ; 
+	}
+	
+	strcpy(name, "P_") ; 
+
+	int xt = (m%2 == 0) ? 2*j : 2*j + 1 ; 
+
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "^") ; 
+
+	assert( m < 1000) ; 
+	sprintf(cxt, "%d", m) ; 
+	strcat(name, cxt) ; 
+}	
+
+
+void basename_t_leg_pp(int k, int j, char* name) {
+
+	assert( k>=0 ) ; 
+	assert( j>=0 ) ; 
+
+	int m = 2 * (k / 2) ; 
+	 
+	if (j < m/2) {
+		strcpy (name, "unused") ; 
+		return ; 
+	}
+	
+	strcpy(name, "P_") ; 
+
+	int xt = 2*j ; 
+
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "^") ; 
+
+	assert( m < 1000) ; 
+	sprintf(cxt, "%d", m) ; 
+	strcat(name, cxt) ; 
+}	
+
+
+void basename_t_leg_i(int k, int j, char* name) {
+
+	assert( k>=0 ) ; 
+	assert( j>=0 ) ; 
+
+	int m = k / 2 ;
+	 
+	if (j < m/2 + m%2) {
+		strcpy (name, "unused") ; 
+		return ; 
+	}
+	
+	strcpy(name, "P_") ; 
+
+	int xt = (m%2 == 0) ? 2*j + 1 : 2*j ; 
+
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "^") ; 
+
+	assert( m < 1000) ; 
+	sprintf(cxt, "%d", m) ; 
+	strcat(name, cxt) ; 
+}	
+	
+
+void basename_t_leg_ip(int k, int j, char* name) {
+
+	assert( k>=0 ) ; 
+	assert( j>=0 ) ; 
+
+	int m = 2 * (k / 2) ; 
+	 
+	if (j < m/2) {
+		strcpy (name, "unused") ; 
+		return ; 
+	}
+	
+	strcpy(name, "P_") ; 
+
+	int xt = 2*j + 1 ; 
+
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "^") ; 
+
+	assert( m < 1000) ; 
+	sprintf(cxt, "%d", m) ; 
+	strcat(name, cxt) ; 
+}	
+
+
+void basename_t_leg_pi(int k, int j, char* name) {
+
+	assert( k>=0 ) ; 
+	assert( j>=0 ) ; 
+
+	int m = 2 * ((k-1) / 2) + 1 ; 
+	 
+	if (j < m/2) {
+		strcpy (name, "unused") ; 
+		return ; 
+	}
+	
+	strcpy(name, "P_") ; 
+
+	int xt = 2*j + 1 ; 
+
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "^") ; 
+
+	assert( m < 1000) ; 
+	sprintf(cxt, "%d", m) ; 
+	strcat(name, cxt) ; 
+}	
+
+
+void basename_t_leg_ii(int k, int j, char* name) {
+
+	assert( k>=0 ) ; 
+	assert( j>=0 ) ; 
+
+	int m = 2 * ((k-1) / 2) + 1 ; 
+	 
+	if (j < m/2 + 1) {
+		strcpy (name, "unused") ; 
+		return ; 
+	}
+	
+	strcpy(name, "P_") ; 
+
+	int xt = 2*j ; 
+
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "^") ; 
+
+	assert( m < 1000) ; 
+	sprintf(cxt, "%d", m) ; 
+	strcat(name, cxt) ; 
+}	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
