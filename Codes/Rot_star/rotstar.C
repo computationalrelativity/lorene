@@ -29,8 +29,13 @@ char rotstar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:31  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/03/28 08:58:33  e_gourgoulhon
+ * New Makefile, to produce any of the man codes
+ * Updated README file
+ * Template parameter files for rotseq
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:31  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.16  2001/10/10  13:58:04  eric
  * Modif Joachim: traitement des legendes graphiques
@@ -399,9 +404,33 @@ int main(){
 	 << endl << "==========   " << endl ;
 
     cout.precision(10) ; 
-    cout << star << endl ; 
+    cout << star << endl ;
 
-    double vit_triax = diff(7) ; 
+    double rho_c = star.get_ener()()(0,0,0,0) ;
+
+    cout << "r_p/r_eq :" << star.aplat() << endl ;
+    cout << "Omega rho0^{-1/2} : " << star.get_omega_c() /
+    	sqrt( ggrav * rho_c ) << endl ;
+
+    cout << "M rho0^{1/2} : " << star.mass_g() * pow(ggrav,1.5) *
+    	sqrt( rho_c ) << endl ;
+
+    cout << "M_B rho0^{1/2} : " << star.mass_b() * pow(ggrav,1.5) *
+    	sqrt( rho_c ) << endl ;
+
+    cout << "R_circ rho0^{1/2} : " << star.r_circ() *
+    	sqrt( ggrav * rho_c ) << endl ;
+    	
+    cout << "J rho0 : " << star.angu_mom() * ggrav * ggrav * rho_c  << endl ;
+    	
+    cout << "Z_p :      " << star.z_pole() << endl ;
+    cout << "Z_eq^f :   " << star.z_eqf() << endl ;
+    cout << "Z_eq^b :   " << star.z_eqb() << endl ;
+
+    cout << "GRV2: " << star.grv2() << endl ;
+    cout << "GRV3: " << star.grv3() << endl ;
+
+    double vit_triax = diff(7) ;
 
     //-----------------------------------------------
     //  General features of the final configuration

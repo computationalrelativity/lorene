@@ -3,26 +3,29 @@
  	      *	Lorene codes for rotating relativistic stars  *
 	      *************************************************
 
-				   $Id$
+	$Id$
 
 
 1/ Description of the various codes
    ================================
 
 rotstar: code for rigidly rotating stars in GR
+rotdiff: code for differentially rotating stars in GR
+rotseq:  code for computing sequences of either rigidly or differentially rotating stars in GR
 
 2/ Compilation
    ===========
 
-Typing 
+Typing
 
-	make
+	make name_of_main_code
 
-will produce the executable rotstar in a non-optimized version for
+where name_of_main_code = rotstar, rotdiff or rotseq
+will produce the executable  in a non-optimized version for
 debugging purposes. To get an optimized version for production purposes
 type instead
 
-	make -f Makefile_O2
+	make -f Makefile_O2 name_of_main_code
 
 You can clear everything by
 
@@ -31,6 +34,9 @@ You can clear everything by
 
 3/ Input parameters
    ================
+
+rotstar:
+-------
 
 The code rotstar needs two input files:
 
@@ -41,16 +47,33 @@ Templates files are provided in the directory Parameters. For instance
 to compute a relativistic polytropic (gamma=2) star rotating at the
 Keplerian limit, do
 
-	cp Parameters/Kepler_GR/parrot.d . 	
+	cp Parameters/Kepler_GR/parrot.d .
 	cp Parameters/Kepler_GR/par_eos.d .
+
+rotseq:
+------
+The code rotseq needs two input files:
+
+parrotseq.d :  parameters of the computation (includes the definition
+                of the sequence)
+par_eos.d : description of the equation of state
+
+Templates files are provided in the directory Parameters/Rotseq.
+To use them, simply type
+
+	cp Parameters/Rotseq/parrotseq.d .
+	cp Parameters/Rotseq/par_eos.d .
 
 4/ Running
    =======
 
-Simply type 
+Simply type
 
 	rotstar
 
-The output files like convergence.d can be visualized via xmgrace. 
+or
+        rotseq
 
- 
+The output files like convergence.d can be visualized via xmgrace.
+
+
