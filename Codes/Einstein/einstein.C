@@ -29,6 +29,9 @@ char einstein_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/02/19 22:16:42  e_gourgoulhon
+ * Sources of equations for Q, N and beta completed.
+ *
  * Revision 1.1  2004/02/18 19:16:28  e_gourgoulhon
  * First version: c'est loin d'etre pret tout ca !!!
  *
@@ -100,22 +103,27 @@ int main() {
                                             // thanks to Dirac gauge
                                             
     hh.set_etat_zero() ;    //  initialization to zero
-    
 
     // Set up of field Q = Psi^2 N
     // ---------------------------
     
     Scalar qq(map) ; 
     qq = 1 ; 
+    qq.std_spectral_base() ;    // sets standard spectral bases
 
 
     // Set up of conformal metric gamma_tilde
     // --------------------------------------
     
     Metric tgam( ff.con() ) ;   // construction from the flat metric
-    tgam = ff.con() + hh ;  // initialization  
+
+    tgam = ff.con() + hh ;      // initialization  [ Eq. (51) ]
     
-    const Sym_tensor& tgam_dd = tgam.cov() ;    // abreviation
+    // Some shortcuts:
+    const Sym_tensor& tgam_dd = tgam.cov() ;    
+    const Sym_tensor& tgam_uu = tgam.con() ;    
+    const Tensor_sym& delta = tgam.connect().get_delta() ;   // Eq. (26)
+
 
     // Set up of shift vector beta
     // ---------------------------    
@@ -155,27 +163,61 @@ int main() {
     // -------------
     
     Scalar tmp(map) ; 
+    Scalar tmp0(map) ; 
 
     //======================================================================
     //                  Start of time evolution
     //======================================================================
     
-    int jmax = 10 ; 
+    int jmax = 1 ; 
     
     for (int jtime = 0; jtime <= jmax; jtime++) {
 
-        // Hamiltonian constraint combined with the lapse equation (Eq. for Q)
-        // -------------------------------------------------------------------
+        // Source for Q  [ Eq. (76) ]
+        // ------------
         
         Scalar aa_quad = contract(taa, 0, 1, aa, 0, 1) ; 
         
         Scalar source_qq = 0.75 * psi4 * qq * aa_quad  
             - contract( hh, 0, 1, qq.derive_cov(ff).derive_cov(ff), 0, 1 ) ;  
             
-        tmp = contract( hh.derive_cov(ff), 0, 1, 
-                        tgam_dd.derive_cov(ff), 0, 1 ) ; 
-                    
+        tmp = 0.0625 * contract( hh.derive_cov(ff), 0, 1, 
+                        tgam_dd.derive_cov(ff), 0, 1 ).trace(tgam) 
+             - 0.125 * contract( hh.derive_cov(ff), 0, 1,      
+                        tgam_dd.derive_cov(ff), 0, 2 ).trace(tgam) 
+             + 2.* contract( contract( tgam_uu, 0, ln_psi.derive_cov(ff), 0), 0,
+                              ln_psi.derive_cov(ff), 0 ) ;
+      
+        tmp0 = 2. * contract( tgam_uu, 0, 1, 
+                              ln_psi.derive_cov(ff) * nn.derive_cov(ff), 0, 1) ;
+        
+        source_qq += psi2 * ( nn * tmp + tmp0 ) ; 
+                             
+        source_qq.spectral_display("source_qq") ; 
 
+
+        // Source for N  [ Eq. (80) ]
+        // ------------
+        
+        Scalar source_nn = psi4 * nn * aa_quad 
+              - contract( hh, 0, 1, nn.derive_cov(ff).derive_cov(ff), 0, 1 ) 
+              - tmp0 ;  
+                    
+        source_nn.spectral_display("source_nn") ; 
+
+        // Source for beta [ Eq. (79) ]
+        // ---------------
+
+        Vector source_beta = 2. * ( contract(aa, 1, 
+                        nn.derive_cov(ff) - 6.*nn * ln_psi.derive_cov(ff), 0)
+                    - nn * contract(delta, 1, 2, aa, 0, 1) )
+                - contract(hh, 0, 1, 
+                           beta.derive_cov(ff).derive_cov(ff), 1, 2)
+                - 0.3333333333333333 *
+                  contract(hh, 1, beta.divergence(ff).derive_cov(ff), 0) ; 
+                    
+        source_beta.spectral_display("source_beta") ; 
+                 
     }
 
 
