@@ -32,6 +32,9 @@ char metconf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/08/14 13:46:15  j_novak
+ * Derived quantities of a Tenseur can now depend on several Metrique's
+ *
  * Revision 1.2  2002/08/13 08:02:45  j_novak
  * Handling of spherical vector/tensor components added in the classes
  * Mg3d and Tenseur. Minor corrections for the class Metconf.
@@ -97,7 +100,8 @@ Metconf::Metconf (const Tenseur_sym& source, const Metrique& metplat,
   assert(metplat.cov().get_poids() == 0.) ;
   assert(gamij->cov().get_poids() == 0.) ;
   assert(gamij->get_etat() != ETATNONDEF) ;
-  assert( *(metplat.cov().get_triad()) == *(gamij->cov().get_triad()) ) ;
+  assert( metplat.cov().get_triad()->identify() == 
+	  gamij->cov().get_triad()->identify() ) ;
   int tipe = source.get_type_indice(0) ;
   
   if (tipe == CON) assert(source.get_poids() == 2./3.) ;
@@ -129,14 +133,13 @@ Metconf::~Metconf() {
 }
 
 void Metconf::del_deriv() {
-  Metrique::del_deriv() ;
   if (p_delta != 0x0)
     delete p_delta ;
   
   if (p_Hi != 0x0)
     delete p_Hi ;
     
-  set_der_0x0() ;
+  Metrique::del_deriv() ;
 }
 
 void Metconf::set_der_0x0() {
@@ -228,8 +231,8 @@ void Metconf::fait_delta() const {
       for (int i=0 ; i<3 ; i++)
 	for (int j=0 ; j<3 ; j++)
 	  for (int k=j ; k<3 ; k++) {
-	    p_delta->set(i, j, k) = 0.5*( t1(i, j, k)
-					  + t1(i, k, j) - t2(i, j, k) ) ;
+	    auxi = 0.5*( t1(i, j, k) + t1(i, k, j) - t2(i, j, k) ) ;
+	    p_delta->set(i, j, k) = auxi ;
 	  }
     }
   }

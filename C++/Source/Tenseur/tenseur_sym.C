@@ -33,6 +33,9 @@ char tenseur_sym_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/08/14 13:46:15  j_novak
+ * Derived quantities of a Tenseur can now depend on several Metrique's
+ *
  * Revision 1.2  2002/08/07 16:14:11  j_novak
  * class Tenseur can now also handle tensor densities, this should be transparent to older codes
  *
@@ -111,21 +114,30 @@ Tenseur_sym::Tenseur_sym (const Tenseur_sym& source) :
 	    c[i] = new Cmp (*source.c[place_source]) ;
     }
     etat = source.etat ;
-    if (source.p_gradient != 0x0)
-	p_gradient = new Tenseur_sym (*source.p_gradient) ;
+    assert(source.met_depend != 0x0) ;
+    assert(source.p_derive_cov != 0x0) ;
+    assert(source.p_derive_con != 0x0) ;
+    assert(source.p_carre_scal != 0x0) ;
     
-    met_depend = source.met_depend ;
-    if (met_depend != 0x0) {
-	set_dependance(*met_depend) ;
-   
-	if (source.p_derive_cov != 0x0)
-	    p_derive_cov = new Tenseur_sym (*source.p_derive_cov) ;
-	if (source.p_derive_con != 0x0)
-	    p_derive_con = new Tenseur_sym (*source.p_derive_con) ;
-	if (source.p_carre_scal != 0x0)
-	    p_carre_scal = new Tenseur (*source.p_carre_scal) ;
+    if (source.p_gradient != 0x0)
+	    p_gradient = new Tenseur_sym (*source.p_gradient) ;
+    
+    for (int i=0; i<N_MET_MAX; i++) {
+      met_depend[i] = source.met_depend[i] ;
+      if (met_depend[i] != 0x0) {
+	
+	set_dependance (*met_depend[i]) ;
+	
+	if (source.p_derive_cov[i] != 0x0)
+	  p_derive_cov[i] = new Tenseur (*source.p_derive_cov[i]) ;
+	if (source.p_derive_con[i] != 0x0)
+	  p_derive_con[i] = new Tenseur (*source.p_derive_con[i]) ;
+	if (source.p_carre_scal[i] != 0x0)
+	    p_carre_scal[i] = new Tenseur (*source.p_carre_scal[i]) ;
+      }
     }
-}
+}   
+
 
 // Constructor from a Tenseur
 // --------------------------
@@ -146,11 +158,16 @@ Tenseur_sym::Tenseur_sym (const Tenseur& source) :
 	
     etat = source.etat ;
     
+    assert(source.met_depend != 0x0) ;
+    assert(source.p_derive_cov != 0x0) ;
+    assert(source.p_derive_con != 0x0) ;
+    assert(source.p_carre_scal != 0x0) ;
+    
     if (source.p_gradient != 0x0)
-	p_gradient = new Tenseur (*source.p_gradient) ;
-    met_depend = 0x0 ;
-    set_der_met_0x0() ;
-}
+	    p_gradient = new Tenseur (*source.p_gradient) ;
+    
+}   
+
 	
 // Constructor from a file
 // -----------------------
@@ -337,15 +354,15 @@ void Tenseur_sym::fait_gradient () const {
 }
 
 
-void Tenseur_sym::fait_derive_cov (const Metrique& metre) const {
+void Tenseur_sym::fait_derive_cov (const Metrique& metre, int ind) const {
     
   assert (etat != ETATNONDEF) ;
   assert (valence != 0) ;
     
-  if (p_derive_cov != 0x0)
+  if (p_derive_cov[ind] != 0x0)
     return ;
   else {
-    p_derive_cov = new Tenseur_sym (gradient()) ;
+    p_derive_cov[ind] = new Tenseur_sym (gradient()) ;
     
     if ((valence != 0) && (etat != ETATZERO)) {
 
@@ -357,68 +374,68 @@ void Tenseur_sym::fait_derive_cov (const Metrique& metre) const {
 	if (type_indice(i) == COV) {
 	  auxi = new Tenseur(contract(metre.gamma(), 0,(*this), i)) ;
 
-	  Itbl indices_gamma(p_derive_cov->valence) ;
+	  Itbl indices_gamma(p_derive_cov[ind]->valence) ;
 	  indices_gamma.set_etat_qcq() ;
 	  //On range comme il faut :
-	  for (int j=0 ; j<p_derive_cov->n_comp ; j++) {
+	  for (int j=0 ; j<p_derive_cov[ind]->n_comp ; j++) {
 		    
-	    Itbl indices (p_derive_cov->donne_indices(j)) ;
+	    Itbl indices (p_derive_cov[ind]->donne_indices(j)) ;
 	    indices_gamma.set(0) = indices(0) ;
 	    indices_gamma.set(1) = indices(i+1) ;
-	    for (int idx=2 ; idx<p_derive_cov->valence ; idx++)
+	    for (int idx=2 ; idx<p_derive_cov[ind]->valence ; idx++)
 	      if (idx<=i+1)
 		indices_gamma.set(idx) = indices(idx-1) ;
 	      else
 		indices_gamma.set(idx) = indices(idx) ;
 		    
-	    p_derive_cov->set(indices) -= (*auxi)(indices_gamma) ;
+	    p_derive_cov[ind]->set(indices) -= (*auxi)(indices_gamma) ;
 	  }
 	}   
 	else {
 	  auxi = new Tenseur(contract(metre.gamma(), 1, (*this), i)) ;
 
-	  Itbl indices_gamma(p_derive_cov->valence) ;
+	  Itbl indices_gamma(p_derive_cov[ind]->valence) ;
 	  indices_gamma.set_etat_qcq() ;
 		
 	  //On range comme il faut :
-	  for (int j=0 ; j<p_derive_cov->n_comp ; j++) {
+	  for (int j=0 ; j<p_derive_cov[ind]->n_comp ; j++) {
 		    
-	    Itbl indices (p_derive_cov->donne_indices(j)) ;
+	    Itbl indices (p_derive_cov[ind]->donne_indices(j)) ;
 	    indices.set_etat_qcq() ;
 	    indices_gamma.set(0) = indices(0) ;
 	    indices_gamma.set(1) = indices(i+1) ;
-	    for (int idx=2 ; idx<p_derive_cov->valence ; idx++)
+	    for (int idx=2 ; idx<p_derive_cov[ind]->valence ; idx++)
 	      if (idx<=i+1)
 		indices_gamma.set(idx) = indices(idx-1) ;
 	      else
 		indices_gamma.set(idx) = indices(idx) ;
-	    p_derive_cov->set(indices) += (*auxi)(indices_gamma) ;
+	    p_derive_cov[ind]->set(indices) += (*auxi)(indices_gamma) ;
 	  }
 	}
 	delete auxi ;
       }
     }
     if ((poids != 0.)&&(etat != ETATZERO)) 
-      *p_derive_cov = *p_derive_cov - 
-	poids*contract(metric->gamma(), 0, 2) * (*this) ;
+      *p_derive_cov[ind] = *p_derive_cov[ind] - 
+	poids*contract(metre.gamma(), 0, 2) * (*this) ;
     
   }
 }
 
 
 
-void Tenseur_sym::fait_derive_con (const Metrique& metre) const {
+void Tenseur_sym::fait_derive_con (const Metrique& metre, int ind) const {
     
-    if (p_derive_con != 0x0)
+    if (p_derive_con[ind] != 0x0)
 	return ;
     else {
 	// On calcul la derivee covariante :
 	if (valence != 0)
-	    p_derive_con = new Tenseur_sym
+	    p_derive_con[ind] = new Tenseur_sym
 		(contract(metre.con(), 1, derive_cov(metre), 0)) ;
 	
     else
-	p_derive_con = new Tenseur_sym
+	p_derive_con[ind] = new Tenseur_sym
 		(contract(metre.con(), 1, gradient(), 0)) ;
     }
 }

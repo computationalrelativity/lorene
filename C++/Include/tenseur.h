@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/08/14 13:46:14  j_novak
+ * Derived quantities of a Tenseur can now depend on several Metrique's
+ *
  * Revision 1.4  2002/08/08 15:10:44  j_novak
  * The flag "plat" has been added to the class Metrique to show flat metrics.
  *
@@ -212,6 +215,8 @@
 #define COV -1
 #define CON +1
 
+#define N_MET_MAX 5
+
 // Headers C++
 #include <iostream.h>
 
@@ -275,11 +280,14 @@ class Tenseur {
     // Derived data : 
     // ------------
     protected:
-	/** Pointer on the {\tt Metrique} used to calculate derivatives members.
-	 * If no such member has been calculated the pointer is set to zero.
+	/** Array of pointers on the {\tt Metrique}'s used to calculate 
+	 * derivatives members. If no such member has been calculated 
+	 * the pointer is set to zero. The array has the size 
+	 * {\tt N\_MET\_MAX} abd the i-th corresponds to the i-th ones
+	 * in {\tt p\_derive\_cov} and {\tt p\_derive\_con}.
 	 * 
 	 */
-	mutable const Metrique* met_depend ;
+	const Metrique** met_depend ;
 	
 	/** Pointer on the gradient of {\tt *this}.
 	 * It is set to zero if it has not been calculated yet.
@@ -294,27 +302,27 @@ class Tenseur {
 	 */
 	mutable Tenseur* p_gradient_spher ;
 	
-	/** Pointer on the covariant derivative of {\tt *this} with respect to 
-	 * {\tt *met\_depend}. 
-	 * It is set to zero if it has not been calculated yet, or for a scalar 
-	 * field.
+	/** Array of pointers on the covariant derivatives of {\tt *this} 
+	 * with respect to the corresponding metric in {\tt *met\_depend}. 
+	 * It is set to zero if it has not been calculated yet, or 
+	 * for a scalar field.
 	 * 
 	 */
-	mutable Tenseur* p_derive_cov ;
+	Tenseur** p_derive_cov ;
 
-	/** Pointer on the contravariant derivative of {\tt *this} with respect to 
-	 * {\tt *met\_depend}. 
+	/** Array of pointers on the contravariant derivatives of {\tt *this} 
+	 * with respect to the corresponding metric in {\tt *met\_depend}. 
 	 * It is set to zero if it has not been calculated yet.
 	 * 
 	 */
-	mutable Tenseur* p_derive_con ;
+	Tenseur** p_derive_con ;
 
-	/** Pointer on the scalar square of {\tt *this} with respect to 
-	 * {\tt *met\_depend}. 
+	/** Array of pointers on the scalar squares of {\tt *this} 
+	 * with respect to the corresponding metric in {\tt *met\_depend}. 
 	 * It is set to zero if it has not been calculated yet.
 	 * 
 	 */
-	mutable Tenseur* p_carre_scal ;
+	Tenseur** p_carre_scal ;
    
     // Constructors - Destructor :
     // -------------------------
@@ -322,6 +330,13 @@ class Tenseur {
 	/// Returns false for a tensor density without a defined {\tt metric} 
 	bool verif() const ; 
 		
+	/** Builds the arrays {\tt met\_depend}, {\tt p\_derive\_cov}, 
+	 *  {\tt p\_derive\con} and {\tt p\_carre\_scal} and fills them with
+	 *  null pointers.
+	 *
+	 */
+	void new_der_met() ;
+	
     public:
 	explicit Tenseur (const Map& map, const Metrique* met = 0x0, 
 		     double weight = 0) ; /// Constructor for a scalar field. 
@@ -474,9 +489,10 @@ class Tenseur {
 	void del_t() ;	/// Logical destructor
 
 	/**
-	 * Logical destructor of the derivatives depending on {\tt *met\_depend}
+	 * Logical destructor of the derivatives depending on the i-th
+	 * element of {\tt *met\_depend}.
 	 */	
-	void del_derive_met() const ;
+	void del_derive_met(int i) const ;
 
 	/**
 	 * Logical destructor of all the derivatives.
@@ -484,17 +500,18 @@ class Tenseur {
 	void del_derive() const ;
 	
 	/**
-	 * Sets the pointers of the derivatives depending on {\tt *met\_depend}
-	 * to zero.
+	 * Sets the pointers of the derivatives depending on the i-th
+	 * element of {\tt *met\_depend} to zero (as well as that i-th 
+	 * element).
 	 */
-	void set_der_met_0x0() const ;
+	void set_der_met_0x0(int i) const ;
 
 	/**
 	 * Sets the pointers of all the derivatives
 	 * to zero.
 	 */
 	void set_der_0x0() const ;
-	
+
     // Mutators / assignment
     // ---------------------
     public:
@@ -703,35 +720,43 @@ class Tenseur {
 	void fait_gradient_spher () const ;
 
 	/**
-	 * Calculates, if needed, the covariant derivative of {\tt *this}, with 
-	 * respect to {\tt met}.
-	 * The result is in {\tt *p\_derive\_cov}
+	 * Calculates, if needed, the covariant derivative of {\tt *this}, 
+	 * with respect to {\tt met}.
+	 * The result is in {\tt *p\_derive\_cov[i]}
 	 */
-	virtual void fait_derive_cov (const Metrique& met) const ;
+	virtual void fait_derive_cov (const Metrique& met, int i) const ;
 
 	/**
 	 * Calculates, if needed, the contravariant derivative of {\tt *this},
 	 * with respect to {\tt met}.
-	 * The result is in {\tt *p\_derive\_con}
+	 * The result is in {\tt *p\_derive\_con[i]}
 	 */
-	virtual void fait_derive_con (const Metrique&) const ;
+	virtual void fait_derive_con (const Metrique&, int i) const ;
 
 	/**
 	 * Calculates, if needed, the scalar square of {\tt *this},
 	 * with respect to {\tt met}.
-	 * The result is in {\tt *p\_carre\_scal}
+	 * The result is in {\tt *p\_carre\_scal[i]}
 	 */
-	void fait_carre_scal (const Metrique&) const ;
+	void fait_carre_scal (const Metrique&, int i) const ;
 	
 	/**
 	 * To be used to describe the fact that the derivatives members have
 	 * been calculated with {\tt met}.
 	 * 
-	 * First it sets {\tt met\_depend} to {\tt \&met} and puts {\tt this} in 
+	 * First it sets a null element of {\tt met\_depend} to 
+	 * {\tt \&met} and puts {\tt this} in 
 	 * the list of the dependancies of {\tt met}.
 	 * 
 	 */
 	void set_dependance (const Metrique& met) const ;
+
+	/**
+	 * Returns the position of the pointer on {\tt metre} in 
+	 * the array {\tt met\_depend}.
+	 *
+	 */
+	int get_place_met(const Metrique& metre) const ;
 	
     // Differential operators
     // ----------------------
@@ -1221,16 +1246,16 @@ class Tenseur_sym : public Tenseur {
 	/**
 	 * Calculates, if needed, the covariant derivative of {\tt *this}, with 
 	 * respect to {\tt met}.
-	 * The result is in {\tt *p\_derive\_cov}
+	 * The result is in {\tt *p\_derive\_cov[i]}
 	 */
-	virtual void fait_derive_cov (const Metrique& met) const ;
+	virtual void fait_derive_cov (const Metrique& met, int i) const ;
 
 	/**
 	 * Calculates, if needed, the contravariant derivative of {\tt *this},
 	 * with respect to {\tt met}.
-	 * The result is in {\tt *p\_derive\_con}
+	 * The result is in {\tt *p\_derive\_con[i]}
 	 */
-	virtual void fait_derive_con (const Metrique&) const ;
+	virtual void fait_derive_con (const Metrique&, int i) const ;
 	
     // Mathematical operators
     // ----------------------

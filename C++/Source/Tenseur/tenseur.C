@@ -34,6 +34,9 @@ char tenseur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2002/08/14 13:46:15  j_novak
+ * Derived quantities of a Tenseur can now depend on several Metrique's
+ *
  * Revision 1.8  2002/08/13 08:02:45  j_novak
  * Handling of spherical vector/tensor components added in the classes
  * Mg3d and Tenseur. Minor corrections for the class Metconf.
@@ -172,18 +175,28 @@ bool Tenseur::verif() const {
   return ( (poids == 0.) || (metric != 0x0) ) ;
 }
 
+void Tenseur::new_der_met() {
+    met_depend = new const Metrique*[N_MET_MAX] ;
+    p_derive_cov = new Tenseur*[N_MET_MAX] ;
+    p_derive_con = new Tenseur*[N_MET_MAX] ;
+    p_carre_scal = new Tenseur*[N_MET_MAX] ;
+    for (int i=0; i<N_MET_MAX; i++) {
+      met_depend[i] = 0x0 ;
+    }
+    set_der_0x0() ;
+}
 
 // Constructor for a scalar field
 // ------------------------------
 Tenseur::Tenseur (const Map& map, const Metrique* met, double weight) : 
 		mp(&map), valence(0), triad(0x0),
 		type_indice(0), n_comp(1), etat(ETATNONDEF), poids(weight),
-		metric(met), met_depend(0x0) {
+		metric(met) {
     
     assert(verif()) ;
     c = new Cmp*[n_comp] ;
     c[0] = 0x0 ;
-    set_der_0x0() ;
+    new_der_met() ;
 }
 
 
@@ -193,7 +206,7 @@ Tenseur::Tenseur (const Map& map, const Metrique* met, double weight) :
 Tenseur::Tenseur (const Cmp& ci, const Metrique* met, double weight) : 
 		mp(ci.get_mp()), valence(0), triad(0x0),
 		type_indice(0), n_comp(1), etat(ci.get_etat()), poids(weight),
-		metric(met), met_depend(0x0) {
+		metric(met){
     
     assert(ci.get_etat() != ETATNONDEF) ; 
     assert(verif()) ;
@@ -208,6 +221,7 @@ Tenseur::Tenseur (const Cmp& ci, const Metrique* met, double weight) :
     else {
       c[0] = 0x0 ;
     }
+    new_der_met() ;
 }
 
 // Standard constructor 
@@ -216,7 +230,7 @@ Tenseur::Tenseur(const Map& map, int val, const Itbl& tipe,
 		 const Base_vect& triad_i, const Metrique* met, double weight) 
 		: mp(&map), valence(val), triad(&triad_i), type_indice(tipe), 
 		   n_comp(int(pow(3., val))), etat(ETATNONDEF), poids(weight),
-		metric(met), met_depend(0x0) {
+		metric(met){
 		
     // Des verifs :
     assert (valence >= 0) ;
@@ -229,7 +243,7 @@ Tenseur::Tenseur(const Map& map, int val, const Itbl& tipe,
     c = new Cmp*[n_comp] ;
     for (int i=0 ; i<n_comp ; i++)
 	c[i] = 0x0 ;
-    set_der_0x0() ;
+    new_der_met() ;
 }
 
 // Standard constructor with the triad passed as a pointer
@@ -238,7 +252,7 @@ Tenseur::Tenseur(const Map& map, int val, const Itbl& tipe,
 		 const Base_vect* triad_i, const Metrique* met, double weight) 
 		: mp(&map), valence(val), triad(triad_i), type_indice(tipe), 
 		   n_comp(int(pow(3., val))), etat(ETATNONDEF), poids(weight),
-		metric(met),met_depend(0x0) {
+		metric(met){
 		
     // Des verifs :
     assert (valence >= 0) ;
@@ -255,7 +269,7 @@ Tenseur::Tenseur(const Map& map, int val, const Itbl& tipe,
     c = new Cmp*[n_comp] ;
     for (int i=0 ; i<n_comp ; i++)
 	c[i] = 0x0 ;
-    set_der_0x0() ;
+    new_der_met() ;
 }
 
 
@@ -267,7 +281,7 @@ Tenseur::Tenseur(const Map& map, int val, int tipe, const Base_vect& triad_i,
 		 const Metrique* met, double weight) 
 		: mp(&map), valence(val), triad(&triad_i), type_indice(val), 
                   n_comp(int(pow(3., val))), etat (ETATNONDEF), poids(weight), 
-		  metric(met), met_depend(0x0) {
+		  metric(met){
     
     // Des verifs :
     assert (valence >= 0) ;
@@ -279,7 +293,7 @@ Tenseur::Tenseur(const Map& map, int val, int tipe, const Base_vect& triad_i,
     c = new Cmp*[n_comp] ;
     for (int i=0 ; i<n_comp ; i++)
 	c[i] = 0x0 ;
-    set_der_0x0() ;
+    new_der_met() ;
 }	
 	
 // Copy constructor
@@ -301,25 +315,32 @@ Tenseur::Tenseur (const Tenseur& source) :
 	else
 	    c[i] = new Cmp(*source.c[place_source]) ;
     }
-    set_der_0x0() ;
+
+    assert(source.met_depend != 0x0) ;
+    assert(source.p_derive_cov != 0x0) ;
+    assert(source.p_derive_con != 0x0) ;
+    assert(source.p_carre_scal != 0x0) ;
+    new_der_met() ;
     
     if (source.p_gradient != 0x0)
 	    p_gradient = new Tenseur (*source.p_gradient) ;
     
     if (source.p_gradient_spher != 0x0)
 	    p_gradient_spher = new Tenseur (*source.p_gradient_spher) ;
-    
-    met_depend = source.met_depend ;
-    if (met_depend != 0x0) {
+
+    for (int i=0; i<N_MET_MAX; i++) {
+      met_depend[i] = source.met_depend[i] ;
+      if (met_depend[i] != 0x0) {
 	
-	set_dependance (*met_depend) ;
-    
-	if (source.p_derive_cov != 0x0)
-	    p_derive_cov = new Tenseur (*source.p_derive_cov) ;
-	if (source.p_derive_con != 0x0)
-	    p_derive_con = new Tenseur (*source.p_derive_con) ;
-	if (source.p_carre_scal != 0x0)
-	    p_carre_scal = new Tenseur (*source.p_carre_scal) ;
+	set_dependance (*met_depend[i]) ;
+	
+	if (source.p_derive_cov[i] != 0x0)
+	  p_derive_cov[i] = new Tenseur (*source.p_derive_cov[i]) ;
+	if (source.p_derive_con[i] != 0x0)
+	  p_derive_con[i] = new Tenseur (*source.p_derive_con[i]) ;
+	if (source.p_carre_scal[i] != 0x0)
+	    p_carre_scal[i] = new Tenseur (*source.p_carre_scal[i]) ;
+      }
     }
 }   
 
@@ -341,30 +362,39 @@ Tenseur::Tenseur (const Tenseur_sym& source) :
 	else
 	    c[i] = new Cmp(*source.c[place_source]) ;
     }
-    set_der_0x0() ;  
+
+    assert(source.met_depend != 0x0) ;
+    assert(source.p_derive_cov != 0x0) ;
+    assert(source.p_derive_con != 0x0) ;
+    assert(source.p_carre_scal != 0x0) ;
+    new_der_met() ;
+    
     if (source.p_gradient != 0x0)
 	p_gradient = new Tenseur_sym (*source.p_gradient) ;
-    
-    met_depend = source.met_depend ;
-    
-    if (met_depend != 0x0) {
-	set_dependance (*met_depend) ;
-  
-	if (source.p_derive_cov != 0x0)
-	    p_derive_cov = new Tenseur_sym (*source.p_derive_cov) ;
-	if (source.p_derive_con != 0x0)
-	    p_derive_con = new Tenseur_sym (*source.p_derive_con) ;
-	if (source.p_carre_scal != 0x0)
-	    p_carre_scal = new Tenseur (*source.p_carre_scal) ;
+
+    for (int i=0; i<N_MET_MAX; i++) {
+      met_depend[i] = source.met_depend[i] ;
+      if (met_depend[i] != 0x0) {
+	
+	set_dependance (*met_depend[i]) ;
+	
+	if (source.p_derive_cov[i] != 0x0)
+	  p_derive_cov[i] = new Tenseur (*source.p_derive_cov[i]) ;
+	if (source.p_derive_con[i] != 0x0)
+	  p_derive_con[i] = new Tenseur (*source.p_derive_con[i]) ;
+	if (source.p_carre_scal[i] != 0x0)
+	    p_carre_scal[i] = new Tenseur (*source.p_carre_scal[i]) ;
+      }
     }
+    
 }
 
 // Constructor from a file
 // -----------------------
 Tenseur::Tenseur(const Map& mapping, const Base_vect& triad_i, FILE* fd, 
 		 const Metrique* met)
-		 : mp(&mapping), triad(&triad_i), metric(met), 
-                   type_indice(fd) {
+		 : mp(&mapping), triad(&triad_i), type_indice(fd), 
+                   metric(met) {
    
     fread_be(&valence, sizeof(int), 1, fd) ;
 
@@ -387,9 +417,8 @@ Tenseur::Tenseur(const Map& mapping, const Base_vect& triad_i, FILE* fd,
 	for (int i=0 ; i<n_comp ; i++)
 	    c[i] = new Cmp(*mp, *mp->get_mg(), fd) ;
 
-    set_der_0x0() ;
+    new_der_met() ;
     
-    met_depend = 0x0 ; 
     if (met == 0x0) 
       poids = 0. ;
     else
@@ -400,7 +429,7 @@ Tenseur::Tenseur(const Map& mapping, const Base_vect& triad_i, FILE* fd,
 // Constructor from a file for a scalar field
 // ------------------------------------------
 Tenseur::Tenseur (const Map& mapping, FILE* fd, const Metrique* met) 
-		 : mp(&mapping), metric(met), type_indice(fd) {
+		 : mp(&mapping), type_indice(fd), metric(met){
    
     fread_be(&valence, sizeof(int), 1, fd) ;
 
@@ -423,9 +452,8 @@ Tenseur::Tenseur (const Map& mapping, FILE* fd, const Metrique* met)
 	c[0] = 0x0 ; 
     }
     
-    set_der_0x0() ;
-    
-    met_depend = 0x0 ; 
+    new_der_met() ;
+
     if (met == 0x0) 
       poids = 0. ;
     else
@@ -440,7 +468,7 @@ Tenseur::Tenseur (const Map& mapping, FILE* fd, const Metrique* met)
 Tenseur::Tenseur (const Map& map, int val, const Itbl& tipe, int compo, 
 		const Base_vect& triad_i, const Metrique* met, double weight) :
      mp(&map), valence(val), triad(&triad_i), type_indice(tipe), n_comp(compo), 
-	    etat (ETATNONDEF), poids(weight), metric(met), met_depend(0x0) {
+	    etat (ETATNONDEF), poids(weight), metric(met) {
      
     // Des verifs :
     assert (valence >= 0) ;
@@ -454,7 +482,8 @@ Tenseur::Tenseur (const Map& map, int val, const Itbl& tipe, int compo,
     c = new Cmp*[n_comp] ;
     for (int i=0 ; i<n_comp ; i++)
 	c[i] = 0x0 ;
-    set_der_0x0() ;
+    
+    new_der_met() ;
 }
 
 // Constructor used by the derived classes when all the indices are of 
@@ -463,7 +492,7 @@ Tenseur::Tenseur (const Map& map, int val, const Itbl& tipe, int compo,
 Tenseur::Tenseur (const Map& map, int val, int tipe, int compo, 
 		const Base_vect& triad_i, const Metrique* met, double weight) :
      mp(&map), valence(val), triad(&triad_i), type_indice(val), n_comp(compo), 
-	    etat (ETATNONDEF), poids(weight), metric(met), met_depend(0x0) {
+	    etat (ETATNONDEF), poids(weight), metric(met) {
     // Des verifs :
     assert (valence >= 0) ;
     assert (n_comp >= 0) ;
@@ -475,7 +504,8 @@ Tenseur::Tenseur (const Map& map, int val, int tipe, int compo,
     c = new Cmp*[n_comp] ;
     for (int i=0 ; i<n_comp ; i++)
 	c[i] = 0x0 ;
-    set_der_0x0() ;
+
+    new_der_met() ;
 }
 
 			//--------------//
@@ -486,6 +516,10 @@ Tenseur::Tenseur (const Map& map, int val, int tipe, int compo,
 Tenseur::~Tenseur () {
     
     del_t() ;
+    delete [] met_depend ;
+    delete [] p_derive_cov ;
+    delete [] p_derive_con ;
+    delete [] p_carre_scal ;
     delete [] c ;
 }
 
@@ -500,67 +534,86 @@ void Tenseur::del_t() {
 	    }
 }
 
-void Tenseur::del_derive_met() const {
-    // On gere la metrique ...
-    if (met_depend != 0x0) {
-	for (int i=0 ; i<N_DEPEND ; i++)
-	    if (met_depend->dependances[i] == this)
-		met_depend->dependances[i] = 0x0 ;
-	if (p_derive_cov != 0x0)
-	    delete p_derive_cov ;
-	if (p_derive_con != 0x0)
-	    delete p_derive_con ;
-	if (p_carre_scal != 0x0)
-	    delete p_carre_scal ;
-	set_der_met_0x0() ;
-    }
+void Tenseur::del_derive_met(int j) const {
+
+  assert( (j>=0) && (j<N_MET_MAX) ) ;
+  // On gere la metrique ...
+  if (met_depend[j] != 0x0) {
+    for (int i=0 ; i<N_DEPEND ; i++)
+      if (met_depend[j]->dependances[i] == this)
+	met_depend[j]->dependances[i] = 0x0 ;
+    if (p_derive_cov[j] != 0x0)
+      delete p_derive_cov[j] ;
+    if (p_derive_con[j] != 0x0)
+      delete p_derive_con[j] ;
+    if (p_carre_scal[j] != 0x0)
+      delete p_carre_scal[j] ;
+    set_der_met_0x0(j) ;
+  }
 }
 
 
 void Tenseur::del_derive () const {
-    del_derive_met() ;
-    if (p_gradient != 0x0)
-	delete p_gradient ;
-    if (p_gradient_spher != 0x0)
-	delete p_gradient_spher ;
-    set_der_0x0() ;
+  for (int i=0; i<N_MET_MAX; i++) 
+    del_derive_met(i) ;
+  if (p_gradient != 0x0)
+    delete p_gradient ;
+  if (p_gradient_spher != 0x0)
+    delete p_gradient_spher ;
+  set_der_0x0() ;
 }
 
-void Tenseur::set_der_met_0x0() const {
-    p_derive_cov = 0x0 ;
-    p_derive_con = 0x0 ;
-    p_carre_scal = 0x0 ;
+void Tenseur::set_der_met_0x0(int i) const {
+  met_depend[i] = 0x0 ;
+    p_derive_cov[i] = 0x0 ;
+    p_derive_con[i] = 0x0 ;
+    p_carre_scal[i] = 0x0 ;
 }
 
 
 void Tenseur::set_der_0x0() const {
-    set_der_met_0x0() ;
-    p_gradient = 0x0 ;   
-    p_gradient_spher = 0x0 ;   
+  for (int i=0; i<N_MET_MAX; i++) 
+    set_der_met_0x0(i) ;
+  p_gradient = 0x0 ;   
+  p_gradient_spher = 0x0 ;   
+}
+
+int Tenseur::get_place_met(const Metrique& metre) const {
+  int resu = -1 ;
+  for (int i=0; i<N_MET_MAX; i++) 
+    if (met_depend[i] == &metre) {
+      assert(resu == -1) ;
+      resu = i ;
+    }
+  return resu ;
 }
 
 void Tenseur::set_dependance (const Metrique& met) const {
     
-    // Cas ou on a calcule des trucs avec une autre metrique ...
-    if ((met_depend != 0x0) && (&met != met_depend)) {
-	del_derive_met() ;
-	met_depend = 0x0 ;
-    }
+  int nmet = 0 ;
+  bool deja = false ;
+  for (int i=0; i<N_MET_MAX; i++) {
+    if (met_depend[i] == &met) deja = true ;
+    if ((!deja) && (met_depend[i] != 0x0)) nmet++ ;
+  }
+  if (nmet == N_MET_MAX) {
+    cout << "Too many metrics in Tenseur::set_dependances" << endl ;
+    abort() ;
+  }
+  if (!deja) { 
+    int conte = 0 ;
+    while ((conte < N_DEPEND) && (met.dependances[conte] != 0x0))
+      conte ++ ;
     
-    if (met_depend == 0x0) {
-	int conte = 0 ;
-	while ((conte < N_DEPEND) && (met.dependances[conte] != 0x0))
-	    conte ++ ;
-	
-	if (conte == N_DEPEND) {
-	    cout << "Too much dependancies in Tenseur::set_dependances " << endl ;
-	    abort() ;
-	}
-	else {
-	    met.dependances[conte] = this ;
-	    met_depend = &met ;
-	}
+    if (conte == N_DEPEND) {
+      cout << "Too many dependancies in Tenseur::set_dependances " << endl ;
+      abort() ;
     }
+    else {
+      met.dependances[conte] = this ;
+      met_depend[nmet] = &met ;
+    }
+  }
 }
 
 void Tenseur::set_etat_qcq() { 
@@ -856,9 +909,11 @@ void Tenseur::annule(int l_min, int l_max) {
 	// Annulation des membres derives
 	if (p_gradient != 0x0) p_gradient->annule(l_min, l_max) ;
 	if (p_gradient_spher != 0x0) p_gradient_spher->annule(l_min, l_max) ;
-	if (p_derive_cov != 0x0) p_derive_cov->annule(l_min, l_max) ;
-	if (p_derive_con != 0x0) p_derive_con->annule(l_min, l_max) ;
-	if (p_carre_scal != 0x0) p_carre_scal->annule(l_min, l_max) ;
+	for (int j=0; j<N_MET_MAX; j++) {
+	  if (p_derive_cov[j] != 0x0) p_derive_cov[j]->annule(l_min, l_max) ;
+	  if (p_derive_con[j] != 0x0) p_derive_con[j]->annule(l_min, l_max) ;
+	  if (p_carre_scal[j] != 0x0) p_carre_scal[j]->annule(l_min, l_max) ;
+	}
 
     }
     
@@ -1354,16 +1409,16 @@ void Tenseur::fait_gradient_spher () const {
 }
 
 
-void Tenseur::fait_derive_cov (const Metrique& metre) const {
+void Tenseur::fait_derive_cov (const Metrique& metre, int ind) const {
     
   assert (etat != ETATNONDEF) ;
   assert (valence != 0) ;
   
-  if (p_derive_cov != 0x0)
+  if (p_derive_cov[ind] != 0x0)
     return ;
   else {
     
-    p_derive_cov = new Tenseur (gradient()) ;
+    p_derive_cov[ind] = new Tenseur (gradient()) ;
     
     if ((valence != 0) && (etat != ETATZERO)) {
       
@@ -1374,49 +1429,49 @@ void Tenseur::fait_derive_cov (const Metrique& metre) const {
 	if (type_indice(i) == COV) {
 	  auxi = new Tenseur(contract(metre.gamma(), 0,(*this), i)) ;
 	  
-	  Itbl indices_gamma(p_derive_cov->valence) ;
+	  Itbl indices_gamma(p_derive_cov[ind]->valence) ;
 	  indices_gamma.set_etat_qcq() ;
 	  //On range comme il faut :
-	  for (int j=0 ; j<p_derive_cov->n_comp ; j++) {
+	  for (int j=0 ; j<p_derive_cov[ind]->n_comp ; j++) {
 	    
-	    Itbl indices (p_derive_cov->donne_indices(j)) ;
+	    Itbl indices (p_derive_cov[ind]->donne_indices(j)) ;
 	    indices_gamma.set(0) = indices(0) ;
 	    indices_gamma.set(1) = indices(i+1) ;
-	    for (int idx=2 ; idx<p_derive_cov->valence ; idx++)
+	    for (int idx=2 ; idx<p_derive_cov[ind]->valence ; idx++)
 	      if (idx<=i+1)
 		indices_gamma.set(idx) = indices(idx-1) ;
 	      else
 		indices_gamma.set(idx) = indices(idx) ;
 	    
-	      p_derive_cov->set(indices) -= (*auxi)(indices_gamma) ;
+	      p_derive_cov[ind]->set(indices) -= (*auxi)(indices_gamma) ;
 	  }
 	}   
 	else {
 	  auxi = new Tenseur(contract(metre.gamma(), 1, (*this), i)) ;
 	  
-	  Itbl indices_gamma(p_derive_cov->valence) ;
+	  Itbl indices_gamma(p_derive_cov[ind]->valence) ;
 	  indices_gamma.set_etat_qcq() ;
 	  
 	  //On range comme il faut :
-	  for (int j=0 ; j<p_derive_cov->n_comp ; j++) {
+	  for (int j=0 ; j<p_derive_cov[ind]->n_comp ; j++) {
 	    
-	    Itbl indices (p_derive_cov->donne_indices(j)) ;
+	    Itbl indices (p_derive_cov[ind]->donne_indices(j)) ;
 	    indices.set_etat_qcq() ;
 	    indices_gamma.set(0) = indices(0) ;
 	    indices_gamma.set(1) = indices(i+1) ;
-	    for (int idx=2 ; idx<p_derive_cov->valence ; idx++)
+	    for (int idx=2 ; idx<p_derive_cov[ind]->valence ; idx++)
 	      if (idx<=i+1)
 		indices_gamma.set(idx) = indices(idx-1) ;
 	      else
 		indices_gamma.set(idx) = indices(idx) ;
-	    p_derive_cov->set(indices) += (*auxi)(indices_gamma) ;
+	    p_derive_cov[ind]->set(indices) += (*auxi)(indices_gamma) ;
 	  }
 	}
 	delete auxi ;
       }
     }
     if ((poids != 0.)&&(etat != ETATZERO)) 
-      *p_derive_cov = *p_derive_cov - 
+      *p_derive_cov[ind] = *p_derive_cov[ind] - 
 	poids*contract(metre.gamma(), 0, 2) * (*this) ;
     
   }
@@ -1424,25 +1479,25 @@ void Tenseur::fait_derive_cov (const Metrique& metre) const {
 
 
 
-void Tenseur::fait_derive_con (const Metrique& metre) const {
+void Tenseur::fait_derive_con (const Metrique& metre, int ind) const {
     
-    if (p_derive_con != 0x0)
+    if (p_derive_con[ind] != 0x0)
 	return ;
     else {
 	// On calcul la derivee covariante :
 	if (valence != 0)
-	    p_derive_con = new Tenseur
+	    p_derive_con[ind] = new Tenseur
 		(contract(metre.con(), 1, derive_cov(metre), 0)) ;
 	
     else
-	p_derive_con = new Tenseur
+	p_derive_con[ind] = new Tenseur
 		(contract(metre.con(), 1, gradient(), 0)) ;
     }
 }
 
-void Tenseur::fait_carre_scal (const Metrique& met) const {
+void Tenseur::fait_carre_scal (const Metrique& met, int ind) const {
     
-    if (p_carre_scal != 0x0)
+    if (p_carre_scal[ind] != 0x0)
 	return ;
     else {
 	assert (valence != 0) ;   // A ne pas appeler sur un scalaire ;
@@ -1460,7 +1515,7 @@ void Tenseur::fait_carre_scal (const Metrique& met) const {
 	    auxi = new Tenseur(*auxi_old) ;
 	    delete auxi_old ;
 	}
-	p_carre_scal = new Tenseur (*auxi) ;
+	p_carre_scal[ind] = new Tenseur (*auxi) ;
 	delete auxi ;
     }
 }
@@ -1483,22 +1538,28 @@ const Tenseur& Tenseur::derive_cov (const Metrique& metre) const {
 	return gradient() ;
     else {
 	set_dependance(metre) ;
-	if (p_derive_cov == 0x0)
-	    fait_derive_cov (metre) ;
-	return *p_derive_cov ;
+	int j = get_place_met(metre) ;
+	assert(j!=-1) ;
+	if (p_derive_cov[j] == 0x0)
+	    fait_derive_cov (metre,j) ;
+	return *p_derive_cov[j] ;
     }
 }
 
 const Tenseur& Tenseur::derive_con (const Metrique& metre) const {
     set_dependance(metre) ;
-    if (p_derive_con == 0x0)
-	fait_derive_con (metre) ;
-    return *p_derive_con ;
+    int j = get_place_met(metre) ;
+    assert(j!=-1) ;
+    if (p_derive_con[j] == 0x0)
+	fait_derive_con (metre, j) ;
+    return *p_derive_con[j] ;
 }
 
 const Tenseur& Tenseur::carre_scal (const Metrique& metre) const {
     set_dependance(metre) ;
-    if (p_carre_scal == 0x0)
-	fait_carre_scal (metre) ;
-    return *p_carre_scal ;
+    int j = get_place_met(metre) ;
+    assert(j!=-1) ;
+    if (p_carre_scal[j] == 0x0)
+	fait_carre_scal (metre, j) ;
+    return *p_carre_scal[j] ;
 }

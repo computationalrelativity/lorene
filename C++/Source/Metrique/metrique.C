@@ -33,6 +33,9 @@ char metrique_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2002/08/14 13:46:15  j_novak
+ * Derived quantities of a Tenseur can now depend on several Metrique's
+ *
  * Revision 1.6  2002/08/13 08:02:45  j_novak
  * Handling of spherical vector/tensor components added in the classes
  * Mg3d and Tenseur. Minor corrections for the class Metconf.
@@ -206,8 +209,9 @@ Metrique::Metrique (const Map& mapping, const Base_vect& triad,
 
 //Destructor :
 Metrique::~Metrique() {
-    del_t() ;
+    del_dependances() ;
     delete [] dependances ;
+    del_t() ;
 }
 
 //Destructeur logique
@@ -253,8 +257,9 @@ void Metrique::set_der_0x0() {
 void Metrique::del_dependances() {
     for (int i=0 ; i<N_DEPEND ; i++)
 	if (dependances[i] != 0x0) {
-	    dependances[i]->del_derive_met() ;
-	    dependances[i] = 0x0 ;
+	  int j = dependances[i]->get_place_met(*this) ;
+	  if (j!=-1) dependances[i]->del_derive_met(j) ;
+	  dependances[i] = 0x0 ;
 	}
 }
 
