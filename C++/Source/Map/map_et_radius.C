@@ -30,8 +30,11 @@ char map_et_radius_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/12/19 16:21:43  j_novak
+ * Shadow hunt
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.5  2000/10/20  13:14:47  eric
  * Map_et::val_lx : la valeur par defaut de precis est desormais 1e-14
@@ -185,7 +188,7 @@ void Map_et::val_lx(double rr, double theta, double pphi,
     // In which domain is located r ? 
     // ----------------------------
     lz = - 1 ;
-    double rmax  ; 
+    double rmax = 0. ; 
     double ftp = double(0) ; 
     double gtp = double(0) ; 
     for (int l=0; l<nz; l++) {
@@ -237,7 +240,6 @@ void Map_et::val_lx(double rr, double theta, double pphi,
 	for (int l=0; l<nz; l++) {
 	    ftp = ff.val_point(l, 0, theta, pphi) ;
 	    gtp = gg.val_point(l, 0, theta, pphi) ; 
-	    double rmax ; 
 	    switch( mg->get_type_r(l) ) {
 		case RARE: {
 		    rmax = alpha[l] * ( double(1) + ftp + gtp ) + beta[l] ;
@@ -487,7 +489,6 @@ void Map_et::val_lx_jk(double rr, int j, int k, const Param& par,
 	for (int l=0; l<nz; l++) {
 	    ftp = ff(l, k, j, 0) ;
 	    gtp = gg(l, k, j, 0) ; 
-	    double rmax ; 
 	    switch( mg->get_type_r(l) ) {
 		case RARE: {
 		    rmax = alpha[l] * ( double(1) + ftp + gtp ) + beta[l] ;

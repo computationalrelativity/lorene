@@ -30,6 +30,9 @@ char mg3d_std_base_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/12/19 16:21:45  j_novak
+ * Shadow hunt
+ *
  * Revision 1.2  2002/08/13 08:02:45  j_novak
  * Handling of spherical vector/tensor components added in the classes
  * Mg3d and Tenseur. Minor corrections for the class Metconf.
@@ -107,10 +110,7 @@ Base_val** Mg3d::std_base_vect_cart() const {
     for (int l=0; l<nzone; l++) {
 
     // Type d'echantillonnage de la zone l :
-	int type_r = get_type_r(l) ;
-	int type_t = get_type_t() ;
-	int type_p = get_type_p() ;
-    
+	int type_r0 = get_type_r(l) ;
 
     // Bases de developpement en (r,theta,phi) a determiner pour les composantes
     // (1,2,3) du vecteur : 
@@ -142,7 +142,7 @@ Base_val** Mg3d::std_base_vect_cart() const {
 
 // Base en r :
 //------------
-		switch ( type_r ) {
+		switch ( type_r0 ) {
 		    
 		    case FIN : 			 
 // echantillonnage fin
@@ -173,7 +173,7 @@ Base_val** Mg3d::std_base_vect_cart() const {
 		    default : 
 			cout << 
 	    "Mg3d::std_base_vect_cart : le cas type_p, type_t, type_r = " 
-			  << type_p<< " " << type_t<< " " <<type_r << endl ;
+			  << type_p<< " " << type_t<< " " <<type_r0 << endl ;
 			cout << 
 			  " dans la zone l = " << l << " n'est pas prevu ! " 
 			  << endl ;
@@ -224,7 +224,7 @@ Base_val** Mg3d::std_base_vect_cart() const {
 
 // Base en r :
 //------------
-		switch ( type_r ) {
+		switch ( type_r0 ) {
 		    
 		    case FIN : 			 
 // echantillonnage fin
@@ -254,7 +254,7 @@ Base_val** Mg3d::std_base_vect_cart() const {
 		    default : 
 			cout << 
 	    "Mg3d::std_base_vect_cart : le cas type_p, type_t, type_r = " 
-			  << type_p<< " " <<type_t<< " " <<type_r << endl ;
+			  << type_p<< " " <<type_t<< " " <<type_r0 << endl ;
 			cout << 
 			  " dans la zone l = " << l << " n'est pas prevu ! " 
 			  << endl ;
@@ -327,10 +327,7 @@ Base_val** Mg3d::std_base_vect_spher() const {
   for (int l=0; l<nzone; l++) {
     
     // Type d'echantillonnage de la zone l :
-    int type_r = get_type_r(l) ;
-    int type_t = get_type_t() ;
-    int type_p = get_type_p() ;
-    
+    int type_r0 = get_type_r(l) ;
     
     // Bases de developpement en (r,theta,phi) a determiner pour les 
     // composantes (1,2,3) du vecteur : 
@@ -362,7 +359,7 @@ Base_val** Mg3d::std_base_vect_spher() const {
 
 	// Base en r :
 	//------------
-	switch ( type_r ) {
+	switch ( type_r0 ) {
 		    
 	case FIN : 			 
 // echantillonnage fin
@@ -393,7 +390,7 @@ Base_val** Mg3d::std_base_vect_spher() const {
 	default : 
 	  cout << 
 	    "Mg3d::std_base_vect_sphere : le cas type_p, type_t, type_r = " 
-	       << type_p<< " " << type_t<< " " <<type_r << endl ;
+	       << type_p<< " " << type_t<< " " <<type_r0 << endl ;
 	  cout << " dans la zone l = " << l << " n'est pas prevu ! " 
 	       << endl ;
 	  abort () ;
@@ -439,7 +436,7 @@ Base_val** Mg3d::std_base_vect_spher() const {
 
 	// Base en r :
 	//------------
-	switch ( type_r ) {
+	switch ( type_r0 ) {
 		    
 	case FIN : 			 
 // echantillonnage fin
@@ -469,7 +466,7 @@ Base_val** Mg3d::std_base_vect_spher() const {
 	default : 
 	  cout << 
 	    "Mg3d::std_base_vect_spher : le cas type_p, type_t, type_r = " 
-	       << type_p<< " " <<type_t<< " " <<type_r << endl ;
+	       << type_p<< " " <<type_t<< " " <<type_r0 << endl ;
 	  cout << " dans la zone l = " << l << " n'est pas prevu ! " 
 	       << endl ;
 	  abort () ;

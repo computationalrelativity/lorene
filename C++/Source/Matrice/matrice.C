@@ -32,6 +32,9 @@ char matrice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/12/19 16:21:44  j_novak
+ * Shadow hunt
+ *
  * Revision 1.6  2002/10/16 14:36:42  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -496,7 +499,9 @@ Matrice operator* (const Matrice& aa, const Matrice& bb) {
 
 	int nbla = aa.std->get_dim(1) ;
 	int nbca = aa.std->get_dim(0) ;
+#ifndef NDEBUG
 	int nblb = bb.std->get_dim(1) ;
+#endif
 	int nbcb = bb.std->get_dim(0) ;
 	
 	assert( nbca == nblb ) ;

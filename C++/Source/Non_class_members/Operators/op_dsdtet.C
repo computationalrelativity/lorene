@@ -36,8 +36,11 @@ char op_dsdtet_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/12/19 16:21:48  j_novak
+ * Shadow hunt
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.6  2000/10/04  11:50:44  eric
  * Ajout d' abort() dans le cas non prevu.
@@ -104,7 +107,7 @@ void _dsdtet_t_cos_p(Tbl* tb, int & b)
     static int nt_pre =0 ;
 
     // Test sur np pour initialisation eventuelle
-    #pragma critical (loch_dsdtet_t_cos_p)
+    //#pragma critical (loch_dsdtet_t_cos_p)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
@@ -273,7 +276,7 @@ void _dsdtet_t_sin_i(Tbl* tb, int & b)
     static int nt_pre =0 ;
 
     // Test sur np pour initialisation eventuelle
-    #pragma critical (loch_dsdtet_t_cos_p)
+    //#pragma critical (loch_dsdtet_t_cos_p)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
@@ -358,7 +361,7 @@ void _dsdtet_t_cos_i(Tbl* tb, int & b)
     static int nt_pre =0 ;
 
     // Test sur np pour initialisation eventuelle
-    #pragma critical (loch_dsdtet_t_cos_i)
+    //#pragma critical (loch_dsdtet_t_cos_i)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
@@ -444,7 +447,7 @@ void _dsdtet_t_cossin_cp(Tbl* tb, int & b)
     static int nt_pre = 0 ;
 
     // Test sur np pour initialisation eventuelle
-    #pragma critical (loch_dsdtet_t_cossin_cp)
+    //#pragma critical (loch_dsdtet_t_cossin_cp)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
@@ -494,7 +497,7 @@ void _dsdtet_t_cossin_cp(Tbl* tb, int & b)
     for (int k=2 ; k<np+1 ; k++) {
 	// Choix de la parite
 	int m = (k/2) % 2 ;
-	double* cxl = cx[m] ;	// Pointeur de coefficients local
+	cxl = cx[m] ;	// Pointeur de coefficients local
 	for (int j=0 ; j<nt ; j++) {
 	    for (int i=0 ; i<nr ; i++) {
 		*xco = cxl[j] * (*xci) ;
@@ -542,7 +545,7 @@ void _dsdtet_t_cossin_sp(Tbl* tb, int & b)
     static int nt_pre =0 ;
 
     // Test sur np pour initialisation eventuelle
-    #pragma critical (loch_dsdtet_t_cossin_sp)
+    //#pragma critical (loch_dsdtet_t_cossin_sp)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
@@ -592,7 +595,7 @@ void _dsdtet_t_cossin_sp(Tbl* tb, int & b)
     for (int k=2 ; k<np+1 ; k++) {
 	// Choix de la parite
 	int m = (k/2) % 2 ;
-	double* cxl = cx[m] ;	// Pointeur de coefficients local
+	cxl = cx[m] ;	// Pointeur de coefficients local
 	for (int j=0 ; j<nt ; j++) {
 	    for (int i=0 ; i<nr ; i++) {
 		*xco = cxl[j] * (*xci) ;
@@ -640,7 +643,7 @@ void _dsdtet_t_cossin_ci(Tbl* tb, int & b)
     static int nt_pre =0 ;
 
     // Test sur np pour initialisation eventuelle
-    #pragma critical (loch_dsdtet_t_cossin_ci)
+    //#pragma critical (loch_dsdtet_t_cossin_ci)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
@@ -690,7 +693,7 @@ void _dsdtet_t_cossin_ci(Tbl* tb, int & b)
     for (int k=2 ; k<np+1 ; k++) {
 	// Choix de la parite
 	int m = (k/2) % 2 ;
-	double* cxl = cx[m] ;	// Pointeur de coefficients local
+	cxl = cx[m] ;	// Pointeur de coefficients local
 	for (int j=0 ; j<nt ; j++) {
 	    for (int i=0 ; i<nr ; i++) {
 		*xco = cxl[j] * (*xci) ;
@@ -738,7 +741,7 @@ void _dsdtet_t_cossin_si(Tbl* tb, int & b)
     static int nt_pre =0 ;
 
     // Test sur np pour initialisation eventuelle
-    #pragma critical (loch_dsdtet_t_cossin_si)
+    //#pragma critical (loch_dsdtet_t_cossin_si)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
@@ -788,7 +791,7 @@ void _dsdtet_t_cossin_si(Tbl* tb, int & b)
     for (int k=2 ; k<np+1 ; k++) {
 	// Choix de la parite
 	int m = (k/2) % 2 ;
-	double* cxl = cx[m] ;	// Pointeur de coefficients local
+	cxl = cx[m] ;	// Pointeur de coefficients local
 	for (int j=0 ; j<nt ; j++) {
 	    for (int i=0 ; i<nr ; i++) {
 		*xco = cxl[j] * (*xci) ;

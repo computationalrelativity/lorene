@@ -31,8 +31,11 @@ char et_rot_diff_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/12/19 16:21:42  j_novak
+ * Shadow hunt
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.2  2001/10/24  16:06:53  eric
  * fonction tsw(): correction erreur ener. cin. (facteur 0.5).
@@ -77,17 +80,17 @@ double Et_rot_diff::tsw() const {
 	
 	if (relativistic) {
 	    
-	    Cmp dens = a_car() * bbb() * gam_euler() * ener() ;
-	    dens.std_base_scal() ; 
-	    double mass_p = dens.integrale() ; 
+	    Cmp dens2 = a_car() * bbb() * gam_euler() * ener() ;
+	    dens2.std_base_scal() ; 
+	    double mass_p = dens2.integrale() ; 
 	    
 	    p_tsw = new double( tcin / ( mass_p + tcin - mass_g() ) ) ;  	
 	   
 	}
 	else {	    // Newtonian case 
-	    Cmp dens = 0.5 * nbar() * logn() ;
-	    dens.std_base_scal() ; 
-	    double wgrav = dens.integrale() ; 
+	    Cmp dens2 = 0.5 * nbar() * logn() ;
+	    dens2.std_base_scal() ; 
+	    double wgrav = dens2.integrale() ; 
 	    p_tsw = new double( tcin / fabs(wgrav) ) ;  
 	}
 

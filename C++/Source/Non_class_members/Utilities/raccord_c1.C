@@ -25,8 +25,11 @@ char raccord_c1_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/12/19 16:21:49  j_novak
+ * Shadow hunt
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.0  2000/03/22  10:08:55  eric
  * *** empty log message ***
@@ -54,7 +57,9 @@ Cmp raccord_c1(const Cmp& uu, int l1) {
 
     const Mg3d& mg = *(mp.get_mg()) ; 
     
+#ifndef NDEBUG
     int nz = mg.get_nzone() ; 
+#endif
     assert(l1 > 0) ; 
     assert(l1 < nz-1) ; 
     

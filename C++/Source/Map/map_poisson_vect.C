@@ -25,6 +25,9 @@ char map_poisson_vect_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/12/19 16:21:43  j_novak
+ * Shadow hunt
+ *
  * Revision 1.3  2002/07/09 16:46:23  p_grandclement
  * The Param in the case of an affine mapping is now 0x0 and not deleted
  * (I wonder why it was working before)
@@ -60,7 +63,7 @@ char map_poisson_vect_C[] = "$Header$" ;
 #include "tenseur.h"
 #include "param.h"
 
-Param* Map_af::donne_para_poisson_vect(Param& para, int) const {
+Param* Map_af::donne_para_poisson_vect(Param&, int) const {
     return 0x0 ;
 }
 

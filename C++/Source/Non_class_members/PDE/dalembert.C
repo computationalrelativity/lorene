@@ -25,6 +25,9 @@ char dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/12/19 16:21:49  j_novak
+ * Shadow hunt
+ *
  * Revision 1.5  2003/07/25 08:31:20  j_novak
  * Error corrected in the case of only nucleus
  *
@@ -381,7 +384,7 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
 	  //----------
 	  //  Shells
 	  //----------
-	  for (int lz=1; lz<nz; lz++) {
+	  for (lz=1; lz<nz; lz++) {
 	    nr = source.get_mg()->get_nr(lz) ;
 	    alpha = mapping.get_alpha()[lz] ;
 	    l-- ; 
@@ -473,7 +476,7 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
 	      + facteur(0)*solution_hom_un(0, k, j, i) ;
 	  
 	  //Linear combination in the shells
-	  for (int lz=1; lz<nz; lz++) {
+	  for (lz=1; lz<nz; lz++) {
 	    nr = source.get_mg()->get_nr(lz) ;
 	    for (int i=0; i<nr; i++) 
 	      resultat.set(lz, k, j, i) = solution_part(lz, k, j, i) 

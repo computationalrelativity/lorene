@@ -23,6 +23,9 @@ char sol_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/12/19 16:21:49  j_novak
+ * Shadow hunt
+ *
  * Revision 1.1  2003/12/11 14:48:49  p_grandclement
  * Addition of ALL (and that is a lot !) the files needed for the general elliptic solver ... UNDER DEVELOPEMENT...
  *
@@ -137,8 +140,8 @@ Mtbl_cf elliptic_solver  (const Param_elliptic& ope_var, const Mtbl_cf& source) 
 	Matrice systeme (taille, taille) ;
 	systeme.set_etat_qcq() ;
 	for (int i=0 ; i<taille ; i++)
-	  for (int j=0 ; j<taille ; j++)
-	    systeme.set(i,j) = 0 ;
+	  for (int j2=0 ; j2<taille ; j2++)
+	    systeme.set(i,j2) = 0 ;
 	Tbl sec_membre (taille) ;
 	sec_membre.set_etat_qcq() ;
 	for (int i=0 ; i<taille ; i++)

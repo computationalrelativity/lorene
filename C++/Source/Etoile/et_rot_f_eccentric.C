@@ -33,6 +33,9 @@ char et_rot_f_eccentric_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/12/19 16:21:42  j_novak
+ * Shadow hunt
+ *
  * Revision 1.3  2003/12/05 14:50:26  j_novak
  * To suppress some warnings...
  *
@@ -62,7 +65,7 @@ char et_rot_f_eccentric_C[] = "$Header$" ;
 //		r_isco()
 //=============================================================================
 
-double Etoile_rot::f_eccentric(double ecc, double periast, ostream* ost) const {
+double Etoile_rot::f_eccentric(double, double, ostream* ost) const {
 
     cout << "Etoile_rot::f_eccentric not ready yet !" << endl ; 
     abort() ; 

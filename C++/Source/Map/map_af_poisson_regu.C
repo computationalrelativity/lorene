@@ -30,6 +30,9 @@ char map_af_poisson_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/12/19 16:21:43  j_novak
+ * Shadow hunt
+ *
  * Revision 1.2  2003/10/03 15:58:48  j_novak
  * Cleaning of some headers
  *
@@ -248,8 +251,8 @@ void Map_af::poisson_regular(const Cmp& source, int k_div, int nzet,
 	  l = 2 * j + 1 ;
 
 	for (int i=0; i<k_div; i++) {
-	  for (int j=0; j<k_div; j++) {
-	    matrix.set(i, j) = cf_cil(l, nr-1-i, j) ;
+	  for (int j2=0; j2<k_div; j2++) {
+	    matrix.set(i, j2) = cf_cil(l, nr-1-i, j2) ;
 	  }
 	}
 

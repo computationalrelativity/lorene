@@ -36,6 +36,9 @@ char op_dsdphi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/12/19 16:21:48  j_novak
+ * Shadow hunt
+ *
  * Revision 1.2  2002/09/09 13:00:40  e_gourgoulhon
  * Modification of declaration of Fortran 77 prototypes for
  * a better portability (in particular on IBM AIX systems):
@@ -115,7 +118,7 @@ void _dsdphi_p_cossin(Tbl* tb, int & )
     static int np_pre =0 ;
 
     // Test sur np pour initialisation eventuelle
-    #pragma critical (loch_dsdphi_p_cossin)
+    //#pragma critical (loch_dsdphi_p_cossin)
     {
     if (np > np_pre) {
 	np_pre = np ;
@@ -219,7 +222,7 @@ void _dsdphi_p_cossin_p(Tbl* tb, int & )
     static int np_pre =0 ;
 
     // Test sur np pour initialisation eventuelle
-    #pragma critical (loch_dsdphi_p_cossin_p)
+    //#pragma critical (loch_dsdphi_p_cossin_p)
     {
     if (np > np_pre) {
 	np_pre = np ;

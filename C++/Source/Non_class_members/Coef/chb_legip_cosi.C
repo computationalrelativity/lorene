@@ -87,6 +87,9 @@ char chb_legip_cosi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/12/19 16:21:46  j_novak
+ * Shadow hunt
+ *
  * Revision 1.3  2003/01/31 10:31:23  e_gourgoulhon
  * Suppressed the directive #include <malloc.h> for malloc is defined
  * in <stdlib.h>
@@ -192,7 +195,7 @@ int k2, l, j, i, m ;
 	// Mise a zero des coefficients k=1 et k=2 :
 	// ---------------------------------------
 	
-	for (int i=ntnr; i<3*ntnr; i++) {
+	for (i=ntnr; i<3*ntnr; i++) {
 	    cfo[i] = 0 ;		 
 	}	    
 	    

@@ -30,6 +30,9 @@ char map_af_integ_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/12/19 16:21:43  j_novak
+ * Shadow hunt
+ *
  * Revision 1.3  2003/10/19 19:58:15  e_gourgoulhon
  * Access to Base_val::b now via Base_val::get_b().
  *
@@ -120,7 +123,7 @@ Tbl* Map_af::integrale(const Cmp& ci) const {
 	    // ----------------------------------
 
 	    double* s_tr = new double[nr] ;	// Partial integral on theta 
-	    double* x = p_tbi->t ;	// Pointer on the spectral coefficients
+	    double* x_spec = p_tbi->t ;	// Pointer on the spectral coefficients
 	    
 	    switch (base_t) {
 	    
@@ -137,9 +140,9 @@ Tbl* Map_af::integrale(const Cmp& ci) const {
 		for (int i=0 ; i<nr ; i++) s_tr[i] = 0 ;
 		for (int j=0 ; j<nt ; j++) {
 		    for (int i=0 ; i<nr ; i++) {
-			s_tr[i] += cx_tcp[j] * x[i] ;
+			s_tr[i] += cx_tcp[j] * x_spec[i] ;
 		    }
-		x += nr ;	// Next theta
+		x_spec += nr ;	// Next theta
 		}
 		break ;
 	    }

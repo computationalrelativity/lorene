@@ -51,7 +51,8 @@ Cmp prolonge_c1(const Cmp& uu, const int nzet) {
   double resu_ext =  - 0.2 * nbc ;
   const Coord& rr = mp.r ;
   double rout = (+rr)(nzet,0,0,mg.get_nr(nzet)-1) ;
-  double rin, resu1, dresu1, a, b ;
+  double rin = 0 ; double resu1 = 0 ; double dresu1 = 0 ;
+  double a = 0 ; double b = 0 ;
   for (int k=0; k<mg.get_np(0); k++) 
     for (int j=0; j<mg.get_nt(0); j++) { 
       double ir = 0 ;

@@ -38,6 +38,9 @@ char trigo_ini_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/12/19 16:21:47  j_novak
+ * Shadow hunt
+ *
  * Revision 1.4  2003/01/31 10:31:24  e_gourgoulhon
  * Suppressed the directive #include <malloc.h> for malloc is defined
  * in <stdlib.h>
@@ -88,7 +91,7 @@ static	int	tbn[NMAX] ;		/* Tableau des points deja initialises */
 static	int trois = 3 ;
 int indice ;
 
-#pragma critical (loch_trigo_ini)
+//#pragma critical (loch_trigo_ini)
 {
     // Ce nombre de points a-t-il deja ete utilise ?
     indice = -1 ;
