@@ -9,6 +9,7 @@ install: $(BIN_TOOLS) $(BIN_TOOLS)/reorg_comments $(HOME_LORENE)/Doc/refguide
 $(HOME_LORENE)/Doc/refguide: Source/lorene.C $(HOME_LORENE)/C++/Include/*.h
 	$(BIN_TOOLS)/reorg_comments $?
 	mv $(?:=_r) .
+	rm -fr $@
 	doc++ -p -d $@ lorene.C_r
 
 refguide.tex: Source/lorene.C $(HOME_LORENE)/C++/Include/*.h
