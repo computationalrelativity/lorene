@@ -29,6 +29,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/28 21:27:57  e_gourgoulhon
+ * Class Time_slice: - renamed the Evolution_std with suffix "_evol".
+ *                   - added protected constructor for derived classes
+ * Added class Time_slice_conf.
+ *
  * Revision 1.2  2004/03/26 13:33:02  j_novak
  * New methods for accessing/updating members (nn(), beta(), gam_uu(), k_uu(), ...)
  *
@@ -44,6 +49,7 @@ class Sym_tensor ;
 class Vector ; 
 class Scalar ; 
 class Metric ; 
+class Metric_flat ; 
 class Base_vect ; 
 class Map ; 
 
@@ -51,9 +57,13 @@ class Map ;
 
 #include "evolution.h"
 
+                    //---------------------------//
+                    //      class Time_slice     //
+                    //---------------------------//
+
 /**
  * Spacelike time slice of a 3+1 spacetime (*** under development ***)
- * \ingroup(evol)
+ * \ingroup (evol)
  * 
  */
 class Time_slice {
@@ -78,37 +88,37 @@ class Time_slice {
         /// Time label of each slice
 	Evolution_std<double> the_time ;
         
-        /** Values of the covariant components of the induced metric 
-         * \f$ \gamma_{ij} \f$
+        /** Values at successive time steps of the covariant components of 
+         * the induced metric \f$ \gamma_{ij} \f$
          */
-	mutable Evolution_std<Sym_tensor> gamma_dd ; 
+	mutable Evolution_std<Sym_tensor> gam_dd_evol ; 
         
-        /** Values of the contravariant components of the induced metric 
-         * \f$ \gamma^{ij} \f$
+        /** Values at successive time steps of the contravariant components 
+         * of the induced metric \f$ \gamma^{ij} \f$
          */        
-	mutable Evolution_std<Sym_tensor> gamma_uu ; 
+	mutable Evolution_std<Sym_tensor> gam_uu_evol ; 
 
-        /** Values of the covariant components of the extrinsic curvature
-         * tensor \f$ K_{ij} \f$
+        /** Values at successive time steps of the covariant components 
+         * of the extrinsic curvature tensor \f$ K_{ij} \f$
          */
-	mutable Evolution_std<Sym_tensor> kk_dd ; 
+	mutable Evolution_std<Sym_tensor> k_dd_evol ; 
 
-        /** Values of the contravariant components of the extrinsic curvature
-         * tensor \f$ K^{ij} \f$
+        /** Values at successive time steps of the contravariant components 
+         * of the extrinsic curvature tensor \f$ K^{ij} \f$
          */
-	mutable Evolution_std<Sym_tensor> kk_uu ; 
+	mutable Evolution_std<Sym_tensor> k_uu_evol ; 
 
-        /// Values of the lapse function \e N 
-	mutable Evolution_std<Scalar> lapse ; 
+        /// Values at successive time steps of the lapse function \e N 
+	mutable Evolution_std<Scalar> n_evol ; 
         
-        /// Values of the shift vector \f$ \beta^i \f$
-	mutable Evolution_std<Vector> shift ; 
+        /// Values at successive time steps of the shift vector \f$ \beta^i \f$
+	mutable Evolution_std<Vector> beta_evol ; 
         
 
     // Derived data : 
     // ------------
     protected:
-    /// Pointer on the induced metric 
+        /// Pointer on the induced metric 
 	mutable Metric* p_gamma ;   
 
     // Constructors - Destructor
@@ -155,9 +165,16 @@ class Time_slice {
     Time_slice(const Map& mp, const Base_vect& triad, int depth_in = 3) ; 
     
     
-	Time_slice(const Time_slice& ) ;		///< Copy constructor
+    Time_slice(const Time_slice& ) ;		///< Copy constructor
+    
+    protected:
+    /** Special constructor for derived classes.
+     *
+     */
+    Time_slice(int depth_in) ; 
 
-	virtual ~Time_slice() ;			///< Destructor
+    public:
+    virtual ~Time_slice() ;			///< Destructor
  
 
     // Memory management
@@ -189,46 +206,277 @@ class Time_slice {
 	/// Gets the order of the finite-differences scheme.
 	int get_scheme_order() const { return scheme_order ; } ;
 	
-	/// Lapse function \e N at the current time step (\c jlast )
+	/// Lapse function \e N at the current time step (\c jtime )
 	virtual const Scalar& nn() const ;
 	
-	/// shift vector \f$ \beta^i \f$ at the current time step (\c jlast )
+	/// shift vector \f$ \beta^i \f$ at the current time step (\c jtime )
 	virtual const Vector& beta() const ;
 	
-	/// Induced metric \f$ \mathbf{\gamma} \f$ at the current time step (\c jlast )
-	virtual const Metric& gam() const ;
+	/// Induced metric \f$ \mathbf{\gamma} \f$ at the current time step (\c jtime )
+	const Metric& gam() const ;
 	
 	/** Induced metric (covariant components \f$ \gamma_{ij} \f$) 
-	 * at the current time step (\c jlast )
+	 * at the current time step (\c jtime )
 	 */
 	virtual const Sym_tensor& gam_dd() const ;
 	
 	/** Induced metric (contravariant components \f$ \gamma^{ij} \f$) 
-	 * at the current time step (\c jlast )
+	 * at the current time step (\c jtime )
 	 */
 	virtual const Sym_tensor& gam_uu() const ;
 	
 	/** Extrinsic curvature tensor (covariant components \f$ K_{ij} \f$) 
-	 * at the current time step (\c jlast )
+	 * at the current time step (\c jtime )
 	 */
 	virtual const Sym_tensor& k_dd() const ;
 	
 	/** Extrinsic curvature tensor (contravariant components \f$ K^{ij} \f$) 
-	 * at the current time step (\c jlast )
+	 * at the current time step (\c jtime )
 	 */
 	virtual const Sym_tensor& k_uu() const ;
 	
 	
-	// Outputs
-	// -------
- public:
+    // Outputs
+    // -------
+    public:
 	
-	/// Display
-	friend ostream& operator<<(ostream& , const Time_slice& ) ;	
+    /// Display
+    friend ostream& operator<<(ostream& , const Time_slice& ) ;	
 
 
 };
 
 ostream& operator<<(ostream& , const Time_slice& ) ;	
 
+
+
+                    //---------------------------//
+                    //   class Time_slice_conf   //
+                    //---------------------------//
+
+/**
+ * Spacelike time slice of a 3+1 spacetime with conformal decomposition
+ * (*** under development ***)
+ * \ingroup (evol)
+ * 
+ */
+class Time_slice_conf : public Time_slice {
+
+    // Data : 
+    // -----
+    protected: 
+    
+        /** Pointer on the flat metric \f$ f_{ij} \f$ with respect to
+         * which the conformal decomposition is performed
+         */
+        const Metric_flat& ff ;  
+
+        /** Values at successive time steps of the conformal factor 
+         * \f$ \Psi \f$ relating the
+         * physical metric \f$ \gamma_{ij} \f$ to the conformal one:
+         * \f$ \gamma_{ij} = \Psi^4 \tilde\gamma_{ij} \f$.
+         * \f$ \Psi \f$ is defined by
+         *  \f[ \Psi := \left( \frac{\det\gamma_{ij}}{\det f_{ij}} 
+         *      \right) ^{1/12} \r] 
+         */
+	mutable Evolution_std<Scalar> psi_evol ; 
+        
+        /** Values at successive time steps of the factor 
+         * \f$ Q := \Psi^2 N \f$.
+         */
+	mutable Evolution_std<Scalar> qq_evol ; 
+        
+        
+        /** Values at successive time steps of the components \f$ h^{ij} \f$ 
+         * of the deviation 
+         * of the conformal metric \f$ \tilde\gamma^{ij} \f$ from 
+         * the flat metric \f$ f^{ij} \f$: 
+         * \f$\tilde\gamma^{ij} = f^{ij} + h^{ij} \f$.
+         */        
+	mutable Evolution_std<Sym_tensor> hh_evol ; 
+
+        /** Values at successive time steps of the components \f$ A^{ij} \f$
+         * of the conformal representation of the traceless part
+         * of the extrinsic curvature:
+         * \f$ A^{ij} = \Psi^4 \left( K^{ij} - {1\over 3} K \gamma^{ij} 
+         *  \right) \f$.
+         */        
+	mutable Evolution_std<Sym_tensor> aa_evol ; 
+
+        /** Values at successive time steps of the trace \e K of the 
+         *  extrinsic curvature
+         */        
+	mutable Evolution_std<Scalar> trk_evol ; 
+
+        
+    // Derived data : 
+    // ------------
+    protected:
+        /// Pointer on the conformal metric \f$ \tilde\gamma_{ij} \f$
+	mutable Metric* p_tgamma ; 
+        
+        /// Pointer on the factor \f$ \Psi^4 \f$
+	mutable Scalar* p_psi4 ; 
+        
+
+    // Constructors - Destructor
+    // -------------------------
+    public:
+    
+    /** Constructor from conformal decomposition.
+     *
+     *  @param lapse_in lapse function \e N
+     *  @param shift_in shift vector
+     *  @param ff_in reference flat metric with respect to which the
+     *           conformal decomposition is performed
+     *  @param psi_in conformal factor \f$\Psi\f$ relating the
+     *       physical metric \f$ \gamma_{ij} \f$ to the conformal one:
+     *      \f$ \gamma_{ij} = \Psi^4 \tilde\gamma_{ij} \f$
+     *  @param hh_in deviation \f$ h^{ij} \f$
+     *      of the conformal metric \f$ \tilde\gamma^{ij} \f$ from 
+     *      the flat metric \f$ f^{ij} \f$: 
+     *      \f$\tilde\gamma^{ij} = f^{ij} + h^{ij} \f$.
+     *  @param aa_in conformal representation \f$ A^{ij} \f$
+     *      of the traceless part of the extrinsic curvature:
+     *      \f$ A^{ij} = \Psi^4 \left( K^{ij} - {1\over 3} K \gamma^{ij}
+     *  @param trk_in trace \e K of the extrinsic curvature 
+     *  @param depth_in  number of stored time slices; this parameter is used
+     *                   to set the \c scheme_order member with \c scheme_order
+     *                   = \c depth_in - 1. \c scheme_order can be changed 
+     *                   afterwards by the method \c set_scheme_order(int).
+     */
+    Time_slice_conf(const Scalar& lapse_in, const Vector& shift_in,
+            const Metric_flat& ff_in, const Scalar& psi_in, 
+            const Sym_tensor& hh_in, const Sym_tensor aa_in, 
+            const Scalar& trk_in, int depth_in = 3) ; 
+    
+    
+    /** Constructor from physical metric.
+     *  The conformal decomposition is performed by the constructor. 
+     *
+     *  @param lapse_in lapse function \e N
+     *  @param shift_in shift vector
+     *  @param gamma_in induced metric (covariant or contravariant components) 
+     *  @param kk_in extrinsic curvature (covariant or contravariant components)
+     *  @param ff_in reference flat metric with respect to which the
+     *           conformal decomposition is performed
+     *  @param depth_in  number of stored time slices; this parameter is used
+     *                   to set the \c scheme_order member with \c scheme_order
+     *                   = \c depth_in - 1. \c scheme_order can be changed 
+     *                   afterwards by the method \c set_scheme_order(int).
+     */
+    Time_slice_conf(const Scalar& lapse_in, const Vector& shift_in,
+               const Sym_tensor& gamma_in, const Sym_tensor kk_in,
+               const Metric_flat& ff_in, int depth_in = 3) ; 
+               
+               
+    Time_slice_conf(const Time_slice_conf& ) ;	///< Copy constructor
+
+    virtual ~Time_slice_conf() ;			///< Destructor
+ 
+
+    // Memory management
+    // -----------------
+    protected:
+	    
+	/// Deletes all the derived quantities
+	virtual void del_deriv() const ; 
+	
+	/// Sets to \c 0x0 all the pointers on derived quantities
+	virtual void set_der_0x0() const ; 
+
+
+    // Mutators / assignment
+    // ---------------------
+    public:
+	/// Assignment to another \c Time_slice_conf
+	void operator=(const Time_slice_conf&) ;
+
+	/// Assignment to a \c Time_slice
+	void operator=(const Time_slice&) ;
+	
+    // Accessors
+    // ---------
+    public:
+
+        // Virtual functions from base class Time_slice:
+        // ---------------------------------------------
+
+	/// Lapse function \e N at the current time step (\c jtime )
+	virtual const Scalar& nn() const ;
+	
+	/** Induced metric (covariant components \f$ \gamma_{ij} \f$) 
+	 * at the current time step (\c jtime )
+	 */
+	virtual const Sym_tensor& gam_dd() const ;
+	
+	/** Induced metric (contravariant components \f$ \gamma^{ij} \f$) 
+	 * at the current time step (\c jtime )
+	 */
+	virtual const Sym_tensor& gam_uu() const ;
+	
+	/** Extrinsic curvature tensor (covariant components \f$ K_{ij} \f$) 
+	 * at the current time step (\c jtime )
+	 */
+	virtual const Sym_tensor& k_dd() const ;
+	
+	/** Extrinsic curvature tensor (contravariant components \f$ K^{ij} \f$) 
+	 * at the current time step (\c jtime )
+	 */
+	virtual const Sym_tensor& k_uu() const ;
+	
+        // Virtual functions from this class:
+        // ----------------------------------
+
+        /** Conformal factor \f$ \Psi \f$ relating the
+         * physical metric \f$ \gamma_{ij} \f$ to the conformal one:
+         * \f$ \gamma_{ij} = \Psi^4 \tilde\gamma_{ij} \f$. 
+         * \f$ \Psi \f$ is defined by
+         *  \f[ \Psi := \left( \frac{\det\gamma_{ij}}{\det f_{ij}} 
+         *      \right) ^{1/12} \r] 
+         * Returns the value at the current time step (\c jtime ).
+         */
+	virtual const Scalar& psi() const ; 
+        
+        /// Factor \f$ \Psi^4 \f$ at the current time step (\c jtime ).
+	const Scalar& psi4() const ; 
+        
+        /** Factor \f$ Q := \Psi^2 N \f$ at the current time step (\c jtime ).
+         */
+	virtual const Scalar& qq() const ; 
+        
+        /** Conformal metric 
+         * \f$ \tilde\gamma_{ij} = \Psi^{-4} \gamma_{ij} \f$
+         * Returns the value at the current time step (\c jtime ).
+         */        
+	const Metric& tgam() const ; 
+
+        /** Deviation \f$ h^{ij} \f$ 
+         * of the conformal metric \f$ \tilde\gamma^{ij} \f$ from 
+         * the flat metric \f$ f^{ij} \f$: 
+         * \f$\tilde\gamma^{ij} = f^{ij} + h^{ij} \f$.
+         * Returns the value at the current time step (\c jtime ).
+         */        
+	virtual const Sym_tensor& hh() const ; 
+
+        /** Conformal representation \f$ A^{ij} \f$ of the traceless part
+         * of the extrinsic curvature:
+         * \f$ A^{ij} = \Psi^4 \left( K^{ij} - {1\over 3} K \gamma^{ij} 
+         *  \right) \f$.
+         * Returns the value at the current time step (\c jtime ).
+         */        
+	virtual const Sym_tensor& aa() const ; 
+
+        /** Trace \e K of the extrinsic curvature 
+         *  at the current time step (\c jtime )
+         */        
+	virtual const Scalar& trk() const ; 
+
+        
+    // Outputs
+    // -------
+    public:
+	
+
+};
 #endif
