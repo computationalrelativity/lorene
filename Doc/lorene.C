@@ -60,9 +60,13 @@
 
 /**\defgroup evol Time evolution (***under development***)
  *
- * The storage and manipulation (e.g. time derivation) of an
- * evolving quantity is performed through the template class
- * \c Evolution . 
+ * Classes for time evolving fields and spacetimes.
+ * Two families of classes are provided: (i) the \c Evolution family, 
+ * which are template classes to store and manipulate (e.g. taking time 
+ * derivatives) any evolving \e Lorene structure which has some 
+ * arithmetics (e.g. \c Tbl, \c Tensor, etc...); (ii) the
+ * \c Time_slice family which is devoted to the evolution of a hypersurface
+ * \e t = const of the 3+1 formalism of General Relativity. 
  */
 
 
