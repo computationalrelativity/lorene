@@ -32,6 +32,9 @@ char sym_tensor_tt_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/11/03 22:33:36  e_gourgoulhon
+ * Added methods update_tp and set_eta_mu.
+ *
  * Revision 1.1  2003/11/03 17:08:37  e_gourgoulhon
  * First version
  *
@@ -85,6 +88,7 @@ const Scalar& Sym_tensor_tt::eta() const {
 		// dhrr_ext now used to store r h^{rr}
 		dhrr_ext = operator()(1,1) ;
 		dhrr_ext.mult_r() ; 
+		dhrr_ext.inc_dzpuis() ; // since mult_r() did nothing but dzpuis -= 1.
 		   
 		// Final result for the h^rr source for eta:
 		dhrr -= 3. * dhrr_ext ; 
@@ -120,6 +124,7 @@ const Scalar& Sym_tensor_tt::mu() const {
 		
 		// Multiplication by r
 		tmp.mult_r() ; 
+		tmp.inc_dzpuis() ; // since mult_r() did nothing but dzpuis -= 1.
 		
 		// Resolution of the angular Poisson equation for mu
 		// --------------------------------------------------
@@ -131,6 +136,48 @@ const Scalar& Sym_tensor_tt::mu() const {
 
 }
 
+			//----------------//
+			//   update_tp    //
+			//----------------//
+			
+
+void Sym_tensor_tt::update_tp() {
+
+	// All this has a meaning only for spherical components:
+	assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
+
+	assert( (p_eta != 0x0) && (p_mu != 0x0) ) ; 
+	
+	// h^{r theta} :
+	set(1,2) = p_eta->srdsdt() - p_mu->srstdsdp() ; 
+	
+	// h^{r phi} :
+	set(1,3) = p_eta->srstdsdp() + p_mu->srdsdt() ; 
+	
+	Sym_tensor_trans::del_deriv() ; //## in order not to delete p_eta and p_mu
+	
+}			
+
+			//----------------//
+			//  set_eta_mu    //
+			//----------------//
+			
+
+void Sym_tensor_tt::set_eta_mu(const Scalar& eta_i, const Scalar& mu_i) {
+
+		// All this has a meaning only for spherical components:
+		assert( dynamic_cast<const Base_vect_spher*>(triad) != 0x0 ) ; 
+		
+		del_deriv() ; // delete previous p_eta and p_mu, as well as 
+					  //  derived quantities
+				
+		p_eta = new Scalar( eta_i ) ; 	// eta
+
+		p_mu = new Scalar( mu_i ) ; 	// mu 
+		
+		update_tp() ; // h^{r theta} and h^{r phi}
+		
+}
 			
 
 
