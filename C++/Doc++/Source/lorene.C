@@ -4,6 +4,9 @@
  * (Langage Objet pour la RElativit\'e Num\'eriquE)
  * is a C++ based language for numerical relativity.
  *
+ * Lorene home page is 
+ * \URL[http://www.lorene.obspm.fr/]{http://www.lorene.obspm.fr/}
+ *
  */
 
 //@{
@@ -80,7 +83,7 @@
 	//@Include:tenseur.h_r
 	//@Include:metrique.h_r
 	//@Include:metconf.h_r
-        //@Include:qtenseur.h_r
+	//@Include:qtenseur.h_r
     //@}  
 
 
@@ -92,10 +95,11 @@
      */
     //@{
 	//@Include:tensor.h_r
-	//@Include:vector.h_r
 	//@Include:scalar.h_r
-        //@Include:connection.h_r
-        //@Include:metric.h_r
+	//@Include:vector.h_r
+	//@Include:sym_tensor.h_r
+	//@Include:connection.h_r
+	//@Include:metric.h_r
     //@}  
     
     /**@name Grid wedding
