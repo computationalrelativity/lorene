@@ -251,7 +251,7 @@ Mtbl_cf elliptic_solver_fixe_der_zero  (double valeur,
   
 	// Shells
 	for (int l=1 ; l<nz-1 ; l++) {
-	  nr = source.get_mg()->get_nr(0) ;
+	  nr = source.get_mg()->get_nr(l) ;
 	  for (int i=0 ; i<nr ; i++)
 	    resultat.set(l,k,j,i) = solution_part(l,k,j,i) + 
 	      facteur(2*l-1)*solution_hom_un(l,k,j,i) +

@@ -23,6 +23,9 @@ char sol_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/01/25 15:44:20  j_novak
+ * Fixed a problem in the definition of nr at the end.
+ *
  * Revision 1.5  2004/11/25 08:14:56  j_novak
  * Modifs. comments
  *
@@ -264,7 +267,7 @@ Mtbl_cf elliptic_solver  (const Param_elliptic& ope_var, const Mtbl_cf& source) 
   
 	// Shells
 	for (int l=1 ; l<nz-1 ; l++) {
-	  nr = source.get_mg()->get_nr(0) ;
+	  nr = source.get_mg()->get_nr(l) ;
 	  for (int i=0 ; i<nr ; i++)
 	    resultat.set(l,k,j,i) = solution_part(l,k,j,i) + 
 	      facteur(2*l-1)*solution_hom_un(l,k,j,i) +
