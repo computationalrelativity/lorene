@@ -30,6 +30,9 @@ char vector_df_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/11 13:14:09  f_limousin
+ * Add method Vector_divfree::poisson with parameters.
+ *
  * Revision 1.3  2003/10/27 09:03:01  j_novak
  * Added an assert on the triad
  *
@@ -49,6 +52,8 @@ char vector_df_poisson_C[] = "$Header$" ;
 
 // Lorene headers
 #include "tensor.h"
+#include "param.h"
+#include "cmp.h"
 
 
 Vector_divfree Vector_divfree::poisson() const {
@@ -82,3 +87,12 @@ Vector_divfree Vector_divfree::poisson() const {
 	return resu ;
 
 }
+
+
+Vector_divfree Vector_divfree::poisson(Param& par) const {
+
+    cout << "Not implemented yet" << endl ;
+    abort ;
+
+}
+
