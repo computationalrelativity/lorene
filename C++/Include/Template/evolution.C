@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/05/13 21:30:32  e_gourgoulhon
+ * Use of function write_formatted in method save( ).
+ *
  * Revision 1.11  2004/05/11 20:12:49  e_gourgoulhon
  * Added methods j_min, j_max and save.
  *
@@ -90,6 +93,8 @@
 #include <math.h>
 #include <time.h>
 
+void write_formatted(const double&, ostream& ) ; 
+void write_formatted(const Tbl&, ostream& ) ; 
 
 
                     //-------------------------//
@@ -442,7 +447,7 @@ void Evolution<TyT>::save(const char* filename) const {
     fich << "# " << filename << "    " << ctime(&temps) ; 
     fich << "# " << size << "  size" << '\n' ; 
     fich << "# " << pos_jtop << "  pos_jtop" << '\n' ; 
-    fich << "#         t                  value                  J \n" ; 
+    fich << "#         t                  value...                   \n" ; 
     
     fich.precision(14) ; 
     fich.setf(ios::scientific) ; 
@@ -450,9 +455,9 @@ void Evolution<TyT>::save(const char* filename) const {
     for (int i=0; i<=pos_jtop; i++) {
         if (step[i] != UNDEF_STEP) {
             fich << the_time[i] ; fich.width(23) ; 
-            assert(val[i] != 0x0) ; 
-            fich << *(val[i]) ; fich.width(10) ; 
-            fich << step[i] << '\n' ; 
+            assert(val[i] != 0x0) ;
+            write_formatted(*(val[i]), fich) ;  
+            fich << '\n' ; 
         }
     }
         
