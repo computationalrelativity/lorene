@@ -32,6 +32,10 @@ char sym_tensor_tt_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/03/04 09:53:04  e_gourgoulhon
+ * Methods eta(), mu() and upate(): use of Scalar::mult_r_dzpuis and
+ * change of dzpuis behavior of eta and mu.
+ *
  * Revision 1.8  2004/03/03 13:16:21  j_novak
  * New potential khi (p_khi) and the functions manipulating it.
  *
@@ -120,30 +124,15 @@ const Scalar& Sym_tensor_tt::eta() const {
         //               - r^(dzp+1) dh^{rr}/dr  if dzp > 0          (2)
                                                     
 		        
-        // CED value stored in dhrr_ced : 
-		int nzm1 = mp->get_mg()->get_nzone() - 1 ; // index of the CED
-        Tbl dhrr_ced =  dhrr.domain(nzm1) ;
-        
-		// Multiplication by r of (-d h^{rr}/dr) in all domains but the CED:
-		dhrr.annule_domain(nzm1) ; 
-		dhrr.mult_r() ; 
-
-        // The CED value is restored:
-        dhrr.set_domain(nzm1) = dhrr_ced ; 
-        
-        // Special treatment for dzpuis=2 (cf. Eqs. (1) and (2) above) : 
-        if ( dhrr.check_dzpuis(2) )  {
-            dhrr.dec_dzpuis() ;   // dhrr contains now -r dh^{rr}/dr in the CED
-        }
-        
-        dhrr.set_dzpuis(dzp) ;  // dhrr is now equal to - r dh^{rr}/dr with the
-                                //   same dzpuis than h^{rr}
-                          
+		// Multiplication by r of (-d h^{rr}/dr) (with the same dzpuis as h^{rr})
+		dhrr.mult_r_dzpuis( dzp ) ;                           
 
         // Substraction of the h^rr part and multiplication by r :
         dhrr -= 3. * operator()(1,1) ;                          
 
-        dhrr.mult_r() ; 
+        int dzp_resu = ((dzp == 0) ? 0 : dzp-1) ;
+
+        dhrr.mult_r_dzpuis(dzp_resu) ;
         
 		
 		// Resolution of the angular Poisson equation for eta
@@ -176,7 +165,9 @@ const Scalar& Sym_tensor_tt::mu() const {
 		tmp = operator()(1,3).dsdt() + tmp - operator()(1,2).stdsdp() ; 
 		
 		// Multiplication by r
-		tmp.mult_r() ; 
+        int dzp = operator()(1,2).get_dzpuis() ; 
+        int dzp_resu = ((dzp == 0) ? 0 : dzp-1) ;
+		tmp.mult_r_dzpuis(dzp_resu) ; 
 		
 		// Resolution of the angular Poisson equation for mu
 		// --------------------------------------------------
@@ -308,14 +299,21 @@ void Sym_tensor_tt::update() {
 	// ------------
 	idx.set(1) = 2 ;	// theta index
 	*cmp[position(idx)] = p_eta->srdsdt() - p_mu->srstdsdp() ; 
-    int dec_dzp = (p_eta->get_dzpuis() == 0) ? 2 : 1 ; 
-	cmp[position(idx)]->dec_dzpuis(dec_dzp) ;
-	
+    
+    if (p_eta->get_dzpuis() == 0) {
+        assert( cmp[position(idx)]->check_dzpuis(2) ) ; 
+        cmp[position(idx)]->dec_dzpuis(2) ;
+    }
+    
 	// h^{r phi} :
 	// ------------
 	idx.set(1) = 3 ;	// phi index
 	*cmp[position(idx)] = p_eta->srstdsdp() + p_mu->srdsdt() ; 
-	cmp[position(idx)]->dec_dzpuis(dec_dzp) ;
+
+    if (p_eta->get_dzpuis() == 0) {
+        assert( cmp[position(idx)]->check_dzpuis(2) ) ; 
+        cmp[position(idx)]->dec_dzpuis(2) ;
+    }
 	
 	
 	// h^{theta phi} and h^{phi phi}
@@ -329,26 +327,10 @@ void Sym_tensor_tt::update() {
     // in the CED:    r^2 dh^{rt}/dr        if dzp = 0          (1)
     //                r^(dzp+1) dh^{rt}/dr  if dzp > 0          (2)
                                                     
-		        
-    // CED value stored in tmp_ced : 
-    int nzm1 = mp->get_mg()->get_nzone() - 1 ; // index of the CED
-    Tbl tmp_ced = tautst.domain(nzm1) ;
-        
-	// Multiplication by r of dh^{rt}/dr in all domains but the CED:
-	tautst.annule_domain(nzm1) ; 
-    tautst.mult_r() ; 
-
-    // The CED value is restored:
-    tautst.set_domain(nzm1) = tmp_ced ; 
-        
-    // Special treatment for dzpuis=2 (cf. Eqs. (1) and (2) above) : 
-    if ( tautst.check_dzpuis(2) )  {
-        tautst.dec_dzpuis() ;   // tautst contains now  r dh^{rt}/dr in the CED
-    }
-        
-    tautst.set_dzpuis( operator()(1,2).get_dzpuis() ) ;  
-    // taust is now equal to  r dh^{rt}/dr with the same dzpuis than h^{rt}
-                          
+	// Multiplication by r of dh^{rt}/dr (with the same dzpuis than h^{rt})
+    tautst.mult_r_dzpuis( operator()(1,2).get_dzpuis() ) ; 	
+    
+    	        
     // Addition of the remaining parts :	
 	tautst += 3 * operator()(1,2) - operator()(1,1).dsdt() ; 
 	tautst.mult_sint() ; 
@@ -370,22 +352,9 @@ void Sym_tensor_tt::update() {
     // in the CED:    - r^2 dh^{rp}/dr        if dzp = 0          (3)
     //                - r^(dzp+1) dh^{rp}/dr  if dzp > 0          (4)
                                                     	        
-    tmp_ced = taupst.domain(nzm1) ;  // CED value stored in tmp_ced 
-        
-	// Multiplication by r of -dh^{rp}/dr in all domains but the CED:
-	taupst.annule_domain(nzm1) ; 
-    taupst.mult_r() ; 
+	// Multiplication by r of -dh^{rp}/dr  (with the same dzpuis than h^{rp})
+    taupst.mult_r_dzpuis( operator()(1,3).get_dzpuis() ) ; 	
 
-    // The CED value is restored:
-    taupst.set_domain(nzm1) = tmp_ced ; 
-        
-    // Special treatment for dzpuis=2 (cf. Eqs. (3) and (4) above) : 
-    if ( taupst.check_dzpuis(2) )  {
-        taupst.dec_dzpuis() ;   // taupst contains now  -r dh^{rp}/dr in the CED
-    }
-        
-    taupst.set_dzpuis( operator()(1,3).get_dzpuis() ) ;  
-    // taupst is now equal to  -r dh^{rp}/dr with the same dzpuis than h^{rp}
                           
     // Addition of the remaining part :	
 	
