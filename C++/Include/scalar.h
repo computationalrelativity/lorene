@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/09/25 08:55:23  e_gourgoulhon
+ * Added members raccord*.
+ *
  * Revision 1.9  2003/09/25 08:50:11  j_novak
  * Added the members import
  *
@@ -411,6 +414,25 @@ class Scalar : public Tensor {
 	 */
 	const Scalar& laplacien(int zec_mult_r = 4) const ; 
 
+	/**
+	 * Performs the $C^n$ matching of the nucleus with respect to the 
+	 * first shell.
+	 */
+	void raccord(int n) ;
+	
+	/**
+	 * Performs the $C^1$ matching of the external domain with respect to
+	 * the last shell using function like $\frac{1}{r^i}$ with 
+	 * ${\tt puis} \leq i \leq {\tt puis+nbre}$ for each spherical harmonics 
+	 * with $l \leq {\tt lmax}$.
+	 */
+	void raccord_c1_zec(int puis, int nbre, int lmax) ;
+
+	/**
+	 * Matching of the external domain with the outermost shell
+	 */
+	void raccord_externe(int puis, int nbre, int lmax) ;
+
     // Outputs
     // -------
     public:
@@ -552,7 +574,7 @@ class Scalar : public Tensor {
 	 */
 	void poisson_regular(int k_div, int nzet, double unsgam1, Param& par,
 			     Scalar& uu, Scalar& uu_regu, Scalar& uu_div,
-			     Tenseur& duu_div,
+			     Tensor& duu_div,
 			     Scalar& source_regu, Scalar& source_div) const ;
 
 	/** Checks if a Poisson equation with {\tt *this} as a source
