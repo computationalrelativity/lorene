@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2004/11/30 20:38:10  k_taniguchi
+ * Addition of the function poisson_falloff.
+ *
  * Revision 1.14  2004/10/11 15:08:59  j_novak
  * The radial manipulation functions take Scalar as arguments, instead of Cmp.
  * Added a conversion operator from Scalar to Cmp.
@@ -1076,6 +1079,8 @@ class Cmp {
 	 */
 	Cmp poisson() const ;
 
+	Cmp poisson_falloff(int k_falloff) const ;
+
 	/** Solves the scalar Poisson equation with \c *this  as a source
 	 *   (version with parameters to control the resolution).
 	 *   The source \f$\sigma\f$ of the equation \f$\Delta u = \sigma\f$ is 
@@ -1089,6 +1094,8 @@ class Cmp {
 	 */
 	void poisson(Param& par, Cmp& uu) const ;
 	
+	void poisson_falloff(Param& par, Cmp& uu, int k_falloff) const ;
+
 	/**
 	 * Is identicall to \c Cmp::poisson() . The regularity condition at the 
 	 * origin is replace by a boundary condition of the Dirichlet type.
