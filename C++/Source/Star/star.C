@@ -34,6 +34,10 @@ char star_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2005/01/05 17:43:03  f_limousin
+ * u_euler is now constructed in the spherical triad to be consistent
+ * with all the others vectors ans tensors.
+ *
  * Revision 1.11  2004/11/11 16:29:49  j_novak
  * set_der_0x0 is no longer virtual (to be coherent with Tensor/Scalar classes).
  *
@@ -98,7 +102,7 @@ Star::Star(Map& mpi, int nzet_i, const Eos& eos_i)
 		   ener_euler(mpi), 
 		   s_euler(mpi), 
 		   gam_euler(mpi), 
-		   u_euler(mpi, CON, mp.get_bvect_cart()), 
+		   u_euler(mpi, CON, mp.get_bvect_spher()), 
 		   stress_euler(mpi, 2, CON, mp.get_bvect_spher()),
 		   logn(mpi), 
 		   nnn(mpi), 
@@ -196,7 +200,7 @@ Star::Star(Map& mpi, const Eos& eos_i, FILE* fich)
 		   ener_euler(mpi), 
 		   s_euler(mpi), 
 		   gam_euler(mpi), 
-		   u_euler(mpi, CON, mp.get_bvect_cart()), 
+		   u_euler(mpi, CON, mp.get_bvect_spher()), 
 		   stress_euler(mpi, 2, CON, mp.get_bvect_spher()), 
 		   logn(mpi, *(mpi.get_mg()), fich), 
 		   nnn(mpi), 
