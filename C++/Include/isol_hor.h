@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.29  2005/03/31 09:48:04  f_limousin
+ * New functions compute_ww(..) and aa_kerr_ww() and new data ww.
+ *
  * Revision 1.28  2005/03/28 19:45:41  f_limousin
  * Implement Isol_hor::aa_kerr_perturb(...) and new member aa_quad_evol.
  *
@@ -257,7 +260,12 @@ class Isol_hor : public Time_slice_conf {
    */
   Scalar decouple ;
 
- 
+  /** 
+   * Scalar omega used for the construction of the extrinsic curvature
+   * (See Dain (2002)).  
+   */
+  Scalar ww ;
+
   // Constructors - Destructor
   // -------------------------
  public:
@@ -687,7 +695,15 @@ class Isol_hor : public Time_slice_conf {
   
   /// Perturbation of Kerr using  \f$ A^{ij}A_{ij} \f$ from 
   /// equation (14) of Dain (2002).
-  void aa_kerr_perturb(double mm, double aa) ;
+  void aa_kerr_ww() ;
+
+  /**
+   * Computation of the scalar omega used to construct the extrinsic
+   * curvature (See Dain (2002)).
+   * @param mm mass of the Kerr black hole metric.
+   * @param aa rotation parameter of the Kerr black hole metric.
+   */
+  void compute_ww(double mm, double aa) ;
   
   // Outputs
   // -------
