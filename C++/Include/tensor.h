@@ -36,6 +36,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.47  2004/02/19 22:08:51  e_gourgoulhon
+ * Added argument "comment" in method spectral_display,
+ * as well as in external functions min, max, maxabs, etc...
+ *
  * Revision 1.46  2004/02/18 18:42:41  e_gourgoulhon
  * -- Added methods trace.
  * -- Method scontract suppressed ( since it is the same as trace(int, int) ).
@@ -860,13 +864,16 @@ class Tensor {
 	/** Displays the spectral coefficients and the associated
 	 *  basis functions of each component. This function shows 
 	 *  only the values greater than a given threshold.
+         *   @param comment comment to be printed at top of the display
+         *      (default: 0x0 = nothing printed)
 	 *   @param threshold [input] Value above which a coefficient is printed
 	 *    (default: 1.e-7)
 	 *   @param precision [input] Number of printed digits (default: 4)
 	 *   @param ostr [input] Output stream used for the printing (default: cout)
 	 */
-	virtual void spectral_display(double threshold = 1.e-7, int precision = 4, 
-			   ostream& ostr = cout) const ;
+	virtual void spectral_display(const char* comment = 0x0, 
+                            double threshold = 1.e-7, int precision = 4, 
+			    ostream& ostr = cout) const ;
 
 	friend ostream& operator<<(ostream& , const Tensor & ) ;
 	
@@ -1197,6 +1204,8 @@ Tensor contract(const Tensor& t1, int ind1, int ind2) ;
 
 /** Maxima in each domain of the values of the tensor components
  * @param aa tensor
+ * @param comment comment to be printed on {\tt ost} before the result
+ *    (default: 0x0 = nothing printed)
  * @param ost output stream for a formatted output of the result
  * @return 2-D {\tt Tbl} of size the number of independent components
  *	times the number of domains, the elements {\tt (i,l)}
@@ -1204,11 +1213,13 @@ Tensor contract(const Tensor& t1, int ind1, int ind2) ;
  *      denotes symbolically the values of {\tt aa} 
  *	   in domain no. {\tt l} and for component no.{\tt i}. 
  */
-Tbl max(const Tensor& aa, ostream& ost = cout) ; 
+Tbl max(const Tensor& aa, const char* comment = 0x0, ostream& ost = cout) ; 
 
 
 /** Minima in each domain of the values of the tensor components
  * @param aa tensor
+ * @param comment comment to be printed on {\tt ost} before the result
+ *    (default: 0x0 = nothing printed)
  * @param ost output stream for a formatted output of the result
  * @return 2-D {\tt Tbl} of size the number of independent components
  *	times the number of domains, the elements {\tt (i,l)}
@@ -1216,10 +1227,12 @@ Tbl max(const Tensor& aa, ostream& ost = cout) ;
  *      denotes symbolically the values of {\tt aa} 
  *	   in domain no. {\tt l} and for component no.{\tt i}. 
  */
-Tbl min(const Tensor& aa, ostream& ost = cout) ; 
+Tbl min(const Tensor& aa, const char* comment = 0x0, ostream& ost = cout) ; 
 
 /** Maxima in each domain of the absolute values of the tensor components
  * @param aa tensor
+ * @param comment comment to be printed on {\tt ost} before the result
+ *    (default: 0x0 = nothing printed)
  * @param ost output stream for a formatted output of the result
  * @return 2-D {\tt Tbl} of size the number of independent components
  *	times the number of domains, the elements {\tt (i,l)}
@@ -1227,12 +1240,14 @@ Tbl min(const Tensor& aa, ostream& ost = cout) ;
  *      denotes symbolically the values of {\tt aa} 
  *	   in domain no. {\tt l} and for component no.{\tt i}. 
  */
-Tbl maxabs(const Tensor& aa, ostream& ost = cout) ; 
+Tbl maxabs(const Tensor& aa, const char* comment = 0x0, ostream& ost = cout) ; 
 
 
 /** Relative difference between two {\tt Tensor} ($L^1$ version).
  * @param aa first tensor
  * @param bb second tensor
+ * @param comment comment to be printed on {\tt ost} before the result
+ *    (default: 0x0 = nothing printed)
  * @param ost output stream for a formatted output of the result
  * @return 2-D {\tt Tbl} of size the number of independent components
  *	times the number of domains, the elements {\tt (i,l)}
@@ -1242,11 +1257,14 @@ Tbl maxabs(const Tensor& aa, ostream& ost = cout) ;
  *	   {\tt b(l)} denote symbolically the values of {\tt aa} and {\tt bb} 
  *	   in domain no. {\tt l} and for component no.{\tt i}. 
  */
-Tbl diffrel(const Tensor& aa, const Tensor& bb, ostream& ost = cout) ; 
+Tbl diffrel(const Tensor& aa, const Tensor& bb, const char* comment = 0x0,
+            ostream& ost = cout) ; 
 
 /** Relative difference between two {\tt Tensor} (max version).
  * @param aa first tensor
  * @param bb second tensor
+ * @param comment comment to be printed on {\tt ost} before the result
+ *    (default: 0x0 = nothing printed)
  * @param ost output stream for a formatted output of the result
  * @return 2-D {\tt Tbl} of size the number of independent components
  *	times the number of domains, the elements {\tt (i,l)}
@@ -1256,7 +1274,8 @@ Tbl diffrel(const Tensor& aa, const Tensor& bb, ostream& ost = cout) ;
  *	   {\tt b(l)} denote symbolically the values of {\tt aa} and {\tt bb} 
  *	   in domain no. {\tt l} and for component no.{\tt i}. 
  */
-Tbl diffrelmax(const Tensor& aa, const Tensor& bb, ostream& ost = cout) ; 
+Tbl diffrelmax(const Tensor& aa, const Tensor& bb, const char* comment = 0x0,
+               ostream& ost = cout) ; 
 
 //@}
 
