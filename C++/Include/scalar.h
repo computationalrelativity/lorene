@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.34  2003/12/11 16:19:38  e_gourgoulhon
+ * Added method visu_section for visualization with OpenDX.
+ *
  * Revision 1.33  2003/12/11 14:48:47  p_grandclement
  * Addition of ALL (and that is a lot !) the files needed for the general elliptic solver ... UNDER DEVELOPEMENT...
  *
@@ -343,7 +346,7 @@ class Scalar : public Tensor {
    * @return Tbl containing the value of the field in domain {\tt l}.
    */ 
   const Tbl& domain(int l) const {
-    assert(etat == ETATQCQ) ;
+    assert( (etat == ETATQCQ) || (etat == ETATUN) ) ;
     return va(l) ;
   };
   
@@ -700,6 +703,60 @@ class Scalar : public Tensor {
 
   /// Display
   friend ostream& operator<<(ostream& , const Scalar & ) ;	
+  
+  /** 3D visualization via a plane section.
+   * Prepares files for visualization by OpenDX of the values of the field in
+   * a plane x=const, y=const or z=const
+   *
+   * @param section_type [input] defines the type of section : \\
+   *    'x' for a plane x = a with a = const (parameter {\tt aa}) \\
+   *    'y' for a plane y = a with a = const (parameter {\tt aa})\\
+   *    'z' for a plane z = a with a = const (parameter {\tt aa})
+   * @param aa [input] constant a defining the section plane
+   * @param umin [input] defines with {\tt umax} the range of the plane coordinate u 
+   * @param umax [input] defines with {\tt umin} the range of the plane coordinate u 
+   * @param vmin [input] defines with {\tt vmax} the range of the plane coordinate v 
+   * @param vmax [input] defines with {\tt vmin} the range of the plane coordinate v 
+   * @param title [input] title for the graph
+   * @param filename [input] name for the file which will be the input for 
+   *    OpenDX; the default 0x0 is transformed into "scalar_section"
+   * @param nu [input] number of points in the u direction (uniform sampling)   
+   * @param nv [input] number of points in the v direction (uniform sampling)   
+   *
+   */
+    void visu_section(const char section_type, double aa, double umin, double umax, double vmin,
+        double vmax, const char* title = 0x0, const char* filename = 0x0,
+        int nu = 200, int nv = 200) const ;   
+
+  /** 3D visualization via a plane section.
+   * Prepares files for visualization by OpenDX of the values of the field in
+   * any given plane.
+   *
+   * @param plane [input] : 2D {\tt Tbl} defining the section plane: {\tt plane}
+   *    must of dimension 3x3 with the following content: \\
+   *    {\tt plane(0,i)}: absolute Cartesian coordinates (xa0,ya0,za0) of some
+   *    point in the plane considered as the origin for the plane coordinates
+   *    (u,v): {\tt plane(0,0) = xa0}, {\tt plane(0,1) = ya0}, 
+   *    {\tt plane(0,2) = za0}  \\
+   *    {\tt plane(1,i)}: components w.r.t. absolute Cartesian coordinates 
+   *        of the u-coordinate unit vector in the section plane \\
+   *    {\tt plane(2,i)}: components w.r.t. absolute Cartesian coordinates 
+   *        of the v-coordinate unit vector in the section plane
+   * @param umin [input] defines with {\tt umax} the range of the plane coordinate u 
+   * @param umax [input] defines with {\tt umin} the range of the plane coordinate u 
+   * @param vmin [input] defines with {\tt vmax} the range of the plane coordinate v 
+   * @param vmax [input] defines with {\tt vmin} the range of the plane coordinate v 
+   * @param title [input] title for the graph
+   * @param filename [input] name for the file which will be the input for 
+   *    OpenDX; the default 0x0 is transformed into "scalar_section"
+   * @param nu [input] number of points in the u direction (uniform sampling)   
+   * @param nv [input] number of points in the v direction (uniform sampling)   
+   *
+   */
+    void visu_section(const Tbl& plane, double umin, double umax, double vmin,
+        double vmax, const char* title = 0x0, const char* filename = 0x0,
+        int nu = 200, int nv = 200) const ;   
+
 
 
   // Member arithmetics
