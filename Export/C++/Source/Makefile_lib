@@ -1,0 +1,19 @@
+SHELL=/bin/sh
+
+include $(HOME_LORENE)/local_settings		  # defines which compiler,...
+
+include List_obj 		# defines OBJ as the list of object files
+
+LIB	  = $(HOME_LORENE)/Lib
+INCEXP	  = $(INC) -I$(HOME_LORENE)/Export/C++/Include
+
+.SUFFIXES : .o .C
+
+$(LIB)/date_mark : $(OBJ)
+	ar -rv $(LIB)/liblorene_export.a  $?
+	$(RANLIB) $(LIB)/liblorene_export.a
+
+include Dependencies
+
+.C.o:
+	$(CXX)  -c $(CXXFLAGS) $(INCEXP) $<
