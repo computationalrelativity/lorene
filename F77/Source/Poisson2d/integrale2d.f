@@ -23,6 +23,9 @@ C
 C
 C $Id$
 C $Log$
+C Revision 1.3  2003/09/11 16:04:49  j_novak
+C Changed the maximal size in r to 134 in integral2d.f
+C
 C Revision 1.2  2002/03/25 09:16:58  m_bejger
 C Increased the number of domains (NZOE) from 4 to 5
 C
@@ -49,7 +52,7 @@ C
 
 	INTEGER NDR0, NDT0, NDF0, NDZ0, N64
 	INTEGER ND64Q, ND2Z
-	PARAMETER (NDR0=130, NDT0=70, NDF0=4, NDZ0=5, N64=20)
+	PARAMETER (NDR0=135, NDT0=70, NDF0=4, NDZ0=5, N64=20)
 C##	PARAMETER (ND2Z=MAX(NDZ0,NDF0,8), NDEQ=NDZ0+8)
 	PARAMETER (ND2Z=8)
 	PARAMETER (ND64Q=(NDR0+2)*(NDT0+2)*NDF0)

@@ -61,7 +61,7 @@ F77FLAGS_G = -n32 -g -static -mips4 -O0 -extend_source
 
 # C, C++ libarary, mathematical library and Fortran library
 # ---------------------------------------------------------
-LIB_CXX = -lm -lftn
+LIB_CXX = -lm -L/usr/lib32 -lftn
 
 # Linear Algebra Package (LAPACK) library
 # ---------------------------------------
