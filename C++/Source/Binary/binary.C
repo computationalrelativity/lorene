@@ -28,6 +28,9 @@ char Binary_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/02/27 09:59:33  f_limousin
+ * Modification in the routine decouple().
+ *
  * Revision 1.5  2004/02/21 17:05:12  e_gourgoulhon
  * Method Scalar::point renamed Scalar::val_grid_point.
  * Method Scalar::set_point renamed Scalar::set_grid_point.
@@ -284,7 +287,7 @@ void Binary::display_poly(ostream& ost) const {
 
 void Binary::fait_decouple () {
     
-    int nz_un = star1.mp.get_mg()->get_nzone() ;
+/*    int nz_un = star1.mp.get_mg()->get_nzone() ;
     int nz_deux = star2.mp.get_mg()->get_nzone() ;
     
     // On determine R_limite (pour le moment en tout cas...) :
@@ -293,7 +296,7 @@ void Binary::fait_decouple () {
     double lim_deux = -1*distance/2. ;
     double int_un = 0*distance/6. ;
     double int_deux = 0*distance/6. ;
-    
+*/  
 
     /*
     // Les fonctions de base
@@ -329,7 +332,7 @@ void Binary::fait_decouple () {
     fonction_g_deux.std_base_scal();
     */   
 
-
+/*
      // Les fonctions totales :
     Scalar decouple_un (star1.mp) ;
     decouple_un.allocate_all() ;
@@ -453,11 +456,44 @@ void Binary::fait_decouple () {
 			for (int j=0 ; j<nt ; j++)
 			    decouple_deux.set_grid_point(nz_un-1, k, j, nr) = 0.5 ;
    }
-   
+*/   
     int nr = star2.mp.get_mg()->get_nr (2) ;
     int np = star2.mp.get_mg()->get_np (2) ;
     int nt = star2.mp.get_mg()->get_nt (2) ;
- 
+    int nz = star2.mp.get_mg()->get_nzone () ;
+
+
+    Scalar decouple_un (star1.mp) ;
+    Scalar decouple_deux (star2.mp) ;
+
+/*    
+    Scalar logn_auto1 = star1.get_logn_auto() ;
+    Scalar logn_auto2 = star2.get_logn_auto() ;
+    Scalar logn1 = star1.get_logn() ;
+    Scalar logn2 = star2.get_logn() ;
+
+    logn_auto1.set_outer_boundary(nz-1, 0) ;
+    logn_auto2.set_outer_boundary(nz-1, 0) ;
+    logn1.set_outer_boundary(nz-1, 0) ;
+    logn2.set_outer_boundary(nz-1, 0) ;
+    
+    decouple_un = logn_auto1 / logn1 ;
+    decouple_un.set_outer_boundary(nz-1, 0.5) ;
+
+    decouple_deux.import(1 - decouple_un) ;
+    decouple_deux.std_spectral_base() ;
+
+    Scalar decouple(star1.mp) ;
+    decouple.import(decouple_deux) ;
+    decouple = decouple + decouple_un ;
+
+    cout << "decouple" << endl << decouple << endl ; 
+
+*/
+
+    decouple_un = 0.5 ;
+    decouple_deux = 0.5 ;
+
     cout << "decouple_un"  << endl << norme(decouple_un/(nr*nt*np)) << endl ;
     cout << "decouple_deux"  << endl << norme(decouple_deux/(nr*nt*np)) << endl ;
     star1.decouple = decouple_un ;
