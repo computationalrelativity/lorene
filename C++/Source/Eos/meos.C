@@ -28,6 +28,10 @@ char meos_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/04/01 11:09:26  e_gourgoulhon
+ * Copy constructor of MEos: explicit call to the default constructor of
+ * base class Eos.
+ *
  * Revision 1.3  2002/10/16 14:36:35  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -105,7 +109,8 @@ MEos::MEos(const Eos& eos1, const Eos& eos2, const Eos& eos3, const Eos& eos4) :
 }
 
 // Copy constructor
-MEos::MEos(const MEos& meos) : ndom(meos.ndom),
+MEos::MEos(const MEos& meos) : Eos(),
+                               ndom(meos.ndom),
                                constructed_from_file(false) {
 
         mono_eos = new const Eos* [ndom] ;
