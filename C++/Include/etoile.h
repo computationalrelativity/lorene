@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/02/04 16:20:35  f_limousin
+ * Change to virtual the routine extrinsic_curvature
+ *
  * Revision 1.9  2003/01/31 16:57:12  p_grandclement
  * addition of the member Cmp decouple used to compute the K_ij auto, once
  * the K_ij total is known
@@ -1144,7 +1147,7 @@ class Etoile_bin : public Etoile {
 	 *  For instance, for two vectors $V^i$ and $W^i$, this function
 	 *  returns the scalar $h_{ij} V^i W^j = A^2 f_{ij} V^i W^j$.  
 	 */
-	Tenseur sprod(const Tenseur& t1, const Tenseur& t2) const ; 
+	virtual Tenseur sprod(const Tenseur& t1, const Tenseur& t2) const ; 
 
 	/** Computes the hydrodynamical quantities relative to the Eulerian
 	 *  observer from those in the fluid frame, as well as 
@@ -1212,7 +1215,7 @@ class Etoile_bin : public Etoile {
 	 *  @param comp companion star.
 	 *
 	 */
-	void update_metric_der_comp(const Etoile_bin& comp) ;
+	 void update_metric_der_comp(const Etoile_bin& comp) ;
 
 	/** Computes the derivative of metric functions related to the
 	 *  companion black hole.
@@ -1252,7 +1255,7 @@ class Etoile_bin : public Etoile {
 	/** Computes {\tt tkij\_auto} and {\tt akcar\_auto} from 
 	 *  {\tt shift\_auto}, {\tt nnn} and {\tt a\_car}.
 	 */
-	void extrinsic_curvature() ; 
+	virtual void extrinsic_curvature() ; 
 		
 	
 	/** Computes an equilibrium configuration.
