@@ -32,6 +32,10 @@ char binaire_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2001/12/16 16:21:38  e_gourgoulhon
+ * #include "unites.h" is now local to Binaire::mass_adm(), in order
+ * not to make Lorene's units global variables.
+ *
  * Revision 1.2  2001/12/14 09:45:14  k_taniguchi
  * Correction of missing 16 pi G factor in the ADM mass
  *
@@ -61,7 +65,6 @@ char binaire_global_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "binaire.h"
-#include "unites.h"
 
 		    //---------------------------------//
 		    //		ADM mass	       //
@@ -75,8 +78,12 @@ double Binaire::mass_adm() const {
 	    
 	if (star1.is_relativistic()) {	// Relativistic case
 					// -----------------
+#include "unites.h"
+    if (this == 0x0) {	// To avoid any compilation warning
+	cout << f_unit << msol << km << mevpfm3 ;
+    }
 	
-	    assert( star2.is_relativistic() ) ; 
+	    assert( star2.is_relativistic() ) ;
 	    
 	    *p_mass_adm = 0 ; 
 	    
