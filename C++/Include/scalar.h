@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/09/25 09:11:21  e_gourgoulhon
+ * Added functions for radial operations (divr, etc...)
+ *
  * Revision 1.10  2003/09/25 08:55:23  e_gourgoulhon
  * Added members raccord*.
  *
@@ -413,6 +416,39 @@ class Scalar : public Tensor {
 	 *		    zec\_mult\_r = 4 (default) : $r^4 \, \Delta u$	
 	 */
 	const Scalar& laplacien(int zec_mult_r = 4) const ; 
+
+	void div_r() ;    /// Division by {\it r} everywhere.
+
+	void mult_r() ;   /// Multiplication by {\it r} everywhere.
+
+	/** Multiplication by {\it r} in the compactified external domain (CED)
+	 */
+	virtual void mult_r_zec() ;
+	
+	void mult_rsint() ;   /// Multiplication by $r\sin\theta$
+
+	void div_rsint() ;    /// Division by $r\sin\theta$
+
+	/** Decreases by 1 the value of {\tt dzpuis} and changes accordingly
+	 *  the values of the {\tt Scalar} in the compactified external domain (CED).
+	 */
+	virtual void dec_dzpuis() ; 
+
+	/** Increases by the value of {\tt dzpuis} and changes accordingly
+	 *  the values of the {\tt Scalar} in the compactified external domain (CED).
+	 */
+	virtual void inc_dzpuis() ; 
+	
+	/** Decreases by 2 the value of {\tt dzpuis} and changes accordingly
+	 *  the values of the {\tt Scalar} in the compactified external domain (CED).
+	 */
+	virtual void dec2_dzpuis() ; 
+
+	/** Increases by 2 the value of {\tt dzpuis} and changes accordingly
+	 *  the values of the {\tt Scalar} in the compactified external domain (CED).
+	 */
+	virtual void inc2_dzpuis() ; 
+
 
 	/**
 	 * Performs the $C^n$ matching of the nucleus with respect to the 
