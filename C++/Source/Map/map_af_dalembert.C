@@ -25,6 +25,9 @@ char map_af_dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/07/22 13:24:48  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.7  2003/06/20 10:08:12  j_novak
  * *** empty log message ***
  *
@@ -208,10 +211,6 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
     else {
       sigma += dt*dt * (source + 0.5*fjm1.laplacien()) ;
     }
-    if (sigma.get_etat() == ETATZERO) {
-      fjp1.set_etat_zero() ;
-      return ;  
-    }
 
     //--------------------------------------------
     // The operator reads
@@ -380,6 +379,11 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
       cout << "The boundary condition par.get_int(0) = "<< par.get_int(0) 
 	   << " is unknown!" << endl ;
       abort() ;
+    }
+
+    if (sigma.get_etat() == ETATZERO) {
+      fjp1.set_etat_zero() ;
+      return ;  
     }
 
     // Spherical harmonic expansion of the source
