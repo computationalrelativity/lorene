@@ -29,6 +29,9 @@ char wave_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/04/07 07:59:22  e_gourgoulhon
+ * Added check of constraints at the end.
+ *
  * Revision 1.1  2004/04/05 21:26:25  e_gourgoulhon
  * First version (not ready yet !).
  *
@@ -64,7 +67,7 @@ int main() {
     int jmax = 1000 ; 
     int jstop = jmax ; 
 
-    double ampli_h_init = 0.5 ;     // 0 = flat space
+    double ampli_h_init = 1. ;     // 0 = flat space
         
 
     //======================================================================
@@ -185,7 +188,9 @@ int main() {
 
     // u^{ij} = d/dt h^{ij}
     Sym_tensor_trans uu_init(map, otriad, ff) ;  
-    uu_init.set_etat_zero() ; 
+    //uu_init.set_etat_zero() ; 
+    uu_init = - 0.5 * hh_init ;
+    uu_init.inc_dzpuis(2) ;  
     
     // tr K = K
     Scalar tmp(map) ; 
@@ -194,6 +199,10 @@ int main() {
     sigmat.initial_data_cts(hh_init, uu_init, tmp, tmp) ;
     
     cout << "sigmat : " << sigmat << endl ;  
+    
+    // Check of constraints:
+    sigmat.check_hamiltonian_constraint() ;    
+    sigmat.check_momentum_constraint() ; 
 
     return EXIT_SUCCESS ; 
 }
