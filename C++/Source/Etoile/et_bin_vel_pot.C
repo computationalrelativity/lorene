@@ -33,6 +33,9 @@ char et_bin_vel_pot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/05/25 15:38:38  f_limousin
+ * Minor modifs.
+ *
  * Revision 1.10  2004/05/10 10:17:27  f_limousin
  * Add a new member ssjm1_psi of class Etoile for the resolution of the
  * oisson_interne equation
@@ -123,6 +126,8 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
   if (eos.identify() == 5 || eos.identify() == 4 || 
       eos.identify() == 3) {
     
+    // Routine used for binary strange stars.
+
     int nzm1 = mp.get_mg()->get_nzone() - 1 ;    
 
     //----------------------------------
@@ -153,6 +158,9 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
 	v_orb.set(i) = www(i)(0, 0, 0, 0) ; 
     }
 
+    v_orb.annule(nzm1, nzm1) ;	// set to zero in the ZEC
+
+
     v_orb.set_triad( *(www.get_triad()) ) ;  
     v_orb.set_std_base() ;
 
@@ -172,7 +180,8 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
     double erreur ;				
    
     Tenseur zeta_h( ent() / dndh_log ) ;
-
+    zeta_h.set_std_base() ;
+    
     Scalar zeta_h_scalar (zeta_h()) ;
     zeta_h_scalar.set_outer_boundary(0, (ent() / dndh_log)(0,0,0,0)) ;
     for (int l=1; l<=nzm1; l++)
@@ -180,8 +189,9 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
 	
     Cmp zeta_h_cmp (zeta_h_scalar) ;
     zeta_h.set() = zeta_h_cmp ;
-	
     zeta_h.set_std_base() ;
+
+    
 
     Tenseur beta(mp) ; 
 
@@ -211,6 +221,9 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
 	    + flat_scalar_prod( www, gam_euler.gradient() )
 	    / gam_euler ) ; 
 
+    for (int l=1; l<=nzm1; l++)
+	source.set().annule(l) ;
+   
     source = (source - flat_scalar_prod(bb, psi0.gradient_spher())) 
 	/ zeta_h ;
     source.annule(nzet, nzm1) ; 
@@ -237,56 +250,15 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
 
     cout << "psi0" << endl << norme(psi0()/(nr*nt*np)) << endl ;
     cout << "d(psi)/dr" << endl << norme(psi0.set().dsdr()/(nr*nt*np)) << endl ;
-/*	
-  cout << "value of psi at the surface" << endl ;
-  for (int j=0; j<nt; j++)
-  for (int k=0; k<np; k++)
-  cout << "j = " << j << " ; k = " << k << " : " << 
-  psi0.set()(0, k, j, nr-1) << endl ;
-
-  cout << endl ;
-
-  cout << "value of d(psi)/dr at the surface" << endl ;
-  for (int j=0; j<nt; j++)
-  for (int k=0; k<np; k++)
-  cout << "j = " << j << " ; k = " << k << " : " << 
-  psi0.set().dsdr()(0, k, j, nr-1) << endl ;
-
-  cout << endl ;
-  cout << "value of 1/r*d(psi)/d(theta) at the surface" << endl ;
-  for (int j=0; j<nt; j++)
-  for (int k=0; k<np; k++)
-  cout << "j = " << j << " ; k = " << k << " : " << 
-  psi0.set().srdsdt()(0, k, j, nr-1) << endl ;
-
-  cout << endl ;
-  cout << "value of 1/rsint*d(psi)/d(phi) at the surface" << endl ;
-  for (int j=0; j<nt; j++)
-  for (int k=0; k<np; k++)
-  cout << "j = " << j << " ; k = " << k << " : " << 
-  psi0.set().srstdsdp()(0, k, j, nr-1) << endl ;
-*/
 
     Valeur lim(mp.get_mg()->get_angu()) ;
     lim.annule_hard() ;
-/*
-  const Coord& sint0 = mp.sint ;
-  const Coord& cosp0 = mp.cosp ;
-  Cmp sint (mp) ;
-  Cmp cosp (mp) ;
-  Cmp cosp_sint (mp) ;
-  sint = sint0 ;
-  cosp = cosp0 ;
-  cosp_sint = (2*cosp*cosp-1) * sint*sint ;
-  for (int j=0; j<nt; j++)
-  for (int k=0; k<np; k++)
-  lim.set(0, k, j, 0) = 1 * cosp_sint(0, k, j, nr-1) ;
-*/
 
     Tenseur normal (mp, 1, CON, mp.get_bvect_cart()) ;
     Tenseur normal2 (mp, 1, COV, mp.get_bvect_cart()) ;
     normal.set_etat_qcq() ;
     normal2.set_etat_qcq() ;
+
     const Coord& rr0 = mp.r ;
     Tenseur rr(mp) ;
     rr.set_etat_qcq() ;
@@ -306,13 +278,17 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
     Metrique flat(plat, true) ; 
     Tenseur dcov_r = rr.derive_cov(flat) ;
 
+
     for (int i=0; i<3; i++) {
-	normal.set(i) = dcov_r(i) / a_car() ;
+	normal.set(i) = dcov_r(i) ;
 	normal2.set(i) = dcov_r(i) ;
     }
+
     normal.change_triad(mp.get_bvect_spher()) ;
     normal2.change_triad(mp.get_bvect_spher()) ;
-	
+ 
+
+
     Tenseur bsn0 (bsn) ;
     bsn0.change_triad(mp.get_bvect_cart()) ;
     Tenseur aa (mp, 1, CON, mp.get_bvect_cart()) ;
@@ -332,7 +308,6 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
 	for (int k=0; k<np; k++)
 	    lim.set(0, k, j, 0) = limite(0, k, j, nr-1) ;
 	
-
 //	cout << "lim" << endl << lim << endl ;
 
     lim.std_base_scal() ;
@@ -340,18 +315,20 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
     source().poisson_neumann_interne(lim, par, resu) ;
     psi0 = resu ;
 
+/*
     resu.va.ylm() ;
     Scalar psi00(resu) ;
     psi00.spectral_display("psi00") ;
-/*
-  cout << "value of d(psi)/dr at the surface after poisson" << endl ;
-  for (int j=0; j<nt; j++)
-  for (int k=0; k<np; k++)
-  cout << "j = " << j << " ; k = " << k << " : " << 
-  psi0.set().dsdr()(0, k, j, nr-1) << endl ;
+
+    cout << "value of d(psi)/dr at the surface after poisson" << endl ;
+    for (int j=0; j<nt; j++)
+    for (int k=0; k<np; k++)
+    cout << "j = " << j << " ; k = " << k << " : " << 
+    psi0.set().dsdr()(0, k, j, nr-1) << endl ;
 */
     for (int l=1; l<=nzm1; l++)
 	psi0.set().annule(l) ;
+    
 
     //---------------------------------------------------
     // Check of the solution  
@@ -366,8 +343,6 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
     cout << "norme(source) : " << norme(source())(0) << endl 
 	 << "Error in the solution : " << erreur << endl ; 
 	
-    mp.poisson_compact(source(), zeta_h(), bb, par, psi0.set() ) ;
-
     //--------------------------------
     // Computation of grad(psi)
     //--------------------------------
@@ -399,7 +374,7 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
     return erreur ; 
  
 
-  }
+  }  // End of strange stars case
 
   else {
     
