@@ -46,7 +46,7 @@
      * These classes implement the mapping between the
      * grid coordinates $(\xi, \theta', \phi')$ (described by the {\tt Mg3d}
      * class) and the physical coordinates
-     * $(r, \theta, \phi)$ [cf. Bonazzola, Gourgoulhon \& Marck, {\sl Phys. Rev. D}
+     * $(r, \theta, \phi)$ [cf. Bonazzola, Gourgoulhon \& Marck, {\it Phys. Rev. D}
      * {\bf 58}, 104020 (1998)].
      *
      * The class {\tt Map} and its derived classes determine the methods for
