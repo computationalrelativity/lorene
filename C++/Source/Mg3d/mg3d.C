@@ -31,6 +31,9 @@ char mg3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/10/27 16:21:54  e_gourgoulhon
+ * Treated the special case nz=1 in the simplified constructor.
+ *
  * Revision 1.8  2003/06/20 14:50:15  f_limousin
  * Add the operator==
  *
@@ -305,17 +308,18 @@ Mg3d::Mg3d(int nz, int nbr, int nbt, int nbp, int typt, int typp,
     for (int l=1; l<nz-1; l++) {
 	type_r[l] = FIN ;
     }
-    type_r[nz-1] = compact ? UNSURR : FIN ;
-	
+    if (nz > 1) {
+		type_r[nz-1] = compact ? UNSURR : FIN ;
+	}
 
     // Same number of points in all domains:
     nr = new int[nz];
     nt = new int[nz];
     np = new int[nz];
     for (int l=0 ; l<nz ; l++) {
-	nr[l] = nbr ;
-	nt[l] = nbt ;
-	np[l] = nbp ;
+		nr[l] = nbr ;
+		nt[l] = nbt ;
+		np[l] = nbp ;
     }
 
     // Les grilles
