@@ -28,6 +28,9 @@ char scalar_raccord_externe_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/09/25 09:22:33  j_novak
+ * Added a #include<math.h>
+ *
  * Revision 1.1  2003/09/25 08:58:10  e_gourgoulhon
  * First version.
  *
@@ -40,6 +43,7 @@ char scalar_raccord_externe_C[] = "$Header$" ;
 
 //standard
 #include <stdlib.h>
+#include <math.h>
 
 // LORENE
 #include "matrice.h"
