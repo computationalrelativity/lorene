@@ -30,6 +30,9 @@ char source_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/10/29 15:45:08  jl_jaramillo
+ * Change name of functions
+ *
  * Revision 1.3  2004/09/28 16:08:26  f_limousin
  * Minor modifs.
  *
@@ -57,7 +60,7 @@ char source_hor_C[] = "$Header$" ;
 #include "graphique.h"
 #include "utilitaires.h"
 
-Scalar Isol_hor::source_psi_hor( const Scalar* p_ener_dens, 
+Scalar Isol_hor::source_psi( const Scalar* p_ener_dens, 
 				 const Vector* p_mom_dens, 
 				 const Scalar* p_trace_stress) {
 
@@ -117,7 +120,7 @@ Scalar Isol_hor::source_psi_hor( const Scalar* p_ener_dens,
 }
 
 
-Scalar Isol_hor::source_nn_hor( const Scalar& trk_point, 
+Scalar Isol_hor::source_nn( const Scalar& trk_point, 
 				const Scalar* p_ener_dens, 
 				const Vector* p_mom_dens, 
 				const Scalar* p_trace_stress) {
@@ -185,7 +188,7 @@ Scalar Isol_hor::source_nn_hor( const Scalar& trk_point,
 
 
 
-Vector Isol_hor::source_beta_hor( const Scalar* p_ener_dens, 
+Vector Isol_hor::source_beta( const Scalar* p_ener_dens, 
 				  const Vector* p_mom_dens, 
 				  const Scalar* p_trace_stress) {
 
