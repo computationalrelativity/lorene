@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2004 Keisuke Taniguchi
+ *   Copyright (c) 2004-2005 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,10 @@ char bin_bhns_extr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/02/28 23:06:16  k_taniguchi
+ * Modification of some arguments to include the case of the conformally
+ * flat background metric.
+ *
  * Revision 1.7  2004/12/13 21:08:59  k_taniguchi
  * Addition of some outputs in display_poly.
  *
@@ -72,9 +76,9 @@ char bin_bhns_extr_C[] = "$Header$" ;
 // Standard constructor
 // --------------------
 Bin_bhns_extr::Bin_bhns_extr(Map& mp, int nzet, const Eos& eos, bool irrot,
-			     bool relat)
+			     bool relat, bool kerrs, bool multi)
     : ref_triad(0., "Absolute frame Cartesian basis"),
-      star(mp, nzet, relat, eos, irrot, ref_triad)
+      star(mp, nzet, relat, eos, irrot, ref_triad, kerrs, multi)
 {
 
     omega = 0. ;
@@ -136,9 +140,6 @@ void Bin_bhns_extr::del_deriv() const {
     if (p_xa_barycenter_extr != 0x0) delete p_xa_barycenter_extr ;
     if (p_ya_barycenter_extr != 0x0) delete p_ya_barycenter_extr ;
     if (p_mass_b_extr != 0x0) delete p_mass_b_extr ;
-    if (p_mass_adm_extr != 0x0) delete p_mass_adm_extr ;
-    if (p_mass_kom_extr != 0x0) delete p_mass_kom_extr ;
-    if (p_angu_mom_extr != 0x0) delete p_angu_mom_extr;
 
     set_der_0x0() ;
 
@@ -149,9 +150,6 @@ void Bin_bhns_extr::set_der_0x0() const {
     p_xa_barycenter_extr = 0x0 ;
     p_ya_barycenter_extr = 0x0 ;
     p_mass_b_extr = 0x0 ;
-    p_mass_adm_extr = 0x0 ;
-    p_mass_kom_extr = 0x0 ;
-    p_angu_mom_extr = 0x0 ;
 
 }
 
@@ -209,6 +207,23 @@ ostream& Bin_bhns_extr::operator>>(ostream& ost) const {
     ost << endl ;
     ost << "Binary BH-NS system" << endl ;
     ost << "===================" << endl ;
+    ost << endl ;
+    if (star.in_kerrschild()) {
+        ost << "Kerr-Schild background metric" << endl ;
+	ost << "-----------------------------" << endl ;
+    }
+    else {
+        ost << "Conformally flat background metric" << endl ;
+	ost << "----------------------------------" << endl ;
+    }
+    if (star.with_multipole()) {
+        ost << "Multipole falloff boundary condition" << endl ;
+	ost << "------------------------------------" << endl ;
+    }
+    else {
+        ost << "1/r falloff boundary condition" << endl ;
+	ost << "------------------------------" << endl ;
+    }
     ost << endl
 	<< "Orbital angular velocity :                "
 	<< omega * f_unit << " rad/s" << endl ;
