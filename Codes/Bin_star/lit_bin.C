@@ -5,7 +5,7 @@
  */
 
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2003 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,9 @@ char lit_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/09/15 15:11:25  e_gourgoulhon
+ * Added the creation of file "seq.d" by a call to Binaire::write_global.
+ *
  * Revision 1.5  2003/09/08 08:21:43  e_gourgoulhon
  * Added printing out of the virial errors in the relativistic case.
  *
@@ -237,6 +240,17 @@ int main(int argc, char** argv){
     cout << " X component : " << star.mom_constr()(0) << endl ; 
     cout << " Y component : " << star.mom_constr()(1) << endl ; 
     cout << " Z component : " << star.mom_constr()(2) << endl ; 
+
+
+	ofstream seqfich("seq.d") ; 
+	if ( !seqfich.good() ) {
+		cout << "lit_bin : problem with opening the file seq.d !" << endl ;
+		abort() ;
+	}
+	star.write_global(seqfich) ; 
+	seqfich.close() ; 
+	
+
 
     //==============================================================
     //  Drawings
