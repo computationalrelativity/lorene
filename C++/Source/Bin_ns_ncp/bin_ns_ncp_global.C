@@ -53,44 +53,33 @@ double Bin_ns_ncp::mass_adm() const {
     if (this == 0x0) {	// To avoid any compilation warning
       cout << f_unit << msol << km << mevpfm3 << qpig ;
     }
-	    *p_mass_adm = 0 ; 
-	    
-	    for(int i=0; i<=1; i++) {
+    
+    *p_mass_adm = 0 ; 
+    
+    const Metrique&  metgamma = (et[0]->get_met_gamma()) ;
+    const Metrique& flat = (et[0]->get_flat()) ;
+    Map_af map0 (et[0]->get_mp()) ; 
+    
+    Tenseur_sym met_gamma = metgamma.cov() ;
+    met_gamma.set_std_base() ;
+    Tenseur dcov_met_gamma = met_gamma.derive_cov(flat) ;
+    
+    Tenseur dgamma_1 (map0, 1, CON, map0.get_bvect_cart()) ; 
+    dgamma_1.set_etat_qcq() ;
+    dgamma_1 =  contract( flat.con(), 1, contract(contract(flat.con()
+       			   , 0, dcov_met_gamma, 0), 0, 2), 0) ;	    
+    dgamma_1.change_triad(map0.get_bvect_spher()) ;	    
+    Cmp integrant_1 (dgamma_1(0)) ;
+    
+    Tenseur dgamma_2 (map0, 1, CON, map0.get_bvect_cart()) ; 
+    dgamma_2.set_etat_qcq() ;
+    dgamma_2 =  contract( flat.con(), 1, contract(contract(flat.con()
+			   , 0, dcov_met_gamma, 1), 0, 2), 0) ;	    
+    dgamma_2.change_triad(map0.get_bvect_spher()) ;	    
+    Cmp integrant_2 (dgamma_2(0)) ;
 
-	      const Metconf& gtilde_auto = (et[i]->get_gtilde_auto()) ;
-	      const Metrique& flat = (et[i]->get_flat()) ;
-	      const Tenseur& gamma = (et[i]->get_gamma()) ;
-	      Map_af mapping (et[i]->get_mp()) ; 
+    *p_mass_adm = map0.integrale_surface_infini (integrant_1 - integrant_2)/(4*qpig) ;
 
-	      Tenseur_sym metric(mapping, 2, COV, mapping.get_bvect_cart()) ;
-	      for (int i=0; i<3; i++) {
-		for (int j=0; j<=i; j++) {
-
-		  metric.set(i,j)=pow(gamma(), 1./3.)*gtilde_auto.cov()(i,j) ;
-		}
-	      }
-
-	      const Metrique gamma_auto (metric) ; 
-
-	    
-	      Tenseur dgamma_1 (mapping, 1, COV, mapping.get_bvect_cart()) ; 
-	      dgamma_1.set_etat_qcq() ;
-	      dgamma_1 = contract(contract(contract(flat.con() * flat.con() 
-		   * (gamma_auto.con()).derive_cov(flat), 3, 6), 2, 3), 1, 2) ;
-	      dgamma_1.change_triad(mapping.get_bvect_spher()) ;	    
-	      Cmp integrant_1 (dgamma_1(0)) ;
-	    
-
-	      Tenseur dgamma_2 (mapping, 1, COV, mapping.get_bvect_cart()) ; 
-	      dgamma_2.set_etat_qcq() ;
-	      dgamma_2 = contract(contract(contract(flat.con() * flat.con() 
-		   * (gamma_auto.con()).derive_cov(flat), 3, 6), 2, 4), 1, 2) ;
-	      dgamma_2.change_triad(mapping.get_bvect_spher()) ;
-	      Cmp integrant_2 (dgamma_2(0)) ;
-
-	      *p_mass_adm += mapping.integrale_surface_infini (integrant_1 - integrant_2)/(4*qpig) ;
-
-	    }
 		
     }	// End of the case where a new computation was necessary
     
@@ -105,34 +94,35 @@ double Bin_ns_ncp::mass_adm() const {
 
 double Bin_ns_ncp::mass_kom() const {
     
-    if (p_mass_kom == 0x0) {	    // a new computation is requireed
-	
-	p_mass_kom = new double ; 
-	    
+  if (p_mass_kom == 0x0) {	    // a new computation is requireed
+    
+    p_mass_kom = new double ; 
+      
 #include "unites.h"
     if (this == 0x0) {	// To avoid any compilation warning
-	cout << f_unit << msol << km << mevpfm3 ;
+      cout << f_unit << msol << km << mevpfm3 ;
     }
-	
-	    *p_mass_kom = 0 ; 
-
-	    for(int i=0; i<=1; i++) {
-	    
-	      const Tenseur& logn_auto = et[i]->get_logn_auto() ;
-	      const Metrique& gamma = et[i]->get_met_gamma() ;
-	      Map_af mapping (et[i]->get_mp()) ; 
-
-	      Tenseur vecteur (mapping, 1, COV, mapping.get_bvect_spher()) ;  
-	      vecteur.set_etat_qcq() ;
-	      vecteur = logn_auto.derive_con(gamma) ;
-	      vecteur.change_triad(mapping.get_bvect_spher()) ;
-	      Cmp integrant (vecteur(0)) ;
-
-	      *p_mass_kom += mapping.integrale_surface_infini (integrant) / qpig ;
-		
-	    }	// End of the case where a new computation was necessary
-    }
-    return *p_mass_kom ; 
+    
+    *p_mass_kom = 0 ; 
+    
+    const Tenseur& logn_auto = et[0]->get_logn_auto() ;
+    const Tenseur& logn_comp = et[0]->get_logn_comp() ;
+    const Metrique& met_gamma = et[0]->get_met_gamma() ;
+    Map_af map0 (et[0]->get_mp()) ; 
+    
+    Tenseur logn = logn_auto + logn_comp ;
+    
+    Tenseur vect (map0, 1, CON, map0.get_bvect_cart()) ;  
+    vect.set_etat_qcq() ;
+    vect = logn.derive_con(met_gamma) ;
+    vect.change_triad(map0.get_bvect_spher()) ;
+    Cmp integrant (vect(0)) ;
+    
+    *p_mass_kom = map0.integrale_surface_infini (integrant) / qpig ;
+    
+  }	// End of the case where a new computation was necessary
+  
+  return *p_mass_kom ; 
     
 }
 
@@ -145,58 +135,73 @@ const Tbl& Bin_ns_ncp::angu_mom() const {
     
     if (p_angu_mom == 0x0) {	    // a new computation is requireed
 	
-	p_angu_mom = new Tbl(3) ; 
-	
-	p_angu_mom->annule_hard() ;	// fills the double array with zeros
-	    
-	for(int i=0; i<=1; i++) {
+      p_angu_mom = new Tbl(3) ; 
+      
+      p_angu_mom->annule_hard() ;	// fills the double array with zeros
+      
+      
+      Map_af map0 (et[0]->get_mp()) ; 
+      const Tenseur_sym& kij_auto = et[0]->get_tkij_auto() ;
+      const Tenseur_sym& kij_comp = et[0]->get_tkij_auto() ;
+      
+      Tenseur_sym kij = kij_auto + kij_comp ;
+  
+      Cmp xx(map0) ;
+      Cmp yy(map0) ;
+      Cmp zz(map0) ;
+      
+      xx = map0.xa ;
+      yy = map0.ya ;
+      zz = map0.za ;
+      
+      // X component
+      // -----------
 
-	  Map_af mapping (et[i]->get_mp()) ; 
-	  const Tenseur& kij_auto = et[i]->get_tkij_auto() ;
-	  
-	  Cmp xx(mapping) ;
-	  Cmp yy(mapping) ;
-	  Cmp zz(mapping) ;
-
-	  xx = mapping.xa ;
-	  yy = mapping.ya ;
-	  zz = mapping.za ;
-	  
-	  // X component
-	  // -----------
-
-	  Tenseur vecteur_x(mapping, 1, CON, mapping.get_bvect_cart()) ;
-	  vecteur_x.set_etat_qcq() ;
-	  vecteur_x = yy*kij_auto(2) - zz*kij_auto(1) ;
-	  vecteur_x.change_triad(mapping.get_bvect_spher()) ;
-	  Cmp integrant_x (vecteur_x(0)) ;
-
-	  p_angu_mom->set(0) += mapping.integrale_surface_infini (integrant_x) / (8*M_PI) ;
-
- 	  // Y component
-	  // -----------
-
-	  Tenseur vecteur_y(mapping, 1, CON, mapping.get_bvect_cart()) ;
-	  vecteur_y.set_etat_qcq() ;
-	  vecteur_y = zz*kij_auto(0) - xx*kij_auto(2) ;
-	  vecteur_y.change_triad(mapping.get_bvect_spher()) ;
-	  Cmp integrant_y (vecteur_y(0)) ;
-
-	  p_angu_mom->set(0) += mapping.integrale_surface_infini (integrant_y) / (8*M_PI) ;
- 
-	  // Z component
-	  // -----------
-
-	  Tenseur vecteur_z(mapping, 1, CON, mapping.get_bvect_cart()) ;
-	  vecteur_z.set_etat_qcq() ;
-	  vecteur_z = xx*kij_auto(1) - yy*kij_auto(0) ;
-	  vecteur_z.change_triad(mapping.get_bvect_spher()) ;
-	  Cmp integrant_z (vecteur_z(0)) ;
-
-	  p_angu_mom->set(0) += mapping.integrale_surface_infini (integrant_z) / (8*M_PI) ;
-
-	}
-
+      Tenseur vect_x(map0, 1, CON, map0.get_bvect_cart()) ;
+      vect_x.set_etat_qcq() ;
+   
+      for (int i=0; i<=2; i++) {
+	vect_x.set(i) = yy*kij(2, i) - zz*kij(1, i) ;
+      }
+      vect_x.set_std_base() ;
+      vect_x.change_triad(map0.get_bvect_spher()) ;
+      Cmp integrant_x (vect_x(0)) ;
+      
+      p_angu_mom->set(0) = map0.integrale_surface_infini (integrant_x) 
+	                  / (8*M_PI) ;
+      
+      // Y component
+      // -----------
+      
+      Tenseur vect_y(map0, 1, CON, map0.get_bvect_cart()) ;
+      vect_y.set_etat_qcq() ;
+      for (int i=0; i<=2; i++) {
+	vect_y.set(i) = zz*kij(0, i) - xx*kij(2, i) ;
+      }
+      vect_y.set_std_base() ;
+      vect_y.change_triad(map0.get_bvect_spher()) ;
+      Cmp integrant_y (vect_y(0)) ;
+      
+      p_angu_mom->set(1) = map0.integrale_surface_infini (integrant_y) 
+	                  / (8*M_PI) ;
+      
+      // Z component
+      // -----------
+      
+      Tenseur vect_z(map0, 1, CON, map0.get_bvect_cart()) ;
+      vect_z.set_etat_qcq() ;
+      for (int i=0; i<=2; i++) {
+	vect_z.set(i) = xx*kij_auto(1, i) - yy*kij_auto(0, i) ;
+      }
+      vect_z.set_std_base() ;
+      vect_z.change_triad(map0.get_bvect_spher()) ;
+      Cmp integrant_z (vect_z(0)) ;
+      
+      p_angu_mom->set(2) = map0.integrale_surface_infini (integrant_z) 
+	                 / (8*M_PI) ;
+      
+      
+      
     }	// End of the case where a new computation was necessary
     
     return *p_angu_mom ; 
