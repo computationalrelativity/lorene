@@ -32,6 +32,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/02/17 22:15:26  e_gourgoulhon
+ * -- Modified prototypes of des_profile's and des_profile_mult's
+ * -- Added des_profile_mult with arbitrary x sampling
+ * -- Added des_evol (time evolution)
+ *
  * Revision 1.10  2004/02/15 21:52:35  e_gourgoulhon
  * Changed prototype of des_profile_mult : Scalar* --> Scalar**.
  *
@@ -154,13 +159,14 @@ class Tenseur ;
 class Etoile ; 
 class Binaire ; 
 class Bin_ns_ncp ;
+template<typename TyT> class Evolution ; 
 
     /** @name Basic 2-D routines.
      */
     //@{     
 
 
-/** Basic routine for drawing a single profile.
+/** Basic routine for drawing a single profile with uniform x sampling.
  *  A profile is a function y=y(x). 
  *
  *  @param uutab [input] Array (size: {\tt nx}) of y values to be drawn
@@ -171,37 +177,79 @@ class Bin_ns_ncp ;
  *  @param nomx [input] x legend of the figure
  *  @param nomy [input] y legend of the figure
  *  @param title [input] title of the figure
- *  @param device [input] PGPLOT device (default value = 0x0)
+ *  @param device [input] PGPLOT device (default value = 0x0, will result in
+ *  interactive choice)
  *
  */
-void des_profile(float* uutab, int nx, float xmin, float xmax, 
-		 char* nomx, char* nomy, char* title, char* device = 0x0) ;
+void des_profile(const float* uutab, int nx, float xmin, float xmax, 
+		 const char* nomx, const char* nomy, const char* title, 
+                 const char* device = 0x0) ;
 
 
-/** Basic routine for drawing multiple profiles.
+/** Basic routine for drawing multiple profiles with uniform x sampling.
  *  A profile is a function y=y(x). 
  *
  *  @param uutab [input] Array (size: {\tt nprof}*{\tt nx}) of y values to be drawn
  *			 (the x sampling is supposed to be uniform).
  *  @param nprof [input] Number of profiles
  *  @param nx [input] Number of points for each profile
+ *  @param xmin [input] lowest value of x
+ *  @param xmax [input] highest value of x
+ *  @param nomx [input] x legend of the figure
+ *  @param nomy [input] y legend of the figure
+ *  @param title [input] title of the figure
+ *  @param line_style [input] Array (size {\tt nprof}) defining the line style
+ *      for each plot: the possible values are {\tt line\_style[i] = 1} 
+ * (full line), 2 (dashed), 3 (dot-dash-dot-dash), 4 (dotted), 5 
+ * (dash-dot-dot-dot). The value = 0x0 corresponds to a cyclic sequence
+ * of the above styles.  
  *  @param ngraph [input] Index of the graphic device (in the range [0,99])
  *  to be used for the plot: if this device has never been used or is closed, 
  *    it will be opened with the name {\tt device} provided by the last
  *      argument. 
  *  @param closeit [input] determines whether the device must be closed or not
  *      after the plot has been performed
- *  @param xmin [input] lowest value of x
- *  @param xmax [input] highest value of x
+ *  @param device [input] PGPLOT device (default value = 0x0, will result in
+ *  interactive choice)
+ *
+ */
+void des_profile_mult(const float* uutab, int nprof, int nx, 
+            float xmin, float xmax, const char* nomx, 
+            const char* nomy, const char* title, const int* line_style, 
+            int ngraph, bool closeit, const char* device = 0x0) ; 
+
+
+/** Basic routine for drawing multiple profiles with arbitrary x sampling.
+ *  A profile is a function y=y(x). 
+ *
+ *  @param uutab [input] Array (size: {\tt nprof}*{\tt nx}) of y values to be drawn
+ *			 (the x sampling is supposed to be uniform).
+ *  @param nprof [input] Number of profiles
+ *  @param nx [input] Number of points for each profile
+ *  @param xtab [input] Array (size: {\tt nprof}*{\tt nx}) of x values for each
+ *              profile
  *  @param nomx [input] x legend of the figure
  *  @param nomy [input] y legend of the figure
  *  @param title [input] title of the figure
- *  @param device [input] PGPLOT device (default value = 0x0)
+ *  @param line_style [input] Array (size {\tt nprof}) defining the line style
+ *      for each plot: the possible values are {\tt line\_style[i] = 1} 
+ * (full line), 2 (dashed), 3 (dot-dash-dot-dash), 4 (dotted), 5 
+ * (dash-dot-dot-dot). The value = 0x0 corresponds to a cyclic sequence
+ * of the above styles.  
+ *  @param ngraph [input] Index of the graphic device (in the range [0,99])
+ *  to be used for the plot: if this device has never been used or is closed, 
+ *    it will be opened with the name {\tt device} provided by the last
+ *      argument. 
+ *  @param closeit [input] determines whether the device must be closed or not
+ *      after the plot has been performed
+ *  @param device [input] PGPLOT device (default value = 0x0, will result in
+ *  interactive choice)
  *
  */
-void des_profile_mult(const float* uutab, int nprof, int nx, int ngraph,
-            bool closeit, float xmin, float xmax, const char* nomx, 
-            const char* nomy, const char* title, const char* device = 0x0) ; 
+void des_profile_mult(const float* uutab, int nprof, int nx, 
+            const float* xtab, const char* nomx, 
+            const char* nomy, const char* title, const int* line_style, 
+            int ngraph, bool closeit, const char* device = 0x0) ; 
 
 
 /** Basic routine for drawing isocontours.
@@ -570,31 +618,43 @@ void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
 /** Draws the profile of {\tt Scalar}'s along some radial axis determined by
  *  a fixed value of $(\theta, \phi)$. 
  *
- *  @param uu [input] Array containing the addresses of the {\tt Scalar} 
- *                   to be drawn
- *  @param nprof [input] Number of {\tt Scalar}'s to be drawn; if nprof > 1,
- *       the addresses of the various {\tt Scalar}'s must be stored 
- *       in sequence from {\tt uu} 
+ *  @param uu [input] Array (size {\tt nprof}) containing the addresses 
+ *                    of the {\tt Scalar} to be drawn
+ *  @param nprof [input] Number of {\tt Scalar}'s to be drawn
  *  @param r_min [input] Minimal value of {\it r} for the drawing
  *  @param r_max [input] Maximal value of {\it r} for the drawing
- *  @param theta [input] Value of $\theta$ which defines the profile axis
- *  @param phi [input] Value of $\phi$ which defines the profile axis
- *  @param ngraph [input] Index of the graphic device (in the range [0,99])
- *  to be used for the plot: if this device has never been used or is closed, 
- *    it will be opened with the name {\tt device} provided by the last
- *      argument. 
- *  @param closeit [input] determines whether the device must be closed or not
+ *  @param theta [input] Array (size {\tt nprof}) of the values of $\theta$ 
+ *      defining the profile axis for each plot: the line no.{\tt i} represents
+ *      the scalar {\tt uu[i]} along the direction {\tt (theta[i],phi[i])}
+ *  @param phi [input] Array (size {\tt nprof}) of the values of $\phi$ 
+ *      defining the profile axis for each plot: the line no.{\tt i} represents
+ *      the scalar {\tt uu[i]} along the direction {\tt (theta[i],phi[i])}
+ *  @param radial_scale [input] factor by which the values of {\tt r} are to 
+ *      be multiplied to get the abscidia scale 
+ *  @param closeit [input] determines whether the graphic device must be closed or not
  *      after the plot has been performed
  *  @param nomy [input] y legend of the figure (default value = 0x0,  
  *		        corresponds to no y legend)
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
+ *  @param ngraph [input] Index of the graphic device (in the range [0,99])
+ *  to be used for the plot: if this device has never been used or is closed, 
+ *    it will be opened. 
+ *  @param nomx [input] x legend of the figure (default value = 0x0,  
+ *		        corresponds to "r")
+ *  @param line_style [input] Array (size {\tt nprof}) defining the line style
+ *      for each plot: the possible values are {\tt line\_style[i] = 1} 
+ * (full line), 2 (dashed), 3 (dot-dash-dot-dash), 4 (dotted), 5 
+ * (dash-dot-dot-dot). The default value = 0x0 corresponds to a cyclic sequence
+ * of the above styles. 
  * 
  */
  
 void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max, 
-        double theta, double phi, int ngraph = 0, bool closeit = true, 
-        char* nomy  = 0x0, char* title = 0x0) ;
+        const double* theta, const double* phi, double radial_scale = 1, 
+        bool closeit = true,  const char* nomy  = 0x0, 
+        const char* title = 0x0, int ngraph = 0, const char* nomx  = 0x0, 
+        const int* line_style = 0x0) ;
 
 
 /** Basic routine for drawing a stellar surface in a plane X=constant.
@@ -1597,8 +1657,38 @@ void des_vect_bin_z(const Tenseur& vv1, const Tenseur& vv2, double x0,
 
 
 
+    /** @name Time evolution graphs
+     */
+    //@{     
+
+/** Plots the variation of some quantity against time
+ *
+ *  @param uu [input] evolving scalar quantity
+ *  @param j_min [input] minimal time step for the plot
+ *  @param j_max [input] maximal time step for the plot
+ *  @param closeit [input] determines whether the graphic device must be closed or not
+ *      after the plot has been performed
+ *  @param nomy [input] y legend of the figure (default value = 0x0,  
+ *		        corresponds to no y legend)
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ *  @param show_time [input] determines whether the x axis is labelled with
+ *      time or with time step
+ *  @param ngraph [input] Index of the graphic device (in the range [0,99])
+ *  to be used for the plot: if this device has never been used or is closed, 
+ *    it will be opened. 
+ *  @param nomx [input] x legend of the figure (default value = 0x0,  
+ *		        corresponds to "t" if {\tt show\_time=true} and
+ *                      to "j" if {\tt show\_time=false})
+ */
+void des_evol(const Evolution<double>& uu, int j_min, int j_max, 
+    bool closeit = true, const char* nomy = 0x0, 
+    const char* title = 0x0, bool show_time = true,
+    int ngraph = 0, const char* nomx = 0x0) ;
 
 
+
+    //@}
 
 
 #endif
