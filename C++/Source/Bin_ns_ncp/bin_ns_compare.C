@@ -42,7 +42,7 @@ char bin_ns_compare_C[] = "$Header$" ;
 #include "binaire.h"
 #include "utilitaires.h"
 
-void Bin_ns_ncp::compare(const Binaire& binaire) {
+/*void Bin_ns_ncp::compare(const Binaire& binaire) {
 
   // Parameters of the grid
   //-----------------------
@@ -1217,3 +1217,4 @@ void Bin_ns_ncp::compare(FILE* fich) {
   compare( star ) ;
 
 }
+*/
