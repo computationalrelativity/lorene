@@ -32,6 +32,9 @@ char star_bin_kinema_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/05/25 14:21:26  f_limousin
+ * New method to compute pot_centri to improve the convergence of the code.
+ *
  * Revision 1.3  2004/02/27 09:56:10  f_limousin
  * Correction of an error on the computation of bsn.
  *
@@ -89,20 +92,34 @@ void Star_bin::kinematics(double omega, double x_axe) {
     bsn.annule(nzm1, nzm1) ;	// set to zero in the ZEC
     bsn.std_spectral_base() ;   // set the bases for spectral expansions
         
-     //-------------------------
+    //-------------------------
     // Centrifugal potential
     //-------------------------
-
+    
     // Lorentz factor between the co-orbiting observer and the Eulerian one
     // See Eq (23) from Gourgoulhon et al. (2001)
 
-      Scalar gam0 = 1 / sqrt( 1-sprod(bsn, bsn) ) ;
-	
-      pot_centri = - log( gam0 ) ;
+    Tensor flat_cov = flat.cov() * psi4 ;
+    flat_cov.change_triad(mp.get_bvect_cart()) ;
+    //## For the convergence of the code, we introduce a flat scalar 
+    // product to compute gam_pot and so pot_centri. 
+    Scalar gam_pot = 1 / sqrt( 1 - contract(contract(flat_cov, 0, bsn, 0), 0, bsn, 0) ) ;
 
-      pot_centri.annule(nzm1, nzm1) ;	// set to zero in the external domain
-      pot_centri.std_spectral_base() ;   // set the bases for spectral expansions
-      
+    Scalar gam0 = 1 / sqrt( 1 - sprod(bsn, bsn) ) ;
+    
+    // Error made when we take gam_pot instead of gam0 for the computation
+    // of pot_centri. 
+
+    cout << "gam_pot" << endl << norme(gam_pot) << endl ;
+    cout << "gam0" << endl << norme(gam0) << endl ;
+    cout << "Relative difference between gam0 and gam_pot : " << endl ; 
+    cout << diffrel(gam0, gam_pot) << endl ;
+
+    pot_centri = - log( gam_pot ) ;
+    
+    pot_centri.annule(nzm1, nzm1) ;	// set to zero in the external domain
+    pot_centri.std_spectral_base() ;   // set the bases for spectral expansions
+    
       // The derived quantities are obsolete
       // -----------------------------------
       
