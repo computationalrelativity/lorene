@@ -30,6 +30,9 @@ char et_bin_nsbh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/24 12:30:58  k_taniguchi
+ * Add some derivative terms
+ *
  * Revision 1.2  2003/10/22 08:12:46  k_taniguchi
  * Supress some terms in Et_bin_nsbh::sauve.
  *
@@ -62,10 +65,19 @@ Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
     : Etoile_bin(mp_i, nzet_i, relat, eos_i, irrot, ref_triad_i),
       n_auto(mp_i),
       n_comp(mp_i),
+      d_n_auto(mp_i, 1, COV, ref_triad_i),
+      d_n_comp(mp_i, 1, COV, ref_triad_i),
       confpsi(mp_i),
       confpsi_auto(mp_i),
       confpsi_comp(mp_i),
-      ssjm1_n_auto(mp_i),
+      d_confpsi_auto(mp_i, 1, COV, ref_triad_i),
+      d_confpsi_comp(mp_i, 1, COV, ref_triad_i),
+      taij_auto(mp_i, 2, CON, ref_triad_i),
+      taij_comp(mp_i, 2, CON, ref_triad_i),
+      taij_tot(mp_i, 2, CON, ref_triad_i),
+      tkij_auto(mp_i, 2, CON, ref_triad_i),
+      tkij_tot(mp_i, 2, CON, ref_triad_i),
+      ssjm1_lapse(mp_i),
       ssjm1_confpsi(mp_i) {
 
     // The metric is initialized to the flat one :
@@ -73,15 +85,25 @@ Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
     n_auto.set_std_base() ;
     n_comp = 0.5 ;
     n_comp.set_std_base() ;
+    d_n_auto = 0 ;
+    d_n_comp = 0 ;
     confpsi = 1 ;
     confpsi.set_std_base() ;
     confpsi_auto = 0.5 ;
     confpsi_auto.set_std_base() ;
     confpsi_comp = 0.5 ;
     confpsi_comp.set_std_base() ;
+    d_confpsi_auto = 0 ;
+    d_confpsi_comp = 0 ;
 
-    ssjm1_n_auto.set_etat_qcq() ;
-    ssjm1_n_auto = 0.5 ;
+    taij_auto.set_etat_zero() ;
+    taij_comp.set_etat_zero() ;
+    taij_tot.set_etat_zero() ;
+    tkij_auto.set_etat_zero() ;
+    tkij_tot.set_etat_zero() ;
+
+    ssjm1_lapse.set_etat_qcq() ;
+    ssjm1_lapse = 0.5 ;
     ssjm1_confpsi.set_etat_qcq() ;
     ssjm1_confpsi = 0.5 ;
 
@@ -93,10 +115,19 @@ Et_bin_nsbh::Et_bin_nsbh(const Et_bin_nsbh& et)
     : Etoile_bin(et),
       n_auto(et.n_auto),
       n_comp(et.n_comp),
+      d_n_auto(et.d_n_auto),
+      d_n_comp(et.d_n_comp),
       confpsi(et.confpsi),
       confpsi_auto(et.confpsi_auto),
       confpsi_comp(et.confpsi_comp),
-      ssjm1_n_auto(et.ssjm1_n_auto),
+      d_confpsi_auto(et.d_confpsi_auto),
+      d_confpsi_comp(et.d_confpsi_comp),
+      taij_auto(et.taij_auto),
+      taij_comp(et.taij_comp),
+      taij_tot(et.taij_tot),
+      tkij_auto(et.tkij_auto),
+      tkij_tot(et.tkij_tot),
+      ssjm1_lapse(et.ssjm1_lapse),
       ssjm1_confpsi(et.ssjm1_confpsi) {
 
     set_der_0x0() ;
@@ -110,10 +141,19 @@ Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, const Eos& eos_i,
     : Etoile_bin(mp_i, eos_i, ref_triad_i, fich),
       n_auto(mp_i),
       n_comp(mp_i),
+      d_n_auto(mp_i, 1, COV, ref_triad_i),
+      d_n_comp(mp_i, 1, COV, ref_triad_i),
       confpsi(mp_i),
       confpsi_auto(mp_i),
       confpsi_comp(mp_i),
-      ssjm1_n_auto(mp_i),
+      d_confpsi_auto(mp_i, 1, COV, ref_triad_i),
+      d_confpsi_comp(mp_i, 1, COV, ref_triad_i),
+      taij_auto(mp_i, 2, CON, ref_triad_i),
+      taij_comp(mp_i, 2, CON, ref_triad_i),
+      taij_tot(mp_i, 2, CON, ref_triad_i),
+      tkij_auto(mp_i, 2, CON, ref_triad_i),
+      tkij_tot(mp_i, 2, CON, ref_triad_i),
+      ssjm1_lapse(mp_i),
       ssjm1_confpsi(mp_i) {
 
     // Read of the saved fields :
@@ -126,11 +166,26 @@ Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, const Eos& eos_i,
     Tenseur confpsi_auto_file(mp_i, fich) ;
     confpsi_auto = confpsi_auto_file ;
 
-    Cmp ssjm1_n_auto_file(mp_i, *(mp_i.get_mg()), fich) ;
-    ssjm1_n_auto = ssjm1_n_auto_file ;
+    Cmp ssjm1_lapse_file(mp_i, *(mp_i.get_mg()), fich) ;
+    ssjm1_lapse = ssjm1_lapse_file ;
 
     Cmp ssjm1_confpsi_file(mp_i, *(mp_i.get_mg()), fich) ;
     ssjm1_confpsi = ssjm1_confpsi_file ;
+
+    // All other fields are initialized to zero or some constants :
+    // ----------------------------------------------------------
+    n_comp = 0.5 ;
+    d_n_auto = 0 ;
+    d_n_comp = 0 ;
+    confpsi = 1. ;
+    confpsi_comp = 0.5 ;
+    d_confpsi_auto = 0 ;
+    d_confpsi_comp = 0 ;
+    taij_auto.set_etat_zero() ;
+    taij_comp.set_etat_zero() ;
+    taij_tot.set_etat_zero() ;
+    tkij_auto.set_etat_zero() ;
+    tkij_tot.set_etat_zero() ;
 
 }
 
@@ -157,11 +212,34 @@ void Et_bin_nsbh::operator=(const Et_bin_nsbh& et) {
 
     n_auto = et.n_auto ;
     n_comp = et.n_comp ;
+    d_n_auto = et.d_n_auto ;
+    d_n_comp = et.d_n_comp ;
     confpsi = et.confpsi ;
     confpsi_auto = et.confpsi_auto ;
     confpsi_comp = et.confpsi_comp ;
-    ssjm1_n_auto = et.ssjm1_n_auto ;
+    d_confpsi_auto = et.d_confpsi_auto ;
+    d_confpsi_comp = et.d_confpsi_comp ;
+    taij_auto = et.taij_auto ;
+    taij_comp = et.taij_comp ;
+    taij_tot = et.taij_tot ;
+    tkij_auto = et.tkij_auto ;
+    tkij_tot = et.tkij_tot ;
+    ssjm1_lapse = et.ssjm1_lapse ;
     ssjm1_confpsi = et.ssjm1_confpsi ;
+
+}
+
+Tenseur& Et_bin_nsbh::set_n_comp() {
+
+    del_deriv() ;	// sets to 0x0 all the derived quantities
+    return n_comp ;
+
+}
+
+Tenseur& Et_bin_nsbh::set_confpsi_comp() {
+
+    del_deriv() ;	// sets to 0x0 all the derived quantities
+    return confpsi_comp ;
 
 }
 
@@ -185,9 +263,13 @@ void Et_bin_nsbh::sauve(FILE* fich) const {
     w_shift.sauve(fich) ;
     khi_shift.sauve(fich) ;
 
-    ssjm1_n_auto.sauve(fich) ;
+    ssjm1_lapse.sauve(fich) ;
     ssjm1_confpsi.sauve(fich) ;
     ssjm1_khi.sauve(fich) ;
     ssjm1_wshift.sauve(fich) ;
 
 }
+
+
+// Printing
+// --------
