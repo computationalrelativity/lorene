@@ -122,13 +122,13 @@ int main() {
 
 	cout << "Divergence of source : " << endl ;
  	cout << "---------------------- " << endl << endl ;
-	source_s.divergence(mets).spectral_display(1.e-12) ;
+	source_s.divergence(mets).spectral_display(0x0, 1.e-12) ;
  	int sd ; cin >> sd ;
 
 	Scalar pot_source = source_s.potential(mets) ;
  	cout << "Source potential: " << endl ;
  	cout << "----------------- " << endl << endl ;
- 	pot_source.spectral_display(1.e-13) ;
+ 	pot_source.spectral_display(0x0, 1.e-13) ;
  	cin >> sd ;
 
 	Vector_divfree source_df = source_s.div_free(mets) ;
@@ -137,7 +137,7 @@ int main() {
  	cout << "------------------------------------------------- " << endl << endl ;
  	Vector v_diff = source_df - source_s ;
 	v_diff.dec_dzpuis(4) ;
- 	v_diff.spectral_display(1.e-13) ;
+ 	v_diff.spectral_display(0x0, 1.e-13) ;
  	cout << endl ;
  	cin >> sd ;
 
@@ -154,7 +154,7 @@ int main() {
 	cout << "---------------------------- " << endl ;
 	Scalar dive = sol.divergence(mets) ;
 	dive.dec_dzpuis(2) ;
-	dive.spectral_display(1.e-12) ;
+	dive.spectral_display(0x0, 1.e-12) ;
 
 	Scalar eta_theo = num*denom1*denom1*comp_l2 / 6 ;
 	eta_theo.std_spectral_base() ;
