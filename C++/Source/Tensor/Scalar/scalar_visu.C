@@ -30,6 +30,9 @@ char scalar_visu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/03/11 12:07:55  e_gourgoulhon
+ * Added method visu_section_anim.
+ *
  * Revision 1.5  2003/12/19 15:18:17  j_novak
  * Shadow variables hunt
  *
@@ -512,3 +515,55 @@ void Scalar::visu_box(double xmin, double xmax, double ymin, double ymax,
 
 }
 
+
+                    //-------------------------------------//
+                    //          visu_section_anim          //
+                    //-------------------------------------//
+
+                    
+void Scalar::visu_section_anim(const char section_type, double aa, double umin, 
+        double umax, double vmin, double vmax, int jtime, double ttime, 
+        int jgraph, const char* title, const char* filename_root, bool start_dx, 
+        int nu, int nv) const {
+        
+    if ( jtime % jgraph != 0 ) return ;     
+        
+    // Preparation of the name of output file
+    // --------------------------------------
+    int k = jtime / jgraph ;
+        
+    char* filename ;
+    if (filename_root == 0x0) {
+        filename = new char[40] ; 
+        strcpy(filename, "anim") ; 
+    }
+    else {
+        filename = new char[ strlen(filename_root)+10 ] ; 
+        strcpy(filename, filename_root) ; 
+    }
+
+    char nomk[5] ; 
+    sprintf(nomk, "%04d", k) ; 
+    strcat(filename, nomk) ; 
+        
+    // Call to visu_section to create the output file
+    // ----------------------------------------------
+
+    visu_section(section_type, aa, umin, umax, vmin, vmax, title, filename, 
+                 false, nu, nv) ;   
+         
+    // Shall we start OpenDX ?
+    // ---------------------
+
+    if ( start_dx ) {       // Launch of OpenDX
+        
+        system("dx -edit anime.net &") ; 
+    
+    }
+
+    // Final cleaning
+    // --------------
+        
+    delete [] filename ;        
+        
+}           

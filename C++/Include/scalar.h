@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.51  2004/03/11 12:07:30  e_gourgoulhon
+ * Added method visu_section_anim.
+ *
  * Revision 1.50  2004/03/08 15:45:38  j_novak
  * Modif. comment
  *
@@ -869,6 +872,39 @@ class Scalar : public Tensor {
     void visu_section(const Tbl& plane, double umin, double umax, double vmin,
         double vmax, const char* title = 0x0, const char* filename = 0x0,
         bool start_dx = true, int nu = 200, int nv = 200) const ;   
+
+  /** 3D visualization via time evolving plane section (animation).
+   * Prepares files for visualization by OpenDX of the values of the field in
+   * a plane x=const, y=const or z=const at successive time steps
+   *
+   * @param section_type [input] defines the type of section : \\
+   *    'x' for a plane x = a with a = const (parameter {\tt aa}) \\
+   *    'y' for a plane y = a with a = const (parameter {\tt aa})\\
+   *    'z' for a plane z = a with a = const (parameter {\tt aa})
+   * @param aa [input] constant a defining the section plane
+   * @param umin [input] defines with {\tt umax} the range of the plane coordinate u 
+   * @param umax [input] defines with {\tt umin} the range of the plane coordinate u 
+   * @param vmin [input] defines with {\tt vmax} the range of the plane coordinate v 
+   * @param vmax [input] defines with {\tt vmin} the range of the plane coordinate v 
+   * @param jtime [input] time step label
+   * @param ttime [input] time t corresponding to {\tt jtime}
+   * @param jgraph [input] number of time steps between two graphs: the graph
+   *    will be generated only if {\tt jtime} is a multiple of {\tt jgraph}
+   * @param title [input] title for the graph (for OpenDX legend)
+   * @param filename_root [input] beginning of the names for the files which will 
+   *    be the input for OpenDX (the end of names will be automatically generated
+   *    from the time steps); the default 0x0 is transformed into "anim"
+   * @param start_dx [input] determines whether OpenDX must be launched (as a
+   *     subprocess) to view the field; if set to {\tt false}, only input files
+   *     for future usage of OpenDX are created 
+   * @param nu [input] number of points in the u direction (uniform sampling)   
+   * @param nv [input] number of points in the v direction (uniform sampling)   
+   *
+   */
+   void visu_section_anim(const char section_type, double aa, double umin, 
+        double umax, double vmin, double vmax, int jtime, double ttime, 
+        int jgraph = 1, const char* title = 0x0, const char* filename_root = 0x0, 
+        bool start_dx = false, int nu = 200, int nv = 200) const ;   
 
   /** 3D visualization (volume rendering) via OpenDX.
    * Prepares files for visualization by OpenDX of the values of the field in
