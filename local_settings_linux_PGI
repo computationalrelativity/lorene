@@ -1,0 +1,78 @@
+###############################################################
+#
+#  Edit the following lines according to your implementation.
+#
+#  The environment variable HOME_LORENE (root directory for the
+#   Lorene implementation) must be have been already defined.
+#
+###############################################################
+
+#===============================#
+#           MAKEDEPEND	        #
+#===============================#
+
+# Path for makedepend commands:
+# WARNING: this path may be very system (and version)-dependent
+INCDEP	= -I/opt/pgi/linux86/5.1/include/
+INCDEP	= -I/usr/include/g++-3
+
+#===============================#
+#           COMPILERS		#
+#===============================#
+
+# C++ compiler:
+# ------------
+CXX 	 = pgCC
+
+# Options for the C++ compiler to produce the optimized library:
+# -------------------------------------------------------------
+CXXFLAGS = -O2 -DNDEBUG
+
+# Options for the C++ compiler to produce the library for debugging:
+# -----------------------------------------------------------------
+CXXFLAGS_G =  -g
+
+
+# Path for the include files:
+# --------------------------
+INC	= -I$(HOME_LORENE)/C++/Include \
+          -I$(HOME_LORENE)/C++/Include_extra \
+	  -I/opt/pgi/linux86/5.1/include
+
+# Converting archives to random libraries (if required, otherwise just ls)
+# ------------------------------------------------------------------------
+RANLIB = ls
+
+# Fortran 77 compiler:
+# -------------------
+F77 	 = pgf77 -Mextend
+
+# Options for the Fortran 77 compiler to produce the optimized library:
+# ---------------------------------------------------------------------
+F77FLAGS = -O2
+
+
+# Options for the Fortran 77 compiler to produce the library for debugging:
+# ------------------------------------------------------------------------
+F77FLAGS_G = -g
+
+
+#===============================#
+#      SYSTEM LIBRARIES		#
+#===============================#
+
+# C, C++ libarary, mathematical library and Fortran library
+# ---------------------------------------------------------
+LIB_CXX	= -lpgftnrtl -lpgf90rtl -lpgf90 -lpgf90_rpm1 -lpghpf2 -lpgc -lm -L/usr/lib/gcc-lib/i386-redhat-linux/2.96 -lg2c
+
+# Linear Algebra Package (LAPACK) library
+# ---------------------------------------
+LIB_LAPACK = -llapack -lblas
+
+# Graphical libraries: PGPLOT and X11
+# -----------------------------------
+# LIB_PGPLOT = -L/usr/X11R6/lib -lcpgplot -lpgplot -lX11
+
+
+
+
