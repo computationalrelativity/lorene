@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/01/11 15:16:58  j_novak
+ * More Diff operators.
+ *
  * Revision 1.1  2005/01/10 16:39:21  j_novak
  * New class for 1D mono-domain differential operators.
  *
@@ -389,7 +392,8 @@ class Diff_sx2 : public Diff {
 /**
  * Class for the elementary differential operator 
  * \f$ \xi \frac{\partial}{\partial \xi} \f$ (see the base class \c Diff ).
- * Not defined in the compactified external domain.
+ * In the compactified external domain the operator reads
+ * \f$ (\xi -1)  \frac{\partial}{\partial \xi} \f$.
  * \ingroup (ellip)
  * 
  */
@@ -428,7 +432,8 @@ class Diff_xdsdx : public Diff {
 /**
  * Class for the elementary differential operator 
  * \f$ \frac{1}{\xi} \frac{\partial}{\partial \xi} \f$ (see the base 
- * class \c Diff ).
+ * class \c Diff ). In the compactified external domain, it reads
+ * \f$ \frac{1}{\xi-1} \frac{\partial}{\partial \xi} \f$.
  * Not defined in the shells.
  * \ingroup (ellip)
  * 
@@ -468,7 +473,8 @@ class Diff_sxdsdx : public Diff {
 /**
  * Class for the elementary differential operator 
  * \f$ \xi^2 \frac{\partial^2}{\partial \xi^2} \f$ (see the base 
- * class \c Diff ).
+ * class \c Diff ). In the external compactified domain, it reads
+ * \f$ (\xi - 1)^2 \frac{\partial^2}{\partial \xi^2} \f$.
  * \ingroup (ellip)
  * 
  */
@@ -507,7 +513,9 @@ class Diff_x2dsdx2 : public Diff {
 /**
  * Class for the elementary differential operator 
  * \f$ \xi \frac{\partial^2}{\partial \xi^2} \f$ (see the base 
- * class \c Diff ). Not defined in the nucleus.
+ * class \c Diff ). In the external compactified domain, it reads
+ * \f$ (\xi - 1) \frac{\partial^2}{\partial \xi^2} \f$.
+ * Not defined in the nucleus.
  * \ingroup (ellip)
  * 
  */
@@ -529,6 +537,167 @@ class Diff_xdsdx2 : public Diff {
  public:
     /// Assignment to another Diff_xdsdx2
     void operator=(const Diff_xdsdx2&) ;	
+	
+    // Computational routines
+    //-----------------------
+ public:
+    /// Returns the matrix associated with the operator
+    virtual const Matrice& get_matrice() const ;
+
+    // Outputs
+    // -------
+ protected:
+    ///Operator >> (virtual function called by the operator <<). 
+    virtual ostream& operator>>(ostream&) const ;
+};
+
+/**
+ * Class for the elementary differential operator 
+ * \f$ \xi^2 \frac{\partial}{\partial \xi} \f$ (see the base class \c Diff ).
+ * This operator is not defined in the nucleus. In the compactified external
+ * domain it reads \f$ (\xi-1)^2 \frac{\partial}{\partial \xi} \f$.
+ * \ingroup (ellip)
+ * 
+ */
+class Diff_x2dsdx : public Diff {
+
+    // Constructors - Destructor
+    // -------------------------
+ public:
+    Diff_x2dsdx(int base_r, int nr) ;	 ///< Standard constructor
+    Diff_x2dsdx(const Diff_x2dsdx& ) ;	 ///< Copy constructor
+
+    virtual ~Diff_x2dsdx() ;			///< Destructor
+
+ private:
+    void initialize() ;  ///< Initializes arrays
+ 
+    // Mutators / assignment
+    // ---------------------
+ public:
+    /// Assignment to another Diff_x2dsdx
+    void operator=(const Diff_x2dsdx&) ;	
+	
+    // Computational routines
+    //-----------------------
+ public:
+    /// Returns the matrix associated with the operator
+    virtual const Matrice& get_matrice() const ;
+
+    // Outputs
+    // -------
+ protected:
+    ///Operator >> (virtual function called by the operator <<). 
+    virtual ostream& operator>>(ostream&) const ;
+};
+
+/**
+ * Class for the elementary differential operator 
+ * \f$ \xi^3 \frac{\partial}{\partial \xi} \f$ (see the base class \c Diff ).
+ * In the compactified external domain the operator reads
+ * \f$ (\xi -1)^3  \frac{\partial}{\partial \xi} \f$.
+ * \ingroup (ellip)
+ * 
+ */
+class Diff_x3dsdx : public Diff {
+
+    // Constructors - Destructor
+    // -------------------------
+ public:
+    Diff_x3dsdx(int base_r, int nr) ;	 ///< Standard constructor
+    Diff_x3dsdx(const Diff_x3dsdx& ) ;	 ///< Copy constructor
+
+    virtual ~Diff_x3dsdx() ;			///< Destructor
+
+ private:
+    void initialize() ;  ///< Initializes arrays
+ 
+    // Mutators / assignment
+    // ---------------------
+ public:
+    /// Assignment to another Diff_x3dsdx
+    void operator=(const Diff_x3dsdx&) ;	
+	
+    // Computational routines
+    //-----------------------
+ public:
+    /// Returns the matrix associated with the operator
+    virtual const Matrice& get_matrice() const ;
+
+    // Outputs
+    // -------
+ protected:
+    ///Operator >> (virtual function called by the operator <<). 
+    virtual ostream& operator>>(ostream&) const ;
+};
+
+/**
+ * Class for the elementary differential operator 
+ * \f$ \xi^3 \frac{\partial^2}{\partial \xi^2} \f$ (see the base 
+ * class \c Diff ). In the external compactified domain, it reads
+ * \f$ (\xi - 1)^3 \frac{\partial^2}{\partial \xi^2} \f$.
+ * Not defined in the nucleus.
+ * \ingroup (ellip)
+ * 
+ */
+class Diff_x3dsdx2 : public Diff {
+
+    // Constructors - Destructor
+    // -------------------------
+ public:
+    Diff_x3dsdx2(int base_r, int nr) ;	 ///< Standard constructor
+    Diff_x3dsdx2(const Diff_x3dsdx2& ) ;	 ///< Copy constructor
+
+    virtual ~Diff_x3dsdx2() ;			///< Destructor
+
+ private:
+    void initialize() ;  ///< Initializes arrays
+ 
+    // Mutators / assignment
+    // ---------------------
+ public:
+    /// Assignment to another Diff_x3dsdx2
+    void operator=(const Diff_x3dsdx2&) ;	
+	
+    // Computational routines
+    //-----------------------
+ public:
+    /// Returns the matrix associated with the operator
+    virtual const Matrice& get_matrice() const ;
+
+    // Outputs
+    // -------
+ protected:
+    ///Operator >> (virtual function called by the operator <<). 
+    virtual ostream& operator>>(ostream&) const ;
+};
+
+/**
+ * Class for the elementary differential operator 
+ * \f$ \xi^4 \frac{\partial^2}{\partial \xi^2} \f$ (see the base 
+ * class \c Diff ). In the external compactified domain, it reads
+ * \f$ (\xi - 1)^4 \frac{\partial^2}{\partial \xi^2} \f$.
+ * \ingroup (ellip)
+ * 
+ */
+class Diff_x4dsdx2 : public Diff {
+
+    // Constructors - Destructor
+    // -------------------------
+ public:
+    Diff_x4dsdx2(int base_r, int nr) ;	 ///< Standard constructor
+    Diff_x4dsdx2(const Diff_x4dsdx2& ) ;	 ///< Copy constructor
+
+    virtual ~Diff_x4dsdx2() ;			///< Destructor
+
+ private:
+    void initialize() ;  ///< Initializes arrays
+ 
+    // Mutators / assignment
+    // ---------------------
+ public:
+    /// Assignment to another Diff_x4dsdx2
+    void operator=(const Diff_x4dsdx2&) ;	
 	
     // Computational routines
     //-----------------------

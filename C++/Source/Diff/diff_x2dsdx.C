@@ -1,5 +1,5 @@
 /*
- *  Methods for the class Diff_xdsdx
+ *  Methods for the class Diff_x2dsdx
  *
  *    (see file diff.h for documentation).
  *
@@ -25,12 +25,12 @@
  *
  */
 
-char diff_xdsdx_C[] = "$Header$" ;
+char diff_x2dsdx_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
- * Revision 1.2  2005/01/11 15:16:10  j_novak
+ * Revision 1.1  2005/01/11 15:16:10  j_novak
  * More Diff operators.
  *
  * Revision 1.1  2005/01/10 16:34:52  j_novak
@@ -55,17 +55,19 @@ namespace {
     int nr_done[Diff::max_points] ;
 }
 
-Diff_xdsdx::Diff_xdsdx(int base_r, int nr) : Diff(base_r, nr) {
+Diff_x2dsdx::Diff_x2dsdx(int base_r, int nr) : Diff(base_r, nr) {
     initialize() ;
+    assert ((base != R_CHEBP)&&(base != R_CHEBI)) ;
 }
 
-Diff_xdsdx::Diff_xdsdx(const Diff_xdsdx& diff_in) : Diff(diff_in) {
+Diff_x2dsdx::Diff_x2dsdx(const Diff_x2dsdx& diff_in) : Diff(diff_in) {
     assert (nap != 0) ;
+    assert ((base != R_CHEBP)&&(base != R_CHEBI)) ;
 } 
 
-Diff_xdsdx::~Diff_xdsdx() {}
+Diff_x2dsdx::~Diff_x2dsdx() {}
 
-void Diff_xdsdx::initialize() {
+void Diff_x2dsdx::initialize() {
     if (nap == 0) {
 	for (int i=0; i<max_points; i++) {
 	    nr_done[i] = -1 ;
@@ -77,13 +79,13 @@ void Diff_xdsdx::initialize() {
     return ;
 }
 
-void Diff_xdsdx::operator=(const Diff_xdsdx& diff_in) {
+void Diff_x2dsdx::operator=(const Diff_x2dsdx& diff_in) {
     assert (nap != 0) ;
     Diff::operator=(diff_in) ;
 
 }
 
-const Matrice& Diff_xdsdx::get_matrice() const {
+const Matrice& Diff_x2dsdx::get_matrice() const {
     
     bool done = false ;
     int indice ;
@@ -97,7 +99,7 @@ const Matrice& Diff_xdsdx::get_matrice() const {
     }
     if (!done) { //The computation must be done ...
 	if (indice == max_points) {
-	    cerr << "Diff_xdsdx::get_matrice() : no space left!!" << '\n'
+	    cerr << "Diff_x2dsdx::get_matrice() : no space left!!" << '\n'
 		 << "The value of Diff.max_points must be increased..." << endl ;
 	    abort() ;
 	}
@@ -112,28 +114,28 @@ const Matrice& Diff_xdsdx::get_matrice() const {
 	    for (int j=0; j<npoints; j++)
 		vect[j] = 0. ;
 	    vect[i] = 1. ;
-	    if (base != R_CHEBU) {
-		xdsdx_1d(npoints, &vect, base << TRA_R) ;
-		for (int j=0; j<npoints; j++)
-		    resu.set(j,i) = vect[j] ;
-	    }
-	    else {
-		dsdx_1d(npoints, &vect, R_CHEBU) ;
-		mult_xm1_1d_cheb(npoints, vect, cres) ;
+	    dsdx_1d(npoints, &vect, base << TRA_R) ;
+	    if (base == R_CHEBU) {
+		mult2_xm1_1d_cheb(npoints, vect, cres) ;
 		for (int j=0; j<npoints; j++)
 		    resu.set(j,i) = cres[j] ;
+	    }
+	    else {
+		multx2_1d(npoints, &vect, base << TRA_R) ;
+		for (int j=0; j<npoints; j++)
+		    resu.set(j,i) = vect[j] ;
 	    }
 	}
 	delete [] vect ;
 	delete [] cres ;
     }
-	
     return *tab[base*max_points + indice] ;
 }
 
-ostream& Diff_xdsdx::operator>>(ostream& ost) const {
+ostream& Diff_x2dsdx::operator>>(ostream& ost) const {
 
-    ost << " xi * d / dx " << endl ;
+    ost << " x^2 d / dx " << endl ;
+
     return ost ;
 
 }

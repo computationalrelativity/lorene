@@ -30,7 +30,7 @@ char diff_xdsdx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.2  2005/01/11 15:16:10  j_novak
+ * Revision 1.1  2005/01/11 15:16:10  j_novak
  * More Diff operators.
  *
  * Revision 1.1  2005/01/10 16:34:52  j_novak
@@ -114,14 +114,16 @@ const Matrice& Diff_xdsdx::get_matrice() const {
 	    vect[i] = 1. ;
 	    if (base != R_CHEBU) {
 		xdsdx_1d(npoints, &vect, base << TRA_R) ;
+		multx2_1d(npoints, &vect, base << TRA_R) ;
 		for (int j=0; j<npoints; j++)
 		    resu.set(j,i) = vect[j] ;
 	    }
 	    else {
 		dsdx_1d(npoints, &vect, R_CHEBU) ;
 		mult_xm1_1d_cheb(npoints, vect, cres) ;
+		mult2_xm1_1d_cheb(npoints, cres, vect) ;
 		for (int j=0; j<npoints; j++)
-		    resu.set(j,i) = cres[j] ;
+		    resu.set(j,i) = vect[j] ;
 	    }
 	}
 	delete [] vect ;
@@ -133,7 +135,7 @@ const Matrice& Diff_xdsdx::get_matrice() const {
 
 ostream& Diff_xdsdx::operator>>(ostream& ost) const {
 
-    ost << " xi * d / dx " << endl ;
+    ost << " xi^3 * d / dx " << endl ;
     return ost ;
 
 }
