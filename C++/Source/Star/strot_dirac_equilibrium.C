@@ -30,6 +30,10 @@ char strot_dirac_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/02/09 13:36:42  lm_lin
+ *
+ * Calculate GRV2 during iterations.
+ *
  * Revision 1.1  2005/01/31 08:51:48  j_novak
  * New files for rotating stars in Dirac gauge (still under developement).
  *
@@ -402,6 +406,14 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
  equation_of_state() ;  // computes new values for nbar (n), ener (e),
                         // and press (p) from the new ent (H)
 
+
+ //---------------------------------------
+ // Calculate error of the GRV2 identity 
+ //---------------------------------------
+
+ err_grv2 = grv2() ;
+
+
  //--------------------------------------
  // Relaxations on some quantities....?
  //
@@ -417,7 +429,7 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
 
  // Update of the metric quantities :
 
- update_metric() ;
+   update_metric() ;
 
 
  //---------------------------
@@ -442,7 +454,7 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
  diff_ent /= nzet ;
 
  fichconv << " " << log10( fabs(diff_ent) + 1.e-16 ) ;
-
+ fichconv << " " << log10( fabs(err_grv2) + 1.e-16 ) ;
 
  //------------------------------
  // Recycling for the next step
@@ -452,8 +464,8 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
  logn_prev = logn ;
  qqq_prev = qqq ;
 
- fichconv << endl ;     // What are these???
- fichfreq << endl ;     // Anyway, everybody do the same....
+ fichconv << endl ;     
+ fichfreq << endl ;     
  fichevol << endl ;
  fichconv.flush() ; 
  fichfreq.flush() ; 
