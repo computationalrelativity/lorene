@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/03 14:07:23  e_gourgoulhon
+ * Added derived class Connection_fcart.
+ *
  * Revision 1.4  2003/10/02 21:31:11  e_gourgoulhon
  * Added methods fait_delta and update
  * flat_conn is now a modifiable pointer.
@@ -55,12 +58,19 @@
 class Metric ; 
 class Connection_flat ; 
 
+				//--------------------------//
+				//     class Connection     // 
+				//--------------------------//
 
 /**
  * Class Connection.
  *
  * The class deals only with torsion-free connections. 
  * 
+ * Note that we use the MTW convention for the indices of the connection 
+ * coefficients with respect to a given triad $(e_i)$:
+ * $$ \Gamma^i_[\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle $$  
+ *  
  * @version #$Id$#
  */
 class Connection {
@@ -79,7 +89,9 @@ class Connection {
 	 * is the difference between the connection coefficients 
 	 *  $\Gamma^i_{\ jk}$ and
 	 * the connection coefficients ${\bar \Gamma}^i_{\ jk}$ of the
-	 * flat connection. 
+	 * flat connection. The connection coefficients are defined
+	 * according to the MTW convention:
+	 * $$ \Gamma^i_[\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle $$  
 	 *
 	 */
 	Tensor_delta delta ; 
@@ -118,7 +130,10 @@ class Connection {
 	 * is the difference between the connection coefficients 
 	 *  $\Gamma^i_{\ jk}$ and
 	 * the connection coefficients ${\bar \Gamma}^i_{\ jk}$ of the
-	 * flat connection. 
+	 * flat connection. The connection coefficients are defined
+	 * according to the MTW convention:
+	 * $$ \Gamma^i_[\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle $$  
+	 *
 	 */
 	explicit Connection(const Tensor_delta& delta_i) ;		
 	
@@ -145,17 +160,17 @@ class Connection {
     protected:	    
 
 	/// Deletes all the derived quantities
-	virtual void del_deriv() const ; 
+	void del_deriv() const ; 
 	
 	/// Sets to {\tt 0x0} all the pointers on derived quantities
-	virtual void set_der_0x0() const ; 
+	void set_der_0x0() const ; 
 
 
     // Mutators / assignment
     // ---------------------
     public:
 
-	/// Assignment to another Connection
+	/// Assignment to another {\tt Connection}
 	void operator=(const Connection&) ;	
 	
     // Accessors
@@ -170,8 +185,11 @@ class Connection {
 	 * is the difference between the connection coefficients 
 	 *  $\Gamma^i_{\ jk}$ and
 	 * the connection coefficients ${\bar \Gamma}^i_{\ jk}$ of the
-	 * flat connection. 
+	 * flat connection. The connection coefficients are defined
+	 * according to the MTW convention:
+	 * $$ \Gamma^i_[\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle $$  
 	 *
+	 * @return [\tt delta}(i,j,k) = $\Delta^i_{\ jk}$
 	 */
 	const Tensor_delta& get_delta() const {return delta; } ; 
 
@@ -220,6 +238,11 @@ class Connection {
 
 };
 
+
+				//-------------------------------//
+				//     class Connection_flat     // 
+				//-------------------------------//
+
 /**
  * Class Connection\_flat.
  *
@@ -247,7 +270,7 @@ class Connection_flat : public Connection {
   // ---------------------
  public:
 
-  /// Assignment to another Connection\_flat
+  /// Assignment to another {\tt Connection\_flat}
   void operator=(const Connection_flat&) ;	
   
 
@@ -266,6 +289,10 @@ class Connection_flat : public Connection {
   
 };
 
+
+				//-------------------------------//
+				//     class Connection_fspher   // 
+				//-------------------------------//
 
 /**
  * Class Connection\_fspher.
@@ -296,8 +323,57 @@ class Connection_fspher : public Connection_flat {
   // ---------------------
  public:
 
-  /// Assignment to another Connection\_fspher
+  /// Assignment to another {\tt Connection\_fspher}
   void operator=(const Connection_fspher&) ;	
+  
+
+  // Computational methods
+  // ---------------------
+  
+ public: 
+  /// Covariant derivative of a tensor (with respect to the current connection)
+  virtual Tensor derive_cov(const Tensor&) const ; 
+
+  
+};
+
+
+
+				//-------------------------------//
+				//     class Connection_fcart    // 
+				//-------------------------------//
+
+/**
+ * Class Connection\_fcart.
+ *
+ * Class for connections associated with a flat metric and given onto
+ * an orthonormal Cartesian triad. 
+ * 
+ * @version #$Id$#
+ */
+class Connection_fcart : public Connection_flat {
+
+  // Constructors - Destructor
+  // -------------------------
+  
+ public:
+
+  /// Contructor from a Cartesian flat-metric-orthonormal basis
+	Connection_fcart(const Map&, const Base_vect_cart&) ; 
+
+	Connection_fcart(const Connection_fcart& ) ;		/// Copy constructor
+	
+ public:
+
+  virtual ~Connection_fcart() ; ///destructor
+
+
+  // Mutators / assignment
+  // ---------------------
+ public:
+
+  /// Assignment to another {\tt Connection\_fcart}
+  void operator=(const Connection_fcart&) ;	
   
 
   // Computational methods
