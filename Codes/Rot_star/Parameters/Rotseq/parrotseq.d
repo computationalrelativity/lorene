@@ -2,11 +2,11 @@
 1    Relativity parameter: 1 = relativistic computation , 0 = Newtonian
 0.2   entc_min : initial central enthalpy [c^2]
 0.2   entc_max : initial central enthalpy [c^2]
-0. 	freq_min_si : initial central rotation frequency [Hz]
+100. 	freq_min_si : initial central rotation frequency [Hz]
 200. 	freq_max_si : final central rotation frequency [Hz]
 4	Number of configurations in the sequence
-0	Rotation state: rigid (0) or differential (1)
-1.e4	rrot : parameter R0 [km] of the rotation function F(Omega) = R0^2 (Omegac - Omega)
+2	Rotation state: rigid (0) or differential (1,2): 1 -> fixed R0, 2 -> R0 = a^{-1} R_eq
+0.5	rrot : depending on the above line: R0 [km] or coefficient a  [F(Omega) = R0^2 (Omegac - Omega)] 
 2.85     Requested baryon mass [M_sol] (effective only if mer_mass < mer_max)
 #################### COMPUTATIONAL PARAMETERS #################################
 200     mer_max : maximum number of steps

@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2001 Eric Gourgoulhon
+ *   Copyright (c) 2001-2003 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -32,6 +32,10 @@ char et_rot_diff_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/05/25 19:59:02  e_gourgoulhon
+ * Added the possibility to choose the factor a = R_eq / R0, instead of R0
+ * in the differential rotation law.
+ *
  * Revision 1.2  2002/10/16 14:36:36  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -561,6 +565,9 @@ void Et_rot_diff::equilibrium(double ent_c, double omega_c0, double fact_omega,
 		}
 		else {
 		    par_frot.set(0) = omega_c ; 
+		    if (par_frot(2) != double(0)) {  // fixed a = R_eq / R_0
+			par_frot.set(1) = ray_eq() / par_frot(2) ; 
+		    }
 		    double omeg_min = 0 ; 
 		    double omeg_max = omega_c ; 
 		    double precis = 1.e-14 ;

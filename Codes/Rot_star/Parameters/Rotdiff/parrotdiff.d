@@ -2,7 +2,8 @@
 1     Relativity parameter: 1 = relativistic computation , 0 = Newtonian
 0.25    ent_c : central enthalpy [c^2]
 1360.     freq_si : central rotation frequency [Hz] : Omega_c = 2pi freq_si
-10.	rrot : parameter R0 [km] of the rotation function F(Omega) = R0^2 (Omegac - Omega)
+1	type of choice of R0 [F(Omega) = R0^2 (Omegac - Omega)]: 0 -> fixed R0, 1 -> R0 = a^{-1} R_eq
+2.	depending on the above line: R0 [km] or coefficient a 
 1.      fact_omega : 1.01 = search for the Keplerian frequency, 1. = otherwise.
 3.2    Requested baryon mass [M_sol] (effective only if mer_mass > mer_max)
 #################### COMPUTATIONAL PARAMETERS #################################
