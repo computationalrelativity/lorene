@@ -30,6 +30,10 @@ char time_slice_conf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/04/08 16:43:26  e_gourgoulhon
+ * Added methods set_*
+ * Added test of determinant one in constructor and set_hh.
+ *
  * Revision 1.6  2004/04/05 21:25:02  e_gourgoulhon
  * -- Added constructor as standard time slice of Minkowski spacetime.
  * -- Added some calls to Scalar::std_spectral_base() after
@@ -94,6 +98,27 @@ Time_slice_conf::Time_slice_conf(const Scalar& lapse_in, const Vector& shift_in,
 
     double time_init = the_time[jtime] ; 
 
+    // Check whether det tgam^{ij} = det f^{ij} :
+    // ----------------------------------------
+    Sym_tensor tgam_in = ff_in.con() + hh_in ; 
+    
+    Scalar det_in = tgam_in(1, 1)*tgam_in(2, 2)*tgam_in(3, 3) 
+        + tgam_in(1, 2)*tgam_in(2, 3)*tgam_in(3, 1)
+        + tgam_in(1, 3)*tgam_in(2, 1)*tgam_in(3, 2) 
+        - tgam_in(3, 1)*tgam_in(2, 2)*tgam_in(1, 3)
+        - tgam_in(3, 2)*tgam_in(2, 3)*tgam_in(1, 1) 
+        - tgam_in(3, 3)*tgam_in(2, 1)*tgam_in(1, 2) ;
+    
+    double diffdet = max(maxabs(det_in - 1. / ff.determinant(), 
+        "Deviation of det tgam^{ij} from 1/f")) ;
+    if ( diffdet > 1.e-13 ) {
+        cerr << 
+        "Time_slice_conf::Time_slice_conf : the input h^{ij} does not"
+        << " ensure \n" << "  det tgam_{ij} = f  ! \n" 
+        << "  error = " << diffdet << endl ; 
+        abort() ; 
+    }
+          
     n_evol.update(lapse_in, jtime, time_init) ;     
     beta_evol.update(shift_in, jtime, time_init) ; 
     trk_evol.update(trk_in, jtime, time_init) ;
@@ -119,7 +144,8 @@ Time_slice_conf::Time_slice_conf(const Scalar& lapse_in, const Vector& shift_in,
     set_der_0x0() ; // put here in order not to erase p_psi4
 
     double time_init = the_time[jtime] ; 
-
+    
+    assert( p_gamma != 0x0 ) ; 
     p_psi4 = new Scalar( pow( p_gamma->determinant() / ff.determinant(), 
                          0.3333333333333333) ) ;
     p_psi4->std_spectral_base() ;
@@ -241,6 +267,153 @@ void Time_slice_conf::operator=(const Time_slice_conf& tin) {
     
 }
 
+void Time_slice_conf::operator=(const Time_slice& tin) {
+
+    Time_slice::operator=(tin) ; 
+
+    cerr << 
+    "Time_slice_conf::operator=(const Time_slice& ) : not implemented yet !"
+        << endl ;
+    abort() ;       
+    del_deriv() ; 
+    
+}
+
+
+void Time_slice_conf::set_psi_del_q(const Scalar& psi_in) {
+
+    psi_evol.update(psi_in, jtime, the_time[jtime]) ; 
+
+    // Reset of quantities depending on Psi:
+    if (p_psi4 != 0x0) {
+        delete p_psi4 ; 
+        p_psi4 = 0x0 ; 
+    }
+    if (p_ln_psi != 0x0) {
+        delete p_ln_psi ; 
+        p_ln_psi = 0x0 ; 
+    }
+    if (p_gamma != 0x0) {
+        delete p_gamma ; 
+        p_gamma = 0x0 ; 
+    }
+    qq_evol.downdate(jtime) ; 
+    gam_dd_evol.downdate(jtime) ; 
+    gam_uu_evol.downdate(jtime) ; 
+     
+}
+
+void Time_slice_conf::set_psi_del_n(const Scalar& psi_in) {
+
+    psi_evol.update(psi_in, jtime, the_time[jtime]) ; 
+
+    // Reset of quantities depending on Psi:
+    if (p_psi4 != 0x0) {
+        delete p_psi4 ; 
+        p_psi4 = 0x0 ; 
+    }
+    if (p_ln_psi != 0x0) {
+        delete p_ln_psi ; 
+        p_ln_psi = 0x0 ; 
+    }
+    if (p_gamma != 0x0) {
+        delete p_gamma ; 
+        p_gamma = 0x0 ; 
+    }
+    n_evol.downdate(jtime) ; 
+    gam_dd_evol.downdate(jtime) ; 
+    gam_uu_evol.downdate(jtime) ; 
+     
+}
+
+
+void Time_slice_conf::set_qq_del_psi(const Scalar& qq_in) {
+
+    qq_evol.update(qq_in, jtime, the_time[jtime]) ; 
+
+    // Reset of quantities depending on Q:
+    psi_evol.downdate(jtime) ; 
+    if (p_psi4 != 0x0) {
+        delete p_psi4 ; 
+        p_psi4 = 0x0 ; 
+    }
+    if (p_ln_psi != 0x0) {
+        delete p_ln_psi ; 
+        p_ln_psi = 0x0 ; 
+    }
+    if (p_gamma != 0x0) {
+        delete p_gamma ; 
+        p_gamma = 0x0 ; 
+    }
+    gam_dd_evol.downdate(jtime) ; 
+    gam_uu_evol.downdate(jtime) ; 
+     
+}
+
+
+void Time_slice_conf::set_qq_del_n(const Scalar& qq_in) {
+
+    qq_evol.update(qq_in, jtime, the_time[jtime]) ; 
+
+    // Reset of quantities depending on Q:
+    n_evol.downdate(jtime) ; 
+     
+}
+
+
+void Time_slice_conf::set_hh(const Sym_tensor& hh_in) {
+
+    // Check whether det tgam^{ij} = det f^{ij} :
+    // ----------------------------------------
+    Sym_tensor tgam_in = ff.con() + hh_in ; 
+    
+    Scalar det_in = tgam_in(1, 1)*tgam_in(2, 2)*tgam_in(3, 3) 
+        + tgam_in(1, 2)*tgam_in(2, 3)*tgam_in(3, 1)
+        + tgam_in(1, 3)*tgam_in(2, 1)*tgam_in(3, 2) 
+        - tgam_in(3, 1)*tgam_in(2, 2)*tgam_in(1, 3)
+        - tgam_in(3, 2)*tgam_in(2, 3)*tgam_in(1, 1) 
+        - tgam_in(3, 3)*tgam_in(2, 1)*tgam_in(1, 2) ;
+    
+    double diffdet = max(maxabs(det_in - 1. / ff.determinant(), 
+        "Deviation of det tgam^{ij} from 1/f")) ;
+    if ( diffdet > 1.e-13 ) {
+        cerr << 
+        "Time_slice_conf::set_hh : the input h^{ij} does not"
+        << " ensure \n" << "  det tgam_{ij} = f  ! \n" 
+        << "  error = " << diffdet << endl ; 
+        abort() ; 
+    }
+          
+    hh_evol.update(hh_in, jtime, the_time[jtime]) ; 
+    
+    // Reset of quantities depending on h^{ij}:
+    if (p_tgamma != 0x0) {
+        delete p_tgamma ;
+        p_tgamma = 0x0 ; 
+    } 
+    if (p_hdirac != 0x0) {
+        delete p_hdirac ; 
+        p_hdirac = 0x0 ; 
+    }
+    if (p_gamma != 0x0) {
+        delete p_gamma ; 
+        p_gamma = 0x0 ;
+    }
+    gam_dd_evol.downdate(jtime) ; 
+    gam_uu_evol.downdate(jtime) ; 
+     
+}
+
+
+void Time_slice_conf::set_aa(const Sym_tensor& aa_in) {
+
+    aa_evol.update(aa_in, jtime, the_time[jtime]) ; 
+
+    // Reset of quantities depending on A^{ij}:
+    k_dd_evol.downdate(jtime) ; 
+    k_uu_evol.downdate(jtime) ; 
+
+}
 
                 //-----------------------------------------------//
                 //  Update of fields from base class Time_slice  //
