@@ -30,6 +30,14 @@ char base_val_name_theta_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/08/24 09:14:41  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.1  2003/10/19 19:49:40  e_gourgoulhon
  * First version
  *
@@ -44,6 +52,7 @@ char base_val_name_theta_C[] = "$Header$" ;
 #include <stdlib.h>
 
 // Lorene headers
+#include "type_parite.h"
 #include "base_val.h"
 
 // Local prototypes
@@ -62,6 +71,10 @@ void basename_t_leg_i(int, int, char*) ;
 void basename_t_leg_ip(int, int, char*) ; 
 void basename_t_leg_pi(int, int, char*) ; 
 void basename_t_leg_ii(int, int, char*) ; 
+void basename_t_cl_cos_p(int, int, char*) ; 
+void basename_t_cl_sin_p(int, int, char*) ; 
+void basename_t_cl_cos_i(int, int, char*) ; 
+void basename_t_cl_sin_i(int, int, char*) ; 
 
 			//----------------------------//
 			//      Base_val method       //
@@ -98,6 +111,10 @@ void Base_val::name_theta(int l, int k, int j, char* name) const {
 		vbasename_t[T_LEG_IP >> TRA_T] = basename_t_leg_ip ;
 		vbasename_t[T_LEG_PI >> TRA_T] = basename_t_leg_pi ;
 		vbasename_t[T_LEG_II >> TRA_T] = basename_t_leg_ii ;
+		vbasename_t[T_CL_COS_P >> TRA_T] = basename_t_cl_cos_p ;
+		vbasename_t[T_CL_SIN_P >> TRA_T] = basename_t_cl_sin_p ;
+		vbasename_t[T_CL_COS_I >> TRA_T] = basename_t_cl_cos_i ;
+		vbasename_t[T_CL_SIN_I >> TRA_T] = basename_t_cl_sin_i ;
 
     }
 	
@@ -157,8 +174,37 @@ void basename_t_sin_p(int , int j, char* name) {
 	sprintf(cxt, "%d", xt) ; 
 	strcat(name, cxt) ; 
 	strcat(name, "t") ; 
-}	
+}
+	
+void basename_t_cl_cos_p(int , int j, char* name) {
 
+	assert( j>=0 ) ; 
+
+	strcpy(name, "cl_cos") ; 
+		
+	int xt = 2*j ; 
+		
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "t") ; 
+}
+
+void basename_t_cl_sin_p(int , int j, char* name) {
+
+	assert( j>=0 ) ; 
+
+	strcpy(name, "cl_sin") ; 
+		
+	int xt = 2*j ; 
+		
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "t") ; 
+}
 	
 void basename_t_cos_i(int , int j, char* name) {
 
@@ -175,12 +221,41 @@ void basename_t_cos_i(int , int j, char* name) {
 	strcat(name, "t") ; 
 }	
 
+void basename_t_cl_cos_i(int , int j, char* name) {
+
+	assert( j>=0 ) ; 
+
+	strcpy(name, "cl_cos") ; 
+		
+	int xt = 2*j + 1 ; 
+		
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "t") ; 
+}
 
 void basename_t_sin_i(int , int j, char* name) {
 
 	assert( j>=0 ) ; 
 
 	strcpy(name, "sin") ; 
+		
+	int xt = 2*j + 1 ; 
+		
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "t") ; 
+}
+	
+void basename_t_cl_sin_i(int , int j, char* name) {
+
+	assert( j>=0 ) ; 
+
+	strcpy(name, "cl_sin") ; 
 		
 	int xt = 2*j + 1 ; 
 		

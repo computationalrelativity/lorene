@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2003 Philippe Grandclement
+ *   Copyright (c) 2004 Philippe Grandclement
  *
  *   This file is part of LORENE.
  *
@@ -23,6 +23,14 @@ char sol_elliptic_only_zec_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/08/24 09:14:44  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.1  2004/06/22 08:49:58  p_grandclement
  * Addition of everything needed for using the logarithmic mapping
  *
@@ -142,10 +150,8 @@ Mtbl_cf elliptic_solver_only_zec  (const Param_elliptic& ope_var, const Mtbl_cf&
 	
 
 	// Valeurs en -1 :
-	double rlim = ope_var.get_mp().val_r_jk (zone, -1, j,k);
-	
-	double facteur = ((val-ope_var.variables[start]->val_F(rlim))/
-			  ope_var.variables[start]->val_G(rlim) - 
+	double facteur = ((val-ope_var.F_minus(nz-1, k, j))/
+			  ope_var.G_minus(nz-1) - 
 			  ope_var.operateurs[start]->val_sp_minus()) /
 	  ope_var.operateurs[start]->val_sh_one_minus()  ; 
 

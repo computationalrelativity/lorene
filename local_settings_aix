@@ -87,6 +87,10 @@ LIB_LAPACK = -L/afs/rzg/@sys/lib -llapack-essl -lessl
 # -----------------------------------
 LIB_PGPLOT = -L$(HOME)/pgplot  -lcpgplot -lpgplot -lX11
 
+# GNU scientific library
+# -----------------------------------
+LIB_GSL = -lgsl -lgslcblas
+
 
 
 

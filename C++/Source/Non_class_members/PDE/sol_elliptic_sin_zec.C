@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2003 Philippe Grandclement
+ *   Copyright (c) 2004 Philippe Grandclement
  *
  *   This file is part of LORENE.
  *
@@ -20,6 +20,14 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/08/24 09:14:44  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.1  2004/02/11 09:52:52  p_grandclement
  * Forgot one new file ...
  *
@@ -147,18 +155,18 @@ Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic& ope_var,
 	//  Noyau :
 	//---------
 	conte = start ;
-	double rlim = ope_var.operateurs[conte]->get_alpha() ;
-	systeme.set(0,0) = ope_var.variables[conte]->val_G(rlim) * 
+      
+	systeme.set(0,0) = ope_var.G_plus(0) * 
 	  ope_var.operateurs[conte]->val_sh_one_plus() ;
 	systeme.set(1,0) = 
-	  ope_var.variables[conte]->val_der_G(rlim) * ope_var.operateurs[conte]->val_sh_one_plus() +  
-	  ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->der_sh_one_plus() ;
+	  ope_var.dG_plus(0) * ope_var.operateurs[conte]->val_sh_one_plus() +  
+	  ope_var.G_plus(0) * ope_var.operateurs[conte]->der_sh_one_plus() ;
 	
-	sec_membre.set(0) -= ope_var.variables[conte]->val_F(rlim) + 
-	  ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->val_sp_plus() ;
-	sec_membre.set(1) -= ope_var.variables[conte]->val_der_F(rlim) + 
-	  ope_var.variables[conte]->val_der_G(rlim) * ope_var.operateurs[conte]->val_sp_plus() + 
-	  ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->der_sp_plus() ;
+	sec_membre.set(0) -= ope_var.F_plus(0,k,j) + 
+	  ope_var.G_plus(0) * ope_var.operateurs[conte]->val_sp_plus() ;
+	sec_membre.set(1) -= ope_var.dF_plus(0,k,j) + 
+	  ope_var.dG_plus(0) * ope_var.operateurs[conte]->val_sp_plus() + 
+	  ope_var.G_plus(0) * ope_var.operateurs[conte]->der_sp_plus() ;
 
 	//----------
 	// SHELLS :
@@ -172,47 +180,42 @@ Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic& ope_var,
 	  int nt_prec = source.get_mg()->get_nt(l-1) ;
 	  conte += (np_prec+1)*nt_prec ;
 	  
-	  rlim = ope_var.operateurs[conte]->get_beta()-ope_var.operateurs[conte]->get_alpha() ;
-
-	  systeme.set(2*l-2, 2*l-1) = -ope_var.variables[conte]->val_G(rlim) * 
+	  systeme.set(2*l-2, 2*l-1) = -ope_var.G_minus(l) * 
 	    ope_var.operateurs[conte]->val_sh_one_minus() ;
-	  systeme.set(2*l-2, 2*l) = - ope_var.variables[conte]->val_G(rlim) * 
+	  systeme.set(2*l-2, 2*l) = - ope_var.G_minus(l) * 
 	    ope_var.operateurs[conte]->val_sh_two_minus() ;
 	  systeme.set(2*l-1, 2*l-1) = 
-	    -ope_var.variables[conte]->val_der_G(rlim)*ope_var.operateurs[conte]->val_sh_one_minus()-  
-	    ope_var.variables[conte]->val_G(rlim)*ope_var.operateurs[conte]->der_sh_one_minus() ;
+	    -ope_var.dG_minus(l)*ope_var.operateurs[conte]->val_sh_one_minus()-  
+	    ope_var.G_minus(l)*ope_var.operateurs[conte]->der_sh_one_minus() ;
 	  systeme.set(2*l-1, 2*l) =
-	    -ope_var.variables[conte]->val_der_G(rlim)*ope_var.operateurs[conte]->val_sh_two_minus()-  
-	    ope_var.variables[conte]->val_G(rlim)*ope_var.operateurs[conte]->der_sh_two_minus() ;
+	    -ope_var.dG_minus(l)*ope_var.operateurs[conte]->val_sh_two_minus()-  
+	    ope_var.G_minus(l)*ope_var.operateurs[conte]->der_sh_two_minus() ;
 	  
-	  sec_membre.set(2*l-2) += ope_var.variables[conte]->val_F(rlim) + 
-	    ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->val_sp_minus() ;
-	  sec_membre.set(2*l-1) += ope_var.variables[conte]->val_der_F(rlim) + 
-	    ope_var.variables[conte]->val_der_G(rlim) * ope_var.operateurs[conte]->val_sp_minus() + 
-	    ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->der_sp_minus() ;
+	  sec_membre.set(2*l-2) += ope_var.F_minus(l,k,j) + 
+	    ope_var.G_minus(l) * ope_var.operateurs[conte]->val_sp_minus() ;
+	  sec_membre.set(2*l-1) += ope_var.dF_minus(l,k,j) + 
+	    ope_var.dG_minus(l) * ope_var.operateurs[conte]->val_sp_minus() + 
+	    ope_var.G_minus(l) * ope_var.operateurs[conte]->der_sp_minus() ;
 	  
 	  // Valeurs en +1 :
-	  
-	  rlim = ope_var.operateurs[conte]->get_beta()+ope_var.operateurs[conte]->get_alpha() ;
-	  
-	  systeme.set(2*l, 2*l-1) = ope_var.variables[conte]->val_G(rlim) * 
+	  systeme.set(2*l, 2*l-1) = ope_var.G_plus(l) * 
 	    ope_var.operateurs[conte]->val_sh_one_plus() ;
-	  systeme.set(2*l, 2*l) = ope_var.variables[conte]->val_G(rlim) * 
+	  systeme.set(2*l, 2*l) = ope_var.G_plus(l) * 
 	    ope_var.operateurs[conte]->val_sh_two_plus() ;
 
 	  systeme.set(2*l+1, 2*l-1) = 
-	    ope_var.variables[conte]->val_der_G(rlim)*ope_var.operateurs[conte]->val_sh_one_plus()+  
-	    ope_var.variables[conte]->val_G(rlim)*ope_var.operateurs[conte]->der_sh_one_plus() ;
+	    ope_var.dG_plus(l)*ope_var.operateurs[conte]->val_sh_one_plus()+  
+	    ope_var.G_plus(l)*ope_var.operateurs[conte]->der_sh_one_plus() ;
 	  systeme.set(2*l+1, 2*l) =
-	    ope_var.variables[conte]->val_der_G(rlim)*ope_var.operateurs[conte]->val_sh_two_plus()+
-	    ope_var.variables[conte]->val_G(rlim)*ope_var.operateurs[conte]->der_sh_two_plus() ;
+	    ope_var.dG_plus(l)*ope_var.operateurs[conte]->val_sh_two_plus()+
+	    ope_var.G_plus(l)*ope_var.operateurs[conte]->der_sh_two_plus() ;
 	  
-	  sec_membre.set(2*l) -=  ope_var.variables[conte]->val_F(rlim) + 
-	    ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->val_sp_plus();
+	  sec_membre.set(2*l) -=  ope_var.F_plus(l,k,j) + 
+	    ope_var.G_plus(l) * ope_var.operateurs[conte]->val_sp_plus();
 	  
-	  sec_membre.set(2*l+1) -=  ope_var.variables[conte]->val_der_F(rlim) + 
-	    ope_var.variables[conte]->val_der_G(rlim) * ope_var.operateurs[conte]->val_sp_plus() + 
-	    ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->der_sp_plus() ;
+	  sec_membre.set(2*l+1) -=  ope_var.dF_plus(l,k,j) + 
+	    ope_var.dG_plus(l) * ope_var.operateurs[conte]->val_sp_plus() + 
+	    ope_var.G_plus(l) * ope_var.operateurs[conte]->der_sp_plus() ;
 	}
 
 	// LA PSEUDO ZEC :
@@ -220,8 +223,7 @@ Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic& ope_var,
 	int nt_prec = source.get_mg()->get_nt(nz-2) ;
 	conte += (np_prec+1)*nt_prec ;
 	
-	rlim = -1./2./ope_var.operateurs[conte]->get_alpha() ;
-
+	double rlim = -1./2./ope_var.operateurs[conte]->get_alpha() ;
 	// On joue avec la phase :
 	double phase = 0 ;
 	Tbl facteur (taille) ;
@@ -233,13 +235,13 @@ Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic& ope_var,
 	for (int i=0 ; i<nbr_phase ; i++) {
 
 	  systeme.set(taille-2, taille-1) = 
-	    -ope_var.variables[conte]->val_G(rlim) * 
+	    -ope_var.G_minus(nz-1) * 
 	    sin(freq*rlim+phase)/rlim ;
 
 	  systeme.set(taille-1, taille-1) = 
-	    -ope_var.variables[conte]->val_der_G(rlim)*
+	    -ope_var.dG_minus(nz-1)*
 	    sin(freq*rlim+phase)/rlim-  
-	    ope_var.variables[conte]->val_G(rlim)* 
+	    ope_var.G_minus(nz-1)* 
 	    (freq*cos(freq*rlim+phase)-sin(freq*rlim+phase)/rlim)/rlim ;
 	  
 	  // On resout le systeme ...
@@ -268,13 +270,13 @@ Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic& ope_var,
 	
 	// On fait le "Vrai" calcul :
 	systeme.set(taille-2, taille-1) = 
-	  -ope_var.variables[conte]->val_G(rlim) * 
+	  -ope_var.G_minus(nz-1) * 
 	  sin(freq*rlim+phase_min)/rlim ;
 	
 	systeme.set(taille-1, taille-1) = 
-	  -ope_var.variables[conte]->val_der_G(rlim)*
+	  -ope_var.dG_minus(nz-1)*
 	  sin(freq*rlim+phase_min)/rlim-  
-	  ope_var.variables[conte]->val_G(rlim)* 
+	  ope_var.G_minus(nz-1)* 
 	  (freq*cos(freq*rlim+phase_min)-sin(freq*rlim+phase_min)/rlim)/rlim ;
 
 	// On resout le systeme ...

@@ -30,6 +30,14 @@ char vector_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2004/08/24 09:14:50  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.18  2004/07/27 09:40:05  j_novak
  * Yet another method for solving vector Poisson eq. with spherical coordinates.
  *
@@ -99,6 +107,7 @@ char vector_poisson_C[] = "$Header$" ;
 #include "tenseur.h"
 #include "param.h"
 #include "param_elliptic.h"
+#include "proto.h"
 
 Vector Vector::poisson(double lambda, const Metric_flat& met_f, int method) 
   const {

@@ -71,4 +71,8 @@ LIB_LAPACK = -lcomplib.sgimath
 # -----------------------------------
 LIB_PGPLOT = -L/Octane/freeware/pgplot -lcpgplot -lpgplot -lX11
 
+# GNU scientific library
+# -----------------------------------
+LIB_GSL = -lgsl -lgslcblas
+
 

@@ -38,6 +38,14 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.62  2004/08/24 09:14:40  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.61  2004/07/27 08:24:26  j_novak
  * Modif. comments
  *
@@ -335,6 +343,9 @@ class Scalar : public Tensor {
   /// Pointer on \f$\partial/\partial radial \f$ of \c *this  
   mutable Scalar* p_dsdradial ;	
 
+  /// Pointer on \f$\partial/\partial \rho \f$ of \c *this  
+  mutable Scalar* p_dsdrho ;	
+
   /** Power of \e r  by which the last computed Laplacian has been 
    *  multiplied in the compactified external domain.  
    */
@@ -619,6 +630,12 @@ class Scalar : public Tensor {
    */
   const Scalar& dsdradial() const ; 
   
+  /** Returns \f$\partial / \partial \rho \f$ of \c *this .
+   *  If \c dzpuis  is zero, then the returned \c Scalar has 
+   *  \c dzpuis  = 2. It is increased by 1 otherwise.
+   */
+  const Scalar& dsdrho() const ;
+ 
   /** Returns \f$1/\sin\theta \partial / \partial \phi\f$ of \c *this .
    */
   const Scalar& stdsdp() const ; 
@@ -1212,7 +1229,21 @@ class Scalar : public Tensor {
    * Resolution of a general elliptic equation, putting zero at infinity.
    * @param params [input] the operators and variables to be used.
    **/
-  Scalar sol_elliptic(const Param_elliptic& params) const ;
+  Scalar sol_elliptic(Param_elliptic& params) const ;
+ 
+  /** Solves the scalar 2-dimensional elliptic equation 
+   *   with \c *this  as a source.
+   *   Note that \c dzpuis  must be equal to 2, 3 or 4, i.e. 
+   *   The solution \e u  with the boundary condition \e u =0 at spatial
+   *   infinity is the returned \c Scalar. 
+   */
+  Scalar sol_elliptic_2d(Param_elliptic&) const ;
+ 
+  /** Solves a pseudo-1d elliptic equation 
+   *   with \c *this  as a source.
+   *  
+   */
+  Scalar sol_elliptic_pseudo_1d(Param_elliptic&) const ;
 
    /**
    * Resolution of a general elliptic equation, putting a given value 
@@ -1221,7 +1252,7 @@ class Scalar : public Tensor {
    * @param params [input] the operators and variables to be used.
    * @param val [input] value at the last shell.
    **/
-  Scalar sol_elliptic_no_zec(const Param_elliptic& params, double val = 0) const ;
+  Scalar sol_elliptic_no_zec(Param_elliptic& params, double val = 0) const ;
   
   /**
    * Resolution of a general elliptic equation solving in the 
@@ -1229,7 +1260,7 @@ class Scalar : public Tensor {
    * @param params [input] the operators and variables to be used.
    * @param val [input] value at the inner boundary of the external domain.
    **/
-  Scalar sol_elliptic_only_zec(const Param_elliptic& params, double val) const ;
+  Scalar sol_elliptic_only_zec(Param_elliptic& params, double val) const ;
 
   /**
    * General elliptic solver.
@@ -1245,7 +1276,7 @@ class Scalar : public Tensor {
    * in the external domain.
    * @param phase [output] : phase that minimizes \c coef .
    **/
-  Scalar sol_elliptic_sin_zec(const Param_elliptic& params, double freq,
+  Scalar sol_elliptic_sin_zec(Param_elliptic& params, double freq,
 			      int nbr_phase, double& coef, 
 			      double& phase) const ;
 
@@ -1258,7 +1289,7 @@ class Scalar : public Tensor {
    * @param params [input] the operators and variables to be used.
    **/
   Scalar sol_elliptic_fixe_der_zero(double val, 
-				    const Param_elliptic& params) const ;
+				    Param_elliptic& params) const ;
   
 	
   // Import from other mapping 

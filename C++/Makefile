@@ -36,7 +36,11 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Ope_elementary; $(MAKE)
 	cd Source/Ope_elementary/Ope_sec_order_r2; $(MAKE)
 	cd Source/Ope_elementary/Ope_sec_order; $(MAKE)
-	cd Source/Ope_elementary/Ope_pois_vect_r; $(MAKE)
+	cd Source/Ope_elementary/Ope_pois_vect_r; $(MAKE)	
+	cd Source/Ope_elementary/Ope_poisson_2d; $(MAKE)
+	cd Source/Ope_elementary/Ope_helmholtz_minus_2d; $(MAKE)
+	cd Source/Ope_elementary/Ope_poisson_pseudo_1d; $(MAKE)
+	cd Source/Ope_elementary/Ope_helmholtz_minus_pseudo_1d; $(MAKE)
 	cd Source/Param; $(MAKE)
 	cd Source/Param_elliptic; $(MAKE)
 	cd Source/Star; $(MAKE)
@@ -81,7 +85,11 @@ uninstall:
 	cd Source/Non_class_members/PDE; $(MAKE) -i uninstall
 	cd Source/Non_class_members/Utilities; $(MAKE) -i uninstall
 	cd Source/Ope_elementary; $(MAKE) -i uninstall
-	cd Source/Ope_elementary/Ope_sec_order_r2; $(MAKE) -i uninstall
+	cd Source/Ope_elementary/Ope_sec_order_r2; $(MAKE) -i uninstall	
+	cd Source/Ope_elementary/Ope_sec_order; $(MAKE) -i uninstall	
+	cd Source/Ope_elementary/Ope_pois_vect_r; $(MAKE) -i uninstall	
+	cd Source/Ope_elementary/Ope_poisson_2d; $(MAKE) -i uninstall
+	cd Source/Ope_elementary/Ope_helmholtz_minus_2d; $(MAKE) -i uninstall
 	cd Source/Param; $(MAKE) -i uninstall
 	cd Source/Param_elliptic; $(MAKE) -i uninstall
 	cd Source/Star; $(MAKE) -i uninstall

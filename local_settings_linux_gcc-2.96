@@ -78,5 +78,9 @@ LIB_LAPACK = -llapack -lblas
 # -----------------------------------
 LIB_PGPLOT = -L/usr/X11R6/lib -lcpgplot -lpgplot -lX11
 
+# GNU scientific library
+# -----------------------------------
+LIB_GSL = -lgsl -lgslcblas
+
 
 

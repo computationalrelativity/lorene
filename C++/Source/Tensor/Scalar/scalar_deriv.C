@@ -34,6 +34,14 @@ char scalar_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/08/24 09:14:52  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.13  2004/06/22 08:50:00  p_grandclement
  * Addition of everything needed for using the logarithmic mapping
  *
@@ -84,8 +92,8 @@ char scalar_deriv_C[] = "$Header$" ;
  */
  
 // Headers Lorene
-#include "map.h"
 #include "scalar.h"
+#include "map.h"
 #include "tensor.h"
 #include "cmp.h"
 
@@ -498,5 +506,42 @@ const Scalar& Scalar::dsdradial() const {
     p_dsdradial->set_dzpuis(dzp) ;
 
     return *p_dsdradial ;
+
+}
+
+                         //-----------------//
+			//      d/drho   //
+			//-----------------//
+
+const Scalar& Scalar::dsdrho() const {
+
+    // Protection
+    assert(etat != ETATNONDEF) ;
+
+    // If the derivative has not been previously computed, the 
+    //  computation must be done by the appropriate routine of the mapping : 
+
+    if (p_dsdrho == 0x0) {     
+      p_dsdrho = new Scalar(*mp) ;
+      if (etat == ETATUN) {
+	p_dsdrho->set_etat_zero() ;
+      }
+      else {
+	Scalar der_r (dsdr()) ;
+	Scalar der_t (srdsdt()) ;
+	Valeur val (der_r.get_spectral_va().mult_st() + 
+		    der_t.get_spectral_va().mult_ct()) ;
+
+	Scalar res (*mp) ;
+	res = val ;
+ 
+	*p_dsdrho = res ;	
+      }
+    }
+
+    int dzp = (dzpuis == 0) ? 2 : dzpuis+1 ;
+    p_dsdrho->set_dzpuis(dzp) ;
+
+    return *p_dsdrho ;
 
 }

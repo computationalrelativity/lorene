@@ -25,6 +25,14 @@ char val_solp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/08/24 09:14:44  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.2  2003/12/11 15:37:09  p_grandclement
  * sqrt(2) ----> sqrt(double(2))
  *
@@ -173,13 +181,19 @@ Tbl _val_solp_r_chebu (const Tbl& sp, double alpha) {
   int nr = sp.get_dim(0) ;
   Tbl res(4) ;
   res.annule_hard() ;
-  
+
+  // Solution en + 1 
+  for (int i=0 ; i<nr ; i++)
+    res.set(0) += sp(i) ;
+
   // Solution en -1 :
   for (int i=0 ; i<nr ; i++)
     if (i%2==0)
       res.set(1) += sp(i) ;
     else
       res.set(1) -= sp(i) ;
+
+  // Derivee en +1 c'est zero ca !
 
   // Derivee en -1 :
   for (int i=0 ; i<nr ; i++)

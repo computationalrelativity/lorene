@@ -63,4 +63,8 @@ LIB_LAPACK = -ldxml
 LIB_PGPLOT = -L/usr/local/lib -lcpgplot -lpgplot
 
 
+# GNU scientific library
+# -----------------------------------
+LIB_GSL = -lgsl -lgslcblas
+
 

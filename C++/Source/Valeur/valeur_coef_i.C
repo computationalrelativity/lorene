@@ -31,6 +31,14 @@ char valeur_coef_i_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/08/24 09:14:52  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.6  2003/10/13 20:51:25  e_gourgoulhon
  * Replaced malloc by new
  *
@@ -138,7 +146,7 @@ void Valeur::coef_i() const {
 	invcf_t[T_LEG_I >> TRA_T] = citlegi ;
 	invcf_t[T_LEG_IP >> TRA_T] = citlegip ;
 	invcf_t[T_LEG_PI >> TRA_T] = citlegpi ;
-	invcf_t[T_LEG_II >> TRA_T] = citlegii ;
+	invcf_t[T_LEG_II >> TRA_T] = citlegii ;	
 
 	invcf_p[NONDEF] = ibase_non_def_p ;
 	invcf_p[P_COSSIN >> TRA_P] = cipcossin ;

@@ -34,6 +34,14 @@ char base_val_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/08/24 09:14:41  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.5  2003/09/16 08:54:09  j_novak
  * Addition of the T_LEG_II base (odd in theta, only for odd m) and the
  * transformation functions to and from the T_SIN_P base.
@@ -232,6 +240,10 @@ ostream& operator<<(ostream& o, const Base_val & bi) {
     nom_t[T_LEG_IP >> TRA_T] =    "T_LEG_IP   " ;
     nom_t[T_LEG_PI >> TRA_T] =    "T_LEG_PI   " ;
     nom_t[T_LEG_II >> TRA_T] =    "T_LEG_II   " ;
+    nom_t[T_CL_COS_P >> TRA_T] = "T_CL_COS_P  " ;
+    nom_t[T_CL_SIN_P >> TRA_T] = "T_CL_SIN_P  " ;
+    nom_t[T_CL_COS_I >> TRA_T] = "T_CL_COS_I  " ;
+    nom_t[T_CL_SIN_I >> TRA_T] = "T_CL_SIN_I  " ;
 
     nom_p[P_COSSIN >> TRA_P] =    "P_COSSIN   " ;
     nom_p[P_COSSIN_P >> TRA_P] =  "P_COSSIN_P " ;

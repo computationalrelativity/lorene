@@ -35,6 +35,14 @@ char scalar_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/08/24 09:14:52  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.11  2004/06/22 08:50:00  p_grandclement
  * Addition of everything needed for using the logarithmic mapping
  *
@@ -79,11 +87,12 @@ char scalar_pde_C[] = "$Header$" ;
 
 // Header Lorene:
 #include "map.h"
+#include "scalar.h"
 #include "tensor.h"
 #include "param.h"
 #include "cmp.h"
 #include "param_elliptic.h"
-#include "scalar.h"
+
   
 		    //-----------------------------------//
 		    //      Scalar Poisson equation      //
@@ -160,7 +169,7 @@ Scalar Scalar::avance_dalembert(Param& par, const Scalar& fjm1,
 		    //-----------------------------------//
 
 
-Scalar Scalar::sol_elliptic(const Param_elliptic& ope_var) const {
+Scalar Scalar::sol_elliptic(Param_elliptic& ope_var) const {
 
   // Right now, only applicable with affine mapping or log one
   const Map_af* map_affine = dynamic_cast <const Map_af*> (mp) ;
@@ -188,7 +197,7 @@ Scalar Scalar::sol_elliptic(const Param_elliptic& ope_var) const {
                     //             with no ZEC           //
 		    //-----------------------------------//
 
-Scalar Scalar::sol_elliptic_no_zec(const Param_elliptic& ope_var, double val) const {
+Scalar Scalar::sol_elliptic_no_zec(Param_elliptic& ope_var, double val) const {
 
   // Right now, only applicable with affine mapping
   const Map_af* map_affine = dynamic_cast <const Map_af*> (mp) ;
@@ -215,7 +224,7 @@ Scalar Scalar::sol_elliptic_no_zec(const Param_elliptic& ope_var, double val) co
                     //             with no ZEC           //
 		    //-----------------------------------//
 
-Scalar Scalar::sol_elliptic_only_zec(const Param_elliptic& ope_var, double val) const {
+Scalar Scalar::sol_elliptic_only_zec(Param_elliptic& ope_var, double val) const {
 
   // Right now, only applicable with affine mapping
   const Map_af* map_affine = dynamic_cast <const Map_af*> (mp) ;
@@ -237,7 +246,7 @@ Scalar Scalar::sol_elliptic_only_zec(const Param_elliptic& ope_var, double val) 
                     //        matching with sin(r)/r     //
 		    //-----------------------------------//
 
-Scalar Scalar::sol_elliptic_sin_zec(const Param_elliptic& ope_var, 
+Scalar Scalar::sol_elliptic_sin_zec(Param_elliptic& ope_var, 
 				    double freq, int nbr_phase, 
 				    double& ampli_min ,double& phase_min) 
   const {
@@ -264,7 +273,7 @@ Scalar Scalar::sol_elliptic_sin_zec(const Param_elliptic& ope_var,
 		    //-----------------------------------//
 
 Scalar Scalar::sol_elliptic_fixe_der_zero (double valeur, 
-					   const Param_elliptic& ope_var) const {
+					   Param_elliptic& ope_var) const {
 
   // Right now, only applicable with affine mapping
   const Map_af* map_affine = dynamic_cast <const Map_af*> (mp) ;
@@ -278,6 +287,49 @@ Scalar Scalar::sol_elliptic_fixe_der_zero (double valeur,
   res.set_etat_qcq() ;
   
   map_affine->sol_elliptic_fixe_der_zero (valeur, ope_var, *this, res) ;
+
+  return (res) ;
+}
+
+		    //-----------------------------------//
+		    //     Two-dimensional Poisson eq.   //
+		    //-----------------------------------//
+
+Scalar Scalar::sol_elliptic_2d (Param_elliptic& ope_var) const {
+
+  // Right now, only applicable with affine mapping
+  const Map_af* map_affine = dynamic_cast <const Map_af*> (mp) ;
+  
+  if (map_affine == 0x0) {
+    cout << "Poisson 2D only defined for affine mapping" << endl ;
+    abort() ;
+  }
+  
+  Scalar res (*mp) ;
+  res.set_etat_qcq() ;
+  
+  map_affine->sol_elliptic_2d(ope_var, *this, res) ;
+
+  return (res) ;
+}
+		    //-----------------------------------//
+		    //     Pseudo-1dimensional eq.   //
+		    //-----------------------------------//
+
+Scalar Scalar::sol_elliptic_pseudo_1d (Param_elliptic& ope_var) const {
+
+  // Right now, only applicable with affine mapping
+  const Map_af* map_affine = dynamic_cast <const Map_af*> (mp) ;
+  
+  if (map_affine == 0x0) {
+    cout << "Pseudo_1d only defined for affine mapping" << endl ;
+    abort() ;
+  }
+  
+  Scalar res (*mp) ;
+  res.set_etat_qcq() ;
+  
+  map_affine->sol_elliptic_pseudo_1d(ope_var, *this, res) ;
 
   return (res) ;
 }

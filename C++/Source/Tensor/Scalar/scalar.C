@@ -35,6 +35,14 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.28  2004/08/24 09:14:51  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.27  2004/06/22 08:50:00  p_grandclement
  * Addition of everything needed for using the logarithmic mapping
  *
@@ -245,6 +253,7 @@ void Scalar::del_deriv() const{
     if (p_lapang != 0x0) delete p_lapang ; 
     if (p_integ != 0x0) delete p_integ ;
     if (p_dsdradial != 0x0) delete p_dsdradial ;
+    if (p_dsdrho != 0x0) delete p_dsdrho ;
     set_der_0x0() ;
 
     Tensor::del_deriv() ;
@@ -264,6 +273,7 @@ void Scalar::set_der_0x0() const {
     ind_lap = - 1 ; 
     p_integ = 0x0 ; 
     p_dsdradial = 0x0 ;
+    p_dsdrho = 0x0 ;
 }
 
 // ETATZERO

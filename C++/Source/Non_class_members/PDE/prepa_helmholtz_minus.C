@@ -25,6 +25,14 @@ char prepa_helmholtz_minus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/08/24 09:14:44  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.2  2004/01/15 09:15:37  p_grandclement
  * Modification and addition of the Helmholtz operators
  *
@@ -61,29 +69,6 @@ Matrice _prepa_helmholtz_minus_nondege_pas_prevu(const Matrice &so) {
     exit(-1) ;
     return so;
 }
-
-
-
-	     	//-------------------
-	       //--  R_CHEBP   -------
-	      //--------------------
-
-Matrice _prepa_helmholtz_minus_nondege_r_chebp (const Matrice &lap) {
-    
- int n = lap.get_dim(0) ;
-
- int non_dege = 1 ;
- 
- Matrice res(n-non_dege, n-non_dege) ;
- res.set_etat_qcq() ;
- for (int i=0 ; i<n-non_dege ; i++)
-   for (int j=0 ; j<n-non_dege ; j++)
-     res.set(i, j) = lap(i, j+non_dege) ;
- 
- res.set_band (4,1) ;
- res.set_lu() ;
- return res ;
-} 
   
 	     	//-------------------
 	       //--  R_CHEB   -------
@@ -147,8 +132,6 @@ Matrice prepa_helmholtz_minus_nondege(const Matrice &ope, int base_r) {
       _prepa_helmholtz_minus_nondege_r_cheb ;
     prepa_helmholtz_minus_nondege[R_CHEBU >> TRA_R] = 
       _prepa_helmholtz_minus_nondege_r_chebu ;
-    prepa_helmholtz_minus_nondege[R_CHEBP >> TRA_R] = 
-      _prepa_helmholtz_minus_nondege_r_chebp ;
   }
   
   Matrice res(prepa_helmholtz_minus_nondege[base_r](ope)) ;

@@ -37,6 +37,14 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/08/24 09:14:40  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.4  2004/03/22 13:12:43  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -173,6 +181,15 @@
 #define	    T_LEG_PI	0x00001100	
 /// fct. de Legendre associees impaires avec m impair 
 #define	    T_LEG_II	0x00001200	
+/// CL of even cosines
+#define T_CL_COS_P 0x00001300
+/// CL of even sines
+#define T_CL_SIN_P 0x00001400
+/// CL of odd cosines
+#define T_CL_COS_I 0x00001500
+/// CL of odd sines.
+#define T_CL_SIN_I 0x00001600
+
 
     /* Phi */
 /// dev. standart 

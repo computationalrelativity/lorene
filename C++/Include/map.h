@@ -39,6 +39,14 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.32  2004/08/24 09:14:40  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.31  2004/07/27 08:24:26  j_novak
  * Modif. comments
  *
@@ -2136,7 +2144,7 @@ class Map_af : public Map_radial {
 	 * @param so [input] : the source.
 	 * @param uu [output] : the solution.
 	 **/
-	void sol_elliptic (const Param_elliptic& params, 
+	void sol_elliptic (Param_elliptic& params, 
 			   const Scalar& so,  Scalar& uu) const ;
 
 	/**
@@ -2148,7 +2156,7 @@ class Map_af : public Map_radial {
 	 * @param uu [output] : the solution.
 	 * @param val [input] : value at the last shell.
 	 **/
-	void sol_elliptic_no_zec (const Param_elliptic& params, 
+	void sol_elliptic_no_zec (Param_elliptic& params, 
 				  const Scalar& so, Scalar& uu, double val) const ;
 
 	/**
@@ -2160,7 +2168,7 @@ class Map_af : public Map_radial {
 	 * @param uu [output] : the solution.
 	 * @param val [input] : value at the inner boundary.
 	 **/
-	void sol_elliptic_only_zec (const Param_elliptic& params, 
+	void sol_elliptic_only_zec (Param_elliptic& params, 
 				  const Scalar& so, Scalar& uu, double val) const ;
 
 	/**
@@ -2180,7 +2188,7 @@ class Map_af : public Map_radial {
 	 * in the external domain.
 	 * @param phase [output] : phase that minimizes \c coef .
 	 **/
-	void sol_elliptic_sin_zec (const Param_elliptic& params, 
+	void sol_elliptic_sin_zec (Param_elliptic& params, 
 				  const Scalar& so, Scalar& uu, double freq, 
 				   int nbr_phase, double& coef, 
 				   double& phase) const ;
@@ -2195,7 +2203,7 @@ class Map_af : public Map_radial {
 	 * @param uu [output] : the solution.
 	 **/
 	void sol_elliptic_fixe_der_zero (double val, 
-					 const Param_elliptic& params, 
+					 Param_elliptic& params, 
 					 const Scalar& so, Scalar& uu) const ;
 	
 	/** Computes the solution of a 2-D Poisson equation.
@@ -2224,6 +2232,24 @@ class Map_af : public Map_radial {
 	 */
 	virtual void poisson2d(const Cmp& source_mat, const Cmp& source_quad, 
 			       Param& par, Cmp& uu) const ;
+	/**
+	 * General elliptic solver in a 2D case. The field is zero at infinity.
+	 *
+	 * @param params [input] : the operators and variables to be uses.
+	 * @param so [input] : the source.
+	 * @param uu [output] : the solution.
+	 **/
+	void sol_elliptic_2d(Param_elliptic&, 
+			     const Scalar&, Scalar&) const ;
+	/**
+	 * General elliptic solver in a pseudo 1d case. The field is zero at infinity.
+	 *
+	 * @param params [input] : the operators and variables to be uses.
+	 * @param so [input] : the source.
+	 * @param uu [output] : the solution.
+	 **/
+	void sol_elliptic_pseudo_1d(Param_elliptic&, 
+			     const Scalar&, Scalar&) const ;
 
 	/** Performs one time-step integration of the d'Alembert scalar equation
 	 *   @param par [input/output] possible parameters to control the
@@ -3154,7 +3180,7 @@ class Map_log : public Map_radial {
 	 * @param so [input] : the source.
 	 * @param uu [output] : the solution.
 	 **/
-	void sol_elliptic (const Param_elliptic& params, 
+	void sol_elliptic (Param_elliptic& params, 
 			   const Scalar& so,  Scalar& uu) const ;
 
 	/**
@@ -3166,7 +3192,7 @@ class Map_log : public Map_radial {
 	 * @param uu [output] : the solution.
 	 * @param val [input] : value at the last shell.
 	 **/
-	void sol_elliptic_no_zec (const Param_elliptic& params, 
+	void sol_elliptic_no_zec (Param_elliptic& params, 
 			   const Scalar& so,  Scalar& uu, double) const ;
 
 	

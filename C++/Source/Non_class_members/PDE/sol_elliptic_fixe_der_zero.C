@@ -144,23 +144,23 @@ Mtbl_cf elliptic_solver_fixe_der_zero  (double valeur,
 	//  Noyau :
 	//---------
 	conte = start ;
-	double rlim = ope_var.operateurs[conte]->get_alpha() ;
-	systeme.set(0,0) = ope_var.variables[conte]->val_G(rlim) * 
+  
+	systeme.set(0,0) = ope_var.G_plus(0) * 
 	  ope_var.operateurs[conte]->val_sh_one_plus() ;
 
 	// On relache derivee
 	systeme.set(1,0) = 
-	  ope_var.variables[conte]->val_der_G(0) * ope_var.operateurs[conte]->val_sh_one_minus() +  
-	  ope_var.variables[conte]->val_G(0) * ope_var.operateurs[conte]->der_sh_one_minus() ;
+	  ope_var.dG_minus(0) * ope_var.operateurs[conte]->val_sh_one_minus() +  
+	  ope_var.G_minus(0) * ope_var.operateurs[conte]->der_sh_one_minus() ;
 	
-	sec_membre.set(0) -= ope_var.variables[conte]->val_F(rlim) + 
-	  ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->val_sp_plus() ;
+	sec_membre.set(0) -= ope_var.F_plus(0,k,j) + 
+	  ope_var.G_plus(0) * ope_var.operateurs[conte]->val_sp_plus() ;
 	
 	if ((k==0) && (j==0))
 	sec_membre.set(1) -= -valeur + 
-	  ope_var.variables[conte]->val_der_F(0) + 
-	  ope_var.variables[conte]->val_der_G(0) * ope_var.operateurs[conte]->val_sp_minus() + 
-	  ope_var.variables[conte]->val_G(0) * ope_var.operateurs[conte]->der_sp_minus() ;
+	  ope_var.dF_minus(0,k,j) + 
+	  ope_var.dG_minus(0) * ope_var.operateurs[conte]->val_sp_minus() + 
+	  ope_var.G_minus(0) * ope_var.operateurs[conte]->der_sp_minus() ;
 	
 	//----------
 	// SHELLS :
@@ -173,48 +173,45 @@ Mtbl_cf elliptic_solver_fixe_der_zero  (double valeur,
 	  int nt_prec = source.get_mg()->get_nt(l-1) ;
 	  conte += (np_prec+1)*nt_prec ;
 	  
-	  rlim = ope_var.operateurs[conte]->get_beta()-ope_var.operateurs[conte]->get_alpha() ;
 
-	  systeme.set(2*l-2, 2*l-1) = -ope_var.variables[conte]->val_G(rlim) * 
+	  systeme.set(2*l-2, 2*l-1) = -ope_var.G_minus(l) * 
 	    ope_var.operateurs[conte]->val_sh_one_minus() ;
-	  systeme.set(2*l-2, 2*l) = - ope_var.variables[conte]->val_G(rlim) * 
+	  systeme.set(2*l-2, 2*l) = - ope_var.G_minus(l) * 
 	    ope_var.operateurs[conte]->val_sh_two_minus() ;
 	  if ((l!=1) || (k!=0) || (j!=0)) {
 	  systeme.set(2*l-1, 2*l-1) = 
-	    -ope_var.variables[conte]->val_der_G(rlim)*ope_var.operateurs[conte]->val_sh_one_minus()-  
-	    ope_var.variables[conte]->val_G(rlim)*ope_var.operateurs[conte]->der_sh_one_minus() ;
+	    -ope_var.dG_minus(l)*ope_var.operateurs[conte]->val_sh_one_minus()-  
+	    ope_var.G_minus(l)*ope_var.operateurs[conte]->der_sh_one_minus() ;
 	  systeme.set(2*l-1, 2*l) =
-	    -ope_var.variables[conte]->val_der_G(rlim)*ope_var.operateurs[conte]->val_sh_two_minus()-  
-	    ope_var.variables[conte]->val_G(rlim)*ope_var.operateurs[conte]->der_sh_two_minus() ;
+	    -ope_var.dG_minus(l)*ope_var.operateurs[conte]->val_sh_two_minus()-  
+	    ope_var.G_minus(l)*ope_var.operateurs[conte]->der_sh_two_minus() ;
 	  }
-	  sec_membre.set(2*l-2) += ope_var.variables[conte]->val_F(rlim) + 
-	    ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->val_sp_minus() ;
+	  sec_membre.set(2*l-2) += ope_var.F_minus(l,k,j) + 
+	    ope_var.G_minus(l) * ope_var.operateurs[conte]->val_sp_minus() ;
 	  if ((l!=1) || (k!=0) || (j!=0)) {
-	    sec_membre.set(2*l-1) += ope_var.variables[conte]->val_der_F(rlim) + 
-	      ope_var.variables[conte]->val_der_G(rlim) * ope_var.operateurs[conte]->val_sp_minus() + 
-	      ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->der_sp_minus() ;
+	    sec_membre.set(2*l-1) += ope_var.dF_minus(l,k,j) + 
+	      ope_var.dG_minus(l) * ope_var.operateurs[conte]->val_sp_minus() + 
+	      ope_var.G_minus(l) * ope_var.operateurs[conte]->der_sp_minus() ;
 	  }
 
 	  // Valeurs en +1 :
 	  
-	  rlim = ope_var.operateurs[conte]->get_beta()+ope_var.operateurs[conte]->get_alpha() ;
-	  
-	  systeme.set(2*l, 2*l-1) = ope_var.variables[conte]->val_G(rlim) * 
+	  systeme.set(2*l, 2*l-1) = ope_var.G_plus(l) * 
 	    ope_var.operateurs[conte]->val_sh_one_plus() ;
-	  systeme.set(2*l, 2*l) = ope_var.variables[conte]->val_G(rlim) * 
+	  systeme.set(2*l, 2*l) = ope_var.G_plus(l) * 
 	    ope_var.operateurs[conte]->val_sh_two_plus() ;
 	  systeme.set(2*l+1, 2*l-1) = 
-	    ope_var.variables[conte]->val_der_G(rlim)*ope_var.operateurs[conte]->val_sh_one_plus()+  
-	    ope_var.variables[conte]->val_G(rlim)*ope_var.operateurs[conte]->der_sh_one_plus() ;
+	    ope_var.dG_plus(l)*ope_var.operateurs[conte]->val_sh_one_plus()+  
+	    ope_var.G_plus(l)*ope_var.operateurs[conte]->der_sh_one_plus() ;
 	  systeme.set(2*l+1, 2*l) =
-	    ope_var.variables[conte]->val_der_G(rlim)*ope_var.operateurs[conte]->val_sh_two_plus()+
-	    ope_var.variables[conte]->val_G(rlim)*ope_var.operateurs[conte]->der_sh_two_plus() ;
+	    ope_var.dG_plus(l)*ope_var.operateurs[conte]->val_sh_two_plus()+
+	    ope_var.G_plus(l)*ope_var.operateurs[conte]->der_sh_two_plus() ;
 	  
-	  sec_membre.set(2*l) -=  ope_var.variables[conte]->val_F(rlim) + 
-	    ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->val_sp_plus();
-	  sec_membre.set(2*l+1) -=  ope_var.variables[conte]->val_der_F(rlim) + 
-	    ope_var.variables[conte]->val_der_G(rlim) * ope_var.operateurs[conte]->val_sp_plus() + 
-	    ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->der_sp_plus() ;
+	  sec_membre.set(2*l) -=  ope_var.F_plus(l,k,j) + 
+	    ope_var.G_plus(l) * ope_var.operateurs[conte]->val_sp_plus();
+	  sec_membre.set(2*l+1) -=  ope_var.dF_plus(l,k,j) + 
+	    ope_var.dG_plus(l) * ope_var.operateurs[conte]->val_sp_plus() + 
+	    ope_var.G_plus(l) * ope_var.operateurs[conte]->der_sp_plus() ;
 	}
 	
 	//-------
@@ -224,19 +221,17 @@ Mtbl_cf elliptic_solver_fixe_der_zero  (double valeur,
 	int nt_prec = source.get_mg()->get_nt(nz-2) ;
 	conte += (np_prec+1)*nt_prec ;
 	
-	rlim = 1./2./ope_var.operateurs[conte]->get_alpha() ;
-	
-	systeme.set(taille-2, taille-1) = -ope_var.variables[conte]->val_G(rlim) * 
+	systeme.set(taille-2, taille-1) = -ope_var.G_minus(nz-1) * 
 	  ope_var.operateurs[conte]->val_sh_one_minus() ;
 	systeme.set(taille-1, taille-1) = 
-	  -ope_var.variables[conte]->val_der_G(rlim)*ope_var.operateurs[conte]->val_sh_one_minus()-  
-	  ope_var.variables[conte]->val_G(rlim)*ope_var.operateurs[conte]->der_sh_one_minus()  ;
+	  -ope_var.dG_minus(nz-1)*ope_var.operateurs[conte]->val_sh_one_minus()-  
+	  ope_var.G_minus(nz-1)*ope_var.operateurs[conte]->der_sh_one_minus()  ;
 	
-	sec_membre.set(taille-2) += ope_var.variables[conte]->val_F(rlim) + 
-	  ope_var.variables[conte]->val_G(rlim)*ope_var.operateurs[conte]->val_sp_minus() ;
-	sec_membre.set(taille-1) += ope_var.variables[conte]->val_der_F(rlim) + 
-	  ope_var.variables[conte]->val_der_G(rlim) * ope_var.operateurs[conte]->val_sp_minus() + 
-	  ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->der_sp_minus() ;
+	sec_membre.set(taille-2) += ope_var.F_minus(nz-1,k,j) + 
+	  ope_var.G_minus(nz-1)*ope_var.operateurs[conte]->val_sp_minus() ;
+	sec_membre.set(taille-1) += ope_var.dF_minus(nz-1,k,j) + 
+	  ope_var.dG_minus(nz-1) * ope_var.operateurs[conte]->val_sp_minus() + 
+	  ope_var.G_minus(nz-1) * ope_var.operateurs[conte]->der_sp_minus() ;
 	
 	// On resout le systeme ...
 	if (taille > 2)

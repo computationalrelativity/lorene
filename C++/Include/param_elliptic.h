@@ -29,6 +29,14 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/08/24 09:14:40  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.11  2004/06/22 08:49:57  p_grandclement
  * Addition of everything needed for using the logarithmic mapping
  *
@@ -74,7 +82,6 @@
 
 #include "map.h"
 #include "ope_elementary.h"
-#include "change_var.h"
 #include "scalar.h"
 
 #define MAP_AFF 0 
@@ -100,7 +107,24 @@ class Param_elliptic {
   const Map_log* mp_log ; ///< The mapping if log type.
  
   Ope_elementary** operateurs ; ///< Array on the elementary operators.
-  Change_var** variables ; ///< Array on the variable changes.
+  
+  Scalar var_F ; ///< Additive variable change function.
+  Scalar var_G ; ///< Multiplicative variable change that must be sphericaly symetric !
+
+  mutable Itbl done_F ; ///< Stores what has been computed for \c F
+  mutable Itbl done_G ; ///< Stores what has been computed for \c G
+  mutable Tbl val_F_plus ; ///< Values of F at the outer boundaries of the various domains.
+  mutable Tbl val_F_minus ; ///< Values of F at the inner boundaries of the various domains.
+  mutable Tbl val_dF_plus ; ///< Values of the derivative of F at the outer boundaries of the various domains.
+  mutable Tbl val_dF_minus ; ///< Values of the derivative of F at the inner boundaries of the various domains.
+  mutable Tbl val_G_plus ; ///< Values of G at the outer boundaries of the various domains.
+  mutable Tbl val_G_minus ; ///< Values of G at the inner boundaries of the various domains.
+  mutable Tbl val_dG_plus ; ///< Values of the derivative of G at the outer boundaries of the various domains.
+  mutable Tbl val_dG_minus ; ///< Values of the derivative of G at the inner boundaries of the various domains.
+
+ private:
+  void compute_val_F(int, int, int) const ; ///< Computes the various values of \c F
+  void compute_val_G(int) const ; ///< Computes the various values of \c G
 
  public:
   /**
@@ -129,8 +153,25 @@ class Param_elliptic {
    *
    * @param zone [input] : the domain.
    * @param mas [input] : the masse \f$m\f$.
+   * @param so [input] : the source (used only to get the right basis).
    **/
-  void set_helmholtz_minus (int zone, double mas) ;
+  void set_helmholtz_minus (int zone, double mas, Scalar& so) ;
+  /**
+   * Set the operator to \f$\left(\Delta - 2 \partial_r / r\right)\f$ 
+   * everywhere but in the compactified domain.
+   *
+   * @param so [input] : the source (used only to get the right basis).
+   **/
+  void set_poisson_pseudo_1d (Scalar& so) ;
+  /**
+   * Set the operator to \f$\left(\Delta - 2 \partial_r / r - m^2\right)\f$ in one domain
+   *
+   * @param zone [input] : the domain.
+   * @param mas [input] : the masse \f$m\f$.
+   * @param so [input] : the source (used only to get the right basis).
+   **/
+  void set_helmholtz_minus_pseudo_1d (int zone, double mas, Scalar& so) ;
+
    /**
     * Set the operator to \f$\left(\Delta + m^2\right)\f$ in one
     * domain (only in the shells).
@@ -139,6 +180,19 @@ class Param_elliptic {
     * @param mas [input] : the masse \f$m\f$.
     **/
   void set_helmholtz_plus (int zone, double mas) ; 
+ 
+  /**
+   * Set everything to do a 2d-Poisson, with or without l=0 (not put by default...)
+   **/
+  void set_poisson_2d (const Scalar &, bool indic = false) ;  
+  
+  /**
+   * Set the 2D Helmholtz operator (with minus sign)
+   *
+   *  @param zone [input] : the domain.
+   * @param mas [input] : the masse parameter.
+   **/
+  void set_helmholtz_minus_2d (int zone, double mas, const Scalar&) ; 
 
   /**
     * Set the operator to \f$a r^2 \partial^2/\partial r^2 + 
@@ -195,21 +249,68 @@ class Param_elliptic {
   void inc_l_quant (int zone) ;
   
   /**
-   * Changes the variable to the new type \c tipe  in the domain \c zone .
+   * Changes the variable function F
    **/
-  void set_variable (int tipe, int zone) ;
-  /**
-   * Changes the variable to the new type {\tt tipe} in the domain {\tt zone}, with a multiplicative factor on F
-   **/
-  void set_variable (int tipe, double mutl, int zone) ;
+  void set_variable_F (const Scalar&) ;
 
   /**
-   * Changes the variable to the new type {\tt tipe} in the domain {\tt zone}, with a multiplicative and an 
-   * additive factor on F
+   * Changes the variable function G
    **/
-  void set_variable (int tipe, double mutl, double add, int zone) ;
+  void set_variable_G (const Scalar&) ;
 
+  /**
+   * Returns the value of F, for a given angular point, at the outer boundary of 
+   * the domain \c zone ;
+   **/
+  double F_plus (int zone, int k, int j) const ;
 
+   /**
+   * Returns the value of F, for a given angular point, at the inner boundary of 
+   * the domain \c zone ;
+   **/
+  double F_minus (int zone, int k, int j) const ;
+
+  /**
+   * Returns the value of the radial derivative of F, 
+   * for a given angular point, at the outer boundary of 
+   * the domain \c zone ;
+   **/
+  double dF_plus (int zone, int k, int j) const ;
+ 
+  /**
+   * Returns the value of the radial derivative of F, 
+   * for a given angular point, at the inner boundary of 
+   * the domain \c zone ;
+   **/
+  double dF_minus (int zone, int k, int j) const ;
+
+  /**
+   * Returns the value of G, for a given angular point, at the outer boundary of 
+   * the domain \c zone ;
+   **/
+  double G_plus (int zone) const ;
+
+   /**
+   * Returns the value of G, for a given angular point, at the inner boundary of 
+   * the domain \c zone ;
+   **/
+  double G_minus (int zone) const ;
+
+  /**
+   * Returns the value of the radial derivative of G, 
+   * for a given angular point, at the outer boundary of 
+   * the domain \c zone ;
+   **/
+  double dG_plus (int zone) const ;
+ 
+  /**
+   * Returns the value of the radial derivative of G, 
+   * for a given angular point, at the inner boundary of 
+   * the domain \c zone ;
+   **/
+  double dG_minus (int zone) const ;
+
+  // A lot of friend functions... Possiblement pas toutes utiles...
   friend Mtbl_cf elliptic_solver  (const Param_elliptic&, const Mtbl_cf&) ;
   friend Mtbl_cf elliptic_solver_no_zec  
     (const Param_elliptic&, const Mtbl_cf&, double) ;
@@ -219,6 +320,18 @@ class Param_elliptic {
     (const Param_elliptic&, const Mtbl_cf&, double, int, double&, double&) ;
   friend Mtbl_cf elliptic_solver_fixe_der_zero  
     (double, const Param_elliptic&, const Mtbl_cf&) ;
+
+  friend void Map_af::sol_elliptic(Param_elliptic&, const Scalar&, Scalar&) const ;
+  friend void Map_af::sol_elliptic_no_zec(Param_elliptic&, const Scalar&, Scalar&, double) const ;
+  friend void Map_af::sol_elliptic_only_zec(Param_elliptic&, const Scalar&, Scalar&, double) const ;
+  friend void Map_af::sol_elliptic_sin_zec(Param_elliptic&, const Scalar&, Scalar&, double, int, double&, double&) const ;
+  friend void Map_af::sol_elliptic_fixe_der_zero(double, Param_elliptic&, const Scalar&, Scalar&) const ;
+
+  friend void Map_af::sol_elliptic_2d(Param_elliptic&, const Scalar&, Scalar&) const ;
+  friend void Map_af::sol_elliptic_pseudo_1d(Param_elliptic&, const Scalar&, Scalar&) const ;
+
+  friend void Map_log::sol_elliptic(Param_elliptic&, const Scalar&, Scalar&) const ;
+  friend void Map_log::sol_elliptic_no_zec(Param_elliptic&, const Scalar&, Scalar&, double) const ;
 } ;
 
 #endif

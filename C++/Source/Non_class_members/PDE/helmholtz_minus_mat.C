@@ -25,6 +25,14 @@ char helmholtz_minus_mat_C[] = "$$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/08/24 09:14:44  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.3  2004/01/15 09:15:37  p_grandclement
  * Modification and addition of the Helmholtz operators
  *
@@ -48,7 +56,7 @@ char helmholtz_minus_mat_C[] = "$$" ;
                      // Routine pour les cas non prevus -- 
                      //-----------------------------------
 
-Matrice _helmholtz_minus_mat_pas_prevu(int, double, double, double) {
+Matrice _helmholtz_minus_mat_pas_prevu(int, int, double, double, double) {
   cout << "Helmholtz minus : base not implemented..." << endl ;
   abort() ;
   exit(-1) ;
@@ -56,62 +64,11 @@ Matrice _helmholtz_minus_mat_pas_prevu(int, double, double, double) {
   return res;
 }
 
-
-                    //-------------------------
-                    //--   CAS R_CHEBP    -----
-		   //--------------------------
-		    
-
-Matrice _helmholtz_minus_mat_r_chebp (int n, double alpha, double, 
-				     double masse) {
-  assert (masse > 0) ;
-
-  Matrice dd(n, n) ;
-  dd.set_etat_qcq() ;
-  Matrice xd(n, n) ;
-  xd.set_etat_qcq() ;
-  Matrice xx(n, n) ;
-  xx.set_etat_qcq() ;
-  
-  double* vect  = new double[n] ;
-  
-  for (int i=0 ; i<n ; i++) {
-    for (int j=0 ; j<n ; j++)
-      vect[j] = 0 ;
-    vect[i] = 1 ;
-    d2sdx2_1d (n, &vect, R_CHEBP) ;
-    for (int j=0 ; j<n ; j++)
-      dd.set(j, i) = vect[j] ; 
-  }
-  
-  for (int i=0 ; i<n ; i++) {
-    for (int j=0 ; j<n ; j++)
-      vect[j] = 0 ;
-    vect[i] = 1 ;
-    sxdsdx_1d (n, &vect, R_CHEBP) ;
-    for (int j=0 ; j<n ; j++)
-      xd.set(j, i) = vect[j] ;  
-  }
-  
-  for (int i=0 ; i<n ; i++) {
-    for (int j=0 ; j<n ; j++)
-      xx.set(i,j) = 0 ;
-    xx.set(i, i) = 1 ;  
-  }
-  
-  delete [] vect ;
-  
-  Matrice res(n, n) ;
-  res = dd+2*xd-masse*masse*alpha*alpha*xx ;
-  return res ;
-}
-
-
                     //-------------------------
 		    //--   CAS R_CHEBU    -----
 		    //------------------------
 
-Matrice _helmholtz_minus_mat_r_chebu (int n, double alpha, 
+Matrice _helmholtz_minus_mat_r_chebu (int n, int lq, double alpha, 
 				      double, double masse) {
 
   assert (masse > 0) ;
@@ -136,13 +93,21 @@ Matrice _helmholtz_minus_mat_r_chebu (int n, double alpha,
     
     d2sdx2_1d (n, &vect_bis, R_CHEBU) ;  // appel dans le cas unsurr
     mult2_xm1_1d_cheb (n, vect_bis, vect_dd) ; // multiplication par (x-1)^2
-    
-    sx2_1d (n, &vect, R_CHEBU) ;
+   
+    // Mass term
+    for (int j=0 ; j<n ; j++)
+      vect_bis[j] = vect[j] ;
+    sx2_1d (n, &vect_bis, R_CHEBU) ;
     
     for (int j=0 ; j<n-2 ; j++)
-      res.set(j,i) = vect_dd[j] - masse*masse*vect[j]/alpha/alpha ;
+      res.set(j,i) = vect_dd[j] - lq*(lq+1)*vect[j] 
+	- masse*masse*vect_bis[j]/alpha/alpha ;
   }
   
+  delete [] vect ;
+  delete [] vect_bis ;
+  delete [] vect_dd ;
+
   return res ;
 }
 
@@ -151,7 +116,7 @@ Matrice _helmholtz_minus_mat_r_chebu (int n, double alpha,
 		    //--   CAS R_CHEB   -----
 		    //------------------------
 
-Matrice _helmholtz_minus_mat_r_cheb (int n, double alpha, double beta, 
+Matrice _helmholtz_minus_mat_r_cheb (int n, int lq, double alpha, double beta, 
 				     double masse) {
 
   assert (masse > 0) ;
@@ -161,7 +126,9 @@ Matrice _helmholtz_minus_mat_r_cheb (int n, double alpha, double beta,
   Matrice dd(n, n) ;
   dd.set_etat_qcq() ;
   Matrice xd(n, n) ;
-  xd.set_etat_qcq() ;
+  xd.set_etat_qcq() ;  
+  Matrice xx(n, n) ;
+  xx.set_etat_qcq() ;
   
   double* vect = new double[n] ;
   
@@ -217,10 +184,19 @@ Matrice _helmholtz_minus_mat_r_cheb (int n, double alpha, double beta,
       xd.set(j, i) += vect[j] ;
   }
   
+    for (int i=0 ; i<n ; i++) {
+      for (int j=0 ; j<n ; j++)
+	vect[j] = 0 ;
+      vect[i] = 1 ;
+      sx2_1d (n, &vect, R_CHEB) ;
+      for (int j=0 ; j<n ; j++)
+	xx.set(j, i) = vect[j] ;
+    }
+
   delete [] vect ;
   
   Matrice res(n, n) ;
-  res = dd+2*xd ; 
+  res = dd+2*xd - lq*(lq+1)*xx; 
   
   return res ;
 }
@@ -230,12 +206,14 @@ Matrice _helmholtz_minus_mat_r_cheb (int n, double alpha, double beta,
 		//- La routine a appeler  ---
 	        //----------------------------
 
-Matrice helmholtz_minus_mat(int n, double alpha, double beta, double masse, 
+Matrice helmholtz_minus_mat(int n, int lq, 
+			    double alpha, double beta, double masse, 
 			    int base_r)
 {
   
   // Routines de derivation
-  static Matrice (*helmholtz_minus_mat[MAX_BASE])(int, double, double, double);
+  static Matrice (*helmholtz_minus_mat[MAX_BASE])(int, int, 
+						  double, double, double);
   static int nap = 0 ;
   
   // Premier appel
@@ -247,10 +225,9 @@ Matrice helmholtz_minus_mat(int n, double alpha, double beta, double masse,
     // Les routines existantes
     helmholtz_minus_mat[R_CHEB >> TRA_R] = _helmholtz_minus_mat_r_cheb ;
     helmholtz_minus_mat[R_CHEBU >> TRA_R] = _helmholtz_minus_mat_r_chebu ;
-    helmholtz_minus_mat[R_CHEBP >> TRA_R] = _helmholtz_minus_mat_r_chebp ;
   }
   
-  Matrice res(helmholtz_minus_mat[base_r](n, alpha, beta, masse)) ;
+  Matrice res(helmholtz_minus_mat[base_r](n, lq, alpha, beta, masse)) ;
   return res ;
 }
 

@@ -26,6 +26,14 @@ char map_af_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/08/24 09:14:42  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.5  2004/06/22 08:49:58  p_grandclement
  * Addition of everything needed for using the logarithmic mapping
  *
@@ -62,7 +70,7 @@ char map_af_elliptic_C[] = "$Header$" ;
 	   //		General elliptic solver
 	  //----------------------------------------------
 
-void Map_af::sol_elliptic(const Param_elliptic& ope_var, const Scalar& source, 
+void Map_af::sol_elliptic(Param_elliptic& ope_var, const Scalar& source, 
 			  Scalar& pot) const {
     
   assert(source.get_etat() != ETATNONDEF) ; 
@@ -90,6 +98,13 @@ void Map_af::sol_elliptic(const Param_elliptic& ope_var, const Scalar& source,
   
   rho.ylm() ;			// spherical harmonic transforms 
   
+  // On met les bonnes bases dans le changement de variable 
+  // de ope_var :
+  ope_var.var_F.set_spectral_va().coef() ;
+  ope_var.var_F.set_spectral_va().ylm() ;
+  ope_var.var_G.set_spectral_va().coef() ;
+  ope_var.var_G.set_spectral_va().ylm() ;
+
   // Call to the Mtbl_cf version
   // ---------------------------
   Mtbl_cf resu = elliptic_solver (ope_var, *(rho.c_cf)) ;
@@ -111,7 +126,7 @@ void Map_af::sol_elliptic(const Param_elliptic& ope_var, const Scalar& source,
 	   //	   General elliptic solver with no ZEC
 	  //----------------------------------------------
 
-void Map_af::sol_elliptic_no_zec(const Param_elliptic& ope_var, const Scalar& source, 
+void Map_af::sol_elliptic_no_zec(Param_elliptic& ope_var, const Scalar& source, 
 			  Scalar& pot, double val) const {
     
   assert(source.get_etat() != ETATNONDEF) ; 
@@ -138,7 +153,14 @@ void Map_af::sol_elliptic_no_zec(const Param_elliptic& ope_var, const Scalar& so
   rho = *(sourva.c_cf) ;	// copy of the coefficients of the source
   
   rho.ylm() ;			// spherical harmonic transforms 
-  
+    
+  // On met les bonnes bases dans le changement de variable 
+  // de ope_var :
+  ope_var.var_F.set_spectral_va().coef() ;
+  ope_var.var_F.set_spectral_va().ylm() ;
+  ope_var.var_G.set_spectral_va().coef() ;
+  ope_var.var_G.set_spectral_va().ylm() ;
+
   // Call to the Mtbl_cf version
   // ---------------------------
   Mtbl_cf resu = elliptic_solver_no_zec (ope_var, *(rho.c_cf), val) ;
@@ -160,7 +182,7 @@ void Map_af::sol_elliptic_no_zec(const Param_elliptic& ope_var, const Scalar& so
 	   //	   General elliptic solver only in the ZEC
 	  //----------------------------------------------
 
-void Map_af::sol_elliptic_only_zec(const Param_elliptic& ope_var, 
+void Map_af::sol_elliptic_only_zec(Param_elliptic& ope_var, 
 				   const Scalar& source, 
 				   Scalar& pot, double val) const {
     
@@ -188,7 +210,14 @@ void Map_af::sol_elliptic_only_zec(const Param_elliptic& ope_var,
   rho = *(sourva.c_cf) ;	// copy of the coefficients of the source
   
   rho.ylm() ;			// spherical harmonic transforms 
-  
+    
+  // On met les bonnes bases dans le changement de variable 
+  // de ope_var :
+  ope_var.var_F.set_spectral_va().coef() ;
+  ope_var.var_F.set_spectral_va().ylm() ;
+  ope_var.var_G.set_spectral_va().coef() ;
+  ope_var.var_G.set_spectral_va().ylm() ;
+
   // Call to the Mtbl_cf version
   // ---------------------------
   Mtbl_cf resu = elliptic_solver_only_zec (ope_var, *(rho.c_cf), val) ;
@@ -211,7 +240,7 @@ void Map_af::sol_elliptic_only_zec(const Param_elliptic& ope_var,
            //  and a mtaching with sin(r)/r
 	  //----------------------------------------------
 
-void Map_af::sol_elliptic_sin_zec(const Param_elliptic& ope_var, 
+void Map_af::sol_elliptic_sin_zec(Param_elliptic& ope_var, 
 				  const Scalar& source, Scalar& pot, 
 				  double freq, 
 				  int nbr_phase, double& ampli_min, 
@@ -241,7 +270,14 @@ void Map_af::sol_elliptic_sin_zec(const Param_elliptic& ope_var,
   rho = *(sourva.c_cf) ;	// copy of the coefficients of the source
   
   rho.ylm() ;			// spherical harmonic transforms 
-  
+    
+  // On met les bonnes bases dans le changement de variable 
+  // de ope_var :
+  ope_var.var_F.set_spectral_va().coef() ;
+  ope_var.var_F.set_spectral_va().ylm() ;
+  ope_var.var_G.set_spectral_va().coef() ;
+  ope_var.var_G.set_spectral_va().ylm() ;
+
   // Call to the Mtbl_cf version
   // ---------------------------
   Mtbl_cf resu = elliptic_solver_sin_zec (ope_var, *(rho.c_cf), freq, 
@@ -266,7 +302,7 @@ void Map_af::sol_elliptic_sin_zec(const Param_elliptic& ope_var,
 	  //----------------------------------------------
 
 void Map_af::sol_elliptic_fixe_der_zero (double valeur, 
-					 const Param_elliptic& ope_var, 
+					 Param_elliptic& ope_var, 
 					 const Scalar& source, 
 					 Scalar& pot) const {
     
@@ -294,7 +330,14 @@ void Map_af::sol_elliptic_fixe_der_zero (double valeur,
   rho = *(sourva.c_cf) ;	// copy of the coefficients of the source
   
   rho.ylm() ;			// spherical harmonic transforms 
-  
+    
+  // On met les bonnes bases dans le changement de variable 
+  // de ope_var :
+  ope_var.var_F.set_spectral_va().coef() ;
+  ope_var.var_F.set_spectral_va().ylm() ;
+  ope_var.var_G.set_spectral_va().coef() ;
+  ope_var.var_G.set_spectral_va().ylm() ;
+
   // Call to the Mtbl_cf version
   // ---------------------------
   valeur *= alpha[0] ;

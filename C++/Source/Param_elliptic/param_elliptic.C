@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2003 Philippe Grandclement
+ *   Copyright (c) 2004 Philippe Grandclement
  *
  *   This file is part of LORENE.
  *
@@ -23,6 +23,14 @@ char param_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/08/24 09:14:49  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.13  2004/06/22 13:46:52  j_novak
  * Deplacement du conte++ dans set_pois_vect_r
  *
@@ -78,9 +86,9 @@ char param_elliptic_C[] = "$Header$" ;
 #include "map.h"
 #include "ope_elementary.h"
 #include "param_elliptic.h"
-#include "change_var.h"
 #include "base_val.h" 
 #include "scalar.h"
+#include "proto.h"
 
 
 const Map_radial& Param_elliptic::get_mp() const {
@@ -148,7 +156,30 @@ int Param_elliptic::get_type(int l) const {
 }
 
 // Construction (By default it is set to Poisson with appropriate dzpuis...)
-Param_elliptic::Param_elliptic(const Scalar& so) {
+Param_elliptic::Param_elliptic(const Scalar& so) : var_F(so.get_mp()), var_G(so.get_mp()), 
+						   done_F (so.get_mp().get_mg()->get_nzone(), 
+							   so.get_mp().get_mg()->get_np(0) + 1,  
+							   so.get_mp().get_mg()->get_nt(0)), 
+						   done_G (so.get_mp().get_mg()->get_nzone()), 
+						   val_F_plus (so.get_mp().get_mg()->get_nzone(), 
+							   so.get_mp().get_mg()->get_np(0) + 1,  
+							   so.get_mp().get_mg()->get_nt(0)), 
+						   val_F_minus (so.get_mp().get_mg()->get_nzone(), 
+							   so.get_mp().get_mg()->get_np(0) + 1,  
+							    so.get_mp().get_mg()->get_nt(0)),
+						   val_dF_plus (so.get_mp().get_mg()->get_nzone(), 
+							   so.get_mp().get_mg()->get_np(0) + 1,  
+							   so.get_mp().get_mg()->get_nt(0)), 
+						   val_dF_minus (so.get_mp().get_mg()->get_nzone(), 
+							   so.get_mp().get_mg()->get_np(0) + 1,  
+							    so.get_mp().get_mg()->get_nt(0)),
+						   val_G_plus (so.get_mp().get_mg()->get_nzone()), 
+						   val_G_minus (so.get_mp().get_mg()->get_nzone()),
+						   val_dG_plus (so.get_mp().get_mg()->get_nzone()), 
+						   val_dG_minus (so.get_mp().get_mg()->get_nzone())
+						   
+						   
+{
 
   // On passe en Ylm
   Scalar auxi(so) ;
@@ -186,34 +217,29 @@ Param_elliptic::Param_elliptic(const Scalar& so) {
 	get_mp().get_mg()->get_nt(l) ;
     
     operateurs = new Ope_elementary* [nbr] ;
-    variables = new Change_var* [nbr] ;
     
-    for (int l=0 ; l<nbr ; l++) {
+    for (int l=0 ; l<nbr ; l++)
       operateurs[l] = 0x0 ;
-      variables[l] = 0x0 ;
-    }
-    
-    int nr ;
-    int base_r, m_quant, l_quant ;
-    
-    int conte = 0 ;
-    for (int l=0 ; l<nz ; l++) {
-      
-      nr = get_mp().get_mg()->get_nr(l) ;
 
-      for (int k=0 ; k<get_mp().get_mg()->get_np(l)+1 ; k++)
-	for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
-	  if (nullite_plm(j, get_mp().get_mg()->get_nt(l), k, 
-			  get_mp().get_mg()->get_np(l), base)) {
+      int nr ;
+      int base_r, m_quant, l_quant ;
+      
+      int conte = 0 ;
+      for (int l=0 ; l<nz ; l++) {
+	
+	nr = get_mp().get_mg()->get_nr(l) ;
+	
+	for (int k=0 ; k<get_mp().get_mg()->get_np(l)+1 ; k++)
+	  for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
 	    
-	    donne_lm(nz, l, j, k, base, m_quant, l_quant, base_r) ;
-	    
+	    so.get_spectral_va().base.give_quant_numbers 
+	      (l, k, j, m_quant, l_quant, base_r) ;
+ 
 	    switch (type_map) {
 	    case MAP_AFF: 
 	      operateurs[conte] = new 
 		Ope_poisson(nr, base_r, get_alpha(l), 
 			    get_beta(l), l_quant, dzpuis) ;
-	      variables[conte] = new Change_var(STD) ;
 	      break ;
 	    case MAP_LOG:
 	      if (mp_log->get_type(l) == AFFINE)
@@ -224,17 +250,37 @@ Param_elliptic::Param_elliptic(const Scalar& so) {
 		operateurs[conte] = new 
 		  Ope_sec_order (nr, base_r, get_alpha(l), get_beta(l), 
 				 1., 2. , l_quant) ;
-	      variables[conte] = new Change_var(STD) ;
 	      break ;
 	    default :
 	      cout << "Unknown mapping in Param_elliptic::Param_elliptic" 
 		   << endl ; 
+	      
 	    }
+	    conte ++ ;
 	  }
-	  conte ++ ;
-	}
-    }
+      }
   }
+  
+  // STD VARIABLE CHANGE :
+  var_F.annule_hard() ;
+  var_F.set_spectral_va().set_base (so.get_spectral_va().get_base()) ;
+  
+  var_G.set_etat_qcq() ;
+  var_G = 1 ;
+  var_G.std_spectral_base() ;
+  
+  done_F.annule_hard() ;
+  done_G.annule_hard() ;
+  
+  val_F_plus.set_etat_qcq() ;
+  val_F_minus.set_etat_qcq() ;
+  val_dF_plus.set_etat_qcq() ;
+  val_dF_minus.set_etat_qcq() ;
+  
+  val_G_plus.set_etat_qcq() ;
+  val_G_minus.set_etat_qcq() ;
+  val_dG_plus.set_etat_qcq() ;
+  val_dG_minus.set_etat_qcq() ;
 }
 
 Param_elliptic::~Param_elliptic () {
@@ -243,15 +289,11 @@ Param_elliptic::~Param_elliptic () {
   for (int l=0 ; l<get_mp().get_mg()->get_nzone() ; l++) 
     nbr += (get_mp().get_mg()->get_np(l)+1)*get_mp().get_mg()->get_nt(l) ;
 
-  for (int i=0 ; i<nbr ; i++) {
+  for (int i=0 ; i<nbr ; i++)
     if (operateurs[i] != 0x0)
       delete operateurs[i] ;
-    if (variables[i] != 0x0)
-      delete variables[i] ;
-  }
   
   delete [] operateurs ;
-  delete [] variables ;
 }
 
 void Param_elliptic::inc_l_quant (int zone) {
@@ -274,10 +316,15 @@ void Param_elliptic::inc_l_quant (int zone) {
 }
 
 
-void Param_elliptic::set_helmholtz_minus (int zone, double masse) {
+void Param_elliptic::set_helmholtz_minus (int zone, double masse, Scalar& source) {
+  
+  source.set_spectral_va().coef() ;
+  source.set_spectral_va().ylm() ;
+
   int nz = get_mp().get_mg()->get_nzone() ;
   int nr ;
   int conte = 0 ;
+  int m_quant, base_r_1d, l_quant ;
 
   switch (type_map) {
 
@@ -289,14 +336,13 @@ void Param_elliptic::set_helmholtz_minus (int zone, double masse) {
       
       for (int k=0 ; k<get_mp().get_mg()->get_np(l)+1 ; k++)
 	for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
-	  if ((operateurs[conte] != 0x0) && (l==zone)) {
-	    int old_base = operateurs[conte]->get_base_r() ;
-	    // PROVISOIRE, DANS LE NOYAU SEUL LE CAS SPHERIQUE EST IMPLEMENTE
-	    if ((old_base != R_CHEBI)) {
+	  if (l==zone) {
+	    if (operateurs[conte] != 0x0) {	    
 	      delete operateurs[conte] ;
-	      operateurs[conte] = new Ope_helmholtz_minus (nr, old_base, 
-							   get_alpha(l), 
-							   get_beta(l), masse) ;
+	      source.get_spectral_va().base.give_quant_numbers 
+		(l, k, j, m_quant, l_quant, base_r_1d) ;
+	      operateurs[conte] = new Ope_helmholtz_minus (nr, base_r_1d, l_quant, get_alpha(l), 
+							   get_beta(l) , masse) ;
 	    }
 	  }
 	  conte ++ ;
@@ -316,14 +362,13 @@ void Param_elliptic::set_helmholtz_minus (int zone, double masse) {
 	
 	for (int k=0 ; k<get_mp().get_mg()->get_np(l)+1 ; k++)
 	  for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
-	    if ((operateurs[conte] != 0x0) && (l==zone)) {
-	      int old_base = operateurs[conte]->get_base_r() ;
-	      // PROVISOIRE, DANS LE NOYAU SEUL LE CAS SPHERIQUE EST IMPLEMENTE
-	      if ((old_base != R_CHEBI)) {
+	    if (l==zone) {
+	      if (operateurs[conte] != 0x0) {	    
 		delete operateurs[conte] ;
-		operateurs[conte] = new Ope_helmholtz_minus (nr, old_base, 
-							     get_alpha(l), 
-							     get_beta(l), masse) ;
+		source.get_spectral_va().base.give_quant_numbers 
+		  (l, k, j, m_quant, l_quant, base_r_1d) ;
+		operateurs[conte] = new Ope_helmholtz_minus (nr, base_r_1d, l_quant,
+							     get_alpha(l), get_beta(l), masse) ;
 	      }
 	    }
 	    conte ++ ;
@@ -577,64 +622,20 @@ void Param_elliptic::set_sec_order (int zone, double a, double b, double c){
   }
 }
 
-void Param_elliptic::set_variable (int type_variable, int zone) {
-  int np, nt ;
+void Param_elliptic::set_variable_F (const Scalar& so) {
+
+  assert (so.get_etat() != ETATNONDEF) ;
+  assert (so.get_mp() == get_mp()) ;
   
-  int conte = 0 ;
-  for (int l=0 ; l<get_mp().get_mg()->get_nzone() ; l++) {
-    
-    np = get_mp().get_mg()->get_np(l) ;
-    nt = get_mp().get_mg()->get_nt(l) ;
-    
-    for (int k=0 ; k<np+1 ; k++)
-      for (int j=0 ; j<nt ; j++) {
-	if ((variables[conte] != 0x0) && (l==zone) && (k==0) && (j==0)) {
-	  delete variables[conte] ;
-	  variables[conte] = new Change_var(type_variable) ;
-	}
-	conte ++ ;
-      }
-  }
+  var_F = so ;
+  done_F.annule_hard() ;
 }
 
-void Param_elliptic::set_variable (int type_variable, double mult, int zone) {
- 
-  int np, nt ;
-  
-  int conte = 0 ;
-  for (int l=0 ; l<get_mp().get_mg()->get_nzone() ; l++) {
-    
-    np = get_mp().get_mg()->get_np(l) ;
-    nt = get_mp().get_mg()->get_nt(l) ;
+void Param_elliptic::set_variable_G (const Scalar& so) {
 
-    for (int k=0 ; k<np+1 ; k++)
-      for (int j=0 ; j<nt ; j++) {
-	if ((variables[conte] != 0x0) && (l==zone) && (k==0) && (j==0)) {
-	  delete variables[conte] ;
-	  variables[conte] = new Change_var(type_variable, mult) ;
-	}
-	conte ++ ;
-      }
-  }
-}
-
-void Param_elliptic::set_variable (int type_variable, double mult, double add, int zone) {
- 
-  int np, nt ;
+  assert (so.get_etat() != ETATNONDEF) ;
+  assert (so.get_mp() == get_mp()) ;
   
-  int conte = 0 ;
-  for (int l=0 ; l<get_mp().get_mg()->get_nzone() ; l++) {
-    
-    np = get_mp().get_mg()->get_np(l) ;
-    nt = get_mp().get_mg()->get_nt(l) ;
-   
-    for (int k=0 ; k<np+1 ; k++)
-      for (int j=0 ; j<nt ; j++) {
-	if ((variables[conte] != 0x0) && (l==zone) && (k==0) && (j==0)) {
-	  delete variables[conte] ;
-	  variables[conte] = new Change_var(type_variable, mult, add) ;
-	}
-	conte ++ ;
-      }
-  }
+  var_G = so ;
+  done_G.annule_hard() ;
 }

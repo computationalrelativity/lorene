@@ -23,6 +23,14 @@ char ope_helmholtz_minus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/08/24 09:14:45  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.4  2004/01/15 09:15:38  p_grandclement
  * Modification and addition of the Helmholtz operators
  *
@@ -46,14 +54,14 @@ char ope_helmholtz_minus_C[] = "$Header$" ;
 #include "ope_elementary.h"
 
 // Standard constructor :
-Ope_helmholtz_minus::Ope_helmholtz_minus (int nbr, int base, double alf, 
-					  double bet, double mas): 
-  Ope_elementary(nbr, base, alf, bet), masse (mas) {
+Ope_helmholtz_minus::Ope_helmholtz_minus (int nbr, int base, int lquant, 
+					  double alf, double bet, double mas): 
+  Ope_elementary(nbr, base, alf, bet), lq (lquant), masse (mas) {
 }
 
 // Constructor by copy :
 Ope_helmholtz_minus::Ope_helmholtz_minus (const Ope_helmholtz_minus& so) : 
-  Ope_elementary(so), masse (so.masse) {
+  Ope_elementary(so), lq(so.lq), masse (so.masse) {
 }
 
 // Destructor :
@@ -65,7 +73,7 @@ void Ope_helmholtz_minus::do_ope_mat() const {
     delete ope_mat ;
 
   ope_mat = new Matrice 
-    (helmholtz_minus_mat(nr, alpha, beta, masse, base_r)) ;
+    (helmholtz_minus_mat(nr, lq, alpha, beta, masse, base_r)) ;
 }
 
 void Ope_helmholtz_minus::do_ope_cl() const {
@@ -108,53 +116,44 @@ Tbl Ope_helmholtz_minus::get_solp (const Tbl& so) const {
 
 Tbl Ope_helmholtz_minus::get_solh() const {
   
-  double rlim, rminus, rplus;  
+  Tbl res (solh_helmholtz_minus (nr, lq, alpha, beta, masse, base_r)) ;
+   
+  // Un peu tricky...
+  if (res.get_ndim() == 1) {
+    Tbl val_lim (val_solp (res, alpha, base_r)) ;
 
-  switch (base_r) {
-  case R_CHEBU:
-    // SH est exp(-beta*r)/r
-    rlim = -0.5 / alpha ;
-    s_one_minus = exp(-masse*rlim)/rlim/sqrt(double(2)) ;
-    ds_one_minus = -s_one_minus * (masse+1./rlim) ;
-    break ;
+    s_one_plus   = val_lim(0) ;
+    s_one_minus  = val_lim(1) ; 
+    ds_one_plus  = val_lim(2) ;
+    ds_one_minus = val_lim(3) ;
 
-  case R_CHEB:
-    // SH_one est sin(masse*r)/r :
-    rminus = beta-alpha ;
-    rplus = beta+alpha ;
-    s_one_minus = exp(masse*rminus)/rminus/sqrt(double(2)) ;
-    ds_one_minus = exp(masse*rminus)*(masse/rminus - 1./rminus/rminus)/sqrt(double(2)) ;
-    s_one_plus = exp(masse*rplus)/rplus/sqrt(double(2)) ;
-    ds_one_plus = exp(masse*rplus)*(masse/rplus - 1./rplus/rplus)/sqrt(double(2)) ;
-    
-    // Sh two est cos(masse*r)/r :
-    s_two_minus = exp(-masse*rminus)/rminus/sqrt(double(2)) ;
-    ds_two_minus = exp(-masse*rminus)*(-masse/rminus - 1./rminus/rminus)/
-      sqrt(double(2)) ;
-    s_two_plus =  exp(-masse*rplus)/rplus/sqrt(double(2)) ;
-    ds_two_plus = exp(-masse*rplus)*(-masse/rplus - 1./rplus/rplus)/sqrt(double(2)) ;
-    break ;
-  case R_CHEBP:
-    // SH_one est sinh(masse*r)/r :
-    rminus = 0 ;
-    rplus = alpha ;
-    
-    s_one_minus = masse/sqrt(double(2)) ;
-    ds_one_minus = 0 ;
-    s_one_plus = (exp(masse*rplus)-exp(-masse*rplus))/rplus/
-      2./sqrt(double(2)) ;
-    ds_one_plus = ((masse*(exp(masse*rplus)+exp(-masse*rplus))/rplus/2.) - 
-		   (exp(masse*rplus)-exp(-masse*rplus))/rplus/rplus/2.)/
-		   sqrt(double(2)) ;
-    break ;
-  default:
-    cout << "Case unkwnown in Ope_helmholtz_minus::get_solh" << endl ;
-    abort() ;
-    break ;
   }
+  else {
+    Tbl auxi (nr) ;
+    auxi.set_etat_qcq() ;
+    for (int i=0 ; i<nr ; i++)
+      auxi.set(i) = res(0,i) ;
 
-  return solh_helmholtz_minus (nr, alpha, beta, masse, base_r) ;
+    Tbl val_one  (val_solp (auxi, alpha, base_r)) ; 
+   
+    s_one_plus   = val_one(0) ;
+    s_one_minus  = val_one(1) ; 
+    ds_one_plus  = val_one(2) ;
+    ds_one_minus = val_one(3) ;
+
+    for (int i=0 ; i<nr ; i++)
+      auxi.set(i) = res(1,i) ;
+
+    Tbl val_two  (val_solp (auxi, alpha, base_r)) ;
+
+    s_two_plus   = val_two(0) ;
+    s_two_minus  = val_two(1) ; 
+    ds_two_plus  = val_two(2) ;
+    ds_two_minus = val_two(3) ;   
+  }
+  return res ;
 }
+
 
 
 void Ope_helmholtz_minus::inc_l_quant() {

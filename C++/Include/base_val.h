@@ -34,6 +34,14 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/08/24 09:14:40  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.10  2004/03/22 13:12:40  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -472,6 +480,12 @@ class Base_val {
 	 * \f$Y^l_m\f$ basis.
 	 */
 	void ylm() ;  
+
+	/**
+	 * Computes the various quantum numbers and 1d radial base
+	 **/
+	void give_quant_numbers (int, int, int, 
+				 int&, int&, int&) const ;
 
    // Outputs
     // -------

@@ -32,6 +32,14 @@ char matrice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/08/24 09:14:43  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.7  2003/12/19 16:21:44  j_novak
  * Shadow hunt
  *
@@ -415,8 +423,8 @@ Tbl Matrice::val_propre() const {
     result.set_etat_qcq() ;
     
     for (int i=0 ; i<n ; i++) {
-	result.set(0, i) = wr[i] ;
-	result.set(1, i) = wi[i] ;
+	result.set(0, i) = wr[n-i-1] ;
+	result.set(1, i) = wi[n-i-1] ;
 	}
     
     delete [] wr ;
@@ -426,6 +434,59 @@ Tbl Matrice::val_propre() const {
     
     return result ; 
     
+}
+
+// les valeurs vecteurs propres de la matrice (appel de LAPACK) :
+Matrice Matrice::vect_propre() const {
+    
+    assert (etat != ETATNONDEF) ;
+    assert (std != 0x0) ;
+    
+    char* jobvl = "V" ;
+    char* jobvr = "N" ;
+    
+    int n = get_dim(0) ;
+    assert (n == get_dim(1)) ;
+    
+    double* a = new double [n*n] ;
+    for (int i=0 ; i<n*n ; i++)
+	a[i] = std->t[i] ;
+	
+    int lda = n ;
+    double* wr = new double[n] ;
+    double* wi = new double[n] ;
+    
+    int ldvl = n ;
+    double* vl = new double[ldvl*ldvl] ;
+    int ldvr = 1 ;
+    double* vr = 0x0 ;
+    
+    int ldwork = 4*n ;
+    double* work = new double[ldwork] ;
+    
+    int info ;
+    
+    F77_dgeev(jobvl, jobvr, &n, a, &lda, wr, wi, vl, &ldvl, vr, &ldvr,
+        work, &ldwork, &info) ;
+    
+   
+    Matrice res (n,n) ;
+    res.set_etat_qcq() ;
+
+    int conte = 0 ;
+    for (int i=0 ; i<n ; i++)
+      for (int j=0 ; j<n ; j++) {
+	res.set(j,n-i-1) = vl[conte] ;
+	conte ++ ;
+      }
+    
+    delete [] wr ;
+    delete [] wi ;
+    delete [] a ;
+    delete [] work ;
+    delete [] vl ;
+
+    return res ;
 }
 
 // Calcul le determinant :

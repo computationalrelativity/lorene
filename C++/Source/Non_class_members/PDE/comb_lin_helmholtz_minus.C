@@ -25,6 +25,14 @@ char comb_lin_helmholtz_minusC[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/08/24 09:14:44  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.2  2004/01/15 09:15:37  p_grandclement
  * Modification and addition of the Helmholtz operators
  *
@@ -58,38 +66,6 @@ Matrice _cl_helmholtz_minus_pas_prevu (const Matrice& so) {
 
 
 
-		//-------------------
-	       //--  R_CHEBP   -----
-	      //-------------------
-
-
-Matrice _cl_helmholtz_minus_r_chebp (const Matrice &source) {
-    
-  int n = source.get_dim(0) ;
-  assert (n == source.get_dim(1)) ;
-
-  Matrice barre(source) ;
-  
-  int dirac = 1 ;
-  for (int i=0 ; i<n-2 ; i++) {
-    for (int j=0 ; j<n ; j++)
-      barre.set(i, j) = (1+dirac)*source(i, j)-source(i+2, j) ;
-    if (i==0) dirac = 0 ;
-  }
-  
-  Matrice tilde(barre) ;
-  for (int i=0 ; i<n-4 ; i++)
-    for (int j=0 ; j<n ; j++)
-      tilde.set(i, j) = barre(i, j)-barre(i+2, j) ;
-  
-  Matrice res(tilde) ;
-  for (int i=0 ; i<n-4 ; i++)
-    for (int j=0 ; j<n ; j++)
-      res.set(i, j) = tilde(i, j)-tilde(i+1, j) ;
-  
-  return res ;
-}
-           
 		//-------------------
 	       //--  R_CHEB   ------
 	      //-------------------
@@ -173,7 +149,6 @@ Matrice cl_helmholtz_minus (const Matrice &source, int base_r) {
       // Les routines existantes
       cl_helmholtz_minus[R_CHEB >> TRA_R] = _cl_helmholtz_minus_r_cheb ;
       cl_helmholtz_minus[R_CHEBU >> TRA_R] = _cl_helmholtz_minus_r_chebu ;
-      cl_helmholtz_minus[R_CHEBP >> TRA_R] = _cl_helmholtz_minus_r_chebp ;
     }
     
     Matrice res(cl_helmholtz_minus[base_r](source)) ;
@@ -212,31 +187,6 @@ Tbl _cl_helmholtz_minus_r_cheb (const Tbl& source) {
   Tbl res(barre) ;
   for (int i=0 ; i<n-4 ; i++)
     res.set(i) = barre(i)-barre(i+2) ;
-
-  return res ;
-}
-              
-               //-------------------
-	       //--  R_CHEBP  -------
-	      //--------------------
-Tbl _cl_helmholtz_minus_r_chebp (const Tbl& source) {
-  
-  int n = source.get_dim(0) ;
-  
-  Tbl barre(source) ;
-  int dirac = 1 ;
-  for (int i=0 ; i<n-2 ; i++) {
-    barre.set(i) = (1+dirac)*source(i)-source(i+2) ;
-    if (i==0) dirac = 0 ;
-  }
-     
-  Tbl tilde(barre) ;
-  for (int i=0 ; i<n-4 ; i++)
-    tilde.set(i) = barre(i)-barre(i+2) ;
-     
-  Tbl res(tilde) ;
-  for (int i=0 ; i<n-4 ; i++)
-    res.set(i) = tilde(i)-tilde(i+1) ;
 
   return res ;
 }
@@ -291,7 +241,6 @@ Tbl cl_helmholtz_minus (const Tbl &source, int base_r) {
     // Les routines existantes
     cl_helmholtz_minus[R_CHEB >> TRA_R] = _cl_helmholtz_minus_r_cheb ;
     cl_helmholtz_minus[R_CHEBU >> TRA_R] = _cl_helmholtz_minus_r_chebu ;
-    cl_helmholtz_minus[R_CHEBP >> TRA_R] = _cl_helmholtz_minus_r_chebp ;
   }
     
     Tbl res(cl_helmholtz_minus[base_r](source)) ;

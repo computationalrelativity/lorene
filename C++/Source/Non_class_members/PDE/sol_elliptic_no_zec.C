@@ -23,6 +23,14 @@ char sol_elliptic_no_zec_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/08/24 09:14:44  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.4  2004/06/22 08:49:58  p_grandclement
  * Addition of everything needed for using the logarithmic mapping
  *
@@ -154,18 +162,18 @@ Mtbl_cf elliptic_solver_no_zec  (const Param_elliptic& ope_var, const Mtbl_cf& s
 	//  Noyau :
 	//---------
 	conte = start ;
-	double rlim = ope_var.get_mp().val_r_jk (0,1,j,k) ;
-	systeme.set(0,0) = ope_var.variables[conte]->val_G(rlim) * 
+       
+	systeme.set(0,0) = ope_var.G_plus(0) * 
 	  ope_var.operateurs[conte]->val_sh_one_plus() ;
 	systeme.set(1,0) = 
-	  ope_var.variables[conte]->val_der_G(rlim) * ope_var.operateurs[conte]->val_sh_one_plus() +  
-	  ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->der_sh_one_plus() ;
+	  ope_var.dG_plus(0) * ope_var.operateurs[conte]->val_sh_one_plus() +  
+	  ope_var.G_plus(0) * ope_var.operateurs[conte]->der_sh_one_plus() ;
 	
-	sec_membre.set(0) -= ope_var.variables[conte]->val_F(rlim) + 
-	  ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->val_sp_plus() ;
-	sec_membre.set(1) -= ope_var.variables[conte]->val_der_F(rlim) + 
-	  ope_var.variables[conte]->val_der_G(rlim) * ope_var.operateurs[conte]->val_sp_plus() + 
-	  ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->der_sp_plus() ;
+	sec_membre.set(0) -= ope_var.F_plus(0,k,j) + 
+	  ope_var.G_plus(0) * ope_var.operateurs[conte]->val_sp_plus() ;
+	sec_membre.set(1) -= ope_var.dF_plus(0,k,j) + 
+	  ope_var.dG_plus(0) * ope_var.operateurs[conte]->val_sp_plus() + 
+	  ope_var.G_plus(0) * ope_var.operateurs[conte]->der_sp_plus() ;
 
 	//----------
 	// SHELLS :
@@ -179,55 +187,48 @@ Mtbl_cf elliptic_solver_no_zec  (const Param_elliptic& ope_var, const Mtbl_cf& s
 	  int nt_prec = source.get_mg()->get_nt(l-1) ;
 	  conte += (np_prec+1)*nt_prec ;
 	  
-	  rlim = ope_var.get_mp().val_r_jk (l, -1, j,k)  ;
-
-	  systeme.set(2*l-2, 2*l-1) = -ope_var.variables[conte]->val_G(rlim) * 
+	  systeme.set(2*l-2, 2*l-1) = -ope_var.G_minus(l) * 
 	    ope_var.operateurs[conte]->val_sh_one_minus() ;
-	  systeme.set(2*l-2, 2*l) = - ope_var.variables[conte]->val_G(rlim) * 
+	  systeme.set(2*l-2, 2*l) = - ope_var.G_minus(l) * 
 	    ope_var.operateurs[conte]->val_sh_two_minus() ;
 	  systeme.set(2*l-1, 2*l-1) = 
-	    -ope_var.variables[conte]->val_der_G(rlim)*ope_var.operateurs[conte]->val_sh_one_minus()-  
-	    ope_var.variables[conte]->val_G(rlim)*ope_var.operateurs[conte]->der_sh_one_minus() ;
+	    -ope_var.dG_minus(l)*ope_var.operateurs[conte]->val_sh_one_minus()-  
+	    ope_var.G_minus(l)*ope_var.operateurs[conte]->der_sh_one_minus() ;
 	  systeme.set(2*l-1, 2*l) =
-	    -ope_var.variables[conte]->val_der_G(rlim)*ope_var.operateurs[conte]->val_sh_two_minus()-  
-	    ope_var.variables[conte]->val_G(rlim)*ope_var.operateurs[conte]->der_sh_two_minus() ;
+	    -ope_var.dG_minus(l)*ope_var.operateurs[conte]->val_sh_two_minus()-  
+	    ope_var.G_minus(l)*ope_var.operateurs[conte]->der_sh_two_minus() ;
 	  
-	  sec_membre.set(2*l-2) += ope_var.variables[conte]->val_F(rlim) + 
-	    ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->val_sp_minus() ;
-	  sec_membre.set(2*l-1) += ope_var.variables[conte]->val_der_F(rlim) + 
-	    ope_var.variables[conte]->val_der_G(rlim) * ope_var.operateurs[conte]->val_sp_minus() + 
-	    ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->der_sp_minus() ;
+	  sec_membre.set(2*l-2) += ope_var.F_minus(l,k,j) + 
+	    ope_var.G_minus(l) * ope_var.operateurs[conte]->val_sp_minus() ;
+	  sec_membre.set(2*l-1) += ope_var.dF_minus(l,k,j) + 
+	    ope_var.dG_minus(l) * ope_var.operateurs[conte]->val_sp_minus() + 
+	    ope_var.G_minus(l) * ope_var.operateurs[conte]->der_sp_minus() ;
 	  
 	  // Valeurs en +1 :
-	  
-	  rlim = ope_var.get_mp().val_r_jk (l, 1, j,k) ;
-	  
-	  systeme.set(2*l, 2*l-1) = ope_var.variables[conte]->val_G(rlim) * 
+	  systeme.set(2*l, 2*l-1) = ope_var.G_plus(l) * 
 	    ope_var.operateurs[conte]->val_sh_one_plus() ;
-	  systeme.set(2*l, 2*l) = ope_var.variables[conte]->val_G(rlim) * 
+	  systeme.set(2*l, 2*l) = ope_var.G_plus(l) * 
 	    ope_var.operateurs[conte]->val_sh_two_plus() ;
 	  if (l!=nz-2) {
 	    systeme.set(2*l+1, 2*l-1) = 
-	    ope_var.variables[conte]->val_der_G(rlim)*ope_var.operateurs[conte]->val_sh_one_plus()+  
-	    ope_var.variables[conte]->val_G(rlim)*ope_var.operateurs[conte]->der_sh_one_plus() ;
+	    ope_var.dG_plus(l)*ope_var.operateurs[conte]->val_sh_one_plus()+  
+	    ope_var.G_plus(l)*ope_var.operateurs[conte]->der_sh_one_plus() ;
 	    systeme.set(2*l+1, 2*l) =
-	      ope_var.variables[conte]->val_der_G(rlim)*ope_var.operateurs[conte]->val_sh_two_plus()+
-	      ope_var.variables[conte]->val_G(rlim)*ope_var.operateurs[conte]->der_sh_two_plus() ;
+	      ope_var.dG_plus(l)*ope_var.operateurs[conte]->val_sh_two_plus()+
+	      ope_var.G_plus(l)*ope_var.operateurs[conte]->der_sh_two_plus() ;
 	  }
 
-	 
-
 	  if (l!=nz-2) {
-	    sec_membre.set(2*l) -= ope_var.variables[conte]->val_F(rlim) + 
-	      ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->val_sp_plus();
+	    sec_membre.set(2*l) -= ope_var.F_plus(l,k,j) + 
+	      ope_var.G_plus(l) * ope_var.operateurs[conte]->val_sp_plus();
 
-	    sec_membre.set(2*l+1) -=  ope_var.variables[conte]->val_der_F(rlim) + 
-	      ope_var.variables[conte]->val_der_G(rlim) * ope_var.operateurs[conte]->val_sp_plus() + 
-	      ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->der_sp_plus() ;
+	    sec_membre.set(2*l+1) -=  ope_var.dF_plus(l,k,j) + 
+	      ope_var.dG_plus(l) * ope_var.operateurs[conte]->val_sp_plus() + 
+	      ope_var.G_plus(l) * ope_var.operateurs[conte]->der_sp_plus() ;
 	}
 	  else
-	    sec_membre.set(2*l) -=  -valeur + ope_var.variables[conte]->val_F(rlim) + 
-	      ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->val_sp_plus();
+	    sec_membre.set(2*l) -=  -valeur + ope_var.F_plus(l,k,j) + 
+	      ope_var.G_plus(l) * ope_var.operateurs[conte]->val_sp_plus();
 	}
 	
 	// On resout le systeme ...

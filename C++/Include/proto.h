@@ -35,6 +35,14 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2004/08/24 09:14:40  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.20  2004/06/22 08:49:57  p_grandclement
  * Addition of everything needed for using the logarithmic mapping
  *
@@ -375,13 +383,13 @@ Tbl _solh_r_chebu (int, int, double) ;
 Tbl solh (int, int, double, int) ;
 
 // Routines helmholtz minus :
-Matrice helmholtz_minus_mat(int , double , double , double, int ) ;
+Matrice helmholtz_minus_mat(int , int, double , double , double, int ) ;
 Matrice cl_helmholtz_minus (const Matrice&, int) ;
 Tbl cl_helmholtz_minus (const Tbl&, int) ;
 Matrice prepa_helmholtz_minus_nondege (const Matrice&, int) ;
 Tbl solp_helmholtz_minus (const Matrice&, const Matrice&, const Tbl&, 
 			  double, double, int) ;
-Tbl solh_helmholtz_minus (int, double, double, double, int) ;
+Tbl solh_helmholtz_minus (int, int, double, double, double, int) ;
 
 // Routines helmholtz plus :
 Matrice helmholtz_plus_mat(int , double , double , double, int ) ;

@@ -29,6 +29,14 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/08/24 09:14:40  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.7  2004/06/22 08:49:57  p_grandclement
  * Addition of everything needed for using the logarithmic mapping
  *
@@ -347,20 +355,22 @@ class Ope_poisson : public Ope_elementary {
  **/
 class Ope_helmholtz_minus : public Ope_elementary {
 
- protected:
+ protected: 
+  int lq ; ///< The quantum number \e l
   double masse ; ///< The mass parameter \e m .
-
+ 
  public:
    /**
    * Standard constructor.
    * 
    * @param nbr [input] number of radial points.
    * @param baser [input] radial basis of decomposition.
+   * @param lq [input] the quatum number \e l.
    * @param alf [input] parameter \f$\alpha\f$ of the mapping.
    * @param bet [input] parameter \f$\beta\f$ of the mapping.
    * @param mas [input] mass parameter \e m .
    **/
-  Ope_helmholtz_minus (int nbr, int baser, double alf, double bet, 
+  Ope_helmholtz_minus (int nbr, int baser, int lq, double alf, double bet, 
 		       double mas) ;
   Ope_helmholtz_minus (const Ope_helmholtz_minus&) ; ///< Constructor by copy
   virtual ~Ope_helmholtz_minus() ; ///< Destructor
@@ -622,4 +632,276 @@ class Ope_pois_vect_r : public Ope_poisson {
   virtual Tbl get_solh() const ;
 } ;
 
+/**
+ * Class for the operator of the Poisson equation in 2D.
+ *
+ * It is implemented in every type of domains.
+ **/
+
+class Ope_poisson_2d : public Ope_elementary {
+
+ protected:
+  int l_quant ; ///< quantum number
+  int dzpuis ; ///< the associated dzpuis, if in the compactified domain. 
+  
+ public:
+  /**
+   * Standard constructor.
+   * 
+   * @param nbr [input] number of radial points.
+   * @param baser [input] radial basis of decomposition.
+   * @param alf [input] parameter \f$\alpha\f$ of the mapping.
+   * @param bet [input] parameter \f$\beta\f$ of the mapping.
+   * @param lq [input] quantum number \e l .
+   * @param dz [input] dzpuis of the source.
+   **/
+  Ope_poisson_2d (int nbr, int baser, double alf, double bet, int lq, int dz) ;
+  Ope_poisson_2d (const Ope_poisson_2d&) ; ///< Constructor by copy
+  virtual ~Ope_poisson_2d() ; ///< Destructor
+
+  /// Returns the associated dzpuis, if in the compactified domain.
+  int get_dzpuis() {return dzpuis ;} ;
+
+  /// Returns the quantum number \e l
+  int get_lquant() {return l_quant;} ;
+
+ private:
+  /**
+   * Computes the matrix of the operator.
+   **/
+  virtual void do_ope_mat() const ;
+  /**
+   * Computes the banded-matrix of the operator.
+   **/
+  virtual void do_ope_cl() const ;
+  /**
+   * Computes the non-degenerated matrix of the operator.
+   **/
+  virtual void do_non_dege() const ;  
+  
+ public:
+  /**
+   * Computes the particular solution, given the source \c so .
+   **/
+  virtual Tbl get_solp(const Tbl& so) const ;
+  /**
+   * Computes the homogeneous solutions(s).
+   **/
+  virtual Tbl get_solh() const ;
+  /**
+   * Increases the quatum number \e l by one unit.
+   **/
+  virtual void inc_l_quant() ;
+  /**
+   * Decreases the quatum number \e l by one unit.
+   **/
+  virtual void dec_l_quant() ;
+
+} ;
+
+/**
+ * Class for the operator of the Helmholtz equation in 2D.
+ *
+ **/
+
+class Ope_helmholtz_minus_2d : public Ope_elementary {
+
+ protected:
+  int l_quant ; ///< quantum number
+  double masse ; ///< The mass term.
+  int dzpuis ; ///< the associated dzpuis, if in the compactified domain. 
+  
+ public:
+  /**
+   * Standard constructor.
+   * 
+   * @param nbr [input] number of radial points.
+   * @param baser [input] radial basis of decomposition.
+   * @param alf [input] parameter \f$\alpha\f$ of the mapping.
+   * @param bet [input] parameter \f$\beta\f$ of the mapping.
+   * @param lq [input] quantum number \e l .
+   * @param masse [input] mass term.
+   * @param dz [input] dzpuis of the source.
+   **/
+  Ope_helmholtz_minus_2d (int nbr, int baser, double alf, double bet, int lq, double masse, int dz) ;
+  Ope_helmholtz_minus_2d (const Ope_helmholtz_minus_2d&) ; ///< Constructor by copy
+  virtual ~Ope_helmholtz_minus_2d() ; ///< Destructor
+
+  /// Returns the associated dzpuis, if in the compactified domain.
+  int get_dzpuis() {return dzpuis ;} ;
+
+  /// Returns the quantum number \e l
+  int get_lquant() {return l_quant;} ;
+
+  /// Returns the mass term
+  double get_masse() {return masse;} ;
+
+ private:
+  /**
+   * Computes the matrix of the operator.
+   **/
+  virtual void do_ope_mat() const ;
+  /**
+   * Computes the banded-matrix of the operator.
+   **/
+  virtual void do_ope_cl() const ;
+  /**
+   * Computes the non-degenerated matrix of the operator.
+   **/
+  virtual void do_non_dege() const ;  
+  
+ public:
+  /**
+   * Computes the particular solution, given the source \c so .
+   **/
+  virtual Tbl get_solp(const Tbl& so) const ;
+  /**
+   * Computes the homogeneous solutions(s).
+   **/
+  virtual Tbl get_solh() const ;
+  /**
+   * Increases the quatum number \e l by one unit.
+   **/
+  virtual void inc_l_quant() ;
+  /**
+   * Decreases the quatum number \e l by one unit.
+   **/
+  virtual void dec_l_quant() ;
+} ;
+
+/**
+ * Class for the operator of the Poisson equation in pseudo 1d.
+ *
+ **/
+
+class Ope_poisson_pseudo_1d : public Ope_elementary {
+
+ protected:
+  int l_quant ; ///< quantum number
+    
+ public:
+  /**
+   * Standard constructor.
+   * 
+   * @param nbr [input] number of radial points.
+   * @param baser [input] radial basis of decomposition.
+   * @param alf [input] parameter \f$\alpha\f$ of the mapping.
+   * @param bet [input] parameter \f$\beta\f$ of the mapping.
+   * @param lq [input] quantum number \e l .
+   **/
+  Ope_poisson_pseudo_1d (int nbr, int baser, double alf, double bet, int lq) ;
+  Ope_poisson_pseudo_1d (const Ope_poisson_pseudo_1d&) ; ///< Constructor by copy
+  virtual ~Ope_poisson_pseudo_1d() ; ///< Destructor
+
+  /// Returns the quantum number \e l
+  int get_lquant() {return l_quant;} ;
+
+ private:
+  /**
+   * Computes the matrix of the operator.
+   **/
+  virtual void do_ope_mat() const ;
+  /**
+   * Computes the banded-matrix of the operator.
+   **/
+  virtual void do_ope_cl() const ;
+  /**
+   * Computes the non-degenerated matrix of the operator.
+   **/
+  virtual void do_non_dege() const ;  
+  
+ public:
+  /**
+   * Computes the particular solution, given the source \c so .
+   **/
+  virtual Tbl get_solp(const Tbl& so) const ;
+  /**
+   * Computes the homogeneous solutions(s).
+   **/
+  virtual Tbl get_solh() const ;
+  /**
+   * Increases the quatum number \e l by one unit.
+   **/
+  virtual void inc_l_quant() ;
+  /**
+   * Decreases the quatum number \e l by one unit.
+   **/
+  virtual void dec_l_quant() ;
+
+} ;
+
+
+/**
+ * Class for the operator of the modified Helmholtz equation in pseudo-1d.
+ *
+ * It is implemented only in the external domain
+ **/
+
+class Ope_helmholtz_minus_pseudo_1d : public Ope_elementary {
+
+ protected:
+  int l_quant ; ///< quantum number
+  double masse ; ///< The mass term.
+  int dzpuis ; ///< the associated dzpuis, if in the compactified domain. 
+  
+ public:
+  /**
+   * Standard constructor.
+   * 
+   * @param nbr [input] number of radial points.
+   * @param baser [input] radial basis of decomposition.
+   * @param alf [input] parameter \f$\alpha\f$ of the mapping.
+   * @param bet [input] parameter \f$\beta\f$ of the mapping.
+   * @param lq [input] quantum number \e l .
+   * @param masse [input] mass term.
+   * @param dz [input] dzpuis of the source.
+   **/
+  Ope_helmholtz_minus_pseudo_1d (int nbr, int baser, double alf, double bet, 
+				 int lq, double masse, int dz) ;
+  Ope_helmholtz_minus_pseudo_1d (const Ope_helmholtz_minus_pseudo_1d&) ; ///< Constructor by copy
+  virtual ~Ope_helmholtz_minus_pseudo_1d() ; ///< Destructor
+
+  /// Returns the associated dzpuis, if in the compactified domain.
+  int get_dzpuis() {return dzpuis ;} ;
+
+  /// Returns the quantum number \e l
+  int get_lquant() {return l_quant;} ;
+
+  /// Returns the mass term
+  double get_masse() {return masse;} ;
+
+ private:
+  /**
+   * Computes the matrix of the operator.
+   **/
+  virtual void do_ope_mat() const ;
+  /**
+   * Computes the banded-matrix of the operator.
+   **/
+  virtual void do_ope_cl() const ;
+  /**
+   * Computes the non-degenerated matrix of the operator.
+   **/
+  virtual void do_non_dege() const ;  
+  
+ public:
+  /**
+   * Computes the particular solution, given the source \c so .
+   **/
+  virtual Tbl get_solp(const Tbl& so) const ;
+  /**
+   * Computes the homogeneous solutions(s).
+   **/
+  virtual Tbl get_solh() const ;
+  /**
+   * Increases the quatum number \e l by one unit.
+   **/
+  virtual void inc_l_quant() ;
+  /**
+   * Decreases the quatum number \e l by one unit.
+   **/
+  virtual void dec_l_quant() ;
+} ;
+
 # endif
+

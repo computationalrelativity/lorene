@@ -31,6 +31,14 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/08/24 09:14:40  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.7  2004/03/22 13:12:42  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -301,7 +309,12 @@ class Matrice {
 	 * eigenvalues. The real parts are in \c Tbl \e (0, *) and 
 	 * the imaginary parts in \c Tbl \e (1, *).
 	 */
-	Tbl val_propre() const ;
+	Tbl val_propre() const ;	
+	/**
+	 * Returns the eigenvectors of the matrix, calculated using \b LAPACK.
+	 *
+	 */
+	Matrice vect_propre() const ;
 	
 	/**
 	 * Computes the determinant of the matrix, using \b LAPACK and the

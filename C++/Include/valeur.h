@@ -35,6 +35,14 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/08/24 09:14:40  p_grandclement
+ * Addition of some new operators, like Poisson in 2d... It now requieres the
+ * GSL library to work.
+ *
+ * Also, the way a variable change is stored by a Param_elliptic is changed and
+ * no longer uses Change_var but rather 2 Scalars. The codes using that feature
+ * will requiere some modification. (It should concern only the ones about monopoles)
+ *
  * Revision 1.10  2004/07/06 13:36:27  j_novak
  * Added methods for desaliased product (operator |) only in r direction.
  *
@@ -428,6 +436,16 @@ class Valeur {
 	void coef_i() const ;	///< Computes the physical value of \c *this 
 	void ylm() ;	    ///< Computes the coefficients \f$Y_l^m\f$ of \c *this 
 	void ylm_i() ;	    ///< Inverse of \c ylm()  
+
+	/**
+	 * Set the basis to the eigenvalues of 
+	 * \f$ \partial^2_theta - \cos\theta/\sin\theta \partial_\theta\f$.
+	 **/
+	void val_propre_1d() ;
+	/**
+	 * Inverse transformation of \c val_propre_1d.
+	 **/
+	void val_propre_1d_i() ;
 	
 	/// Return the bases for spectral expansions (member \c base )
 	const Base_val& get_base() const {return base; } ; 
@@ -758,6 +776,8 @@ class Valeur {
 
     friend class Cmp ;	    ///< Friend class
     friend class Scalar ;	    ///< Friend class
+    friend void rotate_propre_pair (Valeur&, bool) ; ///< Friend fonction.
+    friend void rotate_propre_impair (Valeur&, bool) ; ///< Friend fonction.
 };
 ostream& operator<<(ostream& , const Valeur& ) ;   
 
