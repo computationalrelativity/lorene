@@ -33,3 +33,14 @@ You must install the package XFree86-devel-4.0.3-5.i386.rpm from CDROM.
 This packages provides
 	- makedepend (required for setting the dependencies in Lorene Makefiles)
 	- Xlib.h (required for installing PGPLOT)
+
+
+Debian 3.0
+==========
+You need to have at least the following packages installed:
+	- xutils: provides makedepend
+	- xlibs-dev: contains Xlib.h 
+	- doc++ (version in woody: 3.4.9)
+	- pgplot5 (contains libpgplot and libcpgplot)
+	- lapack, lapack-dev  (depends on blas)
+	
