@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2005/02/07 10:30:09  f_limousin
+ * Add the regularisation in the case N=0 on the horizon.
+ *
  * Revision 1.18  2004/12/31 15:33:37  f_limousin
  * Change the constructor from a file and the standard constructor.
  *
@@ -133,6 +136,9 @@ class Isol_hor : public Time_slice_conf {
   /// Angular velocity in LORENE's units.
   double omega ; 
 
+  /// Intensity of the correction on the shift vector. 
+  double regul ; 
+
   /// Values at successive time steps of the lapse function \f$ N_{auto} \f$.
   mutable Evolution_std<Scalar> n_auto_evol ; 
 
@@ -171,6 +177,10 @@ class Isol_hor : public Time_slice_conf {
    */        
   mutable Evolution_std<Sym_tensor> aa_comp_evol ; 
   
+  /** Values at successive time steps of the components \f$ A^{ij}*2N \f$
+   */        
+  mutable Evolution_std<Sym_tensor> aa_nn ; 
+
   /// 3 metric tilde
   Metric met_gamt ;
   
@@ -366,6 +376,16 @@ class Isol_hor : public Time_slice_conf {
   void beta_comp (const Isol_hor& comp) ;
 
   /**
+   * Computes the viriel error, that is the difference between the ADM 
+   * and the Komar 
+   * masses,  calculated by the asymptotic behaviours of 
+   * respectively \f$\Psi\f$ and \e N .
+   * 
+   * \b WARNING  this should only be used for an isolated black hole.
+   */
+  double viriel_seul () const ;
+
+  /**
    * Sets the values of the fields to :
    * \li \c n_auto  \f$= \frac{1}{2}-2\frac{a}{r}\f$
    * \li \c n_comp   \f$= \frac{1}{2}\f$
@@ -538,6 +558,11 @@ class Isol_hor : public Time_slice_conf {
 
   /// Dirichlet boundary condition for \c b_tilde
   Valeur boundary_b_tilde_Dir() ;
+ 
+
+  /// Regularisation of the shift :
+  double regularisation (const Vector& shift_auto, const Vector& shift_comp, 
+			 double omega) ;
 
 
   // Outputs
