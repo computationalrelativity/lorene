@@ -29,6 +29,9 @@ char init_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/01/03 07:59:02  f_limousin
+ * Drawings.
+ *
  * Revision 1.2  2004/12/31 15:45:26  f_limousin
  * Change the parameters in par_init.d
  *
@@ -43,7 +46,6 @@ char init_bh_C[] = "$Header$" ;
 //standard
 #include <stdlib.h>
 #include <math.h>
-//#include <fstream.h>
 
 // LORENE
 #include "type_parite.h"
@@ -128,6 +130,21 @@ int main() {
     bin(1).sauve(fich, true) ;
     bin(2).sauve(fich, true) ;
     fclose(fich) ;
+
+
+    // Drawings
+    const Coord& r = bin(1).get_mp().r ;        // r field 
+    Mtbl usr = 1 / r ;
+    Scalar unsr(bin(1).get_mp()) ;
+    unsr = usr ;
+    
+    Scalar temp = 1. + unsr ;
+    temp.std_spectral_base() ;
+
+    des_profile(bin(1).nn(), 1.00001, 10, M_PI/2., 0., "bin(1).nn()") ;
+    des_profile(bin(1).psi(), 1.00001, 10, M_PI/2., 0., "bin(1).psi()") ;
+    des_profile(temp, 1.00001, 10, M_PI/2., 0., "psi ana()") ;
+    des_profile(temp-bin(1).psi(), 1.00001, 10, M_PI/2., 0., "diff psi") ;
   
     delete [] nr_tab ;
     delete [] nt_tab ;
