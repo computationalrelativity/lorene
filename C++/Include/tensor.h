@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.44  2004/02/16 10:48:06  e_gourgoulhon
+ * Added "class Tensor_sym;" at the beginning.
+ *
  * Revision 1.43  2004/02/15 21:53:48  e_gourgoulhon
  * Modif. comments: suppressed the mention *** under development ***.
  *
@@ -200,6 +203,7 @@
 
 class Scalar ;
 class Vector ; 
+class Tensor_sym ;
 class Sym_tensor ;
 class Metric ;
 
@@ -844,7 +848,7 @@ class Tensor {
 	friend class Scalar ;
 	friend class Vector ;
 	friend class Sym_tensor ;
-        friend class Tensor_sym ; 
+    friend class Tensor_sym ; 
 	friend class Metric ;
   
     // Mathematical operators
