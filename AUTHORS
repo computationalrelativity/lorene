@@ -1,6 +1,14 @@
 
-The following people have contributed to the C++ part
-of LORENE (list in alphabetic order): 
+LORENE version 1 has been developed from January 1997 to February 1999 by
+Jean-Alain Marck and Eric Gourgoulhon at Departement d'Astrophysique
+Relativiste et de Cosmologie, CNRS / Observatoire de Paris, Meudon, France.
+
+LORENE version 2 (the present one) has been developed from February 1999 by
+Eric Gourgoulhon, Philippe Grandclement and Jean-Alain Marck. They have been
+joined in October 1999 by Jerome Novak.
+
+At 20 November 2001, the people who have contributed to the C++ part
+of LORENE are (in alphabetic order):
 
 	Joachim Frieben
 	Dorota Gondek-Rosinska
@@ -12,8 +20,7 @@ of LORENE (list in alphabetic order):
 	Julian Leszek Zdunik
 
 
-The following people have contributed to the F77 part
-of LORENE (list in alphabetic order): 
+The F77 part of LORENE has been developed by (in alphabetic order):
 
 	Silvano Bonazzola
 	Joachim Frieben
