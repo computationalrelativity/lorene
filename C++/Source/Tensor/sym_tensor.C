@@ -35,6 +35,9 @@ char sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2005/04/04 15:25:24  j_novak
+ * Added new members www, xxx, ttt and the associated methods.
+ *
  * Revision 1.18  2005/04/01 14:28:32  j_novak
  * Members p_eta and p_mu are now defined in class Sym_tensor.
  *
@@ -162,7 +165,9 @@ Sym_tensor::Sym_tensor(const Sym_tensor& source)
     }
     if (source.p_eta != 0x0) p_eta = new Scalar( *(source.p_eta) ) ; 
     if (source.p_mu != 0x0) p_mu = new Scalar( *(source.p_mu) ) ; 
-
+    if (source.p_www != 0x0) p_www = new Scalar( *(source.p_www) ) ; 
+    if (source.p_xxx != 0x0) p_xxx = new Scalar( *(source.p_xxx) ) ; 
+  
 }   
 
 
@@ -236,6 +241,8 @@ void Sym_tensor::operator=(const Sym_tensor& source) {
     }
     if (source.p_eta != 0x0) p_eta = new Scalar( *(source.p_eta) ) ; 
     if (source.p_mu != 0x0) p_mu = new Scalar( *(source.p_mu) ) ; 
+    if (source.p_www != 0x0) p_www = new Scalar( *(source.p_www) ) ; 
+    if (source.p_xxx != 0x0) p_xxx = new Scalar( *(source.p_xxx) ) ; 
     
 }
 
@@ -266,6 +273,9 @@ void Sym_tensor::del_deriv() const {
 	
 	if (p_eta != 0x0) delete p_eta ; 
 	if (p_mu != 0x0) delete p_mu ; 
+	if (p_www != 0x0) delete p_www ; 
+	if (p_xxx != 0x0) delete p_xxx ; 
+	if (p_ttt != 0x0) delete p_ttt ; 
 
 	set_der_0x0() ;
 	Tensor::del_deriv() ;
@@ -278,6 +288,9 @@ void Sym_tensor::set_der_0x0() const {
     set_der_met_0x0(i) ;
   p_eta = 0x0 ; 
   p_mu = 0x0 ; 
+  p_www = 0x0 ; 
+  p_xxx = 0x0 ; 
+  p_ttt = 0x0 ; 
 
 }
 

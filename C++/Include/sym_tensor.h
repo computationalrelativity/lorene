@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.28  2005/04/04 15:25:22  j_novak
+ * Added new members www, xxx, ttt and the associated methods.
+ *
  * Revision 1.27  2005/04/01 14:28:31  j_novak
  * Members p_eta and p_mu are now defined in class Sym_tensor.
  *
@@ -198,6 +201,47 @@ class Sym_tensor : public Tensor_sym {
 	 *\f] 
 	 */
 	mutable Scalar* p_mu ;
+
+	/** Field \e W such that the components \f$T^{\theta\theta}, 
+	 * T^{\varphi\varphi}\f$ and \f$T^{\theta\varphi}\f$
+	 * of the tensor are written (has only meaning with spherical components!):
+	 * \f[
+	 * \frac{1}{2}\left(T^{\theta\theta} - T^{\varphi\varphi} \right) 
+	 * = \frac{\partial^2 W}{\partial\theta^2} - \frac{1}{\tan
+	 * \theta} \frac{\partial W}{\partial \theta} - \frac{1}{\sin^2 \theta} 
+	 * \frac{\partial^2 W}{\partial \varphi^2} - 2\frac{\partial}{\partial \theta} 
+	 * \left( \frac{1}{\sin \theta} \frac{\partial X}{\partial \varphi} \right) ,
+	 *\f] 
+	 * \f[
+	 *  T^{\theta\varphi} = \frac{\partial^2 X}{\partial\theta^2} - \frac{1}{\tan
+	 * \theta} \frac{\partial X}{\partial \theta} - \frac{1}{\sin^2 \theta} 
+	 * \frac{\partial^2 X}{\partial \varphi^2} + 2\frac{\partial}{\partial \theta} 
+	 * \left( \frac{1}{\sin \theta} \frac{\partial W}{\partial \varphi} \right) .
+	 *\f] 
+	 */
+	mutable Scalar* p_www ;
+
+	/** Field \e X such that the components \f$T^{\theta\theta}, 
+	 * T^{\varphi\varphi}\f$ and \f$T^{\theta\varphi}\f$
+	 * of the tensor are written (has only meaning with spherical components!):
+	 * \f[
+	 * \frac{1}{2}\left(T^{\theta\theta} - T^{\varphi\varphi} \right) 
+	 * = \frac{\partial^2 W}{\partial\theta^2} - \frac{1}{\tan
+	 * \theta} \frac{\partial W}{\partial \theta} - \frac{1}{\sin^2 \theta} 
+	 * \frac{\partial^2 W}{\partial \varphi^2} - 2\frac{\partial}{\partial \theta} 
+	 * \left( \frac{1}{\sin \theta} \frac{\partial X}{\partial \varphi} \right) ,
+	 *\f] 
+	 * \f[
+	 *  T^{\theta\varphi} = \frac{\partial^2 X}{\partial\theta^2} - \frac{1}{\tan
+	 * \theta} \frac{\partial X}{\partial \theta} - \frac{1}{\sin^2 \theta} 
+	 * \frac{\partial^2 X}{\partial \varphi^2} + 2\frac{\partial}{\partial \theta} 
+	 * \left( \frac{1}{\sin \theta} \frac{\partial W}{\partial \varphi} \right) .
+	 *\f] 
+	 */
+	mutable Scalar* p_xxx ;
+
+	/// Field \e T defined as \f$ T = T^{\theta\theta} + T^{\varphi\varphi} \f$.
+	mutable Scalar* p_ttt ;
 	
     // Constructors - Destructor :
     // -------------------------
@@ -292,6 +336,15 @@ class Sym_tensor : public Tensor_sym {
 	 */
 	void set_longit_trans( const Vector& v, const Sym_tensor_trans& a) ;
 
+	/** 
+	 * Assigns the component \f$ T^{rr} \f$ and the derived members \c p_eta ,
+	 * \c p_mu , \c p_www, \c p_xxx and \c p_ttt . It updates the other 
+	 * components accordingly.
+	 */
+	void set_auxiliary( const Scalar& trr, const Scalar& eta, const
+			    Scalar& mu, const Scalar& www, const Scalar&
+			    xxx, const Scalar& ttt ) ;
+
     // Computation of derived members
     // ------------------------------
     public:
@@ -344,6 +397,15 @@ class Sym_tensor : public Tensor_sym {
 
 	/// Gives the field \f$\mu\f$ (see member \c p_mu ).
 	const Scalar& mu(Param* par = 0x0) const ;
+
+	/// Gives the field \e W (see member \c p_www ).
+	const Scalar& www() const ;
+
+	/// Gives the field \e X (see member \c p_xxx ).
+	const Scalar& xxx() const ;
+
+	/// Gives the field \e T (see member \c p_ttt ).
+	const Scalar& ttt() const ;
 
 	
     // Mathematical operators
