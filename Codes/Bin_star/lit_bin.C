@@ -30,6 +30,9 @@ char lit_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/09/08 08:21:43  e_gourgoulhon
+ * Added printing out of the virial errors in the relativistic case.
+ *
  * Revision 1.4  2003/09/07 22:11:24  e_gourgoulhon
  * Corrected a bug at the end (introduced new vectors tmp_dpsi and
  * tmp_wit for drawings in the irrotational case).
@@ -208,16 +211,25 @@ int main(int argc, char** argv){
 
     cout << "Binary system read in file : " << endl ;
     cout << star << endl ; 
+    star.display_poly(cout) ; //  Reduced quantities for polytropic EOS
 
     cout << "ADM mass [M_sol] : " << star.mass_adm() / msol  << endl ; 
     cout << "Total energy [M_sol c^2] : " 
 	 << star.total_ener() / msol << endl ; 
     cout << "Total angular momentum [M_sol c km] : " 
 	 << (star.angu_mom())(2) / msol / km << endl ; 
-    if (!relativistic) {
-	cout << "Relative error on the virial theorem : " 
-	     << star.virial() << endl ; 
+
+    if ( relativistic ) {
+	cout << "Relative error on the virial theorem : " << endl ; 
+	cout << "   VE(M)= " << star.virial() 
+	          << "   VE(GB)= "<< star.virial_gb()  
+		  << "   VE(FUS)= " << star.virial_fus() << endl ;   
     }
+    else {
+	cout << "Relative error on the virial theorem : " 
+		  <<  star.virial() << endl ; 
+    }
+    
     cout << "Relative error in the Hamiltonian constraint : " << endl ; 
     cout << star.ham_constr() << endl ; 
 	 
@@ -225,12 +237,6 @@ int main(int argc, char** argv){
     cout << " X component : " << star.mom_constr()(0) << endl ; 
     cout << " Y component : " << star.mom_constr()(1) << endl ; 
     cout << " Z component : " << star.mom_constr()(2) << endl ; 
-
-    //==============================================================
-    //  Reduced quantities for polytropic EOS
-    //==============================================================
-
-    star.display_poly(cout) ; 
 
     //==============================================================
     //  Drawings
