@@ -29,6 +29,9 @@ char tensor_change_triad_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/27 10:50:24  e_gourgoulhon
+ * Added the case of a twice contravariant tensor in the assert.
+ *
  * Revision 1.3  2003/10/06 14:25:51  j_novak
  * Added a test #ifndef... to prevent a warning
  *
@@ -133,9 +136,10 @@ void Tensor::change_triad(const Base_vect& new_triad) {
       // with the mapping :
       assert( *nbvc == mp->get_bvect_cart() ) ; 
       assert( *bvs == mp->get_bvect_spher() ) ; 
-      //Only for double-covariant tensors
-      for (int i=0; i<2; i++) 
-	assert(type_indice(i) == COV) ;  
+
+      // Only for double-covariant tensors or double-contravariant tensors
+		assert( ( (type_indice(0)==COV) && (type_indice(1)==COV) ) ||
+		        ( (type_indice(0)==CON) && (type_indice(1)==CON) ) ) ;  
       
       // Temporary storage of the components
       // the Base_vect *this is not valid...
@@ -187,9 +191,10 @@ void Tensor::change_triad(const Base_vect& new_triad) {
       // with the mapping :
       assert( *nbvs == mp->get_bvect_spher() ) ; 
       assert( *bvc == mp->get_bvect_cart() ) ; 
-      //Only for double-covariant tensors
-      for (int i=0; i<2; i++) 
-	assert(type_indice(i) == COV) ;  
+
+      // Only for double-covariant tensors or double-contravariant tensors
+		assert( ( (type_indice(0)==COV) && (type_indice(1)==COV) ) ||
+		        ( (type_indice(0)==CON) && (type_indice(1)==CON) ) ) ;  
       
       // Temporary storage of the components
       Tensor tmp(*mp, 2, COV, *triad) ;
