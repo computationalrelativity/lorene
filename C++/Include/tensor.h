@@ -36,6 +36,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.31  2003/11/05 15:25:57  e_gourgoulhon
+ * Added declaration of external functions:
+ * max, min, maxabs, diffrel and diffrelmax.
+ *
  * Revision 1.30  2003/11/03 10:58:00  j_novak
  * Suppressed the constructor from a Sym_tensor.
  *
@@ -748,12 +752,76 @@ class Tensor {
  * @param ind2 [input] index of the second tensor for the contraction, with 
  *   the same convention as {\tt ind1} 
  * @return tensor resulting of the contraction of the index {\tt ind1} of
- *  [\tt t1} with the index {\tt ind2} of {\tt t2}.
+ *  {\tt t1} with the index {\tt ind2} of {\tt t2}.
  * NB: the types ({\tt COV} or {\tt CON}) of the indices {\tt ind1} and
  * {\tt ind2} must be different. 
  */
 Tensor contract(const Tensor& t1, int ind1, const Tensor& t2, int ind2) ;
 
+
+
+/** Maxima in each domain of the values of the tensor components
+ * @param aa tensor
+ * @param ost output stream for a formatted output of the result
+ * @return 2-D {\tt Tbl} of size the number of independent components
+ *	times the number of domains, the elements {\tt (i,l)}
+ *     of which are {\tt max( a(l) )}, where {\tt a(l)} 
+ *      denotes symbolically the values of {\tt aa} 
+ *	   in domain no. {\tt l} and for component no.{\tt i}. 
+ */
+Tbl max(const Tensor& aa, ostream& ost = cout) ; 
+
+
+/** Minima in each domain of the values of the tensor components
+ * @param aa tensor
+ * @param ost output stream for a formatted output of the result
+ * @return 2-D {\tt Tbl} of size the number of independent components
+ *	times the number of domains, the elements {\tt (i,l)}
+ *     of which are {\tt min( a(l) )}, where {\tt a(l)} 
+ *      denotes symbolically the values of {\tt aa} 
+ *	   in domain no. {\tt l} and for component no.{\tt i}. 
+ */
+Tbl min(const Tensor& aa, ostream& ost = cout) ; 
+
+/** Maxima in each domain of the absolute values of the tensor components
+ * @param aa tensor
+ * @param ost output stream for a formatted output of the result
+ * @return 2-D {\tt Tbl} of size the number of independent components
+ *	times the number of domains, the elements {\tt (i,l)}
+ *     of which are {\tt max[ abs( a(l) )]}, where {\tt a(l)} 
+ *      denotes symbolically the values of {\tt aa} 
+ *	   in domain no. {\tt l} and for component no.{\tt i}. 
+ */
+Tbl maxabs(const Tensor& aa, ostream& ost = cout) ; 
+
+
+/** Relative difference between two {\tt Tensor} ($L^1$ version).
+ * @param aa first tensor
+ * @param bb second tensor
+ * @param ost output stream for a formatted output of the result
+ * @return 2-D {\tt Tbl} of size the number of independent components
+ *	times the number of domains, the elements {\tt (i,l)}
+ *     of which 
+ *	   are {\tt norme[a(l)-b(l)]/norme[b(l)]} if {\tt b(l)!=0} and
+ *	   {\tt norme[a(l)-b(l)]} if  {\tt b(l)=0},  where {\tt a(l)} and 
+ *	   {\tt b(l)} denote symbolically the values of {\tt aa} and {\tt bb} 
+ *	   in domain no. {\tt l} and for component no.{\tt i}. 
+ */
+Tbl diffrel(const Tensor& aa, const Tensor& bb, ostream& ost = cout) ; 
+
+/** Relative difference between two {\tt Tensor} (max version).
+ * @param aa first tensor
+ * @param bb second tensor
+ * @param ost output stream for a formatted output of the result
+ * @return 2-D {\tt Tbl} of size the number of independent components
+ *	times the number of domains, the elements {\tt (i,l)}
+ *     of which 
+ *	   are {\tt max[abs(a(l)-b(l))]/max[abs(b(l))]} if {\tt b(l)!=0} and
+ *	   {\tt max[abs(a(l)-b(l))]} if  {\tt b(l)=0}, where {\tt a(l)} and 
+ *	   {\tt b(l)} denote symbolically the values of {\tt aa} and {\tt bb} 
+ *	   in domain no. {\tt l} and for component no.{\tt i}. 
+ */
+Tbl diffrelmax(const Tensor& aa, const Tensor& bb, ostream& ost = cout) ; 
 
 //@}
 
