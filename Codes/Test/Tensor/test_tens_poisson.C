@@ -28,6 +28,10 @@ char test_tens_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/02/18 18:58:36  e_gourgoulhon
+ *  Method trace() renamed the_trace().
+ *  Tensor::trace used instead of Tensor::scontract.
+ *
  * Revision 1.3  2004/02/16 12:48:51  e_gourgoulhon
  * Methods Scalar::dsdx(),... do no longer have any argument.
  *
@@ -159,7 +163,7 @@ int main() {
 //	maxabs( souc.divergence(metc) ) ; 
 				
 	cout << "Maxabs of trace of souc : " << endl ; 
-	maxabs( souc.trace() ) ; 
+	maxabs( souc.the_trace() ) ; 
 		
 	arrete() ; 
 
@@ -177,7 +181,7 @@ int main() {
 //	maxabs( sous.divergence(mets) ) ; 
 				
 	cout << "Maxabs of trace of sous : " << endl ; 
-	maxabs( sous.trace() ) ; 
+	maxabs( sous.the_trace() ) ; 
 		
 	arrete() ; 
 	
@@ -193,7 +197,7 @@ int main() {
 	maxabs( htts.divergence(mets) ) ; 
 		
 	cout << "Maxabs of trace of htts : " << endl ; 
-	maxabs( htts.trace() ) ; 
+	maxabs( htts.the_trace() ) ; 
 	
 	arrete() ; 
 	
@@ -206,7 +210,7 @@ int main() {
         Tensor dhtts = dhtts0.up(2, mets) ;
 	dhtts.dec_dzpuis(2) ;  
 	Tensor ddhtts = dhtts.derive_cov(mets) ;
-	Sym_tensor lap_htts( ddhtts.scontract(2,3) ) ; 
+	Sym_tensor lap_htts( ddhtts.trace(2,3) ) ; 
 	
 	tmp = htts ; 
 	tmp.change_triad( map.get_bvect_cart() ) ;
@@ -220,7 +224,7 @@ int main() {
 	maxabs( httc.divergence(metc) ) ; 
 		
 	cout << "Maxabs of trace of httc : " << endl ; 
-	maxabs( httc.trace() ) ; 
+	maxabs( httc.the_trace() ) ; 
 	
 	arrete() ; 
 			
