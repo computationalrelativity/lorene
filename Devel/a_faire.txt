@@ -1,14 +1,9 @@
 
- -- interface Coord arithmetique = Cmp et non plus Mtbl 
+ -- interface Coord arithmetique = Scalar et non plus Mtbl 
 
- -- suppression des sorties explorer
  -- creation sorties openDX
  
- -- Suppression des densites de tenseur
- 
- -- Fusion Cmp et Tenseur de valence 0 = classe Scalar derivee de Tenseur
- 
- -- Classes Tenseur T et TT
+ -- Classes Tensor T et TT
  
  -- Classe Valeur: rendre prive tous les champs (surtout base).
  
@@ -16,3 +11,5 @@
 
  -- reflechir sur les fonctions a mettre inline (et comment ca marche!)
 
+ -- supprimer l'aspect virtuel des fonctions appeles dans les destructeurs
+    (genre del_deriv() dans Etoile et Metrique...).
