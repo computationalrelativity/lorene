@@ -31,6 +31,9 @@ char et_bin_bhns_extr_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/12/02 15:05:36  k_taniguchi
+ * Modification of the procedure for resize.
+ *
  * Revision 1.1  2004/11/30 20:48:45  k_taniguchi
  * *** empty log message ***
  *
@@ -307,7 +310,9 @@ void Et_bin_bhns_extr::equil_bhns_extr(double ent_c, const double& mass,
 	mp.adapt(ent(), par_adapt) ;
 
 	double fact_resize = 1. / alpha_r ;
-	mp.resize(nz-2, fact_resize) ;
+	for (int l=nzet; l<nz-1; l++) {
+	    mp.resize(l, fact_resize) ;
+	}
 	mp_et.resize_extr(fact_resize) ;
 
 	//----------------------------------------------------
