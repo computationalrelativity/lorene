@@ -30,6 +30,9 @@ char time_slice_conf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/03/28 21:32:23  e_gourgoulhon
+ * Corrected error in method trk().
+ *
  * Revision 1.1  2004/03/28 21:30:13  e_gourgoulhon
  * First version.
  *
@@ -330,7 +333,7 @@ const Sym_tensor& Time_slice_conf::aa() const {
 }
 
 
-const Sym_tensor& Time_slice_conf::trk() const {
+const Scalar& Time_slice_conf::trk() const {
 
     assert( trk_evol.is_known(jtime) ) ; 
     return trk_evol[jtime] ; 
