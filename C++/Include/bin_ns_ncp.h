@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/03/03 19:07:55  f_limousin
+ * Suppress the member ref_triad.
+ *
  * Revision 1.3  2003/02/12 18:52:53  f_limousin
  * Change the arguments of the standard constructor.
  *
@@ -59,11 +62,6 @@ class Bin_ns_ncp {
     // -----
     protected:
 
-	/** Cartesian triad of the absolute reference frame
-	 *  
-	 */
-	const Base_vect_cart ref_triad ; 
-	
 	/// First star ncp of the system
 	Et_bin_ncp star1 ;
 	 
