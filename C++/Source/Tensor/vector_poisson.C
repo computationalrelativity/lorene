@@ -30,6 +30,9 @@ char vector_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2004/07/27 09:40:05  j_novak
+ * Yet another method for solving vector Poisson eq. with spherical coordinates.
+ *
  * Revision 1.17  2004/06/14 15:15:58  j_novak
  * New method (No.4) to solve the vector Poisson eq. The output is continuous
  * for all (spherical) components.
@@ -105,7 +108,7 @@ Vector Vector::poisson(double lambda, const Metric_flat& met_f, int method)
     assert(cmp[i]->check_dzpuis(4)) ;
     if (cmp[i]->get_etat() != ETATZERO) nullite = false ;
   }
-  assert ((method>=0) && (method<5)) ;
+  assert ((method>=0) && (method<6)) ;
 
   Vector resu(*mp, CON, triad) ;
   if (nullite)
@@ -384,6 +387,92 @@ Vector Vector::poisson(double lambda, const Metric_flat& met_f, int method)
       
     }
       
+    case 5 : {
+      
+      Scalar divf(*mp) ;
+      if (fabs(lambda+1) < 1.e-8)
+	divf.set_etat_zero() ;
+      else {
+	divf = (potential(met_f) / (lambda + 1)) ;
+      }
+      
+      int nz = mp->get_mg()->get_nzone() ;
+
+      //-----------------------------------
+      // Removal of the l=0 part of div(F)
+      //-----------------------------------
+      Scalar div_lnot0 = divf ;
+      div_lnot0.div_r_dzpuis(4) ;
+      Scalar source_r(*mp) ;
+      Valeur& va_div = div_lnot0.set_spectral_va() ;
+      if (div_lnot0.get_etat() != ETATZERO) {
+	va_div.coef() ;
+	va_div.ylm() ;
+	for (int lz=0; lz<nz; lz++) {
+	  int np = mp->get_mg()->get_np(lz) ;
+	  int nt = mp->get_mg()->get_nt(lz) ;
+	  int nr = mp->get_mg()->get_nr(lz) ;
+	  if (va_div.c_cf->operator()(lz).get_etat() != ETATZERO)
+	    for (int k=0; k<np+1; k++) 
+	      for (int j=0; j<nt; j++) {
+		int l_q, m_q, base_r ;
+		if (nullite_plm(j, nt, k, np, va_div.base) == 1) {
+		  donne_lm(nz, lz, j, k, va_div.base, m_q, l_q, base_r) ;
+		  if (l_q == 0) 
+		    for (int i=0; i<nr; i++) 
+		      va_div.c_cf->set(lz, k, j, i) = 0. ;
+		}
+	      }
+	}
+	source_r.set_etat_qcq() ;
+	source_r.set_spectral_va() = 2*(*va_div.c_cf) ; //2*div(F)
+	source_r.set_spectral_va().ylm_i() ;
+	source_r.set_dzpuis(4) ;
+      }
+      else 
+	source_r.set_etat_zero() ;
+	   
+      //------------------------
+      // Other source terms ....
+      //------------------------
+      source_r += *(cmp[0]) - lambda*divf.dsdr() ;
+
+      //------------------------
+      // The elliptic operator
+      //------------------------
+      Param_elliptic param_fr(source_r) ;
+      for (int lz=0; lz<nz; lz++) 
+	param_fr.set_poisson_vect_r(lz) ;
+
+      Scalar f_r = source_r.sol_elliptic(param_fr) ;
+            
+      Scalar source_eta = - *(cmp[0]) ;
+      source_eta.mult_r_dzpuis(3) ;
+      source_eta -= 2*(1.+lambda)*divf ;
+      source_eta.mult_r_dzpuis(2) ;
+      Scalar tmp = f_r ;
+      tmp.inc_dzpuis(2) ;
+      source_eta += tmp.lapang() ;
+      tmp = (1.+lambda)*divf ;
+      tmp.mult_r_dzpuis(0) ;
+      source_eta = source_eta.primr() ;
+      source_eta.div_r() ;
+
+      Scalar eta = (tmp+source_eta).poisson_angu() ;
+
+      Scalar source_mu = *(cmp[2]) ;
+      source_mu.div_tant() ;
+      source_mu += cmp[2]->dsdt() - cmp[1]->stdsdp() ;
+      Scalar mu = source_mu.poisson_angu().poisson() ;
+
+      resu.set(1) = f_r ;
+      resu.set(2) = eta.dsdt() - mu.stdsdp() ;
+      resu.set(3) = eta.stdsdp() + mu.dsdt() ;
+      
+      break ;
+      
+    }
+
     default : {
       cout << "Vector::poisson : unexpected type of method !" << endl 
 	   << "  method = " << method << endl ; 
