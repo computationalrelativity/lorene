@@ -34,6 +34,10 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2003/10/11 14:48:40  e_gourgoulhon
+ * Line 344: suppressed assert(resu == -1)
+ *           and added a break command to quit the loop.
+ *
  * Revision 1.16  2003/10/08 14:24:09  j_novak
  * replaced mult_r_zec with mult_r_ced
  *
@@ -341,8 +345,8 @@ int Tensor::get_place_met(const Metric& metre) const {
   int resu = -1 ;
   for (int i=0; i<N_MET_MAX; i++) 
     if (met_depend[i] == &metre) {
-      assert(resu == -1) ;
-      resu = i ;
+      	resu = i ;
+		break ; 
     }
   return resu ;
 }
