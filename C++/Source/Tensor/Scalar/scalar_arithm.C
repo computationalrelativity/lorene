@@ -31,6 +31,9 @@ char scalar_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/11/03 22:35:45  e_gourgoulhon
+ * Changed output comment when dzpuis conflict.
+ *
  * Revision 1.4  2003/10/28 21:34:47  e_gourgoulhon
  * Corrected treatment of the case ETATUN in operator+=, operator-= and
  * operator*=.
@@ -117,7 +120,7 @@ Scalar operator+(const Scalar & c1, const Scalar & c2) {
 
     if ( c1.dz_nonzero() && c2.dz_nonzero() ) {
 	if ( c1.get_dzpuis() != c2.get_dzpuis() ) {
-	    cout << "Operation Scalar + Scalar forbidden in the external " << endl;
+	    cout << "Operation Scalar + Scalar: dzpuis conflict in the external " << endl;
 	    cout << " compactified domain ! " << endl ; 
 	    abort() ;
 	}
@@ -230,7 +233,7 @@ Scalar operator-(const Scalar & c1, const Scalar & c2) {
    // Cas general
    if ( c1.dz_nonzero() && c2.dz_nonzero() ) {
 	if ( c1.get_dzpuis() != c2.get_dzpuis() ) {
-	    cout << "Operation Scalar - Scalar forbidden in the external " << endl;
+	    cout << "Operation Scalar - Scalar : dzpuis conflict in the external " << endl;
 	    cout << " compactified domain ! " << endl ; 
 	    abort() ;
 	}
@@ -604,7 +607,7 @@ void Scalar::operator+=(const Scalar & ci) {
 
     if ( dz_nonzero() && ci.dz_nonzero() ) {
 		if ( dzpuis != ci.dzpuis ) {
-	    	cout << "Operation += Scalar forbidden in the external " << endl;
+	    	cout << "Operation += Scalar : dzpuis conflict in the external " << endl;
 	    	cout << " compactified domain ! " << endl ; 
 	    	abort() ;
 		}
@@ -655,7 +658,7 @@ void Scalar::operator-=(const Scalar & ci) {
     // Cas general
     if ( dz_nonzero() && ci.dz_nonzero() ) {
 	if ( dzpuis != ci.dzpuis ) {
-	    cout << "Operation -= Scalar forbidden in the external " << endl;
+	    cout << "Operation -= Scalar : dzpuis conflict in the external " << endl;
 	    cout << " compactified domain ! " << endl ; 
 	    abort() ;
 	}
