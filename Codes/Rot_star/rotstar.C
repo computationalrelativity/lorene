@@ -29,6 +29,10 @@ char rotstar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/05/14 20:06:09  e_gourgoulhon
+ * Suppressed the qualifier ios::nocreate in call to fstream::open
+ * (not supported by gcc 3.2).
+ *
  * Revision 1.3  2003/01/09 11:07:51  j_novak
  * headcpp.h is now compliant with C++ norm.
  * The include files have been ordered, as well as the local_settings_linux
@@ -480,7 +484,7 @@ int main(){
     fichfinal.close() ;
     system("cat parrot.d >> calcul.d") ; 
 
-    fichfinal.open("calcul.d", ios::app | ios::nocreate) ;
+    fichfinal.open("calcul.d", ios::app) ;
     fichfinal << endl <<
     "================================================================" << endl ;
     fichfinal <<
@@ -491,7 +495,7 @@ int main(){
     system("cat par_eos.d >> calcul.d") ;
 
     // Identification du code et de ses sous-routines (no. de version RCS) :     	
-    fichfinal.open("calcul.d", ios::app | ios::nocreate) ; 
+    fichfinal.open("calcul.d", ios::app) ; 
     fichfinal << endl <<
     "================================================================" << endl ; 
     fichfinal << "	    IDENTIFICATION OF THE CODE : " << endl ; 

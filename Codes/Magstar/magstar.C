@@ -1,10 +1,10 @@
 /*
- * Main code for computing stationary axisymmetric rotating stars. 
+ * Main code for computing magnetized stationary axisymmetric rotating stars. 
  * 
  */
 
 /*
- *   Copyright (c) 2000-2001 Eric Gourgoulhon
+ *   Copyright (c) 2002 Jerome Novak & Emanuel Marcq
  *
  *   This file is part of LORENE.
  *
@@ -21,6 +21,18 @@
  *   You should have received a copy of the GNU General Public License
  *   along with LORENE; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.8  2003/05/14 20:06:09  e_gourgoulhon
+ * Suppressed the qualifier ios::nocreate in call to fstream::open
+ * (not supported by gcc 3.2).
+ *
+ *
+ * $Header$
  *
  */
 
@@ -406,7 +418,7 @@ int main(){
     fichfinal.close() ;
     system("cat parrot.d >> calcul.d") ; 
 
-    fichfinal.open("calcul.d", ios::app | ios::nocreate) ;
+    fichfinal.open("calcul.d", ios::app) ;
     fichfinal << endl <<
     "================================================================" << endl ;
     fichfinal <<
@@ -417,7 +429,7 @@ int main(){
     system("cat par_eos.d >> calcul.d") ;
 
     // Identification du code et de ses sous-routines (no. de version RCS) :     	
-    fichfinal.open("calcul.d", ios::app | ios::nocreate) ; 
+    fichfinal.open("calcul.d", ios::app) ; 
     fichfinal << endl <<
     "================================================================" << endl ; 
     fichfinal << "	    IDENTIFICATION OF THE CODE : " << endl ; 
