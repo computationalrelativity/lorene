@@ -30,6 +30,9 @@ char connection_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2004/02/18 18:44:22  e_gourgoulhon
+ * Method Tensor::scontract renammed Tensor::trace.
+ *
  * Revision 1.16  2004/01/29 15:21:51  e_gourgoulhon
  * First implementation of method p_divergence.
  *
@@ -553,7 +556,7 @@ Tensor* Connection::p_divergence(const Tensor& uu) const {
     // The 1-form Delta^k_{lk} is required
     // -----------------------------------
     
-    Vector delta_trace = delta.scontract(0,2) ;     // Delta^k_{lk}
+    Vector delta_trace = delta.trace(0,2) ;     // Delta^k_{lk}
 
     // Initialisation to the flat divergence    
     // -------------------------------------
