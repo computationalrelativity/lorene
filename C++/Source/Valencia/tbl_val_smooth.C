@@ -29,6 +29,9 @@ char tbl_val_smooth_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/12/30 16:14:01  j_novak
+ * Changed the name of a shadowed variable.
+ *
  * Revision 1.2  2004/12/03 13:24:01  j_novak
  * Minor modif.
  *
@@ -51,11 +54,11 @@ void Tbl_val::smooth_atmosphere(double atmosphere_thr) {
 
   const Gval_spher* gspher = dynamic_cast<const Gval_spher*>(gval) ;
   assert(gspher != 0x0) ;
-  int dim = gspher->get_ndim() ;
+  int ndim = gspher->get_ndim() ;
   int fant = gspher->get_fantome() ;
   int nr = get_dim(0) + 2*fant;
 
-  switch (dim) {
+  switch (ndim) {
   case 1: {
     radial_smoothing(t, gspher->zr->t, nr, atmosphere_thr) ;
     break ;
