@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/11/05 15:26:31  e_gourgoulhon
+ * Modif documentation.
+ *
  * Revision 1.5  2003/11/04 22:57:26  e_gourgoulhon
  * Class Sym_tensor_tt: method set_eta_mu renamed set_rr_eta_mu
  *    method update_tp() renamed update()
@@ -478,8 +481,7 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	protected:
 	/** Computes the components $h^{r\theta}$, $h^{r\varphi}$,
 	 * $h^{\theta\theta}$, $h^{\theta\varphi}$ and $h^{\varphi\varphi}$,
-	 *  from $h^{rr}$ and the potentials $\eta$ and $\mu$
-	 * \end{equation} 
+	 *  from $h^{rr}$ and the potentials $\eta$ and $\mu$.
 	 */
 	void update() ;
 	
