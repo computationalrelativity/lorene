@@ -25,6 +25,10 @@ char poisson_vect_frontiere_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/02/22 18:00:32  f_limousin
+ * Correction of an error in the function poisson_vect_binaire(...).
+ * Confusion between cartesian and spherical triad for the solution.
+ *
  * Revision 1.5  2005/02/08 10:07:07  f_limousin
  * Implementation of poisson_vect_binaire(...) with Vectors (instead of
  * Tenseur) in argument.
@@ -566,20 +570,6 @@ void poisson_vect_binaire ( double lambda,
 	
 	cout << "Pas " << conte << " : Difference " << erreur << endl ;
 	
-	const Map& map1 (*sol_un.get_mp()) ;
-	Vector source1 (map1, CON, map1.get_bvect_cart()) ;
-	source1.set_etat_qcq() ;
-	source1.set(1) = source_un(0) ;
-	source1.set(2) = source_un(1) ;
-	source1.set(3) = source_un(2) ;
-	
-	Vector sol1 (map1, CON, map1.get_bvect_cart()) ;
-	sol1.set_etat_qcq() ;
-	sol1.set(1) = sol_un(0) ;
-	sol1.set(2) = sol_un(1) ;
-	sol1.set(3) = sol_un(2) ;
-	source1.dec_dzpuis() ;
-
 	if (erreur < precision)
 	    indic = -1 ;
 	conte ++ ;
@@ -592,6 +582,9 @@ void poisson_vect_binaire ( double lambda,
 		const Valeur& bound_y_deux, const Valeur& bound_z_deux, 
 		Vector& sol_un, Vector& sol_deux, int num_front, double precision) {
 		    
+    sol_un.change_triad(source_un.get_mp().get_bvect_cart()) ;
+    sol_deux.change_triad(source_deux.get_mp().get_bvect_cart()) ;
+    
     // Les bases des deux vecteurs doivent etre alignees ou non alignees :
      
     assert (sol_un.get_mp() == source_un.get_mp()) ;
@@ -659,13 +652,15 @@ void poisson_vect_binaire ( double lambda,
     int nz_un = bound_x_un.get_mg()->get_nzone() ;
     int nz_deux = bound_x_deux.get_mg()->get_nzone() ;
     
-    const Metric_flat& ff_un (source_un.get_mp().flat_met_spher()) ;
-    const Metric_flat& ff_deux (source_deux.get_mp().flat_met_spher()) ;
+    const Metric_flat& ff_un (source_un.get_mp().flat_met_cart()) ;
+    const Metric_flat& ff_deux (source_deux.get_mp().flat_met_cart()) ;
 
     // La source de l'equation scalaire sur 1
     Vector cop_so_un (source_un) ;
     cop_so_un.dec_dzpuis(2) ;
     cop_so_un.dec_dzpuis(2) ;
+    cop_so_un.change_triad(source_un.get_mp().get_bvect_cart()) ;
+
     
     Scalar source_scal_un (contract (cop_so_un.derive_cov(ff_un), 0, 1)/(lambda+1)) ;
     if (source_scal_un.get_etat() == ETATZERO) {
@@ -678,7 +673,8 @@ void poisson_vect_binaire ( double lambda,
     Vector cop_so_deux (source_deux) ;
     cop_so_deux.dec_dzpuis(2) ;
     cop_so_deux.dec_dzpuis(2) ;
-    
+    cop_so_deux.change_triad(source_deux.get_mp().get_bvect_cart()) ;
+   
     Scalar source_scal_deux (contract (cop_so_deux.derive_cov(ff_deux), 0, 1)/(lambda+1)) ;
     if (source_scal_deux.get_etat() == ETATZERO) {
 	source_scal_deux.annule_hard() ;
@@ -689,9 +685,11 @@ void poisson_vect_binaire ( double lambda,
     // Les copies :
     Vector copie_so_un (source_un) ;
     copie_so_un.dec_dzpuis() ;
-    
+    copie_so_un.change_triad(source_un.get_mp().get_bvect_cart()) ;
+
     Vector copie_so_deux (source_deux) ;
     copie_so_deux.dec_dzpuis() ;
+    copie_so_deux.change_triad(source_deux.get_mp().get_bvect_cart()) ;
     
     // ON COMMENCE LA BOUCLE :
     Vector sol_un_old (sol_un) ;
@@ -706,30 +704,21 @@ void poisson_vect_binaire ( double lambda,
 	Scalar chi_un (source_scal_un.poisson_dirichlet (limite_chi_un, num_front)) ;
 	Scalar chi_deux (source_scal_deux.poisson_dirichlet (limite_chi_deux, num_front)) ;
 	
-	// On calcul les source pour les equation vectorielles :
+	// On calcule les sources pour les equations vectorielles :
 	Vector source_vect_un (copie_so_un) ;
 	Vector grad_chi_un (chi_un.derive_con(ff_un)) ;
 	grad_chi_un.inc_dzpuis() ;
-	for (int i=1 ; i<=3 ; i++)
-	    source_vect_un.set(i) = source_vect_un(i)-lambda*grad_chi_un(i) ;
+	source_vect_un = source_vect_un - lambda*grad_chi_un ;
 	
 	Vector source_vect_deux (copie_so_deux) ;
 	Vector grad_chi_deux (chi_deux.derive_cov(ff_deux)) ;
 	grad_chi_deux.inc_dzpuis() ;
-	for (int i=1 ; i<=3 ; i++)
-	    source_vect_deux.set(i) = source_vect_deux(i)
-		-lambda*grad_chi_deux(i) ;
+	source_vect_deux = source_vect_deux - lambda*grad_chi_deux ;
 	
 	sol_un_old = sol_un ;
 	sol_deux_old = sol_deux ;
 
-	sol_un.change_triad(source_un.get_mp().get_bvect_cart()) ;
-	source_vect_un.change_triad(source_un.get_mp().get_bvect_cart()) ;
-	sol_deux.change_triad(source_deux.get_mp().get_bvect_cart()) ;
-	source_vect_deux.change_triad(source_deux.get_mp().get_bvect_cart()) ;
-
-	
-	// On resout les equation vectorielles :
+	// On resout les equations vectorielles :
 	sol_un.set(1) = source_vect_un(1).poisson_dirichlet (limite_x_un, num_front) ;
 	sol_un.set(2) = source_vect_un(2).poisson_dirichlet (limite_y_un, num_front) ;
 	sol_un.set(3) = source_vect_un(3).poisson_dirichlet (limite_z_un, num_front) ;
@@ -738,11 +727,6 @@ void poisson_vect_binaire ( double lambda,
 	sol_deux.set(3) = source_vect_deux(3).poisson_dirichlet (limite_z_deux, num_front) ;
 	
 	
-	sol_un.change_triad(source_un.get_mp().get_bvect_spher()) ;
-	source_vect_un.change_triad(source_un.get_mp().get_bvect_spher()) ;
-	sol_deux.change_triad(source_deux.get_mp().get_bvect_spher()) ;
-	source_vect_deux.change_triad(source_deux.get_mp().get_bvect_spher()) ;
-
 	// On modifie les Cl sur chi :
 	Scalar div_shift_un (contract(sol_un.derive_cov(ff_un), 0, 1)) ;
 	div_shift_un.dec_dzpuis(2) ;
