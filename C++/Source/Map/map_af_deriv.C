@@ -30,6 +30,9 @@ char map_af_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/11/11 15:31:43  j_novak
+ * Added a #ifnedef... to prevent warnings.
+ *
  * Revision 1.4  2003/10/22 13:08:05  j_novak
  * Better handling of dzpuis flags
  *
@@ -115,7 +118,9 @@ void Map_af::dsdr(const Cmp& ci, Cmp& resu) const {
     else {   
 	assert( ci.get_etat() == ETATQCQ ) ; 
 	bool dz_zero = ci.check_dzpuis(0) ;
+#ifndef NDEBUG
 	bool dz_four = ci.check_dzpuis(4) ;
+#endif
 
 	(ci.va).coef() ;    // (ci.va).c_cf is up to date
 	
@@ -170,8 +175,9 @@ void Map_af::srdsdt(const Cmp& ci, Cmp& resu) const {
 
 	assert( ci.get_etat() == ETATQCQ ) ; 
 	bool dz_zero = ci.check_dzpuis(0) ;
+#ifndef NDEBUG
 	bool dz_four = ci.check_dzpuis(4) ;
-
+#endif
 	(ci.va).coef() ;    // (ci.va).c_cf is up to date
 
 	Valeur tmp = ci.va ; 
@@ -233,8 +239,9 @@ void Map_af::srstdsdp(const Cmp& ci, Cmp& resu) const {
 
 	assert( ci.get_etat() == ETATQCQ) ; 
 	bool dz_zero = ci.check_dzpuis(0) ;
+#ifndef NDEBUG
 	bool dz_four = ci.check_dzpuis(4) ;
-
+#endif
 	(ci.va).coef() ;    // (ci.va).c_cf is up to date
 
 	Valeur tmp = ci.va ; 
