@@ -32,6 +32,12 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/05 21:14:20  e_gourgoulhon
+ * Added method std_spectral_base().
+ *
+ * Revision 1.3  2003/10/03 14:10:32  e_gourgoulhon
+ * Added constructor from Tensor.
+ *
  * Revision 1.2  2003/10/03 14:08:46  j_novak
  * Removed old change_trid...
  *
@@ -76,6 +82,15 @@ Vector::Vector (const Vector& source) :
   assert(valence == 1) ;
 
 }   
+
+
+// Constructor from a {\tt Tensor}.
+//--------------------------------
+Vector::Vector(const Tensor& uu) : Tensor(uu) {
+
+	assert(valence == 1) ;
+
+}
 
 
 // Constructor from a file
@@ -133,4 +148,34 @@ const Scalar& Vector::operator()(int index) const {
 
 }
 
+
+// Sets the standard spectal bases of decomposition for each component
+
+void Vector::std_spectral_base() {
+
+	Base_val** bases = 0x0 ;
+
+	if ( triad->identify() == (mp->get_bvect_cart()).identify() ) {
+
+		// Cartesian case
+		bases = mp->get_mg()->std_base_vect_cart() ;
+
+	}
+	else {
+		// Spherical case
+		assert( triad->identify() == (mp->get_bvect_spher()).identify()) ;
+		bases = mp->get_mg()->std_base_vect_spher() ;
+	}
+	    
+	for (int i=0 ; i<3 ; i++) {
+		cmp[i]->set_spectral_base( *bases[i] ) ; 
+	}
+		
+	for (int i=0 ; i<3 ; i++) {
+		delete bases[i] ;
+	}
+	delete [] bases ;
+
+
+}
 
