@@ -1,5 +1,5 @@
 /*
- *  Methods of class Delta
+ *  Methods of class Tensor_delta
  *
  *   (see file tensor.h for documentation)
  *
@@ -27,13 +27,13 @@
  */
 
 
-char delta_C[] = "$Header$" ;
+char tensor_delta_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2003/09/29 13:48:18  j_novak
- * New class Delta.
+ * Revision 1.1  2003/10/01 15:40:14  e_gourgoulhon
+ * change of class name: Delta -> Tensor_delta
  *
  *
  * $Header$
@@ -52,21 +52,32 @@ char delta_C[] = "$Header$" ;
 
 // Standard constructor 
 // --------------------
-Delta::Delta(const Map& map, const Itbl& tipe,const Base_vect& triad_i) 
+Tensor_delta::Tensor_delta(const Map& map, const Itbl& tipe,const Base_vect& triad_i) 
 		: Tensor(map, 3, tipe, 18, triad_i) {
+
+}
+
+// Standard constructor 
+// --------------------
+Tensor_delta::Tensor_delta(const Map& map, int tipe0, int tipe1, int tipe2,
+				 const Base_vect& triad_i) : Tensor(map, 3, COV, 18, triad_i) {
+			
+		type_indice.set(0) = tipe0 ; 
+		type_indice.set(1) = tipe1 ; 
+		type_indice.set(2) = tipe2 ; 
 
 }
 
 // Standard constructor when all the indices are of the same type
 // --------------------------------------------------------------
-Delta::Delta(const Map& map, int tipe, const Base_vect& triad_i)  
+Tensor_delta::Tensor_delta(const Map& map, int tipe, const Base_vect& triad_i)  
   : Tensor(map, 3, tipe, 18, triad_i){
 
 }
 
 // Copy constructor
 // ----------------
-Delta::Delta (const Delta& source) : 
+Tensor_delta::Tensor_delta (const Tensor_delta& source) : 
   Tensor (*source.mp, 3, source.type_indice, 18, *(source.triad)) {
     
     for (int i=0 ; i<n_comp ; i++) {
@@ -78,7 +89,7 @@ Delta::Delta (const Delta& source) :
 
 // Constructor from a Tensor
 // --------------------------
-Delta::Delta (const Tensor& source) :
+Tensor_delta::Tensor_delta (const Tensor& source) :
   Tensor (*source.mp, 3, source.type_indice, 18, *(source.triad)) {
 	
     assert (source.valence == 3) ;
@@ -93,7 +104,7 @@ Delta::Delta (const Tensor& source) :
 	
 // Constructor from a file
 // -----------------------
-Delta::Delta(const Map& map, const Base_vect& triad_i, FILE* fd)
+Tensor_delta::Tensor_delta(const Map& map, const Base_vect& triad_i, FILE* fd)
 			: Tensor(map, triad_i, fd) {
 	
 	assert (valence == 3) ;
@@ -104,13 +115,13 @@ Delta::Delta(const Map& map, const Base_vect& triad_i, FILE* fd)
 			//  Destructor  //
 			//--------------//
 
-Delta::~Delta() {}
+Tensor_delta::~Tensor_delta() {}
 
 
 
 
 	
-int Delta::position (const Itbl& idx) const {
+int Tensor_delta::position (const Itbl& idx) const {
     
     assert (idx.get_ndim() == 1) ;
     assert (idx.get_dim(0) == 3) ;
@@ -148,7 +159,7 @@ int Delta::position (const Itbl& idx) const {
     return 6*(idx(0)-1) + place_fin ;
 }
 
-Itbl Delta::indices (int place) const {
+Itbl Tensor_delta::indices (int place) const {
     Itbl res(3) ;
     res.set_etat_qcq() ;
     assert ((place>=0) && (place<18)) ;
@@ -172,7 +183,7 @@ Itbl Delta::indices (int place) const {
     return res ;
 }
 	
-void Delta::operator= (const Tensor& t) {
+void Tensor_delta::operator= (const Tensor& t) {
     
     assert (t.get_valence() == 3) ;
     
