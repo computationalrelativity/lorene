@@ -30,6 +30,10 @@ char time_slice_access_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/29 12:00:16  e_gourgoulhon
+ * Computation of extrinsic curvature now performed via new methods
+ *  Vector::ope_killing.
+ *
  * Revision 1.2  2004/03/28 21:29:45  e_gourgoulhon
  * Evolution_std's renamed with suffix "_evol"
  * Method gam() modified
@@ -116,18 +120,15 @@ const Sym_tensor& Time_slice::k_dd() const {
     if ( ! (k_dd_evol.is_known(jtime)) ) {
        
       Vector beta_d = beta().down(0, gam()) ;
-      const Tensor& dbeta_dd = beta_d.derive_cov(gam()) ;
 
       gam_dd() ; // to make sure that gam_dd is up to date before taking its
                  // time derivative
       
-      Sym_tensor resu = - gam_dd_evol.time_derive(jtime, scheme_order) ;
-      
-      for (int i=1; i<=3; i++) 
-	for (int j=i; j<=3; j++) 
-	  resu.set(i,j) += dbeta_dd(i,j) + dbeta_dd(j,i) ;
-      
+      Sym_tensor resu = beta_d.ope_killing(gam()) 
+                        - gam_dd_evol.time_derive(jtime, scheme_order) ; 
+            
       resu = resu / (2*nn()) ;
+
       k_dd_evol.update(resu, jtime, the_time[jtime]) ;
         
     }
@@ -140,18 +141,14 @@ const Sym_tensor& Time_slice::k_uu() const {
 
     if ( ! (k_uu_evol.is_known(jtime)) ) {
        
-      const Tensor& dbeta_uu = beta().derive_con(gam()) ;
-
       gam_uu() ; // to make sure that gam_uu is up to date before taking its
                  // time derivative
       
-      Sym_tensor resu = gam_uu_evol.time_derive(jtime, scheme_order) ;
-      
-      for (int i=1; i<=3; i++) 
-	for (int j=i; j<=3; j++) 
-	  resu.set(i,j) += dbeta_uu(i,j) + dbeta_uu(j,i) ;
-      
+      Sym_tensor resu =  beta().ope_killing(gam())
+                        + gam_uu_evol.time_derive(jtime, scheme_order) ;
+            
       resu = resu / (2*nn()) ;
+      
       k_uu_evol.update(resu, jtime, the_time[jtime]) ;
         
     }
