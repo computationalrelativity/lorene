@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2004/12/29 16:20:20  k_taniguchi
+ * Addition of the function poisson_ylm.
+ *
  * Revision 1.15  2004/11/30 20:38:10  k_taniguchi
  * Addition of the function poisson_falloff.
  *
@@ -1081,6 +1084,8 @@ class Cmp {
 
 	Cmp poisson_falloff(int k_falloff) const ;
 
+	Cmp poisson_ylm(int nylm, double* intvec) const ;
+
 	/** Solves the scalar Poisson equation with \c *this  as a source
 	 *   (version with parameters to control the resolution).
 	 *   The source \f$\sigma\f$ of the equation \f$\Delta u = \sigma\f$ is 
@@ -1095,6 +1100,8 @@ class Cmp {
 	void poisson(Param& par, Cmp& uu) const ;
 	
 	void poisson_falloff(Param& par, Cmp& uu, int k_falloff) const ;
+
+	void poisson_ylm(Param& par, Cmp& uu, int nylm, double* intvec) const ;
 
 	/**
 	 * Is identicall to \c Cmp::poisson() . The regularity condition at the 
