@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/11/23 12:46:04  f_limousin
+ * Add functiun filtre_tp(int nn, int nz1, int nz2).
+ *
  * Revision 1.11  2004/08/24 09:14:40  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -428,7 +431,7 @@ class Valeur {
 	*/
 	double val_point_jk(int l, double x, int j, int k) const ; 
 
-
+   
     // Operations on coefficients
     // --------------------------
     public:
@@ -488,6 +491,14 @@ class Valeur {
 	 *		     for denomination of the various bases). 
 	 */
 	void set_base_p(int base_p) ; 
+
+	/**
+	 * Sets the \c n  lasts coefficients in \f$\theta\f$ to 0 in the 
+	 * domain \c nz1 to \c nz2 when expressed in spherical harmonics.
+	 */
+	void filtre_tp(int nn, int nz1, int nz2) ;
+
+
 
     // Differential operators
     // ----------------------
