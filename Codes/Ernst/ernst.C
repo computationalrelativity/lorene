@@ -30,6 +30,9 @@ char name_of_this_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/10/28 15:48:29  j_frauendiener
+ * Multiplication with cos(phi) added in comparison of results
+ *
  * Revision 1.2  2002/10/17 07:56:49  j_frauendiener
  * Initial revision
  *
@@ -50,7 +53,7 @@ char name_of_this_file_C[] = "$Header$" ;
 #include "graphique.h"
 
 const double alpha = 1.2;
-const double M = 1.5;
+const double M = 1.0;
 
 const double c = cos(alpha);
 const double c2 = cos(2*alpha);
@@ -58,7 +61,7 @@ const double s = sin(alpha);
 const double cc = c*c;
 const double Mc = M*c;
 
-const double mu = 0.1;
+const double mu = 0.5;
 
 //=============================================================
 
@@ -67,7 +70,7 @@ int main() {
   // Read grid parameters from a file
   // --------------------------------
 
-  ifstream parfile("par.d") ; 
+  ifstream parfile("ernstpar.d") ; 
   char blabla[80] ; 
   int nz, nr, nt, np ;
   int MaxIt;
@@ -118,11 +121,13 @@ int main() {
   Cmp Rm(map);
   Cmp Rp(map);
   Cmp F(map);
+  Cmp I(map);
   
   Rp = sqrt(Mc*Mc + r*r + 2*Mc*z);
   Rm = sqrt(Mc*Mc + r*r - 2*Mc*z);
 
   F =  Rp*Rp + Rm*Rm +2*c2*Rp*Rm + 4*M*cc*(Rp + Rm) + 4*Mc*Mc; 
+  I = -4.0*M*s*c*(Rp-Rm)/F;
   F = (Rp*Rp + Rm*Rm +2*c2*Rp*Rm - 4*Mc*Mc)/F - 1.0;
   for (int i=0;i<np;i++)
     for(int j=0; j<nt;j++)
@@ -188,7 +193,8 @@ int main() {
       Cmp UV = Usource.poisson_dirichlet(bcU, 0) ;
       UV.set(0) = 1.0;
 
-      cout << norme(abs(U-UV)) << endl;
+      Tbl diff =  norme(abs(U-UV));
+      cout << diff(1) << "   " << diff(2) << endl;
       U = (1-mu)*U + mu*UV;
       
       UV = Vsource.poisson_dirichlet(bcV, 0) ;
@@ -198,7 +204,7 @@ int main() {
     }
 
   des_profile(U-F,1.0001,20.0,M_PI/2,0);
-  des_profile(U,1.0001,20.0,0,M_PI/2);
+  des_profile(V-I,1.0001,20.0,0,M_PI/2);
   
 //   des_coupe_x(U, 0., 2, "field U at x=0") ; 
 //   des_coupe_y(U, 0., 2, "field U at y=0") ; 

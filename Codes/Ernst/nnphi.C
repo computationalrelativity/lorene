@@ -28,6 +28,9 @@ char name_of_this_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/10/28 15:48:29  j_frauendiener
+ * Multiplication with cos(phi) added in comparison of results
+ *
  * Revision 1.1  2002/10/17 07:56:49  j_frauendiener
  * Initial revision
  *
@@ -144,32 +147,22 @@ int main() {
 
   for (int m=0; m < nt; m++)
     {
-      double u, v;
-      datafile >> u >> v ; datafile.getline(blabla, 80) ;
+      double u1, v1, u2, v2 ;
+      datafile >> u1 >> v1 >> u2 >> v2; datafile.getline(blabla, 80) ;
       for (int l=0; l < np; l++)
 	{
-	  
-	  bcU.set(0,l,m,0) = u;
-	  bcV.set(0,l,m,0) = v;
+	  bcU.set(0,l,m,0) = u1;
+	  bcV.set(0,l,m,0) = v1;
+	  bcU.set(1,l,m,0) = u2;
+	  bcV.set(1,l,m,0) = v2;
 	}
     }
   
-  // domain 1: values at r=r2  
-  for (int m=0; m < nt; m++)
-    {
-      double u, v;
-      datafile >> u >> v ; datafile.getline(blabla, 80) ;
-      for (int l=0; l < np; l++)
-	{
-	  
-	  bcU.set(1,l,m,0) = u;
-	  bcV.set(1,l,m,0) = v;
-	}
-    }  
-
   bcV = bcV*cos(mpa.phi+shift);	// now bcV contains the bc for V*rho*cos(phi+shift)
   bcU.std_base_scal() ;
   bcV.std_base_scal() ;
+
+  
 
   //  fields and initial data
   //---------------------
@@ -204,8 +197,8 @@ int main() {
 
       Usource = 0.5*rho2*N4*(V.dsdr()*V.dsdr() + V.srdsdt()*V.srdsdt());
       Vsource = 4.0*x*(V.dsdr()*U.dsdr() + V.srdsdt()*U.srdsdt()) ;
-      Vsource.set(0) = 1.0;
-      Usource.set(0) = 1.0;
+      Vsource.set(0) = 0.5;
+      Usource.set(0) = 0.5;
 
       // force the rhs to be zero at infinity
       for (int i=0;i<np;i++)
@@ -219,6 +212,7 @@ int main() {
       Cmp V1 = Vsource.poisson_dirichlet(bcV, 0) ;
       U1.set(0) = 0.5;
 
+
       V1.div_rsint();
 
       V1 = V1/cos_phi;
@@ -226,9 +220,9 @@ int main() {
 
       Tbl diff =  norme(abs(U-U1)) + norme(abs(V-V1));
       
-      //      cout << "Iteration " << iter 
-      //	   << ":  Difference:  "
-      //   << diff(1) << "\t" << diff(2) << endl;
+      cout << "Iteration " << iter 
+      	   << ":  Difference:  "
+	   << diff(1) << "\t" << diff(2) << endl;
 
       U = (1-mu)*U + mu*U1;
       V = (1-mu)*V + mu*V1;
@@ -262,6 +256,7 @@ int main() {
   */
 
   V.mult_rsint();
+  bcV = bcV/cos(mpa.phi+shift);
   cout.setf(ios::scientific,ios::floatfield);
   cout.precision(7);
   
@@ -275,7 +270,7 @@ int main() {
       
     }
 
-  //  des_profile(U,1.01,20.0,M_PI/2,M_PI/2);
+  //      des_profile(U1,1.01,20.0,M_PI/2,M_PI/2);
   //  des_profile(V,1.01,20.0,M_PI/2,M_PI/2);
  
   return EXIT_SUCCESS ; 
