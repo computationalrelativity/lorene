@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2005/02/11 18:11:16  f_limousin
+ * Introduction of a member Map_af in derived class Star_bin.
+ *
  * Revision 1.13  2004/11/11 16:29:48  j_novak
  * set_der_0x0 is no longer virtual (to be coherent with Tensor/Scalar classes).
  *
@@ -114,8 +117,9 @@ class Star {
     // Data : 
     // -----
     protected:
-	Map& mp ;	    ///< Mapping associated with the star
-
+        /// Mapping associated with the star
+	Map& mp ;
+ 
 	/// Number of domains of \c *mp  occupied by the star
 	int nzet ;
 	
@@ -414,6 +418,11 @@ class Star_bin : public Star {
     // Data : 
     // -----
     protected:
+
+	/// Affine mapping for solving poisson's equations of 
+	/// metric quantities 
+	Map_af mpaff ;
+
 	/** \c true  for an irrotational star, \c false  for a
 	 *  corotating one
 	 */
@@ -955,7 +964,8 @@ class Star_bin : public Star {
 	void equilibrium(double ent_c, int mermax, int mermax_potvit, 
 			 int mermax_poisson, double relax_poisson, 
 			 double relax_potvit, double thres_adapt, 
-			 const Tbl& fact, Tbl& diff, int step) ;
+			 const Tbl& fact, Tbl& diff, int step,
+			 double omega) ;
 
 
 	/** Computes the non-translational part of the velocity scalar potential
