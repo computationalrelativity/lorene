@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/05/07 08:08:29  k_taniguchi
+ * Add the case of Eos_multi_poly.C
+ *
  * Revision 1.11  2004/03/22 16:10:20  j_novak
  * Excluding some files
  *
@@ -228,6 +231,7 @@ class Eos {
 	 *     15 = BalbN1H1 (Balberg 2000) \\
          *     16 = GlendNH3 (Glendenning 1985, case 3) \\ 
 	 *     100 = Multi-domain EOS (class \c MEos ) \\
+	 *     110 = Multi-polytropic EOS (class \c Eos_multi_poly ) \\
 	 *  The second line in the file must be the EOS name.
 	 *  The following lines should contain the EOS parameters (one
 	 *  parameter per line), in the same order than in the class declaration.

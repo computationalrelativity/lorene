@@ -31,6 +31,9 @@ char eos_from_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/05/07 08:06:45  k_taniguchi
+ * Add the case of Eos_multi_poly.C
+ *
  * Revision 1.5  2003/12/08 15:47:03  m_bejger
  * GlendNH3 EOS (Glendenning 1985, case 3) added
  *
@@ -83,6 +86,7 @@ char eos_from_file_C[] = "$Header$" ;
 // Header Lorene
 #include "headcpp.h"
 #include "eos.h"
+#include "eos_multi_poly.h"
 #include "utilitaires.h"
 
 		//--------------------------------------//
@@ -118,6 +122,7 @@ int Eos_GlendNH3::identify() const	{ return 16; }
 
 int MEos::identify() const	{ return 100; }
 
+int Eos_multi_poly::identify() const	{ return 110; }
 
 		//---------------------------------------------//
 		//    EOS construction from a binary file      //
@@ -200,6 +205,11 @@ Eos* Eos::eos_from_file(FILE* fich) {
 
 	case 100 : {
 	    p_eos = new MEos(fich) ;
+	    break ;
+	}
+
+	case 110 : {
+	    p_eos = new Eos_multi_poly(fich) ;
 	    break ;
 	}
 
@@ -299,6 +309,11 @@ Eos* Eos::eos_from_file(ifstream& fich) {
 
 	case 100 : {
 	    p_eos = new MEos(fich) ;
+	    break ;
+	}
+
+	case 110 : {
+	    p_eos = new Eos_multi_poly(fich) ;
 	    break ;
 	}
 
