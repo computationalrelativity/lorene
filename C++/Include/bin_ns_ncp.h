@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/01/20 09:38:59  f_limousin
+ * Modification of the standard constructor
+ *
  * Revision 1.1  2003/01/14 14:13:25  f_limousin
  * Binary NS with Nonconformally flat metric.
  *
@@ -136,7 +139,7 @@ class Bin_ns_ncp {
 	 */
 	Bin_ns_ncp(Map& mp1, int nzet1, const Eos& eos1, int irrot1, 
 		Map& mp2, int nzet2, const Eos& eos2, int irrot2,
-		int relat, const Metrique& flat0) ;			
+		int relat, const Metrique& flat0, const Tenseur_sym &source) ;			
 
 
 	Bin_ns_ncp(const Bin_ns_ncp& ) ;		/// Copy constructor

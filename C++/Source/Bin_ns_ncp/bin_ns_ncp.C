@@ -28,6 +28,9 @@ char Binaire_ncp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/01/20 09:38:17  f_limousin
+ * Modification of the standard constructor
+ *
  * Revision 1.1  2003/01/14 13:43:38  f_limousin
  * Methods of class Bin_ns_ncp.
  *
@@ -56,11 +59,10 @@ char Binaire_ncp_C[] = "$Header$" ;
 // --------------------
 
 Bin_ns_ncp::Bin_ns_ncp(Map& mp1, int nzet1, const Eos& eos1, int irrot1, 
-		 Map& mp2, int nzet2, const Eos& eos2, int irrot2,
-		 int relat, const Metrique& flat0) 
+		 Map& mp2, int nzet2, const Eos& eos2, int irrot2, int relat, const Metrique& flat0, const Tenseur_sym &source) 
 		 : ref_triad(0., "Absolute frame Cartesian basis"),  
-		   star1(mp1, nzet1, relat, eos1, irrot1, ref_triad, flat0), 
-		   star2(mp2, nzet2, relat, eos2, irrot2, ref_triad, flat0)
+		   star1(mp1, nzet1, relat, eos1, irrot1, ref_triad, flat0, source), 
+		   star2(mp2, nzet2, relat, eos2, irrot2, ref_triad, flat0, source)
 {
 
     et[0] = &star1 ; 
