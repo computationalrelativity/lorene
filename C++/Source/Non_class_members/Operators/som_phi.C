@@ -1,7 +1,7 @@
 /*
  *   Copyright (c) 1999-2000 Jean-Alain Marck
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
  *   Copyright (c) 1999-2001 Philippe Grandclement
+ *   Copyright (c) 1999-2002 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -40,8 +40,11 @@ char som_phi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/05/05 16:21:28  e_gourgoulhon
+ * Error message (for unknown basis) in English.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.2  2000/09/08  16:07:02  eric
  * Ajout de la base P_COSSIN_I
@@ -66,11 +69,10 @@ char som_phi_C[] = "$Header$" ;
 #include <math.h>
 
 void som_phi_pas_prevu
-    (double* ti, const int np, const double phi, double* to) {
-	cout << "Sommation en phi sur une base non prevue" << endl ;
-	cout << ti << " " << np << " " << phi << " " << to << endl ;
+    (double*, const int, const double, double*) {
+	cout << "Mtbl_cf::val_point: phi basis not implemented yet ! "
+	     << endl ;
 	abort () ;
-	exit(-1) ;
 }
 
 void som_phi_cossin
