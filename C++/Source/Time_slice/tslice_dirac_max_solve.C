@@ -30,6 +30,9 @@ char tslice_dirac_max_solve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/05/03 15:06:27  e_gourgoulhon
+ * Added matter source in solve_hij.
+ *
  * Revision 1.3  2004/05/03 14:50:00  e_gourgoulhon
  * Finished the implementation of method solve_hij.
  *
@@ -366,11 +369,15 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
 	  tmp += tgam_dd(k,l) * aa()(i,k) * aa()(j,l) ; 
 	}
       }
-      sym_tmp.set(i,j) = 2. * tmp ; 
+      sym_tmp.set(i,j) = tmp ; 
     }
   }
         
-  ss += nn() * sym_tmp ; 
+  tmp = psi4() * strain_tens.trace(tgam()) ; // S = S_i^i 
+
+  ss += (2.*nn()) * ( sym_tmp - qpig*( psi4()* strain_tens 
+                                       - 0.3333333333333333 * tmp * tgam_uu ) 
+                    )   ; 
 
   // Source for h^{ij} 
   // -----------------
