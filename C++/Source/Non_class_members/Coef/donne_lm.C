@@ -28,6 +28,9 @@ char donne_lm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/09/16 12:11:59  j_novak
+ * Added the base T_LEG_II.
+ *
  * Revision 1.2  2002/10/16 14:36:54  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -157,6 +160,23 @@ void donne_lm_t_leg_pi (int j, int k, int &m_quant, int &l_quant) {
     
 }
 
+	 //-------------------------------------------------------
+	// Developpement en P_COSSIN_I pour phi et T_LEG_II en theta
+       //---------------------------------------------------------
+
+void donne_lm_t_leg_ii (int j, int k, int &m_quant, int &l_quant) {
+
+    if (k<=2) {
+	m_quant = 1 ; 
+    }
+    else{
+	m_quant = (k%2 == 0) ? k-1 : k ; 
+    }
+    
+    l_quant = 2*j ;
+    
+}
+
 
 
 		//-----------------------------
@@ -217,6 +237,10 @@ void donne_lm (int nz, int zone, int j, int k, Base_val base,
 
 		case T_LEG_PI :
 		    donne_lm_t_leg_pi (j, k, m_quant, l_quant) ;
+		    break ; 
+
+		case T_LEG_II :
+		    donne_lm_t_leg_ii (j, k, m_quant, l_quant) ;
 		    break ; 
 
 		default :

@@ -26,6 +26,9 @@ char nullite_plm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/09/16 12:11:59  j_novak
+ * Added the base T_LEG_II.
+ *
  * Revision 1.2  2002/10/16 14:36:57  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -160,6 +163,26 @@ int nullite_plm_t_leg_pi(int j, int nt, int k, int np) {
     return 0 ; else return 1 ; 
 }
 
+	 //-------------------------------------------------------
+	// Developpement en P_COSSIN_I pour phi et T_LEG_II en theta
+       //---------------------------------------------------------
+
+int nullite_plm_t_leg_ii(int j, int nt, int k, int np) {
+
+    int m ;
+    if (k<=2) {
+	m = 1 ; 
+    }
+    else{
+	m = (k%2 == 0) ? k-1 : k ; 
+    }
+    
+    int borne_sup =  nt-2 ;
+    int borne_inf =  (m+1)/2 ;
+    if ((j<borne_inf) || (j>borne_sup) || (k==1) || (k>np)) 
+    return 0 ; else return 1 ; 
+}
+
 
 
 
@@ -216,6 +239,10 @@ int nullite_plm (int j, int nt, int k, int np, Base_val base) {
 	    switch (base_t) {
 		case T_LEG_PI :
 		  result = nullite_plm_t_leg_pi (j, nt, k, np) ;
+		  break ;  
+	    
+		case T_LEG_II :
+		  result = nullite_plm_t_leg_ii (j, nt, k, np) ;
 		  break ;  
 	    
 		default :

@@ -33,8 +33,11 @@ char mtbl_cf_lapang_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/09/16 12:11:59  j_novak
+ * Added the base T_LEG_II.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.3  2000/10/04  14:55:45  eric
  * Ajout des bases T_LEG_IP et T_LEG_PI.
@@ -67,6 +70,7 @@ void _lapang_t_leg_i(Mtbl_cf *, int) ;
 void _lapang_t_leg_pp(Mtbl_cf *, int) ;
 void _lapang_t_leg_ip(Mtbl_cf *, int) ;
 void _lapang_t_leg_pi(Mtbl_cf *, int) ;
+void _lapang_t_leg_ii(Mtbl_cf *, int) ;
 
 //*****************************************************************************
 
@@ -89,6 +93,7 @@ static int nap = 0 ;
 	_lapang[T_LEG_I >> TRA_T] = _lapang_t_leg_i ;
 	_lapang[T_LEG_IP >> TRA_T] = _lapang_t_leg_ip ;
 	_lapang[T_LEG_PI >> TRA_T] = _lapang_t_leg_pi ;
+	_lapang[T_LEG_II >> TRA_T] = _lapang_t_leg_ii ;
     }
 
     // Boucle sur les zones

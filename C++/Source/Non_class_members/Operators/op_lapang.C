@@ -39,6 +39,9 @@ char op_lapang_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/09/16 12:11:59  j_novak
+ * Added the base T_LEG_II.
+ *
  * Revision 1.2  2002/10/16 14:36:58  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -383,4 +386,80 @@ void _lapang_t_leg_pi(Mtbl_cf* mt, int l)
     // base de developpement inchangee 
 }
 
+			//------------------
+			// cas T_LEG_II --
+			//----------------
+
+void _lapang_t_leg_ii(Mtbl_cf* mt, int l)
+{
+
+    Tbl* tb = mt->t[l] ;	    // pt. sur tbl de travail
+    
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	return ;
+    }
+    
+    int k, j, i ; 
+    // Pour le confort
+    int nr = mt->get_mg()->get_nr(l) ;   // Nombre
+    int nt = mt->get_mg()->get_nt(l) ;   //	de points
+    int np = mt->get_mg()->get_np(l) ;   //	    physiques
+    
+    double* tuu = tb->t ; 
+
+    // k = 0  :	    cos(phi)
+    // -----
+     
+    for (j=0 ; j<nt-1 ; j++) {
+	int ll = 2*j ;
+	double xl = - ll*(ll+1) ;
+	for (i=0 ; i<nr ; i++) {
+	    tuu[i] *= xl ;
+	}	// Fin de boucle sur r
+	tuu  += nr ;
+    }     // Fin de boucle sur theta
+    tuu  += nr ; // On saute j=nt-1
+
+    if (np==1) {
+	return ; 
+    }
+
+    // k = 1 : on saute
+    // -----
+    tuu += nt*nr ; 
+	
+    // k = 2 :	sin(phi)
+    // ------
+    for (j=0 ; j<nt-1 ; j++) {
+	int ll = 2*j+1 ;
+	double xl = - ll*(ll+1) ;
+	for (i=0 ; i<nr ; i++) {
+	    tuu[i] *= xl ;
+	}	// Fin de boucle sur r
+	tuu  += nr ;
+    }     // Fin de boucle sur theta
+    tuu  += nr ; // On saute j=nt-1
+
+    // 3 <= k <= np
+    // ------------
+    for (k=3 ; k<np+1 ; k++) {
+	int m = (k%2 == 0) ? k-1 : k ;
+	tuu  += (m+1)/2*nr ;
+	for (j=(m+1)/2 ; j<nt-1 ; j++) {
+	    int ll = 2*j ;
+	    double xl = - ll*(ll+1) ;
+	    for (i=0 ; i<nr ; i++) {
+		tuu[i] *= xl ;
+	    }	// Fin de boucle sur r
+	    tuu  += nr ;
+	}     // Fin de boucle sur theta
+	tuu  += nr ; // On saute j=nt-1
+    }	// Fin de boucle sur phi	
+
+//## Verif
+    assert (tuu == tb->t + (np+1)*nt*nr) ;
+	    
+    // base de developpement inchangee 
+}
 
