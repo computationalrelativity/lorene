@@ -111,13 +111,13 @@ cout << "mass: " << Mc <<"\t" << J <<"\t" << Om  << endl;
 
   const Coord& z = map.z ; 
   const Coord& r = map.r ; 
-  const Coord& cost = map.cost ; 
-  const Coord& sint = map.sint ; 
+//   const Coord& cost = map.cost ; 
+//   const Coord& sint = map.sint ; 
   
   Cmp U(map) ; 
   Cmp V(map) ;
-  Cmp Usource(map);
-  Cmp Vsource(map);
+  Cmp Usource(map); // RHS for the real part of the Ernst equation
+  Cmp Vsource(map); // RHS for the imaginary part of the Ernst equation
 
   // Auxiliary fields for the Kerr solution
   //------------------------
@@ -131,7 +131,7 @@ cout << "mass: " << Mc <<"\t" << J <<"\t" << Om  << endl;
   
   Rp = sqrt(Mc*Mc + r*r + 2*Mc*z);
   Rm = sqrt(Mc*Mc + r*r - 2*Mc*z);
-  Cmp X = 0.5*(Rp+Rm)/Mc;
+  Cmp X = 0.5*(Rp+Rm)/Mc;//parabolic coordinates
   Cmp Y = 0.5*(Rp-Rm)/Mc;
   
   
@@ -140,8 +140,7 @@ cout << "mass: " << Mc <<"\t" << J <<"\t" << Om  << endl;
   F = (cc*X*X+s*s*Y*Y-1)/N;
   B = -2*s*Y/N;
   A = 2*M*s*(1-Y*Y)*(1+c*X)/N;
-
-
+  
   for (int i=0;i<np;i++) // set at infinity
   {
     for(int j=0; j<nt;j++)
@@ -151,7 +150,12 @@ cout << "mass: " << Mc <<"\t" << J <<"\t" << Om  << endl;
 	A.set(nz-1,i,j,nr-1) = 0.0;
     }
   }
-    
+   
+  Cmp Un(map); // set F=1 in the nucleus to avoid problems due to the ergosphere
+  Un = 1;
+  Un.annule(1,2);
+  F.annule(0);
+  F = F +Un;
   F.std_base_scal();		
   B.std_base_scal();
   B.va.set_base_t(T_COSSIN_CI) ;
@@ -159,60 +163,72 @@ cout << "mass: " << Mc <<"\t" << J <<"\t" << Om  << endl;
   
 
 // rotating coordinates and functions vanishing at infinity
-  Cmp Frot(map);
-  Cmp Brrot(map);
-  Cmp R(map);
-  Cmp Ct(map);
-  Cmp St(map);
-  Cmp At(map); //A_theta/r/rho
-  Cmp Ft(map); //F_theta/r/rho
-  
-  
-  R = r;
-  Ct = cost;
-  St = sint;
-  Cmp Omrsint(map);
-  Omrsint = Om*R*St;
-  Omrsint.std_base_scal();
-//   Omrsint.mult_rsint();
-  Cmp H = (A*A-R*St*R*St)/F+R*St*R*St+2*M*R*St*St+2*M*M*St*St;
-  Frot = F-1+2*Om*A+Om*Om*H;
-  At = 2*X*(1+c*X)*(1+c*X)*(1+c*X)+s*s*X*(1+c*X)*(1+Y*Y)+s*s*c*Y*Y*(1-Y*Y);
-  At = At*2*Mc*M*s*Y/Rp/Rm/N/N/R;   
-  Ft = (c-s*s*X)*(1+c*X)*(1+c*X)-c*s*s*Y*Y;
-  Ft = Ft*2*Mc*Y/Rp/Rm/N/N/R;  
+  Cmp Frot(map); // F in corotating coordinates
+  Cmp Brrot(map); // B_r in corotating coordinates
+  Cmp Btrot(map); // B_theta in corotating coordinates
+  Cmp At(map); //A_theta/r/sint
+  Cmp Ft(map); //F_theta/r/sint
+  Cmp Ar(map); //A_r
+  Cmp Fr(map); //F_r
+  Cmp Omsint(map);// Omega*sin(theta)
+  Omsint = Om;
+  Omsint.std_base_scal();
+  Omsint.va = Omsint.va.mult_st();
 
   
-  Cmp H1 = F*F+2*Om*A*F+Om*Om*A*A+Omrsint*Omrsint;
-//   At = A;
-//   At.srdsdt();     
+  Cmp Ftemp = (F+Om*A);
+  Cmp Help2 = Ftemp;
+  Ftemp.div_r();
+  Frot = (Ftemp*Ftemp-Omsint*Omsint)/F;
+  Cmp Rminus(map);// Rminus = 1/r
+  Rminus = 1;
+  Rminus.std_base_scal();
+  Rminus.div_r();
+  
+// Ftilde:  F in corotating coordinates minus diverging and constant terms
+  Cmp Ftilde = Frot - Rminus*Rminus+Omsint*Omsint*(1+2*M*Rminus+2*M*M*Rminus*Rminus); 
+  Ftilde.std_base_scal();
+  Ftilde.mult_r();
+  Ftilde.mult_r();
+  Ftilde.inc2_dzpuis();
+  
+  
+  
+  At.set_etat_qcq();
+  Ft.set_etat_qcq();
+  Ar.set_etat_qcq();
+  Fr.set_etat_qcq();
+  At.va = A.va.dsdt().ssint();
+  Ft.va = F.va.dsdt().ssint();
+  Ar = A.dsdr();
+  Fr = F.dsdr();
+  Ar.dec2_dzpuis();
+  Fr.dec2_dzpuis();
+  Cmp Help1 = Ftemp*Ftemp+Omsint*Omsint;
+  Cmp Omsint2(map);// Omega*sin(theta)^2
+  Omsint2.set_etat_qcq();
+  Omsint2.va = Omsint.va.mult_st();
+  Cmp Omcost(map);// Omega*cos(theta)
+  Omcost = Om;
+  Omcost.std_base_scal();
+  Omcost.va = Omcost.va.mult_ct();
+  Brrot = Help1*At+(2*Omsint2*Help2-Help1*A)*Ft/F-2*Omcost*Help2;
+  Brrot = Brrot/F;
+  Cmp Brtilde = Brrot+2*Omcost; //Brot_r minus diverging and constant terms
+  Btrot = Help1*Ar+(2*Omsint2*Help2-Help1*A)*Fr/F;
+  Btrot.va = Btrot.va.ssint();
+  Btrot.mult_r();
+  Btrot.inc_dzpuis();
+  Btrot = -Btrot+2*Omsint*Help2;
+  Btrot = Btrot/F;
+  // Brot_theta minus diverging and constant terms
+  Cmp Bttilde = Btrot-2*Omsint-6*M*M*s*Omsint*Omsint*Omsint/Om*Rminus+4*M*Omsint*Rminus;
+  
+  
 
-// At.div_rsint();
- //   arrete();
-  Cmp H2 = (H1*A-2*Omrsint*R*St*(F+Om*A))/F;
-//   Cmp Ft = F;
-//   Ft.srdsdt();
-//   Ft.div_rsint();
-  Cmp H3 = 2*Om*Ct*(F+Om*A);  
-  Brrot = (H1*At-H2*Ft/F-H3)/F+2*Om*Ct;
   
   
   
-   for (int i=0;i<np;i++)
-  {
-    for(int j=0; j<nt;j++)
-    {
-	Frot.set(nz-1,i,j,nr-1) = 0.0;
- 	Brrot.set(nz-1,i,j,nr-1) = 0.0;
-    }
-  }
-  Frot.std_base_scal();		
-  Brrot.std_base_scal();  
-  Brrot.va.set_base_t(T_COSSIN_CI) ;
-//    des_profile(A,1.0001,20.0,M_PI/2,0);
-//    des_profile(At,1.0001,20.0,M_PI/2,0);
-// des_coupe_z(Brrot,0,nz-1);
-// des_coupe_x(Brrot,0,nz-1);
 
 
   // Boundary Values
@@ -223,28 +239,27 @@ cout << "mass: " << Mc <<"\t" << J <<"\t" << Om  << endl;
   Valeur bcU( mgrid.get_angu());
   Valeur bcV( mgrid.get_angu());
   bcU.annule_hard();
-  bcV.annule_hard();  
-  
+  bcV.annule_hard();
+ 
   for (int m=0; m < nt; m++)
     {
       for (int l=0; l < np; l++)
 	{
-	  bcU.set(1,l,m,0) = Frot(1,l,m,nr-2);
-	  bcV.set(1,l,m,0) = Brrot(1,l,m,nr-2);	  
+	  bcU.set(1,l,m,0) = Ftilde(1,l,m,0);
+	  bcV.set(1,l,m,0) = Brtilde(1,l,m,0);	  
 	}
     }
-  
-  bcU.std_base_scal() ;
-  bcV.std_base_scal() ;// sets standard spectral bases 
-  bcV.set_base_t(T_COSSIN_CI) ;
-  
+ 
+  bcU.set_base(Ftilde.va.base);
+  bcV.set_base(Brtilde.va.base);
+
   // initial values
-  U = 1.0;
+//   U = 1;
+  U = Ftilde;
   U.std_base_scal() ;
 
-  V = cost/pow(r,2);
-  
-  
+  V = U;
+  V.annule_hard();
   V.std_base_scal() ;
   V.va.set_base_t(T_COSSIN_CI) ;
 
@@ -256,32 +271,74 @@ cout << "mass: " << Mc <<"\t" << J <<"\t" << Om  << endl;
 //       
 //       cout << "Iteration " << iter << endl;
       
-      Cmp Urot = U+1-Om*Om*St*St*(R*R+2*M*R+2*M*M); //F with correct asymptotic behavior
-      Cmp Usource1 = 4*Om*Om*(1+2*M/R*(1-St*St)+M*M/R/R*(2-3*St*St));
-      Usource = (U.dsdr()-2*Om*Om*St*St*(M+R)*(M+R))*(U.dsdr()-2*Om*Om*St*St*(M+R)*(M+R))
-		+(U.srdsdt()-2*Om*Om*St*Ct*(R+2*M+2*M*M/R))*(U.srdsdt()-2*Om*Om*St*Ct*(R+2*M+2*M*M/R))
-		- (V.dsdr()-2*Om*Ct)*(V.dsdr()-2*Om*Ct)
-		- (V.srdsdt()+2*Om*St+6*Om*Om*M*M*s*St*St*St/R-4*Om*M*St/R)
-		*(V.srdsdt()+2*Om*St+6*Om*Om*M*M*s*St*St*St/R-4*Om*M*St/R);
-      Usource = Usource/Urot+Usource1;
+      Cmp Ur = U;
+      Ur.div_r();
+      Ur.div_r();
+      Cmp Urot = Ur+Rminus*Rminus-Omsint*Omsint*(1+2*M*Rminus+2*M*M*Rminus*Rminus); //F with correct asymptotic behavior
+      
+      Cmp Usource1 = 4*Omsint*Omsint*(2*M*Rminus+3*M*M*Rminus*Rminus)-4*Om*Om*(1+2*M*Rminus+2*M*M*Rminus*Rminus);
+      Cmp LHS = Frot*(Ftilde.laplacien(0)+Usource1); // test Kerr
+     
+      Cmp Urr = U.dsdr();
+      Urr.div_r();
+      Cmp Utr = U.srdsdt();
+      Utr.div_r();
+      Cmp Vsr = V.dsdr();
+      Cmp Vst = V.srdsdt();
+      Vsr.dec2_dzpuis();
+      Vst.dec2_dzpuis();
+      Urr.dec2_dzpuis();
+      Utr.dec2_dzpuis();
+      
+//       Test of Kerr
+      Vsr = Brtilde;
+      Vst = Bttilde;
+      
+      
+      Cmp Ustemp = -(Vsr-2*Omcost)*(Vsr-2*Omcost)
+		- (Vst+2*Omsint+6*Omsint*Omsint*Omsint*M*M*s*Rminus/Om-4*Omsint*M*Rminus)
+		*(Vst+2*Omsint+6*Omsint*Omsint*Omsint*M*M*s*Rminus/Om-4*Omsint*M*Rminus);
+      Ustemp.div_r();
+      Ustemp.div_r();
+      Usource = (Urr-2*Omsint*Omsint*(1+M*Rminus))*(Urr-2*Omsint*Omsint*(1+M*Rminus))
+		+(Utr-2*Omsint*Omcost*(1+2*M*Rminus+2*M*M*Rminus*Rminus))*(Utr-2*Omsint*Omcost*(1+2*M*Rminus+2*M*M*Rminus*Rminus))
+ 		+Ustemp;
+      Cmp test = Usource;
+      
+      
+      
+      Usource = Usource/Urot-Usource1;
+       
+   
 	
-      Cmp Vsource1 = 8*Om*M*Ct/R/R-24*Om*Om*M*M*s*Ct*St*St/R/R;
-      Vsource = (V.dsdr()-2*Om*Ct)*(U.dsdr()-2*Om*Om*St*St*(R+M))
-      +(V.srdsdt()+2*Om*St+6*Om*Om*M*M*s*St*St*St/R-4*Om*M*St/R)
-      *(U.srdsdt()-2*Om*Om*St*Ct*(R+2*M+2*M*M/R));
-      Vsource = Vsource/Urot+Vsource1;
+      Cmp Vsource1 = (-8*Omcost*M+24*Omcost*Omsint*Omsint*M*M*s/Om)*Rminus*Rminus;
+      Vsource = (Vsr-2*Omcost)*(Urr-2*Omsint*Omsint*(1+M*Rminus))
+      +(Vst+2*Omsint+6*Omsint*Omsint*Omsint*M*M*s*Rminus/Om-4*Omsint*M*Rminus)
+      *(Utr-2*Omsint*Omcost*(1+2*M*Rminus+2*M*M*Rminus*Rminus));
+      Vsource.div_r();
+      Vsource = 2*Vsource/Urot-Vsource1;
       
       Usource.set(0) = 1.0;
       Vsource.set(0) = 1.0;
+      test.set(0) = 1.0;
+      LHS.set(0) = 1.0;
       for (int i=0;i<np;i++) // set at infinity
   {
     for(int j=0; j<nt;j++)
     {
+	test.set(nz-1,i,j,nr-1) = 0.0;
 	Usource.set(nz-1,i,j,nr-1) = 0.0;
 	Vsource.set(nz-1,i,j,nr-1) = 0.0;
     }
-  }
+  }      
+   Valeur ** Coeff = Usource.asymptot(3);
+   cout <<*Coeff [1];
+   des_profile(test,1.0001,20.0,1.2,0);
+   des_profile(LHS,1.0001,20.0,1.2,0);
 
+      Usource.inc2_dzpuis();
+      Usource.inc_dzpuis();
+  
 
       Cmp UV = Usource.poisson_dirichlet(bcU, 0) ;
       UV.set(0) = 1.0;
