@@ -32,6 +32,10 @@ char star_binupmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/21 17:05:13  e_gourgoulhon
+ * Method Scalar::point renamed Scalar::val_grid_point.
+ * Method Scalar::set_point renamed Scalar::set_grid_point.
+ *
  * Revision 1.2  2004/01/20 15:20:08  f_limousin
  * First version
  *
@@ -184,12 +188,12 @@ void Star_bin::update_metric(const Star_bin& comp) {
 	    for (int j=0; j<nt; j++)
 		for (int i=0; i<nr; i++){
 	      
-		    moy_det[l] = moy_det[l] + det_gtilde.point(l,k,j,i) ;
-		    if (det_gtilde.point(l,k,j,i) > max_det[l]){
-			max_det[l] = det_gtilde.point(l,k,j,i) ;
+		    moy_det[l] = moy_det[l] + det_gtilde.val_grid_point(l,k,j,i) ;
+		    if (det_gtilde.val_grid_point(l,k,j,i) > max_det[l]){
+			max_det[l] = det_gtilde.val_grid_point(l,k,j,i) ;
 		    }
-		    if (det_gtilde.point(l,k,j,i) < min_det[l]){
-			min_det[l] = det_gtilde.point(l,k,j,i) ;
+		    if (det_gtilde.val_grid_point(l,k,j,i) < min_det[l]){
+			min_det[l] = det_gtilde.val_grid_point(l,k,j,i) ;
 		    }
 		}
      
@@ -384,12 +388,12 @@ void Star_bin::update_metric(const Star_bin& comp,
 	    for (int j=0; j<nt; j++)
 		for (int i=0; i<nr; i++){
 	      
-		    moy_det[l] = moy_det[l] + det_gtilde.point(l,k,j,i) ;
-		    if (det_gtilde.point(l,k,j,i) > max_det[l]){
-			max_det[l] = det_gtilde.point(l,k,j,i) ;
+		    moy_det[l] = moy_det[l] + det_gtilde.val_grid_point(l,k,j,i) ;
+		    if (det_gtilde.val_grid_point(l,k,j,i) > max_det[l]){
+			max_det[l] = det_gtilde.val_grid_point(l,k,j,i) ;
 		    }
-		    if (det_gtilde.point(l,k,j,i) < min_det[l]){
-			min_det[l] = det_gtilde.point(l,k,j,i) ;
+		    if (det_gtilde.val_grid_point(l,k,j,i) < min_det[l]){
+			min_det[l] = det_gtilde.val_grid_point(l,k,j,i) ;
 		    }
 		}
      

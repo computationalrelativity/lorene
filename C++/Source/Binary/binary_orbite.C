@@ -33,6 +33,10 @@ char binary_orbite_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/02/21 17:05:13  e_gourgoulhon
+ * Method Scalar::point renamed Scalar::val_grid_point.
+ * Method Scalar::set_point renamed Scalar::set_grid_point.
+ *
  * Revision 1.1  2004/01/20 15:22:19  f_limousin
  * First version
  *
@@ -105,44 +109,44 @@ void Binary::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
 	Scalar tmp = logn_auto + logn_comp + loggam ;
 	
 	// ... gradient suivant X : 		
-	dnulg[i] = tmp.dsdx().point(0, 0, 0, 0) ; 
+	dnulg[i] = tmp.dsdx().val_grid_point(0, 0, 0, 0) ; 
 
 	//----------------------------------
 	// Calcul de gij, lapse et shift au centre de l'etoile
 	//----------------------------------
 
-	g00[i] = gg00.point(0,0,0,0) ; 
-	g10[i] = gg10.point(0,0,0,0) ; 
-	g20[i] = gg20.point(0,0,0,0) ; 
-	g11[i] = gg11.point(0,0,0,0) ; 
-	g21[i] = gg21.point(0,0,0,0) ; 
-	g22[i] = gg22.point(0,0,0,0) ; 
+	g00[i] = gg00.val_grid_point(0,0,0,0) ; 
+	g10[i] = gg10.val_grid_point(0,0,0,0) ; 
+	g20[i] = gg20.val_grid_point(0,0,0,0) ; 
+	g11[i] = gg11.val_grid_point(0,0,0,0) ; 
+	g21[i] = gg21.val_grid_point(0,0,0,0) ; 
+	g22[i] = gg22.val_grid_point(0,0,0,0) ; 
 
-	bx[i] = bbx.point(0,0,0,0) ;
-	by[i] = bby.point(0,0,0,0) ;
-	bz[i] = bbz.point(0,0,0,0) ;
+	bx[i] = bbx.val_grid_point(0,0,0,0) ;
+	by[i] = bby.val_grid_point(0,0,0,0) ;
+	bz[i] = bbz.val_grid_point(0,0,0,0) ;
 
-	unsn2[i] = 1/(nnn.point(0,0,0,0)*nnn.point(0,0,0,0)) ; 
+	unsn2[i] = 1/(nnn.val_grid_point(0,0,0,0)*nnn.val_grid_point(0,0,0,0)) ; 
 
 	//----------------------------------
 	// Calcul de d/dX(gij), d/dX(shift) au centre de l'etoile
 	//----------------------------------
 	
-	dg00[i] = gg00.dsdx().point(0,0,0,0) ;
-	dg10[i] = gg10.dsdx().point(0,0,0,0) ;
-	dg20[i] = gg20.dsdx().point(0,0,0,0) ;
-	dg11[i] = gg11.dsdx().point(0,0,0,0) ;
-	dg21[i] = gg21.dsdx().point(0,0,0,0) ;
-	dg22[i] = gg22.dsdx().point(0,0,0,0) ;
+	dg00[i] = gg00.dsdx().val_grid_point(0,0,0,0) ;
+	dg10[i] = gg10.dsdx().val_grid_point(0,0,0,0) ;
+	dg20[i] = gg20.dsdx().val_grid_point(0,0,0,0) ;
+	dg11[i] = gg11.dsdx().val_grid_point(0,0,0,0) ;
+	dg21[i] = gg21.dsdx().val_grid_point(0,0,0,0) ;
+	dg22[i] = gg22.dsdx().val_grid_point(0,0,0,0) ;
 	
-	dbx[i] = bbx.dsdx().point(0,0,0,0) ;
-	dby[i] = bby.dsdx().point(0,0,0,0) ;
- 	dbz[i] = bbz.dsdx().point(0,0,0,0) ;
+	dbx[i] = bbx.dsdx().val_grid_point(0,0,0,0) ;
+	dby[i] = bby.dsdx().val_grid_point(0,0,0,0) ;
+ 	dbz[i] = bbz.dsdx().val_grid_point(0,0,0,0) ;
 
-	dbymo[i] = bby.dsdx().point(0,0,0,0) - omega ;
+	dbymo[i] = bby.dsdx().val_grid_point(0,0,0,0) - omega ;
 
 
-	d1sn2[i] = (1/(nnn*nnn)).dsdx().point(0,0,0,0) ;
+	d1sn2[i] = (1/(nnn*nnn)).dsdx().val_grid_point(0,0,0,0) ;
 
 
 	cout << "Binary::orbit: central d(nu+log(Gam))/dX : " 
@@ -192,7 +196,7 @@ void Binary::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
     double ori_x2 = ori_x[1] ;
 
     if ( et[0]->get_eos() == et[1]->get_eos() &&
-	 et[0]->get_ent().point(0,0,0,0) == et[1]->get_ent().point(0,0,0,0) ) {
+	 et[0]->get_ent().val_grid_point(0,0,0,0) == et[1]->get_ent().val_grid_point(0,0,0,0) ) {
 
         x_axe = 0. ;
 

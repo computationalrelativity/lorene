@@ -31,6 +31,10 @@ char star_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/02/21 17:05:13  e_gourgoulhon
+ * Method Scalar::point renamed Scalar::val_grid_point.
+ * Method Scalar::set_point renamed Scalar::set_grid_point.
+ *
  * Revision 1.4  2004/01/22 10:07:18  f_limousin
  * Add methods set_logn_comp() and set_shift_auto().
  *
@@ -448,23 +452,23 @@ ostream& Star_bin::operator>>(ostream& ost) const {
     ost << "d_tilde : " << d_tilde << endl ; 
 
     ost << "Central value of gam_euler : " 
-        << gam_euler.point(0, 0, 0, 0)  << endl ; 
+        << gam_euler.val_grid_point(0, 0, 0, 0)  << endl ; 
 
     ost << "Central u_euler (U^X, U^Y, U^Z) [c] : " 
-	<< u_euler(1).point(0, 0, 0, 0) << "  " 
-	<< u_euler(2).point(0, 0, 0, 0) << "  " 
-	<< u_euler(3).point(0, 0, 0, 0) << endl ; 
+	<< u_euler(1).val_grid_point(0, 0, 0, 0) << "  " 
+	<< u_euler(2).val_grid_point(0, 0, 0, 0) << "  " 
+	<< u_euler(3).val_grid_point(0, 0, 0, 0) << endl ; 
 
     if (irrotational) {
     ost << "Central d_psi (X, Y, Z) [c] :         " 
-	    << d_psi(1).point(0, 0, 0, 0) << "  " 
-	    << d_psi(2).point(0, 0, 0, 0) << "  " 
-	    << d_psi(3).point(0, 0, 0, 0) << endl ; 
+	    << d_psi(1).val_grid_point(0, 0, 0, 0) << "  " 
+	    << d_psi(2).val_grid_point(0, 0, 0, 0) << "  " 
+	    << d_psi(3).val_grid_point(0, 0, 0, 0) << endl ; 
 
 	ost << "Central vel. / co-orb. (W^X, W^Y, W^Z) [c] : " 
-	    << wit_w(1).point(0, 0, 0, 0) << "  " 
-	    << wit_w(2).point(0, 0, 0, 0) << "  " 
-	    << wit_w(3).point(0, 0, 0, 0) << endl ; 
+	    << wit_w(1).val_grid_point(0, 0, 0, 0) << "  " 
+	    << wit_w(2).val_grid_point(0, 0, 0, 0) << "  " 
+	    << wit_w(3).val_grid_point(0, 0, 0, 0) << endl ; 
 
 	ost << "Max vel. / co-orb. (W^X, W^Y, W^Z) [c] : " 
 	    << max(max(wit_w(1))) << "  " 
@@ -484,59 +488,59 @@ ostream& Star_bin::operator>>(ostream& ost) const {
 	    << wit_w(3).val_point(r_surf,M_PI/4,M_PI/4) << endl ;
 
 	ost << "Central value of loggam : " 
-	    << loggam.point(0, 0, 0, 0)  << endl ; 	
+	    << loggam.val_grid_point(0, 0, 0, 0)  << endl ; 	
     }
 
 
     ost << "Central value of log(N) auto, comp :         " 
-	<< logn_auto.point(0, 0, 0, 0) << "  " 
-	<< logn_comp.point(0, 0, 0, 0) << endl ; 
+	<< logn_auto.val_grid_point(0, 0, 0, 0) << "  " 
+	<< logn_comp.val_grid_point(0, 0, 0, 0) << endl ; 
 
     ost << "Central value of shift (N^X, N^Y, N^Z) [c] : " 
-	<< shift(1).point(0, 0, 0, 0) << "  " 
-	<< shift(2).point(0, 0, 0, 0) << "  " 
-	<< shift(3).point(0, 0, 0, 0) << endl ; 
+	<< shift(1).val_grid_point(0, 0, 0, 0) << "  " 
+	<< shift(2).val_grid_point(0, 0, 0, 0) << "  " 
+	<< shift(3).val_grid_point(0, 0, 0, 0) << endl ; 
 
     ost << "  ... shift_auto part of it [c] :            " 
-	<< shift_auto(1).point(0, 0, 0, 0) << "  " 
-	<< shift_auto(2).point(0, 0, 0, 0) << "  " 
-	<< shift_auto(3).point(0, 0, 0, 0) << endl ; 
+	<< shift_auto(1).val_grid_point(0, 0, 0, 0) << "  " 
+	<< shift_auto(2).val_grid_point(0, 0, 0, 0) << "  " 
+	<< shift_auto(3).val_grid_point(0, 0, 0, 0) << endl ; 
 
     ost << "  ... shift_comp part of it [c] :            " 
-	<< shift_comp(1).point(0, 0, 0, 0) << "  " 
-	<< shift_comp(2).point(0, 0, 0, 0) << "  " 
-	<< shift_comp(3).point(0, 0, 0, 0) << endl ; 
+	<< shift_comp(1).val_grid_point(0, 0, 0, 0) << "  " 
+	<< shift_comp(2).val_grid_point(0, 0, 0, 0) << "  " 
+	<< shift_comp(3).val_grid_point(0, 0, 0, 0) << endl ; 
 
     ost << endl << "Central value of (B^X, B^Y, B^Z)/N [c] : " 
-	<< bsn(1).point(0, 0, 0, 0) << "  " 
-	<< bsn(2).point(0, 0, 0, 0) << "  " 
-	<< bsn(3).point(0, 0, 0, 0) << endl ; 
+	<< bsn(1).val_grid_point(0, 0, 0, 0) << "  " 
+	<< bsn(2).val_grid_point(0, 0, 0, 0) << "  " 
+	<< bsn(3).val_grid_point(0, 0, 0, 0) << endl ; 
 
 
     ost << endl << "Central A^2 K^{ij} [c/km] : " << endl ; 
     ost << "  A^2 K^{xx} auto, comp : " 
-	<< tkij_auto(1, 1).point(0, 0, 0, 0) * km  << "  "
-	<< tkij_comp(1, 1).point(0, 0, 0, 0) * km << endl ; 
+	<< tkij_auto(1, 1).val_grid_point(0, 0, 0, 0) * km  << "  "
+	<< tkij_comp(1, 1).val_grid_point(0, 0, 0, 0) * km << endl ; 
     ost << "  A^2 K^{xy} auto, comp : " 
-	<< tkij_auto(1, 2).point(0, 0, 0, 0) * km  << "  "
-	<< tkij_comp(1, 2).point(0, 0, 0, 0) * km << endl ; 
+	<< tkij_auto(1, 2).val_grid_point(0, 0, 0, 0) * km  << "  "
+	<< tkij_comp(1, 2).val_grid_point(0, 0, 0, 0) * km << endl ; 
     ost << "  A^2 K^{xz} auto, comp : " 
-	<< tkij_auto(1, 3).point(0, 0, 0, 0) * km  << "  "
-	<< tkij_comp(1, 3).point(0, 0, 0, 0) * km << endl ; 
+	<< tkij_auto(1, 3).val_grid_point(0, 0, 0, 0) * km  << "  "
+	<< tkij_comp(1, 3).val_grid_point(0, 0, 0, 0) * km << endl ; 
     ost << "  A^2 K^{yy} auto, comp : " 
-	<< tkij_auto(2, 2).point(0, 0, 0, 0) * km  << "  "
-	<< tkij_comp(2, 2).point(0, 0, 0, 0) * km << endl ; 
+	<< tkij_auto(2, 2).val_grid_point(0, 0, 0, 0) * km  << "  "
+	<< tkij_comp(2, 2).val_grid_point(0, 0, 0, 0) * km << endl ; 
     ost << "  A^2 K^{yz} auto, comp : " 
-	<< tkij_auto(2, 3).point(0, 0, 0, 0) * km  << "  "
-	<< tkij_comp(2, 3).point(0, 0, 0, 0) * km << endl ; 
+	<< tkij_auto(2, 3).val_grid_point(0, 0, 0, 0) * km  << "  "
+	<< tkij_comp(2, 3).val_grid_point(0, 0, 0, 0) * km << endl ; 
     ost << "  A^2 K^{zz} auto, comp : " 
-	<< tkij_auto(3, 3).point(0, 0, 0, 0) * km  << "  "
-	<< tkij_comp(3, 3).point(0, 0, 0, 0) * km << endl ; 
+	<< tkij_auto(3, 3).val_grid_point(0, 0, 0, 0) * km  << "  "
+	<< tkij_comp(3, 3).val_grid_point(0, 0, 0, 0) * km << endl ; 
 
     ost << endl << "Central A^2 K_{ij} K^{ij} [c^2/km^2] : " << endl ; 
     ost << "   A^2 K_{ij} K^{ij}  auto, comp : " 
-	<< kcar_auto.point(0, 0, 0, 0) * km*km  << "  "
-	<< kcar_comp.point(0, 0, 0, 0) * km*km << endl ; 
+	<< kcar_auto.val_grid_point(0, 0, 0, 0) * km*km  << "  "
+	<< kcar_comp.val_grid_point(0, 0, 0, 0) * km*km << endl ; 
 
     
     return ost ; 
@@ -654,7 +658,7 @@ void Star_bin::fait_d_psi() {
     Vector v_orb(mp, COV, mp.get_bvect_spher()) ; 
     
     for (int i=1; i<=3; i++) {
-	v_orb.set(i) = www(i).point(0, 0, 0, 0) ; 
+	v_orb.set(i) = www(i).val_grid_point(0, 0, 0, 0) ; 
     }
     
     // Gradient of psi 

@@ -28,6 +28,10 @@ char Binary_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/02/21 17:05:12  e_gourgoulhon
+ * Method Scalar::point renamed Scalar::val_grid_point.
+ * Method Scalar::set_point renamed Scalar::set_grid_point.
+ *
  * Revision 1.4  2004/01/20 15:21:12  f_limousin
  * First version
  *
@@ -368,24 +372,24 @@ void Binary::fait_decouple () {
 
 		    if (air_un <= lim_un)
 			if (air_un < int_un)
-			    decouple_un.set_point(l, k, j, i) = 1 ;
+			    decouple_un.set_grid_point(l, k, j, i) = 1 ;
 			else
 			// pres de l'etoile une :
-			decouple_un.set_point(l, k, j, i) =  0.5*pow(
+			decouple_un.set_grid_point(l, k, j, i) =  0.5*pow(
       cos((air_un-int_un)*M_PI/2./(lim_un-int_un)), 2.)+0.5 ;
 
 		    else 
 			if (air_deux <= lim_deux)
 			    if (air_deux < int_deux)
-				decouple_un.set_point(l, k, j, i) = 0 ;
+				decouple_un.set_grid_point(l, k, j, i) = 0 ;
 			    else
 			// On est pres de l'etoile deux :
-			     decouple_un.set_point(l, k, j, i) = 0.5*pow
+			     decouple_un.set_grid_point(l, k, j, i) = 0.5*pow
       (sin((air_deux-int_deux)*M_PI/2./(lim_deux-int_deux)), 2.) ;
 						    
 			else
 			    // On est loin des deux etoiles :
-			    decouple_un.set_point(l, k, j, i) = 0.5 ;
+			    decouple_un.set_grid_point(l, k, j, i) = 0.5 ;
 		}
 	
     
@@ -393,7 +397,7 @@ void Binary::fait_decouple () {
 		if (l==nz_un-1)
 		    for (int k=0 ; k<np ; k++)
 			for (int j=0 ; j<nt ; j++)
-			    decouple_un.set_point(nz_un-1, k, j, nr) = 0.5 ;
+			    decouple_un.set_grid_point(nz_un-1, k, j, nr) = 0.5 ;
     }
 
 
@@ -422,32 +426,32 @@ void Binary::fait_decouple () {
 		    
 		    if (air_deux <= lim_deux)
 			if (air_deux < int_deux)
-			    decouple_deux.set_point(l, k, j, i) = 1 ;
+			    decouple_deux.set_grid_point(l, k, j, i) = 1 ;
 			else
 			  // pres de l'etoile deux :
-			decouple_deux.set_point(l, k, j, i) =  0.5*pow(
+			decouple_deux.set_grid_point(l, k, j, i) =  0.5*pow(
 	       cos((air_deux-int_deux)*M_PI/2./(lim_deux-int_deux)), 2.)+0.5 ;
 			
 		    else 
 			if (air_un <= lim_un)
 			    if (air_un < int_un)
-				decouple_deux.set_point(l, k, j, i) = 0 ;
+				decouple_deux.set_grid_point(l, k, j, i) = 0 ;
 			    else
 			// On est pres de l'etoile une :
-			     decouple_deux.set_point(l, k, j, i)=0.5*pow
+			     decouple_deux.set_grid_point(l, k, j, i)=0.5*pow
                (sin((air_un-int_un)*M_PI/2./(lim_un-int_un)), 2.) ;
 		   
 		
 			else
 			    // On est loin des deux etoiles :
-			    decouple_deux.set_point(l, k, j, i) = 0.5 ;
+			    decouple_deux.set_grid_point(l, k, j, i) = 0.5 ;
 		}
 			    
 		// Cas infini :
 		if (l==nz_deux-1)
 		    for (int k=0 ; k<np ; k++)
 			for (int j=0 ; j<nt ; j++)
-			    decouple_deux.set_point(nz_un-1, k, j, nr) = 0.5 ;
+			    decouple_deux.set_grid_point(nz_un-1, k, j, nr) = 0.5 ;
    }
    
     int nr = star2.mp.get_mg()->get_nr (2) ;
@@ -511,8 +515,8 @@ void Binary::write_global(ostream& ost) const {
 	    << "        a3/a1(1)	  " << endl ; 
 		
 	ost.width(20) ; 
-	ost << star1.get_ent().point(0,0,0,0) ; ost.width(22) ;
-	ost	<< star1.get_ener().point(0,0,0,0) ; ost.width(22) ;
+	ost << star1.get_ent().val_grid_point(0,0,0,0) ; ost.width(22) ;
+	ost	<< star1.get_ener().val_grid_point(0,0,0,0) ; ost.width(22) ;
 	ost	<< star1.mass_b() / msol ; ost.width(22) ;	
 	ost << star1.ray_eq() / km ; ost.width(22) ; 
 	ost	<< star1.ray_eq_pis2() / star1.ray_eq() ; ost.width(22) ;
@@ -526,8 +530,8 @@ void Binary::write_global(ostream& ost) const {
 	    << "        a3/a1(2)	  " << endl ; 
 		
 	ost.width(20) ; 
-	ost << star2.get_ent().point(0,0,0,0) ; ost.width(22) ;
-	ost	<< star2.get_ener().point(0,0,0,0) ; ost.width(22) ;
+	ost << star2.get_ent().val_grid_point(0,0,0,0) ; ost.width(22) ;
+	ost	<< star2.get_ener().val_grid_point(0,0,0,0) ; ost.width(22) ;
 	ost	<< star2.mass_b() / msol ; ost.width(22) ;	
 	ost << star2.ray_eq() / km ; ost.width(22) ; 
 	ost	<< star2.ray_eq_pis2() / star1.ray_eq() ; ost.width(22) ;

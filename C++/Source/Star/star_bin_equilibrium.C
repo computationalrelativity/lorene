@@ -30,6 +30,10 @@ char star_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/02/21 17:05:13  e_gourgoulhon
+ * Method Scalar::point renamed Scalar::val_grid_point.
+ * Method Scalar::set_point renamed Scalar::set_grid_point.
+ *
  * Revision 1.3  2004/01/20 15:17:48  f_limousin
  * First version
  *
@@ -311,8 +315,8 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	// takes the requested value ent_b at the stellar surface
 	
 	// Values at the center of the star:
-	double logn_auto_c  = logn_auto.point(0, 0, 0, 0) ; 
-	double pot_ext_c  = pot_ext.point(0, 0, 0, 0) ; 
+	double logn_auto_c  = logn_auto.val_grid_point(0, 0, 0, 0) ; 
+	double pot_ext_c  = pot_ext.val_grid_point(0, 0, 0, 0) ; 
 
 	// Search for the reference point (theta_*, phi_*) [notation of
 	//  Bonazzola, Gourgoulhon & Marck PRD 58, 104020 (1998)]
@@ -322,8 +326,8 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	for (int k=0; k<mg->get_np(l_b); k++) {
 	    for (int j=0; j<mg->get_nt(l_b); j++) {
 		
-		double pot_ext_b  = pot_ext.point(l_b, k, j, i_b) ; 
-		double logn_auto_b  = logn_auto.point(l_b, k, j, i_b) ; 
+		double pot_ext_b  = pot_ext.val_grid_point(l_b, k, j, i_b) ; 
+		double logn_auto_b  = logn_auto.val_grid_point(l_b, k, j, i_b) ; 
 		
 
 		// See Eq (100) from Gourgoulhon et al. (2001)
@@ -352,7 +356,7 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	// ----------------------
 
 	logn_auto = alpha_r2 * logn_auto ;
-	logn_auto_c  = logn_auto.point(0, 0, 0, 0) ;
+	logn_auto_c  = logn_auto.val_grid_point(0, 0, 0, 0) ;
 
 	//------------------------------------------------------------
 	// Change the values of the inner points of the second domain
@@ -395,7 +399,7 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 
 	ent_limit.set_etat_qcq() ; 
 	for (int l=0; l<nzet; l++) {	// loop on domains inside the star
-	    ent_limit.set(l) = ent.point(l, k_b, j_b, i_b) ; 
+	    ent_limit.set(l) = ent.val_grid_point(l, k_b, j_b, i_b) ; 
 	}
 	ent_limit.set(nzet-1) = ent_b  ; 
 
@@ -436,7 +440,7 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	int j_s_max = -1 ; 
 	for (int k=0; k<mg->get_np(l_b); k++) {
 	    for (int j=0; j<mg->get_nt(l_b); j++) {
-		double xx = fabs( ent.point(l_b, k, j, i_b) ) ;
+		double xx = fabs( ent.val_grid_point(l_b, k, j, i_b) ) ;
 		if (xx > ent_s_max) {
 		    ent_s_max = xx ; 
 		    k_s_max = k ; 

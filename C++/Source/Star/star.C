@@ -34,6 +34,10 @@ char star_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/02/21 17:05:13  e_gourgoulhon
+ * Method Scalar::point renamed Scalar::val_grid_point.
+ * Method Scalar::set_point renamed Scalar::set_grid_point.
+ *
  * Revision 1.3  2004/01/20 15:16:58  f_limousin
  * First version
  *
@@ -354,17 +358,17 @@ ostream& Star::operator>>(ostream& ost) const {
     ost << "Equation of state : " << endl ; 
     ost << eos << endl ; 
     
-    ost << endl << "Central enthalpy : " << ent.point(0,0,0,0) << " c^2" << endl ; 
-    ost << "Central proper baryon density : " << nbar.point(0,0,0,0) 
+    ost << endl << "Central enthalpy : " << ent.val_grid_point(0,0,0,0) << " c^2" << endl ; 
+    ost << "Central proper baryon density : " << nbar.val_grid_point(0,0,0,0) 
 	<< " x 0.1 fm^-3" << endl ; 
-    ost << "Central proper energy density : " << ener.point(0,0,0,0) 
+    ost << "Central proper energy density : " << ener.val_grid_point(0,0,0,0) 
 	<< " rho_nuc c^2" << endl ; 
-    ost << "Central pressure : " << press.point(0,0,0,0) 
+    ost << "Central pressure : " << press.val_grid_point(0,0,0,0) 
 	<< " rho_nuc c^2" << endl ; 
     
     ost << endl ;
-    ost << "Central lapse N :      " << nnn.point(0,0,0,0) <<  endl ; 
-    ost << "Central value of qq : " << qq.point(0,0,0,0) <<  endl ; 
+    ost << "Central lapse N :      " << nnn.val_grid_point(0,0,0,0) <<  endl ; 
+    ost << "Central value of qq : " << qq.val_grid_point(0,0,0,0) <<  endl ; 
   
     ost << endl 
 	<< "Coordinate equatorial radius (phi=0) a1 =    " 

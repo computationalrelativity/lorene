@@ -32,6 +32,10 @@ char star_equil_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/21 17:05:13  e_gourgoulhon
+ * Method Scalar::point renamed Scalar::val_grid_point.
+ * Method Scalar::set_point renamed Scalar::set_grid_point.
+ *
  * Revision 1.2  2004/01/20 15:20:35  f_limousin
  * First version
  *
@@ -173,11 +177,11 @@ void Star::equilibrium_spher(double ent_c, double precis){
 	// alpha_r (r = alpha_r r') is determined so that the enthalpy
 	// takes the requested value ent_b at the stellar surface
 	
-	double nu_mat0_b  = logn_mat.point(l_b, k_b, j_b, i_b) ; 
-	double nu_mat0_c  = logn_mat.point(0, 0, 0, 0) ; 
+	double nu_mat0_b  = logn_mat.val_grid_point(l_b, k_b, j_b, i_b) ; 
+	double nu_mat0_c  = logn_mat.val_grid_point(0, 0, 0, 0) ; 
 
-	double nu_quad0_b  = logn_quad.point(l_b, k_b, j_b, i_b) ; 
-	double nu_quad0_c  = logn_quad.point(0, 0, 0, 0) ; 
+	double nu_quad0_b  = logn_quad.val_grid_point(l_b, k_b, j_b, i_b) ; 
+	double nu_quad0_c  = logn_quad.val_grid_point(0, 0, 0, 0) ; 
 
 	double alpha_r2 = ( ent_c - ent_b - nu_quad0_b + nu_quad0_c )
 				/ ( qpig*(nu_mat0_b - nu_mat0_c) ) ;
@@ -196,7 +200,7 @@ void Star::equilibrium_spher(double ent_c, double precis){
 	logn = logn_mat + logn_quad ;
 
 	// Enthalpy in all space
-	double logn_c = logn.point(0, 0, 0, 0) ;
+	double logn_c = logn.val_grid_point(0, 0, 0, 0) ;
 	ent = ent_c - logn + logn_c ;
 
 	//---------------------
@@ -295,7 +299,7 @@ void Star::equilibrium_spher(double ent_c, double precis){
     double ray = mp.val_r(l_b, 1., M_PI/2., 0) ; 
     cout << "Coordinate radius  :       " << ray / km << " km" << endl ; 
 
-    double rcirc = ray * sqrt(a_car.point(l_b, k_b, j_b, i_b) ) ; 
+    double rcirc = ray * sqrt(a_car.val_grid_point(l_b, k_b, j_b, i_b) ) ; 
 	
     double compact = qpig/(4.*M_PI) * mass_g() / rcirc ; 
 

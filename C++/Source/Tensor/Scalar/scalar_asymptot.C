@@ -33,6 +33,10 @@ char scalar_asymptot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/21 17:05:14  e_gourgoulhon
+ * Method Scalar::point renamed Scalar::val_grid_point.
+ * Method Scalar::set_point renamed Scalar::set_grid_point.
+ *
  * Revision 1.2  2003/10/08 14:24:09  j_novak
  * replaced mult_r_zec with mult_r_ced
  *
@@ -93,7 +97,7 @@ Valeur** Scalar::asymptot(int n0, const int flag) const {
 
 	for (int k=0; k<np; k++) {
 	    for (int j=0; j<nt; j++) {
-		vu[h]->set(nzm1, k, j, 0) = uu.point(nzm1, k, j, nrm1) ; 
+		vu[h]->set(nzm1, k, j, 0) = uu.val_grid_point(nzm1, k, j, nrm1) ; 
 	    }
 	}
 	
@@ -134,7 +138,7 @@ Valeur** Scalar::asymptot(int n0, const int flag) const {
 	    for (int j=0; j<nt; j++) {
 		double v_inf = (*vu[h])(nzm1, k, j, 0) ; 
 		for (int i=0; i<nr; i++) {
-		   uu.set_point(nzm1, k, j, i) -= v_inf ;  
+		   uu.set_grid_point(nzm1, k, j, i) -= v_inf ;  
 		}
 	    }
 	}
