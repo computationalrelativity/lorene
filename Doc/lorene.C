@@ -88,9 +88,10 @@
  */
  
 
-/**\defgroup ellip General elliptic solver (***under development***)
+/**\defgroup ellip General PDE solvers (***under development***)
  *
- * These classes are needed for using the general elliptic solver, for
+ * These classes are needed for using the general partial differential
+ * equation solver, for
  * which the variables and the operators can be different from one domain
  * to the other.
  */

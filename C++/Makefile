@@ -19,6 +19,7 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Cmp; $(MAKE)
 	cd Source/Connection; $(MAKE)
 	cd Source/Coord; $(MAKE)
+	cd Source/Diff; $(MAKE)
 	cd Source/Eos; $(MAKE)
 	cd Source/Etoile; $(MAKE)
 	cd Source/Grille3d; $(MAKE)

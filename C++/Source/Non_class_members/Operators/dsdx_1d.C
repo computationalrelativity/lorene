@@ -25,6 +25,9 @@ char dsdx_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/01/10 16:34:53  j_novak
+ * New class for 1D mono-domain differential operators.
+ *
  * Revision 1.1  2004/02/06 10:53:53  j_novak
  * New dzpuis = 5 -> dzpuis = 3 case (not ready yet).
  *
@@ -36,6 +39,7 @@ char dsdx_1d_C[] = "$Header$" ;
 #include <stdlib.h>
 #include "type_parite.h"
 #include "headcpp.h"
+#include "proto.h"
 
 /*
  * Routine appliquant l'operateur dsdx.
@@ -105,6 +109,7 @@ void dsdx_1d(int nr, double** tb, int base_r)
 	}
 		// Les routines existantes
 	dsdx_1d[R_CHEBU >> TRA_R] = _dsdx_1d_r_chebu ;
+	dsdx_1d[R_CHEB >> TRA_R] = _dsdx_1d_r_cheb ;
 
     }
     
