@@ -30,6 +30,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/12/19 14:46:16  e_gourgoulhon
+ *
+ * Modified prototype of functions set_omega and set_x_axe
+ *
  * Revision 1.2  2002/12/18 10:29:18  e_gourgoulhon
  *
  * Added set_omega() and set_x_axe()
@@ -172,10 +176,10 @@ class Bin_ns_bh {
 	       return hole ;} ;
 
 	/// Sets the orbital angular velocity [{\tt f\_unit}]
-	double& set_omega() {return omega; } ;
+	void set_omega(double ) ;
 
 	/// Sets the absolute coordinate X of the rotation axis [{\tt r\_unit}]
-	double& set_x_axe() {return x_axe; } ;
+	void set_x_axe(double ) ;
 
 
     // Accessors
