@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/02/12 18:52:53  f_limousin
+ * Change the arguments of the standard constructor.
+ *
  * Revision 1.2  2003/01/20 09:38:59  f_limousin
  * Modification of the standard constructor
  *
@@ -37,8 +40,6 @@
  *
  * Revision 1.2  2001/12/11 06:44:41  e_gourgoulhon
  * template files
- *
- *
  *
  * $Header$
  *
@@ -138,8 +139,9 @@ class Bin_ns_ncp {
 	 * 
 	 */
 	Bin_ns_ncp(Map& mp1, int nzet1, const Eos& eos1, int irrot1, 
-		Map& mp2, int nzet2, const Eos& eos2, int irrot2,
-		int relat, const Metrique& flat0, const Tenseur_sym &source) ;			
+		   Map& mp2, int nzet2, const Eos& eos2, int irrot2,
+		   int relat, const Metrique& flat1, const Metrique& flat2,
+		   const Tenseur_sym &source1, const Tenseur_sym &source2) ;			
 
 
 	Bin_ns_ncp(const Bin_ns_ncp& ) ;		/// Copy constructor
@@ -154,7 +156,7 @@ class Bin_ns_ncp {
 	 *	{\tt sauve})
 	 */
 	Bin_ns_ncp(Map& mp1, const Eos& eos1, Map& mp2, const Eos& eos2, 
-		const Metrique& flat0, FILE* fich) ;			
+		const Metrique& flat1, const Metrique& flat2, FILE* fich) ;			
 
 	~Bin_ns_ncp() ;			/// Destructor
  
