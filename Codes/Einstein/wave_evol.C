@@ -29,6 +29,9 @@ char wave_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/05/03 14:50:38  e_gourgoulhon
+ * First full version (time evolution).
+ *
  * Revision 1.5  2004/04/30 10:53:32  e_gourgoulhon
  * Added resolution of elliptic Einstein equations (new methods
  * Tslice_dirac_max::solve_*) for tests at the end.
@@ -74,10 +77,11 @@ int main() {
     //======================================================================
 
     double pdt = 0.01 ; 
-    int jmax = 1000 ; 
-    int jstop = jmax ; 
+    int nb_time_steps = 100 ; 
+    int niter_elliptic = 1 ; 
+    double relax_elliptic = 1. ; 
 
-    double ampli_h_init = 1. ;     // 0 = flat space
+    double ampli_h_init = 0.001 ;     // 0 = flat space
         
 
     //======================================================================
@@ -92,7 +96,7 @@ int main() {
     int nt = 9 ; 	// Number of collocation points in theta in each domain
     int np = 8 ; 	// Number of collocation points in phi in each domain
     int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
-    int symmetry_phi = SYM ; // no symmetry in phi
+    int symmetry_phi = SYM ; //  symmetry in phi
     bool compact = true ; // external domain is compactified
   
     // Multi-domain grid construction:
@@ -156,11 +160,11 @@ int main() {
     //## khi_init.smooth_decay(2, 1) ; 
     
     Scalar mu_init(map) ; 
-    mu_init = 0. * ampli_h_init / (1+r*r*r*r*r*r) ; 
+    mu_init = ampli_h_init * x*y* exp( - r*r ) ;
+    mu_init.set_outer_boundary(nz-1, 0.) ; 
     mu_init.std_spectral_base() ; 
     mu_init.mult_r() ; 
-    mu_init.mult_r() ; 
-    mu_init.mult_r() ; 
+    mu_init.set_outer_boundary(nz-1, 0.) ; 
     mu_init.mult_cost() ; 
     
     mu_init.spectral_display("mu_init") ;   
@@ -175,18 +179,24 @@ int main() {
     sigmat.set_khi_mu(khi_init, mu_init) ; // the trace h = f_{ij} h^{ij]
                                            // is computed to ensure
                                            // det tgam_{ij} = f
-
-    // Resolution of the initial data equations within 
-    // the conformal thin sandwich framework
-    // ------------------------------------------------
+    
+    // sigmat.hh().transverse(ff).tt_part().khi().spectral_display("khi") ; 
+    // sigmat.hh().transverse(ff).tt_part().eta().spectral_display("eta") ; 
+    // sigmat.hh().transverse(ff).tt_part().mu().spectral_display("mu") ; 
+                                           
+    //======================================================================
+    //      Resolution of the initial data equations within 
+    //      the conformal thin sandwich framework
+    //======================================================================
 
     // u^{ij} = d/dt h^{ij}
     Sym_tensor_trans uu_init(map, otriad, ff) ;  
     uu_init.set_etat_zero() ; 
-    uu_init = - 0.5 * ( sigmat.hh() 
-        - 0.33333333333333333 * sigmat.hh().trace(sigmat.tgam())
-            * sigmat.tgam().con() ) ;
-    uu_init.inc_dzpuis(2) ;  
+    
+    //## uu_init = - 0.5 * ( sigmat.hh() 
+    //    - 0.33333333333333333 * sigmat.hh().trace(sigmat.tgam())
+    //        * sigmat.tgam().con() ) ;
+    // uu_init.inc_dzpuis(2) ;  
     
     // tr K = K
     Scalar tmp(map) ; 
@@ -194,14 +204,15 @@ int main() {
     
     sigmat.initial_data_cts(uu_init, tmp, tmp, pdt, 1.e-10) ;
         
-    cout << "sigmat : " << sigmat << endl ;  
+    sigmat.khi() ;  // forces updates
+    sigmat.mu() ;   //
+    sigmat.trh() ;  //   
+        
+    cout << "Initial data : " << sigmat << endl ;  
     
     cout << "Test upon khi : difference between khi and khi_init : " << endl ; 
     Scalar diff_khi = sigmat.khi() - khi_init ;
     maxabs(diff_khi, "diff_khi") ; 
-    arrete() ; 
-    
-    diff_khi.spectral_display("diff_khi", 1.e-14) ; 
     
     // des_meridian(sigmat.hh(), 0., 5., "h") ; 
     
@@ -241,6 +252,11 @@ int main() {
     Vector beta_new = sigmat.solve_beta() ; 
     maxabs(beta_new - sigmat.beta(), "Difference between beta and beta_new") ;     
     
+    //======================================================================
+    //          Time evolution 
+    //======================================================================
+    
+    sigmat.evolve(pdt, nb_time_steps, niter_elliptic, relax_elliptic) ; 
     
     return EXIT_SUCCESS ; 
 }
