@@ -9,8 +9,10 @@
  *               Phys.  Rev. D  {\bf 64}, 064012 (2001)
  *       \item K. Taniguchi, E. Gourgoulhon, Phys. Rev. D {\bf 65}, 044027 (2002)
  *		 \item K. Taniguchi, E. Gourgoulhon, Phys. Rev. D {\bf 66}, 104019 (2002)
- *		 \item K. Taniguchi, E. Gourgoulhon, Phys. Rev. D, in press, 
- *				gr-qc/0309045
+ *		 \item K. Taniguchi, E. Gourgoulhon, Phys. Rev. D {\bf 68}, 124025 (2003) 
+ *               \item M. Bejger, D. Gondek-Rosinska, E. Gourgoulhon, P. Haensel, 
+ *                     K. Taniguchi, J.L. Zdunik,  Astron. Astrophys., 
+ *                     submitted [preprint: astro-ph/0406234]
  *    \end{itemize}
  *
  *  The exportation of this data, computed by means of
