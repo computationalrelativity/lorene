@@ -32,6 +32,10 @@ char etoile_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/10/20 14:51:26  k_taniguchi
+ * Addition of various things for the Bin_ns_bh project
+ * which are related with the part of the neutron star.
+ *
  * Revision 1.6  2003/02/06 16:08:36  f_limousin
  * Modified Etoile_bin::sprod in order to avoid a warning from the compiler
  *
@@ -195,10 +199,15 @@ Etoile_bin::Etoile_bin(Map& mpi, int nzet_i, bool relat, const Eos& eos_i,
 			 beta_comp(mpi), 
 			 d_beta_auto(mpi, 1, COV, ref_triad), 
 			 d_beta_comp(mpi, 1, COV, ref_triad), 
+			 n_auto(mpi),
+			 n_comp(mpi),
 			 shift_auto(mpi, 1, CON, ref_triad), 
 			 shift_comp(mpi, 1, CON, ref_triad), 
 			 w_shift(mpi, 1, CON, mp.get_bvect_cart()), 
 			 khi_shift(mpi), 
+			 confpsi(mpi),
+			 confpsi_auto(mpi),
+			 confpsi_comp(mpi),
 			 tkij_auto(mpi, 2, CON, ref_triad), 
 			 tkij_comp(mpi, 2, CON, ref_triad), 
 			 akcar_auto(mpi), 
@@ -206,7 +215,9 @@ Etoile_bin::Etoile_bin(Map& mpi, int nzet_i, bool relat, const Eos& eos_i,
 			 bsn(mpi, 1, CON, ref_triad), 
 			 pot_centri(mpi), 
 			 ssjm1_logn(mpi), 
-			 ssjm1_beta(mpi), 			 
+			 ssjm1_beta(mpi), 
+			 ssjm1_n_auto(mpi),
+			 ssjm1_confpsi(mpi),
 			 ssjm1_khi(mpi), 
                          ssjm1_wshift(mpi, 1, CON, mp.get_bvect_cart()),
                          decouple(mpi)
@@ -219,7 +230,7 @@ Etoile_bin::Etoile_bin(Map& mpi, int nzet_i, bool relat, const Eos& eos_i,
     u_euler.set_triad(ref_triad) ; 
     shift.set_triad(ref_triad) ;
 
-    // All quantities are initialized to zero : 
+    // All quantities are initialized to zero or some constants : 
     psi0 = 0 ; 
     d_psi = 0 ; 
     wit_w = 0 ; 
@@ -231,6 +242,10 @@ Etoile_bin::Etoile_bin(Map& mpi, int nzet_i, bool relat, const Eos& eos_i,
     beta_comp = 0 ; 
     d_beta_auto = 0 ; 
     d_beta_comp = 0 ; 
+    n_auto = 0.5 ;
+    n_auto.set_std_base() ;
+    n_comp = 0.5 ;
+    n_comp.set_std_base() ;
     shift_auto = 0 ; 
     shift_comp = 0 ; 
 
@@ -242,6 +257,13 @@ Etoile_bin::Etoile_bin(Map& mpi, int nzet_i, bool relat, const Eos& eos_i,
     khi_shift.set_etat_qcq() ; 
     khi_shift.set() = 0 ; 
 
+    confpsi = 1 ;
+    confpsi.set_std_base() ;
+    confpsi_auto = 0.5 ;
+    confpsi_auto.set_std_base() ;
+    confpsi_comp = 0.5 ;
+    confpsi_comp.set_std_base() ;
+
     tkij_auto.set_etat_zero() ; 
     tkij_comp.set_etat_zero() ; 
     akcar_auto = 0 ;
@@ -250,6 +272,10 @@ Etoile_bin::Etoile_bin(Map& mpi, int nzet_i, bool relat, const Eos& eos_i,
     pot_centri = 0 ;
     ssjm1_logn = 0 ; 
     ssjm1_beta = 0 ; 
+    ssjm1_n_auto = 0.5 ;
+    ssjm1_n_auto.set_std_base() ;
+    ssjm1_confpsi = 0.5 ;
+    ssjm1_confpsi.set_std_base() ;
     ssjm1_khi = 0 ; 
     
     ssjm1_wshift.set_etat_qcq() ; 
@@ -276,10 +302,15 @@ Etoile_bin::Etoile_bin(const Etoile_bin& et)
 			 beta_comp(et.beta_comp), 
 			 d_beta_auto(et.d_beta_auto), 
 			 d_beta_comp(et.d_beta_comp), 
+			 n_auto(et.n_auto),
+			 n_comp(et.n_comp),
 			 shift_auto(et.shift_auto), 
 			 shift_comp(et.shift_comp), 
 			 w_shift(et.w_shift), 
 			 khi_shift(et.khi_shift), 
+			 confpsi(et.confpsi),
+			 confpsi_auto(et.confpsi_auto),
+			 confpsi_comp(et.confpsi_comp),
 			 tkij_auto(et.tkij_auto), 
 			 tkij_comp(et.tkij_comp), 
 			 akcar_auto(et.akcar_auto), 
@@ -288,6 +319,8 @@ Etoile_bin::Etoile_bin(const Etoile_bin& et)
 			 pot_centri(et.pot_centri), 
 			 ssjm1_logn(et.ssjm1_logn), 
 			 ssjm1_beta(et.ssjm1_beta), 
+			 ssjm1_n_auto(et.ssjm1_n_auto),
+			 ssjm1_confpsi(et.ssjm1_confpsi),
 			 ssjm1_khi(et.ssjm1_khi), 
                          ssjm1_wshift(et.ssjm1_wshift),
                          decouple(et.decouple)
@@ -313,10 +346,15 @@ Etoile_bin::Etoile_bin(Map& mpi, const Eos& eos_i, const Base_vect& ref_triad_i,
 			 beta_comp(mpi), 
 			 d_beta_auto(mpi, 1, COV, ref_triad), 
 			 d_beta_comp(mpi, 1, COV, ref_triad), 
+			 n_auto(mpi),
+			 n_comp(mpi),
 			 shift_auto(mpi, 1, CON, ref_triad), 
 			 shift_comp(mpi, 1, CON, ref_triad), 
 			 w_shift(mpi, 1, CON, mp.get_bvect_cart()), 
 			 khi_shift(mpi), 
+			 confpsi(mpi),
+			 confpsi_auto(mpi),
+			 confpsi_comp(mpi),
 			 tkij_auto(mpi, 2, CON, ref_triad), 
 			 tkij_comp(mpi, 2, CON, ref_triad), 
 			 akcar_auto(mpi), 
@@ -325,6 +363,8 @@ Etoile_bin::Etoile_bin(Map& mpi, const Eos& eos_i, const Base_vect& ref_triad_i,
 			 pot_centri(mpi), 
 			 ssjm1_logn(mpi), 
 			 ssjm1_beta(mpi), 
+			 ssjm1_n_auto(mpi),
+			 ssjm1_confpsi(mpi),
 			 ssjm1_khi(mpi), 
                          ssjm1_wshift(mpi, 1, CON, mp.get_bvect_cart()),
                          decouple(mpi)
@@ -367,14 +407,20 @@ Etoile_bin::Etoile_bin(Map& mpi, const Eos& eos_i, const Base_vect& ref_triad_i,
     Cmp ssjm1_beta_file(mp, *(mp.get_mg()), fich) ; 
     ssjm1_beta = ssjm1_beta_file ; 
 
+    Cmp ssjm1_n_auto_file(mp, *(mp.get_mg()), fich) ;
+    ssjm1_n_auto = ssjm1_n_auto_file ;
+
+    Cmp ssjm1_confpsi_file(mp, *(mp.get_mg()), fich) ;
+    ssjm1_confpsi = ssjm1_confpsi_file ;
+
     Cmp ssjm1_khi_file(mp, *(mp.get_mg()), fich) ; 
     ssjm1_khi = ssjm1_khi_file ; 
 
     Tenseur ssjm1_wshift_file(mp, mp.get_bvect_cart(), fich) ; 
     ssjm1_wshift = ssjm1_wshift_file ; 
 
-    // All other fields are initialized to zero : 
-    // ----------------------------------------
+    // All other fields are initialized to zero or some constants : 
+    // -----------------------------------------------------------
     d_psi = 0 ; 
     wit_w = 0 ; 
     loggam = 0 ; 
@@ -385,7 +431,17 @@ Etoile_bin::Etoile_bin(Map& mpi, const Eos& eos_i, const Base_vect& ref_triad_i,
     beta_comp = 0 ; 
     d_beta_auto = 0 ; 
     d_beta_comp = 0 ; 
+    n_auto = 0.5 ;
+    n_auto.set_std_base() ;
+    n_comp = 0.5 ;
+    n_comp.set_std_base() ;
     shift_comp = 0 ; 
+    confpsi = 1 ;
+    confpsi.set_std_base() ;
+    confpsi_auto = 0.5 ;
+    confpsi_auto.set_std_base() ;
+    confpsi_comp = 0.5 ;
+    confpsi_comp.set_std_base() ;
     tkij_auto.set_etat_zero() ; 
     tkij_comp.set_etat_zero() ; 
     akcar_auto = 0 ;
@@ -469,10 +525,15 @@ void Etoile_bin::operator=(const Etoile_bin& et) {
     beta_comp = et.beta_comp ;
     d_beta_auto = et.d_beta_auto ;
     d_beta_comp = et.d_beta_comp ;
+    n_auto = et.n_auto ;
+    n_comp = et.n_comp ;
     shift_auto = et.shift_auto ;
     shift_comp = et.shift_comp ;
     w_shift = et.w_shift ;
     khi_shift = et.khi_shift ;
+    confpsi = et.confpsi ;
+    confpsi_auto = et.confpsi_auto ;
+    confpsi_comp = et.confpsi_comp ;
     tkij_auto = et.tkij_auto ;
     tkij_comp = et.tkij_comp ;
     akcar_auto = et.akcar_auto ;
@@ -481,6 +542,8 @@ void Etoile_bin::operator=(const Etoile_bin& et) {
     pot_centri = et.pot_centri ;
     ssjm1_logn = et.ssjm1_logn ;
     ssjm1_beta = et.ssjm1_beta ; 
+    ssjm1_n_auto = et.ssjm1_n_auto ;
+    ssjm1_confpsi = et.ssjm1_confpsi ;
     ssjm1_khi = et.ssjm1_khi ;
     ssjm1_wshift = et.ssjm1_wshift ; 
     decouple = et.decouple ;
@@ -495,6 +558,20 @@ Tenseur& Etoile_bin::set_logn_comp() {
     return logn_comp ;
     
 } 
+
+Tenseur& Etoile_bin::set_n_comp() {
+
+    del_deriv() ;	// sets to 0x0 all the derived quantities
+    return n_comp ;
+
+}
+
+Tenseur& Etoile_bin::set_confpsi_comp() {
+
+    del_deriv() ;	// sets to 0x0 all the derived quantities
+    return confpsi_comp ;
+
+}
 
 Tenseur& Etoile_bin::set_pot_centri() {
 
@@ -540,6 +617,8 @@ void Etoile_bin::sauve(FILE* fich) const {
     
     ssjm1_logn.sauve(fich) ; 
     ssjm1_beta.sauve(fich) ; 
+    ssjm1_n_auto.sauve(fich) ;
+    ssjm1_confpsi.sauve(fich) ;
     ssjm1_khi.sauve(fich) ; 
     ssjm1_wshift.sauve(fich) ;
 }
@@ -632,6 +711,10 @@ ostream& Etoile_bin::operator>>(ostream& ost) const {
 	<< beta_auto()(0, 0, 0, 0) << "  " 
 	<< beta_comp()(0, 0, 0, 0) << endl ; 
 
+    ost << "Central value of N auto, comp :              "
+	<< n_auto()(0, 0, 0, 0) << "  "
+	<< n_comp()(0, 0, 0, 0) << endl ;
+
     ost << "Central value of shift (N^X, N^Y, N^Z) [c] : " 
 	<< shift(0)(0, 0, 0, 0) << "  " 
 	<< shift(1)(0, 0, 0, 0) << "  " 
@@ -655,6 +738,10 @@ ostream& Etoile_bin::operator>>(ostream& ost) const {
 
     ost << "Central value of khi_shift [km c] : " 
         << khi_shift()(0, 0, 0, 0) / km << endl ; 
+
+    ost << "Central value of Psi auto, comp :            "
+	<< confpsi_auto()(0, 0, 0, 0) << "  "
+	<< confpsi_comp()(0, 0, 0, 0) << endl ;
 
     ost << endl << "Central value of (B^X, B^Y, B^Z)/N [c] : " 
 	<< bsn(0)(0, 0, 0, 0) << "  " 
