@@ -35,6 +35,9 @@ char scalar_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2004/10/08 13:34:37  j_novak
+ * Scalar::div_r() does not need to pass through Cmp version anymore.
+ *
  * Revision 1.18  2004/05/12 14:22:12  f_limousin
  * Treated the case ETATZERO in dec_dzpuis and inc_dzpuis (-> return).
  *
@@ -113,12 +116,8 @@ char scalar_r_manip_C[] = "$Header$" ;
 
 void Scalar::div_r() {
     
-	Cmp cuu(*this) ; 
-	
-    mp->div_r(cuu) ;   // Call of the appropriate routine of the mapping
+    mp->div_r(*this) ;   // Call of the appropriate routine of the mapping
     
-	operator=(cuu) ; 
-	
     del_deriv() ;   // Delete the derived members
 
 }

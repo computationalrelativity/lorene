@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.33  2004/10/08 13:34:35  j_novak
+ * Scalar::div_r() does not need to pass through Cmp version anymore.
+ *
  * Revision 1.32  2004/08/24 09:14:40  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -980,6 +983,10 @@ class Map {
 	 */
 	virtual void div_r(Cmp& ) const = 0 ; 
 
+	/** Division by \e r  of a \c Scalar 
+	 */
+	virtual void div_r(Scalar& ) const = 0 ; 
+
 	/** Division by \e r  (in the  compactified external domain only)
 	 * of a \c Scalar 
 	 */
@@ -1552,6 +1559,10 @@ class Map_radial : public Map {
 	/** Division by \e r  of a \c Cmp
 	 */
 	virtual void div_r(Cmp& ) const ; 
+
+	/** Division by \e r  of a \c Scalar
+	 */
+	virtual void div_r(Scalar& ) const ; 
 
 	/** Division by \e r  (in the  compactified external domain only)
 	 * of a \c Scalar

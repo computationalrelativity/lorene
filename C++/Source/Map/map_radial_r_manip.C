@@ -32,6 +32,9 @@ char map_radial_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/10/08 13:34:37  j_novak
+ * Scalar::div_r() does not need to pass through Cmp version anymore.
+ *
  * Revision 1.8  2004/01/28 10:35:52  j_novak
  * Added new methods mult_r() for Scalars. These do not change the dzpuis flag.
  *
@@ -487,6 +490,71 @@ void Map_radial::div_rsint(Cmp& ci) const {
 			//---------------------------//
 			//	    div_r	     //
 			//---------------------------//
+
+void Map_radial::div_r(Scalar& ci) const {
+    
+    assert(ci.get_etat() != ETATNONDEF) ;
+    
+    if (ci.get_etat() == ETATZERO) {
+	return ;			 // Nothing to do if the Cmp is null 
+    }
+
+    assert(ci.get_etat() == ETATQCQ) ;
+            
+    Valeur& val = ci.set_spectral_va() ; 
+    assert(val.get_mg() == mg) ; 
+
+    int nz = mg->get_nzone() ;
+    int nzm1 = nz-1 ;
+
+    Scalar ci_ext(*this) ; 
+
+    if (mg->get_type_r(nzm1) == UNSURR) {   // Case with ZEC
+					    // -------------
+    
+	// Decomposition inner domains / external domain : 
+	// ----------------------------------------------
+    
+	ci_ext = ci ; 
+	ci_ext.annule(0, nzm1-1) ; 
+	ci.annule_domain(nzm1) ; 
+
+	// External domain
+	// ---------------
+	Valeur& val_ext = ci_ext.set_spectral_va() ; 
+	assert(val_ext.get_mg() == mg) ; 
+
+	val_ext = val_ext.mult_x() ;	// Multiplication by (xi-1)
+	
+	Base_val sauve_base = val_ext.base ; 
+	val_ext = val_ext / xsr ;	// Division by (xi-1)/R
+	val_ext.base = sauve_base ; 
+
+    }
+    else{   // Case without ZEC
+	    //-----------------
+
+	ci_ext = 0 ; 
+
+    }
+
+    // Inner domains: 
+    // -------------
+
+    val = val.sx() ;	// Division by xi in the nucleus
+			// Identity in the shells
+
+    Base_val sauve_base = val.base ; 
+    val = val * xsr ;    // Multiplication by xi/R in the nucleus
+			 // Multiplication by 1/R  in the shells
+    val.base = sauve_base ; 
+
+    // Recombination
+    // -------------
+
+    ci = ci + ci_ext ;         
+    
+}
 
 void Map_radial::div_r(Cmp& ci) const {
     
