@@ -25,6 +25,9 @@ char bhole_with_ns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/24 13:05:49  p_grandclement
+ * correction of the equations for Bin_ns_bh...
+ *
  * Revision 1.1  2003/02/13 16:40:25  p_grandclement
  * Addition of various things for the Bin_ns_bh project, non of them being
  * completely tested
@@ -49,7 +52,7 @@ char bhole_with_ns_C[] = "$Header$" ;
 #include "graphique.h"
 
 //Resolution pour le lapse pour 1 seul trou
-void Bhole::solve_lapse_with_ns (const Etoile_bin& ns, double relax) {
+void Bhole::solve_lapse_with_ns (double relax) {
     
     assert ((relax>0) && (relax<=1)) ;
     
@@ -57,7 +60,7 @@ void Bhole::solve_lapse_with_ns (const Etoile_bin& ns, double relax) {
     
     // Pour la relaxation ...
     Cmp lapse_old (n_auto()) ;
-    Tenseur auxi (flat_scalar_prod(tkij_auto, tkij_auto)) ;
+    Tenseur auxi (flat_scalar_prod(tkij_tot, tkij_auto)) ;
     Tenseur kk (mp) ;
     kk = 0 ;
     Tenseur work(mp) ;
@@ -69,8 +72,8 @@ void Bhole::solve_lapse_with_ns (const Etoile_bin& ns, double relax) {
     
     // La source
     Cmp source 
-    (-2*flat_scalar_prod(psi_auto.gradient(), n_auto.gradient())()/psi_auto()
-	+pow(psi_auto(), 4.)*n_auto()*kk()) ;
+    (-2*flat_scalar_prod(psi_auto.gradient(), grad_n_tot)()/psi_tot()
+	+pow(psi_tot(), 4.)*n_tot()*kk()) ;
     source.std_base_scal() ;
      
     // On resout pour N-1/2 :
@@ -87,25 +90,20 @@ void Bhole::solve_lapse_with_ns (const Etoile_bin& ns, double relax) {
     
     Cmp soluce (source.poisson_dirichlet(limite, 0)) ;
     soluce = soluce + 0.5 ;   // Permet de trouver N
-    soluce.raccord(1) ;
-
-    des_profile (soluce, 0, 4, 0, 0) ;
-    des_profile (lapse_old, 0, 4, 0, 0) ;
-    
+    soluce.raccord(1) ;   
 
     n_auto.set() = relax*soluce + (1-relax)*lapse_old ;
-    des_profile (n_auto(), 0, 4, 0, 0) ;
 }
 
 // Resolution sur Psi :
-void Bhole::solve_psi_with_ns (const Etoile_bin& ns, double relax) {
+void Bhole::solve_psi_with_ns (double relax) {
     
     assert ((relax>0) && (relax<=1)) ;
     
     cout << "Resolution PSI" << endl ;
     
     Cmp psi_old (psi_auto()) ;
-    Tenseur auxi (flat_scalar_prod(tkij_auto, tkij_auto)) ;
+    Tenseur auxi (flat_scalar_prod(tkij_auto, tkij_tot)) ;
     Tenseur kk (mp) ;
     kk = 0 ;
     Tenseur work(mp) ;
@@ -116,7 +114,7 @@ void Bhole::solve_psi_with_ns (const Etoile_bin& ns, double relax) {
 	}
     
     // La source :
-    Cmp source (-pow(psi_auto(), 5.)*kk()/8.) ;
+    Cmp source (-pow(psi_tot(), 5.)*kk()/8.) ;
     source.std_base_scal() ;
     
     // Condition limite :
@@ -151,8 +149,8 @@ void Bhole::solve_shift_with_ns (const Etoile_bin& ns,
     
     Tenseur shift_old (shift_auto) ;
     
-    Tenseur source (-6*flat_scalar_prod(taij_auto, psi_auto.gradient())/psi_auto
-		    + 2*flat_scalar_prod(tkij_auto, n_auto.gradient())) ;
+    Tenseur source (-6*flat_scalar_prod(taij_tot, psi_auto.gradient())/psi_tot
+		    + 2*flat_scalar_prod(tkij_tot, n_auto.gradient())) ;
     source.set_std_base() ;
     
     // On verifie si les 3 composantes ne sont pas nulles :

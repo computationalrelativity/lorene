@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/24 13:05:48  p_grandclement
+ * correction of the equations for Bin_ns_bh...
+ *
  * Revision 1.5  2003/02/13 16:40:24  p_grandclement
  * Addition of various things for the Bin_ns_bh project, non of them being
  * completely tested
@@ -551,13 +554,12 @@ class Bhole {
 	 * + N \Psi^4 K_{ij} K^{ij}
 	 * \end{equation}
 	 * with the condition that {\tt N}=0 on the horizon.
-	 * @param ns [input] : the companion ns
 	 * @param relax [input] : the relaxation parameter.
 	 * 
 	 * {\bf WARNING} this should only be used for BH in a {\tt Bin_ns_bh}.
 	 */
 	
-	void solve_lapse_with_ns (const Etoile_bin& ns, double relax) ;
+	void solve_lapse_with_ns (double relax) ;
 	
 	/**
 	 * Solves the equation for $\Psi$~:
@@ -567,13 +569,12 @@ class Bhole {
 	 * with the condition that $\partial_r \Psi=-\frac{1}{2 {\tt rayon}}
 	 * f\left(\theta, \phi\right)$ on the horizon, where {\tt f} is the value of $\Psi$ on 
 	 * the horizon at the preceeding step.
-	 * @param ns [input] : the relaxation parameter.
 	 * @param relax [input] : the relaxation parameter.
 	 * 
 	 * {\bf WARNING} this should only be used for BH in a {\tt Bin_ns_bh}.
 	 */
 	 
-	void solve_psi_with_ns (const Etoile_bin& ns, double relax) ;
+	void solve_psi_with_ns (double relax) ;
 	
 	/**
 	 * Solves the equation for $\vec{\beta}$~:
@@ -584,7 +585,7 @@ class Bhole {
 	 * with $\vec{\beta} = -\Omega \vec{m} - \vec{V}$ on the horizon, 
 	 * $\vec{V}$ being the boost and $\vec{m} = \frac{\partial}{\partial \phi}$.
 	 * The solution is solved using Oohara-scheme and an iteration.
-	 * @param ns [input] : the relaxation parameter.
+	 * @param ns [input] : the companion.
 	 * @param precis [input] : parameter for the Oohara-solver which is an iterative 
 	 scheme.
 	 * @param relax [input] : the relaxation parameter.
