@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.59  2004/07/06 13:36:27  j_novak
+ * Added methods for desaliased product (operator |) only in r direction.
+ *
  * Revision 1.58  2004/06/22 08:49:57  p_grandclement
  * Addition of everything needed for using the logarithmic mapping
  *
@@ -1439,6 +1442,7 @@ class Scalar : public Tensor {
   friend Scalar operator-(const Scalar&, double ) ;		
   friend Scalar operator*(const Scalar &, const Scalar &) ;
   friend Scalar operator%(const Scalar &, const Scalar &) ;
+  friend Scalar operator|(const Scalar &, const Scalar &) ;
   friend Scalar operator*(double, const Scalar &) ;		
   friend Scalar operator/(const Scalar &, const Scalar &) ;
   friend Scalar operator/(const Scalar&, double ) ;	       
@@ -1489,7 +1493,13 @@ Scalar operator-(double, const Scalar& ) ;		///< double - Scalar
 Scalar operator-(const Scalar&, int ) ;		///< Scalar - int
 Scalar operator-(int, const Scalar& ) ;		///< int - Scalar 
 Scalar operator*(const Scalar &, const Scalar &) ;	///< Scalar * Scalar
-Scalar operator%(const Scalar &, const Scalar &) ;	///< Scalar * Scalar with desaliasing
+
+/// Scalar * Scalar with desaliasing
+Scalar operator%(const Scalar &, const Scalar &) ;	
+
+/// Scalar * Scalar with desaliasing only in \e r
+Scalar operator|(const Scalar &, const Scalar &) ;
+	
 Scalar operator*(const Scalar&, double ) ;		///< Scalar * double
 Scalar operator*(double, const Scalar &) ;		///< double * Scalar
 Scalar operator*(const Scalar&, int ) ;		///< Scalar * int

@@ -31,6 +31,9 @@ char mg3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/07/06 13:36:29  j_novak
+ * Added methods for desaliased product (operator |) only in r direction.
+ *
  * Revision 1.9  2003/10/27 16:21:54  e_gourgoulhon
  * Treated the special case nz=1 in the simplified constructor.
  *
@@ -735,6 +738,7 @@ void Mg3d::del_deriv() const {
     if (g_angu != 0x0) delete g_angu ;
     if (g_radial != 0x0) delete g_radial ;
     if (g_twice != 0x0) delete g_twice ;
+    if (g_plus_half != 0x0) delete g_plus_half ;
 
     set_deriv_0x0() ;
 
@@ -745,7 +749,7 @@ void Mg3d::set_deriv_0x0() const {
     g_angu = 0x0 ;
     g_radial = 0x0 ;
     g_twice = 0x0 ;
-
+    g_plus_half = 0x0 ;
 }
 
 
@@ -834,6 +838,35 @@ const Mg3d* Mg3d::get_twice() const {
     }
 
     return g_twice ;
+
+}
+	
+
+		  //--------------------------------------//
+		  // Grid with 50% additional points in r //
+		  //--------------------------------------//
+
+const Mg3d* Mg3d::plus_half() const {
+
+  if (g_plus_half == 0x0) {	  // The construction is required
+
+    int* nbr = new int[nzone] ;
+    
+    for (int l=0; l<nzone; l++) {
+      if (nr[l] == 1) 
+	nbr[l] = 1 ;
+      else 
+	nbr[l] = (3*nr[l])/2  ;
+    }
+    
+    g_plus_half = new Mg3d(nzone, nbr, type_r, nt, type_t, np, type_p) ;
+
+    delete [] nbr ;
+
+
+  }
+
+  return g_plus_half ;
 
 }
 	

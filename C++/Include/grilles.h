@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/07/06 13:36:27  j_novak
+ * Added methods for desaliased product (operator |) only in r direction.
+ *
  * Revision 1.10  2004/06/22 08:49:56  p_grandclement
  * Addition of everything needed for using the logarithmic mapping
  *
@@ -467,6 +470,11 @@ class Mg3d {
 	 */
 	mutable Mg3d* g_twice ; 
 
+	/** Pointer on the grid which has 50% more points in
+	 *  \e r dimension (for desaliasing).
+	 */
+	mutable Mg3d* g_plus_half ; 
+
     // Constructors - Destructor
     // -------------------------
 	
@@ -600,6 +608,11 @@ class Mg3d {
 	 *  of points in each dimension (for desaliasing).
 	 */
 	const Mg3d* get_twice() const ;
+
+	/** Returns the pointer on the grid which has 50% more points in
+	 *  \e r dimension (for desaliasing).
+	 */
+	const Mg3d* plus_half() const ;
 
 	/// Comparison operator (egality)
 	bool operator==(const Mg3d& ) const ;  

@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/07/06 13:36:27  j_novak
+ * Added methods for desaliased product (operator |) only in r direction.
+ *
  * Revision 1.9  2004/03/22 13:12:44  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -779,6 +782,9 @@ Valeur operator*(const Valeur&, const Valeur& ) ; ///< Valeur * Valeur
 
 /// Valeur * Valeur with desaliasing
 Valeur operator%(const Valeur&, const Valeur& ) ; 
+
+/// Valeur * Valeur with desaliasing only in \e r direction
+Valeur operator|(const Valeur&, const Valeur& ) ; 
 
 Valeur operator*(const Valeur&, double ) ;	  ///< Valeur * double
 Valeur operator*(double, const Valeur& ) ;	  ///< double * Valeur 

@@ -31,6 +31,9 @@ char scalar_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/07/06 13:36:29  j_novak
+ * Added methods for desaliased product (operator |) only in r direction.
+ *
  * Revision 1.6  2004/02/19 10:55:11  e_gourgoulhon
  * Treatment of case ETATUN in  double*Scalar, double/Scalar and
  * Scalar/double: added the copy of the spectral bases from the
@@ -388,6 +391,41 @@ Scalar operator%(const Scalar& c1, const Scalar& c2) {
     // Termine
     return r ;
 }
+
+// Scalar | Scalar (multiplication with desaliasing in r)
+// ------------------------------------------------------
+Scalar operator|(const Scalar& c1, const Scalar& c2) {
+    
+    
+    // Cas particuliers
+    if ((c1.get_etat() == ETATZERO) || (c1.get_etat() == ETATNONDEF)){
+	return c1 ;
+    }
+    if ((c2.get_etat() == ETATZERO)|| (c2.get_etat() == ETATNONDEF)) {
+	return c2 ;
+    }
+    if (c1.get_etat() == ETATUN)
+	return c2 ;
+    if (c2.get_etat() == ETATUN)
+	return c1 ;
+
+    assert(c1.get_etat() == ETATQCQ) ;  // sinon...
+    assert(c2.get_etat() == ETATQCQ) ;  // sinon...
+    
+    // Protection
+    assert(c1.get_mp() == c2.get_mp()) ;
+    
+    // Cas general
+    Scalar r( c1.get_mp() ) ;	    // Le resultat
+    r.set_etat_qcq() ;
+    r.va = c1.va | c2.va ;
+
+    r.set_dzpuis( c1.get_dzpuis() + c2.get_dzpuis() ) ;
+    
+    // Termine
+    return r ;
+}
+
 
 
 
