@@ -29,6 +29,9 @@ char test_sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/04/06 14:55:45  j_novak
+ * Added the test on the decomposition onto eta/mu/W/X/T potentials.
+ *
  * Revision 1.5  2004/02/19 22:15:55  e_gourgoulhon
  * New argument "comment" in functions spectral_display and diffrelmax.
  *
@@ -69,7 +72,7 @@ int main() {
   
 	int nz = 3 ; 	// Number of domains
 	int nzm1 = nz - 1 ;  
-	int nr = 65 ; 	// Number of collocation points in r in each domain
+	int nr = 33 ; 	// Number of collocation points in r in each domain
 	int nt = 9 ; 	// Number of collocation points in theta in each domain
 	int np = 16 ; 	// Number of collocation points in phi in each domain
 	int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
@@ -120,29 +123,28 @@ int main() {
 
     hhc.set(1,2) = x ;
     tmp = sint*cosp / (r*r) ; 
-	hhc.set(1,2).set_domain(nzm1) = tmp.domain(nzm1)  ; 
-	hhc.set(1,2).set_dzpuis(4); 	 
+    hhc.set(1,2).set_domain(nzm1) = tmp.domain(nzm1)  ; 
+    hhc.set(1,2).set_dzpuis(4); 	 
+    
+    hhc.set(1,3) = y * z ; 
+    tmp = sint*sinp*cost / (r*r*r) ;
+    hhc.set(1,3).set_domain(nzm1) = tmp.domain(nzm1)  ; 
+    hhc.set(1,3).set_dzpuis(4); 	 
 
-	hhc.set(1,3) = y * z ; 
-	tmp = sint*sinp*cost / (r*r*r) ;
-	hhc.set(1,3).set_domain(nzm1) = tmp.domain(nzm1)  ; 
-	hhc.set(1,3).set_dzpuis(4); 	 
-
-	hhc.set(2,2) = x*y ; 
-	tmp = sint*sint*cosp*sinp / (r*r*r) ;
-	hhc.set(2,2).set_domain(nzm1) = tmp.domain(nzm1)  ; 
-	hhc.set(2,2).set_dzpuis(4); 	 
-
-	hhc.set(2,3) = z  ; 
-	tmp = cost / (r*r) ;
-	hhc.set(2,3).set_domain(nzm1) = tmp.domain(nzm1)  ; 
-	hhc.set(2,3).set_dzpuis(4); 	 
-
-	hhc.set(3,3) = x ; 
-	tmp = sint*cosp / (r*r) ;
-	hhc.set(3,3).set_domain(nzm1) = tmp.domain(nzm1)  ; 
-	hhc.set(3,3).set_dzpuis(4); 	 
-
+    hhc.set(2,2) = x*y ; 
+    tmp = sint*sint*cosp*sinp / (r*r*r) ;
+    hhc.set(2,2).set_domain(nzm1) = tmp.domain(nzm1)  ; 
+    hhc.set(2,2).set_dzpuis(4); 	 
+    
+    hhc.set(2,3) = z  ; 
+    tmp = cost / (r*r) ;
+    hhc.set(2,3).set_domain(nzm1) = tmp.domain(nzm1)  ; 
+    hhc.set(2,3).set_dzpuis(4); 	 
+    
+    hhc.set(3,3) = x ; 
+    tmp = sint*cosp / (r*r) ;
+    hhc.set(3,3).set_domain(nzm1) = tmp.domain(nzm1)  ; 
+    hhc.set(3,3).set_dzpuis(4); 	 
 
 
 
@@ -179,47 +181,61 @@ int main() {
 	hhc.set(3,3).set_dzpuis(4); 	 
 */
 
-	hhc.std_spectral_base() ; 
+    hhc.std_spectral_base() ; 
+    
+    Sym_tensor hhs = hhc ; 
+    hhs.change_triad( map.get_bvect_spher() ) ; 
+    
+    Scalar eta = hhs.eta() ;
+    Scalar mu = hhs.mu() ;
+    Scalar ww = hhs.www() ;
+    Scalar xx = hhs.xxx() ;
+    Scalar tt = hhs.ttt() ;
 
-	Sym_tensor hhs = hhc ; 
-	hhs.change_triad( map.get_bvect_spher() ) ; 
-	
-	hhs.spectral_display("Spherical components : hhs", 1.e-13) ; 
-	arrete() ; 
-	
+    // Test of the eta/mu/W/X decomposition
+    //-------------------------------------
+    Sym_tensor hh_new(map, CON, map.get_bvect_spher()) ;
+    hh_new.set_auxiliary(hhs(1,1), eta, mu, ww, xx, tt) ;
+    
+    cout << "Test of the decomposition on eta/mu/W/X potentials : " << endl ;
+    for (int i=1; i<=3; i++) 
+	for (int j=i; j<=3; j++) {
+	    Scalar raz = (hhs(i,j) - hh_new(i,j)) ;
+	    cout << "Component: " << i << " , " << j << ": " ;
+	    maxabs(raz) ;
+	    cout  << endl ;
+	}
+    arrete() ;
+    
     // Transverse part
     // ---------------
     
-	const Sym_tensor_trans& thhs = hhs.transverse(mets) ; 
-	arrete() ; 
-
-	thhs.spectral_display("Transverse part thhs", 1.e-13) ; 
-	arrete() ; 
-	
+    Sym_tensor_trans thhs = hhs.transverse(mets, 0x0, 6) ; 
+    arrete() ; 
+    
+    thhs.dec_dzpuis(4) ;
     cout << "Max abs(trace) of the transverse part thhs : \n" ; 
     maxabs( thhs.the_trace() ) ; 
     
     Vector divt = thhs.divergence(mets) ; 
-	// divt.spectral_display("Divergence of the transverse part thhs") ; 
-	cout << "Max abs(divergence) of the transverse part thhs : " << endl ;
+    cout << "Max abs(divergence) of the transverse part thhs : " << endl ;
     maxabs( divt ) ; 
     
+
     // TT part
     // -------
     
-
-    const Sym_tensor_tt& tthhs = thhs.tt_part() ; 
+    Sym_tensor_tt tthhs = hhs.transverse(mets).tt_part() ; 
+    tthhs.dec_dzpuis(4) ;
     
-    // tthhs.spectral_display("TT part tthhs") ; 
-
     Scalar tr_tthhs = tthhs.trace(mets) ;
-	cout << "Max abs(trace) of the TT part tthhs : " << endl ;
+    cout << "Max abs(trace) of the TT part tthhs : " << endl ;
     maxabs( tr_tthhs ) ; 
     
     Vector divtt = tthhs.divergence(mets) ; 
-	cout << "Max abs(divergence) of the TT part tthhs : " << endl ;
+    cout << "Max abs(divergence) of the TT part tthhs : " << endl ;
     maxabs( divtt ) ; 
-		
-        
-	return EXIT_SUCCESS ; 
+    
+    
+    return EXIT_SUCCESS ; 
 }
