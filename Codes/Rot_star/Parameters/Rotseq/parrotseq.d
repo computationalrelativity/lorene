@@ -6,7 +6,7 @@
 200. 	freq_max_si : final central rotation frequency [Hz]
 4	Number of configurations in the sequence
 2	Rotation state: rigid (0) or differential (1,2): 1 -> fixed R0, 2 -> R0 = a^{-1} R_eq
-0.5	rrot : depending on the above line: R0 [km] or coefficient a  [F(Omega) = R0^2 (Omegac - Omega)] 
+0.5	rrot : depending on the above line: R0 [km] or coefficient a  [F(Omega)= R0^2 (Omegac - Omega)], NB: a = {\hat A}^{-1} of Baumgarte et al., ApJ 528, L29 (2000) 
 2.85     Requested baryon mass [M_sol] (effective only if mer_mass < mer_max)
 #################### COMPUTATIONAL PARAMETERS #################################
 200     mer_max : maximum number of steps
