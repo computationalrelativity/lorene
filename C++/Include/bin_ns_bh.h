@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/24 16:56:30  k_taniguchi
+ * Add the method for the calculation of the orbital angular velocity
+ *
  * Revision 1.5  2003/10/24 12:45:22  k_taniguchi
  * Change the class for the star from Etoile_bin to Et_bin_nsbh
  *
@@ -233,6 +236,31 @@ class Bin_ns_bh {
 	 * {\tt star} and {\tt bhole}.
 	 **/
 	void fait_tkij() ;
+
+    // Computational routines
+    // ----------------------
+    public:
+	/** Computes the orbital angular velocity {\tt omega}
+	 *
+	 *  @param fact_omeg_min [input] : determines the lower bound of the 
+	 *		interval {\tt [omega\_min, omega\_max]} in which 
+	 *		{\tt omega} is searched by 
+	 *		{\tt omega\_min = fact\_omeg\_min * omega}, 
+	 *		where {\tt omega} is the previous value of the 
+	 *		angular velocity 
+	 *		(typical value : {\tt fact\_omeg\_min = 0.5})
+	 *
+	 *  @param fact_omeg_max [input] : determines the higher bound of the 
+	 *		interval {\tt [omega\_min, omega\_max]} in which 
+	 *		{\tt omega} is searched by 
+	 *		{\tt omega\_max = fact\_omeg\_max * omega}, 
+	 *		where {\tt omega} is the previous value of the 
+	 *		angular velocity.
+	 *		(typical value : {\tt fact\_omeg\_max = 1.5})
+	 *
+	 */
+	void orbit_omega(double fact_omeg_min, double fact_omeg_max) ;
+
 };
 ostream& operator<<(ostream& , const Bin_ns_bh& ) ;
 
