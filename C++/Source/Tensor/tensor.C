@@ -34,6 +34,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.35  2004/06/17 06:55:07  e_gourgoulhon
+ * Added method annule_extern_c2.
+ *
  * Revision 1.34  2004/03/04 09:47:51  e_gourgoulhon
  * Method annule_domain(int, int): added call to virtual function
  *  del_deriv() at the end !
@@ -655,6 +658,35 @@ void Tensor::annule(int l_min, int l_max) {
     // The derived members are no longer up to date:
     del_deriv() ;
     
+}
+
+
+void Tensor::annule_extern_c2(int lrac) {
+
+    // Not applicable in the nucleus nor the CED:
+    assert( mp->get_mg()->get_type_r(lrac) == FIN ) ; 
+
+    int nz = mp->get_mg()->get_nzone() ; 
+    
+    // Boundary of domain lrac
+    double r_min = mp->val_r(lrac, -1., 0., 0.)  ; 
+    double r_max = mp->val_r(lrac, 1., 0., 0.)  ; 
+
+    Mtbl mx = (mp->r - r_min) / (r_max - r_min) ; 
+    
+    Tbl xx = mx(lrac) ; 
+    Tbl herm = - 6.*pow(xx,5) + 15.*pow(xx,4) - 10.*xx*xx*xx + 1. ;
+    
+    Scalar rac(*mp) ; 
+    rac.allocate_all() ; 
+    for (int l=0; l<lrac; l++) rac.set_domain(l) = 1 ; 
+    rac.set_domain(lrac) = herm ; 
+    rac.annule(lrac+1,nz-1) ; 
+    rac.std_spectral_base() ;
+    
+    for (int ic=0; ic<n_comp; ic++) *(cmp[ic]) *= rac ; 
+
+    del_deriv() ;    
 }
 
 

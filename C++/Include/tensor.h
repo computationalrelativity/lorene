@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.53  2004/06/17 06:54:23  e_gourgoulhon
+ * Added method annule_extern_c2.
+ *
  * Revision 1.52  2004/05/13 21:29:27  e_gourgoulhon
  * Added (external) functions central_value, max_all_domains,
  * min_all_domains and maxabs_all_domains.
@@ -599,6 +602,16 @@ class Tensor {
 	 * of domains, is equivalent to \c set_etat_zero() .
 	 */
 	virtual void annule(int l_min, int l_max) ; 
+
+        /** Performs a smooth (C^2) transition in a given domain 
+         *  to zero.
+         *  @param l_0 [input] in the domain of index l0 the tensor is
+         *  multiplied by the Hermite basis function \e H(r) of degree 5, to 
+         *  ensure continuty of the function and its first and second
+         *  derivative at both ends of this domain. The tensor is unchanged
+         *  in the domains l < l_0 and set to zero in domains l > l_0.
+         */
+         void annule_extern_c2(int l_0) ;
 
 	/**
 	 * Sets the standard spectal bases of decomposition for each component.
