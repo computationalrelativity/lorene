@@ -28,6 +28,9 @@ char readinit_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/03/20 08:24:56  e_gourgoulhon
+ * Added the derivatives of Psi.
+ *
  * Revision 1.4  2002/02/06 14:54:44  e_gourgoulhon
  * Update of bibliographical references
  *
@@ -101,9 +104,9 @@ int main() {
     double* const yi = new double[nbp] ; 
     double* const zi = new double[nbp] ; 
     
-    double dx = (x_max - x_min) / double(nx - 1) ;     
-    double dy = (y_max - y_min) / double(ny - 1) ;     
-    double dz = (z_max - z_min) / double(nz - 1) ;   
+    double dx = (nx == 1) ? 0 : (x_max - x_min) / double(nx - 1) ;
+    double dy = (ny == 1) ? 0 : (y_max - y_min) / double(ny - 1) ;
+    double dz = (nz == 1) ? 0 : (z_max - z_min) / double(nz - 1) ;
 
     double* pxi = xi ;
     double* pyi = yi ;
@@ -198,4 +201,5 @@ int main() {
     delete [] zi ;
 
     return EXIT_SUCCESS ;
+
 }

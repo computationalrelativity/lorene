@@ -29,6 +29,9 @@ char bin_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/03/20 08:24:56  e_gourgoulhon
+ * Added the derivatives of Psi.
+ *
  * Revision 1.1  2001/12/18 22:27:04  e_gourgoulhon
  * Exportation of Lorene structures
  *
@@ -72,8 +75,17 @@ Bin_BH::Bin_BH(FILE* fich) {
 	fread(k_xz, sizeof(double), np, fich) ; 
 	fread(k_yy, sizeof(double), np, fich) ; 
 	fread(k_yz, sizeof(double), np, fich) ; 
-	fread(k_zz, sizeof(double), np, fich) ; 
-		
+	fread(k_zz, sizeof(double), np, fich) ;
+	fread(dpsi_x, sizeof(double), np, fich) ;
+	fread(dpsi_y, sizeof(double), np, fich) ;
+	fread(dpsi_z, sizeof(double), np, fich) ;
+	fread(d2psi_xx, sizeof(double), np, fich) ;
+	fread(d2psi_xy, sizeof(double), np, fich) ;
+	fread(d2psi_xz, sizeof(double), np, fich) ;
+	fread(d2psi_yy, sizeof(double), np, fich) ;
+	fread(d2psi_yz, sizeof(double), np, fich) ;
+	fread(d2psi_zz, sizeof(double), np, fich) ;
+
     
 }
 
@@ -95,9 +107,12 @@ Bin_BH::Bin_BH(ifstream& fich) {
 	
     double* field[] = {xx, yy, zz, nnn, beta_x, beta_y, beta_z, 
 			     g_xx,  g_xy, g_xz, g_yy, g_yz, g_zz, 
-			     k_xx,  k_xy, k_xz, k_yy, k_yz, k_zz} ;  
+			     k_xx,  k_xy, k_xz, k_yy, k_yz, k_zz,
+			     dpsi_x, dpsi_y, dpsi_z,
+			     d2psi_xx, d2psi_xy, d2psi_xz,
+			     d2psi_yy, d2psi_yz, d2psi_zz} ;
 			        
-    for (int j=0; j<19; j++) {
+    for (int j=0; j<28; j++) {
 
 	double* pdata = field[j] ;
 	
@@ -143,6 +158,16 @@ Bin_BH::~Bin_BH() {
     delete [] k_yz ;
     delete [] k_zz ;
 
+    delete [] dpsi_x ;
+    delete [] dpsi_y ;
+    delete [] dpsi_z ;
+
+    delete [] d2psi_xx ;
+    delete [] d2psi_xy ;
+    delete [] d2psi_xz ;
+    delete [] d2psi_yy ;
+    delete [] d2psi_yz ;
+    delete [] d2psi_zz ;
 
 }
 
@@ -175,8 +200,18 @@ void Bin_BH::alloc_memory() {
     k_xz = new double[np] ; 
     k_yy = new double[np] ; 
     k_yz = new double[np] ; 
-    k_zz = new double[np] ; 
-    
+    k_zz = new double[np] ;
+
+    dpsi_x = new double[np] ;
+    dpsi_y = new double[np] ;
+    dpsi_z = new double[np] ;
+
+    d2psi_xx = new double[np] ;
+    d2psi_xy = new double[np] ;
+    d2psi_xz = new double[np] ;
+    d2psi_yy = new double[np] ;
+    d2psi_yz = new double[np] ;
+    d2psi_zz = new double[np] ;
 }
 
 		    //--------------------------//
@@ -223,8 +258,17 @@ void Bin_BH::save_bin(FILE* fresu) const {
 	fwrite(k_xz, sizeof(double), np, fresu) ; 
 	fwrite(k_yy, sizeof(double), np, fresu) ; 
 	fwrite(k_yz, sizeof(double), np, fresu) ; 
-	fwrite(k_zz, sizeof(double), np, fresu) ; 
-   
+	fwrite(k_zz, sizeof(double), np, fresu) ;
+	fwrite(dpsi_x, sizeof(double), np, fresu) ;
+	fwrite(dpsi_y, sizeof(double), np, fresu) ;
+	fwrite(dpsi_z, sizeof(double), np, fresu) ;
+	fwrite(d2psi_xx, sizeof(double), np, fresu) ;
+	fwrite(d2psi_xy, sizeof(double), np, fresu) ;
+	fwrite(d2psi_xz, sizeof(double), np, fresu) ;
+	fwrite(d2psi_yy, sizeof(double), np, fresu) ;
+	fwrite(d2psi_yz, sizeof(double), np, fresu) ;
+	fwrite(d2psi_zz, sizeof(double), np, fresu) ;
+
 }
 
 		
@@ -249,9 +293,13 @@ void Bin_BH::save_form(ofstream& fich) const {
     
     const double* field[] = {xx, yy, zz, nnn, beta_x, beta_y, beta_z, 
 			     g_xx,  g_xy, g_xz, g_yy, g_yz, g_zz, 
-			     k_xx,  k_xy, k_xz, k_yy, k_yz, k_zz} ;  
+			     k_xx,  k_xy, k_xz, k_yy, k_yz, k_zz,
+			     dpsi_x, dpsi_y, dpsi_z,
+			     d2psi_xx, d2psi_xy, d2psi_xz,
+			     d2psi_yy, d2psi_yz, d2psi_zz} ;
+
 			        
-    for (int j=0; j<19; j++) {
+    for (int j=0; j<28; j++) {
 
 	const double* pdata = field[j] ;
     

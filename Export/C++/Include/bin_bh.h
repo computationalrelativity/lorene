@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/03/20 08:27:45  e_gourgoulhon
+ * Added the derivatives of Psi.
+ *
  * Revision 1.4  2002/02/06 14:54:44  e_gourgoulhon
  * Update of bibliographical references
  *
@@ -187,6 +190,32 @@ class Bin_BH {
 	/// Component $K^{zz}$ of the extrinsic curvature at the grid points (1-D array) [unit: $c/a$]
 	double* k_zz ;
 
+        /// First derivative $\partial/\partial x$ of the conformal factor $\Psi$  [unit: $a^{-1}$]
+        double* dpsi_x ;
+
+        /// First derivative $\partial/\partial y$ of the conformal factor $\Psi$  [unit: $a^{-1}$]
+        double* dpsi_y ;
+
+        /// First derivative $\partial/\partial z$ of the conformal factor $\Psi$  [unit: $a^{-1}$]
+        double* dpsi_z ;
+
+        /// Second derivative $\partial^2/\partial x^2$ of the conformal factor $\Psi$  [unit: $a^{-2}$]
+        double* d2psi_xx ;
+
+        /// Second derivative $\partial^2/\partial x\partial y$ of the conformal factor $\Psi$  [unit: $a^{-2}$]
+        double* d2psi_xy ;
+
+        /// Second derivative $\partial^2/\partial x\partial z$ of the conformal factor $\Psi$  [unit: $a^{-2}$]
+        double* d2psi_xz ;
+
+        /// Second derivative $\partial^2/\partial y^2$ of the conformal factor $\Psi$  [unit: $a^{-2}$]
+        double* d2psi_yy ;
+
+        /// Second derivative $\partial^2/\partial y\partial z$ of the conformal factor $\Psi$  [unit: $a^{-2}$]
+        double* d2psi_yz ;
+
+        /// Second derivative $\partial^2/\partial z^2$ of the conformal factor $\Psi$  [unit: $a^{-2}$]
+        double* d2psi_zz ;
 
     // Constructors - Destructor
     // -------------------------

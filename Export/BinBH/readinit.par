@@ -5,12 +5,12 @@ test_data.d
 Parameters of the Cartesian grid :
 --------------------------------
 0               fill the throats interiors (1) or not (0)
-10		Number of points in the x direction
-10		Number of points in the y direction
-5		Number of points in the z direction
--10	10	x_min, x_max	Range of x
--10	10	y_min, y_max	Range of y
--5	5	z_min, z_max	Range of z
+100		Number of points in the x direction
+5		Number of points in the y direction
+2		Number of points in the z direction
+-20	20	x_min, x_max	Range of x
+0	10	y_min, y_max	Range of y
+0	10	z_min, z_max	Range of z
 
 
 

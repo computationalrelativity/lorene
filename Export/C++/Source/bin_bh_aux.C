@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2001  Eric Gourgoulhon
+ *   Copyright (c) 2001-2002  Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,9 @@ char bin_bh_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/03/20 08:24:56  e_gourgoulhon
+ * Added the derivatives of Psi.
+ *
  * Revision 1.2  2001/12/19 11:20:56  e_gourgoulhon
  * Initialisation of radius2 was missing !
  *
@@ -95,6 +98,7 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
 
     // Unit of length:
     double aa = systeme(1).get_rayon() ;
+    double aasq = aa * aa ;
     double aa2 = systeme(2).get_rayon() ;
     radius2 = aa2 ;
 
@@ -116,7 +120,7 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
 	  << systeme.distance_propre() / aa << " a" << endl ;
     cout << "  Area of black hole 1 apparent horizon : " << 
 	      systeme(1).area() / (aa*aa) << " a^2" << endl ; 
-    cout << "  Area of black hole 2 apparent horizon : " << 
+    cout << "  Area of black hole 2 apparent horizon : " <<
 	      systeme(2).area() / (aa*aa) << " a^2" << endl ; 
 
     
@@ -143,7 +147,7 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
     // -------------------------------------------------------------
     
     const Map_af& mp1 = systeme(1).get_mp() ; 
-    const Map_af& mp2 = systeme(2).get_mp() ; 
+    const Map_af& mp2 = systeme(2).get_mp() ;
 
     const Cmp& cnn1 = systeme(1).get_n_auto()() ;
     const Cmp& cnn2 = systeme(2).get_n_auto()() ;
@@ -165,7 +169,7 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
     const Valeur& vbetaz1 = cbetaz1.va ;
     const Valeur& vbetaz2 = cbetaz2.va ;
     vbetax1.coef() ;
-    vbetax2.coef() ; 
+    vbetax2.coef() ;
     vbetay1.coef() ; 
     vbetay2.coef() ; 
     vbetaz1.coef() ; 
@@ -176,7 +180,7 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
     const Valeur& vpsi1 = cpsi1.va ;
     const Valeur& vpsi2 = cpsi2.va ;
     vpsi1.coef() ;		
-    vpsi2.coef() ;		
+    vpsi2.coef() ;
     
     Tenseur_sym k_un (systeme(1).get_tkij_auto()) ;
     k_un.set_std_base() ;
@@ -215,27 +219,105 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
     vkxx2.coef() ; 
     vkxy1.coef() ; 
     vkxy2.coef() ; 
-    vkxz1.coef() ; 
+    vkxz1.coef() ;
     vkxz2.coef() ; 
     vkyy1.coef() ; 
     vkyy2.coef() ; 
     vkyz1.coef() ; 
     vkyz2.coef() ; 
     vkzz1.coef() ; 
-    vkzz2.coef() ; 
+    vkzz2.coef() ;
+
+    // First derivatives of psi
+    //-------------------------
+
+    Tenseur dpsi1 = (systeme(1).get_psi_auto()).gradient() ;
+    dpsi1.dec2_dzpuis() ;
+
+    Tenseur dpsi2 = (systeme(2).get_psi_auto()).gradient() ;
+    dpsi2.dec2_dzpuis() ;
+
+    const Cmp& cdpsix1 = dpsi1(0) ;
+    const Cmp& cdpsiy1 = dpsi1(1) ;
+    const Cmp& cdpsiz1 = dpsi1(2) ;
+    const Cmp& cdpsix2 = dpsi2(0) ;
+    const Cmp& cdpsiy2 = dpsi2(1) ;
+    const Cmp& cdpsiz2 = dpsi2(2) ;
+
+    const Valeur& vdpsix1 = cdpsix1.va ;
+    const Valeur& vdpsiy1 = cdpsiy1.va ;
+    const Valeur& vdpsiz1 = cdpsiz1.va ;
+    const Valeur& vdpsix2 = cdpsix2.va ;
+    const Valeur& vdpsiy2 = cdpsiy2.va ;
+    const Valeur& vdpsiz2 = cdpsiz2.va ;
+
+    vdpsix1.coef() ;
+    vdpsiy1.coef() ;
+    vdpsiz1.coef() ;
+    vdpsix2.coef() ;
+    vdpsiy2.coef() ;
+    vdpsiz2.coef() ;
+
+    // Second derivatives of psi
+    //---------------------------
+
+    Tenseur_sym d2psi1( dpsi1.gradient() ) ;
+    d2psi1.dec2_dzpuis() ;
+
+    Tenseur_sym d2psi2( dpsi2.gradient() ) ;
+    d2psi2.dec2_dzpuis() ;
+
+    const Cmp& cd2psixx1 = d2psi1(0, 0) ;
+    const Cmp& cd2psixy1 = d2psi1(0, 1) ;
+    const Cmp& cd2psixz1 = d2psi1(0, 2) ;
+    const Cmp& cd2psiyy1 = d2psi1(1, 1) ;
+    const Cmp& cd2psiyz1 = d2psi1(1, 2) ;
+    const Cmp& cd2psizz1 = d2psi1(2, 2) ;
+    const Cmp& cd2psixx2 = d2psi2(0, 0) ;
+    const Cmp& cd2psixy2 = d2psi2(0, 1) ;
+    const Cmp& cd2psixz2 = d2psi2(0, 2) ;
+    const Cmp& cd2psiyy2 = d2psi2(1, 1) ;
+    const Cmp& cd2psiyz2 = d2psi2(1, 2) ;
+    const Cmp& cd2psizz2 = d2psi2(2, 2) ;
+
+    const Valeur& vd2psixx1 = cd2psixx1.va ;
+    const Valeur& vd2psixy1 = cd2psixy1.va ;
+    const Valeur& vd2psixz1 = cd2psixz1.va ;
+    const Valeur& vd2psiyy1 = cd2psiyy1.va ;
+    const Valeur& vd2psiyz1 = cd2psiyz1.va ;
+    const Valeur& vd2psizz1 = cd2psizz1.va ;
+    const Valeur& vd2psixx2 = cd2psixx2.va ;
+    const Valeur& vd2psixy2 = cd2psixy2.va ;
+    const Valeur& vd2psixz2 = cd2psixz2.va ;
+    const Valeur& vd2psiyy2 = cd2psiyy2.va ;
+    const Valeur& vd2psiyz2 = cd2psiyz2.va ;
+    const Valeur& vd2psizz2 = cd2psizz2.va ;
+
+    vd2psixx1.coef() ;
+    vd2psixy1.coef() ;
+    vd2psixz1.coef() ;
+    vd2psiyy1.coef() ;
+    vd2psiyz1.coef() ;
+    vd2psizz1.coef() ;
+    vd2psixx2.coef() ;
+    vd2psixy2.coef() ;
+    vd2psixz2.coef() ;
+    vd2psiyy2.coef() ;
+    vd2psiyz2.coef() ;
+    vd2psizz2.coef() ;
 
     // Arrays describing the 3 points used for the parabolic extrapolation
     //  "inside" the throats when fill = 1
 	double r1p[3], t1p[3], p1p[3] ;
 	double r2p[3], t2p[3], p2p[3] ;
 	double yp[3] ;
-	
+
     for (int i=0; i<np; i++) {
-    
+
 	double x0 = xx[i] * aa ;    // x in Lorene's unit
 	double y0 = yy[i] * aa ;
 	double z0 = zz[i] * aa ;
-    
+
 	// Values of (l1, xi1, theta1, phi1) (grid 1) 
 	// corresponding to (x,y,z):
 	// ------------------------------------------
@@ -245,7 +327,7 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
 	int l1 ;	    // domain index
 	double xi1 ;	    // radial coordinate xi in [0,1] or [-1,1]
 	mp1.val_lx(r1, theta1, phi1, l1, xi1) ;
-	
+
 	// Values of (l2, xi2, theta2, phi2) (grid 2) 
 	// corresponding to (x,y,z):
 	// ------------------------------------------
@@ -280,6 +362,15 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
 	    			k_yy[i] = 0 ;
 	    			k_yz[i] = 0 ;
 	    			k_zz[i] = 0 ;
+                                dpsi_x[i] = 0 ;
+                                dpsi_y[i] = 0 ;
+                                dpsi_z[i] = 0 ;
+                                d2psi_xx[i] = 0 ;
+                                d2psi_xy[i] = 0 ;
+                                d2psi_xz[i] = 0 ;
+                                d2psi_yy[i] = 0 ;
+                                d2psi_yz[i] = 0 ;
+                                d2psi_zz[i] = 0 ;
 	    			break ;
 	    		}
 	    		
@@ -316,13 +407,13 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
 				- cbetax2.val_point(r2p[j], t2p[j], p2p[j]) ;
 		}
   		beta_x[i] = lagrange_parabol(r1, r1p, yp) - omega * yy[i] ;
-		
+
 		for (int j=0; j<3; j++) {
 			yp[j] =   cbetay1.val_point(r1p[j], theta1, phi1)
 				- cbetay2.val_point(r2p[j], t2p[j], p2p[j]) ;
 		}
   		beta_y[i] = lagrange_parabol(r1, r1p, yp) + omega * xx[i] ;
-		
+
 		for (int j=0; j<3; j++) {
 			yp[j] =   cbetaz1.val_point(r1p[j], theta1, phi1)
 				+ cbetaz2.val_point(r2p[j], t2p[j], p2p[j]) ;
@@ -353,7 +444,7 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
 		for (int j=0; j<3; j++) {
 			yp[j] =   ckxy1.val_point(r1p[j], theta1, phi1)
 				+ ckxy2.val_point(r2p[j], t2p[j], p2p[j])  ;
-                }			
+                }
                 k_xy[i] = pre * lagrange_parabol(r1, r1p, yp) ;
 
 		for (int j=0; j<3; j++) {
@@ -380,7 +471,64 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
                 }			
                 k_zz[i] = pre * lagrange_parabol(r1, r1p, yp) ;
 
-		break ;	    		
+                // First derivatives of Psi
+		for (int j=0; j<3; j++) {
+			yp[j] = aa * ( cdpsix1.val_point(r1p[j], theta1, phi1)
+				- cdpsix2.val_point(r2p[j], t2p[j], p2p[j]) ) ;
+		}
+  		dpsi_x[i] = lagrange_parabol(r1, r1p, yp)  ;
+
+                for (int j=0; j<3; j++) {
+			yp[j] = aa * ( cdpsiy1.val_point(r1p[j], theta1, phi1)
+				- cdpsiy2.val_point(r2p[j], t2p[j], p2p[j]) ) ;
+		}
+  		dpsi_y[i] = lagrange_parabol(r1, r1p, yp)  ;
+
+		for (int j=0; j<3; j++) {
+			yp[j] = aa * ( cdpsiz1.val_point(r1p[j], theta1, phi1)
+				+ cdpsiz2.val_point(r2p[j], t2p[j], p2p[j]) ) ;
+		}
+  		dpsi_z[i] = lagrange_parabol(r1, r1p, yp)  ;
+
+               // Second derivatives of Psi
+		for (int j=0; j<3; j++) {
+			yp[j] = aasq * ( cd2psixx1.val_point(r1p[j], theta1, phi1)
+				+ cd2psixx2.val_point(r2p[j], t2p[j], p2p[j]) ) ;
+		}
+  		d2psi_xx[i] = lagrange_parabol(r1, r1p, yp)  ;
+
+		for (int j=0; j<3; j++) {
+			yp[j] = aasq * ( cd2psixy1.val_point(r1p[j], theta1, phi1)
+				+ cd2psixy2.val_point(r2p[j], t2p[j], p2p[j]) ) ;
+		}
+  		d2psi_xy[i] = lagrange_parabol(r1, r1p, yp)  ;
+
+		for (int j=0; j<3; j++) {
+			yp[j] = aasq * ( cd2psixz1.val_point(r1p[j], theta1, phi1)
+				- cd2psixz2.val_point(r2p[j], t2p[j], p2p[j]) ) ;
+		}
+  		d2psi_xz[i] = lagrange_parabol(r1, r1p, yp)  ;
+
+		for (int j=0; j<3; j++) {
+			yp[j] = aasq * ( cd2psiyy1.val_point(r1p[j], theta1, phi1)
+				+ cd2psiyy2.val_point(r2p[j], t2p[j], p2p[j]) ) ;
+		}
+  		d2psi_yy[i] = lagrange_parabol(r1, r1p, yp)  ;
+
+		for (int j=0; j<3; j++) {
+			yp[j] = aasq * ( cd2psiyz1.val_point(r1p[j], theta1, phi1)
+				- cd2psiyz2.val_point(r2p[j], t2p[j], p2p[j]) ) ;
+		}
+  		d2psi_yz[i] = lagrange_parabol(r1, r1p, yp)  ;
+
+		for (int j=0; j<3; j++) {
+			yp[j] = aasq * ( cd2psizz1.val_point(r1p[j], theta1, phi1)
+				+ cd2psizz2.val_point(r2p[j], t2p[j], p2p[j]) ) ;
+		}
+  		d2psi_zz[i] = lagrange_parabol(r1, r1p, yp)  ;
+
+
+		break ;
 	    		}	// end of case fill = 1
 	    		
 	    		default : {
@@ -418,6 +566,15 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
 	    			k_yy[i] = 0 ;
 	    			k_yz[i] = 0 ;
 	    			k_zz[i] = 0 ;
+                                dpsi_x[i] = 0 ;
+                                dpsi_y[i] = 0 ;
+                                dpsi_z[i] = 0 ;
+                                d2psi_xx[i] = 0 ;
+                                d2psi_xy[i] = 0 ;
+                                d2psi_xz[i] = 0 ;
+                                d2psi_yy[i] = 0 ;
+                                d2psi_yz[i] = 0 ;
+                                d2psi_zz[i] = 0 ;
 	    			break ;
 	    		}
 	    		
@@ -454,7 +611,7 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
 				- cbetax2.val_point(r2p[j], theta2, phi2) ;
 		}
   		beta_x[i] = lagrange_parabol(r2, r2p, yp) - omega * yy[i] ;
-		
+
 		for (int j=0; j<3; j++) {
 			yp[j] =   cbetay1.val_point(r1p[j], t1p[j], p1p[j])
 				- cbetay2.val_point(r2p[j], theta2, phi2) ;
@@ -497,7 +654,7 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
 		for (int j=0; j<3; j++) {
 			yp[j] =   ckxz1.val_point(r1p[j], t1p[j], p1p[j])
 				- ckxz2.val_point(r2p[j], theta2, phi2)  ;
-                }			
+                }
                 k_xz[i] = pre * lagrange_parabol(r2, r2p, yp) ;
 
 		for (int j=0; j<3; j++) {
@@ -515,8 +672,65 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
 		for (int j=0; j<3; j++) {
 			yp[j] =   ckzz1.val_point(r1p[j], t1p[j], p1p[j])
 				+ ckzz2.val_point(r2p[j], theta2, phi2)  ;
-                }			
+                }
                 k_zz[i] = pre * lagrange_parabol(r2, r2p, yp) ;
+
+                // First derivatives of Psi
+                for (int j=0; j<3; j++) {
+		        yp[j] = aa * (  cdpsix1.val_point(r1p[j], t1p[j], p1p[j])
+				- cdpsix2.val_point(r2p[j], theta2, phi2) ) ;
+		}
+  		dpsi_x[i] = lagrange_parabol(r2, r2p, yp)  ;
+
+                for (int j=0; j<3; j++) {
+		        yp[j] = aa * (   cdpsiy1.val_point(r1p[j], t1p[j], p1p[j])
+				- cdpsiy2.val_point(r2p[j], theta2, phi2) ) ;
+		}
+  		dpsi_y[i] = lagrange_parabol(r2, r2p, yp)  ;
+
+                for (int j=0; j<3; j++) {
+		        yp[j] = aa * (   cdpsiz1.val_point(r1p[j], t1p[j], p1p[j])
+				+ cdpsiz2.val_point(r2p[j], theta2, phi2) ) ;
+		}
+  		dpsi_z[i] = lagrange_parabol(r2, r2p, yp)  ;
+
+                // Second derivatives of Psi
+                for (int j=0; j<3; j++) {
+		        yp[j] = aasq * (   cd2psixx1.val_point(r1p[j], t1p[j], p1p[j])
+				+ cd2psixx2.val_point(r2p[j], theta2, phi2) ) ;
+		}
+  		d2psi_xx[i] = lagrange_parabol(r2, r2p, yp)  ;
+
+                for (int j=0; j<3; j++) {
+		        yp[j] = aasq * (    cd2psixy1.val_point(r1p[j], t1p[j], p1p[j])
+				+ cd2psixy2.val_point(r2p[j], theta2, phi2) ) ;
+		}
+  		d2psi_xy[i] = lagrange_parabol(r2, r2p, yp)  ;
+
+                for (int j=0; j<3; j++) {
+		        yp[j] =  aasq * (  cd2psixz1.val_point(r1p[j], t1p[j], p1p[j])
+				- cd2psixz2.val_point(r2p[j], theta2, phi2) ) ;
+		}
+  		d2psi_xz[i] = lagrange_parabol(r2, r2p, yp)  ;
+
+                for (int j=0; j<3; j++) {
+		        yp[j] = aasq * (   cd2psiyy1.val_point(r1p[j], t1p[j], p1p[j])
+				+ cd2psiyy2.val_point(r2p[j], theta2, phi2) ) ;
+		}
+  		d2psi_yy[i] = lagrange_parabol(r2, r2p, yp)  ;
+
+                for (int j=0; j<3; j++) {
+		        yp[j] = aasq * (   cd2psiyz1.val_point(r1p[j], t1p[j], p1p[j])
+				- cd2psiyz2.val_point(r2p[j], theta2, phi2) ) ;
+		}
+  		d2psi_yz[i] = lagrange_parabol(r2, r2p, yp)  ;
+
+                for (int j=0; j<3; j++) {
+		        yp[j] = aasq * (   cd2psizz1.val_point(r1p[j], t1p[j], p1p[j])
+				+ cd2psizz2.val_point(r2p[j], theta2, phi2) ) ;
+		}
+  		d2psi_zz[i] = lagrange_parabol(r2, r2p, yp)  ;
+
 
 		break ;	    		
 	    		}	// end of case fill = 1
@@ -542,18 +756,18 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
 	// Lapse function
 	// --------------
 	
-	nnn[i] =    vnn1.c_cf->val_point_symy(l1, xi1, theta1, phi1) 
+	nnn[i] =    vnn1.c_cf->val_point_symy(l1, xi1, theta1, phi1)
 		 +  vnn2.c_cf->val_point_symy(l2, xi2, theta2, phi2) ;
 	
 	// Shift vector
 	// ------------
 	
-	beta_x[i] = vbetax1.c_cf->val_point_asymy(l1, xi1, theta1, phi1) 
-		 -  vbetax2.c_cf->val_point_asymy(l2, xi2, theta2, phi2) 
+	beta_x[i] = vbetax1.c_cf->val_point_asymy(l1, xi1, theta1, phi1)
+		 -  vbetax2.c_cf->val_point_asymy(l2, xi2, theta2, phi2)
 		 - omega * yy[i] ;
 
 	beta_y[i] = vbetay1.c_cf->val_point_symy(l1, xi1, theta1, phi1) 
-		 -  vbetay2.c_cf->val_point_symy(l2, xi2, theta2, phi2) 
+		 -  vbetay2.c_cf->val_point_symy(l2, xi2, theta2, phi2)
 		 + omega * xx[i] ;
 
 	beta_z[i] = vbetaz1.c_cf->val_point_asymy(l1, xi1, theta1, phi1) 
@@ -576,11 +790,11 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
 	// Extrinsic curvature
 	// -------------------
 	
-	double pre = aa * psi4 ; 
+	double pre = aa * psi4 ;
 	
-	k_xx[i] = pre * ( vkxx1.c_cf->val_point_asymy(l1, xi1, theta1, phi1) 
+	k_xx[i] = pre * ( vkxx1.c_cf->val_point_asymy(l1, xi1, theta1, phi1)
 		      +	  vkxx2.c_cf->val_point_asymy(l2, xi2, theta2, phi2) ) ;
-		
+
 	k_xy[i] = pre * ( vkxy1.c_cf->val_point_symy(l1, xi1, theta1, phi1) 
 		      +   vkxy2.c_cf->val_point_symy(l2, xi2, theta2, phi2) ) ;
 		
@@ -596,7 +810,44 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
 	k_zz[i] = pre * ( vkzz1.c_cf->val_point_asymy(l1, xi1, theta1, phi1) 
 		      +   vkzz2.c_cf->val_point_asymy(l2, xi2, theta2, phi2) ) ;
 		      	
-	}
+
+        // First derviatives of psi
+        // -----------------------
+
+	dpsi_x[i] = vdpsix1.c_cf->val_point_symy(l1, xi1, theta1, phi1)
+		 -  vdpsix2.c_cf->val_point_symy(l2, xi2, theta2, phi2) ;
+
+	dpsi_y[i] = vdpsiy1.c_cf->val_point_asymy(l1, xi1, theta1, phi1)
+		 -  vdpsiy2.c_cf->val_point_asymy(l2, xi2, theta2, phi2) ;
+
+	dpsi_z[i] = vdpsiz1.c_cf->val_point_symy(l1, xi1, theta1, phi1)
+		 +  vdpsiz2.c_cf->val_point_symy(l2, xi2, theta2, phi2) ;
+
+        // Second derviatives of psi
+        // -------------------------
+
+	d2psi_xx[i] = vd2psixx1.c_cf->val_point_symy(l1, xi1, theta1, phi1)
+		    + vd2psixx2.c_cf->val_point_symy(l2, xi2, theta2, phi2) ;
+
+	d2psi_xy[i] = vd2psixy1.c_cf->val_point_asymy(l1, xi1, theta1, phi1)
+		    + vd2psixy2.c_cf->val_point_asymy(l2, xi2, theta2, phi2) ;
+
+	d2psi_xz[i] = vd2psixz1.c_cf->val_point_symy(l1, xi1, theta1, phi1)
+		    - vd2psixz2.c_cf->val_point_symy(l2, xi2, theta2, phi2) ;
+
+	d2psi_yy[i] = vd2psiyy1.c_cf->val_point_symy(l1, xi1, theta1, phi1)
+		    + vd2psiyy2.c_cf->val_point_symy(l2, xi2, theta2, phi2) ;
+
+	d2psi_yz[i] = vd2psiyz1.c_cf->val_point_asymy(l1, xi1, theta1, phi1)
+		    - vd2psiyz2.c_cf->val_point_asymy(l2, xi2, theta2, phi2) ;
+
+	d2psi_zz[i] = vd2psizz1.c_cf->val_point_symy(l1, xi1, theta1, phi1)
+		    + vd2psizz2.c_cf->val_point_symy(l2, xi2, theta2, phi2) ;
+
+
+
+        }
+
 
     }	// End of loop on the points
     
