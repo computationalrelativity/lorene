@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/10/13 20:49:26  e_gourgoulhon
+ * Corrected typo in the comments.
+ *
  * Revision 1.8  2003/10/13 13:52:39  j_novak
  * Better managment of derived quantities.
  *
@@ -287,7 +290,7 @@ class Vector_divfree: public Vector {
 	/// Assignment from a {\tt Vector}
 	virtual void operator=(const Vector&) ;	
 	
-	/// Assignment from a [\tt Tensor}
+	/// Assignment from a {\tt Tensor}
 	virtual void operator=(const Tensor&) ;	
 	
 
@@ -324,29 +327,6 @@ class Vector_divfree: public Vector {
 	
 	
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
