@@ -38,6 +38,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.38  2004/01/23 13:25:44  e_gourgoulhon
+ * Added methods set_inner_boundary and set_outer_boundary.
+ * Methods set_val_inf and set_val_hor, which are particular cases of
+ * the above, have been suppressed.
+ *
  * Revision 1.37  2004/01/22 16:10:09  e_gourgoulhon
  * Added (provisory) method div_r_inc().
  *
@@ -279,6 +284,64 @@ class Scalar : public Tensor {
   virtual ~Scalar() ;			/// Destructor
   
   
+  // Memory management
+  // -----------------
+ protected:
+  void del_t() ;		    /// Logical destructor
+  virtual void del_deriv() const;	    /// Logical destructor of the derivatives
+  void set_der_0x0() const;	    /// Sets the pointers for derivatives to 0x0
+  
+ public:
+  
+  /**
+   * Sets the logical state to {\tt ETATNONDEF} (undefined). 
+   * Calls the logical destructor of the {\tt Valeur va} and
+   * deallocates the memory occupied by all the derivatives. 
+   */
+  virtual void set_etat_nondef() ;   
+  
+  /**
+   * Sets the logical state to {\tt ETATZERO} (zero). 
+   * Calls the logical destructor of the {\tt Valeur va} and
+   * deallocates the memory occupied by all the derivatives. 
+   */
+  virtual void set_etat_zero() ;	    
+  
+  /**
+   * Sets the logical state to {\tt ETATQCQ} (ordinary state).
+   * If the state is already {\tt ETATQCQ}, this function does nothing.
+   * Otherwise, it calls the logical destructor of the {\tt Valeur va} and
+   * deallocates the memory occupied by all the derivatives.
+   */
+  virtual void set_etat_qcq() ;	    
+  
+  /**
+   * Sets the logical state to {\tt ETATUN} (one). 
+   * Fills the {\tt Valeur va} with ones and
+   * deallocates the memory occupied by all the derivatives. 
+   */
+  void set_etat_one() ;	    
+  
+  /**
+   * Sets the logical state to {\tt ETATQCQ} (ordinary state)
+   *  and performs the memory allocation of all the 
+   *  elements, down to the {\tt double} arrays of the {\tt Tbl}s. 
+   *  This function performs in fact recursive calls to {\tt set\_etat\_qcq()}
+   *  on each element of the chain {\tt Scalar} ->
+   *  {\tt Valeur} -> {\tt Mtbl} -> {\tt Tbl}. 
+   */
+  virtual void allocate_all() ; 
+  
+  /**
+   * Sets the {\tt Scalar} to zero in a hard way. 
+   * 1/ Sets the logical state to {\tt ETATQCQ}, i.e. to an ordinary state.
+   * 2/ Fills the {\tt Valeur va} with zeros. 
+   * NB: this function must be used for debugging purposes only.
+   * For other operations, the functions {\tt set\_etat\_zero()}
+   * or {\tt annule(int, int)} must be perferred. 
+   */
+  void annule_hard() ;
+  
   // Extraction of information
   // -------------------------
     public:
@@ -399,64 +462,6 @@ class Scalar : public Tensor {
     }
   };
   
-  // Memory management
-  // -----------------
- protected:
-  void del_t() ;		    /// Logical destructor
-  virtual void del_deriv() const;	    /// Logical destructor of the derivatives
-  void set_der_0x0() const;	    /// Sets the pointers for derivatives to 0x0
-  
- public:
-  
-  /**
-   * Sets the logical state to {\tt ETATNONDEF} (undefined). 
-   * Calls the logical destructor of the {\tt Valeur va} and
-   * deallocates the memory occupied by all the derivatives. 
-   */
-  virtual void set_etat_nondef() ;   
-  
-  /**
-   * Sets the logical state to {\tt ETATZERO} (zero). 
-   * Calls the logical destructor of the {\tt Valeur va} and
-   * deallocates the memory occupied by all the derivatives. 
-   */
-  virtual void set_etat_zero() ;	    
-  
-  /**
-   * Sets the logical state to {\tt ETATQCQ} (ordinary state).
-   * If the state is already {\tt ETATQCQ}, this function does nothing.
-   * Otherwise, it calls the logical destructor of the {\tt Valeur va} and
-   * deallocates the memory occupied by all the derivatives.
-   */
-  virtual void set_etat_qcq() ;	    
-  
-  /**
-   * Sets the logical state to {\tt ETATUN} (one). 
-   * Fills the {\tt Valeur va} with ones and
-   * deallocates the memory occupied by all the derivatives. 
-   */
-  void set_etat_one() ;	    
-  
-  /**
-   * Sets the logical state to {\tt ETATQCQ} (ordinary state)
-   *  and performs the memory allocation of all the 
-   *  elements, down to the {\tt double} arrays of the {\tt Tbl}s. 
-   *  This function performs in fact recursive calls to {\tt set\_etat\_qcq()}
-   *  on each element of the chain {\tt Scalar} ->
-   *  {\tt Valeur} -> {\tt Mtbl} -> {\tt Tbl}. 
-   */
-  virtual void allocate_all() ; 
-  
-  /**
-   * Sets the {\tt Scalar} to zero in a hard way. 
-   * 1/ Sets the logical state to {\tt ETATQCQ}, i.e. to an ordinary state.
-   * 2/ Fills the {\tt Valeur va} with zeros. 
-   * NB: this function must be used for debugging purposes only.
-   * For other operations, the functions {\tt set\_etat\_zero()}
-   * or {\tt annule(int, int)} must be perferred. 
-   */
-  void annule_hard() ;
-  
   /**
    * Sets the {\tt Scalar} to zero in several domains.
    *	@param l_min [input] The {\tt Scalar} will be set (logically) to zero
@@ -469,6 +474,20 @@ class Scalar : public Tensor {
    */
   virtual void annule(int l_min, int l_max) ; 
   
+  /** Sets the value of the {\tt Scalar} at the inner boundary of a given 
+   * domain. 
+   * @param l [input] domain index
+   * @param x [input] (constant) value at the inner boundary of domain no. {\tt l}
+   */
+  void set_inner_boundary(int l, double x) ;
+    
+  /** Sets the value of the {\tt Scalar} at the outer boundary of a given 
+   * domain. 
+   * @param l [input] domain index
+   * @param x [input] (constant) value at the outer boundary of domain no. {\tt l}
+   */
+  void set_outer_boundary(int l, double x) ;
+
   /**
    * Gives the spectrum in terms of multipolar modes {\it l}.
    *  @return a {\tt Tbl} of size (nzone, lmax), where lmax is the
@@ -663,19 +682,6 @@ class Scalar : public Tensor {
    */
   void filtre_phi (int n, int zone) ;
     
-  /**
-   * Sets the value of the {\tt Scalar} to {\tt val} at infinity. This is usefull
-   * for dealing with undefined values. The external domain must be 
-   * compactified.
-   */
-  void set_val_inf (double val) ;
-    
-  /**
-   * Sets the value of the {\tt Scalar} to {\tt val} on the inner boudary of the
-   * shell number {\tt zone}.This is usefull
-   * for dealing with undefined values.
-   */
-  void set_val_hor (double val, int zone) ;
   /**
    * Substracts all the components behaving like $r^{-n}$ in the external 
    * domain, with {\it n} strictly lower than {\tt puis}, so that {\tt *this} 
