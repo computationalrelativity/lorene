@@ -30,8 +30,11 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:31  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/06 16:20:14  e_gourgoulhon
+ * Return type of main changed from 'void' to 'int'
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:31  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.18  2001/08/07  09:51:33  keisuke
  * Change of the argument in Etoile_bin::equilibrium.
@@ -127,7 +130,7 @@ Cmp raccord_c1(const Cmp& uu, int l1) ;
 
 //******************************************************************************
 
-void main(){
+int main(){
 
     // Identification of all the subroutines called by the code : 
     
@@ -1010,5 +1013,7 @@ void main(){
 
     delete peos1 ;    
     delete peos2 ;    
+
+    return EXIT_SUCCESS ; 
 
 }
