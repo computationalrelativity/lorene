@@ -25,6 +25,9 @@ char sxdsdx_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/31 09:58:55  p_grandclement
+ * *** empty log message ***
+ *
  * Revision 1.2  2002/10/16 14:37:00  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -54,7 +57,7 @@ char sxdsdx_1d_C[] = "$Header$" ;
  * Operateur :
  *  -R_CHEB : ds/dx 
  *  -R_CHEBP ou R_CHEBI : (f'-f'(0))/x
- * 
+ *  -R_CHEBU (f'-f'(1))/(x-1)
  * 
  * 
  * Entree : coefficients de f dans tb
@@ -103,6 +106,35 @@ void _dsdx_1d_r_cheb(int nr, double* tb, double *xo)
     }	// Fin de la deuxieme boucle sur r
     xo[0] *= .5 ;
 
+}
+
+			//---------------
+			// cas R_CHEBU ---
+			//---------------
+
+void sxm1_1d_cheb (int, double*) ;
+
+void _sxmundsdx_1d_r_chebu(int nr, double* tb, double *xo)
+{
+
+  double som ;
+  
+  xo[nr-1] = 0 ;
+  som = 2*(nr-1) * tb[nr-1] ;
+  xo[nr-2] = som ;
+  for (int i = nr-4 ; i >= 0 ; i -= 2 ) {
+    som += 2*(i+1) * tb[i+1] ;
+    xo[i] = som ;
+  }	// Fin de la premiere boucle sur r
+  som = 2*(nr-2) * tb[nr-2] ;
+  xo[nr-3] = som ;
+  for (int i = nr-5 ; i >= 0 ; i -= 2 ) {
+    som += 2*(i+1) * tb[i+1] ;
+    xo[i] = som ;
+  }	// Fin de la deuxieme boucle sur r
+  xo[0] *= .5 ;
+  
+  sxm1_1d_cheb (nr, xo) ;
 }
 
 			//----------------
@@ -183,6 +215,7 @@ static int nap = 0 ;
 	sxdsdx_1d[R_CHEB >> TRA_R] = _dsdx_1d_r_cheb ;
 	sxdsdx_1d[R_CHEBP >> TRA_R] = _sxdsdx_1d_r_chebp ;
 	sxdsdx_1d[R_CHEBI >> TRA_R] = _sxdsdx_1d_r_chebi ;
+	sxdsdx_1d[R_CHEBU >> TRA_R] = _sxmundsdx_1d_r_chebu ;
 	}
     
     double *result = new double[nr] ;
