@@ -31,6 +31,9 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2005/04/02 15:49:21  f_limousin
+ * New choice (Lichnerowicz) for aaquad. New member data nz.
+ *
  * Revision 1.13  2005/03/31 09:45:31  f_limousin
  * New functions compute_ww(...) and aa_kerr_ww().
  *
@@ -180,15 +183,6 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	// Resolution of the Poisson equation for Psi
 	// ------------------------------------------
 	
-/*	    
-	   // Filters...
-	int nz = mp.get_mg()->get_nzone() ;
-	Scalar source (source_psi()) ;
-	source.filtre(0) ;
-	source.filtre_phi(4, nz-1) ;
-//	source.filtre_tp(4, nz-1, nz-1) ;
-*/
-
 	Scalar sou_psi (source_psi()) ;
 	Scalar psi_jp1 (mp) ;
 	if (solve_psi == 1) {
@@ -235,7 +229,6 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	    // Test:
 	    maxabs(psi_jp1.laplacian() - sou_psi,
 		   "Absolute error in the resolution of the equation for Psi") ;  
-	    
 	    // Relaxation (relax=1 -> new ; relax=0 -> old )  
 	    psi_jp1 = relax * psi_jp1 + (1 - relax) * psi() ;
 	}
@@ -364,14 +357,13 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	
 	if (solve_psi == 1)
 	    set_psi_del_q(psi_jp1) ; 
-//	psi_evol.update(psi_jp1, jtime, ttime) ; 	
+	//	psi_evol.update(psi_jp1, jtime, ttime) ; 	
 	if (solve_lapse == 1)
 	    n_evol.update(nn_jp1, jtime, ttime) ; 
 	if (solve_shift == 1)
 	    beta_evol.update(beta_jp1, jtime, ttime) ;
 	
 //	update_aa() ;
-//	aa_kerr_ww() ;
 
 	// Saving ok K_{ij}s^is^j
 	// -----------------------

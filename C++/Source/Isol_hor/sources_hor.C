@@ -31,6 +31,9 @@ char source_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2005/04/02 15:49:21  f_limousin
+ * New choice (Lichnerowicz) for aaquad. New member data nz.
+ *
  * Revision 1.12  2005/03/28 19:42:39  f_limousin
  * Implement the metric and A^{ij}A_{ij} of Sergio for pertubations
  * of Kerr black holes.
@@ -114,17 +117,16 @@ const Scalar Isol_hor::source_psi() const{
     // Source for Psi 
     // --------------
     tmp = 0.125* psi() * met_gamt.ricci_scal() 
-      - contract(hh(), 0, 1, d_psi.derive_cov(ff), 0, 1 ) ;
+          - contract(hh(), 0, 1, d_psi.derive_cov(ff), 0, 1 ) ;
     tmp.inc_dzpuis() ; // dzpuis : 3 -> 4
-    
+       
     tmp -= contract(hdirac(), 0, d_psi, 0) ;  
-                
-    source = tmp - psi()*psi4()* ( 0.125* aa_quad() 
-				       - 8.33333333333333e-2* trK*trK ) ;
+              
+    source = tmp - 0.125* aa_quad() / psi4() / psi()/ psi()/ psi()
+     	   - psi()*psi4() * 8.33333333333333e-2* trK*trK  ;
     source.annule_domain(0) ;
 
     return source ;
-
 }
 
 
@@ -153,10 +155,10 @@ const Scalar Isol_hor::source_nn() const{
     // Source for N 
     // ------------
 
-    source = psi4()*( nn()*( aa_quad() + 0.3333333333333333* trK*trK )
-			 - trK_point ) 
-	     - 2.* contract(dln_psi, 0, nn().derive_con(met_gamt), 0)  
-    - contract(hdirac(), 0, dnnn, 0) ; 
+    source = aa_quad() / psi4() / psi4() * nn() +
+	psi4()*( nn()* 0.3333333333333333* trK*trK - trK_point ) 
+	- 2.* contract(dln_psi, 0, nn().derive_con(met_gamt), 0)  
+	- contract(hdirac(), 0, dnnn, 0) ; 
         
     tmp = psi4()* contract(beta(), 0, trK.derive_cov(ff), 0) 
       - contract( hh(), 0, 1, dnnn.derive_cov(ff), 0, 1 ) ;

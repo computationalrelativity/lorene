@@ -30,6 +30,9 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2005/04/02 15:49:21  f_limousin
+ * New choice (Lichnerowicz) for aaquad. New member data nz.
+ *
  * Revision 1.16  2005/03/22 13:25:36  f_limousin
  * Small changes. The angular velocity and A^{ij} are computed
  * with a differnet sign.
@@ -235,10 +238,17 @@ const Valeur Isol_hor::boundary_psi_app_hor()const {
 
     psi_bound = 1 ; // Juste pour affecter dans espace des configs ;
 
+    if (psi_comp_evol.is_known(jtime)) {
     for (int k=0 ; k<nnp ; k++)
 	for (int j=0 ; j<nnt ; j++)
-	    psi_bound.set(0, k, j, 0) = - 0.5/radius*(psi_auto()
-	 .val_grid_point(1, k, j, 0) + psi_comp().val_grid_point(1, k, j, 0)) ;
+	    psi_bound.set(0, k, j, 0) = - 0.5/radius*(psi_auto().val_grid_point(1, k, j, 0) + psi_comp().val_grid_point(1, k, j, 0)) ;
+    }
+    else {
+    for (int k=0 ; k<nnp ; k++)
+	for (int j=0 ; j<nnt ; j++)
+	    psi_bound.set(0, k, j, 0) = - 0.5/radius*psi().val_grid_point(1, k, j, 0) ;
+    }
+
 
     psi_bound.std_base_scal() ;
 

@@ -31,6 +31,9 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2005/04/02 15:49:21  f_limousin
+ * New choice (Lichnerowicz) for aaquad. New member data nz.
+ *
  * Revision 1.21  2005/03/31 09:45:31  f_limousin
  * New functions compute_ww(...) and aa_kerr_ww().
  *
@@ -119,16 +122,16 @@ char isol_hor_C[] = "$Header$" ;
 #include "graphique.h"
 
 
-			    //--------------//
-			    // Constructors //
-			    //--------------//
+//--------------//
+// Constructors //
+//--------------//
 // Standard constructor
 // --------------------
 
 Isol_hor::Isol_hor(Map_af& mpi, int depth_in) : 
-  Time_slice_conf(mpi, mpi.get_bvect_spher(), mpi.flat_met_spher()),
-  mp(mpi), radius ((mpi.get_alpha())[0]), omega(0), boost_x(0),
-  boost_z(0), regul(0),
+    Time_slice_conf(mpi, mpi.get_bvect_spher(), mpi.flat_met_spher()),
+    mp(mpi), nz(mpi.get_mg()->get_nzone()), radius ((mpi.get_alpha())[0]), 
+	      omega(0), boost_x(0), boost_z(0), regul(0),
   n_auto_evol(depth_in), n_comp_evol(depth_in), 
   psi_auto_evol(depth_in), psi_comp_evol(depth_in),
   dn_evol(depth_in), dpsi_evol(depth_in),
@@ -136,7 +139,7 @@ Isol_hor::Isol_hor(Map_af& mpi, int depth_in) :
   aa_auto_evol(depth_in), aa_comp_evol(depth_in),
   aa_nn(depth_in), aa_quad_evol(depth_in),
   met_gamt(mpi.flat_met_spher()), gamt_point(mpi, CON, mpi.get_bvect_spher()),
-  trK(mpi), trK_point(mpi), decouple(mpi), ww(mpi){
+  trK(mpi), trK_point(mpi), decouple(mpi){
 }		  
 
 // Constructor from conformal decomposition
@@ -150,7 +153,7 @@ Isol_hor::Isol_hor(Map_af& mpi, const Scalar& lapse_in,
 		   const Metric_flat& ff_in, int depth_in) 	  
     : Time_slice_conf(lapse_in, shift_in, ff_in, psi_in, metgamt.con() -
 		      ff_in.con(), aa_in, trK_in, depth_in),
-      mp(mpi), radius ((mpi.get_alpha())[0]), 
+      mp(mpi), nz(mpi.get_mg()->get_nzone()), radius ((mpi.get_alpha())[0]), 
       omega(0), boost_x(0), boost_z(0), regul(0),
       n_auto_evol(depth_in), n_comp_evol(depth_in), 
       psi_auto_evol(depth_in), psi_comp_evol(depth_in),
@@ -159,8 +162,7 @@ Isol_hor::Isol_hor(Map_af& mpi, const Scalar& lapse_in,
       aa_auto_evol(depth_in), aa_comp_evol(depth_in), 
       aa_nn(depth_in), aa_quad_evol(depth_in),
       met_gamt(metgamt), gamt_point(gamt_point_in),
-      trK(trK_in), trK_point(trK_point_in), decouple(lapse_in.get_mp()),
-      ww(mpi){
+      trK(trK_in), trK_point(trK_point_in), decouple(lapse_in.get_mp()){
 
     // hh_evol, trk_evol
     hh_evol.update(met_gamt.con() - ff.con(), jtime, the_time[jtime]) ;
@@ -174,6 +176,7 @@ Isol_hor::Isol_hor(Map_af& mpi, const Scalar& lapse_in,
 Isol_hor::Isol_hor(const Isol_hor& isolhor_in) 
     : Time_slice_conf(isolhor_in),
       mp(isolhor_in.mp),
+      nz(isolhor_in.nz),
       radius(isolhor_in.radius),
       omega(isolhor_in.omega),
       boost_x(isolhor_in.boost_x),
@@ -195,8 +198,7 @@ Isol_hor::Isol_hor(const Isol_hor& isolhor_in)
       gamt_point(isolhor_in.gamt_point),
       trK(isolhor_in.trK),
       trK_point(isolhor_in.trK_point),
-      decouple(isolhor_in.decouple),
-      ww(isolhor_in.ww){
+      decouple(isolhor_in.decouple){
 }
 
 // Constructor from a file
@@ -205,9 +207,9 @@ Isol_hor::Isol_hor(const Isol_hor& isolhor_in)
 Isol_hor::Isol_hor(Map_af& mpi, FILE* fich, 
 		   bool partial_read, int depth_in)
     : Time_slice_conf(mpi, mpi.get_bvect_spher(), mpi.flat_met_spher(), 
-		      fich, partial_read, depth_in),
-      mp(mpi), radius ((mpi.get_alpha())[0]), omega(0), boost_x(0),
-      boost_z(0), regul(0),
+	fich, partial_read, depth_in),
+      mp(mpi), nz(mpi.get_mg()->get_nzone()), radius ((mpi.get_alpha())[0]), 
+omega(0), boost_x(0), boost_z(0), regul(0),
       n_auto_evol(depth_in), n_comp_evol(depth_in), 
       psi_auto_evol(depth_in), psi_comp_evol(depth_in),
       dn_evol(depth_in), dpsi_evol(depth_in),
@@ -216,7 +218,7 @@ Isol_hor::Isol_hor(Map_af& mpi, FILE* fich,
       aa_nn(depth_in), aa_quad_evol(depth_in),
       met_gamt(mpi.flat_met_spher()), 
       gamt_point(mpi, CON, mpi.get_bvect_spher()),
-      trK(mpi), trK_point(mpi), decouple(mpi), ww(mpi){
+      trK(mpi), trK_point(mpi), decouple(mpi){
 
     fread_be(&omega, sizeof(double), 1, fich) ;
     fread_be(&boost_x, sizeof(double), 1, fich) ;
@@ -294,8 +296,9 @@ Isol_hor::~Isol_hor(){}
 
 void Isol_hor::operator=(const Isol_hor& isolhor_in) {
 
-    Time_slice_conf::operator=(isolhor_in) ;
-    mp = isolhor_in.mp ;
+Time_slice_conf::operator=(isolhor_in) ;
+mp = isolhor_in.mp ;
+nz = isolhor_in.nz ;
     radius = isolhor_in.radius ;
     omega = isolhor_in.omega ;
     boost_x = isolhor_in.boost_x ;
@@ -318,8 +321,6 @@ void Isol_hor::operator=(const Isol_hor& isolhor_in) {
     trK = isolhor_in.trK ;
     trK_point = isolhor_in.trK_point ;
     decouple = isolhor_in.decouple ;
-    ww = isolhor_in.ww ;
- 
 }
 
 
@@ -334,7 +335,7 @@ ostream& Isol_hor::operator>>(ostream& flux) const {
     
     flux << '\n' << "radius of the horizon  : " << radius << '\n' ;
     flux << "boost in x-direction   : " << boost_x << '\n' ;
-    flux << "boost in z-direction   : " << boost_z << '\n' ;
+flux << "boost in z-direction   : " << boost_z << '\n' ;
     flux << "angular velocity omega : " << omega_hor() << '\n' ;
     flux << "area of the horizon    : " << area_hor() << '\n' ;
     flux << "ang. mom. of horizon   : " << ang_mom_hor() << '\n' ;
@@ -655,7 +656,7 @@ void Isol_hor::update_aa() {
   Sym_tensor aa_new (mp, CON, mp.get_bvect_spher()) ;
   int nnt = mp.get_mg()->get_nt(1) ;
   int nnp = mp.get_mg()->get_np(1) ;
-  
+
   int check ;
   check = 0 ;
   for (int k=0; k<nnp; k++)
@@ -686,10 +687,8 @@ void Isol_hor::update_aa() {
   
   set_aa(aa_new) ;
   Sym_tensor aa_dd (aa_new.up_down(met_gamt)) ;
-  Scalar aquad (contract(aa_dd, 0, 1, aa_new, 0, 1)) ;
+  Scalar aquad (contract(aa_dd, 0, 1, aa_new, 0, 1)*psi4()*psi4()*psi4()) ;
   aa_quad_evol.update(aquad, jtime, the_time[jtime]) ;
-
-//  cout << "norme de aquad" << endl << norme(aquad) << endl ;
 
   return ;
   
@@ -699,7 +698,7 @@ const Scalar& Isol_hor::aa_quad() const {
 
   if (!aa_quad_evol.is_known(jtime) ) {
     Sym_tensor aa_dd (aa().up_down(met_gamt)) ;
-    Scalar aquad (contract(aa_dd, 0, 1, aa(), 0, 1)) ;
+    Scalar aquad (contract(aa_dd, 0, 1, aa(), 0, 1)*psi4()*psi4()*psi4()) ;
     aa_quad_evol.update(aquad, jtime, the_time[jtime]) ;
   } 
 
@@ -726,13 +725,11 @@ void Isol_hor::met_kerr_perturb() {
     cout << "determinant" << norme(met_gamt.determinant()) << endl ;
 
     hh_evol.update(met_gamt.con() - ff.con(), jtime, the_time[jtime]) ;
- 
+
     return ;  
 }
 
-void Isol_hor::compute_ww(double mm, double aaa) {
-
-  int nz = mp.get_mg()->get_nzone() ;
+void Isol_hor::aa_kerr_ww(double mm, double aaa) {
   
   Scalar rr(mp) ;
   rr = mp.r ;
@@ -744,51 +741,69 @@ void Isol_hor::compute_ww(double mm, double aaa) {
   // rbl
   Scalar rbl = rr + mm + (mm*mm - aaa*aaa) / (4*rr) ;
   
-  // sigma
-  Scalar sigma = 1. / (rbl*rbl + aaa*aaa*cost*cost) ;
-  sigma.set_domain(0) = 1. ;
- 
-  // wby
-  Scalar wby = aaa*mm*(cost*cost*cost - 3*cost) ;
-  wby.set_spectral_va().set_base_r(0,R_CHEBPIM_P) ;
-  for (int l=1; l<nz-1; l++)
-    wby.set_spectral_va().set_base_r(l,R_CHEB) ;
-  wby.set_spectral_va().set_base_r(nz-1,R_CHEBU) ;
-  wby.set_spectral_va().set_base_t(T_COSSIN_CI) ;
-  wby.set_spectral_va().set_base_p(P_COSSIN) ;
-  
-  // ww
-  ww = wby - (mm*aaa*aaa*aaa*pow(sint, 4.)*cost) * sigma ;
-  ww.set_spectral_va().set_base_r(0,R_CHEBPIM_P) ;
-  for (int l=1; l<nz-1; l++)
-    ww.set_spectral_va().set_base_r(l,R_CHEB) ;
-  ww.set_spectral_va().set_base_r(nz-1,R_CHEBU) ;
-  ww.set_spectral_va().set_base_t(T_COSSIN_CI) ;
-  ww.set_spectral_va().set_base_p(P_COSSIN) ;
-  
-  return ;
+  // sigma inverse
+  Scalar sigma_inv = 1. / (rbl*rbl + aaa*aaa*cost*cost) ;
+  sigma_inv.set_domain(0) = 1. ;
 
-}
-
-void Isol_hor::aa_kerr_ww() {
+  // ww perturbation
+  Scalar ww_pert (mp) ;
+  ww_pert = - (mm*aaa*aaa*aaa*pow(sint, 4.)*cost) * sigma_inv ;
+  ww_pert.set_spectral_va().set_base_r(0,R_CHEBPIM_P) ;
+  for (int l=1; l<nz-1; l++)
+    ww_pert.set_spectral_va().set_base_r(l,R_CHEB) ;
+  ww_pert.set_spectral_va().set_base_r(nz-1,R_CHEBU) ;
+  ww_pert.set_spectral_va().set_base_t(T_COSSIN_CI) ;
+  ww_pert.set_spectral_va().set_base_p(P_COSSIN) ;
 
   // Quadratic part A^{ij]A_{ij}
+  // Lichnerowicz choice
   //----------------------------
 
-  Scalar aquad = 2*contract(ww.derive_con(ff), 0, 
-			    ww.derive_cov(ff), 0)
-                  * gam_dd()(3,3) / gam_dd()(1,1) ;
+  // BY - BY
+  Vector dw_by (mp, COV, mp.get_bvect_spher()) ;
+  dw_by.set(1) = 0. ;
+  dw_by.set(2) = 3 * aaa*mm*sint*sint*sint / rr ;
+  dw_by.set(3) = 0. ;
+  dw_by.set(2).set_spectral_va().set_base_r(0,R_CHEBPIM_P) ;
+  for (int l=1; l<nz-1; l++)
+    dw_by.set(2).set_spectral_va().set_base_r(l,R_CHEB) ;
+  dw_by.set(2).set_spectral_va().set_base_r(nz-1,R_CHEBU) ;
+  dw_by.set(2).set_spectral_va().set_base_t(T_COSSIN_SI) ;
+  dw_by.set(2).set_spectral_va().set_base_p(P_COSSIN) ;
 
-  aquad.div_rsint() ;
-  aquad.div_rsint() ;
-  aquad.div_rsint() ;
-  aquad.div_rsint() ;
+  Scalar aquad_1 = 2*contract(dw_by, 0, dw_by.up_down(ff), 0) * 
+      gam_dd()(3,3) / gam_dd()(1,1) ;
+  aquad_1.div_rsint_dzpuis(1) ;
+  aquad_1.div_rsint_dzpuis(2) ;
+  aquad_1.div_rsint_dzpuis(3) ;
+  aquad_1.div_rsint_dzpuis(4) ;
+
+  // BY - dw_pert
+  Vector dw_pert(ww_pert.derive_con(ff)) ;
+  Scalar aquad_2 = 4*contract(dw_by, 0, dw_pert, 0) *
+      gam_dd()(3,3) / gam_dd()(1,1) ;
+
+  aquad_2.div_rsint_dzpuis(3) ;
+  aquad_2.div_rsint_dzpuis(4) ;
+  aquad_2.div_rsint() ;
+  aquad_2.div_rsint() ;
+
+  // dw_pert - dw_pert
+  Scalar aquad_3 = 2*contract(dw_pert, 0, dw_pert.up_down(ff), 0) *
+      gam_dd()(3,3) / gam_dd()(1,1) ;
+
+  aquad_3.div_rsint() ;
+  aquad_3.div_rsint() ;
+  aquad_3.div_rsint() ;
+  aquad_3.div_rsint() ;
+
+  // Total
+  Scalar aquad = aquad_1 + aquad_2 + aquad_3 ;
 
   aquad.set_domain(0) = 0. ;
   Base_val sauve_base (aquad.get_spectral_va().get_base()) ;
   
   aquad = aquad * pow(gam_dd()(1,1), 2.) * pow(gam_dd()(3,3), -2.) ;
-  aquad = aquad * pow(psi(), -12.) ;
   aquad.set_spectral_va().set_base(sauve_base) ;
  
 /*
@@ -800,20 +815,36 @@ void Isol_hor::aa_kerr_ww() {
   des_meridian (aa_quad()-aquad, 0, 4, "diff aa_quad", 3) ;
   arrete() ;
 */
-  
+
   aa_quad_evol.update(aquad, jtime, the_time[jtime]) ;
   
 
   // Extrinsic curvature A^{ij} and A_{ij}
+  // Dynamical choice
   // -------------------------------------
 
-    Scalar s_r (ww.derive_cov(ff)(2)) ;
+    Scalar s_r (ww_pert.derive_cov(ff)(2)) ;
     s_r = - s_r * gam().cov()(3,3) / gam().cov()(1,1) ;
     s_r.div_rsint() ;
 
-    Scalar s_t (ww.derive_cov(ff)(1)) ;
+    Scalar temp = dw_by(2) ;
+    temp = - temp *  gam().cov()(3,3) / gam().cov()(1,1) ;
+    temp.div_rsint_dzpuis(2) ;
+
+    s_r = s_r + temp ;
+    s_r.annule_domain(0) ;
+
+    Scalar s_t (ww_pert.derive_cov(ff)(1)) ;
     s_t = s_t * gam().cov()(3,3) / gam().cov()(1,1)  ;
     s_t.div_rsint() ;
+
+    temp = dw_by(1) ;
+    temp = temp *  gam().cov()(3,3) / gam().cov()(1,1) ;
+    temp.div_rsint_dzpuis(2) ;
+
+    s_t = s_t + temp ;
+    s_t.annule_domain(0) ;
+
 
     Vector ss (mp, CON, mp.get_bvect_spher()) ;
     ss.set(1) = s_r ;
@@ -842,7 +873,7 @@ void Isol_hor::aa_kerr_ww() {
     aij.set(3,2) = aij(3,2) * pow(psi(), -6.) ;
     aij.set(3,2).set_spectral_va().set_base(base_32) ;
 
-/*
+    /*
     cout << "norme de A(3,1)" << endl << norme(aij(3,1)) << endl ;
     cout << "norme de A(3,2)" << endl << norme(aij(3,2)) << endl ;
 	
@@ -856,7 +887,7 @@ void Isol_hor::aa_kerr_ww() {
     des_meridian(aa()(3,2), 0., 4., "aa_init(3,2)", 4) ;
     des_meridian(aa()(3,2)-aij(3,2), 0., 4., "diff_aa(3,2)", 5) ;
     arrete() ;
-*/
+    */
 
     aa_evol.update(aij, jtime, the_time[jtime]) ;
     Sym_tensor kij (aij) ;
