@@ -18,12 +18,19 @@ C    along with LORENE; if not, write to the Free Software
 C    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 C
 C
-	SUBROUTINE POISSON2D(NDL1,NDR,NDT,NDF,INDD,ERRE,SOUMAT,SOUQUAD,
+	SUBROUTINE POISS2D(NDL1,NDR,NDT,NDF,INDD,ERRE,SOUMAT,SOUQUAD,
      1			     ALAMB,POT)
 
 C
 C $Id$
 C $Log$
+C Revision 1.3  2002/09/09 13:50:28  e_gourgoulhon
+C
+C Change of subroutine names:
+C 	POISSON2D -> POISS2D
+C 	POISSON2DI -> POISS2DI
+C to avoid any clash with Map::poisson2d and Map::poisson2di.
+C
 C Revision 1.2  2002/03/25 09:16:59  m_bejger
 C Increased the number of domains (NZOE) from 4 to 5
 C
