@@ -32,6 +32,10 @@ char metrique_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/08/02 15:07:41  j_novak
+ * Member function determinant has been added to the class Metrique.
+ * A better handling of spectral bases is now implemented for the class Tenseur.
+ *
  * Revision 1.2  2001/12/04 21:27:54  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -113,6 +117,11 @@ Metrique::Metrique (const Metrique& source) : mp(source.mp) {
 	p_ricci_scal = new Tenseur(*source.p_ricci_scal) ;
     else
 	p_ricci_scal = 0x0 ;
+    
+    if (source.p_determinant != 0x0)
+	p_determinant = new Cmp(*source.p_determinant) ;
+    else
+	p_determinant = 0x0 ;
     
     dependances = new (const Tenseur* [N_DEPEND]) ;
     for (int i=0 ; i<N_DEPEND ; i++)
@@ -197,11 +206,11 @@ void Metrique::del_t() {
 	p_met_cov = 0x0 ;
 	}
     
-    del_gamma() ;
+    del_deriv() ;
     etat = ETATNONDEF ;
 }
 
-void Metrique::del_gamma() {
+void Metrique::del_deriv() {
     if (p_gamma != 0x0)
 	delete p_gamma ;
 	
@@ -211,6 +220,9 @@ void Metrique::del_gamma() {
     if (p_ricci_scal != 0x0)
 	delete p_ricci_scal ;
     
+    if (p_determinant != 0x0)
+	delete p_determinant ;
+    
     set_der_0x0() ;
 }
 
@@ -218,6 +230,7 @@ void Metrique::set_der_0x0() {
     p_gamma = 0x0 ;
     p_ricci = 0x0 ;
     p_ricci_scal = 0x0 ;
+    p_determinant = 0x0 ;
 }
 
 void Metrique::del_dependances() {
@@ -254,7 +267,7 @@ void Metrique::set_etat_con_qcq() {
 	p_met_cov = 0x0 ;
     }
     
-    del_gamma() ;
+    del_deriv() ;
     etat = ETATQCQ ;
 }
 
@@ -270,7 +283,7 @@ void Metrique::set_etat_cov_qcq() {
 	p_met_con = 0x0 ;
     }
     
-    del_gamma() ;
+    del_deriv() ;
     etat = ETATQCQ ;
 }
 
@@ -299,6 +312,8 @@ void Metrique::operator= (const Metrique& source) {
 	    p_ricci = new Tenseur_sym(*source.p_ricci) ;
 	if (source.p_ricci_scal != 0x0)
 	    p_ricci_scal = new Tenseur(*source.p_ricci_scal) ;
+	if (source.p_determinant != 0x0)
+	    p_determinant = new Cmp(*source.p_determinant) ;
 	etat = ETATQCQ ;
     }
 }
@@ -372,6 +387,11 @@ ostream& operator<<(ostream& flux, const Metrique & source) {
 	    cout << "Ricci scalar unknown." << endl ;
 	else
 	    cout << "Ricci scalar known." << endl ;
+	
+	if (source.p_determinant == 0x0)
+	    cout << "determinant unknown." << endl ;
+	else
+	    cout << "determinant known." << endl ;
 	break ;
 	}
 	default : {
@@ -416,7 +436,7 @@ void Metrique::sauve(FILE* fd) const {
 // Gestion des bases spectrales :
 void Metrique:: set_std_base() {
     
-    del_gamma() ;   
+    del_deriv() ;   
     if (p_met_con != 0x0)
 	p_met_con->set_std_base() ;
     
@@ -552,6 +572,33 @@ void Metrique::fait_ricci_scal() const {
 }
 
 
+// Calcul du determinant :
+void Metrique::fait_determinant() const {
+    
+  assert(etat != ETATNONDEF) ;
+  if (p_determinant != 0x0)
+    return ;
+  
+  else {
+    
+    p_determinant = new Cmp(*mp) ;	   
+    if (etat == ETATZERO)
+      p_determinant->set_etat_zero() ;
+    else {
+      
+      p_determinant->set_etat_qcq() ;
+      
+      *p_determinant = cov()(0, 0)*cov()(1, 1)*cov()(2, 2) 
+	+ cov()(0, 1)*cov()(1, 2)*cov()(2, 0)
+	+ cov()(0, 2)*cov()(1, 0)*cov()(2, 1) 
+	- cov()(2, 0)*cov()(1, 1)*cov()(0, 2)
+	- cov()(2, 1)*cov()(1, 2)*cov()(0, 0) 
+	- cov()(2, 2)*cov()(1, 0)*cov()(0, 1) ;
+    }
+  }
+}
+
+
 Tenseur_sym fait_inverse (const Tenseur_sym& s) {
     
     assert (s.get_etat() == ETATQCQ) ;
@@ -653,4 +700,10 @@ const Tenseur& Metrique::ricci_scal() const{
     if (p_ricci_scal == 0x0)
 	fait_ricci_scal() ;
     return *p_ricci_scal ;
+}
+
+const Cmp& Metrique::determinant() const{
+    if (p_determinant == 0x0)
+	fait_determinant() ;
+    return *p_determinant ;
 }

@@ -32,6 +32,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2002/08/02 15:07:41  j_novak
+ * Member function determinant has been added to the class Metrique.
+ * A better handling of spectral bases is now implemented for the class Tenseur.
+ *
  * Revision 1.10  2002/06/05 15:15:59  j_novak
  * The case of non-adapted mapping is treated.
  * parmag.d and parrot.d have been merged.
@@ -238,12 +242,12 @@ class Et_rot_mag : public Etoile_rot {
   virtual double grv3(ostream* ost = 0x0) const ;	
 
   /** Quadrupole moment.
-   *  The quadrupole moment $Q$ is defined according to Eq. (7) of
+   *  The quadrupole moment {\it Q} is defined according to Eq. (7) of
    *  [Salgado, Bonazzola, Gourgoulhon and Haensel, Astron. Astrophys.
    *   {\bf 291}, 155 (1994)]. At the Newtonian limit it is related to
    *  the component ${\bar I}_{zz}$ of the MTW (1973) reduced quadrupole 
    *  moment ${\bar I}_{ij}$ by: $Q = -3/2 {\bar I}_{zz}$. 
-   *  Note that $Q$ is the negative of the quadrupole moment defined 
+   *  Note that {\it Q} is the negative of the quadrupole moment defined 
    *  by Laarakkers and Poisson, Astrophys. J. {\bf 512}, 282 (1999).
    */
   virtual double mom_quad() const ;	

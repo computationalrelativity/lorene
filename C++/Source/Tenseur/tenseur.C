@@ -33,6 +33,10 @@ char tenseur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/08/02 15:07:41  j_novak
+ * Member function determinant has been added to the class Metrique.
+ * A better handling of spectral bases is now implemented for the class Tenseur.
+ *
  * Revision 1.4  2002/05/07 07:36:03  e_gourgoulhon
  * Compatibilty with xlC compiler on IBM SP2:
  *    suppressed the parentheses around argument of instruction new:
@@ -1073,19 +1077,8 @@ void Tenseur::set_std_base() {
 	    indices.set_etat_qcq() ;
 	    for (int i=0 ; i<n_comp ; i++) {   
 		indices = donne_indices(i) ;
-		  
-		// On determine laquelle c'est :
-		int indic = 1 ;
-		if (indices(0)==2)
-		    indic *= -1 ;
-		if (indices(1)==2)
-		    indic *= -1 ;
-		    
-		// Si indic == -1 -> antisym , sym sinon !
-		if (indic == -1)
-		    (c[i]->va).set_base( *bases[2] ) ;
-		else
-		    (c[i]->va).set_base( *bases[0] ) ;
+		(c[i]->va).set_base( (*bases[indices(0)]) * 
+				     (*bases[indices(1)]) ) ;
 	    }
 	    for (int i=0 ; i<3 ; i++)
 		delete bases[i] ;

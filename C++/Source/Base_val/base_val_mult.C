@@ -27,6 +27,10 @@ char base_val_mult_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/08/02 15:07:41  j_novak
+ * Member function determinant has been added to the class Metrique.
+ * A better handling of spectral bases is now implemented for the class Tenseur.
+ *
  * Revision 1.2  2002/02/07 14:55:07  e_gourgoulhon
  * Add more cases in theta and phi
  *
@@ -294,6 +298,11 @@ Base_val operator* (const Base_val& b1, const Base_val& b2) {
 			indic_t = 1 ;
 			break ;
 
+		    case T_SIN_I :
+			base = base | T_SIN_P ;
+			indic_t = 1 ;
+			break ;
+
 		    case T_SIN_P :
 			base = base | T_SIN_I ;
 			indic_t = 1 ;
@@ -335,6 +344,11 @@ Base_val operator* (const Base_val& b1, const Base_val& b2) {
 		switch (b2_t) {
 		    case T_SIN_I :
 			base = base | T_COS_P ;
+			indic_t = 1 ;
+			break ;
+
+		    case T_COS_I :
+			base = base | T_SIN_P ;
 			indic_t = 1 ;
 			break ;
 

@@ -32,6 +32,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/08/02 15:07:41  j_novak
+ * Member function determinant has been added to the class Metrique.
+ * A better handling of spectral bases is now implemented for the class Tenseur.
+ *
  * Revision 1.2  2002/06/17 14:05:17  j_novak
  * friend functions are now also declared outside the class definition
  *
@@ -118,6 +122,11 @@ class Metrique {
 	mutable Tenseur* p_ricci_scal ;
 	
 	/**
+	 * Pointer on the determinant.
+	 */
+	mutable Cmp* p_determinant ;
+	
+	/**
 	 * Pointer on the dependancies, that means the array contains pointers
 	 * on all the {\tt Tenseur} whom derivative members have been calculated
 	 * using {\tt *this}.
@@ -134,7 +143,7 @@ class Metrique {
 
 	Metrique (const Metrique&) ;    /// Constructor by copy.
 
-	/** Constructor from a {\tt Tenseur\_sym} of {\tt valence $= 2$}.
+	/** Constructor from a {\tt Tenseur\_sym} of {\tt valence} = 2.
 	 *  One representation is allocated depending on the 
 	 *  type of {\tt source}.
 	 */
@@ -158,7 +167,7 @@ class Metrique {
     // -----------------
     private:
 	void del_t() ;		    /// Logical destructor
-	void del_gamma() ; /// Logical destructor of the derivative members.
+	void del_deriv() ; /// Logical destructor of the derivative members.
 
 	/**
 	 * Sets all the pointer on the derivative members to zero.
@@ -203,7 +212,7 @@ class Metrique {
 	void operator= (const Metrique&) ; 
 
 	/**
-	 * Assignment from a {\tt Tenseur\_sym} of {\tt valence $=2$}.
+	 * Assignment from a {\tt Tenseur\_sym} of {\tt valence =2}.
 	 * The allocated representation depends on the type of {\tt t}.
 	 * All the other members are deleted.
 	 */
@@ -223,6 +232,7 @@ class Metrique {
 	const Tenseur_sym& gamma() const ; /// Returns the Christoffel symbols.
 	const Tenseur_sym& ricci() const ; /// Returns the Ricci-curvature.
 	const Tenseur& ricci_scal() const ; /// Returns the Ricci-scalar.
+	const Cmp& determinant() const ; /// Returns the determinant.
 	
 	const Map* get_mp() const{return mp ; } ; /// Returns a pointer on the mapping.
 	int get_etat() const{return etat ;} ; /// Returns the logical state.
@@ -267,6 +277,12 @@ class Metrique {
 	 */
 	void fait_ricci_scal() const ;
 
+	/**
+	 * Calculates, if needed, the determinant.
+	 * The result is in {\tt *p\_determinant}.
+	 */
+	void fait_determinant() const ;
+
     // Friend classes 
     // ---------------
 
@@ -281,7 +297,7 @@ ostream& operator<<(ostream& , const Metrique & ) ;
     //@{
     /**
      * Calculates the inverse of {\tt t},  being a {\tt Tenseur\_sym}
-     * of {\tt valence $= 2$}.
+     * of {\tt valence} = 2.
      */
 Tenseur_sym fait_inverse (const Tenseur_sym& t) ;
 
