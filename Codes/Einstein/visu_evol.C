@@ -28,6 +28,11 @@ char visu_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/06/24 00:07:28  e_gourgoulhon
+ * Introduced the reference 'field' and string 'fieldname' for
+ * a easier selection of the field to be visualized.
+ * Better determination of the max of the field.
+ *
  * Revision 1.2  2004/06/02 21:34:39  e_gourgoulhon
  * Added creation of file anime.dxcont for OpenDX.
  *
@@ -94,6 +99,10 @@ int main(){
     ofstream fdx("anime.dxcont") ; 
     fdx << "fieldname     jmin   jmax  jstep  ampli " << endl ; 
     fdx << rootdxname << "     " << jmin << "   " << jmax << "   " << jstep ;
+    
+    char fieldname[100] ; 
+    
+    double max_field = 0 ; 
          
     for (int j=jmin; j<=jmax; j += jstep) {         
  
@@ -123,7 +132,7 @@ int main(){
         const Metric_flat& ff = map.flat_met_spher() ; 
     
         int depth ; 
-	fread_be(&depth, sizeof(int), 1, fich) ;	
+	    fread_be(&depth, sizeof(int), 1, fich) ;	
     
         Tslice_dirac_max sigma(map, *ptriad, ff, fich, false, depth) ; 
          
@@ -142,21 +151,26 @@ int main(){
         bool start_dx = ( (j >= jmax - jstep) && (j != jmax) ) ;
         // bool start_dx = false ;
          
-        // sigma.mu().spectral_display("mu") ; 
+        // Selection of the field to be vizualized
+        // ---------------------------------------
+        const Scalar& field = sigma.gam().ricci_scal() ; 
+        strcpy(fieldname, "R") ; 
+        
+        // field.spectral_display(fieldname) ; 
          
-        sigma.mu().visu_section_anim(section_type, a_section, umin, umax,
-		                      vmin, vmax, j, tc, 1, "mu", rootdxname, 
+        field.visu_section_anim(section_type, a_section, umin, umax,
+		                      vmin, vmax, j, tc, 1, fieldname, rootdxname, 
                                       start_dx, nu, nv) ; 
                                       
-        if (j==jmin) {
-            double ampli = 1. / max(maxabs(sigma.mu())) ; 
-            fdx << "   " << ampli << endl ; 
-            fdx.close() ; 
-        }
-
+        double max_field_j = max(maxabs(field)) ;
+        if (max_field_j > max_field) max_field = max_field_j ; 
+        
         delete ptriad ; 
 
-    }       
+    }   
+    
+    fdx << "   " << 1. / max_field  << endl ; 
+    fdx.close() ; 
     
     return EXIT_SUCCESS ; 
 }
