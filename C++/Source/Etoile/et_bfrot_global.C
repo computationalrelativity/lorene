@@ -25,6 +25,13 @@ char et_bfrot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/11/13 12:13:15  r_prix
+ * *) removed all uses of Etoile-type specific quantities: u_euler, press
+ *    and exclusively use ener_euler, s_euler, sphph_euler, J_euler instead
+ * *) this also fixes a bug in previous expression for mass_g() in 2-fluid case
+ *
+ * NOTE: some current Newtonian expressions are still completely broken..
+ *
  * Revision 1.9  2003/09/17 08:27:50  j_novak
  * New methods: mass_b1() and mass_b2().
  *
@@ -76,6 +83,7 @@ char et_bfrot_global_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "et_rot_bifluid.h"
+#include "unites.h"
 
 //--------------------------//
 //	Baryon mass	    //
@@ -85,22 +93,11 @@ double Et_rot_bifluid::mass_b1() const {
 
   if (p_mass_b1 == 0x0) {    // a new computation is required
 	
-    if (relativistic) {
+    assert(nbar.get_etat() == ETATQCQ);
+    Cmp dens1 = a_car() * bbb() * gam_euler() * nbar();
+    dens1.std_base_scal() ; 
 
-      Cmp dens1 = a_car() * bbb() * (gam_euler() * nbar());
-	    
-      dens1.std_base_scal() ; 
-
-      p_mass_b1 = new double( dens1.integrale() ) ;
-
-
-    }
-    else{  // Newtonian case 
-      assert(nbar.get_etat() == ETATQCQ);
-
-      p_mass_b1 = new double( (*this).nbar().integrale() ) ;
-
-    }
+    p_mass_b1 = new double( dens1.integrale() ) ;
 
   }
     
@@ -111,22 +108,12 @@ double Et_rot_bifluid::mass_b1() const {
 double Et_rot_bifluid::mass_b2() const {
 
   if (p_mass_b2 == 0x0) {    // a new computation is required
+      assert(nbar2.get_etat() == ETATQCQ);
 	
-    if (relativistic) {
-
-      Cmp dens2 = a_car() * bbb() * (gam_euler2() * nbar2());
-	    
+      Cmp dens2 = a_car() * bbb() * gam_euler2() * nbar2();
       dens2.std_base_scal() ; 
 
       p_mass_b2 = new double( dens2.integrale() ) ;
-
-    }
-    else{  // Newtonian case 
-      assert(nbar2.get_etat() == ETATQCQ);
-
-      p_mass_b2 = new double( nbar2().integrale() ) ;
-
-    }
 
   }
     
@@ -153,23 +140,23 @@ double Et_rot_bifluid::mass_g() const {
 	
     if (relativistic) {
 
-      Tenseur us(u_euler) ;
-      us.change_triad( mp.get_bvect_spher() ) ; 
+      Tenseur vtmp (J_euler);
+      vtmp.change_triad( mp.get_bvect_spher() );  // change to spherical triad
 
-      Tenseur u_phi(mp) ;
-      u_phi = us(2) ;
-	  
-      Tenseur source = nnn * (ener_euler + s_euler) 
-	+ 2 * bbb * (ener_euler + press)
-	* tnphi * u_phi ; 
+      Tenseur tJphi (mp);
+      tJphi = vtmp(2);  // get the phi tetrad-component: J^ph r sin(th)
+
+      Tenseur source = nnn * (ener_euler + s_euler) + 2 * b_car * tnphi * tJphi;
       source = a_car * bbb * source ;
 	  
       source.set_std_base() ;
-	  
+
       p_mass_g = new double( source().integrale() ) ;
 	  
 
     }
+    // FIXME: maybe we should try to get the right limit from the above, 
+    //  would be a nice consistency-check
     else{  // Newtonian case 
       p_mass_g = new double( mass_b() ) ;   // in the Newtonian case
       //  M_g = M_b
@@ -191,15 +178,16 @@ double Et_rot_bifluid::angu_mom() const {
     Cmp dens(mp) ;
 
     if (relativistic) {
-      Tenseur us = u_euler ;
+      Tenseur us = J_euler;
       us.change_triad( mp.get_bvect_spher() ) ;  
       dens = us(2) ;
       dens.mult_rsint() ;
 
       dens = a_car() * b_car()* bbb() * dens ; 
     }
+    // FIXME: should come out in Newtonian limit...
     else {    // Newtonian case 
-      dens = nbar() * uuu() + nbar2() *uuu2() ; 
+      dens = nbar() * uuu() + nbar2() *uuu2() ;   // FIXME: something missing here!!
     }
       
     dens.std_base_scal() ; 
@@ -221,14 +209,12 @@ double Et_rot_bifluid::grv2() const {
 
   if (p_grv2 == 0x0) {    // a new computation is required
 	
-    // To get qpig:	
-#include "unites.h"	
-    // To avoid some compilation warnings
-    if (p_grv2 != 0x0) {
-      cout << f_unit << msol << km << mevpfm3 << endl ;
-    }
+    Tenseur sou_m(mp);
 
-    Tenseur sou_m =  2 * qpig * a_car * (s_euler - 2*press) ;
+    if (relativistic)
+      sou_m =  2 * qpig * a_car * sphph_euler ;
+    else   // FIXME: should come out as Newtonian limit
+      sou_m = 2 * qpig * (press + nbar * uuu*uuu ) ; // FIXME: calculate correct expression
         						
     Tenseur sou_q =  1.5 * ak_car
       - flat_scalar_prod(logn.gradient_spher(),
@@ -250,14 +236,6 @@ double Et_rot_bifluid::grv2() const {
 double Et_rot_bifluid::grv3(ostream* ost) const {
 
   if (p_grv3 == 0x0) {    // a new computation is required
-
-    // To get qpig:	
-#include "unites.h"	    
-    // To avoid some compilation warnings
-    if (p_grv3 != 0x0) {
-      cout << f_unit << msol << km << mevpfm3 << endl ; 
-    }    
-
 
     Tenseur source(mp) ; 
 	
@@ -328,19 +306,19 @@ double Et_rot_bifluid::grv3(ostream* ost) const {
     if (relativistic) {    
       source  = qpig * a_car * bbb * s_euler ;
     }
-    else{
+    else{ // FIXME: generalize, and also: should come out of Newtonian limit...
       // What follows is only valid for polytropic Eos_bifluid
       const Eos_bf_poly* eos_a = dynamic_cast<const Eos_bf_poly*>(&eos) ;
       assert(eos_a != 0x0) ;
       source = qpig * ( 3 * press + nbar * uuu * uuu 
 			+ nbar2* uuu2* uuu2 );
       if (eos_a->get_gam5() == 0.) 
-	source = source - qpig*2*eos_a->get_beta()*nbar2*xxx2 ;
+	source = source - qpig*2*eos_a->get_beta()*nbar2 * Delta_car ;
       else if (eos_a->get_gam6() == 0.)
-	source = source - qpig*2*eos_a->get_beta()*nbar*xxx2 ;
+	source = source - qpig*2*eos_a->get_beta()*nbar * Delta_car ;
       else {
 	Tenseur tmp(2*eos_a->get_beta()*pow(nbar(), eos_a->get_gam5()) 
-		    * pow(nbar2(),eos_a->get_gam6())*xxx2()) ; 
+		    * pow(nbar2(),eos_a->get_gam6()) * Delta_car()) ; 
 	source = source - qpig*tmp ;
       }
     }
@@ -418,13 +396,6 @@ double Et_rot_bifluid::mom_quad() const {
 
   if (p_mom_quad == 0x0) {    // a new computation is required
 	
-    // To get qpig:	
-#include "unites.h"	    
-    // To avoid some compilation warnings
-    if (p_mom_quad != 0x0) {
-      cout << f_unit << msol << km << mevpfm3 << endl ; 
-    }    
-
     // Source for of the Poisson equation for nu
     // -----------------------------------------
 
