@@ -25,15 +25,16 @@
  *
  */
 
-char name_of_this_file_C[] = "$Header$" ;
+char et_bin_nsbh_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/22 08:12:46  k_taniguchi
+ * Supress some terms in Et_bin_nsbh::sauve.
+ *
  * Revision 1.1  2003/10/21 11:50:38  k_taniguchi
  * Methods for class Et_bin_nsbh
- *
- *
  *
  *
  * $Header$
@@ -45,6 +46,7 @@ char name_of_this_file_C[] = "$Header$" ;
 
 // Lorene headers
 #include "et_bin_nsbh.h"
+#include "etoile.h"
 #include "eos.h"
 #include "utilitaires.h"
 #include "param.h"
@@ -171,11 +173,21 @@ void Et_bin_nsbh::operator=(const Et_bin_nsbh& et) {
 // --------------
 void Et_bin_nsbh::sauve(FILE* fich) const {
 
-    Etoile_bin::sauve(fich) ;
+    Etoile::sauve(fich) ;
 
-    n_auto.sauve(fich) ;
-    confpsi_auto.sauve(fich) ;
+    fwrite(&irrotational, sizeof(bool), 1, fich) ;
+
+    if (irrotational) {
+	gam_euler.sauve(fich) ; // required to construct d_psi from psi0
+	psi0.sauve(fich) ;
+    }
+
+    w_shift.sauve(fich) ;
+    khi_shift.sauve(fich) ;
+
     ssjm1_n_auto.sauve(fich) ;
     ssjm1_confpsi.sauve(fich) ;
+    ssjm1_khi.sauve(fich) ;
+    ssjm1_wshift.sauve(fich) ;
 
 }
