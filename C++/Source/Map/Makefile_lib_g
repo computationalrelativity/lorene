@@ -8,9 +8,9 @@ include List_obj 		# defines OBJ as the list of object files
 
 LIB	  = $(HOME_LORENE)/Lib
 
-$(LIB)/liblorene_g.a : 	$(OBJ)
-	ar -rv $@  $?
-	$(RANLIB) $@
+$(LIB)/date_mark : $(OBJ)
+	ar -rv $(LIB)/liblorene_g.a  $?
+	$(RANLIB) $(LIB)/liblorene_g.a
 	
 include Dependencies
 

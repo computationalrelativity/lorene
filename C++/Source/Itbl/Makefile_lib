@@ -8,10 +8,10 @@ LIB	  = $(HOME_LORENE)/Lib
 
 .SUFFIXES : .o .C
 
-$(LIB)/liblorene.a : 	$(OBJ)
-	ar -rv $@  $?
-	$(RANLIB) $@
-	
+$(LIB)/date_mark : $(OBJ)
+	ar -rv $(LIB)/liblorene.a  $?
+	$(RANLIB) $(LIB)/liblorene.a
+
 include Dependencies
 
 .C.o:
