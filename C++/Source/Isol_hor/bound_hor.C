@@ -28,6 +28,11 @@
 char bound_hor_C[] = "$Header$" ;
 
 /*
+ * $Id$
+ * $Log$
+ * Revision 1.2  2004/09/09 16:53:49  f_limousin
+ * Add the two lines $Id: and $Log: for CVS.
+ *
  *
  * $Header$
  *
