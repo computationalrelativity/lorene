@@ -30,6 +30,11 @@ char connection_fspher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2004/01/27 15:10:02  j_novak
+ * New methods Scalar::div_r_dzpuis(int) and Scalar_mult_r_dzpuis(int)
+ * which replace div_r_inc*. Tried to clean the dzpuis handling.
+ * WARNING: no testing at this point!!
+ *
  * Revision 1.18  2004/01/23 07:57:06  e_gourgoulhon
  * Slight change in some comment.
  *
@@ -282,11 +287,8 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
 
 	            // Division by r :
 	            tmp = uu(ind) ; 
-                    switch (dz_resu) {
-                        case 2 : { tmp.div_r_inc2() ; break ; }
-                        case 3 : { tmp.div_r_inc1() ; break ; }
-                        case 4 : { tmp.div_r()      ; break ; }
-                    }
+		    tmp.div_r_dzpuis(dz_resu) ;
+
 	            cresu -= tmp ; 
 	            break ; 
                 }
@@ -296,11 +298,8 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
 	            ind = ind0 ; 
 	            ind.set(id) = 1 ;   // l = r
 	            tmp = uu(ind) ; 
-                    switch (dz_resu) {
-                        case 2 : { tmp.div_r_inc2() ; break ; }
-                        case 3 : { tmp.div_r_inc1() ; break ; }
-                        case 4 : { tmp.div_r()      ; break ; }
-                    }
+		    tmp.div_r_dzpuis(dz_resu) ;
+
 	            cresu += tmp ; 
 	            break ; 
                 }
@@ -337,11 +336,8 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
 	            ind = ind0 ; 
 	            ind.set(id) = 3 ;   // l = phi
 	            tmp = uu(ind) ; 
-                    switch (dz_resu) {
-                        case 2 : { tmp.div_r_inc2() ; break ; }
-                        case 3 : { tmp.div_r_inc1() ; break ; }
-                        case 4 : { tmp.div_r()      ; break ; }
-                    }
+		    tmp.div_r_dzpuis(dz_resu) ;
+
 	            cresu -= tmp ; 
 	            break ; 
                 }
@@ -351,11 +347,8 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
 	            ind = ind0 ; 
 	            ind.set(id) = 3 ;   // l = phi
 	            tmp = uu(ind) ; 
-                    switch (dz_resu) {
-                        case 2 : { tmp.div_r_inc2() ; break ; }
-                        case 3 : { tmp.div_r_inc1() ; break ; }
-                        case 4 : { tmp.div_r()      ; break ; }
-                    }
+		    tmp.div_r_dzpuis(dz_resu) ;
+
 	            tmp.div_tant() ; 	// division by tan(theta)
 					
 	            cresu -= tmp ; 
@@ -368,20 +361,14 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
 	            ind = ind0 ; 
 	            ind.set(id) = 1 ;   // l = r
 	            tmp = uu(ind) ; 
-                    switch (dz_resu) {
-                        case 2 : { tmp.div_r_inc2() ; break ; }
-                        case 3 : { tmp.div_r_inc1() ; break ; }
-                        case 4 : { tmp.div_r()      ; break ; }
-                    }
+		    tmp.div_r_dzpuis(dz_resu) ;
+
 	            cresu += tmp ; 
 
 	            ind.set(id) = 2 ;   // l = theta
 	            tmp = uu(ind) ; 
-                    switch (dz_resu) {
-                        case 2 : { tmp.div_r_inc2() ; break ; }
-                        case 3 : { tmp.div_r_inc1() ; break ; }
-                        case 4 : { tmp.div_r()      ; break ; }
-                    }
+		    tmp.div_r_dzpuis(dz_resu) ;
+
 	            tmp.div_tant() ; 	// division by tan(theta)
 
 	            cresu += tmp ; 
@@ -633,7 +620,7 @@ Tensor* Connection_fspher::p_divergence(const Tensor& uu) const {
         //----------------------------------------------
         tmp2.div_tant() ;
         tmp1 += tmp2 ;
-        dz4 ? tmp1.div_r() : tmp1.div_r_inc2() ;
+        tmp1.div_r_dzpuis(dz_resu) ;
 
         cresu += tmp1 ; // the d/dr term...
 

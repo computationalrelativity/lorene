@@ -34,6 +34,11 @@ char scalar_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/01/27 15:10:02  j_novak
+ * New methods Scalar::div_r_dzpuis(int) and Scalar_mult_r_dzpuis(int)
+ * which replace div_r_inc*. Tried to clean the dzpuis handling.
+ * WARNING: no testing at this point!!
+ *
  * Revision 1.8  2003/11/03 13:37:59  j_novak
  * Still dzpuis...
  *
@@ -65,9 +70,6 @@ char scalar_deriv_C[] = "$Header$" ;
  *
  */
  
-// Headers C
-#include <stdlib.h>
-
 // Headers Lorene
 #include "tensor.h"
 #include "cmp.h"
@@ -85,22 +87,20 @@ const Scalar& Scalar::dsdr(int ced_mult_r) const {
     //  computation must be done by the appropriate routine of the mapping : 
 
     if (p_dsdr == 0x0) {
+      p_dsdr = new Scalar(*mp) ;
       if (etat == ETATUN) {
-	p_dsdr = new Scalar(*mp) ;
 	p_dsdr->set_etat_zero() ;
       }
       else {
-	Cmp orig(*this) ;
-	Cmp derivee(mp) ;
-	mp->dsdr(orig, derivee) ;
-	p_dsdr = new Scalar(derivee) ; 
+	mp->dsdr(*this, *p_dsdr) ;
 
-	int diff_dzpuis = ced_mult_r - p_dsdr->get_dzpuis() ;
-	(diff_dzpuis >= 0) ? p_dsdr->inc_dzpuis(diff_dzpuis) : 
-	  p_dsdr->dec_dzpuis(-diff_dzpuis) ;
       }
     }
      
+    int diff_dzpuis = ced_mult_r - p_dsdr->get_dzpuis() ;
+    (diff_dzpuis >= 0) ? p_dsdr->inc_dzpuis(diff_dzpuis) : 
+      p_dsdr->dec_dzpuis(-diff_dzpuis) ;
+
     return *p_dsdr ;
 
 }
@@ -118,21 +118,17 @@ const Scalar& Scalar::srdsdt(int ced_mult_r) const {
     //  computation must be done by the appropriate routine of the mapping : 
 
     if (p_srdsdt == 0x0) {
-      if (etat == ETATUN) {
 	p_srdsdt = new Scalar(*mp) ;
-	p_srdsdt->set_etat_zero() ;
-      }
-      else {
-	Cmp orig(*this) ;
-	Cmp derivee(mp) ;
-	mp->srdsdt(orig, derivee) ;
-	p_srdsdt = new Scalar(derivee) ;
-
-	int diff_dzpuis = ced_mult_r - p_srdsdt->get_dzpuis() ;
-	(diff_dzpuis >= 0) ? p_srdsdt->inc_dzpuis(diff_dzpuis) : 
-	  p_srdsdt->dec_dzpuis(-diff_dzpuis) ;
-      }
+	if (etat == ETATUN) {
+	  p_srdsdt->set_etat_zero() ;
+	}
+	else {
+	  mp->srdsdt(*this, *p_srdsdt) ;
+	}
     }
+    int diff_dzpuis = ced_mult_r - p_srdsdt->get_dzpuis() ;
+    (diff_dzpuis >= 0) ? p_srdsdt->inc_dzpuis(diff_dzpuis) : 
+      p_srdsdt->dec_dzpuis(-diff_dzpuis) ;
      
     return *p_srdsdt ;
 
@@ -152,21 +148,18 @@ const Scalar& Scalar::srstdsdp(int ced_mult_r) const {
     //  computation must be done by the appropriate routine of the mapping : 
 
     if (p_srstdsdp == 0x0) {
+      p_srstdsdp = new Scalar(*mp) ;
       if (etat == ETATUN) {
-	p_srstdsdp = new Scalar(*mp) ;
 	p_srstdsdp->set_etat_zero() ;
       }
       else {
-	Cmp orig(*this) ;
-	Cmp derivee(mp) ;
-	mp->srstdsdp(orig, derivee) ;
-	p_srstdsdp = new Scalar(derivee) ; 
-
-	int diff_dzpuis = ced_mult_r - p_srstdsdp->get_dzpuis() ;
-	(diff_dzpuis >= 0) ? p_srstdsdp->inc_dzpuis(diff_dzpuis) : 
-	  p_srstdsdp->dec_dzpuis(-diff_dzpuis) ;
+	mp->srstdsdp(*this, *p_srstdsdp) ;
       }
     }
+
+    int diff_dzpuis = ced_mult_r - p_srstdsdp->get_dzpuis() ;
+    (diff_dzpuis >= 0) ? p_srstdsdp->inc_dzpuis(diff_dzpuis) : 
+      p_srstdsdp->dec_dzpuis(-diff_dzpuis) ;
      
     return *p_srstdsdp ;
 
@@ -195,6 +188,8 @@ const Scalar& Scalar::dsdt() const {
 		}
     }
 	
+	p_dsdt->set_dzpuis(dzpuis) ;
+
     return *p_dsdt ;
 
 }
@@ -221,7 +216,8 @@ const Scalar& Scalar::stdsdp() const {
 			mp->stdsdp(*this, *p_stdsdp) ;
 		}
     }
-	
+	p_stdsdp->set_dzpuis(dzpuis) ;
+
     return *p_stdsdp ;
 
 }
@@ -239,24 +235,22 @@ const Scalar& Scalar::dsdx(int ced_mult_r) const {
     //  computation must be done by the appropriate routine of the mapping : 
 
     if (p_dsdx == 0x0) {
+      p_dsdx = new Scalar(*mp) ;
       if (etat == ETATUN) {
-	p_dsdx = new Scalar(*mp) ;
 	p_dsdx->set_etat_zero() ;
       }
       else {
-	Cmp orig(*this) ;
-	Cmp deriv_r(dsdr()) ;
-	Cmp deriv_t(srdsdt()) ;
-	Cmp deriv_p(srstdsdp()) ;
-	Cmp deriv_x(mp) ;
-	mp->comp_x_from_spherical(deriv_r, deriv_t, deriv_p, deriv_x) ;
-	p_dsdx = new Scalar(deriv_x) ; 
-
-	int diff_dzpuis = ced_mult_r - p_dsdx->get_dzpuis() ;
-	(diff_dzpuis >= 0) ? p_dsdx->inc_dzpuis(diff_dzpuis) : 
-	  p_dsdx->dec_dzpuis(-diff_dzpuis) ;
+	Cmp result(mp) ;
+	mp->comp_x_from_spherical(Cmp(dsdr(ced_mult_r)), 
+				  Cmp(srdsdt(ced_mult_r)), 
+				  Cmp(srstdsdp(ced_mult_r)), result) ;
+	*p_dsdx = result ;
       }
-    }
+    }	
+
+    int diff_dzpuis = ced_mult_r - p_dsdx->get_dzpuis() ;
+    (diff_dzpuis >= 0) ? p_dsdx->inc_dzpuis(diff_dzpuis) : 
+      p_dsdx->dec_dzpuis(-diff_dzpuis) ;
      
     return *p_dsdx ;
 
@@ -275,25 +269,23 @@ const Scalar& Scalar::dsdy(int ced_mult_r) const {
     //  computation must be done by the appropriate routine of the mapping : 
 
     if (p_dsdy == 0x0) {
+      p_dsdy = new Scalar(*mp) ;
       if (etat == ETATUN) {
-	p_dsdy = new Scalar(*mp) ;
 	p_dsdy->set_etat_zero() ;
       }
       else {
-	Cmp orig(*this) ;
-	Cmp deriv_r(dsdr()) ;
-	Cmp deriv_t(srdsdt()) ;
-	Cmp deriv_p(srstdsdp()) ;
-	Cmp deriv_y(mp) ;
-	mp->comp_y_from_spherical(deriv_r, deriv_t, deriv_p, deriv_y) ;
-	p_dsdy = new Scalar(deriv_y) ; 
-
-	int diff_dzpuis = ced_mult_r - p_dsdy->get_dzpuis() ;
-	(diff_dzpuis >= 0) ? p_dsdy->inc_dzpuis(diff_dzpuis) : 
-	  p_dsdy->dec_dzpuis(-diff_dzpuis) ;
+	Cmp result(mp) ;
+	mp->comp_y_from_spherical(Cmp(dsdr(ced_mult_r)), 
+				  Cmp(srdsdt(ced_mult_r)), 
+				  Cmp(srstdsdp(ced_mult_r)), result) ;
+	*p_dsdy = result ;
       }
     }
-     
+
+    int diff_dzpuis = ced_mult_r - p_dsdy->get_dzpuis() ;
+    (diff_dzpuis >= 0) ? p_dsdy->inc_dzpuis(diff_dzpuis) : 
+      p_dsdy->dec_dzpuis(-diff_dzpuis) ;
+    
     return *p_dsdy ;
 
 }
@@ -311,24 +303,21 @@ const Scalar& Scalar::dsdz(int ced_mult_r) const {
     //  computation must be done by the appropriate routine of the mapping : 
 
     if (p_dsdz == 0x0) {     
+      p_dsdz = new Scalar(*mp) ;
       if (etat == ETATUN) {
-	p_dsdz = new Scalar(*mp) ;
 	p_dsdz->set_etat_zero() ;
       }
       else {
-	Cmp orig(*this) ;
-	Cmp deriv_r(dsdr()) ;
-	Cmp deriv_t(srdsdt()) ;
-	Cmp deriv_p(srstdsdp()) ;
-	Cmp deriv_z(mp) ;
-	mp->comp_z_from_spherical(deriv_r, deriv_t, deriv_z) ;
-	p_dsdz = new Scalar(deriv_z) ; 
-
-	int diff_dzpuis = ced_mult_r - p_dsdz->get_dzpuis() ;
-	(diff_dzpuis >= 0) ? p_dsdz->inc_dzpuis(diff_dzpuis) : 
-	  p_dsdz->dec_dzpuis(-diff_dzpuis) ;
+	Cmp result(mp) ;
+	mp->comp_z_from_spherical(Cmp(dsdr(ced_mult_r)), 
+				  Cmp(srdsdt(ced_mult_r)), result) ;
+	*p_dsdz = result ;
       }
     }
+
+    int diff_dzpuis = ced_mult_r - p_dsdz->get_dzpuis() ;
+    (diff_dzpuis >= 0) ? p_dsdz->inc_dzpuis(diff_dzpuis) : 
+      p_dsdz->dec_dzpuis(-diff_dzpuis) ;
 
     return *p_dsdz ;
 
@@ -420,6 +409,8 @@ const Scalar& Scalar::lapang() const {
 	mp->lapang(*this, *p_lapang) ;
       }
     }
+
+    p_lapang->set_dzpuis(dzpuis) ;
     
     return *p_lapang ;
     

@@ -38,6 +38,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.39  2004/01/27 15:10:01  j_novak
+ * New methods Scalar::div_r_dzpuis(int) and Scalar_mult_r_dzpuis(int)
+ * which replace div_r_inc*. Tried to clean the dzpuis handling.
+ * WARNING: no testing at this point!!
+ *
  * Revision 1.38  2004/01/23 13:25:44  e_gourgoulhon
  * Added methods set_inner_boundary and set_outer_boundary.
  * Methods set_val_inf and set_val_hor, which are particular cases of
@@ -503,25 +508,25 @@ class Scalar : public Tensor {
  public:
   /** Returns $\partial / \partial r$ of {\tt *this}.
    * @param  ced_mult_r [input] value of {\tt dzpuis} of the result: 
-   *   the default is 2 since the computation naturally returns 
-   *   $r^2 \partial/ \partial r$
-   *   in the compactified external domain (CED). 
+   *   the default is 2, which is natural if {\tt this} has 
+   *   {\tt dzpuis} = 0. In other cases, when the input {\tt dzpuis} is not 0, 
+   *   this parameter can be put to its input value + 1 (which is most natural).
    */
   const Scalar& dsdr(int ced_mult_r = 2) const ; 
   
   /** Returns $1/r \partial / \partial \theta$ of {\tt *this}.
    * @param  ced_mult_r [input] value of {\tt dzpuis} of the result: 
-   *   the default is 2 since the computation naturally returns 
-   *   $r \partial/ \partial \theta$
-   *   in the compactified external domain (CED). 
+   *   the default is 2, which is natural if {\tt this} has 
+   *   {\tt dzpuis} = 0. In other cases, when the input {\tt dzpuis} is not 0, 
+   *   this parameter can be put to its input value + 1 (which is most natural).
    */
   const Scalar& srdsdt(int ced_mult_r = 2) const ; 
   
   /** Returns $1/(r\sin\theta) \partial / \partial \phi$ of {\tt *this}.
    * @param  ced_mult_r [input] value of {\tt dzpuis} of the result: 
-   *   the default is 2 since the computation naturally returns 
-   *    $r/\sin\theta \partial/ \partial \phi$
-   *   in the compactified external domain (CED). 
+   *   the default is 2, which is natural if {\tt this} has 
+   *   {\tt dzpuis} = 0. In other cases, when the input {\tt dzpuis} is not 0, 
+   *   this parameter can be put to its input value + 1 (which is most natural).
    */
   const Scalar& srstdsdp(int ced_mult_r = 2) const ; 
   
@@ -536,37 +541,37 @@ class Scalar : public Tensor {
   /** Returns $\partial/\partial x$ of {\tt *this},
    *  where $x=r\sin\theta \cos\phi$.
    * @param  ced_mult_r [input] value of {\tt dzpuis} of the result: 
-   *   the default is 2 since the computation naturally returns 
-   *    $r^2 \partial/ \partial x$
-   *   in the compactified external domain (CED). 
+   *   the default is 2, which is natural if {\tt this} has 
+   *   {\tt dzpuis} = 0. In other cases, when the input {\tt dzpuis} is not 0, 
+   *   this parameter can be put to its input value + 1 (which is most natural).
    */
   const Scalar& dsdx(int ced_mult_r = 2) const ;	
   
   /** Returns $\partial/\partial y$ of {\tt *this},
    *  where $y=r\sin\theta \sin\phi$.
    * @param  ced_mult_r [input] value of {\tt dzpuis} of the result: 
-   *   the default is 2 since the computation naturally returns 
-   *    $r^2 \partial/ \partial y$
-   *   in the compactified external domain (CED). 
+   *   the default is 2, which is natural if {\tt this} has 
+   *   {\tt dzpuis} = 0. In other cases, when the input {\tt dzpuis} is not 0, 
+   *   this parameter can be put to its input value + 1 (which is most natural).
    */
   const Scalar& dsdy(int ced_mult_r = 2) const ;	
   
   /** Returns $\partial/\partial z$ of {\tt *this},
    *  where $z=r\cos\theta$.
    * @param  ced_mult_r [input] value of {\tt dzpuis} of the result: 
-   *   the default is 2 since the computation naturally returns 
-   *    $r^2 \partial/ \partial z$
-   *   in the compactified external domain (CED). 
+   *   the default is 2, which is natural if {\tt this} has 
+   *   {\tt dzpuis} = 0. In other cases, when the input {\tt dzpuis} is not 0, 
+   *   this parameter can be put to its input value + 1 (which is most natural).
    */
   const Scalar& dsdz(int ced_mult_r = 2) const ;	
   
   /** Returns $\partial/\partial x_i$ of {\tt *this},
    *  where $x_i = (x, y, z)$.
    *  @param i [input] i=1 for {\it x},  i=2 for {\it y}, i=3 for {\it z}.
-   *  @param  ced_mult_r [input] value of {\tt dzpuis} of the result: 
-   *   the default is 2 since the computation naturally returns 
-   *    $r^2 \partial/ \partial x$
-   *   in the compactified external domain (CED). 
+   * @param  ced_mult_r [input] value of {\tt dzpuis} of the result: 
+   *   the default is 2, which is natural if {\tt this} has 
+   *   {\tt dzpuis} = 0. In other cases, when the input {\tt dzpuis} is not 0, 
+   *   this parameter can be put to its input value + 1 (which is most natural).
    */
   const Scalar& deriv(int i, int ced_mult_r = 2) const ;	
   
@@ -591,18 +596,20 @@ class Scalar : public Tensor {
   
   void div_r() ;    /// Division by {\it r} everywhere.
  
-  /** Division by {\it r} everywhere but with the flag {\tt dzpuis}
-   * increased by 1 unit. This means that the numerical values in the CED
-   * are leaved untouched. 
+  /** Division by {\it r} everywhere but with the output flag {\tt dzpuis} 
+   *  set to {\tt ced\_mult\_r}.
+   *  @param  ced_mult_r [input] value of {\tt dzpuis} of the result: 
+   *   the default is 2, which is natural if {\tt this} has 
+   *   {\tt dzpuis} = 0. In other cases, when the input {\tt dzpuis} is not 0, 
+   *   this parameter can be put to its input value + 1 (which is most natural).
    */
-  void div_r_inc1() ; 
+  void div_r_dzpuis(int ced_mult_r = 2) ; 
   
-  /** Division by {\it r} everywhere but with the flag {\tt dzpuis}
-   * increased by 2 units. This means that the numerical values in the CED
-   * are multiplied by {\it r}.
+  /** Division by {\it r} in the compactified external domain (CED), the 
+   * {\tt dzpuis} flag is not changed.
    */
-  void div_r_inc2() ; 
-  
+  void div_r_ced() ;
+
   /** Multiplication by {\it r}.
    * NB: in the CED, this method does not perform anything but {\tt dzpuis--}.
    * Note that this behavior is analogous to that of {\tt div\_r\_inc1()}
@@ -611,19 +618,41 @@ class Scalar : public Tensor {
    */
   void mult_r() ;  
   
-  /** Multiplication by {\it r} in the compactified external domain (CED)
+  /** Multiplication by {\it r} everywhere but with the output flag {\tt dzpuis} 
+   *  set to {\tt ced\_mult\_r}.
+   *  @param  ced_mult_r [input] value of {\tt dzpuis} of the result: 
+   *   the default is -1, which is natural if {\tt this} has 
+   *   {\tt dzpuis} = 0. In other cases, when the input {\tt dzpuis} is not 0, 
+   *   this parameter can be put to its input value - 1 (which is most natural).
    */
-  virtual void mult_r_ced() ;
+  void mult_r_dzpuis(int ced_mult_r = -1) ; 
+  
+  /** Multiplication by {\it r} in the compactified external domain (CED), the 
+   * {\tt dzpuis} flag is not changed.
+   */
+  void mult_r_ced() ;
   
   void mult_rsint() ;   /// Multiplication by $r\sin\theta$
   
+  /** Multiplication by $r\sin\theta$ but with the output flag {\tt dzpuis}
+   *  set to {\tt ced\_mult\_r}.
+   *  @param  ced_mult_r [input] value of {\tt dzpuis} of the result: 
+   *   the default is -1, which is natural if {\tt this} has 
+   *   {\tt dzpuis} = 0. In other cases, when the input {\tt dzpuis} is not 0, 
+   *   this parameter can be put to its input value - 1 (which is most natural).
+   */
+  void mult_rsint_dzpuis(int ced_mult_r = -1) ; 
+
   void div_rsint() ;    /// Division by $r\sin\theta$
   
-  /** Division by $r\sin\theta$ but with the flag {\tt dzpuis}
-   * increased by 2 units. This means that a division by $\sin\theta/r$
-   * is performed in the CED.
+  /** Division by $r\sin\theta$ but with the output flag {\tt dzpuis}
+   *  set to {\tt ced\_mult\_r}.
+   *  @param  ced_mult_r [input] value of {\tt dzpuis} of the result: 
+   *   the default is 2, which is natural if {\tt this} has 
+   *   {\tt dzpuis} = 0. In other cases, when the input {\tt dzpuis} is not 0, 
+   *   this parameter can be put to its input value + 1 (which is most natural).
    */
-  void div_rsint_inc2() ; 
+  void div_rsint_dzpuis(int ced_mult_r = 2) ; 
   
   void mult_cost() ;   /// Multiplication by $\cos\theta$
 
