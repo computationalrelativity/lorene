@@ -87,8 +87,11 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/09/09 12:57:22  e_gourgoulhon
+ * Added the case of IBM AIX with xlC compiler.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.2  2001/05/29  15:59:27  eric
  * Ajout du cas des machines HP-PA (contribution de Joachim).
@@ -128,7 +131,12 @@
 #include <math.h>
 #define __infinity HUGE_VAL
 #else
+#ifdef __aix
+#include <math.h>
+#define __infinity HUGE_VAL
+#else
 extern double __infinity ;
+#endif
 #endif
 #endif
 #endif
