@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.26  2005/02/16 15:04:07  m_forot
+ * Add int1D_cheb function
+ *
  * Revision 1.25  2005/02/08 10:08:57  f_limousin
  * Add neumann_binaire(...), dirichlet_binaire(...) and
  * poisson_vect_binaire(...) with Scalars and Vectors in argument.
@@ -331,6 +334,7 @@ void chb_sinp_legii(const int* , const double* , double* ) ;
 void chb_legii_sinp(const int* , const double* , double* ) ;
 
 double int1d_chebp(int, const double* ) ;
+double int1d_cheb(int, const double* ) ;
 
 // Routines calcul de coef inverse
 void cipcossin(const int* , const int* , const int* , double* , double* ) ;
