@@ -1,4 +1,6 @@
 
+ -- Scalar::set_dzpuis(int ) : ajouter un appel a del_deriv() ?
+ 
  -- Map_af::dsdr(const Scalar&, Scalar& ) : le traitement du cas
     dzpuis != 0 n'est pas optimal: la ligne
           tmp_ced.set(nzm1) -= dzp * uuva(nzm1) ; 
