@@ -33,6 +33,10 @@ char et_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/04/19 11:06:36  f_limousin
+ * Differents call of Etoile_bin::velocity_potential depending on
+ * the equation of state.
+ *
  * Revision 1.4  2004/03/25 10:29:04  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -140,6 +144,7 @@ char et_bin_equilibrium_C[] = "$Header$" ;
 // Headers Lorene
 #include "etoile.h"
 #include "param.h"
+#include "eos.h" 
 
 #include "graphique.h"
 #include "utilitaires.h"
@@ -148,7 +153,7 @@ char et_bin_equilibrium_C[] = "$Header$" ;
 void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson, 
 			 double relax_poisson, int mermax_potvit, 
 			 double relax_potvit, double thres_adapt,
-			 const Tbl& fact_resize, Tbl& diff) {
+			 const Tbl& fact_resize, Tbl& diff, Cmp& ssjm1_psi) {
 			     
 
     // Fundamental constants and units
@@ -305,9 +310,14 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 
 	if (irrotational) {
 	    
-	    diff_vel_pot = velocity_potential(mermax_potvit, precis_poisson, 
-					      relax_potvit) ; 
-	    
+	    if (eos.identify() == 5) 
+		diff_vel_pot = velocity_potential(mermax_potvit, 
+						  precis_poisson, 
+						  relax_potvit, ssjm1_psi) ; 
+	    else 
+		diff_vel_pot = velocity_potential(mermax_potvit, 
+					       precis_poisson, relax_potvit) ; 
+
 	}
 
 	//-----------------------------------------------------
@@ -527,19 +537,34 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	if (relativistic) {
 	    source = qpig * a_car % (ener_euler + s_euler)
 		    + akcar_auto + akcar_comp 
-		    - flat_scalar_prod_desal(d_logn_auto,
-					     d_beta_auto + d_beta_comp) ;
+	     - flat_scalar_prod_desal(d_logn_auto,
+	   		     d_beta_auto + d_beta_comp) ;
+	 
+	    cout << "kcar_auto : " << endl << norme(akcar_auto()) << endl ;
+	    cout << "kcar_comp : " << endl << norme(akcar_comp()) << endl ;
+	    cout << "dlogn_auto : " << endl << norme(d_logn_auto(0)) << endl ;
+	    cout << "dbeta : " << endl << norme((d_beta_auto + d_beta_comp)(0)) << endl ;
+
 	}
 	else {
 	    source = qpig * nbar ; 
 	}
 	
 	source.set_std_base() ; 	
+
+	int nr = mp.get_mg()->get_nr(0) ;
+	int nt = mp.get_mg()->get_nt(0) ;
+	int np = mp.get_mg()->get_np(0) ;
+	cout << "moyenne de la source pour logn_auto" << endl ;
+	cout <<  norme(source()/(nr*nt*np)) << endl ;
+ 	
 	
+
 	// Resolution of the Poisson equation 
 	// ----------------------------------
 
 	source().poisson(par_poisson1, logn_auto.set()) ; 
+    cout << "logn_auto" << endl << norme(logn_auto()/(nr*nt*np)) << endl ;
 
 	// Construct logn_auto_regu for et_bin_upmetr.C
 	// --------------------------------------------
@@ -576,14 +601,19 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 						  d_logn_auto + d_logn_comp)
 		    - .5 * flat_scalar_prod_desal(d_beta_auto,  
 						  d_beta_auto + d_beta_comp) ;
-
+		     
 	    source.set_std_base() ; 	
-	
+
+	    cout << "moyenne de la source pour beta_auto" << endl ;
+	    cout <<  norme(source()/(nr*nt*np)) << endl ;
+ 	    
+	    
+
 	    // Resolution of the Poisson equation 
 	    // ----------------------------------
 
 	    source().poisson(par_poisson2, beta_auto.set()) ; 
-		 
+	    cout << "beta_auto" << endl << norme(beta_auto()/(nr*nt*np)) << endl ;
 
 	    // Check: has the Poisson equation been correctly solved ?
 	    // -----------------------------------------------------
@@ -610,24 +640,31 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 			   -8. * ( d_logn_auto + d_logn_comp ) ;
 	    
 	    source_shift = (-4.*qpig) * nnn % a_car % (ener_euler + press)
-				% u_euler
-			   + nnn % flat_scalar_prod_desal(tkij_auto, vtmp) ;
+	      % u_euler 
+	    + nnn % flat_scalar_prod_desal(tkij_auto, vtmp) ;
 	
-	
-	    source_shift.set_std_base() ; 	
+	    cout << "tkij_auto : " << endl << norme(tkij_auto(0,0)) << endl ;
+	    cout << "vtmp : " << endl << norme(vtmp(0)) << endl ;
 
+	    source_shift.set_std_base() ; 	
+	
+	    cout << "moyenne de la source pour shift_auto" << endl ;
+	    cout <<  norme(source_shift(0)/(nr*nt*np)) << endl ;
+	    cout <<  norme(source_shift(1)/(nr*nt*np)) << endl ;
+	    cout <<  norme(source_shift(2)/(nr*nt*np)) << endl ;
+ 
 	    // Resolution of the Poisson equation 
 	    // ----------------------------------
 
 	    // Filter for the source of shift vector
-
+	    
 	    for (int i=0; i<3; i++) {
 
 	      if (source_shift(i).get_etat() != ETATZERO)
-		source_shift.set(i).filtre(4) ;
+	       	source_shift.set(i).filtre(4) ;
 
 	    }
-
+	    
 	    // For Tenseur::poisson_vect, the triad must be the mapping triad,
 	    // not the reference one:
 	    
@@ -650,6 +687,7 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	    source_shift.poisson_vect(lambda_shift, par_poisson_vect, 
 				      shift_auto, w_shift, khi_shift) ;      
 
+	    cout << "shift_auto" << endl << norme(shift_auto(0)/(nr*nt*np)) << endl << norme(shift_auto(1)/(nr*nt*np)) << endl << norme(shift_auto(2)/(nr*nt*np)) << endl ; 
 
 	    // Check: has the equation for shift_auto been correctly solved ?
 	    // --------------------------------------------------------------
