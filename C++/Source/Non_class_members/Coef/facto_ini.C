@@ -40,8 +40,14 @@ char facto_ini_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/09/09 13:00:40  e_gourgoulhon
+ * Modification of declaration of Fortran 77 prototypes for
+ * a better portability (in particular on IBM AIX systems):
+ * All Fortran subroutine names are now written F77_* and are
+ * defined in the new file C++/Include/proto_f77.h.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.1  1999/11/24  16:21:27  eric
  * Modif affichage.
@@ -62,12 +68,11 @@ char facto_ini_C[] = "$Header$" ;
 #include <stdlib.h>
 #include <malloc.h>
 
+// Prototypes of F77 subroutines
+#include "proto_f77.h"
+
 // Variable de loch
 int loch_facto_ini = 0 ;
-
-// Prototypage des fonctions employees
-//------------------------------------
-extern "C" void fax_(int *, int*, int *) ;
 
 int *facto_ini( int n )
 {
@@ -106,7 +111,7 @@ int indice ;
 		    abort() ; 
 			}
 
-		fax_( table_facto[indice], &n, &trois ) ;
+		F77_fax( table_facto[indice], &n, &trois ) ;
 		}
 
 }   // Fin de zone critique

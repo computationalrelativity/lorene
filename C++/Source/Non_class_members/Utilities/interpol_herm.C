@@ -4,7 +4,7 @@
  */
 
 /*
- *   Copyright (c) 2000-2001 Eric Gourgoulhon
+ *   Copyright (c) 2000-2002 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -30,8 +30,14 @@ char interpol_herm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/09/09 13:00:40  e_gourgoulhon
+ * Modification of declaration of Fortran 77 prototypes for
+ * a better portability (in particular on IBM AIX systems):
+ * All Fortran subroutine names are now written F77_* and are
+ * defined in the new file C++/Include/proto_f77.h.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.0  2000/11/22  19:31:42  eric
  * *** empty log message ***
@@ -44,7 +50,8 @@ char interpol_herm_C[] = "$Header$" ;
 // Headers Lorene
 #include "tbl.h"
 
-extern "C" void huntm_(double[], int*, double*, int*) ;
+// Prototypes of F77 subroutines
+#include "proto_f77.h"
 
 
 void interpol_herm(const Tbl& xtab, const Tbl& ytab, const Tbl& dytab,
@@ -55,7 +62,7 @@ void interpol_herm(const Tbl& xtab, const Tbl& ytab, const Tbl& dytab,
 	
 	int np = xtab.get_dim(0) ;
 	
-	huntm_(xtab.t, &np, &x, &i) ;
+	F77_huntm(xtab.t, &np, &x, &i) ;
 	
 	i-- ; 	// Fortran --> C
 	

@@ -36,8 +36,14 @@ char op_dsdphi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/09/09 13:00:40  e_gourgoulhon
+ * Modification of declaration of Fortran 77 prototypes for
+ * a better portability (in particular on IBM AIX systems):
+ * All Fortran subroutine names are now written F77_* and are
+ * defined in the new file C++/Include/proto_f77.h.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.8  2000/11/14  15:08:16  eric
  * Traitement du cas np=1 dans P_COSSIN_I.
@@ -72,7 +78,7 @@ char op_dsdphi_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "tbl.h"
-#include "proto.h"
+#include "proto_f77.h"
 
 
 // Routine pour les cas non prevus
@@ -170,7 +176,7 @@ void _dsdphi_p_cossin(Tbl* tb, int & )
     double* p1 = xo ;
     double* p2 = p1 + nr*nt ;
     for (k=0 ; k<np+1 ; k +=2, p1 += 2*nr*nt, p2 += 2*nr*nt) {
-	dswap_(&nbr, p1, &inc, p2, &inc) ;
+	F77_dswap(&nbr, p1, &inc, p2, &inc) ;
     }
 
     // On remet les choses la ou il faut
@@ -278,7 +284,7 @@ void _dsdphi_p_cossin_p(Tbl* tb, int & )
     double* p1 = xo ;
     double* p2 = p1 + nr*nt ;
     for (k=0 ; k<np+1 ; k +=2, p1 += 2*nr*nt, p2 += 2*nr*nt) {
-	dswap_(&nbr, p1, &inc, p2, &inc) ;
+	F77_dswap(&nbr, p1, &inc, p2, &inc) ;
     }
 
     // On remet les choses la ou il faut

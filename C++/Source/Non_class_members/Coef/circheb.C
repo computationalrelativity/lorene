@@ -86,8 +86,14 @@ char circheb_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/09/09 13:00:40  e_gourgoulhon
+ * Modification of declaration of Fortran 77 prototypes for
+ * a better portability (in particular on IBM AIX systems):
+ * All Fortran subroutine names are now written F77_* and are
+ * defined in the new file C++/Include/proto_f77.h.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.0  1999/02/22  15:43:47  hyc
  * *** empty log message ***
@@ -102,18 +108,16 @@ char circheb_C[] = "$Header$" ;
 
 // headers du C
 #include <assert.h>
-#include <stdarg.h>
 #include <malloc.h>
-#include <unistd.h>
 #include <stdlib.h>
+
+// Prototypes of F77 subroutines
+#include "proto_f77.h"
 
 // Prototypage des sous-routines utilisees:
 int*	facto_ini(int ) ;
 double*	trigo_ini(int ) ;
 double* cheb_ini(const int) ;
-extern "C" void fft991_(double [], double [], double [], int [],
-                int *, int *, int *, int *, int *) ;
-
 //*****************************************************************************
 
 void circheb(const int* deg, const int* dimc, double* cf, const int* dimf,

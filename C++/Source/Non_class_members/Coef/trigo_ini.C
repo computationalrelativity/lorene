@@ -38,8 +38,14 @@ char trigo_ini_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/09/09 13:00:40  e_gourgoulhon
+ * Modification of declaration of Fortran 77 prototypes for
+ * a better portability (in particular on IBM AIX systems):
+ * All Fortran subroutine names are now written F77_* and are
+ * defined in the new file C++/Include/proto_f77.h.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.1  1999/11/24  16:23:22  eric
  * Modif affichage.
@@ -60,9 +66,8 @@ char trigo_ini_C[] = "$Header$" ;
 #include <stdlib.h>
 #include <malloc.h>
 
-// Prototypage des fonctions employees
-//------------------------------------
-extern "C" void fftrig_(double [], int *, int *) ;
+// Prototypes of F77 subroutines
+#include "proto_f77.h"
 
 // Variable de loch
 int loch_trigo_ini = 0 ;
@@ -102,7 +107,7 @@ int indice ;
 		    abort() ; 
 			}
 
-		fftrig_( table_trigo[indice], &n, &trois ) ;
+		F77_fftrig( table_trigo[indice], &n, &trois ) ;
 		}
 
     }	// Fin de zone critique

@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2002 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -23,19 +23,19 @@
 char cfrcheb_C[] = "$Header$" ;
 
 /*
- * Transformation de Tchebyshev (cas fin) sur le troisieme indice (indice 
- *  correspondant a r) d'un tableau 3-D 
+ * Transformation de Tchebyshev (cas fin) sur le troisieme indice (indice
+ *  correspondant a r) d'un tableau 3-D
  *  par le biais de la routine FFT Fortran FFT991
  *
  * Entree:
  * -------
- *   int* deg	: tableau du nombre effectif de degres de liberte dans chacune 
+ *   int* deg	: tableau du nombre effectif de degres de liberte dans chacune
  *		  des 3 dimensions: le nombre de points de collocation
  *		  en r est  nr = deg[2] et doit etre de la forme
- * 			nr = 2^p 3^q 5^r + 1 
- *   int* dimf	: tableau du nombre d'elements de ff dans chacune des trois 
+ * 			nr = 2^p 3^q 5^r + 1
+ *   int* dimf	: tableau du nombre d'elements de ff dans chacune des trois
  *	          dimensions.
- *		  On doit avoir  dimf[2] >= deg[2] = nr. 
+ *		  On doit avoir  dimf[2] >= deg[2] = nr.
  *		  NB: pour dimf[0] = 1 (un seul point en phi), la transformation
  *		      est bien effectuee.
  *		      pour dimf[0] > 1 (plus d'un point en phi), la
@@ -84,8 +84,14 @@ char cfrcheb_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/09/09 13:00:39  e_gourgoulhon
+ * Modification of declaration of Fortran 77 prototypes for
+ * a better portability (in particular on IBM AIX systems):
+ * All Fortran subroutine names are now written F77_* and are
+ * defined in the new file C++/Include/proto_f77.h.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.0  1999/02/22  15:48:47  hyc
  * *** empty log message ***
@@ -101,17 +107,16 @@ char cfrcheb_C[] = "$Header$" ;
 
 // headers du C
 #include <assert.h>
-#include <stdarg.h>
 #include <malloc.h>
-#include <unistd.h>
 #include <stdlib.h>
+
+// Prototypes of F77 subroutines
+#include "proto_f77.h"
 
 // Prototypage des sous-routines utilisees:
 int*	facto_ini(int ) ;
 double*	trigo_ini(int ) ;
 double* cheb_ini(const int) ;
-extern "C" void fft991_(double [], double [], double [], int [],
-                int *, int *, int *, int *, int *) ;
 //*****************************************************************************
 
 void cfrcheb(const int* deg, const int* dimf, double* ff, const int* dimc,
@@ -234,7 +239,7 @@ int i, j, k ;
 // Developpement de G en series de Fourier par une FFT
 //----------------------------------------------------
 
-    	    fft991_( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
+    	    F77_fft991( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
 
 // Coefficients pairs du developmt. de Tchebyshev de f
 //----------------------------------------------------

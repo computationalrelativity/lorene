@@ -32,6 +32,12 @@ char et_rot_mag_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2002/09/09 13:00:39  e_gourgoulhon
+ * Modification of declaration of Fortran 77 prototypes for
+ * a better portability (in particular on IBM AIX systems):
+ * All Fortran subroutine names are now written F77_* and are
+ * defined in the new file C++/Include/proto_f77.h.
+ *
  * Revision 1.11  2002/06/05 15:15:59  j_novak
  * The case of non-adapted mapping is treated.
  * parmag.d and parrot.d have been merged.
@@ -78,11 +84,7 @@ char et_rot_mag_mag_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "param.h"
 #include "graphique.h"
-
-extern "C" {
-  void dgesv_(int *, int *, double [], int *, int [], double[], int *, int *) ;
-
-}
+#include "proto_f77.h"
 
 // Algo du papier de 1995
 
@@ -278,13 +280,13 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
     VEC2.set_etat_qcq() ;
     int un = 1 ;
 
-    dgesv_(&L, &un, MAT.t, &L, IPIV, VEC.t, &L, &INFO) ; 
+    F77_dgesv(&L, &un, MAT.t, &L, IPIV, VEC.t, &L, &INFO) ; 
 
     // coeffs a_l dans VEC
 
     for(int k=0;k<L;k++) {VEC2.set(k)=1. ; }
 
-    dgesv_(&L, &un, MAT_SAVE.t, &L, IPIV, VEC2.t, &L, &INFO) ;
+    F77_dgesv(&L, &un, MAT_SAVE.t, &L, IPIV, VEC2.t, &L, &INFO) ;
 
     delete [] IPIV ;
 

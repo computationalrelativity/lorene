@@ -35,6 +35,12 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2002/09/09 13:00:39  e_gourgoulhon
+ * Modification of declaration of Fortran 77 prototypes for
+ * a better portability (in particular on IBM AIX systems):
+ * All Fortran subroutine names are now written F77_* and are
+ * defined in the new file C++/Include/proto_f77.h.
+ *
  * Revision 1.5  2002/05/11 12:39:08  e_gourgoulhon
  * Added declaration of som_tet_cossin_si.
  *
@@ -518,15 +524,5 @@ void set_lindquist (Cmp& psi_un, Cmp& psi_deux, double rayon, double precision) 
 void separation (const Cmp& c1, const Cmp& c2, Cmp& res1, Cmp& res2, int decrois, 
     int puiss, int lmax, double precision, const double relax = 0.5, const int itemax = 100, const int flag = 1) ;
 
-
-// Prototypage des routines BLAS et LAPACK
-// ---------------------------------------
-extern "C" void dswap_(int*, double [], int*, double [], int*) ;
-extern "C" void dgbtrf_(int*, int*, int*, int*, double[], int*, int[], int *) ; 
-extern "C" void dgbtrs_(char*, int*, int*, int*, int*, 
-			double[], int*, int[], double [], int*, int *) ;
-
-extern "C" void dgeev_ (char*, char*, int*, double[], int*, double[], double[], 
-			double[], int*, double[], int*, double[], int*, int*) ;
 
 #endif

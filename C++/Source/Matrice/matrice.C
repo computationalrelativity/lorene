@@ -32,6 +32,12 @@ char matrice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/09/09 13:00:39  e_gourgoulhon
+ * Modification of declaration of Fortran 77 prototypes for
+ * a better portability (in particular on IBM AIX systems):
+ * All Fortran subroutine names are now written F77_* and are
+ * defined in the new file C++/Include/proto_f77.h.
+ *
  * Revision 1.2  2002/01/03 13:18:41  j_novak
  * Optimization: the members set(i,j) and operator(i,j) of class Matrice are
  * now defined inline. Matrice is a friend class of Tbl.
@@ -77,12 +83,11 @@ char matrice_C[] = "$Header$" ;
 
 //fichiers includes
 #include <iostream.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include "type_parite.h"
 #include "tbl.h"
 #include "matrice.h"
-#include "proto.h"
+#include "proto_f77.h"
 
 //Destructeur logique
 
@@ -290,7 +295,7 @@ void Matrice::set_lu() const {
     
     Tbl tab(*band) ;
     
-    dgbtrf_(&n, &n, &kl, &ku, tab.t, &ldab, ipiv, &info) ;
+    F77_dgbtrf(&n, &n, &kl, &ku, tab.t, &ldab, ipiv, &info) ;
    
     lu = new Tbl(tab) ;
     
@@ -325,7 +330,7 @@ Tbl Matrice::inverse (const Tbl& source) const {
     for (int i=0 ; i<n ; i++)
 	so[i] = source(i) ;
     
-    dgbtrs_(trans, &n, &kl, &ku, &nrhs, lu->t, 
+    F77_dgbtrs(trans, &n, &kl, &ku, &nrhs, lu->t,
 	    &ldab, ipiv, so, &ldb, &info);
     
     Tbl res(n) ;
@@ -369,7 +374,7 @@ Tbl Matrice::val_propre() const {
     
     int info ;
     
-    dgeev_(jobvl, jobvr, &n, a, &lda, wr, wi, vl, &ldvl, vr, &ldvr, 
+    F77_dgeev(jobvl, jobvr, &n, a, &lda, wr, wi, vl, &ldvl, vr, &ldvr,
 	    work, &ldwork, &info) ;
     
     Tbl result(2, n) ;

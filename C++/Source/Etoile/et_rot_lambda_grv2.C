@@ -32,8 +32,14 @@ char et_rot_lambda_grv2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/09/09 13:00:39  e_gourgoulhon
+ * Modification of declaration of Fortran 77 prototypes for
+ * a better portability (in particular on IBM AIX systems):
+ * All Fortran subroutine names are now written F77_* and are
+ * defined in the new file C++/Include/proto_f77.h.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.1  2001/10/10  13:52:21  eric
  * Modif Joachim: suppression caractere invisible en fin de fichier.
@@ -51,12 +57,8 @@ char et_rot_lambda_grv2_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "etoile.h"
+#include "proto_f77.h"
 
-// Fortran routine performing 2-D integrals
-extern "C" void integrale2d_(int[], int*, int*, int*,  double[], double[],
-			     double*) ;
-
-			
 double Etoile_rot::lambda_grv2(const Cmp& sou_m, const Cmp& sou_q) {
 
 	const Map_radial* mp = dynamic_cast<const Map_radial*>( sou_m.get_mp() ) ;
@@ -293,8 +295,8 @@ double Etoile_rot::lambda_grv2(const Cmp& sou_m, const Cmp& sou_q) {
     // ----------------------------
 
     double int_m, int_q ;
-    integrale2d_(ndl, &ndr, &ndt, &ndp, erre, tsou_m, &int_m) ;
-    integrale2d_(ndl, &ndr, &ndt, &ndp, erre, tsou_q, &int_q) ;
+    F77_integrale2d(ndl, &ndr, &ndt, &ndp, erre, tsou_m, &int_m) ;
+    F77_integrale2d(ndl, &ndr, &ndt, &ndp, erre, tsou_q, &int_q) ;
 
     // Cleaning
     // --------

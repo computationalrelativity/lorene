@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2002 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -32,7 +32,7 @@ char cftcossincp_C[] = "$Header$" ;
  *
  * Entree:
  * -------
- *   int* deg	: tableau du nombre effectif de degres de liberte dans chacune 
+ *   int* deg	: tableau du nombre effectif de degres de liberte dans chacune
  *		  des 3 dimensions: le nombre de points de collocation
  *		  en theta est  nt = deg[1] et doit etre de la forme
  * 			nt = 2^p 3^q 5^r + 1 
@@ -88,8 +88,14 @@ char cftcossincp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/09/09 13:00:39  e_gourgoulhon
+ * Modification of declaration of Fortran 77 prototypes for
+ * a better portability (in particular on IBM AIX systems):
+ * All Fortran subroutine names are now written F77_* and are
+ * defined in the new file C++/Include/proto_f77.h.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.1  2000/01/27  12:16:02  eric
  * Modif commentaires.
@@ -108,18 +114,17 @@ char cftcossincp_C[] = "$Header$" ;
 
 // headers du C
 #include <assert.h>
-#include <stdarg.h>
 #include <malloc.h>
-#include <unistd.h>
 #include <stdlib.h>
+
+// Prototypes of F77 subroutines
+#include "proto_f77.h"
 
 // Prototypage des sous-routines utilisees:
 int*	facto_ini(int ) ;
 double*	trigo_ini(int ) ;
 double* cheb_ini(const int) ;
 double* chebimp_ini(const int ) ;
-extern "C" void fft991_(double [], double [], double [], int [],
-                int *, int *, int *, int *, int *) ;
 //*****************************************************************************
 
 void cftcossincp(const int* deg, const int* dimf, double* ff, const int* dimc,
@@ -248,7 +253,7 @@ int i, j, k ;
 // Developpement de G en series de Fourier par une FFT
 //----------------------------------------------------
 
-    	    fft991_( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
+    	    F77_fft991( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
 
 // Coefficients pairs du developmt. cos(2l theta) de f
 //----------------------------------------------------
@@ -331,7 +336,7 @@ int i, j, k ;
 // Developpement de G en series de Fourier par une FFT
 //----------------------------------------------------
 
-    	    fft991_( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
+    	    F77_fft991( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
 
 // Coefficients pairs du developmt. cos(2l theta) de f
 //----------------------------------------------------
@@ -440,7 +445,7 @@ int i, j, k ;
 // Developpement de G en series de Fourier par une FFT
 //----------------------------------------------------
 
-    	    fft991_( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
+    	    F77_fft991( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
 
 // Coefficients pairs du developmt. cos(2l theta) de h
 //----------------------------------------------------
@@ -541,7 +546,7 @@ int i, j, k ;
 // Developpement de G en series de Fourier par une FFT
 //----------------------------------------------------
 
-    	    fft991_( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
+    	    F77_fft991( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
 
 // Coefficients pairs du developmt. cos(2l theta) de h
 //----------------------------------------------------

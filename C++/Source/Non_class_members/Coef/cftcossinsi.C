@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2002 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -46,7 +46,7 @@ char cftcossinsi_C[] = "$Header$" ;
  *
  * 			  L'espace memoire correspondant a ce
  *                        pointeur doit etre dimf[0]*dimf[1]*dimf[2] et doit 
- *			  etre alloue avant l'appel a la routine.	 
+ *			  etre alloue avant l'appel a la routine.
  *			  Les valeurs de la fonction doivent etre stokees
  *			  dans le tableau ff comme suit
  *		    f( theta_l ) = ff[ dimf[1]*dimf[2] * m + k + dimf[2] * l ]
@@ -65,7 +65,7 @@ char cftcossinsi_C[] = "$Header$" ;
  *			  comme suit (a r et phi fixes)
  *
  *			  pour m pair:
- *			f(theta) = som_{l=0}^{nt-2} c_l sin( (2 l+1) theta ) . 
+ *			f(theta) = som_{l=0}^{nt-2} c_l sin( (2 l+1) theta ) .
  *			  pour m impair:
  *			f(theta) = som_{l=0}^{nt-1} c_l cos( 2 l theta ) . 
  *
@@ -79,7 +79,7 @@ char cftcossinsi_C[] = "$Header$" ;
  *			 phi et r respectivement.
  *			 Pour m pair, c_{nt-1} = 0.
  *
- * NB: Si le pointeur ff est egal a cf, la routine ne travaille que sur un 
+ * NB: Si le pointeur ff est egal a cf, la routine ne travaille que sur un
  *     seul tableau, qui constitue une entree/sortie.
  *
  */
@@ -87,8 +87,14 @@ char cftcossinsi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/09/09 13:00:39  e_gourgoulhon
+ * Modification of declaration of Fortran 77 prototypes for
+ * a better portability (in particular on IBM AIX systems):
+ * All Fortran subroutine names are now written F77_* and are
+ * defined in the new file C++/Include/proto_f77.h.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.1  2000/01/27  12:16:13  eric
  * Modif commentaires.
@@ -107,18 +113,17 @@ char cftcossinsi_C[] = "$Header$" ;
 
 // headers du C
 #include <assert.h>
-#include <stdarg.h>
 #include <malloc.h>
-#include <unistd.h>
 #include <stdlib.h>
+
+// Prototypes of F77 subroutines
+#include "proto_f77.h"
 
 // Prototypage des sous-routines utilisees:
 int*	facto_ini(int ) ;
 double*	trigo_ini(int ) ;
 double* cheb_ini(const int) ;
 double* chebimp_ini(const int ) ;
-extern "C" void fft991_(double [], double [], double [], int [],
-                int *, int *, int *, int *, int *) ;
 //*****************************************************************************
 
 void cftcossinsi(const int* deg, const int* dimf, double* ff, const int* dimc,
@@ -256,7 +261,7 @@ int i, j, k ;
 // Developpement de G en series de Fourier par une FFT
 //----------------------------------------------------
 
-    	    fft991_( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
+    	    F77_fft991( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
 
 // Coefficients pairs du developmt. cos(2l theta) de h
 //----------------------------------------------------
@@ -357,7 +362,7 @@ int i, j, k ;
 // Developpement de G en series de Fourier par une FFT
 //----------------------------------------------------
 
-    	    fft991_( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
+    	    F77_fft991( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
 
 // Coefficients pairs du developmt. cos(2l theta) de h
 //----------------------------------------------------
@@ -466,7 +471,7 @@ int i, j, k ;
 // Developpement de G en series de Fourier par une FFT
 //----------------------------------------------------
 
-    	    fft991_( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
+    	    F77_fft991( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
 
 // Coefficients pairs du developmt. cos(2l theta) de f
 //----------------------------------------------------
@@ -550,7 +555,7 @@ int i, j, k ;
 // Developpement de G en series de Fourier par une FFT
 //----------------------------------------------------
 
-    	    fft991_( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
+    	    F77_fft991( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
 
 // Coefficients pairs du developmt. cos(2l theta) de f
 //----------------------------------------------------

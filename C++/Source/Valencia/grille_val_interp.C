@@ -32,6 +32,12 @@ char grille_val_interp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/09/09 13:00:40  e_gourgoulhon
+ * Modification of declaration of Fortran 77 prototypes for
+ * a better portability (in particular on IBM AIX systems):
+ * All Fortran subroutine names are now written F77_* and are
+ * defined in the new file C++/Include/proto_f77.h.
+ *
  * Revision 1.2  2001/11/23 16:03:07  j_novak
  *
  *  minor modifications on the grid check.
@@ -47,11 +53,8 @@ char grille_val_interp_C[] = "$Header$" ;
 
 // Fichier includes
 #include "grille_val.h"
+#include "proto_f77.h"
 
-extern "C" {
-    void insmts_(int [], int *, 
-	double [], double [], double [], double []) ;
-}
                         //------------------
                         // Compatibilite
                         //------------------
@@ -303,7 +306,7 @@ Tbl Grille_val::interpol1(const Tbl& rdep, const Tbl& rarr, const Tbl& fdep,
       den0[i] = fdep(i) ; 
     }
     for (int i=0; i<narr; i++) err1[i] = rarr(i) ;
-    insmts_(ndeg, &flag, err0, err1, den0, den1) ;
+    F77_insmts(ndeg, &flag, err0, err1, den0, den1) ;
     for (int i=0; i<narr; i++) farr.set(i) = den1[i] ;
     delete[] err0 ;
     delete[] den0 ;

@@ -32,8 +32,14 @@ char map_af_poisson2d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/09/09 13:00:39  e_gourgoulhon
+ * Modification of declaration of Fortran 77 prototypes for
+ * a better portability (in particular on IBM AIX systems):
+ * All Fortran subroutine names are now written F77_* and are
+ * defined in the new file C++/Include/proto_f77.h.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.1  2000/10/11  15:15:26  eric
  * 1ere version operationnelle.
@@ -50,12 +56,7 @@ char map_af_poisson2d_C[] = "$Header$" ;
 #include "map.h"
 #include "cmp.h"
 #include "param.h"
-
-extern "C" void poisson2d_(int[], int*, int*, int*, int[], double[], double[],
-			   double[], double*, double[]) ; 
-
-extern "C" void poisson2di_(int[], int*, int*, int*, int[], double[], 
-			    double[], double[]) ; 
+#include "proto_f77.h"
 
 //*****************************************************************************
 
@@ -84,8 +85,8 @@ void Map_af::poisson2d(const Cmp& source_mat, const Cmp& source_quad,
     }
 
     // ---------------------------------------------------------------------
-    // Preparation of the parameters for the Fortran subroutines poisson2d_
-    //  and poisson2di_
+    // Preparation of the parameters for the Fortran subroutines F77_poisson2d
+    //  and F77_poisson2di
     // ---------------------------------------------------------------------
     
     int nz = mg->get_nzone() ;
@@ -272,7 +273,7 @@ void Map_af::poisson2d(const Cmp& source_mat, const Cmp& source_quad,
 	
 	    double lambda0 ; 
 	    
-	    poisson2d_(ndl, &ndr, &ndt, &ndp, indd, erre, tsou_m, tsou_q, 
+	    F77_poisson2d(ndl, &ndr, &ndt, &ndp, indd, erre, tsou_m, tsou_q, 
 		       &lambda0, tuu) ;
 		      
 	    base_uu = base_s ;		// output bases = input bases
@@ -287,8 +288,8 @@ void Map_af::poisson2d(const Cmp& source_mat, const Cmp& source_quad,
 	    for (int i=0; i<taille; i++) {
 		tsou[i] = tsou_m[i] + tsou_q[i] ; 
 	    }
-	
-	    poisson2di_(ndl, &ndr, &ndt, &ndp, indd, erre, tsou, tuu) ;
+
+	    F77_poisson2di(ndl, &ndr, &ndt, &ndp, indd, erre, tsou, tuu) ;
 		
 	    base_uu = base_s ;		// output bases = input bases
 
@@ -299,7 +300,7 @@ void Map_af::poisson2d(const Cmp& source_mat, const Cmp& source_quad,
 	}
 	
 	default : {
-	    cout << "Map_af::poisson2d : unkown theta basis !" << endl ; 
+	    cout << "Map_af::poisson2d : unkown theta basis !" << endl ;
 	    cout << "  basis : " << hex << base_t << endl ; 
 	    abort() ; 
 	    break ; 
