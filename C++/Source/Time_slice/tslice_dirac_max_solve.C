@@ -30,6 +30,13 @@ char tslice_dirac_max_solve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/06/17 07:07:11  e_gourgoulhon
+ * Method solve_hij:
+ *   -- replaced the attenuation of khi_source with tempo by a call to
+ *      the new method Tensor::annule_extern_c2
+ *   -- suppressed filtre_r on khi_source and khi_new
+ *   -- added graphs of W^i and LW^{ij} (transverse decomp of S^ij).
+ *
  * Revision 1.11  2004/06/15 09:43:36  j_novak
  * Attenuation of the source for khi in the last shell (temporary?).
  *
@@ -281,9 +288,9 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
   const Base_vect& otriad = *hh().get_triad() ;
     
   // For graphical outputs:
-  //  int ngraph0 = 40 ;  // index of the first graphic device to be used
+    int ngraph0 = 80 ;  // index of the first graphic device to be used
     int nz = map.get_mg()->get_nzone() ; 
-    //   double ray_des = map.val_r(nz-2, 1., 0., 0.) ; // outermost radius
+    double ray_des = 1.25*map.val_r(nz-2, 1., 0., 0.) ; // outermost radius
                                                           // for plots
 
   Sym_tensor strain_tens(map, CON, otriad) ; 
@@ -494,33 +501,42 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
   // ------------
   source_hh += 0.6666666666666666* div_beta * l_beta - sym_tmp ; 
            
-  // Attenuation factor
-  //-------------------
-  const Map_af* mp_aff = dynamic_cast<const Map_af*>(&map) ;
-  double r_out = mp_aff->get_alpha()[nz-2] + mp_aff->get_beta()[nz-2] ; 
-  double r_in = mp_aff->get_beta()[nz-2] - mp_aff->get_alpha()[nz-2]   ; 
-  Mtbl xx1 = mp_aff->r - r_in ;
-  Mtbl xx2 = mp_aff->r - r_out ;
-  Scalar tempo(map) ;
-  tempo = exp(-(xx1*xx1)/(xx2*xx2)) ;
-  for (int lz=0; lz<nz-2; lz++) 
-    tempo.set_domain(lz) = 1. ;
-  tempo.annule_domain(nz-1) ;
-  tempo.std_spectral_base() ;
+  // Source set to zero in the external domain
+  //## source_hh.annule_extern_c2(nz-2) ; 
   
-//##     source_hh = source_hh * tempo ;
-//##     source_hh.std_spectral_base() ;
-
-   maxabs(hh(), "h^{ij}") ;
+    maxabs(hh(), "h^{ij}") ;
     maxabs(source_hh, "Maxabs source_hh") ; 
 
     maxabs( source_hh.divergence(ff), "Divergence of source_hh") ; 
     maxabs( source_hh.transverse(ff, 0x0, method_poisson).divergence(ff), 
                 "Divergence of source_hh_transverse") ;
-    maxabs( source_hh.transverse(ff).trace(ff), 
+    maxabs( source_hh.transverse(ff, 0x0, method_poisson).trace(ff), 
                 "Trace of source_hh_transverse") ; 
 
+    const Vector& ww = source_hh.longit_pot(ff, 0x0, method_poisson) ;
+    
+        des_meridian(ww(1), 0., ray_des, "W\\ur\\d", ngraph0+1,
+                     graph_device) ; 
+        des_meridian(ww(2), 0., ray_des, "W\\u\\gh\\d", ngraph0+2,
+                     graph_device) ; 
+        des_meridian(ww(3), 0., ray_des, "W\\u\\gf\\d", ngraph0+3,
+                     graph_device) ; 
+   
+    Sym_tensor lww = ww.ope_killing(ff) ;  
 
+        des_meridian(lww(1,1), 0., ray_des, "LW\\urr\\d", ngraph0+4,
+                     graph_device) ; 
+        des_meridian(lww(1,2), 0., ray_des, "LW\\ur\\gh\\d", ngraph0+5,
+                     graph_device) ; 
+        des_meridian(lww(1,3), 0., ray_des, "LW\\ur\\gf\\d", ngraph0+6,
+                     graph_device) ; 
+        des_meridian(lww(2,2), 0., ray_des, "LW\\u\\gh\\gh\\d", ngraph0+7,
+                     graph_device) ; 
+        des_meridian(lww(2,3), 0., ray_des, "LW\\u\\gh\\gf\\d", ngraph0+8,
+                     graph_device) ; 
+        des_meridian(lww(3,3), 0., ray_des, "LW\\u\\gf\\gf\\d", ngraph0+9,
+                     graph_device) ; 
+                
     //=============================================
     // Resolution of wave equation for h
     //=============================================
@@ -538,10 +554,10 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
       nfiltre[lz] = map.get_mg()->get_nr(lz) / 3 + 1 ;
     
     Scalar khi_source = source_htt.khi() ; 
-    khi_source *= tempo ;  //##
-    khi_source.std_spectral_base() ; //##
+
+    khi_source.annule_extern_c2(nz-2) ;  
     filtre_l(khi_source, 0, 1) ;
-    khi_source.filtre_r(nfiltre) ;
+//    khi_source.filtre_r(nfiltre) ;
 
     const Scalar& mu_source = source_htt.mu() ; 
                             
@@ -549,7 +565,7 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
                                          khi_evol[jtime-1], khi_source) ;
     khi_new.smooth_decay(2,1) ; 
     exponential_decay(khi_new) ; 
-    khi_new.filtre_r(nfiltre) ;
+//    khi_new.filtre_r(nfiltre) ;
         
     maxabs(khi_new - khi_evol[jtime], "Variation of khi") ;  
         
