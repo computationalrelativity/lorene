@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2004 Keisuke Taniguchi
+ *   Copyright (c) 2004-2005 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,10 @@ char et_bin_bhns_extr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/02/28 23:09:38  k_taniguchi
+ * Modification of some functions to include the case of the conformally flat
+ * background metric.
+ *
  * Revision 1.1  2004/11/30 20:48:19  k_taniguchi
  * *** empty log message ***
  *
@@ -53,14 +57,19 @@ char et_bin_bhns_extr_C[] = "$Header$" ;
 // --------------------
 Et_bin_bhns_extr::Et_bin_bhns_extr(Map& mpi, int nzet_i, bool relat,
 				   const Eos& eos_i, bool irrot,
-				   const Base_vect& ref_triad_i)
-  : Etoile_bin(mpi, nzet_i, relat, eos_i, irrot, ref_triad_i)
+				   const Base_vect& ref_triad_i,
+				   bool kerrs, bool multi)
+  : Etoile_bin(mpi, nzet_i, relat, eos_i, irrot, ref_triad_i),
+    kerrschild(kerrs),
+    multipole(multi)
 {}
 
 // Copy constructor
 // ----------------
 Et_bin_bhns_extr::Et_bin_bhns_extr(const Et_bin_bhns_extr& ns)
-  : Etoile_bin(ns)
+  : Etoile_bin(ns),
+    kerrschild(ns.kerrschild),
+    multipole(ns.multipole)
 {}
 
 // Constructor from a file
@@ -68,7 +77,15 @@ Et_bin_bhns_extr::Et_bin_bhns_extr(const Et_bin_bhns_extr& ns)
 Et_bin_bhns_extr::Et_bin_bhns_extr(Map& mpi, const Eos& eos_i,
 				   const Base_vect& ref_triad_i, FILE* fich)
   : Etoile_bin(mpi, eos_i, ref_triad_i, fich)
-{}
+{
+
+    // kerrschild is read in the file:
+    fread(&kerrschild, sizeof(bool), 1, fich) ;
+
+    // multipole is read in the file:
+    fread(&multipole, sizeof(bool), 1, fich) ;
+
+}
 
 			    //------------//
 			    // Destructor //
@@ -88,6 +105,10 @@ void Et_bin_bhns_extr::operator=(const Et_bin_bhns_extr& ns) {
     // Assignment of quantities common to the derived classes of Etoile_bin
     Etoile_bin::operator=(ns) ;
 
+    // Assignment of proper quantities of class Et_bin_bhns_extr
+    kerrschild = ns.kerrschild ;
+    multipole = ns.multipole ;
+
 }
 
 			    //--------------//
@@ -99,5 +120,9 @@ void Et_bin_bhns_extr::operator=(const Et_bin_bhns_extr& ns) {
 void Et_bin_bhns_extr::sauve(FILE* fich) const {
 
     Etoile_bin::sauve(fich) ;
+
+    fwrite(&kerrschild, sizeof(bool), 1, fich) ;
+
+    fwrite(&multipole, sizeof(bool), 1, fich) ;
 
 }
