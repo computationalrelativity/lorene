@@ -40,18 +40,14 @@ void Et_bin_ncp::extrinsic_curvature(){
     // Components of shift_auto with respect to the Cartesian triad
     //  (d/dx, d/dy, d/dz) of the mapping : 
     Tenseur shift_auto_local = shift_auto ; 
-    shift_auto_local.change_triad( mp.get_bvect_cart() ) ; 
-    
+     
     // Gradient tilde (with respect to the Cartesian coordinates
     //           of the mapping)
     // D~_j beta^i 
     
-    Tenseur dshift =  shift_auto_local.derive_con(gtilde) ; 
+    Tenseur dshift = shift_auto_local.derive_con(gtilde) ; 
     
-    // Return to the absolute reference frame
-    dshift.change_triad(ref_triad) ; 
-    
-    // Trace of D~_j beta^i : 
+     // Trace of D~_j beta^i : 
     Tenseur div_shift = contract(shift_auto_local.derive_cov(gtilde), 0, 1) ; 
     
     // Computation of K^{ij}
@@ -60,11 +56,12 @@ void Et_bin_ncp::extrinsic_curvature(){
     tkij_auto.set_etat_qcq() ; 
     for (int i=0; i<3; i++) {
 	for (int j=i; j<3; j++) {
-	    tkij_auto.set(i, j) = dshift(i, j) + dshift(j, i) - double(2) /double(3) * div_shift() * (gtilde.con())(i,j) ; 
+	    tkij_auto.set(i, j) = dshift(i, j) + dshift(j, i) - 
+	      double(2) /double(3) * div_shift() * (gtilde.con())(i,j) ; 
 	}
     }
     
-    tkij_auto =  0.5 * tkij_auto / nnn ; 
+    tkij_auto =  0.5 * tkij_auto / nnn * pow(gamma, -1./3.) ; 
     
     tkij_auto.set_std_base() ;
 
@@ -80,7 +77,7 @@ void Et_bin_ncp::extrinsic_curvature(){
     for (int i=0; i<3; i++) {
 	for (int j=0; j<3; j++) {
 	
-	    kcar_auto.set() +=  contract(operator*(met_gamma.cov(), contract(operator*(met_gamma.cov(), tkij_auto), 1, 3)), 1, 3)() ; 
+	  kcar_auto.set() += contract(contract(met_gamma.cov() * contract(contract(met_gamma.cov() * tkij_auto * tkij_auto, 0, 3), 0, 3), 0, 2), 0, 1)() ; 
 	
 	}
     }
