@@ -27,11 +27,6 @@
 char coal_C[] = "$Header$" ;
 
 /*
- * $Id$
- * $Log$
- * Revision 1.2  2004/01/22 10:15:20  f_limousin
- * First version
- *
  * $Header$
  *
  */
