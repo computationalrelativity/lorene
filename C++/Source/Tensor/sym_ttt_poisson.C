@@ -30,6 +30,9 @@ char sym_ttt_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/03/04 09:50:41  e_gourgoulhon
+ * Method poisson: use of new methods khi() and set_khi_mu.
+ *
  * Revision 1.1  2003/11/07 16:53:52  e_gourgoulhon
  * First version
  *
@@ -52,23 +55,9 @@ Sym_tensor_tt Sym_tensor_tt::poisson() const {
 
     // Solution for the rr-component
 	// ----------------------------
-	
-	Scalar source_rr = operator()(1,1) ; 
-	
-	// Multiplication by r^2 :
-	source_rr.mult_r() ; 	
-	source_rr.set_dzpuis( source_rr.get_dzpuis() + 1 ) ;
-	source_rr.mult_r_ced() ; 
-	source_rr.mult_r() ; 	
-	source_rr.set_dzpuis( source_rr.get_dzpuis() + 1 ) ;
-	source_rr.mult_r_ced() ; 
-	
-	Scalar khi = source_rr.poisson() ; 
-	
-	khi.div_r() ;   		// division 
-	khi.div_r() ;   		// by r^2		--> khi now contains h^{rr}
-	
-	
+		
+	Scalar khi_resu = khi().poisson() ; 
+		
 	// Solution for mu
 	// ---------------
 	
@@ -79,7 +68,7 @@ Sym_tensor_tt Sym_tensor_tt::poisson() const {
 	
 	Sym_tensor_tt resu(*mp, *triad, *met_div) ; 
 
-	resu.set_rr_mu(khi, mu_resu) ; 
+	resu.set_khi_mu(khi_resu, mu_resu) ; 
 	
 	return resu ;
 
