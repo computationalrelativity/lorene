@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2003/10/08 14:24:08  j_novak
+ * replaced mult_r_zec with mult_r_ced
+ *
  * Revision 1.18  2003/10/06 20:48:23  e_gourgoulhon
  * Added methods down and up_down.
  *
@@ -459,7 +462,8 @@ class Tensor {
 	virtual void inc_dzpuis() ;	/// dzpuis += 1 ;
 	virtual void dec2_dzpuis() ;	/// dzpuis -= 2 ;
 	virtual void inc2_dzpuis() ;	/// dzpuis += 2 ;
-	virtual void mult_r_zec() ; /// Multiplication by {\it r} in the external zone.
+	/// Multiplication by {\it r} in the external domain.
+	virtual void mult_r_ced() ; 
 
 	///The covariant derivative of {\tt this} with respect to a {\tt Metric}
 	const Tensor& derive_cov(const Metric&) const ; 

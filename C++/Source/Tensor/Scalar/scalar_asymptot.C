@@ -33,6 +33,9 @@ char scalar_asymptot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/08 14:24:09  j_novak
+ * replaced mult_r_zec with mult_r_ced
+ *
  * Revision 1.1  2003/09/25 07:18:00  j_novak
  * Method asymptot implemented.
  *
@@ -139,7 +142,7 @@ Valeur** Scalar::asymptot(int n0, const int flag) const {
 	// Mutliplication by r
 	// -------------------
 	
-	uu.mult_r_zec() ; 
+	uu.mult_r_ced() ; 
 	
     } // End of loop on h  (development order)	   
 	

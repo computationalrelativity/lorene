@@ -27,6 +27,9 @@ char scalar_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/08 14:24:09  j_novak
+ * replaced mult_r_zec with mult_r_ced
+ *
  * Revision 1.1  2003/09/25 09:33:36  j_novak
  * Added methods for integral calculation and various manipulations
  *
@@ -238,7 +241,7 @@ void Scalar::fixe_decroissance (int puis) {
 	    delete [] coloc ;
 	    delete [] deg ;
 	    
-	    courant.mult_r_zec() ;
+	    courant.mult_r_ced() ;
 	}
     }
 }

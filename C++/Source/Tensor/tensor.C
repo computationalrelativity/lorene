@@ -34,6 +34,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2003/10/08 14:24:09  j_novak
+ * replaced mult_r_zec with mult_r_ced
+ *
  * Revision 1.15  2003/10/07 15:25:38  e_gourgoulhon
  * Added call to del_derive_met in del_deriv().
  *
@@ -626,10 +629,10 @@ void Tensor::inc2_dzpuis() {
     cmp[i]->inc2_dzpuis() ;
 }
 
-void Tensor::mult_r_zec() {
+void Tensor::mult_r_ced() {
     
   for (int i=0 ; i<n_comp ; i++) 
-    cmp[i]->mult_r_zec() ;
+    cmp[i]->mult_r_ced() ;
 }
 
 

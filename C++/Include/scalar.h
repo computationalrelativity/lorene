@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2003/10/08 14:24:08  j_novak
+ * replaced mult_r_zec with mult_r_ced
+ *
  * Revision 1.17  2003/10/06 16:16:02  j_novak
  * New constructor from a Tensor.
  *
@@ -429,14 +432,14 @@ class Scalar : public Tensor {
   const Scalar& deriv(int i) const ;	
   
   /** Returns the Laplacian of {\tt *this}
-   *   @param zec_mult_r [input] Determines the quantity computed in
+   *   @param ced_mult_r [input] Determines the quantity computed in
    *			 the  compactified external domain (CED) 
    *		({\it u} in the field represented by {\tt *this}) :  \\
-   *		    zec\_mult\_r = 0 : $\Delta u$	\\
-   *		    zec\_mult\_r = 2 : $r^2 \,  \Delta u$	\\
-   *		    zec\_mult\_r = 4 (default) : $r^4 \, \Delta u$	
+   *		    ced\_mult\_r = 0 : $\Delta u$	\\
+   *		    ced\_mult\_r = 2 : $r^2 \,  \Delta u$	\\
+   *		    ced\_mult\_r = 4 (default) : $r^4 \, \Delta u$	
    */
-  const Scalar& laplacien(int zec_mult_r = 4) const ; 
+  const Scalar& laplacien(int ced_mult_r = 4) const ; 
   
   void div_r() ;    /// Division by {\it r} everywhere.
  
@@ -450,7 +453,7 @@ class Scalar : public Tensor {
   
   /** Multiplication by {\it r} in the compactified external domain (CED)
    */
-  virtual void mult_r_zec() ;
+  virtual void mult_r_ced() ;
   
   void mult_rsint() ;   /// Multiplication by $r\sin\theta$
   

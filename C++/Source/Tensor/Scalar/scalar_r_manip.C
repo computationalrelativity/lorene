@@ -35,6 +35,9 @@ char scalar_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/08 14:24:10  j_novak
+ * replaced mult_r_zec with mult_r_ced
+ *
  * Revision 1.4  2003/10/08 12:26:03  j_novak
  * Second part of the bug (sorry!)
  *
@@ -95,7 +98,7 @@ void Scalar::div_r_ced() {
 	uu_ext.annule(0,nzm1-1) ; // zero in all domains but the CED
 	uu_ext.set_domain(nzm1) = domain(nzm1) ; 
 	uu_ext.set_spectral_base(va.base) ; 
-	uu_ext.mult_r_zec() ; // multiplication by r in the CED
+	uu_ext.mult_r_ced() ; // multiplication by r in the CED
 
 	// Division by r in all domains but the CED
 	annule(nzm1, nzm1) ; 	// zero in the CED
@@ -127,10 +130,10 @@ void Scalar::mult_r() {
 }
 
 			//---------------------------//
-			//	    mult_r_zec	     //
+			//	    mult_r_ced	     //
 			//---------------------------//
 
-void Scalar::mult_r_zec() {
+void Scalar::mult_r_ced() {
     
 	Cmp cuu(*this) ; 
 
@@ -197,7 +200,7 @@ void Scalar::div_rsint_ced() {
 	uu_ext.annule(0,nzm1-1) ; // zero in all domains but the CED
 	uu_ext.set_domain(nzm1) = domain(nzm1) ; 
 	uu_ext.set_spectral_base(va.base) ; 
-	uu_ext.mult_r_zec() ; // multiplication by r in the CED
+	uu_ext.mult_r_ced() ; // multiplication by r in the CED
 
 	// Division by sin(theta) in the CED :
 
