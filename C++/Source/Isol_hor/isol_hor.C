@@ -31,6 +31,9 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2005/03/09 10:29:53  f_limousin
+ * New function update_aa().
+ *
  * Revision 1.14  2005/03/06 16:59:14  f_limousin
  * New function Isol_hor::aa() (the one belonging to the class
  * Time_slice_conf need to compute the time derivative of hh and thus
@@ -618,7 +621,7 @@ const Sym_tensor& Isol_hor::aa_comp() const {
     return aa_comp_evol[jtime] ;   
 } 
 
-const Sym_tensor& Isol_hor::aa() const {
+void Isol_hor::update_aa() {
 	
   Sym_tensor aa_new (mp, CON, mp.get_bvect_spher()) ;
   int nnr = mp.get_mg()->get_nr(1) ;
@@ -677,10 +680,10 @@ const Sym_tensor& Isol_hor::aa() const {
       }
     aa_new = aa_sxpun / (2*nn_sxpun) ;
   }
-  cout << "check = " << check << endl ;
   
-  aa_evol.update(aa_new, jtime, the_time[jtime]) ;
-  return aa_evol[jtime] ;
+  set_aa(aa_new) ;
+
+  return ;
   
 }
 
