@@ -28,6 +28,9 @@ char tenseur_compare_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/05/27 07:17:19  p_grandclement
+ * Correction of some shadowed variables
+ *
  * Revision 1.1  2003/06/20 15:01:49  f_limousin
  * *** empty log message ***
  *
@@ -113,9 +116,9 @@ void Tenseur::compare(const Tenseur& tens, const char* name) {
 void Tenseur::compare(FILE* fich, const char* name_i) {
 
   Mg3d mg(fich) ;
-  Map_et mp(mg, fich) ;
+  Map_et mpg(mg, fich) ;
 
-  Tenseur tens(mp, mp.get_bvect_cart(), fich) ;
+  Tenseur tens(mpg, mpg.get_bvect_cart(), fich) ;
 
   compare(tens, name_i) ;
 

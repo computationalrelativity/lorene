@@ -27,6 +27,9 @@ char tenseur_operateur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/05/27 07:17:19  p_grandclement
+ * Correction of some shadowed variables
+ *
  * Revision 1.7  2003/06/20 14:53:38  f_limousin
  * Add the function contract_desal()
  *
@@ -390,8 +393,8 @@ Tenseur contract (const Tenseur& t1, int ind1, const Tenseur& t2, int ind2) {
     jeux_indice_t1.set_etat_qcq() ;
     jeux_indice_t2.set_etat_qcq() ;
     
-    for (int i=0 ; i<res.n_comp ; i++) {
-	Itbl jeux_indice_res (res.donne_indices(i)) ;
+    for (int comp=0 ; comp<res.n_comp ; comp++) {
+	Itbl jeux_indice_res (res.donne_indices(comp)) ;
 	for (int i=0 ; i<ind1 ; i++)
 	    jeux_indice_t1.set(i) = jeux_indice_res(i) ;
 	for (int i=ind1+1 ; i<t1.valence ; i++)
@@ -470,8 +473,8 @@ Tenseur contract_desal (const Tenseur& t1, int ind1, const Tenseur& t2, int ind2
     jeux_indice_t1.set_etat_qcq() ;
     jeux_indice_t2.set_etat_qcq() ;
     
-    for (int i=0 ; i<res.n_comp ; i++) {
-	Itbl jeux_indice_res (res.donne_indices(i)) ;
+    for (int comp=0 ; comp<res.n_comp ; comp++) {
+	Itbl jeux_indice_res (res.donne_indices(comp)) ;
 	for (int i=0 ; i<ind1 ; i++)
 	    jeux_indice_t1.set(i) = jeux_indice_res(i) ;
 	for (int i=ind1+1 ; i<t1.valence ; i++)
