@@ -36,6 +36,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.29  2003/10/29 11:00:42  e_gourgoulhon
+ * Virtual functions dec_dzpuis and inc_dzpuis have now an integer argument to
+ *  specify by which amount dzpuis is to be increased.
+ * Accordingly virtual methods dec2_dzpuis and inc2_dzpuis have been suppressed.
+ *
  * Revision 1.28  2003/10/28 21:21:50  e_gourgoulhon
  * Member function Tensor::contract(int, int) renamed
  *  Tensor::scontract(int, int) in order not to mask
@@ -495,10 +500,18 @@ class Tensor {
 	 */
 	virtual void std_spectral_base() ; 
 	
-	virtual void dec_dzpuis() ;	/// dzpuis -= 1 ;
-	virtual void inc_dzpuis() ;	/// dzpuis += 1 ;
-	virtual void dec2_dzpuis() ;	/// dzpuis -= 2 ;
-	virtual void inc2_dzpuis() ;	/// dzpuis += 2 ;
+	/** Decreases by {\tt dec} units the value of {\tt dzpuis} and 
+	 *  changes accordingly the values in the 
+	 *  compactified external domain (CED).
+	 */
+	virtual void dec_dzpuis(int dec = 1) ; 
+
+	/** Increases by {\tt inc} units the value of {\tt dzpuis} and 
+	 *  changes accordingly the values in the 
+	 *  compactified external domain (CED).
+	 */
+	virtual void inc_dzpuis(int inc = 1) ; 
+	
 	/// Multiplication by {\it r} in the external domain.
 	virtual void mult_r_ced() ; 
 

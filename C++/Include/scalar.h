@@ -38,6 +38,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.28  2003/10/29 11:00:42  e_gourgoulhon
+ * Virtual functions dec_dzpuis and inc_dzpuis have now an integer argument to
+ *  specify by which amount dzpuis is to be increased.
+ * Accordingly virtual methods dec2_dzpuis and inc2_dzpuis have been suppressed.
+ *
  * Revision 1.27  2003/10/20 14:26:02  j_novak
  * New assignement operators.
  *
@@ -565,26 +570,18 @@ class Scalar : public Tensor {
    */
   const Tbl& integrale_domains() const ; 
 	
-  /** Decreases by 1 the value of {\tt dzpuis} and changes accordingly
-   *  the values of the {\tt Scalar} in the compactified external domain (CED).
+  /** Decreases by {\tt dec} units the value of {\tt dzpuis} and 
+   *  changes accordingly the values of the {\tt Scalar} in the 
+   *  compactified external domain (CED).
    */
-  virtual void dec_dzpuis() ; 
+  virtual void dec_dzpuis(int dec = 1) ; 
 
-  /** Increases by the value of {\tt dzpuis} and changes accordingly
-   *  the values of the {\tt Scalar} in the compactified external domain (CED).
+  /** Increases by {\tt inc} units the value of {\tt dzpuis} and 
+   *  changes accordingly the values of the {\tt Scalar} in the 
+   *  compactified external domain (CED).
    */
-  virtual void inc_dzpuis() ; 
+  virtual void inc_dzpuis(int inc = 1) ; 
 	
-  /** Decreases by 2 the value of {\tt dzpuis} and changes accordingly
-   *  the values of the {\tt Scalar} in the compactified external domain (CED).
-   */
-  virtual void dec2_dzpuis() ; 
-
-  /** Increases by 2 the value of {\tt dzpuis} and changes accordingly
-   *  the values of the {\tt Scalar} in the compactified external domain (CED).
-   */
-  virtual void inc2_dzpuis() ; 
-
   /** Sets a new vectorial basis (triad) of decomposition and modifies
    *  the components accordingly. 
    */
