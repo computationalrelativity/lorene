@@ -1,5 +1,5 @@
 /*
- * Method Etoile_bin::update_metric
+ * Methods Etoile_bin::update_metric
  *
  * (see file etoile.h for documentation)
  *
@@ -32,8 +32,13 @@ char et_bin_upmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/12/19 14:52:42  e_gourgoulhon
+ * Added the new function
+ *         void update_metric(const Bhole& comp)
+ * to treat the case where the companion is a black hole
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.9  2000/09/27  12:49:57  keisuke
  * Utilisation de d_logn_auto_div dans le calcul de d_logn_auto dans
@@ -76,40 +81,41 @@ char et_bin_upmetr_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "etoile.h"
+#include "bhole.h"
 
 		    //----------------------------------//
-		    //	 Version without relaxation	// 
+		    //	 Version without relaxation	//
 		    //----------------------------------//
 
 void Etoile_bin::update_metric(const Etoile_bin& comp) {
-    
+
     // Computation of quantities coming from the companion
     // ---------------------------------------------------
-    
+
     if ( (comp.logn_auto).get_etat() == ETATZERO ) {
-	logn_comp.set_etat_zero() ; 
+	logn_comp.set_etat_zero() ;
     }
     else{
-	logn_comp.set_etat_qcq() ; 
-	(logn_comp.set()).import_symy( comp.logn_auto() ) ; 
+	logn_comp.set_etat_qcq() ;
+	(logn_comp.set()).import_symy( comp.logn_auto() ) ;
 	logn_comp.set_std_base() ;   // set the bases for spectral expansions
     }
-    
-    
+
+
     if ( (comp.beta_auto).get_etat() == ETATZERO ) {
-	beta_comp.set_etat_zero() ; 
+	beta_comp.set_etat_zero() ;
     }
     else{
-	beta_comp.set_etat_qcq() ; 
+	beta_comp.set_etat_qcq() ;
 	(beta_comp.set()).import_symy( comp.beta_auto() ) ; 
 	beta_comp.set_std_base() ;   // set the bases for spectral expansions
     }
-    
-    
+
+
     if ( (comp.shift_auto).get_etat() == ETATZERO ) {
-	shift_comp.set_etat_zero() ; 
+	shift_comp.set_etat_zero() ;
     }
-    else{  
+    else{
 	shift_comp.set_etat_qcq() ; 
 
 	(shift_comp.set(0)).import_asymy( comp.shift_auto(0) ) ;  // N^x antisym
@@ -118,38 +124,38 @@ void Etoile_bin::update_metric(const Etoile_bin& comp) {
 
 	shift_comp.set_std_base() ;   // set the bases for spectral expansions
     }
-    shift_comp.set_triad( *((comp.shift_auto).get_triad()) ) ;  
+    shift_comp.set_triad( *((comp.shift_auto).get_triad()) ) ;
     
 
-    
+
     // Lapse function N
     // ----------------
-    
+
     Tenseur logn_total = logn_auto + logn_comp ; 
-    
-    nnn = exp( unsurc2 * logn_total ) ; 
+
+    nnn = exp( unsurc2 * logn_total ) ;
 
     nnn.set_std_base() ;   // set the bases for spectral expansions
-    
+
     // Conformal factor A^2
     // ---------------------
     
-    a_car = exp( 2*unsurc2*( beta_auto + beta_comp - logn_total ) ) ; 
+    a_car = exp( 2*unsurc2*( beta_auto + beta_comp - logn_total ) ) ;
 
     a_car.set_std_base() ;   // set the bases for spectral expansions
 
     // Shift vector N^i
     // ----------------
-    
-    shift = shift_auto + shift_comp ; 
+
+    shift = shift_auto + shift_comp ;
 
     // Derivatives of metric coefficients
     // ----------------------------------
-    
-    // ... (d/dX,d/dY,d/dZ)(logn_auto) : 
+
+    // ... (d/dX,d/dY,d/dZ)(logn_auto) :
     d_logn_auto_regu = logn_auto_regu.gradient() ;    // (d/dx, d/dy, d/dz)
-    d_logn_auto_regu.change_triad(ref_triad) ;   // -->  (d/dX, d/dY, d/dZ)  
-    
+    d_logn_auto_regu.change_triad(ref_triad) ;   // -->  (d/dX, d/dY, d/dZ)
+
     if ( *(d_logn_auto_div.get_triad()) != ref_triad ) {
 
 	// Change the basis from spherical coordinate to Cartesian one
@@ -160,57 +166,57 @@ void Etoile_bin::update_metric(const Etoile_bin& comp) {
 
     }
 
-    d_logn_auto = d_logn_auto_regu + d_logn_auto_div ;      
-    
-    // ... (d/dX,d/dY,d/dZ)(beta_auto) : 
+    d_logn_auto = d_logn_auto_regu + d_logn_auto_div ;
+
+    // ... (d/dX,d/dY,d/dZ)(beta_auto) :
     d_beta_auto = beta_auto.gradient() ;    // (d/dx, d/dy, d/dz)
-    d_beta_auto.change_triad(ref_triad) ;   // -->  (d/dX, d/dY, d/dZ)        
+    d_beta_auto.change_triad(ref_triad) ;   // -->  (d/dX, d/dY, d/dZ)
 
     if (relativistic) {
 	// ... extrinsic curvature (tkij_auto and akcar_auto)
-	extrinsic_curvature() ; 
+	extrinsic_curvature() ;
     }
-    
+
     // The derived quantities are obsolete
     // -----------------------------------
-    
-    del_deriv() ;                
-    
-    
+
+    del_deriv() ;
+
+
 }
 
 
 
 		    //----------------------------------//
-		    //	  Version with relaxation       // 
+		    //	  Version with relaxation       //
 		    //----------------------------------//
 
-void Etoile_bin::update_metric(const Etoile_bin& comp, 
+void Etoile_bin::update_metric(const Etoile_bin& comp,
 			       const Etoile_bin& star_jm1, double relax) {
 
-    
+
     // Computation of quantities coming from the companion
     // ---------------------------------------------------
-    
+
     if ( (comp.logn_auto).get_etat() == ETATZERO ) {
-	logn_comp.set_etat_zero() ; 
+	logn_comp.set_etat_zero() ;
     }
     else{
-	logn_comp.set_etat_qcq() ; 
-	(logn_comp.set()).import_symy( comp.logn_auto() ) ; 
+	logn_comp.set_etat_qcq() ;
+	(logn_comp.set()).import_symy( comp.logn_auto() ) ;
 	logn_comp.set_std_base() ;   // set the bases for spectral expansions
     }
-    
-    
+
+
     if ( (comp.beta_auto).get_etat() == ETATZERO ) {
-	beta_comp.set_etat_zero() ; 
+	beta_comp.set_etat_zero() ;
     }
     else{
-	beta_comp.set_etat_qcq() ; 
-	(beta_comp.set()).import_symy( comp.beta_auto() ) ; 
+	beta_comp.set_etat_qcq() ;
+	(beta_comp.set()).import_symy( comp.beta_auto() ) ;
 	beta_comp.set_std_base() ;   // set the bases for spectral expansions
     }
-    
+
     
     if ( (comp.shift_auto).get_etat() == ETATZERO ) {
 	shift_comp.set_etat_zero() ; 
@@ -290,4 +296,100 @@ void Etoile_bin::update_metric(const Etoile_bin& comp,
     
 			      
 } 
-	
+
+		    //----------------------------------//
+		    //	 Version a BH companion 	//
+		    //----------------------------------//
+
+void Etoile_bin::update_metric(const Bhole& comp) {
+
+    // Computation of quantities coming from the companion
+    // ---------------------------------------------------
+
+    // Computes N_comp  ---> stored in logn_comp
+    if ( (comp.get_n_auto()).get_etat() == ETATZERO ) {
+	logn_comp.set_etat_zero() ;
+    }
+    else{
+	logn_comp.set_etat_qcq() ;
+	(logn_comp.set()).import_symy( comp.get_n_auto()() ) ;
+	logn_comp.set_std_base() ;   // set the bases for spectral expansions
+    }
+
+
+    // Computes Psi_comp  ---> stored in beta_comp
+    if ( (comp.get_psi_auto()).get_etat() == ETATZERO ) {
+	beta_comp.set_etat_zero() ;
+    }
+    else{
+	beta_comp.set_etat_qcq() ;
+	(beta_comp.set()).import_symy( comp.get_psi_auto()() ) ;
+	beta_comp.set_std_base() ;   // set the bases for spectral expansions
+    }
+
+
+    // Computes N^i_comp  ---> stored in shift_comp
+    if ( (comp.get_shift_auto()).get_etat() == ETATZERO ) {
+	shift_comp.set_etat_zero() ;
+    }
+    else{
+	shift_comp.set_etat_qcq() ;
+
+	(shift_comp.set(0)).import_asymy( comp.get_shift_auto()(0) ) ;  // N^x antisym
+	(shift_comp.set(1)).import_symy( comp.get_shift_auto()(1) ) ;   // N^y sym.
+	(shift_comp.set(2)).import_asymy( comp.get_shift_auto()(2) ) ;  // N^z anisym
+
+	shift_comp.set_std_base() ;   // set the bases for spectral expansions
+    }
+    shift_comp.set_triad( *((comp.get_shift_auto()).get_triad()) ) ;
+
+    // Lapse function N
+    // ----------------
+
+    nnn = logn_auto + logn_comp ;
+
+    // Conformal factor A^2
+    // ---------------------
+
+    a_car = pow( beta_auto + beta_comp, 4) ;
+
+    a_car.set_std_base() ;   // set the bases for spectral expansions
+
+    // Shift vector N^i
+    // ----------------
+
+    shift = shift_auto + shift_comp ;
+
+    // Derivatives of metric coefficients
+    // ----------------------------------
+
+    // ... (d/dX,d/dY,d/dZ)(logn_auto) :
+    d_logn_auto_regu = logn_auto_regu.gradient() ;    // (d/dx, d/dy, d/dz)
+    d_logn_auto_regu.change_triad(ref_triad) ;   // -->  (d/dX, d/dY, d/dZ)
+
+    if ( *(d_logn_auto_div.get_triad()) != ref_triad ) {
+
+	// Change the basis from spherical coordinate to Cartesian one
+	d_logn_auto_div.change_triad( mp.get_bvect_cart() ) ;
+
+	// Change the basis from mapping coordinate to absolute one
+	d_logn_auto_div.change_triad( ref_triad ) ;
+
+    }
+
+    d_logn_auto = d_logn_auto_regu + d_logn_auto_div ;
+
+    // ... (d/dX,d/dY,d/dZ)(beta_auto) :
+    d_beta_auto = beta_auto.gradient() ;    // (d/dx, d/dy, d/dz)
+    d_beta_auto.change_triad(ref_triad) ;   // -->  (d/dX, d/dY, d/dZ)
+
+    // The derived quantities are obsolete
+    // -----------------------------------
+
+    del_deriv() ;
+
+
+}
+
+
+
