@@ -32,6 +32,9 @@ char et_bin_upmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/24 11:46:07  k_taniguchi
+ * Change some notations
+ *
  * Revision 1.2  2002/12/19 14:52:42  e_gourgoulhon
  * Added the new function
  *         void update_metric(const Bhole& comp)
@@ -308,23 +311,23 @@ void Etoile_bin::update_metric(const Bhole& comp) {
 
     // Computes N_comp  ---> stored in logn_comp
     if ( (comp.get_n_auto()).get_etat() == ETATZERO ) {
-	logn_comp.set_etat_zero() ;
+	n_comp.set_etat_zero() ;
     }
     else{
-	logn_comp.set_etat_qcq() ;
-	(logn_comp.set()).import_symy( comp.get_n_auto()() ) ;
-	logn_comp.set_std_base() ;   // set the bases for spectral expansions
+	n_comp.set_etat_qcq() ;
+	(n_comp.set()).import_symy( comp.get_n_auto()() ) ;
+	n_comp.set_std_base() ;   // set the bases for spectral expansions
     }
 
 
     // Computes Psi_comp  ---> stored in beta_comp
     if ( (comp.get_psi_auto()).get_etat() == ETATZERO ) {
-	beta_comp.set_etat_zero() ;
+	confpsi_comp.set_etat_zero() ;
     }
     else{
-	beta_comp.set_etat_qcq() ;
-	(beta_comp.set()).import_symy( comp.get_psi_auto()() ) ;
-	beta_comp.set_std_base() ;   // set the bases for spectral expansions
+	confpsi_comp.set_etat_qcq() ;
+	(confpsi_comp.set()).import_symy( comp.get_psi_auto()() ) ;
+	confpsi_comp.set_std_base() ; // set the bases for spectral expansions
     }
 
 
@@ -346,14 +349,14 @@ void Etoile_bin::update_metric(const Bhole& comp) {
     // Lapse function N
     // ----------------
 
-    nnn = logn_auto + logn_comp ;
+    nnn = n_auto + n_comp ;
 
-    // Conformal factor A^2
-    // ---------------------
+    // Conformal factor confpsi
+    // ------------------------
 
-    a_car = pow( beta_auto + beta_comp, 4) ;
+    confpsi = confpsi_auto + confpsi_comp ;
 
-    a_car.set_std_base() ;   // set the bases for spectral expansions
+    confpsi.set_std_base() ;   // set the bases for spectral expansions
 
     // Shift vector N^i
     // ----------------
@@ -363,25 +366,13 @@ void Etoile_bin::update_metric(const Bhole& comp) {
     // Derivatives of metric coefficients
     // ----------------------------------
 
-    // ... (d/dX,d/dY,d/dZ)(logn_auto) :
-    d_logn_auto_regu = logn_auto_regu.gradient() ;    // (d/dx, d/dy, d/dz)
-    d_logn_auto_regu.change_triad(ref_triad) ;   // -->  (d/dX, d/dY, d/dZ)
+    // ... (d/dX,d/dY,d/dZ)(n_auto) :
+    d_n_auto = n_auto.gradient() ;    // (d/dx, d/dy, d/dz)
+    d_n_auto.change_triad(ref_triad) ;   // --> (d/dX, d/dY, d/dZ)
 
-    if ( *(d_logn_auto_div.get_triad()) != ref_triad ) {
-
-	// Change the basis from spherical coordinate to Cartesian one
-	d_logn_auto_div.change_triad( mp.get_bvect_cart() ) ;
-
-	// Change the basis from mapping coordinate to absolute one
-	d_logn_auto_div.change_triad( ref_triad ) ;
-
-    }
-
-    d_logn_auto = d_logn_auto_regu + d_logn_auto_div ;
-
-    // ... (d/dX,d/dY,d/dZ)(beta_auto) :
-    d_beta_auto = beta_auto.gradient() ;    // (d/dx, d/dy, d/dz)
-    d_beta_auto.change_triad(ref_triad) ;   // -->  (d/dX, d/dY, d/dZ)
+    // ... (d/dX,d/dY,d/dZ)(confpsi_auto) :
+    d_confpsi_auto = confpsi_auto.gradient() ;    // (d/dx, d/dy, d/dz)
+    d_confpsi_auto.change_triad(ref_triad) ;   // --> (d/dX, d/dY, d/dZ)
 
     // The derived quantities are obsolete
     // -----------------------------------

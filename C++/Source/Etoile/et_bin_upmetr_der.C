@@ -32,6 +32,9 @@ char et_bin_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/24 11:47:02  k_taniguchi
+ * Change some notations
+ *
  * Revision 1.4  2002/12/19 14:53:38  e_gourgoulhon
  * Added the new function
  * 	void update_metric_der_comp(const Bhole& comp)
@@ -296,48 +299,48 @@ void Etoile_bin::update_metric_der_comp(const Bhole& comp) {
     Tenseur dncomp = ( comp.get_n_auto() ).gradient() ;
 
     if ( dncomp.get_etat() == ETATZERO ) {
-	d_logn_comp.set_etat_zero() ;
+	d_n_comp.set_etat_zero() ;
     }
     else{
 
-	// 1/ Division by r^2 of comp.d_logn_auto in the ZEC
+	// 1/ Division by r^2 of comp.d_n_auto in the ZEC
 	dncomp.dec2_dzpuis() ;
 
 	// 2/ Interpolation of the result
 
-	d_logn_comp.set_etat_qcq() ;
-	(d_logn_comp.set(0)).import_symy( dncomp(0) ) ;  // d/dx sym.
-	(d_logn_comp.set(1)).import_asymy( dncomp(1) ) ; // d/dy antisym.
-	(d_logn_comp.set(2)).import_symy( dncomp(2) ) ;  // d/dz sym.
+	d_n_comp.set_etat_qcq() ;
+	(d_n_comp.set(0)).import_symy( dncomp(0) ) ;  // d/dx sym.
+	(d_n_comp.set(1)).import_asymy( dncomp(1) ) ; // d/dy antisym.
+	(d_n_comp.set(2)).import_symy( dncomp(2) ) ;  // d/dz sym.
 
     }
 
-    d_logn_comp.set_triad( *(dncomp.get_triad()) ) ;
+    d_n_comp.set_triad( *(dncomp.get_triad()) ) ;
 
 
-    // Computation of Grad(Psi) ---> stored in d_beta_comp
-    // ---------------------------------------------------
+    // Computation of Grad(Psi) ---> stored in d_confpsi_comp
+    // ------------------------------------------------------
 
     Tenseur dpsicomp = ( comp.get_psi_auto() ).gradient() ;
 
     if ( dpsicomp.get_etat() == ETATZERO ) {
-	d_beta_comp.set_etat_zero() ;
+	d_confpsi_comp.set_etat_zero() ;
     }
     else {
-	// 1/ Division by r^2 of comp.d_logn_auto in the ZEC
+	// 1/ Division by r^2 of comp.d_confpsi_auto in the ZEC
         dpsicomp.dec2_dzpuis() ;
 
 	// 2/ Interpolation of the result
 
-	d_beta_comp.set_etat_qcq() ;
+	d_confpsi_comp.set_etat_qcq() ;
 
-	(d_beta_comp.set(0)).import_symy(dpsicomp(0) ) ;  // d/dx sym.
-	(d_beta_comp.set(1)).import_asymy(dpsicomp(1) ) ; // d/dy antisym.
-	(d_beta_comp.set(2)).import_symy(dpsicomp(2) ) ;  // d/dz sym.
+	(d_confpsi_comp.set(0)).import_symy(dpsicomp(0) ) ;  // d/dx sym.
+	(d_confpsi_comp.set(1)).import_asymy(dpsicomp(1) ) ; // d/dy antisym.
+	(d_confpsi_comp.set(2)).import_symy(dpsicomp(2) ) ;  // d/dz sym.
 
     }
 
-    d_beta_comp.set_triad( *(dpsicomp.get_triad()) ) ;
+    d_confpsi_comp.set_triad( *(dpsicomp.get_triad()) ) ;
 
     // The derived quantities are obsolete
     // -----------------------------------
