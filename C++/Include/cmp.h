@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/03/01 09:54:58  j_novak
+ * Suppression of the Cmp version of avance_dalembert (now only with Scalar's)
+ *
  * Revision 1.10  2003/11/06 14:43:37  e_gourgoulhon
  * Gave a name to const arguments in certain method prototypes (e.g.
  * constructors) to correct a bug of DOC++.
@@ -1162,38 +1165,7 @@ class Cmp {
 	 *			    no. {\tt l} 
 	 */
 	Tbl test_poisson(const Cmp& uu, ostream& ostr, 
-					bool detail = false) const ;  
-
-	/** Performs one time-step integration (from $t=j \to j+1$) of the 
-	 *   scalar d'Alembert equation with {\tt *this} being the value of 
-	 *   the function {\it f} at time {\it j}.
-	 *   @param par [input/output] possible parameters to control the
-	 *   resolution of the d'Alembert equation: \\
-	 *   {\tt par.get\_double(0)} : [input] the time step {\it dt},\\
-	 *   {\tt par.get\_int(0)} : [input] the type of boundary conditions
-	 *   set at the outer boundary (0 : reflexion, 1 : Sommerfeld 
-	 *   outgoing wave, valid only for {\it l=0} components, 2 : Bayliss 
-	 *   \& Turkel outgoing wave, valid for {\it l=0, 1, 2} components)\\
-	 *   {\tt par.get\_int\_mod(0)} : [input/output] set to 0 at first
-	 *   call, is used as a working flag after (must not be modified after
-	 *   first call)\\
-	 *   {\tt par.get\_Cmp\_mod(0)} : [input] (optional) if the wave 
-	 *   equation is on a curved space-time, this is the potential in front
-	 *   of the Laplace operator. It has to be updated at every time-step
-	 *   (for a potential depending on time).\\
-	 *   Note: there are many other working objects attached to this
-	 *   {\tt Param}, so one should not modify it.\\
-	 *   There should be one {\tt Param} for each wave equation to be 
-	 *   solved. 
-	 *   @param fJm1 [input] solution $f^{J-1}$ at time {\it J-1}
-	 *   @param source [input] source $\sigma$ of the d'Alembert equation 
-	 *	    $\diamond u = \sigma$.
-	 *   @return solution $f^{J+1}$ at time {\it J+1}
-	 *   with boundary conditions defined by {\tt par.get\_int(0)}.
-	 */
-	Cmp avance_dalembert(Param& par, const Cmp& fjm1, const Cmp& source) 
-	  const ;
-	
+					bool detail = false) const ;  	
 	/**
 	 * Performs the $C^n$ matching of the nucleus with respect to the 
 	 * first shell.

@@ -31,6 +31,9 @@ char cmp_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/01 09:54:59  j_novak
+ * Suppression of the Cmp version of avance_dalembert (now only with Scalar's)
+ *
  * Revision 1.2  2002/01/03 15:30:27  j_novak
  * Some comments modified.
  *
@@ -102,16 +105,3 @@ void Cmp::poisson(Param& par, Cmp& uu) const {
 
 
 
-		    //-----------------------------------//
-		    //      Scalar d'Alembert equation	 //
-		    //-----------------------------------//
-
-Cmp Cmp::avance_dalembert(Param& par, const Cmp& fjm1, const Cmp& source) 
-  const {
-  
-  Cmp fjp1(*mp) ;
-  
-  mp->dalembert(par, fjp1, *this, fjm1, source) ;
-
-  return fjp1 ;
-}
