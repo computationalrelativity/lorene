@@ -4,9 +4,9 @@ include $(HOME_LORENE)/local_settings		  # defines which compiler,...
 
 LIB	  = -L$(HOME_LORENE)/Lib -llorene_g -llorenef77_g \
 		$(LIB_GSL) \
+		$(LIB_LAPACK) \
 		$(LIB_PGPLOT) \
-		$(LIB_CXX) \
-		$(LIB_LAPACK)
+		$(LIB_CXX) 
 
 .SUFFIXES : .o .C
 
