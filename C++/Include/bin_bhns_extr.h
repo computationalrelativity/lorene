@@ -4,7 +4,7 @@
  */
 
 /*
- *   Copyright (c) 2004 Keisuke Taniguchi
+ *   Copyright (c) 2004-2005 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -29,9 +29,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/02/28 23:02:51  k_taniguchi
+ * Addition of some codes for the conformally flat case
+ *
  * Revision 1.1  2004/11/30 20:36:00  k_taniguchi
  * *** empty log message ***
- *
  *
  *
  * $Header$
@@ -73,25 +75,21 @@ class Bin_bhns_extr {
     // Derived data :
     // ------------
     private :
-        // Absolute coordinate X of the barycenter of the baryon density
-	/// in the Kerr-Schild background metric with an extreme mass ratio
+        /** Absolute coordinate X of the barycenter of the baryon density
+	 *  in the Kerr-Schild background metric or in the conformally flat
+	 *  one
+	 */
 	mutable double* p_xa_barycenter_extr ;
 
-        // Absolute coordinate Y of the barycenter of the baryon density
-	/// in the Kerr-Schild background metric with an extreme mass ratio
+        /** Absolute coordinate Y of the barycenter of the baryon density
+	 *  in the Kerr-Schild background metric
+	 */
 	mutable double* p_ya_barycenter_extr ;
 
-        /// Baryon mass of the neutron star in the KS background
+        /** Baryon mass of the neutron star in the Kerr-Schild background
+	 *  metric or in the conformally flat one
+	 */
         mutable double* p_mass_b_extr ;
-
-        /// Total ADM mass of the system
-        mutable double* p_mass_adm_extr ;
-
-        /// Total Komar mass of the system
-        mutable double* p_mass_kom_extr ;
-
-	/// Total angular momentum of the system
-	mutable Tbl* p_angu_mom_extr ;
 
     // Constructors - Destructor
     // -------------------------
@@ -105,10 +103,14 @@ class Bin_bhns_extr {
 	 *                       {\tt false} if NS is corotating
 	 * @param relat should be {\tt true} for a relativistic configuration,
 	 *                       {\tt false} for a Newtonian one
+	 * @param kerrs should be {\tt true} for the Kerr-Schild background
+	 *              metric, {\tt false} for the conformally flat one
+	 * @param multi should be {\tt true} for the multipole falloff
+	 *              boundary condition, {\tt true} for the \f$1/r\f$ one
 	 *
 	 */
 	Bin_bhns_extr(Map& mp, int nzet, const Eos& eos,
-		      bool irrot, bool relat) ;
+		      bool irrot, bool relat, bool kerrs, bool multi) ;
 
 	Bin_bhns_extr(const Bin_bhns_extr& ) ;		///< Copy constructor
 
@@ -189,34 +191,23 @@ class Bin_bhns_extr {
     // Computational routines
     // ----------------------
     public:
-	// Absolute coordinate X of the barycenter of the baryon density
-	/// in the Kerr-Schild background metric with an extreme mass ratio
+	/** Absolute coordinate X of the barycenter of the baryon density
+	 *  in the Kerr-Schild background metric or in the conformally flat
+	 *  one
+	 */
 	double xa_barycenter_extr() const ;
 
 	// Absolute coordinate Y of the barycenter of the baryon density
-	/// in the Kerr-Schild background metric with an extreme mass ratio
+	/// in the Kerr-Schild background metric
 	double ya_barycenter_extr() const ;
 
-	/// Baryon mass of the neutron star in the KS background
+	/** Baryon mass of the neutron star in the Kerr-Schild background
+	 *  metric or in the conformally flat
+	 */
 	double mass_b_extr() const ;
 
-	/// Total ADM mass
-	double mass_adm_extr() const ;
-
-	/// Total Komar mass
-	double mass_kom_extr() const ;
-
-	/** Total angular momentum.
-	 *
-	 *  @return 1-D {\tt Tbl} of size 3, according to \\
-	 *   {\tt angu\_mom()(0)} = $J^X$, \\
-	 *   {\tt angu\_mom()(1)} = $J^Y$, \\
-	 *   {\tt angu\_mom()(2)} = $J^Z$.
-	 */
-	const Tbl& angu_mom_extr() const ;
-
-	/** Computes the orbital angular velocity {\tt omega} and the
-	 *  position of the rotation axis {\tt x\_axe}.
+	/** Computes the orbital angular velocity {\tt omega}
+	 *  in the Kerr-Schild background metric
 	 *
 	 * @param fact_omeg_min [input] : determines the lower bound of the
 	 *             interval {\tt [omega\_min, omega\_max]} in which
@@ -235,7 +226,29 @@ class Bin_bhns_extr {
 	 *             (typical value : {\tt fact\_omeg\_max = 1.5})
 	 *
 	 */
-	void orbit_omega(double fact_omeg_min, double fact_omeg_max) ;
+	void orbit_omega_ks(double fact_omeg_min, double fact_omeg_max) ;
+
+	/** Computes the orbital angular velocity {\tt omega}
+	 *  in the conformally flat background metric
+	 *
+	 * @param fact_omeg_min [input] : determines the lower bound of the
+	 *             interval {\tt [omega\_min, omega\_max]} in which
+	 *             {\tt omega} is searched by
+	 *             {\tt omega\_min = fact\_omeg\_min * omega},
+	 *             where {\tt omega} is the previous value of the
+	 *             angular velocity
+	 *             (typical value : {\tt fact\_omeg\_min = 0.5})
+	 *
+	 * @param fact_omeg_max [input] : determines the higher bound of the
+	 *             interval {\tt [omega\_min, omega\_max]} in which
+	 *             {\tt omega} is searched by
+	 *             {\tt omega\_max = fact\_omeg\_max * omega},
+	 *             where {\tt omega} is the previous value of the
+	 *             angular velocity.
+	 *             (typical value : {\tt fact\_omeg\_max = 1.5})
+	 *
+	 */
+	void orbit_omega_cf(double fact_omeg_min, double fact_omeg_max) ;
 
 	/** Sets the orbital angular velocity to some 2-PN analytical
 	 *  value (Keplerian value in the Newtonian case)
