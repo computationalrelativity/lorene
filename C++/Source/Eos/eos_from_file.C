@@ -31,6 +31,9 @@ char eos_from_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/09/26 18:53:08  k_taniguchi
+ * Introduction of new EOSs: Eos_fit_SLy4 and Eos_fit_FPS
+ *
  * Revision 1.6  2004/05/07 08:06:45  k_taniguchi
  * Add the case of Eos_multi_poly.C
  *
@@ -87,6 +90,7 @@ char eos_from_file_C[] = "$Header$" ;
 #include "headcpp.h"
 #include "eos.h"
 #include "eos_multi_poly.h"
+#include "eos_fitting.h"
 #include "utilitaires.h"
 
 		//--------------------------------------//
@@ -123,6 +127,10 @@ int Eos_GlendNH3::identify() const	{ return 16; }
 int MEos::identify() const	{ return 100; }
 
 int Eos_multi_poly::identify() const	{ return 110; }
+
+int Eos_fit_SLy4::identify() const      { return 120; }
+
+int Eos_fit_FPS::identify() const       { return 121; }
 
 		//---------------------------------------------//
 		//    EOS construction from a binary file      //
@@ -210,6 +218,16 @@ Eos* Eos::eos_from_file(FILE* fich) {
 
 	case 110 : {
 	    p_eos = new Eos_multi_poly(fich) ;
+	    break ;
+	}
+
+	case 120 : {
+	    p_eos = new Eos_fit_SLy4(fich) ;
+	    break ;
+	}
+
+	case 121 : {
+	    p_eos = new Eos_fit_FPS(fich) ;
 	    break ;
 	}
 
@@ -314,6 +332,16 @@ Eos* Eos::eos_from_file(ifstream& fich) {
 
 	case 110 : {
 	    p_eos = new Eos_multi_poly(fich) ;
+	    break ;
+	}
+
+	case 120 : {
+	    p_eos = new Eos_fit_SLy4(fich) ;
+	    break ;
+	}
+
+	case 121 : {
+	    p_eos = new Eos_fit_FPS(fich) ;
 	    break ;
 	}
 
