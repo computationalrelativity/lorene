@@ -29,6 +29,9 @@ char map_et_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/05/07 13:19:24  j_novak
+ * Prevention of warnings
+ *
  * Revision 1.6  2004/04/08 17:16:07  f_limousin
  * Add comments
  *
@@ -269,16 +272,16 @@ void Map_et::srdsdt(const Scalar& uu, Scalar& resu) const {
 
     if (uu.get_dzpuis() == 0) {
 
-    // Final result 
-    // ------------
+      // Final result 
+      // ------------
 
-    resu = srdfdt - adfdx ;
+      resu = srdfdt - adfdx ;
 
-    int nz = mg->get_nzone() ; 
-    if (mg->get_type_r(nz-1) == UNSURR) {
+      //s int nz = mg->get_nzone() ; 
+      if (mg->get_type_r(nz-1) == UNSURR) {
 	resu.set_dzpuis(2) ;	    // r^2 (1/r d/dtheta) has been computed in
 	// the external domain
-    }
+      }
     
     }
 
@@ -298,7 +301,7 @@ void Map_et::srdsdt(const Scalar& uu, Scalar& resu) const {
       tmp_ced.annule(0, nz-2) ; // only non zero in the CED
 
       tmp_ced = tmp_ced.mult_x() ;	// xi, Id, (xi-1)
-      Base_val sauve_base( tmp_ced.get_base() ) ; 
+      //s Base_val sauve_base( tmp_ced.get_base() ) ; 
       tmp_ced = tmp_ced / xsr ; // xi/R, 1/R, (xi-1)/U
         
       tmp_ced = tmp_ced + uuva.dsdt() ;
@@ -445,7 +448,7 @@ void Map_et::srstdsdp(const Scalar& uu, Scalar& resu) const {
       tmp_ced.annule(0, nz-2) ; // only non zero in the CED
 
       tmp_ced = tmp_ced.mult_x() ;	// xi, Id, (xi-1)
-      Base_val sauve_base( tmp_ced.get_base() ) ; 
+      //s Base_val sauve_base( tmp_ced.get_base() ) ; 
       tmp_ced = tmp_ced / xsr ; // xi/R, 1/R, (xi-1)/U
       
       tmp_ced = tmp_ced + uuva.dsdp().ssint() ;

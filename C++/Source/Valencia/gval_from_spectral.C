@@ -29,6 +29,9 @@ char gval_from_spectral_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/05/07 13:19:24  j_novak
+ * Prevention of warnings
+ *
  * Revision 1.1  2004/05/07 12:32:13  j_novak
  * New summation from spectral to FD grid. Much faster!
  *
@@ -333,11 +336,10 @@ double* Gval_spher::somme_spectrale3(const Cmp& meudon) const{
 #endif
   const Mg3d* mg = mp->get_mg() ;
   assert (mg->get_type_t() == SYM) ;
-  int nz = mg->get_nzone() ;
   int ntm = mg->get_nt(0) ;
   int npm = mg->get_np(0) ;
 #ifndef NDEBUG
-  for (int lz=1; lz<nz; lz++) { 
+  for (int lz=1; lz<mg->get_nzone(); lz++) { 
     assert (ntm == mg->get_nt(lz)) ; //Same angular grids in all domains...
     assert (npm == mg->get_np(lz)) ;
   }
