@@ -32,6 +32,10 @@ char star_bin_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/03/23 10:00:09  f_limousin
+ * We now make the derivation with respect to the metric tilde
+ * instead of the flat metric for the computation of dshift_comp.
+ *
  * Revision 1.5  2004/02/27 09:53:14  f_limousin
  * Correction of an error on the computation of kcar_comp.
  *
@@ -66,18 +70,27 @@ void Star_bin::update_metric_der_comp(const Star_bin& comp) {
     dcov_lnpsi = lnpsi.derive_cov(flat) ;
     dcon_lnpsi = lnpsi.derive_con(flat) ;
 
- 
-  // Computation of tkij_comp
-  // ------------------------
+    // We update h33 only now to preserve symmetry between the two stars
+    // -----------------------------------------------------------------
+
+    /*
+    hij_auto.set(3,3) = hij(3,3) * decouple ;
+    hij_comp.set(3,3) = hij(3,3) * (1 - decouple) ;
+    hij_auto.std_spectral_base() ;
+    hij_comp.std_spectral_base() ;
+    */
+
+    // Computation of tkij_comp
+    // ------------------------
     
     // Gradient tilde (partial derivatives with respect to
     //           the Spherical coordinates of the mapping)
     // D~^j beta^i
     
-    const Tensor& dshift_comp = shift_comp.derive_con(flat) ;
+    const Tensor& dshift_comp = shift_comp.derive_con(gtilde) ;
     
     // Trace of D~_j beta^i  :
-    Scalar divshift_comp = shift_comp.divergence(flat) ;
+    Scalar divshift_comp = shift_comp.divergence(gtilde) ;
     
     // Computation of K^{ij}
     // -------------------------
