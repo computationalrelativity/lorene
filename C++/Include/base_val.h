@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/10/20 06:41:43  e_gourgoulhon
+ * Corrected documentation.
+ *
  * Revision 1.6  2003/10/19 19:42:50  e_gourgoulhon
  * -- member nzone now private
  * -- introduced new methods get_nzone() and get_b()
@@ -350,7 +353,7 @@ class Base_val {
 	 *  @param basename [output] string containing the name of the basis function;
 	 *		this {\tt char} array must have a size of (at least) 8 elements
 	 *		and must have been allocated before the call
-	 *		to {\tt \name\_r}.
+	 *		to {\tt name\_r}.
 	 */
 	void name_r(int l, int k, int j, int i, char* basename) const ; 
 
@@ -363,7 +366,7 @@ class Base_val {
 	 *  @param basename [output] string containing the name of the basis function;
 	 *		this {\tt char} array must have a size of (at least) 8 elements
 	 *		and must have been allocated before the call
-	 *		to {\tt \name\_theta}.
+	 *		to {\tt name\_theta}.
 	 */
 	void name_theta(int l, int k, int j, char* basename) const ; 
 
@@ -374,7 +377,7 @@ class Base_val {
 	 *  @param basename [output] string containing the name of the basis function;
 	 *		this {\tt char} array must have a size of (at least) 8 elements
 	 *		and must have been allocated before the call
-	 *		to {\tt \name\_phi}.
+	 *		to {\tt name\_phi}.
 	 */
 	void name_phi(int l, int k, char* basename) const ; 
 
