@@ -32,6 +32,10 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/11/20 14:01:25  r_prix
+ * changed member names to better conform to Lorene coding standards:
+ * J_euler -> j_euler, EpS_euler -> enerps_euler, Delta_car -> delta_car
+ *
  * Revision 1.9  2003/11/19 22:01:57  e_gourgoulhon
  * -- Relaxation on logn and dzeta performed only if mer >= 10.
  * -- err_grv2 is now evaluated also in the Newtonian case.
@@ -109,7 +113,7 @@ void Et_rot_bifluid::equilibrium_spher_bi(double ent_c, double ent2_c,
   int nz = mg->get_nzone() ;	    // total number of domains
   uuu = 0 ;
   uuu2 = 0 ; 
-  Delta_car = 0 ;
+  delta_car = 0 ;
   gam_euler = 1 ;
   gam_euler2 = 1 ;
     
@@ -637,8 +641,8 @@ void Et_rot_bifluid::equilibrium_bi
     Tenseur beta = log(bbb) ; 
     beta.set_std_base() ; 
 
-    // common source term for relativistic and Newtonian ! (EpS_euler has the right limit)
-    source_nuf =  qpig * a_car * EpS_euler;
+    // common source term for relativistic and Newtonian ! (enerps_euler has the right limit)
+    source_nuf =  qpig * a_car * enerps_euler;
 
     if (relativistic) 
       source_nuq = ak_car - flat_scalar_prod(logn.gradient_spher(),logn.gradient_spher() + beta.gradient_spher()) ; 
@@ -669,7 +673,7 @@ void Et_rot_bifluid::equilibrium_bi
     // ----------------
 	    
     // Matter term 
-    source_shift = (-4*qpig) * nnn * a_car * J_euler;
+    source_shift = (-4*qpig) * nnn * a_car * j_euler;
 
     // Quadratic terms:
     Tenseur vtmp =  3 * beta.gradient_spher() - logn.gradient_spher() ;
@@ -758,7 +762,7 @@ void Et_rot_bifluid::equilibrium_bi
 	
     }
 
-    // New computation of Delta_car, gam_euler, EpS_euler etc...
+    // New computation of delta_car, gam_euler, enerps_euler etc...
     // ------------------------------------------------------
 	
     hydro_euler() ; 
@@ -847,15 +851,13 @@ void Et_rot_bifluid::equilibrium_bi
       //	2-D Poisson equation for tggg
       //-------------------------------------------------------
 
-      mp.poisson2d(source_tggg(), mp.cmp_zero(), par_poisson_tggg,
-		   tggg.set()) ; 
+      mp.poisson2d(source_tggg(), mp.cmp_zero(), par_poisson_tggg, tggg.set()) ; 
 	    
       //-------------------------------------------------------
       //	2-D Poisson equation for dzeta
       //-------------------------------------------------------
 
-      mp.poisson2d(source_dzf(), source_dzq(), par_poisson_dzeta,
-		   dzeta.set()) ; 
+      mp.poisson2d(source_dzf(), source_dzq(), par_poisson_dzeta, dzeta.set()) ; 
 	    
       err_grv2 = lbda_grv2 - 1; 
       cout << "GRV2: " << err_grv2 << endl ; 

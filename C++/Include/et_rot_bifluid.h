@@ -31,6 +31,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/11/20 14:01:45  r_prix
+ * changed member names to better conform to Lorene coding standards:
+ * J_euler -> j_euler, EpS_euler -> enerps_euler, Delta_car -> delta_car
+ *
  * Revision 1.10  2003/11/18 18:32:36  r_prix
  * added new class-member: EpS_euler := ener_euler + s_euler
  * has the advantage of a nice Newtonian limit -> rho
@@ -104,7 +108,7 @@ Cmp prolonge_c1(const Cmp& uu, const int nzet) ;
  * The quantity {\tt u_euler} of the {\tt class Etoile} is 
  * {\em not used} in this class!
  * Only the "3+1" components of ${T^\mu}_\nu$ should be used outside
- * of {\tt hydro_euler()}, namely {\tt s_euler, sphph_euler, J_euler} and 
+ * of {\tt hydro_euler()}, namely {\tt s_euler, sphph_euler, j_euler} and 
  * {\tt ener_euler}.
  *
  * @version #$Id$#
@@ -140,10 +144,10 @@ class Et_rot_bifluid : virtual public Etoile_rot {
    * In axisymmetric circular cases, only $J_\mathrm{euler}(\varphi)=r \sin\theta\, J^\varphi$
    * is nonzero.
    */
-  Tenseur J_euler;
+  Tenseur j_euler;
 
   /// the combination $E+S_i^i$: useful because in the Newtonian limit $\rightarrow \rho$.
-  Tenseur EpS_euler;
+  Tenseur enerps_euler;
 
   /// Norm of the (fluid no.2) 3-velocity with respect to the eulerian observer
   Tenseur uuu2 ;
@@ -155,7 +159,7 @@ class Et_rot_bifluid : virtual public Etoile_rot {
    * The "relative velocity" (squared) $\Delta^2$ of the two fluids.
    * See Prix et al.(2003) and see also {\tt Eos\_bifluid}. 
    */
-  Tenseur Delta_car ; 
+  Tenseur delta_car ; 
 
   // Derived data : 
   // ------------
@@ -274,7 +278,7 @@ class Et_rot_bifluid : virtual public Etoile_rot {
   const Tenseur& get_nbar2() const {return nbar2 ; } ;
 	
   /// Returns the "relative velocity" (squared) $\Delta^2$ of the two fluids
-  const Tenseur& get_Delta_car() const {return Delta_car ; } ;
+  const Tenseur& get_delta_car() const {return delta_car ; } ;
 
   /// Returns the Lorentz factor between the fluid 2 and Eulerian observers
   const Tenseur& get_gam_euler2() const {return gam_euler2 ; } ;
@@ -392,8 +396,8 @@ class Et_rot_bifluid : virtual public Etoile_rot {
    *  {\tt ent}, {\tt ent2}, {\tt ener}, {\tt press}, and {\tt a\_car},  
    *  which are supposed to be up to date.  
    *  From these,  the following fields are updated:
-   *  {\tt Delta_car}, {\tt gam\_euler}, {\tt gam\_euler2}, {\tt ener\_euler}, 
-   *  {\tt s\_euler}, {\tt sphph_euler} and {tt J_euler}.
+   *  {\tt delta_car}, {\tt gam\_euler}, {\tt gam\_euler2}, {\tt ener\_euler}, 
+   *  {\tt s\_euler}, {\tt sphph_euler} and {tt j_euler}.
    */
   virtual void hydro_euler() ; 
 	

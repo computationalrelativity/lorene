@@ -25,6 +25,10 @@ char et_bfrot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2003/11/20 14:01:26  r_prix
+ * changed member names to better conform to Lorene coding standards:
+ * J_euler -> j_euler, EpS_euler -> enerps_euler, Delta_car -> delta_car
+ *
  * Revision 1.11  2003/11/18 18:38:11  r_prix
  * use of new member EpS_euler: matter sources in equilibrium() and global quantities
  * no longer distinguish Newtonian/relativistic, as all terms should have the right limit...
@@ -143,14 +147,14 @@ double Et_rot_bifluid::mass_g() const {
 
   if (p_mass_g == 0x0) {    // a new computation is required
 	
-      Tenseur vtmp (J_euler);
+      Tenseur vtmp (j_euler);
       vtmp.change_triad( mp.get_bvect_spher() );  // change to spherical triad
 
       Tenseur tJphi (mp);
       tJphi = vtmp(2);  // get the phi tetrad-component: J^ph r sin(th)
 
-      // relativistic AND Newtonian: EpS_euler has right limit and tnphi->0
-      Tenseur source = nnn * EpS_euler + 2 * b_car * tnphi * tJphi;
+      // relativistic AND Newtonian: enerps_euler has right limit and tnphi->0
+      Tenseur source = nnn * enerps_euler + 2 * b_car * tnphi * tJphi;
       source = a_car * bbb * source ;
 	  
       source.set_std_base() ;
@@ -174,8 +178,8 @@ double Et_rot_bifluid::angu_mom() const {
     Cmp dens(mp) ;
 
     // this should work for both relativistic AND Newtonian, 
-    // provided J_euler has the right limit...
-    Tenseur tmp = J_euler;
+    // provided j_euler has the right limit...
+    Tenseur tmp = j_euler;
     tmp.change_triad( mp.get_bvect_spher() ) ;  
     dens = tmp(2) ;
     dens.mult_rsint() ;

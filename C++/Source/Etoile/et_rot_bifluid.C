@@ -32,6 +32,10 @@ char et_rot_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/11/20 14:01:26  r_prix
+ * changed member names to better conform to Lorene coding standards:
+ * J_euler -> j_euler, EpS_euler -> enerps_euler, Delta_car -> delta_car
+ *
  * Revision 1.9  2003/11/18 18:38:11  r_prix
  * use of new member EpS_euler: matter sources in equilibrium() and global quantities
  * no longer distinguish Newtonian/relativistic, as all terms should have the right limit...
@@ -101,18 +105,18 @@ Et_rot_bifluid::Et_rot_bifluid(Map& mpi, int nzet_i, bool relat, const Eos_biflu
   ent2(mpi),
   nbar2(mpi),
   sphph_euler(mpi),
-  J_euler(mpi, 1, CON, mp.get_bvect_cart()), 
-  EpS_euler(mpi),
+  j_euler(mpi, 1, CON, mp.get_bvect_cart()), 
+  enerps_euler(mpi),
   uuu2(mpi),
   gam_euler2(mpi),
-  Delta_car(mpi)
+  delta_car(mpi)
 {
   // All the matter quantities are initialized to zero :
   nbar2 = 0 ;
   ent2 = 0 ; 
   sphph_euler = 0;
-  J_euler = 0;
-  EpS_euler = 0;
+  j_euler = 0;
+  enerps_euler = 0;
 
   gam_euler.set_std_base() ; 
   
@@ -120,7 +124,7 @@ Et_rot_bifluid::Et_rot_bifluid(Map& mpi, int nzet_i, bool relat, const Eos_biflu
   omega2 = 0 ; 
   uuu2 = 0 ; 
   gam_euler2 = 1 ; 
-  Delta_car = 0 ;
+  delta_car = 0 ;
   
   // Pointers of derived quantities initialized to zero : 
   set_der_0x0() ;
@@ -136,11 +140,11 @@ Et_rot_bifluid::Et_rot_bifluid(const Et_rot_bifluid& et):
   ent2(et.ent2),
   nbar2(et.nbar2),
   sphph_euler(et.sphph_euler),
-  J_euler(et.J_euler),
-  EpS_euler(et.EpS_euler),
+  j_euler(et.j_euler),
+  enerps_euler(et.enerps_euler),
   uuu2(et.uuu2),
   gam_euler2(et.gam_euler2),
-  Delta_car(et.Delta_car)
+  delta_car(et.delta_car)
 {
   omega2 = et.omega2 ; 
   
@@ -157,11 +161,11 @@ Et_rot_bifluid::Et_rot_bifluid(Map& mpi, const Eos_bifluid& eos_i, FILE* fich):
   ent2(mpi),
   nbar2(mpi),
   sphph_euler(mpi),
-  J_euler(mpi, 1, CON, mp.get_bvect_cart()), 
-  EpS_euler(mpi),
+  j_euler(mpi, 1, CON, mp.get_bvect_cart()), 
+  enerps_euler(mpi),
   uuu2(mpi),
   gam_euler2(mpi),
-  Delta_car(mpi)
+  delta_car(mpi)
 {
 
   // Etoile parameters
@@ -179,7 +183,7 @@ Et_rot_bifluid::Et_rot_bifluid(Map& mpi, const Eos_bifluid& eos_i, FILE* fich):
   // All other fields are initialized to zero : 
   // ----------------------------------------
   uuu2 = 0 ;
-  Delta_car = 0 ;
+  delta_car = 0 ;
   
   // Pointers of derived quantities initialized to zero 
   // --------------------------------------------------
@@ -242,11 +246,11 @@ void Et_rot_bifluid::del_hydro_euler() {
 
   Etoile_rot::del_hydro_euler() ; 
   sphph_euler.set_etat_nondef();
-  J_euler.set_etat_nondef();
-  EpS_euler.set_etat_nondef();
+  j_euler.set_etat_nondef();
+  enerps_euler.set_etat_nondef();
   uuu2.set_etat_nondef();
   gam_euler2.set_etat_nondef() ; 
-  Delta_car.set_etat_nondef();
+  delta_car.set_etat_nondef();
   
   del_deriv() ; 
 }			    
@@ -286,11 +290,11 @@ void Et_rot_bifluid::operator=(const Et_rot_bifluid& et) {
     ent2 = et.ent2 ;
     nbar2 = et.nbar2 ;
     sphph_euler = et.sphph_euler;
-    J_euler = et.J_euler;
-    EpS_euler = et.EpS_euler;
+    j_euler = et.j_euler;
+    enerps_euler = et.enerps_euler;
     uuu2 = et.uuu2 ;
     gam_euler2 = et.gam_euler2 ;
-    Delta_car = et.Delta_car ;
+    delta_car = et.delta_car ;
 
     
     del_deriv() ;  // Deletes all derived quantities
@@ -478,7 +482,7 @@ void Et_rot_bifluid::equation_of_state() {
 
   Cmp ent_eos = ent() ;
   Cmp ent2_eos = ent2() ;
-  Tenseur rel_vel(Delta_car) ;
+  Tenseur rel_vel(delta_car) ;
 
   // Slight rescale of the enthalpy field in case of 2 domains inside the
   //  star
@@ -558,7 +562,7 @@ void Et_rot_bifluid::hydro_euler(){
   int nz = mg->get_nzone() ; 
   int nzm1 = nz - 1 ; 
 
-    // RP: I prefer to use the 3-vector J_euler instead of u_euler
+    // RP: I prefer to use the 3-vector j_euler instead of u_euler
     // for better physical "encapsulation" 
     // (i.e. --> use same form of Poisson-equations for all etoile sub-classes!)
     u_euler.set_etat_nondef(); // make sure it's not used
@@ -638,16 +642,16 @@ void Et_rot_bifluid::hydro_euler(){
 
     // Update of "relative velocity" squared: $\Delta^2$
     // ---------------------------
-    Delta_car = (uuu - uuu2)*(uuu - uuu2) / ( (1 - unsurc2* uuu*uuu2) *(1 - unsurc2* uuu*uuu2 ) ) ;
-    Delta_car.set_std_base() ;
+    delta_car = (uuu - uuu2)*(uuu - uuu2) / ( (1 - unsurc2* uuu*uuu2) *(1 - unsurc2* uuu*uuu2 ) ) ;
+    delta_car.set_std_base() ;
 
     // some auxiliary EOS variables
     Tenseur Ann(ent) ;
-    Ann = gam_car()*nbar()*nbar() * eos.get_Knn(nbar(), nbar2(), Delta_car(), nzet);
+    Ann = gam_car()*nbar()*nbar() * eos.get_Knn(nbar(), nbar2(), delta_car(), nzet);
     Tenseur Anp(ent) ;
-    Anp = gam_euler()*gam_euler2()* nbar()*nbar2()* eos.get_Knp(nbar(),nbar2(),Delta_car(),nzet);
+    Anp = gam_euler()*gam_euler2()* nbar()*nbar2()* eos.get_Knp(nbar(),nbar2(),delta_car(),nzet);
     Tenseur App(ent) ;
-    App = gam2_car()*nbar2()*nbar2() *eos.get_Kpp(nbar(), nbar2(), Delta_car(), nzet);
+    App = gam2_car()*nbar2()*nbar2() *eos.get_Kpp(nbar(), nbar2(), delta_car(), nzet);
   
 
     //  Energy density E with respect to the Eulerian observer
@@ -671,36 +675,34 @@ void Et_rot_bifluid::hydro_euler(){
     s_euler = 2*press() + sphph_euler();
     s_euler.set_std_base() ; 
 
-    // The combination EpS_euler := (E + S_i^i) which has Newtonian limit -> rho
+    // The combination enerps_euler := (E + S_i^i) which has Newtonian limit -> rho
     if (relativistic)
-      EpS_euler = E_euler + s_euler;
+      enerps_euler = E_euler + s_euler;
     else
-      EpS_euler = eos.get_m1() * nbar() + eos.get_m2() * nbar2();
+      enerps_euler = eos.get_m1() * nbar() + eos.get_m2() * nbar2();
 
 
-    // the (flat-space) angular-momentum 3-vector J_euler^i
+    // the (flat-space) angular-momentum 3-vector j_euler^i
     //-----------------------------------
     Tenseur Jph(mp);   // the normalized phi-component of J^i: Sqrt[g_phiphi]*J^phi
     Jph = Ann*uuu + Anp*(uuu + uuu2) + App*uuu2 ;
 
-    J_euler.set_etat_qcq();
+    j_euler.set_etat_qcq();
 
-    J_euler.set(0) = 0;		// r tetrad component
-    J_euler.set(1) = 0;		// theta tetrad component
-    J_euler.set(2) = Jph()/ bbb(); // phi tetrad component ... = J^phi r sin(th)
-    J_euler.set_triad (mp.get_bvect_spher());
-    J_euler.set_std_base();
+    j_euler.set(0) = 0;		// r tetrad component
+    j_euler.set(1) = 0;		// theta tetrad component
+    j_euler.set(2) = Jph()/ bbb(); // phi tetrad component ... = J^phi r sin(th)
+    j_euler.set_triad (mp.get_bvect_spher());
+    j_euler.set_std_base();
 
-    // RP: it seems that J_euler _HAS_ to have cartesian triad set on exit from here...!!
-    J_euler.change_triad( mp.get_bvect_cart() ) ;	// Triad = Cartesian triad
+    // RP: it seems that j_euler _HAS_ to have cartesian triad set on exit from here...!!
+    j_euler.change_triad( mp.get_bvect_cart() ) ;	// Triad = Cartesian triad
 
-    if( (J_euler(0).get_etat() == ETATZERO)&&(J_euler(1).get_etat() == ETATZERO)&&(J_euler(2).get_etat()==ETATZERO))
-      J_euler = 0;
+    if( (j_euler(0).get_etat() == ETATZERO)&&(j_euler(1).get_etat() == ETATZERO)&&(j_euler(2).get_etat()==ETATZERO))
+      j_euler = 0;
 
     // The derived quantities are obsolete
     // -----------------------------------
     del_deriv() ;                
 
 } // hydro_euler()
-
-
