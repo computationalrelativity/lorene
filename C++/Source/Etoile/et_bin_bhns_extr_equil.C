@@ -31,6 +31,10 @@ char et_bin_bhns_extr_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/01/03 18:01:12  k_taniguchi
+ * Addition of the method to fix the position of the neutron star
+ * in the coordinate system.
+ *
  * Revision 1.6  2004/12/29 16:29:55  k_taniguchi
  * Suppression of "dzpius" for the shift vector.
  *
@@ -285,7 +289,42 @@ void Et_bin_bhns_extr::equil_bhns_extr(double ent_c, const double& mass,
 
 	ent = (ent_c + logn_auto_c + pot_ext_c) - logn_auto - pot_ext ;
 
+	//----------------------------------------------------------
+	// Change the enthalpy field to be set its maximum position
+	// at the coordinate center
+	//----------------------------------------------------------
+
+	double dentdx = ent().dsdx()(0, 0, 0, 0) ;
+	double dentdy = ent().dsdy()(0, 0, 0, 0) ;
+
+	cout << "dH/dx|_center = " << dentdx << endl ;
+	cout << "dH/dy|_center = " << dentdy << endl ;
+
+	double dec_fact = 1. ;
+
+	Tenseur func_in(mp) ;
+	func_in.set_etat_qcq() ;
+	func_in.set() = 1. - dec_fact * (dentdx/ent_c) * mp.x
+	  - dec_fact * (dentdy/ent_c) * mp.y ;
+	func_in.set().annule(nzet, nz-1) ;
+	func_in.set_std_base() ;
+
+	Tenseur func_ex(mp) ;
+	func_ex.set_etat_qcq() ;
+	func_ex.set() = 1. ;
+	func_ex.set().annule(0, nzet-1) ;
+	func_ex.set_std_base() ;
+
+	// New enthalpy field
+	// ------------------
+	ent.set() = ent() * (func_in() + func_ex()) ;
+
 	(ent().va).smooth(nzet, (ent.set()).va) ;
+
+	double dentdx_new = ent().dsdx()(0, 0, 0, 0) ;
+	double dentdy_new = ent().dsdy()(0, 0, 0, 0) ;
+	cout << "dH/dx|_new    = " << dentdx_new << endl ;
+	cout << "dH/dy|_new    = " << dentdy_new << endl ;
 
 	//-----------------------------------------------------
 	// Adaptation of the mapping to the new enthalpy field
