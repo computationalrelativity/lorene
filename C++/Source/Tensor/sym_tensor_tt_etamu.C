@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2004 Eric Gourgoulhon & Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -32,6 +32,11 @@ char sym_tensor_tt_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/02/05 13:44:50  e_gourgoulhon
+ * Major modif. of methods eta(), mu() and update() to treat
+ * any value of dzpuis, thanks to the new definitions of
+ * Scalar::mult_r(), Scalar::dsdr(), etc...
+ *
  * Revision 1.6  2004/01/28 13:25:41  j_novak
  * The ced_mult_r arguments have been suppressed from the Scalar::*dsd* methods.
  * In the div/mult _r_dzpuis, there is no more default value.
@@ -80,33 +85,40 @@ const Scalar& Sym_tensor_tt::eta() const {
 
 		// eta is computed from the divergence-free condition:
 
-		Scalar dhrr = - operator()(1,1).dsdr() ; 	// - dh^{rr}/dr  
-		                                            // ( - r^2 dh^{rr}/dr in the CED)
-		
-		// treatment of the CED : 
+        int dzp = operator()(1,1).get_dzpuis() ; 
+        
+		Scalar dhrr = - operator()(1,1).dsdr() ; 	
+        
+        // dhrr contains - dh^{rr}/dr in all domains but the CED,                                           
+        // in the CED:   - r^2 dh^{rr}/dr        if dzp = 0          (1)
+        //               - r^(dzp+1) dh^{rr}/dr  if dzp > 0          (2)
+                                                    
+		        
+        // CED value stored in dhrr_ced : 
 		int nzm1 = mp->get_mg()->get_nzone() - 1 ; // index of the CED
-		Scalar dhrr_ext(*mp) ;
-		dhrr_ext.allocate_all() ; 
-		dhrr_ext.annule(0,nzm1-1) ; // zero in all domains but the CED
-		dhrr_ext.set_domain(nzm1) = dhrr.domain(nzm1) ; // equal to dhrr in the CED
-		dhrr_ext.set_spectral_base( (dhrr.get_spectral_va()).get_base() ) ; 
-		
-		// Multiplication by r^2 in all domains but the CED:
+        Tbl dhrr_ced =  dhrr.domain(nzm1) ;
+        
+		// Multiplication by r of (-d h^{rr}/dr) in all domains but the CED:
 		dhrr.annule_domain(nzm1) ; 
 		dhrr.mult_r() ; 
-		dhrr.mult_r() ; 
-		
-		// Adding the CED part
-		dhrr.set_domain(nzm1) = dhrr_ext.domain(nzm1) ; 
-		dhrr.set_dzpuis(0) ; 
 
-		// dhrr_ext now used to store r h^{rr}
-		dhrr_ext = operator()(1,1) ;
-		dhrr_ext.mult_r() ; 
-		dhrr_ext.inc_dzpuis() ; // since mult_r() did nothing but dzpuis -= 1.
-		   
-		// Final result for the h^rr source for eta:
-		dhrr -= 3. * dhrr_ext ; 
+        // The CED value is restored:
+        dhrr.set_domain(nzm1) = dhrr_ced ; 
+        
+        // Special treatment for dzpuis=2 (cf. Eqs. (1) and (2) above) : 
+        if ( dhrr.check_dzpuis(2) )  {
+            dhrr.dec_dzpuis() ;   // dhrr contains now -r dh^{rr}/dr in the CED
+        }
+        
+        dhrr.set_dzpuis(dzp) ;  // dhrr is now equal to - r dh^{rr}/dr with the
+                                //   same dzpuis than h^{rr}
+                          
+
+        // Substraction of the h^rr part and multiplication by r :
+        dhrr -= 3. * operator()(1,1) ;                          
+
+        dhrr.mult_r() ; 
+        
 		
 		// Resolution of the angular Poisson equation for eta
 		// --------------------------------------------------
@@ -139,7 +151,6 @@ const Scalar& Sym_tensor_tt::mu() const {
 		
 		// Multiplication by r
 		tmp.mult_r() ; 
-		tmp.inc_dzpuis() ; // since mult_r() did nothing but dzpuis -= 1.
 		
 		// Resolution of the angular Poisson equation for mu
 		// --------------------------------------------------
@@ -217,23 +228,48 @@ void Sym_tensor_tt::update() {
 	// ------------
 	idx.set(1) = 2 ;	// theta index
 	*cmp[position(idx)] = p_eta->srdsdt() - p_mu->srstdsdp() ; 
-	cmp[position(idx)]->dec_dzpuis(2) ;
+    int dec_dzp = (p_eta->get_dzpuis() == 0) ? 2 : 1 ; 
+	cmp[position(idx)]->dec_dzpuis(dec_dzp) ;
 	
 	// h^{r phi} :
 	// ------------
 	idx.set(1) = 3 ;	// phi index
 	*cmp[position(idx)] = p_eta->srstdsdp() + p_mu->srdsdt() ; 
-	cmp[position(idx)]->dec_dzpuis(2) ;
+	cmp[position(idx)]->dec_dzpuis(dec_dzp) ;
 	
 	
 	// h^{theta phi} and h^{phi phi}
 	// -----------------------------
 	
-	Scalar tautst = operator()(1,2).dsdr() ; // dh^{rt}/dr (r^2 dh^{rt}/dr in the CED)
-	tautst.dec_dzpuis(1) ; // r dh^{rt}/dr in the CED
-	tautst.mult_r() ; // r dh^{rt}/dr  
-				   // NB: mult_r() does nothing in the CED but dzpuis--
-	
+	//--------------  Computation of T^theta   --> taut : 
+    
+    Scalar tautst = operator()(1,2).dsdr() ; 
+
+    // dhrr contains  dh^{rt}/dr in all domains but the CED,                                           
+    // in the CED:    r^2 dh^{rt}/dr        if dzp = 0          (1)
+    //                r^(dzp+1) dh^{rt}/dr  if dzp > 0          (2)
+                                                    
+		        
+    // CED value stored in tmp_ced : 
+    int nzm1 = mp->get_mg()->get_nzone() - 1 ; // index of the CED
+    Tbl tmp_ced = tautst.domain(nzm1) ;
+        
+	// Multiplication by r of dh^{rt}/dr in all domains but the CED:
+	tautst.annule_domain(nzm1) ; 
+    tautst.mult_r() ; 
+
+    // The CED value is restored:
+    tautst.set_domain(nzm1) = tmp_ced ; 
+        
+    // Special treatment for dzpuis=2 (cf. Eqs. (1) and (2) above) : 
+    if ( tautst.check_dzpuis(2) )  {
+        tautst.dec_dzpuis() ;   // tautst contains now  r dh^{rt}/dr in the CED
+    }
+        
+    tautst.set_dzpuis( operator()(1,2).get_dzpuis() ) ;  
+    // taust is now equal to  r dh^{rt}/dr with the same dzpuis than h^{rt}
+                          
+    // Addition of the remaining parts :	
 	tautst += 3 * operator()(1,2) - operator()(1,1).dsdt() ; 
 	tautst.mult_sint() ; 
 	
@@ -245,10 +281,33 @@ void Sym_tensor_tt::update() {
 	Scalar taut = tautst ; 
 	taut.mult_sint() ; 	// T^th
 	
-	Scalar taupst = - operator()(1,3).dsdr() ; // - dh^{rp}/dr (- r^2 dh^{rp}/dr in the CED)
-	taupst.dec_dzpuis(1) ; // - r dh^{rp}/dr in the CED
-	taupst.mult_r() ; // - r dh^{rp}/dr  
-				   // NB: mult_r() does nothing in the CED but dzpuis--
+
+	//----------- Computation of T^phi   --> taup : 
+    
+	Scalar taupst = - operator()(1,3).dsdr() ; 
+
+    // dhrr contains  - dh^{rp}/dr in all domains but the CED,                                           
+    // in the CED:    - r^2 dh^{rp}/dr        if dzp = 0          (3)
+    //                - r^(dzp+1) dh^{rp}/dr  if dzp > 0          (4)
+                                                    	        
+    tmp_ced = taupst.domain(nzm1) ;  // CED value stored in tmp_ced 
+        
+	// Multiplication by r of -dh^{rp}/dr in all domains but the CED:
+	taupst.annule_domain(nzm1) ; 
+    taupst.mult_r() ; 
+
+    // The CED value is restored:
+    taupst.set_domain(nzm1) = tmp_ced ; 
+        
+    // Special treatment for dzpuis=2 (cf. Eqs. (3) and (4) above) : 
+    if ( taupst.check_dzpuis(2) )  {
+        taupst.dec_dzpuis() ;   // taupst contains now  -r dh^{rp}/dr in the CED
+    }
+        
+    taupst.set_dzpuis( operator()(1,3).get_dzpuis() ) ;  
+    // taupst is now equal to  -r dh^{rp}/dr with the same dzpuis than h^{rp}
+                          
+    // Addition of the remaining part :	
 	
 	taupst -= 3 * operator()(1,3) ; 
 	taupst.mult_sint() ; 	// T^ph / sin(th)
@@ -256,6 +315,9 @@ void Sym_tensor_tt::update() {
 	Scalar taup = taupst ; 
 	taup.mult_sint() ; 		// T^ph 
 	
+    
+    //------------------- Computation of F and h^[ph ph}
+    
 	tmp = tautst ; 
 	tmp.mult_cost() ; 	// T^th / tan(th)
 	
@@ -271,6 +333,9 @@ void Sym_tensor_tt::update() {
 	idx.set(1) = 3 ;	// phi index
 	*cmp[position(idx)] = tmp2 ; 		// h^{ph ph} is updated
 	
+    
+    //------------------- Computation of G and h^[th ph}
+    
 	tmp = taupst ; 
 	tmp.mult_cost() ; // T^ph / tan(th)
 	
