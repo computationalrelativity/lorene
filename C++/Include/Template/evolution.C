@@ -28,6 +28,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/05/03 15:23:22  e_gourgoulhon
+ * Method downdate: changed the order of conditions (pos_jtop>=0)
+ * and (val[pos_jtop] == 0x0) in the while(...) test.
+ *
  * Revision 1.9  2004/03/31 20:24:04  e_gourgoulhon
  * Method time_derive: result object created by the copy constructor of
  * class TyT, since the arithmetics may not return an object of exactly
@@ -223,7 +227,7 @@ void Evolution<TyT>::downdate(int j) {
 
     if (pos == pos_jtop) {  // pos_jtop must be decreased
         pos_jtop-- ; 
-        while ( (val[pos_jtop] == 0x0) && (pos_jtop>=0) ) pos_jtop-- ;
+        while ( (pos_jtop>=0) && (val[pos_jtop] == 0x0) ) pos_jtop-- ;
     }
     
 }
