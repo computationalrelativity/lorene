@@ -75,6 +75,7 @@ uninstall:
 	cd Source/Cmp; $(MAKE) -i uninstall
 	cd Source/Connection; $(MAKE) -i uninstall
 	cd Source/Coord; $(MAKE) -i uninstall
+	cd Source/Diff; $(MAKE) -i uninstall
 	cd Source/Eos; $(MAKE) -i uninstall
 	cd Source/Etoile; $(MAKE) -i uninstall
 	cd Source/Grille3d; $(MAKE) -i uninstall
@@ -99,7 +100,9 @@ uninstall:
 	cd Source/Ope_elementary/Ope_sec_order; $(MAKE) -i uninstall	
 	cd Source/Ope_elementary/Ope_pois_vect_r; $(MAKE) -i uninstall	
 	cd Source/Ope_elementary/Ope_poisson_2d; $(MAKE) -i uninstall
+	cd Source/Ope_elementary/Ope_poisson_pseudo_1d; $(MAKE) -i uninstall
 	cd Source/Ope_elementary/Ope_helmholtz_minus_2d; $(MAKE) -i uninstall
+	cd Source/Ope_elementary/Ope_helmholtz_minus_pseudo_1d; $(MAKE) -i uninstall
 	cd Source/Param; $(MAKE) -i uninstall
 	cd Source/Param_elliptic; $(MAKE) -i uninstall
 	cd Source/Star; $(MAKE) -i uninstall
