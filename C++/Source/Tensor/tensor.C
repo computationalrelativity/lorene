@@ -34,6 +34,10 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.25  2003/11/03 22:34:41  e_gourgoulhon
+ * Method dec_dzpuis: changed the name of argument dec --> decrem
+ * (in order not to shadow some globally defined dec).
+ *
  * Revision 1.24  2003/10/29 11:02:54  e_gourgoulhon
  * Functions dec_dzpuis and inc_dzpuis have now an integer argument to
  * specify by which amount dzpuis is to be increased.
@@ -634,10 +638,10 @@ const Scalar& Tensor::operator()(const Itbl& ind) const {
 
 
 // Gestion de la CED :
-void Tensor::dec_dzpuis(int dec) {
+void Tensor::dec_dzpuis(int decrem) {
     
   for (int i=0 ; i<n_comp ; i++)
-    cmp[i]->dec_dzpuis(dec) ;
+    cmp[i]->dec_dzpuis(decrem) ;
 }
 
 void Tensor::inc_dzpuis(int inc) {
