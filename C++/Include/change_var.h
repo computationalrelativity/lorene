@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/23 14:54:45  j_novak
+ * More documentation
+ *
  * Revision 1.2  2004/03/05 09:18:48  p_grandclement
  * Addition of operator sec_order_r2
  *
@@ -70,7 +73,7 @@ double plus_sur(double) ;
  * This class defines a variable change to be used when solving 
  * elliptic equations. In {\em one particular domain}, 
  * the change is defined as 
- * follows :
+ * follows : \ingroup (ellip)
  * 
  * $W = F\left(r\right) + G \left(r\right) w$
  *
@@ -80,7 +83,6 @@ double plus_sur(double) ;
  * The type of change must be explicitely implemented in the constructor for 
  * {\tt Change_var}.
  * 
- * @version #$Id:#
  **/
 
 class Change_var {

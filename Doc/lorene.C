@@ -57,6 +57,15 @@
  *
  */
     
+
+/**\defgroup evol Time evolution (***under development***)
+ *
+ * The storage and manipulation (e.g. time derivation) of an
+ * evolving quantity is performed through the template class
+ * \c Evolution . 
+ */
+
+
 /**\defgroup otens Old tensorial fields (*** Deprecated ***)
  *
  * These classes have been used up to 2003 to treat scalar 
@@ -74,6 +83,14 @@
  *
  */
  
+
+/**\defgroup ellip General elliptic solver (***under development***)
+ *
+ * These classes are needed for using the general elliptic solver, for
+ * which the variables and the operators can be different from one domain
+ * to the other.
+ */
+
 
 /**\defgroup mdm Grid wedding
  *

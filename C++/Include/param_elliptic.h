@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/03/23 14:54:45  j_novak
+ * More documentation
+ *
  * Revision 1.5  2004/03/17 15:58:47  p_grandclement
  * Slight modification of sol_elliptic_no_zec
  *
@@ -62,11 +65,10 @@
  * This class contains the parameters needed to call the general elliptic solver.
  * 
  * For every domain and every spherical harmonics, it contains the appropriate operator 
- * of type {\tt Ope_elementary} and the appropriate variable given by a {\tt Change_var}.
+ * of type {\tt Ope_elementary} and the appropriate variable given by a {\tt Change_var}. \ingroup (ellip)
  *
  * This class is only defined on an affine mapping {\tt Map_af}.
  * 
- * @version #$Id:#
  **/
 
 class Param_elliptic {

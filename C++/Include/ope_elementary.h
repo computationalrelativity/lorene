@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/23 14:54:45  j_novak
+ * More documentation
+ *
  * Revision 1.3  2004/03/09 09:15:11  p_grandclement
  * Correction pour le raccord...
  *
@@ -59,9 +62,8 @@
  * The class {\tt Ope_elementary} is an abstract one: 
  * it cannot be instanciated. 
  * Specific implementation of coordinate mappings will be performed by derived
- * classes of {\tt Ope_elementary}. 
+ * classes of {\tt Ope_elementary}. \ingroup (ellip)
  * 
- *  @version #$Id:#
  **/
 
 class Ope_elementary {
