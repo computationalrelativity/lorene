@@ -72,12 +72,8 @@ Star::Star(Map& mpi, int nzet_i, const Eos& eos_i)
     
  
     // Check of the EOS
-    const Eos_poly* p_eos_poly = dynamic_cast<const Eos_poly*>( &eos ) ; 
-	  
     const Eos_poly_newt* p_eos_poly_newt = 
 			    dynamic_cast<const Eos_poly_newt*>( &eos ) ; 
-	  
-    const Eos_incomp* p_eos_incomp = dynamic_cast<const Eos_incomp*>( &eos ) ; 
 	  
     const Eos_incomp_newt* p_eos_incomp_newt = 
 			    dynamic_cast<const Eos_incomp_newt*>( &eos ) ; 
