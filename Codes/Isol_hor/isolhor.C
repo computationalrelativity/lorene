@@ -26,6 +26,12 @@
 char isolhor_C[] = "$Header$" ;
 
 /* 
+ * $Id$
+ * $Log$
+ * Revision 1.4  2004/09/28 15:57:45  f_limousin
+ * Add the 2 lines  $Id and $Log to see the comments
+ *
+ *
  * Revision 1.1  2004/02/18 19:16:28  jl_jaramillo
  * First version: c'est loin d'etre pret tout ca !!!
  *
