@@ -30,6 +30,9 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2005/03/03 15:12:17  f_limousin
+ * Implement function operator>>
+ *
  * Revision 1.12  2005/03/03 10:05:36  f_limousin
  * Introduction of members boost_x and boost_z.
  *
@@ -288,10 +291,21 @@ void Isol_hor::operator=(const Isol_hor& isolhor_in) {
 
 
 ostream& Isol_hor::operator>>(ostream& flux) const {
-
-    Isol_hor::operator>>(flux) ; 
+    
+    Time_slice_conf::operator>>(flux) ; 
+    
+    flux << '\n' << "radius of the horizon  : " << radius << '\n' ;
+    flux << "boost in x-direction   : " << boost_x << '\n' ;
+    flux << "boost in z-direction   : " << boost_z << '\n' ;
+    flux << "angular velocity omega : " << omega_hor() << '\n' ;
+    flux << "area of the horizon    : " << area_hor() << '\n' ;
+    flux << "ang. mom. of horizon   : " << ang_mom_hor() << '\n' ;
+    flux << "ADM ang. mom.          : " << ang_mom_adm() << '\n' ;
+    flux << "Mass of the horizon    : " << mass_hor() << '\n' ;
+    flux << "ADM Mass               : " << adm_mass() << '\n' ;
+   
     return flux ; 
-
+    
 }
 
 
