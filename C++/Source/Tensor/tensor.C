@@ -33,6 +33,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/09/29 12:52:57  j_novak
+ * Methods for changing the triad are implemented.
+ *
  * Revision 1.4  2003/09/26 14:33:53  j_novak
  * Arithmetic functions for the class Tensor
  *
@@ -286,7 +289,7 @@ void Tensor::allocate_all() {
 
 void Tensor::change_triad(const Base_vect& bi) {
     
-    // bi.change_basis(*this) ; 
+    // bi.change_basis(*this) ;
     cout << "Tensor::change_triad not ready yet !" << endl ; 
     abort(); 
 	
@@ -517,6 +520,7 @@ void Tensor::mult_r_zec() {
 
 // Le cout :
 ostream& operator<<(ostream& flux, const Tensor &source ) {
+  flux << typeid(source).name() << endl ;
     
     flux << "Valence : " << source.valence << endl ;
 

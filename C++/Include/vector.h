@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/09/29 12:52:56  j_novak
+ * Methods for changing the triad are implemented.
+ *
  * Revision 1.1  2003/09/26 08:07:32  j_novak
  * New class vector
  *
@@ -91,7 +94,7 @@ class Vector: public Tensor {
 	/** Sets a new vectorial basis (triad) of decomposition and modifies
 	 *  the components accordingly. 
 	 */
-	virtual void change_triad(const Base_vect& new_triad) ; 
+	virtual void change_triad(const Base_vect& ) ; 
 
 	/// Assignment from a Tensor
 	virtual void operator=(const Tensor&) ;	
@@ -103,7 +106,6 @@ class Vector: public Tensor {
 
 	const Scalar& operator()(int ) const; ///Readonly access to a component
 
-    protected:
 	/**
 	 * Returns the position in the {\tt Scalar} array {\tt cmp} of a 
 	 * component given by its index.  

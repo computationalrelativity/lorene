@@ -34,6 +34,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/09/29 12:52:58  j_novak
+ * Methods for changing the triad are implemented.
+ *
  * Revision 1.4  2003/09/24 20:55:27  e_gourgoulhon
  * Added -- constructor by conversion of a Cmp
  *       -- operator=(const Cmp&)
@@ -738,3 +741,9 @@ Tbl Scalar::multipole_spectrum() {
   return resu ;
 }
 
+void Scalar::change_triad(const Base_vect& new_triad) {
+
+  cout << "WARNING: Scalar::change_triad : "<< endl ;
+  cout << "This method does nothing ... " << endl ;
+
+}
