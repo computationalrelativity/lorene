@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/04/05 14:41:38  e_gourgoulhon
+ * Added functions des_meridian.
+ *
  * Revision 1.12  2004/03/22 13:12:41  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -158,6 +161,7 @@ class Map ;
 class Map_et ; 
 class Cmp ; 
 class Scalar ;
+class Sym_tensor ;
 class Tenseur ; 
 class Etoile ; 
 class Binaire ; 
@@ -660,6 +664,41 @@ void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max,
         bool closeit = true,  const char* nomy  = 0x0, 
         const char* title = 0x0, int ngraph = 0, const char* nomx  = 0x0, 
         const int* line_style = 0x0) ;
+
+
+/** Draws 5 profiles of a scalar field along various radial axes 
+ * in two meridional planes \f$\phi=0\f$ and \f$\phi=\pi/4\f$. 
+ * For \f$\phi=0\f$, 3 profiles are drawn, corresponding to 
+ * \f$\theta=0,\ \pi/4,\ \pi/2\f$,
+ * whereas for \f$\phi=\pi/4\f$, 2 profiles are drawn, corresponding to
+ * \f$\theta=0,\ \pi/4\f$.
+ *
+ *  @param uu [input] Scalar field to be drawn
+ *  @param r_min [input] Minimal value of \e r  for the drawing
+ *  @param r_max [input] Maximal value of \e r  for the drawing
+ *  @param nomy [input] y legend of the figure (default value = 0x0,  
+ *		        corresponds to no y legend)
+ *  @param ngraph [input] Index of the graphic device (in the range [0,99])
+ *  to be used for the plot: if this device has never been used or is closed, 
+ *    it will be opened. 
+ */
+void des_meridian(const Scalar& uu, double r_min, double r_max,
+                  const char* nomy, int ngraph) ; 
+
+
+/** Draws profiles of the components of a symmetric tensor field 
+ * along various radial axes 
+ * in two meridional planes \f$\phi=0\f$ and \f$\phi=\pi/4\f$
+ * (see funtion \c des_meridian(const Scalar&, double, double, const char*, int)
+ * for details). 
+ *
+ *  @param hh [input] Tensor field, the components of which are to be drawn
+ *  @param r_min [input] Minimal value of \e r  for the drawing
+ *  @param r_max [input] Maximal value of \e r  for the drawing
+ *  @param name [input] Name of the tensor field (for the y legends). 
+ */
+void des_meridian(const Sym_tensor& hh, double r_min, double r_max,
+                  const char* name) ; 
 
 
 /** Basic routine for drawing a stellar surface in a plane X=constant.

@@ -31,6 +31,9 @@ char des_prof_scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/04/05 14:42:02  e_gourgoulhon
+ * Added functions des_meridian.
+ *
  * Revision 1.4  2004/02/17 22:18:00  e_gourgoulhon
  * Changed prototype of des_profile_mult (added radial_scale, theta and
  * phi can now vary from one profile to the other, etc...)
@@ -98,6 +101,8 @@ void des_profile(const Scalar& uu, double r_min, double r_max,
     des_profile(uutab, npt, xmin, xmax, nomx, nomy, title) ; 
     
 } 
+
+//******************************************************************************
 
 void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
 		     double theta, double phi, char* nomx, char* nomy, char* title) {
@@ -187,5 +192,50 @@ void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max,
     delete [] uutab ; 
     
 } 
+
+//******************************************************************************
+
+void des_meridian(const Scalar& uu, double r_min, double r_max,
+                  const char* nomy, int ngraph) {
+
+        const Scalar* des[] = {&uu, &uu, &uu, &uu, &uu} ; 
+        double phi1[] = {0., 0., 0., 0.25*M_PI, 0.25*M_PI} ; 
+        double theta1[] = {0., 0.25*M_PI, 0.5*M_PI, 0., 0.25*M_PI} ;
+         
+        des_profile_mult(des, 5, r_min, r_max, theta1, phi1, 1., false, 
+            nomy, 
+            "phi=0: th=0, pi/4, pi/2, phi=pi/4: th=0, pi/4",
+            ngraph) ;
+        
+}
+
+//******************************************************************************
+
+
+void des_meridian(const Sym_tensor& hh, double r_min, double r_max,
+                  const char* name) {
+    
+    char nomy[80] ;
+    
+    int k = 0 ; 
+    for (int i=1; i<=3; i++) {
+        for (int j=i; j<=3; j++) {
+
+                char nom_i[3] ; 
+                sprintf(nom_i, "%d", i) ; 
+                char nom_j[3] ; 
+                sprintf(nom_j, "%d", j) ; 
+                strncpy(nomy, name, 40) ; 
+                strcat(nomy, "  comp. ") ; 
+	            strcat(nomy, nom_i) ; 
+	            strcat(nomy, nom_j) ; 
+    
+                des_meridian(hh(i,j), r_min, r_max, nomy, 50+k) ; 
+                k++ ; 
+                                
+        }
+    }              
+
+}
 
 
