@@ -35,6 +35,9 @@ char scalar_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/15 21:14:23  e_gourgoulhon
+ * Added method poisson_angu().
+ *
  * Revision 1.1  2003/09/25 08:06:56  e_gourgoulhon
  * First versions (use Cmp as intermediate quantities).
  *
@@ -50,7 +53,7 @@ char scalar_pde_C[] = "$Header$" ;
 #include "cmp.h"
 
 		    //-----------------------------------//
-		    //      Scalar Poisson equation	 //
+		    //      Scalar Poisson equation      //
 		    //-----------------------------------//
 
 // Version without parameters
@@ -79,6 +82,25 @@ void Scalar::poisson(Param& par, Scalar& uu) const {
     mp->poisson(csource, par, cuu) ;     
     
 	uu = cuu ; 
+}
+
+
+		    //-----------------------------------//
+		    //      Angular Poisson equation	 //
+		    //-----------------------------------//
+
+// Version without parameters
+// --------------------------
+
+Scalar Scalar::poisson_angu() const {
+    
+    Param bidon ;
+
+	Scalar resu(*mp) ; 
+		
+    mp->poisson_angu(*this, bidon, resu) ; 
+
+    return resu ;          
 }
 
 

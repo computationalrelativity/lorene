@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2003/10/15 21:10:11  e_gourgoulhon
+ * Added method poisson_angu().
+ *
  * Revision 1.22  2003/10/15 16:03:35  j_novak
  * Added the angular Laplace operator for Scalar.
  *
@@ -804,6 +807,18 @@ class Scalar : public Tensor {
    */
   Tbl test_poisson(const Scalar& uu, ostream& ostr, 
 		   bool detail = false) const ;  
+
+	/** Solves the angular Poisson equation with {\tt *this} as source. 
+	 * The angular Poisson equation is $\Delta_{\theta\varphi} u = \sigma$,
+	 * where $\Delta_{\theta\varphi} u := \frac{\partial^2 u}
+	 *  {\partial \theta^2} + \frac{1}{\tan \theta} \frac{\partial u}
+	 *  {\partial \theta} +\frac{1}{\sin^2 \theta}\frac{\partial^2 u}
+	 *  {\partial \varphi^2}$.
+	 * 
+	 *   @return solution {\it u}. 
+	 */
+	Scalar poisson_angu() const ;
+
 
   /** Performs one time-step integration (from $t=j \to j+1$) of the 
    *   scalar d'Alembert equation with {\tt *this} being the value of 
