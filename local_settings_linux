@@ -25,11 +25,20 @@ CXX 	 = g++
 
 # Options for the C++ compiler to produce the optimized library:
 # -------------------------------------------------------------
-CXXFLAGS = -Wall -Wconversion -Woverloaded-virtual -O2 -DNDEBUG
+CXXFLAGS = -O2 -DNDEBUG -pedantic -Wall -W -Wundef -Wshadow -Wcast-qual \
+  -Wcast-align -Wconversion -Winline \
+  -Wabi -Wold-style-cast -Woverloaded-virtual
 
 # Options for the C++ compiler to produce the library for debugging:
 # -----------------------------------------------------------------
-CXXFLAGS_G = -Wall -Wconversion -Woverloaded-virtual -g 
+CXXFLAGS_G = -g -pedantic -Wall -W -Wundef -Wshadow -Wcast-qual \
+  -Wcast-align -Wconversion -Winline \
+  -Wabi -Wold-style-cast -Woverloaded-virtual 
+
+# with the option -Weffc++ :
+#CXXFLAGS_G = -g -pedantic -Wall -W -Wfloat-equal -Wundef -Wshadow -Wcast-qual \
+#  -Wcast-align -Wconversion -Winline \
+#  -Wabi -Weffc++ -Wold-style-cast -Woverloaded-virtual 
 
 # Path for the include files:
 # --------------------------
