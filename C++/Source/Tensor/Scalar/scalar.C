@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2004 Eric Gourgoulhon & Jerome Novak
  *
  *   Copyright (c) 1999-2001 Philippe Grandclement (for preceding class Cmp)
  *
@@ -35,6 +35,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2004/02/19 22:11:50  e_gourgoulhon
+ * Added argument "comment" in method spectral_display.
+ *
  * Revision 1.23  2004/01/12 15:32:25  j_novak
  * Yet another problem with ETATUN
  *
@@ -657,8 +660,14 @@ ostream& operator<<(ostream& ost, const Scalar& ci) {
 // spectral_display
 //-----------------
 
-void Scalar::spectral_display(double thres, int precis, ostream& ost) const {
+void Scalar::spectral_display(const char* comment, 
+            double thres, int precis, ostream& ost) const {
 
+
+    if (comment != 0x0) {
+        ost << comment << " : " << endl ; 
+    }
+    
     // Cas particuliers
     //-----------------
 

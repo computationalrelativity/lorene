@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.44  2004/02/19 22:07:35  e_gourgoulhon
+ * Added argument "comment" in method spectral_display.
+ *
  * Revision 1.43  2004/02/11 09:47:44  p_grandclement
  * Addition of a new elliptic solver, matching with the homogeneous solution
  * at the outer shell and not solving in the external domain (more details
@@ -732,13 +735,16 @@ class Scalar : public Tensor {
 	/** Displays the spectral coefficients and the associated
 	 *  basis functions. This function shows only the values greater than a 
 	 *  given threshold.
+         *   @param comment comment to be printed at top of the display
+         *      (default: 0x0 = nothing printed)
 	 *   @param threshold [input] Value above which a coefficient is printed
 	 *    (default: 1.e-7)
 	 *   @param precision [input] Number of printed digits (default: 4)
 	 *   @param ostr [input] Output stream used for the printing (default: cout)
 	 */
-	virtual void spectral_display(double threshold = 1.e-7, int precision = 4, 
-			   ostream& ostr = cout) const ;
+	virtual void spectral_display(const char* comment = 0x0, 
+                            double threshold = 1.e-7, int precision = 4, 
+			    ostream& ostr = cout) const ;
 
   /// Display
   friend ostream& operator<<(ostream& , const Scalar & ) ;	

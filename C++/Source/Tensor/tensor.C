@@ -34,6 +34,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.32  2004/02/19 22:10:14  e_gourgoulhon
+ * Added argument "comment" in method spectral_display.
+ *
  * Revision 1.31  2004/02/05 15:03:47  e_gourgoulhon
  * Corrected bug in method derive_con().
  *
@@ -759,30 +762,35 @@ ostream& operator<<(ostream& flux, const Tensor &source ) {
 }
 
 
-void Tensor::spectral_display(double thres, int precis, ostream& ost) const {
+void Tensor::spectral_display(const char* comment,
+                        double thres, int precis, ostream& ost) const {
 
-  	ost << "Lorene class : " << typeid(*this).name() 
-            << "           Valence : " << valence << '\n' ;
+    if (comment != 0x0) {
+        ost << comment << " : " << endl ; 
+    }
+    
+    ost << "Lorene class : " << typeid(*this).name() 
+        << "           Valence : " << valence << '\n' ;
 
-	for (int ic=0; ic<n_comp; ic++) {
-		
-		if (valence == 0) {
-			ost << 
-			"===================== Scalar field ========================= \n" ;
-		}
-		else { 
-      		ost << "================ Component " ;
-			Itbl num_indices = indices(ic) ;
-			for (int j=0 ; j<valence ; j++) {
-	  			ost << " " << num_indices(j) ;
-      		}
-			ost << " ================ \n" ; 
-		}
-		ost << '\n' ; 
-		
-		cmp[ic]->spectral_display(thres, precis, ost) ; 
-		ost << '\n' ; 			
+    for (int ic=0; ic<n_comp; ic++) {
+	
+        if (valence == 0) {
+	    ost << 
+	    "===================== Scalar field ========================= \n" ;
 	}
+	else { 
+      	    ost << "================ Component " ;
+	    Itbl num_indices = indices(ic) ;
+	    for (int j=0 ; j<valence ; j++) {
+	        ost << " " << num_indices(j) ;
+      	    }
+			ost << " ================ \n" ; 
+	}
+	ost << '\n' ; 
+		
+	cmp[ic]->spectral_display(0x0, thres, precis, ost) ; 
+	ost << '\n' ; 			
+    }
 }
 
 
