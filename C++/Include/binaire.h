@@ -4,7 +4,7 @@
  */
 
 /*
- *   Copyright (c) 2000-2001 Eric Gourgoulhon
+ *   Copyright (c) 2000-2003 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/09/15 15:09:47  e_gourgoulhon
+ * Added the member function write_global.
+ *
  * Revision 1.3  2002/06/17 14:05:16  j_novak
  * friend functions are now also declared outside the class definition
  *
@@ -251,9 +254,15 @@ class Binaire {
 	/// Display in polytropic units
 	void display_poly(ostream& ) const ; 
 
-    private:
+    /** Write global quantities in a formatted file. 
+	 * This file can be read by an external program. 
+	 */
+	void write_global(ostream& ) const  ;
+	
+	private:
 	/// Operator >> (function called by the operator <<). 
 	ostream& operator>>(ostream& ) const ;    
+	
 
     // Computational routines
     // ----------------------

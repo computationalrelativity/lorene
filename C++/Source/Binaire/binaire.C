@@ -5,7 +5,7 @@
  */
 
 /*
- *   Copyright (c) 2000-2001 Eric Gourgoulhon
+ *   Copyright (c) 2000-2003 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -31,6 +31,9 @@ char binaire_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/09/15 15:10:12  e_gourgoulhon
+ * Added the member function write_global.
+ *
  * Revision 1.4  2002/12/17 21:18:46  e_gourgoulhon
  * Suppression of Etoile_bin::set_companion.
  *
@@ -326,6 +329,81 @@ void Binaire::display_poly(ostream& ost) const {
     
 
 } 
+
+void Binaire::write_global(ostream& ost) const {
+
+    #include "unites.h"	    
+    // To avoid some compilation warnings
+    if (&ost == 0x0) {
+	cout << f_unit << qpig << msol << mevpfm3 << endl ; 
+    }    
+
+	const Map& mp1 = star1.get_mp() ;
+	const Mg3d* mg1 = mp1.get_mg() ;
+	int nz1 = mg1->get_nzone() ; 
+
+	ost.precision(5) ;
+	ost << "# Grid 1 : " << nz1 << "x"
+		<< mg1->get_nr(0) << "x" << mg1->get_nt(0) << "x" << mg1->get_np(0) 
+		<< "  R_out(l) [km] : " ;
+    for (int l=0; l<nz1; l++) {
+		ost << " " << mp1.val_r(l, 1., M_PI/2, 0) / km ; 
+    }
+    ost << endl ; 
+	
+	ost << "#      d [km]         "  
+		<< "       d_G [km]       "
+		<< "     d/(a1 +a1')      "
+		<< "       f [Hz]         "
+		<< "    M_ADM [M_sol]     "     
+		<< "    J [G M_sol^2/c]   "  << endl ;   
+
+	ost.precision(15) ;
+	ost << scientific << separation() / km << " "
+		<< ( star2.xa_barycenter() - star1.xa_barycenter() ) / km << " "
+		<< separation() / (star1.ray_eq() + star2.ray_eq()) << " "
+		<< omega / (2*M_PI)* f_unit << " "
+		<< mass_adm() / msol << " "
+		<< angu_mom()(2)/ ( qpig / (4* M_PI) * msol*msol) << endl ; 
+		
+	ost << "#     H_c(1)[c^2]     "
+	    << "    e_c(1)[rho_nuc]   " 
+	    << "    M_B(1) [M_sol]    "
+	    << "     r_eq(1) [km]     "
+	    << "        a2/a1(1)	  " 
+	    << "        a3/a1(1)	  " << endl ; 
+		
+	ost << scientific << star1.get_ent()()(0,0,0,0) << " "
+		<< star1.get_ener()()(0,0,0,0) << " "
+		<< star1.mass_b() / msol << " "		
+	  	<< star1.ray_eq()  /km << " "
+		<< star1.ray_eq_pis2() / star1.ray_eq() << " "
+		<< star1.ray_pole() / star1.ray_eq() << endl ;
+		
+	ost << "#     H_c(2)[c^2]     "
+	    << "    e_c(2)[rho_nuc]   " 
+	    << "    M_B(2) [M_sol]    "
+	    << "     r_eq(2) [km]     "
+	    << "        a2/a1(2)	  " 
+	    << "        a3/a1(2)	  " << endl ; 
+		
+		
+	ost << scientific << star2.get_ent()()(0,0,0,0) << " "
+		<< star2.get_ener()()(0,0,0,0) << " "
+		<< star2.mass_b() / msol << " "	
+	  	<< star2.ray_eq()  /km << " "
+		<< star2.ray_eq_pis2() / star1.ray_eq() << " "
+		<< star2.ray_pole() / star1.ray_eq() << endl ;
+	
+	ost << "#        VE(M)	      "
+	 	<< "         VE(GB)		  "
+		<< "         VE(FUS)	  " << endl ; 
+		
+	ost << scientific << virial() << " "
+		<< virial_gb() << " "
+		<< virial_fus() << " " ; 
+
+}
 
 
    
