@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2003/10/20 15:12:17  j_novak
+ * New method Vector::poisson
+ *
  * Revision 1.15  2003/10/20 14:44:49  e_gourgoulhon
  * Class Vector_divfree: added method poisson().
  *
@@ -261,12 +264,45 @@ class Vector: public Tensor {
 	 *
 	 */
 	virtual void std_spectral_base() ; 
-	
+
+    // Differential operators/ PDE solvers
+    // -----------------------------------
+    public:
 	/**The divergence of {\tt this} with respect to a {\tt Metric}.
 	 * The {\tt Vector} is assumed to be contravariant.
 	 */
 	const Scalar& divergence(const Metric&) const ; 
 
+	/**Solves the vector Poisson equation with {\tt *this} as a source.
+	 * 
+	 * The equatiopn solved is $\Delta N^i +\lambda \nabla^i 
+	 * \nabla_k N^k = S^i$.
+	 * {\tt *this} must be given with {\tt dzpuis} = 4.
+	 * It uses the Helmholtz decomposition (see documentation of
+	 * {\tt p_potential}), with a flat metric, deduced from the triad.
+	 *
+	 * @param lambda [input] $\lambda$.
+	 *
+	 * @return the solution $N^i$.
+	 */
+	Vector poisson(const double lambda) const ;
+     
+	/**Solves the vector Poisson equation with {\tt *this} as a source
+	 * and parameters controlling the solution.
+	 * 
+	 * The equatiopn solved is $\Delta N^i +\lambda \nabla^i 
+	 * \nabla_k N^k = S^i$.
+	 * {\tt *this} must be given with {\tt dzpuis} = 4.
+	 * It uses the Helmholtz decomposition (see documentation of
+	 * {\tt p_potential}), with a flat metric, deduced from the triad.
+	 *
+	 * @param lambda [input] $\lambda$.
+	 *   @param par [input/output] possible parameters
+	 *   @param uu [input/output] solution {\it u} with the 
+	 *              boundary condition {\it u}=0 at spatial infinity. 
+	 */
+	void poisson(const double lambda, Param& par, Scalar& uu ) const ;
+     
  
 };
 
