@@ -32,6 +32,9 @@ char et_rot_mag_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2002/06/03 13:23:16  j_novak
+ * The case when the mapping is not adapted is now treated
+ *
  * Revision 1.9  2002/06/03 13:00:45  e_marcq
  *
  * conduc parameter read in parmag.d
@@ -79,7 +82,7 @@ extern "C" {
 
 // Algo du papier de 1995
 
-void Et_rot_mag::magnet_comput(const int conduc,
+void Et_rot_mag::magnet_comput(const int conduc, const int adapt_flag,
 			       Cmp (*f_j)(const Cmp& x,const double a_j), 
 			       Param& par_poisson_At, 
 			       Param& par_poisson_Avect){
@@ -90,6 +93,22 @@ void Et_rot_mag::magnet_comput(const int conduc,
   //  int conduc = 0 ; // 0=isolant, 1=supracond
 
   if(conduc==1) {
+    bool adapt(adapt_flag) ;
+  /****************************************************************
+   *  Assertion that all zones have same number of points in theta
+   ****************************************************************/
+  int nt = mp.get_mg()->get_nt(nzet-1) ; 
+  for (int l=0; l<Z; l++) assert(mp.get_mg()->get_nt(l) == nt) ;
+
+  Tbl Rsurf(nt) ;
+  Rsurf.set_etat_qcq() ;
+  mp.r.fait() ;
+  mp.tet.fait() ;
+  Mtbl* theta = mp.tet.c ;
+  const Map_radial* mpr = dynamic_cast<const Map_radial*>(&mp) ;
+  assert (mpr != 0x0) ;
+  for (int j=0; j<nt; j++) 
+    Rsurf.set(j) = mpr->val_r_jk(l_surf()(0,j), xi_surf()(0,j), j, 0) ;
 
 
   // Calcul de A_0t dans l'etoile (conducteur parfait)
@@ -125,13 +144,24 @@ void Et_rot_mag::magnet_comput(const int conduc,
   Cmp gtphi( - b_car()*ttnphi) ;
 
   // Calcul de j_t grace a Maxwell-Gauss
-
-  j_t = ((BLAH - A_0t.laplacien())/a_car() - gtphi*j_phi)
-    / gtt;
-  j_t.annule(nzet, Z-1) ;
+  Cmp tmp(((BLAH - A_0t.laplacien())/a_car() - gtphi*j_phi)
+    / gtt);
+  tmp.annule(nzet, Z-1) ;
+  if (adapt) {
+    j_t = tmp ;
+  }
+  else {
+    j_t.allocate_all() ;
+    for (int j=0; j<nt; j++) 
+      for (int l=0; l<nzet; l++) 
+	for (int i=0; i<mp.get_mg()->get_nr(l); i++) 
+	  j_t.set(l,0,j,i) = ( (*mp.r.c)(l,0,j,i) > Rsurf(j) ?
+			  0. : j_t(l,0,j,i) ) ;
+    j_t.annule(nzet,Z-1) ;
+  }
+  j_t.std_base_scal() ;
 
   // Calcul du courant j_phi
-
   j_phi = omega * j_t + (ener() + press())*f_j(A_phi, a_j) ;
   j_phi.std_base_scal() ;
 
@@ -205,10 +235,6 @@ void Et_rot_mag::magnet_comput(const int conduc,
   VEC.set_etat_qcq() ;
   MAT_PHI.set_etat_qcq() ;
 
-  mp.tet.fait() ;
-  Mtbl* theta = mp.tet.c ;
-  const Map_radial* mpr = dynamic_cast<const Map_radial*>(&mp) ;
-  assert (mpr != 0x0) ;
   Tbl leg(L,2*L) ;
   //  Tbl legp(L,2*L) ; // -sin(theta_k)*leg'_l(cos(theta_k))
   leg.set_etat_qcq() ;
@@ -236,8 +262,6 @@ void Et_rot_mag::magnet_comput(const int conduc,
   }
   
   for(int k=0;k<L;k++){
-    // Rsurf retourne la valeur du rayon en theta_k. via xi et ??
-    double Rsurf = mpr->val_r_jk(l_surf()(0,k), xi_surf()(0,k), k, 0) ;
 
     // Valeurs a la surface trouvees via va.val_point_jk(l,xisurf,k,0)
 
@@ -245,7 +269,7 @@ void Et_rot_mag::magnet_comput(const int conduc,
       -A_1t.va.val_point_jk(l_surf()(0,k), xi_surf()(0,k), k, 0);
     for(int l=0;l<L;l++){
 
-      MAT.set(l,k) = leg(k,2*l)/pow(Rsurf,2*l+1);
+      MAT.set(l,k) = leg(k,2*l)/pow(Rsurf(k),2*l+1);
       //      MAT_PHI.set(l,k) = -(l+1)*legp(k,2*l)/pow(Rsurf,2*l+2); // pair ou impair ?
     }
   }
@@ -267,12 +291,12 @@ void Et_rot_mag::magnet_comput(const int conduc,
 
   dgesv_(&L, &un, MAT_SAVE.t, &L, IPIV, VEC2.t, &L, &INFO) ;
 
+  delete [] IPIV ;
+
   Cmp psi(mp);
   Cmp psi2(mp);
   psi.allocate_all() ;
   psi2.allocate_all() ;
-
-  mp.r.fait() ;
 
   for(int nz=0;nz < Z; nz++){
     for(int i=0;i< mp.get_mg()->get_nr(nz);i++){
@@ -299,9 +323,20 @@ void Et_rot_mag::magnet_comput(const int conduc,
     for (int d=0; d<dif; d++) A_1t.dec_dzpuis() ;
   }
 
-  Cmp A_t_ext(A_1t + psi) ;
-  A_t_ext.annule(0,nzet-1) ;
-  A_0t += A_t_ext ;
+  if (adapt) {
+    Cmp A_t_ext(A_1t + psi) ;
+    A_t_ext.annule(0,nzet-1) ;
+    A_0t += A_t_ext ;
+  }
+  else {
+    tmp = A_0t ;
+    A_0t.allocate_all() ;
+    for (int j=0; j<nt; j++) 
+      for (int l=0; l<Z; l++) 
+	for (int i=0; i<mp.get_mg()->get_nr(l); i++) 
+	  A_0t.set(l,0,j,i) = ( (*mp.r.c)(l,0,j,i) > Rsurf(j) ?
+			  A_1t(l,0,j,i) + psi(l,0,j,i) : tmp(l,0,j,i) ) ;
+  } 
   A_0t.std_base_scal() ;
 
   Valeur** asymp = A_0t.asymptot(1) ;
@@ -329,12 +364,25 @@ void Et_rot_mag::magnet_comput(const int conduc,
   if (dif > 0) {
     for (int d=0; d<dif; d++) A_0t.dec_dzpuis() ;
   }
-  Cmp A_t_n(A_0t + C) ;
-  A_t_ext = A_0t + C*psi2 ;
-  A_t_ext.annule(0,nzet-1) ;
-  A_t_n.annule(nzet,Z-1) ;
-  A_t_n += A_t_ext ;
-
+  Cmp A_t_n(mp) ;
+  if (adapt) {
+    A_t_n = A_0t + C ;
+    Cmp A_t_ext(A_0t + C*psi2) ;
+    A_t_ext.annule(0,nzet-1) ;
+    A_t_n.annule(nzet,Z-1) ;
+    A_t_n += A_t_ext ;
+  }
+  else {
+    cout << "Not adapt 3!!" << endl ;
+    cout << "#####################" << endl ;
+    A_t_n.allocate_all() ;
+    for (int j=0; j<nt; j++) 
+      for (int l=0; l<Z; l++) 
+	for (int i=0; i<mp.get_mg()->get_nr(l); i++) 
+	  A_t_n.set(l,0,j,i) = ( (*mp.r.c)(l,0,j,i) > Rsurf(j) ?
+			  A_0t(l,0,j,i) + C*psi2(l,0,j,i) : 
+			     A_0t(l,0,j,i) + C ) ;    
+  }
   A_t_n.std_base_scal() ;
 
   // solution definitive de A_phi :

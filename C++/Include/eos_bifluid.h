@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2002/06/03 13:23:16  j_novak
+ * The case when the mapping is not adapted is now treated
+ *
  * Revision 1.6  2002/05/31 16:13:36  j_novak
  * better inversion for eos_bifluid
  *
@@ -892,16 +895,14 @@ class Eos_bf_poly : public Eos_bifluid {
 				double& nbar2) const ; 
        
 	/** Computes baryon density out of the log-enthalpy asuming
-	 *  that only fluid 1 is present (virtual function implemented 
-	 *  in the derived classes).
+	 *  that only fluid 1 is present.
 	 *  @param ent1 [input,  unit: $c^2$] log-enthalpy $H_1$ 
 	 *  @return nbar1 baryonic density of the first fluid
 	 */
 	virtual double nbar_ent_p1(const double ent1) const  ;
 
 	/** Computes baryon density out of the log-enthalpy assuming
-	 *  that only fluid 2 is present (virtual function implemented 
-	 *  in the derived classes).
+	 *  that only fluid 2 is present.
 	 *  @param ent2 [input,  unit: $c^2$] log-enthalpy $H_1$ 
 	 *  @return nbar1 baryonic density of the first fluid
 	 */
@@ -1209,8 +1210,7 @@ class Eos_bf_poly_newt : public Eos_bf_poly {
 	virtual double nbar_ent_p1(const double ent1) const  ;
 
 	/** Computes baryon density out of the log-enthalpy assuming
-	 *  that only fluid 2 is present (virtual function implemented 
-	 *  in the derived classes).
+	 *  that only fluid 2 is present.
 	 *  @param ent2 [input,  unit: $c^2$] log-enthalpy $H_1$ 
 	 *  @return nbar1 baryonic density of the first fluid
 	 */

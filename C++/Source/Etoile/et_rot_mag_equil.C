@@ -34,6 +34,9 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2002/06/03 13:23:16  j_novak
+ * The case when the mapping is not adapted is now treated
+ *
  * Revision 1.9  2002/06/03 13:00:45  e_marcq
  *
  * conduc parameter read in parmag.d
@@ -415,8 +418,8 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 	//-----------------------------------------------
 	// Computation of electromagnetic potentials :
 	// -------------------------------------------
-
-	magnet_comput(conduc, f_j, par_poisson_At, par_poisson_Avect) ;
+	magnet_comput(conduc, adapt_flag, 
+		      f_j, par_poisson_At, par_poisson_Avect) ;
 
 	cout << "mer, Q, a_j : " << mer << ";" << Q << ";" << a_j << endl ;
 
