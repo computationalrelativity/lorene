@@ -33,6 +33,9 @@ char metrique_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2003/10/17 13:03:33  f_limousin
+ * Add new functions get_cov(), set_cov() and important changes in the functions set_cov() and set_con().
+ *
  * Revision 1.14  2003/10/13 10:33:10  f_limousin
  * *** empty log message ***
  *
@@ -335,11 +338,15 @@ Cmp& Metrique::set_cov (int ind1, int ind2) {
   assert ((ind2 >= 0) && (ind2 < 3)) ;
 
   del_dependances() ;
- 
+  del_deriv() ;
+
   if (p_met_cov == 0x0)
     fait_cov() ;
 
-  p_met_con = 0x0 ;
+  if (p_met_con != 0x0) {
+    delete p_met_con ;
+    p_met_con = 0x0 ;
+  }
 
   return  p_met_cov->set(ind1, ind2);
 
@@ -352,26 +359,58 @@ Cmp& Metrique::set_con (int ind1, int ind2) {
   assert ((ind2 >= 0) && (ind2 < 3)) ;
 
   del_dependances() ;
+  del_deriv() ;
  
   if (p_met_con == 0x0)
     fait_con() ;
 
-  p_met_cov = 0x0 ;
+  if (p_met_cov != 0x0) {
+    delete p_met_cov ;
+    p_met_cov = 0x0 ;
+  }
 
   return  p_met_con->set(ind1, ind2);
 
 }
 
 
+const Cmp& Metrique::get_cov (int ind1, int ind2) const {
+
+  assert ((ind1 >= 0) && (ind1 < 3)) ;
+  assert ((ind2 >= 0) && (ind2 < 3)) ;
+
+  if (p_met_cov == 0x0)
+    fait_cov() ;
+
+  return  p_met_cov->set(ind1, ind2) ;
+}
+
+
+const Cmp& Metrique::get_con (int ind1, int ind2) const {
+
+  assert ((ind1 >= 0) && (ind1 < 3)) ;
+  assert ((ind2 >= 0) && (ind2 < 3)) ;
+ 
+  if (p_met_con == 0x0)
+    fait_con() ;
+
+  return  p_met_con->set(ind1, ind2);
+}
+
+
 Tenseur_sym& Metrique::set_cov () {
 
   del_dependances() ;
+  del_deriv() ;
  
   if (p_met_cov == 0x0)
     fait_cov() ;
 
-  p_met_con = 0x0 ;
-  
+  if (p_met_con != 0x0) {
+    delete p_met_con ;
+    p_met_con = 0x0 ;
+  }
+
   return  *(p_met_cov) ;
 
 }
@@ -379,15 +418,36 @@ Tenseur_sym& Metrique::set_cov () {
 Tenseur_sym& Metrique::set_con () {
 
   del_dependances() ;
+  del_deriv() ;
  
   if (p_met_con == 0x0)
     fait_con() ;
 
+  if (p_met_cov != 0x0) {
+  delete p_met_cov ;
   p_met_cov = 0x0 ;
+  }
 
   return  *(p_met_con) ;
 
 }
+
+const Tenseur_sym& Metrique::get_cov () const {
+
+  if (p_met_cov == 0x0)
+    fait_cov() ;
+
+  return  *(p_met_cov) ;
+}
+  
+const Tenseur_sym& Metrique::get_con () const {
+
+  if (p_met_con == 0x0)
+    fait_con() ;
+  
+  return  *(p_met_con) ;
+}
+
 
 
 //AFFECTATIONS :
