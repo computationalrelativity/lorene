@@ -1,0 +1,54 @@
+1/ Description of the various codes
+   ================================
+
+read_bin_ns: code for reading a binary file containing data from a spectral computation
+             with Lorene and exporting all the fields on a Cartesian grid
+
+2/ Compilation
+   ===========
+
+Typing
+
+	make
+
+will produce the executable read_bin_ns in a non-optimized version for
+debugging purposes. To get an optimized version for production purposes
+type instead
+
+	make -f Makefile_O2
+
+You can clear everything by
+
+	make uninstall
+
+
+3/ Input parameters
+   ================
+
+The code read_bin_ns needs one input file:
+
+read_bin_ns.par :  parameters of the Cartesian grid and name of the spectral data file
+
+The spectral data files resulting from Lorene computations can be downloaded from the
+CVS repository of the EU Network "Sources of gravitational radiation", in the module
+Meudon/Data/BinNS. See
+
+        http://www.eu-network.org/Projects/InitialData.html
+
+4/ Running
+   =======
+
+Simply type
+
+	read_bin_ns
+
+The output files are:
+
+        inib.d : data on the Cartesian grid in a binary format; can be used as input in
+                 the constructor Bin_NS::Bin_NS(FILE* ) for further processing
+
+        inif.d : data on the Cartesian grid in a formatted format; can be used as input in
+                 the constructor Bin_NS::Bin_NS(ifstream& ) for further processing
+
+
+

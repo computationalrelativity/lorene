@@ -29,6 +29,10 @@ char read_bin_ns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/01/15 09:35:33  e_gourgoulhon
+ * Added README file
+ * Suppressed outputs/inputs in read_bin_ns.C
+ *
  * Revision 1.1  2002/01/11 17:16:14  e_gourgoulhon
  * Main code and documentation for exporting binary neutron stars
  *
@@ -142,27 +146,27 @@ int main() {
 
     // Create a new object from a binary file
     //---------------------------------------
-    finib = fopen("inib.d", "r") ;
-    Bin_NS binary2(finib) ;
-    fclose( finib ) ;
+    // finib = fopen("inib.d", "r") ;
+    // Bin_NS binary2(finib) ;
+    // fclose( finib ) ;
 
-    cout << endl << "Binary read in the binary file : " << binary2 << endl ;
+    // cout << endl << "Binary read in the binary file : " << binary2 << endl ;
 
-    finib = fopen("inib2.d", "w") ;
-    binary2.save_bin(finib) ;
-    fclose( finib ) ;
+    // finib = fopen("inib2.d", "w") ;
+    // binary2.save_bin(finib) ;
+    // fclose( finib ) ;
 
     // Create a new object from a formatted file
     //---------------------------------------
-    ifstream finif3("inif.d") ;
-    Bin_NS binary3(finif3) ;
-    finif3.close() ;
+    // ifstream finif3("inif.d") ;
+    // Bin_NS binary3(finif3) ;
+    // finif3.close() ;
 
-    cout << endl << "Binary read in the formatted file : " << binary3 << endl ;
+    // cout << endl << "Binary read in the formatted file : " << binary3 << endl ;
 
-    finif.open("inif3.d") ;
-    binary3.save_form(finif) ;
-    finif.close() ;
+    // finif.open("inif3.d") ;
+    // binary3.save_form(finif) ;
+    // finif.close() ;
 
     // Clean exit
     // ----------
