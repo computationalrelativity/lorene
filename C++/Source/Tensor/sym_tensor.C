@@ -35,6 +35,9 @@ char sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/01 15:39:43  e_gourgoulhon
+ * Added assert to insure that both indices have the same type.
+ *
  * Revision 1.2  2003/09/26 08:05:31  j_novak
  * New class Vector.
  *
@@ -62,6 +65,8 @@ char sym_tensor_C[] = "$Header$" ;
 // --------------------
 Sym_tensor::Sym_tensor(const Map& map, const Itbl& tipe,const Base_vect& triad_i) 
 		: Tensor(map, 2, tipe, 6, triad_i) {
+		
+		assert(tipe(0) == tipe(1)) ; 
 
 }
 
@@ -90,6 +95,8 @@ Sym_tensor::Sym_tensor (const Tensor& source) :
   Tensor (*source.mp, 2, source.type_indice, 6, *(source.triad)) {
 	
     assert (source.valence == 2) ;
+	assert(source.type_indice(0) == source.type_indice(1)) ; 
+	
 
     for (int i=0 ; i<n_comp ; i++) {
 	int place_source = source.position(indices(i)) ;
