@@ -6,7 +6,7 @@
 /*
  *   Copyright (c) 1999-2000 Jean-Alain Marck
  *   Copyright (c) 1999-2001 Eric Gourgoulhon
- *   Copyright (c) 2000-2001 Jerome Novak
+ *   Copyright (c) 2000-2003 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -37,6 +37,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/09/16 08:53:05  j_novak
+ * Addition of the T_LEG_II base (odd in theta, only for odd m) and the
+ * transformation functions from and to T_SIN_P.
+ *
  * Revision 1.2  2002/03/07 15:41:12  n_chamel
  * New class for dealing with Cartesian grids
  * Added the sampling type UNIFORM in type_parite.h
@@ -124,6 +128,7 @@
 #define	    T_LEG_I	0x00000f00	/* fct. de Legendre associees impaires */
 #define	    T_LEG_IP	0x00001000	/* fct. de Legendre associees impaires avec m pair */
 #define	    T_LEG_PI	0x00001100	/* fct. de Legendre associees paires avec m impair */
+#define	    T_LEG_II	0x00001200	/* fct. de Legendre associees impaires avec m impair */
 
     /* Phi */
 #define	    P_COSSIN	0x00010000	/* dev. standart */

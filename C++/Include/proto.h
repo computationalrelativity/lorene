@@ -7,7 +7,7 @@
  *   Copyright (c) 1999-2000 Jean-Alain Marck
  *   Copyright (c) 1999-2001 Philippe Grandclement
  *   Copyright (c) 1999-2002 Eric Gourgoulhon
- *   Copyright (c) 2002 Jerome Novak
+ *   Copyright (c) 2002-2003 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -35,6 +35,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/09/16 08:53:05  j_novak
+ * Addition of the T_LEG_II base (odd in theta, only for odd m) and the
+ * transformation functions from and to T_SIN_P.
+ *
  * Revision 1.9  2003/06/18 08:45:26  j_novak
  * In class Mg3d: added the member get_radial, returning only a radial grid
  * For dAlembert solver: the way the coefficients of the operator are defined has been changed.
@@ -225,11 +229,13 @@ double* mat_cossinci_legi(int, int) ;
 double* mat_cosp_legpp(int, int) ;   
 double* mat_cosi_legip(int, int) ;   
 double* mat_sini_legpi(int, int) ;   
+double* mat_sinp_legii(int, int) ;   
 double* mat_legp_cossincp(int,  int) ;
 double* mat_legi_cossinci(int,  int) ;
 double* mat_legpp_cosp(int, int) ;   
 double* mat_legip_cosi(int, int) ;   
 double* mat_legpi_sini(int, int) ;   
+double* mat_legii_sinp(int, int) ;   
 void chb_cossincp_legp(const int* , const double* , double* ) ;
 void chb_legp_cossincp(const int* , const double* , double* ) ;
 void chb_cosp_legpp(const int* , const double* , double* ) ;
@@ -240,6 +246,8 @@ void chb_sini_legpi(const int* , const double* , double* ) ;
 void chb_legpi_sini(const int* , const double* , double* ) ;
 void chb_cossinci_legi(const int* , const double* , double* ) ;
 void chb_legi_cossinci(const int* , const double* , double* ) ;
+void chb_sinp_legii(const int* , const double* , double* ) ;
+void chb_legii_sinp(const int* , const double* , double* ) ;
 
 double int1d_chebp(int, const double* ) ;
 

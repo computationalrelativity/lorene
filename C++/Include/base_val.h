@@ -34,6 +34,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/09/16 08:53:05  j_novak
+ * Addition of the T_LEG_II base (odd in theta, only for odd m) and the
+ * transformation functions from and to T_SIN_P.
+ *
  * Revision 1.4  2002/10/16 14:36:28  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -199,6 +203,10 @@ class Tbl ;
  *						($\theta$-sampling: {\tt SYM});
  *   \item {\tt T\_LEG\_PI} (0x00001100) : Associated Legendre functions
  *					  $P_{2j+1}^m(\cos\theta)$, {\it m} being 
+ *					   always odd
+ *						($\theta$-sampling: {\tt SYM});
+ *   \item {\tt T\_LEG\_II} (0x00001200) : Associated Legendre functions
+ *					  $P_{2j}^m(\cos\theta)$, {\it m} being 
  *					   always odd
  *						($\theta$-sampling: {\tt SYM});
  * \end{itemize}
