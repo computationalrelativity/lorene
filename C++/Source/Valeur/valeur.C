@@ -34,6 +34,9 @@ char valeur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/11/23 12:45:00  f_limousin
+ * Add function filtre_tp(int nn, int nz1, int nz2).
+ *
  * Revision 1.4  2003/10/19 19:52:56  e_gourgoulhon
  * Added new method display_coef.
  *
@@ -176,6 +179,7 @@ char valeur_C[] = "$Header$" ;
 // headers Lorene
 #include "valeur.h"
 #include "utilitaires.h"
+#include "proto.h"
 
 
 
@@ -893,4 +897,41 @@ double Valeur::val_point_jk(int l, double x, int j, int k) const {
     }
 
     return resu ; 
+}
+
+
+		//-----------------------------------------------//
+		//	              Filtres	                 //
+		//-----------------------------------------------//
+
+
+void Valeur::filtre_tp(int nn, int nz1, int nz2) {
+
+    int nz = mg->get_nzone() ;
+    int nr = mg->get_nr(0) ;
+    int nt = mg->get_nt(0) ;
+    int np = mg->get_np(0) ;
+
+     if (etat != ETATZERO) {
+	assert (etat == ETATQCQ) ;
+	ylm() ;
+	for (int lz=nz1; lz<=nz2; lz++) {
+	    if (c_cf->operator()(lz).get_etat() != ETATZERO)
+		for (int k=0; k<np+1; k++)
+		    for (int j=0; j<nt; j++) {
+			    int l_q, m_q, base_r ;
+			    if (nullite_plm(j, nt, k, np, base) == 1) {
+				donne_lm(nz, lz, j, k, base, m_q, l_q,base_r) ;
+				if (l_q > nn)
+				    for (int i=0; i<nr; i++)
+					c_cf->set(lz, k, j, i) = 0. ;
+			    }
+		    }
+	}
+	if (c != 0x0) {
+	    delete c ;
+	    c = 0x0 ;
+	}
+    }
+
 }

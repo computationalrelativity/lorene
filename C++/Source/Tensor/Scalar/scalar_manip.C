@@ -27,6 +27,9 @@ char scalar_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/11/23 12:47:44  f_limousin
+ * Add function filtre_tp(int nn, int nz1, int nz2).
+ *
  * Revision 1.8  2004/05/07 11:24:54  f_limousin
  * Implement new method filtre_r (int* nn)
  *
@@ -86,6 +89,7 @@ void Scalar::filtre (int n) {
     
     va.coef() ;
     va.set_etat_cf_qcq() ;
+
     
     for (int k=0 ; k<np+1 ; k++)
 	if (k!=1)
@@ -124,6 +128,12 @@ void Scalar::filtre_r (int* nn) {
 		for (int j=0 ; j<nt[l] ; j++)
 		    for (int i=nr[l]-1; i>nr[l]-1-nn[l] ; i--)
 			va.c_cf->set(l, k, j, i) = 0 ;
+
+	if (va.c != 0x0) {
+	    delete va.c ;
+	    va.c = 0x0 ;
+	}
+    
 }
 
 
@@ -148,71 +158,15 @@ void Scalar::filtre_phi (int n, int nz) {
 	for (int j=0 ; j<nt ; j++)
 	    for (int i=0 ; i<nr ; i++)
 		va.c_cf->set(nz, k, j, i) = 0 ;
-}
 
-/*
- * Annule les n derniers coefficients en phi dans toutes les zones
- */
- 
-void Scalar::filtre_phi (int n) {
-    assert (etat != ETATNONDEF) ;
-    if ( (etat == ETATZERO) || (etat == ETATUN) )
-	return ;
-    
-    del_deriv() ;
-    
-    va.coef() ;
-    va.set_etat_cf_qcq() ;
-    int nz = mp->get_mg()->get_nzone() ;
-    int* nr = new int[nz];
-    int* nt = new int[nz];
-    int* np = new int[nz];
-    for (int l=0; l<=nz-1; l++) {
-	nr[l] = mp->get_mg()->get_nr(l) ; 
-	nt[l] = mp->get_mg()->get_nt(l) ; 
-	np[l] = mp->get_mg()->get_np(l) ; 
-    }
-    
-    for (int l=0; l<=nz-1; l++)
-	for (int k=np[l]+1-n ; k<np[l]+1 ; k++)
-	    for (int j=0 ; j<nt[l] ; j++)
-		for (int i=0 ; i<nr[l] ; i++)
-		    va.c_cf->set(l, k, j, i) = 0 ;
-}
-
-/*
- * Annule les n derniers coefficients en theta dans toutes les zones
- */
-
-void Scalar::filtre_theta (int n) {
-
-    assert (etat != ETATNONDEF) ;
-    if ( (etat == ETATZERO) || (etat == ETATUN) )
-	return ;
-    
-    del_deriv() ;
-    
-    va.coef() ;
-    va.set_etat_cf_qcq() ;
-    int nz = mp->get_mg()->get_nzone() ;
-    int* nr = new int[nz];
-    int* nt = new int[nz];
-    int* np = new int[nz];
-    for (int l=0; l<=nz-1; l++) {
-	nr[l] = mp->get_mg()->get_nr(l) ; 
-	nt[l] = mp->get_mg()->get_nt(l) ; 
-	np[l] = mp->get_mg()->get_np(l) ; 
-    }
-    
-    for (int l=0; l<=nz-1; l++)
-	for (int k=0 ; k<np[l]+1 ; k++)
-	    if (k!=1)
-		for (int j=nt[l]-n ; j<nt[l] ; j++)
-		    for (int i=0 ; i<nr[l] ; i++)
-			va.c_cf->set(l, k, j, i) = 0 ;
 }
 
 
+void Scalar::filtre_tp(int nn, int nz1, int nz2) {
+
+    va.filtre_tp(nn, nz1, nz2) ;
+
+}
 
 
   /* Sets the value of the {\tt Scalar} at the inner boundary of a given 
