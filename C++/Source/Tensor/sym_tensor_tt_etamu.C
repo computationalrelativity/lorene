@@ -32,6 +32,9 @@ char sym_tensor_tt_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/11/05 15:28:31  e_gourgoulhon
+ * Corrected error in update.
+ *
  * Revision 1.4  2003/11/04 23:03:34  e_gourgoulhon
  * First full version of method update().
  * Add method set_rr_mu.
@@ -265,8 +268,8 @@ void Sym_tensor_tt::update() {
 	tmp = taupst ; 
 	tmp.mult_cost() ; // T^ph / tan(th)
 	
-	// 1/sin(th) dT^th/dph - dT^ph/dth - T^ph / tan(th) :
-	tmp = taut.stdsdp() - taup.dsdt() - tmp ; 
+	// - 1/sin(th) dT^th/dph + dT^ph/dth + T^ph / tan(th) :
+	tmp = - taut.stdsdp() + taup.dsdt() + tmp ; 
 	
 	tmp2 = tmp.poisson_angu() ; 	// G
 	
