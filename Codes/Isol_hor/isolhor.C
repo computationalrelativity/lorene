@@ -28,6 +28,10 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.20  2005/03/24 16:50:53  f_limousin
+ * Add parameters solve_shift and solve_psi in par_isol.d and in function
+ * init_dat(...). Implement Isolhor::kerr_perturb().
+ *
  * Revision 1.19  2005/03/22 13:25:49  f_limousin
  * Small changes. The angular velocity and A^{ij} are computed
  * with a differnet sign.
@@ -124,7 +128,8 @@ int main() {
     // Reading of the parameter file
     // ------------------------------
 
-    int niter, bound_nn, bound_psi, bound_beta, solve_lapse ;
+    int niter, bound_nn, bound_psi, bound_beta, solve_lapse, solve_psi ;
+    int solve_shift ;
     double radius, relax, seuil, ang_vel, boost_x, boost_z, lim_nn ;
     fpar >> radius; fpar.ignore(1000, '\n');
     fpar >> relax; fpar.ignore(1000, '\n');
@@ -138,6 +143,8 @@ int main() {
     fpar >> bound_psi ;  fpar.ignore(1000, '\n');
     fpar >> bound_beta ;  fpar.ignore(1000, '\n');
     fpar >> solve_lapse ;  fpar.ignore(1000, '\n');
+    fpar >> solve_psi ;  fpar.ignore(1000, '\n');
+    fpar >> solve_shift ;  fpar.ignore(1000, '\n');
     
 
     int* nr_tab = new int[nz];
@@ -389,7 +396,7 @@ int main() {
 	    + 0.5*hh*hh*(0.75*hh*hh+aaa*aaa*sint*sint))*pow(rr,4)
  	    + hh*hh*mm*(2*mm*mm-0.25*hh*hh)*pow(rr,3) 
 	    + pow(hh,4)/16.*(7*mm*mm+aaa*aaa*cost*cost)*rr*rr 
-			+ pow(hh,6)*mm/16.*rr + pow(hh,8)/256.) ;
+	    + pow(hh,6)*mm/16.*rr + pow(hh,8)/256.) ;
 			       
     nnn.std_spectral_base() ;
     nnn = pow(nnn, 0.5) ;
@@ -471,12 +478,62 @@ int main() {
     Isol_hor isolhor(map, nn_init, psi_init, beta_init, aa_init, met_gamt,
 		     gamt_point, trK, trK_point, ff, 3) ;
 
-    // In order to initialise isolhor.k_uu() and k_dd() at the good value
+    //-------------------------------------------------------
+    // Test of the formula for A^{ij}A_{ij} in Sergio's paper
+    //-------------------------------------------------------
+    
+    Sym_tensor aa_dd (aa_init.up_down(met_gamt)) ;
+    Scalar aa_quad_un (contract(aa_dd, 0, 1, aa_init, 0, 1)) ;
+
+    // Put the metric tilde to the one in Sergio's paper
+//    isolhor.kerr_perturb() ;
+
+    
+    Scalar rbl = rr + mm + (mm*mm - aaa*aaa) / (4*rr) ;
+    rbl.std_spectral_base() ;
+    Scalar sigma = rbl * rbl + aaa * aaa * cost * cost ;
+    sigma.std_spectral_base() ;
+    Scalar wby = aaa * mm * (cost*cost*cost - 3*cost) ;
+    wby.std_spectral_base() ;
+  
+    Scalar ww = wby - (mm*aaa*aaa*aaa*pow(sint, 4.)*cost)/sigma ;
+
+    Scalar aa_quad_deux = 2*contract(ww.derive_con(met_gamt), 0, 
+				     ww.derive_cov(met_gamt), 0) ;
+    aa_quad_deux.div_rsint() ;
+    aa_quad_deux.div_rsint() ;
+    aa_quad_deux.div_rsint() ;
+    aa_quad_deux.div_rsint() ;
+
+    cout << "aa_quad_deux" << endl << norme(aa_quad_deux/(nr_tab[1]*nt_tab[1]*np_tab[1])) << endl ;
+
+    aa_quad_deux.set_domain(0) = 0. ;
+
+
+    aa_quad_deux = aa_quad_deux * a2*a2*a2*a2/b2 ;
+
+    cout << "rbl" << endl << norme(rbl/(nr_tab[1]*nt_tab[1]*np_tab[1])) << endl ;
+    cout << "sigma" << endl << norme(sigma/(nr_tab[1]*nt_tab[1]*np_tab[1])) << endl ;
+    cout << "wby" << endl << norme(wby/(nr_tab[1]*nt_tab[1]*np_tab[1])) << endl ;
+    cout << "ww" << endl << norme(ww/(nr_tab[1]*nt_tab[1]*np_tab[1])) << endl ;
+  
+    cout << "aa_quad_un" << endl << norme(aa_quad_un/(nr_tab[1]*nt_tab[1]*np_tab[1])) << endl ;
+    cout << "aa_quad_deux" << endl << norme(aa_quad_deux/(nr_tab[1]*nt_tab[1]*np_tab[1])) << endl ;
+
+    des_meridian (aa_quad_un, 0, 4, "aa_quad_un", 0) ;
+    des_meridian (aa_quad_deux, 0, 4, "aa_quad_deux", 1) ;
+
+    arrete() ;
+
+
+
+
+   // In order to initialise isolhor.k_uu() and k_dd() at the good value
     Sym_tensor bidon (map, CON, map.get_bvect_spher()) ;
     bidon = isolhor.k_uu() ;
     Sym_tensor bidon2 (isolhor.k_dd()) ;
 
-    psi_init = 1. ;
+//    psi_init = 1. ;
     psi_init.std_spectral_base() ;
     isolhor.set_psi_del_q(psi_init) ;
 
@@ -504,9 +561,9 @@ int main() {
     isolhor.set_boost_z(boost_z) ;
 
     isolhor.init_data(bound_nn, lim_nn, bound_psi, bound_beta, solve_lapse,
-			  seuil, relax, niter) ;
+		      solve_psi, solve_shift, seuil, relax, niter) ;
 
-/*
+
     des_meridian(psi_kerr, 1.00000001, 4., "psi kerr", 12) ;
     des_meridian(isolhor.psi(), 1.00000001, 4., "psi", 13) ;
     des_meridian(isolhor.psi()-psi_kerr, 1.00000001, 4., "diff psi", 14) ;
@@ -514,7 +571,7 @@ int main() {
     des_meridian(isolhor.beta()(3), 1.00000001, 4., "beta(3)", 16) ;
     des_meridian(isolhor.beta()(3) - beta_phi, 1.00000001, 4., "diff beta(3)", 17) ;
     arrete() ;
-*/
+
 
     // Save in a file
     // --------------

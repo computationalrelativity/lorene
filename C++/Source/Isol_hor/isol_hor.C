@@ -31,6 +31,10 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2005/03/24 16:50:28  f_limousin
+ * Add parameters solve_shift and solve_psi in par_isol.d and in function
+ * init_dat(...). Implement Isolhor::kerr_perturb().
+ *
  * Revision 1.16  2005/03/10 10:19:42  f_limousin
  * Add the regularisation of the shift in the case of a single black hole
  * and lapse zero on the horizon.
@@ -665,5 +669,18 @@ void Isol_hor::update_aa() {
   
 }
 
+void Isol_hor::kerr_perturb() {
+
+    Sym_tensor gam (gam().cov()) ;
+    Sym_tensor gamt (gam / gam(3,3)) ;
+
+    Metric metgamt (gamt) ;
+    met_gamt = metgamt ;
+
+    cout << "met_gamt" << endl << norme(met_gamt.cov()(1,1)) << endl << norme(met_gamt.cov()(2,1)) << endl << norme(met_gamt.cov()(3,1)) << endl << norme(met_gamt.cov()(2,2)) << endl << norme(met_gamt.cov()(3,2)) << endl << norme(met_gamt.cov()(3,3)) << endl ;
+    cout << "determinant" << norme(met_gamt.determinant()) << endl ;
 
 
+    hh_evol.update(met_gamt.con() - ff.con(), jtime, the_time[jtime]) ;
+
+}

@@ -26,6 +26,10 @@ char regularisation_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/03/24 16:50:28  f_limousin
+ * Add parameters solve_shift and solve_psi in par_isol.d and in function
+ * init_dat(...). Implement Isolhor::kerr_perturb().
+ *
  * Revision 1.4  2005/03/22 13:25:36  f_limousin
  * Small changes. The angular velocity and A^{ij} are computed
  * with a differnet sign.
@@ -154,20 +158,25 @@ double Isol_hor::regularisation (const Vector& shift_auto_temp,
 double Isol_hor::regularise_one () {
 
     Vector shift (beta()) ;
+    
     shift.change_triad(mp.get_bvect_cart()) ;
     // Vector B (without boost and rotation)
     Vector tbi (shift) ;
-    for (int i=1 ; i<=3 ; i++) {
+ 
+   for (int i=1 ; i<=3 ; i++) {
 	tbi.set(i).set_spectral_va().coef_i() ;
 	tbi.set(i).set_spectral_va().set_etat_c_qcq() ;
-	}
+    }
 	
     for (int i=1 ; i<=3 ; i++)
 	shift(i).get_spectral_va().coef_i() ;
 	
     tbi.set(1) = *shift(1).get_spectral_va().c + omega*mp.y - boost_x ;
     tbi.set(2) = *shift(2).get_spectral_va().c - omega*mp.x ;
-    tbi.set(3) = *shift(3).get_spectral_va().c - boost_z ;
+    if (shift(3).get_etat() !=  ETATZERO)
+	tbi.set(3) = *shift(3).get_spectral_va().c - boost_z ;
+    else 
+	tbi.set(3) = 0. ;
     tbi.std_spectral_base() ;
     
     // We only need values at the horizon
@@ -208,7 +217,8 @@ double Isol_hor::regularise_one () {
 	
 	Scalar copie (shift(comp)) ;
 	shift.set(comp) = shift(comp)-enleve ;
-	
+	shift.std_spectral_base() ;
+
 	assert (shift(comp).check_dzpuis(0)) ;
 	
 	// Intensity of the correction (if nonzero)

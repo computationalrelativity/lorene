@@ -30,6 +30,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.27  2005/03/24 16:50:40  f_limousin
+ * Add parameters solve_shift and solve_psi in par_isol.d and in function
+ * init_dat(...). Implement Isolhor::kerr_perturb().
+ *
  * Revision 1.26  2005/03/10 16:57:01  f_limousin
  * Improve the convergence of the code coal_bh.
  *
@@ -530,8 +534,8 @@ class Isol_hor : public Time_slice_conf {
    *  @param niter number of iterations
    */
   void init_data(int bound_nn, double lim_nn, int bound_psi, int bound_beta,
-		 int solve_lapse, double precis = 1.e-12, double relax = 1., 
-		 int niter = 100) ; 
+		 int solve_lapse, int solve_psi, int solve_shift, 
+		 double precis = 1.e-12, double relax = 1., int niter = 100) ; 
 
   //Sources
   //-------
@@ -659,6 +663,8 @@ class Isol_hor : public Time_slice_conf {
    * \b WARNING  this should only be used for an isolated black hole.
    */
   double regularise_one() ;
+
+  void kerr_perturb() ;
   
   // Outputs
   // -------

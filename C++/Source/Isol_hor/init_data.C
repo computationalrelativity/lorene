@@ -31,6 +31,10 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2005/03/24 16:50:28  f_limousin
+ * Add parameters solve_shift and solve_psi in par_isol.d and in function
+ * init_dat(...). Implement Isolhor::kerr_perturb().
+ *
  * Revision 1.11  2005/03/22 13:25:36  f_limousin
  * Small changes. The angular velocity and A^{ij} are computed
  * with a differnet sign.
@@ -90,7 +94,8 @@ char init_data_C[] = "$Header$" ;
 #include "utilitaires.h"
 
 void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi, 
-			 int bound_beta, int solve_lapse, double precis, 
+			 int bound_beta, int solve_lapse, int solve_psi,
+			 int solve_shift, double precis, 
 			 double relax, int niter) {
 
     using namespace Unites ;
@@ -171,53 +176,54 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	    // Resolution of the Poisson equation for Psi
 	    // ------------------------------------------
 	    
-	Valeur psi_bound (mp.get_mg()-> get_angu()) ;
 	Scalar psi_jp1 (mp) ;
-
-	switch (bound_psi) {
+	if (solve_psi == 1) {
+	    Valeur psi_bound (mp.get_mg()-> get_angu()) ;
 	    
-	    case 0 : {
-		psi_bound = boundary_psi_app_hor() ;
-		psi_jp1 = source_psi().poisson_neumann(psi_bound, 0) + 1. ;
-		break ;
-	    }
-	    case 1 : {
-		psi_bound = boundary_psi_Neu_spat() ;
-		psi_jp1 = source_psi().poisson_neumann(psi_bound, 0) + 1. ;
-		break ;
-	    }
-	    case 2 : {
-		psi_bound = boundary_psi_Dir_spat() ;
-		psi_jp1 = source_psi().poisson_dirichlet(psi_bound, 0) + 1. ;
-		break ;
-	    }
-	    case 3 : {
-		psi_bound = boundary_psi_Neu_evol() ;
-		psi_jp1 = source_psi().poisson_neumann(psi_bound, 0) + 1. ;
-		break ;
-	    }
-	    case 4 : {
-		psi_bound = boundary_psi_Dir_evol() ;
-		psi_jp1 = source_psi().poisson_dirichlet(psi_bound, 0) + 1. ;
-		break ;
-	    }
-	    default : {
-		cout <<"Unexpected type of boundary conditions for psi!" 
-		     << endl 
-		     << "  bound_psi = " << bound_psi << endl ; 
-		abort() ;
-		break ; 
-	    }
+	    switch (bound_psi) {
 		
-	} // End of switch  
-           
-	// Test:
-	maxabs(psi_jp1.laplacian() - source_psi(),
-	       "Absolute error in the resolution of the equation for Psi") ;  
-
-	// Relaxation (relax=1 -> new ; relax=0 -> old )  
-	psi_jp1 = relax * psi_jp1 + (1 - relax) * psi() ;
-
+		case 0 : {
+		    psi_bound = boundary_psi_app_hor() ;
+		    psi_jp1 = source_psi().poisson_neumann(psi_bound, 0) + 1. ;
+		    break ;
+		}
+		case 1 : {
+		    psi_bound = boundary_psi_Neu_spat() ;
+		    psi_jp1 = source_psi().poisson_neumann(psi_bound, 0) + 1. ;
+		    break ;
+		}
+		case 2 : {
+		    psi_bound = boundary_psi_Dir_spat() ;
+		    psi_jp1 = source_psi().poisson_dirichlet(psi_bound, 0) + 1. ;
+		    break ;
+		}
+		case 3 : {
+		    psi_bound = boundary_psi_Neu_evol() ;
+		    psi_jp1 = source_psi().poisson_neumann(psi_bound, 0) + 1. ;
+		    break ;
+		}
+		case 4 : {
+		    psi_bound = boundary_psi_Dir_evol() ;
+		    psi_jp1 = source_psi().poisson_dirichlet(psi_bound, 0) + 1. ;
+		    break ;
+		}
+		default : {
+		    cout <<"Unexpected type of boundary conditions for psi!" 
+			 << endl 
+			 << "  bound_psi = " << bound_psi << endl ; 
+		    abort() ;
+		    break ; 
+		}
+		    
+	    } // End of switch  
+	    
+	    // Test:
+	    maxabs(psi_jp1.laplacian() - source_psi(),
+		   "Absolute error in the resolution of the equation for Psi") ;  
+	    
+	    // Relaxation (relax=1 -> new ; relax=0 -> old )  
+	    psi_jp1 = relax * psi_jp1 + (1 - relax) * psi() ;
+	}
 	
 	// Resolution of the vector Poisson equation for the shift
 	//---------------------------------------------------------
@@ -225,136 +231,131 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	// Source
 	
 	Vector beta_jp1(beta()) ;
-	Vector source_vector ( source_beta() ) ;
-	double lambda = 0. ;
-	Vector source_reg = - (1./3. - lambda) * beta().divergence(ff)
-	    .derive_con(ff) ;
-	source_reg.inc_dzpuis() ;
-	source_vector = source_vector + source_reg ;
-	
-	// Boundary values
-	
-	Valeur boundary_x (mp.get_mg()-> get_angu()) ;
-	Valeur boundary_y (mp.get_mg()-> get_angu()) ;
-	Valeur boundary_z (mp.get_mg()-> get_angu()) ;
 
-	switch (bound_beta) {
+	if (solve_shift == 1) {
+	    Vector source_vector ( source_beta() ) ;
+	    double lambda = 0. ;
+	    Vector source_reg = - (1./3. - lambda) * beta().divergence(ff)
+		.derive_con(ff) ;
+	    source_reg.inc_dzpuis() ;
+	    source_vector = source_vector + source_reg ;
 	    
-	    case 0 : {
-		boundary_x = boundary_beta_x(omega) ;
-		boundary_y = boundary_beta_y(omega) ;
-		boundary_z = boundary_beta_z() ;
-		break ;
-	    }
-	    case 1 : {
-		boundary_x = boundary_vv_x(omega) ;
-		boundary_y = boundary_vv_y(omega) ;
-		boundary_z = boundary_vv_z(omega) ;
-		break ;
-	    }
-	    default : {
-		cout <<"Unexpected type of boundary conditions for psi!" 
-		     << endl 
-		     << "  bound_psi = " << bound_psi << endl ; 
-		abort() ;
-		break ; 
-	    }
+	    // Boundary values
+	    
+	    Valeur boundary_x (mp.get_mg()-> get_angu()) ;
+	    Valeur boundary_y (mp.get_mg()-> get_angu()) ;
+	    Valeur boundary_z (mp.get_mg()-> get_angu()) ;
+	    
+	    switch (bound_beta) {
 		
-	} // End of switch  
-	
-	if (boost_x != 0.) 
-	    boundary_x -= beta_boost_x() ;
-	if (boost_z != 0.) 
-	    boundary_z -= beta_boost_z() ;
-
-	// Resolution
-	//-----------
-	
-	double precision = 1e-8 ;
-	poisson_vect_boundary(lambda, source_vector, beta_jp1, boundary_x, 
-			      boundary_y, boundary_z, 0, precision, 20) ;
-	
-	// Test
-	source_vector.dec_dzpuis() ;
-	maxabs(beta_jp1.derive_con(ff).divergence(ff) 
-	       + lambda * beta_jp1.divergence(ff)
-	       .derive_con(ff) - source_vector,
-	       "Absolute error in the resolution of the equation for beta") ;  
-	cout << endl ;
-
-
-	// Boost
-	// -----
-
-	Vector boost_vect(mp, CON, mp.get_bvect_cart()) ;
-	if (boost_x != 0.) {
-	  boost_vect.set(1) = boost_x ;
-	  boost_vect.set(2) = 0. ;
-	  boost_vect.set(3) = 0. ;
-	  boost_vect.std_spectral_base() ;
-	  boost_vect.change_triad(mp.get_bvect_spher()) ;
-	  beta_jp1 = beta_jp1 + boost_vect ;
+		case 0 : {
+		    boundary_x = boundary_beta_x(omega) ;
+		    boundary_y = boundary_beta_y(omega) ;
+		    boundary_z = boundary_beta_z() ;
+		    break ;
+		}
+		case 1 : {
+		    boundary_x = boundary_vv_x(omega) ;
+		    boundary_y = boundary_vv_y(omega) ;
+		    boundary_z = boundary_vv_z(omega) ;
+		    break ;
+		}
+		default : {
+		    cout <<"Unexpected type of boundary conditions for psi!" 
+			 << endl 
+			 << "  bound_psi = " << bound_psi << endl ; 
+		    abort() ;
+		    break ; 
+		}
+		    
+	    } // End of switch  
+	    
+	    if (boost_x != 0.) 
+		boundary_x -= beta_boost_x() ;
+	    if (boost_z != 0.) 
+		boundary_z -= beta_boost_z() ;
+	    
+	    // Resolution
+	    //-----------
+	    
+	    double precision = 1e-8 ;
+	    poisson_vect_boundary(lambda, source_vector, beta_jp1, boundary_x, 
+				  boundary_y, boundary_z, 0, precision, 20) ;
+	    
+	    // Test
+	    source_vector.dec_dzpuis() ;
+	    maxabs(beta_jp1.derive_con(ff).divergence(ff) 
+		   + lambda * beta_jp1.divergence(ff)
+		   .derive_con(ff) - source_vector,
+		   "Absolute error in the resolution of the equation for beta") ;  
+	    cout << endl ;
+	    
+	    
+	    // Boost
+	    // -----
+	    
+	    Vector boost_vect(mp, CON, mp.get_bvect_cart()) ;
+	    if (boost_x != 0.) {
+		boost_vect.set(1) = boost_x ;
+		boost_vect.set(2) = 0. ;
+		boost_vect.set(3) = 0. ;
+		boost_vect.std_spectral_base() ;
+		boost_vect.change_triad(mp.get_bvect_spher()) ;
+		beta_jp1 = beta_jp1 + boost_vect ;
+	    }
+	    
+	    if (boost_z != 0.) {
+		boost_vect.set(1) = boost_z ;
+		boost_vect.set(2) = 0. ;
+		boost_vect.set(3) = 0. ;
+		boost_vect.std_spectral_base() ;
+		boost_vect.change_triad(mp.get_bvect_spher()) ;
+		beta_jp1 = beta_jp1 + boost_vect ;
+	    }
+	    
+	    // Relaxation (relax=1 -> new ; relax=0 -> old )  
+	    beta_jp1 = relax * beta_jp1 + (1 - relax) * beta() ;
 	}
-	  
-	if (boost_z != 0.) {
-	  boost_vect.set(1) = boost_z ;
-	  boost_vect.set(2) = 0. ;
-	  boost_vect.set(3) = 0. ;
-	  boost_vect.std_spectral_base() ;
-	  boost_vect.change_triad(mp.get_bvect_spher()) ;
-	  beta_jp1 = beta_jp1 + boost_vect ;
-	}
-	
-	// Relaxation (relax=1 -> new ; relax=0 -> old )  
-	beta_jp1 = relax * beta_jp1 + (1 - relax) * beta() ;
-
-	
+	    
 	//===========================================
 	//      Convergence control
 	//===========================================
-
-	double diff_nn ;
-	diff_nn = 0. ;
+	
+	double diff_nn, diff_psi, diff_beta ;
+	diff_nn = 1.e-16 ;
+	diff_psi = 1.e-16 ;
+	diff_beta = 1.e-16 ;
 	if (solve_lapse == 1)
 	    diff_nn = max( diffrel(nn(), nn_jp1) ) ;   
-	double diff_psi = max( diffrel(psi(), psi_jp1) ) ; 
-	double diff_beta = max( maxabs(beta_jp1 - beta()) ) ; 
+	if (solve_psi == 1)
+	diff_psi = max( diffrel(psi(), psi_jp1) ) ; 
+	if (solve_shift == 1)
+	diff_beta = max( maxabs(beta_jp1 - beta()) ) ; 
 	
-	if (solve_lapse == 1) {
-	    cout << "step = " << mer << " :  diff_psi = " << diff_psi 
-		 << "  diff_nn = " << diff_nn 
-		 << "  diff_beta = " << diff_beta << endl ;
-	    cout << "----------------------------------------------" << endl ;
-	    if ((diff_psi<precis) && (diff_nn<precis) && (diff_beta<precis))
-		break ; 
-	    
-	    conv << mer << "  " << log10(diff_nn) << " " << log10(diff_psi) 
-		 << " " << log10(diff_beta) << endl ;
-	}
-
-	else {
-	    cout << "step = " << mer << " :  diff_psi = " << diff_psi 
-		 << "  diff_beta = " << diff_beta << endl ;
-	    cout << "----------------------------------------------" << endl ;
-	    if ((diff_psi<precis) && (diff_beta<precis))
-		break ; 
-	    
-	    conv << mer << "  " << log10(diff_psi) 
-		 << " " << log10(diff_beta) << endl ;
-	}	
-
+	cout << "step = " << mer << " :  diff_psi = " << diff_psi 
+	     << "  diff_nn = " << diff_nn 
+	     << "  diff_beta = " << diff_beta << endl ;
+	cout << "----------------------------------------------" << endl ;
+	if ((diff_psi<precis) && (diff_nn<precis) && (diff_beta<precis))
+	    break ; 
+	
+	conv << mer << "  " << log10(diff_nn) << " " << log10(diff_psi) 
+	     << " " << log10(diff_beta) << endl ;
+    
 	//=============================================
 	//      Updates for next step 
 	//=============================================
 	
 	
-	set_psi_del_q(psi_jp1) ; 
+	if (solve_psi == 1)
+	    set_psi_del_q(psi_jp1) ; 
 //	psi_evol.update(psi_jp1, jtime, ttime) ; 	
 	if (solve_lapse == 1)
 	    n_evol.update(nn_jp1, jtime, ttime) ; 
-	beta_evol.update(beta_jp1, jtime, ttime) ;
+	if (solve_shift == 1)
+	    beta_evol.update(beta_jp1, jtime, ttime) ;
 	
-//	update_aa() ;
+	update_aa() ;
 
 	// Saving ok K_{ij}s^is^j
 	// -----------------------

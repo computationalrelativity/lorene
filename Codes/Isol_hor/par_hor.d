@@ -13,9 +13,10 @@
 0. 0.	boost velocity in x direction / z direction
 0 0.2	boundary condition for the lapse / value of the coefficient
 1	boundary condition for psi
-1	boundary condition for the shift
-0	1 = solve for the lapse (and psi and shift) 
-	0 = solve only the constraints (psi and shift)
+0	boundary condition for the shift
+0	1 = solve for the lapse / 0 : not 
+1	1 = solve for the psi / 0 : not 
+0	1 = solve for the shift / 0 : not 
 
 ########################################################
 For the lapse :
