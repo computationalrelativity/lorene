@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2004/01/28 10:35:52  j_novak
+ * Added new methods mult_r() for Scalars. These do not change the dzpuis flag.
+ *
  * Revision 1.19  2004/01/27 09:33:46  j_novak
  * New method Map_radial::div_r_zec
  *
@@ -875,9 +878,15 @@ class Map {
     // Various linear operators
     // ------------------------
     public: 
-	/** Multiplication by {\it r} of a {\tt Cmp}
+	/** Multiplication by {\it r} of a {\tt Scalar}, the {\tt dzpuis} 
+	 *  of {\tt uu} is not changed.
 	 */
-	virtual void mult_r(Cmp& ) const = 0 ; 
+	virtual void mult_r(Scalar& uu) const = 0 ; 
+
+	/** Multiplication by {\it r} of a {\tt Cmp}. In the CED, 
+	 *  there is only a decrement of {\tt dzpuis}
+	 */
+	virtual void mult_r(Cmp& ci) const = 0 ; 
 
 	/** Multiplication by {\it r} (in the  compactified external domain only)
 	 * of a {\tt Cmp}
@@ -1424,10 +1433,15 @@ class Map_radial : public Map {
     // Various linear operators
     // ------------------------
     public: 
-	/**
-	 * Multiplication by {\it r} of a {\tt Cmp}
+	/** Multiplication by {\it r} of a {\tt Scalar}, the {\tt dzpuis} 
+	 *  of {\tt uu} is not changed.
 	 */
-	virtual void mult_r(Cmp& ) const ; 
+	virtual void mult_r(Scalar& uu) const ; 
+
+	/** Multiplication by {\it r} of a {\tt Cmp}. In the CED, 
+	 *  there is only a decrement of {\tt dzpuis}
+	 */
+	virtual void mult_r(Cmp& ci) const ; 
 
 	/**
 	 * Multiplication by {\it r} (in the compactified external domain only)

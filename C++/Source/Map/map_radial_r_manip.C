@@ -32,6 +32,9 @@ char map_radial_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/01/28 10:35:52  j_novak
+ * Added new methods mult_r() for Scalars. These do not change the dzpuis flag.
+ *
  * Revision 1.7  2004/01/27 09:33:48  j_novak
  * New method Map_radial::div_r_zec
  *
@@ -122,6 +125,79 @@ char map_radial_r_manip_C[] = "$Header$" ;
 			//---------------------------//
 			//	    mult_r	     //
 			//---------------------------//
+
+void Map_radial::mult_r(Scalar& uu) const {
+    
+    // Verifications d'usage :
+    assert(uu.get_etat() != ETATNONDEF) ;
+    
+    // Nothing to do if the Scalar is null :
+    if (uu.get_etat() == ETATZERO) {
+	return ; 
+    }
+
+    assert(uu.get_etat() == ETATQCQ) ;
+        
+    int nz = mg->get_nzone() ;
+    int nzm1 = nz-1 ;
+
+
+    if (mg->get_type_r(nzm1) == UNSURR) {   // Case with ZEC
+					    // -------------
+    
+	// Decomposition inner domains / external domain : 
+	// ----------------------------------------------
+    
+	Scalar uu_ext = uu ; 
+	uu_ext.annule(0, nzm1-1) ; 
+
+	uu.annule_domain(nzm1) ; 
+
+	// Inner domains: multiplication by r :
+	// ----------------------------------
+	//Confort :
+	Valeur& val = uu.set_spectral_va() ; 
+	assert(val.get_mg() == mg) ; 
+
+	val = val.mult_x() ; // Multiplication by xi in the nucleus
+		             // Identity in the shells
+
+	Base_val sauve_base = val.base ; 
+	val = val / xsr ;    // R/xi in the nucleus
+			     // R in the shells
+	val.base = sauve_base ; 
+	 
+	// External domain
+	// ---------------
+	
+	Valeur& val_ext = uu_ext.set_spectral_va() ; 
+	val_ext.sxm1_zec() ; // division par (x-1) dans l'espace des coefs.
+
+	sauve_base = val_ext.base ; 
+	val_ext = xsr * val_ext ;
+	val_ext.base = sauve_base ; 
+    
+	// Recombination
+	// -------------
+
+	uu = uu + uu_ext ; 
+	    
+    }
+    else{   // Case without ZEC
+	    //-----------------
+	Valeur& val = uu.set_spectral_va() ; 
+	val = val.mult_x() ;  // Multiplication by xi in the nucleus
+			    // Identity in the shells
+	
+	Base_val sauve_base = val.base ; 
+	val = val / xsr ;	    // R/xi in the nucleus
+			    // R in the shells 
+	val.base = sauve_base ; 
+    }
+    
+    
+}
+
 
 void Map_radial::mult_r(Cmp& ci) const {
     
