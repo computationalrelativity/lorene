@@ -1,5 +1,6 @@
 /*
- *  Definition of Lorene template class Evolution
+ *  Definition of Lorene template classes Evolution, Evolution_full
+ *  and Evolution_std
  *
  */
 
@@ -30,6 +31,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/02/15 21:55:32  e_gourgoulhon
+ * Introduced derived classes Evolution_full and Evolution_std.
+ * Evolution is now an abstract base class.
+ *
  * Revision 1.1  2004/02/13 15:53:20  e_gourgoulhon
  * New (template) class for time evolution.
  *
@@ -40,9 +45,19 @@
  *
  */
 
-/** Time evolution. 
+                        //---------------------------//
+                        //      Class Evolution      //
+                        //---------------------------//
+
+
+/** Time evolution (*** under development ***). 
  * 
- * Time evolution is managed through the template class {\tt Evolution}.
+ * The template class {\tt Evolution} has been devised to store and
+ * manipulate evolving quantities of any type, for instance {\tt TyT = double}
+ * or {\tt TyT = Scalar}.
+ *
+ * {\tt Evolution} is an abstract base class for classes
+ * {\tt Evolution\_full} and {\tt Evolution\_std}. 
  *
  */
 template<typename TyT> class Evolution {
@@ -54,11 +69,6 @@ template<typename TyT> class Evolution {
     protected: 
         /// Maximum number of stored time steps
         int size ; 
-        
-        /** Determines whether {\tt size} is maintained fixed
-         *  during the object life
-         */
-        const bool fixed_size ; 
         
         /// Array of pointers onto the values (size {\tt size}) 
         TyT** val ; 
@@ -72,37 +82,37 @@ template<typename TyT> class Evolution {
         
     // Constructors - Destructor
     // -------------------------
-    public:
-        /** Standard constructor for rescalable storage.
-         *  The size of storage is set to {\tt global_size}
+    protected:
+        /** Constructor (to be used by derived classes)
          *
          */
-	    Evolution(const TyT& initial_value, double initial_time) ;			
-	
-        /// Standard constructor for fixed storage 
-	    Evolution(const TyT& initial_value, double initial_time,
-                int nstored) ;			
+        Evolution(const TyT& initial_value, double initial_time, int size_i) ;			
 	
         Evolution(const Evolution<TyT>& ) ;		/// Copy constructor
 
-	    virtual ~Evolution() ;			/// Destructor
+    public: 
+
+	virtual ~Evolution() ;			/// Destructor
  
     // Mutators 
     // --------
         /// Update
-        void update(const TyT& new_value, double new_time) ; 
+        virtual void update(const TyT& new_value, double new_time) = 0x0 ; 
     
         /// Assignement
-        void operator=(const Evolution<TyT>& ) ;
+        virtual void operator=(const Evolution<TyT>& ) ;
 
     
     // Accessors
     // ---------
-        /// Returns value at local time step j
-        const TyT& operator[](int j) const ;
+        /// Returns value at time step j
+        virtual const TyT& operator[](int j) const = 0x0 ;
 
         /// Returns value at time t
         TyT operator()(double t) const ;
+
+        /// Returns the time t at time step j
+        virtual double get_time(int j) const = 0x0 ;
 
     // Outputs
     // -------
@@ -111,7 +121,160 @@ template<typename TyT> class Evolution {
 
 };
 
+
+                        //---------------------------//
+                        //   Class Evolution_full    //
+                        //---------------------------//
+
+
+/** Time evolution with full storage (*** under development ***). 
+ * 
+ * The template class {\tt Evolution\_full} has been devised to store and
+ * manipulate evolving quantities of any type, for instance {\tt TyT = double}
+ * or {\tt TyT = Scalar}.
+ * The quantity is stored at all time steps since the beginning of the
+ * time evolution. For large objects, this might result in some memory
+ * problem. The class {\tt Evolution\_std}, which stores only a limited
+ * number of time steps, is to be prefered then.  
+ *
+ */
+template<typename TyT> class Evolution_full : public Evolution<TyT> {
+
+        
+    // Data:
+    // -----
+    
+    private:
+        /** Factor by which the size {\tt size} of the arrays 
+         *  {\tt val} and {\tt the\_time} are to be multiplied when 
+         *  their limits have been reached.
+         */        
+         int fact_resize ; 
+        
+    // Constructors - Destructor
+    // -------------------------
+    public:
+        /** Standard constructor.
+         *  
+         * @param initial_value value to be stored at time step 0
+         * @param initial_time  time t corresponding to time step 0
+         * @param fact_resize_i factor by which the size {\tt size} of the arrays 
+         *  {\tt val} and {\tt the\_time} are to be multiplied when 
+         *  their limits have been reached.
+         *
+         */
+        Evolution_full(const TyT& initial_value, double initial_time, 
+                  int fact_resize_i = 2) ;			
+	
+	
+        Evolution_full(const Evolution_full<TyT>& ) ;	/// Copy constructor
+
+        virtual ~Evolution_full() ;			/// Destructor
+ 
+    // Mutators 
+    // --------
+        /// Update
+        virtual void update(const TyT& new_value, double new_time) ; 
+    
+        /// Assignement to another Evolution\_full
+        virtual void operator=(const Evolution_full<TyT>& ) ;
+
+        /// Assignement to a generic Evolution
+        virtual void operator=(const Evolution<TyT>& ) ;
+
+    
+    // Accessors
+    // ---------
+        /// Returns value at time step j
+        virtual const TyT& operator[](int j) const ;
+
+        /// Returns the time t at time step j
+        virtual double get_time(int j) const ;
+
+    // Outputs
+    // -------
+    
+    
+
+};
+
+
+                        //---------------------------//
+                        //   Class Evolution_std     //
+                        //---------------------------//
+
+
+/** Time evolution with partial storage (*** under development ***). 
+ * 
+ * The template class {\tt Evolution\_std} has been devised to store and
+ * manipulate evolving quantities of any type, for instance {\tt TyT = double}
+ * or {\tt TyT = Scalar}.
+ * The quantity is stored only for a limited number of time steps (the
+ * n last ones).
+ * For a full storage, use instead the class {\tt Evolution\_full}.
+ *
+ */
+template<typename TyT> class Evolution_std : public Evolution<TyT> {
+
+        
+    // Data:
+    // -----
+    protected:
+    
+        /** Position of the time step jlast in the arrays 
+         * {\tt val} and {\tt the\_time}
+         */
+        int pos_jlast ; 
+    
+        
+    // Constructors - Destructor
+    // -------------------------
+    public:
+        /** Standard constructor.
+         *  
+         * @param initial_value value to be stored at time step 0
+         * @param initial_time  time t corresponding to time step 0
+         * @param nstored total number of time steps to be stored
+         *
+         */
+        Evolution_std(const TyT& initial_value, double initial_time, 
+                  int nstored) ;			
+	
+	
+        Evolution_std(const Evolution_std<TyT>& ) ;	/// Copy constructor
+
+        virtual ~Evolution_std() ;			/// Destructor
+ 
+    // Mutators 
+    // --------
+        /// Update
+        virtual void update(const TyT& new_value, double new_time) ; 
+    
+        /// Assignement to another Evolution\_std
+        virtual void operator=(const Evolution_std<TyT>& ) ;
+
+        /// Assignement to a generic Evolution
+        virtual void operator=(const Evolution<TyT>& ) ;
+
+    // Accessors
+    // ---------
+        /// Returns value at time step j
+        virtual const TyT& operator[](int j) const ;
+
+        /// Returns the time t at time step j
+        virtual double get_time(int j) const ;
+
+    // Outputs
+    // -------
+    
+    
+
+};
+
+
 #include "Template/evolution.C"
+#include "Template/evolution_full.C"
+#include "Template/evolution_std.C"
 
 #endif
 
