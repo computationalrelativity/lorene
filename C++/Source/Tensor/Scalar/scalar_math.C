@@ -34,6 +34,9 @@ char scalar_math_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/10 15:57:29  j_novak
+ * Added the state one (ETATUN) to the class Scalar
+ *
  * Revision 1.2  2003/10/01 13:04:44  e_gourgoulhon
  * The method Tensor::get_mp() returns now a reference (and not
  * a pointer) onto a mapping.
@@ -66,6 +69,13 @@ Scalar sin(const Scalar& ci)
 		return ci ;
     }
     
+    // Cas ETATUN
+    if (ci.get_etat() == ETATUN) {
+      Scalar resu(ci.get_mp()) ;
+      resu = sin(double(1)) ;
+      return resu ;
+    }
+    
     // Cas general
     assert(ci.get_etat() == ETATQCQ) ;	// sinon...
 
@@ -94,10 +104,16 @@ Scalar cos(const Scalar& ci)
 		co.va = double(1) ;
     }
     else {
+      // Cas ETATUN
+      if (ci.get_etat() == ETATUN) {
+	co = cos(double(1)) ;
+      }
+      else {
 		// Cas general
 	assert(ci.get_etat() == ETATQCQ) ;	// sinon...
 		co.set_etat_qcq() ; 
 		co.va = cos( ci.va ) ; 
+      }
     }
 
     return co ;
@@ -115,6 +131,13 @@ Scalar tan(const Scalar& ci)
     // Cas ETATZERO
     if (ci.get_etat() == ETATZERO) {
 		return ci ;
+    }
+    
+    // Cas ETATUN
+    if (ci.get_etat() == ETATUN) {
+      Scalar resu(ci.get_mp()) ;
+      resu = tan(double(1)) ;
+      return resu ;
     }
     
     // Cas general
@@ -141,6 +164,13 @@ Scalar asin(const Scalar& ci)
 	return ci ;
     }
     
+    // Cas ETATUN
+    if (ci.get_etat() == ETATUN) {
+      Scalar resu(ci.get_mp()) ;
+      resu = M_PI_2 ;
+      return resu ;
+    }
+    
     // Cas general
     assert(ci.get_etat() == ETATQCQ) ;	// sinon...
 
@@ -153,7 +183,7 @@ Scalar asin(const Scalar& ci)
 }
 
 			    //-------------//
-			    // Arccossine  //
+			    // Arccosine  //
 			    //-------------//
 
 Scalar acos(const Scalar& ci)
@@ -169,10 +199,16 @@ Scalar acos(const Scalar& ci)
 	co.va = double(0.5) * M_PI ;
     }
     else {
-		// Cas general
+      // Cas ETATUN
+      if (ci.get_etat() == ETATUN) {
+	co.set_etat_zero() ;
+      }
+      else {
+	// Cas general
 	assert(ci.get_etat() == ETATQCQ) ;	// sinon...
 	co.set_etat_qcq() ; 
 	co.va = acos( ci.va ) ; 
+      }
     }
 
     return co ;
@@ -190,6 +226,13 @@ Scalar atan(const Scalar& ci)
     // Cas ETATZERO
     if (ci.get_etat() == ETATZERO) {
 	return ci ;
+    }
+    
+    // Cas ETATUN
+    if (ci.get_etat() == ETATUN) {
+      Scalar resu(ci.get_mp()) ;
+      resu = 0.25*M_PI ;
+      return resu ;
     }
     
     // Cas general
@@ -214,6 +257,11 @@ Scalar sqrt(const Scalar& ci)
     
     // Cas ETATZERO
     if (ci.get_etat() == ETATZERO) {
+	return ci ;
+    }
+    
+    // Cas ETATUN
+    if (ci.get_etat() == ETATUN) {
 	return ci ;
     }
     
@@ -242,6 +290,11 @@ Scalar racine_cubique(const Scalar& ci)
 	return ci ;
     }
     
+    // Cas ETATUN
+    if (ci.get_etat() == ETATUN) {
+	return ci ;
+    }
+    
     // Cas general
     assert(ci.get_etat() == ETATQCQ) ;	// sinon...
 
@@ -266,14 +319,20 @@ Scalar exp(const Scalar& ci)
 
     // Cas ETATZERO
     if (ci.get_etat() == ETATZERO) {
-	co.set_etat_qcq() ; 
-	co.va = double(1) ;
+	co.set_etat_one() ; 
     }
     else {
-		// Cas general
+      // Cas ETATUN
+      if (ci.get_etat() == ETATUN) {
+	co.set_etat_qcq() ;
+	co = M_E ;
+      }
+      else {
+	// Cas general
 	assert(ci.get_etat() == ETATQCQ) ;	// sinon...
 	co.set_etat_qcq() ; 
 	co.va = exp( ci.va ) ; 
+      }
     }
 
     return co ;
@@ -292,6 +351,13 @@ Scalar log(const Scalar& ci)
     if (ci.get_etat() == ETATZERO) {
 	cout << "Argument of log is ZERO in log(Scalar) !" << endl ; 
 	abort() ; 
+    }
+
+    // Cas ETATUN
+    if (ci.get_etat() == ETATUN) {
+      Scalar resu(ci.get_mp()) ;
+      resu.set_etat_zero() ;
+      return resu ;
     }
 
     // Cas general
@@ -318,6 +384,13 @@ Scalar log10(const Scalar& ci)
     if (ci.get_etat() == ETATZERO) {
 	cout << "Argument of log10 is ZERO in log10(Scalar) !" << endl ; 
 	abort() ; 
+    }
+
+    // Cas ETATUN
+    if (ci.get_etat() == ETATUN) {
+      Scalar resu(ci.get_mp()) ;
+      resu.set_etat_zero() ;
+      return resu ;
     }
 
     // Cas general
@@ -351,6 +424,11 @@ Scalar pow(const Scalar& ci, int n)
 	} 
     }
 
+    // Cas ETATUN
+    if (ci.get_etat() == ETATUN) {
+      return ci ;
+    }
+
     // Cas general
     assert(ci.get_etat() == ETATQCQ) ;	// sinon...
 
@@ -382,6 +460,11 @@ Scalar pow(const Scalar& ci, double x)
 	} 
     }
 
+    // Cas ETATUN
+    if (ci.get_etat() == ETATUN) {
+      return ci ;
+    }
+
     // Cas general
     assert(ci.get_etat() == ETATQCQ) ;	// sinon...
 
@@ -407,6 +490,11 @@ Scalar abs(const Scalar& ci)
 	return ci ;
     }
     
+    // Cas ETATUN
+    if (ci.get_etat() == ETATUN) {
+      return ci ;
+    }
+
     // Cas general
     assert(ci.get_etat() == ETATQCQ) ;	// sinon...
 
@@ -433,11 +521,16 @@ Tbl max(const Scalar& ci) {
 	resu.annule_hard() ; 
     }
     else {
+      if (ci.get_etat() == ETATUN) {
+	resu = 1 ; 
+      }
+      else {
 	assert(ci.get_etat() == ETATQCQ) ;	
-
+	
 	resu = max( ci.va ) ;		// max(Valeur) 
+      }
     }
-          
+   
     return resu ; 
 }
 
@@ -456,9 +549,14 @@ Tbl min(const Scalar& ci) {
 	resu.annule_hard() ; 
     }
     else {
+      if (ci.get_etat() == ETATUN) {
+	resu = 1 ; 
+      }
+      else {
 	assert(ci.get_etat() == ETATQCQ) ;	
-
+	
 	resu = min( ci.va ) ;		// min(Valeur) 	
+      }
     }
           
     return resu ; 
@@ -479,9 +577,14 @@ Tbl norme(const Scalar& ci) {
 	resu.annule_hard() ; 
     }
     else {
+      if (ci.get_etat() == ETATUN) {
+	resu = 1 ; 
+      }
+      else {
 	assert(ci.get_etat() == ETATQCQ) ;	
-
+	
 	resu = norme( ci.va ) ;		// norme(Valeur) 	
+      }
     }
           
     return resu ; 

@@ -35,6 +35,9 @@ char scalar_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/10 15:57:29  j_novak
+ * Added the state one (ETATUN) to the class Scalar
+ *
  * Revision 1.5  2003/10/08 14:24:10  j_novak
  * replaced mult_r_zec with mult_r_ced
  *
@@ -88,7 +91,7 @@ void Scalar::div_r_ced() {
 		return ; 
 	}
 	
-	assert(etat == ETATQCQ) ; 
+	assert((etat == ETATQCQ)||(etat == ETATUN)) ; 
 	
 	int nzm1 = mp->get_mg()->get_nzone() - 1 ; // index of the CED
 	
@@ -190,7 +193,7 @@ void Scalar::div_rsint_ced() {
 		return ; 
 	}
 	
-	assert(etat == ETATQCQ) ; 
+	assert((etat == ETATQCQ)||(etat == ETATUN)) ; 
 	
 	int nzm1 = mp->get_mg()->get_nzone() - 1 ; // index of the CED
 	

@@ -31,6 +31,9 @@ char scalar_import_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/10 15:57:29  j_novak
+ * Added the state one (ETATUN) to the class Scalar
+ *
  * Revision 1.2  2003/10/01 13:04:44  e_gourgoulhon
  * The method Tensor::get_mp() returns now a reference (and not
  * a pointer) onto a mapping.
@@ -135,6 +138,11 @@ void Scalar::import_gal(int nzet, const Scalar& cm_d) {
     
     if (cm_d.get_etat() == ETATZERO) {
 	set_etat_zero() ; 
+	return ; 
+    }
+
+    if (cm_d.get_etat() == ETATUN) {
+	set_etat_one() ; 
 	return ; 
     }
 
@@ -327,6 +335,11 @@ void Scalar::import_anti(int nzet, const Scalar& cm_d) {
 	return ; 
     }
 
+    if (cm_d.get_etat() == ETATUN) {
+	set_etat_one() ; 
+	return ; 
+    }
+
     const Map* mp_d = &(cm_d.get_mp()) ; // Departure mapping
 
     // Protections
@@ -516,6 +529,10 @@ void Scalar::import_align(int nzet, const Scalar& cm_d) {
     
     if (cm_d.get_etat() == ETATZERO) {
 	set_etat_zero() ; 
+	return ; 
+    }
+    if (cm_d.get_etat() == ETATUN) {
+	set_etat_one() ; 
 	return ; 
     }
 

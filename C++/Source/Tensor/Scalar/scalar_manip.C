@@ -27,6 +27,9 @@ char scalar_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/10 15:57:29  j_novak
+ * Added the state one (ETATUN) to the class Scalar
+ *
  * Revision 1.2  2003/10/08 14:24:09  j_novak
  * replaced mult_r_zec with mult_r_ced
  *
@@ -53,7 +56,7 @@ char scalar_manip_C[] = "$Header$" ;
 void Scalar::filtre (int n) {
     
     assert (etat != ETATNONDEF) ;
-    if (etat == ETATZERO)
+    if ( (etat == ETATZERO) || (etat == ETATUN) )
 	return ;
     
     int nz = mp->get_mg()->get_nzone() ;
@@ -79,7 +82,7 @@ void Scalar::filtre (int n) {
  
 void Scalar::filtre_phi (int n, int nz) {
     assert (etat != ETATNONDEF) ;
-    if (etat == ETATZERO)
+    if ( (etat == ETATZERO) || (etat == ETATUN) )
 	return ;
     
     del_deriv() ;

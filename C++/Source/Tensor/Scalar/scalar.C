@@ -34,6 +34,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/10/10 15:57:29  j_novak
+ * Added the state one (ETATUN) to the class Scalar
+ *
  * Revision 1.10  2003/10/07 08:05:03  j_novak
  * Added an assert for the constructor from a Tensor.
  *
@@ -208,6 +211,16 @@ void Scalar::set_etat_zero() {
     etat = ETATZERO ;
 }
 
+// ETATUN
+void Scalar::set_etat_one() {
+    if (etat == ETATUN) return ;
+    else {
+      del_deriv() ;
+      va = 1 ;
+      etat = ETATUN ;
+    }
+}
+
 // ETATNONDEF
 void Scalar::set_etat_nondef() {
     if (etat == ETATNONDEF) return ;
@@ -329,6 +342,11 @@ void Scalar::operator=(const Scalar& ci) {
 	
 	case ETATZERO: {
 	    set_etat_zero() ;
+	    break ;
+	}
+	
+	case ETATUN: {
+	    set_etat_one() ;
 	    break ;
 	}
 	
@@ -489,33 +507,42 @@ void Scalar::operator=(const Mtbl& mi) {
 // -----------
 void Scalar::operator=(double x) {
     
-    if (x == double(0)) {
-		set_etat_zero() ;
+  if (x == double(0)) {
+    set_etat_zero() ;
+  }
+  else {
+    if (x == double(1)) {
+      set_etat_one() ;
     }
     else {
-		set_etat_qcq() ;
-		del_deriv() ;
-		va = x ;
+      set_etat_qcq() ;
+      del_deriv() ;
+	va = x ;
     }
-
-    dzpuis = 0 ; 
+  }
+  
+  dzpuis = 0 ; 
 }
 
 // From int
 // --------
 void Scalar::operator=(int n) {
     
-    if (n == 0) {
-		set_etat_zero() ;
+  if (n == 0) {
+    set_etat_zero() ;
+  }
+  else {
+    if (n == 1) {
+      set_etat_one() ;
     }
     else {
-		set_etat_qcq() ;
-		del_deriv() ;
-		va = n ;
+      set_etat_qcq() ;
+      del_deriv() ;
+      va = n ;
     }
-
-    dzpuis = 0 ; 
-
+  } 
+  dzpuis = 0 ; 
+  
 }
 
 
@@ -549,6 +576,11 @@ ostream& operator<<(ostream& o, const Scalar& ci) {
 	
 	case ETATZERO: {
 	    o << "*** IDENTICALLY ZERO" ;
+	    break ; 
+	}
+	
+	case ETATUN: {
+	    o << "*** IDENTICALLY ONE" ;
 	    break ; 
 	}
 	
@@ -586,6 +618,11 @@ void Scalar::spectral_display(ostream& ost, double threshold,
 
     if (etat == ETATZERO) {
 		ost << "    state: ZERO" << endl ;
+	return ;
+    }
+
+    if (etat == ETATUN) {
+		ost << "    state: ONE" << endl ;
 	return ;
     }
 
@@ -643,7 +680,7 @@ bool Scalar::dz_nonzero() const {
 		return false ; 
     }
     
-    assert(etat == ETATQCQ) ;
+    assert( (etat == ETATQCQ) || (etat == ETATUN)) ;//## to be checked!!
     
     if (va.etat == ETATZERO) {
 		return false ; 
@@ -708,6 +745,10 @@ double Scalar::val_point(double r, double theta, double phi) const {
 		return double(0) ; 
     }
     
+    if (etat == ETATUN) {
+		return double(1) ; 
+    }
+    
     assert(etat == ETATQCQ) ; 
     
     // 1/ Search for the domain and the grid coordinates (xi,theta',phi')
@@ -746,7 +787,7 @@ Tbl Scalar::multipole_spectrum() {
     return resu ;
   }
 
-  assert(etat == ETATQCQ) ;
+  assert((etat == ETATQCQ) || (etat == ETATUN));
 
   va.coef() ;
   va.ylm() ;

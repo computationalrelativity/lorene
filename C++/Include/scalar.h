@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2003/10/10 15:57:27  j_novak
+ * Added the state one (ETATUN) to the class Scalar
+ *
  * Revision 1.18  2003/10/08 14:24:08  j_novak
  * replaced mult_r_zec with mult_r_ced
  *
@@ -303,8 +306,14 @@ class Scalar : public Tensor {
       double zero = 0. ;
       return zero ; 
     }
-    else{ 	    
-      return va(l, k, j, i) ;
+    else {
+      if (etat == ETATUN) {
+      double one = 1. ;
+      return one ;
+      }
+      else{ 	    
+	return va(l, k, j, i) ;
+      }
     }
   };
   
@@ -338,6 +347,13 @@ class Scalar : public Tensor {
    * deallocates the memory occupied by all the derivatives.
    */
   virtual void set_etat_qcq() ;	    
+  
+  /**
+   * Sets the logical state to {\tt ETATUN} (one). 
+   * Fills the {\tt Valeur va} with ones and
+   * deallocates the memory occupied by all the derivatives. 
+   */
+  void set_etat_one() ;	    
   
   /**
    * Sets the logical state to {\tt ETATQCQ} (ordinary state)

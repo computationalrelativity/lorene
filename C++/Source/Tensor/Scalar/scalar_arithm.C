@@ -31,6 +31,9 @@ char scalar_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/10 15:57:29  j_novak
+ * Added the state one (ETATUN) to the class Scalar
+ *
  * Revision 1.2  2003/10/01 13:04:44  e_gourgoulhon
  * The method Tensor::get_mp() returns now a reference (and not
  * a pointer) onto a mapping.
@@ -67,7 +70,7 @@ Scalar operator-(const Scalar & ci) {
     }
     
     // Cas general
-    assert(ci.get_etat() == ETATQCQ) ;	// sinon...
+    assert( (ci.get_etat() == ETATQCQ) || (ci.get_etat() == ETATUN)) ;	
     Scalar r(ci.get_mp()) ;	// Scalar resultat
     r.set_etat_qcq() ;
     r.va = - ci.va ;    
@@ -97,8 +100,14 @@ Scalar operator+(const Scalar & c1, const Scalar & c2) {
     if (c2.get_etat() == ETATZERO) {
 	return c1 ;
     }
-    assert(c1.get_etat() == ETATQCQ) ;  // sinon...
-    assert(c2.get_etat() == ETATQCQ) ;  // sinon...
+    if (c1.get_etat() == ETATUN) {
+	return (c2 + double(1)) ;
+    }
+    if (c2.get_etat() == ETATUN) {
+	return (c1 + double(1)) ;
+    }
+    assert(c1.get_etat() == ETATQCQ) ;
+    assert(c2.get_etat() == ETATQCQ) ;
   
     // Cas general
 
@@ -143,9 +152,14 @@ Scalar operator+(const Scalar& t1, double x)
     if (t1.get_etat() == ETATZERO) {
 	resu = x ; 
     }
-    else{ 
+    else {
+      if (t1.get_etat() == ETATUN) {
+	resu = double(1) + x ; 
+      }
+      else{ 
 	assert(resu.get_etat() == ETATQCQ) ; // sinon ...
 	resu.va = resu.va + x ;
+      }
     }
      
     resu.set_dzpuis(0) ; 
@@ -200,6 +214,12 @@ Scalar operator-(const Scalar & c1, const Scalar & c2) {
     if (c2.get_etat() == ETATZERO) {
 	return c1 ;
     }
+    if (c1.get_etat() == ETATUN) {
+	return -(c2 - double(1)) ;
+    }
+    if (c2.get_etat() == ETATUN) {
+	return (c1 - double(1)) ;
+    }
     assert(c1.get_etat() == ETATQCQ) ;  // sinon...
     assert(c2.get_etat() == ETATQCQ) ;  // sinon...
 
@@ -239,17 +259,21 @@ Scalar operator-(const Scalar& t1, double x)
     }
 
     assert( t1.check_dzpuis(0) ) ; 
-
+    
     Scalar resu(t1) ;
     
     if (t1.get_etat() == ETATZERO) {
-	resu = - x ; 
+      resu = - x ; 
     }
-    else{ 
+    else{
+      if (t1.get_etat() == ETATUN) {
+	resu = double(1) - x ; 
+      }
+      else{ 
 	assert(resu.get_etat() == ETATQCQ) ; // sinon ...
 	resu.va = resu.va - x ;
-    }
-        
+      }
+    } 
     resu.set_dzpuis(0) ; 
 
     return resu ;
@@ -297,6 +321,12 @@ Scalar operator*(const Scalar& c1, const Scalar& c2) {
     if ((c2.get_etat() == ETATZERO)|| (c2.get_etat() == ETATNONDEF)) {
 	return c2 ;
     }
+    if (c1.get_etat() == ETATUN)
+	return c2 ;
+    
+    if (c2.get_etat() == ETATUN)
+	return c1 ;
+    
     assert(c1.get_etat() == ETATQCQ) ;  // sinon...
     assert(c2.get_etat() == ETATQCQ) ;  // sinon...
     
@@ -325,6 +355,11 @@ Scalar operator%(const Scalar& c1, const Scalar& c2) {
     if ((c2.get_etat() == ETATZERO)|| (c2.get_etat() == ETATNONDEF)) {
 	return c2 ;
     }
+    if (c1.get_etat() == ETATUN)
+	return c2 ;
+    if (c2.get_etat() == ETATUN)
+	return c1 ;
+
     assert(c1.get_etat() == ETATQCQ) ;  // sinon...
     assert(c2.get_etat() == ETATQCQ) ;  // sinon...
     
@@ -354,20 +389,27 @@ Scalar operator*(double a, const Scalar& c1) {
 	return c1 ;
     }
 
-    assert(c1.get_etat() == ETATQCQ) ;  // sinon...
+    if (a == double(1))
+      return c1 ;
 
-    // Cas general
     Scalar r(c1.get_mp()) ;
-    r.set_dzpuis( c1.get_dzpuis() ) ;
-    
-    if ( a == double(0) ) {
-	r.set_etat_zero() ;
+    if (c1.get_etat() == ETATUN) {
+      r = a ;
     }
     else {
+      assert(c1.get_etat() == ETATQCQ) ;  // sinon...
+      
+      // Cas general
+      r.set_dzpuis( c1.get_dzpuis() ) ;
+      
+      if ( a == double(0) ) {
+	r.set_etat_zero() ;
+      }
+      else {
 	r.set_etat_qcq() ;
 	r.va = a * c1.va ;
+      }
     }
-    
 
     // Termine
     return r ;
@@ -423,6 +465,10 @@ Scalar operator/(const Scalar& c1, const Scalar& c2) {
     if (c1.get_etat() == ETATZERO) {
     	return c1 ;
     }
+    if (c1.get_etat() == ETATUN)
+	return double(1)/c2 ;
+    if (c2.get_etat() == ETATUN)
+	return c1 ;
 
     // Cas general
     
@@ -455,16 +501,19 @@ Scalar operator/(const Scalar& c1, double x) {
     if (c1.get_etat() == ETATZERO) {
 	return c1 ;
     }
-    
-    assert(c1.get_etat() == ETATQCQ) ;  // sinon...
-
     Scalar r(c1.get_mp()) ;     // Le resultat
- 
-    r.set_etat_qcq() ;
-    r.va = c1.va / x ;
 
-    r.set_dzpuis( c1.get_dzpuis() ) ;
+    if (c1.get_etat() == ETATUN) {
+	r = double(1)/x ;
+    }
+    else {
+      assert(c1.get_etat() == ETATQCQ) ;  // sinon...
 
+      r.set_etat_qcq() ;
+      r.va = c1.va / x ;
+
+      r.set_dzpuis( c1.get_dzpuis() ) ;
+    }
     // Termine
     return r ;
 }
@@ -478,22 +527,25 @@ Scalar operator/(double x, const Scalar& c2) {
 	return c2 ;
 	
     if (c2.get_etat() == ETATZERO) {
-	cout << "Division by 0 in Scalar / Scalar !" << endl ;
+	cout << "Division by 0 in double / Scalar !" << endl ;
 	abort() ; 
     }
-    
-   
-    assert(c2.get_etat() == ETATQCQ) ;  // sinon...
-
     Scalar r(c2.get_mp()) ;     // Le resultat
-    r.set_dzpuis( - c2.get_dzpuis() ) ;
- 
-    if ( x == double(0) ) {
-	r.set_etat_zero() ;
+    if (c2.get_etat() == ETATUN) {
+      r = x ;
     }
     else {
+      assert(c2.get_etat() == ETATQCQ) ;  // sinon...
+      
+      r.set_dzpuis( - c2.get_dzpuis() ) ;
+      
+      if ( x == double(0) ) {
+	r.set_etat_zero() ;
+      }
+      else {
 	r.set_etat_qcq() ;
 	r.va = x / c2.va ;
+      }
     }
 
     // Termine
@@ -634,6 +686,14 @@ void Scalar::operator*=(const Scalar & ci) {
     
     if (etat == ETATZERO) {
 	return ; 
+    }
+    
+    if (ci.get_etat() == ETATUN) {
+	return ;
+    }
+    
+    if (etat == ETATUN) {
+	operator=(ci) ; 
     }
     
     if (ci.get_etat() == ETATNONDEF) {

@@ -28,6 +28,9 @@ char scalar_raccord_zec_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/10 15:57:29  j_novak
+ * Added the state one (ETATUN) to the class Scalar
+ *
  * Revision 1.2  2003/09/25 09:22:33  j_novak
  * Added a #include<math.h>
  *
@@ -56,7 +59,7 @@ void Scalar::raccord_c1_zec(int puis, int nbre, int lmax) {
     
     assert (nbre>0) ;
     assert (etat != ETATNONDEF) ;
-    if (etat == ETATZERO)
+    if ((etat == ETATZERO) || (etat == ETATUN))
 	return ;
 
     // Le mapping doit etre affine :

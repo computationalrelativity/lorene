@@ -32,6 +32,9 @@ char scalar_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/10 15:57:29  j_novak
+ * Added the state one (ETATUN) to the class Scalar
+ *
  * Revision 1.1  2003/09/25 08:13:52  j_novak
  * Added method for calculating derivatives
  *
@@ -60,10 +63,16 @@ const Scalar& Scalar::dsdr() const {
     //  computation must be done by the appropriate routine of the mapping : 
 
     if (p_dsdr == 0x0) {
-      Cmp orig(*this) ;
-      Cmp deriv(mp) ;
-      mp->dsdr(orig, deriv) ;
-      p_dsdr = new Scalar(deriv) ; 
+      if (etat == ETATUN) {
+	p_dsdr = new Scalar(*mp) ;
+	p_dsdr->set_etat_zero() ;
+      }
+      else {
+	Cmp orig(*this) ;
+	Cmp deriv(mp) ;
+	mp->dsdr(orig, deriv) ;
+	p_dsdr = new Scalar(deriv) ; 
+      }
     }
     
     return *p_dsdr ;
@@ -83,12 +92,17 @@ const Scalar& Scalar::srdsdt() const {
     //  computation must be done by the appropriate routine of the mapping : 
 
     if (p_srdsdt == 0x0) {
-      Cmp orig(*this) ;
-      Cmp deriv(mp) ;
-      mp->srdsdt(orig, deriv) ;
-      p_srdsdt = new Scalar(deriv) ;
+      if (etat == ETATUN) {
+	p_srdsdt = new Scalar(*mp) ;
+	p_srdsdt->set_etat_zero() ;
+      }
+      else {
+	Cmp orig(*this) ;
+	Cmp deriv(mp) ;
+	mp->srdsdt(orig, deriv) ;
+	p_srdsdt = new Scalar(deriv) ;
+      }
     }
-    
     return *p_srdsdt ;
 
 }
@@ -107,12 +121,17 @@ const Scalar& Scalar::srstdsdp() const {
     //  computation must be done by the appropriate routine of the mapping : 
 
     if (p_srstdsdp == 0x0) {
-      Cmp orig(*this) ;
-      Cmp deriv(mp) ;
-      mp->srstdsdp(orig, deriv) ;
-      p_srstdsdp = new Scalar(deriv) ; 
+      if (etat == ETATUN) {
+	p_srstdsdp = new Scalar(*mp) ;
+	p_srstdsdp->set_etat_zero() ;
+      }
+      else {
+	Cmp orig(*this) ;
+	Cmp deriv(mp) ;
+	mp->srstdsdp(orig, deriv) ;
+	p_srstdsdp = new Scalar(deriv) ; 
+      }
     }
-    
     return *p_srstdsdp ;
 
 }
@@ -130,13 +149,19 @@ const Scalar& Scalar::dsdx() const {
     //  computation must be done by the appropriate routine of the mapping : 
 
     if (p_dsdx == 0x0) {
-      Cmp orig(*this) ;
-      Cmp deriv_r(dsdr()) ;
-      Cmp deriv_t(srdsdt()) ;
-      Cmp deriv_p(srstdsdp()) ;
-      Cmp deriv_x(mp) ;
-      mp->comp_x_from_spherical(deriv_r, deriv_t, deriv_p, deriv_x) ;
-      p_dsdx = new Scalar(deriv_x) ; 
+      if (etat == ETATUN) {
+	p_dsdx = new Scalar(*mp) ;
+	p_dsdx->set_etat_zero() ;
+      }
+      else {
+	Cmp orig(*this) ;
+	Cmp deriv_r(dsdr()) ;
+	Cmp deriv_t(srdsdt()) ;
+	Cmp deriv_p(srstdsdp()) ;
+	Cmp deriv_x(mp) ;
+	mp->comp_x_from_spherical(deriv_r, deriv_t, deriv_p, deriv_x) ;
+	p_dsdx = new Scalar(deriv_x) ; 
+      }
     }
     
     return *p_dsdx ;
@@ -156,15 +181,20 @@ const Scalar& Scalar::dsdy() const {
     //  computation must be done by the appropriate routine of the mapping : 
 
     if (p_dsdy == 0x0) {
-      Cmp orig(*this) ;
-      Cmp deriv_r(dsdr()) ;
-      Cmp deriv_t(srdsdt()) ;
-      Cmp deriv_p(srstdsdp()) ;
-      Cmp deriv_y(mp) ;
-      mp->comp_y_from_spherical(deriv_r, deriv_t, deriv_p, deriv_y) ;
-      p_dsdy = new Scalar(deriv_y) ; 
+      if (etat == ETATUN) {
+	p_dsdy = new Scalar(*mp) ;
+	p_dsdy->set_etat_zero() ;
+      }
+      else {
+	Cmp orig(*this) ;
+	Cmp deriv_r(dsdr()) ;
+	Cmp deriv_t(srdsdt()) ;
+	Cmp deriv_p(srstdsdp()) ;
+	Cmp deriv_y(mp) ;
+	mp->comp_y_from_spherical(deriv_r, deriv_t, deriv_p, deriv_y) ;
+	p_dsdy = new Scalar(deriv_y) ; 
+      }
     }
-    
     return *p_dsdy ;
 
 }
@@ -181,16 +211,21 @@ const Scalar& Scalar::dsdz() const {
     // If the derivative has not been previously computed, the 
     //  computation must be done by the appropriate routine of the mapping : 
 
-    if (p_dsdz == 0x0) {
-      Cmp orig(*this) ;
-      Cmp deriv_r(dsdr()) ;
-      Cmp deriv_t(srdsdt()) ;
-      Cmp deriv_p(srstdsdp()) ;
-      Cmp deriv_z(mp) ;
-      mp->comp_z_from_spherical(deriv_r, deriv_t, deriv_z) ;
-      p_dsdz = new Scalar(deriv_z) ; 
+    if (p_dsdz == 0x0) {     
+      if (etat == ETATUN) {
+	p_dsdz = new Scalar(*mp) ;
+	p_dsdz->set_etat_zero() ;
+      }
+      else {
+	Cmp orig(*this) ;
+	Cmp deriv_r(dsdr()) ;
+	Cmp deriv_t(srdsdt()) ;
+	Cmp deriv_p(srstdsdp()) ;
+	Cmp deriv_z(mp) ;
+	mp->comp_z_from_spherical(deriv_r, deriv_t, deriv_z) ;
+	p_dsdz = new Scalar(deriv_z) ; 
+      }
     }
-    
     return *p_dsdz ;
 
 }
@@ -242,11 +277,18 @@ const Scalar& Scalar::laplacien(int zec_mult_r) const {
 	    delete p_lap ;  // the Laplacian had been computed but with
 			    //  a different value of zec_mult_r
 	}
-	Cmp orig(*this) ;
-	Cmp laplace(mp) ;
-	mp->laplacien(orig, zec_mult_r, laplace) ;
-	p_lap = new Scalar(laplace) ;
-	ind_lap = zec_mult_r ;
+	if (etat == ETATUN) {
+	  p_lap = new Scalar(*mp) ;
+	  p_lap->set_etat_zero() ;
+	  ind_lap = zec_mult_r ;
+	}
+	else {
+	  Cmp orig(*this) ;
+	  Cmp laplace(mp) ;
+	  mp->laplacien(orig, zec_mult_r, laplace) ;
+	  p_lap = new Scalar(laplace) ;
+	  ind_lap = zec_mult_r ;
+	}
     }
     
     return *p_lap ;
