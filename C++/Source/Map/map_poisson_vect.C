@@ -25,6 +25,10 @@ char map_poisson_vect_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/07/09 16:46:23  p_grandclement
+ * The Param in the case of an affine mapping is now 0x0 and not deleted
+ * (I wonder why it was working before)
+ *
  * Revision 1.2  2002/05/07 07:10:45  e_gourgoulhon
  * Compatibilty with xlC compiler on IBM SP2:
  * 	suppressed the parenthesis around argument of instruction new:
@@ -57,7 +61,7 @@ char map_poisson_vect_C[] = "$Header$" ;
 #include "param.h"
 
 Param* Map_af::donne_para_poisson_vect(Param& para, int) const {
-    return &para ;
+    return 0x0 ;
 }
 
 

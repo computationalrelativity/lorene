@@ -26,8 +26,12 @@ char tenseur_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/07/09 16:46:23  p_grandclement
+ * The Param in the case of an affine mapping is now 0x0 and not deleted
+ * (I wonder why it was working before)
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.13  2000/10/04  14:58:32  eric
  * Ajout de shift.set_etat_qcq() avant l'affection de shift.
@@ -135,7 +139,8 @@ void Tenseur::poisson_vect(double lambda, Param& para, Tenseur& shift
 
 	(*this)(i).poisson(*par, vecteur.set(i)) ;
 
-	delete par ; 
+	if (par != 0x0)
+	  delete par ; 
     }
     vecteur.set_triad( *triad ) ; 
     
@@ -148,7 +153,8 @@ void Tenseur::poisson_vect(double lambda, Param& para, Tenseur& shift
 
     source_scal().poisson(*par, scalaire.set()) ;
     
-    delete par ; 
+    if (par !=0x0)
+      delete par ; 
 
     // On construit le tableau contenant le terme d xsi / d x_i ...
     Tenseur auxiliaire(scalaire) ;
@@ -235,7 +241,8 @@ void Tenseur::poisson_vect_oohara(double lambda, Param& para, Tenseur& shift,
     
     source_scal().poisson(*par, chi.set());
     
-    delete par ; 
+    if (par !=0x0)
+      delete par ; 
   
     Tenseur source_vect(*this) ;
     if ((*this)(0).check_dzpuis(4))
@@ -254,7 +261,8 @@ void Tenseur::poisson_vect_oohara(double lambda, Param& para, Tenseur& shift,
 
 	source_vect(i).poisson(*par, shift.set(i)) ;   
 
-	delete par ; 
+	if (par !=0x0)
+	  delete par ; 
     }
     shift.set_triad( *(source_vect.triad) ) ; 
 
