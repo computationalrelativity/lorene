@@ -31,6 +31,9 @@ char star_binupmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/03/23 09:58:55  f_limousin
+ * Add function Star::update_decouple()
+ *
  * Revision 1.5  2004/02/27 10:54:27  f_limousin
  * To avoid errors when merging versions of Lorene.
  *
@@ -365,7 +368,37 @@ void Star_bin::update_metric(const Star_bin& comp,
     Tensor tens_gamma(gtilde_con / psi4) ;
     gamma = tens_gamma ;
       
+/*
+    // Determination of h33 in order to have det(gtilde) = 1
+    // -----------------------------------------------------
 
+    Scalar gtilde11 (gtilde.cov()(1,1)) ;
+    Scalar gtilde21 (gtilde.cov()(2,1)) ;
+    Scalar gtilde31 (gtilde.cov()(3,1)) ;
+    Scalar gtilde22 (gtilde.cov()(2,2)) ;
+    Scalar gtilde32 (gtilde.cov()(3,2)) ;
+    Scalar gtilde33 (gtilde.cov()(3,3)) ;
+
+    gtilde33 = ( 1 - (gtilde21*gtilde32*gtilde31 + gtilde31*gtilde21*gtilde32
+	       - gtilde31*gtilde22*gtilde31 - gtilde11*gtilde32*gtilde32) ) /
+	  ( gtilde11*gtilde22 - gtilde21*gtilde21 ) ;
+
+    Sym_tensor gtilde_cov(mp, COV, mp.get_bvect_spher()) ;
+    gtilde_cov.set(1,1) = gtilde11 ;
+    gtilde_cov.set(2,1) = gtilde21 ;
+    gtilde_cov.set(3,1) = gtilde31 ;
+    gtilde_cov.set(2,2) = gtilde22 ;
+    gtilde_cov.set(3,2) = gtilde32 ;
+    gtilde_cov.set(3,3) = gtilde33 ;
+
+    gtilde_cov.std_spectral_base() ;
+    gtilde = gtilde_cov ;
+    tens_gamma = gtilde_con / psi4 ;
+    gamma = tens_gamma ;
+ 
+    hij.set(3,3) = gtilde.con()(3,3) - 1 ;
+    hij.std_spectral_base() ;
+*/
 // Determinant of gtilde
 
     Scalar det_gtilde (gtilde.determinant()) ;
@@ -425,20 +458,11 @@ void Star_bin::update_metric(const Star_bin& comp,
 
 }
 
-void Star_bin::update_metric_init1(const Star_bin& comp) {
+void Star_bin::update_metric_init1() {
 
     logn_auto = logn ;
-    
-    if ( (comp.logn).get_etat() == ETATZERO ) {
-	logn_comp.set_etat_zero() ;
-    }
-    else{
-	logn_comp.set_etat_qcq() ;
-	logn_comp.import_symy( comp.logn ) ;
-	logn_comp.std_spectral_base() ;  // set the bases for spectral expansions
-    }
-    
-    logn = logn_auto + logn_comp ; 
+    qq_auto = qq - 1 + decouple ;
+
 }
 
 void Star_bin::update_metric_init2(const Star_bin& comp) {
@@ -457,9 +481,22 @@ void Star_bin::update_metric_init2(const Star_bin& comp) {
     logn = logn_auto + logn_comp ; 
 }
 
-void Star_bin::update_metric_init3() {
+void Star_bin::update_decouple(const Star_bin& comp) {
 
-    logn_auto = logn ;
-    qq_auto = qq - 1 + decouple ;
+    int nr = mp.get_mg()->get_nr(0);
+    int nt = mp.get_mg()->get_nt(0);
+    int np = mp.get_mg()->get_np(0);
+    /*  
+    qq_auto = qq_auto - decouple ;    
+    decouple = 0.4 + 0.1*(logn_auto - 1.e-12) / (logn - 2.e-12) ;
+    qq_auto = qq_auto + decouple ;    
+    */
+    decouple = 0.5 ;
+
+    Cmp decouple_cmp (decouple) ;
+
+    cout << "decouple" << endl << norme(decouple/(nr*nt*np)) << endl ;
+
+//    des_profile(decouple, 0., 40., 1., 1.5, 0.) ;
 
 }
