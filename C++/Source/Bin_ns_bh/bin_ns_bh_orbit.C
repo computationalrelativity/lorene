@@ -31,6 +31,9 @@ char bin_ns_bh_orbit_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/06/09 06:20:11  k_taniguchi
+ * Set the standard basis for some Cmp.
+ *
  * Revision 1.2  2004/03/25 10:28:58  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -75,6 +78,7 @@ void Bin_ns_bh::orbit_omega(double fact_omeg_min, double fact_omeg_max) {
     const Tenseur& shift = star.get_shift() ;
 
     Cmp confpsi_q = pow(confpsi, 4.) ;
+    confpsi_q.std_base_scal() ;
 
     //-----------------------------------------------------------------
     // Calculation of d/dX( nu + ln(Gamma) ) at the center of the star
@@ -98,6 +102,7 @@ void Bin_ns_bh::orbit_omega(double fact_omeg_min, double fact_omeg_max) {
     }
 
     Cmp tmp = log( nnn ) + loggam ;
+    tmp.std_base_scal() ;
 
     // ... gradient
     dnulg = factx * tmp.dsdx()(0, 0, 0, 0) ;
