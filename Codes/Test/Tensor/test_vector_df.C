@@ -28,6 +28,9 @@ char test_poisson_angu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/17 16:33:36  e_gourgoulhon
+ * Added more tests.
+ *
  * Revision 1.1  2003/10/16 21:39:43  e_gourgoulhon
  * Test code for class Vector_divfree.
  *
@@ -124,6 +127,19 @@ int main() {
 	arrete() ; 
 	cout << "divergence vvs : " << vvs.divergence(mets) << endl ;
 	cout << "  norme: " << norme( vvs.divergence(mets) ) << endl ; 
+	
+	Vector_divfree vvs2(map, map.get_bvect_spher(), mets ) ;
+	vvs2.set_vr_eta_mu(vvs(1), vvs.eta(), vvs.mu()) ; 
+	Vector diff = vvs - vvs2 ; 
+	cout << "diff : " << endl ; 
+	for (int i=1; i<=3; i++) {
+		cout << "Component " << i << " : " << endl ; 
+		diff(i).spectral_display(cout) ; 
+		cout << "  norme: " << norme(diff(i)) << endl ; 
+		arrete() ; 
+	}
+	
+
 	
 	return EXIT_SUCCESS ; 
 }
