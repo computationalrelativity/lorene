@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/09/26 18:51:47  k_taniguchi
+ * Introduction of new classes Eos_fitting, Eos_fit_SLy4, and Eos_fit_FPS
+ *
  * Revision 1.12  2004/05/07 08:08:29  k_taniguchi
  * Add the case of Eos_multi_poly.C
  *
@@ -232,6 +235,8 @@ class Eos {
          *     16 = GlendNH3 (Glendenning 1985, case 3) \\ 
 	 *     100 = Multi-domain EOS (class \c MEos ) \\
 	 *     110 = Multi-polytropic EOS (class \c Eos_multi_poly ) \\
+	 *     120 = Fitted SLy4 (Shibata 2004) \\
+	 *     121 = Fitted FPS (Shibata 2004) \\
 	 *  The second line in the file must be the EOS name.
 	 *  The following lines should contain the EOS parameters (one
 	 *  parameter per line), in the same order than in the class declaration.
