@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.31  2004/07/27 08:24:26  j_novak
+ * Modif. comments
+ *
  * Revision 1.30  2004/07/26 16:02:21  j_novak
  * Added a flag to specify whether the primitive should be zero either at r=0
  * or at r going to infinity.
@@ -925,11 +928,11 @@ class Map {
 	virtual void lapang(const Scalar& uu, Scalar& lap) const = 0 ; 
 
 
-	/** Computes the radial primitive which vanishes at r = 0, 
+	/** Computes the radial primitive which vanishes for \f$r\to \infty\f$.
 	 *  i.e. the function 
-	 *      \f$ F(r,\theta,\varphi) = \int_0^r f(r',\theta,\varphi) \, dr' \f$
+	 *   \f$ F(r,\theta,\varphi) = \int_r^\infty f(r',\theta,\varphi) \, dr' \f$
 	 *
-	 *      @param uu [input] function \e f
+	 *      @param uu [input] function \e f (must have a \c dzpuis = 2)
 	 *      @param resu [input] function \e F
 	 *      @param null_infty if true (default), the primitive is null
 	 *      at infinity (or on the grid boundary). \e F is null at the
@@ -1984,11 +1987,11 @@ class Map_af : public Map_radial {
 	virtual void lapang(const Scalar& uu, Scalar& lap) const ; 
 	
 
-	/** Computes the radial primitive which vanishes at r = 0, 
+	/** Computes the radial primitive which vanishes for \f$r\to \infty\f$.
 	 *  i.e. the function 
-	 *  \f$ F(r,\theta,\varphi) = \int_0^r f(r',\theta,\varphi) \, dr' \f$
+	 *   \f$ F(r,\theta,\varphi) = \int_r^\infty f(r',\theta,\varphi) \, dr' \f$
 	 *
-	 *      @param uu [input] function \e f
+	 *      @param uu [input] function \e f (must have a \c dzpuis = 2)
 	 *      @param resu [input] function \e F
 	 *      @param null_infty if true (default), the primitive is null
 	 *      at infinity (or on the grid boundary). \e F is null at the
@@ -2777,11 +2780,11 @@ class Map_et : public Map_radial {
 	virtual void lapang(const Scalar& uu, Scalar& lap) const ; 
 	
 
-	/** Computes the radial primitive which vanishes at r = 0, 
+	/** Computes the radial primitive which vanishes for \f$r\to \infty\f$.
 	 *  i.e. the function 
-	 *  \f$ F(r,\theta,\varphi) = \int_0^r f(r',\theta,\varphi) \, dr' \f$
+	 *   \f$ F(r,\theta,\varphi) = \int_r^\infty f(r',\theta,\varphi) \, dr' \f$
 	 *
-	 *      @param uu [input] function \e f
+	 *      @param uu [input] function \e f (must have a \c dzpuis = 2)
 	 *      @param resu [input] function \e F
 	 *      @param null_infty if true (default), the primitive is null
 	 *      at infinity (or on the grid boundary). \e F is null at the
