@@ -1,4 +1,4 @@
-/*
+ /*
  *  Definition of Lorene class Vector
  *
  */
@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.28  2004/03/27 20:59:55  e_gourgoulhon
+ * Slight modif comment (doxygen \ingroup).
+ *
  * Revision 1.27  2004/03/22 13:12:44  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -131,7 +134,7 @@ class Vector_divfree ;
 			
 
 /**
- * Tensor field of valence 1. \ingroup(tensor)
+ * Tensor field of valence 1. \ingroup (tensor)
  * 
  */
 class Vector: public Tensor {
