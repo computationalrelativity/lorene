@@ -30,6 +30,9 @@ char base_val_name_theta_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/12/17 13:35:01  m_forot
+ * Add the case T_LEG
+ *
  * Revision 1.4  2004/11/23 15:08:01  m_forot
  * Added the bases for the cases without any equatorial symmetry
  * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
@@ -76,6 +79,7 @@ void basename_t_cossin_s(int, int, char*) ;
 void basename_t_cossin_ci(int, int, char*) ; 
 void basename_t_cossin_si(int, int, char*) ; 
 void basename_t_leg_p(int, int, char*) ; 
+void basename_t_leg(int, int, char*) ; 
 void basename_t_leg_pp(int, int, char*) ; 
 void basename_t_leg_i(int, int, char*) ; 
 void basename_t_leg_ip(int, int, char*) ; 
@@ -85,6 +89,7 @@ void basename_t_cl_cos_p(int, int, char*) ;
 void basename_t_cl_sin_p(int, int, char*) ; 
 void basename_t_cl_cos_i(int, int, char*) ; 
 void basename_t_cl_sin_i(int, int, char*) ; 
+
 
 			//----------------------------//
 			//      Base_val method       //
@@ -119,6 +124,7 @@ void Base_val::name_theta(int l, int k, int j, char* name) const {
 		vbasename_t[T_COSSIN_C >> TRA_T] = basename_t_cossin_c ;
 		vbasename_t[T_COSSIN_S >> TRA_T] = basename_t_cossin_s ;
 		vbasename_t[T_LEG_P >> TRA_T] = basename_t_leg_p ;
+		vbasename_t[T_LEG >> TRA_T] = basename_t_leg ;
 		vbasename_t[T_LEG_PP >> TRA_T] = basename_t_leg_pp ;
 		vbasename_t[T_LEG_I >> TRA_T] = basename_t_leg_i ;
 		vbasename_t[T_LEG_IP >> TRA_T] = basename_t_leg_ip ;
@@ -461,6 +467,32 @@ void basename_t_cossin_si(int k, int j, char* name) {
 	strcat(name, "t") ; 
 }	
 
+void basename_t_leg(int k, int j, char* name) {
+
+	assert( k>=0 ) ; 
+	assert( j>=0 ) ; 
+
+	int m = k / 2 ;
+	 
+	if (j < m/2) {
+		strcpy (name, "unused") ; 
+		return ; 
+	}
+	
+	strcpy(name, "P_") ; 
+
+	int xt = j; 
+
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "^") ; 
+
+	assert( m < 1000) ; 
+	sprintf(cxt, "%d", m) ; 
+	strcat(name, cxt) ; 
+}	
 
 void basename_t_leg_p(int k, int j, char* name) {
 

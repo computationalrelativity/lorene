@@ -32,6 +32,9 @@ char mtbl_cf_val_point_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/12/17 13:35:03  m_forot
+ * Add the case T_LEG
+ *
  * Revision 1.3  2002/05/11 12:37:31  e_gourgoulhon
  * Added basis T_COSSIN_SI.
  *
@@ -104,6 +107,8 @@ static int premier_appel = 1 ;
 	som_r[R_CHEBU >> TRA_R] = som_r_chebu ;
 	som_r[R_CHEBPIM_P >> TRA_R] = som_r_chebpim_p ;
 	som_r[R_CHEBPIM_I >> TRA_R] = som_r_chebpim_i ;
+	som_r[R_CHEBPI_P >> TRA_R] = som_r_chebpi_p ;
+	som_r[R_CHEBPI_I >> TRA_R] = som_r_chebpi_i ;
 
 	som_tet[T_COS >> TRA_T] = som_tet_cos ;
 	som_tet[T_SIN >> TRA_T] = som_tet_sin ;
@@ -115,6 +120,8 @@ static int premier_appel = 1 ;
 	som_tet[T_COSSIN_CI >> TRA_T] = som_tet_cossin_ci ;
 	som_tet[T_COSSIN_SP >> TRA_T] = som_tet_cossin_sp ;
 	som_tet[T_COSSIN_SI >> TRA_T] = som_tet_cossin_si ;
+	som_tet[T_COSSIN_C >> TRA_T] = som_tet_cossin_s ;
+	som_tet[T_COSSIN_S >> TRA_T] = som_tet_cossin_s ;
 
 	som_phi[P_COSSIN >> TRA_P] = som_phi_cossin ;
 	som_phi[P_COSSIN_P >> TRA_P] = som_phi_cossin_p ;
@@ -231,6 +238,8 @@ static int premier_appel = 1 ;
 	som_r[R_CHEBU >> TRA_R] = som_r_chebu ;
 	som_r[R_CHEBPIM_P >> TRA_R] = som_r_chebpim_p ;
 	som_r[R_CHEBPIM_I >> TRA_R] = som_r_chebpim_i ;
+	som_r[R_CHEBPI_P >> TRA_R] = som_r_chebpi_p ;
+	som_r[R_CHEBPI_I >> TRA_R] = som_r_chebpi_i ;
 
     }	// fin des operations de premier appel
 

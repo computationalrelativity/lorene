@@ -34,6 +34,9 @@ char valeur_ssint_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/12/17 13:35:05  m_forot
+ * Add the case T_LEG
+ *
  * Revision 1.2  2004/11/23 15:17:19  m_forot
  * Added the bases for the cases without any equatorial symmetry
  *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
@@ -122,7 +125,6 @@ const Valeur& Valeur::ssint() const {
 	    coef() ;
 	}
 	*cfp = *c_cf ;	
- 
 	cfp->ssint() ;	// calcul 
     
 	p_ssint->base = cfp->base ; // On remonte la base de sortie au niveau Valeur

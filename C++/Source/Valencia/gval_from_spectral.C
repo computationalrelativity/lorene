@@ -29,6 +29,9 @@ char gval_from_spectral_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/12/17 13:35:04  m_forot
+ * Add the case T_LEG
+ *
  * Revision 1.2  2004/05/07 13:19:24  j_novak
  * Prevention of warnings
  *
@@ -612,6 +615,16 @@ void Gval_spher::initialize_spectral_theta(const Map* mp, const Base_val& base,
 	  *p_out = ( ((mpm/2) % 2  == 0) ? sin((2*ltm+1)*teta) 
 		     : cos(2*ltm*teta)) ;
 	  break ;
+	}
+	case T_COSSIN_C : {
+	  *p_out = ( ((mpm/2) % 2  == 0) ? cos(ltm*teta) 
+		     : sin(ltm*teta)) ;
+	  break ;
+	}
+	case T_COSSIN_S : {
+	  *p_out = ( ((mpm/2) % 2  == 0) ? sin(ltm*teta) 
+		     : cos(ltm*teta)) ;
+	  break ;  
 	}
 	default : {
 	  cout << "Gval_spher::initialize_spectral_theta : " << '\n' 

@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2004/12/17 13:35:00  m_forot
+ * Add the case T_LEG
+ *
  * Revision 1.23  2004/11/23 15:05:40  m_forot
  * Added prototypes for all new functions in the case there is no
  * symmetry in theta.
@@ -602,6 +605,7 @@ void _lapang_pas_prevu(Mtbl_cf*, int) ;
 void _lapang_t_leg_p(Mtbl_cf*, int) ;
 void _lapang_t_leg_pp(Mtbl_cf*, int) ;
 void _lapang_t_leg_i(Mtbl_cf*, int) ;
+void _lapang_t_leg(Mtbl_cf*, int) ;
 
 // Fonctions liees au dalembertien
 void get_operateur_dal(const Param&, const int&, const int&, 

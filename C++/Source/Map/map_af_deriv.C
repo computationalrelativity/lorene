@@ -30,6 +30,9 @@ char map_af_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/12/17 13:35:02  m_forot
+ * Add the case T_LEG
+ *
  * Revision 1.9  2004/06/22 08:49:58  p_grandclement
  * Addition of everything needed for using the logarithmic mapping
  *
@@ -676,9 +679,9 @@ void Map_af::stdsdp(const Scalar& ci, Scalar& resu) const {
     else {
 
 		assert( ci.get_etat() == ETATQCQ ) ; 
-
+	
 		resu = ci.get_spectral_va().stdsdp() ; 	// 1/sin(theta) d/dphi
-
+		
     }
 	
     resu.set_dzpuis( ci.get_dzpuis() ) ; 	// dzpuis unchanged

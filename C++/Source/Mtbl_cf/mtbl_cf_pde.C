@@ -32,6 +32,9 @@ char mtbl_cf_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/12/17 13:35:03  m_forot
+ * Add the case T_LEG
+ *
  * Revision 1.1  2003/10/15 21:12:22  e_gourgoulhon
  * First version.
  *
@@ -55,6 +58,7 @@ void _poisangu_t_leg_pp(Mtbl_cf *, int) ;
 void _poisangu_t_leg_ip(Mtbl_cf *, int) ;
 void _poisangu_t_leg_pi(Mtbl_cf *, int) ;
 void _poisangu_t_leg_ii(Mtbl_cf *, int) ;
+void _poisangu_t_leg(Mtbl_cf *, int) ;
 
 //*****************************************************************************
 
@@ -76,7 +80,7 @@ void Mtbl_cf::poisson_angu() {
 		poisangu[T_LEG_I >> TRA_T] = _poisangu_t_leg_i ;
 		poisangu[T_LEG_IP >> TRA_T] = _poisangu_t_leg_ip ;
 		poisangu[T_LEG_PI >> TRA_T] = _poisangu_t_leg_pi ;
-		poisangu[T_LEG_II >> TRA_T] = _poisangu_t_leg_ii ;
+		poisangu[T_LEG >> TRA_T] = _poisangu_t_leg ;
     }
 
     // Boucle sur les zones

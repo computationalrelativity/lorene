@@ -34,6 +34,9 @@ char base_val_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/12/17 13:35:01  m_forot
+ * Add the case T_LEG
+ *
  * Revision 1.7  2004/11/04 15:19:02  e_gourgoulhon
  * operator<< : added names R_CHEBPI_P, R_CHEBPI_I, T_COSSIN_C, T_COSSIN_S.
  *
@@ -241,6 +244,7 @@ ostream& operator<<(ostream& o, const Base_val & bi) {
     nom_t[T_COSSIN_CI >> TRA_T] = "T_COSSIN_CI" ;
     nom_t[T_COSSIN_C >> TRA_T] = "T_COSSIN_C" ;
     nom_t[T_COSSIN_S >> TRA_T] = "T_COSSIN_S" ;
+    nom_t[T_LEG >> TRA_T] =     "T_LEG    " ;
     nom_t[T_LEG_P >> TRA_T] =     "T_LEG_P    " ;
     nom_t[T_LEG_PP >> TRA_T] =    "T_LEG_PP   " ;
     nom_t[T_LEG_I >> TRA_T] =     "T_LEG_I    " ;
