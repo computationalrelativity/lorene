@@ -4,7 +4,7 @@
  */
 
 /*
- *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2004 Eric Gourgoulhon & Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -28,6 +28,9 @@ char test_tens_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/01/04 21:02:31  e_gourgoulhon
+ * Class Tensor_delta replaced by class Tensor_sym.
+ *
  * Revision 1.1  2003/11/07 17:18:24  e_gourgoulhon
  * First version of test_tens_poisson
  *
@@ -194,10 +197,13 @@ int main() {
 	// Laplacian of the solution
 	// -------------------------
 	
-	Tensor_delta dhtts = (htts.derive_cov(mets)).up(0, mets) ;
+	Tensor_sym dhtts0(map, CON, CON, COV, map.get_bvect_spher(), 0, 1)  ; 
+        dhtts0 = htts.derive_cov(mets) ;
+        
+        Tensor dhtts = dhtts0.up(2, mets) ;
 	dhtts.dec_dzpuis(2) ;  
 	Tensor ddhtts = dhtts.derive_cov(mets) ;
-	Sym_tensor lap_htts = ddhtts.scontract(0,1) ; 
+	Sym_tensor lap_htts( ddhtts.scontract(2,3) ) ; 
 	
 	tmp = htts ; 
 	tmp.change_triad( map.get_bvect_cart() ) ;
