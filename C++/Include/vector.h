@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.29  2004/03/28 21:25:14  e_gourgoulhon
+ * Minor modif comments (formula for V^\theta in Vector_divfree).
+ *
  * Revision 1.28  2004/03/27 20:59:55  e_gourgoulhon
  * Slight modif comment (doxygen \ingroup).
  *
@@ -442,8 +445,8 @@ class Vector_divfree: public Vector {
 	/** Field \f$\eta\f$ such that the angular components \f$(V^\theta, V^\varphi)\f$
 	 * of the vector are written:
 	 * \f[
-	 *	V^\theta =   {\partial \eta \over \partial\theta}
-	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} 
+	 *	V^\theta =   {\partial \eta \over \partial\theta} -
+	 *		 {1\over\sin\theta} {\partial \mu \over \partial\varphi} 
 	 * \f] 
 	 * \f[
 	 *	V^\varphi =  {1\over\sin\theta} 
@@ -456,8 +459,8 @@ class Vector_divfree: public Vector {
 	/** Field \f$\mu\f$ such that the angular components \f$(V^\theta, V^\varphi)\f$
 	 * of the vector are written:
 	 * \f[
-	 *	V^\theta =  {\partial \eta \over \partial\theta}
-	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} 
+	 *	V^\theta =  {\partial \eta \over \partial\theta} -
+	 *	 {1\over\sin\theta} {\partial \mu \over \partial\varphi} 
 	 * \f] 
 	 * \f[
 	 *	V^\varphi =  {1\over\sin\theta} 
@@ -555,8 +558,8 @@ class Vector_divfree: public Vector {
 	/** Gives the field \f$\eta\f$ such that the angular components 
 	 * \f$(V^\theta, V^\varphi)\f$ of the vector are written:
 	 * \f[
-	 *	V^\theta =  {\partial \eta \over \partial\theta} 
-	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} 
+	 *	V^\theta =  {\partial \eta \over \partial\theta} -
+	 *	 {1\over\sin\theta} {\partial \mu \over \partial\varphi} 
 	 * \f] 
 	 * \f[
 	 *	V^\varphi =  {1\over\sin\theta} 
@@ -569,8 +572,8 @@ class Vector_divfree: public Vector {
 	/** Gives the field \f$\mu\f$ such that the angular components 
 	 * \f$(V^\theta, V^\varphi)\f$ of the vector are written:
 	 * \f[
-	 *	V^\theta =  {\partial \eta \over \partial\theta}
-	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi}
+	 *	V^\theta =  {\partial \eta \over \partial\theta} -
+	 *	 {1\over\sin\theta} {\partial \mu \over \partial\varphi}
 	 * \f] 
 	 * \f[
 	 *	V^\varphi =  {1\over\sin\theta} 
@@ -583,8 +586,8 @@ class Vector_divfree: public Vector {
 	/** Computes the components \f$V^\theta\f$ and \f$V^\varphi\f$ from the
 	 *  potential \f$\eta\f$ and  \f$\mu\f$, according to:
 	 * \f[
-	 *	V^\theta =  {\partial \eta \over \partial\theta}
-	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi}
+	 *	V^\theta =  {\partial \eta \over \partial\theta} - 
+	 *		{1\over\sin\theta} {\partial \mu \over \partial\varphi}
 	 * \f] 
 	 * \f[
 	 *	V^\varphi =  {1\over\sin\theta} 
