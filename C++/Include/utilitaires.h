@@ -32,6 +32,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/12/04 12:33:21  r_prix
+ * added prototypes and documentation for variable-reading functions
+ * (read_variable, load_file, load_file_buffered)
+ *
  * Revision 1.5  2002/05/02 15:16:22  j_novak
  * Added functions for more general bi-fluid EOS
  *
@@ -268,6 +272,59 @@ int fread_be(int* aa, int size, int nb, FILE* fich) ;
  *	@return number of {\tt double} effectively read in the file
  */		
 int fread_be(double* aa, int size, int nb, FILE* fich) ;
+
+
+/** Read file into memory and returns pointer to data.
+ * 	@return: pointer to allocated memory or NULL on error.\\
+ * 
+ *  NOTE: don't forget to free the memory after use !
+ *
+ */
+char *load_file(char *fname);
+
+/** Returns pointer to data from a file using a buffer.
+ *  This function only reads from disk if the file has not been buffered yet.
+ *  If a new file is read, the buffer is free'ed and the new data allocated.
+ *	@param fname [input] name of file to read in. You can use NULL for previous file.
+ *  	@return : pointer to buffered data or NULL on error.\\
+ *
+ *   NOTE: do _NEVER_ free the (buffer-)data pointer, or the next call will crash!!
+ */
+char *load_file_buffered(char *fname);
+
+/** Reads a variable from file. 
+ * Variable definitions can be of the type 
+ * "variable = value", all other lines are ignored as comments.
+ * (alternatively, you can use ":" or whitespace instead of "=")
+ * 
+ * NOTE: the variable-definition has to be at the beginning of a 
+ * line (modulo whitespace), or it will be considered a comment!
+ *
+ *	@param fname [input] Name of config-file to read from. Use NULL to use buffered file.
+ *	@param var_name [input] Variable-name to read from config-file
+ *	@param fmt [input]  C-style format string for reading (see {\tt sscanf}).
+ *	@param varp [output] Pointer to C-variable to read value into (has to be big enough!!)
+ *
+ *	@return 0 on success, -1 on error. \\
+ *
+ *   NOTE: rather use one of the type-specific overloaded functions below whenever possible
+ *   (safer due to type-checking)
+ */
+int read_variable(char *fname, char *var_name, char *fmt, void *varp);
+
+/// Read an integer-variable from file (cf {\tt read_variable(char *, char *, char *, void *)}).
+int read_variable(char *fname, char *var_name, int &var);
+/// Read a bool variable from file (cf {\tt read_variable(char *, char *, char *, void *)}).
+int read_variable(char *fname, char *var_name, bool &var);
+/// Read a double variable from file (cf {\tt read_variable(char *, char *, char *, void *)}).
+int read_variable(char *fname, char *var_name, double &var);
+
+
+/// 'Improved' malloc that sets memory to 0 and also auto-terminates on error.
+void *MyMalloc (long bytes);
+
+/// A portable routine to determine the length of a file
+int FS_filelength (FILE *f);
 
 
     
