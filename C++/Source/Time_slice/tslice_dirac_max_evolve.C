@@ -30,6 +30,11 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/05/09 20:59:06  e_gourgoulhon
+ * Change of the time scheme: first solve d'Alembert equations,
+ * then psuh forward in time and solve the elliptic equation
+ * on the new slice.
+ *
  * Revision 1.3  2004/05/06 15:26:29  e_gourgoulhon
  * No longer necessary to initialize khi and mu.
  *
@@ -85,10 +90,7 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
     Vector beta_new(map, CON, triad) ; 
     Scalar khi_new(map) ; 
     Scalar mu_new(map) ; 
-    Scalar n_backup(map) ; 
-    Scalar q_backup(map) ; 
-    Vector beta_backup(map, CON, triad) ; 
-
+    
     // Evolution loop
     // --------------
 
@@ -102,13 +104,33 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
         << "==============================================================\n" ;
     
         cout << *this << endl ; 
+        cout << "ADM mass : " << adm_mass() << endl ; 
+        arrete() ; 
         
+        // Resolution of hyperbolic equations
+        // ----------------------------------
+        
+        solve_hij(par_khi, par_mu, khi_new, mu_new) ;
+        
+        // Advance in time
+        // ---------------
+        
+        jtime++ ; 
+        ttime += pdt ; 
+        the_time.update(ttime, jtime, ttime) ; 
+                
+        // Setting khi_evol, mu_evol, trh_evol and hh_evol at the new time:
+        set_khi_mu(khi_new, mu_new) ;           
+
         // Resolution of elliptic equations
         // --------------------------------
         
-        n_backup = nn() ; 
-        q_backup = qq() ; 
-        beta_backup = beta() ; 
+        // N, Q and beta at the new time are initialized by their
+        // values at previous time:
+        
+        n_evol.update(n_evol[jtime-1], jtime, ttime) ; 
+        set_qq_del_psi(qq_evol[jtime-1]) ; 
+        beta_evol.update(beta_evol[jtime-1], jtime, ttime) ;             
         
         for (int k = 0; k < niter_elliptic; k++) {
     
@@ -134,32 +156,6 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
 
         }
                 
-        // Restoring values at current time step (before computing the source 
-        //  for h^{ij})
-        
-        n_evol.update(n_backup, jtime, ttime) ; 
-        set_qq_del_psi(q_backup) ; 
-        beta_evol.update(beta_backup, jtime, ttime) ;             
-        
-        // Resolution of hyperbolic equations
-        // ----------------------------------
-        
-        solve_hij(par_khi, par_mu, khi_new, mu_new) ;
-        
-        // Advance in time
-        // ---------------
-        
-        jtime++ ; 
-        ttime += pdt ; 
-        the_time.update(ttime, jtime, ttime) ; 
-                
-        n_evol.update(n_new, jtime, ttime) ; 
-        set_qq_del_psi(q_new) ; 
-        beta_evol.update(beta_new, jtime, ttime) ;             
-        
-        // Updates of khi_evol, mu_evol, trh_evol and hh_evol:
-        set_khi_mu(khi_new, mu_new) ;           
-
         des_meridian(beta()(1), 0., ray_des, "\\gb\\ur\\d", 10) ; 
         des_meridian(beta()(2), 0., ray_des, "\\gb\\u\\gh\\d", 11) ; 
         des_meridian(beta()(3), 0., ray_des, "\\gb\\u\\gf\\d", 12) ; 
