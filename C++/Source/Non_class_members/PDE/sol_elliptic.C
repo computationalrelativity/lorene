@@ -23,6 +23,9 @@ char sol_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/11/25 08:14:56  j_novak
+ * Modifs. comments
+ *
  * Revision 1.4  2004/08/24 09:14:44  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -142,7 +145,6 @@ Mtbl_cf elliptic_solver  (const Param_elliptic& ope_var, const Mtbl_cf& source) 
   //-------------------------------------------------
   
   // C'est pas simple toute cette sombre affaire...
-  // POUR LE MOMENT QUE LE CAS l==0 ;
   // Que le cas meme nombre de points dans chaque domaines...
 
   int start = 0 ;
