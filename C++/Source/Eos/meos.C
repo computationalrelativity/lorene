@@ -28,6 +28,9 @@ char meos_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/04/09 14:42:29  e_gourgoulhon
+ * Dummy argument in assignment.
+ *
  * Revision 1.1  2002/04/09 14:40:36  e_gourgoulhon
  * Methods for new class MEos
  *
@@ -159,7 +162,7 @@ MEos::~MEos() {
 			//  Assignment  //
 			//--------------//
 
-void MEos::operator=(const MEos& eosi) {
+void MEos::operator=(const MEos& ) {
 
         cout << "MEos::operator=  : not implemented yet !" << endl ;
                 abort() ;
