@@ -41,6 +41,8 @@ char binary_anashift_C[] = "$Header$" ;
 
 void Binary::analytical_shift(){
     
+/*
+
     #include "unites.h"
     if (this == 0x0) {	// To avoid any compilation warning 
 	cout << f_unit << msol << km << mevpfm3 << qpig ;
@@ -117,5 +119,5 @@ void Binary::analytical_shift(){
 	et[i]->set_khi_shift().std_spectral_base() ; 	    
     
     }
-    
+*/ 
 }
