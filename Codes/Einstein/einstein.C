@@ -29,6 +29,10 @@ char einstein_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/03/11 12:09:32  e_gourgoulhon
+ * Use of new method Scalar::visu_section_anim to produce outputs for
+ * movies.
+ *
  * Revision 1.10  2004/03/08 00:36:27  e_gourgoulhon
  * Added output for OpenDX (visu_section).
  * Initial amplitude = 1e-3.
@@ -704,17 +708,9 @@ int main() {
 
         // hh(2,3).visu_section('z', 0., -4., 4., -4., 4., "h^tp", "h_tp") ;
         
-        if (jtime%4 ==0) {
-            char nomfich[40] ; 
-            char nomj[5] ; 
-            sprintf(nomj, "%04d", jtime/4) ; 
-            strcpy(nomfich, "hpp") ; 
-            strcat(nomfich, nomj) ; 
-        
-            hh(3,3).visu_section('z', 0., -4., 4., -4., 4., "h^pp", nomfich, 
-                                 false, 400, 400) ;
+        hh(3,3).visu_section_anim('z', 0., -4., 4., -4., 4., jtime, ttime, 4,
+                                  "h^pp", "hpp") ;
 
-        }
         cout << "Next step : " << jtime + 1 << endl ; 
         arrete(jtime%jstop) ;  
 
