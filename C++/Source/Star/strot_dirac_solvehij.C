@@ -30,6 +30,9 @@ char strot_dirac_solvehij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/02/16 12:51:49  j_novak
+ * Corrected an error on the matter source terms.
+ *
  * Revision 1.2  2005/02/09 13:34:56  lm_lin
  *
  * Remove the Laplacian of hij from the term source_hh and fix an overall
@@ -176,10 +179,8 @@ void Star_rot_Dirac::solve_hij(Sym_tensor_trans& hij_new) const {
     }
   }
         
-  tmp = psi4 * s_euler ; // S = S_i^i 
-
   ss += (2.*nnn) * ( sym_tmp - qpig*( psi4* stress_euler
-                                       - 0.3333333333333333 * tmp * tgam_uu ) 
+                                       - 0.3333333333333333 * s_euler * tgam_uu ) 
                     )   ; 
 
   maxabs(ss, "ss tot") ; 
@@ -235,19 +236,22 @@ void Star_rot_Dirac::solve_hij(Sym_tensor_trans& hij_new) const {
   cout << " Max( trace of source_hh ) " << endl ;
   cout << max(abs(source_hh.trace(mets))) ;
 
-  cout << " Max( divergence of source_hh ) " << endl ;
-  for (int i=1; i<=3; i++) 
-      cout << max(abs(source_hh.divergence(mets)(i))) ;
   for (int i=1; i<=3; i++)
-      for (int j=i; j<=3; j++)
+      for (int j=i; j<=3; j++) {
 	  source_hh.set(i,j).set_dzpuis(4) ;
+      }
   
-  Sym_tensor_trans source_hht(mp, bspher, mets) ;
-  source_hht = source_hh ;
-  const Sym_tensor_tt& source_htt = source_hht.tt_part() ;
-  
+    Sym_tensor_trans source_hht(mp, bspher, mets) ;
+    source_hht = source_hh ;
+//   const Sym_tensor_tt& source_htt = source_hh.transverse(mets, 0x0, 6).tt_part() ;
+    const Sym_tensor_tt& source_htt = source_hht.tt_part() ;
+
   maxabs(source_htt, "source_htt tot") ; 
   
+  cout << " Max( divergence of source_hh ) " << endl ;
+  for (int i=1; i<=3; i++) 
+      cout << max(abs(source_htt.divergence(mets)(i))) ;
+
   hij_new.trace_from_det_one(source_htt.poisson()) ;
   hij_new.dec_dzpuis(2) ;
 
