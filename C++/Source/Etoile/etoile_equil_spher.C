@@ -32,6 +32,9 @@ char etoile_equil_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/05/07 12:13:15  k_taniguchi
+ * Change the position of the initialization of alpha_r.
+ *
  * Revision 1.3  2004/03/25 10:29:06  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -129,14 +132,14 @@ void Etoile::equilibrium_spher(double ent_c, double precis){
     double diff_ent = 1 ;     
     int mermax = 200 ;	    // Max number of iterations
     
+    double alpha_r = 1 ; 
+
     //=========================================================================
     // 			Start of iteration
     //=========================================================================
 
     for(int mer=0 ; (diff_ent > precis) && (mer<mermax) ; mer++ ) {
 
-	double alpha_r = 1 ; 
-	
 	cout << "-----------------------------------------------" << endl ;
 	cout << "step: " << mer << endl ;
 	cout << "alpha_r: " << alpha_r << endl ;
