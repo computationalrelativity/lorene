@@ -28,6 +28,9 @@ char test_poisson_vect_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/11/03 15:13:10  j_novak
+ * Comparison with Philippe's Poisson solver.
+ *
  * Revision 1.2  2003/10/29 11:05:44  e_gourgoulhon
  * Twice inc2_dzpuis() relaced by inc_dzpuis(4).
  *
@@ -41,6 +44,7 @@ char test_poisson_vect_spher_C[] = "$Header$" ;
 
 // Lorene headers
 #include "metric.h"
+#include "tenseur.h"
 #include "nbr_spx.h"
 #include "utilitaires.h"
 
@@ -116,21 +120,36 @@ int main() {
   	Vector vvs = vvc ; 
   	vvs.change_triad( map.get_bvect_spher() ) ;
   	vvs.inc_dzpuis(4) ;
+	Tenseur vvc_p(map, 1, CON, map.get_bvect_spher() ) ;
+	vvc_p.set_etat_qcq() ;
+	for (int i=0; i<3; i++) {
+	  Cmp tmp_p(vvs(i+1)) ;
+	  vvc_p.set(i) = tmp_p ;
+	}
+	vvc_p.change_triad(map.get_bvect_cart()) ;
+	Tenseur vect_auxi (map, 1, CON, map.get_bvect_cart()) ;
+	vect_auxi.set_etat_qcq() ;
+	Tenseur scal_auxi (map) ;
+	scal_auxi.set_etat_qcq() ;
+	
+	Tenseur resu_p(vvc_p.poisson_vect(lamda, vect_auxi, scal_auxi)) ;
+	Tenseur theo_p(map, 1, CON, map.get_bvect_cart()) ;
+	theo_p.set_etat_qcq() ;
+	for (int i=0; i<3; i++) {
+	  Cmp tmp_p(theo(i+1)) ;
+	  theo_p.set(i) = tmp_p ;
+	}
 
-	Vector resus = vvs.poisson(lamda) ;
-	Vector resu = resus ;
-	resu.change_triad(map.get_bvect_cart() ) ;
-//   	Tensor grad = resu.derive_con(metc) ;
-//   	grad.dec2_dzpuis() ;
-//   	Scalar div = resu.divergence(metc) ;
-//   	div.dec2_dzpuis() ;
-//   	Vector delta = grad.divergence(metc) + lamda* div.derive_con(metc) ;
-//      delta.dec2_dzpuis() ;
+ 	Vector resus = vvs.poisson(lamda) ;
+ 	Vector resu = resus ;
+ 	resu.change_triad(map.get_bvect_cart() ) ;
 
 	cout << "Max of relative difference (in cartesian components): " << endl ; 
 	for (int i=1; i<=3; i++) {
 	  cout << "Component " << i << ": " << endl ;
-	  cout <<  diffrelmax(resu(i), theo(i)) << endl ; 
+      	  cout <<  "New version: " << diffrelmax(resu(i), theo(i)) << endl ; 
+	  cout <<  "Grandclement et al.: " << 
+	    diffrelmax(resu_p(i-1), theo_p(i-1)) << endl ; 
 	}
 
 	return EXIT_SUCCESS ; 
