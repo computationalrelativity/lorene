@@ -30,6 +30,10 @@ char connection_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/01/19 16:57:44  e_gourgoulhon
+ * First implementation of method ricci().
+ * Not tested yet.
+ *
  * Revision 1.12  2004/01/13 21:33:33  e_gourgoulhon
  * Corrected a bug in method p_derive_cov: inverted case CON and case COV.
  *
@@ -193,16 +197,16 @@ void Connection::set_der_0x0() const {
 }
 
 
-			//-----------------------------//
-    			//     Mutators / assignment   //
-			//-----------------------------//
+            //-----------------------------//
+            //     Mutators / assignment   //
+            //-----------------------------//
 
 
 void Connection::operator=(const Connection& ci) {
 	
 	assert( triad == ci.triad ) ; 
 	delta = ci.delta ; 
-        flat_met = ci.flat_met ; 
+    flat_met = ci.flat_met ; 
 	
 	del_deriv() ; 
 
@@ -376,8 +380,55 @@ Tensor* Connection::p_divergence(const Tensor& ) const {
 const Tensor& Connection::ricci() const {
 
     if (p_ricci == 0x0) {  // a new computation is necessary
-	cout << "Connection::ricci() : not implemented yet !" << endl ; 
-	abort() ; 
+    
+        if (assoc_metric) {     // The Ricci tensor is symmetric if the
+                                // connection is associated with some metric
+            p_ricci = new Sym_tensor(*mp, COV, *triad) ; 
+        }
+        else {
+            p_ricci = new Tensor(*mp, 2, COV, *triad) ; 
+        }
+        
+        const Tensor& d_delta = delta.derive_cov(*flat_met) ; 
+        
+        for (int i=1; i<=3; i++) {
+        
+            int jmax = assoc_metric ? i : 3 ; 
+            
+            for (int j=1; j<=jmax; j++) {
+
+                Scalar tmp1(*mp) ;
+                tmp1.set_etat_zero() ; 
+                for (int k=1; k<=3; k++) {
+                    tmp1 += d_delta(k,i,j,k) ; 
+                } 
+                
+                Scalar tmp2(*mp) ;
+                tmp2.set_etat_zero() ; 
+                for (int k=1; k<=3; k++) {
+                    tmp2 += d_delta(k,i,k,j) ; 
+                } 
+                
+                Scalar tmp3(*mp) ;
+                tmp3.set_etat_zero() ; 
+                for (int k=1; k<=3; k++) {
+                    for (int m=1; m<=3; m++) {
+                        tmp3 += delta(k,k,m) * delta(m,i,j) ; 
+                    }
+                } 
+                
+                Scalar tmp4(*mp) ;
+                tmp4.set_etat_zero() ; 
+                for (int k=1; k<=3; k++) {
+                    for (int m=1; m<=3; m++) {
+                        tmp4 += delta(k,j,m) * delta(m,i,k) ; 
+                    }
+                } 
+                
+                p_ricci->set(i,j) = tmp1 - tmp2 + tmp3 - tmp4 ; 
+                
+            }
+        }
 
     }
 	
