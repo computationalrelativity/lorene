@@ -37,6 +37,9 @@ char op_ssint_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/12/17 13:20:18  m_forot
+ * Modify the case T_COSSIN_C and T_COSSIN_S
+ *
  * Revision 1.2  2004/11/23 15:16:01  m_forot
  *
  * Added the bases for the cases without any equatorial symmetry
@@ -1147,12 +1150,23 @@ void _ssint_t_cossin_sp(Tbl* tb, int & b)
 void _ssint_t_cossin_c(Tbl* tb, int & b)
 {
 
-    // Peut-etre rien a faire ?
+
+  // Peut-etre rien a faire ?
     if (tb->get_etat() == ETATZERO) {
-	int base_r = b & MSQ_R ;
-	int base_p = b & MSQ_P ;
+      int base_r = b & MSQ_R ;
+      int base_p = b & MSQ_P ;
+      switch(base_r){
+      case(4):
+	b = R_CHEBPI_I | base_p | T_COSSIN_S ;
+	break ;
+      case(5):
+	b = R_CHEBPI_P | base_p | T_COSSIN_S ;
+	break ;  
+      default:
 	b = base_r | base_p | T_COSSIN_S ;
-	return ;
+	break;
+      }
+      return ;
     }
     
     // Protection
@@ -1165,7 +1179,8 @@ void _ssint_t_cossin_c(Tbl* tb, int & b)
     np = np - 2 ;
     
     // zone de travail
-    double* som = new double [nr] ;
+    double* somP = new double [nr] ;
+    double* somN = new double [nr] ;
     
     // pt. sur le tableau de double resultat
     double* xo = new double[(tb->dim).taille] ;
@@ -1181,37 +1196,38 @@ void _ssint_t_cossin_c(Tbl* tb, int & b)
     double* xco = xo ;	//  courants
     
     double cx ;
-
+      
     // k = 0
     int m = 0 ;	    // Parite de l'harmonique en phi
 	
 	// Dernier j: j = nt-1
 	// Positionnement
-	    xci += nr * (nt) ;
+	    xci += nr * (nt-1) ;
 	    cx = -2 ;
-	xco += nr * (nt-1) ;
-	
+	    xco += nr * (nt-1) ;
+
 	// Initialisation de som
 	for (int i=0 ; i<nr ; i++) {
-	    som[i] = 0. ;
+	    somP[i] = 0. ;
+	    somN[i] = 0. ;
 	    xco[i] = 0. ;
 	}
 	
 	// j suivants
 	for (int j=nt-2 ; j >= 0 ; j--) {
-	    // Positionnement
-	    xci -= nr ;
-	    xco -= nr ;
-	    // Calcul
-	    for (int i=0 ; i<nr ; i++ ) {
-		som[i] += cx * xci[i] ;
-		xco[i] = som[i] ;
-	    }	// Fin de la boucle sur r
+	  int l = j % 2 ;
+	  // Positionnement
+	  xci -= nr ;
+	  xco -= nr ;
+	  // Calcul	   
+	  for (int i=0 ; i<nr ; i++ ) {
+	    if(l==1) somN[i] += cx * xci[i] ;
+	    else somP[i] += cx * xci[i] ;	      
+	    xco[i] = somN[i]*(1-l)+somP[i]*l ; 
+	  }	// Fin de la boucle sur r
 	}   // Fin de la boucle sur theta
 	// Positionnement phi suivant
-	if (m == 0) {
-	    xci -= nr ;
-	    }
+
 	xci += nr*nt ;
 	xco += nr*nt ;
 
@@ -1226,70 +1242,95 @@ void _ssint_t_cossin_c(Tbl* tb, int & b)
 	// Dernier j: j = nt-1
 	// Positionnement
 	if (m == 0) {
-	    xci += nr * (nt) ;
-	    cx = -2 ;
+	  cx = -2 ;
 	    }
 	else {
-	    xci += nr * (nt-1) ;
-	    cx = 2 ;
+	  cx = 2 ;
 	}
 	xco += nr * (nt-1) ;
-	
+	xci += nr * (nt-1) ;
+
 	// Initialisation de som
 	for (int i=0 ; i<nr ; i++) {
-	    som[i] = 0. ;
+	    somP[i] = 0. ;
+	    somN[i] = 0. ;
 	    xco[i] = 0. ;
 	}
 	
 	// j suivants
 	for (int j=nt-2 ; j >= 0 ; j--) {
+	  int l = j % 2 ;
 	    // Positionnement
 	    xci -= nr ;
 	    xco -= nr ;
-	    // Calcul
+	    // Calcul	   
 	    for (int i=0 ; i<nr ; i++ ) {
-		som[i] += cx * xci[i] ;
-		xco[i] = som[i] ;
+	      if(l==1) somN[i] += cx * xci[i] ;
+	      else somP[i] += cx * xci[i] ;
+	      xco[i] = somN[i]*(1-l)+somP[i]*l ;
 	    }	// Fin de la boucle sur r
 	}   // Fin de la boucle sur theta
+
 	// Normalisation du premier theta dans le cas sin(impair)
-	if (m == 1) {
-	    for (int i=0 ; i<nr ; i++) {
-		xco[i] *= .5 ;
-	    }
+	for (int i=0 ; i<nr ; i++) {
+	  xco[i] *= .5 ;
 	}
+	
 	// Positionnement phi suivant
-	if (m == 0) {
-	    xci -= nr ;
-	    }
+      
 	xci += nr*nt ;
 	xco += nr*nt ;
+	
     }	// Fin de la boucle sur phi
 
     // On remet les choses la ou il faut
     delete [] tb->t ;
     tb->t = xo ;
-    
+   
     //Menage
-    delete [] som ;
+    delete [] somP ;
+    delete [] somN ;
 
     // base de developpement
     int base_r = b & MSQ_R ;
     int base_p = b & MSQ_P ;
-    b = base_r | base_p | T_COSSIN_S ;
+    switch(base_r){
+    case(4):
+      b = R_CHEBPI_I | base_p | T_COSSIN_S ;
+      break ;
+    case(5):
+      b = R_CHEBPI_P | base_p | T_COSSIN_S ;
+      break ;  
+    default:
+       b = base_r | base_p | T_COSSIN_S ;
+       break;
+    }
 }
 
 			//---------------------	
 			// cas T_COSSIN_S
 			//----------------
+
 void _ssint_t_cossin_s(Tbl* tb, int & b)
 {
-    // Peut-etre rien a faire ?
+
+
+  // Peut-etre rien a faire ?
     if (tb->get_etat() == ETATZERO) {
-	int base_r = b & MSQ_R ;
-	int base_p = b & MSQ_P ;
+      int base_r = b & MSQ_R ;
+      int base_p = b & MSQ_P ;
+      switch(base_r){
+      case(4):
+	b = R_CHEBPI_I | base_p | T_COSSIN_C ;
+	break ;
+      case(5):
+	b = R_CHEBPI_P | base_p | T_COSSIN_C ;
+	break ;  
+      default:
 	b = base_r | base_p | T_COSSIN_C ;
-	return ;
+	break;
+      }
+      return ;
     }
     
     // Protection
@@ -1302,7 +1343,8 @@ void _ssint_t_cossin_s(Tbl* tb, int & b)
     np = np - 2 ;
     
     // zone de travail
-    double* som = new double [nr] ;
+    double* somP = new double [nr] ;
+    double* somN = new double [nr] ;
     
     // pt. sur le tableau de double resultat
     double* xo = new double[(tb->dim).taille] ;
@@ -1318,122 +1360,114 @@ void _ssint_t_cossin_s(Tbl* tb, int & b)
     double* xco = xo ;	//  courants
     
     double cx ;
-
+      
     // k = 0
     int m = 0 ;	    // Parite de l'harmonique en phi
 	
-		
 	// Dernier j: j = nt-1
 	// Positionnement
 	    xci += nr * (nt-1) ;
 	    cx = 2 ;
 	    xco += nr * (nt-1) ;
-	
 
 	// Initialisation de som
 	for (int i=0 ; i<nr ; i++) {
-	    som[i] = 0. ;
+	    somP[i] = 0. ;
+	    somN[i] = 0. ;
 	    xco[i] = 0. ;
 	}
-	xco -= nr ;
-	for (int i=0 ; i<nr ; i++) xco[i] = 0 ;
 	
 	// j suivants
-	for (int j=nt-2 ; j >= 1 ; j--) {
-	    // Positionnement
-	    xci -= nr ;
-	    xco -= nr ;
-	    // Calcul
-	    for (int i=0 ; i<nr ; i++ ) {
-		som[i] += cx * xci[i] ;
-		xco[i] = som[i] ;
-	    }	// Fin de la boucle sur r
+	for (int j=nt-2 ; j >= 0 ; j--) {
+	  int l = j % 2 ;
+	  // Positionnement
+	  xci -= nr ;
+	  xco -= nr ;
+	  // Calcul	   
+	  for (int i=0 ; i<nr ; i++ ) {
+	    if(l==1) somN[i] += cx * xci[i] ;
+	    else somP[i] += cx * xci[i] ;	      
+	    xco[i] = somN[i]*(1-l)+somP[i]*l ; 
+	  }	// Fin de la boucle sur r
 	}   // Fin de la boucle sur theta
+	// Positionnement phi suivant
+
 	xci += nr*nt ;
-	xci -= nr ;
 	xco += nr*nt ;
 
-    // k=1 
+    // k=1
     xci += nr*nt ;
     xco += nr*nt ;
     
+    // k >= 2
     for (int k=2 ; k<np+1 ; k++) {
 	m = (k/2) % 2 ;	    // Parite de l'harmonique en phi
 	
-	switch(m) {
-	    case 1:	    // m impair: cos(impair)
-		// Dernier j: j = nt-1
-		// Positionnement
-		xci += nr * (nt) ;
-		xco += nr * (nt-1) ;
+	// Dernier j: j = nt-1
+	// Positionnement
+	if (m == 0) {
+	    xci += nr * (nt-1) ;
+	    cx = 2 ;
+	    }
+	else {
+	    xci += nr * (nt-1) ;
+	    cx = -2 ;
+	}
+	xco += nr * (nt-1) ;
 	
-		// Initialisation de som 
-		for (int i=0 ; i<nr ; i++) {
-		    som[i] = 0. ;
-		    xco[i] = 0. ;	// mise a zero du dernier coef en theta
-		}
+	// Initialisation de som
+	for (int i=0 ; i<nr ; i++) {
+	    somP[i] = 0. ;
+	    somN[i] = 0. ;
+	    xco[i] = 0. ;
+	}
 	
-		// j suivants
-		for (int j=nt-1 ; j >= 0 ; j--) {
-		    // Positionnement
-		    xci -= nr ;
-		    // Calcul
-		    for (int i=0 ; i<nr ; i++ ) {
-			som[i] -= 2*xci[i] ;
-			xco[i] = som[i] ;
-		    }	// Fin de la boucle sur r
-		    xco -= nr ;
-		}   // Fin de la boucle sur theta
-		// Positionnement phi suivant
-		xci += nr*nt ;
-		xco += nr ;
-		xco += nr*nt ;
-	    break ;
-	    
-	    case 0:	    // m pair: sin(pair)
-		// Dernier j: j = nt-1
-		// Positionnement
-		xci += nr * (nt-1) ;
-		xco += nr * (nt-1) ;
+	// j suivants
+	for (int j=nt-2 ; j >= 0 ; j--) {
+	  int l = j % 2 ;
+	    // Positionnement
+	    xci -= nr ;
+	    xco -= nr ;
+	    // Calcul	   
+	    for (int i=0 ; i<nr ; i++ ) {
+	      if(l==1) somN[i] += cx * xci[i] ;
+	      else somP[i] += cx * xci[i] ;
+	      xco[i] = somN[i]*(1-l)+somP[i]*l ;
+	    }	// Fin de la boucle sur r
+	}   // Fin de la boucle sur theta
+
+	// Normalisation du premier theta dans le cas sin(impair)
+	for (int i=0 ; i<nr ; i++) {
+	  xco[i] *= .5 ;
+	}
 	
-		// Initialisation de som
-		for (int i=0 ; i<nr ; i++) {
-		    som[i] = 0. ;
-		    xco[i] = 0. ;
-		}
-		xco -= nr ;
-		for (int i=0 ; i<nr ; i++) xco[i] = 0 ;
+	// Positionnement phi suivant
+      
+	xci += nr*nt ;
+	xco += nr*nt ;
 	
-		// j suivants
-		for (int j=nt-2 ; j >= 1 ; j--) {
-		    // Positionnement
-		    xci -= nr ;
-		    xco -= nr ;
-		    // Calcul
-		    for (int i=0 ; i<nr ; i++ ) {
-			som[i] += 2*xci[i] ;
-			xco[i] = som[i] ;
-		    }	// Fin de la boucle sur r
-		}   // Fin de la boucle sur theta
-		// Positionnement phi suivant
-		xci -= nr ;
-		xci += nr*nt ;
-		xco += nr*nt ;
-	    break ;
-	}   // Fin du switch
-    }   // Fin de la boucle en phi
-    
+    }	// Fin de la boucle sur phi
+
     // On remet les choses la ou il faut
     delete [] tb->t ;
     tb->t = xo ;
-    
+   
     //Menage
-    delete [] som ;
+    delete [] somP ;
+    delete [] somN ;
 
     // base de developpement
     int base_r = b & MSQ_R ;
     int base_p = b & MSQ_P ;
-    b = base_r | base_p | T_COSSIN_C ;
-
-    
+    switch(base_r){
+    case(4):
+      b = R_CHEBPI_I | base_p | T_COSSIN_C ;
+      break ;
+    case(5):
+      b = R_CHEBPI_P | base_p | T_COSSIN_C ;
+      break ;  
+    default:
+       b = base_r | base_p | T_COSSIN_C ;
+       break;
+    }
 }
