@@ -31,6 +31,9 @@ char binaire_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/09/15 20:24:24  e_gourgoulhon
+ * Improvements in the function write_global.
+ *
  * Revision 1.5  2003/09/15 15:10:12  e_gourgoulhon
  * Added the member function write_global.
  *
@@ -285,9 +288,7 @@ void Binaire::display_poly(ostream& ost) const {
     const Eos* p_eos1 = &( star1.get_eos() ) ; 
     const Eos_poly* p_eos_poly = dynamic_cast<const Eos_poly*>( p_eos1 ) ; 	  
 
-    if (p_eos_poly != 0x0) {
-
-	assert( star1.get_eos() == star2.get_eos() ) ; 
+    if ((p_eos_poly != 0x0) && ( star1.get_eos() == star2.get_eos() )) {
 
 	double kappa = p_eos_poly->get_kap() ; 
 	double gamma = p_eos_poly->get_gam() ;  ; 
@@ -351,21 +352,32 @@ void Binaire::write_global(ostream& ost) const {
     }
     ost << endl ; 
 	
+	ost << "#     VE(M)	   "
+	 	<< "      VE(GB)   "
+		<< "     VE(FUS)   " << endl ; 
+		
+	ost.setf(ios::scientific) ; 
+	ost.width(14) ; 
+	ost << virial() ; ost.width(14) ;
+	ost	<< virial_gb() ; ost.width(14) ; 
+	ost	<< virial_fus() << endl ; 
+
 	ost << "#      d [km]         "  
 		<< "       d_G [km]       "
 		<< "     d/(a1 +a1')      "
 		<< "       f [Hz]         "
 		<< "    M_ADM [M_sol]     "     
-		<< "    J [G M_sol^2/c]   "  << endl ;   
+		<< "   J [G M_sol^2/c]    "  << endl ;   
 
-	ost.precision(15) ;
-	ost << scientific << separation() / km << " "
-		<< ( star2.xa_barycenter() - star1.xa_barycenter() ) / km << " "
-		<< separation() / (star1.ray_eq() + star2.ray_eq()) << " "
-		<< omega / (2*M_PI)* f_unit << " "
-		<< mass_adm() / msol << " "
-		<< angu_mom()(2)/ ( qpig / (4* M_PI) * msol*msol) << endl ; 
-		
+	ost.precision(14) ;
+	ost.width(20) ; 
+	ost << separation() / km ; ost.width(22) ;
+	ost	<< ( star2.xa_barycenter() - star1.xa_barycenter() ) / km ; ost.width(22) ;
+	ost	<< separation() / (star1.ray_eq() + star2.ray_eq()) ; ost.width(22) ;
+	ost	<< omega / (2*M_PI)* f_unit ; ost.width(22) ;
+	ost	<< mass_adm() / msol ; ost.width(22) ;
+	ost	<< angu_mom()(2)/ ( qpig / (4* M_PI) * msol*msol) << endl ; 
+				
 	ost << "#     H_c(1)[c^2]     "
 	    << "    e_c(1)[rho_nuc]   " 
 	    << "    M_B(1) [M_sol]    "
@@ -373,12 +385,13 @@ void Binaire::write_global(ostream& ost) const {
 	    << "        a2/a1(1)	  " 
 	    << "        a3/a1(1)	  " << endl ; 
 		
-	ost << scientific << star1.get_ent()()(0,0,0,0) << " "
-		<< star1.get_ener()()(0,0,0,0) << " "
-		<< star1.mass_b() / msol << " "		
-	  	<< star1.ray_eq()  /km << " "
-		<< star1.ray_eq_pis2() / star1.ray_eq() << " "
-		<< star1.ray_pole() / star1.ray_eq() << endl ;
+	ost.width(20) ; 
+	ost << star1.get_ent()()(0,0,0,0) ; ost.width(22) ;
+	ost	<< star1.get_ener()()(0,0,0,0) ; ost.width(22) ;
+	ost	<< star1.mass_b() / msol ; ost.width(22) ;	
+	ost << star1.ray_eq() / km ; ost.width(22) ; 
+	ost	<< star1.ray_eq_pis2() / star1.ray_eq() ; ost.width(22) ;
+	ost	<< star1.ray_pole() / star1.ray_eq() << endl ;
 		
 	ost << "#     H_c(2)[c^2]     "
 	    << "    e_c(2)[rho_nuc]   " 
@@ -387,21 +400,55 @@ void Binaire::write_global(ostream& ost) const {
 	    << "        a2/a1(2)	  " 
 	    << "        a3/a1(2)	  " << endl ; 
 		
-		
-	ost << scientific << star2.get_ent()()(0,0,0,0) << " "
-		<< star2.get_ener()()(0,0,0,0) << " "
-		<< star2.mass_b() / msol << " "	
-	  	<< star2.ray_eq()  /km << " "
-		<< star2.ray_eq_pis2() / star1.ray_eq() << " "
-		<< star2.ray_pole() / star1.ray_eq() << endl ;
+	ost.width(20) ; 
+	ost << star2.get_ent()()(0,0,0,0) ; ost.width(22) ;
+	ost	<< star2.get_ener()()(0,0,0,0) ; ost.width(22) ;
+	ost	<< star2.mass_b() / msol ; ost.width(22) ;	
+	ost << star2.ray_eq() / km ; ost.width(22) ; 
+	ost	<< star2.ray_eq_pis2() / star1.ray_eq() ; ost.width(22) ;
+	ost	<< star2.ray_pole() / star1.ray_eq() << endl ;
 	
-	ost << "#        VE(M)	      "
-	 	<< "         VE(GB)		  "
-		<< "         VE(FUS)	  " << endl ; 
+	// Quantities in polytropic units if the EOS is a polytropic one
+	// -------------------------------------------------------------
+   	const Eos* p_eos1 = &( star1.get_eos() ) ; 
+    const Eos_poly* p_eos_poly = dynamic_cast<const Eos_poly*>( p_eos1 ) ; 	  
+
+    if ((p_eos_poly != 0x0) && ( star1.get_eos() == star2.get_eos() )) {
+
+		double kappa = p_eos_poly->get_kap() ; 
+		double gamma = p_eos_poly->get_gam() ;  ; 
+		double kap_ns2 = pow( kappa,  0.5 /(gamma-1.) ) ; 
+    
+		// Polytropic unit of length in terms of r_unit : 
+		double r_poly = kap_ns2 / sqrt(ggrav) ; 
+    
+		// Polytropic unit of time in terms of t_unit :
+		double t_poly = r_poly ; 
+
+		// Polytropic unit of mass in terms of m_unit :
+		double m_poly = r_poly / ggrav ; 
+    
+		// Polytropic unit of angular momentum in terms of j_unit :
+		double j_poly = r_poly * r_poly / ggrav ; 
+    
+		ost << "#      d [poly]       "  
+			<< "       d_G [poly]     "
+			<< "     Omega [poly]     "
+			<< "     M_ADM [poly]     "     
+			<< "       J [poly]       "  
+			<< "    M_B(1) [poly]     "
+			<< "    M_B(2) [poly]     " << endl ; 
 		
-	ost << scientific << virial() << " "
-		<< virial_gb() << " "
-		<< virial_fus() << " " ; 
+		ost.width(20) ; 
+		ost << separation() / r_poly ; ost.width(22) ;
+		ost << ( star2.xa_barycenter() - star1.xa_barycenter() ) / r_poly ; ost.width(22) ; 
+		ost << omega * t_poly ; ost.width(22) ;
+		ost << mass_adm() / m_poly ; ost.width(22) ;
+		ost << angu_mom()(2) / j_poly ; ost.width(22) ;
+		ost << star1.mass_b() / m_poly ; ost.width(22) ;
+		ost << star2.mass_b() / m_poly << endl ; 
+
+	}
 
 }
 
