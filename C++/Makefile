@@ -13,7 +13,6 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Binaire; $(MAKE)
 	cd Source/Cmp; $(MAKE)
 	cd Source/Coord; $(MAKE)
-	cd Source/Dim_tbl; $(MAKE)
 	cd Source/Eos; $(MAKE)
 	cd Source/Etoile; $(MAKE)
 	cd Source/Grille3d; $(MAKE)
@@ -46,7 +45,6 @@ uninstall:
 	cd Source/Binaire; $(MAKE) -i uninstall
 	cd Source/Cmp; $(MAKE) -i uninstall
 	cd Source/Coord; $(MAKE) -i uninstall
-	cd Source/Dim_tbl; $(MAKE) -i uninstall
 	cd Source/Eos; $(MAKE) -i uninstall
 	cd Source/Etoile; $(MAKE) -i uninstall
 	cd Source/Grille3d; $(MAKE) -i uninstall
