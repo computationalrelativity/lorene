@@ -31,6 +31,12 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/11/13 12:02:03  r_prix
+ * - adapted/extended some of the documentation
+ * - changed xxx2 -> Delta_car
+ * - added members J_euler, sphph_euler, representing 3+1 components of Tmunu
+ *   (NOTE: these are not 2-fluid specific, and should ideally be moved into Class Etoile!)
+ *
  * Revision 1.8  2003/09/17 08:27:50  j_novak
  * New methods: mass_b1() and mass_b2().
  *
@@ -81,17 +87,20 @@ Cmp prolonge_c1(const Cmp& uu, const int nzet) ;
  * Class for two-fluid rotating relativistic stars.
  * 
  * This is a child class of {\tt Etoile\_rot}, with the same metric
- * and overloaded member functions. Still, there are two densities 
- * fields (and 2 log-enthalpies, see class {\tt Eos\_bifluid}), 
- * as well as two velocity fields.
- * Fluid 1 is supposed to correspond to neutrons, whereas fluid 2
- * may correspond to protons.
- * The quantity {\tt u_euler} in this class {\bf \em is not} the fluid
- * 3-velocity with respect to the eulerian observer; but 
- * $\sqrt{g_{\varphi\varphi}}J^{\varphi}$ expressed in a cartesian 
- * triad.
- * The quantity {\tt uuu} is still the norm of the fluid (no.1) 
- * 3-velocity, seen by the eulerian observer.
+ * and overloaded member functions. 
+ * 
+ * There are two number-density fields {\tt nbar} and {\tt nbar2} (and 2 log-enthalpies, 
+ * see class {\tt Eos\_bifluid}), as well as two velocity fields, with phi-components
+ * (with respect to the Eulerian observer) {\tt uuu} and {\tt uuu2}.
+ *
+ * Fluid 1 can be considered to correspond to the (superfluid) neutrons, whereas 
+ * fluid 2 would consist of the protons (and electrons)
+ *.
+ * The quantity {\tt u_euler} of the {\tt class Etoile} is 
+ * {\em not used} in this class!
+ * Only the "3+1" components of ${T^\mu}_\nu$ should be used outside
+ * of {\tt hydro_euler()}, namely {\tt s_euler, sphph_euler, J_euler} and 
+ * {\tt ener_euler}.
  *
  * @version #$Id$#
  */
@@ -102,8 +111,8 @@ class Et_rot_bifluid : virtual public Etoile_rot {
  protected:
   const Eos_bifluid& eos ; /// Equation of state for two-fluids model
   
-  double omega2 ; /// Rotation angular velocity for fluid 2 ({\tt [f\_unit]})
-  
+    double omega2 ; /// Rotation angular velocity for fluid 2 ({\tt [f\_unit]})
+
   // Fluid quantities with respect to the fluid frame
   // ------------------------------------------------
 
@@ -113,14 +122,27 @@ class Et_rot_bifluid : virtual public Etoile_rot {
   Tenseur nbar2 ; /// Baryon density in the fluid frame, for fluid 2
   
   /**
-   * In the relativistic case: relative Lorentz factor between both fluids;
-   * in the newtonian case: square of the difference of velocities.
-   * It is noted $\Delta^2$ in Prix et al. (see also {\tt Eos\_bifluid})
+   * The "relative velocity" (squared) $\Delta^2$ of the two fluids.
+   * See Prix et al.(2003) and see also {\tt Eos\_bifluid}. 
    */
-  Tenseur xxx2 ; 
+  Tenseur Delta_car ; 
   
   // Fluid quantities with respect to the Eulerian frame
   // ---------------------------------------------------
+
+  // FIXME: the following two variables are not specific to 2-fluid stars
+  //  and should ideally be moved to class Etoile!
+
+  /// The component $S^\varphi_\varphi$ of the stress tensor ${S^i}_j$.
+  Tenseur sphph_euler;
+	
+  /** Total angular momentum (flat-space!) 3-vector $J_\mathrm{euler}$, which is related to
+   * $J^i$ of the "3+1" decomposition, but expressed in a flat-space triad.
+   * In axisymmetric circular cases, only $J_\mathrm{euler}(\varphi)=r \sin\theta\, J^\varphi$
+   * is nonzero.
+   */
+  Tenseur J_euler;
+
   /// Lorentz factor between the fluid 2 and Eulerian observers   
   Tenseur gam_euler2 ;
   
@@ -243,8 +265,8 @@ class Et_rot_bifluid : virtual public Etoile_rot {
   /// Returns the proper baryon density for fluid 2
   const Tenseur& get_nbar2() const {return nbar2 ; } ;
 	
-  /// Returns the coupling factor between both fluids $n_1n_2\Gamma_\Delta$
-  const Tenseur& get_xxx2() const {return xxx2 ; } ;
+  /// Returns the "relative velocity" (squared) $\Delta^2$ of the two fluids
+  const Tenseur& get_Delta_car() const {return Delta_car ; } ;
 
   /// Returns the Lorentz factor between the fluid 2 and Eulerian observers
   const Tenseur& get_gam_euler2() const {return gam_euler2 ; } ;
@@ -315,10 +337,15 @@ class Et_rot_bifluid : virtual public Etoile_rot {
   /// Baryon mass of fluid 2
   double mass_b2() const ;
 
-  virtual double mass_b() const ;	    /// Baryon mass
-  virtual double mass_g() const ;	    /// Gravitational mass
-  virtual double angu_mom() const ;  /// Angular momentum
-  virtual double grv2() const ;	/// Error on the virial identity GRV2
+  virtual double mass_b() const ;	/// Total Baryon mass
+  virtual double mass_g() const ;	/// Gravitational mass
+  virtual double angu_mom() const ;	/// Angular momentum
+
+  /** Error on the virial identity GRV2.
+   * Given by the integral Eq. (4.6) in 
+   * [Bonazzola, Gougoulhon, Salgado, Marck, A\&A \textbf{278}, 421 (1993)].
+   */
+  virtual double grv2() const ;		
 
   /** Error on the virial identity GRV3.
    *  The error is computed as the integral defined
@@ -357,9 +384,8 @@ class Et_rot_bifluid : virtual public Etoile_rot {
    *  {\tt ent}, {\tt ent2}, {\tt ener}, {\tt press}, and {\tt a\_car},  
    *  which are supposed to be up to date.  
    *  From these,  the following fields are updated:
-   *  {\tt gam\_euler}, {\tt gam\_euler2}, {\tt u\_euler}, 
-   *  {\tt ener\_euler}, {\tt s\_euler}. 
-   * 
+   *  {\tt Delta_car}, {\tt gam\_euler}, {\tt gam\_euler2}, {\tt ener\_euler}, 
+   *  {\tt s\_euler}, {\tt sphph_euler} and {tt J_euler}.
    */
   virtual void hydro_euler() ; 
 	
