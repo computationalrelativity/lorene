@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/09/01 09:47:55  r_prix
+ * fixed/improved string-reading with read_variable(): allocates returned string
+ *
  * Revision 1.9  2004/03/22 13:12:44  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -333,7 +336,7 @@ int read_variable(char *fname, char *var_name, bool &var);
 /// Read a double variable from file (cf \c read_variable(char *, char *, char *, void *) ).
 int read_variable(char *fname, char *var_name, double &var);
 /// Read a (ANSI C) string variable from file.
-int read_variable (char *fname, char *var_name, char *str);
+int read_variable (char *fname, char *var_name, char **str);
 
 /// 'Improved' malloc that sets memory to 0 and also auto-terminates on error.
 void *MyMalloc (long bytes);

@@ -96,7 +96,7 @@ load_file_buffered (char *fname)
 
 #define ERR -1
 #define OK  0
-#define FMT_QUOTED_STRING "string"    // reading in quoted strings needs some special treatment
+#define FMT_STRING "string"    // reading in strings needs some special treatment
 
 /*----------------------------------------------------------------------
  *  parser for config-files: can read config-variables of the form
@@ -164,22 +164,36 @@ read_variable (char *fname, char *var_name, char *fmt, void *varp)
 
   // now read the value into the variable
   
-  // reading a quoted string needs some special treatment:
-  if ( !strcmp(fmt, FMT_QUOTED_STRING) )
+  // reading a string needs some special treatment:
+  if ( !strcmp(fmt, FMT_STRING) )
     {
-      if ( (*found != '"') ||  ((pos = strchr(found+1, '"')) == NULL)  )  // find delimiting quotes
-	ret = 0;
-      else   // NOTE: varp here is supposed to be a pointer to char* !!
+      if ( *found == '"')  // skip quotes
 	{
-	  char **cstr = static_cast<char**>(varp);
-	  len = pos - found;  // length of quoted string, excluding quotes, including \0
-	  (*cstr) = static_cast<char*>(MyMalloc(len)); 
-	  strncpy ((*cstr), found+1, len-1);
-	  (*cstr)[len-1] = '\0'; 
-	  ret = 1;  
-	}
-    }
-  else  // but the default case is just sscanf...
+	  if ( (pos = strchr(found+1, '"')) == NULL )  // find delimiting quotes
+	    {
+	      cout << "ERROR: no closing quotes found \n";
+	      return (ERR);
+	    }
+	  found ++;
+	} /* if quoted string */
+      else
+	{
+	  if ( (pos = strchr (found, '#'))  == NULL)	// comment ? 
+	    {
+	      if ( (pos = strchr (found, '\n')) == NULL)  // end of line? 
+		pos = data + strlen(data);		// end of file
+	    }
+	} /* if not quoted string */
+
+      // NOTE: varp here is supposed to be a pointer to char* !!
+      char **cstr = static_cast<char**>(varp);
+      len = pos - found;  // length of string excluding \0
+      (*cstr) = static_cast<char*>(MyMalloc(len+1)); 
+      strncpy ((*cstr), found, len);
+      (*cstr)[len] = '\0'; 
+      ret = 1;  
+    } /* if fmt == string */
+  else  // the default case is just sscanf...
     ret = sscanf (found, fmt, varp);
 
 
@@ -230,19 +244,22 @@ read_variable (char *fname, char *var_name, double &var)
 }
 
 int
-read_variable (char *fname, char *var_name, char *str)
+read_variable (char *fname, char *var_name, char **str)
 {
   char *cstr;
 
-  int ret = read_variable(fname, var_name, FMT_QUOTED_STRING, &cstr);
-
-  if ((ret == OK) && cstr)
+  if (*str != NULL)
     {
-      strcpy (str, cstr);
-      free (cstr);
+      cout << "ERROR: return-string needs to be NULL in read_variable()\n";
+      return (ERR);
     }
 
-  cout << "DEBUG: " << var_name << " = " << str <<endl;
+  int ret = read_variable(fname, var_name, FMT_STRING, &cstr);
+
+  if ((ret == OK) && cstr)
+    *str = cstr;
+
+  cout << "DEBUG: " << var_name << " = " << *str <<endl;
 
   return (ret);
 
