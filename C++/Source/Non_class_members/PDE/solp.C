@@ -25,6 +25,10 @@ char solp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/02/20 10:55:23  j_novak
+ * The versions dzpuis 5 -> 3 has been improved and polished. Should be
+ * operational now...
+ *
  * Revision 1.4  2004/02/09 08:55:31  j_novak
  * Corrected error in the arguments of _solp_r_chebu_cinq
  *
@@ -406,8 +410,8 @@ Tbl _solp_r_chebu_cinq (const Matrice &lap, const Matrice &nondege,
     
     int n = lap.get_dim(0) ;	  
     int dege = n-nondege.get_dim(0) ;
-    assert ((dege==1) || (dege ==2)) ;
-    Tbl source_aux(combinaison(source, 2, R_CHEBU)) ;
+
+    Tbl source_aux(combinaison(source, 5, R_CHEBU)) ;
     
     Tbl so(n-dege) ;
     so.set_etat_qcq() ;

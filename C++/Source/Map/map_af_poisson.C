@@ -31,6 +31,10 @@ char map_af_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/20 10:55:23  j_novak
+ * The versions dzpuis 5 -> 3 has been improved and polished. Should be
+ * operational now...
+ *
  * Revision 1.2  2004/02/06 10:53:52  j_novak
  * New dzpuis = 5 -> dzpuis = 3 case (not ready yet).
  *
@@ -79,10 +83,10 @@ char map_af_poisson_C[] = "$Header$" ;
 #include "map.h"
 #include "cmp.h"
 
-Mtbl_cf sol_poisson(const Map_af&, const Mtbl_cf&, int) ;
+Mtbl_cf sol_poisson(const Map_af&, const Mtbl_cf&, int, bool match = true) ;
 //*****************************************************************************
 
-void Map_af::poisson(const Cmp& source, Param&, Cmp& pot) const {
+void Map_af::poisson(const Cmp& source, Param& , Cmp& pot) const {
     
     assert(source.get_etat() != ETATNONDEF) ; 
     assert(source.get_mp()->get_mg() == mg) ; 
@@ -91,6 +95,8 @@ void Map_af::poisson(const Cmp& source, Param&, Cmp& pot) const {
     assert( source.check_dzpuis(2) || source.check_dzpuis(4) 
 	    || source.check_dzpuis(3) || source.check_dzpuis(5) ) ; 
     
+    bool match = true ;
+
     int dzpuis ; 
     
     if (source.dz_nonzero()){
@@ -100,8 +106,7 @@ void Map_af::poisson(const Cmp& source, Param&, Cmp& pot) const {
 	dzpuis = 4 ; 
     }
 
-    if (dzpuis == 5) 
-      cout << "Warning: the dzpuis = 5 case is not ready yet!" << endl ;
+    match = !(dzpuis == 5) ;
 
     // Spherical harmonic expansion of the source
     // ------------------------------------------
@@ -124,7 +129,7 @@ void Map_af::poisson(const Cmp& source, Param&, Cmp& pot) const {
         
     // Call to the Mtbl_cf version
     // ---------------------------
-    Mtbl_cf resu = sol_poisson(*this, *(rho.c_cf), dzpuis) ;
+    Mtbl_cf resu = sol_poisson(*this, *(rho.c_cf), dzpuis, match) ;
     
     // Final result returned as a Cmp
     // ------------------------------

@@ -26,6 +26,10 @@ char poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/20 10:55:23  j_novak
+ * The versions dzpuis 5 -> 3 has been improved and polished. Should be
+ * operational now...
+ *
  * Revision 1.2  2004/02/06 10:53:54  j_novak
  * New dzpuis = 5 -> dzpuis = 3 case (not ready yet).
  *
@@ -152,7 +156,8 @@ char poisson_C[] = "$Header$" ;
 
 
 
-Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis)
+Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis,
+		    bool match)
 {
     
     // Verifications d'usage sur les zones
@@ -164,7 +169,7 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis)
 	assert(source.get_mg()->get_type_r(l) == FIN) ;
 
      assert ((dzpuis==4) || (dzpuis==2) || (dzpuis==3) || (dzpuis==5)) ;
-    
+     assert ((!match) || (dzpuis != 5)) ;
     
     // Bases spectrales
     const Base_val& base = source.base ;
@@ -177,11 +182,11 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis)
     int l_quant, m_quant;
     
     //Rangement des valeurs intermediaires 
-    Tbl *so ;
-    Tbl *sol_hom ;
-    Tbl *sol_part ;
-    Matrice *operateur ;
-    Matrice *nondege ;
+    Tbl *so = 0x0 ;
+    Tbl *sol_hom = 0x0 ;
+    Tbl *sol_part = 0x0 ;
+    Matrice *operateur = 0x0 ;
+    Matrice *nondege = 0x0 ;
     
     
     // Rangement des solutions, avant raccordement
@@ -237,8 +242,10 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis)
 	    //Operateur inversible
 	    nondege = new Matrice(prepa_nondege(*operateur, l_quant, 0., 0, base_r)) ;
 	    
-	    // Calcul de la SH
-	    sol_hom = new Tbl(solh(nr, l_quant, 0., base_r)) ;
+	    if (match) {
+	      // Calcul de la SH
+	      sol_hom = new Tbl(solh(nr, l_quant, 0., base_r)) ;
+	    }
 	 
 	    //Calcul de la SP
 	    so = new Tbl(nr) ;
@@ -253,8 +260,10 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis)
 	    
 	    for (int i=0 ; i<nr ; i++) {
 		solution_part.set(0, k, j, i) = (*sol_part)(i) ;
-		solution_hom_un.set(0, k, j, i) = (*sol_hom)(i) ;
-		solution_hom_deux.set(0, k, j, i) = 0. ; 
+		if (match) {
+		  solution_hom_un.set(0, k, j, i) = (*sol_hom)(i) ;
+		  solution_hom_deux.set(0, k, j, i) = 0. ; 
+		}
 	    }	    
 	    
 	    
@@ -262,7 +271,7 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis)
 	    delete operateur ;
 	    delete nondege ;
 	    delete so ;
-	    delete sol_hom ;
+	    if (match) delete sol_hom ;
 	    delete sol_part ;
 	}
 
@@ -293,13 +302,11 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis)
 	    operateur = new Matrice(laplacien_mat(nr, l_quant, 0., dzpuis,
 								 base_r)) ;
 	    (*operateur) = combinaison(*operateur, l_quant, 0., dzpuis, base_r) ;
-	    
 	    // Operateur inversible
 	    nondege = new Matrice(prepa_nondege(*operateur, l_quant, 0.,
 							     dzpuis, base_r)) ;
-	   
 	    // Calcul de la SH
-	    if (dzpuis !=5) 
+	    if (match) 
 	      sol_hom = new Tbl(solh(nr, l_quant, 0., base_r)) ;
 	   
 	    // Calcul de la SP
@@ -309,11 +316,11 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis)
 		so->set(i) = source(nz-1, k, j, i) ;
 	    sol_part = new Tbl(solp(*operateur, *nondege, alpha, beta, 
 				*so, dzpuis, base_r)) ;
-	
+
 	    // Rangement
 	    for (int i=0 ; i<nr ; i++) {
 		solution_part.set(nz-1, k, j, i) = (*sol_part)(i) ;
-		if (dzpuis !=5) {
+		if (match) {
 		  solution_hom_un.set(nz-1, k, j, i) = (*sol_hom)(i) ;
 		  solution_hom_deux.set(nz-1, k, j, i) = 0. ;
 		}
@@ -322,7 +329,7 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis)
 	    delete operateur ;
 	    delete nondege ;
 	    delete so ;
-	    delete sol_hom ;
+	    if (match) delete sol_hom ;
 	    delete sol_part ;
 	}
     
@@ -358,9 +365,10 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis)
 		 // Operateur inversible
 		nondege = new Matrice(prepa_nondege(*operateur, l_quant, 
 							beta/alpha, 0, base_r)) ;		
-		
-		// Calcul DES DEUX SH
-		sol_hom = new Tbl(solh(nr, l_quant, beta/alpha, base_r)) ;
+		if (match) {
+		  // Calcul DES DEUX SH
+		  sol_hom = new Tbl(solh(nr, l_quant, beta/alpha, base_r)) ;
+		}
 		
 		// Calcul de la SP
 		so = new Tbl(nr) ;
@@ -375,21 +383,23 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis)
 		// Rangement
 		for (int i=0 ; i<nr ; i++) {
 		    solution_part.set(zone, k, j, i) = (*sol_part)(i) ;
-		    solution_hom_un.set(zone, k, j, i) = (*sol_hom)(0, i) ;
-		    solution_hom_deux.set(zone, k, j, i) = (*sol_hom)(1, i) ;
+		    if (match) {
+		      solution_hom_un.set(zone, k, j, i) = (*sol_hom)(0, i) ;
+		      solution_hom_deux.set(zone, k, j, i) = (*sol_hom)(1, i) ;
+		    }
 		}
 			
 		
 		delete operateur ;
 		delete nondege ;
 		delete so ;
-		delete sol_hom ;
+		if (match) delete sol_hom ;
 		delete sol_part ;
 	    }
 	}
 
 
-    if (dzpuis !=5) {
+    if (match) {
 
 	     //-------------------------------------------
 	    // On est parti pour le raccord des solutions
@@ -642,7 +652,7 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis)
 			//les diags :
 			if (sup == 0) sup = 1 ;
 			}
-		    }
+		  }
 		    
 		    //-------------------------
 		   //  resolution du systeme 
@@ -689,25 +699,22 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis)
 		    delete systeme ;
 		}
     
-    }
+	    }
     
     delete [] indic ;
 
-    } 
-    else { //Si dzpuis =5, seule la sol. part est renvoyee
+    } // End of the case where the matching has to be done
+    else { //Only a particular solution is given in each domain
 
       for (int zone = 0; zone < nz; zone++) 
-	for (int k=0 ; k<k<source.get_mg()->get_np(zone)+1 ; k++)
+	for (int k=0 ; k<source.get_mg()->get_np(zone)+1 ; k++)
 	  for (int j=0 ; j<source.get_mg()->get_nt(zone) ; j++)
 	    if (nullite_plm(j,source.get_mg()->get_nt(zone) , 
 			    k, source.get_mg()->get_np(zone), base) == 1) 
-	      for (int i=0; i<source.get_mg()->get_nr(zone); i++)
+	      for (int i=0; i<source.get_mg()->get_nr(zone); i++) 
 		resultat.set(zone, k, j, i) = solution_part(zone, k, j, i) ;
 
     }
-
-      
-
 
     return resultat;
 }

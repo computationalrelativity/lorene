@@ -25,6 +25,10 @@ char prepa_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/02/20 10:55:23  j_novak
+ * The versions dzpuis 5 -> 3 has been improved and polished. Should be
+ * operational now...
+ *
  * Revision 1.4  2004/02/06 10:53:54  j_novak
  * New dzpuis = 5 -> dzpuis = 3 case (not ready yet).
  *
@@ -580,34 +584,30 @@ Matrice _prepa_nondege_r_chebu_cinq (const Matrice &lap, int l) {
     
   //  assert (l<=n-2) ;
     
-    if (l==0) {
-	Matrice res(n-2, n-2) ;
-	res.set_etat_qcq() ;
-	for (int i=0 ;i<n-2 ; i++)
-	    for (int j=0 ; j<n-2 ; j++)
-		res.set(i, j) = lap(i, j+2) ;
-	res.set_band(3, 2) ;
-	res.set_lu() ;
-	tab[nb_dejafait] = new Matrice(res) ;
-	nb_dejafait ++ ;
-	return res ;
-    }
-    else {
-	Matrice res(n-1, n-1) ;
-	res.set_etat_qcq() ;
-	for (int i=0 ;i<n-1 ; i++)
-	    for (int j=0 ; j<n-1 ; j++)
-		res.set(i, j) = lap(i, j+1) ;
-	res.set_band(4, 1) ;
-	res.set_lu() ;
-	tab[nb_dejafait] = new Matrice(res) ;
-	nb_dejafait ++ ;
-	return res ;
-	}
-    }
-    // Cas ou le calcul a deja ete effectue :
-    else
-	return *tab[indice] ;
+     if (l<2) {
+       tab[nb_dejafait] = new Matrice(lap) ;
+       tab[nb_dejafait]->set_band(5,0) ;
+       tab[nb_dejafait]->set_lu()  ;
+       nb_dejafait++ ;
+       return *tab[nb_dejafait-1] ;
+     }
+     else {
+       Matrice res(n-1, n-1) ;
+       res.set_etat_qcq() ;
+       for (int i=0 ;i<n-1 ; i++)
+	 for (int j=0 ; j<n-1 ; j++)
+	   res.set(i, j) = lap(i, j+1) ;
+       res.set_band(4, 1) ;
+       res.set_lu() ;
+       tab[nb_dejafait] = new Matrice(res) ;
+       nb_dejafait ++ ;
+       return res ;
+     }
+    
+   }
+   // Cas ou le calcul a deja ete effectue :
+   else
+     return *tab[indice] ;
 }
 
 	     	//-------------------
