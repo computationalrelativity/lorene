@@ -32,6 +32,9 @@ char eos_tabul_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/11/25 13:42:50  m_bejger
+ * read_table written in more ordered way
+ *
  * Revision 1.6  2003/11/21 16:11:16  m_bejger
  * added the computation dlnp/dlnn_b, dlnn/dlnH
  *
@@ -184,13 +187,15 @@ void Eos_tabul::read_table() {
 
     	int nbp ;
     	fich >> nbp ; fich.getline(blabla, 120) ;   // number of data
-   
-        double press[nbp], nb[nbp], ro[nbp]; 
-    	    	
+
 	for (int i=0; i<3; i++) {		//  jump over the table
     		fich.getline(blabla, 120) ;     //  header
     	}                                       //
 
+        press = new double[nbp] ;
+        nb    = new double[nbp] ;
+        ro    = new double[nbp] ; 
+ 
     	logh = new Tbl(nbp) ;
     	logp = new Tbl(nbp) ;
     	dlpsdlh = new Tbl(nbp) ;
@@ -330,6 +335,10 @@ void Eos_tabul::read_table() {
 //##     	
      	
      	fich.close();
+ 
+        delete [] press ; 
+        delete [] nb ; 
+        delete [] ro ; 
    	
 }
 
@@ -434,9 +443,9 @@ double Eos_tabul::der_nbar_ent_p(double ent, const Param* ) const {
 	   return zeta ; 
 	  
     }
-    else return 1 ;  
+    else 
 
-    // return 1./(der_press_nbar_p(hmin)-1.) ;  // to ensure continuity
+    return 1./(der_press_nbar_p(hmin)-1.) ;  // to ensure continuity
 
 }
 
@@ -487,7 +496,7 @@ double Eos_tabul::der_press_ent_p(double ent, const Param* ) const {
     else{
         
         return 0 ; 
-	return der_press_ent_p(hmin) ; // to ensure continuity
+	// return der_press_ent_p(hmin) ; // to ensure continuity
     }
 }
 
@@ -510,16 +519,15 @@ double Eos_tabul::der_press_nbar_p(double ent, const Param*) const {
 
            interpol_linear(*logh, *dlpsdlnb, logh0, i_near, dlpsdlnb0) ;
  
-	   cout << "gamma: " << dlpsdlnb0 << " ent: " << ent << endl; 
+//	   cout << "gamma: " << dlpsdlnb0 << " ent: " << ent << endl; 
 
           return dlpsdlnb0 ;
 
     }
     else{
         
-        return 0 ; 
-
-	return der_press_nbar_p(hmin) ; // to ensure continuity
+         return (*dlpsdlnb)(0) ; 
+	 // return der_press_nbar_p(hmin) ; // to ensure continuity
 
     }
 
