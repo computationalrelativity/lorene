@@ -31,6 +31,9 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/11/02 16:15:47  f_limousin
+ * Add new argument ang_vel in init_data(...).
+ *
  * Revision 1.1  2004/10/29 12:54:53  jl_jaramillo
  * First version
  *
@@ -68,7 +71,7 @@ char init_data_C[] = "$Header$" ;
 
 void Isol_hor::init_data(const Sym_tensor& uu, 
                 const Scalar& trk_in, const Scalar& trk_point, 
-				double precis, double relax, int niter,
+		double precis, double relax, int niter, double ang_vel, 
                 const Scalar* p_ener_dens, const Vector* p_mom_dens, 
                 const Scalar* p_trace_stress) {
 
@@ -183,10 +186,9 @@ void Isol_hor::init_data(const Sym_tensor& uu,
       // Boundary values
       //----------------
       
-      double vel_ang = 0.01 ;
-      Valeur boundary_x ( boundary_beta_x(vel_ang) ) ;
-      Valeur boundary_y ( boundary_beta_y(vel_ang) ) ;
-      Valeur boundary_z ( boundary_beta_z(vel_ang) ) ;
+      Valeur boundary_x ( boundary_beta_x(ang_vel) ) ;
+      Valeur boundary_y ( boundary_beta_y(ang_vel) ) ;
+      Valeur boundary_z ( boundary_beta_z(ang_vel) ) ;
    
       // Resolution
       //-----------
