@@ -32,6 +32,9 @@ char etoile_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/02/06 16:08:36  f_limousin
+ * Modified Etoile_bin::sprod in order to avoid a warning from the compiler
+ *
  * Revision 1.5  2003/02/03 12:52:15  f_limousin
  * *** empty log message ***
  *
@@ -722,12 +725,12 @@ Tenseur Etoile_bin::sprod(const Tenseur& t1, const Tenseur& t2) const {
     if (t1.get_type_indice(val1-1) == CON) {
       assert( t2.get_type_indice(0) == CON ) ;
       return a_car * flat_scalar_prod(t1, t2) ; 
-	}
-    
-    if (t1.get_type_indice(val1-1) == COV) {
+    }
+    else{
+      assert(t1.get_type_indice(val1-1) == COV) ;
       assert( t2.get_type_indice(0) == COV ) ;
       return  flat_scalar_prod(t1, t2)/a_car ;   
-	}
+    }
 } 
 
 void Etoile_bin::fait_d_psi() {
