@@ -34,6 +34,10 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2003/10/06 20:51:43  e_gourgoulhon
+ * In methods set: changed name "indices" to "idx" to avoid shadowing
+ *  of class member.
+ *
  * Revision 1.12  2003/10/06 16:17:31  j_novak
  * Calculation of contravariant derivative and Ricci scalar.
  *
@@ -505,24 +509,24 @@ Scalar& Tensor::set(int ind1, int ind2, int ind3) {
     
     assert (valence == 3) ;
     
-    Itbl indices(valence) ;
-    indices.set_etat_qcq() ;
-    indices.set(0) = ind1 ;
-    indices.set(1) = ind2 ;
-    indices.set(2) = ind3 ;
-    int place = position(indices) ;
+    Itbl idx(valence) ;
+    idx.set_etat_qcq() ;
+    idx.set(0) = ind1 ;
+    idx.set(1) = ind2 ;
+    idx.set(2) = ind3 ;
+    int place = position(idx) ;
     del_deriv() ;
  
     return *cmp[place] ;
 }
 
 // Affectation cas general
-Scalar& Tensor::set(const Itbl& indices) {
+Scalar& Tensor::set(const Itbl& idx) {
     
-    assert (indices.get_ndim() == 1) ;
-    assert (indices.get_dim(0) == valence) ;
+    assert (idx.get_ndim() == 1) ;
+    assert (idx.get_dim(0) == valence) ;
     	
-    int place = position(indices) ;
+    int place = position(idx) ;
     
     del_deriv() ;
     return *cmp[place] ;
