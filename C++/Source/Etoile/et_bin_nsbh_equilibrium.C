@@ -26,18 +26,20 @@
  *
  */
 
-char name_of_this_file_C[] = "$Header$" ;
+char et_bin_nsbh_equilibrium_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/24 12:34:06  k_taniguchi
+ * Change the notation as it should be
+ *
  * Revision 1.2  2003/10/21 11:49:33  k_taniguchi
  * Change the class from Etoile_bin to sub-class Et_bin_nsbh.
  *
  * Revision 1.1  2003/10/20 15:01:55  k_taniguchi
  * Computation of an equilibrium configuration of a neutron star
  * in a NS-BH binary system.
- *
  *
  *
  * $Header$
@@ -49,15 +51,17 @@ char name_of_this_file_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "et_bin_nsbh.h"
+#include "etoile.h"
 #include "param.h"
 
 #include "graphique.h"
 #include "utilitaires.h"
 
-void Et_bin_nsbh::ns_equilibrium(double ent_c, int mermax, int mermax_poisson, 
-				 double relax_poisson, int mermax_potvit, 
-				 double relax_potvit, double thres_adapt,
-				 const Tbl& fact_resize, Tbl& diff) {
+void Et_bin_nsbh::equilibrium_nsbh(double ent_c, int mermax,
+				   int mermax_poisson, double relax_poisson,
+				   int mermax_potvit, double relax_potvit,
+				   double thres_adapt,
+				   const Tbl& fact_resize, Tbl& diff) {
 			     
 
     // Fundamental constants and units
@@ -65,56 +69,61 @@ void Et_bin_nsbh::ns_equilibrium(double ent_c, int mermax, int mermax_poisson,
     #include "unites.h"
     // To avoid some compilation warnings
     if (ent_c < 0) {
-	cout << f_unit << msol << km << mevpfm3 << endl ; 
-    }    
-    
+	cout << f_unit << msol << km << mevpfm3 << endl ;
+    } 
+
     // Initializations
     // ---------------
-    
-    const Mg3d* mg = mp.get_mg() ; 
+
+    const Mg3d* mg = mp.get_mg() ;
     int nz = mg->get_nzone() ;	    // total number of domains
-    
+
     // The following is required to initialize mp_prev as a Map_et:
-    Map_et& mp_et = dynamic_cast<Map_et&>(mp) ; 
-    
+    Map_et& mp_et = dynamic_cast<Map_et&>(mp) ;
+
     // Domain and radial indices of points at the surface of the star:
-    int l_b = nzet - 1 ; 
-    int i_b = mg->get_nr(l_b) - 1 ; 
+    int l_b = nzet - 1 ;
+    int i_b = mg->get_nr(l_b) - 1 ;
     int k_b ;
-    int j_b ; 
-    
+    int j_b ;
+
     // Value of the enthalpy defining the surface of the star
-    double ent_b = 0 ; 
-    
+    double ent_b = 0 ;
+    double exp_ent_b = 1. ;
+
+    // Value of the enthalpy at the center of the star
+    const double exp_ent_c = exp(ent_c) ;
+
     // Error indicators
     // ----------------
-    
-    double& diff_ent = diff.set(0) ; 
-    double& diff_vel_pot = diff.set(1) ; 
-    double& diff_logn = diff.set(2) ; 
-    double& diff_beta = diff.set(3) ; 
-    double& diff_shift_x = diff.set(4) ; 
-    double& diff_shift_y = diff.set(5) ; 
-    double& diff_shift_z = diff.set(6) ; 
-    
+
+    double& diff_ent = diff.set(0) ;
+    double& diff_vel_pot = diff.set(1) ;
+    double& diff_lapse = diff.set(2) ;
+    double& diff_confpsi = diff.set(3) ;
+    double& diff_shift_x = diff.set(4) ;
+    double& diff_shift_y = diff.set(5) ;
+    double& diff_shift_z = diff.set(6) ;
+
     // Parameters for the function Map_et::adapt
     // -----------------------------------------
-    
-    Param par_adapt ; 
-    int nitermax = 100 ;  
-    int niter ; 
-    int adapt_flag = 1 ;    //  1 = performs the full computation, 
-			    //  0 = performs only the rescaling by 
-			    //      the factor alpha_r
-    //##    int nz_search = nzet + 1 ;  // Number of domains for searching the enthalpy
-    int nz_search = nzet ;	// Number of domains for searching the enthalpy
-				//  isosurfaces
 
-    double precis_secant = 1.e-14 ; 
-    double alpha_r ; 
+    Param par_adapt ;
+    int nitermax = 100 ;
+    int niter ;
+    int adapt_flag = 1 ;    //  1 = performs the full computation,
+			    //  0 = performs only the rescaling by
+			    //      the factor alpha_r
+    //##    int nz_search = nzet + 1 ; 
+    // Number of domains for searching the enthalpy
+    int nz_search = nzet ;    // Number of domains for searching the enthalpy
+			      //  isosurfaces
+
+    double precis_secant = 1.e-14 ;
+    double alpha_r ;
     double reg_map = 1. ; // 1 = regular mapping, 0 = contracting mapping
 
-    Tbl ent_limit(nz) ; 
+    Tbl ent_limit(nz) ;
 
     par_adapt.add_int(nitermax, 0) ; // maximum number of iterations to 
 				     // locate zeros by the secant method
@@ -131,74 +140,78 @@ void Et_bin_nsbh::ns_equilibrium(double ent_c, int mermax, int mermax_poisson,
     par_adapt.add_int(k_b, 5) ; //  theta index of the collocation point 
 			        //  (theta_*, phi_*)
 
-    par_adapt.add_int_mod(niter, 0) ;  //  number of iterations actually used in 
-				       //  the secant method
-    
+    par_adapt.add_int_mod(niter, 0) ;  //  number of iterations actually
+				       //  used in the secant method
+
     par_adapt.add_double(precis_secant, 0) ; // required absolute precision in 
 					     // the determination of zeros by 
 					     // the secant method
-    par_adapt.add_double(reg_map, 1)	;  // 1. = regular mapping, 0 = contracting mapping
-    
+    par_adapt.add_double(reg_map, 1) ;  // 1. = regular mapping,
+                                        // 0 = contracting mapping
+
     par_adapt.add_double(alpha_r, 2) ;	    // factor by which all the radial 
 					    // distances will be multiplied 
-    	   
+
     par_adapt.add_tbl(ent_limit, 0) ;	// array of values of the field ent 
-				        // to define the isosurfaces. 			   
+				        // to define the isosurfaces.
 
-    // Parameters for the function Map_et::poisson for logn_auto
-    // ---------------------------------------------------------
+    // Parameters for the function Map_et::poisson for n_auto
+    // ------------------------------------------------------
 
-    double precis_poisson = 1.e-16 ;     
+    double precis_poisson = 1.e-16 ;
 
-    Param par_poisson1 ; 
+    Param par_poisson1 ;
 
     par_poisson1.add_int(mermax_poisson,  0) ;  // maximum number of iterations
     par_poisson1.add_double(relax_poisson,  0) ; // relaxation parameter
     par_poisson1.add_double(precis_poisson, 1) ; // required precision
-    par_poisson1.add_int_mod(niter, 0) ;  //  number of iterations actually used 
-    par_poisson1.add_cmp_mod( ssjm1_logn ) ; 
-					   
-    // Parameters for the function Map_et::poisson for beta_auto
-    // ---------------------------------------------------------
+    par_poisson1.add_int_mod(niter, 0) ; // number of iterations actually used
+    par_poisson1.add_cmp_mod( ssjm1_lapse ) ;
 
-    Param par_poisson2 ; 
+    // Parameters for the function Map_et::poisson for confpsi_auto
+    // ------------------------------------------------------------
+
+    Param par_poisson2 ;
 
     par_poisson2.add_int(mermax_poisson,  0) ;  // maximum number of iterations
     par_poisson2.add_double(relax_poisson,  0) ; // relaxation parameter
     par_poisson2.add_double(precis_poisson, 1) ; // required precision
-    par_poisson2.add_int_mod(niter, 0) ;  //  number of iterations actually used 
-    par_poisson2.add_cmp_mod( ssjm1_beta ) ; 
-	
-					   
+    par_poisson2.add_int_mod(niter, 0) ; // number of iterations actually used
+    par_poisson2.add_cmp_mod( ssjm1_confpsi ) ;
+
     // Parameters for the function Tenseur::poisson_vect
     // -------------------------------------------------
 
-    Param par_poisson_vect ; 
+    Param par_poisson_vect ;
 
-    par_poisson_vect.add_int(mermax_poisson,  0) ;  // maximum number of iterations
-    par_poisson_vect.add_double(relax_poisson,  0) ; // relaxation parameter
+    par_poisson_vect.add_int(mermax_poisson, 0) ; 
+                                            // maximum number of iterations
+    par_poisson_vect.add_double(relax_poisson, 0) ; // relaxation parameter
     par_poisson_vect.add_double(precis_poisson, 1) ; // required precision
-    par_poisson_vect.add_cmp_mod( ssjm1_khi ) ; 
-    par_poisson_vect.add_tenseur_mod( ssjm1_wshift ) ; 
-    par_poisson_vect.add_int_mod(niter, 0) ;   
+    par_poisson_vect.add_cmp_mod( ssjm1_khi ) ;
+    par_poisson_vect.add_tenseur_mod( ssjm1_wshift ) ;
+    par_poisson_vect.add_int_mod(niter, 0) ;
 
- 					   
     // External potential
     // See Eq (99) from Gourgoulhon et al. (2001)
-    // -----------------------------------------
-    
-    Tenseur pot_ext = logn_comp + pot_centri + loggam ;
+    // ------------------------------------------
+
+    Tenseur pot_gam_ext = pot_centri + loggam ;
+    Tenseur exp_pot_gam = exp(loggam) / exp(-pot_centri) ;
+
+    Tenseur exp_ent = exp(ent) ;
+
 //##
-//	des_coupe_z(pot_ext(), 0., 1, "pot_ext", &(ent()) ) ; 
+//	des_coupe_z(pot_ext(), 0., 1, "pot_ext", &(ent()) ) ;
 //##
-    
+
     Tenseur ent_jm1 = ent ;	// Enthalpy at previous step
-    
+
     Tenseur source(mp) ;    // source term in the equation for logn_auto
 			    // and beta_auto
-			    
-    Tenseur source_shift(mp, 1, CON, ref_triad) ;  // source term in the equation 
-						   //  for shift_auto
+
+    Tenseur source_shift(mp, 1, CON, ref_triad) ;  // source term in the
+						   //  equation for shift_auto
 
     //=========================================================================
     // 			Start of iteration
@@ -208,7 +221,7 @@ void Et_bin_nsbh::ns_equilibrium(double ent_c, int mermax, int mermax_poisson,
 
 	cout << "-----------------------------------------------" << endl ;
 	cout << "step: " << mer << endl ;
-	cout << "diff_ent = " << diff_ent << endl ;    
+	cout << "diff_ent = " << diff_ent << endl ;
 
 	//-----------------------------------------------------
 	// Resolution of the elliptic equation for the velocity
@@ -216,10 +229,10 @@ void Et_bin_nsbh::ns_equilibrium(double ent_c, int mermax, int mermax_poisson,
 	//-----------------------------------------------------
 
 	if (irrotational) {
-	    
+
 	    diff_vel_pot = velocity_potential(mermax_potvit, precis_poisson, 
 					      relax_potvit) ; 
-	    
+
 	}
 
 	//-----------------------------------------------------
@@ -228,99 +241,100 @@ void Et_bin_nsbh::ns_equilibrium(double ent_c, int mermax, int mermax_poisson,
 
 	// alpha_r (r = alpha_r r') is determined so that the enthalpy
 	// takes the requested value ent_b at the stellar surface
-	
+
 	// Values at the center of the star:
-	double logn_auto_c  = logn_auto()(0, 0, 0, 0) ; 
-	double pot_ext_c  = pot_ext()(0, 0, 0, 0) ; 
+	double n_auto_c = n_auto()(0, 0, 0, 0) ;
+	double n_comp_c = n_comp()(0, 0, 0, 0) ;
+	double exp_pot_gam_c  = exp_pot_gam()(0, 0, 0, 0) ;
 
 	// Search for the reference point (theta_*, phi_*) [notation of
 	//  Bonazzola, Gourgoulhon & Marck PRD 58, 104020 (1998)]
 	//  at the surface of the star
 	// ------------------------------------------------------------
-	double alpha_r2 = 0 ; 
+	double alpha_r2 = 0 ;
 	for (int k=0; k<mg->get_np(l_b); k++) {
 	    for (int j=0; j<mg->get_nt(l_b); j++) {
-		
-		double pot_ext_b  = pot_ext()(l_b, k, j, i_b) ; 
-		double logn_auto_b  = logn_auto()(l_b, k, j, i_b) ; 
 
+		double n_auto_b  = n_auto()(l_b, k, j, i_b) ;
+		double n_comp_b  = n_comp()(l_b, k, j, i_b) ;
+		double exp_pot_gam_b = exp_pot_gam()(l_b, k, j, i_b) ;
 
 		// See Eq (100) from Gourgoulhon et al. (2001)
-		double alpha_r2_jk = ( ent_c - ent_b + pot_ext_c - pot_ext_b) / 
-			    ( logn_auto_b - logn_auto_c ) ;
+		double alpha_r2_jk =
+		    ( exp_ent_c * n_comp_c * exp_pot_gam_c
+		      -exp_ent_b * n_comp_b * exp_pot_gam_b ) /
+		    ( exp_ent_b * n_auto_b * exp_pot_gam_b
+		      -exp_ent_c * n_auto_c * exp_pot_gam_c ) ;
 		
 //		cout << "k, j, alpha_r2_jk : " << k << "  " << j << "  " 
 //		     << alpha_r2_jk << endl ; 
 		  
 		if (alpha_r2_jk > alpha_r2) {
-		    alpha_r2 = alpha_r2_jk ; 
-		    k_b = k ; 
-		    j_b = j ; 
+		    alpha_r2 = alpha_r2_jk ;
+		    k_b = k ;
+		    j_b = j ;
 		}
 
 	    }
 	}
-	
+
 	alpha_r = sqrt(alpha_r2) ;
-		
-	cout << "k_b, j_b, alpha_r: " << k_b << "  " << j_b << "  " 
+	
+	cout << "k_b, j_b, alpha_r: " << k_b << "  " << j_b << "  "
 	     <<  alpha_r << endl ;
 
-	// New value of logn_auto 
-	// ----------------------
-	
-	logn_auto = alpha_r2 * logn_auto ;
-	logn_auto_regu = alpha_r2 * logn_auto_regu ;
-	logn_auto_c  = logn_auto()(0, 0, 0, 0) ;
+	// New value of n_auto
+	// -------------------
 
+	n_auto = alpha_r2 * n_auto ;
+	n_auto_c  = n_auto()(0, 0, 0, 0) ;
 
 	//------------------------------------------------------------
 	// Change the values of the inner points of the second domain
 	// by those of the outer points of the first domain
 	//------------------------------------------------------------
 
-	(logn_auto().va).smooth(nzet, (logn_auto.set()).va) ;
+//	(n_auto().va).smooth(nzet, (n_auto.set()).va) ;
 
-
-	//------------------------------------------
-	// First integral	--> enthalpy in all space
+	//-------------------------------------------
+	// First integral   --> enthalpy in all space
 	// See Eq (98) from Gourgoulhon et al. (2001)
 	//-------------------------------------------
 
-	ent = (ent_c + logn_auto_c + pot_ext_c) - logn_auto - pot_ext ;
+	double pot_gam_ext_c = pot_gam_ext()(0, 0, 0, 0) ;
+	ent = ent_c + log(n_auto_c + n_comp_c) + pot_gam_ext_c
+	    - log(n_auto + n_comp) - pot_gam_ext ;
 
-	(ent().va).smooth(nzet, (ent.set()).va) ;
+//	(ent().va).smooth(nzet, (ent.set()).va) ;
 
 	//----------------------------------------------------
 	// Adaptation of the mapping to the new enthalpy field
 	//----------------------------------------------------
-    
+ 
 	// Shall the adaptation be performed (cusp) ?
 	// ------------------------------------------
-	
+
 	double dent_eq = ent().dsdr().val_point(ray_eq(),M_PI/2.,0.) ;
 	double dent_pole = ent().dsdr().val_point(ray_pole(),0.,0.) ;
-	double rap_dent = fabs( dent_eq / dent_pole ) ; 
-	cout << "| dH/dr_eq / dH/dr_pole | = " << rap_dent << endl ; 
-	
+	double rap_dent = fabs( dent_eq / dent_pole ) ;
+	cout << "| dH/dr_eq / dH/dr_pole | = " << rap_dent << endl ;
+
 	if ( rap_dent < thres_adapt ) {
-	    adapt_flag = 0 ;	// No adaptation of the mapping 
-	    cout << "******* FROZEN MAPPING  *********" << endl ; 
+	    adapt_flag = 0 ;	// No adaptation of the mapping
+	    cout << "******* FROZEN MAPPING  *********" << endl ;
 	}
 	else{
 	    adapt_flag = 1 ;	// The adaptation of the mapping is to be
 				//  performed
 	}
 
-
-
-	ent_limit.set_etat_qcq() ; 
+	ent_limit.set_etat_qcq() ;
 	for (int l=0; l<nzet; l++) {	// loop on domains inside the star
-	    ent_limit.set(l) = ent()(l, k_b, j_b, i_b) ; 
+	    ent_limit.set(l) = ent()(l, k_b, j_b, i_b) ;
 	}
-	ent_limit.set(nzet-1) = ent_b  ; 
+	ent_limit.set(nzet-1) = ent_b  ;
 
-	Map_et mp_prev = mp_et ; 
+	Map_et mp_prev = mp_et ;
 
 //##    cout  << "Enthalpy field at the outer boundary of domain 0 : " 
 //	 << endl ; 
@@ -362,12 +376,11 @@ void Et_bin_nsbh::ns_equilibrium(double ent_c, int mermax, int mermax_poisson,
 //	des_coupe_z(ent(), 0., 1, "ent before adapt", &(ent()) ) ; 
 //##
 
-
-	mp.adapt(ent(), par_adapt) ; 
+	mp.adapt(ent(), par_adapt) ;
 
 	// Readjustment of the external boundary of domain l=nzet
 	// to keep a fixed ratio with respect to star's surface
-	
+
 	int n_resize ;
 	//      	if (nz > 4) {
 	//       	  n_resize = nz - 4 ;
@@ -378,137 +391,153 @@ void Et_bin_nsbh::ns_equilibrium(double ent_c, int mermax, int mermax_poisson,
 	  n_resize = nzet ;
 	}
 
-	double rr_in = mp.val_r(nzet,-1., M_PI/2, 0.) ; 
-	double rr_out = mp.val_r(n_resize,1., M_PI/2, 0.) ; 
+	double rr_in = mp.val_r(nzet,-1., M_PI/2, 0.) ;
+	double rr_out = mp.val_r(n_resize,1., M_PI/2, 0.) ;
 
-	mp.resize(n_resize, rr_in/rr_out * fact_resize(0)) ; 
+	mp.resize(n_resize, rr_in/rr_out * fact_resize(0)) ;
 
 //##
-//	des_coupe_z(ent(), 0., 1, "ent after adapt", &(ent()) ) ; 
+//	des_coupe_z(ent(), 0., 1, "ent after adapt", &(ent()) ) ;
 //##
 	//----------------------------------------------------
 	// Computation of the enthalpy at the new grid points
 	//----------------------------------------------------
-	
-	mp_prev.homothetie(alpha_r) ; 
-	
-	mp.reevaluate_symy(&mp_prev, nzet+1, ent.set()) ; 
 
-//	des_coupe_z(ent(), 0., 1, "ent after reevaluate", &(ent()) ) ; 
+	mp_prev.homothetie(alpha_r) ;
 
-	double ent_s_max = -1 ; 
-	int k_s_max = -1 ; 
-	int j_s_max = -1 ; 
+	mp.reevaluate_symy(&mp_prev, nzet+1, ent.set()) ;
+
+//	des_coupe_z(ent(), 0., 1, "ent after reevaluate", &(ent()) ) ;
+
+	double ent_s_max = -1 ;
+	int k_s_max = -1 ;
+	int j_s_max = -1 ;
 	for (int k=0; k<mg->get_np(l_b); k++) {
 	    for (int j=0; j<mg->get_nt(l_b); j++) {
 		double xx = fabs( ent()(l_b, k, j, i_b) ) ;
 		if (xx > ent_s_max) {
-		    ent_s_max = xx ; 
-		    k_s_max = k ; 
-		    j_s_max = j ; 
+		    ent_s_max = xx ;
+		    k_s_max = k ;
+		    j_s_max = j ;
 		}
 	    }
 	}
 	cout << "Max. abs(enthalpy) at the boundary between domains nzet-1"
-	     << " and nzet : " << endl ; 
+	     << " and nzet : " << endl ;
 	cout << "   " << ent_s_max << " reached for k = " << k_s_max <<
-	    " and j = " << j_s_max << endl ; 
+	    " and j = " << j_s_max << endl ;
 
 	//----------------------------------------------------
-	// Equation of state  
+	// Equation of state
 	//----------------------------------------------------
-	
-	equation_of_state() ; 	// computes new values for nbar (n), ener (e) 
+
+	equation_of_state() ; 	// computes new values for nbar (n), ener (e)
 				// and press (p) from the new ent (H)
-	
+
 	//---------------------------------------------------------
-	// Matter source terms in the gravitational field equations	
+	// Matter source terms in the gravitational field equations
 	//---------------------------------------------------------
 
-	hydro_euler() ;		// computes new values for ener_euler (E), 
+	hydro_euler() ;	// computes new values for ener_euler (E),
 				// s_euler (S) and u_euler (U^i)
 
 	//--------------------------------------------------------
-	// Poisson equation for logn_auto (nu_auto)
+	// Poisson equation for n_auto
 	//--------------------------------------------------------
 
 	// Source 
 	// See Eq (50) from Gourgoulhon et al. (2001)
 	// ------------------------------------------
-	
+
+	Tenseur confpsi_q = pow(confpsi, 4.) ;
+	Tenseur confpsi_c = pow(confpsi, 5.) ;
+
 	if (relativistic) {
-	    source = qpig * a_car % (ener_euler + s_euler)
-		    + akcar_auto + akcar_comp 
-		    - flat_scalar_prod_desal(d_logn_auto,
-					     d_beta_auto + d_beta_comp) ;
+
+	    Tenseur tmp = flat_scalar_prod(tkij_tot, tkij_auto) ;
+	    Tenseur kk (mp) ;
+	    kk = 0 ;
+	    Tenseur tmp2(mp) ;
+	    tmp2.set_etat_qcq() ;
+	    for (int i=0 ; i<3 ; i++) {
+		tmp2.set() = tmp(i, i) ;
+		kk = kk + tmp2 ;
+	    }
+
+	    source = qpig * nnn * confpsi_q * (ener_euler + s_euler)
+		+ nnn * confpsi_q * kk
+		- 2.*flat_scalar_prod(confpsi.gradient(), d_n_auto) /
+		confpsi ;
 	}
 	else {
-	    source = qpig * nbar ; 
+	    cout <<
+		"WARNING : Et_bin_nsbh is for the relativistic calculation"
+		 << endl ;
+	    abort() ;
 	}
-	
-	source.set_std_base() ; 	
-	
-	// Resolution of the Poisson equation 
+
+	source.set_std_base() ;	
+
+	// Resolution of the Poisson equation
 	// ----------------------------------
 
-	source().poisson(par_poisson1, logn_auto.set()) ; 
-
-	// Construct logn_auto_regu for et_bin_upmetr.C
-	// --------------------------------------------
-
-	logn_auto_regu = logn_auto ;
+	source().poisson(par_poisson1, n_auto.set()) ;
 
 	// Check: has the Poisson equation been correctly solved ?
 	// -----------------------------------------------------
 	
-	Tbl tdiff_logn = diffrel(logn_auto().laplacien(), source()) ;
-	cout << 
-	"Relative error in the resolution of the equation for logn_auto : "
-	<< endl ; 
+	Tbl tdiff_lapse = diffrel(n_auto().laplacien(), source()) ;
+	cout <<
+	"Relative error in the resolution of the equation for n_auto : "
+	<< endl ;
 	for (int l=0; l<nz; l++) {
-	    cout << tdiff_logn(l) << "  " ; 
+	    cout << tdiff_lapse(l) << "  " ;
 	}
 	cout << endl ;
-	diff_logn = max(abs(tdiff_logn)) ; 
-
+	diff_lapse = max(abs(tdiff_lapse)) ; 
 
 	if (relativistic) {
 
 	    //--------------------------------------------------------
-	    // Poisson equation for beta_auto 
+	    // Poisson equation for confpsi_auto 
 	    //--------------------------------------------------------
 
-	    // Source 
+	    // Source
 	    // See Eq (51) from Gourgoulhon et al. (2001)
 	    // ------------------------------------------
-	
-	    source = qpig * a_car % s_euler
-		    + .75 * ( akcar_auto + akcar_comp )
-		    - .5 * flat_scalar_prod_desal(d_logn_auto,  
-						  d_logn_auto + d_logn_comp)
-		    - .5 * flat_scalar_prod_desal(d_beta_auto,  
-						  d_beta_auto + d_beta_comp) ;
+
+	    Tenseur tmp = flat_scalar_prod(tkij_tot, tkij_auto) ;
+	    Tenseur kk (mp) ;
+	    kk = 0 ;
+	    Tenseur tmp2(mp) ;
+	    tmp2.set_etat_qcq() ;
+	    for (int i=0 ; i<3 ; i++) {
+		tmp2.set() = tmp(i, i) ;
+		kk = kk + tmp2 ;
+	    }
+
+	    source = -0.5 * qpig * confpsi_c * ener_euler
+		- 0.125 * confpsi_c * kk ;
 
 	    source.set_std_base() ; 	
 	
 	    // Resolution of the Poisson equation 
 	    // ----------------------------------
 
-	    source().poisson(par_poisson2, beta_auto.set()) ; 
-		 
+	    source().poisson(par_poisson2, confpsi_auto.set()) ;
 
 	    // Check: has the Poisson equation been correctly solved ?
 	    // -----------------------------------------------------
-	
-	    Tbl tdiff_beta = diffrel(beta_auto().laplacien(), source()) ;
+
+	    Tbl tdiff_confpsi = diffrel(confpsi_auto().laplacien(), source()) ;
 	    cout << 
-	    "Relative error in the resolution of the equation for beta_auto : "
-		<< endl ; 
+		"Relative error in the resolution of the equation for confpsi_auto : "
+		 << endl ;
 	    for (int l=0; l<nz; l++) {
-		cout << tdiff_beta(l) << "  " ; 
+		cout << tdiff_confpsi(l) << "  " ;
 	    }
 	    cout << endl ;
-	    diff_beta = max(abs(tdiff_beta)) ; 
+	    diff_confpsi = max(abs(tdiff_confpsi)) ;
 
 	    //--------------------------------------------------------
 	    // Vector Poisson equation for shift_auto 
@@ -517,16 +546,14 @@ void Et_bin_nsbh::ns_equilibrium(double ent_c, int mermax, int mermax_poisson,
 	    // Source
 	    // See Eq (52) from Gourgoulhon et al. (2001)
 	    // ------
-	    
-	    Tenseur vtmp =  6. * ( d_beta_auto + d_beta_comp )
-			   -8. * ( d_logn_auto + d_logn_comp ) ;
-	    
-	    source_shift = (-4.*qpig) * nnn % a_car % (ener_euler + press)
-				% u_euler
-			   + nnn % flat_scalar_prod_desal(tkij_auto, vtmp) ;
-	
-	
-	    source_shift.set_std_base() ; 	
+
+	    Tenseur vtmp = d_n_auto -6. * nnn * d_confpsi_auto / confpsi ;
+
+	    source_shift = 4.*qpig * nnn * confpsi_q * (ener_euler + press)
+		* u_euler
+		+ 2.* flat_scalar_prod(tkij_tot, vtmp) ;
+
+	    source_shift.set_std_base() ;
 
 	    // Resolution of the Poisson equation 
 	    // ----------------------------------
@@ -542,106 +569,99 @@ void Et_bin_nsbh::ns_equilibrium(double ent_c, int mermax, int mermax_poisson,
 
 	    // For Tenseur::poisson_vect, the triad must be the mapping triad,
 	    // not the reference one:
-	    
-	    source_shift.change_triad( mp.get_bvect_cart() ) ; 
+
+	    source_shift.change_triad( mp.get_bvect_cart() ) ;
 
 	    for (int i=0; i<3; i++) {
 		if(source_shift(i).dz_nonzero()) {
-		    assert( source_shift(i).get_dzpuis() == 4 ) ; 
+		    assert( source_shift(i).get_dzpuis() == 4 ) ;
 		}
 		else{
-		    (source_shift.set(i)).set_dzpuis(4) ; 
+		    (source_shift.set(i)).set_dzpuis(4) ;
 		}
 	    }
 
 	    //##
 	    // source_shift.dec2_dzpuis() ;    // dzpuis 4 -> 2
 
-	    double lambda_shift = double(1) / double(3) ; 
-	
-	    source_shift.poisson_vect(lambda_shift, par_poisson_vect, 
-				      shift_auto, w_shift, khi_shift) ;      
+	    double lambda_shift = double(1) / double(3) ;
 
+	    source_shift.poisson_vect(lambda_shift, par_poisson_vect,
+				      shift_auto, w_shift, khi_shift) ;
 
 	    // Check: has the equation for shift_auto been correctly solved ?
 	    // --------------------------------------------------------------
-	    
-	    // Divergence of shift_auto : 
-	    Tenseur divn = contract(shift_auto.gradient(), 0, 1) ; 
+
+	    // Divergence of shift_auto :
+	    Tenseur divn = contract(shift_auto.gradient(), 0, 1) ;
 	    divn.dec2_dzpuis() ;    // dzpuis 2 -> 0
-	    
-	    // Grad(div) : 
-	    Tenseur graddivn = divn.gradient() ; 
+
+	    // Grad(div) :
+	    Tenseur graddivn = divn.gradient() ;
 	    graddivn.inc2_dzpuis() ;    // dzpuis 2 -> 4
-	    
-	    // Full operator : 
-	    Tenseur lap_shift(mp, 1, CON, mp.get_bvect_cart() ) ;  
-	    lap_shift.set_etat_qcq() ; 
+
+	    // Full operator :
+	    Tenseur lap_shift(mp, 1, CON, mp.get_bvect_cart() ) ;
+	    lap_shift.set_etat_qcq() ;
 	    for (int i=0; i<3; i++) {
-		lap_shift.set(i) = shift_auto(i).laplacien() 
+		lap_shift.set(i) = shift_auto(i).laplacien()
 				    + lambda_shift * graddivn(i) ;
 	    }
 
-	    Tbl tdiff_shift_x = diffrel(lap_shift(0), source_shift(0)) ; 
-	    Tbl tdiff_shift_y = diffrel(lap_shift(1), source_shift(1)) ; 
-	    Tbl tdiff_shift_z = diffrel(lap_shift(2), source_shift(2)) ; 
+	    Tbl tdiff_shift_x = diffrel(lap_shift(0), source_shift(0)) ;
+	    Tbl tdiff_shift_y = diffrel(lap_shift(1), source_shift(1)) ;
+	    Tbl tdiff_shift_z = diffrel(lap_shift(2), source_shift(2)) ;
 
-	    cout << 
-	    "Relative error in the resolution of the equation for shift_auto : "
-		<< endl ; 
+	    cout <<
+		"Relative error in the resolution of the equation for shift_auto : "
+		 << endl ; 
 	    cout << "x component : " ;
 	    for (int l=0; l<nz; l++) {
-		cout << tdiff_shift_x(l) << "  " ; 
+		cout << tdiff_shift_x(l) << "  " ;
 	    }
 	    cout << endl ;
 	    cout << "y component : " ;
 	    for (int l=0; l<nz; l++) {
-		cout << tdiff_shift_y(l) << "  " ; 
+		cout << tdiff_shift_y(l) << "  " ;
 	    }
 	    cout << endl ;
 	    cout << "z component : " ;
 	    for (int l=0; l<nz; l++) {
-		cout << tdiff_shift_z(l) << "  " ; 
+		cout << tdiff_shift_z(l) << "  " ;
 	    }
 	    cout << endl ;
-	    	
-	    diff_shift_x = max(abs(tdiff_shift_x)) ; 
-	    diff_shift_y = max(abs(tdiff_shift_y)) ; 
-	    diff_shift_z = max(abs(tdiff_shift_z)) ; 
+
+	    diff_shift_x = max(abs(tdiff_shift_x)) ;
+	    diff_shift_y = max(abs(tdiff_shift_y)) ;
+	    diff_shift_z = max(abs(tdiff_shift_z)) ;
 
 	    // Final result
 	    // ------------
 	    // The output of Tenseur::poisson_vect is on the mapping triad,
 	    // it should therefore be transformed to components on the
 	    // reference triad :
-	    
-	    shift_auto.change_triad( ref_triad ) ; 
 
+	    shift_auto.change_triad( ref_triad ) ;
 
-	}   // End of relativistic equations	
-	
+	}   // End of relativistic equations
 
 	//-------------------------------------------------
 	//  Relative change in enthalpy
 	//-------------------------------------------------
 
-	Tbl diff_ent_tbl = diffrel( ent(), ent_jm1() ) ; 
-	diff_ent = diff_ent_tbl(0) ; 
+	Tbl diff_ent_tbl = diffrel( ent(), ent_jm1() ) ;
+	diff_ent = diff_ent_tbl(0) ;
 	for (int l=1; l<nzet; l++) {
-	    diff_ent += diff_ent_tbl(l) ; 
+	    diff_ent += diff_ent_tbl(l) ;
 	}
-	diff_ent /= nzet ; 
-	
-	
-	ent_jm1 = ent ; 
+	diff_ent /= nzet ;
 
+	ent_jm1 = ent ;
 
     } // End of main loop
-    
+
     //=========================================================================
     // 			End of iteration
     //=========================================================================
 
-
 }
-
