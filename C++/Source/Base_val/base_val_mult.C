@@ -27,6 +27,10 @@ char base_val_mult_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/11/23 15:08:00  m_forot
+ * Added the bases for the cases without any equatorial symmetry
+ * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
  * Revision 1.4  2002/10/16 14:36:30  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -371,6 +375,40 @@ Base_val operator* (const Base_val& b1, const Base_val& b2) {
 		}
 		break ;
 
+	    case T_COSSIN_C :
+		switch (b2_t) {
+		    case T_COSSIN_C :
+			base = base | T_COSSIN_C ;
+			indic_t = 1 ;
+			break ;
+			
+		    case T_COSSIN_S :
+			base = base | T_COSSIN_S ;
+			indic_t = 1 ;
+			break ;
+						
+		    default :
+			break ;
+		}
+		break ;
+
+	     case T_COSSIN_S :
+		switch (b2_t) {
+		    case T_COSSIN_C :
+			base = base | T_COSSIN_S ;
+			indic_t = 1 ;
+			break ;
+			
+		    case T_COSSIN_S :
+			base = base | T_COSSIN_C ;
+			indic_t = 1 ;
+			break ;
+						
+		    default :
+			break ;
+		}
+		break ;
+
 	    case T_LEG_P :
 		switch (b2_t) {
 		    case T_LEG_P :
@@ -396,6 +434,19 @@ Base_val operator* (const Base_val& b1, const Base_val& b2) {
 			base = base | T_LEG_P ;
 			indic_t = 1 ; 
 			break ;
+		    default :
+			break ;
+		}
+		break ; 
+	    
+	  
+	    case T_LEG :
+		switch (b2_t) {
+		    case T_LEG :
+			base = base | T_LEG ;
+			indic_t = 1 ;
+			break ;
+		   
 		    default :
 			break ;
 		}
@@ -458,6 +509,40 @@ Base_val operator* (const Base_val& b1, const Base_val& b2) {
 			
 		    case R_CHEBPIM_I :
 			base = base | R_CHEBPIM_P ;
+			indic_r = 1 ;
+			break ;
+		    
+		    default :
+			break ;
+		}
+		break ;
+
+	     case R_CHEBPI_I :
+		switch (b2_r) {
+		    case R_CHEBPI_P :
+			base = base | R_CHEBPI_I ;
+			indic_r = 1 ;
+			break ;
+			
+		    case R_CHEBPI_I :
+			base = base | R_CHEBPI_P ;
+			indic_r = 1 ;
+			break ;
+		    
+		    default :
+			break ;
+		}
+		break ;
+
+	     case R_CHEBPI_P :
+		switch (b2_r) {
+		    case R_CHEBPI_P :
+			base = base | R_CHEBPI_P ;
+			indic_r = 1 ;
+			break ;
+			
+		    case R_CHEBPI_I :
+			base = base | R_CHEBPI_I ;
 			indic_r = 1 ;
 			break ;
 		    

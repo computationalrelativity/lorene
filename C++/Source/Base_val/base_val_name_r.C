@@ -30,6 +30,10 @@ char base_val_name_r_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/11/23 15:08:01  m_forot
+ * Added the bases for the cases without any equatorial symmetry
+ * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
  * Revision 1.1  2003/10/19 19:49:40  e_gourgoulhon
  * First version
  *
@@ -53,6 +57,8 @@ void basename_r_chebp(int, int, int, char*) ;
 void basename_r_chebi(int, int, int, char*) ; 
 void basename_r_chebpim_p(int, int, int, char*) ; 
 void basename_r_chebpim_i(int, int, int, char*) ; 
+void basename_r_chebpi_p(int, int, int, char*) ; 
+void basename_r_chebpi_i(int, int, int, char*) ; 
 
 			//----------------------------//
 			//      Base_val method       //
@@ -81,6 +87,8 @@ void Base_val::name_r(int l, int k, int j, int i, char* name) const {
 		vbasename_r[R_CHEBPIM_P >> TRA_R] = basename_r_chebpim_p ;
 		vbasename_r[R_CHEBPIM_I >> TRA_R] = basename_r_chebpim_i ;
 		vbasename_r[R_CHEBU >> TRA_R] = basename_r_cheb ;
+		vbasename_r[R_CHEBPI_P >> TRA_R] = basename_r_chebpi_p ;
+		vbasename_r[R_CHEBPI_I >> TRA_R] = basename_r_chebpi_i ;
 
     }
 	
@@ -179,6 +187,38 @@ void basename_r_chebpim_i(int k, int, int i, char* name) {
 	sprintf(cxr, "%d", xr) ; 
 	strcat(name, cxr) ; 
 }	
+
+void basename_r_chebpi_p(int , int j, int i, char* name) {
+
+	assert( j>=0 ) ; 
+	assert( i>=0 ) ; 
+
+	int xr = (j%2 == 0) ? 2*i : 2*i + 1 ; 
+
+	strcpy(name, "T") ; 
+		
+	char cxr[4] ;
+	assert( xr < 1000) ; 
+	sprintf(cxr, "%d", xr) ; 
+	strcat(name, cxr) ; 
+}	
+
+
+void basename_r_chebpi_i(int , int j, int i, char* name) {
+
+	assert( j>=0 ) ; 
+	assert( i>=0 ) ; 
+
+	int xr = (j%2 == 0) ? 2*i + 1 : 2*i ; 
+
+	strcpy(name, "T") ; 
+		
+	char cxr[4] ;
+	assert( xr < 1000) ; 
+	sprintf(cxr, "%d", xr) ; 
+	strcat(name, cxr) ; 
+}	
+
 
 
 

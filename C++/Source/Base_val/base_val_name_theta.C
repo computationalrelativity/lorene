@@ -30,6 +30,10 @@ char base_val_name_theta_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/11/23 15:08:01  m_forot
+ * Added the bases for the cases without any equatorial symmetry
+ * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
  * Revision 1.3  2004/10/04 13:40:38  j_novak
  * Added the T_COS base case.
  *
@@ -66,7 +70,9 @@ void basename_t_sin_p(int, int, char*) ;
 void basename_t_cos_i(int, int, char*) ; 
 void basename_t_sin_i(int, int, char*) ; 
 void basename_t_cossin_cp(int, int, char*) ; 
-void basename_t_cossin_sp(int, int, char*) ; 
+void basename_t_cossin_sp(int, int, char*) ;
+void basename_t_cossin_c(int, int, char*) ; 
+void basename_t_cossin_s(int, int, char*) ; 
 void basename_t_cossin_ci(int, int, char*) ; 
 void basename_t_cossin_si(int, int, char*) ; 
 void basename_t_leg_p(int, int, char*) ; 
@@ -110,6 +116,8 @@ void Base_val::name_theta(int l, int k, int j, char* name) const {
 		vbasename_t[T_COSSIN_SP >> TRA_T] = basename_t_cossin_sp ;
 		vbasename_t[T_COSSIN_CI >> TRA_T] = basename_t_cossin_ci ;
 		vbasename_t[T_COSSIN_SI >> TRA_T] = basename_t_cossin_si ;
+		vbasename_t[T_COSSIN_C >> TRA_T] = basename_t_cossin_c ;
+		vbasename_t[T_COSSIN_S >> TRA_T] = basename_t_cossin_s ;
 		vbasename_t[T_LEG_P >> TRA_T] = basename_t_leg_p ;
 		vbasename_t[T_LEG_PP >> TRA_T] = basename_t_leg_pp ;
 		vbasename_t[T_LEG_I >> TRA_T] = basename_t_leg_i ;
@@ -332,6 +340,64 @@ void basename_t_cossin_sp(int k, int j, char* name) {
 	else {
 		strcpy(name, "cos") ; 
 		xt = 2*j + 1 ; 
+	}
+	
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "t") ; 
+}	
+
+void basename_t_cossin_c(int k, int j, char* name) {
+
+	assert( k>=0 ) ; 
+	assert( j>=0 ) ; 
+
+	int m = k / 2 ; 
+	int xt ; 
+	if (m%2 == 0) {
+		strcpy(name, "cos") ; 
+		xt = j ; 
+	}
+	else {
+	  if (j == 0) {
+	    strcpy(name, "unused") ;
+	    return ;  
+	  } else {
+	    strcpy(name, "sin") ; 
+	    xt = j ;
+	  } 
+	}
+	
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "t") ; 
+}	
+
+
+void basename_t_cossin_s(int k, int j, char* name) {
+
+	assert( k>=0 ) ; 
+	assert( j>=0 ) ; 
+
+	int m = k / 2 ; 
+	int xt ; 
+	if (m%2 == 0) {
+		if (j == 0) {
+			strcpy(name, "unused") ;
+			return ;  
+		}
+		else {
+			strcpy(name, "sin") ; 
+			xt = j ;
+		} 
+	}
+	else {
+		strcpy(name, "cos") ; 
+		xt = j ; 
 	}
 	
 	char cxt[4] ;

@@ -25,6 +25,10 @@ char base_val_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/11/23 15:08:00  m_forot
+ * Added the bases for the cases without any equatorial symmetry
+ * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
  * Revision 1.5  2004/01/27 14:31:26  j_novak
  * New method Base_val::mult_sint()
  *
@@ -81,6 +85,12 @@ void Base_val::dsdx() {
   case R_CHEBPIM_I: 
    set_base_r(0, R_CHEBPIM_P) ;
     break ;
+  case R_CHEBPI_P: 
+    set_base_r(0, R_CHEBPI_I) ;
+    break ;
+  case R_CHEBPI_I: 
+   set_base_r(0, R_CHEBPI_P) ;
+    break ;    
   default: 
     break ;
   }  
@@ -102,6 +112,12 @@ void Base_val::sx() {
   case R_CHEBPIM_I: 
    set_base_r(0, R_CHEBPIM_P) ;
     break ;
+  case R_CHEBPI_P: 
+    set_base_r(0, R_CHEBPI_I) ;
+    break ;
+  case R_CHEBPI_I: 
+   set_base_r(0, R_CHEBPI_P) ;
+   break ;
   default: 
     break ;
   }  
@@ -123,6 +139,12 @@ void Base_val::mult_x() {
   case R_CHEBPIM_I: 
    set_base_r(0, R_CHEBPIM_P) ;
     break ;
+  case R_CHEBPI_P: 
+    set_base_r(0, R_CHEBPI_I) ;
+    break ;
+  case R_CHEBPI_I: 
+   set_base_r(0, R_CHEBPI_P) ;
+   break ;
   default: 
     break ;
   }  
@@ -155,6 +177,12 @@ void Base_val::dsdt() {
     break ;
   case T_COSSIN_SI:
     set_base_t(T_COSSIN_CI) ;
+    break ;
+  case T_COSSIN_C:
+    set_base_t(T_COSSIN_S) ;
+    break ;
+  case T_COSSIN_S:
+    set_base_t(T_COSSIN_C) ;
     break ;
   default: 
     cout << "Wrong base in Base_val::dsdt()!" << endl ;
@@ -192,6 +220,12 @@ void Base_val::ssint() {
   case T_COSSIN_SI:
     set_base_t(T_COSSIN_CP) ;
     break ;
+   case T_COSSIN_C:
+    set_base_t(T_COSSIN_S) ;
+    break ;
+  case T_COSSIN_S:
+    set_base_t(T_COSSIN_C) ;
+    break ;  
   default: 
     cout << "Wrong base in Base_val::ssint()!" << endl ;
     abort() ;
@@ -228,6 +262,12 @@ void Base_val::mult_sint() {
   case T_COSSIN_SI:
     set_base_t(T_COSSIN_CP) ;
     break ;
+  case T_COSSIN_C:
+    set_base_t(T_COSSIN_S) ;
+    break ;
+  case T_COSSIN_S:
+    set_base_t(T_COSSIN_C) ;
+    break ;   
   default: 
     cout << "Wrong base in Base_val::mult_sint()!" << endl ;
     abort() ;
@@ -257,6 +297,12 @@ void Base_val::ylm() {
     break ;
   case T_COSSIN_CI:
     set_base_t(T_LEG_I) ;
+    break ;
+  case T_COSSIN_C:
+    set_base_t(T_LEG) ;
+    break ;
+  case T_COSSIN_S:
+    set_base_t(T_LEG) ;
     break ;
   default: 
     cout << "Wrong base in Base_val::ylm()!" << endl ;

@@ -25,6 +25,10 @@ char base_val_quantum_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/11/23 15:08:01  m_forot
+ * Added the bases for the cases without any equatorial symmetry
+ * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
  * Revision 1.2  2004/08/30 16:27:59  r_prix
  * added #include <stdlib.h> (got ERROR 'abort' is undefined without this...)
  *
@@ -132,6 +136,14 @@ void Base_val::give_quant_numbers (int l, int k, int j,
       l_quant = 2*j ;
     break ;
 
+  case T_COSSIN_C :
+       l_quant = j ;
+    break ;
+    
+  case T_COSSIN_S :
+       l_quant = j ;
+    break ;   
+
   case T_LEG_P :
     if (m_quant%2 == 0)
       l_quant = 2*j ;
@@ -161,6 +173,10 @@ void Base_val::give_quant_numbers (int l, int k, int j,
   case T_LEG_II :
     l_quant = 2*j ;
     break ; 
+
+  case T_LEG :
+   l_quant = j ;
+   break ;
 
   case T_CL_COS_P:
     l_quant = 2*j ;
@@ -209,6 +225,18 @@ void Base_val::give_quant_numbers (int l, int k, int j,
     else
       base_r_1d = R_CHEBP ;
     break ;
+  case R_CHEBPI_P :    
+    if (l_quant%2 == 0) 
+      base_r_1d = R_CHEBP ;
+    else
+      base_r_1d = R_CHEBI ;
+    break ;
+  case R_CHEBPI_I :
+    if (l_quant%2 == 0)
+      base_r_1d = R_CHEBI ;
+    else
+      base_r_1d = R_CHEBP ;
+    break ;   
   case R_CHEBU :
     base_r_1d = R_CHEBU ;
     break ;
