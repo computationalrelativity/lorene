@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2003 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -25,6 +25,9 @@ char map_et_fait_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/15 10:38:47  e_gourgoulhon
+ * Changed cast (const Map_et*) into static_cast<const Map_et*>.
+ *
  * Revision 1.2  2002/10/16 14:36:41  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -55,7 +58,7 @@ char map_et_fait_C[] = "$Header$" ;
 Mtbl* map_et_fait_r(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_et* cv = (const Map_et*) cvi ;
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -136,7 +139,7 @@ Mtbl* map_et_fait_r(const Map* cvi) {
 Mtbl* map_et_fait_tet(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_et* cv = (const Map_et *) cvi ;
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
         
@@ -173,7 +176,7 @@ Mtbl* map_et_fait_tet(const Map* cvi) {
 Mtbl* map_et_fait_phi(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_et* cv = (const Map_et *) cvi ;
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -344,7 +347,7 @@ Mtbl* map_et_fait_za(const Map* cvi) {
 Mtbl* map_et_fait_sint(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_et* cv = (const Map_et *) cvi ;
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -377,7 +380,7 @@ Mtbl* map_et_fait_sint(const Map* cvi) {
 Mtbl* map_et_fait_cost(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_et* cv = (const Map_et *) cvi ;
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -410,7 +413,7 @@ Mtbl* map_et_fait_cost(const Map* cvi) {
 Mtbl* map_et_fait_sinp(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_et* cv = (const Map_et *) cvi ;
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -443,7 +446,7 @@ Mtbl* map_et_fait_sinp(const Map* cvi) {
 Mtbl* map_et_fait_cosp(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_et* cv = (const Map_et *) cvi ;
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -482,7 +485,7 @@ Mtbl* map_et_fait_cosp(const Map* cvi) {
 Mtbl* map_et_fait_xsr(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_et* cv = (const Map_et *) cvi ;
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
