@@ -26,6 +26,10 @@ char binhor_kij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/03/10 17:21:52  f_limousin
+ * Add the Berlin boundary condition for the shift.
+ * Some changes to avoid warnings.
+ *
  * Revision 1.4  2005/03/03 13:49:35  f_limousin
  * Add the spectral bases for both Scalars decouple.
  *
@@ -108,9 +112,8 @@ void Bin_hor::extrinsic_curvature () {
        aa_auto_un.change_triad(hole1.mp.get_bvect_spher()) ;
        aa_auto_deux.change_triad(hole2.mp.get_bvect_spher()) ;
 	
-	double ttime = hole1.the_time[hole1.jtime] ;
-	hole1.aa_auto_evol.update(aa_auto_un, hole1.jtime, ttime) ;
-	hole2.aa_auto_evol.update(aa_auto_deux, hole2.jtime, ttime) ;
+       hole1.aa_auto_evol.update(aa_auto_un, hole1.jtime, ttime) ;
+       hole2.aa_auto_evol.update(aa_auto_deux, hole2.jtime, ttime) ;
        
        // Computation of A^{ij}_comp
        

@@ -26,6 +26,10 @@ char binhor_equations_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/03/10 17:21:52  f_limousin
+ * Add the Berlin boundary condition for the shift.
+ * Some changes to avoid warnings.
+ *
  * Revision 1.6  2005/03/03 10:29:02  f_limousin
  * Delete omega in the parameters of the function boundary_beta_z().
  *
@@ -557,6 +561,17 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta) {
 	    lim_x_deux = hole2.boundary_beta_x(omega) ;
 	    lim_y_deux = hole2.boundary_beta_y(omega) ;
 	    lim_z_deux = hole2.boundary_beta_z() ;
+	    break ;
+	}
+	case 1 : {
+	    
+	    lim_x_un = hole1.boundary_vv_x(omega) ;
+	    lim_y_un = hole1.boundary_vv_y(omega) ;
+	    lim_z_un = hole1.boundary_vv_z(omega) ;
+	    
+	    lim_x_deux = hole2.boundary_vv_x(omega) ;
+	    lim_y_deux = hole2.boundary_vv_y(omega) ;
+	    lim_z_deux = hole2.boundary_vv_z(omega) ;
 	    break ;
 	}
 

@@ -26,6 +26,10 @@ char binhor_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/03/10 17:21:52  f_limousin
+ * Add the Berlin boundary condition for the shift.
+ * Some changes to avoid warnings.
+ *
  * Revision 1.6  2005/03/10 17:09:05  f_limousin
  * Display the logarithm of viriel and convergence.
  *
@@ -129,7 +133,7 @@ double Bin_hor::coal (double angu_vel, double relax, int nb_ome,
 	if (sortie != 0) {
 	  fich_iteration << step << " " << log10(erreur) << " " << homme << endl ;
 	  fich_correction << step << " " << log10(hole1.regul) << " " << homme << endl ;
-	  fich_viriel << step << " " << log10(viriel()) << " " << homme << endl ;
+	  fich_viriel << step << " " << log10(fabs(viriel())) << " " << homme << endl ;
 	    }
 	    
 	cout << "STEP : " << step << " DIFFERENCE : " << erreur << endl ;
@@ -158,7 +162,7 @@ double Bin_hor::coal (double angu_vel, double relax, int nb_ome,
 	if (sortie != 0) {
 	  fich_iteration << step << " " << log10(erreur) << " " << homme << endl ;
 	  fich_correction << step << " " << log10(hole1.regul) << " " << homme << endl ;
-	  fich_viriel << step << " " << log10(viriel()) << " " << homme << endl ;
+	  fich_viriel << step << " " << log10(fabs(viriel())) << " " << homme << endl ;
     }
 
 	cout << "STEP : " << step << " DIFFERENCE : " << erreur << endl ;
