@@ -31,6 +31,9 @@ char star_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/07/21 11:49:03  f_limousin
+ * Remove function sprod.
+ *
  * Revision 1.10  2004/06/22 12:48:52  f_limousin
  * Change qq, qq_auto and qq_comp to beta, beta_auto and beta_comp.
  *
@@ -608,91 +611,6 @@ ostream& Star_bin::operator>>(ostream& ost) const {
 			    //	Computational routines //
 			    //-------------------------//
 
-
-Tensor Star_bin::sprod(const Tensor& t1, const Tensor& t2) const {
-     
-    Tensor* p_tens_metr = 0x0 ;
-
-   // Both indices should be contravariant or both covariant : 
-    if (t1.get_index_type(t1.get_valence()-1) == CON) {
-      assert( t2.get_index_type(0) == CON ) ;
-      
-      p_tens_metr = new Tensor(gamma.cov()) ;
-	}
-    
-    if (t1.get_index_type(t1.get_valence()-1) == COV) {
-      assert( t2.get_index_type(0) == COV ) ;
-
-       p_tens_metr = new Tensor(gamma.con()) ;
-       }
-
-    // Verifs :
-    assert (t1.get_mp() == t2.get_mp()) ;
-    
-    // Contraction possible ?
-     if ( (t1.get_valence() != 0) && (t2.get_valence() != 0) ) {
-	    assert ( *(t1.get_triad()) == *(t2.get_triad()) ) ;
-    }
-     assert ( *(t1.get_triad()) == *((*p_tens_metr).get_triad()) ) ;
-
-    int val_res = t1.get_valence() + t2.get_valence() - 2;
-
-    Itbl tipe(val_res) ;
-    tipe.set_etat_qcq() ;
-
-    for (int i=0 ; i<t1.get_valence() - 1 ; i++)
-	tipe.set(i) = t1.get_index_type(i) ;
-    for (int i = t1.get_valence()-1 ; i<val_res ; i++)
-	tipe.set(i) = t2.get_index_type(i-t1.get_valence()+2) ;
-	
-    Tensor res(t1.get_mp(), val_res, tipe, t1.get_triad()) ;
-	
-    Scalar work(t1.get_mp()) ;
-    
-    // Boucle sur les composantes de res :
-	
-    Itbl jeux_indice_t1(t1.get_valence()) ;
-    Itbl jeux_indice_t2(t2.get_valence()) ;
-    jeux_indice_t1.set_etat_qcq() ;
-    jeux_indice_t2.set_etat_qcq() ;
-    
-    for (int ir=0 ; ir<res.get_n_comp() ; ir++) {    // Boucle sur les composantes
-					       // du resultat 
-
-	// Indices du resultat correspondant a la position ir : 
-	Itbl jeux_indice_res = res.indices(ir) ;
-
-	// Premiers indices correspondant dans t1 : 
-	for (int i=0 ; i<t1.get_valence() - 1 ; i++) {
-	    jeux_indice_t1.set(i) = jeux_indice_res(i) ;
-	}
-	
-	// Derniers indices correspondant dans t2 : 
-	for (int i=1 ; i<t2.get_valence() ; i++) {
-	    jeux_indice_t2.set(i) = jeux_indice_res(t1.get_valence()+i-2) ;
-	}
-	
-	work.set_etat_zero() ;
-
-	// Sommation sur le dernier indice de t1 et le premier de t2 : 
-	
-	for (int i=1 ; i<=3 ; i++) {
-	  for (int j=1 ; j<=3 ; j++) {
-	    jeux_indice_t1.set(t1.get_valence() - 1) = i ;
-	    jeux_indice_t2.set(0) = j ;
-	    work = work + (*p_tens_metr)(i,j)*t1(jeux_indice_t1)*t2(jeux_indice_t2) ;
-	    }
-	}
-	res.set(jeux_indice_res) = work ;
-    
-    }	// fin de la boucle sur les composantes du resultat
-    delete p_tens_metr ; 
-    return res ;
-
-}
-
-
-
 void Star_bin::fait_d_psi() {
 
     if (!irrotational) {
@@ -765,6 +683,7 @@ void Star_bin::relaxation(const Star_bin& star_jm1, double relax_ent,
 	shift_auto = relax_met * shift_auto 
 				   + relax_met_jm1 * star_jm1.shift_auto ;
 	
+
 	hij_auto = relax_met * hij_auto + relax_met_jm1 * star_jm1.hij_auto ;
 	
     }
@@ -775,3 +694,37 @@ void Star_bin::relaxation(const Star_bin& star_jm1, double relax_ent,
 
 }
 
+void Star_bin::test_K_Hi() const {
+
+    int nr = mp.get_mg()->get_nr(0) ;
+    int nt = mp.get_mg()->get_nt(0) ;
+    int np = mp.get_mg()->get_np(0) ;
+    
+    Sym_tensor tkij = tkij_auto + tkij_comp ;
+    
+    cout << "Le maximal slicing est il bien satisfait ??" 
+	 << endl ;
+    cout << "Tensor Kij" << endl ;
+    for (int i=1; i<=3; i++)
+	cout << "  Comp. 1 1 : " << norme(tkij.down(1, gamma)(i,i)
+					  /(nr*nt*np)) << endl ;
+
+    cout << endl << "Trace of Kij : "<< norme(tkij.down(1, gamma).trace()
+					      /(nr*nt*np))<< endl ;
+     
+
+    cout << "La jauge de Dirac est elle bien satisfaite ??" << endl ;
+    cout << "Vector Hi" << endl ;
+    for (int i=1; i<=3; i++)
+	cout << "  Comp. " << i << " : " << norme((gtilde.con()
+				   .divergence(flat))(i)/(nr*nt*np)) << endl ;
+    
+    
+    cout << "Pour comparaison valeur de D_i(g^1i)" << endl ;
+    for (int i=1; i<=3; i++)
+	cout << "  i = " << i << " : " << norme((gtilde.con().derive_cov(flat))
+					      (1, i, i)/(nr*nt*np)) << endl ;
+    
+
+    
+}
