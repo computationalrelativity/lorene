@@ -25,6 +25,9 @@ char map_af_dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/03/01 13:30:28  j_novak
+ * Corrected some errors
+ *
  * Revision 1.9  2004/03/01 09:57:03  j_novak
  * the wave equation is solved with Scalars. It now accepts a grid with a
  * compactified external domain, which the solver ignores and where it copies
@@ -117,6 +120,7 @@ void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar&
     double dt = par.get_double() ;
 
     Scalar sigma = 2*fj - fjm1 ; // The source (first part) 
+    if (ced) sigma.annule_domain(nz-1) ;
     
 
     // Coefficients
@@ -204,7 +208,7 @@ void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar&
 	for (int k=0; k<mg->get_np(lz); k++) 
 	  for (int j=0; j<mg->get_nt(lz); j++) 
 	    for (int i=0; i<nr; i++)
-	      mime.set(lz, k, j, i) = a1(lz) + erre(lz, 0, 0, i)*
+	      mime.set_grid_point(lz, k, j, i) = a1(lz) + erre(lz, 0, 0, i)*
 		(a2(lz) + erre(lz, 0, 0, i)*a3(lz)) ;
 
 	Tbl diff = metri->domain(lz) - mime.domain(lz) ;
@@ -213,12 +217,16 @@ void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar&
   	mime.set_domain(lz) += offset ;
       }
 
-      Scalar raz = *metri - mime ;
-      sigma += dt*dt*(source + raz*fj.laplacian() 
-		      + 0.5*mime*fjm1.laplacian()); //Source (2nd part)
+      Scalar reste = (*metri - mime)*fj.laplacian() ;
+      if (ced) reste.annule_domain(nz-1) ;
+      sigma += (dt*dt)*(source + reste) ;
+      if (ced) sigma.annule_domain(nz-1) ;
+      sigma +=  (0.5*dt*dt)*mime*fjm1.laplacian() ; //Source (2nd part)
     }
     else {
-      sigma += dt*dt * (source + 0.5*fjm1.laplacian()) ;
+      sigma += (dt*dt) * source ;
+      if (ced) sigma.annule_domain(nz-1) ;
+      sigma += (0.5*dt*dt)*fjm1.laplacian() ;
     }
     if (ced) sigma.annule_domain(nz-1) ;
 
@@ -342,7 +350,7 @@ void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar&
 
       bool zero = (souphi.get_etat() == ETATZERO) ;
       if (zero) {
-	Base_val base_ref(mg->std_base_scal()) ;
+	Base_val base_ref(mg->std_base_scal()) ; //## Maybe not good...
 	base_ref.dsdx() ;
 	base_ref.ylm() ;
 	souphi.set_base(base_ref) ;
