@@ -30,6 +30,10 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/05/13 21:35:30  e_gourgoulhon
+ * Added monitoring of various quantities (as Evolution_full<Tbl>).
+ * Added function monitor_scalar.
+ *
  * Revision 1.7  2004/05/12 15:24:20  e_gourgoulhon
  * Reorganized the #include 's, taking into account that
  * time_slice.h contains now an #include "metric.h".
@@ -66,6 +70,8 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 #include "graphique.h"
 #include "utilitaires.h"
 
+const Tbl& monitor_scalar(const Scalar& uu, Tbl& resu) ;
+
 void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
                               int niter_elliptic, 
                               double relax) {
@@ -99,14 +105,24 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
     Scalar khi_new(map) ; 
     Scalar mu_new(map) ; 
     
-    // Successive values of global quantities:
+    // Successive values of various quantities:
+    // ---------------------------------------
     Evolution_full<double> m_adm(adm_mass(), jtime, the_time[jtime]) ; 
     Evolution_full<double> test_ham_constr ; 
     Evolution_full<double> test_mom_constr_r ; 
     Evolution_full<double> test_mom_constr_t ; 
     Evolution_full<double> test_mom_constr_p ; 
-    
-    
+    Evolution_full<Tbl> nn_monitor ;
+    Evolution_full<Tbl> psi_monitor ;
+    Evolution_full<Tbl> trh_monitor ;
+    Evolution_full<Tbl> beta_monitor_maxabs ;
+    Evolution_full<Tbl> hh_monitor_central ;
+    Evolution_full<Tbl> hh_monitor_maxabs ;
+    Evolution_full<Tbl> aa_monitor_central ;
+    Evolution_full<Tbl> aa_monitor_maxabs ;
+    Tbl select_scalar(6) ; 
+    Tbl select_tens(6) ;
+        
     // Evolution loop
     // --------------
 
@@ -121,6 +137,100 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
     
         cout << *this << endl ; 
         
+        // Monitoring
+        // ---------- 
+        cout << "ADM mass : " << adm_mass() << endl ; 
+        m_adm.update(adm_mass(), jtime, the_time[jtime]) ;
+        if (jt > 0) des_evol(m_adm, "ADM mass", "Variation of ADM mass", 80) ;          
+        
+        
+        nn_monitor.update(monitor_scalar(nn(), select_scalar), 
+                            jtime, the_time[jtime]) ; 
+        
+        psi_monitor.update(monitor_scalar(psi(), select_scalar), 
+                            jtime, the_time[jtime]) ; 
+        
+        trh_monitor.update(monitor_scalar(trh(), select_scalar), 
+                            jtime, the_time[jtime]) ; 
+        
+        beta_monitor_maxabs.update(maxabs_all_domains(beta()), 
+                                    jtime, the_time[jtime]) ; 
+        
+        hh_monitor_central.update(central_value(hh()), 
+                                    jtime, the_time[jtime]) ; 
+        
+        hh_monitor_maxabs.update(maxabs_all_domains(hh()), 
+                                    jtime, the_time[jtime]) ; 
+        
+        aa_monitor_central.update(central_value(aa()), 
+                                    jtime, the_time[jtime]) ; 
+        
+        aa_monitor_maxabs.update(maxabs_all_domains(aa()), 
+                                    jtime, the_time[jtime]) ; 
+        
+        int check_mod = 2 ; 
+        if (jt%check_mod == 0) {
+
+            int jt_graph = jt / check_mod ; 
+            
+            Tbl tham = check_hamiltonian_constraint() ; 
+            double max_error = tham(0,0) ; 
+            for (int l=1; l<nz-1; l++) {    // all domains but the last one
+                double xx = fabs(tham(0,l)) ;  
+                if (xx > max_error) max_error = xx ; 
+            }
+            test_ham_constr.update(max_error, jt_graph, the_time[jtime]) ; 
+            if (jt > 0) des_evol(test_ham_constr, "Absolute error", 
+                "Check of Hamiltonian constraint", 81) ; 
+
+            Tbl tmom = check_momentum_constraint() ; 
+            max_error = tmom(0,0) ;
+            for (int l=1; l<nz-1; l++) {    // all domains but the last one
+                double xx = fabs(tmom(0,l)) ;  
+                if (xx > max_error) max_error = xx ; 
+            }
+            test_mom_constr_r.update(max_error, jt_graph, the_time[jtime]) ; 
+            if (jt > 0) des_evol(test_mom_constr_r, "Absolute error", 
+                "Check of momentum constraint (r comp.)", 82) ; 
+
+            max_error = tmom(1,0) ;
+            for (int l=1; l<nz-1; l++) {    // all domains but the last one
+                double xx = fabs(tmom(1,l)) ;  
+                if (xx > max_error) max_error = xx ; 
+            }
+            test_mom_constr_t.update(max_error, jt_graph, the_time[jtime]) ; 
+            if (jt > 0) des_evol(test_mom_constr_t, "Absolute error", 
+                "Check of momentum constraint (\\gh comp.)", 83) ; 
+
+            max_error = tmom(2,0) ;
+            for (int l=1; l<nz-1; l++) {    // all domains but the last one
+                double xx = fabs(tmom(2,l)) ;  
+                if (xx > max_error) max_error = xx ; 
+            }
+            test_mom_constr_p.update(max_error, jt_graph, the_time[jtime]) ; 
+            if (jt > 0) des_evol(test_mom_constr_p, "Absolute error", 
+                "Check of momentum constraint (\\gf comp.)", 84) ; 
+                
+        }
+
+        int save_mod = 10 ; 
+        if (jt%save_mod == 0) { 
+            m_adm.save("adm_mass.d") ; 
+            nn_monitor.save("nn_monitor.d") ;
+            psi_monitor.save("psi_monitor.d") ;
+            trh_monitor.save("trh_monitor.d") ;
+            beta_monitor_maxabs.save("beta_monitor_maxabs.d") ; 
+            hh_monitor_central.save("hh_monitor_central.d") ; 
+            hh_monitor_maxabs.save("hh_monitor_maxabs.d") ; 
+            aa_monitor_central.save("aa_monitor_central.d") ; 
+            aa_monitor_maxabs.save("aa_monitor_maxabs.d") ; 
+            test_ham_constr.save("test_ham_constr.d") ; 
+            test_mom_constr_r.save("test_mom_constr_r.d") ; 
+            test_mom_constr_t.save("test_mom_constr_t.d") ; 
+            test_mom_constr_p.save("test_mom_constr_p.d") ; 
+        }
+
+
         // Resolution of hyperbolic equations
         // ----------------------------------
         
@@ -180,64 +290,7 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
         des_meridian(hh()(2,3), 0., ray_des, "h\\u\\gh\\gf\\d", 14) ; 
         des_meridian(hh()(3,3), 0., ray_des, "h\\u\\gf\\gf\\d", 15) ; 
         
-        cout << "ADM mass : " << adm_mass() << endl ; 
-        m_adm.update(adm_mass(), jtime, the_time[jtime]) ;
-        if (jt > 0) des_evol(m_adm, "ADM mass", "Variation of ADM mass", 80) ;          
-        
-        int check_mod = 2 ; 
-        if (jt%check_mod == 0) {
-
-            int jt_graph = jt / check_mod ; 
-            
-            Tbl tham = check_hamiltonian_constraint() ; 
-            double max_error = tham(0,0) ; 
-            for (int l=1; l<nz-1; l++) {    // all domains but the last one
-                double xx = fabs(tham(0,l)) ;  
-                if (xx > max_error) max_error = xx ; 
-            }
-            test_ham_constr.update(max_error, jt_graph, the_time[jtime]) ; 
-            if (jt > 0) des_evol(test_ham_constr, "Absolute error", 
-                "Check of Hamiltonian constraint", 81) ; 
-
-            Tbl tmom = check_momentum_constraint() ; 
-            max_error = tmom(0,0) ;
-            for (int l=1; l<nz-1; l++) {    // all domains but the last one
-                double xx = fabs(tmom(0,l)) ;  
-                if (xx > max_error) max_error = xx ; 
-            }
-            test_mom_constr_r.update(max_error, jt_graph, the_time[jtime]) ; 
-            if (jt > 0) des_evol(test_mom_constr_r, "Absolute error", 
-                "Check of momentum constraint (r comp.)", 82) ; 
-
-            max_error = tmom(1,0) ;
-            for (int l=1; l<nz-1; l++) {    // all domains but the last one
-                double xx = fabs(tmom(1,l)) ;  
-                if (xx > max_error) max_error = xx ; 
-            }
-            test_mom_constr_t.update(max_error, jt_graph, the_time[jtime]) ; 
-            if (jt > 0) des_evol(test_mom_constr_t, "Absolute error", 
-                "Check of momentum constraint (\\gh comp.)", 83) ; 
-
-            max_error = tmom(2,0) ;
-            for (int l=1; l<nz-1; l++) {    // all domains but the last one
-                double xx = fabs(tmom(2,l)) ;  
-                if (xx > max_error) max_error = xx ; 
-            }
-            test_mom_constr_p.update(max_error, jt_graph, the_time[jtime]) ; 
-            if (jt > 0) des_evol(test_mom_constr_p, "Absolute error", 
-                "Check of momentum constraint (\\gf comp.)", 84) ; 
                 
-        }
-
-        int save_mod = 10 ; 
-        if (jt%save_mod == 0) { 
-            m_adm.save("adm_mass.d") ; 
-            test_ham_constr.save("test_ham_constr.d") ; 
-            test_mom_constr_r.save("test_mom_constr_r.d") ; 
-            test_mom_constr_t.save("test_mom_constr_t.d") ; 
-            test_mom_constr_p.save("test_mom_constr_p.d") ; 
-        }
-
         // arrete() ; 
 
     }
@@ -245,3 +298,35 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
     par_khi.clean_all() ; 
     par_mu.clean_all() ; 
 } 
+
+
+//***************************************************************************
+
+const Tbl& monitor_scalar(const Scalar& uu, Tbl& resu) {
+
+    assert( resu.get_ndim() == 1) ; 
+    assert( resu.get_taille() >= 6) ;
+    
+    resu.set_etat_qcq() ; 
+    
+    resu.set(0) = uu.val_grid_point(0,0,0,0) ; 
+    resu.set(1) = max(max(uu)) ; 
+    resu.set(2) = min(min(uu)) ; 
+    
+    const Mg3d& mg = *(uu.get_mp().get_mg()) ; 
+    
+    int nz = mg.get_nzone() ;
+    int nzm1 = nz - 1 ;  
+    int nr = mg.get_nr(nzm1) ; 
+    int nt = mg.get_nt(nzm1) ; 
+    int np = mg.get_np(nzm1) ; 
+    
+    resu.set(3) = uu.val_grid_point(nzm1, 0, 0, nr-1) ; 
+    resu.set(4) = uu.val_grid_point(nzm1, 0, nt-1, nr-1) ; 
+    resu.set(5) = uu.val_grid_point(nzm1, np/2, nt-1, nr-1) ; 
+    
+    return resu ;      
+}
+
+
+
