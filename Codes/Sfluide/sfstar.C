@@ -227,33 +227,9 @@ int main(){
     //-----------------------------------------------------------------------
     //		Equation of state
     //-----------------------------------------------------------------------
-    /*
-     * Eventually it would be nice to get rid of eos config-file and integrate 
-     * it into main config-file?
-     * but we postpone it to later...
-     */
-    /*
-    string EOSname;
-    double gamma1, gamma2, gamma3, gamma4, gamma5, gamma6;
-    double kappa1, kappa2, kappa3;
-    double beta;
-    double mass1, mass2; 
-    double relax=0.5, precis = 1.e-9, ecart = 1.e-8;	
 
-    res += read_variable (NULL, "gamma1", gamma1);
-    res += read_variable (NULL, "gamma2", gamma2);
-    res += read_variable (NULL, "gamma3", gamma3);
-    res += read_variable (NULL, "gamma4", gamma4);
-    res += read_variable (NULL, "gamma5", gamma5);
-    res += read_variable (NULL, "gamma6", gamma6);
-
-    res += read_variable (NULL, "kappa1", kappa1);
-    res += read_variable (NULL, "kappa2", kappa2);
-    res += read_variable (NULL, "kappa3", kappa3);
-
-    */
-
-    Eos_bifluid* peos = Eos_bifluid::eos_from_file("eos.par") ;
+    /* eos-params are read from the same parameter file now! */
+    Eos_bifluid* peos = Eos_bifluid::eos_from_file(parrot);	
     Eos_bifluid& eos = *peos ;
 
     //-----------------------------------------------------------------------
@@ -445,6 +421,17 @@ int main(){
 	      << star.grv2() << endl ;   
     fichfinal << "Relative error on the virial theorem GRV3 : "
 	      << star.grv3() << endl ;   
+
+    // total central densities
+    double m1 = eos.get_m1();
+    double m2 = eos.get_m2();
+    double rhon_c = m1 * star.get_nbar()()(0,0,0,0);
+    double rhop_c = m2 * star.get_nbar2()()(0,0,0,0);
+
+    fichfinal << "\n\nCentral neutron density: " << rhon_c << " x 0.1 fm^-3 \n";
+    fichfinal << "Central proton density: " << rhop_c << " x 0.1 fm^-3 \n";
+    fichfinal << "Total central baryon density : " << rhon_c + rhop_c << " x 0.1 fm^-3 \n\n";
+
     
     fichfinal << endl <<
     "================================================================" << endl ;
@@ -456,14 +443,6 @@ int main(){
     system("cat settings.par >> calcul.d") ; 
 
     fichfinal.open("calcul.d", ios::app) ;
-    fichfinal << endl <<
-    "================================================================" << endl ;
-    fichfinal <<
-    "	           EOS PARAMETERS (file eos.par) : " << endl ;
-    fichfinal <<
-    "================================================================" << endl ;
-    fichfinal.close() ;
-    system("cat eos.par >> calcul.d") ;
 
     // Identification du code et de ses sous-routines (no. de version RCS) :     	
     fichfinal.open("calcul.d", ios::app) ; 
@@ -539,6 +518,7 @@ int main(){
     // now print out key-values of the configuration in such a "translated" way
     // that we can compare the results to the analytic solution of PCA02:
     //    if (eos.identify() == 2)  // only do that if type = eos_bf_poly_newt
+    //    compare_analytic (star, nzadapt, resdir);
     compare_analytic (star, nzadapt, resdir);
 
     // Cleaning
@@ -603,8 +583,8 @@ compare_analytic (Et_rot_bifluid& star, int adapt, const char *resdir)
   rhoc = m1 * nn_c + m2 * np_c;
 
   // baryon densities in natural units  
-  Cmp nn = star.get_nbar()() / nc;
-  Cmp np = star.get_nbar2()() / nc;
+  //  Cmp nn = star.get_nbar()() / nc;
+  //  Cmp np = star.get_nbar2()() / nc;
 
   // translate EOS parameters into x_p, sigma and epsilon  
   detA = kap1*kap2 - kap3*kap3;
