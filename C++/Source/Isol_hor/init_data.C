@@ -31,6 +31,9 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/03/04 17:04:57  jl_jaramillo
+ * Addition of boost to the shift after solving the shift equation
+ *
  * Revision 1.7  2005/03/03 10:03:55  f_limousin
  * The boundary conditions for the lapse, psi and shift are now
  * parameters (in file par_hor.d).
@@ -266,6 +269,25 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	       .derive_con(ff) - source_vector,
 	       "Absolute error in the resolution of the equation for beta") ;  
 	cout << endl ;
+
+	Vector boost_vect(mp, CON, mp.get_bvect_cart()) ;
+	if (boost_x != 0.) {
+	  boost_vect.set(1) = boost_x ;
+	  boost_vect.set(2) = 0. ;
+	  boost_vect.set(3) = 0. ;
+	  boost_vect.std_spectral_base() ;
+	  boost_vect.change_triad(mp.get_bvect_spher()) ;
+	  beta_jp1 = beta_jp1 + boost_vect ;
+	}
+	  
+	if (boost_z != 0.) {
+	  boost_vect.set(1) = boost_z ;
+	  boost_vect.set(2) = 0. ;
+	  boost_vect.set(3) = 0. ;
+	  boost_vect.std_spectral_base() ;
+	  boost_vect.change_triad(mp.get_bvect_spher()) ;
+	  beta_jp1 = beta_jp1 + boost_vect ;
+	}
 	
 	// Relaxation (relax=1 -> new ; relax=0 -> old )  
 	beta_jp1 = relax * beta_jp1 + (1 - relax) * beta() ;

@@ -31,6 +31,9 @@ char init_data_b_neumann_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/03/04 17:05:34  jl_jaramillo
+ * Addition of boost to the shift after solving the shift equation
+ *
  * Revision 1.3  2005/03/03 10:04:16  f_limousin
  * The boundary conditions for the lapse, psi and shift are now
  * parameters (in file par_hor.d).
@@ -201,7 +204,7 @@ void Isol_hor::init_data_b_neumann(int bound_psi,
 	double precision = 1e-8 ;
 	poisson_vect_boundary(lambda, source_vector, beta_jp1, boundary_x, 
 			      boundary_y, boundary_z, 0, precision, 20) ;
-	
+
 	// Check of the resolution
 	// ------------------------
 	
@@ -212,6 +215,27 @@ void Isol_hor::init_data_b_neumann(int bound_psi,
 	       "Absolute error in the resolution of the equation for beta") ;  
 	cout << endl ;
 	
+	Vector boost_vect(mp, CON, mp.get_bvect_cart()) ;
+	if (boost_x != 0.) {
+	  boost_vect.set(1) = boost_x ;
+	  boost_vect.set(2) = 0. ;
+	  boost_vect.set(3) = 0. ;
+	  boost_vect.std_spectral_base() ;
+	  boost_vect.change_triad(mp.get_bvect_spher()) ;
+	  beta_jp1 = beta_jp1 + boost_vect ;
+	}
+	  
+	if (boost_z != 0.) {
+	  boost_vect.set(1) = boost_z ;
+	  boost_vect.set(2) = 0. ;
+	  boost_vect.set(3) = 0. ;
+	  boost_vect.std_spectral_base() ;
+	  boost_vect.change_triad(mp.get_bvect_spher()) ;
+	  beta_jp1 = beta_jp1 + boost_vect ;
+	}
+
+
+
 	// Relaxation (relax=1 -> new ; relax=0 -> old )  
 	//-----------
 	
