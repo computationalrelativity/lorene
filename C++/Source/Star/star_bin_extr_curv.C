@@ -30,6 +30,10 @@ char star_bin_extr_curv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/05/25 14:19:01  f_limousin
+ * Correction of an error : kcar_comp was computed instead
+ * ok kcar_auto.
+ *
  * Revision 1.4  2004/03/23 09:57:57  f_limousin
  * We now make the derivation with respect to the metric tilde
  * instead of the flat metric for the computation of dshift.
@@ -77,7 +81,7 @@ void Star_bin::extrinsic_curvature(){
     
     Tensor tkij_auto_cov = tkij_auto.down(0, gtilde).down(1, gtilde) ;
   
-    kcar_comp = contract(tkij_auto_cov, 0, 1, tkij_auto, 0, 1, true) ; 
+    kcar_auto = contract(tkij_auto_cov, 0, 1, tkij_auto, 0, 1, true) ; 
       
     kcar_auto.std_spectral_base() ; 
     
