@@ -28,6 +28,10 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.9  2004/11/03 17:17:35  f_limousin
+ * Change the standart constructor and the argument of the
+ * function init_data(...).
+ *
  * Revision 1.8  2004/11/02 17:42:00  f_limousin
  * New method sauve(...) to save in a binary file.
  *
@@ -118,9 +122,7 @@ int main() {
   
     Map_af map(mgrid, bornes) ;   // Mapping construction
   	
-    //    cout << map << endl ;  
-
-   // Denomination of various coordinates associated with the mapping 
+    // Denomination of various coordinates associated with the mapping 
     // ---------------------------------------------------------------
 
     const Coord& r = map.r ;        // r field 
@@ -148,56 +150,35 @@ int main() {
     Vector tmp_vect(map, CON, otriad) ;
     Sym_tensor tmp_sym(map, CON, otriad) ; 
 
-   
-    // Physical Parameters
-    //--------------------
-
-     // Key function
+    // Key function
     Mtbl usr = 1 / r ;
-
     Scalar unsr(map) ;
     unsr = usr ;
     
-    unsr.set_domain(0) = 1 ; // scalar set to 1 in the nucleus  ("inside" the horizon)
+    unsr.set_domain(0) = 1 ; // scalar set to 1 in the nucleus 
     unsr.std_spectral_base() ;
 
     Mtbl expr = exp(-r) ;
-
     Scalar expmr(map) ;
     expmr = expr ;
 
     
+    // Physical Parameters
+    //--------------------
     
-    // Initialization of the TrK 
-    //--------------------------
+    // Set up of lapse function N
+    // --------------------------
+    
+    Scalar nn_init(map) ; 
+    nn_init = 1 + unsr ;
+    nn_init.std_spectral_base() ;    // sets standard spectral bases
 
     // Set up of field Psi 
     // -------------------
 
     Scalar psi_init(map) ; 
-    Scalar tmp(map) ; 
-    
-    psi_init =  1 + unsr ;
-     
+    psi_init =  1 + unsr*unsr ;
     psi_init.std_spectral_base() ;    // sets standard spectral bases
-
-    
-    // Set up of the 3-metric tilde
-    // ----------------------------
-    
-    Sym_tensor gammat_dd_init(map, COV, map.get_bvect_spher()) ;
-    gammat_dd_init.set(1,1) = 1. ;
-    gammat_dd_init.set(2,2) = 1. ;
-    gammat_dd_init.set(3,3) = 1. ;
-    gammat_dd_init.set(2,1) = 0. ;
-    gammat_dd_init.set(3,1) = 0. ;
-    gammat_dd_init.set(3,2) = 0. ;
-    gammat_dd_init.std_spectral_base() ;
-
-    // Set up of the 3-metric 
-
-    Metric gamma_init(gammat_dd_init * psi_init* psi_init* psi_init* psi_init);
-    Sym_tensor gamma_dd_init = gamma_init.cov() ;
 
     // Set up of shift vector beta
     // ---------------------------    
@@ -211,78 +192,59 @@ int main() {
     beta_init.annule_domain(0) ;
     
     beta_init.std_spectral_base() ;
-     
-    // Set up of lapse function N
-    // --------------------------
+        
+
+    // TrK, TrK_point
+    // --------------
+
+    Scalar trK (map) ;
+    trK = 0. ;
+    trK.std_spectral_base() ;
+
+    Scalar trK_point (map) ;
+    trK_point = 0. ;
+    trK_point.std_spectral_base() ;
+	
+    // gamt, gamt_point
+    // ----------------
+
+    Sym_tensor gamt(map, COV, map.get_bvect_spher()) ;
+    gamt.set(1,1) = 1. ;
+    gamt.set(2,2) = 1. ;
+    gamt.set(3,3) = 1. ;
+    gamt.set(2,1) = 0. ;
+    gamt.set(3,1) = 0. ;
+    gamt.set(3,2) = 0. ;
+    gamt.std_spectral_base() ;
+    Metric met_gamt (gamt) ;     
+
+    Sym_tensor gamt_point(map, COV, map.get_bvect_spher()) ;
+    gamt_point.set_etat_zero() ;
+
+    // Set up of extrinsic curvature
+    // -----------------------------
     
-    Scalar nn_init(map) ; 
-
-    nn_init = (1 - unsr)/(1+unsr) ;
-
-    nn_init.std_spectral_base() ;    // sets standard spectral bases
-
-  
-    // Set up of the conformal extrinsic curvature KK
-    //-----------------------------------------------
-   	
-    Sym_tensor kk_init(map, CON, otriad) ;   // A^{ij}
-    
+    Metric met_gam(psi_init*psi_init*psi_init*psi_init*gamt) ;
+    Sym_tensor kk_init (map,  CON, map.get_bvect_spher()) ;
     for (int i=1; i<=3; i++) {
       for (int j=1; j<=i; j++) {
-	kk_init.set(i,j) = 0.5 * (beta_init.derive_con(gamma_init)(i,j)  
-	  + beta_init.derive_con(gamma_init)(j,i)) ;
+	kk_init.set(i,j) = 0.5 * (beta_init.derive_con(met_gam)(i,j)  
+	  + beta_init.derive_con(met_gam)(j,i)) ;
       }
     }
-
-
     kk_init = kk_init/nn_init ;
+
+    Sym_tensor aa_init (map, CON, map.get_bvect_spher()) ;
+    aa_init = psi_init*psi_init*psi_init*psi_init*kk_init
+	- 1./3. * trK * met_gamt.con() ;
+   
 
     //-------------------------------------
     //     Construction of the space-time
     //-------------------------------------
-     
-    Isol_hor isolhor_tmp(nn_init, beta_init, gamma_dd_init, kk_init, ff, 3) ;
 
-    Scalar trk = isolhor_tmp.trk() ;
-    cout << "trk" << endl << norme(trk) << endl ;
-
-    
-    // Actual initialization of the 3+1 decomposition
-    //-----------------------------------------------
-
-    psi_init = 1. + unsr*unsr ;
-
-    beta_init.set(1) = 0. ;
-    beta_init.set(2) = 0. ;
-    beta_init.set(3) = 0. ;
-    beta_init.annule_domain(0) ;  
-    beta_init.std_spectral_base() ;
-
-
-    nn_init = 1. + unsr*unsr ;
-    
-    nn_init.std_spectral_base() ;    // sets standard spectral bases
-        
-    for (int i=1; i<=3; i++) {
-      for (int j=1; j<=i; j++) {
-	kk_init.set(i,j) = 0.5 * (beta_init.derive_con(gamma_init)(i,j)  
-	  + beta_init.derive_con(gamma_init)(j,i)) ;
-      }
-    }
-
-    kk_init = kk_init/nn_init ;
-
-    gammat_dd_init.set(1,1) = 1. ;
-    gammat_dd_init.set(2,2) = 1. ;
-    gammat_dd_init.set(3,3) = 1. ;
-    gammat_dd_init.set(2,1) = 0. ;
-    gammat_dd_init.set(3,1) = 0. ;
-    gammat_dd_init.set(3,2) = 0. ;
-    gammat_dd_init.std_spectral_base() ;
-
-
-
-    Isol_hor isolhor(nn_init, beta_init, gamma_dd_init, kk_init, ff, 3) ;
+    Isol_hor isolhor(nn_init, beta_init, psi_init, aa_init, met_gamt,
+		     gamt_point, trK, trK_point, ff, 3) ;
  
  
     //-----------------------------------------
@@ -294,16 +256,17 @@ int main() {
     tmp_scal.set_dzpuis(4) ;
 
     double ang_vel = 0.01 ;
-    isolhor.init_data(tmp_sym, trk, tmp_scal, seuil, relax, 
-			     niter, ang_vel) ;
+    isolhor.init_data(seuil, relax, niter, ang_vel) ;
 
+    // Save in a file
+    // --------------
+    
     FILE* fresu = fopen("resu.d", "w") ;
     isolhor.sauve(fresu, true) ;
     fclose(fresu) ;     
     
-
     // Test of the constraints
-    //------------------------------------
+    //------------------------
 
     cout<<"  ----------------------------------------" <<endl ;
     
