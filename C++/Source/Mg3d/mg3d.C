@@ -31,6 +31,10 @@ char mg3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/06/18 08:45:27  j_novak
+ * In class Mg3d: added the member get_radial, returning only a radial grid
+ * For dAlembert solver: the way the coefficients of the operator are defined has been changed.
+ *
  * Revision 1.6  2002/10/16 14:36:42  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -722,6 +726,7 @@ bool Mg3d::operator!=(const Mg3d & titi) const {
 void Mg3d::del_deriv() const {
 
     if (g_angu != 0x0) delete g_angu ;
+    if (g_radial != 0x0) delete g_radial ;
     if (g_twice != 0x0) delete g_twice ;
 
     set_deriv_0x0() ;
@@ -731,6 +736,7 @@ void Mg3d::del_deriv() const {
 void Mg3d::set_deriv_0x0() const {
 
     g_angu = 0x0 ;
+    g_radial = 0x0 ;
     g_twice = 0x0 ;
 
 }
@@ -753,6 +759,27 @@ const Mg3d* Mg3d::get_angu() const {
     }
 
     return g_angu ;
+
+}
+	
+			    //--------------//
+			    //  Radial grid //
+			    //--------------//
+
+const Mg3d* Mg3d::get_radial() const {
+
+    if (g_radial == 0x0) {	  // The construction is required
+
+	int* nbr_radial = new int[nzone] ;
+	for (int i=0 ; i<nzone ; i++) {
+	    nbr_radial[i] = 1 ;
+	}
+	g_radial = new Mg3d(nzone, nr, type_r, nbr_radial, SYM, nbr_radial, 
+			  SYM) ;
+	delete [] nbr_radial ;
+    }
+
+    return g_radial ;
 
 }
 	

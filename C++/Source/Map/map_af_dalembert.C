@@ -25,6 +25,10 @@ char map_af_dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/06/18 08:45:27  j_novak
+ * In class Mg3d: added the member get_radial, returning only a radial grid
+ * For dAlembert solver: the way the coefficients of the operator are defined has been changed.
+ *
  * Revision 1.3  2002/01/03 15:30:28  j_novak
  * Some comments modified.
  *
@@ -93,10 +97,27 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
     // The source and explicit parts
     // -----------------------------
 
-    Cmp sigma(2*fj) ;
+    Cmp sigma = 2*fj ;
     int nz = mg->get_nzone() ;
     double dt = par.get_double() ;
     sigma += dt*dt * (source + 0.5*fjm1.laplacien(0)) - fjm1 ;
+
+    // Spherical harmonic expansion of the source
+    // ------------------------------------------
+    
+    Valeur& sourva = sigma.va ; 
+
+    if (sourva.get_etat() == ETATZERO) {
+	fjp1.set_etat_zero() ;
+	return ;  
+    }
+
+    // Spectral coefficients of the source
+    assert(sourva.get_etat() == ETATQCQ) ; 
+    
+    sourva.coef() ; 
+    sourva.ylm() ;			// spherical harmonic transforms 
+
 
     // Coefficients
     //-------------
@@ -121,10 +142,10 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
 	coeff->set(3,i) = 0. ;
 	coeff->set(4,i) = 0. ;
 	coeff->set(5,i) = 0. ;
-	coeff->set(6,i) = 2. ;
+	coeff->set(6,i) = 0. ;
 	coeff->set(7,i) = 0. ;
 	coeff->set(8,i) = 0. ;
-	coeff->set(9,i) = 0. ; // The -l(l+1) term will come later...
+	coeff->set(9,i) = 0. ; 
 	coeff->set(10,i) = beta[i] ;
 	coeff->set(11,i) = alpha[i] ;
       }
@@ -278,23 +299,6 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
 	   << " is unknown!" << endl ;
       abort() ;
     }
-
-    // Spherical harmonic expansion of the source
-    // ------------------------------------------
-    
-    Valeur& sourva = sigma.va ; 
-
-    if (sourva.get_etat() == ETATZERO) {
-	fjp1.set_etat_zero() ;
-	return ;  
-    }
-
-    // Spectral coefficients of the source
-    assert(sourva.get_etat() == ETATQCQ) ; 
-    
-    sourva.coef() ; 
-    sourva.ylm() ;			// spherical harmonic transforms 
-
 
     // Call to the Mtbl_cf version
     // ---------------------------

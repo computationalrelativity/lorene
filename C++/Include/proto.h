@@ -35,6 +35,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/06/18 08:45:26  j_novak
+ * In class Mg3d: added the member get_radial, returning only a radial grid
+ * For dAlembert solver: the way the coefficients of the operator are defined has been changed.
+ *
  * Revision 1.8  2003/02/13 16:40:24  p_grandclement
  * Addition of various things for the Bin_ns_bh project, non of them being
  * completely tested
@@ -472,7 +476,7 @@ void _lapang_t_leg_pp(Mtbl_cf*, int) ;
 void _lapang_t_leg_i(Mtbl_cf*, int) ;
 
 // Fonctions liees au dalembertien
-void get_operateur_dal(const Param&, const int&, const int&, const int&, 
+void get_operateur_dal(const Param&, const int&, const int&, 
 		       int&, Matrice& );
 Tbl dal_inverse(const int&, const int&, const Matrice&, const Tbl&, 
 		const bool) ;

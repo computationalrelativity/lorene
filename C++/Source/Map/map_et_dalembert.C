@@ -25,6 +25,10 @@ char map_et_dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/06/18 08:45:27  j_novak
+ * In class Mg3d: added the member get_radial, returning only a radial grid
+ * For dAlembert solver: the way the coefficients of the operator are defined has been changed.
+ *
  * Revision 1.2  2002/01/03 15:30:28  j_novak
  * Some comments modified.
  *
@@ -66,6 +70,7 @@ void Map_et::dalembert(Param& par, Cmp& fJp1, const Cmp& fJ, const Cmp& fJm1,
     assert(fJp1.get_mp()->get_mg() == mg) ; 
 
     assert(par.get_n_double() >= 1) ;
+    cout << "Map_et_dalembert:" << endl ;
     cout << "Not implemented" << endl ;
     cout << par.get_n_double() << fJp1 << fJ << fJm1 << source ;
     abort() ;

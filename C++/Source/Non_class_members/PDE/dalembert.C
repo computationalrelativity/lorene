@@ -25,6 +25,10 @@ char dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/06/18 08:45:27  j_novak
+ * In class Mg3d: added the member get_radial, returning only a radial grid
+ * For dAlembert solver: the way the coefficients of the operator are defined has been changed.
+ *
  * Revision 1.3  2002/01/03 13:18:41  j_novak
  * Optimization: the members set(i,j) and operator(i,j) of class Matrice are
  * now defined inline. Matrice is a friend class of Tbl.
@@ -155,10 +159,21 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
 	{
 	  // quantic numbers and spectral bases
 	  donne_lm(nz, lz, j, k, base, m_quant, l_quant, base_r) ;
+
+	  //Calculation of the coefficients of the operator
+	  par.get_tbl_mod().set(4,lz) = 2*par.get_tbl_mod()(2,lz) ;
+	  par.get_tbl_mod().set(5,lz) = 2*par.get_tbl_mod()(3,lz) ;
+	  par.get_tbl_mod().set(6,lz) = 2*par.get_tbl_mod()(1,lz) ;
+	  par.get_tbl_mod().set(7,lz) = 
+	    -l_quant*(l_quant+1)*par.get_tbl_mod()(3,lz) ;
+	  par.get_tbl_mod().set(8,lz) = 
+	    -l_quant*(l_quant+1)*par.get_tbl_mod()(2,lz) ;
+	  par.get_tbl_mod().set(9,lz) = 
+	    -l_quant*(l_quant+1)*par.get_tbl_mod()(1,lz) ;
 	  
 	  Matrice operateur(nr,nr) ;
 	  
-	  get_operateur_dal(par, lz, l_quant, base_r, type_dal, operateur) ;
+	  get_operateur_dal(par, lz, base_r, type_dal, operateur) ;
 
 	  // Getting the particular solution
 	  so = new Tbl(nr) ;
@@ -250,9 +265,20 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
 	    // calcul des nombres quantiques :
 	    donne_lm(nz, lz, j, k, base, m_quant, l_quant, base_r) ;
 	    
+	    //Calculation of the coefficients of the operator
+	    par.get_tbl_mod().set(4,lz) = 2*par.get_tbl_mod()(2,lz) ;
+	    par.get_tbl_mod().set(5,lz) = 2*par.get_tbl_mod()(3,lz) ;
+	    par.get_tbl_mod().set(6,lz) = 2*par.get_tbl_mod()(1,lz) ;
+	    par.get_tbl_mod().set(7,lz) = 
+	      -l_quant*(l_quant+1)*par.get_tbl_mod()(3,lz) ;
+	    par.get_tbl_mod().set(8,lz) = 
+	      -l_quant*(l_quant+1)*par.get_tbl_mod()(2,lz) ;
+	    par.get_tbl_mod().set(9,lz) = 
+	      -l_quant*(l_quant+1)*par.get_tbl_mod()(1,lz) ;
+	  
 	    Matrice operateur(nr,nr) ;
 
-	    get_operateur_dal(par, lz, l_quant, base_r, type_dal, operateur) ;
+	    get_operateur_dal(par, lz, base_r, type_dal, operateur) ;
 	    
 	    // Calcul DES DEUX SH
 	    so = new Tbl(nr) ;

@@ -34,6 +34,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/06/18 08:45:26  j_novak
+ * In class Mg3d: added the member get_radial, returning only a radial grid
+ * For dAlembert solver: the way the coefficients of the operator are defined has been changed.
+ *
  * Revision 1.6  2002/10/16 14:36:29  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -441,6 +445,7 @@ class Mg3d {
 	Grille3d** g ;	
 
 	mutable Mg3d* g_angu ;	/// Pointer on the associated angular grid
+	mutable Mg3d* g_radial ; /// Pointer on the associated radial grid
 	
 	/** Pointer on the grid which has twice the number of points in
 	 *  each dimension (for desaliasing).
@@ -572,6 +577,9 @@ class Mg3d {
 	/// Returns the pointer on the associated angular grid
 	const Mg3d* get_angu() const ;
 	
+	/// Returns the pointer on the associated radial grid
+	const Mg3d* get_radial() const ;
+	
 	/** Returns the pointer on the grid which has twice the number
 	 *  of points in each dimension (for desaliasing).
 	 */
@@ -588,12 +596,12 @@ class Mg3d {
     // --------------------------------
     protected:
 	/** Deletes all the derived quantities 
-	 *   ({\tt g\_angu} and {\tt g\_twice})
+	 *   ({\tt g\_radial}, {\tt g\_angu} and {\tt g\_twice})
 	 */
 	void del_deriv() const ; 
 	
 	/** Sets to {\tt 0x0} all the pointers on derived quantities
-	 *   ({\tt g\_angu} and {\tt g\_twice})
+	 *   ({\tt g\_radial}, {\tt g\_angu} and {\tt g\_twice})
 	 */
 	void set_deriv_0x0() const ; 
 

@@ -25,6 +25,10 @@ char get_operateur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/06/18 08:45:27  j_novak
+ * In class Mg3d: added the member get_radial, returning only a radial grid
+ * For dAlembert solver: the way the coefficients of the operator are defined has been changed.
+ *
  * Revision 1.4  2002/01/03 15:30:28  j_novak
  * Some comments modified.
  *
@@ -76,7 +80,7 @@ char get_operateur_C[] = "$Header$" ;
  * The operator reads: 
  * 
  *  Indentity - 0.5*dt^2 [ (C1 + C3r^2) d^2/dr^2 + (C6/r + C5r) d/dr
- *                         ({C9-l(l+1)}/r^2 + C7) Id ] 
+ *                         (C9/r^2 + C7) Id ] 
  * 
  *************************************************************************/
 
@@ -86,7 +90,7 @@ char get_operateur_C[] = "$Header$" ;
 		// Routine pour les cas non prevus --
 		//-----------------------------------
 
-void _get_operateur_dal_pas_prevu(const Param& , const int&, const int&, int& , Matrice& )
+void _get_operateur_dal_pas_prevu(const Param& , const int&, int& , Matrice& )
 {
     cout << "get_operateur_dal pas prevu..." << endl ;
     abort() ;
@@ -94,7 +98,7 @@ void _get_operateur_dal_pas_prevu(const Param& , const int&, const int&, int& , 
 }
 
 
-void _get_operateur_dal_r_cheb(const Param& par, const int& lz, const int& l, 
+void _get_operateur_dal_r_cheb(const Param& par, const int& lz, 
 int& type_dal, Matrice& operateur)
 {
   int nr = operateur.get_dim(0) ;
@@ -107,7 +111,7 @@ int& type_dal, Matrice& operateur)
   double dt = par.get_double(0) ;
   dt *= 0.5*dt ;
 
-  // Copies the global coefficients to a local Tbl and adds the -l(l+1) term
+  // Copies the global coefficients to a local Tbl 
     Tbl coeff(10) ;
     coeff.set_etat_qcq() ;
     coeff.set(1) = (par.get_tbl_mod())(1,lz) ;
@@ -118,7 +122,7 @@ int& type_dal, Matrice& operateur)
     coeff.set(6) = (par.get_tbl_mod())(6,lz) ;
     coeff.set(7) = (par.get_tbl_mod())(7,lz) ;
     coeff.set(8) = (par.get_tbl_mod())(8,lz) ;
-    coeff.set(9) = (par.get_tbl_mod())(9,lz) - l*(l+1) ;
+    coeff.set(9) = (par.get_tbl_mod())(9,lz) ;
     double R1 = (par.get_tbl_mod())(10,lz) ;
     double R2 = (par.get_tbl_mod())(11,lz) ;
 
@@ -254,8 +258,8 @@ int& type_dal, Matrice& operateur)
   
 }
 
-void _get_operateur_dal_r_chebp(const Param& par, const int& lzone, const int& l, int& type_dal, 
-				Matrice& operateur)
+void _get_operateur_dal_r_chebp(const Param& par, const int& lzone, 
+				int& type_dal, Matrice& operateur)
 {
   assert(lzone == 0) ; // Nucleus!
   int nr = operateur.get_dim(0) ;
@@ -276,7 +280,7 @@ void _get_operateur_dal_r_chebp(const Param& par, const int& lzone, const int& l
   coeff.set(2) = (par.get_tbl_mod())(3,lzone) ;
   coeff.set(3) = (par.get_tbl_mod())(6,lzone) ;
   coeff.set(4) = (par.get_tbl_mod())(5,lzone) ;
-  coeff.set(5) = (par.get_tbl_mod())(9,lzone) - l*(l+1) ;
+  coeff.set(5) = (par.get_tbl_mod())(9,lzone) ;
   coeff.set(6) = (par.get_tbl_mod())(7,lzone) ;
   double alpha2 = (par.get_tbl_mod())(11,lzone)*(par.get_tbl_mod())(11,lzone) ;
 
@@ -386,8 +390,8 @@ void _get_operateur_dal_r_chebp(const Param& par, const int& lzone, const int& l
 }
 
 
-void _get_operateur_dal_r_chebi(const Param& par, const int& lzone, const int& l, int& type_dal, 
-				Matrice& operateur)
+void _get_operateur_dal_r_chebi(const Param& par, const int& lzone,
+				int& type_dal, Matrice& operateur)
 {
   assert(lzone == 0) ; // Nucleus!
   int nr = operateur.get_dim(0) ;
@@ -408,7 +412,7 @@ void _get_operateur_dal_r_chebi(const Param& par, const int& lzone, const int& l
   coeff.set(2) = (par.get_tbl_mod())(3,lzone) ;
   coeff.set(3) = (par.get_tbl_mod())(6,lzone) ;
   coeff.set(4) = (par.get_tbl_mod())(5,lzone) ;
-  coeff.set(5) = (par.get_tbl_mod())(9,lzone) - l*(l+1) ;
+  coeff.set(5) = (par.get_tbl_mod())(9,lzone) ;
   coeff.set(6) = (par.get_tbl_mod())(7,lzone) ;
   double alpha2 = (par.get_tbl_mod())(11,lzone)*(par.get_tbl_mod())(11,lzone) ;
 
@@ -522,12 +526,12 @@ void _get_operateur_dal_r_chebi(const Param& par, const int& lzone, const int& l
 		 //--------------------------
 		//- La routine a appeler  ---
 	       //----------------------------
-void get_operateur_dal(const Param& par, const int& lzone, const int& l, 
+void get_operateur_dal(const Param& par, const int& lzone,
 		       const int& base_r, int& type_dal, Matrice& operateur)
 {
 
 		// Routines de derivation
-  static void (*get_operateur_dal[MAX_BASE])(const Param&, const int&, 
+  static void (*get_operateur_dal[MAX_BASE])(const Param&,
 					     const int&, int&, Matrice&) ;
   static int nap = 0 ;
   
@@ -543,5 +547,5 @@ void get_operateur_dal(const Param& par, const int& lzone, const int& l,
     get_operateur_dal[R_CHEBI >> TRA_R] = _get_operateur_dal_r_chebi ;
   }
   
-  get_operateur_dal[base_r](par, lzone, l, type_dal, operateur) ;
+  get_operateur_dal[base_r](par, lzone, type_dal, operateur) ;
 }
