@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/03/28 10:47:29  n_chamel
+ * New class Champ_cart for fields on Cartesian grids.
+ *
  * Revision 1.1  2002/03/15 13:16:23  n_chamel
  * Mapping between grid coordinates and physical coordinates
  *
@@ -88,7 +91,7 @@ class Map_cart{
     // Accessors
     // ---------
     public:
-                const Grille_cart& get_grid() const  {return *grid;} ;     /// Returns the Cartesian on which the mapping is defined
+                const Grille_cart& get_grid() const  {return *grid;} ;     /// Returns the Cartesian grid on which the mapping is defined
 
     // Outputs
     // -------
