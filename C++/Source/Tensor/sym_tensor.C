@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2004 Eric Gourgoulhon & Jerome Novak
  *
  *   Copyright (c) 1999-2001 Philippe Grandclement (Cmp version)
  *   Copyright (c) 2000-2001 Eric Gourgoulhon (Cmp version)
@@ -35,6 +35,11 @@ char sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2004/01/04 20:54:00  e_gourgoulhon
+ * Sym_tensor is now a derived class of Tensor_sym.
+ * Methods indices and position have been suppressed (they are now
+ * implemented at the Tensor_sym level).
+ *
  * Revision 1.14  2003/12/30 23:09:47  e_gourgoulhon
  * Change in methods derive_cov() and divergence() to take into account
  *  the change of name: Metric::get_connect() --> Metric::connect().
@@ -103,59 +108,52 @@ char sym_tensor_C[] = "$Header$" ;
 
 // Standard constructor 
 // --------------------
-Sym_tensor::Sym_tensor(const Map& map, const Itbl& tipe,const Base_vect& triad_i) 
-		: Tensor(map, 2, tipe, 6, triad_i) {
+Sym_tensor::Sym_tensor(const Map& map, const Itbl& tipe, 
+                       const Base_vect& triad_i) 
+            : Tensor_sym(map, 2, tipe, triad_i, 0, 1) {
 		
-		assert(tipe(0) == tipe(1)) ; 
-		set_der_0x0() ;
+    set_der_0x0() ;
 
 }
 
 // Standard constructor when all the indices are of the same type
 // --------------------------------------------------------------
 Sym_tensor::Sym_tensor(const Map& map, int tipe, const Base_vect& triad_i)  
-  : Tensor(map, 2, tipe, 6, triad_i){
+            : Tensor_sym(map, 2, tipe, triad_i, 0, 1) {
 
-	set_der_0x0() ;
+    set_der_0x0() ;
 }
 
 // Copy constructor
 // ----------------
-Sym_tensor::Sym_tensor(const Sym_tensor& source) : 
-  Tensor (*source.mp, 2, source.type_indice, 6, *(source.triad)) {
-    
-    for (int i=0 ; i<n_comp ; i++) {
-		int posi = source.position(indices(i)) ;  // in case source belongs to
-												  // a derived class of 
-												  // Sym_tensor with a different
-												  // storage of components 
-		*(cmp[i]) = *(source.cmp[posi]) ;
-    }
-	set_der_0x0() ;
+Sym_tensor::Sym_tensor(const Sym_tensor& source) 
+            : Tensor_sym( source ) {
+
+    set_der_0x0() ;
 }   
 
 
 // Constructor from a Tensor
 // --------------------------
-Sym_tensor::Sym_tensor(const Tensor& source) :
-  Tensor (*source.mp, 2, source.type_indice, 6, *(source.triad)) {
+Sym_tensor::Sym_tensor(const Tensor& source) 
+            : Tensor_sym(*source.mp, 2, source.type_indice, *(source.triad), 
+                         0, 1) {
 	
     assert(source.valence == 2) ;
-	assert(source.type_indice(0) == source.type_indice(1)) ; 
 	
-    for (int i=0 ; i<n_comp ; i++) {
-		int posi = source.position(indices(i)) ;
-		*(cmp[i]) = *(source.cmp[posi]) ;
+    for (int ic=0 ; ic<n_comp ; ic++) {
+        int posi = source.position(indices(ic)) ;
+        *(cmp[ic]) = *(source.cmp[posi]) ;
     }
 	    
-	set_der_0x0() ;
+    set_der_0x0() ;
 }   
 
 	
 // Constructor from a file
 // -----------------------
 Sym_tensor::Sym_tensor(const Map& map, const Base_vect& triad_i, FILE* fd)
-			: Tensor(map, triad_i, fd) {
+			: Tensor_sym(map, triad_i, fd) {
 	
 	assert (valence == 2) ;
 	assert (n_comp == 6) ;
@@ -178,13 +176,25 @@ Sym_tensor::~Sym_tensor() {
 			//  Assignment  //
 			//--------------//
 
-void Sym_tensor::operator=(const Sym_tensor& t) {
+void Sym_tensor::operator=(const Sym_tensor& tt) {
     
-    triad = t.triad ; 
+    Tensor_sym::operator=(tt) ; 
     
-    for (int i=0 ; i<6 ; i++) {
-      *cmp[i] = *t.cmp[i] ;
-    }
+    del_deriv() ;
+}
+
+
+void Sym_tensor::operator=(const Tensor_sym& tt) {
+    
+    Tensor_sym::operator=(tt) ; 
+
+    del_deriv() ;
+}
+
+
+void Sym_tensor::operator=(const Tensor& tt) {
+    
+    Tensor_sym::operator=(tt) ; 
 
     del_deriv() ;
 }
@@ -236,85 +246,10 @@ void Sym_tensor::set_der_met_0x0(int i) const {
 }
 
 
-
+                //----------------------------------//
+                //  Computation of derived members  //
+                //----------------------------------//
 	
-int Sym_tensor::position (const Itbl& idx) const {
-    
-    assert (idx.get_ndim() == 1) ;
-    assert (idx.get_dim(0) == 2) ;
-    for (int i=0 ; i<2 ; i++)
-	assert ((idx(i) >= 1) && (idx(i) <= 3)) ;
-	
-     // Gestion des deux indices :
-    int last = idx(1) ;
-    int first = idx(0) ;
-    if (last < first) {
-	int auxi = last ;
-	last = first ;
-	first = auxi ;
-    }
-    
-    int place_fin ;
-    switch (first) {
-    case 1 : {
-      place_fin = last - 1;
-      break ;
-    }
-    case 2 : {
-      place_fin = 1+last ;
-      break ;
-    }
-    case 3 : {
-      place_fin = 5 ;
-      break ;
-    }
-    default : {
-      abort() ;
-    }
-    }
-    
-    return place_fin ;
-}
-
-Itbl Sym_tensor::indices (int place) const {
-    Itbl res(2) ;
-    assert ((place>=0) && (place<6)) ;
-    
-    if (place<3) {
-		res.set(0) = 1 ;
-		res.set(1) = place+1 ;
-	}
-    
-    if ((place>2) && (place<5)) {
-		res.set(0) = 2 ;
-		res.set(1) = place - 1 ;
-	}
-    
-    if (place == 5) {
-		res.set(0) = 3 ;
-		res.set(1) = 3 ;
-	}
- 
-    return res ;
-}
-	
-void Sym_tensor::operator= (const Tensor& t) {
-    
-    assert (t.get_valence() == 2) ;
-    
-    triad = t.triad ; 
-    
-    for (int i=0 ; i<2 ; i++)
-      assert (type_indice(i) == t.type_indice(i)) ;
-    
-    for (int i=0 ; i<6 ; i++) {
-      int place_t = t.position(indices(i)) ;
-      *cmp[i] = *t.cmp[place_t] ;
-    }
-
-    del_deriv() ;
-}
-
 const Vector& Sym_tensor::divergence(const Metric& metre) const {
   
   set_dependance(metre) ;
@@ -330,6 +265,7 @@ const Vector& Sym_tensor::divergence(const Metric& metre) const {
 
   return *pvect ;
 }
+
 
 Sym_tensor* Sym_tensor::inverse() const {
 
