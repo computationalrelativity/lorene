@@ -31,6 +31,9 @@ char mg3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2001/12/12 09:23:46  e_gourgoulhon
+ * Parameter compact added to the simplified constructor of class Mg3d
+ *
  * Revision 1.3  2001/12/11 06:48:30  e_gourgoulhon
  * Addition of the simplified constructor
  *
@@ -278,21 +281,22 @@ Mg3d::Mg3d(int nz,
 //    Simplified constructor
 //=============================================================================
 
-Mg3d::Mg3d(int nz, int nbr, int nbt, int nbp, int typt, int typp)
+Mg3d::Mg3d(int nz, int nbr, int nbt, int nbp, int typt, int typp, 
+	   bool compact)
     		: nzone(nz),
     		  type_t(typt),
     		  type_p(typp)   {
 
-    // Type d'echantillonnage dans chaque zone
+    // Type of r sampling in each domain: 
     type_r = new int[nz];
-    	type_r[0] = RARE ;
-	for (int l=1; l<nz-1; l++) {
-		type_r[l] = FIN ;
-	}
-	type_r[nz-1] = UNSURR ;
+    type_r[0] = RARE ;
+    for (int l=1; l<nz-1; l++) {
+	type_r[l] = FIN ;
+    }
+    type_r[nz-1] = compact ? UNSURR : FIN ;
 	
 
-    // Nombre de points
+    // Same number of points in all domains:
     nr = new int[nz];
     nt = new int[nz];
     np = new int[nz];

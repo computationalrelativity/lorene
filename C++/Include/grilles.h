@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2001/12/12 09:23:46  e_gourgoulhon
+ * Parameter compact added to the simplified constructor of class Mg3d
+ *
  * Revision 1.2  2001/12/11 06:47:42  e_gourgoulhon
  * Simplified constructor for class Mg3d
  *
@@ -462,6 +465,7 @@ class Mg3d {
  * $\xi\in [0,1]$, rarefied sampling (type {\tt RARE}) near the origin; \\
  * domains of indices $ 1 \le {\tt l} \le {\tt nz}-2$ will be shells:
  * $\xi\in [-1,1]$, dense sampling (type {\tt FIN}) near -1 and 1; \\
+ * if {\tt compact == true}, 
  * the domains of index {\tt l = nz-1} will be the outermost compactified
  * shell:
  * $\xi\in [-1,1]$, dense sampling (type {\tt UNSURR}) near -1 and 1
@@ -484,9 +488,12 @@ class Mg3d {
  *			(symmetry with respect to a $\pi$ translation
  *			 in $\phi$) \\
  *			{\tt NONSYM} for a sampling in $[0,2\pi[$
- *
+ * @param  compact [input] {\tt true} for the last domain to have 
+ *			a $1/r$ sampling ({\tt UNSURR}) instead of a
+ *			$r$ sampling ({\tt FIN}). 
  */
-	Mg3d(int nz, int nbr, int nbt, int nbp, int typt, int typp) ;
+	Mg3d(int nz, int nbr, int nbt, int nbp, int typt, int typp, 
+	     bool compact) ;
 
 	Mg3d(FILE* ) ;	 /// Constructor from a file (see {\tt sauve(FILE* )})
 	
