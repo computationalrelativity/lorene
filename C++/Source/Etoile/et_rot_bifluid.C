@@ -32,6 +32,9 @@ char et_rot_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/10/18 08:42:58  j_novak
+ * Take into account the sign for uuu and uuu2
+ *
  * Revision 1.4  2002/01/16 15:03:28  j_novak
  * *** empty log message ***
  *
@@ -702,6 +705,36 @@ void Et_rot_bifluid::hydro_euler(){
     u_euler = Ann*u_euler + 0.5*Anp*(u_euler + u_euler2) + App*u_euler2 ;
     u_euler.set_std_base() ;
     
+    //------------------------------------------------
+    // Determination of the fluid velocities U1 and U2
+    //------------------------------------------------
+	
+    Cmp tmp = omega - nphi() ; 
+    tmp.annule(nzm1) ; 
+    tmp.std_base_scal() ;
+	
+    tmp.mult_rsint() ;	    //  Multiplication by r sin(theta)
+	
+    uuu = bbb() / nnn() * tmp ; 
+	
+    if (uuu.get_etat() == ETATQCQ) {
+      // Same basis as (Omega -N^phi) r sin(theta) :
+      ((uuu.set()).va).set_base( (tmp.va).base ) ;   
+    }
+	
+    tmp = omega2 - nphi() ; 
+    tmp.annule(nzm1) ; 
+    tmp.std_base_scal() ;
+	
+    tmp.mult_rsint() ;	    //  Multiplication by r sin(theta)
+	
+    uuu2 = bbb() / nnn() * tmp ; 
+	
+    if (uuu2.get_etat() == ETATQCQ) {
+      // Same basis as (Omega -N^phi) r sin(theta) :
+      ((uuu2.set()).va).set_base( (tmp.va).base ) ;   
+    }
+	
     // The derived quantities are obsolete
     // -----------------------------------
     
