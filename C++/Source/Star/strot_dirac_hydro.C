@@ -30,6 +30,9 @@ char strot_dirac_hydro_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/03/14 14:01:34  j_novak
+ * u_euler is now defined on all the grid.
+ *
  * Revision 1.2  2005/02/17 17:31:56  f_limousin
  * Change the name of some quantities to be consistent with other classes
  * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
@@ -52,9 +55,6 @@ char strot_dirac_hydro_C[] = "$Header$" ;
 
 void Star_rot_Dirac::hydro_euler(){
 
-  int nz = mp.get_mg()->get_nzone() ;
-  int nzm1 = nz - 1 ;
- 
   // u_euler (fluid 3-velocity w.r.t. the Eulerian frame)
   // -----------------------------------------------------
 
@@ -63,11 +63,9 @@ void Star_rot_Dirac::hydro_euler(){
   u_euler.set(2).set_etat_zero() ;
 
   u_euler.set(3) = omega ;
-  u_euler.set(3).annule(nzet,nzm1) ;   // nzet is defined in class Star 
   u_euler.set(3).std_spectral_base() ;
   u_euler.set(3).mult_rsint() ;
   u_euler.set(3) += beta(3) ;
-  u_euler.set(3).annule(nzet,nzm1) ;
 
   u_euler = u_euler / nn ;
 
