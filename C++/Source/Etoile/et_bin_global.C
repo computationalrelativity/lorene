@@ -31,6 +31,9 @@ char et_bin_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2002/12/17 09:48:21  k_taniguchi
+ * Suppress every desaliasing multiplications using "%".
+ *
  * Revision 1.5  2002/12/16 17:32:47  k_taniguchi
  * Suppress the things I did in the previous version.
  *
@@ -81,10 +84,7 @@ double Etoile_bin::mass_b() const {
 	
 	if (relativistic) {
 
-	    Cmp sqrt_acar = sqrt(a_car()) ;
-	    sqrt_acar.std_base_scal() ;
-
-	    Cmp dens = a_car() % sqrt_acar % gam_euler() % nbar() ;
+	    Cmp dens = a_car() * sqrt( a_car() ) * gam_euler() * nbar() ;
 	    
 	    dens.std_base_scal() ; 
 
@@ -114,11 +114,9 @@ double Etoile_bin::mass_g() const {
 	
 	if (relativistic) {
 
-	    Cmp sqrt_acar = sqrt(a_car()) ;
-	    sqrt_acar.std_base_scal() ;
+	    Cmp dens = a_car() * sqrt( a_car() ) * nnn()
+		* ( ener_euler() + s_euler() ) ;
 
-	    Cmp dens = a_car() % sqrt_acar % nnn()
-		% ( ener_euler() + s_euler() ) ;
 	    dens.std_base_scal() ; 
 
 	    p_mass_g = new double( dens.integrale() ) ;
@@ -146,10 +144,7 @@ double Etoile_bin::xa_barycenter() const {
 	xxa = mp.xa ;	// Absolute X coordinate
 	xxa.std_base_scal() ;
 
-	Cmp sqrt_acar = sqrt(a_car()) ;
-	sqrt_acar.std_base_scal() ;
-
-	Cmp dens = a_car() % sqrt_acar % gam_euler() % nbar() % xxa ; 
+	Cmp dens = a_car() * sqrt( a_car() ) * gam_euler() * nbar() * xxa ; 
 	
 	dens.std_base_scal() ; 
 
