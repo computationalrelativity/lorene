@@ -30,6 +30,9 @@ char bin_bhns_extr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/12/02 17:36:42  k_taniguchi
+ * Modification of "display_poly()".
+ *
  * Revision 1.3  2004/12/01 16:37:11  k_taniguchi
  * Modification of the output again.
  *
@@ -316,8 +319,8 @@ void Bin_bhns_extr::display_poly(ostream& ost) const {
 	ost << endl << "==============================" << endl ;
 	ost << " ( r_poly = " << r_poly / km << " km )" << endl ;
 	ost << "  d_e_max   : " << separ / r_poly << endl ;
-	ost << "  d_G       : "
-	    << "Not yet !!!" << endl ;
+	ost << "  d_G_x :     " << xa_barycenter_extr() / r_poly << endl
+	    << "  d_G_y :     " << ya_barycenter_extr() / r_poly << endl ;
 	ost << "  Omega     : " << omega * t_poly << endl ;
 	ost << "  M_bar(NS) : " << star.mass_b() / m_poly << endl ;
 	ost << "  R_0(NS)   : "
