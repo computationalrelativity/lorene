@@ -34,6 +34,10 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2003/11/19 22:01:57  e_gourgoulhon
+ * -- Relaxation on logn and dzeta performed only if mer >= 10.
+ * -- err_grv2 is now evaluated also in the Newtonian case.
+ *
  * Revision 1.15  2003/10/27 10:54:43  e_gourgoulhon
  * Changed local variable name lambda_grv2 to lbda_grv2 in order not
  * to shadow method name.
@@ -799,6 +803,9 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 	    cout << "GRV2: " << err_grv2 << endl ; 
 	    
 	}
+	else {
+		err_grv2 = grv2() ; 
+	}
 
 
 	//---------------------------------------
@@ -807,10 +814,12 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 
 	// Relaxations on nu and dzeta :  
 
-	logn = relax * logn + relax_prev * logn_prev ;
+	if (mer >= 10) {
+		logn = relax * logn + relax_prev * logn_prev ;
 
-	dzeta = relax * dzeta + relax_prev * dzeta_prev ; 
-
+		dzeta = relax * dzeta + relax_prev * dzeta_prev ; 
+	}
+	
 	// Update of the metric coefficients N, A, B and computation of K_ij :
 
 	update_metric() ; 
