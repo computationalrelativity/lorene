@@ -28,6 +28,12 @@
 char binary_omegaana_C[] = "$Header$" ;
 
 /*
+ * $Id$
+ * $Log$
+ * Revision 1.2  2004/01/20 15:21:52  f_limousin
+ * First version
+ *
+ *
  * $Header$
  *
  */

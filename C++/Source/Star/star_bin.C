@@ -29,6 +29,12 @@
 char star_bin_C[] = "$Header$" ;
 
 /*
+ * $Id$
+ * $Log$
+ * Revision 1.3  2004/01/20 15:17:34  f_limousin
+ * First version
+ *
+ *
  * $Header$
  *
  */
@@ -60,7 +66,6 @@ Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i,
       loggam(mpi), 
       bsn(mpi, CON, mpi.get_bvect_spher()), 
       pot_centri(mpi), 
-      stress(mpi, 2, CON, mpi.get_bvect_spher()),
       logn_auto(mpi),
       logn_comp(mpi), 
       dcov_logn(mpi, COV, mpi.get_bvect_spher()),
@@ -83,12 +88,12 @@ Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i,
       kcar_comp(mpi), 
       ssjm1_logn(mpi),
       ssjm1_qq(mpi),
-      ssjm1_hij00(mpi),
-      ssjm1_hij10(mpi),
-      ssjm1_hij20(mpi),
-      ssjm1_hij11(mpi),
-      ssjm1_hij21(mpi),
-      ssjm1_hij22(mpi),
+      ssjm1_h00(mpi),
+      ssjm1_h10(mpi),
+      ssjm1_h20(mpi),
+      ssjm1_h11(mpi),
+      ssjm1_h21(mpi),
+      ssjm1_h22(mpi),
       decouple(mpi),
       conf_flat(conf_flat0){
     
@@ -102,8 +107,7 @@ Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i,
     loggam = 0 ; 
     bsn.set_etat_zero() ; 
     pot_centri = 0 ;
-    stress.set_etat_zero() ;
- 
+  
     logn_auto = 0 ;
     logn_comp = 0 ; 
     dcov_logn.set_etat_zero() ;
@@ -136,7 +140,6 @@ Star_bin::Star_bin(const Star_bin& star)
 			 loggam(star.loggam), 
 			 bsn(star.bsn), 
 			 pot_centri(star.pot_centri), 
-			 stress(star.stress),
 			 logn_auto(star.logn_auto),
 			 logn_comp(star.logn_comp), 
 			 dcov_logn(star.dcov_logn),
@@ -159,12 +162,12 @@ Star_bin::Star_bin(const Star_bin& star)
 			 kcar_comp(star.kcar_comp), 
 			 ssjm1_logn(star.ssjm1_logn),
 			 ssjm1_qq(star.ssjm1_qq),
-			 ssjm1_hij00(star.ssjm1_hij00),
-			 ssjm1_hij10(star.ssjm1_hij10),
-			 ssjm1_hij20(star.ssjm1_hij20),
-			 ssjm1_hij11(star.ssjm1_hij11),
-			 ssjm1_hij21(star.ssjm1_hij21),
-			 ssjm1_hij22(star.ssjm1_hij22),
+			 ssjm1_h00(star.ssjm1_h00),
+			 ssjm1_h10(star.ssjm1_h10),
+			 ssjm1_h20(star.ssjm1_h20),
+			 ssjm1_h11(star.ssjm1_h11),
+			 ssjm1_h21(star.ssjm1_h21),
+			 ssjm1_h22(star.ssjm1_h22),
 			 decouple(star.decouple),
 			 conf_flat(star.conf_flat)
 {
@@ -182,7 +185,6 @@ Star_bin::Star_bin(Map& mpi, const Eos& eos_i, FILE* fich)
 			 loggam(mpi), 
 			 bsn(mpi, CON, mpi.get_bvect_spher()), 
 			 pot_centri(mpi), 
-			 stress(mpi, 2, CON, mpi.get_bvect_spher()),
 			 logn_auto(mpi, *(mpi.get_mg()), fich),
 			 logn_comp(mpi), 
 			 dcov_logn(mpi, COV, mpi.get_bvect_spher()),
@@ -205,12 +207,12 @@ Star_bin::Star_bin(Map& mpi, const Eos& eos_i, FILE* fich)
 			 kcar_comp(mpi), 
 			 ssjm1_logn(mpi),
 			 ssjm1_qq(mpi),
-			 ssjm1_hij00(mpi),
-			 ssjm1_hij10(mpi),
-			 ssjm1_hij20(mpi),
-			 ssjm1_hij11(mpi),
-			 ssjm1_hij21(mpi),
-			 ssjm1_hij22(mpi),
+			 ssjm1_h00(mpi),
+			 ssjm1_h10(mpi),
+			 ssjm1_h20(mpi),
+			 ssjm1_h11(mpi),
+			 ssjm1_h21(mpi),
+			 ssjm1_h22(mpi),
 			 decouple(mpi){
 
     // Etoile parameters
@@ -239,7 +241,6 @@ Star_bin::Star_bin(Map& mpi, const Eos& eos_i, FILE* fich)
     wit_w.set_etat_zero() ; 
     loggam = 0 ; 
     bsn.set_etat_zero() ; 
-    stress.set_etat_zero() ;
     pot_centri = 0 ;
     logn_comp = 0 ; 
     dcov_logn.set_etat_zero() ;
@@ -325,7 +326,6 @@ void Star_bin::operator=(const Star_bin& star) {
     loggam = star.loggam ;
     bsn = star.bsn ;
     pot_centri = star.pot_centri ;
-    stress = star.stress ;
     logn_auto = star.logn_auto ;    
     logn_comp = star.logn_comp ;
     dcov_logn = star.dcov_logn ;
@@ -348,25 +348,18 @@ void Star_bin::operator=(const Star_bin& star) {
     kcar_comp = star.kcar_comp ;
     ssjm1_logn = star.ssjm1_logn ;
     ssjm1_qq = star.ssjm1_qq ;
-    ssjm1_hij00 = star.ssjm1_hij00 ;
-    ssjm1_hij10 = star.ssjm1_hij10 ;
-    ssjm1_hij20 = star.ssjm1_hij20 ;
-    ssjm1_hij11 = star.ssjm1_hij11 ;
-    ssjm1_hij21 = star.ssjm1_hij21 ;
-    ssjm1_hij22 = star.ssjm1_hij22 ;
+    ssjm1_h00 = star.ssjm1_h00 ;
+    ssjm1_h10 = star.ssjm1_h10 ;
+    ssjm1_h20 = star.ssjm1_h20 ;
+    ssjm1_h11 = star.ssjm1_h11 ;
+    ssjm1_h21 = star.ssjm1_h21 ;
+    ssjm1_h22 = star.ssjm1_h22 ;
     decouple = star.decouple ;
     conf_flat = star.conf_flat ;
     
     del_deriv() ;  // Deletes all derived quantities
 
 }	
-
-Scalar& Star_bin::set_logn_comp() {
-
-    del_deriv() ;	// sets to 0x0 all the derived quantities
-    return logn_comp ;
-    
-} 
 
 Scalar& Star_bin::set_pot_centri() {
 
@@ -545,13 +538,13 @@ Tensor Star_bin::sprod(const Tensor& t1, const Tensor& t2) const {
     if (t1.get_index_type(t1.get_valence()-1) == CON) {
       assert( t2.get_index_type(0) == CON ) ;
       
-      p_tens_metr = new Tensor(gamij.cov()) ;
+      p_tens_metr = new Tensor(gamma.cov()) ;
 	}
     
     if (t1.get_index_type(t1.get_valence()-1) == COV) {
       assert( t2.get_index_type(0) == COV ) ;
 
-       p_tens_metr = new Tensor(gamij.con()) ;
+       p_tens_metr = new Tensor(gamma.con()) ;
        }
 
     // Verifs :
@@ -607,7 +600,7 @@ Tensor Star_bin::sprod(const Tensor& t1, const Tensor& t2) const {
 	  for (int j=1 ; j<=3 ; j++) {
 	    jeux_indice_t1.set(t1.get_valence() - 1) = i ;
 	    jeux_indice_t2.set(0) = j ;
-	    work = work + (*p_tens_metr)(i,j)%t1(jeux_indice_t1)%t2(jeux_indice_t2) ;
+	    work = work + (*p_tens_metr)(i,j)*t1(jeux_indice_t1)*t2(jeux_indice_t2) ;
 	    }
 	}
 	res.set(jeux_indice_res) = work ;

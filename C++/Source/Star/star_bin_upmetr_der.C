@@ -30,6 +30,12 @@
 char star_bin_upmetr_der_C[] = "$Header$" ;
 
 /*
+ * $Id$
+ * $Log$
+ * Revision 1.3  2004/01/20 15:20:23  f_limousin
+ * First version
+ *
+ *
  * $Header$
  *
  */
@@ -49,12 +55,11 @@ void Star_bin::update_metric_der_comp(const Star_bin& comp) {
     dcon_logn = logn.derive_con(flat) ;
 
     Scalar lnpsi = log (psi4) / 4. ;
+    lnpsi.std_spectral_base() ;
     dcov_lnpsi = lnpsi.derive_cov(flat) ;
     dcon_lnpsi = lnpsi.derive_con(flat) ;
 
  
-
-
   // Computation of tkij_comp
   // ------------------------
     
@@ -62,10 +67,10 @@ void Star_bin::update_metric_der_comp(const Star_bin& comp) {
     //           the Spherical coordinates of the mapping)
     // D~^j beta^i
     
-    const Tensor& dshift_comp = shift_comp.derive_con(gtilde) ;
+    const Tensor& dshift_comp = shift_comp.derive_con(flat) ;
     
     // Trace of D~_j beta^i  :
-    Scalar divshift_comp = shift_comp.derive_cov(gtilde).scontract(0, 1) ;
+    Scalar divshift_comp = shift_comp.derive_cov(flat).scontract(0, 1) ;
     
     // Computation of K^{ij}
     // -------------------------

@@ -29,6 +29,12 @@
 char binary_global_C[] = "$Header$" ;
 
 /*
+ * $Id$
+ * $Log$
+ * Revision 1.2  2004/01/20 15:21:36  f_limousin
+ * First version
+ *
+ *
  * $Header$
  *
  */

@@ -26,6 +26,12 @@
 char Binary_C[] = "$Header$" ;
 
 /*
+ * $Id$
+ * $Log$
+ * Revision 1.4  2004/01/20 15:21:12  f_limousin
+ * First version
+ *
+ *
  * $Header$
  *
  */

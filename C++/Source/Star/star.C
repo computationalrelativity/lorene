@@ -32,6 +32,12 @@
 char star_C[] = "$Header$" ;
 
 /*
+ * $Id$
+ * $Log$
+ * Revision 1.3  2004/01/20 15:16:58  f_limousin
+ * First version
+ *
+ *
  * $Header$
  *
  */
@@ -64,11 +70,12 @@ Star::Star(Map& mpi, int nzet_i, const Eos& eos_i)
 		   s_euler(mpi), 
 		   gam_euler(mpi), 
 		   u_euler(mpi, CON, mp.get_bvect_spher()), 
+		   stress_euler(mpi, 2, CON, mp.get_bvect_spher()),
 		   logn(mpi), 
 		   nnn(mpi), 
 		   shift(mpi, CON, mp.get_bvect_spher()),
 		   qq(mpi),
-		   gamij(mp.flat_met_spher()){
+		   gamma(mp.flat_met_spher()){
     
  
     // Check of the EOS
@@ -108,6 +115,7 @@ Star::Star(Map& mpi, int nzet_i, const Eos& eos_i)
     gam_euler = 1 ; 
     gam_euler.std_spectral_base() ; 
     u_euler.set_etat_zero() ; 
+    stress_euler.set_etat_zero() ;
 
     // The metric is initialized to the flat one : 
     logn = 0 ; 
@@ -132,11 +140,12 @@ Star::Star(const Star& et)
 		   s_euler(et.s_euler), 
 		   gam_euler(et.gam_euler), 
 		   u_euler(et.u_euler), 
+		   stress_euler(et.stress_euler),
 		   logn(et.logn), 
 		   nnn(et.nnn), 
 		   shift(et.shift),
 		   qq(et.qq),
-		   gamij(et.gamij){
+		   gamma(et.gamma){
 	       
     set_der_0x0() ;
 
@@ -155,11 +164,12 @@ Star::Star(Map& mpi, const Eos& eos_i, FILE* fich)
 		   s_euler(mpi), 
 		   gam_euler(mpi), 
 		   u_euler(mpi, CON, mp.get_bvect_spher()), 
-		   logn(mpi), 
+		   stress_euler(mpi, 2, CON, mp.get_bvect_spher()), 
+		   logn(mpi, *(mpi.get_mg()), fich), 
 		   nnn(mpi), 
 		   shift(mpi, CON, mp.get_bvect_spher()),
-		   qq(mpi),
-		   gamij(mpi.flat_met_spher()){
+		   qq(mpi, *(mpi.get_mg()), fich),
+		   gamma(mpi.flat_met_spher()){
 
     // Star parameters
     // -----------------
@@ -192,8 +202,7 @@ Star::Star(Map& mpi, const Eos& eos_i, FILE* fich)
     // ------------------------
     Scalar ent_file(mp, *(mp.get_mg()), fich) ; 
     ent = ent_file ; 
-    qq = 0 ;
-    logn = 0 ;
+    nnn = 1 ;
     shift.set_etat_zero() ;
 
     // Pointers of derived quantities initialized to zero 
@@ -249,6 +258,7 @@ void Star::del_hydro_euler() {
     s_euler.set_etat_nondef() ; 
     gam_euler.set_etat_nondef() ; 
     u_euler.set_etat_nondef() ; 
+    stress_euler.set_etat_nondef() ;
 
     del_deriv() ; 
 
@@ -277,11 +287,12 @@ void Star::operator=(const Star& et) {
     s_euler = et.s_euler ;
     gam_euler = et.gam_euler ;
     u_euler = et.u_euler ;
+    stress_euler = et.stress_euler ;
     logn = et.logn ;
     nnn = et.nnn ;
     shift = et.shift ;
     qq = et.qq ;
-    gamij = et.gamij ;
+    gamma = et.gamma ;
 
     del_deriv() ;  // Deletes all derived quantities
 
@@ -310,6 +321,9 @@ void Star::set_enthalpy(const Scalar& ent_i) {
 // --------------
 void Star::sauve(FILE* fich) const {
     
+    logn.sauve(fich) ;
+    qq.sauve(fich) ;
+
     int xx = nzet ;     
     fwrite_be(&xx, sizeof(int), 1, fich) ;			
 

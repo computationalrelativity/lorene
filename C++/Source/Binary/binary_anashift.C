@@ -29,6 +29,12 @@
 char binary_anashift_C[] = "$Header$" ;
 
 /*
+ * $Id$
+ * $Log$
+ * Revision 1.3  2004/01/20 15:21:23  f_limousin
+ * First version
+ *
+ *
  * $Header$
  *
  */

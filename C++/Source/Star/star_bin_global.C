@@ -29,6 +29,12 @@
 char star_bin_global_C[] = "$Header$" ;
 
 /*
+ * $Id$
+ * $Log$
+ * Revision 1.2  2004/01/20 15:18:17  f_limousin
+ * First version
+ *
+ *
  * $Header$
  *
  */
@@ -46,8 +52,10 @@ double Star_bin::mass_b() const {
 
     if (p_mass_b == 0x0) {    // a new computation is required
 	
-	Scalar a_car(psi4 * pow(flat.determinant(), 1./3.)) ;
-	
+
+	// Works only if gamma is conformally flat
+	Scalar a_car(gamma.cov()(1,1)) ;
+
 	Scalar dens = pow(a_car, 3./2.) * gam_euler * nbar ;
 	
 	dens.std_spectral_base() ; 
@@ -70,7 +78,8 @@ double Star_bin::mass_g() const {
 
     if (p_mass_g == 0x0) {    // a new computation is required
 	
-	Scalar a_car(psi4 * pow(flat.determinant(), 1./3.)) ;
+	// Works only if gamma is conformally flat
+	Scalar a_car(gamma.cov()(1,1)) ;
 
 	Scalar dens = pow(a_car, 3./2.) * nnn
 	    * ( ener_euler + s_euler ) ;
@@ -99,7 +108,8 @@ double Star_bin::xa_barycenter() const {
 	xxa = mp.xa ;	// Absolute X coordinate
 	xxa.std_spectral_base() ;
 
-	Scalar a_car(psi4 * pow(flat.determinant(), 1./3.)) ;
+	// Works only if gamma is conformally flat
+	Scalar a_car(gamma.cov()(1,1)) ;
 
 	Scalar dens = pow(a_car, 3./2.) * gam_euler * nbar * xxa ; 
 	

@@ -30,6 +30,12 @@
 char star_equil_spher_C[] = "$Header$" ;
 
 /*
+ * $Id$
+ * $Log$
+ * Revision 1.2  2004/01/20 15:20:35  f_limousin
+ * First version
+ *
+ *
  * $Header$
  *
  */
@@ -38,6 +44,7 @@ char star_equil_spher_C[] = "$Header$" ;
 #include "math.h"
 
 // Headers Lorene
+#include "tenseur.h"
 #include "star.h"
 #include "param.h"
 #include "graphique.h"
@@ -76,10 +83,9 @@ void Star::equilibrium_spher(double ent_c, double precis){
     // Corresponding profiles of baryon density, energy density and pressure
     
     equation_of_state() ; 
-    
-    // Initial metric 
-    Scalar psi4(mp) ;
-    psi4 = 1 ;	    
+
+    Scalar a_car(mp) ;
+    a_car = 1 ;	    
     qq = 1 ;
     qq.std_spectral_base() ;
 
@@ -88,6 +94,8 @@ void Star::equilibrium_spher(double ent_c, double precis){
     
     // Affine mapping for solving the Poisson equations
     Map_af mpaff(mp);	
+        
+    Param par_nul   ;	 // Param (null) for Map_af::poisson.
 
     Scalar ent_jm1(mp) ;	// Enthalpy at previous step
     ent_jm1 = 0 ; 
@@ -100,7 +108,7 @@ void Star::equilibrium_spher(double ent_c, double precis){
     logn_quad = 0 ; 
 
     Scalar dlogn(mp) ; 
-    Scalar dpsi4(mp) ; 
+    Scalar dqq(mp) ; 
     
     double diff_ent = 1 ;     
     int mermax = 200 ;	    // Max number of iterations
@@ -125,13 +133,19 @@ void Star::equilibrium_spher(double ent_c, double precis){
 	// Matter part of ln(N)
 	// --------------------
 	
-	source = psi4 % (ener + 3.*press) ;
+	source = a_car * (ener + 3.*press) ;
     	
 	source.set_dzpuis(4) ; 
 	
 	source.std_spectral_base() ;	    // Sets the standard spectral bases
  	
-	logn_mat = source.poisson() ; 
+	Cmp source_logn_mat (source) ;
+	Cmp logn_mat_cmp (logn_mat) ;
+	logn_mat_cmp.set_etat_qcq() ;
+	
+	mpaff.poisson(source_logn_mat, par_nul, logn_mat_cmp) ; 
+
+	logn_mat = logn_mat_cmp ;
 
 	// NB: at this stage logn is in machine units, not in c^2
 
@@ -139,13 +153,18 @@ void Star::equilibrium_spher(double ent_c, double precis){
 	// -----------------------
 
 	dlogn = logn.dsdr() ; 
-	dpsi4 = psi4.dsdr() ; 
+	dqq = qq.dsdr() ; 
 		
-	source = - dpsi4 * dlogn / (2.*psi4) - dlogn * dlogn ; 
+	source = - dlogn * dqq / qq ; 
 
-	logn_quad.set_etat_qcq() ; 
+	Cmp source_logn_quad (source) ;
+	Cmp logn_quad_cmp (logn_quad) ;
+	logn_quad_cmp.set_etat_qcq() ;
 	    
-	logn_quad = source.poisson() ; 
+	mpaff.poisson(source_logn_quad, par_nul, logn_quad_cmp) ; 
+
+	logn_quad = logn_quad_cmp ;
+
 	    	    
 	//-----------------------------------------------------
 	// Computation of the new radial scale
@@ -166,7 +185,7 @@ void Star::equilibrium_spher(double ent_c, double precis){
 	alpha_r = sqrt(alpha_r2) ;
 	
 	// New radial scale
-	mp.homothetie( alpha_r ) ; 
+	mpaff.homothetie( alpha_r ) ; 
 
 	//--------------------
 	// First integral
@@ -191,17 +210,22 @@ void Star::equilibrium_spher(double ent_c, double precis){
 	//---------------------
 	
 	dlogn = logn.dsdr() ; 
-	dpsi4 = psi4.dsdr() ; 
+	dqq = qq.dsdr() ; 
 	
-	source = 3 * qpig * pow(psi4, 3./2.) * nnn * press ;
+	source = 3 * qpig * a_car * qq * press ;
 	
-	source = source + pow(psi4, 1./2.) * (
-	    nnn * dpsi4 * dpsi4 / (8. * psi4 * psi4) 
-	    + 1/(nnn*psi4) * dpsi4 * dlogn /2. ) ;
-	   
-	
+	source = source + ( dqq * dqq / qq - qq * dlogn * dlogn ) / 2. ;
+
 	source.std_spectral_base() ;	  // Sets the standard spectral bases. 
-	qq = source.poisson() ; 
+
+	Cmp source_qq (source) ;
+	Cmp qq_cmp (logn_quad) ;
+	qq_cmp.set_etat_qcq() ;
+	    
+	mpaff.poisson(source_qq, par_nul, qq_cmp) ; 
+
+	qq = qq_cmp ;
+
 	qq = qq + 1 ;
     
       	qq.std_spectral_base() ;
@@ -209,7 +233,7 @@ void Star::equilibrium_spher(double ent_c, double precis){
 	// Metric coefficient psi4 update
 	
 	nnn = exp( logn ) ; 
-	psi4 = qq * qq / ( nnn * nnn ) ;
+	a_car = qq * qq / ( nnn * nnn ) ;
 
 
     // Relative difference with enthalpy at the previous step
@@ -229,6 +253,11 @@ void Star::equilibrium_spher(double ent_c, double precis){
     // 			End of iteration
     //=========================================================================
     
+    // The mapping is transfered to that of the star:
+    // ----------------------------------------------
+    mp = mpaff ; 
+
+
     // Sets value to all the Tenseur's of the star
     // -------------------------------------------
     
@@ -241,9 +270,18 @@ void Star::equilibrium_spher(double ent_c, double precis){
     for(int i=1; i<=3; i++) u_euler.set(i) = 0 ; 
     
     // ... metric
-    nnn = exp( logn ) ; 
+    nnn = exp( logn ) ;
     nnn.std_spectral_base() ;
     for(int i=1; i<=3; i++) shift.set(i) = 0 ; 
+ 
+    Sym_tensor tens_gamma(mp, COV, mp.get_bvect_spher()) ;
+    for (int i=1; i<=3; i++)
+	for (int j=1; j<=3; j++){
+	    if (i == j) tens_gamma.set(i,i) = a_car ;
+	    else tens_gamma.set(i,j) = 0. ;
+	}
+    gamma = tens_gamma ;
+
  
     // Info printing
     // -------------
@@ -257,7 +295,7 @@ void Star::equilibrium_spher(double ent_c, double precis){
     double ray = mp.val_r(l_b, 1., M_PI/2., 0) ; 
     cout << "Coordinate radius  :       " << ray / km << " km" << endl ; 
 
-    double rcirc = ray * sqrt((pow(psi4, 1./2.)).point(l_b, k_b, j_b, i_b) ) ; 
+    double rcirc = ray * sqrt(a_car.point(l_b, k_b, j_b, i_b) ) ; 
 	
     double compact = qpig/(4.*M_PI) * mass_g() / rcirc ; 
 

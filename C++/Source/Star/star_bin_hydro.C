@@ -29,6 +29,12 @@
 char star_bin_hydro_C[] = "$Header$" ;
 
 /*
+ * $Id$
+ * $Log$
+ * Revision 1.2  2004/01/20 15:18:31  f_limousin
+ * First version
+ *
+ *
  * $Header$
  *
  */
@@ -126,11 +132,11 @@ void Star_bin::hydro_euler(){
 
     for(int i=1; i<=3; i++){
 	for(int j=1; j<=3; j++){
-	    stress.set(i,j) = (ener_euler + press )%u_euler(i)
-		%u_euler(j) + press%gtilde.con()(i,j) ;
+	    stress_euler.set(i,j) = (ener_euler + press )*u_euler(i)
+		*u_euler(j) + press*gtilde.con()(i,j) ;
 	}
     }
-    stress.std_spectral_base() ;
+    stress_euler.std_spectral_base() ;
     
     //-------------------------------------------
     //	Lorentz factor between the fluid and		---> gam
@@ -138,49 +144,47 @@ void Star_bin::hydro_euler(){
     // See Eq (58) from Gourgoulhon et al. (2001)  
     //--------------------------------------------
     
-    Scalar tmp = ( 1 + sprod(bsn,u_euler) ) ;
-    tmp.std_spectral_base() ;
-    Scalar gam = gam0 % gam_euler % tmp ;
+    if (irrotational) {	
 
-    //-------------------------------------------
-    //	Spatial projection of the fluid 3-velocity
-    //  with respect to the co-orbiting observer
-    //--------------------------------------------
-
-    wit_w = gam_euler / gam % u_euler + gam0 % bsn ; 
-
-    wit_w.std_spectral_base() ;  // set the bases for spectral expansions
-
-    wit_w.annule_domain(nzm1) ;	// zero in the ZEC
-
-
-    //-------------------------------------------
-    //	Logarithm of the Lorentz factor between 
-    //	the fluid and co-orbiting observers
-    //--------------------------------------------
-
-    loggam = log( gam ) ;
-
-    loggam.std_spectral_base() ;   // set the bases for spectral expansions
-
-    //-------------------------------------------------
-    // Velocity fields set to zero in external domains
-    //-------------------------------------------------
-
-    loggam.annule_domain(nzm1) ;	    // zero in the ZEC only
-
-    wit_w.annule_domain(nzm1) ;		// zero outside the star     
-
-    u_euler.annule_domain(nzm1) ;	// zero outside the star     
-
-
-    if (loggam.get_etat() != ETATZERO) {
+	Scalar tmp = ( 1 + sprod(bsn,u_euler) ) ;
+	tmp.std_spectral_base() ;
+	Scalar gam = gam0 % gam_euler % tmp ;
+	
+	//-------------------------------------------
+	//	Spatial projection of the fluid 3-velocity
+	//  with respect to the co-orbiting observer
+	//--------------------------------------------
+	
+	wit_w = gam_euler / gam % u_euler + gam0 % bsn ; 
+	
+	wit_w.std_spectral_base() ;  // set the bases for spectral expansions
+	
+	wit_w.annule_domain(nzm1) ;	// zero in the ZEC
+	
+	
+	//-------------------------------------------
+	//	Logarithm of the Lorentz factor between 
+	//	the fluid and co-orbiting observers
+	//--------------------------------------------
+	
+	loggam = log( gam ) ;
+	
+	loggam.std_spectral_base() ;   // set the bases for spectral expansions
+	
+	//-------------------------------------------------
+	// Velocity fields set to zero in external domains
+	//-------------------------------------------------
+	
+	loggam.annule_domain(nzm1) ;	    // zero in the ZEC only
+	
+	wit_w.annule_domain(nzm1) ;		// zero outside the star     
+	
+	u_euler.annule_domain(nzm1) ;	// zero outside the star     
+	
 	loggam.set_dzpuis(0) ; 
     }
-    
-    if (!irrotational) {
-
-	gam = 1 ; 
+    else {
+	    
 	loggam = 0 ; 
 	wit_w.set_etat_zero() ; 
     }

@@ -27,6 +27,12 @@
 char star_global_C[] = "$Header$" ;
 
 /*
+ * $Id$
+ * $Log$
+ * Revision 1.2  2004/01/20 15:20:48  f_limousin
+ * First version
+ *
+ *
  * $Header$
  *
  */

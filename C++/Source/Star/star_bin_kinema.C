@@ -30,6 +30,12 @@
 char star_bin_kinema_C[] = "$Header$" ;
 
 /*
+ * $Id$
+ * $Log$
+ * Revision 1.2  2004/01/20 15:18:45  f_limousin
+ * First version
+ *
+ *
  * $Header$
  *
  */
@@ -58,14 +64,14 @@ void Star_bin::kinematics(double omega, double x_axe) {
     bsn.set_etat_qcq() ; 
 
     if (fabs(mp.get_rot_phi()) < 1e-10){ 
-      bsn.set(0) =  0 ;
-      bsn.set(1) = - omega * ra ;
-      bsn.set(2) = 0 ;
+      bsn.set(1) =  0 ;
+      bsn.set(2) = - omega * ra ;
+      bsn.set(3) = 0 ;
     }
     else {
-      bsn.set(0) = 0 ;
-      bsn.set(1) = omega * ra ;
-      bsn.set(2) = 0 ;
+      bsn.set(1) = 0 ;
+      bsn.set(2) = omega * ra ;
+      bsn.set(3) = 0 ;
     }
 
 

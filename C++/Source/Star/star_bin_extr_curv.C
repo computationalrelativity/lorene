@@ -25,9 +25,15 @@
  */
 
 
-char star_binextr_curv_C[] = "$Header$" ;
+char star_bin_extr_curv_C[] = "$Header$" ;
 
 /*
+ * $Id$
+ * $Log$
+ * Revision 1.2  2004/01/20 15:18:00  f_limousin
+ * First version
+ *
+ *
  * $Header$
  *
  */
@@ -41,10 +47,10 @@ void Star_bin::extrinsic_curvature(){
     //           of the mapping)
     // D~_j beta^i 
     
-    const Tensor& dshift = shift_auto.derive_con(gtilde) ; 
+    const Tensor& dshift = shift_auto.derive_con(flat) ; 
     
      // Trace of D~_j beta^i : 
-    Scalar div_shift = shift_auto.derive_cov(gtilde).scontract(0, 1) ; 
+    Scalar div_shift = contract(shift_auto.derive_cov(flat),0, 1) ; 
     
     // Computation of K^{ij}
     // See Eq (49) from Gourgoulhon et al. (2001)
@@ -64,8 +70,8 @@ void Star_bin::extrinsic_curvature(){
     // Computation of K_{ij} K^{ij}
     // --------------------------------
     
-    Tensor temp1 = contract(gtilde.cov(),1, contract(
-				      gtilde.cov(),1, tkij_auto,1),1) ;
+    Tensor temp1 = contract(gtilde.cov(), 1, contract(
+				      gtilde.cov(),1, tkij_auto,1), 1) ;
   
     Tensor tkij_auto_cov = tkij_auto ;
     

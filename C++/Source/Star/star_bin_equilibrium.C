@@ -28,6 +28,12 @@
 char star_bin_equilibrium_C[] = "$Header$" ;
 
 /*
+ * $Id$
+ * $Log$
+ * Revision 1.3  2004/01/20 15:17:48  f_limousin
+ * First version
+ *
+ *
  * $Header$
  *
  */
@@ -85,12 +91,12 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
     double& diff_shift_x = diff.set(4) ; 
     double& diff_shift_y = diff.set(5) ; 
     double& diff_shift_z = diff.set(6) ; 
-    double& diff_hij00 = diff.set(7) ; 
-    double& diff_hij10 = diff.set(8) ; 
-    double& diff_hij20 = diff.set(9) ; 
-    double& diff_hij11 = diff.set(10) ; 
-    double& diff_hij21 = diff.set(11) ; 
-    double& diff_hij22 = diff.set(12) ; 
+    double& diff_h00 = diff.set(7) ; 
+    double& diff_h10 = diff.set(8) ; 
+    double& diff_h20 = diff.set(9) ; 
+    double& diff_h11 = diff.set(10) ; 
+    double& diff_h21 = diff.set(11) ; 
+    double& diff_h22 = diff.set(12) ; 
 
 
 
@@ -154,12 +160,12 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
     
     Cmp ssjm1logn (ssjm1_logn) ;
     Cmp ssjm1qq (ssjm1_qq) ;
-    Cmp ssjm1hij00 (ssjm1_hij00) ;
-    Cmp ssjm1hij10 (ssjm1_hij10) ;
-    Cmp ssjm1hij20 (ssjm1_hij20) ;
-    Cmp ssjm1hij11 (ssjm1_hij11) ;
-    Cmp ssjm1hij21 (ssjm1_hij21) ;
-    Cmp ssjm1hij22 (ssjm1_hij22) ;
+    Cmp ssjm1h00 (ssjm1_h00) ;
+    Cmp ssjm1h10 (ssjm1_h10) ;
+    Cmp ssjm1h20 (ssjm1_h20) ;
+    Cmp ssjm1h11 (ssjm1_h11) ;
+    Cmp ssjm1h21 (ssjm1_h21) ;
+    Cmp ssjm1h22 (ssjm1_h22) ;
 
     par_poisson1.add_int(mermax_poisson,  0) ;  // maximum number of iterations
     par_poisson1.add_double(relax_poisson,  0) ; // relaxation parameter
@@ -178,7 +184,7 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
     par_poisson2.add_int_mod(niter, 0) ; // number of iterations actually used 
     par_poisson2.add_cmp_mod( ssjm1qq ) ; 
     
-    // Parameters for the function Tensor::poisson for hij00_auto
+    // Parameters for the function Tensor::poisson for h00_auto
     // -------------------------------------------------------------
     
     Param par_poisson3 ; 
@@ -187,9 +193,9 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
     par_poisson3.add_double(relax_poisson,  0) ; // relaxation parameter
     par_poisson3.add_double(precis_poisson, 1) ; // required precision
     par_poisson3.add_int_mod(niter, 0) ; // number of iterations actually used 
-    par_poisson3.add_cmp_mod( ssjm1hij00 ) ; 
+    par_poisson3.add_cmp_mod( ssjm1h00 ) ; 
     
-    // Parameters for the function Tensor::poisson for hij10_auto
+    // Parameters for the function Tensor::poisson for h10_auto
     // -------------------------------------------------------------
     
     Param par_poisson4 ; 
@@ -198,9 +204,9 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
     par_poisson4.add_double(relax_poisson,  0) ; // relaxation parameter
     par_poisson4.add_double(precis_poisson, 1) ; // required precision
     par_poisson4.add_int_mod(niter, 0) ; // number of iterations actually used 
-    par_poisson4.add_cmp_mod( ssjm1hij10 ) ; 
+    par_poisson4.add_cmp_mod( ssjm1h10 ) ; 
     
-    // Parameters for the function Tensor::poisson for hij20_auto
+    // Parameters for the function Tensor::poisson for h20_auto
     // -------------------------------------------------------------
     
     Param par_poisson5 ; 
@@ -209,9 +215,9 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
     par_poisson5.add_double(relax_poisson,  0) ; // relaxation parameter
     par_poisson5.add_double(precis_poisson, 1) ; // required precision
     par_poisson5.add_int_mod(niter, 0) ; // number of iterations actually used 
-    par_poisson5.add_cmp_mod( ssjm1hij20 ) ; 
+    par_poisson5.add_cmp_mod( ssjm1h20 ) ; 
     
-    // Parameters for the function Tensor::poisson for hij11_auto
+    // Parameters for the function Tensor::poisson for h11_auto
     // -------------------------------------------------------------
     
     Param par_poisson6 ; 
@@ -220,9 +226,9 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
     par_poisson6.add_double(relax_poisson,  0) ; // relaxation parameter
     par_poisson6.add_double(precis_poisson, 1) ; // required precision
     par_poisson6.add_int_mod(niter, 0) ; // number of iterations actually used 
-    par_poisson6.add_cmp_mod( ssjm1hij11 ) ; 
+    par_poisson6.add_cmp_mod( ssjm1h11 ) ; 
     
-    // Parameters for the function Tensor::poisson for hij21_auto
+    // Parameters for the function Tensor::poisson for h21_auto
     // -------------------------------------------------------------
     
     Param par_poisson7 ; 
@@ -231,9 +237,9 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
     par_poisson7.add_double(relax_poisson,  0) ; // relaxation parameter
     par_poisson7.add_double(precis_poisson, 1) ; // required precision
     par_poisson7.add_int_mod(niter, 0) ; // number of iterations actually used 
-    par_poisson7.add_cmp_mod( ssjm1hij21 ) ; 
+    par_poisson7.add_cmp_mod( ssjm1h21 ) ; 
     
-    // Parameters for the function Tensor::poisson for hij22_auto
+    // Parameters for the function Tensor::poisson for h22_auto
     // -------------------------------------------------------------
     
     Param par_poisson8 ; 
@@ -242,7 +248,7 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
     par_poisson8.add_double(relax_poisson,  0) ; // relaxation parameter
     par_poisson8.add_double(precis_poisson, 1) ; // required precision
     par_poisson8.add_int_mod(niter, 0) ; // number of iterations actually used 
-    par_poisson8.add_cmp_mod( ssjm1hij22 ) ; 
+    par_poisson8.add_cmp_mod( ssjm1h22 ) ; 
     
     // Parameters for the function Tensor::poisson_vect
     // -------------------------------------------------
@@ -1028,7 +1034,7 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 				 tkij_auto + tkij_auto, 1), 0, tkij_auto, 1) ;
 
 
-	    source7_Sij = - 2 * qpig * nnn * ( psi4 * stress 
+	    source7_Sij = - 2 * qpig * nnn * ( psi4 * stress_euler 
 					       - s_euler * flat.con()/3. ) ; 
 
 
@@ -1077,14 +1083,14 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 			sol_poisson = source_tot.poisson() ; 
 			hij_auto.set(0,0) = sol_poisson ;
 
-			Tbl tdiff_hij00 = diffrel(hij_auto(0,0).laplacian(), source_tot) ;  
+			Tbl tdiff_h00 = diffrel(hij_auto(0,0).laplacian(), source_tot) ;  
 			cout << "Relative error in the resolution of the equation for "
-			     << "hij00_auto : " << endl ; 
+			     << "h00_auto : " << endl ; 
 			for (int l=0; l<nz; l++) {
-			    cout << tdiff_hij00(l) << "  " ; 
+			    cout << tdiff_h00(l) << "  " ; 
 			}
 			cout << endl ;
-			diff_hij00 = max(abs(tdiff_hij00)) ; 
+			diff_h00 = max(abs(tdiff_h00)) ; 
 		    }
 	       	       
 		    if(i==0 && j==1) {
@@ -1093,15 +1099,15 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 			sol_poisson = source_tot.poisson() ; 
 			hij_auto.set(0,1) = sol_poisson ;
 	    
-			Tbl tdiff_hij10 = diffrel(hij_auto(0,1).laplacian(), source_tot) ;
+			Tbl tdiff_h10 = diffrel(hij_auto(0,1).laplacian(), source_tot) ;
 			cout << 
 			    "Relative error in the resolution of the equation for " 
-			     << "hij10_auto : "  << endl ; 
+			     << "h10_auto : "  << endl ; 
 			for (int l=0; l<nz; l++) {
-			    cout << tdiff_hij10(l) << "  " ; 
+			    cout << tdiff_h10(l) << "  " ; 
 			}
 			cout << endl ;
-			diff_hij10 = max(abs(tdiff_hij10)) ; 
+			diff_h10 = max(abs(tdiff_h10)) ; 
 		    }
 	       
 		    if(i==0 && j==2) {
@@ -1111,15 +1117,15 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 			sol_poisson = source_tot.poisson() ; 
 			hij_auto.set(0,2) = sol_poisson ;
 
-			Tbl tdiff_hij20 = diffrel(hij_auto(0,2).laplacian(), source_tot) ;
+			Tbl tdiff_h20 = diffrel(hij_auto(0,2).laplacian(), source_tot) ;
 			cout << 
 			    "Relative error in the resolution of the equation for "
-			     << "hij20_auto : " << endl ; 
+			     << "h20_auto : " << endl ; 
 			for (int l=0; l<nz; l++) {
-			    cout << tdiff_hij20(l) << "  " ; 
+			    cout << tdiff_h20(l) << "  " ; 
 			}
 			cout << endl ;
-			diff_hij20 = max(abs(tdiff_hij20)) ; 
+			diff_h20 = max(abs(tdiff_h20)) ; 
 		    }
 	     
 		    if(i==1 && j==1) {
@@ -1128,15 +1134,15 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 			sol_poisson = source_tot.poisson() ; 
 			hij_auto.set(1,1) = sol_poisson ;
 
-			Tbl tdiff_hij11 = diffrel(hij_auto(1,1).laplacian(), source_tot) ;
+			Tbl tdiff_h11 = diffrel(hij_auto(1,1).laplacian(), source_tot) ;
 			cout << 
 			    "Relative error in the resolution of the equation for "
-			     << "hij11_auto : " << endl ; 
+			     << "h11_auto : " << endl ; 
 			for (int l=0; l<nz; l++) {
-			    cout << tdiff_hij11(l) << "  " ; 
+			    cout << tdiff_h11(l) << "  " ; 
 			}
 			cout << endl ;
-			diff_hij11 = max(abs(tdiff_hij11)) ; 
+			diff_h11 = max(abs(tdiff_h11)) ; 
 		    }
 	       
 		    if(i==1 && j==2) {
@@ -1145,15 +1151,15 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 			sol_poisson = source_tot.poisson() ; 
 			hij_auto.set(1,2) = sol_poisson ;
 
-			Tbl tdiff_hij21 = diffrel(hij_auto(1,2).laplacian(), source_tot) ;
+			Tbl tdiff_h21 = diffrel(hij_auto(1,2).laplacian(), source_tot) ;
 			cout << 
 			    "Relative error in the resolution of the equation for "
-			     << "hij21_auto : " << endl ; 
+			     << "h21_auto : " << endl ; 
 			for (int l=0; l<nz; l++) {
-			    cout << tdiff_hij21(l) << "  " ; 
+			    cout << tdiff_h21(l) << "  " ; 
 			}
 			cout << endl ;
-			diff_hij21 = max(abs(tdiff_hij21)) ; 
+			diff_h21 = max(abs(tdiff_h21)) ; 
 		    }
 	     
 		    if(i==2 && j==2) {
@@ -1162,31 +1168,31 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 			sol_poisson = source_tot.poisson() ; 
 			hij_auto.set(2,2) = sol_poisson ;
 
-			Tbl tdiff_hij22 = diffrel(hij_auto(2,2).laplacian(), source_tot) ;
+			Tbl tdiff_h22 = diffrel(hij_auto(2,2).laplacian(), source_tot) ;
 			cout << 
 			    "Relative error in the resolution of the equation for "
-			     << "hij22_auto : " << endl ;
+			     << "h22_auto : " << endl ;
 			for (int l=0; l<nz; l++) {
-			    cout << tdiff_hij22(l) << "  " ;
+			    cout << tdiff_h22(l) << "  " ;
 			}
 			cout << endl ;
-			diff_hij22 = max(abs(tdiff_hij22)) ;
+			diff_h22 = max(abs(tdiff_h22)) ;
 		    }
 
 		}
 	
       
-	cout << "hij00 auto"<<endl<< norme(hij_auto(0,0)/(nr*nt*np)) 
+	cout << "h00 auto"<<endl<< norme(hij_auto(0,0)/(nr*nt*np)) 
 	     << endl << endl ;
-	cout << "hij10 auto"<<endl<< norme(hij_auto(0,1)/(nr*nt*np)) 
+	cout << "h10 auto"<<endl<< norme(hij_auto(0,1)/(nr*nt*np)) 
 	     << endl << endl ;
-	cout << "hij20 auto"<<endl<< norme(hij_auto(0,2)/(nr*nt*np)) 
+	cout << "h20 auto"<<endl<< norme(hij_auto(0,2)/(nr*nt*np)) 
 	     << endl << endl ;
-	cout << "hij11 auto"<<endl<< norme(hij_auto(1,1)/(nr*nt*np)) 
+	cout << "h11 auto"<<endl<< norme(hij_auto(1,1)/(nr*nt*np)) 
 	     << endl << endl ;
-	cout << "hij21 auto"<<endl<< norme(hij_auto(1,2)/(nr*nt*np)) 
+	cout << "h21 auto"<<endl<< norme(hij_auto(1,2)/(nr*nt*np)) 
 	     << endl << endl ;
-	cout << "hij22 auto"<<endl<< norme(hij_auto(2,2)/(nr*nt*np)) 
+	cout << "h22 auto"<<endl<< norme(hij_auto(2,2)/(nr*nt*np)) 
 	     << endl << endl ;
 
 	}
