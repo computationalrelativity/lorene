@@ -30,6 +30,17 @@ char metric_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/12/30 23:06:30  e_gourgoulhon
+ * Important reorganization of class Metric:
+ *   -- suppression of virtual methods fait_* : the actual computations
+ *      are now performed via the virtual methods con(), cov(), connect(),
+ *      ricci(), ricci_scal(), determinant()
+ *   -- the member p_connect is now treated as an ordinary derived data
+ *      member
+ *   -- the construction of the associated connection (member p_connect)
+ *      is performed thanks to the new methods Map::flat_met_spher() and
+ *      Map::flat_met_cart().
+ *
  * Revision 1.5  2003/10/28 21:23:59  e_gourgoulhon
  * Method Tensor::contract(int, int) renamed Tensor::scontract(int, int).
  *
@@ -60,8 +71,13 @@ char metric_C[] = "$Header$" ;
 #include "metric.h"
 #include "utilitaires.h"
 
-Metric::Metric(const Sym_tensor& symti) : mp(&symti.get_mp()), p_connect(0x0),
-					  p_met_cov(0x0), p_met_con(0x0) {
+                    //-----------------//
+                    //  Constructors   //
+                    //-----------------//
+
+Metric::Metric(const Sym_tensor& symti) : mp(&symti.get_mp()),
+					  p_met_cov(0x0), 
+                                          p_met_con(0x0) {
   
   int type_index = symti.get_index_type(0) ;
   assert (symti.get_index_type(1) == type_index) ;
@@ -80,7 +96,8 @@ Metric::Metric(const Sym_tensor& symti) : mp(&symti.get_mp()), p_connect(0x0),
 }
 
 
-Metric::Metric(const Metric& meti) : mp(meti.mp), p_connect(0x0), p_met_cov(0x0),
+Metric::Metric(const Metric& meti) : mp(meti.mp),
+                                     p_met_cov(0x0),
 				     p_met_con(0x0) {
 
   if (meti.p_met_cov != 0x0) p_met_cov = new Sym_tensor(*meti.p_met_cov) ;
@@ -92,24 +109,29 @@ Metric::Metric(const Metric& meti) : mp(meti.mp), p_connect(0x0), p_met_cov(0x0)
 
 }
 
-Metric::Metric(const Map& mpi, FILE* ) : mp(&mpi), p_connect(0x0), 
-					 p_met_cov(0x0), p_met_con(0x0) {
+Metric::Metric(const Map& mpi, FILE* ) : mp(&mpi), 
+					 p_met_cov(0x0), 
+                                         p_met_con(0x0) {
 
   cout << "Metric::Metric(FILE*) : not implemented yet!" << endl ;
 
   abort() ;
 }
 
-Metric::Metric(const Map& mpi) : mp(&mpi), p_connect(0x0), 
-					 p_met_cov(0x0), p_met_con(0x0) {
+Metric::Metric(const Map& mpi) : mp(&mpi),  
+			         p_met_cov(0x0), 
+                                 p_met_con(0x0) {
   set_der_0x0() ;
   set_tensor_depend_0x0() ;
 
 }
 
-Metric::~Metric() {
 
-  if (p_connect != 0x0) delete p_connect ;
+                    //---------------//
+                    //  Destructor   //
+                    //---------------//
+
+Metric::~Metric() {
 
   if (p_met_cov != 0x0) delete p_met_cov ;
 
@@ -121,20 +143,24 @@ Metric::~Metric() {
 
 }
 
+                //-------------------//
+                // Memory management //
+                //-------------------//
+                
 void Metric::del_deriv() const {
   
+  if (p_connect != 0x0) delete p_connect ; 
   if (p_ricci_scal != 0x0) delete p_ricci_scal ;
-
   if (p_determinant != 0x0) delete p_determinant ;
-
+  
   set_der_0x0() ;
 
 }
 
 void Metric::set_der_0x0() const {
 
+  p_connect = 0x0 ; 
   p_ricci_scal = 0x0 ;
-
   p_determinant = 0x0 ;
 
 }
@@ -158,19 +184,13 @@ void Metric::set_tensor_depend_0x0() const {
 }
 
   
+                    //-----------------------//
+                    // Mutators / assignment //
+                    //-----------------------//
 
 void Metric::operator=(const Metric& meti) {
 
   assert( mp == meti.mp) ;
-
-  if (p_connect != 0x0) delete p_connect ;
-
-  if (meti.p_connect != 0x0) {
-    p_connect = new Connection(*meti.p_connect) ;
-  }
-  else {
-    p_connect = 0x0 ;
-  }
 
   if (p_met_cov != 0x0) delete p_met_cov ;
 
@@ -198,8 +218,6 @@ void Metric::operator=(const Sym_tensor& symti) {
   
   assert(mp == &symti.get_mp()) ;
 
-  if (p_connect != 0x0) delete p_connect ; //The connection will be done by 
-                                           // fait_connection() later...
   int type_index = symti.get_index_type(0) ;
   assert (symti.get_index_type(1) == type_index) ;
 
@@ -217,96 +235,118 @@ void Metric::operator=(const Sym_tensor& symti) {
   del_deriv() ;
 
 }
+
+            //----------------//
+            //   Accessors    //
+            //----------------//
+
+
+const Sym_tensor& Metric::cov() const {
   
-const Connection& Metric::get_connect() const {
+    if (p_met_cov == 0x0) {   // a new computation is necessary
+        assert( p_met_con != 0x0 ) ;
+        p_met_cov = p_met_con->inverse() ;
+    }
 
-  if (p_connect == 0x0) 
-    fait_connection() ;
+    return *p_met_cov ; 
+}
 
-  return *p_connect ;
+const Sym_tensor& Metric::con() const {
+  
+    if (p_met_con == 0x0) {   // a new computation is necessary
+        assert( p_met_cov != 0x0 ) ;
+        p_met_con = p_met_cov->inverse() ;
+    }
+
+    return *p_met_con ; 
+}
+
+
+const Connection& Metric::connect() const {
+
+    if (p_connect == 0x0) {   // a new computation is necessary
+    
+        // The triad is obtained from the covariant or contravariant representation:
+        const Base_vect_spher* triad_s ; 
+        const Base_vect_cart* triad_c ; 
+        if (p_met_cov != 0x0) {
+            triad_s = 
+              dynamic_cast<const Base_vect_spher*>(p_met_cov->get_triad()) ; 
+            triad_c = 
+              dynamic_cast<const Base_vect_cart*>(p_met_cov->get_triad()) ; 
+        }
+        else {
+            assert(p_met_con != 0x0) ; 
+            triad_s = 
+              dynamic_cast<const Base_vect_spher*>(p_met_con->get_triad()) ; 
+            triad_c = 
+              dynamic_cast<const Base_vect_cart*>(p_met_con->get_triad()) ; 
+        }
+    
+        // Background flat metric in spherical or Cartesian components
+        if ( triad_s != 0x0 ) {
+            p_connect = new Connection(*this, mp->flat_met_spher()) ;
+        }
+        else {
+            assert( triad_c != 0x0 ) ;
+            p_connect = new Connection(*this, mp->flat_met_cart()) ;
+        }
+    
+    }
+
+    return *p_connect ; 
 
 }
+
 
 const Sym_tensor& Metric::ricci() const {
 
-  if (p_connect == 0x0) 
-    fait_connection() ;
-  
-  //A check of consistency (the Ricci tensor associated with the connection
-  // (based upon a metric) should be symmetric.
-  assert( typeid(p_connect->ricci()) == typeid(const Sym_tensor) ) ;
+    const Tensor& ricci_connect = connect().ricci() ; 
+    
+    // Check: the Ricci tensor of the connection associated with 
+    //  the metric must be symmetric:
+    assert( typeid(ricci_connect) == typeid(const Sym_tensor&) ) ; 
 
-  return dynamic_cast<const Sym_tensor&>(p_connect->ricci()) ; 
+    return dynamic_cast<const Sym_tensor&>( ricci_connect ) ; 
 }
+
 
 const Scalar& Metric::ricci_scal() const {
 
-  if (p_ricci_scal == 0x0)
-    fait_ricci_scal() ;
+    if (p_ricci_scal == 0x0) {   // a new computation is necessary
 
-  return *p_ricci_scal ;
+        Tensor tmp = ricci().up(0, *this) ;
+
+        p_ricci_scal = new Scalar( tmp.scontract(0,1) ) ;
+    }
+
+    return *p_ricci_scal  ; 
 
 }
+
 
 const Scalar& Metric::determinant() const {
 
-  if (p_determinant == 0x0)
-    fait_determinant() ;
+    if (p_determinant == 0x0) {   // a new computation is necessary
 
-  return *p_determinant ;
+        p_determinant = new Scalar(*mp) ;
+        *p_determinant = cov()(0, 0)*cov()(1, 1)*cov()(2, 2) 
+	    + cov()(0, 1)*cov()(1, 2)*cov()(2, 0)
+	    + cov()(0, 2)*cov()(1, 0)*cov()(2, 1) 
+	    - cov()(2, 0)*cov()(1, 1)*cov()(0, 2)
+	    - cov()(2, 1)*cov()(1, 2)*cov()(0, 0) 
+	    - cov()(2, 2)*cov()(1, 0)*cov()(0, 1) ;
+    }
 
+    return *p_determinant ; 
 }
 
-void Metric::fait_cov() const {
-  
-  assert( p_met_cov == 0x0 ) ;
-  assert( p_met_con != 0x0 ) ;
 
-  p_met_cov = p_met_con->inverse() ;
-
-}
-
-void Metric::fait_con() const {
-
-  assert( p_met_con == 0x0 ) ;
-  assert( p_met_cov != 0x0 ) ;
-
-  p_met_con = p_met_cov->inverse() ;
-
-}
-
-void Metric::fait_connection() const {
-
-  assert( p_connect == 0x0 ) ;
-  
-  p_connect = new Connection(*this) ;
-
-}
-
-void Metric::fait_ricci_scal() const {
-
-  assert( p_ricci_scal == 0x0 ) ;
-
-  Tensor tmp = ricci().up(0, *this) ;
-
-  p_ricci_scal = new Scalar(tmp.scontract(0,1)) ;
-
-}
-
-void Metric::fait_determinant() const {
-
-  assert( p_determinant == 0x0 ) ;
-
-  p_determinant = new Scalar(*mp) ;
-  *p_determinant = cov()(0, 0)*cov()(1, 1)*cov()(2, 2) 
-	+ cov()(0, 1)*cov()(1, 2)*cov()(2, 0)
-	+ cov()(0, 2)*cov()(1, 0)*cov()(2, 1) 
-	- cov()(2, 0)*cov()(1, 1)*cov()(0, 2)
-	- cov()(2, 1)*cov()(1, 2)*cov()(0, 0) 
-	- cov()(2, 2)*cov()(1, 0)*cov()(0, 1) ;
-
-}
  
+                //---------//
+                // Outputs //
+                //---------//
+
 void Metric::sauve(FILE* fd) const {
 
   // Which representation is to be saved
@@ -329,7 +369,7 @@ void Metric::sauve(FILE* fd) const {
   default : {
     break ;
   }
-  } //## what to do with the connection??
+  } 
 }
 
 ostream& operator<<(ostream& ost, const Metric& meti) {
@@ -358,22 +398,21 @@ ostream& Metric::operator>>(ostream& ost) const {
     ost << *p_met_cov ;
   }
 
-//##   if (p_connect == 0x0) 
-//     ost << "Connection not defined!" << '\n' ;
-//   else {
-//     ost << "Associated Connection : " << '\n' ;
-//     ost << *p_connect ;
-//##   }
+
+  if (p_connect == 0x0)
+    ost << "Associated connection not computed yet." << '\n' ;
+  else
+    ost << "Associated connection computed." << '\n' ;
 
   if (p_ricci_scal == 0x0)
-    ost << "Ricci scalar unknown." << '\n' ;
+    ost << "Ricci scalar not computed yet." << '\n' ;
   else
-    ost << "Ricci scalar known." << '\n' ;
+    ost << "Ricci scalar computed." << '\n' ;
   
   if (p_determinant == 0x0)
-    ost << "determinant unknown." << '\n' ;
+    ost << "determinant not computed yet." << '\n' ;
   else
-    ost << "determinant known." << '\n' ;
+    ost << "determinant computed." << '\n' ;
 
   ost << endl ;
   return ost ;
