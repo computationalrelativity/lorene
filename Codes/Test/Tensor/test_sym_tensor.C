@@ -29,6 +29,9 @@ char test_sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/02/19 22:15:55  e_gourgoulhon
+ * New argument "comment" in functions spectral_display and diffrelmax.
+ *
  * Revision 1.4  2004/02/18 18:56:35  e_gourgoulhon
  * Method trace() renamed the_trace().
  * Tensor::trace used instead of Tensor::scontract.
@@ -181,8 +184,7 @@ int main() {
 	Sym_tensor hhs = hhc ; 
 	hhs.change_triad( map.get_bvect_spher() ) ; 
 	
-	cout << "Spherical components : hhs : " << endl ;
-	hhs.spectral_display(1.e-13) ; 
+	hhs.spectral_display("Spherical components : hhs", 1.e-13) ; 
 	arrete() ; 
 	
     // Transverse part
@@ -191,16 +193,14 @@ int main() {
 	const Sym_tensor_trans& thhs = hhs.transverse(mets) ; 
 	arrete() ; 
 
-	cout << "Transverse part thhs : " << endl ;
-	thhs.spectral_display(1.e-13) ; 
+	thhs.spectral_display("Transverse part thhs", 1.e-13) ; 
 	arrete() ; 
 	
     cout << "Max abs(trace) of the transverse part thhs : \n" ; 
     maxabs( thhs.the_trace() ) ; 
     
-	cout << "Divergence of the transverse part thhs : " << endl ;
     Vector divt = thhs.divergence(mets) ; 
-	// divt.spectral_display() ; 
+	// divt.spectral_display("Divergence of the transverse part thhs") ; 
 	cout << "Max abs(divergence) of the transverse part thhs : " << endl ;
     maxabs( divt ) ; 
     
@@ -210,8 +210,7 @@ int main() {
 
     const Sym_tensor_tt& tthhs = thhs.tt_part() ; 
     
-    cout << "TT part tthhs : \n" ; 
-    // tthhs.spectral_display() ; 
+    // tthhs.spectral_display("TT part tthhs") ; 
 
     Scalar tr_tthhs = tthhs.trace(mets) ;
 	cout << "Max abs(trace) of the TT part tthhs : " << endl ;

@@ -28,6 +28,9 @@ char test_sym_tensor_tt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/02/19 22:15:55  e_gourgoulhon
+ * New argument "comment" in functions spectral_display and diffrelmax.
+ *
  * Revision 1.13  2004/02/18 18:57:38  e_gourgoulhon
  * Method trace() renamed the_trace().
  *
@@ -344,9 +347,9 @@ int main() {
     htt5.set(1,1) = htt3(1,1) ; // To force the deletion of eta and mu
 
     cout << "Relative difference (max) between htt5.eta and htt3.eta : " << endl ; 
-    diffrelmax(htt5.eta(), htt3.eta(), cout) ; 
+    diffrelmax(htt5.eta(), htt3.eta()) ; 
     cout << "Relative difference (max) between htt5.mu and htt3.mu : " << endl ; 
-    diffrelmax(htt5.mu(), htt3.mu(), cout) ; 
+    diffrelmax(htt5.mu(), htt3.mu()) ; 
 
     // Test : TT decomposition of hht5 from scratch
     // --------------------------------------------
