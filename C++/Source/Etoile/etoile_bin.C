@@ -32,6 +32,9 @@ char etoile_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/01/17 13:39:51  f_limousin
+ * Modification of sprod routine
+ *
  * Revision 1.2  2002/12/17 21:20:29  e_gourgoulhon
  * Suppression of the member p_companion,
  * as well as the associated function set_companion.
@@ -703,14 +706,18 @@ ostream& Etoile_bin::operator>>(ostream& ost) const {
 			    
 Tenseur Etoile_bin::sprod(const Tenseur& t1, const Tenseur& t2) const {
 
-    int val1 = t1.get_valence() ; 
-    
-    // Both indices should be contravariant : 
-    assert( t1.get_type_indice(val1-1) == CON ) ; 
-    assert( t2.get_type_indice(0) == CON ) ; 
+  int val1 = t1.get_valence() ; 
 
-    return a_car * flat_scalar_prod(t1, t2) ; 
+    // Both indices should be contravariant or both covariant : 
+    if (t1.get_type_indice(val1-1) == CON) {
+      assert( t2.get_type_indice(0) == CON ) ;
+      return a_car * flat_scalar_prod(t1, t2) ; 
+	}
     
+    if (t1.get_type_indice(val1-1) == COV) {
+      assert( t2.get_type_indice(0) == COV ) ;
+      return 1/a_car * flat_scalar_prod(t1, t2) ;   
+	}
 } 
 
 void Etoile_bin::fait_d_psi() {
