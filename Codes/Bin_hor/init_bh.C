@@ -29,6 +29,9 @@ char init_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/12/31 15:45:26  f_limousin
+ * Change the parameters in par_init.d
+ *
  * Revision 1.1  2004/12/29 18:00:20  f_limousin
  * First version
  *
@@ -40,7 +43,7 @@ char init_bh_C[] = "$Header$" ;
 //standard
 #include <stdlib.h>
 #include <math.h>
-#include <fstream.h>
+//#include <fstream.h>
 
 // LORENE
 #include "type_parite.h"
@@ -54,30 +57,42 @@ char init_bh_C[] = "$Header$" ;
 #include "graphique.h"
 
 
-int main(int argc, char** argv) {
+int main() {
     
     char blabla [120] ;
     ifstream param("par_init.d") ;
     
     double  precis, relax, radius, beta ;
-    int nz, nbr, nbt, nbp ;
+    int nz, nt, np, nr1, nrp1 ;
     
     param.getline(blabla, 120) ;
     param.getline(blabla, 120) ;
     param >> beta ; param.getline(blabla, 120) ;
     param >> nz ; param.getline(blabla, 120) ;
-    param >> nbr ; param >> nbt ; param >> nbp ; param.getline(blabla, 120) ;
-    
+    param >> nt; param.ignore(1000, '\n');
+    param >> np; param.ignore(1000, '\n');
+    param >> nr1; param.ignore(1000, '\n');
+    param >> nrp1; param.ignore(1000, '\n');
+
     double* bornes = new double[nz+1] ;
-    for (int i=0 ; i<nz ; i++)
-	param >> bornes[i] ;
-    bornes[nz] = __infinity ;
+    int* nr_tab = new int[nz];
+    int* nt_tab = new int[nz];
+    int* np_tab = new int[nz];
+
+    for (int l=0 ; l<nz ; l++){
+      if (l==1) nr_tab[1] = nr1 ;
+      else nr_tab[l] = nrp1 ;
+      np_tab[l] = np ; 
+      nt_tab[l] = nt ; 
+      param >> bornes[l] ;
+
+    }
     radius = bornes[1] ;
     param.getline(blabla, 120) ;
-    
+    bornes[nz] = __infinity ; 
+
     param >> precis ; param.getline(blabla, 120) ;
     param >> relax ; param.getline(blabla, 120) ;
-   
     double distance = radius*beta ;
     
     param.close() ;
@@ -86,14 +101,6 @@ int main(int argc, char** argv) {
     int type_t = SYM ; 
     int type_p = NONSYM ; 
 
-    int* np = new int [nz] ;
-    int* nt = new int [nz] ;
-    int* nr = new int [nz] ;
-    for (int l=0 ; l<nz ; l++){
-	np[l] = nbp ;
-    	nt[l] = nbt ;
- 	nr[l] = nbr ;
-    }
     
     int* type_r = new int[nz] ;
     type_r[0] = RARE ;
@@ -101,7 +108,7 @@ int main(int argc, char** argv) {
 	type_r[l] = FIN ;
     type_r[nz-1] = UNSURR ;
     
-    Mg3d grid (nz, nr, type_r, nt, type_t, np, type_p) ;
+    Mg3d grid (nz, nr_tab, type_r, nt_tab, type_t, np_tab, type_p) ;
     
     Map_af map_un (grid, bornes) ;
     Map_af map_deux (grid, bornes) ;
@@ -118,13 +125,13 @@ int main(int argc, char** argv) {
     grid.sauve(fich) ;
     map_un.sauve(fich) ;
     map_deux.sauve(fich) ;
-    bin(1).sauve(fich) ;
-    bin(2).sauve(fich) ;
+    bin(1).sauve(fich, true) ;
+    bin(2).sauve(fich, true) ;
     fclose(fich) ;
   
-    delete [] nr ;
-    delete [] nt ;
-    delete [] np ;
+    delete [] nr_tab ;
+    delete [] nt_tab ;
+    delete [] np_tab ;
     delete [] type_r ;
     delete [] bornes ;
 
