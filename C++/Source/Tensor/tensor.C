@@ -34,6 +34,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2003/10/07 09:10:00  j_novak
+ * Use of ::contract instead of up()
+ *
  * Revision 1.13  2003/10/06 20:51:43  e_gourgoulhon
  * In methods set: changed name "indices" to "idx" to avoid shadowing
  *  of class member.
@@ -763,7 +766,8 @@ const Tensor& Tensor::derive_con(const Metric& metre) const {
   int j = get_place_met(metre) ;
   assert ((j>=0) && (j<N_MET_MAX)) ;
   if (p_derive_con[j] == 0x0) {
-    p_derive_con[j] = new Tensor(derive_cov(metre).up(0, metre)) ;
+    p_derive_con[j] = 
+      new Tensor(::contract(metre.con(), 1, derive_cov(metre),0)) ;
   }
   
   return *p_derive_con[j] ;
