@@ -30,6 +30,9 @@ char map_af_primr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/07/26 13:04:15  j_novak
+ * Added missing assert on dzpuis
+ *
  * Revision 1.1  2004/06/14 15:25:34  e_gourgoulhon
  * First version.
  *
@@ -91,7 +94,7 @@ void Map_af::primr(const Scalar& uu, Scalar& resu) const {
 
     // General case
     assert( (uu.get_etat() == ETATQCQ) || (uu.get_etat() == ETATUN) ) ; 
-    uu.check_dzpuis(2) ; 
+    assert(uu.check_dzpuis(2)) ; 
 
     int nz = mg->get_nzone() ; 
     int nzm1 = nz - 1 ; 
