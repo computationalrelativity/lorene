@@ -35,6 +35,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.25  2004/03/04 09:51:36  e_gourgoulhon
+ * Method dz_nonzero() : treated the case ETATUN.
+ *
  * Revision 1.24  2004/02/19 22:11:50  e_gourgoulhon
  * Added argument "comment" in method spectral_display.
  *
@@ -742,7 +745,11 @@ bool Scalar::dz_nonzero() const {
 		return false ; 
     }
     
-    assert( (etat == ETATQCQ) || (etat == ETATUN)) ;//## to be checked!!
+    if (etat == ETATUN) {
+		return true ; 
+    }
+    
+    assert( etat == ETATQCQ ) ;
     
     if (va.etat == ETATZERO) {
 		return false ; 
