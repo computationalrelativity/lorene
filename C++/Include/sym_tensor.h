@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/11/03 22:29:54  e_gourgoulhon
+ * Class Sym_tensor_tt: added functions set_eta_mu and update_tp.
+ *
  * Revision 1.3  2003/11/03 17:09:30  e_gourgoulhon
  * Class Sym_tensor_tt: added the methods eta() and mu().
  *
@@ -406,6 +409,18 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	/// Assignment from a {\tt Tensor}
 	virtual void operator=(const Tensor&) ;	
 	
+	/** Sets the angular potentials $\eta$ and $\mu$ (see members
+	 *  {\tt p\_eta} and {\tt p\_mu}). 
+	 *  The components $h^{r\theta}$ and $h^{r\varphi}$ are updated consistently
+	 *  by a call to the method {\tt update\_tp()}.
+	 *
+	 *	@param eta_i [input] angular potential $\eta$
+	 *	@param mu_i [input] angular potential $\mu$
+	 *
+	 */
+	void set_eta_mu(const Scalar& eta_i, const Scalar& mu_i) ; 
+	
+	
 	// Computational methods
 	// ---------------------
 	
@@ -437,6 +452,22 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	 */
 	const Scalar& mu() const ;
 	
+
+	/** Computes the components $(h^{r\theta}, h^{r\varphi})$ from the
+	 *  potential $\eta$ and  $\mu$, according to:
+	 * \begin{equation}
+	 *	h^{r\theta} =  {1\over r} \left( {\partial \eta \over \partial\theta}
+	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right) 
+	 * \end{equation} 
+	 * \begin{equation}
+	 *	h^{r\varphi} =  {1\over r} \left( {1\over\sin\theta} 
+	 *				{\partial \eta \over \partial\varphi}
+	 *				+ {\partial \mu \over \partial\theta} \right)
+	 * \end{equation} 
+	 */
+	void update_tp() ;
+	
+
 } ; 
 	
 
