@@ -31,6 +31,10 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2005/03/22 13:25:36  f_limousin
+ * Small changes. The angular velocity and A^{ij} are computed
+ * with a differnet sign.
+ *
  * Revision 1.10  2005/03/09 10:18:08  f_limousin
  * Save K_{ij}s^is^j in a file. Add solve_lapse in a file
  *
@@ -206,7 +210,6 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	    }
 		
 	} // End of switch  
-
            
 	// Test:
 	maxabs(psi_jp1.laplacian() - source_psi(),
@@ -338,20 +341,20 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	    
 	    conv << mer << "  " << log10(diff_psi) 
 		 << " " << log10(diff_beta) << endl ;
-	}
-	
+	}	
 
 	//=============================================
 	//      Updates for next step 
 	//=============================================
 	
+	
 	set_psi_del_q(psi_jp1) ; 
+//	psi_evol.update(psi_jp1, jtime, ttime) ; 	
 	if (solve_lapse == 1)
 	    n_evol.update(nn_jp1, jtime, ttime) ; 
 	beta_evol.update(beta_jp1, jtime, ttime) ;
 	
-	update_aa() ;
-
+//	update_aa() ;
 
 	// Saving ok K_{ij}s^is^j
 	// -----------------------
@@ -370,6 +373,7 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
     }
     conv.close() ;   
     kss.close() ;
+
 } 
 
 

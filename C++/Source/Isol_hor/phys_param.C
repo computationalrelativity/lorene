@@ -30,6 +30,10 @@ char phys_param_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2005/03/22 13:25:36  f_limousin
+ * Small changes. The angular velocity and A^{ij} are computed
+ * with a differnet sign.
+ *
  * Revision 1.8  2005/03/03 10:10:14  f_limousin
  * Add the function area_hor().
  *
@@ -163,22 +167,17 @@ double Isol_hor::radius_hor() const {
 
 double Isol_hor::ang_mom_hor()const {
 
-
   // Vector \partial_phi
   Vector phi (ff.get_mp(), CON, *(ff.get_triad()) ) ;
 
   Scalar tmp (ff.get_mp() ) ;
   tmp = 1 ;
   tmp.std_spectral_base() ;
-
   tmp.mult_rsint() ;
 
   phi.set(1) = 0. ;
   phi.set(2) = 0. ;
-  phi.set(3) = tmp ;
-  
-  phi.std_spectral_base() ;
- 
+  phi.set(3) = tmp ; 
   
   Scalar k_rphi = contract(contract( radial_vect_hor(), 0, k_dd(), 0), 0, 
 			   phi, 0) / (8. * M_PI) ;
@@ -186,11 +185,9 @@ double Isol_hor::ang_mom_hor()const {
   Scalar integrand = k_rphi * darea_hor() ;   // we correct with the curved 
                                               // element of area 
 
-  Map_af map_affine (ff.get_mp() ) ;
+  double ang_mom = mp.integrale_surface(integrand, 1.0000000001) ;
 
-  double tmp_ang_mom = map_affine.integrale_surface(integrand, 1.0000000001) ;
-
-  return tmp_ang_mom ;
+  return ang_mom ;
 
 }
 

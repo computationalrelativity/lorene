@@ -28,6 +28,10 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.19  2005/03/22 13:25:49  f_limousin
+ * Small changes. The angular velocity and A^{ij} are computed
+ * with a differnet sign.
+ *
  * Revision 1.18  2005/03/15 19:28:11  f_limousin
  * Implement initial data for Kerr black hole in isotropic coordinates.
  *
@@ -280,7 +284,7 @@ int main() {
     Sym_tensor gamt(map, COV, map.get_bvect_spher()) ;
 
     gamt = ff.cov() + hh_tmp.up_down(ff) ;
-    cout << "norme de gamt" << endl << norme(gamt(1,1)) << endl << norme(gamt(2,1)) << endl << norme(gamt(3,1)) << endl << norme(gamt(2,2)) << endl << norme(gamt(3,2)) << endl << norme(gamt(3,3)) << endl ;
+//    cout << "norme de gamt" << endl << norme(gamt(1,1)) << endl << norme(gamt(2,1)) << endl << norme(gamt(3,1)) << endl << norme(gamt(2,2)) << endl << norme(gamt(3,2)) << endl << norme(gamt(3,3)) << endl ;
 
     // Determinant of gamma tilde is put to one 
     // ----------------------------------------
@@ -292,7 +296,7 @@ int main() {
     gamt = gamt*det_ust ;
     Metric met_gamt (gamt) ; 
 
-    cout << "norme de gamt" << endl << norme(gamt(1,1)) << endl << norme(gamt(2,1)) << endl << norme(gamt(3,1)) << endl << norme(gamt(2,2)) << endl << norme(gamt(3,2)) << endl << norme(gamt(3,3)) << endl ;
+//    cout << "norme de gamt" << endl << norme(gamt(1,1)) << endl << norme(gamt(2,1)) << endl << norme(gamt(3,1)) << endl << norme(gamt(2,2)) << endl << norme(gamt(3,2)) << endl << norme(gamt(3,3)) << endl ;
 
 
     // Gamma-tilde_point
@@ -310,7 +314,7 @@ int main() {
     gamt_point = hh_tmp ;
     gamt_point.inc_dzpuis(2) ;
 
-/*
+
     //--------------------------------------------------
     // Construction of Kerr Metric 
     //--------------------------------------------------
@@ -364,7 +368,9 @@ int main() {
     gamt = tgam.cov() ;
     met_gamt = gamt ;
 
-    ang_vel = - aaa / (2*mm*(mm+pow(mm*mm-aaa*aaa, 0.5))) ;
+    cout << "norme de gamt" << endl << norme(gamt(1,1)) << endl << norme(gamt(2,1)) << endl << norme(gamt(3,1)) << endl << norme(gamt(2,2)) << endl << norme(gamt(3,2)) << endl << norme(gamt(3,3)) << endl ;
+
+    ang_vel = 1.*aaa / (2*mm*(mm+pow(mm*mm-aaa*aaa, 0.5))) ;
     cout << "ang_vel = " << ang_vel << endl ;
     
     // Lapse function
@@ -406,6 +412,7 @@ int main() {
     beta_kerr.set(1) = 0. ;
     beta_kerr.set(2) = 0. ;
     beta_kerr.set(3) = beta_phi ;
+
     beta_kerr.std_spectral_base() ;
     beta_init = beta_kerr ;
 
@@ -418,7 +425,7 @@ int main() {
     psi_init = psi_kerr ;
     
     // End of the setup of Kerr metric
-    */
+    
     // Set up of extrinsic curvature
     // -----------------------------
 
@@ -453,9 +460,9 @@ int main() {
     }
 
     Sym_tensor aa_init (map, CON, map.get_bvect_spher()) ;
-    aa_init = psi_init*psi_init*psi_init*psi_init*kk_init
-	- 1./3. * trK * met_gamt.con() ;
-   
+    aa_init =  - psi_init*psi_init*psi_init*psi_init*kk_init 
+	- 1./3. * trK * met_gamt.con() ;   // Voir le signe...
+
 
     //-------------------------------------
     //     Construction of the space-time
@@ -468,11 +475,11 @@ int main() {
     Sym_tensor bidon (map, CON, map.get_bvect_spher()) ;
     bidon = isolhor.k_uu() ;
     Sym_tensor bidon2 (isolhor.k_dd()) ;
-/*
+
     psi_init = 1. ;
     psi_init.std_spectral_base() ;
     isolhor.set_psi_del_q(psi_init) ;
-*/
+
 
 //    nn_init = 1. ;
 //    nn_init.std_spectral_base() ;
@@ -498,6 +505,7 @@ int main() {
 
     isolhor.init_data(bound_nn, lim_nn, bound_psi, bound_beta, solve_lapse,
 			  seuil, relax, niter) ;
+
 /*
     des_meridian(psi_kerr, 1.00000001, 4., "psi kerr", 12) ;
     des_meridian(isolhor.psi(), 1.00000001, 4., "psi", 13) ;
@@ -507,6 +515,7 @@ int main() {
     des_meridian(isolhor.beta()(3) - beta_phi, 1.00000001, 4., "diff beta(3)", 17) ;
     arrete() ;
 */
+
     // Save in a file
     // --------------
     
@@ -568,11 +577,15 @@ int main() {
     cout << "ADM angular momentum= " << jj_adm <<endl ;  
 
     double aa = jj_adm / mm_adm ;
-    cout << "aa_adm : " << aa << endl ;  
+    cout << "J / M (ADM) : " << aa << endl ;  
 
     double aasmm = aa / mm_adm ;
-    cout << "aa / M : " << aasmm << endl ; 
+    cout << "J / M^2 : " << aasmm << endl ; 
 
+    double epsa = isolhor.area_hor() / 
+	(8*M_PI*(mm_adm*mm_adm + pow(pow(mm_adm, 4.) - jj_adm*jj_adm, 0.5))) ;
+    cout << "epsilon A : " << epsa << endl ;
+  
     double diff_mm = (mm_adm - mm_hor) / mm_adm ;
     cout << "diff mass : " << diff_mm << endl ;  
 

@@ -26,6 +26,10 @@ char regularisation_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/03/22 13:25:36  f_limousin
+ * Small changes. The angular velocity and A^{ij} are computed
+ * with a differnet sign.
+ *
  * Revision 1.3  2005/03/10 10:19:42  f_limousin
  * Add the regularisation of the shift in the case of a single black hole
  * and lapse zero on the horizon.
@@ -89,8 +93,8 @@ double Isol_hor::regularisation (const Vector& shift_auto_temp,
 	    tbi.set(i).set_spectral_va().set_etat_c_qcq() ;
 	    }
 	    
-	tbi.set(1) = *shift_tot(1).get_spectral_va().c - indic *om * shift_tot.get_mp().ya ;
-	tbi.set(2) = *shift_tot(2).get_spectral_va().c + indic *om * shift_tot.get_mp().xa ;
+	tbi.set(1) = *shift_tot(1).get_spectral_va().c + indic *om * shift_tot.get_mp().ya ;
+	tbi.set(2) = *shift_tot(2).get_spectral_va().c - indic *om * shift_tot.get_mp().xa ;
 	tbi.std_spectral_base() ;
 	tbi.set(1).annule_domain(nz-1) ;
 	tbi.set(2).annule_domain(nz-1) ;
@@ -161,8 +165,8 @@ double Isol_hor::regularise_one () {
     for (int i=1 ; i<=3 ; i++)
 	shift(i).get_spectral_va().coef_i() ;
 	
-    tbi.set(1) = *shift(1).get_spectral_va().c - omega*mp.y - boost_x ;
-    tbi.set(2) = *shift(2).get_spectral_va().c + omega*mp.x ;
+    tbi.set(1) = *shift(1).get_spectral_va().c + omega*mp.y - boost_x ;
+    tbi.set(2) = *shift(2).get_spectral_va().c - omega*mp.x ;
     tbi.set(3) = *shift(3).get_spectral_va().c - boost_z ;
     tbi.std_spectral_base() ;
     

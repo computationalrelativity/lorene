@@ -30,6 +30,10 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2005/03/22 13:25:36  f_limousin
+ * Small changes. The angular velocity and A^{ij} are computed
+ * with a differnet sign.
+ *
  * Revision 1.15  2005/03/10 10:19:42  f_limousin
  * Add the regularisation of the shift in the case of a single black hole
  * and lapse zero on the horizon.
@@ -527,7 +531,7 @@ const Valeur Isol_hor:: boundary_beta_x(double om)const {
     
     for (int k=0 ; k<nnp ; k++)
 	for (int j=0 ; j<nnt ; j++)
-	    lim_x.set(0, k, j, 0) = aligne * om * ya_mtbl(1, k, j, 0) 
+	    lim_x.set(0, k, j, 0) = - aligne * om * ya_mtbl(1, k, j, 0) 
 		+ tmp_vect(1).val_grid_point(1, k, j, 0) ;
     
   lim_x.set_base(*(mp.get_mg()->std_base_vect_cart()[0])) ;
@@ -564,7 +568,7 @@ const Valeur Isol_hor:: boundary_beta_y(double om)const {
     
     for (int k=0 ; k<nnp ; k++)
 	for (int j=0 ; j<nnt ; j++)
-	    lim_y.set(0, k, j, 0) = - aligne * om * xa_mtbl(1, k, j, 0) 
+	    lim_y.set(0, k, j, 0) = + aligne * om * xa_mtbl(1, k, j, 0) 
 		+ tmp_vect(2).val_grid_point(1, k, j, 0) ;
     
   lim_y.set_base(*(mp.get_mg()->std_base_vect_cart()[1])) ;
@@ -710,7 +714,6 @@ const Valeur Isol_hor::boundary_b_tilde_Dir()const {
 
 }
 
-
 const Vector Isol_hor::vv_bound_cart(double om) const{
 
   // Preliminaries
@@ -729,7 +732,7 @@ const Vector Isol_hor::vv_bound_cart(double om) const{
   ang_vel.mult_rsint() ;
   
   Scalar bc_source (mp) ;
-  bc_source = 0. ;
+  bc_source = 0.01 ;
   bc_source.std_spectral_base() ;
   bc_source.inc_dzpuis(2) ;
 

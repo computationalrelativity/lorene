@@ -30,6 +30,10 @@ char source_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2005/03/22 13:25:36  f_limousin
+ * Small changes. The angular velocity and A^{ij} are computed
+ * with a differnet sign.
+ *
  * Revision 1.10  2005/03/03 10:11:57  f_limousin
  * The function source_psi(), source_nn() and source_beta() are
  * now const and return an object const.
@@ -199,9 +203,6 @@ const Vector Isol_hor::source_beta() const {
         
     Scalar aa_quad = contract(taa, 0, 1, aa(), 0, 1) ; 
 
-    Sym_tensor uu =  2.* nn() * aa() -  beta().ope_killing_conf(met_gamt)  ;
-
-
     // Source for beta 
     // ---------------
     
@@ -220,7 +221,7 @@ const Vector Isol_hor::source_beta() const {
       + 0.3333333333333333*
       contract(hh(), 1, beta().divergence(ff).derive_cov(ff), 0) 
       - hdirac().derive_lie(beta()) 
-      + uu.divergence(ff) ;                       // zero in the Driac gauge
+	+ gamt_point.divergence(ff) ;      // zero in the Dirac gauge
     vtmp.inc_dzpuis() ; // dzpuis: 3 -> 4
     
     source -= vtmp ; 
