@@ -25,6 +25,9 @@ char et_bfort_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2002/10/14 14:20:08  j_novak
+ * Error corrected for angu_mom()
+ *
  * Revision 1.5  2002/05/10 09:26:52  j_novak
  * Added new class Et_rot_mag for magnetized rotating neutron stars (under development)
  *
@@ -149,7 +152,7 @@ double Et_rot_bifluid::angu_mom() const {
       dens = us(2) ;
       dens.mult_rsint() ;
 
-      dens = a_car() * b_car() * dens ; 
+      dens = a_car() * b_car()* bbb() * dens ; 
     }
     else {    // Newtonian case 
       dens = nbar() * uuu() + nbar2() *uuu2() ; 
