@@ -28,6 +28,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/05/14 08:41:05  e_gourgoulhon
+ * Added declaration "class Tbl ;" before the declarations of
+ * write_formatted.
+ *
  * Revision 1.12  2004/05/13 21:30:32  e_gourgoulhon
  * Use of function write_formatted in method save( ).
  *
@@ -93,6 +97,7 @@
 #include <math.h>
 #include <time.h>
 
+class Tbl ; 
 void write_formatted(const double&, ostream& ) ; 
 void write_formatted(const Tbl&, ostream& ) ; 
 
