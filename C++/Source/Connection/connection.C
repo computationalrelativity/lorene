@@ -30,6 +30,10 @@ char connection_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/02 21:32:06  e_gourgoulhon
+ * Added constructor from Metric.
+ * Added functions fait_delta and update.
+ *
  * Revision 1.2  2003/10/01 15:42:49  e_gourgoulhon
  * still ongoing...
  *
@@ -51,6 +55,7 @@ char connection_C[] = "$Header$" ;
 
 // Lorene headers
 #include "connection.h"
+#include "metric.h"
 
 
 					//------------------------------//
@@ -64,12 +69,54 @@ Connection::Connection(const Tensor_delta& delta_i) : mp(&(delta_i.get_mp())),
 		triad(delta_i.get_triad()),
 		delta(delta_i), 
 		assoc_metric(false),
-		flat_conn(0x0) {	//## flat_conn((delta_i.get_triad())->connect(delta_i.get_mp())
+		flat_conn(0x0) {
+	
+	const Base_vect_spher* bvs = dynamic_cast<const Base_vect_spher*>(triad) ; 
+	if (bvs != 0x0) {
+		flat_conn = new Connection_fspher(*mp, *bvs) ; 
+	}
+	else{
+		const Base_vect_cart* bvc = dynamic_cast<const Base_vect_cart*>(triad) ;
+		if (bvc == 0x0) {
+			cout << "Connection::Connection : unknown type of triad !" << endl ;
+			abort() ; 			
+		}
+		//##
+		// flat_conn = new Connection_fcart(*mp, *bvc) ; 
+	}
+	
 	
 	set_der_0x0() ; 
 
 	
 }		
+
+
+// Standard constructor from a metric. 
+
+Connection::Connection(const Metric& met) : mp(&(met.get_mp())),
+		triad(met.cov().get_triad()),
+		delta(*mp, CON, COV, COV, *triad),
+		assoc_metric(true),
+		flat_conn(0x0) {
+		
+	const Base_vect_spher* bvs = dynamic_cast<const Base_vect_spher*>(triad) ; 
+	if (bvs != 0x0) {
+		flat_conn = new Connection_fspher(*mp, *bvs) ; 
+	}
+	else{
+		const Base_vect_cart* bvc = dynamic_cast<const Base_vect_cart*>(triad) ;
+		if (bvc == 0x0) {
+			cout << "Connection::Connection : unknown type of triad !" << endl ;
+			abort() ; 			
+		}
+		//##
+		// flat_conn = new Connection_fcart(*mp, *bvc) ; 
+	}
+
+	fait_delta(met) ; 	// Computes delta
+
+}
 
 
 // Copy constructor
@@ -78,7 +125,16 @@ Connection::Connection(const Connection& conn_i) : mp(conn_i.mp),
 		triad(conn_i.triad),
 		delta(conn_i.delta), 
 		assoc_metric(conn_i.assoc_metric),
-		flat_conn(conn_i.flat_conn) {
+		flat_conn(0x0) {
+		
+	if (conn_i.flat_conn != 0x0) {
+		const Connection_fspher* cfs = 
+			dynamic_cast<const Connection_fspher*>(conn_i.flat_conn) ; 
+		if (cfs != 0x0) {
+			flat_conn = new Connection_fspher(*cfs) ; 			
+		}
+		//## cas Connection_fcart
+	}
 	
 	set_der_0x0() ; //## a voir
 	
@@ -104,6 +160,8 @@ Connection::Connection(const Map& mpi, const Base_vect& bi) : mp(&mpi),
 
 
 Connection::~Connection(){
+
+	if (flat_conn != 0x0) delete flat_conn ; 
 
 	del_deriv() ; 
 	
@@ -137,6 +195,17 @@ void Connection::operator=(const Connection& ci) {
 	
 	assert( triad == ci.triad ) ; 
 	delta = ci.delta ; 
+	if (flat_conn != 0x0) delete flat_conn ; 
+	flat_conn = 0x0 ; 
+
+	if (ci.flat_conn != 0x0) {
+		const Connection_fspher* cfs = 
+			dynamic_cast<const Connection_fspher*>(ci.flat_conn) ; 
+		if (cfs != 0x0) {
+			flat_conn = new Connection_fspher(*cfs) ; 			
+		}
+		//## cas Connection_fcart
+	}
 	
 	del_deriv() ; 
 
@@ -157,7 +226,6 @@ Tensor Connection::derive_cov(const Tensor&) const {
 } 
 
 
-
 const Tensor& Connection::ricci() const {
 
 	if (p_ricci == 0x0) {
@@ -169,12 +237,45 @@ const Tensor& Connection::ricci() const {
 }
 
 
+void Connection::update(const Tensor_delta& delta_i) {
+
+	assert(assoc_metric == false) ;
+	
+	assert(flat_conn != 0x0) ; // to guarantee we are not in a derived class
+	
+	delta = delta_i ; 
+	
+	del_deriv() ; 
+	
+}
+
+
+void Connection::update(const Metric& met) {
+
+	assert(assoc_metric == true) ;
+	
+	assert(flat_conn != 0x0) ; // to guarantee we are not in a derived class
+	
+	fait_delta(met) ; 
+	
+	del_deriv() ; 
+	
+}
+
 void Connection::compute_ricci() const {
 
 	cout << "Connection::compute_ricci() : not implemented yet !" << endl ; 
 	abort() ; 
 
 }
+
+
+void Connection::fait_delta(const Metric& ) {
+
+	cout << "Connection::fait_delta : not implemented yet !" << endl ; 
+	abort() ; 
+
+}  
 
 
 
