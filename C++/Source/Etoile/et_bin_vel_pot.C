@@ -33,6 +33,9 @@ char et_bin_vel_pot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/01/17 13:38:56  f_limousin
+ * Add comments
+ *
  * Revision 1.3  2003/01/13 15:31:50  e_gourgoulhon
  * Suppressed the desaliasing
  *  (did not worked due to missing basis in ylm).
@@ -105,6 +108,7 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
 
     //----------------------------------------------
     //  Computation of W^i = - A^2 h Gamma_n B^i/N
+    // See Eq (62) from Gourgoulhon et al. (2001)
     //----------------------------------------------
 
     Tenseur www = - a_car * hhh * gam_euler * bsn ; 
@@ -150,7 +154,8 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
 		    + unsurc2 * zeta_h * beta.gradient_spher() ;
 		    
     Tenseur entmb = ent - beta ; 
-		    
+    
+    // See Eq (63) from Gourgoulhon et al. (2001)
     Tenseur source = flat_scalar_prod( www - v_orb, ent.gradient() )
 		     + unsurc2 * zeta_h * (
 			 flat_scalar_prod( v_orb, entmb.gradient() )
