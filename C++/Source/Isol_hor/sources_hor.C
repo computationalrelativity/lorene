@@ -28,6 +28,11 @@
 char source_hor_C[] = "$Header$" ;
 
 /*
+ * $Id$
+ * $Log$
+ * Revision 1.2  2004/09/09 16:55:08  f_limousin
+ * Add the 2 lines $Id: and $Log: for CVS
+ *
  *
  * $Header$
  *
