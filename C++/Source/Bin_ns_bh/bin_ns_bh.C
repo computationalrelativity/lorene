@@ -29,6 +29,9 @@ char bin_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/12/19 14:51:19  e_gourgoulhon
+ * Added the new functions set_omega and set_x_axe
+ *
  * Revision 1.2  2002/12/18 10:31:15  e_gourgoulhon
  * irrot : int -> bool
  *
@@ -170,6 +173,25 @@ void Bin_ns_bh::operator=(const Bin_ns_bh& bibi) {
     del_deriv() ;  // Deletes all derived quantities
 
 }
+
+void Bin_ns_bh::set_omega(double omega_i) {
+
+        omega = omega_i ;
+	hole.set_omega(omega) ;
+
+	del_deriv() ;
+
+}
+
+void Bin_ns_bh::set_x_axe(double x_axe_i) {
+
+        x_axe = x_axe_i ;
+
+	del_deriv() ;
+
+}
+
+
 
 			    //--------------//
 			    //	  Outputs   //
