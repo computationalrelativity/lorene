@@ -29,6 +29,9 @@ char map_et_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/07/07 20:01:43  p_grandclement
+ * change assert in constructor for map_et from a surface
+ *
  * Revision 1.6  2003/06/04 21:11:55  p_grandclement
  * Correction of separation in odd-even harmonics
  *
@@ -196,8 +199,8 @@ Map_et::Map_et(const Mg3d& grille, const double* r_lim, const Tbl& S_0) :
 		gg(grille.get_angu()) {
   
   assert (S_0.get_ndim() == 2) ;
-  assert (S_0.get_dim(0) == grille.get_np(0)) ;
-  assert (S_0.get_dim(1) == grille.get_nt(0)) ;
+  assert (S_0.get_dim(0) == grille.get_nt(0)) ;
+  assert (S_0.get_dim(1) == grille.get_np(0)) ;
 
   Map_et mapping (grille, r_lim) ;
 
