@@ -28,6 +28,10 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.14  2004/11/18 10:02:37  jl_jaramillo
+ * gamt and gamt_point well constructed as tensor in spaherical
+ * components
+ *
  * Revision 1.13  2004/11/09 12:40:08  f_limousin
  * Add some printing
  *
@@ -84,7 +88,7 @@ int main() {
     // Setup of a multi-domain grid (Lorene class Mg3d)
     // ------------------------------------------------
 
-    int nz, nt, np, nr ;
+    int nz, nt, np, nr1, nrp1 ;
 
     ifstream fpar("par_hor.d") ;
     fpar.ignore(1000, '\n') ;
@@ -92,11 +96,12 @@ int main() {
     fpar >> nz; fpar.ignore(1000, '\n');
     fpar >> nt; fpar.ignore(1000, '\n');
     fpar >> np; fpar.ignore(1000, '\n');
-    fpar >> nr; fpar.ignore(1000, '\n');
+    fpar >> nr1; fpar.ignore(1000, '\n');
+    fpar >> nrp1; fpar.ignore(1000, '\n');
 
-    int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
-    int symmetry_phi = NONSYM ; // no symmetry in phi
-    bool compact = true ; // external domain is compactified
+
+    int type_t = SYM ; // symmetry with respect to the equatorial plane
+    int type_p = NONSYM ; // no symmetry in phi
   
     double radius, relax, seuil, niter, ang_vel ;
     fpar >> radius; fpar.ignore(1000, '\n');
@@ -105,24 +110,32 @@ int main() {
     fpar >> niter; fpar.ignore(1000, '\n');
     fpar >> ang_vel; fpar.ignore(1000, '\n');
     
+    int* nr_tab = new int[nz];
+    int* nt_tab = new int[nz];
+    int* np_tab = new int[nz];
+    double* bornes = new double[nz+1];
+    
+    for (int l=0; l<nz; l++) {
+      if (l==1) nr_tab[1] = nr1 ;
+      else nr_tab[l] = nrp1 ;
+      np_tab[l] = np ; 
+      nt_tab[l] = nt ; 
+      bornes[l] = pow(2., l-1) * radius ;
+    }
+    bornes[0] = 0. ;
+    bornes[nz] = __infinity ; 
+
+    // Type of r sampling : 
+    int* type_r = new int[nz];
+    type_r[0] = RARE ; 
+    for (int l=1; l<nz-1; l++) {
+      type_r[l] = FIN ; 
+    }
+    type_r[nz-1] = UNSURR ; 
 
     // Multi-domain grid construction:
-    Mg3d mgrid(nz, nr, nt, np, symmetry_theta, symmetry_phi, compact) ;
-	
-    //    cout << mgrid << endl ; 
+    Mg3d mgrid(nz, nr_tab, type_r, nt_tab, type_t, np_tab, type_p) ;
 
-  
-    // Setup of an affine mapping : grid -->physical space(Lorene class Map_af)
-    // -----------------------------------------------------------------------
-
-    // radial boundaries of each domain:
-    double* bornes = new double[nz+1];
-    bornes[0] = 0. ;
-    for (int l=1; l<nz; l++) 
-	bornes[l] = pow(2., l-1) * radius ;
-	
-    bornes[nz] = __infinity ; 
-  
     Map_af map(mgrid, bornes) ;   // Mapping construction
   	
     // Denomination of various coordinates associated with the mapping 
@@ -139,6 +152,8 @@ int main() {
     // -------------
 
     const Metric_flat& ff = map.flat_met_spher() ; 
+
+
     Scalar det = ff.determinant() ;
 
     // Triad orthonormal with respect to the flat metric f
@@ -166,38 +181,12 @@ int main() {
     Scalar expmr(map) ;
     expmr = expr ;
 
-    Mtbl exprmr0 = exp(-(r-3)/0.2) ;
-    Scalar exprmr(map) ;
-    exprmr = exprmr0 ;
 
+    Mtbl exprr = exp(-pow(r-3,2.)) ;
+    Scalar expmrr(map) ;
+    expmrr = exprr ;
  
-    Scalar a2(map) ;
-    Scalar b2(map) ;
- 
-    double aa = 1.53 ;
-    double mm = 1.532 ;
-    double hh = pow(mm*mm-aa*aa, 0.5) ;
-//    ang_vel = aa/(2*mm*(mm+pow(mm*mm-aa*aa,0.5))) ;
-    cout << "angular velocity = " << ang_vel << endl ;
 
-    const Coord& rr = map.r ;
-    const Coord& theta = map.tet ;
-
-    a2 = 1. + 2.*mm/rr + (3.*mm*mm + aa*aa*cos(2.*theta))/(2.*rr*rr)
-	+ (hh*hh*mm)/(2.*pow(rr, 3.)) + pow(hh,4.)/(16.*pow(rr,4.)) ;
-
-    b2 = ( pow(rr,8.) + 4.*mm*pow(rr,7.) + (7.*mm*mm + 
-	   aa*aa*cos(theta)*cos(theta))*pow(rr,6.) + mm*(7.*mm*mm+aa*aa)
-	   *pow(rr,5.) + (4.*pow(mm,4.) + hh*hh*(3.*hh*hh/4.+aa*aa*sin(theta)
-	   *sin(theta))/2.)*pow(rr,4.) + hh*hh*mm*(2.*mm*mm-hh*hh/4.)
-	   *pow(rr,3.) + pow(hh,4.)/16.*(7.*mm*mm + aa*aa*cos(theta)
-	   *cos(theta))*rr*rr + pow(hh,6.)*mm/16.*rr + pow(hh,8.)/256. ) 
-	   / ( pow(rr,8.) + 2.*mm*pow(rr,7.) + (3.*mm*mm + aa*aa
-           *cos(2.*theta))/2.*pow(rr,6.) + hh*hh*mm/2.*pow(rr,5.) 
-	   + pow(hh,4.)/16.*pow(rr,4.)) ;
-
-    b2.set_outer_boundary(nz-1, 1.) ;
- 
     // Physical Parameters
     //--------------------
     
@@ -221,7 +210,7 @@ int main() {
     Vector beta_init(map, CON, otriad ) ; 
     beta_init.set_etat_zero() ; 
 
-    beta_init.set(1) = 0. ;
+    beta_init.set(1) = 0.0001*unsr*unsr  ;
     beta_init.set(2) = 0. ;
     beta_init.set(3) = 0. ;
     beta_init.annule_domain(0) ;
@@ -238,39 +227,73 @@ int main() {
 
     Scalar trK_point (map) ;
     trK_point = 0. ;
+
     trK_point.std_spectral_base() ;
 	
     // gamt, gamt_point
     // ----------------
 
+    Scalar khi (map) ;
+    khi = 0. ;
+    khi.std_spectral_base() ;
+    
+    Scalar mu (map) ;
+    mu = 0. ;
+    mu.std_spectral_base() ;
+    
+    Sym_tensor_tt hh_tmp (map, otriad, ff) ;
+    hh_tmp.set_khi_mu(khi, mu) ;
+
+    
+    //Construction of a gamt
+    //----------------------
+
     Sym_tensor gamt(map, COV, map.get_bvect_spher()) ;
-    gamt.set(1,1) = 1. ;//pow(a2/b2, 1./6.) ;
-    gamt.set(2,2) = 1. ;//pow(a2/b2, 1./6.) ;
-    gamt.set(3,3) = 1. ;//pow(b2/a2, 1./3.) ;
+
+    gamt = ff.cov() + hh_tmp.up_down(ff) ;
+    cout << gamt ;
+
+    /*
+    gamt.set(1,1) = 1. ;
+    gamt.set(2,2) = 1. ;
+    gamt.set(3,3) = 1. ;
     gamt.set(2,1) = 0. ;
     gamt.set(3,1) = 0. ;
-    gamt.set(3,2) = 0. ;
-    
-    int nnr = map.get_mg()->get_nr(1) ;
-    int nnp = map.get_mg()->get_np(1) ;
-    int nnt = map.get_mg()->get_nt(1) ;
-    cout << "norme de g11" << endl<< norme(gamt.set(1,1)/(nnr*nnt*nnp)) << endl ;
-    cout << "norme de g33" << endl<< norme(gamt.set(3,3)/(nnr*nnt*nnp)) << endl ;
-    
+    gamt.set(3,2) = 0.01*expmrr ;
     gamt.std_spectral_base() ;
-    Metric met_gamt (gamt) ;     
+    */
+    Metric met_gamt_tmp (gamt) ;     
+        
+    Scalar det_ust = pow(met_gamt_tmp.determinant(), -1./3.) ;
+    det_ust.std_spectral_base() ;
+    
+    gamt = gamt*det_ust ;
+    Metric met_gamt (gamt) ; 
+
+
+    // Gamma-tilde_point
+    //------------------
+    khi = 0. ;
+    khi.std_spectral_base() ;
+    
+    mu = 0. ;
+    mu.std_spectral_base() ;
+    
+    hh_tmp.set_khi_mu(khi, mu) ;
 
     Sym_tensor gamt_point(map, CON, map.get_bvect_spher()) ;
+    gamt_point = hh_tmp ;
+    gamt_point.inc_dzpuis(2) ;
+    /*
     gamt_point.set(1,1) = 0. ;
     gamt_point.set(2,2) = 0. ;
     gamt_point.set(3,3) = 0. ;
     gamt_point.set(2,1) = 0. ;
-    gamt_point.set(3,1) = -0*unsr*unsr ;
-    gamt_point.set(3,2) = -0*0.01*unsr*unsr ;
+    gamt_point.set(3,1) = 0. ;
+    gamt_point.set(3,2) = 0.1*unsr*unsr ;
     gamt_point.std_spectral_base() ;
-    gamt_point.inc_dzpuis(2) ;
+    */
 
-    //   gamt_point.set_etat_zero() ;
 
     // Set up of extrinsic curvature
     // -----------------------------
@@ -297,16 +320,43 @@ int main() {
     Isol_hor isolhor(nn_init, beta_init, psi_init, aa_init, met_gamt,
 		     gamt_point, trK, trK_point, ff, 3) ;
  
- 
+
+    //    des_profile(psi_init*psi_init*psi_init*psi_init*(isolhor.tgam().radial_vect()(1)), 1.00001, 10, M_PI/2., 0., "Radial component using metric.c") ;
+    
+    //    des_profile(met_gam.radial_vect()(1), 1.00001, 10, M_PI/2., 0., "Radial component using metric.c") ;
+    //    des_profile(met_gam.radial_vect()(2), 1.00001, 10, M_PI/2., 0., "Radial component using metric.c") ; 
+    //    des_profile(met_gam.radial_vect()(3), 1.00001, 10, M_PI/2., 0., "Radial component using metric.c") ;
+   
+
+
+    //    des_profile(isolhor.radial_vect_hor()(1), 1.00001, 10, M_PI/2., 0., "Radial component using isolhor.c") ;
+    //    cout<<met_gam.radial_vect()(1)-isolhor.radial_vect_hor()(1)<<endl;
+    //    arrete() ;
+    
+  
     //-----------------------------------------
-    //          "Call to init_data.C"
+    //          "Call to init_data.C" 
     //-----------------------------------------
     
+    isolhor.init_data(seuil, relax, niter, ang_vel) ;
+
+
+    /*
     tmp_scal.set_etat_zero() ;
     tmp_sym.set_etat_zero() ;
     tmp_scal.set_dzpuis(4) ;
 
-    isolhor.init_data(seuil, relax, niter, ang_vel) ;
+    isolhor.init_data_berlin(seuil, relax, niter, ang_vel) ;
+
+    isolhor.boundary_b_tilde_Neu() ;
+
+    isolhor.boundary_b_tilde_Dir() ;
+
+    isolhor.source_vector_b() ;
+
+    isolhor.vv_bound_cart(0.2) ;
+
+    */
 
     // Save in a file
     // --------------
@@ -362,6 +412,7 @@ int main() {
     // Physical parameters of the Bulk
     //--------------------------------
 
+    cout.precision(8) ;
     cout<< endl;
     cout<< "------------------------------------------------" <<endl;
     cout<< "      Physical parameters of the Bulk           " <<endl;
@@ -373,27 +424,21 @@ int main() {
     double jj_adm = isolhor.ang_mom_adm() ;
     cout << "ADM angular momentum= " << jj_adm <<endl ;  
 
+    double aa = jj_adm / mm_adm ;
+    cout << "aa_adm : " << aa << endl ;  
+
+    double diff_mm = (mm_adm - mm_hor) / mm_adm ;
+    cout << "diff mass : " << diff_mm << endl ;  
+
+    double diff_jj = (jj_adm - jj_hor) / jj_adm ;
+    cout << "diffangular momentum : " << diff_jj << endl ;  
+
+
     //--------------------------------------
     //        Comparison
     //--------------------------------------
 
-    cout<< endl;
-    cout<< "------------------------------------------------" <<endl;
-    cout<< "      Comparison of the physical parameters     " <<endl;
-    cout<< "------------------------------------------------" <<endl;
-
-    double diff_mass = (isolhor.adm_mass()-isolhor.mass_hor())
-	/ isolhor.mass_hor() ;
-    cout << "relative difference between masses : " << diff_mass << endl ;
-
-    double diff_J = (isolhor.ang_mom_adm()-isolhor.ang_mom_hor())
-	/ isolhor.ang_mom_hor() ;
-    cout << "relative difference between J : " << diff_J << endl ;
-
-    cout << "a = " << mm_adm / jj_adm << endl ;
-    
-
-    cout<<"Tout va bien / Todo bien!!! (Viva Cai!)" <<endl << endl ;
+    cout<<"Tout va bien boudiou / Todo bien!!! (Viva Cai!)"<<endl ;
 
     return EXIT_SUCCESS ; 
 }
