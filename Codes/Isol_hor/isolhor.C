@@ -29,6 +29,9 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.22  2005/03/30 12:08:33  f_limousin
+ * Implementation of K^{ij} (Eq.(13) Of Sergio (2002)).
+ *
  * Revision 1.21  2005/03/28 19:42:24  f_limousin
  * Implement the metric and A^{ij}A_{ij} of Sergio for pertubations
  * of Kerr black holes.
@@ -338,7 +341,7 @@ int main() {
 
     // Parameters
     // -----------
-    double mm = 2.5 ;
+    double mm = 2.01 ;
     double hh = 2. ;  // the radius is 1
     double aaa = pow (mm*mm-hh*hh, 0.5) ;
  
@@ -470,6 +473,7 @@ int main() {
 	for (int i=1 ; i<=3 ; i++)
 	    for (int j=i ; j<=3 ; j++) {
 		auxi = kk_temp(i, j) ;
+		auxi.annule_domain(0) ;
 		auxi = division_xpun (auxi, 0) ;
 		kk_init.set(i,j) = auxi / nn_sxpun ;
 	    }
@@ -491,40 +495,29 @@ int main() {
     Sym_tensor bidon (mp, CON, mp.get_bvect_spher()) ;
     bidon = isolhor.k_uu() ;
     Sym_tensor bidon2 (isolhor.k_dd()) ;
+    Scalar bidon3 (isolhor.aa_quad()) ;
     
     //-------------------------------------------------------
     // Test of the formula for A^{ij}A_{ij} in Sergio's paper
     //-------------------------------------------------------
-       
-    Sym_tensor aa_dd (aa_init.up_down(met_gamt)) ;
-    Scalar aa_quad_un (contract(aa_dd, 0, 1, aa_init, 0, 1)) ;
-    aa_quad_un.std_spectral_base() ;
-    aa_quad_un.set_domain(0) = 0. ;
-
+  
     // Put the metric tilde to the one in Sergio's paper
     isolhor.met_kerr_perturb() ;
  
-    cout << "aa_quad_un" << endl << norme(aa_quad_un/(nr_tab[1]*nt_tab[1]*np_tab[1])) << endl ;
-
-    isolhor.aa_kerr_perturb(mm, aaa) ;
-    cout << "aa_quad_deux" << endl << norme(isolhor.aa_quad()/(nr_tab[1]*nt_tab[1]*np_tab[1])) << endl ;
-
-    des_meridian (aa_quad_un, 0, 4, "aa_quad_un", 1) ;
-    des_meridian (isolhor.aa_quad(), 0, 4, "aa_quad_deux", 2) ;
-    des_meridian (isolhor.aa_quad()-aa_quad_un, 0, 4, "diff aa_quad", 3) ;
-    arrete() ;
-
+//    isolhor.aa_kerr_perturb(mm, aaa) ;
+    
 
     // New initialisation of the metric quantities
+    // --------------------------------------------
+
     psi_init = 1. ;
     psi_init.std_spectral_base() ;
     isolhor.set_psi_del_q(psi_init) ;
 
-
 //    nn_init = 1. ;
 //    nn_init.std_spectral_base() ;
-
  
+
     // Test of the constraints
     //------------------------
 
@@ -546,7 +539,7 @@ int main() {
     isolhor.init_data(bound_nn, lim_nn, bound_psi, bound_beta, solve_lapse,
 		      solve_psi, solve_shift, seuil, relax, niter) ;
 
-    /*
+    /*  
     des_meridian(psi_kerr, 1.00000001, 4., "psi kerr", 12) ;
     des_meridian(isolhor.psi(), 1.00000001, 4., "psi", 13) ;
     des_meridian(isolhor.psi()-psi_kerr, 1.00000001, 4., "diff psi", 14) ;

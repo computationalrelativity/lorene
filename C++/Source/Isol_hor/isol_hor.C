@@ -31,6 +31,9 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2005/03/30 12:08:20  f_limousin
+ * Implementation of K^{ij} (Eq.(13) Of Sergio (2002)).
+ *
  * Revision 1.19  2005/03/28 19:42:39  f_limousin
  * Implement the metric and A^{ij}A_{ij} of Sergio for pertubations
  * of Kerr black holes.
@@ -110,7 +113,7 @@ char isol_hor_C[] = "$Header$" ;
 #include "tensor.h"
 #include "metric.h"
 #include "evolution.h"
-
+#include "graphique.h"
 
 
 			    //--------------//
@@ -680,6 +683,8 @@ void Isol_hor::update_aa() {
   Scalar aquad (contract(aa_dd, 0, 1, aa_new, 0, 1)) ;
   aa_quad_evol.update(aquad, jtime, the_time[jtime]) ;
 
+//  cout << "norme de aquad" << endl << norme(aquad) << endl ;
+
   return ;
   
 }
@@ -725,26 +730,20 @@ void Isol_hor::aa_kerr_perturb(double mm, double aaa) {
 
   int nz = mp.get_mg()->get_nzone() ;
   
-  const Coord& r = mp.r ;        // r field 
-  const Coord& costt = mp.cost ;  // cos(theta) field
-  const Coord& sintt = mp.sint ;  // sin(theta) field
-  
   Scalar rr(mp) ;
-  rr = r ;
+  rr = mp.r ;
   Scalar cost (mp) ;
-  cost = costt ;
+  cost = mp.cost ;
   Scalar sint (mp) ;
-  sint = sintt ;
+  sint = mp.sint ;
   
   // rbl
   Scalar rbl = rr + mm + (mm*mm - aaa*aaa) / (4*rr) ;
-  rbl.std_spectral_base() ;
   
   // sigma
   Scalar sigma = 1. / (rbl*rbl + aaa*aaa*cost*cost) ;
   sigma.set_domain(0) = 1. ;
-  sigma.std_spectral_base() ;
-  
+ 
   // wby
   Scalar wby = aaa*mm*(cost*cost*cost - 3*cost) ;
   wby.set_spectral_va().set_base_r(0,R_CHEBPIM_P) ;
@@ -764,22 +763,101 @@ void Isol_hor::aa_kerr_perturb(double mm, double aaa) {
   ww.set_spectral_va().set_base_t(T_COSSIN_CI) ;
   ww.set_spectral_va().set_base_p(P_COSSIN) ;
   
-  // A^{ij]A_{ij}
+  // Quadratic part A^{ij]A_{ij}
+  //----------------------------
+
   Scalar aquad = 2*contract(ww.derive_con(met_gamt), 0, 
 			    ww.derive_cov(met_gamt), 0) ;
-  
+
   aquad.div_rsint() ;
   aquad.div_rsint() ;
   aquad.div_rsint() ;
   aquad.div_rsint() ;
+
   aquad.set_domain(0) = 0. ;
   Base_val sauve_base (aquad.get_spectral_va().get_base()) ;
   
   aquad = aquad * pow(gam_dd()(3,3), -3) ;
   aquad.set_spectral_va().set_base(sauve_base) ;
+ 
+/*
+  des_meridian (aquad, 0, 4, "aquad", 1) ;
+  des_meridian (aa_quad(), 0, 4, "aa_quad()", 2) ;
+  des_meridian (aa_quad()-aquad, 0, 4, "diff aa_quad", 3) ;
+  arrete() ;
+*/
   
   aa_quad_evol.update(aquad, jtime, the_time[jtime]) ;
   
-  return ;
-  
+
+  // Extrinsic curvature A^{ij} and A_{ij}
+  // -------------------------------------
+
+    Scalar s_r (ww.derive_cov(ff)(2)) ;
+    s_r = - s_r * gam().cov()(3,3) / gam().cov()(1,1) ;
+    s_r.div_rsint() ;
+
+    Scalar s_t (ww.derive_cov(ff)(1)) ;
+    s_t = s_t * gam().cov()(3,3) / gam().cov()(1,1)  ;
+    s_t.div_rsint() ;
+
+    Vector ss (mp, CON, mp.get_bvect_spher()) ;
+    ss.set(1) = s_r ;
+    ss.set(2) = s_t ;
+    ss.set(3) = 0. ;
+
+    Sym_tensor aij (mp, CON, mp.get_bvect_spher()) ;
+    aij.set(1,1) = 0. ;
+    aij.set(2,1) = 0. ;
+    aij.set(2,2) = 0. ;
+    aij.set(3,3) = 0. ;
+    aij.set(3,1) = s_r ;
+    aij.set(3,1).div_rsint() ;
+    aij.set(3,2) = s_t ;
+    aij.set(3,2).div_rsint() ;
+
+    Base_val base_31 (aij(3,1).get_spectral_va().get_base()) ;
+    Base_val base_32 (aij(3,2).get_spectral_va().get_base()) ;
+
+    aij.set(3,1) = aij(3,1) * pow(gam().cov()(1,1), 0.666666666) 
+	                    * pow(gam().cov()(3,3), -2.16666666666) ;
+    aij.set(3,1).set_spectral_va().set_base(base_31) ;
+    aij.set(3,2) = aij(3,2) * pow(gam().cov()(1,1), 0.666666666) 
+	                    * pow(gam().cov()(3,3), -2.1666666666) ;
+    aij.set(3,2).set_spectral_va().set_base(base_32) ;
+
+    cout << "norme de A(3,1)" << endl << norme(aij(3,1)) << endl ;
+    cout << "norme de A(3,2)" << endl << norme(aij(3,2)) << endl ;
+	
+    cout << "norme de A_init(3,1)" << endl << norme(aa()(3,1)) << endl ;
+    cout << "norme de A_init(3,2)" << endl << norme(aa()(3,2)) << endl ;
+
+/*
+    des_meridian(aij(3,1), 0., 4., "aij(3,1)", 0) ;
+    des_meridian(aa()(3,1), 0., 4., "aa_init(3,1)", 1) ;
+    des_meridian(aa()(3,1)-aij(3,1), 0., 4., "diff_aa(3,1)", 2) ;
+    des_meridian(aij(3,2), 0., 4., "aij(3,2)", 3) ;
+    des_meridian(aa()(3,2), 0., 4., "aa_init(3,2)", 4) ;
+    des_meridian(aa()(3,2)-aij(3,2), 0., 4., "diff_aa(3,2)", 5) ;
+    arrete() ;
+*/
+
+    aa_evol.update(aij, jtime, the_time[jtime]) ;
+    Sym_tensor kij (aij) ;
+    kij = kij * pow(gam().determinant(), -1./3.) ;
+    kij.std_spectral_base() ;
+    k_uu_evol.update(kij, jtime, the_time[jtime]) ;
+    k_dd_evol.update(kij.up_down(gam()), jtime, the_time[jtime]) ;
+
+
+    // We set now tgam to the one with determinant 1... to be removed later...
+    Sym_tensor gamtilde(gam().cov()) ;
+    gamtilde = gamtilde * pow(gam().determinant(), -1./3.) ;
+    gamtilde.std_spectral_base() ;
+    Metric metgamt (gamtilde) ;
+    met_gamt = metgamt ;
+    hh_evol.update(met_gamt.con() - ff.con(), jtime, the_time[jtime]) ;
+
+    return ;
+    
 }
