@@ -35,6 +35,9 @@ char sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/10/07 09:56:59  j_novak
+ * method Sym_tensor::inverse() implemented (but not tested!)
+ *
  * Revision 1.6  2003/10/06 13:58:48  j_novak
  * The memory management has been improved.
  * Implementation of the covariant derivative with respect to the exact Tensor
@@ -240,11 +243,75 @@ void Sym_tensor::operator= (const Tensor& t) {
 
 Sym_tensor* Sym_tensor::inverse() const {
 
-  cout << "Sym_tensor::inverse : not ready yet! " << endl ;
-
-  abort() ;
-
-  return 0x0 ;
+  //Le resultat :
+  Sym_tensor* res = 
+    new Sym_tensor(*mp, -type_indice(0), *triad) ;
+    
+  // le determinant :
+  Scalar determ1(*mp) ;
+  determ1 = double(1)/
+    (operator()(1, 1)*operator()(2, 2)*operator()(3, 3) 
+     + operator()(1, 2)*operator()(2, 3)*operator()(1, 3)
+     + operator()(1, 3)*operator()(1, 2)*operator()(2, 3) 
+     - operator()(1, 3)*operator()(2, 2)*operator()(1, 3)
+     - operator()(2, 3)*operator()(2, 3)*operator()(1, 1) 
+     - operator()(3, 3)*operator()(1, 2)*operator()(1, 2) ) ;
+    
+  int sgn ;	// Le signe du co-facteur ...
+  int l_up, l_down, c_left, c_right ;	    // Coordonnees du cofacteur :
+    
+  Scalar cofacteur(*mp) ;
+    
+  for (int i=1 ; i<=3 ; i++) {
+    sgn = 1 ;
+    for (int j=i ; j<=3 ; j++) {
+	    
+      switch (j) {
+		
+      case 1 : {
+	c_left = 2 ;
+	c_right = 3 ;
+	break ;
+      }
+      case 2 : {
+	c_left = 1 ;
+	c_right = 3 ;
+	break ;
+      }
+      default : {
+	c_left = 1 ;
+	c_right = 2 ;
+	break ;
+      }
+      }
+	    
+      switch (i) {
+		
+      case 1 : {
+	l_up = 2 ;
+	l_down = 3 ;
+	break ;
+      }
+      case 2 : {
+	l_up = 1 ;
+	l_down = 3 ;
+	break ;
+      }
+      default : {
+	l_up = 1 ;
+	l_down = 2 ;
+	break ;
+      } 
+      }
+	    
+      cofacteur = sgn*(operator()(l_up, c_left)*operator()(l_down, c_right)-
+		       operator()(l_up, c_right)*operator()(l_down, c_left))*determ1 ;
+	    
+      res->set(i, j) = cofacteur ;
+      sgn *= -1 ;
+    }
+  }
+  return res ;
 
 }
 
