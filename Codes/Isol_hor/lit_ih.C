@@ -29,6 +29,9 @@ char lit_ih_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/03/04 18:24:09  jl_jaramillo
+ * Extrinsic curvature graphical output.
+ *
  * Revision 1.1  2005/03/03 10:19:47  f_limousin
  * First version
  *
@@ -60,13 +63,14 @@ char lit_ih_C[] = "$Header$" ;
 int main(int argc, char** argv) {
 
   using namespace Unites ;
+  
     if (argc <2) {
 	cout <<" Passer nom du ficher en arguments SVP !" << endl ;
 	abort() ;
     }
-
+  
     char* name_fich = argv[1] ;
-
+  
     FILE* fich = fopen(name_fich, "r") ;    
     Mg3d grid (fich) ;
     Map_af mp (grid, fich) ;
@@ -80,10 +84,6 @@ int main(int argc, char** argv) {
     //---------------------------------------
 
     Vector beta (isolhor.beta()) ;
-    beta.change_triad(mp.get_bvect_cart()) ;
-    beta.set(1) = beta(1) + isolhor.get_boost_x() ;
-    beta.set(3) = beta(3) + isolhor.get_boost_z() ;
-    beta.change_triad(mp.get_bvect_spher()) ;
     Scalar bb (contract(beta, 0, isolhor.tgam().radial_vect()
 			.down(0, isolhor.tgam()), 0)
 	       *isolhor.psi()*isolhor.psi()) ;
@@ -101,18 +101,6 @@ int main(int argc, char** argv) {
     surface = pow(mp.r, 2.)-pow(isolhor.get_radius(), 2.) ;
     surface.annule(grid.get_nzone()-1) ;
     surface.std_base_scal() ;
-    
-    // Lapse
-
-    Cmp lapse (isolhor.nn()) ;
-    des_coupe_z(lapse, 0, -5, 5, -5, 5, "lapse", &surface) ;
-    des_coupe_x(lapse, 0, -5, 5, -5, 5, "lapse", &surface) ;
-    
-    // Psi
-    
-    Cmp psi (isolhor.psi()) ;
-    des_coupe_z(psi, 0, -5, 5, -5, 5, "psi", &surface) ;
-    des_coupe_x(psi, 0, -5, 5, -5, 5, "psi", &surface) ;
     
     // Shift
     
@@ -154,8 +142,6 @@ int main(int argc, char** argv) {
 
     des_coupe_vect_z(shift, 0, -1, 0.7, 3, "shift angular", &surface) ;
     des_coupe_vect_x(shift, 0, -1, 0.7, 3, "shift angular", &surface) ;
-    
-
 
     // \gamma^{rr} and \gamma^{rp}
 
@@ -167,7 +153,35 @@ int main(int argc, char** argv) {
     des_coupe_z(gam_rp, 0, -5, 5, -5, 5, "gam_rp", &surface) ;
     des_coupe_x(gam_rp, 0, -5, 5, -5, 5, "gam_rp", &surface) ;
     
+    // K^{rr}, K^{rt} and K^{rp}
+    
+    Vector pp(contract(isolhor.k_dd(), 0,isolhor.tgam().radial_vect() , 0)/isolhor.psi()/isolhor.psi()) ;
+    Cmp ksp (pp(3)) ;
+    des_coupe_z(ksp, 0, -5, 5, -5, 5, "K^sp", &surface) ;
+    
+    pp.change_triad(mp.get_bvect_cart()) ;
+    Cmp ksx (pp(1)) ;
+    Cmp ksy (pp(2)) ;
+    Cmp ksz (pp(3)) ;
+    
+    des_coupe_z(ksx, 0, -5, 5, -5, 5, "K^sx", &surface) ;
+    des_coupe_z(ksy, 0, -5, 5, -5, 5, "K^sy", &surface) ;
+    des_coupe_z(ksz, 0, -5, 5, -5, 5, "K^sz", &surface) ; 
+
+    // Lapse
+
+    Cmp lapse (isolhor.nn()) ;
+    des_coupe_z(lapse, 0, -5, 5, -5, 5, "lapse", &surface) ;
+    des_coupe_x(lapse, 0, -5, 5, -5, 5, "lapse", &surface) ;
+    
+    // Psi
+    
+    Cmp psi (isolhor.psi()) ;
+    des_coupe_z(psi, 0, -5, 5, -5, 5, "psi", &surface) ;
+    des_coupe_x(psi, 0, -5, 5, -5, 5, "psi", &surface) ;
+    
 
 
-    return 1; 
+
+    return 1 ; 
 }
