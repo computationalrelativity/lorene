@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2005/03/04 09:39:31  f_limousin
+ * Implement the constructor from a file, operator>>, operator<<
+ * and function sauve in the class Bin_hor.
+ *
  * Revision 1.21  2005/03/03 10:25:16  f_limousin
  * In the class Isol_hor :
  *    - Add the boost in x and z-direction (members boost_x and boost_z,
@@ -649,23 +653,66 @@ class Bin_hor {
     
     // data :
     private:
-	// les deux trous noirs.
+	// lThe two black holes
 	Isol_hor hole1 ;	///< Black hole one
 	Isol_hor hole2 ;	///< Black hole two
 	
-	// Tableau sur les deux trous.
-	Isol_hor* holes[2] ; ///< Array on the black holes
+	///Array on the black holes
+	Isol_hor* holes[2] ; 
 	
 	double omega ;	///< Angular velocity
 	
     public:
-	// constructeurs & destructeur
-	/// Standard constructor.
+
+	/** Standard constructor
+	 *  @param mp1 affine mapping for the first black hole
+	 *  @param mp2 affine mapping for the second black hole
+	 *  @param depth_in  number of stored time slices; this parameter is 
+	 *  used to set the \c scheme_order member with \c scheme_order
+	 *  = \c depth_in - 1. \c scheme_order can be changed 
+	 *  afterwards by the method \c set_scheme_order(int).
+	 */
 	Bin_hor(Map_af& mp1, Map_af& mp2, int depth_in) ; 
-	Bin_hor(const Bin_hor& ) ;	///< Copy
-	~Bin_hor() ;  ///< Destructor
+
+	Bin_hor(const Bin_hor& ) ;	///< Copy constructor
+
+	/**  Constructor from a binary file
+	 *  @param mp1 affine mapping of the first black hole
+	 *  @param mp2 affine mapping of the second black hole
+	 *  @param fich file containing the saved \c Bin_hor
+	 *  @param partial_read indicates whether the full object must be 
+	 *  read in file or whether the final construction is devoted 
+	 *  to a constructor of a derived class
+	 *  @param depth_in  number of stored time slices; this parameter 
+	 *  is used to set the \c scheme_order member with \c scheme_order
+	 *  = \c depth_in - 1. \c scheme_order can be changed 
+	 *  afterwards by the method \c set_scheme_order(int).
+	 */
+	Bin_hor (Map_af& mp1, Map_af& mp2, FILE* fich, 
+		 bool partial_read, int depth_in = 3) ;  
 	
-    public:
+	virtual ~Bin_hor() ;  ///< Destructor
+	
+	// Outputs
+	// -------
+      private:
+	/// Operator >> (function called by the operator<<). 
+	ostream& operator>>(ostream& ) const ;	
+
+      public :
+	  /** Total or partial saves in a binary file.
+	   *  
+	   *  @param fich binary file 
+	   *  @param partial_save indicates whether the whole object must be
+	   *      saved.
+	   */
+	  void sauve(FILE* fich, bool partial_save) const ; 
+      
+      /// Display
+      friend ostream& operator<<(ostream& , const Bin_hor& ) ;	
+
+       public:
+	
 	void operator=(const Bin_hor&) ; ///< Affectation operator
 	
 	/**
