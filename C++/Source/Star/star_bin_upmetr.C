@@ -31,6 +31,9 @@ char star_binupmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/06/07 16:23:52  f_limousin
+ * New treatment for conformally flat metrics.
+ *
  * Revision 1.7  2004/04/08 16:33:16  f_limousin
  * The new variable is ln(Q) instead of Q=psi^2*N. It improves the
  * convergence of the code.
@@ -100,8 +103,6 @@ void Star_bin::update_metric(const Star_bin& comp) {
     (shift_comp.set(2)).import( comp_shift(2) ) ;  
     (shift_comp.set(3)).import( comp_shift(3) ) ;  
 
-
-
     shift_comp.std_spectral_base() ;   
     shift_comp.change_triad(mp.get_bvect_spher()) ;
  
@@ -110,8 +111,7 @@ void Star_bin::update_metric(const Star_bin& comp) {
 	qq_comp.set_etat_zero() ;
     }
     else{
-	qq_comp.set_etat_qcq() ;
-  
+	qq_comp.set_etat_qcq() ;  
 	qq_comp.import_symy( comp.qq_auto ) ;
 	qq_comp.std_spectral_base() ;   // set the bases for spectral expansions
     }	
@@ -144,15 +144,12 @@ void Star_bin::update_metric(const Star_bin& comp) {
 
     nnn.std_spectral_base() ;   // set the bases for spectral expansions
 
-// Quantity qq = psi^2*N
+// Quantity qq = log(psi^2*N)
 // ----------------------
 
     qq = qq_auto + qq_comp ;
     
-    Scalar exp_qq = exp(qq) ;
-    exp_qq.std_spectral_base() ;
-    
-    psi4 = exp_qq * exp_qq / (nnn * nnn) ;
+    psi4 = exp(2*qq) / (nnn * nnn) ;
     psi4.std_spectral_base() ;
 
 // Shift vector 
@@ -177,6 +174,20 @@ void Star_bin::update_metric(const Star_bin& comp) {
 
     Sym_tensor tens_gamma = gtilde_con / psi4 ;
     gamma = tens_gamma ;
+
+
+    // For conformally flat metrics
+    // ----------------------------
+
+    if (conf_flat) {
+	hij_auto.set_etat_zero() ; 
+	hij_comp.set_etat_zero() ; 
+	hij.set_etat_zero() ; 
+	gtilde = flat ;
+	tens_gamma = flat.con() / psi4 ;
+	gamma = tens_gamma ;
+    }
+
 
     // Determinant of gtilde
 
@@ -276,11 +287,9 @@ void Star_bin::update_metric(const Star_bin& comp,
 
     assert ( *(shift_comp.get_triad()) == *(comp_shift.get_triad())) ;
 
-    (shift_comp.set(1)).import( comp_shift(1) ) ;  //
-    (shift_comp.set(2)).import( comp_shift(2) ) ;  //
-    (shift_comp.set(3)).import( comp_shift(3) ) ;  //
-
-
+    (shift_comp.set(1)).import( comp_shift(1) ) ;  
+    (shift_comp.set(2)).import( comp_shift(2) ) ;  
+    (shift_comp.set(3)).import( comp_shift(3) ) ;  
 
     shift_comp.std_spectral_base() ;   
     shift_comp.change_triad(mp.get_bvect_spher()) ;
@@ -290,7 +299,6 @@ void Star_bin::update_metric(const Star_bin& comp,
     }
     else{
 	qq_comp.set_etat_qcq() ;
-  
 	qq_comp.import_symy( comp.qq_auto ) ;
 	qq_comp.std_spectral_base() ;   // set the bases for spectral expansions
     }	
@@ -346,15 +354,12 @@ void Star_bin::update_metric(const Star_bin& comp,
     nnn.std_spectral_base() ;   // set the bases for spectral expansions
 
 
-// Quantity qq = psi^2*N
-// ----------------------
+// Quantity qq = log(psi^2*N)
+// --------------------------
 
     qq = qq_auto + qq_comp ;
-
-    Scalar exp_qq = exp(qq) ;
-    exp_qq.std_spectral_base() ;
     
-    psi4 = exp_qq * exp_qq / (nnn * nnn) ;
+    psi4 = exp(2*qq) / (nnn * nnn) ;
     psi4.std_spectral_base() ;
 
 // Shift vector
@@ -380,6 +385,20 @@ void Star_bin::update_metric(const Star_bin& comp,
     Tensor tens_gamma(gtilde_con / psi4) ;
     gamma = tens_gamma ;
       
+
+    // For conformally flat metrics
+    // ----------------------------
+
+    if (conf_flat) {
+	hij_auto.set_etat_zero() ; 
+	hij_comp.set_etat_zero() ; 
+	hij.set_etat_zero() ; 
+	gtilde = flat ;
+	tens_gamma = flat.con() / psi4 ;
+	gamma = tens_gamma ;
+    }
+
+
 /*
     // Determination of h33 in order to have det(gtilde) = 1
     // -----------------------------------------------------
@@ -458,6 +477,13 @@ void Star_bin::update_metric(const Star_bin& comp,
     }
     cout << endl ;
             
+    //## Juste pour des test de convergence
+
+//    tens_gamma = flat.con() / psi4 ;
+//   gamma = tens_gamma ;
+
+
+
     // ... extrinsic curvature (tkij_auto and kcar_auto)
     extrinsic_curvature() ;
 
