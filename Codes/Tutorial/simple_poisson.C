@@ -28,6 +28,9 @@ char simple_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/03/25 20:29:57  e_gourgoulhon
+ * Use of new graphical routines for Scalar and Vector.
+ *
  * Revision 1.3  2004/02/27 21:19:12  e_gourgoulhon
  * Benefits from the fact that now derive_cov applied to a scalar
  * returns a reference on a Vector (treatment of dpot).
@@ -59,8 +62,8 @@ char simple_poisson_C[] = "$Header$" ;
 #include "nbr_spx.h"
 #include "tensor.h"
 #include "metric.h"
-#include "cmp.h"
 #include "graphique.h"
+#include "utilitaires.h"
 
 int main() {
 
@@ -119,10 +122,16 @@ int main() {
     
     source.spectral_display() ;     // prints the spectral expansions
     
+    // 1-D visualization via PGPLOT
+    // ----------------------------
+    
+    des_meridian(source, 0., 1.1* r_limits[nz-1], "source", 1) ;  
+    arrete() ; 
+
     // 2-D visualization via PGPLOT
     // ----------------------------
 
-    des_coupe_z( Cmp(source), 0., 2, "Source") ; 
+    des_coupe_z(source, 0., 2, "Source") ; 
     
 
     // 3-D visualization via OpenDX
@@ -143,7 +152,7 @@ int main() {
         
     pot.spectral_display() ;     // prints the spectral expansions 
                                      
-    des_coupe_z( Cmp(pot), 0., 2, "Potential") ; 
+    des_coupe_z( pot, 0., 2, "Potential") ; 
     
 //  pot.visu_section('z', z0, -2., 2., -1.5, 1.5, "Potential", "pot") ;
 
@@ -153,12 +162,17 @@ int main() {
     Metric_flat mets(map, map.get_bvect_spher()) ; // spherical representation
     Metric_flat metc(map, map.get_bvect_cart()) ;  // Cartesian representation
 
-    const Vector& dpot = pot.derive_cov(metc) ; 
+    // Gradient of the potential
+    // -------------------------
     
-    // des_coupe_vect_z(dpot, 0., -2., 0.5, 2, "Gradient of potential") ; 
+    Vector dpot = pot.derive_cov(metc) ; 
+    dpot.dec_dzpuis(2) ; 
+    
+    des_coupe_vect_z(dpot, 0., -2., 0.5, 2, "Gradient of potential") ; 
 
     dpot.visu_arrows(-1., 1., -1., 1., -1., 1., "Gradient of potential", 
                      "gradient") ; 
+                     
 
     return EXIT_SUCCESS ; 
 }
