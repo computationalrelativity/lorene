@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.29  2005/04/06 15:43:58  j_novak
+ * New method Sym_tensor_trans::T_from_det_one(...).
+ *
  * Revision 1.28  2005/04/04 15:25:22  j_novak
  * Added new members www, xxx, ttt and the associated methods.
  *
@@ -537,6 +540,25 @@ class Sym_tensor_trans: public Sym_tensor {
 	 */
 	const Sym_tensor_tt& tt_part(Param* par = 0x0) const ; 
 
+ protected:
+	/**
+	 * Computes the partial trace \e T (see \c Sym_tensor::p_ttt )
+	 * from the other potentials ( \f$\eta\f$, \f$\mu\f$, \e W and \e X )
+	 * and the requirement that \c *this + the flat metric has a determinant 
+	 * equal to 1. It updates the components and the derived potentials
+	 * accordingly.
+	 *
+	 * @param hrr the \e rr components of the \c Sym_tensor_trans
+	 * @param eta \f$\eta\f$ potential (see \c Sym_tensor)
+	 * @param mu \f$\mu\f$ potential (see \c Sym_tensor)
+	 * @param www \c W potential (see \c Sym_tensor)
+	 * @param xxx \c X potential (see \c Sym_tensor)
+	 */
+	void T_from_det_one(const Scalar& hrr, const Scalar& eta, const
+			    Scalar& mu, const Scalar& www, const Scalar&
+			    xxx) ;
+
+ public:
 	/** Assigns the derived member \c p_tt and computes the trace so that 
 	 * \c *this + the flat metric has a determinant equal to 1. It then
 	 * updates the components accordingly, with a \c dzpuis = 2. 
