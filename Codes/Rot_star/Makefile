@@ -22,6 +22,10 @@ SRC4 = examrot.C
 OBJ4 = $(SRC4:.C=.o)
 EXE4 = $(SRC4:.C=)
 
+SRC5 = chent.C
+OBJ5 = $(SRC5:.C=.o)
+EXE5 = $(SRC5:.C=)
+
 $(EXE1): $(OBJ1)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_PGPLOT) $(LIB_CXX)
@@ -35,10 +39,13 @@ $(EXE4): $(OBJ4)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ4) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_PGPLOT) $(LIB_CXX)
 
+$(EXE5): $(OBJ5)
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ5) $(LIB_CXX)
+
 .C.o:
 	$(CXX)  -c $(CXXFLAGS_G) $(INC) $<
 
 uninstall:
-	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4)
-	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4)
+	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5)
+	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5)
 
