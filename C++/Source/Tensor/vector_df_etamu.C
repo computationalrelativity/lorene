@@ -32,6 +32,10 @@ char vector_df_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/17 16:36:05  e_gourgoulhon
+ * In method update_vtvp(): replaced del_deriv() by
+ *   Vector::del_deriv().
+ *
  * Revision 1.2  2003/10/16 21:38:02  e_gourgoulhon
  * Added methods mu() and update_vtvp().
  *
@@ -144,7 +148,7 @@ void Vector_divfree::update_vtvp() {
 	// V^phi : 
 	*cmp[2] = p_eta->stdsdp() + p_mu->dsdt() ; 
 	
-	del_deriv() ; 
+	Vector::del_deriv() ; //## in order not to delete p_eta and p_mu
 	
 }			
 
