@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/04/09 15:19:03  e_gourgoulhon
+ * Add EOS number 100 in the comments of eos_from_file
+ *
  * Revision 1.2  2002/04/09 14:32:14  e_gourgoulhon
  * 1/ Added extra parameters in EOS computational functions (argument par)
  * 2/ New class MEos for multi-domain EOS
@@ -199,6 +202,7 @@ class Eos {
 	 *     13 = AkmalPR (Akmal, Pandharipande \& Ravenhall 1998) \\
 	 *     14 = BBB2 (Baldo, Bombaci \& Burgio 1997) \\
 	 *     15 = BalbN1H1 (Balberg 2000) \\
+	 *     100 = Multi-domain EOS (class {\tt MEos}) \\
 	 *  The second line in the file must be the EOS name.
 	 *  The following lines should contain the EOS parameters (one
 	 *  parameter per line), in the same order than in the class declaration.
