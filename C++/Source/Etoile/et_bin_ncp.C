@@ -29,6 +29,9 @@ char et_bin_ncp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/10/13 10:29:36  f_limousin
+ * *** empty log message ***
+ *
  * Revision 1.8  2003/06/20 14:26:51  f_limousin
  * Add many derivatives of the lapse, shift and 3-metric. Add a new argument conf_flat for the contructors and a new function equilibrium_spher().
  *
@@ -76,83 +79,84 @@ char et_bin_ncp_C[] = "$Header$" ;
 Et_bin_ncp::Et_bin_ncp(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
 		       bool irrot, bool conf_flat0, const Base_vect& map_triad, const Metrique& flat0, const Tenseur_sym& source) 
              : Etoile_bin(mp_i, nzet_i, relat, eos_i, irrot, map_triad),
-               met_gamma(source),
 	       flat(flat0),
-               gtilde(pow(met_gamma.determinant(),(-1./3.))*source, flat0),
-	       metgamma_auto(source),
-	       metgamma_comp(source),
+               gtilde(pow(flat0.determinant(),(-1./3.))*source, flat0),
+	       gtilde_auto_con(mp_i, 2, CON, map_triad),
+	       gtilde_auto(pow(flat0.determinant(),(-1./3.))*source
+			   , flat0),
+	       gtilde_comp(gtilde_auto),
 	       dcov_logn_auto(mp_i, 1, COV, map_triad),
 	       dcov_logn(mp_i, 1, COV, map_triad),
 	       dcon_logn(mp_i, 1, CON, map_triad),
-	       dcondcov_nnn(mp_i),
-	       dcondcov_logn_auto(mp_i),
 	       dcovdcov_logn_auto(mp_i, 2, COV, map_triad),
-	       lap_logn_auto(mp_i),
-	       gamma(met_gamma.determinant()),
-	       a_car_auto(met_gamma.determinant()),
-	       a_car_comp(met_gamma.determinant()),
+	       gamma(flat0.determinant()),
+	       a_car_auto(flat0.determinant()),
+	       a_car_comp(flat0.determinant()),
 	       dcov_acar(mp_i, 1, COV, map_triad),
-	       dcon_acar(mp_i, 1, CON, map_triad),
 	       dcov_acar_auto(mp_i, 1, COV, map_triad),
-	       dcon_acar_auto(mp_i, 1, CON, map_triad),
-	       dcondcov_acar_auto(mp_i),
 	       dcovdcov_acar_auto(mp_i, 2, COV, map_triad),
-	       lap_acar_auto(mp_i),
-	       dcovdcon_shift_auto(mp_i, 1, CON, map_triad),
-	       diffdidj_shift_autoj(mp_i, 1, CON, map_triad),
-	       lap_shift_auto(mp_i, 1, CON, map_triad),
-	       gtilde_auto(pow(met_gamma.determinant(),(-1./3.))*source
-			   , flat0),
-	       gtilde_comp(gtilde_auto),
-	       lap_gtilde_auto(mp_i, 2, COV, map_triad),
+	       hij(0*flat0.con()),
+	       hij_auto(0*flat0.con()),
+	       hij_comp(0*flat0.con()),
+	       ricci_auto(mp_i, 2, COV, map_triad),
+	       ricci_scal(mp_i),
+	       qq(mp_i),
+	       deltakij(shift * source),
+	       deltakij_auto(shift * source),
 	       kcar_auto(mp_i),
 	       kcar_comp(mp_i),
-	       kcar_cov(mp_i, 2, COV, map_triad),
-	       stress(mp_i, 2, COV, map_triad),
+	       kcar_con(mp_i, 2, CON, map_triad),
+	       stress(mp_i, 2, CON, map_triad),
       	       ssjm1_a_car(mp_i),
-	       ssjm1_gtilde00(mp_i),
-	       ssjm1_gtilde10(mp_i),
-	       ssjm1_gtilde20(mp_i),
-	       ssjm1_gtilde11(mp_i),
-	       ssjm1_gtilde21(mp_i),
-	       ssjm1_gtilde22(mp_i),
+	       ssjm1_hij00(mp_i),
+	       ssjm1_hij10(mp_i),
+	       ssjm1_hij20(mp_i),
+	       ssjm1_hij11(mp_i),
+	       ssjm1_hij21(mp_i),
+	       ssjm1_hij22(mp_i),
 	       decouple(mp_i),
 	       conf_flat(conf_flat0)
 {
+ 
+  gtilde_auto_con.set_etat_qcq() ;
 
+
+  for (int i=0; i<3; i++) 
+     for (int j=i; j<3; j++) {
+       if (i == j) {
+	   gtilde_auto_con.set(i,i) = decouple   ; 
+       }
+       else {
+	   gtilde_auto_con.set(i,j) = 0. ;
+       }
+     }
+  
   // All quantities are initialized to zero : 
  
 
   dcov_logn_auto = 0 ;
   dcov_logn = 0 ;
   dcon_logn = 0 ;
-  dcondcov_nnn = 0 ;
-  dcondcov_logn_auto = 0 ;
   dcovdcov_logn_auto = 0 ;
-  lap_logn_auto = 0 ;
   dcov_acar = 0 ;
-  dcon_acar = 0 ;
   dcov_acar_auto = 0 ;
-  dcon_acar_auto = 0 ;
-  dcondcov_acar_auto = 0 ; 
-  dcovdcov_acar_auto = 0 ; 
-  lap_acar_auto = 0 ;
-  dcovdcon_shift_auto = 0 ;
-  diffdidj_shift_autoj = 0 ;
-  lap_shift_auto = 0 ;
-  lap_gtilde_auto = 0 ;
-
+  dcovdcov_acar_auto = 0 ;
+  ricci_auto = dcovdcov_logn_auto ;
+  ricci_scal = 0 ;
+  qq = 0 ;
+  deltakij = 0 ;
+  deltakij_auto = 0 ;
   kcar_auto = 0 ;
   kcar_comp = 0 ;
-  kcar_cov = 0 ;
+  kcar_con = 0 ;
   stress = 0 ;
   ssjm1_a_car = 0 ;
-  ssjm1_gtilde00 = 0 ;
-  ssjm1_gtilde10 = 0 ;
-  ssjm1_gtilde20 = 0 ;
-  ssjm1_gtilde11 = 0 ;
-  ssjm1_gtilde21 = 0 ;
-  ssjm1_gtilde22 = 0 ;
+  ssjm1_hij00 = 0 ;
+  ssjm1_hij10 = 0 ;
+  ssjm1_hij20 = 0 ;
+  ssjm1_hij11 = 0 ;
+  ssjm1_hij21 = 0 ;
+  ssjm1_hij22 = 0 ;
 }
 
 // Copy constructor
@@ -160,45 +164,40 @@ Et_bin_ncp::Et_bin_ncp(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
 
 Et_bin_ncp::Et_bin_ncp(const Et_bin_ncp& et)
       	   : Etoile_bin(et),
-	     met_gamma(et.met_gamma),
 	     flat(et.flat),
-             gtilde(et.gtilde),	     
-	     metgamma_auto(et.metgamma_auto),
-	     metgamma_comp(et.metgamma_comp),	  
+             gtilde(et.gtilde),	
+	     gtilde_auto_con(et.gtilde_auto_con),
+	     gtilde_auto(et.gtilde_auto),
+	     gtilde_comp(et.gtilde_comp),
 	     dcov_logn_auto(et.dcov_logn_auto),
 	     dcov_logn(et.dcov_logn),
 	     dcon_logn(et.dcon_logn),
-	     dcondcov_nnn(et.dcondcov_nnn),
-	     dcondcov_logn_auto(et.dcondcov_logn_auto),
 	     dcovdcov_logn_auto(et.dcovdcov_logn_auto),
-	     lap_logn_auto(et.lap_logn_auto),
 	     gamma(et.gamma),
 	     a_car_auto(et.a_car_auto),
 	     a_car_comp(et.a_car_comp),
 	     dcov_acar(et.dcov_acar),
-	     dcon_acar(et.dcon_acar),
 	     dcov_acar_auto(et.dcov_acar_auto),
-	     dcon_acar_auto(et.dcon_acar_auto),
-	     dcondcov_acar_auto(et.dcondcov_acar_auto),
 	     dcovdcov_acar_auto(et.dcovdcov_acar_auto),
-	     lap_acar_auto(et.lap_acar_auto),
-	     dcovdcon_shift_auto(et.dcovdcon_shift_auto),
-	     diffdidj_shift_autoj(et.diffdidj_shift_autoj),
-	     lap_shift_auto(et.lap_shift_auto),
-	     gtilde_auto(et.gtilde_auto),
-	     gtilde_comp(et.gtilde_comp),
-	     lap_gtilde_auto(et.lap_gtilde_auto),
+	     hij(et.hij),
+	     hij_auto(et.hij_auto),
+	     hij_comp(et.hij_comp),
+	     ricci_auto(et.ricci_auto),
+	     ricci_scal(et.ricci_scal),
+	     qq(et.qq),
+	     deltakij(et.deltakij),
+	     deltakij_auto(et.deltakij_auto),
 	     kcar_auto(et.kcar_auto),
 	     kcar_comp(et.kcar_comp),
-	     kcar_cov(et.kcar_cov),
+	     kcar_con(et.kcar_con),
 	     stress(et.stress),
              ssjm1_a_car(et.ssjm1_a_car),
-	     ssjm1_gtilde00(et.ssjm1_gtilde00),
-	     ssjm1_gtilde10(et.ssjm1_gtilde10),
-	     ssjm1_gtilde20(et.ssjm1_gtilde20),
-	     ssjm1_gtilde11(et.ssjm1_gtilde11),
-	     ssjm1_gtilde21(et.ssjm1_gtilde21),
-	     ssjm1_gtilde22(et.ssjm1_gtilde22),
+	     ssjm1_hij00(et.ssjm1_hij00),
+	     ssjm1_hij10(et.ssjm1_hij10),
+	     ssjm1_hij20(et.ssjm1_hij20),
+	     ssjm1_hij11(et.ssjm1_hij11),
+	     ssjm1_hij21(et.ssjm1_hij21),
+	     ssjm1_hij22(et.ssjm1_hij22),
 	     decouple(et.decouple),
 	     conf_flat(et.conf_flat)
 {
@@ -212,75 +211,77 @@ Et_bin_ncp::Et_bin_ncp(const Et_bin_ncp& et)
 Et_bin_ncp::Et_bin_ncp(Map& mp_i, const Eos& eos_i, const Base_vect& 
 		       map_triad, const Metrique& flat0, FILE* fich)
   : Etoile_bin(mp_i, eos_i, map_triad, fich),
-    met_gamma(flat0),
     flat(flat0),
-    gtilde(pow(met_gamma.determinant(),(-1./3.))*met_gamma.cov(), 
-    	   met_gamma, flat0),
-    metgamma_auto(mp_i, map_triad, fich),
-    metgamma_comp(metgamma_auto),
+    gtilde(pow(flat0.determinant(),(-1./3.))*flat0.cov(), 
+    	   flat0, flat0),
+    gtilde_auto_con(mp_i, map_triad, fich),
+    //gtilde_auto(gtilde_auto_con, flat0, flat0),
+    gtilde_auto(gtilde),
+    gtilde_comp(gtilde_auto),
     dcov_logn_auto(mp_i, 1, COV, map_triad),
     dcov_logn(mp_i, 1, COV, map_triad),
     dcon_logn(mp_i, 1, CON, map_triad),
-    dcondcov_nnn(mp_i),
-    dcondcov_logn_auto(mp_i),
     dcovdcov_logn_auto(mp_i, 2, COV, map_triad),
-    lap_logn_auto(mp_i),
-    gamma((metgamma_auto.determinant()()), &met_gamma, 2),
+    gamma(mp_i, map_triad, fich, &flat0),
     a_car_auto(gamma),
     a_car_comp(gamma),
     dcov_acar(mp_i, 1, COV, map_triad),
-    dcon_acar(mp_i, 1, CON, map_triad),
     dcov_acar_auto(mp_i, 1, COV, map_triad),
-    dcon_acar_auto(mp_i, 1, CON, map_triad),
-    dcondcov_acar_auto(mp_i),
     dcovdcov_acar_auto(mp_i, 2, COV, map_triad),
-    lap_acar_auto(mp_i),
-    dcovdcon_shift_auto(mp_i, 1, CON, map_triad),
-    diffdidj_shift_autoj(mp_i, 1, CON, map_triad),
-    lap_shift_auto(mp_i, 1, CON, map_triad),
-    gtilde_auto(pow(metgamma_auto.determinant(),(-1./3.))*metgamma_auto.cov()
-		, flat0),
-    gtilde_comp(gtilde_auto),
-    lap_gtilde_auto(mp_i, 2, COV, map_triad),
+    hij(0*flat0.con()),
+    hij_auto(0*flat0.con()),
+    hij_comp(0*flat0.con()),
+    ricci_auto(mp_i, 2, COV, map_triad),
+    ricci_scal(mp_i),
+    qq(mp_i),
+    deltakij(shift * flat0.cov()),
+    deltakij_auto(shift * flat0.cov()),
     kcar_auto(mp_i),
     kcar_comp(mp_i),
-    kcar_cov(mp_i, 2, COV, map_triad),
-    stress(mp_i, 2, COV, map_triad),
+    kcar_con(mp_i, 2, CON, map_triad),
+    stress(mp_i, 2, CON, map_triad),
     ssjm1_a_car(mp_i, *(mp_i.get_mg()), fich),
-    ssjm1_gtilde00(mp_i, *(mp_i.get_mg()), fich),
-    ssjm1_gtilde10(mp_i, *(mp_i.get_mg()), fich),
-    ssjm1_gtilde20(mp_i, *(mp_i.get_mg()), fich),
-    ssjm1_gtilde11(mp_i, *(mp_i.get_mg()), fich),
-    ssjm1_gtilde21(mp_i, *(mp_i.get_mg()), fich),
-    ssjm1_gtilde22(mp_i, *(mp_i.get_mg()), fich),
+    ssjm1_hij00(mp_i, *(mp_i.get_mg()), fich),
+    ssjm1_hij10(mp_i, *(mp_i.get_mg()), fich),
+    ssjm1_hij20(mp_i, *(mp_i.get_mg()), fich),
+    ssjm1_hij11(mp_i, *(mp_i.get_mg()), fich),
+    ssjm1_hij21(mp_i, *(mp_i.get_mg()), fich),
+    ssjm1_hij22(mp_i, *(mp_i.get_mg()), fich),
     decouple(mp_i)
 {
 
-  fread(&conf_flat, sizeof(bool), 1, fich) ;		
 
-  // All quantities are initialized to zero : 
+  fread(&conf_flat, sizeof(bool), 1, fich) ;		
+  
+  gtilde_auto.set_con().set_etat_qcq() ;
+  gtilde_comp.set_con().set_etat_qcq() ;
+  
+  for(int i=0; i<=2; i++) 
+      for(int j=i; j<=2; j++) {
+	gtilde_auto.set_con(i,j) = gtilde_auto_con(i,j) ;
+      }
+
+  cout << gtilde_auto_con(1,1)(0,0,0,0) << endl ;
+  
+  gtilde_auto.set_std_base() ;
+  
+   // All quantities are initialized to zero : 
+
   dcov_logn_auto = 0 ;
   dcov_logn = 0 ;
   dcon_logn = 0 ;
-  dcondcov_nnn = 0 ;
-  dcondcov_logn_auto = 0 ;
   dcovdcov_logn_auto = 0 ;
-  lap_logn_auto = 0 ;
   dcov_acar = 0 ;
-  dcon_acar = 0 ;
   dcov_acar_auto = 0 ;
-  dcon_acar_auto = 0 ;
-  dcondcov_acar_auto = 0 ;
   dcovdcov_acar_auto = 0 ;
-  lap_acar_auto = 0 ;
-  dcovdcon_shift_auto = 0 ;
-  diffdidj_shift_autoj = 0 ;
-  lap_shift_auto = 0 ;
-  lap_gtilde_auto = 0 ;
-
+  ricci_auto = dcovdcov_logn_auto ;
+  ricci_scal = 0 ;
+  qq = 0 ;
+  deltakij = 0 ;
+  deltakij_auto = 0 ;
   kcar_auto = 0 ;
   kcar_comp = 0 ;
-  kcar_cov = 0 ;
+  kcar_con = 0 ;
   stress = 0 ;
 
  }
@@ -311,45 +312,40 @@ void Et_bin_ncp::operator=(const Et_bin_ncp& et) {
 
 
   // Assignement of proper quantities of class Et_bin_ncp
-  met_gamma = et.met_gamma ; 
   flat = et.flat ;
   gtilde = et.gtilde ;
-  metgamma_auto = et.metgamma_auto ;
-  metgamma_comp = et.metgamma_comp ;
-  dcov_logn_auto = et.dcov_logn_auto;
-  dcov_logn = et.dcov_logn ;
-  dcon_logn = et.dcon_logn ;
-  dcondcov_nnn = et.dcondcov_nnn ;
-  dcondcov_logn_auto = et.dcondcov_logn_auto ;
-  dcovdcov_logn_auto = et.dcovdcov_logn_auto ;
-  lap_logn_auto = et.lap_logn_auto ;
-  gamma = et.gamma ;
-  a_car_auto = et.a_car_auto ;
-  a_car_comp = et.a_car_comp ;
-  dcov_acar = et.dcov_acar ;
-  dcon_acar = et.dcon_acar;
-  dcov_acar_auto = et.dcov_acar_auto ;
-  dcon_acar_auto = et.dcon_acar_auto ;
-  dcondcov_acar_auto = et.dcondcov_acar_auto ;
-  dcovdcov_acar_auto = et.dcovdcov_acar_auto ;
-  lap_acar_auto = et.lap_acar_auto ;
-  dcovdcon_shift_auto = et.dcovdcon_shift_auto ;
-  diffdidj_shift_autoj = et.diffdidj_shift_autoj ;
-  lap_shift_auto = et.lap_shift_auto ;
+  gtilde_auto_con = et.gtilde_auto_con ;
   gtilde_auto = et.gtilde_auto ;
   gtilde_comp = et.gtilde_comp ;
-  lap_gtilde_auto = et.lap_gtilde_auto ;
+  dcov_logn_auto = et.dcov_logn_auto ;
+  dcov_logn = et.dcov_logn ;
+  dcon_logn = et.dcon_logn ;
+  dcovdcov_logn_auto = et.dcovdcov_logn_auto ;
+  gamma = et.gamma ; 
+  a_car_auto = et.a_car_auto ; 
+  a_car_comp = et.a_car_comp ; 
+  dcov_acar = et.dcov_acar ; 
+  dcov_acar_auto = et.dcov_acar_auto ;
+  dcovdcov_acar_auto = et.dcovdcov_acar_auto ;
+  hij = et.hij ;
+  hij_auto = et.hij_auto ;
+  hij_comp = et.hij_comp ;
+  ricci_auto = et.ricci_auto ;
+  ricci_scal = et.ricci_scal ;
+  qq = et.qq ;
+  deltakij = et.deltakij ;
+  deltakij_auto = et.deltakij_auto ;
   kcar_auto = et.kcar_auto ;
   kcar_comp = et.kcar_comp ;
-  kcar_cov = et.kcar_cov ;
+  kcar_con = et.kcar_con ;
   stress = et.stress ;
   ssjm1_a_car = et.ssjm1_a_car ;
-  ssjm1_gtilde00 = et.ssjm1_gtilde00 ;
-  ssjm1_gtilde10 = et.ssjm1_gtilde10 ;
-  ssjm1_gtilde20 = et.ssjm1_gtilde20 ;
-  ssjm1_gtilde11 = et.ssjm1_gtilde11 ;
-  ssjm1_gtilde21 = et.ssjm1_gtilde21 ;
-  ssjm1_gtilde22 = et.ssjm1_gtilde22 ;
+  ssjm1_hij00 = et.ssjm1_hij00 ;
+  ssjm1_hij10 = et.ssjm1_hij10 ;
+  ssjm1_hij20 = et.ssjm1_hij20 ;
+  ssjm1_hij11 = et.ssjm1_hij11 ;
+  ssjm1_hij21 = et.ssjm1_hij21 ;
+  ssjm1_hij22 = et.ssjm1_hij22 ;
   decouple = et.decouple ;
   conf_flat = et.conf_flat ;
 }
@@ -365,16 +361,18 @@ void Et_bin_ncp::operator=(const Et_bin_ncp& et) {
 void Et_bin_ncp::sauve(FILE* fich) const {
     
     Etoile_bin::sauve(fich) ; 
-    metgamma_auto.sauve(fich) ;
-  
-    ssjm1_a_car.sauve(fich) ;
-    ssjm1_gtilde00.sauve(fich) ;
-    ssjm1_gtilde10.sauve(fich) ;
-    ssjm1_gtilde20.sauve(fich) ;
-    ssjm1_gtilde11.sauve(fich) ;
-    ssjm1_gtilde21.sauve(fich) ;
-    ssjm1_gtilde22.sauve(fich) ;
 
+    gtilde_auto_con.sauve(fich) ;
+    gamma.sauve(fich) ;
+    
+    ssjm1_a_car.sauve(fich) ;
+    ssjm1_hij00.sauve(fich) ;
+    ssjm1_hij10.sauve(fich) ;
+    ssjm1_hij20.sauve(fich) ;
+    ssjm1_hij11.sauve(fich) ;
+    ssjm1_hij21.sauve(fich) ;
+    ssjm1_hij22.sauve(fich) ;
+    
     fwrite(&conf_flat, sizeof(bool), 1, fich) ;		
 
 
@@ -393,7 +391,7 @@ ostream& Et_bin_ncp::operator>>(ostream& ost) const {
     ost << "--------------------------------------------------------" 
 	<< endl ; 
 
-    /*    ost << "metrique Gamma : " << met_gamma << endl ; 
+    /*  
     ost << "Flat : " << flat << endl ; 
     ost << "Gamma tilde : " << gtilde << endl ;
     ost << "Gamma tilde auto : " << gtilde_auto << endl ;
@@ -439,12 +437,16 @@ Tenseur Et_bin_ncp::sprod(const Tenseur& t1, const Tenseur& t2) const {
    // Both indices should be contravariant or both covariant : 
     if (t1.get_type_indice(t1.get_valence()-1) == CON) {
       assert( t2.get_type_indice(0) == CON ) ;
-      p_tens_metr = new Tenseur(met_gamma.cov()) ;
+      
+      Tenseur met_gamma(pow(gamma, 1./3.)*gtilde.cov()) ;
+      p_tens_metr = new Tenseur(met_gamma) ;
 	}
     
     if (t1.get_type_indice(t1.get_valence()-1) == COV) {
       assert( t2.get_type_indice(0) == COV ) ;
-      p_tens_metr = new Tenseur(met_gamma.con()) ;
+
+      Tenseur met_gamma(pow(gamma, 1./3.)*gtilde.cov()) ;
+      p_tens_metr = new Tenseur(met_gamma) ;
        }
 
 
@@ -554,13 +556,18 @@ void Et_bin_ncp::relaxation(const Et_bin_ncp& star_jm1, double relax_ent,
 					+ relax_met_jm1 * star_jm1.shift_auto ;
 	for(int i=0; i<=2; i++) {
 	  for(int j=i; j<=2; j++) {
-	    gtilde_auto.set_cov(i,j) = relax_met * (gtilde_auto.cov())(i,j) 
-	      + relax_met_jm1 * ((star_jm1.get_gtilde_auto()).cov())(i,j) ;
+	    gtilde_auto.set_con(i,j) = relax_met * (gtilde_auto.con())(i,j) 
+	      + relax_met_jm1 * ((star_jm1.get_gtilde_auto()).con())(i,j) ;
+	    
+	    if (!conf_flat){
+		hij_auto.set(i,j) = relax_met * hij_auto(i,j) 
+		    + relax_met_jm1 * (star_jm1.get_hij_auto())(i,j) ;
+	    }
 	  }
-    }
+	}
 	
     }
-
+    
     del_deriv() ; 
     
     equation_of_state() ; 

@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2002  Francois Limousin
+ *   Copyright (c) 2002-2003  Francois Limousin
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,9 @@ char et_bin_ncp_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/13 10:29:56  f_limousin
+ * *** empty log message ***
+ *
  * Revision 1.4  2003/06/20 14:28:13  f_limousin
  * Many modif.
  *
@@ -103,20 +106,20 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
   double& diff_shift_x = diff.set(4) ; 
   double& diff_shift_y = diff.set(5) ; 
   double& diff_shift_z = diff.set(6) ; 
-  double& diff_gtilde00 = diff.set(7) ; 
-  double& diff_gtilde10 = diff.set(8) ; 
-  double& diff_gtilde20 = diff.set(9) ; 
-  double& diff_gtilde11 = diff.set(10) ; 
-  double& diff_gtilde21 = diff.set(11) ; 
-  double& diff_gtilde22 = diff.set(12) ; 
+  double& diff_hij00 = diff.set(7) ; 
+  double& diff_hij10 = diff.set(8) ; 
+  double& diff_hij20 = diff.set(9) ; 
+  double& diff_hij11 = diff.set(10) ; 
+  double& diff_hij21 = diff.set(11) ; 
+  double& diff_hij22 = diff.set(12) ; 
 
 
 
   // Parameters for the function Map_et::adapt
   // -----------------------------------------
-    
-  Param par_adapt ; 
-  int nitermax = 100 ;  
+
+  Param par_adapt ;
+  int nitermax = 100 ;
   int niter ; 
   int adapt_flag = 1 ;    //  1 = performs the full computation, 
   //  0 = performs only the rescaling by 
@@ -187,7 +190,7 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
   par_poisson2.add_int_mod(niter, 0) ; // number of iterations actually used 
   par_poisson2.add_cmp_mod( ssjm1_a_car ) ; 
 
-  // Parameters for the function Map_et::poisson for gtilde00_auto
+  // Parameters for the function Map_et::poisson for hij00_auto
   // -------------------------------------------------------------
 
   Param par_poisson3 ; 
@@ -196,9 +199,9 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
   par_poisson3.add_double(relax_poisson,  0) ; // relaxation parameter
   par_poisson3.add_double(precis_poisson, 1) ; // required precision
   par_poisson3.add_int_mod(niter, 0) ; // number of iterations actually used 
-  par_poisson3.add_cmp_mod( ssjm1_gtilde00 ) ; 
+  par_poisson3.add_cmp_mod( ssjm1_hij00 ) ; 
  					   
-  // Parameters for the function Map_et::poisson for gtilde10_auto
+  // Parameters for the function Map_et::poisson for hij10_auto
   // -------------------------------------------------------------
 
   Param par_poisson4 ; 
@@ -207,9 +210,9 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
   par_poisson4.add_double(relax_poisson,  0) ; // relaxation parameter
   par_poisson4.add_double(precis_poisson, 1) ; // required precision
   par_poisson4.add_int_mod(niter, 0) ; // number of iterations actually used 
-  par_poisson4.add_cmp_mod( ssjm1_gtilde10 ) ; 
+  par_poisson4.add_cmp_mod( ssjm1_hij10 ) ; 
 
-  // Parameters for the function Map_et::poisson for gtilde20_auto
+  // Parameters for the function Map_et::poisson for hij20_auto
   // -------------------------------------------------------------
 
   Param par_poisson5 ; 
@@ -218,9 +221,9 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
   par_poisson5.add_double(relax_poisson,  0) ; // relaxation parameter
   par_poisson5.add_double(precis_poisson, 1) ; // required precision
   par_poisson5.add_int_mod(niter, 0) ; // number of iterations actually used 
-  par_poisson5.add_cmp_mod( ssjm1_gtilde20 ) ; 
+  par_poisson5.add_cmp_mod( ssjm1_hij20 ) ; 
 
-  // Parameters for the function Map_et::poisson for gtilde11_auto
+  // Parameters for the function Map_et::poisson for hij11_auto
   // -------------------------------------------------------------
 
   Param par_poisson6 ; 
@@ -229,9 +232,9 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
   par_poisson6.add_double(relax_poisson,  0) ; // relaxation parameter
   par_poisson6.add_double(precis_poisson, 1) ; // required precision
   par_poisson6.add_int_mod(niter, 0) ; // number of iterations actually used 
-  par_poisson6.add_cmp_mod( ssjm1_gtilde11 ) ; 
+  par_poisson6.add_cmp_mod( ssjm1_hij11 ) ; 
 
-  // Parameters for the function Map_et::poisson for gtilde21_auto
+  // Parameters for the function Map_et::poisson for hij21_auto
   // -------------------------------------------------------------
 
   Param par_poisson7 ; 
@@ -240,9 +243,9 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
   par_poisson7.add_double(relax_poisson,  0) ; // relaxation parameter
   par_poisson7.add_double(precis_poisson, 1) ; // required precision
   par_poisson7.add_int_mod(niter, 0) ; // number of iterations actually used 
-  par_poisson7.add_cmp_mod( ssjm1_gtilde21 ) ; 
+  par_poisson7.add_cmp_mod( ssjm1_hij21 ) ; 
 
-  // Parameters for the function Map_et::poisson for gtilde22_auto
+  // Parameters for the function Map_et::poisson for hij22_auto
   // -------------------------------------------------------------
 
   Param par_poisson8 ; 
@@ -251,7 +254,7 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
   par_poisson8.add_double(relax_poisson,  0) ; // relaxation parameter
   par_poisson8.add_double(precis_poisson, 1) ; // required precision
   par_poisson8.add_int_mod(niter, 0) ; // number of iterations actually used 
-  par_poisson8.add_cmp_mod( ssjm1_gtilde22 ) ; 
+  par_poisson8.add_cmp_mod( ssjm1_hij22 ) ; 
 
   // Parameters for the function Tenseur::poisson_vect
   // -------------------------------------------------
@@ -475,44 +478,81 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
 
     hydro_euler() ;		// computes new values for ener_euler (E), 
 				// s_euler (S) and u_euler (U^i)
-
-
-
+   
     //--------------------------------------------------------
     // Poisson equation for logn_auto (nu_auto)
     //--------------------------------------------------------
+  
+  // Derivatives of shift
+  // --------------------
+
+  Tenseur dcov_shift_auto = shift_auto.derive_cov(flat) ;
+  dcov_shift_auto.dec2_dzpuis() ;
+  Tenseur dcovdcov_shift_auto = dcov_shift_auto.derive_cov(flat) ;
+  dcovdcov_shift_auto.inc2_dzpuis() ;
+
+  // Derivatives of gtilde
+  // ---------------------
+
+  const Tenseur& dcov_gtilde = (gtilde.set_cov()).derive_cov(flat) ;
+  
+  // Derivatives of hij
+  // ------------------
+
+  Tenseur dcov_hij = hij.derive_cov(flat) ;
+  Tenseur dcov_hij_auto = hij_auto.derive_cov(flat) ;
+
+  Tenseur dcov_hij_auto2 = hij.derive_cov(flat) ;
+  dcov_hij_auto2.dec2_dzpuis() ; 
+  Tenseur dcovdcov_hij_auto = dcov_hij_auto2.derive_cov(flat) ;
+  dcovdcov_hij_auto.inc2_dzpuis() ;
+
 
     // Source 
     //--------
 
-	
+    int nr = mp.get_mg()->get_nr(0) ;
+    int nt = mp.get_mg()->get_nt(0) ;
+    int np = mp.get_mg()->get_np(0) ;
+    
     Tenseur source1(mp) ;
     Tenseur source2(mp) ;
     Tenseur source3(mp) ;
     Tenseur source4(mp) ;
+    Tenseur source5(mp) ;
+    Tenseur source6(mp) ;
+    Tenseur source7(mp) ;
+    Tenseur source8(mp) ;
+    Tenseur source9(mp) ;
+    Tenseur source10(mp) ;
 
-    source1 = pow(gamma,(1./3.))*qpig * (ener_euler + s_euler) ;
+    source1 = qpig * pow(gamma,1./3.) % (ener_euler + s_euler) ;
+
 
     source2 = kcar_auto + kcar_comp ;
-    
-    source3 = - contract(dcov_logn_auto, 0, 1./2.*pow(gamma,-1./3.)
-			 *dcon_acar + dcon_logn, 0) ;
-	
-    source4 = - (dcondcov_logn_auto() - lap_logn_auto())  ;
+ 
+    source3 = - contract_desal( dcov_logn_auto, 0, dcon_logn + pow(gamma, -1./3.) % 
+		   contract_desal(gtilde.con(), 0, dcov_acar, 0)*0.5, 0) ;
+		
+    source4 = - contract(contract(hij, 0, dcovdcov_logn_auto, 0), 0, 1) ;
+
+    source5 = - contract(contract(hij, 0, dcov_logn, 0), 0,dcov_logn_auto, 0) ;
 
     source.set_etat_qcq() ;
-    source.set() = source1() + source2() + source3() + source4() ;
+    source.set() = source1() + source2() + source3() + source4() + source5();
  
-    cout << "norme de la source 1 pour logn_auto" << endl ;
-    cout <<  norme(source1()) << endl ;
-    cout << "norme de la source 2 pour logn_auto" << endl ;
-    cout <<  norme(source2()) << endl ;
-    cout << "norme de la source 3 pour logn_auto" << endl ;
-    cout <<  norme(source3()) << endl ;
-    cout << "norme de la source 4 pour logn_auto" << endl ;
-    cout <<  norme(source4()) << endl ;
-    cout << "norme de la source pour logn_auto" << endl ;
-    cout <<  norme(source()) << endl ;
+    cout << "moyenne de la source 1 pour logn_auto" << endl ;
+    cout <<  norme(source1()/(nr*nt*np)) << endl ;
+    cout << "moyenne de la source 2 pour logn_auto" << endl ;
+    cout <<  norme(source2()/(nr*nt*np)) << endl ;
+    cout << "moyenne de la source 3 pour logn_auto" << endl ;
+    cout <<  norme(source3()/(nr*nt*np)) << endl ;
+    cout << "moyenne de la source 4 pour logn_auto" << endl ;
+    cout <<  norme(source4()/(nr*nt*np)) << endl ;
+    cout << "moyenne de la source 5 pour logn_auto" << endl ;
+    cout <<  norme(source5()/(nr*nt*np)) << endl ;
+    cout << "moyenne de la source pour logn_auto" << endl ;
+    cout <<  norme(source()/(nr*nt*np)) << endl ;
 	
 	
     source.set_std_base() ;
@@ -526,10 +566,15 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
 
     // Resolution of the Poisson equation 
     // ----------------------------------
+    
+
+    //source.set().filtre(4) ;
+    //   source.annule(nz-1) ;
+ 
 
     source().poisson(par_poisson1, logn_auto.set()) ; 
 
-    cout << "logn_auto" << endl << norme(logn_auto()) << endl ;
+    cout << "logn_auto" << endl << norme(logn_auto()/(nr*nt*np)) << endl ;
     /*
     des_profile(logn_auto(), 0, 20, 0, 0) ;
     des_coef_xi(logn_auto().va, 0, 0, 0) ;
@@ -552,6 +597,7 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
     cout << "Rel error: " << norme(logn_auto().laplacien()- source())
       / max( max( source() ) ) << endl ; 
 
+    
     //--------------------------------------------------------
     // Poisson equation for a_car
     //--------------------------------------------------------
@@ -560,49 +606,54 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
     //--------
 
 	 
-    Tenseur inc_ricci_scal ( gtilde.ricci_scal() ) ;
-    inc_ricci_scal.inc_dzpuis() ;
-    inc_ricci_scal.annule(nz-1) ;
+    source1 = a_car_auto * ricci_scal * 0.5 ;
 
-    source1 = 1./2. * inc_ricci_scal() ;
+    source2 = 3./4.*pow(gamma, -1./3.)%
+	contract_desal(contract_desal(gtilde.con(), 0, dcov_acar, 0), 
+		       0, dcov_acar_auto, 0) ;
+		
+    source3 =  -2*qpig*pow(gamma, 2./3.) % ener_euler 
+	-2. * pow(gamma,1./3.) % (kcar_auto + kcar_comp) ;  //a voir 
 
-    source2 = 3./4.*pow(gamma, -1./3.)*
-      contract(dcon_acar_auto, 0, dcov_acar, 0) ;
-
-    source3 = - pow(gamma(),(2./3.)) * 2.*qpig*ener_euler() 
-      + 1./2. * pow(gamma(),(1./3.)) * (kcar_auto() + kcar_comp()) ; 
-
-    source4 = (lap_acar_auto()  - dcondcov_acar_auto()) ;
+    source4 = - contract(contract(hij, 0, dcovdcov_acar_auto, 0), 0, 1) ;
 
     source.set_etat_qcq() ;
     source.set() = source1() + source2() + source3() + source4() ; 
   	
-    cout << "norme de la source 1 pour acar_auto" << endl ;
-    cout <<  norme(source1()) << endl ;
-    cout << "norme de la source 2 pour acar_auto" << endl ;
-    cout <<  norme(source2()) << endl ;
-    cout << "norme de la source 3 pour acar_auto" << endl ;
-    cout <<  norme(source3()) << endl ;
-    cout << "norme de la source 4 pour acar_auto" << endl ;
-    cout <<  norme(source4()) << endl ;
-    cout << "norme de la source pour acar_auto" << endl ;
-    cout <<  norme(source()) << endl ;
+    cout << "moyenne de la source 1 pour acar_auto" << endl ;
+    cout <<  norme(source1()/(nr*nt*np)) << endl ;
+    cout << "moyenne de la source 2 pour acar_auto" << endl ;
+    cout <<  norme(source2()/(nr*nt*np)) << endl ;
+    cout << "moyenne de la source 3 pour acar_auto" << endl ;
+    cout <<  norme(source3()/(nr*nt*np)) << endl ;
+    cout << "moyenne de la source 4 pour acar_auto" << endl ;
+    cout <<  norme(source4()/(nr*nt*np)) << endl ;
+    cout << "moyenne de la source pour acar_auto" << endl ;
+    cout <<  norme(source()/(nr*nt*np)) << endl ;
 	
 
     source.set_std_base() ;
-	
+    /*
+    des_profile(source(), 0, 20, 0, 0) ;
+    des_coef_xi(source().va, 0, 0, 0) ;
+    des_coef_xi(source().va, 1, 0, 0) ;
+    des_coef_xi(source().va, 2, 0, 0) ;
+    */
     // des_profile(source(), 0, 20, 0, 0) ;
 
     // Resolution of the Poisson equation 
     // ----------------------------------
 
+    //source.set().filtre(4) ;
+    //   source.annule(nz-1) ;
+ 
     source().poisson(par_poisson2, a_car_auto.set()) ; 
     /*
     des_profile(a_car_auto(), 0, 20, 0, 0) ;
     des_coef_xi(a_car_auto().va, 0, 0, 0) ;
     des_coef_xi(a_car_auto().va, 1, 0, 0) ;
     des_coef_xi(a_car_auto().va, 2, 0, 0) ;
-    */ 
+    */
     // Check: has the Poisson equation been correctly solved 
     // -----------------------------------------------------
     
@@ -621,7 +672,7 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
 
     a_car_auto.set() = a_car_auto() + decouple  ;
 
-    cout << "acar_auto" << endl << norme(a_car_auto()) << endl ;
+    cout << "acar_auto" << endl << norme(a_car_auto()/(nr*nt*np)) << endl ;
 
     //--------------------------------------------------------
     // Vector Poisson equation for shift_auto 
@@ -637,32 +688,34 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
     Tenseur source4_shift(mp, 1, CON, mp.get_bvect_cart()) ;
     Tenseur source5_shift(mp, 1, CON, mp.get_bvect_cart()) ;
 
-    source1_shift = (-4.*qpig) * nnn * pow(gamma,(1./3.))
-      *(ener_euler + press) * u_euler ;
+    Tenseur temp = contract(deltakij*shift, 2, 3) ;
+    temp.dec2_dzpuis() ;
+    Tenseur temp2 = temp.derive_cov(flat) ;
+    temp2.inc2_dzpuis() ;
 
-    Tenseur inc_ricci (gtilde.ricci()) ;
-    inc_ricci.inc_dzpuis() ;
-    for (int i=0; i<3; i++)
-      for (int j=0; j<3; j++){
-	inc_ricci.set(i,j).annule(nz-1) ;
-      }
+    source1_shift = (-4.*qpig) * nnn % pow(gamma,(1./3.))
+      %(ener_euler + press) % u_euler ;
 
-    source2_shift =  - contract(gtilde.con() * contract(inc_ricci
-					   	* shift_auto, 1, 2), 1, 2) ;
+    source2_shift =  - contract(gtilde.con(), 1, contract(ricci_auto, 1,
+					   	shift, 0), 0) ;
+								
+    source3_shift = + nnn % contract_desal(tkij_auto, 1
+			        , (3.*dcov_acar%pow(a_car, -1.) - 2.* dcov_logn), 0) ;
+		      
+ 	 
+    source4_shift = 0;/*- contract(contract(gtilde.con()%temp2, 0, 4), 0, 1)
+     - contract(contract_desal(  gtilde.con() % 
+         (contract(deltakij%shift.derive_cov(flat), 2, 4) 
+      - contract(deltakij%contract(deltakij%shift, 2, 3), 2, 3)), 0, 4), 0, 2)
+     + contract(contract(  gtilde.con() %
+         (contract(deltakij%shift.derive_cov(flat), 0, 3) 
+     + contract(deltakij%contract(deltakij%shift, 2, 3), 0, 4)),0, 3), 0, 1) ;
+		      */			          
 
-    source3_shift =  nnn % contract(tkij_auto, 1
-			        , (3.*dcov_acar/a_car - 2.* dcov_logn), 0) ;
+    source5_shift = - contract(hij, 1, contract(dcovdcov_shift_auto,1,2),0)/3. 
+	- contract( contract(hij, 0, dcovdcov_shift_auto, 0), 0, 1) ;
 
-	 
-    source4_shift.set_etat_qcq() ;
-    for (int i=0; i<3; i++) {
-      source4_shift.set(i) = lap_shift_auto(i) - dcovdcon_shift_auto(i) ;
-    }
-	 
-    source5_shift.set_etat_qcq() ;
-    for (int i=0; i<3; i++) {
-      source5_shift.set(i) = diffdidj_shift_autoj(i)/3. ;
-    }
+    
 
     source_shift.set_etat_qcq() ;
     for (int i=0; i<3; i++) {
@@ -671,30 +724,30 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
 
     }
       
-    cout << "norme de la source 1 pour shift_auto" << endl ;
-    cout <<  norme(source1_shift(0)) << endl ;
-    cout <<  norme(source1_shift(1)) << endl ;
-    cout <<  norme(source1_shift(2)) << endl ;
-    cout << "norme de la source 2 pour shift_auto" << endl ;
-    cout <<  norme(source2_shift(0)) << endl ;
-    cout <<  norme(source2_shift(1)) << endl ;
-    cout <<  norme(source2_shift(2)) << endl ;
-    cout << "norme de la source 3 pour shift_auto" << endl ;
-    cout <<  norme(source3_shift(0)) << endl ;
-    cout <<  norme(source3_shift(1)) << endl ;
-    cout <<  norme(source3_shift(2)) << endl ;
-    cout << "norme de la source 4 pour shift_auto" << endl ;
-    cout <<  norme(source4_shift(0)) << endl ;
-    cout <<  norme(source4_shift(1)) << endl ;
-    cout <<  norme(source4_shift(2)) << endl ;
-    cout << "norme de la source 5 pour shift_auto" << endl ;
-    cout <<  norme(source5_shift(0)) << endl ;
-    cout <<  norme(source5_shift(1)) << endl ;
-    cout <<  norme(source5_shift(2)) << endl ;
-    cout << "norme de la source pour shift_auto" << endl ;
-    cout <<  norme(source_shift(0)) << endl ;
-    cout <<  norme(source_shift(1)) << endl ;
-    cout <<  norme(source_shift(2)) << endl ;
+    cout << "moyenne de la source 1 pour shift_auto" << endl ;
+    cout <<  norme(source1_shift(0)/(nr*nt*np)) << endl ;
+    cout <<  norme(source1_shift(1)/(nr*nt*np)) << endl ;
+    cout <<  norme(source1_shift(2)/(nr*nt*np)) << endl ;
+    cout << "moyenne de la source 2 pour shift_auto" << endl ;
+    cout <<  norme(source2_shift(0)/(nr*nt*np)) << endl ;
+    cout <<  norme(source2_shift(1)/(nr*nt*np)) << endl ;
+    cout <<  norme(source2_shift(2)/(nr*nt*np)) << endl ;
+    cout << "moyenne de la source 3 pour shift_auto" << endl ;
+    cout <<  norme(source3_shift(0)/(nr*nt*np)) << endl ;
+    cout <<  norme(source3_shift(1)/(nr*nt*np)) << endl ;
+    cout <<  norme(source3_shift(2)/(nr*nt*np)) << endl ;
+    cout << "moyenne de la source 4 pour shift_auto" << endl ;
+    cout <<  norme(source4_shift(0)/(nr*nt*np)) << endl ;
+    cout <<  norme(source4_shift(1)/(nr*nt*np)) << endl ;
+    cout <<  norme(source4_shift(2)/(nr*nt*np)) << endl ;
+    cout << "moyenne de la source 5 pour shift_auto" << endl ;
+    cout <<  norme(source5_shift(0)/(nr*nt*np)) << endl ;
+    cout <<  norme(source5_shift(1)/(nr*nt*np)) << endl ;
+    cout <<  norme(source5_shift(2)/(nr*nt*np)) << endl ;
+    cout << "moyenne de la source pour shift_auto" << endl ;
+    cout <<  norme(source_shift(0)/(nr*nt*np)) << endl ;
+    cout <<  norme(source_shift(1)/(nr*nt*np)) << endl ;
+    cout <<  norme(source_shift(2)/(nr*nt*np)) << endl ;
 	
     source_shift.set_std_base() ; 	
 	
@@ -702,14 +755,14 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
     // ----------------------------------
 
     // Filter for the source of shift vector
-
+    
     for (int i=0; i<3; i++) {
-
+  
       if (source_shift(i).get_etat() != ETATZERO)
-	source_shift.set(i).filtre(4) ;
+		source_shift.set(i).filtre(4) ;
 
     }
-
+    
 
     // For Tenseur::poisson_vect, the triad must be the mapping triad,
     // not the reference one:
@@ -728,11 +781,13 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
     //##
     // source_shift.dec2_dzpuis() ;    // dzpuis 4 -> 
     double lambda_shift = double(1)/double(3) ; 
+
+    //    source_shift.annule(nz-1) ;
 	
     source_shift.poisson_vect(lambda_shift, par_poisson_vect, 
       			      shift_auto, w_shift, khi_shift) ;      
 
-    cout << "shift_auto" << endl << norme(shift_auto(0)) << endl << norme(shift_auto(1)) << endl << norme(shift_auto(2)) << endl ; 
+    cout << "shift_auto" << endl << norme(shift_auto(0)/(nr*nt*np)) << endl << norme(shift_auto(1)/(nr*nt*np)) << endl << norme(shift_auto(2)/(nr*nt*np)) << endl ; 
 
     // Check: has the equation for shift_auto been correctly solved ?
     // --------------------------------------------------------------
@@ -774,7 +829,7 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
       cout << tdiff_shift_z(l) << "  " ; 
     }
     cout << endl ;
-	   	
+	
     diff_shift_x = max(abs(tdiff_shift_x)) ; 
     diff_shift_y = max(abs(tdiff_shift_y)) ; 
     diff_shift_z = max(abs(tdiff_shift_z)) ; 
@@ -785,207 +840,372 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
     des_coef_xi(shift_auto(1).va, 1, 0, 0) ;
     des_coef_xi(shift_auto(1).va, 2, 0, 0) ;
     */ 
+
+          arrete() ;
+
+    cout << "ok1" << endl ;
+   
     if (!conf_flat){
 	   
       //--------------------------------------------------------
-      // Poisson equation for gij
+      // Poisson equation for hij
       //--------------------------------------------------------
 	   
       // Source
       //--------
-	   
+   
+ 
+      const Tenseur& dcov_qq = qq.derive_cov(flat) ;
+      
+      Tenseur dcov_qq2 = qq.derive_cov(flat) ;
+      dcov_qq2.dec2_dzpuis() ;
+      Tenseur dcovdcov_qq = dcov_qq2.derive_cov(flat) ;
+      dcovdcov_qq.inc2_dzpuis() ;
+
+      Tenseur laplacien_qq(mp) ;
+      laplacien_qq = qq().laplacien() ;
+  
+      tkij_auto.dec2_dzpuis() ;
+      Tenseur dcov_tkij_auto = tkij_auto.derive_cov(flat) ;
+      tkij_auto.inc2_dzpuis() ;
+      dcov_tkij_auto.inc2_dzpuis() ;
+
+
+      Cmp sol_poisson(mp) ;
+      sol_poisson.set_etat_qcq() ;
+      sol_poisson = 0 ;
+
+
+
+    cout << "ok2" << endl ;
+    
+    const Tenseur& gtilde_cov = gtilde.cov() ;
+    const Tenseur& gtilde_con = gtilde.con() ;
+ 
+
+    
+    Tenseur source1_1 = contract(contract(hij,0, dcovdcov_hij_auto,0),0,1) ;
+ 
+    Tenseur source2_1 = contract(contract(dcov_hij,0, dcov_hij_auto,2), 1, 2) ;
+    Tenseur source2_2 = contract(contract(gtilde_cov, 0, 
+  contract(contract(gtilde_con,0,dcov_hij,0),0,dcov_hij_auto, 0), 1), 0, 3) ;
+    Tenseur source2_3 = contract(gtilde_con, 1, contract(contract(
+   contract(gtilde_cov,0,dcov_hij,1),0,dcov_hij_auto, 2),1, 2), 0) ;
+    Tenseur source2_4 = contract(gtilde_con, 1, contract(contract(
+   contract(gtilde_cov,1,dcov_hij,2),0,dcov_hij_auto, 2),1, 2), 0) ; 
+    Tenseur source2_5 = contract(gtilde_con,1, contract(gtilde_con,1,
+	    contract(contract(dcov_gtilde,1,dcov_hij_auto,1), 1, 3)*0.5 
+	      + pow(gamma, -2./3.)*dcov_acar*dcov_acar_auto, 1), 1) ;
+
+
+    Tenseur source3_1 = 2.*(pow(nnn, -1.)*pow(gamma,-1./6.)*contract(
+       gtilde_con,1, contract(gtilde_auto.con(),1, dcovdcov_qq,1), 1)) ;
+
+
+    Tenseur source4_1 = contract(contract(gtilde_con,1, dcov_hij_auto,0),2, 
+				 dcov_qq,0) ;
+    Tenseur source4_2 = contract(contract(gtilde_con,1, dcov_hij_auto,0),0, 
+				 dcov_qq,0) ;
+    Tenseur source4_3 = contract(gtilde_con,1,
+	      	 contract(gtilde_con,1, dcov_acar*dcov_logn_auto,1),1) ;
+    Tenseur source4_4 = contract(gtilde_con,1,
+		 contract(gtilde_con,1, dcov_acar*dcov_logn_auto,0),1) ;
+
+
+    Tenseur source5_1 = -2./3.*pow(gamma, -1./6.)*pow(nnn, -1.)
+	*laplacien_qq*gtilde_auto.con() ;
+
+
+    Tenseur source6_1 = -2./3.*pow(gamma, -1./6.)*pow(nnn, -1.)*contract
+	(contract(hij,0, dcovdcov_qq,0),0,1)*gtilde_auto.con() ;
+
+
+    Cmp source7_1 = - 2.*pow(a_car, -1.)()
+	*contract(contract(gtilde_con,0, dcov_acar,0),0, dcov_logn,0)() ;
+    Cmp source7_2 = - contract(contract(contract(contract(gtilde_con,0, 
+        dcov_hij,0),0, dcov_gtilde,0), 0, 2), 0, 1)() *0.25 ;
+    Cmp source7_3 = contract(contract(contract(contract(gtilde_con,0, 
+        dcov_hij,0),0, dcov_gtilde,2), 0, 3), 0, 1)() *0.5 ;   
+    Cmp source7_4 = - pow(gamma, -2./3.)()*contract(contract(gtilde_con,0,
+        dcov_acar,0),0, dcov_acar,0)()*0.5 ;
+
+
+    Tenseur source8_1 = -2.*pow(gamma,1./3.)*(2*kcar_con
+		       - 2.*qpig*(pow(gamma, 1./3.)*stress
+		       - s_euler*(gtilde.con())/3.)) ;
+
+
+    Tenseur source9_1 = contract(shift,0, dcov_tkij_auto,0) ;
+    Tenseur source9_2 = - contract(tkij_auto,0, shift.derive_cov(flat),0) ;
+    Tenseur source9_3 = - contract(tkij_auto,1, shift.derive_cov(flat),0) ;
+    Tenseur source9_4 = 2./3.*(contract(shift.derive_cov(flat),0, 1)
+			       *tkij_auto) ;
+    
+
+    arrete() ;
+
+
+    hij_auto.set_etat_qcq() ;    
+
       for(int i=0; i<=2; i++) {
 	for(int j=i; j<=2; j++) {
 
-	  source1 = - 2*(dcovdcov_logn_auto(i,j)
-			 + dcov_logn(i)*dcov_logn_auto(j)) / nnn();/*
-	    + pow(gamma(),-1./3.)*(dcov_acar(i)*dcov_logn_auto(j) 
-	    + dcov_acar(j)*dcov_logn_auto(i)) 
-	    - pow(gamma(),-1./3.)*dcovdcov_acar_auto(i,j) ;
-	    + 3./2.*pow(gamma(),-2./3.)*dcov_acar_auto(i)*dcov_acar(j) 
-		   */ 
+	  source1 = - source1_1(i,j);
+
+	  cout << "ok3" << endl ;
+	  
+	  source2 =  source2_1(i,j) + source2_2(i,j) - source2_3(i,j) 
+		     - source2_4(j,i) - source2_5(i,j) ;
+	  
+	  cout << "ok4" << endl ;
+	  
+	  
+       	  source3 = source3_1(i,j) ;
+		      
+
+	  source4 = 2.*pow(nnn, -1.)()*pow(gamma,-1./6.)()*
+    (source4_1(i,j)*0.5 + source4_1(j,i)*0.5 - source4_2(i,j)*0.5)
+	  - 2*pow(gamma,-1./3.)()*(source4_3(i,j) + source4_4(i,j)) ; 
+		      
+
+	  source5 = source5_1(i,j) ;
+		                       
+
+	  source6 = source6_1(i,j) ;
+		                       
+
+	  source7 =  -2./3.*(source7_1 + source7_2 + source7_3 + source7_4)
+	                   *gtilde_auto.con()(i,j) ;
+		      
+		      
+	  source8 =  source8_1(i,j) ;
+		       
+    cout << "ok5" << endl ;
 	       
-       	  source2 = 0;/*( 2*dcondcov_nnn()/(3*nnn()) 
-            - 2*pow(gamma(),-1./3.)*contract(dcon_acar, 0, dcov_logn, 0)()/3. 
-		      - 2.*(inc_ricci_scal() + 3./4.*pow(gamma(),-2./3.) 
-      * contract(dcon_acar, 0, dcov_acar, 0)())/3.)*(gtilde_auto.cov())(i,j) 
-        + pow(gamma(),-1./3.)*dcondcov_acar_auto() * (gtilde.cov())(i,j)/3. ;
-		      */
-	       
-	  source3 = 0;/*2.*pow(gamma(),(1./3.))*(-2*kcar_cov(i,j)
-		  - 2.*qpig*(pow(gamma(), -1./3.)*stress(i,j) 
-		  - s_euler()*(gtilde.cov())(i,j)/3.)) ;
+	  source9 = 0;/*- 2.*a_car()/nnn()*(
+	      source9_1(i,j)+ source9_2(j,i)+ source9_3(i,j) + source9_4(i,j)) 
 		      */
 
-	    source4 = 0;//2*inc_ricci(i,j)*decouple + lap_gtilde_auto(i,j) ;
-	       
-	       
+    arrete() ;
+
+	  source1.annule(nz-1) ;
+	  source2.annule(nz-1) ;
+	  source3.annule(nz-1) ;
+	  source4.annule(nz-1) ;
+	  source5.annule(nz-1) ;
+	  source6.annule(nz-1) ;
+	  source7.annule(nz-1) ;
+	  source8.annule(nz-1) ;
+	  source9.annule(nz-1) ;
+
+
 	  source_tot.set_etat_qcq() ;
-	  source_tot.set() = source1() + source2() + source3() + source4() ;
-	  
-	  source_tot.annule(nz-1) ;
-	  source_tot.set_std_base() ; 
-	  
+	  source_tot.set() = source1() + source2() + source3() + source4() 
+	      + source5() + source6() + source7() + source8() + source9() ;
+ 
+   cout << "ok6" << endl ;
 
-	  /*
+	  //  source_tot.set_std_base() ;
+	  
+	  //source_tot.set().filtre(4) ;
+//	  	  source_tot.annule(nz-1) ;
+/*
 	  source3.set_std_base() ; 
 	  source4.set_std_base() ; 
 	  des_profile(source_tot(), 0, 20, 0, 0) ;
 	  des_coef_xi(source_tot().va, 0, 0, 0) ;
 	  des_coef_xi(source_tot().va, 1, 0, 0) ;
 	  des_coef_xi(source_tot().va, 2, 0, 0) ;
-	  */   
-	  cout << "norme de la source 1 pour gtilde_auto" << endl ;
-	  cout <<  norme(source1()) << endl ;
-	  cout << "norme de la source 2 pour gtilde_auto" << endl ;
-	  cout <<  norme(source2()) << endl ;
-	  cout << "norme de la source 3 pour gtilde_auto" << endl ;
-	  cout <<  norme(source3()) << endl ;
-	  cout << "norme de la source 4 pour gtilde_auto" << endl ;
-	  cout <<  norme(source4()) << endl ;
-	  cout << "norme de la source pour gtilde_auto" << endl ;
-	  cout <<  norme(source_tot()) << endl << endl ;
+*/	  
+  
+	  cout << "moyenne de la source 1 pour hij_auto" << endl ;
+	  cout <<  norme(source1()/(nr*nt*np)) << endl ;
+	  cout << "moyenne de la source 2 pour hij_auto" << endl ;
+	  cout <<  norme(source2()/(nr*nt*np)) << endl ;
+	  cout << "moyenne de la source 3 pour hij_auto" << endl ;
+	  cout <<  norme(source3()/(nr*nt*np)) << endl ;
+	  cout << "moyenne de la source 4 pour hij_auto" << endl ;
+	  cout <<  norme(source4()/(nr*nt*np)) << endl ;
+	  cout << "moyenne de la source5 pour hij_auto" << endl ;
+	  cout <<  norme(source5()/(nr*nt*np)) << endl ;
+	  cout << "moyenne de la source6 pour hij_auto" << endl ;
+	  cout <<  norme(source6()/(nr*nt*np)) << endl ;
+	  cout << "moyenne de la source7 pour hij_auto" << endl ;
+	  cout <<  norme(source7()/(nr*nt*np)) << endl ;
+	  cout << "moyenne de la source8 pour hij_auto" << endl ;
+	  cout <<  norme(source8()/(nr*nt*np)) << endl ;
+	  cout << "moyenne de la source9 pour hij_auto" << endl ;
+	  cout <<  norme(source9()/(nr*nt*np)) << endl ;
+	  cout << "moyenne de la source pour hij_auto" << endl ;
+	  cout <<  norme(source_tot()/(nr*nt*np)) << endl << endl ;
+  
+
 	       
+
+    cout << "ok7" << endl ;
+
+
 	  // Resolution of the Poisson equations and
 	  // Check: has the Poisson equation been correctly solved ?
 	  // -----------------------------------------------------
-	       
+
+     
 	  if(i==0 && j==0) {
 		 
-	    source_tot().poisson(par_poisson3, gtilde_auto.set_cov(0,0)) ; 
-		 
-	    gtilde_auto.set_cov(0,0) = gtilde_auto.cov()(0,0) + decouple ;
+	    source_tot.set_std_base() ;
+	    source_tot().poisson(par_poisson3, sol_poisson) ; 
+	    hij_auto.set(0,0) = sol_poisson ;
 
-	    Tbl tdiff_gtilde00 = diffrel(gtilde_auto.cov()(0,0).laplacien()
-					 , source()) ;
-	    cout << 
-	      "Relative error in the resolution of the equation for "
-		 << "gtilde00 : " << endl ; 
+	    gtilde_auto.set_con(0,0) = hij_auto(0,0) + decouple ;
+	    gtilde_auto_con.set(0,0) = hij_auto(0,0) + decouple ;
+	    
+	    Tbl tdiff_hij00 = diffrel(hij_auto(0,0).laplacien(), source_tot()) ;  
+	    cout << "Relative error in the resolution of the equation for "
+		 << "hij00_auto : " << endl ; 
 	    for (int l=0; l<nz; l++) {
-	      cout << tdiff_gtilde00(l) << "  " ; 
+	      cout << tdiff_hij00(l) << "  " ; 
 	    }
 	    cout << endl ;
-	    diff_gtilde00 = max(abs(tdiff_gtilde00)) ; 
+	    diff_hij00 = max(abs(tdiff_hij00)) ; 
 	  }
-	       
-	       
+	       	       
 	  if(i==0 && j==1) {
-		 
-	    source_tot().poisson(par_poisson4, gtilde_auto.set_cov(1,0)) ; 
 
-	    Tbl tdiff_gtilde10 = diffrel(gtilde_auto.cov()(1,0).laplacien()
-					 , source()) ;
+	    source_tot.set_std_base() ;
+	    source_tot().poisson(par_poisson4, sol_poisson) ; 
+	    hij_auto.set(0,1) = sol_poisson ;
+	    
+	    gtilde_auto.set_con(0,1) = hij_auto(0,1) ;
+	    gtilde_auto_con.set(0,1) = hij_auto(0,1) ;
+
+	    Tbl tdiff_hij10 = diffrel(hij_auto(0,1).laplacien(), source_tot()) ;
 	    cout << 
 	      "Relative error in the resolution of the equation for " 
-		 << "gtilde10 : "  << endl ; 
+		 << "hij10_auto : "  << endl ; 
 	    for (int l=0; l<nz; l++) {
-	      cout << tdiff_gtilde10(l) << "  " ; 
+	      cout << tdiff_hij10(l) << "  " ; 
 	    }
 	    cout << endl ;
-	    diff_gtilde10 = max(abs(tdiff_gtilde10)) ; 
+	    diff_hij10 = max(abs(tdiff_hij10)) ; 
 	  }
 	       
 	  if(i==0 && j==2) {
 		 
-	    source_tot().poisson(par_poisson5, gtilde_auto.set_cov(2,0)) ; 
+	    source_tot.set_std_base() ;
+	    source_tot().poisson(par_poisson5, sol_poisson) ; 
+	    hij_auto.set(0,2) = sol_poisson ;
+
+	    gtilde_auto.set_con(0,2) = hij_auto(0,2) ;
+	    gtilde_auto_con.set(0,2) = hij_auto(0,2) ;
 		 
-	    Tbl tdiff_gtilde20 = diffrel(gtilde_auto.cov()(2,0).laplacien()
-					 , source()) ;
+	    Tbl tdiff_hij20 = diffrel(hij_auto(0,2).laplacien(), source_tot()) ;
 	    cout << 
 	      "Relative error in the resolution of the equation for "
-		 << "gtilde20 : " << endl ; 
+		 << "hij20_auto : " << endl ; 
 	    for (int l=0; l<nz; l++) {
-	      cout << tdiff_gtilde20(l) << "  " ; 
+	      cout << tdiff_hij20(l) << "  " ; 
 	    }
 	    cout << endl ;
-	    diff_gtilde20 = max(abs(tdiff_gtilde20)) ; 
+	    diff_hij20 = max(abs(tdiff_hij20)) ; 
 	  }
-	       
+	     
 	  if(i==1 && j==1) {
 		 
-	    source_tot().poisson(par_poisson6, gtilde_auto.set_cov(1,1)) ; 
+	    source_tot.set_std_base() ;
+	    source_tot().poisson(par_poisson6, sol_poisson) ; 
+	    hij_auto.set(1,1) = sol_poisson ;
 
-	    gtilde_auto.set_cov(1,1) = gtilde_auto.cov()(1,1) + decouple ;
+	    gtilde_auto.set_con(1,1) = hij_auto(1,1) + decouple ;
+	    gtilde_auto_con.set(1,1) = hij_auto(1,1) + decouple ;
 		 
-	    Tbl tdiff_gtilde11 = diffrel(gtilde_auto.cov()(1,1).laplacien()
-					 , source()) ;
+	    Tbl tdiff_hij11 = diffrel(hij_auto(1,1).laplacien(), source_tot()) ;
 	    cout << 
 	      "Relative error in the resolution of the equation for "
-		 << "gtilde11 : " << endl ; 
+		 << "hij11_auto : " << endl ; 
 	    for (int l=0; l<nz; l++) {
-	      cout << tdiff_gtilde11(l) << "  " ; 
+	      cout << tdiff_hij11(l) << "  " ; 
 	    }
 	    cout << endl ;
-	    diff_gtilde11 = max(abs(tdiff_gtilde11)) ; 
+	    diff_hij11 = max(abs(tdiff_hij11)) ; 
 	  }
 	       
 	  if(i==1 && j==2) {
 		 
-	    source_tot().poisson(par_poisson7, gtilde_auto.set_cov(2,1)) ; 
+	    source_tot.set_std_base() ;
+	    source_tot().poisson(par_poisson7, sol_poisson) ; 
+	    hij_auto.set(1,2) = sol_poisson ;
 
-	    Tbl tdiff_gtilde21 = diffrel(gtilde_auto.cov()(2,1).laplacien()
-					 , source()) ;
+	    gtilde_auto.set_con(1,2) = hij_auto(1,2) ;
+	    gtilde_auto_con.set(1,2) = hij_auto(1,2) ;
+
+	    Tbl tdiff_hij21 = diffrel(hij_auto(1,2).laplacien(), source_tot()) ;
 	    cout << 
 	      "Relative error in the resolution of the equation for "
-		 << "gtilde21 : " << endl ; 
+		 << "hij21_auto : " << endl ; 
 	    for (int l=0; l<nz; l++) {
-	      cout << tdiff_gtilde21(l) << "  " ; 
+	     cout << tdiff_hij21(l) << "  " ; 
 	    }
 	    cout << endl ;
-	    diff_gtilde21 = max(abs(tdiff_gtilde21)) ; 
+	    diff_hij21 = max(abs(tdiff_hij21)) ; 
 	  }
-	       
+	     
 	  if(i==2 && j==2) {
 		 
-	    source_tot().poisson(par_poisson8, gtilde_auto.set_cov(2,2)) ; 
+	    source_tot.set_std_base() ;
+	    source_tot().poisson(par_poisson8, sol_poisson) ; 
+	    hij_auto.set(2,2) = sol_poisson ;
 
-	    gtilde_auto.set_cov(2,2) = gtilde_auto.cov()(2,2) + decouple ;
-		 
-	    Tbl tdiff_gtilde22 = diffrel(gtilde_auto.cov()(2,2).laplacien()
-					 , source()) ;
+	    gtilde_auto.set_con(2,2) = hij_auto(2,2) + decouple ;
+	    gtilde_auto_con.set(2,2) = hij_auto(2,2) + decouple ;
+	 
+	    Tbl tdiff_hij22 = diffrel(hij_auto(2,2).laplacien(), source_tot()) ;
 	    cout << 
 	      "Relative error in the resolution of the equation for "
-		 << "gtilde22 : " << endl ; 
+		 << "hij22_auto : " << endl ;
 	    for (int l=0; l<nz; l++) {
-	      cout << tdiff_gtilde22(l) << "  " ; 
+	      cout << tdiff_hij22(l) << "  " ;
 	    }
 	    cout << endl ;
-	    diff_gtilde22 = max(abs(tdiff_gtilde22)) ; 
+	    diff_hij22 = max(abs(tdiff_hij22)) ;
 	  }
-	       
+
 	}
       }
-	
-      cout << "gtilde00 auto" << endl << norme(gtilde_auto.cov()(0,0)) 
-	   << endl << endl ;
-      cout << "gtilde10 auto" << endl << norme(gtilde_auto.cov()(1,0)) 
-	   << endl << endl ;
-      cout << "gtilde20 auto" << endl << norme(gtilde_auto.cov()(2,0)) 
-	   << endl << endl ;
-      cout << "gtilde11 auto" << endl << norme(gtilde_auto.cov()(1,1)) 
-	   << endl << endl ;
-      cout << "gtilde21 auto" << endl << norme(gtilde_auto.cov()(2,1)) 
-	   << endl << endl ;
-      cout << "gtilde22 auto" << endl << norme(gtilde_auto.cov()(2,2)) 
-	   << endl << endl ;
       
-   
+      cout << "gtilde00 auto"<<endl<< norme(gtilde_auto.con()(0,0)/(nr*nt*np)) 
+	   << endl << endl ;
+      cout << "gtilde10 auto"<<endl<< norme(gtilde_auto.con()(0,1)/(nr*nt*np)) 
+	   << endl << endl ;
+      cout << "gtilde20 auto"<<endl<< norme(gtilde_auto.con()(0,2)/(nr*nt*np)) 
+	   << endl << endl ;
+      cout << "gtilde11 auto"<<endl<< norme(gtilde_auto.con()(1,1)/(nr*nt*np)) 
+	   << endl << endl ;
+      cout << "gtilde21 auto"<<endl<< norme(gtilde_auto.con()(1,2)/(nr*nt*np)) 
+	   << endl << endl ;
+      cout << "gtilde22 auto"<<endl<< norme(gtilde_auto.con()(2,2)/(nr*nt*np)) 
+	   << endl << endl ;
+
+      //gtilde_auto.set_std_base() ;
+     
       double nr = (*(mp.get_mg())).get_nr(0) ;
       double nt = (*(mp.get_mg())).get_nt(0) ;
       double np = (*(mp.get_mg())).get_np(0) ;
 	   
       // Only valuable if nr is the same in all domains
-	   
-      Tenseur determinant = gtilde.determinant() ;
-      cout << "determinant of gtilde" << norme(determinant())/(nr*nt*np) 
-	   << endl ;
-	   
-      Tenseur determinant_auto = gtilde_auto.determinant() ;
-      cout << "determinant of gtilde_auto" << norme(determinant_auto())
-	/(nr*nt*np) << endl ;
-	   
-	   
+
     }
+    else {
+      for(int i=0; i<=2; i++) 
+	for(int j=i; j<=2; j++) {
+	  if (i == j) {
+	    gtilde_auto_con.set(i,i) = decouple   ; 
+	  }
+	  else {
+	 gtilde_auto_con.set(i,j) = 0. ;
+	  }
+	}
+    }
+
     /*
     des_profile(gtilde_auto.cov()(0,0), 0, 20, 0, 0) ;
     des_coef_xi(gtilde_auto.cov()(0,0).va, 0, 0, 0) ;
@@ -1034,7 +1254,6 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	
 	
     ent_jm1 = ent ; 
-
 
 
   } // End of main loop

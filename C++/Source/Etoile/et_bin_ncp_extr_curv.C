@@ -45,7 +45,7 @@ void Et_bin_ncp::extrinsic_curvature(){
     //           of the mapping)
     // D~_j beta^i 
     
-    Tenseur dshift = shift_auto_local.derive_con(gtilde) ; 
+    const Tenseur& dshift = shift_auto_local.derive_con(gtilde) ; 
     
      // Trace of D~_j beta^i : 
     Tenseur div_shift = contract(shift_auto_local.derive_cov(gtilde), 0, 1) ; 
@@ -53,36 +53,38 @@ void Et_bin_ncp::extrinsic_curvature(){
     // Computation of K^{ij}
     // See Eq (49) from Gourgoulhon et al. (2001)
     // -----------------------------------------
+
     tkij_auto.set_etat_qcq() ; 
+  
     for (int i=0; i<3; i++) {
 	for (int j=i; j<3; j++) {
+
 	    tkij_auto.set(i, j) = dshift(i, j) + dshift(j, i) - 
-	      double(2) /double(3) * div_shift() * (gtilde.con())(i,j) ; 
+	      double(2) /double(3) * div_shift() % (gtilde.con())(i,j) ; 
 	}
     }
     
-    tkij_auto = - 0.5 * tkij_auto / nnn ;
-    
+    tkij_auto = - 0.5 * tkij_auto / nnn ;   
     tkij_auto.set_std_base() ;
 
     // Computation of K_{ij} K^{ij}
     // --------------------------------
     
-    kcar_auto.set_etat_qcq() ; 
-    
-    kcar_auto.set() = 0 ; 
-    
+    kcar_auto.set_etat_qcq() ;     
+    kcar_auto.set() = 0 ;    
     kcar_auto.set_std_base() ;
 
+    Tenseur temp1 = contract(gtilde.cov(),1, contract(
+				 gtilde.cov(),1, tkij_auto,1),1) ;
+  
+    Tenseur tkij_auto_cov = tkij_auto ;
+    
     for (int i=0; i<3; i++) {
 	for (int j=0; j<3; j++) {
-	
-	  Tenseur tkij_auto_cov = tkij_auto ;
-	  tkij_auto_cov.set(i,j) = contract(contract(gtilde.cov() * 
-		        gtilde.cov() * tkij_auto, 1, 4), 2, 3)(i,j) ;
+	    
+	    tkij_auto_cov.set(i,j) = temp1(i,j) ;
 	  
-
-	  kcar_auto.set() += tkij_auto_cov(i,j) % tkij_auto(i,j) ; 
+	    kcar_auto.set() += tkij_auto_cov(i,j) % tkij_auto(i,j) ; 
 	}
     }
 

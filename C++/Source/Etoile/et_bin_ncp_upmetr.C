@@ -46,6 +46,11 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp) {
   // Computation of quantities coming from the companion
   // ---------------------------------------------------
 
+  int nzone = mp.get_mg()->get_nzone() ;
+  int nr = mp.get_mg()->get_nr(0);
+  int nt = mp.get_mg()->get_nt(0);
+  int np = mp.get_mg()->get_np(0);
+  
   if ( (comp.logn_auto).get_etat() == ETATZERO ) {
     logn_comp.set_etat_zero() ;
   }
@@ -87,31 +92,47 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp) {
   }	
 
 
-  if (!conf_flat){
-      
-    (gtilde_comp.set_cov()).set_triad( *(((comp.gtilde_auto).cov()).get_triad()) ) ;  
+  (gtilde_comp.set_con()).set_triad( *(((comp.gtilde_auto).con()).get_triad()) ) ;  
+    hij_comp.set_triad( *(comp.hij_auto.get_triad()) ) ;
+  
+
+    hij_comp.set_etat_qcq() ;
+
+
+    cout << "gtilde_auto" << endl << norme(gtilde_auto.con()(0,0)/(nr*nt*np)) << endl ;
+    cout << "gtilde_comp" << endl << norme(gtilde_comp.con()(0,0)/(nr*nt*np)) << endl ;
+ 
 
     for(int i=0; i<=2; i++) {
       for(int j=i; j<=2; j++) {
-	
-	if ( ((comp.gtilde_auto).cov())(i,j).get_etat()  == ETATZERO ) {
-	  (gtilde_comp.set_cov(i,j)).set_etat_zero() ;
+
+	if ( ((comp.gtilde_auto).con())(i,j).get_etat()  == ETATZERO ) {
+	  (gtilde_comp.set_con(i,j)).set_etat_zero() ;
 	}
 	else{
-	  (gtilde_comp.set_cov(i,j)).set_etat_qcq() ;
-	  (gtilde_comp.set_cov(i,j)).import( ((comp.gtilde_auto).cov())(i,j) ) ;
+	  (gtilde_comp.set_con(i,j)).set_etat_qcq() ;
+	  (gtilde_comp.set_con(i,j)).import(((comp.gtilde_auto).con())(i,j) ) ;
+	}
+
+	if ( (comp.hij_auto)(i,j).get_etat()  == ETATZERO ) {
+	  hij_comp.set(i,j).set_etat_zero() ;
+	}
+	else{
+	  hij_comp.set(i,j).set_etat_qcq() ;
+	  (hij_comp.set(i,j)).import( (comp.hij_auto)(i,j) ) ;
 	}
       }
     }
     
     
-    cout << "gtilde_auto" << endl << norme(gtilde_auto.cov()(0,0)) << endl ;
-    cout << "gtilde_comp" << endl << norme(gtilde_comp.cov()(0,0)) << endl ;
+    cout << "gtilde_auto" << endl << norme(gtilde_auto.con()(0,0)/(nr*nt*np)) << endl ;
+    cout << "gtilde_comp" << endl << norme(gtilde_comp.con()(0,0)/(nr*nt*np)) << endl ;
     
-    (gtilde_comp.set_cov()).change_triad( mp.get_bvect_cart() ) ;
+    (gtilde_comp.set_con()).change_triad( mp.get_bvect_cart() ) ;
     gtilde_comp.set_std_base() ;   // set the bases for spectral expansions
-    
-  }
+
+    hij_comp.change_triad( mp.get_bvect_cart() ) ;
+    hij_comp.set_std_base() ;   // set the bases for spectral expansions
   
   // Lapse function N
   // ----------------
@@ -139,41 +160,46 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp) {
   gamma.set_poids(2.) ;
   gamma.set_std_base() ;
 
+  // qq
 
-  if (!conf_flat){
-      
-    // Coefficients of the 3-metric tilde
-    // ----------------------------------
-    cout << "gtilde" << endl << norme(gtilde.cov()(0,0)) << endl << norme(gtilde.cov()(0,1)) << endl << norme(gtilde.cov()(1,1)) << endl ;
+  qq = pow(a_car, 1./2.) * nnn ;
+  qq.set_std_base() ;
+
+
+  // Coefficients of the 3-metric tilde
+  // ----------------------------------
+    cout << "gtilde" << endl << norme(gtilde.con()(0,0)/(nr*nt*np)) << endl << norme(gtilde.con()(0,1)/(nr*nt*np)) << endl << norme(gtilde.con()(1,1)/(nr*nt*np)) << endl ;
      
-    assert ( *(gtilde_auto.cov().get_triad())== *(gtilde.cov().get_triad()) ) ;
-      
+    assert ( *(gtilde_auto.con().get_triad())== *(gtilde.con().get_triad()) ) ;
+
+    hij.set_etat_qcq() ;
+    
     for(int i=0; i<=2; i++) {
       for(int j=i; j<=2; j++) {
    
-	gtilde.set_cov(i,j) = (gtilde_auto.cov())(i,j) + (gtilde_comp.cov())(i,j) ;
+	gtilde.set_con(i,j) = (gtilde_auto.con())(i,j) + (gtilde_comp.con())(i,j) ;
+	hij.set(i,j) = hij_auto(i,j) + hij_comp(i,j) ;
       }
     }
-    cout << "gtilde" << endl << norme(gtilde.cov()(0,0)) << endl << norme(gtilde.cov()(0,1)) << endl << norme(gtilde.cov()(1,1)) << endl ;
+    cout << "gtilde" << endl << norme(gtilde.con()(0,0)/(nr*nt*np)) << endl << norme(gtilde.con()(0,1)/(nr*nt*np)) << endl << norme(gtilde.con()(1,1)/(nr*nt*np)) << endl ;
 
 
     gtilde.set_std_base() ;
+    hij.set_std_base() ;
       
     // Determinant of gtilde
 
     Tenseur det_gtilde(mp) ;
-    det_gtilde = gtilde.cov()(0, 0)*gtilde.cov()(1, 1)*gtilde.cov()(2, 2) 
-      + gtilde.cov()(0, 1)*gtilde.cov()(1, 2)*gtilde.cov()(2, 0)
-      + gtilde.cov()(0, 2)*gtilde.cov()(1, 0)*gtilde.cov()(2, 1) 
-      - gtilde.cov()(2, 0)*gtilde.cov()(1, 1)*gtilde.cov()(0, 2)
-      - gtilde.cov()(2, 1)*gtilde.cov()(1, 2)*gtilde.cov()(0, 0) 
-      - gtilde.cov()(2, 2)*gtilde.cov()(1, 0)*gtilde.cov()(0, 1) ;
+    const Tenseur& gtilde_cov = gtilde.cov() ; 
 
-    int nzone = mp.get_mg()->get_nzone() ;
-    int nr = mp.get_mg()->get_nr(0);
-    int nt = mp.get_mg()->get_nt(0);
-    int np = mp.get_mg()->get_np(0);
-      
+    det_gtilde = gtilde_cov(0, 0)*gtilde_cov(1, 1)*gtilde_cov(2, 2) 
+      + gtilde_cov(0, 1)*gtilde_cov(1, 2)*gtilde_cov(2, 0)
+      + gtilde_cov(0, 2)*gtilde_cov(1, 0)*gtilde_cov(2, 1) 
+      - gtilde_cov(2, 0)*gtilde_cov(1, 1)*gtilde_cov(0, 2)
+      - gtilde_cov(2, 1)*gtilde_cov(1, 2)*gtilde_cov(0, 0) 
+      - gtilde_cov(2, 2)*gtilde_cov(1, 0)*gtilde_cov(0, 1) ;
+
+       
     double* max_det = new double[nzone] ;
     double* min_det = new double[nzone] ;
     double* moy_det = new double[nzone] ;
@@ -217,50 +243,7 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp) {
     }
     cout << endl ;
       
-
-       
-    // Coefficients of the 3-metric
-    // ----------------------------
-      
-    assert ( *(met_gamma.cov().get_triad())== *(gtilde.cov().get_triad()) ) ;
-    assert ( *(metgamma_auto.cov().get_triad())== *(gtilde.cov().get_triad()) ) ;
-    assert ( *(metgamma_comp.cov().get_triad())== *(gtilde.cov().get_triad()) ) ;
-      
-      
-    for(int i=0; i<=2; i++) {
-      for(int j=i; j<=2; j++) {
-	  
-	met_gamma.set_cov(i,j) = a_car() * gtilde.cov()(i,j) ;
-	metgamma_auto.set_cov(i,j) = a_car() * gtilde_auto.cov()(i,j) ;
-	metgamma_comp.set_cov(i,j) = a_car() * gtilde_comp.cov()(i,j) ;
-      }
-    }  
-    met_gamma.set_std_base() ;
-    metgamma_auto.set_std_base() ;
-    metgamma_comp.set_std_base() ;
-      
-  }
-  else {
-      
-    // for conformally flat metric
-      
-    for (int i=0; i<3; i++) {
-      gtilde_auto.set_cov(i,i) = a_car_auto() / a_car()  ; 
-      gtilde_comp.set_cov(i,i) = a_car_comp() / a_car()  ; 
-      met_gamma.set_cov(i,i) = a_car() ;
-      metgamma_auto.set_cov(i,i) = a_car_auto() ;
-      metgamma_comp.set_cov(i,i) = a_car_comp() ;
-    }
-      
-    gtilde_auto.set_std_base() ;
-    gtilde_comp.set_std_base() ;
-    met_gamma.set_std_base() ;
-    metgamma_auto.set_std_base() ;
-    metgamma_comp.set_std_base() ;
-      
-  }
-    
-    
+     
   if (relativistic) {
     // ... extrinsic curvature (tkij_auto and kcar_auto)
     extrinsic_curvature() ;
@@ -276,16 +259,23 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp) {
 
 
 
-//----------------------------------//
-//	  Version with relaxation   //
-//----------------------------------//
+          //----------------------------------//
+          //	  Version with relaxation     //
+          //----------------------------------//
 
 void Et_bin_ncp::update_metric(const Et_bin_ncp& comp,
 			       const Et_bin_ncp& star_jm1, double relax) {
 
 
+    cout << "update metric 1" << endl ; 
+
   // Computation of quantities coming from the companion
   // ---------------------------------------------------
+
+  int nzone = mp.get_mg()->get_nzone() ;
+  int nr = mp.get_mg()->get_nr(0);
+  int nt = mp.get_mg()->get_nt(0);
+  int np = mp.get_mg()->get_np(0);
 
   if ( (comp.logn_auto).get_etat() == ETATZERO ) {
     logn_comp.set_etat_zero() ;
@@ -325,31 +315,61 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp,
     a_car_comp.set_std_base() ;   // set the bases for spectral expansions
   }	
 
-    cout << "gtilde_auto" << endl << norme(gtilde_auto.cov()(0,0)) << endl ;
-    cout << "gtilde_comp" << endl << norme((comp.gtilde_auto).cov()(0,0)) << endl ;
+
+    cout << "update metric 2" << endl ; 
+
+ 
+
+    cout << "gtilde_auto" << endl << norme(gtilde_auto.con()(0,0)/(nr*nt*np)) << endl ;
+    cout << "gtilde_comp" << endl << norme((comp.gtilde_auto).con()(0,0)/(nr*nt*np)) << endl ;
 	
      
-  if (!conf_flat){
+    (gtilde_comp.set_con()).set_triad( *(((comp.gtilde_auto).con()).get_triad()) ) ;  
+    hij_comp.set_triad( *(comp.hij_auto.get_triad()) ) ; 
+ 
+    hij_comp.set_etat_qcq() ;
     
-    (gtilde_comp.set_cov()).set_triad( *(((comp.gtilde_auto).cov()).get_triad()) ) ;  
-      
+ 
+    cout << "update metric 3" << endl ; 
+   
+    
     for(int i=0; i<=2; i++) {
-      for(int j=i; j<=2; j++) {
-	
-	if ( ((comp.gtilde_auto).cov())(i,j).get_etat()  == ETATZERO ) {
-	  (gtilde_comp.set_cov(i,j)).set_etat_zero() ;
-	}
-	else{
-	  (gtilde_comp.set_cov(i,j)).set_etat_qcq() ;
-	  (gtilde_comp.set_cov(i,j)).import( ((comp.gtilde_auto).cov())(i,j) ) ; 	  
-	  gtilde_comp.set_std_base() ; // set the bases for spectral expansions
-	}   
-      }	
+	for(int j=i; j<=2; j++) {
+	    
+	    if ( ((comp.gtilde_auto).con())(i,j).get_etat()  == ETATZERO ) {
+		(gtilde_comp.set_con(i,j)).set_etat_zero() ;
+	    }
+	    else{
+		
+		(gtilde_comp.set_con(i,j)).set_etat_qcq() ;
+		if (i == j) {
+		    (gtilde_comp.set_con(i,j)).import((comp.hij_auto)(i,j) 
+						      + comp.decouple) ; 
+		}
+		else (gtilde_comp.set_con(i,j)).import((comp.hij_auto)(i,j)) ;
+	    }
+	    
+	    
+	    if ( (comp.hij_auto)(i,j).get_etat()  == ETATZERO ) {
+		hij_comp.set(i,j).set_etat_zero() ;
+	    }
+	    else{
+		hij_comp.set(i,j).set_etat_qcq() ;
+		(hij_comp.set(i,j)).import( (comp.hij_auto)(i,j) ) ;
+		
+	    }
+	}	
     }
     
-    (gtilde_comp.set_cov()).change_triad( mp.get_bvect_cart() ) ;
-    
-  }
+    (gtilde_comp.set_con()).change_triad( mp.get_bvect_cart() ) ;
+    gtilde_comp.set_std_base() ;   // set the bases for spectral expansions
+
+    hij_comp.change_triad( mp.get_bvect_cart() ) ;
+    hij_comp.set_std_base() ;   // set the bases for spectral expansions
+ 
+
+      cout << "update metric 4" << endl ; 
+
     
   // Relaxation on logn_comp, shift_comp, loggamma_comp, gtilde_comp
   // ---------------------------------------------------------------
@@ -361,14 +381,17 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp,
 
   a_car_comp = relax * a_car_comp + relaxjm1 * (star_jm1.get_acar_comp()) ;
 
-  if (!conf_flat){
-      
+       
     for(int i=0; i<=2; i++) {
       for(int j=i; j<=2; j++) {
-	gtilde_comp.set_cov(i,j) = relax * (gtilde_comp.cov())(i,j) + relaxjm1 * ((star_jm1.get_gtilde_comp()).cov())(i,j) ;
+	gtilde_comp.set_con(i,j) = relax * (gtilde_comp.con())(i,j) + relaxjm1 * ((star_jm1.get_gtilde_comp()).con())(i,j) ;
+	hij_comp.set(i,j) = relax * hij_comp(i,j) + relaxjm1 * (star_jm1.get_hij_comp())(i,j) ; 
       }
     }
-  }  
+  
+    cout << "update metric 5" << endl ; 
+
+
   
   // Lapse function N
   // ----------------
@@ -394,38 +417,51 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp,
   gamma = pow(a_car, 3.) ;
   gamma.set_poids(2.) ;
   gamma.set_std_base() ;
+
+  // qq
+
+  qq = pow(a_car, 1./2.) * nnn ;
+  qq.set_std_base() ;
+
  
-  if (!conf_flat){
+  // Coefficients of the 3-metric tilde
+  // ----------------------------------
       
-    // Coefficients of the 3-metric tilde
-    // ----------------------------------
-      
-    assert ( *(gtilde_auto.cov().get_triad())== *(gtilde.cov().get_triad()) ) ;
+    cout << "gtilde_auto" << endl << norme(gtilde_auto.con()(0,0)/(nr*nt*np)) << endl ;
+    cout << "gtilde_comp" << endl << norme(gtilde_comp.con()(0,0)/(nr*nt*np)) << endl ;
+    
+    hij.set_etat_qcq() ;
+
+    assert ( *(gtilde_auto.con().get_triad())== *(gtilde.con().get_triad()) ) ;
       
     for(int i=0; i<=2; i++) {
       for(int j=i; j<=2; j++) {
 	  
-	gtilde.set_cov(i,j) = (gtilde_auto.cov())(i,j) 
-	  + (gtilde_comp.cov())(i,j) ;
+	gtilde.set_con(i,j) = (gtilde_auto.con())(i,j) 
+	                      + (gtilde_comp.con())(i,j) ;
+	hij.set(i,j) = hij_auto(i,j) + hij_comp(i,j) ;
       }
     }
     gtilde.set_std_base() ;
+    hij.set_std_base() ;
+
+
+    cout << "update metric 6" << endl ; 
+
 
     // Determinant of gtilde
 
+    cout << "gtilde" << endl << norme(gtilde.con()(0,0)/(nr*nt*np)) << endl ;
+
     Tenseur det_gtilde(mp) ;
-    det_gtilde = gtilde.cov()(0, 0)*gtilde.cov()(1, 1)*gtilde.cov()(2, 2) 
-      + gtilde.cov()(0, 1)*gtilde.cov()(1, 2)*gtilde.cov()(2, 0)
-      + gtilde.cov()(0, 2)*gtilde.cov()(1, 0)*gtilde.cov()(2, 1) 
-      - gtilde.cov()(2, 0)*gtilde.cov()(1, 1)*gtilde.cov()(0, 2)
-      - gtilde.cov()(2, 1)*gtilde.cov()(1, 2)*gtilde.cov()(0, 0) 
-      - gtilde.cov()(2, 2)*gtilde.cov()(1, 0)*gtilde.cov()(0, 1) ;
+    const Tenseur& gtilde_cov = gtilde.cov() ; 
 
-
-    int nzone = mp.get_mg()->get_nzone() ;
-    int nr = mp.get_mg()->get_nr(0);
-    int nt = mp.get_mg()->get_nt(0);
-    int np = mp.get_mg()->get_np(0);
+    det_gtilde = gtilde_cov(0, 0)*gtilde_cov(1, 1)*gtilde_cov(2, 2) 
+      + gtilde_cov(0, 1)*gtilde_cov(1, 2)*gtilde_cov(2, 0)
+      + gtilde_cov(0, 2)*gtilde_cov(1, 0)*gtilde_cov(2, 1) 
+      - gtilde_cov(2, 0)*gtilde_cov(1, 1)*gtilde_cov(0, 2)
+      - gtilde_cov(2, 1)*gtilde_cov(1, 2)*gtilde_cov(0, 0) 
+      - gtilde_cov(2, 2)*gtilde_cov(1, 0)*gtilde_cov(0, 1) ;
       
     double* max_det = new double[nzone] ;
     double* min_det = new double[nzone] ;
@@ -469,54 +505,20 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp,
       cout << min_det[l] << "  " ;
     }
     cout << endl << endl ;
-      
-      
-    // Coefficients of the 3-metric
-    // ----------------------------
-      
-    assert ( *(met_gamma.cov().get_triad())== *(gtilde.cov().get_triad()) ) ;
-    assert ( *(metgamma_auto.cov().get_triad())== *(gtilde.cov().get_triad()) ) ;
-    assert ( *(metgamma_comp.cov().get_triad())== *(gtilde.cov().get_triad()) ) ;
-    for(int i=0; i<=2; i++) {
-      for(int j=i; j<=2; j++) {
-	  
-	met_gamma.set_cov(i,j) = a_car() * gtilde.cov()(i,j) ;
-	metgamma_auto.set_cov(i,j) = a_car() * gtilde_auto.cov()(i,j) ;
-	metgamma_comp.set_cov(i,j) = a_car() * gtilde_comp.cov()(i,j) ;
-      }
-    }    
-    metgamma_auto.set_std_base() ;
-    metgamma_comp.set_std_base() ;
-    met_gamma.set_std_base() ;
-    
-  }
-  else {
-      
-    // for conformally flat metric
-      
-    for (int i=0; i<3; i++) {
-      gtilde_auto.set_cov(i,i) = a_car_auto() / a_car()  ; 
-      gtilde_comp.set_cov(i,i) = a_car_comp() / a_car()  ; 
-      met_gamma.set_cov(i,i) = a_car() ;
-      metgamma_auto.set_cov(i,i) = a_car_auto() ;
-      metgamma_comp.set_cov(i,i) = a_car_comp() ;
-    }
-      
-    gtilde_auto.set_std_base() ;
-    gtilde_comp.set_std_base() ;
-    met_gamma.set_std_base() ;
-    metgamma_auto.set_std_base() ;
-    metgamma_comp.set_std_base() ;
-      
-  }
-      
+           
+       
+    cout << "update metric 7" << endl ; 
+
+
   // ... extrinsic curvature (tkij_auto and kcar_auto)
   extrinsic_curvature() ; 
     
+ 
   // The derived quantities are obsolete
   // -----------------------------------
     
   del_deriv() ;                
+    cout << "update metric 8" << endl ; 
     
 			      
 } 
@@ -536,15 +538,16 @@ void Et_bin_ncp::update_metric_init(const Et_bin_ncp& comp) {
     logn_comp.set_std_base() ;   // set the bases for spectral expansions
   }
 
-  a_car_auto = metgamma_auto.cov()(0,0) ;
+  // a_car_auto is save in gtilde_auto.cov() in et_bin_ncp_equilspher.C
+  a_car_auto = gtilde_auto_con(0,0) ;
   a_car_auto = a_car_auto() - 1.+ decouple ;
      
-  if ( ((comp.metgamma_auto).cov()(0,0)).get_etat() == ETATZERO ) {
+  if ( ((comp.gtilde_auto_con)(0,0)).get_etat() == ETATZERO ) {
     a_car_comp.set_etat_zero() ;
   }
   else{
     a_car_comp.set_etat_qcq() ;
-    (a_car_comp.set()).import_symy( (comp.metgamma_auto).cov()(0,0) - 1.
+    (a_car_comp.set()).import_symy( (comp.gtilde_auto_con)(0,0) - 1.
 				    + comp.decouple) ;
     a_car_comp.set_std_base() ;   // set the bases for spectral expansions
   }
@@ -573,19 +576,24 @@ void Et_bin_ncp::update_metric_init(const Et_bin_ncp& comp) {
   gamma.set_poids(2.) ;
   gamma.set_std_base() ;
    
+  gtilde_auto.set_con().set_etat_qcq() ;
+  gtilde_comp.set_con().set_etat_qcq() ;
 
-  for (int i=0; i<3; i++) {
-    gtilde_auto.set_cov(i,i) = decouple   ; 
-    //	met_gamma.set_cov(i,i) = a_car() ;
-    //	metgamma_auto.set_cov(i,i) = a_car_auto() ;
-    //	metgamma_comp.set_cov(i,i) = a_car_comp() ;
-  }
+   for (int i=0; i<3; i++) 
+     for (int j=i; j<3; j++) {
+       if (i == j) {
+	 gtilde_auto.set_con(i,i) = decouple   ; 
+       }
+       else {
+	 gtilde_auto.set_con(i,j) = 0. ;
+       }
+     }
   gtilde_auto.set_std_base() ;
   gtilde_comp.set_std_base() ;
-  met_gamma.set_std_base() ;
-  metgamma_auto.set_std_base() ;
-  metgamma_comp.set_std_base() ;
+  hij_auto.set_std_base() ;
+  decouple.std_base_scal() ;
+  
 
-  cout << "gtilde_auto" << endl << norme(gtilde_auto.cov()(0,0)) << endl ;
+  cout << "gtilde_auto" << endl << norme(gtilde_auto.con()(0,0)) << endl ;
  
 }

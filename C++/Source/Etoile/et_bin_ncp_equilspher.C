@@ -249,10 +249,18 @@ void Et_bin_ncp::equilibrium_spher(double ent_c, double precis){
 	
     a_car = a_car_auto ;
  
-    // We want to save a_car_auto in met_gamma_auto which is already 
+    // We want to save a_car_auto in gtilde_auto_con which is already 
     // save in a file
     
-    (metgamma_auto.set_cov()).set(0,0) = a_car_auto() ;
+    gtilde_auto_con.set_etat_qcq() ;
+    gtilde_auto_con.set(0,0) = a_car_auto() ;
+    gtilde_auto_con.set(1,1) = a_car_auto() ;
+    gtilde_auto_con.set(2,2) = a_car_auto() ;
+    gtilde_auto_con.set(0,1) = 0 ;
+    gtilde_auto_con.set(0,2) = 0 ;
+    gtilde_auto_con.set(1,2) = 0 ;
+    
+    gtilde_auto_con.set_std_base() ;
 
     // The mapping is transfered to that of the star:
     // ----------------------------------------------

@@ -28,6 +28,9 @@ char Bin_ns_ncp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/10/13 10:31:59  f_limousin
+ * *** empty log message ***
+ *
  * Revision 1.6  2003/06/20 13:49:53  f_limousin
  * Add a new argument conf_flat in the constructors and a new function fait_decouple().
  *
@@ -476,19 +479,12 @@ void Bin_ns_ncp::fait_decouple () {
 			    decouple_deux.set(nz_un-1, k, j, nr) = 0.5 ;
    }
    
-    double somme = 0 ;
-
     int nr = star2.mp.get_mg()->get_nr (2) ;
     int np = star2.mp.get_mg()->get_np (2) ;
     int nt = star2.mp.get_mg()->get_nt (2) ;
-    for (int k=0 ; k<np ; k++)
-      for (int j=0 ; j<nt ; j++)
-	for (int i=0 ; i<nr ; i++) {
-	  somme += decouple_un(2,k,j,5) ;
-	}
  
-    cout << "decouple_un"  << endl << norme(decouple_un) << endl ;
-    cout << "decouple_deux"  << endl << norme(decouple_deux) << endl ;
+    cout << "decouple_un"  << endl << norme(decouple_un/(nr*nt*np)) << endl ;
+    cout << "decouple_deux"  << endl << norme(decouple_deux/(nr*nt*np)) << endl ;
     /*
     decouple_un.std_base_scal() ;
 

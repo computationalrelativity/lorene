@@ -33,6 +33,9 @@ char metrique_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2003/10/13 10:33:10  f_limousin
+ * *** empty log message ***
+ *
  * Revision 1.13  2003/10/03 11:41:35  j_novak
  * Display method corrected.
  *
@@ -336,6 +339,8 @@ Cmp& Metrique::set_cov (int ind1, int ind2) {
   if (p_met_cov == 0x0)
     fait_cov() ;
 
+  p_met_con = 0x0 ;
+
   return  p_met_cov->set(ind1, ind2);
 
 }
@@ -345,11 +350,13 @@ Cmp& Metrique::set_con (int ind1, int ind2) {
 
   assert ((ind1 >= 0) && (ind1 < 3)) ;
   assert ((ind2 >= 0) && (ind2 < 3)) ;
-  
+
   del_dependances() ;
  
   if (p_met_con == 0x0)
     fait_con() ;
+
+  p_met_cov = 0x0 ;
 
   return  p_met_con->set(ind1, ind2);
 
@@ -363,6 +370,8 @@ Tenseur_sym& Metrique::set_cov () {
   if (p_met_cov == 0x0)
     fait_cov() ;
 
+  p_met_con = 0x0 ;
+  
   return  *(p_met_cov) ;
 
 }
@@ -373,6 +382,8 @@ Tenseur_sym& Metrique::set_con () {
  
   if (p_met_con == 0x0)
     fait_con() ;
+
+  p_met_cov = 0x0 ;
 
   return  *(p_met_con) ;
 

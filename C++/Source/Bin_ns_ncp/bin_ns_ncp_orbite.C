@@ -78,8 +78,11 @@ void Bin_ns_ncp::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
 	const Cmp& loggam = et[i]->get_loggam()() ; 
 	const Cmp& nnn = et[i]->get_nnn()() ; 
 	const Tenseur& shift = et[i]->get_shift() ; 
-	const Metrique& met_gamma = et[i]->get_met_gamma() ;
+	const Metrique& gtilde = et[i]->get_gtilde() ;
+	const Tenseur& gamma = et[i]->get_gamma() ;
 	const Tenseur a_car = et[i]->get_a_car() ;
+
+	const Metrique met_gamma(pow(gamma, 1./3.)*gtilde.cov()) ;
 
 	const Cmp& gg00 = met_gamma.cov()(0,0) ;
 	const Cmp& gg10 = met_gamma.cov()(1,0) ;
@@ -262,9 +265,6 @@ void Bin_ns_ncp::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
 //  Calcul de la vitesse orbitale    
 //-------------------------------------
 
-    // iterative calculation
-    //-----------------------
-
     Param parf ; 
     parf.add_int(relat) ; 
     parf.add_double( (et[0]->get_mp()).get_ori_x(), 0) ; 
@@ -297,10 +297,63 @@ void Bin_ns_ncp::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
     cout << "Bin_ns_ncp::orbit: omega1,  omega2 [rad/s] : " 
 	 << omega1 * f_unit << "  " << omega2 * f_unit << endl ; 
 
+
+	// Search for the various zeros in the interval [omega1,omega2]
+	// ------------------------------------------------------------
+	int nsub = 50 ;  // total number of subdivisions of the interval
+	Tbl* azer = 0x0 ;
+	Tbl* bzer = 0x0 ; 
+	zero_list(fonc_bin_ncp_orbit, parf, omega1, omega2, nsub,
+		  azer, bzer) ; 
+	
+	// Search for the zero closest to the previous value of omega
+	// ----------------------------------------------------------
+	double omeg_min, omeg_max ; 
+	int nzer = azer->get_taille() ; // number of zeros found by zero_list
+	cout << "Bin_ns_ncp:orbit : " << nzer << 
+	     " zero(s) found in the interval [omega1,  omega2]." << endl ; 
+	cout << "omega, omega1, omega2 : " << omega << "  " << omega1
+		<< "  " << omega2 << endl ; 
+	cout << "azer : " << *azer << endl ;
+	cout << "bzer : " << *bzer << endl ;
+	
+	if (nzer == 0) {
+		cout << 
+		"Bin_ns_ncp::orbit: WARNING : no zero detected in the interval"
+		<< endl << "   [" << omega1 * f_unit << ", " 
+		<< omega2 * f_unit << "]  rad/s  !" << endl ; 
+		omeg_min = omega1 ; 
+		omeg_max = omega2 ; 
+	}
+	else {
+		double dist_min = fabs(omega2 - omega1) ;  
+		int i_dist_min = -1 ; 		
+		for (int i=0; i<nzer; i++) {
+			// Distance of previous value of omega from the center of the
+			//  interval [azer(i), bzer(i)] 
+			double dist = fabs( omega - 0.5 * ( (*azer)(i) + (*bzer)(i) ) ) ; 
+			if (dist < dist_min) {
+				dist_min = dist ; 
+				i_dist_min = i ; 
+			} 
+		}
+		omeg_min = (*azer)(i_dist_min) ;
+		omeg_max = (*bzer)(i_dist_min) ;
+	}
+
+    delete azer ; // Tbl allocated by zero_list
+    delete bzer ; //  
+    cout << "Bin_ns_ncp:orbit : interval selected for the search of the zero : "
+	 << endl << "  [" << omeg_min << ", " << omeg_max << "]  =  [" 
+	 << omeg_min * f_unit << ", " << omeg_max * f_unit << "] rad/s " << endl ; 
+    
+    // Computation of the zero in the selected interval by the secant method
+    // ---------------------------------------------------------------------
+
     int nitermax = 200 ; 
     int niter ; 
     double precis = 1.e-13 ;
-    omega = zerosec(fonc_bin_ncp_orbit, parf, omega1, omega2,
+    omega = zerosec_b(fonc_bin_ncp_orbit, parf, omeg_min, omeg_max,
 		    precis, nitermax, niter) ;
     
     cout << "Bin_ns_ncp::orbit : Number of iterations in zerosec for omega : "

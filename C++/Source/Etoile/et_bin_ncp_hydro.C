@@ -143,7 +143,7 @@ void Et_bin_ncp::hydro_euler(){
     for(int i=0; i<3; i++){
       for(int j=0; j<3; j++){
 	stress.set(i,j) = (ener_euler() + press() )*u_euler(i)
-	  *u_euler(j) + press()*gtilde.set_cov(i,j) ;
+	  *u_euler(j) + press()*gtilde.set_con(i,j) ;
       }
     }
     stress.set_std_base() ;

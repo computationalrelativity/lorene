@@ -34,6 +34,9 @@ char tenseur_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/10/13 10:33:43  f_limousin
+ * *** empty log message ***
+ *
  * Revision 1.6  2003/06/20 14:52:21  f_limousin
  * Put an assert on "poids" into comments
  *
@@ -309,7 +312,7 @@ Tenseur operator/ (const Tenseur& t1, const Tenseur& t2) {
     poids_res = (fabs(poids_res) < 1.e-10 ? 0. : poids_res) ;
     const Metrique* met_res = 0x0 ;
     if (poids_res != 0.) {
-      assert((t1.get_metric() != 0x0) || (t2.get_metric() != 0x0)) ;
+      //    assert((t1.get_metric() != 0x0) || (t2.get_metric() != 0x0)) ;
       if (t1.get_metric() != 0x0) met_res = t1.get_metric() ;
       else met_res = t2.get_metric() ;
     }

@@ -45,6 +45,7 @@ char bin_ns_ncp_global_C[] = "$Header$" ;
 
 double Bin_ns_ncp::mass_adm() const {
     
+
     if (p_mass_adm == 0x0) {	    // a new computation is requireed
 	
 	p_mass_adm = new double ; 
@@ -56,11 +57,12 @@ double Bin_ns_ncp::mass_adm() const {
     
     *p_mass_adm = 0 ; 
     
-    const Metrique&  metgamma = (et[0]->get_met_gamma()) ;
+    const Metrique&  gtilde = (et[0]->get_gtilde()) ;
+    const Tenseur& gamma = (et[0]->get_gamma()) ;
     const Metrique& flat = (et[0]->get_flat()) ;
     Map_af map0 (et[0]->get_mp()) ; 
     
-    Tenseur_sym met_gamma = metgamma.cov() ;
+    Tenseur_sym met_gamma = pow(gamma, 1./3.)*gtilde.cov() ;
     met_gamma.set_std_base() ;
     Tenseur dcov_met_gamma = met_gamma.derive_cov(flat) ;
     
@@ -107,8 +109,12 @@ double Bin_ns_ncp::mass_kom() const {
     
     const Tenseur& logn_auto = et[0]->get_logn_auto() ;
     const Tenseur& logn_comp = et[0]->get_logn_comp() ;
-    const Metrique& met_gamma = et[0]->get_met_gamma() ;
+    const Metrique&  gtilde = (et[0]->get_gtilde()) ;
+    const Tenseur& gamma = (et[0]->get_gamma()) ;
     Map_af map0 (et[0]->get_mp()) ; 
+    
+    const Tenseur_sym metgamma_cov (pow(gamma, 1./3.)*gtilde.cov()) ;
+    const Metrique met_gamma(metgamma_cov, false) ;
     
     Tenseur logn = logn_auto + logn_comp ;
     
@@ -191,7 +197,7 @@ const Tbl& Bin_ns_ncp::angu_mom() const {
       Tenseur vect_z(map0, 1, CON, map0.get_bvect_cart()) ;
       vect_z.set_etat_qcq() ;
       for (int i=0; i<=2; i++) {
-	vect_z.set(i) = xx*kij_auto(1, i) - yy*kij_auto(0, i) ;
+	vect_z.set(i) = xx*kij_auto(1, i) ;//- yy*kij_auto(0, i) ;
       }
       vect_z.set_std_base() ;
       vect_z.change_triad(map0.get_bvect_spher()) ;
