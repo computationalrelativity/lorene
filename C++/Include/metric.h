@@ -31,6 +31,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/11/18 12:23:42  jl_jaramillo
+ * radial vector normal to a spherical slicing and pointing towards
+ * spatial infinity
+ *
  * Revision 1.7  2004/03/22 13:12:42  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -109,6 +113,14 @@ class Metric {
          *  \c p_connect->p_ricci ).
 	 */
 	mutable Scalar* p_ricci_scal ;
+
+	/**
+	 * Pointer to the radial vector normal to a spherical slicing and pointing 
+	 * toward spatial infinity
+	 */
+	mutable Vector* p_radial_vect ;
+
+
 	
 	/**
 	 * Pointer on the determinant.
@@ -202,6 +214,13 @@ class Metric {
 	/// Returns the Ricci scalar
 	virtual const Scalar& ricci_scal() const ;
 
+	/** Returns the  radial vector normal to a spherical slicing and pointing 
+	 * toward spatial infinity
+	 */
+
+	virtual const Vector& radial_vect() const ;
+
+
 	/**Returns the determinant.
 	 * 
 	 * This determinant is stored as a \c Scalar  although it
@@ -209,6 +228,10 @@ class Metric {
 	 * by e.g. the determinant of a flat metric.
 	 */
 	virtual const Scalar& determinant() const ;
+
+
+
+
 
     // Outputs
     // -------
