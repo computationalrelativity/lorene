@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2003/11/03 22:31:02  e_gourgoulhon
+ * Class Vector_divfree: parameters of methods set_vr_eta_mu and set_vr_mu
+ * are now all references.
+ *
  * Revision 1.17  2003/11/03 14:02:17  e_gourgoulhon
  * Class Vector_divfree: the members p_eta and p_mu are no longer declared
  * "const".
@@ -422,8 +426,8 @@ class Vector_divfree: public Vector {
 	 *	@param mu_i [input] angular potential $\mu$
 	 *
 	 */
-	void set_vr_eta_mu(const Scalar& vr_i, const Scalar eta_i,
-		const Scalar mu_i) ; 
+	void set_vr_eta_mu(const Scalar& vr_i, const Scalar& eta_i,
+		const Scalar& mu_i) ; 
 
 	/** Sets the angular potentials $\mu$ (see member
 	 *  {\tt p\_mu}), and the $V^r$ component
@@ -436,7 +440,7 @@ class Vector_divfree: public Vector {
 	 *	@param mu_i [input] angular potential $\mu$
 	 *
 	 */
-	void set_vr_mu(const Scalar& vr_i, const Scalar mu_i) ; 
+	void set_vr_mu(const Scalar& vr_i, const Scalar& mu_i) ; 
 	
 
 	// Computational methods
