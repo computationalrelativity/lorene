@@ -25,8 +25,13 @@ char dal_inverse_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/01/02 14:07:57  j_novak
+ * Dalembert equation is now solved in the shells. However, the number of
+ * points in theta and phi must be the same in each domain. The solver is not
+ * completely tested (beta version!).
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.1  2000/12/04  16:37:03  novak
  * Initial revision
@@ -62,8 +67,7 @@ char dal_inverse_C[] = "$Header$" ;
 		//------------------------------------
 		// Routine pour les cas non prevus --
 		//------------------------------------
-Tbl _dal_inverse_pas_prevu (const Matrice&, double, 
-		    double, const Tbl&, const bool) {
+Tbl _dal_inverse_pas_prevu (const Matrice&, const Tbl&, const bool) {
     cout << " Inversion du dalembertien pas prevue ..... : "<< endl ;
     abort() ;
     exit(-1) ;
@@ -73,11 +77,215 @@ Tbl _dal_inverse_pas_prevu (const Matrice&, double,
 	
 	
 		//-------------------
+	       //--  R_CHEB    -----
+	      //-------------------
+
+Tbl _dal_inverse_r_cheb_o2d_s(const Matrice &op, const Tbl &source, 
+			       const bool part) {
+
+  // Operator and source are copied and prepared
+  Matrice barre(op) ;
+  int nr = op.get_dim(0) ;
+  Tbl aux(source) ;
+
+  // Operator is put into banded form (changing the image base)
+
+  int dirac = 1 ; // Don't forget the factor 2 for T_0!!
+  for (int i=0; i<nr-4; i++) {
+    for (int j=0; j<nr; j++) 
+      barre.set(i,j) = (op(i+2,j) - (1+dirac)*op(i,j))/(i+1) ;
+    if (part)
+      aux.set(i) = (source(i+2) - (1+dirac)*source(i))/(i+1) ;
+    if (i==0) dirac = 0 ;
+  }
+  for (int i=0; i<nr-4; i++) {
+    for (int j=0; j<nr; j++) barre.set(i,j) = barre(i+2,j) - barre(i,j) ;
+    if (part) aux.set(i) = aux(i+2) - aux(i) ;
+  }
+
+  // 6 over-diagonals and 2 under...
+  barre.set_band(5,1) ;
+
+  // LU decomposition
+  barre.set_lu() ;
+
+  // Inversion using LAPACK
+  Tbl res(barre.inverse(aux)) ;
+
+  return res ; 
+}
+
+Tbl _dal_inverse_r_cheb_o2d_l(const Matrice &op, const Tbl &source, 
+			       const bool part) {
+
+  // Operator and source are copied and prepared
+  Matrice barre(op) ;
+  int nr = op.get_dim(0) ;
+  Tbl aux(source) ;
+
+  // Operator is put into banded form (changing the image base)
+
+  int dirac = 1 ; // Don't forget the factor 2 for T_0!!
+  for (int i=0; i<nr-4; i++) {
+    for (int j=0; j<nr; j++) 
+      barre.set(i,j) = (op(i+2,j) - (1+dirac)*op(i,j))/(i+1) ;
+    if (part)
+      aux.set(i) = (source(i+2) - (1+dirac)*source(i))/(i+1) ;
+    if (i==0) dirac = 0 ;
+  }
+  for (int i=0; i<nr-4; i++) {
+    for (int j=0; j<nr; j++) barre.set(i,j) = barre(i+2,j) - barre(i,j) ;
+    if (part) aux.set(i) = aux(i+2) - aux(i) ;
+  }
+
+  // In this case the time-step is too large for the number of points
+  // (or the number of points too large for the time-step!)
+  // the matrix is ill-conditionned: the last lines are put as first
+  // ones and all the others are shifted.
+
+  double temp1, temp2 ;
+  temp1 = aux(nr-1) ;
+  temp2 = aux(nr-2) ;
+  for (int i=nr-3; i>=0; i--) {
+    for (int j=0; j<nr; j++) 
+      barre.set(i+2,j) = barre(i,j) ;
+    aux.set(i+2) = aux(i) ;
+  }
+  aux.set(0) = temp2 ;
+  aux.set(1) = temp1 ;
+  
+  barre.set(0,0) = 0.5 ;
+  barre.set(0,1) = 1. ;
+  barre.set(0,2) = 1. ;
+  barre.set(0,3) = 1. ;
+  barre.set(0,4) = 0. ;
+  
+  barre.set(1,0) = 0. ;
+  barre.set(1,1) = 0.5 ;
+  barre.set(1,2) = 1. ;
+  barre.set(1,3) = -1. ;
+  barre.set(1,4) = 1. ;
+  barre.set(1,5) = 0. ;
+
+  // 3 over diagonals and 3 under ...
+  barre.set_band(3,3) ;
+
+  // LU decomposition
+  barre.set_lu() ;
+
+  // Inversion using LAPACK
+  Tbl res(barre.inverse(aux)) ;
+
+  return res ;
+}
+
+Tbl _dal_inverse_r_cheb_o2_s(const Matrice &op, const Tbl &source, 
+			       const bool part) {
+
+  // Operator and source are copied and prepared
+  Matrice barre(op) ;
+  int nr = op.get_dim(0) ;
+  Tbl aux(source) ;
+
+  // Operator is put into banded form (changing the image base)
+
+  int dirac = 1 ; // Don't forget the factor 2 for T_0!!
+  for (int i=0; i<nr-4; i++) {
+    for (int j=0; j<nr; j++) 
+      barre.set(i,j) = (op(i+2,j) - (1+dirac)*op(i,j))/(i+1) ;
+    if (part)
+      aux.set(i) = (source(i+2) - (1+dirac)*source(i))/(i+1) ;
+    if (i==0) dirac = 0 ;
+  }
+  for (int i=0; i<nr-4; i++) {
+    for (int j=0; j<nr; j++) barre.set(i,j) = barre(i+2,j) - barre(i,j) ;
+    if (part) aux.set(i) = aux(i+2) - aux(i) ;
+  }
+
+  // 6 over-diagonals and 2 under...
+  barre.set_band(6,2) ;
+
+  // LU decomposition
+  barre.set_lu() ;
+
+  // Inversion using LAPACK
+  Tbl res(barre.inverse(aux)) ;
+
+  return res ; 
+}
+
+Tbl _dal_inverse_r_cheb_o2_l(const Matrice &op, const Tbl &source, 
+			       const bool part) {
+
+  // Operator and source are copied and prepared
+  Matrice barre(op) ;
+  int nr = op.get_dim(0) ;
+  Tbl aux(source) ;
+
+  // Operator is put into banded form (changing the image base)
+
+  int dirac = 1 ; // Don't forget the factor 2 for T_0!!
+  for (int i=0; i<nr-4; i++) {
+    for (int j=0; j<nr; j++) 
+      barre.set(i,j) = (op(i+2,j) - (1+dirac)*op(i,j))/(i+1) ;
+    if (part)
+      aux.set(i) = (source(i+2) - (1+dirac)*source(i))/(i+1) ;
+    if (i==0) dirac = 0 ;
+  }
+  for (int i=0; i<nr-4; i++) {
+    for (int j=0; j<nr; j++) barre.set(i,j) = barre(i+2,j) - barre(i,j) ;
+    if (part) aux.set(i) = aux(i+2) - aux(i) ;
+  }
+
+  // In this case the time-step is too large for the number of points
+  // (or the number of points too large for the time-step!)
+  // the matrix is ill-conditionned: the last lines are put as first
+  // ones and all the others are shifted.
+
+  double temp1, temp2 ;
+  temp1 = aux(nr-1) ;
+  temp2 = aux(nr-2) ;
+  for (int i=nr-3; i>=0; i--) {
+    for (int j=0; j<nr; j++) 
+      barre.set(i+2,j) = barre(i,j) ;
+    aux.set(i+2) = aux(i) ;
+  }
+  aux.set(0) = temp2 ;
+  aux.set(1) = temp1 ;
+  
+  barre.set(0,0) = 0.5 ;
+  barre.set(0,1) = 1. ;
+  barre.set(0,2) = 1. ;
+  barre.set(0,3) = 1. ;
+  barre.set(0,4) = 1. ;
+  barre.set(0,5) = 0. ;
+  
+  barre.set(1,0) = 0. ;
+  barre.set(1,1) = 0.5 ;
+  barre.set(1,2) = -1. ;
+  barre.set(1,3) = 1. ;
+  barre.set(1,4) = -1. ;
+  barre.set(1,5) = 1. ;
+  barre.set(1,6) = 0. ;
+
+  // 4 over diagonals and 4 under ...
+  barre.set_band(4,4) ;
+
+  // LU decomposition
+  barre.set_lu() ;
+
+  // Inversion using LAPACK
+  Tbl res(barre.inverse(aux)) ;
+
+  return res ;
+}
+	
+		//-------------------
 	       //--  R_CHEBP   -----
 	      //-------------------
 
-Tbl _dal_inverse_r_chebp_o2d_s(const Matrice &op, double, double , 
-			       const Tbl &source, const bool part) {
+Tbl _dal_inverse_r_chebp_o2d_s(const Matrice &op, const Tbl &source, 
+			       const bool part) {
 
   // Operator and source are copied and prepared
   Matrice barre(op) ;
@@ -134,8 +342,8 @@ Tbl _dal_inverse_r_chebp_o2d_s(const Matrice &op, double, double ,
 
 
 
-Tbl _dal_inverse_r_chebp_o2d_l(const Matrice &op, double, double , 
-			       const Tbl &source, const bool part) {
+Tbl _dal_inverse_r_chebp_o2d_l(const Matrice &op, const Tbl &source, 
+			       const bool part) {
 
   // Operator and source are copied and prepared
   Matrice barre(op) ;
@@ -209,8 +417,8 @@ Tbl _dal_inverse_r_chebp_o2d_l(const Matrice &op, double, double ,
 
 
 
-Tbl _dal_inverse_r_chebp_o2_s(const Matrice &op, double, double , 
-			       const Tbl &source, const bool part) {
+Tbl _dal_inverse_r_chebp_o2_s(const Matrice &op, const Tbl &source, 
+			      const bool part) {
   
   // Operator and source are copied and prepared
   Matrice barre(op) ;
@@ -269,8 +477,8 @@ Tbl _dal_inverse_r_chebp_o2_s(const Matrice &op, double, double ,
   
 }
 	
-Tbl _dal_inverse_r_chebp_o2_l(const Matrice &op, double, double , 
-			       const Tbl &source, const bool part) {
+Tbl _dal_inverse_r_chebp_o2_l(const Matrice &op, const Tbl &source, 
+			      const bool part) {
 
   // Operator and source are copied and prepared
   Matrice barre(op) ;
@@ -351,8 +559,8 @@ Tbl _dal_inverse_r_chebp_o2_l(const Matrice &op, double, double ,
 	       //--  R_CHEBI   -----
 	      //-------------------
 
-Tbl _dal_inverse_r_chebi_o2d_s(const Matrice &op, double, double , 
-			       const Tbl &source, const bool part) {
+Tbl _dal_inverse_r_chebi_o2d_s(const Matrice &op, const Tbl &source, 
+			       const bool part) {
 
   // Operator and source are copied and prepared
   int nr = op.get_dim(0) ;
@@ -414,8 +622,8 @@ Tbl _dal_inverse_r_chebi_o2d_s(const Matrice &op, double, double ,
   return res ;
 }
 
-Tbl _dal_inverse_r_chebi_o2d_l(const Matrice &op, double, double , 
-			       const Tbl &source, const bool part) {
+Tbl _dal_inverse_r_chebi_o2d_l(const Matrice &op, const Tbl &source, 
+			       const bool part) {
 
   // Operator and source are copied and prepared
   Matrice barre(op) ;
@@ -493,8 +701,8 @@ Tbl _dal_inverse_r_chebi_o2d_l(const Matrice &op, double, double ,
   return res ;    
 }
 	
-Tbl _dal_inverse_r_chebi_o2_s(const Matrice &op, double, double , 
-			       const Tbl &source, const bool part) {
+Tbl _dal_inverse_r_chebi_o2_s(const Matrice &op, const Tbl &source, 
+			      const bool part) {
 
   // Operator and source are copied and prepared
   Matrice barre(op) ;
@@ -554,8 +762,8 @@ Tbl _dal_inverse_r_chebi_o2_s(const Matrice &op, double, double ,
   return res ;
 }
 
-Tbl _dal_inverse_r_chebi_o2_l(const Matrice &op, double, double , 
-			       const Tbl &source, const bool part) {
+Tbl _dal_inverse_r_chebi_o2_l(const Matrice &op, const Tbl &source, 
+			      const bool part) {
 
   // Operator and source are copied and prepared
   Matrice barre(op) ;
@@ -637,12 +845,12 @@ Tbl _dal_inverse_r_chebi_o2_l(const Matrice &op, double, double ,
 	      //----------------------------
 	      
 	      
-Tbl dal_inverse(int& base_r, int& type_dal, double alpha, double beta, 
-		Matrice& operateur, Tbl& source, bool part) {
+Tbl dal_inverse(int& base_r, int& type_dal, Matrice& operateur, 
+		Tbl& source, bool part) {
 
 		// Routines de derivation
-    static Tbl (*dal_inverse[MAX_BASE][MAX_DAL])(const Matrice&, double, 
-					  double, const Tbl&, const bool) ;
+    static Tbl (*dal_inverse[MAX_BASE][MAX_DAL])(const Matrice&, const Tbl&, 
+						 const bool) ;
     static int nap = 0 ;
 
 		// Premier appel
@@ -653,6 +861,19 @@ Tbl dal_inverse(int& base_r, int& type_dal, double alpha, double beta,
 	    dal_inverse[i][j] = _dal_inverse_pas_prevu ;
 	}
 		// Les routines existantes
+//  	dal_inverse[R_CHEB >> TRA_R] = _dal_inverse_r_cheb ; not good!!
+//  	dal_inverse[ORDRE1_SMALL][R_CHEB >> TRA_R] = 
+//  	  _dal_inverse_r_cheb_o1_s ;
+//  	dal_inverse[ORDRE1_LARGE][R_CHEB >> TRA_R] = 
+//  	  _dal_inverse_r_cheb_o1_l ;
+	dal_inverse[O2DEGE_SMALL][R_CHEB >> TRA_R] = 
+	  _dal_inverse_r_cheb_o2d_s ;
+  	dal_inverse[O2DEGE_LARGE][R_CHEB >> TRA_R] = 
+  	  _dal_inverse_r_cheb_o2d_l ;
+  	dal_inverse[O2NOND_SMALL][R_CHEB >> TRA_R] = 
+  	  _dal_inverse_r_cheb_o2_s ;
+  	dal_inverse[O2NOND_LARGE][R_CHEB >> TRA_R] = 
+  	  _dal_inverse_r_cheb_o2_l ;
 //  	dal_inverse[R_CHEB >> TRA_R] = _dal_inverse_r_cheb ; not good!!
 //  	dal_inverse[ORDRE1_SMALL][R_CHEBP >> TRA_R] = 
 //  	  _dal_inverse_r_chebp_o1_s ;
@@ -680,7 +901,6 @@ Tbl dal_inverse(int& base_r, int& type_dal, double alpha, double beta,
   	  _dal_inverse_r_chebi_o2_l ;
     }
     
-    Tbl res(dal_inverse[type_dal][base_r]
-	    (operateur, alpha, beta, source, part)) ;
+    Tbl res(dal_inverse[type_dal][base_r](operateur,  source, part)) ;
     return res ;
 }

@@ -25,8 +25,13 @@ char map_af_dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/01/02 14:07:57  j_novak
+ * Dalembert equation is now solved in the shells. However, the number of
+ * points in theta and phi must be the same in each domain. The solver is not
+ * completely tested (beta version!).
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.7  2001/10/16  10:04:22  novak
  * cleaning (no more source terms for enhanced BC)
@@ -78,7 +83,8 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
 
     assert(par.get_n_double() == 1) ;
     assert(par.get_n_int() == 1) ;
-    static int nap = 0;
+    assert(par.get_n_int_mod() == 1) ;
+    int& nap = par.get_int_mod() ;
     assert ((nap == 0) || (par.get_n_tbl_mod() > 1)) ;
 
     // The source and explicit parts
@@ -194,18 +200,13 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
 	
 	tbc3->set_etat_qcq() ;
 	double val ;
-	double* tmp = new double[nr] ;
-	int b1,b2, base_r ;
 	for (int k=0; k<np2; k++)
 	  for (int j=0; j<nt; j++) {
-	    donne_lm(nz, nz-1, j, k, bound3.base, b1, b2, base_r) ;
+	    val = 0. ;
 	    for (int i=0; i<nr; i++) 
-	      tmp[i] = (*bound3.c_cf)(nz-1,k,j,i) ;
-	    if (base_r == R_CHEBP) som_r_chebp(tmp, nr, 1, 1, 1., &val) ;
-	    else som_r_chebi(tmp, nr, 1, 1, 1., &val) ;
+	      val += (*bound3.c_cf)(nz-1,k,j,i) ;
 	    tbc3->set(k,j) = val ;
 	  }
-	delete[] tmp ;
       }
       break ;
     }
@@ -217,6 +218,7 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
      case 2: { 
       Valeur souphi(mg) ;
       souphi = fj.va/R - fj.dsdr().va ;
+      if (nz>1) souphi.annule(0,nz-2) ;
       souphi.coef() ;
       souphi.ylm() ;
       souphi = 4*dt*dt*souphi.lapang() ; 
@@ -231,19 +233,13 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
 
       int l_s, m_s, base_r ;
       double val ;
-      double* tmp = new double[nr] ;
       for (int k=0; k<np2; k++) {
 	for (int j=0; j<nt; j++) {
 	  donne_lm(nz, nz-1, j, k, souphi.base, m_s, l_s, base_r) ;
-	  if (zero) {
-	    val = 0 ;
-	  }
-	  else {
-	    for (int i=0; i<nr; i++) 
-	      tmp[i] = (*souphi.c_cf)(nz-1,k,j,i) ;
-	    if (base_r == R_CHEBP) som_r_chebp(tmp, nr, 1, 1, 1., &val) ;
-	    else som_r_chebi(tmp, nr, 1, 1, 1., &val) ;
-	  }
+	  val = 0. ;
+	  if (!zero)
+	    for (int i=0; i<nr; i++)
+	      val += (*souphi.c_cf)(nz-1,k,j,i) ;
 	  double multi = 8*R*R + dt*dt*(6+3*l_s*(l_s+1)) + 12*R*dt ;
 	  val = ( 16*R*R*(*phij)(k,j) -
 		  (multi-24*R*dt)*(*phijm1)(k,j) 
@@ -252,7 +248,6 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
 	  phij->set(k,j) = val ;
   	}
       }
-      delete[] tmp ;
       Valeur bound3(mg) ;
       *bc1 = 3*R + 2*dt ;
       *bc2 = 2*R*dt ;
@@ -264,18 +259,13 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
 	bound3.coef() ;
 	bound3.ylm() ;
 	tbc3->set_etat_qcq() ;
-	double* tmp = new double[nr] ;
-	int b1,b2 ;
 	for (int k=0; k<np2; k++)
 	  for (int j=0; j<nt; j++) {
-	    donne_lm(nz, nz-1, j, k, bound3.base, b1, b2, base_r) ;
+	    val = 0. ;
 	    for (int i=0; i<nr; i++) 
-	      tmp[i] = (*bound3.c_cf)(nz-1,k,j,i) ;
-	    if (base_r == R_CHEBP) som_r_chebp(tmp, nr, 1, 1, 1., &val) ;
-	    else som_r_chebi(tmp, nr, 1, 1, 1., &val) ;
+	      val += (*bound3.c_cf)(nz-1,k,j,i) ;
 	    tbc3->set(k,j) = val + 2*R*dt*(*phij)(k,j);
 	  }
-	delete[] tmp ;
       }
       break ;
     }

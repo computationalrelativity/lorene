@@ -25,8 +25,13 @@ char get_operateur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/01/02 14:07:57  j_novak
+ * Dalembert equation is now solved in the shells. However, the number of
+ * points in theta and phi must be the same in each domain. The solver is not
+ * completely tested (beta version!).
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.3  2001/10/29  10:55:28  novak
  * Error fixed for r^2 d^2/dr^2 operator
@@ -74,8 +79,7 @@ char get_operateur_C[] = "$Header$" ;
 		// Routine pour les cas non prevus --
 		//-----------------------------------
 
-void _get_operateur_dal_pas_prevu(Param& , int& , double& , 
-			     double& , int& , Matrice& )
+void _get_operateur_dal_pas_prevu(const Param& , const int&, const int&, int& , Matrice& )
 {
     cout << "get_operateur_dal pas prevu..." << endl ;
     abort() ;
@@ -83,9 +87,146 @@ void _get_operateur_dal_pas_prevu(Param& , int& , double& ,
 }
 
 
-void _get_operateur_dal_r_chebp(Param& par, int& l, double& alpha, 
-			     double& , int& type_dal, Matrice& operateur)
+void _get_operateur_dal_r_cheb(const Param& par, const int& lz, const int& l, 
+int& type_dal, Matrice& operateur)
 {
+  int nr = operateur.get_dim(0) ;
+  assert (nr == operateur.get_dim(1)) ;
+  assert (par.get_n_double() > 0) ;
+  assert (par.get_n_tbl_mod() > 0) ;
+  assert ((par.get_tbl_mod()).get_dim(1) == 12 ) ;
+  assert ((par.get_tbl_mod()).get_ndim() ==2 ) ;
+
+  double dt = par.get_double(0) ;
+  dt *= 0.5*dt ;
+
+  // Copies the global coefficients to a local Tbl and adds the -l(l+1) term
+    Tbl coeff(10) ;
+    coeff.set_etat_qcq() ;
+    coeff.set(1) = (par.get_tbl_mod())(1,lz) ;
+    coeff.set(2) = (par.get_tbl_mod())(2,lz) ;
+    coeff.set(3) = (par.get_tbl_mod())(3,lz) ;
+    coeff.set(4) = (par.get_tbl_mod())(4,lz) ;
+    coeff.set(5) = (par.get_tbl_mod())(5,lz) ;
+    coeff.set(6) = (par.get_tbl_mod())(6,lz) ;
+    coeff.set(7) = (par.get_tbl_mod())(7,lz) ;
+    coeff.set(8) = (par.get_tbl_mod())(8,lz) ;
+    coeff.set(9) = (par.get_tbl_mod())(9,lz) - l*(l+1) ;
+    double R1 = (par.get_tbl_mod())(10,lz) ;
+    double R2 = (par.get_tbl_mod())(11,lz) ;
+
+    double a00, a01, a02, a10, a11, a12, a13, a20, a21, a22, a23, a24 ;
+    bool dege = (fabs(coeff(9)) < 1.e-10) ;
+    switch (dege) {
+    case true:
+      a00 = R1 - dt*(coeff(7)*R1 + coeff(8)) ;
+      a01 = R2 - dt*R2*coeff(7) ;
+      a02 = 0 ;
+      a10 = -dt*(R1*coeff(4) + R1*R1*coeff(5) + coeff(6))/R2 ;
+      a11 = -dt*(coeff(4) + 2*R1*coeff(5)) ;
+      a12 = -dt*R2*coeff(5) ;
+      a13 = 0 ;
+      a20 = -dt*R1/(R2*R2)*(coeff(1) + R1*coeff(2) + R1*R1*coeff(3)) ;
+      a21 = -dt/R2*(coeff(1) + 2*R1*coeff(2) + 3*R1*R1*coeff(3)) ;
+      a22 = -dt*(coeff(2) + 3*R1*coeff(3)) ;
+      a23 = -dt*R2*coeff(3) ;
+      a24 = 0 ;
+      type_dal = ((0.1*(fabs(a20)+fabs(a21)+fabs(a22)+fabs(a23))*nr*nr*nr 
+		   < 1.) ? O2DEGE_SMALL : O2DEGE_LARGE ) ;
+      break ;
+    case false:
+      a00 = R1*R1 - dt*(coeff(7)*R1*R1 + coeff(8)*R1 + coeff(9)) ;
+      a01 = 2*R1*R2 - dt*(2*R1*R2*coeff(7) + R2*coeff(8)) ;
+      a02 = R2*R2*(1 - dt*coeff(7)) ;
+      a10 = -dt*R1/R2*(R1*coeff(4) + R1*R1*coeff(5) + coeff(6)) ;
+      a11 = -dt*(2*R1*coeff(4) + 3*R1*R1*coeff(5) + coeff(6)) ;
+      a12 = -dt*(R2*coeff(4) + 3*R1*R2*coeff(5)) ;
+      a13 = -dt*R2*R2*coeff(5) ;
+      a20 = -dt*(R1*R1)/(R2*R2)*(coeff(1) + R1*coeff(2) + R1*R1*coeff(3)) ;
+      a21 = -dt*R1/R2*(2*coeff(1) + 3*R1*coeff(2) + 4*R1*R1*coeff(3)) ;
+      a22 = -dt*(coeff(1) + 3*R1*coeff(2) + 6*R1*R1*coeff(3)) ;
+      a23 = -dt*(R2*coeff(2) + 4*R1*R2*coeff(3)) ;
+      a24 = -dt*R2*R2*coeff(3) ;
+      type_dal = ((0.1*(fabs(a20)+fabs(a21)+fabs(a22)+fabs(a23)+fabs(a24))
+		   *nr*nr*nr < 1.) ? O2NOND_SMALL : O2NOND_LARGE ) ;
+      break ;
+    }
+
+    double* vect = new double[nr] ;
+    operateur.set_etat_qcq() ;
+
+    for (int i=0; i<nr; i++) {
+      for (int j=0; j<nr; j++) operateur.set(i,j) = 0 ;
+      operateur.set(i,i) = a00 ;
+    }
+
+    for (int i=0 ; i<nr ; i++) {
+      for (int j=0 ; j<nr ; j++) vect[j] = 0 ;
+      vect[i] = 1 ;
+      multx_1d (nr, &vect, R_CHEB) ;
+      
+      for (int j=0 ; j<nr ; j++)
+	  operateur.set(j, i) += a01*vect[j] ; 
+      if (!dege) { 
+	multx_1d (nr, &vect, R_CHEB) ;
+	for (int j=0 ; j<nr ; j++)
+	  operateur.set(j, i) += a02*vect[j] ; 
+      }
+    }
+
+    for (int i=0 ; i<nr ; i++) {
+      for (int j=0 ; j<nr ; j++) vect[j] = 0 ;
+      vect[i] = 1 ;
+      sxdsdx_1d (nr, &vect, R_CHEB) ;
+      
+      for (int j=0 ; j<nr ; j++)
+	  operateur.set(j, i) += a10*vect[j] ; 
+      multx_1d (nr, &vect, R_CHEB) ;
+      
+      for (int j=0 ; j<nr ; j++)
+	  operateur.set(j, i) += a11*vect[j] ; 
+      multx_1d (nr, &vect, R_CHEB) ;
+      
+      for (int j=0 ; j<nr ; j++)
+	  operateur.set(j, i) += a12*vect[j] ; 
+      if (!dege) {
+	multx_1d (nr, &vect, R_CHEB) ;
+	for (int j=0 ; j<nr ; j++)
+	  operateur.set(j, i) += a13*vect[j] ; 
+      }
+    }
+
+    for (int i=0 ; i<nr ; i++) {
+      for (int j=0 ; j<nr ; j++) vect[j] = 0 ;
+      vect[i] = 1 ;
+      d2sdx2_1d (nr, &vect, R_CHEB) ;
+      
+      for (int j=0 ; j<nr ; j++)
+	  operateur.set(j, i) += a20*vect[j] ; 
+      multx_1d (nr, &vect, R_CHEB) ;
+      for (int j=0; j<nr; j++) 
+	  operateur.set(j, i) += a21*vect[j] ;
+      multx_1d (nr, &vect, R_CHEB) ;
+      for (int j=0; j<nr; j++) 
+	  operateur.set(j, i) += a22*vect[j] ;
+      multx_1d (nr, &vect, R_CHEB) ;
+      for (int j=0; j<nr; j++) 
+	  operateur.set(j, i) += a23*vect[j] ;
+      if (!dege) {
+	multx_1d (nr, &vect, R_CHEB) ;
+	for (int j=0; j<nr; j++) 
+	  operateur.set(j, i) += a24*vect[j] ;
+      }
+    }
+
+  delete [] vect ;
+  
+}
+
+void _get_operateur_dal_r_chebp(const Param& par, const int& lzone, const int& l, int& type_dal, 
+				Matrice& operateur)
+{
+  assert(lzone == 0) ; // Nucleus!
   int nr = operateur.get_dim(0) ;
   assert (nr == operateur.get_dim(1)) ;
   assert (par.get_n_double() > 0) ;
@@ -96,17 +237,17 @@ void _get_operateur_dal_r_chebp(Param& par, int& l, double& alpha,
 
   double dt = par.get_double(0) ;
   dt *= 0.5*dt ;
-  double alpha2 = alpha*alpha ;
 
   // Copies the global coefficients to a local Tbl and adds the -l(l+1) term
   Tbl coeff(7) ;
   coeff.set_etat_qcq() ;
-  coeff.set(1) = (par.get_tbl_mod())(1,0) ;
-  coeff.set(2) = (par.get_tbl_mod())(3,0) ;
-  coeff.set(3) = (par.get_tbl_mod())(6,0) ;
-  coeff.set(4) = (par.get_tbl_mod())(5,0) ;
-  coeff.set(5) = (par.get_tbl_mod())(9,0) - l*(l+1) ;
-  coeff.set(6) = (par.get_tbl_mod())(7,0) ;
+  coeff.set(1) = (par.get_tbl_mod())(1,lzone) ;
+  coeff.set(2) = (par.get_tbl_mod())(3,lzone) ;
+  coeff.set(3) = (par.get_tbl_mod())(6,lzone) ;
+  coeff.set(4) = (par.get_tbl_mod())(5,lzone) ;
+  coeff.set(5) = (par.get_tbl_mod())(9,lzone) - l*(l+1) ;
+  coeff.set(6) = (par.get_tbl_mod())(7,lzone) ;
+  double alpha2 = (par.get_tbl_mod())(11,lzone)*(par.get_tbl_mod())(11,lzone) ;
 
   //***********************************************************************
   //                Definition of the type of operator
@@ -214,9 +355,10 @@ void _get_operateur_dal_r_chebp(Param& par, int& l, double& alpha,
 }
 
 
-void _get_operateur_dal_r_chebi(Param& par, int& l, double& alpha, 
-			     double& , int& type_dal, Matrice& operateur)
+void _get_operateur_dal_r_chebi(const Param& par, const int& lzone, const int& l, int& type_dal, 
+				Matrice& operateur)
 {
+  assert(lzone == 0) ; // Nucleus!
   int nr = operateur.get_dim(0) ;
   assert (nr == operateur.get_dim(1)) ;
   assert (par.get_n_double() > 0) ;
@@ -227,17 +369,17 @@ void _get_operateur_dal_r_chebi(Param& par, int& l, double& alpha,
 
   double dt = par.get_double(0) ;
   dt *= 0.5*dt ;
-  double alpha2 = alpha*alpha ;
 
   // Copies the global coefficients to a local Tbl and adds the -l(l+1) term
   Tbl coeff(7) ;
   coeff.set_etat_qcq() ;
-  coeff.set(1) = (par.get_tbl_mod())(1,0) ;
-  coeff.set(2) = (par.get_tbl_mod())(3,0) ;
-  coeff.set(3) = (par.get_tbl_mod())(6,0) ;
-  coeff.set(4) = (par.get_tbl_mod())(5,0) ;
-  coeff.set(5) = (par.get_tbl_mod())(9,0) - l*(l+1) ;
-  coeff.set(6) = (par.get_tbl_mod())(7,0) ;
+  coeff.set(1) = (par.get_tbl_mod())(1,lzone) ;
+  coeff.set(2) = (par.get_tbl_mod())(3,lzone) ;
+  coeff.set(3) = (par.get_tbl_mod())(6,lzone) ;
+  coeff.set(4) = (par.get_tbl_mod())(5,lzone) ;
+  coeff.set(5) = (par.get_tbl_mod())(9,lzone) - l*(l+1) ;
+  coeff.set(6) = (par.get_tbl_mod())(7,lzone) ;
+  double alpha2 = (par.get_tbl_mod())(11,lzone)*(par.get_tbl_mod())(11,lzone) ;
 
   //***********************************************************************
   //                Definition of the type of operator
@@ -349,13 +491,13 @@ void _get_operateur_dal_r_chebi(Param& par, int& l, double& alpha,
 		 //--------------------------
 		//- La routine a appeler  ---
 	       //----------------------------
-void get_operateur_dal(Param& par, int& l, int& base_r, double alpha, 
-		       double beta, int& type_dal, Matrice& operateur)
+void get_operateur_dal(const Param& par, const int& lzone, const int& l, 
+		       const int& base_r, int& type_dal, Matrice& operateur)
 {
 
 		// Routines de derivation
-  static void (*get_operateur_dal[MAX_BASE])(Param&, int&, double&, double&,
-					     int&, Matrice&) ;
+  static void (*get_operateur_dal[MAX_BASE])(const Param&, const int&, 
+					     const int&, int&, Matrice&) ;
   static int nap = 0 ;
   
   // Premier appel
@@ -365,11 +507,10 @@ void get_operateur_dal(Param& par, int& l, int& base_r, double alpha,
       get_operateur_dal[i] = _get_operateur_dal_pas_prevu ;
     
     // Les routines existantes
-    //get_operateur_dal[R_CHEB >> TRA_R] = _get_operateur_dal_r_cheb ;
+    get_operateur_dal[R_CHEB >> TRA_R] = _get_operateur_dal_r_cheb ;
     get_operateur_dal[R_CHEBP >> TRA_R] = _get_operateur_dal_r_chebp ;
     get_operateur_dal[R_CHEBI >> TRA_R] = _get_operateur_dal_r_chebi ;
   }
   
-  get_operateur_dal[base_r](par, l, alpha, beta, type_dal,
-			    operateur) ;
+  get_operateur_dal[base_r](par, lzone, l, type_dal, operateur) ;
 }
