@@ -31,6 +31,9 @@ char star_bin_hydro_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/02/11 18:15:16  f_limousin
+ * Minor modification (to improve the convergence of the code).
+ *
  * Revision 1.5  2004/06/22 12:50:43  f_limousin
  * Change qq, qq_auto and qq_comp to beta, beta_auto and beta_comp.
  *
@@ -62,6 +65,7 @@ void Star_bin::hydro_euler(){
     Sym_tensor gamma_con (gamma.con()) ;
     gamma_cov.change_triad(mp.get_bvect_cart()) ;
     gamma_con.change_triad(mp.get_bvect_cart()) ;
+    u_euler.change_triad(mp.get_bvect_cart()) ;
 
     //----------------------------------
     // Specific relativistic enthalpy		    ---> hhh
@@ -122,22 +126,21 @@ void Star_bin::hydro_euler(){
 
     s_euler = 3 * press  +  ( ener_euler + press ) %
 	contract(gamma_cov, 0, 1, u_euler * u_euler, 0 ,1) ;
-    
+
     //-------------------------------------------
     // Spatial part of the stress-energy tensor with respect
     // to the Eulerian observer. 
     //-------------------------------------------
 
     stress_euler.change_triad(mp.get_bvect_cart()) ;
-    
+
     for(int i=1; i<=3; i++){
 	for(int j=1; j<=3; j++){
 	    stress_euler.set(i,j) = (ener_euler + press )*u_euler(i)
-		*u_euler(j) + press*gamma.con()(i,j) ;
+		*u_euler(j) + press * gamma_con(i,j) ;
 	}
     }
     stress_euler.change_triad(mp.get_bvect_spher()) ;
-
     
     //-------------------------------------------
     //	Lorentz factor between the fluid and		---> gam
