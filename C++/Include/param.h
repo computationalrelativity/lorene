@@ -4,8 +4,8 @@
  */
 
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
- *   Copyright (c) 2000-2001 Jerome Novak
+ *   Copyright (c) 1999-2005 Eric Gourgoulhon
+ *   Copyright (c) 2000-2003 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/03/24 21:55:58  e_gourgoulhon
+ * Added storage of a Scalar.
+ *
  * Revision 1.4  2004/03/22 13:12:43  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -94,6 +97,7 @@ class Cmp ;
 class Tenseur ;
 class Qtenseur ;
 class Tensor ;
+class Scalar ; 
 class Etoile ;
 
 /** Parameter storage.
@@ -173,6 +177,14 @@ class Param {
 	/// Array (size \c n_mtbl_cf ) of the \c Mtbl_cf 's addresses
 	const Mtbl_cf** p_mtbl_cf ;	
     
+	int n_scalar ;	///< Number of \c Scalar 's 
+	/// Array (size \c n_scalar ) of the \c Scalar 's addresses
+	const Scalar** p_scalar ;	
+    
+	int n_scalar_mod ;	///< Number of modifiable \c Scalar 's 
+	/// Array (size \c n_scalar_mod ) of the modifiable \c Scalar 's addresses
+	Scalar** p_scalar_mod ;
+	
 	int n_tensor ;	///< Number of \c Tensor 's 
 	/// Array (size \c n_tensor ) of the \c Tensor 's addresses
 	const Tensor** p_tensor ;	
@@ -615,6 +627,55 @@ class Param {
 	 */
 	const Mtbl_cf& get_mtbl_cf(int position = 0) const; 
 	
+	///Returns the number of \c Scalar 's addresses in the list.
+	int get_n_scalar() const ; 
+    
+	/** Adds the address of a new \c Scalar  to the list.
+	 * 
+	 *  @param ti [input] \c Scalar  the address of which is to be stored
+	 *  @param position [input] position of the \c Scalar  in the list
+	 *			    of stored \c Scalar  addresses (default
+	 *			    value = 0)
+	 * 
+	 */
+	void add_scalar(const Scalar& ti, int position = 0) ;
+	
+	/** Returns the reference of a \c Scalar  stored in the list.
+	 * 
+	 *  @param position [input] position of the \c Scalar  in the list
+	 *			    of stored \c Scalar  addresses (default
+	 *			    value = 0)
+	 *  @return Reference to the \c Scalar  the address of which is stored at 
+	 *		    the location  \c position  in the list
+	 */
+	const Scalar& get_scalar(int position = 0) const; 
+	
+
+	///Returns the number of modifiable \c Scalar 's addresses in the list.
+	int get_n_scalar_mod() const ; 
+    
+	/** Adds the address of a new modifiable \c Scalar  to the list.
+	 * 
+	 *  @param ti [input] modifiable \c Scalar  the address of which is 
+	 *                    to be stored
+	 *  @param position [input] position of the \c Scalar  in the list
+	 *			    of stored modifiable \c Scalar  addresses 
+	 *                          (default value = 0)
+	 */
+	void add_scalar_mod(Scalar& ti, int position = 0) ;
+	
+	/** Returns the reference of a modifiable \c Scalar  stored in the list.
+	 * 
+	 *  @param position [input] position of the \c Scalar  in the list
+	 *			    of stored modifiable \c Scalar  addresses 
+	 *                          (default value = 0)
+	 *  @return Reference to the modifiable \c Scalar  the address of 
+	 *           which is stored at  the location  \c position  in the 
+	 *           list
+	 */
+	 Scalar& get_scalar_mod(int position = 0) const; 
+
+
 	///Returns the number of \c Tensor 's addresses in the list.
 	int get_n_tensor() const ; 
     
@@ -662,6 +723,7 @@ class Param {
 	 *           list
 	 */
 	 Tensor& get_tensor_mod(int position = 0) const; 
+
 	///Returns the number of \c Etoile 's addresses in the list.
 	int get_n_etoile() const ;
 

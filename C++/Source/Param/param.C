@@ -6,8 +6,8 @@
  */
 
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
- *   Copyright (c) 2000-2001 Jerome Novak
+ *   Copyright (c) 1999-2005 Eric Gourgoulhon
+ *   Copyright (c) 2000-2003 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -33,6 +33,9 @@ char param_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/03/24 21:56:31  e_gourgoulhon
+ * Added storage of a Scalar.
+ *
  * Revision 1.4  2003/09/25 12:08:03  j_novak
  * Tensors can be stored in Param objects
  *
@@ -110,6 +113,8 @@ Param::Param() : n_int(0),
 		 n_qtenseur_mod(0), 
 		 n_map(0), 
 		 n_mtbl_cf(0), 
+		 n_scalar(0),
+		 n_scalar_mod(0),
 		 n_tensor(0),
 		 n_tensor_mod(0),
 		 n_etoile(0)
@@ -138,6 +143,8 @@ Param::~Param(){
     if (n_qtenseur_mod > 0) delete [] p_qtenseur_mod ; 
     if (n_map > 0)  delete [] p_map ; 
     if (n_mtbl_cf > 0)  delete [] p_mtbl_cf ; 
+    if (n_scalar > 0) delete [] p_scalar ; 
+    if (n_scalar_mod > 0) delete [] p_scalar_mod ; 
     if (n_tensor > 0) delete [] p_tensor ; 
     if (n_tensor_mod > 0) delete [] p_tensor_mod ; 
     if (n_etoile > 0)  delete [] p_etoile ; 
@@ -190,6 +197,12 @@ void Param::clean_all() {
     if (p_qtenseur_mod[i] != 0x0) {
       delete p_qtenseur_mod[i] ;
       p_qtenseur_mod[i] = 0x0 ;
+    }
+
+  for (int i=0; i<n_scalar_mod; i++) 
+    if (p_scalar_mod[i] != 0x0) {
+      delete p_scalar_mod[i] ;
+      p_scalar_mod[i] = 0x0 ;
     }
 
   for (int i=0; i<n_tensor_mod; i++) 
@@ -1302,6 +1315,144 @@ const Mtbl_cf& Param::get_mtbl_cf(int index) const {
     return *(p_mtbl_cf[index]) ; 
 
 } 
+		    
+		    //------------------------------------//
+		    //		Scalar storage		  //
+		    //------------------------------------//
+
+// Total number of stored addresses
+// --------------------------------
+
+int Param::get_n_scalar() const {
+    return n_scalar ; 
+}
+
+// Addition  
+// --------
+		    
+void Param::add_scalar(const Scalar& ti, int index){
+    
+	if (index >= n_scalar) {    // p_scalar must be rescaled
+	    	    
+	    int n_scalar_nouveau = index + 1 ; 
+	    const Scalar** p_scalar_nouveau = new const Scalar*[n_scalar_nouveau] ; 
+	    
+	   
+	    // Copy of the previous addresses  
+	    for (int i=0; i<n_scalar; i++) {
+		p_scalar_nouveau[i] = p_scalar[i] ; 
+	    }
+	    
+	    // The intermediate addresses are set to 0x0
+	    for (int i=n_scalar; i<index; i++) {
+		p_scalar_nouveau[i] = 0x0 ; 
+	    }
+	    
+	    // The new address 
+	    p_scalar_nouveau[index] = &ti ; 
+	    
+	    // Update 
+	    if (n_scalar > 0) delete [] p_scalar ; 
+	    p_scalar = p_scalar_nouveau ; 
+	    n_scalar = n_scalar_nouveau ; 
+	    
+	}
+	else {
+	
+	    if (p_scalar[index] != 0x0) {
+		cout << "Param::add_scalar : the position " << index 
+		     << " is already occupied !" << endl ; 
+		abort() ; 
+	    }
+	    else{
+		p_scalar[index] = &ti ; 
+	    }
+	    
+	}   
+    
+}
+
+// Extraction 
+// ----------
+		    
+const Scalar& Param::get_scalar(int index) const {
+
+    assert(index >= 0) ;
+    assert(index < n_scalar) ; 
+    
+    return *(p_scalar[index]) ; 
+
+} 
+		    
+
+		    //------------------------------------//
+		    //	    Modifiable Scalar storage	  //
+		    //------------------------------------//
+
+// Total number of stored addresses
+// --------------------------------
+
+int Param::get_n_scalar_mod() const {
+    return n_scalar_mod ; 
+}
+
+// Addition  
+// --------
+		    
+void Param::add_scalar_mod(Scalar& ti, int index){
+    
+	if (index >= n_scalar_mod) {    // p_scalar_mod must be rescaled
+	    	    
+	    int n_scalar_nouveau = index + 1 ; 
+	    Scalar** p_scalar_nouveau = new Scalar*[n_scalar_nouveau] ; 
+	    
+	   
+	    // Copy of the previous addresses  
+	    for (int i=0; i<n_scalar_mod; i++) {
+		p_scalar_nouveau[i] = p_scalar_mod[i] ; 
+	    }
+	    
+	    // The intermediate addresses are set to 0x0
+	    for (int i=n_scalar_mod; i<index; i++) {
+		p_scalar_nouveau[i] = 0x0 ; 
+	    }
+	    
+	    // The new address 
+	    p_scalar_nouveau[index] = &ti ; 
+	    
+	    // Update 
+	    if (n_scalar_mod > 0) delete [] p_scalar_mod ; 
+	    p_scalar_mod = p_scalar_nouveau ; 
+	    n_scalar_mod = n_scalar_nouveau ; 
+	    
+	}
+	else {
+	
+	    if (p_scalar_mod[index] != 0x0) {
+		cout << "Param::add_scalar_mod : the position " << index 
+		     << " is already occupied !" << endl ; 
+		abort() ; 
+	    }
+	    else{
+		p_scalar_mod[index] = &ti ; 
+	    }
+	    
+	}   
+    
+}
+
+// Extraction 
+// ----------
+		    
+Scalar& Param::get_scalar_mod(int index) const {
+
+    assert(index >= 0) ;
+    assert(index < n_scalar_mod) ; 
+    
+    return *(p_scalar_mod[index]) ; 
+
+} 
+
 		    
 		    //------------------------------------//
 		    //		Tensor storage		  //
