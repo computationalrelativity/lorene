@@ -25,8 +25,12 @@ char map_af_integ_surf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2004/01/29 08:50:03  p_grandclement
+ * Modification of Map::operator==(const Map&) and addition of the surface
+ * integrales using Scalar.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.7  2001/02/19  11:40:27  phil
  * correction indices
@@ -61,6 +65,11 @@ char map_af_integ_surf_C[] = "$Header$" ;
 #include "map.h"
 #include "cmp.h"
 #include "proto.h"
+#include "scalar.h"
+
+                      //=============
+                     // Cmp version
+                    //===============  
 
 double Map_af::integrale_surface (const Cmp& ci, double rayon) const {
     
@@ -184,6 +193,177 @@ double Map_af::integrale_surface_infini (const Cmp& ci) const {
     for (int j=0 ; j<nt ; j++) {
 	for (int i=0 ; i<nr ; i++)
 	    coef[i] = (*ci.va.c_cf)(nz-1, 0, j, i) ;
+  
+	switch (base_r) {
+	    case R_CHEBU :
+		som_r_chebu (coef, nr, 1, 1, 1, auxi) ;
+		break ;
+	    default :
+		som_r_pas_prevu (coef, nr, 1, 1, 1, auxi) ;
+		break ;
+	}
+	result += 2 * (*auxi)/(1-4*j*j) ;
+	}
+	
+    delete [] auxi ;
+    delete [] coef ;
+    
+    switch (base_t) {
+	case T_COS_P :
+	    break ;
+	case T_COSSIN_CP :
+	    break ;
+	case T_COSSIN_CI :
+	    result = 0 ;
+	    break ;
+	default :
+	    cout << "base_t cas non prevu dans Map_af::integrale_surface_infini" << endl ;
+	    abort() ;
+	    break ;
+    }
+    
+     switch (base_p) {
+	case P_COSSIN :
+	    result *= 2*M_PI ;
+	    break ;
+	case P_COSSIN_P :
+	    result *= 2*M_PI ;
+	    break ;
+	default :
+	    cout << "base_p cas non prevu dans Map_af::integrale_surface_infini" << endl ;
+	    abort() ;
+	    break ;
+    }
+    
+    return (result) ;
+}
+
+                      //=============
+                     // Scalar version
+                    //===============  
+
+double Map_af::integrale_surface (const Scalar& ci, double rayon) const {
+    
+    assert (ci.get_etat() != ETATNONDEF) ;
+    assert (rayon > 0) ;
+    if (ci.get_etat() == ETATZERO)
+	return 0 ;
+    
+    assert (ci.get_etat() == ETATQCQ) ;
+    
+    int l ;
+    double xi ;
+    val_lx (rayon, 0, 0, l, xi) ;
+    
+    if (l == get_mg()->get_nzone()-1) {
+	ci.check_dzpuis(0) ;
+    }
+    
+    ci.get_spectral_va().coef() ;
+    int nr = get_mg()->get_nr(l) ;
+    int nt = get_mg()->get_nt(l) ;
+    
+    int base_r = ci.get_spectral_va().base.get_base_r(l) ;
+    int base_t = ci.get_spectral_va().base.get_base_t(l) ;
+    int base_p = ci.get_spectral_va().base.get_base_p(l) ;
+    
+    double result = 0 ;
+    double* coef = new double [nr] ;
+    double* auxi = new double[1] ;
+     
+    for (int j=0 ; j<nt ; j++) {
+	for (int i=0 ; i<nr ; i++)
+	    coef[i] = (*ci.get_spectral_va().c_cf)(l, 0, j, i) ;
+  
+	switch (base_r) {
+	
+	    case R_CHEB :
+		som_r_cheb (coef, nr, 1, 1, xi, auxi) ;
+		break ;
+	    case R_CHEBP :
+		som_r_chebp (coef, nr, 1, 1, xi, auxi) ;
+		break ;
+	    case R_CHEBI :
+		som_r_chebi (coef, nr, 1, 1, xi, auxi) ;
+		break ;
+	    case R_CHEBU :
+		som_r_chebu (coef, nr, 1, 1, xi, auxi) ;
+		break ;
+	    case R_CHEBPIM_P :
+		som_r_chebpim_p (coef, nr, 1, 1, xi, auxi) ;
+		break ;
+	    case R_CHEBPIM_I :
+		som_r_chebpim_i (coef, nr, 1, 1, xi, auxi) ;
+		break ;
+	    default :
+		som_r_pas_prevu (coef, nr, 1, 1, xi, auxi) ;
+		break ;
+	}
+	result += 2 * (*auxi)/(1-4*j*j) ;
+	}
+	
+    delete [] auxi ;
+    delete [] coef ;
+	
+    switch (base_t) {
+	case T_COS_P :
+	    break ;
+	case T_COSSIN_CP :
+	    break ;
+	case T_COSSIN_CI :
+	    result = 0 ;
+	    break ;
+	default :
+	    cout << "base_t cas non prevu dans Map_af::integrale_surface" << endl ;
+	    abort() ;
+	    break ;
+    }
+    
+     switch (base_p) {
+	case P_COSSIN :
+	    result *= 2*rayon*rayon*M_PI ;
+	    break ;
+	case P_COSSIN_P :
+	    result *= 2*rayon*rayon*M_PI ;
+	    break ;
+	default :
+	    cout << "base_p cas non prevu dans Map_af::integrale_surface" << endl ;
+	    abort() ;
+	    break ;
+    }
+
+    return (result) ;
+}
+
+
+// Integrale a l'infini
+double Map_af::integrale_surface_infini (const Scalar& ci) const {
+    
+    assert (ci.get_etat() != ETATNONDEF) ;
+    assert (ci.check_dzpuis(2));
+    
+    if (ci.get_etat() == ETATZERO)
+	return 0 ;
+    
+    assert (ci.get_etat() == ETATQCQ) ;
+    
+    int nz = ci.get_mp().get_mg()->get_nzone() ;
+    
+    ci.get_spectral_va().coef() ;
+    int nr = get_mg()->get_nr(nz-1) ;
+    int nt = get_mg()->get_nt(nz-1) ;
+    
+    int base_r = ci.get_spectral_va().base.get_base_r(nz-1) ;
+    int base_t = ci.get_spectral_va().base.get_base_t(nz-1) ;
+    int base_p = ci.get_spectral_va().base.get_base_p(nz-1) ;
+    
+    double result = 0 ;
+    double* coef = new double [nr] ;
+    double* auxi = new double[1] ;
+      
+    for (int j=0 ; j<nt ; j++) {
+	for (int i=0 ; i<nr ; i++)
+	    coef[i] = (*ci.get_spectral_va().c_cf)(nz-1, 0, j, i) ;
   
 	switch (base_r) {
 	    case R_CHEBU :

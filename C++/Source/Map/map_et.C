@@ -29,6 +29,10 @@ char map_et_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/01/29 08:50:03  p_grandclement
+ * Modification of Map::operator==(const Map&) and addition of the surface
+ * integrales using Scalar.
+ *
  * Revision 1.8  2003/10/15 10:36:52  e_gourgoulhon
  * In method fait_poly(): changed local variable name x to x1, not to shadow
  *  Coord's x.
@@ -929,7 +933,45 @@ void Map_et::resize(int l, double lambda) {
 } 
 
 
+// Comparison operator :
+bool Map_et::operator==(const Map& mpi) const {
+  
+  // Precision of the comparison
+  double precis = 1e-10 ;
+  bool resu = true ;
 
+  // Dynamic cast pour etre sur meme Map...
+  const Map_et* mp0 = dynamic_cast<const Map_et*>(&mpi) ;
+  if (mp0 == 0x0)
+    resu = false ;
+  else {
+    if (*mg != *(mpi.get_mg()))
+      resu = false ;
+    
+    if (fabs(ori_x-mpi.get_ori_x()) > precis) resu = false ;
+    if (fabs(ori_y-mpi.get_ori_y()) > precis) resu = false ;
+    if (fabs(ori_z-mpi.get_ori_z()) > precis)  resu = false ;
+
+    if (bvect_spher != mpi.get_bvect_spher()) resu = false ;
+    if (bvect_cart != mpi.get_bvect_cart()) resu = false ;
+
+    int nz = mg->get_nzone() ;
+    for (int i=0 ; i<nz ; i++) {
+      if (fabs(alpha[i]-mp0->alpha[i])/fabs(alpha[i]) > precis) 
+	resu = false ;
+      if ((i!=0) && (i!=nz-1))
+	if (fabs(beta[i]-mp0->beta[i])/fabs(beta[i]) > precis) 
+	resu = false ;
+    }
+
+    if (max(diffrelmax(ff, mp0->ff)) > precis)
+      resu = false ;
+    if (max(diffrelmax(gg, mp0->gg)) > precis)
+      resu = false ;
+  }
+
+  return resu ;
+}
 		//--------------------------------------//
 		// Extraction of the mapping parameters //
 		//--------------------------------------//

@@ -38,6 +38,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2004/01/29 08:50:01  p_grandclement
+ * Modification of Map::operator==(const Map&) and addition of the surface
+ * integrales using Scalar.
+ *
  * Revision 1.21  2004/01/28 16:46:22  p_grandclement
  * Addition of the sol_elliptic_fixe_der_zero stuff
  *
@@ -713,7 +717,7 @@ class Map {
 
 
 	/// Comparison operator (egality)
-	bool operator==(const Map& ) const ;  
+	virtual bool operator==(const Map& ) const = 0;  
 
  
 	
@@ -1400,6 +1404,9 @@ class Map_radial : public Map {
 	virtual void val_lx_jk(double rr, int j, int k, const Param& par, 
 			       int& l, double& xi) const = 0 ; 
 
+	/// Comparison operator (egality)
+	virtual bool operator==(const Map& ) const = 0;  
+
     // Values of a Cmp at the new grid points
     // --------------------------------------
 	/** Recomputes the values of a {\tt Cmp} at the collocation points 
@@ -1764,6 +1771,8 @@ class Map_af : public Map_radial {
 	virtual void val_lx_jk(double rr, int j, int k, const Param& par, 
 			       int& l, double& xi) const ; 
 
+	/// Comparison operator (egality)
+	virtual bool operator==(const Map& ) const ;  
 
 
     // Outputs
@@ -1992,11 +2001,22 @@ class Map_af : public Map_radial {
 	double integrale_surface (const Cmp& ci, double rayon) const ;
 	
 	/**
+	 * Performs the surface integration of {\tt ci} on the sphere of 
+	 * radius {\tt rayon}.
+	 */
+	double integrale_surface (const Scalar& ci, double rayon) const ;
+	
+	/**
 	 * Performs the surface integration of {\tt ci} at infinity.
 	 * {\tt ci} must have {\tt dzpuis} =2.
 	 */
 	double integrale_surface_infini (const Cmp& ci) const ;
 	
+	/**
+	 * Performs the surface integration of {\tt ci} at infinity.
+	 * {\tt ci} must have {\tt dzpuis} =2.
+	 */
+	double integrale_surface_infini (const Scalar& ci) const ;
 	
 	/**
 	 * General elliptic solver. The field is zero at infinity.
@@ -2413,6 +2433,9 @@ class Map_et : public Map_radial {
 	virtual void val_lx(double rr, double theta, double pphi, 
 			    const Param& par, int& l, double& xi) const ; 
 		
+	/// Comparison operator (egality)
+	virtual bool operator==(const Map& ) const ;  
+
 	/** Returns the value of the radial coordinate {\it r} for a given
 	 *  $\xi$ and a given collocation point in $(\theta', \phi')$ 
 	 *   in a given domain. 

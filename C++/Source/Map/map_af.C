@@ -33,6 +33,10 @@ char map_af_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/01/29 08:50:03  p_grandclement
+ * Modification of Map::operator==(const Map&) and addition of the surface
+ * integrales using Scalar.
+ *
  * Revision 1.4  2003/10/15 10:33:11  e_gourgoulhon
  * Added new Coord's : drdt, srdrdp.
  *
@@ -338,6 +342,40 @@ void Map_af::set_coord(){
     sstd2rdpdx.set(this, map_af_fait_sstd2rdpdx) ;
     sr2d2rdt2.set(this, map_af_fait_sr2d2rdt2) ;
     
+}
+// Comparison operator :
+bool Map_af::operator==(const Map& mpi) const {
+  
+  // Precision of the comparison
+  double precis = 1e-10 ;
+  bool resu = true ;
+
+  // Dynamic cast pour etre sur meme Map...
+  const Map_af* mp0 = dynamic_cast<const Map_af*>(&mpi) ;
+  if (mp0 == 0x0)
+    resu = false ;
+  else {
+    if (*mg != *(mpi.get_mg()))
+      resu = false ;
+    
+    if (fabs(ori_x-mpi.get_ori_x()) > precis) resu = false ;
+    if (fabs(ori_y-mpi.get_ori_y()) > precis) resu = false ;
+    if (fabs(ori_z-mpi.get_ori_z()) > precis)  resu = false ;
+
+    if (bvect_spher != mpi.get_bvect_spher()) resu = false ;
+    if (bvect_cart != mpi.get_bvect_cart()) resu = false ;
+
+    int nz = mg->get_nzone() ;
+    for (int i=0 ; i<nz ; i++) {
+      if (fabs(alpha[i]-mp0->alpha[i])/fabs(alpha[i]) > precis) 
+	resu = false ;
+      if ((i!=0) && (i!=nz-1))
+	if (fabs(beta[i]-mp0->beta[i])/fabs(beta[i]) > precis) 
+	resu = false ;
+    }
+  }
+
+  return resu ;
 }
 
 		//--------------------------------------//

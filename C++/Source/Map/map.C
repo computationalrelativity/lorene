@@ -33,6 +33,10 @@ char map_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/01/29 08:50:03  p_grandclement
+ * Modification of Map::operator==(const Map&) and addition of the surface
+ * integrales using Scalar.
+ *
  * Revision 1.7  2003/12/30 22:53:23  e_gourgoulhon
  * Added methods flat_met_spher() and flat_met_cart() to get
  * flat metric associated with the coordinates described by the mapping.
@@ -299,28 +303,6 @@ void Map::convert_absolute(double xx, double yy, double zz,
 			 
 }
 
-
-bool Map::operator==(const Map& mpi) const {
-
-  bool resu = true ;
-
-  if (*mg == *(mpi.get_mg())){}
-  else {
-    resu = false ;
-  }
-  
-  if (ori_x != mpi.get_ori_x()) resu = false ;
-  if (ori_y != mpi.get_ori_y()) resu = false ;
-  if (ori_z != mpi.get_ori_z()) resu = false ;
-
-  if (bvect_spher != mpi.get_bvect_spher()) resu = false ;
-  if (bvect_cart != mpi.get_bvect_cart()) resu = false ;
-
-  return resu ;
-
-}
-
-
 const Metric_flat& Map::flat_met_spher() const {
 
     if (p_flat_met_spher == 0x0) {
@@ -340,9 +322,6 @@ const Metric_flat& Map::flat_met_cart() const {
     return *p_flat_met_cart ;
 
 } 
-
-
-
 
 
 
