@@ -25,11 +25,12 @@
  *
  */
 
-char evolution_full_C[] = "$Header$" ;
-
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/17 22:13:34  e_gourgoulhon
+ * Suppressed declaration of global char[] evolution_C = ...
+ *
  * Revision 1.2  2004/02/16 12:37:01  e_gourgoulhon
  * Method update: initialization of extended part of arrays val and the_time.
  *

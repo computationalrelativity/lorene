@@ -25,11 +25,12 @@
  *
  */
 
-char evolution_std_C[] = "$Header$" ;
-
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/17 22:13:34  e_gourgoulhon
+ * Suppressed declaration of global char[] evolution_C = ...
+ *
  * Revision 1.2  2004/02/16 12:37:34  e_gourgoulhon
  * Added an assert in method update.
  *

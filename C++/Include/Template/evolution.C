@@ -25,11 +25,12 @@
  *
  */
 
-char evolution_C[] = "$Header$" ;
-
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/17 22:13:34  e_gourgoulhon
+ * Suppressed declaration of global char[] evolution_C = ...
+ *
  * Revision 1.2  2004/02/15 21:55:33  e_gourgoulhon
  * Introduced derived classes Evolution_full and Evolution_std.
  * Evolution is now an abstract base class.
