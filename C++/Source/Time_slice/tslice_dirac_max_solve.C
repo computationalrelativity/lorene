@@ -30,6 +30,10 @@ char tslice_dirac_max_solve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/06/30 08:02:40  j_novak
+ * Added filtering in l of khi_new and mu_new. ki_source is forced to go to
+ * zero at least as r^2.
+ *
  * Revision 1.12  2004/06/17 07:07:11  e_gourgoulhon
  * Method solve_hij:
  *   -- replaced the attenuation of khi_source with tempo by a call to
@@ -92,7 +96,7 @@ char tslice_dirac_max_solve_C[] = "$Header$" ;
 #include "proto.h"
 
 void exponential_decay(Scalar& ) ;
-void filtre_l(Scalar& , int, int) ;
+void filtre_l(Scalar& , int, int, bool drap = false) ;
 
                     //--------------------------//
                     //      Equation for N      //
@@ -547,34 +551,34 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
     maxabs( source_htt.divergence(ff), "Divergence of source_htt") ; 
     maxabs( source_htt.trace(ff), "Trace of source_hhtt") ; 
 
-    int *nfiltre = new int[nz] ;
-    nfiltre[0] = 0 ;
-    nfiltre[nz-1] = 0 ;
-    for (int lz=1; lz<nz-1; lz++)
-      nfiltre[lz] = map.get_mg()->get_nr(lz) / 3 + 1 ;
+//##     int *nfiltre = new int[nz] ;
+//     nfiltre[0] = 0 ;
+//     nfiltre[nz-1] = 0 ;
+//     for (int lz=1; lz<nz-1; lz++)
+//       nfiltre[lz] = map.get_mg()->get_nr(lz) / 3 + 1 ;
     
     Scalar khi_source = source_htt.khi() ; 
 
     khi_source.annule_extern_c2(nz-2) ;  
-    filtre_l(khi_source, 0, 1) ;
+    filtre_l(khi_source, 0, 1, true) ;
 //    khi_source.filtre_r(nfiltre) ;
 
-    const Scalar& mu_source = source_htt.mu() ; 
+    Scalar mu_source = source_htt.mu() ; 
                             
     khi_new = khi_evol[jtime].avance_dalembert(par_khi,
                                          khi_evol[jtime-1], khi_source) ;
-    khi_new.smooth_decay(2,1) ; 
-    exponential_decay(khi_new) ; 
-//    khi_new.filtre_r(nfiltre) ;
+
+    filtre_l(khi_new, 0, 1) ;
+    khi_new.set_spectral_va().ylm_i() ;
         
     maxabs(khi_new - khi_evol[jtime], "Variation of khi") ;  
         
+    filtre_l(mu_source, 0, 1) ;
     mu_new = mu_evol[jtime].avance_dalembert(par_mu,  
                                          mu_evol[jtime-1], mu_source) ;
-    mu_new.smooth_decay(2,1) ; 
-    exponential_decay(mu_new) ; 
+    filtre_l(mu_new, 0, 1) ;
+    mu_new.set_spectral_va().ylm_i() ;
                                         
-
 }
 
 
@@ -603,7 +607,7 @@ void exponential_decay(Scalar& uu) {
     
 }
 
-void filtre_l(Scalar& uu, int l_min, int l_max) {
+void filtre_l(Scalar& uu, int l_min, int l_max, bool drap) {
 
     const Map& mp = uu.get_mp() ; 
     const Mg3d& mg = *(mp.get_mg()) ; 
@@ -626,6 +630,15 @@ void filtre_l(Scalar& uu, int l_min, int l_max) {
 		if ( (l_q>=l_min) && (l_q <=l_max) ) 
 		  for (int i=0; i<nr; i++) 
 		    uuva.c_cf->set(lz, k, j, i) = 0. ;
+		else if ((drap)&&(lz==0)) {
+		  double som = 0 ;
+		  int sign = 1 ;
+		  for (int i=0; i<nr; i++) {
+		    som += sign*uuva.c_cf->operator()(lz, k, j, i) ;
+		    sign *= -1 ;
+		  }
+		  uuva.c_cf->set(0, k, j, 0) -= som ;
+		}
 	      }
 	    } 
       }

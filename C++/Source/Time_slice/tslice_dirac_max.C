@@ -30,6 +30,10 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/06/30 08:02:40  j_novak
+ * Added filtering in l of khi_new and mu_new. ki_source is forced to go to
+ * zero at least as r^2.
+ *
  * Revision 1.13  2004/06/17 06:59:41  e_gourgoulhon
  * -- Method initial_data_cts: re-organized treatment of vanishing uu.
  * -- Method hh_det_one: replaced the attenuation with tempo by a call
@@ -288,7 +292,7 @@ void Tslice_dirac_max::initial_data_cts(const Sym_tensor& uu,
             khi_evol.update(tmp, j, the_time[j]) ;
 
             tmp = hhtmp.transverse(ff,0x0,method_poisson_vect).tt_part().mu() ;
-            tmp.annule_domain(nz-1) ;
+            tmp.annule_domain(nz-1) ; //##
             mu_evol.update(tmp, j, the_time[j]) ;
         }
 
@@ -541,6 +545,7 @@ const Scalar& Tslice_dirac_max::khi() const {
 //         khi_evol.update( hh().transverse(ff).tt_part().khi(), 
 // 			 jtime, the_time[jtime] ) ; 
     }
+
 
     return khi_evol[jtime] ;
 
