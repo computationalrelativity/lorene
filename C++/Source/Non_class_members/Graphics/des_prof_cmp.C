@@ -31,8 +31,11 @@ char des_prof_cmp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/06/03 09:59:35  e_gourgoulhon
+ * Added a new des_profile with scale and nomx in arguments
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.1  1999/12/09  16:38:31  eric
  * Initial revision
@@ -83,6 +86,45 @@ void des_profile(const Cmp& uu, double r_min, double r_max,
 	title = "" ;
     }
 
+    if (nomy == 0x0) {
+	nomy = "" ;
+    }
+    
+    
+    des_profile(uutab, npt, xmin, xmax, nomx, nomy, title) ; 
+    
+} 
+
+void des_profile(const Cmp& uu, double r_min, double r_max, double scale,
+		     double theta, double phi, char* nomx, char* nomy, char* title) {
+		
+
+    const int npt = 400 ;   // Number of points along the axis
+    
+    float uutab[npt] ;	    // Value of uu at the npt points
+    
+    double hr = (r_max - r_min) / double(npt-1) ; 
+    
+    for (int i=0; i<npt; i++) {
+    
+	double r = hr * i + r_min ; 
+	
+	uutab[i] = uu.val_point(r, theta, phi) ; 
+	
+    }
+    
+    float xmin = r_min * scale ;
+    float xmax = r_max * scale ;
+    
+    
+    if (title == 0x0) {
+	title = "" ;
+    }
+
+    if (nomx == 0x0) {
+	nomx = "" ;
+    }
+    
     if (nomy == 0x0) {
 	nomy = "" ;
     }
