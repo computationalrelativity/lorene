@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2004/12/29 16:30:00  f_limousin
+ * Improve comments for doxygen
+ *
  * Revision 1.16  2004/12/29 16:10:25  f_limousin
  * Add the new class Bin_hor.
  *
@@ -188,24 +191,26 @@ class Isol_hor : public Time_slice_conf {
   // -------------------------
  public:
 
-// Standard constructor
+/// Standard constructor
   Isol_hor(Map_af& mpi, int depth_in) ;
 
-// Constructor from conformal decomposition
+/// Constructor from conformal decomposition
   Isol_hor(Map_af& mpi, const Scalar& lapse_in, const Scalar& psi_in,
 	   const Vector& shift_in, const Sym_tensor& aa_in, 
 	   const Metric& gamt, const Sym_tensor& gamt_point, 
 	   const Scalar& trK, const Scalar& trK_point, 
 	   const Metric_flat& ff_in, int depth_in = 3) ;	
   
-  Isol_hor(const Isol_hor& ) ;   /// Copy constructor
+/// Copy constructor
+  Isol_hor(const Isol_hor& ) ;  
 
+///  Constructor from a binary file
   Isol_hor (const Map& mp, const Base_vect& triad, 
 	    const Metric_flat& ff_in, FILE* fich, 
-	    bool partial_read, int depth_in) ;   ///  Constructor from a 
-  /// binary file
+	    bool partial_read, int depth_in) ;  
   
-  virtual ~Isol_hor() ;			/// Destructor
+/// Destructor
+  virtual ~Isol_hor() ;			
   
 
   // Mutators / assignment
@@ -246,41 +251,41 @@ class Isol_hor : public Time_slice_conf {
   // ---------
  public:
 
-  /// Lapse function \f$ N_{auto} \f$ at the current time step (\c jtime )
+  /// Lapse function \f$ N_{auto} \f$ at the current time step \c jtime 
   virtual const Scalar& n_auto() const ;
 
-  /// Lapse function \f$ N_{comp} \f$ at the current time step (\c jtime )
+  /// Lapse function \f$ N_{comp} \f$ at the current time step \c jtime 
   virtual const Scalar& n_comp() const ;
 
-  /// Conformal factor \f$ \Psi_{auto} \f$ at the current time step (\c jtime )
+  /// Conformal factor \f$ \Psi_{auto} \f$ at the current time step \c jtime 
   virtual const Scalar& psi_auto() const ;
 
-  /// Conformal factor \f$ \Psi_{comp} \f$ at the current time step (\c jtime )
+  /// Conformal factor \f$ \Psi_{comp} \f$ at the current time step \c jtime 
   virtual const Scalar& psi_comp() const ;
 
   /// Covariant derivative of the lapse function \f$ N \f$ at the 
-  /// current time step (\c jtime )
+  /// current time step \c jtime 
   virtual const Vector& dnn() const ;
 
   /// Covariant derivative of the conformal factor \f$ \Psi \f$ at the 
-  /// current time step (\c jtime )
+  /// current time step \c jtime 
   virtual const Vector& dpsi() const ;
 
-  /// Shift function \f$ \beta^i_{auto} \f$ at the current time step (\c jtime )
+  /// Shift function \f$ \beta^i_{auto} \f$ at the current time step \c jtime 
   virtual const Vector& beta_auto() const ;
 
-  /// Shift function \f$ \beta^i_{comp} \f$ at the current time step (\c jtime )
+  /// Shift function \f$ \beta^i_{comp} \f$ at the current time step \c jtime 
   virtual const Vector& beta_comp() const ;
 
   /** Conformal representation \f$ A^{ij}_{auto} \f$ of the traceless part
    * of the extrinsic curvature:
-   * Returns the value at the current time step (\c jtime ).
+   * Returns the value at the current time step \c jtime.
    */        
   virtual const Sym_tensor& aa_auto() const ; 
 
   /** Conformal representation \f$ A^{ij}_{comp} \f$ of the traceless part
    * of the extrinsic curvature:
-   * Returns the value at the current time step (\c jtime ).
+   * Returns the value at the current time step \c jtime.
    */        
   virtual const Sym_tensor& aa_comp() const ; 
 
