@@ -11,6 +11,7 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Bhole; $(MAKE)
 	cd Source/Bhole_binaire; $(MAKE)
 	cd Source/Bin_bhns_extr; $(MAKE)
+	cd Source/Bin_hor; $(MAKE)
 	cd Source/Bin_ns_bh; $(MAKE)
 	cd Source/Binaire; $(MAKE)
 	cd Source/Binary; $(MAKE)
@@ -65,6 +66,7 @@ uninstall:
 	cd Source/Bhole; $(MAKE) -i uninstall
 	cd Source/Bhole_binaire; $(MAKE) -i uninstall
 	cd Source/Bin_bhns_extr; $(MAKE) -i uninstall
+	cd Source/Bin_hor; $(MAKE) -i uninstall
 	cd Source/Bin_ns_bh; $(MAKE) -i uninstall
 	cd Source/Binaire; $(MAKE) -i uninstall
 	cd Source/Binary; $(MAKE) -i uninstall
