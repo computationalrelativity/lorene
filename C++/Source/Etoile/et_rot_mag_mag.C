@@ -32,6 +32,9 @@ char et_rot_mag_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/05/16 10:02:09  j_novak
+ * Errors in stress energy tensor corrected
+ *
  * Revision 1.4  2002/05/15 09:54:00  j_novak
  * First operational version
  *
@@ -297,8 +300,6 @@ void Et_rot_mag::magnet_comput(const double Q, const double a_j,
   // solution definitive :
 
     double C = (Q-Q_0)/Q_2 ;
-
-  if (C != 0.) cout << "Q, Q_0, C:" << Q << ", " << Q_0 << ", " << C << endl ;
 
   Cmp A_t_n(A_t) ;
   A_t_n.allocate_all() ;

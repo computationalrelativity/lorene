@@ -5,6 +5,8 @@
 
 /*
  *   Copyright (c) 2000-2001 Eric Gourgoulhon
+ *   Copyright (c) 2002 Emmanuel Marcq
+ *   Copyright (c) 2002 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -21,6 +23,19 @@
  *   You should have received a copy of the GNU General Public License
  *   along with LORENE; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+char magstar_C[] = "$Header$" ;
+
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.2  2002/05/16 10:02:09  j_novak
+ * Errors in stress energy tensor corrected
+ *
+ *
+ * $Header$
  *
  */
 
@@ -444,7 +459,6 @@ int main(){
 
 
 	char title[80] ;
-	char bslash[2] = {92, '\0'} ;  // 92 is the ASCII code for backslash 
 
 	// Cmp defining the surface of the star (via the enthalpy field)
 	Cmp surf = star.get_ent()() ; 
@@ -457,7 +471,7 @@ int main(){
 
 	int nzdes = star.get_nzet() ; 
 
-	des_coupe_y(star.get_At(), 0., nzdes, "A_t Potential", &surf) ; 
+	des_coupe_y(star.get_At(), 0., nzdes, "A\\dt\\u Potential", &surf) ; 
 	des_coupe_y(star.get_Aphi(), 0., nzdes, "Magnetic field", &surf) ; 
 	des_coupe_y(star.get_ent()(), 0., nzdes, "Enthalpy", &surf) ; 
 
@@ -466,41 +480,21 @@ int main(){
 			&surf) ; 
 	}
 	    
-	char partit[] = {92, 'g', 'n', '\0'} ; 
-	strcpy(title, "Gravitational potential ") ; 
-	strcat(title, partit) ; 
+	strcpy(title, "Gravitational potential \\gn") ; 
 
 	des_coupe_y(star.get_logn()(), 0., nzdes, title, &surf) ; 
 	
 	
-	strcpy(title, "Azimuthal shift N") ; 
-	strcat(title, bslash) ; 
-	strcat(title, "u") ; 
-	strcat(title, bslash) ; 
-	strcat(title, "gf") ; 
+	strcpy(title, "Azimuthal shift N\\u\\gf") ; 
 	des_coupe_y(star.get_nphi()(), 0., nzdes, title, &surf) ; 
 	
-	strcpy(title, "Metric potential ") ; 
-	strcat(title, bslash) ; 
-	strcat(title, "gz") ; 
+	strcpy(title, "Metric potential \\gz") ; 
 	des_coupe_y(star.get_dzeta()(), 0., nzdes, title, &surf) ; 
 	
 	strcpy(title, "Metric potential (NB-1) r sin\\gh") ; 
-	//	strcat(title, bslash) ; 
-	//strcat(title, "gh") ; 
 	des_coupe_y(star.get_tggg()(), 0., nzdes, title, &surf) ; 
 	
-
-	char debtit[] = {'A', 92, 'u', '2', 92, 'd', ' ', 'K', 92, 'u', '\0'} ; 
-	strcpy(title, debtit) ; 
-	strcat(title, "ij") ; 
-	strcat(title, bslash) ; 
-	strcat(title, "d K") ; 
-	strcat(title, bslash) ; 
-	strcat(title, "dij") ; 
-	strcat(title, bslash) ; 
-	strcat(title, "u") ; 
-
+	strcpy(title, "A\\u2\\dK\\uij\\dK\\dij\\u") ; 
 	des_coupe_y(star.get_ak_car()(), 0., nzdes, title, &surf) ; 
 
     }

@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2002/05/16 10:02:09  j_novak
+ * Errors in stress energy tensor corrected
+ *
  * Revision 1.5  2002/05/15 09:53:59  j_novak
  * First operational version
  *
@@ -65,8 +68,8 @@ void Et_rot_mag::MHD_comput() {
     cout << mag_unit << elec_unit << endl ;
   }    
   
-  Tenseur APTENS(A_t) ;
-  Tenseur ATTENS(A_phi) ;
+  Tenseur ATTENS(A_t) ;
+  Tenseur APTENS(A_phi) ;
   
   Tenseur ApAp ( flat_scalar_prod_desal(APTENS.gradient_spher(),
 					APTENS.gradient_spher())() );
@@ -74,10 +77,17 @@ void Et_rot_mag::MHD_comput() {
 					ATTENS.gradient_spher())() );
   Tenseur AtAt ( flat_scalar_prod_desal(ATTENS.gradient_spher(),
 					ATTENS.gradient_spher())() );
+
+  if (ApAp.get_etat() != ETATZERO) {
+    ApAp.set().div_rsint() ;
+    ApAp.set().div_rsint() ;
+  }
+  if (ApAt.get_etat() != ETATZERO) 
+    ApAt.set().div_rsint() ;
   
   E_em = 0.5*mu0 * ( 1/(a_car*nnn*nnn) * (AtAt + 2*tnphi*ApAt)
 	      + ( (tnphi*tnphi/(a_car*nnn*nnn)) + 1/(a_car*b_car) )*ApAp );
-  Jp_em = -mu0 * (ApAt + tnphi*ApAp) * bbb /(a_car*nnn) ;
+  Jp_em = -mu0 * (ApAt + tnphi*ApAp) /(a_car*nnn) ;
   if (Jp_em.get_etat() != ETATZERO) Jp_em.set().mult_rsint() ;
   Srr_em = 0 ;
   // Stt_em = -Srr_em
@@ -281,9 +291,9 @@ double Et_rot_mag::grv2() const {
 		}
 
         Tenseur sou_m =  2 * qpig * a_car * (press + (ener_euler+press)
-        						* uuu*uuu + Spp_em) ;
+        						* uuu*uuu ) ;
         						
-        Tenseur sou_q =  1.5 * ak_car
+        Tenseur sou_q =   2 * qpig * a_car * Spp_em + 1.5 * ak_car
         				 - flat_scalar_prod(logn.gradient_spher(),
 						     				logn.gradient_spher() ) ;	
 

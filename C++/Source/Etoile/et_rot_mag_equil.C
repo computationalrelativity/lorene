@@ -34,6 +34,9 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/05/16 10:02:09  j_novak
+ * Errors in stress energy tensor corrected
+ *
  * Revision 1.4  2002/05/15 09:53:59  j_novak
  * First operational version
  *
@@ -154,12 +157,12 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
     
     diff.set_etat_qcq() ; 
     double& diff_ent = diff.set(0) ; 
-    double& diff_nuf = diff.set(1) ; 
-    double& diff_nuq = diff.set(2) ; 
+//      double& diff_nuf = diff.set(1) ; 
+//      double& diff_nuq = diff.set(2) ; 
 //    double& diff_dzeta = diff.set(3) ; 
 //    double& diff_ggg = diff.set(4) ; 
-    double& diff_shift_x = diff.set(5) ; 
-    double& diff_shift_y = diff.set(6) ; 
+//      double& diff_shift_x = diff.set(5) ; 
+//      double& diff_shift_y = diff.set(6) ; 
 
     // Parameters for the function Map_et::adapt
     // -----------------------------------------
@@ -444,6 +447,7 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 	mtmp.set(0) = 0 ;
 	mtmp.set(1) = 0 ;
 	mtmp.set(2) = (-4*qpig)*tjpem*nnn()*a_car()/b_car() ;
+
 	mtmp.change_triad(mp.get_bvect_cart()) ; 
 
 	vtmp.change_triad(mp.get_bvect_cart()) ; 
@@ -456,11 +460,23 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 		
 	if (squad.get_etat() == ETATQCQ) {
 	    for (int i=0; i<3; i++) {
-		source_shift.set(i) += squad(i) + mtmp(i); 
+		source_shift.set(i) += squad(i) ; 
 	    }
 	}
+	if (mtmp.get_etat() == ETATQCQ) {
+	  if (source_shift.get_etat() == ETATZERO) {
+	    source_shift.set_etat_qcq() ;
+	    for (int i=0; i<3; i++) {
+	      source_shift.set(i) = mtmp(i) ;
+	      source_shift.set(i).va.coef_i() ;
+	    }
+	  }
+	  else
+	    for (int i=0; i<3; i++) 
+	      source_shift.set(i) += mtmp(i) ; 
+	}
 
-	source_shift.set_std_base() ; 	
+      	source_shift.set_std_base() ; 	
 
 	//----------------------------------------------
 	// Resolution of the Poisson equation for nuf 
@@ -468,9 +484,9 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 
 	source_nuf().poisson(par_poisson_nuf, nuf.set()) ; 
 	
-	cout << "Test of the Poisson equation for nuf :" << endl ; 
-	Tbl err = source_nuf().test_poisson(nuf(), cout, true) ; 
-	diff_nuf = err(0, 0) ; 
+//  	cout << "Test of the Poisson equation for nuf :" << endl ; 
+//  	Tbl err = source_nuf().test_poisson(nuf(), cout, true) ; 
+//  	diff_nuf = err(0, 0) ; 
 
 	
 	if (relativistic) {
@@ -481,9 +497,9 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 
 	    source_nuq().poisson(par_poisson_nuq, nuq.set()) ; 
 	    
-	    cout << "Test of the Poisson equation for nuq :" << endl ; 
-	    err = source_nuq().test_poisson(nuq(), cout, true) ;
-	    diff_nuq = err(0, 0) ; 
+//  	    cout << "Test of the Poisson equation for nuq :" << endl ; 
+//  	    err = source_nuq().test_poisson(nuq(), cout, true) ;
+//  	    diff_nuq = err(0, 0) ; 
 	
 	    //---------------------------------------------------------
 	    // Resolution of the vector Poisson equation for the shift
@@ -514,13 +530,13 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 	    source_shift.poisson_vect(lambda_shift, par_poisson_vect, 
 				      shift, w_shift, khi_shift) ;      
 	    
-	    cout << "Test of the Poisson equation for shift_x :" << endl ; 
-	    err = source_shift(0).test_poisson(shift(0), cout, true) ;
-	    diff_shift_x = err(0, 0) ; 
+//  	    cout << "Test of the Poisson equation for shift_x :" << endl ; 
+//  	    err = source_shift(0).test_poisson(shift(0), cout, true) ;
+//  	    diff_shift_x = err(0, 0) ; 
 	
-	    cout << "Test of the Poisson equation for shift_y :" << endl ; 
-	    err = source_shift(1).test_poisson(shift(1), cout, true) ;
-	    diff_shift_y = err(0, 0) ; 
+//  	    cout << "Test of the Poisson equation for shift_y :" << endl ; 
+//  	    err = source_shift(1).test_poisson(shift(1), cout, true) ;
+//  	    diff_shift_y = err(0, 0) ; 
 	    
 	    // Computation of tnphi and nphi from the Cartesian components
 	    //  of the shift
@@ -790,7 +806,7 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 	//  Informations display
 	//-----------------------
 
-	partial_display(cout) ; 
+	//	partial_display(cout) ; 
 	fichfreq << "  " << omega / (2*M_PI) * f_unit ; 
 	fichevol << "  " << rap_dent ; 
 	fichevol << "  " << ray_pole() / ray_eq() ; 
