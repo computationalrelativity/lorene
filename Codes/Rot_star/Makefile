@@ -26,6 +26,10 @@ SRC5 = chent.C
 OBJ5 = $(SRC5:.C=.o)
 EXE5 = $(SRC5:.C=)
 
+SRC6 = rotstar_dirac.C
+OBJ6 = $(SRC6:.C=.o)
+EXE6 = $(SRC6:.C=)
+
 $(EXE1): $(OBJ1)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
 				        $(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
@@ -42,10 +46,15 @@ $(EXE4): $(OBJ4)
 $(EXE5): $(OBJ5)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ5) $(LIB_CXX)
 
+$(EXE6): $(OBJ6)
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ6) $(LIB_G) $(LIB_LAPACK) \
+				        $(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 .C.o:
 	$(CXX)  -c $(CXXFLAGS_G) $(INC) $<
 
+all: $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5) $(EXE6)
+
 uninstall:
-	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5)
-	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5)
+	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5) $(OBJ6)
+	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5) $(EXE6)
 

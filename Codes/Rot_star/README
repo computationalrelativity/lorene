@@ -9,9 +9,11 @@
 1/ Description of the various codes
    ================================
 
-rotstar: code for rigidly rotating stars in GR
-rotdiff: code for differentially rotating stars in GR
-rotseq:  code for computing sequences of either rigidly or differentially rotating stars in GR
+rotstar: code for rigidly rotating stars in GR (quasi-isotropic  gauge)
+rotdiff: code for differentially rotating stars in GR (quasi-isotropic  gauge)
+rotseq:  code for computing sequences of either rigidly or differentially
+	 rotating stars in GR (quasi-isotropic  gauge)
+rotstar_dirac: code for rigidly rotating stars in GR in the Dirac gauge.
 
 2/ Compilation
    ===========
@@ -20,10 +22,9 @@ Typing
 
 	make name_of_main_code
 
-where name_of_main_code = rotstar, rotdiff or rotseq
-will produce the executable  in a non-optimized version for
-debugging purposes. To get an optimized version for production purposes
-type instead
+where name_of_main_code = rotstar, rotdiff, rotseq or rotstar_dirac will
+produce the executable in a non-optimized version for debugging purposes. To
+get an optimized version for production purposes type instead
 
 	make -f Makefile_O2 name_of_main_code
 
@@ -35,8 +36,8 @@ You can clear everything by
 3/ Input parameters
    ================
 
-rotstar:
--------
+rotstar / rotstar_dirac:
+-----------------------
 
 The code rotstar needs two input files:
 
@@ -49,6 +50,8 @@ Keplerian limit, do
 
 	cp Parameters/Kepler_GR/parrot.d .
 	cp Parameters/Kepler_GR/par_eos.d .
+
+Note: rotstar_dirac runs only for relativistic models.
 
 rotseq:
 ------
