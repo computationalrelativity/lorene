@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/06/09 06:32:51  k_taniguchi
+ * Introduce set_n_auto() and set_confpsi_auto().
+ *
  * Revision 1.2  2003/10/24 12:25:19  k_taniguchi
  * Introduce the method of update metric for NS-BH
  *
@@ -186,9 +189,19 @@ class Et_bin_nsbh : public Etoile_bin {
     void operator=(const Et_bin_nsbh&) ;	
 	
     /** Read/write the lapse {\it N} generated principaly
+     *  by the star.
+     */
+    Tenseur& set_n_auto() ;
+
+    /** Read/write the lapse {\it N} generated principaly
      *  by the companion star.
      */
     Tenseur& set_n_comp() ;
+
+    /** Read/write the conformal factor $\Psi$ generated principaly
+     *  by the star.
+     */
+    Tenseur& set_confpsi_auto() ;
 
     /** Read/write the conformal factor $\Psi$ generated principaly
      *  by the companion star.
