@@ -30,6 +30,10 @@ char valeur_coef_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/11/23 15:17:19  m_forot
+ * Added the bases for the cases without any equatorial symmetry
+ *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
  * Revision 1.5  2003/09/17 12:30:22  j_novak
  * New checks for changing to T_LEG* bases.
  *
@@ -127,9 +131,12 @@ void Valeur::coef() const {
 	coef_r[R_CHEBI >> TRA_R] = cfrchebi ;	    
 	coef_r[R_CHEBPIM_P >> TRA_R] = cfrchebpimp ;	    
 	coef_r[R_CHEBPIM_I >> TRA_R] = cfrchebpimi ;	    
+	coef_r[R_CHEBPI_P >> TRA_R] = cfrchebpip ;	    
+	coef_r[R_CHEBPI_I >> TRA_R] = cfrchebpii ;	    
 
 	coef_t[NONDEF] = base_non_def_t ;
 	coef_t[T_COS >> TRA_T] = cftcos ;
+	coef_t[T_SIN >> TRA_T] = cftsin ;
 	coef_t[T_COS_P >> TRA_T] = cftcosp ;
 	coef_t[T_COS_I >> TRA_T] = cftcosi ;
 	coef_t[T_SIN_P >> TRA_T] = cftsinp ;
@@ -138,12 +145,15 @@ void Valeur::coef() const {
 	coef_t[T_COSSIN_SI >> TRA_T] = cftcossinsi ;
 	coef_t[T_COSSIN_SP >> TRA_T] = cftcossinsp ;
 	coef_t[T_COSSIN_CI >> TRA_T] = cftcossinci ;
+	coef_t[T_COSSIN_S >> TRA_T] = cftcossins ;
+	coef_t[T_COSSIN_C >> TRA_T] = cftcossinc ;
 	coef_t[T_LEG_P >> TRA_T] = cftlegp ;
 	coef_t[T_LEG_PP >> TRA_T] = cftlegpp ;
 	coef_t[T_LEG_I >> TRA_T] = cftlegi ;
 	coef_t[T_LEG_IP >> TRA_T] = cftlegip ;
 	coef_t[T_LEG_PI >> TRA_T] = cftlegpi ;
 	coef_t[T_LEG_II >> TRA_T] = cftlegii ;
+	coef_t[T_LEG >> TRA_T] = cftleg ;
 
 	coef_p[NONDEF] = base_non_def_p ;
 	coef_p[P_COSSIN >> TRA_P] = cfpcossin ;
@@ -248,6 +258,7 @@ void Valeur::coef() const {
 
 	// Transformation en theta:
 	// ------------------------
+
 	if ( nt > 1 ) {
 	    assert( admissible_fft(nt-1) ) ; 
 	    bool pair = ( (vbase_t == T_LEG_PP) || (vbase_t == T_LEG_IP)) ;
@@ -259,6 +270,7 @@ void Valeur::coef() const {
 	    else	    
 	      coef_t[base_t](deg, dim, (cf->t), dim, (cf->t)) ;
 	}
+	
 
 	// Transformation en r:
 	// --------------------

@@ -34,8 +34,12 @@ char valeur_dsdx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2004/11/23 15:17:19  m_forot
+ * Added the bases for the cases without any equatorial symmetry
+ *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.7  1999/11/30  12:44:13  eric
  * Valeur::base est desormais du type Base_val et non plus Base_val*.
@@ -81,6 +85,8 @@ void _dsdx_r_chebp(Tbl *, int &) ;
 void _dsdx_r_chebi(Tbl *, int &) ;
 void _dsdx_r_chebpim_p(Tbl *, int &) ;
 void _dsdx_r_chebpim_i(Tbl *, int &) ;
+void _dsdx_r_chebpi_p(Tbl *, int &) ;
+void _dsdx_r_chebpi_i(Tbl *, int &) ;
 
 // Version membre d'un Valeur
 // --------------------------
@@ -146,6 +152,8 @@ static int nap = 0 ;
 	_dsdx[R_CHEBI >> TRA_R] = _dsdx_r_chebi ;
 	_dsdx[R_CHEBPIM_P >> TRA_R] = _dsdx_r_chebpim_p ;
 	_dsdx[R_CHEBPIM_I >> TRA_R] = _dsdx_r_chebpim_i ;
+	_dsdx[R_CHEBPI_P >> TRA_R] = _dsdx_r_chebpi_p ;
+	_dsdx[R_CHEBPI_I >> TRA_R] = _dsdx_r_chebpi_i ;
     }
 
     //- Debut de la routine -

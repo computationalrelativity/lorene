@@ -34,8 +34,12 @@ char valeur_d2sdt2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2004/11/23 15:17:19  m_forot
+ * Added the bases for the cases without any equatorial symmetry
+ *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.7  1999/11/30  12:43:25  eric
  * Valeur::base est desormais du type Base_val et non plus Base_val*.
@@ -82,6 +86,8 @@ void _d2sdtet2_t_cos_i(Tbl *, int &) ;
 void _d2sdtet2_t_cossin_cp(Tbl *, int &) ;
 void _d2sdtet2_t_cossin_sp(Tbl *, int &) ;
 void _d2sdtet2_t_cossin_si(Tbl *, int &) ;
+void _d2sdtet2_t_cossin_c(Tbl *, int &) ;
+void _d2sdtet2_t_cossin_s(Tbl *, int &) ;
 
 // Version membre d'un Valeur
 // --------------------------
@@ -147,6 +153,8 @@ static int nap = 0 ;
 	_d2sdtet2[T_COSSIN_CP >> TRA_T] = _d2sdtet2_t_cossin_cp ;
 	_d2sdtet2[T_COSSIN_SP >> TRA_T] = _d2sdtet2_t_cossin_sp ;
 	_d2sdtet2[T_COSSIN_SI >> TRA_T] = _d2sdtet2_t_cossin_si ;
+	_d2sdtet2[T_COSSIN_S >> TRA_T] = _d2sdtet2_t_cossin_s ;
+	_d2sdtet2[T_COSSIN_C >> TRA_T] = _d2sdtet2_t_cossin_c ;
     }
 
     //- Debut de la routine -

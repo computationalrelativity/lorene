@@ -34,6 +34,10 @@ char valeur_ylm_i_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/11/23 15:17:20  m_forot
+ * Added the bases for the cases without any equatorial symmetry
+ *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
  * Revision 1.5  2003/10/13 20:52:58  e_gourgoulhon
  * Loop variables i and l have now local scope.
  *
@@ -127,6 +131,12 @@ void Valeur::ylm_i() {
 	chbase_t[T_LEG_I >> TRA_T] = chb_legi_cossinci ;
 	nouv_base_t[T_LEG_I >> TRA_T] = T_COSSIN_CI  ;
 
+	chbase_t[T_LEG >> TRA_T] = chb_leg_cossinc ;
+	nouv_base_t[T_LEG >> TRA_T] = T_COSSIN_C  ;
+
+	chbase_t[T_LEG >> TRA_T] = chb_leg_cossins ;
+	nouv_base_t[T_LEG >> TRA_T] = T_COSSIN_S  ;
+
 	chbase_t[T_LEG_PP >> TRA_T] = chb_legpp_cosp ;
 	nouv_base_t[T_LEG_PP >> TRA_T] = T_COS_P  ;
 
@@ -177,7 +187,7 @@ void Valeur::ylm_i() {
 	    
 	    if ((vbase_t != T_COSSIN_CP) && (vbase_t != T_COS_I) &&
 	    (vbase_t != T_COS_P) && (vbase_t != T_COSSIN_CI) &&
-		(vbase_t != T_SIN_P) && (vbase_t != T_SIN_I)) 
+		(vbase_t != T_SIN_P) && (vbase_t != T_SIN_I) && (vbase_t != T_COSSIN_C) && (vbase_t != T_COSSIN_S)) 
 	      { // cas ou le calcul est necessaire
 	    
 		int vbase_t_tra =  vbase_t  >> TRA_T ;

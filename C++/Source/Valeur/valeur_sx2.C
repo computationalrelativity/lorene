@@ -35,8 +35,12 @@ char valeur_sx2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2004/11/23 15:17:20  m_forot
+ * Added the bases for the cases without any equatorial symmetry
+ *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.8  1999/11/30  12:46:01  eric
  * Valeur::base est desormais du type Base_val et non plus Base_val*.
@@ -89,6 +93,8 @@ void _sx2_r_chebi(Tbl *, int &) ;
 void _sx2_r_chebpim_p(Tbl *, int &) ;
 void _sx2_r_chebpim_i(Tbl *, int &) ;
 void _sx2_identite (Tbl *, int &) ;
+void _sx2_r_chebpi_p(Tbl *, int &) ;
+void _sx2_r_chebpi_i(Tbl *, int &) ;
 
 // Version membre d'un Valeur
 // --------------------------
@@ -155,6 +161,8 @@ static int nap = 0 ;
 	_sx2[R_CHEBI >> TRA_R] = _sx2_r_chebi ;
 	_sx2[R_CHEBPIM_P >> TRA_R] = _sx2_r_chebpim_p ;
 	_sx2[R_CHEBPIM_I >> TRA_R] = _sx2_r_chebpim_i ;
+	_sx2[R_CHEBPI_P >> TRA_R] = _sx2_r_chebpi_p ;
+	_sx2[R_CHEBPI_I >> TRA_R] = _sx2_r_chebpi_i ;
     }
 
     //- Debut de la routine -

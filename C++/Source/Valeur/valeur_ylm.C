@@ -34,6 +34,10 @@ char valeur_ylm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/11/23 15:17:20  m_forot
+ * Added the bases for the cases without any equatorial symmetry
+ *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
  * Revision 1.5  2003/10/13 20:52:58  e_gourgoulhon
  * Loop variables i and l have now local scope.
  *
@@ -133,6 +137,12 @@ void Valeur::ylm() {
 
 	chbase_t[T_COSSIN_CI >> TRA_T] = chb_cossinci_legi ;
 	nouv_base_t[T_COSSIN_CI >> TRA_T] = T_LEG_I ;
+	
+	chbase_t[T_COSSIN_C >> TRA_T] = chb_cossinc_leg ;
+	nouv_base_t[T_COSSIN_C >> TRA_T] = T_LEG ;
+
+	chbase_t[T_COSSIN_S >> TRA_T] = chb_cossins_leg ;
+	nouv_base_t[T_COSSIN_S >> TRA_T] = T_LEG ;
 
 	chbase_t[T_COS_P >> TRA_T] = chb_cosp_legpp ;
 	nouv_base_t[T_COS_P >> TRA_T] = T_LEG_PP ;

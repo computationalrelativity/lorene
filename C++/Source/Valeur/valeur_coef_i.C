@@ -31,6 +31,10 @@ char valeur_coef_i_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/11/23 15:17:19  m_forot
+ * Added the bases for the cases without any equatorial symmetry
+ *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
  * Revision 1.7  2004/08/24 09:14:52  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -130,6 +134,8 @@ void Valeur::coef_i() const {
 	invcf_r[R_CHEBI >> TRA_R] = circhebi ;	    
 	invcf_r[R_CHEBPIM_P >> TRA_R] = circhebpimp ;	    
 	invcf_r[R_CHEBPIM_I >> TRA_R] = circhebpimi ;	    
+	invcf_r[R_CHEBPI_P >> TRA_R] = circhebpip ;	    
+	invcf_r[R_CHEBPI_I >> TRA_R] = circhebpii ;	    
 
 	invcf_t[NONDEF] = ibase_non_def_t ;
 	invcf_t[T_COS >> TRA_T] = citcos ;
@@ -141,12 +147,15 @@ void Valeur::coef_i() const {
 	invcf_t[T_COSSIN_SI >> TRA_T] = citcossinsi ;
 	invcf_t[T_COSSIN_SP >> TRA_T] = citcossinsp ;
 	invcf_t[T_COSSIN_CI >> TRA_T] = citcossinci ;
+	invcf_t[T_COSSIN_S >> TRA_T] = citcossins ;
+	invcf_t[T_COSSIN_C >> TRA_T] = citcossinc ;
 	invcf_t[T_LEG_P >> TRA_T] = citlegp ;
 	invcf_t[T_LEG_PP >> TRA_T] = citlegpp ;
 	invcf_t[T_LEG_I >> TRA_T] = citlegi ;
 	invcf_t[T_LEG_IP >> TRA_T] = citlegip ;
 	invcf_t[T_LEG_PI >> TRA_T] = citlegpi ;
 	invcf_t[T_LEG_II >> TRA_T] = citlegii ;	
+	invcf_t[T_LEG >> TRA_T] = citleg ;
 
 	invcf_p[NONDEF] = ibase_non_def_p ;
 	invcf_p[P_COSSIN >> TRA_P] = cipcossin ;
