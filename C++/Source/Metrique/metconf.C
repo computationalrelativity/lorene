@@ -32,6 +32,9 @@ char metconf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/06/20 14:47:50  f_limousin
+ * Put some assert on poids on comments.
+ *
  * Revision 1.6  2003/03/03 19:43:09  f_limousin
  * Add a new constructo from a tensor and a metric and put some assert into comments.
  *
@@ -91,7 +94,7 @@ Metconf::Metconf (const Metconf& source) : Metrique(source),
     p_delta = 0x0 ;
     
   if (source.p_Hi != 0x0)
-    p_Hi = new Tenseur_sym(*source.p_Hi) ;
+    p_Hi = new Tenseur(*source.p_Hi) ;
   else
     p_Hi = 0x0 ;
 }
@@ -106,14 +109,14 @@ Metconf::Metconf (const Tenseur_sym& source, const Metrique& metplat,
   assert(metplat.is_flat()) ;
   assert(metplat.get_etat() != ETATNONDEF) ;
   assert(metplat.cov().get_poids() == 0.) ;
-  assert(gamij->cov().get_poids() == 0.) ;
+  //  assert(gamij->cov().get_poids() == 0.) ;
   assert(gamij->get_etat() != ETATNONDEF) ;
   assert( metplat.cov().get_triad()->identify() == 
 	  gamij->cov().get_triad()->identify() ) ;
   int tipe = source.get_type_indice(0) ;
   
-  if (tipe == CON) assert(source.get_poids() == 2./3.) ;
-  else assert(source.get_poids() == -2./3.) ;
+  //  if (tipe == CON) assert(source.get_poids() == 2./3.) ;
+  //else assert(source.get_poids() == -2./3.) ;
   set_der_0x0() ;
 }
 
@@ -192,7 +195,7 @@ void Metconf::operator= (const Metconf& source) {
     if (source.p_delta != 0x0)
       p_delta = new Tenseur_sym (*source.p_delta) ;
     if (source.p_Hi != 0x0)
-      p_Hi = new Tenseur_sym(*source.p_Hi) ;
+      p_Hi = new Tenseur(*source.p_Hi) ;
   }
 }
 
@@ -414,6 +417,7 @@ void Metconf::fait_determinant() const {
     }
   }
 }
+
 
 const Tenseur_sym& Metconf::delta() const{
     if (p_delta == 0x0)
