@@ -34,6 +34,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/19 19:42:50  e_gourgoulhon
+ * -- member nzone now private
+ * -- introduced new methods get_nzone() and get_b()
+ * -- introduced new methods name_r, name_theta and name_phi.
+ *
  * Revision 1.5  2003/09/16 08:53:05  j_novak
  * Addition of the T_LEG_II base (odd in theta, only for odd m) and the
  * transformation functions from and to T_SIN_P.
@@ -233,9 +238,10 @@ class Base_val {
 
     // Data 
     // ----
-    public:
+    private:
 	int nzone ;	/// Number of domains (zones)
 
+	public:	
 	/// Array (size: {\tt nzone}) of the spectral basis in each domain
 	int* b ;	
 
@@ -294,6 +300,12 @@ class Base_val {
     public:
 	bool operator==(const Base_val& ) const ;  /// Comparison operator
 
+	/// Returns the code for the expansion basis in domain no. {\tt l}
+	int get_b(int l) const {
+	    assert( (l>=0) && (l<nzone) ) ;
+	    return b[l] ; 
+	}
+
 	/** Returns the expansion basis for {\it r} ($\xi$) functions in the 
 	 *  domain of index {\tt l} 
 	 *  (e.g. {\tt R\_CHEB\_P}, etc..., 
@@ -327,7 +339,45 @@ class Base_val {
 	    return b[l] & MSQ_P ; 
 	} ; 
 
-	
+	/** Name of the basis function in {\it r} ($\xi$)
+	 *
+	 *	@param l [input] domain index
+	 *	@param k [input] phi index (for the basis in {\it r} may depend upon
+	 *		the phi index)
+	 *	@param j [input] theta index (for the basis in {\it r} may depend upon
+	 *		the theta index)
+	 *	@param i [input] r index
+	 *  @param basename [output] string containing the name of the basis function;
+	 *		this {\tt char} array must have a size of (at least) 8 elements
+	 *		and must have been allocated before the call
+	 *		to {\tt \name\_r}.
+	 */
+	void name_r(int l, int k, int j, int i, char* basename) const ; 
+
+	/** Name of the basis function in $\theta$
+	 *
+	 *	@param l [input] domain index
+	 *	@param k [input] phi index (for the basis in $\theta$ may depend upon
+	 *		the phi index)
+	 *	@param j [input] theta index
+	 *  @param basename [output] string containing the name of the basis function;
+	 *		this {\tt char} array must have a size of (at least) 8 elements
+	 *		and must have been allocated before the call
+	 *		to {\tt \name\_theta}.
+	 */
+	void name_theta(int l, int k, int j, char* basename) const ; 
+
+	/** Name of the basis function in $\varphi$
+	 *
+	 *	@param l [input] domain index
+	 *	@param k [input] phi index
+	 *  @param basename [output] string containing the name of the basis function;
+	 *		this {\tt char} array must have a size of (at least) 8 elements
+	 *		and must have been allocated before the call
+	 *		to {\tt \name\_phi}.
+	 */
+	void name_phi(int l, int k, char* basename) const ; 
+
 
 	/** Values of the theta basis functions at the theta collocation points.
 	 *  @param l [input] domain index
@@ -368,6 +418,9 @@ class Base_val {
 	 * 
 	 */
 	const Tbl& phi_functions(int l, int np) const ; 
+
+	/// Returns the number of domains
+	int get_nzone() const {return nzone; } ; 
 	
      // Manipulation of basis
     // ----------------------
@@ -408,6 +461,7 @@ class Base_val {
 	void sauve(FILE *) const ;	    /// Save in a file
     
 	friend ostream& operator<<(ostream& , const Base_val& ) ; /// Display	
+	friend Base_val operator*(const Base_val&, const Base_val&) ;
 };
 ostream& operator<<(ostream& , const Base_val& ) ;
 /**
