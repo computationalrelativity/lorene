@@ -33,6 +33,9 @@ char et_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/05/13 08:47:01  f_limousin
+ * Decomment the procedure resize.
+ *
  * Revision 1.8  2004/05/10 10:15:57  f_limousin
  * Change to avoid a warning in the compilation of Lorene
  *
@@ -483,7 +486,7 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	double rr_in = mp.val_r(nzet,-1., M_PI/2, 0.) ; 
 	double rr_out = mp.val_r(n_resize,1., M_PI/2, 0.) ; 
 
-//	mp.resize(n_resize, rr_in/rr_out * fact_resize(0)) ; 
+	mp.resize(n_resize, rr_in/rr_out * fact_resize(0)) ; 
 
 //##
 //	des_coupe_z(ent(), 0., 1, "ent after adapt", &(ent()) ) ; 
