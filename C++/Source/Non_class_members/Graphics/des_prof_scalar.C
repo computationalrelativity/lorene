@@ -31,6 +31,9 @@ char des_prof_scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/04/06 07:47:29  j_novak
+ * Added a #include "string.h"
+ *
  * Revision 1.5  2004/04/05 14:42:02  e_gourgoulhon
  * Added functions des_meridian.
  *
@@ -60,6 +63,7 @@ char des_prof_scalar_C[] = "$Header$" ;
 // Header Lorene
 #include "scalar.h"
 #include "graphique.h"
+#include "string.h"
 
 //******************************************************************************
 
