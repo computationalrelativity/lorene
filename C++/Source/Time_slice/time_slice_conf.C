@@ -30,6 +30,9 @@ char time_slice_conf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/06/24 20:36:54  e_gourgoulhon
+ * Added method check_psi_dot.
+ *
  * Revision 1.13  2004/05/31 09:08:18  e_gourgoulhon
  * Method sauve and constructor from binary file are now operational.
  *
@@ -694,6 +697,39 @@ const Vector& Time_slice_conf::hdirac() const {
     
     return *p_hdirac ; 
 
+}
+
+
+void Time_slice_conf::check_psi_dot(Tbl& tlnpsi_dot, Tbl& tdiff, Tbl& tdiff_rel) const {
+
+    // Computation of d/dt ln Psi :
+     
+    Scalar lnpsi_dot(psi().get_mp()) ; 
+    if ( psi_evol.is_known(jtime-1) ) {       
+        lnpsi_dot = psi_evol.time_derive(jtime, scheme_order) / psi() ; 
+    }
+    else {
+        lnpsi_dot = 0.5 * ( qq_evol.time_derive(jtime, scheme_order) / qq()
+                           - n_evol.time_derive(jtime, scheme_order) / nn() ) ; 
+    }
+    
+    tlnpsi_dot = max(abs(lnpsi_dot)) ; 
+        
+    // Error on the d/dt ln Psi relation : 
+    
+    Scalar diff = contract(beta(),0, ln_psi().derive_cov(ff),0) 
+        + 0.1666666666666666 * ( beta().divergence(ff) - nn() * trk() ) ;
+
+    diff.dec_dzpuis(2) ; 
+    
+    Tbl tref = max(abs(diff)) + tlnpsi_dot ; 
+    
+    diff -= lnpsi_dot ; 
+    
+    tdiff = max(abs(diff)) ;
+            
+    tdiff_rel = tdiff / tref  ; 
+    
 }
 
 
