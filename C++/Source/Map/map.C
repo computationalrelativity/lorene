@@ -33,6 +33,10 @@ char map_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/12/30 22:53:23  e_gourgoulhon
+ * Added methods flat_met_spher() and flat_met_cart() to get
+ * flat metric associated with the coordinates described by the mapping.
+ *
  * Revision 1.6  2003/10/15 10:30:46  e_gourgoulhon
  * Map::set_ori: changed x,y,z to xo,yo,zo not to shadow Coord's x,y,z
  * Map::set_rot_phi: changed phi to newphi not to shadow Coord phi.
@@ -108,6 +112,7 @@ char map_C[] = "$Header$" ;
 // headers Lorene
 #include "map.h"
 #include "cmp.h"
+#include "metric.h"
 #include "utilitaires.h"
 
 			//---------------//
@@ -120,7 +125,9 @@ Map::Map(const Mg3d& mgi) : mg(&mgi),
 			    ori_x(0), ori_y(0), ori_z(0), rot_phi(0), 
 			    bvect_spher(ori_x, ori_y, ori_z, rot_phi, 
 					"Mapping orthonormal spherical basis"), 
-			    bvect_cart(rot_phi, "Mapping Cartesian basis") 
+			    bvect_cart(rot_phi, "Mapping Cartesian basis"),
+                            p_flat_met_spher(0x0), 
+                            p_flat_met_cart(0x0) 
 {
         // The Coord's are constructed by the default Coord constructor
 	
@@ -136,7 +143,9 @@ Map::Map(const Map& mp) : mg(mp.mg),
 			  rot_phi(mp.rot_phi),
 			  bvect_spher(ori_x, ori_y, ori_z, rot_phi, 
 				      "Mapping orthonormal spherical basis"), 
-			  bvect_cart(rot_phi, "Mapping Cartesian basis") 
+			  bvect_cart(rot_phi, "Mapping Cartesian basis"), 
+                          p_flat_met_spher(0x0), 
+                          p_flat_met_cart(0x0) 
 {
         // The Coord's are constructed by the default Coord constructor
 
@@ -150,7 +159,9 @@ Map::Map(const Map& mp) : mg(mp.mg),
 Map::Map(const Mg3d& mgi, FILE* fd) : mg(&mgi), 
 				      bvect_spher(0., 0., 0., 0., 
 					"Mapping orthonormal spherical basis"), 
-				      bvect_cart(0., "Mapping Cartesian basis") 
+				      bvect_cart(0., "Mapping Cartesian basis"), 
+                                      p_flat_met_spher(0x0), 
+                                      p_flat_met_cart(0x0) 
 {
     Mg3d* mg_tmp = new Mg3d(fd) ;	// la multi-grille d'origine
     if (*mg != *mg_tmp) {
@@ -182,6 +193,8 @@ Map::Map(const Mg3d& mgi, FILE* fd) : mg(&mgi),
 
 // Destructeur
 Map::~Map() {
+    if (p_flat_met_spher != 0x0) delete p_flat_met_spher ;
+    if (p_flat_met_cart != 0x0) delete p_flat_met_cart ;
     delete p_cmp_zero ;
 }
 
@@ -306,3 +319,37 @@ bool Map::operator==(const Map& mpi) const {
   return resu ;
 
 }
+
+
+const Metric_flat& Map::flat_met_spher() const {
+
+    if (p_flat_met_spher == 0x0) {
+        p_flat_met_spher = new Metric_flat(*this, bvect_spher) ; 
+    }
+    
+    return *p_flat_met_spher ;
+
+} 
+
+const Metric_flat& Map::flat_met_cart() const {
+
+    if (p_flat_met_cart == 0x0) {
+        p_flat_met_cart = new Metric_flat(*this, bvect_cart) ; 
+    }
+    
+    return *p_flat_met_cart ;
+
+} 
+
+
+
+
+
+
+
+
+
+
+
+
+
