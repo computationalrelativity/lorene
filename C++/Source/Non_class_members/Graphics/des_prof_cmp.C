@@ -31,6 +31,9 @@ char des_prof_cmp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/04 14:28:14  p_grandclement
+ * Ajout de la version Scalar de des_profile
+ *
  * Revision 1.2  2003/06/03 09:59:35  e_gourgoulhon
  * Added a new des_profile with scale and nomx in arguments
  *
@@ -50,6 +53,7 @@ char des_prof_cmp_C[] = "$Header$" ;
 
 
 // Header Lorene
+#include "scalar.h"
 #include "cmp.h"
 #include "graphique.h"
 
@@ -96,6 +100,84 @@ void des_profile(const Cmp& uu, double r_min, double r_max,
 } 
 
 void des_profile(const Cmp& uu, double r_min, double r_max, double scale,
+		     double theta, double phi, char* nomx, char* nomy, char* title) {
+		
+
+    const int npt = 400 ;   // Number of points along the axis
+    
+    float uutab[npt] ;	    // Value of uu at the npt points
+    
+    double hr = (r_max - r_min) / double(npt-1) ; 
+    
+    for (int i=0; i<npt; i++) {
+    
+	double r = hr * i + r_min ; 
+	
+	uutab[i] = uu.val_point(r, theta, phi) ; 
+	
+    }
+    
+    float xmin = r_min * scale ;
+    float xmax = r_max * scale ;
+    
+    
+    if (title == 0x0) {
+	title = "" ;
+    }
+
+    if (nomx == 0x0) {
+	nomx = "" ;
+    }
+    
+    if (nomy == 0x0) {
+	nomy = "" ;
+    }
+    
+    
+    des_profile(uutab, npt, xmin, xmax, nomx, nomy, title) ; 
+    
+} 
+
+
+// VERSIONS SCALAR SANS UNITES 
+
+void des_profile(const Scalar& uu, double r_min, double r_max, 
+		     double theta, double phi, char* nomy, char* title) {
+  
+
+    const int npt = 400 ;   // Number of points along the axis
+    
+    float uutab[npt] ;	    // Value of uu at the npt points
+    
+    double hr = (r_max - r_min) / double(npt-1) ; 
+    
+    for (int i=0; i<npt; i++) {
+    
+	double r = hr * i + r_min ; 
+	
+	uutab[i] = uu.val_point(r, theta, phi) ; 
+	
+    }
+    
+    float xmin = r_min ;
+    float xmax = r_max  ;
+    
+    char* nomx = "r" ; 
+    
+    if (title == 0x0) {
+	title = "" ;
+    }
+
+    if (nomy == 0x0) {
+	nomy = "" ;
+    }
+    
+    
+    des_profile(uutab, npt, xmin, xmax, nomx, nomy, title) ; 
+    
+} 
+
+void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
 		     double theta, double phi, char* nomx, char* nomy, char* title) {
 		
 

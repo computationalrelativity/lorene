@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/02/04 14:28:12  p_grandclement
+ * Ajout de la version Scalar de des_profile
+ *
  * Revision 1.6  2003/10/03 11:42:46  j_novak
  * Removal of the functions associated with Iris Explorer.
  *
@@ -502,6 +505,47 @@ void des_profile(const Cmp& uu, double r_min, double r_max,
  */
  
 void des_profile(const Cmp& uu, double r_min, double r_max, double scale,
+		     double theta, double phi, char* nomx = 0x0, 
+		     char* nomy = 0x0, char* title= 0x0) ;
+/** Draws the profile of a {\tt Scalar} along some radial axis determined by
+ *  a fixed value of $(\theta, \phi)$. 
+ *
+ *  @param uu [input] {\tt Cmp} to be drawn
+ *  @param r_min [input] Minimal value of {\it r} for the drawing
+ *  @param r_max [input] Maximal value of {\it r} for the drawing
+ *  @param theta [input] Value of $\theta$ which defines the profile axis
+ *  @param phi [input] Value of $\phi$ which defines the profile axis
+ *  @param nomy [input] y legend of the figure (default value = 0x0,  
+ *		        corresponds to no y legend)
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ * 
+ */
+ 
+void des_profile(const Scalar& uu, double r_min, double r_max, 
+		     double theta, double phi, char* nomy = 0x0,  
+		     char* title = 0x0 ) ;
+
+
+/** Draws the profile of a {\tt Scalar} along some radial axis determined by
+ *  a fixed value of $(\theta, \phi)$. 
+ *
+ *  @param uu [input] {\tt Scalar} to be drawn
+ *  @param r_min [input] Minimal value of {\it r} for the drawing
+ *  @param r_max [input] Maximal value of {\it r} for the drawing
+ *  @param scale scale factor for the radius in the plot
+ *  @param theta [input] Value of $\theta$ which defines the profile axis
+ *  @param phi [input] Value of $\phi$ which defines the profile axis
+ *  @param nomx [input] x legend of the figure (default value = 0x0,  
+ *		        corresponds to no x legend)
+ *  @param nomy [input] y legend of the figure (default value = 0x0,  
+ *		        corresponds to no y legend)
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ * 
+ */
+ 
+void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
 		     double theta, double phi, char* nomx = 0x0, 
 		     char* nomy = 0x0, char* title= 0x0) ;
 
