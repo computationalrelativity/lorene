@@ -34,6 +34,9 @@ char star_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/06/07 16:21:35  f_limousin
+ * Add outputs
+ *
  * Revision 1.8  2004/04/08 16:32:10  f_limousin
  * The new variable is ln(Q) instead of Q=psi^2*N. It improves the
  * convergence of the code.
@@ -403,6 +406,9 @@ ostream& Star::operator>>(ostream& ost) const {
 	<< ray_pole()/km << " km" << endl ;  
     ost << "Axis ratio a2/a1 = " << ray_eq_pis2() / ray_eq() 
 	<< "  a3/a1 = " << ray_pole() / ray_eq() << endl ; 	
+    ost << endl << "Baryon mass :        " << mass_b() / msol << " M_sol" << endl ; 
+    ost << "Gravitational mass : " << mass_g() / msol << " M_sol" << endl ; 
+    
 
     return ost ; 
 }
