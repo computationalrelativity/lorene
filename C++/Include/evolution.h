@@ -31,6 +31,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/03/26 13:31:08  j_novak
+ * Definition of the macro UNDEF_STEP for non-defined time-steps.
+ * Changes in the way the time derivative is calculated.
+ *
  * Revision 1.8  2004/03/26 08:22:12  e_gourgoulhon
  * *** Full reorganization of class Evolution ***
  * Introduction of the notion of absoluteuniversal time steps,
@@ -72,6 +76,8 @@
  * $Header$
  *
  */
+
+#define UNDEF_STEP  -100000
 
                         //---------------------------//
                         //      Class Evolution      //
@@ -189,7 +195,9 @@ template<typename TyT> class Evolution {
          * 
          * @param j [input] : value of the time step at which the time
          *      derivative is required
-         * @param n [input] : order of the time scheme (default value=2)
+         * @param n [input] : order of the time scheme (default value=2);
+	 *                    if n=0, then the \c Evolution is considered
+	 *                    to be stationary and a null value is returned.
          * @return time derivative at time step \c j 
          *   
          */

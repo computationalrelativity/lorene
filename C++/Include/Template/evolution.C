@@ -28,6 +28,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/03/26 13:31:09  j_novak
+ * Definition of the macro UNDEF_STEP for non-defined time-steps.
+ * Changes in the way the time derivative is calculated.
+ *
  * Revision 1.7  2004/03/26 08:22:13  e_gourgoulhon
  * *** Full reorganization of class Evolution ***
  * Introduction of the notion of absoluteuniversal time steps,
@@ -89,7 +93,7 @@ Evolution<TyT>::Evolution(const TyT& initial_value, int initial_step,
     step = new int[size] ; 
     step[0] = initial_step ; 
     for (int j=1; j<size; j++) {
-        step[j] = -10000 ; 
+        step[j] = UNDEF_STEP ; 
     }
     
     the_time = new double[size] ; 
@@ -114,7 +118,7 @@ Evolution<TyT>::Evolution(int size_i)
 
     step = new int[size] ; 
     for (int j=0; j<size; j++) {
-        step[j] = -10000 ; 
+        step[j] = UNDEF_STEP ; 
     }
     
     the_time = new double[size] ; 
@@ -209,7 +213,7 @@ void Evolution<TyT>::downdate(int j) {
 
     delete val[pos] ; 
     val[pos] = 0x0 ; 
-    step[pos] = -10000 ; 
+    step[pos] = UNDEF_STEP ; 
     the_time[pos] = -1e20 ; 
 
     if (pos == pos_jtop) {  // pos_jtop must be decreased
@@ -312,34 +316,45 @@ TyT Evolution<TyT>::operator()(double ) const {
 template<typename TyT> 
 TyT Evolution<TyT>::time_derive(int j, int n) const {
 
+  if (n == 0) { 
+    TyT resu ( operator[](j) ) ;
+    resu = 0 * resu ;
+
+    return resu ;
+
+  }
+  
+  else { 
+    
+    int pos = position(j) ;
+    assert ( pos > 0 ) ;
+    assert ( step[pos-1] != UNDEF_STEP ) ;
+
     switch (n) {
     
         case 1 : {
-            double dt = get_time(j) - get_time(j-1) ; 
 
-            // creation of the result by means of the copy constructor of class TyT
-            TyT resu( operator[](j) ) ;   
-            
-            resu = ( resu - operator[](j-1) ) / dt  ; 
-            return resu ; 
+            double dt = the_time[pos] - the_time[pos-1] ; 
+
+            return ( (*val[pos]) - (*val[pos-1]) ) / dt  ; 
             break ;
         } 
            
         case 2 : {
-            double dt = get_time(j) - get_time(j-1) ; 
-            double dt2 = get_time(j-1) - get_time(j-2) ; 
+	  
+	  assert ( pos > 1 ) ;
+	  assert ( step[pos-2] != UNDEF_STEP ) ;
+	  double dt = the_time[pos] - the_time[pos-1] ;
+            double dt2 = the_time[pos-1] - the_time[pos-2] ;
             if (fabs(dt2 -dt) > 1.e-13) {
                 cerr << 
   "Evolution<TyT>::time_derive: the current version is  valid only for \n"
     << " a constant time step !" << endl ; 
                 abort() ;
             }
-            // creation of the result by means of the copy constructor of class TyT
-            TyT resu( operator[](j) ) ; 
-            
-            resu = ( 1.5*resu - 2.*operator[](j-1) 
-                        + 0.5*operator[](j-2) ) / dt  ; 
-            return resu ; 
+
+            return ( 1.5 * (*val[pos]) - 2.* (*val[pos-1])
+                        + 0.5 * (*val[pos-2]) ) / dt  ;  
             break ;
         } 
            
@@ -350,6 +365,9 @@ TyT Evolution<TyT>::time_derive(int j, int n) const {
             break ;
         }    
     }
+
+  }
+  return operator[](j) ;
 }                    
  
                    

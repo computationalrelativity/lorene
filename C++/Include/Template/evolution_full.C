@@ -28,6 +28,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/03/26 13:31:09  j_novak
+ * Definition of the macro UNDEF_STEP for non-defined time-steps.
+ * Changes in the way the time derivative is calculated.
+ *
  * Revision 1.5  2004/03/26 08:22:13  e_gourgoulhon
  * *** Full reorganization of class Evolution ***
  * Introduction of the notion of absoluteuniversal time steps,
@@ -164,7 +168,7 @@ void Evolution_full<TyT>::update(const TyT& new_value, int j,
                 step_new[i] = step[i] ; 
             }
             for (int i=size; i<size_new; i++) {
-                step_new[i] = -10000 ; 
+                step_new[i] = UNDEF_STEP ; 
             }
             
             double* the_time_new = new double[size_new] ;
