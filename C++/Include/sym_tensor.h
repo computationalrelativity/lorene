@@ -30,6 +30,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/02/18 18:43:22  e_gourgoulhon
+ * Method trace() renamed the_trace() in order to avoid
+ * any confusion with new method Tensor::trace().
+ *
  * Revision 1.11  2004/01/04 20:49:06  e_gourgoulhon
  * Sym_tensor is now a derived class of Tensor_sym.
  * Suppressed methods Sym_tensor::indices and Sym_tensor::position:
@@ -341,7 +345,7 @@ class Sym_tensor_trans: public Sym_tensor {
 	// Computational methods
 	// ---------------------
 	/// Returns the trace of the tensor with respect to metric {\tt *met\_div}
-	const Scalar& trace() const ; 
+	const Scalar& the_trace() const ; 
 	
 	/** Returns the transverse traceless part of the tensor, the trace being defined
 	 * with respect to metric {\tt *met\_div}
