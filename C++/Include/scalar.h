@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.50  2004/03/08 15:45:38  j_novak
+ * Modif. comment
+ *
  * Revision 1.49  2004/03/05 15:09:40  e_gourgoulhon
  * Added method smooth_decay.
  *
@@ -761,7 +764,7 @@ class Scalar : public Tensor {
   void fixe_decroissance (int puis) ;
 
     /** Performs a $C^k$ matching of the last non-compactified shell with
-     * a decaying function $\sum_{j=0}^k {\alpha_j \over r^{\ell+n+j}$ where
+     * a decaying function $\sum_{j=0}^k {\alpha_j \over r^{\ell+n+j}}$ where
      * $\ell$ is the spherical harmonic index and {\it n} is some 
      * specifiable parameter. 
      */
