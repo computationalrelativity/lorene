@@ -30,8 +30,11 @@ char des_explorer_symz_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/01/17 13:43:17  f_limousin
+ * Add des_explorer_symz for a Bin_ns_ncp
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.0  2001/03/07  10:47:54  eric
  * *** empty log message ***
@@ -47,6 +50,7 @@ char des_explorer_symz_C[] = "$Header$" ;
 // Headers Lorene
 #include "etoile.h"
 #include "binaire.h"
+#include "bin_ns_ncp.h"
 #include "graphique.h"
 
 
@@ -226,5 +230,30 @@ void des_explorer_symz(const Binaire& bibi, const char* name) {
 	des_explorer_symz(bibi(i), nom_fich) ; 	
 	
     }
+
+}
+		    //----------------------------//
+		    //	    Bin_ns_ncp version	  //
+		    //----------------------------//
+		    
+
+void des_explorer_symz(const Bin_ns_ncp& bibi, const char* name) {
+    
+    char nom_fich[80] ;
+    char num_star[2] ; 
+
+    for (int i=1; i<=2; i++) {
+	
+	sprintf(num_star, "%d", i) ; 
+
+	strncpy(nom_fich, name, 80) ; 
+	strcat(nom_fich, "_st") ; 
+	strcat(nom_fich, num_star) ; 
+	strcat(nom_fich, "_dm") ; 
+
+	des_explorer_symz(bibi(i), nom_fich) ; 	
+	
+    }
+
     
 }
