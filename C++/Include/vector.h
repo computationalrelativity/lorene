@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2003/12/14 21:47:24  e_gourgoulhon
+ * Added method visu_arrows for visualization through OpenDX.
+ *
  * Revision 1.19  2003/11/06 14:43:37  e_gourgoulhon
  * Gave a name to const arguments in certain method prototypes (e.g.
  * constructors) to correct a bug of DOC++.
@@ -319,6 +322,34 @@ class Vector: public Tensor {
 	 *              boundary condition {\it u}=0 at spatial infinity. 
 	 */
 	void poisson(const double lambda, Param& par, Scalar& uu ) const ;
+        
+        // Graphics
+        // --------
+
+  /** 3D visualization via OpenDX.
+   *
+   * @param xmin [input] defines with {\tt xmax} the x range of the visualization box 
+   * @param xmax [input] defines with {\tt xmin} the x range of the visualization box 
+   * @param ymin [input] defines with {\tt ymax} the y range of the visualization box 
+   * @param ymax [input] defines with {\tt ymin} the y range of the visualization box 
+   * @param zmin [input] defines with {\tt zmax} the z range of the visualization box 
+   * @param zmax [input] defines with {\tt zmin} the z range of the visualization box 
+   * @param title [input] title for the graph (for OpenDX legend)
+   * @param filename [input] name for the file which will be the input for 
+   *    OpenDX; the default 0x0 is transformed into "vector_arrows"
+   * @param start_dx [input] determines whether OpenDX must be launched (as a
+   *     subprocess) to view the field; if set to {\tt false}, only input files
+   *     for future usage of OpenDX are created 
+   * @param nx [input] number of points in the x direction (uniform sampling)   
+   * @param ny [input] number of points in the y direction (uniform sampling)   
+   * @param nz [input] number of points in the z direction (uniform sampling)   
+   *
+   */
+    void visu_arrows(double xmin, double xmax, double ymin, double ymax,
+    double zmin, double zmax, const char* title0 = 0x0, 
+    const char* filename0 = 0x0, bool start_dx = true, int nx = 8, int ny = 8, 
+    int nz = 8) const ;      
+        
      
  
 };
