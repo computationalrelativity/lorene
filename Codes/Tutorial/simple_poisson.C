@@ -28,6 +28,9 @@ char simple_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/02/16 13:00:00  e_gourgoulhon
+ * Added the C headers (not required by GNU g++ !!!).
+ *
  * Revision 1.1  2004/02/15 22:08:16  e_gourgoulhon
  * The example with Poisson equation is now in file simple_poisson.C.
  * simple_wave.C contains now an example of resolution of d'Alembert
@@ -42,6 +45,11 @@ char simple_poisson_C[] = "$Header$" ;
 
 // C++ headers
 #include "headcpp.h"
+
+// C headers
+#include "stdlib.h"
+#include "assert.h"
+#include "math.h"
 
 // Lorene headers
 #include "nbr_spx.h"
