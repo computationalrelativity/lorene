@@ -30,6 +30,9 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/10/01 16:46:51  f_limousin
+ * Added a pure Dirichlet boundary condition
+ *
  * Revision 1.5  2004/09/28 16:06:41  f_limousin
  * Correction of an error when taking the bases of the boundary
  * condition for the shift.
@@ -346,8 +349,33 @@ Valeur Isol_hor::boundary_nn_Neu_eff(double aa) {
 }
 
 
+Valeur Isol_hor::boundary_nn_Dir(double aa){
 
+  const Map& map = ff.get_mp() ;
 
+  Scalar tmp(map) ;
+  tmp = aa - 1 ;
+  
+  // We have substracted 1, since we solve for zero condition at infinity 
+  //and then we add 1 to the solution  
+
+  int nnp = map.get_mg()->get_np(1) ;
+  int nnt = map.get_mg()->get_nt(1) ;
+
+  Valeur nn_bound (map.get_mg()->get_angu()) ;
+    
+  nn_bound = 1 ;   // Why is it necessary this and what it is actually doing?
+  
+
+  for (int k=0 ; k<nnp ; k++)
+    for (int j=0 ; j<nnt ; j++)
+      nn_bound.set(0, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
+  
+  nn_bound.std_base_scal() ;
+  
+  return  nn_bound ;
+
+}
 
 
 
