@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/03/30 14:00:30  j_novak
+ * New class Tslide_dirac_max (first version).
+ *
  * Revision 1.5  2004/03/29 11:58:53  e_gourgoulhon
  * Many modif. to class Time_slice_conf.
  * Minor modif. to class Time_slice.
@@ -52,6 +55,7 @@
  *
  */
 
+class Sym_tensor_trans ; 
 class Sym_tensor ; 
 class Vector ; 
 class Scalar ; 
@@ -507,7 +511,112 @@ class Time_slice_conf : public Time_slice {
     /// Operator >> (virtual function called by the operator<<). 
     virtual ostream& operator>>(ostream& ) const ; 
 	
-	
+} ;	
+                    //----------------------------//
+                    //   class Tslice_dirac_max   //
+                    //----------------------------//
 
+/**
+ * Spacelike time slice of a 3+1 spacetime with conformal decomposition
+ * in the maximal slicing and Dirac gauge (*** under development ***)
+ * \ingroup (evol)
+ * 
+ */
+class Tslice_dirac_max : public Time_slice_conf {
+
+  // Data : 
+  // -----
+ protected: 
+  /** The \f$\chi \f$ potential of \f$ \bar{h}^{ij} \f$.
+   *
+   * It is given by \f$ \chi = r^2 \bar{h}^{rr}\f$.
+   */
+  mutable Evolution_std<Scalar> khi_evol ;
+  
+  /** The \f$\mu \f$ potential of \f$ \bar{h}^{ij} \f$.
+   *
+   * See the documentation of \c Sym_tensor_tt for details.
+   */
+  mutable Evolution_std<Scalar> mu_evol ;
+
+  /// The trace, with respect to the flat metric \c ff , of \f$ h^{ij} \f$.
+  mutable Evolution_std<Scalar> trh_evol ;
+
+
+    // Constructors - Destructor
+    // -------------------------
+    public:
+  ///Standard 
+	Tslice_dirac_max(const Scalar& lapse_in, const Vector& shift_in,
+            const Metric_flat& ff_in, const Scalar& psi_in, 
+            const Sym_tensor_trans& hh_in, const Sym_tensor aa_in, 
+            int depth_in = 3) ;	
+	
+	Tslice_dirac_max(const Tslice_dirac_max& ) ;   ///< Copy constructor
+
+	virtual ~Tslice_dirac_max() ;			///< Destructor
+ 
+
+    // Mutators / assignment
+    // ---------------------
+    public:
+	/// Assignment to another Tslice_dirac_max
+	void operator=(const Tslice_dirac_max&) ;	
+	
+    // Accessors
+    // ---------
+    public:
+        // Virtual functions from base class Time_slice_conf:
+        // -------------------------------------------------
+
+        /** Deviation \f$ h^{ij} \f$ 
+         * of the conformal metric \f$ \tilde\gamma^{ij} \f$ from 
+         * the flat metric \f$ f^{ij} \f$: 
+         * \f$\tilde\gamma^{ij} = f^{ij} + h^{ij} \f$.
+         * Returns the value at the current time step (\c jtime ).
+         */        
+        virtual const Sym_tensor& hh() const ; 
+
+        /** Trace \e K of the extrinsic curvature 
+         *  at the current time step (\c jtime ).
+	 * It is null in the present case (maximal slicing)
+         */        
+        virtual const Scalar& trk() const ; 
+        
+        /** Vector \f$ H^i = {\cal D}_j \tilde\gamma^{ij} \f$ 
+         * which vanishes in Dirac gauge.
+	 * It is null in the present case...
+         */
+        virtual const Vector& hdirac() const ; 
+	
+        // Virtual functions from this class:
+        // ----------------------------------
+
+	/** Returns the \f$\chi \f$ potential of \f$ \bar{h}^{ij} \f$.
+	 *
+	 * It is given by \f$ \chi = r^2 \bar{h}^{rr}\f$.
+	 */
+	virtual const Scalar& khi() const ; 
+
+	/** Returns the \f$\mu \f$ potential of \f$ \bar{h}^{ij} \f$.
+	 *
+	 * See the documentation of \c Sym_tensor_tt for details.
+	 */
+	virtual const Scalar& mu() const ;
+	
+	/** Returns the trace, with respect to the flat metric 
+	 * \c ff , of \f$ h^{ij} \f$.
+	 */
+	virtual const Scalar& trh() const ;
+
+
+    // Outputs
+    // -------
+    protected:
+	/// Operator >> (virtual function called by the operator<<). 
+	virtual ostream& operator>>(ostream& ) const ;	
+
+
+  
 };
 #endif
