@@ -302,7 +302,7 @@ int main(){
     fichfinal.close() ;
     system("cat parrot.d >> calcul.d") ; 
 
-    fichfinal.open("calcul.d", ios::app | ios::nocreate) ;
+    fichfinal.open("calcul.d", ios::app) ;
     fichfinal << endl <<
     "================================================================" << endl ;
     fichfinal <<
@@ -313,7 +313,7 @@ int main(){
     system("cat par_eos.d >> calcul.d") ;
 
     // Identification du code et de ses sous-routines (no. de version RCS) :     	
-    fichfinal.open("calcul.d", ios::app | ios::nocreate) ; 
+    fichfinal.open("calcul.d", ios::app) ; 
     fichfinal << endl <<
     "================================================================" << endl ; 
     fichfinal << "	    IDENTIFICATION OF THE CODE : " << endl ; 

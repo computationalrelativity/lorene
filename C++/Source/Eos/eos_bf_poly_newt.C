@@ -31,6 +31,10 @@ char eos_bf_poly_newt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/02/06 16:05:56  j_novak
+ * Corrected an error in the inversion of the EOS for typeos =1,2 and 3.
+ * Added new parameter files for sfstar.
+ *
  * Revision 1.6  2002/10/16 14:36:34  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -271,7 +275,7 @@ bool Eos_bf_poly_newt::nbar_ent_p(const double ent1, const double ent2,
   bool one_fluid = ((ent1<=0.)||(ent2<=0.)) ;
   if (!one_fluid) {
     switch (typeos) {
-    case 0: {
+    case 0: {//gamma1=gamma2=2 all others = 1 easy case of a linear system
       double kpd = kap3+beta*delta2 ;
       double determ = kap1*kap2 - kpd*kpd ;
     
@@ -280,7 +284,7 @@ bool Eos_bf_poly_newt::nbar_ent_p(const double ent1, const double ent2,
       one_fluid = ((nbar1 < 0.)||(nbar2 < 0.)) ;
       break ;
     }
-    case 1: {
+    case 1: { //gamma1 or gamma 2 not= 2; all others = 1
       double b1 = ent1*m_1 ;
       double b2 = ent2*m_2 ;
       double denom = kap3 + beta*delta2 ;
@@ -328,13 +332,13 @@ bool Eos_bf_poly_newt::nbar_ent_p(const double ent1, const double ent2,
 	nbar2 = (b1 - coef1*puis(nbar1, gam1m1))/denom ;
 	double resu1 = coef1*puis(nbar1,gam1m1) + denom*nbar2 ;
 	double resu2 = 0.5*gam2*kap2*puis(nbar2,gam2m1) + denom*nbar1 ;
-	double erreur = fabs((log(fabs(1+resu1))-ent1)/ent1) + 
-	  fabs((log(fabs(1+resu2))-ent2)/ent2) ;
+	double erreur = fabs((resu1/m_1-ent1)/ent1) + 
+	  fabs((resu2/m_2-ent2)/ent2) ;
 	one_fluid = ((nbar1 < 0.)||(nbar2 < 0.)||(erreur > 1.e-4)) ;
       }
       break ;
     }
-    case 2: {
+    case 2: { // gamma3 = gamma5 = 1 at least
       double b1 = ent1*m_1 ;
       double b2 = ent2*m_2 ;
       double denom = kap3 + beta*delta2 ;
@@ -400,14 +404,14 @@ bool Eos_bf_poly_newt::nbar_ent_p(const double ent1, const double ent2,
 	double resu2 = coef2*puis(nbar2,gam2m1) 
 	  + gam4*kap3*puis(nbar2, gam4-1)*nbar1
 	  + gam6*coef0*puis(nbar2, gam6-1)*nbar1 ;
-	double erreur = fabs((log(fabs(1+resu1))-ent1)/ent1) + 
-	  fabs((log(fabs(1+resu2))-ent2)/ent2) ;
+	double erreur = fabs((resu1/m_1-ent1)/ent1) + 
+	  fabs((resu2/m_2-ent2)/ent2) ;
 	//cout << "Erreur d'inversion: " << erreur << endl ;
 	one_fluid = ((nbar1 < 0.)||(nbar2 < 0.)||(erreur > 1.e-4)) ;
       }
       break ;
     }
-    case 3: {
+    case 3: { //gamma4 = gamm6 = 1 at least
       double b1 = ent1*m_1 ;
       double b2 = ent2*m_2 ;
       double denom = kap3 + beta*delta2 ;
@@ -473,13 +477,13 @@ bool Eos_bf_poly_newt::nbar_ent_p(const double ent1, const double ent2,
 	  + coef0*gam5*puis(nbar1, gam5-1)*nbar2 ;
 	double resu2 = coef2*puis(nbar2,gam2m1) 
 	  + kap3*puis(nbar1, gam3) + coef0*puis(nbar1, gam5);
-	double erreur = fabs((log(fabs(1+resu1))-ent1)/ent1) + 
-	  fabs((log(fabs(1+resu2))-ent2)/ent2) ;
+	double erreur = fabs((resu1/m_1-ent1)/ent1) + 
+	  fabs((resu2/m_2-ent2)/ent2) ;
 	one_fluid = ((nbar1 < 0.)||(nbar2 < 0.)||(erreur > 1.e-4)) ;
       }
       break ;
     }    
-    case 4:{
+    case 4:{ // most general case
       double b1 = ent1*m_1 ; 
       double b2 = ent2*m_2 ; 
       double denom = kap3 + beta*delta2 ;
