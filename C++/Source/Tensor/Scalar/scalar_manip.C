@@ -27,6 +27,9 @@ char scalar_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/02/27 09:47:26  f_limousin
+ * New methods filtre_phi(int) and filtre_theta(int).
+ *
  * Revision 1.6  2004/01/23 13:26:28  e_gourgoulhon
  *  Added methods set_inner_boundary and set_outer_boundary.
  *  Methods set_val_inf and set_val_hor, which are particular cases of
@@ -110,6 +113,69 @@ void Scalar::filtre_phi (int n, int nz) {
 	    for (int i=0 ; i<nr ; i++)
 		va.c_cf->set(nz, k, j, i) = 0 ;
 }
+
+/*
+ * Annule les n derniers coefficients en phi dans toutes les zones
+ */
+ 
+void Scalar::filtre_phi (int n) {
+    assert (etat != ETATNONDEF) ;
+    if ( (etat == ETATZERO) || (etat == ETATUN) )
+	return ;
+    
+    del_deriv() ;
+    
+    va.coef() ;
+    va.set_etat_cf_qcq() ;
+    int nz = mp->get_mg()->get_nzone() ;
+    int* nr = new int[nz];
+    int* nt = new int[nz];
+    int* np = new int[nz];
+    for (int l=0; l<=nz-1; l++) {
+	nr[l] = mp->get_mg()->get_nr(l) ; 
+	nt[l] = mp->get_mg()->get_nt(l) ; 
+	np[l] = mp->get_mg()->get_np(l) ; 
+    }
+    
+    for (int l=0; l<=nz-1; l++)
+	for (int k=np[l]+1-n ; k<np[l]+1 ; k++)
+	    for (int j=0 ; j<nt[l] ; j++)
+		for (int i=0 ; i<nr[l] ; i++)
+		    va.c_cf->set(l, k, j, i) = 0 ;
+}
+
+/*
+ * Annule les n derniers coefficients en theta dans toutes les zones
+ */
+
+void Scalar::filtre_theta (int n) {
+
+    assert (etat != ETATNONDEF) ;
+    if ( (etat == ETATZERO) || (etat == ETATUN) )
+	return ;
+    
+    del_deriv() ;
+    
+    va.coef() ;
+    va.set_etat_cf_qcq() ;
+    int nz = mp->get_mg()->get_nzone() ;
+    int* nr = new int[nz];
+    int* nt = new int[nz];
+    int* np = new int[nz];
+    for (int l=0; l<=nz-1; l++) {
+	nr[l] = mp->get_mg()->get_nr(l) ; 
+	nt[l] = mp->get_mg()->get_nt(l) ; 
+	np[l] = mp->get_mg()->get_np(l) ; 
+    }
+    
+    for (int l=0; l<=nz-1; l++)
+	for (int k=0 ; k<np[l]+1 ; k++)
+	    if (k!=1)
+		for (int j=nt[l]-n ; j<nt[l] ; j++)
+		    for (int i=0 ; i<nr[l] ; i++)
+			va.c_cf->set(l, k, j, i) = 0 ;
+}
+
 
 
 

@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.47  2004/02/27 09:43:58  f_limousin
+ * New methods filtre_phi(int) and filtre_theta(int).
+ *
  * Revision 1.46  2004/02/26 22:46:26  e_gourgoulhon
  * Added methods derive_cov, derive_con and derive_lie.
  *
@@ -732,6 +735,16 @@ class Scalar : public Tensor {
    */
   void filtre_phi (int n, int zone) ;
     
+  /**
+   * Sets the {\tt n} lasts coefficients in $\Phi$ to 0 in all domains
+   */
+  void filtre_phi (int n) ;
+
+   /**
+   * Sets the {\tt n} lasts coefficients in $\Theta$ to 0 in all domains
+   */
+  void filtre_theta (int n) ;
+   
   /**
    * Substracts all the components behaving like $r^{-n}$ in the external 
    * domain, with {\it n} strictly lower than {\tt puis}, so that {\tt *this} 
