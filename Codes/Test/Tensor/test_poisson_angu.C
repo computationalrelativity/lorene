@@ -4,7 +4,7 @@
  */
 
 /*
- *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2005 Eric Gourgoulhon & Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -28,6 +28,12 @@ char test_poisson_angu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/04/04 21:36:31  e_gourgoulhon
+ * Method Scalar::poisson_angu takes now a parameter
+ * lambda, for the generalized angular Poisson equation
+ * Lap_ang u + lambda u = source.
+ * Test passed for lambda = 1 and lambda = 10.
+ *
  * Revision 1.2  2003/10/19 20:05:07  e_gourgoulhon
  * Change of the argument list of Scalar::spectral_display
  * (cout now default).
@@ -108,13 +114,20 @@ int main() {
 	uu.spectral_display() ; 
 	arrete() ; 
 	
-	Scalar lap = uu.lapang() ; 
+        double lambda = 1. ;
+
+	Scalar lap = uu.lapang() ;
+        
+        lap.set_spectral_va().ylm_i() ; 
+        
+        lap += lambda * uu ;  
 
 	cout << "lap : " << endl ; 
 	lap.spectral_display() ; 
 	arrete() ; 
+        
 
-	Scalar uu1 = lap.poisson_angu() ; 
+	Scalar uu1 = lap.poisson_angu(lambda) ; 
 	
 	cout << "uu1 : " << endl ; 
 	uu1.spectral_display() ; 
