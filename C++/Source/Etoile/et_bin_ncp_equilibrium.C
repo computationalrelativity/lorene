@@ -29,6 +29,9 @@ char et_bin_ncp_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/03/04 08:47:47  j_novak
+ * Fixed a problem with display.
+ *
  * Revision 1.2  2003/03/03 19:23:27  f_limousin
  * Many modifications. Add Cmp ssjm1_gtildeij, change of dzpuis...
  *
@@ -807,8 +810,8 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	      
 	      Tbl tdiff_gtilde00 = diffrel(gtilde00_auto.laplacien(), source()) ;
 	      cout << 
-		"Relative error in the resolution of the equation for 
-                 gtilde00 : " << endl ; 
+		"Relative error in the resolution of the equation for "
+		   << "gtilde00 : " << endl ; 
 	      for (int l=0; l<nz; l++) {
 		cout << tdiff_gtilde00(l) << "  " ; 
 	      }
@@ -823,8 +826,8 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
 
 	      Tbl tdiff_gtilde10 = diffrel(gtilde10_auto.laplacien(), source()) ;
 	      cout << 
-		"Relative error in the resolution of the equation for 
-                gtilde10 : "  << endl ; 
+		"Relative error in the resolution of the equation for " 
+		   << "gtilde10 : "  << endl ; 
 	      for (int l=0; l<nz; l++) {
 		cout << tdiff_gtilde10(l) << "  " ; 
 	      }
@@ -838,8 +841,8 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	    
 	      Tbl tdiff_gtilde20 = diffrel(gtilde20_auto.laplacien(), source()) ;
 	      cout << 
-		"Relative error in the resolution of the equation for 
-                gtilde20 : " << endl ; 
+		"Relative error in the resolution of the equation for "
+		   << "gtilde20 : " << endl ; 
 	      for (int l=0; l<nz; l++) {
 		cout << tdiff_gtilde20(l) << "  " ; 
 	      }
@@ -853,8 +856,8 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
 
 	      Tbl tdiff_gtilde11 = diffrel(gtilde11_auto.laplacien(), source()) ;
 	      cout << 
-		"Relative error in the resolution of the equation for 
-                gtilde11 : " << endl ; 
+		"Relative error in the resolution of the equation for "
+		   << "gtilde11 : " << endl ; 
 	      for (int l=0; l<nz; l++) {
 		cout << tdiff_gtilde11(l) << "  " ; 
 	      }
@@ -868,8 +871,8 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	      
 	      Tbl tdiff_gtilde21 = diffrel(gtilde21_auto.laplacien(), source()) ;
 	      cout << 
-		"Relative error in the resolution of the equation for 
-                gtilde21 : " << endl ; 
+		"Relative error in the resolution of the equation for "
+		   << "gtilde21 : " << endl ; 
 	      for (int l=0; l<nz; l++) {
 		cout << tdiff_gtilde21(l) << "  " ; 
 	      }
@@ -883,8 +886,8 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
       
 	      Tbl tdiff_gtilde22 = diffrel(gtilde22_auto.laplacien(), source()) ;
 	      cout << 
-		"Relative error in the resolution of the equation for 
-                gtilde22 : " << endl ; 
+		"Relative error in the resolution of the equation for "
+		   << "gtilde22 : " << endl ; 
 	      for (int l=0; l<nz; l++) {
 		cout << tdiff_gtilde22(l) << "  " ; 
 	      }
