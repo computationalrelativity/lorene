@@ -30,6 +30,10 @@ char sym_tensor_decomp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/06/17 06:56:42  e_gourgoulhon
+ * Simplified code for method transverse (use of Vector::ope_killing).
+ * Slight modif. of output in method longit_pot.
+ *
  * Revision 1.10  2004/06/14 20:45:41  e_gourgoulhon
  * Added argument method_poisson to methods longit_pot and transverse.
  *
@@ -111,31 +115,15 @@ const Sym_tensor_trans& Sym_tensor::transverse(const Metric& metre, Param* par,
             assert(cmp[ic]->check_dzpuis(4)) ;  // dzpuis=4 is assumed
         }
 
-	Tensor dww (*mp, 2, CON, mp->get_bvect_spher()) ;
+        const Vector& ww = longit_pot(metre, par, method_poisson) ;	    
 
-	if (dynamic_cast<const Map_af*>(mp) != 0x0) {
-	    const Vector& ww = longit_pot(metre, 0x0, method_poisson) ;
-	    dww = ww.derive_con(metre) ; 
-	}
-	else {
-	    const Vector& ww = longit_pot(metre, par, method_poisson) ;	    
-	    dww = ww.derive_con(metre) ;  
-	}
-                    
-        for (int i=1; i<=3; i++) {
-            for (int j=1; j<=3; j++) {
-                dww.set(i,j).inc_dzpuis(2) ; 
-            }
-        }
+        Sym_tensor lww = ww.ope_killing(metre) ;  // D^i W^j + D^j W^i        
+        
+        lww.inc_dzpuis(2) ;                     
         
         p_transverse[jp] = new Sym_tensor_trans(*mp, *triad, metre) ;
         
-        for (int i=1; i<=3; i++) {
-            for (int j=i; j<=3; j++) {
-                p_transverse[jp]->set(i,j) = operator()(i,j) 
-                    - dww(i,j) - dww(j,i) ; 
-            }
-        }
+        *(p_transverse[jp]) = *this - lww ; 
 
     }
 
@@ -179,32 +167,26 @@ const Vector& Sym_tensor::longit_pot(const Metric& metre, Param* par,
                                                        method_poisson) ) ; 
 
 
-       //## Test of resolution of the vector Poisson equation:
-        const Vector& vv = *(p_longit_pot[jp]) ; 
+        // Test of resolution of the vector Poisson equation:
+        const Vector& ww = *(p_longit_pot[jp]) ; 
 
         hhh.dec_dzpuis() ; 
 
-        Vector vtest = vv.derive_con(metre).divergence(metre) 
-                        + (vv.divergence(metre)).derive_con(metre)
-                        - hhh ;
+        Vector lapw = ww.derive_con(metre).divergence(metre) 
+                        + (ww.divergence(metre)).derive_con(metre) ;
 
-        // cout << "## Sym_tensor::longit_pot : test of Poisson : \n " ; 
-        // vtest.spectral_display() ;  
-        cout << "## Sym_tensor::longit_pot : test of Poisson : \n " ;
+        cout << "## Sym_tensor::longit_pot : test of Poisson : \n" ;
         cout << 
-        "  Max absolute error in each domain on the vector Poisson equation: \n" ;   
-        maxabs(vtest) ; 
+        "  Max absolute error in each domain on the vector Poisson equation:\n" ;   
+        maxabs(lapw - hhh) ; 
   
 	int nz = mp->get_mg()->get_nzone() ;	    // total number of domains
-	
-	Vector vvv = vv.derive_con(metre).divergence(metre)
-	    + (vv.divergence(metre)).derive_con(metre) ;
-	
-	cout << "Relative difference in each domain on the vector Poisson equation:" << endl ;
+		
+	cout << "  Relative error in each domain on the vector Poisson equation:\n" ;
 	for (int i=1; i<=3; i++){
-	    cout << "  Comp. " << i << " :  " ;
+	    cout << "   Comp. " << i << " :  " ;
 	    for (int l=0; l<nz; l++){
-		cout << diffrel(vvv(i),hhh(i) )(l) << " " ;
+		cout << diffrel(lapw(i),hhh(i) )(l) << " " ;
 	    }
 	    cout << endl ;
 	}
