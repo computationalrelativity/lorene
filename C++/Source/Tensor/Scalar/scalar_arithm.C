@@ -31,6 +31,10 @@ char scalar_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/28 21:34:47  e_gourgoulhon
+ * Corrected treatment of the case ETATUN in operator+=, operator-= and
+ * operator*=.
+ *
  * Revision 1.3  2003/10/10 15:57:29  j_novak
  * Added the state one (ETATUN) to the class Scalar
  *
@@ -599,22 +603,27 @@ void Scalar::operator+=(const Scalar & ci) {
     
 
     if ( dz_nonzero() && ci.dz_nonzero() ) {
-	if ( dzpuis != ci.dzpuis ) {
-	    cout << "Operation += Scalar forbidden in the external " << endl;
-	    cout << " compactified domain ! " << endl ; 
-	    abort() ;
-	}
+		if ( dzpuis != ci.dzpuis ) {
+	    	cout << "Operation += Scalar forbidden in the external " << endl;
+	    	cout << " compactified domain ! " << endl ; 
+	    	abort() ;
+		}
     }
     
     if (etat == ETATZERO) {
-	(*this) = ci ;
+		(*this) = ci ;
     }
     else {
-	va += ci.va ;
-    
-	if( ci.dz_nonzero() ) {
-	    set_dzpuis(ci.dzpuis) ; 
-	}
+		va += ci.va ;
+    	if (etat == ETATUN) {
+			etat = ETATQCQ ; 	// since the case ci.etat == ETATZERO
+		}						//  has been treated above						
+		
+		assert(etat == ETATQCQ) ; 
+	
+		if( ci.dz_nonzero() ) {
+	    	set_dzpuis(ci.dzpuis) ; 
+		}
     }
     // Menage (a ne faire qu'a la fin seulement)
     del_deriv() ;
@@ -654,14 +663,20 @@ void Scalar::operator-=(const Scalar & ci) {
     
 
     if (etat == ETATZERO) {
-	(*this) = -ci ;
+		(*this) = -ci ;
     }
     else {
-	va -= ci.va ;
+		va -= ci.va ;
 
-	if( ci.dz_nonzero() ) {
-	    set_dzpuis(ci.dzpuis) ; 
-	}
+    	if (etat == ETATUN) {
+			etat = ETATQCQ ; 	// since the case ci.etat == ETATZERO
+		}						//  has been treated above						
+		
+		assert(etat == ETATQCQ) ; 
+
+		if( ci.dz_nonzero() ) {
+	    	set_dzpuis(ci.dzpuis) ; 
+		}
     }
     // Menage (a ne faire qu'a la fin seulement)
     del_deriv() ;
@@ -693,7 +708,8 @@ void Scalar::operator*=(const Scalar & ci) {
     }
     
     if (etat == ETATUN) {
-	operator=(ci) ; 
+		operator=(ci) ; 
+		return ; 
     }
     
     if (ci.get_etat() == ETATNONDEF) {
