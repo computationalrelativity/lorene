@@ -30,6 +30,9 @@ char test_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/26 08:24:03  e_gourgoulhon
+ * Takes into account the new setting of class Evolution.
+ *
  * Revision 1.4  2004/03/06 21:13:52  e_gourgoulhon
  * Added test of time derivation.
  *
@@ -67,9 +70,9 @@ int main() {
     //      Test with a double
     //------------------------------------------------
 
-    Evolution_full<double> aa(1., 0.) ; 
-    Evolution_std<double> bb(1., 0., 3) ; 
-    Evolution_std<double> bb1(1., 0., 3) ; 
+    Evolution_full<double> aa(1.) ; 
+    Evolution_std<double> bb(1., 3) ; 
+    Evolution_std<double> bb1(1., 3) ; 
     
     cout << "aa[0] : " << aa[0] << endl ; 
     cout << "bb[0] : " << bb[0] << endl ; 
@@ -86,9 +89,9 @@ int main() {
         cout << "j = " << j << "  t = " << t << " :" << endl ; 
         double f = cos( t ) ; 
         double df = - sin( t ) ; 
-        aa.update(f, t) ; 
-        bb.update(f, t) ; 
-        bb1.update(f, t) ; 
+        aa.update(f, j, t) ; 
+        bb.update(f, j, t) ; 
+        bb1.update(f, j, t) ; 
         
         if (j>1) {
             double dfa = fabs( aa.time_derive(j) - df ); 
@@ -108,16 +111,16 @@ int main() {
     cout << "Max error on time derivative bb1 : " << diffb1 << endl ; 
     arrete() ; 
 
-    Evolution_std<double> cc(2., 0., 3) ; 
+    Evolution_std<double> cc(2., 3) ; 
 
-    for (int j=0; j<20; j++) {
+    for (int j=1; j<20; j++) {
     
         double t_j = double(j) / double(10) ;
-        cc.update(sqrt(double(j)), t_j) ; 
+        cc.update(sqrt(double(j)), j, t_j) ; 
         
         cout << "time : " << cc.get_time(j) << " :  "  ; 
-        if (j==0) cout << cc[0] << "  " << cc[1] << endl ; 
-        if (j>=1) cout << cc[j-1] << "  " << cc[j] << "  " << cc[j+1] << endl ; 
+        if (j==1) cout << cc[0] << "  " << cc[1] << endl ; 
+        if (j>=2) cout << cc[j-2] << "  " << cc[j-1] << "  " << cc[j] << endl ; 
         
 
     }
@@ -167,7 +170,7 @@ int main() {
                                  // to the standard ones for a scalar field
 
     
-    Evolution_std<Scalar> evol(source, 0., 3) ; 
+    Evolution_std<Scalar> evol(source, 3) ; 
     
     cout << evol[0] << endl ; 
 
@@ -177,7 +180,7 @@ int main() {
         Scalar tmp(map) ; 
         tmp =  sqrt(t_j) ; 
         tmp.std_spectral_base() ; 
-        evol.update(tmp, t_j) ; 
+        evol.update(tmp, j, t_j) ; 
         
         evol[j].spectral_display() ; 
 
