@@ -178,12 +178,9 @@ read_variable (char *fname, char *var_name, char *fmt, void *varp)
 	} /* if quoted string */
       else
 	{
-	  if ( (pos = strchr (found, '#'))  == NULL)	// comment ? 
-	    {
-	      if ( (pos = strchr (found, '\n')) == NULL)  // end of line? 
-		pos = data + strlen(data);		// end of file
-	    }
-	} /* if not quoted string */
+	  if ( (pos = strchr (found, '\n')) == NULL)  // end of line? 
+	    pos = data + strlen(data);		// end of file
+	} /* if not quoted */
 
       // NOTE: varp here is supposed to be a pointer to char* !!
       char **cstr = static_cast<char**>(varp);
