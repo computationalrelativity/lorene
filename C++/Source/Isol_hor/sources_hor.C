@@ -30,6 +30,9 @@ char source_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/11/03 17:16:44  f_limousin
+ * Delete argument trk_point for source_nn()
+ *
  * Revision 1.4  2004/10/29 15:45:08  jl_jaramillo
  * Change name of functions
  *
@@ -112,7 +115,7 @@ Scalar Isol_hor::source_psi( const Scalar* p_ener_dens,
                 
     source_psi = tmp - psi()*psi4()* ( 0.5*qpig* ener_dens 
 				       + 0.125* aa_quad 
-				       - 8.33333333333333e-2* trk()*trk() ) ;
+				       - 8.33333333333333e-2* trK*trK ) ;
     source_psi.annule_domain(0) ;
 
     return source_psi ;
@@ -120,10 +123,9 @@ Scalar Isol_hor::source_psi( const Scalar* p_ener_dens,
 }
 
 
-Scalar Isol_hor::source_nn( const Scalar& trk_point, 
-				const Scalar* p_ener_dens, 
-				const Vector* p_mom_dens, 
-				const Scalar* p_trace_stress) {
+Scalar Isol_hor::source_nn( const Scalar* p_ener_dens, 
+			    const Vector* p_mom_dens, 
+			    const Scalar* p_trace_stress) {
 
     using namespace Unites ;
    
@@ -168,12 +170,12 @@ Scalar Isol_hor::source_nn( const Scalar& trk_point,
     // ------------
 
     source_nn = psi4()*( nn()*( qpig* (ener_dens + trace_stress) + aa_quad
-				+ 0.3333333333333333* trk()*trk() )
-			 - trk_point ) 
+				+ 0.3333333333333333* trK*trK )
+			 - trK_point ) 
 	     - 2.* contract(dln_psi, 0, nn().derive_con(tgam()), 0)  
     - contract(hdirac(), 0, dnn, 0) ; 
         
-    tmp = psi4()* contract(beta(), 0, trk().derive_cov(ff), 0) 
+    tmp = psi4()* contract(beta(), 0, trK.derive_cov(ff), 0) 
       - contract( hh(), 0, 1, dnn.derive_cov(ff), 0, 1 ) ;
         
     tmp.inc_dzpuis() ; // dzpuis: 3 -> 4
@@ -241,7 +243,7 @@ Vector Isol_hor::source_beta( const Scalar* p_ener_dens,
     source_beta = 2.* contract(aa(), 1, 
 			       dnn - 6.*nn() * dln_psi, 0) ;
                 
-    tmp_vect = 0.66666666666666666* trk().derive_con(tgam()) ;
+    tmp_vect = 0.66666666666666666* trK.derive_con(tgam()) ;
     tmp_vect.inc_dzpuis() ;
 
     source_beta += 2.* nn() * ( 2.*qpig* psi4() * mom_dens 
