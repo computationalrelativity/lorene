@@ -30,6 +30,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/10/20 15:01:37  e_gourgoulhon
+ * Corrected error in the comments on the shift vector:
+ * corotating coordinates -> non rotating coordinates.
+ *
  * Revision 1.3  2003/10/24 15:49:03  e_gourgoulhon
  * Updated documentation.
  *
@@ -231,13 +235,13 @@ class Bin_NS {
 	/// Lapse function $N$ at the {\tt np} grid points (1-D array)
 	double* nnn ;
 
-	/// Component $\beta^x$ of the shift vector of corotating coordinates [unit: $c$]
+	/// Component $\beta^x$ of the shift vector of non rotating coordinates [unit: $c$]
 	double* beta_x ;
 	
-	/// Component $\beta^y$ of the shift vector of corotating coordinates [unit: $c$]
+	/// Component $\beta^y$ of the shift vector of non rotating coordinates [unit: $c$]
 	double* beta_y ; 
 	
-	/// Component $\beta^z$ of the shift vector of corotating coordinates [unit: $c$]
+	/// Component $\beta^z$ of the shift vector of non rotating coordinates [unit: $c$]
 	double* beta_z ; 
 	
 	/// Metric coefficient $\gamma_{xx}$ at the grid points (1-D array)
