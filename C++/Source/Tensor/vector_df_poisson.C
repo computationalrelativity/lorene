@@ -30,6 +30,9 @@ char vector_df_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2005/02/09 14:52:01  j_novak
+ * Better solution in the shells.
+ *
  * Revision 1.10  2005/02/09 13:20:27  j_novak
  * Completely new way of solving the vector Poisson equation in the Div_free
  * case: the system is inverted "as a whole" for V^r and eta. This works only
@@ -117,10 +120,11 @@ Vector_divfree Vector_divfree::poisson(Param& par ) const {
  * d V^r / dr + 2/r V^r - l(l+1)/r eta = 0 (div free condition)
  * 
  * There is no l=0 contribution (divergence free in all space!).
- * In practise the system is inverted for h(r) and v(r) , such that
- * eta = r^2 h and V^r = r^2 v in the nucleus and the shells,
+ * In the nucleus and the CED the system is inverted for h(r) and v(r) , 
+ * such that eta = r^2 h and V^r = r^2 v in the nucleus,
  * in the compactified domain one has eta = u^2 h and V^r = u^2 v (where u=1/r); 
- * this method is used only to get particular solutions.
+ * In the shells, both equations are  multiplied by r.
+ * These methods are used only to get particular solutions.
  * 
  * Homogeneous solutions are known analitically: r^(l-1) and/or 1/r^(l+2)
  * Once the matching of eta is done, there is no choice left for V^r
@@ -266,7 +270,6 @@ Vector_divfree Vector_divfree::poisson() const {
   for (int zone=1 ; zone<nzm1 ; zone++) {
       nr = mg.get_nr(zone) ; 
       assert (nr > 5) ;
-      nr0 = nr - 2 ; //two degrees of freedom less because of division by r^2
       assert(nt == mg.get_nt(zone)) ;
       assert(np == mg.get_np(zone)) ;
       alpha = mpaff->get_alpha()[zone] ;
@@ -279,57 +282,68 @@ Vector_divfree Vector_divfree::poisson() const {
       for (int j=0 ; j<nt ; j++) {
 	  base.give_quant_numbers(zone, k, j, m_q, l_q, base_r) ;
 	  if ( (nullite_plm(j, nt, k, np, base) == 1) && (l_q != 0) ) {
-	      int dege1 = 0 ; //degeneracy of eq.1
-	      int dege2 = 1 ;  //degeneracy of eq.2
-	      int nr_eq1 = nr0 - dege1 ; //Eq.1 is for eta
-	      int nr_eq2 = nr0 - dege2 ; //Eq.2 is the div-free condition
+	      int dege1 = 2 ; //degeneracy of eq.1
+	      int dege2 = 0 ;  //degeneracy of eq.2
+	      int nr_eq1 = nr - dege1 ; //Eq.1 is for eta
+	      int nr_eq2 = nr - dege2 ; //Eq.2 is the div-free condition
 	      int nrtot = nr_eq1 + nr_eq2 + 1;
 	      Matrice oper(nrtot, nrtot) ; oper.set_etat_qcq() ;
 	      Tbl sec_membre(nrtot) ; sec_membre.set_etat_qcq() ;
-	      Diff_x2dsdx2 x2d2(base_r, nr) ; const Matrice& m2d2 = x2d2.get_matrice() ;
-	      Diff_xdsdx2 xd2(base_r, nr) ; const Matrice& mxd2 = xd2.get_matrice() ;
-	      Diff_dsdx2 d2(base_r, nr) ; const Matrice& md2 = d2.get_matrice() ;
-	      Diff_xdsdx xd(base_r, nr) ; const Matrice& mxd = xd.get_matrice() ;
-	      Diff_dsdx d1(base_r, nr) ; const Matrice& md = d1.get_matrice() ;
-	      Diff_id id(base_r, nr) ; const Matrice& mid = id.get_matrice() ;
+	      Diff_x2dsdx2 x2d2(base_r, nr+1); const Matrice& m2d2 = x2d2.get_matrice() ;
+	      Diff_xdsdx2 xd2(base_r, nr+1) ; const Matrice& mxd2 = xd2.get_matrice() ;
+	      Diff_dsdx2 d2(base_r, nr+1) ; const Matrice& md2 = d2.get_matrice() ;
+	      Diff_xdsdx xd(base_r, nr+1) ; const Matrice& mxd = xd.get_matrice() ;
+	      Diff_dsdx d1(base_r, nr+1) ; const Matrice& md = d1.get_matrice() ;
+	      Diff_id id(base_r, nr+1) ; const Matrice& mid = id.get_matrice() ;
 
 	      // Building the operator
 	      //----------------------
 	      for (int lin=0; lin<nr_eq1; lin++) { 
-		  for (int col=dege1; col<nr0; col++) 
+		  for (int col=dege1; col<nr; col++) 
 		      oper.set(lin,col-dege1) 
-			  = m2d2(lin,col) + ech*(2*mxd2(lin,col) + ech*md2(lin,col))
-			  +6*(mxd(lin,col) +ech*md(lin,col) + mid(lin,col)) ;
-			  for (int col=dege2; col<nr0+1; col++) 
-			      oper.set(lin,col-dege2+nr_eq1) = 
-				  -mxd(lin,col) - ech*md(lin,col) - 2*mid(lin,col) ;
+			  = mxd2(lin,col) + ech*md2(lin,col) + 2*md(lin,col) ;
+			  for (int col=dege2; col<nr+1; col++) 
+			      oper.set(lin,col-dege2+nr_eq1) = -md(lin,col) ; 
 	      }
 	      for (int lin=0; lin<nr_eq2; lin++) {
-		  for (int col=dege1; col<nr0; col++)
+		  for (int col=dege1; col<nr; col++)
 		      oper.set(lin+nr_eq1,col-dege1) = -l_q*(l_q+1)*mid(lin,col) ;
-		  for (int col=dege2; col<nr0+1; col++)
+		  for (int col=dege2; col<nr+1; col++)
 		      oper.set(lin+nr_eq1, col-dege2+nr_eq1) = 
-			  mxd(lin,col) + ech*md(lin,col) + 4*mid(lin,col) ;
+			  mxd(lin,col) + ech*md(lin,col) + 2*mid(lin,col) ;
 	      }
 	      //Additional line to avoid spurious homogeneous solutions
 	      //this line is the first one of the V^r eq.
-	      for (int col=dege1; col<nr0; col++)
+	      for (int col=dege1; col<nr; col++)
 		  oper.set(nrtot-1, col-dege1) = 0 ;
-	      for (int col=dege2; col<nr0+1; col++)
+	      for (int col=dege2; col<nr+1; col++)
 		  oper.set(nrtot-1, col-dege2+nr_eq1) = 
 		      m2d2(0,col) + ech*(2*mxd2(0,col) + ech*md2(0,col))
-		      +8*(mxd(0,col) +ech*md(0,col)) 
-		      +(12 - l_q*(l_q+1))*mid(0,col) ;
+		      +4*(mxd(0,col) +ech*md(0,col)) 
+		      +(2 - l_q*(l_q+1))*mid(0,col) ;
 	      oper.set_lu() ;
 	      
 	      // Filling the r.h.s
 	      //------------------
+	      Tbl sr(5) ; sr.set_etat_qcq() ; 
+	      Tbl seta(nr) ; seta.set_etat_qcq() ;
+	      for (int i=0; i<5; i++) {
+		  sr.set(i) = (*S_r.get_spectral_va().c_cf)(zone, k, j, i);
+		  seta.set(i) = (*S_eta.get_spectral_va().c_cf)(zone, k, j, i) ;
+	      }
+	      for (int i=5; i<nr; i++) 
+		  seta.set(i) = (*S_eta.get_spectral_va().c_cf)(zone, k, j, i) ;
+	      Tbl xsr= sr ;  Tbl x2sr= sr ;
+	      Tbl xseta= seta ;
+	      multx2_1d(5, &x2sr.t, base_r) ; multx_1d(5, &xsr.t, base_r) ;
+	      multx_1d(nr, &xseta.t, base_r) ;
+	      
 	      for (int i=0; i<nr_eq1; i++) 
-		  sec_membre.set(i) = (*S_eta.get_spectral_va().c_cf)(zone, k, j, i) ;
+		  sec_membre.set(i) = alpha*(alpha*xseta(i) + beta*seta(i)) ;
 	      for (int i=0; i<nr_eq2; i++)
 		  sec_membre.set(i+nr_eq1) = 0 ;
-	      sec_membre.set(nr_eq1+nr_eq2) = 
-		  (*S_r.get_spectral_va().c_cf)(zone, k, j, 0) ;
+ 	      sec_membre.set(nr_eq1+nr_eq2) = alpha*alpha*x2sr(0) + 2*alpha*beta*xsr(0)
+ 		  + beta*beta*sr(0) ;
 
 	      // Inversion of the "big" operator
 	      //--------------------------------
@@ -341,31 +355,19 @@ Vector_divfree Vector_divfree::poisson() const {
 	      //-----------------------------------------------------
 	      for (int i=0; i<dege1; i++)
 		  res_eta.set(i) = 0 ;
-	      for (int i=dege1; i<nr0; i++)
+	      for (int i=dege1; i<nr; i++)
 		  res_eta.set(i) = big_res(i-dege1) ;
-	      res_eta.set(nr0) = 0 ;
-	      res_eta.set(nr0+1) = 0 ;
 	      for (int i=0; i<dege2; i++)
 		  res_vr.set(i) = 0 ;
-	      for (int i=dege2; i<nr0+1; i++)
+	      for (int i=dege2; i<nr; i++)
 		  res_vr.set(i) = big_res(i-dege2+nr_eq1) ;
-	      res_vr.set(nr0+1) = 0 ;
 
-	      // Multiplication by r^2 
-	      //-----------------------
-	      Tbl res_v1 = res_vr ; Tbl res_v2 = res_vr ;
-	      Tbl res_e1 = res_eta ; Tbl res_e2 = res_eta ;
-	      multx2_1d(nr, &res_e2.t, base_r) ; multx_1d(nr, &res_e1.t, base_r) ;
-	      multx2_1d(nr, &res_v2.t, base_r) ; multx_1d(nr, &res_v1.t, base_r) ;
-	      
 	      //homogeneous solutions
 	      Tbl sol_hom1 = solh(nr, l_q-1, ech, base_r) ;
 	      Tbl sol_hom2 = solh(nr, l_q+1, ech, base_r) ;
 	      for (int i=0 ; i<nr ; i++) {
-		  sol_part_eta.set(zone, k, j, i) = alpha*alpha*res_e2(i) +
-		      2*alpha*beta*res_e1(i) + beta*beta*res_eta(i) ;
-		  sol_part_vr.set(zone, k, j, i) = alpha*alpha*res_v2(i) +
-		      2*alpha*beta*res_v1(i) + beta*beta*res_vr(i) ;
+		  sol_part_eta.set(zone, k, j, i) = res_eta(i) ;
+		  sol_part_vr.set(zone, k, j, i) = res_vr(i) ;
 		  solution_hom_un.set(zone, k, j, i) = sol_hom1(0,i) ;
 		  solution_hom_deux.set(zone, k, j, i) = sol_hom2(1,i) ;
 	      }
@@ -619,7 +621,7 @@ Vector_divfree Vector_divfree::poisson() const {
 	      }
 	  } // End of nullite_plm  
       } //End of loop on theta
-      
+
   vr.set_spectral_va().ylm_i() ;
   het.set_spectral_va().ylm_i() ;
 
