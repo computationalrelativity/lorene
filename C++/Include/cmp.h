@@ -36,6 +36,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/03/31 11:21:02  f_limousin
+ * Method Cmp::poisson_neumann_interne has been implemented to solve
+ * the continuity equation for strange stars.
+ *
  * Revision 1.12  2004/03/22 13:12:40  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -1098,10 +1102,20 @@ class Cmp {
 	Cmp poisson_dirichlet (const Valeur& limite, int num) const ;
 	
 	/**
-	 * Idem as \c Cmp::poisson_neumann , the boundary condition being on 
+	 * Idem as \c Cmp::poisson_dirichlet , the boundary condition being on 
 	 * the radial derivative of the solution.
 	 */
-	Cmp poisson_neumann   (const Valeur&, int) const ;
+	Cmp poisson_neumann (const Valeur&, int) const ;
+
+	/**
+	 * Idem as \c Cmp::poisson_neumann , the boundary condition is on 
+	 * the radial derivative of the solution. But in this method, the
+	 * poisson equation is solved in the shell only. We have so to
+	 * impose a boundary condition on the surface of the star. 
+	 * This is used for example to solve the continuity equation 
+	 * for the fluid in the star. 
+	 */
+	Cmp poisson_neumann_interne (const Valeur&, Param& par, Cmp& resu) const ;
 	Cmp poisson_frontiere_double   (const Valeur&, const Valeur&, int) const ;
 
 	/** Solves the scalar Poisson equation with \c *this  as a source
