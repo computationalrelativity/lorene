@@ -33,6 +33,9 @@ char tensor_calculus_ext_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/01/14 11:38:32  f_limousin
+ * Added method contract for one tensor
+ *
  * Revision 1.3  2003/11/05 15:29:36  e_gourgoulhon
  *  Added declaration of externa functions max, min, maxabs,
  * diffrel and diffrelmax.
@@ -58,7 +61,7 @@ char tensor_calculus_ext_C[] = "$Header$" ;
 #include "tensor.h"
 
 				//------------------//
-				//   Contraction	//
+				//   Contraction    //
 				//------------------//
 
 
@@ -130,6 +133,70 @@ Tensor contract(const Tensor& t1, int ind1, const Tensor& t2, int ind2) {
 	
     return res ;
 }
+
+
+
+Tensor contract(const Tensor& source, int ind_1, int ind_2) {
+    
+    int val = source.get_valence() ;   
+
+    // Les verifications :
+    assert ((ind_1 >= 0) && (ind_1 < val)) ;
+    assert ((ind_2 >= 0) && (ind_2 < val)) ;
+    assert (source.get_index_type(ind_1) != source.get_index_type(ind_2)) ;
+
+    // On veut ind_1 < ind_2 :
+    if (ind_1 > ind_2) {
+		int auxi = ind_2 ;
+		ind_2 = ind_1 ;
+		ind_1 = auxi ;
+    }
+    
+    // On construit le resultat :
+    int val_res = val - 2 ;
+   
+    Itbl tipe(val_res) ;
+	
+    for (int i=0 ; i<ind_1 ; i++)
+		tipe.set(i) = source.get_index_type(i) ;
+    for (int i=ind_1 ; i<ind_2-1 ; i++)
+		tipe.set(i) = source.get_index_type(i+1) ;
+    for (int i = ind_2-1 ; i<val_res ; i++)
+		tipe.set(i) = source.get_index_type(i+2) ;
+	
+    Tensor res(source.get_mp(), val_res, tipe, source.get_triad()) ; 
+	
+    Scalar work(source.get_mp()) ;
+    
+    // Boucle sur les composantes de res :
+	
+    Itbl jeux_indice_source(val) ;
+	
+    for (int i=0 ; i<res.get_n_comp() ; i++) {
+
+		Itbl jeux_indice_res(res.indices(i)) ;
+		
+		for (int j=0 ; j<ind_1 ; j++)
+	    	jeux_indice_source.set(j) = jeux_indice_res(j) ;
+		for (int j=ind_1+1 ; j<ind_2 ; j++)
+	    	jeux_indice_source.set(j) = jeux_indice_res(j-1) ;
+		for (int j=ind_2+1 ; j<val ; j++)
+	    	jeux_indice_source.set(j) = jeux_indice_res(j-2) ;
+	    
+		work.set_etat_zero() ;
+		for (int j=1 ; j<=3 ; j++) {
+	    	jeux_indice_source.set(ind_1) = j ;
+	    	jeux_indice_source.set(ind_2) = j ;
+	    	work = work + source(jeux_indice_source) ;
+	    }
+	    
+		res.set(jeux_indice_res) = work ;
+	}
+	
+    return res ;
+}
+
+
 
 
 				//------------------//

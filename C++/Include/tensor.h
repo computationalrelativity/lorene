@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.37  2004/01/14 11:39:00  f_limousin
+ * Added method contract for one tensor
+ *
  * Revision 1.36  2004/01/08 09:21:39  e_gourgoulhon
  * Added arithmetics of Tensor_sym.
  * Added arithmetics with Scalar (to solve some ambiguities with respect
@@ -1034,6 +1037,22 @@ Tensor_sym operator*(const Tensor_sym& a, const Tensor& b) ;
  */
 Tensor contract(const Tensor& t1, int ind1, const Tensor& t2, int ind2) ;
 
+/** Contraction of a tensor. 
+ *
+ * @param t1 [input] tensor 
+ * @param ind1 [input] first index of the tensor for the contraction, 
+ *    obeying to the following convention : \\
+ *    {\tt ind1} = 0 : first index of the tensor \\
+ *    {\tt ind1} = 1 : second index of the tensor \\
+ *    and so on... \\
+ *  ({\tt ind1} must thus be in the range 0...t1.valence-1)  
+ * @param ind2 [input] second index of the tensor for the contraction, with 
+ *   the same convention as {\tt ind1} 
+ * @return tensor resulting of the contraction 
+ * NB: the types ({\tt COV} or {\tt CON}) of the indices {\tt ind1} and
+ * {\tt ind2} must be different. 
+ */
+Tensor contract(const Tensor& t1, int ind1, int ind2) ;
 
 
 /** Maxima in each domain of the values of the tensor components
