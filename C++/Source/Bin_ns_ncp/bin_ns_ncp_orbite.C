@@ -32,6 +32,11 @@ char bin_ns_ncp_orbite_C[] = "$Header$" ;
 
 /*
  * $Header$
+ * $Log$
+ * Revision 1.3  2003/05/28 11:45:13  e_gourgoulhon
+ * Changed the "abs" to "fabs" at the end of the
+ * funtion fonc_binaire_axe.
+ *
  *
  */
 
@@ -437,7 +442,7 @@ double  fonc_binaire_axe(double x_rot, const Param& paraxe) {
     double diff2 = 2*dnulg_2 + 1/alpha_2*(-d1sn2_2*beta_2 - unsb2_2*delta_2) ; 
 
 
-    double diff = abs(diff1) + abs(diff2) ;
+    double diff = fabs(diff1) + fabs(diff2) ;
 
 
     return diff ;
