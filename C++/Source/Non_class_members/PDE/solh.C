@@ -25,6 +25,9 @@ char solh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/10/05 15:44:21  j_novak
+ * Minor speed enhancements.
+ *
  * Revision 1.3  2003/01/31 08:49:58  e_gourgoulhon
  * Increased the number nmax of stored matrices from 100 to 200.
  *
@@ -174,8 +177,9 @@ Tbl _solh_r_cheb (int n, int l, double echelle) {
     	
   //  assert (l < n) ;
     
-    Tbl res(2, n) ;
-    res.set_etat_qcq() ;
+    tab[nb_dejafait] = new Tbl(2, n) ;
+    Tbl* pres = tab[nb_dejafait] ;
+    pres->set_etat_qcq() ;
     double* coloc = new double[n] ;
     
     int * deg = new int[3] ;
@@ -187,9 +191,9 @@ Tbl _solh_r_cheb (int n, int l, double echelle) {
     // cad celle polynomiale.
     
     if (l==0) {
-	res.set(0, 0) = 1 ;
+	pres->set(0, 0) = 1 ;
 	for (int i=1 ; i<n ; i++)
-	    res.set(0, i) = 0 ;
+	    pres->set(0, i) = 0 ;
 	    }
     else {
 	for (int i=0 ; i<n ; i++)
@@ -197,7 +201,7 @@ Tbl _solh_r_cheb (int n, int l, double echelle) {
 	
 	cfrcheb(deg, deg, coloc, deg, coloc) ;
 	for (int i=0 ; i<n ;i++)
-	    res.set(0, i) = coloc[i] ;
+	    pres->set(0, i) = coloc[i] ;
 	}
     
     
@@ -208,17 +212,16 @@ Tbl _solh_r_cheb (int n, int l, double echelle) {
 	
     cfrcheb(deg, deg, coloc, deg, coloc) ;
     for (int i=0 ; i<n ;i++)
-	res.set(1, i) = coloc[i] ;	
+	pres->set(1, i) = coloc[i] ;	
     
     
     delete [] coloc ;
     delete [] deg ;
-    tab[nb_dejafait] = new Tbl(res) ;
+    indice = nb_dejafait ;
     nb_dejafait ++ ;
-    return res ;
-    }
-    
-    else return *tab[indice] ;
+   }
+   
+   return *tab[indice] ;
 }	
 	
 		//-------------------
@@ -256,8 +259,9 @@ Tbl _solh_r_chebp (int n, int l, double) {
     
   //  assert (l < 2*n-1) ;
     
-    Tbl res(n) ;
-    res.set_etat_qcq() ;
+    tab[nb_dejafait] = new Tbl(n) ;
+    Tbl* pres = tab[nb_dejafait] ;
+    pres->set_etat_qcq() ;
     double* coloc = new double[n] ;
     
     int * deg = new int[3] ;
@@ -266,9 +270,9 @@ Tbl _solh_r_chebp (int n, int l, double) {
     deg[2] = n ;
     
     if (l==0) {
-	res.set(0) = 1 ;
+	pres->set(0) = 1 ;
 	for (int i=1 ; i<n ; i++)
-	    res.set(i) = 0 ;
+	    pres->set(i) = 0 ;
 	    }
     else {
 	for (int i=0 ; i<n ; i++)
@@ -276,17 +280,16 @@ Tbl _solh_r_chebp (int n, int l, double) {
 	
 	cfrchebp(deg, deg, coloc, deg, coloc) ;
 	for (int i=0 ; i<n ;i++)
-	    res.set(i) = coloc[i] ;
+	    pres->set(i) = coloc[i] ;
 	}
 	
     delete [] coloc ;
     delete [] deg ;
-    tab[nb_dejafait] = new Tbl(res) ;
+    indice = nb_dejafait ;
     nb_dejafait ++ ;
-    return res ;
-    }
+   }
     
-    else return *tab[indice] ;
+   return *tab[indice] ;
 }
 	
 	
@@ -325,8 +328,9 @@ Tbl _solh_r_chebi (int n, int l, double) {
     assert (div(l, 2).rem == 1)  ;
    // assert (l < 2*n) ;
     
-    Tbl res(n) ;
-    res.set_etat_qcq() ;
+    tab[nb_dejafait] = new Tbl(n) ;
+    Tbl* pres = tab[nb_dejafait] ;
+    pres->set_etat_qcq() ;
     double* coloc = new double[n] ;
     
     int * deg = new int[3] ;
@@ -335,9 +339,9 @@ Tbl _solh_r_chebi (int n, int l, double) {
     deg[2] = n ;
     
     if (l==1) {
-	res.set(0) = 1 ;
+	pres->set(0) = 1 ;
 	for (int i=1 ; i<n ; i++)
-	    res.set(i) = 0 ;
+	    pres->set(i) = 0 ;
 	    }
     else {
 	for (int i=0 ; i<n ; i++)
@@ -345,17 +349,16 @@ Tbl _solh_r_chebi (int n, int l, double) {
 	
 	cfrchebi(deg, deg, coloc, deg, coloc) ;
 	for (int i=0 ; i<n ;i++)
-	    res.set(i) = coloc[i] ;
+	    pres->set(i) = coloc[i] ;
 	}
 	
     delete [] coloc ;
     delete [] deg ;
-    tab[nb_dejafait] = new Tbl(res) ;
+    indice = nb_dejafait ;
     nb_dejafait ++ ;
-    return res ;
-    }
+   }
     
-    else return *tab[indice] ;
+   return *tab[indice] ;
 }
 	
 	
@@ -393,8 +396,9 @@ Tbl _solh_r_chebu (int n, int l, double) {
     
     
   //  assert (l < n-1) ;
-    Tbl res(n) ;
-    res.set_etat_qcq() ;
+    tab[nb_dejafait] = new Tbl(n) ;
+    Tbl* pres = tab[nb_dejafait] ;
+    pres->set_etat_qcq() ;
     double* coloc = new double[n] ;
     
     int * deg = new int[3] ;
@@ -407,16 +411,15 @@ Tbl _solh_r_chebu (int n, int l, double) {
 	
     cfrcheb(deg, deg, coloc, deg, coloc) ;
     for (int i=0 ; i<n ;i++)
-	res.set(i) = coloc[i] ;
+	pres->set(i) = coloc[i] ;
 	
     delete [] coloc ;
     delete [] deg ;
-    tab[nb_dejafait] = new Tbl(res) ;
+    indice = nb_dejafait ;
     nb_dejafait ++ ;
-    return res ;
-    }
+   }
     
-    else return *tab[indice] ;
+   return *tab[indice] ;
 }
 	
 	
@@ -446,6 +449,5 @@ Tbl solh(int n, int l, double echelle, int base_r) {
 	solh[R_CHEBI >> TRA_R] = _solh_r_chebi ;
     }
     
-    Tbl res(solh[base_r](n, l, echelle)) ;
-    return res ;
+    return solh[base_r](n, l, echelle) ;
 }

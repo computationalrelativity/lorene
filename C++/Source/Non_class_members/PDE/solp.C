@@ -25,6 +25,9 @@ char solp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/10/05 15:44:21  j_novak
+ * Minor speed enhancements.
+ *
  * Revision 1.5  2004/02/20 10:55:23  j_novak
  * The versions dzpuis 5 -> 3 has been improved and polished. Should be
  * operational now...
@@ -466,6 +469,5 @@ Tbl solp(const Matrice &lap, const Matrice &nondege, double alpha,
 	solp[R_CHEBI >> TRA_R] = _solp_r_chebi ;
     }
     
-    Tbl res(solp[base_r](lap, nondege, alpha, beta, source, puis)) ;
-    return res ;
+    return solp[base_r](lap, nondege, alpha, beta, source, puis) ;
 }

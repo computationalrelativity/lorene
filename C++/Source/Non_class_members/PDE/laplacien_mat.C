@@ -25,6 +25,9 @@ char laplacien_mat_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/10/05 15:44:21  j_novak
+ * Minor speed enhancements.
+ *
  * Revision 1.5  2004/02/06 10:53:54  j_novak
  * New dzpuis = 5 -> dzpuis = 3 case (not ready yet).
  *
@@ -213,16 +216,12 @@ Matrice _laplacien_mat_r_chebp (int n, int l, double, int) {
    
     delete [] vect ;
     
-    Matrice res(n, n) ;
-    res = dd+2*xd-l*(l+1)*xx ;
-    tab[nb_dejafait] = new Matrice(res) ;
+    tab[nb_dejafait] = new Matrice(dd+2*xd-l*(l+1)*xx) ;
+    indice = nb_dejafait ;
     nb_dejafait ++ ;	
-    return res ;
-    }
+   }
     
-    // Cas ou le calcul a deja ete effectue :
-    else
-	return *tab[indice] ;
+   return *tab[indice] ;
 }
 
 
@@ -297,16 +296,12 @@ Matrice _laplacien_mat_r_chebi (int n, int l, double, int) {
     
     delete [] vect ;
     
-    Matrice res(n, n) ;
-    res = dd+2*xd-l*(l+1)*xx ;
-    tab[nb_dejafait] = new Matrice(res) ;
+    tab[nb_dejafait] = new Matrice(dd+2*xd-l*(l+1)*xx) ;
+    indice = nb_dejafait ;
     nb_dejafait ++ ;
-    return res ;
-    } 
+   } 
     
-    // Cas ou le calcul a deja ete effectue :
-    else
-	return *tab[indice] ;
+   return *tab[indice] ;
 }
 
 
@@ -394,16 +389,12 @@ Matrice _laplacien_mat_r_chebu_quatre (int n, int l) {
     
     delete [] vect ;
     
-    Matrice res(n, n) ;
-    res = dd-l*(l+1)*xx ;
-    tab[nb_dejafait] = new Matrice(res) ;
+    tab[nb_dejafait] = new Matrice(dd-l*(l+1)*xx) ;
+    indice = nb_dejafait ;
     nb_dejafait ++ ;
-    return res ;
-    } 
+   } 
     
-    // Cas ou le calcul a deja ete effectue :
-    else
-	return *tab[indice] ;
+   return *tab[indice] ;
 }
 
 // Cas ou dzpuis =3 
@@ -465,16 +456,12 @@ Matrice _laplacien_mat_r_chebu_trois (int n, int l) {
     delete [] vect ;
     delete [] auxi ;
     
-    Matrice res(n, n) ;
-    res = dd-l*(l+1)*xx ;
-    tab[nb_dejafait] = new Matrice(res) ;
+    tab[nb_dejafait] = new Matrice(dd-l*(l+1)*xx) ;
+    indice = nb_dejafait ;
     nb_dejafait ++ ;
-    return res ;
-    } 
+   } 
     
-    // Cas ou le calcul a deja ete effectue :
-    else
-	return *tab[indice] ;
+   return *tab[indice] ;
 }
 
 
@@ -506,8 +493,9 @@ Matrice _laplacien_mat_r_chebu_deux (int n, int l) {
     l_dejafait[nb_dejafait] = l ;
     nr_dejafait[nb_dejafait] = n ;
     
-    Matrice res(n, n) ;
-    res.set_etat_qcq() ;
+    tab[nb_dejafait] = new Matrice(n, n) ;
+    Matrice* pmat = tab[nb_dejafait] ;
+    pmat->set_etat_qcq() ;
 
     double* vect = new double[n] ;
     
@@ -520,23 +508,20 @@ Matrice _laplacien_mat_r_chebu_deux (int n, int l) {
 	d2sdx2_1d (n, &vect, R_CHEBU) ;  // appel dans le cas unsurr
 	mult2_xm1_1d_cheb (n, vect, x2vect) ; // multiplication par (x-1)^2
 	for (int j=0 ; j<n ; j++)
-	    res.set(j, i) = x2vect[j] ;
+	    pmat->set(j, i) = x2vect[j] ;
     }
     
     delete [] vect ;
     delete [] x2vect ;
     
     for (int i=0 ; i<n ; i++)
-	res.set(i, i) = res.set(i, i) - l*(l+1) ;
+	pmat->set(i, i) -= l*(l+1) ;
     
-    tab[nb_dejafait] = new Matrice(res) ;
+    indice = nb_dejafait ;
     nb_dejafait ++ ;
-    return res ;
-    } 
-    
-    // Cas ou le calcul a deja ete effectue :
-    else
-	return *tab[indice] ;
+   } 
+
+   return *tab[indice] ;
 }
 
     //Cas ou dzpuis = 5
@@ -567,8 +552,9 @@ Matrice _laplacien_mat_r_chebu_cinq (int n, int l) {
     l_dejafait[nb_dejafait] = l ;
     nr_dejafait[nb_dejafait] = n ;
     
-    Matrice res(n, n) ;
-    res.set_etat_qcq() ;
+    tab[nb_dejafait] = new Matrice(n, n) ;
+    Matrice* pmat = tab[nb_dejafait] ;
+    pmat->set_etat_qcq() ;
 
     double* vect = new double[n] ;
 
@@ -588,7 +574,7 @@ Matrice _laplacien_mat_r_chebu_cinq (int n, int l) {
 	dsdx_1d (n, &vect, R_CHEBU) ;  // appel dans le cas unsurr
 	mult_xm1_1d_cheb (n, vect, xvect) ; // multiplication par (x-1)
 	for (int j=0 ; j<n ; j++)
-	    res.set(j, i) = x2vect[j] + 6*xvect[j] ;
+	    pmat->set(j, i) = x2vect[j] + 6*xvect[j] ;
     }
     
     delete [] vect ;
@@ -596,16 +582,13 @@ Matrice _laplacien_mat_r_chebu_cinq (int n, int l) {
     delete [] x2vect ;
     
     for (int i=0 ; i<n ; i++)
-	res.set(i, i) += 6 - l*(l+1) ;
+	pmat->set(i, i) += 6 - l*(l+1) ;
     
-    tab[nb_dejafait] = new Matrice(res) ;
+    indice = nb_dejafait ;
     nb_dejafait ++ ;
-    return res ;
-    } 
+   } 
     
-    // Cas ou le calcul a deja ete effectue :
-    else
-	return *tab[indice] ;
+   return *tab[indice] ;
 }
 
 		   //-------------------------
@@ -722,16 +705,12 @@ Matrice _laplacien_mat_r_cheb (int n, int l, double echelle, int) {
     
     delete [] vect ;
     
-    Matrice res(n, n) ;
-    res = dd+2*xd-l*(l+1)*xx ;   
-    tab[nb_dejafait] = new Matrice(res) ;
+    tab[nb_dejafait] = new Matrice(dd+2*xd-l*(l+1)*xx) ;
+    indice = nb_dejafait ;
     nb_dejafait ++ ;
-    return res ;
-    } 
-    
-    // Cas ou le calcul a deja ete effectue :
-    else
-	return *tab[indice] ;  
+   } 
+   
+   return *tab[indice] ;  
 }
 
 
@@ -758,7 +737,6 @@ Matrice laplacien_mat(int n, int l, double echelle, int puis, int base_r)
 	laplacien_mat[R_CHEBI >> TRA_R] = _laplacien_mat_r_chebi ;
     }
     
-    Matrice res(laplacien_mat[base_r](n, l, echelle, puis)) ;
-    return res ;
+    return laplacien_mat[base_r](n, l, echelle, puis) ;
 }
 

@@ -32,6 +32,9 @@ char matrice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/10/05 15:44:19  j_novak
+ * Minor speed enhancements.
+ *
  * Revision 1.8  2004/08/24 09:14:43  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -306,22 +309,21 @@ void Matrice::set_band (int u, int l) const {
     
     ku = u ; kl = l ;
     int ldab = 2*l+u+1 ;
-    Tbl res (ldab*n) ;
+    band = new Tbl(ldab*n) ;
     
-    res.set_etat_qcq() ;
+    band->set_etat_qcq() ;
     
     for (int i=0 ; i<u ; i++)
 	for (int j=u-i ; j<n ; j++)
-	    res.set(j*ldab+i+l) = (*this)(j-u+i, j) ;
+	    band->set(j*ldab+i+l) = (*this)(j-u+i, j) ;
  
     for (int j=0 ; j<n ; j++)
-	res.set(j*ldab+u+l) = (*this)(j, j) ;
+	band->set(j*ldab+u+l) = (*this)(j, j) ;
 
     for (int i=u+1 ; i<u+l+1 ; i++)
 	for (int j=0 ; j<n-i+u ; j++)
-	    res.set(j*ldab+i+l) = (*this) (i+j-u, j) ;
+	    band->set(j*ldab+i+l) = (*this) (i+j-u, j) ;
 
-    band = new Tbl(res) ;
 }
 
 //Decomposition UL : stockage LAPACK
@@ -335,11 +337,10 @@ void Matrice::set_lu() const {
     int* ipiv = new int [n];
     int info ;
     
-    Tbl tab(*band) ;
+    lu = new Tbl(*band) ;
     
-    F77_dgbtrf(&n, &n, &kl, &ku, tab.t, &ldab, ipiv, &info) ;
+    F77_dgbtrf(&n, &n, &kl, &ku, lu->t, &ldab, ipiv, &info) ;
    
-    lu = new Tbl(tab) ;
     
     permute = new Tbl(n) ;
     permute->set_etat_qcq() ;
@@ -368,19 +369,11 @@ Tbl Matrice::inverse (const Tbl& source) const {
     int nrhs = 1 ;
     int ldb = n ;
         
-    double* so = new double [n] ;
-    for (int i=0 ; i<n ; i++)
-	so[i] = source(i) ;
+    Tbl res(source) ;
     
     F77_dgbtrs(trans, &n, &kl, &ku, &nrhs, lu->t,
-	    &ldab, ipiv, so, &ldb, &info);
+	    &ldab, ipiv, res.t, &ldb, &info);
     
-    Tbl res(n) ;
-    res.set_etat_qcq() ;
-    for (int i=0 ; i<n ; i++)
-	res.set(i) = so[i] ;
-    
-    delete [] so ;
     delete [] ipiv ;
     
     return res ;

@@ -26,6 +26,9 @@ char poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/10/05 15:44:21  j_novak
+ * Minor speed enhancements.
+ *
  * Revision 1.3  2004/02/20 10:55:23  j_novak
  * The versions dzpuis 5 -> 3 has been improved and polished. Should be
  * operational now...
@@ -198,19 +201,12 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis,
     solution_part.set_etat_qcq() ;
     solution_hom_un.set_etat_qcq() ;
     solution_hom_deux.set_etat_qcq() ;
-    resultat.set_etat_qcq() ;
-    
+    resultat.annule_hard() ;
     for (int l=0 ; l<nz ; l++) {
 	solution_part.t[l]->set_etat_qcq() ;
 	solution_hom_un.t[l]->set_etat_qcq() ;
 	solution_hom_deux.t[l]->set_etat_qcq() ;
-	resultat.t[l]->set_etat_qcq() ;
-	for (int k=0 ; k<source.get_mg()->get_np(l)+2 ; k++)
-	    for (int j=0 ; j<source.get_mg()->get_nt(l) ; j++)
-		for (int i=0 ; i<source.get_mg()->get_nr(l) ; i++)
-		    resultat.set(l, k, j, i) = 0 ;
-    }
-    
+    }    
     // nbre maximum de point en theta et en phi :
     int np_max, nt_max ;
     

@@ -25,6 +25,9 @@ char dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/10/05 15:44:21  j_novak
+ * Minor speed enhancements.
+ *
  * Revision 1.7  2004/03/01 09:57:03  j_novak
  * the wave equation is solved with Scalars. It now accepts a grid with a
  * compactified external domain, which the solver ignores and where it copies
@@ -133,7 +136,7 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
   solution_part.set_etat_qcq() ;
   solution_hom_un.set_etat_qcq() ;
   solution_hom_deux.set_etat_qcq() ;
-  resultat.set_etat_qcq() ;
+  resultat.annule_hard() ;
 
   // Tbls for the boundary condition
   double* bc1 = &par.get_double_mod(1) ;
@@ -144,15 +147,6 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
     solution_part.t[l]->set_etat_qcq() ;
     solution_hom_un.t[l]->set_etat_qcq() ;
     solution_hom_deux.t[l]->set_etat_qcq() ;
-    resultat.t[l]->set_etat_qcq() ;
-    for (int k=0 ; k<source.get_mg()->get_np(l)+2 ; k++)
-      for (int j=0 ; j<source.get_mg()->get_nt(l) ; j++)
-	for (int i=0 ; i<source.get_mg()->get_nr(l) ; i++) {
-	  resultat.set(l, k, j, i) = 0 ;
-	  solution_part.set(l,k,j,i) = 0 ;
-	  solution_hom_un.set(l,k,j,i) = 0 ;
-	  solution_hom_deux.set(l,k,j,i) = 0 ;
-	}
   }
   
   int lz = 0 ;

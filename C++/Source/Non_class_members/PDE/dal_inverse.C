@@ -25,6 +25,9 @@ char dal_inverse_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/10/05 15:44:21  j_novak
+ * Minor speed enhancements.
+ *
  * Revision 1.4  2002/01/03 15:30:28  j_novak
  * Some comments modified.
  *
@@ -122,9 +125,8 @@ Tbl _dal_inverse_r_cheb_o2d_s(const Matrice &op, const Tbl &source,
   barre.set_lu() ;
 
   // Inversion using LAPACK
-  Tbl res(barre.inverse(aux)) ;
 
-  return res ; 
+  return barre.inverse(aux) ;
 }
 
 Tbl _dal_inverse_r_cheb_o2d_l(const Matrice &op, const Tbl &source, 
@@ -193,9 +195,8 @@ Tbl _dal_inverse_r_cheb_o2d_l(const Matrice &op, const Tbl &source,
   barre.set_lu() ;
 
   // Inversion using LAPACK
-  Tbl res(barre.inverse(aux)) ;
 
-  return res ;
+  return barre.inverse(aux) ;
 }
 
 Tbl _dal_inverse_r_cheb_o2_s(const Matrice &op, const Tbl &source, 
@@ -233,9 +234,8 @@ Tbl _dal_inverse_r_cheb_o2_s(const Matrice &op, const Tbl &source,
   barre.set_lu() ;
 
   // Inversion using LAPACK
-  Tbl res(barre.inverse(aux)) ;
 
-  return res ; 
+  return barre.inverse(aux) ;
 }
 
 Tbl _dal_inverse_r_cheb_o2_l(const Matrice &op, const Tbl &source, 
@@ -306,9 +306,8 @@ Tbl _dal_inverse_r_cheb_o2_l(const Matrice &op, const Tbl &source,
   barre.set_lu() ;
 
   // Inversion using LAPACK
-  Tbl res(barre.inverse(aux)) ;
 
-  return res ;
+  return barre.inverse(aux) ;
 }
 	
 		//-------------------
@@ -368,9 +367,8 @@ Tbl _dal_inverse_r_chebp_o2d_s(const Matrice &op, const Tbl &source,
   barre.set_lu() ;
 
   // Inversion using LAPACK
-  Tbl res(barre.inverse(aux)) ;
 
-  return res ; 
+  return barre.inverse(aux) ;
 }
 
 
@@ -445,9 +443,8 @@ Tbl _dal_inverse_r_chebp_o2d_l(const Matrice &op, const Tbl &source,
   barre.set_lu() ;
 
   // Inversion using LAPACK
-  Tbl res(barre.inverse(aux)) ;
 
-  return res ;
+  return barre.inverse(aux);
 }
 
 
@@ -940,6 +937,5 @@ Tbl dal_inverse(const int& base_r, const int& type_dal, const
   	  _dal_inverse_r_chebi_o2_l ;
     }
     
-    Tbl res(dal_inverse[type_dal][base_r](operateur,  source, part)) ;
-    return res ;
+    return dal_inverse[type_dal][base_r](operateur,  source, part) ;
 }
