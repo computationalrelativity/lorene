@@ -4,7 +4,7 @@
  */
 
 /*
- *   Copyright (c) 2003  Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2004 Eric Gourgoulhon & Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -28,6 +28,10 @@ char test_kerr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/01/04 21:03:12  e_gourgoulhon
+ * Still some improvements...
+ * More to come...
+ *
  * Revision 1.1  2003/12/30 23:11:28  e_gourgoulhon
  * First version: not ready yet.
  *
@@ -55,7 +59,7 @@ int main() {
     int nz = 3 ; 	// Number of domains
     int nr = 7 ; 	// Number of collocation points in r in each domain
     int nt = 5 ; 	// Number of collocation points in theta in each domain
-    int np = 8 ; 	// Number of collocation points in phi in each domain
+    int np = 4 ; 	// Number of collocation points in phi in each domain
     int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
     int symmetry_phi = NONSYM ; // no symmetry in phi
     bool compact = true ; // external domain is compactified
@@ -90,7 +94,7 @@ int main() {
     // Twice the radius at the horizon:
     double hh = 2 * map.val_r(0, 1., 0., 0.) ; 
     
-    double aasm = 0.9 ; // Kerr parameter a/M = J/M^2
+    double aasm = 0.5 ; // Kerr parameter a/M = J/M^2
     
     double mm = hh / sqrt(1. - aasm*aasm) ; // total mass M
     
@@ -116,6 +120,7 @@ int main() {
     a2.std_spectral_base() ;
     b2.std_spectral_base() ;
 
+
     // Spatial metric
     // --------------
     
@@ -127,11 +132,12 @@ int main() {
     gij_spher.set(2,3) = 0 ; 
     gij_spher.set(3,3) = b2 ;
     
-    gij_spher.annule_domain(0) ;   
-      
     Metric gam(gij_spher) ; // construction from the covariant components 
    
     cout << gam << endl ; 
+    
+    cout << "Contravariant components of the metric: " << endl ; 
+    cout << gam.con() << endl ; 
     arrete() ; 
 
     // Lapse function
@@ -144,7 +150,7 @@ int main() {
     tmp.annule_domain(0) ; 
     
     
-    Scalar nn = sqrt(tmp) ; 
+    Scalar nn = sqrt(abs(tmp)) ; 
     
     tmp = 1 ; 
     nn.set_domain(0) = tmp.domain(0) ; 
@@ -160,8 +166,7 @@ int main() {
     nphi = ( 2*aa*mm / (sigmasr * ( erre*rs + aa*aa/r) 
                                 + 2*aa*aa*mm* sint*sint/r ) ) * sint ; 
     nphi.annule_domain(0) ; 
-                                
-                                
+                                    
     Vector beta(map, CON, map.get_bvect_spher() ) ;     
     beta.set(1) = 0 ; 
     beta.set(2) = 0 ; 
@@ -169,19 +174,56 @@ int main() {
     beta.std_spectral_base() ;
 
     cout << "Shift vector beta: " << beta << endl ; 
-    
+    arrete() ; 
+        
     // Extrinsic curvature
     // -------------------
+    
+    const Tensor_sym& delta =  gam.connect().get_delta() ; 
+    
+    cout << "Connection (delta) : " << endl ; 
+    delta.spectral_display() ; 
+    arrete() ; 
+    
+    Vector beta_cov = beta.down(0, gam) ; 
+    cout << "beta_cov : " << endl ; 
+    maxabs(beta_cov) ; 
+    arrete() ; 
+    
+    cout << "Dbeta: " << endl ; 
+    beta_cov.derive_cov(gam).spectral_display() ; 
+    maxabs(beta_cov.derive_cov(gam)) ; 
+    arrete() ; 
     
     Sym_tensor kk(map, COV, map.get_bvect_spher()) ; 
     
     for (int i=1; i<=3; i++) {
         for (int j=1; j<=i; j++) {
-            kk.set(i,j) = 0.5 * ( beta.derive_cov(gam)(i,j)
-                + beta.derive_cov(gam)(j,i) ) / nn ; 
+            kk.set(i,j) = 0.5 * ( beta_cov.derive_cov(gam)(i,j)
+                + beta_cov.derive_cov(gam)(j,i) ) / nn ; 
         }
     } 
     
+    kk.dec_dzpuis(2) ; 
+    
+    cout << "Extrinsic curvature : " << endl ;  
+    kk.spectral_display() ; 
+    maxabs(kk) ; 
+    
+    Tensor kkup = kk.up(1, gam) ; 
+    Scalar trkk = kkup.scontract(0,1) ; 
+    cout << "Trace of K:" << endl ; 
+    trkk.spectral_display() ;
+    maxabs(trkk) ; 
+    arrete() ; 
+    
+    const Tensor& dkk = kkup.derive_cov(gam) ; 
+    
+    Vector mom_constr = dkk.scontract(1,2) - trkk.derive_cov(gam) ; 
+    cout << "Momentum constraint : " << endl ; 
+    mom_constr.spectral_display() ; 
+    
+    maxabs(mom_constr) ; 
 
 
     return EXIT_SUCCESS ; 
