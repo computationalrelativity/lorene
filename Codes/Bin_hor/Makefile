@@ -10,7 +10,7 @@ SRC1 = coal_bh.C
 OBJ1 = $(SRC1:.C=.o)
 EXE1 = $(SRC1:.C=)
 
-SRC2 = lit_holes_bin.C
+SRC2 = lit_bh.C
 OBJ2 = $(SRC2:.C=.o)
 EXE2 = $(SRC2:.C=)
 
