@@ -25,6 +25,9 @@ char map_af_dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/06/20 10:08:12  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.6  2003/06/20 09:27:10  j_novak
  * Modif commentaires.
  *
@@ -151,7 +154,7 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
 	for (int ir=0; ir<mg->get_nr(lz); ir++) 
 	  mt->set(lz,0,0,ir) = (*metri.va.c_cf)(lz, 0, 0, ir) ; //only l=0
 	
-      if (mg->get_nt(0) != 1) xmetr = xmetr / sqrt(2) ; //!!!
+      if (mg->get_nt(0) != 1) xmetr = xmetr / sqrt(double(2)) ; //!!!
       xmetr.va.ylm_i() ;
       xmetr.va.coef_i() ;
       const Mtbl& erre = this->r ;
