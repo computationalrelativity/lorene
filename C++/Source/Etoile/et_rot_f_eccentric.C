@@ -33,6 +33,9 @@ char et_rot_f_eccentric_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/12/19 16:31:52  j_novak
+ * Still warnings...
+ *
  * Revision 1.4  2003/12/19 16:21:42  j_novak
  * Shadow hunt
  *
@@ -173,7 +176,8 @@ double Etoile_rot::f_eccentric(double, double, ostream* ost) const {
      		vorbit.val_point(l_ms, xi_max, theta_ms, phi_ms) << endl ;
     }
      	
-    double xi_ms, r_ms ;  	
+    double xi_ms = 0 ;
+    double r_ms = 0 ;  	
 	
 	if ( vorbit.val_point(l_ms, xi_min, theta_ms, phi_ms) *
  	     vorbit.val_point(l_ms, xi_max, theta_ms, phi_ms) < double(0) ) {
@@ -181,7 +185,7 @@ double Etoile_rot::f_eccentric(double, double, ostream* ost) const {
 //##      	double precis_ms = 1.e-12 ;    // precision in the determination of xi_ms
 //##      	int nitermax_ms = 100 ;	       // max number of iterations
 
-     	int niter ;
+     	int niter = 0 ;
  
    		if (ost != 0x0) {
      		* ost <<
