@@ -43,27 +43,27 @@ DOC++: Lorene uses the DOC++ software to produce its LaTeX and HTML
        piece of code, it is necessary to have Lorene documentation. 
        Therefore, it is strongly recommended to install DOC++ on your system, 
        if you do not already have it. DOC++ is a free software under the
-       GNU Public Licence. You can download it from the web site
-  	
+       GNU General Public License. You can download it from the web site
+
 		http://docpp.sourceforge.net/
-   	
+
    	Lorene requires version 3.4.8 or higher of DOC++.
 
    	Notes about DOC++ on some Linux systems:
         ---------------------------------------
-	* For RedHat 7.0 users: the version 3.4.3-4 of DOC++ which 
+	* For RedHat 7.0 users: the version 3.4.3-4 of DOC++ which
 	   can be found on the CDROM "Power Tools Application" has
-           many bugs ! It should be upgraded at least to version 3.4.8 
-	   (from the DOC++ Web site above). 
+           many bugs ! It should be upgraded at least to version 3.4.8
+	   (from the DOC++ Web site above).
 
-CVS: 	The internet access to Lorene sources is performed via a CVS server. 
-	CVS (Concurrent Versions System) is powerfull tool to 
-	manage versions and develop over the network. CVS is a free software 
-        under the GNU Public Licence. It comes in standard with 
+CVS: 	The internet access to Lorene sources is performed via a CVS server.
+	CVS (Concurrent Versions System) is powerfull tool to
+	manage versions and develop over the network. CVS is a free software
+        under the GNU General Public License. It comes in standard with
         many Linux distributions. If you don't have it on your system, you
 	can download it from the web site
 
-		http://www.cvshome.org/	
+		http://www.cvshome.org/
 
 
 
@@ -79,7 +79,7 @@ Connect to the CVS repository in Meudon:
    Download Lorene by typying
 
 	cvs -d :pserver:anonymous@octane.obspm.fr:/cvsroot checkout Lorene
-	
+
 
 2/ Set of the environment variable HOME_LORENE
    -------------------------------------------
@@ -87,12 +87,12 @@ Connect to the CVS repository in Meudon:
 Enter to Lorene root directory which has just been created
 
 	cd Lorene
-	
+
    and define HOME_LORENE to be the full path name of this directory:
    -- if your Unix shell is csh or tcsh, type
 
    	setenv HOME_LORENE $PWD
-   	
+
    -- if it is instead bash (common under Linux), type
 
    	export HOME_LORENE=$PWD
@@ -102,7 +102,7 @@ the resource file .cshrc .tchsrc or .bashrc in your home directory by
 inserting the line
 	setenv HOME_LORENE /??/Lorene        in .cshrc or .tchsrc
 	export HOME_LORENE=/??/Lorene        in .bashrc
-	
+
 where /?? denotes the full path to the Lorene directory
 This will avoid to set it manually after each login.
 
@@ -115,7 +115,7 @@ compilers to use, with which options, and where are located some system
 libraries. This information should be passed to Lorene via the
 file
 	$HOME_LORENE/local_settings
-	
+
 This file is the only one of the Lorene distribution which is
 architecture/system dependent. It will be included by all the
 Lorene Makefiles, which are fully architecture independent.
@@ -130,7 +130,7 @@ copy one of this file into local_settings by typing, e.g. under Linux
 
 	cd $HOME_LORENE
 	cp local_settings_linux local_settings
-	
+
 You may then edit local_settings to adapt it to some special features of
 your system implementation.
 
@@ -140,22 +140,23 @@ your system implementation.
 
 The compilation of Lorene is launched via the command (in the HOME_LORENE
 directory)
-   	
+
    	make
 
-This will first create the HTML Lorene documentation, provided DOC++ is
+This will first create the Lorene documentation, including the HTML
+reference guide, provided DOC++ is
 installed on your system (see the Requisites section above).
-Then the C++ part is compiled and the Fortran 77 one. 
+Then the C++ part is compiled and the Fortran 77 one.
 
-To read Lorene's documentation, type
+To read Lorene's reference manual, type
 
-	netscape $HOME_LORENE/C++/Doc++/html/index.html
+	netscape $HOME_LORENE/Doc/refguide/index.html
 
 
 5/ Testing the installation
    ------------------------
 
-It everytings went OK with the compilation, you can check the link with
+It everything went well the compilation, you can check the link with
 LAPACK and PGPLOT libraries with
 
 	make test
@@ -163,11 +164,11 @@ LAPACK and PGPLOT libraries with
 This will produce three executables:
 
 	$HOME_LORENE/Test/test_fft	: check LAPACK and PGPLOT
-	$HOME_LORENE/Test/test_lapack	: check LAPACK only 
+	$HOME_LORENE/Test/test_lapack	: check LAPACK only
 	$HOME_LORENE/Test/test_pgplot	: check LAPACK and PGPLOT
 
 
 
 
 
-	
+
