@@ -7,8 +7,7 @@
  *               S. Bonazzola, Phys. Rev. D {\bf 63}, 064029 (2001)
  *       \item K. Taniguchi, E. Gourgoulhon, S. Bonazzola,
  *               Phys.  Rev. D  {\bf 64}, 064012 (2001)
- *       \item K. Taniguchi, E. Gourgoulhon, Phys. Rev. D {\bf 65}, in press,
- *               preprint astro-ph/0108086
+ *       \item K. Taniguchi, E. Gourgoulhon, Phys. Rev. D {\bf 65}, 044027 (2002)
  *       \item K. Taniguchi, E. Gourgoulhon, in preparation
  *    \end{itemize}
  *

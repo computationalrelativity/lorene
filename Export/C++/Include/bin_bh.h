@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/02/06 14:54:44  e_gourgoulhon
+ * Update of bibliographical references
+ *
  * Revision 1.3  2002/01/10 14:06:58  e_gourgoulhon
  * Modif commentaries.
  *
@@ -56,7 +59,7 @@
  *
  * A binary black hole system is constructed on a Cartesian grid from
  * data stored in a file resulting from a computation by Grandclement,
- * Gourgoulhon and Bonazzola gr-qc/0106016.
+ * Gourgoulhon and Bonazzola, Phys. Rev. D 65, 044021 (2002). 
  *
  * All the quantities are in units derived from the length
  * scale defined by the coordinate radius $a$ of black hole 1 apparent horizon

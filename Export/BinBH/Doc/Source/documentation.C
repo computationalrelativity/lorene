@@ -2,7 +2,7 @@
  *
  *  Meudon data represents quasistationary binary black configurations,
  *  obtained by P. Grandcl\'ement, E. Gourgoulhon \& S. Bonazzola,
- *   Phys. Rev. D 65, in press, preprint gr-qc/0106016.
+ *   Phys. Rev. D {\bf 65}, 044021 (2002).
  *
  *  The exportation of this data, computed by means of
  *  \URL[LORENE]{http://www.lorene.obspm.fr/}

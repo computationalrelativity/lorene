@@ -28,6 +28,9 @@ char readinit_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/02/06 14:54:44  e_gourgoulhon
+ * Update of bibliographical references
+ *
  * Revision 1.3  2002/01/09 16:32:57  e_gourgoulhon
  * Added the parameter fill in readinit.par
  * Suppressed the multiple outputs in files ini* via method sauve
@@ -176,9 +179,9 @@ int main() {
 
     // Save in a binary file
     // ---------------------
-    // FILE* finib = fopen("inib.d", "w") ;
-    // binary.save_bin(finib) ;
-    // fclose( finib ) ;
+    FILE* finib = fopen("binbh.d", "w") ;
+    binary.save_bin(finib) ;
+    fclose( finib ) ;
 
     // Save in a formatted file
     // ------------------------
