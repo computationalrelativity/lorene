@@ -31,6 +31,9 @@ char name_of_this_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/21 11:49:33  k_taniguchi
+ * Change the class from Etoile_bin to sub-class Et_bin_nsbh.
+ *
  * Revision 1.1  2003/10/20 15:01:55  k_taniguchi
  * Computation of an equilibrium configuration of a neutron star
  * in a NS-BH binary system.
@@ -45,21 +48,21 @@ char name_of_this_file_C[] = "$Header$" ;
 #include <math.h>
 
 // Headers Lorene
-#include "etoile.h"
+#include "et_bin_nsbh.h"
 #include "param.h"
 
 #include "graphique.h"
 #include "utilitaires.h"
 
-void Etoile_bin::ns_equilibrium(double ent_c, int mermax, int mermax_poisson, 
-				double relax_poisson, int mermax_potvit, 
-				double relax_potvit, double thres_adapt,
-				const Tbl& fact_resize, Tbl& diff) {
+void Et_bin_nsbh::ns_equilibrium(double ent_c, int mermax, int mermax_poisson, 
+				 double relax_poisson, int mermax_potvit, 
+				 double relax_potvit, double thres_adapt,
+				 const Tbl& fact_resize, Tbl& diff) {
 			     
 
     // Fundamental constants and units
     // -------------------------------
-    #include "unites.h"	    
+    #include "unites.h"
     // To avoid some compilation warnings
     if (ent_c < 0) {
 	cout << f_unit << msol << km << mevpfm3 << endl ; 
