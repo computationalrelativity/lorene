@@ -33,6 +33,10 @@ char tensor_calculus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/02/18 15:54:23  e_gourgoulhon
+ * Efficiency improved in method scontract: better handling of work (it is
+ * now considered as a reference on the relevant component of the result).
+ *
  * Revision 1.5  2003/12/05 16:38:50  f_limousin
  * Added method operator*
  *
@@ -142,8 +146,6 @@ Tensor Tensor::scontract(int ind_1, int ind_2) const {
 	
     Tensor res(*mp, val_res, tipe, triad) ; 
 	
-    Scalar work(*mp) ;
-    
     // Boucle sur les composantes de res :
 	
     Itbl jeux_indice_source(valence) ;
@@ -159,14 +161,15 @@ Tensor Tensor::scontract(int ind_1, int ind_2) const {
 		for (int j=ind_2+1 ; j<valence ; j++)
 	    	jeux_indice_source.set(j) = jeux_indice_res(j-2) ;
 	    
+        Scalar& work = res.set(jeux_indice_res) ; 
 		work.set_etat_zero() ;
+
 		for (int j=1 ; j<=3 ; j++) {
 	    	jeux_indice_source.set(ind_1) = j ;
 	    	jeux_indice_source.set(ind_2) = j ;
-	    	work = work + (*cmp[position(jeux_indice_source)]) ;
+	    	work += (*cmp[position(jeux_indice_source)]) ;
 	    }
 	    
-		res.set(jeux_indice_res) = work ;
 	}
 	
     return res ;
