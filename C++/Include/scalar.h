@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.65  2004/12/14 09:09:39  f_limousin
+ * Modif. comments.
+ *
  * Revision 1.64  2004/11/23 12:41:53  f_limousin
  * Intoduce function poisson_dir_neu(...) to solve a scalar poisson
  * equation with a mixed boundary condition (Dirichlet + Neumann).
@@ -1124,13 +1127,12 @@ class Scalar : public Tensor {
    * given by \c limite[num] .
    * @param num [input] : index of the boudary at which the condition is to 
    * be fullfilled.
-   * @param num [input] : index of the boudary at which the condition is to 
    * @param fact_dir [input] : double in front of \f$\Psi\f$ (if \f$\Psi\f$
    * is the variable solved).
    * @param fact_neu [input] : double in front of the radial derivative
    * of \f$\Psi\f$.
    *
-   * More precisely we impose \f$fact_dir.\Psi + fact_neu.\frac{1}{\partial 
+   * More precisely we impose \f$ fact\_dir.\Psi + fact\_neu.\frac{\partial 
    * \Phi}{\partial r}\f$ is equal to the source at the
    * boundary between the domains \c num  and \c num+1  (the latter one being 
    * a shell).
