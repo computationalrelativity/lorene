@@ -32,8 +32,12 @@ char etoile_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/12/17 21:20:29  e_gourgoulhon
+ * Suppression of the member p_companion,
+ * as well as the associated function set_companion.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.31  2001/06/25  12:53:15  eric
  * Ajout du membre p_companion et des fonctions associees set_companion() et get_companion().
@@ -197,10 +201,6 @@ Etoile_bin::Etoile_bin(Map& mpi, int nzet_i, bool relat, const Eos& eos_i,
     // Pointers of derived quantities initialized to zero : 
     set_der_0x0() ;
     
-    // Pointer to the companion star is initialized to 0x0 (the function
-    //  set_companion() should be called later)
-    p_companion = 0x0 ; 
-    
     // The reference triad is assigned to the vectors u_euler and shift :
     u_euler.set_triad(ref_triad) ; 
     shift.set_triad(ref_triad) ;
@@ -279,10 +279,6 @@ Etoile_bin::Etoile_bin(const Etoile_bin& et)
 {
     set_der_0x0() ;    
 
-    // Pointer to the companion star is initialized to 0x0 (the function
-    //  set_companion() should be called later)
-    p_companion = 0x0 ; 
-    
 }    
 
 // Constructor from a file
@@ -384,10 +380,6 @@ Etoile_bin::Etoile_bin(Map& mpi, const Eos& eos_i, const Base_vect& ref_triad_i,
     // Pointers of derived quantities initialized to zero 
     // --------------------------------------------------
     set_der_0x0() ;
-    
-    // Pointer to the companion star is initialized to 0x0 (the function
-    //  set_companion() should be called later)
-    p_companion = 0x0 ; 
     
 }
 
@@ -507,12 +499,6 @@ Tenseur& Etoile_bin::set_khi_shift() {
     return khi_shift ;
     
 } 
-
-void Etoile_bin::set_companion(const Etoile_bin& comp) {
-    
-    p_companion = &comp ; 
-    
-}
 
 
 			    //--------------//
