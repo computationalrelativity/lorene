@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/03/25 09:14:06  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.10  2004/03/25 08:53:33  j_novak
  * Error in the doc corrected.
  *
@@ -577,7 +580,7 @@ class Bhole {
 	 *    \f[
 	 (\Delta \Psi = - \frac{\Psi^5} {8} K_{ij}K^{ij}
 	 *  \f]
-	 * with the condition that \f$\partial_r \Psi=-\frac{1}{2 \c rayon 
+	 * with the condition that \f$\partial_r \Psi=-\frac{1}{2 {\tt rayon}} 
 	 * f\left(\theta, \phi\right)\f$ on the horizon, where \c f is the value of \f$\Psi\f$ on 
 	 * the horizon at the preceeding step.
 	 * @param relax [input] : the relaxation parameter.
