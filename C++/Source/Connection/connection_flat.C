@@ -30,6 +30,10 @@ char connection_flat_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/12/30 22:59:35  e_gourgoulhon
+ * Suppressed method fait_ricci() (the computation of the Ricci is
+ * now devoted to the virtual method ricci()).
+ *
  * Revision 1.3  2003/10/11 14:39:50  e_gourgoulhon
  * Suppressed declaration of unusued arguments in some methods.
  *
@@ -56,10 +60,9 @@ char connection_flat_C[] = "$Header$" ;
 #include "connection.h"
 
 
-					//------------------------------//
-					//	       Constructors         //
-					//------------------------------//
-
+                //---------------------------//
+		//      Constructors         //
+                //---------------------------//
 
 
 // Constructor for derived classes
@@ -80,20 +83,19 @@ Connection_flat::Connection_flat(const Connection_flat& ci)
 }		
 
 	
-					//----------------------------//
-					//	       Destructor         //
-					//----------------------------//
-
+                //------------------------//
+		//      Destructor        //
+                //------------------------//
 
 Connection_flat::~Connection_flat(){
 
 }
 
 
-					//-----------------------------//
-    				//     Mutators / assignment   //
-					//-----------------------------//
 
+			//-----------------------------//
+    			//     Mutators / assignment   //
+			//-----------------------------//
 
 void Connection_flat::operator=(const Connection_flat& ) {
 	
@@ -104,24 +106,22 @@ void Connection_flat::operator=(const Connection_flat& ) {
 
 
 
-					//-----------------------------//
-					//    Computational methods    //
-					//-----------------------------//
+			//-----------------------------//
+			//    Computational methods    //
+			//-----------------------------//
 
 
-void Connection_flat::compute_ricci() const {
+const Tensor& Connection_flat::ricci() const {
 
-	assert(p_ricci == 0x0) ;
-	
-	p_ricci = new Sym_tensor(*mp, COV, *triad) ;
-	
+    if (p_ricci == 0x0) {  // a new computation is necessary
+
+	p_ricci = new Sym_tensor(*mp, COV, *triad) ;	
 	p_ricci->set_etat_zero() ; 
+    }
+	
+    return *p_ricci ; 
 	
 }
-
-
-
-
 
 
 
