@@ -30,6 +30,9 @@ char vector_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/22 13:08:06  j_novak
+ * Better handling of dzpuis flags
+ *
  * Revision 1.1  2003/10/20 15:15:42  j_novak
  * New method Vector::poisson().
  *
@@ -47,7 +50,7 @@ char vector_poisson_C[] = "$Header$" ;
 Vector Vector::poisson(const double lambda) const {
  
   for (int i=0; i<3; i++)
-    assert(cmp[i]->get_dzpuis() == 4) ;
+    assert(cmp[i]->check_dzpuis(4)) ;
 
   Metric_flat met_local(*mp, *triad) ;
 
@@ -56,12 +59,14 @@ Vector Vector::poisson(const double lambda) const {
     poten.set_etat_zero() ;
   else {
     Scalar tmp = potential(met_local) / (lambda + 1) ;
+    tmp.inc2_dzpuis() ;
     poten = tmp.poisson() ;
   }
 
-  Vector_divfree wdiv = div_free(met_local).poisson() ;
+  Vector grad = poten.derive_con(met_local) ;
+  grad.dec2_dzpuis() ;
 
-  return ( wdiv + poten.derive_cov(met_local)) ;
+  return ( div_free(met_local).poisson() + grad) ;
     
  
 }

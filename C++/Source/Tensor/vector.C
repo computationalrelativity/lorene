@@ -32,6 +32,9 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/10/22 13:08:05  j_novak
+ * Better handling of dzpuis flags
+ *
  * Revision 1.9  2003/10/20 13:00:38  j_novak
  * Memory error corrected
  *
@@ -320,11 +323,23 @@ void Vector::decompose_div(const Metric& metre) const {
     if (p_potential[j] != 0x0) 
       delete p_potential[j] ;
 
-    p_potential[j] = new Scalar( (divergence(metre)).poisson() ) ;
+    int dzp = cmp[0]->get_dzpuis() ;
+    bool dz_zero = cmp[0]->check_dzpuis(0) ;
+    assert( dz_zero || (dzp == 4) ) ;
+    assert (cmp[1]->check_dzpuis(dzp)) ;
+    assert (cmp[2]->check_dzpuis(dzp)) ;
+
+    p_potential[j] = new Scalar( divergence(metre).poisson() ) ;
 
     p_div_free[j] = new Vector_divfree(*mp, *triad, metre) ;
 
-    *p_div_free[j] = ( *this - p_potential[j]->derive_con(metre) ) ;
+    Vector gradient = p_potential[j]->derive_con(metre) ;
+    if (dz_zero)
+      gradient.dec2_dzpuis() ;
+    else
+      gradient.inc2_dzpuis() ;
+
+    *p_div_free[j] = ( *this - gradient ) ;
 
   }
   

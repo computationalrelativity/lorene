@@ -32,6 +32,9 @@ char vector_divfree_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/22 13:08:06  j_novak
+ * Better handling of dzpuis flags
+ *
  * Revision 1.3  2003/10/17 16:34:32  e_gourgoulhon
  * Added new methods set_vr_eta_mu and set_vr_mu.
  *
@@ -142,24 +145,22 @@ void Vector_divfree::operator=(const Vector_divfree& source) {
 
 void Vector_divfree::operator=(const Vector& source) {
     
-    // Assignment of quantities common to all the derived classes of Vector
-	Vector::operator=(source) ; 
+  // Assignment of quantities common to all the derived classes of Vector
+  Vector::operator=(source) ; 
 
-	cout << "Vector_divfree::operator=(const Vector& ) not implemented yet !"
-		<< endl ; 
-	abort() ; 
-    del_deriv() ;
+  //The metric which was set by the constructor is kept
+
+  del_deriv() ;
 }
 
 void Vector_divfree::operator=(const Tensor& source) {
     
-    // Assignment of quantities common to all the derived classes of Vector
-	Vector::operator=(source) ; 
+  // Assignment of quantities common to all the derived classes of Vector
+  Vector::operator=(source) ; 
+  
+  //The metric which was set by the constructor is kept
 
-	cout << "Vector_divfree::operator=(const Tensor& ) not implemented yet !"
-		<< endl ; 
-	abort() ; 
-    del_deriv() ;
+  del_deriv() ;
 }
 
 

@@ -30,6 +30,9 @@ char map_af_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/22 13:08:05  j_novak
+ * Better handling of dzpuis flags
+ *
  * Revision 1.3  2003/10/20 19:45:27  e_gourgoulhon
  * Treatment of dzpuis in dsdt and stdsdp.
  *
@@ -109,21 +112,43 @@ void Map_af::dsdr(const Cmp& ci, Cmp& resu) const {
     if (ci.get_etat() == ETATZERO) {
 	resu.set_etat_zero() ; 
     }
-    else {    
+    else {   
 	assert( ci.get_etat() == ETATQCQ ) ; 
-	assert( ci.check_dzpuis(0) ) ; 
+	bool dz_zero = ci.check_dzpuis(0) ;
+	bool dz_four = ci.check_dzpuis(4) ;
 
 	(ci.va).coef() ;    // (ci.va).c_cf is up to date
 	
-	resu = (ci.va).dsdx() * dxdr ;     //  dxi/dR, - dxi/dU (ZEC)
-	
-	(resu.va).base = (ci.va).dsdx().base ;	// same basis as d/dxi
-	
 	int nz = mg->get_nzone() ; 
-	if (mg->get_type_r(nz-1) == UNSURR) {
+	if (dz_zero) {
+	  resu = (ci.va).dsdx() * dxdr ;     //  dxi/dR, - dxi/dU (ZEC)
+	
+	  if (mg->get_type_r(nz-1) == UNSURR) {
 	    resu.set_dzpuis(2) ;	    // r^2 d/dr has been computed in the
 					    // external domain
+	  }
 	}
+	else { //we have dzpuis =4 for the input
+	  int nzm1 = nz - 1 ;
+	  assert(dz_four) ;
+	  assert(mg->get_type_r(nzm1) == UNSURR) ;
+
+	  Valeur tmp(ci.va.dsdx() * dxdr) ;
+	  Valeur tmp2 = tmp ;
+	  tmp2.base = (ci.va).dsdx().base ;
+	  tmp.annule(nzm1) ; // not in the CED
+	  tmp2.annule(0, nz-2) ; // special treatment of the CED
+	  tmp2.mult_xm1_zec() ;
+	  tmp2 = tmp2 / xsr ;
+	  tmp2.set(nzm1) -= 4*ci.va(nzm1) ;
+	  tmp2.base = ci.va.base ; //Just for the CED
+	  tmp2.mult_xm1_zec() ;
+
+	  resu = tmp + tmp2 / xsr  ; 
+	  resu.set_dzpuis(4) ;
+	  
+	}
+	(resu.va).base = (ci.va).dsdx().base ;	// same basis as d/dxi
 
     }
     
@@ -144,27 +169,47 @@ void Map_af::srdsdt(const Cmp& ci, Cmp& resu) const {
     else {
 
 	assert( ci.get_etat() == ETATQCQ ) ; 
-	assert( ci.check_dzpuis(0) ) ; 
+	bool dz_zero = ci.check_dzpuis(0) ;
+	bool dz_four = ci.check_dzpuis(4) ;
 
 	(ci.va).coef() ;    // (ci.va).c_cf is up to date
 
 	Valeur tmp = ci.va ; 
 	
 	tmp = tmp.dsdt() ;	// d/dtheta
-	tmp = tmp.sx() ;	// 1/xi, Id, 1/(xi-1)
-	
-	Base_val sauve_base( tmp.base ) ; 
-	
-	tmp = tmp * xsr ;	// xi/R, 1/R, (xi-1)/U
-	
-	tmp.base = sauve_base ;   // The above operation does not the basis
-
-	resu = tmp ;
 
 	int nz = mg->get_nzone() ; 
-	if (mg->get_type_r(nz-1) == UNSURR) {
+
+	if (dz_zero) {
+	  tmp = tmp.sx() ;	// 1/xi, Id, 1/(xi-1)
+	
+	  Base_val sauve_base( tmp.base ) ; 
+
+	  tmp = tmp * xsr ;	// xi/R, 1/R, (xi-1)/U
+
+	  tmp.base = sauve_base ;   // The above operation does not the basis
+	  resu = tmp ;
+	  
+	  if (mg->get_type_r(nz-1) == UNSURR) {
 	    resu.set_dzpuis(2) ;	    // r d/dtheta has been computed in
 					    // the external domain
+	  }
+	}
+	else {
+	  assert (dz_four) ;
+	  Valeur tmp2 = tmp ;
+
+	  tmp.annule(nz-1) ;
+	  tmp = tmp.sx() ;	// 1/xi, Id
+	
+	  Base_val sauve_base( tmp.base ) ; 
+	  tmp2.annule(0,nz-2) ;
+
+	  tmp2.mult_xm1_zec() ;
+	  resu = tmp *xsr + tmp2 /xsr ;
+
+	  resu.va.base = sauve_base ;
+	  resu.set_dzpuis(4) ;
 	}
 
     }
@@ -187,28 +232,49 @@ void Map_af::srstdsdp(const Cmp& ci, Cmp& resu) const {
     else {
 
 	assert( ci.get_etat() == ETATQCQ) ; 
-	assert( ci.check_dzpuis(0) ) ; 
+	bool dz_zero = ci.check_dzpuis(0) ;
+	bool dz_four = ci.check_dzpuis(4) ;
 
 	(ci.va).coef() ;    // (ci.va).c_cf is up to date
 
 	Valeur tmp = ci.va ; 
 	
+
+
 	tmp = tmp.dsdp() ;	// d/dphi
 	tmp = tmp.ssint() ;	// 1/sin(theta)
-	tmp = tmp.sx() ;	// 1/xi, Id, 1/(xi-1)
-	
-	Base_val sauve_base( tmp.base ) ; 
-	
-	tmp = tmp * xsr ;	// xi/R, 1/R, (xi-1)/U
-	
-	tmp.base = sauve_base ;   // The above operation does not change the basis
-
-	resu = tmp ;
 
 	int nz = mg->get_nzone() ; 
-	if (mg->get_type_r(nz-1) == UNSURR) {
-	    resu.set_dzpuis(2) ;	    // r/sin(theta) d/dphi has been 
-					    // computed in the external domain
+
+	if (dz_zero) {
+	  tmp = tmp.sx() ;	// 1/xi, Id, 1/(xi-1)
+	
+	  Base_val sauve_base( tmp.base ) ; 
+	  tmp = tmp * xsr ;	// xi/R, 1/R, (xi-1)/U
+
+	  tmp.base = sauve_base ;   // The above operation does not the basis
+	  resu = tmp ;
+	  
+	  if (mg->get_type_r(nz-1) == UNSURR) {
+	    resu.set_dzpuis(2) ;	    // r d/dtheta has been computed in
+					    // the external domain
+	  }
+	}
+	else {
+	  assert (dz_four) ;
+	  Valeur tmp2 = tmp ;
+
+	  tmp.annule(nz-1) ;
+	  tmp = tmp.sx() ;	// 1/xi, Id
+	
+	  Base_val sauve_base( tmp.base ) ; 
+	  tmp2.annule(0,nz-2) ;
+
+	  tmp2.mult_xm1_zec() ;
+	  resu = tmp *xsr + tmp2 / xsr ;
+
+	  resu.va.base = sauve_base ;
+	  resu.set_dzpuis(4) ;
 	}
 
     }
