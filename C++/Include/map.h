@@ -8,7 +8,7 @@
 
 /*
  *   Copyright (c) 1999-2000 Jean-Alain Marck
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2003 Eric Gourgoulhon
  *   Copyright (c) 1999-2001 Philippe Grandclement
  *   Copyright (c) 2000-2001 Jerome Novak
  *   Copyright (c) 2000-2001 Keisuke Taniguchi
@@ -38,6 +38,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/10/15 10:27:33  e_gourgoulhon
+ * Classes Map, Map_af and Map_et: added new methods dsdt, stdsdp and div_tant.
+ * Class Map_radial: added new Coord's : drdt and stdrdp.
+ *
  * Revision 1.8  2003/06/20 14:14:53  f_limousin
  * Add the operator== to compare two Cmp.
  *
@@ -441,6 +445,7 @@
 #include "base_vect.h"
 #include "valeur.h"
 
+class Scalar ;
 class Cmp ;
 class Param ; 
 class Map_af ; 
@@ -448,7 +453,7 @@ class Map_et ;
 class Tenseur ; 
 
 			//------------------------------------//
-			//	    class Map		      //
+			//            class Map               //
 			//------------------------------------//
 
 /**
@@ -456,7 +461,7 @@ class Tenseur ;
  * 
  * This class is the basic class for describing the mapping between the
  * grid coordinates $(\xi, \theta', \phi')$ and the physical coordinates
- * $(r, \theta, \phi)$ [cf. Bonazzola, Gourgoulhon \& Marck, {\sl Phys. Rev. D}
+ * $(r, \theta, \phi)$ [cf. Bonazzola, Gourgoulhon \& Marck, {\it Phys. Rev. D}
  * {\bf 58}, 104020 (1998)]. 
  * The class {\tt Map} is an abstract one: it cannot be instanciated. 
  * Specific implementation of coordinate mappings will be performed by derived
@@ -728,7 +733,7 @@ class Map {
     // ----------------------
     public:
 	/** Computes $\partial/ \partial r$ of a {\tt Cmp}.
-	 *  Note that in the external compactified domain (ZEC), it computes
+	 *  Note that in the  compactified external domain (CED), it computes
 	 *  $-\partial/ \partial u = r^2 \partial/ \partial r$.
 	 *  @param ci [input] field to consider
 	 *  @param resu [output] derivative of {\tt ci}
@@ -736,7 +741,7 @@ class Map {
 	virtual void dsdr(const Cmp& ci, Cmp& resu) const = 0 ;  	    
 
 	/** Computes $1/r \partial/ \partial \theta$ of a {\tt Cmp}.
-	 *  Note that in the external compactified domain (ZEC), it computes
+	 *  Note that in the  compactified external domain (CED), it computes
 	 *  $1/u \partial/ \partial \theta = r \partial/ \partial \theta$.
 	 *  @param ci [input] field to consider
 	 *  @param resu [output] derivative of {\tt ci}
@@ -744,7 +749,7 @@ class Map {
 	virtual void srdsdt(const Cmp& ci, Cmp& resu) const = 0 ;  	    
 	
 	/** Computes $1/(r\sin\theta) \partial/ \partial \phi$ of a {\tt Cmp}.
-	 *  Note that in the external compactified domain (ZEC), it computes
+	 *  Note that in the  compactified external domain (CED), it computes
 	 *  $1/(u\sin\theta) \partial/ \partial \phi = 
 	 *	    r/\sin\theta \partial/ \partial \phi$.
 	 *  @param ci [input] field to consider
@@ -752,11 +757,23 @@ class Map {
 	 */
 	virtual void srstdsdp(const Cmp& ci, Cmp& resu) const = 0 ;  	    
     
+	/** Computes $\partial/ \partial \theta$ of a {\tt Scalar}.
+	 *  @param uu [input] scalar field 
+	 *  @param resu [output] derivative of {\tt uu}
+	 */
+	virtual void dsdt(const Scalar& uu, Scalar& resu) const = 0 ;  	    
+
+	/** Computes $1/\sin\theta \partial/ \partial \varphi$ of a {\tt Scalar}.
+	 *  @param uu [input] scalar field 
+	 *  @param resu [output] derivative of {\tt uu}
+	 */
+	virtual void stdsdp(const Scalar& uu, Scalar& resu) const = 0 ;  	    
+
 	/** Computes the Laplacian of a scalar field.
 	 *   @param uu	[input]  Scalar field {\it u} (represented as a {\tt Cmp})
 	 *			 the Laplacian $\Delta u$ of which is to be computed
 	 *   @param zec_mult_r [input] Determines the quantity computed in
-	 *			 the external compactified domain (ZEC) :  \\
+	 *			 the  compactified external domain (CED) :  \\
 	 *		    zec\_mult\_r = 0 : $\Delta u$	\\
 	 *		    zec\_mult\_r = 2 : $r^2 \,  \Delta u$	\\
 	 *		    zec\_mult\_r = 4 (default) : $r^4 \, \Delta u$	
@@ -773,7 +790,7 @@ class Map {
 	 */
 	virtual void mult_r(Cmp& ) const = 0 ; 
 
-	/** Multiplication by {\it r} (in the external compactified domain only)
+	/** Multiplication by {\it r} (in the  compactified external domain only)
 	 * of a {\tt Cmp}
 	 */
 	virtual void mult_r_zec(Cmp& ) const = 0 ;
@@ -789,6 +806,10 @@ class Map {
 	/** Division by {\it r} of a {\tt Cmp}
 	 */
 	virtual void div_r(Cmp& ) const = 0 ; 
+
+	/** Division by $\tan\theta$ of a {\tt Scalar}
+	 */
+	virtual void div_tant(Scalar& ) const = 0 ; 
 
 	/** Computes the Cartesian x component (with respect to 
 	 *  {\tt bvect\_cart}) of a vector given
@@ -861,26 +882,26 @@ class Map {
 					   Cmp& v_p) const = 0 ; 
 	
 	/** Decreases by 1 the value of {\tt dzpuis} of a {\tt Cmp} 
-	 *  and changes accordingly its values in the external 
-	 *  compactified domain (ZEC).
+	 *  and changes accordingly its values in the  
+	 *  compactified external domain (CED).
 	 */
 	virtual void dec_dzpuis(Cmp& ) const = 0 ; 
 	
 	/** Decreases by 2 the value of {\tt dzpuis} of a {\tt Cmp} 
-	 *  and changes accordingly its values in the external 
-	 *  compactified domain (ZEC).
+	 *  and changes accordingly its values in the  
+	 *  compactified external domain (CED).
 	 */
 	virtual void dec2_dzpuis(Cmp& ) const = 0 ; 
 	
 	/** Increases by 1 the value of {\tt dzpuis} of a {\tt Cmp} 
-	 *  and changes accordingly its values in the external 
-	 *  compactified domain (ZEC).
+	 *  and changes accordingly its values in the  
+	 *  compactified external domain (CED).
 	 */
 	virtual void inc_dzpuis(Cmp& ) const = 0 ; 
 	
 	/** Increases by 2 the value of {\tt dzpuis} of a {\tt Cmp} 
-	 *  and changes accordingly its values in the external 
-	 *  compactified domain (ZEC).
+	 *  and changes accordingly its values in the  
+	 *  compactified external domain (CED).
 	 */
 	virtual void inc2_dzpuis(Cmp& ) const = 0 ; 
 	
@@ -1048,7 +1069,7 @@ ostream& operator<<(ostream& , const Map& ) ;
 
 
 			//------------------------------------//
-			//	    class Map_radial	      //
+			//          class Map_radial          //
 			//------------------------------------//
 
 
@@ -1085,13 +1106,29 @@ class Map_radial : public Map {
     // - - - - - - - - - - - - - - - - - - 
     public:
 	/**
-	 * $1/(\partial R/\partial\xi) = \partial x /\partial r$ in the nucleus
+	 * $1/(\partial R/\partial\xi) = \partial \xi /\partial r$ in the nucleus
 	 *   and in the non-compactified shells; \\
-	 * $-1/(\partial U/\partial\xi) = \partial x /\partial u$ in the 
+	 * $-1/(\partial U/\partial\xi) = \partial \xi /\partial u$ in the 
 	 *   compactified outer domain.
 	 */
 	Coord dxdr ;	    
 	
+	/**
+	 * $\partial R/\partial\theta'$ in the nucleus
+	 *   and in the non-compactified shells; \\
+	 * $-\partial U/\partial\theta'$ in the 
+	 *   compactified external domain (CED).
+	 */
+	Coord drdt ; 
+
+	/**
+	 * ${1\over\sin\theta} \partial R/\partial\varphi'$ in the nucleus
+	 *   and in the non-compactified shells; \\
+	 * $-{1\over\sin\theta}\partial U/\partial\varphi'$ in the 
+	 *   compactified external domain (CED).
+	 */
+	Coord stdrdp ; 
+
 	/**
 	 * $1/R \times (\partial R/\partial\theta')$ in the nucleus
 	 *   and in the non-compactified shells; \\
@@ -1269,7 +1306,7 @@ class Map_radial : public Map {
 	virtual void mult_r(Cmp& ) const ; 
 
 	/**
-	 * Multiplication by {\it r} (in the external compactified domain only)
+	 * Multiplication by {\it r} (in the compactified external domain only)
 	 * of a {\tt Cmp}
 	 */
 	virtual void mult_r_zec(Cmp& ) const ;
@@ -1285,6 +1322,10 @@ class Map_radial : public Map {
 	/** Division by {\it r} of a {\tt Cmp}
 	 */
 	virtual void div_r(Cmp& ) const ; 
+
+	/** Division by $\tan\theta$ of a {\tt Scalar}
+	 */
+	virtual void div_tant(Scalar& ) const  ; 
 
 	/** Computes the Cartesian x component (with respect to 
 	 *  {\tt bvect\_cart}) of a vector given
@@ -1358,29 +1399,29 @@ class Map_radial : public Map {
 	
 	/**
 	 * Decreases by 1 the value of {\tt dzpuis} of a {\tt Cmp} 
-	 *  and changes accordingly its values in the external 
-	 *  compactified domain (ZEC).
+	 *  and changes accordingly its values in the 
+	 *  compactified external domain (CED).
 	 */
 	virtual void dec_dzpuis(Cmp& ) const ; 
 
 	/**
 	 * Decreases by 2 the value of {\tt dzpuis} of a {\tt Cmp} 
-	 *  and changes accordingly its values in the external 
-	 *  compactified domain (ZEC).
+	 *  and changes accordingly its values in the  
+	 *  compactified external domain (CED).
 	 */
 	virtual void dec2_dzpuis(Cmp& ) const ; 
 
 	/**
 	 * Increases by 1 the value of {\tt dzpuis} of a {\tt Cmp} 
-	 *  and changes accordingly its values in the external 
-	 *  compactified domain (ZEC).
+	 *  and changes accordingly its values in the  
+	 *  compactified external domain (CED).
 	 */
 	virtual void inc_dzpuis(Cmp& ) const ; 
 	
 	/**
 	 * Increases by 2 the value of {\tt dzpuis} of a {\tt Cmp} 
-	 *  and changes accordingly its values in the external 
-	 *  compactified domain (ZEC).
+	 *  and changes accordingly its values in the  
+	 *  compactified external domain (CED).
 	 */
 	virtual void inc2_dzpuis(Cmp& ) const ; 
 	
@@ -1417,7 +1458,7 @@ class Map_radial : public Map {
 
 
 			//------------------------------------//
-			//	    class Map_af	      //
+			//            class Map_af            //
 			//------------------------------------//
 
 
@@ -1616,7 +1657,7 @@ class Map_af : public Map_radial {
     // ----------------------
     public:
 	/** Computes $\partial/ \partial r$ of a {\tt Cmp}.
-	 *  Note that in the external compactified domain (ZEC), it computes
+	 *  Note that in the  compactified external domain (CED), it computes
 	 *  $-\partial/ \partial u = r^2 \partial/ \partial r$.
 	 *  @param ci [input] field to consider
 	 *  @param resu [output] derivative of {\tt ci}
@@ -1624,7 +1665,7 @@ class Map_af : public Map_radial {
 	virtual void dsdr(const Cmp& ci, Cmp& resu) const ;  	    
 
 	/** Computes $1/r \partial/ \partial \theta$ of a {\tt Cmp}.
-	 *  Note that in the external compactified domain (ZEC), it computes
+	 *  Note that in the  compactified external domain (CED), it computes
 	 *  $1/u \partial/ \partial \theta = r \partial/ \partial \theta$.
 	 *  @param ci [input] field to consider
 	 *  @param resu [output] derivative of {\tt ci}
@@ -1632,7 +1673,7 @@ class Map_af : public Map_radial {
 	virtual void srdsdt(const Cmp& ci, Cmp& resu) const ;  	    
 	
 	/** Computes $1/(r\sin\theta) \partial/ \partial \phi$ of a {\tt Cmp}.
-	 *  Note that in the external compactified domain (ZEC), it computes
+	 *  Note that in the compactified external domain (CED), it computes
 	 *  $1/(u\sin\theta) \partial/ \partial \phi = 
 	 *	    r/\sin\theta \partial/ \partial \phi$.
 	 *  @param ci [input] field to consider
@@ -1640,11 +1681,23 @@ class Map_af : public Map_radial {
 	 */
 	virtual void srstdsdp(const Cmp& ci, Cmp& resu) const ;  	    
     
+	/** Computes $\partial/ \partial \theta$ of a {\tt Scalar}.
+	 *  @param uu [input] scalar field 
+	 *  @param resu [output] derivative of {\tt uu}
+	 */
+	virtual void dsdt(const Scalar& uu, Scalar& resu) const ;  	    
+
+	/** Computes $1/\sin\theta \partial/ \partial \varphi$ of a {\tt Scalar}.
+	 *  @param uu [input] scalar field 
+	 *  @param resu [output] derivative of {\tt uu}
+	 */
+	virtual void stdsdp(const Scalar& uu, Scalar& resu) const ;  	    
+
 	/** Computes the Laplacian of a scalar field.
 	 *   @param uu	[input]  Scalar field {\it u} (represented as a {\tt Cmp})
 	 *			 the Laplacian $\Delta u$ of which is to be computed
 	 *   @param zec_mult_r [input] Determines the quantity computed in
-	 *			 the external compactified domain (ZEC) :  \\
+	 *			 the  compactified external domain (CED) :  \\
 	 *		    zec\_mult\_r = 0 : $\Delta u$	\\
 	 *		    zec\_mult\_r = 2 : $r^2 \,  \Delta u$	\\
 	 *		    zec\_mult\_r = 4 (default) : $r^4 \, \Delta u$	
@@ -1807,6 +1860,8 @@ class Map_af : public Map_radial {
 
     friend Mtbl* map_af_fait_xsr(const Map* ) ;
     friend Mtbl* map_af_fait_dxdr(const Map* ) ;
+    friend Mtbl* map_af_fait_drdt(const Map* ) ;
+    friend Mtbl* map_af_fait_stdrdp(const Map* ) ;
     friend Mtbl* map_af_fait_srdrdt(const Map* ) ;
     friend Mtbl* map_af_fait_srstdrdp(const Map* ) ;
     friend Mtbl* map_af_fait_sr2drdt(const Map* ) ;
@@ -1837,6 +1892,8 @@ class Map_af : public Map_radial {
 
      Mtbl* map_af_fait_xsr(const Map* ) ;
      Mtbl* map_af_fait_dxdr(const Map* ) ;
+     Mtbl* map_af_fait_drdt(const Map* ) ;
+     Mtbl* map_af_fait_stdrdp(const Map* ) ;
      Mtbl* map_af_fait_srdrdt(const Map* ) ;
      Mtbl* map_af_fait_srstdrdp(const Map* ) ;
      Mtbl* map_af_fait_sr2drdt(const Map* ) ;
@@ -1850,8 +1907,8 @@ class Map_af : public Map_radial {
 
 
 
-                        //------------------------------------//
-			//	    class Map_et	      //
+			//------------------------------------//
+			//            class Map_et            //
 			//------------------------------------//
 
 
@@ -1862,7 +1919,7 @@ class Map_af : public Map_radial {
  * This mapping relates the grid coordinates
  * $(\xi, \theta', \phi')$ and the physical coordinates $(r, \theta, \phi)$
  * in the following manner [see Bonazzola, Gourgoulhon \& Marck,
- * {\sl Phys. Rev. D} {\bf 58}, 104020 (1998) for details]:
+ * {\it Phys. Rev. D} {\bf 58}, 104020 (1998) for details]:
  * $\theta=\theta'$, $\phi=\phi'$ and
  * \begin{itemize}
  *  \item $r = \alpha [\xi + A(\xi) F(\theta', \phi') + B(\xi) G(\theta', \phi')]
@@ -2195,11 +2252,11 @@ class Map_et : public Map_radial {
 	 *				{\tt par.get\_double\_mod(0)} \\
 	 *   {\tt par.get\_int(4)} : theta index of the collocation point
 	 *			     $(\theta_*, \phi_*)$ [using the notations
-	 *    of Bonazzola, Gourgoulhon \& Marck, {\sl Phys. Rev. D} {\bf 58}, 
+	 *    of Bonazzola, Gourgoulhon \& Marck, {\it Phys. Rev. D} {\bf 58}, 
 	 *    104020 (1998)] defining an isosurface of {\tt ent} \\
 	 *   {\tt par.get\_int(5)} : phi index of the collocation point
 	 *			     $(\theta_*, \phi_*)$ [using the notations
-	 *    of Bonazzola, Gourgoulhon \& Marck, {\sl Phys. Rev. D} {\bf 58}, 
+	 *    of Bonazzola, Gourgoulhon \& Marck, {\it Phys. Rev. D} {\bf 58}, 
 	 *    104020 (1998)] defining an isosurface of {\tt ent} \\
 	 *   {\tt par.get\_int\_mod(0)} [output] : number of iterations 
 	 *	actually used in the secant method \\
@@ -2207,7 +2264,7 @@ class Map_et : public Map_radial {
 	 *	 determination of zeros by the secant method \\
 	 *   {\tt par.get\_double(1)} : factor by which the values of $\lambda$
 	 *	    and $\mu$ [using the notations
-	 *    of Bonazzola, Gourgoulhon \& Marck, {\sl Phys. Rev. D} {\bf 58}, 
+	 *    of Bonazzola, Gourgoulhon \& Marck, {\it Phys. Rev. D} {\bf 58}, 
 	 *    104020 (1998)] will be multiplied : 1 = regular mapping, 
 	 *	    0 = contracting mapping \\
 	 *   {\tt par.get\_double(2)} : factor by which all the radial distances
@@ -2222,7 +2279,7 @@ class Map_et : public Map_radial {
     // ----------------------
     public:
 	/** Computes $\partial/ \partial r$ of a {\tt Cmp}.
-	 *  Note that in the external compactified domain (ZEC), it computes
+	 *  Note that in the  compactified external domain (CED), it computes
 	 *  $-\partial/ \partial u = r^2 \partial/ \partial r$.
 	 *  @param ci [input] field to consider
 	 *  @param resu [output] derivative of {\tt ci}
@@ -2230,7 +2287,7 @@ class Map_et : public Map_radial {
 	virtual void dsdr(const Cmp& ci, Cmp& resu) const ;  	    
 
 	/** Computes $1/r \partial/ \partial \theta$ of a {\tt Cmp}.
-	 *  Note that in the external compactified domain (ZEC), it computes
+	 *  Note that in the compactified external domain (CED), it computes
 	 *  $1/u \partial/ \partial \theta = r \partial/ \partial \theta$.
 	 *  @param ci [input] field to consider
 	 *  @param resu [output] derivative of {\tt ci}
@@ -2238,7 +2295,7 @@ class Map_et : public Map_radial {
 	virtual void srdsdt(const Cmp& ci, Cmp& resu) const ;  	    
 	
 	/** Computes $1/(r\sin\theta) \partial/ \partial \phi$ of a {\tt Cmp}.
-	 *  Note that in the external compactified domain (ZEC), it computes
+	 *  Note that in the  compactified external domain (CED), it computes
 	 *  $1/(u\sin\theta) \partial/ \partial \phi = 
 	 *	    r/\sin\theta \partial/ \partial \phi$.
 	 *  @param ci [input] field to consider
@@ -2246,11 +2303,23 @@ class Map_et : public Map_radial {
 	 */
 	virtual void srstdsdp(const Cmp& ci, Cmp& resu) const ;  	    
     
+	/** Computes $\partial/ \partial \theta$ of a {\tt Scalar}.
+	 *  @param uu [input] scalar field 
+	 *  @param resu [output] derivative of {\tt uu}
+	 */
+	virtual void dsdt(const Scalar& uu, Scalar& resu) const ;  	    
+
+	/** Computes $1/\sin\theta \partial/ \partial \varphi$ of a {\tt Scalar}.
+	 *  @param uu [input] scalar field 
+	 *  @param resu [output] derivative of {\tt uu}
+	 */
+	virtual void stdsdp(const Scalar& uu, Scalar& resu) const ;  	    
+
 	/** Computes the Laplacian of a scalar field.
 	 *   @param uu	[input]  Scalar field {\it u} (represented as a {\tt Cmp})
 	 *			 the Laplacian $\Delta u$ of which is to be computed
 	 *   @param zec_mult_r [input] Determines the quantity computed in
-	 *			 the external compactified domain (ZEC) :  \\
+	 *			 the  compactified external domain (CED) :  \\
 	 *		    zec\_mult\_r = 0 : $\Delta u$	\\
 	 *		    zec\_mult\_r = 2 : $r^2 \,  \Delta u$	\\
 	 *		    zec\_mult\_r = 4 (default) : $r^4 \, \Delta u$	
@@ -2275,7 +2344,7 @@ class Map_et : public Map_radial {
 	/** Computes the solution of a scalar Poisson equation.
 	 * 
 	 * Following the method explained in Sect. III.C of Bonazzola, 
-	 * Gourgoulhon \& Marck, {\sl Phys. Rev. D} {\bf 58}, 104020 (1998),  
+	 * Gourgoulhon \& Marck, {\it Phys. Rev. D} {\bf 58}, 104020 (1998),  
 	 * the Poisson equation $\Delta u = \sigma$ is re-written
 	 * as $a \tilde\Delta u = \sigma + R(u)$,  where $\tilde\Delta$
 	 * is the Laplacian in an affine mapping and {\it R(u)} contains the
@@ -2456,6 +2525,8 @@ class Map_et : public Map_radial {
 
     friend Mtbl* map_et_fait_xsr(const Map* ) ;
     friend Mtbl* map_et_fait_dxdr(const Map* ) ;
+    friend Mtbl* map_et_fait_drdt(const Map* ) ;
+    friend Mtbl* map_et_fait_stdrdp(const Map* ) ;
     friend Mtbl* map_et_fait_srdrdt(const Map* ) ;
     friend Mtbl* map_et_fait_srstdrdp(const Map* ) ;
     friend Mtbl* map_et_fait_sr2drdt(const Map* ) ;
@@ -2489,6 +2560,8 @@ class Map_et : public Map_radial {
 
      Mtbl* map_et_fait_xsr(const Map* ) ;
      Mtbl* map_et_fait_dxdr(const Map* ) ;
+     Mtbl* map_et_fait_drdt(const Map* ) ;
+     Mtbl* map_et_fait_stdrdp(const Map* ) ;
      Mtbl* map_et_fait_srdrdt(const Map* ) ;
      Mtbl* map_et_fait_srstdrdp(const Map* ) ;
      Mtbl* map_et_fait_sr2drdt(const Map* ) ;
