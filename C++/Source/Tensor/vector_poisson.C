@@ -30,6 +30,9 @@ char vector_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2005/01/10 15:36:09  j_novak
+ * In method 5: added transformation back from the Ylm base.
+ *
  * Revision 1.20  2004/12/23 10:23:06  j_novak
  * Improved method 5 in the case when some components are zero.
  * Changed Vector_divfree::poisson to deduce eta from the equation. 
@@ -496,6 +499,7 @@ Vector Vector::poisson(double lambda, const Metric_flat& met_f, int method)
       Scalar mu = source_mu.poisson_angu().poisson() ;
 
       resu.set(1) = f_r ;
+      resu.set(1).set_spectral_va().ylm_i() ;
       resu.set(2) = eta.dsdt() - mu.stdsdp() ;
       resu.set(3) = eta.stdsdp() + mu.dsdt() ;
       
