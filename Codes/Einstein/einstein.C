@@ -29,6 +29,10 @@ char einstein_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/04/05 14:46:33  e_gourgoulhon
+ * The graphical functions are now declared in graphique.h and
+ * are included in Lorene's library.
+ *
  * Revision 1.13  2004/04/05 07:00:49  e_gourgoulhon
  * Corrected minor error in the computation of taa: ff --> tgam.
  *
@@ -96,13 +100,6 @@ char einstein_C[] = "$Header$" ;
 #include "nbr_spx.h"
 #include "utilitaires.h"
 #include "graphique.h"
-
-
-void des_meridian(const Scalar& uu, double r_min, double r_max,
-                  const char* nomy, int ngraph) ; 
-
-void des_meridian(const Sym_tensor& hh, double r_min, double r_max,
-                  const char* name) ;
 
 int main() {
 
@@ -195,8 +192,8 @@ int main() {
     // arrete() ; 
     // khi_init.smooth_decay(3, 4) ; 
     // khi_init.spectral_display("khi_init") ;   
-    // des_meridian(khi_init, 0., 3., "khi_init after", 2) ; 
-    // arrete() ; 
+    //  des_meridian(khi_init, 0., 3., "khi_init after", 2) ; 
+    //  arrete() ; 
     //## 
                  
     Scalar mu_init(map) ; 
@@ -755,47 +752,5 @@ int main() {
     par_mu.clean_all() ; 
 
     return EXIT_SUCCESS ; 
-}
-
-
-void des_meridian(const Scalar& uu, double r_min, double r_max,
-                  const char* nomy, int ngraph) {
-
-        const Scalar* des[] = {&uu, &uu, &uu, &uu, &uu} ; 
-        double phi1[] = {0., 0., 0., 0.25*M_PI, 0.25*M_PI} ; 
-        double theta1[] = {0., 0.25*M_PI, 0.5*M_PI, 0., 0.25*M_PI} ;
-         
-        des_profile_mult(des, 5, r_min, r_max, theta1, phi1, 1., false, 
-            nomy, 
-            "phi=0: th=0, pi/4, pi/2, phi=pi/4: th=0, pi/4",
-            ngraph) ;
-        
-}
-
-
-void des_meridian(const Sym_tensor& hh, double r_min, double r_max,
-                  const char* name) {
-    
-    char nomy[80] ;
-    
-    int k = 0 ; 
-    for (int i=1; i<=3; i++) {
-        for (int j=i; j<=3; j++) {
-
-                char nom_i[3] ; 
-                sprintf(nom_i, "%d", i) ; 
-                char nom_j[3] ; 
-                sprintf(nom_j, "%d", j) ; 
-                strncpy(nomy, name, 40) ; 
-                strcat(nomy, "  comp. ") ; 
-	        strcat(nomy, nom_i) ; 
-	        strcat(nomy, nom_j) ; 
-    
-                des_meridian(hh(i,j), r_min, r_max, nomy, 50+k) ; 
-                k++ ; 
-                                
-        }
-    }              
-
 }
 
