@@ -30,6 +30,9 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/11/24 19:30:58  jl_jaramillo
+ * Berlin boundary conditions  vv_bound_cart
+ *
  * Revision 1.9  2004/11/18 09:49:44  jl_jaramillo
  * Some new conditions for the shift (Neumann + Dirichlet)
  *
@@ -571,6 +574,7 @@ Vector Isol_hor::beta_bound_cart(double velang) {
 
   Vector tmp_vect = nn() * radial_vect_hor() ;
 
+ 
   Scalar vel_ang (map) ;  
   vel_ang = velang ;
   vel_ang.std_spectral_base() ;
@@ -599,13 +603,22 @@ Valeur Isol_hor::boundary_b_tilde_Neu(){
 
   Scalar hh_tilde = contract(s_tilde.derive_cov(met_gamt), 0, 1) ;
 
-  //  des_profile(hh_tilde, 1.00001, 10, M_PI/2., 0., "H_tilde") ;
+  //des_profile(hh_tilde, 1.00001, 10, M_PI/2., 0., "H_tilde") ;
 
   Scalar tmp (map) ;
 
-  tmp = b_tilde() * hh_tilde - 2 * ( s_tilde(2) * b_tilde().derive_cov(ff)(2)
+  tmp = + b_tilde() * hh_tilde - 2 * ( s_tilde(2) * b_tilde().derive_cov(ff)(2)
 				     + s_tilde(3) * b_tilde().derive_cov(ff)(3) ) ;
   
+  Scalar constant (map) ;
+  constant = 0. ;
+  constant.std_spectral_base() ;
+  constant.inc_dzpuis(2) ;
+
+  tmp += constant ;
+    
+    
+
   tmp = tmp / (2 *  s_tilde(1) ) ;
 
 
@@ -638,9 +651,20 @@ Valeur Isol_hor::boundary_b_tilde_Dir(){
 
   Scalar hh_tilde = contract(s_tilde.derive_cov(met_gamt), 0, 1) ;
 
-
   Scalar tmp = 2 * contract (s_tilde, 0, b_tilde().derive_cov(ff) , 0) ; 
-  //  tmp = tmp / hh_tilde  - 1 ;
+
+  Scalar constant (map) ;
+  constant = -1. ;
+  constant.std_spectral_base() ;
+  constant.inc_dzpuis(2) ;
+
+  tmp -= constant ;
+    
+  tmp = tmp / hh_tilde   ;
+
+
+
+
 
   //  des_profile(tmp, 1.00001, 10, M_PI/2., 0., "tmp") ;
 
@@ -670,20 +694,71 @@ Vector Isol_hor::vv_bound_cart(double velang) {
 
   const Map& map = ff.get_mp() ; 
 
-  Vector tmp_vect (map, CON, *(ff.get_triad()));
-  tmp_vect.set_etat_zero() ;
+  // Preliminaries
+  //--------------
+
+  Vector s_tilde =  tradial_vect_hor() ;
+
+  //cout<<"s_tilde"<<endl;
+  //  cout<<max(s_tilde)<<endl;
+
+  
+  Scalar hh_tilde = contract(s_tilde.derive_cov(met_gamt), 0, 1) ;
+  hh_tilde.dec_dzpuis(2) ;
+
+  Vector tmp_vect = b_tilde() * s_tilde ;
+  
 
   Scalar vel_ang (map) ;  
   vel_ang = velang ;
   vel_ang.std_spectral_base() ;
   vel_ang.mult_rsint() ;
 
-  tmp_vect.set(3) = - vel_ang ;
+  
+  Scalar bc_source (map) ;
+  bc_source = 0. ;
+  bc_source.std_spectral_base() ;
+  bc_source.inc_dzpuis(2) ;
 
-  tmp_vect.std_spectral_base() ;
+  // beta^r component
+  //-----------------
+  double rho = 10. ; // rho>1 ; rho=1 "pure Dirichlet" version
+  Scalar beta_r_corr =  (rho - 1) * b_tilde() * hh_tilde;
+  beta_r_corr.inc_dzpuis(2) ;
+
+  Scalar beta_r (map) ;
+  beta_r = 2 * contract(s_tilde, 0, b_tilde().derive_cov(ff), 0) + beta_r_corr - bc_source ;
+  beta_r = beta_r / (hh_tilde * rho) ;
+    
+  beta_r.dec_dzpuis(2) ;
+  
+  beta_r = beta_r - beta()(2)*s_tilde(2) -  beta()(3)*s_tilde(3) ;
+  Vector tmp = s_tilde.down(0, met_gamt) ;
+  beta_r = beta_r/tmp(1) ;
+
+  //  cout<<"beta_r"<<beta_r<<endl ;
+  //  des_profile(beta_r, 1.00001, 10, M_PI/2., 0., "beta_r") ;
+  
+  
+ 
+  //  Scalar beta_r (map) ;
+  // beta_r = 0.5 ; 
+  beta_r.set_spectral_va().set_base(s_tilde(1).get_spectral_va().get_base()) ;
+  
+
+  //Vector tmp_vect = nn() * radial_vect_hor() ;
+  //  Vector tmp_vect (map, CON, map.get_bvect_spher() ) ;
+  //  tmp_vect.set_etat_zero() ; 
+
+  tmp_vect.set(1) = beta_r ;
+  //  tmp_vect.set(2) = 0. ;
+  tmp_vect.set(3) += - vel_ang ;
+
+  //  tmp_vect.std_spectral_base() ;
 
   tmp_vect.change_triad(map.get_bvect_cart() ) ;
   
+
   /*
   Scalar tmp(map) ;
   
@@ -775,6 +850,9 @@ Valeur Isol_hor:: boundary_vv_z(double velang){
   lim_z = 1 ;   // Why is it necessary this and what it is actually doing?
   
   Scalar vv_z = vv_bound_cart(velang)(3) ;
+  Scalar vv_x = vv_bound_cart(velang)(1) ; // This will be non zero, and we need a 
+                                           // non zero quantity in order to obtain a basis
+                                           // for the valeur lim_z
 
   for (int k=0 ; k<nnp ; k++)
     for (int j=0 ; j<nnt ; j++)
