@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/10/01 15:41:14  e_gourgoulhon
+ * class name Delta changed to Tensor_delta.
+ *
  * Revision 1.10  2003/10/01 13:03:52  e_gourgoulhon
  * The method get_mp() returns now a reference (and not a pointer)
  * onto a mapping.
@@ -518,7 +521,7 @@ class Tensor {
 	friend class Scalar ;
 	friend class Vector ;
 	friend class Sym_tensor ;
-	friend class Delta ;
+	friend class Tensor_delta ;
     
 };
 
@@ -675,9 +678,9 @@ class Sym_tensor : public Tensor {
 } ;
 
 
-			//----------------------------//
-			//        class Delta         //
-			//----------------------------//
+			//---------------------------------//
+			//        class Tensor_delta       //
+			//---------------------------------//
 			
 /**
  * Class describing valence-3 tensors, symmetric on the last two indices.
@@ -687,7 +690,7 @@ class Sym_tensor : public Tensor {
  * 
  * The valence must be 3.
  */
-class Delta : public Tensor {
+class Tensor_delta : public Tensor {
 
     // Constructors - Destructor :
     // -------------------------
@@ -706,7 +709,19 @@ class Delta : public Tensor {
 	 * @param triad_i  vectorial basis (triad) with respect to which 
 	 *			  the tensor components are defined
 	 */
-	Delta(const Map& map, const Itbl& tipe,const Base_vect& triad_i) ;
+	Tensor_delta(const Map& map, const Itbl& tipe, const Base_vect& triad_i) ;
+
+	/** Standard constructor with indices types specified individually
+	 * 
+	 * @param map   the mapping 
+	 * @param tipe0 : type of the first index \\
+	 * @param tipe1 : type of the second index \\
+	 * @param tipe2 : type of the third index \\
+	 * @param triad_i  vectorial basis (triad) with respect to which 
+	 *			  the tensor components are defined
+	 */
+	Tensor_delta(const Map& map, int tipe0, int tipe1, int tipe2,
+				 const Base_vect& triad_i) ;
 
 	/** Standard constructor when both indices are of the same type.
 	 * 
@@ -716,14 +731,14 @@ class Delta : public Tensor {
 	 *			  the tensor components are defined
 	 * 
 	 */
-	Delta(const Map& map, int tipe, const Base_vect& triad_i) ;
+	Tensor_delta(const Map& map, int tipe, const Base_vect& triad_i) ;
 
-	Delta(const Delta&) ; /// Copy constructor
+	Tensor_delta(const Tensor_delta&) ; /// Copy constructor
 
 	/** Constructor from a {\tt Tensor}.
 	 *  The symmetry of the input tensor is assumed to be true but not checked.
 	 */
-	explicit Delta(const Tensor&) ;
+	explicit Tensor_delta(const Tensor&) ;
 	
 	/** Constructor from a file (see {\tt sauve(FILE* )}).
 	 * 
@@ -735,9 +750,9 @@ class Delta : public Tensor {
 	 * @param fich  file which has been created by 
 	 *			    the function {\tt sauve(FILE* )}.
 	 */
-	Delta(const Map& map, const Base_vect& triad_i, FILE* fich) ;
+	Tensor_delta(const Map& map, const Base_vect& triad_i, FILE* fich) ;
 
-	virtual ~Delta() ;    /// Destructor
+	virtual ~Tensor_delta() ;    /// Destructor
 	
     // Mutators / assignment
     // ---------------------
