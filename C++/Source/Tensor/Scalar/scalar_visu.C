@@ -30,6 +30,9 @@ char scalar_visu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/12/15 08:30:40  p_grandclement
+ * Addition of #include <string.h>
+ *
  * Revision 1.2  2003/12/14 21:49:14  e_gourgoulhon
  * Added argument start_dx (to launch OpenDX as a subprocess).
  *
@@ -43,6 +46,7 @@ char scalar_visu_C[] = "$Header$" ;
 
 // C headers
 #include <stdlib.h>
+#include <string.h>
 
 // Lorene headers
 #include "tensor.h"

@@ -30,6 +30,9 @@ char vector_visu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/12/15 08:30:39  p_grandclement
+ * Addition of #include <string.h>
+ *
  * Revision 1.1  2003/12/14 21:48:26  e_gourgoulhon
  * First version
  *
@@ -40,6 +43,7 @@ char vector_visu_C[] = "$Header$" ;
 
 // C headers
 #include <stdlib.h>
+#include <string.h>
 
 // Lorene headers
 #include "tensor.h"
