@@ -81,8 +81,11 @@ C		routine modifiee le 28/11/1997 ajoute'le cas IPAR=1,MULT+3
 C
 C $Id$
 C $Log$
-C Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
-C Initial revision
+C Revision 1.2  2003/05/28 15:25:04  e_gourgoulhon
+C Replaced DIMENSION NDEG(1) by DIMENSION NDEG(*)
+C
+C Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+C LORENE
 C
 c Revision 1.4  1997/11/11  14:50:22  eric
 c Nouvelle version fournie par Silvano.
@@ -111,7 +114,7 @@ C
 C
 C
 	DOUBLE PRECISION CC,CS,RAP,BB,BC,X1,X5,X25
-	DIMENSION NDEG(1),CC(NDR,NDT,*),CS(NDR,NDT,*),RAP(N128)
+	DIMENSION NDEG(*),CC(NDR,NDT,*),CS(NDR,NDT,*),RAP(N128)
 	DIMENSION BB(N128),BC(N128)
 	SAVE NCT,NT,NT11,RAP,BB,BC
 	DATA NCT/0/
