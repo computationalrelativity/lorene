@@ -31,6 +31,9 @@ char et_bin_bhns_extr_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/12/06 17:59:50  k_taniguchi
+ * Change the position of resize.
+ *
  * Revision 1.3  2004/12/02 21:31:56  k_taniguchi
  * Set a filter for the shift vector.
  *
@@ -39,9 +42,6 @@ char et_bin_bhns_extr_equil_C[] = "$Header$" ;
  *
  * Revision 1.1  2004/11/30 20:48:45  k_taniguchi
  * *** empty log message ***
- *
- * Revision 1.4  2003/10/19 20:01:10  e_gourgoulhon
- * Template file
  *
  *
  * $Header$
@@ -312,12 +312,6 @@ void Et_bin_bhns_extr::equil_bhns_extr(double ent_c, const double& mass,
 
 	mp.adapt(ent(), par_adapt) ;
 
-	double fact_resize = 1. / alpha_r ;
-	for (int l=nzet; l<nz-1; l++) {
-	    mp.resize(l, fact_resize) ;
-	}
-	mp_et.resize_extr(fact_resize) ;
-
 	//----------------------------------------------------
 	// Computation of the enthalpy at the new grid points
 	//----------------------------------------------------
@@ -325,6 +319,12 @@ void Et_bin_bhns_extr::equil_bhns_extr(double ent_c, const double& mass,
 	mp_prev.homothetie(alpha_r) ;
 
 	mp.reevaluate(&mp_prev, nzet+1, ent.set()) ;
+
+	double fact_resize = 1. / alpha_r ;
+	for (int l=nzet; l<nz-1; l++) {
+	    mp_et.resize(l, fact_resize) ;
+	}
+	mp_et.resize_extr(fact_resize) ;
 
 	double ent_s_max = -1 ;
 	int k_s_max = -1 ;
