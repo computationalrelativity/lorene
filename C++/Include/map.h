@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2004/01/26 16:16:15  j_novak
+ * Methods of gradient for Scalar s. The input can have any dzpuis.
+ *
  * Revision 1.17  2004/01/19 21:38:21  e_gourgoulhon
  * Corrected sign error in comments of Map_radial::dxdr.
  *
@@ -804,6 +807,33 @@ class Map {
 	 *  @param resu [output] derivative of {\tt ci}
 	 */
 	virtual void srstdsdp(const Cmp& ci, Cmp& resu) const = 0 ;  	    
+    
+	/** Computes $\partial/ \partial r$ of a {\tt Scalar}.
+	 *  Note that in the  compactified external domain (CED), the {\tt dzpuis}
+	 *  flag of the output is 2 if the input has {\tt dzpuis} = 0, and 
+	 *  is increased by 1 in other cases.
+	 *  @param uu [input] field to consider
+	 *  @param resu [output] derivative of {\tt uu}
+	 */
+	virtual void dsdr(const Scalar& uu, Scalar& resu) const = 0 ;  	    
+
+	/** Computes $1/r \partial/ \partial \theta$ of a {\tt Scalar}.
+	 *  Note that in the  compactified external domain (CED), the {\tt dzpuis}
+	 *  flag of the output is 2 if the input has {\tt dzpuis} = 0, and 
+	 *  is increased by 1 in other cases.
+	 *  @param uu [input] field to consider
+	 *  @param resu [output] derivative of {\tt uu}
+	 */
+	virtual void srdsdt(const Scalar& uu, Scalar& resu) const = 0 ;  	    
+	
+	/** Computes $1/(r\sin\theta) \partial/ \partial \phi$ of a {\tt Scalar}.
+	 *  Note that in the  compactified external domain (CED), the {\tt dzpuis}
+	 *  flag of the output is 2 if the input has {\tt dzpuis} = 0, and 
+	 *  is increased by 1 in other cases.
+	 *  @param uu [input] field to consider
+	 *  @param resu [output] derivative of {\tt uu}
+	 */
+	virtual void srstdsdp(const Scalar& uu, Scalar& resu) const = 0 ;  	    
     
 	/** Computes $\partial/ \partial \theta$ of a {\tt Scalar}.
 	 *  @param uu [input] scalar field 
@@ -1778,7 +1808,34 @@ class Map_af : public Map_radial {
 	 *  @param resu [output] derivative of {\tt ci}
 	 */
 	virtual void srstdsdp(const Cmp& ci, Cmp& resu) const ;  	    
-    
+
+	/** Computes $\partial/ \partial r$ of a {\tt Scalar}.
+	 *  Note that in the  compactified external domain (CED), the {\tt dzpuis}
+	 *  flag of the output is 2 if the input has {\tt dzpuis} = 0, and 
+	 *  is increased by 1 in other cases.
+	 *  @param uu [input] field to consider
+	 *  @param resu [output] derivative of {\tt uu}
+	 */
+	virtual void dsdr(const Scalar& uu, Scalar& resu) const  ;  	    
+
+	/** Computes $1/r \partial/ \partial \theta$ of a {\tt Scalar}.
+	 *  Note that in the  compactified external domain (CED), the {\tt dzpuis}
+	 *  flag of the output is 2 if the input has {\tt dzpuis} = 0, and 
+	 *  is increased by 1 in other cases.
+	 *  @param uu [input] field to consider
+	 *  @param resu [output] derivative of {\tt uu}
+	 */
+	virtual void srdsdt(const Scalar& uu, Scalar& resu) const  ;  	    
+	
+	/** Computes $1/(r\sin\theta) \partial/ \partial \phi$ of a {\tt Scalar}.
+	 *  Note that in the  compactified external domain (CED), the {\tt dzpuis}
+	 *  flag of the output is 2 if the input has {\tt dzpuis} = 0, and 
+	 *  is increased by 1 in other cases.
+	 *  @param uu [input] field to consider
+	 *  @param resu [output] derivative of {\tt uu}
+	 */
+	virtual void srstdsdp(const Scalar& uu, Scalar& resu) const ;  	    
+        
 	/** Computes $\partial/ \partial \theta$ of a {\tt Scalar}.
 	 *  @param uu [input] scalar field 
 	 *  @param resu [output] derivative of {\tt uu}
@@ -2447,7 +2504,34 @@ class Map_et : public Map_radial {
 	 *  @param ci [input] field to consider
 	 *  @param resu [output] derivative of {\tt ci}
 	 */
-	virtual void srstdsdp(const Cmp& ci, Cmp& resu) const ;  	    
+	virtual void srstdsdp(const Cmp& ci, Cmp& resu) const ;  	        
+
+	/** Computes $\partial/ \partial r$ of a {\tt Scalar}.
+	 *  Note that in the  compactified external domain (CED), the {\tt dzpuis}
+	 *  flag of the output is 2 if the input has {\tt dzpuis} = 0, and 
+	 *  is increased by 1 in other cases.
+	 *  @param uu [input] field to consider
+	 *  @param resu [output] derivative of {\tt uu}
+	 */
+	virtual void dsdr(const Scalar& uu, Scalar& resu) const ;  	    
+
+	/** Computes $1/r \partial/ \partial \theta$ of a {\tt Scalar}.
+	 *  Note that in the  compactified external domain (CED), the {\tt dzpuis}
+	 *  flag of the output is 2 if the input has {\tt dzpuis} = 0, and 
+	 *  is increased by 1 in other cases.
+	 *  @param uu [input] field to consider
+	 *  @param resu [output] derivative of {\tt uu}
+	 */
+	virtual void srdsdt(const Scalar& uu, Scalar& resu) const ;  	    
+	
+	/** Computes $1/(r\sin\theta) \partial/ \partial \phi$ of a {\tt Scalar}.
+	 *  Note that in the  compactified external domain (CED), the {\tt dzpuis}
+	 *  flag of the output is 2 if the input has {\tt dzpuis} = 0, and 
+	 *  is increased by 1 in other cases.
+	 *  @param uu [input] field to consider
+	 *  @param resu [output] derivative of {\tt uu}
+	 */
+	virtual void srstdsdp(const Scalar& uu, Scalar& resu) const ;  	    
     
 	/** Computes $\partial/ \partial \theta$ of a {\tt Scalar}.
 	 *  @param uu [input] scalar field 

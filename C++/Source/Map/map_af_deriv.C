@@ -30,6 +30,9 @@ char map_af_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/01/26 16:16:17  j_novak
+ * Methods of gradient for Scalar s. The input can have any dzpuis.
+ *
  * Revision 1.6  2004/01/22 16:13:00  e_gourgoulhon
  * Case dzpuis=2 treated in dsdr, srdsdt and srstdsdp (output: dzpuis =
  * 3).
@@ -101,7 +104,6 @@ char map_af_deriv_C[] = "$Header$" ;
  */
  
 // Header Lorene
-#include "map.h"
 #include "cmp.h"
 #include "tensor.h"
 
@@ -192,6 +194,60 @@ void Map_af::dsdr(const Cmp& ci, Cmp& resu) const {
 	(resu.va).set_base( (ci.va).dsdx().get_base() ) ; // same basis as d/dxi
 
     }
+    
+}
+
+void Map_af::dsdr(const Scalar& uu, Scalar& resu) const {
+
+  assert (uu.get_etat() != ETATNONDEF) ; 
+  assert (uu.get_mp().get_mg() == mg) ; 
+
+    
+  if (uu.get_etat() == ETATZERO) {
+    resu.set_etat_zero() ; 
+  }
+  else {   
+    assert( uu.get_etat() == ETATQCQ ) ; 
+
+    const Valeur& uuva = uu.get_spectral_va() ; 
+
+    uuva.coef() ;    // (uu.va).c_cf is up to date
+	
+    int nz = mg->get_nzone() ; 
+    int nzm1 = nz - 1 ;
+
+    if ( uu.get_dzpuis() == 0 ) {
+      resu = uuva.dsdx() * dxdr ;     //  dxdr = dxi/dR, - dxi/dU (ZEC)
+	
+      if (mg->get_type_r(nzm1) == UNSURR) {
+	resu.set_dzpuis(2) ;    // r^2 d/dr has been computed in the
+	                        // external domain
+      } 
+    }
+    else {
+      assert(mg->get_type_r(nzm1) == UNSURR) ;
+
+      int dzp = uu.get_dzpuis() ;
+      
+      resu = uuva.dsdx() * dxdr ;
+      resu.annule_domain(nzm1) ;  // zero in the CED
+      
+      // Special treatment in the CED
+      Valeur tmp_ced = - uuva.dsdx() ; 
+      tmp_ced.annule(0, nz-2) ; // only non zero in the CED
+      tmp_ced.mult_xm1_zec() ; 
+      tmp_ced.set(nzm1) -= dzp * uuva(nzm1) ; 
+      
+      // Recombination shells + CED : 
+      resu.set_spectral_va() += tmp_ced ;
+      
+      resu.set_dzpuis(dzp+1) ;         
+    
+    }
+
+    resu.set_spectral_base( uuva.dsdx().get_base() ) ; // same basis as d/dxi
+
+  }
     
 }
 
@@ -290,6 +346,66 @@ void Map_af::srdsdt(const Cmp& ci, Cmp& resu) const {
         }
 
     }
+    
+}
+
+void Map_af::srdsdt(const Scalar& uu, Scalar& resu) const {
+
+  assert (uu.get_etat() != ETATNONDEF) ; 
+  assert (uu.get_mp().get_mg() == mg) ; 
+    
+  if (uu.get_etat() == ETATZERO) {
+    resu.set_etat_zero() ; 
+  }
+  else {
+
+    assert( uu.get_etat() == ETATQCQ ) ; 
+
+    const Valeur& uuva = uu.get_spectral_va() ;
+    uuva.coef() ;    // (uu.va).c_cf is up to date
+
+    Valeur tmp  = uuva.dsdt() ;	// d/dtheta
+
+    int nz = mg->get_nzone() ; 
+    int nzm1 = nz - 1 ;
+
+    if (uu.get_dzpuis() == 0) {
+      tmp = tmp.sx() ;	// 1/xi, Id, 1/(xi-1)
+	
+      Base_val sauve_base( tmp.get_base() ) ; 
+
+      tmp = tmp * xsr ;	// xi/R, 1/R, (xi-1)/U
+
+      tmp.set_base(sauve_base) ;   // The above operation does not change the basis
+      resu = tmp ;
+	  
+      if (mg->get_type_r(nz-1) == UNSURR) {
+	resu.set_dzpuis(2) ;	    // r d/dtheta has been computed in
+	// the external domain
+      }
+    }
+
+    else {
+      assert(mg->get_type_r(nzm1) == UNSURR) ;
+          
+      int dzp = uu.get_dzpuis() ;
+      // Special treatment in the CED
+      Valeur tmp_ced = tmp ;    // d/dtheta 
+      tmp_ced.annule(0, nz-2) ; // only non zero in the CED
+
+      tmp.annule(nzm1) ; 
+      tmp = tmp.sx() ;	// 1/xi, Id
+      Base_val sauve_base( tmp.get_base() ) ; 
+      tmp = tmp * xsr ;	// xi/R, 1/R
+      tmp.set_base(sauve_base) ;   // The above operation does not change the basis
+                
+      // Recombination shells + CED : 
+      resu = tmp + tmp_ced ;
+                
+      resu.set_dzpuis(dzp+1) ;         
+    }
+            
+  }
     
 }
 
@@ -392,6 +508,68 @@ void Map_af::srstdsdp(const Cmp& ci, Cmp& resu) const {
     }
 
     
+}
+
+void Map_af::srstdsdp(const Scalar& uu, Scalar& resu) const {
+
+  assert (uu.get_etat() != ETATNONDEF) ; 
+  assert (uu.get_mp().get_mg() == mg) ; 
+    
+  if (uu.get_etat() == ETATZERO) {
+    resu.set_etat_zero() ; 
+  }
+  else {
+
+    assert( uu.get_etat() == ETATQCQ ) ; 
+
+    const Valeur& uuva = uu.get_spectral_va() ;
+    uuva.coef() ;    // (uu.va).c_cf is up to date
+
+    Valeur tmp = uuva.dsdp() ;
+	
+    tmp = tmp.ssint() ;	// 1/sin(theta)
+
+    int nz = mg->get_nzone() ; 
+    int nzm1 = nz - 1 ;
+
+    if (uu.get_dzpuis() == 0) {
+
+      tmp = tmp.sx() ;	// 1/xi, Id, 1/(xi-1)
+	
+      Base_val sauve_base( tmp.get_base() ) ; 
+
+      tmp = tmp * xsr ;	// xi/R, 1/R, (xi-1)/U
+
+      tmp.set_base(sauve_base) ;   // The above operation does not change the basis
+      resu = tmp ;
+	  
+      if (mg->get_type_r(nz-1) == UNSURR) {
+	resu.set_dzpuis(2) ;	    // r d/dtheta has been computed in
+	// the external domain
+      }
+    }
+
+    else {
+      assert(mg->get_type_r(nzm1) == UNSURR) ;
+          
+      int dzp = uu.get_dzpuis() ;
+
+      // Special treatment in the CED
+      Valeur tmp_ced = tmp ;    // 1/sin(theta) d/dphi 
+      tmp_ced.annule(0, nz-2) ; // only non zero in the CED
+
+      tmp.annule(nzm1) ; 
+      tmp = tmp.sx() ;	// 1/xi, Id
+      Base_val sauve_base( tmp.get_base() ) ; 
+      tmp = tmp * xsr ;	// xi/R, 1/R
+      tmp.set_base(sauve_base) ;   // The above operation does not change the basis
+                
+      // Recombination shells + CED : 
+      resu = tmp + tmp_ced ;
+                
+      resu.set_dzpuis(dzp+1) ;         
+    }
+  }    
 }
 
 
