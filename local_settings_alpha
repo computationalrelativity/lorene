@@ -44,6 +44,10 @@ F77FLAGS = -extend_source -ieee -O2
 # ------------------------------------------------------------------------
 F77FLAGS_G = -extend_source -ieee -g 
 
+# Type of FFT used: FFT911 in Fortran coming with Lorene
+#		    FFTW3 library (must be installed separately)
+# -------------------------------------------------------------------
+FFT_DIR = FFT991
 
 #===============================#
 #      SYSTEM LIBRARIES		#

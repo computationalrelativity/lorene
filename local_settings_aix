@@ -69,7 +69,10 @@ F77FLAGS = -qfixed=128 -q64 -O2
 # ------------------------------------------------------------------------
 F77FLAGS_G = -g  -qfixed=128 -q64
 
-
+# Type of FFT used: FFT911 in Fortran coming with Lorene
+#		    FFTW3 library (must be installed separately)
+# -------------------------------------------------------------------
+FFT_DIR = FFT991
 
 #===============================#
 #      SYSTEM LIBRARIES		#

@@ -56,6 +56,10 @@ F77FLAGS = -O2 -132
 # ------------------------------------------------------------------------
 F77FLAGS_G = -g -132
 
+# Type of FFT used: FFT911 in Fortran coming with Lorene
+#		    FFTW3 library (must be installed separately)
+# -------------------------------------------------------------------
+FFT_DIR = FFT991
 
 #===============================#
 #      SYSTEM LIBRARIES         #
@@ -63,7 +67,11 @@ F77FLAGS_G = -g -132
 
 # C, C++ libarary, mathematical library and Fortran library
 # ---------------------------------------------------------
+ifeq ($(FFT_DIR),FFTW3)
+LIB_CXX    = -lfftw3 -lCEPCF90 -lF90 -lPEPCF90 -lintrins -L/usr/lib/gcc-lib/i386-redhat-linux/2.96 -lg2c
+else
 LIB_CXX    = -lCEPCF90 -lF90 -lPEPCF90 -lintrins -L/usr/lib/gcc-lib/i386-redhat-linux/2.96 -lg2c
+endif
 
 # Linear Algebra Package (LAPACK) library
 # ---------------------------------------

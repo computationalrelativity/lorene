@@ -8,13 +8,13 @@
 ###############################################################
 
 #===============================#
-#           MAKEDEPEND	        #
+#           MAKEDEPEND          #
 #===============================#
 
-# Path for makedepend commands:
-# WARNING: this path may be very system (and version)-dependent
-INCDEP	= -I/opt/pgi/linux86/5.1/include/
-INCDEP	= -I/usr/include/g++-3
+# Flag for makedepend commands:
+# WARNING: this flag should only be used in conjunction with the CXXFLAG
+# otherwise (C++ compliant cimpiler) see local_settings_linux file
+INCDEP  = -D_STANDARD_C_PLUS_PLUS
 
 #===============================#
 #           COMPILERS		#
@@ -22,22 +22,21 @@ INCDEP	= -I/usr/include/g++-3
 
 # C++ compiler:
 # ------------
-CXX 	 = pgCC
+CXX 	 = CC
 
 # Options for the C++ compiler to produce the optimized library:
 # -------------------------------------------------------------
-CXXFLAGS = -O2 -DNDEBUG
+CXXFLAGS = -n32 -mips4 -r12000 -O2 -OPT:Olimit=0 -LANG:std -DNDEBUG \
+		-no_auto_include
 
 # Options for the C++ compiler to produce the library for debugging:
 # -----------------------------------------------------------------
-CXXFLAGS_G =  -g
-
+CXXFLAGS_G = -n32 -g -mips4 -LANG:std -no_auto_include
 
 # Path for the include files:
 # --------------------------
-INC	= -I$(HOME_LORENE)/C++/Include \
-          -I$(HOME_LORENE)/C++/Include_extra \
-	  -I/opt/pgi/linux86/5.1/include
+INC	= -I$(HOME_LORENE)/C++/Include -I/usr/include/CC \
+		-I$(HOME_LORENE)/C++/Include_extra -I/Octane/freeware/include
 
 # Converting archives to random libraries (if required, otherwise just ls)
 # ------------------------------------------------------------------------
@@ -45,46 +44,39 @@ RANLIB = ls
 
 # Fortran 77 compiler:
 # -------------------
-F77 	 = pgf77 -Mextend
+F77 	 = f77
 
 # Options for the Fortran 77 compiler to produce the optimized library:
 # ---------------------------------------------------------------------
-F77FLAGS = -O2
-
+F77FLAGS = -n32 -mips4 -O2 -OPT:Olimit=3500 -extend_source 
 
 # Options for the Fortran 77 compiler to produce the library for debugging:
 # ------------------------------------------------------------------------
-F77FLAGS_G = -g
+F77FLAGS_G = -n32 -g -static -mips4 -O0 -extend_source
 
 # Type of FFT used: FFT911 in Fortran coming with Lorene
 #		    FFTW3 library (must be installed separately)
 # -------------------------------------------------------------------
-FFT_DIR = FFT991
+FFT_DIR = FFTW3
 
 #===============================#
 #      SYSTEM LIBRARIES		#
 #===============================#
 
-# C, C++ libarary, mathematical library and Fortran library
+# C, C++ library, mathematical library and Fortran library
 # ---------------------------------------------------------
-ifeq ($(FFT_DIR),FFTW3)
-LIB_CXX = -lfftw3 -lpgftnrtl -lpgf90rtl -lpgf90 -lpgf90_rpm1 \
-	-lpghpf2 -lpgc -lm -L/usr/lib/gcc-lib/i386-redhat-linux/2.96 -lg2c
-else 
-LIB_CXX	= -lpgftnrtl -lpgf90rtl -lpgf90 -lpgf90_rpm1 -lpghpf2 -lpgc -lm -L/usr/lib/gcc-lib/i386-redhat-linux/2.96 -lg2c
+LIB_CXX = -L/usr/freeware/lib -lfftw3 -lm -lftn
 
 # Linear Algebra Package (LAPACK) library
 # ---------------------------------------
-LIB_LAPACK = -llapack -lblas
+LIB_LAPACK = -lcomplib.sgimath
 
 # Graphical libraries: PGPLOT and X11
 # -----------------------------------
-# LIB_PGPLOT = -L/usr/X11R6/lib -lcpgplot -lpgplot -lX11
+LIB_PGPLOT = -L/Octane/freeware/lib -lcpgplot -lpgplot -lX11
 
 # GNU scientific library
 # -----------------------------------
-LIB_GSL = -lgsl -lgslcblas
-
-
+LIB_GSL = -L/usr/freeware/lib -lgsl -lgslcblas
 
 
