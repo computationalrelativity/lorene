@@ -30,6 +30,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/11/26 21:56:21  e_gourgoulhon
+ * Class Sym_tensor: added the members p_transverse and p_longit_pot,
+ * and the associated methods transverse( ), longit_pot( ),
+ * del_deriv_met( ) and set_der_met_0x0( ).
+ *
  * Revision 1.8  2003/11/07 16:54:23  e_gourgoulhon
  * Added method Sym_tensor_tt::poisson().
  *
@@ -82,6 +87,29 @@ class Sym_tensor_tt ;
  * @version #$Id$#
  */
 class Sym_tensor : public Tensor {
+
+    // Derived data : 
+    // ------------
+    protected:
+	/** Array of the transverse part ${}^t T^{ij}$ of the tensor with respect 
+	 * to various metrics, transverse meaning divergence-free with respect
+	 * to a metric. Denoting {\tt *this} by $T^{ij}$, we then have
+	 * \begin{equation}
+	 *		T^{ij} = {}^t T^{ij} + \nabla^i W^j + \nabla^j W^i  
+	 *		\qquad\mbox{with}\quad \nabla_j {}^t T^{ij} = 0 
+	 * \end{equation}
+	 * where $\nabla_i$ denotes the covariant derivative with respect
+	 * to the given metric and $W^i$ is the vector potential of the
+	 * longitudinal part of $T^{ij}$ (member {\tt p\_longit\_pot} below)
+	 */
+	mutable Sym_tensor_trans* p_transverse[N_MET_MAX] ;
+
+	/** Array of the vector potential of the
+	 * longitudinal part of the tensor with respect 
+	 * to various metrics (see documentation of member 
+	 * {\tt p\_transverse}
+	 */
+	mutable Vector* p_longit_pot[N_MET_MAX] ;
 
     // Constructors - Destructor :
     // -------------------------
@@ -141,6 +169,17 @@ class Sym_tensor : public Tensor {
 	/// Sets the pointers on derived quantities to 0x0
 	void set_der_0x0() const ; 
 
+	/** Logical destructor of the derivatives depending on the i-th
+	 *  element of {\tt met\_depend} specific to the
+	 *  class {\tt Sym\_tensor} ({\tt p\_transverse}, etc...).
+	 */	
+	virtual void del_derive_met(int i) const ;
+
+	/** Sets all the i-th components of {\tt met\_depend} specific to the
+	 * class {\tt Sym\_tensor} ({\tt p\_transverse}, etc...) to 0x0.
+	 */
+	void set_der_met_0x0(int i) const ;
+
 
     // Mutators / assignment
     // ---------------------
@@ -194,15 +233,35 @@ class Sym_tensor : public Tensor {
 	virtual Itbl indices(int pos) const ;
 	
 		
+    // Computation of derived members
+    // ------------------------------
+	//    protected:
+
 	/**Returns the divergence of {\tt this} with respect to a {\tt Metric}.
 	 * The indices are assumed to be contravariant.
 	 */
 	const Vector& divergence(const Metric&) const ; 
 
-    // Computation of derived members
-    // ------------------------------
-	//    protected:
+	/** Computes the transverse part ${}^t T^{ij}$ of the tensor with respect 
+	 * to a given metric, transverse meaning divergence-free with respect
+	 * to that metric. Denoting {\tt *this} by $T^{ij}$, we then have
+	 * \begin{equation}
+	 *		T^{ij} = {}^t T^{ij} + \nabla^i W^j + \nabla^j W^i  
+	 *		\qquad\mbox{with}\quad \nabla_j {}^t T^{ij} = 0 
+	 * \end{equation}
+	 * where $\nabla_i$ denotes the covariant derivative with respect
+	 * to the given metric and $W^i$ is the vector potential of the
+	 * longitudinal part of $T^{ij}$ (function {\tt longit\_pot( )} below)
+	 */
+	const Sym_tensor_trans transverse(const Metric&) const ; 
 
+	/** Computes the vector potential $W^i$ of
+	 * longitudinal part of the tensor (see documentation of
+	 * method {\tt transverse( )} above).
+	 */
+	const Vector longit_pot(const Metric&) const ; 
+	
+	
     // Mathematical operators
     // ----------------------
  protected:
