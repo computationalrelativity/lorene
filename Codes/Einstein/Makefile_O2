@@ -7,15 +7,23 @@ LIBLOR = $(HOME_LORENE)/Lib/liblorene.a $(HOME_LORENE)/Lib/liblorenef77.a
 
 .SUFFIXES : .o .C
 
-SRC1 = einstein.C
+SRC1 = wave_evol.C
 OBJ1 = $(SRC1:.C=.o)
 EXE1 = $(SRC1:.C=)
+
+SRC2 = einstein.C
+OBJ2 = $(SRC2:.C=.o)
+EXE2 = $(SRC2:.C=)
 
 $(EXE1): $(OBJ1) $(LIBLOR)
 	$(CXX) -o $@ $(CXXFLAGS) $(OBJ1) $(LIB) $(LIB_LAPACK) \
         $(LIB_PGPLOT) $(LIB_CXX)
 
-all: $(EXE1)
+$(EXE2): $(OBJ2) $(LIBLOR)
+	$(CXX) -o $@ $(CXXFLAGS) $(OBJ2) $(LIB) $(LIB_LAPACK) \
+        $(LIB_PGPLOT) $(LIB_CXX)
+
+all: $(EXE1) $(EXE2)
 
 .C.o:
 	$(CXX)  -c $(CXXFLAGS) $(INC) $<
