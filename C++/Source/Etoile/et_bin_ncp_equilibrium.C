@@ -29,6 +29,9 @@ char et_bin_ncp_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/03/03 19:23:27  f_limousin
+ * Many modifications. Add Cmp ssjm1_gtildeij, change of dzpuis...
+ *
  * Revision 1.1  2003/02/06 17:26:17  f_limousin
  * *** empty log message ***
  *
@@ -110,7 +113,8 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
     int adapt_flag = 1 ;    //  1 = performs the full computation, 
 			    //  0 = performs only the rescaling by 
 			    //      the factor alpha_r
-    //##    int nz_search = nzet + 1 ;  // Number of domains for searching the enthalpy
+    //##    int nz_search = nzet + 1 ;  // Number of domains for searching the 
+                                        // enthalpy
     int nz_search = nzet ;	// Number of domains for searching the enthalpy
 				//  isosurfaces
 
@@ -125,7 +129,8 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
     par_adapt.add_int(nzet, 1) ;    // number of domains where the adjustment 
 				    // to the isosurfaces of ent is to be 
 				    // performed
-    par_adapt.add_int(nz_search, 2) ;	// number of domains to search 					// the enthalpy isosurface
+    par_adapt.add_int(nz_search, 2) ;	// number of domains to search 	
+                                        // the enthalpy isosurface
     par_adapt.add_int(adapt_flag, 3) ; //  1 = performs the full computation, 
 				       //  0 = performs only the rescaling by 
 				       //      the factor alpha_r
@@ -134,19 +139,21 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
     par_adapt.add_int(k_b, 5) ; //  theta index of the collocation point 
 			        //  (theta_*, phi_*)
 
-    par_adapt.add_int_mod(niter, 0) ;  //  number of iterations actually used in 
-				       //  the secant method
+    par_adapt.add_int_mod(niter, 0) ;  // number of iterations actually used in
+ 				       //  the secant method
     
     par_adapt.add_double(precis_secant, 0) ; // required absolute precision in 
 					     // the determination of zeros by 
 					     // the secant method
-    par_adapt.add_double(reg_map, 1)	;  // 1. = regular mapping, 0 = contracting mapping
+    par_adapt.add_double(reg_map, 1)	;  // 1. = regular mapping, 
+                                           // 0 = contracting mapping
     
     par_adapt.add_double(alpha_r, 2) ;	    // factor by which all the radial 
 					    // distances will be multiplied 
     	   
     par_adapt.add_tbl(ent_limit, 0) ;	// array of values of the field ent 
-				        // to define the isosurfaces. 			   
+				        // to define the isosurfaces. 
+			   
 
     // Parameters for the function Map_et::poisson for logn_auto
     // ---------------------------------------------------------
@@ -158,41 +165,95 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
     par_poisson1.add_int(mermax_poisson,  0) ;  // maximum number of iterations
     par_poisson1.add_double(relax_poisson,  0) ; // relaxation parameter
     par_poisson1.add_double(precis_poisson, 1) ; // required precision
-    par_poisson1.add_int_mod(niter, 0) ;  //  number of iterations actually used 
+    par_poisson1.add_int_mod(niter, 0) ; // number of iterations actually used 
     par_poisson1.add_cmp_mod( ssjm1_logn ) ; 
 					   
-    // Parameters for the function Map_et::poisson for log(gamma)
-    // ----------------------------------------------------------
+    // Parameters for the function Map_et::poisson for log(gamma)_auto
+    // ---------------------------------------------------------------
 
     Param par_poisson2 ; 
 
     par_poisson2.add_int(mermax_poisson,  0) ;  // maximum number of iterations
     par_poisson2.add_double(relax_poisson,  0) ; // relaxation parameter
     par_poisson2.add_double(precis_poisson, 1) ; // required precision
-    par_poisson2.add_int_mod(niter, 0) ;  //  number of iterations actually used 
-    //    par_poisson1.add_cmp_mod( ssjm1_loggamma ) ; 
+    par_poisson2.add_int_mod(niter, 0) ; // number of iterations actually used 
+    par_poisson2.add_cmp_mod( ssjm1_loggamma ) ; 
 
 
-
-
-
-
-    // Parameters for the function Map_et::poisson for gtildeij
-    // ---------------------------------------------------------
+    // Parameters for the function Map_et::poisson for gtilde00_auto
+    // -------------------------------------------------------------
 
     Param par_poisson3 ; 
 
     par_poisson3.add_int(mermax_poisson,  0) ;  // maximum number of iterations
     par_poisson3.add_double(relax_poisson,  0) ; // relaxation parameter
     par_poisson3.add_double(precis_poisson, 1) ; // required precision
-    par_poisson3.add_int_mod(niter, 0) ;  //  number of iterations actually used 
+    par_poisson3.add_int_mod(niter, 0) ; // number of iterations actually used 
+    par_poisson3.add_cmp_mod( ssjm1_gtilde00 ) ; 
  					   
+    // Parameters for the function Map_et::poisson for gtilde10_auto
+    // -------------------------------------------------------------
+
+    Param par_poisson4 ; 
+
+    par_poisson4.add_int(mermax_poisson,  0) ;  // maximum number of iterations
+    par_poisson4.add_double(relax_poisson,  0) ; // relaxation parameter
+    par_poisson4.add_double(precis_poisson, 1) ; // required precision
+    par_poisson4.add_int_mod(niter, 0) ; // number of iterations actually used 
+    par_poisson4.add_cmp_mod( ssjm1_gtilde10 ) ; 
+
+    // Parameters for the function Map_et::poisson for gtilde20_auto
+    // -------------------------------------------------------------
+
+    Param par_poisson5 ; 
+
+    par_poisson5.add_int(mermax_poisson,  0) ;  // maximum number of iterations
+    par_poisson5.add_double(relax_poisson,  0) ; // relaxation parameter
+    par_poisson5.add_double(precis_poisson, 1) ; // required precision
+    par_poisson5.add_int_mod(niter, 0) ; // number of iterations actually used 
+    par_poisson5.add_cmp_mod( ssjm1_gtilde20 ) ; 
+
+    // Parameters for the function Map_et::poisson for gtilde11_auto
+    // -------------------------------------------------------------
+
+    Param par_poisson6 ; 
+
+    par_poisson6.add_int(mermax_poisson,  0) ;  // maximum number of iterations
+    par_poisson6.add_double(relax_poisson,  0) ; // relaxation parameter
+    par_poisson6.add_double(precis_poisson, 1) ; // required precision
+    par_poisson6.add_int_mod(niter, 0) ; // number of iterations actually used 
+    par_poisson6.add_cmp_mod( ssjm1_gtilde11 ) ; 
+
+    // Parameters for the function Map_et::poisson for gtilde21_auto
+    // -------------------------------------------------------------
+
+    Param par_poisson7 ; 
+
+    par_poisson7.add_int(mermax_poisson,  0) ;  // maximum number of iterations
+    par_poisson7.add_double(relax_poisson,  0) ; // relaxation parameter
+    par_poisson7.add_double(precis_poisson, 1) ; // required precision
+    par_poisson7.add_int_mod(niter, 0) ; // number of iterations actually used 
+    par_poisson7.add_cmp_mod( ssjm1_gtilde21 ) ; 
+
+    // Parameters for the function Map_et::poisson for gtilde22_auto
+    // -------------------------------------------------------------
+
+    Param par_poisson8 ; 
+
+    par_poisson8.add_int(mermax_poisson,  0) ;  // maximum number of iterations
+    par_poisson8.add_double(relax_poisson,  0) ; // relaxation parameter
+    par_poisson8.add_double(precis_poisson, 1) ; // required precision
+    par_poisson8.add_int_mod(niter, 0) ; // number of iterations actually used 
+    par_poisson8.add_cmp_mod( ssjm1_gtilde22 ) ; 
+
+
     // Parameters for the function Tenseur::poisson_vect
     // -------------------------------------------------
 
     Param par_poisson_vect ; 
 
-    par_poisson_vect.add_int(mermax_poisson,  0) ;  // maximum number of iterations
+    par_poisson_vect.add_int(mermax_poisson,  0) ;  // maximum number of 
+                                                    //  iterations
     par_poisson_vect.add_double(relax_poisson,  0) ; // relaxation parameter
     par_poisson_vect.add_double(precis_poisson, 1) ; // required precision
     par_poisson_vect.add_cmp_mod( ssjm1_khi ) ; 
@@ -211,11 +272,13 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
     
     Tenseur ent_jm1 = ent ;	// Enthalpy at previous step
     
-    Tenseur source(mp) ;    // source term in the equation for logn_auto
-			    // and beta_auto
+    Tenseur source(mp) ;    // source term in the equation for logn_auto,
+			    // loggamma_auto
+
+    Tenseur source_tot(mp) ; // source term in the equation for gtildeij
 			    
-    Tenseur source_shift(mp, 1, CON, ref_triad) ;  // source term in the equation 
-						   //  for shift_auto
+    Tenseur source_shift(mp, 1, CON, mp.get_bvect_cart()) ;  // source term 
+                                  // in the equation for shift_auto
 
 
 
@@ -235,7 +298,6 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	//-----------------------------------------------------
 
 	if (irrotational) {
-	    
 	    diff_vel_pot = velocity_potential(mermax_potvit, precis_poisson, 
 					      relax_potvit) ; 
 	    
@@ -265,7 +327,8 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
 
 
 		// See Eq (100) from Gourgoulhon et al. (2001)
-		double alpha_r2_jk = ( ent_c - ent_b + pot_ext_c - pot_ext_b) / 
+		double alpha_r2_jk = ( ent_c - ent_b + pot_ext_c - pot_ext_b) /
+ 
 			    ( logn_auto_b - logn_auto_c ) ;
 		
 //		cout << "k, j, alpha_r2_jk : " << k << "  " << j << "  " 
@@ -428,7 +491,10 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	Tenseur dcon_logn((logn_auto + logn_comp).derive_con(gtilde)) ;	
 
 
-	source = - contract(dcon_loggamma, 0, dcov_lognauto, 0)/6. + pow(gamma,(1./3.)) * (qpig * (ener_euler + s_euler) + kcar_auto + kcar_comp) - contract(dcov_lognauto, 0, dcon_logn, 0) ;
+	source = - contract(dcon_loggamma, 0, dcov_lognauto, 0)/6. 
+	         + pow(gamma,(1./3.)) * (qpig * (ener_euler + s_euler)
+		 + kcar_auto + kcar_comp) 
+	         - contract(dcov_lognauto, 0, dcon_logn, 0) ;
 	
 
 	source.set_std_base() ;
@@ -465,17 +531,35 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	// Source
 	//--------
 
+	 
+	dcon_loggamma_auto.dec2_dzpuis() ;
+	Tenseur dcovdcon_loggamma_auto(dcon_loggamma_auto
+                             .derive_cov(gtilde)) ;
+ 	dcon_loggamma_auto.inc2_dzpuis() ;			     
+	dcovdcon_loggamma_auto.inc2_dzpuis() ;
+			     
+	cout << (gtilde.ricci_scal())().get_dzpuis() << endl ;
+	cout << (kcar_auto()).get_dzpuis() << endl ;
+	cout << (loggamma_auto().laplacien()).get_dzpuis() << endl ;
 
-	Tenseur dcovdcon_loggamma_auto(loggamma_auto.derive_con(gtilde).derive_cov(gtilde)) ;
+	Tenseur inc_ricci_scal ( gtilde.ricci_scal() ) ;
+	inc_ricci_scal.inc_dzpuis() ;
 
+	source = 3./2. * inc_ricci_scal()
+	  - contract(dcon_loggamma_auto, 0, dcov_loggamma, 0)()/12. 
+	  - pow(gamma(),(1./3.)) * (6.*qpig*ener_euler() 
+	  + 3./2. * (kcar_auto() + kcar_comp())) 
+	  + (loggamma_auto().laplacien() 
+	  - contract(dcovdcon_loggamma_auto, 0, 1)()) ;
+	
 
-	//	source = 3./2. * gtilde.ricci_scal() - contract(dcon_loggamma_auto, 0, dcov_loggamma, 0)/12. - pow(gamma,(1./3.)) * (6.*qpig*ener_euler + 3./2. * (kcar_auto + kcar_comp)) + (loggamma_auto().laplacien() - dcovdcon_loggamma_auto) ;
+	source.set_std_base() ;
+
 
 	 // Resolution of the Poisson equation 
 	 // ----------------------------------
 
-         source().poisson(par_poisson2, loggamma.set()) ; 
-	 gamma = exp(loggamma) ;
+         source().poisson(par_poisson2, loggamma_auto.set()) ; 
 	 
 
          // Check: has the Poisson equation been correctly solved 
@@ -491,35 +575,62 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
          cout << endl ;
          diff_loggamma = max(abs(tdiff_loggamma)) ; 
 
+ 
 
-
-         //--------------------------------------------------------
+	 //--------------------------------------------------------
          // Vector Poisson equation for shift_auto 
          //--------------------------------------------------------
 
          // Source
          //--------
 
-	 Tenseur source1(mp) ;
-	 Tenseur source2(mp) ;
-	 Tenseur source3(mp) ;
-
 	 Tenseur dcov_nnn(nnn.derive_cov(gtilde)) ;
-	 Tenseur dconidcovj_shiftj_auto(contract(shift_auto.derive_cov(gtilde), 0, 1).derive_con(gtilde)) ;
 
-	 source1 = (-4.*qpig) * nnn * pow(gamma,(1./3.))*(ener_euler + press) * u_euler ;
-
-	 source2 = - dconidcovj_shiftj_auto/3. - contract(operator*(gtilde.con(), contract(operator*(gtilde.ricci(), shift_auto),1 ,2)), 1, 2) ;
-
-	 source3 = - pow(gamma,(-1./3.))*contract(tkij_auto, 1, (nnn*dcov_loggamma - 2.* dcov_nnn), 0) ;
-
+	 Tenseur dshift_auto(contract(shift_auto.derive_cov(gtilde), 0, 1)) ;
+	 dshift_auto.dec2_dzpuis() ;
+	 Tenseur dconidcovj_shiftj_auto(dshift_auto.derive_con(gtilde)) ;
+	 dshift_auto.inc2_dzpuis() ;
+	 dconidcovj_shiftj_auto.inc2_dzpuis() ;
 	 
+
+	 Tenseur source1 ( (-4.*qpig) * nnn * pow(gamma,(1./3.))
+	           *(ener_euler + press) * u_euler ) ;
+
+	 cout << (gtilde.ricci())(0,0).get_dzpuis() << endl ;
+
+	 Tenseur inc_ricci (gtilde.ricci()) ;
+	 inc_ricci.inc_dzpuis() ;
+	 
+	 Tenseur source2 ( - dconidcovj_shiftj_auto/3. 
+			   - contract(gtilde.con() * contract(inc_ricci
+					 * shift_auto, 1, 2), 1, 2) ) ;
+
+	 tkij_auto.set_etat_qcq() ;
+
 	 for (int i=0; i<3; i++) {
-	   source_shift.set(i) = source1(i) + source2(i) + source3(i)  
-	   + shift_auto(i).laplacien() 
-	      - (contract((shift_auto.derive_cov(gtilde)).derive_con(gtilde), 1, 2))(i) ; 
+	   for (int j=0; j<3; j++) {
+
+
+	 tkij_auto.set(i,j) = 0 ;
+	   }
 	 }
 
+	 Tenseur source3 ( - pow(gamma,(-1./3.))*contract(tkij_auto, 1
+			   , (nnn*dcov_loggamma - 2.* dcov_nnn), 0) ) ;
+
+	 Tenseur dcov_shift_auto (shift_auto.derive_cov(gtilde)) ;
+	 dcov_shift_auto.dec2_dzpuis() ;
+	 Tenseur dcovdcon_shift_auto (dcov_shift_auto.derive_con(gtilde)) ;
+	 dcov_shift_auto.inc2_dzpuis() ;
+	 dcovdcon_shift_auto.inc2_dzpuis() ;
+
+	 source_shift.set_etat_qcq() ;
+	 for (int i=0; i<3; i++) {
+	   source_shift.set(i) = source1(i) + source2(i) + source3(i)  
+     + shift_auto(i).laplacien() - (contract(dcovdcon_shift_auto, 0, 1))(i) ; 
+
+	 }
+	 
 	 source_shift.set_std_base() ; 	
 
 	 // Resolution of the Poisson equation 
@@ -577,7 +688,7 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
 
          Tbl tdiff_shift_x = diffrel(lap_shift(0), source_shift(0)) ; 
          Tbl tdiff_shift_y = diffrel(lap_shift(1), source_shift(1)) ; 
-          Tbl tdiff_shift_z = diffrel(lap_shift(2), source_shift(2)) ; 
+	 Tbl tdiff_shift_z = diffrel(lap_shift(2), source_shift(2)) ; 
 
          cout << 
          "Relative error in the resolution of the equation for shift_auto : "
@@ -602,14 +713,6 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
          diff_shift_y = max(abs(tdiff_shift_y)) ; 
          diff_shift_z = max(abs(tdiff_shift_z)) ; 
 
-	 // Final result
-         // ------------
-         // The output of Tenseur::poisson_vect is on the mapping triad,
-         // it should therefore be transformed to components on the
-         // reference triad :
-	    
-         shift_auto.change_triad( ref_triad ) ; 
-
 
          //--------------------------------------------------------
 	 // Poisson equation for gij
@@ -618,132 +721,189 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
          // Source
 	 //--------
 	 
+	Cmp gtilde00_auto (mp) ;
+	Cmp gtilde10_auto (mp) ;
+	Cmp gtilde20_auto (mp) ;
+	Cmp gtilde11_auto (mp) ;
+	Cmp gtilde21_auto (mp) ;
+	Cmp gtilde22_auto (mp) ;
+
+	gtilde00_auto.set_etat_qcq() ;
+	gtilde10_auto.set_etat_qcq() ;
+	gtilde20_auto.set_etat_qcq() ;
+	gtilde11_auto.set_etat_qcq() ;
+	gtilde21_auto.set_etat_qcq() ;
+	gtilde22_auto.set_etat_qcq() ;
+	
+	gtilde00_auto = 0 ;
+	gtilde10_auto = 0 ;
+	gtilde20_auto = 0 ;
+	gtilde11_auto = 0 ;
+	gtilde21_auto = 0 ;
+	gtilde22_auto = 0 ;
 	 
-	 for(int i=0; i<=2; i++) {
-	   for(int j=i; j<=2; j++) {
+	for(int i=0; i<=2; i++) {
+	  for(int j=i; j<=2; j++) {
+
+	    dcov_nnn.dec2_dzpuis() ;
+	    Tenseur dcovidcovj_nnn(dcov_nnn.derive_cov(gtilde)(i,j)) ;
+	    Tenseur dcondcov_nnn(contract(dcov_nnn.derive_con(gtilde),0,1)) ;
+	    dcov_nnn.inc2_dzpuis() ;
+	    dcovidcovj_nnn.inc2_dzpuis() ;
+	    dcondcov_nnn.inc2_dzpuis() ;
+
+	    dcov_loggamma_auto.dec2_dzpuis() ;
+	    Tenseur dcovidcovj_loggamma_auto(dcov_loggamma_auto
+					     .derive_cov(gtilde)(i,j)) ;
+	    Tenseur dcondcov_loggamma_auto(contract(dcov_loggamma_auto
+				     	    .derive_con(gtilde), 0, 1)) ;
+	    dcov_loggamma_auto.inc2_dzpuis() ;
+	    dcovidcovj_loggamma_auto.inc2_dzpuis() ;
+	    dcondcov_loggamma_auto.inc2_dzpuis() ;
+	     
+
+	    Tenseur source4 (mp) ;
+	    Tenseur source5 (mp) ;
+	    Tenseur source6 (mp) ;
+	   
+	    source4 = - 1/nnn()*dcovidcovj_nnn()   
+  + (dcov_loggamma(i)*dcov_lognauto(j) + dcov_loggamma(j)*dcov_lognauto(i))/6. 
+	      + (dcondcov_nnn()/(3*nnn()) 
+- contract(dcon_loggamma, 0, dcov_lognauto, 0)()/9.)*(gtilde_auto.cov())(i,j) ;
+
+	    
+	    source5 = -(dcovidcovj_loggamma_auto() 
+   - dcov_loggamma_auto(i)*dcov_loggamma(j)/6.)/6. - (inc_ricci_scal() 
+   - (dcondcov_loggamma_auto() - contract(dcon_loggamma_auto, 0
+        , dcov_loggamma, 0)()/6.)/6.)/3.*(gtilde.cov())(i,j) ;
+
+	    
+	    /*   Tenseur atilde2( contract( contract( contract( contract( 
+       	        contract(  contract( gtilde.con() * gtilde.cov() * gtilde.cov()
+   * gtilde.cov()  * gtilde.cov()* (tkij_auto * (tkij_auto + tkij_comp) )
+   , 9, 13), 7, 11), 5, 9), 3, 7), 0, 3), 0, 3) ) ;*/
 
 	     
-	     Tenseur dcovidcovj_nnn(((nnn.derive_cov(gtilde)).derive_cov(gtilde))(i,j)) ;
-	     Tenseur dcondcov_nnn(contract(nnn.derive_cov(gtilde).derive_con(gtilde),0,1)) ;
-	     Tenseur dcovidcovj_loggamma_auto(((loggamma_auto.derive_cov(gtilde)).derive_cov(gtilde))(i,j)) ;
-	     Tenseur dcondcov_loggamma_auto(contract((loggamma_auto.derive_cov(gtilde)).derive_con(gtilde), 0, 1)) ;
+	    source6 = //-2.*pow(gamma(),(-2./3.))*atilde2() 
+	      - 2.*qpig*(pow(gamma(), 1./3.)*stress(i,j) 
+			 - s_euler()*(gtilde.cov())(i,j)/3.) ;
 
-	     Cmp source4 (mp) ;
-	     Cmp source5 (mp) ;
-	     Cmp source6 (mp) ;
-	     Cmp source_tot (mp) ;
+	    
+	    source_tot.set_etat_qcq() ;
 
-	     source4 = - 1/nnn()*dcovidcovj_nnn() + (dcov_loggamma(i)*dcov_lognauto(j) + dcov_loggamma(j)*dcov_lognauto(i))/6. + (dcondcov_nnn()/(3*nnn()) - contract(dcon_loggamma, 0, dcov_lognauto, 0)()/9.)*(gtilde_auto.cov())(i,j) ;
+	    source_tot.set() = 2.*source4() + 2.*source5() ;
+	      + 2.*pow(gamma(),(1./3.))*source6() 
+   	   + (inc_ricci(i,j) + ((gtilde_auto.cov())(i,j)).laplacien()/2.) ;
+	            	
+	    source_tot.set_std_base() ; 
 
-	     source5 = -(dcovidcovj_loggamma_auto() - dcov_loggamma_auto(i)*dcov_loggamma(j)/6.)/6. - ((gtilde.ricci_scal())() - (dcondcov_loggamma_auto() - contract(dcon_loggamma_auto, 0, dcov_loggamma, 0)()/6.)/6.)/3.*(gtilde.cov())(i,j) ;
+	    // Resolution of the Poisson equations and
+	    // Check: has the Poisson equation been correctly solved ?
+	    // -----------------------------------------------------
 
-	     Tenseur atilde2( contract( contract( contract( contract( contract(  contract( operator*( operator*( operator*( operator*( operator*(tkij_auto, tkij_auto + tkij_comp), gtilde.cov() ), gtilde.cov() ), gtilde.cov() ), gtilde.cov() ), 9, 13), 7, 11), 5, 9), 3, 7), 0, 3), 0, 3) ) ;
+	    if(i==0 && j==0) {
 
-	     source6 = -2.*pow(gamma(),(-2./3.))*atilde2() - 2.*qpig*(    - s_euler()*(gtilde.cov())(i,j)/3.) ;
+	      source_tot().poisson(par_poisson3, gtilde00_auto) ; 
+	      
+	      Tbl tdiff_gtilde00 = diffrel(gtilde00_auto.laplacien(), source()) ;
+	      cout << 
+		"Relative error in the resolution of the equation for 
+                 gtilde00 : " << endl ; 
+	      for (int l=0; l<nz; l++) {
+		cout << tdiff_gtilde00(l) << "  " ; 
+	      }
+	      cout << endl ;
+	      diff_gtilde00 = max(abs(tdiff_gtilde00)) ; 
+	    }
 
-	 
-	     source_tot = 2.*source4 + 2.*source5 + 2.*pow(gamma(),(1./3.))*source6 + ((gtilde.ricci())() + ((gtilde_auto.cov())(i,j)).laplacien()/2.) ;
 
-       	
-	source.set_std_base() ; 
+	    if(i==1 && j==0) {
 
-	// Resolution of the Poisson equations 
-	// -----------------------------------
+	      source_tot().poisson(par_poisson4, gtilde10_auto) ; 
+
+	      Tbl tdiff_gtilde10 = diffrel(gtilde10_auto.laplacien(), source()) ;
+	      cout << 
+		"Relative error in the resolution of the equation for 
+                gtilde10 : "  << endl ; 
+	      for (int l=0; l<nz; l++) {
+		cout << tdiff_gtilde10(l) << "  " ; 
+	      }
+	      cout << endl ;
+	      diff_gtilde10 = max(abs(tdiff_gtilde10)) ; 
+	    }
+
+	    if(i==2 && j==0) {
+
+	      source_tot().poisson(par_poisson5, gtilde20_auto) ; 
+	    
+	      Tbl tdiff_gtilde20 = diffrel(gtilde20_auto.laplacien(), source()) ;
+	      cout << 
+		"Relative error in the resolution of the equation for 
+                gtilde20 : " << endl ; 
+	      for (int l=0; l<nz; l++) {
+		cout << tdiff_gtilde20(l) << "  " ; 
+	      }
+	      cout << endl ;
+	      diff_gtilde20 = max(abs(tdiff_gtilde20)) ; 
+	    }
+
+	    if(i==1 && j==1) {
+
+	      source_tot().poisson(par_poisson6, gtilde11_auto) ; 
+
+	      Tbl tdiff_gtilde11 = diffrel(gtilde11_auto.laplacien(), source()) ;
+	      cout << 
+		"Relative error in the resolution of the equation for 
+                gtilde11 : " << endl ; 
+	      for (int l=0; l<nz; l++) {
+		cout << tdiff_gtilde11(l) << "  " ; 
+	      }
+	      cout << endl ;
+	      diff_gtilde11 = max(abs(tdiff_gtilde11)) ; 
+	    }
+
+	    if(i==2 && j==1) {
+
+	      source_tot().poisson(par_poisson7, gtilde21_auto) ; 
+	      
+	      Tbl tdiff_gtilde21 = diffrel(gtilde21_auto.laplacien(), source()) ;
+	      cout << 
+		"Relative error in the resolution of the equation for 
+                gtilde21 : " << endl ; 
+	      for (int l=0; l<nz; l++) {
+		cout << tdiff_gtilde21(l) << "  " ; 
+	      }
+	      cout << endl ;
+	      diff_gtilde21 = max(abs(tdiff_gtilde21)) ; 
+	    }
+
+	    if(i==2 && j==2) {
+
+	      source_tot().poisson(par_poisson8, gtilde22_auto) ; 
+      
+	      Tbl tdiff_gtilde22 = diffrel(gtilde22_auto.laplacien(), source()) ;
+	      cout << 
+		"Relative error in the resolution of the equation for 
+                gtilde22 : " << endl ; 
+	      for (int l=0; l<nz; l++) {
+		cout << tdiff_gtilde22(l) << "  " ; 
+	      }
+	      cout << endl ;
+	      diff_gtilde22 = max(abs(tdiff_gtilde22)) ; 
+	    }
 	
-	Cmp gtildeij (mp) ;
-	source().poisson(par_poisson3, gtildeij) ; 
-
-	Cmp gtilde00 = gtilde.set_cov(0,0) ;
-	Cmp gtilde10 = gtilde.set_cov(1,0) ;
-	Cmp gtilde20 = gtilde.set_cov(2,0) ;
-	Cmp gtilde11 = gtilde.set_cov(1,1) ;
-	Cmp gtilde21 = gtilde.set_cov(2,1) ;
-        Cmp gtilde22 = gtilde.set_cov(2,2) ;
-
-	// Check: has the Poisson equation been correctly solved ?
-	// -----------------------------------------------------
-
-	if(i==0 && j==0) {
-	  gtilde00 = gtildeij ; 
-	  Tbl tdiff_gtilde00 = diffrel(gtilde00.laplacien(), source()) ;
-	  cout << 
-	    "Relative error in the resolution of the equation for gtilde00 : "
-	       << endl ; 
-	  for (int l=0; l<nz; l++) {
-	    cout << tdiff_gtilde00(l) << "  " ; 
 	  }
-	  cout << endl ;
-	  diff_gtilde00 = max(abs(tdiff_gtilde00)) ; 
 	}
 
+	    gtilde_auto.set_cov(0,0) = gtilde00_auto ;
+	    gtilde_auto.set_cov(1,0) = gtilde10_auto ;
+	    gtilde_auto.set_cov(2,0) = gtilde20_auto ;
+	    gtilde_auto.set_cov(1,1) = gtilde11_auto ;
+	    gtilde_auto.set_cov(2,1) = gtilde21_auto ;
+	    gtilde_auto.set_cov(2,2) = gtilde22_auto ;
 
-	if(i==1 && j==0) {
-	  gtilde10 = gtildeij ; 
-	  Tbl tdiff_gtilde10 = diffrel(gtilde10.laplacien(), source()) ;
-	  cout << 
-	    "Relative error in the resolution of the equation for gtilde10 : "
-	       << endl ; 
-	  for (int l=0; l<nz; l++) {
-	    cout << tdiff_gtilde10(l) << "  " ; 
-	  }
-	  cout << endl ;
-	  diff_gtilde10 = max(abs(tdiff_gtilde10)) ; 
-	}
 
-	if(i==2 && j==0) {
-	  gtilde20 = gtildeij ; 
-	  Tbl tdiff_gtilde20 = diffrel(gtilde20.laplacien(), source()) ;
-	  cout << 
-	    "Relative error in the resolution of the equation for gtilde20 : "
-	       << endl ; 
-	  for (int l=0; l<nz; l++) {
-	    cout << tdiff_gtilde20(l) << "  " ; 
-	  }
-	  cout << endl ;
-	  diff_gtilde20 = max(abs(tdiff_gtilde20)) ; 
-	}
-
-	if(i==1 && j==1) {
-	  gtilde11 = gtildeij ; 
-	  Tbl tdiff_gtilde11 = diffrel(gtilde11.laplacien(), source()) ;
-	  cout << 
-	    "Relative error in the resolution of the equation for gtilde11 : "
-	       << endl ; 
-	  for (int l=0; l<nz; l++) {
-	    cout << tdiff_gtilde11(l) << "  " ; 
-	  }
-	  cout << endl ;
-	  diff_gtilde11 = max(abs(tdiff_gtilde11)) ; 
-	}
-
-	if(i==2 && j==1) {
-	  gtilde21 = gtildeij ; 
-	  Tbl tdiff_gtilde21 = diffrel(gtilde21.laplacien(), source()) ;
-	  cout << 
-	    "Relative error in the resolution of the equation for gtilde21 : "
-	       << endl ; 
-	  for (int l=0; l<nz; l++) {
-	    cout << tdiff_gtilde21(l) << "  " ; 
-	  }
-	  cout << endl ;
-	  diff_gtilde21 = max(abs(tdiff_gtilde21)) ; 
-	}
-
-	if(i==2 && j==2) {
-	  gtilde22 = gtildeij ; 
-	  Tbl tdiff_gtilde22 = diffrel(gtilde22.laplacien(), source()) ;
-	  cout << 
-	    "Relative error in the resolution of the equation for gtilde22 : "
-	       << endl ; 
-	  for (int l=0; l<nz; l++) {
-	    cout << tdiff_gtilde22(l) << "  " ; 
-	  }
-	  cout << endl ;
-	  diff_gtilde22 = max(abs(tdiff_gtilde22)) ; 
-	}
-	
-	   }
-	 }            // End of relativistic equations	
+        // End of relativistic equations	
 
 
 	//-------------------------------------------------
@@ -753,7 +913,7 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	Tbl diff_ent_tbl = diffrel( ent(), ent_jm1() ) ; 
 	diff_ent = diff_ent_tbl(0) ; 
 	for (int l=1; l<nzet; l++) {
-	    diff_ent += diff_ent_tbl(l) ; 
+	  diff_ent += diff_ent_tbl(l) ; 
 	}
 	diff_ent /= nzet ; 
 	
