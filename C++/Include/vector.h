@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/10/12 20:33:15  e_gourgoulhon
+ * Added new derived class Vector_divfree (preliminary).
+ *
  * Revision 1.6  2003/10/06 13:58:45  j_novak
  * The memory management has been improved.
  * Implementation of the covariant derivative with respect to the exact Tensor
@@ -60,7 +63,6 @@
  * 
  * @version #$Id$#
  */
-
 class Vector: public Tensor {
 
     // Constructors - Destructor
@@ -131,7 +133,7 @@ class Vector: public Tensor {
     // Accessors
     // ---------
     public:
-	Scalar& set(int ) ; ///Read/write access to a component
+	Scalar& set(int ) ; /// Read/write access to a component
 
 	const Scalar& operator()(int ) const; ///Readonly access to a component
 
@@ -180,5 +182,165 @@ class Vector: public Tensor {
 	
  
 };
+
+
+/**
+ * Divergence-free vectors.
+ *
+ * This class is designed to store divergence-free vectors,
+ * with the component expressed in a orthonormal spherical basis
+ * $(e_r,e_\theta,e_\varphi)$.
+ *
+ * 
+ * @version #$Id$#
+ */
+class Vector_divfree: public Vector {
+
+    // Data : 
+    // -----
+    protected:
+	/// Metric with respect to which the divergence is defined
+	const Metric* const met_div ; 
+	
+	/** Field $\eta$ such that the angular components $(V^r,V^\theta)$
+	 * of the vector are written:
+	 * \begin{equation}
+	 *	V^\theta = {1\over r} \left( {\partial \eta \over \partial\theta}
+	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right)
+	 * \end{equation} 
+	 * \begin{equation}
+	 *	V^\varphi = {1\over r} \left( {1\over\sin\theta} 
+	 *				{\partial \eta \over \partial\varphi}
+	 *				+ {\partial \mu \over \partial\theta} \right)
+	 * \end{equation} 
+	 */
+	mutable const Scalar* p_eta ;
+	
+	/** Field $\mu$ such that the angular components $(V^r,V^\theta)$
+	 * of the vector are written:
+	 * \begin{equation}
+	 *	V^\theta = {1\over r} \left( {\partial \eta \over \partial\theta}
+	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right)
+	 * \end{equation} 
+	 * \begin{equation}
+	 *	V^\varphi = {1\over r} \left( {1\over\sin\theta} 
+	 *				{\partial \eta \over \partial\varphi}
+	 *				+ {\partial \mu \over \partial\theta} \right)
+	 * \end{equation} 
+	 */
+	mutable const Scalar* p_mu ;
+	
+    // Constructors - Destructor
+    // -------------------------
+    public:
+	/** Standard constructor.
+	 * 
+	 * @param map   the mapping 
+	 * @param triad_i  vectorial basis (triad) with respect to which 
+	 *		    the vector components are defined 
+	 * @param met the metric with respect to which the divergence is defined
+	 */
+	Vector_divfree(const Map& map, const Base_vect& triad_i, 
+		const Metric& met) ;
+
+	Vector_divfree(const Vector_divfree& ) ;       /// Copy constructor
+
+	/** Constructor from a file (see {\tt Tensor::sauve(FILE* )}).
+	 * 
+	 * @param map  the mapping
+	 * @param triad_i   vectorial basis (triad) with respect to which 
+	 *			  the tensor components are defined. It will
+	 *			  be checked that it coincides with the basis
+	 *			  saved in the file.
+	 * @param met the metric with respect to which the divergence is defined
+	 * @param fich  file which has been created by 
+	 *			    the function {\tt sauve(FILE* )}.
+	 */
+	Vector_divfree(const Map& map, const Base_vect& triad_i, 
+		const Metric& met, FILE* fich) ;
+
+	virtual ~Vector_divfree() ;			/// Destructor
+
+ 
+    // Memory management
+    // -----------------
+    protected:
+	void del_deriv() const;	/// Deletes the derived quantities
+
+	/// Sets the pointers on derived quantities to 0x0
+	void set_der_0x0() const ; 
+
+
+    // Mutators / assignment
+    // ---------------------
+
+	public:
+	/// Assignment from another {\tt Vector\_divfree}
+	void operator=(const Vector_divfree&) ;	
+	
+	/// Assignment from a Tensor
+	virtual void operator=(const Tensor&) ;	
+	
+
+	// Computational methods
+	// ---------------------
+	public:
+	/** Gives the field $\eta$ such that the angular components $(V^r,V^\theta)$
+	 * of the vector are written:
+	 * \begin{equation}
+	 *	V^\theta = {1\over r} \left( {\partial \eta \over \partial\theta}
+	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right)
+	 * \end{equation} 
+	 * \begin{equation}
+	 *	V^\varphi = {1\over r} \left( {1\over\sin\theta} 
+	 *				{\partial \eta \over \partial\varphi}
+	 *				+ {\partial \mu \over \partial\theta} \right)
+	 * \end{equation} 
+	 */
+	const Scalar& eta() const ;
+	
+	/** Gives the field $\mu$ such that the angular components $(V^r,V^\theta)$
+	 * of the vector are written:
+	 * \begin{equation}
+	 *	V^\theta = {1\over r} \left( {\partial \eta \over \partial\theta}
+	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right)
+	 * \end{equation} 
+	 * \begin{equation}
+	 *	V^\varphi = {1\over r} \left( {1\over\sin\theta} 
+	 *				{\partial \eta \over \partial\varphi}
+	 *				+ {\partial \mu \over \partial\theta} \right)
+	 * \end{equation} 
+	 */
+	const Scalar& mu() const ;
+	
+	
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #endif
