@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/11/27 16:05:11  e_gourgoulhon
+ * Changed return value of methods transverse( ) and longit_pot( ).
+ *
  * Revision 1.9  2003/11/26 21:56:21  e_gourgoulhon
  * Class Sym_tensor: added the members p_transverse and p_longit_pot,
  * and the associated methods transverse( ), longit_pot( ),
@@ -253,13 +256,13 @@ class Sym_tensor : public Tensor {
 	 * to the given metric and $W^i$ is the vector potential of the
 	 * longitudinal part of $T^{ij}$ (function {\tt longit\_pot( )} below)
 	 */
-	const Sym_tensor_trans transverse(const Metric&) const ; 
+	const Sym_tensor_trans& transverse(const Metric&) const ; 
 
 	/** Computes the vector potential $W^i$ of
 	 * longitudinal part of the tensor (see documentation of
 	 * method {\tt transverse( )} above).
 	 */
-	const Vector longit_pot(const Metric&) const ; 
+	const Vector& longit_pot(const Metric&) const ; 
 	
 	
     // Mathematical operators
