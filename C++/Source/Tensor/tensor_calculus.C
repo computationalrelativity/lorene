@@ -33,6 +33,11 @@ char tensor_calculus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/02/18 18:50:07  e_gourgoulhon
+ * -- Added new methods trace(...).
+ * -- Tensorial product moved to file tensor_calculus_ext.C, since it is not
+ *    a method of class Tensor.
+ *
  * Revision 1.6  2004/02/18 15:54:23  e_gourgoulhon
  * Efficiency improved in method scontract: better handling of work (it is
  * now considered as a reference on the relevant component of the result).
@@ -68,62 +73,18 @@ char tensor_calculus_C[] = "$Header$" ;
 #include "metric.h"
 
 
-Tensor operator*(const Tensor& t1, const Tensor& t2) {
-   
-    assert (t1.mp == t2.mp) ;
-    
-    int val_res = t1.valence + t2.valence ;
-     
-    Itbl tipe (val_res) ;
-  
-    for (int i=0 ; i<t1.valence ; i++)
-	tipe.set(i) = t1.type_indice(i) ;
-    for (int i=0 ; i<t2.valence ; i++)
-	tipe.set(i+t1.valence) = t2.type_indice(i) ;
-    
-    
-    if ( (t1.valence != 0) && (t2.valence != 0) ) {
-	assert ( *(t1.get_triad()) == *(t2.get_triad()) ) ;
-    }
-    
-    const Base_vect* triad_res ; 
-    if (t1.valence != 0) {
-	triad_res = t1.get_triad() ; 
-    }
-    else{
-	triad_res = t2.get_triad() ; 
-    }
-    
-    Tensor res(*t1.mp, val_res, tipe, triad_res) ;
-    
-    Itbl jeux_indice_t1 (t1.valence) ;
-    Itbl jeux_indice_t2 (t2.valence) ;
-        
-    for (int i=0 ; i<res.n_comp ; i++) {
-	Itbl jeux_indice_res(res.indices(i)) ;
-	for (int j=0 ; j<t1.valence ; j++)
-	    jeux_indice_t1.set(j) = jeux_indice_res(j) ;
-	for (int j=0 ; j<t2.valence ; j++)
-	    jeux_indice_t2.set(j) = jeux_indice_res(j+t1.valence) ;
-	
-	res.set(jeux_indice_res) = t1(jeux_indice_t1)*t2(jeux_indice_t2) ;
-    }
-    
-    return res ;
-}
-
-
 				//------------------//
-				//   Contraction    //
+				//       Trace      //
 				//------------------//
 
 
-Tensor Tensor::scontract(int ind_1, int ind_2) const {
+Tensor Tensor::trace(int ind_1, int ind_2) const {
     
     // Les verifications :
-    assert ((ind_1 >= 0) && (ind_1 < valence)) ;
-    assert ((ind_2 >= 0) && (ind_2 < valence)) ;
-    assert (type_indice(ind_1) != type_indice(ind_2))  ;
+    assert( (ind_1 >= 0) && (ind_1 < valence) ) ;
+    assert( (ind_2 >= 0) && (ind_2 < valence) ) ;
+    assert( ind_1 != ind_2 )  ;
+    assert( type_indice(ind_1) != type_indice(ind_2) )  ;
  
     // On veut ind_1 < ind_2 :
     if (ind_1 > ind_2) {
@@ -175,6 +136,72 @@ Tensor Tensor::scontract(int ind_1, int ind_2) const {
     return res ;
 }
 
+
+Tensor Tensor::trace(int ind1, int ind2, const Metric& gam) const {
+
+    // Les verifications :
+    assert( (ind1 >= 0) && (ind1 < valence) ) ;
+    assert( (ind2 >= 0) && (ind2 < valence) ) ;
+    assert( ind1 != ind2 )  ;
+ 
+    if ( type_indice(ind1) != type_indice(ind2) ) {
+        cout << "Tensor::trace(int, int, const Metric&) : Warning : \n"
+            << "  the two indices for the trace have opposite types,\n"
+            << "  hence the metric is useless !\n" ; 
+
+        return trace(ind1, ind2) ;               
+    }
+    else {
+        if ( type_indice(ind1) == COV  ) {
+            return contract(gam.con(), 0, 1, *this, ind1, ind2) ; 
+        }
+        else{
+            return contract(gam.cov(), 0, 1, *this, ind1, ind2) ; 
+        }
+    }
+          
+}
+
+
+
+Scalar Tensor::trace() const {
+    
+    // Les verifications :
+    assert( valence == 2 )  ;
+    assert( type_indice(0) != type_indice(1) )  ;
+ 	
+    Scalar res(*mp) ; 
+	res.set_etat_zero() ; 
+    
+    for (int i=1; i<=3; i++) {
+        res += operator()(i,i) ;    
+    }
+	
+    return res ;
+}
+
+
+Scalar Tensor::trace(const Metric& gam) const {
+    
+    assert( valence == 2 )  ;
+ 	
+    if ( type_indice(0) != type_indice(1) ) {
+        cout << "Tensor::trace(const Metric&) : Warning : \n"
+            << "  the two indices have opposite types,\n"
+            << "  hence the metric is useless to get the trace !\n" ; 
+
+        return trace() ;               
+    }
+    else {
+        if ( type_indice(0) == COV  ) {
+            return contract(gam.con(), 0, 1, *this, 0, 1) ; 
+        }
+        else{
+            return contract(gam.cov(), 0, 1, *this, 0, 1) ; 
+        }
+    }
+          
+}
 
 
 				//----------------------//
