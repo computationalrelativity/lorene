@@ -31,7 +31,7 @@ you should type instead
 
 	cvs update -d
 
-This could be a good strategy to always use this last command. 
+It could be a good strategy to always use this last command.
 
 
 Adding a new file
