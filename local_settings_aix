@@ -13,13 +13,21 @@
 
 # C++ compiler:
 # ------------
-CXX 	 = xlC_r 
+CXX 	 = xlC_r
 
 # Options for the C++ compiler to produce the optimized library:
+#
+# Note that if you use the -q64 option, the environment variable
+#  OBJECT_MODE must be set to 64 for the command ar to work properly
+#
 # -------------------------------------------------------------
 CXXFLAGS = -q64 -D__aix -qrtti -O2 -DNDEBUG
 
 # Options for the C++ compiler to produce the library for debugging:
+#
+# Note that if you use the -q64 option, the environment variable
+#  OBJECT_MODE must be set to 64 for the command ar to work properly
+#
 # -----------------------------------------------------------------
 CXXFLAGS_G = -g -q64 -D__aix -qrtti
 
@@ -30,17 +38,25 @@ INC	= -I$(HOME_LORENE)/C++/Include -I/usr/include/xlC \
 
 # Converting archives to random libraries (if required, otherwise just ls)
 # ------------------------------------------------------------------------
-RANLIB = ranlib 
+RANLIB = ranlib
 
 # Fortran 77 compiler:
 # -------------------
-F77 	 = xlf90 
+F77 	 = xlf90
 
 # Options for the Fortran 77 compiler to produce the optimized library:
+#
+# Note that if you use the -q64 option, the environment variable
+#  OBJECT_MODE must be set to 64 for the command ar to work properly
+#
 # ---------------------------------------------------------------------
-F77FLAGS = -qfixed=128 -q64 
+F77FLAGS = -qfixed=128 -q64 -O2
 
 # Options for the Fortran 77 compiler to produce the library for debugging:
+#
+# Note that if you use the -q64 option, the environment variable
+#  OBJECT_MODE must be set to 64 for the command ar to work properly
+#
 # ------------------------------------------------------------------------
 F77FLAGS_G = -g  -qfixed=128 -q64
 
