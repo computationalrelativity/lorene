@@ -32,6 +32,9 @@ char sym_tensor__aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/04/05 15:38:08  j_novak
+ * Changed the formulas for W and X. There was an error before...
+ *
  * Revision 1.3  2005/04/05 09:22:15  j_novak
  * Use of the right formula with poisson_angu(2) for the determination of W and
  * X.
@@ -169,17 +172,16 @@ const Scalar& Sym_tensor::www() const {
     assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
 
     Scalar ppp = 0.5*(operator()(2,2) - operator()(3,3)) ;
-    Scalar tmp = ppp ;
-    tmp.mult_sint() ;
-    Scalar source_w = tmp.dsdt().dsdt() ;
+    Scalar tmp = ppp.dsdt() ;
+    tmp.div_tant() ;
+    Scalar source_w = ppp.dsdt().dsdt() +3*tmp - ppp.stdsdp().stdsdp() -2*ppp ;
     tmp = operator()(2,3) ;
-    tmp.mult_sint() ;
-    source_w += 2*tmp.dsdt().stdsdp() ;
-    source_w.div_sint() ;
-    source_w -= ppp.lapang() ;
+    tmp.div_tant() ;
+    tmp += operator()(2,3).dsdt() ;
+    source_w += 2*tmp.stdsdp() ;
     
     // Resolution of the angular Poisson equation for W
-    p_www = new Scalar( source_w.poisson_angu().poisson_angu(2) ) ; 
+    p_www = new Scalar( source_w.poisson_angu(2).poisson_angu() ) ; 
 
   }
 
@@ -200,17 +202,18 @@ const Scalar& Sym_tensor::xxx() const {
     // All this has a meaning only for spherical components:
     assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
 
-    Scalar tmp = operator()(2,3) ;
-    tmp.mult_sint() ;
-    Scalar source_x = tmp.dsdt().dsdt() ;
-    tmp = 0.5*(operator()(2,2) - operator()(3,3)) ;
-    tmp.mult_sint() ;
-    source_x -= 2*tmp.dsdt().stdsdp() ;
-    source_x.div_sint() ;
-    source_x -= operator()(2,3).lapang() ;
+    const Scalar& htp = operator()(2,3) ;
+    Scalar tmp = htp.dsdt() ;
+    tmp.div_tant() ;
+    Scalar source_x = htp.dsdt().dsdt() + 3*tmp - htp.stdsdp().stdsdp() -2*htp ;
+    Scalar ppp = 0.5*(operator()(2,2) - operator()(3,3)) ;
+    tmp = ppp ;
+    tmp.div_tant() ;
+    tmp += ppp.dsdt() ;
+    source_x -= 2*tmp.stdsdp() ;
     
     // Resolution of the angular Poisson equation for W
-    p_xxx = new Scalar( source_x.poisson_angu().poisson_angu(2) ) ;
+    p_xxx = new Scalar( source_x.poisson_angu(2).poisson_angu() ) ;
 
   }
 
@@ -233,14 +236,23 @@ void Sym_tensor::set_auxiliary(const Scalar& trr, const Scalar& eta_in,
     assert(x_in.check_dzpuis(dzp)) ;
     assert(t_in.check_dzpuis(dzp)) ;
 #endif
+    assert(&eta_in != p_eta) ;
+    assert(&mu_in != p_mu) ;
+    assert(&w_in != p_www) ;
+    assert(&x_in != p_xxx) ;
+    assert(&t_in != p_ttt) ;
 
     set(1,1) = trr ;
     set(1,2) = eta_in.dsdt() - mu_in.stdsdp() ;
     set(1,2).div_r_dzpuis(dzp) ;
     set(1,3) = eta_in.stdsdp() + mu_in.dsdt() ;
     set(1,3).div_r_dzpuis(dzp) ;
-    Scalar ppp = 2*w_in.dsdt().dsdt() - w_in.lapang() - 2*x_in.stdsdp().dsdt() ;
-    set(2,3) = 2*x_in.dsdt().dsdt() - x_in.lapang() + 2*w_in.stdsdp().dsdt() ;
+    Scalar tmp = w_in.lapang() ;
+    tmp.set_spectral_va().ylm_i() ;
+    Scalar ppp = 2*w_in.dsdt().dsdt() -  tmp - 2*x_in.stdsdp().dsdt() ;
+    tmp = x_in.lapang() ;
+    tmp.set_spectral_va().ylm_i() ;
+    set(2,3) = 2*x_in.dsdt().dsdt() - tmp + 2*w_in.stdsdp().dsdt() ;
     set(2,2) = 0.5*t_in + ppp ;
     set(3,3) = 0.5*t_in - ppp ;
 
