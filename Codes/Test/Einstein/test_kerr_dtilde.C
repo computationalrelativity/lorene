@@ -1,6 +1,7 @@
 /*
  *  Test code for LORENE: given the Kerr metric in quasi-isotropic
- *  gauge, it tests it within the 3+1 formalism, in cartesian components.
+ *  gauge, it tests it within the 3+1 formalism and using the 
+ *  "conformal" derivative, in cartesian components.
  *
  */
 
@@ -24,16 +25,13 @@
  *
  */
 
-char test_kerr_C[] = "$Header$" ;
+char test_kerr_dtilde_C[] = "$Header$ ;
 
 /*
  * $Id$
  * $Log$
- * Revision 1.2  2002/09/11 08:31:26  j_novak
+ * Revision 1.1  2002/09/11 08:31:26  j_novak
  * *** empty log message ***
- *
- * Revision 1.1  2002/09/10 13:23:19  j_novak
- * A test code for LORENE on Kerr metric is now available.
  *
  *
  * $Header$
@@ -73,7 +71,7 @@ int main() {
   // echantillonnage en theta :
   int* nt = new int [nz] ;
   for (int l=0 ; l<nz ; l++)
-    nt[l] = 9 ;
+    nt[l] = 17 ;
   int type_t = SYM ;
   
   int* type_r = new int[nz] ;
@@ -159,10 +157,10 @@ int main() {
   Metconf gtilde(pow(gij.determinant(),(-1./3.))*gcart, fij) ;
 
   cout << "----------------------" << endl ;
-  cout << "D_k(metrique conforme)" << endl ;
+  cout << "D~_k(metrique conforme)" << endl ;
   cout << "----------------------" << endl ;  
-  Tenseur_sym dcov(gtilde.cov().derive_cov(gij)) ;
-  Tenseur_sym dcon(gtilde.con().derive_cov(gij)) ;
+  Tenseur_sym dcov(gtilde.cov().derive_cov(gtilde)) ;
+  Tenseur_sym dcon(gtilde.con().derive_cov(gtilde)) ;
   for (int i=0; i<3; i++)
     for (int j=0; j<3; j++) 
        for (int k=j; k<3; k++) {
@@ -175,7 +173,7 @@ int main() {
   cout << "---------------------" << endl ;
   cout << "Norme de la trace K  " << endl ;
   cout << "---------------------" << endl ;
-  Tenseur_sym Kij(0.5*lie_derive(gij.cov(), shift)/lapse) ;
+  Tenseur_sym Kij(0.5*lie_derive(gij.cov(), shift, &gtilde)/lapse) ;
   Tenseur tra(contract(gij.con(), 0, Kij, 0)) ;
   Cmp trace(mapping) ; trace.set_etat_zero() ;
   for (int i=0; i<3; i++) 
@@ -186,19 +184,6 @@ int main() {
   Tenseur trK(trace) ;
   trK.dec_dzpuis() ;
 
-  cout << "-------------------------------" << endl ;
-  cout << "Verification du calcul de Kij  " << endl ;
-  cout << "-------------------------------" << endl ;
-  Tenseur betad(manipule(shift, gij, 0)) ;
-  Tenseur dbeta(betad.derive_cov(gij)) ;
-  Tenseur ver(0.5*dbeta/lapse) ;
-  for (int i=0; i<3; i++) 
-    for (int j=i; j<3; j++) {
-      cout << "i,j : " << i << ", " << j << endl ;
-      cout << norme(Kij(i,j) - ver(i,j) - ver(j,i)) ;
-    }
-  arrete() ;
-
   cout << "**********************************************" << endl ;
   cout << "*** Verifications des equations d'Einstein ***" << endl ;
   cout << "***    en 3+1 ecrites avec la derivee D~   ***" << endl ;
@@ -206,44 +191,42 @@ int main() {
 
   cout << "-------------------------------" << endl ;
   cout << "Membre de droite des equations " << endl ;
-  cout << "       d'evolution de Kij      " << endl ;
+  cout << "       d'evolution de A~ij     " << endl ;
   cout << "-------------------------------" << endl ;
   Tenseur h13(pow(gij.determinant(), -1./3.)) ;
   Tenseur_sym Aij(h13*Kij) ;
   Tenseur_sym Aij_copie(Aij) ;
   Aij_copie.dec2_dzpuis() ;
-  Tenseur_sym L1(lie_derive(Aij_copie, shift)) ;
+  Tenseur_sym L1(lie_derive(Aij_copie, shift, &gtilde)) ;
   L1.inc_dzpuis() ;
   Tenseur_sym KK(contract(contract(gtilde.con(),0, Aij,1),0, Aij, 1)) ;
   KK.dec_dzpuis() ;
-  Tenseur dN(lapse.derive_cov(gij)) ;
+  Tenseur dN(lapse.derive_cov(gtilde)) ;
+  Tenseur dN1(dN) ;
   dN.dec2_dzpuis() ;
-  Tenseur_sym ddN(dN.derive_cov(gij)) ;
+  dN1.dec_dzpuis() ;
+  Tenseur_sym ddN(dN.derive_cov(gtilde)) ;
   ddN.inc_dzpuis() ;
-  Tenseur_sym L2(lapse*(h13*sans_trace(gij.ricci(),gij) - 2*KK + trK*Aij)
-		 + L1) ;
-  Tenseur_sym dKdt(L2 - h13*sans_trace(ddN,gij)) ;
-
-  Tenseur_sym Kij_copie(Kij) ;
-  Kij_copie.dec2_dzpuis() ;
-  Tenseur_sym L10(lie_derive(Kij_copie, shift)) ;
-  L10.inc_dzpuis() ;
-  Tenseur_sym KK0(contract(contract(gij.con(), 0, Kij, 1), 0, Kij, 0)) ;
-  KK0.dec_dzpuis() ;
-  Tenseur_sym L20(lapse*(gij.ricci() - 2*KK0 + trK*Kij) + L10) ;
-  Tenseur dN0(lapse.derive_cov(gij)) ;
-  dN0.dec2_dzpuis() ;
-  Tenseur_sym ddN0(dN0.derive_cov(gij)) ;
-  ddN0.inc_dzpuis() ;
-  ddN0 = ddN0 - L20 ;
+  dN.inc2_dzpuis() ;
+  Tenseur logg(log(gij.determinant())) ;
+  logg.set_std_base() ;
+  Tenseur dlg(logg.derive_cov(gtilde)) ;
+  Tenseur dlg1(dlg) ;
+  dlg.dec2_dzpuis() ;
+  dlg1.dec_dzpuis() ;
+  Tenseur ddlg(dlg.derive_cov(gtilde)) ;
+  ddlg.inc_dzpuis() ;
+  dlg.inc2_dzpuis() ;
+  Tenseur_sym L2(lapse*(h13*sans_trace(gtilde.ricci(),gtilde) 
+			- 1./6.*h13*sans_trace(ddlg - 1./6.*dlg*dlg1, gtilde)
+			-2*KK) + L1) ;
+  Tenseur_sym dKdt(L2 - h13*(sans_trace(ddN,gtilde) 
+			     - 1./6.*sans_trace(dlg*dN1 + dN*dlg1, gtilde))) ;
 
   for (int i=0; i<3; i++) 
     for (int j=i; j<3; j++) {
       cout << "i,j: " << i << ", " << j << endl ;
-      cout << "Formulation avec ~Aij:" << max(abs(dKdt(i,j)))
-	/max(abs(L2(i,j))) ;
-      cout << "Formulation avec Kij:" <<max(abs(ddN0(i,j)))
-	/max(abs(L20(i,j))) ;
+      cout << max(abs(dKdt(i,j))) / max(abs(L2(i,j))+1.) ;
     }
   arrete() ;
 
@@ -252,10 +235,13 @@ int main() {
   cout << "--------------------------------" << endl ;
   Tenseur AA(Aij.carre_scal(gtilde)) ;
   AA.dec_dzpuis() ;
-  Tenseur Ham(gij.ricci_scal() - AA) ;
-  Ham.dec_dzpuis() ; Ham.dec2_dzpuis() ;
-  AA.dec_dzpuis() ; AA.dec2_dzpuis() ;
-  cout << max(abs(Ham()))/max(abs(AA())) ;
+  Tenseur Ham(gtilde.ricci_scal() - AA/h13) ;
+  Tenseur Ham2(contract(contract(gtilde.con(), 1, ddlg, 0), 0, 1)) ;
+  Tenseur Ham3(Ham2 + 
+	       1./12.*contract(contract(gtilde.con(), 1, dlg*dlg1, 0), 0, 1)
+	       - 1.5*Ham) ;
+
+  cout << max(abs(Ham3()))/max(abs(Ham2())+1.) ;
   arrete() ;
 
   cout << "---------------------------------" << endl ;
@@ -263,10 +249,14 @@ int main() {
   cout << "---------------------------------" << endl ;
   Tenseur_sym Aup(contract(contract(Aij,0,gtilde.con(),0), 0, gtilde.con(), 0)) ;
   Aup.dec2_dzpuis() ;
-  Tenseur_sym dA(Aup.derive_cov(gij)) ;
-  Tenseur divA(contract(dA,0,2)) ; divA.dec2_dzpuis() ;
+  Tenseur Adl(0.5*contract(Aup, 1, dlg, 0)) ;
+  Tenseur_sym dA(Aup.derive_cov(gtilde)) ;
+  Tenseur divA(contract(dA,0,2)) ; 
+//   Adl.dec2_dzpuis() ; dA.dec2_dzpuis() ;
+//   Tenseur del(contract(contract(gtilde.delta(), 1, Aup, 0), 1, 2)) ;
+//   del.dec2_dzpuis() ;
   for (int i=0; i<3; i++) {
-    cout << "i:" << i << max(divA(i)) ;
+    cout << "i:" << i << max(abs(divA(i)+Adl(i)))/max(abs(divA(i))+1.) ;
   }
 
   delete [] np ;
