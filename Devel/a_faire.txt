@@ -26,3 +26,7 @@
     ne soient plus mutables, mais sur le meme pied que les composants. Les
     fonctions d'acces et de calcul seraient distinctes ( e.g. mu() ferait un
     'abort() si p_mu = 0x0 ).
+
+ -- classe Valeur: fonction coef() retourne const Mtbl_cf& (et non plus void)
+                   fonction coef_i() retourne const Mtbl& 
+                   et rendre c et c_cf prives. 
