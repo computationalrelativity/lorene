@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/02 21:31:11  e_gourgoulhon
+ * Added methods fait_delta and update
+ * flat_conn is now a modifiable pointer.
+ *
  * Revision 1.3  2003/10/02 15:44:23  j_novak
  * The destructor is now public...
  *
@@ -93,7 +97,7 @@ class Connection {
 	 *   (member {\tt delta}) is defined. 
 	 *
 	 */
-	const Connection_flat* const flat_conn ;
+	const Connection_flat* flat_conn ;
 
 
     // Derived data : 
@@ -182,11 +186,37 @@ class Connection {
 	/// Returns the Ricci tensor associated with the current connection
 	const Tensor& ricci() const ; 
 	
+	/** Update the connection when it is defined ab initio.
+	 *
+	 * @param delta_i tensor $\Delta^i_{\ jk}$ which defines
+	 *  the connection with respect to the flat one: $\Delta^i_{\ jk}$ 
+	 * is the difference between the connection coefficients 
+	 *  $\Gamma^i_{\ jk}$ and
+	 * the connection coefficients ${\bar \Gamma}^i_{\ jk}$ of the
+	 * flat connection. 
+	 */
+	void update(const Tensor_delta& delta_i) ;		
+	
+	/** Update the connection when it is associated with a metric. 
+	 *
+	 * @param met  Metric to which the connection is associated
+	 *
+	 */
+	void update(const Metric& met) ;
+	
+			
 	protected:
 
 	/// Computes the Ricci tensor when necessary
 	virtual void compute_ricci() const ; 
 
+	private:
+	/** Computes the difference $\Delta^i_{\ jk}$ between the
+	 *  connection coefficients and that a the flat connection
+	 *  in the case where the current connection is associated
+	 *  with a metric
+	 */
+	void fait_delta(const Metric& ) ;  
 
 };
 
