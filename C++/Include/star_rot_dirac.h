@@ -97,7 +97,7 @@ class Star_rot_Dirac : public Star {
 
        mutable double* p_angu_mom ; ///< Angular momentum 
        mutable double* p_grv2 ; ///< Error on the virial identity GRV2
-
+       mutable double* p_grv3 ; ///< Error on the virial identity GRV3
 
 
     // Constructors - Destructor
@@ -251,6 +251,7 @@ class Star_rot_Dirac : public Star {
        virtual double mass_g() const ; ///< Gravitational mass
        virtual double angu_mom() const ; ///< Angular momentum
        virtual double grv2() const ;  ///< Error on the virial identity GRV2
+       virtual double grv3() const ; ///< Error on the virial identity GRV3
 
        //    More to come later.....
 
