@@ -30,6 +30,9 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/05/17 19:54:10  e_gourgoulhon
+ * Method initial_data_cts: added arguments graph_device and method_poisson_vect.
+ *
  * Revision 1.7  2004/05/12 15:24:20  e_gourgoulhon
  * Reorganized the #include 's, taking into account that
  * time_slice.h contains now an #include "metric.h".
@@ -161,13 +164,14 @@ void Tslice_dirac_max::set_hh(const Sym_tensor& hh_in) {
 
 void Tslice_dirac_max::initial_data_cts(const Sym_tensor& uu, 
                 const Scalar& trk_in, const Scalar& trk_point, 
-                double pdt, double precis,
-                const Scalar* p_ener_dens, const Vector* p_mom_dens, 
-                const Scalar* p_trace_stress) {
+                double pdt, double precis, int method_poisson_vect,
+                const char* graph_device, const Scalar* p_ener_dens, 
+                const Vector* p_mom_dens, const Scalar* p_trace_stress) {
 
     
     Time_slice_conf::initial_data_cts(uu, trk_in, trk_point, pdt, precis,
-                p_ener_dens, p_mom_dens, p_trace_stress) ;
+                                      method_poisson_vect, graph_device, 
+                                      p_ener_dens, p_mom_dens, p_trace_stress) ;
 
     for (int j = jtime-depth+1 ; j < jtime; j++) {
             
@@ -302,7 +306,7 @@ void Tslice_dirac_max::hh_det_one() const {
 
         double diff = max(max(abs(htrace - htrace_prev))) ;
         cout << "Tslide_dirac_max::hh_det_one() : " 
-	     << "iteration : " << it << " difference : " << diff << endl ;
+	     << "iteration : " << it << " convergence on trace(h): " << diff << endl ;
         if (diff < precis) break ;
         else htrace_prev = htrace ;
 
