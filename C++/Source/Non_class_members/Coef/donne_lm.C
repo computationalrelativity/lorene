@@ -28,6 +28,10 @@ char donne_lm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/11/23 15:13:50  m_forot
+ * Added the bases for the cases without any equatorial symmetry
+ * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
  * Revision 1.3  2003/09/16 12:11:59  j_novak
  * Added the base T_LEG_II.
  *
@@ -95,6 +99,17 @@ char donne_lm_C[] = "$Header$" ;
  * SORTIES : les variables m_quant, l_quant et base_r.
  * 
  */
+
+//-----------------------------------------------------------------
+// Developpement en P_COSSIN pour phi et T_LEG en theta
+//-------------------------------------------------------------------
+
+void donne_lm_nonsymTP (int j, int k, int &m_quant, int &l_quant) {
+
+    m_quant = (k%2 == 0) ? k/2 : (k-1)/2;
+    l_quant = j ;
+    
+}
 
 
 	 //-----------------------------------------------------------------
@@ -198,6 +213,10 @@ void donne_lm (int nz, int zone, int j, int k, Base_val base,
 	case P_COSSIN : 
 	    // cas sym ou antisym en z=0 ...
 	    switch (base_t) {
+
+	      	case T_LEG :
+		  donne_lm_nonsymTP (j, k, m_quant, l_quant) ;
+		  break ;  
 
 		case T_LEG_P :
 		  donne_lm_nonsym (j, k, m_quant, l_quant) ;

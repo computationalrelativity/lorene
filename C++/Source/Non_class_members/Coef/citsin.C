@@ -86,7 +86,7 @@ char citcos_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.3  2004/11/23 15:13:50  m_forot
+ * Revision 1.1  2004/11/23 15:13:50  m_forot
  * Added the bases for the cases without any equatorial symmetry
  * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
  *
@@ -212,32 +212,20 @@ int i, j, k ;
 // Coefficients impairs de G
 //--------------------------
  
-	    double c1 = cf0[n3c] ;
-
-    	    double som = 0;
-	    ff0[n3f] = 0 ;
-    	    for ( i = 3; i < nt; i += 2 ) {
-	    	ff0[ n3f*i ] = cf0[ n3c*i ] - c1 ;
-		som += ff0[ n3f*i ] ;
-    	    }	
-
-// Valeur en psi=0 de la partie antisymetrique de F, F_ :
-	    double fmoins0 = nm1s2 * c1 + som ;
-
-    	    g[1] = 0 ;
-    	    for ( i = 3; i < nt; i += 2 ) {
-		g[i] = 0.25 * ( ff0[ n3f*i ] - ff0[ n3f*(i-2) ] ) ;
-    	    }
-    	    g[nt] = 0 ;	
+	    g[1] = 0 ;
+	    for (i=2; i<nm1; i += 2 ) g[i+1] = -0.5 * cf0[ n3c*i ] ;	
+	    g[nt] = 0 ;	
 
 
 // Coefficients pairs de G
 //------------------------
 
-	    g[0] = cf0[0] ;
-    	    for (i=2; i<nm1; i += 2 ) g[i] = 0.5 * cf0[ n3c*i ] ;	
-    	    g[nm1] = cf0[ n3c*nm1 ] ;
-
+	    g[0] = .5 * cf0[n3c] ;
+    	    for ( i = 3; i < nt; i += 2 ) {
+		g[i-1] = .25 * ( cf0[ n3c*i ] - cf0[ n3c*(i-2) ] ) ;
+    	    }
+	    g[nm1] = - .5 * cf0[ n3c*(nt-2) ] ;
+	    
 // Transformation de Fourier inverse de G 
 //---------------------------------------
 
@@ -251,15 +239,15 @@ int i, j, k ;
 // ... indice du pt symetrique de psi par rapport a pi/2:
 		int isym = nm1 - i ; 
 	
-		double fp = 0.5 * ( g[i] + g[isym] ) ;
-		double fm = 0.5 * ( g[i] - g[isym] ) / sinp[i] ;
+		double fp = 0.5 * ( g[i] + g[isym] ) / sinp[i]  ;
+		double fm = 0.5 * ( g[i] - g[isym] ) ;
 		ff0[ n3f*i ] = fp + fm ;
 		ff0[ n3f*isym ] = fp - fm ;
     	    }
 	
 //... cas particuliers:
-	    ff0[0] = g[0] + fmoins0 ;
-	    ff0[ n3f*nm1 ] = g[0] - fmoins0 ;
+	    ff0[0] = 0. ;
+	    ff0[ n3f*nm1 ] = -2*g[0] ;
 	    ff0[ n3f*nm1s2 ] = g[nm1s2] ;
 
 

@@ -21,7 +21,7 @@
  */
 
 /*
- * Transformation en cos(l*theta) sur le deuxieme indice (theta)
+ * Transformation en sin(l*theta) sur le deuxieme indice (theta)
  *  d'un tableau 3-D representant une fonction quelconque (theta
  *  varie entre 0 et pi).Utilise la routine FFT Fortran FFT991
  *
@@ -62,7 +62,7 @@
  *   double* cf	: 	tableau des coefficients c_l de la fonction definis
  *			  comme suit (a r et phi fixes)
  *
- *			   f(theta) = som_{l=0}^{nt-1} c_l cos( l theta ) . 
+ *			   f(theta) = som_{l=0}^{nt-1} c_l sin( l theta ) . 
  *
  * 			  L'espace memoire correspondant a ce
  *                        pointeur doit etre dimc[0]*dimc[1]*dimc[2] et doit 
@@ -78,12 +78,12 @@
  *
  */
 
-char cftcos_C[] = "$Header$" ;
+char cftsin_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
- * Revision 1.4  2004/11/23 15:13:50  m_forot
+ * Revision 1.1  2004/11/23 15:13:50  m_forot
  * Added the bases for the cases without any equatorial symmetry
  * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
  *
@@ -113,7 +113,7 @@ double*	trigo_ini(int ) ;
 double* cheb_ini(const int) ;
 //*****************************************************************************
 
-void cftcos(const int* deg, const int* dimf, double* ff, const int* dimc,
+void cftsin(const int* deg, const int* dimf, double* ff, const int* dimc,
 		double* cf)
 {
 
@@ -132,25 +132,25 @@ int i, j, k ;
     
 // Tests de dimension:
     if (nt > n2f) {
-	cout << "cftcos: nt > n2f : nt = " << nt << " ,  n2f = " 
+	cout << "cftsin: nt > n2f : nt = " << nt << " ,  n2f = " 
 	<< n2f << endl ;
 	abort () ;
 	exit(-1) ;
     }
     if (nt > n2c) {
-	cout << "cftcos: nt > n2c : nt = " << nt << " ,  n2c = " 
+	cout << "cftsin: nt > n2c : nt = " << nt << " ,  n2c = " 
 	<< n2c << endl ;
 	abort () ;
 	exit(-1) ;
     }
     if (n1f > n1c) {
-	cout << "cftcos: n1f > n1c : n1f = " << n1f << " ,  n1c = " 
+	cout << "cftsin: n1f > n1c : n1f = " << n1f << " ,  n1c = " 
 	<< n1c << endl ;
 	abort () ;
 	exit(-1) ;
     }
     if (n3f > n3c) {
-	cout << "cftcos: n3f > n3c : n3f = " << n3f << " ,  n3c = " 
+	cout << "cftsin: n3f > n3c : n3f = " << n3f << " ,  n3c = " 
 	<< n3c << endl ;
 	abort () ;
 	exit(-1) ;
@@ -204,11 +204,10 @@ int i, j, k ;
 	    i0 = n2n3c * j + k ; // indice de depart 
 	    double* cf0 = cf + i0 ;    // tableau resultat
 
- 
 // Valeur en psi=0 de la partie antisymetrique de F, F_ :
     	    double fmoins0 = 0.5 * ( ff0[0] - ff0[ n3f*nm1 ] );
 
-// Fonction G(psi) = F+(psi) + F_(psi) sin(psi) 
+// Fonction G(psi) = F+(psi)sin(psi) + F_(psi) 
 //---------------------------------------------
     	    for ( i = 1; i < nm1s2 ; i++ ) {
 // ... indice (dans le tableau g) du pt symetrique de psi par rapport a pi/2:
@@ -218,9 +217,9 @@ int i, j, k ;
 // ... indice (dans le tableau ff0) du point theta correspondant a sym(psi)
 		int ixsym = n3f * isym ;
 // ... F+(psi)
-		double fp = 0.5 * ( ff0[ix] + ff0[ixsym] ) ;	
+		double fp = 0.5 * ( ff0[ix] + ff0[ixsym] ) * sinp[i] ;	
 // ... F_(psi) sin(psi)
-		double fms = 0.5 * ( ff0[ix] - ff0[ixsym] ) * sinp[i] ; 
+		double fms = 0.5 * ( ff0[ix] - ff0[ixsym] ) ; 
 		g[i] = fp + fms ;
 		g[isym] = fp - fms ;
     	    }
@@ -233,36 +232,27 @@ int i, j, k ;
 
     	    F77_fft991( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
 
-// Coefficients pairs du developmt. cos(l theta) de f
+// Coefficients pairs du developmt. sin(l theta) de f
 //----------------------------------------------------
-//  Ces coefficients sont egaux aux coefficients en cosinus du developpement
-//  de G en series de Fourier (le facteur 2 vient de la normalisation
+//  Ces coefficients sont egaux aux coefficients en sinus du developpement
+//  de G en series de Fourier (le facteur -2 vient de la normalisation
 //  de fft991) :
 
-	    cf0[0] = g[0] ;
-    	    for (i=2; i<nm1; i += 2 ) cf0[n3c*i] = 2.* g[i] ;	
-	    cf0[n3c*nm1] = g[nm1] ;    
+	    cf0[0] = 0. ;
+    	    for (i=2; i<nm1; i += 2 ) cf0[n3c*i] = -2.* g[i+1] ;	
+	    cf0[n3c*nm1] = 0. ;    
 
-// Coefficients impairs du developmt. en cos(l theta) de f
+// Coefficients impairs du developmt. en sin(l theta) de f
 //---------------------------------------------------------
 // 1. Coef. c'_k (recurrence amorcee a partir de zero):
 //  Le +4. en facteur de g[i] est du a la normalisation de fft991
 //  (si fft991 donnait reellement les coef. en sinus, il faudrait le
 //   remplacer par un -2.) 
-    	    cf0[n3c] = 0 ;
-    	    double som = 0;
-    	    for ( i = 3; i < nt; i += 2 ) {
-		cf0[n3c*i] = cf0[n3c*(i-2)] + 4. * g[i] ;
-	    	som += cf0[n3c*i] ;
+
+    	    cf0[n3c] = 2.* g[0];
+	    for ( i = 3; i < nt; i += 2 ) {
+		cf0[n3c*i] = cf0[n3c*(i-2)] + 4. * g[i-1] ;
     	    }
-
-// 2. Calcul de c_1 :
-    	    double c1 = ( fmoins0 - som ) / nm1s2 ;
-
-// 3. Coef. c_k avec k impair:	
-    	    cf0[n3c] = c1 ;
-    	    for ( i = 3; i < nt; i += 2 ) cf0[n3c*i] += c1 ;
-
 
 	} 	// fin de la boucle sur r 
    }	// fin de la boucle sur phi

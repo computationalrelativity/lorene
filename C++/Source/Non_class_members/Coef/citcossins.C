@@ -20,7 +20,7 @@
  */
 
 
-char citcossincp_C[] = "$Header$" ;
+char citcossins_C[] = "$Header$" ;
 
 
 /*
@@ -44,9 +44,9 @@ char citcossincp_C[] = "$Header$" ;
  *			  comme suit (a r et phi fixes)
  *
  *			  pour m pair:
- *			f(theta) = som_{l=0}^{nt-1} c_l cos( l theta ) . 
+ *			f(theta) = som_{l=0}^{nt-1} c_l sin( l theta ) . 
  *			  pour m impair:
- *			f(theta) = som_{l=0}^{nt-2} c_l sin( l theta ) . 
+ *			f(theta) = som_{l=0}^{nt-2} c_l cos( l theta ) . 
  *
  * 			  L'espace memoire correspondant a ce
  *                        pointeur doit etre dimc[0]*dimc[1]*dimc[2] et doit 
@@ -85,7 +85,7 @@ char citcossincp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.5  2004/11/23 15:13:50  m_forot
+ * Revision 1.1  2004/11/23 15:13:50  m_forot
  * Added the bases for the cases without any equatorial symmetry
  * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
  *
@@ -108,7 +108,7 @@ double* cheb_ini(const int) ;
 double* chebimp_ini(const int ) ;
 //*****************************************************************************
 
-void citcossincp(const int* deg, const int* dimc, double* cf, const int* dimf,
+void citcossins(const int* deg, const int* dimc, double* cf, const int* dimf,
 		   double* ff)
 {
 
@@ -127,25 +127,25 @@ int i, j, k ;
     
 // Tests de dimension:
     if (nt > n2f) {
-	cout << "citcossincp: nt > n2f : nt = " << nt << " ,  n2f = " 
+	cout << "citcossins: nt > n2f : nt = " << nt << " ,  n2f = " 
 	<< n2f << endl ;
 	abort () ;
 	exit(-1) ;
     }
     if (nt > n2c) {
-	cout << "citcossincp: nt > n2c : nt = " << nt << " ,  n2c = " 
+	cout << "citcossins: nt > n2c : nt = " << nt << " ,  n2c = " 
 	<< n2c << endl ;
 	abort () ;
 	exit(-1) ;
     }
     if (n1c > n1f) {
-	cout << "citcossincp: n1c > n1f : n1c = " << n1c << " ,  n1f = " 
+	cout << "citcossins: n1c > n1f : n1c = " << n1c << " ,  n1f = " 
 	<< n1f << endl ;
 	abort () ;
 	exit(-1) ;
     }
     if (n3c > n3f) {
-	cout << "citcossincp: n3c > n3f : n3c = " << n3c << " ,  n3f = " 
+	cout << "citcossins: n3c > n3f : n3c = " << n3c << " ,  n3f = " 
 	<< n3f << endl ;
 	abort () ;
 	exit(-1) ;
@@ -191,8 +191,149 @@ int i, j, k ;
     while (j<n1f-1) {   //le dernier coef en phi n'est pas considere
 			// (car nul)
 
+//--------------------------------------------------------------------------
+//  partie cos(m phi) avec m pair : transformation sin(l theta) inv.
+//--------------------------------------------------------------------------
+
+      	for (k=0; k<n3c; k++) {
+
+	    int i0 = n2n3c * j + k ; // indice de depart 
+	    double* cf0 = cf + i0 ;    // tableau des donnees a transformer
+
+	    i0 = n2n3f * j + k ; // indice de depart 
+	    double* ff0 = ff + i0 ;    // tableau resultat
+	     
+// Coefficients impairs de G
+//--------------------------
+ 
+	    g[1] = 0 ;
+	    for (i=2; i<nm1; i += 2 ) g[i+1] = -0.5 * cf0[ n3c*i ] ;	
+	    g[nt] = 0 ;	
+
+
+// Coefficients pairs de G
+//------------------------
+
+	    g[0] = .5 * cf0[n3c] ;
+    	    for ( i = 3; i < nt; i += 2 ) {
+		g[i-1] = .25 * ( cf0[ n3c*i ] - cf0[ n3c*(i-2) ] ) ;
+    	    }
+	    g[nm1] = - .5 * cf0[ n3c*(nt-2) ] ;
+	    
+// Transformation de Fourier inverse de G 
+//---------------------------------------
+
+// FFT inverse
+    	    F77_fft991( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
+
+// Valeurs de f deduites de celles de G
+//-------------------------------------
+
+    	    for ( i = 1; i < nm1s2 ; i++ ) {
+// ... indice du pt symetrique de theta par rapport a pi/2:
+		int isym = nm1 - i ; 
+	
+		double fp = 0.5 * ( g[i] + g[isym] ) / sinp[i]  ;
+		double fm = 0.5 * ( g[i] - g[isym] ) ;
+		ff0[ n3f*i ] = fp + fm ;
+		ff0[ n3f*isym ] = fp - fm ;
+    	    }
+	
+//... cas particuliers:
+	    ff0[0] = 0. ;
+	    ff0[ n3f*nm1 ] = -2*g[0] ;
+	    ff0[ n3f*nm1s2 ] = g[nm1s2] ;
+
+
+	} 	// fin de la boucle sur r 
+
+//--------------------------------------------------------------------------
+//  partie sin(m phi) avec m pair : transformation sin(l theta) inv.
+//--------------------------------------------------------------------------
+
+	j++ ;
+
+	if ( j != n1f-1  ) {  
+//  on effectue le calcul seulement dans les cas ou les coef en phi ne sont 
+//  pas nuls 
+	  
+	  	for (k=0; k<n3c; k++) {
+
+	    int i0 = n2n3c * j + k ; // indice de depart 
+	    double* cf0 = cf + i0 ;    // tableau des donnees a transformer
+
+	    i0 = n2n3f * j + k ; // indice de depart 
+	    double* ff0 = ff + i0 ;    // tableau resultat
+	     
+// Coefficients impairs de G
+//--------------------------
+ 
+	    g[1] = 0 ;
+	    for (i=2; i<nm1; i += 2 ) g[i+1] = -0.5 * cf0[ n3c*i ] ;	
+	    g[nt] = 0 ;	
+
+
+// Coefficients pairs de G
+//------------------------
+
+	    g[0] = .5 * cf0[n3c] ;
+    	    for ( i = 3; i < nt; i += 2 ) {
+		g[i-1] = .25 * ( cf0[ n3c*i ] - cf0[ n3c*(i-2) ] ) ;
+    	    }
+	    g[nm1] = - .5 * cf0[ n3c*(nt-2) ] ;
+	    
+// Transformation de Fourier inverse de G 
+//---------------------------------------
+
+// FFT inverse
+    	    F77_fft991( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
+
+// Valeurs de f deduites de celles de G
+//-------------------------------------
+
+    	    for ( i = 1; i < nm1s2 ; i++ ) {
+// ... indice du pt symetrique de psi par rapport a pi/2:
+		int isym = nm1 - i ; 
+	
+		double fp = 0.5 * ( g[i] + g[isym] ) / sinp[i]  ;
+		double fm = 0.5 * ( g[i] - g[isym] ) ;
+		ff0[ n3f*i ] = fp + fm ;
+		ff0[ n3f*isym ] = fp - fm ;
+    	    }
+	
+//... cas particuliers:
+	    ff0[0] = 0. ;
+	    ff0[ n3f*nm1 ] = -2*g[0] ;
+	    ff0[ n3f*nm1s2 ] = g[nm1s2] ;
+
+
+	} 	// fin de la boucle sur r 
+
+	}    // fin du cas ou le calcul etait necessaire (i.e. ou les
+	     // coef en phi n'etaient pas nuls)
+
+// On passe au cas m pair suivant:
+	j+=3 ;
+
+   }	// fin de la boucle sur les cas m pair
+
+    if (n1f<=3) {	    // cas m=0 seulement (symetrie axiale)
+	free (t1) ;
+	free (g) ;
+	return ;
+    }
+    
+//=======================================================================
+//				Cas m impair
+//=======================================================================
+
+    j = 2 ;
+    
+    while (j<n1f-1) {   //le dernier coef en phi n'est pas considere
+			// (car nul)
+
 //-----------------------------------------------------------------------
-//  partie cos(m phi) avec m pair : transformation cos(2 l theta) inverse
+//  partie cos(m phi) avec m impair : transformation cos( l theta) inverse
 //-----------------------------------------------------------------------
 
 	for (k=0; k<n3c; k++) {
@@ -203,15 +344,7 @@ int i, j, k ;
 	    i0 = n2n3f * j + k ; // indice de depart 
 	    double* ff0 = ff + i0 ;    // tableau resultat
 	     
-/*
- * NB: dans les commentaires qui suivent, psi designe la variable de [0, pi]
- *     reliee a x par  x = cos(psi/2)   et F(psi) = f(x(psi)).  
- */
  
-// Calcul des coefficients de Fourier de la fonction 
-//   G(psi) = F+(psi) + F_(psi) sin(psi)
-// en fonction des coefficients en cos(2l theta) de f:
-
 // Coefficients impairs de G
 //--------------------------
  
@@ -224,7 +357,7 @@ int i, j, k ;
 		som += ff0[ n3f*i ] ;
     	    }	
 
-// Valeur en psi=0 de la partie antisymetrique de F, F_ :
+// Valeur en theta=0 de la partie antisymetrique de F, F_ :
 	    double fmoins0 = nm1s2 * c1 + som ;
 
 // Coef. impairs de G
@@ -258,7 +391,7 @@ int i, j, k ;
 //-------------------------------------
 
     	    for ( i = 1; i < nm1s2 ; i++ ) {
-// ... indice du pt symetrique de psi par rapport a pi/2:
+// ... indice du pt symetrique de theta par rapport a pi/2:
 		int isym = nm1 - i ; 
 	
 		double fp = 0.5 * ( g[i] + g[isym] ) ;
@@ -276,7 +409,7 @@ int i, j, k ;
 	} 	// fin de la boucle sur r 
 
 //-----------------------------------------------------------------------
-//  partie sin(m phi) avec m pair : transformation cos(2 l theta) inverse
+//  partie sin(m phi) avec m impair : transformation cos(l theta) inverse
 //-----------------------------------------------------------------------
 
 	j++ ;
@@ -293,15 +426,6 @@ int i, j, k ;
 	    i0 = n2n3f * j + k ; // indice de depart 
 	    double* ff0 = ff + i0 ;    // tableau resultat
 	     
-/*
- * NB: dans les commentaires qui suivent, psi designe la variable de [0, pi]
- *     reliee a x par  x = cos(psi/2)   et F(psi) = f(x(psi)).  
- */
- 
-// Calcul des coefficients de Fourier de la fonction 
-//   G(psi) = F+(psi) + F_(psi) sin(psi)
-// en fonction des coefficients en cos(2l theta) de f:
-
 // Coefficients impairs de G
 //--------------------------
  
@@ -314,7 +438,7 @@ int i, j, k ;
 		som += ff0[ n3f*i ] ;
     	    }	
 
-// Valeur en psi=0 de la partie antisymetrique de F, F_ :
+// Valeur en theta=0 de la partie antisymetrique de F, F_ :
 	    double fmoins0 = nm1s2 * c1 + som ;
 
 // Coef. impairs de G
@@ -348,7 +472,7 @@ int i, j, k ;
 //-------------------------------------
 
     	    for ( i = 1; i < nm1s2 ; i++ ) {
-// ... indice du pt symetrique de psi par rapport a pi/2:
+// ... indice du pt symetrique de theta par rapport a pi/2:
 		int isym = nm1 - i ; 
 	
 		double fp = 0.5 * ( g[i] + g[isym] ) ;
@@ -361,222 +485,6 @@ int i, j, k ;
 	    ff0[0] = g[0] + fmoins0 ;
 	    ff0[ n3f*nm1 ] = g[0] - fmoins0 ;
 	    ff0[ n3f*nm1s2 ] = g[nm1s2] ;
-
-
-	} 	// fin de la boucle sur r 
-
-	}    // fin du cas ou le calcul etait necessaire (i.e. ou les
-	     // coef en phi n'etaient pas nuls)
-
-// On passe au cas m pair suivant:
-	j+=3 ;
-
-   }	// fin de la boucle sur les cas m pair
-
-//##
-    if (n1f<=3) {	    // cas m=0 seulement (symetrie axiale)
-	free (t1) ;
-	free (g) ;
-	return ;
-    }
-    
-//=======================================================================
-//				Cas m impair
-//=======================================================================
-
-    j = 2 ;
-    
-    while (j<n1f-1) {   //le dernier coef en phi n'est pas considere
-			// (car nul)
-
-//--------------------------------------------------------------------------
-//  partie cos(m phi) avec m impair : transformation sin((2 l+1) theta) inv.
-//--------------------------------------------------------------------------
-
-	for (k=0; k<n3c; k++) {
-
-	    int i0 = n2n3c * j + k ; // indice de depart 
-	    double* cf0 = cf + i0 ;    // tableau des donnees a transformer
-
-	    i0 = n2n3f * j + k ; // indice de depart 
-	    double* ff0 = ff + i0 ;    // tableau resultat
-
-// Calcul des coefficients du developpement en cos(2 l theta)
-//  de la fonction h(theta) := f(theta) sin(theta)
-// en fonction de ceux de f (le resultat est stoke dans le tableau t1) :
-	t1[0] = .5 * cf0[0] ;
-	for (i=1; i<nm1; i++) {
-	    t1[i] = .5 * ( cf0[ n3c*i ] - cf0[ n3c*(i-1) ] ) ;
-	}
-	t1[nm1] = -.5 * cf0[ n3c*(nt-2) ] ;    
-
-/*
- * NB: dans les commentaires qui suivent, psi designe la variable de [0, pi]
- *     reliee a theta par  psi = 2 theta  et F(psi) = h(theta(psi)).  
- */
- 
-// Calcul des coefficients de Fourier de la fonction 
-//   G(psi) = F+(psi) + F_(psi) sin(psi)
-// en fonction des coefficients en cos(2l theta) de h:
-
-// Coefficients impairs de G
-//--------------------------
- 
-	    double c1 = t1[1] ;
-
-    	    double som = 0;
-	    ff0[n3f] = 0 ;
-    	    for ( i = 3; i < nt; i += 2 ) {
-	    	ff0[ n3f*i ] = t1[i] - c1 ;
-		som += ff0[ n3f*i ] ;
-    	    }	
-
-// Valeur en psi=0 de la partie antisymetrique de F, F_ :
-	    double fmoins0 = nm1s2 * c1 + som ;
-
-// Coef. impairs de G
-// NB: le facteur 0.25 est du a la normalisation de fft991; si fft991
-//     donnait exactement les coef. des sinus, ce facteur serait -0.5.
-    	    g[1] = 0 ;
-    	    for ( i = 3; i < nt; i += 2 ) {
-		g[i] = 0.25 * ( ff0[ n3f*i ] - ff0[ n3f*(i-2) ] ) ;
-    	    }
-    	    g[nt] = 0 ;	
-
-
-// Coefficients pairs de G
-//------------------------
-//  Ces coefficients sont egaux aux coefficients pairs du developpement de
-//   h.
-// NB: le facteur 0.5 est du a la normalisation de fft991; si fft991
-//     donnait exactement les coef. des cosinus, ce facteur serait 1.
-
-	    g[0] = t1[0] ;
-    	    for (i=2; i<nm1; i += 2 ) g[i] = 0.5 * t1[i] ;	
-    	    g[nm1] = t1[nm1] ;
-
-// Transformation de Fourier inverse de G 
-//---------------------------------------
-
-// FFT inverse
-    	    F77_fft991( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
-
-// Valeurs de f deduites de celles de G
-//-------------------------------------
-
-    	    for ( i = 1; i < nm1s2 ; i++ ) {
-// ... indice du pt symetrique de psi par rapport a pi/2:
-		int isym = nm1 - i ; 
-	
-		double fp = 0.5 * ( g[i] + g[isym] ) ;
-		double fm = 0.5 * ( g[i] - g[isym] ) / sinp[i] ;
-		ff0[ n3f*i ] = ( fp + fm ) / sinth[i] ;
-		ff0[ n3f*isym ] = ( fp - fm ) / sinth[isym] ;
-    	    }
-	
-//... cas particuliers:
-	    ff0[0] = 0 ;
-	    ff0[ n3f*nm1 ] = g[0] - fmoins0 ;
-	    ff0[ n3f*nm1s2 ] = g[nm1s2] / sinth[nm1s2];
-
-
-	} 	// fin de la boucle sur r 
-
-//--------------------------------------------------------------------------
-//  partie sin(m phi) avec m impair : transformation sin((2 l+1) theta) inv.
-//--------------------------------------------------------------------------
-
-	j++ ;
-
-	if ( j != n1f-1  ) {  
-//  on effectue le calcul seulement dans les cas ou les coef en phi ne sont 
-//  pas nuls 
-
-	for (k=0; k<n3c; k++) {
-
-	    int i0 = n2n3c * j + k ; // indice de depart 
-	    double* cf0 = cf + i0 ;    // tableau des donnees a transformer
-
-	    i0 = n2n3f * j + k ; // indice de depart 
-	    double* ff0 = ff + i0 ;    // tableau resultat
-
-// Calcul des coefficients du developpement en cos(2 l theta)
-//  de la fonction h(theta) := f(theta) sin(theta)
-// en fonction de ceux de f (le resultat est stoke dans le tableau t1) :
-	t1[0] = .5 * cf0[0] ;
-	for (i=1; i<nm1; i++) {
-	    t1[i] = .5 * ( cf0[ n3c*i ] - cf0[ n3c*(i-1) ] ) ;
-	}
-	t1[nm1] = -.5 * cf0[ n3c*(nt-2) ] ;    
-
-/*
- * NB: dans les commentaires qui suivent, psi designe la variable de [0, pi]
- *     reliee a theta par  psi = 2 theta  et F(psi) = h(theta(psi)).  
- */
- 
-// Calcul des coefficients de Fourier de la fonction 
-//   G(psi) = F+(psi) + F_(psi) sin(psi)
-// en fonction des coefficients en cos(2l theta) de h:
-
-// Coefficients impairs de G
-//--------------------------
- 
-	    double c1 = t1[1] ;
-
-    	    double som = 0;
-	    ff0[n3f] = 0 ;
-    	    for ( i = 3; i < nt; i += 2 ) {
-	    	ff0[ n3f*i ] = t1[i] - c1 ;
-		som += ff0[ n3f*i ] ;
-    	    }	
-
-// Valeur en psi=0 de la partie antisymetrique de F, F_ :
-	    double fmoins0 = nm1s2 * c1 + som ;
-
-// Coef. impairs de G
-// NB: le facteur 0.25 est du a la normalisation de fft991; si fft991
-//     donnait exactement les coef. des sinus, ce facteur serait -0.5.
-    	    g[1] = 0 ;
-    	    for ( i = 3; i < nt; i += 2 ) {
-		g[i] = 0.25 * ( ff0[ n3f*i ] - ff0[ n3f*(i-2) ] ) ;
-    	    }
-    	    g[nt] = 0 ;	
-
-
-// Coefficients pairs de G
-//------------------------
-//  Ces coefficients sont egaux aux coefficients pairs du developpement de
-//   h.
-// NB: le facteur 0.5 est du a la normalisation de fft991; si fft991
-//     donnait exactement les coef. des cosinus, ce facteur serait 1.
-
-	    g[0] = t1[0] ;
-    	    for (i=2; i<nm1; i += 2 ) g[i] = 0.5 * t1[i] ;	
-    	    g[nm1] = t1[nm1] ;
-
-// Transformation de Fourier inverse de G 
-//---------------------------------------
-
-// FFT inverse
-    	    F77_fft991( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
-
-// Valeurs de f deduites de celles de G
-//-------------------------------------
-
-    	    for ( i = 1; i < nm1s2 ; i++ ) {
-// ... indice du pt symetrique de psi par rapport a pi/2:
-		int isym = nm1 - i ; 
-	
-		double fp = 0.5 * ( g[i] + g[isym] ) ;
-		double fm = 0.5 * ( g[i] - g[isym] ) / sinp[i] ;
-		ff0[ n3f*i ] = ( fp + fm ) / sinth[i] ;
-		ff0[ n3f*isym ] = ( fp - fm ) / sinth[isym] ;
-    	    }
-	
-//... cas particuliers:
-	    ff0[0] = 0 ;
-	    ff0[ n3f*nm1 ] = g[0] - fmoins0 ;
-	    ff0[ n3f*nm1s2 ] = g[nm1s2] / sinth[nm1s2];
 
 
 	} 	// fin de la boucle sur r 

@@ -31,6 +31,10 @@ char std_base_scal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/11/23 15:13:50  m_forot
+ * Added the bases for the cases without any equatorial symmetry
+ * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
  * Revision 1.2  2002/10/16 14:36:57  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -68,169 +72,171 @@ char std_base_scal_C[] = "$Header$" ;
 // Cree la base standart pour une zone
 int std_base_scal_1z(int type_r, int type_t, int type_p) {
     
-    // Base d'echantillonnage en (r,theta,phi) a determiner :
-    int base_l  = 0 ;
-
-    // proccess phi
-    switch ( type_p ) {
-	case NONSYM : 	
-	// Cas sans symetrie sur phi : phi dans [0, 2 pi[
-	base_l = P_COSSIN ;	    // developpement en cos,sin(m*phi)
-	// Base en theta:
-	switch ( type_t ) {
-	    case NONSYM :  	
-	    // pas de symetrie en theta : theta dans [0,pi]    
-	    base_l = base_l | T_COSSIN_C ; // developpement en 
-					   //	cos(l*theta) pour m pair
-					   //	sin(l*theta) pour m impair
-	    // Base en r :
-	    switch ( type_r ) {
-		case FIN : 			 
-		// echantillonnage fin
-		base_l = base_l | R_CHEB  ; // developpement en T_k(x) 
-		break ;
-
-		case RARE : 		 
-		// echantillonnage rarefie
-		base_l = base_l | R_CHEBPI_P ;  // developpement en 
-						//  T_{2k}(x) pour l pair
-						//  T_{2k+1}(x) pour l impair
-		break ;
-
-		case UNSURR : 		    
-		// echantillonnage fin (1/r)
-		base_l = base_l | R_CHEBU  ; // developpement en T_k(x) 
-		break ;
-
-		default : 
-		cout << 
-		"std_base_scal : le cas type_p, type_t, type_r = " 
-		<< type_p << " " << type_t << " " <<  type_r << endl ;
-		cout << " n'est pas prevu ! " << endl ;
-		abort () ;
-		}
-		break ;	// fin du cas type_t = NONSYM
-
-		case SYM :  	// en theta
-		// symetrie theta -> pi - theta :  theta dans [0, pi/2]	    
-		base_l = base_l | T_COSSIN_CP ; // developpement en 
-						// cos(2*l*theta) pour m pair
-						// sin((2*l+1)*theta) pour m impair
-		// Base en r :
-		switch ( type_r ) {
-		    case FIN : 			 
-		    // echantillonnage fin
-		    base_l = base_l | R_CHEB  ; // developpement en T_k(x) 
-		    break ;
-
-		    case RARE : 		 
-		    // echantillonnage rarefie
-		    base_l = base_l | R_CHEBPIM_P ;  // developpement en 
-						    //  T_{2k}(x) pour m pair
-						    //  T_{2k+1}(x) pour m impair
-		    break ;
-
-		    case UNSURR : 		    
-		    // echantillonnage fin (1/r)
-		    base_l = base_l | R_CHEBU  ; // developpement en T_k(x) 
-		    break ;
-
-		    default : 
-		    cout << 
-		    "std_base_scal : le cas type_p, type_t, type_r = " 
-		    << type_p<< " " << type_t<< " " <<type_r << endl ;
-		    cout << " n'est pas prevu ! " << endl ;
-		    abort () ;
-		}
-		break ;	// fin du cas type_t = SYM
+  // Base d'echantillonnage en (r,theta,phi) a determiner :
+  int base_l  = 0 ;
+  
+  // proccess phi
+  switch ( type_p ) {
+  case NONSYM : 	
+    // Cas sans symetrie sur phi : phi dans [0, 2 pi[
+    base_l = P_COSSIN ;	    // developpement en cos,sin(m*phi)
+    // Base en theta:
+    switch ( type_t ) {
+    case NONSYM :  	
+      // pas de symetrie en theta : theta dans [0,pi]    
+      base_l = base_l | T_COSSIN_C ; // developpement en 
+      //	cos(l*theta) pour m pair
+      //	sin(l*theta) pour m impair
+      
+      
+      // Base en r :
+      switch ( type_r ) {
+      case FIN : 			 
+	// echantillonnage fin
+	base_l = base_l | R_CHEB  ; // developpement en T_k(x) 
+	break ;
+	
+      case RARE : 		 
+	// echantillonnage rarefie
+	base_l = base_l | R_CHEBPI_P ;  // developpement en 
+	//  T_{2k}(x) pour l pair
+	//  T_{2k+1}(x) pour l impair
+	break ;
+	
+      case UNSURR : 		    
+	// echantillonnage fin (1/r)
+	base_l = base_l | R_CHEBU  ; // developpement en T_k(x) 
+	break ;
+	
+      default : 
+	cout << 
+	  "std_base_scal : le cas type_p, type_t, type_r = " 
+	     << type_p << " " << type_t << " " <<  type_r << endl ;
+	cout << " n'est pas prevu ! " << endl ;
+	abort () ;
+      }
+      break ;	// fin du cas type_t = NONSYM
+      
+    case SYM :  	// en theta
+      // symetrie theta -> pi - theta :  theta dans [0, pi/2]	    
+      base_l = base_l | T_COSSIN_CP ; // developpement en 
+      // cos(2*l*theta) pour m pair
+      // sin((2*l+1)*theta) pour m impair
+      // Base en r :
+      switch ( type_r ) {
+      case FIN : 			 
+	// echantillonnage fin
+	base_l = base_l | R_CHEB  ; // developpement en T_k(x) 
+	break ;
+	
+      case RARE : 		 
+	// echantillonnage rarefie
+	base_l = base_l | R_CHEBPIM_P ;  // developpement en 
+	//  T_{2k}(x) pour m pair
+	//  T_{2k+1}(x) pour m impair
+	break ;
+	
+      case UNSURR : 		    
+	// echantillonnage fin (1/r)
+	base_l = base_l | R_CHEBU  ; // developpement en T_k(x) 
+	break ;
+	
+      default : 
+	cout << 
+	  "std_base_scal : le cas type_p, type_t, type_r = " 
+	     << type_p<< " " << type_t<< " " <<type_r << endl ;
+	cout << " n'est pas prevu ! " << endl ;
+	abort () ;
+      }
+      break ;	// fin du cas type_t = SYM
+      
+    default : 
+      cout << 
+	"std_base_scal : le cas type_p, type_t = " 
+	   << type_p<< " " <<type_t << endl ;
+      cout << " n'est pas prevu ! " << endl ;
+      abort () ;
+    }	// fin des cas sur type_t 
+    break ;	// fin du cas sans symetrie pour phi 
+    
+    
+  case SYM : 	// en phi
+    // Cas symetrie phi -> phi + pi :  phi in [0, pi]
+    base_l = P_COSSIN_P ;	    // developpement en cos,sin(2*m*phi)
+    // Base en theta:
+    switch ( type_t ) {
+    case NONSYM :  	
+      // pas de symetrie en theta : theta dans [0,pi]    
+      base_l = base_l | T_COS ;   // developpement en cos(l*theta) seulement
+      //  (puisque m est toujours pair) 
+      // Base en r :
+      switch ( type_r ) {
+      case FIN : 	    // echantillonnage fin 
+	base_l = base_l | R_CHEB  ; // developpement en T_k(x) 
+	break ;
+	
+      case RARE :	    // echantillonnage rarefie		 
+	base_l = base_l | R_CHEBPI_P ;  // developpement en 
+	//  T_{2k}(x) pour l pair
+	//  T_{2k+1}(x) pour l impair
+	break ;
+	
+      case UNSURR :   // echantillonnage fin (1/r)	    
+	base_l = base_l | R_CHEBU  ; // developpement en T_k(x) 
+	break ;
+	
+      default : 
+	cout << 
+	  "std_base_scal : le cas type_p, type_t, type_r = " 
+	     << type_p<< " " <<type_t<< " " <<type_r << endl ;
+	cout << " n'est pas prevu ! " << endl ;
+	abort () ;
+      }
+      break ;	// fin du cas type_t = NONSYM
+      
+    case SYM :  // symetrie theta -> pi - theta :  theta dans [0, pi/2]
+      base_l = base_l | T_COS_P ;	// developpement en cos(2*l*theta)
+      //  (puisque m est toujours pair)
+      // Base en r :
+      switch ( type_r ) {
+      case FIN :	// echantillonnage fin	 
+	base_l = base_l | R_CHEB  ; // developpement en T_k(x) 
+	break ;
+	
+      case RARE :	    // echantillonnage rarefie	 
+	base_l = base_l | R_CHEBP ;  // developpement en T_{2k}(x) 
+	break ;
+	
+      case UNSURR :   // echantillonnage fin (1/r) 
+	base_l = base_l | R_CHEBU  ; // developpement en T_k(x) 
+	break ;
+	
+      default : 
+	cout << 
+	  "std_base_scal : le cas type_p, type_t, type_r = " 
+	     << type_p<< " " <<type_t<< " " <<type_r << endl ;
+	cout << " n'est pas prevu ! " << endl ;
+	abort () ;
+      }
+      break ;	// fin du cas type_t = SYM
 		    
-		default : 
-		cout << 
-		"std_base_scal : le cas type_p, type_t = " 
-		<< type_p<< " " <<type_t << endl ;
-		cout << " n'est pas prevu ! " << endl ;
-		abort () ;
-	    }	// fin des cas sur type_t 
-	    break ;	// fin du cas sans symetrie pour phi 
-
-
-	    case SYM : 	// en phi
-	    // Cas symetrie phi -> phi + pi :  phi in [0, pi]
-	    base_l = P_COSSIN_P ;	    // developpement en cos,sin(2*m*phi)
-	    // Base en theta:
-	    switch ( type_t ) {
-		case NONSYM :  	
-		// pas de symetrie en theta : theta dans [0,pi]    
-		base_l = base_l | T_COS ;   // developpement en cos(l*theta) seulement
-					    //  (puisque m est toujours pair) 
-		// Base en r :
-		switch ( type_r ) {
-		    case FIN : 	    // echantillonnage fin 
-		    base_l = base_l | R_CHEB  ; // developpement en T_k(x) 
-		    break ;
-
-		    case RARE :	    // echantillonnage rarefie		 
-		    base_l = base_l | R_CHEBPI_P ;  // developpement en 
-						    //  T_{2k}(x) pour l pair
-						    //  T_{2k+1}(x) pour l impair
-		    break ;
-
-		    case UNSURR :   // echantillonnage fin (1/r)	    
-		    base_l = base_l | R_CHEBU  ; // developpement en T_k(x) 
-		    break ;
-
-		    default : 
-		    cout << 
-		    "std_base_scal : le cas type_p, type_t, type_r = " 
-		    << type_p<< " " <<type_t<< " " <<type_r << endl ;
-		    cout << " n'est pas prevu ! " << endl ;
-		    abort () ;
-		}
-		break ;	// fin du cas type_t = NONSYM
-
-		case SYM :  // symetrie theta -> pi - theta :  theta dans [0, pi/2]
-		base_l = base_l | T_COS_P ;	// developpement en cos(2*l*theta)
-						//  (puisque m est toujours pair)
-		// Base en r :
-		switch ( type_r ) {
-		    case FIN :	// echantillonnage fin	 
-		    base_l = base_l | R_CHEB  ; // developpement en T_k(x) 
-		    break ;
-
-		    case RARE :	    // echantillonnage rarefie	 
-		    base_l = base_l | R_CHEBP ;  // developpement en T_{2k}(x) 
-		    break ;
-
-		    case UNSURR :   // echantillonnage fin (1/r) 
-		    base_l = base_l | R_CHEBU  ; // developpement en T_k(x) 
-		    break ;
-
-		    default : 
-		    cout << 
-		    "std_base_scal : le cas type_p, type_t, type_r = " 
-		    << type_p<< " " <<type_t<< " " <<type_r << endl ;
-		    cout << " n'est pas prevu ! " << endl ;
-		    abort () ;
-		}
-		break ;	// fin du cas type_t = SYM
-		    
-		default : 
-		cout << 
-		"std_base_scal : le cas type_p, type_t = " 
-		<< type_p<< " " <<type_t << endl ;
-		cout << " n'est pas prevu ! " << endl ;
-		abort () ;
-	    }	// fin des cas sur type_t 
-	    break ;	// fin du cas symetrie phi -> phi + pi
-
-	    default : 
-	    cout << 
-	    "std_base_scal : le cas type_p = " << type_p << endl ;
-	    cout << " n'est pas prevu ! " << endl ;
-	    abort () ;
-	}	// Fin des cas en phi
-		   
-    // On range le resultat
-   return base_l ;
+    default : 
+      cout << 
+	"std_base_scal : le cas type_p, type_t = " 
+	   << type_p<< " " <<type_t << endl ;
+      cout << " n'est pas prevu ! " << endl ;
+      abort () ;
+    }	// fin des cas sur type_t 
+    break ;	// fin du cas symetrie phi -> phi + pi
+    
+  default : 
+    cout << 
+      "std_base_scal : le cas type_p = " << type_p << endl ;
+    cout << " n'est pas prevu ! " << endl ;
+    abort () ;
+  }	// Fin des cas en phi
+  
+  // On range le resultat
+  return base_l ;
 }
 
