@@ -28,9 +28,8 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
- * Revision 1.11  2004/11/05 10:50:44  f_limousin
- * Delete argument partial_save for the function save. And many
- * other minor modifications.
+ * Revision 1.12  2004/11/05 17:53:26  f_limousin
+ * Perturbations of the conformal metric and its time derivative.
  *
  * Revision 1.8  2004/11/02 17:42:00  f_limousin
  * New method sauve(...) to save in a binary file.
@@ -163,7 +162,38 @@ int main() {
     Scalar expmr(map) ;
     expmr = expr ;
 
-    
+    Mtbl exprmr0 = exp(-(r-3)/0.2) ;
+    Scalar exprmr(map) ;
+    exprmr = exprmr0 ;
+
+ 
+    Scalar a2(map) ;
+    Scalar b2(map) ;
+ 
+    double aa = 1.53 ;
+    double mm = 1.532 ;
+    double hh = pow(mm*mm-aa*aa, 0.5) ;
+//    ang_vel = aa/(2*mm*(mm+pow(mm*mm-aa*aa,0.5))) ;
+    cout << "angular velocity = " << ang_vel << endl ;
+
+    const Coord& rr = map.r ;
+    const Coord& theta = map.tet ;
+
+    a2 = 1. + 2.*mm/rr + (3.*mm*mm + aa*aa*cos(2.*theta))/(2.*rr*rr)
+	+ (hh*hh*mm)/(2.*pow(rr, 3.)) + pow(hh,4.)/(16.*pow(rr,4.)) ;
+
+    b2 = ( pow(rr,8.) + 4.*mm*pow(rr,7.) + (7.*mm*mm + 
+	   aa*aa*cos(theta)*cos(theta))*pow(rr,6.) + mm*(7.*mm*mm+aa*aa)
+	   *pow(rr,5.) + (4.*pow(mm,4.) + hh*hh*(3.*hh*hh/4.+aa*aa*sin(theta)
+	   *sin(theta))/2.)*pow(rr,4.) + hh*hh*mm*(2.*mm*mm-hh*hh/4.)
+	   *pow(rr,3.) + pow(hh,4.)/16.*(7.*mm*mm + aa*aa*cos(theta)
+	   *cos(theta))*rr*rr + pow(hh,6.)*mm/16.*rr + pow(hh,8.)/256. ) 
+	   / ( pow(rr,8.) + 2.*mm*pow(rr,7.) + (3.*mm*mm + aa*aa
+           *cos(2.*theta))/2.*pow(rr,6.) + hh*hh*mm/2.*pow(rr,5.) 
+	   + pow(hh,4.)/16.*pow(rr,4.)) ;
+
+    b2.set_outer_boundary(nz-1, 1.) ;
+ 
     // Physical Parameters
     //--------------------
     
@@ -210,17 +240,36 @@ int main() {
     // ----------------
 
     Sym_tensor gamt(map, COV, map.get_bvect_spher()) ;
-    gamt.set(1,1) = 1. ;
-    gamt.set(2,2) = 1. ;
-    gamt.set(3,3) = 1. ;
+    gamt.set(1,1) = pow(a2/b2, 1./6.) ;
+    gamt.set(1,1).std_spectral_base() ;
+    gamt.set(2,2) = pow(a2/b2, 1./6.) ;
+    gamt.set(2,2).std_spectral_base() ;
+    gamt.set(3,3) = pow(b2/a2, 1./3.) ;
+    gamt.set(3,3).std_spectral_base() ;
     gamt.set(2,1) = 0. ;
     gamt.set(3,1) = 0. ;
     gamt.set(3,2) = 0. ;
+    
+    int nnr = map.get_mg()->get_nr(1) ;
+    int nnp = map.get_mg()->get_np(1) ;
+    int nnt = map.get_mg()->get_nt(1) ;
+    cout << "norme de g11" << endl<< norme(gamt.set(1,1)/(nnr*nnt*nnp)) << endl ;
+    cout << "norme de g33" << endl<< norme(gamt.set(3,3)/(nnr*nnt*nnp)) << endl ;
+    
     gamt.std_spectral_base() ;
     Metric met_gamt (gamt) ;     
 
     Sym_tensor gamt_point(map, CON, map.get_bvect_spher()) ;
-    gamt_point.set_etat_zero() ;
+    gamt_point.set(1,1) = 0. ;
+    gamt_point.set(2,2) = 0. ;
+    gamt_point.set(3,3) = 0. ;
+    gamt_point.set(2,1) = 0. ;
+    gamt_point.set(3,1) = -0*unsr*unsr ;
+    gamt_point.set(3,2) = -0.01*unsr*unsr ;
+    gamt_point.std_spectral_base() ;
+    gamt_point.inc_dzpuis(2) ;
+
+    //   gamt_point.set_etat_zero() ;
 
     // Set up of extrinsic curvature
     // -----------------------------
