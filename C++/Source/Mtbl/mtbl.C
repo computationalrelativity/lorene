@@ -33,6 +33,11 @@ char mtbl_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/09/06 15:37:46  e_gourgoulhon
+ * Performed a forgotten replacement
+ *  t = new (Tbl *[nzone])  -->   t = new Tbl*[nzone]
+ * to ensure compatibility with the xlC_r compiler on IBM Regatta
+ *
  * Revision 1.3  2002/05/07 07:36:03  e_gourgoulhon
  * Compatibilty with xlC compiler on IBM SP2:
  *    suppressed the parentheses around argument of instruction new:
@@ -295,7 +300,7 @@ void Mtbl::set_etat_qcq() {
 // ZERO hard
 void Mtbl::annule_hard() {
     if (t == 0x0) {
-	t = new (Tbl *[nzone]) ;
+	t = new Tbl*[nzone] ;
 	for (int i=0 ; i<nzone ; i++) {
 	    t[i] = new Tbl( *(mg->get_grille3d(i)) ) ;
 	}
