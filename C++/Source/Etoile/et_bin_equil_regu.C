@@ -34,8 +34,12 @@ char et_bin_equil_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/12/11 12:51:26  k_taniguchi
+ * Change the multiplication "*" to "%"
+ *   and flat_scalar_prod to flat_scalar_prod_desal.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.17  2001/08/07  09:49:00  keisuke
  * Change of the method to set the longest radius of a star
@@ -452,9 +456,9 @@ void Etoile_bin::equil_regular(double ent_c, int mermax, int mermax_poisson,
 			    // close to the surface
 
 	if (relativistic) {
-	    source = qpig * a_car * (ener_euler + s_euler)
+	    source = qpig * a_car % (ener_euler + s_euler)
 		    + akcar_auto + akcar_comp
-		    - flat_scalar_prod(d_logn_auto,
+		    - flat_scalar_prod_desal(d_logn_auto,
 				       d_beta_auto + d_beta_comp) ;
 				       
 	    // 1/(gam-1) = dln(e)/dln(H) close to the surface : 
@@ -509,11 +513,11 @@ void Etoile_bin::equil_regular(double ent_c, int mermax, int mermax_poisson,
 	    // Source
 	    // ------
 
-	    source = qpig * a_car * s_euler
+	    source = qpig * a_car % s_euler
 		    + .75 * ( akcar_auto + akcar_comp )
-		    - .5 * flat_scalar_prod(d_logn_auto,
+		    - .5 * flat_scalar_prod_desal(d_logn_auto,
 					    d_logn_auto + d_logn_comp)
-		    - .5 * flat_scalar_prod(d_beta_auto,
+		    - .5 * flat_scalar_prod_desal(d_beta_auto,
 					    d_beta_auto + d_beta_comp) ;
 
 	    source.set_std_base() ;
@@ -544,12 +548,12 @@ void Etoile_bin::equil_regular(double ent_c, int mermax, int mermax_poisson,
 	    // Source
 	    // ------
 
-	    Tenseur vtmp =  6 * ( d_beta_auto + d_beta_comp )
-			   -8 * ( d_logn_auto + d_logn_comp ) ;
+	    Tenseur vtmp =  6. * ( d_beta_auto + d_beta_comp )
+			   -8. * ( d_logn_auto + d_logn_comp ) ;
 
-	    source_shift = (-4*qpig) * nnn * a_car * (ener_euler + press)
-	                        * u_euler
-			   + nnn * flat_scalar_prod(tkij_auto, vtmp) ;
+	    source_shift = (-4.*qpig) * nnn % a_car % (ener_euler + press)
+	                        % u_euler
+			   + nnn % flat_scalar_prod_desal(tkij_auto, vtmp) ;
 
 	    source_shift.set_std_base() ;
 
