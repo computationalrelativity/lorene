@@ -30,6 +30,9 @@ char connection_fspher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/11 14:39:50  e_gourgoulhon
+ * Suppressed declaration of unusued arguments in some methods.
+ *
  * Revision 1.4  2003/10/06 13:58:47  j_novak
  * The memory management has been improved.
  * Implementation of the covariant derivative with respect to the exact Tensor
@@ -95,7 +98,7 @@ Connection_fspher::~Connection_fspher(){
 //-----------------------------//
 
 
-void Connection_fspher::operator=(const Connection_fspher& ci) {
+void Connection_fspher::operator=(const Connection_fspher& ) {
 	
   cout << "Connection_fspher::operator= : not implemented yet !" << endl ; 
   abort() ; 

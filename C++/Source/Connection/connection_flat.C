@@ -30,6 +30,9 @@ char connection_flat_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/11 14:39:50  e_gourgoulhon
+ * Suppressed declaration of unusued arguments in some methods.
+ *
  * Revision 1.2  2003/10/01 15:42:49  e_gourgoulhon
  * still ongoing...
  *
@@ -92,7 +95,7 @@ Connection_flat::~Connection_flat(){
 					//-----------------------------//
 
 
-void Connection_flat::operator=(const Connection_flat& ci) {
+void Connection_flat::operator=(const Connection_flat& ) {
 	
 	cout << "Connection_flat::operator= : not implemented yet !" << endl ; 
 	abort() ; 

@@ -30,6 +30,9 @@ char connection_fcart_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/11 14:39:50  e_gourgoulhon
+ * Suppressed declaration of unusued arguments in some methods.
+ *
  * Revision 1.2  2003/10/06 13:58:46  j_novak
  * The memory management has been improved.
  * Implementation of the covariant derivative with respect to the exact Tensor
@@ -89,7 +92,7 @@ Connection_fcart::~Connection_fcart(){
 //-----------------------------//
 
 
-void Connection_fcart::operator=(const Connection_fcart& ci) {
+void Connection_fcart::operator=(const Connection_fcart& ) {
 	
   cout << "Connection_fcart::operator= : not implemented yet !" << endl ; 
   abort() ; 

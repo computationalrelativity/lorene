@@ -30,6 +30,9 @@ char connection_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/11 14:39:49  e_gourgoulhon
+ * Suppressed declaration of unusued arguments in some methods.
+ *
  * Revision 1.5  2003/10/06 13:58:46  j_novak
  * The memory management has been improved.
  * Implementation of the covariant derivative with respect to the exact Tensor
@@ -236,7 +239,7 @@ Tensor Connection::derive_cov(const Tensor& ti) const {
 
 } 
 
-Tensor* Connection::p_derive_cov(const Tensor& ti) const {
+Tensor* Connection::p_derive_cov(const Tensor& ) const {
 
 	cout << "Connection::p_derive_cov : not implemented yet !" << endl ; 
 	abort() ; 
