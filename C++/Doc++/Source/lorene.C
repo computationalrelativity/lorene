@@ -1,0 +1,125 @@
+/**@name LORENE --- Reference manual
+ *
+ * {\sc Lorene} (Langage Objet pour la RElativit\'e Num\'eriquE) 
+ *  is a C++ based language for numerical relativity.
+ *
+ */
+
+//@{
+    /**@name Utilities
+     *
+     * These classes are the array (class {\tt Tbl}) and matrix
+     * (class {\tt Matrice}) representations in {\sc Lorene}. 
+     * They are independent of the numerical method (spectral method).
+     *
+     */
+    //@{
+    	//@Include:dim_tbl.h_r
+	//@Include:itbl.h_r
+    	//@Include:tbl.h_r
+    	//@Include:matrice.h_r
+    	//@Include:param.h_r
+	//@Include:utilitaires.h_r
+    //@}
+
+    /**@name Spectral representation
+     *
+     * These classes correspond to the implementation of spectral
+     * methods in {\sc Lorene}. They describe the collocation points
+     * (classes {\tt Grille3d} and {\tt Mg3d}), the values
+     * of a function at these points (class {\tt Mtbl}), and the coefficients
+     * of the spectral expansions of a function (class {\tt Mtbl\_cf}). 
+     *
+     */
+    //@{
+    	//@Include:grilles.h_r
+    	//@Include:mtbl.h_r
+    	//@Include:base_val.h_r
+    	//@Include:mtbl_cf.h_r
+    	//@Include:valeur.h_r
+    //@}
+
+   /**@name Mapping grid -> physical space
+     *
+     * These classes implement the mapping between the
+     * grid coordinates $(\xi, \theta', \phi')$ (described by the {\tt Mg3d} 
+     * class) and the physical coordinates
+     * $(r, \theta, \phi)$ [cf. Bonazzola, Gourgoulhon \& Marck, {\sl Phys. Rev. D}
+     * {\bf 58}, 104020 (1998)]. 
+     *
+     * The class {\tt Map} and its derived classes determine the methods for 
+     * partial derivatives with respect to the physical coordinates, as well
+     * as resolution of basic partial differential equations (e.g. Poisson
+     * equations). 
+     *
+     */
+    //@{
+	//@Include:map.h_r
+	//@Include:coord.h_r
+    //@}
+
+
+   /**@name Tensorial fields
+     *
+     * These classes represent the various physical fields available in 
+     * {\sc LORENE}. These objects do not depend on the numerical method
+     * (spectral method). 
+     */
+    //@{
+	//@Include:base_vect.h_r
+	//@Include:cmp.h_r
+	//@Include:tenseur.h_r
+	//@Include:metrique.h_r
+    //@}  
+    
+    /**@name Physical units
+     *
+     */
+    //@{
+	//@Include:unites.h_r
+    //@}
+
+    /**@name Equations of state
+     *
+     */
+    //@{
+	//@Include:eos.h_r
+        //@Include:eos_tabul.h_r
+        //@Include:eos_bifluid.h_r
+    //@}
+
+    /**@name Stars and black holes
+     *
+     */
+    //@{
+	//@Include:etoile.h_r
+        //@Include:et_rot_bifluid.h_r
+        //@Include:et_rot_diff.h_r
+	//@Include:binaire.h_r
+	//@Include:bhole.h_r
+    //@}
+    
+    /**@name Graphical outputs
+     *
+     * The (online) graphical outputs of the various Lorene objects 
+     * are performed via the PGPLOT library:
+     * \begin{verbatim}
+     * http://astro.caltech.edu/~tjp/pgplot/.
+     * \end{verbatim}
+     *
+     * To open an X11 display area, use the command 'pgdisp'. 
+     *
+     * Offline 3-D visualization of various Lorene objects can be done
+     * by means of IRIS Explorer:
+     * \begin{verbatim}
+     * http://www.nag.com/Welcome_IEC.html.
+     * \end{verbatim}
+     * The functions {\tt des\_explorer} construct from Lorene
+     * objects some files in a format readable by IRIS Explorer.
+     */
+    //@{
+	//@Include:graphique.h_r
+    //@}
+
+
+//@}

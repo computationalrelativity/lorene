@@ -1,0 +1,24 @@
+SHELL=/bin/sh
+
+include $(HOME_LORENE)/local_settings		  # defines which compiler,...
+
+LIB = -L$(HOME_LORENE)/Lib -llorene -llorenef77 
+
+.SUFFIXES : .o .C
+
+EXE = rotstar
+SRC = rotstar.C
+OBJ = $(SRC:.C=.o)
+
+$(EXE): $(OBJ)
+	$(CXX) -o $@ $(CXXFLAGS) $(OBJ) $(LIB) $(LIB_LAPACK) \
+					$(LIB_PGPLOT) $(LIB_CXX)
+
+.C.o:
+	$(CXX)  -c $(CXXFLAGS) $(INC) $<
+
+uninstall:
+	rm -f $(OBJ)
+	rm -f $(EXE)
+	rm -f *.d
+

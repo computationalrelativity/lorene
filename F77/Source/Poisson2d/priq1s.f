@@ -1,0 +1,184 @@
+C
+C   Copyright (c) 1998 Silvano Bonazzola
+C
+C    This file is part of LORENE.
+C
+C    LORENE is free software; you can redistribute it and/or modify
+C    it under the terms of the GNU General Public License as published by
+C    the Free Software Foundation; either version 2 of the License, or
+C    (at your option) any later version.
+C
+C    LORENE is distributed in the hope that it will be useful,
+C    but WITHOUT ANY WARRANTY; without even the implied warranty of
+C    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+C    GNU General Public License for more details.
+C
+C    You should have received a copy of the GNU General Public License
+C    along with LORENE; if not, write to the Free Software
+C    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+C
+C
+C
+C $Id$
+C $Log$
+C Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
+C Initial revision
+C
+c Revision 1.1  1998/06/22  10:38:35  eric
+c Initial revision
+c
+C
+C $Header$
+C
+C
+
+	SUBROUTINE PRIQ1S(NDL,NDR,IPAR,RR1,CS,CC)
+
+
+C
+C##	version du 24.11.1993: suppression des variables inutiles (X5)
+C				 dimension des tableaux avec *
+C
+C		ROUTINE POUR LE CALCUL DE LA PRIMITIVE D'UNE
+C		FONCTION DANS DES COQUILLES SPHERIQUES.
+C		(SYMETRIQUE ET ANTISYMETRIQUE). LA PRIMITIVE EST 0
+C		EN r=0.
+C
+C		ARGUMENTS DE LA ROUTINE:
+C
+C	NDL	=TABLEAU CONTENANT EN NDL(1) LE NOMBRE DES ZONES
+C		 ET EN NDL(2),NDL(3)... LES NOMBRES DE DEGERS DE LIBERTE
+C		 DANS CHAQUE ZONE
+C	IPAR	=PARAMETRE DE LA PARITE: SI IPAR=0 LA FONCTION INPUT EST
+C		 PAIRE ET L'OUTPUT IMPAIRE, SI IPAR=1 LE CONTRAIRE.
+C	RR1	=TABLEAU CONTENANT LE RAYON INTERNE DE CHAQUE ZONE
+C		 DANS (RR1(NZON+1) IL-YA LE RAYON DU DOMAINE EXTERIEUR
+C	CS	=TABLEAU INPUT CONTENANT LES COEFFICIENTS DE LA FONCTION
+C		 DONT ON VEUT DETERMINER LA PRIMITIVE.
+C	CC	=TABLEAU OUTPUT DES COEFFICIENTS DE LA PRIMITIVE.
+C
+
+	IMPLICIT double PRECISION (A-H,O-Z)
+
+	character*100 header
+	data header/'$Header$'/
+
+	PARAMETER (N257=257)
+C
+	DIMENSION CS(NDR,*),CC(NDR,*),FA1(N257),FA2(N257),FA3(N257)
+	DIMENSION RR1(*),NDL(*)
+	DATA NCON/0/
+	SAVE NCON,FA1,FA2,FA3
+C
+	NZON=NDL(1)
+C
+C		COMBINAISON LINEAIRE DES COEFFICIENTS
+C
+	N1=NDL(2)
+	N=N1-1
+C
+	IF(N1.NE.NCON) THEN
+	NCON=N1
+	X1=1
+C
+	DO 6 L=3,N1
+	FA1(L)=X1/(4*L)
+	FA2(L)=X1/(4*L-2)
+	FA3(L)=X1/(L-1)
+   6	CONTINUE
+C
+	FA1(1)=.25
+	FA1(2)=.125
+	FA2(1)=.5
+	FA2(2)=X1/6
+	FA3(2)=X1
+	
+	ENDIF
+C
+	CS(N1+1,1)=0
+C
+	IF(IPAR.EQ.1) CS(N1,1)=0
+	DO 1 L=1,N1-IPAR
+	CS(L,1)=CS(L+1,1)-CS(L,1)
+  1	CONTINUE
+C
+	R4=RR1(2)
+C
+C		INVERSION DE LA MATRICE DE L'OPERATEUR DERIVATION
+C
+	IF(IPAR.EQ.1) THEN
+C
+C		CAS IMPAIRE
+C
+	DO 2 L=1,N-1
+	CC(L+1,1)=CS(L,1)*FA1(L)*R4
+  2	CONTINUE
+C
+	CC(N1,1)=-CS(N,1)/(2*N*RR1(2))
+C
+C		DETERMINATION DU PREMIER COEFFICIENT (CONSTANTE D'INTEGRATION)
+C		POUR ANULER LA PRIMITIVE EN r=0.
+C
+	SOMM=-CC(N1,1)*.5
+	DO 3 L=2,N,2
+	SOMM=SOMM+CC(L,1)
+   3	CONTINUE
+C
+	DO 4 L=3,N,2
+	SOMM=SOMM-CC(L,1)
+   4	CONTINUE
+C	
+	CC(1,1)=SOMM*2
+	IF(NZON.EQ.1) RETURN
+	ENDIF
+C
+C		CAS PAIRE
+C
+	IF(IPAR.EQ.0) THEN
+C
+	DO 5 L=1,N
+	CC(L,1)=CS(L,1)*FA2(L)*R4
+   5	CONTINUE
+	CC(N1,1)=0
+	ENDIF
+C
+	IPA=0
+	IF(IPAR.EQ.0) IPA=1
+	CALL EXTR1S(N,1,0,IPA,CC,SOM1)
+C
+	DO 11 LZON=2,NZON
+	R4=(RR1(LZON+1)-RR1(LZON))*.25
+	N1=NDL(LZON+1)
+	N=N1-1
+	CC(2,LZON)=(CS(3,LZON)-CS(1,LZON))*R4
+	DO 9 L=3,N-1
+	CC(L,LZON)=R4*(CS(L+1,LZON)-CS(L-1,LZON))*FA3(L)
+   9	CONTINUE
+C
+	CC(N,LZON)=R4*(CS(N1,LZON)*.5-CS(N-1,LZON))*FA3(N)
+	CC(1,LZON)=0
+	CC(N1,LZON)=-CS(N,LZON)/N*R4*2
+	SOM2=(CC(N1,LZON)+CC(1,LZON))*.5
+	DO 7 L=2,N
+	SOM2=SOM2+CC(L,LZON)
+   7	CONTINUE
+C
+	CC(1,LZON)=+(SOM1-SOM2)*2
+C
+	IF(LZON.EQ.NZON) RETURN
+C
+	SOM1=(CC(N1,LZON)+CC(1,LZON))*.5
+	DO 8 L=2,N,2
+	SOM1=SOM1-CC(L,LZON)
+   8	CONTINUE
+C
+	DO 10 L=3,N,2
+	SOM1=SOM1+CC(L,LZON)
+  10    CONTINUE
+  11	CONTINUE
+C
+	RETURN
+C
+C  100	FORMAT(1X,10E10.3)
+C  101	FORMAT(1X,' ')
+	END	

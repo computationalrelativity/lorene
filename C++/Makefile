@@ -1,0 +1,78 @@
+SHELL=/bin/sh
+
+include $(HOME_LORENE)/local_settings		
+
+BIN_TOOLS = $(HOME_LORENE)/bin
+LIB	  = $(HOME_LORENE)/Lib
+
+install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
+	cd Source/Base_val; $(MAKE)
+	cd Source/Base_vect; $(MAKE)
+	cd Source/Bhole; $(MAKE)
+	cd Source/Bhole_binaire; $(MAKE)
+	cd Source/Binaire; $(MAKE)
+	cd Source/Cmp; $(MAKE)
+	cd Source/Coord; $(MAKE)
+	cd Source/Dim_tbl; $(MAKE)
+	cd Source/Eos; $(MAKE)
+	cd Source/Etoile; $(MAKE)
+	cd Source/Grille3d; $(MAKE)
+	cd Source/Itbl; $(MAKE)
+	cd Source/Map; $(MAKE)
+	cd Source/Matrice; $(MAKE)
+	cd Source/Metrique; $(MAKE)
+	cd Source/Mg3d; $(MAKE)
+	cd Source/Mtbl; $(MAKE)
+	cd Source/Mtbl_cf; $(MAKE)
+	cd Source/Non_class_members/Coef; $(MAKE)
+	cd Source/Non_class_members/Graphics; $(MAKE)
+	cd Source/Non_class_members/Operators; $(MAKE)
+	cd Source/Non_class_members/PDE; $(MAKE)
+	cd Source/Non_class_members/Utilities; $(MAKE)
+	cd Source/Param; $(MAKE)
+	cd Source/Tbl; $(MAKE)
+	cd Source/Tenseur; $(MAKE)
+	cd Source/Valeur; $(MAKE)
+
+uninstall:
+	rm -fr $(LIB)/liblorene.a
+	rm -fr $(LIB)/liblorene_g.a
+	rm -f $(BIN_TOOLS)/pointCpointo
+	cd Source/Base_val; $(MAKE) -i uninstall
+	cd Source/Base_vect; $(MAKE) -i uninstall
+	cd Source/Bhole; $(MAKE) -i uninstall
+	cd Source/Bhole_binaire; $(MAKE) -i uninstall
+	cd Source/Binaire; $(MAKE) -i uninstall
+	cd Source/Cmp; $(MAKE) -i uninstall
+	cd Source/Coord; $(MAKE) -i uninstall
+	cd Source/Dim_tbl; $(MAKE) -i uninstall
+	cd Source/Eos; $(MAKE) -i uninstall
+	cd Source/Etoile; $(MAKE) -i uninstall
+	cd Source/Grille3d; $(MAKE) -i uninstall
+	cd Source/Itbl; $(MAKE) -i uninstall
+	cd Source/Map; $(MAKE) -i uninstall
+	cd Source/Matrice; $(MAKE) -i uninstall
+	cd Source/Metrique; $(MAKE) -i uninstall
+	cd Source/Mg3d; $(MAKE) -i uninstall
+	cd Source/Mtbl; $(MAKE) -i uninstall
+	cd Source/Mtbl_cf; $(MAKE) -i uninstall
+	cd Source/Non_class_members/Coef; $(MAKE) -i uninstall
+	cd Source/Non_class_members/Graphics; $(MAKE) -i uninstall
+	cd Source/Non_class_members/Operators; $(MAKE) -i uninstall
+	cd Source/Non_class_members/PDE; $(MAKE) -i uninstall
+	cd Source/Non_class_members/Utilities; $(MAKE) -i uninstall
+	cd Source/Param; $(MAKE) -i uninstall
+	cd Source/Tbl; $(MAKE) -i uninstall
+	cd Source/Tenseur; $(MAKE) -i uninstall
+	cd Source/Valeur; $(MAKE) -i uninstall
+
+$(LIB):
+	mkdir $@
+
+$(BIN_TOOLS):	
+	mkdir $@
+
+$(BIN_TOOLS)/pointCpointo:
+	$(CXX) $(CXXFLAGS) -o $@ $(HOME_LORENE)/Inst_tools/pointCpointo.C
+	
+	

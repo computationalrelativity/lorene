@@ -1,0 +1,177 @@
+C
+C   Copyright (c) 1997 Silvano Bonazzola
+C
+C    This file is part of LORENE.
+C
+C    LORENE is free software; you can redistribute it and/or modify
+C    it under the terms of the GNU General Public License as published by
+C    the Free Software Foundation; either version 2 of the License, or
+C    (at your option) any later version.
+C
+C    LORENE is distributed in the hope that it will be useful,
+C    but WITHOUT ANY WARRANTY; without even the implied warranty of
+C    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+C    GNU General Public License for more details.
+C
+C    You should have received a copy of the GNU General Public License
+C    along with LORENE; if not, write to the Free Software
+C    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+C
+C
+
+	SUBROUTINE DIRCMS(NR,NDIM,NEQ,IND,R1,R2,AA,BB)
+
+	IMPLICIT double PRECISION (A-H,O-Z)
+
+C
+C##	version du 01/04/04: corrige limite de boucle LABEL 10
+C
+C
+C		ROUTINE POUR LA DIVISION ET MULTIPLICATION PAR 
+C		R1+R2*X  0 > X > 2. (PROBLEMES DANS UNE COQUILLE SPHERIQUE)
+C		L'INPUT EST DETRUIT.
+C
+C		ARGUMENTS DE LA ROUTINE:
+C
+C		NR	=NOMBRE DES DEGRES DE LIBERTE-1
+C		NDIM	=DIMENSION DES TABLEAUX INPUT ET OUTPUT
+C		NEQ	=NOMBRE DE FONCTIONS QU'ON VEUT DIVISER OU MULTI-
+C			 PLIER SIMULTANEMENT
+C		IND	=DRAPEAU: SI IND=0 ON EFFECTUE LA MULTIPLICATION
+C			 PAE R1+R2*X, SI IND=1 LA DIVISION EST EFFECTUEE.
+C		R1	=RAYON INTERNE DE LA COQUILLE (R1 > 0)
+C		R2	=PARAMETRE DEFINISSANT LE RAYON EXTERNE DE LA 
+C			 COQUILLE.: RAYON EXTERNE=R1+2*R2
+C		AA	=TABLEAU INPUT CONTENANT LES COEFFICIENTS (1ER INDICE)
+C			 DES NEQ FONCTIONS QUI VONT ETRE DIVISEES OU MULTI-
+C			 PLIEES.
+C		BB	=TABLEAU OUTPUT
+C
+C	ATTENTION !     LES DIMENSION MINIMES DES TABLEAUX SONT NR1+2
+C       ----------   
+C
+C
+C $Id$
+C $Log$
+C Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
+C Initial revision
+C
+c Revision 1.2  1997/05/23  11:29:14  hyc
+c *** empty log message ***
+c
+C Revision 1.1  1997/03/17 20:08:35  hyc
+C Initial revision
+C
+C
+C $Header$
+C
+C
+	character* 100 header
+	data header/'$Header$'/
+
+	PARAMETER (NTR=260)
+C
+	DIMENSION BB(NDIM,*),AA(NDIM,*),A0(NTR,3)
+C
+	DATA NRC,RC1,RC2/0,0,0/
+
+	SAVE NRC,RC1,RC2,A0,G
+C
+	NR1=NR+1
+	NRR1=NR+3
+	NRR=NR+2
+C
+	IF(NRR1.GT.NTR) THEN
+	PRINT*,'DIMENSIONS INSUFFISANTES DANS LA ROUTINE DIRCMS, NRR1=',NRR1
+	CALL EXIT
+	ENDIF
+C
+	R22=-R2*.5
+	R3=R1+R2
+C
+C		MULTIPLICATION PAR R1+R2*X
+C
+	IF(IND.EQ.0) THEN
+C
+	DO 1 LEQ=1,NEQ
+	AA(NR1,LEQ)=AA(NR1,LEQ)*.5
+	AA(NRR,LEQ)=0
+	AA(NRR1,LEQ)=0
+   1	CONTINUE
+C	
+	DO 2 LEQ=1,NEQ
+	BB(1,LEQ)=AA(1,LEQ)*R3-AA(2,LEQ)*R2
+   2	CONTINUE
+C
+	DO 3 LEQ=1,NEQ
+	DO 4 LR=2,NR1
+	BB(LR,LEQ)=(AA(LR-1,LEQ)+AA(LR+1,LEQ))*R22+AA(LR,LEQ)*R3
+   4	CONTINUE
+   3	CONTINUE
+C
+	R23=2*R22
+	R3=2*R3
+C
+	DO 5 LEQ=1,NEQ
+	BB(NR1,LEQ)=(AA(NR,LEQ)*R23+AA(NR1,LEQ)*R3)
+	BB(NRR,LEQ)=AA(NR1,LEQ)*R22
+   5	CONTINUE
+C
+	RETURN
+	ENDIF
+C
+	IF(IND.EQ.1) THEN
+C
+C		DIVISION
+C
+	IF(R1.NE.RC1.OR.R2.NE.RC2.OR.NRR.NE.NRC) THEN
+	RC1=R1
+	RC2=R2
+	NRC=NRR
+	A0(1,1)=0
+	A0(1,2)=R3
+	A0(1,3)=-R2
+C
+	DO 6 LR=2,NRR
+	A0(LR,1)=R22
+	A0(LR,2)=R3
+	A0(LR,3)=R22
+   6	CONTINUE
+C
+	DO 7 M=2,NRR
+	G=A0(M,1)/A0(M-1,2)
+	A0(M,1)=G
+	A0(M,2)=A0(M,2)-A0(M-1,3)*G
+   7	CONTINUE
+C
+	DO 8 LR=1,NRR
+	A0(LR,2)=1/A0(LR,2)
+   8	CONTINUE
+C
+	ENDIF
+C
+	DO 9 LEQ=1,NEQ
+	AA(NR1,LEQ)=AA(NR1,LEQ)*.5
+   9	CONTINUE
+C
+	DO 10 M=2,NRR-1
+	DO 11 LEQ=1,NEQ
+	AA(M,LEQ)=AA(M,LEQ)-A0(M,1)*AA(M-1,LEQ)
+  11	CONTINUE
+  10	CONTINUE
+C
+	DO 13 LEQ=1,NEQ
+	BB(NR1,LEQ)=AA(NR1,LEQ)*A0(NR1,2)
+  13	CONTINUE
+C
+	DO 14 LEQ=1,NEQ
+	DO 15 LR=NR1-1,1,-1
+	BB(LR,LEQ)=(AA(LR,LEQ)-BB(LR+1,LEQ)*A0(LR,3))*A0(LR,2)
+  15	CONTINUE
+  14	CONTINUE
+	ENDIF
+
+  100	FORMAT(1X,10E10.3)
+  101	FORMAT(1X,' ')
+	RETURN
+	END

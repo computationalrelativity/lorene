@@ -1,0 +1,232 @@
+C
+C   Copyright (c) 1997 Silvano Bonazzola
+C
+C    This file is part of LORENE.
+C
+C    LORENE is free software; you can redistribute it and/or modify
+C    it under the terms of the GNU General Public License as published by
+C    the Free Software Foundation; either version 2 of the License, or
+C    (at your option) any later version.
+C
+C    LORENE is distributed in the hope that it will be useful,
+C    but WITHOUT ANY WARRANTY; without even the implied warranty of
+C    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+C    GNU General Public License for more details.
+C
+C    You should have received a copy of the GNU General Public License
+C    along with LORENE; if not, write to the Free Software
+C    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+C
+C
+
+	SUBROUTINE EXTR1S(NR,INR,IDR,IMP,DEN,SOM)
+
+	IMPLICIT double PRECISION (A-H,O-Z)
+
+C
+C##	version du 19/11/93: derniere dimension des tableaux avec *
+C
+C
+C		ROUTINE POUR LE CALCUL DES VALEURES ET DE LA DERIVEE
+C		PREMIERE EN r=0 ET r=1 D'UNE FONCTION A 1 DIMENSION
+C		AVEC ECHANTILLONNAGE RAREFIE' A L'ORIGINE.
+C	
+C		ARGUMENTS DE LA ROUTINE:
+C
+C		NR	=NOMBRE DE DEGRES DE LIBERTE'-1
+C		INR	=PARAMETRE: SI INR=0 LA FONCTION EST CALCULEE EN
+C			 r=0, SI INR=1 EN r=1.
+C		IDR	=PARAMETRE: SI IDR=0 LA FONCTION EST CALCULEE
+C			 SI IDR=1, LA DERIVEE 1ere EST CALCULEE
+C		IMP	=INDICE DE TENSORIALITE' IMP=0 SCALAIRE, IMP=1 VECTEUR
+C		DEN	=TABLEAU INPUT (A 2-D) CONTENANT LES COEFFICIENTS DE 
+C			 TCHEBYTCHEV SELON LES 2 AXES.
+C		SOM	=OUTPUT DE LA VALEUR DE LA FONCTION OU DE SA DERIVEE
+C			 PREMIERE EN r=0, OU r=1.
+C
+C		L'INPUT DEN N'EST PAS DETRUIT
+C
+C		Subroutine ayant testee selon le protocol normale le 2/1/88
+C
+C
+C $Id$
+C $Log$
+C Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
+C Initial revision
+C
+c Revision 1.2  1997/05/23  11:45:25  hyc
+c *** empty log message ***
+c
+C Revision 1.1  1997/05/08 07:33:29  hyc
+C Initial revision
+C
+C
+C $Header$
+C
+C
+	character*100 header
+	data header/'$Header$'/
+
+	DIMENSION DEN(*),ID1(514),AD2(514)
+	DIMENSION ID3(514)
+	SAVE NCONT,ID1,AD2,ID3
+	DATA NCONT/0/
+C
+	N514=514
+	IF(NR.GT.N514) THEN
+C
+	PRINT*,'DIMENSIONS INSUFF. DANS LA ROUTINE EXTR1S, NR1=',NR
+	CALL EXIT
+	ENDIF
+C
+	NR1=NR+1
+C
+C		PREPARATION DES TABLEAUX
+C
+	IF(NCONT.NE.NR1) THEN
+	NCONT=NR1
+C
+	DO LR=1,NR1
+	LR2=LR*2
+	ID1(LR)=(LR2-2)**2
+	AD2(LR)=(LR2-1)**2
+	ID3(LR)=(LR2-1)
+	ENDDO
+C
+	AD2(NR1)=AD2(NR1)*.5
+	ID1(NR1)=ID1(NR1)/2
+	ENDIF
+C
+C		CAS FONCTION PAIRE
+C
+C		CALCUL DE LA VALEUR DE LA FONCTION EN r=0
+C
+	IF(IMP.EQ.1) DEN(NR1)=0
+C
+	IF(INR.EQ.0) THEN
+C
+	IF(IMP.EQ.0) THEN
+C
+C		CALCUL DE LA DERIVEE EN r=0
+C
+	IF(IDR.EQ.1) THEN
+	SOM=0
+	RETURN
+	ENDIF
+C
+C		CALCUL DE LA FONCTION EN r=0
+c
+	IF(IDR.EQ.0) THEN
+	SOM=(DEN(1)+DEN(NR1))*.5
+C
+	DO LR=2,NR1,2
+	SOM=SOM-DEN(LR)
+	ENDDO
+C
+	DO LR=3,NR1-1,2
+	SOM=SOM+DEN(LR)
+	ENDDO
+C
+	RETURN
+	ENDIF
+	ENDIF
+C
+C		CAS FONCTION IMPAIRES (CALCUL FONCTION EN r=0)
+C		
+	IF(IMP.EQ.1) THEN
+C
+C		CALCUL DE LA FONCTION IMPAIRE EN r=0
+C
+	IF(IDR.EQ.0) THEN
+	SOM=0
+	RETURN
+	ENDIF
+C	
+C		CALCUL DE LA DERIVE EN r=0
+C
+	IF(IDR.EQ.1) THEN
+C
+C		CAS FONCTIONS IMPAIRES (CALCUL DERIVEE EN r=0)
+C
+	SOM=-DEN(1)
+	DO LR=3,NR1,2
+	SOM=SOM-DEN(LR)*ID3(LR)
+	ENDDO
+C
+	DO LR=2,NR1,2
+	SOM=SOM+DEN(LR)*ID3(LR)
+	ENDDO
+C
+	RETURN
+	ENDIF
+C
+		ENDIF
+	ENDIF
+C
+C
+C		CALCUL FONCTION EN r=1
+C
+	IF(INR.EQ.1) THEN
+C
+C		CALCUL VALEUR DE LA FONCTION EN r=1
+C
+	IF(IDR.EQ.0) THEN
+C
+	IF(IMP.EQ.0) THEN
+C
+	SOM=(DEN(1)+DEN(NR1))*.5
+C
+	DO LR=2,NR
+	SOM=SOM+DEN(LR)
+	ENDDO
+	RETURN
+	ENDIF
+C
+C	CAS FONCTIONS IMPAIRES (CALCUL VALEUR DE LA FONCTION EN r=1)
+C
+	IF(IMP.EQ.1) THEN
+C
+	SOM=-DEN(1)
+	DO LR=2,NR
+	SOM=SOM-DEN(LR)
+	ENDDO
+C
+	RETURN
+	ENDIF
+	ENDIF
+C
+C		CALCUL DE LA DERIVEE EN r=1
+C
+	IF(IDR.EQ.1) THEN
+C
+C		CAS FONCTIONS PAIRES
+C
+	IF(IMP.EQ.0) THEN
+C
+	SOM=0
+C
+	DO LR=2,NR1
+	SOM=SOM+DEN(LR)*ID1(LR)
+	ENDDO
+	RETURN 
+	ENDIF
+C
+C		CAS FONCTIONS IMPAIRES (CALCUL DE LA DERIVEE EN r=1)
+C
+	IF(IMP.EQ.1) THEN
+C
+	SOM=-DEN(1)
+C
+	DO LR=2,NR1
+	SOM=SOM-DEN(LR)*AD2(LR)
+	ENDDO
+C
+	RETURN
+	ENDIF
+C
+	ENDIF
+C
+	ENDIF
+	RETURN 
+	END
+C

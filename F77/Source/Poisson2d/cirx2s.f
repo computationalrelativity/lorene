@@ -1,0 +1,303 @@
+C
+C   Copyright (c) 1997 Silvano Bonazzola
+C
+C    This file is part of LORENE.
+C
+C    LORENE is free software; you can redistribute it and/or modify
+C    it under the terms of the GNU General Public License as published by
+C    the Free Software Foundation; either version 2 of the License, or
+C    (at your option) any later version.
+C
+C    LORENE is distributed in the hope that it will be useful,
+C    but WITHOUT ANY WARRANTY; without even the implied warranty of
+C    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+C    GNU General Public License for more details.
+C
+C    You should have received a copy of the GNU General Public License
+C    along with LORENE; if not, write to the Free Software
+C    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+C
+C
+       SUBROUTINE CIRX2S(NDEG,NDIMY,NN64,ITCH,IDR,IND,C64,CC,CS,DEN)
+
+		implicit double precision (a-h,o-z)
+
+C
+C           ROUTINE POUR LE CALCUL DES TRANSFORMEES DE FOURIER
+C           E DE TCHEBYTCHEV D'UN TABLEAU A 2 DIMENSIONS.
+C
+C           ROUTINE COMPLETEMENT CRAYTINIZEE.
+C
+C           ARGUMENTS DE LA ROUTINE:
+C
+C               NDEG = TABLEAU, NDEG(2) CONTENANT LES DE-
+C                    GREES DE LIBERTE DES TRANSFORMEES
+C                    A EFFECTUER, NDEG(1) CONCERNE LE PRE-
+C                    MIER INDICE DE LA MATRICE, NDEG(2)
+C                    LE 2ME INDICE.
+C                    NDEG DOIT IMPERATIVEMENT ETRE DE LA
+C                    FORME 2**m*3**p*5**q+1 (m,p,q NOMBRES 
+C                    INTIERS)
+C
+C           NDIMY  =DIMESION DU TABLEAU YY(LR,LY,LZ).
+C           POUR DES RAISONS DE CRAYTINISATION NDIMY ET NDIMZ NE DOIT
+C           PAS ETRE UN MULTIPLE DE 8.
+C
+C           NN64 = PARAMETRE DE LA VECTORIZATION, PAR EXEMPLE
+C                NN64=64 SIGNIFIE QUE 64 FONCTIONS A TRANSFORMER
+C                SONT VECTORIZEE.
+C
+C           ITCH =PARAMETRE, SII ITCH.EQ.1 LA TRANSFORMEE
+C                DE FOURIER EST EFFECTUEE, SI ITCH=2 LA ROU-
+C                TINE EFFECTUE LA TRANSFORMEE DE TCHEBYTCHEV.
+C
+C
+C           IDR =PRAMETRE: SI IDR=1 LA DERIVEE PREMIERE EST EFFECTUEE
+C                SI IDR=2 LA DERIVEE 2ME EST EXECUTEE.
+C
+C           IN1 = PARAMETRE, SI IN1=1 LA TRANSFORMEE EST
+C                EFFECTUEE SUR LE PREMIER INDICE, SI IN1=2 SUR LE
+C                DEUXIEME.
+C
+C           IND = PARAMETRE: EN OUTPUT ON A LES COEFFICIENTS
+C                 DE FOURIER (OU DE TCHEBYTCHEV SELON ITCH) DES DERI-
+C                 VEES (PREMIERES OU DEUXIEMES SELON IDR) SI IND=1.
+C                 SI IND=2 ON A LES DERIVEES DES FONCTIONS.
+C
+C           C64,CC,CS= TABLEAUX DE TRAVAIL: DIMENSION MINIME=
+C                  (NN64+1)*((MAX(NDEG(1),NDEG(2))+3)
+C
+C           DEN =TABLEAU A 2 DIMENSIONS CONTENANT LA FONCTION
+C                A TRANSFORMER EN IMPUT, ET LA TRANSFORMEE EN
+C                OUTPUT. 
+C
+C
+C $Id$
+C $Log$
+C Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
+C Initial revision
+C
+c Revision 1.1  1997/10/23  08:39:07  eric
+c Initial revision
+c
+C
+C $Header$
+C
+C
+	character*100 header
+	data header/'$Header$'/
+
+
+       DIMENSION DEN(NDIMY,*),C64(*),CC(*),CS(*),NDEG(3)
+       DATA NDY,NDZ,NEQ,INITI/0,0,0,0/
+
+	save	NZ64,MULTZ,NZ65,NZR64,NZR65
+
+       NY1=NDEG(1)
+       NZ1=NDEG(2)
+       NY=NY1-1
+       NZ=NZ1-1
+C
+       IF(NDY.EQ.NY1.AND.NDZ.EQ.NZ1.AND.NEQ.EQ.NN64) GO TO 300
+C
+C           DETERMINATION DES PARAMETRES NECESSAIRES POUR LA TRANSFORMAT
+C  ION
+C           DU 1er INDICE.
+C
+       NZ64=NN64
+       MULTZ=NZ1/NN64
+       IF(MULTZ.EQ.0) THEN 
+       NZ64=NZ1
+C      MULTZ=1
+       ENDIF
+       NZ65=NZ64
+       IF((NZ64/8)*8.EQ.NZ64) NZ65=NZ64+1
+       NZR64=NZ1-MULTZ*NZ64
+       NZR65=NZR64
+       IF((NZR64/8)*8.EQ.NZR64)NZR65=NZR64+1
+C
+  300  CONTINUE
+C
+C
+C111111111111111111111111111111111111111111111111111111111111111111111
+C
+C           TRANFORMEE DU PREMIER INDICE, (TRANSFORMEES DES COLON-
+C           NES)
+C
+C
+       IF(NY.LT.2) RETURN
+C
+       IDR1=1
+       IDR2=1
+       IF(IDR.EQ.6) IDR1=-1
+       IF(IDR.EQ.4) IDR2=-1
+C
+C           TRANSFORMATIONS DANS LE CAS CAS NN64.GE.NZ1
+C
+             IF(NZ64.EQ.NZ1) THEN
+C
+       LN65=0
+       DO 1 LY=1,NY1
+       DO 2 LZ=1,NZ64
+       CC(LZ+LN65)=DEN(LY,LZ)
+   2   CONTINUE
+       LN65=LN65+NZ65
+   1   CONTINUE
+C
+       IF(IDR.EQ.0) CALL CIRXMS(NY,NZ64,ITCH,CC,CS,C64)
+C
+       IF(IDR.EQ.1) THEN
+       IF(ITCH.EQ.0) CALL CD1MRS(NY,NZ64,2,CC,C64,1,CS)
+       IF(ITCH.EQ.1) CALL DERFMS(NY,NZ64,CC,CS,C64)
+       ENDIF
+C
+       IF(IDR.EQ.2) CALL CD2MRS(NY,NZ64,ITCH,CC,CS,C64)
+C
+       IF(IDR.EQ.3.OR.IDR.EQ.4) CALL DIR2MS(NY,ITCH,IDR2,NZ64,CC,CS,C64)
+       IF(IDR.EQ.5.OR.IDR.EQ.6) CALL DIMRAS(NY,ITCH,IDR1,NZ64,CC,C64)
+       IF(IDR.EQ.7) CALL CD1MRS(NY,NZ64,ITCH,CC,C64,1,CS)
+C
+C           LES VALEURES DE LA FONCTION SONT STOCKEES DANS DEN
+C
+       IF(IDR.NE.0.AND.IND.EQ.2) THEN
+C
+       CALL CIRXMS(NR,NZ64,ITCH,C64,CS,CC)
+       LN65=0
+       DO 42 LY=1,NY1
+       DO 43 LZ=1,NZ64
+       DEN(LY,LZ)=CC(LZ+LN65)
+  43   CONTINUE         
+       LN65=LN65+NZ65
+  42   CONTINUE         
+       RETURN
+       ENDIF
+C
+       LN65=0
+       DO 8 LY=1,NY1
+       DO 9 LZ=1,NZ64
+       DEN(LY,LZ)=C64(LZ+LN65)
+   9   CONTINUE
+       LN65=LN65+NZ65
+   8   CONTINUE
+       RETURN
+       ENDIF
+C
+C           TRANSFORMATION DANS LE CAS NN64< NZ1
+C
+       L164=1
+       L264=NZ64
+       LL64=0
+       DO 10 LMUL=1,MULTZ
+C
+       LN65=LL64
+       DO 19 LY=1,NY1
+       DO 20  LZ=L164,L264
+       CC(LZ+LN65)=DEN(LY,LZ)
+  20   CONTINUE
+       LN65=LN65+NZ65
+  19   CONTINUE
+C
+       IF(IDR.EQ.0) CALL CIRXMS(NY,NZ64,ITCH,CC,CS,C64)
+C
+       IF(IDR.EQ.1) THEN
+       IF(ITCH.EQ.0) CALL CD1MRS(NY,NZ64,2,CC,C64,1,CS)
+       IF(ITCH.EQ.1) CALL DERFMS(NY,NZ64,CC,CS,C64)
+       ENDIF
+C
+       IF(IDR.EQ.2) CALL CD2MRS(NY,NZ64,ITCH,CC,CS,C64)
+C
+       IF(IDR.EQ.3.OR.IDR.EQ.4) CALL DIR2MS(NY,ITCH,IDR2,NZ64,CC,CS,C64)
+C
+       IF(IDR.EQ.5.OR.IDR.EQ.6) CALL DIMRAS(NY,ITCH,IDR1,NZ64,CC,C64)
+       IF(IDR.EQ.7) CALL CD1MRS(NY,NZ64,ITCH,CC,C64,1,CS)
+C
+C           LES VALEURES DE LA FONCTION SONT STOCKEES DANS DEN
+C
+       IF(IDR.NE.0.AND.IND.EQ.2) THEN
+C
+       CALL CIRXMS(NY,NZ64,ITCH,C64,CS,CC)
+       LN65=LL64
+       DO 39 LY=1,NY1
+       DO 38 LZ=L164,L264
+       DEN(LY,LZ)=CC(LZ+LN65)
+  38   CONTINUE           
+       LN65=LN65+NZ65
+  39   CONTINUE           
+       GO TO 801
+       END IF
+C
+       LN65=LL64
+C
+       DO 41 LY=1,NY1
+       DO 40 LZ=L164,L264
+       DEN(LY,LZ)=C64(LZ+LN65)
+  40   CONTINUE           
+       LN65=LN65+NZ65
+  41   CONTINUE           
+C
+  801  CONTINUE
+       L164=L264+1
+       L264=L264+NZ64
+       LL64=-L164+1
+  10   CONTINUE
+C
+C           LE CALCUL EST TERMINE' SI NZ1 EST UN MLTIPLE DE NN64
+C
+             IF(NZR64.EQ.0) RETURN
+C
+C           FIN DU CALCUL SI NZ1 N'EST PAS UN MULTIPLE DE NN64
+C
+       LN65=LL64
+        DO 27 LY=1,NY1
+       DO 28  LZ=L164,NZ1
+        CC(LZ+LN65)=DEN(LY,LZ)
+  28   CONTINUE
+       LN65=LN65+NZR65
+  27   CONTINUE
+C
+C
+       IF(IDR.EQ.0) CALL CIRXMS(NY,NZR64,ITCH,CC,CS,C64)
+C
+       IF(IDR.EQ.1) THEN
+       IF(ITCH.EQ.0) CALL CD1MRS(NY,NZR64,2,CC,C64,1,CS)
+       IF(ITCH.EQ.1) CALL DERFMS(NY,NZR64,CC,CS,C64)
+       ENDIF
+C
+       IF(IDR.EQ.2) CALL CD2MRS(NY,NZR64,ITCH,CC,CS,C64)
+C
+       IF(IDR.EQ.3.OR.IDR.EQ.4) CALL DIR2MS(NY,ITCH,IDR2,NZR64,CC,CS,C64
+     &)
+C
+       IF(IDR.EQ.5.OR.IDR.EQ.6) CALL DIMRAS(NY,ITCH,IDR1,NZR64,CC,C64)
+       IF(IDR.EQ.7) CALL CD1MRS(NY,NZR64,ITCH,CC,C64,1,CS)
+C
+C           LES VALEURES DE LA FONCTION SONT STOCKEES DANS DEN
+C
+       IF(IDR.NE.0.AND.IND.EQ.2) THEN
+C
+       CALL CIRXMS(NY,NZR64,ITCH,C64,CS,CC)
+C
+C
+       LN65=LL64
+       DO 47 LY=1,NY1
+       DO 48 LZ=L164,NZ1
+       DEN(LY,LZ)=CC(LZ+LN65)
+  48   CONTINUE         
+       LN65=LN65+NZR65
+  47   CONTINUE         
+       RETURN
+       END IF
+C
+       LN65=LL64
+       DO 29 LY=1,NY1
+       DO 21 LZ=L164,NZ1
+       DEN(LY,LZ)=C64(LZ+LN65)
+  21   CONTINUE
+       LN65=LN65+NZR65
+  29   CONTINUE
+C
+  100  FORMAT(1X,'FOU',9D12.4)
+  101  FORMAT(1X,'FOU')
+  200  FORMAT(1X,'FOU',20I5)
+       RETURN
+       END

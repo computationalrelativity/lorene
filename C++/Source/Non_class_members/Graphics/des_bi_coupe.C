@@ -1,0 +1,178 @@
+/*
+ *   Copyright (c) 2001 Jerome Novak
+ *
+ *   This file is part of LORENE.
+ *
+ *   LORENE is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 2 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LORENE is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LORENE; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+
+char des_bi_coupe_c[] = "$Header$" ;
+
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * Initial revision
+ *
+ * Revision 1.1  2001/06/21  07:39:20  novak
+ * Initial revision
+ *
+ *
+ * $Header$
+ *
+ */
+
+// Header C
+#include <math.h>
+
+// Header Lorene
+#include "cmp.h"
+#include "graphique.h"
+#include "param.h"
+#include "utilitaires.h"
+//******************************************************************************
+
+void des_bi_coupe_y(const Cmp& uu, double y0, int nzdes, char* title, 
+		    const Cmp* defsurf, const Cmp* defsurf2, double zoom, 
+		    bool draw_bound, int ncour, int nx, int nz) {
+		     
+    const Map& mp = *(uu.get_mp()) ; 
+
+    double a1 = mp.val_r(nzdes-1, 1., M_PI/2., 0.) ; 		 
+    double a2 = mp.val_r(nzdes-1, 1., M_PI/2., M_PI/2.) ; 		 
+    double a3 = mp.val_r(nzdes-1, 1., M_PI/2., M_PI) ; 		 
+    double ray = mp.val_r(nzdes-1, 1., 0., 0.) ; 
+    
+    ray = ( a1 > ray ) ? a1 : ray ; 
+    ray = ( a2 > ray ) ? a2 : ray ; 
+    ray = ( a3 > ray ) ? a3 : ray ; 
+    		 
+    ray *= zoom ; 
+    
+    double x_min = mp.get_ori_x() - ray ; 
+    double x_max = mp.get_ori_x() + ray ; 
+    double z_min = mp.get_ori_z() - ray ; 
+    double z_max = mp.get_ori_z() + ray ; 
+
+    des_bi_coupe_y(uu, y0, x_min, x_max, z_min, z_max, title, defsurf, 
+		   defsurf2, draw_bound, ncour, nx, nz) ;
+
+}
+
+//******************************************************************************
+
+void des_bi_coupe_y(const Cmp& uu, double y0, double x_min, double x_max, 
+		 double z_min, double z_max, char* title, const Cmp* defsurf,
+		 const Cmp* defsurf2, bool draw_bound, int ncour, int nx, 
+		    int nz) {
+		
+#include "unites.h"
+    // To avoid some compiler warnings :
+    if (uu.get_etat() == ETATNONDEF) {
+	cout << f_unit << qpig << msol << mevpfm3 << endl ;
+    }
+  
+    const Map& mp = *(uu.get_mp()) ; 
+
+    // Plot of isocontours
+    // -------------------
+              
+    float* uutab = new float[nx*nz] ; 
+    
+    double hx = (x_max - x_min) / double(nx-1) ; 
+    double hz = (z_max - z_min) / double(nz-1) ; 
+    
+
+
+    for (int j=0; j<nz; j++) {
+	
+	double z = z_min + hz * j ; 
+	
+	for (int i=0; i<nx; i++) {
+    
+	    double x = x_min + hx * i ; 
+	    
+	    // Computation of (r,theta,phi) : 	    
+	    double r, theta, phi ; 
+	    mp.convert_absolute(x, y0, z, r, theta, phi) ; 
+	
+	    uutab[nx*j+i] = uu.val_point(r, theta, phi) ; 
+	}
+    }
+    
+    float xmin1 = x_min / km ;
+    float xmax1 = x_max / km ;
+    float zmin1 = z_min / km ;
+    float zmax1 = z_max / km ;
+    
+    char* nomx = "x [km]" ; 
+    char* nomz = "z [km]" ; 
+    
+    if (title == 0x0) {
+	title = "" ;
+    }
+    
+
+    char* device = 0x0 ; 
+    int newgraph = ( (defsurf != 0x0) || draw_bound ) ? 1 : 3 ; 
+
+    des_equipot(uutab, nx, nz, xmin1, xmax1, zmin1, zmax1, ncour, nomx, nomz,
+		title, device, newgraph) ;    
+    
+    // Plot of the surface
+    // -------------------
+    
+    if (defsurf != 0x0) {
+
+	assert(defsurf->get_mp() == uu.get_mp()) ; 
+
+	newgraph = ( (defsurf2 != 0x0) || draw_bound ) ? 0 : 2 ; 
+	
+	des_surface_y(*defsurf, y0, device, newgraph) ; 
+	
+    }  // End of the surface drawing
+
+    if (defsurf2 != 0x0) {
+
+	assert(defsurf2->get_mp() == uu.get_mp()) ; 
+
+	newgraph = draw_bound ? 0 : 2 ;  
+	
+	des_surface_y(*defsurf2, y0, device, newgraph) ; 
+	
+    }  // End of the surface drawing
+
+    delete [] uutab ; 
+
+    // Plot of the domains outer boundaries
+    // ------------------------------------
+    
+    if (draw_bound) {
+
+	int ndom = mp.get_mg()->get_nzone() ;  // total number of domains
+    
+	for (int l=0; l<ndom-1; l++) {	// loop on the domains (except the
+					//  last one)
+
+	    newgraph = (l == ndom-2) ? 2 : 0 ; 
+	
+	    des_domaine_y(mp, l, y0, device, newgraph) ; 
+	}
+    }
+
+    
+} 

@@ -1,0 +1,56 @@
+
+	      *************************************************
+ 	      *	Lorene codes for rotating relativistic stars  *
+	      *************************************************
+
+				   $Id$
+
+
+1/ Description of the various codes
+   ================================
+
+rotstar: code for rigidly rotating stars in GR
+
+2/ Compilation
+   ===========
+
+Typing 
+
+	make
+
+will produce the executable rotstar in a non-optimized version for
+debugging purposes. To get an optimized version for production purposes
+type instead
+
+	make -f Makefile_O2
+
+You can clear everything by
+
+	make uninstall
+
+
+3/ Input parameters
+   ================
+
+The code rotstar needs two input files:
+
+parrot.d :  parameters of the computation
+par_eos.d : description of the equation of state
+
+Templates files are provided in the directory Parameters. For instance
+to compute a relativistic polytropic (gamma=2) star rotating at the
+Keplerian limit, do
+
+	cp Parameters/Kepler_GR/parrot.d . 	
+	cp Parameters/Kepler_GR/par_eos.d .
+
+4/ Running
+   =======
+
+Simply type 
+
+	rotstar
+
+The output files like convergence.d can be visualized via xmgrace. 
+
+ 

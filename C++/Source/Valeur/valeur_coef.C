@@ -1,0 +1,291 @@
+/*
+ * Computation of the spectral coefficients.
+ */
+
+/*
+ *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *
+ *   This file is part of LORENE.
+ *
+ *   LORENE is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 2 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LORENE is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LORENE; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+
+char valeur_coef_C[] = "$Header$" ;
+
+
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * Initial revision
+ *
+ * Revision 2.10  2000/10/04  14:41:26  eric
+ * Ajout des bases T_LEG_IP et T_LEG_PI
+ *
+ * Revision 2.9  2000/09/29  16:09:25  eric
+ * Mise a zero des coefficients k=1 et k=2 dans le cas np=1.
+ *
+ * Revision 2.8  2000/09/07  15:14:30  eric
+ * Ajout de la base P_COSSIN_I
+ *
+ * Revision 2.7  2000/08/16  10:32:53  eric
+ * Suppression de Mtbl::dzpuis.
+ * >> .
+ *
+ * Revision 2.6  1999/11/30  12:42:29  eric
+ * Valeur::base est desormais du type Base_val et non plus Base_val*.
+ *
+ * Revision 2.5  1999/11/24  16:06:13  eric
+ * Ajout du test de l'admissibilite FFT des nombres de degres de liberte.
+ *
+ * Revision 2.4  1999/10/28  07:43:14  eric
+ * Modif commentaires.
+ *
+ * Revision 2.3  1999/10/13  15:51:07  eric
+ * Ajout de la base dans l'appel au constructeur de Mtbl_cf.
+ *
+ * Revision 2.2  1999/06/22  14:21:23  phil
+ * Ajout de dzpuis
+ *
+ * Revision 2.1  1999/03/01  14:55:12  eric
+ * *** empty log message ***
+ *
+ * Revision 2.0  1999/02/22  15:40:37  hyc
+ * *** empty log message ***
+ *
+ *
+ * $Header$
+ *
+ */
+
+// Headers C++
+#include <iostream.h>
+
+// Header Lorene
+#include "mtbl.h"
+#include "mtbl_cf.h"
+#include "valeur.h"
+#include "proto.h"
+
+// Prototypage local
+void pasprevu_r(const int*, const int*, double*, const int*, double*) ;
+void pasprevu_t(const int*, const int*, double*, const int*, double*) ;
+void pasprevu_p(const int* ,const int* ,  double* ) ;
+
+void base_non_def_r(const int*, const int*, double*, const int*, double*) ;
+void base_non_def_t(const int*, const int*, double*, const int*, double*) ;
+void base_non_def_p(const int* ,const int* ,  double* ) ;
+
+bool admissible_fft(int ) ; 
+
+void Valeur::coef() const {
+    
+    // Variables statiques
+    static void (*coef_r[MAX_BASE])(const int*, const int*, double*, const int*, double*) ;
+    static void (*coef_t[MAX_BASE])(const int*, const int*, double*, const int*, double*) ;
+    static void (*coef_p[MAX_BASE])(const int* ,const int* ,  double* ) ;
+    static int premier_appel = 1 ;
+    
+    // Premier appel
+    if (premier_appel) {
+	premier_appel = 0 ;
+
+	for (int i=0; i<MAX_BASE; i++) {
+	    coef_r[i] = pasprevu_r ;
+	    coef_t[i] = pasprevu_t ;
+	    coef_p[i] = pasprevu_p ;
+	}	
+
+	coef_r[NONDEF] = base_non_def_r ;
+	coef_r[R_CHEB >> TRA_R] = cfrcheb ;	    
+	coef_r[R_CHEBU >> TRA_R] = cfrcheb ;	    
+	coef_r[R_CHEBP >> TRA_R] = cfrchebp ;	    
+	coef_r[R_CHEBI >> TRA_R] = cfrchebi ;	    
+	coef_r[R_CHEBPIM_P >> TRA_R] = cfrchebpimp ;	    
+	coef_r[R_CHEBPIM_I >> TRA_R] = cfrchebpimi ;	    
+
+	coef_t[NONDEF] = base_non_def_t ;
+	coef_t[T_COS_P >> TRA_T] = cftcosp ;
+	coef_t[T_COS_I >> TRA_T] = cftcosi ;
+	coef_t[T_SIN_P >> TRA_T] = cftsinp ;
+	coef_t[T_SIN_I >> TRA_T] = cftsini ;
+	coef_t[T_COSSIN_CP >> TRA_T] = cftcossincp ;
+	coef_t[T_COSSIN_SI >> TRA_T] = cftcossinsi ;
+	coef_t[T_COSSIN_SP >> TRA_T] = cftcossinsp ;
+	coef_t[T_COSSIN_CI >> TRA_T] = cftcossinci ;
+	coef_t[T_LEG_P >> TRA_T] = cftlegp ;
+	coef_t[T_LEG_PP >> TRA_T] = cftlegpp ;
+	coef_t[T_LEG_I >> TRA_T] = cftlegi ;
+	coef_t[T_LEG_IP >> TRA_T] = cftlegip ;
+	coef_t[T_LEG_PI >> TRA_T] = cftlegpi ;
+
+	coef_p[NONDEF] = base_non_def_p ;
+	coef_p[P_COSSIN >> TRA_P] = cfpcossin ;
+	coef_p[P_COSSIN_P >> TRA_P] = cfpcossin ;
+	coef_p[P_COSSIN_I >> TRA_P] = cfpcossini ;
+
+    }  // fin des operation de premier appel
+
+
+	    //-------------------//
+	    //  DEBUT DU CALCUL  //
+	    //-------------------//
+
+    // Tout null ?
+    if (etat == ETATZERO) {
+	return ;
+    }
+    
+    // Protection
+    assert(etat != ETATNONDEF) ;
+        
+    // Peut-etre rien a faire
+    if (c_cf != 0x0) {
+	return ;
+    }
+    
+    // Il faut bosser
+    assert(c != 0x0) ;		// ..si on peut
+    c_cf = new Mtbl_cf(mg, base) ;
+    c_cf->set_etat_qcq() ;
+    
+    // Boucles sur les zones
+    int nz = mg->get_nzone() ;
+    for (int l=0; l<nz; l++) {
+	
+	// Initialisation des valeurs de this->c_cf avec celle de this->c :
+	const Tbl* f =  (c->t)[l]  ;
+	Tbl* cf =  (c_cf->t)[l]  ;
+
+	if (f->get_etat() == ETATZERO) {
+	    cf->set_etat_zero() ;
+	    continue ; // on ne fait rien si le tbl = 0  
+	}
+
+	cf->set_etat_qcq() ;
+	    
+	int np = f->get_dim(2) ;
+	int nt = f->get_dim(1) ;
+	int nr = f->get_dim(0) ;
+
+	int np_c = cf->get_dim(2) ;
+	int nt_c = cf->get_dim(1) ;
+	int nr_c = cf->get_dim(0) ;	    
+
+	// Attention a ce qui suit... (deg et dim)
+	int deg[3] ;
+	deg[0] = np ;
+	deg[1] = nt ;
+	deg[2] = nr ;
+
+	int dim[3] ;
+	dim[0] = np_c ;
+	dim[1] = nt_c ;
+	dim[2] = nr_c ;
+
+	int nrnt = nr * nt ;
+	int nrnt_c = nr_c * nt_c ; 
+	    
+	for (int i=0; i<np ; i++) {
+	    for (int j=0; j<nt ; j++) {
+		for (int k=0; k<nr ; k++) {
+		    int index = nrnt * i + nr * j + k ;
+		    int index_c = nrnt_c * i + nr_c * j + k ;			
+		    (cf->t)[index_c] = (f->t)[index] ;
+		}
+	    }
+	}
+
+	// On recupere les bases en r, theta et phi : 
+	int base_r = ( base.b[l] & MSQ_R ) >> TRA_R ;
+	int base_t = ( base.b[l] & MSQ_T ) >> TRA_T ;
+	int base_p = ( base.b[l] & MSQ_P ) >> TRA_P ;
+
+	assert(base_r < MAX_BASE) ; 
+	assert(base_t < MAX_BASE) ; 
+	assert(base_p < MAX_BASE) ; 
+
+	// Transformation en phi 
+	// ---------------------
+	if ( np > 1 ) {
+	    assert( admissible_fft(np) ) ; 
+	    
+	    coef_p[base_p]( deg,  dim, (cf->t) ) ;
+	}
+	else{	// Cas np=1 : mise a zero des coefficients k=1 et k=2 :
+	    for (int i=nrnt; i<3*nrnt; i++) {
+		cf->t[i] = 0 ; 
+	    }	    
+	}
+
+	// Transformation en theta:
+	// ------------------------
+	if ( nt > 1 ) {
+	    assert( admissible_fft(nt-1) ) ; 
+	    
+	    coef_t[base_t](deg, dim, (cf->t), dim, (cf->t)) ;
+	}
+
+	// Transformation en r:
+	// --------------------
+	if ( nr > 1 ) {
+	    assert( admissible_fft(nr-1) ) ; 
+	
+	    coef_r[base_r](deg, dim, (cf->t), dim, (cf->t)) ;
+	}
+	   
+    }  // fin de la boucle sur les differentes zones
+    
+}
+
+		    //------------------------//
+		    // Les machins pas prevus //
+		    //------------------------//
+
+void pasprevu_r(const int*, const int*, double*, const int*, double*) {
+    cout << "Valeur::coef: the required expansion basis in r " << endl ;
+    cout << "  is not implemented !" << endl ;
+    abort() ;
+}
+
+void pasprevu_t(const int*, const int*, double*, const int*, double*) {
+    cout << "Valeur::coef: the required expansion basis in theta " << endl ;
+    cout << "  is not implemented !" << endl ;
+    abort() ;
+}
+
+void pasprevu_p(const int*, const int*, double*) {
+    cout << "Valeur::coef: the required expansion basis in phi " << endl ;
+    cout << "  is not implemented !" << endl ;
+    abort() ;
+}
+
+void base_non_def_r(const int*, const int*, double*, const int*, double*) {
+    cout << "Valeur::coef: the expansion basis in r is undefined !" << endl ;
+    abort() ;
+}
+
+void base_non_def_t(const int*, const int*, double*, const int*, double*) {
+    cout << "Valeur::coef: the expansion basis in theta is undefined !" << endl ;
+    abort() ;
+}
+
+void base_non_def_p(const int*, const int*, double*) {
+    cout << "Valeur::coef: the expansion basis in phi is undefined !" << endl ;
+    abort() ;
+}
+

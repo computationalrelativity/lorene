@@ -1,0 +1,174 @@
+/*
+ *   Copyright (c) 1999-2001 Philippe Grandclement
+ *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *
+ *   This file is part of LORENE.
+ *
+ *   LORENE is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 2 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LORENE is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LORENE; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+
+char tenseur_sym_operateur_C[] = "$Header$" ;
+
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
+ * Initial revision
+ *
+ * Revision 2.2  2000/02/09  19:32:22  eric
+ * MODIF IMPORTANTE: la triade de decomposition est desormais passee en
+ * argument des constructeurs.
+ *
+ * Revision 2.1  2000/01/11  11:15:08  eric
+ * Gestion de la base vectorielle (triad).
+ *
+ * Revision 2.0  1999/12/02  17:19:02  phil
+ * *** empty log message ***
+ *
+ *
+ * $Header$
+ *
+ */
+
+// Headers C++
+#include <iostream.h>
+
+// Headers C
+#include <stdlib.h>
+#include <assert.h>
+#include <math.h>
+
+// Headers Lorene
+#include "tenseur.h"
+#include "metrique.h"
+
+Tenseur_sym operator*(const Tenseur& t1, const Tenseur_sym& t2) {
+   
+    assert ((t1.get_etat() != ETATNONDEF) && (t2.etat != ETATNONDEF)) ;
+    assert (t1.get_mp() == t2.mp) ;
+    
+    int val_res = t1.get_valence() + t2.valence ;
+    
+   
+    Itbl tipe (val_res) ;
+    tipe.set_etat_qcq() ;
+    for (int i=0 ; i<t1.get_valence() ; i++)
+	tipe.set(i) = t1.get_type_indice(i) ;
+    for (int i=0 ; i<t2.valence ; i++)
+	tipe.set(i+t1.get_valence()) = t2.type_indice(i) ;
+	
+
+    if ( t1.get_valence() != 0 ) {
+	    assert ( *(t1.get_triad()) == *(t2.get_triad()) ) ;
+    }
+
+    Tenseur_sym res(*t1.get_mp(), val_res, tipe, *(t2.get_triad()) ) ;
+	
+
+    if ((t1.get_etat() == ETATZERO) || (t2.etat == ETATZERO))
+	res.set_etat_zero() ;
+    else {
+	res.set_etat_qcq() ;
+	Itbl jeux_indice_t1 (t1.get_valence()) ;
+	jeux_indice_t1.set_etat_qcq() ;
+	Itbl jeux_indice_t2 (t2.valence) ;
+	jeux_indice_t2.set_etat_qcq() ;
+	    
+	for (int i=0 ; i<res.n_comp ; i++) {
+	    Itbl jeux_indice_res(res.donne_indices(i)) ;
+	    for (int j=0 ; j<t1.get_valence() ; j++)
+		jeux_indice_t1.set(j) = jeux_indice_res(j) ;
+	    for (int j=0 ; j<t2.valence ; j++)
+		jeux_indice_t2.set(j) = jeux_indice_res(j+t1.get_valence()) ;
+		
+	    res.set(jeux_indice_res) = t1(jeux_indice_t1)*t2(jeux_indice_t2) ;
+	}
+    }
+    return res ;
+}
+
+
+
+Tenseur_sym manipule(const Tenseur_sym& t1, const Metrique& met, int place) {
+      
+    assert (t1.etat != ETATNONDEF) ;
+    assert (met.get_etat() != ETATNONDEF) ;
+    
+    int valen = t1.valence ;
+    assert ((place >=0) && (place < valen)) ;
+    
+    Itbl tipe (valen) ;
+    tipe.set_etat_qcq() ;
+    tipe.set(0) = -t1.type_indice(place) ;
+    for (int i=1 ; i<place+1 ; i++)
+	tipe.set(i) = t1.type_indice(i-1) ;
+    for (int i=place+1 ; i<valen ; i++)
+	tipe.set(i) = t1.type_indice(i) ;
+    
+    Tenseur auxi(*t1.mp, valen, tipe, *(t1.get_triad()) ) ;
+    
+    if (t1.type_indice(place) == COV)
+	auxi = contract (met.con(), 1, t1, place) ;
+    else
+	auxi = contract (met.cov(), 1, t1, place) ;
+   
+    // On doit remettre les indices a la bonne place ...
+    
+    for (int i=0 ; i<valen ; i++)
+	tipe.set(i) = t1.type_indice(i) ;
+    tipe.set(place) *= -1 ;
+    
+    Tenseur_sym res(*t1.mp, valen, tipe, *(t1.get_triad()) ) ;
+    res.set_etat_qcq() ;
+    
+    Itbl place_auxi(valen) ;
+    place_auxi.set_etat_qcq() ;
+    
+    for (int i=0 ; i<res.n_comp ; i++) {
+	
+	Itbl place_res (res.donne_indices(i)) ;
+	
+	place_auxi.set(0) = place_res(place) ;
+	for (int j=1 ; j<place+1 ; j++)
+	    place_auxi.set(j) = place_res(j-1)  ;
+	place_res.set(place) = place_auxi(0) ;
+	for (int j=place+1 ; j<valen ; j++)
+	     place_auxi.set(j) = place_res(j);
+	
+	
+	res.set(place_res) = auxi(place_auxi) ;
+    }
+    return res ;
+}
+
+Tenseur_sym manipule (const Tenseur_sym& t1, const Metrique& met) {
+    
+    Tenseur_sym* auxi ;
+    Tenseur_sym* auxi_old = new Tenseur_sym(t1) ;
+    
+    for (int i=0 ; i<t1.valence ; i++) {
+	auxi = new Tenseur_sym(manipule(*auxi_old, met, i)) ;
+	delete auxi_old ;
+	auxi_old = new Tenseur_sym(*auxi) ;
+	delete auxi ;
+    }
+    
+    Tenseur_sym result(*auxi_old) ;
+    delete auxi_old ;
+    return result ;
+}
+  

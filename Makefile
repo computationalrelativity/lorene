@@ -1,0 +1,20 @@
+SHELL=/bin/sh
+
+install: 
+	cd C++/Doc++; $(MAKE) -i
+	cd C++; $(MAKE)
+	cd F77; $(MAKE)
+	
+uninstall:
+	cd C++/Doc++; $(MAKE) -i uninstall
+	cd C++; $(MAKE) -i uninstall
+	cd F77; $(MAKE) -i uninstall
+	rm -fr bin
+	rm -fr Lib
+	rm -f Test/*.o
+	rm -f Test/test_fft Test/test_lapack Test/test_pgplot
+
+test: 
+	cd Test; $(MAKE)
+	
+

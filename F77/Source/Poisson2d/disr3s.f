@@ -1,0 +1,955 @@
+C
+C   Copyright (c) 1997 Silvano Bonazzola
+C
+C    This file is part of LORENE.
+C
+C    LORENE is free software; you can redistribute it and/or modify
+C    it under the terms of the GNU General Public License as published by
+C    the Free Software Foundation; either version 2 of the License, or
+C    (at your option) any later version.
+C
+C    LORENE is distributed in the hope that it will be useful,
+C    but WITHOUT ANY WARRANTY; without even the implied warranty of
+C    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+C    GNU General Public License for more details.
+C
+C    You should have received a copy of the GNU General Public License
+C    along with LORENE; if not, write to the Free Software
+C    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+C
+C
+	SUBROUTINE DISR3S(NDEG,NDR,NDT,IPAR,MULT,CS,CC)
+	IMPLICIT NONE
+C
+C		MODIFICATION LE 30/11/1995: AJOUTE' INISIALISATION
+C               MODIFICATION LE 10/03/1997: AJOUTE  LE CAS DES FONCTONS
+C               PAIRES PAR RAPPORT AU PNA z=0
+C
+C		ROUTINE EFFECTUANT LA DIVISION PAR SIN(TETA)
+C		ET PAR SIN(TETA)**2
+C		D'UNE FONCTION 3-D SYMMETRIQUE ET ANTI-SYMMETRIQUE
+C		 PAR RAPPORT LE PLAN z=0 (problems en coordonnes spheriques)
+C		
+C
+C	ARGUMENTS DE LA ROUTINE: 
+C
+C		NDEG	=TABLEAU CONTENENT LES DEGRES DE LIBERTEDE LA
+C			 FONCTION
+C	        NDR,NDT	=DIMENSIONS DES TABLEAUX COMME DEFINI DANS LE
+C	                PROGRAMME APPELLANT.
+C		IPAR	=DRAPEAU DEFINISSANT LA VECTORIALITE E LA FONCTION
+C		         A DIVISER: 
+C		IPAR=0   FONCTION EN COS((theta) ANTI-SYMMETRIQUE PAR EAPPORT
+C                        LE PLAN z=0. Theta EST SUPPOSE 0 < THETA < PI/2
+C		IPAR=1   FONCTION EN SIN(theta)*FONCTION ANTI-SYMMETRIQUE
+C                        PAR RAPPORT le plan Z=0                    
+C		IPAR=2,3 COMME PLUS HAUT SAUF QUE L'ANGLE EST PI/2 < theta < PI	
+C			 	
+C               IPAR=4	 FONCTION EN COS((theta) SYMMETRIQUE PAR EAPPORT
+C                        LE PLAN z=0. Theta EST SUPPOSE 0 < THETA < PI/2COMME PLU HAUT MAIS POUR LES FONCTIONS SYMMETYRIQUES
+C
+C		IPAR=5	 FONCTION EN SIN(theta)*FONCTION SYMMETRIQUE
+C                        PAR RAPPORT le plan Z=0 
+C
+C		MULT	= DRAPEAU:
+C               MULT=1   ON A LA MULTIPLICATION PAR SIN(theta)
+C		MULT=2   ON A LA MULTIPLICATION PAR SIN(theta)**2
+C		MULT=3   ON A LA MULTIPLICATIOn  PAR COS(theta) (Implemente'
+C		         seulemnt pour les fonctions impaires)  
+C		MULT=4   ON A LA MULTIPLICATIOn  PAR COS(theta)**2 (Implemente'
+C		         seulemnt pour les fonctions impaires)  
+C
+C                        LES OPERATIONS INVERSES S'OBTIEMMENT POUR
+C                        MULT=-1,-2,-3,-4
+C
+C		CS	=TABLEAU IMPUT CONTENENENT LES COEFF. DDE LA
+C			 FONCTION A DIVISER
+C		CC	=TABLEAU OUTPUT
+C
+C		Routine modifiee le 26/09/1993. la modif. a ete effectuee
+C		sur la section cas vectoriel, division par sin(theta)
+C		Routine modifiee le 28/octobre 1994 - CC(NDR,NDT,*),CS(NDR,NDT,*)
+C		routine modifiee le 31/11/1995 ajoute'l'inisialisdation
+C		et des tests accures on ete effectues pour les cas
+C		division par sin(theta) et division par sin(theta)**2
+C		routine modifiee le 31/11/1995 ajoute'l'inisialisdation
+C		et des tests accures on ete effectues pour les cas
+C		division par sin(theta) et division par sin(theta)**2
+C
+C		routine modifiee le 28/11/1997 ajoute'le cas IPAR=1,MULT+3
+
+C
+C $Id$
+C $Log$
+C Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
+C Initial revision
+C
+c Revision 1.4  1997/11/11  14:50:22  eric
+c Nouvelle version fournie par Silvano.
+c
+C Revision 1.3  1997/10/23 07:54:15  eric
+C Nouvelle version fournie par Silvano.
+C
+C Revision 1.2  1997/05/23 11:28:51  hyc
+C *** empty log message ***
+C
+C Revision 1.1  1997/03/17 20:21:38  hyc
+C Initial revision
+C
+C
+C $Header$
+C
+C
+	character* 100 header
+	data header/'$Header$'/
+
+C
+	INTEGER NDR,NDT,NR1,NT1,NT,NF,NT11,LR,LT,LF,LT1,L,NDEG,NCT,J0
+        INTEGER J,IPAR,MULT,LT0,N128,NT0
+C
+	PARAMETER (N128=129)
+C
+C
+	DOUBLE PRECISION CC,CS,RAP,BB,BC,X1,X5,X25
+	DIMENSION NDEG(1),CC(NDR,NDT,*),CS(NDR,NDT,*),RAP(N128)
+	DIMENSION BB(N128),BC(N128)
+	SAVE NCT,NT,NT11,RAP,BB,BC
+	DATA NCT/0/
+C
+	IF(NDEG(2).GT.N128) THEN
+	PRINT*,'ROUTINE DISR3S: DIMENSIONS INSUFFISANTES'
+	CALL EXIT
+	ENDIF
+C
+	IF(IPAR.GE.4.AND.IABS(MULT).GT.1) THEN
+	PRINT0 101
+	PRINT*,'Routine DISR3S: Ces cas n est pas encore implemente, Sorry'
+	PRINT*,'IPAR,MULT=',IPAR,MULT
+	STOP
+	ENDIF
+C
+
+C
+	IF(IPAR.GE.4.AND.IABS(MULT).GT.1) THEN
+	PRINT 101
+	PRINT*,'Routine DISR3S: Ces cas n est pas encore implemente, Sorry'
+	PRINT*,'IPAR,MULT=',IPAR,MULT
+	STOP
+	ENDIF
+
+	NR1=NDEG(1)
+	NT1=NDEG(2)
+	NF=NDEG(3)
+C
+	IF(NCT.NE.NT1) THEN
+	NCT=NT1
+	NT=NT1-1
+	NT11=NT1+1
+	X1=1
+	NT11=NT1+1
+C
+		IF(NR1.GT.NDR) THEN
+		PRINT*,'Routine DISR3S: Tableaux insuff. dimensiones'
+	        PRINT*,'NDR,NR1=',NDR,NR1
+		STOP
+		ENDIF
+C
+		IF(NT1.GE.NDT) THEN
+		PRINT*,'Routine DISR3S: Tableaux insuff. dimensiones'
+	        PRINT*,'NDT,NT1=',NDT,NT1
+		STOP
+		ENDIF
+C
+	DO 1 L=1,NT1,2
+	RAP(L)=NT11-L
+   1	CONTINUE
+	DO 2 L=2,NT,2
+	RAP(L)=-(NT11-L)
+   2	CONTINUE
+C
+	X5=.5D+00
+	X25=.25D+00
+	J0=0
+C
+	DO 3 J=NT1,2,-2
+	BB(J)=(X5+X25*(NT1-J))
+	BC(J)=-(BB(J)-X25)	
+	BB(J)=1/BB(J)
+   3	CONTINUE
+C
+	DO 4 J=NT,2,-2
+	BB(J)=-(X5+X25*(NT1-J))	
+	BC(J)=-(BB(J)+X25)	
+	BB(J)=1/BB(J)
+  4	CONTINUE
+	BB(1)=4
+C
+	ENDIF
+C
+C		CAS 0 < theta < PI/2
+C		
+C		CAS SCALAIRE 
+C....................................................................
+C
+C
+	IF(IPAR.EQ.0) THEN
+C
+	IF(MULT.EQ.1) THEN
+C		
+C		MULTIPLICATION PAR SIN(theta)
+C
+	DO 5 LF=1,NF
+	DO 6 LR=1,NR1
+	CC(LR,1,LF)=0
+   6	CONTINUE
+   5	CONTINUE
+C
+	DO 7 LF=1,NF	
+	DO 11 LT=1,NT,2
+	LT1=LT+1
+	DO 8 LR=1,NR1
+	CC(LR,LT1,LF)=.5*(CS(LR,LT1,LF)-CS(LR,LT,LF))
+   8	CONTINUE
+  11	CONTINUE
+C
+	DO 9 LT=2,NT,2
+	LT1=LT+1
+	DO 10 LR=1,NR1
+	CC(LR,LT1,LF)=-.5*(CS(LR,LT1,LF)-CS(LR,LT,LF))
+  10	CONTINUE
+   9	CONTINUE
+   7	CONTINUE
+	RETURN
+	ENDIF
+C
+C	        MULIPLICATION PAR COS(theta) (Fonction en cos(theta) anti-symm.)
+C
+		IF(MULT.EQ.-3.OR.IABS(MULT).GT.3) THEN
+		PRINT 101
+		PRINT*,'Routine DISR3S: Ces cas n est pas encore' 
+		PRINT*,'implemente, Sorry !,IPAR,MULT=',IPAR,MULT
+		STOP
+		ENDIF
+C
+	IF(MULT.EQ.3) THEN
+	DO LF=1,NF
+	DO LR=1,NR1
+	CC(LR,1,LF)=-CS(LR,1,LF)
+	ENDDO
+C
+	DO LR=1,NR1
+	CS(LR,NT1,LF)=CS(LR,NT1,LF)*.5
+	ENDDO
+C
+	DO LT=2,NT1
+	DO LR=1,NR1
+	CC(LR,LT,LF)=.5*(CS(LR,LT-1,LF)+CS(LR,LT,LF))
+	ENDDO
+	ENDDO
+	DO LR=1,NR1
+	CC(LR,NT1,LF)=CC(LR,NT1,LF)*2
+	ENDDO
+	DO LT=3,NT1,2
+	DO LR=1,NR1
+	CC(LR,LT,LF)=-CC(LR,LT,LF)
+	ENDDO
+	ENDDO
+	ENDDO
+	RETURN
+	ENDIF
+C
+C		DIVISION PAR SIN(theta)
+C
+	IF(MULT.EQ.-1) THEN
+C
+	NT0=NT1-2
+	DO 12 LF=1,NF
+	DO 13 LT=NT,NT1
+	DO 14 LR=1,NR1
+	CC(LR,LT,LF)=0
+  14	CONTINUE
+  13	CONTINUE
+  12	CONTINUE
+C
+	DO 15 LF=1,NF
+	DO 16 LR=1,NR1
+	CC(LR,NT,LF)=CS(LR,NT,LF)*2
+  16	CONTINUE
+  15	CONTINUE
+C	
+	DO 17 LF=1,NF
+	DO 18 LT=NT0,2,-1
+	LT1=LT+1
+	DO 19 LR=1,NR1
+  	CC(LR,LT,LF)=CC(LR,LT1,LF)+CS(LR,LT,LF)*2	
+   19	CONTINUE
+   18	CONTINUE
+   17	CONTINUE
+C
+	DO 20 LF=1,NF
+	DO 21 LR=1,NR1
+	CC(LR,1,LF)=0
+   21	CONTINUE
+   20	CONTINUE
+C
+	DO 22 LF=1,NF
+	DO 23 LT=3,NT1,2
+	DO 24 LR=1,NR1
+	CC(LR,LT,LF)=-CC(LR,LT,LF)
+   24	CONTINUE
+   23	CONTINUE
+   22	CONTINUE
+	RETURN
+	ENDIF
+	
+	IF(MULT.EQ.2) THEN
+C
+C		MULTIPLICATION PAR SIN(theta)**2
+C
+	DO 25 LF=1,NF
+	DO 26 LR=1,NR1
+	CC(LR,1,LF)=.25*(CS(LR,1,LF)-CS(LR,2,LF))
+   26	CONTINUE
+   25	CONTINUE
+C
+	DO 27 LF=1,NF
+	DO 28 LT=2,NT-1
+	LT0=LT-1
+	LT1=LT+1
+	DO 29 LR=1,NR1
+	CC(LR,LT,LF)=-.25*(CS(LR,LT0,LF)+CS(LR,LT1,LF))+
+     1	.5*CS(LR,LT,LF)
+   29	CONTINUE
+   28	CONTINUE
+   27	CONTINUE
+C
+	LT0=NT-1
+	DO 30 LF=1,NF
+	DO 31 LR=1,NR1
+	CC(LR,NT,LF)=-.25*CS(LR,LT0,LF)+.5*CS(LR,NT,LF)
+   31	CONTINUE
+   30	CONTINUE
+C	
+	DO 32 LF=1,NF
+	DO 33 LR=1,NR1
+	CC(LR,NT1,LF)=0
+   33	CONTINUE
+   32	CONTINUE
+C
+	RETURN
+	ENDIF
+C
+	IF(MULT.EQ.-2) THEN
+C
+C		DIVISION PAR SIN(theta)**2
+C
+	DO 34 LF=1,NF
+	DO 35 LT=NT,1,-1
+	LT1=LT+1
+	DO 36 LR=1,NR1
+	CS(LR,LT,LF)=CS(LR,LT,LF)*RAP(LT)-CS(LR,LT1,LF)
+   36	CONTINUE
+   35	CONTINUE
+   34	CONTINUE
+C
+	DO 37 LF=1,NF
+	DO 38 LR=1,NR1
+	CC(LR,1,LF)=BB(1)*CS(LR,1,LF)
+   38	CONTINUE
+   37	CONTINUE
+C
+	DO 39 LF=1,NF
+	DO 40 LT=2,NT
+	LT1=LT-1
+	DO 41 LR=1,NR1
+	CC(LR,LT,LF)=(CS(LR,LT,LF)-BC(LT)*CC(LR,LT1,LF))*BB(LT)
+   41	CONTINUE
+   40	CONTINUE
+   39	CONTINUE
+C
+	DO 42 LF=1,NF
+	DO 43 LR=1,NR1
+	CC(LR,NT1,LF)=0
+   43	CONTINUE
+   42	CONTINUE
+C
+	RETURN
+	ENDIF
+C
+	RETURN
+	ENDIF
+C
+	IF(IPAR.EQ.1) THEN
+C
+C
+C		CAS VECTORIEL
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C
+C
+	IF(MULT.EQ.1) THEN
+C
+C		MULTIPLICATION PAR SIN(theta)
+C
+	DO 50 LF=1,NF
+	DO 51 LR=1,NR1
+	CC(LR,1,LF)=-CS(LR,2,LF)*.5
+   51	CONTINUE
+   50	CONTINUE
+C
+	DO 52 LF=1,NF
+	DO 53 LT=2,NT,2
+	LT1=LT+1
+	DO 54 LR=1,NR1
+	CC(LR,LT,LF)=.5*(CS(LR,LT1,LF)+CS(LR,LT,LF))
+   54	CONTINUE
+   53	CONTINUE
+C
+	DO 55 LT=3,NT,2
+	LT1=LT+1
+	DO 56 LR=1,NR1
+ 	CC(LR,LT,LF)=-.5*(CS(LR,LT1,LF)+CS(LR,LT,LF))
+   56	CONTINUE
+   55	CONTINUE
+   52	CONTINUE
+C
+	RETURN
+	ENDIF	
+C
+	IF(MULT.EQ.-1) THEN
+C
+C		DIVISION PAR SIN(theta)
+C
+	NT0=NT-1
+	DO 57 LF=1,NF
+	DO 90 LT=NT0,NT1
+	DO 58 LR=1,NR1
+	CC(LR,LT,LF)=0
+   58	CONTINUE
+   90	CONTINUE
+   57	CONTINUE
+C
+       	DO 59 LF=1,NF
+	DO 60 LT=NT0,1,-1
+	DO 61 LR=1,NR1
+ 	CC(LR,LT,LF)=-(CS(LR,LT+1,LF)*2+CC(LR,LT+1,LF))
+   61	CONTINUE
+   60	CONTINUE
+   59	CONTINUE
+C
+	DO 62 LF=1,NF
+	DO 63 LT=2,NT0,2
+	DO 64 LR=1,NR1
+	CC(LR,LT,LF)=-CC(LR,LT,LF)
+   64	CONTINUE
+   63	CONTINUE
+   62	CONTINUE
+	RETURN
+	ENDIF
+C
+	IF(MULT.EQ.2) THEN
+C
+C		MULTIPLICATION PAR SIN(theta)**2
+C
+	NT0=NT-1
+	DO 65 LF=1,NF
+	DO 66 LR=1,NR1
+	CC(LR,1,LF)=0
+   66	CONTINUE
+   65	CONTINUE
+C
+	DO 67 LF=1,NF
+	DO 68 LR=1,NR1
+	CC(LR,2,LF)=CS(LR,2,LF)*.5+CS(LR,3,LF)*.25
+   68	CONTINUE
+   67	CONTINUE
+C
+	DO 69 LF=1,NF
+	DO 70 LT=3,NT0
+	LT0=LT-1
+	LT1=LT+1
+	DO 71 LR=1,NR1
+	CC(LR,LT,LF)=CS(LR,LT,LF)*.5+(CS(LR,LT0,LF)+CS(LR,LT1,LF))*.25	
+   71	CONTINUE
+   70	CONTINUE
+   69	CONTINUE
+C
+	DO 72 LF=1,NF
+	DO 73 LR=1,NT1
+	CC(LR,NT,LF)=.5*CS(LR,NT,LF)+.25*CS(LR,NT0,LF)
+   73	CONTINUE
+   72	CONTINUE
+	
+	RETURN
+	ENDIF
+C
+	IF(MULT.EQ.3) THEN
+C
+C		CAS MULTIPLICATION PAR COS(theta)
+C
+	DO LF=1,NF
+C
+	DO LR=1,NR1
+	CC(LR,1,LF)=-CS(LR,2,LF)*.5D+00
+	ENDDO
+C
+	DO LT=2,NT-1
+	DO LR=1,NR1
+	CC(LR,LT,LF)=(CS(LR,LT,LF)-CS(LR,LT+1,LF))*.5D+00	
+	ENDDO
+	ENDDO
+C
+	DO LR=1,NR1
+	CC(LR,NT,LF)=CS(LR,LT,LF)*.5
+	ENDDO
+C
+	DO LR=1,NR1
+	CC(LR,NT1,LF)=0
+	ENDDO
+	ENDDO
+C
+	RETURN
+	ENDIF
+C
+	IF(MULT.EQ.-2) THEN
+C
+C		DIVISION PAR SIN(theta)**2
+C
+	DO 75 LF=1,NF
+	DO 76 LT=NT,2,-1
+	LT1=LT+1
+	DO 77 LR=1,NR1
+  	CS(LR,LT,LF)=CS(LR,LT,LF)*RAP(LT)+CS(LR,LT1,LF)
+   77	CONTINUE
+   76	CONTINUE
+   75	CONTINUE
+C
+	DO 78 LF=1,NF
+	DO 79 LR=1,NR1
+	CC(LR,1,LF)=0
+   79	CONTINUE
+   78	CONTINUE
+C
+	DO 80 LF=1,NF
+	DO 81 LT=2,NT-1
+	LT1=LT-1
+	DO 82 LR=1,NR1
+  	CC(LR,LT,LF)=(CS(LR,LT,LF)+BC(LT)*CC(LR,LT1,LF))*BB(LT)
+  82	CONTINUE
+  81	CONTINUE
+  80	CONTINUE
+C
+	DO 83 LF=1,NF
+	DO 84 LR=1,NR1
+	DO 85 LT=NT,NT1
+	CC(LR,LT,LF)=0
+  85	CONTINUE
+  84	CONTINUE
+  83	CONTINUE
+C
+	RETURN
+	ENDIF
+	ENDIF
+C
+C~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C
+C		CAS PI/2 < theta < PI
+C---------------------------------------------------------------------
+C
+C		CAS SCALAIRE 
+C....................................................................
+C
+C
+	IF(IPAR.EQ.2) THEN
+C
+	IF(MULT.EQ.1) THEN
+C		
+C		MULTIPLICATION PAR SIN(theta)
+C
+	DO LF=1,NF
+	DO LR=1,NR1
+	CC(LR,1,LF)=0
+	ENDDO
+	ENDDO
+C
+	DO LF=1,NF	
+	DO LT=1,NT
+	LT1=LT+1
+	DO LR=1,NR1
+	CC(LR,LT1,LF)=.5*(CS(LR,LT1,LF)-CS(LR,LT,LF))
+	ENDDO
+	ENDDO
+	ENDDO
+	RETURN
+	ENDIF
+C
+C		DIVISION PAR SIN(theta)
+C
+	IF(MULT.EQ.-1) THEN
+C
+	NT0=NT1-2
+	DO LF=1,NF
+	DO LT=NT,NT1
+	DO LR=1,NR1
+	CC(LR,LT,LF)=0
+	ENDDO
+	ENDDO
+	ENDDO
+C
+	DO LF=1,NF
+	DO LR=1,NR1
+	CC(LR,NT,LF)=CS(LR,NT,LF)*2
+	ENDDO
+	ENDDO
+C	
+	DO LF=1,NF
+	DO LT=NT0,2,-1
+	LT1=LT+1
+	DO LR=1,NR1
+	CC(LR,LT,LF)=CC(LR,LT1,LF)+CS(LR,LT,LF)*2	
+	ENDDO
+	ENDDO
+	ENDDO	
+C
+	DO LF=1,NF
+	DO LR=1,NR1
+	CC(LR,1,LF)=0
+	ENDDO
+	ENDDO
+	RETURN
+	ENDIF
+	
+	IF(MULT.EQ.2) THEN
+C
+C		MULTIPLICATION PAR SIN(theta)**2
+C
+	DO LF=1,NF
+	DO LR=1,NR1
+	CC(LR,1,LF)=.25*(CS(LR,1,LF)-CS(LR,2,LF))
+	ENDDO
+	ENDDO
+C
+	DO LF=1,NF
+	DO LT=2,NT-1
+	LT0=LT-1
+	LT1=LT+1
+	DO LR=1,NR1
+	CC(LR,LT,LF)=-.25*(CS(LR,LT0,LF)+CS(LR,LT1,LF))+
+     1	.5*CS(LR,LT,LF)
+	ENDDO
+	ENDDO
+	ENDDO
+C
+	LT0=NT-1
+	DO LF=1,NF
+	DO LR=1,NR1
+	CC(LR,NT,LF)=-.25*CS(LR,LT0,LF)+.5*CS(LR,NT,LF)
+	ENDDO
+	ENDDO
+C	
+	DO LF=1,NF
+	DO LR=1,NR1
+	CC(LR,NT1,LF)=0
+	ENDDO
+	ENDDO
+C
+	RETURN
+	ENDIF
+C
+	IF(MULT.EQ.-2) THEN
+C
+C		DIVISION PAR SIN(theta)**2
+C
+	DO LF=1,NF
+	DO LT=NT,1,-1
+	LT1=LT+1
+	DO LR=1,NR1
+	CS(LR,LT,LF)=CS(LR,LT,LF)*RAP(LT)-CS(LR,LT1,LF)
+	ENDDO
+	ENDDO
+	ENDDO	
+C
+	DO LF=1,NF
+	DO LR=1,NR1
+	CC(LR,1,LF)=BB(1)*CS(LR,1,LF)
+	ENDDO
+	ENDDO
+C
+	DO LF=1,NF
+	DO LT=2,NT
+	LT1=LT-1
+	DO LR=1,NR1
+	CC(LR,LT,LF)=(CS(LR,LT,LF)-BC(LT)*CC(LR,LT1,LF))*BB(LT)
+	ENDDO
+	ENDDO
+	ENDDO
+C
+	DO LF=1,NF
+	DO LR=1,NR1
+	CC(LR,NT1,LF)=0
+	ENDDO
+	ENDDO
+C
+	RETURN
+	ENDIF
+C
+	RETURN
+	ENDIF
+C
+	IF(IPAR.EQ.3) THEN
+		
+C
+C		CAS VECTORIEL
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C
+C
+	IF(MULT.EQ.1) THEN
+C
+C		MULTIPLICATION PAR SIN(theta)
+C
+	DO LF=1,NF
+	DO LR=1,NR1
+	CC(LR,1,LF)=-CS(LR,2,LF)*.5
+	ENDDO
+	ENDDO
+C
+	DO LF=1,NF
+	DO LT=2,NT
+	LT1=LT+1
+	DO LR=1,NR1
+	CC(LR,LT,LF)=.5*(-CS(LR,LT1,LF)+CS(LR,LT,LF))
+	ENDDO
+	ENDDO
+	ENDDO
+C
+	RETURN
+	ENDIF	
+C
+	IF(MULT.EQ.-1) THEN
+C
+C		DIVISION PAR SIN(theta)
+C
+	NT0=NT-1
+	DO LF=1,NF
+	DO LR=1,NR1
+	CC(LR,NT0,LF)=-CS(LR,NT,LF)*2
+	ENDDO
+	ENDDO
+	DO LF=1,NF
+	DO LT=NT0-1,1,-1
+	DO LR=1,NR1
+	CC(LR,LT,LF)=-CS(LR,LT+1,LF)*2+CC(LR,LT+1,LF)
+	ENDDO
+	ENDDO
+	ENDDO
+	RETURN
+	ENDIF
+C
+	IF(MULT.EQ.2) THEN
+C
+C		MULTIPLICATION PAR SIN(theta)**2
+C
+	NT0=NT-1
+	DO LF=1,NF
+	DO LR=1,NR1
+	CC(LR,1,LF)=0
+	ENDDO
+	ENDDO
+C
+	DO LF=1,NF
+	DO LR=1,NR1
+	CC(LR,2,LF)=CS(LR,2,LF)*.5-CS(LR,3,LF)*.25
+	ENDDO
+	ENDDO
+C
+	DO LF=1,NF
+	DO LT=3,NT0
+	LT0=LT-1
+	LT1=LT+1
+	DO LR=1,NR1
+	CC(LR,LT,LF)=CS(LR,LT,LF)*.5-(CS(LR,LT0,LF)+CS(LR,LT1,LF))*.25	
+	ENDDO
+	ENDDO
+	ENDDO
+C
+	DO LF=1,NF
+	DO LR=1,NT1
+	CC(LR,NT,LF)=.5*CS(LR,NT,LF)-.25*CS(LR,NT0,LF)
+	ENDDO
+	ENDDO
+C
+	RETURN
+	ENDIF
+C
+	IF(MULT.EQ.-2) THEN
+C
+C		DIVISION PAR SIN(theta)**2
+C
+	DO LF=1,NF
+	DO LT=NT,2,-1
+	LT1=LT+1
+	DO LR=1,NR1
+	CS(LR,LT,LF)=CS(LR,LT,LF)*RAP(LT)-CS(LR,LT1,LF)
+	ENDDO
+	ENDDO
+	ENDDO	
+C
+	DO LF=1,NF
+	DO LR=1,NR1
+	CC(LR,1,LF)=0
+	ENDDO
+	ENDDO
+C
+	DO LF=1,NF
+	DO LT=2,NT-1
+	LT1=LT-1
+	DO LR=1,NR1
+	CC(LR,LT,LF)=(CS(LR,LT,LF)-BC(LT)*CC(LR,LT1,LF))*BB(LT)
+	ENDDO
+	ENDDO
+	ENDDO
+C
+	DO LF=1,NF
+	DO LR=1,NR1
+	DO LT=NT,NT1
+	CC(LR,LT,LF)=0
+	ENDDO
+	ENDDO
+	ENDDO
+C
+	RETURN
+	ENDIF
+	ENDIF
+C
+CPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
+C
+C		CAS FONCTION PAIRE
+C
+	IF(IPAR.EQ.4) THEN
+C
+C		Multiplication d'une fonction en cos(theta) par sin(theta)
+C                                   (fonctions paires en cos(theta)
+C		
+	IF(MULT.EQ.1) THEN
+C
+	DO LF=1,NF
+	DO LR=1,NR1
+	CS(LR,NT1,LF)=.5*CS(LR,NT1,LF)
+	ENDDO
+C
+	DO LR=1,NR1
+	CC(LR,1,LF)=CS(LR,1,LF)*.5
+	ENDDO
+C
+	DO LT=1,NT
+	LT1=LT+1
+	DO LR=1,NR1
+	CC(LR,LT1,LF)=-.5*(CS(LR,LT1,LF)+CS(LR,LT,LF))	
+	ENDDO
+	ENDDO
+C
+	DO LR=1,NR1
+	CC(LR,1,LF)=-2*CC(LR,1,LF)
+	ENDDO
+C
+	DO LR=1,NR1
+	CC(LR,NT1,LF)=CC(LR,NT1,LF)*2
+	ENDDO
+	ENDDO
+C
+	RETURN
+	ENDIF
+C
+	IF(MULT.EQ.-1) THEN
+C
+C		DIVISION PAR sin(theta)   !! Fonctions paires en cos(theta)
+C
+	DO LF=1,NF
+	DO LR=1,NR1
+	CC(LR,NT,LF)=-CS(LR,NT1,LF)
+	ENDDO
+C
+	DO LT=NT,2,-1	
+	DO LR=1,NR1
+	CC(LR,LT-1,LF)=-2*CS(LR,LT,LF)-CC(LR,LT,LF)
+	ENDDO
+	ENDDO
+	ENDDO
+	RETURN
+	ENDIF
+	ENDIF
+C
+C		MULTIPLICATION PAR SIN(theta) (Fonctions paires du genre
+C		COS(2m*thrta)*sin(2j-1)*theta), le cas ou sin(theta) 
+C		apaaraitrait avec une puissance paire a ete deja traite'
+C		plus haut.
+C
+	IF(IPAR.EQ.5) THEN
+	IF(MULT.EQ.1) THEN
+C
+	DO LF=1,NT
+	DO LR=1,NR1
+	CC(LR,1,LF)=-CS(LR,1,LF)
+	ENDDO
+C
+	DO LT=2,NT1
+	DO LR=1,NR1
+	CC(LR,LT,LF)=-(CS(LR,LT-1,LF)+CS(LR,LT,LF))*.5
+	ENDDO
+	ENDDO
+	DO LR=1,NR1
+	CC(LR,NT1,LF)=2*CC(LR,NT1,LF)
+	ENDDO
+	ENDDO
+	RETURN
+	ENDIF
+C
+	IF(MULT.EQ.-1) THEN
+C
+C		CAS DE LA DIVISION PAR sin(theta) d'une fonction produit
+C		d'une fonction paire par une puissance impaire du sin(theta)
+C
+	DO LF=1,NF
+	DO LR=1,NR1
+	CC(LR,NT1,LF)=0
+	ENDDO
+C
+	DO LT=NT,1,-1
+	DO LR=1,NR1
+	CC(LR,LT,LF)=-(2*CS(LR,LT,LF)+CC(LR,LT+1,LF))
+	ENDDO
+	ENDDO
+	ENDDO
+C
+	IF(MULT.EQ.3) THEN
+C
+		IF(IPAR.EQ.5) THEN
+		PRINT*,'ROUTINE DISR3S: CE CAS N EST PAS TESTE'
+		PRINT*,'IPAR,MULT=',IPAR,MULT
+		CALL EXIT
+C
+	DO LF=1,NF
+	DO LR=1,NR1
+	CC(LR,1,LF)=-.25*CS(LR,1,LF)
+	ENDDO
+	DO LT=2,NT
+	DO LR=1,NR1
+	CC(LR,LT,LF)=-.5*(CS(LR,LT-1,LF)+CS(LR,LT,LF))
+	ENDDO
+	ENDDO
+	DO LR=1,NR1
+	CC(LR,NT1,LF)=0
+	ENDDO
+	ENDDO	
+	RETURN
+	ENDIF
+	ENDIF
+C
+	RETURN
+	ENDIF
+	ENDIF
+		PRINT 101
+		PRINT*,'ROUTINE DISR3S: CE CAS N EST PAS IMPLEMENTE: Sorry !'
+		PRINT*,'IPAR,MULT=',IPAR,MULT
+  101	FORMAT(1X,' ')
+  100	FORMAT(1X,10E10.3)
+	END

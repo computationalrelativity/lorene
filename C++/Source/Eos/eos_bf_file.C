@@ -1,0 +1,133 @@
+/*
+ * Methods for Eos_bifluid and file manipulation
+ *
+ * (see file eos_bifluid.h for documentation)
+ */
+
+/*
+ *   Copyright (c) 2001 Jerome Novak
+ *
+ *   This file is part of LORENE.
+ *
+ *   LORENE is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 2 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LORENE is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LORENE; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+
+char eos_bf_file_C[] = "$Header$" ;
+
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * Initial revision
+ *
+ * Revision 1.1  2001/06/21  15:22:15  novak
+ * Initial revision
+ *
+ *
+ * $Header$
+ *
+ */
+ 
+// Headers C++
+#include <iostream.h>
+#include <fstream.h>
+
+// Headers C
+#include <stdlib.h>
+
+// Header Lorene
+#include "eos_bifluid.h"
+
+		//--------------------------------------//
+		//  Identification virtual functions	//
+		//--------------------------------------//
+
+
+int Eos_bf_poly::identify() const	{ return 1; }
+
+
+		//---------------------------------------------//
+		//    EOS construction from a binary file      //
+		//---------------------------------------------//
+
+Eos_bifluid* Eos_bifluid::eos_from_file(FILE* fich) {
+    
+    Eos_bifluid* p_eos ; 
+    
+    // Type (class) of EOS :
+    int identificator ;     
+    fread(&identificator, sizeof(int), 1, fich) ;		
+
+    switch(identificator) {
+	
+	case 1 : {
+	    p_eos = new Eos_bf_poly(fich) ; 
+	    break ; 
+	}
+	
+	default : {
+	    cout << "Eos_bifluid::eos_from_file : unknown type of EOS !" << endl ; 
+	    cout << " identificator = " << identificator << endl ; 
+	    abort() ; 
+	    break ; 
+	}
+	
+    }
+    
+    return p_eos ; 
+    
+}
+
+		//----------------------------------------------//
+		//    EOS construction from a formatted file    //
+		//----------------------------------------------//
+
+Eos_bifluid* Eos_bifluid::eos_from_file(ifstream& fich) {
+    
+    int identificator ; 
+    char blabla[80] ;
+
+    // EOS identificator : 
+    fich >> identificator ; fich.getline(blabla, 80) ;
+
+    Eos_bifluid* p_eos ; 
+    
+    switch(identificator) {
+	
+	case 1 : {
+	    p_eos = new Eos_bf_poly(fich) ; 
+	    break ; 
+	}
+	
+	default : {
+	    cout << "Eos_bifluid::eos_from_file : unknown type of EOS !" << endl ; 
+	    cout << " identificator = " << identificator << endl ; 
+	    abort() ; 
+	    break ; 
+	}
+	
+    }
+    
+    return p_eos ; 
+    
+}
+
+
+
+
+
+

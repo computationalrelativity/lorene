@@ -1,0 +1,18 @@
+SHELL=/bin/sh
+
+include $(HOME_LORENE)/local_settings		  # defines which compiler,...
+
+include List_obj 		# defines OBJ as the list of object files
+
+LIB	  = $(HOME_LORENE)/Lib
+
+.SUFFIXES : .o .C
+
+$(LIB)/liblorene.a : 	$(OBJ)
+	ar -rv $@  $?
+	$(RANLIB) $@
+	
+include Dependencies
+
+.C.o:
+	$(CXX)  -c $(CXXFLAGS) $(INC) $<

@@ -1,0 +1,276 @@
+C
+C   Copyright (c) 1997 Silvano Bonazzola
+C
+C    This file is part of LORENE.
+C
+C    LORENE is free software; you can redistribute it and/or modify
+C    it under the terms of the GNU General Public License as published by
+C    the Free Software Foundation; either version 2 of the License, or
+C    (at your option) any later version.
+C
+C    LORENE is distributed in the hope that it will be useful,
+C    but WITHOUT ANY WARRANTY; without even the implied warranty of
+C    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+C    GNU General Public License for more details.
+C
+C    You should have received a copy of the GNU General Public License
+C    along with LORENE; if not, write to the Free Software
+C    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+C
+C
+       SUBROUTINE FCIR2S(NDEG,NDIMR,NN64,IN1,IMP,IDR,IND
+     1  ,C64,CC,CS,DENT,DEN)
+
+		implicit double precision (a-h,o-z)
+
+C
+C           ROUTINE POUR LE CALCUL DES TRANSFORMEES INVERSES DE FOURIER
+C           E DE TCHEBYTCHEV POUR L'ECHANTILLONAGE REAREFIE' A 2 DIM.
+C           EXPLOITANT LE SIMMETRIES DES FONCTIONS A TRANSFORMER (SYM-
+C           METRIES EXISTANTES PAR EX. EN COORDONNES SPHERIQUES)
+C      
+C           LE 2ME VARIE ENTRE 0 ET PI. DANS UN DEVELOPPEMENT
+C           EN COORDONNES SPHERIQUES,UNE FONCTION SCALAIRE SERA
+C           UNE FONCTIONS SYMMETRIQUES EN TETA (PARR RAPPORT PI).
+C           LE DEVELOPPEMENT EN THETA SERAT EFFECTUE' EN SERIE DE COSINU
+C  S
+C           (POLYNOMES DE TCHEBYTCHEV DU 1ER GENRE) POUR LES FONCTIONS
+C           SCALIRES(IMP=0), ET EN POLYNOMES DU 2me GENRE
+C           (EN SERIE DE SINUS) POUR LES FONCTIONS VECTORIELLES (IMP=1).
+C           ANALOGUEMENT LES COEFFICIENTS Cml(r) SONT DES
+C           FONCTIONS SYMMETRIQUES EN r SI m+l EST PAIRE ET ANTISYMMETRI
+C  QUES
+C           DANS LE CAS OPPOSE'. PARCONSEQUANT LE DEVELOPPEMENT EN r
+C           DES COEFFICIENTS  Cml(r) EST EFFECTUE SUR L'INTERVALLE
+C           0<r<1 EN TENANT COMPTE DE LA PARITE'. LA TRANSFORMATION 
+C
+C      N.B. DOIT ETRE PARCONSEQUENT ORDONNEE, C'EST A DIRE IL FAUT
+C      ---  D'ABORD PROCEDER A LA TRANSFORMATION DE TCHEBYTCHEV  SUR
+C           LA VARIABLE r (1ERE INDICE), PUIS A LA TRANSFORMATION EN TET
+C  A 
+C           (2ME INDICE).
+C
+C           ARGUMENTS DE LA ROUTINE:
+C
+C               NDEG = TABLEAU, NDEG(2) CONTENANT LES DE-
+C                    GREES DE LIBERTE DES TRANSFORMEES
+C                    A EFFECTUER, NDEG(1) CONCERNE LE PRE-
+C                    MIER INDICE DE LA MATRICE, NDEG(2)
+C                    LE 2ME INDICE, NDEG(3) LE 3me INDICE DE LA
+C                    MATRICE.     
+C                    NDEG DOIT IMPERATIVEMENT ETRE DE LA
+C                    2**p*3**p*5*q+1 POUR LES TRANSFOR-
+C                    MEES DE TCHEBYTCHEV.
+C
+C           NDIMY   =DIMESION DU TABLEAU YY(LR,LY,LZ).
+C           POUR DES RAISONS DE CRAYTINISATION NDIMY ET NDIMZ NE DOIT PA
+C  S
+C           ETRE UN MULTIPLE DE 8.
+C
+C           NN64 = PARAMETRE DE LA VECTORIZATION, PAR EXEMPLE
+C                NNN64=64 SIGNIFIE QUE 64 FONCTIONS A TRANSFORMER
+C                SONT VECTORIZEE.
+C
+C
+C           IN1 = PARAMETRE, SI IN1=1 LA TRANSFORMEE EST
+C                EFFECTUEE SUR LE PREMIER INDICE, SI IN1=2 SUR LE
+C                DEUXIEME.
+C           IMP = PARAMETRE DEFINISSANT LA TENSORIALITE' DE LA FONCTION
+C                 A TRANSFORMER: IMP=0 SCALAIRE, IMP=1 VECTEUR.
+C
+C           IDR =PRAMETRE: DEFINISSANT LES DIFFERENTS OPERATEURS AP-
+C                PLIQUES AUX COEFFICIENTS DE LA FONCTION D'ENTRE' 
+C                       SELON LE TABLEAU SUIVANT:
+C
+C                     
+C                    SORTIE EN OUTPUT (POUR IND=1)
+C                    ----------------
+C                    IDR=0  IN1=1 TRANSFORMATION INVERSE DE TCHEBYTCHEV 
+C                    COEFF.-> r. (IND ARBITRAIRE)
+C                IDR1=1 IN1=1   CALCUL DES COEFFICIENTS DE TCHEBYTCHEV
+C                          DE L'OPERATEUR 1/r*D/DR POUR LES FON-
+C                    CTIONS PAIRES ET DE 1/r*D/DR-1/r**2
+C                    pour les fonctions impaires en r.
+C                IDR=2  IN1=1 CALCUL DE D2/DR**2
+C
+C                IDR=3  IN1=1   COEFFICIENTS DES LA FONCTION APRES
+C                    MULTIPLICATION PAR r**2
+C                IDR=4 IN1=1    COEFFICIENTS DE LA FONCTION APRES
+C                    DIVISION PAR r**2.
+C                IDR=5 IN1=1    COEFFICIENTS DE LA FONCTION APRES
+C                          MULTIPLICATION PAR r. UNE FONCTION PAIRE
+C                    EN IMPUT DEVIENT IMPAIRE EN OUTPUT
+C                    ET VICEVERSA.
+C               IDR=6  IN1=1    COEFFICIENTS DE LA FONCTION APRES 
+C                    DIVISION PAR r. 
+C               IDR=7  IN1=1 COEFFICIENTS DE LA FONCTION APRES D/dr.
+C                    LA TENSORIALITE' DE LA FONCTION
+C                    EST NATURELLEMENT CHANGEE.
+C
+C                IDR=0,IN1=2 TRANSFORMATION INVERSE DE TCHEBYTCHEV
+C                    DU 1ER OU 2ME TYPE COEFF.-> teta.(IND 
+C                    ARBITRAIRE)
+C                IDR=1 IN1=2 CALCUL DES COEFFICIENTS DE LA FONCTION
+C                    APRES L'APPLICATION DE L'OPERATEUR
+C                    COS(TETA)/SIN(TETA)*D/DTETA POUR LES
+C                    FONCTIONS DEVELLOPPES EN POLYNOMES
+C                    DE TCHEBYTCHEV DU 1ER TYPE ET DE
+C                    L'OPERATEUR 
+C                    COS(TET)/SIN(TET)*D/DTET-1/SIN(TET)**2
+C                    POUR LES FONCTIONS DEVELOPPEES EN POLY-
+C                    NOMES DU 2ME TYPE.
+C               IDR=2 IN1=2     COEFFICIENTS APRES APPLICATION DE L'O-
+C                    PERATEUR D2/DTET2
+C               IDR=3 IN1=2     MULTIPLICATION PAR SIN(TETA)**2
+C
+C               IDR=4 IN1=2 DIVISION PAR SIN(TETA)**2
+C
+C               IDR=5 IN1=2 TRANSFORMATION TCEBYTCHEV -> FONCTION
+C                       
+C                    ASSOCIEES DE LEGENDRE P (theta) SI IMP=0
+C                        1         l
+C                    ET P (theta) SI IMP=1
+C                        l
+C               IDR=6 IN1=2     TRANSFORMATION INVERSE DE LA PRECEDENTE.
+C
+C               IDR=7 IN1=2   ON A EN OUTPUT LES COEFFICIENTS DE LA
+C                          DERIVEE PEMIERE. LE NY1eme COEFFICIENT
+C                    EST GARDE' POUR PERMETRE UNE EVENTUELLE
+C                    DEALIESINATION.
+C               IDR=8 IN1=2 CALCUL DES COEFFICIENTS DE LA
+C                    FONCTION APRES DIVISION PAR SIN(THETA)
+C                    (CAS IMP=1 SEULEMENT)
+C
+C           IND = PARAMETRE: SI IND=1 ON A EN SORTIE LES COEFFICIENTS
+C                 DE TCHEBYTCHEV APRES L'APPLICATION
+C                 DES OPERATEURS DEFINIS PLUS HAUT, SI IND=2 ON A
+C                 EN OUTPUT LES FONCTIONS APRES L'APPLICATION 
+C                 DES OPERATEURS DEFINIS PLUS HAUT A L'IMPUT.
+C                 (POUR LES OPERATIONS QUI CONSERVENT LA PARITE')
+C
+C           
+C           C64,CC,CS= TABLEAUX DE TRAVAIL: DIMENSION MINIME=
+C                  (NN64+1)*((MAX(NDEG(1),NDEG(2))+3)
+C
+C           DENT = TABLEAU DE TRAVAIL 3DIM. DIMENSIONS MIN. NDEG(1)
+C                 NDEG(2),NDEG(3)/2+1
+C           DEN =TABLEAU A 3 DIMENSIONS CONTENANT LA FONCTION
+C                A TRANSFORMER EN IMPUT, ET LA TRANSFORMEE EN
+C                OUTPUT.
+C
+C           ROUTINE ayant testee avec le protocol ordinaire le 28/3/1987
+C
+C
+C
+C $Id$
+C $Log$
+C Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
+C Initial revision
+C
+c Revision 1.1  1997/10/23  08:31:21  eric
+c Initial revision
+c
+C
+C $Header$
+C
+C
+	character*100 header
+	data header/'$Header$'/
+
+       DIMENSION NDEG(3),NDEG1(2),DEN(NDIMR,*),C64(*),CC(*),CS(*)
+       DIMENSION DENT(NDIMR,*)
+
+       NR1=NDEG(1)
+       NY1=NDEG(2)
+       NR=NR1-1
+       NY=NY1-1
+C
+CC1111111111111111111111111111111111111111111111111111111111111111111111
+C  1111111111
+C11111111111111111111111111111111111111111111111111111111111111111111111
+C  1111
+C
+C           TRANSFORMATION DU PREMIER INDICE
+C
+       IF(IN1.EQ.1) THEN
+C
+       IF(IDR.GE.5.AND.IND.EQ.2) THEN
+       PRINT*,'ICOMPATIBILITE DE PARITE. ON DEMANDE UNE TRANSFORMATION'
+       PRINT*,'INVERSE (IND=2), APTES UNE TRANSFORMATION QUI NE'
+       PRINT*,'CONSERVE PAS LA PARITE, IND=',IND
+       ENDIF 
+C
+       NDEG1(1)=NDEG(1)
+       LY1=0
+       DO 1 LY=1,NY1,2
+       LY1=LY1+1
+       DO 2 LR=1,NR1
+       DENT(LR,LY1)=DEN(LR,LY)
+  2    CONTINUE
+  1    CONTINUE
+C
+       ITCH=0
+       IF(IMP.EQ.1) ITCH=1
+       NDEG1(2)=LY1
+C
+       CALL CIRX2S(NDEG1,NDIMR,NN64,ITCH,IDR,IND,C64,CC,CS,DENT)
+C
+       LY1=0
+       DO 3 LY=1,NY1,2
+       LY1=LY1+1
+       DO 4 LR=1,NR1
+       DEN(LR,LY)=DENT(LR,LY1)
+  4    CONTINUE
+  3    CONTINUE
+C
+C      TRANSFORMATION INVERSE PARTIE ANTISYMMETRIQUE
+C      
+       LY1=0
+       DO 5 LY=2,NY1,2
+       LY1=LY1+1
+       DO 6 LR=1,NR1
+       DENT(LR,LY1)=DEN(LR,LY)
+  6    CONTINUE
+  5    CONTINUE
+C
+       NDEG1(2)=LY1
+       ITCH=1
+       IF(IMP.EQ.1) ITCH=0
+C
+       CALL CIRX2S(NDEG1,NDIMR,NN64,ITCH,IDR,IND,C64,CC,CS,DENT)
+C
+       LY1=0
+       DO 7 LY=2,NY1,2
+       LY1=LY1+1
+       DO 8 LR=1,NR1
+       DEN(LR,LY)=DENT(LR,LY1)
+  8    CONTINUE
+  7    CONTINUE
+       RETURN
+             ENDIF
+C
+C
+CCC222222222222222222222222222222222222222222222222222222222222222222222
+C  2222.
+C22222222222222222222222222222222222222222222222222222222222222222222222
+C  2.
+C
+C           TRANSFORMATION DU 2ME INDICE
+C
+             IF(IN1.EQ.2) THEN
+             IF(NY1.LT.2) RETURN
+C
+       ITCH=1
+       IF(IMP.EQ.1) ITCH=2
+C
+       CALL CIY22S(NDEG,NDIMR,NN64,ITCH,IDR,IND,C64,CC,CS,DEN)
+C
+       RETURN 
+       ENDIF
+C
+1000   FORMAT(1X,10E11.3)
+1010   FORMAT(1X,' ')
+       RETURN
+       END
+C
+C
