@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2002 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -32,8 +32,11 @@ char mtbl_cf_val_point_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/05/05 16:22:33  e_gourgoulhon
+ * Added the case of the theta basis T_COSSIN_SP.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.7  2000/09/08  16:26:43  eric
  * Ajout de la base T_SIN_I.
@@ -107,6 +110,7 @@ static int premier_appel = 1 ;
 	som_tet[T_SIN_I >> TRA_T] = som_tet_sin_i ;
 	som_tet[T_COSSIN_CP >> TRA_T] = som_tet_cossin_cp ;
 	som_tet[T_COSSIN_CI >> TRA_T] = som_tet_cossin_ci ;
+	som_tet[T_COSSIN_SP >> TRA_T] = som_tet_cossin_sp ;
 
 	som_phi[P_COSSIN >> TRA_P] = som_phi_cossin ;
 	som_phi[P_COSSIN_P >> TRA_P] = som_phi_cossin_p ;
