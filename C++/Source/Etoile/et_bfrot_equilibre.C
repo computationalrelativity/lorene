@@ -32,6 +32,10 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/11/13 12:14:35  r_prix
+ * *) removed all use of etoile-type specific u_euler, press
+ *   and use 3+1 components of Tmunu instead
+ *
  * Revision 1.5  2002/10/16 14:36:35  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -93,7 +97,7 @@ void Et_rot_bifluid::equilibrium_spher_bi(double ent_c, double ent2_c,
   int nz = mg->get_nzone() ;	    // total number of domains
   uuu = 0 ;
   uuu2 = 0 ; 
-  xxx2 = 0 ;
+  Delta_car = 0 ;
   gam_euler = 1 ;
   gam_euler2 = 1 ;
     
@@ -491,8 +495,8 @@ void Et_rot_bifluid::equilibrium_bi
   par_poisson_tggg.add_double_mod( lambda_tggg ) ; 
     
   Param par_poisson_dzeta ; 
-  double lambda_grv2 ;
-  par_poisson_dzeta.add_double_mod( lambda_grv2 ) ; 
+  double lbda_grv2 ;
+  par_poisson_dzeta.add_double_mod( lbda_grv2 ) ; 
  					   
   // Parameters for the function Tenseur::poisson_vect
   // -------------------------------------------------
@@ -639,7 +643,7 @@ void Et_rot_bifluid::equilibrium_bi
 
     // Source for dzeta
     // ----------------
-    source_dzf = 2 * qpig * a_car * (s_euler - 2*press ) ;
+    source_dzf = 2 * qpig * a_car * sphph_euler;
     source_dzf.set_std_base() ; 
   
     source_dzq = 1.5 * ak_car - flat_scalar_prod(logn.gradient_spher(),
@@ -649,7 +653,7 @@ void Et_rot_bifluid::equilibrium_bi
     // Source for tggg
     // ---------------
 	
-    source_tggg = 4 * qpig * nnn * a_car * bbb * press ;
+    source_tggg = 2 * qpig * nnn * a_car * bbb * (s_euler - sphph_euler);
     source_tggg.set_std_base() ; 
 	
     (source_tggg.set()).mult_rsint() ; 
@@ -659,13 +663,13 @@ void Et_rot_bifluid::equilibrium_bi
     // ----------------
 	    
     // Matter term (u_euler is NOT the same as in Etoile_rot): 
-    source_shift = (-4*qpig) * nnn * a_car * u_euler ;
+    source_shift = (-4*qpig) * nnn * a_car * J_euler;
 
     // Quadratic terms:
-    Tenseur vtmp =  6 * beta.gradient_spher() - 2 * logn.gradient_spher() ;
+    Tenseur vtmp =  3 * beta.gradient_spher() - logn.gradient_spher() ;
     vtmp.change_triad(mp.get_bvect_cart()) ; 
 
-    Tenseur squad  = nnn * flat_scalar_prod(tkij, vtmp) ;     
+    Tenseur squad  = 2 * nnn * flat_scalar_prod(tkij, vtmp) ;     
 
     // The addition of matter terms and quadratic terms is performed
     //  component by component because u_euler is contravariant,
@@ -800,7 +804,7 @@ void Et_rot_bifluid::equilibrium_bi
 	abort() ;
       }
     }
-    // New computation of xxx2, gam_euler, ener_euler, etc...
+    // New computation of Delta_car, gam_euler, ener_euler, etc...
     // ------------------------------------------------------
 	
     hydro_euler() ; 
@@ -899,7 +903,7 @@ void Et_rot_bifluid::equilibrium_bi
       mp.poisson2d(source_dzf(), source_dzq(), par_poisson_dzeta,
 		   dzeta.set()) ; 
 	    
-      err_grv2 = lambda_grv2 - 1; 
+      err_grv2 = lbda_grv2 - 1; 
       cout << "GRV2: " << err_grv2 << endl ; 
 	    
     }
