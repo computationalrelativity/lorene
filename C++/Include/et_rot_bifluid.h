@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2003/12/04 14:13:32  r_prix
+ * added method get_typeos {return typeos}; and fixed some comments.
+ *
  * Revision 1.11  2003/11/20 14:01:45  r_prix
  * changed member names to better conform to Lorene coding standards:
  * J_euler -> j_euler, EpS_euler -> enerps_euler, Delta_car -> delta_car
@@ -308,8 +311,8 @@ class Et_rot_bifluid : virtual public Etoile_rot {
    *	containing the 
    *	values of the domain index {\it l} on the surface at the 
    *	collocation points in $(\theta', \phi')$.
-   *	The stellar surface is defined as the location where
-   *	the enthalpy 2 (member {\tt ent2}) vanishes.
+   *	This surface is defined as the location where
+   *	the density 1 (member {\tt nbar}) vanishes.
    */
   virtual const Itbl& l_surf() const ; 
 	
@@ -317,8 +320,8 @@ class Et_rot_bifluid : virtual public Etoile_rot {
    *	containing the 
    *	values of the domain index {\it l} on the surface at the 
    *	collocation points in $(\theta', \phi')$.
-   *	The stellar surface is defined as the location where
-   *	the enthalpy 2 (member {\tt ent2}) vanishes.
+   *	This surface is defined as the location where
+   *	the density 2 (member {\tt nbar2}) vanishes.
    */
   const Itbl& l_surf2() const ; 
 	
@@ -326,8 +329,8 @@ class Et_rot_bifluid : virtual public Etoile_rot {
    *	containing the values of the radial coordinate $\xi$ 
    *	on the surface at the 
    *	collocation points in $(\theta', \phi')$. 
-   *	The stellar surface is defined as the location where
-   *	the enthalpy 2 (member {\tt ent2}) vanishes.
+   *	This surface is defined as the location where
+   *	the density 2 (member {\tt nbar2}) vanishes.
    */
   const Tbl& xi_surf2() const ; 
 

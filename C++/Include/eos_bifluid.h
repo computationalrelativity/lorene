@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2003/12/04 14:13:32  r_prix
+ * added method get_typeos {return typeos}; and fixed some comments.
+ *
  * Revision 1.11  2003/11/18 18:25:15  r_prix
  * moved particle-masses m_1, m_2 of the two fluids into class eos_bifluid (from eos_bf_poly)
  *
@@ -873,6 +876,9 @@ class Eos_bf_poly : public Eos_bifluid {
 	 *  $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$.
 	 */
 	double get_beta() const {return beta ;}; 
+
+	// Returns (sub)type of bifluid-eos (member {\tt typeos})
+	int get_typeos() const {return typeos;};
 
     protected:
 	/** Computes the auxiliary quantities {\tt gam1m1}, {\tt gam2m1}
