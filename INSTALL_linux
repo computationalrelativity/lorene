@@ -1,9 +1,6 @@
 
-	 $Id$
-
-This file covers only features specific to some Linux distributions. 
-See the file INSTALL for the main installation instructions. 
-
+This file covers only features specific to some Linux distributions.
+See the file INSTALL for the main installation instructions.
 
 MANDRAKE 8.0	
 ============
@@ -11,7 +8,7 @@ MANDRAKE 8.0
 You must install the package XFree86-devel-4.0.3-7mdk.i586.rpm from CDROM 1. 
 This packages provides 
 	- makedepend (required for setting the dependencies in Lorene Makefiles)
-	- libX.h (required for installing PGPLOT)
+	- Xlib.h (required for installing PGPLOT)
 
 The LAPACK library is not part of the Mandrake 8.0 distribution.
 You can download the necessary RPMs from http://www.netlib.org/lapack/
@@ -24,9 +21,15 @@ The version 3.4.3-4 of DOC++ which can be found on the CDROM
 "Power Tools Application" has many bugs ! It should be upgraded at least to 
 version 3.4.8 (from the DOC++ Web site: http://docpp.sourceforge.net/).
 
+You must install the package XFree86-devel-4.0.1-1.i386.rpm from CDROM.
+This packages provides
+	- makedepend (required for setting the dependencies in Lorene Makefiles)
+	- Xlib.h (required for installing PGPLOT)
+
 REDHAT 7.1
 ==========
                                                                                                                                       
 You must install the package XFree86-devel-4.0.3-5.i386.rpm from CDROM. 
-This packages provides 
+This packages provides
 	- makedepend (required for setting the dependencies in Lorene Makefiles)
+	- Xlib.h (required for installing PGPLOT)

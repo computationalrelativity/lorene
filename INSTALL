@@ -18,6 +18,27 @@ See also the file INSTALL_linux for some features specific to Linux.
 0/ Requisites (apart from a C++ and F77 compiler !)
    ==========
 
+  0.1/ Softwares absolutely required by LORENE:
+       ----------------------------------------
+
+a C++ compiler: any compiler compliant to the ISO norm of C++ should be able
+	to compile LORENE
+
+a Fortran 77 compiler: a small part of LORENE is written in Fortran 77, namely
+	the Fast Fourier Transform used by the spectral method and the solver
+	of Poisson equation in 2-dimensional space. In future releases of LORENE,
+	these parts should be rewritten in C++, so that a Fortran 77 compiler
+	will no longer be necessary to compile LORENE.
+
+CVS: 	The internet access to Lorene sources is performed via a CVS server.
+	CVS (Concurrent Versions System) is powerfull tool to
+	manage versions and develop over the network. CVS is a free software
+        under the GNU General Public License. It comes in standard with
+        many Linux distributions. If you don't have it on your system, you
+	can download it from the web site
+
+		http://www.cvshome.org/
+		
 LAPACK: Lorene uses the LAPACK (Linear Algebra PACKage) library to perform
         linear algebra operations. LAPACK must therefore be installed on
 	your system. LAPACK is a public domain software and can be downloaded
@@ -26,7 +47,11 @@ LAPACK: Lorene uses the LAPACK (Linear Algebra PACKage) library to perform
 
 	If you are using Linux, see the companion file INSTALL_linux. 
 
-PGPLOT: Lorene uses the PGPLOT library for producing 2-D graphical outputs. 
+	
+   0.2/ Software required only to produce graphical outputs:
+        ---------------------------------------------------
+
+PGPLOT: Lorene uses the PGPLOT library for producing 2-D graphical outputs.
 	You can use Lorene without PGPLOT provided that you don't perform
 	any call to the routines 
 		Lorene/C++/Source/Non_class_members/Graphics/des_*
@@ -37,6 +62,9 @@ PGPLOT: Lorene uses the PGPLOT library for producing 2-D graphical outputs.
 	If you are using Linux, see the companion file INSTALL_linux. 
 
 
+  0.3/ Softwares required to generate LORENE HTML documentation:
+       --------------------------------------------------------
+	
 DOC++: Lorene uses the DOC++ software to produce its LaTeX and HTML 
        documentation. You can of course compile and run Lorene codes 
        without DOC++ being installed on your system. But to write any
@@ -50,14 +78,16 @@ DOC++: Lorene uses the DOC++ software to produce its LaTeX and HTML
    	Lorene requires version 3.4.8 or higher of DOC++.
 	If you are using Linux, see the companion file INSTALL_linux. 
 
-CVS: 	The internet access to Lorene sources is performed via a CVS server.
-	CVS (Concurrent Versions System) is powerfull tool to
-	manage versions and develop over the network. CVS is a free software
-        under the GNU General Public License. It comes in standard with
-        many Linux distributions. If you don't have it on your system, you
-	can download it from the web site
+LaTeX: the text formatting system TeX/LaTeX is required by DOC++ to generate
+	the PostScript documentation, as well as to treat the mathematical
+	formulae in the HTML documentation.
 
-		http://www.cvshome.org/
+Netpbm: DOC++ uses the Netpbm toolkit (especially ppmtogif) to generate the
+	gif images displaying the mathematical formulae in the HTML documentation.
+	If you are using Linux, note that Netpbm comes in standard with many
+	Linux distributions. Otherwise, you can download it from the Netpbm web site:
+	
+		http://download.sourceforge.net/netpbm/
 
 
 
@@ -150,7 +180,7 @@ To read Lorene's reference manual, type
 5/ Testing the installation
    ------------------------
 
-It everything went well the compilation, you can check the link with
+If everything went well with the compilation, you can check the link with
 LAPACK and PGPLOT libraries with
 
 	make test
