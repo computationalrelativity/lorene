@@ -12,12 +12,12 @@ html: Source/documentation.C $(INCEXP)/bin_bh.h
 	$(BIN_TOOLS)/reorg_comments $?
 	mv $(?:=_r) .
 	rm -fr $@
-	doc++ -p -d $@ documentation.C_r
+	doc++ -p -w -W -d $@ documentation.C_r
 
 documentation.tex: Source/documentation.C $(INCEXP)/bin_bh.h
 	$(BIN_TOOLS)/reorg_comments $?
 	mv $(?:=_r) .
-	doc++ -p -t -o $@ documentation.C_r
+	doc++ -p -w -W -t -o $@ documentation.C_r
 
 
 $(BIN_TOOLS):
