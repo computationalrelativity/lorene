@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.33  2005/02/14 13:01:48  j_novak
+ * p_eta and p_mu are members of the class Vector. Most of associated functions
+ * have been moved from the class Vector_divfree to the class Vector.
+ *
  * Revision 1.32  2004/05/25 14:54:01  f_limousin
  * Change arguments of method poisson with parameters.
  *
@@ -57,7 +61,7 @@
  * Added method derive_lie.
  *
  * Revision 1.23  2004/02/22 15:47:45  j_novak
- * Added 2 more methods to solve the vector pôisson equation. Method 1 is not
+ * Added 2 more methods to solve the vector Poisson equation. Method 1 is not
  * tested yet.
  *
  * Revision 1.22  2004/02/21 16:27:53  j_novak
@@ -168,7 +172,35 @@ class Vector: public Tensor {
 	 */
 	mutable Vector_divfree* p_div_free[N_MET_MAX] ;
 
-    // Constructors - Destructor
+ 	/** Field \f$\eta\f$ such that the angular components \f$(V^\theta, V^\varphi)\f$
+	 * of the vector are written:
+	 * \f[
+	 *	V^\theta =   {\partial \eta \over \partial\theta} -
+	 *		 {1\over\sin\theta} {\partial \mu \over \partial\varphi} 
+	 * \f] 
+	 * \f[
+	 *	V^\varphi =  {1\over\sin\theta} 
+	 *				{\partial \eta \over \partial\varphi}
+	 *				+ {\partial \mu \over \partial\theta} 
+	 * \f] 
+	 */
+	mutable Scalar* p_eta ;
+	
+	/** Field \f$\mu\f$ such that the angular components \f$(V^\theta, V^\varphi)\f$
+	 * of the vector are written:
+	 * \f[
+	 *	V^\theta =  {\partial \eta \over \partial\theta} -
+	 *	 {1\over\sin\theta} {\partial \mu \over \partial\varphi} 
+	 * \f] 
+	 * \f[
+	 *	V^\varphi =  {1\over\sin\theta} 
+	 *				{\partial \eta \over \partial\varphi}
+	 *				+ {\partial \mu \over \partial\theta} 
+	 * \f] 
+	 */
+	mutable Scalar* p_mu ;
+	
+   // Constructors - Destructor
     // -------------------------
     public:
 	/** Standard constructor.
@@ -248,6 +280,18 @@ class Vector: public Tensor {
 	/// Assignment from a Tensor
 	virtual void operator=(const Tensor& a) ;	
 
+	/** Defines the components through potentials \f$\eta\f$ and \f$\mu\f$ 
+	 *  (see members \c p_eta  and \c p_mu ), 
+	 *  as well as the \f$V^r\f$ component of the vector. 
+	 *
+	 *	@param vr_i [input] component \f$V^r\f$ of the vector
+	 *	@param eta_i [input] angular potential \f$\eta\f$
+	 *	@param mu_i [input] angular potential \f$\mu\f$
+	 *
+	 */
+	void set_vr_eta_mu(const Scalar& vr_i, const Scalar& eta_i,
+		const Scalar& mu_i) ; 
+
 	/**Makes the Helmholtz decomposition (see documentation of
 	 * \c p_potential ) of \c this  with respect to a given
 	 * \c Metric , only in the case of contravariant vectors.
@@ -322,6 +366,48 @@ class Vector: public Tensor {
 	 */
 	virtual void std_spectral_base() ; 
 
+	/** Gives the field \f$\eta\f$ such that the angular components 
+	 * \f$(V^\theta, V^\varphi)\f$ of the vector are written:
+	 * \f[
+	 *	V^\theta =  {\partial \eta \over \partial\theta} -
+	 *	 {1\over\sin\theta} {\partial \mu \over \partial\varphi} 
+	 * \f] 
+	 * \f[
+	 *	V^\varphi =  {1\over\sin\theta} 
+	 *				{\partial \eta \over \partial\varphi}
+	 *				+ {\partial \mu \over \partial\theta} 
+	 * \f] 
+	 */
+	virtual const Scalar& eta() const ;
+	
+	/** Gives the field \f$\mu\f$ such that the angular components 
+	 * \f$(V^\theta, V^\varphi)\f$ of the vector are written:
+	 * \f[
+	 *	V^\theta =  {\partial \eta \over \partial\theta} -
+	 *	 {1\over\sin\theta} {\partial \mu \over \partial\varphi}
+	 * \f] 
+	 * \f[
+	 *	V^\varphi =  {1\over\sin\theta} 
+	 *				{\partial \eta \over \partial\varphi}
+	 *				+ {\partial \mu \over \partial\theta} 
+	 * \f] 
+	 */
+	virtual const Scalar& mu() const ;
+	
+	/** Computes the components \f$V^\theta\f$ and \f$V^\varphi\f$ from the
+	 *  potential \f$\eta\f$ and  \f$\mu\f$, according to:
+	 * \f[
+	 *	V^\theta =  {\partial \eta \over \partial\theta} - 
+	 *		{1\over\sin\theta} {\partial \mu \over \partial\varphi}
+	 * \f] 
+	 * \f[
+	 *	V^\varphi =  {1\over\sin\theta} 
+	 *				{\partial \eta \over \partial\varphi}
+	 *				+ {\partial \mu \over \partial\theta} 
+	 * \f] 
+	 */
+	void update_vtvp() ;
+	
     // Differential operators/ PDE solvers
     // -----------------------------------
     public:
@@ -371,69 +457,71 @@ class Vector: public Tensor {
      */
     Vector poisson(double lambda, int method = 0) const ;
      
-	/**Solves the vector Poisson equation with \c *this  as a source.
-	 * 
-	 * The equation solved is \f$\Delta N^i +\lambda \nabla^i 
-	 * \nabla_k N^k = S^i\f$.
-	 * \c *this  must be given with \c dzpuis  = 4.
-	 * It uses the Helmholtz decomposition (see documentation of
-	 * \c p_potential ), with the flat metric \c met_f  given 
-	 * in argument.
-	 *
-	 * @param lambda [input] \f$\lambda\f$.
-	 * @param met_f [input] the flat metric for the Helmholtz decomposition.
-	 * @param method [input] method used to solve the equation:
-	 *        \li 0 : It uses the Helmholtz decomposition (see documentation of
-	 *            \c p_potential ), with the flat metric \c met_f  given 
-	 *            in argument (the default).
-	 *        \li 1 : It solves, first for the divergence (calculated using 
-	 *            \c met_f ), then the \e r -component, the \f$\eta\f$ 
-	 *            potential, and fianlly the \f$\mu\f$ potential (see documentation
-	 *            of \c Vector_div_free .
-	 *        \li 2 : The sources is transformed to cartesian components and the 
-	 *            equation is solved using Shibata method (see Granclement 
-	 *            \e et \e al. JCPH 2001.
-	 *
-	 * @return the solution \f$N^i\f$.
-	 */
-	Vector poisson(double lambda, const Metric_flat& met_f, int method = 0) const ;
-     
-	/**Solves the vector Poisson equation with \c *this  as a source
-	 * and parameters controlling the solution.
-	 * 
-	 * The equatiopn solved is \f$\Delta N^i +\lambda \nabla^i 
-	 * \nabla_k N^k = S^i\f$.
-	 * \c *this  must be given with \c dzpuis  = 4.
-	 * It uses the Helmholtz decomposition (see documentation of
-	 * \c p_potential ), with a flat metric, deduced from the triad.
-	 *
-	 * @param lambda [input] \f$\lambda\f$.
-	 *   @param par [input/output] possible parameters
-	 *   @param uu [input/output] solution \e u  with the 
-	 *              boundary condition \e u =0 at spatial infinity. 
-	 */
+    /**Solves the vector Poisson equation with \c *this  as a source.
+     * 
+     * The equation solved is \f$\Delta N^i +\lambda \nabla^i 
+     * \nabla_k N^k = S^i\f$.
+     * \c *this  must be given with \c dzpuis  = 4.
+     * It uses the Helmholtz decomposition (see documentation of
+     * \c p_potential ), with the flat metric \c met_f  given 
+     * in argument.
+     *
+     * @param lambda [input] \f$\lambda\f$.
+     * @param met_f [input] the flat metric for the Helmholtz decomposition.
+     * @param method [input] method used to solve the equation:
+     *        \li 0 : It uses the Helmholtz decomposition (see documentation of
+     *            \c p_potential ), with the flat metric \c met_f  given 
+     *            in argument (the default).
+     *        \li 1 : It solves, first for the divergence (calculated using 
+     *            \c met_f ), then the \e r -component, the \f$\eta\f$ 
+     *            potential, and fianlly the \f$\mu\f$ potential (see documentation
+     *            of \c Vector_div_free .
+     *        \li 2 : The sources is transformed to cartesian components and the 
+     *            equation is solved using Shibata method (see Granclement 
+     *            \e et \e al. JCPH 2001.
+     *
+     * @return the solution \f$N^i\f$.
+     */
+    Vector poisson(double lambda, const Metric_flat& met_f, int method = 0) const ;
+    
+    /**Solves the vector Poisson equation with \c *this  as a source
+     * and parameters controlling the solution.
+     * 
+     * The equatiopn solved is \f$\Delta N^i +\lambda \nabla^i 
+     * \nabla_k N^k = S^i\f$.
+     * \c *this  must be given with \c dzpuis  = 4.
+     * It uses the Helmholtz decomposition (see documentation of
+     * \c p_potential ), with a flat metric, deduced from the triad.
+     *
+     * @param lambda [input] \f$\lambda\f$.
+     *   @param par [input/output] possible parameters
+     *   @param uu [input/output] solution \e u  with the 
+     *              boundary condition \e u =0 at spatial infinity. 
+     */
+    
+    Vector poisson(const double lambda, Param& par,
+		   int method = 0) const ;
+    
+    /** Computes the flux of the vector accross a sphere \e r = const.
+     *
+     *  @param radius radius of the sphere \e S on which the flux is
+     *      to be taken; the center of \e S is assumed to be the 
+     *      center of the mapping (member \c mp).
+     *      \c radius can take the value \c __infinity (to get the flux
+     *      at spatial infinity).
+     *  @param met metric \f$ \gamma \f$ giving the area element 
+     *      of the sphere
+     *  @return \f$ \oint_S V^i ds_i \f$, where \f$ V^i \f$ is the vector
+     *  represented by \c *this and \f$ ds_i \f$ is the area element 
+     *  induced on \e S by \f$ \gamma \f$.
+     */
+    double flux(double radius, const Metric& met) const ; 
 
-	Vector poisson(const double lambda, Param& par,
-		     int method = 0) const ;
-        
-        /** Computes the flux of the vector accross a sphere \e r = const.
-         *
-         *  @param radius radius of the sphere \e S on which the flux is
-         *      to be taken; the center of \e S is assumed to be the 
-         *      center of the mapping (member \c mp).
-         *      \c radius can take the value \c __infinity (to get the flux
-         *      at spatial infinity).
-         *  @param met metric \f$ \gamma \f$ giving the area element 
-         *      of the sphere
-         *  @return \f$ \oint_S V^i ds_i \f$, where \f$ V^i \f$ is the vector
-         *  represented by \c *this and \f$ ds_i \f$ is the area element 
-         *  induced on \e S by \f$ \gamma \f$.
-         */
-        double flux(double radius, const Metric& met) const ; 
+    void poisson_block(double lambda, Vector& resu) const ;
 
         // Graphics
         // --------
-
+ public:
   /** 3D visualization via OpenDX.
    *
    * @param xmin [input] defines with \c xmax  the x range of the visualization box 
@@ -485,34 +573,6 @@ class Vector_divfree: public Vector {
     protected:
 	/// Metric with respect to which the divergence is defined
 	const Metric* const met_div ; 
-	
-	/** Field \f$\eta\f$ such that the angular components \f$(V^\theta, V^\varphi)\f$
-	 * of the vector are written:
-	 * \f[
-	 *	V^\theta =   {\partial \eta \over \partial\theta} -
-	 *		 {1\over\sin\theta} {\partial \mu \over \partial\varphi} 
-	 * \f] 
-	 * \f[
-	 *	V^\varphi =  {1\over\sin\theta} 
-	 *				{\partial \eta \over \partial\varphi}
-	 *				+ {\partial \mu \over \partial\theta} 
-	 * \f] 
-	 */
-	mutable Scalar* p_eta ;
-	
-	/** Field \f$\mu\f$ such that the angular components \f$(V^\theta, V^\varphi)\f$
-	 * of the vector are written:
-	 * \f[
-	 *	V^\theta =  {\partial \eta \over \partial\theta} -
-	 *	 {1\over\sin\theta} {\partial \mu \over \partial\varphi} 
-	 * \f] 
-	 * \f[
-	 *	V^\varphi =  {1\over\sin\theta} 
-	 *				{\partial \eta \over \partial\varphi}
-	 *				+ {\partial \mu \over \partial\theta} 
-	 * \f] 
-	 */
-	mutable Scalar* p_mu ;
 	
     // Constructors - Destructor
     // -------------------------
@@ -568,20 +628,6 @@ class Vector_divfree: public Vector {
 	/// Assignment from a \c Tensor 
 	virtual void operator=(const Tensor& a) ;	
 	
-	/** Sets the angular potentials \f$\eta\f$ and \f$\mu\f$ (see members
-	 *  \c p_eta  and \c p_mu ), as well as the \f$V^r\f$ component
-	 *  of the vector. 
-	 *  The components \f$V^\theta\f$ and \f$V^\varphi\f$ are updated consistently
-	 *  by a call to the method \c update_vtvp() .
-	 *
-	 *	@param vr_i [input] component \f$V^r\f$ of the vector
-	 *	@param eta_i [input] angular potential \f$\eta\f$
-	 *	@param mu_i [input] angular potential \f$\mu\f$
-	 *
-	 */
-	void set_vr_eta_mu(const Scalar& vr_i, const Scalar& eta_i,
-		const Scalar& mu_i) ; 
-
 	/** Sets the angular potentials \f$\mu\f$ (see member
 	 *  \c p_mu ), and the \f$V^r\f$ component
 	 *  of the vector. The potential \f$\eta\f$ is then deduced from
@@ -611,35 +657,7 @@ class Vector_divfree: public Vector {
 	 *				+ {\partial \mu \over \partial\theta} 
 	 * \f] 
 	 */
-	const Scalar& eta() const ;
-	
-	/** Gives the field \f$\mu\f$ such that the angular components 
-	 * \f$(V^\theta, V^\varphi)\f$ of the vector are written:
-	 * \f[
-	 *	V^\theta =  {\partial \eta \over \partial\theta} -
-	 *	 {1\over\sin\theta} {\partial \mu \over \partial\varphi}
-	 * \f] 
-	 * \f[
-	 *	V^\varphi =  {1\over\sin\theta} 
-	 *				{\partial \eta \over \partial\varphi}
-	 *				+ {\partial \mu \over \partial\theta} 
-	 * \f] 
-	 */
-	const Scalar& mu() const ;
-	
-	/** Computes the components \f$V^\theta\f$ and \f$V^\varphi\f$ from the
-	 *  potential \f$\eta\f$ and  \f$\mu\f$, according to:
-	 * \f[
-	 *	V^\theta =  {\partial \eta \over \partial\theta} - 
-	 *		{1\over\sin\theta} {\partial \mu \over \partial\varphi}
-	 * \f] 
-	 * \f[
-	 *	V^\varphi =  {1\over\sin\theta} 
-	 *				{\partial \eta \over \partial\varphi}
-	 *				+ {\partial \mu \over \partial\theta} 
-	 * \f] 
-	 */
-	void update_vtvp() ;
+	virtual const Scalar& eta() const ;
 	
 	/** Computes the solution of a vectorial Poisson equation
 	 *  with \c *this  \f$= \vec{V}\f$ as a source:

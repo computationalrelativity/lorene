@@ -30,12 +30,16 @@ char vector_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2005/02/14 13:01:50  j_novak
+ * p_eta and p_mu are members of the class Vector. Most of associated functions
+ * have been moved from the class Vector_divfree to the class Vector.
+ *
  * Revision 1.21  2005/01/10 15:36:09  j_novak
  * In method 5: added transformation back from the Ylm base.
  *
  * Revision 1.20  2004/12/23 10:23:06  j_novak
  * Improved method 5 in the case when some components are zero.
- * Changed Vector_divfree::poisson to deduce eta from the equation. 
+ * Changed Vector_divfree::poisson to deduce eta from the equation. 
  *
  * Revision 1.19  2004/08/24 09:14:50  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
@@ -124,7 +128,7 @@ Vector Vector::poisson(double lambda, const Metric_flat& met_f, int method)
     assert(cmp[i]->check_dzpuis(4)) ;
     if (cmp[i]->get_etat() != ETATZERO) nullite = false ;
   }
-  assert ((method>=0) && (method<6)) ;
+  assert ((method>=0) && (method<7)) ;
 
   Vector resu(*mp, CON, triad) ;
   if (nullite)
@@ -217,13 +221,7 @@ Vector Vector::poisson(double lambda, const Metric_flat& met_f, int method)
       Scalar source_eta = divf - f_r.dsdr() ;
       source_eta.mult_r_dzpuis(0) ;
       source_eta -= 2*f_r ;
-      Scalar eta = source_eta.poisson_angu() ;
-
-      Scalar mu = div_free(met_f).mu().poisson() ;
-
-      resu.set(1) = f_r ;
-      resu.set(2) = eta.dsdt() - mu.stdsdp() ;
-      resu.set(3) = eta.stdsdp() + mu.dsdt() ;
+      resu.set_vr_eta_mu(f_r, source_eta.poisson_angu(), mu().poisson());
       
       break ;
       
@@ -401,14 +399,7 @@ Vector Vector::poisson(double lambda, const Metric_flat& met_f, int method)
       for (int lz=0; lz<nz; lz++) 
 	param_eta.set_poisson_vect_eta(lz) ;
 
-      Scalar eta = source_eta.sol_elliptic(param_eta) ;
-
-      Scalar mu = div_free(met_f).mu().poisson() ;
-
-      resu.set(1) = f_r ;
-      resu.set(2) = eta.dsdt() - mu.stdsdp() ;
-      resu.set(3) = eta.stdsdp() + mu.dsdt() ;
-      
+      resu.set_vr_eta_mu(f_r, source_eta.sol_elliptic(param_eta), mu().poisson()) ;
       break ;
       
     }
@@ -490,23 +481,18 @@ Vector Vector::poisson(double lambda, const Metric_flat& met_f, int method)
       tmp.mult_r_dzpuis(0) ;
       tmp += f_r ;
       source_eta = source_eta.primr() ;
-
-      Scalar eta = (tmp+source_eta).poisson_angu() ;
-
-      Scalar source_mu = *(cmp[2]) ;
-      source_mu.div_tant() ;
-      source_mu += cmp[2]->dsdt() - cmp[1]->stdsdp() ;
-      Scalar mu = source_mu.poisson_angu().poisson() ;
-
-      resu.set(1) = f_r ;
-      resu.set(1).set_spectral_va().ylm_i() ;
-      resu.set(2) = eta.dsdt() - mu.stdsdp() ;
-      resu.set(3) = eta.stdsdp() + mu.dsdt() ;
-      
+      f_r.set_spectral_va().ylm_i() ;
+      resu.set_vr_eta_mu(f_r, (tmp+source_eta).poisson_angu(), mu().poisson()) ;      
       break ;
       
     }
 
+    case 6 : {
+	
+	poisson_block(lambda, resu) ;
+	break ;
+
+    }
     default : {
       cout << "Vector::poisson : unexpected type of method !" << endl 
 	   << "  method = " << method << endl ; 

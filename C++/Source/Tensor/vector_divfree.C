@@ -32,6 +32,10 @@ char vector_divfree_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/02/14 13:01:50  j_novak
+ * p_eta and p_mu are members of the class Vector. Most of associated functions
+ * have been moved from the class Vector_divfree to the class Vector.
+ *
  * Revision 1.5  2003/11/03 22:32:36  e_gourgoulhon
  * Parameters of methods set_vr_eta_mu and set_vr_mu are now all references.
  *
@@ -116,19 +120,12 @@ Vector_divfree::~Vector_divfree () {
 
 void Vector_divfree::del_deriv() const {
 
-  if (p_eta != 0x0) delete p_eta ; 
-  if (p_mu != 0x0) delete p_mu ; 
   set_der_0x0() ;
   Vector::del_deriv() ;
 
 }
 
-void Vector_divfree::set_der_0x0() const {
-
-	p_eta = 0x0 ; 
-	p_mu = 0x0 ; 
-
-}
+void Vector_divfree::set_der_0x0() const {}
 
 		//-------------------------//
 		//  Mutators / assignment  //
@@ -167,27 +164,6 @@ void Vector_divfree::operator=(const Tensor& source) {
 }
 
 
-void Vector_divfree::set_vr_eta_mu(const Scalar& vr_i, const Scalar& eta_i,
-		const Scalar& mu_i) {
-		
-		// All this has a meaning only for spherical components:
-		assert( dynamic_cast<const Base_vect_spher*>(triad) != 0x0 ) ; 
-		
-		del_deriv() ; // delete previous p_eta and p_mu, as well as 
-					  //  derived quantities
-		
-		*cmp[0] = vr_i ; 	// V^r
-		
-		p_eta = new Scalar( eta_i ) ; 	// eta
-
-		p_mu = new Scalar( mu_i ) ; 	// mu 
-		
-		update_vtvp() ; // V^theta and V^phi
-		
-
-}
-
-
 void Vector_divfree::set_vr_mu(const Scalar& vr_i, const Scalar& mu_i) {
 		
 		// All this has a meaning only for spherical components:
@@ -206,5 +182,34 @@ void Vector_divfree::set_vr_mu(const Scalar& vr_i, const Scalar& mu_i) {
 
 }
 
+			
+const Scalar& Vector_divfree::eta() const {
+
+
+	if (p_eta == 0x0) {   // a new computation is necessary
+		
+		// All this has a meaning only for spherical components:
+		#ifndef NDEBUG 
+		const Base_vect_spher* bvs = dynamic_cast<const Base_vect_spher*>(triad) ;
+		assert(bvs != 0x0) ; 
+		#endif
+
+		// eta is computed from the divergence-free condition:
+		int dzp = cmp[0]->get_dzpuis() ;
+		Scalar dvr = - cmp[0]->dsdr() ;  // - dV^r/dr  ( -r^2 dV^r/dr in the CED)
+		dvr.mult_r_dzpuis(dzp) ;
+
+		// Final result for the V^r source for eta:
+		dvr -= 2. * (*cmp[0]) ; 
+		
+		// Resolution of the angular Poisson equation for eta
+		// --------------------------------------------------
+		p_eta = new Scalar( dvr.poisson_angu() ) ; 
+	
+	}
+
+	return *p_eta ; 
+
+}
 
 

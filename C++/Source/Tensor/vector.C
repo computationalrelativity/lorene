@@ -32,6 +32,10 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.25  2005/02/14 13:01:50  j_novak
+ * p_eta and p_mu are members of the class Vector. Most of associated functions
+ * have been moved from the class Vector_divfree to the class Vector.
+ *
  * Revision 1.24  2005/01/25 15:37:35  j_novak
  * Solved some dzpuis problem...
  *
@@ -201,6 +205,8 @@ void Vector::del_deriv() const {
   for (int i=0; i<N_MET_MAX; i++) 
     del_derive_met(i) ;
   
+  if (p_eta != 0x0) delete p_eta ; 
+  if (p_mu != 0x0) delete p_mu ; 
   set_der_0x0() ;
   Tensor::del_deriv() ;
 
@@ -210,6 +216,8 @@ void Vector::set_der_0x0() const {
 
   for (int i=0; i<N_MET_MAX; i++) 
     set_der_met_0x0(i) ;
+  p_eta = 0x0 ; 
+  p_mu = 0x0 ; 
 
 }
 
@@ -754,5 +762,4 @@ double Vector::flux(double radius, const Metric& met) const {
     
     return resu ; 
 }
-
 
