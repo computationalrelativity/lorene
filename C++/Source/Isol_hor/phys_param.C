@@ -30,6 +30,9 @@ char phys_param_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/10/29 15:44:13  jl_jaramillo
+ * ADM angular momentum added.
+ *
  * Revision 1.3  2004/09/17 13:37:21  f_limousin
  * Correction of an error in calculation of the radius
  *
@@ -208,3 +211,22 @@ double Isol_hor::omega_hor() {
 
 }
 
+
+
+// ADM angular momentum
+
+double Isol_hor::ang_mom_adm() {
+
+  Scalar integrand =  (k_dd()(1,3) - gam_dd()(1,3) * trk()) / (8. * M_PI)  ;
+
+  integrand.mult_rsint() ;  // in order to pass from the triad component to the coordinate basis
+
+  const  Map& map (nn().get_mp() ) ;
+
+  Map_af map_af (map) ;
+
+  double tmp = map_af.integrale_surface_infini(integrand) ;
+
+  return  tmp ;
+
+}
