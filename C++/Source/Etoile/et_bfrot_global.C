@@ -25,6 +25,9 @@ char et_bfort_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/05/10 09:26:52  j_novak
+ * Added new class Et_rot_mag for magnetized rotating neutron stars (under development)
+ *
  * Revision 1.4  2002/04/05 09:09:36  j_novak
  * The inversion of the EOS for 2-fluids polytrope has been modified.
  * Some errors in the determination of the surface were corrected.
@@ -279,8 +282,14 @@ double Et_rot_bifluid::grv3(ostream* ost) const {
       source  = qpig * a_car * bbb * s_euler ;
     }
     else{
+      // What follows is only valid for polytropic Eos_bifluid
+      const Eos_bf_poly* eos_a = dynamic_cast<const Eos_bf_poly*>(&eos) ;
+      assert(eos_a != 0x0) ;
       source = qpig * ( 3 * press + nbar * uuu * uuu 
-			+ nbar2* uuu2* uuu2) ; 
+			+ nbar2* uuu2* uuu2 );
+      Tenseur tmp(2*eos_a->get_beta()*pow(nbar(), eos_a->get_gam5()) 
+			* pow(nbar2(),eos_a->get_gam6())*xxx2()) ; 
+      source = source - qpig*tmp ;
     }
 
     source.set_std_base() ; 

@@ -31,6 +31,9 @@ char eos_bf_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2002/05/10 09:26:52  j_novak
+ * Added new class Et_rot_mag for magnetized rotating neutron stars (under development)
+ *
  * Revision 1.7  2002/05/02 15:16:22  j_novak
  * Added functions for more general bi-fluid EOS
  *
@@ -755,19 +758,19 @@ void  Eos_bf_poly::nbar_ent_p(const double ent1, const double ent2,
     }
     }
   }
-  if (one_fluid) {
-    nbar1 = puis(2*(exp(ent1) - m_1)/(gam1*kap1), 1./gam1m1) ;
-    nbar2 = puis(2*(exp(ent2) - m_2)/(gam2*kap2), 1./gam2m1) ;
-    if (tronc) { 
-      nbar1 = nbar1 < 0. ? 0. : nbar1 ;
-      nbar2 = nbar2 < 0. ? 0. : nbar2 ;
-    }
-    if ((nbar1 > 0.)&&(nbar2 > 0.)) {
-      if (nbar1>nbar2) nbar2 = 0. ;
-      if (nbar2>nbar1) nbar1 = 0. ;
-    }
-    return ;
-  }
+//    if (one_fluid) {
+//      nbar1 = puis(2*(exp(ent1) - m_1)/(gam1*kap1), 1./gam1m1) ;
+//      nbar2 = puis(2*(exp(ent2) - m_2)/(gam2*kap2), 1./gam2m1) ;
+//      if (tronc) { 
+//        nbar1 = nbar1 < 0. ? 0. : nbar1 ;
+//        nbar2 = nbar2 < 0. ? 0. : nbar2 ;
+//      }
+//      if ((nbar1 > 0.)&&(nbar2 > 0.)) {
+//        if (nbar1>nbar2) nbar2 = 0. ;
+//        if (nbar2>nbar1) nbar1 = 0. ;
+//      }
+//      return ;
+//    }
   return ;
 }
 

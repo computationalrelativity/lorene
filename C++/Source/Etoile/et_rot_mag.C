@@ -1,0 +1,182 @@
+/*
+ * Methods for magnetized axisymmetric rotating neutron stars.
+ *
+ * See the file et_rot_mag.h for documentation
+ *
+ */
+
+/*
+ *   Copyright (c) 2002 Emmanuel Marcq 
+ *   Copyright (c) 2002 Jerome Novak
+ *
+ *   This file is part of LORENE.
+ *
+ *   LORENE is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 2 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LORENE is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LORENE; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+char et_rot_mag_C[] = "$Header$" ;
+
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.1  2002/05/10 09:26:52  j_novak
+ * Added new class Et_rot_mag for magnetized rotating neutron stars (under development)
+ *
+ *
+ * $Header$
+ *
+ */
+
+// Headers C
+#include "math.h"
+
+// Headers Lorene
+#include "et_rot_mag.h"
+#include "utilitaires.h"
+
+
+                     //--------------//
+                     // Constructors //
+                     //--------------//
+
+// Standard constructor
+// --------------------
+Et_rot_mag::Et_rot_mag(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i)
+  : Etoile_rot(mp_i, nzet_i, relat, eos_i),
+    A_t(mp_i),
+    A_phi(mp_i),
+    j_t(mp_i),
+    j_phi(mp_i),
+    E_em(mp_i),
+    Jp_em(mp_i),
+    Srr_em(mp_i),
+    Spp_em(mp_i)
+{
+  // Init. set_etat_qcq ? set_std base ?
+
+  A_t = 0;
+  A_phi = 0; 
+  j_t = 0 ;
+  j_phi = 0 ;
+
+
+  set_der_0x0() ;  
+}
+
+
+// Copy constructor
+// ----------------
+
+Et_rot_mag::Et_rot_mag(const Et_rot_mag& et)
+  : Etoile_rot(et),
+    A_t(et.A_t),
+    A_phi(et.A_phi),
+    j_t(et.j_t),
+    j_phi(et.j_phi),
+    E_em(et.E_em),
+    Jp_em(et.Jp_em),
+    Srr_em(et.Srr_em),
+    Spp_em(et.Spp_em)
+
+{
+  set_der_0x0() ;
+}
+
+
+                       //------------//
+                       // Destructor //
+                       //------------//
+
+Et_rot_mag::~Et_rot_mag(){
+  del_deriv() ;
+}
+
+
+             //----------------------------------//
+             // Management of derived quantities //
+             //----------------------------------//
+
+void Et_rot_mag::del_deriv() const {
+
+  Etoile_rot::del_deriv() ;
+
+  // Quelles quantites derivees ?
+
+  set_der_0x0() ;
+
+}
+
+
+void Et_rot_mag::set_der_0x0() const {
+  Etoile_rot::set_der_0x0() ;
+
+  // Quelles quantites derivees ?
+
+}
+
+
+void Et_rot_mag::del_hydro_euler() {
+  Etoile_rot::del_hydro_euler() ;
+  // Nouvelles qtes hydro a remettre en nondef
+  del_deriv() ;
+}
+
+
+// Assignment to another Et_rot_mag
+// --------------------------------
+
+void Et_rot_mag::operator=(const Et_rot_mag& et) {
+
+  // Assignement of quantities common to all the derived classes of Etoile
+  Etoile_rot::operator=(et) ;
+  A_t    = et.A_t    ;
+  A_phi  = et.A_phi  ;
+  j_t    = et.j_t    ;
+  j_phi  = et.j_phi  ;
+  E_em   = et.E_em   ;
+  Jp_em  = et.Jp_em  ;
+  Srr_em = et.Srr_em ;
+  Spp_em = et.Spp_em ;
+
+  del_deriv() ;
+
+}
+
+                       //--------------//
+                       //    Outputs   //
+                       //--------------//
+
+// Printing
+// --------
+
+
+ostream& Et_rot_mag::operator>>(ostream& ost) const {
+
+  //#include "unites.h"
+  // Compilation warnings ?
+
+  Etoile_rot::operator>>(ost) ;
+  ost << endl ;
+  ost << "Magnetic rotating star" << endl ;
+  ost << "----------------------" << endl ;
+  ost << "In construction..." << endl ;
+  return ost ;
+}
+
+
+
+
+
