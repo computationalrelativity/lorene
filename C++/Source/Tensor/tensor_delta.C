@@ -32,6 +32,9 @@ char tensor_delta_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/12/31 11:30:35  e_gourgoulhon
+ * Corrected a bug in method indices(int ).
+ *
  * Revision 1.5  2003/10/28 12:34:08  e_gourgoulhon
  * Corrected bug in the copy constructor and constructor from Tensor:
  * the cmp have already been created by the (special) Tensor constructor called
@@ -212,21 +215,25 @@ int Tensor_delta::position (const Itbl& idx) const {
 Itbl Tensor_delta::indices (int place) const {
 
     assert ((place>=0) && (place<18)) ;
+    
+    int premier = place / 6 ; // value of first index - 1 
+    int reste = place - 6 * premier ; 
+    
+    Itbl res(3) ;    
 
-    Itbl res(3) ;
+    res.set(0) = premier + 1 ;
     
-    res.set(0) = place / 6 + 1 ;
-    if (place<3) {
+    if (reste<3) {
 		res.set(1) = 1 ;
-		res.set(2) = place+1 ;
+		res.set(2) = reste + 1 ;
 	}
     
-    if ((place>2) && (place<5)) {
+    if ((reste>2) && (reste<5)) {
 		res.set(1) = 2 ;
-		res.set(2) = place - 1 ;
+		res.set(2) = reste - 1 ;
 	}
     
-    if (place == 5) {
+    if (reste == 5) {
 		res.set(1) = 3 ;
 		res.set(2) = 3 ;
 	}
