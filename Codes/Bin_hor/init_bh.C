@@ -29,6 +29,10 @@ char init_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/02/25 12:31:59  f_limousin
+ * The boundary conditions for psi, N and beta are now parameters in
+ * par_init.d and par_coal.d.
+ *
  * Revision 1.3  2005/01/03 07:59:02  f_limousin
  * Drawings.
  *
@@ -64,8 +68,8 @@ int main() {
     char blabla [120] ;
     ifstream param("par_init.d") ;
     
-    double  precis, relax, radius, beta ;
-    int nz, nt, np, nr1, nrp1 ;
+    double  precis, relax, radius, beta, lim_nn ;
+    int nz, nt, np, nr1, nrp1, bound_nn, bound_psi ;
     
     param.getline(blabla, 120) ;
     param.getline(blabla, 120) ;
@@ -97,6 +101,10 @@ int main() {
     param >> relax ; param.getline(blabla, 120) ;
     double distance = radius*beta ;
     
+    param >> bound_nn ;
+    param >> lim_nn ;  param.ignore(1000, '\n');
+    param >> bound_psi ;  param.ignore(1000, '\n');
+    
     param.close() ;
     
     // Type of sampling in theta and phi :
@@ -121,7 +129,7 @@ int main() {
 
     int depth = 3 ;
     Bin_hor bin (map_un, map_deux, depth) ;
-    bin.set_statiques(precis, relax) ;
+    bin.set_statiques(precis, relax, bound_nn, lim_nn, bound_psi) ;
     
     FILE* fich = fopen("static.d", "w") ;
     grid.sauve(fich) ;
@@ -129,6 +137,9 @@ int main() {
     map_deux.sauve(fich) ;
     bin(1).sauve(fich, true) ;
     bin(2).sauve(fich, true) ;
+    fwrite_be(&bound_nn, sizeof(int), 1, fich) ;
+    fwrite_be (&lim_nn, sizeof(double), 1, fich) ;
+    fwrite_be(&bound_psi, sizeof(int), 1, fich) ;
     fclose(fich) ;
 
 
@@ -140,12 +151,12 @@ int main() {
     
     Scalar temp = 1. + unsr ;
     temp.std_spectral_base() ;
-
+/*
     des_profile(bin(1).nn(), 1.00001, 10, M_PI/2., 0., "bin(1).nn()") ;
     des_profile(bin(1).psi(), 1.00001, 10, M_PI/2., 0., "bin(1).psi()") ;
     des_profile(temp, 1.00001, 10, M_PI/2., 0., "psi ana()") ;
     des_profile(temp-bin(1).psi(), 1.00001, 10, M_PI/2., 0., "diff psi") ;
-  
+*/
     delete [] nr_tab ;
     delete [] nt_tab ;
     delete [] np_tab ;

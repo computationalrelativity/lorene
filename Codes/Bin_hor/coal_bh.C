@@ -31,6 +31,10 @@ char coal_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/02/25 12:32:35  f_limousin
+ * The boundary conditions for psi, N and beta are now parameters in
+ * par_init.d and par_coal.d.
+ *
  * Revision 1.1  2004/12/31 15:42:50  f_limousin
  * First version
  *
@@ -60,8 +64,8 @@ int main() {
         
     char blabla [120] ;
     char nomini[120] ;
-    double omega_inf, omega_sup, precis, relax, precis_viriel ;
-    int nb_om ;
+    double omega_inf, omega_sup, precis, relax, precis_viriel, lim_nn ;
+    int nb_om, bound_nn, bound_psi, bound_beta ;
     
     ifstream param("par_coal.d") ;
 	if ( !param.good() ) {
@@ -76,7 +80,8 @@ int main() {
     param >> precis_viriel ;  param.getline(blabla, 120) ;
     param >> relax ; param.getline(blabla, 120) ;
     param >> nb_om ; param.getline(blabla, 120) ;
-    
+    param >> bound_beta ; param.getline(blabla, 120) ;    
+
     param.close() ;
     
     FILE* fich = fopen(nomini, "r") ;
@@ -85,6 +90,9 @@ int main() {
     Map_af map_deux (grid, fich) ;
     Isol_hor hole_un (map_un, fich, true) ;
     Isol_hor hole_deux (map_deux, fich, true) ;
+    fread_be(&bound_nn, sizeof(int), 1, fich) ;	
+    fread_be(&lim_nn, sizeof(double), 1, fich) ;
+    fread_be(&bound_psi, sizeof(int), 1, fich) ;	
     fclose(fich) ;
 
     // Le fichier sortie pour la recherche de omega :
@@ -115,7 +123,8 @@ int main() {
     
     courant = bin ;
     double omega_min = omega_inf ;
-    double erreur_min = courant.coal(omega_min, precis, relax, nb_om, 1) ;
+    double erreur_min = courant.coal(omega_min, precis, relax, nb_om, bound_nn,
+				     lim_nn, bound_psi, bound_beta, 1) ;
  
     fiche_omega << omega_min << " " << erreur_min << endl ;
     if (erreur_min < 0) {
@@ -125,7 +134,8 @@ int main() {
 
     courant = bin ;
     double omega_max = omega_sup ;
-    double erreur_max = courant.coal (omega_max, precis, relax, nb_om, 1) ;
+    double erreur_max = courant.coal(omega_max, precis, relax, nb_om, bound_nn,
+				     lim_nn, bound_psi, bound_beta, 1) ;
     if (erreur_max > 0) {
       cout << "Borne max. too small" << endl ;
       abort() ;
@@ -140,7 +150,8 @@ int main() {
       courant = bin ;
       omega = omega_min - erreur_min * (omega_max-omega_min)
 	  /(erreur_max-erreur_min) ;
-      erreur = courant.coal (omega, precis, relax, nb_om, 1) ;
+      erreur = courant.coal (omega, precis, relax, nb_om, bound_nn,
+			     lim_nn, bound_psi, bound_beta,1) ;
       
       fiche_omega << omega << " " << erreur << endl ;
       
