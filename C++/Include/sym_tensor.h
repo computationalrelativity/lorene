@@ -30,6 +30,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2004/05/25 14:57:20  f_limousin
+ * Add parameters in argument of functions transverse, longit_pot,
+ * set_tt_trace, tt_part and set_khi_mu for the case of a Map_et.
+ *
  * Revision 1.20  2004/05/24 13:44:54  e_gourgoulhon
  * Added parameter dzp to method Sym_tensor_tt::update.
  *
@@ -264,13 +268,13 @@ class Sym_tensor : public Tensor_sym {
 	 * to the given metric and \f$W^i\f$ is the vector potential of the
 	 * longitudinal part of \f$T^{ij}\f$ (function \c longit_pot()  below)
 	 */
-	const Sym_tensor_trans& transverse(const Metric&) const ; 
+	const Sym_tensor_trans& transverse(const Metric&, Param* par = 0x0) const ; 
 
 	/** Computes the vector potential \f$W^i\f$ of
 	 * longitudinal part of the tensor (see documentation of
 	 * method \c transverse() above).
 	 */
-	const Vector& longit_pot(const Metric&) const ; 
+	const Vector& longit_pot(const Metric&, Param* par = 0x0) const ; 
 	
 	
     // Mathematical operators
@@ -388,7 +392,8 @@ class Sym_tensor_trans: public Sym_tensor {
 	 *  and updates the components accordingly.
 	 * (see the documentation of these derived members for details)
 	 */
-	void set_tt_trace(const Sym_tensor_tt& a, const Scalar& h ) ;
+	void set_tt_trace(const Sym_tensor_tt& a, const Scalar& h, 
+			  Param* par = 0x0) ;
 
 	// Computational methods
 	// ---------------------
@@ -398,8 +403,8 @@ class Sym_tensor_trans: public Sym_tensor {
 	/** Returns the transverse traceless part of the tensor, the trace being defined
 	 * with respect to metric \c *met_div 
 	 */
-	const Sym_tensor_tt& tt_part() const ; 
-	
+	const Sym_tensor_tt& tt_part(Param* par = 0x0) const ; 
+
 } ; 
 	
 
@@ -572,8 +577,10 @@ class Sym_tensor_tt: public Sym_tensor_trans {
          *                      tensor components
 	 *
 	 */
-	void set_khi_mu(const Scalar& khi_i, const Scalar& mu_i, int dzp = 0) ; 
-	
+	void set_khi_mu(const Scalar& khi_i, const Scalar& mu_i, int dzp = 0,
+			Param* par1 = 0x0, Param* par2 = 0x0, 
+			Param* par3 = 0x0) ; 
+
 	// Computational methods
 	// ---------------------
 	
@@ -594,8 +601,8 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	 *				+ {\partial \mu \over \partial\theta} \right)
 	 *\f] 
 	 */
-	const Scalar& eta() const ;
-	
+	const Scalar& eta(Param* par = 0x0) const ;
+
 	/** Gives the field \f$\mu\f$ such that the components \f$(h^{r\theta}, h^{r\varphi})\f$
 	 * of the tensor are written:
 	 * \f[
@@ -608,8 +615,8 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	 *				+ {\partial \mu \over \partial\theta} \right)
 	 *\f] 
 	 */
-	const Scalar& mu() const ;
-	
+	const Scalar& mu(Param* par = 0x0) const ;
+
 
 	protected:
 	/** Computes the components \f$h^{r\theta}\f$, \f$h^{r\varphi}\f$,
@@ -618,8 +625,7 @@ class Sym_tensor_tt: public Sym_tensor_trans {
          *  @param dzp \c dzpuis parameter of the result, i.e. of the 
          *      components \f$ h^{ij} \f$.
 	 */
-	void update(int dzp) ;
-	
+	void update(int dzp, Param* par1 = 0x0, Param* par2 = 0x0) ;
 
 	public:
 	/** Computes the solution of a tensorial TT Poisson equation
