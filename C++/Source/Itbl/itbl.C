@@ -33,6 +33,10 @@ char itbl_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/12 20:34:47  e_gourgoulhon
+ * Suppressed the call to set_etat_zero() in the 1D constructor with
+ * dimension 0, and replaced it by etat = ETATZERO.
+ *
  * Revision 1.4  2003/10/11 16:44:17  e_gourgoulhon
  *
  * IMPORTANT CHANGE: the standard constructors set now the logical state
@@ -85,7 +89,7 @@ Itbl::Itbl(int n1) : etat(ETATQCQ), dim(n1) {
 
     if (n1 == 0) {
 		t = 0x0 ; 
-		set_etat_zero() ; 
+    	etat = ETATZERO ;
     }
 	else {
 		assert(n1 > 0) ; 
