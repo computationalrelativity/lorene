@@ -33,6 +33,10 @@ char tensor_calculus_ext_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/05/13 21:32:29  e_gourgoulhon
+ * Added functions central_value, max_all_domains,
+ *  min_all_domains and maxabs_all_domains.
+ *
  * Revision 1.10  2004/02/27 21:15:34  e_gourgoulhon
  * Suppressed function contract_desal (since function contract has now
  * the boolean argument "desaliasing").
@@ -626,7 +630,194 @@ Tbl maxabs(const Tensor& aa, const char* comment, ostream& ost) {
 }
 
 
+        //-------------------//
+        //  Central value    //
+        //-------------------//
 
+Tbl central_value(const Tensor& aa, const char* comment, ostream& ost) {
+
+    if (comment != 0x0) ost << comment << " : " << endl ; 
+
+	int val = aa.get_valence() ; 
+	int n_comp = aa.get_n_comp() ; 
+	
+	Tbl resu(n_comp) ; 
+	resu.set_etat_qcq() ; 
+
+	Itbl idx(val) ; 
+	
+	for (int ic=0; ic<n_comp; ic++) {
+
+		idx = aa.indices(ic) ;
+        double aa_c = aa(idx).val_grid_point(0,0,0,0) ; 
+		resu.set(ic) = aa_c ; 
+        
+        if ( comment != 0x0 ) {
+		    if ( val > 0 ) ost << "   Comp." ; 
+		        for (int j=0 ; j<val ; j++) {
+	  		        ost << " " << idx(j) ;
+      	    }
+		    if (val > 0 ) ost << " : " ; 
+                else ost << "   " ; 
+            ost << aa_c << endl ; 
+		}
+		
+	}
+	
+	return resu ; 
+}
+    
+
+        //-------------------//
+        //  max_all_domains  //
+        //-------------------//
+
+Tbl max_all_domains(const Tensor& aa, int l_excluded, const char* comment, 
+        ostream& ost) {
+
+    if (comment != 0x0) ost << comment << " : " << endl ; 
+
+    Tbl max_dom = max(aa) ; 
+    
+	int val = aa.get_valence() ; 
+	int n_comp = aa.get_n_comp() ; 
+	int nz = aa.get_mp().get_mg()->get_nzone() ; 
+	
+	Tbl resu(n_comp) ; 
+	resu.set_etat_qcq() ; 
+
+	Itbl idx(val) ; 
+	
+	for (int ic=0; ic<n_comp; ic++) {
+
+        double x0 ; 
+        if (l_excluded != 0) x0 = max_dom(ic, 0) ;
+        else x0 = max_dom(ic, 1) ; 
+        for (int l=0; l<nz; l++) {
+            if (l == l_excluded) continue ; 
+            double x = max_dom(ic,l) ; 
+            if (x > x0) x0 = x ; 
+        }
+        
+		resu.set(ic) = x0 ; 
+        
+        if ( comment != 0x0 ) {
+		    if ( val > 0 ) ost << "   Comp." ; 
+		        idx = aa.indices(ic) ;
+ 		        for (int j=0 ; j<val ; j++) {
+	  		        ost << " " << idx(j) ;
+      	    }
+		    if (val > 0 ) ost << " : " ; 
+                else ost << "   " ; 
+            ost << x0 << endl ; 
+		}
+		
+	}
+	
+	return resu ; 
+        
+}
+
+        //-------------------//
+        //  min_all_domains  //
+        //-------------------//
+
+Tbl min_all_domains(const Tensor& aa, int l_excluded, const char* comment, 
+        ostream& ost) {
+
+    if (comment != 0x0) ost << comment << " : " << endl ; 
+
+    Tbl min_dom = min(aa) ; 
+    
+	int val = aa.get_valence() ; 
+	int n_comp = aa.get_n_comp() ; 
+	int nz = aa.get_mp().get_mg()->get_nzone() ; 
+	
+	Tbl resu(n_comp) ; 
+	resu.set_etat_qcq() ; 
+
+	Itbl idx(val) ; 
+	
+	for (int ic=0; ic<n_comp; ic++) {
+
+        double x0 ; 
+        if (l_excluded != 0) x0 = min_dom(ic, 0) ;
+        else x0 = min_dom(ic, 1) ; 
+        for (int l=0; l<nz; l++) {
+            if (l == l_excluded) continue ; 
+            double x = min_dom(ic,l) ; 
+            if (x < x0) x0 = x ; 
+        }
+        
+		resu.set(ic) = x0 ; 
+        
+        if ( comment != 0x0 ) {
+		    if ( val > 0 ) ost << "   Comp." ; 
+		        idx = aa.indices(ic) ;
+ 		        for (int j=0 ; j<val ; j++) {
+	  		        ost << " " << idx(j) ;
+      	    }
+		    if (val > 0 ) ost << " : " ; 
+                else ost << "   " ; 
+            ost << x0 << endl ; 
+		}
+		
+	}
+	
+	return resu ; 
+        
+}
+
+
+        //----------------------//
+        //  maxabs_all_domains  //
+        //----------------------//
+
+Tbl maxabs_all_domains(const Tensor& aa, int l_excluded, const char* comment, 
+        ostream& ost) {
+
+    if (comment != 0x0) ost << comment << " : " << endl ; 
+
+    Tbl maxabs_dom = maxabs(aa) ; 
+    
+	int val = aa.get_valence() ; 
+	int n_comp = aa.get_n_comp() ; 
+	int nz = aa.get_mp().get_mg()->get_nzone() ; 
+	
+	Tbl resu(n_comp) ; 
+	resu.set_etat_qcq() ; 
+
+	Itbl idx(val) ; 
+	
+	for (int ic=0; ic<n_comp; ic++) {
+
+        double x0 ; 
+        if (l_excluded != 0) x0 = maxabs_dom(ic, 0) ;
+        else x0 = maxabs_dom(ic, 1) ; 
+        for (int l=0; l<nz; l++) {
+            if (l == l_excluded) continue ; 
+            double x = maxabs_dom(ic,l) ; 
+            if (x > x0) x0 = x ; 
+        }
+        
+		resu.set(ic) = x0 ; 
+        
+        if ( comment != 0x0 ) {
+		    if ( val > 0 ) ost << "   Comp." ; 
+		        idx = aa.indices(ic) ;
+ 		        for (int j=0 ; j<val ; j++) {
+	  		        ost << " " << idx(j) ;
+      	    }
+		    if (val > 0 ) ost << " : " ; 
+                else ost << "   " ; 
+            ost << x0 << endl ; 
+		}
+		
+	}
+	
+	return resu ; 
+        
+}
 
 
 
