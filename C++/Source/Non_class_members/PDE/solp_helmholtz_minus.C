@@ -25,6 +25,9 @@ char solp_helmholtz_minus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/01/15 09:15:37  p_grandclement
+ * Modification and addition of the Helmholtz operators
+ *
  * Revision 1.1  2003/12/11 14:48:49  p_grandclement
  * Addition of ALL (and that is a lot !) the files needed for the general elliptic solver ... UNDER DEVELOPEMENT...
  *
@@ -55,7 +58,37 @@ Tbl _solp_helmholtz_minus_pas_prevu (const Matrice &, const Matrice &,
     Tbl res(1) ;
     return res;
 }
-	
+      
+
+          	//-------------------
+	       //--  R_CHEBP   ----
+	      //-------------------
+Tbl _solp_helmholtz_minus_r_chebp (const Matrice &lap, const Matrice &nondege, 
+				const Tbl &source, double alpha, double) {
+ 
+  int n = lap.get_dim(0) ;	  
+  int dege = n-nondege.get_dim(0) ;
+  assert (dege ==1) ;
+  
+  Tbl source_aux(source*alpha*alpha) ;
+  source_aux = cl_helmholtz_minus (source_aux, R_CHEBP) ;
+  
+  Tbl so(n-dege) ;
+  so.set_etat_qcq() ;
+  for (int i=0 ; i<n-dege ; i++)
+    so.set(i) = source_aux(i) ;
+  
+  Tbl auxi(nondege.inverse(so)) ;
+  
+  Tbl res(n) ;
+  res.set_etat_qcq() ;
+  for (int i=dege ; i<n ; i++)
+    res.set(i) = auxi(i-dege) ;
+  
+  for (int i=0 ; i<dege ; i++)
+    res.set(i) = 0 ;
+  return res ;
+}
 	
 		//-------------------
 	       //--  R_CHEBU   ------
@@ -150,6 +183,7 @@ Tbl solp_helmholtz_minus (const Matrice &lap, const Matrice &nondege,
     // Les routines existantes
     solp_helmholtz_minus[R_CHEB >> TRA_R] = _solp_helmholtz_minus_r_cheb ;
     solp_helmholtz_minus[R_CHEBU >> TRA_R] = _solp_helmholtz_minus_r_chebu ;
+    solp_helmholtz_minus[R_CHEBP >> TRA_R] = _solp_helmholtz_minus_r_chebp ;
   }
   
   Tbl res(solp_helmholtz_minus[base_r] (lap, nondege, source, alpha, beta)) ;

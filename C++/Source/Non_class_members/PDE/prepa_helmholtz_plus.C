@@ -25,6 +25,9 @@ char prepa_helmholtz_plus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/01/15 09:15:37  p_grandclement
+ * Modification and addition of the Helmholtz operators
+ *
  * Revision 1.1  2003/12/11 14:48:49  p_grandclement
  * Addition of ALL (and that is a lot !) the files needed for the general elliptic solver ... UNDER DEVELOPEMENT...
  *
@@ -51,8 +54,7 @@ char prepa_helmholtz_plus_C[] = "$Header$" ;
 		// Routine pour les cas non prevus --
 		//-----------------------------------
 
-Matrice _prepa_helmholtz_plus_nondege_pas_prevu(const Matrice &so, 
-						double, double, double) {
+Matrice _prepa_helmholtz_plus_nondege_pas_prevu(const Matrice &so) {
   
     cout << "Unknown case for prepa_helmholtz_plus_nondege" << endl ;
     abort() ;
@@ -61,89 +63,58 @@ Matrice _prepa_helmholtz_plus_nondege_pas_prevu(const Matrice &so,
 }
 
 
-
 	     	//-------------------
 	       //--  R_CHEB   -------
 	      //--------------------
 
-Matrice _prepa_helmholtz_plus_nondege_r_cheb (const Matrice &lap, 
-					       double alpha, double beta, 
-					       double masse) {
+Matrice _prepa_helmholtz_plus_nondege_r_cheb (const Matrice &lap) {
     
  int n = lap.get_dim(0) ;
-
-  const int nmax = 10 ;// Nombre de Matrices stockees
-  static Matrice* tab[nmax] ;  // les matrices calculees
-  static int nb_dejafait = 0 ; // nbre de matrices calculees
-  static double masse_dejafait[nmax] ;
-  
-  static double vieux_alpha = 0;
-  static double vieux_beta = 0 ;
-  static int vieux_n = 0;
-  
-  // Si on a change alpha ou n, on detruit tout :
-  if ((vieux_alpha != alpha) || (vieux_n != n) || (vieux_beta != beta)) {
-    for (int i=0 ; i<nb_dejafait ; i++) {
-      masse_dejafait[i] = 0 ;
-      delete tab[i] ;
-    }
-    
-    nb_dejafait = 0 ;
-    vieux_alpha = alpha ;
-    vieux_beta = beta ;
-    vieux_n = n ;
-  }
-  
-  int indice = -1 ;
-  
-  // On determine si la matrice a deja ete calculee :
-  for (int conte=0 ; conte<nb_dejafait ; conte ++)
-    if (masse_dejafait[conte] == masse)
-      indice = conte ;
-  
-  // Calcul a faire : 
-  if (indice  == -1) {
-    if (nb_dejafait >= nmax) {
-      cout << "_prepa_non_dege_helmholtz_plus_r_cheb : trop de matrices" << endl ;
-      abort() ;
-      exit (-1) ;
-    }
-    
-    masse_dejafait[nb_dejafait] = masse ;
-    
-    
-    int non_dege = 2 ;
-    
-    Matrice res(n-non_dege, n-non_dege) ;
-    res.set_etat_qcq() ;
-    for (int i=0 ; i<n-non_dege ; i++)
-      for (int j=0 ; j<n-non_dege ; j++)
-	res.set(i, j) = lap(i, j+non_dege) ;
-    
-    res.set_band (4,4) ;
-    res.set_lu() ;
-    tab[nb_dejafait] = new Matrice(res) ;
-    nb_dejafait ++ ;
-    return res ;
-  } 
-  
-  // Cas ou le calcul a deja ete effectue :
-  else
-    return *tab[indice] ;  
-}
+ int non_dege = 2 ;
+ 
+ Matrice res(n-non_dege, n-non_dege) ;
+ res.set_etat_qcq() ;
+ for (int i=0 ; i<n-non_dege ; i++)
+   for (int j=0 ; j<n-non_dege ; j++)
+     res.set(i, j) = lap(i, j+non_dege) ;
+ 
+ res.set_band (4,4) ;
+ res.set_lu() ;
+ 
+ return res ;
+} 
 
 
+	     	//-------------------
+	       //--  R_CHEBP   -------
+	      //--------------------
+
+Matrice _prepa_helmholtz_plus_nondege_r_chebp (const Matrice &lap) {
+    
+ int n = lap.get_dim(0) ;
+ int non_dege = 1 ;
+ 
+ Matrice res(n-non_dege, n-non_dege) ;
+ res.set_etat_qcq() ;
+ for (int i=0 ; i<n-non_dege ; i++)
+   for (int j=0 ; j<n-non_dege ; j++)
+     res.set(i, j) = lap(i, j+non_dege) ;
+ 
+ res.set_band (4,1) ;
+ res.set_lu() ;
+ return res ;
+} 
+  
 
         	//-------------------
 	       //--  Fonction   ----
 	      //-------------------
 	      
-Matrice prepa_helmholtz_plus_nondege(const Matrice &ope, double alpha, 
-				      double beta, double masse, int base_r) {
+Matrice prepa_helmholtz_plus_nondege(const Matrice &ope, int base_r) {
 
   // Routines de derivation
   static Matrice (*prepa_helmholtz_plus_nondege[MAX_BASE])
-    (const Matrice&, double, double, double) ;
+    (const Matrice&) ;
   static int nap = 0 ;
   
   // Premier appel
@@ -156,9 +127,11 @@ Matrice prepa_helmholtz_plus_nondege(const Matrice &ope, double alpha,
     // Les routines existantes
     prepa_helmholtz_plus_nondege[R_CHEB >> TRA_R] = 
       _prepa_helmholtz_plus_nondege_r_cheb ;
+    prepa_helmholtz_plus_nondege[R_CHEBP >> TRA_R] = 
+      _prepa_helmholtz_plus_nondege_r_chebp ;
   }
   
-  Matrice res(prepa_helmholtz_plus_nondege[base_r](ope, alpha, beta, masse)) ;
+  Matrice res(prepa_helmholtz_plus_nondege[base_r](ope)) ;
   return res ;
 }
 

@@ -23,6 +23,9 @@ char ope_helmholtz_plus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/01/15 09:15:38  p_grandclement
+ * Modification and addition of the Helmholtz operators
+ *
  * Revision 1.3  2003/12/11 16:12:10  e_gourgoulhon
  * Changed sqrt(2) to sqrt(double(2)).
  *
@@ -73,7 +76,7 @@ void Ope_helmholtz_plus::do_ope_cl() const {
     delete ope_cl ;
 
   ope_cl = new Matrice 
-    (cl_helmholtz_plus(*ope_mat, alpha, beta, masse, base_r)) ;
+    (cl_helmholtz_plus(*ope_mat, base_r)) ;
 }
 
 void Ope_helmholtz_plus::do_non_dege() const {
@@ -84,7 +87,7 @@ void Ope_helmholtz_plus::do_non_dege() const {
     delete non_dege ;
 
   non_dege = new Matrice 
-    (prepa_helmholtz_plus_nondege(*ope_cl, alpha, beta, masse, base_r)) ;
+    (prepa_helmholtz_plus_nondege(*ope_cl, base_r)) ;
 }
   
 Tbl Ope_helmholtz_plus::get_solp (const Tbl& so) const {
@@ -105,26 +108,48 @@ Tbl Ope_helmholtz_plus::get_solp (const Tbl& so) const {
 
 Tbl Ope_helmholtz_plus::get_solh() const {
 
-  // SH_one est sin(masse*r)/r :
-  double rminus = beta - alpha ;
-  double rplus = beta + alpha ;
-  
-  s_one_minus = sin(masse*rminus)/rminus/sqrt(double(2)) ;
-  ds_one_minus = (masse*cos(masse*rminus)-sin(masse*rminus)/rminus)/
-    rminus/sqrt(double(2)) ;
-  s_one_plus = sin(masse*rplus)/rplus/sqrt(double(2)) ;
-  ds_one_plus = (masse*cos(masse*rplus)-sin(masse*rplus)/rplus)/
-    rplus/sqrt(double(2)) ;
-  
-  // Sh two est cos(masse*r)/r :
-  s_two_minus = cos(masse*rminus)/rminus/sqrt(double(2)) ;
-  ds_two_minus = (-masse*sin(masse*rminus)-cos(masse*rminus)/rminus)/
-    rminus/sqrt(double(2)) ;
-  s_two_plus = cos(masse*rplus)/rplus/sqrt(double(2)) ;
-  ds_two_plus = (-masse*sin(masse*rplus)-cos(masse*rplus)/rplus)/
-    rplus/sqrt(double(2)) ;
-  
-  
+  double rminus, rplus ;
+
+  // Pas tres joli pour le moment ...
+  switch (base_r) {
+  case R_CHEB:
+
+    // SH_one est sin(masse*r)/r :
+    rminus = beta - alpha ;
+    rplus = beta + alpha ;
+    
+    s_one_minus = sin(masse*rminus)/rminus/sqrt(double(2)) ;
+    ds_one_minus = (masse*cos(masse*rminus)-sin(masse*rminus)/rminus)/
+      rminus/sqrt(double(2)) ;
+    s_one_plus = sin(masse*rplus)/rplus/sqrt(double(2)) ;
+    ds_one_plus = (masse*cos(masse*rplus)-sin(masse*rplus)/rplus)/
+      rplus/sqrt(double(2)) ;
+    
+    // Sh two est cos(masse*r)/r :
+    s_two_minus = cos(masse*rminus)/rminus/sqrt(double(2)) ;
+    ds_two_minus = (-masse*sin(masse*rminus)-cos(masse*rminus)/rminus)/
+      rminus/sqrt(double(2)) ;
+    s_two_plus = cos(masse*rplus)/rplus/sqrt(double(2)) ;
+    ds_two_plus = (-masse*sin(masse*rplus)-cos(masse*rplus)/rplus)/
+      rplus/sqrt(double(2)) ;
+    break ;
+    
+  case R_CHEBP:
+    // SH_one est sin(masse*r)/r :
+    rminus = 0 ;
+    rplus = alpha ;
+    
+    s_one_minus = masse/sqrt(double(2)) ;
+    ds_one_minus = 0 ;
+    s_one_plus = sin(masse*rplus)/rplus/sqrt(double(2)) ;
+    ds_one_plus = (masse*cos(masse*rplus)-sin(masse*rplus)/rplus)/
+      rplus/sqrt(double(2)) ;
+    break ;
+  default:
+    cout << "Base unknown in Ope_helmholtz_plus::get_solh" << endl ;
+    abort() ;
+    break ;
+  }
   return solh_helmholtz_plus (nr, alpha, beta, masse, base_r) ;
 }
 

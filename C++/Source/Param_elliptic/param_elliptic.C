@@ -23,6 +23,9 @@ char param_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/01/15 09:15:39  p_grandclement
+ * Modification and addition of the Helmholtz operators
+ *
  * Revision 1.4  2004/01/07 14:36:38  p_grandclement
  * Modif mineure in Param_elliptic.set_variable
  *
@@ -171,9 +174,12 @@ void Param_elliptic::set_helmholtz_minus (int zone, double masse) {
       for (int j=0 ; j<mp->get_mg()->get_nt(l) ; j++) {
 	if ((operateurs[conte] != 0x0) && (l==zone)) {
 	  int old_base = operateurs[conte]->get_base_r() ;
-	  delete operateurs[conte] ;
-	  operateurs[conte] = new Ope_helmholtz_minus (nr, old_base, 
-						       alpha, beta, masse) ;
+	  // PROVISOIRE, DANS LE NOYAU SEUL LE CAS SPHERIQUE EST IMPLEMENTE
+	  if (old_base != R_CHEBI) {
+	    delete operateurs[conte] ;
+	    operateurs[conte] = new Ope_helmholtz_minus (nr, old_base, 
+							 alpha, beta, masse) ;
+	  }
 	}
 	conte ++ ;
       }
@@ -199,9 +205,12 @@ void Param_elliptic::set_helmholtz_plus (int zone, double masse) {
       for (int j=0 ; j<mp->get_mg()->get_nt(l) ; j++) {
 	if ((operateurs[conte] != 0x0) && (l==zone)) {
 	  int old_base = operateurs[conte]->get_base_r() ;
-	  delete operateurs[conte] ;
-	  operateurs[conte] = new Ope_helmholtz_plus (nr, old_base, 
-						      alpha, beta,  masse) ;
+	  // PROVISOIRE, DANS LE NOYAU SEUL LE CAS SPHERIQUE EST IMPLEMENTE
+	  if (old_base != R_CHEBI) {
+	    delete operateurs[conte] ;
+	    operateurs[conte] = new Ope_helmholtz_plus (nr, old_base, 
+							alpha, beta,  masse) ;
+	  }
 	}
 	conte ++ ;
       }

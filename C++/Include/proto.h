@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/01/15 09:15:36  p_grandclement
+ * Modification and addition of the Helmholtz operators
+ *
  * Revision 1.12  2003/12/11 14:48:47  p_grandclement
  * Addition of ALL (and that is a lot !) the files needed for the general elliptic solver ... UNDER DEVELOPEMENT...
  *
@@ -344,20 +347,18 @@ Tbl solh (int, int, double, int) ;
 
 // Routines helmholtz minus :
 Matrice helmholtz_minus_mat(int , double , double , double, int ) ;
-Matrice cl_helmholtz_minus (const Matrice&, double, double, double, int) ;
+Matrice cl_helmholtz_minus (const Matrice&, int) ;
 Tbl cl_helmholtz_minus (const Tbl&, int) ;
-Matrice prepa_helmholtz_minus_nondege (const Matrice&, double, double, 
-				       double, int) ;
+Matrice prepa_helmholtz_minus_nondege (const Matrice&, int) ;
 Tbl solp_helmholtz_minus (const Matrice&, const Matrice&, const Tbl&, 
 			  double, double, int) ;
 Tbl solh_helmholtz_minus (int, double, double, double, int) ;
 
 // Routines helmholtz plus :
 Matrice helmholtz_plus_mat(int , double , double , double, int ) ;
-Matrice cl_helmholtz_plus (const Matrice&, double, double, double, int) ;
+Matrice cl_helmholtz_plus (const Matrice&, int) ;
 Tbl cl_helmholtz_plus (const Tbl&, int) ;
-Matrice prepa_helmholtz_plus_nondege (const Matrice&, double, double, 
-				       double, int) ;
+Matrice prepa_helmholtz_plus_nondege (const Matrice&, int) ;
 Tbl solp_helmholtz_plus (const Matrice&, const Matrice&, const Tbl&, 
 			  double, double, int) ;
 Tbl solh_helmholtz_plus (int, double, double, double, int) ;
