@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/04/29 17:07:27  e_gourgoulhon
+ * Added argument pdt to Time_slice_conf::initial_data_cts.
+ *
  * Revision 1.9  2004/04/08 16:42:11  e_gourgoulhon
  * Many changes:
  * -- class Time_slice_conf: added methods set_*, changed argument list of
@@ -674,6 +677,8 @@ class Time_slice_conf : public Time_slice {
          *      (freely specifiable data)
          *  @param trk_point value of \f$ \partial K / \partial t \f$ 
          *      (freely specifiable data)
+         *  @param pdt time step, to be used in order to fill \c depth
+         *      slices
          *  @param precis convergence threshold required to stop the 
          *          iteration
          *  @param ener_dens matter energy density \c E as measured by the 
@@ -687,7 +692,7 @@ class Time_slice_conf : public Time_slice {
          *      the null value of which (default) meaning \c E=0.
          */
          void initial_data_cts(const Sym_tensor& uu, const Scalar& trk_in, 
-                const Scalar& trk_point, double precis = 1.e-12,
+                const Scalar& trk_point, double pdt, double precis = 1.e-12,
                 const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
                 const Scalar* trace_stress=0x0 ) ; 
         
