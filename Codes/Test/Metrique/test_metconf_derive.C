@@ -1,3 +1,42 @@
+/*
+ *  Test code for the classe Metconf and the associated covariant 
+ *  derivatives, using Schwarzschild metric.
+ *
+ */
+
+/*
+ *   Copyright (c) 2002 Jerome Novak
+ *
+ *   This file is part of LORENE.
+ *
+ *   LORENE is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License version 2
+ *   as published by the Free Software Foundation.
+ *
+ *   LORENE is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LORENE; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+char metconf_derive_C[] = "$Header$" ;
+
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.2  2002/09/10 14:16:14  j_novak
+ * Modif commentaires
+ *
+ *
+ * $Header$
+ *
+ */
+
 //standard
 #include <math.h>
 #include <fstream.h>
