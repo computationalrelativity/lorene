@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2003/09/25 09:33:36  j_novak
+ * Added methods for integral calculation and various manipulations
+ *
  * Revision 1.11  2003/09/25 09:11:21  e_gourgoulhon
  * Added functions for radial operations (divr, etc...)
  *
@@ -429,6 +432,26 @@ class Scalar : public Tensor {
 
 	void div_rsint() ;    /// Division by $r\sin\theta$
 
+	/** Computes the integral over all space of {\tt *this}.
+	 *  The computed quantity is ({\it u} being the field represented by
+	 *   {\tt *this})
+	 *    $\int u \, r^2 \sin\theta \,  dr\, d\theta \, d\phi$.
+	 *  Note that in the compactified external domain (CED), {\tt dzpuis} 
+	 *  must be 4 for the computation to take place. 
+	 */
+	double integrale() const ; 
+	
+	/** Computes the integral in each domain of {\tt *this}.
+	 *  The computed quantity is ({\it u} being the field represented by
+	 *   {\tt *this})
+	 *    $\int u \, r^2 \sin\theta \,  dr\, d\theta \, d\phi$
+	 *  in each domain. The result is returned a {\tt Tbl} on the 
+	 *  various domains. 
+	 *  Note that in the compactified external domain (CED), {\tt dzpuis} 
+	 *  must be 4 for the computation to take place. 
+	 */
+	const Tbl& integrale_domains() const ; 
+	
 	/** Decreases by 1 the value of {\tt dzpuis} and changes accordingly
 	 *  the values of the {\tt Scalar} in the compactified external domain (CED).
 	 */
@@ -449,6 +472,37 @@ class Scalar : public Tensor {
 	 */
 	virtual void inc2_dzpuis() ; 
 
+    /**
+     * Sets the {\tt n} lasts coefficients in {\it r} to 0 in the 
+     *  external domain.
+     */
+	void filtre (int n) ;
+    
+    /**
+     * Sets the {\tt n} lasts coefficients in $\Phi$ to 0 in the 
+     * domain {\tt zone}.
+     */
+	void filtre_phi (int n, int zone) ;
+    
+    /**
+     * Sets the value of the {\tt Scalar} to {\tt val} at infinity. This is usefull
+     * for dealing with undefined values. The external domain must be 
+     * compactified.
+     */
+	void set_val_inf (double val) ;
+    
+    /**
+     * Sets the value of the {\tt Scalar} to {\tt val} on the inner boudary of the
+     * shell number {\tt zone}.This is usefull
+     * for dealing with undefined values.
+     */
+	void set_val_hor (double val, int zone) ;
+    /**
+     * Substracts all the components behaving like $r^{-n}$ in the external 
+     * domain, with {\it n} strictly lower than {\tt puis}, so that {\tt *this} 
+     * decreases at least like $r^{\tt puis}$ at infinity.
+     */
+	void fixe_decroissance (int puis) ;
 
 	/**
 	 * Performs the $C^n$ matching of the nucleus with respect to the 
