@@ -35,6 +35,10 @@ char tensor_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/01/08 09:24:11  e_gourgoulhon
+ * Added arithmetics common to Scalar and Tensor.
+ * Corrected treatment ETATUN in Tensor / Scalar.
+ *
  * Revision 1.2  2003/10/01 13:04:44  e_gourgoulhon
  * The method Tensor::get_mp() returns now a reference (and not
  * a pointer) onto a mapping.
@@ -105,19 +109,97 @@ Tensor operator+(const Tensor & t1, const Tensor & t2) {
 
 }
 
+
+Scalar operator+(const Tensor& t1, const Scalar& t2) {
+    
+    assert (t1.get_valence() == 0) ;
+    assert (t1.get_mp() == t2.get_mp()) ;
+
+    return  *(t1.cmp[0]) + t2 ; 
+
+}
+
+Scalar operator+(const Scalar& t1, const Tensor& t2) {
+    
+    assert (t2.get_valence() == 0) ;
+    assert (t1.get_mp() == t2.get_mp()) ;
+
+    return  t1 + *(t2.cmp[0]) ; 
+
+}
+
 			//**************//
 			// SOUSTRACTION //
 			//**************//
 
 Tensor operator-(const Tensor & t1, const Tensor & t2) {
 
-    return (t1 + (-t2)) ;
+    assert (t1.get_valence() == t2.get_valence()) ;
+    assert (t1.get_mp() == t2.get_mp()) ;
+    if (t1.get_valence() != 0) {
+	assert ( *(t1.get_triad()) == *(t2.get_triad()) ) ;
+    }
+    
+    for (int i=0 ; i<t1.get_valence() ; i++)
+	assert(t1.get_index_type(i) == t2.get_index_type(i)) ;
+
+    Tensor res(t1.get_mp(), t1.get_valence(), t1.get_index_type(), 
+			t1.get_triad()) ;
+
+    for (int i=0 ; i<res.get_n_comp() ; i++) {
+      Itbl ind (res.indices(i)) ;
+      res.set(ind) = t1(ind) - t2(ind) ;
+    }
+    return res ;
 
 }
+
+Scalar operator-(const Tensor& t1, const Scalar& t2) {
+    
+    assert (t1.get_valence() == 0) ;
+    assert (t1.get_mp() == t2.get_mp()) ;
+
+    return  *(t1.cmp[0]) - t2 ; 
+
+}
+
+Scalar operator-(const Scalar& t1, const Tensor& t2) {
+    
+    assert (t2.get_valence() == 0) ;
+    assert (t1.get_mp() == t2.get_mp()) ;
+
+    return  t1 - *(t2.cmp[0]) ; 
+
+}
+
+
 
 			//****************//
 			// MULTIPLICATION //
 			//****************//
+
+Tensor operator*(const Scalar& t1, const Tensor& t2) {
+   
+    assert (&(t1.get_mp()) == &(t2.get_mp())) ;
+        
+    if (t1.get_etat() == ETATUN) return t2 ;
+    
+    Tensor res(t2.get_mp(), t2.get_valence(), t2.get_index_type(), 
+               t2.get_triad()) ;
+    
+    for (int ic=0 ; ic<res.get_n_comp() ; ic++) {
+        Itbl ind = res.indices(ic) ;
+        res.set(ind) = t1 * t2(ind) ;
+    }
+    
+    return res ;
+}
+
+
+Tensor operator*(const Tensor& t2, const Scalar& t1) {
+       
+    return t1*t2 ;
+}
 
 
 
@@ -154,7 +236,7 @@ Tensor operator* (const Tensor& t, int m) {
 			// DIVISION //
 			//**********//
 
-Tensor operator/ (const Tensor& t1, const Scalar& s2) {
+Tensor operator/(const Tensor& t1, const Scalar& s2) {
     
     // Protections
     assert(s2.get_etat() != ETATNONDEF) ;
@@ -162,11 +244,11 @@ Tensor operator/ (const Tensor& t1, const Scalar& s2) {
 
     // Cas particuliers
     if (s2.get_etat() == ETATZERO) {
-	cout << "Division by 0 in Tensor / Tensor !" << endl ;
+	cout << "Division by 0 in Tensor / Scalar !" << endl ;
 	abort() ; 
     }
-    // Cas general
-    assert(s2.get_etat() == ETATQCQ) ;  // sinon...
+
+    if (s2.get_etat() == ETATUN) return t1 ;
 
     Tensor res(t1.get_mp(), t1.get_valence(), t1.get_index_type(), 
 		t1.get_triad()) ;
