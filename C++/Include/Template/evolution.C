@@ -28,6 +28,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/03/31 20:24:04  e_gourgoulhon
+ * Method time_derive: result object created by the copy constructor of
+ * class TyT, since the arithmetics may not return an object of exactly
+ * class TyT.
+ *
  * Revision 1.8  2004/03/26 13:31:09  j_novak
  * Definition of the macro UNDEF_STEP for non-defined time-steps.
  * Changes in the way the time derivative is calculated.
@@ -336,7 +341,12 @@ TyT Evolution<TyT>::time_derive(int j, int n) const {
 
             double dt = the_time[pos] - the_time[pos-1] ; 
 
-            return ( (*val[pos]) - (*val[pos-1]) ) / dt  ; 
+            // creation of the result by means of the copy constructor of 
+            // class TyT (and not from the arithmetical operation below)
+            TyT resu( (*val[pos]) ) ;   
+            
+            resu = ( resu - (*val[pos-1]) ) / dt  ;
+            return resu ;  
             break ;
         } 
            
@@ -353,8 +363,12 @@ TyT Evolution<TyT>::time_derive(int j, int n) const {
                 abort() ;
             }
 
-            return ( 1.5 * (*val[pos]) - 2.* (*val[pos-1])
-                        + 0.5 * (*val[pos-2]) ) / dt  ;  
+            // creation of the result by means of the copy constructor of 
+            // class TyT (and not from the arithmetical operation below)
+            TyT resu( (*val[pos]) ) ;   
+            
+            resu = ( 1.5* resu - 2.* (*val[pos-1]) + 0.5* (*val[pos-2]) ) / dt ;
+            return resu ;  
             break ;
         } 
            
