@@ -34,6 +34,9 @@ char valeur_ylm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/09/17 12:30:22  j_novak
+ * New checks for changing to T_LEG* bases.
+ *
  * Revision 1.3  2003/09/16 08:54:09  j_novak
  * Addition of the T_LEG_II base (odd in theta, only for odd m) and the
  * transformation functions to and from the T_SIN_P base.
@@ -175,12 +178,15 @@ void Valeur::ylm() {
 	    int vbase_t = base.b[l] & MSQ_T  ;
 	    int vbase_p = base.b[l] & MSQ_P  ;
 
-	    if ((vbase_t != T_LEG_P) && 
-	    (vbase_t != T_LEG_PP) && (vbase_t != T_LEG_I) ) 
+	    if ((vbase_t != T_LEG_P) && (vbase_t != T_LEG_IP) &&
+	    (vbase_t != T_LEG_PP) && (vbase_t != T_LEG_I) &&
+	    (vbase_t != T_LEG_II) && (vbase_t != T_LEG_PI) ) 
 		{ // cas ou le calcul est necessaire
 
 		int vbase_t_tra = vbase_t >> TRA_T ;
 		assert(vbase_t_tra < MAX_BASE) ; 
+		bool pair = ( (vbase_t == T_COS_P) || (vbase_t == T_COS_I)) ;
+		bool impair = ( (vbase_t == T_SIN_P) || (vbase_t == T_SIN_I)) ;
 
 // Nouvelle base : 
 		base.b[l] = ( vbase_p | nouv_base_t[vbase_t_tra] ) | vbase_r ;
@@ -201,7 +207,11 @@ void Valeur::ylm() {
 // Transformation en theta:
 //-------------------------
 
-		chbase_t[vbase_t_tra](deg, (cf->t), resu ) ;
+		if ((pair && (vbase_p == P_COSSIN_I)) ||
+		    (impair && (vbase_p == P_COSSIN_P)) )
+		  ylm_pasprevu(deg, (cf->t), resu ) ;
+		else
+		  chbase_t[vbase_t_tra](deg, (cf->t), resu ) ;
 	    
 // On branche le tbl contenant les coef sur resu : 
 		delete [] cf->t ;	// les anciens coef. sont oublies

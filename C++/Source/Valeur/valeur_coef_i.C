@@ -31,6 +31,9 @@ char valeur_coef_i_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/09/17 12:30:22  j_novak
+ * New checks for changing to T_LEG* bases.
+ *
  * Revision 1.4  2003/09/16 13:07:41  j_novak
  * New files for coefficient trnasformation to/from the T_LEG_II base.
  *
@@ -207,6 +210,8 @@ void Valeur::coef_i() const {
 	int base_r = ( base.b[l] & MSQ_R ) >> TRA_R ;
 	int base_t = ( base.b[l] & MSQ_T ) >> TRA_T ;
 	int base_p = ( base.b[l] & MSQ_P ) >> TRA_P ;
+	int vbase_t = base.b[l] & MSQ_T ;
+	int vbase_p = base.b[l] & MSQ_P ;
 
 	assert(base_r < MAX_BASE) ; 
 	assert(base_t < MAX_BASE) ; 
@@ -224,18 +229,33 @@ void Valeur::coef_i() const {
 	
 	// Partie angulaire
 	if ( np == 1) {
-	    if (nt==1)
-		for (int i=0 ; i<f->get_taille() ; i++)
-		    f->t[i] = trav[i] ;
-	    else 
-		invcf_t[base_t]( deg, dimc, trav, deg, (f->t) ) ;
+	  if (nt==1)
+	    for (int i=0 ; i<f->get_taille() ; i++)
+	      f->t[i] = trav[i] ;
+	  else {
+	    bool pair = ( (vbase_t == T_LEG_PP) || (vbase_t == T_LEG_IP)) ;
+	    bool impair = ( (vbase_t == T_LEG_PI) || (vbase_t == T_LEG_II)) ;
+	    
+	    if ((pair && (vbase_p == P_COSSIN_I)) ||
+		(impair && (vbase_p == P_COSSIN_P)) )
+	      ipasprevu_t(deg, dimc, trav, deg, (f->t) ) ;
+	    else	    
+	      invcf_t[base_t]( deg, dimc, trav, deg, (f->t) ) ;
+	  }
 	}
 	else {
-	    // Cas 3-D
-	    //  ...... Transformation inverse en theta:
+	  // Cas 3-D
+	  //  ...... Transformation inverse en theta:
+	  bool pair = ( (vbase_t == T_LEG_PP) || (vbase_t == T_LEG_IP)) ;
+	  bool impair = ( (vbase_t == T_LEG_PI) || (vbase_t == T_LEG_II)) ;
+	  
+	  if ((pair && (vbase_p == P_COSSIN_I)) ||
+	      (impair && (vbase_p == P_COSSIN_P)) )
+	    ipasprevu_t(deg, dimc, trav, dimc, trav ) ;
+	  else	    
 	    invcf_t[base_t]( deg, dimc, trav, dimc, trav ) ;
-	    //  ...... Transformation inverse en phi:
-	    invcf_p[base_p]( deg, dimc, deg, trav, (f->t) ) ;
+	  //  ...... Transformation inverse en phi:
+	  invcf_p[base_p]( deg, dimc, deg, trav, (f->t) ) ;
 	}
 	// Menage
 	free (trav) ;
