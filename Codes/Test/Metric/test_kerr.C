@@ -28,6 +28,9 @@ char test_kerr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/01/29 16:07:58  e_gourgoulhon
+ * More polishing.
+ *
  * Revision 1.7  2004/01/29 15:22:47  e_gourgoulhon
  * Introduced call to method Tensor::divergence in momentum constraint.
  * Polishing.
@@ -81,7 +84,7 @@ int main() {
     // Setup of a multi-domain grid (Lorene class Mg3d)
     // ------------------------------------------------
   
-    int nz = 3 ; 	// Number of domains
+    int nz = 4 ; 	// Number of domains
     int nzm1 = nz - 1 ; // Index of outermost domain
     int nr = 25 ; 	// Number of collocation points in r in each domain
     int nt = 17 ; 	// Number of collocation points in theta in each domain
@@ -100,8 +103,8 @@ int main() {
     // --------------------------------------------------------------------------
 
     // radial boundaries of each domain:
-    double r_limits[] = {0., 2., 3., __infinity} ; 
-    assert( nz == 3 ) ;  // since the above array describes only 3 domains
+    double r_limits[] = {0., 2., 3., 6., __infinity} ; 
+    assert( nz == 4 ) ;  // since the above array describes only 3 domains
   
     Map_af map(mgrid, r_limits) ;   // Mapping construction
   	
@@ -119,8 +122,8 @@ int main() {
      <<  "*********************************************************"
      << endl ; 
 
-    // Kerr metric in quasi-isotropic coordinates
-    // ------------------------------------------
+    // Analytic form of the Kerr metric in quasi-isotropic coordinates
+    // ---------------------------------------------------------------
     
     // Twice the radius at the horizon:
     double hh = 2. * map.val_r(0, 1., 0., 0.) ; 
@@ -140,10 +143,11 @@ int main() {
     Scalar a2(map) ; Scalar b2(map) ;
     a2 = r_blsr * r_blsr + (aa*aa*cost*cost)/(r*r) ;  // A^2 = Sigma^2 / r^2
     
-    b2 = r_blsr * r_blsr + aa*aa/(r*r) + 2*aa*aa*sint*sint*mm/(sigmasr*r*r) ; // B^2
+    b2 = r_blsr * r_blsr + aa*aa/(r*r) 
+                    + 2*aa*aa*sint*sint*mm/(sigmasr*r*r) ; // B^2
     
-    a2.set_domain(0) = 1. ; 
-    b2.set_domain(0) = 1. ; 
+    a2.set_domain(0) = 1. ; // Metric set to 1 in the nucleus 
+    b2.set_domain(0) = 1. ; //   ("inside" the horizon)
     a2.std_spectral_base() ;
     b2.std_spectral_base() ;
 
@@ -170,20 +174,19 @@ int main() {
     max(gam.cov()) ;
     arrete() ; 
     
-    // Flat metric :
-    // -----------
-    const Metric_flat& fmet = map.flat_met_spher() ; 
-
     Scalar tmp(map) ; // working scalar
 
     // Comparison with Schwarzschild metric in the non-rotating case
     // -------------------------------------------------------------
     if (aasm == double(0)) {    
     
-        // Schwartzchild metric
+        // Flat metric :
+        const Metric_flat& fmet = map.flat_met_spher() ; 
+
+        // Schwarzchild metric : 
     
         Scalar psi4(map) ; 
-        psi4 = pow( 1 + mm / (2*r), 4) ; 
+        psi4 = pow( 1 + mm / (2*r), 4) ; // conformal factor
         psi4.set_domain(0) = 1 ; 
         psi4.std_spectral_base() ;
 
@@ -201,6 +204,7 @@ int main() {
         vtmp -= dpsi4 ; 
         cout << "Error on Grad(Psi^4) : " << endl ; 
         vtmp.spectral_display() ; 
+        cout << "Error on Grad(Psi^4) (max absolute value in each domain) : \n " ; 
         maxabs(vtmp) ; 
         arrete() ; 
     
@@ -289,13 +293,16 @@ int main() {
     // Extrinsic curvature
     // -------------------
     
-    cout << "Dbeta: " << endl ; 
+    cout << "D_j beta_i : " << endl ; 
     beta_cov.derive_cov(gam).spectral_display() ; 
-    cout << "Dbeta: " << endl ; 
+    cout << "D_j beta_i (max. absolute value in each domain) : " << endl ; 
     maxabs(beta_cov.derive_cov(gam)) ; 
     arrete() ; 
     
-    // N / (xi+1):
+    // Division of the lapse by (xi+1) (where xi is the grid radial 
+    // variable) in the first shell to get a non-vanishing quantity
+    // at the horizon (horizon <=> xi=-1) :
+    
     Scalar nn_xip1 = Scalar( division_xpun(Cmp(nn), 0) ) ; 
     
     Sym_tensor kk(map, COV, map.get_bvect_spher()) ; 
@@ -317,6 +324,11 @@ int main() {
             
             tmp.set_inner_boundary(1, 0.) ;
            
+            // Division by (xi+1) (where xi is the grid radial 
+            // variable) in the first shell to get a non-vanishing quantity
+            // at the horizon (horizon <=> xi=-1) 
+            // and then division by N/(xi+1) to get K_{ij] : 
+            
             kk.set(i,j) = Scalar( division_xpun(Cmp(tmp), 0) ) / nn_xip1 ;  
             
         }
@@ -325,6 +337,8 @@ int main() {
         
     cout << "Extrinsic curvature : " << endl ;  
     kk.spectral_display() ; 
+    cout << 
+    "Extrinsic curvature K_{ij} (max. absolute value in each domain) : \n" ;  
     maxabs(kk) ; 
     
     // Trace of K
@@ -332,16 +346,16 @@ int main() {
     
     Tensor kk_du = kk.up(1, gam) ; 
     Scalar trkk = kk_du.scontract(0,1) ; 
-    cout << "Trace of K:" << endl ; 
+    cout << "Trace of K  (max. absolute value in each domain) :" << endl ; 
     maxabs(trkk) ; 
     
     // Test:
     Scalar div_beta = beta.divergence(gam) ; 
-    cout << "Divergence of beta:\n" ; 
+    cout << "Divergence of beta  (max. absolute value in each domain) :\n" ; 
     maxabs(div_beta) ; 
     
     tmp = nn * trkk - div_beta ; 
-    cout << "N K - div(beta): \n" ;
+    cout << "N K - div(beta)  (max. absolute value in each domain) : \n" ;
     maxabs(tmp) ; 
 
     arrete() ; 
@@ -367,9 +381,7 @@ int main() {
 
     // Hamiltonian constraint
     // ----------------------
-    
-    const Tensor& ricci = gam.ricci() ; 
-    
+        
     const Scalar& ricci_scal = gam.ricci_scal() ; 
     
     cout << "Ricci scalar : " << endl ; 
@@ -393,6 +405,8 @@ int main() {
     // Dynamical Einstein equations
     //-----------------------------
     
+    const Tensor& ricci = gam.ricci() ; 
+
     Sym_tensor dyn1 = - (nn.derive_cov(gam)).derive_cov(gam) ;
     
     Sym_tensor dyn2 = nn * ricci ; 
@@ -488,6 +502,8 @@ int main() {
     
     cout << "Extrinsic curvature (Cartesian components) : " << endl ;  
     kk_c.spectral_display() ; 
+    cout << "Extrinsic curvature K_{ij} \n" <<
+    "  (max. absolute value of Cartesian components in each domain) : \n" ;  
     maxabs(kk_c) ; 
     
     // Test :
@@ -536,16 +552,7 @@ int main() {
 
     // Hamiltonian constraint
     // ----------------------
-    
-    const Tensor& ricci_c = gam_c.ricci() ; 
-    
-    // Test :
-    Sym_tensor ricci_test = ricci ; 
-    ricci_test.change_triad( map.get_bvect_cart() ) ;
-    cout << "Relative error on the Cartesian components of Ricci: \n" ;
-    diffrelmax(ricci_c, ricci_test) ;  
-    arrete() ; 
-    
+        
     const Scalar& ricci_scal_c = gam_c.ricci_scal() ; 
     
     cout << "Ricci scalar (Cart)  : " << endl ; 
@@ -567,6 +574,15 @@ int main() {
     // Dynamical Einstein equations
     //-----------------------------
     
+    const Tensor& ricci_c = gam_c.ricci() ; 
+    
+    // Test :
+    Sym_tensor ricci_test = ricci ; 
+    ricci_test.change_triad( map.get_bvect_cart() ) ;
+    cout << "Relative error on the Cartesian components of Ricci: \n" ;
+    diffrelmax(ricci_c, ricci_test) ;  
+    arrete() ; 
+
     Sym_tensor dyn1_c = - (nn.derive_cov(gam_c)).derive_cov(gam_c) ;
     
     Sym_tensor dyn2_c = nn * ricci_c ; 
