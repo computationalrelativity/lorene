@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/05/10 15:28:21  j_novak
+ * First version of functions for the solution of the r-component of the
+ * vector Poisson equation.
+ *
  * Revision 1.4  2004/03/23 14:54:45  j_novak
  * More documentation
  *
@@ -54,15 +58,15 @@
  *
  * Such objects describe a type of elliptic operator, in a given domain and 
  * for a given spherical harmonics.
- * They are called by the general elliptic solver. {\tt Ope_elementary} 
+ * They are called by the general elliptic solver. \c Ope_elementary 
  * objects 
  * know how to compute the approriate particular solution for a given source 
  * and the associated homogeneous ones.
  * 
- * The class {\tt Ope_elementary} is an abstract one: 
+ * The class \c Ope_elementary is an abstract one: 
  * it cannot be instanciated. 
  * Specific implementation of coordinate mappings will be performed by derived
- * classes of {\tt Ope_elementary}. \ingroup (ellip)
+ * classes of \c Ope_elementary . \ingroup (ellip)
  * 
  **/
 
@@ -70,10 +74,10 @@ class Ope_elementary {
 
  protected:
 
-  int nr ; /// Number of radial points
-  int base_r ; /// Radial basis of decomposition
-  double alpha ; /// Parameter $\alpha$ of the associated mapping.
-  double beta ; /// Parameter $\beta$ of the associated mapping.
+  int nr ; ///< Number of radial points
+  int base_r ; ///< Radial basis of decomposition
+  double alpha ; ///< Parameter \f$\alpha\f$ of the associated mapping.
+  double beta ; ///< Parameter \f$\beta\f$ of the associated mapping.
   
   /**
    * Pointer on the matrix representation of the operator.
@@ -150,14 +154,14 @@ class Ope_elementary {
    *
    * @param nbr [input] number of radial points.
    * @param baser [input] radial basis of decomposition.
-   * @param alf [input] parameter $\alpha$ of the mapping.
-   * @param bet [input] parameter $\beta$ of the mapping.
+   * @param alf [input] parameter \f$\alpha\f$ of the mapping.
+   * @param bet [input] parameter \f$\beta\f$ of the mapping.
    **/
   explicit Ope_elementary (int nbr , int baser , double alf, double eta) ;
-  Ope_elementary (const Ope_elementary&) ; /// Constructor by copy
+  Ope_elementary (const Ope_elementary&) ; ///< Constructor by copy
 
  public:
-  virtual ~Ope_elementary() ; /// Destructor
+  virtual ~Ope_elementary() ; ///< Destructor
 
  public: 
   /**
@@ -225,9 +229,14 @@ class Ope_elementary {
    **/
   double der_sp_plus() const {return dsp_plus ;} ;
 
-  double get_alpha() const {return alpha ;} ; /// Returns {\tt alpha}.
-  double get_beta() const {return beta ;} ; /// Returns {\tt beta}.
-  int get_base_r() const {return base_r ;} ; /// Returns {\tt base_r}.
+  /// Returns \c alpha .
+  double get_alpha() const {return alpha ;} ; 
+
+  /// Returns \c beta}.
+  double get_beta() const {return beta ;} ; 
+
+  /// Returns \c base_r}. 
+  int get_base_r() const {return base_r ;} ;
 
  private:
   /**
@@ -245,7 +254,7 @@ class Ope_elementary {
  
  public:
   /**
-   * Computes the particular solution, given the source {\tt so}.
+   * Computes the particular solution, given the source \c so .
    **/
   virtual Tbl get_solp(const Tbl& so) const = 0 ;
   /**
@@ -253,7 +262,7 @@ class Ope_elementary {
    **/
   virtual Tbl get_solh() const = 0 ;
   /**
-   * Increases the quatum number $l$ by one unit.
+   * Increases the quatum number \f$l\f$ by one unit.
    **/
   virtual void inc_l_quant() = 0 ;
 
@@ -268,8 +277,8 @@ class Ope_elementary {
 class Ope_poisson : public Ope_elementary {
 
  protected:
-  int l_quant ; /// quantum number
-  int dzpuis ; /// the associated dzpuis, if in the compactified domain. 
+  int l_quant ; ///< quantum number
+  int dzpuis ; ///< the associated dzpuis, if in the compactified domain. 
   
  public:
   /**
@@ -277,14 +286,20 @@ class Ope_poisson : public Ope_elementary {
    * 
    * @param nbr [input] number of radial points.
    * @param baser [input] radial basis of decomposition.
-   * @param alf [input] parameter $\alpha$ of the mapping.
-   * @param bet [input] parameter $\beta$ of the mapping.
-   * @param lq [input] quantum number $l$.
+   * @param alf [input] parameter \f$\alpha\f$ of the mapping.
+   * @param bet [input] parameter \f$\beta\f$ of the mapping.
+   * @param lq [input] quantum number \f$l\f$.
    * @param dz [input] dzpuis of the source.
    **/
   Ope_poisson (int nbr, int baser, double alf, double bet, int lq, int dz) ;
-  Ope_poisson (const Ope_poisson&) ; /// Constructor by copy
-  virtual ~Ope_poisson() ; /// Destructor
+  Ope_poisson (const Ope_poisson&) ; ///< Constructor by copy
+  virtual ~Ope_poisson() ; ///< Destructor
+
+  /// Returns the associated dzpuis, if in the compactified domain.
+  int get_dzpuis() {return dzpuis ;} ;
+
+  /// Returns the quantum number \e l
+  int get_lquant() {return l_quant;} ;
 
  private:
   /**
@@ -302,7 +317,7 @@ class Ope_poisson : public Ope_elementary {
   
  public:
   /**
-   * Computes the particular solution, given the source {\tt so}.
+   * Computes the particular solution, given the source \c so .
    **/
   virtual Tbl get_solp(const Tbl& so) const ;
   /**
@@ -310,20 +325,20 @@ class Ope_poisson : public Ope_elementary {
    **/
   virtual Tbl get_solh() const ;
   /**
-   * Increases the quatum number $l$ by one unit.
+   * Increases the quatum number \f$l\f$ by one unit.
    **/
   virtual void inc_l_quant() ;
 } ;
 
 /**
- * Class for the Helmholtz operator $\Delta - m^2$ ($m > 0$).
+ * Class for the Helmholtz operator \f$\Delta - m^2\f$ (\f$m > 0\f$).
  * 
  * It is implemented only in the shells and in the compactified domain.
  **/
 class Ope_helmholtz_minus : public Ope_elementary {
 
  protected:
-  double masse ; /// The mass parameter $m$.
+  double masse ; ///< The mass parameter \f$m\f$.
 
  public:
    /**
@@ -331,14 +346,14 @@ class Ope_helmholtz_minus : public Ope_elementary {
    * 
    * @param nbr [input] number of radial points.
    * @param baser [input] radial basis of decomposition.
-   * @param alf [input] parameter $\alpha$ of the mapping.
-   * @param bet [input] parameter $\beta$ of the mapping.
-   * @param mas [input] mass parameter $m$.
+   * @param alf [input] parameter \f$\alpha\f$ of the mapping.
+   * @param bet [input] parameter \f$\beta\f$ of the mapping.
+   * @param mas [input] mass parameter \f$m\f$.
    **/
   Ope_helmholtz_minus (int nbr, int baser, double alf, double bet, 
 		       double mas) ;
-  Ope_helmholtz_minus (const Ope_helmholtz_minus&) ; /// Constructor by copy
-  virtual ~Ope_helmholtz_minus() ; /// Destructor
+  Ope_helmholtz_minus (const Ope_helmholtz_minus&) ; ///< Constructor by copy
+  virtual ~Ope_helmholtz_minus() ; ///< Destructor
   
  private:
   /**
@@ -356,7 +371,7 @@ class Ope_helmholtz_minus : public Ope_elementary {
   
  public:
   /**
-   * Computes the particular solution, given the source {\tt so}.
+   * Computes the particular solution, given the source \c so .
    **/
   virtual Tbl get_solp(const Tbl& so) const ;
   /**
@@ -364,20 +379,20 @@ class Ope_helmholtz_minus : public Ope_elementary {
    **/
   virtual Tbl get_solh() const ;
   /**
-   * Increases the quatum number $l$ by one unit (CURRENTLY NOT IMPLEMENTED)
+   * Increases the quatum number \f$l\f$ by one unit (CURRENTLY NOT IMPLEMENTED)
    **/
   virtual void inc_l_quant() ;
 } ;
 
 /**
- * Class for the Helmholtz operator $\Delta + m^2$ ($m > 0$).
+ * Class for the Helmholtz operator \f$\Delta + m^2\f$ (\f$m > 0\f$).
  * 
  * It is implemented only in the shells.
  **/
 class Ope_helmholtz_plus : public Ope_elementary {
 
  protected:
-  double masse ; /// The mass parameter $m$.
+  double masse ; ///< The mass parameter \f$m\f$.
 
  public:
   /**
@@ -385,14 +400,14 @@ class Ope_helmholtz_plus : public Ope_elementary {
    * 
    * @param nbr [input] number of radial points.
    * @param baser [input] radial basis of decomposition.
-   * @param alf [input] parameter $\alpha$ of the mapping.
-   * @param bet [input] parameter $\beta$ of the mapping.
-   * @param mas [input] mass parameter $m$.
+   * @param alf [input] parameter \f$\alpha\f$ of the mapping.
+   * @param bet [input] parameter \f$\beta\f$ of the mapping.
+   * @param mas [input] mass parameter \f$m\f$.
    **/
   Ope_helmholtz_plus (int nbr, int baser, double alf, double bet, 
 		      double mas) ;
-  Ope_helmholtz_plus (const Ope_helmholtz_plus&) ; /// Constructor by copy
-  virtual ~Ope_helmholtz_plus() ; /// Destructor
+  Ope_helmholtz_plus (const Ope_helmholtz_plus&) ; ///< Constructor by copy
+  virtual ~Ope_helmholtz_plus() ; ///< Destructor
   
  private:
   /**
@@ -410,7 +425,7 @@ class Ope_helmholtz_plus : public Ope_elementary {
   
  public:
   /**
-   * Computes the particular solution, given the source {\tt so}.
+   * Computes the particular solution, given the source \c so .
    **/
   virtual Tbl get_solp(const Tbl& so) const ;
   /**
@@ -418,14 +433,14 @@ class Ope_helmholtz_plus : public Ope_elementary {
    **/
   virtual Tbl get_solh() const ;
   /**
-   * Increases the quatum number $l$ by one unit (CURRENTLY NOT IMPLEMENTED)
+   * Increases the quatum number \f$l\f$ by one unit (CURRENTLY NOT IMPLEMENTED)
    **/
   virtual void inc_l_quant() ;
 } ;
 
 /**
  * Class for operator of the type 
- * $ a r^2 \partial^2 / \partial r^2 + b r \partial / \partial r + c$.
+ * \f$ a r^2 \partial^2 / \partial r^2 + b r \partial / \partial r + c\f$.
  * 
  * It is implemented only in the shells.
  **/
@@ -433,9 +448,9 @@ class Ope_sec_order_r2 : public Ope_elementary {
 
  protected:
 
-  double a_param ; /// The parameter $a$.
-  double b_param ; /// The parameter $b$.
-  double c_param ; /// The parameter $c$.
+  double a_param ; ///< The parameter \f$a\f$.
+  double b_param ; ///< The parameter \f$b\f$.
+  double c_param ; ///< The parameter \f$c\f$.
 
  public:
   /**
@@ -443,18 +458,18 @@ class Ope_sec_order_r2 : public Ope_elementary {
    * 
    * @param nbr [input] number of radial points.
    * @param baser [input] radial basis of decomposition.
-   * @param alf [input] parameter $\alpha$ of the mapping.
-   * @param bet [input] parameter $\beta$ of the mapping.
-   * @param a [input] parameter $a$ .
-   * @param b [input] parameter $b$ .    
-   * @param c [input] parameter $c$ .
+   * @param alf [input] parameter \f$\alpha\f$ of the mapping.
+   * @param bet [input] parameter \f$\beta\f$ of the mapping.
+   * @param a [input] parameter \f$a\f$ .
+   * @param b [input] parameter \f$b\f$ .    
+   * @param c [input] parameter \f$c\f$ .
    **/
 
   Ope_sec_order_r2 (int nbr, int baser, double alf, double bet, 
 		      double a, double b, double c) ;
 
-  Ope_sec_order_r2 (const Ope_sec_order_r2&) ; /// Constructor by copy
-  virtual ~Ope_sec_order_r2() ; /// Destructor
+  Ope_sec_order_r2 (const Ope_sec_order_r2&) ; ///< Constructor by copy
+  virtual ~Ope_sec_order_r2() ; ///< Destructor
   
  private:
   /**
@@ -472,7 +487,7 @@ class Ope_sec_order_r2 : public Ope_elementary {
   
  public:
   /**
-   * Computes the particular solution, given the source {\tt so}.
+   * Computes the particular solution, given the source \c so .
    **/
   virtual Tbl get_solp(const Tbl& so) const ;
   /**
@@ -480,9 +495,58 @@ class Ope_sec_order_r2 : public Ope_elementary {
    **/
   virtual Tbl get_solh() const ;
   /**
-   * Increases the quatum number $l$ by one unit (CURRENTLY NOT IMPLEMENTED)
+   * Increases the quatum number \f$l\f$ by one unit (CURRENTLY NOT IMPLEMENTED)
    **/
   virtual void inc_l_quant() ;
+} ;
+
+/**
+ * Class for the operator of the \e r component of the vector
+ * Poisson equation. The operator reads \f$\Delta + \frac{2}{r} 
+ *\frac{\partial}{\partial r} 
+ * + \frac{2}{r^2} \f$ in all domains, for \f$ l \not= 0 \f$; and to 
+ * \f$\frac{\partial^2}{\partial r^2} + \frac{2}{r} \frac{\partial}
+ * {\partial r} - \frac{2}{r^2} \f$ 
+ * in all domains otherwise.
+ *
+ * It is implemented in every type of domain.
+ **/
+class Ope_pois_vect_r : public Ope_poisson {
+
+ public:
+  /**
+   * Standard constructor.
+   * 
+   * @param nbr [input] number of radial points.
+   * @param baser [input] radial basis of decomposition.
+   * @param alf [input] parameter \f$\alpha\f$ of the mapping.
+   * @param bet [input] parameter \f$\beta\f$ of the mapping.
+   * @param lq [input] quantum number \f$l\f$.
+   * @param dz [input] dzpuis of the source.
+   **/
+  Ope_pois_vect_r (int nbr, int baser, double alf, double bet, int lq, int dz) ;
+  Ope_pois_vect_r (const Ope_pois_vect_r&) ; ///< Constructor by copy
+  virtual ~Ope_pois_vect_r() ; ///< Destructor
+
+ private:
+  /**
+   * Computes the matrix of the operator.
+   **/
+  virtual void do_ope_mat() const ;
+  /**
+   * Computes the banded-matrix of the operator.
+   **/
+  virtual void do_ope_cl() const ;
+  /**
+   * Computes the non-degenerated matrix of the operator.
+   **/
+  virtual void do_non_dege() const ;  
+  
+ public:
+  /**
+   * Computes the homogeneous solutions(s).
+   **/
+  virtual Tbl get_solh() const ;
 } ;
 
 # endif

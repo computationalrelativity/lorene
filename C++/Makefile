@@ -35,6 +35,7 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Non_class_members/Utilities; $(MAKE)
 	cd Source/Ope_elementary; $(MAKE)
 	cd Source/Ope_elementary/Ope_sec_order_r2; $(MAKE)
+	cd Source/Ope_elementary/Ope_pois_vect_r; $(MAKE)
 	cd Source/Param; $(MAKE)
 	cd Source/Param_elliptic; $(MAKE)
 	cd Source/Star; $(MAKE)

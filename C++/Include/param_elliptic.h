@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/05/10 15:28:21  j_novak
+ * First version of functions for the solution of the r-component of the
+ * vector Poisson equation.
+ *
  * Revision 1.6  2004/03/23 14:54:45  j_novak
  * More documentation
  *
@@ -62,71 +66,88 @@
 
 
 /**
- * This class contains the parameters needed to call the general elliptic solver.
+ * This class contains the parameters needed to call the general
+ * elliptic solver.
  * 
- * For every domain and every spherical harmonics, it contains the appropriate operator 
- * of type {\tt Ope_elementary} and the appropriate variable given by a {\tt Change_var}. \ingroup (ellip)
+ * For every domain and every spherical harmonics, it contains the
+ * appropriate operator of type \c Ope_elementary and the appropriate
+ * variable given by a \c Change_var . \ingroup (ellip)
  *
- * This class is only defined on an affine mapping {\tt Map_af}.
+ * This class is only defined on an affine mapping \c Map_af .
  * 
  **/
 
 class Param_elliptic {
 
  protected:
-  const Map_af* mp ; /// The affine mapping.
-  Ope_elementary** operateurs ; /// Array on the elementary operators.
-  Change_var** variables ; /// Array on the variable changes.
+  const Map_af* mp ; ///< The affine mapping.
+  Ope_elementary** operateurs ; ///< Array on the elementary operators.
+  Change_var** variables ; ///< Array on the variable changes.
 
  public:
   /**
-   * Standard constructor from a {\tt Scalar}
-   * @param so [parameter] type of the source of the elliptic equation. The actual values 
-   * are not used but {\tt *this} will be constructed using the same number of points, domains 
-   * and symetry than {\tt so}.
+   * Standard constructor from a \c Scalar 
+   * @param so [parameter] type
+   * of the source of the elliptic equation. The actual values are not
+   * used but \c *this will be constructed using the same number of
+   * points, domains and symetry than \c so .
    * 
-   * This constructor initializes everything to solve a Poisson equation with non variable 
-   * changes from domains to another.
+   * This constructor initializes everything to solve a Poisson
+   * equation with non variable changes from domains to another.
    **/
   Param_elliptic (const Scalar&) ;
-  ~Param_elliptic() ; /// Destructor.
+  ~Param_elliptic() ; ///< Destructor.
   
-  const Map_af& get_mp() const {return *mp ;} ; /// Returns the affine mapping.
+  /// Returns the affine mapping.
+  const Map_af& get_mp() const {return *mp ;} ;
 
  public:  
   /**
-   * Set the operator to $\left(\Delta - m^2\right)$ in one domain (not in the nucleus).
+   * Set the operator to \f$\left(\Delta - m^2\right)\f$ in one domain
+   * (not in the nucleus).
    *
    * @param zone [input] : the domain.
-   * @param mas [input] : the masse $m$.
+   * @param mas [input] : the masse \f$m\f$.
    **/
   void set_helmholtz_minus (int zone, double mas) ;
    /**
-    * Set the operator to $\left(\Delta + m^2\right)$ in one domain (only in the shells).
-   *
-   * @param zone [input] : the domain.
-   * @param mas [input] : the masse $m$.
-   **/
+    * Set the operator to \f$\left(\Delta + m^2\right)\f$ in one
+    * domain (only in the shells).
+    *
+    * @param zone [input] : the domain.
+    * @param mas [input] : the masse \f$m\f$.
+    **/
   void set_helmholtz_plus (int zone, double mas) ; 
 
   /**
-    * Set the operator to $a r^2 \partial^2/\partial r^2 + 
-    * b r \partial /\partial r + c$ in one domain (only in the shells).
+    * Set the operator to \f$a r^2 \partial^2/\partial r^2 + 
+    * b r \partial /\partial r + c\f$ in one domain (only in the shells).
     *
     * @param zone [input] : the domain.
-    * @param a [input] : the parameter $a$.
-    * @param b [input] : the parameter $b$.
-    * @param c [input] : the parameter $c$.
+    * @param a [input] : the parameter \f$a\f$.
+    * @param b [input] : the parameter \f$b\f$.
+    * @param c [input] : the parameter \f$c\f$.
     **/
   void set_sec_order_r2 (int zone, double a, double b, double c) ;
   
+   /**
+    * Sets the operator to \f$\Delta + \frac{2}{r} \frac{\partial}{\partial r} 
+    * + \frac{2}{r^2} \f$ in all domains, for \f$ l \not= 0 \f$; and to 
+    * \f$\frac{\partial^2}{\partial r^2} + \frac{2}{r} 
+    * \frac{\partial}{\partial r} - \frac{2}{r^2} \f$ 
+    * in all domains otherwise.
+    *
+    * @param zone [input] : the domain.
+    **/
+  void set_poisson_vect_r(int zone) ; 
+
   /**
-   * Increases the quantum number $l$ in the domain {\tt zone}.
+   * Increases the quantum number \e l in the domain \c zone .
    **/
   void inc_l_quant (int zone) ;
   
   /**
-   * Changes the variable to the new type {\tt tipe} in the domain {\tt zone}.
+   * Changes the variable to the new type \c tipe  in the domain \c zone .
    **/
   void set_variable (int tipe, int zone) ;
 
