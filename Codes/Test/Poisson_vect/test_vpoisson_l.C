@@ -29,6 +29,9 @@ char test_vpoisson_l_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/12/29 12:25:51  j_novak
+ * non-symmetric grid in phi.
+ *
  * Revision 1.4  2004/07/27 09:40:34  j_novak
  * test of method 5.
  *
@@ -61,9 +64,9 @@ int main() {
 	const int nz = 3 ; 	// Number of domains
 	int nr =33 ; 	// Number of collocation points in r in each domain
 	int nt =9 ; 	// Number of collocation points in theta in each domain
-	int np = 8 ; 	// Number of collocation points in phi in each domain
+	int np = 16 ; 	// Number of collocation points in phi in each domain
 	int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
-	int symmetry_phi = SYM ; // no symmetry in phi
+	int symmetry_phi = NONSYM ; // no symmetry in phi
 
 	int nbr[] = {nr, nr, nr};
 	int nbt[] =  {nt, nt, nt} ;
