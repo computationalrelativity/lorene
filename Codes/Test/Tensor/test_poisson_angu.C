@@ -28,6 +28,10 @@ char test_poisson_angu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/19 20:05:07  e_gourgoulhon
+ * Change of the argument list of Scalar::spectral_display
+ * (cout now default).
+ *
  * Revision 1.1  2003/10/15 21:15:25  e_gourgoulhon
  * Test for Scalar::poisson_angu().
  *
@@ -101,19 +105,19 @@ int main() {
 									// expansion of a scalar field
 									
 	cout << "uu : " << uu << endl ; 
-	uu.spectral_display(cout) ; 
+	uu.spectral_display() ; 
 	arrete() ; 
 	
 	Scalar lap = uu.lapang() ; 
 
 	cout << "lap : " << endl ; 
-	lap.spectral_display(cout) ; 
+	lap.spectral_display() ; 
 	arrete() ; 
 
 	Scalar uu1 = lap.poisson_angu() ; 
 	
 	cout << "uu1 : " << endl ; 
-	uu1.spectral_display(cout) ; 
+	uu1.spectral_display() ; 
 	arrete() ; 
 
 	Scalar diff = uu - uu1 ; 

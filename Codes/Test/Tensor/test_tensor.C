@@ -106,7 +106,7 @@ int main() {
     scalfich = theo ;
 
     Scalar resu = scalfich - essai.dsdz() ;
-    resu.spectral_display(cout, 1.e-10) ;
+    resu.spectral_display(1.e-10) ;
 
     arrete() ; 
 

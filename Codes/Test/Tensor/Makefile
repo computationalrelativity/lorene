@@ -38,6 +38,8 @@ $(EXE4): $(OBJ4)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ4) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_PGPLOT) $(LIB_CXX)
 
+all: $(EXE1) $(EXE2) $(EXE3) $(EXE4)
+
 
 .C.o:
 	$(CXX)  -c $(CXXFLAGS_G) $(INC) $<

@@ -28,6 +28,10 @@ char test_connect_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/19 20:05:07  e_gourgoulhon
+ * Change of the argument list of Scalar::spectral_display
+ * (cout now default).
+ *
  * Revision 1.5  2003/10/15 10:47:01  e_gourgoulhon
  * Reorganised the arrete()'s.
  *
@@ -130,7 +134,7 @@ int main() {
 									// expansion of a scalar field
 									
 	cout << "uu : " << uu << endl ; 
-	uu.spectral_display(cout) ; 
+	uu.spectral_display() ; 
 	arrete(arret) ; 
 	
 	// Gradient of the scalar field
@@ -202,11 +206,11 @@ int main() {
 	Tensor diffvvc = dvvs_c - dvvc ; 
 	
 	cout << "dvvc(1,1) : "  << endl ;
-	dvvc(1,1).spectral_display(cout) ;  
+	dvvc(1,1).spectral_display() ;  
 	arrete(arret) ; 
 	
 	cout << "dvvs_c(1,1) : " << endl ; 
-	dvvs_c(1,1).spectral_display(cout) ;  
+	dvvs_c(1,1).spectral_display() ;  
 	arrete(arret) ; 
 	
 	cout << "Norm of diffvvc: " << endl ; 

@@ -28,6 +28,10 @@ char test_poisson_angu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/19 20:05:07  e_gourgoulhon
+ * Change of the argument list of Scalar::spectral_display
+ * (cout now default).
+ *
  * Revision 1.2  2003/10/17 16:33:36  e_gourgoulhon
  * Added more tests.
  *
@@ -107,19 +111,15 @@ int main() {
 	vvs.change_triad( map.get_bvect_spher() ) ; 
 	
 	cout << "vvs : " << endl ;
-	for (int i=1; i<=3; i++) {
-		cout << "Component " << i << " : " << endl ; 
-		vvs(i).spectral_display(cout) ; 
-		arrete() ; 
-	}
-	
+	vvs.spectral_display() ; 
+	arrete() ; 
 
 	cout << "eta : " << endl ; 
-	vvs.eta().spectral_display(cout) ; 
+	vvs.eta().spectral_display() ; 
 	arrete() ; 
 
 	cout << "mu : " << endl ; 
-	vvs.mu().spectral_display(cout) ; 
+	vvs.mu().spectral_display() ; 
 	
 	arrete() ; 
 	cout << "divergence vvc : " << vvc.divergence(metc) << endl ;
@@ -134,7 +134,7 @@ int main() {
 	cout << "diff : " << endl ; 
 	for (int i=1; i<=3; i++) {
 		cout << "Component " << i << " : " << endl ; 
-		diff(i).spectral_display(cout) ; 
+		diff(i).spectral_display() ; 
 		cout << "  norme: " << norme(diff(i)) << endl ; 
 		arrete() ; 
 	}
