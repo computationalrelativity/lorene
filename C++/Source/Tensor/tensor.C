@@ -34,6 +34,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2003/10/07 15:25:38  e_gourgoulhon
+ * Added call to del_derive_met in del_deriv().
+ *
  * Revision 1.14  2003/10/07 09:10:00  j_novak
  * Use of ::contract instead of up()
  *
@@ -291,6 +294,9 @@ Tensor::~Tensor () {
 
 void Tensor::del_deriv() const {
 
+  for (int i=0; i<N_MET_MAX; i++) 
+    del_derive_met(i) ;
+
   set_der_0x0() ;
 
 }
@@ -309,7 +315,7 @@ void Tensor::del_derive_met(int j) const {
   if (met_depend[j] != 0x0) {
     for (int i=0 ; i<N_TENSOR_DEPEND ; i++)
       if (met_depend[j]->tensor_depend[i] == this)
-	met_depend[j]->tensor_depend[i] = 0x0 ;
+		met_depend[j]->tensor_depend[i] = 0x0 ;
     if (p_derive_cov[j] != 0x0)
       delete p_derive_cov[j] ;
     if (p_derive_con[j] != 0x0)
