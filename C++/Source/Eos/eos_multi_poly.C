@@ -30,6 +30,9 @@ char eos_multi_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/06/23 15:42:08  e_gourgoulhon
+ * Replaced all "abs" by "fabs".
+ *
  * Revision 1.4  2004/05/13 07:38:57  k_taniguchi
  * Change the procedure for searching the baryon density from enthalpy.
  *
@@ -472,7 +475,7 @@ double Eos_multi_poly::nbar_ent_p(double ent, const Param* ) const {
 	double diff_gamma = gam_ep - gam_pr + double(1) ;
 
 	if (diff_gamma < 1.e-15) {
-	    while (abs(1.-nb_m1/nb) > 1.e-15) {
+	    while (fabs(1.-nb_m1/nb) > 1.e-15) {
 	        nb_m1 = nb ;
 		nb = pow( (exp(ent) - double(1))
 			  / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
@@ -564,7 +567,7 @@ double Eos_multi_poly::ener_ent_p(double ent, const Param* ) const {
 	double diff_gamma = gam_ep - gam_pr + double(1) ;
 
 	if (diff_gamma < 1.e-15) {
-	    while (abs(1.-nb_m1/nb) > 1.e-15) {
+	    while (fabs(1.-nb_m1/nb) > 1.e-15) {
 	        nb_m1 = nb ;
 		nb = pow( (exp(ent) - double(1))
 			  / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
@@ -656,7 +659,7 @@ double Eos_multi_poly::press_ent_p(double ent, const Param* ) const {
 	double diff_gamma = gam_ep - gam_pr + double(1) ;
 
 	if (diff_gamma < 1.e-15) {
-	    while (abs(1.-nb_m1/nb) > 1.e-15) {
+	    while (fabs(1.-nb_m1/nb) > 1.e-15) {
 	        nb_m1 = nb ;
 		nb = pow( (exp(ent) - double(1))
 			  / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
@@ -754,7 +757,7 @@ double Eos_multi_poly::der_nbar_ent_p(double ent, const Param* ) const {
 	    double diff_gamma = gam_ep - gam_pr + double(1) ;
 
 	    if (diff_gamma < 1.e-15) {
-	        while (abs(1.-nb_m1/nb) > 1.e-15) {
+	        while (fabs(1.-nb_m1/nb) > 1.e-15) {
 		    nb_m1 = nb ;
 		    nb = pow( (exp(ent) - double(1))
 			      / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
@@ -863,7 +866,7 @@ double Eos_multi_poly::der_ener_ent_p(double ent, const Param* ) const {
 	    double diff_gamma = gam_ep - gam_pr + double(1) ;
 
 	    if (diff_gamma < 1.e-15) {
-	        while (abs(1.-nb_m1/nb) > 1.e-15) {
+	        while (fabs(1.-nb_m1/nb) > 1.e-15) {
 		    nb_m1 = nb ;
 		    nb = pow( (exp(ent) - double(1))
 			      / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
@@ -969,7 +972,7 @@ double Eos_multi_poly::der_press_ent_p(double ent, const Param* ) const {
 	    double diff_gamma = gam_ep - gam_pr + double(1) ;
 
 	    if (diff_gamma < 1.e-15) {
-	        while (abs(1.-nb_m1/nb) > 1.e-15) {
+	        while (fabs(1.-nb_m1/nb) > 1.e-15) {
 		    nb_m1 = nb ;
 		    nb = pow( (exp(ent) - double(1))
 			      / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
