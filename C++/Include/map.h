@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.38  2004/12/29 16:37:22  k_taniguchi
+ * Addition of some functions with the multipole falloff condition.
+ *
  * Revision 1.37  2004/12/02 09:33:04  p_grandclement
  * *** empty log message ***
  *
@@ -1138,7 +1141,11 @@ class Map {
 	 *	    \e u =0 at spatial infinity. 
 	 */
 	virtual void poisson(const Cmp& source, Param& par, Cmp& uu) const = 0 ;
-	virtual void poisson_falloff(const Cmp& source, Param& par, Cmp& uu, int k_falloff) const = 0 ;
+	virtual void poisson_falloff(const Cmp& source, Param& par, Cmp& uu,
+				     int k_falloff) const = 0 ;
+
+	virtual void poisson_ylm(const Cmp& source, Param& par, Cmp& pot,
+				 int nylm, double* intvec) const = 0 ;
 
 	/** Computes the solution of a scalar Poisson equation.
 	 *   The regularized source
@@ -2070,7 +2077,11 @@ class Map_af : public Map_radial {
 	 */
 	virtual void poisson(const Cmp& source, Param& par, Cmp& uu) const ;
 
-	virtual void poisson_falloff(const Cmp& source, Param& par, Cmp& uu, int k_falloff) const ;
+	virtual void poisson_falloff(const Cmp& source, Param& par, Cmp& uu,
+				     int k_falloff) const ;
+
+	virtual void poisson_ylm(const Cmp& source, Param& par, Cmp& pot,
+				 int nylm, double* intvec) const ;
 
 	/** Computes the solution of a scalar Poisson equation.
 	 *   The regularized source
@@ -2923,7 +2934,11 @@ class Map_et : public Map_radial {
 	 */
 	virtual void poisson(const Cmp& source, Param& par, Cmp& uu) const ;
 
-	virtual void poisson_falloff(const Cmp& source, Param& par, Cmp& uu, int k_falloff) const ;
+	virtual void poisson_falloff(const Cmp& source, Param& par, Cmp& uu,
+				     int k_falloff) const ;
+
+	virtual void poisson_ylm(const Cmp& source, Param& par, Cmp& uu,
+				 int nylm, double* intvec) const ;
 
 	/** Computes the solution of a scalar Poisson equation.
 	 *   The regularized source
