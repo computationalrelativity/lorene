@@ -33,8 +33,11 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/09/19 09:52:42  j_novak
+ * Added objects Qtenseur and Qmetrique for 4D tensor and metric handling.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.10  2001/10/27  09:26:24  novak
  * *** empty log message ***
@@ -83,6 +86,7 @@ class Mtbl_cf ;
 class Map ; 
 class Cmp ; 
 class Tenseur ;
+class Qtenseur ;
 class Etoile ;
 
 /** Parameter storage.
@@ -144,6 +148,14 @@ class Param {
 	int n_tenseur_mod ;	/// Number of modifiable {\tt Tenseur}'s 
 	/// Array (size {\tt n\_tenseur\_mod}) of the modifiable {\tt Tenseur}'s addresses
 	Tenseur** p_tenseur_mod ;	
+
+	int n_qtenseur ;	/// Number of {\tt Qtenseur}'s 
+	/// Array (size {\tt n\_qtenseur}) of the {\tt Qtenseur}'s addresses
+	const Qtenseur** p_qtenseur ;	
+    
+	int n_qtenseur_mod ;	/// Number of modifiable {\tt Qtenseur}'s 
+	/// Array (size {\tt n\_qtenseur\_mod}) of the modifiable {\tt Qtenseur}'s addresses
+	Qtenseur** p_qtenseur_mod ;	
 
 	int n_map ;	/// Number of {\tt Map}'s 
 	/// Array (size {\tt n\_map}) of the {\tt Map}'s addresses
@@ -492,6 +504,54 @@ class Param {
 	 *           list
 	 */
 	 Tenseur& get_tenseur_mod(int position = 0) const; 
+	
+	///Returns the number of {\tt Qtenseur}'s addresses in the list.
+	int get_n_qtenseur() const ; 
+    
+	/** Adds the address of a new {\tt Qtenseur} to the list.
+	 * 
+	 *  @param ti [input] {\tt Qtenseur} the address of which is to be stored
+	 *  @param position [input] position of the {\tt Qtenseur} in the list
+	 *			    of stored {\tt Qtenseur} addresses (default
+	 *			    value = 0)
+	 * 
+	 */
+	void add_qtenseur(const Qtenseur& ti, int position = 0) ;
+	
+	/** Returns the reference of a {\tt Qtenseur} stored in the list.
+	 * 
+	 *  @param position [input] position of the {\tt Qtenseur} in the list
+	 *			    of stored {\tt Qtenseur} addresses (default
+	 *			    value = 0)
+	 *  @return Reference to the {\tt Qtenseur} the address of which is stored at 
+	 *		    the location  {\tt position} in the list
+	 */
+	const Qtenseur& get_qtenseur(int position = 0) const; 
+	
+
+	///Returns the number of modifiable {\tt Qtenseur}'s addresses in the list.
+	int get_n_qtenseur_mod() const ; 
+    
+	/** Adds the address of a new modifiable {\tt Qtenseur} to the list.
+	 * 
+	 *  @param ti [input] modifiable {\tt Qtenseur} the address of which is 
+	 *                    to be stored
+	 *  @param position [input] position of the {\tt Qtenseur} in the list
+	 *			    of stored modifiable {\tt Qtenseur} addresses 
+	 *                          (default value = 0)
+	 */
+	void add_qtenseur_mod(Qtenseur& ti, int position = 0) ;
+	
+	/** Returns the reference of a modifiable {\tt Qtenseur} stored in the list.
+	 * 
+	 *  @param position [input] position of the {\tt Qtenseur} in the list
+	 *			    of stored modifiable {\tt Qtenseur} addresses 
+	 *                          (default value = 0)
+	 *  @return Reference to the modifiable {\tt Qtenseur} the address of 
+	 *           which is stored at  the location  {\tt position} in the 
+	 *           list
+	 */
+	 Qtenseur& get_qtenseur_mod(int position = 0) const; 
 	
 	///Returns the number of {\tt Map}'s addresses in the list.
 	int get_n_map() const ; 

@@ -80,6 +80,8 @@
 	//@Include:tenseur.h_r
 	//@Include:metrique.h_r
 	//@Include:metconf.h_r
+        //@Include:qtenseur.h_r
+        //@Include:qmetrique.h_r
     //@}  
     
     /**@name Grid wedding
@@ -98,6 +100,7 @@
      */
     //@{
 	//@Include:unites.h_r
+	//@Include:unites_mag.h_r
     //@}
 
     /**@name Equations of state

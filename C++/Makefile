@@ -31,6 +31,7 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Non_class_members/PDE; $(MAKE)
 	cd Source/Non_class_members/Utilities; $(MAKE)
 	cd Source/Param; $(MAKE)
+	cd Source/QuadriD; $(MAKE)
 	cd Source/Tbl; $(MAKE)
 	cd Source/Tenseur; $(MAKE)
 	cd Source/Valeur; $(MAKE)
@@ -66,6 +67,7 @@ uninstall:
 	cd Source/Non_class_members/PDE; $(MAKE) -i uninstall
 	cd Source/Non_class_members/Utilities; $(MAKE) -i uninstall
 	cd Source/Param; $(MAKE) -i uninstall
+	cd Source/QuadriD; $(MAKE) -i uninstall
 	cd Source/Tbl; $(MAKE) -i uninstall
 	cd Source/Tenseur; $(MAKE) -i uninstall
 	cd Source/Valeur; $(MAKE) -i uninstall

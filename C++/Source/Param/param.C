@@ -33,8 +33,11 @@ char param_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/09/19 09:52:42  j_novak
+ * Added objects Qtenseur and Qmetrique for 4D tensor and metric handling.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.8  2001/10/11  07:44:27  eric
  * Ajout du stokage des Etoile's
@@ -83,7 +86,7 @@ char param_C[] = "$Header$" ;
 #include "tbl.h"
 #include "itbl.h"
 #include "cmp.h"
-#include "tenseur.h"
+#include "qtenseur.h"
 
 			//------------------------//
 			//	Constructor	  //
@@ -101,6 +104,8 @@ Param::Param() : n_int(0),
 		 n_cmp_mod(0), 
 		 n_tenseur(0),
 		 n_tenseur_mod(0), 
+		 n_qtenseur(0),
+		 n_qtenseur_mod(0), 
 		 n_map(0), 
 		 n_mtbl_cf(0), 
 		 n_etoile(0)
@@ -125,6 +130,8 @@ Param::~Param(){
     if (n_cmp_mod > 0)  delete [] p_cmp_mod ; 
     if (n_tenseur > 0) delete [] p_tenseur ; 
     if (n_tenseur_mod > 0) delete [] p_tenseur_mod ; 
+    if (n_qtenseur > 0) delete [] p_qtenseur ; 
+    if (n_qtenseur_mod > 0) delete [] p_qtenseur_mod ; 
     if (n_map > 0)  delete [] p_map ; 
     if (n_mtbl_cf > 0)  delete [] p_mtbl_cf ; 
     if (n_etoile > 0)  delete [] p_etoile ; 
@@ -173,6 +180,11 @@ void Param::clean_all() {
       p_tenseur_mod[i] = 0x0 ;
     }
 
+  for (int i=0; i<n_qtenseur_mod; i++) 
+    if (p_qtenseur_mod[i] != 0x0) {
+      delete p_qtenseur_mod[i] ;
+      p_qtenseur_mod[i] = 0x0 ;
+    }
 }
 
 
@@ -1000,6 +1012,144 @@ Tenseur& Param::get_tenseur_mod(int index) const {
     assert(index < n_tenseur_mod) ; 
     
     return *(p_tenseur_mod[index]) ; 
+
+} 
+
+		     
+		    //------------------------------------//
+		    //		Qtenseur storage		  //
+		    //------------------------------------//
+
+// Total number of stored addresses
+// --------------------------------
+
+int Param::get_n_qtenseur() const {
+    return n_qtenseur ; 
+}
+
+// Addition  
+// --------
+		    
+void Param::add_qtenseur(const Qtenseur& ti, int index){
+    
+	if (index >= n_qtenseur) {    // p_qtenseur must be rescaled
+	    	    
+	    int n_qtenseur_nouveau = index + 1 ; 
+	    const Qtenseur** p_qtenseur_nouveau = new const Qtenseur*[n_qtenseur_nouveau] ; 
+	    
+	   
+	    // Copy of the previous addresses  
+	    for (int i=0; i<n_qtenseur; i++) {
+		p_qtenseur_nouveau[i] = p_qtenseur[i] ; 
+	    }
+	    
+	    // The intermediate addresses are set to 0x0
+	    for (int i=n_qtenseur; i<index; i++) {
+		p_qtenseur_nouveau[i] = 0x0 ; 
+	    }
+	    
+	    // The new address 
+	    p_qtenseur_nouveau[index] = &ti ; 
+	    
+	    // Update 
+	    if (n_qtenseur > 0) delete [] p_qtenseur ; 
+	    p_qtenseur = p_qtenseur_nouveau ; 
+	    n_qtenseur = n_qtenseur_nouveau ; 
+	    
+	}
+	else {
+	
+	    if (p_qtenseur[index] != 0x0) {
+		cout << "Param::add_qtenseur : the position " << index 
+		     << " is already occupied !" << endl ; 
+		abort() ; 
+	    }
+	    else{
+		p_qtenseur[index] = &ti ; 
+	    }
+	    
+	}   
+    
+}
+
+// Extraction 
+// ----------
+		    
+const Qtenseur& Param::get_qtenseur(int index) const {
+
+    assert(index >= 0) ;
+    assert(index < n_qtenseur) ; 
+    
+    return *(p_qtenseur[index]) ; 
+
+} 
+		    
+
+		    //------------------------------------//
+		    //	    Modifiable Qtenseur storage	  //
+		    //------------------------------------//
+
+// Total number of stored addresses
+// --------------------------------
+
+int Param::get_n_qtenseur_mod() const {
+    return n_qtenseur_mod ; 
+}
+
+// Addition  
+// --------
+		    
+void Param::add_qtenseur_mod(Qtenseur& ti, int index){
+    
+	if (index >= n_qtenseur_mod) {    // p_qtenseur_mod must be rescaled
+	    	    
+	    int n_qtenseur_nouveau = index + 1 ; 
+	    Qtenseur** p_qtenseur_nouveau = new Qtenseur*[n_qtenseur_nouveau] ; 
+	    
+	   
+	    // Copy of the previous addresses  
+	    for (int i=0; i<n_qtenseur_mod; i++) {
+		p_qtenseur_nouveau[i] = p_qtenseur_mod[i] ; 
+	    }
+	    
+	    // The intermediate addresses are set to 0x0
+	    for (int i=n_qtenseur_mod; i<index; i++) {
+		p_qtenseur_nouveau[i] = 0x0 ; 
+	    }
+	    
+	    // The new address 
+	    p_qtenseur_nouveau[index] = &ti ; 
+	    
+	    // Update 
+	    if (n_qtenseur_mod > 0) delete [] p_qtenseur_mod ; 
+	    p_qtenseur_mod = p_qtenseur_nouveau ; 
+	    n_qtenseur_mod = n_qtenseur_nouveau ; 
+	    
+	}
+	else {
+	
+	    if (p_qtenseur_mod[index] != 0x0) {
+		cout << "Param::add_qtenseur_mod : the position " << index 
+		     << " is already occupied !" << endl ; 
+		abort() ; 
+	    }
+	    else{
+		p_qtenseur_mod[index] = &ti ; 
+	    }
+	    
+	}   
+    
+}
+
+// Extraction 
+// ----------
+		    
+Qtenseur& Param::get_qtenseur_mod(int index) const {
+
+    assert(index >= 0) ;
+    assert(index < n_qtenseur_mod) ; 
+    
+    return *(p_qtenseur_mod[index]) ; 
 
 } 
 
