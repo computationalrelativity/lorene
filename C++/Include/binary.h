@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/05/25 14:50:06  f_limousin
+ * Add the virial theorem for conformally flat configurations.
+ *
  * Revision 1.3  2004/01/20 15:25:39  f_limousin
  * Nex class binary
  *
@@ -243,7 +246,7 @@ class Binary {
 
 	/** Estimates the relative error on the virial theorem
 	 */
-    	double virial() const ;	
+    	double virial_cp() const ;	
 
 	/** Estimates the relative error on the Hamiltonian constraint 
 	 */
