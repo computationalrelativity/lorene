@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/09/23 08:52:53  e_gourgoulhon
+ * Added Scalar as a friend class.
+ *
  * Revision 1.4  2002/10/16 14:36:30  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -723,6 +726,7 @@ class Valeur {
 	void smooth(int nzet, Valeur& uuva) const ;
 
     friend class Cmp ;	    /// Friend class
+    friend class Scalar ;	    /// Friend class
 };
 ostream& operator<<(ostream& , const Valeur& ) ;   
 
