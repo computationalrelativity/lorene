@@ -30,6 +30,9 @@ char connection_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/03 14:16:04  e_gourgoulhon
+ * Added set_der_0x0 in some constructors.
+ *
  * Revision 1.3  2003/10/02 21:32:06  e_gourgoulhon
  * Added constructor from Metric.
  * Added functions fait_delta and update.
@@ -116,6 +119,7 @@ Connection::Connection(const Metric& met) : mp(&(met.get_mp())),
 
 	fait_delta(met) ; 	// Computes delta
 
+	set_der_0x0() ; 
 }
 
 
@@ -136,7 +140,7 @@ Connection::Connection(const Connection& conn_i) : mp(conn_i.mp),
 		//## cas Connection_fcart
 	}
 	
-	set_der_0x0() ; //## a voir
+	set_der_0x0() ; 
 	
 }		
 
@@ -149,6 +153,7 @@ Connection::Connection(const Map& mpi, const Base_vect& bi) : mp(&mpi),
 		assoc_metric(false),
 		flat_conn(0x0){
 		
+	set_der_0x0() ; 
 	
 }		
 
