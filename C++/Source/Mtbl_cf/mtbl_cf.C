@@ -33,6 +33,9 @@ char mtbl_cf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/19 19:51:23  e_gourgoulhon
+ * Access to Base_val::nzone now via the method Base_val::get_nzone().
+ *
  * Revision 1.4  2002/10/16 14:36:43  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -112,7 +115,7 @@ Mtbl_cf::Mtbl_cf(const Mg3d& g, const Base_val& ba) : mg(&g),
 						      base(ba),  
 						      t(0x0) {
     nzone = g.get_nzone() ;
-    assert(base.nzone == nzone) ; 
+    assert(base.get_nzone() == nzone) ; 
 }
 
 Mtbl_cf::Mtbl_cf(const Mg3d* g, const Base_val& ba) : mg(g), 
@@ -120,7 +123,7 @@ Mtbl_cf::Mtbl_cf(const Mg3d* g, const Base_val& ba) : mg(g),
 						      base(ba),  
 						      t(0x0) {
     nzone = g->get_nzone() ;
-    assert(base.nzone == nzone) ; 
+    assert(base.get_nzone() == nzone) ; 
 }
 
 
@@ -170,7 +173,7 @@ Mtbl_cf::Mtbl_cf(const Mg3d& g, FILE* fd) : mg(&g),
     
     // Lecture
     nzone = mg->get_nzone() ;
-    assert(base.nzone == nzone) ; 
+    assert(base.get_nzone() == nzone) ; 
     fread_be(&etat, sizeof(int), 1, fd) ;		// etat
     
     // Le tableau
