@@ -27,6 +27,9 @@ char tenseur_operateur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/03/03 19:38:41  f_limousin
+ * Suppression of an assert on a metric associated with a tensor.
+ *
  * Revision 1.5  2002/10/16 14:37:14  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -110,7 +113,7 @@ Tenseur operator*(const Tenseur& t1, const Tenseur& t2) {
     poids_res = (fabs(poids_res) < 1.e-10 ? 0. : poids_res) ;
     const Metrique* met_res = 0x0 ;
     if (poids_res != 0.) {
-      assert((t1.metric != 0x0) || (t2.metric != 0x0)) ;
+      //      assert((t1.metric != 0x0) || (t2.metric != 0x0)) ;
       if (t1.metric != 0x0) met_res = t1.metric ;
       else met_res = t2.metric ;
     }
