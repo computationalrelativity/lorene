@@ -35,6 +35,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2004/01/12 15:32:25  j_novak
+ * Yet another problem with ETATUN
+ *
  * Revision 1.22  2003/11/05 15:31:13  e_gourgoulhon
  * Method set_etat_qcq(): del_t() is not invoqued for etat == ETATUN.
  *
@@ -330,6 +333,7 @@ void Scalar::annule(int l_min, int l_max) {
     else {
 		assert( (etat == ETATQCQ) || (etat == ETATUN) ) ;	// sinon...
 
+		etat = ETATQCQ ;
 		va.annule(l_min, l_max) ;	// Annule la Valeur
 	
 		// Annulation des membres derives
