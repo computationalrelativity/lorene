@@ -30,6 +30,11 @@ char connection_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/01/01 11:24:04  e_gourgoulhon
+ * Full reorganization of method p_derive_cov: the main loop is now
+ * on the indices of the *output* tensor (to take into account
+ * symmetries in the input and output tensors).
+ *
  * Revision 1.9  2003/12/30 22:58:27  e_gourgoulhon
  * -- Replaced member flat_conn (flat connection) by flat_met (flat metric)
  * -- Added argument flat_met to the constructors of Connection.
@@ -222,14 +227,12 @@ void Connection::update(const Metric& met) {
 // Covariant derivative
 //---------------------
 
-
 Tensor* Connection::p_derive_cov(const Tensor& uu) const {
 
     // Notations: suffix 0 in name <=> input tensor
     //            suffix 1 in name <=> output tensor
 
     int valence0 = uu.get_valence() ; 
-    int ncomp0 = uu.get_n_comp() ;
     int valence1 = valence0 + 1 ; 
     int valence1m1 = valence1 - 1 ; // same as valence0, but introduced for 
                                     // the sake of clarity
@@ -261,38 +264,38 @@ Tensor* Connection::p_derive_cov(const Tensor& uu) const {
         resu = new Tensor(*mp, valence1, tipe, *triad) ;
     }
 
-	
+    int ncomp1 = resu->get_n_comp() ; 
+		
     Itbl ind1(valence1) ; // working Itbl to store the indices of resu
     Itbl ind0(valence0) ; // working Itbl to store the indices of uu
     Itbl ind(valence0) ;  // working Itbl to store the indices of uu
 	
-    Scalar tmp(*mp) ;	// working scalar
-    
     *resu = uu.derive_cov(*flat_met) ;   // Initialisation to the flat derivative 
 	
-    // Loop on the derivation index
-    for (int k=1; k<=3; k++) {
+    // Loop on all the components of the output tensor
+    // -----------------------------------------------
+    for (int ic=0; ic<ncomp1; ic++) {
     
-        // Loop on all the components of the input tensor
-        for (int ic=0; ic<ncomp0; ic++) {
-	
-            // indices corresponding to the component no. ic in the input tensor
-            ind0 = uu.indices(ic) ; 
+        // indices corresponding to the component no. ic in the output tensor
+        ind1 = resu->indices(ic) ; 
+    
+        // Component no. ic:
+        Scalar& cresu = resu->set(ind1) ; 
 		
-            // indices (ind0,k) in the output tensor
-            for (int id = 0; id < valence0; id++) {
-                ind1.set(id) = ind0(id) ; 
-            }
-            ind1.set(valence1m1) = k ; 
-		
-            Scalar& cresu = resu->set(ind1) ; 
+        // Indices of the input tensor
+        for (int id = 0; id < valence0; id++) {
+            ind0.set(id) = ind1(id) ; 
+        }
+ 
+        // Value of last index (derivation index)
+        int k = ind1(valence1m1) ; 
         
-            // Loop on the number of indices of uu 
-            for (int id=0; id<valence0; id++) {
+        // Loop on the number of indices of uu 
+        for (int id=0; id<valence0; id++) {
             
-                ind = ind0 ;
+            ind = ind0 ;
                 
-                switch( uu.get_index_type(id) ) {
+            switch( uu.get_index_type(id) ) {
                 
                 case COV : {
                     for (int l=1; l<=3; l++) {
@@ -317,19 +320,16 @@ Tensor* Connection::p_derive_cov(const Tensor& uu) const {
                     break ; 
                 }
                 
-                }   // end of switch on index type 
+            }   // end of switch on index type 
                 
-            }   // end of loop on the number of indices of uu               
-
-        }   // end of loop on all the components of uu
+        }   // end of loop on the number of indices of uu               
         
-    }   // end of loop on the derivation index
+    }   // end of loop on all the components of the output tensor
 
-
-  // C'est fini !
-  // ------------
+    // C'est fini !
+    // ------------
   
-  return resu ; 
+    return resu ; 
   
 } 
 
@@ -361,7 +361,7 @@ void Connection::fait_delta(const Metric& gam) {
     assert(flat_met != 0x0) ; 
         
     const Tensor& dgam = gam.cov().derive_cov(*flat_met) ; 
-
+    
     for (int k=1; k<=3; k++) {
         for (int i=1; i<=3; i++) {
             for (int j=1; j<=i; j++) {

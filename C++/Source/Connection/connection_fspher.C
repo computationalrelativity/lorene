@@ -30,6 +30,11 @@ char connection_fspher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2004/01/01 11:24:04  e_gourgoulhon
+ * Full reorganization of method p_derive_cov: the main loop is now
+ * on the indices of the *output* tensor (to take into account
+ * symmetries in the input and output tensors).
+ *
  * Revision 1.14  2003/12/27 14:59:52  e_gourgoulhon
  * -- Method derive_cov() suppressed.
  * -- Change of the position of the derivation index from the first one
@@ -146,7 +151,6 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
     //            suffix 1 in name <=> output tensor
 
     int valence0 = uu.get_valence() ; 
-    int ncomp0 = uu.get_n_comp() ;
     int valence1 = valence0 + 1 ; 
     int valence1m1 = valence1 - 1 ; // same as valence0, but introduced for 
                                     // the sake of clarity
@@ -177,6 +181,7 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
         resu = new Tensor(*mp, valence1, tipe, *triad) ;
     }
 
+    int ncomp1 = resu->get_n_comp() ; 
 	
     Itbl ind1(valence1) ; // working Itbl to store the indices of resu
     Itbl ind0(valence0) ; // working Itbl to store the indices of uu
@@ -184,189 +189,165 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
 	
     Scalar tmp(*mp) ;	// working scalar
 
-    int dz_resu = 2 ; // The dzpuis for the result
-    bool dz4 = false ;
-	
-    // Derivation index = r
-    // --------------------
-    int k = 1 ; 	
-
-    // Loop on all the components of the input tensor
-    for (int ic=0; ic<ncomp0; ic++) {
-	
-        // indices corresponding to the component no. ic in the input tensor
-        ind0 = uu.indices(ic) ; 
-        dz_resu = uu(ind0).get_dzpuis() ;
-        dz4 = (dz_resu == 4) ;
-        dz_resu += dz4 ? 0 : 2 ;
-		
-        // indices (ind0,k) in the output tensor
-        for (int id = 0; id < valence0; id++) {
-            ind1.set(id) = ind0(id) ; 
-        }
-        ind1.set(valence1m1) = k ; 
-		
+    // Loop on all the components of the output tensor
+    // -----------------------------------------------
+    for (int ic=0; ic<ncomp1; ic++) {
+    
+        // indices corresponding to the component no. ic in the output tensor
+        ind1 = resu->indices(ic) ; 
+    
+        // Component no. ic:
         Scalar& cresu = resu->set(ind1) ; 
 		
-        cresu = (uu(ind0)).dsdr(dz_resu) ; 	// d/dr
-		
-        // all the connection coefficients Gamma^i_{jk} are zero for k=1
-    }
-
-
-
-    // Derivation index = theta
-    // ------------------------
-    k = 2 ; 	
-
-    // Loop on all the components of the input tensor
-    for (int ic=0; ic<ncomp0; ic++) {
-	
-        // indices corresponding to the component no. ic in the input tensor
-        ind0 = uu.indices(ic) ; 
-        dz_resu = uu(ind0).get_dzpuis() ;
-        dz4 = (dz_resu == 4) ;
-        dz_resu += dz4 ? 0 : 2 ;
-		
-        // indices (ind0,k) in the output tensor
+        // Indices of the input tensor
         for (int id = 0; id < valence0; id++) {
-            ind1.set(id) = ind0(id) ; 
+            ind0.set(id) = ind1(id) ; 
         }
-        ind1.set(valence1m1) = k ; 
-				
-        Scalar& cresu = resu->set(ind1) ; 
-		
-        cresu = (uu(ind0)).srdsdt(dz_resu) ;  // 1/r d/dtheta 
-		
-        // Loop on all the indices of uu
-        for (int id=0; id<valence0; id++) {
-		
-            switch ( ind0(id) ) {
-				
-            case 1 : {	// Gamma^r_{l theta} V^l 
-	                // or -Gamma^l_{r theta} V_l 
-	        ind = ind0 ; 
-	        ind.set(id) = 2 ;   // l = theta
+ 
+        // dzpuis
+        int dz_resu = uu(ind0).get_dzpuis() ;
+        bool dz4 = (dz_resu == 4) ;
+        dz_resu += dz4 ? 0 : 2 ;
 
-	        // Division by r in all domains but the CED (where a
-	        //  multiplication by r is performed instead)
-	        tmp = uu(ind) ; 
-	        dz4 ? tmp.div_r() : tmp.div_r_inc2() ; 
-	        cresu -= tmp ; 
-	        break ; 
-            }
+        // Value of last index (derivation index)
+        int k = ind1(valence1m1) ; 
+        
+        switch (k) {
+        
+        case 1 : {  // Derivation index = r
+                    //---------------------
+	
+            cresu = (uu(ind0)).dsdr(dz_resu) ; 	// d/dr
+		
+            // all the connection coefficients Gamma^i_{jk} are zero for k=1
+            break ; 
+        }
+
+        case 2 : {  // Derivation index = theta
+                    //-------------------------
+			
+            cresu = (uu(ind0)).srdsdt(dz_resu) ;  // 1/r d/dtheta 
+		
+            // Loop on all the indices of uu
+            for (int id=0; id<valence0; id++) {
+		
+                switch ( ind0(id) ) {
 				
-            case 2 : {	// Gamma^theta_{l theta} V^l 
-	                // or -Gamma^l_{theta theta} V_l
-	        ind = ind0 ; 
-	        ind.set(id) = 1 ;   // l = r
-	        tmp = uu(ind) ; 
-	        dz4 ? tmp.div_r() : tmp.div_r_inc2() ; 
-	        cresu += tmp ; 
-	        break ; 
-            }
+                case 1 : {	// Gamma^r_{l theta} V^l 
+	                        // or -Gamma^l_{r theta} V_l 
+	            ind = ind0 ; 
+	            ind.set(id) = 2 ;   // l = theta
+
+	            // Division by r in all domains but the CED (where a
+	            //  multiplication by r is performed instead)
+	            tmp = uu(ind) ; 
+	            dz4 ? tmp.div_r() : tmp.div_r_inc2() ; 
+	            cresu -= tmp ; 
+	            break ; 
+                }
 				
-            case 3 : {	// Gamma^phi_{l theta} V^l 
-	                // or -Gamma^l_{phi theta} V_l
-	        break ; 
-            }
+                case 2 : {	// Gamma^theta_{l theta} V^l 
+	                        // or -Gamma^l_{theta theta} V_l
+	            ind = ind0 ; 
+	            ind.set(id) = 1 ;   // l = r
+	            tmp = uu(ind) ; 
+	            dz4 ? tmp.div_r() : tmp.div_r_inc2() ; 
+	            cresu += tmp ; 
+	            break ; 
+                }
 				
-            default : {
-	        cout << "Connection_fspher::p_derive_cov : index problem ! "
+                case 3 : {	// Gamma^phi_{l theta} V^l 
+	                        // or -Gamma^l_{phi theta} V_l
+	        break ; 
+                }
+				
+                default : {
+	            cerr << "Connection_fspher::p_derive_cov : index problem ! "
 	           << endl ; 
-	        abort() ;  
-            }
-            }
+	            abort() ;  
+                }
+                }
 
+            }
+            break ; 
         }
 
-    }
 
-
-    // Derivation index = phi
-    // ----------------------
-    k = 3 ; 	
-
-    // Loop on all the components of the input tensor
-    for (int ic=0; ic<ncomp0; ic++) {
-	
-        // indices corresponding to the component no. ic in the input tensor
-        ind0 = uu.indices(ic) ; 
-        dz_resu = uu(ind0).get_dzpuis() ;
-        dz4 = (dz_resu == 4) ;
-        dz_resu += dz4 ? 0 : 2 ;
-		
-        // indices (ind0,k) in the output tensor
-        for (int id = 0; id < valence0; id++) {
-            ind1.set(id) = ind0(id) ; 
-        }
-        ind1.set(valence1m1) = k ; 
-				
-        Scalar& cresu = resu->set(ind1) ; 
-		
-        cresu = (uu(ind0)).srstdsdp(dz_resu) ;  // 1/(r sin(theta)) d/dphi 	
-		
-        // Loop on all the indices of uu
-        for (int id=0; id<valence0; id++) {
-		
-            switch ( ind0(id) ) {
-				
-            case 1 : {	// Gamma^r_{l phi} V^l 
-	                // or -Gamma^l_{r phi} V_l 
-	        ind = ind0 ; 
-	        ind.set(id) = 3 ;   // l = phi
-	        tmp = uu(ind) ; 
-	        dz4 ? tmp.div_r() : tmp.div_r_inc2() ; 
-	        cresu -= tmp ; 
-	        break ; 
-            }
-				
-            case 2 : {	// Gamma^theta_{l phi} V^l 
-	                // or -Gamma^l_{theta phi} V_l
-	        ind = ind0 ; 
-	        ind.set(id) = 3 ;   // l = phi
-	        tmp = uu(ind) ; 
-	        dz4 ? tmp.div_r() : tmp.div_r_inc2() ; 
-	        tmp.div_tant() ; 	// division by tan(theta)
+        case 3 : {  // Derivation index = phi
+                    //-----------------------
 					
-	        cresu -= tmp ; 
-	        break ; 
-            }
+            cresu = (uu(ind0)).srstdsdp(dz_resu) ;  // 1/(r sin(theta)) d/dphi 	
+		
+            // Loop on all the indices of uu
+            for (int id=0; id<valence0; id++) {
+		
+                switch ( ind0(id) ) {
 				
-            case 3 : {	// Gamma^phi_{l phi} V^l 
-	                // or -Gamma^l_{phi phi} V_l
-							
-	        ind = ind0 ; 
-	        ind.set(id) = 1 ;   // l = r
-	        tmp = uu(ind) ; 
-	        dz4 ? tmp.div_r() : tmp.div_r_inc2() ; 
-	        cresu += tmp ; 
-
-	        ind.set(id) = 2 ;   // l = theta
-	        tmp = uu(ind) ; 
-	        dz4 ? tmp.div_r() : tmp.div_r_inc2() ; 
-	        tmp.div_tant() ; 	// division by tan(theta)
-
-	        cresu += tmp ; 
-	        break ; 
-            }
+                case 1 : {	// Gamma^r_{l phi} V^l 
+	                        // or -Gamma^l_{r phi} V_l 
+	            ind = ind0 ; 
+	            ind.set(id) = 3 ;   // l = phi
+	            tmp = uu(ind) ; 
+	            dz4 ? tmp.div_r() : tmp.div_r_inc2() ; 
+	            cresu -= tmp ; 
+	            break ; 
+                }
 				
-            default : {
-	        cout << "Connection_fspher::p_derive_cov : index problem ! "
+                case 2 : {	// Gamma^theta_{l phi} V^l 
+	                        // or -Gamma^l_{theta phi} V_l
+	            ind = ind0 ; 
+	            ind.set(id) = 3 ;   // l = phi
+	            tmp = uu(ind) ; 
+	            dz4 ? tmp.div_r() : tmp.div_r_inc2() ; 
+	            tmp.div_tant() ; 	// division by tan(theta)
+					
+	            cresu -= tmp ; 
+	            break ; 
+                }
+				
+                case 3 : {	// Gamma^phi_{l phi} V^l 
+	                        // or -Gamma^l_{phi phi} V_l
+						
+	            ind = ind0 ; 
+	            ind.set(id) = 1 ;   // l = r
+	            tmp = uu(ind) ; 
+	            dz4 ? tmp.div_r() : tmp.div_r_inc2() ; 
+	            cresu += tmp ; 
+
+	            ind.set(id) = 2 ;   // l = theta
+	            tmp = uu(ind) ; 
+	            dz4 ? tmp.div_r() : tmp.div_r_inc2() ; 
+	            tmp.div_tant() ; 	// division by tan(theta)
+
+	            cresu += tmp ; 
+	            break ; 
+                }
+				
+                default : {
+	            cerr << "Connection_fspher::p_derive_cov : index problem ! "
 	            << endl ; 
-	        abort() ;  
-            }
-            }
+	            abort() ;  
+                }
+                }
 
+            }
+            
+            break ; 
         }
 
+        default : {
+	    cerr << "Connection_fspher::p_derive_cov : index problem ! \n" ;
+	    abort() ;  
+        }
 
-    }
+        } // End of switch on the derivation index
 
 
-  // C'est fini !
-  // -----------
-  return resu ; 
+    } // End of loop on all the components of the output tensor
+
+    // C'est fini !
+    // -----------
+    return resu ; 
 
 }
 

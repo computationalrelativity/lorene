@@ -30,6 +30,11 @@ char connection_fcart_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/01/01 11:24:04  e_gourgoulhon
+ * Full reorganization of method p_derive_cov: the main loop is now
+ * on the indices of the *output* tensor (to take into account
+ * symmetries in the input and output tensors).
+ *
  * Revision 1.9  2003/12/27 14:59:52  e_gourgoulhon
  * -- Method derive_cov() suppressed.
  * -- Change of the position of the derivation index from the first one
@@ -134,20 +139,19 @@ Tensor* Connection_fcart::p_derive_cov(const Tensor& uu) const {
     // Notations: suffix 0 in name <=> input tensor
     //            suffix 1 in name <=> output tensor
 
-  int valence0 = uu.get_valence() ; 
-  int ncomp0 = uu.get_n_comp() ;
-  int valence1 = valence0 + 1 ; 
-  int valence1m1 = valence1 - 1 ; // same as valence0, but introduced for 
-                                  // the sake of clarity
-  	
-  // Protections
-  // -----------
-  if (valence0 >= 1) {
-    assert(uu.get_triad() == triad) ; 
-  }
+    int valence0 = uu.get_valence() ; 
+    int valence1 = valence0 + 1 ; 
+    int valence1m1 = valence1 - 1 ; // same as valence0, but introduced for 
+                                    // the sake of clarity
+	
+    // Protections
+    // -----------
+    if (valence0 >= 1) {
+        assert(uu.get_triad() == triad) ; 
+    }
 
-  // Creation of the result pointer
-  // ------------------------------
+    // Creation of the result (pointer)
+    // --------------------------------
     Tensor* resu ;
 
     // If uu is a Scalar, the result is a vector
@@ -166,85 +170,43 @@ Tensor* Connection_fcart::p_derive_cov(const Tensor& uu) const {
         resu = new Tensor(*mp, valence1, tipe, *triad) ;
     }
 
+    int ncomp1 = resu->get_n_comp() ; 
 	
-  Itbl ind1(valence1) ; // working Itbl to store the indices of resu
+    Itbl ind1(valence1) ; // working Itbl to store the indices of resu
+    Itbl ind0(valence0) ; // working Itbl to store the indices of uu
 	
-  Itbl ind0(valence0) ; // working Itbl to store the indices of uu
-	
-
-  // Derivation index = x
-  // --------------------
-  int k = 1 ; 	
-
-  // Loop on all the components of the input tensor
-  for (int ic=0; ic<ncomp0; ic++) {
-	
-    // indices corresponding to the component no. ic in the input tensor
-    ind0 = uu.indices(ic) ; 
+    // Loop on all the components of the output tensor
+    // -----------------------------------------------
+    for (int ic=0; ic<ncomp1; ic++) {
+    
+        // indices corresponding to the component no. ic in the output tensor
+        ind1 = resu->indices(ic) ; 
+    
+        // Component no. ic:
+        Scalar& cresu = resu->set(ind1) ; 
 		
-    // indices (ind0,k) in the output tensor
-    for (int id = 0; id < valence0; id++) {
-      ind1.set(id) = ind0(id) ; 
+        // Indices of the input tensor
+        for (int id = 0; id < valence0; id++) {
+            ind0.set(id) = ind1(id) ; 
+        }
+ 
+        // dzpuis
+        int dz_resu = uu(ind0).get_dzpuis() ;
+        bool dz4 = (dz_resu == 4) ;
+        dz_resu += dz4 ? 0 : 2 ;
+
+        // Value of last index (derivation index)
+        int k = ind1(valence1m1) ; 
+        
+        // Partial derivation with respect to x^k:
+
+        cresu = (uu(ind0)).deriv(k, dz_resu) ; 	
+
     }
-    ind1.set(valence1m1) = k ; 
-		
-    Scalar& cresu = resu->set(ind1) ; 
-		
-    cresu = (uu(ind0)).dsdx() ; 	// d/dx
-		
-  }
 
-
-
-  // Derivation index = y
-  // ---------------------
-  k = 2 ; 	
-
-  // Loop on all the components of the input tensor
-  for (int ic=0; ic<ncomp0; ic++) {
-	
-    // indices corresponding to the component no. ic in the input tensor
-    ind0 = uu.indices(ic) ; 
-		
-    // indices (ind0,k) in the output tensor
-    for (int id = 0; id < valence0; id++) {
-      ind1.set(id) = ind0(id) ; 
-    }
-    ind1.set(valence1m1) = k ; 
-				
-    Scalar& cresu = resu->set(ind1) ; 
-		
-    cresu = (uu(ind0)).dsdy() ;  	// d/dy	
-		
-  }
-
-
-  // Derivation index = z
-  // --------------------
-  k = 3 ; 	
-
-  // Loop on all the components of the input tensor
-  for (int ic=0; ic<ncomp0; ic++) {
-	
-    // indices corresponding to the component no. ic in the input tensor
-    ind0 = uu.indices(ic) ; 
-		
-    // indices (ind0,k) in the output tensor
-    for (int id = 0; id < valence0; id++) {
-      ind1.set(id) = ind0(id) ; 
-    }
-    ind1.set(valence1m1) = k ; 
-						
-    Scalar& cresu = resu->set(ind1) ; 
-		
-    cresu = (uu(ind0)).dsdz() ;  	// d/dz
-
-  }
-
-
-  // C'est fini !
-  // -----------
-  return resu ; 
+    // C'est fini !
+    // -----------
+    return resu ; 
 
 }
 
