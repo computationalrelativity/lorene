@@ -32,6 +32,9 @@ char ARITHM_TBL_VAL_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/11/12 10:03:54  j_novak
+ * The method "Tbl_val::get_gval" has been changed to "get_grid".
+ *
  * Revision 1.2  2002/10/16 14:37:15  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -75,7 +78,7 @@ Tbl_val operator-(const Tbl_val& t1)
   }
   
   // Cas general
-  Tbl_val r(t1.get_gval()) ;		    // Tbl_val resultat
+  Tbl_val r(t1.get_grille()) ;		    // Tbl_val resultat
   r.set_etat_qcq() ;
   for (int i=0 ; i<r.get_taille() ; i++) 
     (r.t)[i] = - (t1.t)[i] ;
@@ -527,7 +530,7 @@ Tbl_val operator/(double x, const Tbl_val& t1)
   // Cas general
   assert(t1.get_etat() == ETATQCQ) ;	// sinon...
 
-  Tbl_val r(t1.get_gval()) ;		// Tbl_val resultat, a priori NONDEF
+  Tbl_val r(t1.get_grille()) ;		// Tbl_val resultat, a priori NONDEF
     
   if ( x == double(0) ) {
     r.set_etat_zero() ;

@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/11/12 10:03:53  j_novak
+ * The method "Tbl_val::get_gval" has been changed to "get_grid".
+ *
  * Revision 1.2  2002/10/16 14:36:29  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -447,8 +450,9 @@ class Tbl_val {
     assert( (i>=0) && (i<dim->ndim) ) ;
     return dim->dim[i] ;
   };
-  
-  const Grille_val* get_gval() const { return gval ; } ;
+
+  /// Returns a pointer on the grid on which the {\tt Tbl\_val} is defined
+  const Grille_val* get_grille() const { return gval ; } ;
   
   // Outputs
   // -------

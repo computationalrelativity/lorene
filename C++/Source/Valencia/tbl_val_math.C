@@ -32,6 +32,9 @@ char TBL_VAL_MATH_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/11/12 10:03:54  j_novak
+ * The method "Tbl_val::get_gval" has been changed to "get_grid".
+ *
  * Revision 1.1  2001/11/22 13:41:54  j_novak
  * Added all source files for manipulating Valencia type objects and making
  * interpolations to and from Meudon grids.
@@ -66,7 +69,7 @@ Tbl_val sin(const Tbl_val& ti)
     
   // Cas general
   assert(ti.get_etat() == ETATQCQ) ;	// sinon...
-  Tbl_val to(ti.get_gval()) ;			// Tbl_val resultat
+  Tbl_val to(ti.get_grille()) ;			// Tbl_val resultat
   to.set_etat_qcq() ;
   int taille = ti.get_taille() ;
   for (int i=0 ; i<taille ; i++) {
@@ -90,7 +93,7 @@ Tbl_val cos(const Tbl_val& ti)
   // Protection
   assert(ti.get_etat() != ETATNONDEF) ;
     
-  Tbl_val to(ti.get_gval()) ;		    // Tbl_val resultat
+  Tbl_val to(ti.get_grille()) ;		    // Tbl_val resultat
   to.set_etat_qcq() ;
 
     // Cas ETATZERO
@@ -130,7 +133,7 @@ Tbl_val tan(const Tbl_val& ti)
     
   // Cas general
   assert(ti.get_etat() == ETATQCQ) ;	// sinon...
-  Tbl_val to(ti.get_gval()) ;		    // Tbl_val resultat
+  Tbl_val to(ti.get_grille()) ;		    // Tbl_val resultat
   to.set_etat_qcq() ;
   int taille = ti.get_taille() ;
   for (int i=0 ; i<taille ; i++) {
@@ -161,7 +164,7 @@ Tbl_val asin(const Tbl_val& ti)
     
   // Cas general
   assert(ti.get_etat() == ETATQCQ) ;	// sinon...
-  Tbl_val to(ti.get_gval()) ;		    // Tbl_val resultat
+  Tbl_val to(ti.get_grille()) ;		    // Tbl_val resultat
   to.set_etat_qcq() ;
   int taille = ti.get_taille() ;
   for (int i=0 ; i<taille ; i++) {
@@ -186,7 +189,7 @@ Tbl_val acos(const Tbl_val& ti)
   // Protection
   assert(ti.get_etat() != ETATNONDEF) ;
     
-  Tbl_val to(ti.get_gval()) ;		    // Tbl_val resultat
+  Tbl_val to(ti.get_grille()) ;		    // Tbl_val resultat
   to.set_etat_qcq() ;
 
     // Cas ETATZERO
@@ -226,7 +229,7 @@ Tbl_val atan(const Tbl_val& ti)
     
   // Cas general
   assert(ti.get_etat() == ETATQCQ) ;	// sinon...
-  Tbl_val to(ti.get_gval()) ;		    // Tbl_val resultat
+  Tbl_val to(ti.get_grille()) ;		    // Tbl_val resultat
   to.set_etat_qcq() ;
   int taille = ti.get_taille() ;
   for (int i=0 ; i<taille ; i++) {
@@ -257,7 +260,7 @@ Tbl_val sqrt(const Tbl_val& ti)
     
   // Cas general
   assert(ti.get_etat() == ETATQCQ) ;	// sinon...
-  Tbl_val to(ti.get_gval()) ;		    // Tbl_val resultat
+  Tbl_val to(ti.get_grille()) ;		    // Tbl_val resultat
   to.set_etat_qcq() ;
   int taille = ti.get_taille() ;
   for (int i=0 ; i<taille ; i++) {
@@ -281,7 +284,7 @@ Tbl_val exp(const Tbl_val& ti)
   // Protection
   assert(ti.get_etat() != ETATNONDEF) ;
     
-  Tbl_val to(ti.get_gval()) ;		    // Tbl_val resultat
+  Tbl_val to(ti.get_grille()) ;		    // Tbl_val resultat
   to.set_etat_qcq() ;
 
     // Cas ETATZERO
@@ -322,7 +325,7 @@ Tbl_val log(const Tbl_val& ti)
     
   // Cas general
   assert(ti.get_etat() == ETATQCQ) ;	// sinon...
-  Tbl_val to(ti.get_gval()) ;		    // Tbl_val resultat
+  Tbl_val to(ti.get_grille()) ;		    // Tbl_val resultat
   to.set_etat_qcq() ;
   int taille = ti.get_taille() ;
   for (int i=0 ; i<taille ; i++) {
@@ -354,7 +357,7 @@ Tbl_val log10(const Tbl_val& ti)
     
   // Cas general
   assert(ti.get_etat() == ETATQCQ) ;	// sinon...
-  Tbl_val to(ti.get_gval()) ;		    // Tbl_val resultat
+  Tbl_val to(ti.get_grille()) ;		    // Tbl_val resultat
   to.set_etat_qcq() ;
   int taille = ti.get_taille() ;
   for (int i=0 ; i<taille ; i++) {
@@ -391,7 +394,7 @@ Tbl_val pow(const Tbl_val& ti, int n)
     
   // Cas general
   assert(ti.get_etat() == ETATQCQ) ;	// sinon...
-  Tbl_val to(ti.get_gval()) ;		    // Tbl_val resultat
+  Tbl_val to(ti.get_grille()) ;		    // Tbl_val resultat
   to.set_etat_qcq() ;
   double x = n ;
   int taille = ti.get_taille() ;
@@ -429,7 +432,7 @@ Tbl_val pow(const Tbl_val& ti, double x)
     
   // Cas general
   assert(ti.get_etat() == ETATQCQ) ;	// sinon...
-  Tbl_val to(ti.get_gval()) ;		    // Tbl_val resultat
+  Tbl_val to(ti.get_grille()) ;		    // Tbl_val resultat
   to.set_etat_qcq() ;
   int taille = ti.get_taille() ;
   for (int i=0 ; i<taille ; i++) {
@@ -461,7 +464,7 @@ Tbl_val abs(const Tbl_val& ti)
   // Cas general
   assert(ti.get_etat() == ETATQCQ) ;	// sinon...
 
-  Tbl_val to(ti.get_gval()) ;		    // Tbl_val resultat
+  Tbl_val to(ti.get_grille()) ;		    // Tbl_val resultat
   to.set_etat_qcq() ;
 
   const double* xi = ti.t ; 
