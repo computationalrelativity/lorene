@@ -29,8 +29,9 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.3  2004/03/23 12:39:31  e_gourgoulhon
- * Formatted comments for Doxygen instead of Doc++.
+ * Revision 1.4  2004/03/23 12:47:12  e_gourgoulhon
+ * new version
+ *
  *
  *
  * *** Suppress all lines (including those of this comment) which are not
@@ -44,14 +45,8 @@
  *
  */
 
-// C++ headers
-#include <>
-
-// C headers
-#include <>
-
-// Lorene headers
-#include ""
+// External classes which appear in the declaration of class XXX:
+class YYY ; 
 
 /**
  * Extended description of the class for Doc++ documentation.
