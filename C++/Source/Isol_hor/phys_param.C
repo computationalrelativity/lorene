@@ -30,6 +30,9 @@ char phys_param_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/02/07 10:35:42  f_limousin
+ * Minor changes.
+ *
  * Revision 1.6  2004/12/22 18:16:16  f_limousin
  * Mny different changes.
  *
@@ -95,13 +98,13 @@ Vector Isol_hor::tradial_vect_hor()  {
 
   Vector get_radial_vect (ff.get_mp(), CON, *(ff.get_triad()) ) ;
        
-  get_radial_vect.set(1) = (tgam().con())(1,1) ;
+  get_radial_vect.set(1) = (met_gamt.con())(1,1) ;
  
-  get_radial_vect.set(2) = (tgam().con())(1,2) ;
+  get_radial_vect.set(2) = (met_gamt.con())(1,2) ;
 
-  get_radial_vect.set(3) = (tgam().con())(1,3) ;
+  get_radial_vect.set(3) = (met_gamt.con())(1,3) ;
 
-  get_radial_vect = get_radial_vect / sqrt((tgam().con())(1,1)) ;
+  get_radial_vect = get_radial_vect / sqrt((met_gamt.con())(1,1)) ;
 
   get_radial_vect.std_spectral_base() ;
 

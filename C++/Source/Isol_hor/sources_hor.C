@@ -30,6 +30,9 @@ char source_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2005/02/07 10:37:21  f_limousin
+ * Minor changes.
+ *
  * Revision 1.8  2004/12/31 15:35:18  f_limousin
  * Modifications to avoid warnings.
  *
@@ -95,13 +98,13 @@ Scalar Isol_hor::source_psi() {
     
     const Vector& d_psi = psi().derive_cov(ff) ;       // D_i Psi
      
-    Sym_tensor taa = aa().up_down(tgam()) ; 
+    Sym_tensor taa = aa().up_down(met_gamt) ; 
         
     Scalar aa_quad = contract(taa, 0, 1, aa(), 0, 1) ; 
 
     // Source for Psi 
     // --------------
-    tmp = 0.125* psi() * tgam().ricci_scal() 
+    tmp = 0.125* psi() * met_gamt.ricci_scal() 
       - contract(hh(), 0, 1, d_psi.derive_cov(ff), 0, 1 ) ;
     tmp.inc_dzpuis() ; // dzpuis : 3 -> 4
     
@@ -138,7 +141,7 @@ Scalar Isol_hor::source_nn() {
     const Vector& dln_psi = ln_psi().derive_cov(ff) ; // D_i ln(Psi)
     const Vector& dnnn = nn().derive_cov(ff) ;         // D_i N
     
-    Sym_tensor taa = aa().up_down(tgam()) ; 
+    Sym_tensor taa = aa().up_down(met_gamt) ; 
         
     Scalar aa_quad = contract(taa, 0, 1, aa(), 0, 1) ; 
 
@@ -147,7 +150,7 @@ Scalar Isol_hor::source_nn() {
 
     source = psi4()*( nn()*( aa_quad + 0.3333333333333333* trK*trK )
 			 - trK_point ) 
-	     - 2.* contract(dln_psi, 0, nn().derive_con(tgam()), 0)  
+	     - 2.* contract(dln_psi, 0, nn().derive_con(met_gamt), 0)  
     - contract(hdirac(), 0, dnnn, 0) ; 
         
     tmp = psi4()* contract(beta(), 0, trK.derive_cov(ff), 0) 
@@ -188,11 +191,11 @@ Vector Isol_hor::source_beta() {
     const Vector& dln_psi = ln_psi().derive_cov(ff) ; // D_i ln(Psi)
     const Vector& dnnn = nn().derive_cov(ff) ;         // D_i N
     
-    Sym_tensor taa = aa().up_down(tgam()) ; 
+    Sym_tensor taa = aa().up_down(met_gamt) ; 
         
     Scalar aa_quad = contract(taa, 0, 1, aa(), 0, 1) ; 
 
-    Sym_tensor uu =  2.* nn() * aa() -  beta().ope_killing_conf(tgam())  ;
+    Sym_tensor uu =  2.* nn() * aa() -  beta().ope_killing_conf(met_gamt)  ;
 
 
     // Source for beta 
@@ -201,11 +204,11 @@ Vector Isol_hor::source_beta() {
     source = 2.* contract(aa(), 1, 
 			       dnnn - 6.*nn() * dln_psi, 0) ;
                 
-    tmp_vect = 0.66666666666666666* trK.derive_con(tgam()) ;
+    tmp_vect = 0.66666666666666666* trK.derive_con(met_gamt) ;
     tmp_vect.inc_dzpuis() ;
 
     source += 2.* nn() * ( tmp_vect
-				- contract(tgam().connect().get_delta(), 1, 2, 
+			    - contract(met_gamt.connect().get_delta(), 1, 2, 
 					   aa(), 0, 1) ) ;
             
     Vector vtmp = contract(hh(), 0, 1, 
