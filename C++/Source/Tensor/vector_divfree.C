@@ -32,6 +32,9 @@ char vector_divfree_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/17 16:34:32  e_gourgoulhon
+ * Added new methods set_vr_eta_mu and set_vr_mu.
+ *
  * Revision 1.2  2003/10/15 13:52:57  j_novak
  * Initialization of met_div in the copy constructor
  *
@@ -157,6 +160,52 @@ void Vector_divfree::operator=(const Tensor& source) {
 		<< endl ; 
 	abort() ; 
     del_deriv() ;
+}
+
+
+void Vector_divfree::set_vr_eta_mu(const Scalar& vr_i, const Scalar eta_i,
+		const Scalar mu_i) {
+		
+		// All this has a meaning only for spherical components:
+		#ifndef NDEBUG 
+		const Base_vect_spher* bvs = dynamic_cast<const Base_vect_spher*>(triad) ;
+		assert(bvs != 0x0) ; 
+		#endif
+		
+		del_deriv() ; // delete previous p_eta and p_mu, as well as 
+					  //  derived quantities
+		
+		*cmp[0] = vr_i ; 	// V^r
+		
+		p_eta = new Scalar( eta_i ) ; 	// eta
+
+		p_mu = new Scalar( mu_i ) ; 	// mu 
+		
+		update_vtvp() ; // V^theta and V^phi
+		
+
+}
+
+
+void Vector_divfree::set_vr_mu(const Scalar& vr_i, const Scalar mu_i) {
+		
+		// All this has a meaning only for spherical components:
+		#ifndef NDEBUG 
+		const Base_vect_spher* bvs = dynamic_cast<const Base_vect_spher*>(triad) ;
+		assert(bvs != 0x0) ; 
+		#endif
+		
+		del_deriv() ; // delete previous p_eta and p_mu, as well as 
+					  //  derived quantities
+		
+		*cmp[0] = vr_i ; 	// V^r
+		
+		p_mu = new Scalar( mu_i ) ; 	// mu 
+		
+		eta() ; // computes eta form the divergence-free condition
+
+		update_vtvp() ; // V^theta and V^phi		
+
 }
 
 
