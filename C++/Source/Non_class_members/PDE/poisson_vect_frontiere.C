@@ -25,6 +25,10 @@ char poisson_vect_frontiere_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/02/08 10:07:07  f_limousin
+ * Implementation of poisson_vect_binaire(...) with Vectors (instead of
+ * Tenseur) in argument.
+ *
  * Revision 1.4  2004/09/28 16:00:15  f_limousin
  * Add function poisson_vect_boundary which is the same as
  * poisson_vect_frontiere but for the new classes Tensor and Scalar.
@@ -240,6 +244,8 @@ void poisson_vect_boundary (double lambda, const Vector& source,Vector& shift,
 	lim_scal.std_base_scal() ;
    
 	// On resout la scalaire :
+	
+	source_scal.filtre(4) ;
 	scal = source_scal.poisson_dirichlet (lim_scal, num_front) ;
     
 	// La source vectorielle :
@@ -262,7 +268,9 @@ void poisson_vect_boundary (double lambda, const Vector& source,Vector& shift,
 	shift.change_triad(source.get_mp().get_bvect_cart()) ;
 	source_vect.change_triad(source.get_mp().get_bvect_cart()) ;
 
-   
+	for (int i=1 ; i<=3 ; i++) 
+	    source_vect.set(i).filtre(4) ;
+
 	// On resout les equations de poisson sur le shift :
 	shift.set(1) = source_vect(1).poisson_dirichlet (lim_x, num_front) ;
 	shift.set(2) = source_vect(2).poisson_dirichlet (lim_y, num_front) ;
@@ -558,6 +566,280 @@ void poisson_vect_binaire ( double lambda,
 	
 	cout << "Pas " << conte << " : Difference " << erreur << endl ;
 	
+	const Map& map1 (*sol_un.get_mp()) ;
+	Vector source1 (map1, CON, map1.get_bvect_cart()) ;
+	source1.set_etat_qcq() ;
+	source1.set(1) = source_un(0) ;
+	source1.set(2) = source_un(1) ;
+	source1.set(3) = source_un(2) ;
+	
+	Vector sol1 (map1, CON, map1.get_bvect_cart()) ;
+	sol1.set_etat_qcq() ;
+	sol1.set(1) = sol_un(0) ;
+	sol1.set(2) = sol_un(1) ;
+	sol1.set(3) = sol_un(2) ;
+	source1.dec_dzpuis() ;
+
+	if (erreur < precision)
+	    indic = -1 ;
+	conte ++ ;
+	}
+}
+void poisson_vect_binaire ( double lambda, 
+		const Vector& source_un, const Vector& source_deux, 
+		const Valeur& bound_x_un, const Valeur& bound_y_un, 
+		const Valeur& bound_z_un, const Valeur& bound_x_deux, 
+		const Valeur& bound_y_deux, const Valeur& bound_z_deux, 
+		Vector& sol_un, Vector& sol_deux, int num_front, double precision) {
+		    
+    // Les bases des deux vecteurs doivent etre alignees ou non alignees :
+     
+    assert (sol_un.get_mp() == source_un.get_mp()) ;
+    assert (sol_deux.get_mp() == source_deux.get_mp()) ;
+    
+    double orientation_un = sol_un.get_mp().get_rot_phi() ;
+    assert ((orientation_un==0) || (orientation_un==M_PI)) ;
+    
+    double orientation_deux = sol_deux.get_mp().get_rot_phi() ;
+    assert ((orientation_deux==0) || (orientation_deux==M_PI)) ;
+    
+    int same_orient = (orientation_un == orientation_deux) ? 1 : -1 ;
+    
+    Valeur limite_x_un (bound_x_un.get_mg()) ;
+    limite_x_un = bound_x_un ;
+    Valeur limite_y_un (bound_y_un.get_mg()) ;
+    limite_y_un = bound_y_un ;
+    Valeur limite_z_un (bound_z_un.get_mg()) ;
+    limite_z_un = bound_z_un ;
+      
+    Valeur limite_x_deux (bound_x_deux.get_mg()) ;
+    limite_x_deux = bound_x_deux ;
+    Valeur limite_y_deux (bound_y_deux.get_mg()) ;
+    limite_y_deux = bound_y_deux ;
+    Valeur limite_z_deux (bound_z_deux.get_mg()) ;
+    limite_z_deux = bound_z_deux ;
+    
+    Valeur limite_chi_un (bound_x_un.get_mg()) ;
+    limite_chi_un = 0 ;
+    limite_chi_un.std_base_scal() ;
+    
+    Valeur limite_chi_deux (bound_x_deux.get_mg()) ;
+    limite_chi_deux = 0 ;
+    limite_chi_deux.std_base_scal() ;
+    
+    Mtbl xa_mtbl_un (source_un.get_mp().get_mg()) ;
+    xa_mtbl_un.set_etat_qcq() ;
+    Mtbl ya_mtbl_un (source_un.get_mp().get_mg()) ;
+    ya_mtbl_un.set_etat_qcq() ;
+    Mtbl za_mtbl_un (source_un.get_mp().get_mg()) ;
+    za_mtbl_un.set_etat_qcq() ;
+    Mtbl xa_mtbl_deux (source_deux.get_mp().get_mg()) ;
+    xa_mtbl_deux.set_etat_qcq() ;
+    Mtbl ya_mtbl_deux (source_deux.get_mp().get_mg()) ;
+    ya_mtbl_deux.set_etat_qcq() ;
+    Mtbl za_mtbl_deux (source_deux.get_mp().get_mg()) ;
+    za_mtbl_deux.set_etat_qcq() ;
+    
+    xa_mtbl_un = source_un.get_mp().xa ;
+    ya_mtbl_un = source_un.get_mp().ya ;
+    za_mtbl_un = source_un.get_mp().za ;
+    
+    xa_mtbl_deux = source_deux.get_mp().xa ;
+    ya_mtbl_deux = source_deux.get_mp().ya ;
+    za_mtbl_deux = source_deux.get_mp().za ;
+    
+    double xabs, yabs, zabs ;
+    double air,  theta,  phi ;
+    double valeur ;
+    
+    int nbrep_un = bound_x_un.get_mg()->get_np(num_front) ;
+    int nbret_un = bound_x_un.get_mg()->get_nt(num_front) ;
+    int nbrep_deux = bound_x_deux.get_mg()->get_np(num_front) ;
+    int nbret_deux = bound_x_deux.get_mg()->get_nt(num_front) ;
+    int nz_un = bound_x_un.get_mg()->get_nzone() ;
+    int nz_deux = bound_x_deux.get_mg()->get_nzone() ;
+    
+    const Metric_flat& ff_un (source_un.get_mp().flat_met_spher()) ;
+    const Metric_flat& ff_deux (source_deux.get_mp().flat_met_spher()) ;
+
+    // La source de l'equation scalaire sur 1
+    Vector cop_so_un (source_un) ;
+    cop_so_un.dec_dzpuis(2) ;
+    cop_so_un.dec_dzpuis(2) ;
+    
+    Scalar source_scal_un (contract (cop_so_un.derive_cov(ff_un), 0, 1)/(lambda+1)) ;
+    if (source_scal_un.get_etat() == ETATZERO) {
+	source_scal_un.annule_hard() ;
+	source_scal_un.std_spectral_base() ;
+    }
+    source_scal_un.inc_dzpuis(2) ;
+    
+    // La source de l'equation scalaire sur 2
+    Vector cop_so_deux (source_deux) ;
+    cop_so_deux.dec_dzpuis(2) ;
+    cop_so_deux.dec_dzpuis(2) ;
+    
+    Scalar source_scal_deux (contract (cop_so_deux.derive_cov(ff_deux), 0, 1)/(lambda+1)) ;
+    if (source_scal_deux.get_etat() == ETATZERO) {
+	source_scal_deux.annule_hard() ;
+	source_scal_deux.std_spectral_base() ;
+    }
+    source_scal_deux.inc_dzpuis(2) ;
+    
+    // Les copies :
+    Vector copie_so_un (source_un) ;
+    copie_so_un.dec_dzpuis() ;
+    
+    Vector copie_so_deux (source_deux) ;
+    copie_so_deux.dec_dzpuis() ;
+    
+    // ON COMMENCE LA BOUCLE :
+    Vector sol_un_old (sol_un) ;
+    Vector sol_deux_old (sol_deux) ;
+    
+    int indic = 1 ;
+    int conte = 0 ;
+    
+    while (indic == 1) {
+	
+	// On resout les deux equations scalaires :
+	Scalar chi_un (source_scal_un.poisson_dirichlet (limite_chi_un, num_front)) ;
+	Scalar chi_deux (source_scal_deux.poisson_dirichlet (limite_chi_deux, num_front)) ;
+	
+	// On calcul les source pour les equation vectorielles :
+	Vector source_vect_un (copie_so_un) ;
+	Vector grad_chi_un (chi_un.derive_con(ff_un)) ;
+	grad_chi_un.inc_dzpuis() ;
+	for (int i=1 ; i<=3 ; i++)
+	    source_vect_un.set(i) = source_vect_un(i)-lambda*grad_chi_un(i) ;
+	
+	Vector source_vect_deux (copie_so_deux) ;
+	Vector grad_chi_deux (chi_deux.derive_cov(ff_deux)) ;
+	grad_chi_deux.inc_dzpuis() ;
+	for (int i=1 ; i<=3 ; i++)
+	    source_vect_deux.set(i) = source_vect_deux(i)
+		-lambda*grad_chi_deux(i) ;
+	
+	sol_un_old = sol_un ;
+	sol_deux_old = sol_deux ;
+
+	sol_un.change_triad(source_un.get_mp().get_bvect_cart()) ;
+	source_vect_un.change_triad(source_un.get_mp().get_bvect_cart()) ;
+	sol_deux.change_triad(source_deux.get_mp().get_bvect_cart()) ;
+	source_vect_deux.change_triad(source_deux.get_mp().get_bvect_cart()) ;
+
+	
+	// On resout les equation vectorielles :
+	sol_un.set(1) = source_vect_un(1).poisson_dirichlet (limite_x_un, num_front) ;
+	sol_un.set(2) = source_vect_un(2).poisson_dirichlet (limite_y_un, num_front) ;
+	sol_un.set(3) = source_vect_un(3).poisson_dirichlet (limite_z_un, num_front) ;
+	sol_deux.set(1) = source_vect_deux(1).poisson_dirichlet (limite_x_deux, num_front) ;
+	sol_deux.set(2) = source_vect_deux(2).poisson_dirichlet (limite_y_deux, num_front) ;
+	sol_deux.set(3) = source_vect_deux(3).poisson_dirichlet (limite_z_deux, num_front) ;
+	
+	
+	sol_un.change_triad(source_un.get_mp().get_bvect_spher()) ;
+	source_vect_un.change_triad(source_un.get_mp().get_bvect_spher()) ;
+	sol_deux.change_triad(source_deux.get_mp().get_bvect_spher()) ;
+	source_vect_deux.change_triad(source_deux.get_mp().get_bvect_spher()) ;
+
+	// On modifie les Cl sur chi :
+	Scalar div_shift_un (contract(sol_un.derive_cov(ff_un), 0, 1)) ;
+	div_shift_un.dec_dzpuis(2) ;
+	div_shift_un.get_spectral_va().coef_i() ;
+	
+	limite_chi_un = 1 ; // Affectation
+	for (int k=0 ; k<nbrep_un ; k++)
+	    for (int j=0 ; j<nbret_un ; j++)
+		limite_chi_un.set(num_front, k, j, 0) =
+		    div_shift_un.get_spectral_va() (num_front+1, k, j, 0) ;
+	limite_chi_un.std_base_scal() ;
+	
+	Scalar div_shift_deux (contract(sol_deux.derive_cov(ff_deux), 0, 1)) ;
+	div_shift_deux.dec_dzpuis(2) ;
+	div_shift_deux.get_spectral_va().coef_i() ;
+	
+	limite_chi_deux = 1 ; // Affectation
+	for (int k=0 ; k<nbrep_deux ; k++)
+	    for (int j=0 ; j<nbret_deux ; j++)
+		limite_chi_deux.set(num_front, k, j, 0) =
+		    div_shift_deux.get_spectral_va() (num_front+1, k, j, 0) ;
+	limite_chi_deux.std_base_scal() ;
+	
+	
+	// On modifie les Cl sur sol_un :
+	for (int k=0 ; k<nbrep_un ; k++)
+	    for (int j=0 ; j<nbret_un ; j++) {
+		xabs = xa_mtbl_un (num_front+1, k, j, 0) ;
+		yabs = ya_mtbl_un (num_front+1, k, j, 0) ;
+		zabs = za_mtbl_un (num_front+1, k, j, 0) ;
+		
+		source_deux.get_mp().convert_absolute 
+				(xabs, yabs, zabs, air, theta, phi) ;
+		
+		valeur = sol_deux(1).val_point(air, theta, phi) ;
+		limite_x_un.set(num_front, k, j, 0) = 
+			bound_x_un(num_front, k, j, 0) - same_orient*valeur ;
+		
+		valeur = sol_deux(2).val_point(air, theta, phi) ;
+		limite_y_un.set(num_front, k, j, 0) = 
+			bound_y_un(num_front, k, j, 0) - same_orient*valeur ;
+		
+		valeur = sol_deux(3).val_point(air, theta, phi) ;
+		limite_z_un.set(num_front, k, j, 0) = 
+			bound_z_un(num_front, k, j, 0) - valeur ;
+	    }
+	    
+	// On modifie les Cl sur sol_deux :
+	for (int k=0 ; k<nbrep_deux ; k++)
+	    for (int j=0 ; j<nbret_deux ; j++) {
+		xabs = xa_mtbl_deux (num_front+1, k, j, 0) ;
+		yabs = ya_mtbl_deux (num_front+1, k, j, 0) ;
+		zabs = za_mtbl_deux (num_front+1, k, j, 0) ;
+		
+		source_un.get_mp().convert_absolute 
+				(xabs, yabs, zabs, air, theta, phi) ;
+		
+		valeur = sol_un(1).val_point(air, theta, phi) ;
+		limite_x_deux.set(num_front, k, j, 0) = 
+			bound_x_deux(num_front, k, j, 0) - same_orient*valeur ;
+		
+		valeur = sol_un(2).val_point(air, theta, phi) ;
+		limite_y_deux.set(num_front, k, j, 0) = 
+			bound_y_deux(num_front, k, j, 0) - same_orient*valeur ;
+		
+		valeur = sol_un(3).val_point(air, theta, phi) ;
+		limite_z_deux.set(num_front, k, j, 0) = 
+			bound_z_deux(num_front, k, j, 0) - valeur ;
+	    }
+	    
+	double erreur = 0 ;
+	
+	for (int i=1 ; i<=3 ; i++) {
+	    Tbl diff_un (diffrelmax (sol_un_old(i), sol_un(i))) ;
+	    for (int j=num_front+1 ; j<nz_un ; j++)
+		if (erreur<diff_un(j))
+		    erreur = diff_un(j) ;
+	}
+	
+	for (int i=1 ; i<=3 ; i++) {
+	    Tbl diff_deux (diffrelmax (sol_deux_old(i), sol_deux(i))) ;
+	    for (int j=num_front+1 ; j<nz_deux ; j++)
+		if (erreur<diff_deux(j))
+		    erreur = diff_deux(j) ;
+	}
+	
+	cout << "Pas " << conte << " : Difference " << erreur << endl ;
+	
+
+
+/*
+	maxabs(sol_un.derive_con(ff_un).divergence(ff_un) + lambda * sol_un.divergence(ff_un).derive_con(ff_un) - source_un,
+	       "Absolute error in the resolution of the equation for beta") ;  
+	cout << endl ;
+*/
+	
+
 	if (erreur < precision)
 	    indic = -1 ;
 	conte ++ ;
