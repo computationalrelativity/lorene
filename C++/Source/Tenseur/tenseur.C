@@ -34,6 +34,9 @@ char tenseur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2002/08/30 13:21:38  j_novak
+ * Corrected error in constructor
+ *
  * Revision 1.9  2002/08/14 13:46:15  j_novak
  * Derived quantities of a Tenseur can now depend on several Metrique's
  *
@@ -212,7 +215,6 @@ Tenseur::Tenseur (const Cmp& ci, const Metrique* met, double weight) :
     assert(verif()) ;
     
     c = new Cmp*[n_comp] ;
-    set_der_0x0() ;
 
     if ( ci.get_etat() != ETATZERO ) {
       assert( ci.get_etat() == ETATQCQ ) ; 
