@@ -31,6 +31,13 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/09/09 13:54:20  e_gourgoulhon
+ *
+ * Change of name of the Fortran subroutines
+ * 	poisson2d -> poiss2d
+ * 	poisson2di -> poiss2di
+ * to avoid any clash with Map::poisson2d and Map::poisson2di
+ *
  * Revision 1.1  2002/09/09 13:00:39  e_gourgoulhon
  * Modification of declaration of Fortran 77 prototypes for
  * a better portability (in particular on IBM AIX systems):
@@ -92,20 +99,20 @@ void F77_dgesv(int *, int *, double [], int *, int [], double[], int *, int *) ;
 // -------------------------------------
 #ifdef __aix
         #define F77_integrale2d integrale2d
-        #define F77_poisson2d poisson2d
-        #define F77_poisson2di poisson2di
+        #define F77_poiss2d poiss2d
+        #define F77_poiss2di poiss2di
 #else
         #define F77_integrale2d integrale2d_
-        #define F77_poisson2d poisson2d_
-        #define F77_poisson2di poisson2di_
+        #define F77_poiss2d poiss2d_
+        #define F77_poiss2di poiss2di_
 #endif
 
 extern "C" {
 void F77_integrale2d(int[], int*, int*, int*,  double[], double[],
 			     double*) ;
-void F77_poisson2d(int[], int*, int*, int*, int[], double[], double[],
+void F77_poiss2d(int[], int*, int*, int*, int[], double[], double[],
 			   double[], double*, double[]) ;
-void F77_poisson2di(int[], int*, int*, int*, int[], double[],
+void F77_poiss2di(int[], int*, int*, int*, int[], double[],
 			    double[], double[]) ;
 }
 

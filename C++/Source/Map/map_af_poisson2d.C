@@ -32,6 +32,13 @@ char map_af_poisson2d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/09/09 13:54:20  e_gourgoulhon
+ *
+ * Change of name of the Fortran subroutines
+ * 	poisson2d -> poiss2d
+ * 	poisson2di -> poiss2di
+ * to avoid any clash with Map::poisson2d and Map::poisson2di
+ *
  * Revision 1.2  2002/09/09 13:00:39  e_gourgoulhon
  * Modification of declaration of Fortran 77 prototypes for
  * a better portability (in particular on IBM AIX systems):
@@ -273,7 +280,7 @@ void Map_af::poisson2d(const Cmp& source_mat, const Cmp& source_quad,
 	
 	    double lambda0 ; 
 	    
-	    F77_poisson2d(ndl, &ndr, &ndt, &ndp, indd, erre, tsou_m, tsou_q, 
+	    F77_poiss2d(ndl, &ndr, &ndt, &ndp, indd, erre, tsou_m, tsou_q, 
 		       &lambda0, tuu) ;
 		      
 	    base_uu = base_s ;		// output bases = input bases
@@ -289,7 +296,7 @@ void Map_af::poisson2d(const Cmp& source_mat, const Cmp& source_quad,
 		tsou[i] = tsou_m[i] + tsou_q[i] ; 
 	    }
 
-	    F77_poisson2di(ndl, &ndr, &ndt, &ndp, indd, erre, tsou, tuu) ;
+	    F77_poiss2di(ndl, &ndr, &ndt, &ndp, indd, erre, tsou, tuu) ;
 		
 	    base_uu = base_s ;		// output bases = input bases
 
