@@ -32,6 +32,10 @@ char star_equil_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/02/27 09:57:55  f_limousin
+ * We now update the metric gamma at the end of this routine for
+ * the calculus of mass_b and mass_g.
+ *
  * Revision 1.3  2004/02/21 17:05:13  e_gourgoulhon
  * Method Scalar::point renamed Scalar::val_grid_point.
  * Method Scalar::set_point renamed Scalar::set_grid_point.
@@ -261,10 +265,19 @@ void Star::equilibrium_spher(double ent_c, double precis){
     // ----------------------------------------------
     mp = mpaff ; 
 
-
     // Sets value to all the Tenseur's of the star
     // -------------------------------------------
     
+    nnn = exp( logn ) ; 
+    a_car = qq * qq / ( nnn * nnn ) ;
+    Sym_tensor gamma_cov(mp, COV, mp.get_bvect_spher()) ;
+    gamma_cov.set_etat_zero() ;
+
+    for (int i=1; i<=3; i++){
+	gamma_cov.set(i,i) = a_car ;
+    }
+    gamma = gamma_cov ;
+
     // ... hydro 
     ent.annule(nzet, nz-1) ;	// enthalpy set to zero at the exterior of 
 				// the star
@@ -273,20 +286,6 @@ void Star::equilibrium_spher(double ent_c, double precis){
     gam_euler = 1 ;  
     for(int i=1; i<=3; i++) u_euler.set(i) = 0 ; 
     
-    // ... metric
-    nnn = exp( logn ) ;
-    nnn.std_spectral_base() ;
-    for(int i=1; i<=3; i++) shift.set(i) = 0 ; 
- 
-    Sym_tensor tens_gamma(mp, COV, mp.get_bvect_spher()) ;
-    for (int i=1; i<=3; i++)
-	for (int j=1; j<=3; j++){
-	    if (i == j) tens_gamma.set(i,i) = a_car ;
-	    else tens_gamma.set(i,j) = 0. ;
-	}
-    gamma = tens_gamma ;
-
- 
     // Info printing
     // -------------
     
