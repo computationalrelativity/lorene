@@ -3,7 +3,7 @@
  */
 
 /*
- *   Copyright (c) 1999-2003 Eric Gourgoulhon
+ *   Copyright (c) 1999-2004 Eric Gourgoulhon
  *   Copyright (c) 1999-2001 Philippe Grandclement
  *
  *   This file is part of LORENE.
@@ -30,6 +30,11 @@ char map_af_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/01/22 16:13:00  e_gourgoulhon
+ * Case dzpuis=2 treated in dsdr, srdsdt and srstdsdp (output: dzpuis =
+ * 3).
+ * Reorganization cases dzpuis = 0 and 4.
+ *
  * Revision 1.5  2003/11/11 15:31:43  j_novak
  * Added a #ifnedef... to prevent warnings.
  *
@@ -117,43 +122,74 @@ void Map_af::dsdr(const Cmp& ci, Cmp& resu) const {
     }
     else {   
 	assert( ci.get_etat() == ETATQCQ ) ; 
-	bool dz_zero = ci.check_dzpuis(0) ;
-#ifndef NDEBUG
-	bool dz_four = ci.check_dzpuis(4) ;
-#endif
+        
 
 	(ci.va).coef() ;    // (ci.va).c_cf is up to date
 	
 	int nz = mg->get_nzone() ; 
-	if (dz_zero) {
-	  resu = (ci.va).dsdx() * dxdr ;     //  dxi/dR, - dxi/dU (ZEC)
+	int nzm1 = nz - 1 ;
+
+        switch( ci.get_dzpuis() ) {
+        
+            case 0 : {
+	        resu = (ci.va).dsdx() * dxdr ;     //  dxdr = dxi/dR, - dxi/dU (ZEC)
 	
-	  if (mg->get_type_r(nz-1) == UNSURR) {
-	    resu.set_dzpuis(2) ;	    // r^2 d/dr has been computed in the
+	        if (mg->get_type_r(nzm1) == UNSURR) {
+	            resu.set_dzpuis(2) ;    // r^2 d/dr has been computed in the
 					    // external domain
-	  }
-	}
-	else { //we have dzpuis =4 for the input
-	  int nzm1 = nz - 1 ;
-	  assert(dz_four) ;
-	  assert(mg->get_type_r(nzm1) == UNSURR) ;
+	        } 
+                break ; 
+            }
+            
+            case 2 : {
+	        assert(mg->get_type_r(nzm1) == UNSURR) ;
+                
+	        Valeur tmp((ci.va).dsdx() * dxdr) ;
+                tmp.annule(nzm1) ;  // zero in the CED
 
-	  Valeur tmp(ci.va.dsdx() * dxdr) ;
-	  Valeur tmp2 = tmp ;
-	  tmp2.base = (ci.va).dsdx().base ;
-	  tmp.annule(nzm1) ; // not in the CED
-	  tmp2.annule(0, nz-2) ; // special treatment of the CED
-	  tmp2.mult_xm1_zec() ;
-	  tmp2 = tmp2 / xsr ;
-	  tmp2.set(nzm1) -= 4*ci.va(nzm1) ;
-	  tmp2.base = ci.va.base ; //Just for the CED
-	  tmp2.mult_xm1_zec() ;
+                // Special treatment in the CED
+                Valeur tmp_ced = - (ci.va).dsdx() ; 
+                tmp_ced.annule(0, nz-2) ; // only non zero in the CED
+                tmp_ced.mult_xm1_zec() ; 
+                tmp_ced.set(nzm1) -= 2. * ci.va(nzm1) ; 
+                
+                // Recombination shells + CED : 
+                resu = tmp + tmp_ced ;
+                
+                resu.set_dzpuis(3) ;         
+                break ; 
+            }
+            
+            case 4 : {
+	        assert(mg->get_type_r(nzm1) == UNSURR) ;
 
-	  resu = tmp + tmp2 / xsr  ; 
-	  resu.set_dzpuis(4) ;
+	        Valeur tmp(ci.va.dsdx() * dxdr) ;
+	        Valeur tmp2 = tmp ;
+	        tmp2.base = (ci.va).dsdx().base ;
+	        tmp.annule(nzm1) ; // not in the CED
+	        tmp2.annule(0, nz-2) ; // special treatment of the CED
+	        tmp2.mult_xm1_zec() ;
+	        tmp2 = tmp2 / xsr ;
+	        tmp2.set(nzm1) -= 4*ci.va(nzm1) ;
+	        tmp2.base = ci.va.base ; //Just for the CED
+	        tmp2.mult_xm1_zec() ;
+
+	        resu = tmp + tmp2 / xsr  ; 
+	        resu.set_dzpuis(4) ;
+                break ; 
+            }
+            
+            default : {
+                cerr << "Map_af::dsdr: unexpected value of input dzpuis !\n"
+                    << "  ci.get_dzpuis() = " << ci.get_dzpuis() << endl ; 
+                abort() ; 
+                break ; 
+            }
+            
+        }
+
 	  
-	}
-	(resu.va).base = (ci.va).dsdx().base ;	// same basis as d/dxi
+	(resu.va).set_base( (ci.va).dsdx().get_base() ) ; // same basis as d/dxi
 
     }
     
@@ -174,10 +210,7 @@ void Map_af::srdsdt(const Cmp& ci, Cmp& resu) const {
     else {
 
 	assert( ci.get_etat() == ETATQCQ ) ; 
-	bool dz_zero = ci.check_dzpuis(0) ;
-#ifndef NDEBUG
-	bool dz_four = ci.check_dzpuis(4) ;
-#endif
+
 	(ci.va).coef() ;    // (ci.va).c_cf is up to date
 
 	Valeur tmp = ci.va ; 
@@ -185,38 +218,76 @@ void Map_af::srdsdt(const Cmp& ci, Cmp& resu) const {
 	tmp = tmp.dsdt() ;	// d/dtheta
 
 	int nz = mg->get_nzone() ; 
+	int nzm1 = nz - 1 ;
 
-	if (dz_zero) {
-	  tmp = tmp.sx() ;	// 1/xi, Id, 1/(xi-1)
+        switch( ci.get_dzpuis() ) {
+        
+            case 0 : {
+	        tmp = tmp.sx() ;	// 1/xi, Id, 1/(xi-1)
 	
-	  Base_val sauve_base( tmp.base ) ; 
+	        Base_val sauve_base( tmp.get_base() ) ; 
 
-	  tmp = tmp * xsr ;	// xi/R, 1/R, (xi-1)/U
+	        tmp = tmp * xsr ;	// xi/R, 1/R, (xi-1)/U
 
-	  tmp.base = sauve_base ;   // The above operation does not the basis
-	  resu = tmp ;
+	        tmp.set_base(sauve_base) ;   // The above operation does not the basis
+	        resu = tmp ;
 	  
-	  if (mg->get_type_r(nz-1) == UNSURR) {
-	    resu.set_dzpuis(2) ;	    // r d/dtheta has been computed in
-					    // the external domain
-	  }
-	}
-	else {
-	  assert (dz_four) ;
-	  Valeur tmp2 = tmp ;
+	        if (mg->get_type_r(nz-1) == UNSURR) {
+	            resu.set_dzpuis(2) ;	    // r d/dtheta has been computed in
+					            // the external domain
+	        }
+                break ; 
+            }
+            
+            case 2 : {
+	        assert(mg->get_type_r(nzm1) == UNSURR) ;
+                
+                // Special treatment in the CED
+                Valeur tmp_ced = tmp ;    // d/dtheta 
+                tmp_ced.annule(0, nz-2) ; // only non zero in the CED
 
-	  tmp.annule(nz-1) ;
-	  tmp = tmp.sx() ;	// 1/xi, Id
-	
-	  Base_val sauve_base( tmp.base ) ; 
-	  tmp2.annule(0,nz-2) ;
+                tmp.annule(nzm1) ; 
+	        tmp = tmp.sx() ;	// 1/xi, Id
+	        Base_val sauve_base( tmp.get_base() ) ; 
+	        tmp = tmp * xsr ;	// xi/R, 1/R
+	        tmp.set_base(sauve_base) ;   // The above operation does not the basis
+                
+                // Recombination shells + CED : 
+                resu = tmp + tmp_ced ;
+                
+                resu.set_dzpuis(3) ;         
+                break ; 
+            }
+            
+            case 4 : {
+	        assert(mg->get_type_r(nzm1) == UNSURR) ;
 
-	  tmp2.mult_xm1_zec() ;
-	  resu = tmp *xsr + tmp2 /xsr ;
+                // Special treatment in the CED
+	        Valeur tmp_ced = tmp ;  // d/dtheta
+                tmp_ced.annule(0, nz-2) ; // only non zero in the CED
+	        tmp_ced.mult_xm1_zec() ;
 
-	  resu.va.base = sauve_base ;
-	  resu.set_dzpuis(4) ;
-	}
+                tmp.annule(nzm1) ; 
+	        tmp = tmp.sx() ;	// 1/xi, Id
+	        Base_val sauve_base( tmp.get_base() ) ; 
+	        tmp = tmp * xsr ;	// xi/R, 1/R
+
+                // Recombination shells + CED : 
+	        resu = tmp + tmp_ced / xsr ;
+
+	        resu.va.set_base( sauve_base ) ;
+	        resu.set_dzpuis(4) ;
+                break ; 
+            }
+            
+            default : {
+                cerr << "Map_af::srdsdt: unexpected value of input dzpuis !\n"
+                    << "  ci.get_dzpuis() = " << ci.get_dzpuis() << endl ; 
+                abort() ; 
+                break ; 
+            }
+            
+        }
 
     }
     
@@ -237,54 +308,89 @@ void Map_af::srstdsdp(const Cmp& ci, Cmp& resu) const {
     }
     else {
 
-	assert( ci.get_etat() == ETATQCQ) ; 
-	bool dz_zero = ci.check_dzpuis(0) ;
-#ifndef NDEBUG
-	bool dz_four = ci.check_dzpuis(4) ;
-#endif
+	assert( ci.get_etat() == ETATQCQ ) ; 
+
 	(ci.va).coef() ;    // (ci.va).c_cf is up to date
 
 	Valeur tmp = ci.va ; 
 	
-
-
 	tmp = tmp.dsdp() ;	// d/dphi
 	tmp = tmp.ssint() ;	// 1/sin(theta)
 
 	int nz = mg->get_nzone() ; 
+	int nzm1 = nz - 1 ;
 
-	if (dz_zero) {
-	  tmp = tmp.sx() ;	// 1/xi, Id, 1/(xi-1)
+        switch( ci.get_dzpuis() ) {
+        
+            case 0 : {
+	        tmp = tmp.sx() ;	// 1/xi, Id, 1/(xi-1)
 	
-	  Base_val sauve_base( tmp.base ) ; 
-	  tmp = tmp * xsr ;	// xi/R, 1/R, (xi-1)/U
+	        Base_val sauve_base( tmp.get_base() ) ; 
 
-	  tmp.base = sauve_base ;   // The above operation does not the basis
-	  resu = tmp ;
+	        tmp = tmp * xsr ;	// xi/R, 1/R, (xi-1)/U
+
+	        tmp.set_base(sauve_base) ;   // The above operation does not the basis
+	        resu = tmp ;
 	  
-	  if (mg->get_type_r(nz-1) == UNSURR) {
-	    resu.set_dzpuis(2) ;	    // r d/dtheta has been computed in
-					    // the external domain
-	  }
-	}
-	else {
-	  assert (dz_four) ;
-	  Valeur tmp2 = tmp ;
+	        if (mg->get_type_r(nz-1) == UNSURR) {
+	            resu.set_dzpuis(2) ;	    // r d/dtheta has been computed in
+					            // the external domain
+	        }
+                break ; 
+            }
+            
+            case 2 : {
+	        assert(mg->get_type_r(nzm1) == UNSURR) ;
+                
+                // Special treatment in the CED
+                Valeur tmp_ced = tmp ;    // 1/sin(theta) d/dphi 
+                tmp_ced.annule(0, nz-2) ; // only non zero in the CED
 
-	  tmp.annule(nz-1) ;
-	  tmp = tmp.sx() ;	// 1/xi, Id
-	
-	  Base_val sauve_base( tmp.base ) ; 
-	  tmp2.annule(0,nz-2) ;
+                tmp.annule(nzm1) ; 
+	        tmp = tmp.sx() ;	// 1/xi, Id
+	        Base_val sauve_base( tmp.get_base() ) ; 
+	        tmp = tmp * xsr ;	// xi/R, 1/R
+	        tmp.set_base(sauve_base) ;   // The above operation does not the basis
+                
+                // Recombination shells + CED : 
+                resu = tmp + tmp_ced ;
+                
+                resu.set_dzpuis(3) ;         
+                break ; 
+            }
+            
+            case 4 : {
+	        assert(mg->get_type_r(nzm1) == UNSURR) ;
 
-	  tmp2.mult_xm1_zec() ;
-	  resu = tmp *xsr + tmp2 / xsr ;
+                // Special treatment in the CED
+	        Valeur tmp_ced = tmp ;  // 1/sin(theta) d/dphi 
+                tmp_ced.annule(0, nz-2) ; // only non zero in the CED
+	        tmp_ced.mult_xm1_zec() ;
 
-	  resu.va.base = sauve_base ;
-	  resu.set_dzpuis(4) ;
-	}
+                tmp.annule(nzm1) ; 
+	        tmp = tmp.sx() ;	// 1/xi, Id
+	        Base_val sauve_base( tmp.get_base() ) ; 
+	        tmp = tmp * xsr ;	// xi/R, 1/R
+
+                // Recombination shells + CED : 
+	        resu = tmp + tmp_ced / xsr ;
+
+	        resu.va.set_base( sauve_base ) ;
+	        resu.set_dzpuis(4) ;
+                break ; 
+            }
+            
+            default : {
+                cerr << "Map_af::srstdsdp: unexpected value of input dzpuis !\n"
+                    << "  ci.get_dzpuis() = " << ci.get_dzpuis() << endl ; 
+                abort() ; 
+                break ; 
+            }
+            
+        }
 
     }
+
     
 }
 
