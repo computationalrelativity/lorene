@@ -28,6 +28,9 @@ char test_poisson_vect_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/29 11:05:44  e_gourgoulhon
+ * Twice inc2_dzpuis() relaced by inc_dzpuis(4).
+ *
  * Revision 1.1  2003/10/27 09:19:26  j_novak
  * Test file for vector Poisson equation in spherical components
  *
@@ -112,8 +115,7 @@ int main() {
 
   	Vector vvs = vvc ; 
   	vvs.change_triad( map.get_bvect_spher() ) ;
-  	vvs.inc2_dzpuis() ;
-  	vvs.inc2_dzpuis() ;
+  	vvs.inc_dzpuis(4) ;
 
 	Vector resus = vvs.poisson(lamda) ;
 	Vector resu = resus ;
