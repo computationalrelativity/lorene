@@ -60,5 +60,4 @@ $(EXE6): $(OBJ6)
 uninstall:
 	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5) $(OBJ6)
 	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5) $(EXE6)
-	rm -f *.d
 
