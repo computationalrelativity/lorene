@@ -30,6 +30,10 @@ char strot_dirac_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/02/09 13:36:01  lm_lin
+ *
+ * Add the calculations of GRV2, T/W, R_circ, and flattening.
+ *
  * Revision 1.3  2005/02/02 10:11:24  j_novak
  * Better calculation of the GRV3 identity.
  *
@@ -50,11 +54,11 @@ char strot_dirac_global_C[] = "$Header$" ;
 #include "utilitaires.h" 
 
 
-        //-------------------------------------------------//
-        //                Baryonic mass                    //
-        //                                                 //
-        //  Note: In Lorene units, neutron mass is unity   //
-        //-------------------------------------------------//
+        //-------------------------------------------------------//
+        //                Baryonic mass                          //
+        //                                                       //
+        //  Note: In Lorene units, mean particle mass is unity   //
+        //-------------------------------------------------------//
 
 
 double Star_rot_Dirac::mass_b() const {
@@ -136,59 +140,93 @@ double Star_rot_Dirac::angu_mom() const {
 
 }
 
+                     //---------------------//
+                     //        T/W          //
+                     //---------------------//
 
-                  //-----------------------//
-                  //        GRV2           //   
-                  // ** still under development  //
-                  //-----------------------//
+double Star_rot_Dirac::tsw() const {
+
+  if (p_tsw == 0x0) {    // a new computation is required
+
+    double tcin = 0.5 * omega * angu_mom() ;
+
+    Scalar dens = sqrt( gamma.determinant() ) * gam_euler * ener ;
+    
+    dens.std_spectral_base() ;
+    
+    double mass_p = dens.integrale() ;
+
+    p_tsw = new double( tcin / ( mass_p + tcin - mass_g() ) ) ;
+
+  }
+
+  return *p_tsw ;
+
+}
+
+
+      //--------------------------------------------------------------//
+      //                        GRV2                                  //   
+      // cf. Eq. (28) of Bonazzola & Gourgoulhon CQG, 11, 1775 (1994) // 
+      //                                                              //
+      //--------------------------------------------------------------//
 
 double Star_rot_Dirac::grv2() const {
 
   using namespace Unites ;
+
   if (p_grv2 == 0x0) {    // a new computation is required
 
 
-    Scalar u_square = contract(contract(gamma.cov(),0, u_euler, 0),
-			     0, u_euler, 0) ;
+    // determinant of the 2-metric k_{ab}
+
+    Scalar k_det = gamma.cov()(1,1)*gamma.cov()(2,2) - 
+                      gamma.cov()(1,2)*gamma.cov()(1,2) ;
+
 
     //**
     // sou_m = 8\pi T_{\mu\nu} m^{\mu}m^{\nu}
-    // m^{\mu} = (0,0,0, r sint/M) in the spherical orthonormal basis. 
+    // => sou_m = 8\pi [ (E+P) U^2 + P ], where v^2 = v_i v^i 
     //
-    // => sou_m = (r sint)^2 [ (E+P) U^2 + P ], U=v_i v^i 
-    //
-    // GRV2 paper (cf. Bonazzola & Gourgoulhon CQG 11, 1775 (1994). 
     //**
 
-    Scalar sou_m = 2 * qpig * ( (ener_euler + press)*u_square + press ) ;
+    Scalar sou_m = 2 * qpig * ( (ener_euler + press)*v2 + press ) ;
+
+    sou_m = sqrt( k_det )*sou_m ;
 
     sou_m.std_spectral_base() ;
 
-    sou_m.mult_rsint() ;
-    
-    sou_m.mult_rsint() ;
 
+    // This is the term 3k_a k^a. 
 
-    // aa_quad = \tilde{A}_{ij} A^{ij} = K_{ij} K^{ij} (for trace(K)=0)
+    Scalar sou_q = 3 *( taa(1,3) * aa(1,3) 
+			+ taa(2,3)*aa(2,3) )  ;
 
-    Scalar sou_q = 1.5 * aa_quad ;
-
-    // Here is the term \nu_{|| a}\nu^{|| a} in the GRV2 paper. 
+  
+    // This is the term \nu_{|| a}\nu^{|| a}. 
     //
 
     Scalar sou_tmp = gamma.con()(1,1) * logn.dsdr() * logn.dsdr() ;
     
     Scalar term_2 = 2 * gamma.con()(1,2) * logn.dsdr() * logn.dsdt() ;
+
     term_2.div_r_dzpuis(4) ;
 
     Scalar term_3 = gamma.con()(2,2) * logn.dsdt() * logn.dsdt() ;
+
     term_3.div_r_dzpuis(4) ;
     term_3.div_r_dzpuis(4) ;
 
     sou_tmp += term_2 + term_3 ;
 
+
+    // Source of the gravitational part
+
     sou_q -= sou_tmp ;
 
+    sou_q = sqrt( k_det )*sou_q ;
+    
+    sou_q.std_spectral_base() ;
 
     p_grv2 = new double( double(1) - lambda_grv2(sou_m, sou_q) ) ;
     
@@ -247,13 +285,55 @@ double Star_rot_Dirac::grv3() const {
 
     double int_mat = sou_m.integrale() ;
 
-    //    p_grv3 = new double( (int_grav + int_mat) / int_mat ) ;
+    p_grv3 = new double( (int_grav + int_mat) / int_mat ) ;
     
-    p_grv3 = new double( int_grav + int_mat ) ;
 
 
   }
 
   return *p_grv3 ;
+
+}
+
+
+                //--------------------//
+                //     R_circ         //
+                //--------------------//
+
+double Star_rot_Dirac::r_circ() const {
+
+  if (p_r_circ ==0x0) {  // a new computation is required
+
+    // Index of the point at phi=0, theta=pi/2 at the surface of the star:
+    const Mg3d* mg = mp.get_mg() ;
+    assert(mg->get_type_t() == SYM) ;
+    int l_b = nzet - 1 ; 
+    int i_b = mg->get_nr(l_b) - 1 ; 
+    int j_b = mg->get_nt(l_b) - 1 ; 
+    int k_b = 0 ;
+
+    double gamma_phi = gamma.cov()(3,3).val_grid_point(l_b, k_b, j_b, i_b) ;
+
+    p_r_circ = new double( sqrt( gamma_phi ) * ray_eq() ) ;
+
+  }
+
+  return *p_r_circ ;
+
+}
+
+                //--------------------------//
+                //       Flattening         //
+                //--------------------------//
+
+double Star_rot_Dirac::aplat() const {
+
+  if (p_aplat == 0x0) {   // a new computation is required
+
+    p_aplat = new double( ray_pole() / ray_eq() ) ;
+
+  }
+
+  return *p_aplat ;
 
 }
