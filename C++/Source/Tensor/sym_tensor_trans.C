@@ -32,6 +32,10 @@ char sym_tensor_trans_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2005/01/03 12:37:08  j_novak
+ * Sym_tensor_trans::trace_from_det_one : modified the test on hijtt to
+ * be compatible with older compilers.
+ *
  * Revision 1.13  2005/01/03 08:36:36  f_limousin
  * Come back to the previous version.
  *
@@ -298,8 +302,11 @@ const Sym_tensor_tt& Sym_tensor_trans::tt_part(Param* par) const {
 void Sym_tensor_trans::trace_from_det_one(const Sym_tensor_tt& hijtt, 
 					   double precis, int it_max) {
     
-    assert (&hijtt != this) ;
 #ifndef NDEBUG
+  const Sym_tensor_trans* ptmp = 
+    dynamic_cast<const Sym_tensor_trans*>(&hijtt) ;
+  assert (ptmp != 0x0) ;
+    assert (ptmp != this) ;
     for (int i=0; i<hijtt.get_n_comp(); i++)
 	assert(hijtt.cmp[i]->check_dzpuis(2)) ;
 #endif
