@@ -28,6 +28,9 @@ char simple_wave_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/12/14 21:53:26  e_gourgoulhon
+ * Added 3D visualization of vector field through Vector::visu_arrows.
+ *
  * Revision 1.2  2003/12/11 16:21:05  e_gourgoulhon
  * Use simplified version of Scalar::visu_section.
  *
@@ -95,20 +98,15 @@ int main() {
 
     Scalar source(map) ;  // construction of an object of Lorene class Scalar
     
-    source = exp( - r*r ) * (1 + x + x*y) ; 
+    source = 2* exp( - r*r ) * (1 + x + x*y) ; 
     
     source.annule_domain(nz-1) ; // The source is set to zero in the last
                                  // domain 
     
     source.std_spectral_base() ; // sets the bases for the spectral expansions
                                  // to the standard ones for a scalar field
-    //Scalar tmp(map) ; 
-    //tmp = 2 ; 
-    //source.set_domain(nz-1) = tmp.domain(nz-1) ; 
-    //source.set_dzpuis(4) ; 
-                        
 
-    cout << source << endl ; 
+    cout << source << endl ;    // prints to screen 
     
     source.spectral_display() ;     // prints the spectral expansions
     
@@ -122,7 +120,7 @@ int main() {
     // ----------------------------
     
     double z0 = 0 ;     // section plane : z = z0
-    source.visu_section('z', z0, -2., 2., -1., 2.) ;
+    source.visu_section('z', z0, -2., 2., -1.5, 1.5, "Une belle legende") ;
     
     // Resolution of a Poisson equation 
     // --------------------------------
@@ -134,6 +132,8 @@ int main() {
     pot.spectral_display() ;     // prints the spectral expansions 
                                      
     des_coupe_z( Cmp(pot), 0., 2, "Potential") ; 
+    
+    pot.visu_section('z', z0, -2., 2., -1.5, 1.5, "Potential", "pot") ;
 
     // Construction of a flat metric
     // -----------------------------
@@ -142,6 +142,11 @@ int main() {
     Metric_flat metc(map, map.get_bvect_cart()) ;  // Cartesian representation
 
     Vector dpot = pot.derive_cov(metc) ; 
+    
+    // des_coupe_vect_z(dpot, 0., -2., 0.5, 2, "Gradient of potential") ; 
+
+    dpot.visu_arrows(-1., 1., -1., 1., -1., 1., "Gradient of potential", 
+                     "gradient") ; 
 
     return EXIT_SUCCESS ; 
 }
