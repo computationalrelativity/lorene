@@ -26,8 +26,8 @@ CXXFLAGS_G = -n32 -g -mips4 -LANG:ansi-for-init-scope=on -fullwarn -ptv
 
 # Path for the include files:
 # --------------------------
-INC	= -I$(HOME_LORENE)/C++/Include -I/usr/include/CC -I/usr/local/include \
-	  -I$(HOME_LORENE)/C++/Include_extra
+INC	= -I$(HOME_LORENE)/C++/Include -I/usr/include/CC \
+		-I$(HOME_LORENE)/C++/Include_extra
 
 # Converting archives to random libraries (if required, otherwise just ls)
 # ------------------------------------------------------------------------
@@ -60,6 +60,6 @@ LIB_LAPACK = -lcomplib.sgimath
 
 # Graphical libraries: PGPLOT and X11
 # -----------------------------------
-LIB_PGPLOT = -L/usr/local/lib -lcpgplot -lpgplot -lX11
+LIB_PGPLOT = -L/usr/freeware/lib -lcpgplot -lpgplot -lX11
 
 
