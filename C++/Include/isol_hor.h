@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/10/29 15:46:14  jl_jaramillo
+ * Remove 2 members, add ADM angular momentum and change name
+ * of functions.
+ *
  * Revision 1.6  2004/10/01 16:51:16  f_limousin
  * Pure Dirichlet boundary condition added
  *
@@ -85,17 +89,7 @@ class Isol_hor : public Time_slice_conf {
   // Data : 
   // -----
  protected: 
-  /** The time derivative \f$\dot{\gamma}_{ij} \f$ of the physical metric \f$.
-   */
-  mutable Evolution_std<Sym_tensor> gam_point_evol ;
-  
-  /** The time derivative \f$ \dot{\tilde{\gamma}}_{ij} \f$ of the conformal metric \f$.
-   */
-  mutable Evolution_std<Sym_tensor> gamt_point_evol ;
 
-  //  /** Radius of the horizon 
-  //  */
-  //  Evolution_std<double> radius_evol ;  // NO SE PUEDE DEFINIR eVOLUTION DE UN DOUBLE: ?
 
   // Constructors - Destructor
   // -------------------------
@@ -116,57 +110,6 @@ class Isol_hor : public Time_slice_conf {
   /// Assignment to another Hor_isol
   void operator=(const Isol_hor&) ;	
 	
-  // Accessors
-  // ---------
- public:
-  // Virtual functions from base class Time_slice_conf:
-  // -------------------------------------------------
-  
-  /** Deviation \f$ h^{ij} \f$ 
-   * of the conformal metric \f$ \tilde\gamma^{ij} \f$ from 
-   * the flat metric \f$ f^{ij} \f$: 
-   * \f$\tilde\gamma^{ij} = f^{ij} + h^{ij} \f$.
-   * Returns the value at the current time step (\c jtime ).
-   */        
-  //  virtual const Sym_tensor& hh() const ; 
-  
-  /** Trace \e K of the extrinsic curvature 
-   *  at the current time step (\c jtime ).
-   * It is null in the present case (maximal slicing)
-   */        
-  //  virtual const Scalar& trk() const ; 
-  
-  /** Vector \f$ H^i = {\cal D}_j \tilde\gamma^{ij} \f$ 
-   * which vanishes in Dirac gauge.
-   * It is null in the present case...
-   */
-  //  virtual const Vector& hdirac() const ; 
-  
-  
-  // Virtual functions from this Tslice_dir_max:
-  // ------------------------------------------
-  
-  /** Returns the \f$\chi \f$ potential of \f$ \bar{h}^{ij} \f$.
-   *
-   * It is given by \f$ \chi = r^2 \bar{h}^{rr}\f$.
-   */
-  //virtual const Scalar& khi() const ; 
-  
-  /** Returns the \f$\mu \f$ potential of \f$ \bar{h}^{ij} \f$.
-   *
-   * See the documentation of \c Sym_tensor_tt for details.
-   */
-  //virtual const Scalar& mu() const ;
-  
-  /** Returns the trace, with respect to the flat metric 
-   * \c ff , of \f$ h^{ij} \f$.
-   */
-  //virtual const Scalar& trh() const ;
-  
-
-
-  // Virtual functions of this class:
-  // -------------------------------
 
   // Physical parameters
   //--------------------
@@ -199,47 +142,36 @@ class Isol_hor : public Time_slice_conf {
   /** Orbital velocity    */
   double omega_hor()  ;
   
-
+  /** ADM angular Momentum    */
+  double ang_mom_adm() ;
 
 
 
   //Computational methods
   //---------------------
  public:
+  
   void init_data(const Sym_tensor& uu, const Scalar& trk_in, 
-		 const Scalar& trk_point, double precis = 1.e-12, 
-		 const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
-		 const Scalar* trace_stress=0x0 ) ; 
-        
-
-  void init_data_schwar(const Sym_tensor& uu, const Scalar& trk_in, 
 		 const Scalar& trk_point, double precis = 1.e-12,
 			double relax = 1., int niter = 100,
 		 const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
 		 const Scalar* trace_stress=0x0 ) ; 
         
-  void init_data_rot(const Sym_tensor& uu, const Scalar& trk_in, 
-		 const Scalar& trk_point, double precis = 1.e-12,
-		 const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
-		 const Scalar* trace_stress=0x0 ) ; 
-        
-
-
 
 
   //Sources
   //-------
   
   // Source Psi
-  Scalar source_psi_hor(const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
+  Scalar source_psi(const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
 		 const Scalar* trace_stress=0x0) ;
 
   // Source NN
-  Scalar source_nn_hor( const Scalar& trk_in, const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
+  Scalar source_nn( const Scalar& trk_in, const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
 		 const Scalar* trace_stress=0x0) ;
 
   // Source beta
-  Vector source_beta_hor(const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
+  Vector source_beta(const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
 		 const Scalar* trace_stress=0x0) ;
   
 
@@ -291,16 +223,16 @@ class Isol_hor : public Time_slice_conf {
   Valeur boundary_beta_phi() ;
   
   /// Component x of boundary value of beta
-  Valeur boundary_beta_x() ;
+  Valeur boundary_beta_x(double) ;
   
   /// Component theta of boundary value of beta
-  Valeur boundary_beta_y() ;
+  Valeur boundary_beta_y(double) ;
   
   /// Component phi of boundary value of beta
-  Valeur boundary_beta_z() ;
+  Valeur boundary_beta_z(double) ;
 
   /// Vector beta for boundary conditions in cartesian  
-  Vector beta_bound_cart() ;
+  Vector beta_bound_cart(double) ;
 
 
   // Outputs
