@@ -31,6 +31,10 @@ char eos_from_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/04/09 14:32:15  e_gourgoulhon
+ * 1/ Added extra parameters in EOS computational functions (argument par)
+ * 2/ New class MEos for multi-domain EOS
+ *
  * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -106,6 +110,8 @@ int Eos_BBB2::identify() const		{ return 14; }
 
 int Eos_BalbN1H1::identify() const	{ return 15; }
 
+int MEos::identify() const	{ return 100; }
+
 
 		//---------------------------------------------//
 		//    EOS construction from a binary file      //
@@ -180,7 +186,12 @@ Eos* Eos::eos_from_file(FILE* fich) {
 	    p_eos = new Eos_BalbN1H1(fich) ;
 	    break ;
 	}
-	
+
+	case 100 : {
+	    p_eos = new MEos(fich) ;
+	    break ;
+	}
+
 	default : {
 	    cout << "Eos::eos_from_file : unknown type of EOS !" << endl ; 
 	    cout << " identificator = " << identificator << endl ; 
@@ -269,7 +280,12 @@ Eos* Eos::eos_from_file(ifstream& fich) {
 	    p_eos = new Eos_BalbN1H1(fich) ;
 	    break ;
 	}
-	
+
+	case 100 : {
+	    p_eos = new MEos(fich) ;
+	    break ;
+	}
+
 	default : {
 	    cout << "Eos::eos_from_file : unknown type of EOS !" << endl ; 
 	    cout << " identificator = " << identificator << endl ; 

@@ -33,6 +33,10 @@ char eos_strange_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/04/09 14:32:15  e_gourgoulhon
+ * 1/ Added extra parameters in EOS computational functions (argument par)
+ * 2/ New class MEos for multi-domain EOS
+ *
  * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -300,11 +304,11 @@ ostream& Eos_strange::operator>>(ostream & ost) const {
 // Baryon density from enthalpy 
 //------------------------------
 
-double Eos_strange::nbar_ent_p(double ent) const {
-    
+double Eos_strange::nbar_ent_p(double ent, const Param* ) const {
+
     if ( ent > ent0 ) {
 
-	return n0 * exp( double(3) * ent / (double(1) + eps_fit))  ; 
+	return n0 * exp( double(3) * ent / (double(1) + eps_fit))  ;
 
     }
     else{
@@ -312,17 +316,17 @@ double Eos_strange::nbar_ent_p(double ent) const {
     }
 }
 
-// Energy density from enthalpy 
+// Energy density from enthalpy
 //------------------------------
 
-double Eos_strange::ener_ent_p(double ent) const {
+double Eos_strange::ener_ent_p(double ent, const Param* ) const {
 
-    
+
     if ( ent > ent0 ) {
 
-	double pp = ( exp(fach * ent) - 1) / fach  * rho0 ; 
+	double pp = ( exp(fach * ent) - 1) / fach  * rho0 ;
 
-	return rho0 + double(3) * pp / (double(1) + eps_fit) ;   
+	return rho0 + double(3) * pp / (double(1) + eps_fit) ;
 
     }
     else{
@@ -330,11 +334,11 @@ double Eos_strange::ener_ent_p(double ent) const {
     }
 }
 
-// Pressure from enthalpy 
+// Pressure from enthalpy
 //------------------------
 
-double Eos_strange::press_ent_p(double ent) const {
-    
+double Eos_strange::press_ent_p(double ent, const Param* ) const {
+
     if ( ent > ent0 ) {
 
 	return ( exp(fach * ent) - 1) / fach  * rho0 ;
@@ -347,11 +351,11 @@ double Eos_strange::press_ent_p(double ent) const {
 
 
 
-// dln(n)/ln(H) from enthalpy 
+// dln(n)/ln(H) from enthalpy
 //---------------------------
 
-double Eos_strange::der_nbar_ent_p(double ent) const {
-    
+double Eos_strange::der_nbar_ent_p(double ent, const Param* ) const {
+
     if ( ent > ent0 ) {
 
 	return double(3) * ent / ( double(1) +  eps_fit ) ;
@@ -362,17 +366,17 @@ double Eos_strange::der_nbar_ent_p(double ent) const {
     }
 }
 
-// dln(e)/ln(H) from enthalpy 
+// dln(e)/ln(H) from enthalpy
 //---------------------------
 
-double Eos_strange::der_ener_ent_p(double ent) const {
-    
+double Eos_strange::der_ener_ent_p(double ent, const Param* ) const {
+
     if ( ent > ent0 ) {
 
-	double xx = fach * ent ; 
+	double xx = fach * ent ;
 
-	return xx / ( double(1) + 
-		( double(1) + eps_fit ) / double(3) * exp(-xx) ) ; 
+	return xx / ( double(1) +
+		( double(1) + eps_fit ) / double(3) * exp(-xx) ) ;
 
     }
     else{
@@ -380,10 +384,10 @@ double Eos_strange::der_ener_ent_p(double ent) const {
     }
 }
 
-// dln(p)/ln(H) from enthalpy 
+// dln(p)/ln(H) from enthalpy
 //---------------------------
 
-double Eos_strange::der_press_ent_p(double ent) const {
+double Eos_strange::der_press_ent_p(double ent, const Param* ) const {
     
     if ( ent > ent0 ) {
 

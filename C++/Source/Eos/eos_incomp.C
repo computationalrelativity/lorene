@@ -31,6 +31,10 @@ char eos_incomp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/04/09 14:32:15  e_gourgoulhon
+ * 1/ Added extra parameters in EOS computational functions (argument par)
+ * 2/ New class MEos for multi-domain EOS
+ *
  * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -226,7 +230,7 @@ ostream& Eos_incomp::operator>>(ostream & ost) const {
 // Baryon density from enthalpy 
 //------------------------------
 
-double Eos_incomp::nbar_ent_p(double ent) const {
+double Eos_incomp::nbar_ent_p(double ent, const Param* ) const {
     
     if ( ent >= ent0 ) {
 
@@ -240,7 +244,7 @@ double Eos_incomp::nbar_ent_p(double ent) const {
 // Energy density from enthalpy 
 //------------------------------
 
-double Eos_incomp::ener_ent_p(double ent) const {
+double Eos_incomp::ener_ent_p(double ent, const Param* ) const {
     
     if ( ent >= ent0 ) {
 
@@ -254,7 +258,7 @@ double Eos_incomp::ener_ent_p(double ent) const {
 // Pressure from enthalpy 
 //------------------------
 
-double Eos_incomp::press_ent_p(double ent) const {
+double Eos_incomp::press_ent_p(double ent, const Param* ) const {
     
     if ( ent >= ent0 ) {
 
@@ -269,7 +273,7 @@ double Eos_incomp::press_ent_p(double ent) const {
 // dln(n)/ln(H) from enthalpy 
 //---------------------------
 
-double Eos_incomp::der_nbar_ent_p(double ent) const {
+double Eos_incomp::der_nbar_ent_p(double ent, const Param* ) const {
     
     if ( ent >= ent0 ) {
     
@@ -283,7 +287,7 @@ double Eos_incomp::der_nbar_ent_p(double ent) const {
 // dln(e)/ln(H) from enthalpy 
 //---------------------------
 
-double Eos_incomp::der_ener_ent_p(double ent) const {
+double Eos_incomp::der_ener_ent_p(double ent, const Param* ) const {
     
     if ( ent >= ent0 ) {
 
@@ -297,7 +301,7 @@ double Eos_incomp::der_ener_ent_p(double ent) const {
 // dln(p)/ln(H) from enthalpy 
 //---------------------------
 
-double Eos_incomp::der_press_ent_p(double ent) const {
+double Eos_incomp::der_press_ent_p(double ent, const Param* ) const {
     
     if ( ent >= ent0 ) {
 

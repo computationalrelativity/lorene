@@ -37,8 +37,12 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/04/09 14:32:14  e_gourgoulhon
+ * 1/ Added extra parameters in EOS computational functions (argument par)
+ * 2/ New class MEos for multi-domain EOS
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.15  2001/09/12  15:54:17  eric
  * Modif documentation eos_from_file.
@@ -110,6 +114,7 @@ class ifstream ;
 // Lorene classes
 class Tbl ;
 class Cmp ;
+class Param ;
 
 		    //------------------------------------//
 		    //		base class Eos		  //
@@ -148,7 +153,7 @@ class Eos {
 	 *  {\tt Eos::eos\_from\_file(FILE* )}. 
 	 */
 	Eos(FILE* ) ; 
-	
+
 	/** Constructor from a formatted file.
 	 *  This constructor is protected because any EOS construction
 	 *  from a formatted file must be done via the function 
@@ -227,232 +232,246 @@ class Eos {
     // Computational functions
     // -----------------------
     protected:
-	/**  General computational method for {\tt Cmp}'s.
-	 * 
-	 *   @param thermo [input] thermodynamical quantity (for instance the 
-	 *	    enthalpy field)from which the 
+	/**  General computational method for {\tt Cmp}'s
+	 *
+	 *   @param thermo [input] thermodynamical quantity (for instance the
+	 *	    enthalpy field)from which the
 	 *          thermodynamical quantity {\tt resu} is to be computed.
 	 *  @param nzet  [input] number of domains where {\tt resu} is to be
-	 *	computed. 
+	 *	computed.
 	 *  @param l_min [input] index of the innermost domain is which {\tt resu}
-	 *	is to be computed [default value: 0]; {\tt resu} is 
-	 *	computed only in domains whose indices are in 
+	 *	is to be computed [default value: 0]; {\tt resu} is
+	 *	computed only in domains whose indices are in
 	 *      {\tt [l\_min, l\_min + nzet-1]}. In the other
-	 *	domains, it is set to zero. 
-	 *  @param fait [input] pointer on the member function of class 
+	 *	domains, it is set to zero.
+	 *  @param fait [input] pointer on the member function of class
 	 *		{\tt Eos} which performs the pointwise calculation.
-	 *  @param resu [output] result of the computation. 
+         * @param par possible extra parameters of the EOS
+	 *  @param resu [output] result of the computation.
 	 */
-	void calcule(const Cmp& thermo, int nzet, int l_min,  
-		     double (Eos::*fait)(double) const, Cmp& resu) const ; 
+	void calcule(const Cmp& thermo, int nzet, int l_min,
+		     double (Eos::*fait)(double, const Param*) const, const Param* par, Cmp& resu) const ;
 
 
     public:
- 	/** Computes the baryon density from the log-enthalpy 
-	 *  (virtual function implemented in the derived classes). 
-	 * 
+ 	/** Computes the baryon density from the log-enthalpy and extra parameters
+	 *  (virtual function implemented in the derived classes).
+	 *
 	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
-	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $, 
-	 *    where $e$ is the (total) energy density, $p$ the pressure, 
+	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $,
+	 *    where $e$ is the (total) energy density, $p$ the pressure,
 	 *    $n$ the baryon density, and $m_B$ the baryon mass
-	 * 
+        *  @param par possible extra parameters of the EOS
+	 *
 	 *  @return baryon density [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
-	 * 
+	 *
 	 */
-    	virtual double nbar_ent_p(double ent) const = 0 ; 
-       
+    	virtual double nbar_ent_p(double ent, const Param* par=0x0) const = 0 ;
 
-	/** Computes the baryon density field from the log-enthalpy field. 
-	 * 
+	/** Computes the baryon density field from the log-enthalpy field and
+        * extra parameters
+	 *
 	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
-	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $, 
-	 *    where $e$ is the (total) energy density, $p$ the pressure, 
+	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $,
+	 *    where $e$ is the (total) energy density, $p$ the pressure,
 	 *    $n$ the baryon density, and $m_B$ the baryon mass
 	 *  @param nzet  number of domains where the baryon density is to be
-	 *	computed. 
-	 *  @param l_min  index of the innermost domain is which the baryon 
+	 *	computed.
+	 *  @param l_min  index of the innermost domain is which the baryon
 	 *	density is
-	 *	to be computed [default value: 0]; the baryon density is 
-	 *	computed only in domains whose indices are in 
+	 *	to be computed [default value: 0]; the baryon density is
+	 *	computed only in domains whose indices are in
 	 *      {\tt [l\_min, l\_min + nzet-1]}. In the other
-	 *	domains, it is set to zero. 
-	 * 
+	 *	domains, it is set to zero.
+          *  @param par possible extra parameters of the EOS
+	 *
 	 *  @return baryon density [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
-	 * 
+	 *
 	 */
-    	Cmp nbar_ent(const Cmp& ent, int nzet, int l_min = 0) const  ; 
-    
- 	/** Computes the total energy density from the log-enthalpy 
-	 *  (virtual function implemented in the derived classes). 
-	 * 
+    	Cmp nbar_ent(const Cmp& ent, int nzet, int l_min = 0, const Param* par=0x0) const  ;
+
+ 	/** Computes the total energy density from the log-enthalpy and extra parameters
+	 *  (virtual function implemented in the derived classes).
+	 *
 	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
-	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $, 
-	 *    where $e$ is the (total) energy density, $p$ the pressure, 
+	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $,
+	 *    where $e$ is the (total) energy density, $p$ the pressure,
 	 *    $n$ the baryon density, and $m_B$ the baryon mass
-	 * 
+          *  @param par possible extra parameters of the EOS
+	 *
 	 *  @return energy density $e$ [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
-    	virtual double ener_ent_p(double ent) const = 0 ; 
-       
-	/** Computes the total energy density from the log-enthalpy. 
-	 * 
+    	virtual double ener_ent_p(double ent, const Param* par=0x0) const = 0 ;
+
+	/** Computes the total energy density from the log-enthalpy and extra parameters.
+	 *
 	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
-	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $, 
-	 *    where $e$ is the (total) energy density, $p$ the pressure, 
+	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $,
+	 *    where $e$ is the (total) energy density, $p$ the pressure,
 	 *    $n$ the baryon density, and $m_B$ the baryon mass
 	 *  @param nzet  number of domains where the energy density is to be
-	 *	computed. 
-	 *  @param l_min  index of the innermost domain is which the energy 
+	 *	computed.
+	 *  @param l_min  index of the innermost domain is which the energy
 	 *	density is
-	 *	to be computed [default value: 0]; the energy density is 
-	 *	computed only in domains whose indices are in 
+	 *	to be computed [default value: 0]; the energy density is
+	 *	computed only in domains whose indices are in
 	 *      {\tt [l\_min, l\_min + nzet-1]}. In the other
-	 *	domains, it is set to zero. 
-	 * 
+	 *	domains, it is set to zero.
+          *  @param par possible extra parameters of the EOS
+	 *
 	 *  @return energy density [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
-    	Cmp ener_ent(const Cmp& ent, int nzet, int l_min = 0) const ; 
-    
- 	/** Computes the pressure from the log-enthalpy 
-	 *  (virtual function implemented in the derived classes). 
-	 * 
+    	Cmp ener_ent(const Cmp& ent, int nzet, int l_min = 0, const Param* par=0x0) const ;
+
+	/** Computes the pressure from the log-enthalpy and extra parameters
+	 *  (virtual function implemented in the derived classes).
+	 *
 	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
-	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $, 
-	 *    where $e$ is the (total) energy density, $p$ the pressure, 
+	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $,
+	 *    where $e$ is the (total) energy density, $p$ the pressure,
 	 *    $n$ the baryon density, and $m_B$ the baryon mass
-	 * 
+          *  @param par possible extra parameters of the EOS
+	 *
 	 *  @return pressure $p$ [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
-    	virtual double press_ent_p(double ent) const = 0 ; 
-       
-	/** Computes the pressure from the log-enthalpy. 
-	 * 
+    	virtual double press_ent_p(double ent, const Param* par=0x0) const = 0 ;
+
+
+	/** Computes the pressure from the log-enthalpy and extra parameters
+	 *
 	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
-	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $, 
-	 *    where $e$ is the (total) energy density, $p$ the pressure, 
+	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $,
+	 *    where $e$ is the (total) energy density, $p$ the pressure,
 	 *    $n$ the baryon density, and $m_B$ the baryon mass
 	 *  @param nzet  number of domains where the pressure is to be
-	 *	computed. 
+	 *	computed.
 	 *  @param l_min  index of the innermost domain is which the pressure is
-	 *	to be computed [default value: 0]; the pressure is computed 
-	 *      only in domains whose indices are in 
+	 *	to be computed [default value: 0]; the pressure is computed
+	 *      only in domains whose indices are in
 	 *      {\tt [l\_min, l\_min + nzet-1]}. In the other
-	 *	domains, it is set to zero. 
-	 * 
+	 *	domains, it is set to zero.
+          *  @param par possible extra parameters of the EOS
+	 *
 	 *  @return pressure [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
-	 * 
+	 *
 	 */
-    	Cmp press_ent(const Cmp& ent, int nzet, int l_min = 0) const ; 
-    
-	/** Computes the logarithmic derivative $d\ln n/d\ln H$ 
-	 *  from the log-enthalpy 
-	 *  (virtual function implemented in the derived classes). 
-	 * 
+    	Cmp press_ent(const Cmp& ent, int nzet, int l_min = 0, const Param* par=0x0) const ;
+
+	/** Computes the logarithmic derivative $d\ln n/d\ln H$
+	 *  from the log-enthalpy and extra parameters
+	 *  (virtual function implemented in the derived classes).
+	 *
 	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
-	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $, 
-	 *    where $e$ is the (total) energy density, $p$ the pressure, 
+	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $,
+	 *    where $e$ is the (total) energy density, $p$ the pressure,
 	 *    $n$ the baryon density, and $m_B$ the baryon mass
-	 * 
+         *  @param par possible extra parameters of the EOS
+         *
 	 *  @return dln(n)/dln(H)
 	 */
-    	virtual double der_nbar_ent_p(double ent) const = 0 ; 
-       
-	/** Computes the logarithmic derivative $d\ln n/d\ln H$ 
-	 *  from the log-enthalpy. 
-	 * 
+    	virtual double der_nbar_ent_p(double ent, const Param* par=0x0) const = 0 ;
+
+	/** Computes the logarithmic derivative $d\ln n/d\ln H$
+	 *  from the log-enthalpy and extra parameters
+	 *
 	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
-	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $, 
-	 *    where $e$ is the (total) energy density, $p$ the pressure, 
+	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $,
+	 *    where $e$ is the (total) energy density, $p$ the pressure,
 	 *    $n$ the baryon density, and $m_B$ the baryon mass
-	 *  @param nzet  number of domains where the derivative 
-	 *	dln(n)/dln(H) is to be computed. 
-	 *  @param l_min  index of the innermost domain is which the 
+	 *  @param nzet  number of domains where the derivative
+	 *	dln(n)/dln(H) is to be computed.
+	 *  @param l_min  index of the innermost domain is which the
 	 *	   coefficient dln(n)/dln(H) is
-	 *	to be computed [default value: 0]; the derivative 
-	 *	dln(n)/dln(H) is 
-	 *	computed only in domains whose indices are in 
+	 *	to be computed [default value: 0]; the derivative
+	 *	dln(n)/dln(H) is
+	 *	computed only in domains whose indices are in
 	 *      {\tt [l\_min, l\_min + nzet-1]}. In the other
-	 *	domains, it is set to zero. 
-	 * 
-	 *  @return dln(n)/dln(H) 
-	 * 
+	 *	domains, it is set to zero.
+         *  @param par possible extra parameters of the EOS
+	 *
+	 *  @return dln(n)/dln(H)
+	 *
 	 */
-    	Cmp der_nbar_ent(const Cmp& ent, int nzet, int l_min = 0) const ; 
-    
-	/** Computes the logarithmic derivative $d\ln e/d\ln H$ 
-	 *  from the log-enthalpy 
-	 *  (virtual function implemented in the derived classes). 
-	 * 
+    	Cmp der_nbar_ent(const Cmp& ent, int nzet, int l_min = 0, const Param* par=0x0) const ;
+
+	/** Computes the logarithmic derivative $d\ln e/d\ln H$
+	 *  from the log-enthalpy with extra parameters
+	 *  (virtual function implemented in the derived classes).
+	 *
 	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
-	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $, 
-	 *    where $e$ is the (total) energy density, $p$ the pressure, 
+	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $,
+	 *    where $e$ is the (total) energy density, $p$ the pressure,
 	 *    $n$ the baryon density, and $m_B$ the baryon mass
-	 * 
+         *  @param par possible extra parameters of the EOS
+  	 *
 	 *  @return dln(e)/dln(H)
 	 */
-    	virtual double der_ener_ent_p(double ent) const = 0 ; 
-       
-	/** Computes the logarithmic derivative $d\ln e/d\ln H$ 
-	 *  from the log-enthalpy. 
-	 * 
+    	virtual double der_ener_ent_p(double ent, const Param* par=0x0) const = 0 ;
+
+	/** Computes the logarithmic derivative $d\ln e/d\ln H$
+	 *  from the log-enthalpy and extra parameters
+	 *
 	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
-	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $, 
-	 *    where $e$ is the (total) energy density, $p$ the pressure, 
+	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $,
+	 *    where $e$ is the (total) energy density, $p$ the pressure,
 	 *    $n$ the baryon density, and $m_B$ the baryon mass
-	 *  @param nzet  number of domains where the derivative 
-	 *	dln(e)/dln(H) is to be computed. 
-	 *  @param l_min  index of the innermost domain is which the 
+	 *  @param nzet  number of domains where the derivative
+	 *	dln(e)/dln(H) is to be computed.
+	 *  @param l_min  index of the innermost domain is which the
 	 *	   coefficient dln(n)/dln(H) is
 	 *	to be computed [default value: 0]; the derivative
-	 *	dln(e)/dln(H) is 
-	 *	computed only in domains whose indices are in 
+	 *	dln(e)/dln(H) is
+	 *	computed only in domains whose indices are in
 	 *      {\tt [l\_min, l\_min + nzet-1]}. In the other
-	 *	domains, it is set to zero. 
-	 * 
-	 *  @return dln(e)/dln(H) 
-	 * 
+	 *	domains, it is set to zero.
+         *  @param par possible extra parameters of the EOS
+	 *
+	 *  @return dln(e)/dln(H)
+	 *
 	 */
-    	Cmp der_ener_ent(const Cmp& ent, int nzet, int l_min = 0) const ; 
-    
-	/** Computes the logarithmic derivative $d\ln p/d\ln H$ 
-	 *  from the log-enthalpy 
-	 *  (virtual function implemented in the derived classes). 
-	 * 
+    	Cmp der_ener_ent(const Cmp& ent, int nzet, int l_min = 0, const Param* par=0x0) const ;
+
+	/** Computes the logarithmic derivative $d\ln p/d\ln H$
+	 *  from the log-enthalpy and extra parameters
+	 *  (virtual function implemented in the derived classes).
+	 *
 	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
-	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $, 
-	 *    where $e$ is the (total) energy density, $p$ the pressure, 
+	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $,
+	 *    where $e$ is the (total) energy density, $p$ the pressure,
 	 *    $n$ the baryon density, and $m_B$ the baryon mass
-	 * 
+        *  @param par possible extra parameters of the EOS
+	 *
 	 *  @return dln(p)/dln(H)
 	 */
-    	virtual double der_press_ent_p(double ent) const = 0 ; 
-       
-	/** Computes the logarithmic derivative $d\ln p/d\ln H$ 
-	 *  from the log-enthalpy. 
-	 * 
+    	virtual double der_press_ent_p(double ent, const Param* par=0x0) const = 0 ;
+
+	/** Computes the logarithmic derivative $d\ln p/d\ln H$
+	 *  from the log-enthalpy and extra parameters
+	 *
 	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
-	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $, 
-	 *    where $e$ is the (total) energy density, $p$ the pressure, 
+	 *    $H = c^2 \ln\left( {e+p \over m_B c^2 n} \right) $,
+	 *    where $e$ is the (total) energy density, $p$ the pressure,
 	 *    $n$ the baryon density, and $m_B$ the baryon mass
-	 *  @param nzet  number of domains where the derivative 
-	 *	dln(p)/dln(H) is to be computed. 
-	 *  @param l_min  index of the innermost domain is which the 
+	 *  @param nzet  number of domains where the derivative
+	 *	dln(p)/dln(H) is to be computed.
+        *  @param par possible extra parameters of the EOS
+	 *  @param l_min  index of the innermost domain is which the
 	 *	   coefficient dln(n)/dln(H) is
 	 *	to be computed [default value: 0]; the derivative
-	 *	dln(p)/dln(H) is 
-	 *	computed only in domains whose indices are in 
+	 *	dln(p)/dln(H) is
+	 *	computed only in domains whose indices are in
 	 *      {\tt [l\_min, l\_min + nzet-1]}. In the other
-	 *	domains, it is set to zero. 
-	 * 
-	 *  @return dln(p)/dln(H) 
-	 * 
+	 *	domains, it is set to zero.
+	 *
+	 *  @return dln(p)/dln(H)
+	 *
 	 */
-    	Cmp der_press_ent(const Cmp& ent, int nzet, int l_min = 0) const ; 
-    
+    	Cmp der_press_ent(const Cmp& ent, int nzet, int l_min = 0, const Param* par=0x0) const ;
+
 };
 
 
@@ -463,43 +482,43 @@ class Eos {
 
 /**
  * Polytropic equation of state (relativistic case).
- * 
+ *
  * This equation of state (EOS) corresponds to identical relativistic
  * particles of rest mass is $m_0$,  whose total energy density $e$ is
  * related to their numerical density $n$ by
  * \begin{equation} \label{eeospolye}
- *   e(n) = {\kappa \over \gamma-1} n^\gamma + m_0 c^2 \, n \ .  
+ *   e(n) = {\kappa \over \gamma-1} n^\gamma + m_0 c^2 \, n \ .
  * \end{equation}
  * The relativistic (i.e. including rest mass energy) chemical potential is
  * then
  * \begin{equation}  \label{eeospolymu}
- *   \mu(n) := {de\over dn} = {\kappa \gamma \over \gamma-1} n^{\gamma-1} 
- *		+ m_0 c^2  \ .  
+ *   \mu(n) := {de\over dn} = {\kappa \gamma \over \gamma-1} n^{\gamma-1}
+ *		+ m_0 c^2  \ .
  * \end{equation}
  * The pressure is given by the (zero-temperature) First Law of Thermodynamics:
  * $p = \mu n - e$, so that
  * \begin{equation} \label{eeospolyp}
- *   p(n) = \kappa n^\gamma  \ .  
+ *   p(n) = \kappa n^\gamma  \ .
  * \end{equation}
  * The log-enthalpy is defined as the logarithm of the ratio of the enthalpy
  * par particle by the partical rest mass energy :
  * \begin{equation} \label{eeospolyh}
- *   H(n) := c^2 \ln \left( {e+p \over m_0 c^2\, n} \right)   \ .  
+ *   H(n) := c^2 \ln \left( {e+p \over m_0 c^2\, n} \right)   \ .
  * \end{equation}
  * According to the (zero-temperature) First Law of Thermodynamics, the
  * log-enthalpy is related to the chemical potential by
  * \begin{equation}
- *   H = c^2 \ln \left( {\mu \over m_0 c^2} \right) \ . 
+ *   H = c^2 \ln \left( {\mu \over m_0 c^2} \right) \ .
  * \end{equation}
  * From this expression and relation (\ref{eeospolymu}), the expression
- * of the particle density in term of the log-enthalpy is 
+ * of the particle density in term of the log-enthalpy is
  * \begin{equation}
  *   n(H) = \left[ {\gamma-1\over \gamma} {m_0 c^2 \over \kappa} (\exp(H) - 1)
- *	    \right] ^{1/(\gamma-1)}  \ .  
+ *	    \right] ^{1/(\gamma-1)}  \ .
  * \end{equation}
  * The energy density and pressure as functions of $H$ can then be obtained
- * by inserting this relation into Eqs.~(\ref{eeospolye}) and 
- * (\ref{eeospolyp}). 
+ * by inserting this relation into Eqs.~(\ref{eeospolye}) and
+ * (\ref{eeospolyp}).
  *
  * @version #$Id$#
  */
@@ -508,37 +527,37 @@ class Eos_poly : public Eos {
     // Data :
     // -----
 
-    protected: 
+    protected:
 	/// Adiabatic index $\gamma$ (cf. Eq.~(\ref{eeospolyp}))
 	double gam ;
-	
+
 	/** Pressure coefficient $\kappa$  (cf. Eq.~(\ref{eeospolyp}))
 	 *  [unit: $\rho_{\rm nuc} c^2 / n_{\rm nuc}^\gamma$], where
 	 *  $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$ and
-	 *  $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$. 
+	 *  $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$.
 	 */
 	double kap ; 
-	
+
 	/** Individual particule mass $m_0$  (cf. Eq.~(\ref{eeospolye}))
-	 *  [unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$]. 
+	 *  [unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$].
 	 */
-	double m_0 ; 
+	double m_0 ;
 	
 	double gam1 ;	    /// $\gamma-1$
 	double unsgam1 ;    /// $1/(\gamma-1)$
 	double gam1sgamkap ; /// $(\gamma-1) / (\gamma \kappa)$
-	
+
 
     // Constructors - Destructor
     // -------------------------
     public:
     
 	/** Standard constructor.
-	 * 
+	 *
 	 *  The individual particle mass $m_0$ is set to the mean baryon
-	 *  mass $m_B = 1.66\ 10^{-27} \ {\rm kg}$. 
-	 *  
-	 *  @param gamma  adiabatic index $\gamma$ 
+	 *  mass $m_B = 1.66\ 10^{-27} \ {\rm kg}$.
+	 *
+	 *  @param gamma  adiabatic index $\gamma$
 	 *				(cf. Eq.~(\ref{eeospolyp}))
 	 *  @param kappa  pressure coefficient $\kappa$  
 	 *		(cf. Eq.~(\ref{eeospolyp}))
@@ -546,12 +565,12 @@ class Eos_poly : public Eos {
 	 *		$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$ and
 	 *		$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$
 	 */
-	Eos_poly(double gamma, double kappa) ;	
+	Eos_poly(double gamma, double kappa) ;
 
-	/** Standard constructor with individual particle mass. 
+	/** Standard constructor with individual particle mass.
 	 * 
 	 *  @param gamma  adiabatic index $\gamma$ (cf. Eq.~(\ref{eeospolyp}))
-	 *  @param kappa  pressure coefficient $\kappa$  
+	 *  @param kappa  pressure coefficient $\kappa$
 	 *		(cf. Eq.~(\ref{eeospolyp}))
 	 *		[unit: $\rho_{\rm nuc} c^2 / n_{\rm nuc}^\gamma$], where
 	 *		$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$ and
@@ -560,28 +579,28 @@ class Eos_poly : public Eos {
 	 *		 (cf. Eq.~(\ref{eeospolye}))
 	 *		[unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$]
 	 */
-	Eos_poly(double gamma, double kappa, double mass) ;	
+	Eos_poly(double gamma, double kappa, double mass) ;
 
-	Eos_poly(const Eos_poly& ) ;	/// Copy constructor	
+	Eos_poly(const Eos_poly& ) ;	/// Copy constructor
 	
     protected:
-	/** Constructor from a binary file (created by the function 
-	 *  {\tt sauve(FILE* )}). 
+	/** Constructor from a binary file (created by the function
+	 *  {\tt sauve(FILE* )}).
 	 *  This constructor is protected because any EOS construction
 	 *  from a binary file must be done via the function 
-	 *  {\tt Eos::eos\_from\_file(FILE* )}. 
+	 *  {\tt Eos::eos\_from\_file(FILE* )}.
 	 */
-	Eos_poly(FILE* ) ; 
-	
+	Eos_poly(FILE* ) ;
+
 	/** Constructor from a formatted file.
 	 *  This constructor is protected because any EOS construction
-	 *  from a formatted file must be done via the function 
+	 *  from a formatted file must be done via the function
 	 *  {\tt Eos::eos\_from\_file(ifstream\& )}. 
 	 */
-	Eos_poly(ifstream& ) ; 
-	
+	Eos_poly(ifstream& ) ;
+
 	/// The construction functions from a file
-	friend Eos* Eos::eos_from_file(FILE* ) ; 
+	friend Eos* Eos::eos_from_file(FILE* ) ;
 	friend Eos* Eos::eos_from_file(ifstream& ) ; 
 
     public:
@@ -596,114 +615,120 @@ class Eos_poly : public Eos {
     // Miscellaneous
     // -------------
 
-    public : 
+    public :
 	/// Comparison operator (egality)
-	virtual bool operator==(const Eos& ) const ; 
+	virtual bool operator==(const Eos& ) const ;
 
 	/// Comparison operator (difference)
-	virtual bool operator!=(const Eos& ) const ; 
-    
+	virtual bool operator!=(const Eos& ) const ;
+
 	/** Returns a number to identify the sub-classe of {\tt Eos} the
-	 *  object belongs to. 
+	 *  object belongs to.
 	 */
 	virtual int identify() const ; 
 
 	/// Returns the adiabatic index $\gamma$ (cf. Eq.~(\ref{eeospolyp}))
 	double get_gam() const ;
-	
+
 	/** Returns the pressure coefficient $\kappa$  (cf. Eq.~(\ref{eeospolyp}))
 	 *  [unit: $\rho_{\rm nuc} c^2 / n_{\rm nuc}^\gamma$], where
 	 *  $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$ and
-	 *  $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$. 
+	 *  $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$.
 	 */
-	double get_kap() const ; 
+	double get_kap() const ;
 	
-	/** Return the individual particule mass $m_0$  
+	/** Return the individual particule mass $m_0$
 	 *  (cf. Eq.~(\ref{eeospolye}))
-	 *  [unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$]. 
+	 *  [unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$].
 	 */
-	double get_m_0() const ; 
+	double get_m_0() const ;
 
     protected:
 	/** Computes the auxiliary quantities {\tt gam1}, {\tt unsgam1},
 	 *  {\tt gam1sgamkap} from the values of {\tt gam} and {\tt kap}
 	 */
-	void set_auxiliary() ; 
+	void set_auxiliary() ;
     
 
     // Outputs
     // -------
 
-    public: 
+    public:
 	virtual void sauve(FILE* ) const ;	/// Save in a file
 
-    protected: 
+    protected:
 	virtual ostream& operator>>(ostream &) const ;    /// Operator >>
 
 
     // Computational functions
     // -----------------------
 
-    public: 
+    public:
 	/** Computes the baryon density from the log-enthalpy.
-	 * 
+	 *
 	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
 	 *				     Eq. (\ref{eeospolyh})
 	 *
+        *  @param par possible extra parameters of the EOS
 	 *  @return baryon density $n$ [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
-	 * 
+	 *
 	 */
-    	virtual double nbar_ent_p(double ent) const ; 
-    
- 	/** Computes the total energy density from the log-enthalpy. 
+    	virtual double nbar_ent_p(double ent, const Param* par=0x0) const ;
+
+ 	/** Computes the total energy density from the log-enthalpy.
 	 * 
 	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
 	 *				     Eq. (\ref{eeospolyh})
 	 *
+        *  @param par possible extra parameters of the EOS
 	 *  @return energy density $e$ [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
-    	virtual double ener_ent_p(double ent) const ; 
-       
- 	/** Computes the pressure from the log-enthalpy. 
-	 * 
+    	virtual double ener_ent_p(double ent, const Param* par=0x0) const ;
+
+ 	/** Computes the pressure from the log-enthalpy.
+	 *
 	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
 	 *				     Eq. (\ref{eeospolyh})
 	 *
+        *  @param par possible extra parameters of the EOS
 	 *  @return pressure $p$ [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
-    	virtual double press_ent_p(double ent) const ; 
-       
-	/** Computes the logarithmic derivative $d\ln n/d\ln H$ 
-	 * from the log-enthalpy. 
-	 * 
+    	virtual double press_ent_p(double ent, const Param* par=0x0) const ;
+
+	/** Computes the logarithmic derivative $d\ln n/d\ln H$
+	 * from the log-enthalpy.
+	 *
 	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
 	 *				     Eq. (\ref{eeospolyh})
 	 *
+        *  @param par possible extra parameters of the EOS
 	 *  @return dln(n)/dln(H)
 	 */
-    	virtual double der_nbar_ent_p(double ent) const ; 
-       
-	/** Computes the logarithmic derivative $d\ln e/d\ln H$ 
-	 * from the log-enthalpy. 
+    	virtual double der_nbar_ent_p(double ent, const Param* par=0x0) const ;
+
+	/** Computes the logarithmic derivative $d\ln e/d\ln H$
+	 * from the log-enthalpy.
 	 * 
 	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
 	 *				     Eq. (\ref{eeospolyh})
 	 *
+        *  @param par possible extra parameters of the EOS
 	 *  @return dln(e)/dln(H)
 	 */
-    	virtual double der_ener_ent_p(double ent) const ; 
-       
-	/** Computes the logarithmic derivative $d\ln p/d\ln H$ 
-	 * from the log-enthalpy. 
-	 * 
+    	virtual double der_ener_ent_p(double ent, const Param* par=0x0) const ;
+
+	/** Computes the logarithmic derivative $d\ln p/d\ln H$
+	 * from the log-enthalpy.
+	 *
 	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
 	 *				     Eq. (\ref{eeospolyh})
 	 *
+        *  @param par possible extra parameters of the EOS
 	 *  @return dln(p)/dln(H)
 	 */
-    	virtual double der_press_ent_p(double ent) const ; 
+    	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ;
        
 };
 
@@ -715,18 +740,18 @@ class Eos_poly : public Eos {
 
 /**
  * Polytropic equation of state (Newtonian case).
- * 
+ *
  * This equation of state (EOS) corresponds to identical non relativistic
  * particles of rest mass is $m_0$,  whose internal energy density $\epsilon$ is
  * related to their numerical density $n$ by
  * \begin{equation} \label{eeospolynewte}
- *   \epsilon(n) = {\kappa \over \gamma-1} n^\gamma  \ .  
+ *   \epsilon(n) = {\kappa \over \gamma-1} n^\gamma  \ .
  * \end{equation}
  * The (non-relativistic) chemical potential is
  * then
  * \begin{equation}  \label{eeospolynewtmu}
  *   \mu(n) := {d\epsilon\over dn} = {\kappa \gamma \over \gamma-1} n^{\gamma-1}
- *		  \ .  
+ *		  \ .
  * \end{equation}
  * The pressure is given by the (zero-temperature) First Law of Thermodynamics:
  * $p = \mu n - \epsilon$, so that
@@ -848,7 +873,7 @@ class Eos_poly_newt : public Eos_poly {
 	 *  @return baryon density $n$ [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
 	 * 
 	 */
-    	virtual double nbar_ent_p(double ent) const ; 
+    	virtual double nbar_ent_p(double ent, const Param* par=0x0) const ; 
     
  	/** Computes the total energy density from the specific enthalpy. 
 	 * 
@@ -858,7 +883,7 @@ class Eos_poly_newt : public Eos_poly {
 	 *  @return energy density $e$ [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
-    	virtual double ener_ent_p(double ent) const ; 
+    	virtual double ener_ent_p(double ent, const Param* par=0x0) const ; 
        
  	/** Computes the pressure from the specific enthalpy. 
 	 * 
@@ -868,7 +893,7 @@ class Eos_poly_newt : public Eos_poly {
 	 *  @return pressure $p$ [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
-    	virtual double press_ent_p(double ent) const ; 
+    	virtual double press_ent_p(double ent, const Param* par=0x0) const ; 
        
 	/** Computes the logarithmic derivative $d\ln n/d\ln h$ 
 	 * from the specific enthalpy. 
@@ -878,7 +903,7 @@ class Eos_poly_newt : public Eos_poly {
 	 *
 	 *  @return dln(n)/dln(h)
 	 */
-    	virtual double der_nbar_ent_p(double ent) const ; 
+    	virtual double der_nbar_ent_p(double ent, const Param* par=0x0) const ; 
        
 	/** Computes the logarithmic derivative $d\ln e/d\ln h$ 
 	 * from the specific enthalpy. 
@@ -888,7 +913,7 @@ class Eos_poly_newt : public Eos_poly {
 	 *
 	 *  @return dln(e)/dln(h)
 	 */
-    	virtual double der_ener_ent_p(double ent) const ; 
+    	virtual double der_ener_ent_p(double ent, const Param* par=0x0) const ; 
        
 	/** Computes the logarithmic derivative $d\ln p/d\ln h$ 
 	 * from the specific enthalpy. 
@@ -898,7 +923,7 @@ class Eos_poly_newt : public Eos_poly {
 	 *
 	 *  @return dln(p)/dln(h)
 	 */
-    	virtual double der_press_ent_p(double ent) const ; 
+    	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ; 
        
 };
 
@@ -1025,7 +1050,7 @@ class Eos_incomp : public Eos {
 	 *  @return baryon density $n$ [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
 	 * 
 	 */
-    	virtual double nbar_ent_p(double ent) const ; 
+    	virtual double nbar_ent_p(double ent, const Param* par=0x0) const ; 
     
  	/** Computes the total energy density from the log-enthalpy. 
 	 * 
@@ -1034,7 +1059,7 @@ class Eos_incomp : public Eos {
 	 *  @return energy density $e$ [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
-    	virtual double ener_ent_p(double ent) const ; 
+    	virtual double ener_ent_p(double ent, const Param* par=0x0) const ; 
        
  	/** Computes the pressure from the log-enthalpy. 
 	 * 
@@ -1043,7 +1068,7 @@ class Eos_incomp : public Eos {
 	 *  @return pressure $p$ [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
-    	virtual double press_ent_p(double ent) const ; 
+    	virtual double press_ent_p(double ent, const Param* par=0x0) const ; 
        
 	/** Computes the logarithmic derivative $d\ln n/d\ln H$ 
 	 * from the log-enthalpy. 
@@ -1052,7 +1077,7 @@ class Eos_incomp : public Eos {
 	 *
 	 *  @return dln(n)/dln(H)
 	 */
-    	virtual double der_nbar_ent_p(double ent) const ; 
+    	virtual double der_nbar_ent_p(double ent, const Param* par=0x0) const ; 
        
 	/** Computes the logarithmic derivative $d\ln e/d\ln H$ 
 	 * from the log-enthalpy. 
@@ -1061,7 +1086,7 @@ class Eos_incomp : public Eos {
 	 *
 	 *  @return dln(e)/dln(H)
 	 */
-    	virtual double der_ener_ent_p(double ent) const ; 
+    	virtual double der_ener_ent_p(double ent, const Param* par=0x0) const ; 
        
 	/** Computes the logarithmic derivative $d\ln p/d\ln H$ 
 	 * from the log-enthalpy. 
@@ -1070,7 +1095,7 @@ class Eos_incomp : public Eos {
 	 *
 	 *  @return dln(p)/dln(H)
 	 */
-    	virtual double der_press_ent_p(double ent) const ; 
+    	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ; 
 
 };
 
@@ -1189,7 +1214,7 @@ class Eos_incomp_newt : public Eos_incomp {
 	 *  @return baryon density $n$ [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
 	 * 
 	 */
-    	virtual double nbar_ent_p(double ent) const ; 
+    	virtual double nbar_ent_p(double ent, const Param* par=0x0) const ; 
     
  	/** Computes the total energy density from the specific enthalpy. 
 	 * 
@@ -1198,7 +1223,7 @@ class Eos_incomp_newt : public Eos_incomp {
 	 *  @return energy density $e$ [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
-    	virtual double ener_ent_p(double ent) const ; 
+    	virtual double ener_ent_p(double ent, const Param* par=0x0) const ; 
        
  	/** Computes the pressure from the specific enthalpy. 
 	 * 
@@ -1207,7 +1232,7 @@ class Eos_incomp_newt : public Eos_incomp {
 	 *  @return pressure $p$ [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
-    	virtual double press_ent_p(double ent) const ; 
+    	virtual double press_ent_p(double ent, const Param* par=0x0) const ; 
        
 	/** Computes the logarithmic derivative $d\ln n/d\ln h$ 
 	 * from the specific enthalpy.
@@ -1216,7 +1241,7 @@ class Eos_incomp_newt : public Eos_incomp {
 	 *
 	 *  @return dln(n)/dln(h)
 	 */
-    	virtual double der_nbar_ent_p(double ent) const ; 
+    	virtual double der_nbar_ent_p(double ent, const Param* par=0x0) const ; 
        
 	/** Computes the logarithmic derivative $d\ln e/d\ln h$ 
 	 * from the specific enthalpy. 
@@ -1225,7 +1250,7 @@ class Eos_incomp_newt : public Eos_incomp {
 	 *
 	 *  @return dln(e)/dln(h)
 	 */
-    	virtual double der_ener_ent_p(double ent) const ; 
+    	virtual double der_ener_ent_p(double ent, const Param* par=0x0) const ; 
        
 	/** Computes the logarithmic derivative $d\ln p/d\ln h$ 
 	 * from the specific enthalpy. 
@@ -1234,7 +1259,7 @@ class Eos_incomp_newt : public Eos_incomp {
 	 *
 	 *  @return dln(p)/dln(h)
 	 */
-    	virtual double der_press_ent_p(double ent) const ; 
+    	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ; 
        
 };
 
@@ -1426,7 +1451,7 @@ class Eos_strange : public Eos {
 	 *  @return baryon density $n$ [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
 	 * 
 	 */
-    	virtual double nbar_ent_p(double ent) const ; 
+    	virtual double nbar_ent_p(double ent, const Param* par=0x0) const ; 
     
  	/** Computes the total energy density from the log-enthalpy. 
 	 * 
@@ -1435,7 +1460,7 @@ class Eos_strange : public Eos {
 	 *  @return energy density $e$ [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
-    	virtual double ener_ent_p(double ent) const ; 
+    	virtual double ener_ent_p(double ent, const Param* par=0x0) const ; 
        
  	/** Computes the pressure from the log-enthalpy. 
 	 * 
@@ -1444,7 +1469,7 @@ class Eos_strange : public Eos {
 	 *  @return pressure $p$ [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
-    	virtual double press_ent_p(double ent) const ; 
+    	virtual double press_ent_p(double ent, const Param* par=0x0) const ; 
        
 	/** Computes the logarithmic derivative $d\ln n/d\ln H$ 
 	 * from the log-enthalpy. 
@@ -1453,7 +1478,7 @@ class Eos_strange : public Eos {
 	 *
 	 *  @return dln(n)/dln(H)
 	 */
-    	virtual double der_nbar_ent_p(double ent) const ; 
+    	virtual double der_nbar_ent_p(double ent, const Param* par=0x0) const ; 
        
 	/** Computes the logarithmic derivative $d\ln e/d\ln H$ 
 	 * from the log-enthalpy. 
@@ -1462,7 +1487,7 @@ class Eos_strange : public Eos {
 	 *
 	 *  @return dln(e)/dln(H)
 	 */
-    	virtual double der_ener_ent_p(double ent) const ; 
+    	virtual double der_ener_ent_p(double ent, const Param* par=0x0) const ; 
        
 	/** Computes the logarithmic derivative $d\ln p/d\ln H$ 
 	 * from the log-enthalpy. 
@@ -1471,7 +1496,7 @@ class Eos_strange : public Eos {
 	 *
 	 *  @return dln(p)/dln(H)
 	 */
-    	virtual double der_press_ent_p(double ent) const ; 
+    	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ; 
 
 };
 
@@ -1738,7 +1763,7 @@ class Eos_strange_cr : public Eos {
 	 *  @return baryon density $n$ [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
 	 *
 	 */
-    	virtual double nbar_ent_p(double ent) const ;
+    	virtual double nbar_ent_p(double ent, const Param* par=0x0) const ;
 
  	/** Computes the total energy density from the log-enthalpy.
 	 *
@@ -1747,7 +1772,7 @@ class Eos_strange_cr : public Eos {
 	 *  @return energy density $e$ [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
-    	virtual double ener_ent_p(double ent) const ;
+    	virtual double ener_ent_p(double ent, const Param* par=0x0) const ;
 
  	/** Computes the pressure from the log-enthalpy.
 	 *
@@ -1756,7 +1781,7 @@ class Eos_strange_cr : public Eos {
 	 *  @return pressure $p$ [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
-    	virtual double press_ent_p(double ent) const ;
+    	virtual double press_ent_p(double ent, const Param* par=0x0) const ;
 
 	/** Computes the logarithmic derivative $d\ln n/d\ln H$ 
 	 * from the log-enthalpy. 
@@ -1765,7 +1790,7 @@ class Eos_strange_cr : public Eos {
 	 *
 	 *  @return dln(n)/dln(H)
 	 */
-    	virtual double der_nbar_ent_p(double ent) const ; 
+    	virtual double der_nbar_ent_p(double ent, const Param* par=0x0) const ; 
        
 	/** Computes the logarithmic derivative $d\ln e/d\ln H$ 
 	 * from the log-enthalpy. 
@@ -1774,7 +1799,7 @@ class Eos_strange_cr : public Eos {
 	 *
 	 *  @return dln(e)/dln(H)
 	 */
-    	virtual double der_ener_ent_p(double ent) const ; 
+    	virtual double der_ener_ent_p(double ent, const Param* par=0x0) const ; 
        
 	/** Computes the logarithmic derivative $d\ln p/d\ln H$ 
 	 * from the log-enthalpy. 
@@ -1783,12 +1808,182 @@ class Eos_strange_cr : public Eos {
 	 *
 	 *  @return dln(p)/dln(H)
 	 */
-    	virtual double der_press_ent_p(double ent) const ; 
+    	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ;
 
 };
 
 
+                //------------------------------//
+                //  EOS with domain dependency //
+              //------------------------------//
 
+/**
+ * EOS with domain dependency.
+ *
+ *
+ * @version #$Id$#
+ */
+class MEos : public Eos {
+
+    // Data :
+    // -----
+
+    protected:
+    /// Array (upon the domains) containing the various EOS
+    const Eos** mono_eos ;
+
+    /// Number of domains
+    int ndom ;
+
+    /// Indicates wether the EOS has been constructed from a file
+    bool constructed_from_file ;
+
+    // Constructors - Destructor
+    // -------------------------
+    public:
+
+	/** Standard constructor.
+         *  @param ndom_i number of domains
+         * @param mono_eos_i array (size {\tt ndom\_i}) of pointers on the various EOS
+	 */
+	MEos(int ndom_i, const Eos** mono_eos_i) ;
+
+        /// Constructor for 2 domains
+        MEos(const Eos& eos1, const Eos& eos2) ;
+
+        /// Constructor for 3 domains
+        MEos(const Eos& eos1, const Eos& eos2, const Eos& eos3) ;
+
+         /// Constructor for 4 domains
+       MEos(const Eos& eos1, const Eos& eos2, const Eos& eos3, const Eos& eos4) ;
+
+	MEos(const MEos& ) ;	/// Copy constructor
+
+    protected:
+	/** Constructor from a binary file (created by the function
+	 *  {\tt sauve(FILE* )}).
+	 *  This constructor is protected because any EOS construction
+	 *  from a binary file must be done via the function
+	 *  {\tt Eos::eos\_from\_file(FILE* )}.
+	 */
+	MEos(FILE* ) ;
+
+	/** Constructor from a formatted file.
+	 *  This constructor is protected because any EOS construction
+	 *  from a formatted file must be done via the function
+	 *  {\tt Eos::eos\_from\_file(ifstream\& )}.
+	 */
+	MEos(ifstream& ) ;
+
+	/// The construction functions from a file
+	friend Eos* Eos::eos_from_file(FILE* ) ;
+	friend Eos* Eos::eos_from_file(ifstream& ) ;
+
+    public:
+	virtual ~MEos() ;			/// Destructor
+
+    // Assignment
+    // ----------
+	/// Assignment to another {\tt MEos}
+	void operator=(const MEos& ) ;
+
+
+    // Miscellaneous
+    // -------------
+
+    public :
+	/// Comparison operator (egality)
+	virtual bool operator==(const Eos& ) const ;
+
+	/// Comparison operator (difference)
+	virtual bool operator!=(const Eos& ) const ;
+
+	/** Returns a number to identify the sub-classe of {\tt Eos} the
+	 *  object belongs to.
+	 */
+	virtual int identify() const ;
+
+    // Outputs
+    // -------
+
+    public:
+	virtual void sauve(FILE* ) const ;	/// Save in a file
+
+    protected:
+	virtual ostream& operator>>(ostream &) const ;    /// Operator >>
+
+
+    // Computational functions
+    // -----------------------
+
+    public:
+	/** Computes the baryon density from the log-enthalpy.
+	 *
+	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
+	 *				     Eq. (\ref{eeospolyh})
+	 *
+        *  @param par possible extra parameters of the EOS
+	 *  @return baryon density $n$ [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
+	 *
+	 */
+    	virtual double nbar_ent_p(double ent, const Param* par=0x0) const ;
+
+ 	/** Computes the total energy density from the log-enthalpy.
+	 *
+	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
+	 *				     Eq. (\ref{eeospolyh})
+	 *
+        *  @param par possible extra parameters of the EOS
+	 *  @return energy density $e$ [unit: $\rho_{\rm nuc} c^2$], where
+	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
+	 */
+    	virtual double ener_ent_p(double ent, const Param* par=0x0) const ;
+
+ 	/** Computes the pressure from the log-enthalpy.
+	 *
+	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
+	 *				     Eq. (\ref{eeospolyh})
+	 *
+        *  @param par possible extra parameters of the EOS
+	 *  @return pressure $p$ [unit: $\rho_{\rm nuc} c^2$], where
+	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
+	 */
+    	virtual double press_ent_p(double ent, const Param* par=0x0) const ;
+
+	/** Computes the logarithmic derivative $d\ln n/d\ln H$
+	 * from the log-enthalpy.
+	 *
+	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
+	 *				     Eq. (\ref{eeospolyh})
+	 *
+        *  @param par possible extra parameters of the EOS
+	 *  @return dln(n)/dln(H)
+	 */
+    	virtual double der_nbar_ent_p(double ent, const Param* par=0x0) const ;
+
+	/** Computes the logarithmic derivative $d\ln e/d\ln H$
+	 * from the log-enthalpy.
+	 *
+	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
+	 *				     Eq. (\ref{eeospolyh})
+	 *
+        *  @param par possible extra parameters of the EOS
+	 *  @return dln(e)/dln(H)
+	 */
+    	virtual double der_ener_ent_p(double ent, const Param* par=0x0) const ;
+
+	/** Computes the logarithmic derivative $d\ln p/d\ln H$
+	 * from the log-enthalpy.
+	 *
+	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
+	 *				     Eq. (\ref{eeospolyh})
+	 *
+        *  @param par possible extra parameters of the EOS
+	 *  @return dln(p)/dln(H)
+	 */
+    	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ;
+
+};
 
 
 		//------------------//

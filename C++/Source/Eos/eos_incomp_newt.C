@@ -31,8 +31,12 @@ char Eos_incomp_newt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/04/09 14:32:15  e_gourgoulhon
+ * 1/ Added extra parameters in EOS computational functions (argument par)
+ * 2/ New class MEos for multi-domain EOS
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.5  2001/02/07  09:48:48  eric
  * Suppression de la fonction derent_ent_p.
@@ -207,8 +211,8 @@ ostream& Eos_incomp_newt::operator>>(ostream & ost) const {
 // Baryon density from enthalpy 
 //------------------------------
 
-double Eos_incomp_newt::nbar_ent_p(double ent) const {
-    
+double Eos_incomp_newt::nbar_ent_p(double ent, const Param* ) const {
+
     if ( ent >= ent0 ) {
 
 	return rho0 ;
@@ -218,11 +222,11 @@ double Eos_incomp_newt::nbar_ent_p(double ent) const {
     }
 }
 
-// Energy density from enthalpy 
+// Energy density from enthalpy
 //------------------------------
 
-double Eos_incomp_newt::ener_ent_p(double ent) const {
-    
+double Eos_incomp_newt::ener_ent_p(double ent, const Param* ) const {
+
     if ( ent >= ent0 ) {
 
 	return rho0 ;
@@ -232,11 +236,11 @@ double Eos_incomp_newt::ener_ent_p(double ent) const {
     }
 }
 
-// Pressure from enthalpy 
+// Pressure from enthalpy
 //------------------------
 
-double Eos_incomp_newt::press_ent_p(double ent) const {
-    
+double Eos_incomp_newt::press_ent_p(double ent, const Param* ) const {
+
     if ( ent >= ent0 ) {
 
 	return rho0 * ent ;
@@ -246,25 +250,11 @@ double Eos_incomp_newt::press_ent_p(double ent) const {
     }
 }
 
-// dln(n)/ln(h) from enthalpy 
+// dln(n)/ln(h) from enthalpy
 //---------------------------
 
-double Eos_incomp_newt::der_nbar_ent_p(double ent) const {
-    
-    if ( ent >= ent0 ) {
-    
-	return 0 ;
-    }
-    else{
-	return 0 ;
-    }
-}
+double Eos_incomp_newt::der_nbar_ent_p(double ent, const Param* ) const {
 
-// dln(e)/ln(h) from enthalpy 
-//---------------------------
-
-double Eos_incomp_newt::der_ener_ent_p(double ent) const {
-    
     if ( ent >= ent0 ) {
 
 	return 0 ;
@@ -274,10 +264,24 @@ double Eos_incomp_newt::der_ener_ent_p(double ent) const {
     }
 }
 
-// dln(p)/ln(h) from enthalpy 
+// dln(e)/ln(h) from enthalpy
 //---------------------------
 
-double Eos_incomp_newt::der_press_ent_p(double ent) const {
+double Eos_incomp_newt::der_ener_ent_p(double ent, const Param* ) const {
+
+    if ( ent >= ent0 ) {
+
+	return 0 ;
+    }
+    else{
+	return 0 ;
+    }
+}
+
+// dln(p)/ln(h) from enthalpy
+//---------------------------
+
+double Eos_incomp_newt::der_press_ent_p(double ent, const Param* ) const {
     
     if ( ent >= ent0 ) {
 

@@ -32,6 +32,10 @@ char etoile_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/04/09 14:32:15  e_gourgoulhon
+ * 1/ Added extra parameters in EOS computational functions (argument par)
+ * 2/ New class MEos for multi-domain EOS
+ *
  * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -105,6 +109,7 @@ char etoile_C[] = "$Header$" ;
 #include "etoile.h"
 #include "eos.h"
 #include "utilitaires.h"
+#include "param.h"
 
 
 			    //--------------//
@@ -589,13 +594,55 @@ void Etoile::equation_of_state() {
     }
 
 
-    // Call to the EOS
-    
-    nbar = eos.nbar_ent(ent_eos, nzet) ;
-    ener = eos.ener_ent(ent_eos, nzet) ;
-    press = eos.press_ent(ent_eos, nzet) ;
 
-    // Set the bases for spectral expansion 
+
+
+    // Call to the EOS (the EOS is called domain by domain in order to
+    //          allow for the use of MEos)
+
+    Cmp tempo(mp) ;
+
+    nbar.set_etat_qcq() ;
+    nbar.set() = 0 ;
+    for (int l=0; l<nzet; l++) {
+
+        Param par ;       // Paramater for multi-domain equation of state
+        par.add_int(l) ;
+
+        tempo =  eos.nbar_ent(ent_eos, 1, l, &par) ;
+
+        nbar = nbar() + tempo ;
+
+    }
+
+    ener.set_etat_qcq() ;
+    ener.set() = 0 ;
+    for (int l=0; l<nzet; l++) {
+
+        Param par ;    // Paramater for multi-domain equation of state
+        par.add_int(l) ;
+
+        tempo =  eos.ener_ent(ent_eos, 1, l, &par) ;
+
+        ener = ener() + tempo ;
+
+    }
+
+    press.set_etat_qcq() ;
+    press.set() = 0 ;
+    for (int l=0; l<nzet; l++) {
+
+        Param par ;     // Paramater for multi-domain equation of state
+        par.add_int(l) ;
+
+        tempo =  eos.press_ent(ent_eos, 1, l, &par) ;
+
+        press = press() + tempo ;
+
+    }
+
+
+    // Set the bases for spectral expansion
     nbar.set_std_base() ; 
     ener.set_std_base() ; 
     press.set_std_base() ; 

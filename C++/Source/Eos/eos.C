@@ -31,6 +31,10 @@ char eos_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/04/09 14:32:15  e_gourgoulhon
+ * 1/ Added extra parameters in EOS computational functions (argument par)
+ * 2/ New class MEos for multi-domain EOS
+ *
  * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -185,7 +189,7 @@ ostream& operator<<(ostream& ost, const Eos& eqetat)  {
 
 
 void Eos::calcule(const Cmp& ent, int nzet, int l_min,  
-		       double (Eos::*fait)(double) const, Cmp& resu) const {
+		       double (Eos::*fait)(double, const Param*) const, const Param* par, Cmp& resu) const {
     
     assert(ent.get_etat() != ETATNONDEF) ; 
     
@@ -196,7 +200,7 @@ void Eos::calcule(const Cmp& ent, int nzet, int l_min,
 	resu.set_etat_zero() ; 
 	return ; 
     }
-    
+
     assert(ent.get_etat() == ETATQCQ) ; 
     const Valeur& vent = ent.va ;
     vent.coef_i() ;	// the values in the configuration space are required
@@ -215,7 +219,7 @@ void Eos::calcule(const Cmp& ent, int nzet, int l_min,
     for (int l = l_min; l< l_min + nzet; l++) {
 	
 	assert(l>=0) ; 
-	assert(l<nz) ; 
+	assert(l<nz) ;
 	
 	Tbl* tent = vent.c->t[l] ; 
 	Tbl* tresu = vresu.c->t[l] ; 
@@ -229,7 +233,7 @@ void Eos::calcule(const Cmp& ent, int nzet, int l_min,
 
 	    for (int i=0; i<tent->get_taille(); i++) {
 		    
-		tresu->t[i] = (this->*fait)( tent->t[i] ) ;
+		tresu->t[i] = (this->*fait)( tent->t[i], par ) ;
 	    }  
 	    
 	}  // End of the case where ent != 0 in the considered domain  
@@ -255,11 +259,11 @@ void Eos::calcule(const Cmp& ent, int nzet, int l_min,
 // Baryon density from enthalpy 
 //------------------------------
 
-Cmp Eos::nbar_ent(const Cmp& ent, int nzet, int l_min) const {
+Cmp Eos::nbar_ent(const Cmp& ent, int nzet, int l_min, const Param* par) const {
     
     Cmp resu(ent.get_mp()) ; 
     
-    calcule(ent, nzet, l_min, &Eos::nbar_ent_p, resu) ;
+    calcule(ent, nzet, l_min, &Eos::nbar_ent_p, par, resu) ;
     
     return resu ; 
     
@@ -268,11 +272,11 @@ Cmp Eos::nbar_ent(const Cmp& ent, int nzet, int l_min) const {
 // Energy density from enthalpy 
 //------------------------------
 
-Cmp Eos::ener_ent(const Cmp& ent, int nzet, int l_min) const {
+Cmp Eos::ener_ent(const Cmp& ent, int nzet, int l_min, const Param* par) const {
     
     Cmp resu(ent.get_mp()) ; 
     
-    calcule(ent, nzet, l_min, &Eos::ener_ent_p, resu) ;
+    calcule(ent, nzet, l_min, &Eos::ener_ent_p, par, resu) ;
     
     return resu ; 
     
@@ -281,51 +285,51 @@ Cmp Eos::ener_ent(const Cmp& ent, int nzet, int l_min) const {
 // Pressure from enthalpy 
 //-----------------------
 
-Cmp Eos::press_ent(const Cmp& ent, int nzet, int l_min) const {
+Cmp Eos::press_ent(const Cmp& ent, int nzet, int l_min, const Param* par) const {
     
     Cmp resu(ent.get_mp()) ; 
     
-    calcule(ent, nzet, l_min, &Eos::press_ent_p, resu) ;
-    
-    return resu ; 
-    
+    calcule(ent, nzet, l_min, &Eos::press_ent_p, par, resu) ;
+
+    return resu ;
+
 }
 
 // Derivative of baryon density from enthalpy
 //-------------------------------------------
 
-Cmp Eos::der_nbar_ent(const Cmp& ent, int nzet, int l_min) const {
-    
-    Cmp resu(ent.get_mp()) ; 
-    
-    calcule(ent, nzet, l_min, &Eos::der_nbar_ent_p, resu) ;
-    
-    return resu ; 
-    
+Cmp Eos::der_nbar_ent(const Cmp& ent, int nzet, int l_min, const Param* par) const {
+
+    Cmp resu(ent.get_mp()) ;
+
+    calcule(ent, nzet, l_min, &Eos::der_nbar_ent_p, par, resu) ;
+
+    return resu ;
+
 }
 
 // Derivative of energy density from enthalpy
 //-------------------------------------------
 
-Cmp Eos::der_ener_ent(const Cmp& ent, int nzet, int l_min) const {
-    
-    Cmp resu(ent.get_mp()) ; 
-    
-    calcule(ent, nzet, l_min, &Eos::der_ener_ent_p, resu) ;
-    
-    return resu ; 
-    
+Cmp Eos::der_ener_ent(const Cmp& ent, int nzet, int l_min, const Param* par) const {
+
+    Cmp resu(ent.get_mp()) ;
+
+    calcule(ent, nzet, l_min, &Eos::der_ener_ent_p, par, resu) ;
+
+    return resu ;
+
 }
 
 // Derivative of pressure from enthalpy
 //-------------------------------------------
 
-Cmp Eos::der_press_ent(const Cmp& ent, int nzet, int l_min) const {
-    
-    Cmp resu(ent.get_mp()) ; 
-    
-    calcule(ent, nzet, l_min, &Eos::der_press_ent_p, resu) ;
-    
-    return resu ; 
-    
+Cmp Eos::der_press_ent(const Cmp& ent, int nzet, int l_min, const Param* par) const {
+
+    Cmp resu(ent.get_mp()) ;
+
+    calcule(ent, nzet, l_min, &Eos::der_press_ent_p, par, resu) ;
+
+    return resu ;
+
 }

@@ -33,6 +33,10 @@ char Eos_strange_cr_cr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/04/09 14:32:15  e_gourgoulhon
+ * 1/ Added extra parameters in EOS computational functions (argument par)
+ * 2/ New class MEos for multi-domain EOS
+ *
  * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -396,22 +400,22 @@ ostream& Eos_strange_cr::operator>>(ostream & ost) const {
 // Baryon density from enthalpy
 //------------------------------
 
-double Eos_strange_cr::nbar_ent_p(double ent) const {
+double Eos_strange_cr::nbar_ent_p(double ent, const Param* ) const {
 
     if ( ent > ent0 ) {
 
     	if (ent > ent_nd) {	// Strange quark matter
-    		
+
     		double entsqm = ent + delent ;
 
 		return n0 * exp( double(3) * entsqm / (double(1) + eps_fit))  ;
 	}
 	else {		// crust
-	
+
 		double fn_au = pow( gam1sx * ( exp(ent)- double(1) ), unsgam1) ;
-	
+
 		return ncr_nd * fn_au ;
-	
+
 	}
 
     }
@@ -423,24 +427,24 @@ double Eos_strange_cr::nbar_ent_p(double ent) const {
 // Energy density from enthalpy
 //------------------------------
 
-double Eos_strange_cr::ener_ent_p(double ent) const {
+double Eos_strange_cr::ener_ent_p(double ent, const Param* ) const {
 
 
     if ( ent > ent0 ) {
 
     	if (ent > ent_nd) {	// Strange quark matter
-    		
+
     		double entsqm = ent + delent ;
 
 		double pp = ( exp(fach * entsqm) - double(1)) / fach  * rho0 ;
 
 		return rho0 + double(3) * pp / (double(1) + eps_fit) ;
-		
+
 	}
 	else {		// crust
-	
+
 		double fn_au = pow( gam1sx *(exp(ent) - double(1) ), unsgam1) ;
-	
+
 		return  rho_nd_nucl * ( (double(1) - x_nd * unsgam1 ) * fn_au
 			 + x_nd * unsgam1 * pow(fn_au,  gam)) ;
 	}
@@ -454,22 +458,22 @@ double Eos_strange_cr::ener_ent_p(double ent) const {
 // Pressure from enthalpy
 //------------------------
 
-double Eos_strange_cr::press_ent_p(double ent) const {
+double Eos_strange_cr::press_ent_p(double ent, const Param* ) const {
 
     if ( ent > ent0 ) {
 
     	if (ent > ent_nd) {	// Strange quark matter
-    		
+
     		double entsqm = ent + delent ;
 
 		return ( exp(fach * entsqm) - double(1) ) / fach  * rho0 ;
     	}
     	else{		// crust
- 		
+
  		double fn_au = pow( gam1sx *(exp(ent) - double(1) ), unsgam1) ;
-	
+
  		return x_nd * rho_nd_nucl * pow(fn_au, gam) ;
-    	
+
     	}
 
 
@@ -480,24 +484,24 @@ double Eos_strange_cr::press_ent_p(double ent) const {
 }
 
 
-// dln(n)/ln(H) from enthalpy 
+// dln(n)/ln(H) from enthalpy
 //---------------------------
 
-double Eos_strange_cr::der_nbar_ent_p(double ent) const {
-    
+double Eos_strange_cr::der_nbar_ent_p(double ent, const Param* ) const {
+
     if ( ent > ent0 ) {
 
    	if (ent > ent_nd) {	// Strange quark matter
-    		
+
     		double entsqm = ent + delent ;
 
 		return double(3) * entsqm / ( double(1) +  eps_fit ) ;
 	}
        	else{		// crust
-       	
+
 	    cout << "Eos_strange_cr::der_nbar_ent_p not ready yet !" << endl ;
 	    abort() ;
-	    return 0 ;       
+	    return 0 ;
       	}
 
     }
@@ -506,24 +510,24 @@ double Eos_strange_cr::der_nbar_ent_p(double ent) const {
     }
 }
 
-// dln(e)/ln(H) from enthalpy 
+// dln(e)/ln(H) from enthalpy
 //---------------------------
 
-double Eos_strange_cr::der_ener_ent_p(double ent) const {
-    
+double Eos_strange_cr::der_ener_ent_p(double ent, const Param* ) const {
+
     if ( ent > ent0 ) {
 
    	if (ent > ent_nd) {	// Strange quark matter
-    		
+
     		double entsqm = ent + delent ;
 
-		double xx = fach * entsqm ; 
+		double xx = fach * entsqm ;
 
-		return xx / ( double(1) + 
-		    ( double(1) + eps_fit ) / double(3) * exp(-xx) ) ; 
+		return xx / ( double(1) +
+		    ( double(1) + eps_fit ) / double(3) * exp(-xx) ) ;
 	}
       	else{		// crust
-       	
+
 	    cout << "Eos_strange_cr::der_ener_ent_p not ready yet !" << endl ;
 	    abort() ;
 	    return 0 ;
@@ -534,10 +538,10 @@ double Eos_strange_cr::der_ener_ent_p(double ent) const {
     }
 }
 
-// dln(p)/ln(H) from enthalpy 
+// dln(p)/ln(H) from enthalpy
 //---------------------------
 
-double Eos_strange_cr::der_press_ent_p(double ent) const {
+double Eos_strange_cr::der_press_ent_p(double ent, const Param* ) const {
     
     if ( ent > ent0 ) {
 

@@ -32,8 +32,12 @@ char eos_tabul_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/04/09 14:32:15  e_gourgoulhon
+ * 1/ Added extra parameters in EOS computational functions (argument par)
+ * 2/ New class MEos for multi-domain EOS
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.3  2001/09/13  13:35:49  eric
  * Suppression des affichages dans read_table().
@@ -243,7 +247,7 @@ void Eos_tabul::read_table() {
 // Baryon density from enthalpy
 //------------------------------
 
-double Eos_tabul::nbar_ent_p(double ent) const {
+double Eos_tabul::nbar_ent_p(double ent, const Param* ) const {
 
     static int i_near = logh->get_taille() / 2 ;
 
@@ -270,7 +274,7 @@ double Eos_tabul::nbar_ent_p(double ent) const {
 // Energy density from enthalpy
 //------------------------------
 
-double Eos_tabul::ener_ent_p(double ent) const {
+double Eos_tabul::ener_ent_p(double ent, const Param* ) const {
 
     static int i_near = logh->get_taille() / 2 ;
 
@@ -297,7 +301,7 @@ double Eos_tabul::ener_ent_p(double ent) const {
 // Pressure from enthalpy
 //------------------------
 
-double Eos_tabul::press_ent_p(double ent) const {
+double Eos_tabul::press_ent_p(double ent, const Param* ) const {
 
     static int i_near = logh->get_taille() / 2 ;
 
@@ -323,7 +327,7 @@ double Eos_tabul::press_ent_p(double ent) const {
 // dln(n)/ln(H) from enthalpy 
 //---------------------------
 
-double Eos_tabul::der_nbar_ent_p(double ent) const {
+double Eos_tabul::der_nbar_ent_p(double ent, const Param* ) const {
 
     if ( ent > hmin ) {
            if (ent > hmax) {
@@ -344,7 +348,7 @@ double Eos_tabul::der_nbar_ent_p(double ent) const {
 // dln(e)/ln(H) from enthalpy 
 //---------------------------
 
-double Eos_tabul::der_ener_ent_p(double ent) const {
+double Eos_tabul::der_ener_ent_p(double ent, const Param* ) const {
 
     if ( ent > hmin ) {
            if (ent > hmax) {
@@ -365,7 +369,7 @@ double Eos_tabul::der_ener_ent_p(double ent) const {
 // dln(p)/ln(H) from enthalpy 
 //---------------------------
 
-double Eos_tabul::der_press_ent_p(double ent) const {
+double Eos_tabul::der_press_ent_p(double ent, const Param* ) const {
 
     if ( ent > hmin ) {
            if (ent > hmax) {

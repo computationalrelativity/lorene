@@ -36,8 +36,12 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/04/09 14:32:15  e_gourgoulhon
+ * 1/ Added extra parameters in EOS computational functions (argument par)
+ * 2/ New class MEos for multi-domain EOS
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.5  2001/09/11  16:15:46  eric
  * Ajout des classes Eos_BBB2 et Eos_BalbN1H1
@@ -194,7 +198,7 @@ class Eos_tabul : public Eos {
 	 *  @return baryon density $n$ [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
 	 *
 	 */
-    	virtual double nbar_ent_p(double ent) const ;
+    	virtual double nbar_ent_p(double ent, const Param* par=0x0) const ;
 
  	/** Computes the total energy density from the log-enthalpy.
 	 *
@@ -203,7 +207,7 @@ class Eos_tabul : public Eos {
 	 *  @return energy density $e$ [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
-    	virtual double ener_ent_p(double ent) const ;
+    	virtual double ener_ent_p(double ent, const Param* par=0x0) const ;
 
  	/** Computes the pressure from the log-enthalpy.
 	 *
@@ -212,7 +216,7 @@ class Eos_tabul : public Eos {
 	 *  @return pressure $p$ [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
-    	virtual double press_ent_p(double ent) const ;
+    	virtual double press_ent_p(double ent, const Param* par=0x0) const ;
 
 	/** Computes the logarithmic derivative $d\ln n/d\ln H$ 
 	 * from the log-enthalpy. 
@@ -221,7 +225,7 @@ class Eos_tabul : public Eos {
 	 *
 	 *  @return dln(n)/dln(H)
 	 */
-    	virtual double der_nbar_ent_p(double ent) const ; 
+    	virtual double der_nbar_ent_p(double ent, const Param* par=0x0) const ; 
        
 	/** Computes the logarithmic derivative $d\ln e/d\ln H$ 
 	 * from the log-enthalpy. 
@@ -230,7 +234,7 @@ class Eos_tabul : public Eos {
 	 *
 	 *  @return dln(e)/dln(H)
 	 */
-    	virtual double der_ener_ent_p(double ent) const ; 
+    	virtual double der_ener_ent_p(double ent, const Param* par=0x0) const ; 
        
 	/** Computes the logarithmic derivative $d\ln p/d\ln H$ 
 	 * from the log-enthalpy. 
@@ -239,7 +243,7 @@ class Eos_tabul : public Eos {
 	 *
 	 *  @return dln(p)/dln(H)
 	 */
-    	virtual double der_press_ent_p(double ent) const ; 
+    	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ; 
 
 };
 

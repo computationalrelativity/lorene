@@ -31,8 +31,12 @@ char eos_poly_newt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/04/09 14:32:15  e_gourgoulhon
+ * 1/ Added extra parameters in EOS computational functions (argument par)
+ * 2/ New class MEos for multi-domain EOS
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.5  2001/02/23  15:16:51  eric
  * Continuite en ent=0 des quantites derivees.
@@ -206,8 +210,8 @@ ostream& Eos_poly_newt::operator>>(ostream & ost) const {
 // Baryon density from enthalpy 
 //------------------------------
 
-double Eos_poly_newt::nbar_ent_p(double ent) const {
-    
+double Eos_poly_newt::nbar_ent_p(double ent, const Param* ) const {
+
     if ( ent > double(0) ) {
 
 	return pow( gam1sgamkap * ent, unsgam1 ) ;
@@ -217,29 +221,29 @@ double Eos_poly_newt::nbar_ent_p(double ent) const {
     }
 }
 
-// Energy density from enthalpy 
+// Energy density from enthalpy
 //------------------------------
 
-double Eos_poly_newt::ener_ent_p(double ent) const {
-    
+double Eos_poly_newt::ener_ent_p(double ent, const Param* ) const {
+
     if ( ent > double(0) ) {
 
 	double nn = pow( gam1sgamkap * ent, unsgam1 ) ;
-	
+
 	double pp = kap * pow( nn, gam ) ;
 
-	return  unsgam1 * pp + m_0 * nn ; 
+	return  unsgam1 * pp + m_0 * nn ;
     }
     else{
 	return 0 ;
     }
 }
 
-// Pressure from enthalpy 
+// Pressure from enthalpy
 //------------------------
 
-double Eos_poly_newt::press_ent_p(double ent) const {
-    
+double Eos_poly_newt::press_ent_p(double ent, const Param* ) const {
+
     if ( ent > double(0) ) {
 
 	double nn = pow( gam1sgamkap * ent, unsgam1 ) ;
@@ -252,19 +256,19 @@ double Eos_poly_newt::press_ent_p(double ent) const {
     }
 }
 
-// dln(n)/ln(h) from enthalpy 
+// dln(n)/ln(h) from enthalpy
 //---------------------------
 
-double Eos_poly_newt::der_nbar_ent_p(double ) const {
-    
+double Eos_poly_newt::der_nbar_ent_p(double , const Param* ) const {
+
     return double(1) / gam1 ;
 
 }
 
-// dln(e)/ln(h) from enthalpy 
+// dln(e)/ln(h) from enthalpy
 //---------------------------
 
-double Eos_poly_newt::der_ener_ent_p(double ent) const {
+double Eos_poly_newt::der_ener_ent_p(double ent, const Param* ) const {
     
     if ( ent > double(0) ) {
 
@@ -288,7 +292,7 @@ double Eos_poly_newt::der_ener_ent_p(double ent) const {
 // dln(p)/ln(h) from enthalpy 
 //---------------------------
 
-double Eos_poly_newt::der_press_ent_p(double ) const {
+double Eos_poly_newt::der_press_ent_p(double, const Param* ) const {
     
     return gam / gam1 ;
 
