@@ -30,6 +30,10 @@ char vector_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2004/06/14 15:15:58  j_novak
+ * New method (No.4) to solve the vector Poisson eq. The output is continuous
+ * for all (spherical) components.
+ *
  * Revision 1.16  2004/05/26 07:30:59  j_novak
  * Version 1.15 was not good.
  *
@@ -101,7 +105,7 @@ Vector Vector::poisson(double lambda, const Metric_flat& met_f, int method)
     assert(cmp[i]->check_dzpuis(4)) ;
     if (cmp[i]->get_etat() != ETATZERO) nullite = false ;
   }
-  assert ((method>=0) && (method<4)) ;
+  assert ((method>=0) && (method<5)) ;
 
   Vector resu(*mp, CON, triad) ;
   if (nullite)
@@ -241,6 +245,143 @@ Vector Vector::poisson(double lambda, const Metric_flat& met_f, int method)
 	resu.set(i) = resu_p(i-1) ;
       
       break ;
+    }
+
+    case 4 : {
+      Scalar divf(*mp) ;
+      if (fabs(lambda+1) < 1.e-8)
+	divf.set_etat_zero() ;
+      else {
+	divf = (potential(met_f) / (lambda + 1)) ;
+      }
+      
+      int nz = mp->get_mg()->get_nzone() ;
+
+      //-----------------------------------
+      // Removal of the l=0 part of div(F)
+      //-----------------------------------
+      Scalar div_tmp = divf ;
+      div_tmp.div_r_dzpuis(4) ;
+      Scalar source_r(*mp) ;
+      Valeur& va_div = div_tmp.set_spectral_va() ;
+      if (div_tmp.get_etat() != ETATZERO) {
+	va_div.ylm() ;
+	for (int lz=0; lz<nz; lz++) {
+	  int np = mp->get_mg()->get_np(lz) ;
+	  int nt = mp->get_mg()->get_nt(lz) ;
+	  int nr = mp->get_mg()->get_nr(lz) ;
+	  if (va_div.c_cf->operator()(lz).get_etat() != ETATZERO)
+	    for (int k=0; k<np+1; k++) 
+	      for (int j=0; j<nt; j++) {
+		int l_q, m_q, base_r ;
+		if (nullite_plm(j, nt, k, np, va_div.base) == 1) {
+		  donne_lm(nz, lz, j, k, va_div.base, m_q, l_q, base_r) ;
+		  if (l_q == 0) 
+		    for (int i=0; i<nr; i++) 
+		      va_div.c_cf->set(lz, k, j, i) = 0. ;
+		}
+	      }
+	}
+	source_r.set_etat_qcq() ;
+	source_r.set_spectral_va() = 2*(*va_div.c_cf) ; //2*div(F)
+	source_r.set_spectral_va().ylm_i() ;
+	source_r.set_dzpuis(4) ;
+      }
+      else 
+	source_r.set_etat_zero() ;
+	   
+      //------------------------
+      // Other source terms ....
+      //------------------------
+      source_r += *(cmp[0]) - lambda*divf.dsdr() ;
+
+      //------------------------
+      // The elliptic operator
+      //------------------------
+      Param_elliptic param_fr(source_r) ;
+      for (int lz=0; lz<nz; lz++) 
+	param_fr.set_poisson_vect_r(lz) ;
+
+      Scalar f_r = source_r.sol_elliptic(param_fr) ;
+
+      //--------------------------
+      // Equation for eta 
+      //--------------------------
+      Scalar source_eta = *cmp[1] ;
+      source_eta.mult_sint() ;
+      source_eta = source_eta.dsdt() ;
+      source_eta.div_sint() ;
+      source_eta = (source_eta + cmp[2]->stdsdp()).poisson_angu() ;
+
+      Scalar dfrsr = f_r.dsdr() ;
+      dfrsr.div_r_dzpuis(4) ;
+      Scalar frsr2 = f_r ;
+      frsr2.div_r_dzpuis(2) ;
+      frsr2.div_r_dzpuis(4) ;
+
+      Valeur& va_dfr = dfrsr.set_spectral_va() ;
+      Valeur& va_fsr = frsr2.set_spectral_va() ;
+      va_dfr.ylm() ;
+      va_fsr.ylm() ;
+            
+      //Since the operator depends on the domain, the source
+      //must be transformed accordingly.
+      Valeur& va_eta = source_eta.set_spectral_va() ;
+      if (source_eta.get_etat() == ETATZERO) source_eta.annule_hard() ;
+      va_eta.ylm() ;
+      for (int lz=0; lz<nz; lz++) {
+	bool ced = (mp->get_mg()->get_type_r(lz) == UNSURR) ;
+	int np = mp->get_mg()->get_np(lz) ;
+	int nt = mp->get_mg()->get_nt(lz) ;
+	int nr = mp->get_mg()->get_nr(lz) ;
+	if (va_eta.c_cf->operator()(lz).get_etat() != ETATZERO)
+	  for (int k=0; k<np+1; k++) 
+	    for (int j=0; j<nt; j++) {
+	      int l_q, m_q, base_r ;
+	      if (nullite_plm(j, nt, k, np, va_eta.base) == 1) {
+		donne_lm(nz, lz, j, k, va_eta.base, m_q, l_q, base_r) ;
+		if (l_q > 0) 
+		  for (int i=0; i<nr; i++) {
+ 		    if (va_div.c_cf->operator()(lz).get_etat() != ETATZERO) 
+ 		      va_eta.c_cf->set(lz, k, j, i) 
+			-= (lambda + 2. / double(ced ? -l_q : (l_q+1) )) 
+ 			* va_div.c_cf->operator()(lz, k, j, i) ;
+ 		    if (va_fsr.c_cf->operator()(lz).get_etat() != ETATZERO) {
+ 		      va_eta.c_cf->set(lz, k, j, i) 
+ 			+= 2. / double(ced ? -l_q : (l_q+1) ) 
+ 			* va_dfr.c_cf->operator()(lz, k, j, i) ;
+ 		      va_eta.c_cf->set(lz, k, j, i)
+ 			-= 2.*( ced ? double(l_q+2)/double(l_q)
+			       : double(l_q-1)/double(l_q+1) ) 
+ 			* va_fsr.c_cf->set(lz, k, j, i) ;
+ 		    }
+		  } //Loop on r
+	      } //nullite_plm
+	    } //Loop on theta
+      } // Loop on domains
+      if (va_eta.c != 0x0) {
+	delete va_eta.c;
+	va_eta.c = 0x0 ;
+      }
+      va_eta.ylm_i() ;
+
+      //------------------------
+      // The elliptic operator
+      //------------------------
+      Param_elliptic param_eta(source_eta) ; 
+      for (int lz=0; lz<nz; lz++) 
+	param_eta.set_poisson_vect_eta(lz) ;
+
+      Scalar eta = source_eta.sol_elliptic(param_eta) ;
+
+      Scalar mu = div_free(met_f).mu().poisson() ;
+
+      resu.set(1) = f_r ;
+      resu.set(2) = eta.dsdt() - mu.stdsdp() ;
+      resu.set(3) = eta.stdsdp() + mu.dsdt() ;
+      
+      break ;
+      
     }
       
     default : {
