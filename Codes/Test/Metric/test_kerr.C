@@ -28,6 +28,10 @@ char test_kerr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/02/04 15:47:07  e_gourgoulhon
+ * Changed declaration of ricci and ricci_c from "const Tensor&" to
+ *  "const Sym_tensor&".
+ *
  * Revision 1.8  2004/01/29 16:07:58  e_gourgoulhon
  * More polishing.
  *
@@ -405,7 +409,7 @@ int main() {
     // Dynamical Einstein equations
     //-----------------------------
     
-    const Tensor& ricci = gam.ricci() ; 
+    const Sym_tensor& ricci = gam.ricci() ; 
 
     Sym_tensor dyn1 = - (nn.derive_cov(gam)).derive_cov(gam) ;
     
@@ -574,7 +578,7 @@ int main() {
     // Dynamical Einstein equations
     //-----------------------------
     
-    const Tensor& ricci_c = gam_c.ricci() ; 
+    const Sym_tensor& ricci_c = gam_c.ricci() ; 
     
     // Test :
     Sym_tensor ricci_test = ricci ; 
