@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2004/01/30 13:21:29  r_prix
+ * add documentation about 'special' 2-fluid typeos=5: == type0 + slow-rot style inversion
+ *
  * Revision 1.14  2003/12/17 23:12:30  r_prix
  * replaced use of C++ <string> by standard ANSI char* to be backwards compatible
  * with broken compilers like MIPSpro Compiler 7.2 on SGI Origin200. ;-)
@@ -735,6 +738,12 @@ class Eos_bf_poly : public Eos_bifluid {
 	 *  3 - $\gamma_4 = \gamma_6 = 1$, but none of the previous cases.
 	 * 
 	 *  4 - None of the previous cases (the most general)
+	 *
+	 *  5 - special case of comparison to slow-rotation approximation:
+	 *      this is identical to typeos=0, but using a modified
+	 *      EOS-inversion method, namely we don't switch to a 1-fluid
+	 *      EOS in 1-fluid regions.
+	 * 
 	 **/
 	int typeos ; 
 
