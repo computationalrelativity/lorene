@@ -32,6 +32,10 @@ char binaire_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/09/08 09:32:40  e_gourgoulhon
+ * Corrected a problem of spectral basis initialisation in virial_gb() and
+ * virial_fus(): introduced the new variable a1.
+ *
  * Revision 1.4  2001/12/20 14:18:40  k_taniguchi
  * Addition of the Komar mass, the virial error by Gourgoulhon and Bonazzola, and the virial error by Friedman, Uryu, and Shibata.
  *
@@ -435,17 +439,21 @@ double Binaire::virial_gb() const {
 	      const Tenseur& dbe_auto = et[i]->get_d_beta_auto() ;
 	      const Tenseur& dbe_comp = et[i]->get_d_beta_comp() ;
 
-	      Cmp source = 2. * a2 * sqrt(a2) * se ;
+		Cmp a1 = sqrt(a2) ; 
+		a1.std_base_scal() ;
+
+	      Cmp source = 2. * a2 * a1 * se ;
 	      vir_pres += source.integrale() ;
 
-	      source = 1.5 * sqrt(a2) * (ak2_auto + ak2_comp) / qpig ;
+	      source = 1.5 * a1 * (ak2_auto + ak2_comp) / qpig ;
+	      source.std_base_scal() ;
 	      vir_extr += source.integrale() ;
 
 	      Tenseur sprod1 = flat_scalar_prod(dbe_auto, dbe_auto+dbe_comp) ;
 	      Tenseur sprod2 = flat_scalar_prod(dnu_auto, dnu_auto+dnu_comp) ;
 	      Tenseur sprod3 = flat_scalar_prod(dbe_auto, dnu_auto+dnu_comp) ;
 
-	      source = sqrt(a2) * ( sprod1() - sprod2() - 2.*sprod3() )/qpig ;
+	      source = a1 * ( sprod1() - sprod2() - 2.*sprod3() )/qpig ;
 	      vir_grav += source.integrale() ;
 
 	    }  // End of the loop on the stars
@@ -508,16 +516,19 @@ double Binaire::virial_fus() const {
 	      const Tenseur& dbe_auto = et[i]->get_d_beta_auto() ;
 	      const Tenseur& dbe_comp = et[i]->get_d_beta_comp() ;
 
-	      Cmp source = 2. * lapse * a2 * sqrt(a2) * se ;
+		Cmp a1 = sqrt(a2) ; 
+		a1.std_base_scal() ;
+
+	      Cmp source = 2. * lapse * a2 * a1 * se ;
 	      vir_pres += source.integrale() ;
 
-	      source = 1.5 * lapse * sqrt(a2) * (ak2_auto + ak2_comp) / qpig ;
+	      source = 1.5 * lapse * a1 * (ak2_auto + ak2_comp) / qpig ;
 	      vir_extr += source.integrale() ;
 
 	      Tenseur sprod = flat_scalar_prod( dbe_auto, dbe_auto+dbe_comp )
 		- flat_scalar_prod( dnu_auto, dnu_auto+dnu_comp ) ;
 
-	      source = lapse * sqrt(a2) * sprod() / qpig ;
+	      source = lapse * a1 * sprod() / qpig ;
 	      vir_grav += source.integrale() ;
 
 	    }  // End of the loop on the stars
