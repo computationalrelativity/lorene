@@ -33,6 +33,9 @@ char tensor_calculus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/02/26 22:49:45  e_gourgoulhon
+ * Added methods compute_derive_lie and derive_lie.
+ *
  * Revision 1.7  2004/02/18 18:50:07  e_gourgoulhon
  * -- Added new methods trace(...).
  * -- Tensorial product moved to file tensor_calculus_ext.C, since it is not
@@ -62,6 +65,9 @@ char tensor_calculus_C[] = "$Header$" ;
  * $Header$
  *
  */
+
+// Headers C++
+#include "headcpp.h"
 
 // Headers C
 #include <stdlib.h>
@@ -316,8 +322,164 @@ Tensor Tensor::up_down(const Metric& met) const  {
 }
 
 
+				//-----------------------//
+				//     Lie derivative    //
+				//-----------------------//
+
+// Protected method
+//-----------------
+
+void Tensor::compute_derive_lie(const Vector& vv, Tensor& resu) const {
 
 
+    // Protections
+    // -----------
+    if (valence > 0) {
+        assert(vv.get_triad() == triad) ; 
+        assert(resu.get_triad() == triad) ; 
+    }
+
+
+    // Flat metric
+    // -----------
+        
+    const Metric_flat* fmet ;
+    
+    if (valence == 0) {
+        fmet = &(mp->flat_met_spher()) ; 
+    }
+    else {
+        assert( triad != 0x0 ) ; 
+
+        const Base_vect_spher* bvs = 
+            dynamic_cast<const Base_vect_spher*>(triad) ; 
+        if (bvs != 0x0) {
+            fmet = &(mp->flat_met_spher()) ; 
+        }
+        else {
+            const Base_vect_cart* bvc = 
+                dynamic_cast<const Base_vect_cart*>(triad) ; 
+            if (bvc != 0x0) {
+                fmet = &(mp->flat_met_cart()) ; 
+            }
+            else {
+                cerr << "Tensor::compute_derive_lie : unknown triad type !\n" ; 
+                abort() ; 
+            }
+        }
+    }
+
+    // Determination of the dzpuis parameter of the input  --> dz_in
+    // ---------------------------------------------------
+    int dz_in = 0 ;
+    for (int ic=0; ic<n_comp; ic++) {
+        int dzp = cmp[ic]->get_dzpuis() ; 
+        assert(dzp >= 0) ; 
+        if (dzp > dz_in) dz_in = dzp ; 
+    }
+
+#ifndef NDEBUG
+    // Check : do all components have the same dzpuis ?
+    for (int ic=0; ic<n_comp; ic++) {
+        if ( !(cmp[ic]->check_dzpuis(dz_in)) ) {
+            cout << "######## WARNING #######\n" ; 
+            cout << " Tensor::compute_derive_lie: the tensor components \n"
+            << "    do not have all the same dzpuis ! : \n" 
+            << "    ic, dzpuis(ic), dz_in : " << ic << "  " 
+            <<  cmp[ic]->get_dzpuis() << "  " << dz_in << endl ; 
+        } 
+    }
+#endif
+        
+    
+    // Initialisation to nabla_V T 
+    // ---------------------------
+    
+    resu = contract(vv, 0, derive_cov(*fmet), valence) ;
+    
+
+    // Addition of the terms with derivatives of V  (only if valence > 0)
+    // -------------------------------------------
+    
+    if (valence > 0) {
+    
+        const Tensor& dv = vv.derive_cov(*fmet) ;  // gradient of V
+    
+        Itbl ind1(valence) ; // working Itbl to store the indices of resu
+        Itbl ind0(valence) ; // working Itbl to store the indices of this
+        Scalar tmp(*mp) ;	// working scalar
+    
+        // loop on all the components of the output tensor:
+
+        int ncomp_resu = resu.get_n_comp() ; 
+        
+        for (int ic=0; ic<ncomp_resu; ic++) {
+    
+            // indices corresponding to the component no. ic in the output tensor
+            ind1 = resu.indices(ic) ; 
+    
+            tmp = 0 ; 
+        
+            // Loop on the number of indices of this 
+            for (int id=0; id<valence; id++) {
+            
+                ind0 = ind1 ;
+                
+                switch( type_indice(id) ) {
+                
+                    case CON : {
+                        for (int k=1; k<=3; k++) {
+                            ind0.set(id) = k ; 
+                            tmp -= operator()(ind0) * dv(ind1(id), k) ;
+                        }
+                        break ; 
+                    }
+                
+                    case COV : {
+                        for (int k=1; k<=3; k++) {
+                            ind0.set(id) = k ; 
+                            tmp += operator()(ind0) * dv(k, ind1(id)) ;
+                        }
+                        break ; 
+                    }
+                
+                    default : {
+                        cerr << 
+                        "Tensor::compute_derive_lie: unexpected type of index !\n" ;
+                        abort() ; 
+                        break ; 
+                    }
+                
+                }   // end of switch on index type 
+                
+            }   // end of loop on the number of indices of uu               
+
+
+            if (dz_in > 0) tmp.dec_dzpuis() ; // to get the same dzpuis as
+                                              // nabla_V T
+
+            resu.set(ind1) += tmp ;    // Addition to the nabla_V T term
+        
+        
+        }   // end of loop on all the components of the output tensor
+        
+    }   // end of case valence > 0 
+    
+}
+ 
+
+// Public interface
+//-----------------
+
+Tensor Tensor::derive_lie(const Vector& vv) const {
+
+    Tensor resu(*mp, valence, type_indice, triad) ; 
+    
+    compute_derive_lie(vv, resu) ;
+    
+    return resu ; 
+    
+}
 
 
 
