@@ -31,6 +31,9 @@ char et_bin_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/12/16 17:32:47  k_taniguchi
+ * Suppress the things I did in the previous version.
+ *
  * Revision 1.4  2002/12/16 16:59:39  k_taniguchi
  * Set some Cmp to the state of "std_base_scal()".
  *
@@ -81,10 +84,6 @@ double Etoile_bin::mass_b() const {
 	    Cmp sqrt_acar = sqrt(a_car()) ;
 	    sqrt_acar.std_base_scal() ;
 
-	    a_car().std_base_scal() ;
-	    gam_euler().std_base_scal() ;
-	    nbar().std_base_scal() ;
-
 	    Cmp dens = a_car() % sqrt_acar % gam_euler() % nbar() ;
 	    
 	    dens.std_base_scal() ; 
@@ -118,13 +117,8 @@ double Etoile_bin::mass_g() const {
 	    Cmp sqrt_acar = sqrt(a_car()) ;
 	    sqrt_acar.std_base_scal() ;
 
-	    a_car().std_base_scal() ;
-	    nnn().std_base_scal() ;
-
-	    Cmp tmp_euler = ener_euler() + s_euler() ;
-	    tmp_euler.std_base_scal() ;
-
-	    Cmp dens = a_car() % sqrt_acar % nnn() % tmp_euler ;
+	    Cmp dens = a_car() % sqrt_acar % nnn()
+		% ( ener_euler() + s_euler() ) ;
 	    dens.std_base_scal() ; 
 
 	    p_mass_g = new double( dens.integrale() ) ;
@@ -154,10 +148,6 @@ double Etoile_bin::xa_barycenter() const {
 
 	Cmp sqrt_acar = sqrt(a_car()) ;
 	sqrt_acar.std_base_scal() ;
-
-	a_car().std_base_scal() ;
-	gam_euler().std_base_scal() ;
-	nbar().std_base_scal() ;
 
 	Cmp dens = a_car() % sqrt_acar % gam_euler() % nbar() % xxa ; 
 	
