@@ -35,6 +35,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2003/10/19 19:54:37  e_gourgoulhon
+ * -- Modified method spectral_display: now calling Valeur::display_coef.
+ *
  * Revision 1.15  2003/10/15 16:03:38  j_novak
  * Added the angular Laplace operator for Scalar.
  *
@@ -588,27 +591,27 @@ void Scalar::sauve(FILE* fd) const {
 
 // Operator <<
 // -----------
-ostream& operator<<(ostream& o, const Scalar& ci) {
+ostream& operator<<(ostream& ost, const Scalar& ci) {
 
     switch(ci.etat) {
 	case ETATNONDEF: {
-	    o << "*** UNDEFINED STATE" ;
+	    ost << "*** UNDEFINED STATE *** " << endl ;
 	    break ;
 	}
 	
 	case ETATZERO: {
-	    o << "*** IDENTICALLY ZERO" ;
+		ost << "*** identically ZERO ***" << endl ; 
 	    break ; 
 	}
 	
 	case ETATUN: {
-	    o << "*** IDENTICALLY ONE" ;
+		ost << "*** identically ONE ***" << endl ; 
 	    break ; 
 	}
 	
 	case ETATQCQ: {
-	    o << "                        dzpuis = " << ci.get_dzpuis() << endl ; 
-	    o << ci.va << endl ; 
+	    ost << "*** dzpuis = " << ci.get_dzpuis() << endl ; 
+	    ost << ci.va << endl ; 
 	    break ;
 	}
 	
@@ -621,38 +624,39 @@ ostream& operator<<(ostream& o, const Scalar& ci) {
     }
     
     // Termine
-    return o ;
+    return ost ;
 }
 
-// affiche_seuil
-//---------------
+// spectral_display
+//-----------------
 
-void Scalar::spectral_display(ostream& ost, double threshold,
-			int type, int precis) const {
+void Scalar::spectral_display(double thres, int precis, ostream& ost) const {
 
     // Cas particuliers
     //-----------------
 
     if (etat == ETATNONDEF) {
-		ost << "    state: UNDEFINED" << endl ;
-	return ;
+		ost << "*** UNDEFINED ***" << endl << endl ; 
+		return ;
     }
 
     if (etat == ETATZERO) {
-		ost << "    state: ZERO" << endl ;
-	return ;
+		ost << "*** identically ZERO ***" << endl ; 
+		return ;
     }
 
     if (etat == ETATUN) {
-		ost << "    state: ONE" << endl ;
-	return ;
+		ost << "*** identically ONE ***" << endl ; 
+		return ;
     }
 
     // Cas general : on affiche la Valeur
     //------------
 	   
-    ost << "                        dzpuis = " << dzpuis << endl ; 
-    va.affiche_seuil(ost, type, precis, threshold) ;
+    if (dzpuis != 0) {
+		ost << "*** dzpuis = " << dzpuis << endl ; 
+ 	}
+    va.display_coef(thres, precis, ost) ;
 
 }
 
