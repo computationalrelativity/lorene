@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/11/21 16:19:09  m_bejger
+ * Added new tables: lognb, dlpsdlnb
+ *
  * Revision 1.4  2002/10/16 14:36:29  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -132,6 +135,13 @@ class Eos_tabul : public Eos {
     	/// Table of $d\log P/d\log H$
     	Tbl* dlpsdlh ;
 
+    	/// Table of $d\log n_b$
+    	Tbl* lognb ;
+    	
+        /// Table of $d\log P/d\log nb$
+        Tbl* dlpsdlnb ;
+                
+                
     // Constructors - Destructor
     // -------------------------
     protected:
@@ -205,6 +215,10 @@ class Eos_tabul : public Eos {
 	 *
 	 */
     	virtual double nbar_ent_p(double ent, const Param* par=0x0) const ;
+	/* mb test version for linear interpolation 
+
+    	virtual double nbar_ent_p_mbtest(double ent, const Param* par=0x0) const ;
+         */       
 
  	/** Computes the total energy density from the log-enthalpy.
 	 *
@@ -223,6 +237,9 @@ class Eos_tabul : public Eos {
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
     	virtual double press_ent_p(double ent, const Param* par=0x0) const ;
+	/* mb test version for linear interpolation 
+    	virtual double press_ent_p_mbtest(double ent, const Param* par=0x0) const ;
+        */
 
 	/** Computes the logarithmic derivative $d\ln n/d\ln H$ 
 	 * from the log-enthalpy. 
@@ -250,6 +267,16 @@ class Eos_tabul : public Eos {
 	 *  @return dln(p)/dln(H)
 	 */
     	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ; 
+
+        /** Computes the logarithmic derivative $d\ln p/d\ln n$ 
+	 * from the log-enthalpy. 
+	 * 
+	 *  @param ent [input,  unit: $c^2$] log-enthalpy {\it H} 
+	 *
+	 *  @return dln(p)/dln(n)
+	 */
+
+    	virtual double der_press_nbar_p(double ent, const Param* par=0x0) const ; 
 
 };
 
