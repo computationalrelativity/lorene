@@ -25,6 +25,10 @@ char et_bfrot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/11/18 18:38:11  r_prix
+ * use of new member EpS_euler: matter sources in equilibrium() and global quantities
+ * no longer distinguish Newtonian/relativistic, as all terms should have the right limit...
+ *
  * Revision 1.10  2003/11/13 12:13:15  r_prix
  * *) removed all uses of Etoile-type specific quantities: u_euler, press
  *    and exclusively use ener_euler, s_euler, sphph_euler, J_euler instead
@@ -94,7 +98,7 @@ double Et_rot_bifluid::mass_b1() const {
   if (p_mass_b1 == 0x0) {    // a new computation is required
 	
     assert(nbar.get_etat() == ETATQCQ);
-    Cmp dens1 = a_car() * bbb() * gam_euler() * nbar();
+    Cmp dens1 = a_car() * bbb() * gam_euler() * eos.get_m1()* nbar();
     dens1.std_base_scal() ; 
 
     p_mass_b1 = new double( dens1.integrale() ) ;
@@ -110,7 +114,7 @@ double Et_rot_bifluid::mass_b2() const {
   if (p_mass_b2 == 0x0) {    // a new computation is required
       assert(nbar2.get_etat() == ETATQCQ);
 	
-      Cmp dens2 = a_car() * bbb() * gam_euler2() * nbar2();
+      Cmp dens2 = a_car() * bbb() * gam_euler2() * eos.get_m2() * nbar2();
       dens2.std_base_scal() ; 
 
       p_mass_b2 = new double( dens2.integrale() ) ;
@@ -125,6 +129,7 @@ double Et_rot_bifluid::mass_b() const {
 
   if (p_mass_b == 0x0) 
     p_mass_b = new double(mass_b1() + mass_b2() ) ;
+
   return *p_mass_b;
 
 } 
@@ -138,29 +143,20 @@ double Et_rot_bifluid::mass_g() const {
 
   if (p_mass_g == 0x0) {    // a new computation is required
 	
-    if (relativistic) {
-
       Tenseur vtmp (J_euler);
       vtmp.change_triad( mp.get_bvect_spher() );  // change to spherical triad
 
       Tenseur tJphi (mp);
       tJphi = vtmp(2);  // get the phi tetrad-component: J^ph r sin(th)
 
-      Tenseur source = nnn * (ener_euler + s_euler) + 2 * b_car * tnphi * tJphi;
+      // relativistic AND Newtonian: EpS_euler has right limit and tnphi->0
+      Tenseur source = nnn * EpS_euler + 2 * b_car * tnphi * tJphi;
       source = a_car * bbb * source ;
 	  
       source.set_std_base() ;
 
       p_mass_g = new double( source().integrale() ) ;
 	  
-
-    }
-    // FIXME: maybe we should try to get the right limit from the above, 
-    //  would be a nice consistency-check
-    else{  // Newtonian case 
-      p_mass_g = new double( mass_b() ) ;   // in the Newtonian case
-      //  M_g = M_b
-    }
   }
     
   return *p_mass_g ; 
@@ -177,19 +173,15 @@ double Et_rot_bifluid::angu_mom() const {
 	
     Cmp dens(mp) ;
 
-    if (relativistic) {
-      Tenseur us = J_euler;
-      us.change_triad( mp.get_bvect_spher() ) ;  
-      dens = us(2) ;
-      dens.mult_rsint() ;
+    // this should work for both relativistic AND Newtonian, 
+    // provided J_euler has the right limit...
+    Tenseur tmp = J_euler;
+    tmp.change_triad( mp.get_bvect_spher() ) ;  
+    dens = tmp(2) ;
+    dens.mult_rsint() ;
 
-      dens = a_car() * b_car()* bbb() * dens ; 
-    }
-    // FIXME: should come out in Newtonian limit...
-    else {    // Newtonian case 
-      dens = nbar() * uuu() + nbar2() *uuu2() ;   // FIXME: something missing here!!
-    }
-      
+    dens = a_car() * b_car()* bbb() * dens ; 
+
     dens.std_base_scal() ; 
       
     p_angu_mom = new double( dens.integrale() ) ;
@@ -210,15 +202,10 @@ double Et_rot_bifluid::grv2() const {
   if (p_grv2 == 0x0) {    // a new computation is required
 	
     Tenseur sou_m(mp);
+    // should work for both relativistic AND Newtonian, provided sphph_euler has right limit..
+    sou_m =  2 * qpig * a_car * sphph_euler ;
 
-    if (relativistic)
-      sou_m =  2 * qpig * a_car * sphph_euler ;
-    else   // FIXME: should come out as Newtonian limit
-      sou_m = 2 * qpig * (press + nbar * uuu*uuu ) ; // FIXME: calculate correct expression
-        						
-    Tenseur sou_q =  1.5 * ak_car
-      - flat_scalar_prod(logn.gradient_spher(),
-			 logn.gradient_spher() ) ;	
+    Tenseur sou_q =  1.5 * ak_car - flat_scalar_prod(logn.gradient_spher(),logn.gradient_spher() ) ;	
 
     p_grv2 = new double( double(1) - lambda_grv2(sou_m(), sou_q()) ) ; 	
 
@@ -247,11 +234,8 @@ double Et_rot_bifluid::grv3(ostream* ost) const {
       Tenseur beta = log( bbb ) ; 
       beta.set_std_base() ; 
 	    
-      source = 0.75 * ak_car 
-	- flat_scalar_prod(logn.gradient_spher(),
-			   logn.gradient_spher() )
-	+ 0.5 * flat_scalar_prod(alpha.gradient_spher(),
-				 beta.gradient_spher() ) ; 
+      source = 0.75 * ak_car - flat_scalar_prod(logn.gradient_spher(), logn.gradient_spher() )
+	+ 0.5 * flat_scalar_prod(alpha.gradient_spher(), beta.gradient_spher() ) ; 
 	    
       Cmp aa = alpha() - 0.5 * beta() ; 
       Cmp daadt = aa.srdsdt() ;	// 1/r d/dth
@@ -292,8 +276,7 @@ double Et_rot_bifluid::grv3(ostream* ost) const {
 
     }
     else{
-      source = - 0.5 * flat_scalar_prod(logn.gradient_spher(),
-					logn.gradient_spher() ) ; 
+      source = - 0.5 * flat_scalar_prod(logn.gradient_spher(),logn.gradient_spher() ) ; 
     }
 	
     source.set_std_base() ; 
@@ -302,26 +285,9 @@ double Et_rot_bifluid::grv3(ostream* ost) const {
 
     // Matter term
     // -----------
-	
-    if (relativistic) {    
-      source  = qpig * a_car * bbb * s_euler ;
-    }
-    else{ // FIXME: generalize, and also: should come out of Newtonian limit...
-      // What follows is only valid for polytropic Eos_bifluid
-      const Eos_bf_poly* eos_a = dynamic_cast<const Eos_bf_poly*>(&eos) ;
-      assert(eos_a != 0x0) ;
-      source = qpig * ( 3 * press + nbar * uuu * uuu 
-			+ nbar2* uuu2* uuu2 );
-      if (eos_a->get_gam5() == 0.) 
-	source = source - qpig*2*eos_a->get_beta()*nbar2 * Delta_car ;
-      else if (eos_a->get_gam6() == 0.)
-	source = source - qpig*2*eos_a->get_beta()*nbar * Delta_car ;
-      else {
-	Tenseur tmp(2*eos_a->get_beta()*pow(nbar(), eos_a->get_gam5()) 
-		    * pow(nbar2(),eos_a->get_gam6()) * Delta_car()) ; 
-	source = source - qpig*tmp ;
-      }
-    }
+
+    // should work for relativistic AND Newtonian, provided s_euler has the right limit...
+    source  = qpig * a_car * bbb * s_euler ;
 
     source.set_std_base() ; 
 

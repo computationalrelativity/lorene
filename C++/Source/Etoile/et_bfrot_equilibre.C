@@ -32,6 +32,10 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/11/18 18:38:11  r_prix
+ * use of new member EpS_euler: matter sources in equilibrium() and global quantities
+ * no longer distinguish Newtonian/relativistic, as all terms should have the right limit...
+ *
  * Revision 1.7  2003/11/17 13:49:43  r_prix
  * - moved superluminal check into hydro_euler()
  * - removed some warnings
@@ -629,17 +633,14 @@ void Et_rot_bifluid::equilibrium_bi
     Tenseur beta = log(bbb) ; 
     beta.set_std_base() ; 
 
-    if (relativistic) {
-      source_nuf =  qpig * a_car *( ener_euler + s_euler ) ; 
+    // common source term for relativistic and Newtonian ! (EpS_euler has the right limit)
+    source_nuf =  qpig * a_car * EpS_euler;
 
-      source_nuq = ak_car - flat_scalar_prod(logn.gradient_spher(), 
-					     logn.gradient_spher() + beta.gradient_spher()) ; 
-    }
-    else {
-      source_nuf = qpig * (nbar + nbar2); 
-
+    if (relativistic) 
+      source_nuq = ak_car - flat_scalar_prod(logn.gradient_spher(),logn.gradient_spher() + beta.gradient_spher()) ; 
+    else 
       source_nuq = 0 ; 
-    }
+
     source_nuf.set_std_base() ; 	
     source_nuq.set_std_base() ; 	
 
@@ -648,8 +649,7 @@ void Et_rot_bifluid::equilibrium_bi
     source_dzf = 2 * qpig * a_car * sphph_euler;
     source_dzf.set_std_base() ; 
   
-    source_dzq = 1.5 * ak_car - flat_scalar_prod(logn.gradient_spher(),
-						 logn.gradient_spher() ) ;	    
+    source_dzq = 1.5 * ak_car - flat_scalar_prod(logn.gradient_spher(),logn.gradient_spher() ) ;	    
     source_dzq.set_std_base() ; 	
 	
     // Source for tggg
@@ -664,7 +664,7 @@ void Et_rot_bifluid::equilibrium_bi
     // Source for shift
     // ----------------
 	    
-    // Matter term (u_euler is NOT the same as in Etoile_rot): 
+    // Matter term 
     source_shift = (-4*qpig) * nnn * a_car * J_euler;
 
     // Quadratic terms:
@@ -754,7 +754,7 @@ void Et_rot_bifluid::equilibrium_bi
 	
     }
 
-    // New computation of Delta_car, gam_euler, ener_euler, etc...
+    // New computation of Delta_car, gam_euler, EpS_euler etc...
     // ------------------------------------------------------
 	
     hydro_euler() ; 

@@ -32,6 +32,10 @@ char et_rot_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/11/18 18:38:11  r_prix
+ * use of new member EpS_euler: matter sources in equilibrium() and global quantities
+ * no longer distinguish Newtonian/relativistic, as all terms should have the right limit...
+ *
  * Revision 1.8  2003/11/17 13:49:43  r_prix
  * - moved superluminal check into hydro_euler()
  * - removed some warnings
@@ -91,30 +95,32 @@ char et_rot_bifluid_C[] = "$Header$" ;
 			    //--------------//
 // Standard constructor
 // --------------------
-Et_rot_bifluid::Et_rot_bifluid(Map& mpi, int nzet_i, bool relat, 
-			      const Eos_bifluid& eos_i)
-  : Etoile_rot(mpi, nzet_i, relat, *eos_i.trans2Eos()), 
+Et_rot_bifluid::Et_rot_bifluid(Map& mpi, int nzet_i, bool relat, const Eos_bifluid& eos_i):
+  Etoile_rot(mpi, nzet_i, relat, *eos_i.trans2Eos()), 
   eos(eos_i),
   ent2(mpi),
   nbar2(mpi),
-  Delta_car(mpi),
   sphph_euler(mpi),
   J_euler(mpi, 1, CON, mp.get_bvect_cart()), 
+  EpS_euler(mpi),
+  uuu2(mpi),
   gam_euler2(mpi),
-  uuu2(mpi)
+  Delta_car(mpi)
 {
   // All the matter quantities are initialized to zero :
   nbar2 = 0 ;
-  Delta_car = 0 ;
   ent2 = 0 ; 
-  gam_euler2 = 1 ; 
   sphph_euler = 0;
   J_euler = 0;
+  EpS_euler = 0;
+
   gam_euler.set_std_base() ; 
   
   // Initialization to a static state : 
   omega2 = 0 ; 
   uuu2 = 0 ; 
+  gam_euler2 = 1 ; 
+  Delta_car = 0 ;
   
   // Pointers of derived quantities initialized to zero : 
   set_der_0x0() ;
@@ -124,16 +130,17 @@ Et_rot_bifluid::Et_rot_bifluid(Map& mpi, int nzet_i, bool relat,
 // Copy constructor
 // ----------------
 
-Et_rot_bifluid::Et_rot_bifluid(const Et_rot_bifluid& et)
-  : Etoile_rot(et), 
+Et_rot_bifluid::Et_rot_bifluid(const Et_rot_bifluid& et):
+  Etoile_rot(et), 
   eos(et.eos),
   ent2(et.ent2),
   nbar2(et.nbar2),
-  Delta_car(et.Delta_car),
   sphph_euler(et.sphph_euler),
   J_euler(et.J_euler),
+  EpS_euler(et.EpS_euler),
+  uuu2(et.uuu2),
   gam_euler2(et.gam_euler2),
-  uuu2(et.uuu2)
+  Delta_car(et.Delta_car)
 {
   omega2 = et.omega2 ; 
   
@@ -149,11 +156,13 @@ Et_rot_bifluid::Et_rot_bifluid(Map& mpi, const Eos_bifluid& eos_i, FILE* fich):
   eos(eos_i),
   ent2(mpi),
   nbar2(mpi),
-  Delta_car(mpi),
-  gam_euler2(mpi),
   sphph_euler(mpi),
   J_euler(mpi, 1, CON, mp.get_bvect_cart()), 
-  uuu2(mpi) {
+  EpS_euler(mpi),
+  uuu2(mpi),
+  gam_euler2(mpi),
+  Delta_car(mpi)
+{
 
   // Etoile parameters
   // -----------------
@@ -232,12 +241,14 @@ void Et_rot_bifluid::set_der_0x0() const {
 void Et_rot_bifluid::del_hydro_euler() {
 
   Etoile_rot::del_hydro_euler() ; 
-  gam_euler2.set_etat_nondef() ; 
   sphph_euler.set_etat_nondef();
   J_euler.set_etat_nondef();
+  EpS_euler.set_etat_nondef();
+  uuu2.set_etat_nondef();
+  gam_euler2.set_etat_nondef() ; 
+  Delta_car.set_etat_nondef();
   
   del_deriv() ; 
-
 }			    
 
 // Assignment of the enthalpy field
@@ -274,11 +285,13 @@ void Et_rot_bifluid::operator=(const Et_rot_bifluid& et) {
 
     ent2 = et.ent2 ;
     nbar2 = et.nbar2 ;
-    Delta_car = et.Delta_car ;
-    gam_euler2 = et.gam_euler2 ;
     sphph_euler = et.sphph_euler;
     J_euler = et.J_euler;
+    EpS_euler = et.EpS_euler;
     uuu2 = et.uuu2 ;
+    gam_euler2 = et.gam_euler2 ;
+    Delta_car = et.Delta_car ;
+
     
     del_deriv() ;  // Deletes all derived quantities
 
@@ -639,8 +652,12 @@ void Et_rot_bifluid::hydro_euler(){
 
     //  Energy density E with respect to the Eulerian observer
     //------------------------------------
-    ener_euler =  Ann + 2*Anp + App - press ;
-    ener_euler.set_std_base() ; 
+    // use of ener_euler is deprecated, because it's useless in Newtonian limit!
+    ener_euler.set_etat_nondef(); // make sure, it's not used
+
+    Tenseur E_euler(mp);
+    E_euler =  Ann + 2*Anp + App - press ;
+    E_euler.set_std_base() ; 
     
 
     // S^phi_phi component of stress-tensor S^i_j
@@ -653,6 +670,12 @@ void Et_rot_bifluid::hydro_euler(){
     //------------------------------------
     s_euler = 2*press() + sphph_euler();
     s_euler.set_std_base() ; 
+
+    // The combination EpS_euler := (E + S_i^i) which has Newtonian limit -> rho
+    if (relativistic)
+      EpS_euler = E_euler + s_euler;
+    else
+      EpS_euler = eos.get_m1() * nbar() + eos.get_m2() * nbar2();
 
 
     // the (flat-space) angular-momentum 3-vector J_euler^i
