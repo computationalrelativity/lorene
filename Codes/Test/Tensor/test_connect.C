@@ -28,6 +28,9 @@ char test_connect_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/12/27 15:03:31  e_gourgoulhon
+ * New tests (new index convention of covariant derivatives).
+ *
  * Revision 1.6  2003/10/19 20:05:07  e_gourgoulhon
  * Change of the argument list of Scalar::spectral_display
  * (cout now default).
@@ -67,13 +70,13 @@ char test_connect_C[] = "$Header$" ;
 
 int main() {
 
-	int arret = 1 ; 
+	int arret = 0 ; 
 
 	// Construction of a multi-grid (Mg3d)
 	// -----------------------------------
   
 	int nz = 3 ; 	// Number of domains
-	int nr = 5 ; 	// Number of collocation points in r in each domain
+	int nr = 9 ; 	// Number of collocation points in r in each domain
 	int nt = 5 ; 	// Number of collocation points in theta in each domain
 	int np = 12 ; 	// Number of collocation points in phi in each domain
 	int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
@@ -87,7 +90,7 @@ int main() {
   	// ------------------------------------------
 
 	// Boundaries of each domains
-	double r_limits[] = {0., 1., 2., __infinity} ; 
+	double r_limits[] = {0., 2., 3., __infinity} ; 
   	assert( nz == 3 ) ;  // since the above array described only 3 domains
   
 	Map_af map(mgrid, r_limits) ; 
@@ -104,10 +107,10 @@ int main() {
 	// ---------------------------------
 	
 	// Representation on a spherical orthonormal basis
-	Connection_fspher ders(map, map.get_bvect_spher()) ; 
+        Connection_fspher ders(map, map.get_bvect_spher()) ; 
 	
 	// Representation on a Cartesian orthonormal basis
-	 Connection_fcart derc(map, map.get_bvect_cart()) ; 
+        Connection_fcart derc(map, map.get_bvect_cart()) ; 
 
 
 	cout << endl << 
@@ -118,6 +121,7 @@ int main() {
 	// ---------------------------------------
 
 	const Coord& x = map.x ; 
+	const Coord& y = map.y ; 
 	const Coord& z = map.z ; 
 	const Coord& r = map.r ; 
 	const Coord& sint = map.sint ; 
@@ -128,12 +132,13 @@ int main() {
 
 	uu = x ; 	
 	tmp = sint * sinp / r ;
-	uu.set_domain(nz-1) = tmp.domain(nz-1) ; // y/r^2 in the external domain
+        int nzm1 = nz-1 ; 
+	uu.set_domain(nzm1) = tmp.domain(nzm1) ; // y/r^2 in the external domain
 	
 	uu.std_spectral_base() ;   // sets the standard spectral basis for 
 									// expansion of a scalar field
 									
-	cout << "uu : " << uu << endl ; 
+	cout << "uu : "  << endl ; 
 	uu.spectral_display() ; 
 	arrete(arret) ; 
 	
@@ -142,13 +147,15 @@ int main() {
 	
 	Vector duuc = uu.derive_cov(metc)  ;  
 
-	cout << "duuc : " << duuc << endl ; 
+	cout << "duuc : "  << endl ; 
+        duuc.spectral_display() ; 
 
 	arrete(arret) ; 
 
 	Vector duus = uu.derive_cov(mets) ; 
 	
-	cout << "duus : " << duus << endl ; 
+	cout << "duus : "  << endl ; 
+        duus.spectral_display() ; 
 
 	arrete(arret) ; 
 	
@@ -160,11 +167,7 @@ int main() {
 	
 	Vector diffc = duus_c - duuc ; 
 	
-	cout << "diffc : " << diffc << endl ; 
-	cout << "Norm of diffc: " << endl ; 
-	for (int i=1; i<=3; i++) {
-		cout << norme(diffc(i)) << endl ; 
-	}
+	cout << "maxabs( diffc ) : " << maxabs(diffc) << endl ; 
 	arrete() ; 
 	
 	
@@ -173,11 +176,8 @@ int main() {
 	
 	Vector diffs = duuc_s - duus ; 
 
-	cout << "diffs : " << diffs << endl ; 
-	cout << "Norm of diffs: " << endl ; 
-	for (int i=1; i<=3; i++) {
-		cout << norme(diffs(i)) << endl ; 
-	}
+	cout << "maxabs(diffs) : " << maxabs(diffs) << endl ; 
+
 	arrete() ; 
 	
 	cout << endl << 
@@ -185,42 +185,45 @@ int main() {
 	
 	Vector vvc(map, COV, map.get_bvect_cart()) ; 
 	
-	vvc.set(1) = uu ; 
-	vvc.set(2) = uu*uu ; 
+	vvc.set(1) = x + x*x*y - y ; 
+	vvc.set(2) = x*x + z*z * y ; 
 	vvc.set(3) = z + x * z ; 
-	vvc.set(3).set_domain(nz-1) = duuc(3).domain(nz-1) ; 
-	
+        vvc.annule_domain(nzm1) ; 
+        
 	vvc.std_spectral_base() ; 
+        
+        Tensor dvvc_ana(map, 2, COV, map.get_bvect_cart()) ;
+        dvvc_ana.set(1,1) = 1 + 2*x*y ; 
+        dvvc_ana.set(1,2) = x*x - 1 ; 
+        dvvc_ana.set(1,3) = 0 ; 
+        dvvc_ana.set(2,1) = 2*x ; 
+        dvvc_ana.set(2,2) = z*z ; 
+        dvvc_ana.set(2,3) = 2*z*y ; 
+        dvvc_ana.set(3,1) = z ; 
+        dvvc_ana.set(3,2) = 0; 
+        dvvc_ana.set(3,3) = 1 + x ; 
+        dvvc_ana.annule_domain(nzm1) ; 
+        dvvc_ana.std_spectral_base() ;  
+        
 	Tensor dvvc = vvc.derive_cov(metc) ;
-	
-	// cout << "dvvc : " << dvvc << endl ; 
+        
+        Tensor diffvvc_ana = dvvc - dvvc_ana ;
+        cout << "Maxabs(dvvc - dvvc_ana) : " << maxabs(diffvvc_ana) << endl ; 
+        arrete() ; 
 	
 	Vector vvs = vvc ; 
 	vvs.change_triad( map.get_bvect_spher() ) ; 
 	
-	Tensor dvvs = ders.derive_cov(vvs) ; 
+	Tensor dvvs = vvs.derive_cov(mets) ; 
 	
 	Tensor dvvs_c = dvvs ; 
 	dvvs_c.change_triad( map.get_bvect_cart() ) ; 
 	
 	Tensor diffvvc = dvvs_c - dvvc ; 
 	
-	cout << "dvvc(1,1) : "  << endl ;
-	dvvc(1,1).spectral_display() ;  
-	arrete(arret) ; 
-	
-	cout << "dvvs_c(1,1) : " << endl ; 
-	dvvs_c(1,1).spectral_display() ;  
-	arrete(arret) ; 
-	
-	cout << "Norm of diffvvc: " << endl ; 
-	for (int i=1; i<=3; i++) {
-		for (int j=1; j<=3; j++) {
-			cout << i << " " << j << " : " << norme(diffvvc(i,j)) << endl ; 
-		}
-	}
-	arrete() ; 
-
+        cout << "Maxabs(dvvs_c - dvvc) : \n" ;
+        maxabs(diffvvc) ; 
+        arrete() ; 
 
 
 	Tensor dvvc_s = dvvc ; 
@@ -228,12 +231,104 @@ int main() {
 
 	Tensor diffvvs = dvvc_s - dvvs ; 
 	
-	cout << "Norm of diffvvs: " << endl ; 
-	for (int i=1; i<=3; i++) {
-		for (int j=1; j<=3; j++) {
-			cout << i << " " << j << " : " << norme(diffvvs(i,j)) << endl ; 
-		}
-	}
+        cout << "Maxabs(dvvc_s - dvvs) : \n" ; 
+        maxabs(diffvvs) ;
+        arrete() ; 
 	
+        // Divergence
+        // ----------
+        Vector uvvc = vvc.up(0, metc) ; 
+        Scalar divc = uvvc.divergence(metc) ; 
+        Tensor udvvc = dvvc.up(0, metc) ; 
+        Scalar diffdivc = divc - Scalar( udvvc.scontract(0,1) ) ; 
+        cout << "Error on the divergence (Cart.): " << endl ; 
+        maxabs(diffdivc) ; 
+        
+        Vector uvvs = vvs.up(0, mets) ; 
+        Scalar divs = uvvs.divergence(mets) ; 
+        Tensor udvvs = dvvs.up(0, mets) ; 
+        Scalar diffdivs = divs - Scalar( udvvs.scontract(0,1) ) ; 
+        cout << "Error on the divergence (spher.): " << endl ; 
+        maxabs(diffdivs) ; 
+        
+        
+	cout << endl << 
+	"================ TEST FOR A RANK 2 TENSOR FIELD =================\n" ; 
+	        
+        Tensor ddvvc_ana(map, 3, COV, map.get_bvect_cart()) ;
+
+        ddvvc_ana.set(1,1,1) = 2*y ; 
+        ddvvc_ana.set(1,1,2) = 2*x ; 
+        ddvvc_ana.set(1,1,3) = 0 ; 
+
+        ddvvc_ana.set(1,2,1) = 2*x ; 
+        ddvvc_ana.set(1,2,2) = 0 ; 
+        ddvvc_ana.set(1,2,3) = 0 ; 
+
+        ddvvc_ana.set(1,3,1) = 0 ; 
+        ddvvc_ana.set(1,3,2) = 0 ; 
+        ddvvc_ana.set(1,3,3) = 0 ; 
+
+        ddvvc_ana.set(2,1,1) = 2 ; 
+        ddvvc_ana.set(2,1,2) = 0 ; 
+        ddvvc_ana.set(2,1,3) = 0 ; 
+
+        ddvvc_ana.set(2,2,1) = 0 ; 
+        ddvvc_ana.set(2,2,2) = 0 ; 
+        ddvvc_ana.set(2,2,3) = 2*z ; 
+
+        ddvvc_ana.set(2,3,1) = 0 ; 
+        ddvvc_ana.set(2,3,2) = 2*z ; 
+        ddvvc_ana.set(2,3,3) = 2*y ; 
+
+        ddvvc_ana.set(3,1,1) = 0 ; 
+        ddvvc_ana.set(3,1,2) = 0 ; 
+        ddvvc_ana.set(3,1,3) = 1 ; 
+
+        ddvvc_ana.set(3,2,1) = 0; 
+        ddvvc_ana.set(3,2,2) = 0; 
+        ddvvc_ana.set(3,2,3) = 0; 
+
+        ddvvc_ana.set(3,3,1) = 1 ; 
+        ddvvc_ana.set(3,3,2) = 0 ; 
+        ddvvc_ana.set(3,3,3) = 0 ; 
+
+        ddvvc_ana.annule_domain(nzm1) ; 
+        
+        Tensor ddvvc = dvvc.derive_cov(metc) ;         
+        
+        Tensor diffddvvc_ana = ddvvc - ddvvc_ana ;
+        cout << "Maxabs(ddvvc - ddvvc_ana) : \n" ; 
+        maxabs(diffddvvc_ana) ; 
+        arrete() ; 
+        
+	Tensor ddvvs = dvvs.derive_cov(mets) ; 
+	
+//	Tensor ddvvs_c = ddvvs ; 
+//	ddvvs_c.change_triad( map.get_bvect_cart() ) ; 
+//	Tensor diffddvvc = ddvvs_c - ddvvc ; 
+//        cout << "Maxabs(ddvvs_c - ddvvc) : \n" ;
+//        maxabs(diffddvvc) ; 
+//        arrete() ; 
+
+//	Tensor ddvvc_s = ddvvc ; 
+//	ddvvc_s.change_triad( map.get_bvect_spher() ) ; 
+//	Tensor diffddvvs = ddvvc_s - ddvvs ; 
+//        cout << "Maxabs(ddvvc_s - ddvvs) : \n" ; 
+//        maxabs(diffddvvs) ;
+//        arrete() ; 
+	
+        // Divergence
+        // ----------
+        
+        Tensor u1dvvc = dvvc.up(1, metc) ; 
+        Vector div_udvvc = u1dvvc.divergence(metc) ; 
+        Tensor uddvvc = ddvvc.up(1, metc) ; 
+        cout << "div_udvvc : \n " << endl ; 
+        div_udvvc.spectral_display() ; 
+        Vector diff_div_udvvc = div_udvvc - uddvvc.scontract(1,2)  ; 
+        cout << "Error on the divergence (Cart.): " << endl ; 
+        maxabs(diff_div_udvvc) ; 
+        
 	return EXIT_SUCCESS ; 
 }
