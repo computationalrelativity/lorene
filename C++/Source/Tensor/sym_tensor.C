@@ -35,6 +35,10 @@ char sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/10/11 16:47:10  e_gourgoulhon
+ * Suppressed the call to Ibtl::set_etat_qcq() after the construction
+ * of the Itbl's, thanks to the new property of the Itbl class.
+ *
  * Revision 1.7  2003/10/07 09:56:59  j_novak
  * method Sym_tensor::inverse() implemented (but not tested!)
  *
@@ -203,22 +207,21 @@ int Sym_tensor::position (const Itbl& idx) const {
 
 Itbl Sym_tensor::indices (int place) const {
     Itbl res(2) ;
-    res.set_etat_qcq() ;
     assert ((place>=0) && (place<6)) ;
     
     if (place<3) {
-	res.set(0) = 1 ;
-	res.set(1) = place+1 ;
+		res.set(0) = 1 ;
+		res.set(1) = place+1 ;
 	}
     
     if ((place>2) && (place<5)) {
-	res.set(0) = 2 ;
-	res.set(1) = place - 1 ;
+		res.set(0) = 2 ;
+		res.set(1) = place - 1 ;
 	}
     
     if (place == 5) {
-	res.set(0) = 3 ;
-	res.set(1) = 3 ;
+		res.set(0) = 3 ;
+		res.set(1) = 3 ;
 	}
  
     return res ;

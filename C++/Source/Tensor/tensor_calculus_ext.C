@@ -33,6 +33,10 @@ char tensor_calculus_ext_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/11 16:47:10  e_gourgoulhon
+ * Suppressed the call to Ibtl::set_etat_qcq() after the construction
+ * of the Itbl's, thanks to the new property of the Itbl class.
+ *
  * Revision 1.1  2003/10/06 15:13:38  e_gourgoulhon
  * Tensor contraction.
  *
@@ -73,7 +77,6 @@ Tensor contract(const Tensor& t1, int ind1, const Tensor& t2, int ind2) {
     int val_res = val1 + val2 - 2;
 	
     Itbl tipe(val_res) ;
-    tipe.set_etat_qcq() ;
 
     for (int i=0 ; i<ind1 ; i++)
 		tipe.set(i) = t1.get_index_type(i) ;
@@ -94,8 +97,6 @@ Tensor contract(const Tensor& t1, int ind1, const Tensor& t2, int ind2) {
 	
     Itbl jeux_indice_t1(val1) ;
     Itbl jeux_indice_t2(val2) ;
-    jeux_indice_t1.set_etat_qcq() ;
-    jeux_indice_t2.set_etat_qcq() ;
     
     for (int i=0 ; i<res.get_n_comp() ; i++) {
 	

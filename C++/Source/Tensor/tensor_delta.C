@@ -32,6 +32,10 @@ char tensor_delta_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/11 16:47:10  e_gourgoulhon
+ * Suppressed the call to Ibtl::set_etat_qcq() after the construction
+ * of the Itbl's, thanks to the new property of the Itbl class.
+ *
  * Revision 1.1  2003/10/01 15:40:14  e_gourgoulhon
  * change of class name: Delta -> Tensor_delta
  *
@@ -160,24 +164,25 @@ int Tensor_delta::position (const Itbl& idx) const {
 }
 
 Itbl Tensor_delta::indices (int place) const {
-    Itbl res(3) ;
-    res.set_etat_qcq() ;
+
     assert ((place>=0) && (place<18)) ;
+
+    Itbl res(3) ;
     
     res.set(0) = place / 6 + 1 ;
     if (place<3) {
-	res.set(1) = 1 ;
-	res.set(2) = place+1 ;
+		res.set(1) = 1 ;
+		res.set(2) = place+1 ;
 	}
     
     if ((place>2) && (place<5)) {
-	res.set(1) = 2 ;
-	res.set(2) = place - 1 ;
+		res.set(1) = 2 ;
+		res.set(2) = place - 1 ;
 	}
     
     if (place == 5) {
-	res.set(1) = 3 ;
-	res.set(2) = 3 ;
+		res.set(1) = 3 ;
+		res.set(2) = 3 ;
 	}
  
     return res ;

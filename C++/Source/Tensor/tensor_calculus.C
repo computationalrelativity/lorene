@@ -33,6 +33,10 @@ char tensor_calculus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/11 16:47:10  e_gourgoulhon
+ * Suppressed the call to Ibtl::set_etat_qcq() after the construction
+ * of the Itbl's, thanks to the new property of the Itbl class.
+ *
  * Revision 1.2  2003/10/06 20:52:22  e_gourgoulhon
  * Added methods up, down and up_down.
  *
@@ -76,7 +80,6 @@ Tensor Tensor::contract(int ind_1, int ind_2) const {
     int val_res = valence - 2 ;
    
     Itbl tipe(val_res) ;
-    tipe.set_etat_qcq() ;
 	
     for (int i=0 ; i<ind_1 ; i++)
 		tipe.set(i) = type_indice(i) ;
@@ -92,7 +95,6 @@ Tensor Tensor::contract(int ind_1, int ind_2) const {
     // Boucle sur les composantes de res :
 	
     Itbl jeux_indice_source(valence) ;
-    jeux_indice_source.set_etat_qcq() ;
 	
     for (int i=0 ; i<res.get_n_comp() ; i++) {
 
@@ -136,7 +138,7 @@ Tensor Tensor::up(int place, const Metric& met) const {
     // On doit remettre les indices a la bonne place ...
     
     Itbl tipe(valence) ;
-    tipe.set_etat_qcq() ;
+
     for (int i=0 ; i<valence ; i++)
 		tipe.set(i) = type_indice(i) ;
     tipe.set(place) = CON ;
@@ -144,7 +146,6 @@ Tensor Tensor::up(int place, const Metric& met) const {
     Tensor res(*mp, valence, tipe, triad) ;
     
     Itbl place_auxi(valence) ;
-    place_auxi.set_etat_qcq() ;
     
     for (int i=0 ; i<res.n_comp ; i++) {
 	
@@ -176,7 +177,7 @@ Tensor Tensor::down(int place, const Metric& met) const {
     // On doit remettre les indices a la bonne place ...
     
     Itbl tipe(valence) ;
-    tipe.set_etat_qcq() ;
+
     for (int i=0 ; i<valence ; i++)
 		tipe.set(i) = type_indice(i) ;
     tipe.set(place) = COV ;
@@ -184,7 +185,6 @@ Tensor Tensor::down(int place, const Metric& met) const {
     Tensor res(*mp, valence, tipe, triad) ;
     
     Itbl place_auxi(valence) ;
-    place_auxi.set_etat_qcq() ;
     
     for (int i=0 ; i<res.n_comp ; i++) {
 	

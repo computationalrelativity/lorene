@@ -34,6 +34,10 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2003/10/11 16:47:10  e_gourgoulhon
+ * Suppressed the call to Ibtl::set_etat_qcq() after the construction
+ * of the Itbl's, thanks to the new property of the Itbl class.
+ *
  * Revision 1.17  2003/10/11 14:48:40  e_gourgoulhon
  * Line 344: suppressed assert(resu == -1)
  *           and added a break command to quit the loop.
@@ -166,7 +170,7 @@ Tensor::Tensor(const Map& map, int val, int tipe, const Base_vect& triad_i)
     // Des verifs :
     assert (valence >= 0) ;
     assert ((tipe == COV) || (tipe == CON)) ;
-    type_indice.set_etat_qcq() ;
+
     type_indice = tipe ;
     
     cmp = new Scalar*[n_comp] ;
@@ -271,7 +275,7 @@ Tensor::Tensor (const Map& map, int val, int tipe, int compo,
     assert (valence >= 0) ;
     assert (n_comp >= 0) ;
     assert ((tipe == COV) || (tipe == CON)) ;
-    type_indice.set_etat_qcq() ;
+
     type_indice = tipe ;
     
     cmp = new Scalar*[n_comp] ;
@@ -442,7 +446,6 @@ Itbl Tensor::indices (int place) const {
     assert ((place >= 0) && (place < n_comp)) ;
 
     Itbl res(valence) ;
-    res.set_etat_qcq() ;
     	    
     for (int i=valence-1 ; i>=0 ; i--) {
 		res.set(i) = div(place, 3).rem ;
@@ -510,7 +513,6 @@ Scalar& Tensor::set(int ind1, int ind2) {
     assert (valence == 2) ;
     
     Itbl ind (valence) ;
-    ind.set_etat_qcq() ;
     ind.set(0) = ind1 ;
     ind.set(1) = ind2 ;
     
@@ -526,7 +528,6 @@ Scalar& Tensor::set(int ind1, int ind2, int ind3) {
     assert (valence == 3) ;
     
     Itbl idx(valence) ;
-    idx.set_etat_qcq() ;
     idx.set(0) = ind1 ;
     idx.set(1) = ind2 ;
     idx.set(2) = ind3 ;
@@ -579,7 +580,6 @@ const Scalar& Tensor::operator()(int indice1, int indice2) const {
     assert(valence == 2) ;
     
     Itbl idx(2) ;		
-    idx.set_etat_qcq() ;	
     idx.set(0) = indice1 ;
     idx.set(1) = indice2 ;
     return *cmp[position(idx)] ;
@@ -591,7 +591,6 @@ const Scalar& Tensor::operator()(int indice1, int indice2, int indice3) const {
     assert(valence == 3) ;
     
     Itbl idx(3) ;		
-    idx.set_etat_qcq() ;	
     idx.set(0) = indice1 ;
     idx.set(1) = indice2 ;
     idx.set(2) = indice3 ;
