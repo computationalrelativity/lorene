@@ -35,6 +35,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.25  2005/02/08 10:08:57  f_limousin
+ * Add neumann_binaire(...), dirichlet_binaire(...) and
+ * poisson_vect_binaire(...) with Scalars and Vectors in argument.
+ *
  * Revision 1.24  2004/12/17 13:35:00  m_forot
  * Add the case T_LEG
  *
@@ -224,6 +228,8 @@ class Valeur ;
 class Base_val ;
 class Cmp ;
 class Tenseur ;
+class Scalar ;
+class Tensor ;
 class Vector ;
 class Param_elliptic ;
 
@@ -625,21 +631,30 @@ Tbl combinaison_cpt (const Tbl &, int) ;
 
 // Trucs binaires :
 void dirichlet_binaire (const Cmp& source_un, const Cmp& source_deux, 
-			const Valeur& boundary_un, const Valeur& boundary_deux, 
+			const Valeur& boundary_un, const Valeur& boundary_deux,
 				Cmp& sol_un, Cmp& sol_deux, int num_front, 
 				double precision) ;
 void dirichlet_binaire (const Cmp& source_un, const Cmp& source_deux, 
 			double bound_un, double bound_deux, 
 				Cmp& sol_un, Cmp& sol_deux, int num_front, 
 				double precision) ;
+void dirichlet_binaire (const Scalar& source_un, const Scalar& source_deux, 
+			const Valeur& boundary_un, const Valeur& boundary_deux,
+			Scalar& sol_un, Scalar& sol_deux, int num_front, 
+			double precision) ;
+
 void neumann_binaire (const Cmp& source_un, const Cmp& source_deux, 
-			const Valeur& boundary_un, const Valeur& boundary_deux, 
-				Cmp& sol_un, Cmp& sol_deux, int num_front, 
-				double precision) ;
+		      const Valeur& boundary_un, const Valeur& boundary_deux, 
+		      Cmp& sol_un, Cmp& sol_deux, int num_front, 
+		      double precision) ;
 void neumann_binaire (const Cmp& source_un, const Cmp& source_deux, 
-			double bound_un, double bound_deux, 
-				Cmp& sol_un, Cmp& sol_deux, int num_front, 
-				double precision) ;
+		      double bound_un, double bound_deux, 
+		      Cmp& sol_un, Cmp& sol_deux, int num_front, 
+		      double precision) ;
+void neumann_binaire (const Scalar& source_un, const Scalar& source_deux, 
+		      const Valeur& boundary_un, const Valeur& boundary_deux,
+		      Scalar& sol_un, Scalar& sol_deux, int num_front, 
+		      double precision) ;
 
 void poisson_vect_frontiere (double lambda, const Tenseur& source, Tenseur& shift, 
 	    const Valeur& lim_x, const Valeur& lim_y, const Valeur& lim_z, 
@@ -654,6 +669,12 @@ void poisson_vect_binaire ( double lambda,
 		const Valeur& bound_z_un, const Valeur& bound_x_deux, 
 		const Valeur& bound_y_deux, const Valeur& bound_z_deux, 
 		Tenseur& sol_un, Tenseur& sol_deux, int num_front, double precision) ;
+void poisson_vect_binaire ( double lambda, 
+		const Vector& source_un, const Vector& source_deux, 
+		const Valeur& bound_x_un, const Valeur& bound_y_un, 
+		const Valeur& bound_z_un, const Valeur& bound_x_deux, 
+		const Valeur& bound_y_deux, const Valeur& bound_z_deux, 
+		Vector& sol_un, Vector& sol_deux, int num_front, double precision) ;
 
 // Elliptic solvers :
 Mtbl_cf elliptic_solver  (const Param_elliptic&, const Mtbl_cf&) ;
