@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/09/25 13:37:38  j_novak
+ * Symmetric tensors of valence 2 are now implemented (not tested yet).
+ *
  * Revision 1.4  2003/09/24 15:10:54  j_novak
  * Suppression of the etat flag in class Tensor (still present in Scalar)
  *
@@ -60,9 +63,10 @@
 #include "map.h"
 
 class Scalar ; 
+class Sym_tensor ;
 
 			//-------------------------//
-			//	class Tensor		   //
+			//	class Tensor	   //
 			//-------------------------//
 			
 
@@ -176,6 +180,9 @@ class Tensor {
 	 */
 	Tensor (const Map& map, const Base_vect& triad_i, FILE* fich) ;
 
+	/// Constructor from a symmetric tensor.
+	explicit Tensor (const Sym_tensor& );
+	
 	
     protected:
 	/**
@@ -398,6 +405,7 @@ class Tensor {
     // Friend classes 
     // ---------------
 	friend class Scalar ;
+	friend class Sym_tensor ;
     
     // Mathematical operators
     // ----------------------
@@ -425,12 +433,121 @@ Tensor operator+(const Tensor&, const Tensor &) ;	/// Tensor + Tensor
 
     //@}
 
-
-
-
-
-
 #include "scalar.h"
+
+
+
+			//---------------------------------//
+			//	class Sym_tensor	   //
+			//---------------------------------//
+			
+/**
+ * Class intended to describe valence-2 symmetric tensors.
+ * The storage and the calculations are different and quicker than with an 
+ * usual {\tt Tensor}.
+ * 
+ * The valence must be 2.
+ */
+class Sym_tensor : public Tensor {
+
+    // Constructors - Destructor :
+    // -------------------------
+	
+    public:
+	/** Standard constructor.
+	 * 
+	 * @param map   the mapping 
+	 * @param tipe  1-D {\tt Itbl} of size 2 containing the type 
+	 *		of each index, {\tt COV} for a covariant one 
+	 *		and {\tt CON} for a contravariant one,  with the 
+	 *		following storage convention: \\
+	 *			{\tt tipe(0)} : type of the first index \\
+	 *			{\tt tipe(1)} : type of the second index 
+	 * @param triad_i  vectorial basis (triad) with respect to which 
+	 *			  the tensor components are defined
+	 */
+	Sym_tensor (const Map& map, const Itbl& tipe,const Base_vect& triad_i) ;
+
+	/** Standard constructor when both indices are of the same type.
+	 * 
+	 * @param map   the mapping 
+	 * @param tipe  the type of the indices.
+	 * @param triad_i  vectorial basis (triad) with respect to which 
+	 *			  the tensor components are defined
+	 * 
+	 */
+	Sym_tensor (const Map& map, int tipe, const Base_vect& triad_i) ;
+
+	Sym_tensor (const Sym_tensor&) ; /// Copy constructor
+
+	/** Constructor from a {\tt Tensor}.
+	 *  The symmetry is assumed to be true but not checked.
+	 */
+	explicit Sym_tensor (const Tensor&) ;
+	
+	/** Constructor from a file (see {\tt sauve(FILE* )}).
+	 * 
+	 * @param map  the mapping
+	 * @param triad_i   vectorial basis (triad) with respect to which 
+	 *			  the tensor components are defined. It will
+	 *			  be checked that it coincides with the basis
+	 *			  saved in the file.
+	 * @param fich  file which has been created by 
+	 *			    the function {\tt sauve(FILE* )}.
+	 */
+	Sym_tensor (const Map& map, const Base_vect& triad_i, FILE* fich) ;
+
+	virtual ~Sym_tensor() ;    /// Destructor
+	
+    // Mutators / assignment
+    // ---------------------
+    public:
+	/**
+	 * Assignment from a {\tt Tensor}.
+	 * 
+	 * The symmetry is assumed but not checked.
+	 */
+	virtual void operator= (const Tensor&) ;
+    
+
+    // Accessors
+    // ---------
+    public:
+	/**
+	 * Returns the position in the {\tt Scalar} array {\tt cmp} of a 
+	 * component given by its indices.  
+	 *
+	 * @return position in the {\tt Scalar} array {\tt cmp}  
+	 * corresponding to the indices given in {\tt idx}. {\tt idx}
+	 * must be a 1-D {\tt Itbl} of size 2, 
+	 * each element of which must be one of the spatial 
+	 * indices 1, 2 or 3. 
+	 */
+	virtual int position(const Itbl& idx) const ;
+
+	/**
+	 * Returns the indices of a component given by its position in the 
+	 * {\tt Scalar} array {\tt cmp}. 
+	 *
+	 * @return 1-D array of integers ({\tt Itbl}) of
+	 *         size 2 giving the value of each index 
+	 *	   for the component located at the position {\tt place}
+	 *	   in the {\tt Scalar} array {\tt cmp}. 
+	 *	   Each element of this {\tt Itbl} contains a spatial 
+	 *         index 1, 2 or 3.
+	 */
+	virtual Itbl indices (int place) const ;
+		
+    // Computation of derived members
+    // ------------------------------
+	//    protected:
+
+    // Mathematical operators
+    // ----------------------
+ 
+} ;
+
+
 
 
 #endif
