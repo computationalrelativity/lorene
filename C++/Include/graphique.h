@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/02/15 21:52:35  e_gourgoulhon
+ * Changed prototype of des_profile_mult : Scalar* --> Scalar**.
+ *
  * Revision 1.9  2004/02/12 16:19:34  e_gourgoulhon
  * Added function des_profile_mult for Scalars.
  * Modified prototype of des_profile_mult(const float*,...)
@@ -567,7 +570,8 @@ void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
 /** Draws the profile of {\tt Scalar}'s along some radial axis determined by
  *  a fixed value of $(\theta, \phi)$. 
  *
- *  @param uu [input] Address of the first {\tt Scalar} to be drawn
+ *  @param uu [input] Array containing the addresses of the {\tt Scalar} 
+ *                   to be drawn
  *  @param nprof [input] Number of {\tt Scalar}'s to be drawn; if nprof > 1,
  *       the addresses of the various {\tt Scalar}'s must be stored 
  *       in sequence from {\tt uu} 
@@ -588,7 +592,7 @@ void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
  * 
  */
  
-void des_profile_mult(const Scalar* uu, int nprof, double r_min, double r_max, 
+void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max, 
         double theta, double phi, int ngraph = 0, bool closeit = true, 
         char* nomy  = 0x0, char* title = 0x0) ;
 
