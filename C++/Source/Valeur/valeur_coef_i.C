@@ -31,6 +31,9 @@ char valeur_coef_i_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/11/12 17:44:35  j_novak
+ * Added transformation function for T_COS basis.
+ *
  * Revision 1.2  2002/10/16 14:37:15  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -112,6 +115,7 @@ void Valeur::coef_i() const {
 	invcf_r[R_CHEBPIM_I >> TRA_R] = circhebpimi ;	    
 
 	invcf_t[NONDEF] = ibase_non_def_t ;
+	invcf_t[T_COS >> TRA_T] = citcos ;
 	invcf_t[T_COS_P >> TRA_T] = citcosp ;
 	invcf_t[T_COS_I >> TRA_T] = citcosi ;
 	invcf_t[T_SIN_P >> TRA_T] = citsinp ;

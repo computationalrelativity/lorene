@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2002/11/12 17:45:19  j_novak
+ * Added transformation function for T_COS basis.
+ *
  * Revision 1.6  2002/09/09 13:00:39  e_gourgoulhon
  * Modification of declaration of Fortran 77 prototypes for
  * a better portability (in particular on IBM AIX systems):
@@ -167,6 +170,7 @@ void chebyf1d(const int, double* ) ;
 void chebyr1d(const int, double* ) ;
 void cfpcossin(const int* ,const int* ,  double* ) ;
 void cfpcossini(const int* ,const int* ,  double* ) ;
+void cftcos(const int*, const int*, double*, const int*, double*) ;
 void cftcosp(const int*, const int*, double*, const int*, double*) ;
 void cftcosi(const int*, const int*, double*, const int*, double*) ;
 void cftsinp(const int*, const int*, double*, const int*, double*) ;
@@ -187,6 +191,7 @@ void cfrchebpimp(const int*, const int*, double*, const int*, double*) ;
 void cfrchebpimi(const int*, const int*, double*, const int*, double*) ;
 void cipcossin(const int* , const int* , const int* , double* , double* ) ;
 void cipcossini(const int* , const int* , const int* , double* , double* ) ;
+void citcos(const int*, const int*, double*, const int*, double*) ;
 void citcosp(const int*, const int*, double*, const int*, double*) ;
 void citcosi(const int*, const int*, double*, const int*, double*) ;
 void citsinp(const int*, const int*, double*, const int*, double*) ;
