@@ -34,6 +34,10 @@ char scalar_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/10/29 13:14:03  e_gourgoulhon
+ * Added integer argument to derivative functions dsdr, etc...
+ * so that one can choose the dzpuis of the result (default=2).
+ *
  * Revision 1.6  2003/10/17 13:46:15  j_novak
  * The argument is now between 1 and 3 (instead of 0->2)
  *
@@ -69,7 +73,7 @@ char scalar_deriv_C[] = "$Header$" ;
 			//         d/dr        //
 			//---------------------//
 
-const Scalar& Scalar::dsdr() const {
+const Scalar& Scalar::dsdr(int ced_mult_r) const {
 
     // Protection
     assert(etat != ETATNONDEF) ;
@@ -77,8 +81,8 @@ const Scalar& Scalar::dsdr() const {
     // If the derivative has not been previously computed, the 
     //  computation must be done by the appropriate routine of the mapping : 
 
-    if (p_dsdr == 0x0) {
-      if (etat == ETATUN) {
+	if (p_dsdr == 0x0) {
+		if (etat == ETATUN) {
 	p_dsdr = new Scalar(*mp) ;
 	p_dsdr->set_etat_zero() ;
       }
@@ -87,7 +91,26 @@ const Scalar& Scalar::dsdr() const {
 	Cmp derivee(mp) ;
 	mp->dsdr(orig, derivee) ;
 	p_dsdr = new Scalar(derivee) ; 
-      }
+
+		switch (ced_mult_r) {
+			case 0 : {
+				p_dsdr->dec_dzpuis(2) ; 
+				break ;
+			}
+
+			case 2 : break ; 
+			
+			default : {
+				cout << "Scalar::dsdr : unexpected value of ced_mult_r !"
+					 << endl << "  ced_mult_r = " << ced_mult_r << endl ; 
+				abort() ;
+				break ; 
+			}
+
+		}	  
+
+      }	  
+	  
     }
     
     return *p_dsdr ;
@@ -98,7 +121,7 @@ const Scalar& Scalar::dsdr() const {
 			//    1/r d/dtheta    //
 			//--------------------//
 
-const Scalar& Scalar::srdsdt() const {
+const Scalar& Scalar::srdsdt(int ced_mult_r) const {
 
     // Protection
     assert(etat != ETATNONDEF) ;
@@ -116,7 +139,25 @@ const Scalar& Scalar::srdsdt() const {
 	Cmp derivee(mp) ;
 	mp->srdsdt(orig, derivee) ;
 	p_srdsdt = new Scalar(derivee) ;
+		switch (ced_mult_r) {
+			case 0 : {
+				p_srdsdt->dec_dzpuis(2) ; 
+				break ;
+			}
+
+			case 2 : break ; 
+			
+			default : {
+				cout << "Scalar::srdsdt : unexpected value of ced_mult_r !"
+					 << endl << "  ced_mult_r = " << ced_mult_r << endl ; 
+				abort() ;
+				break ; 
+			}
+
+		}	  
+
       }
+	  
     }
     return *p_srdsdt ;
 
@@ -127,7 +168,7 @@ const Scalar& Scalar::srdsdt() const {
 			//    1/(r sin(theta) d/dphi    //
 			//------------------------------//
 
-const Scalar& Scalar::srstdsdp() const {
+const Scalar& Scalar::srstdsdp(int ced_mult_r) const {
 
     // Protection
     assert(etat != ETATNONDEF) ;
@@ -145,7 +186,25 @@ const Scalar& Scalar::srstdsdp() const {
 	Cmp derivee(mp) ;
 	mp->srstdsdp(orig, derivee) ;
 	p_srstdsdp = new Scalar(derivee) ; 
+		switch (ced_mult_r) {
+			case 0 : {
+				p_srstdsdp->dec_dzpuis(2) ; 
+				break ;
+			}
+
+			case 2 : break ; 
+			
+			default : {
+				cout << "Scalar::srstdsdp : unexpected value of ced_mult_r !"
+					 << endl << "  ced_mult_r = " << ced_mult_r << endl ; 
+				abort() ;
+				break ; 
+			}
+
+		}	  
+
       }
+	  
     }
     return *p_srstdsdp ;
 
@@ -209,7 +268,7 @@ const Scalar& Scalar::stdsdp() const {
 			//      d/dx       //
 			//-----------------//
 
-const Scalar& Scalar::dsdx() const {
+const Scalar& Scalar::dsdx(int ced_mult_r) const {
 
     // Protection
     assert(etat != ETATNONDEF) ;
@@ -230,6 +289,23 @@ const Scalar& Scalar::dsdx() const {
 	Cmp deriv_x(mp) ;
 	mp->comp_x_from_spherical(deriv_r, deriv_t, deriv_p, deriv_x) ;
 	p_dsdx = new Scalar(deriv_x) ; 
+
+		switch (ced_mult_r) {
+			case 0 : {
+				p_dsdx->dec_dzpuis(2) ; 
+				break ;
+			}
+
+			case 2 : break ; 
+			
+			default : {
+				cout << "Scalar::dsdx : unexpected value of ced_mult_r !"
+					 << endl << "  ced_mult_r = " << ced_mult_r << endl ; 
+				abort() ;
+				break ; 
+			}
+
+		}	  
       }
     }
     
@@ -241,7 +317,7 @@ const Scalar& Scalar::dsdx() const {
 			//      d/dy       //
 			//-----------------//
 
-const Scalar& Scalar::dsdy() const {
+const Scalar& Scalar::dsdy(int ced_mult_r) const {
 
     // Protection
     assert(etat != ETATNONDEF) ;
@@ -262,6 +338,24 @@ const Scalar& Scalar::dsdy() const {
 	Cmp deriv_y(mp) ;
 	mp->comp_y_from_spherical(deriv_r, deriv_t, deriv_p, deriv_y) ;
 	p_dsdy = new Scalar(deriv_y) ; 
+
+		switch (ced_mult_r) {
+			case 0 : {
+				p_dsdy->dec_dzpuis(2) ; 
+				break ;
+			}
+
+			case 2 : break ; 
+			
+			default : {
+				cout << "Scalar::dsdy : unexpected value of ced_mult_r !"
+					 << endl << "  ced_mult_r = " << ced_mult_r << endl ; 
+				abort() ;
+				break ; 
+			}
+
+		}	  
+
       }
     }
     return *p_dsdy ;
@@ -272,7 +366,7 @@ const Scalar& Scalar::dsdy() const {
 			//      d/dz       //
 			//-----------------//
 
-const Scalar& Scalar::dsdz() const {
+const Scalar& Scalar::dsdz(int ced_mult_r) const {
 
     // Protection
     assert(etat != ETATNONDEF) ;
@@ -293,6 +387,23 @@ const Scalar& Scalar::dsdz() const {
 	Cmp deriv_z(mp) ;
 	mp->comp_z_from_spherical(deriv_r, deriv_t, deriv_z) ;
 	p_dsdz = new Scalar(deriv_z) ; 
+
+		switch (ced_mult_r) {
+			case 0 : {
+				p_dsdz->dec_dzpuis(2) ; 
+				break ;
+			}
+
+			case 2 : break ; 
+			
+			default : {
+				cout << "Scalar::dsdz : unexpected value of ced_mult_r !"
+					 << endl << "  ced_mult_r = " << ced_mult_r << endl ; 
+				abort() ;
+				break ; 
+			}
+
+		}	  
       }
     }
     return *p_dsdz ;
@@ -303,27 +414,27 @@ const Scalar& Scalar::dsdz() const {
 			//      d/dx^i     //
 			//-----------------//
 
-const Scalar& Scalar::deriv(int i) const {
+const Scalar& Scalar::deriv(int i, int ced_mult_r) const {
     
     switch (i) {
 	
 	case 1 : {
-	    return dsdx() ; 
+	    return dsdx(ced_mult_r) ; 
 	}
 	
 	case 2 : {
-	    return dsdy() ; 
+	    return dsdy(ced_mult_r) ; 
 	}
 	
 	case 3 : {
-	    return dsdz() ; 
+	    return dsdz(ced_mult_r) ; 
 	}
 	
 	default : {
 	    cout << "Scalar::deriv : index i out of range !" << endl ; 
 	    cout << "  i = " << i << endl ; 
 	    abort() ; 
-	    return dsdx() ;  // Pour satisfaire le compilateur !
+	    return dsdx(ced_mult_r) ;  // Pour satisfaire le compilateur !
 	}
 	
     }
@@ -334,7 +445,7 @@ const Scalar& Scalar::deriv(int i) const {
 			//     Laplacian       //
 			//---------------------//
 
-const Scalar& Scalar::laplacien(int zec_mult_r) const {
+const Scalar& Scalar::laplacian(int zec_mult_r) const {
 
     // Protection
     assert(etat != ETATNONDEF) ;
