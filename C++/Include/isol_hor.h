@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/09/28 16:03:58  f_limousin
+ * Add parameter niter in the parameter file par_hor.d. It appears in
+ * argument of the function init_data_schwarz(...).
+ *
  * Revision 1.4  2004/09/17 13:35:25  f_limousin
  * Introduction of relaxation in init_data_schwarz
  *
@@ -207,7 +211,7 @@ class Isol_hor : public Time_slice_conf {
 
   void init_data_schwar(const Sym_tensor& uu, const Scalar& trk_in, 
 		 const Scalar& trk_point, double precis = 1.e-12,
-		 double relax = 1.,
+			double relax = 1., int niter = 100,
 		 const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
 		 const Scalar* trace_stress=0x0 ) ; 
         
