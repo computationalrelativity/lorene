@@ -30,6 +30,11 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/06/17 06:59:41  e_gourgoulhon
+ * -- Method initial_data_cts: re-organized treatment of vanishing uu.
+ * -- Method hh_det_one: replaced the attenuation with tempo by a call
+ *    to the new method Tensor::annule_extern_c2.
+ *
  * Revision 1.12  2004/06/08 14:05:06  j_novak
  * Added the attenuation of khi and mu in the last domain in ::det_one(). They are set to zero in the CED.
  *
@@ -244,40 +249,66 @@ void Tslice_dirac_max::initial_data_cts(const Sym_tensor& uu,
                                       method_poisson_vect, graph_device, 
                                       p_ener_dens, p_mom_dens, p_trace_stress) ;
 
+    
+    // Setting khi and mu for j < jtime, taking into account u^{ij} = dh^{ij}/dt
+    //--------------------------------------------------------------------------
     for (int j = jtime-depth+1 ; j < jtime; j++) {
             
-        Sym_tensor hhtmp = hh_evol[j] ;
-        int nz = uu.get_mp().get_mg()->get_nzone() ; 
-        hhtmp.annule_domain(nz-1) ; 
+        bool vanishing_uu = true ; 
         for (int i=1; i<=3; i++) {
             for (int k=i; k<=3; k++) {
-                hhtmp.set(i,k).set_dzpuis(4) ; 
+                if (uu(i,k).get_etat() != ETATZERO) vanishing_uu = false ; 
             }
         }
+
+        if (vanishing_uu) {  // Case dh^{ij}/dt = 0
+                             // --------------------
+            // khi and mu are actually not computed but read from the
+            // value of hh at jtime. 
+            khi_evol.update(
+             hh_evol[jtime].transverse(ff,0x0,method_poisson_vect).tt_part().khi(),
+                           j, the_time[j]) ;
+            mu_evol.update(
+             hh_evol[jtime].transverse(ff,0x0,method_poisson_vect).tt_part().mu(),
+                           j, the_time[j]) ;
+        }
+        else {          // Case dh^{ij}/dt != 0
+                        // --------------------
+            Sym_tensor hhtmp = hh_evol[j] ;
+            int nz = uu.get_mp().get_mg()->get_nzone() ; 
+            hhtmp.annule_domain(nz-1) ; 
+            for (int i=1; i<=3; i++) {
+                for (int k=i; k<=3; k++) {
+                    hhtmp.set(i,k).set_dzpuis(4) ; 
+                }
+            }
         
-        Scalar tmp = hhtmp.transverse(ff).tt_part().khi() ;
-        tmp.annule_domain(nz-1) ;
-//##        khi_evol.update(tmp, j, the_time[j]) ;
+            Scalar tmp = hhtmp.transverse(ff,0x0,method_poisson_vect).tt_part().khi() ;
+            tmp.annule_domain(nz-1) ;
+            khi_evol.update(tmp, j, the_time[j]) ;
 
-// Formula valid for vanishing time derivative only : 
-        khi_evol.update(hh_evol[jtime].transverse(ff).tt_part().khi(),
-                           j, the_time[j]) ;
+            tmp = hhtmp.transverse(ff,0x0,method_poisson_vect).tt_part().mu() ;
+            tmp.annule_domain(nz-1) ;
+            mu_evol.update(tmp, j, the_time[j]) ;
+        }
 
-        tmp = hhtmp.transverse(ff).tt_part().mu() ;
-        tmp.annule_domain(nz-1) ;
-//##        mu_evol.update(tmp, j, the_time[j]) ;
-
-// Formula valid for vanishing time derivative only : 
-
-        mu_evol.update(hh_evol[jtime].transverse(ff).tt_part().mu(),
-                           j, the_time[j]) ;
     }
   
-    khi_evol.update(hh_evol[jtime].transverse(ff).tt_part().khi(),
+    // Setting khi and mu for j = jtime
+    //---------------------------------
+
+    // In case khi and mu have been computed previously, the following
+    // formulae have no effect: 
+    khi_evol.update(
+        hh_evol[jtime].transverse(ff,0x0,method_poisson_vect).tt_part().khi(),
                            jtime, the_time[jtime]) ;
-    mu_evol.update(hh_evol[jtime].transverse(ff).tt_part().mu(),
+    mu_evol.update(
+        hh_evol[jtime].transverse(ff,0x0,method_poisson_vect).tt_part().mu(),
                            jtime, the_time[jtime]) ;
     
+    cout << endl << 
+    "Tslice_dirac_max::initial_data_cts : variation of khi and mu for J = " 
+    << jtime << " :\n" ;  
     maxabs(khi_evol[jtime] - khi_evol[jtime-1], "khi^J - khi^{J-1}") ; 
     
     maxabs(mu_evol[jtime] - mu_evol[jtime-1], "mu^J - mu^{J-1}") ; 
@@ -337,21 +368,11 @@ void Tslice_dirac_max::hh_det_one(int j0) const {
     const Map& mp = khi_evol[j0].get_mp() ;
     int nzm2 = mp.get_mg()->get_nzone() - 2 ;
 
-    const Map_af* mp_aff = dynamic_cast<const Map_af*>(&mp) ;
-    assert (mp_aff != 0x0) ;
-    double r_out = mp_aff->get_alpha()[nzm2] + mp_aff->get_beta()[nzm2] ; 
-    double r_in = mp_aff->get_beta()[nzm2] - mp_aff->get_alpha()[nzm2]   ; 
-    Mtbl xx1 = mp_aff->r - r_in ;
-    Mtbl xx2 = mp_aff->r - r_out ;
-    Scalar tempo(*mp_aff) ;
-    tempo = exp(-(xx1*xx1)/(xx2*xx2)) ;
-    for (int lz=0; lz<nzm2; lz++) 
-      tempo.set_domain(lz) = 1. ;
-    tempo.annule_domain(nzm2+1) ;
-    tempo.std_spectral_base() ;
-
-    Scalar khi0 = khi_evol[j0]*tempo ;     // khi
-    Scalar mu0 = mu_evol[j0]*tempo ;       // mu
+    // khi and mu are smoothly mached to a zero value in the CED
+    Scalar khi0 = khi_evol[j0] ; 
+    khi0.annule_extern_c2(nzm2) ;     
+    Scalar mu0 = mu_evol[j0] ;       
+    mu0.annule_extern_c2(nzm2) ;     
 
     int it_max = 100 ;
     double precis = 1.e-14 ;
