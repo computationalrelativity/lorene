@@ -29,6 +29,10 @@ char des_domaine_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/03/24 14:33:03  e_gourgoulhon
+ * Ponderation of precis by rhomax-rhomax (to draw domains with
+ *   large r).
+ *
  * Revision 1.2  2004/03/25 10:29:25  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -89,7 +93,7 @@ void des_domaine_x(const Map& mp, int l0, double x0, char* device, int newgraph,
     double rhomin = 0 ; 
     double rhomax = 2 * 
 		    mp.val_r(mp.get_mg()->get_nzone() - 1, -1., 0., 0.) ;  
-    double precis = 1.e-14 ; 
+    double precis = 1.e-14 * (rhomax - rhomin) ; 
     int nitermax = 100 ; 
     int niter ; 
 	
@@ -208,7 +212,7 @@ void des_domaine_y(const Map& mp, int l0, double y0, char* device, int newgraph,
     double rhomin = 0 ; 
     double rhomax = 2 * 
 		    mp.val_r(mp.get_mg()->get_nzone() - 1, -1., 0., 0.) ;  
-    double precis = 1.e-14 ; 
+    double precis = 1.e-14 * (rhomax - rhomin) ; 
     int nitermax = 100 ; 
     int niter ; 
 	
@@ -326,7 +330,7 @@ void des_domaine_z(const Map& mp, int l0, double z0, char* device, int newgraph,
     double rhomin = 0 ; 
     double rhomax = 2 * 
 		    mp.val_r(mp.get_mg()->get_nzone() - 1, -1., 0., 0.) ;  
-    double precis = 1.e-14 ; 
+    double precis = 1.e-14 * (rhomax - rhomin) ; 
     int nitermax = 100 ; 
     int niter ; 
 	
@@ -367,7 +371,7 @@ void des_domaine_z(const Map& mp, int l0, double z0, char* device, int newgraph,
 			     precis, nitermax, niter) ;
 			       
 	xg[i] = ( rho * cos(khi) + mp.get_ori_x() ) / km ; 	    
-	yg[i] = ( rho * sin(khi) + mp.get_ori_y() ) / km ; 	    
+	yg[i] = ( rho * sin(khi) + mp.get_ori_y() ) / km ; 	   
 
     }
 	
