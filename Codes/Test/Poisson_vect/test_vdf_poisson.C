@@ -28,6 +28,9 @@ char test_vdf_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/21 13:59:36  e_gourgoulhon
+ * new version
+ *
  * Revision 1.2  2003/10/20 19:46:41  e_gourgoulhon
  * First successful version.
  *
@@ -58,8 +61,8 @@ int main() {
   
 	int nz = 3 ; 	// Number of domains
 	int nzm1 = nz - 1 ;  
-	int nr = 5 ; 	// Number of collocation points in r in each domain
-	int nt = 5 ; 	// Number of collocation points in theta in each domain
+	int nr = 17 ; 	// Number of collocation points in r in each domain
+	int nt = 17; 	// Number of collocation points in theta in each domain
 	int np = 12 ; 	// Number of collocation points in phi in each domain
 	int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
 	int symmetry_phi = NONSYM ; // no symmetry in phi
@@ -72,7 +75,7 @@ int main() {
   	// ------------------------------------------
 
 	// Boundaries of each domains
-	double r_limits[] = {0., 1., 2., __infinity} ; 
+	double r_limits[] = {0., 0.5, 1., __infinity} ; 
   	assert( nz == 3 ) ;  // since the above array described only 3 domains
   
 	Map_af map(mgrid, r_limits) ; 
@@ -97,20 +100,54 @@ int main() {
 	const Coord& cosp = map.cosp ; 
 	const Coord& sinp = map.sinp ; 
 	
-
-	cout << "========================================================" << endl ;
-	cout << "                Test with a constant vector" << endl ;
-	cout << "                Cartesian comp.: V^i = (1, 1, 0)" << endl ; 
-	cout << "========================================================" << endl ;
-
-	Vector_divfree vvc(map, map.get_bvect_cart(), metc ) ; 
 	
-	vvc.set(1) = 1 ; 
-	vvc.set(1).set_dzpuis(4) ; 
-	vvc.set(2) = 1 ; 
-	vvc.set(2).set_dzpuis(4) ; 
-	vvc.set(3) = 0 ; 
-	vvc.std_spectral_base() ; 
+	cout << "========================================================" << endl ;
+	cout << "                Test with a pretty general vector" << endl ;
+	cout << "                           V = curl(A) " << endl ; 
+	cout << "========================================================" << endl ;
+
+	Vector aa(map, CON, map.get_bvect_cart()) ; 
+	aa.set(1) = z * (x + x*y - 3*z*z) ; 
+	aa.set(2) = z * ( z*z*x - 2 *y + 1 ); 
+	aa.set(3) =  1 + x*x - y + x + x*y + z*z  ; 
+	aa.annule_domain(nzm1) ; 
+
+	Mtbl tced = cost * ( sint*cosp/r + sint*sint*cosp*sinp - 3*cost*cost ) 
+				/ (r*r*r) ; 
+	tced = cost / (r*r*r) ; 
+	aa.set(1).set_domain(nzm1) = tced(nzm1) ; 
+
+	tced =  cost * ( cost*cost*sint*cosp - 2*sint*sinp / r + 1) / (r*r*r) ; 
+//	aa.set(2).set_domain(nzm1) = tced(nzm1) ; 
+
+//	tced = (1 + sint*sint*cosp*cosp / r - sint*sinp + sint*cosp*sint*sinp
+//			+ cost*cost) / (r*r*r)  ; 
+	tced = cost*cost*sint*sinp / (r*r*r)  ; 
+	aa.set(3).set_domain(nzm1) = tced(nzm1) ; 
+
+
+	aa.std_spectral_base() ; 
+	aa.set(1).set_spectral_va().set_base_r(0, R_CHEBPIM_I) ; 
+	aa.set(1).set_spectral_va().set_base_t(T_COSSIN_CI) ; 
+	aa.set(2).set_spectral_va().set_base_r(0, R_CHEBPIM_I) ; 
+	aa.set(2).set_spectral_va().set_base_t(T_COSSIN_CI) ; 
+	aa.set(3).set_spectral_va().set_base_r(0, R_CHEBPIM_P) ; 
+	aa.set(3).set_spectral_va().set_base_t(T_COSSIN_CP) ; 
+	
+	cout << "aa : " << endl ; 
+	aa.spectral_display() ; 
+	arrete() ; 
+
+
+	// Curl of aa:
+	Vector_divfree vvc(map, map.get_bvect_cart(), metc ) ; 	
+	vvc.set(1) = aa(3).dsdy() - aa(2).dsdz() ; 
+	vvc.set(2) = aa(1).dsdz() - aa(3).dsdx() ; 
+	vvc.set(3) = aa(2).dsdx() - aa(1).dsdy() ; 
+	
+	cout << "Cartesian components : vvc : " << endl ;
+	vvc.spectral_display() ; 
+	arrete() ; 
 
 	Vector_divfree vvs = vvc ; 
 	vvs.change_triad( map.get_bvect_spher() ) ; 
@@ -119,52 +156,40 @@ int main() {
 	vvs.spectral_display() ; 
 	arrete() ; 
 
+	vvs.inc2_dzpuis() ; 
+	
+	cout << "vvs after 2*inc2_dzpuis() : " << endl ;
+	vvs.spectral_display() ; 
+
 	cout << "mu : " << endl ; 
 	cout << "----" << endl ; 
 	vvs.mu().spectral_display() ; 
-			
+
 	Vector_divfree wws = vvs.poisson() ; 
 	
 	cout << "Solution wws : " << endl ;
 	wws.spectral_display() ; 
 	arrete() ; 
 
-	cout << "========================================================" << endl ;
-	cout << "                Test with a rotation vector" << endl ;
-	cout << "                Cartesian comp.: V^i = (-y, x, 0)" << endl ; 
-	cout << "========================================================" << endl ;
+	Vector wwc = wws ;
+	wwc.change_triad( map.get_bvect_cart() ) ;
 
-	vvc.set(1) = -y ; 
-	vvc.set(2) = x ; 
-	vvc.set(3) = 0 ; 
-	vvc.annule_domain(nzm1) ; 
-	vvc.std_spectral_base() ; 
-
-	vvs = vvc ; 
-	vvs.change_triad( map.get_bvect_spher() ) ; 
+	cout << "Max divergence wwc : " << max( abs(wwc.divergence(metc)) ) << endl ; 
+	cout << "Max divergence wws : " << max( abs(wws.divergence(mets)) ) << endl ; 
+	arrete() ; 
 	
-	cout << "Cartesian components : vvc : " << endl ;
-	vvc.spectral_display() ; 
-	arrete() ; 
+	Vector vdiff(map, CON, map.get_bvect_cart() ) ;
+	vdiff.set(1) = wwc(1).laplacien(2) - vvc(1) ; 		// dzpuis = 2
+	vdiff.set(2) = wwc(2).laplacien(2) - vvc(2) ; 
+	vdiff.set(3) = wwc(3).laplacien(2) - vvc(3) ; 
 
-	cout << "Spherical components : vvs : " << endl ;
-	vvs.spectral_display() ; 
-	arrete() ; 
-
-	cout << "eta : " << endl ; 
-	cout << "----" << endl ; 
-	vvs.eta().spectral_display() ; 
-	arrete() ; 
-
-	cout << "mu : " << endl ; 
-	cout << "----" << endl ; 
-	vvs.mu().spectral_display() ; 
+	cout << "vdiff : " << endl ;
+	vdiff.spectral_display() ; 
 	
-	wws = vvs.poisson() ; 
-	
-	cout << "Solution wws : " << endl ;
-	wws.spectral_display() ; 
-	arrete() ; 
+	cout << "Max of vdiff : " << endl ; 
+	for (int i=1; i<=3; i++) {
+		cout <<  max(abs(vdiff(i))) << endl ; 
+	}
 	
 	return EXIT_SUCCESS ; 
 }
