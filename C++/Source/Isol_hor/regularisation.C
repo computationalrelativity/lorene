@@ -26,6 +26,9 @@ char regularisation_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/03/06 17:05:33  f_limousin
+ * Change parameter omega to om, in order not to have warnings.
+ *
  * Revision 1.1  2005/02/22 14:51:53  f_limousin
  * First version
  *
@@ -45,7 +48,7 @@ char regularisation_C[] = "$Header$" ;
 #include "tensor.h"
 
 double Isol_hor::regularisation (const Vector& shift_auto_temp, 
-				 const Vector& shift_comp_temp, double omega) {
+				 const Vector& shift_comp_temp, double om) {
     
     Vector shift_auto(shift_auto_temp) ;
     shift_auto.change_triad(shift_auto.get_mp().get_bvect_cart()) ;
@@ -76,14 +79,14 @@ double Isol_hor::regularisation (const Vector& shift_auto_temp,
     double indic = (orientation == 0) ? 1 : -1 ;
     
     Vector tbi (shift_tot) ;
-    if (omega != 0) {
+    if (om != 0) {
 	for (int i=1 ; i<=3 ; i++) {
 	    tbi.set(i).set_spectral_va().coef_i() ;
 	    tbi.set(i).set_spectral_va().set_etat_c_qcq() ;
 	    }
 	    
-	tbi.set(1) = *shift_tot(1).get_spectral_va().c - indic *omega * shift_tot.get_mp().ya ;
-	tbi.set(2) = *shift_tot(2).get_spectral_va().c + indic *omega * shift_tot.get_mp().xa ;
+	tbi.set(1) = *shift_tot(1).get_spectral_va().c - indic *om * shift_tot.get_mp().ya ;
+	tbi.set(2) = *shift_tot(2).get_spectral_va().c + indic *om * shift_tot.get_mp().xa ;
 	tbi.std_spectral_base() ;
 	tbi.set(1).annule_domain(nz-1) ;
 	tbi.set(2).annule_domain(nz-1) ;
