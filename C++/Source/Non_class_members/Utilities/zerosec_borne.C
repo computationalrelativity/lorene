@@ -33,6 +33,9 @@ char zerosec_borne_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/05/02 15:16:22  j_novak
+ * Added functions for more general bi-fluid EOS
+ *
  * Revision 1.3  2002/04/18 09:17:17  j_novak
  * *** empty log message ***
  *
@@ -105,10 +108,10 @@ double zerosec_b(double (*f)(double, const Param&), const Param& parf,
 	}
 	niter++ ;
 	if (niter > nitermax) {
-	    cout << "zerosec: Maximum number of iterations has been reached ! " 
-	    << endl ;
-	cout << x0_moins << ", " << xnew << ", " << x0 << endl ;
-	cout << f0_moins << ", " << fnew << ", " << f0 << endl ;
+//cout << "zerosec: Maximum number of iterations has been reached ! " 
+	  //	    << endl ;
+	  //cout << x0_moins << ", " << xnew << ", " << x0 << endl ;
+	  //cout << f0_moins << ", " << fnew << ", " << f0 << endl ;
 	
 	    return xnew ;
 	}

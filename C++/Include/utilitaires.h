@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/05/02 15:16:22  j_novak
+ * Added functions for more general bi-fluid EOS
+ *
  * Revision 1.4  2002/04/16 08:06:44  j_novak
  * Addition of zerosec_borne
  *
@@ -158,9 +161,10 @@ double zerosec( double (*f)(double, const Param&), const Param& par,
  *  @return x0 (zero of function f)
  *
  */
-double zerosec_b( double (*f)(double, const Param&), const Param& par, 
-		double a, double b, double precis, int nitermax, 
-		int& niter) ;
+double zerosec_b( double (*f)(double, const Param&),const Param& par, 
+		  double a, double b, double precis, int nitermax, 
+		  int& niter) ;
+
 /** Locates approximatively all the zeros of a function in a given interval.
  *  The N zeros are located in N intervals [az(i), bz(i)] with
  *   $0\leq i \leq N-1$.  

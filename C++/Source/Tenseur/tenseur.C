@@ -33,6 +33,9 @@ char tenseur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/05/02 15:16:22  j_novak
+ * Added functions for more general bi-fluid EOS
+ *
  * Revision 1.2  2001/12/04 21:27:54  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -166,12 +169,15 @@ Tenseur::Tenseur (const Cmp& ci) :
     
     assert(ci.get_etat() != ETATNONDEF) ; 
     
+    c = new (Cmp* [n_comp]) ;
     set_der_0x0() ;
 
     if ( ci.get_etat() != ETATZERO ) {
-	assert( ci.get_etat() == ETATQCQ ) ; 
-	c = new (Cmp* [n_comp]) ;
-	c[0] = new Cmp(ci) ;
+      assert( ci.get_etat() == ETATQCQ ) ; 
+      c[0] = new Cmp(ci) ;
+    }
+    else {
+      c[0] = 0x0 ;
     }
 }
 

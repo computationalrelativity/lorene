@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/05/02 15:16:22  j_novak
+ * Added functions for more general bi-fluid EOS
+ *
  * Revision 1.4  2002/01/16 15:03:27  j_novak
  * *** empty log message ***
  *
@@ -75,7 +78,9 @@ class ifstream ;
 #include <stdio.h>
 
 // Lorene classes
+#include "param.h"
 class Tbl ;
+class Param ;
 class Cmp ;
 class Eos ;
 class Eos_poly ;
@@ -639,13 +644,42 @@ class Eos_bf_poly : public Eos_bifluid {
 	 *  [unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$]. 
 	 */
 	double m_2 ; 
-	
+
 	double gam1m1 ;	    /// $\gamma_1-1$
 	double gam2m1 ;	    /// $\gamma_2-1$
 	double gam34m1 ;    /// $\gamma_3+\gamma_4-1$
 	double gam56m1 ;    /// $\gamma_5+\gamma_6-1$
 
+ protected:
+	/** The bi-fluid analytical EOS type:
+	 * 
+	 *  0 - $\gamma_1 = \gamma_2 = 2$ and 
+	 *  $\gamma_3 = \gamma_4 = \gamma_5 = \gamma_6 = 1$. In this case, 
+	 *  the EOS can be inverted analytically.
+	 *
+	 *  1 - $\gamma_3 = \gamma_4 = \gamma_5 = \gamma_6 = 1$, but
+	 *  $\gamma_1 \not= 2$ or $\gamma_2 \not= 2$. 
+	 *
+	 *  2 - $\gamma_3 = \gamma_5 = 1$, but none of the previous cases.
+	 *  
+	 *  3 - $\gamma_4 = \gamma_6 = 1$, but none of the previous cases.
+	 * 
+	 *  4 - None of the previous cases (the most general)
+	 **/
+	int typeos ; 
 
+	/** Parameters needed for some inversions of the EOS.
+	 *  In particular, it is used for type 4 EOS:
+	 *  contains the relaxation parameter needed in the iteration
+	 */
+	double relax ;
+
+	double precis ; /// contains the precision required in zerosec\_b
+	
+	///contains the precision required in the relaxation nbar\_ent\_p
+	double ecart ; 
+
+	
     // Constructors - Destructor
     // -------------------------
     public:
@@ -657,6 +691,8 @@ class Eos_bf_poly : public Eos_bifluid {
 	 *  set to 1.
 	 *  The individual particle masses $m_1$ and $m_2$ are set to the 
 	 *  mean baryon mass $m_B = 1.66\ 10^{-27} \ {\rm kg}$. 
+	 *  The inversion parameters are set to their default values
+	 *  (see hereafter the consrtuctor with all parameters).
 	 *  
 	 *  @param kappa1  pressure coefficient $\kappa_1$  
 	 *  @param kappa2  pressure coefficient $\kappa_2$  
@@ -687,13 +723,20 @@ class Eos_bf_poly : public Eos_bifluid {
 	 *		$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$ 
 	 *  @param mass1  individual particule mass $m_1$ (neutrons)  
 	 *  @param mass2  individual particule mass $m_2$ (protons)  
-	 *		 
 	 *		[unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$]
+	 *  @param relax relaxation parameter (see {\tt par\_inv})
+	 *  @param precis precision parameter for zerosec\_b 
+	 *                (see {\tt par\_inv})
+	 *  @param relax precision parameter for relaxation 
+	 *               procedure (see {\tt par\_inv})
+	 *		 
 	 */
 	Eos_bf_poly(double gamma1, double gamma2, double gamma3,
 		    double gamma4, double gamma5, double gamma6,
 		    double kappa1, double kappa2, double kappa3,
-		    double beta, double mass1, double mass2) ;	
+		    double beta, double mass1, double mass2, 
+		    double relax=0.5, double precis = 1.e-9,
+		    double ecart = 1.e-8) ;	
 
 	Eos_bf_poly(const Eos_bf_poly& ) ;	/// Copy constructor	
 	
@@ -717,7 +760,7 @@ class Eos_bf_poly : public Eos_bifluid {
 	friend Eos_bifluid* Eos_bifluid::eos_from_file(FILE* ) ; 
 	friend Eos_bifluid* Eos_bifluid::eos_from_file(ifstream& ) ; 
 
-    public:
+        public:
 	virtual ~Eos_bf_poly() ;			/// Destructor
 
     // Assignment
@@ -728,8 +771,7 @@ class Eos_bf_poly : public Eos_bifluid {
 
     // Miscellaneous
     // -------------
-
-    public : 
+	public : 
 	/// Comparison operator (egality)
 	virtual bool operator==(const Eos_bifluid& ) const ; 
 
@@ -801,6 +843,8 @@ class Eos_bf_poly : public Eos_bifluid {
 	 */
 	void set_auxiliary() ; 
     
+	/// Determines the type of the analytical EOS (see {\tt typeos})
+	void determine_type() ;
 
     // Outputs
     // -------
@@ -988,7 +1032,7 @@ class Eos_bf_poly_newt : public Eos_bf_poly {
     // Data :
     // -----
 
-    // no new data with respect to Eos_poly	
+    // no new data with respect to Eos_bf_poly	
 
     // Constructors - Destructor
     // -------------------------
@@ -1001,6 +1045,8 @@ class Eos_bf_poly_newt : public Eos_bf_poly {
 	 *  set to 1.
 	 *  The individual particle masses $m_1$ and $m_2$ are set to the 
 	 *  mean baryon mass $m_B = 1.66\ 10^{-27} \ {\rm kg}$. 
+	 *  The inversion parameters are set to their default values
+	 *  (see hereafter the consrtuctor with all parameters).
 	 *  
 	 *  @param kappa1  pressure coefficient $\kappa_1$  
 	 *  @param kappa2  pressure coefficient $\kappa_2$  
@@ -1031,13 +1077,21 @@ class Eos_bf_poly_newt : public Eos_bf_poly {
 	 *		$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$ 
 	 *  @param mass1  individual particule mass $m_1$ (neutrons)  
 	 *  @param mass2  individual particule mass $m_2$ (protons)  
+	 *  @param relax relaxation parameter (see {\tt par\_inv})
+	 *  @param precis precision parameter for zerosec\_b 
+	 *                (see {\tt par\_inv})
+	 *  @param relax precision parameter for relaxation 
+	 *               procedure (see {\tt par\_inv})
 	 *		 
 	 *		[unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$]
 	 */
 	Eos_bf_poly_newt(double gamma1, double gamma2, double gamma3,
-		    double gamma4, double gamma5, double gamma6,
-		    double kappa1, double kappa2, double kappa3,
-		    double beta, double mass1, double mass2) ;	
+			 double gamma4, double gamma5, double gamma6,
+			 double kappa1, double kappa2, double kappa3,
+			 double beta, double mass1, double mass2, 
+			 double relax=0.5, double precis = 1.e-9,
+			 double ecart = 1.e-8) ;	
+
 
 	Eos_bf_poly_newt(const Eos_bf_poly_newt& ) ;	/// Copy constructor	
 	
