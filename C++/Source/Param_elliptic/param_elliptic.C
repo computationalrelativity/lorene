@@ -23,6 +23,9 @@ char param_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/12/11 16:11:38  e_gourgoulhon
+ * Changed #include <iostream.h> to #include "headcpp.h".
+ *
  * Revision 1.2  2003/12/11 15:57:27  p_grandclement
  * include stdlib.h encore ...
  *
@@ -34,8 +37,9 @@ char param_elliptic_C[] = "$Header$" ;
  *
  */
 
+#include "headcpp.h"
+
 #include <math.h>
-#include <iostream.h>
 #include <stdlib.h>
 
 #include "ope_elementary.h"

@@ -23,6 +23,9 @@ char change_var_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/12/11 16:10:38  e_gourgoulhon
+ * Changed #include <iostream.h> to #include "headcpp.h".
+ *
  * Revision 1.2  2003/12/11 15:53:31  p_grandclement
  * includ stdlib
  *
@@ -34,9 +37,10 @@ char change_var_C[] = "$Header$" ;
  *
  */
 
+#include "headcpp.h"
+
 #include <math.h>
 #include <stdlib.h>
-#include <iostream.h>
 
 #include "proto.h"
 #include "change_var.h"
