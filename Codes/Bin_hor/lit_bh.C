@@ -29,6 +29,9 @@ char lit_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/03/04 09:42:25  f_limousin
+ * New construction of the object Bin_hor.
+ *
  * Revision 1.1  2005/03/03 13:51:56  f_limousin
  * First version
  *
@@ -70,21 +73,13 @@ int main(int argc, char** argv) {
     // Construction of the binary
     // --------------------------
 
+    int depth = 3 ;
     FILE* fich = fopen(name_fich, "r") ;    
     Mg3d grid (fich) ;
     Map_af map_un (grid, fich) ;
     Map_af map_deux (grid, fich) ;
-    Isol_hor hole_un (map_un, fich, true) ;
-    Isol_hor hole_deux (map_deux, fich, true) ;
+    Bin_hor bin (map_un, map_deux, fich, true, depth) ;
     fclose(fich) ;
-    
-    assert (hole_un.get_omega() == hole_deux.get_omega()) ;
-    
-    int depth = 3 ;
-    Bin_hor bin (map_un, map_deux, depth) ;
-    bin.set(1) = hole_un ;
-    bin.set(2) = hole_deux ;
-    bin.set_omega(hole_un.get_omega()) ;
         
     // Inititialisation of fields :
     // ---------------------------- 
@@ -113,14 +108,10 @@ int main(int argc, char** argv) {
     cout << "Beta              : " << beta << endl ;
     cout << "Omega             : " << omega << endl ;
     cout << "ADM mass          : " << adm << endl ;
-    cout << "ok" << endl ;
     cout << "Komar mass        : " << komar << endl ;
-    cout << "ok" << endl ;
     cout << "Mass area         : " << mass_area << endl ;
-    cout << "ok" << endl ;
     cout << "ADM ang. mom.     : " << moment_inf << endl ;
     cout << "horizon ang.mom.  : " << moment_hor << endl ;
-    cout << "ok" << endl ;
 //    cout << "Distance propre : " << distance_propre << endl ;
     
     // Verification of Smarr :
@@ -147,7 +138,7 @@ int main(int argc, char** argv) {
     cout << "------------------------------------------" << endl ;
     cout << "Difference between the two J : " << fabs(moment_inf - moment_hor)
 	/ moment_inf << endl ;
-    cout << "Difference between infinity and Smarr  : " 
+    cout << "Difference between ADM and Smarr  : " 
 	 << fabs(moment_inf - j_test) / moment_inf << endl ;
     cout << "Difference between horizon and Smarr : " 
 	 << fabs(moment_hor - j_test) / moment_inf << endl ;
@@ -158,7 +149,7 @@ int main(int argc, char** argv) {
 	/ pow(adm, 5./3.)
 	<< endl ;
     cout << "------------------------------------------" << endl ;
-    cout << "ADM mass      : " << adm/ggrav/msol << " Masses solaires"<< endl ;
+    cout << "ADM mass      : " << adm/ggrav/msol << " solar masses"<< endl ;
     cout << "Frequence       : " << omega/2/M_PI*f_unit << " Hz" << endl ;
 
     cout <<"--------------------------------------------------------" << endl ;

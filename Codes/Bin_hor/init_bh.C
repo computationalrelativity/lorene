@@ -29,6 +29,9 @@ char init_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/03/04 09:42:02  f_limousin
+ * New construction of the object Bin_hor.
+ *
  * Revision 1.4  2005/02/25 12:31:59  f_limousin
  * The boundary conditions for psi, N and beta are now parameters in
  * par_init.d and par_coal.d.
@@ -135,12 +138,13 @@ int main() {
     grid.sauve(fich) ;
     map_un.sauve(fich) ;
     map_deux.sauve(fich) ;
-    bin(1).sauve(fich, true) ;
-    bin(2).sauve(fich, true) ;
+    bin.sauve(fich, true) ;
     fwrite_be(&bound_nn, sizeof(int), 1, fich) ;
     fwrite_be (&lim_nn, sizeof(double), 1, fich) ;
     fwrite_be(&bound_psi, sizeof(int), 1, fich) ;
     fclose(fich) ;
+
+//    cout << bin << endl ;
 
 
     // Drawings
