@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2003 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -32,8 +32,11 @@ char map_radial_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/10/15 10:41:10  e_gourgoulhon
+ * Added new Coord's drdt and stdrdp.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.6  1999/11/22  10:37:24  eric
  * Fonction del_coord() rebaptisee reset_coord().
@@ -118,6 +121,8 @@ void Map_radial::reset_coord() {
     
     xsr.del_t() ; 
     dxdr.del_t() ; 
+    drdt.del_t() ; 
+    stdrdp.del_t() ; 
     srdrdt.del_t() ; 
     srstdrdp.del_t() ; 
     sr2drdt.del_t() ; 
