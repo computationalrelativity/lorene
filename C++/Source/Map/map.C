@@ -33,6 +33,9 @@ char map_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/05/22 12:44:04  f_limousin
+ * Added print of ori_x, ori_y, ori_z and rot_phi in operator<<.
+ *
  * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -194,6 +197,11 @@ void Map::sauve(FILE* fd) const {
 
 // Operateurs <<
 ostream& operator<<(ostream& o, const Map & cv)  {
+  o << "Absolute coordinates of the mapping origin: " << endl ;
+  o << "  X_0, Y_0, Z_0 : " << cv.get_ori_x() << "  "
+    <<  cv.get_ori_y() << "  " << cv.get_ori_z() << endl ; 
+  o << "Rotation angle between the x-axis and X-axis : " 
+    << cv.get_rot_phi() << endl ;   
     cv >> o ;
     return o ;
 }
