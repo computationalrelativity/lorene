@@ -95,9 +95,12 @@ class Star_rot_Dirac : public Star {
        // More to come later.....
        //----------------------------
 
-       mutable double* p_angu_mom ; ///< Angular momentum 
-       mutable double* p_grv2 ; ///< Error on the virial identity GRV2
-       mutable double* p_grv3 ; ///< Error on the virial identity GRV3
+       mutable double* p_angu_mom ; ///< Angular momentum. 
+       mutable double* p_grv2 ; ///< Error on the virial identity GRV2.
+       mutable double* p_grv3 ; ///< Error on the virial identity GRV3.
+       mutable double* p_tsw ; ///< Ratio T/W.
+       mutable double* p_aplat ; ///Flattening r_pole/r_eq.
+       mutable double* p_r_circ ; ///<Circumferential radius.
 
 
     // Constructors - Destructor
@@ -252,8 +255,10 @@ class Star_rot_Dirac : public Star {
        virtual double angu_mom() const ; ///< Angular momentum
        virtual double grv2() const ;  ///< Error on the virial identity GRV2
        virtual double grv3() const ; ///< Error on the virial identity GRV3
+       virtual double tsw() const ; ///< Ratio T/W
+       virtual double aplat() const ; ///< Flattening r_pole/r_eq
+       virtual double r_circ() const ; ///< Circumferential radius. 
 
-       //    More to come later.....
 
 
 
