@@ -38,6 +38,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.45  2004/02/21 17:03:49  e_gourgoulhon
+ * -- Method "point" renamed "val_grid_point".
+ * -- Method "set_point" renamed "set_grid_point".
+ *
  * Revision 1.44  2004/02/19 22:07:35  e_gourgoulhon
  * Added argument "comment" in method spectral_display.
  *
@@ -375,12 +379,6 @@ class Scalar : public Tensor {
   
   int get_dzpuis() const {return dzpuis;} ; /// Returns {\tt dzpuis}
   
-  /// Returns {\tt va} (read only version)
-  const Valeur& get_spectral_va() const {return va;} ; 
-  
-  /// Returns {\tt va} (read/write version)
-  Valeur& set_spectral_va() {return va;} ; 
-  
   /** Returns {\tt true} if the last domain is compactified and
    *  {\tt *this} is not zero in this domain
    */
@@ -391,18 +389,6 @@ class Scalar : public Tensor {
    *  is not equal to {\tt dzi}, otherwise return true. 
    */
   bool check_dzpuis(int dzi) const ; 
-  
-  /** Computes the value of the field represented by {\tt *this} at an
-   *   arbitrary point $(r, \theta, \phi)$, by means of the spectral 
-   *   expansion.
-   *	 @param r [input] value of the coordinate {\it r}
-   *	 @param theta [input] value of the coordinate $\theta$
-   *	 @param phi [input] value of the coordinate $\phi$
-   *	 @return value at the point $(r, \theta, \phi)$ 
-   *		 of the field represented by {\tt *this}. 
-   */
-  double val_point(double r, double theta, double phi) const ; 
-  
   
   // Assignment
   // -----------
@@ -423,8 +409,14 @@ class Scalar : public Tensor {
   // -----------------------------
     public:
   
+  /// Returns {\tt va} (read only version)
+  const Valeur& get_spectral_va() const {return va;} ; 
+  
+  /// Returns {\tt va} (read/write version)
+  Valeur& set_spectral_va() {return va;} ; 
+  
   /** Read/write of the value in a given domain.
-   * NB: to gain in efficiency, the method {\tt del\_deriv()} (to delete
+   * CAUTION: to gain in efficiency, the method {\tt del\_deriv()} (to delete
    *     the derived members) is not called by this function. It must
    *     thus be invoqued by the user.  
    *
@@ -446,29 +438,13 @@ class Scalar : public Tensor {
   };
   
   
-  /** Read/write of a particular element.
-   * NB: to gain in efficiency, the method {\tt del\_deriv()} (to delete
-   *     the derived members) is not called by this function. It must
-   *     thus be invoqued by the user.  
-   *     
+  /** Returns the value of the field at a specified grid point.
    * @param l [input] domain index
    * @param k [input] $\phi$ index
    * @param j [input] $\theta$ index
    * @param i [input] {\it r} ($\xi$) index
    */ 
-  double& set_point(int l, int k, int j, int i) {
-    assert(etat == ETATQCQ) ;
-    return va.set(l, k, j, i) ;
-  };
-  
-	
-  /** Read-only of a particular element.
-   * @param l [input] domain index
-   * @param k [input] $\phi$ index
-   * @param j [input] $\theta$ index
-   * @param i [input] {\it r} ($\xi$) index
-   */ 
-  double point(int l, int k, int j, int i) const {
+  double val_grid_point(int l, int k, int j, int i) const {
     assert(etat != ETATNONDEF) ;
     if (etat == ETATZERO) {
       double zero = 0. ;
@@ -485,6 +461,40 @@ class Scalar : public Tensor {
     }
   };
   
+  /** Computes the value of the field at an
+   *   arbitrary point $(r, \theta, \phi)$, by means of the spectral 
+   *   expansion.
+   *   NB: if $(r, \theta, \phi)$ is a point of the spectral grid, 
+   *     the method {\tt val\_grid\_point} is to be preferred, 
+   *     being much more efficient. 
+   *	 @param r [input] value of the coordinate {\it r}
+   *	 @param theta [input] value of the coordinate $\theta$
+   *	 @param phi [input] value of the coordinate $\phi$
+   *	 @return value at the point $(r, \theta, \phi)$ 
+   *		 of the field represented by {\tt *this}. 
+   */
+  double val_point(double r, double theta, double phi) const ; 
+  
+  
+  /** Setting the value of the field at a given grid point.
+   * CAUTION: to gain in efficiency (especially when this method is
+   *  invoqued inside a loop), the method {\tt del\_deriv()} (to delete
+   *     the derived members) is not called by {\tt set\_grid\_point}. 
+   *     It must thus be invoqued by the user, after all the calls
+   *     to  {\tt set\_grid\_point} have been performed.   
+   *     
+   * @param l [input] domain index
+   * @param k [input] $\phi$ index
+   * @param j [input] $\theta$ index
+   * @param i [input] {\it r} ($\xi$) index
+   * @return writable value of the field at the specified grid point
+   */ 
+  double& set_grid_point(int l, int k, int j, int i) {
+    assert(etat == ETATQCQ) ;
+    return va.set(l, k, j, i) ;
+  };
+  
+	
   /**
    * Sets the {\tt Scalar} to zero in several domains.
    *	@param l_min [input] The {\tt Scalar} will be set (logically) to zero
