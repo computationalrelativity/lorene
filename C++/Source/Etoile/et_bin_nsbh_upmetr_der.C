@@ -31,6 +31,9 @@ char et_bin_nsbh_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/06/07 11:08:31  k_taniguchi
+ * A minor change.
+ *
  * Revision 1.1  2003/10/24 12:29:21  k_taniguchi
  * Method of update metric for the BH companion
  *
@@ -51,7 +54,7 @@ char et_bin_nsbh_upmetr_der_C[] = "$Header$" ;
 
 void Et_bin_nsbh::update_metric_der_comp(const Bhole& comp) {
 
-    // Computation of Grad(N) ---> stored in d_logn_comp
+    // Computation of Grad(N) ---> stored in d_n_comp
     // -------------------------------------------------
 
     Tenseur dncomp = ( comp.get_n_auto() ).gradient() ;
