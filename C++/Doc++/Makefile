@@ -10,12 +10,12 @@ $(HOME_LORENE)/Doc/refguide: Source/lorene.C $(HOME_LORENE)/C++/Include/*.h
 	$(BIN_TOOLS)/reorg_comments $?
 	mv $(?:=_r) .
 	rm -fr $@
-	doc++ -p -d $@ lorene.C_r
+	doc++ -p -w -W -d $@ lorene.C_r
 
 refguide.tex: Source/lorene.C $(HOME_LORENE)/C++/Include/*.h
 	$(BIN_TOOLS)/reorg_comments $?
 	mv $(?:=_r) .
-	doc++ -p -t -o $(HOME_LORENE)/Doc/refguide.tex lorene.C_r
+	doc++ -p -w -W -t -o $(HOME_LORENE)/Doc/refguide.tex lorene.C_r
 
 $(BIN_TOOLS):
 	mkdir $@
