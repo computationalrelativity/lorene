@@ -30,6 +30,9 @@ char bin_bh_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2001/12/19 11:20:56  e_gourgoulhon
+ * Initialisation of radius2 was missing !
+ *
  * Revision 1.1  2001/12/18 22:27:04  e_gourgoulhon
  * Exportation of Lorene structures
  *
@@ -56,7 +59,7 @@ double lagrange_parabol(double x, const double* xp, const double* yp) ;
 		    //	    Constructor from LORENE data      //
 		    //----------------------------------------//
 
-Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi, 
+Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
 	       const double* zi, int fill, const char* filename)
 	       : np(nbpoints) {
 
@@ -69,16 +72,16 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
     Bhole hole_un (map_un, fich) ;
     Bhole hole_deux (map_deux, fich) ;
     fclose(fich) ;
-    
+
     assert (hole_un.get_omega() == hole_deux.get_omega()) ;
-    
+
     // Construction of the binary system
     // ---------------------------------
     Bhole_binaire systeme (map_un, map_deux) ;
     systeme.set(1) = hole_un ;
     systeme.set(2) = hole_deux ;
     systeme.set_omega(hole_un.get_omega()) ;
-        
+
     // On initialise les grandeurs derivees :
     systeme.set(1).fait_n_comp (systeme(2)) ;
     systeme.set(1).fait_psi_comp (systeme(2)) ;
@@ -86,26 +89,27 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
     systeme.set(2).fait_psi_comp (systeme(1)) ;
     systeme.fait_decouple() ;
     systeme.fait_tkij() ;
-    
+
     // Initialisation of member data
     // -----------------------------
-    
-    // Unit of length: 
+
+    // Unit of length:
     double aa = systeme(1).get_rayon() ;
     double aa2 = systeme(2).get_rayon() ;
+    radius2 = aa2 ;
 
     omega = systeme.get_omega() * aa ;
     dist = ( map_un.get_ori_x() - map_deux.get_ori_x() ) / aa ;
 
-    cout << endl << "Binary system read in file : " << endl ; 
+    cout << endl << "Binary system read in file : " << endl ;
     cout <<	    "---------------------------- " << endl ;
     cout << "  Separation d/a :       " << dist << endl ;
-    cout << "  Omega :                " << omega << " / a" << endl ; 
+    cout << "  Omega :                " << omega << " / a" << endl ;
     cout << "  Size of black hole 2 : " << aa2 / aa << " a" << endl ;
-    cout << "  ADM mass :             " << systeme.adm_systeme() / aa 
-         << " a" << endl ; 
+    cout << "  ADM mass :             " << systeme.adm_systeme() / aa
+         << " a" << endl ;
     cout << "  Komar-lile mass :      " << systeme.komar_systeme() / aa
-         << " a" << endl ; 
+         << " a" << endl ;
     cout << "  Angular momentum :     " << systeme.moment_systeme_inf() 
 	    / (aa*aa) << " a^2" << endl ; 
     cout << "  Proper distance between the two throats : "
