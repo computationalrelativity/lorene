@@ -30,6 +30,11 @@ char source_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/11/05 10:59:07  f_limousin
+ * Delete ener_dens, mom_dens and trace stress in functions
+ * source_nn, source_psi and source_beta.
+ * And some modification to avoid warnings (source_nn change to source...).
+ *
  * Revision 1.5  2004/11/03 17:16:44  f_limousin
  * Delete argument trk_point for source_nn()
  *
@@ -63,13 +68,10 @@ char source_hor_C[] = "$Header$" ;
 #include "graphique.h"
 #include "utilitaires.h"
 
-Scalar Isol_hor::source_psi( const Scalar* p_ener_dens, 
-				 const Vector* p_mom_dens, 
-				 const Scalar* p_trace_stress) {
+Scalar Isol_hor::source_psi() {
 
     using namespace Unites ;
    
-
     // Initialisations
     // ---------------
 
@@ -80,20 +82,7 @@ Scalar Isol_hor::source_psi( const Scalar* p_ener_dens,
     Scalar tmp_scal(map) ; 
     Sym_tensor tmp_sym(map, CON, triad) ;
 
-    Scalar ener_dens(map) ; 
-    if (p_ener_dens != 0x0) ener_dens = *(p_ener_dens) ; 
-    else ener_dens.set_etat_zero() ; 
-    
-    Vector mom_dens(map, CON, triad) ; 
-    if (p_mom_dens != 0x0) mom_dens = *(p_mom_dens) ; 
-    else mom_dens.set_etat_zero() ; 
-    
-    Scalar trace_stress(map) ; 
-    if (p_trace_stress != 0x0) trace_stress = *(p_trace_stress) ; 
-    else trace_stress.set_etat_zero() ; 
-       
-
-    Scalar source_psi(map) ; 
+    Scalar source(map) ; 
        
     //===============================================
     //  Computations of the source for Psi 
@@ -113,23 +102,19 @@ Scalar Isol_hor::source_psi( const Scalar* p_ener_dens,
     
     tmp -= contract(hdirac(), 0, dpsi, 0) ;  
                 
-    source_psi = tmp - psi()*psi4()* ( 0.5*qpig* ener_dens 
-				       + 0.125* aa_quad 
+    source = tmp - psi()*psi4()* ( 0.125* aa_quad 
 				       - 8.33333333333333e-2* trK*trK ) ;
-    source_psi.annule_domain(0) ;
+    source.annule_domain(0) ;
 
-    return source_psi ;
+    return source ;
 
 }
 
 
-Scalar Isol_hor::source_nn( const Scalar* p_ener_dens, 
-			    const Vector* p_mom_dens, 
-			    const Scalar* p_trace_stress) {
+Scalar Isol_hor::source_nn() {
 
     using namespace Unites ;
    
-
     // Initialisations
     // ---------------
  
@@ -140,20 +125,7 @@ Scalar Isol_hor::source_nn( const Scalar* p_ener_dens,
     Scalar tmp_scal(map) ; 
     Sym_tensor tmp_sym(map, CON, triad) ;
 
-    Scalar ener_dens(map) ; 
-    if (p_ener_dens != 0x0) ener_dens = *(p_ener_dens) ; 
-    else ener_dens.set_etat_zero() ; 
-    
-    Vector mom_dens(map, CON, triad) ; 
-    if (p_mom_dens != 0x0) mom_dens = *(p_mom_dens) ; 
-    else mom_dens.set_etat_zero() ; 
-    
-    Scalar trace_stress(map) ; 
-    if (p_trace_stress != 0x0) trace_stress = *(p_trace_stress) ; 
-    else trace_stress.set_etat_zero() ; 
-       
-
-    Scalar source_nn(map) ; 
+    Scalar source(map) ; 
        
     //===============================================
     //  Computations of the source for NN 
@@ -169,8 +141,7 @@ Scalar Isol_hor::source_nn( const Scalar* p_ener_dens,
     // Source for N 
     // ------------
 
-    source_nn = psi4()*( nn()*( qpig* (ener_dens + trace_stress) + aa_quad
-				+ 0.3333333333333333* trK*trK )
+    source = psi4()*( nn()*( aa_quad + 0.3333333333333333* trK*trK )
 			 - trK_point ) 
 	     - 2.* contract(dln_psi, 0, nn().derive_con(tgam()), 0)  
     - contract(hdirac(), 0, dnn, 0) ; 
@@ -180,23 +151,20 @@ Scalar Isol_hor::source_nn( const Scalar* p_ener_dens,
         
     tmp.inc_dzpuis() ; // dzpuis: 3 -> 4
         
-    source_nn += tmp ;
+    source += tmp ;
 
-    source_nn.annule_domain(0) ;
+    source.annule_domain(0) ;
 
-    return source_nn ;
+    return source ;
 
 }
 
 
 
-Vector Isol_hor::source_beta( const Scalar* p_ener_dens, 
-				  const Vector* p_mom_dens, 
-				  const Scalar* p_trace_stress) {
+Vector Isol_hor::source_beta() {
 
     using namespace Unites ;
    
-
     // Initialisations
     // ---------------
 
@@ -208,26 +176,13 @@ Vector Isol_hor::source_beta( const Scalar* p_ener_dens,
     Sym_tensor tmp_sym(map, CON, triad) ;
     Vector tmp_vect(map, CON, triad) ;
 
-    Scalar ener_dens(map) ; 
-    if (p_ener_dens != 0x0) ener_dens = *(p_ener_dens) ; 
-    else ener_dens.set_etat_zero() ; 
-    
-    Vector mom_dens(map, CON, triad) ; 
-    if (p_mom_dens != 0x0) mom_dens = *(p_mom_dens) ; 
-    else mom_dens.set_etat_zero() ; 
-    
-    Scalar trace_stress(map) ; 
-    if (p_trace_stress != 0x0) trace_stress = *(p_trace_stress) ; 
-    else trace_stress.set_etat_zero() ; 
-       
-
-    Vector source_beta(map, CON, triad) ; 
+    Vector source(map, CON, triad) ; 
 
     //===============================================
     //  Computations of the source for beta 
     //===============================================
     
-     const Vector& dln_psi = ln_psi().derive_cov(ff) ; // D_i ln(Psi)
+    const Vector& dln_psi = ln_psi().derive_cov(ff) ; // D_i ln(Psi)
     const Vector& dnn = nn().derive_cov(ff) ;         // D_i N
     
     Sym_tensor taa = aa().up_down(tgam()) ; 
@@ -240,14 +195,13 @@ Vector Isol_hor::source_beta( const Scalar* p_ener_dens,
     // Source for beta 
     // ---------------
     
-    source_beta = 2.* contract(aa(), 1, 
+    source = 2.* contract(aa(), 1, 
 			       dnn - 6.*nn() * dln_psi, 0) ;
                 
     tmp_vect = 0.66666666666666666* trK.derive_con(tgam()) ;
     tmp_vect.inc_dzpuis() ;
 
-    source_beta += 2.* nn() * ( 2.*qpig* psi4() * mom_dens 
-				+ tmp_vect
+    source += 2.* nn() * ( tmp_vect
 				- contract(tgam().connect().get_delta(), 1, 2, 
 					   aa(), 0, 1) ) ;
             
@@ -259,13 +213,13 @@ Vector Isol_hor::source_beta( const Scalar* p_ener_dens,
       + uu.divergence(ff) ;                       // zero in the Driac gauge
     vtmp.inc_dzpuis() ; // dzpuis: 3 -> 4
     
-    source_beta -= vtmp ; 
+    source -= vtmp ; 
         
-    source_beta += 0.66666666666666666* beta().divergence(ff) * hdirac() ;
+    source += 0.66666666666666666* beta().divergence(ff) * hdirac() ;
 
-    source_beta.annule_domain(0) ;
+    source.annule_domain(0) ;
 
-    return source_beta ;
+    return source ;
 
 }
 
