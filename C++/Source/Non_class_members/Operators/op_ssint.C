@@ -37,6 +37,9 @@ char op_ssint_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/02/16 15:29:48  m_forot
+ * Correct T_COSSIN_S and T_COSSIN_C cases
+ *
  * Revision 1.3  2004/12/17 13:20:18  m_forot
  * Modify the case T_COSSIN_C and T_COSSIN_S
  *
@@ -1156,10 +1159,10 @@ void _ssint_t_cossin_c(Tbl* tb, int & b)
       int base_r = b & MSQ_R ;
       int base_p = b & MSQ_P ;
       switch(base_r){
-      case(4):
+      case(R_CHEBPI_P):
 	b = R_CHEBPI_I | base_p | T_COSSIN_S ;
 	break ;
-      case(5):
+      case(R_CHEBPI_I):
 	b = R_CHEBPI_P | base_p | T_COSSIN_S ;
 	break ;  
       default:
@@ -1295,10 +1298,10 @@ void _ssint_t_cossin_c(Tbl* tb, int & b)
     int base_r = b & MSQ_R ;
     int base_p = b & MSQ_P ;
     switch(base_r){
-    case(4):
+    case(R_CHEBPI_P):
       b = R_CHEBPI_I | base_p | T_COSSIN_S ;
       break ;
-    case(5):
+    case(R_CHEBPI_I):
       b = R_CHEBPI_P | base_p | T_COSSIN_S ;
       break ;  
     default:
@@ -1320,10 +1323,10 @@ void _ssint_t_cossin_s(Tbl* tb, int & b)
       int base_r = b & MSQ_R ;
       int base_p = b & MSQ_P ;
       switch(base_r){
-      case(4):
+      case(R_CHEBPI_P):
 	b = R_CHEBPI_I | base_p | T_COSSIN_C ;
 	break ;
-      case(5):
+      case(R_CHEBPI_I):
 	b = R_CHEBPI_P | base_p | T_COSSIN_C ;
 	break ;  
       default:
@@ -1460,10 +1463,10 @@ void _ssint_t_cossin_s(Tbl* tb, int & b)
     int base_r = b & MSQ_R ;
     int base_p = b & MSQ_P ;
     switch(base_r){
-    case(4):
+    case(R_CHEBPI_P):
       b = R_CHEBPI_I | base_p | T_COSSIN_C ;
       break ;
-    case(5):
+    case(R_CHEBPI_I):
       b = R_CHEBPI_P | base_p | T_COSSIN_C ;
       break ;  
     default:

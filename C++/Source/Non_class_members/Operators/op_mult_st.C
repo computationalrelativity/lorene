@@ -25,6 +25,9 @@ char op_mult_st_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/02/16 15:29:28  m_forot
+ * Correct T_COSSIN_S and T_COSSIN_C cases
+ *
  * Revision 1.2  2004/11/23 15:16:01  m_forot
  *
  * Added the bases for the cases without any equatorial symmetry
@@ -1234,7 +1237,17 @@ void _mult_st_t_cossin_c(Tbl* tb, int & b)
   if (tb->get_etat() == ETATZERO) {
     int base_r = b & MSQ_R ;
     int base_p = b & MSQ_P ;
-    b = base_r | base_p | T_COSSIN_S ;
+    switch(base_r){
+    case(R_CHEBPI_P):
+      b = R_CHEBPI_I | base_p | T_COSSIN_S ;
+      break ;
+    case(R_CHEBPI_I):
+      b = R_CHEBPI_P | base_p | T_COSSIN_S ;
+      break ;  
+    default:
+      b = base_r | base_p | T_COSSIN_S ;
+      break;
+    }
     return ;
   }
   
@@ -1275,24 +1288,28 @@ void _mult_st_t_cossin_c(Tbl* tb, int & b)
     som[i] = -0.5*xci[i] ;
     xco[i] = 0. ; // mise a zero dui dernier coefficient en theta.
   }
-	
+
+
   // j suivants
   for (int j=nt-2 ; j > 0 ; j--) {
     // Positionnement
-    xci -= nr ;
+    xci -= 2*nr ;
     xco -= nr ;
     // Calcul
     for (int i=0 ; i<nr ; i++ ) {
       som[i] += 0.5*xci[i] ;
       xco[i] = som[i] ;
-      som[i] = -0.5*xci[i] ;
     }	// Fin de la boucle sur r
+    xci += nr ;
+    for (int i=0 ; i<nr ; i++ ) {
+      som[i] = -0.5*xci[i] ;
+    }
   }   // Fin de la boucle sur theta
   // j = 0
   xci -= nr ;
   xco -= nr ;
   for (int i = 0; i<nr; i++) {
-    xco[i] = xci[i] + som[i] ;
+    xco[i] = 0.0 ;
   }
   // Positionnement phi suivant
   xci += nr*nt ;
@@ -1307,7 +1324,7 @@ void _mult_st_t_cossin_c(Tbl* tb, int & b)
     m = (k/2) % 2 ;	    // Parite de l'harmonique en phi
     
     switch(m) {
-    case 0:	    // m pair: cos(pair)
+    case 0:	    // m pair: cos
       // Dernier j: j = nt-1
       // Positionnement
       xci += nr * (nt-1) ;
@@ -1322,27 +1339,30 @@ void _mult_st_t_cossin_c(Tbl* tb, int & b)
       // j suivants
       for (int j=nt-2 ; j > 0 ; j--) {
 	// Positionnement
-	xci -= nr ;
+	xci -= 2*nr ;
 	xco -= nr ;
 	// Calcul
 	for (int i=0 ; i<nr ; i++ ) {
 	  som[i] += 0.5*xci[i] ;
 	  xco[i] = som[i] ;
-	  som[i] = -0.5*xci[i] ;
 	}	// Fin de la boucle sur r
+	xci += nr ;
+	for (int i=0 ; i<nr ; i++ ) {
+	  som[i] = -0.5*xci[i] ;
+	}
       }   // Fin de la boucle sur theta
       // j = 0
       xci -= nr ;
       xco -= nr ;
       for (int i = 0; i<nr; i++) {
-	xco[i] = xci[i] + som[i] ;
+	xco[i] = 0.0 ;
       }
       // Positionnement phi suivant
       xci += nr*nt ;
       xco += nr*nt ;
       break ;
       
-    case 1:	    // m impair: sin(impair)
+    case 1:	    // m impair: sin
       // Dernier j: j = nt-1
       // Positionnement
       xci += nr * (nt-1) ;
@@ -1350,21 +1370,27 @@ void _mult_st_t_cossin_c(Tbl* tb, int & b)
       
       // Initialisation de som
       for (int i=0 ; i<nr ; i++) {
-	som[i] = 0. ;
+	som[i] = 0.5*xci[i] ;
+	xco[i] = 0. ; // mise a zero dui dernier coefficient en theta.
       }
 	
       // j suivants
-      for (int j=nt-1 ; j > 0 ; j--) {
+      for (int j=nt-2 ; j > 0 ; j--) {
 	// Positionnement
-	xci -= nr ;
+	xci -= 2*nr ;
+	xco -= nr ;
 	// Calcul
 	for (int i=0 ; i<nr ; i++ ) {
 	  som[i] -= 0.5*xci[i] ;
 	  xco[i] = som[i] ;
-	  som[i] = 0.5*xci[i] ;
 	}	// Fin de la boucle sur r
-	xco -= nr ;
+	xci += nr ;
+	for (int i=0 ; i<nr ; i++ ) {
+	  som[i] = 0.5*xci[i] ;
+	}
       }   // Fin de la boucle sur theta
+      xci -= nr;
+      xco -= nr;
       // premier theta
       for (int i=0 ; i<nr ; i++) {
 	xco[i] = som[i] ;
@@ -1386,7 +1412,17 @@ void _mult_st_t_cossin_c(Tbl* tb, int & b)
   // base de developpement
   int base_r = b & MSQ_R ;
   int base_p = b & MSQ_P ;
-  b = base_r | base_p | T_COSSIN_S ;
+  switch(base_r){
+  case(R_CHEBPI_P):
+    b = R_CHEBPI_I | base_p | T_COSSIN_S ;
+    break ;
+  case(R_CHEBPI_I):
+    b = R_CHEBPI_P | base_p | T_COSSIN_S ;
+    break ;  
+  default:
+    b = base_r | base_p | T_COSSIN_S ;
+    break;
+  }
 }
 
 			//---------------------	
@@ -1398,7 +1434,17 @@ void _mult_st_t_cossin_s(Tbl* tb, int & b)
   if (tb->get_etat() == ETATZERO) {
     int base_r = b & MSQ_R ;
     int base_p = b & MSQ_P ;
-    b = base_r | base_p | T_COSSIN_C ;
+    switch(base_r){
+    case(R_CHEBPI_P):
+      b = R_CHEBPI_I | base_p | T_COSSIN_C ;
+      break ;
+    case(R_CHEBPI_I):
+      b = R_CHEBPI_P | base_p | T_COSSIN_C ;
+      break ;  
+    default:
+      b = base_r | base_p | T_COSSIN_C ;
+      break;
+    }
     return ;
   }
   
@@ -1443,14 +1489,17 @@ void _mult_st_t_cossin_s(Tbl* tb, int & b)
   // j suivants
   for (int j=nt-2 ; j > 0 ; j--) {
     // Positionnement
-    xci -= nr ;
+    xci -= 2*nr ;
     xco -= nr ;
     // Calcul
     for (int i=0 ; i<nr ; i++ ) {
       som[i] -= 0.5*xci[i] ;
       xco[i] = som[i] ;
-      som[i] = 0.5*xci[i] ;
     }	// Fin de la boucle sur r
+    xci += nr ;
+    for (int i=0 ; i<nr ; i++ ) {
+      som[i] = 0.5*xci[i] ;
+    }
   }   // Fin de la boucle sur theta
   // j = 0 
   xci -= nr ;
@@ -1478,24 +1527,30 @@ void _mult_st_t_cossin_s(Tbl* tb, int & b)
       
       // Initialisation de som
       for (int i=0 ; i<nr ; i++) {
-	som[i] = 0. ;
+	som[i] = -0.5*xci[i] ;
+	xco[i] = 0.0;
       }
       
       // j suivants
-      for (int j=nt-1 ; j > 0 ; j--) {
+      for (int j=nt-2 ; j > 0 ; j--) {
 	// Positionnement
-	xci -= nr ;
+	xci -= 2*nr ;
+	xco -= nr ;
 	// Calcul
 	for (int i=0 ; i<nr ; i++ ) {
 	  som[i] += 0.5*xci[i] ;
 	  xco[i] = som[i] ;
-	  som[i] = -0.5*xci[i] ;
 	}	// Fin de la boucle sur r
-	xco -= nr ;
+	xci +=nr ;
+	for (int i=0 ; i<nr ; i++ ) {
+	  som[i] = -0.5*xci[i] ;
+	} 
       }   // Fin de la boucle sur theta
-  for (int i=0; i<nr; i++) {
-    xco[i] = 0. ;
-  }
+      xci -= nr ;
+      xco -= nr ;
+      for (int i=0; i<nr; i++) {
+	xco[i] = 0. ;
+      }
 
       // Positionnement phi suivant
       xci += nr*nt ;
@@ -1517,14 +1572,17 @@ void _mult_st_t_cossin_s(Tbl* tb, int & b)
       // j suivants
       for (int j=nt-2 ; j > 0 ; j--) {
 	// Positionnement
-	xci -= nr ;
+	xci -= 2*nr ;
 	xco -= nr ;
 	// Calcul
 	for (int i=0 ; i<nr ; i++ ) {
 	  som[i] -= 0.5*xci[i] ;
 	  xco[i] = som[i] ;
-	  som[i] = 0.5*xci[i] ;
 	}	// Fin de la boucle sur r
+	xci += nr ;
+	for (int i=0 ; i<nr ; i++ ) {
+	  som[i] = 0.5*xci[i] ;
+	}
       }   // Fin de la boucle sur theta
       // j = 0 
       xci -= nr ;
@@ -1549,6 +1607,15 @@ void _mult_st_t_cossin_s(Tbl* tb, int & b)
   // base de developpement
   int base_r = b & MSQ_R ;
   int base_p = b & MSQ_P ;
-  b = base_r | base_p | T_COSSIN_C ;
-    
+  switch(base_r){
+  case(R_CHEBPI_P):
+    b = R_CHEBPI_I | base_p | T_COSSIN_C ;
+    break ;
+  case(R_CHEBPI_I):
+    b = R_CHEBPI_P | base_p | T_COSSIN_C ;
+    break ;  
+  default:
+    b = base_r | base_p | T_COSSIN_C ;
+    break;
+  }
 }
