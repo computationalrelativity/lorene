@@ -30,6 +30,13 @@ char coal_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/09/16 13:36:50  e_gourgoulhon
+ * -- initial analytical shift decreased by a factor reduce_shift which
+ *    can be specified in the parcoal.d file (default value = 0.6)
+ * -- replaced the fpar.getline(blabla, 120) by fpar.ignore(1000,'\n')
+ * -- new output file "resformat.d" at the end of the computation for
+ *    formatted output of global quantities (to be read by external code)
+ *
  * Revision 1.5  2003/09/08 15:32:10  e_gourgoulhon
  * Added the printing of the virial errors in the output file "calcul.d".
  *
@@ -102,48 +109,56 @@ int main(){
     //	    Parameters of the computation 
     //------------------------------------------------------------------
 
-    char blabla[120], nomini[80] ;
+    char nomini[80] ;
     int mermax, mermax_eqb, prompt, graph, fmer_stop, fmer_save, mermax_poisson ;
     int mermax_potvit, mer_masse, fmer_upd_met, ind_rel_met ;  
     double seuil, relax_poisson, relax_potvit, relax, aexp_masse ; 
     double mbar_voulue[2], fact_separ, relax_met, relax_omeg ;
-    double fact_omeg_min, fact_omeg_max, thres_adapt[2] ; 
+    double fact_omeg_min, fact_omeg_max, thres_adapt[2], reduce_shift ; 
     
     ifstream fpar("parcoal.d") ;
-    fpar.getline(blabla, 120) ;
-    fpar.getline(blabla, 120) ;
+	if ( !fpar.good() ) {
+		cout << "Problem with opening the file parcoal.d ! " << endl ;
+		abort() ;
+	}
+    fpar.ignore(1000, '\n') ;
+    fpar.ignore(1000, '\n') ;
     fpar.getline(nomini, 80) ; 
-    fpar >> fact_separ ; fpar.getline(blabla, 120);
-    fpar >> mbar_voulue[0] ; fpar.getline(blabla, 120) ;  
-    fpar >> mbar_voulue[1] ; fpar.getline(blabla, 120) ;  
+    fpar >> fact_separ ; fpar.ignore(1000, '\n');
+    fpar >> mbar_voulue[0] ; fpar.ignore(1000, '\n') ;  
+    fpar >> mbar_voulue[1] ; fpar.ignore(1000, '\n') ;  
     mbar_voulue[0] *= msol ;
     mbar_voulue[1] *= msol ;
-    fpar.getline(blabla, 120) ;
-    fpar >> mermax ; fpar.getline(blabla, 120) ;   
-    fpar >> relax ; fpar.getline(blabla, 120) ;  
-    fpar >> mermax_eqb ; fpar.getline(blabla, 120) ;  
-    fpar >> prompt ; fpar.getline(blabla, 120) ;  
-    fpar >> graph ; fpar.getline(blabla, 120) ;  
-    fpar >> seuil ; fpar.getline(blabla, 120) ;  
-    fpar >> fmer_stop ; fpar.getline(blabla, 120) ;  
-    fpar >> fmer_save ; fpar.getline(blabla, 120) ;  
-    fpar >> mermax_poisson ; fpar.getline(blabla, 120) ;  
-    fpar >> relax_poisson ; fpar.getline(blabla, 120) ;  
-    fpar >> mermax_potvit ; fpar.getline(blabla, 120) ;  
-    fpar >> relax_potvit ; fpar.getline(blabla, 120) ;  
-    fpar >> mer_masse ; fpar.getline(blabla, 120) ;  
-    fpar >> aexp_masse ; fpar.getline(blabla, 120) ;  
-    fpar >> fmer_upd_met ; fpar.getline(blabla, 120);
-    fpar >> ind_rel_met ; fpar.getline(blabla, 120);
-    fpar >> relax_met ; fpar.getline(blabla, 120);
+    fpar.ignore(1000, '\n') ;
+    fpar >> mermax ; fpar.ignore(1000, '\n') ;   
+    fpar >> relax ; fpar.ignore(1000, '\n') ;  
+    fpar >> mermax_eqb ; fpar.ignore(1000, '\n') ;  
+    fpar >> prompt ; fpar.ignore(1000, '\n') ;  
+    fpar >> graph ; fpar.ignore(1000, '\n') ;  
+    fpar >> seuil ; fpar.ignore(1000, '\n') ;  
+    fpar >> fmer_stop ; fpar.ignore(1000, '\n') ;  
+    fpar >> fmer_save ; fpar.ignore(1000, '\n') ;  
+    fpar >> mermax_poisson ; fpar.ignore(1000, '\n') ;  
+    fpar >> relax_poisson ; fpar.ignore(1000, '\n') ;  
+    fpar >> mermax_potvit ; fpar.ignore(1000, '\n') ;  
+    fpar >> relax_potvit ; fpar.ignore(1000, '\n') ;  
+    fpar >> mer_masse ; fpar.ignore(1000, '\n') ;  
+    fpar >> aexp_masse ; fpar.ignore(1000, '\n') ;  
+    fpar >> fmer_upd_met ; fpar.ignore(1000, '\n');
+    fpar >> ind_rel_met ; fpar.ignore(1000, '\n');
+    fpar >> relax_met ; fpar.ignore(1000, '\n');
     if (ind_rel_met == 0) relax_met = 1. ; 
-    fpar >> relax_omeg ; fpar.getline(blabla, 120);
-    fpar >> fact_omeg_min ; fpar.getline(blabla, 120);
-    fpar >> fact_omeg_max ; fpar.getline(blabla, 120);
-    fpar >> thres_adapt[0] ; fpar.getline(blabla, 120);
-    fpar >> thres_adapt[1] ; fpar.getline(blabla, 120);
+    fpar >> relax_omeg ; fpar.ignore(1000, '\n');
+    fpar >> fact_omeg_min ; fpar.ignore(1000, '\n');
+    fpar >> fact_omeg_max ; fpar.ignore(1000, '\n');
+    fpar >> thres_adapt[0] ; fpar.ignore(1000, '\n');
+    fpar >> thres_adapt[1] ; fpar.ignore(1000, '\n');
+	fpar >> reduce_shift ; 
+	if ( ! fpar.good() ) {	  // to ensure compatibility with old 
+		reduce_shift = 0.6 ;  // parcoal.d files which did not had 
+	}						  // the reduce_shift line
     fpar.close() ; 
-    
+    	
     cout << endl 
 	 << "==========================================================" << endl
 	 << "                    Physical parameters                   " << endl
@@ -207,6 +222,8 @@ int main(){
     cout << 
     "Threshold on |dH/dr|_eq / |dH/dr|_pole for the adaptation of the mapping for star 2"
     << endl << thres_adapt[1] << endl ;
+	cout << "Factor by which the initial analytical shift is reduced : "
+		<< reduce_shift << endl ; 
 
     arrete(prompt) ; 
     
@@ -293,10 +310,10 @@ int main(){
 
 	star.analytical_shift() ;
 	
-	//## Shift decreased by a factor 2 
+	// Initial shift decreased by a factor reduce_shift 
 	for (int i=1; i<=2; i++) {
-	     star.set(i).set_w_shift() = 0.6 * star(i).get_w_shift() ; 
-	     star.set(i).set_khi_shift() = 0.6 * star(i).get_khi_shift() ; 
+	     star.set(i).set_w_shift() = reduce_shift * star(i).get_w_shift() ; 
+	     star.set(i).set_khi_shift() = reduce_shift * star(i).get_khi_shift() ; 
 	}
 	
 
@@ -990,6 +1007,20 @@ int main(){
     fichfinal.close() ; 
     system("ident coal_regu >> calcul.d") ;
 
+	//-----------------------------------------------
+	//  General features of the final configuration
+	//  saved in a file with scientific notation and
+	//  14 digits for further reading by a code
+	//-----------------------------------------------
+
+	ofstream seqfich("resformat.d") ; 
+	if ( !seqfich.good() ) {
+		cout << "coal_regu : problem with opening the file resformat.d !" << endl ;
+		abort() ;
+	}
+	star.write_global(seqfich) ; 
+	seqfich.close() ; 
+	
 
     if (graph == 1) {
 
