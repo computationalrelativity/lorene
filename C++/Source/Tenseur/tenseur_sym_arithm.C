@@ -35,6 +35,9 @@ char tenseur_sym_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/06/20 14:54:17  f_limousin
+ * Put an assert on "poids" into comments
+ *
  * Revision 1.4  2002/10/16 14:37:15  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -215,7 +218,7 @@ Tenseur_sym operator/ (const Tenseur_sym& t1, const Tenseur& t2) {
     poids_res = (fabs(poids_res) < 1.e-10 ? 0. : poids_res) ;
     const Metrique* met_res = 0x0 ;
     if (poids_res != 0.) {
-      assert((t1.get_metric() != 0x0) || (t2.get_metric() != 0x0)) ;
+      //     assert((t1.get_metric() != 0x0) || (t2.get_metric() != 0x0)) ;
       if (t1.get_metric() != 0x0) met_res = t1.get_metric() ;
       else met_res = t2.get_metric() ;
     }

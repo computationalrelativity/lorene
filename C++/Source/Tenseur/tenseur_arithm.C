@@ -34,6 +34,9 @@ char tenseur_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/06/20 14:52:21  f_limousin
+ * Put an assert on "poids" into comments
+ *
  * Revision 1.5  2003/03/03 19:40:52  f_limousin
  * Suppression of an  assert on a metric associated with a tensor.
  *
@@ -133,7 +136,7 @@ Tenseur operator+(const Tenseur & t1, const Tenseur & t2) {
     for (int i=0 ; i<t1.get_valence() ; i++)
 	assert(t1.get_type_indice(i) == t2.get_type_indice(i)) ;
     //    assert (t1.get_metric() == t2.get_metric()) ;
-    assert (fabs(t1.get_poids() - t2.get_poids())<1.e-10) ;
+    //assert (fabs(t1.get_poids() - t2.get_poids())<1.e-10) ;
 
     if (t1.get_etat() == ETATZERO)
 	return t2 ;
