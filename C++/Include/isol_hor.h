@@ -29,6 +29,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2005/02/24 17:22:53  f_limousin
+ * Suppression of the function beta_bound_cart().
+ * The boundary conditions for psi, N and beta are now some parameters
+ * in par_init.D and par_coal.d.
+ *
  * Revision 1.19  2005/02/07 10:30:09  f_limousin
  * Add the regularisation in the case N=0 on the horizon.
  *
@@ -503,6 +508,9 @@ class Isol_hor : public Time_slice_conf {
   /// Neumann boundary condition for  \f$ \Psi \f$ (spatial)  
   Valeur boundary_psi_Neu_spat() ;
 
+  /// Neumann boundary condition for  \f$ \Psi \f$ (spatial)  
+  Valeur boundary_psi_app_hor() ;
+
   /// Dirichlet boundary condition for \c N using the extrinsic curvature
   Valeur boundary_nn_Dir_kk() ;
 
@@ -530,28 +538,25 @@ class Isol_hor : public Time_slice_conf {
   Valeur boundary_beta_phi() ;
   
   /// Component x of boundary value of \f$ \beta \f$
-  Valeur boundary_beta_x(double) ;
+  Valeur boundary_beta_x(double omega) ;
   
   /// Component theta of boundary value of \f$ \beta \f$
-  Valeur boundary_beta_y(double) ;
+  Valeur boundary_beta_y(double omega) ;
   
   /// Component phi of boundary value of \f$ \beta \f$
-  Valeur boundary_beta_z(double) ;
+  Valeur boundary_beta_z(double omega) ;
 
-  /// Vector \f$ \beta^i \f$ for boundary conditions in cartesian  
-  Vector beta_bound_cart(double) ;
-  
   ///  Vector \f$  V^i \f$ for boundary conditions in cartesian  
-  Vector vv_bound_cart(double velang) ;
+  Vector vv_bound_cart(double omega) ;
 
   /// Component x of boundary value of \f$  V^i \f$
-  Valeur boundary_vv_x(double velang) ;
+  Valeur boundary_vv_x(double omega) ;
 
   /// Component y of boundary value of \f$  V^i \f$
-  Valeur boundary_vv_y(double velang) ;
+  Valeur boundary_vv_y(double omega) ;
   
   /// Component z of boundary value of \f$  V^i \f$
-  Valeur boundary_vv_z(double velang) ;
+  Valeur boundary_vv_z(double omega) ;
 
   /// Neumann boundary condition for \c b_tilde
   Valeur boundary_b_tilde_Neu() ;
@@ -678,9 +683,17 @@ class Bin_hor {
 	  * \f$\Psi\f$ in the case \f$\Omega = 0\f$.
 	  * @param precis [input] : precision for the convergence (on \e N ).
 	  * @param relax [input] : relaxation parameter.
+	  * @param bound_nn [input] : type of the boundary condition for 
+	  * the lapse.
+	  * @param lim_nn [input] : value (double) of the coefficient for
+	  * the boundary condition. Only used for boundary_nn_Dir(double),
+	  * boundary_nn_Neu_eff(double) and boundary_nn_Dir_eff(double). 
+	  * @param bound_psi [input] : type of the boundary condition for 
+	  * psi.
 	  */
 	 
-	 void set_statiques (double precis, double relax) ;
+	void set_statiques (double precis, double relax, int bound_nn,
+			    double lim_nn, int bound_psi) ;
 	 
 	 /**
 	  * Solves the equation for a particular angular velocity, 
@@ -695,12 +708,22 @@ class Bin_hor {
 	  * @param nb_om [input] : number of intermediates 
 	  * velocities to go from 0 to 
 	  * \c omega , typically 10.
+	  * @param bound_nn [input] : type of the boundary condition for 
+	  * the lapse.
+	  * @param lim_nn [input] : value (double) of the coefficient for
+	  * the boundary condition. Only used for boundary_nn_Dir(double),
+	  * boundary_nn_Neu_eff(double) and boundary_nn_Dir_eff(double). 
+	  * @param bound_psi [input] : type of the boundary condition for 
+	  * psi.
+	  * @param bound_nn [input] : type of the boundary condition for 
+	  * the shift.
 	  * @param sortie [input] : flag for the output on files 
 	  * (0 no output files).
 	  * @returns : the virial error.
 	  */
 	  double coal (double ang_vel, double precis, double relax,
-	   	    double nb_om, const int sortie = 0) ;
+		       double nb_om, int bound_nn, double lim_nn, 
+		       int bound_psi, int bound_beta, const int sortie = 0) ;
 
 	  
 	  /**
@@ -711,8 +734,14 @@ class Bin_hor {
 	   * @param precis [input] : precision,  for the boudary conditions are
 	   * obtained by iteration.
 	   * @param relax [input] : relaxation parameter.
+	   * @param bound_nn [input] : type of the boundary condition at the
+	   * horizon.
+	   * @param lim_nn [input] : value (double) of the coefficient for
+	   * the boundary condition. Only used for boundary_nn_Dir(double),
+	   * boundary_nn_Neu_eff(double) and boundary_nn_Dir_eff(double). 
 	   */
-	  void solve_lapse (double precis, double relax) ;
+	  void solve_lapse (double precis, double relax, int bound_nn,
+			    double lim_nn) ;
 	  
 	  /**
 	   * Solves the equation for the conformal factor :
@@ -723,8 +752,10 @@ class Bin_hor {
 	   * conditions are being 
 	   * obtained by iteration.
 	   * @param relax [input] : relaxation parameter.
+	   * @param bound_psi [input] : type of the boundary condition at the
+	   * horizon.
 	   */
-	  void solve_psi (double precis, double relax) ;
+	  void solve_psi (double precis, double relax, int bound_psi) ;
 	  
 	  /**
 	   * Solves the equation for the shift, using the 
@@ -736,8 +767,10 @@ class Bin_hor {
 	   * conditions and the inversion of the operator being 
 	   * obtained by iteration.
 	   * @param relax [input] : relaxation parameter.
+	   * @param bound_beta [input] : type of the boundary condition at the
+	   * horizon.
 	   */
-	  void solve_shift (double precis, double relax) ;
+	  void solve_shift (double precis, double relax, int bound_beta) ;
 	  /// ADM angular Momentum    
 	  double ang_mom_adm() ;
 	  
