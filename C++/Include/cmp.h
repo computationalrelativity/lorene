@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/09/24 20:52:37  e_gourgoulhon
+ * Added constructor by conversion of a Scalar.
+ *
  * Revision 1.8  2003/08/26 09:46:10  j_novak
  * Added the method multipole_spectrum
  *
@@ -387,6 +390,7 @@
 #include "map.h"
 
 class Param ; 
+class Scalar ;
 
 /**
  * Component of a tensorial field.
@@ -461,6 +465,7 @@ class Cmp {
 	explicit Cmp(const Map& ) ;	/// Constructor from mapping
 	explicit Cmp(const Map* ) ;	/// Constructor from mapping
 	Cmp(const Cmp& ) ;		/// Copy constructor
+	explicit Cmp(const Scalar& ) ; 	/// Constructor by conversion of a {\tt Scalar} 
 
 	/// Constructor from a file (see {\tt sauve(FILE* )})
 	Cmp(const Map&, const Mg3d&, FILE* ) ;    		

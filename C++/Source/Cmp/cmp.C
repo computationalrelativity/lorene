@@ -35,6 +35,9 @@ char cmp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/09/24 20:54:24  e_gourgoulhon
+ * Added constructor by conversion of a Scalar.
+ *
  * Revision 1.4  2003/08/26 09:46:10  j_novak
  * Added the method multipole_spectrum
  *
@@ -177,6 +180,7 @@ char cmp_C[] = "$Header$" ;
 #include "type_parite.h"
 #include "utilitaires.h"
 #include "proto.h"
+#include "tensor.h"
 
 			//---------------//
 			// Constructeurs //
@@ -205,6 +209,15 @@ Cmp::Cmp(const Cmp& ci)  : mp(ci.mp), etat(ci.etat), dzpuis(ci.dzpuis),
     
     set_der_0x0() ;	// On ne recopie pas les derivees
 
+}
+
+// Conversion of a Scalar
+//-----------------------
+Cmp::Cmp(const Scalar& uu) : mp(uu.get_mp()), 
+							 etat(uu.get_etat()),
+							 dzpuis(uu.get_dzpuis()),
+							 va(uu.get_spectral_va()) {							 
+	set_der_0x0() ; 
 }
 	
 // From file
