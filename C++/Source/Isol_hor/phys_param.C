@@ -30,6 +30,9 @@ char phys_param_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/12/22 18:16:16  f_limousin
+ * Mny different changes.
+ *
  * Revision 1.5  2004/11/18 12:30:01  jl_jaramillo
  * Definition of b_tilde
  *
@@ -235,11 +238,7 @@ double Isol_hor::ang_mom_adm() {
 
   integrand.mult_rsint() ;  // in order to pass from the triad component to the coordinate basis
 
-  const  Map& map (nn().get_mp() ) ;
-
-  Map_af map_af (map) ;
-
-  double tmp = map_af.integrale_surface_infini(integrand) ;
+  double tmp = mp.integrale_surface_infini(integrand) ;
 
   return  tmp ;
 
