@@ -33,6 +33,9 @@ char tbl_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/19 19:58:56  e_gourgoulhon
+ * Slightly improved operator<<.
+ *
  * Revision 1.5  2003/02/26 10:47:11  j_novak
  * The copy of a Tbl to another has been improved in speed.
  *
@@ -390,7 +393,7 @@ ostream& operator<<(ostream& o, const Tbl& t) {
 
 	case 2 : {
 	    for (int j=0 ; j<t.get_dim(1) ; j++) {
-		o << " J = " << j << " : " << incindent << iendl ;
+		o << " j = " << j << " : " << incindent << iendl ;
 		for (int i=0 ; i<t.get_dim(0) ; i++) {
 		    o << " " << t(j, i)  ;
 		}
@@ -402,9 +405,9 @@ ostream& operator<<(ostream& o, const Tbl& t) {
 		
 	case 3 : {
 	    for (int k=0 ; k<t.get_dim(2) ; k++) {
-		o << " K = " << k << " : " << incindent << iendl ;
+		o << "k = " << k << " : " << incindent << iendl ;
 		for (int j=0 ; j<t.get_dim(1) ; j++) {
-		    o << " J = " << j << " : " << incindent ;
+		    o << "j = " << j << " : " << incindent ;
 		    for (int i=0 ; i<t.get_dim(0) ; i++) {
 			o << " " << t(k, j, i)  ;
 		    }
