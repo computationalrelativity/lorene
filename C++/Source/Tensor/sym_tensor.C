@@ -35,6 +35,10 @@ char sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2003/11/26 21:58:15  e_gourgoulhon
+ * Added new data member p_transverse and p_longit_pot.
+ * Modified the memory management consequently.
+ *
  * Revision 1.12  2003/10/28 12:34:08  e_gourgoulhon
  * Corrected bug in the copy constructor and constructor from Tensor:
  * the cmp have already been created by the (special) Tensor constructor called
@@ -187,14 +191,46 @@ void Sym_tensor::operator=(const Sym_tensor& t) {
 
 void Sym_tensor::del_deriv() const {
 
-  set_der_0x0() ;
-  Tensor::del_deriv() ;
+	for (int i=0; i<N_MET_MAX; i++) 
+    	del_derive_met(i) ;
+	
+	set_der_0x0() ;
+	Tensor::del_deriv() ;
 
 }
 
 void Sym_tensor::set_der_0x0() const {
 
+	for (int i=0; i<N_MET_MAX; i++) 
+		set_der_met_0x0(i) ;
+
 }
+
+
+void Sym_tensor::del_derive_met(int j) const {
+
+	assert( (j>=0) && (j<N_MET_MAX) ) ;
+
+	if (met_depend[j] != 0x0) {
+    	if ( p_transverse[j] != 0x0) delete p_transverse[j] ;
+    	if ( p_longit_pot[j] != 0x0) delete p_longit_pot[j] ;
+    
+    	set_der_met_0x0(j) ;
+    
+		Tensor::del_derive_met(j) ;
+	}
+}
+
+
+void Sym_tensor::set_der_met_0x0(int i) const {
+
+  assert( (i>=0) && (i<N_MET_MAX) ) ;
+
+  p_transverse[i] = 0x0 ;
+  p_longit_pot[i] = 0x0 ;
+
+}
+
 
 
 	
