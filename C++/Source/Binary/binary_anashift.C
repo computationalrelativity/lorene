@@ -31,6 +31,10 @@ char binary_anashift_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/02/17 17:34:50  f_limousin
+ * Change the name of some quantities to be consistent with other classes
+ * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
+ *
  * Revision 1.6  2004/03/25 10:29:01  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -161,10 +165,10 @@ void Binary::analytical_shift(){
 	// See Eq (92) from Gourgoulhon et al.(2001) and with the new 
 	// convention for shift = - N^i
 	
-	et[i]->set_shift_auto() = - 7./8. * w_shift + 1./8. * temp ;
+	et[i]->set_beta_auto() = - 7./8. * w_shift + 1./8. * temp ;
 	 
-	et[i]->set_shift_auto().std_spectral_base() ;
-	et[i]->set_shift_auto().change_triad(mp.get_bvect_spher()) ;
+	et[i]->set_beta_auto().std_spectral_base() ;
+	et[i]->set_beta_auto().change_triad(mp.get_bvect_spher()) ;
 
     }
 

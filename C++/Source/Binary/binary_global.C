@@ -31,6 +31,10 @@ char binary_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2005/02/17 17:35:00  f_limousin
+ * Change the name of some quantities to be consistent with other classes
+ * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
+ *
  * Revision 1.8  2004/07/21 11:46:24  f_limousin
  * Add function mass_adm_vol() to compute the ADM mass of the system
  * with a volume integral instead of a surface one.
@@ -115,43 +119,43 @@ double Binary::mass_adm_vol() const {
 
       const Scalar& psi4 = et[i]->get_psi4() ;
       const Scalar& ener_euler = et[i]->get_ener_euler() ;
-      const Scalar& kcar_auto = et[i]->get_kcar_auto() ;
-      const Scalar& kcar_comp = et[i]->get_kcar_comp() ;
+      const Scalar& aa_quad_auto = et[i]->get_aaquad_auto() ;
+      const Scalar& aa_quad_comp = et[i]->get_aaquad_comp() ;
       const Metric& gtilde = et[i]->get_gtilde() ;
       const Metric& flat = et[i]->get_flat() ;
-      const Sym_tensor& hij_auto = et[i]->get_hij_auto() ;
-      const Scalar& beta = et[i]->get_beta_auto() + et[i]->get_beta_comp() ;
+      const Sym_tensor& hh_auto = et[i]->get_hh_auto() ;
+      const Scalar& lnq = et[i]->get_lnq_auto() + et[i]->get_lnq_comp() ;
       const Scalar& logn = et[i]->get_logn_auto() + et[i]->get_logn_comp() ;
 
       const Sym_tensor& gtilde_cov = gtilde.cov() ;
       const Sym_tensor& gtilde_con = gtilde.con() ;
-      const Scalar& lnpsi = 0.5 * (beta - logn) ;
-      Scalar nnn = exp(logn) ;
-      nnn.std_spectral_base() ;
-      Scalar qq = exp(beta) ;
+      const Scalar& lnpsi = 0.5 * (lnq - logn) ;
+      Scalar nn = exp(logn) ;
+      nn.std_spectral_base() ;
+      Scalar qq = exp(lnq) ;
       qq.std_spectral_base() ;
 
-      const Tensor& dcov_hij_auto = hij_auto.derive_cov(flat) ;
+      const Tensor& dcov_hh_auto = hh_auto.derive_cov(flat) ;
       const Tensor& dcov_gtilde = gtilde_cov.derive_cov(flat) ;
       const Tensor& dcov_lnpsi = lnpsi.derive_cov(flat) ;
       const Tensor& dcov_logn = logn.derive_cov(flat) ;
       Tensor dcovdcov_qq = qq.derive_cov(flat).derive_cov(flat) ;
       dcovdcov_qq.inc_dzpuis() ;
-      Tensor dcovdcov_nnn = nnn.derive_cov(flat).derive_cov(flat) ;
-      dcovdcov_nnn.inc_dzpuis() ;
+      Tensor dcovdcov_nn = nn.derive_cov(flat).derive_cov(flat) ;
+      dcovdcov_nn.inc_dzpuis() ;
       
       
-      Scalar source = pow(psi4, 1.25) * (ener_euler + (kcar_auto + kcar_comp)
-					 / (4.*qpig)) ;
+      Scalar source = pow(psi4, 1.25) * (ener_euler + (aa_quad_auto 
+					      + aa_quad_comp)/ (4.*qpig)) ;
 
       source += - pow(psi4, 0.25) / (4.*qpig) * 
 	  (0.0625 * contract(gtilde_con, 0, 1, contract(
-			      dcov_hij_auto, 0, 1, dcov_gtilde, 0, 1), 0, 1) - 
-           0.125 * contract(gtilde_con, 0, 1, contract(dcov_hij_auto, 
+			      dcov_hh_auto, 0, 1, dcov_gtilde, 0, 1), 0, 1) - 
+           0.125 * contract(gtilde_con, 0, 1, contract(dcov_hh_auto, 
 			      0, 1, dcov_gtilde, 0, 2), 0, 1) + 
-	   contract(hij_auto, 0, 1, 2*dcov_lnpsi * dcov_lnpsi +
+	   contract(hh_auto, 0, 1, 2*dcov_lnpsi * dcov_lnpsi +
 		    4*dcov_lnpsi * dcov_logn - dcovdcov_qq / qq +
-		    dcovdcov_nnn / nnn, 0, 1) ) ;
+		    dcovdcov_nn / nn, 0, 1) ) ;
 
       source.std_spectral_base() ;
 
@@ -205,8 +209,8 @@ const Tbl& Binary::angu_mom() const {
       
       p_angu_mom->annule_hard() ;	// fills the double array with zeros
       
-      const Sym_tensor& kij_auto = et[0]->get_tkij_auto() ;
-      const Sym_tensor& kij_comp = et[0]->get_tkij_comp() ;
+      const Sym_tensor& kij_auto = et[0]->get_aa_auto() ;
+      const Sym_tensor& kij_comp = et[0]->get_aa_comp() ;
       const Tensor& psi4 = et[0]->get_psi4() ;
       const Map_af map0 (kij_auto.get_mp()) ;
 

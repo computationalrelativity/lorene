@@ -33,6 +33,10 @@ char binary_orbite_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/02/17 17:35:35  f_limousin
+ * Change the name of some quantities to be consistent with other classes
+ * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
+ *
  * Revision 1.4  2004/03/25 10:29:02  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -65,7 +69,7 @@ char binary_orbite_C[] = "$Header$" ;
 double  fonc_binary_axe(double , const Param& ) ;
 double  fonc_binary_orbit(double , const Param& ) ;
 
-//******************************************************************************
+//****************************************************************************
 
 void Binary::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1, 
 		     double& xgg2) {
@@ -90,8 +94,8 @@ using namespace Unites ;
 	const Scalar& logn_auto = et[i]->get_logn_auto() ; 
 	const Scalar& logn_comp = et[i]->get_logn_comp() ; 
 	const Scalar& loggam = et[i]->get_loggam() ; 
-	const Scalar& nnn = et[i]->get_nnn() ; 
-	Vector shift = et[i]->get_shift() ; 
+	const Scalar& nn = et[i]->get_nn() ; 
+	Vector shift = et[i]->get_beta() ; 
 	const Metric& gamma = et[i]->get_gamma() ;
 
 	Tensor gamma_cov = gamma.cov() ;
@@ -154,7 +158,7 @@ using namespace Unites ;
 	by[i] = bby.val_grid_point(0,0,0,0) ;
 	bz[i] = bbz.val_grid_point(0,0,0,0) ;
 
-	unsn2[i] = 1/(nnn.val_grid_point(0,0,0,0)*nnn.val_grid_point(0,0,0,0)) ; 
+	unsn2[i] = 1/(nn.val_grid_point(0,0,0,0)*nn.val_grid_point(0,0,0,0)) ; 
 
 	//----------------------------------
 	// Calcul de d/dX(gij), d/dX(shift) au centre de l'etoile
@@ -174,7 +178,7 @@ using namespace Unites ;
 	dbymo[i] = bby.dsdx().val_grid_point(0,0,0,0) - omega ;
 
 
-	d1sn2[i] = (1/(nnn*nnn)).dsdx().val_grid_point(0,0,0,0) ;
+	d1sn2[i] = (1/(nn*nn)).dsdx().val_grid_point(0,0,0,0) ;
 
 
 	cout << "Binary::orbit: central d(nu+log(Gam))/dX : " 
@@ -464,11 +468,15 @@ double  fonc_binary_axe(double x_rot, const Param& paraxe) {
     double beta_1 = beta1 + beta2 ;
 
 
-    double delta1 = dg00_1*bx_1*bx_1 + 2*g00_1*dbx_1*bx_1 + 2*dg10_1*bx_1*bymxo_1 ;
-    double delta2 = 2*g10_1*bymxo_1*dbx_1 + 2*g10_1*bx_1*dbymo_1 + 2*dg20_1*bx_1*bz_1 ;
-    double delta3 = 2*g20_1*bx_1*dbz_1 +2*g20_1*bz_1*dbx_1 + dg11_1*bymxo_1*bymxo_1 ;
+    double delta1 = dg00_1*bx_1*bx_1 + 2*g00_1*dbx_1*bx_1 
+	+ 2*dg10_1*bx_1*bymxo_1 ;
+    double delta2 = 2*g10_1*bymxo_1*dbx_1 + 2*g10_1*bx_1*dbymo_1 
+	+ 2*dg20_1*bx_1*bz_1 ;
+    double delta3 = 2*g20_1*bx_1*dbz_1 +2*g20_1*bz_1*dbx_1 
+	+ dg11_1*bymxo_1*bymxo_1 ;
     double delta4 = 2*g11_1*bymxo_1*dbymo_1 + 2*dg21_1*bz_1*bymxo_1;
-    double delta5 = 2*g21_1*bymxo_1*dbz_1 +2*g21_1*bz_1*dbymo_1 + dg22_1*bz_1*bz_1 + 2*g22_1*bz_1*dbz_1 ;
+    double delta5 = 2*g21_1*bymxo_1*dbz_1 +2*g21_1*bz_1*dbymo_1 
+	+ dg22_1*bz_1*bz_1 + 2*g22_1*bz_1*dbz_1 ;
 
     double delta_1 = delta1 + delta2 + delta3 + delta4 + delta5 ;
 
@@ -487,11 +495,15 @@ double  fonc_binary_axe(double x_rot, const Param& paraxe) {
     double beta_2 = beta3 + beta4 ;
 
        
-    double delta6 = dg00_2*bx_2*bx_2 + 2*g00_2*dbx_2*bx_2 + 2*dg10_2*bx_2*bymxo_2 ;
-    double delta7 = 2*g10_2*bymxo_2*dbx_2 + 2*g10_2*bx_2*dbymo_2 + 2*dg20_2*bx_2*bz_2 ;
-    double delta8 = 2*g20_2*bx_2*dbz_2 +2*g20_2*bz_2*dbx_2 + dg11_2*bymxo_2*bymxo_2 ;
+    double delta6 = dg00_2*bx_2*bx_2 + 2*g00_2*dbx_2*bx_2 
+	+ 2*dg10_2*bx_2*bymxo_2 ;
+    double delta7 = 2*g10_2*bymxo_2*dbx_2 + 2*g10_2*bx_2*dbymo_2 
+	+ 2*dg20_2*bx_2*bz_2 ;
+    double delta8 = 2*g20_2*bx_2*dbz_2 +2*g20_2*bz_2*dbx_2 
+	+ dg11_2*bymxo_2*bymxo_2 ;
     double delta9 = 2*g11_2*bymxo_2*dbymo_2 + 2*dg21_2*bz_2*bymxo_2;
-    double delta10 = 2*g21_2*bymxo_2*dbz_2 +2*g21_2*bz_2*dbymo_2 + dg22_2*bz_2*bz_2 + 2*g22_2*bz_2*dbz_2 ;
+    double delta10 = 2*g21_2*bymxo_2*dbz_2 +2*g21_2*bz_2*dbymo_2 
+	+ dg22_2*bz_2*bz_2 + 2*g22_2*bz_2*dbz_2 ;
 
     double delta_2 = delta6 + delta7 + delta8 + delta9 + delta10 ;
 
@@ -500,7 +512,7 @@ double  fonc_binary_axe(double x_rot, const Param& paraxe) {
 
     om2_star2 = dnulg_2 / (beta_2/(omega*omega)*(dnulg_2*unsn2_2 + d1sn2_2/2.) 
 			   + unsn2_2*delta_2/(omega*omega)/2.) ;
-                                                                            ; 
+                                                                             
   
     return om2_star1 - om2_star2 ;
 
@@ -553,7 +565,8 @@ double fonc_binary_orbit(double om, const Param& parf) {
     double delta2 = 2*g10*bymxo*dbx + 2*g10*bx*dbymo + 2*dg20*bx*bz ;
     double delta3 = 2*g20*bx*dbz +2*g20*bz*dbx + dg11*bymxo*bymxo ;
     double delta4 = 2*g11*bymxo*dbymo + 2*dg21*bz*bymxo;
-    double delta5 = 2*g21*bymxo*dbz +2*g21*bz*dbymo + dg22*bz*bz + 2*g22*bz*dbz ;
+    double delta5 = 2*g21*bymxo*dbz +2*g21*bz*dbymo + dg22*bz*bz 
+	+ 2*g22*bz*dbz ;
 
     double delta = delta1 + delta2 + delta3 + delta4 + delta5 ;
 
