@@ -34,6 +34,9 @@ char et_bin_equil_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/09/01 06:48:08  k_taniguchi
+ * Change of the domain which should be resized.
+ *
  * Revision 1.3  2003/08/31 05:35:38  k_taniguchi
  * Addition of the specification of the domain
  *  which is resized.
@@ -409,9 +412,9 @@ void Etoile_bin::equil_regular(double ent_c, int mermax, int mermax_poisson,
 	}
 
 	double rr_in = mp.val_r(nzet,-1., M_PI/2, 0.) ; 
-	double rr_out = mp.val_r(nzet,1., M_PI/2, 0.) ; 
+	double rr_out = mp.val_r(n_resize,1., M_PI/2, 0.) ; 
 
-	mp.resize(nzet, rr_in/rr_out * fact_resize(0)) ; 
+	mp.resize(n_resize, rr_in/rr_out * fact_resize(0)) ; 
 
 //##
 //	des_coupe_z(ent(), 0., 1, "ent after adapt", &(ent()) ) ;
