@@ -131,7 +131,7 @@ read_variable (char *fname, char *var_name, char *fmt, void *varp)
 
       after = *(pos+strlen(var_name));
 
-      if ( isalnum(before) || isalnum(after) )
+      if ( isalnum(before) || isalnum(after) || (before == '_') || (after == '_') )
 	continue;
 
       // find beginning of this line: bol
