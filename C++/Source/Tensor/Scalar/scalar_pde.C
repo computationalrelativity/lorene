@@ -35,6 +35,9 @@ char scalar_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/05/25 14:30:48  f_limousin
+ * Minor modif.
+ *
  * Revision 1.9  2004/03/17 15:58:50  p_grandclement
  * Slight modification of sol_elliptic_no_zec
  *
@@ -89,12 +92,13 @@ char scalar_pde_C[] = "$Header$" ;
 Scalar Scalar::poisson() const {
     
     Param bidon ;
-	Cmp csource(*this) ; 
+    Cmp csource(*this) ; 
     Cmp cresu(mp) ;     
-	
+    cresu = 0. ;
+
     mp->poisson(csource, bidon, cresu) ; 
 
-	Scalar resu(cresu) ; 
+    Scalar resu(cresu) ; 
     return resu ;          
 }
 
@@ -123,13 +127,13 @@ Scalar Scalar::poisson_angu() const {
     
     Param bidon ;
 
-	Scalar resu(*mp) ; 
+    Scalar resu(*mp) ; 
+    resu = 0. ;
 		
     mp->poisson_angu(*this, bidon, resu) ; 
 
     return resu ;          
 }
-
 
 
 		    //-----------------------------------//
