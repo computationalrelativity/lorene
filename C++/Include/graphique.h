@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/03 11:42:46  j_novak
+ * Removal of the functions associated with Iris Explorer.
+ *
  * Revision 1.5  2003/09/22 12:50:47  e_gourgoulhon
  * First version: not ready yet!
  *
@@ -1504,150 +1507,6 @@ void des_vect_bin_z(const Tenseur& vv1, const Tenseur& vv2, double x0,
 
 
 
-    /** @name 3-D visualization via Iris Explorer
-     */
-    //@{     
-
-/** Prepare a file for visualizing a {\tt Cmp} with Iris Explorer, in a 
- *  given domain. 
- * 
- *  @param uu	{\tt Cmp} to examine
- *  @param lz	index of the domain  
- *  @param filename  name of the output file, to be read by Explorer. 
- * 
- */
-void des_explorer(const Cmp& uu, int lz, const char* filename) ; 
-
-/** Prepare a file for visualizing a {\tt Cmp} with Iris Explorer, in a 
- *  given domain, including data for z<0, assuming that the {\tt Cmp}
- *  is symmetric with respect to z=0. 
- * 
- *  @param uu	{\tt Cmp} to examine
- *  @param lz	index of the domain  
- *  @param filename  name of the output file, to be read by Explorer. 
- * 
- */
-void des_explorer_symz(const Cmp& uu, int lz, const char* filename) ; 
-
-/** Prepare a file for visualizing spectral coefficients with Iris Explorer, 
- *  in a given domain. 
- * 
- *  @param uu	{\tt Cmp}, the coefficient of which are to be examined
- *  @param lz	index of the domain  
- *  @param filename  name of the output file, to be read by Explorer. 
- * 
- */
-void des_explorer_coef(const Cmp& uu, int lz, const char* filename) ; 
-
-
-
-
-/** Prepare a file for visualizing a star (class {\tt Etoile}) with 
- *  Iris Explorer.
- * 
- *  @param star	{\tt Etoile} to examine
- *  @param filename  beginning of the names of the output files for Explorer.
- *		     {\tt nz-1} files will be created, where {\tt nz} is the
- *		     total number of domains. Each file name is indexed by 
- *		     the domain index.  
- */
-void des_explorer(const Etoile& star, const char* name) ;
-
-/** Prepare a file for visualizing a star (class {\tt Etoile}) with 
- *  Iris Explorer, including data for z<0, assuming that all {\tt Cmp}
- *  are symmetric with respect to z=0.
- * 
- *  @param star	{\tt Etoile} to examine
- *  @param filename  beginning of the names of the output files for Explorer.
- *		     {\tt nz-1} files will be created, where {\tt nz} is the
- *		     total number of domains. Each file name is indexed by 
- *		     the domain index.  
- */
-void des_explorer_symz(const Etoile& star, const char* name) ;
-
-
-/** Prepare a file for visualizing a binary star (class {\tt Binaire}) with 
- *  Iris Explorer.
- * 
- *  @param bibi	    {\tt Binaire} to examine
- *  @param filename  beginning of the names of the output files for Explorer.
- *		     {\tt nz1 + nz2 -2} files will be created, where {\tt nz1} 
- *		     (resp. {\tt nz2}) is the total number of domains in the 
- *		     mapping of star 1 (resp. star 2). Each file name is 
- *		     indexed first by the star number (after the suffixe 
- *		     "st") and then by the domain index (after the suffixe
- *		     "dm").  
- */
-void des_explorer(const Binaire& bibi, const char* name) ;
-
-/** Prepare a file for visualizing a binary star (class {\tt Binaire}) with 
- *  Iris Explorer,  including data for z<0, assuming that all {\tt Cmp}
- *  are symmetric with respect to z=0.
- * 
- *  @param bibi	    {\tt Binaire} to examine
- *  @param filename  beginning of the names of the output files for Explorer.
- *		     {\tt nz1 + nz2 -2} files will be created, where {\tt nz1} 
- *		     (resp. {\tt nz2}) is the total number of domains in the 
- *		     mapping of star 1 (resp. star 2). Each file name is 
- *		     indexed first by the star number (after the suffixe 
- *		     "st") and then by the domain index (after the suffixe
- *		     "dm").  
- */
-void des_explorer_symz(const Binaire& bibi, const char* name) ;
-
-
-/** Prepare a file for visualizing a meridian slice of a {\tt Cmp} 
- *  in a given domain with Iris Explorer.
- *  This is to draw a function $z=f(r,\theta)$, where {\it f} is a
- *  ``slice'' in the plane $\phi$ = const of the function defined by
- *  uu (to use with the {\bf Lit\_scal2D} module of Explorer).
- *
- *  @param uu       [input]: {\tt Cmp} to examine
- *  @param nz       [input]: index of the domain
- *  @param k_phi    [input]: $\phi $ index
- *  @param filename [input]: name of the output file, to be read by Explorer
- *  @param scale    [input]: scale by which the value of the {\tt Cmp}
- *                           is to be multiplied
- */
-
-void des_explorer(const Bin_ns_ncp& bibi, const char* name) ;
-
-/** Prepare a file for visualizing a binary star (class {\tt Bin_ns_ncp}) with 
- *  Iris Explorer,  including data for z<0, assuming that all {\tt Cmp}
- *  are symmetric with respect to z=0.
- * 
- *  @param bibi	    {\tt Bin_ns_ncp} to examine
- *  @param filename  beginning of the names of the output files for Explorer.
- *		     {\tt nz1 + nz2 -2} files will be created, where {\tt nz1} 
- *		     (resp. {\tt nz2}) is the total number of domains in the 
- *		     mapping of star 1 (resp. star 2). Each file name is 
- *		     indexed first by the star number (after the suffixe 
- *		     "st") and then by the domain index (after the suffixe
- *		     "dm").  
- */
-void des_explorer_symz(const Bin_ns_ncp& bibi, const char* name) ;
-
-
-/** Prepare a file for visualizing a meridian slice of a {\tt Cmp} 
- *  in a given domain with Iris Explorer.
- *  This is to draw a function $z=f(r,\theta)$, where {\it f} is a
- *  ``slice'' in the plane $\phi$ = const of the function defined by
- *  uu (to use with the {\bf Lit\_scal2D} module of Explorer).
- *
- *  @param uu       [input]: {\tt Cmp} to examine
- *  @param nz       [input]: index of the domain
- *  @param k_phi    [input]: $\phi $ index
- *  @param filename [input]: name of the output file, to be read by Explorer
- *  @param scale    [input]: scale by which the value of the {\tt Cmp}
- *                           is to be multiplied
- */
-
-
-void des_explorer2D(const Cmp& uu, int nz, const int k_phi,
-		    const char* filename, const double scale = 1.) ;
-
-    //@}
-    
 
 
 
