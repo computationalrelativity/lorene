@@ -27,6 +27,11 @@ char scalar_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/01/23 13:26:28  e_gourgoulhon
+ *  Added methods set_inner_boundary and set_outer_boundary.
+ *  Methods set_val_inf and set_val_hor, which are particular cases of
+ *  the above, have been suppressed.
+ *
  * Revision 1.5  2003/11/13 13:43:55  p_grandclement
  * Addition of things needed for Bhole::update_metric (const Etoile_bin&, double, double)
  *
@@ -106,66 +111,71 @@ void Scalar::filtre_phi (int n, int nz) {
 		va.c_cf->set(nz, k, j, i) = 0 ;
 }
 
-/*
- * Fixe la valeur a l'infini (si la derniere zone est compactifiee) 
- * d'un Scalar a val
- * Utile quand on a affaire a des nan0x10000000
- */
 
-void Scalar::set_val_inf (double val) {
+
+  /* Sets the value of the {\tt Scalar} at the inner boundary of a given 
+   * domain. 
+   * @param l [input] domain index
+   * @param x [input] (constant) value at the inner boundary of domain no. {\tt l}
+   */
+
+void Scalar::set_inner_boundary(int l0, double x0) {
     
     assert (etat != ETATNONDEF) ;
-    if (etat == ETATZERO)
-	if (val == double(0))
-	    return ;
-	else
-	    annule_hard() ;
+    if (etat == ETATZERO) {
+	    if (x0 == double(0)) return ;
+	    else annule_hard() ;
+    }
+    
+    if (etat == ETATUN) {
+	    if (x0 == double(1)) return ;
+	    else etat = ETATQCQ ;
+    }
     
     del_deriv() ;
     
-    int nz = mp->get_mg()->get_nzone() ;
-    
-    // On verifie la compactification
-    assert (mp->get_mg()->get_type_r(nz-1) == UNSURR) ;
-    
-    int nr = mp->get_mg()->get_nr(nz-1) ;
-    int nt = mp->get_mg()->get_nt(nz-1) ;
-    int np = mp->get_mg()->get_np(nz-1) ;
+    int nt = mp->get_mg()->get_nt(l0) ;
+    int np = mp->get_mg()->get_np(l0) ;
     
     va.coef_i() ;
     va.set_etat_c_qcq() ;
     
     for (int k=0 ; k<np ; k++)
 	for (int j=0 ; j<nt ; j++)
-	    va.set(nz-1, k, j, nr-1) = val ;
+	    va.set(l0, k, j, 0) = x0 ;
 }
 
-/*
- * Fixe la valeur d'un Scalar a val, sur la frontiere interne de la coquille zone.
- * Utile quand on a affaire a des nan0x10000000
- */
+  /* Sets the value of the {\tt Scalar} at the outer boundary of a given 
+   * domain. 
+   * @param l [input] domain index
+   * @param x [input] (constant) value at the outer boundary of domain no. {\tt l}
+   */
 
-void Scalar::set_val_hor (double val, int zone) {
+void Scalar::set_outer_boundary(int l0, double x0) {
     
     assert (etat != ETATNONDEF) ;
-     if (etat == ETATZERO)
-	if (val == double(0))
-	    return ;
-	else
-	    annule_hard() ;
+    if (etat == ETATZERO) {
+	    if (x0 == double(0)) return ;
+	    else annule_hard() ;
+    }
     
-    assert ((zone>=0) && (zone < mp->get_mg()->get_nzone())) ;
+    if (etat == ETATUN) {
+	    if (x0 == double(1)) return ;
+	    else etat = ETATQCQ ;
+    }
+    
     del_deriv() ;
     
-    int nt = mp->get_mg()->get_nt(zone) ;
-    int np = mp->get_mg()->get_np(zone) ;
+    int nrm1 = mp->get_mg()->get_nr(l0) - 1 ;
+    int nt = mp->get_mg()->get_nt(l0) ;
+    int np = mp->get_mg()->get_np(l0) ;
     
     va.coef_i() ;
     va.set_etat_c_qcq() ;
     
     for (int k=0 ; k<np ; k++)
 	for (int j=0 ; j<nt ; j++)
-	    va.set(zone, k, j, 0) = val ;
+	    va.set(l0, k, j, nrm1) = x0 ;
 }
 
 /*
