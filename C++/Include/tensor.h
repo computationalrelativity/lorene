@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.42  2004/01/30 12:44:17  e_gourgoulhon
+ * Added Tensor_sym operator*(const Tensor_sym&, const Tensor_sym& ).
+ *
  * Revision 1.41  2004/01/27 13:05:10  j_novak
  * Removed the method Tensor::mult_r_ced()
  *
@@ -851,6 +854,7 @@ class Tensor {
     friend Tensor operator*(const Tensor&, const Tensor&) ; 
     friend Tensor_sym operator*(const Tensor&, const Tensor_sym&) ; 
     friend Tensor_sym operator*(const Tensor_sym&, const Tensor&) ; 	
+    friend Tensor_sym operator*(const Tensor_sym&, const Tensor_sym&) ; 	
    
 };
 
@@ -1054,6 +1058,17 @@ Tensor_sym operator*(const Tensor& a, const Tensor_sym& b) ;
 
 /// Tensorial product with symmetries
 Tensor_sym operator*(const Tensor_sym& a, const Tensor& b) ; 
+
+/** Tensorial product of two symmetric tensors.
+ * NB: the output is an object of class {\tt Tensor\_sym}, with
+ * the two symmetric indices corresponding to the symmetric indices
+ * of tensor {\tt a}. This means that the symmetries of tensor
+ * {\tt b} indices are not used in the storage, since 
+ * there is currently no class in Lorene to manage
+ * tensors with more than two symmetric indices. 
+ */
+Tensor_sym operator*(const Tensor_sym& a, const Tensor_sym& b) ; 
+
 
 /** Contraction of two tensors. 
  *
