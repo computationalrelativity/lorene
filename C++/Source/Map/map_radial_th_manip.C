@@ -28,6 +28,10 @@ char map_radial_th_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/11/05 15:27:52  e_gourgoulhon
+ * Treatment of case ETATUN now possible by a simple call
+ *  to set_etat_qcq(), thanks to a modification of the latter.
+ *
  * Revision 1.1  2003/11/04 22:59:13  e_gourgoulhon
  * First version.
  *
@@ -63,11 +67,7 @@ void Map_radial::mult_cost(Scalar& ci) const {
      
 	val = val.mult_ct() ; 	// Multiplication by cos(theta) 
 
-	if (ci.get_etat() == ETATUN) {		//## a voir
-		Valeur tmp = val ;
-		ci.set_etat_qcq() ; 
-		ci.set_spectral_va() = tmp ; 
-	}
+	ci.set_etat_qcq() ; 
 	
 }
             
@@ -91,12 +91,7 @@ void Map_radial::mult_sint(Scalar& ci) const {
      
 	val = val.mult_st() ; 	// Multiplication by sin(theta) 
 
-	if (ci.get_etat() == ETATUN) {
-		Valeur tmp = val ;
-		ci.set_etat_qcq() ; 
-		ci.set_spectral_va() = tmp ; 
-	}
-            
+	ci.set_etat_qcq() ;             
 
 }
 
@@ -112,7 +107,7 @@ void Map_radial::div_sint(Scalar& ci) const {
 		return ;			 // Nothing to do if the Scalar is null 
     }
 
-    assert(ci.get_etat() == ETATQCQ) ;
+    assert((ci.get_etat() == ETATQCQ) || (ci.get_etat() == ETATUN)) ;
             
     Valeur& val = ci.set_spectral_va() ; 
 
@@ -120,7 +115,9 @@ void Map_radial::div_sint(Scalar& ci) const {
          
     val = val.ssint() ;		// Division by sin(theta)
 
+	ci.set_etat_qcq() ; 
 }
+
 
 
 			//---------------------------//
@@ -135,7 +132,7 @@ void Map_radial::div_tant(Scalar& ci) const {
 		return ;			 // Nothing to do if the Scalar is null 
     }
 
-    assert(ci.get_etat() == ETATQCQ) ;
+    assert((ci.get_etat() == ETATQCQ) || (ci.get_etat() == ETATUN)) ;
             
     Valeur& val = ci.set_spectral_va() ; 
 
@@ -145,5 +142,6 @@ void Map_radial::div_tant(Scalar& ci) const {
     
     val = val.ssint() ;		// Division by sin(theta)
 
+	ci.set_etat_qcq() ; 
 }
 
