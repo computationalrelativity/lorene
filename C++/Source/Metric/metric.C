@@ -30,6 +30,9 @@ char metric_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/28 21:23:59  e_gourgoulhon
+ * Method Tensor::contract(int, int) renamed Tensor::scontract(int, int).
+ *
  * Revision 1.4  2003/10/06 16:17:30  j_novak
  * Calculation of contravariant derivative and Ricci scalar.
  *
@@ -286,7 +289,7 @@ void Metric::fait_ricci_scal() const {
 
   Tensor tmp = ricci().up(0, *this) ;
 
-  p_ricci_scal = new Scalar(tmp.contract(0,1)) ;
+  p_ricci_scal = new Scalar(tmp.scontract(0,1)) ;
 
 }
 
