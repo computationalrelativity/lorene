@@ -29,6 +29,12 @@ char map_et_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/05/07 07:10:44  e_gourgoulhon
+ * Compatibilty with xlC compiler on IBM SP2:
+ * 	suppressed the parenthesis around argument of instruction new:
+ * 	e.g.   aa = new (Tbl*[nzone])  --->  aa = new Tbl*[nzone]
+ * 		result = new (Param)   --->  result = new Param
+ *
  * Revision 1.3  2002/01/15 15:53:06  p_grandclement
  * I have had a constructor fot map_et using the equation of the surface
  * of the star.
@@ -574,12 +580,12 @@ void Map_et::fait_poly() {
     
     int nzone = mg->get_nzone() ;
 
-    aa = new (Tbl*[nzone]) ;
-    daa = new (Tbl*[nzone]) ;
-    ddaa = new (Tbl*[nzone]) ;
-    bb = new (Tbl*[nzone]) ;
-    dbb = new (Tbl*[nzone]) ;
-    ddbb = new (Tbl*[nzone]) ;
+    aa = new Tbl*[nzone] ;
+    daa = new Tbl*[nzone] ;
+    ddaa = new Tbl*[nzone] ;
+    bb = new Tbl*[nzone] ;
+    dbb = new Tbl*[nzone] ;
+    ddbb = new Tbl*[nzone] ;
 
     for (int l=0; l<nzone; l++) {
 	int nr = mg->get_nr(l) ;

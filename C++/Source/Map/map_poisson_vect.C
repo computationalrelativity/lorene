@@ -25,8 +25,14 @@ char map_poisson_vect_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/05/07 07:10:45  e_gourgoulhon
+ * Compatibilty with xlC compiler on IBM SP2:
+ * 	suppressed the parenthesis around argument of instruction new:
+ * 	e.g.   aa = new (Tbl*[nzone])  --->  aa = new Tbl*[nzone]
+ * 		result = new (Param)   --->  result = new Param
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.3  2000/03/07  16:53:51  eric
  * niter est desormais passe en parametres.
@@ -59,7 +65,7 @@ Param* Map_et::donne_para_poisson_vect(Param& para, int i) const {
     assert ((i>=0) && (i<4)) ;
     
     Param* result ;
-    result = new (Param) ;
+    result = new Param ;
     result->add_int(para.get_int()) ;	//nbre max iterations
     result->add_double(para.get_double(0), 0) ;	// relaxation
     result->add_double(para.get_double(1), 1) ; // precision
