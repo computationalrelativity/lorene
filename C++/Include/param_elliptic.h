@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/05 09:18:48  p_grandclement
+ * Addition of operator sec_order_r2
+ *
  * Revision 1.3  2004/02/11 09:47:44  p_grandclement
  * Addition of a new elliptic solver, matching with the homogeneous solution
  * at the outer shell and not solving in the external domain (more details
@@ -99,7 +102,19 @@ class Param_elliptic {
    * @param zone [input] : the domain.
    * @param mas [input] : the masse $m$.
    **/
-  void set_helmholtz_plus (int, double) ;
+  void set_helmholtz_plus (int zone, double mas) ; 
+
+  /**
+    * Set the operator to $a r^2 \partial^2/\partial r^2 + 
+    * b r \partial /\partial r + c$ in one domain (only in the shells).
+    *
+    * @param zone [input] : the domain.
+    * @param a [input] : the parameter $a$.
+    * @param b [input] : the parameter $b$.
+    * @param c [input] : the parameter $c$.
+    **/
+  void set_sec_order_r2 (int zone, double a, double b, double c) ;
+  
   /**
    * Increases the quantum number $l$ in the domain {\tt zone}.
    **/

@@ -23,6 +23,9 @@ char param_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/03/05 09:18:49  p_grandclement
+ * Addition of operator sec_order_r2
+ *
  * Revision 1.5  2004/01/15 09:15:39  p_grandclement
  * Modification and addition of the Helmholtz operators
  *
@@ -210,6 +213,37 @@ void Param_elliptic::set_helmholtz_plus (int zone, double masse) {
 	    delete operateurs[conte] ;
 	    operateurs[conte] = new Ope_helmholtz_plus (nr, old_base, 
 							alpha, beta,  masse) ;
+	  }
+	}
+	conte ++ ;
+      }
+  }
+}
+
+void Param_elliptic::set_sec_order_r2 (int zone, double a, double b, double c){
+ 
+  int nz = mp->get_mg()->get_nzone() ;
+  
+  int nr ;
+  double alpha, beta ;
+
+  int conte = 0 ;
+  for (int l=0 ; l<nz ; l++) {
+
+    nr = mp->get_mg()->get_nr(l) ;
+
+    alpha = mp->get_alpha()[l] ;
+    beta = mp->get_beta()[l] ;
+  
+    for (int k=0 ; k<mp->get_mg()->get_np(l)+1 ; k++)
+      for (int j=0 ; j<mp->get_mg()->get_nt(l) ; j++) {
+	if ((operateurs[conte] != 0x0) && (l==zone)) {
+	  int old_base = operateurs[conte]->get_base_r() ;
+	  // PROVISOIRE, DANS LE NOYAU SEUL LE CAS SPHERIQUE EST IMPLEMENTE
+	  if (old_base != R_CHEBI) {
+	    delete operateurs[conte] ;
+	    operateurs[conte] = new Ope_sec_order_r2 (nr, old_base, 
+						      alpha, beta, a, b, c) ;
 	  }
 	}
 	conte ++ ;

@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/03/05 09:18:48  p_grandclement
+ * Addition of operator sec_order_r2
+ *
  * Revision 1.1  2003/12/11 14:57:00  p_grandclement
  * I had forgotten the .h (sorry folks...)
  *
@@ -54,6 +57,14 @@ double part_ln (double) ;
 double part_ln_der (double) ;
 
 #define H_BETA 4
+
+#define LAMBDA_RN 5
+double plus_log(double) ;
+double moins_sur(double) ;
+
+#define NU_RN 6
+double moins_log(double) ;
+double plus_sur(double) ;
 
 /**
  * This class defines a variable change to be used when solving 
@@ -91,6 +102,8 @@ class Change_var {
    * \item {\tt var} $= {\rm W\_BETA} \Longrightarrow F=1 \, \& \, G = r$.
    * \item {\tt var} $= {\rm W\_BETA\_INF} \Longrightarrow F = 1+ \frac{1}{3}r^2\ln r \, \& \, G = r$.
    * \item {\tt var} $= {\rm H\_BETA} \Longrightarrow F=1 \, \&\, G=1$.
+   * \item {\tt var} $= {\rm LAMBDA_RN} \Longrightarrow F=-\ln r \, \& \, G=1$.
+   * \item {\tt var} $= {\rm NU_RN} \Longrightarrow F=\ln r \, \& \, G=1$.
    * \end{itemize} 
    **/
 

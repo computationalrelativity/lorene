@@ -23,6 +23,9 @@ char change_var_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/05 09:18:48  p_grandclement
+ * Addition of operator sec_order_r2
+ *
  * Revision 1.3  2003/12/11 16:10:38  e_gourgoulhon
  * Changed #include <iostream.h> to #include "headcpp.h".
  *
@@ -66,6 +69,22 @@ double part_ln_der (double x) {
   return 2./3.*x*log(x)+x/3. ;
 }
 
+double moins_log (double x) {
+  return -log(x) ;
+}
+
+double plus_sur (double x) {
+  return 1./x ;
+}
+
+double plus_log (double x) {
+  return log(x) ;
+}
+
+double moins_sur (double x) {
+  return -1./x ;
+}
+
 // Construction du changement de variable ...
 Change_var::Change_var (int type_change) {
   
@@ -98,6 +117,20 @@ Change_var::Change_var (int type_change) {
     der_G = zero ;
     break ;
 
+  case LAMBDA_RN:
+    func_F = moins_log ;
+    der_F = moins_sur ;
+    func_G = one ;
+    der_G = zero ;
+    break ;
+
+  case NU_RN:
+    func_F = plus_log ;
+    der_F = plus_sur ;
+    func_G = one ;
+    der_G = zero ;
+    break ;
+    
   default:
     cout << "Unknown type in Change_var::Change_var(int)" << endl ;
     abort() ;

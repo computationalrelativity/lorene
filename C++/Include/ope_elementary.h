@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/03/05 09:18:48  p_grandclement
+ * Addition of operator sec_order_r2
+ *
  * Revision 1.1  2003/12/11 14:57:00  p_grandclement
  * I had forgotten the .h (sorry folks...)
  *
@@ -385,6 +388,69 @@ class Ope_helmholtz_plus : public Ope_elementary {
 		      double mas) ;
   Ope_helmholtz_plus (const Ope_helmholtz_plus&) ; /// Constructor by copy
   virtual ~Ope_helmholtz_plus() ; /// Destructor
+  
+ private:
+  /**
+   * Computes the matrix of the operator.
+   **/
+  virtual void do_ope_mat() const ;
+  /**
+   * Computes the banded-matrix of the operator.
+   **/
+  virtual void do_ope_cl() const ;
+  /**
+   * Computes the non-degenerated matrix of the operator.
+   **/
+  virtual void do_non_dege() const ;  
+  
+ public:
+  /**
+   * Computes the particular solution, given the source {\tt so}.
+   **/
+  virtual Tbl get_solp(const Tbl& so) const ;
+  /**
+   * Computes the homogeneous solutions(s).
+   **/
+  virtual Tbl get_solh() const ;
+  /**
+   * Increases the quatum number $l$ by one unit (CURRENTLY NOT IMPLEMENTED)
+   **/
+  virtual void inc_l_quant() ;
+} ;
+
+/*
+ * Class for operator of the type 
+ * $ a r^2 \partial^2 / \partial r^2 + b r \partial / \partial r + c$.
+ * 
+ * It is implemented only in the shells.
+ **/
+
+class Ope_sec_order_r2 : public Ope_elementary {
+
+ protected:
+
+  double a_param ; /// The parameter $a$.
+  double b_param ; /// The parameter $b$.
+  double c_param ; /// The parameter $c$.
+
+ public:
+  /**
+   * Standard constructor.
+   * 
+   * @param nbr [input] number of radial points.
+   * @param baser [input] radial basis of decomposition.
+   * @param alf [input] parameter $\alpha$ of the mapping.
+   * @param bet [input] parameter $\beta$ of the mapping.
+   * @param a [input] parameter $a$ .
+   * @param b [input] parameter $b$ .    
+   * @param c [input] parameter $c$ .
+   **/
+
+  Ope_sec_order_r2 (int nbr, int baser, double alf, double bet, 
+		      double a, double b, double c) ;
+
+  Ope_sec_order_r2 (const Ope_sec_order_r2&) ; /// Constructor by copy
+  virtual ~Ope_sec_order_r2() ; /// Destructor
   
  private:
   /**
