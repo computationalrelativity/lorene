@@ -5,7 +5,7 @@
 
 /*
  *   Copyright (c) 1999-2000 Jean-Alain Marck
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2003 Eric Gourgoulhon
  *   Copyright (c) 1999-2001 Philippe Grandclement
  *   Copyright (c) 1999-2001 Jerome Novak
  *
@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/15 21:09:22  e_gourgoulhon
+ * Added method poisson_regu.
+ *
  * Revision 1.3  2002/09/13 09:17:33  j_novak
  * Modif. commentaires
  *
@@ -141,7 +144,7 @@
 class Mg3d ;
 
 /**
- * Multi-domain coefficients storage.
+ * Coefficients storage for the multi-domain spectral method.
  * 
  * This class is essentially an array (on the various physical domains)
  * of {\tt Tbl} specially designed for 
@@ -152,7 +155,7 @@ class Mg3d ;
  * the same grid {\tt Mg3d}, is that each {\tt Tbl} of the {\tt Mtbl\_cf}
  * has 2 more elements in the $\phi$-dimension (Dim\_tbl::dim[2]) than the
  * corresponding {\tt Tbl} of the {\tt Mtbl}. 
- * A {\tt Mbl\_cf} is initialy created with a {\sl logical} state {\tt ETATZERO}.
+ * A {\tt Mbl\_cf} is initialy created with a {\it logical} state {\tt ETATZERO}.
  * Arithmetic operations are provided with the usual meaning (see 
  * below). 
  * 
@@ -174,7 +177,7 @@ class Mtbl_cf {
 	Base_val base ;
 	
 	/** Array (size {\tt nzone}) of pointers on the {\tt Tbl}'s which 
-	 * contain the coefficients in each domain
+	 * contain the spectral coefficients in each domain
 	 */
 	Tbl** t ;	
 
@@ -500,6 +503,23 @@ class Mtbl_cf {
 
 	/// Angular Laplacian
 	void lapang() ;
+	
+	// PDE resolution
+	//---------------
+	public: 
+	/** Resolution of an angular Poisson equation.
+	 * The angular Poisson equation is $\Delta_{\theta\varphi} u = \sigma$,
+	 * where $\Delta_{\theta\varphi} u := \frac{\partial^2 u}
+	 *  {\partial \theta^2} + \frac{1}{\tan \theta} \frac{\partial u}
+	 *  {\partial \theta} +\frac{1}{\sin^2 \theta}\frac{\partial^2 u}
+	 *  {\partial \varphi^2}$.
+	 * 
+	 * Before the call to {\tt poisson\_angu()}, {\tt *this} contains the
+	 * coefficients of the source $\sigma$; after the call, it contains the
+	 * coefficients of the solution $u$.
+	 */
+	void poisson_angu() ; 
+	
 } ;
 ostream& operator<<(ostream& , const Mtbl_cf& ) ;   
 
