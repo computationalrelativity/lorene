@@ -31,6 +31,9 @@ char et_bin_hydro_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/01/17 13:34:56  f_limousin
+ * Replace A^2*flat_scalar_prod by sprod
+ *
  * Revision 1.2  2002/12/10 15:29:29  k_taniguchi
  * Change the multiplication "*" to "%"
  *   and flat_scalar_prod to flat_scalar_prod_desal.
@@ -99,12 +102,13 @@ void Etoile_bin::hydro_euler(){
     Tenseur hhh = exp(unsurc2 * ent) ;  // = 1 at the Newtonian limit
     hhh.set_std_base() ;
 
-    //------------------------------------------
-    // Lorentz factor between the co-orbiting	    ---> gam0
+    //---------------------------------------------------
+    // Lorentz factor between the co-orbiting	          ---> gam0
     // observer and the Eulerian one
-    //------------------------------------------
+    // See Eq (23) and (24) from Gourgoulhon et al. (2001)
+    //---------------------------------------------------
 
-    Tenseur gam0 = 1/sqrt(1-unsurc2*a_car%flat_scalar_prod_desal(bsn,bsn)) ;
+    Tenseur gam0 = 1/sqrt(1-unsurc2*sprod(bsn,bsn)) ;
     gam0.set_std_base() ;
 
     //------------------------------------------
@@ -119,12 +123,16 @@ void Etoile_bin::hydro_euler(){
 //##	     << endl ; 
 
         d_psi.set_std_base() ;
-	gam_euler = sqrt( 1 + unsurc2 * flat_scalar_prod_desal(d_psi, d_psi)
-				    / a_car / (hhh%hhh) ) ; 
+
+	// See Eq (32) from Gourgoulhon et al. (2001)
+	gam_euler = sqrt( 1 + unsurc2 * sprod(d_psi, d_psi)
+				    / (hhh%hhh) ) ; 
 
 	gam_euler.set_std_base() ;  // sets the standard spectral bases for
 				    // a scalar field
 
+
+	// See Eq (31) from Gourgoulhon et al. (2001)
 	Tenseur vtmp = d_psi / ( hhh % gam_euler % a_car ) ; 
 
 	// The assignment of u_euler is performed component by component 
@@ -157,24 +165,27 @@ void Etoile_bin::hydro_euler(){
     
     //------------------------------------
     //  Energy density E with respect to the Eulerian observer
+    // See Eq (53) from Gourgoulhon et al. (2001)  
     //------------------------------------
     
     ener_euler = gam_euler % gam_euler % ( ener + press ) - press ; 
     
     //------------------------------------
     // Trace of the stress tensor with respect to the Eulerian observer
+    // See Eq (54) from Gourgoulhon et al. (2001)  
     //------------------------------------
     
     s_euler = 3 * press  +  ( ener_euler + press ) %
-      a_car % flat_scalar_prod_desal(u_euler, u_euler) ;
+      sprod(u_euler, u_euler) ;
     
 
     //-------------------------------------------
     //	Lorentz factor between the fluid and		---> gam
     //	co-orbiting observers
+    // See Eq (58) from Gourgoulhon et al. (2001)  
     //--------------------------------------------
     
-    Tenseur tmp = ( 1+unsurc2*a_car%flat_scalar_prod_desal(bsn,u_euler) ) ;
+    Tenseur tmp = ( 1+unsurc2*sprod(bsn,u_euler) ) ;
     tmp.set_std_base() ;
     Tenseur gam = gam0 % gam_euler % tmp ;
 
@@ -202,7 +213,7 @@ void Etoile_bin::hydro_euler(){
         loggam.set_std_base() ;   // set the bases for spectral expansions
     }
     else {
-
+  
 	loggam = 0.5 * flat_scalar_prod_desal(wit_w, wit_w) ;
 
         loggam.set_std_base() ;   // set the bases for spectral expansions
