@@ -28,6 +28,9 @@ char test_tens_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/16 12:48:51  e_gourgoulhon
+ * Methods Scalar::dsdx(),... do no longer have any argument.
+ *
  * Revision 1.2  2004/01/04 21:02:31  e_gourgoulhon
  * Class Tensor_delta replaced by class Tensor_sym.
  *
@@ -142,12 +145,12 @@ int main() {
 	
 	Sym_tensor_tt souc(map, map.get_bvect_cart(), metc ) ; 
 
-	souc.set(1,1) = pot.dsdx(0).dsdx(2) ; 
-	souc.set(1,2) = pot.dsdx(0).dsdy(2) ; 
-	souc.set(1,3) = pot.dsdx(0).dsdz(2) ; 
-	souc.set(2,2) = pot.dsdy(0).dsdy(2) ; 
-	souc.set(2,3) = pot.dsdy(0).dsdz(2) ; 
-	souc.set(3,3) = pot.dsdz(0).dsdz(2) ; 
+	souc.set(1,1) = pot.dsdx().dsdx() ; 
+	souc.set(1,2) = pot.dsdx().dsdy() ; 
+	souc.set(1,3) = pot.dsdx().dsdz() ; 
+	souc.set(2,2) = pot.dsdy().dsdy() ; 
+	souc.set(2,3) = pot.dsdy().dsdz() ; 
+	souc.set(3,3) = pot.dsdz().dsdz() ; 
 
 	cout << "Cartesian components of the source : souc : " <<  endl ;
 	souc.spectral_display() ; 
