@@ -35,6 +35,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/13 20:48:52  e_gourgoulhon
+ * Added new method get_base() (to prepare the encapsulation of the member
+ * base).
+ *
  * Revision 1.5  2003/09/23 08:52:53  e_gourgoulhon
  * Added Scalar as a friend class.
  *
@@ -413,6 +417,9 @@ class Valeur {
 	void ylm() ;	    /// Computes the coefficients $Y_l^m$ of {\tt *this}
 	void ylm_i() ;	    /// Inverse of {\tt ylm()} 
 	
+	/// Return the bases for spectral expansions (member {\tt base})
+	const Base_val& get_base() const {return base; } ; 
+
 	/// Sets the bases for spectral expansions (member {\tt base}) 
 	void set_base(const Base_val& ) ; 
 
