@@ -30,8 +30,11 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/09/15 18:05:02  f_limousin
+ * New boundary conditions for psi and lapse
+ *
  * Revision 1.2  2004/09/09 16:53:49  f_limousin
- * Add the two lines $Id: and $Log: for CVS.
+ * Add the two lines $Id$Log: for CVS.
  *
  *
  * $Header$
@@ -63,15 +66,16 @@ char bound_hor_C[] = "$Header$" ;
 // as a mixed. It is analogous to the case for the lapse)
 // ONE HAS TO GUARANTEE THAT BETA IS NOT ZERO, BUT IT IS PROPORTIONAL TO THE RADIAL VECTOR
 
-Valeur Isol_hor::boundary_psi_Dir(){
+Valeur Isol_hor::boundary_psi_Dir_evol(){
 
   const Map& map = ff.get_mp() ; 
 
 
-  Scalar tmp= - 6 * contract(beta(), 0, psi().derive_cov(ff), 0) ;
-  tmp / (contract(beta().derive_cov(ff), 0, 1) - nn() * trk() ) - 1 ;
+  Scalar tmp = - 6 * contract(beta(), 0, psi().derive_cov(ff), 0) ;
+  tmp = tmp / (contract(beta().derive_cov(ff), 0, 1) - nn() * trk() ) - 1 ;
 
-  //Se ha restado 1 porque se resuelve con condicion de cero en el infinito y despues se suma 1 a la solucion   
+  // We have substracted 1, since we solve for zero condition at infinity 
+  //and then we add 1 to the solution  
 
   Valeur psi_bound (map.get_mg()->get_angu() )  ;
   
@@ -86,23 +90,6 @@ Valeur Isol_hor::boundary_psi_Dir(){
 
   psi_bound.std_base_scal() ;
 
-
-  /*  
-  for (int k=0 ; k<nnp ; k++)
-    for (int j=0 ; j<nnt ; j++)
-      gamt_rr_bound.set(0, k, j, 0) = gamt.con()(1,1).val_grid_point(1, k, j, 0) ;
-
-  gamt_rr_bound.std_base_scal() ;
-
-
-  // Boundary condition for Psi^2
-
-  Valeur bc_psi2 (map.get_mg()->get_angu() )  ;
-
-  bc_psi2 = pow( (f_tt * f_pp -  f_tp * f_tp) / gamt_rr_bound, 1./4. )  ;
-  */
-
-  
   return psi_bound ;
 
 }
@@ -112,17 +99,18 @@ Valeur Isol_hor::boundary_psi_Dir(){
 //-------------------------------------
 // ONE HAS TO GUARANTEE THAT BETA IS NOT ZERO, BUT IT IS PROPORTIONAL TO THE RADIAL VECTOR
 
-Valeur Isol_hor::boundary_psi_Neu(){
+Valeur Isol_hor::boundary_psi_Neu_evol(){
 
   const Map& map = ff.get_mp() ; 
-
-  Scalar tmp = - 1./ 6. * psi() * (contract(beta().derive_cov(ff), 0, 1) - nn() * trk() ) 
+  
+  // Introduce 2-trace gamma tilde dot 
+  Scalar tmp = - 1./ 6. * psi() * (beta().divergence(ff) - nn() * trk() ) 
     - beta()(2)* psi().derive_cov(ff)(2) - beta()(3)* psi().derive_cov(ff)(3) ;
 
   tmp = tmp / beta()(1) ;
 
-  //En este caso no hay que restar nada a ninguna variable   
-
+  // in this case you don't have to substract any value
+ 
   Valeur psi_bound (map.get_mg()->get_angu() )  ;
   
   int nnp = map.get_mg()->get_np(1) ;
@@ -141,7 +129,68 @@ Valeur Isol_hor::boundary_psi_Neu(){
 }
 
 
+Valeur Isol_hor::boundary_psi_Dir_spat(){
 
+  const Map& map = ff.get_mp() ; 
+  
+  Scalar tmp = psi() * psi() * psi() * trk() 
+      - contract(k_dd(), 0, 1, tradial_vect_hor() * tradial_vect_hor(), 0, 1) 
+      / psi()
+      - 4.* contract(tradial_vect_hor(), 0, psi().derive_cov(ff), 0) ;
+
+  tmp = tmp / (tradial_vect_hor().divergence(ff)) - 1. ;
+
+  // We have substracted 1, since we solve for zero condition at infinity 
+  //and then we add 1 to the solution  
+ 
+  Valeur psi_bound (map.get_mg()->get_angu() )  ;
+  
+  int nnp = map.get_mg()->get_np(1) ;
+  int nnt = map.get_mg()->get_nt(1) ;
+			
+  psi_bound = 1 ;
+			
+  for (int k=0 ; k<nnp ; k++)
+    for (int j=0 ; j<nnt ; j++)
+      psi_bound.set(0, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
+
+  psi_bound.std_base_scal() ;
+  
+  return psi_bound ;
+
+}
+
+Valeur Isol_hor::boundary_psi_Neu_spat(){
+
+  const Map& map = ff.get_mp() ; 
+  
+  Scalar tmp = psi() * psi() * psi() * trk() 
+      - contract(k_dd(), 0, 1, tradial_vect_hor() * tradial_vect_hor(), 0, 1) 
+      / psi()
+      - psi() * tradial_vect_hor().divergence(ff) 
+      - 4 * ( tradial_vect_hor()(2) * psi().derive_cov(ff)(2) 
+	      + tradial_vect_hor()(3) * psi().derive_cov(ff)(3) ) ;
+
+  tmp = tmp / (4 * tradial_vect_hor()(1)) ;
+
+  // in this case you don't have to substract any value
+ 
+  Valeur psi_bound (map.get_mg()->get_angu() )  ;
+  
+  int nnp = map.get_mg()->get_np(1) ;
+  int nnt = map.get_mg()->get_nt(1) ;
+			
+  psi_bound = 1 ;
+			
+  for (int k=0 ; k<nnp ; k++)
+    for (int j=0 ; j<nnt ; j++)
+      psi_bound.set(0, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
+
+  psi_bound.std_base_scal() ;
+  
+  return psi_bound ;
+
+}
 
 
 
@@ -154,33 +203,20 @@ Valeur Isol_hor::boundary_nn_Dir_kk(){
 
   Scalar tmp(map) ;
 
-  Scalar kk_rr = contract( radial_vect_hor(), 0, contract(radial_vect_hor(), 0, k_dd(), 0), 0) ;
+  Scalar kk_rr = contract( radial_vect_hor() * radial_vect_hor(), 0, 1
+			   , k_dd(), 0, 1 ) ;
 
-
-  //  des_profile(qq, 2.01, 10., M_PI/7., 0., "qq ", "radial distance") ;
-
-  //  kk_rr.set_domain(0) = 1. ; 
-
-
-  Scalar log_nn = log(nn()) ;
-  log_nn.std_spectral_base() ;
-  
   Scalar k_kerr (map) ;
   k_kerr = kappa_hor() ;
   k_kerr.std_spectral_base() ;
   k_kerr.inc_dzpuis(2) ;
 
-  tmp = k_kerr - contract(radial_vect_hor(), 0, nn().derive_cov(ff), 0)
-    - omega_hor() * log_nn.derive_cov(ff)(3) ;
+  tmp = k_kerr - contract(radial_vect_hor(), 0, nn().derive_cov(ff), 0) ;
 
   tmp = - tmp / kk_rr - 1;
-  
-  //  tmp = -1. ;  
-  //  tmp.std_spectral_base() ;
-  
-    
-  //Se ha restado 1 porque se resuelve con condicion de cero en el infinito y despues se suma 1 a la solucion   
 
+  // We have substracted 1, since we solve for zero condition at infinity 
+  //and then we add 1 to the solution  
 
   int nnp = map.get_mg()->get_np(1) ;
   int nnt = map.get_mg()->get_nt(1) ;
@@ -197,7 +233,6 @@ Valeur Isol_hor::boundary_nn_Dir_kk(){
   nn_bound.std_base_scal() ;
   
   return  nn_bound ;
-
 
 }
 
@@ -210,30 +245,53 @@ Valeur Isol_hor::boundary_nn_Neu_kk() {
   
   const Map& map = ff.get_mp() ;
   
-  Vector dnn= nn().derive_cov(ff) ;
+  const Vector& dnn= nn().derive_cov(ff) ;
 
-  Scalar kk_rr = contract( radial_vect_hor(), 0, contract(radial_vect_hor(), 0, k_dd(), 0), 0) ;
+  Scalar kk_rr = contract( radial_vect_hor() * radial_vect_hor(), 0, 1
+			   , k_dd(), 0, 1 ) ; 
 
-  Scalar log_nn = log(nn()) ;
-  log_nn.std_spectral_base() ;
-  
   Scalar k_kerr (map) ;
   k_kerr = kappa_hor() ;
   k_kerr.std_spectral_base() ;
   k_kerr.inc_dzpuis(2) ;
 
-  Scalar tmp = k_kerr + nn() * kk_rr - omega_hor() * log_nn.derive_cov(ff)(3) 
+  Scalar tmp = k_kerr + nn() * kk_rr 
              - radial_vect_hor()(2) * dnn(2) - radial_vect_hor()(3) * dnn(3)  ;
 
   tmp = tmp / radial_vect_hor()(1) ;
 
-  //  tmp = 1. ;
-  //  tmp.std_spectral_base() ;
+  // in this case you don't have to substract any value
+ 
+  int nnp = map.get_mg()->get_np(1) ;
+  int nnt = map.get_mg()->get_nt(1) ;
 
-  //En este caso no hay que restar nada a ninguna variable   
+  Valeur nn_bound (map.get_mg()->get_angu()) ;
+    
+  nn_bound = 1 ;   // Why is it necessary this and what it is actually doing?
+  
 
-  tmp.set_etat_zero() ; 
+  for (int k=0 ; k<nnp ; k++)
+    for (int j=0 ; j<nnt ; j++)
+      nn_bound.set(0, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
+  
+  nn_bound.std_base_scal() ;
+  
+  return  nn_bound ;
 
+}
+
+
+
+Valeur Isol_hor::boundary_nn_Dir_eff(double aa){
+
+  const Map& map = ff.get_mp() ;
+
+  Scalar tmp(map) ;
+
+  tmp = - aa * nn().derive_cov(ff)(1) - 1. ;
+  
+  // We have substracted 1, since we solve for zero condition at infinity 
+  //and then we add 1 to the solution  
 
   int nnp = map.get_mg()->get_np(1) ;
   int nnt = map.get_mg()->get_nt(1) ;
@@ -251,12 +309,35 @@ Valeur Isol_hor::boundary_nn_Neu_kk() {
   
   return  nn_bound ;
 
-
 }
 
 
 
+Valeur Isol_hor::boundary_nn_Neu_eff(double aa) {
+  
+  const Map& map = ff.get_mp() ;
+  
+  Scalar tmp = - aa * nn() ;
 
+  // in this case you don't have to substract any value
+ 
+  int nnp = map.get_mg()->get_np(1) ;
+  int nnt = map.get_mg()->get_nt(1) ;
+
+  Valeur nn_bound (map.get_mg()->get_angu()) ;
+    
+  nn_bound = 1 ;   // Why is it necessary this and what it is actually doing?
+  
+
+  for (int k=0 ; k<nnp ; k++)
+    for (int j=0 ; j<nnt ; j++)
+      nn_bound.set(0, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
+  
+  nn_bound.std_base_scal() ;
+  
+  return  nn_bound ;
+
+}
 
 
 
