@@ -25,6 +25,9 @@ char poisson_vect_frontiere_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/03/11 11:20:26  f_limousin
+ * Minor modif
+ *
  * Revision 1.6  2005/02/22 18:00:32  f_limousin
  * Correction of an error in the function poisson_vect_binaire(...).
  * Confusion between cartesian and spherical triad for the solution.
@@ -704,14 +707,16 @@ void poisson_vect_binaire ( double lambda,
 	Scalar chi_un (source_scal_un.poisson_dirichlet (limite_chi_un, num_front)) ;
 	Scalar chi_deux (source_scal_deux.poisson_dirichlet (limite_chi_deux, num_front)) ;
 	
+
 	// On calcule les sources pour les equations vectorielles :
 	Vector source_vect_un (copie_so_un) ;
 	Vector grad_chi_un (chi_un.derive_con(ff_un)) ;
 	grad_chi_un.inc_dzpuis() ;
 	source_vect_un = source_vect_un - lambda*grad_chi_un ;
 	
+
 	Vector source_vect_deux (copie_so_deux) ;
-	Vector grad_chi_deux (chi_deux.derive_cov(ff_deux)) ;
+	Vector grad_chi_deux (chi_deux.derive_con(ff_deux)) ;
 	grad_chi_deux.inc_dzpuis() ;
 	source_vect_deux = source_vect_deux - lambda*grad_chi_deux ;
 	
