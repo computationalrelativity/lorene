@@ -31,6 +31,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/09/24 08:34:12  e_gourgoulhon
+ *
+ * Added member function transpose()
+ * and matrix multiplication
+ *
  * Revision 1.4  2002/09/13 09:17:33  j_novak
  * Modif. commentaires
  *
@@ -188,8 +193,6 @@ class Matrice {
 	 */
 	 void set_etat_nondef() ;
 
-
-    // void dimensions :
     public:
 	/**
 	 * Returns the dimension of the matrix.
@@ -197,6 +200,9 @@ class Matrice {
 	 * returns the number of columns.
 	 */
 	int get_dim(int i) const ;
+	
+	/// Returns the array of matrix elements
+	Tbl get_array() const {return *std; } ;	
 	
     // affectation
     public:	
@@ -295,13 +301,19 @@ class Matrice {
 	 * standard decomposition.
 	 */
 	double determinant() const ;
-    
+
+	/**
+	 * Computes the transpose matrix
+	 */
+	Matrice transpose() const ;
+	
     // Operateurs amis
 	friend Matrice operator+ (const Matrice&, const Matrice& ) ;
 	friend Matrice operator- (const Matrice&, const Matrice& ) ;
 	friend Matrice operator* (const Matrice&, double ) ;
 	friend Matrice operator* (double, const Matrice& ) ;
-	friend Matrice operator/ (const Matrice&,  double ) ; 
+	friend Matrice operator* (const Matrice&, const Matrice& ) ;
+	friend Matrice operator/ (const Matrice&,  double ) ;
 } ;
 ostream& operator<<(ostream& , const Matrice& ) ; 
 
@@ -313,6 +325,7 @@ Matrice operator+ (const Matrice&, const Matrice& ) ; /// {\tt Matrice + Matrice
 Matrice operator- (const Matrice&, const Matrice& ) ; /// {\tt Matrice - Matrice}
 Matrice operator* (const Matrice&, double ) ;/// {\tt Matrice * double}
 Matrice operator* (double, const Matrice& ) ;/// {\tt double * Matrice}
+Matrice operator* (const Matrice&, const Matrice& ) ; /// Matrix product
 Matrice operator/ (const Matrice&,  double ) ; /// {\tt Matrice / double}
 
     //@}
