@@ -1,0 +1,74 @@
+###############################################################
+#
+#  Edit the following lines according to your implementation.
+#
+#  The environment variable HOME_LORENE (root directory for the
+#   Lorene implementation) must be have been already defined.
+#
+###############################################################
+
+#===============================#
+#           MAKEDEPEND          #
+#===============================#
+
+# Flag for makedepend commands:
+# WARNING: this flag should only be used in conjunction with the CXXFLAG
+# otherwise (C++ compliant cimpiler) see local_settings_linux file
+INCDEP  = -DOBSOLETE_HEADERS
+
+#===============================#
+#           COMPILERS		#
+#===============================#
+
+# C++ compiler:
+# ------------
+CXX 	 = CC
+
+# Options for the C++ compiler to produce the optimized library:
+# -------------------------------------------------------------
+CXXFLAGS = -n32 -mips4 -O2 -OPT:Olimit=0 -LANG:ansi-for-init-scope=on \
+	  -fullwarn -ptv -DNDEBUG -DOBSOLETE_HEADERS 
+
+# Options for the C++ compiler to produce the library for debugging:
+# -----------------------------------------------------------------
+CXXFLAGS_G = -n32 -g -mips4 -LANG:ansi-for-init-scope=on -fullwarn -ptv -DOBSOLETE_HEADERS 
+
+# Path for the include files:
+# --------------------------
+INC	= -I$(HOME_LORENE)/C++/Include -I/usr/include/CC \
+		-I$(HOME_LORENE)/C++/Include_extra
+
+# Converting archives to random libraries (if required, otherwise just ls)
+# ------------------------------------------------------------------------
+RANLIB = ls
+
+# Fortran 77 compiler:
+# -------------------
+F77 	 = f77
+
+# Options for the Fortran 77 compiler to produce the optimized library:
+# ---------------------------------------------------------------------
+F77FLAGS = -n32 -mips4 -O2 -OPT:Olimit=3500 -extend_source 
+
+# Options for the Fortran 77 compiler to produce the library for debugging:
+# ------------------------------------------------------------------------
+F77FLAGS_G = -n32 -g -static -mips4 -O0 -extend_source
+
+
+#===============================#
+#      SYSTEM LIBRARIES		#
+#===============================#
+
+# C, C++ libarary, mathematical library and Fortran library
+# ---------------------------------------------------------
+LIB_CXX = -lm -lftn
+
+# Linear Algebra Package (LAPACK) library
+# ---------------------------------------
+LIB_LAPACK = -lcomplib.sgimath
+
+# Graphical libraries: PGPLOT and X11
+# -----------------------------------
+LIB_PGPLOT = -L/Octane/freeware/pgplot -lcpgplot -lpgplot -lX11
+
+
