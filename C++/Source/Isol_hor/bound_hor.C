@@ -30,6 +30,10 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2005/03/10 10:19:42  f_limousin
+ * Add the regularisation of the shift in the case of a single black hole
+ * and lapse zero on the horizon.
+ *
  * Revision 1.14  2005/03/03 10:00:55  f_limousin
  * The funtions beta_boost_x() and beta_boost_z() have been added.
  *
@@ -745,7 +749,7 @@ const Vector Isol_hor::vv_bound_cart(double om) const{
   Vector tmp = s_tilde.down(0, met_gamt) ;
   beta_r = beta_r/tmp(1) ;
 
-//  beta_r.set_spectral_va().set_base(s_tilde(1).get_spectral_va().get_base()) ;
+  beta_r.set_spectral_va().set_base(beta()(1).get_spectral_va().get_base()) ;
   
   tmp_vect.set(1) = beta_r ;
   tmp_vect.set(3) += - ang_vel ;

@@ -26,6 +26,10 @@ char regularisation_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/03/10 10:19:42  f_limousin
+ * Add the regularisation of the shift in the case of a single black hole
+ * and lapse zero on the horizon.
+ *
  * Revision 1.2  2005/03/06 17:05:33  f_limousin
  * Change parameter omega to om, in order not to have warnings.
  *
@@ -137,6 +141,83 @@ double Isol_hor::regularisation (const Vector& shift_auto_temp,
 
     double ttime = the_time[jtime] ;    
     beta_auto_evol.update(shift_auto, jtime, ttime) ; 
+
+    return erreur ;
+}
+
+
+// Regularisation if only one black hole :
+double Isol_hor::regularise_one () {
+
+    Vector shift (beta()) ;
+    shift.change_triad(mp.get_bvect_cart()) ;
+    // Vector B (without boost and rotation)
+    Vector tbi (shift) ;
+    for (int i=1 ; i<=3 ; i++) {
+	tbi.set(i).set_spectral_va().coef_i() ;
+	tbi.set(i).set_spectral_va().set_etat_c_qcq() ;
+	}
+	
+    for (int i=1 ; i<=3 ; i++)
+	shift(i).get_spectral_va().coef_i() ;
+	
+    tbi.set(1) = *shift(1).get_spectral_va().c - omega*mp.y - boost_x ;
+    tbi.set(2) = *shift(2).get_spectral_va().c + omega*mp.x ;
+    tbi.set(3) = *shift(3).get_spectral_va().c - boost_z ;
+    tbi.std_spectral_base() ;
+    
+    // We only need values at the horizon
+    tbi.set(1).annule_domain(mp.get_mg()->get_nzone()-1) ;
+    tbi.set(2).annule_domain(mp.get_mg()->get_nzone()-1) ;
+      
+    Vector derive_r (mp, CON, mp.get_bvect_cart()) ;
+    derive_r.set_etat_qcq() ;
+    for (int i=1 ; i<=3 ; i++)
+	derive_r.set(i) = tbi(i).dsdr() ;
+    
+    Valeur val_hor (mp.get_mg()) ;
+    Valeur fonction_radiale (mp.get_mg()) ;
+    Scalar enleve (mp) ;
+    
+    double erreur = 0 ;
+    int nz = mp.get_mg()->get_nzone() ;
+    int np = mp.get_mg()->get_np(1) ;
+    int nt = mp.get_mg()->get_nt(1) ;
+    int nr = mp.get_mg()->get_nr(1) ;
+    
+    double r_0 = mp.val_r(1, -1, 0, 0) ;
+    double r_1 = mp.val_r(1, 1, 0, 0) ;
+    
+    for (int comp=1 ; comp<=3 ; comp++) {
+	val_hor.annule_hard() ;
+	for (int k=0 ; k<np ; k++)
+	    for (int j=0 ; j<nt ; j++)
+		for (int i=0 ; i<nr ; i++)
+		    val_hor.set(1, k, j, i) = derive_r(comp).val_grid_point(1, k, j, 0) ;
+	
+	fonction_radiale = pow(r_1-mp.r, 3.)* (mp.r-r_0)/pow(r_1-r_0, 3.) ;
+	fonction_radiale.annule(0) ;
+	fonction_radiale.annule(2, nz-1) ;
+    
+	enleve = fonction_radiale*val_hor ;
+	enleve.set_spectral_va().base = shift(comp).get_spectral_va().base ;
+	
+	Scalar copie (shift(comp)) ;
+	shift.set(comp) = shift(comp)-enleve ;
+	
+	assert (shift(comp).check_dzpuis(0)) ;
+	
+	// Intensity of the correction (if nonzero)
+	    Tbl norm (norme(shift(comp))) ;
+	    if (norm(1) > 1e-5) {
+		Tbl diff (diffrelmax (copie, shift(comp))) ;
+		if (erreur<diff(1)) ;
+		erreur = diff(1) ;
+	    }
+	}
+    
+    shift.change_triad(mp.get_bvect_spher()) ;
+    beta_evol.update(shift, jtime, the_time[jtime]) ;
 
     return erreur ;
 }

@@ -31,6 +31,10 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2005/03/10 10:19:42  f_limousin
+ * Add the regularisation of the shift in the case of a single black hole
+ * and lapse zero on the horizon.
+ *
  * Revision 1.15  2005/03/09 10:29:53  f_limousin
  * New function update_aa().
  *
@@ -624,7 +628,6 @@ const Sym_tensor& Isol_hor::aa_comp() const {
 void Isol_hor::update_aa() {
 	
   Sym_tensor aa_new (mp, CON, mp.get_bvect_spher()) ;
-  int nnr = mp.get_mg()->get_nr(1) ;
   int nnt = mp.get_mg()->get_nt(1) ;
   int nnp = mp.get_mg()->get_np(1) ;
   
@@ -642,43 +645,18 @@ void Isol_hor::update_aa() {
     aa_new = ( beta().ope_killing_conf(met_gamt) + gamt_point ) 
       / (2.* nn()) ;            
   else {
+    regul = regularise_one() ;
+    cout << "regul = " << regul << endl ;
     Scalar nn_sxpun (division_xpun (Cmp(nn()), 0)) ;
+    aa_new = beta().ope_killing_conf(met_gamt) + gamt_point ;
     
-    Sym_tensor aa_sxpun = beta().ope_killing_conf(met_gamt)
-      + gamt_point ;
-    
-    const Coord& r = mp.r ;        // r field
-    Mtbl r_mtbl = r ;
-    Scalar rr (mp) ;
-    rr = r_mtbl ;
-    
-    double r1, r2 ;
-    r1 = mp.val_r(1, -1., 0., 0.) ;
-    r2 = mp.val_r(1, 1., 0., 0.) ;
-    
-    for(int k=0; k<nnp; k++)
-      for(int j=0; j<nnt; j++)
-	for(int m=1; m<=3; m++)
-	  for(int n=1; n<=m; n++){
-	    double aa_mn_jk = 
-	      aa_sxpun(m,n).val_grid_point(1, k, j, 0) ;     
-	    for(int i=0; i<nnr; i++){
-	      aa_sxpun.set(m,n).set_grid_point(1, k, j, i) -=
-		aa_mn_jk * 
-		(- 2 * rr.val_grid_point(1, k, j, i) + 3 * r1
-		 - r2) * (rr.val_grid_point(1, k, j, i) - r2) *
-		(rr.val_grid_point(1, k, j, i) - r2) /
-		(r1 - r2) / (r1 - r2) / (r1 - r2) ;
-	    }
-	  }
-    
-    for(int i=1; i<=3; i++)
-      for(int j=1; j<=i; j++){
-	aa_sxpun.set(i,j).set_inner_boundary(1, 0.) ;
-	aa_sxpun.set(i,j) = Scalar (division_xpun 
-				    (Cmp(aa_sxpun(i,j)), 0)) ;
-      }
-    aa_new = aa_sxpun / (2*nn_sxpun) ;
+    Scalar auxi (mp) ;
+    for (int i=1 ; i<=3 ; i++)
+	for (int j=i ; j<=3 ; j++) {
+   	    auxi = aa_new(i, j) ;
+	    auxi = division_xpun (auxi, 0) ;
+	    aa_new.set(i,j) = auxi / nn_sxpun / 2. ;
+	}
   }
   
   set_aa(aa_new) ;
