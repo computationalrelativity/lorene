@@ -28,6 +28,10 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.17  2005/03/09 10:33:31  f_limousin
+ * Delete functions init_data_b_neumann(...) and init_data_berlin(...)
+ * --> New parameter solve_lapse in the function init_data(...).
+ *
  * Revision 1.16  2005/03/03 10:18:57  f_limousin
  * Addition of the boost in x and z-direction.
  * The grid and the mapping are now saved in the output file.
@@ -110,7 +114,7 @@ int main() {
     int type_t = SYM ; // symmetry with respect to the equatorial plane
     int type_p = NONSYM ; // no symmetry in phi
   
-    int niter, bound_nn, bound_psi, bound_beta ;
+    int niter, bound_nn, bound_psi, bound_beta, solve_lapse ;
     double radius, relax, seuil, ang_vel, boost_x, boost_z, lim_nn ;
     fpar >> radius; fpar.ignore(1000, '\n');
     fpar >> relax; fpar.ignore(1000, '\n');
@@ -123,6 +127,7 @@ int main() {
     fpar >> lim_nn ;  fpar.ignore(1000, '\n');
     fpar >> bound_psi ;  fpar.ignore(1000, '\n');
     fpar >> bound_beta ;  fpar.ignore(1000, '\n');
+    fpar >> solve_lapse ;  fpar.ignore(1000, '\n');
     
 
     int* nr_tab = new int[nz];
@@ -471,14 +476,9 @@ int main() {
     isolhor.set_boost_x(boost_x) ;
     isolhor.set_boost_z(boost_z) ;
 
-    if(bound_beta != 1)
-	isolhor.init_data(bound_nn, lim_nn, bound_psi, bound_beta, 
+    isolhor.init_data(bound_nn, lim_nn, bound_psi, bound_beta, solve_lapse,
 			  seuil, relax, niter) ;
-    else
-	isolhor.init_data_b_neumann(bound_psi, bound_beta, 
-				    seuil, relax, niter) ;
-
-
+    
     // Save in a file
     // --------------
     
@@ -587,6 +587,8 @@ int main() {
     //--------------------------------------
 
     cout<<"Tout va bien boudiou / Todo bien!!! (Viva Cai!)"<<endl ;
+
+//    cout << isolhor << endl ;
 
     return EXIT_SUCCESS ; 
 }
