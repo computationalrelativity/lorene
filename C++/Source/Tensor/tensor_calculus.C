@@ -33,6 +33,9 @@ char tensor_calculus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/12/05 16:38:50  f_limousin
+ * Added method operator*
+ *
  * Revision 1.4  2003/10/28 21:25:34  e_gourgoulhon
  * Method contract renamed scontract.
  *
@@ -60,8 +63,54 @@ char tensor_calculus_C[] = "$Header$" ;
 #include "tensor.h"
 #include "metric.h"
 
+
+Tensor operator*(const Tensor& t1, const Tensor& t2) {
+   
+    assert (t1.mp == t2.mp) ;
+    
+    int val_res = t1.valence + t2.valence ;
+     
+    Itbl tipe (val_res) ;
+  
+    for (int i=0 ; i<t1.valence ; i++)
+	tipe.set(i) = t1.type_indice(i) ;
+    for (int i=0 ; i<t2.valence ; i++)
+	tipe.set(i+t1.valence) = t2.type_indice(i) ;
+    
+    
+    if ( (t1.valence != 0) && (t2.valence != 0) ) {
+	assert ( *(t1.get_triad()) == *(t2.get_triad()) ) ;
+    }
+    
+    const Base_vect* triad_res ; 
+    if (t1.valence != 0) {
+	triad_res = t1.get_triad() ; 
+    }
+    else{
+	triad_res = t2.get_triad() ; 
+    }
+    
+    Tensor res(*t1.mp, val_res, tipe, triad_res) ;
+    
+    Itbl jeux_indice_t1 (t1.valence) ;
+    Itbl jeux_indice_t2 (t2.valence) ;
+        
+    for (int i=0 ; i<res.n_comp ; i++) {
+	Itbl jeux_indice_res(res.indices(i)) ;
+	for (int j=0 ; j<t1.valence ; j++)
+	    jeux_indice_t1.set(j) = jeux_indice_res(j) ;
+	for (int j=0 ; j<t2.valence ; j++)
+	    jeux_indice_t2.set(j) = jeux_indice_res(j+t1.valence) ;
+	
+	res.set(jeux_indice_res) = t1(jeux_indice_t1)*t2(jeux_indice_t2) ;
+    }
+    
+    return res ;
+}
+
+
 				//------------------//
-				//   Contraction	//
+				//   Contraction    //
 				//------------------//
 
 

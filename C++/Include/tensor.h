@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.33  2003/12/05 16:41:05  f_limousin
+ * Added method operator*
+ *
  * Revision 1.32  2003/11/06 14:43:37  e_gourgoulhon
  * Gave a name to const arguments in certain method prototypes (e.g.
  * constructors) to correct a bug of DOC++.
@@ -735,7 +738,13 @@ class Tensor {
 	friend class Sym_tensor ;
 	friend class Tensor_delta ;
 	friend class Metric ;
+  
+    // Mathematical operators
+    // ----------------------
     
+    friend Tensor operator* (const Tensor&, const Tensor&) ; 
+ 	
+   
 };
 
 
@@ -743,6 +752,9 @@ class Tensor {
  * @name Tensor calculus
  */
 //@{
+/// Tensorial product.
+Tensor operator*(const Tensor&, const Tensor&) ; 
+
 /** Contraction of two tensors. 
  *
  * @param t1 [input] first tensor 
