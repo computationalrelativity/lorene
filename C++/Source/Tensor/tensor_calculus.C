@@ -33,6 +33,9 @@ char tensor_calculus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/06 20:52:22  e_gourgoulhon
+ * Added methods up, down and up_down.
+ *
  * Revision 1.1  2003/10/06 15:13:38  e_gourgoulhon
  * Tensor contraction.
  *
@@ -48,6 +51,7 @@ char tensor_calculus_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "tensor.h"
+#include "metric.h"
 
 				//------------------//
 				//   Contraction	//
@@ -121,15 +125,113 @@ Tensor Tensor::contract(int ind_1, int ind_2) const {
 				//----------------------//
 
 
-Tensor Tensor::up(int , const Metric& ) const {
+Tensor Tensor::up(int place, const Metric& met) const {
 	
-		cout << " Tensor::up :  not ready yet ! " << endl ; 
-		abort() ; 
-		return *this ; 
+    assert (valence != 0) ;	    // Aucun interet pour un scalaire...
+    assert ((place >=0) && (place < valence)) ;
+    
+    
+	Tensor auxi = ::contract(met.con(), 1, *this, place) ;
+    
+    // On doit remettre les indices a la bonne place ...
+    
+    Itbl tipe(valence) ;
+    tipe.set_etat_qcq() ;
+    for (int i=0 ; i<valence ; i++)
+		tipe.set(i) = type_indice(i) ;
+    tipe.set(place) = CON ;
+    
+    Tensor res(*mp, valence, tipe, triad) ;
+    
+    Itbl place_auxi(valence) ;
+    place_auxi.set_etat_qcq() ;
+    
+    for (int i=0 ; i<res.n_comp ; i++) {
+	
+		Itbl place_res(res.indices(i)) ;
+	
+		place_auxi.set(0) = place_res(place) ;
+		for (int j=1 ; j<place+1 ; j++)
+	    	place_auxi.set(j) = place_res(j-1)  ;
+		place_res.set(place) = place_auxi(0) ;
+	
+		for (int j=place+1 ; j<valence ; j++)
+			place_auxi.set(j) = place_res(j);	
+	
+		res.set(place_res) = auxi(place_auxi) ;
+    }
+	
+    return res ;
+
+} 
+
+
+Tensor Tensor::down(int place, const Metric& met) const {
+	
+    assert (valence != 0) ;	    // Aucun interet pour un scalaire...
+    assert ((place >=0) && (place < valence)) ;
+    
+	Tensor auxi = ::contract(met.cov(), 1, *this, place) ;
+    
+    // On doit remettre les indices a la bonne place ...
+    
+    Itbl tipe(valence) ;
+    tipe.set_etat_qcq() ;
+    for (int i=0 ; i<valence ; i++)
+		tipe.set(i) = type_indice(i) ;
+    tipe.set(place) = COV ;
+    
+    Tensor res(*mp, valence, tipe, triad) ;
+    
+    Itbl place_auxi(valence) ;
+    place_auxi.set_etat_qcq() ;
+    
+    for (int i=0 ; i<res.n_comp ; i++) {
+	
+		Itbl place_res(res.indices(i)) ;
+	
+		place_auxi.set(0) = place_res(place) ;
+		for (int j=1 ; j<place+1 ; j++)
+	    	place_auxi.set(j) = place_res(j-1)  ;
+		place_res.set(place) = place_auxi(0) ;
+	
+		for (int j=place+1 ; j<valence ; j++)
+			place_auxi.set(j) = place_res(j);	
+	
+		res.set(place_res) = auxi(place_auxi) ;
+    }
+	
+    return res ;
+
 } 
 
 
 
+Tensor Tensor::up_down(const Metric& met) const  {
+    
+    Tensor* auxi ;
+    Tensor* auxi_old = new Tensor(*this) ;
+    
+    for (int i=0 ; i<valence ; i++) {
+
+		if (type_indice(i) == COV) {
+			auxi = new Tensor( auxi_old->up(i, met) ) ;
+		}
+		else{
+			auxi = new Tensor( auxi_old->down(i, met) ) ;
+		}
+		
+		delete auxi_old ;
+		auxi_old = new Tensor(*auxi) ;
+		delete auxi ;
+
+    }
+    
+    Tensor result(*auxi_old) ;
+    delete auxi_old ;
+
+    return result ;
+}
 
 
 
