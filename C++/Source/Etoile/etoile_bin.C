@@ -32,6 +32,9 @@ char etoile_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/11/25 09:53:55  m_bejger
+ * Corrected error in fait_d_psi() in the case where nzet > 1.
+ *
  * Revision 1.11  2004/05/07 12:35:16  f_limousin
  * Add new member ssjm1_psi
  *
@@ -784,7 +787,7 @@ void Etoile_bin::fait_d_psi() {
     
     v_orb.set_triad( *(www.get_triad()) ) ;     
     int nzm1 = mp.get_mg()->get_nzone() - 1 ;    
-    for (int l=1; l<=nzm1; l++)
+    for (int l=nzet; l<=nzm1; l++)
 	for (int i=0; i<=2; i++)
 	    v_orb.set(i).annule(l) ;
         
@@ -804,7 +807,7 @@ void Etoile_bin::fait_d_psi() {
      // ----------------------------------------------------------------
 
      if (d_psi0.get_etat() == ETATQCQ ) {
-	d_psi.annule(nzet, nzm1) ;	 
+        d_psi.annule(nzet, nzm1) ;	 
 	for (int i=0; i<3; i++) {
 	    d_psi.set(i).va.set_base( d_psi0(i).va.base ) ; 
 	    d_psi.set(i) = raccord_c1(d_psi(i), nzet) ; 
@@ -812,7 +815,7 @@ void Etoile_bin::fait_d_psi() {
     }
     else{ 
 	d_psi.annule(nzm1) ;	 
-    }   
+    }  
 } 
 
 
