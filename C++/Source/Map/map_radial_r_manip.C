@@ -32,6 +32,9 @@ char map_radial_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/11/04 23:00:16  e_gourgoulhon
+ * Method div_tant is now defined in file map_radial_th_manip.C.
+ *
  * Revision 1.5  2003/10/27 09:02:19  j_novak
  * Corrected a bug in the case of null CED
  *
@@ -670,33 +673,6 @@ void Map_radial::inc2_dzpuis(Cmp& ci) const {
     uu = uu + uu_ext ; 
  
     ci.set_dzpuis( ci.get_dzpuis() + 2 ) ; 
-
-}
-
-
-
-
-			//---------------------------//
-			//          div_tant         //
-			//---------------------------//
-
-void Map_radial::div_tant(Scalar& ci) const {
-    
-    assert(ci.get_etat() != ETATNONDEF) ;
-    
-    if (ci.get_etat() == ETATZERO) {
-		return ;			 // Nothing to do if the Scalar is null 
-    }
-
-    assert(ci.get_etat() == ETATQCQ) ;
-            
-    Valeur& val = ci.set_spectral_va() ; 
-
-    assert(val.get_mg() == mg) ; 
-     
-	val = val.mult_ct() ; 	// Multiplication by cos(theta) 
-    
-    val = val.ssint() ;		// Division by sin(theta)
 
 }
 
