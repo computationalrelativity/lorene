@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2004/05/20 20:29:03  e_gourgoulhon
+ * Added argument 'device' to functions des_evol.
+ *
  * Revision 1.15  2004/05/17 19:46:19  e_gourgoulhon
  * -- Function des_profile_mult(const Scalar**,...): added argument
  *    device.
@@ -1750,6 +1753,10 @@ void des_vect_bin_z(const Tenseur& vv1, const Tenseur& vv2, double x0,
  *  @param ngraph [input] Index of the graphic device (in the range [0,99])
  *  to be used for the plot: if this device has never been used or is closed, 
  *    it will be opened. 
+ *  @param device [input] type of PGPLOT device: 0x0 (default value) will 
+ *  result in interactive choice; \c "/xwin" in X-Window display; 
+ *  \c "filename.eps/cps" in Encapsulated PostScript output 
+ *  and \c "/n" in no output.  
  *  @param closeit [input] determines whether the graphic device must be closed or not
  *      after the plot has been performed
  *  @param show_time [input] determines whether the x axis is labelled with
@@ -1759,8 +1766,8 @@ void des_vect_bin_z(const Tenseur& vv1, const Tenseur& vv2, double x0,
  *                      to "j" if \c show_time=false )
  */
 void des_evol(const Evolution<double>& uu, const char* nomy = 0x0, 
-    const char* title = 0x0, int ngraph = 0,  bool closeit = false, 
-    bool show_time = true, const char* nomx = 0x0) ;
+    const char* title = 0x0, int ngraph = 0,  const char* device = 0x0,
+    bool closeit = false, bool show_time = true, const char* nomx = 0x0) ;
 
 /** Plots the variation of some quantity against time on a specified time interval.
  *
@@ -1774,6 +1781,10 @@ void des_evol(const Evolution<double>& uu, const char* nomy = 0x0,
  *  @param ngraph [input] Index of the graphic device (in the range [0,99])
  *  to be used for the plot: if this device has never been used or is closed, 
  *    it will be opened. 
+ *  @param device [input] type of PGPLOT device: 0x0 (default value) will 
+ *  result in interactive choice; \c "/xwin" in X-Window display; 
+ *  \c "filename.eps/cps" in Encapsulated PostScript output 
+ *  and \c "/n" in no output.  
  *  @param closeit [input] determines whether the graphic device must be closed or not
  *      after the plot has been performed
  *  @param show_time [input] determines whether the x axis is labelled with
@@ -1784,7 +1795,7 @@ void des_evol(const Evolution<double>& uu, const char* nomy = 0x0,
  */
 void des_evol(const Evolution<double>& uu, int j_min, int j_max, 
     const char* nomy = 0x0, const char* title = 0x0, 
-    int ngraph = 0, bool closeit = false, 
+    int ngraph = 0, const char* device = 0x0, bool closeit = false, 
     bool show_time = true, const char* nomx = 0x0) ;
 
 
