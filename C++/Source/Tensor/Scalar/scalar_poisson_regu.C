@@ -34,6 +34,10 @@ char scalar_poisson_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/11 14:46:00  e_gourgoulhon
+ * Line 65-67: changed the name of local variable "triad" to "triad0"
+ * in order not to shadow the class member triad.
+ *
  * Revision 1.1  2003/09/25 08:56:28  e_gourgoulhon
  * First version (uses Cmp and Tenseur as intermediate quantities).
  *
@@ -62,9 +66,9 @@ void Scalar::poisson_regular(int k_div, int nzet, double unsgam1, Param& par,
 	Cmp csource_regu(source_regu) ; 
 	Cmp csource_div(source_div) ; 
 
-	const Base_vect* triad = duu_div.get_triad() ; 
+	const Base_vect* triad0 = duu_div.get_triad() ; 
 	
-	Tenseur cduu_div(*mp, 1, COV, *triad) ; 
+	Tenseur cduu_div(*mp, 1, COV, *triad0) ; 
 	cduu_div.set_etat_qcq() ;
 	Itbl ind(1) ;
 	ind.set_etat_qcq() ; 
