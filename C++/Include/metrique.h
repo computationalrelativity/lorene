@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/03/03 19:13:46  f_limousin
+ * Add two new methods : set_con() and set_cov().
+ *
  * Revision 1.10  2003/02/12 18:30:18  f_limousin
  * Added set_cov and set_con methods
  *
@@ -248,8 +251,13 @@ class Metrique {
  
 	/// Sets a component (contravariant representation)
 	Cmp& set_con(int i, int j) ; 
-    
 
+	/// Sets the covariant representation of the metric.
+	Tenseur_sym set_cov() ;
+    
+	/// Sets the contravariant representation of the metric.
+	Tenseur_sym set_con() ;
+ 
     // Accessors
     // ---------
     public:
