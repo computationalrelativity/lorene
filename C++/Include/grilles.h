@@ -34,8 +34,11 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/11 06:47:42  e_gourgoulhon
+ * Simplified constructor for class Mg3d
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.10  2001/06/13  14:23:40  eric
  * Les fonctions Mg3d::del_deriv() et Mg3d::set_deriv_0x0() ne sont plus
@@ -436,7 +439,7 @@ class Mg3d {
     public:
 
 /**
- * Standard constructor.
+ * General constructor.
  *
  * @param   nz	    [input] Number of domains (zones).
  * @param   nbr[]   [input] Array (size: {\tt nz}) of number of degree of
@@ -448,8 +451,42 @@ class Mg3d {
  * @param   typp    [input] Type of sampling in $\phi$-direction
  *
  */
-	Mg3d(int nz, int nbr[], int typr[], int nbt[], int typt, int nbp[], 
-	     int typp) ; 
+	Mg3d(int nz, int nbr[], int typr[], int nbt[], int typt, int nbp[],
+	     int typp) ;
+
+/**
+ * Simplified constructor for a standard multi-grid.
+ * This provides a multi-grid with the same number of degrees of freedom
+ * in all the domains. \\
+ * The domain of index {\tt l = 0} will be a nucleus:
+ * $\xi\in [0,1]$, rarefied sampling (type {\tt RARE}) near the origin; \\
+ * domains of indices $ 1 \le {\tt l} \le {\tt nz}-2$ will be shells:
+ * $\xi\in [-1,1]$, dense sampling (type {\tt FIN}) near -1 and 1; \\
+ * the domains of index {\tt l = nz-1} will be the outermost compactified
+ * shell:
+ * $\xi\in [-1,1]$, dense sampling (type {\tt UNSURR}) near -1 and 1
+ * for a $1/r$ discretization.
+ *
+ *
+ * @param   nz	    [input] Number of domains (zones).
+ * @param   nbr     [input] Number of degree of freedom (NDF) in
+ *				$r$-direction in each domain
+ * @param   nbt     [input] Number of degree of freedom (NDF) in
+ *				$\theta$-direction in each domain
+ * @param   nbp     [input] Number of degree of freedom (NDF) in
+ *				$\phi$-direction in each domain
+ * @param   typt    [input] Type of sampling in $\theta$-direction:  \\
+ *				{\tt SYM} for a sampling in $[0,\pi/2]$
+ *			(symmetry with respect to the equatorial plane), \\
+ *			{\tt NONSYM} for a sampling in $[0,\pi]$
+ * @param   typp    [input] Type of sampling in $\phi$-direction: \\
+ *			{\tt SYM} for a sampling in $[0,\pi[$
+ *			(symmetry with respect to a $\pi$ translation
+ *			 in $\phi$) \\
+ *			{\tt NONSYM} for a sampling in $[0,2\pi[$
+ *
+ */
+	Mg3d(int nz, int nbr, int nbt, int nbp, int typt, int typp) ;
 
 	Mg3d(FILE* ) ;	 /// Constructor from a file (see {\tt sauve(FILE* )})
 	
