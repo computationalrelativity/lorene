@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/01/16 15:03:27  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.3  2002/01/11 14:09:34  j_novak
  * Added newtonian version for 2-fluid stars
  *
@@ -965,11 +968,7 @@ class Eos_bf_poly : public Eos_bifluid {
  *  -1)\kappa_3 n_1^{\gamma_3}n_2^{\gamma_4} + \Delta^2 \beta \left(
  *  (\gamma_5 + \gamma_6 - 1) n_1^{\gamma_5} n_2^{\gamma_6} \right) \ .  
  * \end{equation}
- * The (non-relativistic) specific enthalpies are:
- * \begin{equation}
- * h_i := \frac{{\cal E} + p}{m_i n_i}.
- * \end{equation}
- * According to the (zero-temperature) First Law of Thermodynamics, the
+ * The
  * specific enthalpies are related to the chemical potentials by
  * \begin{equation}
  * h_i = \frac{\mu_i}{m_i}

@@ -32,6 +32,9 @@ char et_rot_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/01/16 15:03:28  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.3  2002/01/11 14:09:34  j_novak
  * Added newtonian version for 2-fluid stars
  *
@@ -79,22 +82,21 @@ Et_rot_bifluid::Et_rot_bifluid(Map& mpi, int nzet_i, bool relat,
   gam_euler2(mpi),
   uuu2(mpi)
   
-{   //Here, there should be a check of the EOS...
-
-    // All the matter quantities are initialized to zero :
-    nbar2 = 0 ;
-    xxx2 = 0 ;
-    ent2 = 0 ; 
-    gam_euler2 = 1 ; 
-    gam_euler.set_std_base() ; 
-    
-    // Initialization to a static state : 
-    omega2 = 0 ; 
-    uuu2 = 0 ; 
-
-    // Pointers of derived quantities initialized to zero : 
-    set_der_0x0() ;
-    
+{
+  // All the matter quantities are initialized to zero :
+  nbar2 = 0 ;
+  xxx2 = 0 ;
+  ent2 = 0 ; 
+  gam_euler2 = 1 ; 
+  gam_euler.set_std_base() ; 
+  
+  // Initialization to a static state : 
+  omega2 = 0 ; 
+  uuu2 = 0 ; 
+  
+  // Pointers of derived quantities initialized to zero : 
+  set_der_0x0() ;
+  
 }
 
 // Copy constructor
@@ -109,15 +111,15 @@ Et_rot_bifluid::Et_rot_bifluid(const Et_rot_bifluid& et)
   gam_euler2(et.gam_euler2),
   uuu2(et.uuu2)
 {
-    omega2 = et.omega2 ; 
-
-    // Pointers of derived quantities initialized to zero : 
-    set_der_0x0() ;
+  omega2 = et.omega2 ; 
+  
+  // Pointers of derived quantities initialized to zero : 
+  set_der_0x0() ;
 }    
 
 
-// Constructor from a file (works only for relativistic stars!)
-// ------------------------------------------------------------
+// Constructor from a file 
+// ------------------------
 Et_rot_bifluid::Et_rot_bifluid(Map& mpi, const Eos_bifluid& eos_i, FILE* fich):
   Etoile_rot(mpi, *eos_i.trans2Eos(), fich),
   eos(eos_i),
@@ -142,6 +144,7 @@ Et_rot_bifluid::Et_rot_bifluid(Map& mpi, const Eos_bifluid& eos_i, FILE* fich):
   // All other fields are initialized to zero : 
   // ----------------------------------------
   uuu2 = 0 ;
+  xxx2 = 0 ;
   
   // Pointers of derived quantities initialized to zero 
   // --------------------------------------------------
@@ -155,7 +158,7 @@ Et_rot_bifluid::Et_rot_bifluid(Map& mpi, const Eos_bifluid& eos_i, FILE* fich):
 
 Et_rot_bifluid::~Et_rot_bifluid(){
 
-    del_deriv() ; 
+  del_deriv() ; 
 
 }
 
@@ -165,18 +168,18 @@ Et_rot_bifluid::~Et_rot_bifluid(){
 
 void Et_rot_bifluid::del_deriv() const {
 
-    Etoile_rot::del_deriv() ; 
-
-    if (p_ray_eq2 != 0x0) delete p_ray_eq2 ; 
-    if (p_ray_eq2_pis2 != 0x0) delete p_ray_eq2_pis2 ; 
-    if (p_ray_eq2_pi != 0x0) delete p_ray_eq2_pi ; 
-    if (p_ray_pole2 != 0x0) delete p_ray_pole2 ; 
-    if (p_l_surf2 != 0x0) delete p_l_surf2 ; 
-    if (p_xi_surf2 != 0x0) delete p_xi_surf2 ;
-    if (p_r_circ2 != 0x0) delete p_r_circ2 ;
-    if (p_aplat2 != 0x0) delete p_aplat2 ; 
-
-    set_der_0x0() ; 
+  Etoile_rot::del_deriv() ; 
+  
+  if (p_ray_eq2 != 0x0) delete p_ray_eq2 ; 
+  if (p_ray_eq2_pis2 != 0x0) delete p_ray_eq2_pis2 ; 
+  if (p_ray_eq2_pi != 0x0) delete p_ray_eq2_pi ; 
+  if (p_ray_pole2 != 0x0) delete p_ray_pole2 ; 
+  if (p_l_surf2 != 0x0) delete p_l_surf2 ; 
+  if (p_xi_surf2 != 0x0) delete p_xi_surf2 ;
+  if (p_r_circ2 != 0x0) delete p_r_circ2 ;
+  if (p_aplat2 != 0x0) delete p_aplat2 ; 
+  
+  set_der_0x0() ; 
 }			    
 
 
@@ -184,24 +187,24 @@ void Et_rot_bifluid::del_deriv() const {
 
 void Et_rot_bifluid::set_der_0x0() const {
 
-    Etoile_rot::set_der_0x0() ;
-
-    p_ray_eq2 = 0x0 ;
-    p_ray_eq2_pis2 = 0x0 ; 
-    p_ray_eq2_pi = 0x0 ; 
-    p_ray_pole2 = 0x0 ; 
-    p_l_surf2 = 0x0 ; 
-    p_xi_surf2 = 0x0 ; 
-    p_r_circ2 = 0x0 ;
-    p_aplat2 = 0x0 ;
+  Etoile_rot::set_der_0x0() ;
+  
+  p_ray_eq2 = 0x0 ;
+  p_ray_eq2_pis2 = 0x0 ; 
+  p_ray_eq2_pi = 0x0 ; 
+  p_ray_pole2 = 0x0 ; 
+  p_l_surf2 = 0x0 ; 
+  p_xi_surf2 = 0x0 ; 
+  p_r_circ2 = 0x0 ;
+  p_aplat2 = 0x0 ;
 }			    
 
 void Et_rot_bifluid::del_hydro_euler() {
 
-    Etoile_rot::del_hydro_euler() ; 
-    gam_euler2.set_etat_nondef() ; 
-
-    del_deriv() ; 
+  Etoile_rot::del_hydro_euler() ; 
+  gam_euler2.set_etat_nondef() ; 
+  
+  del_deriv() ; 
 
 }			    
 
@@ -210,14 +213,14 @@ void Et_rot_bifluid::del_hydro_euler() {
 
 void Et_rot_bifluid::set_enthalpies(const Cmp& ent_i, const Cmp& ent2_i) {
     
-    ent = ent_i ; 
-    ent2 = ent2_i ;
+  ent = ent_i ; 
+  ent2 = ent2_i ;
     
-    // Update of (nbar, ener, press) :
-    equation_of_state() ; 
+  // Update of (nbar, ener, press) :
+  equation_of_state() ; 
     
-    // The derived quantities are obsolete:
-    del_deriv() ; 
+  // The derived quantities are obsolete:
+  del_deriv() ; 
     
 }
 
@@ -282,9 +285,9 @@ ostream& Et_rot_bifluid::operator>>(ostream& ost) const {
     ost << "-------------" << endl ; 
     
     double freq = omega / (2.*M_PI) ;  
-    ost << "Omega : " << omega * f_unit 
+    ost << "Omega1 : " << omega * f_unit 
         << " rad/s     f : " << freq * f_unit << " Hz" << endl ; 
-    ost << "Rotation period : " << 1000. / (freq * f_unit) << " ms"
+    ost << "Rotation period 1: " << 1000. / (freq * f_unit) << " ms"
 	    << endl ;
        
     double freq2 = omega2 / (2.*M_PI) ;  
@@ -298,9 +301,11 @@ ostream& Et_rot_bifluid::operator>>(ostream& ost) const {
 	 	ost << "Central N^phi :               " << nphi_c << endl ;
     }
     else{
-		ost << "Central N^phi/Omega2 :         " << nphi_c / omega2 << endl ;
+		ost << "Central N^phi/Omega :    " << nphi_c / omega << endl ;
     }
-	    
+    if (omega2!=0) 
+      ost << "Central N^phi/Omega2 :     " << nphi_c / omega2 << endl ;
+    
     ost << "Error on the virial identity GRV2 : " << endl ; 
     ost << "GRV2 = " << grv2() << endl ; 
     ost << "Error on the virial identity GRV3 : " << endl ; 
@@ -426,16 +431,11 @@ void Et_rot_bifluid::equation_of_state() {
 
   Cmp ent_eos = ent() ;
   Cmp ent2_eos = ent2() ;
-  Tenseur rel_vel(*ent.get_mp()) ;
-  if ((uuu.get_etat() == ETATNONDEF)||(uuu2.get_etat() == ETATNONDEF)) {
-    rel_vel = 0 ; }
-  else
-    rel_vel = (uuu - uuu2)*(uuu - uuu2) / ((1 - uuu*uuu2)*(1-uuu*uuu2)) ;
-  
+  Tenseur rel_vel(xxx2) ;
+
   // Slight rescale of the enthalpy field in case of 2 domains inside the
   //  star
-  
-  
+    
   double epsilon = 1.e-12 ;
   
   const Mg3d* mg = mp.get_mg() ;
@@ -490,12 +490,9 @@ void Et_rot_bifluid::equation_of_state() {
   eos.calcule_tout(ent_eos, ent2_eos, rel_vel(), nbar.set(), nbar2.set(), 
   		   ener.set(), press.set(), nzet)  ; 
   
-  xxx2 = rel_vel ;
-  
   // Set the bases for spectral expansion 
   nbar.set_std_base() ; 
   nbar2.set_std_base() ; 
-  xxx2.set_std_base() ; 
   ener.set_std_base() ; 
   press.set_std_base() ; 
   
@@ -594,6 +591,8 @@ void Et_rot_bifluid::hydro_euler(){
 
     Tenseur us = u_euler ; 
     us.change_triad( mp.get_bvect_spher() ) ; 
+    Tenseur uphi(mp) ;
+    uphi = us(2)*bbb() ;
 
     Cmp uu2 =	a_car() * ( us(0) * us(0) + us(1) * us(1) ) 
 	     +	b_car() * us(2) * us(2) ; 
@@ -630,6 +629,8 @@ void Et_rot_bifluid::hydro_euler(){
 
     Tenseur u_euler2 = us ;
     us.change_triad( mp.get_bvect_spher() ) ; 
+    Tenseur uphi2(mp) ;
+    uphi2 = us(2)*bbb() ;
 
     Cmp uu22 =	a_car() * ( us(0) * us(0) + us(1) * us(1) ) 
 	     +	b_car() * us(2) * us(2) ; 
@@ -665,6 +666,14 @@ void Et_rot_bifluid::hydro_euler(){
     gam_euler2.set_std_base() ;
 
 
+    // Update of relative velocity
+    // ---------------------------
+    xxx2 = (relativistic ? 
+	    (uphi - uphi2)*(uphi - uphi2)/((1 - uphi*uphi2)*(1 - uphi*uphi2)) 
+	    : (uphi - uphi2)*(uphi - uphi2) );
+    xxx2.set_std_base() ;
+
+
     //  Energy density E with respect to the Eulerian observer
     //------------------------------------
     
@@ -683,7 +692,7 @@ void Et_rot_bifluid::hydro_euler(){
     // Trace of the stress tensor with respect to the Eulerian observer
     //------------------------------------
     
-    s_euler = 3*press() + Ann()*uu2 + Anp()*uuu()*uuu2() + App()*uu22  ;
+    s_euler = 3*press() + Ann()*uu2 + Anp()*uphi()*uphi2() + App()*uu22  ;
 
     s_euler.set_std_base() ; 
 

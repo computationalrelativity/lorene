@@ -32,6 +32,9 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/01/16 15:03:28  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.2  2002/01/03 15:30:28  j_novak
  * Some comments modified.
  *
@@ -85,7 +88,8 @@ void Et_rot_bifluid::equilibrium_spher_bi(double ent_c, double ent2_c,
   const Mg3d* mg = mp.get_mg() ; 
   int nz = mg->get_nzone() ;	    // total number of domains
   uuu = 0 ;
-  uuu2 = 0 ; // needed for the EOS
+  uuu2 = 0 ; 
+  xxx2 = 0 ;
   gam_euler = 1 ;
   gam_euler2 = 1 ;
     
@@ -769,27 +773,27 @@ void Et_rot_bifluid::equilibrium_bi
     // Is one of the new velocities larger than c in the equatorial plane ?
 	
     bool superlum = false ; 
-	
-    for (int l=0; l<nzet; l++) {
-      for (int i=0; i<mg->get_nr(l); i++) {
-	    
-	double u1 = uuu()(l, 0, j_b, i) ; 
-	double u2 = uuu2()(l, 0, j_b, i) ;
-	if ((u1 >= 1.) || (u2>=1.)) {	    // superluminal velocity
-	  superlum = true ; 
-	  cout << "U > c  for l, i : " << l << "  " << i 
-	       << "   U1 = " << u1 << endl ;
-	  cout << "   U2 = " << u2 << endl ;
+    if (relativistic) {
+      for (int l=0; l<nzet; l++) {
+	for (int i=0; i<mg->get_nr(l); i++) {
+	  
+	  double u1 = uuu()(l, 0, j_b, i) ; 
+	  double u2 = uuu2()(l, 0, j_b, i) ;
+	  if ((u1 >= 1.) || (u2>=1.)) {	    // superluminal velocity
+	    superlum = true ; 
+	    cout << "U > c  for l, i : " << l << "  " << i 
+		 << "   U1 = " << u1 << endl ;
+	    cout << "   U2 = " << u2 << endl ;
+	  }
 	}
       }
+      if ( superlum ) {
+	cout << "**** VELOCITY OF LIGHT REACHED ****" << endl ; 
+	abort() ;
+      }
     }
-    if ( superlum ) {
-      cout << "**** VELOCITY OF LIGHT REACHED ****" << endl ; 
-      abort() ;
-    }
-	
-    // New computation of gam_euler, ener_euler, etc...
-    // ------------------------------------------------
+    // New computation of xxx2, gam_euler, ener_euler, etc...
+    // ------------------------------------------------------
 	
     hydro_euler() ; 
 	
@@ -808,27 +812,32 @@ void Et_rot_bifluid::equilibrium_bi
       mlngamma2 = -0.5 * uuu2*uuu2 ;
     }
 	
-    // Equatorial values of various potentials :
-    double nuf_b  = nuf()(l_b, k_b, j_b, i_b) ; 
-    double nuq_b  = nuq()(l_b, k_b, j_b, i_b) ; 
-    double mlngamma_b  = mlngamma()(l_b, k_b, j_b, i_b) ; 
-    double mlngamma2_b  = mlngamma2()(l_b, k_b, j_b, i_b) ; 
-	
     // Central values of various potentials :
     double nuf_c = nuf()(0,0,0,0) ; 
     double nuq_c = nuq()(0,0,0,0) ; 
     double mlngamma_c = 0 ;
     double mlngamma2_c = 0 ;
-	
+
     // Scale factor to ensure that the enthalpy is equal to ent_b at 
     //  the equator for the "outer" fluid
-    double alpha_r2 = ( ent_c - ent_b + mlngamma_c - mlngamma_b
-			+ nuq_c - nuq_b) / ( nuf_b - nuf_c  ) ;
-    double alpha2_r2 = ( ent2_c - ent_b + mlngamma2_c - mlngamma2_b
-			 + nuq_c - nuq_b) / ( nuf_b - nuf_c  ) ;
+    double alpha_r2 = 0 ;
+    
+    for (int j=0; j <= j_b; j++) {
+      // Boundary values of various potentials :
+      double nuf_b  = nuf()(l_b, k_b, j, i_b) ; 
+      double nuq_b  = nuq()(l_b, k_b, j, i_b) ; 
+      double mlngamma_b  = mlngamma()(l_b, k_b, j, i_b) ; 
+      double mlngamma2_b  = mlngamma2()(l_b, k_b, j, i_b) ; 
+	
+      double alpha1_r2 = ( ent_c - ent_b + mlngamma_c - mlngamma_b
+			   + nuq_c - nuq_b) / ( nuf_b - nuf_c  ) ;
+      double alpha2_r2 = ( ent2_c - ent_b + mlngamma2_c - mlngamma2_b
+			   + nuq_c - nuq_b) / ( nuf_b - nuf_c  ) ;
+      alpha_r2 = (alpha_r2 > alpha1_r2 ? alpha_r2 : alpha1_r2 ) ;
+      alpha_r2 = (alpha_r2 > alpha2_r2 ? alpha_r2 : alpha2_r2 ) ;
+    }
+
     double alpha_r = sqrt(alpha_r2) ;
-    alpha_r = (alpha_r > sqrt(alpha2_r2) ? alpha_r : sqrt(alpha2_r2)) ;
-    alpha_r2 = alpha_r * alpha_r ;
     cout << "alpha_r = " << alpha_r << endl ; 
 
     // Rescaling of the grid (no adaptation!)
@@ -951,7 +960,7 @@ void Et_rot_bifluid::equilibrium_bi
     fichevol.flush() ; 
 
   } // End of main loop
-    
+
   //=========================================================================
   // 			End of iteration
   //=========================================================================

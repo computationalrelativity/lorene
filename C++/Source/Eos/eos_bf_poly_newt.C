@@ -31,6 +31,9 @@ char eos_bf_poly_newt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/01/16 15:03:28  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.1  2002/01/11 14:09:34  j_novak
  * Added newtonian version for 2-fluid stars
  *
@@ -261,19 +264,22 @@ void  Eos_bf_poly_newt::nbar_ent_p(const double ent1, const double ent2,
       nbar2 = (kap1*mu_2 - kap3*mu_1) / determ ;
     }
       
-    if (tronc) {
-      if (nbar1 < 0.) {
+    if (nbar1 < 0.) {
+      nbar2 = ent2*m_2 / kap2 ;
+      if (tronc) {
 	nbar1 = 0. ;
-	nbar2 = ent2*m_2 / kap2 ;
 	nbar2 = nbar2 < 0. ? 0. : nbar2 ;
-	return ;
       }
-      if (nbar2 < 0.) {
-	nbar2 = 0. ;
-	nbar1 = ent1*m_1 / kap1 ;
+      return ;
+    }
+
+    if (nbar2 < 0.) {
+      nbar1 = ent1*m_1 / kap1 ;
+      if (tronc) {
 	nbar1 = nbar1 < 0. ? 0. : nbar1 ;
-	return ;
+	nbar2 = 0. ;
       }
+      return ;
     }
     return ;
   }

@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/01/16 15:03:28  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.3  2002/01/08 14:43:53  j_novak
  * better determination of surfaces for 2-fluid stars
  *
@@ -54,6 +57,13 @@
  *
  */
 
+// Headers Lorene
+#include "eos_bifluid.h"
+#include "etoile.h"
+
+// Local prototype (for determining the surface)
+Cmp prolonge_c1(const Cmp& uu, const int nzet) ;
+
 /**
  * Class for two-fluid rotating relativistic stars.
  * 
@@ -72,14 +82,6 @@
  *
  * @version #$Id$#
  */
-
-// Headers Lorene
-#include "eos_bifluid.h"
-#include "etoile.h"
-
-// Local prototype (for determining the surface)
-Cmp prolonge_c1(const Cmp& uu, const int nzet) ;
-
 class Et_rot_bifluid : public Etoile_rot {
   
   // Data : 
@@ -97,7 +99,11 @@ class Et_rot_bifluid : public Etoile_rot {
   
   Tenseur nbar2 ; /// Baryon density in the fluid frame, for fluid 2
   
-  ///  relative Lorentz factor between both fluids $\times$ both densities (see {\tt Eos\_bifluid})
+  /**
+   * In the relativistic case: relative Lorentz factor between both fluids;
+   * in the newtonian case: square of the difference of velocities.
+   * It is noted $\Delta^2$ in Prix et al. (see also {\tt Eos\_bifluid})
+   */
   Tenseur xxx2 ; 
   
   // Fluid quantities with respect to the Eulerian frame
