@@ -33,6 +33,9 @@ char metrique_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/02/12 18:30:44  f_limousin
+ * Added set_cov and set_con methods
+ *
  * Revision 1.9  2002/10/16 14:36:42  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -91,6 +94,7 @@ char metrique_C[] = "$Header$" ;
 // Headers Lorene
 #include "metrique.h"
 #include "utilitaires.h"
+#include "tenseur.h"
 
 //Constructeur standard (ne fait pas grand chose) :
 
@@ -313,6 +317,36 @@ void Metrique::set_etat_cov_qcq() {
 }
 
 
+Cmp& Metrique::set_cov (int ind1, int ind2) {
+
+  assert ((ind1 >= 0) && (ind1 < 3)) ;
+  assert ((ind2 >= 0) && (ind2 < 3)) ;
+
+  del_dependances() ;
+ 
+  if (p_met_cov == 0x0)
+    fait_cov() ;
+
+  return  p_met_cov->set(ind1, ind2);
+
+}
+
+
+Cmp& Metrique::set_con (int ind1, int ind2) {
+
+  assert ((ind1 >= 0) && (ind1 < 3)) ;
+  assert ((ind2 >= 0) && (ind2 < 3)) ;
+  
+  del_dependances() ;
+ 
+  if (p_met_con == 0x0)
+    fait_con() ;
+
+  return  p_met_con->set(ind1, ind2);
+
+}
+
+
 //AFFECTATIONS :
 
 void Metrique::operator= (const Metrique& source) {
@@ -326,7 +360,7 @@ void Metrique::operator= (const Metrique& source) {
    
     plat = source.plat ;
     if (source.etat == ETATZERO)
-	set_etat_zero() ;
+        set_etat_zero() ;
     else {
 	if (source.p_met_con != 0x0)
 	    p_met_con = new Tenseur_sym (*source.p_met_con) ;
@@ -416,7 +450,9 @@ ostream& operator<<(ostream& flux, const Metrique & source) {
 	    cout << "Ricci scalar known." << endl ;
 	
 	if (source.p_determinant == 0x0)
-	    cout << "determinant unknown." << endl ;
+	  
+
+  cout << "determinant unknown." << endl ;
 	else
 	    cout << "determinant known." << endl ;
 	break ;

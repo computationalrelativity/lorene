@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/02/12 18:30:18  f_limousin
+ * Added set_cov and set_con methods
+ *
  * Revision 1.9  2003/02/07 15:41:46  e_gourgoulhon
  *
  * ### Added a PROVISORY set_cov method ###
@@ -240,8 +243,11 @@ class Metrique {
 	 */
 	void set_std_base() ;
 	
-	/// Sets a component
-	Cmp& set_cov(int i, int j) {return p_met_cov->set(i,j);} ; 
+	/// Sets a component (covariant representation)
+	Cmp& set_cov(int i, int j) ; 
+ 
+	/// Sets a component (contravariant representation)
+	Cmp& set_con(int i, int j) ; 
     
 
     // Accessors
