@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2003/10/06 15:12:56  e_gourgoulhon
+ * Added tensor contraction and raising of index.
+ *
  * Revision 1.15  2003/10/06 13:58:45  j_novak
  * The memory management has been improved.
  * Implementation of the covariant derivative with respect to the exact Tensor
@@ -461,6 +464,38 @@ class Tensor {
 	 */
 	const Tensor& derive_con(const Metric&) const ; 
 
+	/** Index contraction on two indices of different type (contravariant
+ 	 *  or covariant) of the tensor. 
+ 	 * 
+	 * @param ind1 [input] first index for the contraction, obeying to the
+ 	 *   following convention : \\
+ 	 *    {\tt ind1} = 0 : first index of the tensor \\
+ 	 *    {\tt ind1} = 1 : second index of the tensor \\
+	 *    and so on... \\
+ 	 *  ({\tt ind1} must thus be in the range 0...valence-1)  
+ 	 * @param ind2 [input] second index for the contraction, with the same convention 
+ 	 *   as {\tt ind1} 
+ 	 * @return tensor resulting of the contraction of the index {\tt ind1} with
+ 	 *   the index {\tt ind2}.
+ 	 * NB: the types ({\tt COV} or {\tt CON}) of the indices {\tt ind1} and
+ 	 * {\tt ind2} must be different. 
+ 	 */
+	Tensor contract(int ind1, int ind2) const ; 
+	
+	/** Computes a new tensor by raising an index of {\tt *this}
+	 *
+	 *  @param ind index to be raised, with the 
+ 	 *   following convention : \\
+ 	 *    {\tt ind1} = 0 : first index of the tensor \\
+ 	 *    {\tt ind1} = 1 : second index of the tensor \\
+	 *    and so on... \\
+	 *   ({\tt ind} must be of covariant type ({\tt COV})).
+	 *  @param met metric used to raise the index (contraction with the
+	 *    twice contravariant form of the metric on the index {\tt ind}). 
+	 * 
+	 */
+	Tensor up(int ind, const Metric& met) const ; 
+
     // Accessors
     // ---------
         public:
@@ -586,9 +621,6 @@ class Tensor {
 
 	friend ostream& operator<<(ostream& , const Tensor & ) ;
 	
-    // Computation of derived members
-    // ------------------------------
-    // protected:
 
     // Friend classes 
     // ---------------
@@ -624,6 +656,25 @@ Tensor operator* (const Tensor&, int) ;                 /// Tensor * int
 Tensor operator/ (const Tensor&, const Scalar&) ;       /// Tensor / Scalar
 Tensor operator/ (const Tensor&, double) ;              /// Tensor / double
 Tensor operator/ (const Tensor&, int) ;                 /// Tensor / int
+
+/** Contraction of two tensors. 
+ *
+ * @param t1 [input] first tensor 
+ * @param ind1 [input] index of the first tensor for the contraction, 
+ *    obeying to the following convention : \\
+ *    {\tt ind1} = 0 : first index of the tensor \\
+ *    {\tt ind1} = 1 : second index of the tensor \\
+ *    and so on... \\
+ *  ({\tt ind1} must thus be in the range 0...t1.valence-1)  
+ * @param t2 [input] second tensor 
+ * @param ind2 [input] index of the second tensor for the contraction, with 
+ *   the same convention as {\tt ind1} 
+ * @return tensor resulting of the contraction of the index {\tt ind1} of
+ *  [\tt t1} with the index {\tt ind2} of {\tt t2}.
+ * NB: the types ({\tt COV} or {\tt CON}) of the indices {\tt ind1} and
+ * {\tt ind2} must be different. 
+ */
+Tensor contract(const Tensor& t1, int ind1, const Tensor& t2, int ind2) ;
 
     //@}
 
