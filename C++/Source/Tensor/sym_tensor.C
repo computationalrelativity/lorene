@@ -35,6 +35,9 @@ char sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2004/03/30 14:01:19  j_novak
+ * Copy constructors and operator= now copy the "derived" members.
+ *
  * Revision 1.16  2004/02/26 22:48:50  e_gourgoulhon
  * -- Method divergence: call to Tensor::divergence and cast of the
  *    result.
@@ -135,6 +138,26 @@ Sym_tensor::Sym_tensor(const Sym_tensor& source)
             : Tensor_sym( source ) {
 
     set_der_0x0() ;
+
+    for (int i_met = 0; i_met < N_MET_MAX; i_met++) {
+
+      if ( source.p_transverse[i_met] != 0x0 ) {
+	set_dependance( *source.met_depend[i_met] ) ;
+	int jp = get_place_met( *source.met_depend[i_met] ) ;
+	assert ((jp>=0) && (jp<N_MET_MAX)) ;
+	p_transverse[jp] = 
+	new Sym_tensor_trans ( *source.p_transverse[i_met] ) ;
+      }
+
+      if ( source.p_longit_pot[i_met] != 0x0 ) {
+	set_dependance( *source.met_depend[i_met] ) ;
+	int jp = get_place_met( *source.met_depend[i_met] ) ;
+	assert ((jp>=0) && (jp<N_MET_MAX)) ;
+	p_longit_pot[jp] = 
+	new Vector ( *source.p_longit_pot[i_met] ) ;
+      }
+
+    }
 }   
 
 
@@ -181,11 +204,32 @@ Sym_tensor::~Sym_tensor() {
 			//  Assignment  //
 			//--------------//
 
-void Sym_tensor::operator=(const Sym_tensor& tt) {
+void Sym_tensor::operator=(const Sym_tensor& source) {
     
-    Tensor_sym::operator=(tt) ; 
+    Tensor_sym::operator=(source) ; 
     
     del_deriv() ;
+
+    for (int i_met = 0; i_met < N_MET_MAX; i_met++) {
+
+      if ( source.p_transverse[i_met] != 0x0 ) {
+	set_dependance( *source.met_depend[i_met] ) ;
+	int jp = get_place_met( *source.met_depend[i_met] ) ;
+	assert ((jp>=0) && (jp<N_MET_MAX)) ;
+	p_transverse[jp] = 
+	new Sym_tensor_trans ( *source.p_transverse[i_met] ) ;
+      }
+
+      if ( source.p_longit_pot[i_met] != 0x0 ) {
+	set_dependance( *source.met_depend[i_met] ) ;
+	int jp = get_place_met( *source.met_depend[i_met] ) ;
+	assert ((jp>=0) && (jp<N_MET_MAX)) ;
+	p_longit_pot[jp] = 
+	new Vector ( *source.p_longit_pot[i_met] ) ;
+      }
+
+    }
+    
 }
 
 

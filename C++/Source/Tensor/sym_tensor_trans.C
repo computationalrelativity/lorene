@@ -32,6 +32,9 @@ char sym_tensor_trans_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/03/30 14:01:19  j_novak
+ * Copy constructors and operator= now copy the "derived" members.
+ *
  * Revision 1.8  2004/03/30 08:01:16  j_novak
  * Better treatment of dzpuis in mutators.
  *
@@ -155,7 +158,11 @@ void Sym_tensor_trans::operator=(const Sym_tensor_trans& source) {
     // Assignment of proper quantities of class Sym_tensor_trans
 	assert(met_div == source.met_div) ; 
 	
-	del_deriv() ; 	
+	del_deriv() ; 
+	
+	if (source.p_trace != 0x0) p_trace = new Scalar( *(source.p_trace) ) ; 
+	if (source.p_tt != 0x0) p_tt = new Sym_tensor_tt( *(source.p_tt) ) ; 
+	
 }
 
 
@@ -197,9 +204,7 @@ void Sym_tensor_trans::set_tt_trace(const Sym_tensor_tt& htt,
   
   assert (met_div == &htt.get_met_div() ) ;
 
-  int dzp = htrace.get_dzpuis() ;
-
-  assert (dzp == 4) ;
+  assert (htrace.check_dzpuis(4)) ;
 
   Scalar pot = htrace.poisson() ;
     

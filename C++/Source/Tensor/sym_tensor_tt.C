@@ -32,6 +32,9 @@ char sym_tensor_tt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/30 14:01:19  j_novak
+ * Copy constructors and operator= now copy the "derived" members.
+ *
  * Revision 1.3  2004/03/03 13:16:21  j_novak
  * New potential khi (p_khi) and the functions manipulating it.
  *
@@ -137,7 +140,12 @@ void Sym_tensor_tt::operator=(const Sym_tensor_tt& source) {
     // Assignment of quantities common to all derived classes of Sym_tensor_trans
 	Sym_tensor_trans::operator=(source) ; 
 	
-	del_deriv() ; 	
+	del_deriv() ; 
+	
+	if (source.p_khi != 0x0) p_khi = new Scalar( *(source.p_khi) ) ; 
+	if (source.p_eta != 0x0) p_eta = new Scalar( *(source.p_eta) ) ; 
+	if (source.p_mu != 0x0) p_mu = new Scalar( *(source.p_mu) ) ; 
+	
 }
 
 

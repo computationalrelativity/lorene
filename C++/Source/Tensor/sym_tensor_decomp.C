@@ -30,6 +30,9 @@ char sym_tensor_decomp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/03/30 14:01:19  j_novak
+ * Copy constructors and operator= now copy the "derived" members.
+ *
  * Revision 1.7  2004/03/30 08:01:16  j_novak
  * Better treatment of dzpuis in mutators.
  *
@@ -64,8 +67,8 @@ char sym_tensor_decomp_C[] = "$Header$" ;
 #include "tensor.h"
 #include "metric.h"
 
-void Sym_tensor::set_longit_trans(const Sym_tensor_trans& ht, 
-				  const Vector& v_pot) {
+void Sym_tensor::set_longit_trans(const Vector& v_pot, 
+				  const Sym_tensor_trans& ht ) {
 
   assert ( v_pot.get_index_type(0) == CON ) ;
 

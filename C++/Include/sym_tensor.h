@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2004/03/30 14:01:19  j_novak
+ * Copy constructors and operator= now copy the "derived" members.
+ *
  * Revision 1.17  2004/03/29 16:13:06  j_novak
  * New methods set_longit_trans and set_tt_trace .
  *
@@ -228,7 +231,7 @@ class Sym_tensor : public Tensor_sym {
 	 *  and updates the components accordingly.
 	 * (see the documentation of these derived members for details)
 	 */
-	void set_longit_trans(const Sym_tensor_trans& a, const Vector& v) ;
+	void set_longit_trans( const Vector& v, const Sym_tensor_trans& a) ;
 
     // Computation of derived members
     // ------------------------------
