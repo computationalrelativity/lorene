@@ -23,6 +23,9 @@ char ope_helmholtz_minus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/12/11 16:12:10  e_gourgoulhon
+ * Changed sqrt(2) to sqrt(double(2)).
+ *
  * Revision 1.2  2003/12/11 15:57:27  p_grandclement
  * include stdlib.h encore ...
  *
@@ -108,7 +111,7 @@ Tbl Ope_helmholtz_minus::get_solh() const {
   case R_CHEBU:
     // SH est exp(-beta*r)/r
     rlim = -0.5 / alpha ;
-    s_one_minus = exp(-masse*rlim)/rlim/sqrt(2) ;
+    s_one_minus = exp(-masse*rlim)/rlim/sqrt(double(2)) ;
     ds_one_minus = -s_one_minus * (masse+1./rlim) ;
     break ;
 
@@ -116,17 +119,17 @@ Tbl Ope_helmholtz_minus::get_solh() const {
     // SH_one est sin(masse*r)/r :
     rminus = beta-alpha ;
     rplus = beta+alpha ;
-    s_one_minus = exp(masse*rminus)/rminus/sqrt(2) ;
-    ds_one_minus = exp(masse*rminus)*(masse/rminus - 1./rminus/rminus)/sqrt(2) ;
-    s_one_plus = exp(masse*rplus)/rplus/sqrt(2) ;
-    ds_one_plus = exp(masse*rplus)*(masse/rplus - 1./rplus/rplus)/sqrt(2) ;
+    s_one_minus = exp(masse*rminus)/rminus/sqrt(double(2)) ;
+    ds_one_minus = exp(masse*rminus)*(masse/rminus - 1./rminus/rminus)/sqrt(double(2)) ;
+    s_one_plus = exp(masse*rplus)/rplus/sqrt(double(2)) ;
+    ds_one_plus = exp(masse*rplus)*(masse/rplus - 1./rplus/rplus)/sqrt(double(2)) ;
     
     // Sh two est cos(masse*r)/r :
-    s_two_minus = exp(-masse*rminus)/rminus/sqrt(2) ;
+    s_two_minus = exp(-masse*rminus)/rminus/sqrt(double(2)) ;
     ds_two_minus = exp(-masse*rminus)*(-masse/rminus - 1./rminus/rminus)/
-      sqrt(2) ;
-    s_two_plus =  exp(-masse*rplus)/rplus/sqrt(2) ;
-    ds_two_plus = exp(-masse*rplus)*(-masse/rplus - 1./rplus/rplus)/sqrt(2) ;
+      sqrt(double(2)) ;
+    s_two_plus =  exp(-masse*rplus)/rplus/sqrt(double(2)) ;
+    ds_two_plus = exp(-masse*rplus)*(-masse/rplus - 1./rplus/rplus)/sqrt(double(2)) ;
     break ;
   default:
     cout << "Case unkwnown in Ope_helmholtz_minus::get_solh" << endl ;

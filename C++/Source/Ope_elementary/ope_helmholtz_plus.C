@@ -23,6 +23,9 @@ char ope_helmholtz_plus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/12/11 16:12:10  e_gourgoulhon
+ * Changed sqrt(2) to sqrt(double(2)).
+ *
  * Revision 1.2  2003/12/11 15:57:27  p_grandclement
  * include stdlib.h encore ...
  *
@@ -106,20 +109,20 @@ Tbl Ope_helmholtz_plus::get_solh() const {
   double rminus = beta - alpha ;
   double rplus = beta + alpha ;
   
-  s_one_minus = sin(masse*rminus)/rminus/sqrt(2) ;
+  s_one_minus = sin(masse*rminus)/rminus/sqrt(double(2)) ;
   ds_one_minus = (masse*cos(masse*rminus)-sin(masse*rminus)/rminus)/
-    rminus/sqrt(2) ;
-  s_one_plus = sin(masse*rplus)/rplus/sqrt(2) ;
+    rminus/sqrt(double(2)) ;
+  s_one_plus = sin(masse*rplus)/rplus/sqrt(double(2)) ;
   ds_one_plus = (masse*cos(masse*rplus)-sin(masse*rplus)/rplus)/
-    rplus/sqrt(2) ;
+    rplus/sqrt(double(2)) ;
   
   // Sh two est cos(masse*r)/r :
-  s_two_minus = cos(masse*rminus)/rminus/sqrt(2) ;
+  s_two_minus = cos(masse*rminus)/rminus/sqrt(double(2)) ;
   ds_two_minus = (-masse*sin(masse*rminus)-cos(masse*rminus)/rminus)/
-    rminus/sqrt(2) ;
-  s_two_plus = cos(masse*rplus)/rplus/sqrt(2) ;
+    rminus/sqrt(double(2)) ;
+  s_two_plus = cos(masse*rplus)/rplus/sqrt(double(2)) ;
   ds_two_plus = (-masse*sin(masse*rplus)-cos(masse*rplus)/rplus)/
-    rplus/sqrt(2) ;
+    rplus/sqrt(double(2)) ;
   
   
   return solh_helmholtz_plus (nr, alpha, beta, masse, base_r) ;
