@@ -26,6 +26,9 @@ char poisson_interne_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/11/23 12:51:42  f_limousin
+ * Minor changes.
+ *
  * Revision 1.1  2004/03/31 11:36:15  f_limousin
  * First version
  *
@@ -58,9 +61,6 @@ char poisson_interne_C[] = "$Header$" ;
 
 Mtbl_cf sol_poisson_interne (const Map_af& mapping, 
     const Mtbl_cf& source, const Mtbl_cf& lim_der){
-
-
-    cout << "lim" << endl << norme(lim_der) << endl ;
 
     int nz = source.get_mg()->get_nzone() ;
 
@@ -168,7 +168,5 @@ Mtbl_cf sol_poisson_interne (const Map_af& mapping,
 		delete sol_part ;
 	    }
     
-    resultat.display() ;
-
     return resultat ;
 }
