@@ -32,6 +32,9 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2003/12/19 15:18:16  j_novak
+ * Shadow variables hunt
+ *
  * Revision 1.12  2003/10/29 11:04:34  e_gourgoulhon
  * dec2_dpzuis() replaced by dec_dzpuis(2).
  * inc2_dpzuis() replaced by inc_dzpuis(2).
@@ -328,7 +331,9 @@ void Vector::decompose_div(const Metric& metre) const {
       delete p_potential[j] ;
 
     int dzp = cmp[0]->get_dzpuis() ;
+#ifndef NDEBUG
     bool dz_zero = cmp[0]->check_dzpuis(0) ;
+#endif
     assert( dz_zero || (dzp == 4) ) ;
     assert (cmp[1]->check_dzpuis(dzp)) ;
     assert (cmp[2]->check_dzpuis(dzp)) ;

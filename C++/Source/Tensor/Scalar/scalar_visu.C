@@ -30,6 +30,9 @@ char scalar_visu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/12/19 15:18:17  j_novak
+ * Shadow variables hunt
+ *
  * Revision 1.4  2003/12/16 06:32:57  e_gourgoulhon
  * Added method visu_box.
  *
@@ -382,9 +385,9 @@ void Scalar::visu_box(double xmin, double xmax, double ymin, double ymax,
     fdata << "z_min = " << zmin << "  z_max = " << zmax << "\n" ; 
     
     // The spectral coefficients are required
-    const Valeur& va = scal->va ; 
-    va.coef() ; 
-    const Mtbl_cf& cva = *(va.c_cf) ; 
+    const Valeur& val = scal->va ; 
+    val.coef() ; 
+    const Mtbl_cf& cva = *(val.c_cf) ; 
     
     // What follows assumes that the mapping is radial:
     assert( dynamic_cast<const Map_radial*>(mp) != 0x0 ) ; 
