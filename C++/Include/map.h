@@ -38,6 +38,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/05/07 07:06:37  e_gourgoulhon
+ * Compatibily with xlC compiler on IBM SP2:
+ *   added declaration of functions map_af_fait_* and map_et_fait_*
+ *   outside the classes declarations.
+ *
  * Revision 1.2  2002/01/15 15:53:06  p_grandclement
  * I have had a constructor fot map_et using the equation of the surface
  * of the star.
@@ -1775,25 +1780,56 @@ class Map_af : public Map_radial {
 
 };
 
-			//------------------------------------//
+     Mtbl* map_af_fait_r(const Map* ) ;
+     Mtbl* map_af_fait_tet(const Map* ) ;
+     Mtbl* map_af_fait_phi(const Map* ) ;
+     Mtbl* map_af_fait_sint(const Map* ) ;
+     Mtbl* map_af_fait_cost(const Map* ) ;
+     Mtbl* map_af_fait_sinp(const Map* ) ;
+     Mtbl* map_af_fait_cosp(const Map* ) ;
+
+     Mtbl* map_af_fait_x(const Map* ) ;
+     Mtbl* map_af_fait_y(const Map* ) ;
+     Mtbl* map_af_fait_z(const Map* ) ;
+
+     Mtbl* map_af_fait_xa(const Map* ) ;
+     Mtbl* map_af_fait_ya(const Map* ) ;
+     Mtbl* map_af_fait_za(const Map* ) ;
+
+     Mtbl* map_af_fait_xsr(const Map* ) ;
+     Mtbl* map_af_fait_dxdr(const Map* ) ;
+     Mtbl* map_af_fait_srdrdt(const Map* ) ;
+     Mtbl* map_af_fait_srstdrdp(const Map* ) ;
+     Mtbl* map_af_fait_sr2drdt(const Map* ) ;
+     Mtbl* map_af_fait_sr2stdrdp(const Map* ) ;
+     Mtbl* map_af_fait_d2rdx2(const Map* ) ;
+     Mtbl* map_af_fait_lapr_tp(const Map* ) ;
+     Mtbl* map_af_fait_d2rdtdx(const Map* ) ;
+     Mtbl* map_af_fait_sstd2rdpdx(const Map* ) ;
+     Mtbl* map_af_fait_sr2d2rdt2(const Map* ) ;
+
+
+
+
+                        //------------------------------------//
 			//	    class Map_et	      //
 			//------------------------------------//
 
 
 
 /**
- * Radial mapping of rather general form. 
- * 
+ * Radial mapping of rather general form.
+ *
  * This mapping relates the grid coordinates
  * $(\xi, \theta', \phi')$ and the physical coordinates $(r, \theta, \phi)$
- * in the following manner [see Bonazzola, Gourgoulhon \& Marck, 
+ * in the following manner [see Bonazzola, Gourgoulhon \& Marck,
  * {\sl Phys. Rev. D} {\bf 58}, 104020 (1998) for details]:
- * $\theta=\theta'$, $\phi=\phi'$ and 
+ * $\theta=\theta'$, $\phi=\phi'$ and
  * \begin{itemize}
  *  \item $r = \alpha [\xi + A(\xi) F(\theta', \phi') + B(\xi) G(\theta', \phi')]
- *	       + \beta$ in non-compactified domains, 
- *  \item $ u={1\over r} = \alpha [\xi + A(\xi) F(\theta', \phi')] + \beta$ in 
- *	    the (usually outermost) compactified domain, 
+ *	       + \beta$ in non-compactified domains,
+ *  \item $ u={1\over r} = \alpha [\xi + A(\xi) F(\theta', \phi')] + \beta$ in
+ *	    the (usually outermost) compactified domain,
  * \end{itemize}
  * where $\alpha$ and $\beta$ are constant in each domain, $A(\xi)$ and
  * $B(\xi)$ are constant polynomials defined by
@@ -2395,6 +2431,37 @@ class Map_et : public Map_radial {
     friend Mtbl* map_et_fait_rsx2drdx(const Map* ) ;
 
 };
+
+     Mtbl* map_et_fait_r(const Map* ) ;
+     Mtbl* map_et_fait_tet(const Map* ) ;
+     Mtbl* map_et_fait_phi(const Map* ) ;
+     Mtbl* map_et_fait_sint(const Map* ) ;
+     Mtbl* map_et_fait_cost(const Map* ) ;
+     Mtbl* map_et_fait_sinp(const Map* ) ;
+     Mtbl* map_et_fait_cosp(const Map* ) ;
+
+     Mtbl* map_et_fait_x(const Map* ) ;
+     Mtbl* map_et_fait_y(const Map* ) ;
+     Mtbl* map_et_fait_z(const Map* ) ;
+
+     Mtbl* map_et_fait_xa(const Map* ) ;
+     Mtbl* map_et_fait_ya(const Map* ) ;
+     Mtbl* map_et_fait_za(const Map* ) ;
+
+     Mtbl* map_et_fait_xsr(const Map* ) ;
+     Mtbl* map_et_fait_dxdr(const Map* ) ;
+     Mtbl* map_et_fait_srdrdt(const Map* ) ;
+     Mtbl* map_et_fait_srstdrdp(const Map* ) ;
+     Mtbl* map_et_fait_sr2drdt(const Map* ) ;
+     Mtbl* map_et_fait_sr2stdrdp(const Map* ) ;
+     Mtbl* map_et_fait_d2rdx2(const Map* ) ;
+     Mtbl* map_et_fait_lapr_tp(const Map* ) ;
+     Mtbl* map_et_fait_d2rdtdx(const Map* ) ;
+     Mtbl* map_et_fait_sstd2rdpdx(const Map* ) ;
+     Mtbl* map_et_fait_sr2d2rdt2(const Map* ) ;
+
+     Mtbl* map_et_fait_rsxdxdr(const Map* ) ;
+     Mtbl* map_et_fait_rsx2drdx(const Map* ) ;
 
 
 
