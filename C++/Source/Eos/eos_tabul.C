@@ -32,6 +32,10 @@ char eos_tabul_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/05/15 09:42:47  e_gourgoulhon
+ *
+ * Now computes d ln / dln H.
+ *
  * Revision 1.3  2002/10/16 14:36:35  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -77,6 +81,9 @@ char eos_tabul_C[] = "$Header$" ;
 
 void interpol_herm(const Tbl& , const Tbl&, const Tbl&, double, int&,
 		   double&, double& ) ;
+
+void interpol_herm_der(const Tbl& , const Tbl&, const Tbl&, double, int&,
+		   double&, double&, double& ) ;
 
 
 			//----------------------------//
@@ -329,19 +336,37 @@ double Eos_tabul::press_ent_p(double ent, const Param* ) const {
 
 double Eos_tabul::der_nbar_ent_p(double ent, const Param* ) const {
 
+    static int i_near = logh->get_taille() / 2 ;
+
     if ( ent > hmin ) {
            if (ent > hmax) {
            	cout << "Eos_tabul::der_nbar_ent_p : ent > hmax !" << endl ;
            	abort() ;
            }
-	   
-           cout << "Eos_tabul::der_nbar_ent_p : ent > hmax !" << endl ;
-           abort() ;	       
-	   return 0 ;
+
+           double logh0 = log10( ent ) ;
+           double logp0 ;
+           double dlpsdlh0 ; // chi = dlog p / dln h
+	   double dchisdlh0 ; // dchi / d log h
+           interpol_herm_der(*logh, *logp, *dlpsdlh, logh0, i_near, logp0,
+           		 dlpsdlh0, dchisdlh0) ;
+
+
+           double zeta =  - 1. + dlpsdlh0 + 
+	   		+ 0.4342944819032518 * dchisdlh0 / dlpsdlh0
+			- ent ; 
+			 
+    	// 0.4342944819032518 = 1 / ln(10)
+
+	cout << "i, dchisdlh0, zeta : " << i_near << "  " <<  dchisdlh0
+	<< "  " << zeta << endl ; 
+	return zeta ; 
     }
     else{
 	return 0 ;
     }
+
+
 }
 
 
