@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/11/05 10:11:23  f_limousin
+ * The member Metric met_gamt replace Sym_tensor gamt.
+ *
  * Revision 1.10  2004/11/03 17:15:46  f_limousin
  * Change the standart constructor. Add 4 memebers : trK, trK_point,
  * gamt and gamt_point.
@@ -102,7 +105,7 @@ class Isol_hor : public Time_slice_conf {
  protected: 
 
     /// 3 metric tilde
-    const Sym_tensor& gamt ;
+    const Metric& met_gamt ;
 
     /// Time derivative of the 3-metric tilde
     const Sym_tensor& gamt_point ;
