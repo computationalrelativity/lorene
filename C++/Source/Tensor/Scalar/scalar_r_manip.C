@@ -35,6 +35,10 @@ char scalar_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/10/16 15:29:08  e_gourgoulhon
+ * Name of method div_r_ced() changed to div_r_inc2().
+ * Name of method div_rsint_ced() changed to div_rsint_inc2().
+ *
  * Revision 1.8  2003/10/15 10:44:21  e_gourgoulhon
  * Added new method div_tant.
  *
@@ -86,11 +90,11 @@ void Scalar::div_r() {
 
 
 			//---------------------//
-			//	    div_r_ced      //
+			//	    div_r_inc2     //
 			//---------------------//
 
 
-void Scalar::div_r_ced() {
+void Scalar::div_r_inc2() {
     
 	if (etat == ETATZERO) {
 		dzpuis += 2 ; 
@@ -188,11 +192,11 @@ void Scalar::div_rsint() {
 
 
 			//-------------------------//
-			//	    div_rsint_ced      //
+			//	    div_rsint_inc2      //
 			//-------------------------//
 
 
-void Scalar::div_rsint_ced() {
+void Scalar::div_rsint_inc2() {
     
 	if (etat == ETATZERO) {
 		dzpuis += 2 ; 
