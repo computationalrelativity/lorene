@@ -66,6 +66,9 @@ char mat_cossinc_leg_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/02/16 15:24:15  m_forot
+ * Replace int1d_chebp by int1d_cheb
+ *
  * Revision 1.2  2004/12/17 15:42:02  e_gourgoulhon
  * l_max = nt instead of nt2.
  *
@@ -168,7 +171,7 @@ int i, indice,  j,  j2,  m,  l ;
 // Recherche des fonctions de Legendre associees d'ordre m :
 
 	    double* leg = legendre_norm(m, nt) ;	
-	
+	   
 	    if (m%2==0) {
 // Cas m pair
 //-----------
@@ -181,20 +184,20 @@ int i, indice,  j,  j2,  m,  l ;
 //... produit scalaire de cos(j theta) par P_{l}^m(cos(theta)) 
 
 			for (j2=0; j2<nt; j2++) {
-			    yy[nt2m1-j2] = cost[nt2*j + j2] *
-					   leg[nt2* (l-m) + 2*j2] ;
+			  yy[nt2m1-j2] = cost[nt2*j + j2] *
+			      leg[nt2* (l-m) + 2*j2] ;
 			}
 
 			for (j2=nt; j2<nt2; j2++) {
-			    yy[nt2m1-j2] = cost[nt2*j + j2] *
-					   parite * leg[nt2* (l-m) + 2*nt2-2-2*j2] ;
+			  yy[nt2m1-j2] = cost[nt2*j + j2] *
+			    parite * leg[nt2* (l-m) + 2*nt2 -2 -2*j2] ;
 			}
 
 //....... on passe en Tchebyshev vis-a-vis de x=cos(theta) pour	calculer
 //	    l'integrale (routine int1d_chebp) : 		
-			cfrchebpip(deg, deg, yy, deg, yy) ;
+			cfrcheb(deg, deg, yy, deg, yy) ;
 			tab[indice][ nt*nt* m + nt*l + j] = 
-					    int1d_chebp(nt2, yy) ;
+					    int1d_cheb(nt2, yy) ;
 
 		    }	// fin de la boucle sur j  (indice de cos(j theta) )
 	    
@@ -216,22 +219,25 @@ int i, indice,  j,  j2,  m,  l ;
 //... produit scalaire de sin(j) theta) par P_{l}^m(cos(theta)) 
 
 			for (j2=0; j2<nt; j2++) {
-			    yy[nt2m1-j2] = sint[nt2*j + j2] *
-					   leg[nt2* (l-m) + 2*j2] ;
+			  yy[nt2m1-j2] = sint[nt2*j + j2] *
+			    leg[nt2* (l-m) + 2*j2] ;
+		
 			}
 
 			for (j2=nt; j2<nt2; j2++) {
-			    yy[nt2m1-j2] = sint[nt2*j + j2] *
-					   parite * leg[nt2* (l-m) + 2*nt2 - 2 - 2*j2] ;
+			  yy[nt2m1-j2] = sint[nt2*j + j2] *
+			    parite * leg[nt2* (l-m) + 2*nt2  -2 - 2*j2] ;
+		
 			}
-
+			
 //....... on passe en Tchebyshev vis-a-vis de x=cos(theta) pour	calculer
-//	    l'integrale (routine int1d_chebp) : 		
-			cfrchebpip(deg, deg, yy, deg, yy) ;
+//	    l'integrale (routine int1d_chebp) : 
+			cfrcheb(deg, deg, yy, deg, yy) ;
+			
 			tab[indice][ nt*nt* m + nt*l + j] = 
-					    int1d_chebp(nt2, yy) ;
-
-		    }	// fin de la boucle sur j  (indice de  sin(j*theta) )
+					    int1d_cheb(nt2, yy) ;
+					
+		  }	// fin de la boucle sur j  (indice de  sin(j*theta) )
 	    
 		}  // fin de la boucle sur l (indice de P_{l}^m)
 	    

@@ -66,6 +66,9 @@ char mat_cossins_leg_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/02/16 15:24:08  m_forot
+ * Replace int1d_chebp by int1d_cheb
+ *
  * Revision 1.2  2004/12/17 15:42:02  e_gourgoulhon
  * l_max = nt instead of nt2.
  *
@@ -193,9 +196,9 @@ int i, indice,  j,  j2,  m,  l ;
 
 //....... on passe en Tchebyshev vis-a-vis de x=cos(theta) pour	calculer
 //	    l'integrale (routine int1d_chebp) : 		
-			cfrchebpip(deg, deg, yy, deg, yy) ;
+			cfrcheb(deg, deg, yy, deg, yy) ;
 			tab[indice][ nt*nt* m + nt*l + j] = 
-					    int1d_chebp(nt2, yy) ;
+					    int1d_cheb(nt2, yy) ;
 
 		    }	// fin de la boucle sur j  (indice de  sin(j*theta) )
 	    
@@ -228,9 +231,9 @@ int i, indice,  j,  j2,  m,  l ;
 
 //....... on passe en Tchebyshev vis-a-vis de x=cos(theta) pour	calculer
 //	    l'integrale (routine int1d_chebp) : 		
-			cfrchebpip(deg, deg, yy, deg, yy) ;
+			cfrcheb(deg, deg, yy, deg, yy) ;
 			tab[indice][ nt*nt* m + nt*l + j] = 
-					    int1d_chebp(nt2, yy) ;
+					    int1d_cheb(nt2, yy) ;
 
 		    }	// fin de la boucle sur j  (indice de cos(j theta) )
 	    

@@ -88,6 +88,9 @@ char chb_cossinc_leg_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/02/16 15:23:23  m_forot
+ * Replace int1d_chebp by int1d_cheb
+ *
  * Revision 1.1  2004/11/23 15:13:50  m_forot
  * Added the bases for the cases without any equatorial symmetry
  * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
@@ -260,11 +263,12 @@ int ip, k2, l, jmin, j, i, m ;
 		    }
 		   
 		    jmin = ( m == 1 ) ? l : 0 ;  // pour m=1, aa_lj = 0 pour j<l
-
+		    
 		    for (j=jmin; j<nt-1; j++) {
 			double amlj = aa[nt*l + j] ;
 			for (i=0; i<nr; i++) {
 			    som[i] += amlj * cc[nr*j + i] ;
+			 
 			}
 		    }
 		    
