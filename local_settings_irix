@@ -18,11 +18,11 @@ CXX 	 = CC
 # Options for the C++ compiler to produce the optimized library:
 # -------------------------------------------------------------
 CXXFLAGS = -n32 -mips4 -O2 -OPT:Olimit=0 -LANG:ansi-for-init-scope=on \
-	  -fullwarn -ptv -DNDEBUG  
+	  -fullwarn -ptv -DNDEBUG -DOBSOLETE_HEADERS 
 
 # Options for the C++ compiler to produce the library for debugging:
 # -----------------------------------------------------------------
-CXXFLAGS_G = -n32 -g -mips4 -LANG:ansi-for-init-scope=on -fullwarn -ptv 
+CXXFLAGS_G = -n32 -g -mips4 -LANG:ansi-for-init-scope=on -fullwarn -ptv -DOBSOLETE_HEADERS 
 
 # Path for the include files:
 # --------------------------
