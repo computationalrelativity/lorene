@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.27  2003/10/27 10:44:00  e_gourgoulhon
+ * Declaration of class Sym_tensor is now in file sym_tensor.h.
+ *
  * Revision 1.26  2003/10/24 15:00:19  j_novak
  * Forgotten Class declaration... thanks IBM aix!
  *
@@ -758,156 +761,6 @@ Tensor operator/ (const Tensor&, int) ;                 /// Tensor / int
 
 
 
-
-			//---------------------------------//
-			//        class Sym_tensor         //
-			//---------------------------------/
-			
-/**
- * Class intended to describe valence-2 symmetric tensors.
- * The storage and the calculations are different and quicker than with an 
- * usual {\tt Tensor}.
- * 
- * The valence must be 2.
- */
-class Sym_tensor : public Tensor {
-
-    // Constructors - Destructor :
-    // -------------------------
-	
-    public:
-	/** Standard constructor.
-	 * 
-	 * @param map   the mapping 
-	 * @param tipe  1-D array of integers (class {\tt Itbl}) of size 2 
-	 *		containing the type 
-	 *		of each index, {\tt COV} for a covariant one 
-	 *		and {\tt CON} for a contravariant one,  with the 
-	 *		following storage convention: \\
-	 *			{\tt tipe(0)} : type of the first index \\
-	 *			{\tt tipe(1)} : type of the second index 
-	 * @param triad_i  vectorial basis (triad) with respect to which 
-	 *			  the tensor components are defined
-	 */
-	Sym_tensor(const Map& map, const Itbl& tipe,const Base_vect& triad_i) ;
-
-	/** Standard constructor when both indices are of the same type.
-	 * 
-	 * @param map   the mapping 
-	 * @param tipe  the type of the indices.
-	 * @param triad_i  vectorial basis (triad) with respect to which 
-	 *			  the tensor components are defined
-	 * 
-	 */
-	Sym_tensor(const Map& map, int tipe, const Base_vect& triad_i) ;
-
-	Sym_tensor(const Sym_tensor&) ; /// Copy constructor
-
-	/** Constructor from a {\tt Tensor}.
-	 *  The symmetry of the input tensor is assumed to be true but not checked.
-	 */
-	Sym_tensor(const Tensor&) ;
-	
-	/** Constructor from a file (see {\tt sauve(FILE* )}).
-	 * 
-	 * @param map  the mapping
-	 * @param triad_i   vectorial basis (triad) with respect to which 
-	 *			  the tensor components are defined. It will
-	 *			  be checked that it coincides with the basis
-	 *			  saved in the file.
-	 * @param fich  file which has been created by 
-	 *			    the function {\tt sauve(FILE* )}.
-	 */
-	Sym_tensor(const Map& map, const Base_vect& triad_i, FILE* fich) ;
-
-	virtual ~Sym_tensor() ;    /// Destructor
-	
-    // Memory management
-    // -----------------
-    protected:
-	virtual void del_deriv() const;	/// Deletes the derived quantities
-
-	/// Sets the pointers on derived quantities to 0x0
-	void set_der_0x0() const ; 
-
-
-    // Mutators / assignment
-    // ---------------------
-    public:
-	/// Assignment to a {\tt Sym\_tensor}
-	virtual void operator=(const Sym_tensor&) ;
-
-	/**
-	 * Assignment from a {\tt Tensor}.
-	 * 
-	 * The symmetry is assumed but not checked.
-	 */
-	virtual void operator= (const Tensor&) ;
-    
-
-    // Accessors
-    // ---------
-    public:
-	/**
-	 * Returns the position in the array {\tt cmp} of a 
-	 * component given by its indices.  
-	 *
-	 * @param ind [input] 1-D array of integers (class {\tt Itbl})
-	 *		 of size 2 giving the 
-	 *		values of each index specifing the component,  with the 
-	 *		following storage convention: \\
-	 *			{\tt ind(0)} : value of the first index (1, 2 or 3) \\
-	 *			{\tt ind(1)} : value of the second index (1, 2 or 3) 
-	 *
-	 * @return position in the array {\tt cmp} of the pointer to the
-	 *  	{\tt Scalar} containing the component specified by {\tt ind}
-	 */
-	virtual int position(const Itbl& ind) const ;
-
-
-	/**
-	 * Returns the indices of a component given by its position in the 
-	 * array {\tt cmp}. 
-	 *
-	 * @param pos [input] position in the array {\tt cmp}
-	 *		of the pointer to the {\tt Scalar} representing a component
-	 *
-	 * @return 1-D array of integers (class {\tt Itbl}) of
-	 *         size 2 giving the value of each index 
-	 *	   for the component located at the position {\tt pos} in
-	 *		the array [\tt cmp}, with the 
-	 *		following storage convention: \\
-	 *			{\tt Itbl(0)} : value of the first index (1, 2 or 3) \\
-	 *			{\tt Itbl(1)} : value of the second index (1, 2 or 3) 
-	 */
-	virtual Itbl indices(int pos) const ;
-	
-		
-	/**Returns the divergence of {\tt this} with respect to a {\tt Metric}.
-	 * The indices are assumed to be contravariant.
-	 */
-	const Vector& divergence(const Metric&) const ; 
-
-    // Computation of derived members
-    // ------------------------------
-	//    protected:
-
-    // Mathematical operators
-    // ----------------------
- protected:
-	/**
-	 * Returns a pointer on the inverse of the {\tt Sym\_tensor} 
-	 * (seen as a matrix).
-	 */
-	Sym_tensor* inverse() const ;
-
-    // Friend classes
-    //-----------------
-	friend class Metric ;
- 
-} ;
-
-
 			//---------------------------------//
 			//        class Tensor_delta       //
 			//---------------------------------//
@@ -919,6 +772,8 @@ class Sym_tensor : public Tensor {
  * different and quicker than with a usual {\tt Tensor}.
  * 
  * The valence must be 3.
+ *
+ * @version #$Id$#
  */
 class Tensor_delta : public Tensor {
 
@@ -1051,6 +906,8 @@ class Tensor_delta : public Tensor {
 #include "scalar.h"
 
 #include "vector.h"
+
+#include "sym_tensor.h"
 
 
 #endif
