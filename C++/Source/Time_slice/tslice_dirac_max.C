@@ -30,6 +30,9 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/04/08 16:44:19  e_gourgoulhon
+ * Added methods set_* and hh_det_one().
+ *
  * Revision 1.2  2004/04/05 21:22:49  e_gourgoulhon
  * Added constructor as standard time slice of Minkowski spacetime.
  *
@@ -47,7 +50,6 @@ char tslice_dirac_max_C[] = "$Header$" ;
 
 // Lorene headers
 #include "time_slice.h"
-#include "tensor.h"
 #include "metric.h"
 #include "evolution.h"
 
@@ -131,6 +133,150 @@ void Tslice_dirac_max::operator=(const Tslice_dirac_max& tin) {
 }
 
 
+void Tslice_dirac_max::set_hh(const Sym_tensor& hh_in) {
+
+    Time_slice_conf::set_hh(hh_in) ; 
+
+    // Reset of quantities depending on h^{ij}:
+    khi_evol.downdate(jtime) ; 
+    mu_evol.downdate(jtime) ; 
+    trh_evol.downdate(jtime) ; 
+         
+}
+
+
+void Tslice_dirac_max::set_khi_mu(const Scalar& khi_in, const Scalar& mu_in) {
+
+    khi_evol.update(khi_in, jtime, the_time[jtime]) ; 
+    mu_evol.update(mu_in, jtime, the_time[jtime]) ; 
+    
+    // Computation of trace h and h^{ij} to ensure det tgam_{ij} = det f_{ij} :
+
+    hh_det_one() ;
+    
+} 
+
+
+void Tslice_dirac_max::set_trh(const Scalar& trh_in) {
+
+    trh_evol.update(trh_in, jtime, the_time[jtime]) ; 
+    cout << "Tslice_dirac_max::set_trh : #### WARNING : \n"
+        << "   this method does not check whether det(tilde gamma) = 1"
+        << endl ; 
+        
+    // Reset of quantities depending on mu:
+    hh_evol.downdate(jtime) ; 
+    if (p_tgamma != 0x0) {
+        delete p_tgamma ;
+        p_tgamma = 0x0 ; 
+    } 
+    if (p_hdirac != 0x0) {
+        delete p_hdirac ; 
+        p_hdirac = 0x0 ; 
+    }
+    if (p_gamma != 0x0) {
+        delete p_gamma ; 
+        p_gamma = 0x0 ;
+    }
+    gam_dd_evol.downdate(jtime) ; 
+    gam_uu_evol.downdate(jtime) ; 
+     
+} 
+
+
+void Tslice_dirac_max::hh_det_one() const {
+
+    assert (khi_evol.is_known(jtime)) ;   // The starting point
+    assert (mu_evol.is_known(jtime)) ;    // of the computation 
+
+    int it_max = 100 ;
+    double precis = 1.e-14 ;
+  
+    const Map& mp = khi().get_mp() ;
+    
+    // The TT part of h^{ij}, which stays unchanged during the computation :
+    Sym_tensor_tt hijtt(mp, *(ff.get_triad()), ff) ;
+    hijtt.set_khi_mu(khi(), mu(), 2) ;
+    
+    // The representation of h^{ij} as an object of class Sym_tensor_trans :
+    Sym_tensor_trans hij = hijtt ; 
+
+    // The trace h = f_{ij} h^{ij} :
+    Scalar htrace(mp) ;
+        
+    // Value of h at previous step of the iterative procedure below :
+    Scalar htrace_prev(mp) ;
+    htrace_prev.set_etat_zero() ;   // initialisation to zero
+    
+    int it ;
+    for (it=0; it<it_max; it++) {
+      
+        // Trace h from the condition det(f^{ij} + h^{ij}) = det f^{ij} :
+      
+        htrace = hij(1,1) * hij(2,3) * hij(2,3) 
+	    + hij(2,2) * hij(1,3) * hij(1,3) + hij(3,3) * hij(1,2) * hij(1,2)
+	    - 2.* hij(1,2) * hij(1,3) * hij(2,3) 
+            - hij(1,1) * hij(2,2) * hij(3,3) ;
+        
+        htrace.dec_dzpuis(2) ; // dzpuis: 6 --> 4
+        
+	htrace += hij(1,2) * hij(1,2) + hij(1,3) * hij(1,3) 
+                    + hij(2,3) * hij(2,3) - hij(1,1) * hij(2,2) 
+                    - hij(1,1) * hij(3,3) - hij(2,2) * hij(3,3) ;
+
+        // New value of hij from htrace and hijtt (obtained by solving 
+        //    the Poisson equation for Phi) : 
+
+        hij.set_tt_trace(hijtt, htrace) ; 
+
+        double diff = max(max(abs(htrace - htrace_prev))) ;
+        cout << "Tslide_dirac_max::hh_det_one() : " 
+	     << "iteration : " << it << " difference : " << diff << endl ;
+        if (diff < precis) break ;
+        else htrace_prev = htrace ;
+
+    }
+    
+    if (it == it_max) {
+        cerr << "Tslide_dirac_max::hh_det_one() : convergence not reached \n" ;
+        cerr << "  for the required accuracy (" << precis << ") ! " << endl ;
+        abort() ;
+    }
+
+    // Updates
+    // -------
+    trh_evol.update(htrace, jtime, the_time[jtime]) ;
+    
+    // The longitudinal part of h^{ij}, which is zero by virtue of Dirac gauge :
+    Vector wzero(mp, CON,  *(ff.get_triad())) ; 
+    wzero.set_etat_zero() ;                   
+
+    // Temporary Sym_tensor with longitudinal part set to zero : 
+    Sym_tensor hh_new(mp, CON, *(ff.get_triad())) ;
+    
+    hh_new.set_longit_trans(wzero, hij) ;
+    
+    hh_evol.update(hh_new, jtime, the_time[jtime]) ;
+    
+    // Reset of quantities depending on h^{ij}:
+    if (p_tgamma != 0x0) {
+        delete p_tgamma ;
+        p_tgamma = 0x0 ; 
+    } 
+    if (p_hdirac != 0x0) {
+        delete p_hdirac ; 
+        p_hdirac = 0x0 ; 
+    }
+    if (p_gamma != 0x0) {
+        delete p_gamma ; 
+        p_gamma = 0x0 ;
+    }
+    gam_dd_evol.downdate(jtime) ; 
+    gam_uu_evol.downdate(jtime) ; 
+         
+
+}
+
                 //----------------------------------------------------//
                 //  Update of fields from base class Time_slice_conf  //
                 //----------------------------------------------------//
@@ -138,33 +284,17 @@ void Tslice_dirac_max::operator=(const Tslice_dirac_max& tin) {
 
 const Sym_tensor& Tslice_dirac_max::hh() const {
 
-  if (!( hh_evol.is_known(jtime) ) ) {
-    assert (khi_evol.is_known(jtime)) ;
-    assert (mu_evol.is_known(jtime)) ;
-    assert (trh_evol.is_known(jtime)) ;
+    if (!( hh_evol.is_known(jtime) ) ) {
 
-    const Map& mapping = khi_evol[jtime].get_mp() ;
-
-    Sym_tensor_tt hh_tt_tmp(mapping, *ff.get_triad(), ff) ;
-
-    hh_tt_tmp.set_khi_mu( khi(), mu() ) ;
+        assert (khi_evol.is_known(jtime)) ;
+        assert (mu_evol.is_known(jtime)) ;
     
-    Sym_tensor_trans hh_t_tmp(mapping, *ff.get_triad(), ff) ;
+        // Computation of h^{ij} to ensure det tgam_{ij} = det f_{ij} :
 
-    hh_t_tmp.set_tt_trace( hh_tt_tmp, trh() ) ;
-
-    Vector vec_tmp(mapping, CON,  *ff.get_triad()) ; //The longitudinal part 
-    vec_tmp.set_etat_zero() ; // is zero (Dirac gauge).
-
-    Sym_tensor hh_tmp(mapping, CON, *ff.get_triad()) ;
-    
-    hh_tmp.set_longit_trans(vec_tmp, hh_t_tmp) ;
-    
-    hh_evol.update(hh_tmp, jtime, the_time[jtime] ) ;
-    
-  }
+        hh_det_one() ;
+    }
   
-  return hh_evol[jtime] ; 
+    return hh_evol[jtime] ; 
 
 }
 
@@ -209,8 +339,6 @@ const Scalar& Tslice_dirac_max::khi() const {
     if (!( khi_evol.is_known(jtime) ) ) {
 
         assert( hh_evol.is_known(jtime) ) ; 
-
-	
         
         khi_evol.update( hh().transverse(ff).tt_part().khi(), 
 			 jtime, the_time[jtime] ) ; 
@@ -224,68 +352,28 @@ const Scalar& Tslice_dirac_max::mu() const {
 
     if (!( mu_evol.is_known(jtime) ) ) {
 
-      assert( hh_evol.is_known(jtime) ) ; 
+        assert( hh_evol.is_known(jtime) ) ; 
       
-        
         mu_evol.update( hh().transverse(ff).tt_part().mu(), 
 			jtime, the_time[jtime] ) ; 
     }
 
     return mu_evol[jtime] ;
 
-
 }
 
 
 const Scalar& Tslice_dirac_max::trh() const {
 
-  int it_max = 100 ;
-  int it ;
-
-  double precis = 1.e-12 ;
-
-  if( !(trh_evol.is_known(jtime)) ) {
+    if( !(trh_evol.is_known(jtime)) ) {
     
-    assert ( khi_evol.is_known(jtime) ) ;
-    assert ( mu_evol.is_known(jtime) );
-    
-    const Map& mapping = khi_evol[jtime].get_mp() ;
-    
-    Sym_tensor_tt hijtt(mapping, *ff.get_triad(), ff) ;
-    hijtt.set_khi_mu( khi_evol[jtime], mu_evol[jtime] ) ;
-    
-    Sym_tensor_trans hij = hijtt ; //Start of iteration
-    Scalar htrace_jm1(mapping) ;
-    htrace_jm1.set_etat_zero() ;
-    
-    for (it=0; it<it_max; it++) {
-      
-      Scalar htrace = hij(1,1) * hij(2,3) * hij(2,3) 
-	+ hij(2,2) * hij(1,3) * hij(1,3) + hij(3,3) * hij(1,2) * hij(1,2)
-	- 2 * hij(1,2) * hij(1,3) * hij(2,3) - hij(1,1) * hij(2,2) * hij(3,3)
-	+ hij(1,2) * hij(1,2) + hij(1,3) * hij(1,3) + hij(2,3) * hij(2,3)
-	- hij(1,1) * hij(2,2) - hij(1,1) * hij(3,3) - hij(2,2) * hij(3,3) ;
-
-      hij.set_tt_trace( hijtt, htrace) ; //Solves the Poisson equation for Phi
-
-      double diff = max(max(abs(htrace - htrace_jm1))) ;
-      cout << "Tslide_dirac_max::trh() : " 
-	   << "Iteration : " << it << " difference : " << diff << endl ;
-      if (diff < precis) break ;
-      else htrace_jm1 = htrace ;
+        assert( hh_evol.is_known(jtime) ) ; 
+        
+        trh_evol.update( hh().trace(ff), jtime, the_time[jtime] ) ; 
+           
     }
     
-    if (it == it_max) {
-      cout << " No convergence reached in Tslide_dirac_max::trh() " << '\n' ;
-      cout << "Required accuracy : " << precis << endl ;
-      abort() ;
-    }
-
-    trh_evol.update(hij.the_trace(), jtime, the_time[jtime] ) ;
-
-  }
-    
-  return trh_evol[jtime] ; 
+    return trh_evol[jtime] ; 
 
 }
 
