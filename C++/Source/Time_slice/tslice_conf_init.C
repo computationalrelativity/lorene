@@ -30,6 +30,9 @@ char tslice_conf_init_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/04/08 16:45:11  e_gourgoulhon
+ * Use of new methods set_*.
+ *
  * Revision 1.2  2004/04/07 07:58:21  e_gourgoulhon
  * Constructor as Minkowski slice: added call to std_spectral_base()
  * after setting the lapse to 1.
@@ -57,57 +60,42 @@ char tslice_conf_init_C[] = "$Header$" ;
 #include "graphique.h"
 #include "utilitaires.h"
 
-void Time_slice_conf::initial_data_cts(const Sym_tensor& hh_in, 
-                const Sym_tensor& uu, const Scalar& trk_in, 
-                const Scalar& trk_point, const Scalar* p_ener_dens,
-                const Vector* p_mom_dens, const Scalar* p_trace_stress) {
+void Time_slice_conf::initial_data_cts(const Sym_tensor& uu, 
+                const Scalar& trk_in, const Scalar& trk_point, 
+                double precis, 
+                const Scalar* p_ener_dens, const Vector* p_mom_dens, 
+                const Scalar* p_trace_stress) {
 
     using namespace Unites ;
 
     // Verifications
+    // -------------
+    double tr_uu = max(maxabs(uu.trace(tgam()), "trace tgam_{ij} u^{ij}")) ; 
+    if (tr_uu > 1.e-8) {
+        cerr << 
+        "Time_slice_conf::initial_data_cts : the trace of u^{ij} with respect\n"
+        << "  to the conformal metric tgam_{ij} is not zero !\n" 
+        << "  error = " << tr_uu << endl ; 
+        abort() ; 
+    }
+
     assert(trk_in.check_dzpuis(2)) ; 
     assert(trk_point.check_dzpuis(4)) ; 
 
     // Initialisations
+    // ---------------
     double ttime = the_time[jtime] ; 
-    
-    hh_evol.update(hh_in, jtime, ttime) ; 
-
-    // Reset of quantities depending on h^{ij}:
-    if (p_tgamma != 0x0) {
-        delete p_tgamma ;
-        p_tgamma = 0x0 ; 
-    } 
-    if (p_hdirac != 0x0) {
-        delete p_hdirac ; 
-        p_hdirac = 0x0 ; 
-    }
-    if (p_gamma != 0x0) {
-        delete p_gamma ; 
-        p_gamma = 0x0 ;
-    }
-    gam_dd_evol.downdate(jtime) ; 
-    gam_uu_evol.downdate(jtime) ; 
-     
+         
     trk_evol.update(trk_in, jtime, ttime) ; 
 
     // Reset of quantities depending on K:
     k_dd_evol.downdate(jtime) ; 
     k_uu_evol.downdate(jtime) ; 
    
-    aa_evol.update(uu / (2.* nn()), jtime, ttime) ; 
+    set_aa(uu / (2.* nn()) ) ; 
 
-    // Reset of quantities depending on A^{ij}:
-    k_dd_evol.downdate(jtime) ; 
-    k_uu_evol.downdate(jtime) ; 
-    
-    
-    
-    // Iteration
-    int imax = 100 ; 
-    double precis = 1.e-12 ; 
-    const Map& map = hh_in.get_mp() ; 
-    const Base_vect& triad = *(hh_in.get_triad()) ;
+    const Map& map = uu.get_mp() ; 
+    const Base_vect& triad = *(uu.get_triad()) ;
 
     Scalar ener_dens(map) ; 
     if (p_ener_dens != 0x0) ener_dens = *(p_ener_dens) ; 
@@ -126,6 +114,9 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& hh_in,
     Scalar source_nn(map) ; 
     Vector source_beta(map, CON, triad) ; 
     
+    // Iteration
+    // ---------
+    int imax = 100 ; 
     for (int i=0; i<imax; i++) {
     
         //===============================================
@@ -150,8 +141,8 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& hh_in,
                 
         source_psi = tmp - psi()*psi4()* ( 0.5*qpig* ener_dens 
                         + 0.125* aa_quad 
-                        - 8.33333333333333e-2* trk()*trk() ) ;  
-                        
+                       - 8.33333333333333e-2* trk()*trk() ) ;  
+                               
         // Source for N 
         // ------------
         
@@ -203,8 +194,8 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& hh_in,
         Scalar psi_jp1 = source_psi.poisson() + 1. ; 
 
         // Test:
-        diffrel(psi_jp1.laplacian(), source_psi,
-                "Relative error in the resolution of the equation for Psi") ;  
+        maxabs(psi_jp1.laplacian() - source_psi,
+                "Absolute error in the resolution of the equation for Psi") ;  
 
         des_meridian(psi_jp1, 0., 5., "Psi", 1) ; 
 
@@ -214,8 +205,8 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& hh_in,
         Scalar nn_jp1 = source_nn.poisson() + 1. ; 
 
         // Test:
-        diffrel(nn_jp1.laplacian(), source_nn,
-                "Relative error in the resolution of the equation for N") ;  
+        maxabs(nn_jp1.laplacian() - source_nn,
+                "Absolute error in the resolution of the equation for N") ;  
 
         des_meridian(nn_jp1, 0., 5., "N", 2) ; 
         
@@ -232,10 +223,8 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& hh_in,
         Vector test_beta = (beta_jp1.derive_con(ff)).divergence(ff)
             +  0.3333333333333333 * (beta_jp1.divergence(ff)).derive_con(ff) ;
         test_beta.inc_dzpuis() ;  
-        diffrel(test_beta, source_beta,
-                "Relative error (L^1) in the resolution for beta") ; 
-        diffrelmax(test_beta, source_beta,
-                "Relative error (L^infty) in the resolution for beta") ; 
+        maxabs(test_beta - source_beta,
+                "Absolute error in the resolution for beta") ; 
 
         //===========================================
         //      Convergence control
@@ -255,29 +244,9 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& hh_in,
         //      Updates for next step 
         //=============================================
 
-        psi_evol.update(psi_jp1, jtime, ttime) ; 
-
-        // Reset of quantities depending on Psi:
-        qq_evol.downdate(jtime) ; 
-        if (p_psi4 != 0x0) {
-            delete p_psi4 ; 
-            p_psi4 = 0x0 ; 
-        }
-        if (p_ln_psi != 0x0) {
-            delete p_ln_psi ; 
-            p_ln_psi = 0x0 ; 
-        }
-        if (p_gamma != 0x0) {
-            delete p_gamma ; 
-            p_gamma = 0x0 ; 
-        }
-        gam_dd_evol.downdate(jtime) ; 
-        gam_uu_evol.downdate(jtime) ; 
+        set_psi_del_q(psi_jp1) ; 
      
         n_evol.update(nn_jp1, jtime, ttime) ; 
-
-        // Reset of quantities depending on N:
-        qq_evol.downdate(jtime) ; 
 
         beta_evol.update(beta_jp1, jtime, ttime) ; 
 
@@ -291,11 +260,7 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& hh_in,
         //                      - 0.6666666666666666 * beta.divergence() * hh()
         //                      + uu ) / (2.* nn()) ; 
                              
-        aa_evol.update(aa_jp1, jtime, ttime) ; 
-
-        // Reset of quantities depending on A^{ij}:
-        k_dd_evol.downdate(jtime) ; 
-        k_uu_evol.downdate(jtime) ; 
+        set_aa(aa_jp1) ; 
 
         // arrete() ; 
 
