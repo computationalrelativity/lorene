@@ -34,6 +34,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2004/04/08 16:42:31  f_limousin
+ * Add a function velocity_potential with argument ssjm1_psi for the
+ * case of strange stars.
+ *
  * Revision 1.18  2004/03/22 13:12:41  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -1311,6 +1315,11 @@ class Etoile_bin : public Etoile {
 			 double relax_potvit, double thres_adapt, 
 			 const Tbl& fact, Tbl& diff) ;
 
+	void equilibrium(double ent_c, int mermax, int mermax_poisson, 
+			 double relax_poisson, int mermax_potvit, 
+			 double relax_potvit, double thres_adapt, 
+			 const Tbl& fact, Tbl& diff, Cmp& ssjm1_psi) ;
+
 
 	/** Computes an equilibrium configuration by regularizing
 	 *  the diverging source.
@@ -1368,6 +1377,9 @@ class Etoile_bin : public Etoile {
 	 *	    the operator acting on the solution with the source.
 	 */
 	double velocity_potential(int mermax, double precis, double relax) ;
+
+	double velocity_potential(int mermax, double precis, double relax,
+				  Cmp& ssjm1_psi) ;
 
 	/** Performs a relaxation on \c ent , \c logn_auto ,
 	 *  \c beta_auto  and \c shift_auto . 
