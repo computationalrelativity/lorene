@@ -28,6 +28,9 @@ char Binary_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/03/23 10:00:47  f_limousin
+ * Minor changes.
+ *
  * Revision 1.6  2004/02/27 09:59:33  f_limousin
  * Modification in the routine decouple().
  *
@@ -47,6 +50,7 @@ char Binary_C[] = "$Header$" ;
 #include <math.h>
 
 // Headers Lorene
+#include "cmp.h"
 #include "binary.h"
 #include "eos.h"
 #include "utilitaires.h"
@@ -286,19 +290,19 @@ void Binary::display_poly(ostream& ost) const {
 
 
 void Binary::fait_decouple () {
-    
-/*    int nz_un = star1.mp.get_mg()->get_nzone() ;
+    /*
+    int nz_un = star1.mp.get_mg()->get_nzone() ;
     int nz_deux = star2.mp.get_mg()->get_nzone() ;
     
     // On determine R_limite (pour le moment en tout cas...) :
     double distance = fabs(star1.mp.get_ori_x() - star2.mp.get_ori_x()) ;
-    double lim_un = -1*distance/2. ;
-    double lim_deux = -1*distance/2. ;
-    double int_un = 0*distance/6. ;
-    double int_deux = 0*distance/6. ;
-*/  
+    double lim_un = distance/2. ;
+    double lim_deux = distance/2. ;
+    double int_un = distance/6. ;
+    double int_deux = distance/6. ;
+  
 
-    /*
+    
     // Les fonctions de base
     Cmp fonction_f_un (star1.mp) ;
     //   fonction_f_un = (exp(-pow(star1.mp.r/lim_un, 2)) - exp(-1.)) / (1-exp(-1.))/2. + 0.5 ;
@@ -307,12 +311,6 @@ void Binary::fait_decouple () {
       cos((star1.mp.r-int_un)*M_PI/2./(lim_un-int_un)), 2.)+0.5 ;
     fonction_f_un.std_base_scal();
 
-    des_coupe_z(fonction_f_un, 0, 2) ;
-    des_profile(fonction_f_un, 0, 10, 0, 0) ;
-    des_coef_xi(fonction_f_un.va, 0, 0, 0) ;
-    des_coef_xi(fonction_f_un.va, 1, 0, 0) ;
-    des_coef_xi(fonction_f_un.va, 2, 0, 0) ;
-    
     Cmp fonction_g_un (star1.mp) ;
     //   fonction_g_un = (1 - exp(-pow(star1.mp.r/lim_un, 2))) /
     //(1-exp(-1.))/2. ;
@@ -330,9 +328,9 @@ void Binary::fait_decouple () {
     fonction_g_deux = 0.5*pow
  (sin((star2.mp.r-int_deux)*M_PI/2./(lim_deux-int_deux)), 2.) ;
     fonction_g_deux.std_base_scal();
-    */   
+       
 
-/*
+
      // Les fonctions totales :
     Scalar decouple_un (star1.mp) ;
     decouple_un.allocate_all() ;
@@ -456,44 +454,29 @@ void Binary::fait_decouple () {
 			for (int j=0 ; j<nt ; j++)
 			    decouple_deux.set_grid_point(nz_un-1, k, j, nr) = 0.5 ;
    }
-*/   
-    int nr = star2.mp.get_mg()->get_nr (2) ;
-    int np = star2.mp.get_mg()->get_np (2) ;
-    int nt = star2.mp.get_mg()->get_nt (2) ;
-    int nz = star2.mp.get_mg()->get_nzone () ;
+    */   
+    int nr = star2.mp.get_mg()->get_nr(2) ;
+    int np = star2.mp.get_mg()->get_np(2) ;
+    int nt = star2.mp.get_mg()->get_nt(2) ;
+    int nz = star2.mp.get_mg()->get_nzone() ;
 
 
     Scalar decouple_un (star1.mp) ;
     Scalar decouple_deux (star2.mp) ;
 
-/*    
-    Scalar logn_auto1 = star1.get_logn_auto() ;
-    Scalar logn_auto2 = star2.get_logn_auto() ;
-    Scalar logn1 = star1.get_logn() ;
-    Scalar logn2 = star2.get_logn() ;
-
-    logn_auto1.set_outer_boundary(nz-1, 0) ;
-    logn_auto2.set_outer_boundary(nz-1, 0) ;
-    logn1.set_outer_boundary(nz-1, 0) ;
-    logn2.set_outer_boundary(nz-1, 0) ;
-    
-    decouple_un = logn_auto1 / logn1 ;
-    decouple_un.set_outer_boundary(nz-1, 0.5) ;
-
-    decouple_deux.import(1 - decouple_un) ;
-    decouple_deux.std_spectral_base() ;
-
-    Scalar decouple(star1.mp) ;
-    decouple.import(decouple_deux) ;
-    decouple = decouple + decouple_un ;
-
-    cout << "decouple" << endl << decouple << endl ; 
-
-*/
-
     decouple_un = 0.5 ;
     decouple_deux = 0.5 ;
 
+/*
+    Cmp decouple_cmp (decouple_un) ;
+    decouple_cmp.std_base_scal() ;
+
+    des_coupe_z(decouple_cmp, 0, 4) ;
+    des_profile(decouple_cmp, 0, 10, 1.57, 0) ;
+
+    cout << "decouple_un" << endl << decouple_un << endl ;
+    cout << "decouple_deux" << endl << decouple_deux << endl ;
+*/
     cout << "decouple_un"  << endl << norme(decouple_un/(nr*nt*np)) << endl ;
     cout << "decouple_deux"  << endl << norme(decouple_deux/(nr*nt*np)) << endl ;
     star1.decouple = decouple_un ;
@@ -540,8 +523,8 @@ void Binary::write_global(ostream& ost) const {
 	ost	<< ( star2.xa_barycenter() - star1.xa_barycenter() ) / km ; ost.width(22) ;
 	ost	<< separation() / (star1.ray_eq() + star2.ray_eq()) ; ost.width(22) ;
 	ost	<< omega / (2*M_PI)* f_unit ; ost.width(22) ;
-//	ost	<< mass_adm() / msol << endl ; //; ost.width(22) ; 
-//	ost	<< angu_mom()(2)/ ( qpig / (4* M_PI) * msol*msol) << endl ; 
+	ost	<< mass_adm() / msol << endl ; ost.width(22) ; 
+	ost	<< angu_mom()(2)/ ( qpig / (4* M_PI) * msol*msol) << endl ; 
 				
 	ost << "#     H_c(1)[c^2]     "
 	    << "    e_c(1)[rho_nuc]   " 
@@ -594,7 +577,7 @@ void Binary::write_global(ostream& ost) const {
 		double m_poly = r_poly / ggrav ; 
     
 		// Polytropic unit of angular momentum in terms of j_unit :
-//		double j_poly = r_poly * r_poly / ggrav ; 
+		double j_poly = r_poly * r_poly / ggrav ; 
     
 		ost << "#      d [poly]       "  
 			<< "       d_G [poly]     "
@@ -608,8 +591,8 @@ void Binary::write_global(ostream& ost) const {
 		ost << separation() / r_poly ; ost.width(22) ;
 		ost << ( star2.xa_barycenter() - star1.xa_barycenter() ) / r_poly ; ost.width(22) ; 
 		ost << omega * t_poly ; ost.width(22) ;
-//		ost << mass_adm() / m_poly ; ost.width(22) ;
-//		ost << angu_mom()(2) / j_poly ; ost.width(22) ;
+		ost << mass_adm() / m_poly ; ost.width(22) ;
+		ost << angu_mom()(2) / j_poly ; ost.width(22) ;
 		ost << star1.mass_b() / m_poly ; ost.width(22) ;
 		ost << star2.mass_b() / m_poly << endl ; 
 
