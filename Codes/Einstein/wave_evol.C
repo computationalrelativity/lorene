@@ -29,6 +29,9 @@ char wave_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/06/24 07:49:12  j_novak
+ * Using a constructor of Mg3d with variable number of points in each domain.
+ *
  * Revision 1.10  2004/05/20 20:33:34  e_gourgoulhon
  * Added parameters jmod_check_constraints and jmod_save,
  * which are passed to Tslice_dirac_max::evolve.
@@ -145,19 +148,24 @@ int main() {
     
 
     // Reading of multi-domain grid parameters
-    int symmetry_phi0, nz, nr, nt, np ;
+    int symmetry_phi0, nz, nt, np ;
     fpar.ignore(1000,'\n') ;    // skip title
     fpar >> symmetry_phi0 ; fpar.ignore(1000,'\n') ;
     fpar >> nz ; fpar.ignore(1000,'\n') ;
-    fpar >> nr ; fpar.ignore(1000,'\n') ;
     fpar >> nt ; fpar.ignore(1000,'\n') ;
     fpar >> np ; fpar.ignore(1000,'\n') ;
     fpar.ignore(1000,'\n') ;    // skip title
+    int* nr = new int[nz];
+    int* nt_tab = new int[nz];
+    int* np_tab = new int[nz];
     double* r_limits = new double[nz+1] ; 
     for (int l=0; l<nz; l++) {
-        fpar >> r_limits[l] ; fpar.ignore(1000,'\n') ;
+	fpar >> nr[l]; 
+	fpar >> r_limits[l]; fpar.ignore(1000,'\n') ;
+	np_tab[l] = np ; 
+	nt_tab[l] = nt ; 
     }
-    r_limits[nz] = __infinity ; 
+    r_limits[nz] = __infinity ;
     
     fpar.close() ; 
 
@@ -186,12 +194,17 @@ int main() {
     // Setup of a multi-domain grid (Lorene class Mg3d)
     // ------------------------------------------------
   
+    // Type of r sampling :
+    int* type_r = new int[nz];
+    type_r[0] = RARE ; 
+    for (int l=1; l<nz-1; l++) {
+	type_r[l] = FIN ; 
+    }
+    type_r[nz-1] = UNSURR ; 
     int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
     int symmetry_phi = (symmetry_phi0 == 1) ? SYM : NONSYM ; //  symmetry in phi
-    bool compact = true ; // external domain is compactified
-  
     // Multi-domain grid construction:
-    Mg3d mgrid(nz, nr, nt, np, symmetry_theta, symmetry_phi, compact) ;
+    Mg3d mgrid(nz, nr, type_r, nt_tab, symmetry_theta, np_tab, symmetry_phi) ;
 	
     cout << "Computational grid :\n" 
          << "------------------ \n" 
@@ -371,6 +384,10 @@ int main() {
     // Freeing dynamically allocated memory
     // ------------------------------------
     delete [] r_limits ; 
+    delete [] nr ;
+    delete [] nt_tab ;
+    delete [] np_tab ;
+    delete [] type_r ;
     
     return EXIT_SUCCESS ; 
 }

@@ -7,7 +7,7 @@
 4000    nb_time_steps :  maximum number of time steps
 5       niter_elliptic : number of iterations in the resolution of the ellip. eq.
 0.8     relax_elliptic : relaxation factor for the elliptic equations
-1       method_poisson_vect : method for solving vectorial Poisson equations
+4       method_poisson_vect : method for solving vectorial Poisson equations
 1.e-10  precis_init : precision in the resolution of initial data equations
 1       nopause : 1 = no pause during output printing, 0 otherwise 
 0       graph : 1 = graphical outputs during the computation, 0 = no graph
@@ -16,14 +16,13 @@
 10      jmod_save  : 1/frequency of saving monitoring quantities to file
 #################### MULTI-GRID PARAMETERS ###################################
 1       symmetry_phi : 1 = symmetry phi --> phi + pi, 0 otherwise
-5       nz : total number of domains
-25      nr : number of collocation points in r (the same in each domain)
-13       nt : number of collocation points in theta (the same in each domain)
-12       np : number of collocation points in phi   (the same in each domain)
-# Inner boundary of each domain:
-0.      min(r)  in domain 0  (nucleus)  	
-1.      min(r)  in domain 1
-2.      min(r)  in domain 2
-4.      min(r)  in domain 3
-8.      min(r)  in domain 4
-16.     min(r)  in domain 5
+6       nz : total number of domains
+9       nt : number of collocation points in theta (the same in each domain)
+8       np : number of collocation points in phi   (the same in each domain)
+# Number of points and inner boundary of each domain:
+17	0.      nr & min(r)  in domain 0  (nucleus)  	
+17	1.      nr & min(r)  in domain 1
+17	2.      nr & min(r)  in domain 2
+17	4.      nr & min(r)  in domain 3
+17	6.      nr & min(r)  in domain 4
+9	8.      nr & min(r)  in domain 5
