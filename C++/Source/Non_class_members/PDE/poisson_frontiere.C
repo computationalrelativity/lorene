@@ -25,8 +25,11 @@ char poisson_frontiere_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2004/09/08 15:12:16  f_limousin
+ * Delete some assert.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.4  2000/05/22  16:03:32  phil
  * ajout du cas dzpuis = 3
@@ -103,7 +106,6 @@ Mtbl_cf sol_poisson_frontiere(const Map_af& mapping, const Mtbl_cf& source,
     for (int l=num_front+1 ; l<nz-1 ; l++)
 	assert(source.get_mg()->get_type_r(l) == FIN) ;
     
-    assert (limite.get_mg() == source.get_mg()->get_angu()) ;
     assert (source.get_etat() != ETATNONDEF) ;
     assert (limite.get_etat() != ETATNONDEF) ;
      
