@@ -30,6 +30,9 @@ char connection_fcart_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/16 15:26:03  e_gourgoulhon
+ * Suppressed unsued variable
+ *
  * Revision 1.5  2003/10/16 14:21:36  j_novak
  * The calculation of the divergence of a Tensor is now possible.
  *
@@ -350,7 +353,6 @@ Tensor* Connection_fcart::p_derive_cov(const Tensor& uu) const {
 Tensor* Connection_fcart::p_divergence(const Tensor& uu) const {
 
   int valence0 = uu.get_valence() ; 
-  int ncomp0 = uu.get_n_comp() ;
 	
   // Protections
   // -----------
