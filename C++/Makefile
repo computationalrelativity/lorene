@@ -31,6 +31,7 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Mtbl; $(MAKE)
 	cd Source/Mtbl_cf; $(MAKE)
 	cd Source/Non_class_members/Coef; $(MAKE)
+	cd Source/Non_class_members/Coef/$(FFT_DIR); $(MAKE)
 	cd Source/Non_class_members/Graphics; $(MAKE)
 	cd Source/Non_class_members/Operators; $(MAKE)
 	cd Source/Non_class_members/PDE; $(MAKE)
@@ -84,6 +85,8 @@ uninstall:
 	cd Source/Mtbl; $(MAKE) -i uninstall
 	cd Source/Mtbl_cf; $(MAKE) -i uninstall
 	cd Source/Non_class_members/Coef; $(MAKE) -i uninstall
+	cd Source/Non_class_members/Coef/FFT991; $(MAKE) -i uninstall
+	cd Source/Non_class_members/Coef/FFTW3; $(MAKE) -i uninstall
 	cd Source/Non_class_members/Graphics; $(MAKE) -i uninstall
 	cd Source/Non_class_members/Operators; $(MAKE) -i uninstall
 	cd Source/Non_class_members/PDE; $(MAKE) -i uninstall
