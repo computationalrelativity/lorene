@@ -28,6 +28,9 @@ char simple_wave_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/05/11 20:17:04  e_gourgoulhon
+ * New prototype of des_evol.
+ *
  * Revision 1.12  2004/04/06 08:26:21  j_novak
  * Update of the list of arguments for Evolution constructors.
  *
@@ -221,8 +224,7 @@ int main() {
         }
     }
     
-    des_evol(uu_c, 0, j_max, false, "U\\dc\\u", 
-             "Evolution of central value of U") ; 
+    des_evol(uu_c, "U\\dc\\u", "Evolution of central value of U") ; 
     arrete() ; 
     
     
