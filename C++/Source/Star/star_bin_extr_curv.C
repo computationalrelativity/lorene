@@ -30,6 +30,9 @@ char star_bin_extr_curv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/02/24 16:04:44  f_limousin
+ * Change the name of some variables (for instance dcov_logn --> dlogn).
+ *
  * Revision 1.6  2005/02/17 17:33:38  f_limousin
  * Change the name of some quantities to be consistent with other classes
  * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
@@ -58,32 +61,18 @@ char star_bin_extr_curv_C[] = "$Header$" ;
 
 void Star_bin::extrinsic_curvature(){
     
-    // Gradient tilde (with respect to the spherical coordinates
-    //           of the mapping)
-    // D~_j beta^i 
-    
-    const Tensor& dbeta = beta_auto.derive_con(gtilde) ; 
-    
-     // Trace of D~_j beta^i : 
-    Scalar div_beta = beta_auto.divergence(gtilde) ; 
-
     // Computation of K^{ij}
-    // See Eq (49) from Gourgoulhon et al. (2001)
-    // ------------------------------------------
+    // --------------------
 
-    for (int i=1; i<=3; i++) 
-	for (int j=1; j<=i; j++) {
-	    aa_auto.set(i, j) = dbeta(i, j) + dbeta(j, i) - 
-		0.66666666666666666 * div_beta * (gtilde.con())(i,j) ; 
-	}
+    aa_auto = beta_auto.ope_killing_conf(gtilde) ;
     
     aa_auto = 0.5 * aa_auto / nn ;   
      
     // Computation of K_{ij} K^{ij}
     // ----------------------------
     
-    Tensor aa_auto_cov = aa_auto.down(0, gtilde).down(1, gtilde) ;
+    Tensor aa_auto_dd = aa_auto.up_down(gtilde) ;
   
-    aa_quad_auto = contract(aa_auto_cov, 0, 1, aa_auto, 0, 1, true) ; 
+    aa_quad_auto = contract(aa_auto_dd, 0, 1, aa_auto, 0, 1, true) ; 
       
 }

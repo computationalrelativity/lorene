@@ -31,6 +31,9 @@ char star_binupmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2005/02/24 16:05:14  f_limousin
+ * Change the name of some variables (for instance dcov_logn --> dlogn).
+ *
  * Revision 1.11  2005/02/18 13:14:18  j_novak
  * Changing of malloc/free to new/delete + suppression of some unused variables
  * (trying to avoid compilation warnings).
@@ -593,22 +596,4 @@ void Star_bin::update_metric_init2(const Star_bin& comp) {
     }
     
     logn = logn_auto + logn_comp ; 
-}
-
-void Star_bin::update_decouple(const Star_bin& ) {
-
-    int nr = mp.get_mg()->get_nr(0);
-    int nt = mp.get_mg()->get_nt(0);
-    int np = mp.get_mg()->get_np(0);
-
-//    decouple = (logn_auto - 1.e-12) / (logn - 2.e-12) ;
-
-    decouple = 0.5 ;
-
-    Cmp decouple_cmp (decouple) ;
-
-    cout << "decouple" << endl << norme(decouple/(nr*nt*np)) << endl ;
-
-//    des_profile(decouple, 0., 40., 1., 1.5, 0.) ;
-
 }

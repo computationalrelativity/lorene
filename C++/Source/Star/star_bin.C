@@ -31,6 +31,9 @@ char star_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2005/02/24 16:03:01  f_limousin
+ * Change the name of some variables (for instance dcov_logn --> dlogn).
+ *
  * Revision 1.14  2005/02/17 17:29:28  f_limousin
  * Change the name of some quantities to be consistent with other classes
  * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
@@ -108,13 +111,12 @@ Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i,
       pot_centri(mpi), 
       logn_auto(mpi),
       logn_comp(mpi), 
-      dcov_logn(mpi, COV, mpi.get_bvect_spher()),
-      dcon_logn(mpi, CON, mpi.get_bvect_spher()),
+      dlogn(mpi, COV, mpi.get_bvect_spher()),
       lnq_auto(mpi),
       lnq_comp(mpi),
+      dlnq(mpi, COV, mpi.get_bvect_spher()),   
       psi4(mpi),
-      dcov_lnpsi(mpi, COV, mpi.get_bvect_spher()),
-      dcon_lnpsi(mpi, CON, mpi.get_bvect_spher()),
+      dlnpsi(mpi, COV, mpi.get_bvect_spher()),
       flat(mpi, mpi.get_bvect_spher()),
       gtilde(flat),
       beta_auto(mpi, CON, mpi.get_bvect_spher()), 
@@ -146,15 +148,14 @@ Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i,
   
     logn_auto = 0 ;
     logn_comp = 0 ; 
-    dcov_logn.set_etat_zero() ;
-    dcon_logn.set_etat_zero() ;
+    dlogn.set_etat_zero() ;
     beta_auto.set_etat_zero() ; 
     beta_comp.set_etat_zero() ; 
     lnq_auto = 0 ;
     lnq_comp = 0 ;
+    dlnq.set_etat_zero() ;
     psi4 = 1 ;
-    dcov_lnpsi.set_etat_zero() ;
-    dcon_lnpsi.set_etat_zero() ;
+    dlnpsi.set_etat_zero() ;
     hh.set_etat_zero() ;
     hh_auto.set_etat_zero() ;
     hh_comp.set_etat_zero() ;
@@ -184,13 +185,12 @@ Star_bin::Star_bin(const Star_bin& star)
 			 pot_centri(star.pot_centri), 
 			 logn_auto(star.logn_auto),
 			 logn_comp(star.logn_comp), 
-			 dcov_logn(star.dcov_logn),
-			 dcon_logn(star.dcon_logn),
+			 dlogn(star.dlogn),
 			 lnq_auto(star.lnq_auto),
 			 lnq_comp(star.lnq_comp),
+			 dlnq(star.dlnq),
 			 psi4(star.psi4),
-			 dcov_lnpsi(star.dcov_lnpsi),
-			 dcon_lnpsi(star.dcon_lnpsi),
+			 dlnpsi(star.dlnpsi),
 			 flat(star.flat),
 			 gtilde(star.gtilde),
 			 beta_auto(star.beta_auto), 
@@ -226,13 +226,12 @@ Star_bin::Star_bin(Map& mpi, const Eos& eos_i, FILE* fich)
 			 pot_centri(mpi), 
 			 logn_auto(mpi, *(mpi.get_mg()), fich),
 			 logn_comp(mpi), 
-			 dcov_logn(mpi, COV, mpi.get_bvect_spher()),
-			 dcon_logn(mpi, CON, mpi.get_bvect_spher()),
+			 dlogn(mpi, COV, mpi.get_bvect_spher()),
 			 lnq_auto(mpi, *(mpi.get_mg()), fich),
 			 lnq_comp(mpi),
+			 dlnq(mpi, COV, mpi.get_bvect_spher()),
 			 psi4(mpi),
-			 dcov_lnpsi(mpi, COV, mpi.get_bvect_spher()),
-			 dcon_lnpsi(mpi, CON, mpi.get_bvect_spher()),
+			 dlnpsi(mpi, COV, mpi.get_bvect_spher()),
 			 flat(mpi, mpi.get_bvect_spher()),
 			 gtilde(flat),
 			 beta_auto(mpi, mpi.get_bvect_spher(), fich), 
@@ -278,13 +277,12 @@ Star_bin::Star_bin(Map& mpi, const Eos& eos_i, FILE* fich)
     bsn.set_etat_zero() ; 
     pot_centri = 0 ;
     logn_comp = 0 ; 
-    dcov_logn.set_etat_zero() ;
-    dcon_logn.set_etat_zero() ;
+    dlogn.set_etat_zero() ;
     beta_comp.set_etat_zero() ; 
     lnq_comp = 0 ;
+    dlnq.set_etat_zero() ;
     psi4 = 1 ;
-    dcov_lnpsi.set_etat_zero() ;
-    dcon_lnpsi.set_etat_zero() ;
+    dlnpsi.set_etat_zero() ;
     hh.set_etat_zero() ;
     hh_comp.set_etat_zero() ;
 
@@ -363,13 +361,12 @@ void Star_bin::operator=(const Star_bin& star) {
     pot_centri = star.pot_centri ;
     logn_auto = star.logn_auto ;    
     logn_comp = star.logn_comp ;
-    dcov_logn = star.dcov_logn ;
-    dcon_logn = star.dcon_logn ;
+    dlogn = star.dlogn ;
     lnq_auto = star.lnq_auto ;
     lnq_comp = star.lnq_comp ;
+    dlnq = star.dlnq ;
     psi4 = star.psi4 ;
-    dcov_lnpsi = star.dcov_lnpsi ;
-    dcon_lnpsi = star.dcon_lnpsi ;
+    dlnpsi = star.dlnpsi ;
     flat = star.flat ;
     gtilde = star.gtilde ;
     beta_auto = star.beta_auto ;

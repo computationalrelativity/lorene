@@ -33,6 +33,9 @@ char star_bin_vel_pot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/02/24 16:07:57  f_limousin
+ * Change the name of some variables (for instance dcov_logn --> dlogn).
+ *
  * Revision 1.4  2005/02/17 17:33:11  f_limousin
  * Change the name of some quantities to be consistent with other classes
  * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
@@ -121,8 +124,8 @@ double Star_bin::velocity_potential(int mermax, double precis, double relax) {
     www.change_triad(mp.get_bvect_spher()) ;
     v_orb.change_triad(mp.get_bvect_spher()) ;
 
-    Tensor dcovdcov_psi0 = psi0.derive_cov(flat).derive_cov(flat) ;
-    dcovdcov_psi0.inc_dzpuis() ;
+    Tensor dpsi0_dd = psi0.derive_cov(flat).derive_cov(flat) ;
+    dpsi0_dd.inc_dzpuis() ;
 
     // See Eq (63) from Gourgoulhon et al. (2001)
     Scalar source = contract(www - v_orb, 0, ent.derive_cov(flat), 0)
@@ -131,7 +134,7 @@ double Star_bin::velocity_potential(int mermax, double precis, double relax) {
 		     + contract(hh, 0, 1, (psi0.derive_cov(flat)  
 				+ v_orb.down(0, flat))*entmb.derive_cov(flat),
 				0, 1) 
-		     - contract(hh, 0, 1, dcovdcov_psi0, 0, 1))
+		     - contract(hh, 0, 1, dpsi0_dd, 0, 1))
 	- contract(hh, 0, 1, ent.derive_cov(flat) * (psi0.derive_cov(flat) 
 						      + v_orb.down(0, flat)), 
 						      0, 1) ;
