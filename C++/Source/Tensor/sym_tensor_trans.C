@@ -32,6 +32,11 @@ char sym_tensor_trans_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2005/01/03 08:13:26  f_limousin
+ * The first argument of the function trace_from_det_one(...) is now
+ * a Sym_tensor_trans instead of a Sym_tensor_tt (because of a
+ * compilation error with some compilators).
+ *
  * Revision 1.11  2004/12/28 14:21:48  j_novak
  * Added the method Sym_tensor_trans::trace_from_det_one
  *
@@ -287,7 +292,7 @@ const Sym_tensor_tt& Sym_tensor_trans::tt_part(Param* par) const {
 }
 
 
-void Sym_tensor_trans::trace_from_det_one(const Sym_tensor_tt& hijtt, 
+void Sym_tensor_trans::trace_from_det_one(const Sym_tensor_trans& hijtt, 
 					   double precis, int it_max) {
     
     assert (&hijtt != this) ;

@@ -30,6 +30,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.25  2005/01/03 08:15:39  f_limousin
+ * The first argument of the function trace_from_det_one(...) is now
+ * a Sym_tensor_trans instead of a Sym_tensor_tt (because of a
+ * compilation error with some compilators).
+ *
  * Revision 1.24  2004/12/28 14:21:46  j_novak
  * Added the method Sym_tensor_trans::trace_from_det_one
  *
@@ -443,7 +448,7 @@ class Sym_tensor_trans: public Sym_tensor {
 	 *               the iteration.
 	 * @param it_max maximal number of iterations.
 	 */
-	void trace_from_det_one(const Sym_tensor_tt& htt, 
+	void trace_from_det_one(const Sym_tensor_trans& htt, 
 				double precis = 1.e-14, int it_max = 100) ;
 
 } ; 
