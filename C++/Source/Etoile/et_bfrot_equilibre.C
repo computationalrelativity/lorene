@@ -32,6 +32,9 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2004/08/30 09:54:20  r_prix
+ * experimental version of Kepler-limit finder for 2-fluid stars
+ *
  * Revision 1.14  2004/03/25 10:29:03  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -155,8 +158,10 @@ void Et_rot_bifluid::equilibrium_bi
   int mer_change_omega = icontrol(2) ; 
   int mer_fix_omega = icontrol(3) ; 
   int mermax_poisson = icontrol(4) ; 
-  int nzadapt = icontrol(5);	// number of domains for adaptive grid
-
+  int nzadapt = icontrol(5);		// number of domains for adaptive grid
+  int kepler_fluid = icontrol(6); 	// fluid-index for kepler-limit (0=none,3=both)
+  int kepler_wait_steps = icontrol(7);
+  
   int niter ;
 
   // Protections:
@@ -183,6 +188,12 @@ void Et_rot_bifluid::equilibrium_bi
   // some additional stuff for adaptive grid:
   double thres_adapt = control(5) ; 
   double precis_adapt = control(6) ; 
+  double kepler_factor = control(7);
+  if (kepler_factor <= 1.0)
+    {
+      cout << "ERROR: Kepler factor has to be greater than 1!!\n";
+      abort();
+    }
 
 
   // Error indicators
@@ -326,6 +337,8 @@ void Et_rot_bifluid::equilibrium_bi
   // source term for shift
   Tenseur mlngamma(mp) ;	// centrifugal potential
   Tenseur mlngamma2(mp) ;	// centrifugal potential
+
+  Tenseur *outer_ent_p;		// pointer to the enthalpy field of the outer fluid
     
   // Preparations for the Poisson equations:
   // --------------------------------------
@@ -525,109 +538,159 @@ void Et_rot_bifluid::equilibrium_bi
 	
     }
 
-    // New computation of delta_car, gam_euler, enerps_euler etc...
-    // ------------------------------------------------------
-	
-    hydro_euler() ; 
-	
 
-    //------------------------------------------------------
-    //	First integral of motion 
-    //------------------------------------------------------
-	
-    // Centrifugal potential : 
-    if (relativistic) {
-      mlngamma = - log( gam_euler ) ;
-      mlngamma2 = - log( gam_euler2) ;
-    }
-    else {
-      mlngamma = - 0.5 * uuu*uuu ;
-      mlngamma2 = -0.5 * uuu2*uuu2 ;
-    }
-	
-    // Central values of various potentials :
-    double nuf_c = nuf()(0,0,0,0) ; 
-    double nuq_c = nuq()(0,0,0,0) ; 
+    //----------------------------------------
+    // Shall we search for the Kepler limit?
+    //----------------------------------------
+    bool kepler = false;
+    bool too_fast = false;
 
-    // Scale factor to ensure that the enthalpy is equal to ent_b at 
-    //  the equator for the "outer" fluid
-    double alpha_r2 = 0;
-    
-    //RP: experiment: push domain boundary slightly outwards from star
-    //    ent_b = -0.01;
-
-    // do an inversion on that rescaled numerical grid
-    //    equation_of_state() ;
-    //    double Rn_eq = ray_eq();
-    //    double Rp_eq = ray_eq2();
-    //    double R_eq = (Rn_eq > Rp_eq) ? Rn_eq : Rp_eq;
-
-    // determine new enthalpy defining the _true_ equatorial radius:
-    //    ent_b = ent().val_point(R_eq, M_PI/2,0.0);
-
-
-    int j=j_b;
-    
-    // Boundary values of various potentials :
-    double nuf_b  = nuf()(l_b, k_b, j, i_b) ; 
-    double nuq_b  = nuq()(l_b, k_b, j, i_b) ; 
-    double mlngamma_b  = mlngamma()(l_b, k_b, j, i_b) ; 
-    double mlngamma2_b  = mlngamma2()(l_b, k_b, j, i_b) ; 
-
-
-    // RP: "hack": adapt the radius correctly if using "slow-rot-style" EOS inversion
-    // 
-    if ( eos.identify() == 2 ) // only applies to Eos_bf_poly_newt
+    if ( (kepler_fluid > 0) && (mer > mer_fix_omega + kepler_wait_steps) )
       {
-	const Eos_bf_poly_newt &eos0 = dynamic_cast<const Eos_bf_poly_newt&>(eos);
-	if (eos0.get_typeos() == 5)
-	  {
-	    double vn_b = uuu()(l_b, k_b, j, i_b);
-	    double vp_b = uuu2()(l_b, k_b, j, i_b);
-	    double D2_b = (vp_b - vn_b)*(vp_b - vn_b);
-	    double kdet = eos0.get_kap3() + eos0.get_beta()*D2_b;
-	    double kaps1 = kdet / ( eos0.get_kap2() - kdet );
-	    double kaps2 = kdet / ( eos0.get_kap1() - kdet );
-	    
-	    ent1_b = kaps1 * ( ent2_c - ent_c - mlngamma2_b + mlngamma_b );
-	    ent2_b = kaps2 * ( ent_c - ent2_c - mlngamma_b + mlngamma2_b );
-	    
-	    cout << "**********************************************************************\n";
-	    cout << "DEBUG: Rescaling domain for slow-rot-style EOS inversion \n";
-	    cout << "DEBUG: ent1_b = " << ent1_b << "; ent2_b = " << ent2_b << endl;
-	    cout << "**********************************************************************\n";
-
-	    adapt_flag = 0;	// don't do adaptive-grid if using slow-rot-style inversion!
-	  }
+	if (kepler_fluid & 0x01)
+	  omega *= kepler_factor;
+	if (kepler_fluid & 0x02)
+	  omega2 *= kepler_factor;
       }
+
+
+    // ============================================================
+    kepler = true;
+    while (kepler)	
+      {	
+
+	// New computation of delta_car, gam_euler, enerps_euler etc...
+	// ------------------------------------------------------
+	hydro_euler() ; 
+	
+
+	//------------------------------------------------------
+	//	First integral of motion 
+	//------------------------------------------------------
+	
+	// Centrifugal potential : 
+	if (relativistic) {
+	  mlngamma = - log( gam_euler ) ;
+	  mlngamma2 = - log( gam_euler2) ;
+	}
+	else {
+	  mlngamma = - 0.5 * uuu*uuu ;
+	  mlngamma2 = -0.5 * uuu2*uuu2 ;
+	}
+	
+	// Central values of various potentials :
+	double nuf_c = nuf()(0,0,0,0) ; 
+	double nuq_c = nuq()(0,0,0,0) ; 
+
+	// Scale factor to ensure that the enthalpy is equal to ent_b at 
+	//  the equator for the "outer" fluid
+	double alpha_r2 = 0;
+	
+	int j=j_b;
     
-    double alpha1_r2 = ( ent_c - ent1_b - mlngamma_b + nuq_c - nuq_b) / ( nuf_b - nuf_c  ) ;
-    double alpha2_r2 = ( ent2_c - ent2_b  - mlngamma2_b + nuq_c - nuq_b) / ( nuf_b - nuf_c  ) ;
+	// Boundary values of various potentials :
+	double nuf_b  = nuf()(l_b, k_b, j, i_b) ; 
+	double nuq_b  = nuq()(l_b, k_b, j, i_b) ; 
+	double mlngamma_b  = mlngamma()(l_b, k_b, j, i_b) ; 
+	double mlngamma2_b  = mlngamma2()(l_b, k_b, j, i_b) ; 
+
+
+	// RP: "hack": adapt the radius correctly if using "slow-rot-style" EOS inversion
+	// 
+	if ( eos.identify() == 2 ) // only applies to Eos_bf_poly_newt
+	  {
+	    const Eos_bf_poly_newt &eos0 = dynamic_cast<const Eos_bf_poly_newt&>(eos);
+	    if (eos0.get_typeos() == 5)
+	      {
+		double vn_b = uuu()(l_b, k_b, j, i_b);
+		double vp_b = uuu2()(l_b, k_b, j, i_b);
+		double D2_b = (vp_b - vn_b)*(vp_b - vn_b);
+		double kdet = eos0.get_kap3() + eos0.get_beta()*D2_b;
+		double kaps1 = kdet / ( eos0.get_kap2() - kdet );
+		double kaps2 = kdet / ( eos0.get_kap1() - kdet );
+		
+		ent1_b = kaps1 * ( ent2_c - ent_c - mlngamma2_b + mlngamma_b );
+		ent2_b = kaps2 * ( ent_c - ent2_c - mlngamma_b + mlngamma2_b );
+		
+		cout << "**********************************************************************\n";
+		cout << "DEBUG: Rescaling domain for slow-rot-style EOS inversion \n";
+		cout << "DEBUG: ent1_b = " << ent1_b << "; ent2_b = " << ent2_b << endl;
+		cout << "**********************************************************************\n";
+		
+		adapt_flag = 0;	// don't do adaptive-grid if using slow-rot-style inversion!
+	      }
+	  }
     
-    cout << "DEBUG: j= "<< j<<" ; alpha1 = " << alpha1_r2 <<" ; alpha2 = " << alpha2_r2 << endl;
-
-    int outer_fluid = (alpha1_r2 > alpha2_r2) ? 1 : 2;  // index of 'outer' fluid (at equator!)
-      
-    Tenseur *outer_ent_p = (outer_fluid == 1) ? (&ent) : (&ent2);
-
-    alpha_r2 = (outer_fluid == 1) ? alpha1_r2 : alpha2_r2 ;
-
-    alpha_r = sqrt(alpha_r2);
-
-    cout << "alpha_r = " << alpha_r << endl ; 
-
-    // Readjustment of nu :
-    // -------------------
+	double alpha1_r2 = ( ent_c - ent1_b - mlngamma_b + nuq_c - nuq_b) / ( nuf_b - nuf_c  ) ;
+	double alpha2_r2 = ( ent2_c - ent2_b  - mlngamma2_b + nuq_c - nuq_b) / ( nuf_b - nuf_c  ) ;
 	
-    logn = alpha_r2 * nuf + nuq ;
-    double nu_c =  logn()(0,0,0,0) ;
+	cout << "DEBUG: j= "<< j<<" ; alpha1 = " << alpha1_r2 <<" ; alpha2 = " << alpha2_r2 << endl;
+
+	int outer_fluid = (alpha1_r2 > alpha2_r2) ? 1 : 2;  // index of 'outer' fluid (at equator!)
+	
+	outer_ent_p = (outer_fluid == 1) ? (&ent) : (&ent2);
+	
+	alpha_r2 = (outer_fluid == 1) ? alpha1_r2 : alpha2_r2 ;
+	
+	alpha_r = sqrt(alpha_r2);
+	
+	cout << "alpha_r = " << alpha_r << endl ; 
+	
+	// Readjustment of nu :
+	// -------------------
+	
+	logn = alpha_r2 * nuf + nuq ;
+	double nu_c =  logn()(0,0,0,0) ;
+	
+	
+	// First integral	--> enthalpy in all space
+	//-----------------
+	
+	ent = (ent_c + nu_c) - logn - mlngamma ;
+	ent2 = (ent2_c + nu_c) - logn - mlngamma2 ;
+
+
+	// now let's try to figure out if we have overstepped the Kepler-limit
+	// (FIXME) we assume that the enthalpy of the _outer_ fluid being negative
+	// inside the star 
+	kepler = false;
+	for (int l=0; l<nzet; l++) {
+	  int imax = mg->get_nr(l) - 1 ;
+	  if (l == l_b) imax-- ;	// The surface point is skipped
+	  for (int i=0; i<imax; i++) { 
+	    if ( (*outer_ent_p)()(l, 0, j_b, i) < 0. ) {
+	      kepler = true;
+	      cout << "(outer) ent < 0 for l, i : " << l << "  " << i 
+		   << "   ent = " << (*outer_ent_p)()(l, 0, j_b, i) << endl ;  
+	    } 
+	  }
+	}
+	
+	if ( kepler ) 
+	  {
+	    cout << "**** KEPLERIAN VELOCITY REACHED ****" << endl ; 
+	    if (kepler_fluid & 0x01)
+	      omega /= kepler_factor ;    // Omega is decreased
+	    if (kepler_fluid & 0x02)
+	      omega2 /= kepler_factor;
+
+	    cout << "New rotation frequencies : " 
+		 << "Omega = " << omega/(2.*M_PI) * f_unit << " Hz; " 
+		 << "Omega2 = " << omega2/(2.*M_PI) * f_unit << endl ; 
+
+	    too_fast = true;
+	  }
+
+      } /* while kepler */
 
 	
-    // First integral	--> enthalpy in all space
-    //-----------------
-	
-    ent = (ent_c + nu_c) - logn - mlngamma ;
-    ent2 = (ent2_c + nu_c) - logn - mlngamma2 ;
+    if ( too_fast ) 
+      {	// fact_omega is decreased for the next step 
+	kepler_factor = sqrt( kepler_factor ) ; 
+	cout << "**** New fact_omega : " << kepler_factor << endl ; 
+      }
+    // ============================================================
+
 
     // Cusp-check: shall the adaptation still be performed?
     // ------------------------------------------
@@ -640,17 +703,17 @@ void Et_rot_bifluid::equilibrium_bi
       adapt_flag = 0 ;	// No adaptation of the mapping 
       cout << "******* FROZEN MAPPING  *********" << endl ; 
     }
-
+    
     // Rescaling of the grid and adaption to (outer) enthalpy surface
     //---------------------------------------
     if (adapt_flag  && (nzadapt > 0) ) 
       {
 	mp_prev = mp_et ; 
-
+	
 	mp.adapt( (*outer_ent_p)(), par_adapt) ; 
-
+	
 	mp_prev.homothetie(alpha_r) ;
-
+	
 	mp.reevaluate(&mp_prev, nzet+1, ent.set()) ; 
 	mp.reevaluate(&mp_prev, nzet+1, ent2.set()) ; 
       }
