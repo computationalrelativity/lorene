@@ -29,6 +29,9 @@ char op_primr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/10/12 09:58:24  j_novak
+ * Better memory management.
+ *
  * Revision 1.2  2004/06/14 15:24:57  e_gourgoulhon
  * First operationnal version (tested).
  *
@@ -107,8 +110,8 @@ void _primr_r_cheb(const Tbl& tin, int bin, const Tbl& valm1, Tbl& tout,
     // ------------------------
 
     assert(tin.get_etat() == ETATQCQ ) ; 
-    tout.set_etat_qcq() ; 
-    valp1.set_etat_qcq() ; 
+    tout.annule_hard() ; 
+    valp1.annule_hard() ; 
     
     const double* xci = tin.t ;	
     double* xco = tout.t ;	
@@ -183,8 +186,8 @@ void _primr_r_chebp(const Tbl& tin, int bin, const Tbl&, Tbl& tout,
     // ------------------------
 
     assert(tin.get_etat() == ETATQCQ ) ; 
-    tout.set_etat_qcq() ; 
-    valp1.set_etat_qcq() ; 
+    tout.annule_hard() ; 
+    valp1.annule_hard() ; 
     
     const double* xci = tin.t ;	
     double* xco = tout.t ;	
@@ -250,8 +253,8 @@ void _primr_r_chebi(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
         }
         else {
             assert(val0.get_etat() == ETATQCQ) ; 
-            tout.set_etat_qcq() ; 
-            valp1.set_etat_qcq() ; 
+            tout.annule_hard() ; 
+            valp1.annule_hard() ; 
             double* xco = tout.t ;	
             for (int k=0 ; k< borne_phi ; k++) {
 	        if (k==1) {     // jump over the coefficient of sin(0*phi) 
@@ -274,8 +277,8 @@ void _primr_r_chebi(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
     // ------------------------
 
     assert(tin.get_etat() == ETATQCQ ) ; 
-    tout.set_etat_qcq() ; 
-    valp1.set_etat_qcq() ; 
+    tout.annule_hard() ; 
+    valp1.annule_hard() ; 
     
     const double* xci = tin.t ;	
     double* xco = tout.t ;	
@@ -344,8 +347,8 @@ void _primr_r_chebpim_p(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
         }
         else {
             assert(val0.get_etat() == ETATQCQ) ; 
-            tout.set_etat_qcq() ; 
-            valp1.set_etat_qcq() ; 
+            tout.annule_hard() ; 
+            valp1.annule_hard() ; 
             double* xco = tout.t ;	
 
             // m even part 
@@ -389,8 +392,8 @@ void _primr_r_chebpim_p(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
     // ------------------------
 
     assert(tin.get_etat() == ETATQCQ ) ; 
-    tout.set_etat_qcq() ; 
-    valp1.set_etat_qcq() ; 
+    tout.annule_hard() ; 
+    valp1.annule_hard() ; 
     
     const double* xci = tin.t ;	
     double* xco = tout.t ;	
@@ -498,8 +501,8 @@ void _primr_r_chebpim_i(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
         }
         else {
             assert(val0.get_etat() == ETATQCQ) ; 
-            tout.set_etat_qcq() ; 
-            valp1.set_etat_qcq() ; 
+            tout.annule_hard() ; 
+            valp1.annule_hard() ; 
             double* xco = tout.t ;	
 
             // m odd part 
@@ -543,8 +546,8 @@ void _primr_r_chebpim_i(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
     // ------------------------
 
     assert(tin.get_etat() == ETATQCQ ) ; 
-    tout.set_etat_qcq() ; 
-    valp1.set_etat_qcq() ; 
+    tout.annule_hard() ; 
+    valp1.annule_hard() ; 
     
     const double* xci = tin.t ;	
     double* xco = tout.t ;	

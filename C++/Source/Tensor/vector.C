@@ -32,6 +32,9 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2004/10/12 09:58:25  j_novak
+ * Better memory management.
+ *
  * Revision 1.21  2004/10/11 09:46:31  j_novak
  * Speed improvements.
  *
@@ -666,6 +669,13 @@ void Vector::decompose_div(const Metric& metre) const {
 
 	  } //End of j/theta loop   
 	} //End of k/phi loop 
+
+	for (int l=0; l<=lmax; l++) {
+	  delete ri[l] ;
+	  delete rmi[l] ;
+	}
+	delete [] ri ;
+	delete [] rmi ;
 
       } //End of the case of more than one domain
 
