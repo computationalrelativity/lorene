@@ -29,6 +29,9 @@ char bin_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/12/18 10:31:15  e_gourgoulhon
+ * irrot : int -> bool
+ *
  * Revision 1.1  2002/12/17 13:10:11  e_gourgoulhon
  * Methods for class Bin_ns_bh
  *
@@ -55,7 +58,7 @@ char bin_ns_bh_C[] = "$Header$" ;
 
 // Standard constructor
 // --------------------
-Bin_ns_bh::Bin_ns_bh(Map& mp_ns, int nzet, const Eos& eos, int irrot_ns,
+Bin_ns_bh::Bin_ns_bh(Map& mp_ns, int nzet, const Eos& eos, bool irrot_ns,
 	        Map_af& mp_bh)
 		: ref_triad(0., "Absolute frame Cartesian basis"),
 		  star(mp_ns, nzet, true, eos, irrot_ns, ref_triad),
@@ -216,5 +219,7 @@ ostream& Bin_ns_bh::operator>>(ostream& ost) const {
     ost << "Black hole : " << endl ;
     ost << "==========   " << endl ;
     ost << "Coordinate radius of the throat : " << hole.get_rayon() / km << " km" << endl ;
+    ost << "Absolute abscidia of the throat center : " << (hole.get_mp()).get_ori_x() / km
+        << " km" << endl ;
     return ost ;
 }
