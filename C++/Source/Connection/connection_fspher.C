@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2003	Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2004 Eric Gourgoulhon & Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,10 @@ char connection_fspher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2004/01/04 21:00:50  e_gourgoulhon
+ * Better handling of tensor symmetries in methods p_derive_cov() and
+ * p_divergence() (thanks to the new class Tensor_sym).
+ *
  * Revision 1.15  2004/01/01 11:24:04  e_gourgoulhon
  * Full reorganization of method p_derive_cov: the main loop is now
  * on the indices of the *output* tensor (to take into account
@@ -178,7 +182,17 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
         }
         tipe.set(valence1m1) = COV ;  // last index is the derivation index
 
-        resu = new Tensor(*mp, valence1, tipe, *triad) ;
+        // if uu is a Tensor_sym, the result is also a Tensor_sym:
+        const Tensor* puu = &uu ; 
+        const Tensor_sym* puus = dynamic_cast<const Tensor_sym*>(puu) ; 
+        if ( puus != 0x0 ) {    // the input tensor is symmetric
+            resu = new Tensor_sym(*mp, valence1, tipe, *triad,
+                                  puus->sym_index1(), puus->sym_index2()) ;
+        }
+        else {  
+            resu = new Tensor(*mp, valence1, tipe, *triad) ;  // no symmetry  
+        }
+
     }
 
     int ncomp1 = resu->get_n_comp() ; 
@@ -394,8 +408,33 @@ Tensor* Connection_fspher::p_divergence(const Tensor& uu) const {
             resu = new Vector(*mp, tipe(0), *triad) ;
         }
         else {
-	    resu = new Tensor(*mp, valence1, tipe, *triad) ;
+            // if uu is a Tensor_sym, the result might be also a Tensor_sym:
+            const Tensor* puu = &uu ; 
+            const Tensor_sym* puus = dynamic_cast<const Tensor_sym*>(puu) ; 
+            if ( puus != 0x0 ) {    // the input tensor is symmetric
+
+                if (puus->sym_index2() != valence0 - 1) {
+                 
+                    // the symmetry is preserved: 
+
+                    if (valence1 == 2) {
+                        resu = new Sym_tensor(*mp, tipe, *triad) ;
+                    }
+                    else {
+                        resu = new Tensor_sym(*mp, valence1, tipe, *triad,
+                                  puus->sym_index1(), puus->sym_index2()) ;
+                    }
+                }
+                else { // the symmetry is lost: 
+                
+	            resu = new Tensor(*mp, valence1, tipe, *triad) ;
+                }
+            }
+            else { // no symmetry in the input tensor:
+	        resu = new Tensor(*mp, valence1, tipe, *triad) ;
+            }
         }
+ 
     }
 
     int ncomp1 = resu->get_n_comp() ;
