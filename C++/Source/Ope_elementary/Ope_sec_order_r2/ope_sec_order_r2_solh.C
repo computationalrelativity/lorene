@@ -102,14 +102,15 @@ Tbl _solh_sec_order_r2_r_cheb (int n, double alpha, double beta,
     
     // Limit on the boundaries :
     val_lim.set(0,0) = pow(r_minus, lambda_one) ;
-    val_lim.set(0,1) = (lambda_one-1)*pow(r_minus, lambda_one-1) ;
+    val_lim.set(0,1) = lambda_one*pow(r_minus, lambda_one-1) ;
     val_lim.set(0,2) = pow(r_plus, lambda_one) ;
-    val_lim.set(0,3) = (lambda_one-1)*pow(r_plus, lambda_one-1) ;
+    val_lim.set(0,3) = lambda_one*pow(r_plus, lambda_one-1) ;
 
     val_lim.set(1,0) = pow(r_minus, lambda_two) ;
-    val_lim.set(1,1) = (lambda_two-1)*pow(r_minus, lambda_two-1) ;
+    val_lim.set(1,1) = lambda_two*pow(r_minus, lambda_two-1) ;
     val_lim.set(1,2) = pow(r_plus, lambda_two) ;
-    val_lim.set(1,3) = (lambda_two-1)*pow(r_plus, lambda_two-1) ;
+    val_lim.set(1,3) = lambda_two*pow(r_plus, lambda_two-1) ;
+    val_lim /= sqrt(double(2)) ;
     break ;
   }
   case 0: {
@@ -131,14 +132,15 @@ Tbl _solh_sec_order_r2_r_cheb (int n, double alpha, double beta,
 
     // Limit on the boundaries :
     val_lim.set(0,0) = pow(r_minus, lambda) ;
-    val_lim.set(0,1) = (lambda-1)*pow(r_minus, lambda-1) ;
+    val_lim.set(0,1) = lambda*pow(r_minus, lambda-1) ;
     val_lim.set(0,2) = pow(r_plus, lambda) ;
-    val_lim.set(0,3) = (lambda-1)*pow(r_plus, lambda-1) ;
+    val_lim.set(0,3) = lambda*pow(r_plus, lambda-1) ;
 
     val_lim.set(1,0) = log(r_minus)*pow(r_minus, lambda) ;
-    val_lim.set(1,1) = (1+(lambda-1)*log(r_minus))*pow(r_minus, lambda-1) ;
+    val_lim.set(1,1) = (1+lambda*log(r_minus))*pow(r_minus, lambda-1) ;
     val_lim.set(1,2) = log(r_plus)*pow(r_plus, lambda) ;
-    val_lim.set(1,3) = (1+(lambda-1)*log(r_plus))*pow(r_plus, lambda-1) ;
+    val_lim.set(1,3) = (1+lambda*log(r_plus))*pow(r_plus, lambda-1) ;
+    val_lim /= sqrt(double(2)) ;
     break ;
   }
   case -1:{
@@ -178,6 +180,7 @@ Tbl _solh_sec_order_r2_r_cheb (int n, double alpha, double beta,
     val_lim.set(1,3) = (real_part*sin(imag_part*log(r_plus)) + 
 			 imag_part*cos(imag_part*log(r_plus))) * 
       pow(r_plus, real_part-1) ;
+    val_lim /= sqrt(double(2)) ;
     break ;
   }
   default:

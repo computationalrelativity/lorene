@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/09 09:15:11  p_grandclement
+ * Correction pour le raccord...
+ *
  * Revision 1.2  2004/03/05 09:18:48  p_grandclement
  * Addition of operator sec_order_r2
  *
@@ -418,13 +421,12 @@ class Ope_helmholtz_plus : public Ope_elementary {
   virtual void inc_l_quant() ;
 } ;
 
-/*
+/**
  * Class for operator of the type 
  * $ a r^2 \partial^2 / \partial r^2 + b r \partial / \partial r + c$.
  * 
  * It is implemented only in the shells.
  **/
-
 class Ope_sec_order_r2 : public Ope_elementary {
 
  protected:
