@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/19 19:44:41  e_gourgoulhon
+ * Introduced new method display (to replace the old affiche_seuil).
+ *
  * Revision 1.4  2003/10/15 21:09:22  e_gourgoulhon
  * Added method poisson_regu.
  *
@@ -409,6 +412,16 @@ class Mtbl_cf {
     public:
 
 	void sauve(FILE *) const ;	    /// Save in a file
+
+	/** Prints the coefficients whose values are greater than a given threshold,
+	 *  as well as the corresponding basis
+	 *   @param threshold [input] Value above which a coefficient is printed
+	 *    (default: 1.e-7)
+	 *   @param precision [input] Number of printed digits (default: 4)
+	 *   @param ostr [input] Output stream used for the printing (default: cout)
+	 */
+	void display(double threshold = 1.e-7, int precision = 4, 
+			   ostream& ostr = cout) const ;
 
 	/** Prints only the values greater than a given threshold.
 	 *   @param ostr [input] Output stream used for the printing 
