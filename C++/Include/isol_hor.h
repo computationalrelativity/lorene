@@ -27,6 +27,11 @@
 #define __Isol_hor_H_ 
 
 /*
+ * $Id$
+ * $Log$
+ * Revision 1.2  2004/09/09 17:04:27  jl_jaramillo
+ * Elimination of _ih
+ *
  *
  *
  * $Header$
@@ -156,31 +161,31 @@ class Isol_hor : public Time_slice_conf {
  
    
   /** Vector radial normal */
-  Vector radial_vect_hor_ih() ;
+  Vector radial_vect_hor() ;
 
   /** Vector beta for boundary conditions in cartesian  */
-  Vector beta_bound_cart_ih() ;
+  Vector beta_bound_cart() ;
 
 
   /** Element of area of the horizon */
-  Scalar darea_hor_ih()  ;
+  Scalar darea_hor()  ;
   
   
   /** Radius of the horizon */
-  double radius_hor_ih()  ;
+  double radius_hor()  ;
 
   
   /** Angular momentum (modulo)  */
-  double ang_mom_hor_ih()  ;
+  double ang_mom_hor()  ;
   
   /**   Mass      */
-  double mass_hor_ih()  ;
+  double mass_hor()  ;
   
   /** Surface gravity   */
-  double kappa_hor_ih() ;
+  double kappa_hor() ;
   
   /** Orbital velocity    */
-  double omega_hor_ih()  ;
+  double omega_hor()  ;
   
 
 
@@ -189,18 +194,18 @@ class Isol_hor : public Time_slice_conf {
   //Computational methods
   //---------------------
  public:
-  void init_data_ih(const Sym_tensor& uu, const Scalar& trk_in, 
+  void init_data(const Sym_tensor& uu, const Scalar& trk_in, 
 		 const Scalar& trk_point, double precis = 1.e-12,
 		 const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
 		 const Scalar* trace_stress=0x0 ) ; 
         
 
-  void init_data_schwar_ih(const Sym_tensor& uu, const Scalar& trk_in, 
+  void init_data_schwar(const Sym_tensor& uu, const Scalar& trk_in, 
 		 const Scalar& trk_point, double precis = 1.e-12,
 		 const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
 		 const Scalar* trace_stress=0x0 ) ; 
         
-  void init_data_rot_ih(const Sym_tensor& uu, const Scalar& trk_in, 
+  void init_data_rot(const Sym_tensor& uu, const Scalar& trk_in, 
 		 const Scalar& trk_point, double precis = 1.e-12,
 		 const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
 		 const Scalar* trace_stress=0x0 ) ; 
@@ -213,15 +218,15 @@ class Isol_hor : public Time_slice_conf {
   //-------
   
   // Source Psi
-  Scalar source_psi_hor_ih(const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
+  Scalar source_psi_hor(const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
 		 const Scalar* trace_stress=0x0) ;
 
   // Source NN
-  Scalar source_nn_hor_ih( const Scalar& trk_in, const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
+  Scalar source_nn_hor( const Scalar& trk_in, const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
 		 const Scalar* trace_stress=0x0) ;
 
   // Source beta
-  Vector source_beta_hor_ih(const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
+  Vector source_beta_hor(const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
 		 const Scalar* trace_stress=0x0) ;
   
 
@@ -229,40 +234,40 @@ class Isol_hor : public Time_slice_conf {
   //--------------------
   
   /// Dirichlet boundary condition for Psi   
-  Valeur boundary_psi_Dir_ih() ;
+  Valeur boundary_psi_Dir() ;
 
   /// Neumann boundary condition for Psi   
-  Valeur boundary_psi_Neu_ih() ;
+  Valeur boundary_psi_Neu() ;
 
 
   /// Dirichlet boundary condition on nn using the extrinsic curvature
   ///< (No time evolution taken into account! Make this)
   ///<--------------------------------------------------------------------------
-  Valeur boundary_nn_Dir_kk_ih() ;
+  Valeur boundary_nn_Dir_kk() ;
 
   /// Neumann boundary condition on nn using the extrinsic curvature
   /// (No time evolution taken into account! Make this)
   ///<--------------------------------------------------------------------------
-  Valeur boundary_nn_Neu_kk_ih() ;	
+  Valeur boundary_nn_Neu_kk() ;	
 
 
   /// Component r of boundary value of beta
-  Valeur boundary_beta_r_ih() ;
+  Valeur boundary_beta_r() ;
   
   /// Component theta of boundary value of beta
-  Valeur boundary_beta_theta_ih() ;
+  Valeur boundary_beta_theta() ;
   
   /// Component phi of boundary value of beta
-  Valeur boundary_beta_phi_ih() ;
+  Valeur boundary_beta_phi() ;
   
   /// Component x of boundary value of beta
-  Valeur boundary_beta_x_ih() ;
+  Valeur boundary_beta_x() ;
   
   /// Component theta of boundary value of beta
-  Valeur boundary_beta_y_ih() ;
+  Valeur boundary_beta_y() ;
   
   /// Component phi of boundary value of beta
-  Valeur boundary_beta_z_ih() ;
+  Valeur boundary_beta_z() ;
 
 
 
