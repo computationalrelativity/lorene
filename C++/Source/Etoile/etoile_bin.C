@@ -32,6 +32,9 @@ char etoile_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/02/03 12:52:15  f_limousin
+ * *** empty log message ***
+ *
  * Revision 1.4  2003/01/31 16:57:12  p_grandclement
  * addition of the member Cmp decouple used to compute the K_ij auto, once
  * the K_ij total is known
@@ -723,7 +726,7 @@ Tenseur Etoile_bin::sprod(const Tenseur& t1, const Tenseur& t2) const {
     
     if (t1.get_type_indice(val1-1) == COV) {
       assert( t2.get_type_indice(0) == COV ) ;
-      return 1/a_car * flat_scalar_prod(t1, t2) ;   
+      return  flat_scalar_prod(t1, t2)/a_car ;   
 	}
 } 
 
