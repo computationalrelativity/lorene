@@ -30,6 +30,9 @@ char et_bin_nsbh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/06/09 06:39:35  k_taniguchi
+ * Introduce set_n_auto() and set_confpsi_auto().
+ *
  * Revision 1.6  2004/03/25 10:29:04  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -96,7 +99,7 @@ Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
     // The metric is initialized to the flat one :
     n_auto = 0.5 ;
     n_auto.set_std_base() ;
-    n_comp = 0.5 ;
+    n_comp = 0.0 ;
     n_comp.set_std_base() ;
     d_n_auto = 0 ;
     d_n_comp = 0 ;
@@ -169,13 +172,6 @@ Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, const Eos& eos_i,
       ssjm1_lapse(mp_i),
       ssjm1_confpsi(mp_i) {
 
-    // Read of the saved fields :
-    Cmp ssjm1_lapse_file(mp_i, *(mp_i.get_mg()), fich) ;
-    ssjm1_lapse = ssjm1_lapse_file ;
-
-    Cmp ssjm1_confpsi_file(mp_i, *(mp_i.get_mg()), fich) ;
-    ssjm1_confpsi = ssjm1_confpsi_file ;
-
     // Construct from data in Etoile_bin
     n_auto = exp(logn_auto) ;
     n_auto.set_std_base() ;
@@ -185,9 +181,13 @@ Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, const Eos& eos_i,
     // All other fields are initialized to zero or some constants :
     // ----------------------------------------------------------
     n_comp = 0.5 ;
+    n_comp.set_std_base() ;
     d_n_auto = 0 ;
     d_n_comp = 0 ;
+    confpsi = 1 ;
+    confpsi.set_std_base() ;
     confpsi_comp = 0.5 ;
+    confpsi_comp.set_std_base() ;
     d_confpsi_auto = 0 ;
     d_confpsi_comp = 0 ;
     taij_auto.set_etat_zero() ;
@@ -195,6 +195,13 @@ Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, const Eos& eos_i,
     taij_tot.set_etat_zero() ;
     tkij_auto.set_etat_zero() ;
     tkij_tot.set_etat_zero() ;
+
+    // Read of the saved fields :
+    Cmp ssjm1_lapse_file(mp_i, *(mp_i.get_mg()), fich) ;
+    ssjm1_lapse = ssjm1_lapse_file ;
+
+    Cmp ssjm1_confpsi_file(mp_i, *(mp_i.get_mg()), fich) ;
+    ssjm1_confpsi = ssjm1_confpsi_file ;
 
     // Pointers of derived quantities initialized to zero
     // --------------------------------------------------
@@ -243,10 +250,24 @@ void Et_bin_nsbh::operator=(const Et_bin_nsbh& et) {
     del_deriv() ;  // Deletes all derived quantities
 }
 
+Tenseur& Et_bin_nsbh::set_n_auto() {
+
+    del_deriv() ;	// sets to 0x0 all the derived quantities
+    return n_auto ;
+
+}
+
 Tenseur& Et_bin_nsbh::set_n_comp() {
 
     del_deriv() ;	// sets to 0x0 all the derived quantities
     return n_comp ;
+
+}
+
+Tenseur& Et_bin_nsbh::set_confpsi_auto() {
+
+    del_deriv() ;	// sets to 0x0 all the derived quantities
+    return confpsi_auto ;
 
 }
 
