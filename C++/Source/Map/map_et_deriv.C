@@ -3,7 +3,7 @@
  */
 
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2003 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -29,8 +29,11 @@ char map_et_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/10/15 10:37:43  e_gourgoulhon
+ * Added new methods dsdt and stdsdp.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.3  2000/02/25  09:01:28  eric
  * Remplacement de ci.get_dzpuis() == 0  par ci.check_dzpuis(0).
@@ -56,11 +59,13 @@ char map_et_deriv_C[] = "$Header$" ;
 // Header Lorene
 #include "map.h"
 #include "cmp.h"
+#include "tensor.h"
 
 
 			//---------------------//
-			//	d/dr	       //
+			//        d/dr         //
 			//---------------------//
+			
 			
 void Map_et::dsdr(const Cmp& ci, Cmp& resu) const {
 
@@ -90,8 +95,9 @@ void Map_et::dsdr(const Cmp& ci, Cmp& resu) const {
     
 }
 
+
 			//------------------------//
-			//	1/r d/dtheta      //
+			//      1/r d/dtheta      //
 			//------------------------//
 
 void Map_et::srdsdt(const Cmp& ci, Cmp& resu) const {
@@ -150,7 +156,7 @@ void Map_et::srdsdt(const Cmp& ci, Cmp& resu) const {
 
 
 			//------------------------------------//
-			//	1/(r sin(theta))  d/dphi      //
+			//       1/(r sin(theta))  d/dphi     //
 			//------------------------------------//
 
 void Map_et::srstdsdp(const Cmp& ci, Cmp& resu) const {
@@ -207,4 +213,92 @@ void Map_et::srstdsdp(const Cmp& ci, Cmp& resu) const {
     }
     
 }
+
+			//------------------------//
+			//        d/dtheta        //
+			//------------------------//
+
+void Map_et::dsdt(const Scalar& ci, Scalar& resu) const {
+
+    assert (ci.get_etat() != ETATNONDEF) ; 
+    assert (ci.get_mp().get_mg() == mg) ; 
+    
+    if (ci.get_etat() == ETATZERO) {
+		resu.set_etat_zero() ; 
+    }
+    else {
+
+		assert( ci.get_etat() == ETATQCQ ) ; 
+
+
+		// Computation of df/dtheta'   ---> dfdt
+		// ----------------------------
+
+		const Valeur& dfdt = ci.get_spectral_va().dsdt() ;
+	
+
+		// Computation of 1/(dR/dxi) dR/dtheta' df/dx   ----> adfdx
+		// -------------------------------------------
+
+		Valeur adfdx = ci.get_spectral_va().dsdx() ; 	// df/dx
+
+		Base_val sauve_base = adfdx.get_base() ;
+	 
+		adfdx = adfdx * dxdr * drdt ;  // df/dx / (dR/dx) * dR/dtheta' 
+	
+		adfdx.set_base( sauve_base ) ; 
+
+		// Final result 
+		// ------------
+
+		resu = dfdt - adfdx ;
+
+    }
+    
+}
+
+			//---------------------------------//
+			//        1/sin(theta) d/dphi      //
+			//---------------------------------//
+
+void Map_et::stdsdp(const Scalar& ci, Scalar& resu) const {
+
+    assert (ci.get_etat() != ETATNONDEF) ; 
+    assert (ci.get_mp().get_mg() == mg) ; 
+    
+    if (ci.get_etat() == ETATZERO) {
+		resu.set_etat_zero() ; 
+    }
+    else {
+
+		assert( ci.get_etat() == ETATQCQ ) ; 
+
+
+		// Computation of 1/sin(theta) df/dphi'   ---> stdfdp
+		// ----------------------------
+		
+		const Valeur& stdfdp = ci.get_spectral_va().stdsdp() ;
+	
+
+		// Computation of 1/(dR/dxi) 1/sin(theta) dR/dphi' df/dx   ----> adfdx
+		// -------------------------------------------
+
+		Valeur adfdx = ci.get_spectral_va().dsdx() ; 	// df/dx
+
+		Base_val sauve_base = adfdx.get_base() ;
+	 
+		adfdx = adfdx * dxdr * stdrdp ;  // df/dx / (dR/dx) * 1/sin(th) dR/dphi' 
+	
+		adfdx.set_base( sauve_base ) ; 
+
+		// Final result 
+		// ------------
+
+		resu = stdfdp - adfdx ;
+
+    }
+    
+}
+
+
 

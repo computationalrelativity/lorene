@@ -3,7 +3,7 @@
  */
 
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2003 Eric Gourgoulhon
  *   Copyright (c) 1999-2001 Philippe Grandclement
  *
  *   This file is part of LORENE.
@@ -30,8 +30,11 @@ char map_af_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/10/15 10:34:07  e_gourgoulhon
+ * Added new methods dsdt and stdsdp.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.12  2000/02/25  08:59:51  eric
  * Remplacement de ci.get_dzpuis() == 0  par ci.check_dzpuis(0).
@@ -86,13 +89,13 @@ char map_af_deriv_C[] = "$Header$" ;
 // Header Lorene
 #include "map.h"
 #include "cmp.h"
+#include "tensor.h"
 
 
 			//---------------------//
-			//	d/dr	       //
+			//        d/dr         //
 			//---------------------//
 			
-// In the ZEC : 
 
 void Map_af::dsdr(const Cmp& ci, Cmp& resu) const {
 
@@ -124,7 +127,7 @@ void Map_af::dsdr(const Cmp& ci, Cmp& resu) const {
 }
 
 			//------------------------//
-			//	1/r d/dtheta      //
+			//      1/r d/dtheta      //
 			//------------------------//
 
 void Map_af::srdsdt(const Cmp& ci, Cmp& resu) const {
@@ -167,7 +170,7 @@ void Map_af::srdsdt(const Cmp& ci, Cmp& resu) const {
 
 
 			//------------------------------------//
-			//	1/(r sin(theta))  d/dphi      //
+			//       1/(r sin(theta))  d/dphi     //
 			//------------------------------------//
 
 void Map_af::srstdsdp(const Cmp& ci, Cmp& resu) const {
@@ -208,4 +211,59 @@ void Map_af::srstdsdp(const Cmp& ci, Cmp& resu) const {
     }
     
 }
+
+
+			//------------------------//
+			//       d/dtheta         //
+			//------------------------//
+
+
+void Map_af::dsdt(const Scalar& ci, Scalar& resu) const {
+
+    assert (ci.get_etat() != ETATNONDEF) ; 
+    assert (ci.get_mp().get_mg() == mg) ; 
+    
+    if (ci.get_etat() == ETATZERO) {
+		resu.set_etat_zero() ; 
+    }
+    else {
+
+		assert( ci.get_etat() == ETATQCQ ) ; 
+
+		resu = ci.get_spectral_va().dsdt() ; 	// d/dtheta
+	
+    }
+
+}
+
+
+			//-----------------------------------//
+			//       1/sin(theta) d/dphi         //
+			//-----------------------------------//
+
+
+void Map_af::stdsdp(const Scalar& ci, Scalar& resu) const {
+
+    assert (ci.get_etat() != ETATNONDEF) ; 
+    assert (ci.get_mp().get_mg() == mg) ; 
+    
+    if (ci.get_etat() == ETATZERO) {
+		resu.set_etat_zero() ; 
+    }
+    else {
+
+		assert( ci.get_etat() == ETATQCQ ) ; 
+
+		resu = ci.get_spectral_va().stdsdp() ; 	// 1/sin(theta) d/dphi
+	
+    }
+
+}
+
+
+
+
+
+
+
 
