@@ -32,8 +32,8 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.10  2003/10/22 13:08:05  j_novak
- * Better handling of dzpuis flags
+ * Revision 1.11  2003/10/22 14:24:19  j_novak
+ * *** empty log message ***
  *
  * Revision 1.9  2003/10/20 13:00:38  j_novak
  * Memory error corrected
@@ -334,10 +334,10 @@ void Vector::decompose_div(const Metric& metre) const {
     p_div_free[j] = new Vector_divfree(*mp, *triad, metre) ;
 
     Vector gradient = p_potential[j]->derive_con(metre) ;
-    if (dz_zero)
-      gradient.dec2_dzpuis() ;
-    else
+    if (dzp == 4)
       gradient.inc2_dzpuis() ;
+    else
+      gradient.dec2_dzpuis() ;
 
     *p_div_free[j] = ( *this - gradient ) ;
 
