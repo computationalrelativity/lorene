@@ -38,6 +38,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2003/10/15 10:29:05  e_gourgoulhon
+ * Added new members p_dsdt and p_stdsdp.
+ * Added new methods dsdt(), stdsdp() and div_tant().
+ *
  * Revision 1.20  2003/10/13 13:52:39  j_novak
  * Better managment of derived quantities.
  *
@@ -127,8 +131,8 @@ class Scalar : public Tensor {
   // -----
  protected:
   
-  /** The logical state {\tt ETATNONDEF} (undefined), {\tt ETATZERO}(null)
-   *  or {\tt ETATQCQ}(ordinary).
+  /** The logical state {\tt ETATNONDEF} (undefined), {\tt ETATZERO} (null),
+   *  {\tt ETATUN} (one), or {\tt ETATQCQ}(ordinary).
    */
   int etat ; 
   
@@ -144,29 +148,43 @@ class Scalar : public Tensor {
   // Derived data : 
   // ------------
  protected:
-  /// Pointer on $\partial/\partial r$ of {\tt *this}
+  /// Pointer on $\partial/\partial r$ of {\tt *this} (0x0 if not up to date)
   mutable Scalar* p_dsdr ;	
-  /// Pointer on $1/r \partial/\partial \theta$ of {\tt *this}
+
+  /** Pointer on $1/r \partial/\partial \theta$ of {\tt *this} 
+   *  (0x0 if not up to date)
+   */
   mutable Scalar* p_srdsdt ;	
-  /// Pointer on $1/(r\sin\theta) \partial/\partial \phi$ of {\tt *this}
+
+  /** Pointer on $1/(r\sin\theta) \partial/\partial \phi$ of {\tt *this}
+   *  (0x0 if not up to date)
+   */
   mutable Scalar* p_srstdsdp ;
+
+  /// Pointer on $\partial/\partial \theta$ of {\tt *this} (0x0 if not up to date)
+  mutable Scalar* p_dsdt ;	
+
+  /** Pointer on $1/\sin\theta \partial/\partial \phi$ of {\tt *this}
+   *  (0x0 if not up to date)
+   */
+  mutable Scalar* p_stdsdp ;	
   
   /** Pointer on $\partial/\partial x$ of {\tt *this},
-   *  where $x=r\sin\theta \cos\phi$
+   *  where $x=r\sin\theta \cos\phi$ (0x0 if not up to date)
    */
   mutable Scalar* p_dsdx ;	
   
   /** Pointer on $\partial/\partial y$ of {\tt *this},
-   *  where $y=r\sin\theta \sin\phi$
+   *  where $y=r\sin\theta \sin\phi$(0x0 if not up to date)
    */
   mutable Scalar* p_dsdy ;	
 
   /** Pointer on $\partial/\partial z$ of {\tt *this},
-   *  where $z=r\cos\theta$
+   *  where $z=r\cos\theta$ (0x0 if not up to date)
    */
   mutable Scalar* p_dsdz ;	
   
-  /** Pointer on the Laplacian of {\tt *this}
+  /** Pointer on the Laplacian of {\tt *this} (0x0 if not up to date)
    */
   mutable Scalar* p_lap ;	
   
@@ -176,7 +194,7 @@ class Scalar : public Tensor {
   mutable int ind_lap ; 
 
   /** Pointer on the space integral of {\tt *this} (values in each 
-   *  domain)
+   *  domain) (0x0 if not up to date)
    */
   mutable Tbl* p_integ ; 
   
@@ -421,6 +439,14 @@ class Scalar : public Tensor {
    */
   const Scalar& srstdsdp() const ; 
   
+  /** Returns $\partial / \partial \theta$ of {\tt *this}.
+   */
+  const Scalar& dsdt() const ; 
+  
+  /** Returns $1/\sin\theta \partial / \partial \phi$ of {\tt *this}.
+   */
+  const Scalar& stdsdp() const ; 
+  
   /** Returns $\partial/\partial x$ of {\tt *this},
    *  where $x=r\sin\theta \cos\phi$.
    *  Note that in the  compactified external domain (CED), it returns
@@ -483,6 +509,8 @@ class Scalar : public Tensor {
    * is performed in the CED.
    */
   void div_rsint_ced() ; 
+  
+  void div_tant() ;    /// Division by $\tan\theta$
   
   /** Computes the integral over all space of {\tt *this}.
    *  The computed quantity is ({\it u} being the field represented by
