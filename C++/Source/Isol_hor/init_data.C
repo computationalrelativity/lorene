@@ -31,6 +31,10 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2005/03/06 16:56:13  f_limousin
+ * The computation of A^{ij} is no more necessary here thanks to the new
+ * function Isol_hor::aa().
+ *
  * Revision 1.8  2005/03/04 17:04:57  jl_jaramillo
  * Addition of boost to the shift after solving the shift equation
  *
@@ -317,71 +321,8 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	
 	set_psi_del_q(psi_jp1) ; 
 	n_evol.update(nn_jp1, jtime, ttime) ; 
-	beta_evol.update(beta_jp1, jtime, ttime) ; 
-	
-	// New value of A^{ij}:
-	
-	Sym_tensor aa_jp1 (mp, CON, mp.get_bvect_spher()) ;
-	int nnr = mp.get_mg()->get_nr(1) ;
-	int nnt = mp.get_mg()->get_nt(1) ;
-	int nnp = mp.get_mg()->get_np(1) ;
-	
-	int check ;
-	check = 0 ;
-	for (int k=0; k<nnp; k++)
-	    for (int j=0; j<nnt; j++){
-		if (nn().val_grid_point(1, k, j , 0) < 1e-12){
-		    check = 1 ;
-		    break ;
-		}
-	    }
-	
-	if (check == 0)
-	    aa_jp1 = ( beta().ope_killing_conf(met_gamt) + gamt_point ) 
-		/ (2.* nn()) ;            
-	else {
-	    Scalar nn_sxpun (division_xpun (Cmp(nn()), 0)) ;
-	    
-	    Sym_tensor aa_sxpun = beta().ope_killing_conf(met_gamt)
-		+ gamt_point ;
-
-	    const Coord& r = mp.r ;        // r field
-	    Mtbl r_mtbl = r ;
-	    Scalar rr (mp) ;
-	    rr = r_mtbl ;
-
-	    double r1, r2 ;
-	    r1 = mp.val_r(1, -1., 0., 0.) ;
-	    r2 = mp.val_r(1, 1., 0., 0.) ;
-
-	    for(int k=0; k<nnp; k++)
-		for(int j=0; j<nnt; j++)
-		    for(int m=1; m<=3; m++)
-			for(int n=1; n<=m; n++){
-			    double aa_mn_jk = 
-				aa_sxpun(m,n).val_grid_point(1, k, j, 0) ;     
-			    for(int i=0; i<nnr; i++){
-				aa_sxpun.set(m,n).set_grid_point(1, k, j, i) -=
-				aa_mn_jk * 
-				(- 2 * rr.val_grid_point(1, k, j, i) + 3 * r1
-				 - r2) * (rr.val_grid_point(1, k, j, i) - r2) *
-				(rr.val_grid_point(1, k, j, i) - r2) /
-				(r1 - r2) / (r1 - r2) / (r1 - r2) ;
-			    }
-			}
-
-	    for(int i=1; i<=3; i++)
-		for(int j=1; j<=i; j++){
-		    aa_sxpun.set(i,j).set_inner_boundary(1, 0.) ;
-		    aa_sxpun.set(i,j) = Scalar (division_xpun 
-						(Cmp(aa_sxpun(i,j)), 0)) ;
-		}
-	    aa_jp1 = aa_sxpun / (2*nn_sxpun) ;
-	}
-	cout << "check = " << check << endl ;
-	
-	set_aa(aa_jp1) ; 	
-    }   
+	beta_evol.update(beta_jp1, jtime, ttime) ;
+    }
     conv.close() ;   
 } 
 
