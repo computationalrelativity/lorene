@@ -30,6 +30,10 @@ char star_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/02/27 21:16:32  e_gourgoulhon
+ * Function contract_desal replaced by function contract with
+ * argument desaliasing set to true.
+ *
  * Revision 1.5  2004/02/27 09:51:51  f_limousin
  * Many minor changes.
  *
@@ -567,8 +571,8 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 
 	source2 = psi4 % (kcar_auto + kcar_comp) ;
 
-	source3 = - contract_desal(dcov_logn_auto, 0, dcon_logn, 0) 
-	-2. * contract_desal(dcov_lnpsi, 0, dcon_logn_auto, 0) ;
+	source3 = - contract(dcov_logn_auto, 0, dcon_logn, 0, true) 
+	-2. * contract(dcov_lnpsi, 0, dcon_logn_auto, 0, true) ;
 	
 	source4 = - contract(contract(hij_auto, 0, dcovdcov_nnn/nnn, 0), 
 			     0, 1) ;
@@ -634,9 +638,9 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 
 	source2 = 3. * psi2 % psi4 % nnn % (kcar_auto + kcar_comp)/ 4. ;
 	
-	source3 = 2. * qq_auto % contract_desal(dcov_lnpsi, 0, dcon_lnpsi, 0) ;
+	source3 = 2. * qq_auto % contract(dcov_lnpsi, 0, dcon_lnpsi, 0, true) ;
 
-	source4 = 2. * qq_auto % contract_desal(dcov_lnpsi, 0, dcon_logn, 0) ;
+	source4 = 2. * qq_auto % contract(dcov_lnpsi, 0, dcon_logn, 0, true) ;
 
 	source5 = qq_auto * contract(contract(contract(contract(gtilde_con, 0, 
 		   dcov_hij, 2), 0, dcov_gtildeij, 2), 0, 2), 0, 1)/16. ;
