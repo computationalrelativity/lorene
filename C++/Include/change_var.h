@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/05/14 08:51:00  p_grandclement
+ * *** empty log message ***
+ *
  * Revision 1.3  2004/03/23 14:54:45  j_novak
  * More documentation
  *
@@ -93,10 +96,13 @@ class Change_var {
   double (* func_G) (double) ; /// Pointer on the function $G$.
   double (* der_G) (double) ; /// Pointer on the derivative of $G$.
 
+  double mult_F ; /// Multiplicative factor for F ## PROVISORY
+  double add_F ; /// Additive factor for F ## PROVISORY
+
  public:
 
   /**
-   * Standard constructor.
+   * Standard constructor. Case with without parameter.
    * {\tt var} defines explicitely the type of variable to be used.
    * Are currently implemented :
    * \begin{itemize}
@@ -108,8 +114,24 @@ class Change_var {
    * \item {\tt var} $= {\rm NU_RN} \Longrightarrow F=\ln r \, \& \, G=1$.
    * \end{itemize} 
    **/
-
+  
   Change_var (int var) ;
+
+  /**
+   * Standard constructor. Case with one multiplicative parameter for F
+   * {\tt var} defines explicitely the type of variable to be used.
+   **/
+
+  Change_var (int var, double) ;
+
+  /**
+   * Standard constructor. Case with one multiplicative parameter for F and one additive.
+   * {\tt var} defines explicitely the type of variable to be used.
+   **/
+
+  Change_var (int var, double, double) ;
+ 
+
   Change_var (const Change_var& so) ; /// Constructor by copy.
   ~Change_var() ; /// Standard destructor.
 

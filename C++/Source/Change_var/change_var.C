@@ -23,6 +23,9 @@ char change_var_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/05/14 08:51:01  p_grandclement
+ * *** empty log message ***
+ *
  * Revision 1.4  2004/03/05 09:18:48  p_grandclement
  * Addition of operator sec_order_r2
  *
@@ -136,7 +139,127 @@ Change_var::Change_var (int type_change) {
     abort() ;
     break ;
   }
+
+  mult_F = 1 ;
+  add_F = 0 ;
+
 }
+
+
+// Construction du changement de variable ...
+Change_var::Change_var (int type_change, double mult) {
+  
+  switch (type_change) {
+  case STD:
+    func_F = zero ;
+    der_F = zero ;
+    func_G = one ;
+    der_G = zero ;
+    break ;
+  
+  case W_BETA:
+    func_F = one ;
+    der_F = zero ;
+    func_G = ide ;
+    der_G = one ;
+    break ;
+
+  case W_BETA_INF:
+    func_F = part_ln ;
+    der_F = part_ln_der ;
+    func_G = ide ;
+    der_G = one ;
+    break ;
+
+  case H_BETA:
+    func_F = one ;
+    der_F = zero ;
+    func_G = one ;
+    der_G = zero ;
+    break ;
+
+  case LAMBDA_RN:
+    func_F = moins_log ;
+    der_F = moins_sur ;
+    func_G = one ;
+    der_G = zero ;
+    break ;
+
+  case NU_RN:
+    func_F = plus_log ;
+    der_F = plus_sur ;
+    func_G = one ;
+    der_G = zero ;
+    break ;
+    
+  default:
+    cout << "Unknown type in Change_var::Change_var(int)" << endl ;
+    abort() ;
+    break ;
+  }
+
+  mult_F = mult ;
+  add_F = 0 ;
+
+}
+
+// Construction du changement de variable ...
+Change_var::Change_var (int type_change, double mult, double add) {
+  
+  switch (type_change) {
+  case STD:
+    func_F = zero ;
+    der_F = zero ;
+    func_G = one ;
+    der_G = zero ;
+    break ;
+  
+  case W_BETA:
+    func_F = one ;
+    der_F = zero ;
+    func_G = ide ;
+    der_G = one ;
+    break ;
+
+  case W_BETA_INF:
+    func_F = part_ln ;
+    der_F = part_ln_der ;
+    func_G = ide ;
+    der_G = one ;
+    break ;
+
+  case H_BETA:
+    func_F = one ;
+    der_F = zero ;
+    func_G = one ;
+    der_G = zero ;
+    break ;
+
+  case LAMBDA_RN:
+    func_F = moins_log ;
+    der_F = moins_sur ;
+    func_G = one ;
+    der_G = zero ;
+    break ;
+
+  case NU_RN:
+    func_F = plus_log ;
+    der_F = plus_sur ;
+    func_G = one ;
+    der_G = zero ;
+    break ;
+    
+  default:
+    cout << "Unknown type in Change_var::Change_var(int)" << endl ;
+    abort() ;
+    break ;
+  }
+
+  mult_F = mult ;
+  add_F = add ;
+
+}
+
 
 Change_var::Change_var (const Change_var& so) :  
   func_F(so.func_F), der_F(so.der_F), func_G(so.func_G), der_G(so.der_G) {}
@@ -144,11 +267,11 @@ Change_var::Change_var (const Change_var& so) :
 Change_var::~Change_var() {}
 
 double Change_var::val_F (double air) {
-  return (*func_F)(air) ;
+  return (mult_F * (*func_F)(air) + add_F) ;
 }
 
 double Change_var::val_der_F (double air) {
-  return (*der_F)(air) ;
+  return (mult_F * (*der_F)(air)) ;
 }
 
 double Change_var::val_G (double air) {

@@ -23,6 +23,9 @@ char param_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/05/14 08:51:02  p_grandclement
+ * *** empty log message ***
+ *
  * Revision 1.7  2004/05/10 15:28:22  j_novak
  * First version of functions for the solution of the r-component of the
  * vector Poisson equation.
@@ -306,6 +309,50 @@ void Param_elliptic::set_variable (int type_variable, int zone) {
 	if ((variables[conte] != 0x0) && (l==zone) && (k==0) && (j==0)) {
 	  delete variables[conte] ;
 	  variables[conte] = new Change_var(type_variable) ;
+	}
+	conte ++ ;
+      }
+  }
+}
+
+void Param_elliptic::set_variable (int type_variable, double mult, int zone) {
+ 
+  int np, nt, nr ;
+  
+  int conte = 0 ;
+  for (int l=0 ; l<mp->get_mg()->get_nzone() ; l++) {
+    
+    np = mp->get_mg()->get_np(l) ;
+    nt = mp->get_mg()->get_nt(l) ;
+    nr = mp->get_mg()->get_nr(l) ;
+    
+    for (int k=0 ; k<np+1 ; k++)
+      for (int j=0 ; j<nt ; j++) {
+	if ((variables[conte] != 0x0) && (l==zone) && (k==0) && (j==0)) {
+	  delete variables[conte] ;
+	  variables[conte] = new Change_var(type_variable, mult) ;
+	}
+	conte ++ ;
+      }
+  }
+}
+
+void Param_elliptic::set_variable (int type_variable, double mult, double add, int zone) {
+ 
+  int np, nt, nr ;
+  
+  int conte = 0 ;
+  for (int l=0 ; l<mp->get_mg()->get_nzone() ; l++) {
+    
+    np = mp->get_mg()->get_np(l) ;
+    nt = mp->get_mg()->get_nt(l) ;
+    nr = mp->get_mg()->get_nr(l) ;
+    
+    for (int k=0 ; k<np+1 ; k++)
+      for (int j=0 ; j<nt ; j++) {
+	if ((variables[conte] != 0x0) && (l==zone) && (k==0) && (j==0)) {
+	  delete variables[conte] ;
+	  variables[conte] = new Change_var(type_variable, mult, add) ;
 	}
 	conte ++ ;
       }

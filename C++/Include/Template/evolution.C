@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/05/14 08:51:01  p_grandclement
+ * *** empty log message ***
+ *
  * Revision 1.13  2004/05/14 08:41:05  e_gourgoulhon
  * Added declaration "class Tbl ;" before the declarations of
  * write_formatted.
@@ -97,7 +100,8 @@
 #include <math.h>
 #include <time.h>
 
-class Tbl ; 
+class Tbl ;
+
 void write_formatted(const double&, ostream& ) ; 
 void write_formatted(const Tbl&, ostream& ) ; 
 

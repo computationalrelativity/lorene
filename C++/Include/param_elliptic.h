@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/05/14 08:51:00  p_grandclement
+ * *** empty log message ***
+ *
  * Revision 1.7  2004/05/10 15:28:21  j_novak
  * First version of functions for the solution of the r-component of the
  * vector Poisson equation.
@@ -150,6 +153,17 @@ class Param_elliptic {
    * Changes the variable to the new type \c tipe  in the domain \c zone .
    **/
   void set_variable (int tipe, int zone) ;
+  /**
+   * Changes the variable to the new type {\tt tipe} in the domain {\tt zone}, with a multiplicative factor on F
+   **/
+  void set_variable (int tipe, double mutl, int zone) ;
+
+  /**
+   * Changes the variable to the new type {\tt tipe} in the domain {\tt zone}, with a multiplicative and an 
+   * additive factor on F
+   **/
+  void set_variable (int tipe, double mutl, double add, int zone) ;
+
 
   friend Mtbl_cf elliptic_solver  (const Param_elliptic&, const Mtbl_cf&) ;
   friend Mtbl_cf elliptic_solver_no_zec  
