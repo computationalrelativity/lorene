@@ -29,6 +29,10 @@ char wave_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/04/30 10:53:32  e_gourgoulhon
+ * Added resolution of elliptic Einstein equations (new methods
+ * Tslice_dirac_max::solve_*) for tests at the end.
+ *
  * Revision 1.4  2004/04/29 17:13:08  e_gourgoulhon
  * New argument pdt to Time_slice_conf::initial_data_cts.
  *
@@ -225,10 +229,19 @@ int main() {
     
     maxabs(sigmat.gam().cov()(1,1) / sigmat.tgam().cov()(1,1) -
             sigmat.psi4(), "Difference between the conformal factor and psi4") ; 
-
     
     arrete() ; 
 
+    Scalar nn_new = sigmat.solve_n() ; 
+    maxabs(nn_new - sigmat.nn(), "Difference between N and N_new") ;     
+    
+    Scalar qq_new = sigmat.solve_q() ; 
+    maxabs(qq_new - sigmat.qq(), "Difference between Q and Q_new") ;     
+    
+    Vector beta_new = sigmat.solve_beta() ; 
+    maxabs(beta_new - sigmat.beta(), "Difference between beta and beta_new") ;     
+    
+    
     return EXIT_SUCCESS ; 
 }
 
