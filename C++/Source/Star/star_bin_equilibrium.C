@@ -30,6 +30,9 @@ char star_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/05/27 12:41:00  p_grandclement
+ * correction of some shadowed variables
+ *
  * Revision 1.11  2004/05/25 14:18:00  f_limousin
  * Include filters
  *
@@ -972,10 +975,10 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 
 	    source4_Hij = 4.*nnn*contract(hij_auto,1,dcov_lnpsi,0)*dcon_logn ;
 
-	    Tensor temp = contract(contract(hij_auto, 0, dcovdcov_qq + 
+	    Tensor tempo = contract(contract(hij_auto, 0, dcovdcov_qq + 
 					  dcov_qq * dcov_qq, 1), 0, 1) * nnn ;
 
-	    source5_Hij = ( temp 
+	    source5_Hij = ( tempo 
 			   - 8. * nnn * contract(contract(hij_auto,0
 					  , dcov_lnpsi, 0), 0, dcov_logn, 0)
 			   - 8. * nnn * contract(contract(hij_auto,0

@@ -29,6 +29,9 @@ char bin_ns_bh_kij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/05/27 12:41:00  p_grandclement
+ * correction of some shadowed variables
+ *
  * Revision 1.1  2003/02/13 16:40:25  p_grandclement
  * Addition of various things for the Bin_ns_bh project, non of them being
  * completely tested
@@ -326,8 +329,8 @@ void Bin_ns_bh::fait_tkij () {
 	auxi_ns.allocate_all() ;
 	
 	// copie :
-	Cmp copie_ns (ns_taij_tot(lig, col)) ;
-	copie_ns.dec2_dzpuis() ;
+	Cmp copie_ns_bis (ns_taij_tot(lig, col)) ;
+	copie_ns_bis.dec2_dzpuis() ;
 	
 	// Double le rayon limite :
 	double lim_bh = hole.mp.get_alpha()[1] + hole.mp.get_beta()[1] ;
@@ -364,7 +367,7 @@ void Bin_ns_bh::fait_tkij () {
 		if (air >= lim_bh)
 		  // On est loin du trou 2 : pas de pb :
 		  auxi_ns.set(l, k, j, i) = 
-		    copie_ns(l, k, j, i) / ntot_ns (l, k, j, i)/2. ;
+		    copie_ns_bis(l, k, j, i) / ntot_ns (l, k, j, i)/2. ;
 		else 
 		  // On est pres du trou (faut pas tomber dedans !) :
 		  auxi_ns.set(l, k, j, i) = 
