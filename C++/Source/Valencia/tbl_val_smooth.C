@@ -29,6 +29,9 @@ char tbl_val_smooth_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/12/03 13:24:01  j_novak
+ * Minor modif.
+ *
  * Revision 1.1  2004/11/26 17:02:19  j_novak
  * Added a function giving a smooth transition to the atmosphere.
  *
@@ -85,14 +88,12 @@ void Tbl_val::smooth_atmosphere(double atmosphere_thr) {
 void radial_smoothing(double* tab, const double* rr, int n, double rho) {
 
   assert((tab!= 0x0)&&(rr!=0x0)) ;
-  assert(n>10) ; 
   assert (rho >= 0.) ;
-
+  
   if (fabs(tab[n-1]) > rho) // no atmosphere here
     return ;
 
   double* t = tab + (n-1) ;
-  const double* r = rr + (n-1) ;
   int indice = -1 ;
   bool atmos = true ;
   bool jump = false ;
@@ -106,14 +107,16 @@ void radial_smoothing(double* tab, const double* rr, int n, double rho) {
     }
   }
   if (indice == -1) return ;
-  if (indice < n -4) { // enough points to interpolate
-    assert (indice > 4) ;
+  int np = 2*(n-indice-2)/3 ;
+  int nm = indice / 100 + 3 ;
+  assert(n > nm+np) ;
+  if (indice < n - np+1) { // enough points to interpolate
 
     // The inteprolation is done using a cubic polynomial
     //---------------------------------------------------
 
-    int ileft = indice - 3 ;
-    int iright = indice + 4 ;
+    int ileft = indice - nm + 2 ;
+    int iright = indice + np - 1 ;
     double alpha = ( rr[ileft - 2] - rr[ileft - 1]) /
       ( rr[ileft -1] - rr[ileft]) ;
     double der_l = ( alpha*(alpha+2.)*tab[ileft] 
@@ -131,7 +134,7 @@ void radial_smoothing(double* tab, const double* rr, int n, double rho) {
   }
   else { // too few points to interpolate -> linear extrapolation ...
     int ileft = indice ;
-   double alpha = ( rr[ileft - 2] - rr[ileft - 1]) /
+    double alpha = ( rr[ileft - 2] - rr[ileft - 1]) /
       ( rr[ileft -1] - rr[ileft]) ;
     double der_l = ( alpha*(alpha+2.)*tab[ileft] 
 		     - (1.+alpha)*(1.+alpha)*tab[ileft-1] 
