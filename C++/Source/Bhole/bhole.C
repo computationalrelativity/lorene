@@ -32,6 +32,9 @@ char bhole_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/12/16 05:27:07  k_taniguchi
+ * Change some arguments.
+ *
  * Revision 1.6  2003/11/25 07:10:05  k_taniguchi
  * Change some arguments from the class Etoile_bin to Et_bin_nsbh.
  *
@@ -288,14 +291,14 @@ void Bhole::fait_n_comp (const Et_bin_nsbh& comp) {
     int same_orient = (orientation == orientation_comp) ? 1 : -1 ;
     
     n_comp.set_etat_qcq() ;
-    n_comp.set().import_symy(comp.get_logn_auto()()) ;
+    n_comp.set().import_symy(comp.get_n_auto()()) ;
     n_comp.set_std_base() ;
     
     n_tot = n_comp + n_auto ;
     n_tot.set_std_base() ;
     
     Tenseur grad_comp (mp, 1, COV, mp.get_bvect_cart()) ;
-    Tenseur auxi (comp.get_d_logn_auto()) ;
+    Tenseur auxi (comp.get_d_n_auto()) ;
     auxi.dec2_dzpuis() ;
     grad_comp.set_etat_qcq() ;
     grad_comp.set(0).import_symy(same_orient*auxi(0)) ;
@@ -319,14 +322,14 @@ void Bhole::fait_psi_comp (const Et_bin_nsbh& comp) {
     int same_orient = (orientation == orientation_comp) ? 1 : -1 ;
     
     psi_comp.set_etat_qcq() ;
-    psi_comp.set().import_symy(comp.get_beta_auto()()) ;
+    psi_comp.set().import_symy(comp.get_confpsi_auto()()) ;
     psi_comp.set_std_base() ;
     
     psi_tot = psi_comp + psi_auto ;
     psi_tot.set_std_base() ;
     
     Tenseur grad_comp (mp, 1, COV, mp.get_bvect_cart()) ;
-    Tenseur auxi (comp.get_d_beta_auto()) ;
+    Tenseur auxi (comp.get_d_confpsi_auto()) ;
     auxi.dec2_dzpuis() ;
     grad_comp.set_etat_qcq() ;
     grad_comp.set(0).import_symy(same_orient*auxi(0)) ;
