@@ -33,6 +33,9 @@ char map_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/06/20 14:45:06  f_limousin
+ * Add operator==
+ *
  * Revision 1.4  2002/10/16 14:36:40  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -97,7 +100,7 @@ char map_C[] = "$Header$" ;
 
 // headers C
 #include <math.h>
-
+	
 // headers Lorene
 #include "map.h"
 #include "cmp.h"
@@ -277,4 +280,25 @@ void Map::convert_absolute(double xx, double yy, double zz,
     pphi = atan2(y1, x1) - rot_phi ;		// (rotation)
     if (pphi < 0) pphi += 2*M_PI ;
 			 
+}
+
+
+bool Map::operator==(const Map& mpi) const {
+
+  bool resu = true ;
+
+  if (*mg == *(mpi.get_mg())){}
+  else {
+    resu = false ;
+  }
+  
+  if (ori_x != mpi.get_ori_x()) resu = false ;
+  if (ori_y != mpi.get_ori_y()) resu = false ;
+  if (ori_z != mpi.get_ori_z()) resu = false ;
+
+  if (bvect_spher != mpi.get_bvect_spher()) resu = false ;
+  if (bvect_cart != mpi.get_bvect_cart()) resu = false ;
+
+  return resu ;
+
 }
