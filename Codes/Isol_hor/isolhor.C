@@ -29,6 +29,9 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.25  2005/04/03 19:48:52  f_limousin
+ * Implementation of set_psi(psi_in).
+ *
  * Revision 1.24  2005/04/02 15:52:05  f_limousin
  * New data member nz. Lichnerowicz choice for aquad. Delete function
  * compute_ww().
@@ -507,18 +510,15 @@ int main() {
     //-------------------------------------------------------
     // Test of the formula for A^{ij}A_{ij} in Sergio's paper
     //-------------------------------------------------------
-  
-    // Put the metric tilde to the one in Sergio's paper
-//    isolhor.met_kerr_perturb() ;
  
     isolhor.aa_kerr_ww(mm, aaa) ;
 
     // New initialisation of the metric quantities
     // --------------------------------------------
 
-    psi_init = 1. ;
+    //    psi_init = 1. ;
     psi_init.std_spectral_base() ;
-    isolhor.set_psi_del_q(psi_init) ;
+    isolhor.set_psi(psi_init) ;
     
 //    nn_init = 1. ;
 //    nn_init.std_spectral_base() ;

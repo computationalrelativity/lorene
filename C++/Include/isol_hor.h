@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.31  2005/04/03 19:48:38  f_limousin
+ * Implementation of set_psi(psi_in).
+ *
  * Revision 1.30  2005/04/02 15:50:08  f_limousin
  * New data member nz (number of zones). Delete ww.
  *
@@ -503,7 +506,20 @@ class Isol_hor : public Time_slice_conf {
    */
   void init_bhole_seul () ;
 
+  /** Sets the conformal factor \f$ \Psi \f$ relating the
+   * physical metric \f$ \gamma_{ij} \f$ to the conformal one:
+   * \f$ \gamma_{ij} = \Psi^4 \tilde\gamma_{ij} \f$. 
+   * \f$ \Psi \f$ is defined by
+   *  \f[ \Psi := \left( \frac{\det\gamma_{ij}}{\det f_{ij}} 
+   *      \right) ^{1/12} \f] 
+   * Sets the value at the current time step (\c jtime ) and
+   * delete all quantities which depend on \f$ \Psi \f$.
+   */
+
+  void set_psi(const Scalar& psi_in) ; 
   
+
+
   // Physical parameters
   //--------------------
  public:
