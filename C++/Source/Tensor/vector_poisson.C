@@ -30,6 +30,10 @@ char vector_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/02/22 15:47:46  j_novak
+ * Added 2 more methods to solve the vector pôisson equation. Method 1 is not
+ * tested yet.
+ *
  * Revision 1.5  2004/02/20 10:53:41  j_novak
  * Minor modifs.
  *
@@ -57,25 +61,103 @@ char vector_poisson_C[] = "$Header$" ;
 
 // Lorene headers
 #include "metric.h"
+#include "tenseur.h"
 
-Vector Vector::poisson(const double lambda, const Metric_flat& met_f) const {
+Vector Vector::poisson(const double lambda, const Metric_flat& met_f, int method) 
+  const {
  
   for (int i=0; i<3; i++)
     assert(cmp[i]->check_dzpuis(4)) ;
+  assert ((method>=0) && (method<3)) ;
 
-  Scalar poten(*mp) ;
-  if (fabs(lambda+1) < 1.e-6)
-    poten.set_etat_zero() ;
-  else {
-    poten = (potential(met_f) / (lambda + 1)).poisson() ;
+  switch (method) {
+    
+  case 0 : {
+
+    Scalar poten(*mp) ;
+    if (fabs(lambda+1) < 1.e-8)
+      poten.set_etat_zero() ;
+    else {
+      poten = (potential(met_f) / (lambda + 1)).poisson() ;
+    }
+    
+    Vector grad = poten.derive_con(met_f) ;
+    grad.dec_dzpuis(2) ;
+    
+    return ( div_free(met_f).poisson() + grad) ;
+    break ;
   }
 
-  Vector grad = poten.derive_con(met_f) ;
-  grad.dec_dzpuis(2) ;
-
-  return ( div_free(met_f).poisson() + grad) ;
+  case 1 : {
     
- 
+    Scalar divf(*mp) ;
+    if (fabs(lambda+1) < 1.e-8)
+      divf.set_etat_zero() ;
+    else {
+      divf = (potential(met_f) / (lambda + 1)) ;
+    }
+    
+    Scalar source_r = *(cmp[0]) ; 
+    source_r.mult_r_dzpuis(3) ;
+    source_r += 2*divf ;
+    Scalar khi = source_r.poisson() ; 
+    Scalar f_r = khi ;
+    f_r.div_r() ; 
+    
+    Scalar source_eta = divf ;
+    source_eta.mult_r_dzpuis(2) ;
+    source_eta -= khi.dsdr() ;
+    source_eta.dec_dzpuis(2) ;
+    source_eta -= f_r ;
+    Scalar eta = source_eta.poisson_angu() ;
+
+    Scalar mu = div_free(met_f).mu().poisson() ;
+
+    Vector resu(*mp, CON, triad) ;
+    resu.set(1) = f_r ;
+    resu.set(2) = eta.dsdt() - mu.stdsdp() ;
+    resu.set(3) = eta.stdsdp() + mu.dsdt() ;
+
+    return resu ;
+    
+    break ;
+
+  }
+
+  case 2 : {
+
+    Tenseur source_p(*mp, 1, CON, mp->get_bvect_spher() ) ;
+    source_p.set_etat_qcq() ;
+    for (int i=0; i<3; i++) {
+      source_p.set(i) = Cmp(*cmp[i]) ;
+    }
+    source_p.change_triad(mp->get_bvect_cart()) ;
+    Tenseur vect_auxi (*mp, 1, CON, mp->get_bvect_cart()) ;
+    vect_auxi.set_etat_qcq() ;
+    Tenseur scal_auxi (*mp) ;
+    scal_auxi.set_etat_qcq() ;
+	
+    Tenseur resu_p(source_p.poisson_vect(lambda, vect_auxi, scal_auxi)) ;
+
+     Vector resu(*mp, CON, mp->get_bvect_cart()) ;
+     for (int i=1; i<=3; i++) 
+       resu.set(i) = resu_p(i-1) ;
+
+     resu.change_triad(mp->get_bvect_spher() ) ;
+     return resu ;
+     break ;
+  }
+
+  default : {
+    cout << "Vector::poisson : unexpected type of method !" << endl 
+	 << "  method = " << method << endl ; 
+    abort() ;
+    return *this ;
+    break ; 
+  }
+
+  } // End of switch  
+
 }
 
 Vector Vector::poisson(const double lambda) const {

@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2004/02/22 15:47:45  j_novak
+ * Added 2 more methods to solve the vector pôisson equation. Method 1 is not
+ * tested yet.
+ *
  * Revision 1.22  2004/02/21 16:27:53  j_novak
  * Modif. comments
  *
@@ -325,10 +329,21 @@ class Vector: public Tensor {
 	 *
 	 * @param lambda [input] $\lambda$.
 	 * @param met_f [input] the flat metric for the Helmholtz decomposition.
+	 * @param method [input] method used to solve the equation:\\
+	 *        0 : It uses the Helmholtz decomposition (see documentation of
+	 *            {\tt p_potential}), with the flat metric {\tt met\_f} given 
+	 *            in argument (the default).\\
+	 *        1 : It solves, first for the divergence (calculated using 
+	 *            {\tt met\_f}), then the {\it r}-component, the $\eta$ 
+	 *            potential, and fianlly the $\mu$ potential (see documentation
+	 *            of {\tt Vector\_div\_free}.\\
+	 *        2 : The sources is transformed to cartesian components and the 
+	 *            equation is solved using Shibata method (see Grancl\'ement 
+	 *            {\it et al.\/} JCPH 2001.
 	 *
 	 * @return the solution $N^i$.
 	 */
-	Vector poisson(const double lambda, const Metric_flat& met_f) const ;
+	Vector poisson(const double lambda, const Metric_flat& met_f, int method = 0) const ;
      
 	/**Solves the vector Poisson equation with {\tt *this} as a source
 	 * and parameters controlling the solution.
