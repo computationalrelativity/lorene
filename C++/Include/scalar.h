@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.27  2003/10/20 14:26:02  j_novak
+ * New assignement operators.
+ *
  * Revision 1.26  2003/10/19 19:46:33  e_gourgoulhon
  * -- Method spectral_display now virtual (from Tensor), list of argument
  *    changed.
@@ -227,7 +230,7 @@ class Scalar : public Tensor {
   explicit Scalar(const Map& ) ;	/// Constructor from mapping
 
   /// Constructor from a Tensor (must be of valence 0)
-  explicit Scalar(const Tensor& ) ;     
+  Scalar(const Tensor& ) ;     
 
   Scalar(const Scalar& ) ;		/// Copy constructor
   

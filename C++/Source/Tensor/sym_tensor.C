@@ -35,6 +35,9 @@ char sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/10/20 14:26:03  j_novak
+ * New assignement operators.
+ *
  * Revision 1.10  2003/10/16 14:21:36  j_novak
  * The calculation of the divergence of a Tensor is now possible.
  *
@@ -155,6 +158,21 @@ Sym_tensor::~Sym_tensor() {
 }
 
 
+
+			//--------------//
+			//  Assignment  //
+			//--------------//
+
+void Sym_tensor::operator=(const Sym_tensor& t) {
+    
+    triad = t.triad ; 
+    
+    for (int i=0 ; i<6 ; i++) {
+      *cmp[i] = *t.cmp[i] ;
+    }
+
+    del_deriv() ;
+}
 
 			//-------------------//
 			// Memory managment  //

@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.25  2003/10/20 14:26:02  j_novak
+ * New assignement operators.
+ *
  * Revision 1.24  2003/10/20 09:32:10  j_novak
  * Members p_potential and p_div_free of the Helmholtz decomposition
  * + the method decompose_div(Metric).
@@ -799,7 +802,7 @@ class Sym_tensor : public Tensor {
 	/** Constructor from a {\tt Tensor}.
 	 *  The symmetry of the input tensor is assumed to be true but not checked.
 	 */
-	explicit Sym_tensor(const Tensor&) ;
+	Sym_tensor(const Tensor&) ;
 	
 	/** Constructor from a file (see {\tt sauve(FILE* )}).
 	 * 
@@ -827,6 +830,9 @@ class Sym_tensor : public Tensor {
     // Mutators / assignment
     // ---------------------
     public:
+	/// Assignment to a {\tt Sym\_tensor}
+	virtual void operator=(const Sym_tensor&) ;
+
 	/**
 	 * Assignment from a {\tt Tensor}.
 	 * 
@@ -958,7 +964,7 @@ class Tensor_delta : public Tensor {
 	/** Constructor from a {\tt Tensor}.
 	 *  The symmetry of the input tensor is assumed to be true but not checked.
 	 */
-	explicit Tensor_delta(const Tensor&) ;
+	Tensor_delta(const Tensor&) ;
 	
 	/** Constructor from a file (see {\tt sauve(FILE* )}).
 	 * 
@@ -986,6 +992,9 @@ class Tensor_delta : public Tensor {
     // Mutators / assignment
     // ---------------------
     public:
+	/// Assignment to a {\tt Tensor\_delta}
+	void operator=(const Tensor_delta&) ;
+
 	/**
 	 * Assignment from a {\tt Tensor}.
 	 * 

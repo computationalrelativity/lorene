@@ -32,6 +32,9 @@ char tensor_delta_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/20 14:26:03  j_novak
+ * New assignement operators.
+ *
  * Revision 1.3  2003/10/13 13:52:40  j_novak
  * Better managment of derived quantities.
  *
@@ -126,6 +129,21 @@ Tensor_delta::~Tensor_delta() {
 
   Tensor_delta::del_deriv() ;
 
+}
+
+			//--------------//
+			//  Assignment  //
+			//--------------//
+
+void Tensor_delta::operator=(const Tensor_delta& t) {
+    
+    triad = t.triad ; 
+    
+    for (int i=0 ; i<18 ; i++) {
+      *cmp[i] = *t.cmp[i] ;
+    }
+
+    del_deriv() ;
 }
 
 			//-------------------//
