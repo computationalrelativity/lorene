@@ -32,6 +32,9 @@ char grille_val_interp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/12/05 14:51:54  j_novak
+ * problem with new SGI compiler
+ *
  * Revision 1.5  2003/10/03 16:17:17  j_novak
  * Corrected some const qualifiers
  *
@@ -290,7 +293,7 @@ bool Gval_spher::contenue_dans(const Map* mp, const int lmax, const int lmin)
 
 // Interpolation pour la classe de base
 Tbl Grille_val::interpol1(const Tbl& rdep, const Tbl& rarr, const Tbl& fdep, 
-			 int flag, const int type_inter) const {
+			  int flag, const int type_inter) const {
   assert(rdep.get_ndim() == 1) ;
   assert(rarr.get_ndim() == 1) ;
   assert(rdep.dim == fdep.dim) ;
@@ -303,7 +306,9 @@ Tbl Grille_val::interpol1(const Tbl& rdep, const Tbl& rarr, const Tbl& fdep,
 
   switch (type_inter) {
   case 0: {
-    int ndeg[4] = {ndep, narr} ;
+    int ndeg[4] ;
+    ndeg[0] = ndep ;
+    ndeg[1] = narr ;
     double* err0 = new double[ndep+narr] ;
     double* err1 = new double[ndep+narr] ;
     double* den0 = new double[ndep+narr] ;
@@ -321,26 +326,26 @@ Tbl Grille_val::interpol1(const Tbl& rdep, const Tbl& rarr, const Tbl& fdep,
     delete[] den1 ;
     break ;
   }
-  case 1: {
-    int ip = 0 ;
-    int is = 1 ;
-    assert(ndep > 1);
-    for (int i=0; i<narr; i++) {
-      while(rdep(is) < rarr(i)) is++ ;
-      assert(is<ndep) ;
-      ip = is - 1 ;
-      farr.t[i] = (fdep(is)*(rdep(ip)-rarr(i)) + 
-				    fdep(ip)*(rarr(i)-rdep(is))) /
-	     (rdep(ip)-rdep(is)) ;
-    }
-    break ;
-  }
+   case 1: {
+     int ip = 0 ;
+     int is = 1 ;
+     assert(ndep > 1);
+     for (int i=0; i<narr; i++) {
+       while(rdep(is) < rarr(i)) is++ ;
+       assert(is<ndep) ;
+       ip = is - 1 ;
+       farr.t[i] = (fdep(is)*(rdep(ip)-rarr(i)) + 
+ 				    fdep(ip)*(rarr(i)-rdep(is))) /
+ 	     (rdep(ip)-rdep(is)) ;
+     }
+     break ;
+   }
     
-  case 2:
-    int im, ip, is ;
-    double xr, xm, xp, xs, ym, yp, ys ;
-    ip = 0 ;
-    is = 1 ;
+   case 2:
+     int im, ip, is ;
+     double xr, xm, xp, xs, ym, yp, ys ;
+     ip = 0 ;
+     is = 1 ;
     assert(ndep > 2) ;
     for (int i=0; i<narr; i++) {
       xr = rarr(i) ;
@@ -365,12 +370,12 @@ Tbl Grille_val::interpol1(const Tbl& rdep, const Tbl& rarr, const Tbl& fdep,
     abort() ;
     break ;
     
-  default:
-    cout << "Unknown type of interpolation!" << endl ;
-    abort() ;
-    break ;
-  }
-  return farr ;
+   default:
+     cout << "Unknown type of interpolation!" << endl ;
+     abort() ;
+     break ;
+   }
+   return farr ;
 }
   
                         //------------------
