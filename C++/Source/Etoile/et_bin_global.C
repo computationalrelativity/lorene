@@ -31,6 +31,9 @@ char et_bin_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/06/20 14:02:44  f_limousin
+ * pow(gamma(), 1./2.) is changed to  pow(a_car(), 3./2.)
+ *
  * Revision 1.8  2003/02/06 17:25:56  f_limousin
  * Add global quantities for the class et_bin_ncp
  *
@@ -124,7 +127,7 @@ double Et_bin_ncp::mass_b() const {
 	
 	if (relativistic) {
 	  
-	    Cmp dens = pow(gamma(), 1./2.) * gam_euler() * nbar() ;
+	    Cmp dens = pow(a_car(), 3./2.) * gam_euler() * nbar() ;
 	    
 	    dens.std_base_scal() ; 
 
@@ -182,20 +185,13 @@ double Et_bin_ncp::mass_g() const {
 
     if (p_mass_g == 0x0) {    // a new computation is required
 	
-	if (relativistic) {
-
-	    Cmp dens = pow(gamma(), 1./2.) * nnn()
+	    Cmp dens = pow(a_car(), 3./2.) * nnn()
 		* ( ener_euler() + s_euler() ) ;
 
 	    dens.std_base_scal() ; 
 
 	    p_mass_g = new double( dens.integrale() ) ;
 
-	}
-	else{
-	    p_mass_g = new double( mass_b() ) ;   // in the Newtonian case
-						    //  M_g = M_b
-	}
     }
     
     return *p_mass_g ; 
