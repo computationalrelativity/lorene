@@ -1,0 +1,95 @@
+
+Connection to the CVS repository in Meudon
+------------------------------------------
+
+        cvs -d :pserver:anonymous@octane.obspm.fr:/cvsroot login
+        password: anonymous
+
+
+Downloading Lorene
+------------------
+
+	cvs -d :pserver:anonymous@octane.obspm.fr:/cvsroot checkout Lorene
+
+In each directory created under the directory Lorene, there is a subdirectory
+CVS which contains the file Root with the line 
+:pserver:anonymous@octane.obspm.fr:/cvsroot
+This avoids to type the destination (option -d) each time you type a CVS
+command. Also, the password is registred in the file .cvspass in your
+home directory so that you don't need to type it again. 
+
+Updating a directory
+--------------------
+
+	cd <directoty_name>
+	cvs update
+
+This will download from Lorene repository in Meudon any new version 
+of files present in the directory and all subdirectories. 
+But it will not download any new subdirectory. In order to have them,
+you should type instead
+
+	cvs update -d
+
+This could be a good strategy to always use this last command. 
+
+
+Adding a new file
+-----------------
+
+To put in Lorene repository a file that you have created from scratch, 
+type 
+	cvs add <file_name>
+	cvs commit
+
+
+Committing your changes to the repository
+-----------------------------------------
+
+After having modified some files, you can send them to Lorene
+repository by the command
+
+	cvs commit -m "comment about what you have done..."
+
+If you don't specify the -m option, cvs will prompt you with some 
+editor (usually vi !, unless you setup the environment variable
+$CVSEDITOR, i.e. add the line 
+
+	setenv CVSEDITOR emacs
+
+to your .tcshrc file). 
+
+File status
+-----------
+
+You can get the list of files in your working directory
+which are different with respect to those in the repository by the
+command
+
+	cvs -n -q update
+
+To get the history of the successive versions of a given file, type
+
+	cvs log <file_name>
+
+
+More documentation
+------------------
+
+The man page of CVS is a valuable source of information:
+
+	man cvs
+
+You can also have a look to the Postscript manual cvs.ps.
+On Linux system, you locate it by
+
+	locate cvs.ps
+
+(for instance: /usr/share/doc/cvs-1.11/cvs.ps)
+
+
+
+	
+
+
+
