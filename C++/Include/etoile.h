@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2003/10/20 13:11:03  k_taniguchi
+ * Back to version 1.12
+ *
  * Revision 1.13  2003/10/20 12:15:55  k_taniguchi
  * Addition of various things for the Bin_ns_bh project
  * which are related with the part of the neutron star.
@@ -433,23 +436,12 @@ class Etoile {
 	/// Total lapse function 
 	Tenseur nnn ; 
 	
-	/// Total of the lapse {\it N} generated principaly by the star.
-	Tenseur n_auto ;
-
 	/// Total shift vector
 	Tenseur shift ;
 	
 	/// Total conformal factor $A^2$
 	Tenseur a_car ; 
 	
-	/// Total conformal factor $\Psi$
-	Tenseur confpsi ;
-
-	/* Total of the conformal factor $\Psi$ generated principaly
-	 * by the star.
-	 */
-	Tenseur confpsi_auto ;
-
     // Derived data : 
     // ------------
     protected:
@@ -569,16 +561,6 @@ class Etoile {
 	 */
 	void equil_spher_regular(double ent_c, double precis = 1.e-14) ; 
 
-	/** Computes a spherical static configuration in a NS-BH binary system.
-	 * 
-	 *  @param ent_c [input] central value of the enthalpy
-	 *  @param precis [input] threshold in the relative difference between 
-	 *	the enthalpy fields of two consecutive steps
-	 *	to stop the iterative procedure (default value: 1.e-14)
-	 */
-	virtual void nsbh_equilspher(double ent_c, double precis = 1.e-14) ; 
-
-
     // Accessors
     // ---------
     public:
@@ -653,22 +635,11 @@ class Etoile {
 	/// Returns the total lapse function {\it N}
 	const Tenseur& get_nnn() const {return nnn;} ;
 
-	/// Returns the lapse {\it N} generated principaly by the star.
-	const Tenseur& get_n_auto() const {return n_auto;} ;
-
 	/// Returns the total shift vector $N^i$
 	const Tenseur& get_shift() const {return shift;} ;
 
 	/// Returns the total conformal factor $A^2$
 	const Tenseur& get_a_car() const {return a_car;} ;
-
-	/// Returns the total conformal factor $\Psi$
-	const Tenseur& get_confpsi() const {return confpsi;} ;
-
-	/* Returns the total conformal factor $\Psi$ generated principaly
-	 * by the star.
-	 */
-	const Tenseur& get_confpsi_auto() const {return confpsi_auto;} ;
 
     // Outputs
     // -------
