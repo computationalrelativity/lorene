@@ -31,6 +31,9 @@ char rotstar_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/03/25 13:53:34  j_novak
+ * Added drawings of various fields.
+ *
  * Revision 1.2  2005/03/10 09:38:35  j_novak
  * *** empty log message ***
  *
@@ -51,7 +54,8 @@ char rotstar_dirac_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "graphique.h"
 #include "nbr_spx.h"
-#include "unites.h"	    
+#include "unites.h"
+#include "cmp.h"	    
 
 
 // Local prototype (for drawings only)
@@ -320,29 +324,25 @@ int main(){
     cout.precision(10) ; 
     cout << star << endl ;
 
-    //    double rho_c = star.get_ener()()(0,0,0,0) ;
+    double rho_c = star.get_ener().val_grid_point(0,0,0,0) ;
 
-    //    cout << "r_p/r_eq :" << star.aplat() << endl ;
-    //    cout << "Omega rho0^{-1/2} : " << star.get_omega_c() /
-    //    	sqrt( ggrav * rho_c ) << endl ;
+    cout << "r_p/r_eq :" << star.aplat() << endl ;
+    cout << "Omega rho0^{-1/2} : " << star.get_omega() /
+      sqrt( ggrav * rho_c ) << endl ;
 
-    //    cout << "M rho0^{1/2} : " << star.mass_g() * pow(ggrav,1.5) *
-    //    	sqrt( rho_c ) << endl ;
-
-    //    cout << "M_B rho0^{1/2} : " << star.mass_b() * pow(ggrav,1.5) *
-    //    	sqrt( rho_c ) << endl ;
-
-    //    cout << "R_circ rho0^{1/2} : " << star.r_circ() *
-    //    	sqrt( ggrav * rho_c ) << endl ;
-    	
-    //    cout << "J rho0 : " << star.angu_mom() * ggrav * ggrav * rho_c  << endl ;
-    	
-    //    cout << "Z_p :      " << star.z_pole() << endl ;
-    //    cout << "Z_eq^f :   " << star.z_eqf() << endl ;
-    //    cout << "Z_eq^b :   " << star.z_eqb() << endl ;
-
-    //    cout << "GRV2: " << star.grv2() << endl ;
-    //    cout << "GRV3: " << star.grv3() << endl ;
+    cout << "M rho0^{1/2} : " << star.mass_g() * pow(ggrav,1.5) *
+      sqrt( rho_c ) << endl ;
+    
+    cout << "M_B rho0^{1/2} : " << star.mass_b() * pow(ggrav,1.5) *
+      sqrt( rho_c ) << endl ;
+    
+    cout << "R_circ rho0^{1/2} : " << star.r_circ() *
+      sqrt( ggrav * rho_c ) << endl ;
+    
+    cout << "J rho0 : " << star.angu_mom() * ggrav * ggrav * rho_c  << endl ;
+    
+    cout << "GRV2: " << star.grv2() << endl ;
+    cout << "GRV3: " << star.grv3() << endl ;
 
     double vit_triax = diff(6) ;
 
@@ -426,27 +426,34 @@ int main(){
     // Drawings
     // --------
     
-	//	if (graph == 1) {
+	if (graph == 1) {
 
-	  //	  des_map_et(mp, 0) ; 
+// 	for (int i=1; i<=3; i++) 
+// 	    for (int j=i; j<=3; j++) {
+// 		des_profile(star.get_hh()(i,j), 0., 3*rr, 1, 1) ;
+// 	    }
 
+	// Cmp defining the surface of the star (via the enthalpy field)
+	Cmp surf(star.get_ent()) ; 
+	Cmp surf_ext(mp) ; 
+	surf_ext = - 0.2 * surf(0, 0, 0, 0) ; 
+	surf_ext.annule(0, star.get_nzet()-1) ; 
+	surf.annule(star.get_nzet(), mg.get_nzone()-1) ; 
+	surf = surf + surf_ext ;
+	surf = raccord_c1(surf, star.get_nzet()) ; 
 
-	//Cmp defining the surface of the star (via the enthalpy field)
-// 	Cmp surf(star.get_ent()) ; 
-// 	Cmp surf_ext(mp) ; 
-// 	surf_ext = - 0.2 * surf(0, 0, 0, 0) ; 
-// 	surf_ext.annule(0, star.get_nzet()-1) ; 
-// 	 surf.annule(star.get_nzet(), mg.get_nzone()-1) ; 
-// 	surf = surf + surf_ext ;
-// 	surf = raccord_c1(surf, star.get_nzet()) ; 
+	int nzdes = star.get_nzet() ; 
 
-	double rr = star.ray_eq() ;
-	cout << mp ;
-	for (int i=1; i<=3; i++) 
-	    for (int j=i; j<=3; j++) {
-		des_profile(star.get_hh()(i,j), 0., 3*rr, 1, 1) ;
-	    }
-	//	}
+	des_coupe_y(star.get_ent(), 0., nzdes, "Enthalpy", &surf) ; 
+
+ 	des_coupe_y(star.get_logn(), 0., nzdes, "Gravitational potential \\gn", &surf) ; 
+ 	des_coupe_y(star.get_beta()(3), 0., nzdes, "Azimuthal shift \\gb\\u\\gf", 
+		    &surf) ; 
+ 	des_coupe_y(star.get_lnq(), 0., nzdes, "Potential ln(Q)", &surf) ; 
+	
+ 	des_coupe_y(star.get_hh()(1,1), 0., nzdes, "Metric potential h\\urr", &surf) ; 
+	
+	}
 
  
     // Cleaning
