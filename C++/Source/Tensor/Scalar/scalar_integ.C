@@ -31,6 +31,10 @@ char scalar_integ_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/07/26 16:02:23  j_novak
+ * Added a flag to specify whether the primitive should be zero either at r=0
+ * or at r going to infinity.
+ *
  * Revision 1.2  2004/06/14 15:28:17  e_gourgoulhon
  * Added method primr().
  *
@@ -90,11 +94,11 @@ const Tbl& Scalar::integrale_domains() const {
             //  Radial primitive    // 
             //----------------------//
 
-Scalar Scalar::primr() const {
+Scalar Scalar::primr(bool null_infty) const {
 
     Scalar resu(*mp) ; 
 
-    mp->primr(*this, resu) ; 
+    mp->primr(*this, resu, null_infty) ; 
     
     return resu ; 
 }

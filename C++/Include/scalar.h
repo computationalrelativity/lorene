@@ -38,6 +38,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.60  2004/07/26 16:02:21  j_novak
+ * Added a flag to specify whether the primitive should be zero either at r=0
+ * or at r going to infinity.
+ *
  * Revision 1.59  2004/07/06 13:36:27  j_novak
  * Added methods for desaliased product (operator |) only in r direction.
  *
@@ -736,14 +740,17 @@ class Scalar : public Tensor {
 
   void div_tant() ;    ///< Division by \f$\tan\theta\f$
   
-	/** Computes the radial primitive which vanishes at r = 0, 
-     *  i.e. the function 
-     *      \f$ F(r,\theta,\varphi) = \int_0^r f(r',\theta,\varphi) \, dr' \f$
-     *  where \e f is the function represented by \c *this. 
-     *
-     *      @return function \e F
-     */ 
-    Scalar primr() const  ;  	    
+  /** Computes the radial primitive which vanishes at r = 0, 
+   *  i.e. the function 
+   *      \f$ F(r,\theta,\varphi) = \int_0^r f(r',\theta,\varphi) \, dr' \f$
+   *  where \e f is the function represented by \c *this. 
+   *      
+   *      @param null_infty if true (default), the primitive is null
+   *      at infinity (or on the grid boundary). \e F is null at the
+   *      center otherwise
+   *      @return function \e F
+   */ 
+  Scalar primr(bool null_infty = true) const  ;  	    
 
   /** Computes the integral over all space of \c *this .
    *  The computed quantity is (\e u  being the field represented by

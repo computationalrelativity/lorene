@@ -30,8 +30,9 @@ char map_af_primr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.2  2004/07/26 13:04:15  j_novak
- * Added missing assert on dzpuis
+ * Revision 1.3  2004/07/26 16:02:23  j_novak
+ * Added a flag to specify whether the primitive should be zero either at r=0
+ * or at r going to infinity.
  *
  * Revision 1.1  2004/06/14 15:25:34  e_gourgoulhon
  * First version.
@@ -57,7 +58,7 @@ void _primr_r_chebpim_p(const Tbl&, int, const Tbl&, Tbl&, int&, Tbl&) ;
 void _primr_r_chebpim_i(const Tbl&, int, const Tbl&, Tbl&, int&, Tbl&) ; 
 
 
-void Map_af::primr(const Scalar& uu, Scalar& resu) const {
+void Map_af::primr(const Scalar& uu, Scalar& resu, bool null_infty) const {
 
     static void (*prim_domain[MAX_BASE])(const Tbl&, int bin, const Tbl&, 
         Tbl&, int&, Tbl& ) ; 
@@ -145,13 +146,8 @@ void Map_af::primr(const Scalar& uu, Scalar& resu) const {
         prim_domain[base_r](cfuu, buu_dom, val_rmin, cfprim, bprim.b[l],
             val_rmax) ; 
             
-        cout << "l=" << l << " : bprim.b[l] = " << hex << bprim.b[l] << endl ; 
-        
         cfprim *= alpha[l] ; 
         val_rmin = alpha[l] * val_rmax / alpha[l+1] ;  // for next domain
-        cout << "val_rmax' : " << alpha[l] * val_rmax << endl ; 
-        cout << "val_rmin : " << val_rmin << endl ; 
-               
     }     
     
     // Special case of compactified external domain (CED)
@@ -168,13 +164,23 @@ void Map_af::primr(const Scalar& uu, Scalar& resu) const {
         prim_domain[base_r](cfuu, buu_dom, val_rmin, cfprim, bprim.b[nzm1],
             val_rmax) ;
         
-        cout << "cfuu : " << cfuu << endl ; 
-        cout << "cfprim : " << cfprim << endl ; 
-            
         cfprim *= - alpha[nzm1] ;  
-    }       
+    }
+    
+    if (null_infty) 
+      for (int k=0; k<np; k++)  //## not very elegant!
+	for(int j=0; j<nt; j++) 
+	  val_rmax.set(k,j) = cprim.val_point_jk(nzm1, 1., j, k) ;
     
     // The output spectral bases (set on the Mtbl_cf) are copied to the Valeur:
     vprim.set_base(bprim) ; 
 
+    if (null_infty)
+      for (int l=0; l<nz; l++) //## not very elegant!
+	for (int k=0; k<np; k++) 
+	  for(int j=0; j<nt; j++) 
+	    for (int i=0; i<mg->get_nr(l); i++) 
+	      vprim.set(l, k, j, i) -= val_rmax(k,j) ;
+	 
+    
 }

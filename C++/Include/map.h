@@ -39,6 +39,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.30  2004/07/26 16:02:21  j_novak
+ * Added a flag to specify whether the primitive should be zero either at r=0
+ * or at r going to infinity.
+ *
  * Revision 1.29  2004/06/22 08:49:57  p_grandclement
  * Addition of everything needed for using the logarithmic mapping
  *
@@ -922,13 +926,17 @@ class Map {
 
 
 	/** Computes the radial primitive which vanishes at r = 0, 
-     *  i.e. the function 
-     *      \f$ F(r,\theta,\varphi) = \int_0^r f(r',\theta,\varphi) \, dr' \f$
-     *
-     *      @param uu [input] function \e f
-     *      @param resu [input] function \e F
-     */ 
-    virtual void primr(const Scalar& uu, Scalar& resu) const = 0 ;  	    
+	 *  i.e. the function 
+	 *      \f$ F(r,\theta,\varphi) = \int_0^r f(r',\theta,\varphi) \, dr' \f$
+	 *
+	 *      @param uu [input] function \e f
+	 *      @param resu [input] function \e F
+	 *      @param null_infty if true (default), the primitive is null
+	 *      at infinity (or on the grid boundary). \e F is null at the
+	 *      center otherwise
+	 */ 
+	virtual void primr(const Scalar& uu, Scalar& resu, 
+			   bool null_infty) const = 0 ;  	    
 
 	 
     // Various linear operators
@@ -1977,13 +1985,17 @@ class Map_af : public Map_radial {
 	
 
 	/** Computes the radial primitive which vanishes at r = 0, 
-     *  i.e. the function 
-     *      \f$ F(r,\theta,\varphi) = \int_0^r f(r',\theta,\varphi) \, dr' \f$
-     *
-     *      @param uu [input] function \e f
-     *      @param resu [input] function \e F
-     */ 
-    virtual void primr(const Scalar& uu, Scalar& resu) const ;  	    
+	 *  i.e. the function 
+	 *  \f$ F(r,\theta,\varphi) = \int_0^r f(r',\theta,\varphi) \, dr' \f$
+	 *
+	 *      @param uu [input] function \e f
+	 *      @param resu [input] function \e F
+	 *      @param null_infty if true (default), the primitive is null
+	 *      at infinity (or on the grid boundary). \e F is null at the
+	 *      center otherwise
+	 */ 
+	virtual void primr(const Scalar& uu, Scalar& resu,
+			   bool null_infty) const ;  	    
 
 	 
 	/** Computes the integral over all space of a \c Cmp.
@@ -2766,13 +2778,17 @@ class Map_et : public Map_radial {
 	
 
 	/** Computes the radial primitive which vanishes at r = 0, 
-     *  i.e. the function 
-     *      \f$ F(r,\theta,\varphi) = \int_0^r f(r',\theta,\varphi) \, dr' \f$
-     *
-     *      @param uu [input] function \e f
-     *      @param resu [input] function \e F
-     */ 
-    virtual void primr(const Scalar& uu, Scalar& resu) const ;  	    
+	 *  i.e. the function 
+	 *  \f$ F(r,\theta,\varphi) = \int_0^r f(r',\theta,\varphi) \, dr' \f$
+	 *
+	 *      @param uu [input] function \e f
+	 *      @param resu [input] function \e F
+	 *      @param null_infty if true (default), the primitive is null
+	 *      at infinity (or on the grid boundary). \e F is null at the
+	 *      center otherwise
+	 */ 
+	virtual void primr(const Scalar& uu, Scalar& resu,
+			   bool null_infty) const ;  	    
 
 	 
 	/** Computes the integral over all space of a \c Cmp.

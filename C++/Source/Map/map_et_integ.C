@@ -30,6 +30,10 @@ char map_et_integ_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/07/26 16:02:23  j_novak
+ * Added a flag to specify whether the primitive should be zero either at r=0
+ * or at r going to infinity.
+ *
  * Revision 1.2  2004/06/14 15:27:35  e_gourgoulhon
  * Added method primr (not ready yet !).
  *
@@ -96,7 +100,7 @@ Tbl* Map_et::integrale(const Cmp& ci) const {
 }
 
 
-void Map_et::primr(const Scalar& , Scalar& ) const {
+void Map_et::primr(const Scalar& , Scalar& , bool) const {
 
     cout << "Map_et::primr : not ready yet !" << endl ; 
     abort() ; 
