@@ -30,6 +30,9 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/05/17 19:55:10  e_gourgoulhon
+ * Added arguments method_poisson_vect, nopause and graph_device
+ *
  * Revision 1.8  2004/05/13 21:35:30  e_gourgoulhon
  * Added monitoring of various quantities (as Evolution_full<Tbl>).
  * Added function monitor_scalar.
@@ -73,8 +76,9 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 const Tbl& monitor_scalar(const Scalar& uu, Tbl& resu) ;
 
 void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
-                              int niter_elliptic, 
-                              double relax) {
+                              int niter_elliptic, double relax, 
+                              int method_poisson_vect, int nopause,  
+                              const char* graph_device) {
 
     // Parameters for the d'Alembert equations
     // ----------------------------------------
@@ -96,6 +100,9 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
     // -----------------------
     const Map& map = nn().get_mp() ; 
     const Base_vect& triad = *(beta().get_triad()) ;
+
+    // For graphical outputs:
+    int ngraph0 = 20 ;  // index of the first graphic device to be used
     int nz = map.get_mg()->get_nzone() ; 
     double ray_des = 1.25 * map.val_r(nz-2, 1., 0., 0.) ; // outermost radius
                                                           // for plots
@@ -234,7 +241,7 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
         // Resolution of hyperbolic equations
         // ----------------------------------
         
-        solve_hij(par_khi, par_mu, khi_new, mu_new) ;
+        solve_hij(par_khi, par_mu, khi_new, mu_new, graph_device) ;
         
         // Advance in time
         // ---------------
@@ -261,13 +268,16 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
         
         for (int k = 0; k < niter_elliptic; k++) {
     
-            des_meridian(aa()(1,1), 0., ray_des, "A\\urr\\d", 20) ; 
-            des_meridian(aa()(2,3), 0., ray_des, "A\\u\\gh\\gf\\d", 21) ; 
-            des_meridian(aa()(3,3), 0., ray_des, "A\\u\\gf\\gf\\d", 22) ; 
+            des_meridian(aa()(1,1), 0., ray_des, "A\\urr\\d", ngraph0, 
+                         graph_device) ; 
+            des_meridian(aa()(2,3), 0., ray_des, "A\\u\\gh\\gf\\d", ngraph0+1,
+                         graph_device) ; 
+            des_meridian(aa()(3,3), 0., ray_des, "A\\u\\gf\\gf\\d", ngraph0+2,
+                         graph_device) ; 
 
             n_new = solve_n() ; 
             q_new = solve_q() ; 
-            beta_new = solve_beta() ; 
+            beta_new = solve_beta(0x0, method_poisson_vect) ; 
     
             n_new = relax * n_new + (1.-relax) * nn() ; 
             q_new = relax * q_new + (1.-relax) * qq() ; 
@@ -283,15 +293,20 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
 
         }
                 
-        des_meridian(beta()(1), 0., ray_des, "\\gb\\ur\\d", 10) ; 
-        des_meridian(beta()(2), 0., ray_des, "\\gb\\u\\gh\\d", 11) ; 
-        des_meridian(beta()(3), 0., ray_des, "\\gb\\u\\gf\\d", 12) ; 
-        des_meridian(hh()(1,1), 0., ray_des, "h\\urr\\d", 13) ; 
-        des_meridian(hh()(2,3), 0., ray_des, "h\\u\\gh\\gf\\d", 14) ; 
-        des_meridian(hh()(3,3), 0., ray_des, "h\\u\\gf\\gf\\d", 15) ; 
-        
+        des_meridian(beta()(1), 0., ray_des, "\\gb\\ur\\d", ngraph0+6,
+                     graph_device) ; 
+        des_meridian(beta()(2), 0., ray_des, "\\gb\\u\\gh\\d", ngraph0+7,
+                     graph_device) ; 
+        des_meridian(beta()(3), 0., ray_des, "\\gb\\u\\gf\\d", ngraph0+8,
+                     graph_device) ; 
+        des_meridian(hh()(1,1), 0., ray_des, "h\\urr\\d", ngraph0+9,
+                     graph_device) ; 
+        des_meridian(hh()(2,3), 0., ray_des, "h\\u\\gh\\gf\\d", ngraph0+10,
+                     graph_device) ; 
+        des_meridian(hh()(3,3), 0., ray_des, "h\\u\\gf\\gf\\d", ngraph0+11,
+                     graph_device) ; 
                 
-        // arrete() ; 
+        arrete(nopause) ; 
 
     }
 
