@@ -26,6 +26,10 @@ char binhor_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/02/07 10:43:36  f_limousin
+ * Add the printing of the regularisation of the shift in the case N=0
+ * on the horizon.
+ *
  * Revision 1.2  2004/12/31 15:40:21  f_limousin
  * Improve the initialisation of several quantities in set_statiques().
  *
@@ -105,6 +109,7 @@ double Bin_hor::coal (double angu_vel, double precis, double relax,
     
     ofstream fiche_viriel(name_viriel) ;
     fiche_viriel.precision(8) ; 
+
     
     // LA BOUCLE EN AUGMENTANT OMEGA  : 
     cout << "OMEGA AUGMENTE A LA MAIN." << endl ;
@@ -113,7 +118,7 @@ double Bin_hor::coal (double angu_vel, double precis, double relax,
 	
 	homme += angu_vel/nb_ome ;
 	set_omega (homme) ;
-	Scalar beta_un_old (hole1.beta_auto()(0)) ;
+	Scalar beta_un_old (hole1.beta_auto()(1)) ;
 	
 	solve_shift (precis, relax) ;
 	extrinsic_curvature() ;
@@ -122,14 +127,14 @@ double Bin_hor::coal (double angu_vel, double precis, double relax,
 	solve_lapse (precis, relax) ;
 	
 	double erreur = 0 ;
-	Tbl diff (diffrelmax (beta_un_old, hole1.beta_auto()(0))) ;
+	Tbl diff (diffrelmax (beta_un_old, hole1.beta_auto()(1))) ;
 	for (int i=1 ; i<nz ; i++)
 	    if (diff(i) > erreur)
 		erreur = diff(i) ;
 	if (sortie != 0) {
 	    fiche_iteration << conte << " " << erreur << endl ;
-//	    fiche_correction << conte << " " << hole1.get_regul() << endl ;
-//	    fiche_viriel << conte << " " << viriel() << endl ;
+	    fiche_correction << conte << " " << hole1.regul << endl ;
+	    fiche_viriel << conte << " " << viriel() << endl ;
 	    }
 	    
 	cout << "PAS TOTAL : " << conte << " DIFFERENCE : " << erreur << endl ;
@@ -142,7 +147,7 @@ double Bin_hor::coal (double angu_vel, double precis, double relax,
     double erreur ;
     while (indic == 1) {
 	
-	Scalar beta_un_old (hole1.beta_auto()(0)) ;
+	Scalar beta_un_old (hole1.beta_auto()(1)) ;
 	solve_shift (precis, relax) ;
 	extrinsic_curvature() ;
 	
@@ -150,15 +155,15 @@ double Bin_hor::coal (double angu_vel, double precis, double relax,
 	solve_lapse (precis, relax) ;
 
 	erreur = 0 ;
-	Tbl diff (diffrelmax (beta_un_old, hole1.beta_auto()(0))) ;
+	Tbl diff (diffrelmax (beta_un_old, hole1.beta_auto()(1))) ;
 	for (int i=1 ; i<nz ; i++)
 	    if (diff(i) > erreur)
 		erreur = diff(i) ;
 	
 	if (sortie != 0) {
 	    fiche_iteration << conte << " " << erreur << endl ;
-//	    fiche_correction << conte << " " << hole1.regul << endl ;
-//	    fiche_viriel << conte << " " << viriel() << endl ;
+	    fiche_correction << conte << " " << hole1.regul << endl ;
+	    fiche_viriel << conte << " " << viriel() << endl ;
 	    }
 	    
 	cout << "PAS TOTAL : " << conte << " DIFFERENCE : " << erreur << endl ;
@@ -171,5 +176,5 @@ double Bin_hor::coal (double angu_vel, double precis, double relax,
     fiche_correction.close() ;
     fiche_viriel.close() ;
       
-    return 1 ; //viriel() ;
+    return viriel() ;
 }
