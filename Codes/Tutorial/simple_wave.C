@@ -28,6 +28,9 @@ char simple_wave_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/02/21 17:06:43  e_gourgoulhon
+ * Method Scalar::point renamed Scalar::val_grid_point.
+ *
  * Revision 1.9  2004/02/18 18:59:29  e_gourgoulhon
  * Suppressed unnecessary #include's.
  *
@@ -172,7 +175,7 @@ int main() {
     uu.update(uu0, dt) ; 
 
     // Time evolution of the central value of U : 
-    Evolution_full<double> uu_c(uu0.point(0,0,0,0), t) ; 
+    Evolution_full<double> uu_c(uu0.val_grid_point(0,0,0,0), t) ; 
 
     int j_max = 500 ; 
     
@@ -183,7 +186,7 @@ int main() {
         t += dt ; 
         uu.update(uu_jp1, t) ; 
         
-        uu_c.update(uu_jp1.point(0,0,0,0), t) ; 
+        uu_c.update(uu_jp1.val_grid_point(0,0,0,0), t) ; 
     
         if ( j%2 == 0 ) {
         
