@@ -1,0 +1,87 @@
+/*
+ * Methods Scalar::poisson_*
+ */
+
+/*
+ *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *
+ *   Copyright (c) 2000-2001 Philippe Grandclement (for preceding Scalar version)
+ *
+ *   This file is part of LORENE.
+ *
+ *   LORENE is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 2 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LORENE is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LORENE; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+
+char scalar_pde_frontiere_C[] = "$Header$" ;
+
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.1  2003/09/25 08:06:56  e_gourgoulhon
+ * First versions (use Cmp as intermediate quantities).
+ *
+ *
+ * $Header$
+ *
+ */
+
+// Header Lorene:
+#include "map.h"
+#include "tensor.h"
+#include "cmp.h"
+#include "valeur.h"
+#include "utilitaires.h"
+
+
+Scalar Scalar::poisson_dirichlet(const Valeur& limite, int num_front) const {
+    
+	Cmp csource(*this) ; 
+    Cmp cresu(mp) ;
+	
+    mp->poisson_frontiere(csource, limite, 1, num_front, cresu) ; 
+	
+	Scalar resu(cresu) ; 
+    return resu ;          
+}
+
+
+Scalar Scalar::poisson_neumann(const Valeur& limite, int num_front) const {
+    
+	Cmp csource(*this) ; 
+    Cmp cresu(mp) ;
+
+    mp->poisson_frontiere (csource, limite, 2, num_front, cresu) ; 
+
+	Scalar resu(cresu) ; 
+    return resu ;    
+}
+
+
+Scalar Scalar::poisson_frontiere_double (const Valeur& lim_func, 
+	const Valeur& lim_der, int num_zone) const {
+	
+	Cmp csource(*this) ; 
+    Cmp cresu(mp) ;
+
+    mp->poisson_frontiere_double(csource, lim_func, lim_der, num_zone, cresu) ; 
+
+	Scalar resu(cresu) ; 
+    return resu ;    
+}		
+
+
+
