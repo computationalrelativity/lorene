@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/17 15:58:47  p_grandclement
+ * Slight modification of sol_elliptic_no_zec
+ *
  * Revision 1.4  2004/03/05 09:18:48  p_grandclement
  * Addition of operator sec_order_r2
  *
@@ -127,7 +130,7 @@ class Param_elliptic {
 
   friend Mtbl_cf elliptic_solver  (const Param_elliptic&, const Mtbl_cf&) ;
   friend Mtbl_cf elliptic_solver_no_zec  
-    (const Param_elliptic&, const Mtbl_cf&) ;
+    (const Param_elliptic&, const Mtbl_cf&, double) ;
   friend Mtbl_cf elliptic_solver_sin_zec  
     (const Param_elliptic&, const Mtbl_cf&, double, int, double&, double&) ;
   friend Mtbl_cf elliptic_solver_fixe_der_zero  

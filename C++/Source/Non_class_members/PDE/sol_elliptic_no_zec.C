@@ -23,6 +23,9 @@ char sol_elliptic_no_zec_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/17 15:58:49  p_grandclement
+ * Slight modification of sol_elliptic_no_zec
+ *
  * Revision 1.2  2003/12/19 16:21:49  j_novak
  * Shadow hunt
  *
@@ -49,7 +52,7 @@ char sol_elliptic_no_zec_C[] = "$Header$" ;
 	   //		Version Mtbl_cf
 	  //----------------------------------------------
 
-Mtbl_cf elliptic_solver_no_zec  (const Param_elliptic& ope_var, const Mtbl_cf& source) {
+Mtbl_cf elliptic_solver_no_zec  (const Param_elliptic& ope_var, const Mtbl_cf& source, double valeur) {
   // Verifications d'usage sur les zones
   int nz = source.get_mg()->get_nzone() ;
   assert (nz>1) ;
@@ -209,14 +212,19 @@ Mtbl_cf elliptic_solver_no_zec  (const Param_elliptic& ope_var, const Mtbl_cf& s
 	      ope_var.variables[conte]->val_G(rlim)*ope_var.operateurs[conte]->der_sh_two_plus() ;
 	  }
 
-	  sec_membre.set(2*l) -=  ope_var.variables[conte]->val_F(rlim) + 
-	    ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->val_sp_plus();
+	 
 
 	  if (l!=nz-2) {
-	  sec_membre.set(2*l+1) -=  ope_var.variables[conte]->val_der_F(rlim) + 
-	    ope_var.variables[conte]->val_der_G(rlim) * ope_var.operateurs[conte]->val_sp_plus() + 
-	    ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->der_sp_plus() ;
+	    sec_membre.set(2*l) -= ope_var.variables[conte]->val_F(rlim) + 
+	      ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->val_sp_plus();
+
+	    sec_membre.set(2*l+1) -=  ope_var.variables[conte]->val_der_F(rlim) + 
+	      ope_var.variables[conte]->val_der_G(rlim) * ope_var.operateurs[conte]->val_sp_plus() + 
+	      ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->der_sp_plus() ;
 	}
+	  else
+	    sec_membre.set(2*l) -=  -valeur + ope_var.variables[conte]->val_F(rlim) + 
+	      ope_var.variables[conte]->val_G(rlim) * ope_var.operateurs[conte]->val_sp_plus();
 	}
 	
 	// On resout le systeme ...

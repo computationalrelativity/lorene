@@ -26,6 +26,9 @@ char map_af_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/17 15:58:48  p_grandclement
+ * Slight modification of sol_elliptic_no_zec
+ *
  * Revision 1.3  2004/02/11 09:47:46  p_grandclement
  * Addition of a new elliptic solver, matching with the homogeneous solution
  * at the outer shell and not solving in the external domain (more details
@@ -106,7 +109,7 @@ void Map_af::sol_elliptic(const Param_elliptic& ope_var, const Scalar& source,
 	  //----------------------------------------------
 
 void Map_af::sol_elliptic_no_zec(const Param_elliptic& ope_var, const Scalar& source, 
-			  Scalar& pot) const {
+			  Scalar& pot, double val) const {
     
   assert(source.get_etat() != ETATNONDEF) ; 
   assert(source.get_mp().get_mg() == mg) ; 
@@ -135,7 +138,7 @@ void Map_af::sol_elliptic_no_zec(const Param_elliptic& ope_var, const Scalar& so
   
   // Call to the Mtbl_cf version
   // ---------------------------
-  Mtbl_cf resu = elliptic_solver_no_zec (ope_var, *(rho.c_cf)) ;
+  Mtbl_cf resu = elliptic_solver_no_zec (ope_var, *(rho.c_cf), val) ;
   
   // Final result returned as a Scalar
   // ---------------------------------

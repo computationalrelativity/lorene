@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.25  2004/03/17 15:58:47  p_grandclement
+ * Slight modification of sol_elliptic_no_zec
+ *
  * Revision 1.24  2004/03/01 09:57:02  j_novak
  * the wave equation is solved with Scalars. It now accepts a grid with a
  * compactified external domain, which the solver ignores and where it copies
@@ -2052,9 +2055,10 @@ class Map_af : public Map_radial {
 	 * @param params [input] : the operators and variables to be uses.
 	 * @param so [input] : the source.
 	 * @param uu [output] : the solution.
+	 * @param val [input] : value at the last shell.
 	 **/
 	void sol_elliptic_no_zec (const Param_elliptic& params, 
-				  const Scalar& so, Scalar& uu) const ;
+				  const Scalar& so, Scalar& uu, double val) const ;
 
 	/**
 	 * General elliptic solver.

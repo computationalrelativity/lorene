@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2004/03/17 15:58:47  p_grandclement
+ * Slight modification of sol_elliptic_no_zec
+ *
  * Revision 1.18  2004/02/17 09:21:38  j_novak
  * New functions for calculating values of the derivatives of a function
  * using its Chebyshev coefficients.
@@ -595,7 +598,8 @@ void poisson_vect_binaire ( double lambda,
 // Elliptic solvers :
 Mtbl_cf elliptic_solver  (const Param_elliptic&, const Mtbl_cf&) ;
 
-Mtbl_cf elliptic_solver_no_zec  (const Param_elliptic&, const Mtbl_cf&) ;
+Mtbl_cf elliptic_solver_no_zec  (const Param_elliptic&, const Mtbl_cf&, 
+				 double val) ;
 
 Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic&, const Mtbl_cf&, 
 				 double, int, double&, double&) ;

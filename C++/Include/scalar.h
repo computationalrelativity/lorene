@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.52  2004/03/17 15:58:47  p_grandclement
+ * Slight modification of sol_elliptic_no_zec
+ *
  * Revision 1.51  2004/03/11 12:07:30  e_gourgoulhon
  * Added method visu_section_anim.
  *
@@ -1157,8 +1160,9 @@ class Scalar : public Tensor {
    * Resolution of a general elliptic equation, putting zero at the outermost 
    * shell and not solving in the compactified domain.
    * @param params [input] the operators and variables to be used.
+   * @param val [input] value at the last shell.
    **/
-  Scalar sol_elliptic_no_zec(const Param_elliptic& params) const ;
+  Scalar sol_elliptic_no_zec(const Param_elliptic& params, double val = 0) const ;
 
   /**
    * General elliptic solver.

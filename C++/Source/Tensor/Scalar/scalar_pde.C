@@ -35,6 +35,9 @@ char scalar_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/03/17 15:58:50  p_grandclement
+ * Slight modification of sol_elliptic_no_zec
+ *
  * Revision 1.8  2004/03/01 09:57:04  j_novak
  * the wave equation is solved with Scalars. It now accepts a grid with a
  * compactified external domain, which the solver ignores and where it copies
@@ -174,7 +177,7 @@ Scalar Scalar::sol_elliptic(const Param_elliptic& ope_var) const {
                     //             with no ZEC           //
 		    //-----------------------------------//
 
-Scalar Scalar::sol_elliptic_no_zec(const Param_elliptic& ope_var) const {
+Scalar Scalar::sol_elliptic_no_zec(const Param_elliptic& ope_var, double val) const {
 
   // Right now, only applicable with affine mapping
   const Map_af* map_affine = dynamic_cast <const Map_af*> (mp) ;
@@ -187,7 +190,7 @@ Scalar Scalar::sol_elliptic_no_zec(const Param_elliptic& ope_var) const {
   Scalar res (*mp) ;
   res.set_etat_qcq() ;
   
-  map_affine->sol_elliptic_no_zec (ope_var, *this, res) ;
+  map_affine->sol_elliptic_no_zec (ope_var, *this, res, val) ;
 
   return (res) ;
 }
