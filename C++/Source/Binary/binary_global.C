@@ -31,6 +31,9 @@ char binary_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/02/27 10:25:30  f_limousin
+ * Modif. to avoid an error in compilation.
+ *
  * Revision 1.3  2004/02/27 10:03:04  f_limousin
  * The computation of mass_adm() and mass_komar() is now OK !
  *
@@ -47,6 +50,7 @@ char binary_global_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "binary.h"
+#include "map.h"
 
 		    //---------------------------------//
 		    //		ADM mass	       //
@@ -68,7 +72,7 @@ double Binary::mass_adm() const {
     
     const Metric& gamij = (et[0]->get_gamma()) ;
     const Metric& flat = (et[0]->get_flat()) ;
-    const Map_af& map0 (et[0]->get_mp()) ;
+    const Map_af map0 (et[0]->get_mp()) ;
     
     Sym_tensor gamij_cov = gamij.cov() ;
     gamij_cov.std_spectral_base() ;
@@ -144,7 +148,7 @@ const Tbl& Binary::angu_mom() const {
       const Sym_tensor& kij_auto = et[0]->get_tkij_auto() ;
       const Sym_tensor& kij_comp = et[0]->get_tkij_auto() ;
       const Tensor& psi4 = et[0]->get_psi4() ;
-      const Map_af& map0 (kij_auto.get_mp()) ;
+      const Map_af map0 (kij_auto.get_mp()) ;
 
       Sym_tensor kij = (kij_auto + kij_comp) * psi4 ;
       kij.change_triad(map0.get_bvect_cart()) ;
