@@ -30,6 +30,9 @@ char vector_df_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2005/02/15 09:45:22  j_novak
+ * Correction of an error in the matching.
+ *
  * Revision 1.12  2005/02/09 16:53:11  j_novak
  * Now V^r and eta are matched across domains, but not any of their derivatives.
  *
@@ -492,7 +495,7 @@ Vector_divfree Vector_divfree::poisson() const {
   for (int k=0 ; k<np+1 ; k++)
       for (int j=0 ; j<nt ; j++) {
 	  base.give_quant_numbers(0, k, j, m_q, l_q, base_r) ;
-	  if ((nullite_plm(j, nt, k, np, base) == 1)||(l_q != 1)) {
+	  if ((nullite_plm(j, nt, k, np, base) == 1)&&(l_q != 0)) {
 		
 	      ligne = 0 ;
 	      colonne = 0 ;
