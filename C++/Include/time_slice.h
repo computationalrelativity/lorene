@@ -29,6 +29,12 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/04/08 16:42:11  e_gourgoulhon
+ * Many changes:
+ * -- class Time_slice_conf: added methods set_*, changed argument list of
+ *    method initial_data_cts.
+ * -- class Tslice_dirac_max: added methods set_* and  hh_det_one().
+ *
  * Revision 1.8  2004/04/05 21:21:51  e_gourgoulhon
  * class Time_slice_conf: added method initial_data_cts (computation of
  *  initial data from conformally thin sandwich method).
@@ -400,8 +406,7 @@ class Time_slice_conf : public Time_slice {
         /** Values at successive time steps of the components \f$ A^{ij} \f$
          * of the conformal representation of the traceless part
          * of the extrinsic curvature:
-         * \f$ A^{ij} = \Psi^4 \left( K^{ij} - {1\over 3} K \gamma^{ij} 
-         *  \right) \f$.
+         * \f$ A^{ij} = \Psi^4 \left( K^{ij} - \frac{1}{3} K \gamma^{ij} \right) \f$.
          */        
 	mutable Evolution_std<Sym_tensor> aa_evol ; 
 
@@ -441,10 +446,11 @@ class Time_slice_conf : public Time_slice {
      *      of the conformal metric \f$ \tilde\gamma^{ij} \f$ from 
      *      the flat metric \f$ f^{ij} \f$: 
      *      \f$\tilde\gamma^{ij} = f^{ij} + h^{ij} \f$.
+     *      \f$ h^{ij} \f$ must be such that 
+     *      \f$\det\tilde\gamma^{ij} = f^{-1} \f$.
      *  @param aa_in conformal representation \f$ A^{ij} \f$
      *      of the traceless part of the extrinsic curvature:
-     *      \f$ A^{ij} = \Psi^4 \left( K^{ij} - {1\over 3} K \gamma^{ij}
-     *          \right) \f$
+     *   \f$ A^{ij} = \Psi^4 \left( K^{ij} - \frac{1}{3} K \gamma^{ij} \right) \f$
      *  @param trk_in trace \e K of the extrinsic curvature 
      *  @param depth_in  number of stored time slices; this parameter is used
      *                   to set the \c scheme_order member with \c scheme_order
@@ -514,7 +520,60 @@ class Time_slice_conf : public Time_slice {
 
 	/// Assignment to a \c Time_slice
 	void operator=(const Time_slice&) ;
-	
+        
+        /** Sets the conformal factor \f$ \Psi \f$ relating the
+         * physical metric \f$ \gamma_{ij} \f$ to the conformal one:
+         * \f$ \gamma_{ij} = \Psi^4 \tilde\gamma_{ij} \f$. 
+         * \f$ \Psi \f$ is defined by
+         *  \f[ \Psi := \left( \frac{\det\gamma_{ij}}{\det f_{ij}} 
+         *      \right) ^{1/12} \f] 
+         * Sets the value at the current time step (\c jtime ) and
+         * deletes the value of \f$Q = \Psi^2 N\f$.
+         *
+         */
+        virtual void set_psi_del_q(const Scalar& psi_in) ; 
+        
+        /** Sets the conformal factor \f$ \Psi \f$ relating the
+         * physical metric \f$ \gamma_{ij} \f$ to the conformal one:
+         * \f$ \gamma_{ij} = \Psi^4 \tilde\gamma_{ij} \f$. 
+         * \f$ \Psi \f$ is defined by
+         *  \f[ \Psi := \left( \frac{\det\gamma_{ij}}{\det f_{ij}} 
+         *      \right) ^{1/12} \f] 
+         * Sets the value at the current time step (\c jtime ) and
+         * deletes the value of \f$N = Q / \Psi^2\f$.
+         *
+         */
+        virtual void set_psi_del_n(const Scalar& psi_in) ; 
+        
+        /** Sets the factor \f$ Q := \Psi^2 N \f$ at the 
+         *  current time step (\c jtime ) and deletes the value
+         *  of \f$\Psi\f$.
+         */
+        virtual void set_qq_del_psi(const Scalar& qq_in) ; 
+        
+        /** Sets the factor \f$ Q := \Psi^2 N \f$ at the 
+         *  current time step (\c jtime ) and deletes the value
+         *  of \c N.
+         */
+        virtual void set_qq_del_n(const Scalar& qq_in) ; 
+        
+        /** Sets the deviation \f$ h^{ij} \f$ 
+         * of the conformal metric \f$ \tilde\gamma^{ij} \f$ from 
+         * the flat metric \f$ f^{ij} \f$: 
+         * \f$\tilde\gamma^{ij} = f^{ij} + h^{ij} \f$.
+         *      \f$ h^{ij} \f$ must be such that 
+         *      \f$\det\tilde\gamma^{ij} = f^{-1} \f$.
+         * Sets the value at the current time step (\c jtime ).
+         */        
+        virtual void set_hh(const Sym_tensor& hh_in) ; 
+
+        /** Sets the conformal representation \f$ A^{ij} \f$ of the traceless part
+         * of the extrinsic curvature:
+         * \f$ A^{ij} = \Psi^4 \left( K^{ij} - \frac{1}{3} K \gamma^{ij} \right) \f$.
+         * Sets the value at the current time step (\c jtime ).
+         */        
+        virtual void set_aa(const Sym_tensor& aa_in) ; 
+
     // Accessors
     // ---------
     public:
@@ -552,8 +611,7 @@ class Time_slice_conf : public Time_slice {
          * physical metric \f$ \gamma_{ij} \f$ to the conformal one:
          * \f$ \gamma_{ij} = \Psi^4 \tilde\gamma_{ij} \f$. 
          * \f$ \Psi \f$ is defined by
-         *  \f[ \Psi := \left( \frac{\det\gamma_{ij}}{\det f_{ij}} 
-         *      \right) ^{1/12} \f] 
+         *  \f[ \Psi := \left( \frac{\det\gamma_{ij}}{\det f_{ij}} \right) ^{1/12} \f] 
          * Returns the value at the current time step (\c jtime ).
          */
         virtual const Scalar& psi() const ; 
@@ -584,8 +642,7 @@ class Time_slice_conf : public Time_slice {
 
         /** Conformal representation \f$ A^{ij} \f$ of the traceless part
          * of the extrinsic curvature:
-         * \f$ A^{ij} = \Psi^4 \left( K^{ij} - {1\over 3} K \gamma^{ij} 
-         *  \right) \f$.
+         * \f$ A^{ij} = \Psi^4 \left( K^{ij} - \frac{1}{3} K \gamma^{ij} \right) \f$.
          * Returns the value at the current time step (\c jtime ).
          */        
         virtual const Sym_tensor& aa() const ; 
@@ -605,16 +662,20 @@ class Time_slice_conf : public Time_slice {
     // ---------------------
     public:
         /** Computes valid initial data by solving the constraint 
-         * equations in the conformal thin-sandwich approach.
+         *  equations in the conformal thin-sandwich approach.
          *
-         *  @param hh_in value of \f$ h^{ij} \f$ (freely specifiable data)
          *  @param uu value of 
          *    \f$ {\tilde u}^{ij} = \partial h^{ij} /\partial t \f$ 
-         *                  (freely specifiable data)
+         *                  (freely specifiable data).
+         *  This quantity must be trace-free with respect to the conformal
+         *  metric \f$\tilde\gamma_{ij}\f$, reflecting the unimodular 
+         *  character of \f$\tilde\gamma_{ij}\f$.
          *  @param trk_in value of \f$ K = K_i^{\ i} \f$ 
          *      (freely specifiable data)
          *  @param trk_point value of \f$ \partial K / \partial t \f$ 
          *      (freely specifiable data)
+         *  @param precis convergence threshold required to stop the 
+         *          iteration
          *  @param ener_dens matter energy density \c E as measured by the 
          *      Eulerian observer; this quantity is passed as a pointer,
          *      the null value of which (default) meaning \c E=0.
@@ -625,10 +686,10 @@ class Time_slice_conf : public Time_slice {
          *      by the Eulerian observer; this quantity is passed as a pointer,
          *      the null value of which (default) meaning \c E=0.
          */
-         void initial_data_cts(const Sym_tensor& hh_in, 
-                const Sym_tensor& uu, const Scalar& trk_in, 
-                const Scalar& trk_point, const Scalar* ener_dens=0x0,
-                const Vector* mom_dens=0x0, const Scalar* trace_stress=0x0 ) ; 
+         void initial_data_cts(const Sym_tensor& uu, const Scalar& trk_in, 
+                const Scalar& trk_point, double precis = 1.e-12,
+                const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
+                const Scalar* trace_stress=0x0 ) ; 
         
     // Outputs
     // -------
@@ -671,7 +732,30 @@ class Tslice_dirac_max : public Time_slice_conf {
     // Constructors - Destructor
     // -------------------------
     public:
-  ///Standard 
+    /** Constructor from conformal decomposition.
+     *
+     *  @param lapse_in lapse function \e N
+     *  @param shift_in shift vector
+     *  @param ff_in reference flat metric with respect to which the
+     *           conformal decomposition is performed
+     *  @param psi_in conformal factor \f$\Psi\f$ relating the
+     *       physical metric \f$ \gamma_{ij} \f$ to the conformal one:
+     *      \f$ \gamma_{ij} = \Psi^4 \tilde\gamma_{ij} \f$
+     *  @param hh_in deviation \f$ h^{ij} \f$
+     *      of the conformal metric \f$ \tilde\gamma^{ij} \f$ from 
+     *      the flat metric \f$ f^{ij} \f$: 
+     *      \f$\tilde\gamma^{ij} = f^{ij} + h^{ij} \f$.
+     *      \f$ h^{ij} \f$ must be such that 
+     *      \f$\det\tilde\gamma^{ij} = f^{-1} \f$.
+     *  @param aa_in conformal representation \f$ A^{ij} \f$
+     *      of the traceless part of the extrinsic curvature:
+     *      \f$ A^{ij} = \Psi^4 \left( K^{ij} - \frac{1}{3} K \gamma^{ij} \right) \f$,
+     *       with \e K = 0 in the present case
+     *  @param depth_in  number of stored time slices; this parameter is used
+     *                   to set the \c scheme_order member with \c scheme_order
+     *                   = \c depth_in - 1. \c scheme_order can be changed 
+     *                   afterwards by the method \c set_scheme_order(int).
+     */
 	Tslice_dirac_max(const Scalar& lapse_in, const Vector& shift_in,
             const Metric_flat& ff_in, const Scalar& psi_in, 
             const Sym_tensor_trans& hh_in, const Sym_tensor aa_in, 
@@ -704,6 +788,47 @@ class Tslice_dirac_max : public Time_slice_conf {
 	/// Assignment to another Tslice_dirac_max
 	void operator=(const Tslice_dirac_max&) ;	
 	
+        // Virtual functions from base class Time_slice_conf:
+        // -------------------------------------------------
+
+        /** Sets the deviation \f$ h^{ij} \f$ 
+         * of the conformal metric \f$ \tilde\gamma^{ij} \f$ from 
+         * the flat metric \f$ f^{ij} \f$: 
+         * \f$\tilde\gamma^{ij} = f^{ij} + h^{ij} \f$.
+         *      \f$ h^{ij} \f$ must be such that 
+         *      \f$\det\tilde\gamma^{ij} = f^{-1} \f$.
+         * Sets the value at the current time step (\c jtime ).
+         */        
+        virtual void set_hh(const Sym_tensor& hh_in) ; 
+
+        // Virtual functions from this class:
+        // ----------------------------------
+
+	/** Sets the potentials \f$\chi \f$ and \f$\mu\f$
+         * of the TT part \f$ \bar{h}^{ij} \f$ of \f$ h^{ij} \f$
+	 * (see the documentation of \c Sym_tensor_tt for details).
+         * The value of \f$ h^{ij} \f$ is then deduced from the
+         * unimodularity condition on the conformal metric.
+         * Sets the value at the current time step (\c jtime ).
+	 */
+	virtual void set_khi_mu(const Scalar& khi_in, const Scalar& mu_in) ; 
+
+	/** Sets the trace, with respect to the flat metric 
+	 * \c ff , of \f$ h^{ij} \f$.
+         * Sets the value at the current time step (\c jtime ).
+         * Note that this method does not ensure that the conformal
+         * metric is unimodular. 
+	 */
+	virtual void set_trh(const Scalar& trh_in) ;
+        
+    protected:
+        /** Computes \f$ h^{ij} \f$ from the values of \f$\chi\f$ and 
+         * \f$\mu\f$ and using the condition 
+         * \f$\det\tilde\gamma^{ij} = \det f^{ij} \f$, which fixes the
+         * trace of \f$ h^{ij} \f$.
+         */
+        void hh_det_one() const ; 
+
     // Accessors
     // ---------
     public:
@@ -734,19 +859,20 @@ class Tslice_dirac_max : public Time_slice_conf {
         // ----------------------------------
 
 	/** Returns the \f$\chi \f$ potential of \f$ \bar{h}^{ij} \f$.
-	 *
 	 * It is given by \f$ \chi = r^2 \bar{h}^{rr}\f$.
+         * Returns the value at the current time step (\c jtime ).
 	 */
 	virtual const Scalar& khi() const ; 
 
 	/** Returns the \f$\mu \f$ potential of \f$ \bar{h}^{ij} \f$.
-	 *
 	 * See the documentation of \c Sym_tensor_tt for details.
+         * Returns the value at the current time step (\c jtime ).
 	 */
 	virtual const Scalar& mu() const ;
 	
-	/** Returns the trace, with respect to the flat metric 
-	 * \c ff , of \f$ h^{ij} \f$.
+	/** Computes the trace \c h, with respect to the flat metric 
+	 * \c ff , of \f$ h^{ij} \f$. 
+         * Returns the value at the current time step (\c jtime ).
 	 */
 	virtual const Scalar& trh() const ;
 
