@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.38  2004/01/15 11:00:44  f_limousin
+ * Added method contract_desal for the contraction of two tensors with desaliasing
+ *
  * Revision 1.37  2004/01/14 11:39:00  f_limousin
  * Added method contract for one tensor
  *
@@ -1019,6 +1022,26 @@ Tensor_sym operator*(const Tensor& a, const Tensor_sym& b) ;
 Tensor_sym operator*(const Tensor_sym& a, const Tensor& b) ; 
 
 /** Contraction of two tensors. 
+ *
+ * @param t1 [input] first tensor 
+ * @param ind1 [input] index of the first tensor for the contraction, 
+ *    obeying to the following convention : \\
+ *    {\tt ind1} = 0 : first index of the tensor \\
+ *    {\tt ind1} = 1 : second index of the tensor \\
+ *    and so on... \\
+ *  ({\tt ind1} must thus be in the range 0...t1.valence-1)  
+ * @param t2 [input] second tensor 
+ * @param ind2 [input] index of the second tensor for the contraction, with 
+ *   the same convention as {\tt ind1} 
+ * @return tensor resulting of the contraction of the index {\tt ind1} of
+ *  {\tt t1} with the index {\tt ind2} of {\tt t2}.
+ * NB: the types ({\tt COV} or {\tt CON}) of the indices {\tt ind1} and
+ * {\tt ind2} must be different. 
+ */
+Tensor contract(const Tensor& t1, int ind1, const Tensor& t2, int ind2) ;
+
+
+/** Contraction of two tensors and with desaliasing
  *
  * @param t1 [input] first tensor 
  * @param ind1 [input] index of the first tensor for the contraction, 
