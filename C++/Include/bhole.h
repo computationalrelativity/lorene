@@ -32,6 +32,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/12/18 10:28:49  e_gourgoulhon
+ *
+ * Added the set_mp function.
+ *
  * Revision 1.2  2002/09/13 09:17:31  j_novak
  * Modif. commentaires
  *
@@ -270,7 +274,11 @@ class Bhole {
     public:
 	void operator= (const Bhole&) ; /// Affectation
 	
-	const Map_af& get_mp() const {return mp;} ; /// Returns the mapping.
+	const Map_af& get_mp() const {return mp;} ; /// Returns the mapping (readonly).
+
+	/// Read/write of the mapping
+	Map_af& set_mp() {return mp; } ;
+
 	/**
 	 * Returns the radius of the horizon.
 	 */
@@ -289,7 +297,7 @@ class Bhole {
 	 * Sets the angular velocity to {\tt ome}.
 	 */
 	void set_omega(double ome) {omega = ome ;} ;
-	
+
 	/**
 	 * Returns the cartesian components of the boost with respect to the 
 	 * reference frame.
