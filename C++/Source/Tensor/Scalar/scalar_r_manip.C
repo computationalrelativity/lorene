@@ -35,6 +35,10 @@ char scalar_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2003/11/03 22:36:37  e_gourgoulhon
+ *  Method dec_dzpuis: changed the name of argument dec --> decrem
+ *  (in order not to shadow some globally defined dec).
+ *
  * Revision 1.11  2003/11/03 10:25:05  e_gourgoulhon
  * Scalar::dec_dzpuis(int dec)  : treated the case dec = 0
  * Scalar::inc_dzpuis(int inc)  : treated the case inc = 0
@@ -262,13 +266,13 @@ void Scalar::div_tant() {
 			//      dec_dzpuis       //
 			//-----------------------//
 
-void Scalar::dec_dzpuis(int dec) {
+void Scalar::dec_dzpuis(int decrem) {
     
-	if (dec == 0) return ; 
+	if (decrem == 0) return ; 
 	
 	Cmp cuu(*this) ; 
 	
-	switch (dec) {
+	switch (decrem) {
 	
 		case 0 : { 
    			break ; 
@@ -286,8 +290,8 @@ void Scalar::dec_dzpuis(int dec) {
 		}
 		
 		default : {
-			cout << "Scalar::dec_dzpuis : unexpected value of dec !"
-				<< endl << "  dec = " << dec << endl ; 
+			cout << "Scalar::dec_dzpuis : unexpected value of decrem !"
+				<< endl << "  decrem = " << decrem << endl ; 
 			abort() ;
 			break ; 
 		}
