@@ -1,0 +1,11 @@
+The parameter files for the code init_bin are:
+par_eos1.d  par_eos2.d  par_grid1.d  par_grid2.d  par_init.d
+
+There is only one parameter file for the code coal:
+parcoal.d
+
+These parameter files for various physical configurations
+are in subdirectories of directory Parameters.
+They must be copied in the local directory before running
+init_bin or coal.
+
