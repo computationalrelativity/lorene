@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/01/17 13:48:17  f_limousin
+ * Add des_explorer and des_explorer_symz for a Bin_ns_ncp
+ *
  * Revision 1.2  2002/09/13 09:17:33  j_novak
  * Modif. commentaires
  *
@@ -126,6 +129,7 @@ class Cmp ;
 class Tenseur ; 
 class Etoile ; 
 class Binaire ; 
+class Bin_ns_ncp ;
 
     /** @name Basic routines.
      */
@@ -1555,6 +1559,40 @@ void des_explorer_symz(const Binaire& bibi, const char* name) ;
  *  @param scale    [input]: scale by which the value of the {\tt Cmp}
  *                           is to be multiplied
  */
+
+void des_explorer(const Bin_ns_ncp& bibi, const char* name) ;
+
+/** Prepare a file for visualizing a binary star (class {\tt Bin_ns_ncp}) with 
+ *  Iris Explorer,  including data for z<0, assuming that all {\tt Cmp}
+ *  are symmetric with respect to z=0.
+ * 
+ *  @param bibi	    {\tt Bin_ns_ncp} to examine
+ *  @param filename  beginning of the names of the output files for Explorer.
+ *		     {\tt nz1 + nz2 -2} files will be created, where {\tt nz1} 
+ *		     (resp. {\tt nz2}) is the total number of domains in the 
+ *		     mapping of star 1 (resp. star 2). Each file name is 
+ *		     indexed first by the star number (after the suffixe 
+ *		     "st") and then by the domain index (after the suffixe
+ *		     "dm").  
+ */
+void des_explorer_symz(const Bin_ns_ncp& bibi, const char* name) ;
+
+
+/** Prepare a file for visualizing a meridian slice of a {\tt Cmp} 
+ *  in a given domain with Iris Explorer.
+ *  This is to draw a function $z=f(r,\theta)$, where {\it f} is a
+ *  ``slice'' in the plane $\phi$ = const of the function defined by
+ *  uu (to use with the {\bf Lit\_scal2D} module of Explorer).
+ *
+ *  @param uu       [input]: {\tt Cmp} to examine
+ *  @param nz       [input]: index of the domain
+ *  @param k_phi    [input]: $\phi $ index
+ *  @param filename [input]: name of the output file, to be read by Explorer
+ *  @param scale    [input]: scale by which the value of the {\tt Cmp}
+ *                           is to be multiplied
+ */
+
+
 void des_explorer2D(const Cmp& uu, int nz, const int k_phi,
 		    const char* filename, const double scale = 1.) ;
 
