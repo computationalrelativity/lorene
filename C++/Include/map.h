@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2004/01/19 21:38:21  e_gourgoulhon
+ * Corrected sign error in comments of Map_radial::dxdr.
+ *
  * Revision 1.16  2003/12/30 22:52:47  e_gourgoulhon
  * Class Map: added methods flat_met_spher() and flat_met_cart() to get
  * flat metric associated with the coordinates described by the mapping.
@@ -1191,7 +1194,7 @@ class Map_radial : public Map {
 	/**
 	 * $1/(\partial R/\partial\xi) = \partial \xi /\partial r$ in the nucleus
 	 *   and in the non-compactified shells; \\
-	 * $-1/(\partial U/\partial\xi) = \partial \xi /\partial u$ in the 
+	 * $-1/(\partial U/\partial\xi) = - \partial \xi /\partial u$ in the 
 	 *   compactified outer domain.
 	 */
 	Coord dxdr ;	    
