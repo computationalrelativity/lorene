@@ -5,6 +5,8 @@
 8	np: number of points in phi   (the same in each domain)
 17	nr: number of points in r   (the same in each domain)
 1.	coordinate radius
-0.5	relaxation (1 -> no relaxation)
-1e-8	threshold
+0.6	relaxation (1 -> no relaxation)
+1e-7	threshold
 100	maximum of iterations
+0.01	angular velocity
+
