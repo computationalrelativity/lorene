@@ -43,6 +43,7 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Tenseur; $(MAKE)
 	cd Source/Tensor; $(MAKE)
 	cd Source/Tensor/Scalar; $(MAKE)
+	cd Source/Time_slice; $(MAKE)
 	cd Source/Valencia; $(MAKE)
 	cd Source/Valeur; $(MAKE)
 	touch $(LIB)/date_mark
@@ -88,6 +89,7 @@ uninstall:
 	cd Source/Tenseur; $(MAKE) -i uninstall
 	cd Source/Tensor; $(MAKE)  -i uninstall
 	cd Source/Tensor/Scalar; $(MAKE)  -i uninstall
+	cd Source/Time_slice; $(MAKE)  -i uninstall
 	cd Source/Valencia; $(MAKE) -i uninstall
 	cd Source/Valeur; $(MAKE) -i uninstall
 
