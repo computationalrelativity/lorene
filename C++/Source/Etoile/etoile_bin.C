@@ -32,6 +32,9 @@ char etoile_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/05/07 12:35:16  f_limousin
+ * Add new member ssjm1_psi
+ *
  * Revision 1.10  2004/03/25 10:29:06  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -224,6 +227,7 @@ Etoile_bin::Etoile_bin(Map& mpi, int nzet_i, bool relat, const Eos& eos_i,
 			 ssjm1_beta(mpi), 
 			 ssjm1_khi(mpi), 
                          ssjm1_wshift(mpi, 1, CON, mp.get_bvect_cart()),
+			 ssjm1_psi(mpi), 
                          decouple(mpi)
 {
     
@@ -266,6 +270,7 @@ Etoile_bin::Etoile_bin(Map& mpi, int nzet_i, bool relat, const Eos& eos_i,
     ssjm1_logn = 0 ; 
     ssjm1_beta = 0 ; 
     ssjm1_khi = 0 ; 
+    ssjm1_psi = 0 ; 
     
     ssjm1_wshift.set_etat_qcq() ; 
     for (int i=0; i<3; i++) {
@@ -305,6 +310,7 @@ Etoile_bin::Etoile_bin(const Etoile_bin& et)
 			 ssjm1_beta(et.ssjm1_beta), 
 			 ssjm1_khi(et.ssjm1_khi), 
                          ssjm1_wshift(et.ssjm1_wshift),
+			 ssjm1_psi(et.ssjm1_khi), 
                          decouple(et.decouple)
 {
     set_der_0x0() ;    
@@ -342,6 +348,7 @@ Etoile_bin::Etoile_bin(Map& mpi, const Eos& eos_i, const Base_vect& ref_triad_i,
 			 ssjm1_beta(mpi), 
 			 ssjm1_khi(mpi), 
                          ssjm1_wshift(mpi, 1, CON, mp.get_bvect_cart()),
+			 ssjm1_psi(mpi), 
                          decouple(mpi)
 {
 
@@ -387,6 +394,8 @@ Etoile_bin::Etoile_bin(Map& mpi, const Eos& eos_i, const Base_vect& ref_triad_i,
 
     Tenseur ssjm1_wshift_file(mp, mp.get_bvect_cart(), fich) ; 
     ssjm1_wshift = ssjm1_wshift_file ; 
+
+    ssjm1_psi = 0 ;
 
     // All other fields are initialized to zero : 
     // ----------------------------------------
@@ -498,6 +507,7 @@ void Etoile_bin::operator=(const Etoile_bin& et) {
     ssjm1_beta = et.ssjm1_beta ; 
     ssjm1_khi = et.ssjm1_khi ;
     ssjm1_wshift = et.ssjm1_wshift ; 
+    ssjm1_psi = et.ssjm1_psi ;
     decouple = et.decouple ;
     
     del_deriv() ;  // Deletes all derived quantities
@@ -773,24 +783,27 @@ void Etoile_bin::fait_d_psi() {
     }
     
     v_orb.set_triad( *(www.get_triad()) ) ;     
-
-    // Gradient of psi 
-    //----------------
-
-    Tenseur d_psi0 = psi0.gradient() ; 
-    
-    d_psi0.change_triad( ref_triad ) ; 
-
-    d_psi = d_psi0 + v_orb ; 
-    
-
-    // C^1 continuation of d_psi outside the star
-    //  (to ensure a smooth enthalpy field accross the stellar surface)
-    // ----------------------------------------------------------------
-    
     int nzm1 = mp.get_mg()->get_nzone() - 1 ;    
+    for (int l=1; l<=nzm1; l++)
+	for (int i=0; i<=2; i++)
+	    v_orb.set(i).annule(l) ;
+        
+    
+     // Gradient of psi 
+     //----------------
 
-    if (d_psi0.get_etat() == ETATQCQ ) {
+     Tenseur d_psi0 = psi0.gradient() ; 
+
+     d_psi0.change_triad( ref_triad ) ; 
+
+     d_psi = d_psi0 + v_orb ; 
+
+
+     // C^1 continuation of d_psi outside the star
+     //  (to ensure a smooth enthalpy field accross the stellar surface)
+     // ----------------------------------------------------------------
+
+     if (d_psi0.get_etat() == ETATQCQ ) {
 	d_psi.annule(nzet, nzm1) ;	 
 	for (int i=0; i<3; i++) {
 	    d_psi.set(i).va.set_base( d_psi0(i).va.base ) ; 
