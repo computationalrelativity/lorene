@@ -32,6 +32,9 @@ char et_rot_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2002/05/22 12:20:17  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.9  2002/05/20 15:44:55  e_marcq
  *
  * Dimension errors corrected, parmag.d input file created and read
@@ -112,14 +115,16 @@ Et_rot_mag::Et_rot_mag(const Et_rot_mag& et)
   : Etoile_rot(et),
   A_t(et.A_t),
   A_phi(et.A_phi),
-  j_phi(et.j_phi),
   j_t(et.j_t),
+  j_phi(et.j_phi),
   E_em(et.E_em),
   Jp_em(et.Jp_em),
   Srr_em(et.Srr_em),
   Spp_em(et.Spp_em)
 
 {
+  Q = et.Q ;
+  a_j = et.a_j ;
   set_der_0x0() ;
 }
 

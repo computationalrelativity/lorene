@@ -33,6 +33,9 @@ char et_rot_mag_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2002/05/22 12:20:17  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.11  2002/05/20 15:44:55  e_marcq
  *
  * Dimension errors corrected, parmag.d input file created and read
@@ -78,9 +81,8 @@ char et_rot_mag_global_C[] = "$Header$" ;
 
 // Definition des fonctions membres differentes ou nouvelles
 
-
 void Et_rot_mag::MHD_comput() {
-// Calcule les grandeurs du tenseur impulsion-energie EM a partir des champs
+  // Calcule les grandeurs du tenseur impulsion-energie EM a partir des champs
   #include"unites_mag.h"
   if (mu0<0.) { //to avoid compilation warnings
     cout << qpig << f_unit << msol << km << mevpfm3 << endl ; 
@@ -115,35 +117,38 @@ void Et_rot_mag::MHD_comput() {
 
 Tenseur Et_rot_mag::Elec() const {
 
-  Cmp E_r(A_t); Cmp E_t(A_t);
-  E_r = bbb()/(a_car()*nnn())*(A_t.dsdr()+nphi()*A_phi.dsdr()) ;
-  E_t = bbb()/(a_car()*nnn())*(A_t.srdsdt()+nphi()*A_phi.srdsdt()) ;
-
-  Tenseur E(mp, 1, CON, mp.get_bvect_spher()) ;
-  E.set_etat_qcq() ;
-  E.set(0) = E_r ;
-  E.set(1) = E_t ;
-  E.set(2) = 0. ;
-
-    return E*elec_unit ;
+  Cmp E_r(mp); Cmp E_t(mp);
+  E_r = 1/(sqrt(a_car())*nnn())*(A_t.dsdr()+nphi()*A_phi.dsdr()) ;
+  E_t = 1/(sqrt(a_car())*nnn())*(A_t.srdsdt()+nphi()*A_phi.srdsdt()) ;
+  E_r.va.set_base((A_t.dsdr()).va.base) ;
+  E_t.va.set_base((A_t.srdsdt()).va.base) ;
+  Tenseur Elect(mp, 1, CON, mp.get_bvect_spher()) ;
+  Elect.set_etat_qcq() ;
+  Elect.set(0) = E_r ;
+  Elect.set(1) = E_t ;
+  Elect.set(2) = 0. ;
+  
+    return Elect*elec_unit ;
 
 }
 
 Tenseur Et_rot_mag::Magn() const {
-  // À redimensionner.
-  Cmp B_r(A_phi); Cmp B_t(A_phi);
-  B_r = 1/(a_car()*a_car())*A_phi.srdsdt();
+
+  Cmp B_r(mp); Cmp B_t(mp);
+  B_r = 1/(sqrt(a_car())*bbb())*A_phi.srdsdt();
+  B_r.va.set_base((A_phi.srdsdt()).va.base) ;
   B_r.div_rsint();
-  B_t = -1/(a_car()*a_car())*A_phi.dsdr();
+  B_t = 1/(sqrt(a_car())*bbb())*A_phi.dsdr();
+  B_t.va.set_base((A_phi.dsdr()).va.base) ;
   B_t.div_rsint();
 
-  Tenseur B(mp, 1, CON, mp.get_bvect_spher()) ;
-  B.set_etat_qcq() ;
-  B.set(0) = B_r ;
-  B.set(1) = B_t ;
-  B.set(2) = 0. ;
+  Tenseur Bmag(mp, 1, CON, mp.get_bvect_spher()) ;
+  Bmag.set_etat_qcq() ;
+  Bmag.set(0) = B_r ;
+  Bmag.set(1) = B_t ;
+  Bmag.set(2) = 0. ;
 
-    return B*mag_unit ;
+    return Bmag*mag_unit ;
 
 }
 
@@ -157,16 +162,16 @@ double Et_rot_mag::MagMom() const {
     mm = 0 ;
   }else{
 
-    Valeur** asymp = A_phi.asymptot(1) ;
-    mm = 4*M_PI/mu0*(*asymp[1])(Z-1,0,mp.get_mg()->get_nt(0)-1,0) ;
-    
-    delete asymp[0] ;
-    delete asymp[1] ;
-    
-    delete [] asymp ;
+  Valeur** asymp = A_phi.asymptot(1) ;
+  mm = 4*M_PI*(*asymp[1])(Z-1,0,mp.get_mg()->get_nt(Z-1)-1,0) ;
+
+  delete asymp[0] ;
+  delete asymp[1] ;
+
+  delete [] asymp ;
   }
-  
-  return mm*(j_unit*pow(r_unit,4)) ;
+
+  return mm*mag_unit*r_unit*r_unit*r_unit/mu_si*1.e9 ;
 
 }
 
@@ -189,10 +194,8 @@ double Et_rot_mag::Q_comput() const {
   }
 
 double Et_rot_mag::GyroMag() const {
-  // Q et MM en SI, J et Mg en Lorene : facteur de conversion
-
   return 2*MagMom()*mass_g()/(Q_comput()*angu_mom()*v_unit*r_unit); 
-  }
+}
 			//----------------------------//
 			//	Gravitational mass    //
 			//----------------------------//
@@ -505,13 +508,3 @@ double Et_rot_mag::mom_quad() const {
     return *p_mom_quad ; 
 
 }
-
-
-
-
-
-
-
-
-
-
