@@ -23,3 +23,5 @@ uninstall:
 	rm -f *.d
 
 ... syncmail seems to work ok now?!
+adfadf afad fa
+dfadfd
