@@ -30,6 +30,9 @@ char tslice_conf_init_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/05/10 09:12:01  e_gourgoulhon
+ * Added a call to del_deriv() at the end.
+ *
  * Revision 1.5  2004/05/03 14:48:48  e_gourgoulhon
  * Treatment of special cases nn_jp1.etat = ETATUN and psi_jp1.etat = ETATUN.
  *
@@ -313,6 +316,9 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& uu,
                        
     } 
     
+    // Reset of derived quantities (at the new time step jtime)
+    // ---------------------------
+    del_deriv() ; 
     
 } 
 
