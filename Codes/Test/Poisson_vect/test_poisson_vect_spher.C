@@ -28,6 +28,9 @@ char test_poisson_vect_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/12/19 15:17:45  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.3  2003/11/03 15:13:10  j_novak
  * Comparison with Philippe's Poisson solver.
  *
@@ -47,6 +50,7 @@ char test_poisson_vect_spher_C[] = "$Header$" ;
 #include "tenseur.h"
 #include "nbr_spx.h"
 #include "utilitaires.h"
+#include "graphique.h"
 
 int main() {
 
@@ -104,6 +108,7 @@ int main() {
 	theo.set(2) = 0 ;
 	theo.set(3) =  0 ;
 	theo.set(1).set_val_inf(0.) ;
+	theo.annule_domain(nz-1) ;
 	theo.std_spectral_base() ; 
 
 	Vector vvc(map, CON, map.get_bvect_cart()) ;
@@ -111,10 +116,13 @@ int main() {
 	  - ((36+20*lamda)*r*r + 8*lamda*x*x)*x*x/denom2
 	  + (r*r+lamda*x*x)*32*r*r*r*r*x*x/denom3 ;
 	vvc.set(1).set_val_inf(0.) ;
-	vvc.set(2) = lamda*(-8*x*y*(r*r + x*x)/denom2 + 32*r*r*r*r*x*x*x*y/denom3) ;
+	vvc.set(2) = lamda*(-8*x*y*(r*r + x*x)/denom2 
+			    + 32*r*r*r*r*x*x*x*y/denom3) ;
 	vvc.set(2).set_val_inf(0.) ;
-	vvc.set(3) = lamda*(-8*x*z*(r*r + x*x)/denom2 + 32*r*r*r*r*x*x*x*z/denom3) ;
+	vvc.set(3) = lamda*(-8*x*z*(r*r + x*x)/denom2 
+			    + 32*r*r*r*r*x*x*x*z/denom3) ;
 	vvc.set(3).set_val_inf(0.) ;
+	vvc.annule_domain(nz-1) ;
 	vvc.std_spectral_base() ;
 
   	Vector vvs = vvc ; 
@@ -150,6 +158,7 @@ int main() {
       	  cout <<  "New version: " << diffrelmax(resu(i), theo(i)) << endl ; 
 	  cout <<  "Grandclement et al.: " << 
 	    diffrelmax(resu_p(i-1), theo_p(i-1)) << endl ; 
+	  des_profile(resu_p(i-1) - theo_p(i-1), 0, 3, 1, 1) ;
 	}
 
 	return EXIT_SUCCESS ; 
