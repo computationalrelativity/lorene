@@ -30,6 +30,13 @@ char connection_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/12/30 22:58:27  e_gourgoulhon
+ * -- Replaced member flat_conn (flat connection) by flat_met (flat metric)
+ * -- Added argument flat_met to the constructors of Connection.
+ * -- Suppressed method fait_ricci() (the computation of the Ricci is
+ *    now devoted to the virtual method ricci()).
+ * -- Implementation of methods fait_delta() and derive_cov().
+ *
  * Revision 1.8  2003/12/27 14:59:05  e_gourgoulhon
  * Method derive_cov() suppressed.
  *
@@ -75,65 +82,38 @@ char connection_C[] = "$Header$" ;
 #include "metric.h"
 
 
-					//------------------------------//
-					//	       Constructors         //
-					//------------------------------//
+                        //-----------------------//
+                        //      Constructors     //
+                        //-----------------------//
 
 
 // Constructor ab initio
 
-Connection::Connection(const Tensor_delta& delta_i) : mp(&(delta_i.get_mp())),
-		triad(delta_i.get_triad()),
-		delta(delta_i), 
-		assoc_metric(false),
-		flat_conn(0x0) {
-	
-	const Base_vect_spher* bvs = dynamic_cast<const Base_vect_spher*>(triad) ; 
-	if (bvs != 0x0) {
-		flat_conn = new Connection_fspher(*mp, *bvs) ; 
-	}
-	else{
-		const Base_vect_cart* bvc = dynamic_cast<const Base_vect_cart*>(triad) ;
-		if (bvc == 0x0) {
-			cout << "Connection::Connection : unknown type of triad !" << endl ;
-			abort() ; 			
-		}
-		//##
-		// flat_conn = new Connection_fcart(*mp, *bvc) ; 
-	}
-	
-	
-	set_der_0x0() ; 
-
-	
+Connection::Connection(const Tensor_delta& delta_i, 
+                       const Metric_flat& flat_met_i) 
+                      : mp(&(delta_i.get_mp())),
+		        triad(delta_i.get_triad()),
+		        delta(delta_i), 
+		        assoc_metric(false),
+		        flat_met(&flat_met_i) {
+		
+    set_der_0x0() ; 
 }		
 
 
 // Standard constructor from a metric. 
 
-Connection::Connection(const Metric& met) : mp(&(met.get_mp())),
-		triad(met.cov().get_triad()),
-		delta(*mp, CON, COV, COV, *triad),
-		assoc_metric(true),
-		flat_conn(0x0) {
+Connection::Connection(const Metric& met,
+                       const Metric_flat& flat_met_i) 
+                      : mp(&(met.get_mp())),
+		        triad(met.cov().get_triad()),
+		        delta(*mp, CON, COV, COV, *triad),
+		        assoc_metric(true),
+		        flat_met(&flat_met_i) {
 		
-	const Base_vect_spher* bvs = dynamic_cast<const Base_vect_spher*>(triad) ; 
-	if (bvs != 0x0) {
-		flat_conn = new Connection_fspher(*mp, *bvs) ; 
-	}
-	else{
-		const Base_vect_cart* bvc = dynamic_cast<const Base_vect_cart*>(triad) ;
-		if (bvc == 0x0) {
-			cout << "Connection::Connection : unknown type of triad !" << endl ;
-			abort() ; 			
-		}
-		//##
-		// flat_conn = new Connection_fcart(*mp, *bvc) ; 
-	}
+    fait_delta(met) ; 	// Computes delta
 
-	fait_delta(met) ; 	// Computes delta
-
-	set_der_0x0() ; 
+    set_der_0x0() ; 
 }
 
 
@@ -143,18 +123,9 @@ Connection::Connection(const Connection& conn_i) : mp(conn_i.mp),
 		triad(conn_i.triad),
 		delta(conn_i.delta), 
 		assoc_metric(conn_i.assoc_metric),
-		flat_conn(0x0) {
-		
-	if (conn_i.flat_conn != 0x0) {
-		const Connection_fspher* cfs = 
-			dynamic_cast<const Connection_fspher*>(conn_i.flat_conn) ; 
-		if (cfs != 0x0) {
-			flat_conn = new Connection_fspher(*cfs) ; 			
-		}
-		//## cas Connection_fcart
-	}
-	
-	set_der_0x0() ; 
+		flat_met(conn_i.flat_met) {
+			
+    set_der_0x0() ; 
 	
 }		
 
@@ -165,30 +136,27 @@ Connection::Connection(const Map& mpi, const Base_vect& bi) : mp(&mpi),
 		triad(&bi),
 		delta(mpi, CON, COV, COV, bi),
 		assoc_metric(false),
-		flat_conn(0x0){
+		flat_met(0x0){
 		
-	set_der_0x0() ; 
+    set_der_0x0() ; 
 	
 }		
 
 
 	
-					//----------------------------//
-					//	       Destructor         //
-					//----------------------------//
-
+                        //-----------------------//
+                        //      Destructor       //
+                        //-----------------------//
 
 Connection::~Connection(){
 
-	if (flat_conn != 0x0) delete flat_conn ; 
-
-	del_deriv() ; 
+    del_deriv() ; 
 	
 }
 
-					//-----------------------------//
-					//        Memory management    //
-					//-----------------------------//
+			//-----------------------------//
+			//        Memory management    //
+			//-----------------------------//
 
 void Connection::del_deriv() const {
 
@@ -205,69 +173,26 @@ void Connection::set_der_0x0() const {
 }
 
 
-					//-----------------------------//
-    				//     Mutators / assignment   //
-					//-----------------------------//
+			//-----------------------------//
+    			//     Mutators / assignment   //
+			//-----------------------------//
 
 
 void Connection::operator=(const Connection& ci) {
 	
 	assert( triad == ci.triad ) ; 
 	delta = ci.delta ; 
-	if (flat_conn != 0x0) delete flat_conn ; 
-	flat_conn = 0x0 ; 
-
-	if (ci.flat_conn != 0x0) {
-		const Connection_fspher* cfs = 
-			dynamic_cast<const Connection_fspher*>(ci.flat_conn) ; 
-		if (cfs != 0x0) {
-			flat_conn = new Connection_fspher(*cfs) ; 			
-		}
-		//## cas Connection_fcart
-	}
+        flat_met = ci.flat_met ; 
 	
 	del_deriv() ; 
 
 }	
 
-
-
-					//-----------------------------//
-					//    Computational methods    //
-					//-----------------------------//
-
-
-Tensor* Connection::p_derive_cov(const Tensor& ) const {
-
-	cout << "Connection::p_derive_cov : not implemented yet !" << endl ; 
-	abort() ; 
-	return 0x0 ;
-} 
-
-Tensor* Connection::p_divergence(const Tensor& ) const {
-
-	cout << "Connection::p_divergence : not implemented yet !" << endl ; 
-	abort() ; 
-	return 0x0 ;
-} 
-
-
-const Tensor& Connection::ricci() const {
-
-	if (p_ricci == 0x0) {
-		compute_ricci() ; 
-	}
-	
-	return *p_ricci ; 
-	
-}
-
-
 void Connection::update(const Tensor_delta& delta_i) {
 
 	assert(assoc_metric == false) ;
 	
-	assert(flat_conn != 0x0) ; // to guarantee we are not in a derived class
+	assert(flat_met != 0x0) ; // to guarantee we are not in a derived class
 	
 	delta = delta_i ; 
 	
@@ -280,7 +205,7 @@ void Connection::update(const Metric& met) {
 
 	assert(assoc_metric == true) ;
 	
-	assert(flat_conn != 0x0) ; // to guarantee we are not in a derived class
+	assert(flat_met != 0x0) ; // to guarantee we are not in a derived class
 	
 	fait_delta(met) ; 
 	
@@ -288,18 +213,170 @@ void Connection::update(const Metric& met) {
 	
 }
 
-void Connection::compute_ricci() const {
 
-	cout << "Connection::compute_ricci() : not implemented yet !" << endl ; 
+
+			//-----------------------------//
+			//    Computational methods    //
+			//-----------------------------//
+
+// Covariant derivative
+//---------------------
+
+
+Tensor* Connection::p_derive_cov(const Tensor& uu) const {
+
+    // Notations: suffix 0 in name <=> input tensor
+    //            suffix 1 in name <=> output tensor
+
+    int valence0 = uu.get_valence() ; 
+    int ncomp0 = uu.get_n_comp() ;
+    int valence1 = valence0 + 1 ; 
+    int valence1m1 = valence1 - 1 ; // same as valence0, but introduced for 
+                                    // the sake of clarity
+	
+    // Protections
+    // -----------
+    if (valence0 >= 1) {
+        assert(uu.get_triad() == triad) ; 
+    }
+    assert(flat_met != 0x0) ; 
+
+    // Creation of the result (pointer)
+    // --------------------------------
+    Tensor* resu ;
+
+    // If uu is a Scalar, the result is a vector
+    if (valence0 == 0) 
+        resu = new Vector(*mp, COV, triad) ;
+    else {
+
+        // Type of indices of the result :
+        Itbl tipe(valence1) ; 
+        const Itbl& tipeuu = uu.get_index_type() ;  
+        for (int id = 0; id<valence0; id++) {
+            tipe.set(id) = tipeuu(id) ;   // First indices = same as uu
+        }
+        tipe.set(valence1m1) = COV ;  // last index is the derivation index
+
+        resu = new Tensor(*mp, valence1, tipe, *triad) ;
+    }
+
+	
+    Itbl ind1(valence1) ; // working Itbl to store the indices of resu
+    Itbl ind0(valence0) ; // working Itbl to store the indices of uu
+    Itbl ind(valence0) ;  // working Itbl to store the indices of uu
+	
+    Scalar tmp(*mp) ;	// working scalar
+    
+    *resu = uu.derive_cov(*flat_met) ;   // Initialisation to the flat derivative 
+	
+    // Loop on the derivation index
+    for (int k=1; k<=3; k++) {
+    
+        // Loop on all the components of the input tensor
+        for (int ic=0; ic<ncomp0; ic++) {
+	
+            // indices corresponding to the component no. ic in the input tensor
+            ind0 = uu.indices(ic) ; 
+		
+            // indices (ind0,k) in the output tensor
+            for (int id = 0; id < valence0; id++) {
+                ind1.set(id) = ind0(id) ; 
+            }
+            ind1.set(valence1m1) = k ; 
+		
+            Scalar& cresu = resu->set(ind1) ; 
+        
+            // Loop on the number of indices of uu 
+            for (int id=0; id<valence0; id++) {
+            
+                ind = ind0 ;
+                
+                switch( uu.get_index_type(id) ) {
+                
+                case COV : {
+                    for (int l=1; l<=3; l++) {
+                        ind.set(id) = l ; 
+                        cresu += delta(ind0(id), k, l) * uu(ind) ;
+                    }
+                    break ; 
+                }
+                
+                case CON : {
+                    for (int l=1; l<=3; l++) {
+                        ind.set(id) = l ; 
+                        cresu -= delta(l, k, ind0(id)) * uu(ind) ;
+                    }
+                    break ; 
+                }
+                
+                default : {
+                    cerr << 
+                    "Connection::p_derive_cov : unexpected type of index !\n" ;
+                    abort() ; 
+                    break ; 
+                }
+                
+                }   // end of switch on index type 
+                
+            }   // end of loop on the number of indices of uu               
+
+        }   // end of loop on all the components of uu
+        
+    }   // end of loop on the derivation index
+
+
+  // C'est fini !
+  // ------------
+  
+  return resu ; 
+  
+} 
+
+
+Tensor* Connection::p_divergence(const Tensor& ) const {
+
+	cout << "Connection::p_divergence : not implemented yet !" << endl ; 
+	abort() ; 
+	return 0x0 ;
+} 
+
+
+const Tensor& Connection::ricci() const {
+
+    if (p_ricci == 0x0) {  // a new computation is necessary
+	cout << "Connection::ricci() : not implemented yet !" << endl ; 
 	abort() ; 
 
+    }
+	
+    return *p_ricci ; 
+	
 }
 
 
-void Connection::fait_delta(const Metric& ) {
 
-	cout << "Connection::fait_delta : not implemented yet !" << endl ; 
-	abort() ; 
+void Connection::fait_delta(const Metric& gam) {
+
+    assert(flat_met != 0x0) ; 
+        
+    const Tensor& dgam = gam.cov().derive_cov(*flat_met) ; 
+
+    for (int k=1; k<=3; k++) {
+        for (int i=1; i<=3; i++) {
+            for (int j=1; j<=i; j++) {
+                Scalar& cc = delta.set(k,i,j) ; 
+                cc = 0 ; 
+                for (int l=1; l<=3; l++) {
+                    cc += gam.con()(k,l) * ( 
+                        dgam(l,j,i) + dgam(i,l,j) - dgam(i,j,l) ) ; 
+                        
+                }
+                cc = 0.5 * cc ; 
+            }
+        }
+    }
+
 
 }  
 
