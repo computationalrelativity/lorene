@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2005/03/25 14:54:04  e_gourgoulhon
+ * Corrected documentation.
+ *
  * Revision 1.11  2004/07/06 13:36:27  j_novak
  * Added methods for desaliased product (operator |) only in r direction.
  *
@@ -425,7 +428,7 @@ class Grille3d_i2p : public Grille3d {
 		    	//---------------//
 
 /**
- * Multi-domain grid.
+ * Multi-domain grid. \ingroup (spec)
  *
  * A multi-domain grid is a set of 3D grids for the implementation of 
  * the multi-domain spectral method described in Bonazzola, Gourgoulhon 
@@ -446,17 +449,19 @@ class Mg3d {
     // Data  
     // ----
     private:
-	int nzone ;	///< Number of zones
+	int nzone ;	///< Number of domains (zones)
 	
 	int* nr ;	///< Array (size: \c nzone) of nb. of points in \e r (\f$\xi\f$)
 	int* nt ;	///< Array (size: \c nzone) of nb. of points in \f$\theta\f$
 	int* np ;	///< Array (size: \c nzone) of nb. of points in \f$\phi\f$
 	
-	/// Array (size: \c nzone) of type of sampling in \e r (\f$\xi\f$) (\c RARE, FIN, UNSURR)
+	/** Array (size: \c nzone) of type of sampling in \e r (\f$\xi\f$) 
+     *(\c RARE,\c FIN, \c UNSURR)
+     */
 	int* type_r ;	
-	/// Type of sampling in \f$\theta\f$ (\c SYM, NONSYM)
+	/// Type of sampling in \f$\theta\f$ (\c SYM, \c NONSYM)
 	int type_t ;
-	/// Type of sampling in \f$\phi\f$ (\c SYM, NONSYM)	
+	/// Type of sampling in \f$\phi\f$ (\c SYM, \c NONSYM)	
 	int type_p ;	
 	
 	/// Array (size: \c nzone) of pointers on the \c Grille3d's
@@ -499,11 +504,11 @@ class Mg3d {
 /**
  * Simplified constructor for a standard multi-grid.
  * This provides a multi-grid with the same number of degrees of freedom
- * in all the domains. \\
+ * in all the domains. \n
  * The domain of index \c l = 0 will be a nucleus:
- * \f$\xi\in [0,1]\f$, rarefied sampling (type \c RARE) near the origin; \\
+ * \f$\xi\in [0,1]\f$, rarefied sampling (type \c RARE) near the origin; \n
  * domains of indices \f$ 1 \le {\tt l} \le {\tt nz}-2\f$ will be shells:
- * \f$\xi\in [-1,1]\f$, dense sampling (type \c FIN) near -1 and 1; \\
+ * \f$\xi\in [-1,1]\f$, dense sampling (type \c FIN) near -1 and 1; \n
  * if \c compact == true, 
  * the domains of index \c l = \c nz-1 will be the outermost compactified
  * shell:
@@ -518,14 +523,14 @@ class Mg3d {
  *				\f$\theta\f$-direction in each domain
  * @param   nbp     [input] Number of degree of freedom (NDF) in
  *				\f$\phi\f$-direction in each domain
- * @param   typt    [input] Type of sampling in \f$\theta\f$-direction:  \\
+ * @param   typt    [input] Type of sampling in \f$\theta\f$-direction:  \n
  *				\c SYM  for a sampling in \f$[0,\pi/2]\f$
- *			(symmetry with respect to the equatorial plane), \\
+ *			(symmetry with respect to the equatorial plane), \n
  *			\c NONSYM  for a sampling in \f$[0,\pi]\f$
- * @param   typp    [input] Type of sampling in \f$\phi\f$-direction: \\
+ * @param   typp    [input] Type of sampling in \f$\phi\f$-direction: \n
  *			\c SYM  for a sampling in \f$[0,\pi[\f$
  *			(symmetry with respect to a \f$\pi\f$ translation
- *			 in \f$\phi\f$) \\
+ *			 in \f$\phi\f$) \n
  *			\c NONSYM  for a sampling in \f$[0,2\pi[\f$
  * @param  compact [input] \c true  for the last domain to have 
  *			a \e 1/r  sampling (\c UNSURR ) instead of a
@@ -559,35 +564,54 @@ class Mg3d {
     // Extraction of information
     // -------------------------
     public:
-   	/// Returns \c nzone 
+   	/// Returns the number of domains
 	int get_nzone() const { 	 
 	    return nzone ;
 	} ;
-	/// Returns \c nr[l] 
+	/// Returns the number of points in the radial direction (\f$\xi\f$) in domain no. \e l 
 	int get_nr(int l) const { 
 	    assert(l>=0 && l<nzone) ;
 	    return nr[l] ;
 	} ;
-	/// Returns \c nt[l] 
+	/// Returns the number of points in the co-latitude direction (\f$\theta\f$) in domain no. \e l 
 	int get_nt(int l) const { 
 	    assert(l>=0 && l<nzone) ;
 	    return nt[l] ;
 	} ;
-	/// Returns \c np[l] 
+	/// Returns the number of points in the azimuthal direction (\f$\phi\f$) in domain no. \e l 
 	int get_np(int l) const { 
 	    assert(l>=0 && l<nzone) ;
 	    return np[l] ;
 	} ;
-	/// Returns \c type_r[l] 
+    
+	/** Returns the type of sampling in the radial direction
+     * in domain no.\e l : \n
+     *   \c RARE : \f$\xi\in[0,1]\f$ : rarefied at the origin  \n
+     *   \c FIN : \f$\xi\in[-1,1]\f$ :  dense at the two extremities \n
+     *   \c UNSURR : \f$\xi\in[-1,1]\f$ : dense at the two extremities, 
+     *      in view of using \f$u=1/r\f$ as radial variable 
+     */
 	int get_type_r(int l) const {
 	    assert(l>=0 && l<nzone) ;
 	    return type_r[l] ;
 	} ;
-	/// Returns \c type_t 
+
+	/** Returns the type of sampling in the \f$\theta\f$ direction: \n
+     *   \c SYM : \f$\theta\in[0,\pi/2]\f$ : symmetry with respect to 
+     *      the equatorial plane \n
+     *   \c NONSYM : \f$\theta\in[0,\pi]\f$ : no symmetry with respect 
+     *              to the equatorial plane 
+     */
 	int get_type_t() const { 	
 	    return type_t ;
 	} ;
-	/// Returns \c type_p 
+
+	/** Returns the type of sampling in the \f$\phi\f$ direction: \n
+     *   \c SYM : \f$\phi\in[0,\pi[\f$ : symmetry with respect to the 
+     *              transformation   \f$ \phi \mapsto \phi + \pi\f$   \n
+     *   \c NONSYM : \f$\phi\in[0,2\pi[\f$ :  no symmetry with respect to 
+     *              the transformation    \f$ \phi \mapsto \phi + \pi\f$  
+     */
 	int get_type_p() const {
 	    return type_p ;
 	} ;
