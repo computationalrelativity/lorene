@@ -33,6 +33,11 @@ char tensor_calculus_ext_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/02/18 15:56:23  e_gourgoulhon
+ * -- Added function contract for double contraction.
+ * -- Efficiency improved in functions contract: better handling of variable
+ *    "work"(work is now a reference on the relevant component of the result).
+ *
  * Revision 1.6  2004/01/23 08:00:16  e_gourgoulhon
  * Minor modifs. in output of methods min, max, maxabs, diffrel to
  * better handle the display in the scalar case.
@@ -71,8 +76,10 @@ char tensor_calculus_ext_C[] = "$Header$" ;
 				//   Contraction    //
 				//------------------//
 
-
-Tensor contract(const Tensor& t1, int ind1, const Tensor& t2, int ind2) {
+// Contraction on one index
+// ------------------------
+Tensor contract(const Tensor& t1, int ind1, const Tensor& t2, int ind2,
+                bool desaliasing) {
     
 	int val1 = t1.get_valence() ; 
 	int val2 = t2.get_valence() ; 
@@ -105,8 +112,6 @@ Tensor contract(const Tensor& t1, int ind1, const Tensor& t2, int ind2) {
 
     Tensor res(t1.get_mp(), val_res, tipe, triad_res) ;
 	
-    Scalar work(t1.get_mp()) ;
-    
     // Boucle sur les composantes de res :
 	
     Itbl jeux_indice_t1(val1) ;
@@ -128,18 +133,131 @@ Tensor contract(const Tensor& t1, int ind1, const Tensor& t2, int ind2) {
 		for (int j=ind2+1 ; j<val2 ; j++)
 	    	jeux_indice_t2.set(j) = jeux_indice_res(val1+j-2) ;
 	
+		Scalar& work = res.set(jeux_indice_res) ;
 		work.set_etat_zero() ;
+
 		for (int j=1 ; j<=3 ; j++) {
 	    	jeux_indice_t1.set(ind1) = j ;
 	    	jeux_indice_t2.set(ind2) = j ;
-	    	work = work + t1(jeux_indice_t1) * t2(jeux_indice_t2) ;
+            if (desaliasing) {
+	    	    work += t1(jeux_indice_t1) % t2(jeux_indice_t2) ;
+            }
+            else {
+	    	    work += t1(jeux_indice_t1) * t2(jeux_indice_t2) ;
+            }
 	    }
 	    
-		res.set(jeux_indice_res) = work ;
 	}
 	
     return res ;
 }
+
+
+
+// Contraction on two indices
+// --------------------------
+Tensor contract(const Tensor& t1, int i1, int j1, 
+                const Tensor& t2, int i2, int j2,
+                bool desaliasing) {
+    
+	int val1 = t1.get_valence() ; 
+	int val2 = t2.get_valence() ; 
+
+    // Verifs :
+    assert( val1 >= 2 ) ; 
+    assert( val2 >= 2 ) ; 
+    assert( (0<=i1) && (i1<j1) && (j1<val1) ) ;
+    assert( (0<=i2) && (i2<j2) && (j2<val2) ) ;
+    assert( t1.get_mp() == t2.get_mp() ) ;
+    
+    // Contraction possible ?
+	assert( *(t1.get_triad()) == *(t2.get_triad()) ) ;
+    assert( t1.get_index_type(i1) != t2.get_index_type(i2) ) ;
+    assert( t1.get_index_type(j1) != t2.get_index_type(j2) ) ;
+    
+    int val_res = val1 + val2 - 4 ;
+	
+    Itbl tipe(val_res) ;
+
+    for (int i=0 ; i<i1 ; i++) 
+        tipe.set(i) = t1.get_index_type(i) ;
+
+    for (int i=i1 ; i<j1-1 ; i++) 
+        tipe.set(i) = t1.get_index_type(i+1) ;
+
+    for (int i=j1-1 ; i<val1-2 ; i++) 
+        tipe.set(i) = t1.get_index_type(i+2) ;
+
+    for (int i=val1-2 ; i<val1-2+i2 ; i++)
+		tipe.set(i) = t2.get_index_type(i-val1+2) ;
+        
+    for (int i=val1-2+i2 ; i<val1+j2-3 ; i++)
+		tipe.set(i) = t2.get_index_type(i-val1+3) ;
+	
+    for (int i=val1+j2-3 ; i<val_res ; i++) 
+		tipe.set(i) = t2.get_index_type(i-val1+4) ;
+    
+    const Base_vect* triad_res = (val_res == 0) ? 0x0 : t1.get_triad() ; 
+
+    Tensor res(t1.get_mp(), val_res, tipe, triad_res) ;
+	
+    // Boucle sur les composantes de res :
+	
+    Itbl jeux_indice_t1(val1) ;
+    Itbl jeux_indice_t2(val2) ;
+    
+    for (int ic=0 ; ic<res.get_n_comp() ; ic++) {
+	
+		Itbl jeux_indice_res(res.indices(ic)) ;
+		
+		for (int k=0 ; k<i1 ; k++)
+	    	jeux_indice_t1.set(k) = jeux_indice_res(k) ;
+			
+		for (int k=i1+1 ; k<j1 ; k++)
+	    	jeux_indice_t1.set(k) = jeux_indice_res(k-1) ;
+
+		for (int k=j1+1 ; k<val1 ; k++)
+	    	jeux_indice_t1.set(k) = jeux_indice_res(k-2) ;
+
+		for (int k=0 ; k<i2 ; k++)
+	    	jeux_indice_t2.set(k) = jeux_indice_res(val1+k-2) ;
+
+		for (int k=i2+1 ; k<j2 ; k++)
+	    	jeux_indice_t2.set(k) = jeux_indice_res(val1+k-3) ;
+	
+		for (int k=j2+1 ; k<val2 ; k++)
+	    	jeux_indice_t2.set(k) = jeux_indice_res(val1+k-4) ;
+	
+		Scalar& work = res.set(jeux_indice_res) ;
+        work.set_etat_zero() ;
+
+        for (int i=1 ; i<=3 ; i++) {
+
+            jeux_indice_t1.set(i1) = i ; 
+            jeux_indice_t2.set(i2) = i ; 
+            
+		    for (int j=1 ; j<=3 ; j++) {
+
+	    	    jeux_indice_t1.set(j1) = j ;
+	    	    jeux_indice_t2.set(j2) = j ;
+            
+                if (desaliasing) {
+	    	        work += t1(jeux_indice_t1) % t2(jeux_indice_t2) ;
+                }
+                else {
+	    	        work += t1(jeux_indice_t1) * t2(jeux_indice_t2) ;
+                }
+            }
+	    }
+	    
+	}
+	
+    return res ;
+}
+
+
+
+
 
 
 Tensor contract_desal(const Tensor& t1, int ind1, const Tensor& t2, int ind2) {
@@ -219,6 +337,7 @@ Tensor contract(const Tensor& source, int ind_1, int ind_2) {
     // Les verifications :
     assert ((ind_1 >= 0) && (ind_1 < val)) ;
     assert ((ind_2 >= 0) && (ind_2 < val)) ;
+    assert (ind_1 != ind_2) ;
     assert (source.get_index_type(ind_1) != source.get_index_type(ind_2)) ;
 
     // On veut ind_1 < ind_2 :
@@ -242,8 +361,6 @@ Tensor contract(const Tensor& source, int ind_1, int ind_2) {
 	
     Tensor res(source.get_mp(), val_res, tipe, source.get_triad()) ; 
 	
-    Scalar work(source.get_mp()) ;
-    
     // Boucle sur les composantes de res :
 	
     Itbl jeux_indice_source(val) ;
@@ -259,14 +376,15 @@ Tensor contract(const Tensor& source, int ind_1, int ind_2) {
 		for (int j=ind_2+1 ; j<val ; j++)
 	    	jeux_indice_source.set(j) = jeux_indice_res(j-2) ;
 	    
-		work.set_etat_zero() ;
+		Scalar& work = res.set(jeux_indice_res) ;
+        work.set_etat_zero() ;
+
 		for (int j=1 ; j<=3 ; j++) {
 	    	jeux_indice_source.set(ind_1) = j ;
 	    	jeux_indice_source.set(ind_2) = j ;
-	    	work = work + source(jeux_indice_source) ;
+	    	work += source(jeux_indice_source) ;
 	    }
 	    
-		res.set(jeux_indice_res) = work ;
 	}
 	
     return res ;
