@@ -29,6 +29,9 @@ char et_bin_ncp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/02/12 18:44:26  f_limousin
+ * Add members metgamma_auto and metgamma_comp.
+ *
  * Revision 1.5  2003/02/04 16:55:39  f_limousin
  * Add several members and computational routines
  *
@@ -69,15 +72,15 @@ Et_bin_ncp::Et_bin_ncp(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
              : Etoile_bin(mp_i, nzet_i, relat, eos_i, irrot, ref_triad_i),
                met_gamma(source),
 	       flat(flat0),
-               gtilde(mp_i, met_gamma, flat0),
+               gtilde(pow(met_gamma.determinant(),(-1./3.))*source, flat0),
+	       metgamma_auto(source),
+	       metgamma_comp(source),
 	       gamma(met_gamma.determinant()),
 	       loggamma(log(gamma)),
 	       loggamma_auto(mp_i),
 	       loggamma_comp(mp_i),
-	       metgamma_auto(source),
-	       metgamma_comp(source),
-	       gtilde_auto(mp_i, met_gamma, flat0),
-	       gtilde_comp(mp_i, met_gamma, flat0),
+	       gtilde_auto(pow(met_gamma.determinant(),(-1./3.))*source, flat0),
+	       gtilde_comp(pow(met_gamma.determinant(),(-1./3.))*source, flat0),
 	       kcar_auto(mp_i),
 	       kcar_comp(mp_i) {
 
@@ -92,10 +95,7 @@ Et_bin_ncp::Et_bin_ncp(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
   loggamma = 0 ;
   loggamma_auto = 0 ;
   loggamma_comp = 0 ;
-
-  gtilde = flat.cov() ;
-  gtilde_auto = 0.5*flat.cov() ;
-  gtilde_comp = 0.5*flat.cov() ; 
+  
 }
 
 // Copy constructor
@@ -106,12 +106,12 @@ Et_bin_ncp::Et_bin_ncp(const Et_bin_ncp& et)
 	     met_gamma(et.met_gamma),
 	     flat(et.flat),
              gtilde(et.gtilde),	     
+	     metgamma_auto(et.metgamma_auto),
+	     metgamma_comp(et.metgamma_comp),	     
 	     gamma(et.gamma),
 	     loggamma(et.loggamma),
 	     loggamma_auto(et.loggamma_auto),
 	     loggamma_comp(et.loggamma_comp),
-	     metgamma_auto(et.metgamma_auto),
-	     metgamma_comp(et.metgamma_comp),
 	     gtilde_auto(et.gtilde_auto),
 	     gtilde_comp(et.gtilde_comp),
 	     kcar_auto(et.kcar_auto),
@@ -123,22 +123,28 @@ Et_bin_ncp::Et_bin_ncp(const Et_bin_ncp& et)
 Et_bin_ncp::Et_bin_ncp(Map& mp_i, const Eos& eos_i, const Base_vect& ref_triad_i,
 		       const Metrique& flat0, FILE* fich)
   : Etoile_bin(mp_i, eos_i, ref_triad_i, fich),
-    met_gamma(mp_i),
+    met_gamma(mp_i,ref_triad_i, fich),
     flat(flat0),
     gtilde(mp_i, met_gamma, flat0),
+    metgamma_auto(mp_i,ref_triad_i, fich),
+    metgamma_comp(metgamma_auto),
     gamma(met_gamma.determinant()),
     loggamma(log(gamma)),
-    loggamma_auto(mp_i),
+    loggamma_auto(metgamma_auto.determinant()),
     loggamma_comp(mp_i),
-    metgamma_auto(mp_i),
-    metgamma_comp(mp_i),
-    gtilde_auto(mp_i, met_gamma, flat0),
-    gtilde_comp(mp_i, met_gamma, flat0),
+    gtilde_auto(mp_i, ref_triad_i, metgamma_auto, flat0, fich),
+    gtilde_comp(gtilde_auto),
     kcar_auto(mp_i),
     kcar_comp(mp_i) {
 
+  // All quantities are initialized to zero : 
+  kcar_auto = 0 ;
+  kcar_comp = 0 ;
+
+  loggamma_comp = 0 ;
+
+
 }
-  
 
 
 			    //------------//
@@ -161,12 +167,12 @@ void Et_bin_ncp::operator=(const Et_bin_ncp& et) {
 met_gamma = et.met_gamma ; 
 flat = et.flat ;
 gtilde = et.gtilde ;
+metgamma_auto = et.metgamma_auto ;
+metgamma_comp = et.metgamma_comp ;
 gamma = et.gamma ;
 loggamma = et.loggamma ;
 loggamma_auto = et.loggamma_auto ;
 loggamma_comp = et.loggamma_comp ;
-metgamma_auto = et.metgamma_auto ;
-metgamma_comp = et.metgamma_comp ;
 gtilde_auto = et.gtilde_auto ;
 gtilde_comp = et.gtilde_comp ;
 kcar_auto = et.kcar_auto ;
@@ -187,18 +193,8 @@ void Et_bin_ncp::sauve(FILE* fich) const {
     Etoile_bin::sauve(fich) ; 
     
     met_gamma.sauve(fich) ; 
-    flat.sauve(fich) ; 
-    gtilde.sauve(fich) ; 
-    gamma.sauve(fich) ;
-    loggamma.sauve(fich) ;
-    loggamma_auto.sauve(fich) ;
-    loggamma_comp.sauve(fich) ;
     metgamma_auto.sauve(fich) ;
-    metgamma_comp.sauve(fich) ;
     gtilde_auto.sauve(fich) ;
-    gtilde_comp.sauve(fich) ;
-    kcar_auto.sauve(fich) ;
-    kcar_comp.sauve(fich) ;
 }
 
 // Printing
@@ -221,8 +217,6 @@ ostream& Et_bin_ncp::operator>>(ostream& ost) const {
     ost << "Gamma tilde comp : " << gtilde_comp << endl ;
     ost << "Determinant gamma : " << gamma << endl ;
     ost << "log(determinant) : " << loggamma << endl ;
-    ost << "log(determinant) auto : " << loggamma_auto << endl ;
-    ost << "log(determinant) comp : " << loggamma_comp << endl ;
 
    ost << endl << "Central K^{ij} [c/km] : " << endl ; 
     ost << "  K^{xx} auto, comp : " 
@@ -257,7 +251,7 @@ ostream& Et_bin_ncp::operator>>(ostream& ost) const {
 
 Tenseur Et_bin_ncp::sprod(const Tenseur& t1, const Tenseur& t2) const {
      
-  Tenseur* p_tens_metr  ;
+    Tenseur* p_tens_metr  ;
   
    // Both indices should be contravariant or both covariant : 
     if (t1.get_type_indice(t1.get_valence()-1) == CON) {
