@@ -28,6 +28,9 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.5  2004/10/01 16:48:47  f_limousin
+ * *** empty log message ***
+ *
  * Revision 1.4  2004/09/28 15:57:45  f_limousin
  * Add the 2 lines  $Id and $Log to see the comments
  *
@@ -164,7 +167,7 @@ int main() {
     Scalar psi_init(map) ; 
     Scalar tmp(map) ; 
     
-    psi_init =  pow(1+unsr, 1./4.) ;
+    psi_init =  1 + unsr ;
      
     psi_init.std_spectral_base() ;    // sets standard spectral bases
 
@@ -174,12 +177,12 @@ int main() {
     
     Sym_tensor gammat_dd_init(map, COV, map.get_bvect_spher()) ;
     gammat_dd_init.set(1,1) = 1. ;
-    gammat_dd_init.set(2,2) = 1/(1+unsr) ;
-    gammat_dd_init.set(3,3) = 1/(1+unsr) ;
+    gammat_dd_init.set(2,2) = 1. ;
+    gammat_dd_init.set(3,3) = 1. ;
     gammat_dd_init.set(2,1) = 0. ;
     gammat_dd_init.set(3,1) = 0. ;
     gammat_dd_init.set(3,2) = 0. ;
-
+    gammat_dd_init.std_spectral_base() ;
 
     // Set up of the 3-metric 
 
@@ -192,7 +195,7 @@ int main() {
     Vector beta_init(map, CON, otriad ) ; 
     beta_init.set_etat_zero() ; 
 
-    tmp_scal = unsr / (1+unsr) ;
+    tmp_scal = 0 ;
     tmp_scal.std_spectral_base() ;
     
     beta_init.set(1) = tmp_scal ;
@@ -207,7 +210,7 @@ int main() {
     
     Scalar nn_init(map) ; 
 
-    nn_init = pow(1+unsr, -0.5) ;
+    nn_init = (1 - unsr)/(1+unsr) ;
 
     nn_init.std_spectral_base() ;    // sets standard spectral bases
 
@@ -234,27 +237,29 @@ int main() {
     Isol_hor isolhor_tmp(nn_init, beta_init, gamma_dd_init, kk_init, ff, 3) ;
 
     Scalar trk = isolhor_tmp.trk() ;
+    cout << "trk" << endl << norme(trk) << endl ;
+
+    psi_init = 1. + unsr*unsr ;
 
 
-    beta_init.set(1) = 1 / (1 + 4*unsr) ;
+    beta_init.set(1) = 0. ;
     beta_init.set(2) = 0. ;
-    beta_init.set(3) = 0. ;
-    beta_init.annule_domain(0) ;
-    
+    beta_init.set(3) = 0.0000001 ;
+    beta_init.annule_domain(0) ;  
     beta_init.std_spectral_base() ;
 
-/*
-    nn_init = pow(1+unsr, -0.5) ;
+
+    nn_init = 1. + unsr ;
 
     nn_init.std_spectral_base() ;    // sets standard spectral bases
-*/
+
 
 
     Isol_hor isolhor(nn_init, beta_init, gamma_dd_init, kk_init, ff, 3) ;
+ 
 
 
-
-/*
+    /*
     Vector source (map, CON, map.get_bvect_spher()) ;
 
     Vector beta_j (map, CON, map.get_bvect_spher()) ;
@@ -356,14 +361,19 @@ int main() {
     isolhor.check_hamiltonian_constraint() ;
     isolhor.check_momentum_constraint() ;
  
+    Scalar temp_scal = pow(unsr, 0.5) ;
+    temp_scal.std_spectral_base() ;
 
-    des_profile(isolhor.nn(), 1., 10, 0., 0., "nn") ;
-    des_profile(pow(1+unsr, -0.5), 1., 10, 0., 0., "nn ana") ;
-    des_profile(pow(1+unsr, -0.5)-isolhor.nn(), 1., 10, 0., 0., "diff nn") ;
-    des_profile(isolhor.psi(), 1., 10, 0., 0., "psi") ;
-    des_profile(isolhor.beta()(1), 1., 10, 0., 0., "beta") ;
-    des_profile(unsr/(1+unsr), 1., 10, 0., 0., "beta ana") ;
-    des_profile(unsr/(1+unsr) - isolhor.beta()(1), 1., 10, 0., 0., "diff beta") ;
+    des_profile(isolhor.nn(), 1.00001, 10, 0., 0., "nn") ;
+    des_profile((1-unsr)/(1+unsr), 1.00001, 10, 0., 0., "nn_ana") ;
+    des_profile((1-unsr)/(1+unsr)-isolhor.nn(), 1.00001, 10, 0., 0., "diff nn") ;
+    
+    des_profile(isolhor.psi(), 1.00001, 10, 0., 0., "psi") ;
+    des_profile(1+unsr, 1.00001, 10, 0., 0., "psi ana") ;
+    des_profile(isolhor.psi()- (1+unsr), 1.00001, 10, 0., 0., "diff psi") ;
+     
+    des_profile(isolhor.beta()(1), 1.00001, 10, 0., 0., "beta") ;
+    des_profile(temp_scal, 1.00001, 10, 0., 0., "beta ana") ;
 
 
 
