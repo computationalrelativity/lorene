@@ -30,6 +30,9 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/10/29 15:42:14  jl_jaramillo
+ * Static shift boundary conbdition
+ *
  * Revision 1.6  2004/10/01 16:46:51  f_limousin
  * Added a pure Dirichlet boundary condition
  *
@@ -474,7 +477,7 @@ Valeur Isol_hor::boundary_beta_phi(){
 
 // Component x of boundary value of beta (using expression in terms of radial vector)
 //--------------------------------------
-Valeur Isol_hor:: boundary_beta_x(){
+Valeur Isol_hor:: boundary_beta_x(double velang){
 
   const Map& map = ff.get_mp() ; 
   
@@ -487,7 +490,7 @@ Valeur Isol_hor:: boundary_beta_x(){
     
   lim_x = 1 ;   // Why is it necessary this and what it is actually doing?
   
-  Scalar beta_x = beta_bound_cart()(1) ;
+  Scalar beta_x = beta_bound_cart(velang)(1) ;
 
   for (int k=0 ; k<nnp ; k++)
     for (int j=0 ; j<nnt ; j++)
@@ -503,7 +506,7 @@ Valeur Isol_hor:: boundary_beta_x(){
 
 // Component y of boundary value of beta (using expression in terms of radial vector)
 //--------------------------------------
-Valeur Isol_hor:: boundary_beta_y(){
+Valeur Isol_hor:: boundary_beta_y(double velang){
   
   const Map& map = ff.get_mp() ;
  
@@ -516,7 +519,7 @@ Valeur Isol_hor:: boundary_beta_y(){
     
   lim_y = 1 ;   // Why is it necessary this and what it is actually doing?
  
-  Scalar beta_y = beta_bound_cart()(2) ;
+  Scalar beta_y = beta_bound_cart(velang)(2) ;
 
   for (int k=0 ; k<nnp ; k++)
       for (int j=0 ; j<nnt ; j++)
@@ -530,7 +533,7 @@ Valeur Isol_hor:: boundary_beta_y(){
 
 // Component z of boundary value of beta (using expression in terms of radial vector)
 //--------------------------------------
-Valeur Isol_hor:: boundary_beta_z(){
+Valeur Isol_hor:: boundary_beta_z(double velang){
 
   const Map& map = ff.get_mp() ; 
 
@@ -543,7 +546,7 @@ Valeur Isol_hor:: boundary_beta_z(){
     
   lim_z = 1 ;   // Why is it necessary this and what it is actually doing?
   
-  Scalar beta_z = beta_bound_cart()(3) ;
+  Scalar beta_z = beta_bound_cart(velang)(3) ;
 
   for (int k=0 ; k<nnp ; k++)
     for (int j=0 ; j<nnt ; j++)
@@ -555,21 +558,21 @@ Valeur Isol_hor:: boundary_beta_z(){
 }
 
 
-Vector Isol_hor::beta_bound_cart() {
+Vector Isol_hor::beta_bound_cart(double velang) {
 
   const Map& map = ff.get_mp() ; 
 
   Vector tmp_vect = nn() * radial_vect_hor() ;
 
   Scalar vel_ang (map) ;  
-  vel_ang = omega_hor() ;
+  vel_ang = velang ;
   vel_ang.std_spectral_base() ;
   vel_ang.mult_rsint() ;
 
   tmp_vect.set(3) = tmp_vect(3) - vel_ang ;
 
   tmp_vect.change_triad(map.get_bvect_cart() ) ;
- 
+  
   return tmp_vect ;
 
 }
