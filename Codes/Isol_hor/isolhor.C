@@ -28,6 +28,9 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.6  2004/10/29 15:41:02  jl_jaramillo
+ * ADM angular momentum added
+ *
  * Revision 1.5  2004/10/01 16:48:47  f_limousin
  * *** empty log message ***
  *
@@ -106,7 +109,7 @@ int main() {
     double* bornes = new double[nz+1];
     bornes[0] = 0. ;
     for (int l=1; l<nz; l++) 
-	bornes[l] = pow(2, l-1) * radius ;
+	bornes[l] = pow(2., l-1) * radius ;
 	
     bornes[nz] = __infinity ; 
   
@@ -155,12 +158,16 @@ int main() {
     unsr.set_domain(0) = 1 ; // scalar set to 1 in the nucleus  ("inside" the horizon)
     unsr.std_spectral_base() ;
 
-     Mtbl expr = exp(-r) ;
+    Mtbl expr = exp(-r) ;
 
     Scalar expmr(map) ;
     expmr = expr ;
 
     
+    
+    // Initialization of the TrK 
+    //--------------------------
+
     // Set up of field Psi 
     // -------------------
 
@@ -180,7 +187,7 @@ int main() {
     gammat_dd_init.set(2,2) = 1. ;
     gammat_dd_init.set(3,3) = 1. ;
     gammat_dd_init.set(2,1) = 0. ;
-    gammat_dd_init.set(3,1) = 0. ;
+    gammat_dd_init.set(3,1) = 0.001 * unsr ;
     gammat_dd_init.set(3,2) = 0. ;
     gammat_dd_init.std_spectral_base() ;
 
@@ -195,10 +202,7 @@ int main() {
     Vector beta_init(map, CON, otriad ) ; 
     beta_init.set_etat_zero() ; 
 
-    tmp_scal = 0 ;
-    tmp_scal.std_spectral_base() ;
-    
-    beta_init.set(1) = tmp_scal ;
+    beta_init.set(1) = 0. ;
     beta_init.set(2) = 0. ;
     beta_init.set(3) = 0. ;
     beta_init.annule_domain(0) ;
@@ -239,186 +243,94 @@ int main() {
     Scalar trk = isolhor_tmp.trk() ;
     cout << "trk" << endl << norme(trk) << endl ;
 
-    psi_init = 1. + unsr*unsr ;
+    
+    // Actual initialization of the 3+1 decomposition
+    //-----------------------------------------------
 
+    psi_init = 1. + unsr*unsr ;
 
     beta_init.set(1) = 0. ;
     beta_init.set(2) = 0. ;
-    beta_init.set(3) = 0.0000001 ;
+    beta_init.set(3) = 0. ;
     beta_init.annule_domain(0) ;  
     beta_init.std_spectral_base() ;
 
 
-    nn_init = 1. + unsr ;
-
+    nn_init = 1. + unsr*unsr ;
+    
     nn_init.std_spectral_base() ;    // sets standard spectral bases
+        
+    for (int i=1; i<=3; i++) {
+      for (int j=1; j<=i; j++) {
+	kk_init.set(i,j) = 0.5 * (beta_init.derive_con(gamma_init)(i,j)  
+	  + beta_init.derive_con(gamma_init)(j,i)) ;
+      }
+    }
+
+    kk_init = kk_init/nn_init ;
+
+    gammat_dd_init.set(1,1) = 1. ;
+    gammat_dd_init.set(2,2) = 1. ;
+    gammat_dd_init.set(3,3) = 1. ;
+    gammat_dd_init.set(2,1) = 0. ;
+    gammat_dd_init.set(3,1) = 0.001*unsr ;
+    gammat_dd_init.set(3,2) = 0. ;
+    gammat_dd_init.std_spectral_base() ;
 
 
 
     Isol_hor isolhor(nn_init, beta_init, gamma_dd_init, kk_init, ff, 3) ;
  
-
-
-    /*
-    Vector source (map, CON, map.get_bvect_spher()) ;
-
-    Vector beta_j (map, CON, map.get_bvect_spher()) ;
-    beta_j = beta_init ;
-
-    Vector beta_old (map, CON, map.get_bvect_spher()) ;
-    beta_old = beta_init ;
-    
-    Vector bound (map, CON, map.get_bvect_spher()) ;
-    bound.set(1) = unsr ;
-    bound.set(2) = 0. ;
-    bound.set(3) = 0. ;
-    bound.std_spectral_base() ;
-    bound.change_triad(map.get_bvect_cart()) ;
-    
-    
-    Valeur boundary_x (map.get_mg()->get_angu() )  ;
-    Valeur boundary_y (map.get_mg()->get_angu() )  ;
-    Valeur boundary_z (map.get_mg()->get_angu() )  ;
-    
-    boundary_x = 1. ;
-    boundary_y = 1. ;
-    boundary_z = 1. ;
-
-    int nnp = map.get_mg()->get_np(1) ;
-    int nnt = map.get_mg()->get_nt(1) ;
-
-    for (int k=0 ; k<nnp ; k++)
-	for (int j=0 ; j<nnt ; j++){
-	    boundary_x.set(0, k, j, 0) = bound(1).val_grid_point(1, k, j, 0) ;
-	    boundary_y.set(0, k, j, 0) = bound(2).val_grid_point(1, k, j, 0) ;
-	    boundary_z.set(0, k, j, 0) = bound(3).val_grid_point(1, k, j, 0) ;
-	}
-    boundary_x.set_base(bound(1).get_spectral_va().get_base()) ; 
-    boundary_y.set_base(bound(2).get_spectral_va().get_base()) ; 
-    boundary_z.set_base(bound(3).get_spectral_va().get_base()) ; 
-
-  
-    for (int i=0; i<niter; i++) {
-   
-	beta_old = beta_j ;
-	des_profile(beta_j(1), 1.00001, 10, 0., 0., "beta (1)") ;
-	
-	double lambda = 0. ;
-	source = 0.66666666666666666 * (isolhor.trk()).derive_con(ff) ;
-	source += -(1./3.- lambda) * beta_j.divergence(ff).derive_con(ff) ;
-	Vector source2 = beta_init.derive_con(ff).divergence(ff) ;
-	cout << "source" << endl << norme(source(1)) << endl ;
-	cout << "source2" << endl << norme(source2(1)) << endl ;
-	cout << "source2 - source" << endl << norme(source2(1)-source(1)) << endl ;	
-
-	source.inc_dzpuis() ;
-	
-	double precision = 1e-8 ;
-	poisson_vect_boundary(lambda, source, beta_j, boundary_x, boundary_y, 
-			     boundary_z, 0, precision, 20) ;
-
-
-//	beta_j = relax * beta_j + (1 - relax) * beta_old ;
-
-	source.dec_dzpuis() ;
-   	maxabs(beta_j.derive_con(ff).divergence(ff) 
-	       + lambda * beta_j.divergence(ff).derive_con(ff) - source,
-	     "Absolute error in the resolution of the equation for beta") ;  
-	cout << endl ;
-	source.inc_dzpuis() ;
-
-        double diff_beta = max( maxabs(beta_j - beta_old) ) ; 
-	cout << "  diff_beta = " << diff_beta << endl ;
-	if ( (diff_beta < seuil) )
-	break ; 
-   }
  
-    Scalar beta_ana = unsr ;
-    beta_ana = pow(beta_ana, 0.5) ;
-    beta_ana.set_spectral_va().set_base(isolhor.beta()(1).get_spectral_va().get_base()) ;
-
-    Scalar diff_beta = beta_j(1) - beta_ana ;
-
-     des_profile(beta_j(1), 1., 10, 0., 0., "beta") ;
-     des_profile(beta_ana, 1., 10, 0., 0., "beta_ana") ;
-     des_profile(diff_beta, 1., 10, 0., 0., "diff_beta") ;
-
-    abort() ;
-*/
-
     //-----------------------------------------
-    //          "Physical Parameters"
+    //          "Call to init_data.C"
     //-----------------------------------------
-
     
     tmp_scal.set_etat_zero() ;
     tmp_sym.set_etat_zero() ;
     tmp_scal.set_dzpuis(4) ;
 
-    isolhor.init_data_schwar(tmp_sym, trk, tmp_scal, seuil, relax, 
+    isolhor.init_data(tmp_sym, trk, tmp_scal, seuil, relax, 
 			     niter) ;
 
+    //    FILE* fresu = fopen("resu.d", "w") ; 
+    //    isolhor.sauve(fresu) ;
+    //    fclose(fresu) ;     
+    
+
+    // Test of the constraints
+    //------------------------------------
+
+    cout<<"  ----------------------------------------" <<endl ;
+    
     isolhor.check_hamiltonian_constraint() ;
     isolhor.check_momentum_constraint() ;
+
+    cout<<"  ----------------------------------------" <<endl ;
  
-    Scalar temp_scal = pow(unsr, 0.5) ;
-    temp_scal.std_spectral_base() ;
+    // Graphic output of the different fields
+    //---------------------------------------
 
-    des_profile(isolhor.nn(), 1.00001, 10, 0., 0., "nn") ;
-    des_profile((1-unsr)/(1+unsr), 1.00001, 10, 0., 0., "nn_ana") ;
-    des_profile((1-unsr)/(1+unsr)-isolhor.nn(), 1.00001, 10, 0., 0., "diff nn") ;
+    des_profile(isolhor.nn(), 1.00001, 10, 1., 1., "nn") ;
     
-    des_profile(isolhor.psi(), 1.00001, 10, 0., 0., "psi") ;
-    des_profile(1+unsr, 1.00001, 10, 0., 0., "psi ana") ;
-    des_profile(isolhor.psi()- (1+unsr), 1.00001, 10, 0., 0., "diff psi") ;
+    des_profile(isolhor.psi(), 1.00001, 10, 1., 1., "psi") ;
      
-    des_profile(isolhor.beta()(1), 1.00001, 10, 0., 0., "beta") ;
-    des_profile(temp_scal, 1.00001, 10, 0., 0., "beta ana") ;
+    des_profile(isolhor.beta()(1), 1.00001, 10, 1., 1., "beta_r") ;
+    des_profile(isolhor.beta()(3), 1.00001, 10, 1., 1., "beta_phi en 1,1") ;
+    des_profile(isolhor.beta()(3), 1.00001, 10, M_PI/2., 0., "beta_phi en pi/2") ;
 
 
-
-/*
-    des_profile(isolhor.nn(), 1., 10, 0., 0., "nn") ;
-    des_profile(isolhor.psi(), 1., 10, 0., 0., "psi") ;
-
-
-    Mtbl nn_anaa = (1 - 1 / r) / (1 + 1 / r) ;
-    Scalar nn_ana (map) ;
-    nn_ana = nn_anaa ;
-    nn_ana.std_spectral_base() ;
-    nn_ana.set_domain(0) = 0 ;
-
-    Mtbl psi_anaa (1 + 1 / r) ;
-    Scalar psi_ana (map) ;
-    psi_ana = psi_anaa ;
-    psi_ana.std_spectral_base() ;
-    psi_ana.set_domain(0) = 0 ;
-
-    Scalar diff_nn = isolhor.nn() - nn_ana ;
-    Scalar diff_psi = isolhor.psi() - psi_ana ; 
-
-    des_profile(diff_nn, 1.00001, 10, 0., 0., "diff nn") ;
-    des_profile(diff_psi, 1.00001, 10, 0., 0., "diff psi") ;
-*/
-
-/*
-    Scalar beta_ana = unsr ;
-    beta_ana = pow(beta_ana, 0.5) ;
-    beta_ana.set_spectral_va().set_base(isolhor.beta()(1).get_spectral_va().get_base()) ;
-
-    Scalar diff_beta = isolhor.beta()(1) - beta_ana ;
-
-     des_profile(isolhor.beta()(1), 1., 10, 0., 0., "beta") ;
-     des_profile(beta_ana, 1., 10, 0., 0., "beta_ana") ;
-     des_profile(diff_beta, 1., 10, 0., 0., "diff_beta") ;
-*/
-
+    
+    // Physical parameters of the Black Hole
+    //--------------------------------------
+    
+    cout<<"------------------------------------------------"<<endl;
+    cout<<"      Physical parameters of the Black Hole     "<<endl;
+    cout<<"------------------------------------------------"<<endl;
     
     double rr_hor =  isolhor.radius_hor() ;
     cout<<"Radius of the horizon = "<< rr_hor <<endl ;
     
-    Vector rad = isolhor.radial_vect_hor() ;
- 
     double jj_hor =  isolhor.ang_mom_hor() ;
     cout<<"Angular momentum of the horizon = "<< jj_hor <<endl ; 
 
@@ -432,12 +344,32 @@ int main() {
     cout<<"Orbital velocity of the horizon = "<< omega_hor <<endl ; 
 
 
+    // Physical parameters of the Bulk
+    //--------------------------------
+    cout<<""<<endl;
+    cout<<"------------------------------------------------"<<endl;
+    cout<<"      Physical parameters of the Bulk     "<<endl;
+    cout<<"------------------------------------------------"<<endl;
+    
+    double mm_adm = isolhor.adm_mass() ;
+    cout<<"ADM mass= "<< mm_adm <<endl ;  
+
+    double jj_adm = isolhor.ang_mom_adm() ;
+    cout<<"ADM angular momentum= "<< jj_adm <<endl ;  
+
+    
+
+
+
+
+
+
+
+
     //--------------------------------------
     //--------------------------------------
 
-    cout<<"Tout va bien !!!"<<endl ;
-
-
+    cout<<"Tout va bien boudiou / Todo bien!!! (Viva Cai!)"<<endl ;
 
     return EXIT_SUCCESS ; 
 }
