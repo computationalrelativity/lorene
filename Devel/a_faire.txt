@@ -1,5 +1,14 @@
 
- -- Constructeur de Cmp par conversion d'un Tenseur (de valence 0)
+ -- interface Coord arithmetique = Cmp et non plus Mtbl 
 
- -- Constructeur de Cmp par conversion d'un Coord
+ -- suppression des sorties explorer
+ -- creation sorties openDX
+ 
+ -- Suppression des densites de tenseur
+ 
+ -- Fusion Cmp et Tenseur de valence 0 = classe Scalar derivee de Tenseur
+ 
+ -- Classes Tenseur T et TT
+ 
+ 
 
