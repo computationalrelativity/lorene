@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/09/26 14:33:51  j_novak
+ * Arithmetic functions for the class Tensor
+ *
  * Revision 1.7  2003/09/26 08:05:29  j_novak
  * New class Vector.
  *
@@ -301,9 +304,8 @@ class Tensor {
 	 */
 	void set_triad(const Base_vect& new_triad) ; 
 
-    
-	/// Assignment to another {\tt Tensor}
-	virtual void operator=(const Tensor&) ; 
+	
+	virtual void operator=(const Tensor&) ;/// Assignment to a {\tt Tensor}
 	
 	/** Returns the value of a component (read/write version).
 	 *
@@ -377,7 +379,7 @@ class Tensor {
 	
     // Accessors
     // ---------
-    protected:
+        public:
 	/**
 	 * Returns the position in the array {\tt cmp} of a 
 	 * component given by its indices.  
@@ -487,6 +489,12 @@ class Tensor {
 	 */
 	const Scalar& operator()(int i1, int i2, int i3) const ; 
 	
+    // Member arithmetics
+    // ------------------
+    public:
+	void operator+=(const Tensor &) ;		    /// += Tensor
+	void operator-=(const Tensor &) ;		    /// -= Tensor
+
     // Outputs
     // -------
     public:
@@ -504,10 +512,6 @@ class Tensor {
 	friend class Vector ;
 	friend class Sym_tensor ;
     
-    // Mathematical operators
-    // ----------------------
-    
-
 };
 
 
@@ -526,7 +530,14 @@ class Tensor {
 Tensor operator+(const Tensor& ) ;			/// + Tensor
 Tensor operator-(const Tensor& ) ;			/// - Tensor
 Tensor operator+(const Tensor&, const Tensor &) ;	/// Tensor + Tensor
-
+Tensor operator-(const Tensor&, const Tensor &) ;       /// Tensor - Tensor
+Tensor operator*(double , const Tensor&) ;              /// double * Tensor
+Tensor operator* (const Tensor&, double) ;              /// Tensor * double
+Tensor operator*(int, const Tensor &) ;                 /// int* Tensor
+Tensor operator* (const Tensor&, int) ;                 /// Tensor * int
+Tensor operator/ (const Tensor&, const Scalar&) ;       /// Tensor / Scalar
+Tensor operator/ (const Tensor&, double) ;              /// Tensor / double
+Tensor operator/ (const Tensor&, int) ;                 /// Tensor / int
 
     //@}
 

@@ -33,6 +33,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/09/26 14:33:53  j_novak
+ * Arithmetic functions for the class Tensor
+ *
  * Revision 1.3  2003/09/24 15:10:54  j_novak
  * Suppression of the etat flag in class Tensor (still present in Scalar)
  *
@@ -339,6 +342,38 @@ void Tensor::operator=(const Tensor& t) {
       int place_t = t.position(indices(i)) ;
       *cmp[i] = *t.cmp[place_t] ;
     }
+}
+
+void Tensor::operator+=(const Tensor& t) {
+    
+    assert (valence == t.valence) ;
+    assert (triad = t.triad) ; 
+    for (int i=0 ; i<valence ; i++)
+      assert(t.type_indice(i) == type_indice(i)) ;
+	
+    for (int i=0 ; i<n_comp ; i++) {
+      int place_t = t.position(indices(i)) ;
+      *cmp[i] += *t.cmp[place_t] ;
+    }
+
+    del_deriv() ;
+
+}
+
+void Tensor::operator-=(const Tensor& t) {
+    
+    assert (valence == t.valence) ;
+    assert (triad = t.triad) ; 
+    for (int i=0 ; i<valence ; i++)
+      assert(t.type_indice(i) == type_indice(i)) ;
+	
+    for (int i=0 ; i<n_comp ; i++) {
+      int place_t = t.position(indices(i)) ;
+      *cmp[i] -= *t.cmp[place_t] ;
+    }
+
+    del_deriv() ;
+
 }
 
 
