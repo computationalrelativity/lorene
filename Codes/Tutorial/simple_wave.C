@@ -28,6 +28,9 @@ char simple_wave_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2005/03/25 20:39:27  e_gourgoulhon
+ * Call to the new function des_coupe_z for Scalar's.
+ *
  * Revision 1.13  2004/05/11 20:17:04  e_gourgoulhon
  * New prototype of des_evol.
  *
@@ -88,7 +91,6 @@ char simple_wave_C[] = "$Header$" ;
 
 // Lorene headers
 #include "metric.h"
-#include "cmp.h"
 #include "graphique.h"
 #include "param.h"
 #include "evolution.h"
@@ -149,7 +151,7 @@ int main() {
     // 2-D visualization via PGPLOT
     // ----------------------------
 
-    des_coupe_z( Cmp(uu0), 0., 1, "Field U") ; 
+    des_coupe_z( uu0, 0., 1, "Field U") ; 
     
 
     // 3-D visualization via OpenDX
