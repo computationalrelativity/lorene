@@ -8,6 +8,15 @@
 ###############################################################
 
 #===============================#
+#           MAKEDEPEND          #
+#===============================#
+
+# Path for makedepend commands:
+# WARNING: this path may be very system (and version)-dependent
+INCDEP  =
+
+
+#===============================#
 #           COMPILERS		#
 #===============================#
 
