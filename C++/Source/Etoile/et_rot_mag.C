@@ -32,6 +32,9 @@ char et_rot_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2002/09/30 08:50:37  j_novak
+ * Output for central magnetic field value
+ *
  * Revision 1.13  2002/06/05 15:15:59  j_novak
  * The case of non-adapted mapping is treated.
  * parmag.d and parrot.d have been merged.
@@ -238,7 +241,11 @@ ostream& Et_rot_mag::operator>>(ostream& ost) const {
   Magn()(1).va.val_point(l_surf()(0,theta_eq),xi_surf()(0,theta_eq),M_PI_2,0.) 
       << " [GT]" << endl;
 
-  ost << "Radial electric field polar value : " << 
+  ost << "Central magnetic field values : " << 
+    Magn()(0)(0,0,0,0)  
+      << " [GT]" << endl;
+
+   ost << "Radial electric field polar value : " << 
     Elec()(0).va.val_point(l_surf()(0,0),xi_surf()(0,0),0.,0.) 
       << " [TV]" << endl;
 
