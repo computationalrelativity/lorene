@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/01/10 14:06:58  e_gourgoulhon
+ * Modif commentaries.
+ *
  * Revision 1.2  2001/12/19 10:14:31  e_gourgoulhon
  * Updated documentation
  *
@@ -167,38 +170,38 @@ class Bin_BH {
 	double* k_xx ; 
 
 	/// Component $K^{xy}$ of the extrinsic curvature at the grid points (1-D array) [unit: $c/a$]
-	double* k_xy ; 
+	double* k_xy ;
 
 	/// Component $K^{xz}$ of the extrinsic curvature at the grid points (1-D array) [unit: $c/a$]
-	double* k_xz ; 
+	double* k_xz ;
 
 	/// Component $K^{yy}$ of the extrinsic curvature at the grid points (1-D array) [unit: $c/a$]
-	double* k_yy ; 
+	double* k_yy ;
 
 	/// Component $K^{yz}$ of the extrinsic curvature at the grid points (1-D array) [unit: $c/a$]
-	double* k_yz ; 
+	double* k_yz ;
 
 	/// Component $K^{zz}$ of the extrinsic curvature at the grid points (1-D array) [unit: $c/a$]
-	double* k_zz ; 
+	double* k_zz ;
 
 
     // Constructors - Destructor
     // -------------------------
     public:
-	/** Constructor from Meudon data. 
-	 *  
+	/** Constructor from Meudon data.
+	 *
 	 * This constructor takes general arrays {\tt xi, yi, zi}
 	 * for the location of the Cartesian coordinates
 	 * $(x, y, z)$, i.e. it does not assume that the grid is a uniform one.
 	 * These arrays are 1-D to deal with any ordering of a 3-D storage.
-	 * 
+	 *
 	 *  @param nbpoints [input] Total number of grid points
-	 *  @param xi	[input] 1-D array (size {\tt nbpoints}) storing the 
-	 *		values of coordinate x of the grid points [unit: $a$]	
-	 *  @param yi	[input] 1-D array (size {\tt nbpoints}) storing the 
-	 *		values of coordinate y of the grid points [unit: $a$]	
-	 *  @param zi	[input] 1-D array (size {\tt nbpoints}) storing the 
-	 *		values of coordinate z of the grid points [unit: $a$]	
+	 *  @param xi [input] 1-D array (size {\tt nbpoints}) storing the
+	 *		values of coordinate x of the grid points [unit: $a$]
+	 *  @param yi [input] 1-D array (size {\tt nbpoints}) storing the
+	 *		values of coordinate y of the grid points [unit: $a$]
+	 *  @param zi [input] 1-D array (size {\tt nbpoints}) storing the
+	 *		values of coordinate z of the grid points [unit: $a$]
 	 *  @param fill [input] sets how the hole "interiors" must be
 	 *		filled: \\
 	 *		fill = 0 : all the fields are set to zero \\
