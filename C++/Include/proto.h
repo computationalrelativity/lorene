@@ -35,6 +35,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2004/02/17 09:21:38  j_novak
+ * New functions for calculating values of the derivatives of a function
+ * using its Chebyshev coefficients.
+ *
  * Revision 1.17  2004/02/11 09:47:44  p_grandclement
  * Addition of a new elliptic solver, matching with the homogeneous solution
  * at the outer shell and not solving in the external domain (more details
@@ -387,6 +391,8 @@ Tbl solh_helmholtz_plus (int, double, double, double, int) ;
 Tbl val_solh (int, double, double, int) ;
 Tbl val_solp (const Tbl&, double, int) ;
 
+double val1_dern_1d (int, const Tbl&, int) ;
+double valm1_dern_1d (int, const Tbl&, int) ;
 
 
 //Routines de derivations version 1d
