@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/05/03 14:46:11  e_gourgoulhon
+ * Class Tslice_dirac_max: -- changed prototype of method solve_hij
+ *                         -- added new method evolve
+ *
  * Revision 1.12  2004/04/30 14:36:15  j_novak
  * Added the method Tslice_dirac_max::solve_hij(...)
  * NOT READY YET!!!
@@ -91,6 +95,7 @@ class Metric_flat ;
 class Base_vect ; 
 class Map ; 
 class Tbl ;
+class Param ; 
 
 #include "headcpp.h"
 
@@ -877,19 +882,34 @@ class Tslice_dirac_max : public Time_slice_conf {
     /** Solves the evolution equation for the deviation \f$ h^{ij} \f$ 
      * of the conformal metric \f$ \tilde\gamma^{ij} \f$ from 
      * the flat metric \f$ f^{ij} \f$ 
-     *  @param strain_tensor : a pointer on the strain_tensor 
-     *      \f$ S_{ij} \f$ measured by the Eulerian observer of 4-velocity 
-     *      \f$\mbox{\boldmath{$n $}}\f$ ; if this is the null pointer, 
-     *       it is assumed that \f$ S_{ij} \f$ = 0 (vacuum).
-     *  @param ener_dens matter energy density \e E as measured by the 
-     *      Eulerian observer; this quantity is passed as a pointer,
-     *      the null value of which (default) meaning \e E=0.
-     *  @return solution \f$h^{ij}_{\rm new}\f$ of the evolution equation 
-     *  with the source computed from the quantities at the current time step. 
-     *  
+     *  @param par_khi [input/output] : parameters for the d'Alembert equation 
+     *          for \f$\chi\f$ 
+     *  @param par_mu [input/output] : parameters for the d'Alembert equation 
+     *          for \f$\mu\f$ 
+     *  @param khi_new [output] : solution \f$\chi_{\rm new}\f$ at the next
+     *      time step 
+     *  @param mu_new [output] : solution \f$\mu_{\rm new}\f$ at the next
+     *      time step 
+     *  @param strain_tensor [input] : a pointer on the strain_tensor 
+     *      \f$ S^{ij} \f$ measured by the Eulerian observer of 4-velocity 
+     *      \f$\mbox{\boldmath{$n $}}\f$ ; if this is the null pointer
+     *      (default value), it is assumed that \f$ S_{ij} \f$ = 0 (vacuum).  
      */
-    virtual Sym_tensor_trans solve_hij(const Sym_tensor* strain_tensor=0x0, 
-				       const Scalar* ener_dens=0x0) const ; 
+    virtual void solve_hij(Param& par_khi, Param& par_mu,
+                           Scalar& khi_new, Scalar& mu_new,
+                           const Sym_tensor* strain_tensor = 0x0) const ; 
+        
+    /** Time evolution by resolution of Einstein equations.
+     *  
+     *  @param pdt : time step \e dt.
+     *  @param nb_time_steps : number of time steps for the evolution
+     *  @param niter_elliptic : number of iterations if the resolution 
+     *      of elliptic equations
+     *  @param relax_elliptic : relaxation factor for the elliptic
+     *      equations
+     */
+    void evolve(double pdt, int nb_time_steps, int niter_elliptic,
+                double relax_elliptic) ; 
         
     protected:
         /** Computes \f$ h^{ij} \f$ from the values of \f$\chi\f$ and 
