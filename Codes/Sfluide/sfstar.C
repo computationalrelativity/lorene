@@ -3,9 +3,9 @@
  ***********************************************************************/
 
 // headers C
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+#include <cstdlib>
+#include <cmath>
+#include <sstream>
 
 // headers Lorene
 #include "et_rot_bifluid.h"
@@ -14,8 +14,20 @@
 #include "graphique.h"
 #include "nbr_spx.h"
 
+#include "unites.h"
+
 // Local prototype (for drawings only)
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
+
+void compare_analytic (Et_rot_bifluid& star); 
+string get_file_base (double xp, double sig);
+string get_file_base (double xp, double sig, double eps, double om1, double om2);
+
+
+// some global EOS parameters 
+double kap1, kap2, kap3, beta, m1, m2, detA, k1, k2, kk, R;
+double sigma, eps, eps_n, xp;
+double nc, rhoc;  // central density
 
 //******************************************************************************
 
@@ -346,8 +358,6 @@ int main(){
 
     if (graph == 1) {
       
-      char title[80] ;
-      
       int nzdes = star.get_nzet() ; 
       
       // Cmp defining the surface of the star (via the density fields)
@@ -370,29 +380,14 @@ int main(){
       des_bi_coupe_y(star.get_nbar2()(), 0., nzdes, "Fluid 2 baryonic density", 
       	     &surf2, &surf2) ; 
       
-      des_bi_coupe_y(star.get_ent()(), 0., nzdes, "Fluid 1 Enthalpy", 
-		     &surf, &surf2) ; 
-
-      des_bi_coupe_y(star.get_ent2()(), 0., nzdes, "Fluid 2 Enthalpy", 
-      	     &surf, &surf2) ; 
-      strcpy(title, "Gravitational potential \\gn") ; 
-      des_bi_coupe_y(star.get_logn()(), 0., nzdes, title, &surf, &surf2) ; 
-      
-      strcpy(title, "Azimuthal shift N\\u\\gf") ; 
-      des_bi_coupe_y(star.get_nphi()(), 0., nzdes, title, &surf, &surf2) ; 
-      
-      strcpy(title, "Metric potential \\gz") ; 
-      des_bi_coupe_y(star.get_dzeta()(), 0., nzdes, title, &surf, &surf2) ; 
-      
-      strcpy(title, "Metric potential (NB-1) r sin\\gh") ; 
-      des_bi_coupe_y(star.get_tggg()(), 0., nzdes, title, &surf, &surf2) ; 
-      
-      
-      strcpy(title, "A\\u2\\d K\\uij\\d K\\dij\\u") ; 
-      des_bi_coupe_y(star.get_ak_car()(), 0., nzdes, title, &surf, &surf2) ; 
-	
+      des_bi_coupe_y(star.get_logn()(), 0., -1.40, 1.40, -1.00, 1.00, 
+		     "", &surf, &surf2) ; 
     }
 
+    // now print out key-values of the configuration in such a "translated" way
+    // that we can compare the results to the analytic solution of PCA02:
+    if (eos.identify() == 2)  // only do that if type = eos_bf_poly_newt
+      compare_analytic (star);
  
     // Cleaning
     // --------
@@ -403,4 +398,208 @@ int main(){
     
     return EXIT_SUCCESS ; 
     
+} // main()
+
+
+// ----------------------------------------------------------------------
+// compare_analytic()
+// print out appropriate "translations" of parameters and results such that
+// we can compare them to the analytic solution of PCA02
+//----------------------------------------------------------------------
+void 
+compare_analytic (Et_rot_bifluid& star)
+{
+  bool is_static = false;
+
+  Eos_bf_poly_newt eos = dynamic_cast<const Eos_bf_poly_newt&>(star.get_eos());
+
+  // let's see if it's really what we called  "analytic" EOS in PCA02:
+  if ( (eos.identify() != 2) || (eos.get_gam1() != 2) || (eos.get_gam2() != 2) ||
+       (eos.get_gam3() != 1) || (eos.get_gam4() != 1) )
+    {
+      cout << "This EOS is not of type Newtonian analytic EOS, compare_analytic() useless here!\n";
+      return;
+    }
+  else
+    {
+      cout << "\n\n----------------------------------------------------------------------" << endl;
+      cout << " compare_analytic() called on AnalyticEOS: now comparing... " << endl << endl;
+    }
+
+
+  if (star.get_ent()()(0,0,0,0) != star.get_ent2()()(0,0,0,0) ) 
+    cout << "\n!! WARNING !!: central chemical potentials differ..!!\n";
+
+
+  if ( star.get_omega_c() == 0  && star.get_omega2() == 0 )
+    is_static = true;
+
+  // get "raw" EOS parameters
+  kap1 = eos.get_kap1();
+  kap2 = eos.get_kap2();
+  kap3 = eos.get_kap3();
+  beta = eos.get_beta();
+  m1 = eos.get_m1();
+  m2 = eos.get_m2();
+  
+  cout << "Raw EOS parameters: kappa1 = " <<  kap1 << " kappa2 = " << kap2; 
+  cout << " kappa3 = " << kap3 << " beta = " << beta << endl;
+
+
+  // Central densities
+  double nn_c = star.get_nbar()()(0,0,0,0);
+  double np_c = star.get_nbar2()()(0,0,0,0);
+  nc = nn_c + np_c;
+  rhoc = m1 * nn_c + m2 * np_c;
+
+  // baryon densities in natural units  
+  Cmp nn = star.get_nbar()() / nc;
+  Cmp np = star.get_nbar2()() / nc;
+
+  // translate EOS parameters into x_p, sigma and epsilon  
+  detA = kap1*kap2 - kap3*kap3;
+  k1 = m1 * (kap2 - kap3) / detA;
+  k2 = m2 * (kap1 - kap3) / detA;
+  kk = m1*k1 + m2* k2;
+  R = M_PI /sqrt(qpig * kk) ;  // analytic prediction
+  
+  sigma = - kap3 / kap1;
+  if ( fabs(sigma) < 1e-9 ) sigma = 0;
+  eps = 2.0 * beta * nn_c / m2;
+  eps_n = 2.0 * beta * np_c / m1;
+
+  xp =  k2 / (k1 + k2);
+  
+  cout << setprecision(9);  
+  cout << "Translated EOS parameters: sigma = " << sigma << ", epsilon_c = " << eps << ", xp = " << xp << endl;
+  
+  cout << "Central neutron density: " << nn_c << " rho_nuc" << endl;
+  cout << "Central proton density: " << np_c << " rho_nuc" << endl;
+  cout << "Central baryon density: " << nc << " rho_nuc" << endl;
+  double rel = 2* g_si * star.mass_b()*m_unit / (c_si*c_si * R * r_unit);
+  cout << "Relativity parameter: " << rel << endl;
+
+  double om0 = sqrt ( 4.0 * M_PI * g_si * rhoc * rho_unit );
+  cout << "Rotation-rate Unit: " << om0 << endl;
+  double om_n = star.get_omega_c() * f_unit / om0;
+  double om_p = star.get_omega2() * f_unit / om0;
+  cout << "Natural rotation rates: Om_n = " << om_n << "; Om_p = " << om_p << endl;
+  cout << "Analytic static radius: " << R << endl;
+  cout << "eps_p(0) = " << eps << "  eps_n(0) = " << eps_n << endl;
+  if ( eps >= 1.0 || eps_n >= 1.0 )
+    cout << "*** WARNING **** negative effective masses if eps, eps_n >= 1 !! \n";
+
+  // ******************************
+  // now start with tests and output
+
+  cout << "Total mass of neutron-fluid: " << star.mass_b1() / msol << " Msol\n";
+  cout << "Total mass of proton-fluid: " << star.mass_b2() / msol << " Msol\n";
+  cout << "Total baryon mass: " << star.mass_b()/msol << "Msol\n";
+
+  // save some data about this configuration: 
+  string resdir = "Results/";
+  string fname;
+
+  fname = resdir + get_file_base (xp, sigma, eps, om_n, om_p);
+
+// #define NUM_POINTS 100 		// number of points in density profiles
+//   Tbl rr (NUM_POINTS);
+//   rr.set_etat_qcq();
+
+//   std::ofstream prof((fname+".prof").c_str());
+//   prof << setprecision(9);
+//   for (int i=0; i < NUM_POINTS; i++)
+//     {
+//       rr.set(i) = 1.0 * i / (NUM_POINTS-1);
+//       prof << rr(i) << "\t" ;
+      
+//       prof << nn.val_point(R*rr(i), 0, 0) << "\t";
+//       prof << np.val_point(R*rr(i), 0, 0) << "\t";
+
+//       prof << nn.val_point(R*rr(i), M_PI/4, 0) << "\t";
+//       prof << np.val_point(R*rr(i), M_PI/4, 0) << "\t";
+      
+//       prof << nn.val_point(R*rr(i), M_PI/2, 0) << "\t";
+//       prof << np.val_point(R*rr(i), M_PI/2, 0) << "\t";
+      
+//       prof << endl;
+//     }
+
+  double mnat = rhoc * R * R * R;
+  std::ofstream data((fname+".d").c_str());
+  data << setprecision(16);
+
+  data << "# EOS and stellar parameters: \n";
+
+  data << "kappa1 = " <<  kap1 << endl;
+  data << "kappa2 = " <<  kap2 << endl; 
+  data << "kappa3 = " <<  kap3 << endl;
+  data << "beta = "   <<  beta << endl;
+
+  data << "muc_n = " <<  star.get_ent()()(0,0,0,0) << endl;
+  data << "muc_p = " << star.get_ent2()()(0,0,0,0) << endl;
+
+  data << "rhoc = " << nc << " rho_nuc" << endl;
+  data << "Om0 = " << om0 << endl;
+  data << "Relativity-parameter = " << rel << endl;
+
+  data << "\n# in natural units:\n";
+  data << "sigma = "   << sigma << endl;
+  data << "epsilon = " << eps   << endl;
+  data << "xp = "      << xp    << endl;
+
+  data << "Om_n = " << om_n << endl;
+  data << "Om_p = " << om_p << endl;
+    
+  data << "\n# Global stellar quantities:\n";
+  data << "Mn = " << star.mass_b1() / mnat << endl;
+  data << "Mp = " << star.mass_b2() / mnat << endl;
+
+  data << "Rn = " << star.ray_pole()/R  << "\t" << star.ray_eq()/ R  << endl;
+  data << "Rp = " << star.ray_pole2()/R << "\t" << star.ray_eq2()/ R << endl;
+
+  data << "# Viriel identity violations:" << endl;
+  data << "GRV3 = " << star.grv3() << endl;
+  data << "GRV2 = " << star.grv2() << endl;
+
+  return;
+
+} //  compare_analytic
+
+/*----------------------------------------------------------------------
+ * get_file_base(): construct filename-base from EOS parameters
+ *
+ *----------------------------------------------------------------------*/
+string
+get_file_base (double xp0, double sig0)
+{
+  ostringstream s;
+  char cbuf[50]; // man, <ios> does not seem to exist here... 
+
+  sprintf (cbuf, "Newt_xp%4.2f_sig%4.2f", xp0, sig0);
+
+  s << cbuf;
+  
+  return (s.str());
+}
+
+string
+get_file_base (double xp0, double sig0, double eps0, double om1, double om2)
+{
+  ostringstream s;
+  char cbuf[50]; // man, <ios> does not seem to exist here... 
+  double relOm;
+
+  if (om2 != 0)
+    relOm = (om1 - om2)/om2;
+  else
+    relOm = 0;
+
+  s << get_file_base (xp0, sig0);
+
+  sprintf (cbuf, "_eps%4.2f_Om%8.6f_R%4.2f", eps0, om2, relOm);
+
+  s << cbuf;
+  
+  return (s.str());
 }
