@@ -1,7 +1,7 @@
 /*
  *   Copyright (c) 1999-2000 Jean-Alain Marck
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
  *   Copyright (c) 1999-2001 Philippe Grandclement
+ *   Copyright (c) 1999-2002 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -25,7 +25,7 @@
 char som_tet_C[] = "$Header$" ;
 
 /*
- * Ensemble des routine pour la sommation directe en tjeta
+ * Ensemble des routine pour la sommation directe en theta
  * 
  *   SYNOPSYS:
  *     double som_tet_XX
@@ -39,8 +39,14 @@ char som_tet_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/05/01 07:41:05  e_gourgoulhon
+ * Correction of an ERROR in som_tet_sin_p :
+ *    sin(2*(j+1) * tet) --> sin(2*j * tet)
+ * idem in som_tet_sin:
+ *    sin( (j+1) * tet) --> sin(j * tet)
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.5  2000/09/08  16:26:32  eric
  * Ajout de la base T_SIN_I.
@@ -257,7 +263,7 @@ double* po = to ;	    // Pointeur courant sur la sortie
     // Initialisation des tables trigo
     double* sinus = new double [nt] ;
     for (j=0 ; j<nt ; j++) {
-	sinus[j] = sin((j+1) * tet) ;
+	sinus[j] = sin(j * tet) ;
     }
     
     // Sommation sur le premier phi, k=0
@@ -305,10 +311,11 @@ double* po = to ;	    // Pointeur courant sur la sortie
 
     // Initialisation des tables trigo
     double* sinus = new double [nt] ;
-    for (j=0 ; j<nt ; j++) {
-	sinus[j] = sin(2*(j+1) * tet) ;
+    for (j=0 ; j<nt-1 ; j++) {
+	sinus[j] = sin(2*j * tet) ;
     }
-    
+    sinus[nt-1] = 0 ;
+
     // Sommation sur le premier phi, k=0
     *po = 0 ;
     for (j=0 ; j<nt ; j++) {
