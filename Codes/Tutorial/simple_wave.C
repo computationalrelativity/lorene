@@ -28,6 +28,9 @@ char simple_wave_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/02/25 16:44:57  j_novak
+ * workflag is now allocated dynamically.
+ *
  * Revision 1.10  2004/02/21 17:06:43  e_gourgoulhon
  * Method Scalar::point renamed Scalar::val_grid_point.
  *
@@ -160,12 +163,12 @@ int main() {
 
     double dt = 0.02 ;  // time step 
     int bc = 2 ;    // type of boundary condition : 2 = Bayliss & Turkel outgoing wave
-    int workflag = 0 ; // working flag 
+    int *workflag = new int(0) ; // working flag 
  
     Param par ; 
     par.add_double(dt) ; 
     par.add_int(bc) ; 
-    par.add_int_mod(workflag) ; 
+    par.add_int_mod(*workflag) ; 
     
     
     double t = 0 ; 
@@ -189,6 +192,7 @@ int main() {
         uu_c.update(uu_jp1.val_grid_point(0,0,0,0), t) ; 
     
         if ( j%2 == 0 ) {
+
         
             cout << "Step = " << j << ", time = " << t << endl ; 
         
