@@ -28,6 +28,9 @@ char test_sym_tensor_tt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/02/18 18:57:38  e_gourgoulhon
+ * Method trace() renamed the_trace().
+ *
  * Revision 1.12  2004/02/09 13:24:56  e_gourgoulhon
  * Added test of the TT decomposition from scratch.
  * Passed in the nucleus and shells only, and only for dzpuis=4.
@@ -164,12 +167,12 @@ int main() {
     cout << "Maxabs divergence hhs : " << endl ; 
     maxabs( hhs.divergence(mets) ) ; 
         
-    Scalar trace =  hhc.trace() ; 
+    Scalar trace =  hhc.the_trace() ; 
     cout << "Maxabs Trace of hhc : " << endl ;  
     maxabs( trace ) ;   
         
     cout << "Maxabs Trace of hhs : " << endl ;  
-    maxabs( hhs.trace() ) ; 
+    maxabs( hhs.the_trace() ) ; 
 
     cout << "========================================================" << endl ;
     cout << "                Test with the tensor" << endl ;
@@ -261,10 +264,10 @@ int main() {
     maxabs( divs ) ; 
         
     cout << "Maxabs of trace of hhc : " << endl ; 
-    maxabs( hhc.trace() ) ; 
+    maxabs( hhc.the_trace() ) ; 
         
     cout << "Maxabs of trace of hhs : " << endl ; 
-    maxabs( hhs.trace() ) ; 
+    maxabs( hhs.the_trace() ) ; 
         
     arrete() ; 
     
@@ -362,7 +365,7 @@ int main() {
     
     const Sym_tensor_tt& ttaa = taa.tt_part() ; 
     cout << "Trace of taa : \n" ; 
-    maxabs( taa.trace() ) ; 
+    maxabs( taa.the_trace() ) ; 
     
     diff = aa - ttaa ; 
     cout << "Difference between aa and its TT part : \n " ; 
