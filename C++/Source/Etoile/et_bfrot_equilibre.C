@@ -32,6 +32,9 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2003/12/11 12:43:35  r_prix
+ * activated adaptive grid for 2-fluid star (taken from Etoile_rot)
+ *
  * Revision 1.12  2003/12/04 14:28:26  r_prix
  * allow for the case of "slow-rot-style" EOS inversion, in which we need to adapt
  * the inner domain to n_outer=0 instead of mu_outer=0 ...
@@ -127,11 +130,10 @@ void Et_rot_bifluid::equilibrium_bi
     
   const Mg3d* mg = mp.get_mg() ; 
 
-  // The following is required to initialize mp_prev as a Map_et:
-  Map_af& mp_et = dynamic_cast<Map_af&>(mp) ;  // reference
-  Map_af map_bak(mp_et);
+  // The following is required to initialize mp_prev as a Map_af
+  Map_et& mp_et = dynamic_cast<Map_et&>(mp) ;  // reference
     
-    // Index of the point at phi=0, theta=pi/2 at the surface of the star:
+  // Index of the point at phi=0, theta=pi/2 at the surface of the star:
   assert(mg->get_type_t() == SYM) ; 
   int l_b = nzet - 1 ; 
   int i_b = mg->get_nr(l_b) - 1 ; 
@@ -153,6 +155,8 @@ void Et_rot_bifluid::equilibrium_bi
   int mer_change_omega = icontrol(2) ; 
   int mer_fix_omega = icontrol(3) ; 
   int mermax_poisson = icontrol(4) ; 
+  int nzadapt = icontrol(5);	// number of domains for adaptive grid
+
   int niter ;
 
   // Protections:
@@ -176,6 +180,10 @@ void Et_rot_bifluid::equilibrium_bi
   double relax = control(3) ;
   double relax_prev = double(1) - relax ;  
   double relax_poisson = control(4) ; 
+  // some additional stuff for adaptive grid:
+  double thres_adapt = control(5) ; 
+  double precis_adapt = control(6) ; 
+
 
   // Error indicators
   // ----------------
@@ -191,6 +199,50 @@ void Et_rot_bifluid::equilibrium_bi
   double& diff_shift_x = diff.set(6) ; 
   double& diff_shift_y = diff.set(7) ; 
     
+
+  // Parameters for the function Map_et::adapt
+  // -----------------------------------------
+    
+  Param par_adapt ; 
+  int nitermax = 100 ;  
+  int adapt_flag = 1 ;    //  1 = performs the full computation, 
+			    //  0 = performs only the rescaling by 
+			    //      the factor alpha_r
+  int nz_search = nzet + 1 ;  // Number of domains for searching the enthalpy
+				//  isosurfaces
+  double alpha_r ; 
+  double reg_map = 1. ; // 1 = regular mapping, 0 = contracting mapping
+
+  par_adapt.add_int(nitermax, 0) ; // maximum number of iterations to
+				     // locate zeros by the secant method
+  par_adapt.add_int(nzadapt, 1) ; // number of domains where the adjustment 
+				    // to the isosurfaces of ent is to be 
+				    // performed
+  par_adapt.add_int(nz_search, 2) ;	// number of domains to search for
+					// the enthalpy isosurface
+  par_adapt.add_int(adapt_flag, 3) ; //  1 = performs the full computation, 
+				       //  0 = performs only the rescaling by 
+				       //      the factor alpha_r
+  par_adapt.add_int(j_b, 4) ; //  theta index of the collocation point 
+			        //  (theta_*, phi_*)
+  par_adapt.add_int(k_b, 5) ; //  theta index of the collocation point 
+			        //  (theta_*, phi_*)
+
+  par_adapt.add_int_mod(niter, 0) ;  //  number of iterations actually used in 
+				       //  the secant method
+    
+  par_adapt.add_double(precis_adapt, 0) ; // required absolute precision in 
+					     // the determination of zeros by 
+					     // the secant method
+  par_adapt.add_double(reg_map, 1)	;  // 1. = regular mapping, 0 = contracting mapping
+    
+  par_adapt.add_double(alpha_r, 2) ;	// factor by which all the radial 
+					   // distances will be multiplied 
+    	   
+  par_adapt.add_tbl(ent_limit, 0) ;	// array of values of the field ent 
+				        // to define the isosurfaces. 			   
+
+
   // Parameters for the function Map_et::poisson for nuf
   // ----------------------------------------------------
 
@@ -257,7 +309,8 @@ void Et_rot_bifluid::equilibrium_bi
   //  Eulerian observer
 
     // Quantities at the previous step : 	
-  //  Map_et mp_prev = mp_et;  
+
+  Map_et mp_prev = mp_et;
   Tenseur ent_prev = ent ;	
   Tenseur ent2_prev = ent2 ;
   Tenseur logn_prev = logn ;	    
@@ -305,9 +358,7 @@ void Et_rot_bifluid::equilibrium_bi
   fichfreq << "#       f1 [Hz]     f2 [Hz]" << endl ; 
     
   ofstream fichevol("evolution.d") ;    // Output file for various quantities
-  fichevol << 
-    "#           r_pole/r_eq	     ent_c    ent2_c" 
-	   << endl ; 
+  fichevol << "#           r_pole/r_eq	     ent_c    ent2_c" << endl ; 
     
   diff_ent = 1 ; 
   double err_grv2 = 1 ; 
@@ -524,7 +575,7 @@ void Et_rot_bifluid::equilibrium_bi
     double mlngamma2_b  = mlngamma2()(l_b, k_b, j, i_b) ; 
 
 
-    // RP: "hack": do adapt domain correctly if using "slow-rot-style" EOS inversion
+    // RP: "hack": adapt the radius correctly if using "slow-rot-style" EOS inversion
     // 
     if ( eos.identify() == 2 ) // only applies to Eos_bf_poly_newt
       {
@@ -542,9 +593,11 @@ void Et_rot_bifluid::equilibrium_bi
 	    ent2_b = kaps2 * ( ent_c - ent2_c - mlngamma_b + mlngamma2_b );
 	    
 	    cout << "**********************************************************************\n";
-	    cout << "DEBUG: Adapting domain for slow-rot-style EOS inversion \n";
+	    cout << "DEBUG: Rescaling domain for slow-rot-style EOS inversion \n";
 	    cout << "DEBUG: ent1_b = " << ent1_b << "; ent2_b = " << ent2_b << endl;
 	    cout << "**********************************************************************\n";
+
+	    adapt_flag = 0;	// don't do adaptive-grid if using slow-rot-style inversion!
 	  }
       }
     
@@ -552,10 +605,14 @@ void Et_rot_bifluid::equilibrium_bi
     double alpha2_r2 = ( ent2_c - ent2_b  - mlngamma2_b + nuq_c - nuq_b) / ( nuf_b - nuf_c  ) ;
     
     cout << "DEBUG: j= "<< j<<" ; alpha1 = " << alpha1_r2 <<" ; alpha2 = " << alpha2_r2 << endl;
-      
-    alpha_r2 = (alpha1_r2 > alpha2_r2 ? alpha1_r2 : alpha2_r2 ) ;
 
-    double alpha_r = sqrt(alpha_r2);
+    int outer_fluid = (alpha1_r2 > alpha2_r2) ? 1 : 2;  // index of 'outer' fluid (at equator!)
+      
+    Tenseur *outer_ent_p = (outer_fluid == 1) ? (&ent) : (&ent2);
+
+    alpha_r2 = (outer_fluid == 1) ? alpha1_r2 : alpha2_r2 ;
+
+    alpha_r = sqrt(alpha_r2);
 
     cout << "alpha_r = " << alpha_r << endl ; 
 
@@ -572,16 +629,34 @@ void Et_rot_bifluid::equilibrium_bi
     ent = (ent_c + nu_c) - logn - mlngamma ;
     ent2 = (ent2_c + nu_c) - logn - mlngamma2 ;
 
+    // Cusp-check: shall the adaptation still be performed?
+    // ------------------------------------------
+    double dent_eq = (*outer_ent_p)().dsdr()(l_b, k_b, j_b, i_b) ; 
+    double dent_pole = (*outer_ent_p)().dsdr()(l_b, k_b, 0, i_b) ;
+    double rap_dent = fabs( dent_eq / dent_pole ) ; 
+    cout << "| dH/dr_eq / dH/dr_pole | = " << rap_dent << endl ; 
+    
+    if ( rap_dent < thres_adapt ) {
+      adapt_flag = 0 ;	// No adaptation of the mapping 
+      cout << "******* FROZEN MAPPING  *********" << endl ; 
+    }
 
-    // Rescaling of the grid (no adaptation! (yet))
+    // Rescaling of the grid and adaption to (outer) enthalpy surface
     //---------------------------------------
+    if (adapt_flag  && (nzadapt > 0) ) 
+      {
+	mp_prev = mp_et ; 
 
-    //    mp_prev = mp_et ; 
+	mp.adapt( (*outer_ent_p)(), par_adapt) ; 
 
-    mp.homothetie(alpha_r) ;
+	mp_prev.homothetie(alpha_r) ;
 
-    //    mp.reevaluate(&mp_prev, nzet+1, ent.set());
-    //    mp.reevaluate(&mp_prev, nzet+1, ent2.set());
+	mp.reevaluate(&mp_prev, nzet+1, ent.set()) ; 
+	mp.reevaluate(&mp_prev, nzet+1, ent2.set()) ; 
+      }
+    else
+      mp.homothetie (alpha_r);
+
 
     //----------------------------------------------------
     // Equation of state  
