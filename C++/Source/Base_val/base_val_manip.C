@@ -25,6 +25,9 @@ char base_val_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/01/27 14:31:26  j_novak
+ * New method Base_val::mult_sint()
+ *
  * Revision 1.4  2004/01/27 14:13:59  j_novak
  * Added method Base_val::mult_x()
  *
@@ -191,6 +194,42 @@ void Base_val::ssint() {
     break ;
   default: 
     cout << "Wrong base in Base_val::ssint()!" << endl ;
+    abort() ;
+    exit(-1) ;
+    break ;
+  }  
+  return ;
+}
+
+void Base_val::mult_sint() {
+    
+  switch(get_base_t(0)) {
+  case T_COS_P:
+    set_base_t(T_SIN_I) ;
+    break ;
+  case T_COS_I:
+    set_base_t(T_SIN_P) ;
+    break ;
+  case T_SIN_P:
+    set_base_t(T_COS_I) ;
+    break ;
+  case T_SIN_I:
+    set_base_t(T_COS_P) ;
+    break ;
+  case T_COSSIN_CP:
+    set_base_t(T_COSSIN_SI) ;
+    break ;
+  case T_COSSIN_SP:
+    set_base_t(T_COSSIN_CI) ;
+    break ;
+  case T_COSSIN_CI:
+    set_base_t(T_COSSIN_SP) ;
+    break ;
+  case T_COSSIN_SI:
+    set_base_t(T_COSSIN_CP) ;
+    break ;
+  default: 
+    cout << "Wrong base in Base_val::mult_sint()!" << endl ;
     abort() ;
     exit(-1) ;
     break ;

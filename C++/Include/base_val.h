@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/01/27 14:31:25  j_novak
+ * New method Base_val::mult_sint()
+ *
  * Revision 1.8  2004/01/27 14:13:58  j_novak
  * Added method Base_val::mult_x()
  *
@@ -460,6 +463,12 @@ class Base_val {
 	 * $\frac{1}{\sin \theta}$ multiplication.
 	 */
 	void ssint() ;  
+  
+	/**
+	 * The basis is transformed as with a 
+	 * $\sin \theta$ multiplication.
+	 */
+	void mult_sint() ;  
   
 	/**
 	 * The basis is transformed as with a transformation to 
