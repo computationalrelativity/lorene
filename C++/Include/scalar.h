@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.40  2004/01/28 10:39:17  j_novak
+ * Comments modified.
+ *
  * Revision 1.39  2004/01/27 15:10:01  j_novak
  * New methods Scalar::div_r_dzpuis(int) and Scalar_mult_r_dzpuis(int)
  * which replace div_r_inc*. Tried to clean the dzpuis handling.
@@ -594,7 +597,8 @@ class Scalar : public Tensor {
    */
   const Scalar& lapang() const ; 
   
-  void div_r() ;    /// Division by {\it r} everywhere.
+  /// Division by {\it r} everywhere; {\tt dzpuis} is not changed.
+  void div_r() ;    
  
   /** Division by {\it r} everywhere but with the output flag {\tt dzpuis} 
    *  set to {\tt ced\_mult\_r}.
@@ -610,12 +614,7 @@ class Scalar : public Tensor {
    */
   void div_r_ced() ;
 
-  /** Multiplication by {\it r}.
-   * NB: in the CED, this method does not perform anything but {\tt dzpuis--}.
-   * Note that this behavior is analogous to that of {\tt div\_r\_inc1()}
-   * and not to that of {\tt div\_r()}.
-   *
-   */
+  /// Multiplication by {\it r} everywhere; {\tt dzpuis} is not changed.
   void mult_r() ;  
   
   /** Multiplication by {\it r} everywhere but with the output flag {\tt dzpuis} 
@@ -632,7 +631,8 @@ class Scalar : public Tensor {
    */
   void mult_r_ced() ;
   
-  void mult_rsint() ;   /// Multiplication by $r\sin\theta$
+  /// Multiplication by $r\sin\theta$ everywhere; {\tt dzpuis} is not changed.
+  void mult_rsint() ;   
   
   /** Multiplication by $r\sin\theta$ but with the output flag {\tt dzpuis}
    *  set to {\tt ced\_mult\_r}.
@@ -643,7 +643,8 @@ class Scalar : public Tensor {
    */
   void mult_rsint_dzpuis(int ced_mult_r = -1) ; 
 
-  void div_rsint() ;    /// Division by $r\sin\theta$
+  /// Division by $r\sin\theta$ everywhere; {\tt dzpuis} is not changed.
+  void div_rsint() ;    
   
   /** Division by $r\sin\theta$ but with the output flag {\tt dzpuis}
    *  set to {\tt ced\_mult\_r}.
