@@ -37,8 +37,12 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/03/07 15:41:12  n_chamel
+ * New class for dealing with Cartesian grids
+ * Added the sampling type UNIFORM in type_parite.h
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.3  2000/12/04  13:09:55  novak
  * Added constants for the dalembertian
@@ -62,6 +66,9 @@
 #define	    ETATUN	    1
 #define	    ETATQCQ	    2
 #define	    ETATNONDEF	    3
+
+/* Uniform sampling on a Cartesian grid */
+#define         UNIFORM         3
 
 /* Echantillonage fin en r */
 /* ----------------------- */
