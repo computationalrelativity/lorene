@@ -23,6 +23,9 @@ char change_var_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/12/11 15:53:31  p_grandclement
+ * includ stdlib
+ *
  * Revision 1.1  2003/12/11 14:48:48  p_grandclement
  * Addition of ALL (and that is a lot !) the files needed for the general elliptic solver ... UNDER DEVELOPEMENT...
  *
@@ -32,6 +35,7 @@ char change_var_C[] = "$Header$" ;
  */
 
 #include <math.h>
+#include <stdlib.h>
 #include <iostream.h>
 
 #include "proto.h"
