@@ -31,6 +31,9 @@ char binary_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/05/25 14:25:53  f_limousin
+ * Add the virial theorem for conformally flat configurations.
+ *
  * Revision 1.6  2004/03/31 12:44:54  f_limousin
  * Minor modifs.
  *
@@ -116,8 +119,7 @@ double Binary::mass_kom() const {
     const Metric&  gamij = (et[0]->get_gamma()) ;
     Map_af map0 (et[0]->get_mp()) ; 
     
-    Vector vect (map0, CON, map0.get_bvect_spher()) ;  
-    vect = logn.derive_con(gamij) ;
+    Vector vect = logn.derive_con(gamij) ;
     Scalar integrant (vect(1)) ;
     
     *p_mass_kom = map0.integrale_surface_infini (integrant) / qpig ;
@@ -266,8 +268,8 @@ double Binary::total_ener() const {
 		    //	 Error on the virial theorem   //
 		    //---------------------------------//
 
-double Binary::virial() const {
-    /*
+double Binary::virial_cp() const {
+    
     if (p_virial == 0x0) {	    // a new computation is requireed
 	
 	p_virial = new double ; 
@@ -275,7 +277,7 @@ double Binary::virial() const {
 	    *p_virial = 1. - mass_kom() / mass_adm() ; 
 	    
 	}
-    */
+    
     return *p_virial ; 
     
 }

@@ -28,6 +28,9 @@ char Binary_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/05/25 14:25:12  f_limousin
+ * Add the virial theorem for conformally flat configurations.
+ *
  * Revision 1.8  2004/03/25 10:29:01  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -497,10 +500,13 @@ void Binary::write_global(ostream& ost) const {
     ost << " " << mp1.val_r(l, 1., M_PI/2, 0) / km ; 
   }
   ost << endl ; 
+
+  ost << "#     VE(M)	   " << endl ;
   
   
   ost.setf(ios::scientific) ; 
   ost.width(14) ; 
+  ost << virial_cp() << endl ;
   
   ost << "#      d [km]         "  
       << "       d_G [km]       "
