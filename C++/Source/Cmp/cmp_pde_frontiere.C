@@ -25,6 +25,10 @@ char cmp_pde_frontiere_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/05/20 07:04:02  k_taniguchi
+ * Recovery of "->get_angu()" in the assertion of Map_af::poisson_frontiere
+ * because "limite" is the boundary value.
+ *
  * Revision 1.3  2004/03/31 11:18:42  f_limousin
  * Methods Map_et::poisson_interne, Map_af::poisson_interne and
  * Cmp::poisson_neumann_interne have been implemented to solve the
@@ -121,7 +125,7 @@ void Map_af::poisson_frontiere(const Cmp& source, const Valeur& limite, int type
     assert(source.get_etat() != ETATNONDEF) ; 
     assert(source.get_mp()->get_mg() == mg) ; 
     assert(pot.get_mp()->get_mg() == mg) ; 
-    assert (source.get_mp()->get_mg() == limite.get_mg()) ;
+    assert (source.get_mp()->get_mg()->get_angu() == limite.get_mg()) ;
     
     assert( source.check_dzpuis(2) || source.check_dzpuis(4) 
 	    || source.check_dzpuis(3)) ; 
