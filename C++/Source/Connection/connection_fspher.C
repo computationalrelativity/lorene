@@ -1,5 +1,5 @@
 /*
- *  Methods of class Connection_flat.
+ *  Methods of class Connection_fspher.
  *
  *	(see file connection.h for documentation)
  *
@@ -25,17 +25,13 @@
  *
  */
 
-char connection_flat_C[] = "$Header$" ;
+char connection_fspher_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
- * Revision 1.2  2003/10/01 15:42:49  e_gourgoulhon
+ * Revision 1.1  2003/10/01 15:42:49  e_gourgoulhon
  * still ongoing...
- *
- * Revision 1.1  2003/09/29 21:13:08  e_gourgoulhon
- * First version --- not ready yet.
- *
  *
  *
  *
@@ -59,20 +55,16 @@ char connection_flat_C[] = "$Header$" ;
 
 
 
-// Constructor for derived classes
+// Contructor from a spherical flat-metric-orthonormal basis
 
-Connection_flat::Connection_flat(const Map& mpi, const Base_vect& bi) 
-	: Connection(mpi, bi) {
-
-	assoc_metric = true ;
-	
-	delta.set_etat_zero() ; 
+Connection_fspher::Connection_fspher(const Map& mpi, const Base_vect_spher& bi) 
+	: Connection_flat(mpi, bi) {
 
 }		
 
 // Copy constructor
-Connection_flat::Connection_flat(const Connection_flat& ci) 
-	: Connection(ci) {
+Connection_fspher::Connection_fspher(const Connection_fspher& ci) 
+	: Connection_flat(ci) {
 
 }		
 
@@ -82,8 +74,8 @@ Connection_flat::Connection_flat(const Connection_flat& ci)
 					//----------------------------//
 
 
-Connection_flat::~Connection_flat(){
-
+Connection_fspher::~Connection_fspher(){
+	
 }
 
 
@@ -92,9 +84,9 @@ Connection_flat::~Connection_flat(){
 					//-----------------------------//
 
 
-void Connection_flat::operator=(const Connection_flat& ci) {
+void Connection_fspher::operator=(const Connection_fspher& ci) {
 	
-	cout << "Connection_flat::operator= : not implemented yet !" << endl ; 
+	cout << "Connection_fspher::operator= : not implemented yet !" << endl ; 
 	abort() ; 
 
 }	
@@ -106,18 +98,13 @@ void Connection_flat::operator=(const Connection_flat& ci) {
 					//-----------------------------//
 
 
-void Connection_flat::compute_ricci() const {
 
-	assert(p_ricci == 0x0) ;
-	
-	p_ricci = new Sym_tensor(*mp, COV, *triad) ;
-	
-	p_ricci->set_etat_zero() ; 
-	
+Tensor Connection_fspher::derive_cov(const Tensor&) const {
+
+	cout << "Connection_fspher::derive_cov: not implemented yet !" << endl ; 
+	abort() ; 
+
 }
-
-
-
 
 
 

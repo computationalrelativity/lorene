@@ -30,6 +30,9 @@ char connection_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/01 15:42:49  e_gourgoulhon
+ * still ongoing...
+ *
  * Revision 1.1  2003/09/29 21:13:08  e_gourgoulhon
  * First version --- not ready yet.
  *
@@ -57,18 +60,25 @@ char connection_C[] = "$Header$" ;
 
 // Constructor ab initio
 
-Connection::Connection(const Delta& delta_i) : triad(delta_i.get_triad()),
-		delta(delta_i), assoc_metric(false) {
+Connection::Connection(const Tensor_delta& delta_i) : mp(&(delta_i.get_mp())),
+		triad(delta_i.get_triad()),
+		delta(delta_i), 
+		assoc_metric(false),
+		flat_conn(0x0) {	//## flat_conn((delta_i.get_triad())->connect(delta_i.get_mp())
 	
 	set_der_0x0() ; 
+
 	
 }		
 
 
 // Copy constructor
 
-Connection::Connection(const Connection& conn_i) : triad(conn_i.triad),
-		delta(conn_i.delta), assoc_metric(conn_i.assoc_metric) {
+Connection::Connection(const Connection& conn_i) : mp(conn_i.mp),
+		triad(conn_i.triad),
+		delta(conn_i.delta), 
+		assoc_metric(conn_i.assoc_metric),
+		flat_conn(conn_i.flat_conn) {
 	
 	set_der_0x0() ; //## a voir
 	
@@ -77,11 +87,15 @@ Connection::Connection(const Connection& conn_i) : triad(conn_i.triad),
 
 // Constructor for derived classes
 
-/*Connection::Connection(const Base_vect& bi) : triad(&bi),
-		delta(??) {
+Connection::Connection(const Map& mpi, const Base_vect& bi) : mp(&mpi),
+		triad(&bi),
+		delta(mpi, CON, COV, COV, bi),
+		assoc_metric(false),
+		flat_conn(0x0){
+		
 	
 }		
-*/
+
 
 	
 					//----------------------------//
