@@ -14,26 +14,11 @@ directory).
 
 Comments or questions should be addressed to Eric.Gourgoulhon@obspm.fr.
 
+
 Installing Lorene on your computer
 ----------------------------------
-6/ Upgrading the installation
-   --------------------------
 
-As a research software, LORENE is under permanent development. 
-You should therefore run from time to time the commands 
-
-	cd $HOME_LORENE
-	cvs update -d
-	make
-
-to get the latest version of LORENE. 
-The script $HOME_LORENE/lorene_up contains the above commands, so 
-that it is equivalent to type
-
-	$HOME_LORENE/lorene_up
-
-
-see file INSTALL		
+See the file INSTALL in this directory.
 
 
 Documentation
@@ -88,19 +73,16 @@ the LORENE repository in Meudon, are in the file Lorene/Doc/cvs_basics.txt.
 Upgrading your installation
 ---------------------------
 
-As a research software, LORENE is under permanent development. 
-You should therefore run from time to time the commands 
+As a research software, LORENE is in perpetual development.
+You should therefore run from time to time the commands
 
 	cd $HOME_LORENE
 	cvs update -d
 	make
 
-to get the latest version of LORENE. 
-The script $HOME_LORENE/lorene_up contains the above commands, so 
+to get the latest version of LORENE.
+The script $HOME_LORENE/lorene_up contains the above commands, so
 that it is equivalent to type
 
 	$HOME_LORENE/lorene_up
-
-
-
 
