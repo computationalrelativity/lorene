@@ -30,6 +30,9 @@ char vector_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/02/20 10:53:41  j_novak
+ * Minor modifs.
+ *
  * Revision 1.4  2004/02/16 17:40:14  j_novak
  * Added a version of poisson with the flat metric as argument (avoids
  * unnecessary calculations by decompose_div)
@@ -64,9 +67,7 @@ Vector Vector::poisson(const double lambda, const Metric_flat& met_f) const {
   if (fabs(lambda+1) < 1.e-6)
     poten.set_etat_zero() ;
   else {
-    Scalar tmp = potential(met_f) / (lambda + 1) ;
-    tmp.inc_dzpuis(2) ;
-    poten = tmp.poisson() ;
+    poten = (potential(met_f) / (lambda + 1)).poisson() ;
   }
 
   Vector grad = poten.derive_con(met_f) ;
