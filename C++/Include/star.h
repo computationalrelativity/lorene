@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/11/11 16:29:48  j_novak
+ * set_der_0x0 is no longer virtual (to be coherent with Tensor/Scalar classes).
+ *
  * Revision 1.12  2004/11/10 16:31:53  j_novak
  * Star is no longer an abstract class (mass_b and mass_g are no longer
  * pure virtual). Modified comments to be readable by doxygen.
@@ -69,7 +72,6 @@
  */
 
 // Headers Lorene
-#include "tensor.h"
 #include "metric.h"
 
 class Eos ;
@@ -86,7 +88,9 @@ class Eos ;
  * star, and (ii) an equation of state (derived class of \c Eos ).  
  * It contains tensor fields (class \c Tensor ) which describle the
  * hydrodynamical quantities as well as the gravitational field (spacetime
- * metric). 
+ * metric). This class is intended to replace the class \c Etoile , and is 
+ * using classes \c Scalar and \c Tensor. It always deals with relativistic
+ * stars.
  * 
  * According to the 3+1 formalism, the spacetime metric is written
  * \f[
@@ -235,7 +239,7 @@ class Star {
 	virtual void del_deriv() const ; 
 	
 	/// Sets to \c 0x0  all the pointers on derived quantities
-	virtual void set_der_0x0() const ; 
+        void set_der_0x0() const ; 
 
 	/** Sets to \c ETATNONDEF  (undefined state) the hydrodynamical 
 	 *  quantities relative to the Eulerian observer.
@@ -399,7 +403,10 @@ ostream& operator<<(ostream& , const Star& ) ;
  * A \c Star_bin  can be construted in two states, represented by
  * the \c bool  member \c irrotational : (i) irrotational
  * (i.e. the fluid motion is irrotational) or (ii) rigidly corotating 
- * with respect to the orbital motion (synchronized binary). 
+ * with respect to the orbital motion (synchronized binary). This class 
+ * is intended to replace the class \c Etoile_bin , and is 
+ * using classes \c Scalar and \c Tensor. It always deals with relativistic
+ * stars.
  *
  */
 class Star_bin : public Star {
@@ -661,7 +668,7 @@ class Star_bin : public Star {
 	virtual void del_deriv() const ; 
 	
 	/// Sets to \c 0x0  all the pointers on derived quantities
-	virtual void set_der_0x0() const ; 
+	void set_der_0x0() const ; 
 
 	/** Sets to \c ETATNONDEF  (undefined state) the hydrodynamical 
 	 *  quantities relative to the Eulerian observer.

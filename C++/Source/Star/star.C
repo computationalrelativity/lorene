@@ -34,6 +34,9 @@ char star_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/11/11 16:29:49  j_novak
+ * set_der_0x0 is no longer virtual (to be coherent with Tensor/Scalar classes).
+ *
  * Revision 1.10  2004/06/22 12:48:08  f_limousin
  * Change qq, qq_auto and qq_comp to beta, beta_auto and beta_comp.
  *
@@ -144,9 +147,9 @@ Star::Star(Map& mpi, int nzet_i, const Eos& eos_i)
     stress_euler.set_etat_zero() ;
 
     // The metric is initialized to the flat one : 
-    Metric_flat flat(mp.flat_met_spher()) ;
-    flat.cov() ;
-    gamma = flat ;
+    //## Metric_flat flat(mp.flat_met_spher()) ;
+    //##    flat.cov() ;
+    //## gamma = flat ;
 
     logn = 0 ; 
     nnn = 1. ; 
@@ -249,7 +252,7 @@ Star::Star(Map& mpi, const Eos& eos_i, FILE* fich)
 
 Star::~Star(){
 
-    del_deriv() ; 
+    Star::del_deriv() ; 
 
 }
 
@@ -269,7 +272,7 @@ void Star::del_deriv() const {
     if (p_l_surf != 0x0) delete p_l_surf ; 
     if (p_xi_surf != 0x0) delete p_xi_surf ; 
 
-    Star::set_der_0x0() ; 
+    set_der_0x0() ; 
 }			    
 
 
@@ -296,7 +299,7 @@ void Star::del_hydro_euler() {
     u_euler.set_etat_nondef() ; 
     stress_euler.set_etat_nondef() ;
 
-    del_deriv() ; 
+    Star::del_deriv() ; 
 
 }			    
 

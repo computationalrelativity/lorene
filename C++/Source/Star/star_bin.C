@@ -31,6 +31,9 @@ char star_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/11/11 16:29:49  j_novak
+ * set_der_0x0 is no longer virtual (to be coherent with Tensor/Scalar classes).
+ *
  * Revision 1.11  2004/07/21 11:49:03  f_limousin
  * Remove function sprod.
  *
@@ -323,7 +326,7 @@ Star_bin::Star_bin(Map& mpi, const Eos& eos_i, FILE* fich)
 
 Star_bin::~Star_bin(){
 
-    del_deriv() ; 
+    Star_bin::del_deriv() ; 
 
 }
 
@@ -333,19 +336,18 @@ Star_bin::~Star_bin(){
 
 void Star_bin::del_deriv() const {
 
-    Star::del_deriv() ; 
-
     if (p_xa_barycenter != 0x0) delete p_xa_barycenter ; 
     
     set_der_0x0() ; 
+
+    Star::del_deriv() ; 
+
 }			    
 
 
 
 
 void Star_bin::set_der_0x0() const {
-
-    Star::set_der_0x0() ;
 
     p_xa_barycenter = 0x0 ; 
 
