@@ -124,6 +124,7 @@
 	//@Include:binaire.h_r
 	//@Include:bhole.h_r
 	//@Include:bin_ns_bh.h_r
+        //@Include:bin_ns_ncp.h_r
     //@}
     
     /**@name Graphical outputs
