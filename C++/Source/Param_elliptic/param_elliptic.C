@@ -23,6 +23,9 @@ char param_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/05/17 15:50:54  j_novak
+ * Removed unused nr variables
+ *
  * Revision 1.9  2004/05/17 15:42:22  j_novak
  * The method 1 of vector Poisson eq. solves directly for F^r.
  * Some bugs were corrected in the operator poisson_vect.
@@ -150,14 +153,13 @@ Param_elliptic::~Param_elliptic () {
 
 void Param_elliptic::inc_l_quant (int zone) {
   
-  int np, nt, nr ;
+  int np, nt ;
 
   int conte = 0 ;
   for (int l=0 ; l<mp->get_mg()->get_nzone() ; l++) {
     
     np = mp->get_mg()->get_np(l) ;
     nt = mp->get_mg()->get_nt(l) ;
-    nr = mp->get_mg()->get_nr(l) ;
 
     for (int k=0 ; k<np+1 ; k++)
       for (int j=0 ; j<nt ; j++) {
@@ -299,14 +301,13 @@ void Param_elliptic::set_sec_order_r2 (int zone, double a, double b, double c){
 
 void Param_elliptic::set_variable (int type_variable, int zone) {
  
-  int np, nt, nr ;
+  int np, nt ;
   
   int conte = 0 ;
   for (int l=0 ; l<mp->get_mg()->get_nzone() ; l++) {
     
     np = mp->get_mg()->get_np(l) ;
     nt = mp->get_mg()->get_nt(l) ;
-    nr = mp->get_mg()->get_nr(l) ;
     
     for (int k=0 ; k<np+1 ; k++)
       for (int j=0 ; j<nt ; j++) {
@@ -321,14 +322,13 @@ void Param_elliptic::set_variable (int type_variable, int zone) {
 
 void Param_elliptic::set_variable (int type_variable, double mult, int zone) {
  
-  int np, nt, nr ;
+  int np, nt ;
   
   int conte = 0 ;
   for (int l=0 ; l<mp->get_mg()->get_nzone() ; l++) {
     
     np = mp->get_mg()->get_np(l) ;
     nt = mp->get_mg()->get_nt(l) ;
-    nr = mp->get_mg()->get_nr(l) ;
     
     for (int k=0 ; k<np+1 ; k++)
       for (int j=0 ; j<nt ; j++) {
@@ -343,14 +343,13 @@ void Param_elliptic::set_variable (int type_variable, double mult, int zone) {
 
 void Param_elliptic::set_variable (int type_variable, double mult, double add, int zone) {
  
-  int np, nt, nr ;
+  int np, nt ;
   
   int conte = 0 ;
   for (int l=0 ; l<mp->get_mg()->get_nzone() ; l++) {
     
     np = mp->get_mg()->get_np(l) ;
     nt = mp->get_mg()->get_nt(l) ;
-    nr = mp->get_mg()->get_nr(l) ;
     
     for (int k=0 ; k<np+1 ; k++)
       for (int j=0 ; j<nt ; j++) {
