@@ -32,6 +32,9 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2004/09/01 10:56:05  r_prix
+ * added option of converging baryon-mass to equilibrium_bi()
+ *
  * Revision 1.15  2004/08/30 09:54:20  r_prix
  * experimental version of Kepler-limit finder for 2-fluid stars
  *
@@ -117,7 +120,9 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 void Et_rot_bifluid::equilibrium_bi
 (double ent_c, double ent2_c, double omega0, double omega20, 
  const Tbl& ent_limit, const Tbl& ent2_limit, const Itbl& icontrol, 
- const Tbl& control, Tbl& diff) {
+ const Tbl& control, Tbl& diff,
+ int mer_mass, double mbar1_wanted, double mbar2_wanted, double aexp_mass) 
+{
 			     
   // Fundamental constants and units
   // -------------------------------
@@ -789,6 +794,43 @@ void Et_rot_bifluid::equilibrium_bi
     fichevol << "  " << ray_pole() / ray_eq() ; 
     fichevol << "  " << ent_c ; 
     fichevol << "  " << ent2_c ; 
+
+
+    //-----------------------------------------
+    // Convergence towards given baryon masses  (if mer_mass > 0)
+    //-----------------------------------------
+    
+    if ((mer_mass>0) && (mer > mer_mass)) {
+      
+      double xx, xprog, ax, fact; 
+
+      // fluid 1
+      xx = mass_b1() / mbar1_wanted - 1. ;
+      cout << "Discrep. baryon mass1 <-> wanted bar. mass1 : " << xx << endl ; 
+
+      xprog = ( mer > 2*mer_mass) ? 1. : double(mer - mer_mass)/double(mer_mass) ; 
+      xx *= xprog ; 
+      ax = 0.5 * ( 2. + xx ) / (1. + xx ) ; 
+      fact = pow(ax, aexp_mass) ; 
+      cout << "Fluid1:  xprog, xx, ax, fact : " << xprog << "  " << xx << "  " << ax << "  " << fact << endl ; 
+      ent_c *= fact ; 
+
+      // fluid 2
+      xx = mass_b2() / mbar2_wanted - 1. ;
+      cout << "Discrep. baryon mass2 <-> wanted bar. mass2 : " << xx << endl ; 
+
+      xprog = ( mer > 2*mer_mass) ? 1. : double(mer - mer_mass)/double(mer_mass) ; 
+      xx *= xprog ; 
+      ax = 0.5 * ( 2. + xx ) / (1. + xx ) ; 
+      fact = pow(ax, aexp_mass) ; 
+      cout << "Fluid2: xprog, xx, ax, fact : " << xprog << "  " << xx << "  " << ax << "  " << fact << endl ; 
+      ent2_c *= fact ; 
+
+    } /* if mer > mer_mass */
+	
+
+
+
 
     //-------------------------------------------------------------
     //  Relative change in enthalpies with respect to previous step 

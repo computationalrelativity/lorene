@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/09/01 10:56:05  r_prix
+ * added option of converging baryon-mass to equilibrium_bi()
+ *
  * Revision 1.13  2004/03/22 13:12:41  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -470,9 +473,10 @@ class Et_rot_bifluid : virtual public Etoile_rot {
    *			    equation for \c shift  (y comp.)   
    */
   void equilibrium_bi(double ent_c, double ent_c2, double omega0, 
-		   double omega20, const Tbl& ent_limit, 
-		   const Tbl& ent2_limit, const Itbl& icontrol, 
-		   const Tbl& control, Tbl& diff) ;
+		      double omega20, const Tbl& ent_limit, 
+		      const Tbl& ent2_limit, const Itbl& icontrol, 
+		      const Tbl& control, Tbl& diff,
+		      int mer_mass, double mbar1_wanted, double mbar2_wanted, double aexp_mass);
 	
 
 
