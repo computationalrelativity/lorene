@@ -31,9 +31,9 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.4  2004/11/05 10:56:33  f_limousin
- * Delete arguments ener_dens, mom_dens and trace_stress in the function
- * init_data.
+ * Revision 1.5  2004/11/08 14:51:21  f_limousin
+ * A regularisation for the computation of A^{ij } is done in the
+ * case lapse equal to zero on the horizon.
  *
  * Revision 1.1  2004/10/29 12:54:53  jl_jaramillo
  * First version
@@ -221,8 +221,9 @@ void Isol_hor::init_data( double precis, double relax, int niter,
 	// New value of A^{ij}:
 	
 	Sym_tensor aa_jp1 (map, CON, map.get_bvect_spher()) ;
-	int nnp = map.get_mg()->get_np(1) ;
+	int nnr = map.get_mg()->get_nr(1) ;
 	int nnt = map.get_mg()->get_nt(1) ;
+	int nnp = map.get_mg()->get_np(1) ;
 	
 	int check ;
 	check = 0 ;
@@ -240,23 +241,47 @@ void Isol_hor::init_data( double precis, double relax, int niter,
 	else {
 	    Scalar nn_sxpun (division_xpun (Cmp(nn()), 0)) ;
 	    
-	    Sym_tensor aa_sxpun = beta().ope_killing_conf(tgam())+gamt_point ;
-	    
+	    Sym_tensor aa_sxpun = beta().ope_killing_conf(tgam())
+		+ gamt_point ;
+
+	    const Coord& r = map.r ;        // r field
+	    Mtbl r_mtbl = r ;
+	    Scalar rr (map) ;
+	    rr = r_mtbl ;
+
+	    double r1, r2 ;
+	    r1 = map.val_r(1, -1., 0., 0.) ;
+	    r2 = map.val_r(1, 1., 0., 0.) ;
+
+	    for(int k=0; k<nnp; k++)
+		for(int j=0; j<nnt; j++)
+		    for(int m=1; m<=3; m++)
+			for(int n=1; n<=m; n++){
+			    double aa_mn_jk = 
+				aa_sxpun(m,n).val_grid_point(1, k, j, 0) ;     
+			    for(int i=0; i<nnr; i++){
+				aa_sxpun.set(m,n).set_grid_point(1, k, j, i) -=
+				aa_mn_jk * 
+				(- 2 * rr.val_grid_point(1, k, j, i) + 3 * r1
+				 - r2) * (rr.val_grid_point(1, k, j, i) - r2) *
+				(rr.val_grid_point(1, k, j, i) - r2) /
+				(r1 - r2) / (r1 - r2) / (r1 - r2) ;
+			    }
+			}
+
 	    for(int i=1; i<=3; i++)
 		for(int j=1; j<=i; j++){
-		    aa_sxpun.set(i,j).set_inner_boundary(1, 0) ;
 		    aa_sxpun.set(i,j) = Scalar (division_xpun 
 						(Cmp(aa_sxpun(i,j)), 0)) ;
 		}
 	    aa_jp1 = aa_sxpun / (2*nn_sxpun) ;
 	}
-
 	cout << "check = " << check << endl ;
 	
 	set_aa(aa_jp1) ; 
 	
     }
-    
+   
     conv.close() ;
     
 } 
