@@ -32,6 +32,9 @@ char sym_tensor_trans_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/02/09 12:57:13  e_gourgoulhon
+ * First implementation of method tt_part().
+ *
  * Revision 1.3  2004/01/04 20:52:45  e_gourgoulhon
  * Added assignement (operator=) to a Tensor_sym.
  *
@@ -202,8 +205,14 @@ const Sym_tensor_tt& Sym_tensor_trans::tt_part() const {
 
 	if (p_tt == 0x0) {   // a new computation is necessary
 
-		cout << "Sym_tensor_trans::tt_part() : not implemented yet ! " << endl ; 
-		abort() ; 
+        p_tt = new Sym_tensor_tt(*mp, *triad, *met_div) ; 
+        
+        Scalar pot =  trace().poisson() ; 
+
+        Sym_tensor tmp = (pot.derive_con(*met_div)).derive_con(*met_div) ; 
+        tmp.inc_dzpuis() ;  //## to be improved ?
+        
+        *p_tt = *this - 0.5 * ( trace() * met_div->con() - tmp ) ; 
 		
 	}
 	
