@@ -49,7 +49,7 @@ void Et_bin_ncp::update_metric_der_comp(const Et_bin_ncp& comp) {
       d_logn_comp = logn_comp.gradient() ;
     }
 
-    d_logn_comp.change_triad(ref_triad) ;
+    d_logn_comp.change_triad(mp.get_bvect_cart()) ;
 
  
     // Computation of tkij_comp
@@ -63,16 +63,12 @@ void Et_bin_ncp::update_metric_der_comp(const Et_bin_ncp& comp) {
       // Components of shift_comp with respect to the Cartesian triad
       //  (d/dx, d/dy, d/dz) of the mapping :
       Tenseur shift_comp_local = shift_comp ;
-      shift_comp_local.change_triad( mp.get_bvect_cart() ) ;
-
+ 
       // Gradient tilde (partial derivatives with respect to
       //           the Cartesian coordinates of the mapping)
       // D~_j beta^i
 
       Tenseur dshift_comp = shift_comp_local.gradient() ;
-
-      // Return to the absolute reference frame
-      dshift_comp.change_triad(ref_triad) ;
 
       // Trace of D~_j beta^i  :
       Tenseur divshift_comp = contract(shift_comp_local.derive_cov(gtilde), 0, 1) ;
@@ -91,7 +87,6 @@ void Et_bin_ncp::update_metric_der_comp(const Et_bin_ncp& comp) {
 
     }
 
-    tkij_comp.set_triad( *((comp.tkij_auto).get_triad()) ) ;
     tkij_comp.set_std_base() ;
 
     if (relativistic) {
@@ -105,7 +100,7 @@ void Et_bin_ncp::update_metric_der_comp(const Et_bin_ncp& comp) {
 	for (int i=0; i<3; i++) {
 	    for (int j=0; j<3; j++) {
 
-	    kcar_comp.set() +=  contract(operator*(met_gamma.cov(), contract(operator*(met_gamma.cov(), tkij_comp), 1, 3)), 1, 3)() ; 
+	    kcar_comp.set() +=  contract(met_gamma.cov() * contract(met_gamma.cov() * tkij_comp, 1, 3), 1, 3)() ; 
 
 	    }
 	}
