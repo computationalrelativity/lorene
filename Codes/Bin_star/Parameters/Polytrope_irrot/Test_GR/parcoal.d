@@ -27,3 +27,4 @@ ini.d
 1.3	fact_omeg_max : fact_omeg_max * omega = high bound in the omega search
 0.	thres_adapt1 : threshold on dH/dr for the adaptation of the mapping in star 1
 0.	thres_adapt2 : threshold on dH/dr for the adaptation of the mapping in star 2
+0.6	reduce_shift : factor by which the initial analytical shift is reduced
