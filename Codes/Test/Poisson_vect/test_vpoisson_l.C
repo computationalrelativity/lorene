@@ -29,6 +29,9 @@ char test_vpoisson_l_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/03/26 17:05:24  j_novak
+ * Added new method n.3 using Tenseur::poisson_vect_oohara
+ *
  * Revision 1.1  2004/03/26 15:35:46  j_novak
  * More vector Poisson testing
  *
@@ -52,7 +55,7 @@ int main() {
 	const int nz = 3 ; 	// Number of domains
 	int nr =33 ; 	// Number of collocation points in r in each domain
 	int nt =17 ; 	// Number of collocation points in theta in each domain
-	int np = 16 ; 	// Number of collocation points in phi in each domain
+	int np = 32 ; 	// Number of collocation points in phi in each domain
 	int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
 	int symmetry_phi = NONSYM ; // no symmetry in phi
 
@@ -107,7 +110,7 @@ int main() {
 	
 	maxabs(diff, "Divergence de sol_df") ;
 
-	double lambda = 1. ;
+	double lambda = -1. ;
 
 	Tensor grad = sol.derive_con(mets) ;
 	Scalar div = sol.divergence(mets) ;
@@ -129,6 +132,7 @@ int main() {
 	Vector sol_num0 = source.poisson(lambda, 0) ;
 	Vector sol_num1 = source.poisson(lambda, 1) ;
 	Vector sol_num2 = source.poisson(lambda, 2) ;
+	Vector sol_num3 = source.poisson(lambda, 3) ;
 
 	cout << endl ;
 
@@ -140,6 +144,7 @@ int main() {
 	maxabs(sol_num0 - sol, "Methode 0 (Comp. spheriques)") ;
 	maxabs(sol_num1 - sol, "Methode 1 (Comp. spheriques)") ;
 	maxabs(sol_num2 - sol, "Methode 2 (Comp. cartesiennes)") ;
+	maxabs(sol_num3 - sol, "Methode 3 (Comp. cartesiennes)") ;
 
 
 	return EXIT_SUCCESS ;

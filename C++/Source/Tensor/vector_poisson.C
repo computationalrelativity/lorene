@@ -30,6 +30,9 @@ char vector_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/03/26 17:05:24  j_novak
+ * Added new method n.3 using Tenseur::poisson_vect_oohara
+ *
  * Revision 1.11  2004/03/11 08:48:45  f_limousin
  * Implement method Vector::poisson with parameters, only with method
  * 2 yet.
@@ -86,7 +89,7 @@ Vector Vector::poisson(double lambda, const Metric_flat& met_f, int method)
  
   for (int i=0; i<3; i++)
     assert(cmp[i]->check_dzpuis(4)) ;
-  assert ((method>=0) && (method<3)) ;
+  assert ((method>=0) && (method<4)) ;
 
   Vector resu(*mp, CON, triad) ;
 
@@ -155,6 +158,26 @@ Vector Vector::poisson(double lambda, const Metric_flat& met_f, int method)
     scal_auxi.set_etat_qcq() ;
 	
     Tenseur resu_p(source_p.poisson_vect(lambda, vect_auxi, scal_auxi)) ;
+    resu_p.change_triad(mp->get_bvect_spher() ) ;
+
+     for (int i=1; i<=3; i++) 
+       resu.set(i) = resu_p(i-1) ;
+
+     break ;
+  }
+
+  case 3 : {
+
+    Tenseur source_p(*mp, 1, CON, mp->get_bvect_spher() ) ;
+    source_p.set_etat_qcq() ;
+    for (int i=0; i<3; i++) {
+      source_p.set(i) = Cmp(*cmp[i]) ;
+    }
+    source_p.change_triad(mp->get_bvect_cart()) ;
+    Tenseur scal_auxi (*mp) ;
+    scal_auxi.set_etat_qcq() ;
+	
+    Tenseur resu_p(source_p.poisson_vect_oohara(lambda, scal_auxi)) ;
     resu_p.change_triad(mp->get_bvect_spher() ) ;
 
      for (int i=1; i<=3; i++) 
