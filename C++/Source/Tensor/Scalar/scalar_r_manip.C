@@ -35,6 +35,9 @@ char scalar_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2004/05/12 14:22:12  f_limousin
+ * Treated the case ETATZERO in dec_dzpuis and inc_dzpuis (-> return).
+ *
  * Revision 1.17  2004/01/29 09:31:44  j_novak
  * Better treatment of ETATUN
  *
@@ -411,6 +414,12 @@ void Scalar::dec_dzpuis(int decrem) {
     
 	if (decrem == 0) return ; 
 	
+	if (etat == ETATZERO) {
+//##	    dzpuis -= decrem ;   // a voir...
+	    return ; 
+	}
+
+
 	Cmp cuu(*this) ; 
 	
 	switch (decrem) {
@@ -460,6 +469,11 @@ void Scalar::dec_dzpuis(int decrem) {
 void Scalar::inc_dzpuis(int inc) {
     
 	if (inc == 0) return ; 
+
+	if (etat == ETATZERO) {
+//##	    dzpuis += inc ;   // a voir ...
+	    return ; 
+	}
 
 	Cmp cuu(*this) ; 
 	
