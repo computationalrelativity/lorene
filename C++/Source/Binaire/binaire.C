@@ -31,6 +31,9 @@ char binaire_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/12/17 21:18:46  e_gourgoulhon
+ * Suppression of Etoile_bin::set_companion.
+ *
  * Revision 1.3  2001/12/20 13:03:24  k_taniguchi
  * Addition of the Komar mass, the virial error by Gourgoulhon and Bonazzola, and the virial error by Friedman, Uryu, and Shibata.
  *
@@ -103,11 +106,7 @@ Binaire::Binaire(Map& mp1, int nzet1, const Eos& eos1, int irrot1,
     omega = 0 ; 
     x_axe = 0 ; 
 
-    // Companion stars:
-    star1.set_companion( star2 ) ; 
-    star2.set_companion( star1 ) ; 
-
-    // Pointers of derived quantities initialized to zero : 
+    // Pointers of derived quantities initialized to zero :
     set_der_0x0() ;
 }
 
@@ -123,11 +122,7 @@ Binaire::Binaire(const Binaire& bibi)
     et[0] = &star1 ; 
     et[1] = &star2 ; 
 
-    // Companion stars:
-    star1.set_companion( star2 ) ; 
-    star2.set_companion( star1 ) ; 
-
-    // Pointers of derived quantities initialized to zero : 
+    // Pointers of derived quantities initialized to zero :
     set_der_0x0() ;    
 }
 
@@ -142,11 +137,7 @@ Binaire::Binaire(Map& mp1, const Eos& eos1, Map& mp2, const Eos& eos2,
     et[0] = &star1 ; 
     et[1] = &star2 ; 
 
-    // Companion stars:
-    star1.set_companion( star2 ) ; 
-    star2.set_companion( star1 ) ; 
-
-    // omega and x_axe are read in the file:     
+    // omega and x_axe are read in the file:
     fread_be(&omega, sizeof(double), 1, fich) ;		
     fread_be(&x_axe, sizeof(double), 1, fich) ;		
 
