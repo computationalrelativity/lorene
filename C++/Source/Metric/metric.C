@@ -30,6 +30,10 @@ char metric_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/11/18 12:22:33  jl_jaramillo
+ * Method to compute the unit radial vector field with respect
+ * spherical surfaces
+ *
  * Revision 1.9  2004/02/18 18:45:36  e_gourgoulhon
  * Computation of p_ricci_scal thanks to the new method
  * Tensor::trace(const Metric& ).
@@ -340,6 +344,35 @@ const Scalar& Metric::ricci_scal() const {
     }
 
     return *p_ricci_scal  ; 
+
+}
+
+const Vector& Metric::radial_vect() const {
+
+  if (p_radial_vect == 0x0) { // a new computation is necessary
+
+
+    p_radial_vect = new Vector ((*this).get_mp(), CON, *((*this).con().get_triad()) ) ;
+
+    Scalar prov ( sqrt((*this).con()(1,1)) ) ;
+
+    prov.std_spectral_base() ;
+
+       
+    p_radial_vect->set(1) = (*this).con()(1,1)/ prov ;
+ 
+    p_radial_vect->set(2) = (*this).con()(1,2)/ prov ;
+
+    p_radial_vect->set(3) = (*this).con()(1,3)/ prov ;
+
+
+
+    //    p_radial_vect.std_spectral_base() ;
+
+
+  }
+
+  return *p_radial_vect   ;
 
 }
 
