@@ -35,6 +35,9 @@ char map_et_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/05/25 14:28:01  f_limousin
+ * First version of method Map_et::poisson_angu().
+ *
  * Revision 1.2  2003/10/15 21:11:26  e_gourgoulhon
  * Added method poisson_angu.
  *
@@ -73,7 +76,9 @@ char map_et_poisson_C[] = "$Header$" ;
 // Header Lorene:
 #include "map.h"
 #include "cmp.h"
+#include "scalar.h"
 #include "param.h"
+#include "graphique.h"
 
 //*****************************************************************************
 
@@ -220,7 +225,7 @@ void Map_et::poisson(const Cmp& source, Param& par, Cmp& uu) const {
     uu.set_etat_qcq() ; 
     
     Base_val sauve_base = varduudx.base ; 
-    
+
     vuu = 2. * dxdr * ( rsxdxdr * unjj - 1.) * varduudx 
 		+ ( rsxdxdr*rsxdxdr * unjj - 1.) * xsr * sxlapang ; 
 
@@ -236,11 +241,11 @@ void Map_et::poisson(const Cmp& source, Param& par, Cmp& uu) const {
 
 
     sauve_base = vuu.base ; 
-
+ 
     vuu =  xsr * vuu 
 		+ 2. * dxdr * (	sr2drdt * d2uudtdx 
 			      + sr2stdrdp * std2uudpdx ) ;
-
+ 
     vuu += dxdr * ( lapr_tp + dxdr * ( 
 		dxdr* unjj * d2rdx2 
 		- 2. * ( sr2drdt * d2rdtdx  + sr2stdrdp * sstd2rdpdx ) ) 
@@ -285,7 +290,7 @@ void Map_et::poisson(const Cmp& source, Param& par, Cmp& uu) const {
     }
 
     assert( uu.check_dzpuis( ssj.get_dzpuis() ) ) ; 
-    					               
+    		
     mpaff.poisson(ssj, par_nul, uu) ; 
 
     tdiff = diffrel(vuu, vuujm1) ; 
@@ -323,10 +328,169 @@ void Map_et::poisson(const Cmp& source, Param& par, Cmp& uu) const {
 
 
 
-void Map_et::poisson_angu(const Scalar&, Param& , Scalar& ) const {
+void Map_et::poisson_angu(const Scalar& source, Param& par, Scalar& uu) const {
 
-	cout << "Map_et::poisson_angu: not implemented !" << endl ; 
-	abort() ; 
+    assert(source.get_mp() == *this) ;
+    assert(uu.get_mp() == *this) ; 
+
+    int nz = mg->get_nzone() ; 
+    int nzm1 = nz - 1 ; 
+ 
+    int* nrm6 = new int[nz];
+    for (int l=0; l<=nz-1; l++) 
+	nrm6[l] = mg->get_nr(l) - 6 ; 
+ 
+    // Indicator of existence of a compactified external domain
+    bool zec = false ; 		
+    if (mg->get_type_r(nzm1) == UNSURR) {
+	zec = true ;
+    }
+
+    //-------------------
+    //  Initializations 
+    //-------------------
+    
+    int nitermax = par.get_int() ; 
+    int& niter = par.get_int_mod() ; 
+    double relax = par.get_double() ; 
+    double precis = par.get_double(1) ;     
+    
+    Cmp& ssjcmp = par.get_cmp_mod() ; 
+    
+    Scalar ssj (ssjcmp) ;
+    Scalar ssjm1 (ssj) ;
+ 
+    int dzpuis = source.get_dzpuis() ;
+    ssj.set_dzpuis(dzpuis) ;
+    uu.set_dzpuis(dzpuis) ;
+    ssjm1.set_dzpuis(dzpuis) ;
+
+    Valeur& vuu = uu.set_spectral_va() ;
+
+    Valeur vuujm1(*mg) ;
+    if (uu.get_etat() == ETATZERO) {
+	vuujm1 = 1 ;	// to take relative differences
+	vuujm1.set_base( vuu.base ) ; 
+    }
+    else{
+	vuujm1 = vuu ; 
+    }
+ 
+    // Affine mapping for the Laplacian-tilde
+
+    Map_af mpaff(*this) ; 
+    Param par_nul ; 
+
+    cout << "Map_et::poisson angu : relat. diff. u^J <-> u^{J-1} : " << endl ;
+    
+//==========================================================================
+//==========================================================================
+//			    Start of iteration 
+//==========================================================================
+//==========================================================================
+
+
+    Tbl tdiff(nz) ; 
+    double diff ; 
+    niter = 0 ; 
+    
+    do {
+
+    //====================================================================
+    //		Computation of R(u)    (the result is put in uu)
+    //====================================================================
+
+    //-----------------------
+    // First operations on uu
+    //-----------------------
+    
+    Valeur duudx = (uu.set_spectral_va()).dsdx() ;	    // d/dx 
+
+    const Valeur& d2uudxdx = duudx.dsdx() ;	    // d^2/dxdx
+
+
+    const Valeur& d2uudtdx = duudx.dsdt() ;	    // d^2/dxdtheta
+
+    const Valeur& std2uudpdx = duudx.stdsdp() ;    // 1/sin(theta) d^2/dxdphi  
+
+    //---------------------------------------
+    // Computation of  R(u)  
+    //
+    //  The result is put in uu (via vuu)
+    //---------------------------------------
+
+    Mtbl unjj = srdrdt*srdrdt + srstdrdp*srstdrdp ;
+
+    Base_val sauve_base = vuu.base ; 
+
+    vuu =  - d2uudxdx * dxdr * dxdr * unjj
+		+ 2. * dxdr * ( sr2drdt * d2uudtdx 
+			      + sr2stdrdp * std2uudpdx ) ;
+
+    vuu.set_base(sauve_base) ; 
+
+    vuu += dxdr * ( lapr_tp + dxdr * ( 
+		dxdr * unjj * d2rdx2 
+		- 2. * ( sr2drdt * d2rdtdx  + sr2stdrdp * sstd2rdpdx ) ) 
+				 ) * duudx ;		    
+
+    vuu.set_base(sauve_base) ; 
+
+    uu.mult_r() ;
+    uu.mult_r() ;
+
+    //====================================================================
+    //   Computation of the effective source s^J of the ``affine''
+    //     Poisson equation 
+    //====================================================================
+
+    uu.filtre_r(nrm6) ;
+//    uu.filtre_phi(1) ;
+//    uu.filtre_theta(1) ;
+ 
+    ssj = source + uu ; 
+
+    ssj = (1-relax) * ssj + relax * ssjm1 ; 
+ 
+    (ssj.set_spectral_va()).set_base((source.get_spectral_va()).base) ; 
+
+
+    //====================================================================
+    //   Resolution of the ``affine'' Poisson equation 
+    //====================================================================
+
+    mpaff.poisson_angu(ssj, par_nul, uu) ; 
+    
+    tdiff = diffrel(vuu, vuujm1) ; 
+
+    diff = max(tdiff) ;
+    
+
+    cout << "  step " << niter << " :  " ; 
+    for (int l=0; l<nz; l++) {
+	cout << tdiff(l) << "  " ;  
+    }
+    cout << endl ; 
+
+    //=================================
+    //  Updates for the next iteration
+    //=================================
+    
+    vuujm1 = vuu ; 
+    ssjm1 = ssj ;
+ 
+    niter++ ; 
+    
+    }	// End of iteration 
+    while ( (diff > precis) && (niter < nitermax) ) ;
+
+//==========================================================================
+//==========================================================================
+//			    End of iteration 
+//==========================================================================
+//==========================================================================
+
+    uu.set_dzpuis( source.get_dzpuis() ) ;  // dzpuis unchanged
 
 }
 
