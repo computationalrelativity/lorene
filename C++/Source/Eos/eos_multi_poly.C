@@ -30,6 +30,9 @@ char eos_multi_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/05/07 11:55:59  k_taniguchi
+ * Change the searching procedure of the baryon density.
+ *
  * Revision 1.1  2004/05/07 08:10:58  k_taniguchi
  * Initial revision
  *
@@ -51,11 +54,6 @@ char eos_multi_poly_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "param.h"
 
-
-//double simpson(int, double, double, double, double, double, double) ;
-//double func(double, double, double, double, double) ;
-
-//************************************************************
 
                      //--------------------------------------//
                      //              Constructors            //
@@ -468,12 +466,40 @@ double Eos_multi_poly::nbar_ent_p(double ent, const Param* ) const {
 	// Switch the method of computation of the baryon density
 	double diff_gamma = gam_ep - gam_pr + double(1) ;
 
-	while (abs(1.-nb_m1/nb) > 1.e-15) {
-	    nb_m1 = nb ;
-	    nb = pow( (exp(ent) - double(1))
-		      / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
-		      double(1)/(gam_pr-double(1)) ) ;
+	if (diff_gamma <= 0.) {
+	    while (abs(1.-nb_m1/nb) > 1.e-15) {
+	        nb_m1 = nb ;
+		nb = pow( (exp(ent) - double(1))
+			  / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
+			  double(1)/(gam_pr-double(1)) ) ;
+	    }
 	}
+	else {
+	    double aa = 0. ;
+	    double xx = 1. ;
+	    int m ;
+	    double yy ;
+	    double ent_value ;
+
+	    while (xx > 1.e-15) {
+
+	      ent_value = 1. ;   // Initialization
+	      xx = 0.1 * xx ;
+	      m = 0 ;
+
+	      while (ent_value > 1.e-15) {
+
+		m++ ;
+		yy = aa + m * xx ;
+		ent_value = exp(ent) - double(1) - kap_ep*pow(yy,gam_ep)
+		  - kap_pr*pow(yy,gam_pr-double(1)) ;
+
+	      }
+	      aa += (m - 1) * xx ;
+	    }
+	    nb = aa ;
+	}
+
 	return nb ;
     }
     else {
@@ -525,11 +551,38 @@ double Eos_multi_poly::ener_ent_p(double ent, const Param* ) const {
 	// Switch the method of computation of the baryon density
 	double diff_gamma = gam_ep - gam_pr + double(1) ;
 
-	while (abs(1.-nb_m1/nb) > 1.e-15) {
-	    nb_m1 = nb ;
-	    nb = pow( (exp(ent) - double(1))
-		      / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
-		      double(1)/(gam_pr-double(1)) ) ;
+	if (diff_gamma <= 0.) {
+	    while (abs(1.-nb_m1/nb) > 1.e-15) {
+	        nb_m1 = nb ;
+		nb = pow( (exp(ent) - double(1))
+			  / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
+			  double(1)/(gam_pr-double(1)) ) ;
+	    }
+	}
+	else {
+	    double aa = 0. ;
+	    double xx = 1. ;
+	    int m ;
+	    double yy ;
+	    double ent_value ;
+
+	    while (xx > 1.e-15) {
+
+	      ent_value = 1. ;   // Initialization
+	      xx = 0.1 * xx ;
+	      m = 0 ;
+
+	      while (ent_value > 1.e-15) {
+
+		m++ ;
+		yy = aa + m * xx ;
+		ent_value = exp(ent) - double(1) - kap_ep*pow(yy,gam_ep)
+		  - kap_pr*pow(yy,gam_pr-double(1)) ;
+
+	      }
+	      aa += (m - 1) * xx ;
+	    }
+	    nb = aa ;
 	}
 	return nb * exp(ent) - kap_pr * pow(nb, gam_pr) ;
     }
@@ -582,11 +635,38 @@ double Eos_multi_poly::press_ent_p(double ent, const Param* ) const {
 	// Switch the method of computation of the baryon density
 	double diff_gamma = gam_ep - gam_pr + double(1) ;
 
-	while (abs(1.-nb_m1/nb) > 1.e-15) {
-	    nb_m1 = nb ;
-	    nb = pow( (exp(ent) - double(1))
-		      / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
-		      double(1)/(gam_pr-double(1)) ) ;
+	if (diff_gamma <= 0.) {
+	    while (abs(1.-nb_m1/nb) > 1.e-15) {
+	        nb_m1 = nb ;
+		nb = pow( (exp(ent) - double(1))
+			  / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
+			  double(1)/(gam_pr-double(1)) ) ;
+	    }
+	}
+	else {
+	    double aa = 0. ;
+	    double xx = 1. ;
+	    int m ;
+	    double yy ;
+	    double ent_value ;
+
+	    while (xx > 1.e-15) {
+
+	      ent_value = 1. ;   // Initialization
+	      xx = 0.1 * xx ;
+	      m = 0 ;
+
+	      while (ent_value > 1.e-15) {
+
+		m++ ;
+		yy = aa + m * xx ;
+		ent_value = exp(ent) - double(1) - kap_ep*pow(yy,gam_ep)
+		  - kap_pr*pow(yy,gam_pr-double(1)) ;
+
+	      }
+	      aa += (m - 1) * xx ;
+	    }
+	    nb = aa ;
 	}
 	return kap_pr * pow(nb, gam_pr) ;
     }
@@ -645,11 +725,39 @@ double Eos_multi_poly::der_nbar_ent_p(double ent, const Param* ) const {
 	    // Switch the method of computation of the baryon density
 	    double diff_gamma = gam_ep - gam_pr + double(1) ;
 
-	    while (abs(1.-nb_m1/nb) > 1.e-15) {
-	        nb_m1 = nb ;
-		nb = pow( (exp(ent) - double(1))
-			  / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
-			  double(1)/(gam_pr-double(1)) ) ;
+	    if (diff_gamma <= 0.) {
+	        while (abs(1.-nb_m1/nb) > 1.e-15) {
+		    nb_m1 = nb ;
+		    nb = pow( (exp(ent) - double(1))
+			      / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
+			      double(1)/(gam_pr-double(1)) ) ;
+		}
+	    }
+	    else {
+	        double aa = 0. ;
+		double xx = 1. ;
+		int m ;
+		double yy ;
+		double ent_value ;
+
+		while (xx > 1.e-15) {
+
+		    ent_value = 1. ;   // Initialization
+		    xx = 0.1 * xx ;
+		    m = 0 ;
+
+		    while (ent_value > 1.e-15) {
+
+		        m++ ;
+			yy = aa + m * xx ;
+			ent_value = exp(ent) - double(1)
+			  - kap_ep*pow(yy,gam_ep)
+			  - kap_pr*pow(yy,gam_pr-double(1)) ;
+
+		    }
+		    aa += (m - 1) * xx ;
+		}
+		nb = aa ;
 	    }
 
 	    return ent * exp(ent) / ( gam_ep * (exp(ent)-double(1))
@@ -720,11 +828,39 @@ double Eos_multi_poly::der_ener_ent_p(double ent, const Param* ) const {
 	    // Switch the method of computation of the baryon density
 	    double diff_gamma = gam_ep - gam_pr + double(1) ;
 
-	    while (abs(1.-nb_m1/nb) > 1.e-15) {
-	        nb_m1 = nb ;
-		nb = pow( (exp(ent) - double(1))
-			  / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
-			  double(1)/(gam_pr-double(1)) ) ;
+	    if (diff_gamma <= 0.) {
+	        while (abs(1.-nb_m1/nb) > 1.e-15) {
+		    nb_m1 = nb ;
+		    nb = pow( (exp(ent) - double(1))
+			      / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
+			      double(1)/(gam_pr-double(1)) ) ;
+		}
+	    }
+	    else {
+	        double aa = 0. ;
+		double xx = 1. ;
+		int m ;
+		double yy ;
+		double ent_value ;
+
+		while (xx > 1.e-15) {
+
+		    ent_value = 1. ;   // Initialization
+		    xx = 0.1 * xx ;
+		    m = 0 ;
+
+		    while (ent_value > 1.e-15) {
+
+		        m++ ;
+			yy = aa + m * xx ;
+			ent_value = exp(ent) - double(1)
+			  - kap_ep*pow(yy,gam_ep)
+			  - kap_pr*pow(yy,gam_pr-double(1)) ;
+
+		    }
+		    aa += (m - 1) * xx ;
+		}
+		nb = aa ;
 	    }
 
 	    return ent * exp(ent) / ( gam_ep * (exp(ent)-double(1))
@@ -792,11 +928,39 @@ double Eos_multi_poly::der_press_ent_p(double ent, const Param* ) const {
 	    // Switch the method of computation of the baryon density
 	    double diff_gamma = gam_ep - gam_pr + double(1) ;
 
-	    while (abs(1.-nb_m1/nb) > 1.e-15) {
-	        nb_m1 = nb ;
-		nb = pow( (exp(ent) - double(1))
-			  / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
-			  double(1)/(gam_pr-double(1)) ) ;
+	    if (diff_gamma <= 0.) {
+	        while (abs(1.-nb_m1/nb) > 1.e-15) {
+		    nb_m1 = nb ;
+		    nb = pow( (exp(ent) - double(1))
+			      / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
+			      double(1)/(gam_pr-double(1)) ) ;
+		}
+	    }
+	    else {
+	        double aa = 0. ;
+		double xx = 1. ;
+		int m ;
+		double yy ;
+		double ent_value ;
+
+		while (xx > 1.e-15) {
+
+		    ent_value = 1. ;   // Initialization
+		    xx = 0.1 * xx ;
+		    m = 0 ;
+
+		    while (ent_value > 1.e-15) {
+
+		        m++ ;
+			yy = aa + m * xx ;
+			ent_value = exp(ent) - double(1)
+			  - kap_ep*pow(yy,gam_ep)
+			  - kap_pr*pow(yy,gam_pr-double(1)) ;
+
+		    }
+		    aa += (m - 1) * xx ;
+		}
+		nb = aa ;
 	    }
 
 	    return gam_pr * ent * exp(ent)
@@ -812,39 +976,3 @@ double Eos_multi_poly::der_press_ent_p(double ent, const Param* ) const {
     }
 
 }
-
-
-//********************************************
-//  Function used for integrating a function
-//********************************************
-/*
-double simpson(int m, double aa, double bb, double gm_p, double kp_p,
-	       double gm_e, double kp_e) {
-
-    double dn = 0.5 * (bb - aa) / m ;
-    double sumo = 0. ;
-    double sume = 0. ;
-
-    for (i=1; i<m; i++) {
-        sumo = sumo + func(aa+dn*(2.*i-1.),gm_p,kp_p,gm_e,kp_e) ;
-	sume = sume + func(aa+dn*2.*i,gm_p,kp_p,gm_e,kp_e) ;
-    }
-
-    sumo = sumo + func(bb-dn,gm_p,kp_p,gm_e,kp_e) ;
-
-    return (func(aa,gm_p,kp_p,gm_e,kp_e) + func(bb,gm_p,kp_p,gm_e,kp_e)
-	    + 4.*sumo + 2.*sume) * dn / 3. ;
-
-}
-*/
-/*
-double func(double xx, double gm_p, double kp_p, double gm_e, double kp_e)
-{
-
-    double ff ;
-    ff = kp_p*gm_p*pow(xx,gm_p-double(2))
-      /(double(1)+kp_e*pow(xx,gm_e)+kp_p*pow(xx,gm_p-double(1))) ;
-
-    return ff ;
-}
-*/
