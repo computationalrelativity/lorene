@@ -167,7 +167,7 @@ int main(){
 
     // Read parameters specific to Kepler-limit
     // ----------------------------------------
-    int kepler_fluid	= 1; 	// Kepler limit for which fluid? 1,2; 3 = both
+    int kepler_fluid	= 0; 	// Kepler limit for which fluid? 1,2; 3 = both
     int kepler_wait_steps = 1; 	// how many steps after mer_fix_omega shall we start?
     double kepler_factor = 1.01; // factor to increase omega in each step to approach Kepler (>1!)
 
