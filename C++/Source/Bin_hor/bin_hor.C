@@ -33,6 +33,10 @@ char bin_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/03/04 09:38:41  f_limousin
+ * Implement the constructor from a file, operator>>, operator<<
+ * and function sauve.
+ *
  * Revision 1.1  2004/12/29 16:11:02  f_limousin
  * First version
  *
@@ -54,7 +58,9 @@ char bin_hor_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "graphique.h"
 
-// Constucteur standard
+// Standard constructor
+// --------------------
+
 Bin_hor::Bin_hor (Map_af& mp1, Map_af& mp2, int depth_in) :
 	hole1(mp1, depth_in), hole2(mp2, depth_in), omega(0){
 
@@ -62,24 +68,87 @@ Bin_hor::Bin_hor (Map_af& mp1, Map_af& mp2, int depth_in) :
     holes[1] = &hole2 ;
 }
 
-// Copy
+// Copy constructor
+// ----------------
+
 Bin_hor::Bin_hor (const Bin_hor& source) :
 	    hole1(source.hole1), hole2(source.hole2), omega(source.omega) {
     
     holes[0] = &hole1 ;
     holes[1] = &hole2 ;
     }
+
+// Constructor from a file
+// -----------------------
     
+Bin_hor::Bin_hor(Map_af& mp1, Map_af& mp2, FILE* fich, 
+		   bool partial_read, int depth_in)
+    : hole1(mp1, fich, partial_read, depth_in),
+      hole2(mp2, fich, partial_read, depth_in),
+      omega(0) {
+
+    fread_be(&omega, sizeof(double), 1, fich) ;
+    holes[0] = &hole1 ;
+    holes[1] = &hole2 ;
+
+}
+
+			    //--------------//
+			    //  Destructor  //
+			    //--------------//
+
 Bin_hor::~Bin_hor () {
 }
 
-//Affectation
+                    //-----------------------//
+                    // Mutators / assignment //
+                    //-----------------------//
+
 void Bin_hor::operator= (const Bin_hor& source) {    
     hole1 = source.hole1 ;
     hole2 = source.hole2 ;
     
     omega = source.omega ;
 }
+
+                //------------------//
+                //      output      //
+                //------------------//
+
+// Printing
+// --------
+ostream& operator<<(ostream& flux, const Bin_hor& bibi)  {
+    bibi >> flux ;
+    return flux ;
+}
+    
+ostream& Bin_hor::operator>>(ostream& flux) const {
+
+    flux << "black hole 1" << '\n' ;
+    flux << "----------------------------" << '\n' ;
+    flux << hole1 << '\n' << '\n' ;
+    flux << "black hole 2" << '\n' ;
+    flux << "----------------------------" << '\n' ;
+    flux << hole2 << '\n' << '\n' ;
+    
+    cout << "orbital angular velocity  : " << omega << '\n' ;
+
+    return flux ;
+
+}
+
+                //--------------------------//
+                //      Save in a file      //
+                //--------------------------//
+
+void Bin_hor::sauve(FILE* fich, bool partial_save) const {
+
+    hole1.sauve(fich, partial_save) ;
+    hole2.sauve(fich, partial_save) ;
+    fwrite_be (&omega, sizeof(double), 1, fich) ;
+   
+}
+
 
 //Initialisation : Sum of two static BH
 void Bin_hor::init_bin_hor() {
