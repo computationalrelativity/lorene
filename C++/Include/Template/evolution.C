@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/06 21:13:15  e_gourgoulhon
+ * Added time derivation (method time_derive).
+ *
  * Revision 1.3  2004/02/17 22:13:34  e_gourgoulhon
  * Suppressed declaration of global char[] evolution_C = ...
  *
@@ -49,6 +52,7 @@
 // C headers
 #include <stdlib.h>
 #include <assert.h>
+#include <math.h>
 
 
 
@@ -155,4 +159,52 @@ TyT Evolution<TyT>::operator()(double ) const {
     abort() ; 
 
 }                  
-                    
+ 
+                    //-----------------------//
+                    //   Time derivative     //
+                    //-----------------------//
+
+template<typename TyT> 
+TyT Evolution<TyT>::time_derive(int j, int n) const {
+
+    switch (n) {
+    
+        case 1 : {
+            double dt = get_time(j) - get_time(j-1) ; 
+
+            // creation of the result by means of the copy constructor of class TyT
+            TyT resu( operator[](j) ) ;   
+            
+            resu = ( resu - operator[](j-1) ) / dt  ; 
+            return resu ; 
+            break ;
+        } 
+           
+        case 2 : {
+            double dt = get_time(j) - get_time(j-1) ; 
+            double dt2 = get_time(j-1) - get_time(j-2) ; 
+            if (fabs(dt2 -dt) > 1.e-13) {
+                cerr << 
+  "Evolution<TyT>::time_derive: the current version is  valid only for \n"
+    << " a constant time step !" << endl ; 
+                abort() ;
+            }
+            // creation of the result by means of the copy constructor of class TyT
+            TyT resu( operator[](j) ) ; 
+            
+            resu = ( 1.5*resu - 2.*operator[](j-1) 
+                        + 0.5*operator[](j-2) ) / dt  ; 
+            return resu ; 
+            break ;
+        } 
+           
+        default : {
+            cerr << "Evolution<TyT>::time_derive: the case n = " << n 
+                 << "  is not implemented !" << endl ; 
+            abort() ;
+            break ;
+        }    
+    }
+}                    
+ 
+                   

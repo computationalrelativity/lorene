@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/06 21:13:13  e_gourgoulhon
+ * Added time derivation (method time_derive).
+ *
  * Revision 1.4  2004/02/16 17:37:17  j_novak
  * Arguments named for doc++.
  *
@@ -119,6 +122,20 @@ template<typename TyT> class Evolution {
 
         /// Returns the time t at time step j
         virtual double get_time(int j) const = 0 ;
+
+    // Computational methods
+    // ---------------------
+        /** Computes the time derivative at time step {\tt j} by means of a 
+         *  n-th order scheme, from the values at steps {\tt j}, 
+         *  {\tt j-1}, ..., {\tt j-n}.
+         * 
+         * @param j [input] : value of the time step at which the time
+         *      derivative is required
+         * @param n [input] : order of the time scheme (default value=2)
+         * @return time derivative at time step {\tt j} 
+         *   
+         */
+        TyT time_derive(int j, int n = 2) const ; 
 
     // Outputs
     // -------
