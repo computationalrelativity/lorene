@@ -30,6 +30,9 @@ char vector_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/03/03 09:07:03  j_novak
+ * In Vector::poisson(double, int), the flat metric is taken from the mapping.
+ *
  * Revision 1.8  2004/02/24 17:00:25  j_novak
  * Added a forgotten term.
  *
@@ -63,13 +66,14 @@ char vector_poisson_C[] = "$Header$" ;
  */
 
 //C headers
+#include <stdlib.h>
 #include <math.h>
 
 // Lorene headers
 #include "metric.h"
 #include "tenseur.h"
 
-Vector Vector::poisson(const double lambda, const Metric_flat& met_f, int method) 
+Vector Vector::poisson(double lambda, const Metric_flat& met_f, int method) 
   const {
  
   for (int i=0; i<3; i++)
@@ -164,20 +168,34 @@ Vector Vector::poisson(const double lambda, const Metric_flat& met_f, int method
 
 }
 
-Vector Vector::poisson(const double lambda) const {
+Vector Vector::poisson(double lambda, int method) const {
  
-  Metric_flat met_local(*mp, *triad) ;
+  const Base_vect_spher* tspher = dynamic_cast<const Base_vect_spher*>(triad) ;
+  const Base_vect_cart* tcart = dynamic_cast<const Base_vect_cart*>(triad) ;
 
-  return ( poisson(lambda, met_local) );
+  assert ((tspher != 0x0) || (tcart != 0x0)) ;
+  const Metric_flat* met_f = 0x0 ;
+
+  if (tspher != 0x0) {
+    assert (tcart == 0x0) ;
+    met_f = &(mp->flat_met_spher()) ;
+  }
+
+  if (tcart != 0x0) {
+    assert (tspher == 0x0) ;
+    met_f = &(mp->flat_met_cart()) ;
+  }
+
+  return ( poisson(lambda, *met_f, method) );
     
 }
 
 // Version with parameters
 // -----------------------
 
-void Vector::poisson(const double, Param&, Scalar& ) const {
+void Vector::poisson(double, Param&, Scalar& ) const {
 
-  cout << "Not ready yet!" << endl ;
-
+  cout << "Vector::poisson with parameters not ready yet!" << endl ;
+  abort() ;
 
 }

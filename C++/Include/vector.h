@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.25  2004/03/03 09:07:02  j_novak
+ * In Vector::poisson(double, int), the flat metric is taken from the mapping.
+ *
  * Revision 1.24  2004/02/26 22:45:44  e_gourgoulhon
  * Added method derive_lie.
  *
@@ -321,10 +324,12 @@ class Vector: public Tensor {
 	 * {\tt p_potential}), with a flat metric, deduced from the triad.
 	 *
 	 * @param lambda [input] $\lambda$.
+	 * @param method [input] method used to solve the equation 
+	 * (see Vector::poisson(double, Metric\_flat, int) for details).
 	 *
 	 * @return the solution $N^i$.
 	 */
-	Vector poisson(const double lambda) const ;
+	Vector poisson(double lambda, int method = 0) const ;
      
 	/**Solves the vector Poisson equation with {\tt *this} as a source.
 	 * 
@@ -351,7 +356,7 @@ class Vector: public Tensor {
 	 *
 	 * @return the solution $N^i$.
 	 */
-	Vector poisson(const double lambda, const Metric_flat& met_f, int method = 0) const ;
+	Vector poisson(double lambda, const Metric_flat& met_f, int method = 0) const ;
      
 	/**Solves the vector Poisson equation with {\tt *this} as a source
 	 * and parameters controlling the solution.
@@ -367,7 +372,7 @@ class Vector: public Tensor {
 	 *   @param uu [input/output] solution {\it u} with the 
 	 *              boundary condition {\it u}=0 at spatial infinity. 
 	 */
-	void poisson(const double lambda, Param& par, Scalar& uu ) const ;
+	void poisson(double lambda, Param& par, Scalar& uu ) const ;
         
         // Graphics
         // --------
