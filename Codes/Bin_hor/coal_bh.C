@@ -31,6 +31,9 @@ char coal_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/03/04 09:41:34  f_limousin
+ * New construction of the object Bin_hor
+ *
  * Revision 1.2  2005/02/25 12:32:35  f_limousin
  * The boundary conditions for psi, N and beta are now parameters in
  * par_init.d and par_coal.d.
@@ -84,28 +87,24 @@ int main() {
 
     param.close() ;
     
+    int depth = 3 ;
+
     FILE* fich = fopen(nomini, "r") ;
     Mg3d grid (fich) ;
     Map_af map_un (grid, fich) ;
     Map_af map_deux (grid, fich) ;
-    Isol_hor hole_un (map_un, fich, true) ;
-    Isol_hor hole_deux (map_deux, fich, true) ;
+    Bin_hor bin(map_un, map_deux, fich, true, depth) ;
     fread_be(&bound_nn, sizeof(int), 1, fich) ;	
     fread_be(&lim_nn, sizeof(double), 1, fich) ;
     fread_be(&bound_psi, sizeof(int), 1, fich) ;	
     fclose(fich) ;
-
+    
     // Le fichier sortie pour la recherche de omega :
     char name_omega[20] ;
     sprintf(name_omega, "omega.dat") ;
     ofstream fiche_omega(name_omega) ;
     fiche_omega.precision(8) ;
-
-    
-    int depth = 3 ;
-    Bin_hor bin (map_un, map_deux, depth) ;
-    bin.set(1) = hole_un ;
-    bin.set(2) = hole_deux ;
+      
     bin.set_omega(0) ;
     bin.set(1).n_comp (bin(2)) ;
     bin.set(1).psi_comp (bin(2)) ;
@@ -175,8 +174,7 @@ int main() {
     grid.sauve(fich_sortie) ;
     map_un.sauve(fich_sortie) ;
     map_deux.sauve(fich_sortie) ;
-    courant(1).sauve(fich_sortie, true) ;
-    courant(2).sauve(fich_sortie, true) ;
+    courant.sauve(fich_sortie, true) ;
     fclose(fich_sortie) ;
     
     fiche_omega.close() ;
