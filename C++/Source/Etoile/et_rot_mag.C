@@ -32,9 +32,9 @@ char et_rot_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.11  2002/05/27 14:36:25  e_marcq
+ * Revision 1.12  2002/06/03 13:00:45  e_marcq
  *
- * Isolant case implemented
+ * conduc parameter read in parmag.d
  *
  * Revision 1.10  2002/05/22 12:20:17  j_novak
  * *** empty log message ***
@@ -240,7 +240,9 @@ ostream& Et_rot_mag::operator>>(ostream& ost) const {
   ost << "Computed charge : " << Q_comput() << endl ;
   ost << "Interior charge : " << Q_int() << endl ;
   ost << "Gyromagnetic ratio : " << GyroMag() << endl ;
-  ost << "R^2 Omega M / J : " << omega*mass_g()/angu_mom() << endl ;
+  //  ost << "R^2 Omega M / J : " << omega*mass_g()/angu_mom() << endl ;
+  //  ost << "MagMom : " << MagMom()*mu_si/(1e9*mag_unit*pow(r_unit,2)) << endl;
+  //  ost << "AnguMom : " << angu_mom() << endl;
 
   return ost ;
 }

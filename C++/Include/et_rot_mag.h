@@ -32,6 +32,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2002/06/03 13:00:45  e_marcq
+ *
+ * conduc parameter read in parmag.d
+ *
  * Revision 1.7  2002/05/30 16:06:30  j_novak
  * added the right et_rot_mag.h
  *
@@ -221,8 +225,9 @@ class Et_rot_mag : public Etoile_rot {
    * 
    */
 
-  virtual void magnet_comput(Cmp (*f_j)(const Cmp& x, const double a_j), 
-		      Param& par_poisson_At, Param& par_poisson_Avect) ;
+  virtual void magnet_comput(const int conduc,
+			     Cmp (*f_j)(const Cmp& x, const double a_j), 
+			     Param& par_poisson_At, Param& par_poisson_Avect) ;
 	
   void equilibrium_mag(double ent_c, double omega0, double fact_omega, 
 		 int nzadapt, const Tbl& ent_limit, const Itbl& icontrol, 

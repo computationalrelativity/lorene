@@ -34,9 +34,9 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.8  2002/05/27 14:36:25  e_marcq
+ * Revision 1.9  2002/06/03 13:00:45  e_marcq
  *
- * Isolant case implemented
+ * conduc parameter read in parmag.d
  *
  * Revision 1.6  2002/05/17 15:08:01  e_marcq
  *
@@ -130,6 +130,7 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
     int mer_mag = icontrol(8) ;
     int mer_change_mag = icontrol(9) ;
     int mer_fix_mag = icontrol(10) ;
+    int conduc = icontrol(11) ;
 
     // Protections:
     if (mer_change_omega < mer_rot) {
@@ -415,7 +416,7 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 	// Computation of electromagnetic potentials :
 	// -------------------------------------------
 
-	magnet_comput(f_j, par_poisson_At, par_poisson_Avect) ;
+	magnet_comput(conduc, f_j, par_poisson_At, par_poisson_Avect) ;
 
 	cout << "mer, Q, a_j : " << mer << ";" << Q << ";" << a_j << endl ;
 
@@ -664,12 +665,12 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 		mlngamma = - 0.5 * uuu*uuu ; 
 	    }
 
-	    int conduc=0 ;
 	    Tenseur mag(mp) ;
 	    if (conduc==1) {
 	      mag = mu0*M_j(A_phi, a_j) ;}
 	    else{
-	      mag = mu0*M_j(omega*A_phi-A_t, a_j) ;}
+	      //	      mag = mu0*M_j(omega*A_phi-A_t, a_j) ;}
+	      mag = 0 ;} // Lorentz force neglected here
 
 	    // Equatorial values of various potentials :
 	    double nuf_b  = nuf()(l_b, k_b, j_b, i_b) ; 

@@ -33,9 +33,9 @@ char et_rot_mag_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.13  2002/05/27 14:36:25  e_marcq
+ * Revision 1.14  2002/06/03 13:00:45  e_marcq
  *
- * Isolant case implemented
+ * conduc parameter read in parmag.d
  *
  * Revision 1.12  2002/05/22 12:20:17  j_novak
  * *** empty log message ***

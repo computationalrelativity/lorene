@@ -32,9 +32,9 @@ char et_rot_mag_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.8  2002/05/27 14:36:25  e_marcq
+ * Revision 1.9  2002/06/03 13:00:45  e_marcq
  *
- * Isolant case implemented
+ * conduc parameter read in parmag.d
  *
  * Revision 1.7  2002/05/20 10:31:59  j_novak
  * *** empty log message ***
@@ -79,14 +79,15 @@ extern "C" {
 
 // Algo du papier de 1995
 
-void Et_rot_mag::magnet_comput(Cmp (*f_j)(const Cmp& x,const double a_j), 
+void Et_rot_mag::magnet_comput(const int conduc,
+			       Cmp (*f_j)(const Cmp& x,const double a_j), 
 			       Param& par_poisson_At, 
 			       Param& par_poisson_Avect){
   double relax_mag = 0.5 ;
 
   int Z = mp.get_mg()->get_nzone();
 
-  int conduc = 0 ; // 0=isolant, 1=supracond
+  //  int conduc = 0 ; // 0=isolant, 1=supracond
 
   if(conduc==1) {
 
@@ -402,7 +403,8 @@ void Et_rot_mag::magnet_comput(Cmp (*f_j)(const Cmp& x,const double a_j),
    * CAS ISOLANT *
    ***************/									
   // Calcul de j_t
-  j_t = (ener()+press())*f_j(omega* A_phi - A_t,a_j) ;
+    //  j_t = (ener()+press())*f_j(omega* A_phi - A_t,a_j) ;
+  j_t = a_j * nbar() ;
   j_t.annule(nzet,Z-1) ;
   j_t.std_base_scal() ;
 
@@ -439,9 +441,12 @@ void Et_rot_mag::magnet_comput(Cmp (*f_j)(const Cmp& x,const double a_j),
   Cmp gtt(-nnn()*nnn()+b_car()*tnphi()*tnphi()) ;
   Cmp gtphi( - b_car()*ttnphi) ;
 
-  Cmp source_A_t_n(-a_car()*(j_t*gtt + j_phi*gtphi) + BLAH);
-  source_A_t_n.std_base_scal();
-  
+  Cmp source_A_t_n(mp);
+  if (relativistic) {
+    source_A_t_n = (-a_car()*(j_t*gtt + j_phi*gtphi) + BLAH);
+    source_A_t_n.std_base_scal();}
+  else{
+    source_A_t_n = j_t;}
 
   Cmp A_t_n(A_t) ;
   A_t_n = 0 ;
@@ -457,27 +462,32 @@ void Et_rot_mag::magnet_comput(Cmp (*f_j)(const Cmp& x,const double a_j),
   Tenseur source_tAphi(mp, 1, CON, mp.get_bvect_spher()) ;
 
   source_tAphi.set_etat_qcq() ;
-  Cmp tjphi(j_phi) ;
-  tjphi.mult_rsint() ;
-  Cmp tgrad1(grad1) ;
-  tgrad1.mult_rsint() ;
-  Cmp d_grad4(grad4) ;
-  d_grad4.div_rsint() ;
-  source_tAphi.set(0)=0 ;
-  source_tAphi.set(1)=0 ;
-  source_tAphi.set(2)= -b_car()*a_car()*(tjphi-tnphi()*j_t)
-    + b_car()/(nnn()*nnn())*(tgrad1+tnphi()*grad2)+d_grad4 ;
 
-  source_tAphi.change_triad(mp.get_bvect_cart());
+    Cmp tjphi(j_phi) ;
+    tjphi.mult_rsint() ;
+    Cmp tgrad1(grad1) ;
+    tgrad1.mult_rsint() ;
+    Cmp d_grad4(grad4) ;
+    d_grad4.div_rsint() ;
+    source_tAphi.set(0)=0 ;
+    source_tAphi.set(1)=0 ;
 
-  Tenseur WORK_VECT(mp, 1, CON, mp.get_bvect_cart()) ;
+    if (relativistic) {
+      source_tAphi.set(2)= -b_car()*a_car()*(tjphi-tnphi()*j_t)
+	+ b_car()/(nnn()*nnn())*(tgrad1+tnphi()*grad2)+d_grad4 ;}
+    else{
+      source_tAphi.set(2)= - tjphi ;}
+
+    source_tAphi.change_triad(mp.get_bvect_cart());
+
+    Tenseur WORK_VECT(mp, 1, CON, mp.get_bvect_cart()) ;
     WORK_VECT.set_etat_qcq() ;
     for (int i=0; i<3; i++) {
       WORK_VECT.set(i) = 0 ; 
     }
-  Tenseur WORK_SCAL(mp) ;
-  WORK_SCAL.set_etat_qcq() ;
-  WORK_SCAL.set() = 0 ;
+    Tenseur WORK_SCAL(mp) ;
+    WORK_SCAL.set_etat_qcq() ;
+    WORK_SCAL.set() = 0 ;
   
   double lambda_mag = 0. ; // No 3D version !
 
@@ -509,6 +519,14 @@ void Et_rot_mag::magnet_comput(Cmp (*f_j)(const Cmp& x,const double a_j),
 
 
 }
+
+
+
+
+
+
+
+
 
 
 
