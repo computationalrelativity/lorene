@@ -29,6 +29,10 @@ char test_sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/02/18 18:56:35  e_gourgoulhon
+ * Method trace() renamed the_trace().
+ * Tensor::trace used instead of Tensor::scontract.
+ *
  * Revision 1.3  2004/02/09 13:01:35  e_gourgoulhon
  * Added test of the TT decomposition.
  *
@@ -62,7 +66,7 @@ int main() {
   
 	int nz = 3 ; 	// Number of domains
 	int nzm1 = nz - 1 ;  
-	int nr = 17 ; 	// Number of collocation points in r in each domain
+	int nr = 65 ; 	// Number of collocation points in r in each domain
 	int nt = 9 ; 	// Number of collocation points in theta in each domain
 	int np = 16 ; 	// Number of collocation points in phi in each domain
 	int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
@@ -178,7 +182,7 @@ int main() {
 	hhs.change_triad( map.get_bvect_spher() ) ; 
 	
 	cout << "Spherical components : hhs : " << endl ;
-	hhs.spectral_display() ; 
+	hhs.spectral_display(1.e-13) ; 
 	arrete() ; 
 	
     // Transverse part
@@ -188,11 +192,11 @@ int main() {
 	arrete() ; 
 
 	cout << "Transverse part thhs : " << endl ;
-	thhs.spectral_display() ; 
+	thhs.spectral_display(1.e-13) ; 
 	arrete() ; 
 	
     cout << "Max abs(trace) of the transverse part thhs : \n" ; 
-    maxabs( thhs.trace() ) ; 
+    maxabs( thhs.the_trace() ) ; 
     
 	cout << "Divergence of the transverse part thhs : " << endl ;
     Vector divt = thhs.divergence(mets) ; 
@@ -209,7 +213,7 @@ int main() {
     cout << "TT part tthhs : \n" ; 
     // tthhs.spectral_display() ; 
 
-    Scalar tr_tthhs = (tthhs.down(1, mets)).scontract(0,1) ;
+    Scalar tr_tthhs = tthhs.trace(mets) ;
 	cout << "Max abs(trace) of the TT part tthhs : " << endl ;
     maxabs( tr_tthhs ) ; 
     
