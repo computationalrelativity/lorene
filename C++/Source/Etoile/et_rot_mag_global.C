@@ -33,10 +33,9 @@ char et_rot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.3  2002/05/14 13:38:36  e_marcq
+ * Revision 1.4  2002/05/14 13:45:30  e_marcq
  *
- *
- * Unit update, new outputs
+ * Correction de la formule du rapport gyromagnetique
  *
  * Revision 1.1  2002/05/10 09:26:52  j_novak
  * Added new class Et_rot_mag for magnetized rotating neutron stars (under development)
@@ -166,7 +165,7 @@ double Et_rot_mag::Q_comput() const {
   }
 
 double Et_rot_mag::GyroMag() const {
-  return Q_comput()*MagMom()/(angu_mom()*omega); 
+  return 2*MagMom()*mass_b()/(Q_comput()*angu_mom()); 
   }
 			//----------------------------//
 			//	Gravitational mass    //
