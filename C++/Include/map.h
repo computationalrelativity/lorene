@@ -38,6 +38,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.27  2004/03/31 11:22:23  f_limousin
+ * Methods Map_et::poisson_interne and Map_af::poisson_interne have been
+ * implemented to solve the continuity equation for strange stars.
+ *
  * Revision 1.26  2004/03/22 13:12:41  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -1174,6 +1178,21 @@ class Map {
 	virtual void poisson_frontiere_double (const Cmp& source, const Valeur& lim_func,
 			const Valeur& lim_der, int num_zone, Cmp& pot) const = 0 ;
 	
+
+	/**
+	 * Computes the solution of a Poisson equation in the shell,
+	 * imposing a boundary condition at the surface of the star 
+	 * 
+	 * @param source [input] : source of the equation.
+	 * @param limite [input] : \c limite[num_front]  contains the angular 
+	 * function being the boudary condition.
+	 * @param par [input] : parameters of the computation.
+	 * @param pot [output] : result.
+	 */
+	virtual void poisson_interne (const Cmp& source, const Valeur& limite,
+			 Param& par, Cmp& pot) const = 0 ;
+
+
 	/** Computes the solution of a 2-D Poisson equation.
 	 *  The 2-D Poisson equation writes
 	 *  \f[
@@ -2008,6 +2027,20 @@ class Map_af : public Map_radial {
 	 */
 	virtual void poisson_frontiere_double (const Cmp& source, const Valeur& lim_func,
 			const Valeur& lim_der, int num_zone, Cmp& pot) const  ;
+
+	/**
+	 * Computes the solution of a Poisson equation in the shell,
+	 * imposing a boundary condition at the surface of the star 
+	 * 
+	 * @param source [input] : source of the equation.
+	 * @param limite [input] : \c limite[num_front]  contains the angular 
+	 * function being the boudary condition.
+	 * @param par [input] : parameters of the computation.
+	 * @param pot [output] : result.
+	 */
+	virtual void poisson_interne (const Cmp& source, const Valeur& limite,
+			 Param& par, Cmp& pot) const ;
+
 	/**
 	 * Performs the surface integration of \c ci  on the sphere of 
 	 * radius \c rayon .
@@ -2803,6 +2836,20 @@ class Map_et : public Map_radial {
 	virtual void poisson_frontiere_double (const Cmp& source, 
 			const Valeur& lim_func, const Valeur& lim_der, 
 			int num_zone, Cmp& pot) const  ;
+
+	/**
+	 * Computes the solution of a Poisson equation in the shell .
+	 * imposing a boundary condition at the surface of the star 
+	 * 
+	 * @param source [input] : source of the equation.
+	 * @param limite [input] : \c limite[num_front]  contains the angular 
+	 * function being the boudary condition.
+	 * @param par [input] : parameters of the computation.
+	 * @param pot [output] : result.
+	 */
+	virtual void poisson_interne (const Cmp& source, const Valeur& limite,
+			 Param& par, Cmp& pot) const ;
+
 
 	/** Computes the solution of a 2-D Poisson equation.
 	 *  The 2-D Poisson equation writes
