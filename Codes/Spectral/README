@@ -1,0 +1,30 @@
+
+The code cheby is intended to illustrate various Chebyshev spectral methods
+(namely Galerkin, tau and collocation) by solving a 1-D second order
+differential equation with boundary conditions:
+
+ d^2 u/dx^2 - 4 du/dx + 4 u = e^x + C,          x in [-1,1]
+
+  u(-1) = 0  and u(1) = 0
+
+  C =  - 4 e /(1+e^2)
+
+The exact solution is
+
+ u(x) = e^x - sinh(1)/sinh(2)  e^{2x} + C/4
+
+and is used to measure the accuracy of the numerical solution.
+
+The numerical solution is searched by expansion onto Chebyshev
+polynomials T_0(x), T_1(x), ..., T_N(x).
+
+The maximum order of Chebyshev polynomials, N, is set by the
+integer variable nn at the first line of cheby.C :
+
+        nn = N + 1
+
+By default nn is set to 5, so that N = 4.
+
+The code cheby produces various output ASCII files to draw
+some figures with Grace.
+
