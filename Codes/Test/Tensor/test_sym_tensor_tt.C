@@ -28,6 +28,9 @@ char test_sym_tensor_tt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/11/04 23:04:43  e_gourgoulhon
+ * First test of Sym_tensor_tt::set_rr_eta_mu.
+ *
  * Revision 1.7  2003/11/04 15:01:16  e_gourgoulhon
  * Pretty general test for eta.
  *
@@ -275,13 +278,16 @@ int main() {
 	arrete() ; 
 	
 	Sym_tensor_tt htt2(map, map.get_bvect_spher(), mets ) ; 
-	
-	htt2.set_eta_mu(htt.eta(), htt.mu()) ; 
-	for (int i=2; i<=3; i++) {
-		Scalar diff = htt2(1,i) - htt(1, i) ; 
-		cout << "Component 1, " << i << " : " << endl ; 
-		diff.spectral_display() ; 
-		cout << "  max: " << max(abs(diff)) << endl ; 
+		
+	htt2.set_rr_eta_mu(htt(1,1), htt.eta(), htt.mu()) ; 
+
+	for (int i=1; i<=3; i++) {
+		for (int j=i; j<=3; j++) {
+			Scalar diff = htt2(i,j) - htt(i, j) ; 
+			cout << "Component " << i << "," << j << " : " << endl ; 
+			diff.spectral_display() ; 
+			cout << "  max: " << max(abs(diff)) << endl ; 
+		}
 	}
 	
 	return EXIT_SUCCESS ; 
