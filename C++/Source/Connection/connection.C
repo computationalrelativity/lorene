@@ -30,6 +30,9 @@ char connection_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/12/27 14:59:05  e_gourgoulhon
+ * Method derive_cov() suppressed.
+ *
  * Revision 1.7  2003/10/16 14:21:36  j_novak
  * The calculation of the divergence of a Tensor is now possible.
  *
@@ -233,14 +236,6 @@ void Connection::operator=(const Connection& ci) {
 					//    Computational methods    //
 					//-----------------------------//
 
-
-Tensor Connection::derive_cov(const Tensor& ti) const {
-
-	cout << "Connection::derive_cov : not implemented yet !" << endl ; 
-	abort() ; 
-	return ti ;
-
-} 
 
 Tensor* Connection::p_derive_cov(const Tensor& ) const {
 
