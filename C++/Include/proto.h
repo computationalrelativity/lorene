@@ -35,6 +35,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2004/11/23 15:05:40  m_forot
+ * Added prototypes for all new functions in the case there is no
+ * symmetry in theta.
+ *
  * Revision 1.22  2004/09/28 15:59:47  f_limousin
  * Add function poisson_vect_boundary which is the same as
  * poisson_vect_frontiere but for the new classes Tensor and Scalar.
@@ -230,6 +234,7 @@ void chebyr1d(const int, double* ) ;
 void cfpcossin(const int* ,const int* ,  double* ) ;
 void cfpcossini(const int* ,const int* ,  double* ) ;
 void cftcos(const int*, const int*, double*, const int*, double*) ;
+void cftsin(const int*, const int*, double*, const int*, double*) ;
 void cftcosp(const int*, const int*, double*, const int*, double*) ;
 void cftcosi(const int*, const int*, double*, const int*, double*) ;
 void cftsinp(const int*, const int*, double*, const int*, double*) ;
@@ -238,6 +243,9 @@ void cftcossincp(const int*, const int*, double*, const int*, double*) ;
 void cftcossinsi(const int*, const int*, double*, const int*, double*) ;
 void cftcossinsp(const int*, const int*, double*, const int*, double*) ;
 void cftcossinci(const int*, const int*, double*, const int*, double*) ;
+void cftcossins(const int*, const int*, double*, const int*, double*) ;
+void cftcossinc(const int*, const int*, double*, const int*, double*) ;
+void cftleg(const int*, const int*, double*, const int*, double*) ;
 void cftlegp(const int*, const int*, double*, const int*, double*) ;
 void cftlegpp(const int*, const int*, double*, const int*, double*) ;
 void cftlegi(const int*, const int*, double*, const int*, double*) ;
@@ -249,6 +257,8 @@ void cfrchebp(const int*, const int*, double*, const int*, double*) ;
 void cfrchebi(const int*, const int*, double*, const int*, double*) ;
 void cfrchebpimp(const int*, const int*, double*, const int*, double*) ;
 void cfrchebpimi(const int*, const int*, double*, const int*, double*) ;
+void cfrchebpip(const int*, const int*, double*, const int*, double*) ;
+void cfrchebpii(const int*, const int*, double*, const int*, double*) ;
 void cipcossin(const int* , const int* , const int* , double* , double* ) ;
 void cipcossini(const int* , const int* , const int* , double* , double* ) ;
 void citcos(const int*, const int*, double*, const int*, double*) ;
@@ -260,6 +270,9 @@ void citcossincp(const int*, const int*, double*, const int*, double*) ;
 void citcossinsi(const int*, const int*, double*, const int*, double*) ;
 void citcossinsp(const int*, const int*, double*, const int*, double*) ;
 void citcossinci(const int*, const int*, double*, const int*, double*) ;
+void citcossins(const int*, const int*, double*, const int*, double*) ;
+void citcossinc(const int*, const int*, double*, const int*, double*) ;
+void citleg(const int*, const int*, double*, const int*, double*) ;
 void citlegp(const int*, const int*, double*, const int*, double*) ;
 void citlegpp(const int*, const int*, double*, const int*, double*) ;
 void citlegi(const int*, const int*, double*, const int*, double*) ;
@@ -271,22 +284,32 @@ void circhebp(const int*, const int*, double*, const int*, double*) ;
 void circhebi(const int*, const int*, double*, const int*, double*) ;
 void circhebpimp(const int*, const int*, double*, const int*, double*) ;
 void circhebpimi(const int*, const int*, double*, const int*, double*) ;
+void circhebpip(const int*, const int*, double*, const int*, double*) ;
+void circhebpii(const int*, const int*, double*, const int*, double*) ;
 double* legendre(int , int ) ;
 double* legendre_norm(int , int ) ;
 double* mat_cossincp_legp(int, int) ;   
-double* mat_cossinci_legi(int, int) ;   
+double* mat_cossinci_legi(int, int) ; 
+double* mat_cossinc_leg(int, int) ;   
+double* mat_cossins_leg(int, int) ;   
 double* mat_cosp_legpp(int, int) ;   
 double* mat_cosi_legip(int, int) ;   
 double* mat_sini_legpi(int, int) ;   
 double* mat_sinp_legii(int, int) ;   
 double* mat_legp_cossincp(int,  int) ;
 double* mat_legi_cossinci(int,  int) ;
+double* mat_leg_cossinc(int,  int) ;
+double* mat_leg_cossins(int,  int) ;
 double* mat_legpp_cosp(int, int) ;   
 double* mat_legip_cosi(int, int) ;   
 double* mat_legpi_sini(int, int) ;   
 double* mat_legii_sinp(int, int) ;   
 void chb_cossincp_legp(const int* , const double* , double* ) ;
 void chb_legp_cossincp(const int* , const double* , double* ) ;
+void chb_cossinc_leg(const int* , const double* , double* ) ;
+void chb_leg_cossinc(const int* , const double* , double* ) ;
+void chb_cossins_leg(const int* , const double* , double* ) ;
+void chb_leg_cossins(const int* , const double* , double* ) ;
 void chb_cosp_legpp(const int* , const double* , double* ) ;
 void chb_legpp_cosp(const int* , const double* , double* ) ;
 void chb_cosi_legip(const int* , const double* , double* ) ;
@@ -304,12 +327,16 @@ double int1d_chebp(int, const double* ) ;
 void cipcossin(const int* , const int* , const int* , double* , double* ) ;
 void citcosp(const int*, const int*, double*, const int*, double*) ;
 void citcosi(const int*, const int*, double*, const int*, double*) ;
+void citcos(const int*, const int*, double*, const int*, double*) ;
+void citsin(const int*, const int*, double*, const int*, double*) ;
 void citsinp(const int*, const int*, double*, const int*, double*) ;
 void citsini(const int*, const int*, double*, const int*, double*) ;
 void citcossincp(const int*, const int*, double*, const int*, double*) ;
 void citcossinsi(const int*, const int*, double*, const int*, double*) ;
 void citcossinsp(const int*, const int*, double*, const int*, double*) ;
 void citcossinci(const int*, const int*, double*, const int*, double*) ;
+void citcossins(const int*, const int*, double*, const int*, double*) ;
+void citcossinc(const int*, const int*, double*, const int*, double*) ;
 void citlegp(const int*, const int*, double*, const int*, double*) ;
 void citlegpp(const int*, const int*, double*, const int*, double*) ;
 void citlegi(const int*, const int*, double*, const int*, double*) ;
@@ -474,6 +501,10 @@ void som_r_chebpim_p
     (double*, const int, const int, const int, const double, double*) ;
 void som_r_chebpim_i
     (double*, const int, const int, const int, const double, double*) ;
+void som_r_chebpi_p
+    (double*, const int, const int, const int, const double, double*) ;
+void som_r_chebpi_i
+    (double*, const int, const int, const int, const double, double*) ;
 void som_r_cheb_symy
     (double*, const int, const int, const int, const double, double*) ;
 void som_r_chebu_symy
@@ -509,6 +540,10 @@ void som_tet_sin_i
 void som_tet_cossin_cp
     (double*, const int, const int, const double, double* ) ;
 void som_tet_cossin_ci
+    (double*, const int, const int, const double, double* ) ;
+void som_tet_cossin_c
+    (double*, const int, const int, const double, double* ) ;
+void som_tet_cossin_s
     (double*, const int, const int, const double, double* ) ;
 void som_tet_cossin_sp
     (double*, const int, const int, const double, double* ) ;
