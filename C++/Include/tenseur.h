@@ -35,6 +35,12 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2002/09/10 13:44:17  j_novak
+ * The method "manipule" of one indice has been removed for Tenseur_sym objects
+ * (the result cannot be a Tenseur_sym).
+ * The method "sans_trace" now computes the traceless part of a Tenseur (or
+ * Tenseur_sym) of valence 2.
+ *
  * Revision 1.6  2002/09/06 14:49:25  j_novak
  * Added method lie_derive for Tenseur and Tenseur_sym.
  * Corrected various errors for derive_cov and arithmetic.
@@ -1064,6 +1070,16 @@ Tenseur skxk (const Tenseur&) ;
  */
 Tenseur lie_derive (const Tenseur& t, const Tenseur& x, const Metrique* = 0x0);
 
+/**
+ *  Computes the traceless part of a {\tt Tenseur} of valence 2.
+ * 
+ * @param tens [input] the {\tt Tenseur} of valence 2
+ * @param metre [input] the metric used to raise or lower the indices
+ * 
+ * @return The traceless part of the input {\tt Tenseur}
+ */
+Tenseur sans_trace(const Tenseur& tens, const Metrique& metre) ;
+
 
 //@}
 
@@ -1274,8 +1290,6 @@ class Tenseur_sym : public Tenseur {
     // Mathematical operators
     // ----------------------
 	friend Tenseur_sym operator* (const Tenseur&, const Tenseur_sym&) ; 
-	friend Tenseur_sym manipule(const Tenseur_sym&, const Metrique&, 
-				    int idx) ;   
 	friend Tenseur_sym manipule(const Tenseur_sym&, const Metrique&) ;
 	friend Tenseur lie_derive (const Tenseur& , const Tenseur& , 
 			    const Metrique* );
@@ -1287,12 +1301,6 @@ class Tenseur_sym : public Tenseur {
 //@{
 /// Tensorial product.
 Tenseur_sym operator* (const Tenseur&, const Tenseur_sym&) ; 
-
-/**
- * Raise or lower the index {\tt idx} depending on its type, using the
- * given {\tt Metrique}.
- */
-Tenseur_sym manipule(const Tenseur_sym&, const Metrique&, int idx) ;
 
 /**
  * Raise or lower all the indices, depending on their type,  using the given
@@ -1309,6 +1317,16 @@ Tenseur_sym manipule(const Tenseur_sym&, const Metrique&) ;
  */
 Tenseur_sym lie_derive (const Tenseur_sym& t, const Tenseur& x, 
 			    const Metrique* = 0x0);
+
+/**
+ *  Computes the traceless part of a {\tt Tenseur\_sym} of valence 2.
+ * 
+ * @param tens [input] the {\tt Tenseur\_sym} of valence 2
+ * @param metre [input] the metric used to raise or lower the indices
+ * 
+ * @return The traceless part of the input {\tt Tenseur\_sym}
+ */
+Tenseur_sym sans_trace(const Tenseur_sym& tens, const Metrique& metre) ;
 
 //@}
 

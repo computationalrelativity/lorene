@@ -1,6 +1,7 @@
 /*
  *   Copyright (c) 1999-2001 Philippe Grandclement
  *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 2002 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -26,6 +27,12 @@ char tenseur_sym_operateur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/09/10 13:44:17  j_novak
+ * The method "manipule" of one indice has been removed for Tenseur_sym objects
+ * (the result cannot be a Tenseur_sym).
+ * The method "sans_trace" now computes the traceless part of a Tenseur (or
+ * Tenseur_sym) of valence 2.
+ *
  * Revision 1.3  2002/09/06 14:49:26  j_novak
  * Added method lie_derive for Tenseur and Tenseur_sym.
  * Corrected various errors for derive_cov and arithmetic.
@@ -116,70 +123,15 @@ Tenseur_sym operator*(const Tenseur& t1, const Tenseur_sym& t2) {
     return res ;
 }
 
-
-
-Tenseur_sym manipule(const Tenseur_sym& t1, const Metrique& met, int place) {
-      
-    assert (t1.etat != ETATNONDEF) ;
-    assert (met.get_etat() != ETATNONDEF) ;
-    
-    int valen = t1.valence ;
-    assert ((place >=0) && (place < valen-2)) ;
-    
-    Itbl tipe (valen) ;
-    tipe.set_etat_qcq() ;
-    tipe.set(0) = -t1.type_indice(place) ;
-    for (int i=1 ; i<place+1 ; i++)
-	tipe.set(i) = t1.type_indice(i-1) ;
-    for (int i=place+1 ; i<valen ; i++)
-	tipe.set(i) = t1.type_indice(i) ;
-    
-    Tenseur auxi(*t1.mp, valen, tipe, *(t1.get_triad()) ) ;
-    
-    if (t1.type_indice(place) == COV)
-	auxi = contract (met.con(), 1, t1, place) ;
-    else
-	auxi = contract (met.cov(), 1, t1, place) ;
-   
-    // On doit remettre les indices a la bonne place ...
-    
-    for (int i=0 ; i<valen ; i++)
-	tipe.set(i) = t1.type_indice(i) ;
-    tipe.set(place) *= -1 ;
-    
-    Tenseur_sym res(*t1.mp, valen, tipe, *(t1.get_triad()), auxi.get_metric(),
-		    auxi.get_poids()) ;
-    res.set_etat_qcq() ;
-    
-    Itbl place_auxi(valen) ;
-    place_auxi.set_etat_qcq() ;
-    
-    for (int i=0 ; i<res.n_comp ; i++) {
-	
-	Itbl place_res (res.donne_indices(i)) ;
-	
-	place_auxi.set(0) = place_res(place) ;
-	for (int j=1 ; j<place+1 ; j++)
-	    place_auxi.set(j) = place_res(j-1)  ;
-	place_res.set(place) = place_auxi(0) ;
-	for (int j=place+1 ; j<valen ; j++)
-	     place_auxi.set(j) = place_res(j);
-	
-	
-	res.set(place_res) = auxi(place_auxi) ;
-    }
-    return res ;
-}
-
 Tenseur_sym manipule (const Tenseur_sym& t1, const Metrique& met) {
     
-    Tenseur_sym* auxi ;
-    Tenseur_sym* auxi_old = new Tenseur_sym(t1) ;
+    Tenseur* auxi ;
+    Tenseur* auxi_old = new Tenseur(t1) ;
     
     for (int i=0 ; i<t1.valence ; i++) {
-	auxi = new Tenseur_sym(manipule(*auxi_old, met, i)) ;
+	auxi = new Tenseur(manipule(*auxi_old, met, i)) ;
 	delete auxi_old ;
-	auxi_old = new Tenseur_sym(*auxi) ;
+	auxi_old = new Tenseur(*auxi) ;
 	delete auxi ;
     }
     
@@ -268,5 +220,60 @@ Tenseur_sym lie_derive (const Tenseur_sym& t, const Tenseur& x,
   if ((poids != 0.)&&(t.get_etat()!=ETATZERO)&&(x.get_etat()!=ETATZERO)) 
     resu = resu + poids*contract(dx,0,1)*t ;
 
+  return resu ;
+}
+
+Tenseur_sym sans_trace(const Tenseur_sym& t, const Metrique& metre) 
+{
+  assert(t.get_etat() != ETATNONDEF) ;
+  assert(metre.get_etat() != ETATNONDEF) ;
+  assert(t.get_valence() == 2) ;
+
+  Tenseur_sym resu(t) ;
+  if (resu.get_etat() == ETATZERO) return resu ;
+  assert(resu.get_etat() == ETATQCQ) ;
+
+  int t0 = t.get_type_indice(0) ;
+  int t1 = t.get_type_indice(1) ;
+  Itbl mix(2) ;
+  mix.set_etat_qcq() ;
+  mix.set(0) = (t0 == t1 ? -t0 : t0) ;
+  mix.set(1) = t1 ;
+
+  Tenseur tmp(*t.get_mp(), 2, mix, *t.get_triad(), t.get_metric(), 
+	      t.get_poids()) ;
+  if (t0 == t1)
+    tmp = manipule(t, metre, 0) ;
+  else
+    tmp = t ;
+
+  Tenseur trace(contract(tmp, 0, 1)) ;
+
+  if (t0 == t1) {
+	switch (t0) {
+	case COV : {
+	  resu = resu - 1./3.*trace * metre.cov() ;
+	  break ;
+	}
+	case CON : {
+	  resu = resu - 1./3.*trace * metre.con() ;	
+	  break ;
+	}
+	default :
+	  cout << "Erreur bizarre dans sans_trace!" << endl ;
+	  abort() ;
+	  break ;
+	}
+  }
+  else {
+    Tenseur_sym delta(*t.get_mp(), 2, mix, *t.get_triad(), 
+		      t.get_metric(), t.get_poids()) ;
+    delta.set_etat_qcq() ;
+    for (int i=0; i<3; i++) 
+      for (int j=i; j<3; j++)
+	delta.set(i,j) = (i==j ? 1 : 0) ;
+    resu = resu - trace/3. * delta ;
+  }
+  resu.set_std_base() ;
   return resu ;
 }

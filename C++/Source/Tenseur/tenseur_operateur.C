@@ -1,6 +1,7 @@
 /*
  *   Copyright (c) 1999-2001 Philippe Grandclement
  *   Copyright (c) 2000-2001 Eric Gourgoulhon
+ *   Copyright (c) 2002 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -26,6 +27,12 @@ char tenseur_operateur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/09/10 13:44:17  j_novak
+ * The method "manipule" of one indice has been removed for Tenseur_sym objects
+ * (the result cannot be a Tenseur_sym).
+ * The method "sans_trace" now computes the traceless part of a Tenseur (or
+ * Tenseur_sym) of valence 2.
+ *
  * Revision 1.3  2002/09/06 14:49:25  j_novak
  * Added method lie_derive for Tenseur and Tenseur_sym.
  * Corrected various errors for derive_cov and arithmetic.
@@ -790,4 +797,60 @@ Tenseur lie_derive (const Tenseur& t, const Tenseur& x, const Metrique* met)
   return resu ;
 }
 
+Tenseur sans_trace(const Tenseur& t, const Metrique& metre) 
+{
+  assert(t.get_etat() != ETATNONDEF) ;
+  assert(metre.get_etat() != ETATNONDEF) ;
+  assert(t.get_valence() == 2) ;
 
+  Tenseur resu(t) ;
+  if (resu.get_etat() == ETATZERO) return resu ;
+  assert(resu.get_etat() == ETATQCQ) ;
+
+  int t0 = t.get_type_indice(0) ;
+  int t1 = t.get_type_indice(1) ;
+  Itbl mix(2) ;
+  mix.set_etat_qcq() ;
+  mix.set(0) = (t0 == t1 ? -t0 : t0) ;
+  mix.set(1) = t1 ;
+
+  Tenseur tmp(*t.get_mp(), 2, mix, *t.get_triad(), t.get_metric(), 
+	      t.get_poids()) ;
+  if (t0 == t1)
+    tmp = manipule(t, metre, 0) ;
+  else
+    tmp = t ;
+
+  Tenseur trace(contract(tmp, 0, 1)) ;
+
+  if (t0 == t1) {
+	switch (t0) {
+	case COV : {
+	  resu = resu - 1./3.*trace * metre.cov() ;
+	  break ;
+	}
+	case CON : {
+	  resu = resu - 1./3.*trace * metre.con() ;	
+	  break ;
+	}
+	default :
+	  cout << "Erreur bizarre dans sans_trace!" << endl ;
+	  abort() ;
+	  break ;
+	}
+  }
+  else {
+    Tenseur_sym delta(*t.get_mp(), 2, mix, *t.get_triad(), 
+		      t.get_metric(), t.get_poids()) ;
+    delta.set_etat_qcq() ;
+    for (int i=0; i<3; i++) 
+      for (int j=i; j<3; j++)
+	delta.set(i,j) = (i==j ? 1 : 0) ;
+    resu = resu - trace/3. * delta ;
+  }
+  resu.set_std_base() ;
+  return resu ;
+}
+    
+
+  
