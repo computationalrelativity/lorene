@@ -32,6 +32,10 @@ char metconf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/08/13 08:02:45  j_novak
+ * Handling of spherical vector/tensor components added in the classes
+ * Mg3d and Tenseur. Minor corrections for the class Metconf.
+ *
  * Revision 1.1  2002/08/09 15:41:09  j_novak
  * New class Metconf added for conformal metric handling.
  *
@@ -207,10 +211,10 @@ void Metconf::fait_delta() const {
     tipe.set_etat_qcq() ;
     tipe.set(0) = CON ; tipe.set(1) = COV ; tipe.set(2) = COV ; 
     p_delta = new Tenseur_sym (*mp, 3, tipe, mp->get_bvect_cart() ) ;
-    const Base_vect_cart* cart = dynamic_cast<const Base_vect_cart*>
-      (p_delta->get_triad()) ;
+    bool cart = cov().get_triad()->identify() == 
+      (mp->get_bvect_cart()).identify() ;
     
-    if ( (etat == ETATZERO) || (plat && (cart != 0x0)) )
+    if ( (etat == ETATZERO) || (plat && cart) )
       p_delta->set_etat_zero() ;
     else {
       p_delta->set_etat_qcq() ;

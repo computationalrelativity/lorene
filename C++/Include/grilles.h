@@ -34,6 +34,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/08/13 08:02:45  j_novak
+ * Handling of spherical vector/tensor components added in the classes
+ * Mg3d and Tenseur. Minor corrections for the class Metconf.
+ *
  * Revision 1.4  2002/06/17 14:05:16  j_novak
  * friend functions are now also declared outside the class definition
  *
@@ -121,9 +125,9 @@ class Base_val ;
  * coordinates $(r,\theta,\phi)$. However all this stuff can be used for 
  * any coordinate system if the appropriated constructors are created.
  *
- * The radial coordinate $\xi$ lies in the range $[0, 1]$ or $[-1, 1]$
+ * The radial coordinate $\xi$ lies in the range [0, 1] or [-1, 1]
  * depending upon the sampling. Its relation with the physical radial 
- * coordinate $r$ is defined by the mapping (cf. class {\tt Map}) and 
+ * coordinate {\it r} is defined by the mapping (cf. class {\tt Map}) and 
  * is described in Bonazzola, Gourgoulhon \& Marck, {\sl Phys. Rev. D}
  * {\bf 58}, 104020 (1998).
  *
@@ -132,11 +136,11 @@ class Base_val ;
 
 class Grille3d {
     protected:
-	const int nr ;	/// Number of points in $r$ ($\xi$)
+	const int nr ;	/// Number of points in {\it r} ($\xi$)
 	const int nt ;	/// Number of points in $\theta$
 	const int np ;	/// Number of points in $\phi$
 
-	int type_r ;	/// Type of sampling in $r$ ($\xi$) ({\tt RARE, FIN, UNSURR})
+	int type_r ;	/// Type of sampling in {\it r} ($\xi$) ({\tt RARE, FIN, UNSURR})
 	int type_t ;	/// Type of sampling in $\theta$ ({\tt SYM, NONSYM})
 	int type_p ;	/// Type of sampling in $\phi$ ({\tt SYM, NONSYM})
     public:
@@ -418,11 +422,11 @@ class Mg3d {
     private:
 	int nzone ;	/// Number of zones
 	
-	int* nr ;	/// Array (size: {\tt nzone}) of nb. of points in $r$ ($\xi$)
+	int* nr ;	/// Array (size: {\tt nzone}) of nb. of points in {\it r} ($\xi$)
 	int* nt ;	/// Array (size: {\tt nzone}) of nb. of points in $\theta$
 	int* np ;	/// Array (size: {\tt nzone}) of nb. of points in $\phi$
 	
-	/// Array (size: {\tt nzone}) of type of sampling in $r$ ($\xi$) ({\tt RARE, FIN, UNSURR})
+	/// Array (size: {\tt nzone}) of type of sampling in {\it r} ($\xi$) ({\tt RARE, FIN, UNSURR})
 	int* type_r ;	
 	/// Type of sampling in $\theta$ ({\tt SYM, NONSYM})
 	int type_t ;
@@ -449,8 +453,8 @@ class Mg3d {
  *
  * @param   nz	    [input] Number of domains (zones).
  * @param   nbr[]   [input] Array (size: {\tt nz}) of number of degree of
- *		    freedom (NDF) in $r$-direction
- * @param   typr[]  [input] Array (size: {\tt nz}) of type of sampling in $r$-direction
+ *		    freedom (NDF) in {\it r}-direction
+ * @param   typr[]  [input] Array (size: {\tt nz}) of type of sampling in {\it r}-direction
  * @param   nbt[]   [input] Array (size: {\tt nz}) of NDF in $\theta$-direction
  * @param   typt    [input] Type of sampling in $\theta$-direction
  * @param   nbp[]   [input] Array (size: {\tt nz}) of NDF in $\phi$-direction
@@ -472,12 +476,12 @@ class Mg3d {
  * the domains of index {\tt l = nz-1} will be the outermost compactified
  * shell:
  * $\xi\in [-1,1]$, dense sampling (type {\tt UNSURR}) near -1 and 1
- * for a $1/r$ discretization.
+ * for a {\it 1/r} discretization.
  *
  *
  * @param   nz	    [input] Number of domains (zones).
  * @param   nbr     [input] Number of degree of freedom (NDF) in
- *				$r$-direction in each domain
+ *				{\it r}-direction in each domain
  * @param   nbt     [input] Number of degree of freedom (NDF) in
  *				$\theta$-direction in each domain
  * @param   nbp     [input] Number of degree of freedom (NDF) in
@@ -492,8 +496,8 @@ class Mg3d {
  *			 in $\phi$) \\
  *			{\tt NONSYM} for a sampling in $[0,2\pi[$
  * @param  compact [input] {\tt true} for the last domain to have 
- *			a $1/r$ sampling ({\tt UNSURR}) instead of a
- *			$r$ sampling ({\tt FIN}). 
+ *			a {\it 1/r} sampling ({\tt UNSURR}) instead of a
+ *			{\it r} sampling ({\tt FIN}). 
  */
 	Mg3d(int nz, int nbr, int nbt, int nbp, int typt, int typp, 
 	     bool compact) ;
@@ -602,6 +606,11 @@ class Mg3d {
 	 *  of a vector
 	 */ 
 	Base_val** std_base_vect_cart() const ;
+
+	/** Returns the standard spectral bases for the spherical components 
+	 *  of a vector
+	 */ 
+	Base_val** std_base_vect_spher() const ;
 
 };
 ostream& operator<<(ostream& , const Mg3d & ) ;

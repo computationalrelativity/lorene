@@ -31,6 +31,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/08/13 08:02:45  j_novak
+ * Handling of spherical vector/tensor components added in the classes
+ * Mg3d and Tenseur. Minor corrections for the class Metconf.
+ *
  * Revision 1.1  2002/08/09 15:41:08  j_novak
  * New class Metconf added for conformal metric handling.
  *
@@ -49,7 +53,7 @@
  * Pseudo-metric handling.
  * 
  * This class is used to described 3-dimensionnal pseudo-metrics 
- * $\tilde{\gamma}_{ij} = \gamma^{1/3}\gamma_{ij}$, with $\gamma_{ij}$
+ * $\tilde{\gamma}_{ij} = \gamma^{-1/3}\gamma_{ij}$, with $\gamma_{ij}$
  * being a usual 3-metric. Thus the covariant representation is a tensor 
  * density of weight -2/3 and the contravariant a 2/3 one.
  * It is a child class of {\tt Metrique} and

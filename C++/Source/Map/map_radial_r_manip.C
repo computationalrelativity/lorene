@@ -32,8 +32,12 @@ char map_radial_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/08/13 08:02:45  j_novak
+ * Handling of spherical vector/tensor components added in the classes
+ * Mg3d and Tenseur. Minor corrections for the class Metconf.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.17  2001/10/29  15:34:35  novak
  * Ajout de Map_radial::div_r
@@ -474,10 +478,13 @@ void Map_radial::dec_dzpuis(Cmp& ci) const {
     // Verifications d'usage :
     assert(ci.get_etat() != ETATNONDEF) ;
     
-    // Nothing to do if the Cmp is null :
-    if (ci.get_etat() == ETATZERO) {
-	ci.set_dzpuis( ci.get_dzpuis() - 1 ) ; 
-	return ; 
+    int nz = mg->get_nzone() ;
+    int nzm1 = nz-1 ;
+
+    // Nothing to do if the Cmp is null or if there is no ZEC:
+    if ((ci.get_etat() == ETATZERO) || (mg->get_type_r(nzm1) != UNSURR)) {
+      ci.set_dzpuis( ci.get_dzpuis() - 1 ) ; 
+      return ; 
     }
 
     assert(ci.get_etat() == ETATQCQ) ;
@@ -488,9 +495,6 @@ void Map_radial::dec_dzpuis(Cmp& ci) const {
     
     // Decomposition inner domains / external domain : 
     // ----------------------------------------------
-    int nz = mg->get_nzone() ;
-    int nzm1 = nz-1 ;
-
     Valeur uu_ext = uu ; 
     uu_ext.annule(0, nzm1-1) ; 
 
@@ -522,10 +526,13 @@ void Map_radial::inc_dzpuis(Cmp& ci) const {
     // Verifications d'usage :
     assert(ci.get_etat() != ETATNONDEF) ;
     
-    // Nothing to do if the Cmp is null :
-    if (ci.get_etat() == ETATZERO) {
-	ci.set_dzpuis( ci.get_dzpuis() + 1 ) ; 
-	return ; 
+    int nz = mg->get_nzone() ;
+    int nzm1 = nz-1 ;
+
+    // Nothing to do if the Cmp is null or if there is no ZEC:
+    if ((ci.get_etat() == ETATZERO) || (mg->get_type_r(nzm1) != UNSURR)) {
+      ci.set_dzpuis( ci.get_dzpuis() - 1 ) ; 
+      return ; 
     }
 
     assert(ci.get_etat() == ETATQCQ) ;
@@ -536,8 +543,6 @@ void Map_radial::inc_dzpuis(Cmp& ci) const {
     
     // Decomposition inner domains / external domain : 
     // ----------------------------------------------
-    int nz = mg->get_nzone() ;
-    int nzm1 = nz-1 ;
     Valeur uu_ext = uu ; 
     uu_ext.annule(0, nzm1-1) ;
      
@@ -570,10 +575,13 @@ void Map_radial::dec2_dzpuis(Cmp& ci) const {
     // Verifications d'usage :
     assert(ci.get_etat() != ETATNONDEF) ;
     
-    // Nothing to do if the Cmp is null :
-    if (ci.get_etat() == ETATZERO) {
-	ci.set_dzpuis( ci.get_dzpuis() - 2 ) ; 
-	return ; 
+    int nz = mg->get_nzone() ;
+    int nzm1 = nz-1 ;
+
+    // Nothing to do if the Cmp is null or if there is no ZEC:
+    if ((ci.get_etat() == ETATZERO) || (mg->get_type_r(nzm1) != UNSURR)) {
+      ci.set_dzpuis( ci.get_dzpuis() - 1 ) ; 
+      return ; 
     }
 
     assert(ci.get_etat() == ETATQCQ) ;
@@ -584,9 +592,6 @@ void Map_radial::dec2_dzpuis(Cmp& ci) const {
     
     // Decomposition inner domains / external domain : 
     // ----------------------------------------------
-    int nz = mg->get_nzone() ;
-    int nzm1 = nz-1 ;
-
     Valeur uu_ext = uu ; 
     uu_ext.annule(0, nzm1-1) ; 
 
@@ -618,10 +623,13 @@ void Map_radial::inc2_dzpuis(Cmp& ci) const {
     // Verifications d'usage :
     assert(ci.get_etat() != ETATNONDEF) ;
     
-    // Nothing to do if the Cmp is null :
-    if (ci.get_etat() == ETATZERO) {
-	ci.set_dzpuis( ci.get_dzpuis() + 2 ) ; 
-	return ; 
+    int nz = mg->get_nzone() ;
+    int nzm1 = nz-1 ;
+
+    // Nothing to do if the Cmp is null or if there is no ZEC:
+    if ((ci.get_etat() == ETATZERO) || (mg->get_type_r(nzm1) != UNSURR)) {
+      ci.set_dzpuis( ci.get_dzpuis() - 1 ) ; 
+      return ; 
     }
 
     assert(ci.get_etat() == ETATQCQ) ;
@@ -632,8 +640,6 @@ void Map_radial::inc2_dzpuis(Cmp& ci) const {
     
     // Decomposition inner domains / external domain : 
     // ----------------------------------------------
-    int nz = mg->get_nzone() ;
-    int nzm1 = nz-1 ;
     Valeur uu_ext = uu ; 
     uu_ext.annule(0, nzm1-1) ;
      

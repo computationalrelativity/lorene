@@ -8,6 +8,7 @@
 /*
  *   Copyright (c) 1999-2001 Philippe Grandclement
  *   Copyright (c) 2000-2001 Eric Gourgoulhon
+ *   Copyright (c) 2002 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -33,6 +34,10 @@ char tenseur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2002/08/13 08:02:45  j_novak
+ * Handling of spherical vector/tensor components added in the classes
+ * Mg3d and Tenseur. Minor corrections for the class Metconf.
+ *
  * Revision 1.7  2002/08/08 15:10:45  j_novak
  * The flag "plat" has been added to the class Metrique to show flat metrics.
  *
@@ -1106,8 +1111,7 @@ void Tenseur::set_std_base() {
 	    
 	case 1 : {
 
-	    // The components must be Cartesian ones:
-	    assert( triad->identify() == (mp->get_bvect_cart()).identify() ) ;  
+	  if ( triad->identify() == (mp->get_bvect_cart()).identify() ) {
 
 	    Base_val** bases = mp->get_mg()->std_base_vect_cart() ;
 
@@ -1116,13 +1120,24 @@ void Tenseur::set_std_base() {
 	    for (int i=0 ; i<3 ; i++)
 		delete bases[i] ;
 	    delete [] bases ;
-	    break ;
+	  }
+	  else {
+	    assert( triad->identify() == (mp->get_bvect_spher()).identify()) ;
+	    Base_val** bases = mp->get_mg()->std_base_vect_spher() ;
+
+	    for (int i=0 ; i<3 ; i++)
+		(c[i]->va).set_base( *bases[i] ) ;
+	    for (int i=0 ; i<3 ; i++)
+		delete bases[i] ;
+	    delete [] bases ;
+	  }
+	  break ;
+	    
 	}
 	    
 	case 2 : {
 
-	    // The components must be Cartesian ones:
-	    assert( triad->identify() == (mp->get_bvect_cart()).identify() ) ;  
+	  if( triad->identify() == (mp->get_bvect_cart()).identify() ) {
 
 	    Base_val** bases = mp->get_mg()->std_base_vect_cart() ;
 	    
@@ -1136,7 +1151,23 @@ void Tenseur::set_std_base() {
 	    for (int i=0 ; i<3 ; i++)
 		delete bases[i] ;
 	    delete [] bases ;
-	    break ;
+	  }
+	  else {
+	    assert( triad->identify() == (mp->get_bvect_spher()).identify()) ;
+	    Base_val** bases = mp->get_mg()->std_base_vect_spher() ;
+	    
+	    Itbl indices (2) ;
+	    indices.set_etat_qcq() ;
+	    for (int i=0 ; i<n_comp ; i++) {   
+		indices = donne_indices(i) ;
+		(c[i]->va).set_base( (*bases[indices(0)]) * 
+				     (*bases[indices(1)]) ) ;
+	    }
+	    for (int i=0 ; i<3 ; i++)
+		delete bases[i] ;
+	    delete [] bases ;
+	  }
+	  break ;
 	}
 	   
 	    default : {
@@ -1327,27 +1358,27 @@ void Tenseur::fait_derive_cov (const Metrique& metre) const {
     
   assert (etat != ETATNONDEF) ;
   assert (valence != 0) ;
-    
+  
   if (p_derive_cov != 0x0)
     return ;
   else {
+    
     p_derive_cov = new Tenseur (gradient()) ;
     
     if ((valence != 0) && (etat != ETATZERO)) {
-	
+      
       assert( metre.gamma().get_triad() == triad ) ; 
-	
       Tenseur* auxi ;
       for (int i=0 ; i<valence ; i++) {
 	
 	if (type_indice(i) == COV) {
 	  auxi = new Tenseur(contract(metre.gamma(), 0,(*this), i)) ;
-
+	  
 	  Itbl indices_gamma(p_derive_cov->valence) ;
 	  indices_gamma.set_etat_qcq() ;
 	  //On range comme il faut :
 	  for (int j=0 ; j<p_derive_cov->n_comp ; j++) {
-		    
+	    
 	    Itbl indices (p_derive_cov->donne_indices(j)) ;
 	    indices_gamma.set(0) = indices(0) ;
 	    indices_gamma.set(1) = indices(i+1) ;
@@ -1356,19 +1387,19 @@ void Tenseur::fait_derive_cov (const Metrique& metre) const {
 		indices_gamma.set(idx) = indices(idx-1) ;
 	      else
 		indices_gamma.set(idx) = indices(idx) ;
-		    
-	    p_derive_cov->set(indices) -= (*auxi)(indices_gamma) ;
+	    
+	      p_derive_cov->set(indices) -= (*auxi)(indices_gamma) ;
 	  }
 	}   
 	else {
 	  auxi = new Tenseur(contract(metre.gamma(), 1, (*this), i)) ;
-
+	  
 	  Itbl indices_gamma(p_derive_cov->valence) ;
 	  indices_gamma.set_etat_qcq() ;
-		
+	  
 	  //On range comme il faut :
 	  for (int j=0 ; j<p_derive_cov->n_comp ; j++) {
-		    
+	    
 	    Itbl indices (p_derive_cov->donne_indices(j)) ;
 	    indices.set_etat_qcq() ;
 	    indices_gamma.set(0) = indices(0) ;

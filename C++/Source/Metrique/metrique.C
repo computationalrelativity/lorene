@@ -7,6 +7,7 @@
 
 /*
  *   Copyright (c) 1999-2001 Philippe Grandclement
+ *   Copyright (c) 2002 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -32,6 +33,10 @@ char metrique_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2002/08/13 08:02:45  j_novak
+ * Handling of spherical vector/tensor components added in the classes
+ * Mg3d and Tenseur. Minor corrections for the class Metconf.
+ *
  * Revision 1.5  2002/08/08 15:10:45  j_novak
  * The flag "plat" has been added to the class Metrique to show flat metrics.
  *
@@ -498,37 +503,37 @@ void Metrique::fait_cov() const {
 // Le calcul des Christoffel, cas general :
 void Metrique::fait_gamma() const {
     
-    assert (etat != ETATNONDEF) ;
-    if (p_gamma != 0x0)
-	return ;
+  assert (etat != ETATNONDEF) ;
+  if (p_gamma != 0x0)
+    return ;
 	
-    else    // Calcul a faire :
+  else    // Calcul a faire :
     {
-	Itbl tipe (3) ;
-	tipe.set_etat_qcq() ;
-	tipe.set(0) = CON ; tipe.set(1) = COV ; tipe.set(2) = COV ; 
-	p_gamma = new Tenseur_sym (*mp, 3, tipe, mp->get_bvect_cart() ) ;
-	const Base_vect_cart* cart = dynamic_cast<const Base_vect_cart*>
-	  (p_gamma->triad) ;
-	
-	if ( (etat == ETATZERO) || (plat && (cart != 0x0)) )
-	    p_gamma->set_etat_zero() ;
-	else {
-	    p_gamma->set_etat_qcq() ;
-	   
-	    Tenseur t1 (contract(con(), 1, cov().gradient(), 2)) ;
-	    Tenseur t2 (contract(con(), 1, cov().gradient(), 0)) ;
+      Itbl tipe (3) ;
+      tipe.set_etat_qcq() ;
+      tipe.set(0) = CON ; tipe.set(1) = COV ; tipe.set(2) = COV ; 
+      p_gamma = new Tenseur_sym (*mp, 3, tipe, mp->get_bvect_cart() ) ;
+      bool cart = cov().get_triad()->identify() ==
+	(mp->get_bvect_cart()).identify() ;
 
-	    Cmp auxi(mp) ;
+      if ( (etat == ETATZERO) || (plat && cart) )
+	p_gamma->set_etat_zero() ;
+      else {
+	p_gamma->set_etat_qcq() ;
+	   
+	Tenseur t1 (contract(con(), 1, cov().gradient(), 2)) ;
+	Tenseur t2 (contract(con(), 1, cov().gradient(), 0)) ;
+
+	Cmp auxi(mp) ;
 	    
-	    // Boucle sur les composantes :
-	    for (int i=0 ; i<3 ; i++)
-		for (int j=0 ; j<3 ; j++)
-		    for (int k=j ; k<3 ; k++) {
-			auxi = 0.5*(t1(i, j, k)+t1(i, k, j)-t2(i, j, k)) ;
-			p_gamma->set(i, j, k) = auxi ;
-			}
-	   }
+	// Boucle sur les composantes :
+	for (int i=0 ; i<3 ; i++)
+	  for (int j=0 ; j<3 ; j++)
+	    for (int k=j ; k<3 ; k++) {
+	      auxi = 0.5*(t1(i, j, k)+t1(i, k, j)-t2(i, j, k)) ;
+	      p_gamma->set(i, j, k) = auxi ;
+	    }
+      }
     }
 }
 
