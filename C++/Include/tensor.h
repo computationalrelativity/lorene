@@ -36,6 +36,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.34  2003/12/27 14:58:01  e_gourgoulhon
+ * Improved documentation. In particular, better description of methods
+ * derive_cov(), derive_con() and divergence(), taking into account the
+ * new index convention for covariant derivatives.
+ *
  * Revision 1.33  2003/12/05 16:41:05  f_limousin
  * Added method operator*
  *
@@ -177,7 +182,7 @@ class Metric ;
  *  latter via the derived class {\tt Scalar}).
  * 
  * The {\tt Tensor} class is intended to store the components of a tensorial 
- * field in a specific basis (triad).  
+ * field with respect to a specific basis (triad).  
  * 
  * All this is {\it 3D} meaning that the indices go from 1 to 3. 
  * 
@@ -190,10 +195,12 @@ class Tensor {
     // -----
     protected:
 	
-	const Map* const mp ;	/// Reference mapping
+        /// Mapping on which the numerical values at the grid points are defined
+	const Map* const mp ;	
 
-	int valence ;		/// Valence
-	
+    /// Valence of the tensor (0 = scalar, 1 = vector, etc...)
+	int valence ;	
+        	
 	/** Vectorial basis (triad) with respect to which the tensor
 	 *  components are defined. 
 	 */
@@ -216,26 +223,34 @@ class Tensor {
     // ------------
      protected:
 	/**
-	 * Array on the {\tt Metric} which were used to compute derived
+	 * Array on the {\tt Metric}'s which were used to compute derived
 	 * quantities, like {\tt p\_derive\_cov}, etc... 
 	 * The i-th element of this array is the {\tt Metric} used to
 	 * compute the i-th element of {\tt p\_derive\_cov}, etc..
 	 */
 	mutable const Metric* met_depend[N_MET_MAX] ; 
 
-	/**Array of pointers on the covariant derivatives of {\tt this}
-	 * (see the comments of {\tt met\_depend}).
+	/** Array of pointers on the covariant derivatives of {\tt this}
+         * with respect to various metrics.
+	 * See the comments of {\tt met\_depend}. See also the comments
+         * of method {\tt derive\_cov()} for the index convention of the
+         * covariant derivation.  
 	 */
 	mutable Tensor* p_derive_cov[N_MET_MAX];
 	
-	/**Array of pointers on the contravariant derivatives of {\tt this}
-	 * (see the comments of {\tt met\_depend}).
-	 */
+	/** Array of pointers on the contravariant derivatives of {\tt this}
+         * with respect to various metrics.
+	 * See the comments of {\tt met\_depend}. See also the comments
+         * of method {\tt derive\_con()} for a precise definition of a
+         * "contravariant" derivative.
+ 	 */
 	mutable Tensor* p_derive_con[N_MET_MAX];
 
-	/**Array of pointers on the divergence of {\tt this}
-	 * (see the comments of {\tt met\_depend}). It is assumed that the first 
-	 * index of {\tt this} is contravariant.
+	/** Array of pointers on the divergence of {\tt this}
+         * with respect to various metrics.
+	 * See the comments of {\tt met\_depend}. See also the comments
+         * of method {\tt divergence()} for a precise definition of a
+         * the divergence with respect to a given metric.
 	 */
 	mutable Tensor* p_divergence[N_MET_MAX];
 
@@ -525,19 +540,55 @@ class Tensor {
 	/// Multiplication by {\it r} in the external domain.
 	virtual void mult_r_ced() ; 
 
-	///The covariant derivative of {\tt this} with respect to a {\tt Metric}
-	const Tensor& derive_cov(const Metric&) const ; 
+	/** Returns the covariant derivative of {\tt this} with respect to some 
+         * metric $\gamma$.
+         * $T$ denoting the tensor represented by {\tt this} and
+         * $\nabla T$ its covariant derivative with respect to 
+         * the metric $\gamma$, 
+         * the extra index (with respect to the indices of $T$)
+         * of $\nabla T$ is chosen to be the {\bf last} one.
+         * This convention agrees with that of MTW (see Eq. (10.17) of MTW).
+         * For instance, if $T$ is a 1-form, whose components
+         * w.r.t. the triad $e^i$ are $T_i$: $T=T_i \; e^i$,
+         * then the covariant derivative of $T$ is the bilinear form
+         * $\nabla T$ whose components $\nabla_j T_i$ are
+         * such that 
+         * \begin{equation}
+         *  \nabla T = \nabla_j T_i \; e^i \otimes e^j
+         * \end{equation}
+         *
+         * @param gam metric $\gamma$
+         * @return covariant derivative $\nabla T$ of {\tt this} with 
+         *  respect to the connection $\nabla$ associated with the
+         *  metric $\gamma$ 
+	 */
+	const Tensor& derive_cov(const Metric& gam) const ; 
 
-	/**The contravariant derivative of {\tt this} with respect 
-	 * to a {\tt Metric}. It uses the covariant derivative and then
-	 * raises the first index.
+	/** Returns the "contravariant" derivative of {\tt this} with respect 
+	 * to some metric $\gamma$, by raising the last index of the
+         * covariant derivative (cf. method {\tt derive\_cov()}) with 
+         * $\gamma$.
 	 */
 	const Tensor& derive_con(const Metric&) const ; 
 
-	/**The divergence of {\tt this} with respect to a {\tt Metric}.
-	 * The first index of {\tt this} is assumed to be contravariant.
+	/** Computes the divergence of a {\tt this} with respect to 
+         * some metric $\gamma$. 
+         * The divergence is taken with respect of the last index of {\tt this}
+         * which thus must be contravariant.
+         * For instance if the tensor $T$ represented by {\tt this}
+         * is a twice contravariant tensor, whose 
+         * components w.r.t. the
+         * triad $e_i$ are $T^{ij}$: $T = T^{ij} \; e_i \otimes e_j$,
+         * the divergence of $T$ w.r.t. $\gamma$ is the vector 
+         * \begin{equation}
+         *   {\rm div}\,  T = \nabla_k T^{ik} \; e_i
+         * \end{equation}
+         * where $\nabla$ denotes the connection associated with the metric
+         * $\gamma$. 
+         * @param gam metric $\gamma$
+         * @return divergence of {\tt this} with respect to $\gamma$. 
 	 */
-	const Tensor& divergence(const Metric&) const ; 
+	const Tensor& divergence(const Metric& gam) const ; 
 
 	/** Index contraction on two indices of different type (contravariant
  	 *  or covariant) of the tensor. 
