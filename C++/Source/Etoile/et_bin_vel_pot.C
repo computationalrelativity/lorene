@@ -33,6 +33,10 @@ char et_bin_vel_pot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/24 11:43:57  e_gourgoulhon
+ * beta is now computed as ln(AN) in the case beta_auto
+ * is undefined (for instance, if the companion is black hole).
+ *
  * Revision 1.4  2003/01/17 13:38:56  f_limousin
  * Add comments
  *
@@ -145,7 +149,14 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
     Tenseur zeta_h( ent() / dndh_log ) ;
     zeta_h.set_std_base() ;
 
-    Tenseur beta = beta_auto + beta_comp ; 
+	Tenseur beta(mp) ; 
+
+	if (beta_auto.get_etat() == ETATNONDEF) {
+		beta = log( sqrt(a_car) * nnn ) ; 
+	}
+	else {
+		beta = beta_auto + beta_comp ; 
+	}
 
     Tenseur tmp_zeta = 1 - unsurc2 * zeta_h ;
     tmp_zeta.set_std_base() ;
