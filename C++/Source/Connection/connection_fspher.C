@@ -30,6 +30,9 @@ char connection_fspher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2003/11/03 11:14:18  j_novak
+ * Treatment of the case dzpuis = 4.
+ *
  * Revision 1.11  2003/11/03 10:58:30  j_novak
  * Treatment of the general case for divergence.
  *
@@ -601,9 +604,6 @@ Tensor* Connection_fspher::p_divergence(const Tensor& uu) const {
   // --------------------------------------------
   Tensor* resu ;
 
-  // Booleans to know the dynamical type (better than typeid...)
-  //------------------------------------------------------------
-  //##  bool bvec = false ;
   //##  int sym_flag = 1 ;
 
   // If u is a Vector, the result is a Scalar
@@ -776,7 +776,7 @@ Tensor* Connection_fspher::p_divergence(const Tensor& uu) const {
     //----------------------------------------------
     tmp2.div_tant() ;
     tmp1 += tmp2 ;
-    tmp1.div_r_inc2() ;
+    (tmp1.get_dzpuis() == 4) ? tmp1.div_r() : tmp1.div_r_inc2() ;
 
     cresu += tmp1 ; // the d/dr term...
 
