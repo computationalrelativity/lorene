@@ -33,6 +33,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/09/30 08:38:23  j_novak
+ * added a header typeinfo
+ *
  * Revision 1.5  2003/09/29 12:52:57  j_novak
  * Methods for changing the triad are implemented.
  *
@@ -57,6 +60,8 @@ char tensor_C[] = "$Header$" ;
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
+
+#include<typeinfo>
 
 // Headers Lorene
 #include "tensor.h"
