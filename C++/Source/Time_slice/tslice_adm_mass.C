@@ -31,6 +31,10 @@ char tslice_adm_mass_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/05/10 09:11:20  e_gourgoulhon
+ * Corrected bug in Time_slice::adm_mass().
+ * Reorganized outputs.
+ *
  * Revision 1.1  2004/05/09 20:56:29  e_gourgoulhon
  * First version.
  *
@@ -56,12 +60,12 @@ double Time_slice::adm_mass() const {
     if ( !(adm_mass_evol).is_known(jtime) ) {  // a new computation is necessary
     
         const Map& mp = gam_dd().get_mp() ;
-        const Metric_flat& ff = mp.flat_met_spher() ; 
+        Metric_flat ff(mp, *(gam_dd().get_triad())) ;
         int nz = mp.get_mg()->get_nzone() ; 
         Tbl* tmass = new Tbl(nz) ; 
         tmass->set_etat_qcq() ; 
     
-        Vector ww = gam_dd().derive_con(ff).trace(1,2).up(0,ff) ; 
+        Vector ww = gam_dd().derive_con(ff).trace(1,2).up(0,ff) 
                     - gam_dd().trace(ff).derive_con(ff) ; 
 
         for (int l=0; l<nz; l++) {
@@ -72,10 +76,11 @@ double Time_slice::adm_mass() const {
         adm_mass_evol.update(*tmass, jtime, the_time[jtime]) ; 
         
         delete tmass ;  
+        
+        cout << "Time_slice::adm_mass : " << adm_mass_evol[jtime] << endl ; 
     }
   
     const Tbl& tadm = adm_mass_evol[jtime] ; 
-    cout << "Time_slice::adm_mass : " << tadm << endl ; 
     return tadm(tadm.get_taille()-1) ; 
 }
 
@@ -86,13 +91,13 @@ double Time_slice::adm_mass() const {
 
 double Time_slice_conf::adm_mass() const {
 
-    //## For a test only 
-    Time_slice::adm_mass() ; 
-    Tbl tadm_tslice = adm_mass_evol[jtime] ; 
-    adm_mass_evol.downdate(jtime) ; 
-
     if ( !(adm_mass_evol).is_known(jtime) ) {  // a new computation is necessary
     
+        //## For a test only 
+        Time_slice::adm_mass() ; 
+        Tbl tadm_tslice = adm_mass_evol[jtime] ; 
+        adm_mass_evol.downdate(jtime) ; 
+
         const Map& mp = psi().get_mp() ;
         int nz = mp.get_mg()->get_nzone() ; 
         Tbl* tmass = new Tbl(nz) ; 
@@ -106,16 +111,19 @@ double Time_slice_conf::adm_mass() const {
             tmass->set(l) = - ww.flux(radius, ff) / (2.* M_PI) ; 
         }
         
+        //## Test:
+        cout << "Time_slice_conf::adm_mass : test of the ADM mass computation: " << endl ; 
+        cout << *tmass - tadm_tslice << endl ; 
+
         adm_mass_evol.update(*tmass, jtime, the_time[jtime]) ; 
         
         delete tmass ;  
+    
+        cout << "Time_slice_conf::adm_mass : " << adm_mass_evol[jtime] << endl ; 
+    
     }
   
     const Tbl& tadm = adm_mass_evol[jtime] ; 
-    cout << "Time_slice_conf::adm_mass : " << tadm << endl ; 
-    cout << "Time_slice_conf::adm_mass : test of the ADM mass computation: " << endl ; 
-    cout << tadm - tadm_tslice << endl ; 
-    
     return tadm(tadm.get_taille()-1) ; 
 }
 
@@ -126,35 +134,41 @@ double Time_slice_conf::adm_mass() const {
 
 double Tslice_dirac_max::adm_mass() const {
 
-    //## For a test only 
-    Time_slice_conf::adm_mass() ; 
-    Tbl tadm_tslice_conf = adm_mass_evol[jtime] ; 
-    adm_mass_evol.downdate(jtime) ; 
-
     if ( !(adm_mass_evol).is_known(jtime) ) {  // a new computation is necessary
     
+        //## For a test only 
+        Time_slice_conf::adm_mass() ; 
+        Tbl tadm_tslice_conf = adm_mass_evol[jtime] ; 
+        adm_mass_evol.downdate(jtime) ; 
+
         const Map& mp = psi().get_mp() ;
         int nz = mp.get_mg()->get_nzone() ; 
         Tbl* tmass = new Tbl(nz) ; 
         tmass->set_etat_qcq() ; 
     
-        Vector ww = psi().derive_con(ff) - 0.125* trh().derive_con(ff)   ; 
+        Vector ww = psi().derive_con(ff) 
+                    - 0.125* (hh().trace(ff)).derive_con(ff) ;
+                    // trh() is not used since it has dzpuis = 4 
 
         for (int l=0; l<nz; l++) {
             double radius = mp.val_r(l, 1., 0., 0.) ;
             tmass->set(l) = - ww.flux(radius, ff) / (2.* M_PI) ; 
         }
         
+        //## Test:
+        cout << "Tslice_dirac_max::adm_mass: test of the ADM mass computation: " << endl ; 
+        cout << *tmass - tadm_tslice_conf << endl ; 
+        
         adm_mass_evol.update(*tmass, jtime, the_time[jtime]) ; 
         
         delete tmass ;  
+
+        cout << "Tslice_dirac_max::adm_mass : " << adm_mass_evol[jtime] 
+             << endl ; 
+
     }
   
     const Tbl& tadm = adm_mass_evol[jtime] ; 
-    cout << "Tslice_dirac_max::adm_mass : " << tadm << endl ; 
-    cout << "Tslice_dirac_max::adm_mass: test of the ADM mass computation: " << endl ; 
-    cout << tadm - tadm_tslice_conf << endl ; 
-    
     return tadm(tadm.get_taille()-1) ; 
 }
 
