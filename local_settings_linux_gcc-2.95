@@ -1,0 +1,78 @@
+###############################################################
+#
+#  Edit the following lines according to your implementation.
+#
+#  The environment variable HOME_LORENE (root directory for the
+#   Lorene implementation) must be have been already defined.
+#
+###############################################################
+
+#===============================#
+#           MAKEDEPEND	        #
+#===============================#
+
+# Path for makedepend commands:
+# WARNING: this path may be very system (and version)-dependent
+INCDEP	= -I/usr/include/c++/3.2 -I/usr/include/c++/3.2/i386-redhat-linux
+
+#===============================#
+#           COMPILERS		#
+#===============================#
+
+# C++ compiler:
+# ------------
+CXX 	 = g++
+
+# Options for the C++ compiler to produce the optimized library:
+# -------------------------------------------------------------
+CXXFLAGS = -Wall -Wconversion -Woverloaded-virtual -O2 -DNDEBUG
+
+# Options for the C++ compiler to produce the library for debugging:
+# -----------------------------------------------------------------
+CXXFLAGS_G = -Wall -Wconversion -Woverloaded-virtual -g 
+
+# Path for the include files:
+# --------------------------
+INC	= -I$(HOME_LORENE)/C++/Include \
+          -I$(HOME_LORENE)/C++/Include_extra \
+	  -I/usr/local/include
+
+# Converting archives to random libraries (if required, otherwise just ls)
+# ------------------------------------------------------------------------
+RANLIB = ls
+
+# Fortran 77 compiler:
+# -------------------
+F77 	 = g77
+
+# Options for the Fortran 77 compiler to produce the optimized library:
+# ---------------------------------------------------------------------
+F77FLAGS = -Wall -O2 
+
+# Options for the Fortran 77 compiler to produce the library for debugging:
+# ------------------------------------------------------------------------
+F77FLAGS_G = -Wall -g
+
+
+#===============================#
+#      SYSTEM LIBRARIES		#
+#===============================#
+
+# C, C++ libarary, mathematical library and Fortran library
+# ---------------------------------------------------------
+LIB_CXX = -lg2c -lstdc++ -lm
+
+# Linear Algebra Package (LAPACK) library
+# ---------------------------------------
+LIB_LAPACK = -llapack -lblas
+
+# Graphical libraries: PGPLOT and X11
+# -----------------------------------
+LIB_PGPLOT = -L/usr/X11R6/lib -lcpgplot -lpgplot -lX11
+
+# GNU scientific library
+# -----------------------------------
+LIB_GSL = -lgsl -lgslcblas
+
+
+
