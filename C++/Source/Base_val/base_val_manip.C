@@ -25,6 +25,9 @@ char base_val_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/01/27 14:13:59  j_novak
+ * Added method Base_val::mult_x()
+ *
  * Revision 1.3  2003/09/16 08:54:09  j_novak
  * Addition of the T_LEG_II base (odd in theta, only for odd m) and the
  * transformation functions to and from the T_SIN_P base.
@@ -61,6 +64,48 @@ char base_val_manip_C[] = "$Header$" ;
 #include "base_val.h"
 
 void Base_val::dsdx() {
+    
+  switch(get_base_r(0)) {
+  case R_CHEBP: 
+    set_base_r(0, R_CHEBI) ;
+    break ;
+  case R_CHEBI: 
+    set_base_r(0, R_CHEBP) ;
+    break ;
+  case R_CHEBPIM_P: 
+    set_base_r(0, R_CHEBPIM_I) ;
+    break ;
+  case R_CHEBPIM_I: 
+   set_base_r(0, R_CHEBPIM_P) ;
+    break ;
+  default: 
+    break ;
+  }  
+  return ;
+}
+
+void Base_val::sx() {
+    
+  switch(get_base_r(0)) {
+  case R_CHEBP: 
+    set_base_r(0, R_CHEBI) ;
+    break ;
+  case R_CHEBI: 
+    set_base_r(0, R_CHEBP) ;
+    break ;
+  case R_CHEBPIM_P: 
+    set_base_r(0, R_CHEBPIM_I) ;
+    break ;
+  case R_CHEBPIM_I: 
+   set_base_r(0, R_CHEBPIM_P) ;
+    break ;
+  default: 
+    break ;
+  }  
+  return ;
+}
+
+void Base_val::mult_x() {
     
   switch(get_base_r(0)) {
   case R_CHEBP: 

@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/01/27 14:13:58  j_novak
+ * Added method Base_val::mult_x()
+ *
  * Revision 1.7  2003/10/20 06:41:43  e_gourgoulhon
  * Corrected documentation.
  *
@@ -438,7 +441,13 @@ class Base_val {
 	 * The basis is transformed as with a $\frac{1}{\xi}$
 	 * multiplication.
 	 */
-	void sx() { this->dsdx(); };
+	void sx() ;
+
+	/**
+	 * The basis is transformed as with a
+	 * multiplication by $\xi$.
+	 */
+	void mult_x() ;
 
 	/**
 	 * The basis is transformed as with a 
