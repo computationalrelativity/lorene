@@ -25,6 +25,9 @@ char et_bfrot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/09/03 13:55:07  j_novak
+ * Use of enerps_euler instead of ener_euler in the calculation of mom_angu()
+ *
  * Revision 1.13  2004/03/25 10:29:03  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -383,7 +386,7 @@ double Et_rot_bifluid::mom_quad() const {
     if (relativistic) {
       Tenseur beta = log(bbb) ; 
       beta.set_std_base() ; 
-      source =  qpig * a_car *( ener_euler + s_euler ) 
+      source =  qpig * a_car * enerps_euler 
 	+ ak_car - flat_scalar_prod(logn.gradient_spher(), 
 				    logn.gradient_spher() + beta.gradient_spher()) ; 
     }
