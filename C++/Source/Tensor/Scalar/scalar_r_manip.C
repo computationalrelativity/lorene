@@ -35,6 +35,9 @@ char scalar_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/08 12:26:03  j_novak
+ * Second part of the bug (sorry!)
+ *
  * Revision 1.3  2003/10/08 12:19:12  j_novak
  * Bug corrected, thanks to purify
  *
@@ -89,7 +92,7 @@ void Scalar::div_r_ced() {
 	// Copy of the CED part of *this into uu_ext and multiplication by r
 	Scalar uu_ext(*mp) ; 
 	uu_ext.allocate_all() ;
-	uu_ext.annule(0,nzm1-2) ; // zero in all domains but the CED
+	uu_ext.annule(0,nzm1-1) ; // zero in all domains but the CED
 	uu_ext.set_domain(nzm1) = domain(nzm1) ; 
 	uu_ext.set_spectral_base(va.base) ; 
 	uu_ext.mult_r_zec() ; // multiplication by r in the CED
