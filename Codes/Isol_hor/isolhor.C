@@ -29,6 +29,10 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.24  2005/04/02 15:52:05  f_limousin
+ * New data member nz. Lichnerowicz choice for aquad. Delete function
+ * compute_ww().
+ *
  * Revision 1.23  2005/03/31 09:46:33  f_limousin
  * New functions compute_ww(..) and aa_kerr_ww().
  *
@@ -344,7 +348,7 @@ int main() {
 
     // Parameters
     // -----------
-    double mm = 2.1 ;
+    double mm = 2.5 ;
     double hh = 2. ;  // the radius is 1
     double aaa = pow (mm*mm-hh*hh, 0.5) ;
  
@@ -505,10 +509,9 @@ int main() {
     //-------------------------------------------------------
   
     // Put the metric tilde to the one in Sergio's paper
-    isolhor.met_kerr_perturb() ;
+//    isolhor.met_kerr_perturb() ;
  
-//    isolhor.compute_ww(mm, aaa) ;
-//    isolhor.aa_kerr_ww() ;
+    isolhor.aa_kerr_ww(mm, aaa) ;
 
     // New initialisation of the metric quantities
     // --------------------------------------------
@@ -516,7 +519,7 @@ int main() {
     psi_init = 1. ;
     psi_init.std_spectral_base() ;
     isolhor.set_psi_del_q(psi_init) ;
-
+    
 //    nn_init = 1. ;
 //    nn_init.std_spectral_base() ;
  
@@ -542,7 +545,8 @@ int main() {
     isolhor.init_data(bound_nn, lim_nn, bound_psi, bound_beta, solve_lapse,
 		      solve_psi, solve_shift, seuil, relax, niter) ;
 
-    /*  
+
+    /*
     des_meridian(psi_kerr, 1.00000001, 4., "psi kerr", 12) ;
     des_meridian(isolhor.psi(), 1.00000001, 4., "psi", 13) ;
     des_meridian(isolhor.psi()-psi_kerr, 1.00000001, 4., "diff psi", 14) ;
