@@ -35,6 +35,11 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2003/10/28 21:33:13  e_gourgoulhon
+ * In operator=(const Scalar& ci) changed the place of va.del_t()
+ * in order to correct an error in the case where both this and ci
+ * are in the state ETATUN.
+ *
  * Revision 1.19  2003/10/28 12:36:10  e_gourgoulhon
  * Corrected operator=(const Scalar& ci) for the case ETATUN: the
  * spectral bases are now copied.
@@ -359,9 +364,6 @@ void Scalar::operator=(const Scalar& ci) {
     
 
     assert(&ci != this) ;    // pour eviter l'auto-affectation
-
-    // Menage general de la Valeur, mais pas des quantites derivees !
-    va.del_t() ;
     
     // Les elements fixes
     assert( mp == ci.mp ) ;
@@ -382,12 +384,15 @@ void Scalar::operator=(const Scalar& ci) {
 	
 	case ETATUN: {
 	    set_etat_one() ;
-	    va = ci.va ;	// to copy the spectral bases 
+	    va.set_base( ci.va.get_base() )  ;	 
 	    break ;
 	}
 	
 	case ETATQCQ: {
-	    set_etat_qcq() ;
+    	// Menage general de la Valeur, mais pas des quantites derivees !
+    	va.del_t() ;
+	    
+		set_etat_qcq() ; //## a voir: set_etat_qcq appelle del_deriv() !!!
 	    va = ci.va ;
 
 	    // On detruit les quantites derivees (seulement lorsque tout est fini !)
