@@ -28,6 +28,9 @@ char cmp_compare_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/06/23 12:29:29  f_limousin
+ * *** empty log message ***
+ *
  * Revision 1.1  2003/06/20 15:04:07  f_limousin
  * *** empty log message ***
  *
@@ -49,7 +52,7 @@ char cmp_compare_C[] = "$Header$" ;
 
 void Cmp::compare(const Cmp& comp, const char* name, int ii, int jj) {
 
-  int nzone = (*((*mp).get_mg())).get_nzone() ;
+  const int nzone = (*((*mp).get_mg())).get_nzone() ;
   double nr = (*((*mp).get_mg())).get_nr(0) ;
   double nt = (*((*mp).get_mg())).get_nt(0) ;
   double np = (*((*mp).get_mg())).get_np(0) ;
