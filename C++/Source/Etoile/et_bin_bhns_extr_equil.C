@@ -31,6 +31,9 @@ char et_bin_bhns_extr_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/12/22 18:26:53  k_taniguchi
+ * Change an argument of poisson_vect_falloff.
+ *
  * Revision 1.4  2004/12/06 17:59:50  k_taniguchi
  * Change the position of resize.
  *
@@ -467,6 +470,7 @@ void Et_bin_bhns_extr::equil_bhns_extr(double ent_c, const double& mass,
 	// ----------------------------------
 
 	int k_falloff = 1 ;
+
 	source().poisson_falloff(par_poisson1, logn_auto.set(), k_falloff) ;
 
 	// Construct logn_auto_regu for et_bin_upmetr_extr.C
@@ -681,9 +685,18 @@ void Et_bin_bhns_extr::equil_bhns_extr(double ent_c, const double& mass,
 
 	    double lambda_shift = double(1) / double(3) ;
 
+	    int* shift_falloff ;
+	    shift_falloff = new int[4] ;
+	    shift_falloff[0] = 1 ;
+	    shift_falloff[1] = 1 ;
+	    shift_falloff[2] = 2 ;
+	    shift_falloff[3] = 1 ;
+
 	    source_shift.poisson_vect_falloff(lambda_shift, par_poisson_vect,
 					      shift_auto, w_shift,
-					      khi_shift, k_falloff) ;
+					      khi_shift, shift_falloff) ;
+
+	    delete[] shift_falloff ;
 
 	    // Check: has the equation for shift_auto been correctly solved ?
 	    // --------------------------------------------------------------

@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/12/22 18:25:12  k_taniguchi
+ * Change an argument of poisson_vect_falloff.
+ *
  * Revision 1.13  2004/11/30 20:43:32  k_taniguchi
  * Addition of the method for vectorial Poisson equations with falloff
  * condition at the outer boundary.
@@ -850,7 +853,7 @@ class Tenseur {
 			, Tenseur& scal) const ;
     
     void poisson_vect_falloff(double lambda, Param& par, Tenseur& shift, 
-			      Tenseur& vect, Tenseur& scal, int k_falloff) const ;
+			      Tenseur& vect, Tenseur& scal, int* k_falloff) const ;
 
     /**
      * Solves the vectorial Poisson equation \f$\Delta N^i +\lambda \nabla^i
@@ -882,7 +885,7 @@ class Tenseur {
     Tenseur poisson_vect(double lambda, Tenseur& vect , Tenseur& scal ) const ;
     
     Tenseur poisson_vect_falloff(double lambda, Tenseur& vect , 
-				 Tenseur& scal, int k_falloff ) const ;
+				 Tenseur& scal, int* k_falloff ) const ;
 
     /**
      * Solves the vectorial Poisson equation \f$\Delta N^i +\lambda \nabla^i
