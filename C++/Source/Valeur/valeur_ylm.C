@@ -34,6 +34,9 @@ char valeur_ylm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/02/16 15:33:38  m_forot
+ * Correct the case T_LEG
+ *
  * Revision 1.6  2004/11/23 15:17:20  m_forot
  * Added the bases for the cases without any equatorial symmetry
  *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
@@ -192,7 +195,7 @@ void Valeur::ylm() {
 
 	    if ((vbase_t != T_LEG_P) && (vbase_t != T_LEG_IP) &&
 	    (vbase_t != T_LEG_PP) && (vbase_t != T_LEG_I) &&
-	    (vbase_t != T_LEG_II) && (vbase_t != T_LEG_PI) ) 
+	    (vbase_t != T_LEG_II) && (vbase_t != T_LEG_PI) && (vbase_t != T_LEG)) 
 		{ // cas ou le calcul est necessaire
 
 		int vbase_t_tra = vbase_t >> TRA_T ;
