@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/09/23 08:53:11  e_gourgoulhon
+ * not ready yet
+ *
  * Revision 1.1  2003/09/22 12:50:47  e_gourgoulhon
  * First version: not ready yet!
  *
@@ -171,6 +174,13 @@ class Tensor {
 
 	
     protected:
+	/**
+	 *  Constructor for a scalar field: to be used by the derived
+	 *  class {\tt Scalar}
+	 *
+	 */
+	 Tensor(const Map& map) ;
+
 	/**
 	 * Constructor used by derived classes, with symmetries among
 	 *  the components.
@@ -388,6 +398,7 @@ class Tensor {
 
     // Friend classes 
     // ---------------
+	friend class Scalar ;
     
     // Mathematical operators
     // ----------------------
