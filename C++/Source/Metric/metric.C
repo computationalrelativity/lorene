@@ -30,6 +30,10 @@ char metric_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/01/22 14:35:23  e_gourgoulhon
+ * Corrected bug in operator=(const Sym_tensor& ): adresses of deleted
+ * p_met_cov and p_met_con are now set to 0x0.
+ *
  * Revision 1.7  2004/01/20 09:51:40  f_limousin
  * Correction in metric::determinant() : indices of tensors go now from 1 to
  * 3 !
@@ -159,6 +163,7 @@ void Metric::del_deriv() const {
   
   set_der_0x0() ;
 
+    //## call to del_tensor_depend() ?
 }
 
 void Metric::set_der_0x0() const {
@@ -196,22 +201,22 @@ void Metric::operator=(const Metric& meti) {
 
   assert( mp == meti.mp) ;
 
-  if (p_met_cov != 0x0) delete p_met_cov ;
-
+  if (p_met_cov != 0x0) {
+    delete p_met_cov ;
+    p_met_cov = 0x0 ; 
+  }
+  
+  if (p_met_con != 0x0) {
+    delete p_met_con ;
+    p_met_con = 0x0 ; 
+  }
+  
   if (meti.p_met_cov != 0x0) {
     p_met_cov = new Sym_tensor(*meti.p_met_cov) ;
   }
-  else {
-    p_met_cov = 0x0 ;
-  }
-
-  if (p_met_con != 0x0) delete p_met_con ;
 
   if (meti.p_met_con != 0x0) {
     p_met_con = new Sym_tensor(*meti.p_met_con) ;
-  }
-  else {
-    p_met_con = 0x0 ;
   }
 
   del_deriv() ;
@@ -225,9 +230,16 @@ void Metric::operator=(const Sym_tensor& symti) {
   int type_index = symti.get_index_type(0) ;
   assert (symti.get_index_type(1) == type_index) ;
 
-  if (p_met_cov != 0x0) delete p_met_cov ;
-  if (p_met_con != 0x0) delete p_met_con ;
-
+  if (p_met_cov != 0x0) {
+    delete p_met_cov ;
+    p_met_cov = 0x0 ; 
+  }
+  
+  if (p_met_con != 0x0) {
+    delete p_met_con ;
+    p_met_con = 0x0 ; 
+  }
+  
   if (type_index == COV) {
     p_met_cov = new Sym_tensor(symti) ;
   }
