@@ -56,47 +56,50 @@ char isolhor_C[] = "$Header$" ;
 int main() {
 
     //======================================================================
-    //      Parameters of the computation
-    //======================================================================
-  /*
-    double pdt = 0.01 ; 
-    int jmax = 1000 ; 
-    int jstop = jmax ; 
-    bool compute_source = true ; 
-
-    double relativistic_init = 0.5;     // 0 = flat space
-    double ampli_h_init = 0.001 ;     // 0 = flat space
-  */    
-
-    //======================================================================
     //      Construction and initialization of the various objects
     //======================================================================
 
     // Setup of a multi-domain grid (Lorene class Mg3d)
     // ------------------------------------------------
-  
-    int nz = 4 ; 	// Number of domains
-    int nr = 17 ; 	// Number of collocation points in r in each domain
-    int nt = 9 ; 	// Number of collocation points in theta in each domain
-    int np = 8 ; 	// Number of collocation points in phi in each domain
+
+    int nz, nt, np, nr ;
+
+    ifstream fpar("par_hor.d") ;
+    fpar.ignore(1000, '\n') ;
+    fpar.ignore(1000, '\n') ;
+    fpar >> nz; fpar.ignore(1000, '\n');
+    fpar >> nt; fpar.ignore(1000, '\n');
+    fpar >> np; fpar.ignore(1000, '\n');
+    fpar >> nr; fpar.ignore(1000, '\n');
+
     int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
     int symmetry_phi = SYM ; // no symmetry in phi
     bool compact = true ; // external domain is compactified
   
+    double radius, relax, seuil ;
+    fpar >> radius; fpar.ignore(1000, '\n');
+    fpar >> relax; fpar.ignore(1000, '\n');
+    fpar >> seuil; fpar.ignore(1000, '\n');
+    
+
     // Multi-domain grid construction:
     Mg3d mgrid(nz, nr, nt, np, symmetry_theta, symmetry_phi, compact) ;
 	
     //    cout << mgrid << endl ; 
 
   
-    // Setup of an affine mapping : grid --> physical space (Lorene class Map_af)
-    // --------------------------------------------------------------------------
+    // Setup of an affine mapping : grid -->physical space(Lorene class Map_af)
+    // -----------------------------------------------------------------------
 
     // radial boundaries of each domain:
-    double r_limits[] = {0., 1., 2., 4., __infinity} ; 
-    assert( nz == 4 ) ;  // since the above array described only 3 domains
+    double* bornes = new double[nz+1];
+    bornes[0] = 0. ;
+    for (int l=1; l<nz; l++) 
+	bornes[l] = pow(2, l-1) * radius ;
+	
+    bornes[nz] = __infinity ; 
   
-    Map_af map(mgrid, r_limits) ;   // Mapping construction
+    Map_af map(mgrid, bornes) ;   // Mapping construction
   	
     //    cout << map << endl ;  
 
@@ -133,46 +136,44 @@ int main() {
     double mm = 1. ;
      
     // Key function
-    Mtbl mmr = 2. * mm / r ;
+    Mtbl mmr = mm / r ;
 
-    Scalar Mr(map) ;
-    Mr = mmr ;
+    Scalar msr(map) ;
+    msr = mmr ;
     
-    Mr.set_domain(0) = 1. ; // scalar set to 1 in the nucleus  ("inside" the horizon)
-    Mr.std_spectral_base() ;
+    msr.set_domain(0) = 1. ; // scalar set to 1 in the nucleus  ("inside" the horizon)
+    msr.std_spectral_base() ;
 
     
-    // Set up of the metric
-    // --------------------
-    
-    Sym_tensor gamma_dd_init = ff.cov() ;
-
-    gamma_dd_init.set(1,1) = 1. + Mr ;
-
-    gamma_dd_init.std_spectral_base() ;
-
-    Metric gamma_init(gamma_dd_init) ; 
-
-    /* 
     // Set up of field Psi 
     // -------------------
     
     Scalar psi_init(map) ; 
     Scalar tmp(map) ; 
     
-    psi_init = 1. ;
+    psi_init = 0.5*msr + 1. ;
      
     psi_init.std_spectral_base() ;    // sets standard spectral bases
 
-    */
+    
+    // Set up of the metric tilde
+    // --------------------------
+    
+    Sym_tensor gammat_dd_init = ff.cov() ;
+
+    // Setup of the physical metric
+
+    Metric gamma_init(gammat_dd_init * psi_init* psi_init* psi_init* psi_init);
+    Sym_tensor gamma_dd_init (gamma_init.cov()) ;
+    
 
     // Set up of shift vector beta
     // ---------------------------    
 
     Vector beta_init(map, CON, otriad ) ; 
-    //    beta_init.set_etat_zero() ; 
-
-    tmp_scal = Mr/(1 + Mr) ;
+    beta_init.set_etat_zero() ; 
+/*
+    tmp_scal = dmsr/(1 + dmsr) ;
     tmp_scal.std_spectral_base() ;
     //    tmp_scal.div_r() ;
     //    tmp_scal = sqrt(tmp_scal) ;
@@ -184,15 +185,8 @@ int main() {
     beta_init.set(3) = 0. ;
 
     beta_init.std_spectral_base() ;
-        
-    /*  
-    for (int i=1 ; i<4 ; i++) {
-      cout<<"component: ("<<i<<") of beta"<<endl ;      
-	des_profile(beta_init(i), 1.000001, 10., M_PI/2., 0., "vector comp beta_init ", "radial distance") ;
-    }
-
-    */
-    
+*/      
+     
     
 
     // Set up of lapse function N
@@ -200,7 +194,7 @@ int main() {
     
     Scalar nn_init(map) ; 
 
-    nn_init = 1./sqrt(1. + Mr) ;
+    nn_init = - 0.5 * msr + 1. ;
 
     nn_init.std_spectral_base() ;    // sets standard spectral bases
 
@@ -236,8 +230,6 @@ int main() {
     Scalar trk = isolhor.trk() ;
     trk.dec_dzpuis(2) ;
 
-    //    des_profile (trk,  1., 10., 1.57, 0., "K", "radial distance") ;
-
     Scalar alpha = isolhor.nn() ;
 
     Vector beta = isolhor.beta() ;
@@ -253,84 +245,13 @@ int main() {
  
     tmp_scal.set_etat_zero() ;
 
-    Scalar source_psi = isolhor.source_psi_hor_ih() ;
+    Scalar source_psi = isolhor.source_psi_hor() ;
 
-    Scalar source_nn = isolhor.source_nn_hor_ih(tmp_scal) ;
+    Scalar source_nn = isolhor.source_nn_hor(tmp_scal) ;
     
-    Vector source_beta = isolhor.source_beta_hor_ih() ;
+    Vector source_beta = isolhor.source_beta_hor() ;
     
-  
-
-
-
-    
-
-    //---------------------------------------------
-    //       Test a las ecuaciones de Einstein
-    //---------------------------------------------
-
-    Tbl ham = isolhor.check_hamiltonian_constraint () ;
-
-
-    Tbl mom = isolhor.check_momentum_constraint () ;
- 	
-    
-    /*
-
-    //---------------------------------------------
-    //         Boundary condition for Psi
-    //---------------------------------------------
-
- 
-    Scalar div_beta = contract(beta.derive_cov(ff), 0, 1) ;
-    div_beta.dec_dzpuis(2) ;
-    
-    des_profile (div_beta,  1., 10., 1.57, 0., "div_beta", "radial distance") ;
- 
-
-    Scalar diff = div_beta - alpha * trk ;
-
-    des_profile (diff,  1., 10., 1.57, 0., "diff", "radial distance") ;
- 
-
-    
-    Scalar bc_psi = contract(beta, 0, psi.derive_cov(ff), 0) ;
-    bc_psi.dec_dzpuis(2) ;
-      
-    bc_psi = bc_psi + psi * diff/ 6. ;
-
-    des_profile (bc_psi,  1., 10., 1.57, 0., "bc_psi", "radial distance") ;
- 
-
-    cout<<"bc_psi:   "<<bc_psi<<endl ;
-    
-    */
-
-    /*    
-    //---------------------------------------------
-    //         Boundary condition for lapse
-    //---------------------------------------------
-
-    
-
-    //  Radial vector
-    //---------------
-    
-    Vector radial(map, CON, otriad) ;
-
-    for (int i=1 ; i<4 ; i++){
-      radial.set(i) = kerr_sch.gam_uu()(1,i)/sqrt(kerr_sch.gam_uu()(1,1)) ;
-    }
-    radial.std_spectral_base() ;
-
-    */
-
-    //  Extrinsic curvature
-    //---------------------
-
-    //    Sym_tensor k_dd = kerr_sch.k_dd()    ;
-
-    
+     
     // Surface gravity
     //----------------
 
@@ -360,62 +281,56 @@ int main() {
 
     */
     
-
-
-
-
-
-
-
     //-----------------------------------------
     //          "Physical Parameters"
     //-----------------------------------------
 
     
-    double rr_hor =  isolhor.radius_hor_ih() ;
+    tmp_scal.set_etat_zero() ;
+    tmp_sym.set_etat_zero() ;
+
+    isolhor.init_data_schwar(tmp_sym, tmp_scal,tmp_scal, seuil, relax) ;
+
+    des_profile(isolhor.nn(), 1., 10, 0., 0., "nn") ;
+    des_profile(isolhor.psi(), 1., 10, 0., 0., "psi") ;
+
+
+    Mtbl nn_anaa = (1 - 1 / r) / (1 + 1 / r) ;
+    Scalar nn_ana (map) ;
+    nn_ana = nn_anaa ;
+    nn_ana.std_spectral_base() ;
+    nn_ana.set_domain(0) = 0 ;
+
+    Mtbl psi_anaa (1 + 1 / r) ;
+    Scalar psi_ana (map) ;
+    psi_ana = psi_anaa ;
+    psi_ana.std_spectral_base() ;
+    psi_ana.set_domain(0) = 0 ;
+
+    Scalar diff_nn = isolhor.nn() - nn_ana ;
+    Scalar diff_psi = isolhor.psi() - psi_ana ; 
+
+    des_profile(diff_nn, 1.00001, 10, 0., 0., "diff nn") ;
+    des_profile(diff_psi, 1.00001, 10, 0., 0., "diff psi") ;
+   
+
+    
+    double rr_hor =  isolhor.radius_hor() ;
     cout<<"Radius of the horizon = "<< rr_hor <<endl ;
     
-    Vector rad = isolhor.radial_vect_hor_ih() ;
+    Vector rad = isolhor.radial_vect_hor() ;
  
-    double jj_hor =  isolhor.ang_mom_hor_ih() ;
+    double jj_hor =  isolhor.ang_mom_hor() ;
     cout<<"Angular momentum of the horizon = "<< jj_hor <<endl ; 
 
-    double mm_hor = isolhor.mass_hor_ih() ;
+    double mm_hor = isolhor.mass_hor() ;
     cout<<"Mass of the horizon = "<< mm_hor <<endl ;  
 
-    double kappa_hor = isolhor.kappa_hor_ih() ;
+    double kappa_hor = isolhor.kappa_hor() ;
     cout<<"Surface gravity of the horizon = "<< kappa_hor <<endl ; 
 
-    double omega_hor = isolhor.omega_hor_ih() ;
+    double omega_hor = isolhor.omega_hor() ;
     cout<<"Orbital velocity of the horizon = "<< omega_hor <<endl ; 
-    
-
- 
-    /* 
-
-    //-----------------------------------------
-    //          "Boundary conditions"
-    //-----------------------------------------
-
-    //    Valeur bound_psi_Dir = horizon.boundary_psi_Dir() ;
-    //    Valeur bound_psi_Neu = horizon.boundary_psi_Neu() ;
-    Vector beta_cart = horizon.beta_bound_cart() ;
-    Valeur bound_beta_r = horizon.boundary_beta_r() ;
-    Valeur bound_beta_theta = horizon.boundary_beta_theta() ;
-    Valeur bound_beta_phi = horizon.boundary_beta_phi() ;
-    Valeur bound_beta_x = horizon.boundary_beta_x() ;
-    Valeur bound_beta_y = horizon.boundary_beta_y() ;
-    Valeur bound_beta_z = horizon.boundary_beta_z() ;
-    //    Valeur bound_nn_Dir = horizon.boundary_nn_Dir_kk() ;
-    Valeur bound_nn_Neu = horizon.boundary_nn_Neu_kk() ;
-    Valeur bound_psi_Neu = horizon.boundary_psi_Neu() ;
-
-    */
-    
-
- 
-    //   horizon.init_data_rot(tmp_sym, tmp_scal,tmp_scal) ;
-
 
 
     //--------------------------------------
