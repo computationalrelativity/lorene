@@ -30,6 +30,10 @@ char metric_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/02/18 18:45:36  e_gourgoulhon
+ * Computation of p_ricci_scal thanks to the new method
+ * Tensor::trace(const Metric& ).
+ *
  * Revision 1.8  2004/01/22 14:35:23  e_gourgoulhon
  * Corrected bug in operator=(const Sym_tensor& ): adresses of deleted
  * p_met_cov and p_met_con are now set to 0x0.
@@ -331,9 +335,8 @@ const Scalar& Metric::ricci_scal() const {
 
     if (p_ricci_scal == 0x0) {   // a new computation is necessary
 
-        Tensor tmp = ricci().up(0, *this) ;
+        p_ricci_scal = new Scalar( ricci().trace(*this) ) ; 
 
-        p_ricci_scal = new Scalar( tmp.scontract(0,1) ) ;
     }
 
     return *p_ricci_scal  ; 
