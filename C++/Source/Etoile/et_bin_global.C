@@ -31,6 +31,9 @@ char et_bin_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/01/17 13:32:27  f_limousin
+ * Add comments
+ *
  * Revision 1.6  2002/12/17 09:48:21  k_taniguchi
  * Suppress every desaliasing multiplications using "%".
  *
@@ -83,6 +86,12 @@ double Etoile_bin::mass_b() const {
     if (p_mass_b == 0x0) {    // a new computation is required
 	
 	if (relativistic) {
+
+	    Cmp sqrt_acar = sqrt(a_car()) ;
+	    sqrt_acar.std_base_scal() ;
+	  
+	    // See Eq (69) from Gourgoulhon et al. (2001)
+	    // Cmp dens = a_car() % sqrt_acar % gam_euler() % nbar() ;
 
 	    Cmp dens = a_car() * sqrt( a_car() ) * gam_euler() * nbar() ;
 	    

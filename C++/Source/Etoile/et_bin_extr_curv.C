@@ -30,6 +30,9 @@ char et_bin_extr_curv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/01/17 13:33:35  f_limousin
+ * Add comments
+ *
  * Revision 1.2  2002/12/10 14:20:43  k_taniguchi
  * Change the multiplication "*" to "%".
  *
@@ -67,7 +70,8 @@ void Etoile_bin::extrinsic_curvature(){
     Tenseur divn = contract(dn, 0, 1) ; 
     
     // Computation of A^2 K^{ij}
-    // -------------------------
+    // See Eq (49) from Gourgoulhon et al. (2001)
+    // -----------------------------------------
     tkij_auto.set_etat_qcq() ; 
     for (int i=0; i<3; i++) {
 	for (int j=i; j<3; j++) {

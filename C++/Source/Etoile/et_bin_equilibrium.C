@@ -33,6 +33,9 @@ char et_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/01/17 13:31:13  f_limousin
+ * Add comments
+ *
  * Revision 1.2  2002/12/10 13:28:03  k_taniguchi
  * Change the multiplication "*" to "%"
  *   and flat_scalar_prod to flat_scalar_prod_desal.
@@ -268,7 +271,8 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 
  					   
     // External potential
-    // ------------------
+    // See Eq (99) from Gourgoulhon et al. (2001)
+    // -----------------------------------------
     
     Tenseur pot_ext = logn_comp + pot_centri + loggam ;
 //##
@@ -327,6 +331,8 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 		double pot_ext_b  = pot_ext()(l_b, k, j, i_b) ; 
 		double logn_auto_b  = logn_auto()(l_b, k, j, i_b) ; 
 
+
+		// See Eq (100) from Gourgoulhon et al. (2001)
 		double alpha_r2_jk = ( ent_c - ent_b + pot_ext_c - pot_ext_b) / 
 			    ( logn_auto_b - logn_auto_c ) ;
 		
@@ -363,9 +369,10 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	(logn_auto().va).smooth(nzet, (logn_auto.set()).va) ;
 
 
-	//--------------------
+	//------------------------------------------
 	// First integral	--> enthalpy in all space
-	//--------------------
+	// See Eq (98) from Gourgoulhon et al. (2001)
+	//-------------------------------------------
 
 	ent = (ent_c + logn_auto_c + pot_ext_c) - logn_auto - pot_ext ;
 
@@ -513,7 +520,8 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	//--------------------------------------------------------
 
 	// Source 
-	// ------
+	// See Eq (50) from Gourgoulhon et al. (2001)
+	// ------------------------------------------
 	
 	if (relativistic) {
 	    source = qpig * a_car % (ener_euler + s_euler)
@@ -558,7 +566,8 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	    //--------------------------------------------------------
 
 	    // Source 
-	    // ------
+	    // See Eq (51) from Gourgoulhon et al. (2001)
+	    // ------------------------------------------
 	
 	    source = qpig * a_car % s_euler
 		    + .75 * ( akcar_auto + akcar_comp )
@@ -593,6 +602,7 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	    //--------------------------------------------------------
 
 	    // Source
+	    // See Eq (52) from Gourgoulhon et al. (2001)
 	    // ------
 	    
 	    Tenseur vtmp =  6. * ( d_beta_auto + d_beta_comp )
