@@ -29,6 +29,10 @@ char map_et_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/04/08 16:39:23  f_limousin
+ * Add the case dzpuis different of 0 for methods dsdr, srdsdt, srstdsdp
+ * for Scalar's.
+ *
  * Revision 1.4  2004/01/26 16:16:17  j_novak
  * Methods of gradient for Scalar s. The input can have any dzpuis.
  *
@@ -74,6 +78,9 @@ char map_et_deriv_C[] = "$Header$" ;
 			
 void Map_et::dsdr(const Cmp& ci, Cmp& resu) const {
 
+
+    cout << "AVREN ! " << endl ;
+
     assert (ci.get_etat() != ETATNONDEF) ; 
     assert (ci.get_mp()->get_mg() == mg) ; 
     
@@ -102,36 +109,64 @@ void Map_et::dsdr(const Cmp& ci, Cmp& resu) const {
 
 void Map_et::dsdr(const Scalar& uu, Scalar& resu) const {
 
-    assert (uu.get_etat() != ETATNONDEF) ; 
-    assert (uu.get_mp().get_mg() == mg) ; 
-    
-    if (uu.get_etat() == ETATZERO) {
-	resu.set_etat_zero() ; 
-    }
-    else {    
-	assert( uu.get_etat() == ETATQCQ ) ; 
-	if (!uu.check_dzpuis(0)) { //## Hope to do it soon ... JN
-	  cout << 
-	    "Map_et::dsdr : the case dzpuis not 0 has not been implemented yet!" 
-	       << endl ;
-	  cout << "Sorry!" << endl ;
-	  abort() ;
-	}
 
-	(uu.get_spectral_va()).coef() ;    // (uu.va).c_cf is up to date
-	
-	resu = (uu.get_spectral_va()).dsdx() * dxdr ;     //  dxi/dR, - dxi/dU (ZEC)
-	
-	resu.set_spectral_base( uu.get_spectral_va().dsdx().base ) ;	// same basis as d/dxi
-	
-	int nz = mg->get_nzone() ; 
-	if (mg->get_type_r(nz-1) == UNSURR) {
-	    resu.set_dzpuis(2) ;	    // r^2 d/dr has been computed in the
-					    // external domain
-	}
+    cout << "ET VLAN ! " << endl ;
 
-    }
+  assert (uu.get_etat() != ETATNONDEF) ; 
+  assert (uu.get_mp().get_mg() == mg) ; 
     
+  if (uu.get_etat() == ETATZERO) {
+    resu.set_etat_zero() ; 
+  }
+  else {   
+    assert( uu.get_etat() == ETATQCQ ) ; 
+
+    const Valeur& uuva = uu.get_spectral_va() ; 
+
+    uuva.coef() ;    // (uu.va).c_cf is up to date
+	
+    int nz = mg->get_nzone() ; 
+    int nzm1 = nz - 1 ;
+
+    if ( uu.get_dzpuis() == 0 ) {
+      resu = uuva.dsdx() * dxdr ;     //  dxdr = dxi/dR, - dxi/dU (ZEC)
+	
+      if (mg->get_type_r(nzm1) == UNSURR) {
+	resu.set_dzpuis(2) ;    // r^2 d/dr has been computed in the
+	                        // external domain
+      } 
+    }
+    else {
+      assert(mg->get_type_r(nzm1) == UNSURR) ;
+
+      int dzp = uu.get_dzpuis() ;
+      
+      resu = uuva.dsdx() * dxdr ;
+      resu.annule_domain(nzm1) ;  // zero in the CED
+      
+      // Special treatment in the CED
+      Valeur tmp_ced = uuva.dsdx() ;
+      Base_val sauve_base( tmp_ced.get_base() ) ; 
+      tmp_ced = tmp_ced * dxdr ;
+      tmp_ced.set_base(sauve_base) ;   // The above operation does not 
+                                       //change the basis
+      tmp_ced = tmp_ced.mult_x() ;	// xi, Id, (xi-1)
+      tmp_ced = tmp_ced / xsr ; // xi/R, 1/R, (xi-1)/U
+   
+      tmp_ced.annule(0, nz-2) ; // only non zero in the CED
+      tmp_ced.set(nzm1) -= dzp * uuva(nzm1) ;
+      
+      // Recombination shells + CED : 
+      resu.set_spectral_va() += tmp_ced ;
+      
+      resu.set_dzpuis(dzp+1) ;         
+    
+    }
+
+    resu.set_spectral_base( uuva.dsdx().get_base() ) ; // same basis as d/dxi
+
+  }
+
 }
 
 
@@ -193,50 +228,49 @@ void Map_et::srdsdt(const Cmp& ci, Cmp& resu) const {
     
 }
 
-void Map_et::srdsdt(const Scalar& ci, Scalar& resu) const {
+void Map_et::srdsdt(const Scalar& uu, Scalar& resu) const {
 
-  assert (ci.get_etat() != ETATNONDEF) ; 
-  assert (ci.get_mp().get_mg() == mg) ; 
+  assert (uu.get_etat() != ETATNONDEF) ; 
+  assert (uu.get_mp().get_mg() == mg) ; 
     
-  if (ci.get_etat() == ETATZERO) {
+  if (uu.get_etat() == ETATZERO) {
     resu.set_etat_zero() ; 
   }
   else {
 
-    assert( ci.get_etat() == ETATQCQ ) ; 
-    if (!ci.check_dzpuis(0)) { //## Hope to do it soon ... JN
-      cout << 
-	"Map_et::srdsdt : the case dzpuis not 0 has not been implemented yet!" 
-	   << endl ;
-      cout << "Sorry!" << endl ;
-      abort() ;
-    }
+    assert( uu.get_etat() == ETATQCQ ) ; 
 
-    ci.get_spectral_va().coef() ;    // (ci.va).c_cf is up to date
+    const Valeur& uuva = uu.get_spectral_va() ;
+    uuva.coef() ;   // (uu.va).c_cf is up to date
 
+    int nz = mg->get_nzone() ; 
+    int nzm1 = nz - 1 ;
+  
     // Computation of 1/R df/dtheta'   ---> srdfdt
     // ----------------------------
-    Valeur srdfdt = ci.get_spectral_va() ; 
+    Valeur srdfdt = uuva ; 
 	
     srdfdt = srdfdt.dsdt() ;	// d/dtheta'
+   
     srdfdt = srdfdt.sx() ;		// 1/xi, Id, 1/(xi-1)
-	
+    	
     Base_val sauve_base( srdfdt.base ) ; 
 	
     srdfdt = srdfdt * xsr ;	// xi/R, 1/R, (xi-1)/U
 	
     srdfdt.base = sauve_base ;   // The above operation does not change the basis
-
     // Computation of 1/(dR/dx) 1/R dR/dtheta' df/dx   ----> adfdx
     // ----------------------------------------------
 
-    Valeur adfdx = ci.get_spectral_va() ; 
+    Valeur adfdx = uuva ; 
 
     adfdx = adfdx.dsdx()  ;	    // df/dx 
 		    
     sauve_base = adfdx.base ; 
     adfdx = adfdx * dxdr * srdrdt ;  // 1/(dR/dx) 1/R dR/dtheta' df/dx
     adfdx.base = sauve_base ; 
+
+    if (uu.get_dzpuis() == 0) {
 
     // Final result 
     // ------------
@@ -245,12 +279,42 @@ void Map_et::srdsdt(const Scalar& ci, Scalar& resu) const {
 
     int nz = mg->get_nzone() ; 
     if (mg->get_type_r(nz-1) == UNSURR) {
-      resu.set_dzpuis(2) ;	    // r d/dtheta has been computed in
-      // the external domain
+	resu.set_dzpuis(2) ;	    // r^2 (1/r d/dtheta) has been computed in
+	// the external domain
+    }
+    
     }
 
+    else {
+      assert(mg->get_type_r(nzm1) == UNSURR) ;
+          
+      int dzp = uu.get_dzpuis() ;
+
+      Valeur tmp = srdfdt - adfdx ;
+      tmp.annule(nzm1) ; 
+     
+      // Special treatment in the CED
+      //-----------------------------
+ 
+      Valeur tmp_ced = - adfdx ;
+  
+      tmp_ced.annule(0, nz-2) ; // only non zero in the CED
+
+      tmp_ced = tmp_ced.mult_x() ;	// xi, Id, (xi-1)
+      Base_val sauve_base( tmp_ced.get_base() ) ; 
+      tmp_ced = tmp_ced / xsr ; // xi/R, 1/R, (xi-1)/U
+        
+      tmp_ced = tmp_ced + uuva.dsdt() ;
+      tmp_ced.annule(0, nz-2) ; // only non zero in the CED
+                 
+      // Recombination shells + CED : 
+      resu = tmp + tmp_ced ;
+                
+      resu.set_dzpuis(dzp+1) ;         
+    }
+            
   }
-    
+
 }
 
 
@@ -313,31 +377,28 @@ void Map_et::srstdsdp(const Cmp& ci, Cmp& resu) const {
     
 }
 
-void Map_et::srstdsdp(const Scalar& ci, Scalar& resu) const {
+void Map_et::srstdsdp(const Scalar& uu, Scalar& resu) const {
 
-  assert (ci.get_etat() != ETATNONDEF) ; 
-  assert (ci.get_mp().get_mg() == mg) ; 
-
-  if (ci.get_etat() == ETATZERO) {
+  assert (uu.get_etat() != ETATNONDEF) ; 
+  assert (uu.get_mp().get_mg() == mg) ; 
+    
+  if (uu.get_etat() == ETATZERO) {
     resu.set_etat_zero() ; 
   }
   else {
-    
-    assert( ci.get_etat() == ETATQCQ) ; 
-    if (!ci.check_dzpuis(0)) { //## Hope to do it soon ... JN
-      cout << 
-	"Map_et::srstdsdp : the case dzpuis not 0 has not been implemented yet!" 
-	   << endl ;
-      cout << "Sorry!" << endl ;
-      abort() ;
-    }
-    
-    (ci.get_spectral_va()).coef() ;    // (ci.va).c_cf is up to date
-    
+
+    assert( uu.get_etat() == ETATQCQ ) ; 
+
+    const Valeur& uuva = uu.get_spectral_va() ;
+    uuva.coef() ;    // (uu.va).c_cf is up to date
+
+    int nz = mg->get_nzone() ; 
+    int nzm1 = nz - 1 ;
+
     // Computation of 1/(R sin(theta')) df/dphi'   ---> srstdfdp
     // -----------------------------------------
     
-    Valeur srstdfdp = ci.get_spectral_va() ; 
+    Valeur srstdfdp = uuva ; 
     
     srstdfdp = srstdfdp.dsdp() ;	// d/dphi
     srstdfdp = srstdfdp.ssint() ;	// 1/sin(theta)
@@ -351,27 +412,54 @@ void Map_et::srstdsdp(const Scalar& ci, Scalar& resu) const {
     
     // Computation of 1/(dR/dx) 1/(R sin(theta') dR/dphi' df/dx   --> bdfdx
     // --------------------------------------------------------
-    Valeur bdfdx = ci.get_spectral_va() ; 
-    
+    Valeur bdfdx = uuva ; 
+
     bdfdx = bdfdx.dsdx()  ;	    // df/dx 
     
     sauve_base = bdfdx.base ; 
     bdfdx = bdfdx * dxdr * srstdrdp  ;  
     bdfdx.base = sauve_base ; 
-    
-    // Final result 
-    // ------------
-    
-    resu = srstdfdp - bdfdx ;
-    
-    int nz = mg->get_nzone() ; 
-    if (mg->get_type_r(nz-1) == UNSURR) {
-      resu.set_dzpuis(2) ;	    // r/sin(theta) d/dphi has been 
-      // computed in the external domain
+
+
+    if (uu.get_dzpuis() == 0) {
+
+	//Final result
+
+	resu = srstdfdp - bdfdx ;
+ 
+ 	  
+      if (mg->get_type_r(nz-1) == UNSURR) {
+	resu.set_dzpuis(2) ;	    // r d/dtheta has been computed in
+	// the external domain
+      }
     }
-    
-  }
-    
+
+    else {
+      assert(mg->get_type_r(nzm1) == UNSURR) ;
+          
+      int dzp = uu.get_dzpuis() ;
+
+      Valeur tmp = srstdfdp - bdfdx ;
+      tmp.annule(nzm1) ; 
+
+      // Special treatment in the CED
+
+      Valeur tmp_ced = - bdfdx ;
+      tmp_ced.annule(0, nz-2) ; // only non zero in the CED
+
+      tmp_ced = tmp_ced.mult_x() ;	// xi, Id, (xi-1)
+      Base_val sauve_base( tmp_ced.get_base() ) ; 
+      tmp_ced = tmp_ced / xsr ; // xi/R, 1/R, (xi-1)/U
+      
+      tmp_ced = tmp_ced + uuva.dsdp().ssint() ;
+      tmp_ced.annule(0, nz-2) ; // only non zero in the CED
+
+      // Recombination shells + CED : 
+      resu = tmp + tmp_ced ;
+      
+      resu.set_dzpuis(dzp+1) ;         
+    }
+  }    
 }
 
 			//------------------------//
@@ -388,7 +476,8 @@ void Map_et::dsdt(const Scalar& ci, Scalar& resu) const {
     }
     else {
 
-		assert( ci.check_dzpuis(0) ) ; 
+	//  The relations are true for all dzpuis
+	//	assert( ci.check_dzpuis(0) ) ; 
 		assert( ci.get_etat() == ETATQCQ ) ; 
 
 
@@ -403,7 +492,7 @@ void Map_et::dsdt(const Scalar& ci, Scalar& resu) const {
 
 		Valeur adfdx = ci.get_spectral_va().dsdx() ; 	// df/dx
 
-		Base_val sauve_base = adfdx.get_base() ;
+		Base_val sauve_base = adfdx.get_base() ; 
 	 
 		adfdx = adfdx * dxdr * drdt ;  // df/dx / (dR/dx) * dR/dtheta' 
 	
@@ -432,8 +521,9 @@ void Map_et::stdsdp(const Scalar& ci, Scalar& resu) const {
     }
     else {
 
-		assert( ci.get_etat() == ETATQCQ ) ; 
-		assert( ci.check_dzpuis(0) ) ; 
+	assert( ci.get_etat() == ETATQCQ ) ; 
+	//  The relations are true for all dzpuis
+	//  assert( ci.check_dzpuis(0) ) ; 
 
 		// Computation of 1/sin(theta) df/dphi'   ---> stdfdp
 		// ----------------------------
