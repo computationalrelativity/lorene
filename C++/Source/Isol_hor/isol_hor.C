@@ -31,6 +31,9 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2005/03/31 09:45:31  f_limousin
+ * New functions compute_ww(...) and aa_kerr_ww().
+ *
  * Revision 1.20  2005/03/30 12:08:20  f_limousin
  * Implementation of K^{ij} (Eq.(13) Of Sergio (2002)).
  *
@@ -133,7 +136,7 @@ Isol_hor::Isol_hor(Map_af& mpi, int depth_in) :
   aa_auto_evol(depth_in), aa_comp_evol(depth_in),
   aa_nn(depth_in), aa_quad_evol(depth_in),
   met_gamt(mpi.flat_met_spher()), gamt_point(mpi, CON, mpi.get_bvect_spher()),
-  trK(mpi), trK_point(mpi), decouple(mpi){
+  trK(mpi), trK_point(mpi), decouple(mpi), ww(mpi){
 }		  
 
 // Constructor from conformal decomposition
@@ -156,7 +159,8 @@ Isol_hor::Isol_hor(Map_af& mpi, const Scalar& lapse_in,
       aa_auto_evol(depth_in), aa_comp_evol(depth_in), 
       aa_nn(depth_in), aa_quad_evol(depth_in),
       met_gamt(metgamt), gamt_point(gamt_point_in),
-      trK(trK_in), trK_point(trK_point_in), decouple(lapse_in.get_mp()){
+      trK(trK_in), trK_point(trK_point_in), decouple(lapse_in.get_mp()),
+      ww(mpi){
 
     // hh_evol, trk_evol
     hh_evol.update(met_gamt.con() - ff.con(), jtime, the_time[jtime]) ;
@@ -191,7 +195,8 @@ Isol_hor::Isol_hor(const Isol_hor& isolhor_in)
       gamt_point(isolhor_in.gamt_point),
       trK(isolhor_in.trK),
       trK_point(isolhor_in.trK_point),
-      decouple(isolhor_in.decouple){
+      decouple(isolhor_in.decouple),
+      ww(isolhor_in.ww){
 }
 
 // Constructor from a file
@@ -211,7 +216,7 @@ Isol_hor::Isol_hor(Map_af& mpi, FILE* fich,
       aa_nn(depth_in), aa_quad_evol(depth_in),
       met_gamt(mpi.flat_met_spher()), 
       gamt_point(mpi, CON, mpi.get_bvect_spher()),
-      trK(mpi), trK_point(mpi), decouple(mpi){
+      trK(mpi), trK_point(mpi), decouple(mpi), ww(mpi){
 
     fread_be(&omega, sizeof(double), 1, fich) ;
     fread_be(&boost_x, sizeof(double), 1, fich) ;
@@ -313,6 +318,7 @@ void Isol_hor::operator=(const Isol_hor& isolhor_in) {
     trK = isolhor_in.trK ;
     trK_point = isolhor_in.trK_point ;
     decouple = isolhor_in.decouple ;
+    ww = isolhor_in.ww ;
  
 }
 
@@ -711,8 +717,6 @@ void Isol_hor::met_kerr_perturb() {
     Scalar psi_perturb (pow(gamm(3,3), 0.25)) ;
     psi_perturb.std_spectral_base() ;
     set_psi_del_q(psi_perturb) ;
-   
-    Metric metgam (gamt*psi_perturb*psi_perturb*psi_perturb*psi_perturb) ;
 
     cout << "met_gamt" << endl << norme(met_gamt.cov()(1,1)) << endl 
 	 << norme(met_gamt.cov()(2,1)) << endl << norme(met_gamt.cov()(3,1)) 
@@ -722,11 +726,11 @@ void Isol_hor::met_kerr_perturb() {
     cout << "determinant" << norme(met_gamt.determinant()) << endl ;
 
     hh_evol.update(met_gamt.con() - ff.con(), jtime, the_time[jtime]) ;
-     
+ 
     return ;  
 }
 
-void Isol_hor::aa_kerr_perturb(double mm, double aaa) {
+void Isol_hor::compute_ww(double mm, double aaa) {
 
   int nz = mp.get_mg()->get_nzone() ;
   
@@ -753,9 +757,8 @@ void Isol_hor::aa_kerr_perturb(double mm, double aaa) {
   wby.set_spectral_va().set_base_t(T_COSSIN_CI) ;
   wby.set_spectral_va().set_base_p(P_COSSIN) ;
   
-  
   // ww
-  Scalar ww = wby - (mm*aaa*aaa*aaa*pow(sint, 4.)*cost) * sigma ;
+  ww = wby - (mm*aaa*aaa*aaa*pow(sint, 4.)*cost) * sigma ;
   ww.set_spectral_va().set_base_r(0,R_CHEBPIM_P) ;
   for (int l=1; l<nz-1; l++)
     ww.set_spectral_va().set_base_r(l,R_CHEB) ;
@@ -763,11 +766,18 @@ void Isol_hor::aa_kerr_perturb(double mm, double aaa) {
   ww.set_spectral_va().set_base_t(T_COSSIN_CI) ;
   ww.set_spectral_va().set_base_p(P_COSSIN) ;
   
+  return ;
+
+}
+
+void Isol_hor::aa_kerr_ww() {
+
   // Quadratic part A^{ij]A_{ij}
   //----------------------------
 
-  Scalar aquad = 2*contract(ww.derive_con(met_gamt), 0, 
-			    ww.derive_cov(met_gamt), 0) ;
+  Scalar aquad = 2*contract(ww.derive_con(ff), 0, 
+			    ww.derive_cov(ff), 0)
+                  * gam_dd()(3,3) / gam_dd()(1,1) ;
 
   aquad.div_rsint() ;
   aquad.div_rsint() ;
@@ -777,10 +787,14 @@ void Isol_hor::aa_kerr_perturb(double mm, double aaa) {
   aquad.set_domain(0) = 0. ;
   Base_val sauve_base (aquad.get_spectral_va().get_base()) ;
   
-  aquad = aquad * pow(gam_dd()(3,3), -3) ;
+  aquad = aquad * pow(gam_dd()(1,1), 2.) * pow(gam_dd()(3,3), -2.) ;
+  aquad = aquad * pow(psi(), -12.) ;
   aquad.set_spectral_va().set_base(sauve_base) ;
  
 /*
+  cout << "norme de aquad" << endl << norme(aquad) << endl ;
+  cout << "norme de aa_quad" << endl << norme(aa_quad()) << endl ;
+
   des_meridian (aquad, 0, 4, "aquad", 1) ;
   des_meridian (aa_quad(), 0, 4, "aa_quad()", 2) ;
   des_meridian (aa_quad()-aquad, 0, 4, "diff aa_quad", 3) ;
@@ -819,20 +833,22 @@ void Isol_hor::aa_kerr_perturb(double mm, double aaa) {
     Base_val base_31 (aij(3,1).get_spectral_va().get_base()) ;
     Base_val base_32 (aij(3,2).get_spectral_va().get_base()) ;
 
-    aij.set(3,1) = aij(3,1) * pow(gam().cov()(1,1), 0.666666666) 
-	                    * pow(gam().cov()(3,3), -2.16666666666) ;
+    aij.set(3,1) = aij(3,1) * pow(gam_dd()(1,1), 5./3.) 
+	                    * pow(gam_dd()(3,3), -5./3.) ;
+    aij.set(3,1) = aij(3,1) * pow(psi(), -6.) ;
     aij.set(3,1).set_spectral_va().set_base(base_31) ;
-    aij.set(3,2) = aij(3,2) * pow(gam().cov()(1,1), 0.666666666) 
-	                    * pow(gam().cov()(3,3), -2.1666666666) ;
+    aij.set(3,2) = aij(3,2) * pow(gam_dd()(1,1), 5./3.) 
+	                    * pow(gam_dd()(3,3), -5./3.) ;
+    aij.set(3,2) = aij(3,2) * pow(psi(), -6.) ;
     aij.set(3,2).set_spectral_va().set_base(base_32) ;
 
+/*
     cout << "norme de A(3,1)" << endl << norme(aij(3,1)) << endl ;
     cout << "norme de A(3,2)" << endl << norme(aij(3,2)) << endl ;
 	
     cout << "norme de A_init(3,1)" << endl << norme(aa()(3,1)) << endl ;
     cout << "norme de A_init(3,2)" << endl << norme(aa()(3,2)) << endl ;
 
-/*
     des_meridian(aij(3,1), 0., 4., "aij(3,1)", 0) ;
     des_meridian(aa()(3,1), 0., 4., "aa_init(3,1)", 1) ;
     des_meridian(aa()(3,1)-aij(3,1), 0., 4., "diff_aa(3,1)", 2) ;
@@ -848,15 +864,6 @@ void Isol_hor::aa_kerr_perturb(double mm, double aaa) {
     kij.std_spectral_base() ;
     k_uu_evol.update(kij, jtime, the_time[jtime]) ;
     k_dd_evol.update(kij.up_down(gam()), jtime, the_time[jtime]) ;
-
-
-    // We set now tgam to the one with determinant 1... to be removed later...
-    Sym_tensor gamtilde(gam().cov()) ;
-    gamtilde = gamtilde * pow(gam().determinant(), -1./3.) ;
-    gamtilde.std_spectral_base() ;
-    Metric metgamt (gamtilde) ;
-    met_gamt = metgamt ;
-    hh_evol.update(met_gamt.con() - ff.con(), jtime, the_time[jtime]) ;
 
     return ;
     

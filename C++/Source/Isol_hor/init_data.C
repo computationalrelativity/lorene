@@ -31,6 +31,9 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2005/03/31 09:45:31  f_limousin
+ * New functions compute_ww(...) and aa_kerr_ww().
+ *
  * Revision 1.12  2005/03/24 16:50:28  f_limousin
  * Add parameters solve_shift and solve_psi in par_isol.d and in function
  * init_dat(...). Implement Isolhor::kerr_perturb().
@@ -120,6 +123,7 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	// Resolution of the Poisson equation for the lapse
 	// ------------------------------------------------
 
+	Scalar sou_nn (source_nn()) ;
 	Scalar nn_jp1 (mp) ;
 	if (solve_lapse == 1) {
 	    Valeur nn_bound (mp.get_mg()-> get_angu()) ;
@@ -128,27 +132,27 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 		
 		case 0 : {
 		    nn_bound = boundary_nn_Dir(lim_nn) ;
-		    nn_jp1 = source_nn().poisson_dirichlet(nn_bound, 0) + 1. ;
+		    nn_jp1 = sou_nn.poisson_dirichlet(nn_bound, 0) + 1. ;
 		    break ;
 		}
 		case 1 : {
 		    nn_bound = boundary_nn_Neu_eff(lim_nn) ;
-		    nn_jp1 = source_nn().poisson_neumann(nn_bound, 0) + 1. ;
+		    nn_jp1 = sou_nn.poisson_neumann(nn_bound, 0) + 1. ;
 		    break ;
 		}
 		case 2 : {
 		    nn_bound = boundary_nn_Dir_eff(lim_nn) ;
-		    nn_jp1 = source_nn().poisson_dirichlet(nn_bound, 0) + 1. ;
+		    nn_jp1 = sou_nn.poisson_dirichlet(nn_bound, 0) + 1. ;
 		    break ;
 		}
 		case 3 : {
 		    nn_bound = boundary_nn_Neu_kk() ;
-		    nn_jp1 = source_nn().poisson_neumann(nn_bound, 0) + 1. ;
+		    nn_jp1 = sou_nn.poisson_neumann(nn_bound, 0) + 1. ;
 		    break ;
 		}
 		case 4 : {
 		    nn_bound = boundary_nn_Dir_kk() ;
-		    nn_jp1 = source_nn().poisson_dirichlet(nn_bound, 0) + 1. ;
+		    nn_jp1 = sou_nn.poisson_dirichlet(nn_bound, 0) + 1. ;
 		    break ;
 		}
 		default : {
@@ -162,7 +166,7 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	    } // End of switch  
 	    
 	// Test:
-	    maxabs(nn_jp1.laplacian() - source_nn(),
+	    maxabs(nn_jp1.laplacian() - sou_nn,
 		   "Absolute error in the resolution of the equation for N") ;
   	    
 	    // Relaxation (relax=1 -> new ; relax=0 -> old )  
@@ -173,9 +177,19 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	}
 	    
 	    
-	    // Resolution of the Poisson equation for Psi
-	    // ------------------------------------------
-	    
+	// Resolution of the Poisson equation for Psi
+	// ------------------------------------------
+	
+/*	    
+	   // Filters...
+	int nz = mp.get_mg()->get_nzone() ;
+	Scalar source (source_psi()) ;
+	source.filtre(0) ;
+	source.filtre_phi(4, nz-1) ;
+//	source.filtre_tp(4, nz-1, nz-1) ;
+*/
+
+	Scalar sou_psi (source_psi()) ;
 	Scalar psi_jp1 (mp) ;
 	if (solve_psi == 1) {
 	    Valeur psi_bound (mp.get_mg()-> get_angu()) ;
@@ -184,27 +198,27 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 		
 		case 0 : {
 		    psi_bound = boundary_psi_app_hor() ;
-		    psi_jp1 = source_psi().poisson_neumann(psi_bound, 0) + 1. ;
+		    psi_jp1 = sou_psi.poisson_neumann(psi_bound, 0) + 1. ;
 		    break ;
 		}
 		case 1 : {
 		    psi_bound = boundary_psi_Neu_spat() ;
-		    psi_jp1 = source_psi().poisson_neumann(psi_bound, 0) + 1. ;
+		    psi_jp1 = sou_psi.poisson_neumann(psi_bound, 0) + 1. ;
 		    break ;
 		}
 		case 2 : {
 		    psi_bound = boundary_psi_Dir_spat() ;
-		    psi_jp1 = source_psi().poisson_dirichlet(psi_bound, 0) + 1. ;
+		    psi_jp1 = sou_psi.poisson_dirichlet(psi_bound, 0) + 1. ;
 		    break ;
 		}
 		case 3 : {
 		    psi_bound = boundary_psi_Neu_evol() ;
-		    psi_jp1 = source_psi().poisson_neumann(psi_bound, 0) + 1. ;
+		    psi_jp1 = sou_psi.poisson_neumann(psi_bound, 0) + 1. ;
 		    break ;
 		}
 		case 4 : {
 		    psi_bound = boundary_psi_Dir_evol() ;
-		    psi_jp1 = source_psi().poisson_dirichlet(psi_bound, 0) + 1. ;
+		    psi_jp1 = sou_psi.poisson_dirichlet(psi_bound, 0) + 1. ;
 		    break ;
 		}
 		default : {
@@ -216,9 +230,10 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 		}
 		    
 	    } // End of switch  
-	    
+
+
 	    // Test:
-	    maxabs(psi_jp1.laplacian() - source_psi(),
+	    maxabs(psi_jp1.laplacian() - sou_psi,
 		   "Absolute error in the resolution of the equation for Psi") ;  
 	    
 	    // Relaxation (relax=1 -> new ; relax=0 -> old )  
@@ -355,7 +370,8 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	if (solve_shift == 1)
 	    beta_evol.update(beta_jp1, jtime, ttime) ;
 	
-	update_aa() ;
+//	update_aa() ;
+//	aa_kerr_ww() ;
 
 	// Saving ok K_{ij}s^is^j
 	// -----------------------
