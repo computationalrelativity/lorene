@@ -30,6 +30,9 @@ char strot_dirac_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/03/25 14:11:49  j_novak
+ * In the 1D case, GRV2 returns -1 (because of a problem in integral2d).
+ *
  * Revision 1.5  2005/02/17 17:30:42  f_limousin
  * Change the name of some quantities to be consistent with other classes
  * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
@@ -181,59 +184,65 @@ double Star_rot_Dirac::grv2() const {
 
   if (p_grv2 == 0x0) {    // a new computation is required
 
+    bool one_dim = (mp.get_mg()->get_nt(0) == 1) ;
 
-    // determinant of the 2-metric k_{ab}
+    if (!one_dim) {
 
-    Scalar k_det = gamma.cov()(1,1)*gamma.cov()(2,2) - 
-                      gamma.cov()(1,2)*gamma.cov()(1,2) ;
+      // determinant of the 2-metric k_{ab}
 
+      Scalar k_det = gamma.cov()(1,1)*gamma.cov()(2,2) - 
+	gamma.cov()(1,2)*gamma.cov()(1,2) ;
+      
+      
+      //**
+      // sou_m = 8\pi T_{\mu\nu} m^{\mu}m^{\nu}
+      // => sou_m = 8\pi [ (E+P) U^2 + P ], where v^2 = v_i v^i 
+      //
+      //**
+      
+      Scalar sou_m = 2 * qpig * ( (ener_euler + press)*v2 + press ) ;
+      
+      sou_m = sqrt( k_det )*sou_m ;
+      
+      sou_m.std_spectral_base() ;
+      
+      
+      // This is the term 3k_a k^a. 
+      
+      Scalar sou_q = 3 *( taa(1,3) * aa(1,3) 
+			  + taa(2,3)*aa(2,3) )  ;
+      
+      
+      // This is the term \nu_{|| a}\nu^{|| a}. 
+      //
+      
+      Scalar sou_tmp = gamma.con()(1,1) * logn.dsdr() * logn.dsdr() ;
+      
+      Scalar term_2 = 2 * gamma.con()(1,2) * logn.dsdr() * logn.dsdt() ;
+      
+      term_2.div_r_dzpuis(4) ;
+      
+      Scalar term_3 = gamma.con()(2,2) * logn.dsdt() * logn.dsdt() ;
+      
+      term_3.div_r_dzpuis(4) ;
+      term_3.div_r_dzpuis(4) ;
+      
+      sou_tmp += term_2 + term_3 ;
+      
+      
+      // Source of the gravitational part
+      
+      sou_q -= sou_tmp ;
+      
+      sou_q = sqrt( k_det )*sou_q ;
+      
+      sou_q.std_spectral_base() ;
+      
+      p_grv2 = new double( double(1) - lambda_grv2(sou_m, sou_q) ) ;
+    }
+    else 
+      p_grv2 = new double(-1.) ;
 
-    //**
-    // sou_m = 8\pi T_{\mu\nu} m^{\mu}m^{\nu}
-    // => sou_m = 8\pi [ (E+P) U^2 + P ], where v^2 = v_i v^i 
-    //
-    //**
-
-    Scalar sou_m = 2 * qpig * ( (ener_euler + press)*v2 + press ) ;
-
-    sou_m = sqrt( k_det )*sou_m ;
-
-    sou_m.std_spectral_base() ;
-
-
-    // This is the term 3k_a k^a. 
-
-    Scalar sou_q = 3 *( taa(1,3) * aa(1,3) 
-			+ taa(2,3)*aa(2,3) )  ;
-
-  
-    // This is the term \nu_{|| a}\nu^{|| a}. 
-    //
-
-    Scalar sou_tmp = gamma.con()(1,1) * logn.dsdr() * logn.dsdr() ;
-    
-    Scalar term_2 = 2 * gamma.con()(1,2) * logn.dsdr() * logn.dsdt() ;
-
-    term_2.div_r_dzpuis(4) ;
-
-    Scalar term_3 = gamma.con()(2,2) * logn.dsdt() * logn.dsdt() ;
-
-    term_3.div_r_dzpuis(4) ;
-    term_3.div_r_dzpuis(4) ;
-
-    sou_tmp += term_2 + term_3 ;
-
-
-    // Source of the gravitational part
-
-    sou_q -= sou_tmp ;
-
-    sou_q = sqrt( k_det )*sou_q ;
-    
-    sou_q.std_spectral_base() ;
-
-    p_grv2 = new double( double(1) - lambda_grv2(sou_m, sou_q) ) ;
-    
   }
 
   return *p_grv2 ;
