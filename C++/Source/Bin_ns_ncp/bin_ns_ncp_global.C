@@ -57,9 +57,21 @@ double Bin_ns_ncp::mass_adm() const {
 	    
 	    for(int i=0; i<=1; i++) {
 
-	      const Metrique& gamma_auto = (et[i]->get_metgamma_auto()) ;
+	      const Metconf& gtilde_auto = (et[i]->get_gtilde_auto()) ;
 	      const Metrique& flat = (et[i]->get_flat()) ;
+	      const Tenseur& gamma = (et[i]->get_gamma()) ;
 	      Map_af mapping (et[i]->get_mp()) ; 
+
+	      Tenseur_sym metric(mapping, 2, COV, mapping.get_bvect_cart()) ;
+	      for (int i=0; i<3; i++) {
+		for (int j=0; j<=i; j++) {
+
+		  metric.set(i,j)=pow(gamma(), 1./3.)*gtilde_auto.cov()(i,j) ;
+		}
+	      }
+
+	      const Metrique gamma_auto (metric) ; 
+
 	    
 	      Tenseur dgamma_1 (mapping, 1, COV, mapping.get_bvect_cart()) ; 
 	      dgamma_1.set_etat_qcq() ;
