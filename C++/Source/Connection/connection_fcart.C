@@ -30,6 +30,9 @@ char connection_fcart_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/10/16 21:37:08  e_gourgoulhon
+ * Corrected deriv index in divergence.
+ *
  * Revision 1.6  2003/10/16 15:26:03  e_gourgoulhon
  * Suppressed unsued variable
  *
@@ -413,7 +416,7 @@ Tensor* Connection_fcart::p_divergence(const Tensor& uu) const {
       for (int id = 1; id<valence0; id++) {
 	ind0.set(id) = ind1(id-1) ; 
       }
-      cresu += uu(ind0).deriv(k) ; //Addition of dT^i/dx^i
+      cresu += uu(ind0).deriv(k-1) ; //Addition of dT^i/dx^i
     }
 
   }
