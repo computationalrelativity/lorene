@@ -34,6 +34,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2004/11/30 20:40:06  k_taniguchi
+ * Addition of the method for calculating a spherical star with falloff
+ * condition at the outer boundary.
+ *
  * Revision 1.21  2004/05/10 10:18:33  f_limousin
  * Change to avoid warning in the compilation of Lorene
  *
@@ -583,6 +587,17 @@ class Etoile {
 	 *	to stop the iterative procedure (default value: 1.e-14)
 	 */
 	void equil_spher_regular(double ent_c, double precis = 1.e-14) ; 
+
+	/** Computes a spherical static configuration with the outer
+	 *  boundary condition at a finite radius
+	 * 
+	 *  @param ent_c [input] central value of the enthalpy
+	 *  @param precis [input] threshold in the relative difference between 
+	 *	the enthalpy fields of two consecutive steps
+	 *	to stop the iterative procedure (default value: 1.e-14)
+	 */
+	virtual void equil_spher_falloff(double ent_c,
+					 double precis = 1.e-14) ;
 
     // Accessors
     // ---------
