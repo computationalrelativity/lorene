@@ -34,6 +34,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/09/24 15:10:54  j_novak
+ * Suppression of the etat flag in class Tensor (still present in Scalar)
+ *
  * Revision 1.2  2003/09/24 10:21:07  e_gourgoulhon
  * added more methods
  *
@@ -61,14 +64,16 @@ char scalar_C[] = "$Header$" ;
 			//---------------//
 
 
-Scalar::Scalar(const Map& mpi) : Tensor(mpi), dzpuis(0), va(mpi.get_mg()) {
+Scalar::Scalar(const Map& mpi) : Tensor(mpi), etat(ETATNONDEF), dzpuis(0), 
+				 va(mpi.get_mg()) {
 
 	cmp[0] = this ; 
     set_der_0x0() ;
 
 }
 
-Scalar::Scalar(const Map* mpi) : Tensor(*mpi), dzpuis(0), va(mpi->get_mg()) {
+Scalar::Scalar(const Map* mpi) : Tensor(*mpi), etat(ETATNONDEF), dzpuis(0),
+				 va(mpi->get_mg()) {
 
 	cmp[0] = this ; 
     set_der_0x0() ;
@@ -79,12 +84,11 @@ Scalar::Scalar(const Map* mpi) : Tensor(*mpi), dzpuis(0), va(mpi->get_mg()) {
 
 // Copy constructor
 // ----------------
-Scalar::Scalar(const Scalar& sci)  : Tensor(*(sci.mp)), dzpuis(sci.dzpuis), 
-			   va(sci.va) {
+Scalar::Scalar(const Scalar& sci)  : Tensor(*(sci.mp)), etat(sci.etat), 
+				     dzpuis(sci.dzpuis), va(sci.va) {
     
-	cmp[0] = this ; 
-	etat = sci.etat ; 
-    set_der_0x0() ;	// On ne recopie pas les derivees
+  cmp[0] = this ; 
+  set_der_0x0() ;	// On ne recopie pas les derivees
 
 }
 	
@@ -98,7 +102,7 @@ Scalar::Scalar(const Map& mpi, const Mg3d& mgi, FILE* fd) : Tensor(mpi),
     fread_be(&etat, sizeof(int), 1, fd) ;		    // L'etat
     fread_be(&dzpuis, sizeof(int), 1, fd) ;	    // dzpuis
 
-	cmp[0] = this ; 
+    cmp[0] = this ; 
 
     set_der_0x0() ;	// Les derivees sont initialisees a zero
 
@@ -111,7 +115,7 @@ Scalar::Scalar(const Map& mpi, const Mg3d& mgi, FILE* fd) : Tensor(mpi),
 // Destructeur
 Scalar::~Scalar() {
     del_t() ;
-	cmp[0] = 0x0 ;
+    cmp[0] = 0x0 ;
 }
 
 			//-----------------------//
@@ -122,19 +126,21 @@ Scalar::~Scalar() {
 void Scalar::del_t() {
 
     va.del_t() ;
+    va.set_etat_nondef() ;
     del_deriv() ;
 
 }
 
 void Scalar::del_deriv() {
-    delete p_dsdr ; p_dsdr = 0x0 ;
-    delete p_srdsdt ; p_srdsdt = 0x0 ;
-    delete p_srstdsdp ; p_srstdsdp = 0x0 ;
-    delete p_dsdx ; p_dsdx = 0x0 ;
-    delete p_dsdy ; p_dsdy = 0x0 ;
-    delete p_dsdz ; p_dsdz = 0x0 ;
-    delete p_lap ; p_lap = 0x0 ;
-    delete p_integ ; p_integ = 0x0 ;
+    delete p_dsdr ;
+    delete p_srdsdt ;
+    delete p_srstdsdp ; 
+    delete p_dsdx ; 
+    delete p_dsdy ;
+    delete p_dsdz ;
+    delete p_lap ; 
+    delete p_integ ; 
+    set_der_0x0() ;
 }
 
 void Scalar::set_der_0x0() {
@@ -168,12 +174,9 @@ void Scalar::set_etat_nondef() {
 void Scalar::set_etat_qcq() {
 
     if (etat == ETATQCQ) {
-		del_deriv() ; 
-		return ;
+      del_deriv() ; 
+      return ;
     }
-    
-    // Protection
-    assert( (etat == ETATZERO) || (etat == ETATNONDEF) ) ; // sinon...
     
     del_t() ;
     
@@ -213,8 +216,8 @@ void Scalar::annule(int l_min, int l_max) {
     
     // Cas particulier: annulation globale : 
     if ( (l_min == 0) && (l_max == va.mg->get_nzone()-1) ) {
-		set_etat_zero() ;
-		return ; 
+      set_etat_zero() ;
+      return ; 
     }
     
     assert( etat != ETATNONDEF ) ; 

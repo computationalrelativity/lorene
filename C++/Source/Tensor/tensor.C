@@ -33,6 +33,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/09/24 15:10:54  j_novak
+ * Suppression of the etat flag in class Tensor (still present in Scalar)
+ *
  * Revision 1.2  2003/09/23 08:52:17  e_gourgoulhon
  * new version
  *
@@ -62,7 +65,7 @@ char tensor_C[] = "$Header$" ;
 Tensor::Tensor(const Map& map, int val, const Itbl& tipe, 
 		 const Base_vect& triad_i) 
 		: mp(&map), valence(val), triad(&triad_i), type_indice(tipe), 
-		   n_comp(int(pow(3., val))), etat(ETATNONDEF){
+		   n_comp(int(pow(3., val))){
 		
     // Des verifs :
     assert (valence >= 0) ;
@@ -74,7 +77,7 @@ Tensor::Tensor(const Map& map, int val, const Itbl& tipe,
     cmp = new Scalar*[n_comp] ;
 
     for (int i=0 ; i<n_comp ; i++)
-	cmp[i] = 0x0 ;
+	cmp[i] = new Scalar(map) ;
 	
 }
 
@@ -83,7 +86,7 @@ Tensor::Tensor(const Map& map, int val, const Itbl& tipe,
 Tensor::Tensor(const Map& map, int val, const Itbl& tipe, 
 		 const Base_vect* triad_i) 
 		: mp(&map), valence(val), triad(triad_i), type_indice(tipe), 
-		   n_comp(int(pow(3., val))), etat(ETATNONDEF){
+		   n_comp(int(pow(3., val))){
 		
     // Des verifs :
     assert (valence >= 0) ;
@@ -95,7 +98,7 @@ Tensor::Tensor(const Map& map, int val, const Itbl& tipe,
     cmp = new Scalar*[n_comp] ;
 
     for (int i=0 ; i<n_comp ; i++)
-	cmp[i] = 0x0 ;
+	cmp[i] = new Scalar(map) ;
 }
 
 
@@ -105,7 +108,7 @@ Tensor::Tensor(const Map& map, int val, const Itbl& tipe,
 // --------------------------------------------------------------
 Tensor::Tensor(const Map& map, int val, int tipe, const Base_vect& triad_i) 
 		: mp(&map), valence(val), triad(&triad_i), type_indice(val), 
-                  n_comp(int(pow(3., val))), etat (ETATNONDEF){
+                  n_comp(int(pow(3., val))){
     
     // Des verifs :
     assert (valence >= 0) ;
@@ -116,7 +119,7 @@ Tensor::Tensor(const Map& map, int val, int tipe, const Base_vect& triad_i)
     cmp = new Scalar*[n_comp] ;
 
     for (int i=0 ; i<n_comp ; i++)
-	cmp[i] = 0x0 ;
+	cmp[i] = new Scalar(map) ;
 
 }	
 	
@@ -124,17 +127,14 @@ Tensor::Tensor(const Map& map, int val, int tipe, const Base_vect& triad_i)
 // ----------------
 Tensor::Tensor (const Tensor& source) : 
     mp(source.mp), valence(source.valence), triad(source.triad), 
-    type_indice(source.type_indice), etat (source.etat) {
+    type_indice(source.type_indice) {
   
     n_comp = int(pow(3., valence)) ;
         
     cmp = new Scalar*[n_comp] ;
     for (int i=0 ; i<n_comp ; i++) {
 	int place_source = source.position(indices(i)) ;
-	if (source.cmp[place_source] == 0x0)
-	    cmp[i] = 0x0 ;
-	else
-	    cmp[i] = new Scalar(*source.cmp[place_source]) ;
+	cmp[i] = new Scalar(*source.cmp[place_source]) ;
     }
 
 
@@ -158,14 +158,10 @@ Tensor::Tensor(const Map& mapping, const Base_vect& triad_i, FILE* fd)
     }
     
     fread_be(&n_comp, sizeof(int), 1, fd) ;
-    fread_be(&etat, sizeof(int), 1, fd) ;
     
     cmp = new Scalar*[n_comp] ;
     for (int i=0 ; i<n_comp ; i++)
-	cmp[i] = 0x0 ;
-    if (etat == ETATQCQ)
-	for (int i=0 ; i<n_comp ; i++)
-	    cmp[i] = new Scalar(*mp, *(mp->get_mg()), fd) ;
+      cmp[i] = new Scalar(*mp, *(mp->get_mg()), fd) ;
 
 }
 
@@ -174,7 +170,7 @@ Tensor::Tensor(const Map& mapping, const Base_vect& triad_i, FILE* fd)
 //  class {\tt Scalar}
 //-----------------------------------------------------------
 Tensor::Tensor(const Map& map) : mp(&map), valence(0), triad(0x0),
-		type_indice(0), n_comp(1), etat(ETATNONDEF) {
+		type_indice(0), n_comp(1) {
 		
 		cmp = new Scalar*[n_comp] ; 
 		cmp[0] = 0x0 ; 
@@ -186,8 +182,8 @@ Tensor::Tensor(const Map& map) : mp(&map), valence(0), triad(0x0),
 // ---------------------------------------
 Tensor::Tensor (const Map& map, int val, const Itbl& tipe, int compo, 
 		const Base_vect& triad_i) :
-     mp(&map), valence(val), triad(&triad_i), type_indice(tipe), n_comp(compo), 
-	    etat (ETATNONDEF) {
+     mp(&map), valence(val), triad(&triad_i), type_indice(tipe), n_comp(compo)
+{
      
     // Des verifs :
     assert (valence >= 0) ;
@@ -200,7 +196,7 @@ Tensor::Tensor (const Map& map, int val, const Itbl& tipe, int compo,
     cmp = new Scalar*[n_comp] ;
 
     for (int i=0 ; i<n_comp ; i++)
-	cmp[i] = 0x0 ;
+	cmp[i] = new Scalar(map) ;
     
 }
 
@@ -209,8 +205,8 @@ Tensor::Tensor (const Map& map, int val, const Itbl& tipe, int compo,
 // -------------------------------------------------------------------
 Tensor::Tensor (const Map& map, int val, int tipe, int compo, 
 		const Base_vect& triad_i) :
-     mp(&map), valence(val), triad(&triad_i), type_indice(val), n_comp(compo), 
-	    etat (ETATNONDEF) {
+     mp(&map), valence(val), triad(&triad_i), type_indice(val), n_comp(compo)
+{
 
     // Des verifs :
     assert (valence >= 0) ;
@@ -222,7 +218,7 @@ Tensor::Tensor (const Map& map, int val, int tipe, int compo,
     cmp = new Scalar*[n_comp] ;
 
     for (int i=0 ; i<n_comp ; i++)
-	cmp[i] = 0x0 ;
+      cmp[i] = new Scalar(map) ;
 
 }
 
@@ -233,7 +229,10 @@ Tensor::Tensor (const Map& map, int val, int tipe, int compo,
 
 Tensor::~Tensor () {
     
-    del_t() ;
+    del_deriv() ;
+
+    for (int i=0 ; i<n_comp ; i++)
+      delete cmp[i] ;
     delete [] cmp ;
 }
 
@@ -243,54 +242,29 @@ void Tensor::del_deriv() {
 
 }
 
-void Tensor::del_t() {
-
-    del_deriv() ;
-
-    for (int i=0 ; i<n_comp ; i++)
-	if (cmp[i] != 0x0) {
-	    delete cmp[i] ;
-	    cmp[i] = 0x0 ;
-	}
-}
-
-
 
 void Tensor::set_etat_qcq() { 
     
     del_deriv() ;
     for (int i=0 ; i<n_comp ; i++) {
-		if (cmp[i] == 0x0) {
-	    	cmp[i] = new Scalar(mp) ;
-		}
-		cmp[i]->set_etat_qcq() ; 
-	}
-    etat = ETATQCQ ;
+      cmp[i]->set_etat_qcq() ; 
+    }
 }
-
-
-void Tensor::set_etat_zero() { 
-
-    if (etat == ETATZERO) return ;
-
-    del_t() ;
-
-    for (int i=0 ; i<n_comp ; i++) {
-		if (cmp[i] == 0x0) {
-	    	cmp[i] = new Scalar(mp) ;
-		}
-		cmp[i]->set_etat_zero() ; 
-	}
-
-    etat = ETATZERO ;
-}
-
 
 void Tensor::set_etat_nondef() { 
-	
-	if (etat == ETATNONDEF) return ;
-   	del_t() ;
-    etat = ETATNONDEF ;
+    
+    del_deriv() ;
+    for (int i=0 ; i<n_comp ; i++) {
+      cmp[i]->set_etat_nondef() ; 
+    }
+}
+
+void Tensor::set_etat_zero() { 
+    
+    del_deriv() ;
+    for (int i=0 ; i<n_comp ; i++) {
+      cmp[i]->set_etat_zero() ; 
+    }
 }
 
 
@@ -298,10 +272,10 @@ void Tensor::set_etat_nondef() {
 // --------------------
 void Tensor::allocate_all() {
     
-	set_etat_qcq() ; 
-	for (int i=0 ; i<n_comp ; i++) {
-	    cmp[i]->allocate_all() ; 
-	}
+  del_deriv() ;
+  for (int i=0 ; i<n_comp ; i++) {
+    cmp[i]->allocate_all() ; 
+  }
 	
 } 
 
@@ -311,7 +285,7 @@ void Tensor::change_triad(const Base_vect& bi) {
     
     // bi.change_basis(*this) ; 
     cout << "Tensor::change_triad not ready yet !" << endl ; 
-	abort(); 
+    abort(); 
 	
 }
 
@@ -354,39 +328,16 @@ void Tensor::operator=(const Tensor& t) {
     
     assert (valence == t.valence) ;
 
+    del_deriv() ;
+
     triad = t.triad ; 
 
     for (int i=0 ; i<valence ; i++)
-		assert(t.type_indice(i) == type_indice(i)) ;
+      assert(t.type_indice(i) == type_indice(i)) ;
 	
-    switch (t.etat) {
-	case ETATNONDEF: {
-	    set_etat_nondef() ;
-	    break ;
-	}
-	
-	case ETATZERO: {
-	    set_etat_zero() ;
-	    break ;
-	}
-	
-	case ETATQCQ: {
-	    set_etat_qcq() ;
-	    for (int i=0 ; i<n_comp ; i++) {
-		int place_t = t.position(indices(i)) ;
-		if (t.cmp[place_t] == 0x0)
-		    cmp[i] = 0x0 ;
-		else 
-		    *cmp[i] = *t.cmp[place_t] ;
-	    }
-	    break ;
-	}
-	
-	default: {
-	    cout << "Unknown state in Tensor::operator= " << endl ;
-	    abort() ;
-	    break ;
-	    }
+    for (int i=0 ; i<n_comp ; i++) {
+      int place_t = t.position(indices(i)) ;
+      *cmp[i] = *t.cmp[place_t] ;
     }
 }
 
@@ -397,9 +348,6 @@ Scalar& Tensor::set(int ind1, int ind2) {
     
     del_deriv() ;
     assert (valence == 2) ;
-    assert (etat == ETATQCQ) ;
-    assert ((ind1 >= 1) && (ind1 <= 3)) ;
-    assert ((ind2 >= 1) && (ind2 <= 3)) ;
     
     Itbl ind (valence) ;
     ind.set_etat_qcq() ;
@@ -416,10 +364,6 @@ Scalar& Tensor::set(int ind1, int ind2, int ind3) {
     
     del_deriv() ;
     assert (valence == 3) ;
-    assert (etat == ETATQCQ) ;
-    assert ((ind1 >= 1) && (ind1 <= 3)) ;
-    assert ((ind2 >= 1) && (ind2 <= 3)) ;
-    assert ((ind3 >= 1) && (ind3 <= 3)) ;
     
     Itbl indices(valence) ;
     indices.set_etat_qcq() ;
@@ -438,9 +382,6 @@ Scalar& Tensor::set(const Itbl& indices) {
     assert (indices.get_dim(0) == valence) ;
     
     del_deriv() ;
-    assert (etat == ETATQCQ) ;
-    for (int i=0 ; i<valence ; i++)
-	assert ((indices(i)>=1) && (indices(i)<=3)) ;
 	
     int place = position(indices) ;
     
@@ -457,26 +398,17 @@ void Tensor::annule(int l_min, int l_max) {
     
     // Cas particulier: annulation globale : 
     if ( (l_min == 0) && (l_max == mp->get_mg()->get_nzone()-1) ) {
-		set_etat_zero() ;
-		return ; 
+      set_etat_zero() ;
+      return ; 
     }
     
-    assert( etat != ETATNONDEF ) ; 
-    
-    if ( etat == ETATZERO ) {
-		return ;		// rien n'a faire si c'est deja zero
+    // Annulation des composantes:
+    for (int i=0 ; i<n_comp ; i++) {
+      cmp[i]->annule(l_min, l_max) ; 
     }
-    else {
-		assert( etat == ETATQCQ ) ;	// sinon...
 	
-		// Annulation des composantes:
-		for (int i=0 ; i<n_comp ; i++) {
-	    	cmp[i]->annule(l_min, l_max) ; 
-		}
-	
-		// Annulation des membres derives
-
-    }
+    //## Annulation des membres derives
+    //## pas avec un del_deriv() ;
     
 }
 
@@ -484,49 +416,26 @@ void Tensor::annule(int l_min, int l_max) {
 
 const Scalar& Tensor::operator()(int indice1, int indice2) const {
     
-    assert ((indice1>=1) && (indice1<=3)) ;
-    assert ((indice2>=1) && (indice2<=3)) ;
     assert(valence == 2) ;
     
-    if ((etat == ETATQCQ) || (etat==ETATZERO)) {	
-	    Itbl idx(2) ;		
-	    idx.set_etat_qcq() ;	
-	    idx.set(0) = indice1 ;
-	    idx.set(1) = indice2 ;
-	    return *cmp[position(idx)] ;
-    }
-	else{
-		assert( etat == ETATNONDEF) ;
-	    cout << "Undefined Tensor in Tensor::operator(int, int) ..." << endl ;
-	    abort() ;
-	    return *cmp[0] ;  // bidon pour satisfaire le compilateur
-	}
-	    
-	   	    
+    Itbl idx(2) ;		
+    idx.set_etat_qcq() ;	
+    idx.set(0) = indice1 ;
+    idx.set(1) = indice2 ;
+    return *cmp[position(idx)] ;
+
 }
 
 const Scalar& Tensor::operator()(int indice1, int indice2, int indice3) const {
     
-    assert ((indice1>=1) && (indice1<=3)) ;
-    assert ((indice2>=1) && (indice2<=3)) ;
-    assert ((indice3>=1) && (indice3<=3)) ;
     assert(valence == 3) ;
     
-    if ((etat == ETATQCQ) || (etat==ETATZERO)) {	
-	    Itbl idx(3) ;		
-	    idx.set_etat_qcq() ;	
-	    idx.set(0) = indice1 ;
-	    idx.set(1) = indice2 ;
-	    idx.set(2) = indice3 ;
-	    return *cmp[position(idx)] ;
-    }
-	else{
-		assert( etat == ETATNONDEF) ;
-	    cout << "Undefined Tensor in Tensor::operator(int, int, int) ..." << endl ;
-	    abort() ;
-	    return *cmp[0] ;  // bidon pour satisfaire le compilateur
-	}
-
+    Itbl idx(3) ;		
+    idx.set_etat_qcq() ;	
+    idx.set(0) = indice1 ;
+    idx.set(1) = indice2 ;
+    idx.set(2) = indice3 ;
+    return *cmp[position(idx)] ;
 }
 
 
@@ -534,87 +443,40 @@ const Scalar& Tensor::operator()(const Itbl& ind) const {
     
     assert (ind.get_ndim() == 1) ;
     assert (ind.get_dim(0) == valence) ;
-    for (int i=0 ; i<valence ; i++)
-	assert ((ind(i)>=1) && (ind(i)<=3)) ;
-    
-
-    if ((etat == ETATQCQ) || (etat==ETATZERO)) {	
-	    return *cmp[position(ind)] ;
-    }
-	else{
-		assert( etat == ETATNONDEF) ;
-	    cout << "Undefined Tensor in Tensor::operator(const Itbl&) ..." << endl ;
-	    abort() ;
-	    return *cmp[0] ;  // bidon pour satisfaire le compilateur
-	}
+    return *cmp[position(ind)] ;
     
 }
 
 
-// Gestion de la ZEC :
+// Gestion de la CED :
 void Tensor::dec_dzpuis() {
     
-    if (etat == ETATZERO) {
-	return ; 
-    }
-    
-    assert(etat == ETATQCQ) ;
-   
-    for (int i=0 ; i<n_comp ; i++)
-	if (cmp[i] != 0x0)
-	    cmp[i]->dec_dzpuis() ;
+  for (int i=0 ; i<n_comp ; i++)
+    cmp[i]->dec_dzpuis() ;
 }
 
 void Tensor::inc_dzpuis() {
-    
-    if (etat == ETATZERO) {
-	return ; 
-    }
 
-    assert(etat == ETATQCQ) ;
-    
     for (int i=0 ; i<n_comp ; i++)
-	if (cmp[i] != 0x0)
-	    cmp[i]->inc_dzpuis() ;
+      cmp[i]->inc_dzpuis() ;
 }
 
 void Tensor::dec2_dzpuis() {
     
-    if (etat == ETATZERO) {
-	return ; 
-    }
-    
-    assert(etat == ETATQCQ) ;
-   
-    for (int i=0 ; i<n_comp ; i++)
-	if (cmp[i] != 0x0)
-	    cmp[i]->dec2_dzpuis() ;
+  for (int i=0 ; i<n_comp ; i++)
+    cmp[i]->dec2_dzpuis() ;
 }
 
 void Tensor::inc2_dzpuis() {
     
-    if (etat == ETATZERO) {
-	return ; 
-    }
-
-    assert(etat == ETATQCQ) ;
-    
-    for (int i=0 ; i<n_comp ; i++)
-	if (cmp[i] != 0x0)
-	    cmp[i]->inc2_dzpuis() ;
+  for (int i=0 ; i<n_comp ; i++)
+    cmp[i]->inc2_dzpuis() ;
 }
 
 void Tensor::mult_r_zec() {
     
-    if (etat == ETATZERO) {
-	return ; 
-    }
-
-    assert(etat == ETATQCQ) ;
-    
-    for (int i=0 ; i<n_comp ; i++) 
-    	if (cmp[i] != 0x0)
-	    cmp[i]->mult_r_zec() ;
+  for (int i=0 ; i<n_comp ; i++) 
+    cmp[i]->mult_r_zec() ;
 }
 
 
@@ -639,47 +501,21 @@ ostream& operator<<(ostream& flux, const Tensor &source ) {
 	    flux << " covariant." << endl ;
 	}
     
-    switch (source.etat) {
-	
-	case ETATZERO : {
-	    flux << "Null Tensor. " << endl ;
-	    break ;
-	    }
-	
-	case ETATNONDEF : {
-	    flux << "Undefined Tensor. " << endl ;
-	    break ;
-	    }
-	
-	case ETATQCQ : {
-	    for (int i=0 ; i<source.n_comp ; i++) {
+    for (int i=0 ; i<source.n_comp ; i++) {
 
-		Itbl num_indices (source.indices(i)) ;
-		flux << "Component " ;
+      Itbl num_indices (source.indices(i)) ;
+      flux << "Component " ;
 		
-		if (source.valence != 0) {
-		for (int j=0 ; j<source.valence ; j++)
-		    flux << "  " << num_indices(j) ;
-		    }
-		else
-		    flux << "  " << 0 ;
-		flux << " : " << endl ;
-		flux << "-------------" << endl ; 
-
-
-		if (source.cmp[i] != 0x0)
-		    flux << *source.cmp[i] << endl ;
-		else
-		    flux << "Unknown component ... " << endl ;
-		    
-	    }
-	    break ;
-	    }
-	default : {
-	    cout << "Unknown case in operator<< (ostream&, const Tensor&)" << endl ;
-	    abort() ;
-	    break ;
-	}
+      if (source.valence != 0) {
+	for (int j=0 ; j<source.valence ; j++)
+	  flux << "  " << num_indices(j) ;
+      }
+      else
+	flux << "  " << 0 ;
+      flux << " : " << endl ;
+      flux << "-------------" << endl ; 
+      
+      flux << *source.cmp[i] << endl ;
     }
     
     flux << " -----------------------------------------------------" << endl ;
@@ -697,11 +533,8 @@ void Tensor::sauve(FILE* fd) const {
     }
     
     fwrite_be(&n_comp, sizeof(int), 1, fd) ; // nbre composantes
-    fwrite_be(&etat, sizeof(int), 1, fd) ; // etat
-   
-    if (etat == ETATQCQ)
-	for (int i=0 ; i<n_comp ; i++)
-	    cmp[i]->sauve(fd) ;
+    for (int i=0 ; i<n_comp ; i++)
+      cmp[i]->sauve(fd) ;
 
 }
 

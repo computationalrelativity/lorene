@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/09/24 15:10:54  j_novak
+ * Suppression of the etat flag in class Tensor (still present in Scalar)
+ *
  * Revision 1.3  2003/09/24 08:46:31  j_novak
  * Added tensor.h and scalar.h to the documentation
  *
@@ -99,8 +102,6 @@ class Tensor {
 	Itbl type_indice ;	
 	
 	int n_comp ;	/// Number of stored components, depending on the symmetry.
-
-	int etat ;  /// Logical state {\tt (ETATZERO, ETATQCQ or ETATNONDEF)}
 
 	Scalar** cmp ;   /// The components.
 
@@ -227,38 +228,35 @@ class Tensor {
     // Memory management
     // -----------------
     protected:
-	virtual void del_t() ;	/// Logical destructor
-	
 	virtual void del_deriv() ;	/// Deletes derived quantities
 
     // Mutators / assignment
     // ---------------------
     public:
 	/**
-	 * Sets the logical state to {\tt ETATNONDEF} (undefined state).
-	 * The components are not allocated.
+	 * Sets the logical state of all components to {\tt ETATNONDEF} 
+	 * (undefined state).
 	 */
 	virtual void set_etat_nondef() ;
 	
 	/**
-	 * Sets the logical state to {\tt ETATZERO} (zero state).
-	 * The components are not allocated.
+	 * Sets the logical state of all components to {\tt ETATZERO} 
+	 *(zero state).
 	 */
 	virtual void set_etat_zero() ;
 
 	/**
-	 * Sets the logical state to {\tt ETATQCQ} (ordinary state).
-	 * The components are now allocated and set to {\tt ETATNONDEF}.
+	 * Sets the logical state of all components to {\tt ETATQCQ} 
+	 * (ordinary state).
 	 */
 	virtual void set_etat_qcq() ;
 	
 	/**
-	 * Sets the logical state to {\tt ETATQCQ} (ordinary state)
-	 *  and performs the memory allocation of all the 
+	 *  Performs the memory allocation of all the 
 	 *  elements, down to the {\tt double} arrays of the {\tt Tbl}s. 
 	 *  This function performs in fact recursive calls to 
 	 *  {\tt set\_etat\_qcq()}
-	 *  on each element of the chain {\tt Tensor} -> {\tt Scalar} ->
+	 *  on each element of the chain {\tt Scalar} ->
 	 *  {\tt Valeur} -> {\tt Mtbl} -> {\tt Tbl}. 
 	 */
 	virtual void allocate_all() ; 
@@ -300,9 +298,9 @@ class Tensor {
 	 *			     {\tt [l\_min, l\_max]}.
 	 *	@param l_max [input] see the comments for {\tt l\_min}.
 	 * 
-     * Note that {\tt annule(0, nz-1)}, where {\tt nz} is the total number
+	 * Note that {\tt annule(0, nz-1)}, where {\tt nz} is the total number
 	 * of domains, is equivalent to {\tt set\_etat\_zero()}.
-     */
+	 */
 	virtual void annule(int l_min, int l_max) ; 
 
 	/**
@@ -354,8 +352,6 @@ class Tensor {
 	 */
 	const Base_vect* get_triad() const {return triad;} ; 
     
-	int get_etat() const {return etat ;} ; /// Returns the logical state.
-
 	int get_valence() const {return valence ; } ; ///Returns the valence.
 
 	/// Returns the number of stored components.

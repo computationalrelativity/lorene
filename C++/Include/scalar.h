@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/09/24 15:10:54  j_novak
+ * Suppression of the etat flag in class Tensor (still present in Scalar)
+ *
  * Revision 1.3  2003/09/24 12:01:44  j_novak
  * Added friend functions for math.
  *
@@ -65,11 +68,16 @@ class Param ;
  */
 
 class Scalar : public Tensor {
-
-    // Data : 
-    // -----
-    protected:
-
+  
+  // Data : 
+  // -----
+ protected:
+  
+  /** The logical state {\tt ETATNONDEF} (undefined), {\tt ETATZERO}(null)
+   *  or {\tt ETATQCQ}(ordinary).
+   */
+  int etat ; 
+  
 	/**
 	 * Power of {\it r} by which the quantity represented by {\tt this} 
 	 * must be divided in the  compactified external domain (CED) in order 
@@ -138,6 +146,11 @@ class Scalar : public Tensor {
     // Extraction of information
     // -------------------------
     public:
+	/** Returns the logical state {\tt ETATNONDEF} (undefined), 
+	 * {\tt ETATZERO}(null) or {\tt ETATQCQ}(ordinary).
+	 */
+	int get_etat() const {return etat;} ; 
+
 	int get_dzpuis() const {return dzpuis;} ; /// Returns {\tt dzpuis}
 	
 	/// Returns {\tt va} (read only version)
@@ -157,6 +170,17 @@ class Scalar : public Tensor {
 	 */
 	bool check_dzpuis(int dzi) const ; 
 	
+	/** Computes the value of the field represented by {\tt *this} at an
+	*   arbitrary point $(r, \theta, \phi)$, by means of the spectral 
+	*   expansion.
+	*	 @param r [input] value of the coordinate {\it r}
+	*	 @param theta [input] value of the coordinate $\theta$
+	*	 @param phi [input] value of the coordinate $\phi$
+	*	 @return value at the point $(r, \theta, \phi)$ 
+	*		 of the field represented by {\tt *this}. 
+	*/
+	double val_point(double r, double theta, double phi) const ; 
+
 
     // Assignment
     // -----------
@@ -172,187 +196,6 @@ class Scalar : public Tensor {
 	void operator=(double ) ;	 /// Assignment to a {\tt double}
 	void operator=(int ) ;		 /// Assignment to an {\tt int}
 	    	
-	/** Assignment to another {\tt Scalar} defined on a different mapping.
-	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Scalar}. 
-	 *	@param ci [input] {\tt Scalar} to be imported.
-	 */
-	void import(const Scalar& ci) ;	 
-
-	/** Assignment to another {\tt Scalar} defined on a different mapping.
-	 *  Case where the {\tt Scalar} is symmetric with respect to the plane y=0.
-	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Scalar}. 
-	 *	@param ci [input] {\tt Scalar} to be imported.
-	 */
-	void import_symy(const Scalar& ci) ;	 
-
-	/** Assignment to another {\tt Scalar} defined on a different mapping.
-	 *  Case where the {\tt Scalar} is antisymmetric with respect to the 
-	 *  plane y=0.
-	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Scalar}. 
-	 *	@param ci [input] {\tt Scalar} to be imported.
-	 */
-	void import_asymy(const Scalar& ci) ;	 
-
-	/** Assignment to another {\tt Scalar} defined on a different mapping.
-	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Scalar}. 
-	 *	@param nzet [input] Number of domains of the destination
-	 *			    mapping (i.e. {\tt this->mp}) where the 
-	 *			    importation is performed: the assignment
-	 *			    is done for the domains whose indices are
-	 *			    between 0 and {\tt nzet-1}. In the other
-	 *			    domains, {\tt *this} is set to zero. 
-	 *	@param ci [input] {\tt Scalar} to be imported.
-	 */
-	void import(int nzet, const Scalar& ci) ;	 
-
-	/** Assignment to another {\tt Scalar} defined on a different mapping.
-	 *  Case where the {\tt Scalar} is symmetric with respect to the plane y=0.
-	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Scalar}. 
-	 *	@param nzet [input] Number of domains of the destination
-	 *			    mapping (i.e. {\tt this->mp}) where the 
-	 *			    importation is performed: the assignment
-	 *			    is done for the domains whose indices are
-	 *			    between 0 and {\tt nzet-1}. In the other
-	 *			    domains, {\tt *this} is set to zero. 
-	 *	@param ci [input] {\tt Scalar} to be imported.
-	 */
-	void import_symy(int nzet, const Scalar& ci) ;	 
-
-	/** Assignment to another {\tt Scalar} defined on a different mapping.
-	 *  Case where the {\tt Scalar} is antisymmetric with respect to the 
-	 *  plane y=0.
-	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Scalar}. 
-	 *	@param nzet [input] Number of domains of the destination
-	 *			    mapping (i.e. {\tt this->mp}) where the 
-	 *			    importation is performed: the assignment
-	 *			    is done for the domains whose indices are
-	 *			    between 0 and {\tt nzet-1}. In the other
-	 *			    domains, {\tt *this} is set to zero. 
-	 *	@param ci [input] {\tt Scalar} to be imported.
-	 */
-	void import_asymy(int nzet, const Scalar& ci) ;	 
-
-    protected:
-	/** Assignment to another {\tt Scalar} defined on a different mapping,
-	 *  when the two mappings do not have a particular relative orientation.
-	 *
-	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Scalar}. 
-	 *	@param nzet [input] Number of domains of the destination
-	 *			    mapping (i.e. {\tt this->mp}) where the 
-	 *			    importation is performed: the assignment
-	 *			    is done for the domains whose indices are
-	 *			    between 0 and {\tt nzet-1}. In the other
-	 *			    domains, {\tt *this} is set to zero. 
-	 *	@param ci [input] {\tt Scalar} to be imported.
-	 */
-	void import_gal(int nzet, const Scalar& ci) ;	 
-
-	/** Assignment to another {\tt Scalar} defined on a different mapping,
-	 *  when the two mappings have aligned Cartesian axis. 
-	 *
-	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Scalar}. 
-	 *	@param nzet [input] Number of domains of the destination
-	 *			    mapping (i.e. {\tt this->mp}) where the 
-	 *			    importation is performed: the assignment
-	 *			    is done for the domains whose indices are
-	 *			    between 0 and {\tt nzet-1}. In the other
-	 *			    domains, {\tt *this} is set to zero. 
-	 *	@param ci [input] {\tt Scalar} to be imported.
-	 */
-	void import_align(int nzet, const Scalar& ci) ;	 
-
-	/** Assignment to another {\tt Scalar} defined on a different mapping,
-	 *  when the two mappings have anti-aligned Cartesian axis (i.e.
-	 *  $x_1 = - x_2$,  $y_1 = - y_2$,  $z_1 = z_2$). 
-	 *
-	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Scalar}. 
-	 *	@param nzet [input] Number of domains of the destination
-	 *			    mapping (i.e. {\tt this->mp}) where the 
-	 *			    importation is performed: the assignment
-	 *			    is done for the domains whose indices are
-	 *			    between 0 and {\tt nzet-1}. In the other
-	 *			    domains, {\tt *this} is set to zero. 
-	 *	@param ci [input] {\tt Scalar} to be imported.
-	 */
-	void import_anti(int nzet, const Scalar& ci) ;	 
-
-	/** Assignment to another {\tt Scalar} defined on a different mapping,
-	 *  when the two mappings have aligned Cartesian axis. 
-	 *  Case where the {\tt Scalar} is symmetric with respect to the plane y=0.
-	 *
-	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Scalar}. 
-	 *	@param nzet [input] Number of domains of the destination
-	 *			    mapping (i.e. {\tt this->mp}) where the 
-	 *			    importation is performed: the assignment
-	 *			    is done for the domains whose indices are
-	 *			    between 0 and {\tt nzet-1}. In the other
-	 *			    domains, {\tt *this} is set to zero. 
-	 *	@param ci [input] {\tt Scalar} to be imported.
-	 */
-	void import_align_symy(int nzet, const Scalar& ci) ;	 
-
-	/** Assignment to another {\tt Scalar} defined on a different mapping,
-	 *  when the two mappings have anti-aligned Cartesian axis (i.e.
-	 *  $x_1 = - x_2$,  $y_1 = - y_2$,  $z_1 = z_2$). 
-	 *  Case where the {\tt Scalar} is symmetric with respect to the plane y=0.
-	 *
-	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Scalar}. 
-	 *	@param nzet [input] Number of domains of the destination
-	 *			    mapping (i.e. {\tt this->mp}) where the 
-	 *			    importation is performed: the assignment
-	 *			    is done for the domains whose indices are
-	 *			    between 0 and {\tt nzet-1}. In the other
-	 *			    domains, {\tt *this} is set to zero. 
-	 *	@param ci [input] {\tt Scalar} to be imported.
-	 */
-	void import_anti_symy(int nzet, const Scalar& ci) ;	 
-
-	/** Assignment to another {\tt Scalar} defined on a different mapping,
-	 *  when the two mappings have aligned Cartesian axis. 
-	 *  Case where the {\tt Scalar} is antisymmetric with respect to the 
-	 *  plane y=0.
-	 *
-	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Scalar}. 
-	 *	@param nzet [input] Number of domains of the destination
-	 *			    mapping (i.e. {\tt this->mp}) where the 
-	 *			    importation is performed: the assignment
-	 *			    is done for the domains whose indices are
-	 *			    between 0 and {\tt nzet-1}. In the other
-	 *			    domains, {\tt *this} is set to zero. 
-	 *	@param ci [input] {\tt Scalar} to be imported.
-	 */
-	void import_align_asymy(int nzet, const Scalar& ci) ;	 
-
-	/** Assignment to another {\tt Scalar} defined on a different mapping,
-	 *  when the two mappings have anti-aligned Cartesian axis (i.e.
-	 *  $x_1 = - x_2$,  $y_1 = - y_2$,  $z_1 = z_2$). 
-	 *  Case where the {\tt Scalar} is antisymmetric with respect to the 
-	 *  plane y=0.
-	 *
-	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Scalar}. 
-	 *	@param nzet [input] Number of domains of the destination
-	 *			    mapping (i.e. {\tt this->mp}) where the 
-	 *			    importation is performed: the assignment
-	 *			    is done for the domains whose indices are
-	 *			    between 0 and {\tt nzet-1}. In the other
-	 *			    domains, {\tt *this} is set to zero. 
-	 *	@param ci [input] {\tt Scalar} to be imported.
-	 */
-	void import_anti_asymy(int nzet, const Scalar& ci) ;	 
-
 
 
     // Access to individual elements
@@ -415,22 +258,10 @@ class Scalar : public Tensor {
 	    }
 	};
 
-	/** Computes the value of the field represented by {\tt *this} at an
-	*   arbitrary point $(r, \theta, \phi)$, by means of the spectral 
-	*   expansion.
-	*	 @param r [input] value of the coordinate {\it r}
-	*	 @param theta [input] value of the coordinate $\theta$
-	*	 @param phi [input] value of the coordinate $\phi$
-	*	 @return value at the point $(r, \theta, \phi)$ 
-	*		 of the field represented by {\tt *this}. 
-	*/
-	double val_point(double r, double theta, double phi) const ; 
-
-
     // Memory management
     // -----------------
     protected:
-	virtual void del_t() ;		    /// Logical destructor
+	void del_t() ;		    /// Logical destructor
 	virtual void del_deriv() ;	    /// Logical destructor of the derivatives
 	virtual void set_der_0x0() ;	    /// Sets the pointers for derivatives to 0x0
 
@@ -491,38 +322,6 @@ class Scalar : public Tensor {
 	virtual void annule(int l_min, int l_max) ; 
     
     /**
-     * Sets the {\tt n} lasts coefficients in {\it r} to 0 in the 
-	 *  external domain.
-     */
-	void filtre (int n) ;
-    
-    /**
-     * Sets the {\tt n} lasts coefficients in $\Phi$ to 0 in the 
-     * domain {\tt zone}.
-     */
-	void filtre_phi (int n, int zone) ;
-    
-    /**
-     * Sets the value of the {\tt Scalar} to {\tt val} at infinity. This is usefull
-     * for dealing with undefined values. The external domain must be 
-     * compactified.
-     */
-	void set_val_inf (double val) ;
-    
-    /**
-     * Sets the value of the {\tt Scalar} to {\tt val} on the inner boudary of the
-     * shell number {\tt zone}.This is usefull
-     * for dealing with undefined values.
-     */
-	void set_val_hor (double val, int zone) ;
-    /**
-     * Substracts all the components behaving like $r^{-n}$ in the external 
-     * domain, with {\it n} strictly lower than {\tt puis}, so that {\tt *this} 
-     * decreases at least like $r^{\tt puis}$ at infinity.
-     */
-	void fixe_decroissance (int puis) ;
-
-    /**
      * Gives the spectrum in terms of multipolar modes {\it l}.
      *  @return a {\tt Tbl} of size (nzone, lmax), where lmax is the
      *  maximal multipolar momentum over all domains. The {\it l}-th
@@ -572,315 +371,15 @@ class Scalar : public Tensor {
      */
     void set_spectral_base(const Base_val& ) ;	 
 
-    // Differential operators and others
-    // ---------------------------------
-    public:
-	/** Returns $\partial / \partial r$ of {\tt *this}.
-	 *  Note that in the  compactified external domain (CED), it returns
-	 *  instead $r^2 \partial/ \partial r$.
-	 */
-	const Scalar& dsdr() const ; 
+    /** Modifies the {\tt dzpuis} flag.
+     *  NB: this method does not change the field values stored in
+     *  the compactified external domain (use methods {\tt dec\_dzpuis()},
+     *  etc... for this purpose).  
+     */
+    void set_dzpuis(int ) ; 
+
 	
-	/** Returns $1/r \partial / \partial \theta$ of {\tt *this}.
-	 *  Note that in the  compactified external domain (CED), it returns
-	 *  instead $r \partial/ \partial \theta$.
-	 */
-	const Scalar& srdsdt() const ; 
 
-	/** Returns $1/(r\sin\theta) \partial / \partial \phi$ of {\tt *this}.
-	 *  Note that in the  compactified external domain (CED), it returns
-	 *  instead $r/\sin\theta \partial/ \partial \phi$.
-	 */
-	const Scalar& srstdsdp() const ; 
-
-	/** Returns $\partial/\partial x$ of {\tt *this},
-	 *  where $x=r\sin\theta \cos\phi$.
-	 *  Note that in the  compactified external domain (CED), it returns
-	 *  instead $r^2 \partial/ \partial x$.
-	 */
-	const Scalar& dsdx() const ;	
-
-	/** Returns $\partial/\partial y$ of {\tt *this},
-	 *  where $y=r\sin\theta \sin\phi$.
-	 *  Note that in the compactified external domain (CED), it returns
-	 *  instead $r^2 \partial/ \partial y$.
-	 */
-	const Scalar& dsdy() const ;	
-
-	/** Returns $\partial/\partial z$ of {\tt *this},
-	 *  where $z=r\cos\theta$.
-	 *  Note that in the compactified external domain (CED), it returns
-	 *  instead $r^2 \partial/ \partial z$.
-	 */
-	const Scalar& dsdz() const ;	
-
-	/** Returns $\partial/\partial x_i$ of {\tt *this},
-	 *  where $x_i = (x, y, z)$.
-	 *  Note that in the compactified external domain (CED), it returns
-	 *  instead $r^2 \partial/ \partial x_i$.
-	 *  @param i [input] i=0 for {\it x},  i=1 for {\it y}, i=2 for {\it z}.
-	 */
-	const Scalar& deriv(int i) const ;	
-
-	/** Returns the Laplacian of {\tt *this}
-	 *   @param zec_mult_r [input] Determines the quantity computed in
-	 *			 the  compactified external domain (CED) 
-	 *		({\it u} in the field represented by {\tt *this}) :  \\
-	 *		    zec\_mult\_r = 0 : $\Delta u$	\\
-	 *		    zec\_mult\_r = 2 : $r^2 \,  \Delta u$	\\
-	 *		    zec\_mult\_r = 4 (default) : $r^4 \, \Delta u$	
-	 */
-	const Scalar& laplacien(int zec_mult_r = 4) const ; 
-
-	void div_r() ;    /// Division by {\it r} everywhere.
-
-	void mult_r() ;   /// Multiplication by {\it r} everywhere.
-
-	/** Multiplication by {\it r} in the compactified external domain (CED)
-	 */
-	virtual void mult_r_zec() ;
-	
-	void mult_rsint() ;   /// Multiplication by $r\sin\theta$
-
-	void div_rsint() ;    /// Division by $r\sin\theta$
-
-	/** Decreases by 1 the value of {\tt dzpuis} and changes accordingly
-	 *  the values of the {\tt Scalar} in the compactified external domain (CED).
-	 */
-	virtual void dec_dzpuis() ; 
-
-	/** Increases by the value of {\tt dzpuis} and changes accordingly
-	 *  the values of the {\tt Scalar} in the compactified external domain (CED).
-	 */
-	virtual void inc_dzpuis() ; 
-	
-	/** Decreases by 2 the value of {\tt dzpuis} and changes accordingly
-	 *  the values of the {\tt Scalar} in the compactified external domain (CED).
-	 */
-	virtual void dec2_dzpuis() ; 
-
-	/** Increases by 2 the value of {\tt dzpuis} and changes accordingly
-	 *  the values of the {\tt Scalar} in the compactified external domain (CED).
-	 */
-	virtual void inc2_dzpuis() ; 
-
-
-	/** Modifies the {\tt dzpuis} flag.
-	 *  NB: this method does not change the field values stored in
-	 *  the compactified external domain (use methods {\tt dec\_dzpuis()},
-	 *  etc... for this purpose).  
-	 */
-	void set_dzpuis(int ) ; 
-
-	/** Computes the integral over all space of {\tt *this}.
-	 *  The computed quantity is ({\it u} being the field represented by
-	 *   {\tt *this})
-	 *    $\int u \, r^2 \sin\theta \,  dr\, d\theta \, d\phi$.
-	 *  Note that in the compactified external domain (CED), {\tt dzpuis} 
-	 *  must be 4 for the computation to take place. 
-	 */
-	double integrale() const ; 
-	
-	/** Computes the integral in each domain of {\tt *this}.
-	 *  The computed quantity is ({\it u} being the field represented by
-	 *   {\tt *this})
-	 *    $\int u \, r^2 \sin\theta \,  dr\, d\theta \, d\phi$
-	 *  in each domain. The result is returned a {\tt Tbl} on the 
-	 *  various domains. 
-	 *  Note that in the compactified external domain (CED), {\tt dzpuis} 
-	 *  must be 4 for the computation to take place. 
-	 */
-	const Tbl& integrale_domains() const ; 
-	
-	/** Asymptotic expansion at r = infinity. 
-	 * 
-	 *  Determines the coefficients $a_k(\theta, \phi)$ of the expansion
-	 *  \begin{equation}
-	 *	\sum_{k=0}^n {a_k(\theta, \phi) \over r^k}
-	 *  \end{equation} 
-	 *  of {\tt *this} when $r \rightarrow \infty$. 
-	 *
-	 *	@param n order of the expansion
-	 *	@param flag : output
-	 *	@return Array of {\tt n}+1 {\tt Valeur}s on {\tt mg->angu} 
-	 *		describing the coefficients $a_k(\theta, \phi)$. 
-	 *		This array is allocated by the routine. 
-	 * 
-	 */
-	Valeur** asymptot(int n, const int flag = 0) const ; 
-	
-	/// Function to compare the values of two Scalar
-
-	void compare(FILE* fich, const char* name_i) ;
-	void compare(const Scalar& comp, const char* name, int ii = -1
-		     , int jj = -1) ;
- 
-
-
-
-    // PDE resolution 
-    // --------------
-    public:
-	/** Solves the scalar Poisson equation with {\tt *this} as a source.
-	 *   The source $\sigma$ of the equation $\Delta u = \sigma$ is 
-	 *   represented by the {\tt Scalar} {\tt *this}. 
-	 *   Note that {\tt dzpuis} must be equal to 2 or 4, i.e. that the
-	 *   quantity stored in {\tt *this} is in fact $r^2 \sigma$ or
-	 *   $r^4 \sigma$ in the compactified external domain. 
-	 *   The solution {\it u} with the boundary condition {\it u}=0 at spatial
-	 *   infinity is the returned {\tt Scalar}. 
-	 */
-	Scalar poisson() const ;
-
-	/** Solves the scalar Poisson equation with {\tt *this} as a source
-	 *   (version with parameters to control the resolution).
-	 *   The source $\sigma$ of the equation $\Delta u = \sigma$ is 
-	 *   represented by the {\tt Scalar} {\tt *this}. 
-	 *   Note that {\tt dzpuis} must be equal to 2 or 4, i.e. that the
-	 *   quantity stored in {\tt *this} is in fact $r^2 \sigma$ or
-	 *   $r^4 \sigma$ in the compactified external domain. 
-	 *   @param par [input/output] possible parameters
-	 *   @param uu [input/output] solution {\it u} with the boundary condition 
-	 *   {\it u}=0 at spatial infinity. 
-	 */
-	void poisson(Param& par, Scalar& uu) const ;
-	
-	/**
-	 * Is identicall to {\tt Scalar::poisson()}. The regularity condition at the 
-	 * origin is replace by a boundary condition of the Dirichlet type.
-	 * 
-	 * @param limite [input] : angular function. The boundary condition is 
-	 * given by {\tt limite[num]}.
-	 * @param num [input] : index of the boudary at which the condition is to 
-	 * be fullfilled.
-	 * 
-	 * More precisely we impose the solution is equal to {\tt limite[num]} at the
-	 * boundary between the domains {\tt num} and {\tt num+1} (the latter one being 
-	 * a shell).
-	 * 
-	 */
-	Scalar poisson_dirichlet (const Valeur& limite, int num) const ;
-	
-	/**
-	 * Idem as {\tt Scalar::poisson\_neumann}, the boundary condition being on 
-	 * the radial derivative of the solution.
-	 */
-	Scalar poisson_neumann   (const Valeur&, int) const ;
-	Scalar poisson_frontiere_double   (const Valeur&, const Valeur&, int) const ;
-
-	/** Solves the scalar Poisson equation with {\tt *this} as a source
-	 *   (version with parameters to control the resolution).
-	 *   The source $\sigma$ of the equation $\Delta u = \sigma$ is 
-	 *   represented by the {\tt Scalar} {\tt *this}. 
-	 *   The regularized source
-	 *   $\sigma_{\rm regu} = \sigma - \sigma_{\rm div}$
-	 *   is constructed and solved.
-	 *   Note that {\tt dzpuis} must be equal to 2 or 4, i.e. that the
-	 *   quantity stored in {\tt *this} is in fact $r^2 \sigma$ or
-	 *   $r^4 \sigma$ in the compactified external domain.
-	 *   @param k_div [input] regularization degree of the procedure
-	 *   @param nzet [input] number of domains covering the star
-	 *   @param unsgam1 [input] parameter $1/(\gamma-1)$ where $\gamma$
-	 *          denotes the adiabatic index
-	 *   @param par [input/output] possible parameters
-	     @param uu [input/output] solution
-	 *   @param uu_regu [output] solution of the regular part of
-	 *          the source.
-	 *   @param uu_div [output] solution of the diverging part of
-	 *          the source.
-	 *   @param duu_div [output] derivative of the diverging potential.
-	 *   @param source_regu [output] regularized source
-	 *   @param source_div [output] diverging part of the source
-	 */
-	void poisson_regular(int k_div, int nzet, double unsgam1, Param& par,
-			     Scalar& uu, Scalar& uu_regu, Scalar& uu_div,
-			     Tenseur& duu_div,
-			     Scalar& source_regu, Scalar& source_div) const ;
-
-	/** Checks if a Poisson equation with {\tt *this} as a source
-	 *  has been correctly solved.
-	 * 
-	 *  @param uu [input] Solution {\it u} of the Poisson equation
-	 *		      $\Delta u = \sigma$,  $\sigma$ being 
-	 *		      represented by the {\tt Scalar} {\tt *this}.
-	 * 
-	 *  @param ostr [input/output] Output stream used for displaying
-	 *		{\tt err}.
-	 *
-	 *  @param detail [input] if {\tt true} displays {\tt err(0, *)}, 
-	 *		    {\tt err(1, *)} and {\tt err(2, *)} \\
-	 *		if {\tt false} (default),  displays only 
-	 *		the relative error {\tt err(0, *)}. 
-	 *  
-	 *  @return 2-D {\tt Tbl} {\tt err} decribing the errors in each 
-	 *	    domain: \\
-	 *	{\tt err(0, l) : } Relative error in domain no. {\tt l}, 
-	 *	    defined as the maximum value of 
-	 *	    $|\Delta u - \sigma|$ in that domain divided by {\it M}, 
-	 *	    where {\it M} is the maximum value of $|\sigma|$ 
-	 *	    over all domains if {\tt dzpuis = 0} or $\sigma$ is
-	 *	    zero in the compactified external domain (CED). If 
-	 *	    {\tt dzpuis != 0} and $\sigma$ does not vanish in the 
-	 *	    CED, the value of {\it M} used in the
-	 *	    non-compactified domains is the maximum value over
-	 *	    these domains, whereas the value of {\it M} used in the
-	 *	    compactified external domain is the maximum value
-	 *	    on that particular domain. \\
-	 *	{\tt err(1, l) : }  Maximum value of the absolute error
-	 *			$|\Delta u - \sigma|$ in domain no. {\tt l} \\
-	 *	{\tt err(2, l) : }  Maximum value of $|\sigma|$ in domain 
-	 *			    no. {\tt l} 
-	 */
-	Tbl test_poisson(const Scalar& uu, ostream& ostr, 
-					bool detail = false) const ;  
-
-	/** Performs one time-step integration (from $t=j \to j+1$) of the 
-	 *   scalar d'Alembert equation with {\tt *this} being the value of 
-	 *   the function {\it f} at time {\it j}.
-	 *   @param par [input/output] possible parameters to control the
-	 *   resolution of the d'Alembert equation: \\
-	 *   {\tt par.get\_double(0)} : [input] the time step {\it dt},\\
-	 *   {\tt par.get\_int(0)} : [input] the type of boundary conditions
-	 *   set at the outer boundary (0 : reflexion, 1 : Sommerfeld 
-	 *   outgoing wave, valid only for {\it l=0} components, 2 : Bayliss 
-	 *   \& Turkel outgoing wave, valid for {\it l=0, 1, 2} components)\\
-	 *   {\tt par.get\_int\_mod(0)} : [input/output] set to 0 at first
-	 *   call, is used as a working flag after (must not be modified after
-	 *   first call)\\
-	 *   {\tt par.get\_Scalar\_mod(0)} : [input] (optional) if the wave 
-	 *   equation is on a curved space-time, this is the potential in front
-	 *   of the Laplace operator. It has to be updated at every time-step
-	 *   (for a potential depending on time).\\
-	 *   Note: there are many other working objects attached to this
-	 *   {\tt Param}, so one should not modify it.\\
-	 *   There should be one {\tt Param} for each wave equation to be 
-	 *   solved. 
-	 *   @param fJm1 [input] solution $f^{J-1}$ at time {\it J-1}
-	 *   @param source [input] source $\sigma$ of the d'Alembert equation 
-	 *	    $\diamond u = \sigma$.
-	 *   @return solution $f^{J+1}$ at time {\it J+1}
-	 *   with boundary conditions defined by {\tt par.get\_int(0)}.
-	 */
-	Scalar avance_dalembert(Param& par, const Scalar& fjm1, const Scalar& source) 
-	  const ;
-	
-	/**
-	 * Performs the $C^n$ matching of the nucleus with respect to the 
-	 * first shell.
-	 */
-	void raccord(int n) ;
-	
-	/**
-	 * Performs the $C^1$ matching of the external domain with respect to
-	 * the last shell using function like $\frac{1}{r^i}$ with 
-	 * ${\tt puis} \leq i \leq {\tt puis+nbre}$ for each spherical harmonics 
-	 * with $l \leq {\tt lmax}$.
-	 */
-	void raccord_c1_zec (int puis, int nbre, int lmax) ;
-	/**
-	 * Matching of the external domain with the outermost shell
-	 */
-	void raccord_externe (int puis, int nbre, int lmax) ;
 
 friend Scalar operator-(const Scalar& ) ;			
 friend Scalar operator+(const Scalar&, const Scalar &) ;	
