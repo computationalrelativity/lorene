@@ -35,6 +35,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2004/09/28 15:59:47  f_limousin
+ * Add function poisson_vect_boundary which is the same as
+ * poisson_vect_frontiere but for the new classes Tensor and Scalar.
+ *
  * Revision 1.21  2004/08/24 09:14:40  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -213,6 +217,7 @@ class Valeur ;
 class Base_val ;
 class Cmp ;
 class Tenseur ;
+class Vector ;
 class Param_elliptic ;
 
 // Routines calcul de coefficients
@@ -596,9 +601,14 @@ void neumann_binaire (const Cmp& source_un, const Cmp& source_deux,
 			double bound_un, double bound_deux, 
 				Cmp& sol_un, Cmp& sol_deux, int num_front, 
 				double precision) ;
+
 void poisson_vect_frontiere (double lambda, const Tenseur& source, Tenseur& shift, 
 	    const Valeur& lim_x, const Valeur& lim_y, const Valeur& lim_z, 
 	    int num_front, double precision, int itermax) ;
+void poisson_vect_boundary (double lambda, const Vector& source, Vector& shift,
+ 	    const Valeur& lim_x, const Valeur& lim_y, const Valeur& lim_z, 
+	    int num_front, double precision, int itermax) ;
+
 void poisson_vect_binaire ( double lambda, 
 		const Tenseur& source_un, const Tenseur& source_deux, 
 		const Valeur& bound_x_un, const Valeur& bound_y_un, 

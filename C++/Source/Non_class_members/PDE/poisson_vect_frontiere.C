@@ -25,6 +25,10 @@ char poisson_vect_frontiere_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/09/28 16:00:15  f_limousin
+ * Add function poisson_vect_boundary which is the same as
+ * poisson_vect_frontiere but for the new classes Tensor and Scalar.
+ *
  * Revision 1.3  2003/10/03 15:58:50  j_novak
  * Cleaning of some headers
  *
@@ -56,6 +60,8 @@ char poisson_vect_frontiere_C[] = "$Header$" ;
 // Headers Lorene :
 #include "proto.h"
 #include "tenseur.h"
+#include "tensor.h"
+#include "metric.h"
 
     // USING OOhara
 void poisson_vect_frontiere (double lambda, const Tenseur& source, Tenseur& shift, 
@@ -166,6 +172,123 @@ void poisson_vect_frontiere (double lambda, const Tenseur& source, Tenseur& shif
 	    indic = -1 ;
 	}
 }
+
+
+
+    // USING OOhara
+void poisson_vect_boundary (double lambda, const Vector& source,Vector& shift, 
+	    const Valeur& lim_x, const Valeur& lim_y, const Valeur& lim_z, 
+	    int num_front, double precision, int itermax) {
+	
+    // On travaille en composantes cartesiennes
+    assert(source.get_mp().get_bvect_spher() == *(source.get_triad())) ;
+    assert(source.get_mp().get_bvect_spher() == *(shift.get_triad())) ;
+
+ 
+    // Confort
+    int nt = lim_x.get_mg()->get_nt(num_front+1) ;
+    int np = lim_x.get_mg()->get_np(num_front+1) ;
+    int nz = lim_x.get_mg()->get_nzone() ;
+    
+    Metric_flat ff(source.get_mp(), source.get_mp().get_bvect_spher()) ;
+    
+    Vector so (source) ;
+    
+    // La source scalaire :
+    Vector cop_so (so) ;
+    cop_so.dec_dzpuis(2) ;
+    cop_so.dec_dzpuis(2) ;
+    
+    Scalar scal (so.get_mp()) ;
+    
+    Scalar source_scal (contract(cop_so.derive_cov(ff), 0, 1)/(lambda+1)) ;
+    source_scal.inc_dzpuis(2) ;
+    if (source_scal.get_etat()== ETATZERO) {
+	source_scal.annule_hard() ;
+	source_scal.std_spectral_base() ;
+	source_scal.set_dzpuis(4) ;
+	}
+
+    Vector copie_so (so) ;
+    copie_so.dec_dzpuis() ;
+     
+    Vector source_vect (so.get_mp(), CON, *source.get_triad()) ;
+    Vector auxi (so.get_mp(), COV, *source.get_triad()) ;
+    Scalar grad_shift (source_scal.get_mp()) ;
+    
+    // La condition sur la derivee du scalaire :
+    Valeur lim_scal (lim_x.get_mg()) ;
+    Vector shift_old (shift.get_mp(), CON, shift.get_mp().get_bvect_cart()) ;
+    
+    int conte = 0 ;
+    int indic = 1 ;
+   
+    while (indic ==1) {
+	
+	shift_old = shift ;
+	
+	grad_shift = contract(shift.derive_cov(ff), 0, 1) ;
+	grad_shift.dec_dzpuis(2) ;
+	grad_shift.set_spectral_va().coef_i() ;
+	   
+     
+	lim_scal = 1 ; // Permet d'affecter les trucs qui vont bien !
+	for (int k=0 ; k<np ; k++)
+	    for (int j=0 ; j<nt ; j++)
+		lim_scal.set(num_front, k, j, 0) = 
+		    grad_shift.get_spectral_va() (num_front+1, k, j, 0) ;
+	lim_scal.std_base_scal() ;
+   
+	// On resout la scalaire :
+	scal = source_scal.poisson_dirichlet (lim_scal, num_front) ;
+    
+	// La source vectorielle :
+	source_vect.set_etat_qcq() ;
+	auxi = scal.derive_cov(ff) ;
+	auxi.inc_dzpuis() ;
+	for (int i=1 ; i<=3 ; i++)
+	    source_vect.set(i) = copie_so(i) - lambda * auxi(i) ;
+    
+	indic = 0;
+	for (int i=1 ; i<=3 ; i++)
+	    if (source_vect(i).get_etat()==ETATQCQ)
+		indic = 1 ;
+	if (indic==0) {
+	    for (int i=1 ; i<=3 ; i++)
+		source_vect.set(i).annule_hard() ;
+	    source_vect.std_spectral_base() ;
+	}
+
+	shift.change_triad(source.get_mp().get_bvect_cart()) ;
+	source_vect.change_triad(source.get_mp().get_bvect_cart()) ;
+
+   
+	// On resout les equations de poisson sur le shift :
+	shift.set(1) = source_vect(1).poisson_dirichlet (lim_x, num_front) ;
+	shift.set(2) = source_vect(2).poisson_dirichlet (lim_y, num_front) ;
+	shift.set(3) = source_vect(3).poisson_dirichlet (lim_z, num_front) ;
+	
+	shift.change_triad(source.get_mp().get_bvect_spher()) ;
+	source_vect.change_triad(source.get_mp().get_bvect_spher()) ;
+
+	double erreur = 0 ;
+	for (int i=1 ; i<=3 ; i++) 
+	    if (max(norme(shift(i))) > precision) {
+	    Tbl diff (diffrelmax (shift(i), shift_old(i))) ;
+	    for (int j=num_front+1 ; j<nz ; j++)
+		if (diff(j)> erreur)
+		    erreur = diff(j) ;
+	    }
+	
+	cout << "Pas " << conte << " : Difference " << erreur << endl ;
+	conte ++ ;
+	
+	if ((erreur <precision) || (conte > itermax))
+	    indic = -1 ;
+	}
+}
+
+
 
 
 void poisson_vect_binaire ( double lambda, 
