@@ -30,6 +30,9 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/11/05 10:57:03  f_limousin
+ * Delete argument partial_save in the function sauve.
+ *
  * Revision 1.6  2004/11/05 10:10:21  f_limousin
  * Construction of an isolhor with the Metric met_gamt instead
  * of a Sym_tensor.
@@ -153,7 +156,7 @@ ostream& Isol_hor::operator>>(ostream& flux) const {
                 //--------------------------//
 
 
-void Isol_hor::sauve(FILE* fich, bool partial_save) const {
+void Isol_hor::sauve(FILE* fich) const {
 
 
     // Writing of quantities common to all derived classes of Time_slice
