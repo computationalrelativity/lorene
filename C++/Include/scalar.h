@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2003/10/01 13:02:58  e_gourgoulhon
+ * Suppressed the constructor from Map* .
+ *
  * Revision 1.13  2003/09/29 12:52:56  j_novak
  * Methods for changing the triad are implemented.
  *
@@ -162,8 +165,6 @@ class Scalar : public Tensor {
   
   explicit Scalar(const Map& ) ;	/// Constructor from mapping
 
-  explicit Scalar(const Map* ) ;	/// Constructor from mapping
-  
   Scalar(const Scalar& ) ;		/// Copy constructor
   
   explicit Scalar(const Cmp& ) ;	/// Constructor by conversion of a Cmp
