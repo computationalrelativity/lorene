@@ -30,6 +30,9 @@ char time_slice_conf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/29 12:00:41  e_gourgoulhon
+ * Many modifs.
+ *
  * Revision 1.2  2004/03/28 21:32:23  e_gourgoulhon
  * Corrected error in method trk().
  *
@@ -102,22 +105,24 @@ Time_slice_conf::Time_slice_conf(const Scalar& lapse_in, const Vector& shift_in,
                       aa_evol(depth_in),
                       trk_evol(depth_in) {
                     
-    Scalar psi04 = pow( (Time_slice::gam()).determinant() / ff.determinant(), 
-                         0.3333333333333333) ;
+    p_gamma = new Metric(gamma_in) ; 
+                    
+    set_der_0x0() ; // put here in order not to erase p_psi4
 
-    psi_evol.update( pow(psi04, 0.25), jtime, the_time[jtime] ) ; 
+    p_psi4 = new Scalar( pow( p_gamma->determinant() / ff.determinant(), 
+                         0.3333333333333333) ) ;
+
+    psi_evol.update( pow(*p_psi4, 0.25), jtime, the_time[jtime] ) ; 
     
-    hh_evol.update( psi04 * gam().con() - ff.con(), jtime, the_time[jtime] ) ; 
+    hh_evol.update( (*p_psi4) * p_gamma->con() - ff.con(), 
+                    jtime, the_time[jtime] ) ; 
     
-    trk_evol.update( kk_in.trace(gam()), jtime, the_time[jtime] ) ; 
+    trk_evol.update( kk_in.trace(*p_gamma), jtime, the_time[jtime] ) ; 
     
-    aa_evol.update( psi04 *( k_uu() - 0.3333333333333333 * trk_evol[jtime] 
-                                * gam().con() ), jtime, the_time[jtime] ) ; 
-     
-    set_der_0x0() ; 
-    
-    p_psi4 = new Scalar( psi04 ) ; 
-                       
+    aa_evol.update( (*p_psi4) *( Time_slice::k_uu() 
+                    - 0.3333333333333333 * trk_evol[jtime] * p_gamma->con() ), 
+                    jtime, the_time[jtime] ) ; 
+                                
 }
 
 
@@ -154,8 +159,12 @@ void Time_slice_conf::del_deriv() const {
 
     if (p_tgamma != 0x0) delete p_tgamma ; 
     if (p_psi4 != 0x0) delete p_psi4 ; 
+    if (p_ln_psi != 0x0) delete p_ln_psi ; 
+    if (p_hdirac != 0x0) delete p_hdirac ; 
     
     set_der_0x0() ;
+
+    Time_slice::del_deriv() ; 
 }
 
 
@@ -163,6 +172,8 @@ void Time_slice_conf::set_der_0x0() const {
 
     p_tgamma = 0x0 ; 
     p_psi4 = 0x0 ; 
+    p_ln_psi = 0x0 ; 
+    p_hdirac = 0x0 ; 
     
 }
 
@@ -289,6 +300,17 @@ const Scalar& Time_slice_conf::psi4() const {
 
 } 
 
+const Scalar& Time_slice_conf::ln_psi() const {
+
+    if (p_ln_psi == 0x0)  {
+
+        p_ln_psi = new Scalar( log( psi() ) ) ; 
+    }
+
+    return *p_ln_psi ;
+
+} 
+
 
 const Scalar& Time_slice_conf::qq() const {
 
@@ -327,7 +349,20 @@ const Sym_tensor& Time_slice_conf::hh() const {
 
 const Sym_tensor& Time_slice_conf::aa() const {
 
-    assert( aa_evol.is_known(jtime) ) ; 
+    if( !(aa_evol.is_known(jtime)) ) {
+
+        assert( hh_evol.is_known(jtime) ) ; 
+
+        Sym_tensor resu = hh_evol.time_derive(jtime, scheme_order)
+            - hh().derive_lie(beta()) 
+            - 0.6666666666666666 * beta().divergence(ff)
+            + beta().ope_killing_conf(ff) ; 
+        resu = resu / (2*nn()) ;
+        
+        aa_evol.update(resu, jtime, the_time[jtime]) ;
+        
+    }
+     
     return aa_evol[jtime] ; 
 
 }
@@ -335,11 +370,70 @@ const Sym_tensor& Time_slice_conf::aa() const {
 
 const Scalar& Time_slice_conf::trk() const {
 
-    assert( trk_evol.is_known(jtime) ) ; 
+    if( !(trk_evol.is_known(jtime)) ) {
+
+        psi() ; 
+        Scalar resu = beta().divergence(ff) 
+                + 6.*( contract(beta(), 0, ln_psi().derive_cov(ff), 0)
+                - psi_evol.time_derive(jtime, scheme_order) / psi() ) ; 
+        resu = resu / nn() ; 
+        
+        trk_evol.update(resu, jtime, the_time[jtime]) ;
+
+    } 
+    
     return trk_evol[jtime] ; 
 
 }
 
+
+const Vector& Time_slice_conf::hdirac() const {
+
+    if (p_hdirac == 0x0) {
+        p_hdirac = new Vector( hh().divergence(ff) ) ; 
+    }
+    
+    return *p_hdirac ; 
+
+}
+
+
+                //------------------//
+                //      output      //
+                //------------------//
+
+ostream& Time_slice_conf::operator>>(ostream& flux) const {
+
+    Time_slice::operator>>(flux) ; 
+
+    flux << "Triad on which the components of the flat metric are defined:\n" 
+        << *(ff.get_triad()) << '\n' ;  
+
+    if (psi_evol.is_known(jtime)) {
+        maxabs( psi_evol[jtime], "Psi", flux) ;
+    }
+    if (qq_evol.is_known(jtime)) {
+        maxabs( qq_evol[jtime], "Q", flux) ;
+    }
+    if (hh_evol.is_known(jtime)) {
+        maxabs( hh_evol[jtime], "h^{ij}", flux) ;
+    }
+    if (aa_evol.is_known(jtime)) {
+        maxabs( aa_evol[jtime], "A^{ij}", flux) ;
+    }
+    if (trk_evol.is_known(jtime)) {
+        maxabs( trk_evol[jtime], "tr K", flux) ;
+    }
+
+    if (p_tgamma != 0x0) flux << 
+        "Conformal metric tilde gamma is up to date" << endl ; 
+    if (p_psi4 != 0x0) maxabs( *p_psi4, "Psi^4", flux) ; 
+    if (p_ln_psi != 0x0) maxabs( *p_ln_psi, "ln(Psi)", flux) ; 
+    if (p_hdirac != 0x0) maxabs( *p_hdirac, "H^i", flux) ; 
+    
+    return flux ; 
+
+}
 
 
 
