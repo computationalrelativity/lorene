@@ -62,13 +62,16 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp) {
     else{  
 	shift_comp.set_etat_qcq() ; 
 
+	shift_comp.set_triad( *((comp.shift_auto).get_triad()) ) ;  
+	assert ( *(shift_comp.get_triad()) == *((comp.shift_auto).get_triad())) ;
+	
 	(shift_comp.set(0)).import_asymy( comp.shift_auto(0) ) ;  // N^x antisym
 	(shift_comp.set(1)).import_symy( comp.shift_auto(1) ) ;   // N^y sym.
 	(shift_comp.set(2)).import_asymy( comp.shift_auto(2) ) ;  // N^z anisym
 
+	shift_comp.set_triad( mp.get_bvect_cart() ) ;    	
 	shift_comp.set_std_base() ;   // set the bases for spectral expansions
     }
-    shift_comp.set_triad( *((comp.shift_auto).get_triad()) ) ;  
     
 
 
@@ -78,10 +81,13 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp) {
     else{
       loggamma_comp.set_etat_qcq() ;
       (loggamma_comp.set()).import_symy( comp.loggamma_auto() ) ;
-      logn_comp.set_std_base() ;   // set the bases for spectral expansions
+      loggamma_comp.set_std_base() ;   // set the bases for spectral expansions
     }	
 
-	 
+
+    (gtilde_comp.set_cov()).set_triad( *(((comp.gtilde_auto).cov()).get_triad()) ) ;  
+     assert ( *((gtilde_comp.cov()).get_triad()) == *(((comp.gtilde_auto).cov()).get_triad())) ; 
+    
     for(int i=0; i<=2; i++) {
       for(int j=i; j<=2; j++) {
    
@@ -90,13 +96,14 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp) {
 	}
 	else{
 	  (gtilde_comp.set_cov(i,j)).set_etat_qcq() ;
-          (gtilde_comp.set_cov(i,j)).import_symy( ((comp.gtilde_auto).cov())(i,j) ) ;
-	  gtilde_comp.set_std_base() ;   // set the bases for spectral expansions
+          (gtilde_comp.set_cov(i,j)).import( ((comp.gtilde_auto).cov())(i,j) ) ;
 	}
-    
       }	
-
     }
+
+    (gtilde_comp.set_cov()).set_triad( mp.get_bvect_cart() ) ;
+    gtilde_comp.set_std_base() ;   // set the bases for spectral expansions
+
 
 
     // Lapse function N
@@ -118,9 +125,12 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp) {
     // log (determinant ) and determinant
     // ----------------------------------
 
-    loggamma = loggamma_auto + loggamma_comp ;
+    loggamma.set() = loggamma_auto() + loggamma_comp() ;
 
     gamma = exp (loggamma) ;
+    gamma.set_poids(2.) ;
+    gamma.set_std_base() ;
+
 
     // Conformal factor A^2
     // ---------------------
@@ -131,23 +141,34 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp) {
    // Coefficients of the 3-metric tilde
     // ----------------------------------
 
+    assert ( *(gtilde_auto.cov().get_triad())== *(gtilde.cov().get_triad()) ) ;
+ 
     for(int i=0; i<=2; i++) {
       for(int j=i; j<=2; j++) {
    
 	gtilde.set_cov(i,j) = (gtilde_auto.cov())(i,j) + (gtilde_comp.cov())(i,j) ;
       }
     }
+ 
 
+   gtilde.set_std_base() ;
 
     // Coefficients of the 3-metric
     // ----------------------------
+
+    assert ( *(met_gamma.cov().get_triad())== *(gtilde.cov().get_triad()) ) ;
+    assert ( *(metgamma_auto.cov().get_triad())== *(gtilde.cov().get_triad()) ) ;
+    assert ( *(metgamma_comp.cov().get_triad())== *(gtilde.cov().get_triad()) ) ;
+
 
     for(int i=0; i<=2; i++) {
       for(int j=i; j<=2; j++) {
      
 	met_gamma.set_cov(i,j) = pow(gamma(), 1./3.) * gtilde.cov()(i,j) ;
       }
-    }    
+    }  
+    met_gamma.set_std_base() ;
+    
 
     // Coefficients of the 3-metric auto and comp
     // ------------------------------------------
@@ -158,6 +179,7 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp) {
 	metgamma_auto.set_cov(i,j) = pow(gamma(), 1./3.) * gtilde_auto.cov()(i,j) ;
       }
     }    
+    metgamma_auto.set_std_base() ;
 
     for(int i=0; i<=2; i++) {
       for(int j=i; j<=2; j++) {
@@ -165,6 +187,7 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp) {
 	metgamma_comp.set_cov(i,j) = pow(gamma(), 1./3.) * gtilde_comp.cov()(i,j) ;
       }
     }    
+    metgamma_comp.set_std_base() ;
 
 
     // Derivatives of metric coefficients
@@ -172,28 +195,24 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp) {
 
     // ... (d/dX,d/dY,d/dZ)(logn_auto) :
     d_logn_auto_regu = logn_auto_regu.gradient() ;    // (d/dx, d/dy, d/dz)
-    d_logn_auto_regu.change_triad(ref_triad) ;   // -->  (d/dX, d/dY, d/dZ)
+    d_logn_auto_regu.change_triad(mp.get_bvect_cart()) ;   // -->  (d/dX, d/dY, d/dZ)
 
-    if ( *(d_logn_auto_div.get_triad()) != ref_triad ) {
-
-	// Change the basis from spherical coordinate to Cartesian one
+ 	// Change the basis from spherical coordinate to Cartesian one
 	d_logn_auto_div.change_triad( mp.get_bvect_cart() ) ;
 
-	// Change the basis from mapping coordinate to absolute one
-	d_logn_auto_div.change_triad( ref_triad ) ;
-
-    }
-
+	
     d_logn_auto = d_logn_auto_regu + d_logn_auto_div ;
 
     // ... (d/dX,d/dY,d/dZ)(beta_auto) :
     d_beta_auto = beta_auto.gradient() ;    // (d/dx, d/dy, d/dz)
-    d_beta_auto.change_triad(ref_triad) ;   // -->  (d/dX, d/dY, d/dZ)
+    d_beta_auto.change_triad(mp.get_bvect_cart()) ;   // -->  (d/dX, d/dY, d/dZ)
 
     if (relativistic) {
-	// ... extrinsic curvature (tkij_auto and akcar_auto)
-	extrinsic_curvature() ;
+	// ... extrinsic curvature (tkij_auto and kcar_auto)
+      extrinsic_curvature() ;
     }
+    
+    cout << "update metric" << endl ;
 
     // The derived quantities are obsolete
     // -----------------------------------
@@ -232,14 +251,16 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp,
     else{  
 	shift_comp.set_etat_qcq() ; 
 
+	shift_comp.set_triad( *((comp.shift_auto).get_triad()) ) ;  
+	assert ( *(shift_comp.get_triad()) == *((comp.shift_auto).get_triad())) ;
+
 	(shift_comp.set(0)).import_asymy( comp.shift_auto(0) ) ;  // N^x antisym
 	(shift_comp.set(1)).import_symy( comp.shift_auto(1) ) ;   // N^y sym.
 	(shift_comp.set(2)).import_asymy( comp.shift_auto(2) ) ;  // N^z anisym
 
+	shift_comp.set_triad( mp.get_bvect_cart() ) ;    	
 	shift_comp.set_std_base() ;   // set the bases for spectral expansions
     }
-    shift_comp.set_triad( *((comp.shift_auto).get_triad()) ) ;  
-    
 
 
     if ( (comp.loggamma_auto).get_etat()  == ETATZERO ) {
@@ -248,10 +269,14 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp,
     else{
       loggamma_comp.set_etat_qcq() ;
       (loggamma_comp.set()).import_symy( comp.loggamma_auto() ) ;
-      logn_comp.set_std_base() ;   // set the bases for spectral expansions
+      loggamma_comp.set_std_base() ;   // set the bases for spectral expansions
     }	
 
 	 
+
+    (gtilde_comp.set_cov()).set_triad( *(((comp.gtilde_auto).cov()).get_triad()) ) ;  
+    assert ( *(gtilde_comp.cov().get_triad()) == *(((comp.gtilde_auto).cov()).get_triad())) ; 
+
     for(int i=0; i<=2; i++) {
       for(int j=i; j<=2; j++) {
    
@@ -260,13 +285,12 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp,
 	}
 	else{
 	  (gtilde_comp.set_cov(i,j)).set_etat_qcq() ;
-          (gtilde_comp.set_cov(i,j)).import_symy( ((comp.gtilde_auto).cov())(i,j) ) ;
-	  gtilde_comp.set_std_base() ;   // set the bases for spectral expansions
-	}
-    
+          (gtilde_comp.set_cov(i,j)).import( ((comp.gtilde_auto).cov())(i,j) ) ; 	  
+	  gtilde_comp.set_std_base() ; // set the bases for spectral expansions
+	}   
       }	
-
     }
+    (gtilde_comp.set_cov()).set_triad( mp.get_bvect_cart() ) ;
 
 
     // Relaxation on logn_comp, shift_comp, loggamma_comp, gtilde_comp
@@ -307,27 +331,40 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp,
     loggamma = loggamma_auto + loggamma_comp ;
 
     gamma = exp (loggamma) ;
-
+    gamma.set_poids(2.) ;
+    gamma.set_std_base() ;
  
+  
    // Coefficients of the 3-metric tilde
    // ----------------------------------
 
+    assert ( *(gtilde_auto.cov().get_triad())== *(gtilde.cov().get_triad()) ) ;
+
     for(int i=0; i<=2; i++) {
       for(int j=i; j<=2; j++) {
-   
-	gtilde.set_cov(i,j) = (gtilde_auto.cov())(i,j) + (gtilde_comp.cov())(i,j) ;
+
+	gtilde.set_cov(i,j) = (gtilde_auto.cov())(i,j) 
+	                    + (gtilde_comp.cov())(i,j) ;
       }
     }
 
+
+
+    gtilde.set_std_base() ;
+    
     // Coefficients of the 3-metric
     // ----------------------------
 
+    assert ( *(met_gamma.cov().get_triad())== *(gtilde.cov().get_triad()) ) ;
+    assert ( *(metgamma_auto.cov().get_triad())== *(gtilde.cov().get_triad()) ) ;
+    assert ( *(metgamma_comp.cov().get_triad())== *(gtilde.cov().get_triad()) ) ;
     for(int i=0; i<=2; i++) {
       for(int j=i; j<=2; j++) {
-     
+
 	met_gamma.set_cov(i,j) = pow(gamma(), 1./3.) * gtilde.cov()(i,j) ;
       }
     }    
+    met_gamma.set_std_base() ;
 
     // Coefficients of the 3-metric auto and comp
     // ------------------------------------------
@@ -336,15 +373,19 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp,
       for(int j=i; j<=2; j++) {
      
 	metgamma_auto.set_cov(i,j) = pow(gamma(), 1./3.) * gtilde_auto.cov()(i,j) ;
+
       }
     }    
+    metgamma_auto.set_std_base() ;
 
     for(int i=0; i<=2; i++) {
       for(int j=i; j<=2; j++) {
      
 	metgamma_comp.set_cov(i,j) = pow(gamma(), 1./3.) * gtilde_comp.cov()(i,j) ;
+
       }
     }    
+    metgamma_comp.set_std_base() ;
 
 
     // Derivatives of metric coefficients
@@ -352,25 +393,20 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp,
     
     // ... (d/dX,d/dY,d/dZ)(logn_auto) : 
     d_logn_auto_regu = logn_auto_regu.gradient() ;    // (d/dx, d/dy, d/dz)
-    d_logn_auto_regu.change_triad(ref_triad) ;   // -->  (d/dX, d/dY, d/dZ)  
+    d_logn_auto_regu.change_triad(mp.get_bvect_cart()) ;   // -->  (d/dX, d/dY, d/dZ)  
     
-    if ( *(d_logn_auto_div.get_triad()) != ref_triad ) {
 
 	// Change the basis from spherical coordinate to Cartesian one
 	d_logn_auto_div.change_triad( mp.get_bvect_cart() ) ;
 
-	// Change the basis from mapping coordinate to absolute one
-	d_logn_auto_div.change_triad( ref_triad ) ;
-
-    }
 
     d_logn_auto = d_logn_auto_regu + d_logn_auto_div ;      
     
     // ... (d/dX,d/dY,d/dZ)(beta_auto) : 
     d_beta_auto = beta_auto.gradient() ;    // (d/dx, d/dy, d/dz)
-    d_beta_auto.change_triad(ref_triad) ;   // -->  (d/dX, d/dY, d/dZ)        
+    d_beta_auto.change_triad(mp.get_bvect_cart()) ;   // -->  (d/dX, d/dY, d/dZ)        
 
-    // ... extrinsic curvature (tkij_auto and akcar_auto)
+    // ... extrinsic curvature (tkij_auto and kcar_auto)
     extrinsic_curvature() ; 
     
     // The derived quantities are obsolete
