@@ -11,18 +11,26 @@ SRC1 = simple_wave.C
 OBJ1 = $(SRC1:.C=.o)
 EXE1 = $(SRC1:.C=)
 
+SRC2 = simple_poisson.C
+OBJ2 = $(SRC2:.C=.o)
+EXE2 = $(SRC2:.C=)
+
 
 $(EXE1): $(OBJ1) $(LIBLOR) 
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_PGPLOT) $(LIB_CXX)
 
-all: $(EXE1) 
+$(EXE2): $(OBJ2) $(LIBLOR) 
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ2) $(LIB_G) $(LIB_LAPACK) \
+					$(LIB_PGPLOT) $(LIB_CXX)
+
+all: $(EXE1) $(EXE2) 
 
 
 .C.o:
 	$(CXX)  -c $(CXXFLAGS_G) $(INC) $<
 
 uninstall:
-	rm -f $(OBJ1) 
-	rm -f $(EXE1) 
+	rm -f $(OBJ1) $(OBJ2) 
+	rm -f $(EXE1) $(EXE2) 
 

@@ -4,7 +4,7 @@
  */
 
 /*
- *   Copyright (c) 2003 Eric Gourgoulhon
+ *   Copyright (c) 2003-2004 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -28,6 +28,12 @@ char simple_wave_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/02/15 22:08:16  e_gourgoulhon
+ * The example with Poisson equation is now in file simple_poisson.C.
+ * simple_wave.C contains now an example of resolution of d'Alembert
+ * equation. The time evolution is managed thanks to the new
+ * class Evolution_std.
+ *
  * Revision 1.4  2003/12/16 06:33:31  e_gourgoulhon
  * Added call to method Scalar::visu_box.
  *
@@ -55,19 +61,21 @@ char simple_wave_C[] = "$Header$" ;
 #include "metric.h"
 #include "cmp.h"
 #include "graphique.h"
+#include "param.h"
+#include "evolution.h"
 
 int main() {
 
     // Setup of a multi-domain grid (Lorene class Mg3d)
     // ------------------------------------------------
   
-    int nz = 3 ; 	// Number of domains
-    int nr = 7 ; 	// Number of collocation points in r in each domain
-    int nt = 5 ; 	// Number of collocation points in theta in each domain
+    int nz = 2 ; 	// Number of domains
+    int nr = 17 ; 	// Number of collocation points in r in each domain
+    int nt = 9 ; 	// Number of collocation points in theta in each domain
     int np = 8 ; 	// Number of collocation points in phi in each domain
     int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
     int symmetry_phi = NONSYM ; // no symmetry in phi
-    bool compact = true ; // external domain is compactified
+    bool compact = false ; // external domain is not compactified
   
     // Multi-domain grid construction:
     Mg3d mgrid(nz, nr, nt, np, symmetry_theta, symmetry_phi, compact) ;
@@ -79,8 +87,8 @@ int main() {
     // --------------------------------------------------------------------------
 
     // radial boundaries of each domain:
-    double r_limits[] = {0., 2., 3., __infinity} ; 
-    assert( nz == 3 ) ;  // since the above array described only 3 domains
+    double r_limits[] = {0., 2., 4.} ; 
+    assert( nz == 2 ) ;  // since the above array described only 2 domains
   
     Map_af map(mgrid, r_limits) ;   // Mapping construction
   	
@@ -96,27 +104,24 @@ int main() {
     const Coord& y = map.y ;        // y field
     const Coord& z = map.z ;        // z field
     
-    // Setup of a scalar field (source of the Poisson equation)
-    // --------------------------------------------------------
+    // Setup of a scalar field (initial value for the d'Alembert equation)
+    // -------------------------------------------------------------------
 
-    Scalar source(map) ;  // construction of an object of Lorene class Scalar
+    Scalar uu0(map) ;  // construction of an object of Lorene class Scalar
     
-    source = 2* exp( - r*r ) * (1 + x + x*y) ; 
-    
-    source.annule_domain(nz-1) ; // The source is set to zero in the last
-                                 // domain 
-    
-    source.std_spectral_base() ; // sets the bases for the spectral expansions
+    uu0 = 2* exp( - r*r ) * (1 + x + x*y) ; 
+        
+    uu0.std_spectral_base() ; // sets the bases for the spectral expansions
                                  // to the standard ones for a scalar field
 
-    cout << source << endl ;    // prints to screen 
+    cout << uu0 << endl ;    // prints to screen 
     
-    source.spectral_display() ;     // prints the spectral expansions
+    uu0.spectral_display() ;     // prints the spectral expansions
     
     // 2-D visualization via PGPLOT
     // ----------------------------
 
-    des_coupe_z( Cmp(source), 0., 2, "Source") ; 
+    des_coupe_z( Cmp(uu0), 0., 1, "Field U") ; 
     
 
     // 3-D visualization via OpenDX
@@ -124,22 +129,55 @@ int main() {
     
     double z0 = 0 ;     // section plane : z = z0
   
-    source.visu_section('z', z0, -2., 2., -1.5, 1.5, "Example of section vis.") ;
+    // uu0.visu_section('z', z0, -2., 2., -1.5, 1.5, "Example of section vis.") ;
 
-    source.visu_box(-2., 2., -1.5, 1.5, -1., 1., "Example of volume rendering", 0x0) ;
+    // uu0.visu_box(-2., 2., -1.5, 1.5, -1., 1., "Example of volume rendering", 0x0) ;
     
-    // Resolution of a Poisson equation 
-    // --------------------------------
+    // Time evolution : d'Alembert equation 
+    // ------------------------------------
     
-    Scalar pot = source.poisson() ; 
+    Scalar source(map) ; // source of d'Alembert equation 
+    source = 0 ; 
+
+    double dt = 0.005 ;  // time step 
+    int bc = 2 ;    // type of boundary condition : 2 = Bayliss & Turkel outgoing wave
+    int workflag = 0 ; // working flag 
+ 
+    Param par ; 
+    par.add_double(dt) ; 
+    par.add_int(bc) ; 
+    par.add_int_mod(workflag) ; 
     
-    cout << "Solution of the Poisson equation : " << endl ; 
+    
+    double t = 0 ; 
+    Evolution_std<Scalar> uu(uu0, t, 3) ; // Time evolution of U
+    
+    uu.update(uu0, dt) ; 
+
+    int j_max = 2000 ; 
+    
+    for (int j = 1; j < j_max ; j++) {
+    
+        Scalar uu_jp1 = uu[j].avance_dalembert(par, uu[j-1], source) ; 
+    
+        t += dt ; 
+        uu.update(uu_jp1, t) ; 
+    
+        cout << "Solution of the d'Alembert equation : " << endl ; 
         
-    pot.spectral_display() ;     // prints the spectral expansions 
-                                     
-    des_coupe_z( Cmp(pot), 0., 2, "Potential") ; 
+        if ( j%2 == 0 ) {
+        
+            const Scalar* des[3] ; 
+            des[0] = &uu[j+1] ;
+            des[1] = &uu[j] ;
+            des[2] = &uu[j-1] ;
+            
+            des_profile_mult(des, 3, 0., 4., 0.5*M_PI, 0., 0, false) ;
+        
+        }
+    }
     
-//  pot.visu_section('z', z0, -2., 2., -1.5, 1.5, "Potential", "pot") ;
+//  uu.visu_section('z', z0, -2., 2., -1.5, 1.5, "Potential", "uu") ;
 
     // Construction of a flat metric
     // -----------------------------
@@ -147,12 +185,12 @@ int main() {
     Metric_flat mets(map, map.get_bvect_spher()) ; // spherical representation
     Metric_flat metc(map, map.get_bvect_cart()) ;  // Cartesian representation
 
-    Vector dpot = pot.derive_cov(metc) ; 
+    Vector duu = uu[j_max-1].derive_cov(metc) ; 
     
-    // des_coupe_vect_z(dpot, 0., -2., 0.5, 2, "Gradient of potential") ; 
+    // des_coupe_vect_z(duu, 0., -2., 0.5, 2, "Gradient of potential") ; 
 
-    dpot.visu_arrows(-1., 1., -1., 1., -1., 1., "Gradient of potential", 
-                     "gradient") ; 
+    //duu.visu_arrows(-1., 1., -1., 1., -1., 1., "Gradient of potential", 
+    //                 "gradient") ; 
 
     return EXIT_SUCCESS ; 
 }
