@@ -30,6 +30,10 @@ char des_evolution_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/05/11 20:09:47  e_gourgoulhon
+ * Corrected bug when j_min != 0.
+ * Added version of des_evol for plot on the whole Evolution's time range.
+ *
  * Revision 1.1  2004/02/17 22:16:08  e_gourgoulhon
  * First version
  *
@@ -43,11 +47,27 @@ char des_evolution_C[] = "$Header$" ;
 #include "graphique.h"
 #include "evolution.h"
 
+// Plot on  the whole time range
+//------------------------------
+
+void des_evol(const Evolution<double>& uu, const char* nomy, 
+    const char* title, int ngraph, bool closeit, bool show_time, 
+    const char* nomx) {
+    
+    int jmin = uu.j_min() ; 
+    int jmax = uu.j_max() ; 
+
+    des_evol(uu, jmin, jmax, nomy, title, ngraph, closeit,
+             show_time, nomx) ; 
+}
+
+
+// Plot within a specified time range
+//------------------------------------
 
 void des_evol(const Evolution<double>& uu, int j_min, int j_max, 
-    bool closeit, const char* nomy, const char* title, bool show_time,
-    int ngraph, const char* nomx) 
-{
+    const char* nomy, const char* title, int ngraph, bool closeit, 
+    bool show_time, const char* nomx) {
 
     int npt = j_max - j_min + 1 ; 
 
@@ -55,17 +75,17 @@ void des_evol(const Evolution<double>& uu, int j_min, int j_max,
     float* xtab = new float[npt] ;	    // Values of t at the npt points
     
     for (int j=j_min; j<=j_max; j++) {
-	uutab[j] = uu[j] ; 
+	uutab[j-j_min] = uu[j] ; 
     }
 
     if (show_time) {
         for (int j=j_min; j<=j_max; j++) {
-            xtab[j] = uu.get_time(j) ; 
+            xtab[j-j_min] = uu.get_time(j) ; 
         }
     }
     else{
         for (int j=j_min; j<=j_max; j++) {
-            xtab[j] = j ; 
+            xtab[j-j_min] = j ; 
         }
     }
         
@@ -75,7 +95,6 @@ void des_evol(const Evolution<double>& uu, int j_min, int j_max,
 
     if (title == 0x0) title = "" ;
    
-    
     des_profile_mult(uutab, 1, npt, xtab, nomx, nomy, title, 0x0, ngraph,
         closeit) ; 
     
