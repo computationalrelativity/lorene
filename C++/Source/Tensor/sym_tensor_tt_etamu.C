@@ -1,0 +1,140 @@
+/*
+ *  Methods of class Sym_tensor_tt related to eta and mu
+ *
+ *   (see file sym_tensor.h for documentation)
+ *
+ */
+
+/*
+ *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *
+ *   This file is part of LORENE.
+ *
+ *   LORENE is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 2 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LORENE is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LORENE; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+
+char sym_tensor_tt_etamu_C[] = "$Header$" ;
+
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.1  2003/11/03 17:08:37  e_gourgoulhon
+ * First version
+ *
+ *
+ * $Header$
+ *
+ */
+
+// Headers C
+#include <stdlib.h>
+#include <assert.h>
+
+// Headers Lorene
+#include "tensor.h"
+
+			//--------------//
+			//     eta      //
+			//--------------//
+			
+			
+const Scalar& Sym_tensor_tt::eta() const {
+
+
+	if (p_eta == 0x0) {   // a new computation is necessary
+		
+		// All this has a meaning only for spherical components:
+		assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
+
+		// eta is computed from the divergence-free condition:
+
+		Scalar dhrr = - operator()(1,1).dsdr() ; 	// - dh^{rr}/dr  
+		                                            // ( - r^2 dh^{rr}/dr in the CED)
+		
+		// treatment of the CED : 
+		int nzm1 = mp->get_mg()->get_nzone() - 1 ; // index of the CED
+		Scalar dhrr_ext(*mp) ;
+		dhrr_ext.allocate_all() ; 
+		dhrr_ext.annule(0,nzm1-1) ; // zero in all domains but the CED
+		dhrr_ext.set_domain(nzm1) = dhrr.domain(nzm1) ; // equal to dhrr in the CED
+		dhrr_ext.set_spectral_base( (dhrr.get_spectral_va()).get_base() ) ; 
+		
+		// Multiplication by r^2 in all domains but the CED:
+		dhrr.annule_domain(nzm1) ; 
+		dhrr.mult_r() ; 
+		dhrr.mult_r() ; 
+		
+		// Adding the CED part
+		dhrr.set_domain(nzm1) = dhrr_ext.domain(nzm1) ; 
+		dhrr.set_dzpuis(0) ; 
+
+		// dhrr_ext now used to store r h^{rr}
+		dhrr_ext = operator()(1,1) ;
+		dhrr_ext.mult_r() ; 
+		   
+		// Final result for the h^rr source for eta:
+		dhrr -= 3. * dhrr_ext ; 
+		
+		// Resolution of the angular Poisson equation for eta
+		// --------------------------------------------------
+		p_eta = new Scalar( dhrr.poisson_angu() ) ; 
+	
+	}
+
+	return *p_eta ; 
+
+}
+
+
+			//--------------//
+			//     mu       //
+			//--------------//
+			
+
+const Scalar& Sym_tensor_tt::mu() const {
+
+	if (p_mu == 0x0) {   // a new computation is necessary
+		
+		// All this has a meaning only for spherical components:
+		assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
+
+		Scalar tmp = operator()(1,3) ; 	// h^{r ph}
+		tmp.div_tant() ; 		// h^{r ph} / tan(th)
+		
+		// dh^{r ph}/dth + h^{r ph}/tan(th) - 1/sin(th) dh^{r th}/dphi 
+		tmp = operator()(1,3).dsdt() + tmp - operator()(1,2).stdsdp() ; 
+		
+		// Multiplication by r
+		tmp.mult_r() ; 
+		
+		// Resolution of the angular Poisson equation for mu
+		// --------------------------------------------------
+		p_mu = new Scalar( tmp.poisson_angu() ) ;  
+
+	}
+
+	return *p_mu ; 
+
+}
+
+			
+
+
+
+
+
+
