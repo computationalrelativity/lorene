@@ -32,6 +32,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/06/03 10:00:37  e_gourgoulhon
+ * Added a new version of des_profile for Cmp with scale and nomx
+ * specified in the argument list
+ *
  * Revision 1.3  2003/01/17 13:48:17  f_limousin
  * Add des_explorer and des_explorer_symz for a Bin_ns_ncp
  *
@@ -451,6 +455,29 @@ void des_map_et(const Map_et& mp, int lz) ;
 void des_profile(const Cmp& uu, double r_min, double r_max, 
 		     double theta, double phi, char* nomy = 0x0,  
 		     char* title = 0x0 ) ;
+
+
+/** Draws the profile of a {\tt Cmp} along some radial axis determined by
+ *  a fixed value of $(\theta, \phi)$. 
+ *
+ *  @param uu [input] {\tt Cmp} to be drawn
+ *  @param r_min [input] Minimal value of {\it r} for the drawing
+ *  @param r_max [input] Maximal value of {\it r} for the drawing
+ *  @param scale scale factor for the radius in the plot
+ *  @param theta [input] Value of $\theta$ which defines the profile axis
+ *  @param phi [input] Value of $\phi$ which defines the profile axis
+ *  @param nomx [input] x legend of the figure (default value = 0x0,  
+ *		        corresponds to no x legend)
+ *  @param nomy [input] y legend of the figure (default value = 0x0,  
+ *		        corresponds to no y legend)
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ * 
+ */
+ 
+void des_profile(const Cmp& uu, double r_min, double r_max, double scale,
+		     double theta, double phi, char* nomx = 0x0, 
+		     char* nomy = 0x0, char* title= 0x0) ;
 
 
 /** Basic routine for drawing a stellar surface in a plane X=constant.
