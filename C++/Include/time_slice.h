@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/29 11:58:53  e_gourgoulhon
+ * Many modif. to class Time_slice_conf.
+ * Minor modif. to class Time_slice.
+ *
  * Revision 1.4  2004/03/28 21:33:14  e_gourgoulhon
  * Constructor  Time_slice::Time_slice(int depth_in) declared "explicit".
  *
@@ -188,7 +192,7 @@ class Time_slice {
 	virtual void del_deriv() const ; 
 	
 	/// Sets to \c 0x0 all the pointers on derived quantities
-	virtual void set_der_0x0() const ; 
+	void set_der_0x0() const ; 
 
 
     // Mutators / assignment
@@ -241,7 +245,9 @@ class Time_slice {
 	
     // Outputs
     // -------
-    public:
+    protected:
+    /// Operator >> (virtual function called by the operator<<). 
+    virtual ostream& operator>>(ostream& ) const ; 
 	
     /// Display
     friend ostream& operator<<(ostream& , const Time_slice& ) ;	
@@ -280,7 +286,7 @@ class Time_slice_conf : public Time_slice {
          * \f$ \gamma_{ij} = \Psi^4 \tilde\gamma_{ij} \f$.
          * \f$ \Psi \f$ is defined by
          *  \f[ \Psi := \left( \frac{\det\gamma_{ij}}{\det f_{ij}} 
-         *      \right) ^{1/12} \r] 
+         *      \right) ^{1/12} \f] 
          */
 	mutable Evolution_std<Scalar> psi_evol ; 
         
@@ -316,11 +322,19 @@ class Time_slice_conf : public Time_slice {
     // ------------
     protected:
         /// Pointer on the conformal metric \f$ \tilde\gamma_{ij} \f$
-	mutable Metric* p_tgamma ; 
+	    mutable Metric* p_tgamma ; 
         
         /// Pointer on the factor \f$ \Psi^4 \f$
-	mutable Scalar* p_psi4 ; 
+	    mutable Scalar* p_psi4 ; 
         
+        /// Pointer on the logarithm of \f$ \Psi \f$
+	    mutable Scalar* p_ln_psi ; 
+        
+        /** Pointer on the vector \f$ H^i = {\cal D}_j \tilde\gamma^{ij} \f$ 
+         * which vanishes in Dirac gauge.
+         */
+        mutable Vector* p_hdirac ; 
+         
 
     // Constructors - Destructor
     // -------------------------
@@ -342,6 +356,7 @@ class Time_slice_conf : public Time_slice {
      *  @param aa_in conformal representation \f$ A^{ij} \f$
      *      of the traceless part of the extrinsic curvature:
      *      \f$ A^{ij} = \Psi^4 \left( K^{ij} - {1\over 3} K \gamma^{ij}
+     *          \right) \f$
      *  @param trk_in trace \e K of the extrinsic curvature 
      *  @param depth_in  number of stored time slices; this parameter is used
      *                   to set the \c scheme_order member with \c scheme_order
@@ -386,7 +401,7 @@ class Time_slice_conf : public Time_slice {
 	virtual void del_deriv() const ; 
 	
 	/// Sets to \c 0x0 all the pointers on derived quantities
-	virtual void set_der_0x0() const ; 
+	void set_der_0x0() const ; 
 
 
     // Mutators / assignment
@@ -436,23 +451,26 @@ class Time_slice_conf : public Time_slice {
          * \f$ \gamma_{ij} = \Psi^4 \tilde\gamma_{ij} \f$. 
          * \f$ \Psi \f$ is defined by
          *  \f[ \Psi := \left( \frac{\det\gamma_{ij}}{\det f_{ij}} 
-         *      \right) ^{1/12} \r] 
+         *      \right) ^{1/12} \f] 
          * Returns the value at the current time step (\c jtime ).
          */
-	virtual const Scalar& psi() const ; 
+        virtual const Scalar& psi() const ; 
         
         /// Factor \f$ \Psi^4 \f$ at the current time step (\c jtime ).
-	const Scalar& psi4() const ; 
+	    const Scalar& psi4() const ; 
+        
+        /// Logarithm of \f$ \Psi \f$ at the current time step (\c jtime ).
+	    const Scalar& ln_psi() const ; 
         
         /** Factor \f$ Q := \Psi^2 N \f$ at the current time step (\c jtime ).
          */
-	virtual const Scalar& qq() const ; 
+        virtual const Scalar& qq() const ; 
         
         /** Conformal metric 
          * \f$ \tilde\gamma_{ij} = \Psi^{-4} \gamma_{ij} \f$
          * Returns the value at the current time step (\c jtime ).
          */        
-	const Metric& tgam() const ; 
+        const Metric& tgam() const ; 
 
         /** Deviation \f$ h^{ij} \f$ 
          * of the conformal metric \f$ \tilde\gamma^{ij} \f$ from 
@@ -460,7 +478,7 @@ class Time_slice_conf : public Time_slice {
          * \f$\tilde\gamma^{ij} = f^{ij} + h^{ij} \f$.
          * Returns the value at the current time step (\c jtime ).
          */        
-	virtual const Sym_tensor& hh() const ; 
+        virtual const Sym_tensor& hh() const ; 
 
         /** Conformal representation \f$ A^{ij} \f$ of the traceless part
          * of the extrinsic curvature:
@@ -468,17 +486,27 @@ class Time_slice_conf : public Time_slice {
          *  \right) \f$.
          * Returns the value at the current time step (\c jtime ).
          */        
-	virtual const Sym_tensor& aa() const ; 
+        virtual const Sym_tensor& aa() const ; 
 
         /** Trace \e K of the extrinsic curvature 
          *  at the current time step (\c jtime )
          */        
-	virtual const Scalar& trk() const ; 
+        virtual const Scalar& trk() const ; 
+        
+        /** Vector \f$ H^i = {\cal D}_j \tilde\gamma^{ij} \f$ 
+         * which vanishes in Dirac gauge.
+         */
+        virtual const Vector& hdirac() const ; 
+        
+        
 
         
     // Outputs
     // -------
-    public:
+    protected:
+    /// Operator >> (virtual function called by the operator<<). 
+    virtual ostream& operator>>(ostream& ) const ; 
+	
 	
 
 };
