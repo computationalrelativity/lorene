@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/09/25 07:59:26  e_gourgoulhon
+ * Added prototypes for PDE resolutions.
+ *
  * Revision 1.6  2003/09/25 07:17:58  j_novak
  * Method asymptot implemented.
  *
@@ -406,6 +409,155 @@ class Scalar : public Tensor {
      */
     Valeur** asymptot(int n, const int flag = 0) const ; 
 	
+
+    // PDE resolution 
+    // --------------
+    public:
+	/** Solves the scalar Poisson equation with {\tt *this} as a source.
+	 *   The source $\sigma$ of the equation $\Delta u = \sigma$ is 
+	 *   represented by the {\tt Scalar} {\tt *this}. 
+	 *   Note that {\tt dzpuis} must be equal to 2 or 4, i.e. that the
+	 *   quantity stored in {\tt *this} is in fact $r^2 \sigma$ or
+	 *   $r^4 \sigma$ in the compactified external domain. 
+	 *   The solution {\it u} with the boundary condition {\it u}=0 at spatial
+	 *   infinity is the returned {\tt Scalar}. 
+	 */
+	Scalar poisson() const ;
+
+	/** Solves the scalar Poisson equation with {\tt *this} as a source
+	 *   (version with parameters to control the resolution).
+	 *   The source $\sigma$ of the equation $\Delta u = \sigma$ is 
+	 *   represented by the {\tt Scalar} {\tt *this}. 
+	 *   Note that {\tt dzpuis} must be equal to 2 or 4, i.e. that the
+	 *   quantity stored in {\tt *this} is in fact $r^2 \sigma$ or
+	 *   $r^4 \sigma$ in the compactified external domain. 
+	 *   @param par [input/output] possible parameters
+	 *   @param uu [input/output] solution {\it u} with the boundary condition 
+	 *   {\it u}=0 at spatial infinity. 
+	 */
+	void poisson(Param& par, Scalar& uu) const ;
+	
+	/**
+	 * Is identicall to {\tt Scalar::poisson()}. The regularity condition at the 
+	 * origin is replace by a boundary condition of the Dirichlet type.
+	 * 
+	 * @param limite [input] : angular function. The boundary condition is 
+	 * given by {\tt limite[num]}.
+	 * @param num [input] : index of the boudary at which the condition is to 
+	 * be fullfilled.
+	 * 
+	 * More precisely we impose the solution is equal to {\tt limite[num]} at the
+	 * boundary between the domains {\tt num} and {\tt num+1} (the latter one being 
+	 * a shell).
+	 * 
+	 */
+	Scalar poisson_dirichlet (const Valeur& limite, int num) const ;
+	
+	/**
+	 * Idem as {\tt Scalar::poisson\_neumann}, the boundary condition being on 
+	 * the radial derivative of the solution.
+	 */
+	Scalar poisson_neumann   (const Valeur&, int) const ;
+	Scalar poisson_frontiere_double   (const Valeur&, const Valeur&, int) const ;
+
+	/** Solves the scalar Poisson equation with {\tt *this} as a source
+	 *   (version with parameters to control the resolution).
+	 *   The source $\sigma$ of the equation $\Delta u = \sigma$ is 
+	 *   represented by the {\tt Scalar} {\tt *this}. 
+	 *   The regularized source
+	 *   $\sigma_{\rm regu} = \sigma - \sigma_{\rm div}$
+	 *   is constructed and solved.
+	 *   Note that {\tt dzpuis} must be equal to 2 or 4, i.e. that the
+	 *   quantity stored in {\tt *this} is in fact $r^2 \sigma$ or
+	 *   $r^4 \sigma$ in the compactified external domain.
+	 *   @param k_div [input] regularization degree of the procedure
+	 *   @param nzet [input] number of domains covering the star
+	 *   @param unsgam1 [input] parameter $1/(\gamma-1)$ where $\gamma$
+	 *          denotes the adiabatic index
+	 *   @param par [input/output] possible parameters
+	     @param uu [input/output] solution
+	 *   @param uu_regu [output] solution of the regular part of
+	 *          the source.
+	 *   @param uu_div [output] solution of the diverging part of
+	 *          the source.
+	 *   @param duu_div [output] derivative of the diverging potential.
+	 *   @param source_regu [output] regularized source
+	 *   @param source_div [output] diverging part of the source
+	 */
+	void poisson_regular(int k_div, int nzet, double unsgam1, Param& par,
+			     Scalar& uu, Scalar& uu_regu, Scalar& uu_div,
+			     Tenseur& duu_div,
+			     Scalar& source_regu, Scalar& source_div) const ;
+
+	/** Checks if a Poisson equation with {\tt *this} as a source
+	 *  has been correctly solved.
+	 * 
+	 *  @param uu [input] Solution {\it u} of the Poisson equation
+	 *		      $\Delta u = \sigma$,  $\sigma$ being 
+	 *		      represented by the {\tt Scalar} {\tt *this}.
+	 * 
+	 *  @param ostr [input/output] Output stream used for displaying
+	 *		{\tt err}.
+	 *
+	 *  @param detail [input] if {\tt true} displays {\tt err(0, *)}, 
+	 *		    {\tt err(1, *)} and {\tt err(2, *)} \\
+	 *		if {\tt false} (default),  displays only 
+	 *		the relative error {\tt err(0, *)}. 
+	 *  
+	 *  @return 2-D {\tt Tbl} {\tt err} decribing the errors in each 
+	 *	    domain: \\
+	 *	{\tt err(0, l) : } Relative error in domain no. {\tt l}, 
+	 *	    defined as the maximum value of 
+	 *	    $|\Delta u - \sigma|$ in that domain divided by {\it M}, 
+	 *	    where {\it M} is the maximum value of $|\sigma|$ 
+	 *	    over all domains if {\tt dzpuis = 0} or $\sigma$ is
+	 *	    zero in the compactified external domain (CED). If 
+	 *	    {\tt dzpuis != 0} and $\sigma$ does not vanish in the 
+	 *	    CED, the value of {\it M} used in the
+	 *	    non-compactified domains is the maximum value over
+	 *	    these domains, whereas the value of {\it M} used in the
+	 *	    compactified external domain is the maximum value
+	 *	    on that particular domain. \\
+	 *	{\tt err(1, l) : }  Maximum value of the absolute error
+	 *			$|\Delta u - \sigma|$ in domain no. {\tt l} \\
+	 *	{\tt err(2, l) : }  Maximum value of $|\sigma|$ in domain 
+	 *			    no. {\tt l} 
+	 */
+	Tbl test_poisson(const Scalar& uu, ostream& ostr, 
+					bool detail = false) const ;  
+
+	/** Performs one time-step integration (from $t=j \to j+1$) of the 
+	 *   scalar d'Alembert equation with {\tt *this} being the value of 
+	 *   the function {\it f} at time {\it j}.
+	 *   @param par [input/output] possible parameters to control the
+	 *   resolution of the d'Alembert equation: \\
+	 *   {\tt par.get\_double(0)} : [input] the time step {\it dt},\\
+	 *   {\tt par.get\_int(0)} : [input] the type of boundary conditions
+	 *   set at the outer boundary (0 : reflexion, 1 : Sommerfeld 
+	 *   outgoing wave, valid only for {\it l=0} components, 2 : Bayliss 
+	 *   \& Turkel outgoing wave, valid for {\it l=0, 1, 2} components)\\
+	 *   {\tt par.get\_int\_mod(0)} : [input/output] set to 0 at first
+	 *   call, is used as a working flag after (must not be modified after
+	 *   first call)\\
+	 *   {\tt par.get\_Scalar\_mod(0)} : [input] (optional) if the wave 
+	 *   equation is on a curved space-time, this is the potential in front
+	 *   of the Laplace operator. It has to be updated at every time-step
+	 *   (for a potential depending on time).\\
+	 *   Note: there are many other working objects attached to this
+	 *   {\tt Param}, so one should not modify it.\\
+	 *   There should be one {\tt Param} for each wave equation to be 
+	 *   solved. 
+	 *   @param fJm1 [input] solution $f^{J-1}$ at time {\it J-1}
+	 *   @param source [input] source $\sigma$ of the d'Alembert equation 
+	 *	    $\diamond u = \sigma$.
+	 *   @return solution $f^{J+1}$ at time {\it J+1}
+	 *   with boundary conditions defined by {\tt par.get\_int(0)}.
+	 */
+	Scalar avance_dalembert(Param& par, const Scalar& fjm1, const Scalar& source) 
+	  const ;
+	
+
+
 friend Scalar operator-(const Scalar& ) ;			
 friend Scalar operator+(const Scalar&, const Scalar &) ;	
 friend Scalar operator+(const Scalar&, double ) ;		
@@ -433,8 +585,14 @@ friend Scalar pow(const Scalar& , int ) ;
 friend Scalar pow(const Scalar& , double ) ; 
 friend Scalar abs(const Scalar& ) ;	
 
+friend Tbl max(const Scalar& ) ;   
+friend Tbl min(const Scalar& ) ;   
+friend Tbl norme(const Scalar& ) ;   
+friend Tbl diffrel(const Scalar& a, const Scalar& b) ; 
+friend Tbl diffrelmax(const Scalar& a, const Scalar& b) ; 
 
 };
+
 ostream& operator<<(ostream& , const Scalar & ) ;	
 
 // Prototypage de l'arithmetique
