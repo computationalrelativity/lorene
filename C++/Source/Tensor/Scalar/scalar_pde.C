@@ -35,6 +35,9 @@ char scalar_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/01/28 16:59:14  p_grandclement
+ * *** empty log message ***
+ *
  * Revision 1.5  2004/01/28 16:46:24  p_grandclement
  * Addition of the sol_elliptic_fixe_der_zero stuff
  *
@@ -185,7 +188,7 @@ Scalar Scalar::sol_elliptic_no_zec(const Param_elliptic& ope_var) const {
     
 		    //-----------------------------------//
 		    //      General elliptic equation	 //
-                    //             with continuity           //
+                    //                                   //
 		    //-----------------------------------//
 
 Scalar Scalar::sol_elliptic_fixe_der_zero (double valeur, 
