@@ -29,6 +29,10 @@ char einstein_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/03/08 00:36:27  e_gourgoulhon
+ * Added output for OpenDX (visu_section).
+ * Initial amplitude = 1e-3.
+ *
  * Revision 1.9  2004/03/06 21:16:38  e_gourgoulhon
  * First version with all equations implemented, with full sources,
  * including the time derivatives.
@@ -99,7 +103,7 @@ int main() {
     bool compute_source = true ; 
 
     double relativistic_init = 0. ;     // 0 = flat space
-    double ampli_h_init = 0.01 ;     // 0 = flat space
+    double ampli_h_init = 0.001 ;     // 0 = flat space
         
 
     //======================================================================
@@ -631,13 +635,15 @@ int main() {
         // ------------------------------------------------
         
         Scalar nn_jp1 = source_nn.poisson() + 1. ; 
-        des_meridian(nn_jp1, 0., 5., "N", 40) ; 
+
+        //des_meridian(nn_jp1, 0., 5., "N", 40) ; 
 
         // Resolution of the Poisson equation for Q
         // -----------------------------------------
         
         Scalar qq_jp1 = source_qq.poisson() + 1. ; 
-        des_meridian(qq_jp1, 0., 5., "Q", 41) ; 
+
+        // des_meridian(qq_jp1, 0., 5., "Q", 41) ; 
         
         // Resolution of the vector Poisson equation for the shift
         //---------------------------------------------------------
@@ -694,9 +700,21 @@ int main() {
     
         // des_meridian(hh_jp1, 0., 5., "hh") ; 
         des_meridian(hh(2,3), 0., 5., "h\\u\\gh\\gf\\d", 30) ; 
-        // des_meridian(hh(3,3), 0., 5., "h\\u\\gf\\gf\\d", 31) ; 
-        
+        des_meridian(hh(3,3), 0., 5., "h\\u\\gf\\gf\\d", 31) ; 
 
+        // hh(2,3).visu_section('z', 0., -4., 4., -4., 4., "h^tp", "h_tp") ;
+        
+        if (jtime%4 ==0) {
+            char nomfich[40] ; 
+            char nomj[5] ; 
+            sprintf(nomj, "%04d", jtime/4) ; 
+            strcpy(nomfich, "hpp") ; 
+            strcat(nomfich, nomj) ; 
+        
+            hh(3,3).visu_section('z', 0., -4., 4., -4., 4., "h^pp", nomfich, 
+                                 false, 400, 400) ;
+
+        }
         cout << "Next step : " << jtime + 1 << endl ; 
         arrete(jtime%jstop) ;  
 
