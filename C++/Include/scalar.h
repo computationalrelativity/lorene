@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/09/24 10:22:01  e_gourgoulhon
+ * still in progress...
+ *
  * Revision 1.1  2003/09/22 12:50:47  e_gourgoulhon
  * First version: not ready yet!
  *
@@ -60,7 +63,7 @@ class Scalar : public Tensor {
 
 	/**
 	 * Power of {\it r} by which the quantity represented by {\tt this} 
-	 * must be divided in the external compactified zone in order 
+	 * must be divided in the  compactified external domain (CED) in order 
 	 * to get the correct physical values
 	 */
 	int dzpuis ;	
@@ -97,7 +100,7 @@ class Scalar : public Tensor {
 	mutable Scalar* p_lap ;	
 
 	/** Power of {\it r} by which the last computed Laplacian has been 
-	 *  multiplied in the external compactified domain.  
+	 *  multiplied in the compactified external domain.  
 	 */
 	mutable int ind_lap ; 
 
@@ -479,7 +482,8 @@ class Scalar : public Tensor {
 	virtual void annule(int l_min, int l_max) ; 
     
     /**
-     * Sets the {\tt n} lasts coefficients in {\it r} to 0 in the external domain.
+     * Sets the {\tt n} lasts coefficients in {\it r} to 0 in the 
+	 *  external domain.
      */
 	void filtre (int n) ;
     
@@ -524,17 +528,18 @@ class Scalar : public Tensor {
     public:
 	virtual void sauve(FILE *) const ;	    /// Save in a file
     
-	/** Prints only the values greater than a given threshold.
+	/** Prints the spectral coefficients.
+	 *  Prints only the spectral coefficients greater than a given threshold.
 	 *   @param ostr [input] Output stream used for the printing
+	 *   @param threshold [input] Value above which an array element is printed
+	 *    (default: 1.e-7)
 	 *   @param type [input] Type of display : 0 = prints only the
 	 *     coefficients,  1 = prints only the values in configuration 
 	 *     space, 2 = prints both
 	 *   @param precision [input] Number of printed digits (default: 4)
-	 *   @param threshold [input] Value above which an array element is printed
-	 *    (default: 1.e-7)
 	 */
-	void affiche_seuil(ostream& ostr, int type = 0, int precision = 4, 
-			   double threshold = 1.e-7) const ;
+	void spectral_display(ostream& ostr, double threshold = 1.e-7,
+			int type = 0, int precision = 4) const ;
 
 	/// Display
 	friend ostream& operator<<(ostream& , const Scalar & ) ;	
@@ -562,47 +567,47 @@ class Scalar : public Tensor {
     // ---------------------------------
     public:
 	/** Returns $\partial / \partial r$ of {\tt *this}.
-	 *  Note that in the external compactified domain (ZEC), it returns
+	 *  Note that in the  compactified external domain (CED), it returns
 	 *  instead $r^2 \partial/ \partial r$.
 	 */
 	const Scalar& dsdr() const ; 
 	
 	/** Returns $1/r \partial / \partial \theta$ of {\tt *this}.
-	 *  Note that in the external compactified domain (ZEC), it returns
+	 *  Note that in the  compactified external domain (CED), it returns
 	 *  instead $r \partial/ \partial \theta$.
 	 */
 	const Scalar& srdsdt() const ; 
 
 	/** Returns $1/(r\sin\theta) \partial / \partial \phi$ of {\tt *this}.
-	 *  Note that in the external compactified domain (ZEC), it returns
+	 *  Note that in the  compactified external domain (CED), it returns
 	 *  instead $r/\sin\theta \partial/ \partial \phi$.
 	 */
 	const Scalar& srstdsdp() const ; 
 
 	/** Returns $\partial/\partial x$ of {\tt *this},
 	 *  where $x=r\sin\theta \cos\phi$.
-	 *  Note that in the external compactified domain (ZEC), it returns
+	 *  Note that in the  compactified external domain (CED), it returns
 	 *  instead $r^2 \partial/ \partial x$.
 	 */
 	const Scalar& dsdx() const ;	
 
 	/** Returns $\partial/\partial y$ of {\tt *this},
 	 *  where $y=r\sin\theta \sin\phi$.
-	 *  Note that in the external compactified domain (ZEC), it returns
+	 *  Note that in the compactified external domain (CED), it returns
 	 *  instead $r^2 \partial/ \partial y$.
 	 */
 	const Scalar& dsdy() const ;	
 
 	/** Returns $\partial/\partial z$ of {\tt *this},
 	 *  where $z=r\cos\theta$.
-	 *  Note that in the external compactified domain (ZEC), it returns
+	 *  Note that in the compactified external domain (CED), it returns
 	 *  instead $r^2 \partial/ \partial z$.
 	 */
 	const Scalar& dsdz() const ;	
 
 	/** Returns $\partial/\partial x_i$ of {\tt *this},
 	 *  where $x_i = (x, y, z)$.
-	 *  Note that in the external compactified domain (ZEC), it returns
+	 *  Note that in the compactified external domain (CED), it returns
 	 *  instead $r^2 \partial/ \partial x_i$.
 	 *  @param i [input] i=0 for {\it x},  i=1 for {\it y}, i=2 for {\it z}.
 	 */
@@ -610,7 +615,7 @@ class Scalar : public Tensor {
 
 	/** Returns the Laplacian of {\tt *this}
 	 *   @param zec_mult_r [input] Determines the quantity computed in
-	 *			 the external compactified domain (ZEC) 
+	 *			 the  compactified external domain (CED) 
 	 *		({\it u} in the field represented by {\tt *this}) :  \\
 	 *		    zec\_mult\_r = 0 : $\Delta u$	\\
 	 *		    zec\_mult\_r = 2 : $r^2 \,  \Delta u$	\\
@@ -622,7 +627,7 @@ class Scalar : public Tensor {
 
 	void mult_r() ;   /// Multiplication by {\it r} everywhere.
 
-	/** Multiplication by {\it r} in the external compactified domain (ZEC)
+	/** Multiplication by {\it r} in the compactified external domain (CED)
 	 */
 	virtual void mult_r_zec() ;
 	
@@ -631,32 +636,38 @@ class Scalar : public Tensor {
 	void div_rsint() ;    /// Division by $r\sin\theta$
 
 	/** Decreases by 1 the value of {\tt dzpuis} and changes accordingly
-	 *  the values of the {\tt Scalar} in the external compactified domain (ZEC).
+	 *  the values of the {\tt Scalar} in the compactified external domain (CED).
 	 */
 	virtual void dec_dzpuis() ; 
 
 	/** Increases by the value of {\tt dzpuis} and changes accordingly
-	 *  the values of the {\tt Scalar} in the external compactified domain (ZEC).
+	 *  the values of the {\tt Scalar} in the compactified external domain (CED).
 	 */
 	virtual void inc_dzpuis() ; 
 	
 	/** Decreases by 2 the value of {\tt dzpuis} and changes accordingly
-	 *  the values of the {\tt Scalar} in the external compactified domain (ZEC).
+	 *  the values of the {\tt Scalar} in the compactified external domain (CED).
 	 */
 	virtual void dec2_dzpuis() ; 
 
 	/** Increases by 2 the value of {\tt dzpuis} and changes accordingly
-	 *  the values of the {\tt Scalar} in the external compactified domain (ZEC).
+	 *  the values of the {\tt Scalar} in the compactified external domain (CED).
 	 */
 	virtual void inc2_dzpuis() ; 
 
-	void set_dzpuis(int ) ;  /// Set a value to {\tt dzpuis}
+
+	/** Modifies the {\tt dzpuis} flag.
+	 *  NB: this method does not change the field values stored in
+	 *  the compactified external domain (use methods {\tt dec\_dzpuis()},
+	 *  etc... for this purpose).  
+	 */
+	void set_dzpuis(int ) ; 
 
 	/** Computes the integral over all space of {\tt *this}.
 	 *  The computed quantity is ({\it u} being the field represented by
 	 *   {\tt *this})
 	 *    $\int u \, r^2 \sin\theta \,  dr\, d\theta \, d\phi$.
-	 *  Note that in the external compactified domain (ZEC), {\tt dzpuis} 
+	 *  Note that in the compactified external domain (CED), {\tt dzpuis} 
 	 *  must be 4 for the computation to take place. 
 	 */
 	double integrale() const ; 
@@ -667,7 +678,7 @@ class Scalar : public Tensor {
 	 *    $\int u \, r^2 \sin\theta \,  dr\, d\theta \, d\phi$
 	 *  in each domain. The result is returned a {\tt Tbl} on the 
 	 *  various domains. 
-	 *  Note that in the external compactified domain (ZEC), {\tt dzpuis} 
+	 *  Note that in the compactified external domain (CED), {\tt dzpuis} 
 	 *  must be 4 for the computation to take place. 
 	 */
 	const Tbl& integrale_domains() const ; 
@@ -706,7 +717,7 @@ class Scalar : public Tensor {
 	 *   represented by the {\tt Scalar} {\tt *this}. 
 	 *   Note that {\tt dzpuis} must be equal to 2 or 4, i.e. that the
 	 *   quantity stored in {\tt *this} is in fact $r^2 \sigma$ or
-	 *   $r^4 \sigma$ in the external compactified domain. 
+	 *   $r^4 \sigma$ in the compactified external domain. 
 	 *   The solution {\it u} with the boundary condition {\it u}=0 at spatial
 	 *   infinity is the returned {\tt Scalar}. 
 	 */
@@ -718,7 +729,7 @@ class Scalar : public Tensor {
 	 *   represented by the {\tt Scalar} {\tt *this}. 
 	 *   Note that {\tt dzpuis} must be equal to 2 or 4, i.e. that the
 	 *   quantity stored in {\tt *this} is in fact $r^2 \sigma$ or
-	 *   $r^4 \sigma$ in the external compactified domain. 
+	 *   $r^4 \sigma$ in the compactified external domain. 
 	 *   @param par [input/output] possible parameters
 	 *   @param uu [input/output] solution {\it u} with the boundary condition 
 	 *   {\it u}=0 at spatial infinity. 
@@ -757,7 +768,7 @@ class Scalar : public Tensor {
 	 *   is constructed and solved.
 	 *   Note that {\tt dzpuis} must be equal to 2 or 4, i.e. that the
 	 *   quantity stored in {\tt *this} is in fact $r^2 \sigma$ or
-	 *   $r^4 \sigma$ in the external compactified domain.
+	 *   $r^4 \sigma$ in the compactified external domain.
 	 *   @param k_div [input] regularization degree of the procedure
 	 *   @param nzet [input] number of domains covering the star
 	 *   @param unsgam1 [input] parameter $1/(\gamma-1)$ where $\gamma$
@@ -799,12 +810,12 @@ class Scalar : public Tensor {
 	 *	    $|\Delta u - \sigma|$ in that domain divided by {\it M}, 
 	 *	    where {\it M} is the maximum value of $|\sigma|$ 
 	 *	    over all domains if {\tt dzpuis = 0} or $\sigma$ is
-	 *	    zero in the external compactified domain (ECD). If 
+	 *	    zero in the compactified external domain (CED). If 
 	 *	    {\tt dzpuis != 0} and $\sigma$ does not vanish in the 
-	 *	    ECD, the value of {\it M} used in the
+	 *	    CED, the value of {\it M} used in the
 	 *	    non-compactified domains is the maximum value over
 	 *	    these domains, whereas the value of {\it M} used in the
-	 *	    external compactified domain is the maximum value
+	 *	    compactified external domain is the maximum value
 	 *	    on that particular domain. \\
 	 *	{\tt err(1, l) : }  Maximum value of the absolute error
 	 *			$|\Delta u - \sigma|$ in domain no. {\tt l} \\
