@@ -32,6 +32,9 @@ char sym_tensor_tt_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/04/08 16:38:43  e_gourgoulhon
+ * Sym_tensor_tt::set_khi_mu: added argument dzp (dzpuis of resulting h^{ij}).
+ *
  * Revision 1.9  2004/03/04 09:53:04  e_gourgoulhon
  * Methods eta(), mu() and upate(): use of Scalar::mult_r_dzpuis and
  * change of dzpuis behavior of eta and mu.
@@ -108,24 +111,24 @@ const Scalar& Sym_tensor_tt::khi() const {
 const Scalar& Sym_tensor_tt::eta() const {
 
 
-	if (p_eta == 0x0) {   // a new computation is necessary
+    if (p_eta == 0x0) {   // a new computation is necessary
 		
-		// All this has a meaning only for spherical components:
-		assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
+	// All this has a meaning only for spherical components:
+	assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
 
-		// eta is computed from the divergence-free condition:
+        // eta is computed from the divergence-free condition:
 
         int dzp = operator()(1,1).get_dzpuis() ; 
         
-		Scalar dhrr = - operator()(1,1).dsdr() ; 	
+	Scalar dhrr = - operator()(1,1).dsdr() ; 	
         
         // dhrr contains - dh^{rr}/dr in all domains but the CED,                                           
         // in the CED:   - r^2 dh^{rr}/dr        if dzp = 0          (1)
         //               - r^(dzp+1) dh^{rr}/dr  if dzp > 0          (2)
                                                     
 		        
-		// Multiplication by r of (-d h^{rr}/dr) (with the same dzpuis as h^{rr})
-		dhrr.mult_r_dzpuis( dzp ) ;                           
+	// Multiplication by r of (-d h^{rr}/dr) (with the same dzpuis as h^{rr})
+	dhrr.mult_r_dzpuis( dzp ) ;                           
 
         // Substraction of the h^rr part and multiplication by r :
         dhrr -= 3. * operator()(1,1) ;                          
@@ -134,14 +137,13 @@ const Scalar& Sym_tensor_tt::eta() const {
 
         dhrr.mult_r_dzpuis(dzp_resu) ;
         
-		
-		// Resolution of the angular Poisson equation for eta
-		// --------------------------------------------------
-		p_eta = new Scalar( dhrr.poisson_angu() ) ; 
+	// Resolution of the angular Poisson equation for eta
+	// --------------------------------------------------
+	p_eta = new Scalar( dhrr.poisson_angu() ) ; 
 	
-	}
+    }
 
-	return *p_eta ; 
+    return *p_eta ; 
 
 }
 
@@ -257,7 +259,8 @@ void Sym_tensor_tt::set_khi_eta_mu(const Scalar& khi_i, const Scalar& eta_i,
 			//---------------//
 			
 
-void Sym_tensor_tt::set_khi_mu(const Scalar& khi_i, const Scalar& mu_i) {
+void Sym_tensor_tt::set_khi_mu(const Scalar& khi_i, const Scalar& mu_i, 
+                               int dzp) {
 
   // All this has a meaning only for spherical components:
   assert( dynamic_cast<const Base_vect_spher*>(triad) != 0x0 ) ; 
@@ -265,15 +268,23 @@ void Sym_tensor_tt::set_khi_mu(const Scalar& khi_i, const Scalar& mu_i) {
   set(1,1) = khi_i ; 
                         // calls del_deriv() and therefore delete previous
                         // p_eta and p_mu
-  set(1,1).div_r() ;
-  set(1,1).div_r() ;	// h^{rr}
-		
+  if (dzp == 0) {
+    set(1,1).div_r() ;
+    set(1,1).div_r() ;	// h^{rr}
+  }
+  else {
+    assert(dzp == 2) ; //## temporary: the other cases are not treated yet
+    set(1,1).set_dzpuis(2) ; 
+  }		
+  
   p_khi = new Scalar ( khi_i ) ;  // khi
 
   p_mu = new Scalar( mu_i ) ; 	// mu 
 		
   eta() ; // computes eta form the divergence-free condition
-  
+          // dzp = 0 ==> eta.dzpuis = 0
+          // dzp = 2 ==> eta.dzpuis = 1
+    
   update() ; // all h^{ij}, except for h^{rr}
 		
 }

@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2004/04/08 16:37:54  e_gourgoulhon
+ * Sym_tensor_tt::set_khi_mu: added argument dzp (dzpuis of resulting h^{ij}).
+ *
  * Revision 1.18  2004/03/30 14:01:19  j_novak
  * Copy constructors and operator= now copy the "derived" members.
  *
@@ -562,9 +565,11 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	 *
 	 *	@param khi_i [input] value of \f$\chi\f$
 	 *	@param mu_i [input] angular potential \f$\mu\f$
+         *      @param dzp [input] \c dzpuis parameter of the resulting
+         *                      tensor components
 	 *
 	 */
-	void set_khi_mu(const Scalar& khi_i, const Scalar& mu_i) ; 
+	void set_khi_mu(const Scalar& khi_i, const Scalar& mu_i, int dzp = 0) ; 
 	
 	// Computational methods
 	// ---------------------
