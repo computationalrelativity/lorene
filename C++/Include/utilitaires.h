@@ -32,6 +32,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/12/17 23:12:30  r_prix
+ * replaced use of C++ <string> by standard ANSI char* to be backwards compatible
+ * with broken compilers like MIPSpro Compiler 7.2 on SGI Origin200. ;-)
+ *
  * Revision 1.7  2003/12/05 15:05:53  r_prix
  * added read_variable() for (C++-type) strings.
  *
@@ -81,7 +85,6 @@
  
 #include "stdio.h"
 #include <string.h>
-#include <string>
 
 class Param ;
 class Tbl ;
@@ -323,8 +326,8 @@ int read_variable(char *fname, char *var_name, int &var);
 int read_variable(char *fname, char *var_name, bool &var);
 /// Read a double variable from file (cf {\tt read_variable(char *, char *, char *, void *)}).
 int read_variable(char *fname, char *var_name, double &var);
-/// Read a (c++) string variable from file.
-int read_variable (char *fname, char *var_name, string &str);
+/// Read a (ANSI C) string variable from file.
+int read_variable (char *fname, char *var_name, char *str);
 
 /// 'Improved' malloc that sets memory to 0 and also auto-terminates on error.
 void *MyMalloc (long bytes);

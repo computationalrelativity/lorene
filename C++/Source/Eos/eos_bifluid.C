@@ -31,6 +31,10 @@ char eos_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2003/12/17 23:12:32  r_prix
+ * replaced use of C++ <string> by standard ANSI char* to be backwards compatible
+ * with broken compilers like MIPSpro Compiler 7.2 on SGI Origin200. ;-)
+ *
  * Revision 1.11  2003/12/05 15:09:47  r_prix
  * adapted Eos_bifluid class and subclasses to use read_variable() for
  * (formatted) file-reading.
@@ -94,7 +98,6 @@ char eos_bifluid_C[] = "$Header$" ;
 
 // Headers C
 #include <stdlib.h>
-#include <string.h>
 #include <math.h>
 
 // Headers Lorene
@@ -135,10 +138,7 @@ Eos_bifluid::Eos_bifluid(const Eos_bifluid& eos_i) :
 // ------------------------------
 Eos_bifluid::Eos_bifluid(FILE* fich)
 {
-  char tmp[101];
-
-    fread(tmp, sizeof(char), 100, fich) ;
-    name = tmp;
+    fread(name, sizeof(char), MAX_EOSNAME, fich) ;
     fread_be(&m_1, sizeof(double), 1, fich) ;		
     fread_be(&m_2, sizeof(double), 1, fich) ;	
     
@@ -193,14 +193,13 @@ void Eos_bifluid::operator=(const Eos_bifluid& eosi) {
 			//-------------------------//
 			
 			
-void Eos_bifluid::set_name(const string name_i) {
+void Eos_bifluid::set_name(const char* name_i) {
 
-  //    strncpy(name, name_i,  100) ; 
-  name = name_i;
+  strncpy(name, name_i,  100) ; 
     
 }
 
-const string &Eos_bifluid::get_name() const {
+const char* Eos_bifluid::get_name() const {
     
     return name ; 
     
@@ -215,7 +214,7 @@ void Eos_bifluid::sauve(FILE* fich) const {
     int ident = identify() ; 
     fwrite_be(&ident, sizeof(int), 1, fich) ;	
     	
-    fwrite(name.c_str(), sizeof(char), 100, fich) ;
+    fwrite(name, sizeof(char), 100, fich) ;
     fwrite_be(&m_1, sizeof(double), 1, fich) ;	
     fwrite_be(&m_2, sizeof(double), 1, fich) ;	
    

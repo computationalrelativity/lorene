@@ -32,6 +32,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2003/12/17 23:12:30  r_prix
+ * replaced use of C++ <string> by standard ANSI char* to be backwards compatible
+ * with broken compilers like MIPSpro Compiler 7.2 on SGI Origin200. ;-)
+ *
  * Revision 1.13  2003/12/05 15:08:38  r_prix
  * - use read_variable() to read eos_bifluid from file
  * - changed 'contructor from file' to take filename as an argument instead of ifstream
@@ -99,7 +103,6 @@
 
 // Standard C++
 #include "headcpp.h"
-#include <string>
 
 // Headers C
 #include <stdio.h>
@@ -141,13 +144,16 @@ class Eos_poly ;
  *
  * @version #$Id$#
  */
+
+#define MAX_EOSNAME 100
+
 class Eos_bifluid {
 
     // Data :
     // -----
 
     protected: 
-	string name;	    /// EOS name
+	char name[MAX_EOSNAME];	    /// EOS name
 
 	/** Individual particle mass $m_1$  
 	 *  [unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$]. 
@@ -204,10 +210,10 @@ class Eos_bifluid {
     // Name manipulation
     // -----------------
     public:
-	const string &get_name() const ;	/// Returns the EOS name
+	const char* get_name() const ;	/// Returns the EOS name
 
 	/// Sets the EOS name
-	void set_name(const string name_i) ; 
+	void set_name(const char* name_i) ; 
 
     // Miscellaneous
     // -------------

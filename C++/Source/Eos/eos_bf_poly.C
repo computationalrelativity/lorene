@@ -31,6 +31,10 @@ char eos_bf_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2003/12/17 23:12:32  r_prix
+ * replaced use of C++ <string> by standard ANSI char* to be backwards compatible
+ * with broken compilers like MIPSpro Compiler 7.2 on SGI Origin200. ;-)
+ *
  * Revision 1.16  2003/12/10 08:58:20  r_prix
  * - added new Eos_bifluid paramter for eos-file: bool slow_rot_style
  *  to indicate if we want this particular kind of EOS-inversion (only works for
@@ -108,7 +112,6 @@ char eos_bf_poly_C[] = "$Header$" ;
 
 // Headers C
 #include <stdlib.h>
-#include <string.h>
 #include <math.h>
 
 // Headers Lorene

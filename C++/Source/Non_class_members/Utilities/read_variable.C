@@ -230,7 +230,7 @@ read_variable (char *fname, char *var_name, double &var)
 }
 
 int
-read_variable (char *fname, char *var_name, string &str)
+read_variable (char *fname, char *var_name, char *str)
 {
   char *cstr;
 
@@ -238,9 +238,11 @@ read_variable (char *fname, char *var_name, string &str)
 
   if ((ret == OK) && cstr)
     {
-      str = cstr;
+      strcpy (str, cstr);
       free (cstr);
     }
+
+  cout << "DEBUG: " << var_name << " = " << str <<endl;
 
   return (ret);
 

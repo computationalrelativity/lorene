@@ -31,6 +31,10 @@ char eos_bf_poly_newt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2003/12/17 23:12:32  r_prix
+ * replaced use of C++ <string> by standard ANSI char* to be backwards compatible
+ * with broken compilers like MIPSpro Compiler 7.2 on SGI Origin200. ;-)
+ *
  * Revision 1.11  2003/12/05 15:09:47  r_prix
  * adapted Eos_bifluid class and subclasses to use read_variable() for
  * (formatted) file-reading.
@@ -76,7 +80,6 @@ char eos_bf_poly_newt_C[] = "$Header$" ;
 
 // Headers C
 #include <stdlib.h>
-#include <string.h>
 #include <math.h>
 
 // Headers Lorene
