@@ -30,6 +30,9 @@ char vector_df_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/20 19:44:43  e_gourgoulhon
+ * First full version
+ *
  * Revision 1.1  2003/10/20 14:45:27  e_gourgoulhon
  * Not ready yet...
  *
@@ -47,8 +50,6 @@ char vector_df_poisson_C[] = "$Header$" ;
 
 Vector_divfree Vector_divfree::poisson() const {
 
-	Vector_divfree resu(*mp, *triad, *met_div) ; 
-
 	// Solution for the r-component
 	// ----------------------------
 	
@@ -56,10 +57,19 @@ Vector_divfree Vector_divfree::poisson() const {
 	source_r.mult_r() ; 
 	
 	Scalar khi = source_r.poisson() ; 
-	khi.div_r() ; 
-	resu.set(1) = khi ; 
+	khi.div_r() ;   // khi now contains V^r
 	
-	abort() ; 
+	// Solution for mu
+	// ---------------
+	
+	Scalar mu_resu = mu().poisson() ;
+	
+	// Final result
+	// ------------
+	
+	Vector_divfree resu(*mp, *triad, *met_div) ; 
+
+	resu.set_vr_mu(khi, mu_resu) ; 
 	
 	return resu ;
 
