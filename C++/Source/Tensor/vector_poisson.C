@@ -30,6 +30,9 @@ char vector_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/02/24 09:46:20  j_novak
+ * Correction to cope with SGI compiler's warnings.
+ *
  * Revision 1.6  2004/02/22 15:47:46  j_novak
  * Added 2 more methods to solve the vector pôisson equation. Method 1 is not
  * tested yet.
@@ -57,7 +60,7 @@ char vector_poisson_C[] = "$Header$" ;
  */
 
 //C headers
-#include "math.h"
+#include <math.h>
 
 // Lorene headers
 #include "metric.h"
@@ -69,6 +72,8 @@ Vector Vector::poisson(const double lambda, const Metric_flat& met_f, int method
   for (int i=0; i<3; i++)
     assert(cmp[i]->check_dzpuis(4)) ;
   assert ((method>=0) && (method<3)) ;
+
+  Vector resu(*mp, CON, triad) ;
 
   switch (method) {
     
@@ -113,13 +118,10 @@ Vector Vector::poisson(const double lambda, const Metric_flat& met_f, int method
 
     Scalar mu = div_free(met_f).mu().poisson() ;
 
-    Vector resu(*mp, CON, triad) ;
     resu.set(1) = f_r ;
     resu.set(2) = eta.dsdt() - mu.stdsdp() ;
     resu.set(3) = eta.stdsdp() + mu.dsdt() ;
 
-    return resu ;
-    
     break ;
 
   }
@@ -138,13 +140,11 @@ Vector Vector::poisson(const double lambda, const Metric_flat& met_f, int method
     scal_auxi.set_etat_qcq() ;
 	
     Tenseur resu_p(source_p.poisson_vect(lambda, vect_auxi, scal_auxi)) ;
+    resu_p.change_triad(mp->get_bvect_spher() ) ;
 
-     Vector resu(*mp, CON, mp->get_bvect_cart()) ;
      for (int i=1; i<=3; i++) 
        resu.set(i) = resu_p(i-1) ;
 
-     resu.change_triad(mp->get_bvect_spher() ) ;
-     return resu ;
      break ;
   }
 
@@ -152,11 +152,12 @@ Vector Vector::poisson(const double lambda, const Metric_flat& met_f, int method
     cout << "Vector::poisson : unexpected type of method !" << endl 
 	 << "  method = " << method << endl ; 
     abort() ;
-    return *this ;
     break ; 
   }
 
   } // End of switch  
+
+  return resu ;
 
 }
 

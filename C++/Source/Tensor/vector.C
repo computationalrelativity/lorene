@@ -32,6 +32,9 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2004/02/24 09:46:20  j_novak
+ * Correction to cope with SGI compiler's warnings.
+ *
  * Revision 1.16  2004/02/20 10:53:04  j_novak
  * Added the matching of the potential adapted to the case where the
  * vector is the source of a Poisson equation (dzpuis = 4).
@@ -91,6 +94,7 @@ char vector_C[] = "$Header$" ;
 // Headers C
 #include <stdlib.h>
 #include <assert.h>
+#include <math.h>
 
 // Headers Lorene
 #include "param.h"
