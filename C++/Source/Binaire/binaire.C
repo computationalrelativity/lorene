@@ -31,6 +31,9 @@ char binaire_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2001/12/20 13:03:24  k_taniguchi
+ * Addition of the Komar mass, the virial error by Gourgoulhon and Bonazzola, and the virial error by Friedman, Uryu, and Shibata.
+ *
  * Revision 1.2  2001/12/04 21:27:52  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -169,9 +172,12 @@ Binaire::~Binaire(){
 void Binaire::del_deriv() const {
 
     if (p_mass_adm != 0x0) delete p_mass_adm ; 
+    if (p_mass_kom != 0x0) delete p_mass_kom ; 
     if (p_angu_mom != 0x0) delete p_angu_mom ; 
     if (p_total_ener != 0x0) delete p_total_ener ; 
     if (p_virial != 0x0) delete p_virial ; 
+    if (p_virial_gb != 0x0) delete p_virial_gb ; 
+    if (p_virial_fus != 0x0) delete p_virial_fus ; 
     if (p_ham_constr != 0x0) delete p_ham_constr ; 
     if (p_mom_constr != 0x0) delete p_mom_constr ; 
 
@@ -184,9 +190,12 @@ void Binaire::del_deriv() const {
 void Binaire::set_der_0x0() const {
 
     p_mass_adm = 0x0 ; 
+    p_mass_kom = 0x0 ; 
     p_angu_mom = 0x0 ; 
     p_total_ener = 0x0 ; 
     p_virial = 0x0 ; 
+    p_virial_gb = 0x0 ; 
+    p_virial_fus = 0x0 ; 
     p_ham_constr = 0x0 ; 
     p_mom_constr = 0x0 ; 
 
@@ -306,19 +315,20 @@ void Binaire::display_poly(ostream& ost) const {
 	ost << endl << "Quantities in polytropic units : " << endl ; 
 	ost	 << "==============================" << endl ; 
 	ost << " ( r_poly = " << r_poly / km << " km )" << endl ; 
-	ost << "  d_e_max	 : " << separation() / r_poly << endl ; 
-	ost << "  d_G		 : " 
+	ost << "  d_e_max	: " << separation() / r_poly << endl ; 
+	ost << "  d_G		: " 
 	     << ( star2.xa_barycenter() - star1.xa_barycenter() ) / r_poly 
 	     << endl ; 
-	ost << "  Omega	 : " << omega * t_poly << endl ; 
-	ost << "  J	 : " << angu_mom()(2) / j_poly << endl ; 
-	ost << "  1/2 M_ADM : " << 0.5 * mass_adm() / m_poly << endl ; 
-	ost << "  E	 : " << total_ener() / m_poly << endl ; 
+	ost << "  Omega	  : " << omega * t_poly << endl ; 
+	ost << "  J	  : " << angu_mom()(2) / j_poly << endl ; 
+	ost << "  M_ADM   : " << mass_adm() / m_poly << endl ; 
+	ost << "  M_Komar : " << mass_kom() / m_poly << endl ; 
+	ost << "  E	  : " << total_ener() / m_poly << endl ; 
 	ost << "  M_bar(star 1) : " << star1.mass_b() / m_poly << endl ; 
 	ost << "  M_bar(star 2) : " << star2.mass_b() / m_poly << endl ; 
-	ost << "  R_0(star 1)	 : " << 
+	ost << "  R_0(star 1)	: " << 
 	0.5 * ( star1.ray_eq() + star1.ray_eq_pi() ) / r_poly << endl ;  
-	ost << "  R_0(star 2)	 : " << 
+	ost << "  R_0(star 2)	: " << 
 	0.5 * ( star2.ray_eq() + star2.ray_eq_pi() ) / r_poly << endl ;  
     
     }

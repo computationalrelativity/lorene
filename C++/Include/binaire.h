@@ -31,8 +31,11 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/20 13:00:31  k_taniguchi
+ * Addition of the Komar mass, the virial error by Gourgoulhon and Bonazzola, and the virial error by Friedman, Uryu, and Shibata.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.11  2001/02/28  14:27:32  keisuke
  * *** empty log message ***
@@ -121,6 +124,9 @@ class Binaire {
 	/// Total ADM mass of the system
 	mutable double* p_mass_adm ; 
 
+	/// Total Komar mass of the system
+	mutable double* p_mass_kom ; 
+
 	/// Total angular momentum of the system
 	mutable Tbl* p_angu_mom ; 
 
@@ -129,6 +135,12 @@ class Binaire {
 
 	/// Virial theorem error
 	mutable double* p_virial ; 
+
+	/// Virial theorem error by E.Gourgoulhon and S.Bonazzola.
+	mutable double* p_virial_gb ; 
+
+	/// Virial theorem error by J.L.Friedman, K.Uryu, and M.Shibata.
+	mutable double* p_virial_fus ; 
 	
 	/// Relative error on the Hamiltonian constraint
 	mutable double* p_ham_constr ;
@@ -245,6 +257,9 @@ class Binaire {
     public:
 	/// Total ADM mass
     	double mass_adm() const ;
+
+	/// Total Komar mass
+    	double mass_kom() const ;
 	
 	/** Total angular momentum.
 	 *
@@ -265,10 +280,27 @@ class Binaire {
 	 */
     	double total_ener() const ;	
 
-	/** Estimates the relative error on the virial theorem (for Newtonian
-	 *  configurations only, for a relativistic one, it returns -1000)
+	/** Estimates the relative error on the virial theorem
+	 *  (for a relativistic one,
+	 *   it returns $|1 - M_{\rm Komar} / M_{\rm ADM}|$)
 	 */
     	double virial() const ;	
+
+	/** Estimates the relative error on the virial theorem
+	 *  calculated by E.Gourgoulhon and S.Bonazzola
+	 *  (Class. Quantum Grav. 11, 443 (1994): Eq.(29))
+	 *  normalized by $2 \pi G$.
+	 */
+    	double virial_gb() const ;	
+
+	/** Estimates the relative error on the virial theorem
+	 *  calculated by J.L.Friedman, K.Uryu, and M.Shibata
+	 *  (PRD accepted, gr-qc/0108070)
+	 *
+	 *  The expression used in the LORENE is Eq.(5.7) in the paper
+	 *  by M.Shibata and K.Uryu (PRD64, 104017 (2001))
+	 */
+    	double virial_fus() const ;	
 
 	/** Estimates the relative error on the Hamiltonian constraint 
 	 *  equation by comparing $\underline\Delta\ln A$ with
