@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/01/11 12:48:46  f_limousin
+ * Implement the function operator=(const Evolution_std<TyT>& ).
+ *
  * Revision 1.7  2004/05/31 09:06:12  e_gourgoulhon
  * Added protection against self-assignement in method update.
  *
@@ -117,11 +120,35 @@ Evolution_std<TyT>::~Evolution_std(){ }
 
                     
 template<typename TyT> 
-void Evolution_std<TyT>::operator=(const Evolution_std<TyT>& ) {
+void Evolution_std<TyT>::operator=(const Evolution_std<TyT>& evo) {
 
-    cerr << "void Evolution_std<TyT>::operator= : not implemented yet ! \n" ; 
-    abort() ; 
+    size = evo.size ;
+    pos_jtop = evo.pos_jtop ;
+ 
+    for (int j=0; j<size; j++) {
+        step[j] = evo.step[j] ; 
+    }
+    
+    for (int j=0; j<size; j++) {
+        the_time[j] = evo.the_time[j] ; 
+    }
+    
 
+    for (int j=0; j<size; j++) {
+        if (val[j] != 0x0) {
+	    delete val[j] ;
+	    val[j] = 0x0 ;
+	}
+    }
+
+    for (int j=0; j<size; j++) {
+        if (evo.val[j] != 0x0) {	    
+            val[j] = new TyT( *(evo.val[j]) ) ; 
+        }
+        else {
+            val[j] = 0x0 ; 
+        }
+    }
 }
 
 template<typename TyT> 
@@ -129,7 +156,7 @@ void Evolution_std<TyT>::operator=(const Evolution<TyT>& ) {
 
     cerr << "void Evolution_std<TyT>::operator= : not implemented yet ! \n" ; 
     abort() ; 
-
+ 
 }
 
 
