@@ -30,6 +30,9 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/05/31 09:08:18  e_gourgoulhon
+ * Method sauve and constructor from binary file are now operational.
+ *
  * Revision 1.9  2004/05/27 15:25:04  e_gourgoulhon
  * Added constructors from binary file, as well as corresponding
  * functions sauve and save.
@@ -149,7 +152,7 @@ Tslice_dirac_max::Tslice_dirac_max(const Map& mp, const Base_vect& triad,
 
     // khi
     for (int j=jmin; j<=jtime; j++) {
-	    fread_be(&indicator, sizeof(int), 1, fich) ;	
+        fread_be(&indicator, sizeof(int), 1, fich) ;	
         if (indicator == 1) {
             Scalar khi_file(mp, *(mp.get_mg()), fich) ; 
             khi_evol.update(khi_file, j, the_time[j]) ; 
@@ -158,7 +161,7 @@ Tslice_dirac_max::Tslice_dirac_max(const Map& mp, const Base_vect& triad,
 
     // mu
     for (int j=jmin; j<=jtime; j++) {
-	    fread_be(&indicator, sizeof(int), 1, fich) ;	
+        fread_be(&indicator, sizeof(int), 1, fich) ;	
         if (indicator == 1) {
             Scalar mu_file(mp, *(mp.get_mg()), fich) ; 
             mu_evol.update(mu_file, j, the_time[j]) ; 
@@ -167,17 +170,18 @@ Tslice_dirac_max::Tslice_dirac_max(const Map& mp, const Base_vect& triad,
 
     // h^ij
     for (int j=jmin; j<=jtime; j++) {
-	    fread_be(&indicator, sizeof(int), 1, fich) ;	
+        fread_be(&indicator, sizeof(int), 1, fich) ;	
         if (indicator == 1) {
             Sym_tensor hh_file(mp, triad, fich) ; 
             hh_evol.update(hh_file, j, the_time[j]) ; 
         }
     }
     
-    // Updates
-    // -------
+    // h^ij at the current time step (jtime) is entirely re-computed
+    //  from the values of khi and mu
+    // -------------------------------------------------------------
     
-    set_khi_mu(khi_evol[jtime], mu_evol[jtime]) ; 
+    hh_det_one() ;
       
 }
 
@@ -562,27 +566,30 @@ void Tslice_dirac_max::sauve(FILE* fich, bool partial_save) const {
     
     // Writing of the other fields
     // ---------------------------
-    
+        
     int jmin = jtime - depth + 1 ; 
 
     // khi
+    khi() ;     // forces the update at the current time step
     for (int j=jmin; j<=jtime; j++) {
         int indicator = (khi_evol.is_known(j)) ? 1 : 0 ; 
-	    fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        fwrite_be(&indicator, sizeof(int), 1, fich) ;
         if (indicator == 1) khi_evol[j].sauve(fich) ; 
     }
 
     // mu
+    mu() ;     // forces the update at the current time step
     for (int j=jmin; j<=jtime; j++) {
         int indicator = (mu_evol.is_known(j)) ? 1 : 0 ; 
-	    fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        fwrite_be(&indicator, sizeof(int), 1, fich) ;
         if (indicator == 1) mu_evol[j].sauve(fich) ; 
     }
 
     // h^ij
+    hh() ;     // forces the update at the current time step
     for (int j=jmin; j<=jtime; j++) {
         int indicator = (hh_evol.is_known(j)) ? 1 : 0 ; 
-	    fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        fwrite_be(&indicator, sizeof(int), 1, fich) ;
         if (indicator == 1) hh_evol[j].sauve(fich) ; 
     }
     

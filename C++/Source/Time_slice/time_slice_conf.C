@@ -30,6 +30,9 @@ char time_slice_conf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/05/31 09:08:18  e_gourgoulhon
+ * Method sauve and constructor from binary file are now operational.
+ *
  * Revision 1.12  2004/05/27 15:25:04  e_gourgoulhon
  * Added constructors from binary file, as well as corresponding
  * functions sauve and save.
@@ -238,7 +241,7 @@ Time_slice_conf::Time_slice_conf(const Map& mp, const Base_vect& triad,
 
     // Q
     for (int j=jmin; j<=jtime; j++) {
-	    fread_be(&indicator, sizeof(int), 1, fich) ;	
+        fread_be(&indicator, sizeof(int), 1, fich) ;
         if (indicator == 1) {
             Scalar qq_file(mp, *(mp.get_mg()), fich) ; 
             qq_evol.update(qq_file, j, the_time[j]) ; 
@@ -743,9 +746,10 @@ void Time_slice_conf::sauve(FILE* fich, bool partial_save) const {
     int jmin = jtime - depth + 1 ; 
 
     // Q
+    qq() ;     // forces the update at the current time step
     for (int j=jmin; j<=jtime; j++) {
         int indicator = (qq_evol.is_known(j)) ? 1 : 0 ; 
-	    fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        fwrite_be(&indicator, sizeof(int), 1, fich) ;
         if (indicator == 1) qq_evol[j].sauve(fich) ; 
     }
     

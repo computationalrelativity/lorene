@@ -30,6 +30,9 @@ char time_slice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/05/31 09:08:18  e_gourgoulhon
+ * Method sauve and constructor from binary file are now operational.
+ *
  * Revision 1.12  2004/05/27 15:25:04  e_gourgoulhon
  * Added constructors from binary file, as well as corresponding
  * functions sauve and save.
@@ -238,7 +241,7 @@ Time_slice::Time_slice(const Map& mp, const Base_vect& triad, FILE* fich,
     // ----------------------------------
     
     int depth_file ; 
-	fread_be(&depth_file, sizeof(int), 1, fich) ;
+    fread_be(&depth_file, sizeof(int), 1, fich) ;
     if (depth_file != depth_in) {
         cout << 
         "Time_slice constructor from file: the depth read in file \n"
@@ -247,18 +250,18 @@ Time_slice::Time_slice(const Map& mp, const Base_vect& triad, FILE* fich,
         << " <-> depth_in " << depth_in << " !" << endl ; 
         abort() ;  
     }	
-	fread_be(&scheme_order, sizeof(int), 1, fich) ;	
-	fread_be(&jtime, sizeof(int), 1, fich) ;	
+    fread_be(&scheme_order, sizeof(int), 1, fich) ;	
+    fread_be(&jtime, sizeof(int), 1, fich) ;	
     
     // Reading the_time
     // ----------------
     int jmin = jtime - depth + 1 ; 
     int indicator ; 
     for (int j=jmin; j<=jtime; j++) {
-	    fread_be(&indicator, sizeof(int), 1, fich) ;	
+        fread_be(&indicator, sizeof(int), 1, fich) ;	
         if (indicator == 1) {	
             double xx ; 
-	        fwrite_be(&xx, sizeof(double), 1, fich) ;	
+            fread_be(&xx, sizeof(double), 1, fich) ;	
             the_time.update(xx, j, xx) ; 
         }
     }
@@ -268,7 +271,7 @@ Time_slice::Time_slice(const Map& mp, const Base_vect& triad, FILE* fich,
     
     // N
     for (int j=jmin; j<=jtime; j++) {
-	    fread_be(&indicator, sizeof(int), 1, fich) ;	
+        fread_be(&indicator, sizeof(int), 1, fich) ;	
         if (indicator == 1) {
             Scalar nn_file(mp, *(mp.get_mg()), fich) ; 
             n_evol.update(nn_file, j, the_time[j]) ; 
@@ -277,7 +280,7 @@ Time_slice::Time_slice(const Map& mp, const Base_vect& triad, FILE* fich,
 
     // beta
     for (int j=jmin; j<=jtime; j++) {
-	    fread_be(&indicator, sizeof(int), 1, fich) ;	
+        fread_be(&indicator, sizeof(int), 1, fich) ;	
         if (indicator == 1) {
             Vector beta_file(mp, triad, fich) ; 
             beta_evol.update(beta_file, j, the_time[j]) ; 
@@ -475,7 +478,7 @@ void Time_slice::save(const char* rootname) const {
     map.sauve(fich) ; 
     triad.sauve(fich) ;  
    
-	fwrite_be(&depth, sizeof(int), 1, fich) ;	
+    fwrite_be(&depth, sizeof(int), 1, fich) ;	
 
     // Write all binary data by means of virtual function sauve
     // --------------------------------------------------------
@@ -498,19 +501,19 @@ void Time_slice::sauve(FILE* fich, bool partial_save) const {
     // Writing various integer parameters
     // ----------------------------------
     
-	fwrite_be(&depth, sizeof(int), 1, fich) ;	
-	fwrite_be(&scheme_order, sizeof(int), 1, fich) ;	
-	fwrite_be(&jtime, sizeof(int), 1, fich) ;	
+    fwrite_be(&depth, sizeof(int), 1, fich) ;	
+    fwrite_be(&scheme_order, sizeof(int), 1, fich) ;	
+    fwrite_be(&jtime, sizeof(int), 1, fich) ;	
     
     // Writing the_time
     // ----------------
     int jmin = jtime - depth + 1 ; 
     for (int j=jmin; j<=jtime; j++) {
         int indicator = (the_time.is_known(j)) ? 1 : 0 ; 
-	    fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        fwrite_be(&indicator, sizeof(int), 1, fich) ;
         if (indicator == 1) {	
             double xx = the_time[j] ; 
-	        fwrite_be(&xx, sizeof(double), 1, fich) ;	
+            fwrite_be(&xx, sizeof(double), 1, fich) ;	
         }
     }
 
@@ -518,16 +521,18 @@ void Time_slice::sauve(FILE* fich, bool partial_save) const {
     // -------------------------
     
     // N
+    nn() ;     // forces the update at the current time step
     for (int j=jmin; j<=jtime; j++) {
         int indicator = (n_evol.is_known(j)) ? 1 : 0 ; 
-	    fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        fwrite_be(&indicator, sizeof(int), 1, fich) ;
         if (indicator == 1) n_evol[j].sauve(fich) ; 
     }
 
     // beta
+    beta() ;     // forces the update at the current time step
     for (int j=jmin; j<=jtime; j++) {
         int indicator = (beta_evol.is_known(j)) ? 1 : 0 ; 
-	    fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        fwrite_be(&indicator, sizeof(int), 1, fich) ;
         if (indicator == 1) beta_evol[j].sauve(fich) ; 
     }
 
