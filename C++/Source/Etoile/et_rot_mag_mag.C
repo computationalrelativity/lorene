@@ -32,6 +32,9 @@ char et_rot_mag_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2002/05/20 10:31:59  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.6  2002/05/17 15:08:01  e_marcq
  *
  * Rotation progressive plug-in, units corrected, Q and a_j new member data
@@ -77,13 +80,13 @@ void Et_rot_mag::magnet_comput(Cmp (*f_j)(const Cmp& x,const double a_j),
 			       Param& par_poisson_Avect){
   double relax_mag = 0.5 ;
 
-  // Calcul de A_0t dans l'etoile (conducteur parfait)
-
-
-  Cmp A_0t(- omega * A_phi) ;
- 
   int Z = mp.get_mg()->get_nzone();
 
+  // Calcul de A_0t dans l'etoile (conducteur parfait)
+
+  Cmp A_0t(- omega * A_phi) ;
+  A_0t.annule(nzet,Z-1) ;
+ 
   Tenseur ATTENS(A_t) ; 
   Tenseur APTENS(A_phi) ;
   Tenseur BMN(-logn) ;
@@ -176,7 +179,7 @@ void Et_rot_mag::magnet_comput(Cmp (*f_j)(const Cmp& x,const double a_j),
 
   // Resolution de Maxwell-Ampere : A_1
 
-  Cmp source_A_1t(-a_car()*(j_t*gtt + j_phi*gtphi + BLAH ));
+  Cmp source_A_1t(-a_car()*(j_t*gtt + j_phi*gtphi) + BLAH);
 
   Cmp A_1t(mp);
   A_1t = 0 ;
@@ -194,8 +197,23 @@ void Et_rot_mag::magnet_comput(Cmp (*f_j)(const Cmp& x,const double a_j),
   Mtbl* theta = mp.tet.c ;
   const Map_radial* mpr = dynamic_cast<const Map_radial*>(&mp) ;
   assert (mpr != 0x0) ;
-  Tbl leg(L,L) ;
+  Tbl leg(L,2*L) ;
   leg.set_etat_qcq() ;
+  for(int k=0;k<L;k++){
+
+    for(int l=0;l<2*L;l++){
+
+      // leg[k,l] : legendre_l(cos(theta_k))
+      // Construction par recurrence de degre 2
+
+      if(l==0) leg.set(k,l)=1. ;
+      if(l==1) leg.set(k,l)=cos((*theta)(l_surf()(0,k),0,k,0)) ;
+      if(l>=2)
+	leg.set(k,l)= double(2*l-1)/double(l)*cos((*theta)(l_surf()(0,k),0,k,0))
+	  * leg(k,l-1)-double(l-1)/double(l)*leg(k,l-2) ;
+    }
+  }
+  
   for(int k=0;k<L;k++){
     // Rsurf retourne la valeur du rayon en theta_k. via xi et ??
     double Rsurf = mpr->val_r_jk(l_surf()(0,k), xi_surf()(0,k), k, 0) ;
@@ -204,20 +222,9 @@ void Et_rot_mag::magnet_comput(Cmp (*f_j)(const Cmp& x,const double a_j),
 
     VEC.set(k) = A_0t.va.val_point_jk(l_surf()(0,k), xi_surf()(0,k), k, 0)
       -A_1t.va.val_point_jk(l_surf()(0,k), xi_surf()(0,k), k, 0);
-
     for(int l=0;l<L;l++){
 
-      // leg[k,l] : legendre_l(cos(theta_k))
-      // Construction par recurrence de degre 2
-
-      if(l==0){leg.set(k,l)=1.;}
-      if(l==1){leg.set(k,l)=cos((*theta)(l_surf()(0,k),0,k,0));}
-      if(l>=2){
-	leg.set(k,l)= (2*l-1)/l*cos((*theta)(l_surf()(0,k),0,k,0))
-	  * leg(k,l-1)-(l-1)/l*leg(k,l-2);}
-
-
-      MAT.set(l,k) = leg(k,l)/pow(Rsurf,l+1);
+      MAT.set(l,k) = leg(k,2*l)/pow(Rsurf,2*l+1);
 
     }
   }
@@ -247,45 +254,39 @@ void Et_rot_mag::magnet_comput(Cmp (*f_j)(const Cmp& x,const double a_j),
   psi2.allocate_all() ;
 
   mp.r.fait() ;
+
   for(int nz=0;nz < Z; nz++){
     for(int i=0;i< mp.get_mg()->get_nr(nz);i++){
       for(int k=0;k<L;k++){
 	psi.set(nz,0,k,i) = 0. ;
 	psi2.set(nz,0,k,i) = 0. ;
 	for(int l=0;l<L;l++){
-	  psi.set(nz,0,k,i) += VEC(l)*leg(k,l) / 
-	    pow(mp.r.c->set(nz,0,k,i),l+1);
-	  psi2.set(nz,0,k,i) += VEC2(l)*leg(k,l)/
-	    pow(mp.r.c->set(nz, 0, k,i),l+1);
+	  psi.set(nz,0,k,i) += VEC(l)*leg(k,2*l) / 
+	    pow((*mp.r.c)(nz,0,k,i),2*l+1);
+	  psi2.set(nz,0,k,i) += VEC2(l)*leg(k,2*l)/
+	    pow((*mp.r.c)(nz, 0, k,i),2*l+1);
 	}
       }
     }
   }
-  psi.annule(0) ; // psi et psi2 ne sont pas harmoniques!
+  psi.annule(0) ; 
   psi2.annule(0) ;
   psi.std_base_scal() ;
   psi2.std_base_scal() ;
-
-  A_0t.allocate_all() ;
-  if (A_1t.get_etat() == ETATZERO) {
-    if (A_phi.get_etat() == ETATZERO) 
-      for(int i=0; i<nzet; i++) A_0t.set(i) = 0 ;
-    else 
-      for(int i=0; i<nzet; i++) A_0t.set(i) = - omega * A_phi(i) ;
-    for(int i=nzet; i<Z; i++) A_0t.set(i) = psi(i) ;
-  }
-  else {
-    if (A_phi.get_etat() == ETATZERO) 
-      for(int i=0; i<nzet; i++) A_0t.set(i) = 0 ;
-    else 
-      for(int i=0; i<nzet; i++) A_0t.set(i) = - omega * A_phi(i) ;
-    for(int i=nzet;i<Z;i++)
-      A_0t.set(i) = A_1t(i) + psi(i) ; // dehors seulement
+  
+  assert(psi.get_dzpuis() == 0) ;
+  int dif = A_1t.get_dzpuis() ;
+  if (dif > 0) {
+    for (int d=0; d<dif; d++) A_1t.dec_dzpuis() ;
   }
 
+  Cmp A_t_ext(A_1t + psi) ;
+  A_t_ext.annule(0,nzet-1) ;
+  A_0t += A_t_ext ;
   A_0t.std_base_scal() ;
 
   Valeur** asymp = A_0t.asymptot(1) ;
+
   double Q_0 = -4*M_PI*(*asymp[1])(Z-1,0,0,0) ; // utilise A_0t plutot que E
   delete asymp[0] ;
   delete asymp[1] ;
@@ -294,7 +295,7 @@ void Et_rot_mag::magnet_comput(Cmp (*f_j)(const Cmp& x,const double a_j),
 
   asymp = psi2.asymptot(1) ;
 
-  double Q_2 = 4*M_PI*(*asymp[1])(Z-1,0,0,0)  ; // A_2t = psi2 a l'infini
+  double Q_2 = -4*M_PI*(*asymp[1])(Z-1,0,0,0)  ; // A_2t = psi2 a l'infini
   delete asymp[0] ;
   delete asymp[1] ;
 
@@ -302,18 +303,30 @@ void Et_rot_mag::magnet_comput(Cmp (*f_j)(const Cmp& x,const double a_j),
 
   // solution definitive :
 
-    double C = (Q-Q_0)/Q_2 ;
+  double C = (Q-Q_0)/Q_2 ;
 
-  Cmp A_t_n(A_t) ;
-  A_t_n.allocate_all() ;
-  for(int i=0;i<Z;i++){
-    if(i<nzet){A_t_n.set(i) = A_0t(i) + C;}
-    if(i>nzet-1){A_t_n.set(i) = A_0t(i) + C * psi2(i);}
+  assert(psi2.get_dzpuis() == 0) ;
+  dif = A_0t.get_dzpuis() ;
+  if (dif > 0) {
+    for (int d=0; d<dif; d++) A_0t.dec_dzpuis() ;
   }
+  Cmp A_t_n(A_0t + C) ;
+  A_t_ext = A_0t + C*psi2 ;
+  A_t_ext.annule(0,nzet-1) ;
+  A_t_n.annule(nzet,Z-1) ;
+  A_t_n += A_t_ext ;
+
   A_t_n.std_base_scal() ;
 
+  asymp = A_t_n.asymptot(1) ;
+
+  delete asymp[0] ;
+  delete asymp[1] ;
+
+  delete [] asymp ;
   A_t = relax_mag*A_t_n + (1.-relax_mag)*A_t ;
   A_phi = relax_mag*A_phi_n + (1. - relax_mag)*A_phi ;
+
 }
 
 

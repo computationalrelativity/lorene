@@ -28,11 +28,14 @@
  */
 
 
-char et_rot_global_C[] = "$Header$" ;
+char et_rot_mag_global_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2002/05/20 10:31:59  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.9  2002/05/20 08:27:59  j_novak
  * *** empty log message ***
  *
