@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2003/11/04 22:54:49  e_gourgoulhon
+ * Added new virtual methods mult_cost, mult_sint and div_sint.
+ *
  * Revision 1.12  2003/10/16 08:49:21  j_novak
  * Added a flag to decide wether the output is in the Ylm or in the standard base.
  *
@@ -824,6 +827,18 @@ class Map {
 	 */
 	virtual void div_r(Cmp& ) const = 0 ; 
 
+	/** Multiplication by $\cos\theta$ of a {\tt Scalar}
+	 */
+	virtual void mult_cost(Scalar& ) const = 0 ; 
+
+	/** Multiplication by $\sin\theta$ of a {\tt Scalar}
+	 */
+	virtual void mult_sint(Scalar& ) const = 0 ; 
+
+	/** Division by $\sin\theta$ of a {\tt Scalar}
+	 */
+	virtual void div_sint(Scalar& ) const = 0 ; 
+
 	/** Division by $\tan\theta$ of a {\tt Scalar}
 	 */
 	virtual void div_tant(Scalar& ) const = 0 ; 
@@ -1357,6 +1372,18 @@ class Map_radial : public Map {
 	/** Division by {\it r} of a {\tt Cmp}
 	 */
 	virtual void div_r(Cmp& ) const ; 
+
+	/** Multiplication by $\cos\theta$ of a {\tt Scalar}
+	 */
+	virtual void mult_cost(Scalar& ) const ; 
+
+	/** Multiplication by $\sin\theta$ of a {\tt Scalar}
+	 */
+	virtual void mult_sint(Scalar& ) const ; 
+
+	/** Division by $\sin\theta$ of a {\tt Scalar}
+	 */
+	virtual void div_sint(Scalar& ) const  ; 
 
 	/** Division by $\tan\theta$ of a {\tt Scalar}
 	 */
