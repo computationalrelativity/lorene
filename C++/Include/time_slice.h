@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2005/03/28 19:44:00  f_limousin
+ * Function tgam() is now virtual.
+ *
  * Revision 1.22  2004/06/24 20:36:07  e_gourgoulhon
  * Class Time_slice_conf: added method check_psi_dot.
  *
@@ -754,7 +757,7 @@ class Time_slice_conf : public Time_slice {
          * \f$ \tilde\gamma_{ij} = \Psi^{-4} \gamma_{ij} \f$
          * Returns the value at the current time step (\c jtime ).
          */        
-        const Metric& tgam() const ; 
+        virtual const Metric& tgam() const ; 
 
         /** Deviation \f$ h^{ij} \f$ 
          * of the conformal metric \f$ \tilde\gamma^{ij} \f$ from 
