@@ -31,6 +31,9 @@ char et_bin_bhns_extr_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/12/29 16:29:55  k_taniguchi
+ * Suppression of "dzpius" for the shift vector.
+ *
  * Revision 1.5  2004/12/22 18:26:53  k_taniguchi
  * Change an argument of poisson_vect_falloff.
  *
@@ -671,7 +674,7 @@ void Et_bin_bhns_extr::equil_bhns_extr(double ent_c, const double& mass,
 	    // triad, not the reference one:
 
 	    source_shift.change_triad( mp.get_bvect_cart() ) ;
-
+	    /*
 	    for (int i=0; i<3; i++) {
 	        if(source_shift(i).dz_nonzero()) {
 		    assert( source_shift(i).get_dzpuis() == 4 ) ;
@@ -682,7 +685,7 @@ void Et_bin_bhns_extr::equil_bhns_extr(double ent_c, const double& mass,
 	    }
 
 	    source_shift.dec2_dzpuis() ;    // dzpuis 4 -> 2
-
+	    */
 	    double lambda_shift = double(1) / double(3) ;
 
 	    int* shift_falloff ;
@@ -703,11 +706,11 @@ void Et_bin_bhns_extr::equil_bhns_extr(double ent_c, const double& mass,
 
 	    // Divergence of shift_auto :
 	    Tenseur divna = contract(shift_auto.gradient(), 0, 1) ;
-	    divna.dec2_dzpuis() ;    // dzpuis 2 -> 0
+	    //	    divna.dec2_dzpuis() ;    // dzpuis 2 -> 0
 
 	    // Grad(div) :
 	    Tenseur graddivn = divna.gradient() ;
-	    graddivn.inc2_dzpuis() ;    // dzpuis 2 -> 4
+	    //	    graddivn.inc2_dzpuis() ;    // dzpuis 2 -> 4
 
 	    // Full operator :
 	    Tenseur lap_shift(mp, 1, CON, mp.get_bvect_cart() ) ;
