@@ -29,6 +29,17 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2005/03/03 10:25:16  f_limousin
+ * In the class Isol_hor :
+ *    - Add the boost in x and z-direction (members boost_x and boost_z,
+ *    and functions get_boost_x(), set_boost_x(double))
+ *    - Add function area_hor()
+ *    - Put the boundary conditions for the lapse, psi and beta in
+ *    the parameter file.
+ * In the class bin_hor :
+ *    -  Introduce function to compute global quantities as ADM mass,
+ *    Komar mass and angular momentum.
+ *
  * Revision 1.20  2005/02/24 17:22:53  f_limousin
  * Suppression of the function beta_bound_cart().
  * The boundary conditions for psi, N and beta are now some parameters
@@ -140,6 +151,12 @@ class Isol_hor : public Time_slice_conf {
 
   /// Angular velocity in LORENE's units.
   double omega ; 
+  
+  /// Boost velocity in x-direction
+  double boost_x ;
+ 
+ /// Boost velocity in z-direction
+  double boost_z ;
 
   /// Intensity of the correction on the shift vector. 
   double regul ; 
@@ -298,13 +315,32 @@ class Isol_hor : public Time_slice_conf {
   /**
    * Returns the angular velocity.
    */
-  double get_omega() const {return omega;} ;
+  double get_omega() const {return omega ;} ;
   /**
    * Sets the angular velocity to \c ome .
    */
   void set_omega(double ome) {omega = ome ;} ;
 
+  /**
+   * Returns the boost velocity in x-direction.
+   */
+  double get_boost_x() const {return boost_x ;} ;
+  /**
+   * Sets the boost velocity in x-direction to \c bo .
+   */
+  void set_boost_x(double bo) {boost_x = bo ;} ;
 
+  /**
+   * Returns the boost velocity in z-direction.
+   */
+  double get_boost_z() const {return boost_z ;} ;
+  /**
+   * Sets the boost velocity in z-direction to \c bo .
+   */
+  void set_boost_z(double bo) {boost_z = bo ;} ;
+
+
+  
   // Accessors
   // ---------
  public:
@@ -423,34 +459,37 @@ class Isol_hor : public Time_slice_conf {
  
   
   /// Vector radial normal 
-  Vector radial_vect_hor() ;
+  const Vector radial_vect_hor() const ;
 
   /// Vector radial normal tilde 
-  Vector tradial_vect_hor() ;
+  const Vector tradial_vect_hor() const ;
 
   /// Radial component of the shift with respect to the conformal metric
-  Scalar b_tilde() ;
+  const Scalar b_tilde() const ;
 
   /// Element of area of the horizon 
-  Scalar darea_hor()  ;
+  const Scalar darea_hor() const ;
+
+  /// Area of the horizon 
+  double area_hor() const ;
 
   /// Radius of the horizon 
-  double radius_hor()  ;
+  double radius_hor() const ;
   
   /// Angular momentum (modulo)  
-  double ang_mom_hor()  ;
+  double ang_mom_hor() const ;
   
   ///   Mass computed at the horizon     
-  double mass_hor()  ;
+  double mass_hor() const ;
   
   /// Surface gravity   
-  double kappa_hor() ;
+  double kappa_hor() const ;
   
   /// Orbital velocity    
-  double omega_hor()  ;
+  double omega_hor() const ;
   
   /// ADM angular Momentum    
-  double ang_mom_adm() ;
+  double ang_mom_adm() const ;
 
 
 
@@ -459,115 +498,123 @@ class Isol_hor : public Time_slice_conf {
  public:
   
   /// function to compute initial data for a single black hole
-  void init_data(double precis = 1.e-12,
-		 double relax = 1., int niter = 100, double ang_vel = 0.) ; 
+  void init_data(int bound_nn, double lim_nn, int bound_psi, int bound_beta,
+		 double precis = 1.e-12, double relax = 1., int niter = 100) ; 
 
   /// function to compute initial data for a single black hole using
   /// Berlin boundary condition.
-  void init_data_b_neumann(double precis = 1.e-12,
-			   double relax = 1., int niter = 100, double ang_vel = 0.) ; 
+  void init_data_b_neumann(int bound_psi, 
+			   int bound_beta,double precis = 1.e-12,
+			   double relax = 1., int niter = 100) ; 
 
 
   /// function to compute initial data for a single black hole using
   /// Berlin boundary condition.
-  void init_data_berlin(double precis = 1.e-12,
-			double relax = 1., int niter = 100, double ang_vel = 0.) ; 
+  void init_data_berlin(int bound_psi, 
+			int bound_beta,double precis = 1.e-12,
+			double relax = 1., int niter = 100) ; 
 
 
   //Sources
   //-------
   
   /// Source for \f$ \Psi \f$
-  Scalar source_psi() ;
+  const Scalar source_psi() const ;
 
   /// Source for \c N
-  Scalar source_nn() ;
+  const Scalar source_nn() const ;
 
   /// Source for \f$ \beta \f$
-  Vector source_beta() ;
+  const Vector source_beta() const ;
 
   /// Source for \c b_tilde
-  Scalar source_b_tilde() ;
+  const Scalar source_b_tilde() const ;
 
   /// Source for \c vector_b
-  Vector source_vector_b() ;
+  const Vector source_vector_b() const ;
   
   
   // BOUNDARY CONDITIONS
   //--------------------
   
   /// Dirichlet boundary condition for \f$ \Psi \f$ (evolution)
-  Valeur boundary_psi_Dir_evol() ;
+  const Valeur boundary_psi_Dir_evol() const ;
 
   /// Neumann boundary condition for \f$ \Psi \f$  (evolution)
-  Valeur boundary_psi_Neu_evol() ;
+  const Valeur boundary_psi_Neu_evol() const ;
 
   /// Dirichlet boundary condition for  \f$ \Psi \f$ (spatial)
-  Valeur boundary_psi_Dir_spat() ;
+  const Valeur boundary_psi_Dir_spat() const ;
 
   /// Neumann boundary condition for  \f$ \Psi \f$ (spatial)  
-  Valeur boundary_psi_Neu_spat() ;
+  const Valeur boundary_psi_Neu_spat() const ;
 
   /// Neumann boundary condition for  \f$ \Psi \f$ (spatial)  
-  Valeur boundary_psi_app_hor() ;
+  const Valeur boundary_psi_app_hor() const ;
 
   /// Dirichlet boundary condition for \c N using the extrinsic curvature
-  Valeur boundary_nn_Dir_kk() ;
+  const Valeur boundary_nn_Dir_kk() const ;
 
   /// Neumann boundary condition for \c N using the extrinsic curvature
-  Valeur boundary_nn_Neu_kk() ;	
+  const Valeur boundary_nn_Neu_kk() const ;	
 
   /// Dirichlet boundary condition for \c N (effectif)
   /// \f$ \partial_r N + a N = 0 \f$ 
-  Valeur boundary_nn_Dir_eff(double aa) ;
+  const Valeur boundary_nn_Dir_eff(double aa) const ;
 
   /// Neumann boundary condition on nn (effectif)
   ///  \f$ \partial_r N + a N = 0 \f$ 
-  Valeur boundary_nn_Neu_eff(double aa) ;	
+  const Valeur boundary_nn_Neu_eff(double aa) const ;	
 
   /// Dirichlet boundary condition \f$ N = a \f$
-  Valeur boundary_nn_Dir(double aa) ;
+  const Valeur boundary_nn_Dir(double aa) const ;
 
   /// Component r of boundary value of \f$ \beta \f$
-  Valeur boundary_beta_r() ;
+  const Valeur boundary_beta_r() const ;
   
   /// Component theta of boundary value of \f$ \beta \f$
-  Valeur boundary_beta_theta() ;
+  const Valeur boundary_beta_theta() const ;
   
   /// Component phi of boundary value of \f$ \beta \f$
-  Valeur boundary_beta_phi() ;
+  const Valeur boundary_beta_phi() const ;
   
   /// Component x of boundary value of \f$ \beta \f$
-  Valeur boundary_beta_x(double omega) ;
+  const Valeur boundary_beta_x(double om) const ;
   
-  /// Component theta of boundary value of \f$ \beta \f$
-  Valeur boundary_beta_y(double omega) ;
+  /// Component y of boundary value of \f$ \beta \f$
+  const Valeur boundary_beta_y(double om) const ;
   
-  /// Component phi of boundary value of \f$ \beta \f$
-  Valeur boundary_beta_z(double omega) ;
+  /// Component z of boundary value of \f$ \beta \f$
+  const Valeur boundary_beta_z() const ;
+
+  /// Boundary value for a boost in x-direction
+  const Valeur beta_boost_x() const ;  
+
+  /// Boundary value for a boost in z-direction
+  const Valeur beta_boost_z() const ;  
 
   ///  Vector \f$  V^i \f$ for boundary conditions in cartesian  
-  Vector vv_bound_cart(double omega) ;
+  const Vector vv_bound_cart(double om) const ;
 
   /// Component x of boundary value of \f$  V^i \f$
-  Valeur boundary_vv_x(double omega) ;
+  const Valeur boundary_vv_x(double om) const ;
 
   /// Component y of boundary value of \f$  V^i \f$
-  Valeur boundary_vv_y(double omega) ;
+  const Valeur boundary_vv_y(double om) const ;
   
   /// Component z of boundary value of \f$  V^i \f$
-  Valeur boundary_vv_z(double omega) ;
+  const Valeur boundary_vv_z(double om) const ;
 
   /// Neumann boundary condition for \c b_tilde
-  Valeur boundary_b_tilde_Neu() ;
+  const Valeur boundary_b_tilde_Neu() const ;
 
   /// Dirichlet boundary condition for \c b_tilde
-  Valeur boundary_b_tilde_Dir() ;
+  const Valeur boundary_b_tilde_Dir() const ;
  
 
   /// Regularisation of the shift :
   double regularisation (const Vector& shift_auto, const Vector& shift_comp, 
-			 double omega) ;
+			 double ang_vel) ;
 
 
   // Outputs
@@ -771,15 +818,23 @@ class Bin_hor {
 	   * horizon.
 	   */
 	  void solve_shift (double precis, double relax, int bound_beta) ;
-	  /// ADM angular Momentum    
-	  double ang_mom_adm() ;
-	  
-	  /// Calculates the ADM mass of the system
+	
+	  /**
+	   *  Calculates the ADM mass of the system.
+	   */
 	  double adm_mass() const ;
 	  
-	  /// Calculates the Komar mass of the system
+	  /**
+	   *  Calculates the Komar mass of the system using :
+	   * \f$M = \frac{1}{4 \pi} \oint_{\infty} D^i N {\mathrm d} S_i\f$.
+	   */
 	  double komar_mass() const ;
-	
+	  
+	  /**
+	   * Calculates the angular momentum of the black hole.
+	   */
+	  double ang_mom_adm() ;
+
 	  /**
 	   * Calculation of the proper distance between the 
 	   * two spheres of inversion, 
