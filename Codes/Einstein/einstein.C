@@ -29,6 +29,12 @@ char einstein_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/03/31 20:28:57  e_gourgoulhon
+ * Update to take into account the new prototypes of
+ * Evolution_std<TyT>::Evolution_std<TyT> and
+ * Evolution_std<TyT>::update.
+ * Test of shift equation.
+ *
  * Revision 1.11  2004/03/11 12:09:32  e_gourgoulhon
  * Use of new method Scalar::visu_section_anim to produce outputs for
  * movies.
@@ -264,30 +270,33 @@ int main() {
     //                  Start of time evolution
     //======================================================================
     
-    double ttime = 0 ; 
+    double ttime = 0. ; 
+    int jtime = 0 ; 
 
-    Evolution_std<Scalar> nn_time(nn_init, ttime, 3) ; 
-    Evolution_std<Vector> beta_time(beta_init, ttime, 3) ; 
-    Evolution_std<Scalar> qq_time(qq_init, ttime, 3) ; 
-    Evolution_std<Sym_tensor_trans> hh_time(hh_init, ttime, 3) ; 
-    Evolution_std<Scalar> khi_time(khi_init, ttime, 3) ; 
-    Evolution_std<Scalar> mu_time(mu_init, ttime, 3) ; 
+    Evolution_std<Scalar> nn_time(nn_init, 3) ; 
+    Evolution_std<Vector> beta_time(beta_init, 3) ; 
+    Evolution_std<Scalar> qq_time(qq_init, 3) ; 
+    Evolution_std<Sym_tensor_trans> hh_time(hh_init, 3) ; 
+    Evolution_std<Scalar> khi_time(khi_init, 3) ; 
+    Evolution_std<Scalar> mu_time(mu_init, 3) ; 
     
     ttime += pdt ; 
-    nn_time.update(nn_init, ttime) ; 
-    beta_time.update(beta_init, ttime) ; 
-    qq_time.update(qq_init, ttime) ; 
-    hh_time.update(hh_init, ttime) ; 
-    khi_time.update(khi_init, ttime) ; 
-    mu_time.update(mu_init, ttime) ; 
+    jtime++ ; 
+    nn_time.update(nn_init, jtime, ttime) ; 
+    beta_time.update(beta_init, jtime, ttime) ; 
+    qq_time.update(qq_init, jtime, ttime) ; 
+    hh_time.update(hh_init, jtime, ttime) ; 
+    khi_time.update(khi_init, jtime, ttime) ; 
+    mu_time.update(mu_init, jtime, ttime) ; 
     
     ttime += pdt ; 
-    nn_time.update(nn_init, ttime) ; 
-    beta_time.update(beta_init, ttime) ; 
-    qq_time.update(qq_init, ttime) ; 
-    hh_time.update(hh_init, ttime) ; 
-    khi_time.update(khi_init, ttime) ; 
-    mu_time.update(mu_init, ttime) ; 
+    jtime++ ; 
+    nn_time.update(nn_init, jtime, ttime) ; 
+    beta_time.update(beta_init, jtime, ttime) ; 
+    qq_time.update(qq_init, jtime, ttime) ; 
+    hh_time.update(hh_init, jtime, ttime) ; 
+    khi_time.update(khi_init, jtime, ttime) ; 
+    mu_time.update(mu_init, jtime, ttime) ; 
     
     
     // Parameters for the d'Alembert equations
@@ -307,7 +316,7 @@ int main() {
     par_mu.add_int_mod(*workflag_mu) ; 
 
     
-    for (int jtime = 2; jtime <= jmax; jtime++) {
+    for (jtime = 2; jtime <= jmax; jtime++) {
     
         cout << 
         "==============================================================\n"
@@ -657,6 +666,16 @@ int main() {
         des_meridian(beta_jp1(2), 0., 5., "\\gb\\u\\gh\\d", 43) ; 
         des_meridian(beta_jp1(3), 0., 5., "\\gb\\u\\gf\\d", 44) ; 
         
+        // Test:
+        Vector test_beta = (beta_jp1.derive_con(ff)).divergence(ff)
+            +  0.3333333333333333 * (beta_jp1.divergence(ff)).derive_con(ff) ;
+        test_beta.inc_dzpuis() ;  
+        cout << "Relative error in the resolution of the shift equation: \n" ;
+        diffrel(test_beta, source_beta) ; 
+        diffrelmax(test_beta, source_beta) ; 
+        // arrete() ; 
+        
+        
         //=============================================
         // Resolution of wave equation for h
         //=============================================
@@ -719,12 +738,12 @@ int main() {
         
         ttime += pdt ; 
         
-        nn_time.update(nn_jp1, ttime) ; 
-        beta_time.update(beta_jp1, ttime) ; 
-        qq_time.update(qq_jp1, ttime) ; 
-        hh_time.update(hh_jp1, ttime) ; 
-        khi_time.update(khi_jp1, ttime) ; 
-        mu_time.update(mu_jp1, ttime) ; 
+        nn_time.update(nn_jp1, jtime+1, ttime) ; 
+        beta_time.update(beta_jp1, jtime+1, ttime) ; 
+        qq_time.update(qq_jp1, jtime+1, ttime) ; 
+        hh_time.update(hh_jp1, jtime+1, ttime) ; 
+        khi_time.update(khi_jp1, jtime+1, ttime) ; 
+        mu_time.update(mu_jp1, jtime+1, ttime) ; 
         
     }
 
