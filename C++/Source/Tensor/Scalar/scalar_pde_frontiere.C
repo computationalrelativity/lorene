@@ -5,7 +5,7 @@
 /*
  *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
  *
- *   Copyright (c) 2000-2001 Philippe Grandclement (for preceding Scalar version)
+ *   Copyright (c) 2000-2001 Philippe Grandclement (for preceding Cmp version)
  *
  *   This file is part of LORENE.
  *
@@ -31,6 +31,9 @@ char scalar_pde_frontiere_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/09/25 08:57:27  e_gourgoulhon
+ * modif comments
+ *
  * Revision 1.1  2003/09/25 08:06:56  e_gourgoulhon
  * First versions (use Cmp as intermediate quantities).
  *
