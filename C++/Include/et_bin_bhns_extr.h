@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/01/31 20:25:22  k_taniguchi
+ * Change the argument of equil_bhns_extr_ylm.
+ *
  * Revision 1.2  2004/12/29 16:26:02  k_taniguchi
  * Addition of a comutational method to calculate equilibrium figures
  * with a multipole falloff condition at the outer boundary.
@@ -248,6 +251,8 @@ class Et_bin_bhns_extr : public Etoile_bin {
 	 *				  Map_radial::poisson_compact
 	 *  @param relax_potvit [input]   Relaxation factor in 
 	 *				  Map_radial::poisson_compact
+	 *  @param np_filter [input]  Number of coefficients in phi which are
+	 *                            deleted by filter
 	 *  @param thres_adapt  [input]   Threshold on dH/dr for the adaptation 
 	 *				  of the mapping
 	 *  @param diff [output]   1-D \c Tbl  for the storage of some
@@ -273,6 +278,7 @@ class Et_bin_bhns_extr : public Etoile_bin {
 				 int mermax, int mermax_poisson, 
 				 double relax_poisson, double relax_ylm,
 				 int mermax_potvit, double relax_potvit,
+				 int np_filter,
 				 double thres_adapt, Tbl& diff) ;
 
 	/** Tests the resolution of the Poisson equations
