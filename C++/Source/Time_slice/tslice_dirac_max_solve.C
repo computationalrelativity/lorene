@@ -30,6 +30,10 @@ char tslice_dirac_max_solve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/05/17 19:56:25  e_gourgoulhon
+ * -- Method solve_beta: added argument method
+ * -- Method solve_hij: added argument graph_device
+ *
  * Revision 1.6  2004/05/12 15:24:20  e_gourgoulhon
  * Reorganized the #include 's, taking into account that
  * time_slice.h contains now an #include "metric.h".
@@ -181,7 +185,8 @@ Scalar Tslice_dirac_max::solve_q(const Scalar* p_trace_stress) const {
                     //--------------------------//
 
 
-Vector Tslice_dirac_max::solve_beta(const Vector* p_mom_dens) const {
+Vector Tslice_dirac_max::solve_beta(const Vector* p_mom_dens, int method) 
+    const {
 
     using namespace Unites ;
 
@@ -227,9 +232,7 @@ Vector Tslice_dirac_max::solve_beta(const Vector* p_mom_dens) const {
     // Resolution of the vector Poisson equation 
     //------------------------------------------
     
-    int method = 1 ;  // method used to solve the vector Poisson equation
-    
-    Vector beta_new = source_beta.poisson(0.3333333333333333, method) ; 
+    Vector beta_new = source_beta.poisson(0.3333333333333333, ff, method) ; 
         
     // Test:
     Vector test_beta = (beta_new.derive_con(ff)).divergence(ff)
@@ -249,6 +252,7 @@ Vector Tslice_dirac_max::solve_beta(const Vector* p_mom_dens) const {
 
 void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
                                  Scalar& khi_new, Scalar& mu_new,
+                                 const char* graph_device, 
                                  const Sym_tensor* p_strain_tens) const 
 {
   using namespace Unites ;
@@ -256,6 +260,12 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
   const Map& map = hh().get_mp() ; 
   const Base_vect& otriad = *hh().get_triad() ;
     
+    // For graphical outputs:
+    int ngraph0 = 40 ;  // index of the first graphic device to be used
+    int nz = map.get_mg()->get_nzone() ; 
+    double ray_des = 1.25 * map.val_r(nz-2, 1., 0., 0.) ; // outermost radius
+                                                          // for plots
+
   Sym_tensor strain_tens(map, CON, otriad) ; 
   if (p_strain_tens != 0x0) strain_tens = *(p_strain_tens) ; 
   else strain_tens.set_etat_zero() ; 
@@ -271,9 +281,12 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
   
   hh_point.inc_dzpuis(2) ; // dzpuis : 0 -> 2
         
-  des_meridian(hh_point(1,1), 0., 6., "dot h\\urr\\d", 25) ; 
-  des_meridian(hh_point(2,3), 0., 6., "dot h\\u\\gh\\gf\\d", 26) ; 
-  des_meridian(hh_point(3,3), 0., 6., "dot h\\u\\gf\\gf\\d", 27) ; 
+  des_meridian(hh_point(1,1), 0., ray_des, "dot h\\urr\\d", ngraph0, 
+               graph_device) ; 
+  des_meridian(hh_point(2,3), 0., ray_des, "dot h\\u\\gh\\gf\\d", ngraph0+1,
+               graph_device) ; 
+  des_meridian(hh_point(3,3), 0., ray_des, "dot h\\u\\gf\\gf\\d", ngraph0+2,
+               graph_device) ; 
 
   //==================================
   // Source for hij
