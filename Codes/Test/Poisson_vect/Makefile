@@ -10,7 +10,7 @@ SRC1 = test_vdf_poisson.C
 OBJ1 = $(SRC1:.C=.o)
 EXE1 = $(SRC1:.C=)
 
-SRC2 = test_poisson_vect_spher.C
+SRC2 = test_poisson_vect.C
 OBJ2 = $(SRC2:.C=.o)
 EXE2 = $(SRC2:.C=)
 
