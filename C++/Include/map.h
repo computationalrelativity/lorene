@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/06/20 14:14:53  f_limousin
+ * Add the operator== to compare two Cmp.
+ *
  * Revision 1.7  2003/06/20 09:27:09  j_novak
  * Modif commentaires.
  *
@@ -641,7 +644,13 @@ class Map {
 	 *	@param xi [output] value of $\xi$
 	 */
 	virtual void val_lx(double rr, double theta, double pphi, 
-			    const Param& par, int& l, double& xi) const = 0 ; 
+			    const Param& par, int& l, double& xi) const = 0 ;
+
+
+	/// Comparison operator (egality)
+	bool operator==(const Map& ) const ;  
+
+ 
 	
     // Modification of the origin, the orientation and the radial scale:
     // ----------------------------------------------------------------
