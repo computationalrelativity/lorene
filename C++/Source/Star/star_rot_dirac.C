@@ -30,6 +30,10 @@ char star_rot_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/02/02 09:22:29  lm_lin
+ *
+ * Add the GRV3 error to screen output
+ *
  * Revision 1.1  2005/01/31 08:51:48  j_novak
  * New files for rotating stars in Dirac gauge (still under developement).
  *
@@ -189,6 +193,7 @@ void Star_rot_Dirac::del_deriv() const {
 
        if (p_angu_mom != 0x0) delete p_angu_mom ;
        if (p_grv2 != 0x0) delete p_grv2 ;
+       if (p_grv3 != 0x0) delete p_grv3 ;
 
        set_der_0x0() ;
 
@@ -201,6 +206,7 @@ void Star_rot_Dirac::set_der_0x0() const {
 
        p_angu_mom = 0x0 ;
        p_grv2 = 0x0 ;
+       p_grv3 = 0x0 ;
 
 }
 
@@ -289,6 +295,19 @@ ostream& Star_rot_Dirac::operator>>(ostream& ost) const {
          << " rad/s    f : " << freq * f_unit << " Hz" << endl ;
      ost << "Rotation period : " << 1000. / (freq * f_unit) << " ms"
          << endl ;
+
+     ost << "Angular momentum J :    "
+         << angu_mom()/( qpig / (4*M_PI) *msol*msol) << " G M_sol^2 / c"
+         << endl ;
+     ost << "c J / (G M^2) :         "
+         << angu_mom()/( qpig / (4*M_PI) * pow(mass_g(), 2.) ) << endl ;
+
+
+     //     ost << "Error on the virial identity GRV2 : " << endl ;
+     // ost << "GRV2 = " << grv2() << endl ;
+     ost << "Error on the virial identity GRV3 : " << endl ;
+     ost << "GRV3 = " << grv3() << endl ;
+
 
      // More to come here.....
 
