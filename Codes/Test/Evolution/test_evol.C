@@ -30,6 +30,9 @@ char test_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/16 10:30:04  e_gourgoulhon
+ * Added #include <math.h>
+ *
  * Revision 1.2  2004/02/15 22:01:36  e_gourgoulhon
  * New version to take into account the split of Evolution
  * into Evolution_full and Evolution_std.
@@ -47,6 +50,7 @@ char test_evol_C[] = "$Header$" ;
 
 // C headers
 #include <stdlib.h>
+#include <math.h>
 
 // Lorene headers
 #include "evolution.h"
