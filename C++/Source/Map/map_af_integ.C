@@ -30,6 +30,9 @@ char map_af_integ_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/19 19:58:15  e_gourgoulhon
+ * Access to Base_val::b now via Base_val::get_b().
+ *
  * Revision 1.2  2003/10/15 10:35:27  e_gourgoulhon
  * Changed cast (double *) into static_cast<double*>.
  *
@@ -107,7 +110,7 @@ Tbl* Map_af::integrale(const Cmp& ci) const {
 	    int nt = mg->get_nt(l) ; 
 	    int nr = mg->get_nr(l) ;
 	    
-	    int base = (p_mti->base).b[l] ; 
+	    int base = (p_mti->base).get_b(l) ; 
 	    int base_r = base & MSQ_R ;
 	    int base_t = base & MSQ_T ;
 	    int base_p = base & MSQ_P ;
