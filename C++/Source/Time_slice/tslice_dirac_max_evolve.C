@@ -30,6 +30,9 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/05/06 15:26:29  e_gourgoulhon
+ * No longer necessary to initialize khi and mu.
+ *
  * Revision 1.2  2004/05/05 14:39:32  e_gourgoulhon
  * Added graphical outputs.
  *
@@ -85,48 +88,6 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
     Scalar n_backup(map) ; 
     Scalar q_backup(map) ; 
     Vector beta_backup(map, CON, triad) ; 
-
-    // Recovering the values of khi and mu on previous slices
-    // (in order to compute time derivatives)
-    // ------------------------------------------------------
-
-    if (!(khi_evol.is_known(jtime-1))) {
-    
-        khi_new = khi() ; 
-
-        for (int j = jtime-depth+1 ; j <= jtime; j++) {
-            khi_evol.downdate(j) ;  // cleaning; to be set up below
-        }
-        for (int j = jtime-depth+1 ; j <= jtime; j++) {
-            // Time derivative = zero : 
-            khi_evol.update(khi_new, j, the_time[j]) ;
-            
-            //## Alternative : time derivative consistant with that of h^{ij} : 
-            // khi_evol.update((hh_evol[j]).transverse(ff).tt_part().khi(),
-            //                j, the_time[j]) ;
-       }
-    }
-
-    if (!(mu_evol.is_known(jtime-1))) {
-    
-        mu_new = mu() ; 
-
-        for (int j = jtime-depth+1 ; j <= jtime; j++) {
-            mu_evol.downdate(j) ; // cleaning; to be set up below
-        }
-        for (int j = jtime-depth+1 ; j <= jtime; j++) {
-            // Time derivative = zero : 
-            mu_evol.update(mu_new, j, the_time[j]) ;
-            
-            //## Alternative : time derivative consistant with that of h^{ij} : 
-            // mu_evol.update((hh_evol[j]).transverse(ff).tt_part().mu(),
-            //                j, the_time[j]) ;
-       }
-    }
-    
-
-    //## To force the computation of A^{ij} from dh^{ij}/dt + ...
-    // aa_evol.downdate(jtime) ; 
 
     // Evolution loop
     // --------------
