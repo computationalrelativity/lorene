@@ -32,6 +32,10 @@ char init_data_berlin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/03/03 10:04:28  f_limousin
+ * The boundary conditions for the lapse, psi and shift are now
+ * parameters (in file par_hor.d).
+ *
  * Revision 1.1  2005/02/08 11:00:42  jl_jaramillo
  * Function to compute a single black hole with berlin boundary condition.
  *
@@ -74,8 +78,9 @@ char init_data_berlin_C[] = "$Header$" ;
 #include "tenseur.h"
 #include "utilitaires.h"
 
-void Isol_hor::init_data_berlin( double precis, double relax, int niter, 
-			  double ang_vel) {
+void Isol_hor::init_data_berlin(int bound_psi, 
+				int bound_beta, double precis, double relax, 
+				int niter) {
 
     using namespace Unites ;
    
@@ -122,9 +127,6 @@ void Isol_hor::init_data_berlin( double precis, double relax, int niter,
       //=============================================
       // Resolution of elliptic equations
       //=============================================
-
-
-    
 
 	/*
 	   
@@ -280,9 +282,33 @@ void Isol_hor::init_data_berlin( double precis, double relax, int niter,
 	 
 	  // Boundary values for V^i
 	  //------------------------
-	  Valeur boundary_x ( boundary_vv_x(ang_vel) ) ;
-	  Valeur boundary_y ( boundary_vv_y(ang_vel) ) ;
-	  Valeur boundary_z ( boundary_vv_z(ang_vel) ) ;
+
+	Valeur boundary_x (mp.get_mg()-> get_angu()) ;
+	Valeur boundary_y (mp.get_mg()-> get_angu()) ;
+	Valeur boundary_z (mp.get_mg()-> get_angu()) ;
+
+	switch (bound_beta) {
+	    
+	    case 2 : {
+		boundary_x = boundary_vv_x(omega) ;
+		boundary_y = boundary_vv_y(omega) ;
+		boundary_z = boundary_vv_z(omega) ;
+		break ; 
+	    }
+	    default : {
+		cout << "Unexpected type of boundary conditions for psi!" 
+		     << endl 
+		     << "  bound_psi = " << bound_psi << endl ; 
+		abort() ;
+		break ; 
+	    }
+		
+	} // End of switch  
+
+	if (boost_x != 0.) 
+	    boundary_x -= beta_boost_x() ;
+	if (boost_z != 0.) 
+	    boundary_z -= beta_boost_z() ;
 	
 
 	  // Resolution

@@ -31,6 +31,10 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/03/03 10:03:55  f_limousin
+ * The boundary conditions for the lapse, psi and shift are now
+ * parameters (in file par_hor.d).
+ *
  * Revision 1.6  2004/12/22 18:15:30  f_limousin
  * Many different changes.
  *
@@ -63,18 +67,17 @@ char init_data_C[] = "$Header$" ;
 #include <assert.h>
 
 // Lorene headers
-#include "time_slice.h"
 #include "isol_hor.h"
 #include "metric.h"
-#include "evolution.h"
 #include "unites.h"
 #include "graphique.h"
 #include "cmp.h"
 #include "tenseur.h"
 #include "utilitaires.h"
 
-void Isol_hor::init_data( double precis, double relax, int niter, 
-			  double ang_vel) {
+void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi, 
+			 int bound_beta, double precis, double relax, 
+			 int niter) {
 
     using namespace Unites ;
    
@@ -90,44 +93,108 @@ void Isol_hor::init_data( double precis, double relax, int niter,
     // ---------
     for (int mer=0; mer<niter; mer++) {
 	
-	//============================================
-	//          Boundary conditions
-	//============================================
-      
-	// Boundary for N	
-	//---------------
-	
-	Valeur nn_bound (boundary_nn_Neu_kk()) ;
-	
-	// Boundary for Psi (Neumann)
-	//---------------------------
-	
-	Valeur psi_bound (boundary_psi_Neu_spat()) ;
+	//=========================================================
+	// Boundary conditions and resolution of elliptic equations
+	//=========================================================
 
-      //=============================================
-      // Resolution of elliptic equations
-      //=============================================
-      
-      // Resolution of the Poisson equation for the lapse
-      // ------------------------------------------------
-
-	Scalar nn_jp1 = source_nn().poisson_neumann(nn_bound, 0) + 1. ;
- 
+	// Resolution of the Poisson equation for the lapse
+	// ------------------------------------------------
+	
+	Valeur nn_bound (mp.get_mg()-> get_angu()) ;
+	Scalar nn_jp1 (mp) ;
+	
+	switch (bound_nn) {
+	    
+	    case 0 : {
+		nn_bound = boundary_nn_Dir(lim_nn) ;
+		nn_jp1 = source_nn().poisson_dirichlet(nn_bound, 0) + 1. ;
+		break ;
+	    }
+	    case 1 : {
+		nn_bound = boundary_nn_Neu_eff(lim_nn) ;
+		nn_jp1 = source_nn().poisson_neumann(nn_bound, 0) + 1. ;
+		break ;
+	    }
+	    case 2 : {
+		nn_bound = boundary_nn_Dir_eff(lim_nn) ;
+		nn_jp1 = source_nn().poisson_dirichlet(nn_bound, 0) + 1. ;
+		break ;
+	    }
+	    case 3 : {
+		nn_bound = boundary_nn_Neu_kk() ;
+		nn_jp1 = source_nn().poisson_neumann(nn_bound, 0) + 1. ;
+		break ;
+	    }
+	    case 4 : {
+		nn_bound = boundary_nn_Dir_kk() ;
+		nn_jp1 = source_nn().poisson_dirichlet(nn_bound, 0) + 1. ;
+		break ;
+	    }
+	    default : {
+		cout <<"Unexpected type of boundary conditions for the lapse!" 
+		     << endl 
+		     << "  bound_nn = " << bound_nn << endl ; 
+		abort() ;
+		break ; 
+	    }
+		
+	} // End of switch  
+	
 	// Test:
 	maxabs(nn_jp1.laplacian() - source_nn(),
-	       "Absolute error in the resolution of the equation for N") ;  
+	       "Absolute error in the resolution of the equation for N")  ;  
 	
 	// Relaxation (relax=1 -> new ; relax=0 -> old )  
 	if (mer==0)
-	n_evol.update(nn_jp1, jtime, ttime) ; 
+	    n_evol.update(nn_jp1, jtime, ttime) ; 
 	else
-	nn_jp1 = relax * nn_jp1 + (1 - relax) * nn() ;
+	    nn_jp1 = relax * nn_jp1 + (1 - relax) * nn() ;
+	
 
-		
+
 	// Resolution of the Poisson equation for Psi
 	// ------------------------------------------
 
-	Scalar psi_jp1 = source_psi().poisson_neumann(psi_bound, 0) + 1. ;
+	Valeur psi_bound (mp.get_mg()-> get_angu()) ;
+	Scalar psi_jp1 (mp) ;
+
+	switch (bound_psi) {
+	    
+	    case 0 : {
+		psi_bound = boundary_psi_app_hor() ;
+		psi_jp1 = source_psi().poisson_neumann(psi_bound, 0) + 1. ;
+		break ;
+	    }
+	    case 1 : {
+		psi_bound = boundary_psi_Neu_spat() ;
+		psi_jp1 = source_psi().poisson_neumann(psi_bound, 0) + 1. ;
+		break ;
+	    }
+	    case 2 : {
+		psi_bound = boundary_psi_Dir_spat() ;
+		psi_jp1 = source_psi().poisson_dirichlet(psi_bound, 0) + 1. ;
+		break ;
+	    }
+	    case 3 : {
+		psi_bound = boundary_psi_Neu_evol() ;
+		psi_jp1 = source_psi().poisson_neumann(psi_bound, 0) + 1. ;
+		break ;
+	    }
+	    case 4 : {
+		psi_bound = boundary_psi_Dir_evol() ;
+		psi_jp1 = source_psi().poisson_dirichlet(psi_bound, 0) + 1. ;
+		break ;
+	    }
+	    default : {
+		cout <<"Unexpected type of boundary conditions for psi!" 
+		     << endl 
+		     << "  bound_psi = " << bound_psi << endl ; 
+		abort() ;
+		break ; 
+	    }
+		
+	} // End of switch  
+
            
 	// Test:
 	maxabs(psi_jp1.laplacian() - source_psi(),
@@ -152,10 +219,39 @@ void Isol_hor::init_data( double precis, double relax, int niter,
 	
 	// Boundary values
 	
-	Valeur boundary_x ( boundary_beta_x(ang_vel) ) ;
-	Valeur boundary_y ( boundary_beta_y(ang_vel) ) ;
-	Valeur boundary_z ( boundary_beta_z(ang_vel) ) ;
+	Valeur boundary_x (mp.get_mg()-> get_angu()) ;
+	Valeur boundary_y (mp.get_mg()-> get_angu()) ;
+	Valeur boundary_z (mp.get_mg()-> get_angu()) ;
+
+	switch (bound_beta) {
+	    
+	    case 0 : {
+		boundary_x = boundary_beta_x(omega) ;
+		boundary_y = boundary_beta_y(omega) ;
+		boundary_z = boundary_beta_z() ;
+		break ;
+	    }
+	    case 2 : {
+		boundary_x = boundary_vv_x(omega) ;
+		boundary_y = boundary_vv_y(omega) ;
+		boundary_z = boundary_vv_z(omega) ;
+		break ;
+	    }
+	    default : {
+		cout <<"Unexpected type of boundary conditions for psi!" 
+		     << endl 
+		     << "  bound_psi = " << bound_psi << endl ; 
+		abort() ;
+		break ; 
+	    }
+		
+	} // End of switch  
 	
+	if (boost_x != 0.) 
+	    boundary_x -= beta_boost_x() ;
+	if (boost_z != 0.) 
+	    boundary_z -= beta_boost_z() ;
+
 	// Resolution
 	//-----------
 	
@@ -190,8 +286,8 @@ void Isol_hor::init_data( double precis, double relax, int niter,
 	if ( (diff_psi < precis) && (diff_nn < precis) && (diff_beta < precis))
 	    break ; 
 	
-	conv << mer << "  " << log(diff_nn) << " " << log(diff_psi) 
-	     << " " << log(diff_beta) << endl ;
+	conv << mer << "  " << log10(diff_nn) << " " << log10(diff_psi) 
+	     << " " << log10(diff_beta) << endl ;
 	
 	//=============================================
 	//      Updates for next step 
@@ -219,12 +315,12 @@ void Isol_hor::init_data( double precis, double relax, int niter,
 	    }
 	
 	if (check == 0)
-	    aa_jp1 = ( beta().ope_killing_conf(tgam()) + gamt_point ) 
+	    aa_jp1 = ( beta().ope_killing_conf(met_gamt) + gamt_point ) 
 		/ (2.* nn()) ;            
 	else {
 	    Scalar nn_sxpun (division_xpun (Cmp(nn()), 0)) ;
 	    
-	    Sym_tensor aa_sxpun = beta().ope_killing_conf(tgam())
+	    Sym_tensor aa_sxpun = beta().ope_killing_conf(met_gamt)
 		+ gamt_point ;
 
 	    const Coord& r = mp.r ;        // r field
