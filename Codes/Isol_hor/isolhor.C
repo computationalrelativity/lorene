@@ -28,8 +28,9 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
- * Revision 1.10  2004/11/05 10:15:22  f_limousin
- * The angular velocity is now a parameter (in par_hor.d).
+ * Revision 1.11  2004/11/05 10:50:44  f_limousin
+ * Delete argument partial_save for the function save. And many
+ * other minor modifications.
  *
  * Revision 1.8  2004/11/02 17:42:00  f_limousin
  * New method sauve(...) to save in a binary file.
@@ -261,18 +262,18 @@ int main() {
     // --------------
     
     FILE* fresu = fopen("resu.d", "w") ;
-    isolhor.sauve(fresu, true) ;
+    isolhor.sauve(fresu) ;
     fclose(fresu) ;     
     
     // Test of the constraints
     //------------------------
 
-    cout<<"  ----------------------------------------" <<endl ;
+    cout<< "----------------------------------------" <<endl ;
     
     isolhor.check_hamiltonian_constraint() ;
     isolhor.check_momentum_constraint() ;
 
-    cout<<"  ----------------------------------------" <<endl ;
+    cout<< "----------------------------------------" <<endl ;
  
     // Graphic output of the different fields
     //---------------------------------------
@@ -290,47 +291,39 @@ int main() {
     // Physical parameters of the Black Hole
     //--------------------------------------
     
-    cout<<"------------------------------------------------"<<endl;
-    cout<<"      Physical parameters of the Black Hole     "<<endl;
-    cout<<"------------------------------------------------"<<endl;
+    cout<< "------------------------------------------------" <<endl;
+    cout<< "      Physical parameters of the Black Hole     " <<endl;
+    cout<< "------------------------------------------------" <<endl;
     
     double rr_hor =  isolhor.radius_hor() ;
-    cout<<"Radius of the horizon = "<< rr_hor <<endl ;
+    cout<< "Radius of the horizon = " << rr_hor <<endl ;
     
     double jj_hor =  isolhor.ang_mom_hor() ;
-    cout<<"Angular momentum of the horizon = "<< jj_hor <<endl ; 
+    cout<< "Angular momentum of the horizon = " << jj_hor <<endl ; 
 
     double mm_hor = isolhor.mass_hor() ;
-    cout<<"Mass of the horizon = "<< mm_hor <<endl ;  
+    cout<< "Mass of the horizon = " << mm_hor <<endl ;  
 
     double kappa_hor = isolhor.kappa_hor() ;
-    cout<<"Surface gravity of the horizon = "<< kappa_hor <<endl ; 
+    cout<< "Surface gravity of the horizon = " << kappa_hor <<endl ; 
 
     double omega_hor = isolhor.omega_hor() ;
-    cout<<"Orbital velocity of the horizon = "<< omega_hor <<endl ; 
+    cout<< "Orbital velocity of the horizon = " << omega_hor <<endl ; 
 
 
     // Physical parameters of the Bulk
     //--------------------------------
-    cout<<""<<endl;
-    cout<<"------------------------------------------------"<<endl;
-    cout<<"      Physical parameters of the Bulk     "<<endl;
-    cout<<"------------------------------------------------"<<endl;
+
+    cout<< endl;
+    cout<< "------------------------------------------------"<<endl;
+    cout<< "      Physical parameters of the Bulk           " <<endl;
+    cout<< "------------------------------------------------"<<endl;
     
     double mm_adm = isolhor.adm_mass() ;
-    cout<<"ADM mass= "<< mm_adm <<endl ;  
+    cout << "ADM mass= " << mm_adm <<endl ;  
 
     double jj_adm = isolhor.ang_mom_adm() ;
-    cout<<"ADM angular momentum= "<< jj_adm <<endl ;  
-
-    
-
-
-
-
-
-
-
+    cout << "ADM angular momentum= " << jj_adm <<endl ;  
 
     //--------------------------------------
     //--------------------------------------
