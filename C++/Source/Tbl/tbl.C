@@ -33,6 +33,9 @@ char tbl_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/02/26 10:47:11  j_novak
+ * The copy of a Tbl to another has been improved in speed.
+ *
  * Revision 1.4  2002/10/16 14:37:13  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -140,8 +143,11 @@ Tbl::Tbl(const Tbl& tc) : etat(tc.etat), dim(tc.dim) {
     // La valeur eventuelle
     if (tc.etat == ETATQCQ) {
 	t = new double[get_taille()] ;
+	double* tin = tc.t ; 
+	double* tout = t ;
 	for (int i=0 ; i<get_taille() ; i++) {
-	    t[i] = tc.t[i] ;
+	  *tout = *tin ;
+	  tout++ ; tin++ ; 
 	}
     }
     else{
@@ -223,21 +229,25 @@ void Tbl::operator=(const Tbl& tx)
 
     int n = get_taille() ;
     switch (tx.etat) {
-	case ETATZERO:
+    case ETATZERO:
 	set_etat_zero() ;
 	break ;
 	
-	case ETATQCQ:
-	set_etat_qcq() ;
-	for (int i=0 ; i<n ; i++) {
-	    t[i] = tx.t[i] ;
-	}
-	break ;
-	
-	default:
-	cout << "Erreur bizarre !" << endl ;
-	abort() ;
-	break ;
+    case ETATQCQ: {
+      set_etat_qcq() ;
+      double* tin = tx.t ;
+      double* tout = t ;
+      for (int i=0 ; i<n ; i++) {
+	*tout = *tin ;
+	tout++ ;
+	tin ++ ;
+      }
+      break ;
+    }
+    default:
+      cout << "Erreur bizarre !" << endl ;
+      abort() ;
+      break ;
     }
 }
 
