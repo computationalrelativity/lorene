@@ -28,6 +28,9 @@ char read_tslice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/06/15 10:25:27  e_gourgoulhon
+ * Added plot of hrt and hrp.
+ *
  * Revision 1.2  2004/05/31 20:32:50  e_gourgoulhon
  * Added graphical outputs.
  *
@@ -142,15 +145,19 @@ int main(int argc, char** argv){
                      graph_device) ; 
     des_meridian(sigmat.hh()(1,1), 0., ray_des, "h\\urr\\d", ngraph0+12,
                      graph_device) ; 
-    des_meridian(sigmat.hh()(2,3), 0., ray_des, "h\\u\\gh\\gf\\d", ngraph0+13,
+    des_meridian(sigmat.hh()(1,2), 0., ray_des, "h\\ur\\gh\\d", ngraph0+13,
                      graph_device) ; 
-    des_meridian(sigmat.hh()(3,3), 0., ray_des, "h\\u\\gf\\gf\\d", ngraph0+14,
+    des_meridian(sigmat.hh()(1,3), 0., ray_des, "h\\ur\\gf\\d", ngraph0+14,
                      graph_device) ; 
-    des_meridian(sigmat.aa()(1,1), 0., ray_des, "A\\urr\\d", ngraph0+15, 
+    des_meridian(sigmat.hh()(2,3), 0., ray_des, "h\\u\\gh\\gf\\d", ngraph0+15,
+                     graph_device) ; 
+    des_meridian(sigmat.hh()(3,3), 0., ray_des, "h\\u\\gf\\gf\\d", ngraph0+16,
+                     graph_device) ; 
+    des_meridian(sigmat.aa()(1,1), 0., ray_des, "A\\urr\\d", ngraph0+17, 
                          graph_device) ; 
-    des_meridian(sigmat.aa()(2,3), 0., ray_des, "A\\u\\gh\\gf\\d", ngraph0+16,
+    des_meridian(sigmat.aa()(2,3), 0., ray_des, "A\\u\\gh\\gf\\d", ngraph0+18,
                          graph_device) ; 
-    des_meridian(sigmat.aa()(3,3), 0., ray_des, "A\\u\\gf\\gf\\d", ngraph0+17,
+    des_meridian(sigmat.aa()(3,3), 0., ray_des, "A\\u\\gf\\gf\\d", ngraph0+19,
                          graph_device) ; 
 
     arrete() ; 
