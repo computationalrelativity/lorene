@@ -32,6 +32,10 @@ char star_bin_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2005/02/24 16:26:46  f_limousin
+ * Add the name of the variable for the companion which is now used
+ * to compute dlogn_comp, dlnq_comp...
+ *
  * Revision 1.12  2005/02/24 16:07:23  f_limousin
  * Improve the computation of dlogn, dlnq and dlnpsi. We import the part
  * coming from the companion and add the auto part.
@@ -78,7 +82,7 @@ char star_bin_upmetr_der_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "graphique.h"
 
-void Star_bin::update_metric_der_comp(const Star_bin& ) {
+void Star_bin::update_metric_der_comp(const Star_bin& comp) {
   
 
   // Derivatives of metric coefficients
