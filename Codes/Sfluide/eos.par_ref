@@ -1,8 +1,10 @@
-ident = 2				# EOS-type
+ident = 2	# Newtonian 2-fluid polytrope
 name = 	"2-fluid Star analytic EOS"   	# EOS name
 m_1 = 	1.		
 m_2 = 	1.
-gamma1 =-2.
+
+# parameters of the polytropic 2-fluid EOS
+gamma1 = 2.
 gamma2 = 2.		
 gamma3 = 1.		
 gamma4 = 1.		
@@ -13,4 +15,10 @@ kappa2 = 0.12
 kappa3 = 0.01		
 beta   = 0.01		
 
+# extra parameter for Newtonian analytic EOS: use slow-rot-style inversion?
+slow_rot_style = 0
 
+# some extra-parameter for numerical inversion of general 2-fluid polytrope (typeos=4)
+relax =  0.5
+precis = 1.0e-9
+ecart =  1.0e-8
