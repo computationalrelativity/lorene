@@ -29,6 +29,9 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.26  2005/04/06 08:17:09  f_limousin
+ * Writing of global quantities in resformat.d
+ *
  * Revision 1.25  2005/04/03 19:48:52  f_limousin
  * Implementation of set_psi(psi_in).
  *
@@ -341,19 +344,27 @@ int main() {
     gamt_point = hh_tmp ;
     gamt_point.inc_dzpuis(2) ;
 
-    
+    // Just to know if we use Kerr metric or not...
+    int compte ;
+    compte = 0 ;
+
+    double mm, aaa, hh ;
+
+ 
     //--------------------------------------------------
     // Construction of Kerr Metric 
     //--------------------------------------------------
+
+    compte++ ;
 
     Scalar a2(mp) ;
     Scalar b2(mp) ;
 
     // Parameters
     // -----------
-    double mm = 2.5 ;
-    double hh = 2. ;  // the radius is 1
-    double aaa = pow (mm*mm-hh*hh, 0.5) ;
+    mm = 2.3 ;
+    hh = 2. ;  // the radius is 1
+    aaa = pow (mm*mm-hh*hh, 0.5) ;
  
     a2 = 1. + 2.*mm/rr + (3.*mm*mm + aaa*aaa*cos2t)/(2.*rr*rr)
 	+ (hh*hh*mm)/(2.*pow(rr, 3.)) + pow(hh,4.)/(16.*pow(rr,4.)) ;
@@ -436,6 +447,7 @@ int main() {
     beta_phi = 2*aaa*mm*unsr*unsr*sint/(a2*b2)
 	*(1+mm*unsr+0.25*hh*hh*unsr*unsr) ;
     beta_phi.std_spectral_base() ;
+    beta_phi.set_domain(0) = 0. ;
 
     Vector beta_kerr (mp, CON, mp.get_bvect_spher()) ;
     beta_kerr.set(1) = 0. ;
@@ -454,7 +466,8 @@ int main() {
     psi_init = psi_kerr ;
     
     // End of the setup of Kerr metric
-    
+       
+
     // Set up of extrinsic curvature
     // -----------------------------
 
@@ -511,18 +524,19 @@ int main() {
     // Test of the formula for A^{ij}A_{ij} in Sergio's paper
     //-------------------------------------------------------
  
-    isolhor.aa_kerr_ww(mm, aaa) ;
+    if (solve_shift != 1 && compte == 1)
+	isolhor.aa_kerr_ww(mm, aaa) ;
 
     // New initialisation of the metric quantities
     // --------------------------------------------
 
-    //    psi_init = 1. ;
+    psi_init = 1 ;//psi_kerr ;
     psi_init.std_spectral_base() ;
     isolhor.set_psi(psi_init) ;
     
 //    nn_init = 1. ;
 //    nn_init.std_spectral_base() ;
- 
+
 
     // Test of the constraints
     //------------------------
@@ -568,12 +582,15 @@ int main() {
     // Test of the constraints
     //------------------------
 
-//    isolhor.update_aa() ;
+    if (solve_shift == 1 || compte == 0)
+	isolhor.update_aa() ;
+    else
+	isolhor.aa_kerr_ww(mm, aaa) ;
 
     cout<< "----------------------------------------" <<endl ;
     
-    isolhor.check_hamiltonian_constraint() ;
-    isolhor.check_momentum_constraint() ;
+    Tbl check_ham = isolhor.check_hamiltonian_constraint() ;
+    Tbl check_mom = isolhor.check_momentum_constraint() ;
 
     cout<< "----------------------------------------" <<endl ;
  
@@ -632,6 +649,22 @@ int main() {
     double diff_jj = (jj_adm - jj_hor) / jj_adm ;
     cout << "diffangular momentum : " << diff_jj << endl ;  
 
+    // Writing of all global quantities in a file
+    ofstream resformat("resformat.d") ;
+    resformat.precision(6) ;
+    resformat << "# Ham. constr.    Mom. constr. " << endl ;
+    resformat << max(check_ham) << "    " << max(check_mom) << endl ;
+    resformat.precision(10) ;
+    resformat << "# r_hor   J_hor   M_hor  kappa_hor  omega_hor" << endl ;
+    resformat <<  rr_hor << "  " << jj_hor << "  " << mm_hor << "  " 
+	      << kappa_hor << "  " << omega_hor << endl ;
+    resformat << "# M_adm  J_adm  J/M   J/M2   Eps_a" << endl ;
+    resformat << mm_adm << "  " << jj_adm << "  " << aa << "  " 
+	      << aasmm << "  " << epsa << endl ;
+    resformat << "# diff_mm    diff_jj" << endl ;
+    resformat << diff_mm << "  " << diff_jj << endl ;
+
+    resformat.close() ;
 
     //--------------------------------------
     //        Comparison
