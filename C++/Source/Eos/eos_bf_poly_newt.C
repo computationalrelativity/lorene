@@ -31,6 +31,10 @@ char eos_bf_poly_newt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/02/07 10:47:43  j_novak
+ * The possibility of having gamma5 xor gamma6 =0 has been introduced for
+ * tests. The corresponding parameter files have been added.
+ *
  * Revision 1.7  2003/02/06 16:05:56  j_novak
  * Corrected an error in the inversion of the EOS for typeos =1,2 and 3.
  * Added new parameter files for sfstar.
@@ -605,6 +609,22 @@ bool Eos_bf_poly_newt::nbar_ent_p(const double ent1, const double ent2,
 	//cout << "Erreur: " << fabs((log(fabs(1+resu1))-ent1)/ent1) + 
 	//fabs((log(fabs(1+resu2))-ent2)/ent2) << endl ;
       }
+      break ;
+    }
+    case -1: {
+      double determ = kap1*kap2 - kap3*kap3 ;
+    
+      nbar1 = (kap2*(ent1*m_1 - beta*delta2) - kap3*ent2*m_2) / determ ;
+      nbar2 = (kap1*ent2*m_2 - kap3*(ent1*m_1 - beta*delta2)) / determ ;
+      one_fluid = ((nbar1 < 0.)||(nbar2 < 0.)) ;
+      break ;
+    }
+    case -2: {
+      double determ = kap1*kap2 - kap3*kap3 ;
+    
+      nbar1 = (kap2*ent1*m_1 - kap3*(ent2*m_2 - beta*delta2)) / determ ;
+      nbar2 = (kap1*(ent2*m_2 - beta*delta2) - kap3*ent1*m_1) / determ ;
+      one_fluid = ((nbar1 < 0.)||(nbar2 < 0.)) ;
       break ;
     }
     }

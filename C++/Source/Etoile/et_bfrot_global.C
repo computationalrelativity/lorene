@@ -25,6 +25,10 @@ char et_bfrot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/02/07 10:47:43  j_novak
+ * The possibility of having gamma5 xor gamma6 =0 has been introduced for
+ * tests. The corresponding parameter files have been added.
+ *
  * Revision 1.7  2002/10/16 14:36:36  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -294,9 +298,15 @@ double Et_rot_bifluid::grv3(ostream* ost) const {
       assert(eos_a != 0x0) ;
       source = qpig * ( 3 * press + nbar * uuu * uuu 
 			+ nbar2* uuu2* uuu2 );
-      Tenseur tmp(2*eos_a->get_beta()*pow(nbar(), eos_a->get_gam5()) 
-			* pow(nbar2(),eos_a->get_gam6())*xxx2()) ; 
-      source = source - qpig*tmp ;
+      if (eos_a->get_gam5() == 0.) 
+	source = source - qpig*2*eos_a->get_beta()*nbar2*xxx2 ;
+      else if (eos_a->get_gam6() == 0.)
+	source = source - qpig*2*eos_a->get_beta()*nbar*xxx2 ;
+      else {
+	Tenseur tmp(2*eos_a->get_beta()*pow(nbar(), eos_a->get_gam5()) 
+		    * pow(nbar2(),eos_a->get_gam6())*xxx2()) ; 
+	source = source - qpig*tmp ;
+      }
     }
 
     source.set_std_base() ; 

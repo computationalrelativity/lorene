@@ -31,6 +31,10 @@ char eos_bf_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/02/07 10:47:43  j_novak
+ * The possibility of having gamma5 xor gamma6 =0 has been introduced for
+ * tests. The corresponding parameter files have been added.
+ *
  * Revision 1.10  2002/10/16 14:36:34  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -269,6 +273,28 @@ void Eos_bf_poly::determine_type() {
     
   if ((gam1 == double(2)) && (gam2 == double(2)) && (gam3 == double(1))
       && (gam4 == double(1)) && (gam5 == double(1)) 
+      && (gam6 == double(0))) {
+    typeos = -1 ;
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" <<endl ;
+    cout << "WARNING!! The entrainment factor does not depend on" <<endl ;
+    cout << " density 2! This may be incorrect and should only be used"<<endl ;
+    cout << " for testing purposes..." << endl ;
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" <<endl ;
+    return ;
+  }
+  if ((gam1 == double(2)) && (gam2 == double(2)) && (gam3 == double(1))
+      && (gam4 == double(1)) && (gam5 == double(0)) 
+      && (gam6 == double(1))) {
+    typeos = -2 ;
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" <<endl ;
+    cout << "WARNING!! The entrainment factor does not depend on" << endl ;
+    cout << " density 1! This may be incorrect and should only be used"<<endl ;
+    cout << " for testing purposes..." << endl ;
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" <<endl ;
+    return ;
+  }
+  if ((gam1 == double(2)) && (gam2 == double(2)) && (gam3 == double(1))
+      && (gam4 == double(1)) && (gam5 == double(1)) 
       && (gam6 == double(1))) {
     typeos = 0 ;
     return ;
@@ -403,7 +429,7 @@ ostream& Eos_bf_poly::operator>>(ostream & ost) const {
     ost << "   Mean particle 1 mass : " << m_1 << " m_B" << endl ;
     ost << "   Mean particle 2 mass : " << m_2 << " m_B" << endl ;
     ost << "   Type for inversion : " << typeos << endl ;
-    ost << "   Parameters for inversion (used if typeos = 4 : " << endl ;
+    ost << "   Parameters for inversion (used if typeos = 4) : " << endl ;
     ost << "   relaxation : " << relax << endl ;
     ost << "   precision for zerosec_b : " << precis << endl ;
     ost << "   final discrepancy in the result : " << ecart << endl ;
@@ -757,6 +783,26 @@ bool Eos_bf_poly::nbar_ent_p(const double ent1, const double ent2,
 	//cout << "Erreur: " << fabs((log(fabs(1+resu1))-ent1)/ent1) + 
 	//fabs((log(fabs(1+resu2))-ent2)/ent2) << endl ;
       }
+      break ;
+    }
+    case -1: {
+      double determ = kap1*kap2 - kap3*kap3 ;
+    
+      nbar1 = (kap2*(exp(ent1) - m_1 - beta*delta2) 
+	       - kap3*(exp(ent2) - m_2)) / determ ;
+      nbar2 = (kap1*(exp(ent2) - m_2) - kap3*(exp(ent1) - m_1 - beta*delta2))
+	/ determ ;
+      one_fluid = ((nbar1 < 0.)||(nbar2 < 0.)) ;
+      break ;
+    }
+    case -2: {
+      double determ = kap1*kap2 - kap3*kap3 ;
+    
+      nbar1 = (kap2*(exp(ent1) - m_1 ) 
+	       - kap3*(exp(ent2) - m_2 - beta*delta2)) / determ ;
+      nbar2 = (kap1*(exp(ent2) - m_2 - beta*delta2) 
+	       - kap3*(exp(ent1) - m_1)) / determ ;
+      one_fluid = ((nbar1 < 0.)||(nbar2 < 0.)) ;
       break ;
     }
     }
