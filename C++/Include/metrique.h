@@ -5,6 +5,7 @@
 
 /*
  *   Copyright (c) 1999-2001 Philippe Grandclement
+ *   Copyright (c) 2002 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -32,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/08/08 15:10:44  j_novak
+ * The flag "plat" has been added to the class Metrique to show flat metrics.
+ *
  * Revision 1.4  2002/08/07 16:14:10  j_novak
  * class Tenseur can now also handle tensor densities, this should be transparent to older codes
  *
@@ -93,9 +97,10 @@ class Metrique {
 
     // Data : 
     // -----
-    private:
+    protected:
 	const Map* const mp ;	/// Reference mapping.
-	int etat ;  ///Logical state {\tt (ETATZERO, ETATQCQ or ETATNONDEF)}  
+	int etat ;  ///Logical state {\tt (ETATZERO, ETATQCQ or ETATNONDEF)} 
+	bool plat ; ///Flag for a flat metric
     	
 	/**
 	 * Pointer on the contravariant representation.
@@ -141,16 +146,17 @@ class Metrique {
     public:
 	/** Standard constructor.
 	 *  Nothing is allocated but {\tt dependances}.
+	 *  By default, the {\tt Metrique} is not flat.
 	 */
-	explicit Metrique (const Map&) ;
+	explicit Metrique (const Map&, bool plate = false) ;
 
 	Metrique (const Metrique&) ;    /// Constructor by copy.
 
 	/** Constructor from a {\tt Tenseur\_sym} of {\tt valence} = 2.
 	 *  One representation is allocated depending on the 
-	 *  type of {\tt source}.
+	 *  type of {\tt source}. By default, the {\tt Metrique} is not flat.
 	 */
-	explicit Metrique (const Tenseur_sym& source) ;
+	explicit Metrique (const Tenseur_sym& source, bool plate = false) ;
 
 	/** Constructor from a file (see {\tt sauve(FILE* )}).
 	 * 
@@ -162,27 +168,27 @@ class Metrique {
 	 * @param fich  file which has been created by 
 	 *			    the function {\tt sauve(FILE* )}.
 	 */
-	Metrique(const Map& map, const Base_vect& triad_i, FILE* fich) ;		
+	Metrique(const Map& map, const Base_vect& triad_i, FILE* fich) ;
 
-	~Metrique() ;		    /// Destructor
+	virtual ~Metrique() ;		    /// Destructor
 	
     // Memory management
     // -----------------
-    private:
+    protected:
 	void del_t() ;		    /// Logical destructor
-	void del_deriv() ; /// Logical destructor of the derivative members.
+	virtual void del_deriv() ; /// Logical destructor of the derivative members.
 
 	/**
 	 * Sets all the pointer on the derivative members to zero.
 	 */
-	void set_der_0x0() ;
+	virtual void set_der_0x0() ;
 
 	/**
 	 * Delete all the derivative members of the {\tt Tenseur} contained in
 	 * {\tt dependances}. Those quantities had been previously 
 	 * calculated using {\tt *this}.
 	 */
-	void del_dependances() ;
+	virtual void del_dependances() ;
 		
     // Mutators / assignment
     // ---------------------
@@ -212,14 +218,14 @@ class Metrique {
 	void set_etat_cov_qcq() ;
 	
 	///Assignment from another {\tt Metrique}.
-	void operator= (const Metrique&) ; 
+	virtual void operator= (const Metrique&) ; 
 
 	/**
 	 * Assignment from a {\tt Tenseur\_sym} of {\tt valence =2}.
 	 * The allocated representation depends on the type of {\tt t}.
 	 * All the other members are deleted.
 	 */
-	void operator= (const Tenseur_sym& t) ;
+	virtual void operator= (const Tenseur_sym& t) ;
 	
 	/**
 	 * Set the standard spectral basis on the allocated representations.
@@ -239,7 +245,8 @@ class Metrique {
 	
 	const Map* get_mp() const{return mp ; } ; /// Returns a pointer on the mapping.
 	int get_etat() const{return etat ;} ; /// Returns the logical state.
-	
+	bool is_flat() const {return plat;} ; ///Is the metric a flat one?
+	void set_flat(bool plate) {plat = plate;} ;///Sets the flat flag
     // Outputs
     // -------
     public:
@@ -249,7 +256,7 @@ class Metrique {
 
     // Computation of derived members
     // ------------------------------
-    private:
+    protected:
 	/**
 	 * Calculates, if needed, the contravariant representation.
 	 * The result is in {\tt *p\_met\_con}.
@@ -266,25 +273,25 @@ class Metrique {
 	 * Calculates, if needed, the Christoffel symbols.
 	 * The result is in {\tt *p\_gamma}.
 	 */
-	void fait_gamma() const ;
+	virtual void fait_gamma() const ;
 
 	/**
 	 * Calculates, if needed, the Ricci-curvature.
 	 * The result is in {\tt *p\_ricci}.
 	 */
-	void fait_ricci() const ;
+	virtual void fait_ricci() const ;
 
 	/**
 	 * Calculates, if needed, the Ricci-scalar.
 	 * The result is in {\tt *p\_ricci\_scal}.
 	 */
-	void fait_ricci_scal() const ;
+	virtual void fait_ricci_scal() const ;
 
 	/**
 	 * Calculates, if needed, the determinant.
 	 * The result is in {\tt *p\_determinant}.
 	 */
-	void fait_determinant() const ;
+	virtual void fait_determinant() const ;
 
     // Friend classes 
     // ---------------

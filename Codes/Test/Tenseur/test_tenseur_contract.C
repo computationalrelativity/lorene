@@ -29,8 +29,11 @@ char test_tenseur_contract_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:31  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/08/08 15:10:45  j_novak
+ * The flag "plat" has been added to the class Metrique to show flat metrics.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:31  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.1  2000/02/01  14:56:14  eric
  * Initial revision
@@ -135,8 +138,8 @@ void main(){
     //		Scalar product of two vectors
     //-----------------------------------------------------------------------
     
-    Tenseur uu(mp, 1, COV) ; 
-    Tenseur vv(mp, 1, CON) ; 
+    Tenseur uu(mp, 1, COV, mp.get_bvect_cart()) ; 
+    Tenseur vv(mp, 1, CON, mp.get_bvect_cart()) ; 
 
     uu.set_etat_qcq() ; 
  
@@ -171,7 +174,7 @@ void main(){
     //		Scalar product of a rank 2 tensor and a vector
     //-----------------------------------------------------------------------
     
-    Tenseur kk(mp, 2, COV) ; 
+    Tenseur kk(mp, 2, COV, mp.get_bvect_cart()) ; 
 
     kk.set_etat_qcq() ; 
  
@@ -188,7 +191,7 @@ void main(){
     cout << endl << "Test scalar product of a rank 2 tensor and a vector" << endl
 		 << "===================================================" << endl ; 
 
-    Tenseur res0(mp, 1, COV) ; 
+    Tenseur res0(mp, 1, COV, mp.get_bvect_cart()) ; 
     res0.set_etat_qcq() ; 
     
     res0.set(0) = 5 * aa ; 

@@ -36,6 +36,9 @@ char tenseur_math_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/08/08 15:10:45  j_novak
+ * The flag "plat" has been added to the class Metrique to show flat metrics.
+ *
  * Revision 1.2  2002/08/07 16:14:11  j_novak
  * class Tenseur can now also handle tensor densities, this should be transparent to older codes
  *
@@ -134,6 +137,7 @@ Tenseur pow (const Tenseur& t, double a) {
     if (t.get_etat() == ETATZERO)
       if (a > double(0)) {
 	res.set_etat_zero() ;
+	res.set_std_base() ;
 	return res ; 
       }
       else {
@@ -144,6 +148,7 @@ Tenseur pow (const Tenseur& t, double a) {
       assert(t.get_etat() == ETATQCQ) ;
       res.set() = pow( t(), a ) ;
     }
+    res.set_std_base() ;
     return res ;
 }
 

@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/08/08 15:10:44  j_novak
+ * The flag "plat" has been added to the class Metrique to show flat metrics.
+ *
  * Revision 1.3  2002/08/07 16:14:11  j_novak
  * class Tenseur can now also handle tensor densities, this should be transparent to older codes
  *
@@ -236,7 +239,8 @@ class Tenseur_sym ;
  * {\it p}-contravariant tensor and $\gamma$ is the determinant of the 
  * used 3-metric. {\it n} is called the weight of the tensor density.
  * 
- * All this is {\it 3D} meaning that the indices go from 0 to 2.
+ * All this is {\it 3D} meaning that the indices go from 0 to 2. Moreover,
+ * the components are described in orthonormal bases.
  * 
  * When first constructed, the memory for each component is not allocated.
  * 

@@ -32,6 +32,9 @@ char metrique_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/08/08 15:10:45  j_novak
+ * The flag "plat" has been added to the class Metrique to show flat metrics.
+ *
  * Revision 1.4  2002/08/07 16:14:11  j_novak
  * class Tenseur can now also handle tensor densities, this should be transparent to older codes
  *
@@ -80,7 +83,8 @@ char metrique_C[] = "$Header$" ;
 
 //Constructeur standard (ne fait pas grand chose) :
 
-Metrique::Metrique (const Map& mapping) : mp(&mapping) {
+Metrique::Metrique (const Map& mapping, bool plate) : 
+  mp(&mapping), plat(plate) {
     
     p_met_con = 0x0 ;
     p_met_cov = 0x0 ;
@@ -93,7 +97,8 @@ Metrique::Metrique (const Map& mapping) : mp(&mapping) {
 }
 
 // COPY :
-Metrique::Metrique (const Metrique& source) : mp(source.mp) {
+Metrique::Metrique (const Metrique& source) : mp(source.mp),
+					      plat(source.plat) {
 	
     if (source.p_met_con != 0x0)
 	p_met_con = new Tenseur_sym(*source.p_met_con) ;
@@ -134,7 +139,8 @@ Metrique::Metrique (const Metrique& source) : mp(source.mp) {
 
 
 // Constructeur from Tensor d'ordre 2 symetrique  :
-Metrique::Metrique (const Tenseur_sym &source) : mp(source.get_mp()) {
+Metrique::Metrique (const Tenseur_sym &source, bool plate) : 
+  mp(source.get_mp()), plat(plate) {
       
     assert (source.get_etat() != ETATNONDEF) ;
     assert (source.get_valence() == 2) ;
@@ -164,6 +170,9 @@ Metrique::Metrique (const Map& mapping, const Base_vect& triad,
 		    FILE* fd) : mp(&mapping){
     
     fread_be (&etat, sizeof(int), 1, fd) ;
+    int plate ;
+    fread_be (&plate, sizeof(int), 1, fd) ;
+    plat = plate ;
     
     p_met_cov = 0x0 ;
     p_met_con = 0x0 ;
@@ -302,6 +311,7 @@ void Metrique::operator= (const Metrique& source) {
     del_dependances() ;
     del_t() ;
    
+    plat = source.plat ;
     if (source.etat == ETATZERO)
 	set_etat_zero() ;
     else {
@@ -359,7 +369,8 @@ ostream& operator<<(ostream& flux, const Metrique & source) {
 	   }
 	   
 	case ETATQCQ : {
-	
+
+	if (source.plat) cout << "Flat metric" << endl ; 
 	if (source.p_met_con != 0x0) {
 	    cout << "CONTRA-variant representation : " << endl ;
 	    cout << *source.p_met_con << endl ;
@@ -408,6 +419,8 @@ ostream& operator<<(ostream& flux, const Metrique & source) {
 void Metrique::sauve(FILE* fd) const {
 
     fwrite_be(&etat, sizeof(int), 1, fd) ;
+    int plate = plat ;
+    fwrite_be(&plate, sizeof(int), 1, fd) ;
     
     if (etat == ETATQCQ) {
     
@@ -495,8 +508,10 @@ void Metrique::fait_gamma() const {
 	tipe.set_etat_qcq() ;
 	tipe.set(0) = CON ; tipe.set(1) = COV ; tipe.set(2) = COV ; 
 	p_gamma = new Tenseur_sym (*mp, 3, tipe, mp->get_bvect_cart() ) ;
+	const Base_vect_cart* cart = dynamic_cast<const Base_vect_cart*>
+	  (p_gamma->triad) ;
 	
-	if (etat == ETATZERO)
+	if ( (etat == ETATZERO) || (plat && (cart != 0x0)) )
 	    p_gamma->set_etat_zero() ;
 	else {
 	    p_gamma->set_etat_qcq() ;
@@ -527,7 +542,7 @@ void Metrique::fait_ricci() const {
 	
     else {
 	p_ricci = new Tenseur_sym (*mp, 2, COV, mp->get_bvect_cart() ) ;
-	if (etat == ETATZERO)
+	if ( (etat == ETATZERO) || (plat) )	     
 	    p_ricci->set_etat_zero() ;
 	else {
 	    
@@ -563,7 +578,7 @@ void Metrique::fait_ricci_scal() const {
     else {
 	
 	p_ricci_scal = new Tenseur(*mp) ;	    // Il s'agit d'un scalaire ...
-	if (etat == ETATZERO)
+	if ( (etat == ETATZERO) || (plat) )
 	    p_ricci_scal->set_etat_zero() ;
 	else {
 	    

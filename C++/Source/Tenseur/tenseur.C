@@ -33,6 +33,9 @@ char tenseur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2002/08/08 15:10:45  j_novak
+ * The flag "plat" has been added to the class Metrique to show flat metrics.
+ *
  * Revision 1.6  2002/08/07 16:14:11  j_novak
  * class Tenseur can now also handle tensor densities, this should be transparent to older codes
  *
@@ -1383,7 +1386,7 @@ void Tenseur::fait_derive_cov (const Metrique& metre) const {
     }
     if ((poids != 0.)&&(etat != ETATZERO)) 
       *p_derive_cov = *p_derive_cov - 
-	poids*contract(metric->gamma(), 0, 2) * (*this) ;
+	poids*contract(metre.gamma(), 0, 2) * (*this) ;
     
   }
 }
