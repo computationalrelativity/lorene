@@ -28,6 +28,9 @@ char test_cmp_val_point_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/05/11 12:40:55  e_gourgoulhon
+ * Added test for the basis T_COSSIN_SI.
+ *
  * Revision 1.1  2002/05/05 16:26:47  e_gourgoulhon
  * Initial commit
  *
@@ -56,7 +59,7 @@ int main() {
 
     int nr = 5 ;    // Number of points in r (in each domain)
     int nt = 7 ;    // Number of points in theta (in each domain)
-    int np = 6 ;    // Number of points in phi (in each domain)
+    int np = 8 ;    // Number of points in phi (in each domain)
 
     // Type of sampling in theta:
     //    SYM : theta in [0,pi/2]  (symmetry with respect equatorial plane)
@@ -111,19 +114,37 @@ int main() {
     //		Construction of a Cmp
     //-----------------------------------------------------------------------
 
-    Cmp aa0(mp) ;
+    Cmp aa(mp) ;
+    Cmp aa_aux(mp) ;   // auxilliary Cmp to construct aa
 
-    aa0 = x + z*z + x*y  ;
-    aa0.annule(nz-1) ;	
+    /*
+     *********** Test of R_CHEBPIM_I and T_COSSIN_SP  ************
+
+    aa_aux = x + z*z + x*y  ;
+    aa_aux.annule(nz-1) ;	
 
     // Spectral expansion bases :
-    aa0.std_base_scal() ;   // standard basis for a symmetric scalar field
+    aa_aux.std_base_scal() ;   // standard basis for a symmetric scalar field
 
+    aa = aa_aux.srdsdt() ;
 
-    Cmp aa = aa0.srdsdt() ;
+    *
+    ***************************************************************
+    */
 
-    // aa.va.set_base_r(0, R_CHEBPIM_I) ;
-    // aa.va.set_base_t(T_COSSIN_SP) ;
+    /*
+     *********** Test of R_CHEBPIM_P and T_COSSIN_SI **************
+     */
+    aa_aux =  ( x + z*z + x*y ) * z * x ;
+    aa_aux.std_base_scal() ;
+    aa_aux.va.set_base_r(0, R_CHEBPIM_I) ;
+    aa_aux.va.set_base_t(T_COSSIN_CI) ;
+
+    aa = aa_aux.srdsdt() ;
+
+    /*
+     ***************************************************************
+     */
 
     aa.va.coef() ;
 
