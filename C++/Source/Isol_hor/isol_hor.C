@@ -30,8 +30,8 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.8  2004/12/22 18:16:02  f_limousin
- * Many different changes.
+ * Revision 1.9  2004/12/29 16:14:22  f_limousin
+ * Add new function beta_comp(const Isol_hor& comp).
  *
  * Revision 1.7  2004/11/05 10:57:03  f_limousin
  * Delete argument partial_save in the function sauve.
@@ -80,26 +80,22 @@ char isol_hor_C[] = "$Header$" ;
 			    // Constructors //
 			    //--------------//
 // Standard constructor
-Isol_hor::Isol_hor(Map_af& mpi, const Base_vect& triad, 
-		   const Metric_flat& ff_in,
-		   const Metric& metgamt, const Sym_tensor& gamt_point_in, 
-		   const Scalar& trK_in, const Scalar& trK_point_in, 
-		   int depth_in) : 
-  Time_slice_conf(mpi, triad, ff_in),
+Isol_hor::Isol_hor(Map_af& mpi, int depth_in) : 
+  Time_slice_conf(mpi, mpi.get_bvect_spher(), mpi.flat_met_spher()),
   mp(mpi), radius ((mpi.get_alpha())[0]), omega(0),
   n_auto_evol(depth_in), n_comp_evol(depth_in), 
   psi_auto_evol(depth_in), psi_comp_evol(depth_in),
   dn_evol(depth_in), dpsi_evol(depth_in),
   beta_auto_evol(depth_in), beta_comp_evol(depth_in),
   aa_auto_evol(depth_in), aa_comp_evol(depth_in),
-  met_gamt(metgamt), gamt_point(gamt_point_in),
-  trK(trK_in), trK_point(trK_point_in), decouple(mpi){
+  met_gamt(mpi.flat_met_spher()), gamt_point(mpi, CON, mpi.get_bvect_spher()),
+  trK(mpi), trK_point(mpi), decouple(mpi){
 }		  
 
 // Constructor from conformal decomposition
 // ----------------------------------------
 
-Isol_hor::Isol_hor(Map_af& mpi,const Scalar& lapse_in, 
+Isol_hor::Isol_hor(Map_af& mpi, const Scalar& lapse_in, 
 		   const Scalar& psi_in, const Vector& shift_in,
 		   const Sym_tensor& aa_in, 
 		   const Metric& metgamt, const Sym_tensor& gamt_point_in, 
@@ -291,6 +287,26 @@ void Isol_hor::psi_comp (const Isol_hor& comp) {
     dpsi_comp.change_triad(mp.get_bvect_spher()) ;
     
     dpsi_evol.update(psi_auto().derive_cov(ff) + dpsi_comp, jtime, ttime) ;
+}
+
+void Isol_hor::beta_comp (const Isol_hor& comp) {
+  
+    double ttime = the_time[jtime] ;    
+    
+    Vector tmp_vect (mp, CON, mp.get_bvect_cart()) ;
+    Vector shift_comp (comp.beta_auto()) ;
+    shift_comp.change_triad(comp.mp.get_bvect_cart()) ;
+    shift_comp.change_triad(mp.get_bvect_cart()) ;
+    assert (*(shift_comp.get_triad()) == *(tmp_vect.get_triad())) ;
+
+    tmp_vect.set(1).import_asymy(shift_comp(1)) ;
+    tmp_vect.set(2).import_symy(shift_comp(2)) ;
+    tmp_vect.set(3).import_asymy(shift_comp(3)) ;
+    tmp_vect.std_spectral_base() ;
+    tmp_vect.change_triad(mp.get_bvect_spher()) ;
+    
+    beta_comp_evol.update(tmp_vect, jtime,ttime) ;
+    beta_evol.update(beta_auto() + beta_comp(), jtime, ttime) ;
 }
 
 //Initialisation to Schwartzchild
