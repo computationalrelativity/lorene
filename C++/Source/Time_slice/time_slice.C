@@ -30,6 +30,10 @@ char time_slice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/05/10 09:08:34  e_gourgoulhon
+ * Added "adm_mass_evol.downdate(jtime)" in method del_deriv.
+ * Added printing of ADM mass in operator>>(ostream&).
+ *
  * Revision 1.9  2004/05/09 20:57:34  e_gourgoulhon
  * Added data member adm_mass_evol.
  *
@@ -267,6 +271,8 @@ void Time_slice::del_deriv() const {
     if (p_gamma != 0x0) delete p_gamma ; 
     
     set_der_0x0() ;
+    
+    adm_mass_evol.downdate(jtime) ; 
 }
 
 
@@ -311,8 +317,12 @@ ostream& Time_slice::operator>>(ostream& flux) const {
     flux << "Number of stored slices : " << depth  
         << "     order of time scheme : " << scheme_order << '\n' 
         << "Time label t = " << the_time[jtime]  
-        << "               index of time step j = " << jtime << '\n' << '\n' 
-        << "Max. of absolute values of the various fields in each domain: \n" ;
+        << "               index of time step j = " << jtime << '\n' << '\n' ; 
+    if (adm_mass_evol.is_known(jtime)) {
+        flux << "ADM mass : " << adm_mass() << endl ;
+    }
+         
+    flux << "Max. of absolute values of the various fields in each domain: \n" ;
     if (gam_dd_evol.is_known(jtime)) {
         maxabs( gam_dd_evol[jtime], "gam_{ij}", flux) ;
     }
