@@ -33,6 +33,9 @@ char tensor_sym_calculus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/26 22:50:33  e_gourgoulhon
+ * Added methods derive_cov, derive_con and derive_lie.
+ *
  * Revision 1.2  2004/01/30 12:44:53  e_gourgoulhon
  * Added Tensor_sym operator*(const Tensor_sym&, const Tensor_sym& ).
  *
@@ -174,6 +177,50 @@ Tensor_sym operator*(const Tensor_sym& t1, const Tensor_sym& t2) {
     
     return res ;
 }
+
+                    //--------------------------//
+                    //  Covariant derivatives   //
+                    //--------------------------//
+
+const Tensor_sym& Tensor_sym::derive_cov(const Metric& gam) const {
+  
+    const Tensor_sym* p_resu = 
+        dynamic_cast<const Tensor_sym*>( &(Tensor::derive_cov(gam)) ) ;
+
+    assert(p_resu != 0x0) ;
+
+    return *p_resu ;
+  
+}
+
+
+const Tensor_sym& Tensor_sym::derive_con(const Metric& gam) const {
+  
+    const Tensor_sym* p_resu = 
+        dynamic_cast<const Tensor_sym*>( &(Tensor::derive_con(gam)) ) ;
+
+    assert(p_resu != 0x0) ;
+
+    return *p_resu ;
+  
+}
+
+                    //--------------------------//
+                    //       Lie derivative     //
+                    //--------------------------//
+
+Tensor_sym Tensor_sym::derive_lie(const Vector& vv) const {
+
+    Tensor_sym resu(*mp, valence, type_indice, *triad, id_sym1, id_sym2) ; 
+    
+    compute_derive_lie(vv, resu) ;
+    
+    return resu ; 
+    
+}
+
+
+
 
 
 

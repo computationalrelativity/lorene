@@ -3,7 +3,7 @@
  */
 
 /*
- *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2004 Eric Gourgoulhon & Jerome Novak
  *
  *   Copyright (c) 1999-2001 Eric Gourgoulhon (for a preceding Cmp version)
  *   Copyright (c) 1999-2001 Philippe Grandclement (for a preceding Cmp version)
@@ -34,6 +34,9 @@ char scalar_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/02/26 22:51:34  e_gourgoulhon
+ * Added methods derive_cov, derive_con and derive_lie.
+ *
  * Revision 1.11  2004/01/28 14:02:06  j_novak
  * Suppressed base handling.
  *
@@ -353,6 +356,52 @@ const Scalar& Scalar::deriv(int i) const {
     }
     
 }
+
+                    //--------------------------//
+                    //  Covariant derivatives   //
+                    //--------------------------//
+
+const Vector& Scalar::derive_cov(const Metric& gam) const {
+  
+    const Vector* p_resu = 
+        dynamic_cast<const Vector*>( &(Tensor::derive_cov(gam)) ) ;
+
+    assert(p_resu != 0x0) ;
+
+    return *p_resu ;
+  
+}
+
+
+const Vector& Scalar::derive_con(const Metric& gam) const {
+  
+    const Vector* p_resu = 
+        dynamic_cast<const Vector*>( &(Tensor::derive_con(gam)) ) ;
+
+    assert(p_resu != 0x0) ;
+
+    return *p_resu ;
+  
+}
+
+
+                    //--------------------------//
+                    //       Lie derivative     //
+                    //--------------------------//
+
+
+Scalar Scalar::derive_lie(const Vector& vv) const {
+
+    Scalar resu(*mp) ; 
+    
+    compute_derive_lie(vv, resu) ;
+    
+    return resu ; 
+    
+}
+
+
+
 
 			//---------------------//
 			//     Laplacian       //

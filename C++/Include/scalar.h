@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.46  2004/02/26 22:46:26  e_gourgoulhon
+ * Added methods derive_cov, derive_con and derive_lie.
+ *
  * Revision 1.45  2004/02/21 17:03:49  e_gourgoulhon
  * -- Method "point" renamed "val_grid_point".
  * -- Method "set_point" renamed "set_grid_point".
@@ -589,6 +592,24 @@ class Scalar : public Tensor {
    */
   const Scalar& deriv(int i) const ;	
   
+    /** Returns the gradient (1-form = covariant vector) of {\tt *this} 
+     *  @param gam metric components only used to get the triad with 
+     *    respect to which the components of the result are defined        
+     */
+    const Vector& derive_cov(const Metric& gam) const ; 
+
+
+    /** Returns the "contravariant" derivative of {\tt *this} with respect 
+     * to some metric $\gamma$, by raising the index of the
+     * gradient (cf. method {\tt derive\_cov()}) with 
+     * $\gamma$.
+     */
+    const Vector& derive_con(const Metric& gam) const ; 
+
+    /// Computes the derivative of {\tt this} along a vector field {\tt v}
+    Scalar derive_lie(const Vector& v) const ; 
+
+
   /** Returns the Laplacian of {\tt *this}
    *   @param ced_mult_r [input] Determines the quantity computed in
    *			 the  compactified external domain (CED) 
