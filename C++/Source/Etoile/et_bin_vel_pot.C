@@ -33,6 +33,10 @@ char et_bin_vel_pot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/04/19 11:26:17  f_limousin
+ * Add a new function Etoile_bin::velocity_potential( , , , ) for the
+ * case of strange stars
+ *
  * Revision 1.8  2004/04/08 17:02:00  f_limousin
  * Modif to avoid an error in the compilation
  *
@@ -161,291 +165,203 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax, C
     
     double erreur ;				
    
-    if (eos.identify() == 5) {
+    Tenseur zeta_h( ent() / dndh_log ) ;
 
-	Tenseur zeta_h( ent() / dndh_log ) ;
-
-	Scalar zeta_h_scalar (zeta_h()) ;
-	zeta_h_scalar.set_outer_boundary(0, (ent() / dndh_log)(0,0,0,0)) ;
-	for (int l=1; l<=nzm1; l++)
-	    zeta_h_scalar.set_domain(l) = 1 ;
+    Scalar zeta_h_scalar (zeta_h()) ;
+    zeta_h_scalar.set_outer_boundary(0, (ent() / dndh_log)(0,0,0,0)) ;
+    for (int l=1; l<=nzm1; l++)
+	zeta_h_scalar.set_domain(l) = 1 ;
 	
-	Cmp zeta_h_cmp (zeta_h_scalar) ;
-	zeta_h.set() = zeta_h_cmp ;
+    Cmp zeta_h_cmp (zeta_h_scalar) ;
+    zeta_h.set() = zeta_h_cmp ;
 	
-	zeta_h.set_std_base() ;
+    zeta_h.set_std_base() ;
 
-	Tenseur beta(mp) ; 
+    Tenseur beta(mp) ; 
 
-	if (beta_auto.get_etat() == ETATNONDEF) {
-		beta = log( sqrt(a_car) * nnn ) ; 
-	}
-	else {
-		beta = beta_auto + beta_comp ; 
-	}
+    if (beta_auto.get_etat() == ETATNONDEF) {
+	beta = log( sqrt(a_car) * nnn ) ; 
+    }
+    else {
+	beta = beta_auto + beta_comp ; 
+    }
 
-	Tenseur tmp_zeta = 1 - unsurc2 * zeta_h ;
-	tmp_zeta.set_std_base() ;
+    Tenseur tmp_zeta = 1 - unsurc2 * zeta_h ;
+    tmp_zeta.set_std_base() ;
 	
-	Tenseur bb = tmp_zeta * ent.gradient_spher()
-	    + unsurc2 * zeta_h * beta.gradient_spher() ;
+    Tenseur bb = tmp_zeta * ent.gradient_spher()
+	+ unsurc2 * zeta_h * beta.gradient_spher() ;
 	
-	Tenseur entmb = ent - beta ; 
+    Tenseur entmb = ent - beta ; 
 	
-	Tenseur grad_ent (ent.gradient()) ;
-	grad_ent.change_triad(mp.get_bvect_spher()) ;
+    Tenseur grad_ent (ent.gradient()) ;
+    grad_ent.change_triad(mp.get_bvect_spher()) ;
 
-	// Source for the poisson equation 
-	// See Eq (63) from Gourgoulhon et al. (2001)
-	Tenseur source = flat_scalar_prod( www - v_orb, ent.gradient() )
-	    + unsurc2 * zeta_h * (
-		flat_scalar_prod( v_orb, entmb.gradient() )
-		+ flat_scalar_prod( www, gam_euler.gradient() )
-		/ gam_euler ) ; 
+    // Source for the poisson equation 
+    // See Eq (63) from Gourgoulhon et al. (2001)
+    Tenseur source = flat_scalar_prod( www - v_orb, ent.gradient() )
+	+ unsurc2 * zeta_h * (
+	    flat_scalar_prod( v_orb, entmb.gradient() )
+	    + flat_scalar_prod( www, gam_euler.gradient() )
+	    / gam_euler ) ; 
 
-	source = (source - flat_scalar_prod(bb, psi0.gradient_spher())) 
-	    / zeta_h ;
-	source.annule(nzet, nzm1) ; 
+    source = (source - flat_scalar_prod(bb, psi0.gradient_spher())) 
+	/ zeta_h ;
+    source.annule(nzet, nzm1) ; 
 
-	Param par ; 
-	int niter ; 
-	par.add_int(mermax) ; 
-	par.add_double(precis, 0) ; 
-	par.add_double(relax, 1) ; 
-	par.add_int_mod(niter) ; 
+    Param par ; 
+    int niter ; 
+    par.add_int(mermax) ; 
+    par.add_double(precis, 0) ; 
+    par.add_double(relax, 1) ; 
+    par.add_int_mod(niter) ; 
 
-//	Cmp ssjm1_psi (mp) ;
-//        ssjm1_psi = 0. ;
-	par.add_cmp_mod(ssjm1_psi, 0) ;
+    par.add_cmp_mod(ssjm1_psi, 0) ;
 	
-	if (psi0.get_etat() == ETATZERO) {
-	    psi0.set_etat_qcq() ; 
-	    psi0.set() = 0 ; 
-	}
+    if (psi0.get_etat() == ETATZERO) {
+	psi0.set_etat_qcq() ; 
+	psi0.set() = 0 ; 
+    }
 
-	int nr = mp.get_mg()->get_nr(0);
-	int nt = mp.get_mg()->get_nt(0);
-	int np = mp.get_mg()->get_np(0);
+    int nr = mp.get_mg()->get_nr(0);
+    int nt = mp.get_mg()->get_nt(0);
+    int np = mp.get_mg()->get_np(0);
 
-	cout << "nr = " << nr << "   nt = " << nt << "   np = " << np << endl ;
+    cout << "nr = " << nr << "   nt = " << nt << "   np = " << np << endl ;
 
-	cout << "psi0" << endl << norme(psi0()/(nr*nt*np)) << endl ;
-	cout << "d(psi)/dr" << endl << norme(psi0.set().dsdr()/(nr*nt*np)) << endl ;
-	
-	cout << "value of psi at the surface" << endl ;
-	for (int j=0; j<nt; j++)
-	    for (int k=0; k<np; k++)
-		cout << "j = " << j << " ; k = " << k << " : " << 
-		    psi0.set()(0, k, j, nr-1) << endl ;
+    cout << "psi0" << endl << norme(psi0()/(nr*nt*np)) << endl ;
+    cout << "d(psi)/dr" << endl << norme(psi0.set().dsdr()/(nr*nt*np)) << endl ;
+/*	
+  cout << "value of psi at the surface" << endl ;
+  for (int j=0; j<nt; j++)
+  for (int k=0; k<np; k++)
+  cout << "j = " << j << " ; k = " << k << " : " << 
+  psi0.set()(0, k, j, nr-1) << endl ;
 
-	cout << endl ;
+  cout << endl ;
 
-	cout << "value of d(psi)/dr at the surface" << endl ;
-	for (int j=0; j<nt; j++)
-	    for (int k=0; k<np; k++)
-		cout << "j = " << j << " ; k = " << k << " : " << 
-		    psi0.set().dsdr()(0, k, j, nr-1) << endl ;
+  cout << "value of d(psi)/dr at the surface" << endl ;
+  for (int j=0; j<nt; j++)
+  for (int k=0; k<np; k++)
+  cout << "j = " << j << " ; k = " << k << " : " << 
+  psi0.set().dsdr()(0, k, j, nr-1) << endl ;
 
-	cout << endl ;
-	cout << "value of 1/r*d(psi)/d(theta) at the surface" << endl ;
-	for (int j=0; j<nt; j++)
-	    for (int k=0; k<np; k++)
-		cout << "j = " << j << " ; k = " << k << " : " << 
-		    psi0.set().srdsdt()(0, k, j, nr-1) << endl ;
+  cout << endl ;
+  cout << "value of 1/r*d(psi)/d(theta) at the surface" << endl ;
+  for (int j=0; j<nt; j++)
+  for (int k=0; k<np; k++)
+  cout << "j = " << j << " ; k = " << k << " : " << 
+  psi0.set().srdsdt()(0, k, j, nr-1) << endl ;
 
-	cout << endl ;
-	cout << "value of 1/rsint*d(psi)/d(phi) at the surface" << endl ;
-	for (int j=0; j<nt; j++)
-	    for (int k=0; k<np; k++)
-		cout << "j = " << j << " ; k = " << k << " : " << 
-		    psi0.set().srstdsdp()(0, k, j, nr-1) << endl ;
-
-
-	Valeur lim(mp.get_mg()->get_angu()) ;
-	lim.annule_hard() ;
-/*
-	const Coord& sint0 = mp.sint ;
-	const Coord& cosp0 = mp.cosp ;
-	Cmp sint (mp) ;
-	Cmp cosp (mp) ;
-	Cmp cosp_sint (mp) ;
-	sint = sint0 ;
-	cosp = cosp0 ;
-	cosp_sint = (2*cosp*cosp-1) * sint*sint ;
-	for (int j=0; j<nt; j++)
-	    for (int k=0; k<np; k++)
-		lim.set(0, k, j, 0) = 1 * cosp_sint(0, k, j, nr-1) ;
+  cout << endl ;
+  cout << "value of 1/rsint*d(psi)/d(phi) at the surface" << endl ;
+  for (int j=0; j<nt; j++)
+  for (int k=0; k<np; k++)
+  cout << "j = " << j << " ; k = " << k << " : " << 
+  psi0.set().srstdsdp()(0, k, j, nr-1) << endl ;
 */
 
-	Tenseur normal (mp, 1, CON, mp.get_bvect_cart()) ;
-	Tenseur normal2 (mp, 1, COV, mp.get_bvect_cart()) ;
-	normal.set_etat_qcq() ;
-	normal2.set_etat_qcq() ;
-	const Coord& rr0 = mp.r ;
- 	Tenseur rr(mp) ;
-	rr.set_etat_qcq() ;
-	rr.set() = rr0 ;
-	rr.set_std_base() ;
+    Valeur lim(mp.get_mg()->get_angu()) ;
+    lim.annule_hard() ;
+/*
+  const Coord& sint0 = mp.sint ;
+  const Coord& cosp0 = mp.cosp ;
+  Cmp sint (mp) ;
+  Cmp cosp (mp) ;
+  Cmp cosp_sint (mp) ;
+  sint = sint0 ;
+  cosp = cosp0 ;
+  cosp_sint = (2*cosp*cosp-1) * sint*sint ;
+  for (int j=0; j<nt; j++)
+  for (int k=0; k<np; k++)
+  lim.set(0, k, j, 0) = 1 * cosp_sint(0, k, j, nr-1) ;
+*/
 
-	Tenseur_sym plat(mp, 2, COV, mp.get_bvect_cart() ) ;
-	plat.set_etat_qcq() ;
-	for (int i=0; i<3; i++) {
-	    for (int j=0; j<i; j++) {
-		plat.set(i,j) = 0 ;
-	    }
-	    plat.set(i,i) = 1 ;
+    Tenseur normal (mp, 1, CON, mp.get_bvect_cart()) ;
+    Tenseur normal2 (mp, 1, COV, mp.get_bvect_cart()) ;
+    normal.set_etat_qcq() ;
+    normal2.set_etat_qcq() ;
+    const Coord& rr0 = mp.r ;
+    Tenseur rr(mp) ;
+    rr.set_etat_qcq() ;
+    rr.set() = rr0 ;
+    rr.set_std_base() ;
+
+    Tenseur_sym plat(mp, 2, COV, mp.get_bvect_cart() ) ;
+    plat.set_etat_qcq() ;
+    for (int i=0; i<3; i++) {
+	for (int j=0; j<i; j++) {
+	    plat.set(i,j) = 0 ;
 	}
-	plat.set_std_base() ;
+	plat.set(i,i) = 1 ;
+    }
+    plat.set_std_base() ;
 	
-	Metrique flat(plat, true) ; 
-	Tenseur dcov_r = rr.derive_cov(flat) ;
+    Metrique flat(plat, true) ; 
+    Tenseur dcov_r = rr.derive_cov(flat) ;
 
-	for (int i=0; i<3; i++) {
-	    normal.set(i) = dcov_r(i) / a_car() ;
-	    normal2.set(i) = dcov_r(i) ;
-	}
-	normal.change_triad(mp.get_bvect_spher()) ;
-	normal2.change_triad(mp.get_bvect_spher()) ;
+    for (int i=0; i<3; i++) {
+	normal.set(i) = dcov_r(i) / a_car() ;
+	normal2.set(i) = dcov_r(i) ;
+    }
+    normal.change_triad(mp.get_bvect_spher()) ;
+    normal2.change_triad(mp.get_bvect_spher()) ;
 	
-	Tenseur bsn0 (bsn) ;
-	bsn0.change_triad(mp.get_bvect_cart()) ;
-	Tenseur aa (mp, 1, CON, mp.get_bvect_cart()) ;
-	aa = - v_orb - a_car * gam_euler * hhh * bsn0 ;
-	aa.change_triad(mp.get_bvect_spher()) ;
-	
-
-	Tenseur dcov_psi = psi0.derive_cov(flat) ;
-	dcov_psi.change_triad(mp.get_bvect_spher()) ;
-
-	Cmp limite (mp) ;
-	limite =  ( - dcov_psi(1) * normal(1) - dcov_psi(2) * normal(2)
-	    + contract(aa, 0, normal2, 0)()) 
-	                  /normal(0) ;
-	
-	for (int j=0; j<nt; j++)
-	    for (int k=0; k<np; k++)
-		lim.set(0, k, j, 0) = limite(0, k, j, nr-1) ;
+    Tenseur bsn0 (bsn) ;
+    bsn0.change_triad(mp.get_bvect_cart()) ;
+    Tenseur aa (mp, 1, CON, mp.get_bvect_cart()) ;
+    aa = - v_orb - a_car * gam_euler * hhh * bsn0 ;
+    aa.change_triad(mp.get_bvect_spher()) ;
 	
 
-	cout << "lim" << endl << lim << endl ;
+    Tenseur dcov_psi = psi0.derive_cov(flat) ;
+    dcov_psi.change_triad(mp.get_bvect_spher()) ;
 
-	lim.std_base_scal() ;
-	Cmp resu (psi0()) ;
-	source().poisson_neumann_interne(lim, par, resu) ;
-	psi0 = resu ;
-
-	resu.va.ylm() ;
-	Scalar psi00(resu) ;
-	psi00.spectral_display("psi00") ;
-
-	cout << "value of d(psi)/dr at the surface after poisson" << endl ;
-	for (int j=0; j<nt; j++)
-	    for (int k=0; k<np; k++)
-		cout << "j = " << j << " ; k = " << k << " : " << 
-		    psi0.set().dsdr()(0, k, j, nr-1) << endl ;
-
-	for (int l=1; l<=nzm1; l++)
-	    psi0.set().annule(l) ;
-
-	//---------------------------------------------------
-	// Check of the solution  
-	//---------------------------------------------------
+    Cmp limite (mp) ;
+    limite =  ( - dcov_psi(1) * normal(1) - dcov_psi(2) * normal(2)
+		+ contract(aa, 0, normal2, 0)()) 
+	/normal(0) ;
 	
-	Cmp laplacien_psi0 =  psi0().laplacien() ; 
-	
-	erreur = diffrel(laplacien_psi0, source())(0) ; 
-
-	cout << "Check of the resolution of the continuity equation for strange stars: " 
-	     << endl ; 
-	cout << "norme(source) : " << norme(source())(0) << endl 
-	     << "Error in the solution : " << erreur << endl ; 
-	
-    } // End of the case of strange stars
-
-
-    else {
-    
-	Tenseur zeta_h( ent() / dndh_log ) ;
-	zeta_h.set_std_base() ;
-	
-	Tenseur beta(mp) ; 
-	
-	if (beta_auto.get_etat() == ETATNONDEF) {
-	    beta = log( sqrt(a_car) * nnn ) ; 
-	}
-	else {
-	    beta = beta_auto + beta_comp ; 
-	}
-	
-	Tenseur tmp_zeta = 1 - unsurc2 * zeta_h ;
-	tmp_zeta.set_std_base() ;
-	
-	Tenseur bb = tmp_zeta * ent.gradient_spher()
-	    + unsurc2 * zeta_h * beta.gradient_spher() ;
-	
-	Tenseur entmb = ent - beta ; 
-	
-	// See Eq (63) from Gourgoulhon et al. (2001)
-	Tenseur source = flat_scalar_prod( www - v_orb, ent.gradient() )
-	    + unsurc2 * zeta_h * (
-		flat_scalar_prod( v_orb, entmb.gradient() )
-		+ flat_scalar_prod( www, gam_euler.gradient() )
-		/ gam_euler ) ; 
-	
-	
-	source.annule(nzet, nzm1) ; 
-	
-	//---------------------------------------------------
-	// Resolution by means of Map_radial::poisson_compact 
-	//---------------------------------------------------
-	
-	Param par ; 
-	int niter ; 
-	par.add_int(mermax) ; 
-	par.add_double(precis, 0) ; 
-	par.add_double(relax, 1) ; 
-	par.add_int_mod(niter) ; 
-	
-	
-	if (psi0.get_etat() == ETATZERO) {
-	    psi0.set_etat_qcq() ; 
-	    psi0.set() = 0 ; 
-	}
-	
-	source.set().va.ylm() ;
-	
-	cout << "source" << endl << norme(source())<< endl ;
-	cout << "zeta_h " << endl << norme(zeta_h()) << endl ;
-	cout << "bb(1)" << endl << norme(bb(0)) << endl ;
-	cout << "bb(2)" << endl << norme(bb(1)) << endl ;
-	cout << "bb(3)" << endl << norme(bb(2)) << endl ;
-	cout << "psiO" << endl << norme(psi0()) << endl ;
-					  
-	mp.poisson_compact(source(), zeta_h(), bb, par, psi0.set() ) ;
-	
-	cout << "psiO apres" << endl << norme(psi0()) << endl ;
+    for (int j=0; j<nt; j++)
+	for (int k=0; k<np; k++)
+	    lim.set(0, k, j, 0) = limite(0, k, j, nr-1) ;
 	
 
-	//---------------------------------------------------
-	// Check of the solution  
-	//---------------------------------------------------
+//	cout << "lim" << endl << lim << endl ;
+
+    lim.std_base_scal() ;
+    Cmp resu (psi0()) ;
+    source().poisson_neumann_interne(lim, par, resu) ;
+    psi0 = resu ;
+
+    resu.va.ylm() ;
+    Scalar psi00(resu) ;
+    psi00.spectral_display("psi00") ;
+/*
+  cout << "value of d(psi)/dr at the surface after poisson" << endl ;
+  for (int j=0; j<nt; j++)
+  for (int k=0; k<np; k++)
+  cout << "j = " << j << " ; k = " << k << " : " << 
+  psi0.set().dsdr()(0, k, j, nr-1) << endl ;
+*/
+    for (int l=1; l<=nzm1; l++)
+	psi0.set().annule(l) ;
+
+    //---------------------------------------------------
+    // Check of the solution  
+    //---------------------------------------------------
 	
-	Tenseur bb_dpsi0 = flat_scalar_prod( bb, psi0.gradient_spher() ) ;
+    Cmp laplacien_psi0 =  psi0().laplacien() ; 
 	
-	Cmp oper = zeta_h() * psi0().laplacien() + bb_dpsi0() ; 
+    erreur = diffrel(laplacien_psi0, source())(0) ; 
+
+    cout << "Check of the resolution of the continuity equation for strange stars: " 
+	 << endl ; 
+    cout << "norme(source) : " << norme(source())(0) << endl 
+	 << "Error in the solution : " << erreur << endl ; 
 	
-	source.set().va.ylm_i() ;
-	
-	erreur = diffrel(oper, source())(0) ; 
-	
-	cout << "Check of the resolution of the continuity equation : " 
-	     << endl ; 
-	cout << "norme(source) : " << norme(source())(0) 
-	     << "    diff oper/source : " << erreur << endl ; 
-	
-    }  // End of the case of neutron stars.
-    
-    
+    mp.poisson_compact(source(), zeta_h(), bb, par, psi0.set() ) ;
+
     //--------------------------------
     // Computation of grad(psi)
     //--------------------------------
@@ -464,6 +380,159 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax, C
     // C^1 continuation of d_psi outside the star
     //  (to ensure a smooth enthalpy field accross the stellar surface)
     // ----------------------------------------------------------------
+    
+    d_psi.annule(nzet, nzm1) ;	  
+    for (int i=0; i<3; i++) {
+	d_psi.set(i) = raccord_c1(d_psi(i), nzet) ; 
+    }
+    
+    assert( d_psi.get_triad() == &(mp.get_bvect_cart()) ) ; 
+
+    d_psi.change_triad(ref_triad) ; 
+    
+    return erreur ; 
+ 
+
+}
+
+
+double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
+    
+    int nzm1 = mp.get_mg()->get_nzone() - 1 ;    
+
+    //----------------------------------
+    // Specific relativistic enthalpy		    ---> hhh
+    //----------------------------------
+    
+    Tenseur hhh = exp(unsurc2 * ent) ;  // = 1 at the Newtonian limit
+    hhh.set_std_base() ;
+
+    //----------------------------------------------
+    //  Computation of W^i = - A^2 h Gamma_n B^i/N
+    // See Eq (62) from Gourgoulhon et al. (2001)
+    //----------------------------------------------
+
+    Tenseur www = - a_car * hhh * gam_euler * bsn ; 
+    
+    www.change_triad( mp.get_bvect_cart() ) ;	// components on the mapping
+    // Cartesian basis
+    
+    //-------------------------------------------------
+    // Constant value of W^i at the center of the star
+    //-------------------------------------------------
+    
+    Tenseur v_orb(mp, 1, CON, mp.get_bvect_cart()) ; 
+    
+    v_orb.set_etat_qcq() ; 
+    for (int i=0; i<3; i++) {
+	v_orb.set(i) = www(i)(0, 0, 0, 0) ; 
+    }
+
+    v_orb.set_triad( *(www.get_triad()) ) ;  
+    v_orb.set_std_base() ;
+
+              
+    //-------------------------------------------------
+    // Source and coefficients a,b for poisson_compact (idenpendent from psi0)
+    //-------------------------------------------------
+    
+    Cmp dndh_log = eos.der_nbar_ent(ent(), nzet) ; 
+
+    // In order to avoid any division by zero in the computation of zeta_h
+    //  the value of dndh_log is set to 1 in the external domains:
+    for (int l=nzet; l <= nzm1; l++) {
+	dndh_log.set(l) = 1 ; 
+    }
+    
+    double erreur ;				
+   
+    Tenseur zeta_h( ent() / dndh_log ) ;
+    zeta_h.set_std_base() ;
+    
+    Tenseur beta(mp) ; 
+    
+    if (beta_auto.get_etat() == ETATNONDEF) {
+	beta = log( sqrt(a_car) * nnn ) ; 
+    }
+    else {
+	beta = beta_auto + beta_comp ; 
+    }
+    
+    Tenseur tmp_zeta = 1 - unsurc2 * zeta_h ;
+    tmp_zeta.set_std_base() ;
+    
+    Tenseur bb = tmp_zeta * ent.gradient_spher()
+	+ unsurc2 * zeta_h * beta.gradient_spher() ;
+    
+    Tenseur entmb = ent - beta ; 
+    
+    // See Eq (63) from Gourgoulhon et al. (2001)
+    Tenseur source = flat_scalar_prod( www - v_orb, ent.gradient() )
+	+ unsurc2 * zeta_h * (
+	    flat_scalar_prod( v_orb, entmb.gradient() )
+	    + flat_scalar_prod( www, gam_euler.gradient() )
+	    / gam_euler ) ; 
+    
+    
+    source.annule(nzet, nzm1) ; 
+    
+    //---------------------------------------------------
+    // Resolution by means of Map_radial::poisson_compact 
+    //---------------------------------------------------
+    
+    Param par ; 
+    int niter ; 
+    par.add_int(mermax) ; 
+    par.add_double(precis, 0) ; 
+    par.add_double(relax, 1) ; 
+    par.add_int_mod(niter) ; 
+    
+    
+    if (psi0.get_etat() == ETATZERO) {
+	psi0.set_etat_qcq() ; 
+	psi0.set() = 0 ; 
+    }
+    
+    source.set().va.ylm() ;
+      
+    mp.poisson_compact(source(), zeta_h(), bb, par, psi0.set() ) ;
+
+    //---------------------------------------------------
+    // Check of the solution  
+    //---------------------------------------------------
+	
+    Tenseur bb_dpsi0 = flat_scalar_prod( bb, psi0.gradient_spher() ) ;
+	
+    Cmp oper = zeta_h() * psi0().laplacien() + bb_dpsi0() ; 
+	
+    source.set().va.ylm_i() ;
+	
+    erreur = diffrel(oper, source())(0) ; 
+	
+    cout << "Check of the resolution of the continuity equation : " 
+	 << endl ; 
+    cout << "norme(source) : " << norme(source())(0) 
+	 << "    diff oper/source : " << erreur << endl ; 
+	
+    
+   //--------------------------------
+   // Computation of grad(psi)
+   //--------------------------------
+    
+   // The computation is done component by component because psi0.gradient()
+   // is a covariant vector, whereas v_orb is a contravariant one. 
+    
+    d_psi.set_etat_qcq() ; 
+    
+    for (int i=0; i<3; i++) {
+	d_psi.set(i) = (psi0.gradient())(i) + v_orb(i) ; 
+    }
+
+    d_psi.set_triad(  *(v_orb.get_triad()) ) ; 
+   
+   // C^1 continuation of d_psi outside the star
+   //  (to ensure a smooth enthalpy field accross the stellar surface)
+   // ----------------------------------------------------------------
     
     d_psi.annule(nzet, nzm1) ;	  
     for (int i=0; i<3; i++) {
