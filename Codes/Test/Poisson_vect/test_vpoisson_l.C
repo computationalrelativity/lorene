@@ -29,6 +29,9 @@ char test_vpoisson_l_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/04/06 14:38:41  j_novak
+ * Added method 6: block inversion with spherical components
+ *
  * Revision 1.5  2004/12/29 12:25:51  j_novak
  * non-symmetric grid in phi.
  *
@@ -119,7 +122,7 @@ int main() {
 	
 	maxabs(diff, "Divergence de sol_df") ;
 
-	double lambda = 1. ;
+	double lambda = 1./3. ;
 
 	Tensor grad = sol.derive_con(mets) ;
 	Scalar div = sol.divergence(mets) ;
@@ -144,6 +147,7 @@ int main() {
 	Vector sol_num3 = source.poisson(lambda, 3) ;
 	Vector sol_num4 = source.poisson(lambda, 4) ;
 	Vector sol_num5 = source.poisson(lambda, 5) ;
+	Vector sol_num6 = source.poisson(lambda, 6) ;
 
 	cout << endl ;
 
@@ -158,6 +162,7 @@ int main() {
 	maxabs(sol_num3 - sol, "Methode 3 (Comp. cartesiennes)") ;
 	maxabs(sol_num4 - sol, "Methode 4 (Comp. spheriques)") ;
 	maxabs(sol_num5 - sol, "Methode 5 (Comp. spheriques)") ;
+	maxabs(sol_num6 - sol, "Methode 6 (Comp. spheriques)") ;
 
 
 	return EXIT_SUCCESS ;
