@@ -30,6 +30,9 @@ char bin_bhns_extr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/12/13 21:08:59  k_taniguchi
+ * Addition of some outputs in display_poly.
+ *
  * Revision 1.6  2004/12/03 20:17:52  k_taniguchi
  * Correction of "display_poly">
  *
@@ -320,6 +323,11 @@ void Bin_bhns_extr::display_poly(ostream& ost) const {
 	// Polytropic unit of angular momentum in terms of j_unit :
 	//	  double j_poly = r_poly * r_poly / ggrav ;
 
+	double r0 = 0.5 * ( star.ray_eq() + star.ray_eq_pi() ) ;
+	            // = 1 in Baumgarte et al.
+	double d_ns = separ + star.ray_eq() - r0 ;
+	            // Orbital separation of Baumgarte et al.
+
 	ost.precision(16) ;
 	ost << endl << "Quantities in polytropic units : " ;
 	ost << endl << "==============================" << endl ;
@@ -327,7 +335,10 @@ void Bin_bhns_extr::display_poly(ostream& ost) const {
 	ost << "  d_e_max   :   " << separ / r_poly << endl ;
 	ost << "  d_G_x :       " << xa_barycenter_extr() / r_poly << endl
 	    << "  d_G_y :       " << ya_barycenter_extr() / r_poly << endl ;
+	ost << "  d_bh/M_bh :   " << d_ns/r_poly / (mass_bh/m_poly) << endl ;
 	ost << "  Omega :       " << omega * t_poly << endl ;
+	ost << "  Omega M_bh :  " << omega * t_poly * mass_bh / m_poly
+	    << endl ;
 	ost << "  M_bar(NS) :   " << mass_b_extr() / m_poly << endl ;
 	ost << "  M_bar(NS_0) : " << star.mass_b() / m_poly << endl ;
 	ost << "  R_0(NS) :     "
