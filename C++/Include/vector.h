@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/05 21:07:27  e_gourgoulhon
+ * Method std_spectral_base() is now virtual.
+ *
  * Revision 1.4  2003/10/03 14:08:03  e_gourgoulhon
  * Added constructor from Tensor.
  *
@@ -154,6 +157,12 @@ class Vector: public Tensor {
 	  return res ;
 
 	};
+	
+	/**
+	 * Sets the standard spectal bases of decomposition for each component.
+     *
+	 */
+	virtual void std_spectral_base() ; 
 	
  
 };

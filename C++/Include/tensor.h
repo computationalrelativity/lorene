@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2003/10/05 21:07:27  e_gourgoulhon
+ * Method std_spectral_base() is now virtual.
+ *
  * Revision 1.13  2003/10/03 11:21:45  j_novak
  * More methods for the class Metric
  *
@@ -381,11 +384,10 @@ class Tensor {
 	virtual void annule(int l_min, int l_max) ; 
 
 	/**
-	 * Set the standard spectal basis of decomposition for each component.
-	 * To be used only with {\tt valence} strictly lower than 3.
-	 * 
+	 * Sets the standard spectal bases of decomposition for each component.
+	 * To be used only with {\tt valence} lower than or equal 2.
 	 */
-	void std_spectral_base() ; 
+	virtual void std_spectral_base() ; 
 	
 	virtual void dec_dzpuis() ;	/// dzpuis -= 1 ;
 	virtual void inc_dzpuis() ;	/// dzpuis += 1 ;
