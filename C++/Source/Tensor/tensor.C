@@ -34,6 +34,10 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.27  2003/12/30 23:09:47  e_gourgoulhon
+ * Change in methods derive_cov() and divergence() to take into account
+ *  the change of name: Metric::get_connect() --> Metric::connect().
+ *
  * Revision 1.26  2003/12/27 15:01:50  e_gourgoulhon
  * Method derive_con(): the position of the derivation index has
  * been changed from the first one to the last one.
@@ -816,7 +820,7 @@ const Tensor& Tensor::derive_cov(const Metric& metre) const {
   int j = get_place_met(metre) ;
   assert ((j>=0) && (j<N_MET_MAX)) ;
   if (p_derive_cov[j] == 0x0) {
-    p_derive_cov[j] = metre.get_connect().p_derive_cov(*this) ;
+    p_derive_cov[j] = metre.connect().p_derive_cov(*this) ;
   }
   return *p_derive_cov[j] ;
 }
@@ -843,7 +847,7 @@ const Tensor& Tensor::divergence(const Metric& metre) const {
   int j = get_place_met(metre) ;
   assert ((j>=0) && (j<N_MET_MAX)) ;
   if (p_divergence[j] == 0x0) {
-    p_divergence[j] = metre.get_connect().p_divergence(*this) ;
+    p_divergence[j] = metre.connect().p_divergence(*this) ;
   }
   return *p_divergence[j] ;
 }

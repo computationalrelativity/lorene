@@ -35,6 +35,10 @@ char sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2003/12/30 23:09:47  e_gourgoulhon
+ * Change in methods derive_cov() and divergence() to take into account
+ *  the change of name: Metric::get_connect() --> Metric::connect().
+ *
  * Revision 1.13  2003/11/26 21:58:15  e_gourgoulhon
  * Added new data member p_transverse and p_longit_pot.
  * Modified the memory management consequently.
@@ -317,7 +321,7 @@ const Vector& Sym_tensor::divergence(const Metric& metre) const {
   int j = get_place_met(metre) ;
   assert ((j>=0) && (j<N_MET_MAX)) ;
   if (p_divergence[j] == 0x0) {
-    p_divergence[j] = metre.get_connect().p_divergence(*this) ;
+    p_divergence[j] = metre.connect().p_divergence(*this) ;
   }
 
   const Vector* pvect = dynamic_cast<const Vector*>(p_divergence[j]) ;
