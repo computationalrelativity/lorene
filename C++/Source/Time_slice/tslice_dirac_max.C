@@ -30,6 +30,9 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/06/08 14:05:06  j_novak
+ * Added the attenuation of khi and mu in the last domain in ::det_one(). They are set to zero in the CED.
+ *
  * Revision 1.11  2004/05/31 20:31:31  e_gourgoulhon
  * -- Method hh_det_one takes now a time step as argument, to compute
  *    h^{ij} from khi and mu at some arbitrary time step and not only at
@@ -326,20 +329,33 @@ void Tslice_dirac_max::set_trh(const Scalar& trh_in) {
      
 } 
 
-
 void Tslice_dirac_max::hh_det_one(int j0) const {
 
     assert (khi_evol.is_known(j0)) ;   // The starting point
     assert (mu_evol.is_known(j0)) ;    // of the computation 
 
-    const Scalar& khi0 = khi_evol[j0] ;     // khi
-    const Scalar& mu0 = mu_evol[j0] ;       // mu
+    const Map& mp = khi_evol[j0].get_mp() ;
+    int nzm2 = mp.get_mg()->get_nzone() - 2 ;
+
+    const Map_af* mp_aff = dynamic_cast<const Map_af*>(&mp) ;
+    assert (mp_aff != 0x0) ;
+    double r_out = mp_aff->get_alpha()[nzm2] + mp_aff->get_beta()[nzm2] ; 
+    double r_in = mp_aff->get_beta()[nzm2] - mp_aff->get_alpha()[nzm2]   ; 
+    Mtbl xx1 = mp_aff->r - r_in ;
+    Mtbl xx2 = mp_aff->r - r_out ;
+    Scalar tempo(*mp_aff) ;
+    tempo = exp(-(xx1*xx1)/(xx2*xx2)) ;
+    for (int lz=0; lz<nzm2; lz++) 
+      tempo.set_domain(lz) = 1. ;
+    tempo.annule_domain(nzm2+1) ;
+    tempo.std_spectral_base() ;
+
+    Scalar khi0 = khi_evol[j0]*tempo ;     // khi
+    Scalar mu0 = mu_evol[j0]*tempo ;       // mu
 
     int it_max = 100 ;
     double precis = 1.e-14 ;
   
-    const Map& mp = khi0.get_mp() ;
-    
     // The TT part of h^{ij}, which stays unchanged during the computation :
     Sym_tensor_tt hijtt(mp, *(ff.get_triad()), ff) ;
     hijtt.set_khi_mu(khi0, mu0, 2) ;
@@ -496,10 +512,13 @@ const Scalar& Tslice_dirac_max::khi() const {
 
     if (!( khi_evol.is_known(jtime) ) ) {
 
-        assert( hh_evol.is_known(jtime) ) ; 
-        
-        khi_evol.update( hh().transverse(ff).tt_part().khi(), 
-			 jtime, the_time[jtime] ) ; 
+      cout << "Error: khi_evol is not konwn at time : " << jtime << '\n' ;
+      cout << "Better not use the value deduced from hh!" << endl ;
+      abort() ;
+
+//         assert( hh_evol.is_known(jtime) ) ; 
+//         khi_evol.update( hh().transverse(ff).tt_part().khi(), 
+// 			 jtime, the_time[jtime] ) ; 
     }
 
     return khi_evol[jtime] ;
@@ -510,10 +529,14 @@ const Scalar& Tslice_dirac_max::mu() const {
 
     if (!( mu_evol.is_known(jtime) ) ) {
 
-        assert( hh_evol.is_known(jtime) ) ; 
+      cout << "Error: mu_evol is not konwn at time : " << jtime << '\n' ;
+      cout << "Better not use the value deduced from hh!" << endl ;
+      abort() ;
+
+//         assert( hh_evol.is_known(jtime) ) ; 
       
-        mu_evol.update( hh().transverse(ff).tt_part().mu(), 
-			jtime, the_time[jtime] ) ; 
+//         mu_evol.update( hh().transverse(ff).tt_part().mu(), 
+// 			jtime, the_time[jtime] ) ; 
     }
 
     return mu_evol[jtime] ;
