@@ -30,9 +30,8 @@ char strot_dirac_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.2  2005/02/02 09:25:51  lm_lin
- *
- * Add the virial identity GRV3. GRV2 is still under development.
+ * Revision 1.3  2005/02/02 10:11:24  j_novak
+ * Better calculation of the GRV3 identity.
  *
  *
  *
@@ -217,9 +216,12 @@ double Star_rot_Dirac::grv3() const {
     Scalar sou_q = 0.75*aa_quad - contract(logn.derive_cov(gamma), 0,
 					   logn.derive_con(gamma), 0) ;
 
+
+    Tensor t_tmp = contract(gamma.connect().get_delta(), 2, 
+			    gamma.connect().get_delta(), 0) ;
+
     Scalar tmp_1 = 0.25* contract( gamma.con(), 0, 1, 
-	    contract( gamma.connect().get_delta(), 0, 2,
-		      gamma.connect().get_delta(), 2, 0), 0, 1 ) ;
+	    contract(t_tmp, 0, 3), 0, 1 ) ;
 
     Scalar tmp_2 = 0.25* contract( gamma.con(), 0, 1, 
 	      contract( contract( gamma.connect().get_delta(), 0, 1), 
