@@ -32,6 +32,9 @@ char sym_tensor_tt_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/11/04 09:35:27  e_gourgoulhon
+ * First operational version of update_tp().
+ *
  * Revision 1.2  2003/11/03 22:33:36  e_gourgoulhon
  * Added methods update_tp and set_eta_mu.
  *
@@ -148,11 +151,19 @@ void Sym_tensor_tt::update_tp() {
 
 	assert( (p_eta != 0x0) && (p_mu != 0x0) ) ; 
 	
-	// h^{r theta} :
-	set(1,2) = p_eta->srdsdt() - p_mu->srstdsdp() ; 
+	
+    Itbl idx(2) ;
+    idx.set(0) = 1 ;	// r index
+	
+	// h^{r theta} : 
+	// ------------
+	idx.set(1) = 2 ;	// theta index
+	*cmp[position(idx)] = p_eta->srdsdt(0) - p_mu->srstdsdp(0) ; 
 	
 	// h^{r phi} :
-	set(1,3) = p_eta->srstdsdp() + p_mu->srdsdt() ; 
+	// ------------
+	idx.set(1) = 3 ;	// phi index
+	*cmp[position(idx)] = p_eta->srstdsdp(0) + p_mu->srdsdt(0) ; 
 	
 	Sym_tensor_trans::del_deriv() ; //## in order not to delete p_eta and p_mu
 	
