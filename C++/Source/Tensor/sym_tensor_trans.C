@@ -32,6 +32,9 @@ char sym_tensor_trans_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/03/03 13:22:14  j_novak
+ * The case where dzpuis = 0 is treated in tt_part().
+ *
  * Revision 1.5  2004/02/18 18:48:39  e_gourgoulhon
  * Method trace() renamed the_trace() to avoid any confusion with
  * the new method Tensor::trace().
@@ -203,21 +206,25 @@ const Scalar& Sym_tensor_trans::the_trace() const {
 
 
 const Sym_tensor_tt& Sym_tensor_trans::tt_part() const {
+  
+  if (p_tt == 0x0) {   // a new computation is necessary
 
-	if (p_tt == 0x0) {   // a new computation is necessary
+    int dzp = the_trace().get_dzpuis() ;
 
-        p_tt = new Sym_tensor_tt(*mp, *triad, *met_div) ; 
+    assert((dzp == 0) || (dzp == 4)) ;
+
+    p_tt = new Sym_tensor_tt(*mp, *triad, *met_div) ; 
         
-        Scalar pot =  the_trace().poisson() ; 
+    Scalar pot =  the_trace().poisson() ; 
 
-        Sym_tensor tmp = (pot.derive_con(*met_div)).derive_con(*met_div) ; 
-        tmp.inc_dzpuis() ;  //## to be improved ?
+    Sym_tensor tmp = (pot.derive_con(*met_div)).derive_con(*met_div) ; 
+    (dzp == 4) ? tmp.inc_dzpuis() : tmp.dec_dzpuis(3) ;  //## to be improved ?
         
-        *p_tt = *this - 0.5 * ( the_trace() * met_div->con() - tmp ) ; 
+    *p_tt = *this - 0.5 * ( the_trace() * met_div->con() - tmp ) ; 
 		
-	}
+  }
 	
-	return *p_tt ; 
+  return *p_tt ; 
 
 }
 
