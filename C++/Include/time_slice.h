@@ -29,6 +29,12 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/04/05 21:21:51  e_gourgoulhon
+ * class Time_slice_conf: added method initial_data_cts (computation of
+ *  initial data from conformally thin sandwich method).
+ * classes  Time_slice_conf and Tslice_dirac_max: added constructor as
+ *  standard time slice of Minkowski spacetime.
+ *
  * Revision 1.7  2004/04/01 16:09:01  j_novak
  * Trace of K_ij is now member of Time_slice (it was member of Time_slice_conf).
  * Added new methods for checking 3+1 Einstein equations (preliminary).
@@ -469,7 +475,21 @@ class Time_slice_conf : public Time_slice {
                const Sym_tensor& gamma_in, const Sym_tensor kk_in,
                const Metric_flat& ff_in, int depth_in = 3) ; 
                
-               
+    /** Constructor as standard time slice of flat spacetime (Minkowski). 
+     *
+     *  @param mp Mapping on which the various Lorene fields will be constructed
+     *  @param triad vector basis with respect to which the various tensor
+     *      components will be defined
+     *  @param ff_in reference flat metric with respect to which the
+     *           conformal decomposition is performed
+     *  @param depth_in  number of stored time slices; this parameter is used
+     *                   to set the \c scheme_order member with \c scheme_order
+     *                   = \c depth_in - 1. \c scheme_order can be changed 
+     *                   afterwards by the method \c set_scheme_order(int).
+     */
+    Time_slice_conf(const Map& mp, const Base_vect& triad, 
+                    const Metric_flat& ff_in, int depth_in = 3) ; 
+    
     Time_slice_conf(const Time_slice_conf& ) ;	///< Copy constructor
 
     virtual ~Time_slice_conf() ;			///< Destructor
@@ -581,7 +601,34 @@ class Time_slice_conf : public Time_slice {
         virtual const Vector& hdirac() const ; 
         
         
-
+    // Computational methods
+    // ---------------------
+    public:
+        /** Computes valid initial data by solving the constraint 
+         * equations in the conformal thin-sandwich approach.
+         *
+         *  @param hh_in value of \f$ h^{ij} \f$ (freely specifiable data)
+         *  @param uu value of 
+         *    \f$ {\tilde u}^{ij} = \partial h^{ij} /\partial t \f$ 
+         *                  (freely specifiable data)
+         *  @param trk_in value of \f$ K = K_i^{\ i} \f$ 
+         *      (freely specifiable data)
+         *  @param trk_point value of \f$ \partial K / \partial t \f$ 
+         *      (freely specifiable data)
+         *  @param ener_dens matter energy density \c E as measured by the 
+         *      Eulerian observer; this quantity is passed as a pointer,
+         *      the null value of which (default) meaning \c E=0.
+         *  @param mom_dens matter momentum density \c J as measured by the 
+         *      Eulerian observer; this quantity is passed as a pointer,
+         *      the null value of which (default) meaning \c J=0.
+         *  @param trace_stress trace of the matter stress \c S as measured 
+         *      by the Eulerian observer; this quantity is passed as a pointer,
+         *      the null value of which (default) meaning \c E=0.
+         */
+         void initial_data_cts(const Sym_tensor& hh_in, 
+                const Sym_tensor& uu, const Scalar& trk_in, 
+                const Scalar& trk_point, const Scalar* ener_dens=0x0,
+                const Vector* mom_dens=0x0, const Scalar* trace_stress=0x0 ) ; 
         
     // Outputs
     // -------
@@ -630,6 +677,22 @@ class Tslice_dirac_max : public Time_slice_conf {
             const Sym_tensor_trans& hh_in, const Sym_tensor aa_in, 
             int depth_in = 3) ;	
 	
+    /** Constructor as standard time slice of flat spacetime (Minkowski). 
+     *
+     *  @param mp Mapping on which the various Lorene fields will be constructed
+     *  @param triad vector basis with respect to which the various tensor
+     *      components will be defined
+     *  @param ff_in reference flat metric with respect to which the
+     *           conformal decomposition is performed
+     *  @param depth_in  number of stored time slices; this parameter is used
+     *                   to set the \c scheme_order member with \c scheme_order
+     *                   = \c depth_in - 1. \c scheme_order can be changed 
+     *                   afterwards by the method \c set_scheme_order(int).
+     */
+    Tslice_dirac_max(const Map& mp, const Base_vect& triad, 
+                     const Metric_flat& ff_in, int depth_in = 3) ; 
+    
+    
 	Tslice_dirac_max(const Tslice_dirac_max& ) ;   ///< Copy constructor
 
 	virtual ~Tslice_dirac_max() ;			///< Destructor
