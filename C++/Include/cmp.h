@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/06/20 14:16:10  f_limousin
+ * Add the function compare().
+ *
  * Revision 1.6  2003/06/20 09:27:09  j_novak
  * Modif commentaires.
  *
@@ -1014,6 +1017,15 @@ class Cmp {
 	 */
 	Valeur** asymptot(int n, const int flag = 0) const ; 
 	
+	/// Function to compare the values of two Cmp
+
+	void compare(FILE* fich, const char* name_i) ;
+	void compare(const Cmp& comp, const char* name, int ii = -1
+		     , int jj = -1) ;
+ 
+
+
+
     // PDE resolution 
     // --------------
     public:
