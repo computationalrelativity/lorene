@@ -30,6 +30,9 @@ char init_bin_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/09/06 14:06:51  e_gourgoulhon
+ * "void main()" changed to "int main()".
+ *
  * Revision 1.2  2003/01/09 11:07:49  j_novak
  * headcpp.h is now compliant with C++ norm.
  * The include files have been ordered, as well as the local_settings_linux
@@ -58,7 +61,7 @@ char init_bin_regu_C[] = "$Header$" ;
 
 //******************************************************************************
 
-void main(){
+int main(){
     
 
     // Identification of all the subroutines called by the code : 
@@ -354,7 +357,7 @@ void main(){
     delete peos1 ;    
     delete peos2 ;    
 
-    exit(EXIT_SUCCESS) ; 
-    
+    return EXIT_SUCCESS ; 
+
     
 }
