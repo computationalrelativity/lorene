@@ -26,6 +26,9 @@ char binhor_kij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/03/03 13:49:35  f_limousin
+ * Add the spectral bases for both Scalars decouple.
+ *
  * Revision 1.3  2005/02/07 10:48:00  f_limousin
  * The extrinsic curvature can now be computed in the case N=0 on the
  * horizon.
@@ -407,9 +410,6 @@ void Bin_hor::extrinsic_curvature () {
 
 //      cout << "aa_un" << endl << norme(aa_un(1,1)) << endl << norme(aa_un(2,1)) << endl << norme(aa_un(3,1)) << endl << norme(aa_un(2,2)) << endl << norme(aa_un(3,2)) << endl << norme(aa_un(3,3)) << endl ;
 
-
-//      aa_un.spectral_display("aa_un") ;
-
       aa_un.change_triad(hole1.mp.get_bvect_spher()) ;
       aa_deux.change_triad(hole2.mp.get_bvect_spher()) ;
       aa_auto_un.change_triad(hole1.mp.get_bvect_spher()) ;
@@ -587,6 +587,10 @@ void Bin_hor::decouple () {
 			 decouple_deux.set_grid_point(nz_un-1, k, j, nr)=0.5 ;
    }
    
-   hole1.decouple = decouple_un ;
-   hole2.decouple = decouple_deux ;
+    decouple_un.std_spectral_base() ;
+    decouple_deux.std_spectral_base() ;
+    
+    hole1.decouple = decouple_un ;
+    hole2.decouple = decouple_deux ;
+    
 }
