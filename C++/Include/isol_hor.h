@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/11/02 17:42:33  f_limousin
+ * New method sauve(...) to save in a binary file.
+ *
  * Revision 1.8  2004/11/02 16:15:12  f_limousin
  * Add new argument ang_vel in function init_dat(...).
  *
@@ -102,9 +105,14 @@ class Isol_hor : public Time_slice_conf {
 	   const Sym_tensor& gamma_in, const Sym_tensor kk_in, 
 	   const Metric_flat& ff_in, int depth_in = 3) ;	
   
-  Isol_hor(const Isol_hor& ) ;   ///< Copy constructor
+  Isol_hor(const Isol_hor& ) ;   /// Copy constructor
+
+  Isol_hor (const Map& mp, const Base_vect& triad, 
+	    const Metric_flat& ff_in, FILE* fich, 
+	    bool partial_read, int depth_in) ;   ///  Constructor from a 
+                                                  ///  binary file
   
-  virtual ~Isol_hor() ;			///< Destructor
+  virtual ~Isol_hor() ;			/// Destructor
   
 
   // Mutators / assignment
@@ -244,7 +252,16 @@ class Isol_hor : public Time_slice_conf {
   /// Operator >> (virtual function called by the operator<<). 
   virtual ostream& operator>>(ostream& ) const ;	
   
-  
+
+  public :
+  /** Total or partial saves in a binary file.
+   *  
+   *  @param fich binary file 
+   *  @param partial_save indicates whether the whole object must be
+   *      saved.
+   */
+  virtual void sauve(FILE* fich, bool partial_save) const ; 
+    
   
 };
 #endif

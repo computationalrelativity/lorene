@@ -28,8 +28,8 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
- * Revision 1.7  2004/11/02 16:27:07  f_limousin
- * Add new parameter ang_vel in function init_data(...).
+ * Revision 1.8  2004/11/02 17:42:00  f_limousin
+ * New method sauve(...) to save in a binary file.
  *
  * Revision 1.6  2004/10/29 15:41:02  jl_jaramillo
  * ADM angular momentum added
@@ -190,7 +190,7 @@ int main() {
     gammat_dd_init.set(2,2) = 1. ;
     gammat_dd_init.set(3,3) = 1. ;
     gammat_dd_init.set(2,1) = 0. ;
-    gammat_dd_init.set(3,1) = 0.001 * unsr ;
+    gammat_dd_init.set(3,1) = 0. ;
     gammat_dd_init.set(3,2) = 0. ;
     gammat_dd_init.std_spectral_base() ;
 
@@ -276,7 +276,7 @@ int main() {
     gammat_dd_init.set(2,2) = 1. ;
     gammat_dd_init.set(3,3) = 1. ;
     gammat_dd_init.set(2,1) = 0. ;
-    gammat_dd_init.set(3,1) = 0.001*unsr ;
+    gammat_dd_init.set(3,1) = 0. ;
     gammat_dd_init.set(3,2) = 0. ;
     gammat_dd_init.std_spectral_base() ;
 
@@ -297,9 +297,9 @@ int main() {
     isolhor.init_data(tmp_sym, trk, tmp_scal, seuil, relax, 
 			     niter, ang_vel) ;
 
-    //    FILE* fresu = fopen("resu.d", "w") ; 
-    //    isolhor.sauve(fresu) ;
-    //    fclose(fresu) ;     
+    FILE* fresu = fopen("resu.d", "w") ;
+    isolhor.sauve(fresu, true) ;
+    fclose(fresu) ;     
     
 
     // Test of the constraints

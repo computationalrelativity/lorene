@@ -30,6 +30,9 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/11/02 17:42:16  f_limousin
+ * New method sauve(...) to save in a binary file.
+ *
  * Revision 1.3  2004/10/29 15:44:45  jl_jaramillo
  * Remove two members
  *
@@ -82,6 +85,17 @@ Isol_hor::Isol_hor(const Scalar& lapse_in, const Vector& shift_in,
 
 Isol_hor::Isol_hor(const Isol_hor& isolhor_in) 
                     : Time_slice_conf(isolhor_in){}
+
+// Constructor from a file
+// -----------------------
+
+Isol_hor::Isol_hor(const Map& mp, const Base_vect& triad, 
+		   const Metric_flat& ff_in, FILE* fich, 
+		   bool partial_read, int depth_in)
+    : Time_slice_conf(mp, triad, ff_in, fich, partial_read, depth_in){}
+
+
+
 			    //--------------//
 			    //  Destructor  //
 			    //--------------//
@@ -111,3 +125,21 @@ ostream& Isol_hor::operator>>(ostream& flux) const {
 
 }
 
+
+                //--------------------------//
+                //      Save in a file      //
+                //--------------------------//
+
+
+void Isol_hor::sauve(FILE* fich, bool partial_save) const {
+
+
+    // Writing of quantities common to all derived classes of Time_slice
+    // -----------------------------------------------------------------
+    
+    Time_slice_conf::sauve(fich, true) ; 
+    
+    // Writing of quantities common to all derived classes of Isol_hor
+    // ---------------------------------------------------------------
+
+}
