@@ -31,6 +31,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/11/25 07:53:53  e_gourgoulhon
+ * Added directives
+ *        using Evolution<TyT>::...
+ * to comply with g++ 3.4.
+ *
  * Revision 1.10  2004/05/11 20:11:49  e_gourgoulhon
  * Class Evolution:
  *  -- suppressed method get_jtop()
@@ -245,6 +250,18 @@ template<typename TyT> class Evolution {
  */
 template<typename TyT> class Evolution_full : public Evolution<TyT> {
 
+    using Evolution<TyT>::size ; 
+    using Evolution<TyT>::step ; 
+    using Evolution<TyT>::the_time ; 
+    using Evolution<TyT>::val ; 
+    using Evolution<TyT>::pos_jtop ; 
+    using Evolution<TyT>::downdate ; 
+    using Evolution<TyT>::position ; 
+    using Evolution<TyT>::get_time ; 
+    using Evolution<TyT>::get_size ; 
+    using Evolution<TyT>::j_min ; 
+    using Evolution<TyT>::j_max ; 
+    using Evolution<TyT>::is_known ; 
         
     // Data:
     // -----
@@ -333,7 +350,19 @@ template<typename TyT> class Evolution_full : public Evolution<TyT> {
  */
 template<typename TyT> class Evolution_std : public Evolution<TyT> {
 
-        
+    using Evolution<TyT>::size ; 
+    using Evolution<TyT>::step ; 
+    using Evolution<TyT>::the_time ; 
+    using Evolution<TyT>::val ; 
+    using Evolution<TyT>::pos_jtop ; 
+    using Evolution<TyT>::downdate ; 
+    using Evolution<TyT>::position ; 
+    using Evolution<TyT>::get_time ; 
+    using Evolution<TyT>::get_size ; 
+    using Evolution<TyT>::j_min ; 
+    using Evolution<TyT>::j_max ; 
+    using Evolution<TyT>::is_known ; 
+                
     // Constructors - Destructor
     // -------------------------
     public:
