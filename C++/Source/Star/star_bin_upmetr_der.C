@@ -32,6 +32,10 @@ char star_bin_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2005/02/24 16:07:23  f_limousin
+ * Improve the computation of dlogn, dlnq and dlnpsi. We import the part
+ * coming from the companion and add the auto part.
+ *
  * Revision 1.11  2005/02/18 13:14:18  j_novak
  * Changing of malloc/free to new/delete + suppression of some unused variables
  * (trying to avoid compilation warnings).
@@ -80,12 +84,67 @@ void Star_bin::update_metric_der_comp(const Star_bin& ) {
   // Derivatives of metric coefficients
   // ----------------------------------
   
-    dcov_logn = logn.derive_cov(flat) ;
-    dcon_logn = logn.derive_con(flat) ;
+    // dlogn
+    //--------
+    
+    Vector dlogn_comp (mp, COV, mp.get_bvect_cart()) ;
+    dlogn_comp.set_etat_qcq() ;
+    Vector auxi (comp.logn_auto.derive_cov(comp.flat)) ;
+    auxi.dec_dzpuis(2) ;
+    auxi.change_triad(auxi.get_mp().get_bvect_cart()) ;
+    auxi.change_triad(mp.get_bvect_cart()) ;
+    assert ( *(auxi.get_triad()) == *(dlogn_comp.get_triad())) ;
 
-    Scalar lnpsi = 0.5 * (lnq - logn) ;
-    dcov_lnpsi = lnpsi.derive_cov(flat) ;
-    dcon_lnpsi = lnpsi.derive_con(flat) ;
+    dlogn_comp.set(1).import_symy(auxi(1)) ;
+    dlogn_comp.set(2).import_asymy(auxi(2)) ;
+    dlogn_comp.set(3).import_symy(auxi(3)) ;
+    dlogn_comp.std_spectral_base() ;
+    dlogn_comp.inc_dzpuis(2) ;
+    dlogn_comp.change_triad(mp.get_bvect_spher()) ;
+  
+    dlogn = logn_auto.derive_cov(flat) + dlogn_comp ;
+
+    // dlnpsi
+    //--------
+
+    Scalar lnpsi_auto  = 0.5 * (lnq_auto - logn_auto) ;
+    
+    Vector dlnpsi_comp (mp, COV, mp.get_bvect_cart()) ;
+    dlnpsi_comp.set_etat_qcq() ;
+    auxi = 0.5*(comp.lnq_auto - comp.logn_auto).derive_cov(comp.flat) ;
+    auxi.dec_dzpuis(2) ;
+    auxi.change_triad(auxi.get_mp().get_bvect_cart()) ;
+    auxi.change_triad(mp.get_bvect_cart()) ;
+    assert ( *(auxi.get_triad()) == *(dlnpsi_comp.get_triad())) ;
+    
+    dlnpsi_comp.set(1).import_symy(auxi(1)) ;
+    dlnpsi_comp.set(2).import_asymy(auxi(2)) ;
+    dlnpsi_comp.set(3).import_symy(auxi(3)) ;
+    dlnpsi_comp.std_spectral_base() ;
+    dlnpsi_comp.inc_dzpuis(2) ;
+    dlnpsi_comp.change_triad(mp.get_bvect_spher()) ;
+    
+    dlnpsi = lnpsi_auto.derive_cov(flat) + dlnpsi_comp ;
+    
+    // dlnq
+    //-------
+
+    Vector dlnq_comp (mp, COV, mp.get_bvect_cart()) ;
+    dlnq_comp.set_etat_qcq() ;
+    auxi = comp.lnq_auto.derive_cov(comp.flat) ;
+    auxi.dec_dzpuis(2) ;
+    auxi.change_triad(auxi.get_mp().get_bvect_cart()) ;
+    auxi.change_triad(mp.get_bvect_cart()) ;
+    assert ( *(auxi.get_triad()) == *(dlnq_comp.get_triad())) ;
+    
+    dlnq_comp.set(1).import_symy(auxi(1)) ;
+    dlnq_comp.set(2).import_asymy(auxi(2)) ;
+    dlnq_comp.set(3).import_symy(auxi(3)) ;
+    dlnq_comp.std_spectral_base() ;
+    dlnq_comp.inc_dzpuis(2) ;
+    dlnq_comp.change_triad(mp.get_bvect_spher()) ;
+    
+    dlnq = lnq_auto.derive_cov(flat) + dlnq_comp ;
 
     // New value of hh_auto and hh_comp
     // ----------------------------------
@@ -95,36 +154,19 @@ void Star_bin::update_metric_der_comp(const Star_bin& ) {
     hh_comp = hh_comp + (hh - hh_auto - hh_comp) * (1-decouple) ;
 
 
-    // Computation of aa_comp
+    // Computation of A^{ij}_comp
+    // --------------------------
+    
+    aa_comp = beta_comp.ope_killing_conf(gtilde) ;
+      
+    aa_comp = 0.5 * aa_comp / nn ;
+      
+    // Computation of aa_quad_comp
     // ------------------------
-    
-    // Gradient tilde (partial derivatives with respect to
-    //           the Spherical coordinates of the mapping)
-    // D~^j beta^i
-    
-    const Tensor& dbeta_comp = beta_comp.derive_con(gtilde) ;
-    
-    // Trace of D~_j beta^i  :
-    Scalar divbeta_comp = beta_comp.divergence(gtilde) ;
-    
-    // Computation of A^{ij}
-    // -------------------------
-      
-    for (int i=1; i<=3; i++) 
-	for (int j=i; j<=3; j++) {
 
-	  aa_comp.set(i, j) = dbeta_comp(i, j) + dbeta_comp(j, i) - 
-	    double(2) /double(3) * divbeta_comp * (gtilde.con())(i,j) ; 
-	}
-      
-      aa_comp = 0.5 * aa_comp / nn ;
-      
-      // Computation of aa_quad_comp
-      // ------------------------
+    Tensor aa_auto_dd = aa_auto.down(0, gtilde).down(1, gtilde) ;
 
-      Tensor aa_auto_cov = aa_auto.down(0, gtilde).down(1, gtilde) ;
-
-      aa_quad_comp = contract(aa_auto_cov, 0, 1, aa_comp, 0, 1, true) ; 
+    aa_quad_comp = contract(aa_auto_dd, 0, 1, aa_comp, 0, 1, true) ; 
 
 }      
 
