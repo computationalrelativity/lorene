@@ -30,6 +30,10 @@ char time_slice_conf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/05/05 14:31:14  e_gourgoulhon
+ * Method aa(): added *as a comment*  annulation of hh_point in the compactified
+ * domain.
+ *
  * Revision 1.8  2004/05/03 14:47:11  e_gourgoulhon
  * Corrected method aa().
  *
@@ -579,7 +583,12 @@ const Sym_tensor& Time_slice_conf::aa() const {
 
         Sym_tensor hh_point = hh_evol.time_derive(jtime, scheme_order) ; 
         hh_point.inc_dzpuis(2) ; // dzpuis : 0 -> 2
-
+    
+    //##
+    //        int nz = nn().get_mp().get_mg()->get_nzone() ; 
+    //        hh_point.annule_domain(nz-1) ; 
+    //##
+        
         Sym_tensor resu = hh_point - hh().derive_lie(beta()) 
             - 0.6666666666666666 * beta().divergence(ff) * hh()
             + beta().ope_killing_conf(ff) ; 
