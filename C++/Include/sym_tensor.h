@@ -30,6 +30,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/11/04 22:57:26  e_gourgoulhon
+ * Class Sym_tensor_tt: method set_eta_mu renamed set_rr_eta_mu
+ *    method update_tp() renamed update()
+ *    added method set_rr_mu.
+ *
  * Revision 1.4  2003/11/03 22:29:54  e_gourgoulhon
  * Class Sym_tensor_tt: added functions set_eta_mu and update_tp.
  *
@@ -409,21 +414,38 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	/// Assignment from a {\tt Tensor}
 	virtual void operator=(const Tensor&) ;	
 	
-	/** Sets the angular potentials $\eta$ and $\mu$ (see members
+	/** Sets the component $h^{rr}$, as well as the angular potentials 
+	 * $\eta$ and $\mu$ (see members
 	 *  {\tt p\_eta} and {\tt p\_mu}). 
-	 *  The components $h^{r\theta}$ and $h^{r\varphi}$ are updated consistently
-	 *  by a call to the method {\tt update\_tp()}.
+	 *  The other components are updated consistently
+	 *  by a call to the method {\tt update()}.
 	 *
+	 *	@param hrr [input] value of $h^{rr}$
 	 *	@param eta_i [input] angular potential $\eta$
 	 *	@param mu_i [input] angular potential $\mu$
 	 *
 	 */
-	void set_eta_mu(const Scalar& eta_i, const Scalar& mu_i) ; 
+	void set_rr_eta_mu(const Scalar& hrr, const Scalar& eta_i, 
+						const Scalar& mu_i) ; 
+	
+	/** Sets the component $h^{rr}$, as well as the angular potential
+	 * $\mu$ (see member {\tt p\_mu}). 
+	 * The angular potential $\eta$ (member {\tt p\_eta}) is deduced from
+	 * the divergence free condition. 
+	 * The other tensor components are updated consistently
+	 * by a call to the method {\tt update()}.
+	 *
+	 *	@param hrr [input] value of $h^{rr}$
+	 *	@param mu_i [input] angular potential $\mu$
+	 *
+	 */
+	void set_rr_mu(const Scalar& hrr, const Scalar& mu_i) ; 
 	
 	
 	// Computational methods
 	// ---------------------
 	
+	public:
 	/** Gives the field $\eta$ such that the components $(h^{r\theta}, h^{r\varphi})$
 	 * of the tensor are written:
 	 * \begin{equation}
@@ -453,19 +475,13 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	const Scalar& mu() const ;
 	
 
-	/** Computes the components $(h^{r\theta}, h^{r\varphi})$ from the
-	 *  potential $\eta$ and  $\mu$, according to:
-	 * \begin{equation}
-	 *	h^{r\theta} =  {1\over r} \left( {\partial \eta \over \partial\theta}
-	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right) 
-	 * \end{equation} 
-	 * \begin{equation}
-	 *	h^{r\varphi} =  {1\over r} \left( {1\over\sin\theta} 
-	 *				{\partial \eta \over \partial\varphi}
-	 *				+ {\partial \mu \over \partial\theta} \right)
+	protected:
+	/** Computes the components $h^{r\theta}$, $h^{r\varphi}$,
+	 * $h^{\theta\theta}$, $h^{\theta\varphi}$ and $h^{\varphi\varphi}$,
+	 *  from $h^{rr}$ and the potentials $\eta$ and $\mu$
 	 * \end{equation} 
 	 */
-	void update_tp() ;
+	void update() ;
 	
 
 } ; 
