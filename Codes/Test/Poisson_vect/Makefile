@@ -11,7 +11,7 @@ OBJ1 = $(SRC1:.C=.o)
 EXE1 = $(SRC1:.C=)
 
 
-$(EXE1): $(OBJ1)
+$(EXE1): $(OBJ1) $(HOME_LORENE)/Lib/liblorene_g.a
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_PGPLOT) $(LIB_CXX)
 

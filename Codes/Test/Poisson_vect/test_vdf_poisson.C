@@ -28,6 +28,9 @@ char test_vdf_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/20 19:46:41  e_gourgoulhon
+ * First successful version.
+ *
  * Revision 1.1  2003/10/20 14:46:22  e_gourgoulhon
  * First version
  *
@@ -119,13 +122,7 @@ int main() {
 	cout << "mu : " << endl ; 
 	cout << "----" << endl ; 
 	vvs.mu().spectral_display() ; 
-	
-	cout << "Norme divergence vvc : " << norme( vvc.divergence(metc) ) << endl ; 
-	cout << "Norme divergence vvs : " << norme( vvs.divergence(mets) ) << endl ; 
-	cout << "Max divergence vvc : " << max( abs(vvc.divergence(metc)) ) << endl ; 
-	cout << "Max divergence vvs : " << max( abs(vvs.divergence(mets)) ) << endl ; 
-	arrete() ; 
-		
+			
 	Vector_divfree wws = vvs.poisson() ; 
 	
 	cout << "Solution wws : " << endl ;
