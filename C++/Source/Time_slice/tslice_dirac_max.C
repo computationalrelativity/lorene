@@ -30,6 +30,9 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/04/05 21:22:49  e_gourgoulhon
+ * Added constructor as standard time slice of Minkowski spacetime.
+ *
  * Revision 1.1  2004/03/30 14:00:31  j_novak
  * New class Tslide_dirac_max (first version).
  *
@@ -66,10 +69,33 @@ Tslice_dirac_max::Tslice_dirac_max(const Scalar& lapse_in, const Vector& shift_i
 		     0*lapse_in, depth_in), 
     khi_evol(hh_in.tt_part().khi(), depth_in), 
     mu_evol(hh_in.tt_part().mu(), depth_in),
-    trh_evol(hh_in.the_trace(), depth_in) {
-
-}
+    trh_evol(hh_in.the_trace(), depth_in) { }
                  
+
+// Constructor as standard time slice of flat spacetime (Minkowski) 
+// ----------------------------------------------------------------
+
+Tslice_dirac_max::Tslice_dirac_max(const Map& mp, const Base_vect& triad, 
+                                   const Metric_flat& ff_in, int depth_in) 
+        : Time_slice_conf(mp, triad, ff_in, depth_in),
+          khi_evol(depth_in),   
+          mu_evol(depth_in),   
+          trh_evol(depth_in) {
+
+    double time_init = the_time[jtime] ; 
+    
+    // khi identically zero:
+    Scalar tmp(mp) ; 
+    tmp.set_etat_zero() ; 
+    khi_evol.update(tmp, jtime, time_init) ; 
+    
+    // mu identically zero:
+    mu_evol.update(tmp, jtime, time_init) ; 
+    
+    // tr h identically zero:
+    trh_evol.update(tmp, jtime, time_init) ; 
+    
+}   
 
 
 
@@ -80,16 +106,14 @@ Tslice_dirac_max::Tslice_dirac_max(const Tslice_dirac_max& tin)
                     : Time_slice_conf(tin), 
                       khi_evol(tin.khi_evol), 
                       mu_evol(tin.mu_evol),
-                      trh_evol(tin.trh_evol) {
-
-}
+                      trh_evol(tin.trh_evol) { }
+                      
+                      
 			    //--------------//
 			    //  Destructor  //
 			    //--------------//
 
-Tslice_dirac_max::~Tslice_dirac_max(){
-
-}
+Tslice_dirac_max::~Tslice_dirac_max(){ }
 
 
                     //-----------------------//
