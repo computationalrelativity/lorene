@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/11/25 13:44:15  m_bejger
+ * Declared some vectors for Eos_tabul::read_table()
+ *
  * Revision 1.5  2003/11/21 16:19:09  m_bejger
  * Added new tables: lognb, dlpsdlnb
  *
@@ -135,12 +138,16 @@ class Eos_tabul : public Eos {
     	/// Table of $d\log P/d\log H$
     	Tbl* dlpsdlh ;
 
-    	/// Table of $d\log n_b$
+    	/// Table of $\log n_b$
     	Tbl* lognb ;
     	
         /// Table of $d\log P/d\log nb$
         Tbl* dlpsdlnb ;
-                
+
+        double* press ; 
+        double* nb ; 
+        double* ro ;
+        
                 
     // Constructors - Destructor
     // -------------------------
