@@ -1,6 +1,6 @@
 /*
  *   Copyright (c) 1999-2000 Jean-Alain Marck
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2003 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -26,6 +26,9 @@ char map_af_fait_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/15 10:34:46  e_gourgoulhon
+ * Added new Coord's: drdt and stdrdp.
+ *
  * Revision 1.2  2002/10/16 14:36:41  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -81,7 +84,7 @@ char map_af_fait_C[] = "$Header$" ;
 Mtbl* map_af_fait_r(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_af* cv = (const Map_af*) cvi ;
+    const Map_af* cv = static_cast<const Map_af*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -145,7 +148,7 @@ Mtbl* map_af_fait_r(const Map* cvi) {
 Mtbl* map_af_fait_tet(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_af* cv = (const Map_af *) cvi ;
+    const Map_af* cv = static_cast<const Map_af*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
         
@@ -183,7 +186,7 @@ Mtbl* map_af_fait_tet(const Map* cvi) {
 Mtbl* map_af_fait_phi(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_af* cv = (const Map_af *) cvi ;
+    const Map_af* cv = static_cast<const Map_af*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -355,7 +358,7 @@ Mtbl* map_af_fait_za(const Map* cvi) {
 Mtbl* map_af_fait_sint(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_af* cv = (const Map_af *) cvi ;
+    const Map_af* cv = static_cast<const Map_af*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -389,7 +392,7 @@ Mtbl* map_af_fait_sint(const Map* cvi) {
 Mtbl* map_af_fait_cost(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_af* cv = (const Map_af *) cvi ;
+    const Map_af* cv = static_cast<const Map_af*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -423,7 +426,7 @@ Mtbl* map_af_fait_cost(const Map* cvi) {
 Mtbl* map_af_fait_sinp(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_af* cv = (const Map_af *) cvi ;
+    const Map_af* cv = static_cast<const Map_af*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -457,7 +460,7 @@ Mtbl* map_af_fait_sinp(const Map* cvi) {
 Mtbl* map_af_fait_cosp(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_af* cv = (const Map_af *) cvi ;
+    const Map_af* cv = static_cast<const Map_af*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -497,7 +500,7 @@ Mtbl* map_af_fait_cosp(const Map* cvi) {
 Mtbl* map_af_fait_xsr(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_af* cv = (const Map_af *) cvi ;
+    const Map_af* cv = static_cast<const Map_af*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -577,7 +580,7 @@ Mtbl* map_af_fait_xsr(const Map* cvi) {
 Mtbl* map_af_fait_dxdr(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_af* cv = (const Map_af *) cvi ;
+    const Map_af* cv = static_cast<const Map_af*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -631,6 +634,42 @@ Mtbl* map_af_fait_dxdr(const Map* cvi) {
     // Termine
     return mti ;
 }
+
+/*
+ ************************************************************************
+ *			    dR/dtheta
+ ************************************************************************
+ */
+
+Mtbl* map_af_fait_drdt(const Map* cvi) {
+
+    // recup de la grille 
+    const Mg3d* mg = cvi->get_mg() ;
+    
+    // Le resultat est nul : 
+    Mtbl* mti = new Mtbl(mg) ;
+    mti->set_etat_zero() ; 
+
+    return mti ; 
+} 
+
+/*
+ ************************************************************************
+ *			    1/sin(theta) dR/dphi
+ ************************************************************************
+ */
+
+Mtbl* map_af_fait_stdrdp(const Map* cvi) {
+
+    // recup de la grille 
+    const Mg3d* mg = cvi->get_mg() ;
+    
+    // Le resultat est nul : 
+    Mtbl* mti = new Mtbl(mg) ;
+    mti->set_etat_zero() ; 
+
+    return mti ; 
+} 
 
 /*
  ************************************************************************
