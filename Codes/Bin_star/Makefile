@@ -6,8 +6,8 @@ LIB_G = -L$(HOME_LORENE)/Lib -llorene_g -llorenef77_g
 
 .SUFFIXES : .o .C
 
-EXE = coal
-SRC = coal.C
+EXE = lit_bin
+SRC = lit_bin.C
 OBJ = $(SRC:.C=.o)
 
 $(EXE): $(OBJ)

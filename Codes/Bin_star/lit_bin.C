@@ -30,8 +30,11 @@ char lit_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:31  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/06/10 10:06:36  f_limousin
+ * "void main" changed to "int main".
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:31  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.17  2001/04/17  11:34:26  eric
  * Modif determination x,y,zdes_min,max (adaptation au cas de
@@ -116,7 +119,7 @@ Cmp raccord_c1(const Cmp& uu, int l1) ;
 
 //******************************************************************************
 
-void main(int argc, char** argv){
+int main(int argc, char** argv){
 
     // Identification of all the subroutines called by the code : 
     
@@ -551,6 +554,8 @@ void main(int argc, char** argv){
     // --------
 
     delete peos1 ;    
-    delete peos2 ;    
+    delete peos2 ; 
+
+    return EXIT_SUCCESS ;
 
 }
