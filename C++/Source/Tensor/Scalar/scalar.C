@@ -35,6 +35,10 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2003/10/28 12:36:10  e_gourgoulhon
+ * Corrected operator=(const Scalar& ci) for the case ETATUN: the
+ * spectral bases are now copied.
+ *
  * Revision 1.18  2003/10/27 14:51:25  e_gourgoulhon
  * Correction of errors in constructor from a Tensor.
  *
@@ -378,6 +382,7 @@ void Scalar::operator=(const Scalar& ci) {
 	
 	case ETATUN: {
 	    set_etat_one() ;
+	    va = ci.va ;	// to copy the spectral bases 
 	    break ;
 	}
 	
