@@ -2,7 +2,7 @@
  *  Solution of the two scalar Poisson equations for rotating stars 
  *  in Dirac gauge.
  *
- *    (see file star_rot_dirac.h for documentation).
+ *    (see file star_rot_Dirac.h for documentation).
  *
  */
 
@@ -31,13 +31,18 @@ char strot_dirac_solvenq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2005/01/31 08:51:48  j_novak
- * New files for rotating stars in Dirac gauge (still under developement).
+ * Revision 1.2  2005/02/02 09:23:20  lm_lin
+ *
+ * Correct a mistake in the calculation of log(N).
  *
  *
  * $Header$
  *
  */
+
+// C headers
+#include<math.h>
+#include <assert.h>
 
 // Lorene headers
 #include "star_rot_dirac.h"
@@ -63,14 +68,18 @@ void Star_rot_Dirac::solve_logn_q(Scalar& ln_q_new) const {
     const Base_vect_spher& bspher = mp.get_bvect_spher() ;
     
     const Vector& dln_psi = ln_psi.derive_cov(mets) ; // D_i ln(Psi)
-    const Vector& dln = logn.derive_cov(mets) ;         // D_i N
+    const Vector& dln = logn.derive_cov(mets) ;         // D_i ln(N)
+
+
 
   //=============================================
   // Source for log(n) containing quadratic terms
   //=============================================
 
     Scalar source_logn = psi4* aa_quad 
-	- contract(dln +2.*dln_psi, 0, logn.derive_con(tgamma), 0) ; 
+      - contract(dln.up_down(mets), 0, dln, 0)
+      - 2.* contract(dln_psi, 0, logn.derive_con(tgamma), 0) ;
+
          
     Tensor_sym tmp(mp, 2, COV, bspher, 0, 1) ;
     tmp = dln.derive_cov(mets) ;
@@ -103,6 +112,8 @@ void Star_rot_Dirac::solve_qqq(Scalar& q_new) const {
         
     source_qq -= tmp ;  
                         
+
+    // tmp = \tilde{R}_{*}/4 + 2 D_i ln(Psi) \tilde{D}^i ln(Psi)
     tmp = 0.0625 * contract( dhh, 0, 1, dtgam, 0, 1 ).trace(tgamma) 
           - 0.125 * contract( dhh, 0, 1, dtgam, 0, 2 ).trace(tgamma) 
           + 2.* contract( dln_psi, 0, ln_psi.derive_con(tgamma), 0) ; 
