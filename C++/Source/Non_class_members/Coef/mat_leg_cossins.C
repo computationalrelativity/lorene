@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 2004 Michael Forot
  *
  *   This file is part of LORENE.
  *
@@ -67,6 +67,9 @@ char mat_leg_cossincs_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/12/17 15:42:02  e_gourgoulhon
+ * l_max = nt instead of nt2.
+ *
  * Revision 1.1  2004/11/23 15:13:50  m_forot
  * Added the bases for the cases without any equatorial symmetry
  * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
@@ -154,11 +157,18 @@ int i, indice,  j,  j2,  m,  l ;
 	    if (m%2==0) {
 // Cas m pair
 //-----------
-		for (l=m; l<nt2; l++) {	// boucle sur les P_{l}^m
+		for (l=m; l<nt; l++) {	// boucle sur les P_{l}^m
+
+		    int parite = 1 - 2*((l-m)%2) ;  // parite du P_l^m par rapport au plan theta=pi/2    		  
 	    
-		    for (j2=0; j2<nt2; j2++) {
-			    yy[j2] = leg[nt2* (l-m) + j2] ;
+		    for (j2=0; j2<nt; j2++) {
+			    yy[j2] = leg[nt2* (l-m) + 2*j2] ;
 		    }
+
+		    for (j2=nt; j2<nt2; j2++) {
+			    yy[j2] = parite * leg[nt2* (l-m) + 2*nt2 -2 - 2*j2] ;
+		    }
+
 
 //....... transformation en cos(j*theta) : 
 
@@ -178,11 +188,18 @@ int i, indice,  j,  j2,  m,  l ;
 // Cas m impair
 //-------------
 
-		for (l=m; l<nt2; l++) {	// boucle sur les P_{l}^m
-	    
-		  for (j2=0; j2<nt2; j2++) {
-			    yy[j2] = leg[nt2* (l-m) + j2] ;
+		for (l=m; l<nt; l++) {	// boucle sur les P_{l}^m
+
+		    int parite = 1 - 2*((l-m)%2) ;  // parite du P_l^m par rapport au plan theta=pi/2    
+          
+		    for (j2=0; j2<nt; j2++) {
+			    yy[j2] = leg[nt2* (l-m) + 2*j2] ;
 		    }
+
+		    for (j2=nt; j2<nt2; j2++) {
+			    yy[j2] = parite * leg[nt2* (l-m) + 2*nt2 -2 - 2*j2] ;
+		    }
+
 
 //....... transformation en sin(j*theta) : 
 
