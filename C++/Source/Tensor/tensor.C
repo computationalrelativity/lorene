@@ -34,6 +34,10 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.29  2004/01/19 16:32:13  e_gourgoulhon
+ * Added operator()(int, int, int, int) and set(int, int, int, int)
+ * for direct access to components of valence 4 tensors.
+ *
  * Revision 1.28  2004/01/04 20:55:23  e_gourgoulhon
  * Method spectral_display(): added printing of type of class (through typeid).
  *
@@ -583,6 +587,24 @@ Scalar& Tensor::set(int ind1, int ind2, int ind3) {
     return *cmp[place] ;
 }
 
+
+// Affectation d'un tenseur d'ordre 4 :
+Scalar& Tensor::set(int ind1, int ind2, int ind3, int ind4) {
+    
+    assert (valence == 4) ;
+    
+    Itbl idx(valence) ;
+    idx.set(0) = ind1 ;
+    idx.set(1) = ind2 ;
+    idx.set(2) = ind3 ;
+    idx.set(3) = ind4 ;
+    int place = position(idx) ;
+    del_deriv() ;
+ 
+    return *cmp[place] ;
+}
+
+
 // Affectation cas general
 Scalar& Tensor::set(const Itbl& idx) {
     
@@ -642,6 +664,21 @@ const Scalar& Tensor::operator()(int indice1, int indice2, int indice3) const {
     idx.set(2) = indice3 ;
     return *cmp[position(idx)] ;
 }
+
+
+const Scalar& Tensor::operator()(int indice1, int indice2, int indice3,
+                                 int indice4) const {
+    
+    assert(valence == 4) ;
+    
+    Itbl idx(4) ;		
+    idx.set(0) = indice1 ;
+    idx.set(1) = indice2 ;
+    idx.set(2) = indice3 ;
+    idx.set(3) = indice4 ;
+    return *cmp[position(idx)] ;
+}
+
 
 
 const Scalar& Tensor::operator()(const Itbl& ind) const {

@@ -36,6 +36,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.40  2004/01/19 16:31:40  e_gourgoulhon
+ * Added operator()(int, int, int, int) and set(int, int, int, int)
+ * for direct access to components of valence 4 tensors.
+ *
  * Revision 1.39  2004/01/15 11:09:27  f_limousin
  * Modif in method contract_desal
  *
@@ -519,6 +523,20 @@ class Tensor {
 	 */
 	Scalar& set(int i1, int i2, int i3) ; 
 	
+	/** Returns the value of a component for a tensor of valence 4
+	 *  (read/write version).
+	 *
+	 * @param i1  value of the first index (1, 2 or 3)
+	 * @param i2  value of the second index (1, 2 or 3)
+	 * @param i3  value of the third index (1, 2 or 3)
+	 * @param i4  value of the fourth index (1, 2 or 3)
+	 *
+	 * @return modifiable reference on the component specified by 
+     *   {\tt (i1,i2,i3,i4)}
+	 *
+	 */
+	Scalar& set(int i1, int i2, int i3, int i4) ; 
+	
 	/**
 	 * Sets the {\tt Tensor} to zero in a given domain.
 	 *	@param l [input]  Index of the domain in which the {\tt Tensor}
@@ -776,6 +794,19 @@ class Tensor {
 	 *
 	 */
 	const Scalar& operator()(int i1, int i2, int i3) const ; 
+	
+	/** Returns the value of a component for a tensor of valence 4
+	 *  (read-only version).
+	 *
+	 * @param i1  value of the first index (1, 2 or 3)
+	 * @param i2  value of the second index (1, 2 or 3)
+	 * @param i3  value of the third index (1, 2 or 3)
+	 * @param i4  value of the fourth index (1, 2 or 3)
+	 *
+	 * @return reference on the component specified by {\tt (i1,i2,i3,i4)}
+	 *
+	 */
+	const Scalar& operator()(int i1, int i2, int i3, int i4) const ; 
 	
     // Member arithmetics
     // ------------------
