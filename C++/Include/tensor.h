@@ -1,10 +1,14 @@
 /*
- *  Definition of Lorene class Tensor
+ *  Definition of Lorene classes Tensor and Sym_tensor
  *
  */
 
 /*
  *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *
+ *   Copyright (c) 1999-2001 Philippe Grandclement (for preceding class Tenseur)
+ *   Copyright (c) 2000-2001 Eric Gourgoulhon      (for preceding class Tenseur)
+ *   Copyright (c) 2002 Jerome Novak               (for preceding class Tenseur)
  *
  *   This file is part of LORENE.
  *
@@ -32,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/09/25 21:01:50  e_gourgoulhon
+ * Improved comments.
+ *
  * Revision 1.5  2003/09/25 13:37:38  j_novak
  * Symmetric tensors of valence 2 are now implemented (not tested yet).
  *
@@ -66,20 +73,20 @@ class Scalar ;
 class Sym_tensor ;
 
 			//-------------------------//
-			//	class Tensor	   //
+			//       class Tensor      //
 			//-------------------------//
 			
 
 /**
  * Tensor handling *** UNDER DEVELOPMENT  ***.
- * This class is intended to replace {\tt Tenseur} and {\tt Cmp} (via
- *  its derived class {\tt Scalar}).
+ *
+ * This class is intended to replace {\tt Tenseur} and {\tt Cmp} (the
+ *  latter via the derived class {\tt Scalar}).
  * 
- * This class is intended to store the components of a tensorial field in 
- * a specific basis. 
+ * The {\tt Tensor} class is intended to store the components of a tensorial 
+ * field in a specific basis (triad).  
  * 
- * All this is {\it 3D} meaning that the indices go from 1 to 3. Moreover,
- * the components are described in orthonormal bases.
+ * All this is {\it 3D} meaning that the indices go from 1 to 3. 
  * 
  * 
  * @version #$Id$#
@@ -99,15 +106,17 @@ class Tensor {
 	 */
 	const Base_vect* triad ; 
 
-	/** Array of size {\tt valence} contening the type of each index, 
-	 * {\tt COV} for a covariant one and {\tt CON} for a contravariant one.
+	/** 1D array of integers (class {\tt Itbl}) of size {\tt valence} 
+	 *  containing the type of each index: 
+	 *  {\tt COV} for a covariant one and {\tt CON} for a contravariant one.
 	 * 
 	 */	
 	Itbl type_indice ;	
 	
 	int n_comp ;	/// Number of stored components, depending on the symmetry.
 
-	Scalar** cmp ;   /// The components.
+	/// Array of size {\tt n\_comp} of pointers onto the components.
+	Scalar** cmp ;   
 
 
     // Derived data : 
@@ -123,7 +132,8 @@ class Tensor {
 	 * 
 	 * @param map   the mapping 
 	 * @param val   valence of the tensor
-	 * @param tipe  1-D {\tt Itbl} of size {\tt valence} containing the type 
+	 * @param tipe  1-D array of integers (class {\tt Itbl}) 
+	 *		of size {\tt valence} containing the type 
 	 *		of each index, {\tt COV} for a covariant one 
 	 *		and {\tt CON} for a contravariant one,  with the 
 	 *		following storage convention: \\
@@ -133,14 +143,15 @@ class Tensor {
 	 * @param triad_i  vectorial basis (triad) with respect to which 
 	 *		    the tensor components are defined 
 	 */
-	Tensor (const Map& map, int val, const Itbl& tipe, 
+	Tensor(const Map& map, int val, const Itbl& tipe, 
 		 	const Base_vect& triad_i) ;
 
 	/** Standard constructor with the triad passed as a pointer.
 	 * 
 	 * @param map   the mapping 
 	 * @param val   valence of the tensor
-	 * @param tipe  1-D {\tt Itbl} of size {\tt valence} containing the type 
+	 * @param tipe  1-D array of integers (class {\tt Itbl}) 
+	 *		of size {\tt valence} containing the type 
 	 *		of each index, {\tt COV} for a covariant one 
 	 *		and {\tt CON} for a contravariant one,  with the 
 	 *		following storage convention: \\
@@ -151,7 +162,7 @@ class Tensor {
 	 *		    to which the tensor components are defined 
 	 *		    (can be set to 0x0 for a scalar field)
 	 */
-	Tensor (const Map& map, int val, const Itbl& tipe, 
+	Tensor(const Map& map, int val, const Itbl& tipe, 
 		 	const Base_vect* triad_i) ;
 
 	/** Standard constructor when all the indices are of 
@@ -159,14 +170,14 @@ class Tensor {
 	 * 
 	 * @param map  the mapping
 	 * @param val   valence of the tensor
-	 * @param tipe  the type of the indices.
+	 * @param tipe  the type ({\tt COV} or {\tt CON}) of the indices.
 	 * @param triad_i  vectorial basis (triad) with respect to which 
 	 *			  the tensor components are defined.
 	 */
-	Tensor (const Map& map, int val, int tipe, 
+	Tensor(const Map& map, int val, int tipe, 
 			const Base_vect& triad_i) ;
 
-	Tensor (const Tensor&) ;  /// Copy constructor
+	Tensor(const Tensor&) ;  /// Copy constructor
 
 	/** Constructor from a file (see {\tt sauve(FILE* )}).
 	 * 
@@ -178,53 +189,59 @@ class Tensor {
 	 * @param fich  file which has been created by 
 	 *			    the function {\tt sauve(FILE* )}.
 	 */
-	Tensor (const Map& map, const Base_vect& triad_i, FILE* fich) ;
+	Tensor(const Map& map, const Base_vect& triad_i, FILE* fich) ;
 
 	/// Constructor from a symmetric tensor.
-	explicit Tensor (const Sym_tensor& );
+	explicit Tensor(const Sym_tensor& );
 	
 	
     protected:
 	/**
-	 *  Constructor for a scalar field: to be used by the derived
-	 *  class {\tt Scalar}
+	 *  Constructor for a scalar field: to be used only by the derived
+	 *  class {\tt Scalar}.
 	 *
 	 */
 	 Tensor(const Map& map) ;
 
 	/**
-	 * Constructor used by derived classes, with symmetries among
-	 *  the components.
+	 * Constructor to be used by derived classes, with symmetries among
+	 *  the components. The number of independent components is
+	 *  given as an argument ({\tt n\_comp\_i}), and not computed
+	 *	from the valence, as in the standard constructor.  
+	 *
 	 * 
 	 * @param map  the mapping
 	 * @param val   valence of the tensor
-	 * @param tipe  1-D {\tt Itbl} of size {\tt valence} containing the type 
+	 * @param tipe  1-D array of integers (class {\tt Itbl}) 
+	 *		of size {\tt valence} containing the type 
 	 *		of each index, {\tt COV} for a covariant one 
 	 *		and {\tt CON} for a contravariant one,  with the 
 	 *		following storage convention: \\
 	 *			{\tt tipe(0)} : type of the first index \\
 	 *			{\tt tipe(1)} : type of the second index \\
 	 *			and so on... 
-	 * @param n_comp  number of stored components.
+	 * @param n_comp_i number of components to be stored
 	 * @param triad_i  vectorial basis (triad) with respect to which 
 	 *			  the tensor components are defined
 	 */	 
-	Tensor (const Map& map, int val, const Itbl& tipe, int n_comp,
+	Tensor(const Map& map, int val, const Itbl& tipe, int n_comp_i,
 		    const Base_vect& triad_i) ;
 
 	/**
 	 * Constructor used by derived classes, with symmetries among
 	 *  the components, when all the indices are of 
-	 *  the same type.
+	 *  the same type. The number of independent components is
+	 *  given as a argument ({\tt n\_comp\_i}), and not computed
+	 *	from the valence, as in the standard constructor.  
 	 * 
 	 * @param map  the mapping
 	 * @param val   valence of the tensor
 	 * @param tipe  the type of the indices.
-	 * @param n_comp  the number of stored components.
+	 * @param n_comp_i  number of components to be stored
 	 * @param triad_i  vectorial basis (triad) with respect to which 
 	 *			  the tensor components are defined
 	 */
-	Tensor (const Map&, int val, int tipe, int n_comp, 
+	Tensor(const Map& map, int val, int tipe, int n_comp_i, 
 		 const Base_vect& triad_i) ;
 
 
@@ -235,7 +252,7 @@ class Tensor {
     // Memory management
     // -----------------
     protected:
-	virtual void del_deriv() ;	/// Deletes derived quantities
+	virtual void del_deriv() ;	/// Deletes the derived quantities
 
     // Mutators / assignment
     // ---------------------
@@ -285,11 +302,43 @@ class Tensor {
 	/// Assignment to another {\tt Tensor}
 	virtual void operator=(const Tensor&) ; 
 	
+	/** Returns the value of a component (read/write version).
+	 *
+	 * @param ind  1-D {\tt Itbl} of size {\tt valence} containing the 
+	 *		values of each index specifing the component,  with the 
+	 *		following storage convention: \\
+	 *			{\tt ind(0)} : value of the first index (1, 2 or 3) \\
+	 *			{\tt ind(1)} : value of the second index (1, 2 or 3) \\
+	 *			and so on... 
+	 * @return modifiable reference on the component specified by {\tt ind}
+	 *
+	 */
+	Scalar& set(const Itbl& ind) ; 
 	
-	Scalar& set(int, int) ; /// Read/write for a tensor of valence 2.
-	Scalar& set(int, int, int) ; /// Read/write for a tensor of valence 3.
-	Scalar& set(const Itbl&) ; /// Read/write in the general case.
-	    
+	/** Returns the value of a component for a tensor of valence 2
+	 *  (read/write version).
+	 *
+	 * @param i1  value of the first index (1, 2 or 3)
+	 * @param i2  value of the second index (1, 2 or 3)
+	 *
+	 * @return modifiable reference on the component specified by {\tt (i1,i2)}
+	 *
+	 */
+	Scalar& set(int i1, int i2) ; 
+	
+	
+	/** Returns the value of a component for a tensor of valence 3
+	 *  (read/write version).
+	 *
+	 * @param i1  value of the first index (1, 2 or 3)
+	 * @param i2  value of the second index (1, 2 or 3)
+	 * @param i3  value of the third index (1, 2 or 3)
+	 *
+	 * @return modifiable reference on the component specified by {\tt (i1,i2,i3)}
+	 *
+	 */
+	Scalar& set(int i1, int i2, int i3) ; 
+	
 	/**
 	 * Sets the {\tt Tensor} to zero in a given domain.
 	 *	@param l [input]  Index of the domain in which the {\tt Tensor}
@@ -327,29 +376,39 @@ class Tensor {
     // ---------
     protected:
 	/**
-	 * Returns the position in the {\tt Scalar} array {\tt cmp} of a 
+	 * Returns the position in the array {\tt cmp} of a 
 	 * component given by its indices.  
 	 *
-	 * @return position in the {\tt Scalar} array {\tt cmp}  
-	 * corresponding to the indices given in {\tt idx}. {\tt idx}
-	 * must be a 1-D {\tt Itbl} of size {\tt valence}, 
-	 * each element of which must be one of the spatial indices 
-	 * 1, 2 or 3. 
+	 * @param ind [input] 1-D array of integers (class {\tt Itbl})
+	 *		 of size {\tt valence} giving the 
+	 *		values of each index specifing the component,  with the 
+	 *		following storage convention: \\
+	 *			{\tt ind(0)} : value of the first index (1, 2 or 3) \\
+	 *			{\tt ind(1)} : value of the second index (1, 2 or 3) \\
+	 *			and so on... 
+	 *
+	 * @return position in the array {\tt cmp} of the pointer to the
+	 *  	{\tt Scalar} containing the component specified by {\tt ind}
 	 */
-	virtual int position(const Itbl& idx) const ;
+	virtual int position(const Itbl& ind) const ;
 
 	/**
 	 * Returns the indices of a component given by its position in the 
-	 * {\tt Scalar} array {\tt cmp}. 
+	 * array {\tt cmp}. 
 	 *
-	 * @return 1-D array of integers ({\tt Itbl}) of
+	 * @param pos [input] position in the array {\tt cmp}
+	 *		of the pointer to the {\tt Scalar} representing a component
+	 *
+	 * @return 1-D array of integers (class {\tt Itbl}) of
 	 *         size {\tt valence} giving the value of each index 
-	 *	   for the component located at the position {\tt place}
-	 *	   in the {\tt Scalar} array {\tt cmp}. 
-	 *	   Each element of this {\tt Itbl} 
-	 *	   contains the spatial index 1, 2 or 3. 
+	 *	   for the component located at the position {\tt pos} in
+	 *		the array [\tt cmp}, with the 
+	 *		following storage convention: \\
+	 *			{\tt Itbl(0)} : value of the first index (1, 2 or 3) \\
+	 *			{\tt Itbl(1)} : value of the second index (1, 2 or 3) \\
+	 *			and so on... 
 	 */
-	virtual Itbl indices(int place) const ;
+	virtual Itbl indices(int pos) const ;
 	
 	public:
 	const Map* get_mp() const {return mp ;} ; /// Returns pointer on the mapping.
@@ -365,7 +424,8 @@ class Tensor {
 	int get_n_comp() const {return n_comp ;} ; 
 	
 	/**
-	 *  Returns the type of the index number {\tt i}. {\tt i} must be
+	 *  Gives the type (covariant or contravariant)
+	 *  of the index number {\tt i}. {\tt i} must be
 	 *  strictly lower than {\tt valence} and obey the following
 	 *		      convention: \\
 	 *			{\tt i} = 0 : first index \\
@@ -380,16 +440,49 @@ class Tensor {
 	/**
 	 * Returns the types of all the indices.
 	 * 
-	 *  @return 1-D {\tt Itbl} of size {\tt valence} containing the type 
-	 *  of each index, {\tt COV} for a covariant one and {\tt CON} 
+	 *  @return 1-D array of integers (class {\tt Itbl}) of size {\tt valence} 
+	 *  containing the type of each index, 
+	 *  {\tt COV} for a covariant one and {\tt CON} 
 	 *  for a contravariant one.
 	 */
-	Itbl get_index_type () const {return type_indice ; } ;
+	Itbl get_index_type() const {return type_indice ; } ;
 
 	
-	const Scalar& operator()(int, int) const ; /// Read only for a tensor of valence 2.
-	const Scalar& operator()(int, int, int) const ; /// Read only for a tensor of valence 3.
-	const Scalar& operator()(const Itbl&) const ; /// Read only in the general case.
+	/** Returns the value of a component (read-only version).
+	 *
+	 * @param ind  1-D {\tt Itbl} of size {\tt valence} containing the 
+	 *		values of each index specifing the component,  with the 
+	 *		following storage convention: \\
+	 *			{\tt ind(0)} : value of the first index (1, 2 or 3) \\
+	 *			{\tt ind(1)} : value of the second index (1, 2 or 3) \\
+	 *			and so on... 
+	 * @return reference on the component specified by {\tt ind}
+	 *
+	 */
+	const Scalar& operator()(const Itbl& ind) const ; 
+
+	/** Returns the value of a component for a tensor of valence 2
+	 *  (read-only version).
+	 *
+	 * @param i1  value of the first index (1, 2 or 3)
+	 * @param i2  value of the second index (1, 2 or 3)
+	 *
+	 * @return reference on the component specified by {\tt (i1,i2)}
+	 *
+	 */
+	const Scalar& operator()(int i1, int i2) const ; 
+
+	/** Returns the value of a component for a tensor of valence 3
+	 *  (read-only version).
+	 *
+	 * @param i1  value of the first index (1, 2 or 3)
+	 * @param i2  value of the second index (1, 2 or 3)
+	 * @param i3  value of the third index (1, 2 or 3)
+	 *
+	 * @return reference on the component specified by {\tt (i1,i2,i3)}
+	 *
+	 */
+	const Scalar& operator()(int i1, int i2, int i3) const ; 
 	
     // Outputs
     // -------
@@ -433,12 +526,10 @@ Tensor operator+(const Tensor&, const Tensor &) ;	/// Tensor + Tensor
 
     //@}
 
-#include "scalar.h"
-
 
 
 			//---------------------------------//
-			//	class Sym_tensor	   //
+			//        class Sym_tensor         //
 			//---------------------------------//
 			
 /**
@@ -457,7 +548,8 @@ class Sym_tensor : public Tensor {
 	/** Standard constructor.
 	 * 
 	 * @param map   the mapping 
-	 * @param tipe  1-D {\tt Itbl} of size 2 containing the type 
+	 * @param tipe  1-D array of integers (class {\tt Itbl}) of size 2 
+	 *		containing the type 
 	 *		of each index, {\tt COV} for a covariant one 
 	 *		and {\tt CON} for a contravariant one,  with the 
 	 *		following storage convention: \\
@@ -466,7 +558,7 @@ class Sym_tensor : public Tensor {
 	 * @param triad_i  vectorial basis (triad) with respect to which 
 	 *			  the tensor components are defined
 	 */
-	Sym_tensor (const Map& map, const Itbl& tipe,const Base_vect& triad_i) ;
+	Sym_tensor(const Map& map, const Itbl& tipe,const Base_vect& triad_i) ;
 
 	/** Standard constructor when both indices are of the same type.
 	 * 
@@ -476,14 +568,14 @@ class Sym_tensor : public Tensor {
 	 *			  the tensor components are defined
 	 * 
 	 */
-	Sym_tensor (const Map& map, int tipe, const Base_vect& triad_i) ;
+	Sym_tensor(const Map& map, int tipe, const Base_vect& triad_i) ;
 
-	Sym_tensor (const Sym_tensor&) ; /// Copy constructor
+	Sym_tensor(const Sym_tensor&) ; /// Copy constructor
 
 	/** Constructor from a {\tt Tensor}.
-	 *  The symmetry is assumed to be true but not checked.
+	 *  The symmetry of the input tensor is assumed to be true but not checked.
 	 */
-	explicit Sym_tensor (const Tensor&) ;
+	explicit Sym_tensor(const Tensor&) ;
 	
 	/** Constructor from a file (see {\tt sauve(FILE* )}).
 	 * 
@@ -495,7 +587,7 @@ class Sym_tensor : public Tensor {
 	 * @param fich  file which has been created by 
 	 *			    the function {\tt sauve(FILE* )}.
 	 */
-	Sym_tensor (const Map& map, const Base_vect& triad_i, FILE* fich) ;
+	Sym_tensor(const Map& map, const Base_vect& triad_i, FILE* fich) ;
 
 	virtual ~Sym_tensor() ;    /// Destructor
 	
@@ -514,29 +606,39 @@ class Sym_tensor : public Tensor {
     // ---------
     public:
 	/**
-	 * Returns the position in the {\tt Scalar} array {\tt cmp} of a 
+	 * Returns the position in the array {\tt cmp} of a 
 	 * component given by its indices.  
 	 *
-	 * @return position in the {\tt Scalar} array {\tt cmp}  
-	 * corresponding to the indices given in {\tt idx}. {\tt idx}
-	 * must be a 1-D {\tt Itbl} of size 2, 
-	 * each element of which must be one of the spatial 
-	 * indices 1, 2 or 3. 
+	 * @param ind [input] 1-D array of integers (class {\tt Itbl})
+	 *		 of size 2 giving the 
+	 *		values of each index specifing the component,  with the 
+	 *		following storage convention: \\
+	 *			{\tt ind(0)} : value of the first index (1, 2 or 3) \\
+	 *			{\tt ind(1)} : value of the second index (1, 2 or 3) 
+	 *
+	 * @return position in the array {\tt cmp} of the pointer to the
+	 *  	{\tt Scalar} containing the component specified by {\tt ind}
 	 */
-	virtual int position(const Itbl& idx) const ;
+	virtual int position(const Itbl& ind) const ;
+
 
 	/**
 	 * Returns the indices of a component given by its position in the 
-	 * {\tt Scalar} array {\tt cmp}. 
+	 * array {\tt cmp}. 
 	 *
-	 * @return 1-D array of integers ({\tt Itbl}) of
+	 * @param pos [input] position in the array {\tt cmp}
+	 *		of the pointer to the {\tt Scalar} representing a component
+	 *
+	 * @return 1-D array of integers (class {\tt Itbl}) of
 	 *         size 2 giving the value of each index 
-	 *	   for the component located at the position {\tt place}
-	 *	   in the {\tt Scalar} array {\tt cmp}. 
-	 *	   Each element of this {\tt Itbl} contains a spatial 
-	 *         index 1, 2 or 3.
+	 *	   for the component located at the position {\tt pos} in
+	 *		the array [\tt cmp}, with the 
+	 *		following storage convention: \\
+	 *			{\tt Itbl(0)} : value of the first index (1, 2 or 3) \\
+	 *			{\tt Itbl(1)} : value of the second index (1, 2 or 3) 
 	 */
-	virtual Itbl indices (int place) const ;
+	virtual Itbl indices(int pos) const ;
+	
 		
     // Computation of derived members
     // ------------------------------
@@ -548,6 +650,7 @@ class Sym_tensor : public Tensor {
 } ;
 
 
+#include "scalar.h"
 
 
 #endif
