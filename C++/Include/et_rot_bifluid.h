@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/09/17 08:27:50  j_novak
+ * New methods: mass_b1() and mass_b2().
+ *
  * Revision 1.7  2002/10/09 07:54:29  j_novak
  * Et_rot_bifluid and Et_rot_mag inheritate virtually from Etoile_rot
  *
@@ -153,6 +156,11 @@ class Et_rot_bifluid : virtual public Etoile_rot {
 	
   mutable double* p_r_circ2 ;	/// Circumferential radius of fluid no.2
   mutable double* p_aplat2 ;	/// Flatening r\_pole/r\_eq of fluid no.2
+
+	
+  mutable double* p_mass_b1 ;	/// Baryon mass of fluid 1
+  mutable double* p_mass_b2 ;	/// Baryon mass of fluid 2
+
 
   // Constructors - Destructor
   // -------------------------
@@ -301,6 +309,12 @@ class Et_rot_bifluid : virtual public Etoile_rot {
   /// Coordinate radius for fluid 2 at $\theta=0$ [r\_unit]. 
   double ray_pole2() const ; 
     
+  /// Baryon mass of fluid 1
+  double mass_b1() const ;
+  
+  /// Baryon mass of fluid 2
+  double mass_b2() const ;
+
   virtual double mass_b() const ;	    /// Baryon mass
   virtual double mass_g() const ;	    /// Gravitational mass
   virtual double angu_mom() const ;  /// Angular momentum

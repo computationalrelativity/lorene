@@ -32,6 +32,9 @@ char et_rot_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/09/17 08:27:50  j_novak
+ * New methods: mass_b1() and mass_b2().
+ *
  * Revision 1.5  2002/10/18 08:42:58  j_novak
  * Take into account the sign for uuu and uuu2
  *
@@ -181,6 +184,8 @@ void Et_rot_bifluid::del_deriv() const {
   if (p_xi_surf2 != 0x0) delete p_xi_surf2 ;
   if (p_r_circ2 != 0x0) delete p_r_circ2 ;
   if (p_aplat2 != 0x0) delete p_aplat2 ; 
+  if (p_mass_b1 != 0x0) delete p_mass_b1 ;
+  if (p_mass_b2 != 0x0) delete p_mass_b2 ;
   
   set_der_0x0() ; 
 }			    
@@ -200,6 +205,8 @@ void Et_rot_bifluid::set_der_0x0() const {
   p_xi_surf2 = 0x0 ; 
   p_r_circ2 = 0x0 ;
   p_aplat2 = 0x0 ;
+  p_mass_b1 = 0x0;
+  p_mass_b2 = 0x0;
 }			    
 
 void Et_rot_bifluid::del_hydro_euler() {

@@ -25,6 +25,9 @@ char et_bfrot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/09/17 08:27:50  j_novak
+ * New methods: mass_b1() and mass_b2().
+ *
  * Revision 1.8  2003/02/07 10:47:43  j_novak
  * The possibility of having gamma5 xor gamma6 =0 has been introduced for
  * tests. The corresponding parameter files have been added.
@@ -78,31 +81,64 @@ char et_bfrot_global_C[] = "$Header$" ;
 //	Baryon mass	    //
 //--------------------------//
 
-double Et_rot_bifluid::mass_b() const {
+double Et_rot_bifluid::mass_b1() const {
 
-  if (p_mass_b == 0x0) {    // a new computation is required
+  if (p_mass_b1 == 0x0) {    // a new computation is required
 	
     if (relativistic) {
 
-      Cmp dens = a_car() * bbb() * (gam_euler() * nbar() 
-				    +gam_euler2() * nbar2() );
+      Cmp dens1 = a_car() * bbb() * (gam_euler() * nbar());
 	    
-      dens.std_base_scal() ; 
+      dens1.std_base_scal() ; 
 
-      p_mass_b = new double( dens.integrale() ) ;
+      p_mass_b1 = new double( dens1.integrale() ) ;
 
 
     }
     else{  // Newtonian case 
-      assert(nbar.get_etat() == ETATQCQ) ; 
+      assert(nbar.get_etat() == ETATQCQ);
 
-      p_mass_b = new double( (nbar() + nbar2()).integrale() ) ;
+      p_mass_b1 = new double( (*this).nbar().integrale() ) ;
 
     }
 
   }
     
-  return *p_mass_b ; 
+  return *p_mass_b1 ; 
+
+} 
+
+double Et_rot_bifluid::mass_b2() const {
+
+  if (p_mass_b2 == 0x0) {    // a new computation is required
+	
+    if (relativistic) {
+
+      Cmp dens2 = a_car() * bbb() * (gam_euler2() * nbar2());
+	    
+      dens2.std_base_scal() ; 
+
+      p_mass_b2 = new double( dens2.integrale() ) ;
+
+    }
+    else{  // Newtonian case 
+      assert(nbar2.get_etat() == ETATQCQ);
+
+      p_mass_b2 = new double( nbar2().integrale() ) ;
+
+    }
+
+  }
+    
+  return *p_mass_b2 ; 
+
+} 
+
+double Et_rot_bifluid::mass_b() const {
+
+  if (p_mass_b == 0x0) 
+    p_mass_b = new double(mass_b1() + mass_b2() ) ;
+  return *p_mass_b;
 
 } 
 
