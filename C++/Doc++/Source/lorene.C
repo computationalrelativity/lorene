@@ -12,9 +12,12 @@
 //@{
     /**@name Utilities
      *
-     * These classes are the array (class {\tt Tbl}) and matrix
-     * (class {\tt Matrice}) representations in {\sc Lorene}. 
-     * They are independent of the numerical method (spectral method).
+     * The classes {\tt Tbl} and {\tt Itbl} implement the 1-D, 2-D and 3-D
+     * array representation in Lorene, whereas the class {\tt Matrice}
+     * is devoted to matrix representation and {\tt Param} to generic
+     * parameter storage.  
+     * All these classes are independent of the numerical method 
+     * (spectral method).
      *
      */
     //@{
@@ -29,7 +32,7 @@
     /**@name Spectral representation
      *
      * These classes correspond to the implementation of spectral
-     * methods in {\sc Lorene}. They describe the collocation points
+     * methods in Lorene. They describe the collocation points
      * (classes {\tt Grille3d} and {\tt Mg3d}), the values
      * of a function at these points (class {\tt Mtbl}), and the coefficients
      * of the spectral expansions of a function (class {\tt Mtbl\_cf}). 
@@ -37,14 +40,13 @@
      */
     //@{
     	//@Include:grilles.h_r
-    	//@Include:grille_cart.h_r
     	//@Include:mtbl.h_r
     	//@Include:base_val.h_r
     	//@Include:mtbl_cf.h_r
     	//@Include:valeur.h_r
     //@}
 
-   /**@name Mapping grid -> physical space  for spherical coordinates
+   /**@name Mapping grid -> physical space (spherical coordinates)
      *
      * These classes implement the mapping between the
      * grid coordinates $(\xi, \theta', \phi')$ (described by the {\tt Mg3d}
@@ -63,13 +65,6 @@
 	//@Include:coord.h_r
     //@}
 
-   /**@name Mapping grid -> physical space  for  Cartesian coordinates
-     *
-     */
-    //@{
-	//@Include:map_cart.h_r
-    //@}
-  
     /**@name General elliptic solver (***under development***)
      *
      * These classes are needed for using the general elliptic solver, for
@@ -84,27 +79,13 @@
 
    /**@name Tensorial fields
      *
-     * These classes represent the various physical fields available in 
-     * {\sc LORENE}. These objects do not depend on the numerical method
-     * (spectral method). 
+     * These classes implement the tensorial calculus in Lorene. 
+     * They are high level classes and therefore are independent of the
+     * actual numerical method (spectral method). 
+     *
      */
     //@{
 	//@Include:base_vect.h_r
-	//@Include:cmp.h_r
-	//@Include:tenseur.h_r
-	//@Include:metrique.h_r
-	//@Include:metconf.h_r
-	//@Include:qtenseur.h_r
-    //@}  
-
-
-   /**@name New tensorial fields (***under development***)
-     *
-     * These are new classes intended to replace {\tt Tenseur} and
-     * {\tt Cmp}; they are currently under development. 
-     *
-     */
-    //@{
 	//@Include:tensor.h_r
 	//@Include:scalar.h_r
 	//@Include:vector.h_r
@@ -113,6 +94,32 @@
 	//@Include:metric.h_r
     //@}  
     
+   /**@name Old tensorial fields (*** Deprecated ***)
+     *
+     * These classes have been used up to 2003 to treat scalar 
+     * (class {\tt Cmp}) and tensorial fields (class {\tt Tenseur}). 
+     * They are now deprecated and
+     * have been replaced by the class {\tt Tensor} and its various derived
+     * classes, among which {\tt Scalar}.
+     */
+    //@{
+	//@Include:cmp.h_r
+	//@Include:tenseur.h_r
+	//@Include:metrique.h_r
+	//@Include:metconf.h_r
+	//@Include:qtenseur.h_r
+    //@}  
+
+    /**@name Time evolution (***under development***)
+     *
+     * The storage and manipulation (e.g. time derivation) of an
+     * evolving quantity is performed through the template class
+     * {\tt Evolution}. 
+     */
+    //@{
+	//@Include:evolution.h_r
+    //@}  
+
     /**@name Grid wedding
      *
      * These classes are used to make the interface with Godunov-type
