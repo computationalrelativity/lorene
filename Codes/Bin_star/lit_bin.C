@@ -30,6 +30,10 @@ char lit_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/09/07 22:11:24  e_gourgoulhon
+ * Corrected a bug at the end (introduced new vectors tmp_dpsi and
+ * tmp_wit for drawings in the irrotational case).
+ *
  * Revision 1.3  2003/01/09 11:07:49  j_novak
  * headcpp.h is now compliant with C++ norm.
  * The include files have been ordered, as well as the local_settings_linux
@@ -528,9 +532,9 @@ int main(int argc, char** argv){
 		    "U  (z=0)", &surf1, &surf2, draw_bound, 40, 40) ; 
 
     if (irrotational) {
-	tmp_draw1 = star(1).get_d_psi() ; 
-	tmp_draw1.annule(star(1).get_nzet(), mg1.get_nzone()-1) ; 
-	des_coupe_vect_z(tmp_draw1, 0, -1., 0.5, nzdes1,
+	Tenseur tmp_dpsi = star(1).get_d_psi() ; 
+	tmp_dpsi.annule(star(1).get_nzet(), mg1.get_nzone()-1) ; 
+	des_coupe_vect_z(tmp_dpsi, 0, -1., 0.5, nzdes1,
 			 "Grad(psi) (z=0)", &surf1, 1.2, draw_bound ) ;
 
 	des_coupe_z(star(1).get_psi0()(), 0., 1,
@@ -542,9 +546,9 @@ int main(int argc, char** argv){
 	des_coupe_vect_z(d_psi0, 0, -3., 0.5, nzdes1, "Grad(psi0) (z=0)", 
 			 &surf1, 1.2, draw_bound ) ; 
 
-	tmp_draw1 = star(1).get_wit_w() ; 
-	tmp_draw1.annule(star(1).get_nzet(), mg1.get_nzone()-1) ; 
-	des_coupe_vect_z(tmp_draw1, 0, -3., 0.5, nzdes1, "W (z=0)", 
+	Tenseur tmp_wit = star(1).get_wit_w() ; 
+	tmp_wit.annule(star(1).get_nzet(), mg1.get_nzone()-1) ; 
+	des_coupe_vect_z(tmp_wit, 0, -3., 0.5, nzdes1, "W (z=0)", 
 			 &surf1, 1.2, draw_bound ) ; 
 
     }
