@@ -31,6 +31,11 @@ char star_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/02/27 09:50:57  f_limousin
+ * Scalars ssjm1_logn, ssjm1_qq ... have been added for all metric
+ * quantities for the resolution of Poisson equations.
+ * Members bsn and d_psi are now constructed on a cartesian triad.
+ *
  * Revision 1.5  2004/02/21 17:05:13  e_gourgoulhon
  * Method Scalar::point renamed Scalar::val_grid_point.
  * Method Scalar::set_point renamed Scalar::set_grid_point.
@@ -68,17 +73,15 @@ Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i,
     : Star(mpi, nzet_i, eos_i), 
       irrotational(irrot), 
       psi0(mpi), 
-      d_psi(mpi, COV, mpi.get_bvect_spher()), 
-      wit_w(mpi, CON, mpi.get_bvect_spher()), 
+      d_psi(mpi, COV, mpi.get_bvect_cart()), 
+      wit_w(mpi, CON, mpi.get_bvect_cart()), 
       loggam(mpi), 
-      bsn(mpi, CON, mpi.get_bvect_spher()), 
+      bsn(mpi, CON, mpi.get_bvect_cart()), 
       pot_centri(mpi), 
       logn_auto(mpi),
       logn_comp(mpi), 
       dcov_logn(mpi, COV, mpi.get_bvect_spher()),
       dcon_logn(mpi, CON, mpi.get_bvect_spher()),
-      shift_auto(mpi, CON, mpi.get_bvect_spher()), 
-      shift_comp(mpi, CON, mpi.get_bvect_spher()), 
       qq_auto(mpi),
       qq_comp(mpi),
       psi4(mpi),
@@ -86,6 +89,8 @@ Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i,
       dcon_lnpsi(mpi, CON, mpi.get_bvect_spher()),
       flat(mpi, mpi.get_bvect_spher()),
       gtilde(flat),
+      shift_auto(mpi, CON, mpi.get_bvect_spher()), 
+      shift_comp(mpi, CON, mpi.get_bvect_spher()), 
       hij(mpi, CON, mpi.get_bvect_spher()),
       hij_auto(mpi, CON, mpi.get_bvect_spher()),
       hij_comp(mpi, CON, mpi.get_bvect_spher()), 
@@ -95,12 +100,15 @@ Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i,
       kcar_comp(mpi), 
       ssjm1_logn(mpi),
       ssjm1_qq(mpi),
-      ssjm1_h00(mpi),
-      ssjm1_h10(mpi),
-      ssjm1_h20(mpi),
+      ssjm1_phi(mpi),
+      ssjm1_khi(mpi),
+      ssjm1_mu(mpi),
       ssjm1_h11(mpi),
       ssjm1_h21(mpi),
+      ssjm1_h31(mpi),
       ssjm1_h22(mpi),
+      ssjm1_h32(mpi),
+      ssjm1_h33(mpi),
       decouple(mpi),
       conf_flat(conf_flat0){
     
@@ -134,6 +142,17 @@ Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i,
     tkij_comp.set_etat_zero() ; 
     kcar_auto = 0 ;
     kcar_comp = 0 ; 
+    ssjm1_logn = 0 ;
+    ssjm1_qq = 0 ;
+    ssjm1_phi = 0 ;
+    ssjm1_khi = 0 ;
+    ssjm1_mu = 0 ;
+    ssjm1_h11 = 0 ;
+    ssjm1_h21 = 0 ;
+    ssjm1_h31 = 0 ;
+    ssjm1_h22 = 0 ;
+    ssjm1_h31 = 0 ;
+    ssjm1_h33 = 0 ;
 }
 
 // Copy constructor
@@ -151,8 +170,6 @@ Star_bin::Star_bin(const Star_bin& star)
 			 logn_comp(star.logn_comp), 
 			 dcov_logn(star.dcov_logn),
 			 dcon_logn(star.dcon_logn),
-			 shift_auto(star.shift_auto), 
-			 shift_comp(star.shift_comp), 
 			 qq_auto(star.qq_auto),
 			 qq_comp(star.qq_comp),
 			 psi4(star.psi4),
@@ -160,6 +177,8 @@ Star_bin::Star_bin(const Star_bin& star)
 			 dcon_lnpsi(star.dcon_lnpsi),
 			 flat(star.flat),
 			 gtilde(star.gtilde),
+			 shift_auto(star.shift_auto), 
+			 shift_comp(star.shift_comp), 
 			 hij(star.hij),
 			 hij_auto(star.hij_auto),
 			 hij_comp(star.hij_comp),
@@ -169,12 +188,15 @@ Star_bin::Star_bin(const Star_bin& star)
 			 kcar_comp(star.kcar_comp), 
 			 ssjm1_logn(star.ssjm1_logn),
 			 ssjm1_qq(star.ssjm1_qq),
-			 ssjm1_h00(star.ssjm1_h00),
-			 ssjm1_h10(star.ssjm1_h10),
-			 ssjm1_h20(star.ssjm1_h20),
+			 ssjm1_phi(star.ssjm1_phi),
+			 ssjm1_khi(star.ssjm1_khi),
+			 ssjm1_mu(star.ssjm1_mu),
 			 ssjm1_h11(star.ssjm1_h11),
 			 ssjm1_h21(star.ssjm1_h21),
+			 ssjm1_h31(star.ssjm1_h31),
 			 ssjm1_h22(star.ssjm1_h22),
+			 ssjm1_h32(star.ssjm1_h32),
+			 ssjm1_h33(star.ssjm1_h33),
 			 decouple(star.decouple),
 			 conf_flat(star.conf_flat)
 {
@@ -187,17 +209,15 @@ Star_bin::Star_bin(const Star_bin& star)
 Star_bin::Star_bin(Map& mpi, const Eos& eos_i, FILE* fich)
 		       : Star(mpi, eos_i, fich), 
 			 psi0(mpi), 
-			 d_psi(mpi, COV, mpi.get_bvect_spher()), 
-			 wit_w(mpi, CON, mpi.get_bvect_spher()), 
+			 d_psi(mpi, COV, mpi.get_bvect_cart()), 
+			 wit_w(mpi, CON, mpi.get_bvect_cart()), 
 			 loggam(mpi), 
-			 bsn(mpi, CON, mpi.get_bvect_spher()), 
+			 bsn(mpi, CON, mpi.get_bvect_cart()), 
 			 pot_centri(mpi), 
 			 logn_auto(mpi, *(mpi.get_mg()), fich),
 			 logn_comp(mpi), 
 			 dcov_logn(mpi, COV, mpi.get_bvect_spher()),
 			 dcon_logn(mpi, CON, mpi.get_bvect_spher()),
-			 shift_auto(mpi, mpi.get_bvect_spher(), fich), 
-			 shift_comp(mpi, CON, mpi.get_bvect_spher()), 
 			 qq_auto(mpi, *(mpi.get_mg()), fich),
 			 qq_comp(mpi),
 			 psi4(mpi),
@@ -205,6 +225,8 @@ Star_bin::Star_bin(Map& mpi, const Eos& eos_i, FILE* fich)
 			 dcon_lnpsi(mpi, CON, mpi.get_bvect_spher()),
 			 flat(mpi, mpi.get_bvect_spher()),
 			 gtilde(flat),
+			 shift_auto(mpi, mpi.get_bvect_spher(), fich), 
+			 shift_comp(mpi, CON, mpi.get_bvect_spher()), 
 			 hij(mpi, CON, mpi.get_bvect_spher()),
 			 hij_auto(mpi, mpi.get_bvect_spher(), fich),
 			 hij_comp(mpi, CON, mpi.get_bvect_spher()),
@@ -212,14 +234,17 @@ Star_bin::Star_bin(Map& mpi, const Eos& eos_i, FILE* fich)
 			 tkij_comp(mpi, CON, mpi.get_bvect_spher()), 
 			 kcar_auto(mpi), 
 			 kcar_comp(mpi), 
-			 ssjm1_logn(mpi),
-			 ssjm1_qq(mpi),
-			 ssjm1_h00(mpi),
-			 ssjm1_h10(mpi),
-			 ssjm1_h20(mpi),
-			 ssjm1_h11(mpi),
-			 ssjm1_h21(mpi),
-			 ssjm1_h22(mpi),
+			 ssjm1_logn(mpi, *(mpi.get_mg()), fich),
+			 ssjm1_qq(mpi, *(mpi.get_mg()), fich),
+			 ssjm1_phi(mpi, *(mpi.get_mg()), fich),
+			 ssjm1_khi(mpi, *(mpi.get_mg()), fich),
+			 ssjm1_mu(mpi, *(mpi.get_mg()), fich),
+			 ssjm1_h11(mpi, *(mpi.get_mg()), fich),
+			 ssjm1_h21(mpi, *(mpi.get_mg()), fich),
+			 ssjm1_h31(mpi, *(mpi.get_mg()), fich),
+			 ssjm1_h22(mpi, *(mpi.get_mg()), fich),
+			 ssjm1_h32(mpi, *(mpi.get_mg()), fich),
+			 ssjm1_h33(mpi, *(mpi.get_mg()), fich),
 			 decouple(mpi){
 
     // Etoile parameters
@@ -337,8 +362,6 @@ void Star_bin::operator=(const Star_bin& star) {
     logn_comp = star.logn_comp ;
     dcov_logn = star.dcov_logn ;
     dcon_logn = star.dcon_logn ;
-    shift_auto = star.shift_auto ;
-    shift_comp = star.shift_comp ;
     qq_auto = star.qq_auto ;
     qq_comp = star.qq_comp ;
     psi4 = star.psi4 ;
@@ -346,6 +369,8 @@ void Star_bin::operator=(const Star_bin& star) {
     dcon_lnpsi = star.dcon_lnpsi ;
     flat = star.flat ;
     gtilde = star.gtilde ;
+    shift_auto = star.shift_auto ;
+    shift_comp = star.shift_comp ; 
     hij = star.hij ;
     hij_auto = star.hij_auto ;
     hij_comp = star.hij_comp ; 
@@ -355,12 +380,15 @@ void Star_bin::operator=(const Star_bin& star) {
     kcar_comp = star.kcar_comp ;
     ssjm1_logn = star.ssjm1_logn ;
     ssjm1_qq = star.ssjm1_qq ;
-    ssjm1_h00 = star.ssjm1_h00 ;
-    ssjm1_h10 = star.ssjm1_h10 ;
-    ssjm1_h20 = star.ssjm1_h20 ;
+    ssjm1_phi = star.ssjm1_phi ;
+    ssjm1_khi = star.ssjm1_khi ;
+    ssjm1_mu = star.ssjm1_mu ;
     ssjm1_h11 = star.ssjm1_h11 ;
     ssjm1_h21 = star.ssjm1_h21 ;
+    ssjm1_h31 = star.ssjm1_h31 ;
     ssjm1_h22 = star.ssjm1_h22 ;
+    ssjm1_h32 = star.ssjm1_h32 ;
+    ssjm1_h33 = star.ssjm1_h33 ;
     decouple = star.decouple ;
     conf_flat = star.conf_flat ;
     
@@ -382,10 +410,17 @@ Scalar& Star_bin::set_logn_comp() {
     
 } 
 
-
 Vector& Star_bin::set_shift_auto() {
-
+    
+    del_deriv() ;	// sets to 0x0 all the derived quantities
     return shift_auto ;
+    
+} 
+
+Vector& Star_bin::set_shift() {
+
+    del_deriv() ;	// sets to 0x0 all the derived quantities
+   return shift ;
     
 } 
 
@@ -401,9 +436,21 @@ void Star_bin::sauve(FILE* fich) const {
     Star::sauve(fich) ; 
     
     logn_auto.sauve(fich) ;
-    shift_auto.sauve(fich) ;
     qq_auto.sauve(fich) ;
+    shift_auto.sauve(fich) ;
     hij_auto.sauve(fich) ;
+
+    ssjm1_logn.sauve(fich) ;
+    ssjm1_qq.sauve(fich) ;
+    ssjm1_phi.sauve(fich) ;
+    ssjm1_khi.sauve(fich) ;
+    ssjm1_mu.sauve(fich) ;
+    ssjm1_h11.sauve(fich) ;
+    ssjm1_h21.sauve(fich) ;
+    ssjm1_h31.sauve(fich) ;
+    ssjm1_h22.sauve(fich) ;
+    ssjm1_h32.sauve(fich) ;
+    ssjm1_h33.sauve(fich) ;
 
     fwrite(&irrotational, sizeof(bool), 1, fich) ;		
     fwrite(&conf_flat, sizeof(bool), 1, fich) ;		
@@ -505,11 +552,6 @@ ostream& Star_bin::operator>>(ostream& ost) const {
 	<< shift_auto(1).val_grid_point(0, 0, 0, 0) << "  " 
 	<< shift_auto(2).val_grid_point(0, 0, 0, 0) << "  " 
 	<< shift_auto(3).val_grid_point(0, 0, 0, 0) << endl ; 
-
-    ost << "  ... shift_comp part of it [c] :            " 
-	<< shift_comp(1).val_grid_point(0, 0, 0, 0) << "  " 
-	<< shift_comp(2).val_grid_point(0, 0, 0, 0) << "  " 
-	<< shift_comp(3).val_grid_point(0, 0, 0, 0) << endl ; 
 
     ost << endl << "Central value of (B^X, B^Y, B^Z)/N [c] : " 
 	<< bsn(1).val_grid_point(0, 0, 0, 0) << "  " 
@@ -640,22 +682,22 @@ void Star_bin::fait_d_psi() {
 	d_psi.set_etat_nondef() ; 
 	return ; 
     }
-/*
+
     // Specific relativistic enthalpy		    ---> hhh
     //----------------------------------
     
     Scalar hhh = exp(ent) ;  // = 1 at the Newtonian limit
  
-    //  Computation of W^i = - psi^4 h Gamma_n B^i/N
+    //  Computation of W^i = - h Gamma_n B^i/N
     //----------------------------------------------
 
-    Vector www = - psi4 * hhh * gam_euler * bsn ; 
+    Vector www = - hhh * gam_euler * bsn ; 
     
     
     // Constant value of W^i at the center of the star
     //-------------------------------------------------
     
-    Vector v_orb(mp, COV, mp.get_bvect_spher()) ; 
+    Vector v_orb(mp, COV, mp.get_bvect_cart()) ; 
     
     for (int i=1; i<=3; i++) {
 	v_orb.set(i) = www(i).val_grid_point(0, 0, 0, 0) ; 
@@ -666,7 +708,7 @@ void Star_bin::fait_d_psi() {
 
     Vector d_psi0 = psi0.derive_cov(flat) ; 
     
-    d_psi0.change_triad( mp.get_bvect_spher() ) ; 
+    d_psi0.change_triad( mp.get_bvect_cart() ) ; 
 
     d_psi = d_psi0 + v_orb ; 
     
@@ -676,20 +718,14 @@ void Star_bin::fait_d_psi() {
     // ----------------------------------------------------------------
     
     int nzm1 = mp.get_mg()->get_nzone() - 1 ;    
-
-    if (d_psi0.get_etat() == ETATQCQ ) {
-	d_psi.annule(nzet, nzm1) ;	 
-	for (int i=0; i<3; i++) {
-	    d_psi.set(i).set_spectral_va().set_base( d_psi0(i).
-						   get_spectral_va().base ) ; 
-	    d_psi.set(i) = raccord_c1(d_psi(i), nzet) ; 
-	}
-    }
-    else{ 
-	d_psi.annule_domain(nzm1) ;	 
+    d_psi.annule(nzet, nzm1) ;	 
+    for (int i=1; i<=3; i++) {
+	Cmp d_psi_i (d_psi(i)) ;
+	d_psi_i.va.set_base( d_psi0(i).get_spectral_va().base ) ; 
+	d_psi_i = raccord_c1(d_psi_i, nzet) ; 
+	d_psi.set(i) = d_psi_i ; 
     }
 
-*/ 
 } 
 
 
@@ -707,7 +743,7 @@ void Star_bin::relaxation(const Star_bin& star_jm1, double relax_ent,
 	qq_auto = relax_met * qq_auto + relax_met_jm1 * star_jm1.qq_auto ;
 	
 	shift_auto = relax_met * shift_auto 
-					+ relax_met_jm1 * star_jm1.shift_auto ;
+				   + relax_met_jm1 * star_jm1.shift_auto ;
 	
 	hij_auto = relax_met * hij_auto + relax_met_jm1 * star_jm1.hij_auto ;
 	
