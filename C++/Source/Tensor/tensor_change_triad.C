@@ -29,6 +29,11 @@ char tensor_change_triad_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/28 21:29:08  e_gourgoulhon
+ * -- Read-only access to the components performed via operator()(int, int)
+ *     instead of set(int, int).
+ * -- Corrected index range in the case Cartesian -> Cartesian.
+ *
  * Revision 1.4  2003/10/27 10:50:24  e_gourgoulhon
  * Added the case of a twice contravariant tensor in the assert.
  *
@@ -97,10 +102,10 @@ void Tensor::change_triad(const Base_vect& new_triad) {
       case - 1 : {    // the two bases are anti-aligned 
 	// ------------------------------
 	
-	set(0, 2) = - set(0, 2) ; // {xz} --> - {xz}
-	set(1, 2) = - set(1, 2) ; // {yz} --> - {yz}
-	set(2, 0) = - set(2, 0) ; // {zx} --> - {zx}
-	set(2, 1) = - set(2, 1) ; // {zy} --> - {zy}
+	set(1, 3) = - operator()(1, 3) ; // {xz} --> - {xz}
+	set(2, 3) = - operator()(2, 3) ; // {yz} --> - {yz}
+	set(3, 1) = - operator()(3, 1) ; // {zx} --> - {zx}
+	set(3, 2) = - operator()(3, 2) ; // {zy} --> - {zy}
 	// all other components are unchanged
 	break ; 
       }
@@ -148,9 +153,9 @@ void Tensor::change_triad(const Base_vect& new_triad) {
       Cmp res2(*mp) ;
       Cmp res3(*mp) ;
       for (int i=1; i<=3; i++) { //## Pb: les comp_?_from... utilisent des Cmp!
-	Cmp cp1(set(1,i)) ;
-	Cmp cp2(set(2,i)) ;
-	Cmp cp3(set(3,i)) ;
+	Cmp cp1(operator()(1,i)) ;
+	Cmp cp2(operator()(2,i)) ;
+	Cmp cp3(operator()(3,i)) ;
 	mp->comp_x_from_spherical(cp1, cp2, cp3, res1) ; 
 	mp->comp_y_from_spherical(cp1, cp2, cp3, res2) ; 
 	mp->comp_z_from_spherical(cp1, cp2, res3 ) ;
@@ -202,9 +207,9 @@ void Tensor::change_triad(const Base_vect& new_triad) {
       Cmp res2(*mp) ;
       Cmp res3(*mp) ;
       for (int i=1; i<=3; i++) {
-	Cmp cp1(set(1,i)) ;
-	Cmp cp2(set(2,i)) ;
-	Cmp cp3(set(3,i)) ;
+	Cmp cp1(operator()(1,i)) ;
+	Cmp cp2(operator()(2,i)) ;
+	Cmp cp3(operator()(3,i)) ;
 	mp->comp_r_from_cartesian(cp1, cp2, cp3, res1) ; 
 	mp->comp_t_from_cartesian(cp1, cp2, cp3, res2) ; 
 	mp->comp_p_from_cartesian(cp1, cp2, res3) ;
