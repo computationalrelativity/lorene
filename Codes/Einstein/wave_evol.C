@@ -29,6 +29,9 @@ char wave_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/04/08 16:47:09  e_gourgoulhon
+ * Many changes.
+ *
  * Revision 1.2  2004/04/07 07:59:22  e_gourgoulhon
  * Added check of constraints at the end.
  *
@@ -78,8 +81,8 @@ int main() {
     // ------------------------------------------------
   
     int nz = 4 ; 	// Number of domains
-    int nr = 9 ; 	// Number of collocation points in r in each domain
-    int nt = 5 ; 	// Number of collocation points in theta in each domain
+    int nr = 17 ; 	// Number of collocation points in r in each domain
+    int nt = 9 ; 	// Number of collocation points in theta in each domain
     int np = 8 ; 	// Number of collocation points in phi in each domain
     int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
     int symmetry_phi = SYM ; // no symmetry in phi
@@ -118,12 +121,9 @@ int main() {
 
     Tslice_dirac_max sigmat(map, otriad, ff) ;  
 
-    // Set up of tensor h
-    // ------------------
+    // Set up of potentials khi and mu
+    // -------------------------------
     
-    Sym_tensor_trans hh_init(map, otriad, ff) ;  // hh is a transverse tensor
-                                            // with respect to the flat metric
-                                            // thanks to Dirac gauge
     const Coord& x = map.x ; 
     const Coord& y = map.y ; 
     // const Coord& z = map.z ; 
@@ -136,22 +136,18 @@ int main() {
     Scalar khi_init(map) ; 
 
     khi_init = ampli_h_init * exp( - r*r ) * x*y ;
+    khi_init.set_outer_boundary(nz-1, 0.) ; 
     
     //khi_init = ampli_h_init * (3*cost*cost-1) / 
     //   ( (r*r + 1./(r*r)) * sqrt(1.+r*r) ) ; 
     khi_init.std_spectral_base() ; 
-
-    khi_init.smooth_decay(2, 1) ; 
     
-    //##
-    // des_meridian(khi_init, 0., 3., "khi_init before", 1) ; 
-    // arrete() ; 
-    // khi_init.smooth_decay(3, 4) ; 
-    // khi_init.spectral_display("khi_init") ;   
-    //  des_meridian(khi_init, 0., 3., "khi_init after", 2) ; 
-    //  arrete() ; 
-    //## 
-                 
+    khi_init.spectral_display("khi_init") ;   
+    if (khi_init.get_etat() == ETATQCQ) 
+        des_meridian(khi_init, 0., 5., "khi_init", 1) ; 
+
+    //## khi_init.smooth_decay(2, 1) ; 
+    
     Scalar mu_init(map) ; 
     mu_init = 0. * ampli_h_init / (1+r*r*r*r*r*r) ; 
     mu_init.std_spectral_base() ; 
@@ -160,27 +156,18 @@ int main() {
     mu_init.mult_r() ; 
     mu_init.mult_cost() ; 
     
-    //##
-    // des_meridian(mu_init, 0., 3., "mu_init before", 1) ; 
-    // arrete() ; 
-    // mu_init.smooth_decay(3, 4) ; 
-    // mu_init.spectral_display("mu_init") ;   
-    // des_meridian(mu_init, 0., 3., "mu_init after", 2) ; 
-    // arrete() ; 
-    //## 
-                  
-
-    Sym_tensor_tt htt_init(map, otriad, ff) ;  // htt is the TT part of hh
-        
-    htt_init.set_khi_mu(khi_init, mu_init) ; 
+    mu_init.spectral_display("mu_init") ;   
+    if (mu_init.get_etat() == ETATQCQ) 
+        des_meridian(mu_init, 0., 5., "mu_init", 1) ; 
     
-    hh_init = htt_init ; 
+    
+                  
+    // The potentials khi and mu are used to construct h^{ij}:
+    // ------------------------------------------------------
         
-    // des_meridian(hh_init, 0., 5., "hh_init") ; 
-    maxabs( hh_init.divergence(ff), "Divergence of hh_init") ; 
-    maxabs( hh_init.trace(ff), "Trace of hh_init") ; 
-
-    // arrete() ; 
+    sigmat.set_khi_mu(khi_init, mu_init) ; // the trace h = f_{ij} h^{ij]
+                                           // is computed to ensure
+                                           // det tgam_{ij} = f
 
     // Resolution of the initial data equations within 
     // the conformal thin sandwich framework
@@ -188,21 +175,35 @@ int main() {
 
     // u^{ij} = d/dt h^{ij}
     Sym_tensor_trans uu_init(map, otriad, ff) ;  
-    //uu_init.set_etat_zero() ; 
-    uu_init = - 0.5 * hh_init ;
+    uu_init.set_etat_zero() ; 
+    uu_init = - 0.5 * ( sigmat.hh() 
+        - 0.33333333333333333 * sigmat.hh().trace(sigmat.tgam())
+            * sigmat.tgam().con() ) ;
     uu_init.inc_dzpuis(2) ;  
     
     // tr K = K
     Scalar tmp(map) ; 
     tmp.set_etat_zero() ; 
     
-    sigmat.initial_data_cts(hh_init, uu_init, tmp, tmp) ;
-    
+    sigmat.initial_data_cts(uu_init, tmp, tmp, 1.e-10) ;
+        
     cout << "sigmat : " << sigmat << endl ;  
     
     // Check of constraints:
     sigmat.check_hamiltonian_constraint() ;    
     sigmat.check_momentum_constraint() ; 
+    
+    // Extra check
+    Scalar diffr = sigmat.gam().ricci_scal() 
+            - ( sigmat.tgam().ricci_scal()
+     - 8.* sigmat.psi().derive_con(sigmat.tgam()).divergence(sigmat.tgam())
+        / sigmat.psi()
+            ) / sigmat.psi4() ;  
+    maxabs(diffr, 
+    "Error in the relation (involving psi) between the Ricci scalars of gam and tgam") ; 
+    
+    maxabs(sigmat.gam().cov()(1,1) / sigmat.tgam().cov()(1,1) -
+            sigmat.psi4(), "Difference between the conformal factor and psi4") ; 
 
     return EXIT_SUCCESS ; 
 }
