@@ -25,6 +25,9 @@ char laplacien_mat_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/01/27 10:19:43  j_novak
+ * Now using Diff operators to build the matrices.
+ *
  * Revision 1.6  2004/10/05 15:44:21  j_novak
  * Minor speed enhancements.
  *
@@ -101,8 +104,7 @@ char laplacien_mat_C[] = "$Header$" ;
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "matrice.h"
-#include "type_parite.h"
+#include "diff.h"
 #include "proto.h"
 
 /*
@@ -176,47 +178,12 @@ Matrice _laplacien_mat_r_chebp (int n, int l, double, int) {
     l_dejafait[nb_dejafait] = l ;
     nr_dejafait[nb_dejafait] = n ;
     
-    Matrice dd(n, n) ;
-    dd.set_etat_qcq() ;
-    Matrice xd(n, n) ;
-    xd.set_etat_qcq() ;
-    Matrice xx(n, n) ;
-    xx.set_etat_qcq() ;
+    Diff_dsdx2 d2(R_CHEBP, n) ;
+    Diff_sxdsdx sxd(R_CHEBP, n) ;
+    Diff_sx2 sx2(R_CHEBP, n) ;
+    
+    tab[nb_dejafait] = new Matrice(d2 + 2.*sxd -(l*(l+1))*sx2) ;
 
-   double* vect  = new double[n] ;
-    
-    for (int i=0 ; i<n ; i++) {
-	for (int j=0 ; j<n ; j++)
-	    vect[j] = 0 ;
-	vect[i] = 1 ;
-	d2sdx2_1d (n, &vect, R_CHEBP) ;
-	
-	for (int j=0 ; j<n ; j++)
-	    dd.set(j, i) = vect[j] ; 
-    }
-    
-    for (int i=0 ; i<n ; i++) {
-	for (int j=0 ; j<n ; j++)
-	    vect[j] = 0 ;
-	vect[i] = 1 ;
-	sxdsdx_1d (n, &vect, R_CHEBP) ;
-	    for (int j=0 ; j<n ; j++)
-		xd.set(j, i) = vect[j] ;
-	
-	}
-    
-    for (int i=0 ; i<n ; i++) {
-	for (int j=0 ; j<n ; j++)
-	    vect[j] = 0 ;
-	vect[i] = 1 ;
-	sx2_1d (n, &vect, R_CHEBP) ;
-	for (int j=0 ; j<n ; j++)
-	    xx.set(j, i) = vect[j] ;
-    }
-   
-    delete [] vect ;
-    
-    tab[nb_dejafait] = new Matrice(dd+2*xd-l*(l+1)*xx) ;
     indice = nb_dejafait ;
     nb_dejafait ++ ;	
    }
@@ -258,45 +225,11 @@ Matrice _laplacien_mat_r_chebi (int n, int l, double, int) {
     l_dejafait[nb_dejafait] = l ;
     nr_dejafait[nb_dejafait] = n ;
     
-    Matrice dd(n, n) ;
-    dd.set_etat_qcq() ;
-    Matrice xd(n, n) ;
-    xd.set_etat_qcq() ;
-    Matrice xx(n, n) ;
-    xx.set_etat_qcq() ;
-
-    double* vect = new double[n] ;
+    Diff_dsdx2 d2(R_CHEBI, n) ;
+    Diff_sxdsdx sxd(R_CHEBI, n) ;
+    Diff_sx2 sx2(R_CHEBI, n) ;
     
-    for (int i=0 ; i<n ; i++) {
-	for (int j=0 ; j<n ; j++)
-	    vect[j] = 0 ;
-	vect[i] = 1 ;
-	d2sdx2_1d (n, &vect, R_CHEBI) ;  // appel dans le cas impair
-	for (int j=0 ; j<n ; j++)
-	    dd.set(j, i) = vect[j] ;
-    }
-    
-    for (int i=0 ; i<n ; i++) {
-	for (int j=0 ; j<n ; j++)
-	    vect[j] = 0 ;
-	vect[i] = 1 ;
-	sxdsdx_1d (n, &vect, R_CHEBI) ;
-	    for (int j=0 ; j<n ; j++)
-		xd.set(j, i) = vect[j] ;
-	}
-    
-    for (int i=0 ; i<n ; i++) {
-	for (int j=0 ; j<n ; j++)
-	    vect[j] = 0 ;
-	vect[i] = 1 ;
-	sx2_1d (n, &vect, R_CHEBI) ;
-	for (int j=0 ; j<n ; j++)
-	    xx.set(j, i) = vect[j] ;
-    }
-    
-    delete [] vect ;
-    
-    tab[nb_dejafait] = new Matrice(dd+2*xd-l*(l+1)*xx) ;
+    tab[nb_dejafait] = new Matrice(d2 + 2.*sxd - (l*(l+1))*sx2) ;
     indice = nb_dejafait ;
     nb_dejafait ++ ;
    } 
@@ -362,34 +295,10 @@ Matrice _laplacien_mat_r_chebu_quatre (int n, int l) {
     l_dejafait[nb_dejafait] = l ;
     nr_dejafait[nb_dejafait] = n ;
     
-    Matrice dd(n, n) ;
-    dd.set_etat_qcq() ;
-    Matrice xx(n, n) ;
-    xx.set_etat_qcq() ;
-
-    double* vect = new double[n] ;
+    Diff_dsdx2 dd(R_CHEBU, n) ;
+    Diff_sx2 xx(R_CHEBU, n) ;
     
-    for (int i=0 ; i<n ; i++) {
-	for (int j=0 ; j<n ; j++)
-	    vect[j] = 0 ;
-	vect[i] = 1 ;
-	d2sdx2_1d (n, &vect, R_CHEBU) ;  // appel dans le cas unsurr
-	for (int j=0 ; j<n ; j++)
-	    dd.set(j, i) = vect[j] ;
-    }
-    
-    for (int i=0 ; i<n ; i++) {
-	for (int j=0 ; j<n ; j++)
-	    vect[j] = 0 ;
-	vect[i] = 1 ;
-	sx2_1d (n, &vect, R_CHEBU) ;
-	for (int j=0 ; j<n ; j++)
-	    xx.set(j, i) = vect[j] ;
-    }
-    
-    delete [] vect ;
-    
-    tab[nb_dejafait] = new Matrice(dd-l*(l+1)*xx) ;
+    tab[nb_dejafait] = new Matrice(dd-(l*(l+1))*xx) ;
     indice = nb_dejafait ;
     nb_dejafait ++ ;
    } 
@@ -425,38 +334,11 @@ Matrice _laplacien_mat_r_chebu_trois (int n, int l) {
     l_dejafait[nb_dejafait] = l ;
     nr_dejafait[nb_dejafait] = n ;
     
-    Matrice dd(n, n) ;
-    dd.set_etat_qcq() ;
-    Matrice xx(n, n) ;
-    xx.set_etat_qcq() ;
+    Diff_xdsdx2 xd2(R_CHEBU, n) ;
+    Diff_sx sx(R_CHEBU, n) ;
 
-    double* vect = new double[n] ;
-    double* auxi = new double[n] ;
+    tab[nb_dejafait] = new Matrice(xd2 -(l*(l+1))*sx) ;
     
-    for (int i=0 ; i<n ; i++) {
-	
-	for (int j=0 ; j<n ; j++)
-	    vect[j] = 0 ;
-	vect[i] = 1 ;
-	d2sdx2_1d (n, &vect, R_CHEBU) ;  // appel dans le cas unsurr
-	mult_xm1_1d_cheb (n, vect, auxi) ;
-	for (int j=0 ; j<n ; j++)
-	    dd.set(j, i) = auxi[j] ;
-    }
-    
-    for (int i=0 ; i<n ; i++) {
-	for (int j=0 ; j<n ; j++)
-	    vect[j] = 0 ;
-	vect[i] = 1 ;
-	sxm1_1d_cheb (n, vect) ;
-	for (int j=0 ; j<n ; j++)
-	    xx.set(j, i) = vect[j] ;
-    }
-    
-    delete [] vect ;
-    delete [] auxi ;
-    
-    tab[nb_dejafait] = new Matrice(dd-l*(l+1)*xx) ;
     indice = nb_dejafait ;
     nb_dejafait ++ ;
    } 
@@ -492,30 +374,11 @@ Matrice _laplacien_mat_r_chebu_deux (int n, int l) {
     	
     l_dejafait[nb_dejafait] = l ;
     nr_dejafait[nb_dejafait] = n ;
-    
-    tab[nb_dejafait] = new Matrice(n, n) ;
-    Matrice* pmat = tab[nb_dejafait] ;
-    pmat->set_etat_qcq() ;
 
-    double* vect = new double[n] ;
+    Diff_x2dsdx2 x2dd(R_CHEBU, n) ;
+    Diff_id id(R_CHEBU, n) ;
     
-    double* x2vect = new double[n] ;
-    
-    for (int i=0 ; i<n ; i++) {
-	for (int j=0 ; j<n ; j++)
-	    vect[j] = 0 ;
-	vect[i] = 1 ;
-	d2sdx2_1d (n, &vect, R_CHEBU) ;  // appel dans le cas unsurr
-	mult2_xm1_1d_cheb (n, vect, x2vect) ; // multiplication par (x-1)^2
-	for (int j=0 ; j<n ; j++)
-	    pmat->set(j, i) = x2vect[j] ;
-    }
-    
-    delete [] vect ;
-    delete [] x2vect ;
-    
-    for (int i=0 ; i<n ; i++)
-	pmat->set(i, i) -= l*(l+1) ;
+    tab[nb_dejafait] = new Matrice(x2dd - (l*(l+1))*id) ;
     
     indice = nb_dejafait ;
     nb_dejafait ++ ;
@@ -552,38 +415,12 @@ Matrice _laplacien_mat_r_chebu_cinq (int n, int l) {
     l_dejafait[nb_dejafait] = l ;
     nr_dejafait[nb_dejafait] = n ;
     
-    tab[nb_dejafait] = new Matrice(n, n) ;
-    Matrice* pmat = tab[nb_dejafait] ;
-    pmat->set_etat_qcq() ;
+    Diff_x2dsdx2 x2dd(R_CHEBU, n) ;
+    Diff_xdsdx xd1(R_CHEBU, n) ;
+    Diff_id id(R_CHEBU, n) ;
 
-    double* vect = new double[n] ;
+    tab[nb_dejafait] = new Matrice( x2dd + 6.*xd1 + (6-l*(l+1))*id ) ;
 
-    double* xvect = new double[n] ;
-    
-    double* x2vect = new double[n] ;
-    
-    for (int i=0 ; i<n ; i++) {
-	for (int j=0 ; j<n ; j++)
-	    vect[j] = 0 ;
-	vect[i] = 1 ;
-	d2sdx2_1d (n, &vect, R_CHEBU) ;  // appel dans le cas unsurr
-	mult2_xm1_1d_cheb (n, vect, x2vect) ; // multiplication par (x-1)^2
-	for (int j=0 ; j<n ; j++)
-	    vect[j] = 0 ;
-	vect[i] = 1 ;
-	dsdx_1d (n, &vect, R_CHEBU) ;  // appel dans le cas unsurr
-	mult_xm1_1d_cheb (n, vect, xvect) ; // multiplication par (x-1)
-	for (int j=0 ; j<n ; j++)
-	    pmat->set(j, i) = x2vect[j] + 6*xvect[j] ;
-    }
-    
-    delete [] vect ;
-    delete [] xvect ;
-    delete [] x2vect ;
-    
-    for (int i=0 ; i<n ; i++)
-	pmat->set(i, i) += 6 - l*(l+1) ;
-    
     indice = nb_dejafait ;
     nb_dejafait ++ ;
    } 
@@ -613,17 +450,17 @@ Matrice _laplacien_mat_r_cheb (int n, int l, double echelle, int) {
 	   delete tab[i] ;
        }
        
-        nb_dejafait = 0 ;
-	vieux_echelle = echelle ;
+       nb_dejafait = 0 ;
+       vieux_echelle = echelle ;
    }
-      
+   
    int indice = -1 ;
    
    // On determine si la matrice a deja ete calculee :
    for (int conte=0 ; conte<nb_dejafait ; conte ++)
-    if ((l_dejafait[conte] == l) && (nr_dejafait[conte] == n))
-	indice = conte ;
-    
+       if ((l_dejafait[conte] == l) && (nr_dejafait[conte] == n))
+	   indice = conte ;
+   
    // Calcul a faire : 
    if (indice  == -1) {
        if (nb_dejafait >= nmax) {
@@ -632,80 +469,20 @@ Matrice _laplacien_mat_r_cheb (int n, int l, double echelle, int) {
 	   exit (-1) ;
        }
        
-    	
-    l_dejafait[nb_dejafait] = l ;
-    nr_dejafait[nb_dejafait] = n ;
-    
-    Matrice dd(n, n) ;
-    dd.set_etat_qcq() ;
-    Matrice xd(n, n) ;
-    xd.set_etat_qcq() ;
-    Matrice xx(n, n) ;
-    xx.set_etat_qcq() ;
+       
+       l_dejafait[nb_dejafait] = l ;
+       nr_dejafait[nb_dejafait] = n ;
+       
+       Diff_dsdx2 d2(R_CHEB, n) ;
+       Diff_xdsdx2 xd2(R_CHEB, n) ;
+       Diff_x2dsdx2 x2d2(R_CHEB, n) ;
+       Diff_dsdx d1(R_CHEB, n) ;
+       Diff_xdsdx xd1(R_CHEB, n) ;
+       Diff_id id(R_CHEB, n) ;
 
-    double* vect = new double[n] ;
-    
-    for (int i=0 ; i<n ; i++) {
-	for (int j=0 ; j<n ; j++)
-	    vect[j] = 0 ;
-	vect[i] = 1 ;
-	d2sdx2_1d (n, &vect, R_CHEB) ;  // appel dans le cas fin
-	for (int j=0 ; j<n ; j++)
-	    dd.set(j, i) = vect[j]*echelle*echelle ;
-    }
-    
-    for (int i=0 ; i<n ; i++) {
-	for (int j=0 ; j<n ; j++)
-	    vect[j] = 0 ;
-	vect[i] = 1 ;
-	d2sdx2_1d (n, &vect, R_CHEB) ;  // appel dans le cas fin
-	multx_1d (n, &vect, R_CHEB) ;
-	for (int j=0 ; j<(n>i+1 ? i+1 : n) ; j++)
-	    dd.set(j, i) += 2*echelle*vect[j] ;
-    }
-    
-    for (int i=0 ; i<n ; i++) {
-	for (int j=0 ; j<n ; j++)
-	    vect[j] = 0 ;
-	vect[i] = 1 ;
-	d2sdx2_1d (n, &vect, R_CHEB) ;  // appel dans le cas fin
-	multx_1d (n, &vect, R_CHEB) ;
-	multx_1d (n, &vect, R_CHEB) ;
-	for (int j=0 ; j<(n>i+1 ? i+1 : n) ; j++)
-	    dd.set(j, i) += vect[j] ;
-    }
-    
-    for (int i=0 ; i<n ; i++) {
-	for (int j=0 ; j<n ; j++)
-	    vect[j] = 0 ;
-	vect[i] = 1 ;
-	sxdsdx_1d (n, &vect, R_CHEB) ;
-	for (int j=0 ; j<n ; j++)
-	    xd.set(j, i) = vect[j]*echelle ;
-	}
-    
-    for (int i=0 ; i<n ; i++) {
-	for (int j=0 ; j<n ; j++)
-	    vect[j] = 0 ;
-	vect[i] = 1 ;
-	sxdsdx_1d (n, &vect, R_CHEB) ;
-	multx_1d (n, &vect, R_CHEB) ;
-	for (int j=0 ; j<(n>i+1 ? i+1 : n) ; j++)
-	    xd.set(j, i) += vect[j] ;
-	}
-	   
-    for (int i=0 ; i<n ; i++) {
-	for (int j=0 ; j<n ; j++)
-	    vect[j] = 0 ;
-	vect[i] = 1 ;
-	sx2_1d (n, &vect, R_CHEB) ;
-	for (int j=0 ; j<n ; j++)
-	    xx.set(j, i) = vect[j] ;
-    }
-    
-    delete [] vect ;
-    
-    tab[nb_dejafait] = new Matrice(dd+2*xd-l*(l+1)*xx) ;
+       tab[nb_dejafait] = 
+	   new Matrice(x2d2 + (2*echelle)*xd2 + (echelle*echelle)*d2
+		       + 2*xd1 + (2*echelle)*d1 - (l*(l+1))*id) ;
     indice = nb_dejafait ;
     nb_dejafait ++ ;
    } 

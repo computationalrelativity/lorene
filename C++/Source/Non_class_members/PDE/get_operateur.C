@@ -25,6 +25,9 @@ char get_operateur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/01/27 10:19:43  j_novak
+ * Now using Diff operators to build the matrices.
+ *
  * Revision 1.5  2003/06/18 08:45:27  j_novak
  * In class Mg3d: added the member get_radial, returning only a radial grid
  * For dAlembert solver: the way the coefficients of the operator are defined has been changed.
@@ -63,8 +66,8 @@ char get_operateur_C[] = "$Header$" ;
 
 // Headers Lorene :
 #include "param.h"
-#include "matrice.h"
 #include "base_val.h"
+#include "diff.h"
 #include "proto.h"
 
 /*************************************************************************
@@ -132,8 +135,8 @@ int& type_dal, Matrice& operateur)
     double a22 = 0. ; double a23 = 0. ; double  a24 = 0. ; 
 
     bool dege = (fabs(coeff(9)) < 1.e-10) ;
-    switch (dege) {
-    case true:
+     switch (dege) {
+     case true:
       a00 = R1 - dt*(coeff(7)*R1 + coeff(8)) ;
       a01 = R2 - dt*R2*coeff(7) ;
       a02 = 0 ;
@@ -147,9 +150,9 @@ int& type_dal, Matrice& operateur)
       a23 = -dt*R2*coeff(3) ;
       a24 = 0 ;
       type_dal = ((0.1*(fabs(a20)+fabs(a21)+fabs(a22)+fabs(a23))*nr*nr*nr 
-		   < 1.) ? O2DEGE_SMALL : O2DEGE_LARGE ) ;
-      break ;
-    case false:
+ 		   < 1.) ? O2DEGE_SMALL : O2DEGE_LARGE ) ;
+       break ;
+     case false:
       a00 = R1*R1 - dt*(coeff(7)*R1*R1 + coeff(8)*R1 + coeff(9)) ;
       a01 = 2*R1*R2 - dt*(2*R1*R2*coeff(7) + R2*coeff(8)) ;
       a02 = R2*R2*(1 - dt*coeff(7)) ;
@@ -162,100 +165,57 @@ int& type_dal, Matrice& operateur)
       a22 = -dt*(coeff(1) + 3*R1*coeff(2) + 6*R1*R1*coeff(3)) ;
       a23 = -dt*(R2*coeff(2) + 4*R1*R2*coeff(3)) ;
       a24 = -dt*R2*R2*coeff(3) ;
-      type_dal = ((0.1*(fabs(a20)+fabs(a21)+fabs(a22)+fabs(a23)+fabs(a24))
-		   *nr*nr*nr < 1.) ? O2NOND_SMALL : O2NOND_LARGE ) ;
-      break ;
-    }
+       type_dal = ((0.1*(fabs(a20)+fabs(a21)+fabs(a22)+fabs(a23)+fabs(a24))
+ 		   *nr*nr*nr < 1.) ? O2NOND_SMALL : O2NOND_LARGE ) ;
+       break ;
+     }
+    if (fabs(a00)<1.e-15) a00 = 0 ;
+    if (fabs(a01)<1.e-15) a01 = 0 ;
+    if (fabs(a02)<1.e-15) a02 = 0 ;
+    if (fabs(a10)<1.e-15) a10 = 0 ;
+    if (fabs(a11)<1.e-15) a11 = 0 ;
+    if (fabs(a12)<1.e-15) a12 = 0 ;
+    if (fabs(a13)<1.e-15) a13 = 0 ;
+    if (fabs(a20)<1.e-15) a20 = 0 ;
+    if (fabs(a21)<1.e-15) a21 = 0 ;
+    if (fabs(a22)<1.e-15) a22 = 0 ;
+    if (fabs(a23)<1.e-15) a23 = 0 ;
+    if (fabs(a24)<1.e-15) a24 = 0 ;
 
-    double* vect = new double[nr] ;
-    operateur.set_etat_qcq() ;
+    
+
+    Diff_id id(R_CHEB, nr) ;
+    if (fabs(a00)>1.e-15) {
+	operateur = a00*id ;
+    }
+    else{
+	operateur.set_etat_qcq() ;
+	for (int i=0; i<nr; i++) 
+	    for (int j=0; j<nr; j++)
+		operateur.set(i,j) = 0. ;
+    }
+    Diff_mx op01(R_CHEB, nr) ; const Matrice& m01 = op01.get_matrice() ;
+    Diff_mx2 op02(R_CHEB, nr) ; const Matrice& m02 = op02.get_matrice() ;
+    Diff_dsdx op10(R_CHEB, nr) ; const Matrice& m10 = op10.get_matrice() ;
+    Diff_xdsdx op11(R_CHEB, nr) ; const Matrice& m11 = op11.get_matrice() ;
+    Diff_x2dsdx op12(R_CHEB, nr) ; const Matrice& m12 = op12.get_matrice() ;
+    Diff_x3dsdx op13(R_CHEB, nr) ; const Matrice& m13 = op13.get_matrice() ;
+    Diff_dsdx2 op20(R_CHEB, nr) ; const Matrice& m20 = op20.get_matrice() ;
+    Diff_xdsdx2 op21(R_CHEB, nr) ; const Matrice& m21 = op21.get_matrice() ;
+    Diff_x2dsdx2 op22(R_CHEB, nr) ; const Matrice& m22 = op22.get_matrice() ;
+    Diff_x3dsdx2 op23(R_CHEB, nr) ; const Matrice& m23 = op23.get_matrice() ;
+    Diff_x4dsdx2 op24(R_CHEB, nr) ; const Matrice& m24 = op24.get_matrice() ;
 
     for (int i=0; i<nr; i++) {
-      for (int j=0; j<nr; j++) operateur.set(i,j) = 0 ;
-      operateur.set(i,i) = a00 ;
+	int jmin = (i>3 ? i-3 : 0) ; 
+	int jmax = (i<nr-9 ? i+10 : nr) ;
+	for (int j=jmin ; j<jmax; j++) 
+	    operateur.set(i,j) += a01*m01(i,j) + a02*m02(i,j) 
+		+ a10*m10(i,j) + a11*m11(i,j) + a12*m12(i,j) 
+		+ a13*m13(i,j) + a20*m20(i,j) + a21*m21(i,j)
+		+ a22*m22(i,j) + a23*m23(i,j) + a24*m24(i,j) ;
+	
     }
-
-    for (int i=0 ; i<nr ; i++) {
-      for (int j=0 ; j<nr ; j++) vect[j] = 0 ;
-      vect[i] = 1 ;
-      multx_1d (nr, &vect, R_CHEB) ;
-
-      int nrmin = (i>10 ? i-10 : 0) ;
-      int nrmax = (i<nr-2 ? i+3 : nr) ;
-
-      if (fabs(a01)>1.e-15)
-	for (int j=nrmin ; j<nrmax; j++)
-	  operateur.set(j, i) += a01*vect[j] ; 
-      if ((!dege)&&(fabs(a02)>1.e-15)) { 
-	multx_1d (nr, &vect, R_CHEB) ;
-	for (int j=nrmin; j<nrmax ; j++)
-	  operateur.set(j, i) += a02*vect[j] ; 
-      }
-    }
-
-    for (int i=0 ; i<nr ; i++) {
-      for (int j=0 ; j<nr ; j++) vect[j] = 0 ;
-      vect[i] = 1 ;
-      sxdsdx_1d (nr, &vect, R_CHEB) ;
-      
-      int nrmin = (i>10 ? i-10 : 0) ;
-      int nrmax = (i<nr-2 ? i+3 : nr) ;
-
-      if (fabs(a10)>1.e-15)
-	for (int j=nrmin ; j<nrmax ; j++)
-	  operateur.set(j, i) += a10*vect[j] ; 
-      multx_1d (nr, &vect, R_CHEB) ;
-      
-      if (fabs(a11)>1.e-15)
-	for (int j=nrmin ; j<nrmax ; j++)
-	  operateur.set(j, i) += a11*vect[j] ; 
-      multx_1d (nr, &vect, R_CHEB) ;
-      
-      if (fabs(a12)>1.e-15)
-	for (int j=nrmin ; j<nrmax ; j++)
-	  operateur.set(j, i) += a12*vect[j] ; 
-      if ((!dege)&&(fabs(a13)>1.e-15)) {
-	multx_1d (nr, &vect, R_CHEB) ;
-	for (int j=nrmin ; j<nrmax ; j++)
-	  operateur.set(j, i) += a13*vect[j] ; 
-      }
-    }
-
-    for (int i=0 ; i<nr ; i++) {
-      for (int j=0 ; j<nr ; j++) vect[j] = 0 ;
-      vect[i] = 1 ;
-      d2sdx2_1d (nr, &vect, R_CHEB) ;
-      
-      int nrmin = (i>10 ? i-10 : 0) ;
-      int nrmax = (i<nr-2 ? i+3 : nr) ;
-
-      if (fabs(a20)>1.e-15)
-	for (int j=nrmin ; j<nrmax ; j++)
-	  operateur.set(j, i) += a20*vect[j] ; 
-
-      multx_1d (nr, &vect, R_CHEB) ;
-      if (fabs(a21)>1.e-15)
-	for (int j=nrmin; j<nrmax ; j++) 
-	  operateur.set(j, i) += a21*vect[j] ;
-
-      multx_1d (nr, &vect, R_CHEB) ;
-      if (fabs(a22)>1.e-15)
-	for (int j=nrmin; j<nrmax; j++) 
-	  operateur.set(j, i) += a22*vect[j] ;
-
-      multx_1d (nr, &vect, R_CHEB) ;
-      if (fabs(a23)>1.e-15)
-	for (int j=nrmin; j<nrmax; j++) 
-	  operateur.set(j, i) += a23*vect[j] ;
-      if ((!dege)&&(fabs(a24)>1.e-15)) {
-	multx_1d (nr, &vect, R_CHEB) ;
-	for (int j=nrmin; j<nrmax; j++) 
-	  operateur.set(j, i) += a24*vect[j] ;
-      }
-    }
-
-  delete [] vect ;
-  
 }
 
 void _get_operateur_dal_r_chebp(const Param& par, const int& lzone, 
@@ -268,7 +228,6 @@ void _get_operateur_dal_r_chebp(const Param& par, const int& lzone,
   assert (par.get_n_tbl_mod() > 0) ;
   assert ((par.get_tbl_mod()).get_dim(1) == 12 ) ;
   assert ((par.get_tbl_mod()).get_ndim() ==2 ) ;
-  static int nap = 0 ;
 
   double dt = par.get_double(0) ;
   dt *= 0.5*dt ;
@@ -277,11 +236,17 @@ void _get_operateur_dal_r_chebp(const Param& par, const int& lzone,
   Tbl coeff(7) ;
   coeff.set_etat_qcq() ;
   coeff.set(1) = (par.get_tbl_mod())(1,lzone) ;
+  if (fabs(coeff(1))<1.e-15) coeff.set(1) = 0 ;
   coeff.set(2) = (par.get_tbl_mod())(3,lzone) ;
+  if (fabs(coeff(2))<1.e-15) coeff.set(2) = 0 ;
   coeff.set(3) = (par.get_tbl_mod())(6,lzone) ;
+  if (fabs(coeff(3))<1.e-15) coeff.set(3) = 0 ;
   coeff.set(4) = (par.get_tbl_mod())(5,lzone) ;
+  if (fabs(coeff(4))<1.e-15) coeff.set(4) = 0 ;
   coeff.set(5) = (par.get_tbl_mod())(9,lzone) ;
+  if (fabs(coeff(5))<1.e-15) coeff.set(5) = 0 ;
   coeff.set(6) = (par.get_tbl_mod())(7,lzone) ;
+  if (fabs(coeff(6))<1.e-15) coeff.set(6) = 0 ;
   double alpha2 = (par.get_tbl_mod())(11,lzone)*(par.get_tbl_mod())(11,lzone) ;
 
   //***********************************************************************
@@ -322,70 +287,30 @@ void _get_operateur_dal_r_chebp(const Param& par, const int& lzone,
   coeff.set(5) *= dt/alpha2 ;
   coeff.set(6) *= dt ;
 
-  static Matrice Id(nr,nr) ;
-  if (nap == 0) {
-    Id.set_etat_qcq() ;
-    for (int i=0; i<nr; i++) {
-      for (int j=0; j<nr; j++) Id.set(i,j) = 0 ;
-      Id.set(i,i) = 1 ;
-    }
-    nap = 1 ;
+  Diff_id id(R_CHEBP, nr) ;
+  if (fabs(1-coeff(6))>1.e-15) {
+      operateur = (1-coeff(6))*id ;
   }
-  operateur = Id ;
+  else{
+      operateur.set_etat_qcq() ;
+      for (int i=0; i<nr; i++) 
+	  for (int j=0; j<nr; j++)
+	      operateur.set(i,j) = 0. ;
+  }
+  Diff_sx2 op02(R_CHEBP, nr) ; const Matrice& m02 = op02.get_matrice() ;
+  Diff_xdsdx op11(R_CHEBP, nr) ; const Matrice& m11 = op11.get_matrice() ;
+  Diff_sxdsdx op12(R_CHEBP, nr) ; const Matrice& m12 = op12.get_matrice() ;
+  Diff_dsdx2 op20(R_CHEBP, nr) ; const Matrice& m20 = op20.get_matrice() ;
+  Diff_x2dsdx2 op22(R_CHEBP, nr) ; const Matrice& m22 = op22.get_matrice() ;
 
-  double* vect  = new double[nr] ;
-  
-  if (fabs(coeff(1))+fabs(coeff(2)) > 1.e-30) {
-    for (int i=0 ; i<nr ; i++) {
-      for (int j=0 ; j<nr ; j++) vect[j] = 0 ;
-      vect[i] = 1 ;
-      d2sdx2_1d (nr, &vect, R_CHEBP) ;
-      
-      if (fabs(coeff(1)) > 1.e-30) {
-	for (int j=0 ; j<=i ; j++)
-	  operateur.set(j, i) -= coeff(1)*vect[j] ; 
-      }
-      if (fabs(coeff(2)) > 1.e-30) {
-	multx2_1d (nr, &vect, R_CHEBP) ;
-	for (int j=0; j<=i; j++) 
-	  operateur.set(j, i) -= coeff(2)*vect[j] ;
-      }
+    for (int i=0; i<nr; i++) {
+	int jmin = (i>3 ? i-3 : 0) ; 
+	int jmax = (i<nr-9 ? i+10 : nr) ;
+	for (int j=jmin ; j<jmax; j++) 
+	    operateur.set(i,j) -= coeff(1)*m20(i,j) + coeff(2)*m22(i,j)
+		+ coeff(3)*m12(i,j) + coeff(4)*m11(i,j) + coeff(5)*m02(i,j) ;
     }
-  }
-  
-  if (fabs(coeff(3)) > 1.e-30) {
-    for (int i=0 ; i<nr ; i++) {
-      for (int j=0 ; j<nr ; j++) vect[j] = 0 ;
-      vect[i] = 1 ;
-      sxdsdx_1d (nr, &vect, R_CHEBP) ;
-      for (int j=0 ; j<=i ; j++)
-	operateur.set(j, i) -= coeff(3)*vect[j] ; 
-    }
-  }
-  
-  if (fabs(coeff(4)) > 1.e-30) {
-    for (int i=0 ; i<nr ; i++) {
-      for (int j=0 ; j<nr ; j++) vect[j] = 0 ;
-      vect[i] = 1 ;
-      xdsdx_1d (nr, &vect, R_CHEBP) ;
-      for (int j=0 ; j<=i ; j++)
-	operateur.set(j, i) -= coeff(4)*vect[j] ; 
-    }
-  }
-  
-  if (fabs(coeff(5)) > 1.e-30) {
-    for (int i=0 ; i<nr ; i++) {
-      for (int j=0 ; j<nr ; j++) vect[j] = 0 ;
-      vect[i] = 1 ;
-      sx2_1d (nr, &vect, R_CHEBP) ;
-      for (int j=0 ; j<=i ; j++)
-	operateur.set(j, i) -= coeff(5)*vect[j] ; 
-    }
-  }
-  
-  if (fabs(coeff(6)) > 1.e-30) operateur = operateur - coeff(6)*Id ;
-  
-  delete [] vect ;
+
 
 }
 
@@ -400,7 +325,6 @@ void _get_operateur_dal_r_chebi(const Param& par, const int& lzone,
   assert (par.get_n_tbl_mod() > 0) ;
   assert ((par.get_tbl_mod()).get_dim(1) == 12 ) ;
   assert ((par.get_tbl_mod()).get_ndim() == 2 ) ;
-  static int nap = 0 ;
 
   double dt = par.get_double(0) ;
   dt *= 0.5*dt ;
@@ -409,11 +333,17 @@ void _get_operateur_dal_r_chebi(const Param& par, const int& lzone,
   Tbl coeff(7) ;
   coeff.set_etat_qcq() ;
   coeff.set(1) = (par.get_tbl_mod())(1,lzone) ;
+  if (fabs(coeff(1))<1.e-15) coeff.set(1) = 0 ;
   coeff.set(2) = (par.get_tbl_mod())(3,lzone) ;
+  if (fabs(coeff(2))<1.e-15) coeff.set(2) = 0 ;
   coeff.set(3) = (par.get_tbl_mod())(6,lzone) ;
+  if (fabs(coeff(3))<1.e-15) coeff.set(3) = 0 ;
   coeff.set(4) = (par.get_tbl_mod())(5,lzone) ;
+  if (fabs(coeff(4))<1.e-15) coeff.set(4) = 0 ;
   coeff.set(5) = (par.get_tbl_mod())(9,lzone) ;
+  if (fabs(coeff(5))<1.e-15) coeff.set(5) = 0 ;
   coeff.set(6) = (par.get_tbl_mod())(7,lzone) ;
+  if (fabs(coeff(6))<1.e-15) coeff.set(6) = 0 ;
   double alpha2 = (par.get_tbl_mod())(11,lzone)*(par.get_tbl_mod())(11,lzone) ;
 
   //***********************************************************************
@@ -455,70 +385,29 @@ void _get_operateur_dal_r_chebi(const Param& par, const int& lzone,
   coeff.set(5) *= dt/alpha2 ;
   coeff.set(6) *= dt ;
 
-  static Matrice Id(nr,nr) ;
-  if (nap == 0) {
-    Id.set_etat_qcq() ;
-    for (int i=0; i<nr; i++) {
-      for (int j=0; j<nr; j++) Id.set(i,j) = 0 ;
-      Id.set(i,i) = 1 ;
-    }
-    nap = 1 ;
+  Diff_id id(R_CHEBP, nr) ;
+  if (fabs(1-coeff(6))>1.e-15) {
+      operateur = (1-coeff(6))*id ;
   }
-  operateur = Id ;
+  else{
+      operateur.set_etat_qcq() ;
+      for (int i=0; i<nr; i++) 
+	  for (int j=0; j<nr; j++)
+	      operateur.set(i,j) = 0. ;
+  }
+  Diff_sx2 op02(R_CHEBI, nr) ; const Matrice& m02 = op02.get_matrice() ;
+  Diff_xdsdx op11(R_CHEBI, nr) ; const Matrice& m11 = op11.get_matrice() ;
+  Diff_sxdsdx op12(R_CHEBI, nr) ; const Matrice& m12 = op12.get_matrice() ;
+  Diff_dsdx2 op20(R_CHEBI, nr) ; const Matrice& m20 = op20.get_matrice() ;
+  Diff_x2dsdx2 op22(R_CHEBI, nr) ; const Matrice& m22 = op22.get_matrice() ;
 
-  double* vect  = new double[nr] ;
-  
-  if (fabs(coeff(1))+fabs(coeff(2)) > 1.e-30) {
-    for (int i=0 ; i<nr ; i++) {
-      for (int j=0 ; j<nr ; j++) vect[j] = 0 ;
-      vect[i] = 1 ;
-      d2sdx2_1d (nr, &vect, R_CHEBI) ;
-      
-      if (fabs(coeff(1)) > 1.e-30) {
-	for (int j=0 ; j<=i ; j++)
-	  operateur.set(j, i) -= coeff(1)*vect[j] ; 
-      }
-      if (fabs(coeff(2)) > 1.e-30) {
-	multx2_1d (nr, &vect, R_CHEBI) ;
-	for (int j=0; j<=i; j++) 
-	  operateur.set(i,j) -= coeff(2)*vect[j] ;
-      }
+    for (int i=0; i<nr; i++) {
+	int jmin = (i>3 ? i-3 : 0) ; 
+	int jmax = (i<nr-9 ? i+10 : nr) ;
+	for (int j=jmin ; j<jmax; j++) 
+	    operateur.set(i,j) -= coeff(1)*m20(i,j) + coeff(2)*m22(i,j)
+		+ coeff(3)*m12(i,j) + coeff(4)*m11(i,j) + coeff(5)*m02(i,j) ;
     }
-  }
-  
-  if (fabs(coeff(3)) > 1.e-30) {
-    for (int i=0 ; i<nr ; i++) {
-      for (int j=0 ; j<nr ; j++) vect[j] = 0 ;
-      vect[i] = 1 ;
-      sxdsdx_1d (nr, &vect, R_CHEBI) ;
-      for (int j=0 ; j<=i ; j++)
-	operateur.set(j, i) -= coeff(3)*vect[j] ; 
-    }
-  }
-  
-  if (fabs(coeff(4)) > 1.e-30) {
-    for (int i=0 ; i<nr ; i++) {
-      for (int j=0 ; j<nr ; j++) vect[j] = 0 ;
-      vect[i] = 1 ;
-      xdsdx_1d (nr, &vect, R_CHEBI) ;
-      for (int j=0 ; j<=i ; j++)
-	operateur.set(j, i) -= coeff(4)*vect[j] ; 
-    }
-  }
-  
-  if (fabs(coeff(5)) > 1.e-30) {
-    for (int i=0 ; i<nr ; i++) {
-      for (int j=0 ; j<nr ; j++) vect[j] = 0 ;
-      vect[i] = 1 ;
-      sx2_1d (nr, &vect, R_CHEBI) ;
-      for (int j=0 ; j<=i ; j++)
-	operateur.set(j, i) -= coeff(5)*vect[j] ; 
-    }
-  }
-  
-  if (fabs(coeff(6)) > 1.e-30) operateur = operateur - coeff(6)*Id ;
-  
-  delete [] vect ;
 
 }
 
