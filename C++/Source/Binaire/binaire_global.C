@@ -32,8 +32,11 @@ char binaire_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/14 09:45:14  k_taniguchi
+ * Correction of missing 16 pi G factor in the ADM mass
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.3  2000/03/08  12:26:33  eric
  * Ajout de l'appel a std_base_scal() sur le Cmp source dans le cas
@@ -58,7 +61,7 @@ char binaire_global_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "binaire.h"
-
+#include "unites.h"
 
 		    //---------------------------------//
 		    //		ADM mass	       //
@@ -85,7 +88,7 @@ double Binaire::mass_adm() const {
 		const Cmp& ak2_comp = (et[i]->get_akcar_comp())() ;
 	    
 		Cmp source = pow(a2, 1.25) * ee 
-			   + pow(a2, 0.25) * ( ak2_auto + ak2_comp) ; 
+		  + pow(a2, 0.25) * (ak2_auto + ak2_comp) / (4.*qpig) ; 
 			   
 		source.std_base_scal() ; 
 			   
