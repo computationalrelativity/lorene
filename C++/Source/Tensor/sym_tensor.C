@@ -35,6 +35,9 @@ char sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/09/26 08:05:31  j_novak
+ * New class Vector.
+ *
  * Revision 1.1  2003/09/25 13:37:40  j_novak
  * Symmetric tensors of valence 2 are now implemented (not tested yet).
  *
@@ -157,9 +160,6 @@ Itbl Sym_tensor::indices (int place) const {
     Itbl res(2) ;
     res.set_etat_qcq() ;
     assert ((place>=0) && (place<6)) ;
-    
-    int reste = div(place, 6).rem ;
-    place = int((place-reste)/6) ;
     
     if (place<3) {
 	res.set(0) = 1 ;

@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/09/26 08:05:29  j_novak
+ * New class Vector.
+ *
  * Revision 1.6  2003/09/25 21:01:50  e_gourgoulhon
  * Improved comments.
  *
@@ -288,7 +291,7 @@ class Tensor {
 	/** Sets a new vectorial basis (triad) of decomposition and modifies
 	 *  the components accordingly. 
 	 */
-	void change_triad(const Base_vect& new_triad) ; 
+	virtual void change_triad(const Base_vect& new_triad) ; 
     
 	/** Assigns a new vectorial basis (triad) of decomposition. 
 	 *  NB: this function modifies only the member {\tt triad} and
@@ -498,6 +501,7 @@ class Tensor {
     // Friend classes 
     // ---------------
 	friend class Scalar ;
+	friend class Vector ;
 	friend class Sym_tensor ;
     
     // Mathematical operators
@@ -525,6 +529,8 @@ Tensor operator+(const Tensor&, const Tensor &) ;	/// Tensor + Tensor
 
 
     //@}
+
+
 
 
 
@@ -651,6 +657,8 @@ class Sym_tensor : public Tensor {
 
 
 #include "scalar.h"
+
+#include "vector.h"
 
 
 #endif

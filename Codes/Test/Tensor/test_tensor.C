@@ -14,7 +14,7 @@ int main() {
     int nz = 2 ;
     double R = 2. ;
 
-    int nr0 = 33 ; int nt0 = 17; int np0 = 4 ;
+    int nr0 = 9 ; int nt0 = 5; int np0 = 4 ;
     
     // echantillonnage en phi :
     int* np = new int [nz] ;
@@ -110,6 +110,33 @@ int main() {
 
     arrete() ; 
 
+    Vector vv(mapping, COV, mapping.get_bvect_spher() ) ;
+    vv = num ;
+
+    cout << vv ;
+
+    Sym_tensor tt(mapping, CON, mapping.get_bvect_cart() ) ;
+
+    cout << tt ;
+
+    fich = fopen("res2.d", "w") ; 
+    
+    grille.sauve(fich) ; 
+    mapping.sauve(fich) ; 
+    num.sauve(fich) ; 
+    
+    fclose(fich) ; 
+    
+    fich = fopen("res2.d", "r") ; 
+
+    Mg3d mg2(fich) ; 
+    Map_af mp2(mg2, fich) ; 
+
+    Vector toto(mapping, mapping.get_bvect_spher(), fich) ;
+
+    fclose(fich) ;
+
+    
     delete [] bornes ;
     delete [] nr ;
     delete [] nt ;
