@@ -32,8 +32,11 @@ char et_bin_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/14 15:15:30  k_taniguchi
+ * Change of the method to calculate derivatives with respect to the companion star
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.4  2000/03/13  14:03:38  eric
  * Modif commentaires.
@@ -61,6 +64,107 @@ char et_bin_upmetr_der_C[] = "$Header$" ;
 
 void Etoile_bin::update_metric_der_comp(const Etoile_bin& comp) {
     
+    // Computation of d_logn_comp
+    // --------------------------
+    
+    if ( (comp.d_logn_auto).get_etat() == ETATZERO ) {
+	d_logn_comp.set_etat_zero() ; 
+    }
+    else{
+      d_logn_comp = logn_comp.gradient() ;
+    }
+
+    d_logn_comp.change_triad(ref_triad) ;
+
+    // Computation of d_beta_comp
+    // --------------------------
+
+    if ( (comp.d_beta_auto).get_etat() == ETATZERO ) {
+	d_beta_comp.set_etat_zero() ; 
+    }
+    else {
+      d_beta_comp = beta_comp.gradient() ;
+    }
+
+    d_beta_comp.change_triad(ref_triad) ;
+
+    // Computation of tkij_comp
+    // ------------------------
+
+    if ( (comp.tkij_auto).get_etat() == ETATZERO ) {
+	tkij_comp.set_etat_zero() ; 
+    }
+    else{
+
+      // Components of shift_comp with respect to the Cartesian triad
+      //  (d/dx, d/dy, d/dz) of the mapping :
+      Tenseur shift_comp_local = shift_comp ;
+      shift_comp_local.change_triad( mp.get_bvect_cart() ) ;
+
+      // Gradient (partial derivatives with respect to
+      //           the Cartesian coordinates of the mapping)
+      // D_j N^i
+
+      Tenseur dn_comp = shift_comp_local.gradient() ;
+
+      // Return to the absolute reference frame
+      dn_comp.change_triad(ref_triad) ;
+
+      // Trace of D_j N^i = divergence of N^i :
+      Tenseur divn_comp = contract(dn_comp, 0, 1) ;
+
+      // Computation of A^2 K^{ij}
+      // -------------------------
+      tkij_comp.set_etat_qcq() ;
+
+      for (int i=0; i<3; i++) {
+	for (int j=i; j<3; j++) {
+	  tkij_comp.set(i, j) = dn_comp(i, j) + dn_comp(j, i)  ;
+	}
+	tkij_comp.set(i, i) -= double(2)/double(3) * divn_comp() ;
+      }
+
+      tkij_comp = - 0.5 * tkij_comp / nnn ;
+
+    }
+    
+    tkij_comp.set_triad( *((comp.tkij_auto).get_triad()) ) ; 
+    tkij_comp.set_std_base() ;
+
+    if (relativistic) {
+	// Computation of akcar_comp
+	// -------------------------
+    
+	akcar_comp.set_etat_qcq() ; 
+    
+	akcar_comp.set() = 0 ; 
+    
+	for (int i=0; i<3; i++) {
+	    for (int j=0; j<3; j++) {
+	
+		akcar_comp.set() += tkij_auto(i, j) * tkij_comp(i, j) ; 
+	
+	    }
+	}
+    
+	akcar_comp.set_std_base() ;
+	akcar_comp = a_car * akcar_comp ;
+
+    }
+
+    // The derived quantities are obsolete
+    // -----------------------------------
+
+    del_deriv() ;
+
+
+    //-----------------------------------------------------
+    // The previous way to calculate d_logn_comp and so on
+    //  which we do not use
+    //-----------------------------------------------------
+
+    //#################################
+    /*
     int nz = mp.get_mg()->get_nzone() ; 
     int nzm1 = nz - 1 ; 
 
@@ -165,6 +269,7 @@ void Etoile_bin::update_metric_der_comp(const Etoile_bin& comp) {
     // -----------------------------------
     
     del_deriv() ;                
-    
+    */
+    //#################################
     
 }
