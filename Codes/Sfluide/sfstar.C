@@ -5,7 +5,6 @@
 // // headers C
 #include <math.h>
 #include <sstream>
-
 // headers Lorene
 #include "et_rot_bifluid.h"
 #include "eos_bifluid.h"
@@ -22,7 +21,6 @@ void compare_analytic (Et_rot_bifluid& star);
 string get_file_base (double xp, double sig);
 string get_file_base (double xp, double sig, double eps, double om1, double om2);
 
-
 // some global EOS parameters 
 double kap1, kap2, kap3, beta, m1, m2, detA, k1, k2, kk, R;
 double sigma, eps, eps_n, xp;
@@ -35,7 +33,6 @@ int main(){
     // For the display : 
     char display_bold[]="x[1m" ; display_bold[0] = 27 ;
 
-    #include "unites.h"	    
     // To avoid some compilation warnings
     if (display_bold == 0x0) {
       cout << qpig << f_unit << km << msol << mevpfm3 << endl ; 
@@ -44,65 +41,83 @@ int main(){
     //------------------------------------------------------------------
     //	    Parameters of the computation 
     //------------------------------------------------------------------
+    ifstream fich;
 
-    char blabla[120] ;
-
-    int relat_i, mer_max, mer_rot, mer_change_omega, mer_fix_omega, 
-	mermax_poisson, graph, nz, nzet, nt, np; 
-    double ent_c, ent2_c, freq_si, freq2_si, precis, freq_ini_si, 
+    bool relat, graph;
+    int mer_max, mer_rot, mer_change_omega, mer_fix_omega, 
+	mermax_poisson, nz, nzet, nt, np; 
+    double ent1_c, ent2_c, freq_si, freq2_si, precis, freq_ini_si, 
       freq2_ini_si,relax, relax_poisson ;  
-    
-    ifstream fich("parrot.d") ;
-    fich.getline(blabla, 120) ;
-    fich >> relat_i ; fich.getline(blabla, 120) ;
-    bool relat = (relat_i == 1) ; 
-    fich >> ent_c ; fich.getline(blabla, 120) ;
-    fich >> ent2_c ; fich.getline(blabla, 120) ;
-    fich >> freq_si ; fich.getline(blabla, 120) ;
-    fich >> freq2_si ; fich.getline(blabla, 120) ;
-    fich.getline(blabla, 120) ;
-    fich >> mer_max ; fich.getline(blabla, 120) ;
-    fich >> precis ; fich.getline(blabla, 120) ;
-    fich >> mer_rot ; fich.getline(blabla, 120) ;
-    fich >> freq_ini_si ; fich.getline(blabla, 120) ;
-    fich >> freq2_ini_si ; fich.getline(blabla, 120) ;
-    fich >> mer_change_omega ; fich.getline(blabla, 120) ;
-    fich >> mer_fix_omega ; fich.getline(blabla, 120) ;
-    fich >> relax ; fich.getline(blabla, 120) ;
-    fich >> mermax_poisson ; fich.getline(blabla, 120) ;
-    fich >> relax_poisson ; fich.getline(blabla, 120) ;
-    fich >> graph ; fich.getline(blabla, 120) ;
-    fich.getline(blabla, 120) ;
-    fich >> nz ; fich.getline(blabla, 120) ;
-    fich >> nzet; fich.getline(blabla, 120) ;
-    fich >> nt; fich.getline(blabla, 120) ;
-    fich >> np; fich.getline(blabla, 120) ;
+
+
+    int res = 0;
+
+    res |= read_variable ("settings.par", "relat", relat);
+    res |= read_variable (NULL, "ent1_c", ent1_c);
+    res |= read_variable (NULL, "ent2_c",ent2_c);
+    res |= read_variable (NULL, "freq_si", freq_si);
+    res |= read_variable (NULL, "freq2_si", freq2_si);
+    res |= read_variable (NULL, "mer_max", mer_max);
+    res |= read_variable (NULL, "precis", precis);
+    res |= read_variable (NULL, "mer_rot", mer_rot);
+    res |= read_variable (NULL, "freq_ini_si", freq_ini_si);
+    res |= read_variable (NULL, "freq2_ini_si", freq2_ini_si);
+    res |= read_variable (NULL, "mer_change_omega", mer_change_omega);
+    res |= read_variable (NULL, "mer_fix_omega", mer_fix_omega);
+    res |= read_variable (NULL, "relax", relax);
+    res |= read_variable (NULL, "mermax_poisson", mermax_poisson);
+    res |= read_variable (NULL, "relax_poisson", relax_poisson);
+    res |= read_variable (NULL, "graph", graph);
+    res |= read_variable (NULL, "nz", nz);
+    res |= read_variable (NULL, "nzet", nzet);
+    res |= read_variable (NULL, "nt", nt);
+    res |= read_variable (NULL, "np", np);
+
+    if ( res != 0 )
+      {
+	cerr << "An error ocurred in reading the parameter file 'settings.par'. Terminating...\n";
+	exit (-1);
+      }
 
     int* nr = new int[nz];
     int* nt_tab = new int[nz];
     int* np_tab = new int[nz];
     double* bornes = new double[nz+1];
-     
-    fich.getline(blabla, 120);
+    
+    char cbuf[50]; // man, <ios> does not seem to exist here... 
     for (int l=0; l<nz; l++) {
-	fich >> nr[l]; 
-	fich >> bornes[l]; fich.getline(blabla, 120) ;
-	np_tab[l] = np ; 
-	nt_tab[l] = nt ; 
+      sprintf (cbuf, "nr%d", l);
+      res |= read_variable (NULL, cbuf, nr[l]);
+      sprintf (cbuf, "rmin%d", l);
+      res |= read_variable (NULL, cbuf, bornes[l]);
+      np_tab[l] = np ; 
+      nt_tab[l] = nt ; 
+      //      cout << "DEBUG: l= "<<l<< ", read in nr[l] = " << nr[l] << "; rmin[l] = " << bornes[l] << endl;
     }
+
     bornes[nz] = __infinity ;
 
     Tbl ent_limit(nzet) ;
     ent_limit.set_etat_qcq() ;
     ent_limit.set(nzet-1) = 0 ; 	// enthalpy at the stellar surface
     Tbl ent2_limit(ent_limit) ;
+    ent2_limit.set_etat_qcq() ;
+    ent2_limit.set(nzet-1) = 0 ;  // enthalpy 2 at the stellar surface
+
+    double tmp;
     for (int l=0; l<nzet-1; l++) {
-    	fich >> ent_limit.set(l) ; fich.getline(blabla, 120) ;
-	ent2_limit.set(l) = ent_limit(l) ; 
+      sprintf (cbuf, "ent_limit%d", l);
+      res |= read_variable (NULL, cbuf, tmp);
+      ent_limit.set(l) = tmp;
+      ent2_limit.set(l) = tmp;
     }
 
+    if ( res != 0 )
+      {
+	cerr << "An error ocurred in reading the parameter file 'settings.par'. Terminating...\n";
+	exit (-1);
+      }
 
-    fich.close();
 
     // Particular cases
     // ----------------
@@ -118,7 +133,6 @@ int main(){
     //-----------------------------------------------------------------------
     //		Equation of state
     //-----------------------------------------------------------------------
-
     fich.open("par_eos.d") ;
 
     Eos_bifluid* peos = Eos_bifluid::eos_from_file(fich) ;
@@ -168,7 +182,7 @@ int main(){
 	 << endl << "=================   " << endl ;
     cout << eos << endl ; 
 
-    cout << "Central enthalpy 1 : " << ent_c << " c^2" << endl ; 
+    cout << "Central enthalpy 1 : " << ent1_c << " c^2" << endl ; 
     cout << "Central enthalpy 2 : " << ent2_c << " c^2" << endl ; 
     cout << "Rotation frequency : " << freq_si << " Hz" << endl ; 
     cout << "Rotation frequency 2 : " << freq2_si << " Hz" << endl ; 
@@ -220,10 +234,10 @@ int main(){
     const Coord& r = mp.r ;
     double ray0 = mp.val_r(nzet-1, 1., 0., 0.) ;  
     Cmp enta(mp) ; 
-    enta = ent_c * ( 1 - r*r / (ray0*ray0) ) ; 
+    enta = ent1_c * ( 1 - r*r / (ray0*ray0) ) ; 
     enta.annule(nz-1) ; 
     enta.std_base_scal() ; 
-    Cmp entb = enta * ent2_c/ent_c ; 
+    Cmp entb = enta * ent2_c/ent1_c ; 
     star.set_enthalpies(enta, entb) ;  
     
     // Initialization of (E,S,U,etc...) (quantities relative to the Eulerian obs)
@@ -262,7 +276,7 @@ int main(){
 
     Tbl diff(8) ;     
 
-    star.equilibrium_bi(ent_c, ent2_c, omega, omega2, ent_limit, 
+    star.equilibrium_bi(ent1_c, ent2_c, omega, omega2, ent_limit, 
 		     ent2_limit, icontrol, control, diff) ;
 
      
@@ -363,7 +377,12 @@ int main(){
       surf = -0.2*star.get_nbar()()(0,0,0,0) ;
       surf.annule(0, star.get_nzet()-1) ;
       surf += star.get_nbar()() ; ;
+
+      surf.std_base_scal();
+
+//       des_profile(surf, 0, 1.5, M_PI/2, 0, "surf before prolonge");
       surf = prolonge_c1(surf, star.get_nzet()) ;
+//       des_profile(surf, 0, 1.5, M_PI/2, 0, "surf after prolonge");
 
       Cmp surf2(mp) ;
       surf2 = -0.2*star.get_nbar2()()(0,0,0,0) ;
@@ -499,32 +518,76 @@ compare_analytic (Et_rot_bifluid& star)
 
   fname = resdir + get_file_base (xp, sigma, eps, om_n, om_p);
 
+
+  // --------------------------------------------------------------------------------
+  // try to check EOS inversion: 
+  // here we output enthalpy and density profiles in some theta-direction
+  std::ofstream prof((fname+".prof").c_str());
+  prof << setprecision(17);
+  
+  Map_et &map = (Map_et&)(star.get_mp());
+
+  const Mg3d* mg = map.get_mg() ;	// Multi-grid
+
+  int j = mg->get_nt(0)-1;   // theta 
+
+  Cmp ent1 = star.get_ent()();
+  Cmp ent2 = star.get_ent2()();
+  Cmp delta2 = star.get_delta_car()();
+
+
+  cout << "Equator,  xi=1: R = " << map.val_r(0, 1.0, M_PI/2, 0) << "; ent1 = " << ent1.va.val_point(0,1.0,M_PI/2,1.0);
+  cout << "  ent2 = " << ent2.va.val_point(0,1.0,M_PI/2,1.0) << endl;
+  cout << "dens1 = " << nn.va.val_point(0,1.0,M_PI/2,1.0) << "  nbar2 = " << np.va.val_point(0,1.0,M_PI/2,1.0) <<endl;
+
+  for (int i=0; i<mg->get_nr(0); i++) {
+    double xi, rr;
+
+    xi = mg->get_grille3d(0)->x[i] ;
+    rr = map.val_r_jk (0, xi, j, 0);
+
+    prof << rr << "\t" << ent1(0,0,j,i) << "\t" << ent2(0,0,j,i) << "\t" << delta2(0,0,j,i) << "\t";
+    prof << star.get_nbar()()(0,0,j,i) << "\t" << star.get_nbar2()()(0,0,j,i) << endl;
+
+  }
+  //--------------------------------------------------------------------------------
+
+
+//   double theta = M_PI/2 ;   // start with equator
+
 // #define NUM_POINTS 100 		// number of points in density profiles
 //   Tbl rr (NUM_POINTS);
 //   rr.set_etat_qcq();
 
-//   std::ofstream prof((fname+".prof").c_str());
-//   prof << setprecision(9);
 //   for (int i=0; i < NUM_POINTS; i++)
 //     {
-//       rr.set(i) = 1.0 * i / (NUM_POINTS-1);
+//       rr.set(i) = 1.2 * R * i / (NUM_POINTS-1);
 //       prof << rr(i) << "\t" ;
       
-//       prof << nn.val_point(R*rr(i), 0, 0) << "\t";
-//       prof << np.val_point(R*rr(i), 0, 0) << "\t";
-
-//       prof << nn.val_point(R*rr(i), M_PI/4, 0) << "\t";
-//       prof << np.val_point(R*rr(i), M_PI/4, 0) << "\t";
+//       prof << ent.val_point(rr(i), theta, 0) << "\t";
+//       prof << ent2.val_point(rr(i), theta, 0) << "\t";
       
-//       prof << nn.val_point(R*rr(i), M_PI/2, 0) << "\t";
-//       prof << np.val_point(R*rr(i), M_PI/2, 0) << "\t";
+//       prof << nn.val_point(rr(i), theta, 0) << "\t";
+//       prof << np.val_point(rr(i), theta, 0) << "\t";
       
 //       prof << endl;
 //     }
 
+  //----------------------------------------------------------------------
+  // get radii at intermediate angle, ~pi/4
+
+  const Coord& theta = map.tet ;
+  int g = mg->get_nt(0)/2;   // theta close to pi/4
+
+  double thetaI = (+theta)(0,0,g,0);
+  double RnI = map.val_r_jk(star.l_surf()(0,g), star.xi_surf()(0,g), g, 0);
+  double RpI = map.val_r_jk(star.l_surf2()(0,g), star.xi_surf2()(0,g), g, 0);
+
+  cout << "theta = " << thetaI << "; RnI = " << RnI << "; RpI = " << RpI << endl;
+
   double mnat = rhoc * R * R * R;
   std::ofstream data((fname+".d").c_str());
-  data << setprecision(16);
+  data << setprecision(17);
 
   data << "# EOS and stellar parameters: \n";
 
@@ -555,7 +618,11 @@ compare_analytic (Et_rot_bifluid& star)
   data << "Rn = " << star.ray_pole()/R  << "\t" << star.ray_eq()/ R  << endl;
   data << "Rp = " << star.ray_pole2()/R << "\t" << star.ray_eq2()/ R << endl;
 
-  data << "# Viriel identity violations:" << endl;
+  data << "\n# Intermediate radii: \n";
+  data << "thetaI = " << thetaI << endl;
+  data << "RXI = " << RnI/R << "\t" << RpI/R  << endl;
+
+  data << "\n# Viriel identity violations:" << endl;
   data << "GRV3 = " << star.grv3() << endl;
   data << "GRV2 = " << star.grv2() << endl;
 
@@ -600,3 +667,4 @@ get_file_base (double xp0, double sig0, double eps0, double om1, double om2)
   
   return (s.str());
 }
+

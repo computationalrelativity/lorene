@@ -10,6 +10,8 @@ EXE = sfstar
 SRC = sfstar.C
 OBJ = $(SRC:.C=.o)
 
+CXXFLAGS_G = -g -Wall
+
 $(EXE): $(OBJ)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_PGPLOT) $(LIB_CXX)

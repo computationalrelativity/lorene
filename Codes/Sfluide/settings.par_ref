@@ -1,0 +1,43 @@
+#################### PHYSICAL PARAMETERS ######################################
+
+relat = 	0	# Relativity parameter: 1 = relativistic 0 = Newtonian
+ent1_c = 	0.20    # central enthalpy [c^2]
+ent2_c = 	0.20	# second central enthalpy [c^2]
+freq_si = 	0    	# rotation frequency [Hz]
+freq2_si = 	0   	# second rotation frequency [Hz]
+
+//---------------------- PARAMETERS ------------------------------
+
+mer_max = 	200   	# maximum number of steps
+precis = 	1.e-10 	# threshold on the enthalpy relative change for ending the computation
+mer_rot = 	10	# step at which the rotation is switched on
+freq_ini_si = 	0    	# initial rotation frequency [Hz] (switched on at mer = mer_rot)
+freq2_ini_si = 	0 	# initial second rotation frequency [Hz] (switched on at mer = mer_rot)
+mer_change_omega = 10   # step at which f is changed to reach freq_si
+mer_fix_omega = 20      # step at which f must have reached freq_si
+relax = 	0.5	# relaxation factor in the main iteration 
+mermax_poisson = 6	# maximum number of steps in Map_et::poisson
+relax_poisson = 1.5	# relaxation factor in Map_et::poisson
+graph = 	0       # 1 = graphical outputs during the computation 
+
+#################### MULTI-GRID PARAMETERS ###################################
+
+nz = 	3  		# total number of domains
+nzet = 	1		# number of domains inside the star
+nt = 	17 		# number of points in theta (the same in each domain)
+np = 	1 		# number of points in phi   (the same in each domain)
+
+ent_limit0 = 	0.2 	# enthalpy defining boundary between domains 0 and 1
+
+####  Number of radial points <nr> and (initial) inner boundary <rmin> of each domain:
+nr0 = 	33      
+rmin0 = 0.   
+
+nr1 = 	17
+rmin1 = 1.
+
+nr2 = 	9 
+rmin2 = 2.
+
+
+NOTE: everything that's not recognized as a (known) variable-assignment is

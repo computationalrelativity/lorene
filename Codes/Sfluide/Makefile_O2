@@ -10,6 +10,8 @@ EXE = sfstar
 SRC = sfstar.C
 OBJ = $(SRC:.C=.o)
 
+CXXFLAGS = -O2 -Wall -DNDEBUG
+
 $(EXE): $(OBJ)
 	$(CXX) -o $@ $(CXXFLAGS) $(OBJ) $(LIB) $(LIB_LAPACK) \
 					$(LIB_PGPLOT) $(LIB_CXX)
