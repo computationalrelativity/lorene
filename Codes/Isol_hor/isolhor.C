@@ -29,6 +29,9 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.23  2005/03/31 09:46:33  f_limousin
+ * New functions compute_ww(..) and aa_kerr_ww().
+ *
  * Revision 1.22  2005/03/30 12:08:33  f_limousin
  * Implementation of K^{ij} (Eq.(13) Of Sergio (2002)).
  *
@@ -341,7 +344,7 @@ int main() {
 
     // Parameters
     // -----------
-    double mm = 2.01 ;
+    double mm = 2.1 ;
     double hh = 2. ;  // the radius is 1
     double aaa = pow (mm*mm-hh*hh, 0.5) ;
  
@@ -504,8 +507,8 @@ int main() {
     // Put the metric tilde to the one in Sergio's paper
     isolhor.met_kerr_perturb() ;
  
-//    isolhor.aa_kerr_perturb(mm, aaa) ;
-    
+//    isolhor.compute_ww(mm, aaa) ;
+//    isolhor.aa_kerr_ww() ;
 
     // New initialisation of the metric quantities
     // --------------------------------------------
@@ -561,7 +564,7 @@ int main() {
     // Test of the constraints
     //------------------------
 
-    isolhor.update_aa() ;
+//    isolhor.update_aa() ;
 
     cout<< "----------------------------------------" <<endl ;
     
