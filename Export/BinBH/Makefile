@@ -17,10 +17,12 @@ SRC2 = visu_1d.C
 OBJ2 = $(SRC2:.C=.o)
 
 readinit: $(OBJ1)
-	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) $(LIB_CXX)
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
+        $(LIB_GSL) $(LIB_CXX)
 
 visu_1d: $(OBJ2)
-	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ2) $(LIB_G) $(LIB_LAPACK) $(LIB_CXX)
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ2) $(LIB_G) $(LIB_LAPACK) \
+        $(LIB_GSL) $(LIB_CXX)
 
 .C.o:
 	$(CXX)  -c $(CXXFLAGS_G) $(INCEXP) $<

@@ -16,11 +16,11 @@ EXE2 = $(SRC2:.C=)
 
 $(EXE1): $(OBJ1)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
-					$(LIB_PGPLOT) $(LIB_CXX)
+					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
 $(EXE2): $(OBJ2)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ2) $(LIB_G) $(LIB_LAPACK) \
-					$(LIB_PGPLOT) $(LIB_CXX)
+					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
 .C.o:
 	$(CXX)  -c $(CXXFLAGS_G) $(INC) $<

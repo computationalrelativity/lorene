@@ -20,13 +20,13 @@ EXE3 = $(SRC3:.C=)
 
 $(EXE1): $(OBJ1)
 	$(CXX) -o $@ $(CXXFLAGS) $(OBJ1) $(LIB) $(LIB_LAPACK) \
-					$(LIB_PGPLOT) $(LIB_CXX)
+					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 $(EXE2): $(OBJ2)
 	$(CXX) -o $@ $(CXXFLAGS) $(OBJ2) $(LIB) $(LIB_LAPACK) \
-					$(LIB_PGPLOT) $(LIB_CXX)
+					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 $(EXE3): $(OBJ3)
 	$(CXX) -o $@ $(CXXFLAGS) $(OBJ3) $(LIB) $(LIB_LAPACK) \
-					$(LIB_PGPLOT) $(LIB_CXX)
+					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
 .C.o:
 	$(CXX)  -c $(CXXFLAGS) $(INC) $<

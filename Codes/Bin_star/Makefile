@@ -36,27 +36,27 @@ EXE7 = $(SRC7:.C=)
 
 $(EXE1): $(OBJ1)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
-					$(LIB_PGPLOT) $(LIB_CXX)
+					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
 $(EXE2): $(OBJ2)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ2) $(LIB_G) $(LIB_LAPACK) \
-					$(LIB_PGPLOT) $(LIB_CXX)
+					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
 $(EXE3): $(OBJ3)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ3) $(LIB_G) $(LIB_LAPACK) \
-					$(LIB_PGPLOT) $(LIB_CXX)
+					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
 $(EXE4): $(OBJ4)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ4) $(LIB_G) $(LIB_LAPACK) \
-					$(LIB_PGPLOT) $(LIB_CXX)
+					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
 $(EXE5): $(OBJ5)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ5) $(LIB_G) $(LIB_LAPACK) \
-					$(LIB_PGPLOT) $(LIB_CXX)
+					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
 $(EXE6): $(OBJ6)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ6) $(LIB_G) $(LIB_LAPACK) \
-					$(LIB_PGPLOT) $(LIB_CXX)
+					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
 $(EXE7): $(OBJ7)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ7) $(LIB_G) 

@@ -13,7 +13,7 @@ EXE1 = $(SRC1:.C=)
 
 $(EXE1): $(OBJ1) $(LIBLOR) 
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
-	$(LIB_PGPLOT) $(LIB_CXX)
+	$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
 
 all: $(EXE1) 

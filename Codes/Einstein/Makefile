@@ -29,23 +29,23 @@ EXE5 = $(SRC5:.C=)
 
 $(EXE1): $(OBJ1) $(LIBLOR) 
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
-	$(LIB_PGPLOT) $(LIB_CXX)
+	$(LIB_PGPLOT) $(LIB_GSL) $(LIB_CXX) 
 
 $(EXE2): $(OBJ2) $(LIBLOR) 
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ2) $(LIB_G) $(LIB_LAPACK) \
-	$(LIB_PGPLOT) $(LIB_CXX)
+	$(LIB_PGPLOT) $(LIB_GSL) $(LIB_CXX)
 
 $(EXE3): $(OBJ3) $(LIBLOR) 
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ3) $(LIB_G) $(LIB_LAPACK) \
-	$(LIB_PGPLOT) $(LIB_CXX)
+	$(LIB_PGPLOT) $(LIB_GSL) $(LIB_CXX)
 
 $(EXE4): $(OBJ4) $(LIBLOR) 
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ4) $(LIB_G) $(LIB_LAPACK) \
-	$(LIB_PGPLOT) $(LIB_CXX)
+	$(LIB_PGPLOT) $(LIB_GSL) $(LIB_CXX)
 
 $(EXE5): $(OBJ5) $(LIBLOR) 
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ5) $(LIB_G) $(LIB_LAPACK) \
-	$(LIB_PGPLOT) $(LIB_CXX)
+	$(LIB_PGPLOT) $(LIB_GSL) $(LIB_CXX)
 
 all: $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5)
 

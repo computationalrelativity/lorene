@@ -12,7 +12,7 @@ OBJ = $(SRC:.C=.o)
 
 $(EXE): $(OBJ)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ) $(LIB_G) $(LIB_LAPACK) \
-					$(LIB_PGPLOT) $(LIB_CXX)
+					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
 .C.o:
 	$(CXX)  -c $(CXXFLAGS_G) $(INC) $<
