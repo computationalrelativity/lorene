@@ -4,7 +4,7 @@
  */
 
 /*
- *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2004 Eric Gourgoulhon & Jerome Novak
  *
  *   Copyright (c) 1999-2001 Philippe Grandclement (for preceding class Tenseur)
  *   Copyright (c) 2000-2001 Eric Gourgoulhon      (for preceding class Tenseur)
@@ -36,6 +36,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.35  2004/01/04 20:47:37  e_gourgoulhon
+ * -- Introduction of new derived class Tensor_sym to store tensor with
+ *    two symmetric indices
+ * -- Suppression of class Tensor_delta (now a special case of Tensor_sym).
+ *
  * Revision 1.34  2003/12/27 14:58:01  e_gourgoulhon
  * Improved documentation. In particular, better description of methods
  * derive_cov(), derive_con() and divergence(), taking into account the
@@ -766,7 +771,7 @@ class Tensor {
     // Outputs
     // -------
     public:
-	virtual void sauve(FILE *) const ;	    /// Save in a file
+	virtual void sauve(FILE *) const ;	    /// Save in a binary file
 
 	/** Displays the spectral coefficients and the associated
 	 *  basis functions of each component. This function shows 
@@ -787,7 +792,7 @@ class Tensor {
 	friend class Scalar ;
 	friend class Vector ;
 	friend class Sym_tensor ;
-	friend class Tensor_delta ;
+        friend class Tensor_sym ; 
 	friend class Metric ;
   
     // Mathematical operators
@@ -797,6 +802,187 @@ class Tensor {
  	
    
 };
+
+
+
+			//-------------------------//
+			//    class Tensor_sym     //
+			//-------------------------//
+
+/**
+ * Symmetric tensors (with respect to two of their arguments).
+ *
+ * This subclass of {\tt Tensor} is intended to store the components of a 
+ * tensorial field with respect to a specific basis (triad), in the case
+ * the tensor has a valence at least 2 and is symmetric with respect 
+ * to two of its arguments (or in other words, the components are
+ * symmetric with respect to two of their indices).   
+ * 
+ * 
+ * @version #$Id$#
+ */
+class Tensor_sym : public Tensor { 
+
+    // Data : 
+    // -----
+    protected:
+	
+        /// Number of the first symmetric index ({\tt 0<= id\_sym1 < valence})
+        int id_sym1 ;
+        
+        /** Number of the second symmetric index 
+         * ({\tt id\_sym1 < id\_sym2 < valence})
+         */
+        int id_sym2 ;
+        
+         
+    // Constructors - Destructor :
+    // -------------------------
+	
+	public: 
+
+	/** Standard constructor.
+	 * 
+	 * @param map   the mapping 
+	 * @param val   valence of the tensor (must be at least 2)
+	 * @param tipe  1-D array of integers (class {\tt Itbl}) 
+	 *		of size {\tt valence} containing the type 
+	 *		of each index, {\tt COV} for a covariant one 
+	 *		and {\tt CON} for a contravariant one,  with the 
+	 *		following storage convention: \\
+	 *			{\tt tipe(0)} : type of the first index \\
+	 *			{\tt tipe(1)} : type of the second index \\
+	 *			and so on... 
+	 * @param triad_i  vectorial basis (triad) with respect to which 
+	 *		    the tensor components are defined 
+         * @param index_sym1 number of the first symmetric index 
+         *                      ({\tt 0<= index\_sym1 < valence})
+         * @param index_sym2 number of the second symmetric index 
+         *                      ({\tt index\_sym1 < index\_sym2 < valence})
+	 */
+	Tensor_sym(const Map& map, int val, const Itbl& tipe, 
+		 	const Base_vect& triad_i, int index_sym1, 
+                        int index_sym2) ;
+
+	/** Standard constructor when all the indices are of 
+	 *  the same type.
+	 * 
+	 * @param map  the mapping
+	 * @param val   valence of the tensor (must be at least 2)
+	 * @param tipe  the type ({\tt COV} or {\tt CON}) of the indices.
+	 * @param triad_i  vectorial basis (triad) with respect to which 
+	 *			  the tensor components are defined.
+         * @param index_sym1 number of the first symmetric index 
+         *                      ({\tt 0<= index\_sym1 < valence})
+         * @param index_sym2 number of the second symmetric index 
+         *                      ({\tt index\_sym1 < index\_sym2 < valence})
+	 */
+	Tensor_sym(const Map& map, int val, int tipe, const Base_vect& triad_i,
+                    int index_sym1, int index_sym2) ;
+
+	/** Constructor for a valence 3 symmetric tensor.
+	 * 
+	 * @param map  the mapping
+	 * @param tipe0 type ({\tt COV} or {\tt CON}) of the first index.
+	 * @param tipe1 type ({\tt COV} or {\tt CON}) of the second index.
+	 * @param tipe2 type ({\tt COV} or {\tt CON}) of the third index.
+	 * @param triad_i  vectorial basis (triad) with respect to which 
+	 *			  the tensor components are defined.
+         * @param index_sym1 number of the first symmetric index 
+         *                      ({\tt 0<= index\_sym1 <=2})
+         * @param index_sym2 number of the second symmetric index 
+         *                      ({\tt index\_sym1 < index\_sym2 <=2})
+	 */
+	Tensor_sym(const Map& map, int tipe0, int tipe1, int tipe2, 
+                   const Base_vect& triad_i,
+                   int index_sym1, int index_sym2) ;
+
+	Tensor_sym(const Tensor_sym& a) ;  /// Copy constructor
+
+	/** Constructor from a file (see {\tt sauve(FILE* )}).
+	 * 
+	 * @param map  the mapping
+	 * @param triad_i   vectorial basis (triad) with respect to which 
+	 *			  the tensor components are defined. It will
+	 *			  be checked that it coincides with the basis
+	 *			  saved in the file.
+	 * @param fich  file which has been created by 
+	 *			    the function {\tt sauve(FILE* )}.
+	 */
+	Tensor_sym(const Map& map, const Base_vect& triad_i, FILE* fich) ;
+
+    public: 
+
+	virtual ~Tensor_sym() ;	/// Destructor
+	
+    // Mutators / assignment
+    // ---------------------
+    public:
+	
+        /// Assignment to another {\tt Tensor\_sym}
+	virtual void operator=(const Tensor_sym& a) ;
+	
+        /** Assignment to a {\tt Tensor}
+         * NB: the symmetry about the indices {\tt id\_sym1} and 
+         * {\tt id\_sym2} of the input tensor is assumed but is not checked
+         */
+	virtual void operator=(const Tensor& a) ; 
+	
+
+    // Accessors
+    // ---------
+        public:
+        /// Number of the first symmetric index ({\tt 0<= id\_sym1 < valence})
+        int sym_index1() const {return id_sym1;} ;
+        
+        /** Number of the second symmetric index 
+         * ({\tt id\_sym1 < id\_sym2 < valence})
+         */
+        int sym_index2() const {return id_sym2;} ;
+        
+	/**
+	 * Returns the position in the array {\tt cmp} of a 
+	 * component given by its indices.  
+	 *
+	 * @param ind [input] 1-D array of integers (class {\tt Itbl})
+	 *		 of size {\tt valence} giving the 
+	 *		values of each index specifing the component,  with the 
+	 *		following storage convention: \\
+	 *			{\tt ind(0)} : value of the first index (1, 2 or 3) \\
+	 *			{\tt ind(1)} : value of the second index (1, 2 or 3) \\
+	 *			and so on... 
+	 *
+	 * @return position in the array {\tt cmp} of the pointer to the
+	 *  	{\tt Scalar} containing the component specified by {\tt ind}
+	 */
+	virtual int position(const Itbl& ind) const ;
+
+	/**
+	 * Returns the indices of a component given by its position in the 
+	 * array {\tt cmp}. 
+	 *
+	 * @param pos [input] position in the array {\tt cmp}
+	 *		of the pointer to the {\tt Scalar} representing a component
+	 *
+	 * @return 1-D array of integers (class {\tt Itbl}) of
+	 *         size {\tt valence} giving the value of each index 
+	 *	   for the component located at the position {\tt pos} in
+	 *		the array [\tt cmp}, with the 
+	 *		following storage convention: \\
+	 *			{\tt Itbl(0)} : value of the first index (1, 2 or 3) \\
+	 *			{\tt Itbl(1)} : value of the second index (1, 2 or 3) \\
+	 *			and so on... 
+	 */
+	virtual Itbl indices(int pos) const ;
+        
+            
+    // Outputs
+    // -------
+    public:
+	virtual void sauve(FILE *) const ;      /// Save in a binary file
+	
+}; 
+
 
 
 /**
@@ -892,6 +1078,7 @@ Tbl diffrelmax(const Tensor& aa, const Tensor& bb, ostream& ost = cout) ;
 
 //@}
 
+
 /**
  * @name Tensor mathematics
  */
@@ -910,150 +1097,6 @@ Tensor operator/ (const Tensor&, int) ;                 /// Tensor / int
 
     //@}
 
-
-
-
-			//---------------------------------//
-			//        class Tensor_delta       //
-			//---------------------------------//
-			
-/**
- * Class describing valence-3 tensors, symmetric on the last two indices.
- * These object typically represent the difference between two connections
- * (see the class {\tt Connection}). The storage and the calculations are 
- * different and quicker than with a usual {\tt Tensor}.
- * 
- * The valence must be 3.
- *
- * @version #$Id$#
- */
-class Tensor_delta : public Tensor {
-
-    // Constructors - Destructor :
-    // -------------------------
-	
-    public:
-	/** Standard constructor.
-	 * 
-	 * @param map   the mapping 
-	 * @param tipe  1-D array of integers (class {\tt Itbl}) of size 3 
-	 *		containing the type 
-	 *		of each index, {\tt COV} for a covariant one 
-	 *		and {\tt CON} for a contravariant one,  with the 
-	 *		following storage convention: \\
-	 *			{\tt tipe(0)} : type of the first index \\
-	 *			{\tt tipe(1)} : type of the second index, etc..
-	 * @param triad_i  vectorial basis (triad) with respect to which 
-	 *			  the tensor components are defined
-	 */
-	Tensor_delta(const Map& map, const Itbl& tipe, const Base_vect& triad_i) ;
-
-	/** Standard constructor with indices types specified individually
-	 * 
-	 * @param map   the mapping 
-	 * @param tipe0 : type of the first index \\
-	 * @param tipe1 : type of the second index \\
-	 * @param tipe2 : type of the third index \\
-	 * @param triad_i  vectorial basis (triad) with respect to which 
-	 *			  the tensor components are defined
-	 */
-	Tensor_delta(const Map& map, int tipe0, int tipe1, int tipe2,
-				 const Base_vect& triad_i) ;
-
-	/** Standard constructor when both indices are of the same type.
-	 * 
-	 * @param map   the mapping 
-	 * @param tipe  the type of the indices.
-	 * @param triad_i  vectorial basis (triad) with respect to which 
-	 *			  the tensor components are defined
-	 * 
-	 */
-	Tensor_delta(const Map& map, int tipe, const Base_vect& triad_i) ;
-
-	Tensor_delta(const Tensor_delta& a) ; /// Copy constructor
-
-	/** Constructor from a {\tt Tensor}.
-	 *  The symmetry of the input tensor is assumed to be true but not checked.
-	 */
-	Tensor_delta(const Tensor& a) ;
-	
-	/** Constructor from a file (see {\tt sauve(FILE* )}).
-	 * 
-	 * @param map  the mapping
-	 * @param triad_i   vectorial basis (triad) with respect to which 
-	 *			  the tensor components are defined. It will
-	 *			  be checked that it coincides with the basis
-	 *			  saved in the file.
-	 * @param fich  file which has been created by 
-	 *			    the function {\tt sauve(FILE* )}.
-	 */
-	Tensor_delta(const Map& map, const Base_vect& triad_i, FILE* fich) ;
-
-	virtual ~Tensor_delta() ;    /// Destructor
-	
-    // Memory management
-    // -----------------
-    protected:
-	virtual void del_deriv() const;	/// Deletes the derived quantities
-
-	/// Sets the pointers on derived quantities to 0x0
-	void set_der_0x0() const ; 
-
-
-    // Mutators / assignment
-    // ---------------------
-    public:
-	/// Assignment to a {\tt Tensor\_delta}
-	void operator=(const Tensor_delta&) ;
-
-	/**
-	 * Assignment from a {\tt Tensor}.
-	 * 
-	 * The symmetry is assumed but not checked.
-	 */
-	virtual void operator= (const Tensor&) ;
-    
-
-    // Accessors
-    // ---------
-    public:
-	/**
-	 * Returns the position in the array {\tt cmp} of a 
-	 * component given by its indices.  
-	 *
-	 * @param ind [input] 1-D array of integers (class {\tt Itbl})
-	 *		 of size 3 giving the 
-	 *		values of each index specifing the component,  with the 
-	 *		following storage convention: \\
-	 *		   {\tt ind(0)} : value of the first index (1, 2 or 3) \\
-	 *		   {\tt ind(1)} : value of the second index (1, 2 or 3)\\
-	 *                 {\it etc ...}
-	 *
-	 * @return position in the array {\tt cmp} of the pointer to the
-	 *  	{\tt Scalar} containing the component specified by {\tt ind}
-	 */
-	virtual int position(const Itbl& ind) const ;
-
-
-	/**
-	 * Returns the indices of a component given by its position in the 
-	 * array {\tt cmp}. 
-	 *
-	 * @param pos [input] position in the array {\tt cmp}
-	 *		of the pointer to the {\tt Scalar} representing a component
-	 *
-	 * @return 1-D array of integers (class {\tt Itbl}) of
-	 *         size 3 giving the value of each index 
-	 *	   for the component located at the position {\tt pos} in
-	 *		the array [\tt cmp}, with the 
-	 *		following storage convention: \\
-	 *		     {\tt Itbl(0)} : value of the first index (1, 2 or 3) \\
-	 *		     {\tt Itbl(1)} : value of the second index (1, 2 or 3)\\
-	 *                   {\it etc...}
-	 */
-	virtual Itbl indices(int pos) const ;
-	
-} ;
 
 #include "scalar.h"
 
