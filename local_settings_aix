@@ -17,11 +17,11 @@ CXX 	 = xlC_r
 
 # Options for the C++ compiler to produce the optimized library:
 # -------------------------------------------------------------
-CXXFLAGS = -q64 -D__aix
+CXXFLAGS = -q64 -D__aix -qrtti -O2 -DNDEBUG
 
 # Options for the C++ compiler to produce the library for debugging:
 # -----------------------------------------------------------------
-CXXFLAGS_G = -g -q64 -D__aix  
+CXXFLAGS_G = -g -q64 -D__aix -qrtti
 
 # Path for the include files:
 # --------------------------
