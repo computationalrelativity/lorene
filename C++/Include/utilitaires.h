@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/04/16 08:06:44  j_novak
+ * Addition of zerosec_borne
+ *
  * Revision 1.3  2002/04/11 09:19:46  j_novak
  * Back to old version of zerosec
  *
@@ -133,6 +136,31 @@ double zerosec( double (*f)(double, const Param&), const Param& par,
 		double a, double b, double precis, int nitermax, 
 		int& niter) ;
 
+/** Finding the zero a function on a bounded domain.
+ * 
+ *  Same as {\tt zerosec} but insures that all calls to the function f
+ *  are within [x1,x2]. Namely, it requires that f(x1)*f(x2)<0. 
+ * 
+ *  @param (*f)(double, const Param\&) [input] Function the zero of which is 
+ *		    to be searched: the routine computes x0 in a given
+ *		    interval [a, b] such that 
+ *			f(x0, par) = 0 , where par are the parameters of the
+ *		    function f, stored in an object of the Lorene class 
+ *		    {\tt Param}. 
+ *  @param par [input] Parameters of the function f.
+ *  @param a [input] Lower bound of the search interval [a, b]
+ *  @param b [input] Higher bound of the search interval [a, b]
+ *  @param precis [input] Required precision in the determination of x0 : 
+ *			the returned solution will be x0 +/- precis
+ *  @param nitermax [input] Maximum number of iterations in the secant 
+ *			    method to compute x0.
+ *  @param niter [output] Number of iterations effectively used in computing x0				
+ *  @return x0 (zero of function f)
+ *
+ */
+double zerosec_b( double (*f)(double, const Param&), const Param& par, 
+		double a, double b, double precis, int nitermax, 
+		int& niter) ;
 /** Locates approximatively all the zeros of a function in a given interval.
  *  The N zeros are located in N intervals [az(i), bz(i)] with
  *   $0\leq i \leq N-1$.  
