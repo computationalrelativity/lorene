@@ -30,6 +30,9 @@ char test_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/06 21:13:52  e_gourgoulhon
+ * Added test of time derivation.
+ *
  * Revision 1.3  2004/02/16 10:30:04  e_gourgoulhon
  * Added #include <math.h>
  *
@@ -64,32 +67,57 @@ int main() {
     //      Test with a double
     //------------------------------------------------
 
-    Evolution_full<double> aa(2., 0.) ; 
-    Evolution_std<double> bb(2., 0., 3) ; 
+    Evolution_full<double> aa(1., 0.) ; 
+    Evolution_std<double> bb(1., 0., 3) ; 
+    Evolution_std<double> bb1(1., 0., 3) ; 
     
     cout << "aa[0] : " << aa[0] << endl ; 
     cout << "bb[0] : " << bb[0] << endl ; 
     
-    for (int j=0; j<400; j++) {
+    // Test of time derivative: 
     
-        double t_j = double(j) / double(10) ;
-        aa.update(sqrt(double(j)), t_j) ; 
+    double dt = 0.01 ; 
+    double t = dt ; 
+    double diffa = 0 ; 
+    double diffb = 0 ; 
+    double diffb1 = 0 ; 
+    for (int j=1; j<400; j++) {
         
-        cout << aa[j] << " " ; 
-        if (j%10==0) cout << endl ;  
-
+        cout << "j = " << j << "  t = " << t << " :" << endl ; 
+        double f = cos( t ) ; 
+        double df = - sin( t ) ; 
+        aa.update(f, t) ; 
+        bb.update(f, t) ; 
+        bb1.update(f, t) ; 
+        
+        if (j>1) {
+            double dfa = fabs( aa.time_derive(j) - df ); 
+            double dfb = fabs( bb.time_derive(j) - df ); 
+            double dfb1 = fabs( bb1.time_derive(j,1) - df ); 
+            if (dfa>diffa) diffa = dfa ; 
+            if (dfb>diffb) diffb = dfb ; 
+            if (dfb1>diffb1) diffb1 = dfb1 ; 
+            cout << "Error time derivative aa, bb, bb1 : " << dfa << " " << 
+                dfb << " " << dfb1 << endl ; 
+        }
+        
+        t += dt ; 
     }
-    cout << endl ; 
+    cout << endl << "Max error on time derivative aa : " << diffa << endl ; 
+    cout << "Max error on time derivative bb : " << diffb << endl ; 
+    cout << "Max error on time derivative bb1 : " << diffb1 << endl ; 
+    arrete() ; 
 
+    Evolution_std<double> cc(2., 0., 3) ; 
 
     for (int j=0; j<20; j++) {
     
         double t_j = double(j) / double(10) ;
-        bb.update(sqrt(double(j)), t_j) ; 
+        cc.update(sqrt(double(j)), t_j) ; 
         
-        cout << "time : " << bb.get_time(j) << " :  "  ; 
-        if (j==0) cout << bb[0] << "  " << bb[1] << endl ; 
-        if (j>=1) cout << bb[j-1] << "  " << bb[j] << "  " << bb[j+1] << endl ; 
+        cout << "time : " << cc.get_time(j) << " :  "  ; 
+        if (j==0) cout << cc[0] << "  " << cc[1] << endl ; 
+        if (j>=1) cout << cc[j-1] << "  " << cc[j] << "  " << cc[j+1] << endl ; 
         
 
     }
