@@ -32,6 +32,9 @@ char vector_df_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/29 07:13:39  e_gourgoulhon
+ * Treatment of dvr.etat = ETATZERO in eta().
+ *
  * Revision 1.4  2003/10/20 10:13:28  e_gourgoulhon
  * Corrected error in the computation of mu.
  *
@@ -77,22 +80,24 @@ const Scalar& Vector_divfree::eta() const {
 
 		Scalar dvr = - cmp[0]->dsdr() ; 	// - dV^r/dr  ( -r^2 dV^r/dr in the CED)
 		
-		// treatment of the CED : 
-		int nzm1 = mp->get_mg()->get_nzone() - 1 ; // index of the CED
-		Scalar dvr_ext(*mp) ;
-		dvr_ext.allocate_all() ; 
-		dvr_ext.annule(0,nzm1-1) ; // zero in all domains but the CED
-		dvr_ext.set_domain(nzm1) = dvr.domain(nzm1) ; // equal to dvr in the CED
-		dvr_ext.set_spectral_base( (dvr.get_spectral_va()).get_base() ) ; 
-		dvr_ext.div_r() ; // division by r in the CED
+        if (dvr.get_etat() != ETATZERO) {
+		    // treatment of the CED : 
+		    int nzm1 = mp->get_mg()->get_nzone() - 1 ; // index of the CED
+		    Scalar dvr_ext(*mp) ;
+		    dvr_ext.allocate_all() ; 
+		    dvr_ext.annule(0,nzm1-1) ; // zero in all domains but the CED
+		    dvr_ext.set_domain(nzm1) = dvr.domain(nzm1) ; // equal to dvr in the CED
+		    dvr_ext.set_spectral_base( (dvr.get_spectral_va()).get_base() ) ; 
+		    dvr_ext.div_r() ; // division by r in the CED
 		
-		// Multiplication by r in all domains but the CED:
-		dvr.annule_domain(nzm1) ; 
-		dvr.mult_r() ; 
+		    // Multiplication by r in all domains but the CED:
+		    dvr.annule_domain(nzm1) ; 
+		    dvr.mult_r() ; 
 		
-		// Adding the CED part
-		dvr.set_domain(nzm1) = dvr_ext.domain(nzm1) ; 
-		dvr.set_dzpuis(0) ; 
+		    // Adding the CED part
+		    dvr.set_domain(nzm1) = dvr_ext.domain(nzm1) ; 
+		    dvr.set_dzpuis(0) ; 
+        }
 
 		// Final result for the V^r source for eta:
 		dvr -= 2. * (*cmp[0]) ; 
