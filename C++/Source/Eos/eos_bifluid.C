@@ -31,6 +31,9 @@ char eos_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/05/10 09:55:27  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.4  2002/05/10 09:26:52  j_novak
  * Added new class Et_rot_mag for magnetized rotating neutron stars (under development)
  *
@@ -385,19 +388,21 @@ void Eos_bifluid::nbar_ent(const Cmp& ent1, const Cmp& ent2, const Cmp& delta2,
     
   }  // End of the loop on domains where the computation had to be done
 
-  int np0 = mp->get_np(0) ;
-  int nt0 = mp->get_nt(0) ;
+  int np0 = mp->get_mg()->get_np(0) ;
+  int nt0 = mp->get_mg()->get_nt(0) ;
   for (int l=l_min; l<l_min+nzet; l++) {
-    assert(mp->get_np(l) == np0) ;
-    assert(mp->get_nt(l) == nt0) ; }
+    assert(mp->get_mg()->get_np(l) == np0) ;
+    assert(mp->get_mg()->get_nt(l) == nt0) ; }
   
+	  cout << "Under construction ..." << endl ;
   for (int k=0; k<np0; k++) {
     for (int j=0; j<nt0; j++) {
       double nb1, nb2 ;
       for (int l=l_min; l< l_min + nzet; l++) {
-	for (int i=0; i<mp->get_nr(l); i++) {
-	  nb1 = nbar(l,k,j,i) ;
+	for (int i=0; i<mp->get_mg()->get_nr(l); i++) {
+	  nb1 = nbar1(l,k,j,i) ;
 	  nb2 = nbar2(l,k,j,i) ; //## a finir!!!
+	  cout << nb1 << ", " << nb2 << endl ;
 	}
       }
     }
