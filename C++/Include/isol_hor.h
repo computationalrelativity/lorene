@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/09/17 13:35:25  f_limousin
+ * Introduction of relaxation in init_data_schwarz
+ *
  * Revision 1.3  2004/09/16 08:36:57  f_limousin
  * New boundary conditions for lapse and psi.
  *
@@ -169,10 +172,6 @@ class Isol_hor : public Time_slice_conf {
   /** Vector radial normal tilde */
   Vector tradial_vect_hor() ;
 
-  /** Vector beta for boundary conditions in cartesian  */
-  Vector beta_bound_cart() ;
-
-
   /** Element of area of the horizon */
   Scalar darea_hor()  ;
   
@@ -201,13 +200,14 @@ class Isol_hor : public Time_slice_conf {
   //---------------------
  public:
   void init_data(const Sym_tensor& uu, const Scalar& trk_in, 
-		 const Scalar& trk_point, double precis = 1.e-12,
+		 const Scalar& trk_point, double precis = 1.e-12, 
 		 const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
 		 const Scalar* trace_stress=0x0 ) ; 
         
 
   void init_data_schwar(const Sym_tensor& uu, const Scalar& trk_in, 
 		 const Scalar& trk_point, double precis = 1.e-12,
+		 double relax = 1.,
 		 const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
 		 const Scalar* trace_stress=0x0 ) ; 
         
@@ -287,57 +287,17 @@ class Isol_hor : public Time_slice_conf {
   /// Component phi of boundary value of beta
   Valeur boundary_beta_z() ;
 
+  /// Vector beta for boundary conditions in cartesian  
+  Vector beta_bound_cart() ;
 
 
-
-  /*
-  /// boundary condition for Q
+  // Outputs
+  // -------
+ protected:
+  /// Operator >> (virtual function called by the operator<<). 
+  virtual ostream& operator>>(ostream& ) const ;	
   
-  Valeur boundary_qq() ;
-
-  /// Component r of boundary value of beta
-  Valeur boundary_beta_r() ;
   
-  /// Component theta of boundary value of beta
-  Valeur boundary_beta_theta() ;
-  
-  /// Component phi of boundary value of beta
-  Valeur boundary_beta_phi() ;
-  
-  /// Component x of boundary value of beta
-  Valeur boundary_beta_x() ;
-  
-  /// Component theta of boundary value of beta
-  Valeur boundary_beta_y() ;
-  
-  /// Component phi of boundary value of beta
-  Valeur boundary_beta_z() ;
-
-	/// Dirichlet boundary condition on nn using the extrinsic curvature
-	///< (No time evolution taken into account! Make this)
-	///<--------------------------------------------------------------------------
-	Valeur boundary_nn_Dir_kk() ;
-
-	/// Neumann boundary condition on nn using the extrinsic curvature
-	/// (No time evolution taken into account! Make this)
-	///<--------------------------------------------------------------------------
-	Valeur boundary_dnn_Neu_kk() ;	
-
-
-
-
-  */
- 
-
-
-
-    // Outputs
-    // -------
-    protected:
-	/// Operator >> (virtual function called by the operator<<). 
-	virtual ostream& operator>>(ostream& ) const ;	
-
-
   
 };
 #endif
