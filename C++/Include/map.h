@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2004/01/27 09:33:46  j_novak
+ * New method Map_radial::div_r_zec
+ *
  * Revision 1.18  2004/01/26 16:16:15  j_novak
  * Methods of gradient for Scalar s. The input can have any dzpuis.
  *
@@ -893,6 +896,11 @@ class Map {
 	 */
 	virtual void div_r(Cmp& ) const = 0 ; 
 
+	/** Division by {\it r} (in the  compactified external domain only)
+	 * of a {\tt Scalar}
+	 */
+	virtual void div_r_zec(Scalar& ) const = 0 ;
+
 	/** Multiplication by $\cos\theta$ of a {\tt Scalar}
 	 */
 	virtual void mult_cost(Scalar& ) const = 0 ; 
@@ -1438,6 +1446,11 @@ class Map_radial : public Map {
 	/** Division by {\it r} of a {\tt Cmp}
 	 */
 	virtual void div_r(Cmp& ) const ; 
+
+	/** Division by {\it r} (in the  compactified external domain only)
+	 * of a {\tt Scalar}
+	 */
+	virtual void div_r_zec(Scalar& ) const ;
 
 	/** Multiplication by $\cos\theta$ of a {\tt Scalar}
 	 */

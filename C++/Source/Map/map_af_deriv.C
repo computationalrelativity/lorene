@@ -30,6 +30,9 @@ char map_af_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/01/27 09:33:48  j_novak
+ * New method Map_radial::div_r_zec
+ *
  * Revision 1.7  2004/01/26 16:16:17  j_novak
  * Methods of gradient for Scalar s. The input can have any dzpuis.
  *
@@ -592,10 +595,10 @@ void Map_af::dsdt(const Scalar& ci, Scalar& resu) const {
 
 		resu = ci.get_spectral_va().dsdt() ; 	// d/dtheta
 		
-		resu.set_dzpuis( ci.get_dzpuis() ) ; 	// dzpuis unchanged
-	
     }
 
+    resu.set_dzpuis( ci.get_dzpuis() ) ; 	// dzpuis unchanged
+	
 }
 
 
@@ -617,10 +620,10 @@ void Map_af::stdsdp(const Scalar& ci, Scalar& resu) const {
 		assert( ci.get_etat() == ETATQCQ ) ; 
 
 		resu = ci.get_spectral_va().stdsdp() ; 	// 1/sin(theta) d/dphi
-	
-		resu.set_dzpuis( ci.get_dzpuis() ) ; 	// dzpuis unchanged
 
     }
+	
+    resu.set_dzpuis( ci.get_dzpuis() ) ; 	// dzpuis unchanged
 
 }
 

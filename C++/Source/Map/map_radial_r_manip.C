@@ -32,6 +32,9 @@ char map_radial_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/01/27 09:33:48  j_novak
+ * New method Map_radial::div_r_zec
+ *
  * Revision 1.6  2003/11/04 23:00:16  e_gourgoulhon
  * Method div_tant is now defined in file map_radial_th_manip.C.
  *
@@ -475,11 +478,60 @@ void Map_radial::div_r(Cmp& ci) const {
 }
 
 
+			//---------------------------//
+			//	    div_r_zec	     //
+			//---------------------------//
 
+void Map_radial::div_r_zec(Scalar& uu) const {
+    
+    // Verifications d'usage :
+    assert(uu.get_etat() != ETATNONDEF) ;
+    
+    // Nothing to do if the Cmp is null :
+    if (uu.get_etat() == ETATZERO) {
+	return ; 
+    }
 
+    assert(uu.get_etat() == ETATQCQ) ;
+    
+    //Confort :
+    const Valeur& vu = uu.get_spectral_va() ; 
+    assert(vu.get_mg() == mg) ; 
+    
+    int nz = mg->get_nzone() ;
+    int nzm1 = nz-1 ;
 
+    if (mg->get_type_r(nzm1) == UNSURR) {   // Case with ZEC
+					    // -------------
+    	// On stocke tout sauf la ZEC
 
+	Valeur val = vu ;
+	val.annule(nzm1) ;
+   
+	// On ne travaile que sur la ZEC :
 
+	Valeur val_ext = vu ;
+	val_ext.annule(0, nzm1-1) ; 
+	
+	val_ext.mult_xm1_zec() ; // division par (x-1) dans l'espace des coefs.
+
+	Base_val sauve_base = val_ext.base ; 
+	val_ext = val_ext / xsr ;
+	val_ext.base = sauve_base ; 
+    
+	// Et on reconstruit le resultat ...
+	uu.set_spectral_va() = val + val_ext ; 
+	    
+    }
+    else{   // Case without ZEC
+	    //-----------------
+
+	return ; 
+
+    }
+    
+    
+}
 
 
 			//---------------------------//
