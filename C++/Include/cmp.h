@@ -36,8 +36,11 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/01/03 15:30:27  j_novak
+ * Some comments modified.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.101  2001/10/29  15:36:03  novak
  * Ajout de Cmp::div_r()
@@ -1123,13 +1126,22 @@ class Cmp {
 	 *   represented by the {\tt Cmp} {\tt source}.
 	 *   {\tt sourcejm1} contains the value of $\sigma$ at $t=j-1)$.
 	 *   {\tt par} must contain at least the time-step (constant in time)
-	 *   as first {\tt double} paramater, and the type of BC as first
-	 *   {\tt int} parameter. If par.get\_int(0) == 1 then
+	 *   as first {\tt double} parameter, and the type of BC as first
+	 *   {\tt int} parameter. If par.get\_int(0) == 0 the BC are 
+	 *   homogeneous
+	 *   (i.e. $f(t=j+1)(r=R) = 0$).If par.get\_int(0) == 1 then
 	 *   the returned {\tt Cmp} $f(t=j+1)$ has the boundary conditions 
-	 *   of outgoing wave. If par.get\_int(0) == 0 the BC are homogeneous
-	 *   (i.e. $f(t=j+1)(r=R) = 0$).
+	 *   of outgoing wave (l=0 only), known as Sommerfeld boundary
+	 *   condition. If par.get\_int(0) == 2 then the enhanced outgoing
+	 *   wave condition is used (lets out all spherical harmonics 
+	 *   up to l=2). 
+	 *   The int_mod(0) member of par contains a flag giving the number 
+	 *   of calls to the function. It should be set to 0 before first call
+	 *   and not modified after. \\
+	 *   There should be one Param for each solved wave equation. 
 	 */
-	Cmp avance_dalembert(Param& par, Cmp& fjm1, Cmp& source) const ;
+	Cmp avance_dalembert(Param& par, const Cmp& fjm1, const Cmp& source) 
+	  const ;
 	
 	/**
 	 * Performs the $C^n$ matching of the nucleus with respect to the 

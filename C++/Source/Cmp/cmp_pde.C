@@ -31,8 +31,11 @@ char cmp_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/01/03 15:30:27  j_novak
+ * Some comments modified.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.8  2001/10/16  09:59:00  novak
  * deletion of source(t=jm1) from the argument list of d'Alembert solvers
@@ -103,7 +106,8 @@ void Cmp::poisson(Param& par, Cmp& uu) const {
 		    //      Scalar d'Alembert equation	 //
 		    //-----------------------------------//
 
-Cmp Cmp::avance_dalembert(Param& par, Cmp& fjm1, Cmp& source) const {
+Cmp Cmp::avance_dalembert(Param& par, const Cmp& fjm1, const Cmp& source) 
+  const {
   
   Cmp fjp1(*mp) ;
   

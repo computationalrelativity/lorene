@@ -31,6 +31,9 @@ char eos_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/01/03 15:30:27  j_novak
+ * Some comments modified.
+ *
  * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -203,9 +206,9 @@ void Eos_bifluid::calcule_tout(const Cmp& ent1, const Cmp& ent2,
   bool en1 = ent1.get_etat() == ETATQCQ ; 
   bool en2 = ent2.get_etat() == ETATQCQ ; 
   bool del = delta2.get_etat() == ETATQCQ ; 
-  const Valeur* vent1 ;
-  const Valeur* vent2 ; 
-  const Valeur* vdelta2 ;
+  const Valeur* vent1 = 0x0 ;
+  const Valeur* vent2 = 0x0 ; 
+  const Valeur* vdelta2 = 0x0 ;
   if (en1) { vent1 = &ent1.va ;
   vent1->coef_i() ; }
   if (en2) { vent2 = &ent2.va ;
@@ -241,9 +244,9 @@ void Eos_bifluid::calcule_tout(const Cmp& ent1, const Cmp& ent2,
     assert(l>=0) ; 
     assert(l<nz) ; 
 
-    Tbl* tent1 ;
-    Tbl* tent2 ;
-    Tbl* tdelta2 ;
+    Tbl* tent1 = 0x0 ;
+    Tbl* tent2 = 0x0 ;
+    Tbl* tdelta2 = 0x0 ;
     if (en1) tent1 = vent1->c->t[l] ; 
     if (en2) tent2 = vent2->c->t[l] ; 
     if (del) tdelta2 = vdelta2->c->t[l] ; 
@@ -319,9 +322,9 @@ void Eos_bifluid::nbar_ent(const Cmp& ent1, const Cmp& ent2, const Cmp& delta2,
   bool en1 = ent1.get_etat() == ETATQCQ ; 
   bool en2 = ent2.get_etat() == ETATQCQ ; 
   bool del = delta2.get_etat() == ETATQCQ ; 
-  const Valeur* vent1 ;
-  const Valeur* vent2 ; 
-  const Valeur* vdelta2 ;
+  const Valeur* vent1 = 0x0 ;
+  const Valeur* vent2 = 0x0 ; 
+  const Valeur* vdelta2 = 0x0 ;
   if (en1) { vent1 = &ent1.va ;
   vent1->coef_i() ; }
   if (en2) { vent2 = &ent2.va ;
@@ -349,9 +352,9 @@ void Eos_bifluid::nbar_ent(const Cmp& ent1, const Cmp& ent2, const Cmp& delta2,
     assert(l>=0) ; 
     assert(l<nz) ; 
 	
-    Tbl* tent1 ;
-    Tbl* tent2 ;
-    Tbl* tdelta2 ;
+    Tbl* tent1 = 0x0 ;
+    Tbl* tent2 = 0x0 ;
+    Tbl* tdelta2 = 0x0 ;
 
     if (en1) tent1 = vent1->c->t[l] ; 
     if (en2) tent2 = vent2->c->t[l] ; 
@@ -416,9 +419,9 @@ Cmp Eos_bifluid::ener_ent(const Cmp& ent1, const Cmp& ent2, const Cmp& delta2,
   bool en1 = ent1.get_etat() == ETATQCQ ; 
   bool en2 = ent2.get_etat() == ETATQCQ ; 
   bool del = delta2.get_etat() == ETATQCQ ; 
-  const Valeur* vent1 ;
-  const Valeur* vent2 ; 
-  const Valeur* vdelta2 ;
+  const Valeur* vent1 = 0x0 ;
+  const Valeur* vent2 = 0x0 ; 
+  const Valeur* vdelta2 = 0x0 ;
   if (en1) { vent1 = &ent1.va ;
   vent1->coef_i() ; }
   if (en2) { vent2 = &ent2.va ;
@@ -442,9 +445,9 @@ Cmp Eos_bifluid::ener_ent(const Cmp& ent1, const Cmp& ent2, const Cmp& delta2,
     assert(l>=0) ; 
     assert(l<nz) ; 
 
-    Tbl* tent1 ;
-    Tbl* tent2 ;
-    Tbl* tdelta2 ;
+    Tbl* tent1 = 0x0 ;
+    Tbl* tent2 = 0x0 ;
+    Tbl* tdelta2 = 0x0 ;
 
     if (en1) tent1 = vent1->c->t[l] ; 
     if (en2) tent2 = vent2->c->t[l] ; 
@@ -509,9 +512,9 @@ Cmp Eos_bifluid::press_ent(const Cmp& ent1, const Cmp& ent2, const Cmp& delta2,
   bool en1 = ent1.get_etat() == ETATQCQ ; 
   bool en2 = ent2.get_etat() == ETATQCQ ; 
   bool del = delta2.get_etat() == ETATQCQ ; 
-  const Valeur* vent1 ;
-  const Valeur* vent2 ; 
-  const Valeur* vdelta2 ;
+  const Valeur* vent1 = 0x0 ;
+  const Valeur* vent2 = 0x0 ; 
+  const Valeur* vdelta2 = 0x0 ;
   if (en1) { vent1 = &ent1.va ;
   vent1->coef_i() ; }
   if (en2) { vent2 = &ent2.va ;
@@ -535,9 +538,9 @@ Cmp Eos_bifluid::press_ent(const Cmp& ent1, const Cmp& ent2, const Cmp& delta2,
     assert(l>=0) ; 
     assert(l<nz) ; 
 	
-    Tbl* tent1 ;
-    Tbl* tent2 ;
-    Tbl* tdelta2 ;
+    Tbl* tent1 = 0x0 ;
+    Tbl* tent2 = 0x0 ;
+    Tbl* tdelta2 = 0x0 ;
 
     if (en1) tent1 = vent1->c->t[l] ; 
     if (en2) tent2 = vent2->c->t[l] ; 
@@ -604,9 +607,9 @@ void Eos_bifluid::calcule(const Cmp& nbar1, const Cmp& nbar2, const Cmp&
     bool nb1 = nbar1.get_etat() == ETATQCQ ; 
     bool nb2 = nbar2.get_etat() == ETATQCQ ; 
     bool bx2 = x2.get_etat() == ETATQCQ ; 
-    const Valeur* vnbar1 ;
-    const Valeur* vnbar2 ;
-    const Valeur* vx2 ;
+    const Valeur* vnbar1 = 0x0 ;
+    const Valeur* vnbar2 = 0x0 ;
+    const Valeur* vx2 = 0x0 ;
     if (nb1) { vnbar1 = &nbar1.va ;
     vnbar1->coef_i() ; }
     if (nb2) { vnbar2 = &nbar2.va ;
@@ -630,9 +633,9 @@ void Eos_bifluid::calcule(const Cmp& nbar1, const Cmp& nbar2, const Cmp&
       assert(l>=0) ; 
       assert(l<nz) ; 
       
-      Tbl* tnbar1 ;
-      Tbl* tnbar2 ;
-      Tbl* tx2 ;
+      Tbl* tnbar1 = 0x0 ;
+      Tbl* tnbar2 = 0x0 ;
+      Tbl* tx2 = 0x0 ;
       
       if (nb1) tnbar1 = vnbar1->c->t[l] ;
       if (nb2) tnbar2 = vnbar2->c->t[l] ;

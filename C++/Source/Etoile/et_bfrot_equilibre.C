@@ -32,8 +32,11 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/01/03 15:30:28  j_novak
+ * Some comments modified.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.1  2001/06/22  15:40:06  novak
  * Initial revision
@@ -65,7 +68,7 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 //-------------------------------------------------------------------------
 //-------------------------------------------------------------------------
 
-void Et_rot_bifluid::equilibrium_spher(double ent_c, double ent2_c, 
+void Et_rot_bifluid::equilibrium_spher_bi(double ent_c, double ent2_c, 
 				       double precis){
     
   // Fundamental constants and units
@@ -367,7 +370,7 @@ void Et_rot_bifluid::equilibrium_spher(double ent_c, double ent2_c,
 //-------------------------------------------------------------------------
 //-------------------------------------------------------------------------
 
-void Et_rot_bifluid::equilibrium
+void Et_rot_bifluid::equilibrium_bi
 (double ent_c, double ent2_c, double omega0, double omega20, 
  const Tbl& ent_limit, const Tbl& ent2_limit, const Itbl& icontrol, 
  const Tbl& control, Tbl& diff) {

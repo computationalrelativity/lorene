@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/01/03 15:30:27  j_novak
+ * Some comments modified.
+ *
  * Revision 1.2  2002/01/02 14:07:56  j_novak
  * Dalembert equation is now solved in the shells. However, the number of
  * points in theta and phi must be the same in each domain. The solver is not
@@ -445,7 +448,8 @@ void _lapang_t_leg_i(Mtbl_cf*, int) ;
 // Fonctions liees au dalembertien
 void get_operateur_dal(const Param&, const int&, const int&, const int&, 
 		       int&, Matrice& );
-Tbl dal_inverse(int&, int&, Matrice&, Tbl&,  bool) ;
+Tbl dal_inverse(const int&, const int&, const Matrice&, const Tbl&, 
+		const bool) ;
 Mtbl_cf sol_dalembert(Param&, const Map_af&, const Mtbl_cf&) ;
 
 // Fonctions diverses : 

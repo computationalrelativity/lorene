@@ -25,6 +25,9 @@ char get_operateur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/01/03 15:30:28  j_novak
+ * Some comments modified.
+ *
  * Revision 1.3  2002/01/03 13:18:41  j_novak
  * Optimization: the members set(i,j) and operator(i,j) of class Matrice are
  * now defined inline. Matrice is a friend class of Tbl.
@@ -119,7 +122,11 @@ int& type_dal, Matrice& operateur)
     double R1 = (par.get_tbl_mod())(10,lz) ;
     double R2 = (par.get_tbl_mod())(11,lz) ;
 
-    double a00, a01, a02, a10, a11, a12, a13, a20, a21, a22, a23, a24 ;
+    double a00 = 0. ; double a01 = 0. ; double  a02 = 0. ; 
+    double a10 = 0. ; double a11 = 0. ; double  a12 = 0. ; 
+    double a13 = 0. ; double a20 = 0. ; double  a21 = 0. ; 
+    double a22 = 0. ; double a23 = 0. ; double  a24 = 0. ; 
+
     bool dege = (fabs(coeff(9)) < 1.e-10) ;
     switch (dege) {
     case true:

@@ -31,8 +31,11 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/01/03 15:30:27  j_novak
+ * Some comments modified.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.3  2001/10/03  09:49:06  novak
  * *** empty log message ***
@@ -181,7 +184,7 @@ class Et_rot_bifluid : public Etoile_rot {
    *	the enthalpy fields of two consecutive steps
    *	to stop the iterative procedure (default value: 1.e-14)
    */
-  void equilibrium_spher(double ent_c, double ent_c2, 
+  void equilibrium_spher_bi(double ent_c, double ent_c2, 
 			 double precis = 1.e-14) ;
 	
   /** Computes a spherical static configuration. 
@@ -387,7 +390,7 @@ class Et_rot_bifluid : public Etoile_rot {
    *	    {\tt diff(7)} : Relative error in the resolution of the
    *			    equation for {\tt shift} (y comp.) \\  
    */
-  void equilibrium(double ent_c, double ent_c2, double omega0, 
+  void equilibrium_bi(double ent_c, double ent_c2, double omega0, 
 		   double omega20, const Tbl& ent_limit, 
 		   const Tbl& ent2_limit, const Itbl& icontrol, 
 		   const Tbl& control, Tbl& diff) ;

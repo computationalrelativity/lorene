@@ -25,8 +25,11 @@ char et_bfort_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/01/03 15:30:28  j_novak
+ * Some comments modified.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.4  2001/08/31  15:07:12  novak
  * Retour a la version 1.2, sans la routine prolonge_c1
@@ -493,11 +496,10 @@ double Et_rot_bifluid::ray_eq2() const {
     const Mg3d& mg = *(mp.get_mg()) ;
 	
     int type_t = mg.get_type_t() ; 
-    int type_p = mg.get_type_p() ; 
     int nt = mg.get_nt(0) ; 	
 	
     if ( type_t == SYM ) {
-      assert( (type_p == SYM) || (type_p == NONSYM) ) ; 
+      assert( ( mg.get_type_p() == SYM) || (mg.get_type_p() == NONSYM) ) ; 
       int k = 0 ; 
       int j = nt-1 ; 
       int l = l_surf2()(k, j) ; 
@@ -631,11 +633,8 @@ double Et_rot_bifluid::ray_pole2() const {
 
   if (p_ray_pole2 == 0x0) {    // a new computation is required
 	
-    const Mg3d& mg = *(mp.get_mg()) ;
-	
-    int type_t = mg.get_type_t() ; 
-	
-    assert( (type_t == SYM) || (type_t == NONSYM) ) ;  
+    assert( ((mp.get_mg())->get_type_t() == SYM) 
+	    || ((mp.get_mg())->get_type_t() == NONSYM) ) ;  
 	
     int k = 0 ; 
     int j = 0 ; 

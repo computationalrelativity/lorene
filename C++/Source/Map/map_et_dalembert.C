@@ -25,8 +25,11 @@ char map_et_dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/01/03 15:30:28  j_novak
+ * Some comments modified.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.3  2001/10/16  10:07:52  novak
  * *** empty log message ***
@@ -64,6 +67,7 @@ void Map_et::dalembert(Param& par, Cmp& fJp1, const Cmp& fJ, const Cmp& fJm1,
 
     assert(par.get_n_double() >= 1) ;
     cout << "Not implemented" << endl ;
+    cout << par.get_n_double() << fJp1 << fJ << fJm1 << source ;
     abort() ;
 
     

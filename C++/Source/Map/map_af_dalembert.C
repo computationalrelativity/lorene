@@ -25,6 +25,9 @@ char map_af_dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/01/03 15:30:28  j_novak
+ * Some comments modified.
+ *
  * Revision 1.2  2002/01/02 14:07:57  j_novak
  * Dalembert equation is now solved in the shells. However, the number of
  * points in theta and phi must be the same in each domain. The solver is not
@@ -142,8 +145,8 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
     double* bc1 ;
     double* bc2 ;
     Tbl* tbc3 ;
-    Tbl* phijm1 ;
-    Tbl* phij ;
+    Tbl* phijm1 = 0x0 ;
+    Tbl* phij = 0x0 ;
     if (nap == 0) { 
       bc1 = new double ;
       bc2 = new double ;

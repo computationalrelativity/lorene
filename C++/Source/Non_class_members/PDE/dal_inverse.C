@@ -25,6 +25,9 @@ char dal_inverse_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/01/03 15:30:28  j_novak
+ * Some comments modified.
+ *
  * Revision 1.3  2002/01/03 13:18:41  j_novak
  * Optimization: the members set(i,j) and operator(i,j) of class Matrice are
  * now defined inline. Matrice is a friend class of Tbl.
@@ -881,8 +884,8 @@ Tbl _dal_inverse_r_chebi_o2_l(const Matrice &op, const Tbl &source,
 	      //----------------------------
 	      
 	      
-Tbl dal_inverse(int& base_r, int& type_dal, Matrice& operateur, 
-		Tbl& source, bool part) {
+Tbl dal_inverse(const int& base_r, const int& type_dal, const 
+		Matrice& operateur, const Tbl& source, const bool part) {
 
 		// Routines de derivation
     static Tbl (*dal_inverse[MAX_BASE][MAX_DAL])(const Matrice&, const Tbl&, 
