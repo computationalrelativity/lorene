@@ -25,4 +25,5 @@ ini.d
 0.75	relax_omeg : Relaxation factor on Omega (orbital angular velocity)
 0.7	fact_omeg_min : fact_omeg_min * omega = low bound in the omega search
 1.3	fact_omeg_max : fact_omeg_max * omega = high bound in the omega search
-0.	thres_adapt : threshold on dH/dr for the adaptation of the mapping
+0.	thres_adapt1 : threshold on dH/dr for the adaptation of the mapping in star 1
+0.	thres_adapt2 : threshold on dH/dr for the adaptation of the mapping in star 2
