@@ -1,15 +1,18 @@
 SHELL=/bin/sh
 
+SRC = $(HOME_LORENE)/C++/Doc++/Source/lorene.C \
+      $(HOME_LORENE)/C++/Include/*.h
+
 install: features.dvi refguide
 
-features.dvi:
+features.dvi: features.tex
 	latex features
 	rm -f *.aux *.log
 
-refguide:
+refguide: $(SRC)
 	cd $(HOME_LORENE)/C++/Doc++; $(MAKE)
 
-refguide.dvi:
+refguide.dvi: $(SRC)
 	cd $(HOME_LORENE)/C++/Doc++; $(MAKE) refguide.tex
 	latex refguide
 	latex refguide
