@@ -32,6 +32,15 @@ char et_rot_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/11/13 12:07:57  r_prix
+ * *) changed xxx2 -> Delta_car
+ * *) added (non 2-fluid specific!) members sphph_euler J_euler
+ * *) more or less rewritten hydro_euler() to see if I understand it ;)
+ *   - somewhat simplified and more adapted to the notation used in our notes/paper.
+ *   - Main difference: u_euler is no longer used!!, the "output" instead
+ *     consists of ener_euler, s_euler, sphph_euler and J_euler, which are
+ *     the general 3+1 components for Tmunu.
+ *
  * Revision 1.6  2003/09/17 08:27:50  j_novak
  * New methods: mass_b1() and mass_b2().
  *
@@ -84,16 +93,19 @@ Et_rot_bifluid::Et_rot_bifluid(Map& mpi, int nzet_i, bool relat,
   eos(eos_i),
   ent2(mpi),
   nbar2(mpi),
-  xxx2(mpi),
+  Delta_car(mpi),
   gam_euler2(mpi),
+  sphph_euler(mpi),
+  J_euler(mpi, 1, CON, mp.get_bvect_cart()), 
   uuu2(mpi)
-  
 {
   // All the matter quantities are initialized to zero :
   nbar2 = 0 ;
-  xxx2 = 0 ;
+  Delta_car = 0 ;
   ent2 = 0 ; 
   gam_euler2 = 1 ; 
+  sphph_euler = 0;
+  J_euler = 0;
   gam_euler.set_std_base() ; 
   
   // Initialization to a static state : 
@@ -113,8 +125,10 @@ Et_rot_bifluid::Et_rot_bifluid(const Et_rot_bifluid& et)
   eos(et.eos),
   ent2(et.ent2),
   nbar2(et.nbar2),
-  xxx2(et.xxx2),
+  Delta_car(et.Delta_car),
   gam_euler2(et.gam_euler2),
+  sphph_euler(et.sphph_euler),
+  J_euler(et.J_euler),
   uuu2(et.uuu2)
 {
   omega2 = et.omega2 ; 
@@ -131,8 +145,10 @@ Et_rot_bifluid::Et_rot_bifluid(Map& mpi, const Eos_bifluid& eos_i, FILE* fich):
   eos(eos_i),
   ent2(mpi),
   nbar2(mpi),
-  xxx2(mpi),
+  Delta_car(mpi),
   gam_euler2(mpi),
+  sphph_euler(mpi),
+  J_euler(mpi, 1, CON, mp.get_bvect_cart()), 
   uuu2(mpi) {
 
   // Etoile parameters
@@ -150,7 +166,7 @@ Et_rot_bifluid::Et_rot_bifluid(Map& mpi, const Eos_bifluid& eos_i, FILE* fich):
   // All other fields are initialized to zero : 
   // ----------------------------------------
   uuu2 = 0 ;
-  xxx2 = 0 ;
+  Delta_car = 0 ;
   
   // Pointers of derived quantities initialized to zero 
   // --------------------------------------------------
@@ -213,6 +229,8 @@ void Et_rot_bifluid::del_hydro_euler() {
 
   Etoile_rot::del_hydro_euler() ; 
   gam_euler2.set_etat_nondef() ; 
+  sphph_euler.set_etat_nondef();
+  J_euler.set_etat_nondef();
   
   del_deriv() ; 
 
@@ -252,8 +270,10 @@ void Et_rot_bifluid::operator=(const Et_rot_bifluid& et) {
 
     ent2 = et.ent2 ;
     nbar2 = et.nbar2 ;
-    xxx2 = et.xxx2 ;
+    Delta_car = et.Delta_car ;
     gam_euler2 = et.gam_euler2 ;
+    sphph_euler = et.sphph_euler;
+    J_euler = et.J_euler;
     uuu2 = et.uuu2 ;
     
     del_deriv() ;  // Deletes all derived quantities
@@ -441,7 +461,7 @@ void Et_rot_bifluid::equation_of_state() {
 
   Cmp ent_eos = ent() ;
   Cmp ent2_eos = ent2() ;
-  Tenseur rel_vel(xxx2) ;
+  Tenseur rel_vel(Delta_car) ;
 
   // Slight rescale of the enthalpy field in case of 2 domains inside the
   //  star
@@ -520,234 +540,109 @@ void Et_rot_bifluid::hydro_euler(){
     int nz = mp.get_mg()->get_nzone() ; 
     int nzm1 = nz - 1 ; 
 
-    // Computation of u_euler
-    // WARNING!!: at the end of this routine u_euler is NOT the same 
-    // type of quantity as in Etoile_rot, it represents the (normalized) 
-    // components of the momentum 3-vector (3+1 decomposition of $T^\mu_\nu$). 
-    // ---------------------------------------------------------------------
+    // RP: I prefer to use the 3-vector J_euler instead of u_euler
+    // for better physical "encapsulation" 
+    // (i.e. --> use same form of Poisson-equations for all etoile sub-classes!)
+    u_euler.set_etat_nondef(); // make sure it's not used
+
+    // (Norm of) Euler-velocity of the first fluid
+    //------------------------------
+    uuu.set_etat_qcq();
+
+    uuu.set() = bbb() * (omega - nphi() ) / nnn();
+    uuu.annule(nzm1) ; 
+
+    // gosh, we have to exclude the thing being zero here... :(
+    if( uuu.get_etat() != ETATZERO )
+      {
+	(uuu.set()).std_base_scal() ;
+	(uuu.set()).mult_rsint();
+      }
+    uuu.set_std_base();
     
-    const Coord& x = mp.x ; 
-    const Coord& y = mp.y ; 
+
+    // (Norm of) Euler-velocity of the second fluid
+    //----------------------------------------
+    uuu2.set_etat_qcq();
     
-    u_euler.set_etat_qcq() ; 
-    
-    u_euler.set(0) = - omega * y ;	    // Cartesian components of solid rotation
-    u_euler.set(1) =   omega * x ;
-    u_euler.set(2) = 0 ;
-    u_euler.annule(nzm1) ; 
-    
-    u_euler.set_triad( mp.get_bvect_cart() ) ;	// Triad = Cartesian triad
-    
-    u_euler.set_std_base() ;	// sets the standard bases for spectral expansions
+    uuu2.set() = bbb() * (omega2 - nphi() ) / nnn();
+    uuu2.annule(nzm1) ; 
 
-    u_euler = ( u_euler - shift ) / nnn ; 
+    if( uuu2.get_etat() != ETATZERO )
+      {
+	(uuu2.set()).std_base_scal();
+	(uuu2.set()).mult_rsint();
+      }
+    uuu2.set_std_base();
 
-    u_euler.set_std_base() ;	// sets the standard bases for spectral expansions
-    // At this point u_euler is the equivalent of Etoile_rot.u_euler
-    
-//## Test
-    Tenseur utest(mp, 1, CON, mp.get_bvect_spher()) ; 
-    utest.set_etat_qcq() ; 
-    
-    utest.set(0) = 0 ;	    // Spherical components of solid rotation
-    utest.set(1) = 0 ;
-    utest.set(2) = ( omega - nphi() ) / nnn();
+    Tenseur uuu_car = uuu * uuu;
+    Tenseur uuu2_car = uuu2 * uuu2;
 
-    utest.set(2).annule(nzm1) ; 
-    utest.set(2).std_base_scal() ;
-    utest.set(2).mult_rsint() ;	    //  Multiplication by r sin(theta)
-    
-    utest.set_triad( mp.get_bvect_spher() ) ; 
-
-    utest.change_triad( mp.get_bvect_cart() ) ; 
-    
-    for (int i=0; i<3; i++) {
-	Valeur& uu = u_euler.set(i).va ;
-	Valeur& ut = utest.set(i).va ;
-	
-	if (uu.get_etat() != ETATZERO) {
-	    uu.coef() ; 
-	    
-	    if (ut.get_etat() == ETATZERO) {
-		ut.set_etat_cf_qcq() ; 
-		*(ut.c_cf) = 0 ; 
-		ut.c_cf->base = uu.c_cf->base ; 
-	    }
-	    else {
-		ut.coef() ; 
-	    }
-	    
-	    Mtbl_cf diff = *(uu.c_cf) - *(ut.c_cf) ;
-	    cout << "Etoile_rot::hydro_euler: test u_euler(" << i << ") : " 
-		 << max( abs(diff) )(0) << endl ; 
-	
-	}
-    }
-//##
-
-    if ( (u_euler(0).get_etat() == ETATZERO) &&
-	 (u_euler(1).get_etat() == ETATZERO) &&
-	 (u_euler(2).get_etat() == ETATZERO) )    {
-	
-	u_euler = 0 ;    
-    }
-
-
-
-    // Computation of uuu (norme of u_euler)
-    // ------------------
-
-    // The scalar product is performed on the spherical components: 
-
-    Tenseur us = u_euler ; 
-    us.change_triad( mp.get_bvect_spher() ) ; 
-    Tenseur uphi(mp) ;
-    uphi = us(2)*bbb() ;
-
-    Cmp uu2 =	a_car() * ( us(0) * us(0) + us(1) * us(1) ) 
-	     +	b_car() * us(2) * us(2) ; 
-
-    uuu = sqrt( uu2 ) ; 
-    
-    if (uuu.get_etat() == ETATQCQ) {
-	((uuu.set()).va).set_base( us(2).va.base ) ;   // Same basis as 
-    }						   // (Omega -N^phi) r sin(theta)
-
-    us.set_etat_qcq() ; 
-    
-    // Computation of uuu2 (without test!)
-    // ------------------------------------------------
-    
-    us.set(0) = - omega2 * y ;	    // Cartesian components of solid rotation
-    us.set(1) =   omega2 * x ;
-    us.set(2) = 0 ;
-    us.annule(nzm1) ; 
-    
-    us.set_triad( mp.get_bvect_cart() ) ;	// Triad = Cartesian triad
-    
-    us.set_std_base() ;	// sets the standard bases for spectral expansions
-
-    us = ( us - shift ) / nnn ; 
-
-    us.set_std_base() ;	// sets the standard bases for spectral expansions 
-    if ( (us(0).get_etat() == ETATZERO) &&
-	 (us(1).get_etat() == ETATZERO) &&
-	 (us(2).get_etat() == ETATZERO) )    {
-	
-	us = 0 ;    
-    }
-
-    Tenseur u_euler2 = us ;
-    us.change_triad( mp.get_bvect_spher() ) ; 
-    Tenseur uphi2(mp) ;
-    uphi2 = us(2)*bbb() ;
-
-    Cmp uu22 =	a_car() * ( us(0) * us(0) + us(1) * us(1) ) 
-	     +	b_car() * us(2) * us(2) ; 
-
-    uuu2 = sqrt( uu22 ) ; 
-    
-    if (uuu2.get_etat() == ETATQCQ) {
-	((uuu2.set()).va).set_base( us(2).va.base ) ;   // Same basis as 
-    }						   // (Omega -N^phi) r sin(theta)
-
-
-    // Lorentz factor
+    // Lorentz factors
     // --------------
-    
-    Tenseur u2(mp) ; 
-    u2 = unsurc2 * uu2 ; 
-    
-    Tenseur gam2 = 1 / (1 - u2) ; 
-    
-    gam_euler = sqrt(gam2) ; 
+    Tenseur gam_car = 1.0 / (1.0 - unsurc2 * uuu_car) ; 
+    gam_euler = sqrt(gam_car) ; 
+    gam_euler.set_std_base() ;  // sets the standard spectral bases for a scalar field
 
-    gam_euler.set_std_base() ;  // sets the standard spectral bases for
-				    // a scalar field
-
-    // Second fluid Lorentz factor
-    // ---------------------------
-    u2 = unsurc2 * uu22 ;
-
-    Tenseur gam22 = 1 /(1 - u2) ;
-
-    gam_euler2 = sqrt(gam22) ;
-
+    Tenseur gam2_car = 1.0 /(1.0 - unsurc2 * uuu2_car) ;
+    gam_euler2 = sqrt(gam2_car) ;
     gam_euler2.set_std_base() ;
 
-
-    // Update of relative velocity
+    // Update of "relative velocity" squared: $\Delta^2$
     // ---------------------------
-    xxx2 = (relativistic ? 
-	    (uphi - uphi2)*(uphi - uphi2)/((1 - uphi*uphi2)*(1 - uphi*uphi2)) 
-	    : (uphi - uphi2)*(uphi - uphi2) );
-    xxx2.set_std_base() ;
+    Delta_car = (uuu - uuu2)*(uuu - uuu2) / ( (1 - unsurc2* uuu*uuu2) *(1 - unsurc2* uuu*uuu2 ) ) ;
+    Delta_car.set_std_base() ;
 
+    // some auxiliary EOS variables
+    Tenseur Ann(ent) ;
+    Ann = gam_car()*nbar()*nbar() * eos.get_Knn(nbar(), nbar2(), Delta_car(), nzet);
+    Tenseur Anp(ent) ;
+    Anp = gam_euler()*gam_euler2()* nbar()*nbar2()* eos.get_Knp(nbar(),nbar2(),Delta_car(),nzet);
+    Tenseur App(ent) ;
+    App = gam2_car()*nbar2()*nbar2() *eos.get_Kpp(nbar(), nbar2(), Delta_car(), nzet);
+  
 
     //  Energy density E with respect to the Eulerian observer
     //------------------------------------
-    
-    Tenseur Ann(ent) ;
-    Ann = gam2()*eos.get_Knn(nbar(), nbar2(), xxx2(), nzet)*nbar()*nbar() ;
-    Tenseur Anp(ent) ;
-    Anp = 2*gam_euler()*gam_euler2()*eos.get_Knp(nbar(), nbar2(), 
-				      xxx2(),nzet)*nbar()*nbar2() ;
-    Tenseur App(ent) ;
-    App = gam22()*eos.get_Kpp(nbar(), nbar2(), xxx2(), nzet)
-    *nbar2()*nbar2() ;
-    
-    ener_euler =  Ann + Anp + App - press ;
+    ener_euler =  Ann + 2*Anp + App - press ;
     ener_euler.set_std_base() ; 
     
+
+    // S^phi_phi component of stress-tensor S^i_j
+    //------------------------------------
+    sphph_euler = press() + Ann()*uuu_car() + 2*Anp()*uuu()*uuu2() + App()* uuu2_car();
+    sphph_euler.set_std_base();
+
+
     // Trace of the stress tensor with respect to the Eulerian observer
     //------------------------------------
-    
-    s_euler = 3*press() + Ann()*uu2 + Anp()*uphi()*uphi2() + App()*uu22  ;
-
+    s_euler = 2*press() + sphph_euler();
     s_euler.set_std_base() ; 
 
-    // momentum vector (E+p)U in cartesian components
-    //------------------------------------------------
 
-    u_euler = Ann*u_euler + 0.5*Anp*(u_euler + u_euler2) + App*u_euler2 ;
-    u_euler.set_std_base() ;
-    
-    //------------------------------------------------
-    // Determination of the fluid velocities U1 and U2
-    //------------------------------------------------
-	
-    Cmp tmp = omega - nphi() ; 
-    tmp.annule(nzm1) ; 
-    tmp.std_base_scal() ;
-	
-    tmp.mult_rsint() ;	    //  Multiplication by r sin(theta)
-	
-    uuu = bbb() / nnn() * tmp ; 
-	
-    if (uuu.get_etat() == ETATQCQ) {
-      // Same basis as (Omega -N^phi) r sin(theta) :
-      ((uuu.set()).va).set_base( (tmp.va).base ) ;   
-    }
-	
-    tmp = omega2 - nphi() ; 
-    tmp.annule(nzm1) ; 
-    tmp.std_base_scal() ;
-	
-    tmp.mult_rsint() ;	    //  Multiplication by r sin(theta)
-	
-    uuu2 = bbb() / nnn() * tmp ; 
-	
-    if (uuu2.get_etat() == ETATQCQ) {
-      // Same basis as (Omega -N^phi) r sin(theta) :
-      ((uuu2.set()).va).set_base( (tmp.va).base ) ;   
-    }
-	
+    // the (flat-space) angular-momentum 3-vector J_euler^i
+    //-----------------------------------
+    Tenseur Jph(mp);   // the normalized phi-component of J^i: Sqrt[g_phiphi]*J^phi
+    Jph = Ann*uuu + Anp*(uuu + uuu2) + App*uuu2 ;
+
+    J_euler.set_etat_qcq();
+
+    J_euler.set(0) = 0;		// r tetrad component
+    J_euler.set(1) = 0;		// theta tetrad component
+    J_euler.set(2) = Jph()/ bbb(); // phi tetrad component ... = J^phi r sin(th)
+    J_euler.set_triad (mp.get_bvect_spher());
+    J_euler.set_std_base();
+
+    // RP: it seems that J_euler _HAS_ to have cartesian triad set on exit from here...!!
+    J_euler.change_triad( mp.get_bvect_cart() ) ;	// Triad = Cartesian triad
+
+    if( (J_euler(0).get_etat() == ETATZERO)&&(J_euler(1).get_etat() == ETATZERO)&&(J_euler(2).get_etat()==ETATZERO))
+      J_euler = 0;
+
     // The derived quantities are obsolete
     // -----------------------------------
-    
     del_deriv() ;                
-    
 
-}
+} // hydro_euler()
 
 
