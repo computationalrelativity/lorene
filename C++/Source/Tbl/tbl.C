@@ -33,6 +33,10 @@ char tbl_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/09/24 08:32:07  e_gourgoulhon
+ *
+ * Added constructor from Matrice.
+ *
  * Revision 1.2  2001/12/04 21:27:54  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -103,6 +107,7 @@ char tbl_C[] = "$Header$" ;
 // headers Lorene
 #include "tbl.h"
 #include "grilles.h"
+#include "matrice.h"
 #include "utilitaires.h"
 
 
@@ -157,6 +162,43 @@ Tbl::Tbl(FILE* fd) : dim(fd) {
     else{
 	t = 0x0 ; 
     }
+}
+
+// From a matrix
+Tbl::Tbl(const Matrice& aa) : etat(aa.get_etat()),
+							  dim( (aa.get_array()).dim ) {
+
+	int nbl = dim.dim[1] ;
+	int nbc = dim.dim[0] ;
+	
+	// Special case of one row :
+	if (nbl == 1)  {
+		dim.ndim = 1 ;
+	}
+	
+	// Special case of one column :
+	if (nbc == 1)  {
+		dim.ndim = 1 ;
+		dim.dim[0] = dim.dim[1] ;
+		dim.dim[1] = 1 ;
+	}
+	
+    if (etat == ETATQCQ) {
+
+		t = new double[get_taille()] ;
+		
+		Tbl taa = aa.get_array() ;
+		double* ta = taa.t ;
+		
+		for (int i=0 ; i<get_taille() ; i++) {
+			t[i] = ta[i] ;
+		}
+		
+	}
+    else{
+		t = 0x0 ;
+    }
+
 }
 
 			//-------------//
