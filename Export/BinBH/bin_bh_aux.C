@@ -1,6 +1,8 @@
 /*
  * Constructor of class Bin_BH (binary black hole exportation)
  * which depends explicitely on Lorene objects.
+ *
+ * (see file bin_bh.h for documentation).
  */
 
 /*
@@ -28,12 +30,11 @@ char bin_bh_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2001/12/18 09:08:14  e_gourgoulhon
+ * Adds the filling of the holes interiors
+ *
  * Revision 1.1  2001/12/14 08:59:18  e_gourgoulhon
  * Exportation of Lorene Bhole_binaire object to a Cartesian grid
- *
- * Revision 1.2  2001/12/11 06:44:41  e_gourgoulhon
- * template files
- *
  *
  *
  * $Header$
@@ -50,13 +51,15 @@ char bin_bh_aux_C[] = "$Header$" ;
 #include "tenseur.h"
 #include "bhole.h"
 
+// Local prototype:
+double lagrange_parabol(double x, const double* xp, const double* yp) ;
 
 		    //----------------------------------------//
 		    //	    Constructor from LORENE data      //
 		    //----------------------------------------//
 
 Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi, 
-	       const double* zi, const char* filename) 
+	       const double* zi, int fill, const char* filename)
 	       : np(nbpoints) {
 
     // Reading of data
@@ -91,16 +94,16 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
     
     // Unit of length: 
     double aa = systeme(1).get_rayon() ;
-    
+    double aa2 = systeme(2).get_rayon() ;
+
     omega = systeme.get_omega() * aa ;
     dist = ( map_un.get_ori_x() - map_deux.get_ori_x() ) / aa ;
-    radius2 = systeme(2).get_rayon() / aa ; 
-   
+
     cout << endl << "Binary system read in file : " << endl ; 
     cout <<	    "---------------------------- " << endl ;
     cout << "  Separation d/a :       " << dist << endl ;
     cout << "  Omega :                " << omega << " / a" << endl ; 
-    cout << "  Size of black hole 2 : " << radius2 << " a" << endl ; 
+    cout << "  Size of black hole 2 : " << aa2 / aa << " a" << endl ;
     cout << "  ADM mass :             " << systeme.adm_systeme() / aa 
          << " a" << endl ; 
     cout << "  Komar-lile mass :      " << systeme.komar_systeme() / aa
@@ -139,27 +142,37 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
     
     const Map_af& mp1 = systeme(1).get_mp() ; 
     const Map_af& mp2 = systeme(2).get_mp() ; 
-    
-    const Valeur& vnn1 = (systeme(1).get_n_auto()()).va ;
-    const Valeur& vnn2 = (systeme(2).get_n_auto()()).va ;
+
+    const Cmp& cnn1 = systeme(1).get_n_auto()() ;
+    const Cmp& cnn2 = systeme(2).get_n_auto()() ;
+    const Valeur& vnn1 = cnn1.va ;
+    const Valeur& vnn2 = cnn2.va ;
     vnn1.coef() ;		// The sprectral coefficients are required
     vnn2.coef() ;		
-    
-    const Valeur& vbetax1 = (systeme(1).get_shift_auto()(0)).va ;
-    const Valeur& vbetax2 = (systeme(2).get_shift_auto()(0)).va ;
-    const Valeur& vbetay1 = (systeme(1).get_shift_auto()(1)).va ;
-    const Valeur& vbetay2 = (systeme(2).get_shift_auto()(1)).va ;
-    const Valeur& vbetaz1 = (systeme(1).get_shift_auto()(2)).va ;
-    const Valeur& vbetaz2 = (systeme(2).get_shift_auto()(2)).va ;
-    vbetax1.coef() ; 
+
+    const Cmp& cbetax1 = systeme(1).get_shift_auto()(0) ;
+    const Cmp& cbetax2 = systeme(2).get_shift_auto()(0) ;
+    const Cmp& cbetay1 = systeme(1).get_shift_auto()(1) ;
+    const Cmp& cbetay2 = systeme(2).get_shift_auto()(1) ;
+    const Cmp& cbetaz1 = systeme(1).get_shift_auto()(2) ;
+    const Cmp& cbetaz2 = systeme(2).get_shift_auto()(2) ;
+    const Valeur& vbetax1 = cbetax1.va ;
+    const Valeur& vbetax2 = cbetax2.va ;
+    const Valeur& vbetay1 = cbetay1.va ;
+    const Valeur& vbetay2 = cbetay2.va ;
+    const Valeur& vbetaz1 = cbetaz1.va ;
+    const Valeur& vbetaz2 = cbetaz2.va ;
+    vbetax1.coef() ;
     vbetax2.coef() ; 
     vbetay1.coef() ; 
     vbetay2.coef() ; 
     vbetaz1.coef() ; 
     vbetaz2.coef() ; 
 
-    const Valeur& vpsi1 = (systeme(1).get_psi_auto()()).va ;
-    const Valeur& vpsi2 = (systeme(2).get_psi_auto()()).va ;
+    const Cmp& cpsi1 = systeme(1).get_psi_auto()() ;
+    const Cmp& cpsi2 = systeme(2).get_psi_auto()() ;
+    const Valeur& vpsi1 = cpsi1.va ;
+    const Valeur& vpsi2 = cpsi2.va ;
     vpsi1.coef() ;		
     vpsi2.coef() ;		
     
@@ -169,21 +182,34 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
     Tenseur_sym k_deux (systeme(2).get_tkij_auto()) ;
     k_deux.set_std_base() ;
     k_deux.dec2_dzpuis() ;
-    
-    Valeur vkxx1 = (k_un(0, 0)).va ;
-    Valeur vkxx2 = (k_deux(0, 0)).va ;
-    Valeur vkxy1 = (k_un(0, 1)).va ;
-    Valeur vkxy2 = (k_deux(0, 1)).va ;
-    Valeur vkxz1 = (k_un(0, 2)).va ;
-    Valeur vkxz2 = (k_deux(0, 2)).va ;
-    Valeur vkyy1 = (k_un(1, 1)).va ;
-    Valeur vkyy2 = (k_deux(1, 1)).va ;
-    Valeur vkyz1 = (k_un(1, 2)).va ;
-    Valeur vkyz2 = (k_deux(1, 2)).va ;
-    Valeur vkzz1 = (k_un(2, 2)).va ;
-    Valeur vkzz2 = (k_deux(2, 2)).va ;
-    
-    vkxx1.coef() ; 
+
+    const Cmp& ckxx1 = k_un(0, 0) ;
+    const Cmp& ckxy1 = k_un(0, 1) ;
+    const Cmp& ckxz1 = k_un(0, 2) ;
+    const Cmp& ckyy1 = k_un(1, 1) ;
+    const Cmp& ckyz1 = k_un(1, 2) ;
+    const Cmp& ckzz1 = k_un(2, 2) ;
+    const Cmp& ckxx2 = k_deux(0, 0) ;
+    const Cmp& ckxy2 = k_deux(0, 1) ;
+    const Cmp& ckxz2 = k_deux(0, 2) ;
+    const Cmp& ckyy2 = k_deux(1, 1) ;
+    const Cmp& ckyz2 = k_deux(1, 2) ;
+    const Cmp& ckzz2 = k_deux(2, 2) ;
+
+    const Valeur& vkxx1 = ckxx1.va ;
+    const Valeur& vkxy1 = ckxy1.va ;
+    const Valeur& vkxz1 = ckxz1.va ;
+    const Valeur& vkyy1 = ckyy1.va ;
+    const Valeur& vkyz1 = ckyz1.va ;
+    const Valeur& vkzz1 = ckzz1.va ;
+    const Valeur& vkxx2 = ckxx2.va ;
+    const Valeur& vkxy2 = ckxy2.va ;
+    const Valeur& vkxz2 = ckxz2.va ;
+    const Valeur& vkyy2 = ckyy2.va ;
+    const Valeur& vkyz2 = ckyz2.va ;
+    const Valeur& vkzz2 = ckzz2.va ;
+
+    vkxx1.coef() ;
     vkxx2.coef() ; 
     vkxy1.coef() ; 
     vkxy2.coef() ; 
@@ -195,8 +221,13 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
     vkyz2.coef() ; 
     vkzz1.coef() ; 
     vkzz2.coef() ; 
-    
-    
+
+    // Arrays describing the 3 points used for the parabolic extrapolation
+    //  "inside" the throats when fill = 1
+	double r1p[3], t1p[3], p1p[3] ;
+	double r2p[3], t2p[3], p2p[3] ;
+	double yp[3] ;
+	
     for (int i=0; i<np; i++) {
     
 	double x0 = xx[i] * aa ;    // x in Lorene's unit
@@ -223,26 +254,288 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
 	double xi2 ;	    // radial coordinate xi in [0,1] or [-1,1]
 	mp2.val_lx(r2, theta2, phi2, l2, xi2) ;
 	
-	if ( (r1 < aa) || (r2 < systeme(2).get_rayon()) ) {
-	    // We are "inside" one of the throats:
-	    nnn[i] = 0 ; 
-	    beta_x[i] = 0 ; 
-	    beta_y[i] = 0 ; 
-	    beta_z[i] = 0 ; 
-	    g_xx[i] = 0 ; 
-	    g_xy[i] = 0 ; 
-	    g_xz[i] = 0 ; 
-	    g_yy[i] = 0 ; 
-	    g_yz[i] = 0 ; 
-	    g_zz[i] = 0 ; 
-	    k_xx[i] = 0 ; 
-	    k_xy[i] = 0 ; 
-	    k_xz[i] = 0 ; 
-	    k_yy[i] = 0 ; 
-	    k_yz[i] = 0 ; 
-	    k_zz[i] = 0 ; 
-	}
-	else {
+	//------------------------------------------------------------
+	// 			"Inside" hole 1
+	//------------------------------------------------------------	
+		
+	if (r1 < aa) {  	
+
+		switch (fill) {
+			case 0 : {
+	    			nnn[i] = 0 ;
+	    			beta_x[i] = 0 ;
+	    			beta_y[i] = 0 ;
+	    			beta_z[i] = 0 ;
+	    			g_xx[i] = 0 ;
+	  			g_xy[i] = 0 ;
+	    			g_xz[i] = 0 ;
+	    			g_yy[i] = 0 ;
+	    			g_yz[i] = 0 ;
+	    			g_zz[i] = 0 ;
+	    			k_xx[i] = 0 ;
+	    			k_xy[i] = 0 ;
+	    			k_xz[i] = 0 ;
+	    			k_yy[i] = 0 ;
+	    			k_yz[i] = 0 ;
+	    			k_zz[i] = 0 ;
+	    			break ;
+	    		}
+	    		
+	    		case 1 : {
+	    		
+		r1p[0] = aa ;    	// 3 points outside the throat
+		r1p[1] = 1.1 * aa ;     // for the parabolic extrapolation
+		r1p[2] = 1.2 * aa ;     //
+		
+		double rot_phi = mp1.get_rot_phi() ;
+		double orix = mp1.get_ori_x() ;
+		double oriy = mp1.get_ori_y() ;
+		double oriz = mp1.get_ori_z() ;
+		
+		for (int j=0; j<3; j++) {
+			double phi = phi1 + rot_phi ;
+			double xap = r1p[j] * sin(theta1) * cos(phi) + orix ;
+			double yap = r1p[j] * sin(theta1) * sin(phi) + oriy ;
+			double zap = r1p[j] * cos(theta1) + oriz ;
+			mp2.convert_absolute(xap, yap, zap,
+						r2p[j], t2p[j], p2p[j]) ;
+		}
+
+		// Lapse function
+		for (int j=0; j<3; j++) {
+			yp[j] =   cnn1.val_point(r1p[j], theta1, phi1)
+				+ cnn2.val_point(r2p[j], t2p[j], p2p[j])  ;
+                }			
+                nnn[i] = lagrange_parabol(r1, r1p, yp) ;
+                	    		
+		// Shift vector
+		for (int j=0; j<3; j++) {
+			yp[j] =   cbetax1.val_point(r1p[j], theta1, phi1)
+				- cbetax2.val_point(r2p[j], t2p[j], p2p[j]) ;
+		}
+  		beta_x[i] = lagrange_parabol(r1, r1p, yp) - omega * yy[i] ;
+		
+		for (int j=0; j<3; j++) {
+			yp[j] =   cbetay1.val_point(r1p[j], theta1, phi1)
+				- cbetay2.val_point(r2p[j], t2p[j], p2p[j]) ;
+		}
+  		beta_y[i] = lagrange_parabol(r1, r1p, yp) + omega * xx[i] ;
+		
+		for (int j=0; j<3; j++) {
+			yp[j] =   cbetaz1.val_point(r1p[j], theta1, phi1)
+				+ cbetaz2.val_point(r2p[j], t2p[j], p2p[j]) ;
+		}
+  		beta_z[i] = lagrange_parabol(r1, r1p, yp) ;
+
+		// 3-metric
+		for (int j=0; j<3; j++) {
+			yp[j] =   cpsi1.val_point(r1p[j], theta1, phi1)
+				+ cpsi2.val_point(r2p[j], t2p[j], p2p[j])  ;
+                }			
+                double psi4 = pow( lagrange_parabol(r1, r1p, yp), 4) ;
+		g_xx[i] = psi4 ;
+		g_yy[i] = psi4 ; 	
+		g_zz[i] = psi4 ; 	
+		g_xy[i] = 0 ;
+		g_xz[i] = 0 ;
+		g_yz[i] = 0 ;
+
+ 		// Extrinsic curvature
+		double pre = aa * psi4 ;
+		for (int j=0; j<3; j++) {
+			yp[j] =   ckxx1.val_point(r1p[j], theta1, phi1)
+				+ ckxx2.val_point(r2p[j], t2p[j], p2p[j])  ;
+                }			
+                k_xx[i] = pre * lagrange_parabol(r1, r1p, yp) ;
+
+		for (int j=0; j<3; j++) {
+			yp[j] =   ckxy1.val_point(r1p[j], theta1, phi1)
+				+ ckxy2.val_point(r2p[j], t2p[j], p2p[j])  ;
+                }			
+                k_xy[i] = pre * lagrange_parabol(r1, r1p, yp) ;
+
+		for (int j=0; j<3; j++) {
+			yp[j] =   ckxz1.val_point(r1p[j], theta1, phi1)
+				- ckxz2.val_point(r2p[j], t2p[j], p2p[j])  ;
+                }			
+                k_xz[i] = pre * lagrange_parabol(r1, r1p, yp) ;
+
+		for (int j=0; j<3; j++) {
+			yp[j] =   ckyy1.val_point(r1p[j], theta1, phi1)
+				+ ckyy2.val_point(r2p[j], t2p[j], p2p[j])  ;
+                }			
+                k_yy[i] = pre * lagrange_parabol(r1, r1p, yp) ;
+
+		for (int j=0; j<3; j++) {
+			yp[j] =   ckyz1.val_point(r1p[j], theta1, phi1)
+				- ckyz2.val_point(r2p[j], t2p[j], p2p[j])  ;
+                }			
+                k_yz[i] = pre * lagrange_parabol(r1, r1p, yp) ;
+
+		for (int j=0; j<3; j++) {
+			yp[j] =   ckzz1.val_point(r1p[j], theta1, phi1)
+				+ ckzz2.val_point(r2p[j], t2p[j], p2p[j])  ;
+                }			
+                k_zz[i] = pre * lagrange_parabol(r1, r1p, yp) ;
+
+		break ;	    		
+	    		}	// end of case fill = 1
+	    		
+	    		default : {
+	    		
+	  cout << "Bin_BH::Bin_BH : the case fill = " << fill
+	  	<< " is not known !" << endl ;
+	  abort() ;
+	  break ;
+	    		}
+		 }
+	} // End of case r1 < a
+	
+
+	//------------------------------------------------------------
+	// 			"Inside" hole 2
+	//------------------------------------------------------------	
+		
+	if (r2 < aa2) {  	
+
+		switch (fill) {
+			case 0 : {
+	    			nnn[i] = 0 ;
+	    			beta_x[i] = 0 ;
+	    			beta_y[i] = 0 ;
+	    			beta_z[i] = 0 ;
+	    			g_xx[i] = 0 ;
+	  			g_xy[i] = 0 ;
+	    			g_xz[i] = 0 ;
+	    			g_yy[i] = 0 ;
+	    			g_yz[i] = 0 ;
+	    			g_zz[i] = 0 ;
+	    			k_xx[i] = 0 ;
+	    			k_xy[i] = 0 ;
+	    			k_xz[i] = 0 ;
+	    			k_yy[i] = 0 ;
+	    			k_yz[i] = 0 ;
+	    			k_zz[i] = 0 ;
+	    			break ;
+	    		}
+	    		
+	    		case 1 : {
+	    		
+		r2p[0] = aa2 ;    	 // 3 points outside the throat
+		r2p[1] = 1.1 * aa2 ;     // for the parabolic extrapolation
+		r2p[2] = 1.2 * aa2 ;     //
+		
+		double rot_phi = mp2.get_rot_phi() ;
+		double orix = mp2.get_ori_x() ;
+		double oriy = mp2.get_ori_y() ;
+		double oriz = mp2.get_ori_z() ;
+		
+		for (int j=0; j<3; j++) {
+			double phi = phi2 + rot_phi ;
+			double xap = r2p[j] * sin(theta2) * cos(phi) + orix ;
+			double yap = r2p[j] * sin(theta2) * sin(phi) + oriy ;
+			double zap = r2p[j] * cos(theta2) + oriz ;
+			mp1.convert_absolute(xap, yap, zap,
+						r1p[j], t1p[j], p1p[j]) ;
+		}
+
+		// Lapse function
+		for (int j=0; j<3; j++) {
+			yp[j] =   cnn1.val_point(r1p[j], t1p[j], p1p[j])
+				+ cnn2.val_point(r2p[j], theta2, phi2)  ;
+                }			
+                nnn[i] = lagrange_parabol(r2, r2p, yp) ;
+                	    		
+		// Shift vector
+		for (int j=0; j<3; j++) {
+			yp[j] =   cbetax1.val_point(r1p[j], t1p[j], p1p[j])
+				- cbetax2.val_point(r2p[j], theta2, phi2) ;
+		}
+  		beta_x[i] = lagrange_parabol(r2, r2p, yp) - omega * yy[i] ;
+		
+		for (int j=0; j<3; j++) {
+			yp[j] =   cbetay1.val_point(r1p[j], t1p[j], p1p[j])
+				- cbetay2.val_point(r2p[j], theta2, phi2) ;
+		}
+  		beta_y[i] = lagrange_parabol(r2, r2p, yp) + omega * xx[i] ;
+		
+		for (int j=0; j<3; j++) {
+			yp[j] =   cbetaz1.val_point(r1p[j], t1p[j], p1p[j])
+				+ cbetaz2.val_point(r2p[j], theta2, phi2) ;
+		}
+  		beta_z[i] = lagrange_parabol(r2, r2p, yp) ;
+
+		// 3-metric
+		for (int j=0; j<3; j++) {
+			yp[j] =   cpsi1.val_point(r1p[j], t1p[j], p1p[j])
+				+ cpsi2.val_point(r2p[j], theta2, phi2)  ;
+                }			
+                double psi4 = pow( lagrange_parabol(r2, r2p, yp), 4) ;
+		g_xx[i] = psi4 ;
+		g_yy[i] = psi4 ; 	
+		g_zz[i] = psi4 ; 	
+		g_xy[i] = 0 ;
+		g_xz[i] = 0 ;
+		g_yz[i] = 0 ;
+
+ 		// Extrinsic curvature
+		double pre = aa * psi4 ;
+		for (int j=0; j<3; j++) {
+			yp[j] =   ckxx1.val_point(r1p[j], t1p[j], p1p[j])
+				+ ckxx2.val_point(r2p[j], theta2, phi2)  ;
+                }			
+                k_xx[i] = pre * lagrange_parabol(r2, r2p, yp) ;
+
+		for (int j=0; j<3; j++) {
+			yp[j] =   ckxy1.val_point(r1p[j], t1p[j], p1p[j])
+				+ ckxy2.val_point(r2p[j], theta2, phi2)  ;
+                }			
+                k_xy[i] = pre * lagrange_parabol(r2, r2p, yp) ;
+
+		for (int j=0; j<3; j++) {
+			yp[j] =   ckxz1.val_point(r1p[j], t1p[j], p1p[j])
+				- ckxz2.val_point(r2p[j], theta2, phi2)  ;
+                }			
+                k_xz[i] = pre * lagrange_parabol(r2, r2p, yp) ;
+
+		for (int j=0; j<3; j++) {
+			yp[j] =   ckyy1.val_point(r1p[j], t1p[j], p1p[j])
+				+ ckyy2.val_point(r2p[j], theta2, phi2)  ;
+                }			
+                k_yy[i] = pre * lagrange_parabol(r2, r2p, yp) ;
+
+		for (int j=0; j<3; j++) {
+			yp[j] =   ckyz1.val_point(r1p[j], t1p[j], p1p[j])
+				- ckyz2.val_point(r2p[j], theta2, phi2)  ;
+                }			
+                k_yz[i] = pre * lagrange_parabol(r2, r2p, yp) ;
+
+		for (int j=0; j<3; j++) {
+			yp[j] =   ckzz1.val_point(r1p[j], t1p[j], p1p[j])
+				+ ckzz2.val_point(r2p[j], theta2, phi2)  ;
+                }			
+                k_zz[i] = pre * lagrange_parabol(r2, r2p, yp) ;
+
+		break ;	    		
+	    		}	// end of case fill = 1
+	    		
+	    		default : {
+	    		
+	  cout << "Bin_BH::Bin_BH : the case fill = " << fill
+	  	<< " is not known !" << endl ;
+	  abort() ;
+	  break ;
+	    		}
+		 }
+	} // End of case r2 < a
+	
+	
+	
+	//------------------------------------------------------------
+	// 			Outside the two holes
+	//------------------------------------------------------------	
+		
+	if ( (r1 >= aa) && (r2 >= aa2) ) {
 	
 	// Lapse function
 	// --------------
@@ -272,11 +565,9 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
 		   +  vpsi2.c_cf->val_point_symy(l2, xi2, theta2, phi2), 4) ; 
 	
 	g_xx[i] = psi4 ; 
-
-	g_yy[i] = psi4  ; 	
-	g_zz[i] = psi4  ; 	
-
-	g_xy[i] = 0 ; 
+	g_yy[i] = psi4 ; 	
+	g_zz[i] = psi4 ; 	
+	g_xy[i] = 0 ;
 	g_xz[i] = 0 ; 
 	g_yz[i] = 0 ; 
 			
@@ -310,6 +601,23 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
 
 
 }
-		    
+
+		
+
+//=========================================================================
+// Interpolation/extrapolation by means of a parabola connecting
+//  three points
+//=========================================================================
+
+double lagrange_parabol(double x, const double* xp, const double* yp) {
+
+	double a0 = yp[0] / (xp[0] - xp[1]) / (xp[0] - xp[2]) ;
+	double a1 = yp[1] / (xp[1] - xp[0]) / (xp[1] - xp[2]) ;
+	double a2 = yp[2] / (xp[2] - xp[0]) / (xp[2] - xp[1]) ;
+
+ 	return 		(x - xp[1]) * (x - xp[2]) * a0
+     	            +   (x - xp[0]) * (x - xp[2]) * a1
+         	    +   (x - xp[0]) * (x - xp[1]) * a2 ;	
+}
 
 

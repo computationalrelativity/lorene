@@ -28,12 +28,11 @@ char readinit_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2001/12/18 09:08:14  e_gourgoulhon
+ * Adds the filling of the holes interiors
+ *
  * Revision 1.1  2001/12/14 08:59:18  e_gourgoulhon
  * Exportation of Lorene Bhole_binaire object to a Cartesian grid
- *
- * Revision 1.2  2001/12/11 06:44:41  e_gourgoulhon
- * template files
- *
  *
  *
  * $Header$
@@ -125,8 +124,9 @@ int main() {
     // Read of the initial data file and computation of the
     //  fields at the Cartesian grid points
     // ----------------------------------------------------
-    
-    Bin_BH binary(nbp, xi, yi, zi, datafile) ;
+
+    int fill = 1 ;  // type of filling
+    Bin_BH binary(nbp, xi, yi, zi, fill, datafile) ;
 
     cout << binary << endl ; 
     

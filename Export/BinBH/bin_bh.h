@@ -29,12 +29,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2001/12/18 09:08:14  e_gourgoulhon
+ * Adds the filling of the holes interiors
+ *
  * Revision 1.1  2001/12/14 08:59:18  e_gourgoulhon
  * Exportation of Lorene Bhole_binaire object to a Cartesian grid
- *
- * Revision 1.2  2001/12/11 06:44:41  e_gourgoulhon
- * template files
- *
  *
  *
  * $Header$
@@ -199,12 +198,18 @@ class Bin_BH {
 	 *		values of coordinate y of the grid points [unit: $a$]	
 	 *  @param zi	[input] 1-D array (size {\tt nbpoints}) storing the 
 	 *		values of coordinate z of the grid points [unit: $a$]	
+	 *  @param fill [input] sets how the hole "interiors" must be
+	 *		filled: \\
+	 *		fill = 0 : all the fields are set to zero \\
+	 *		fill = 1 : the fields are extrapolated from their
+	 *		values "outside" the holes, by means of
+	 *		parabolas along radial directions	
 	 *  @param filename [input] Name of the (binary) file containing the result
 	 *		of a computation by means of the multi-domain 
 	 *		spectral method. 
 	 */
 	Bin_BH(int nbpoints, const double* xi, const double* yi, 
-	       const double* zi, const char* filename) ;	
+	       const double* zi, int fill, const char* filename) ;	
 	
 
 	/** Constructor from a binary file 

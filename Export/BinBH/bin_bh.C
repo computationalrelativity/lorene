@@ -1,5 +1,7 @@
 /*
  * Methods of class Bin_BH (binary black hole exportation)
+ *
+ * (see file bin_bh.h for documentation).
  */
 
 /*
@@ -27,12 +29,11 @@ char bin_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2001/12/18 09:08:14  e_gourgoulhon
+ * Adds the filling of the holes interiors
+ *
  * Revision 1.1  2001/12/14 08:59:18  e_gourgoulhon
  * Exportation of Lorene Bhole_binaire object to a Cartesian grid
- *
- * Revision 1.2  2001/12/11 06:44:41  e_gourgoulhon
- * template files
- *
  *
  *
  * $Header$
