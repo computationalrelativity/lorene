@@ -30,6 +30,9 @@ char sym_tensor_decomp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/06/14 20:45:41  e_gourgoulhon
+ * Added argument method_poisson to methods longit_pot and transverse.
+ *
  * Revision 1.9  2004/05/25 15:05:57  f_limousin
  * Add parameters in argument of the functions transverse, longit_pot
  * for the case of Map_et.
@@ -93,7 +96,8 @@ void Sym_tensor::set_longit_trans(const Vector& v_pot,
   
 }
 
-const Sym_tensor_trans& Sym_tensor::transverse(const Metric& metre, Param* par) const {
+const Sym_tensor_trans& Sym_tensor::transverse(const Metric& metre, Param* par,
+            int method_poisson) const {
 
     set_dependance(metre) ;
     int jp = get_place_met(metre) ;
@@ -110,11 +114,11 @@ const Sym_tensor_trans& Sym_tensor::transverse(const Metric& metre, Param* par) 
 	Tensor dww (*mp, 2, CON, mp->get_bvect_spher()) ;
 
 	if (dynamic_cast<const Map_af*>(mp) != 0x0) {
-	    const Vector& ww = longit_pot(metre) ;
+	    const Vector& ww = longit_pot(metre, 0x0, method_poisson) ;
 	    dww = ww.derive_con(metre) ; 
 	}
 	else {
-	    const Vector& ww = longit_pot(metre, par) ;	    
+	    const Vector& ww = longit_pot(metre, par, method_poisson) ;	    
 	    dww = ww.derive_con(metre) ;  
 	}
                     
@@ -141,7 +145,8 @@ const Sym_tensor_trans& Sym_tensor::transverse(const Metric& metre, Param* par) 
 }
 
 
-const Vector& Sym_tensor::longit_pot(const Metric& metre, Param* par) const {
+const Vector& Sym_tensor::longit_pot(const Metric& metre, Param* par,
+    int method_poisson) const {
 
     set_dependance(metre) ;
     int jp = get_place_met(metre) ;
@@ -167,9 +172,11 @@ const Vector& Sym_tensor::longit_pot(const Metric& metre, Param* par) const {
         if (dzp5) hhh.dec_dzpuis() ; 
                 
 	if (dynamic_cast<const Map_af*>(mp) != 0x0) 
-	    p_longit_pot[jp] = new Vector( hhh.poisson(double(1), 2) ) ; 
+	    p_longit_pot[jp] = new Vector( hhh.poisson(double(1), 
+                                                       method_poisson) ) ; 
         else
-	    p_longit_pot[jp] = new Vector( hhh.poisson(double(1), *par, 2) ) ; 
+	    p_longit_pot[jp] = new Vector( hhh.poisson(double(1), *par, 
+                                                       method_poisson) ) ; 
 
 
        //## Test of resolution of the vector Poisson equation:
