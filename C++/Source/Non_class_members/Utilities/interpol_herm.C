@@ -30,6 +30,9 @@ char interpol_herm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/05/15 09:42:12  e_gourgoulhon
+ * Added the new function interpol_herm_der
+ *
  * Revision 1.2  2002/09/09 13:00:40  e_gourgoulhon
  * Modification of declaration of Fortran 77 prototypes for
  * a better portability (in particular on IBM AIX systems):
@@ -54,6 +57,7 @@ char interpol_herm_C[] = "$Header$" ;
 #include "proto_f77.h"
 
 
+// Version returning the function and its first derivative 
 void interpol_herm(const Tbl& xtab, const Tbl& ytab, const Tbl& dytab,
 		   double x, int& i, double& y, double& dy) {
 
@@ -86,3 +90,42 @@ void interpol_herm(const Tbl& xtab, const Tbl& ytab, const Tbl& dytab,
 	
 		   		
 }
+
+
+// Version returning the second derivative 
+void interpol_herm_der(const Tbl& xtab, const Tbl& ytab, const Tbl& dytab,
+		   double x, int& i, double& y, double& dy, double& ddy) {
+
+	assert(ytab.dim == xtab.dim) ;
+	assert(dytab.dim == xtab.dim) ;	
+	
+	int np = xtab.get_dim(0) ;
+	
+	F77_huntm(xtab.t, &np, &x, &i) ;
+	
+	i-- ; 	// Fortran --> C
+	
+	int i1 = i + 1 ;
+	
+	double dx = xtab(i1) - xtab(i) ;
+
+	double u = (x - xtab(i)) / dx ;
+	double u2 = u*u ;
+	double u3 = u2*u ;
+	
+	y =   ytab(i) * ( 2.*u3 - 3.*u2 + 1.)
+	    + ytab(i1) * ( 3.*u2 - 2.*u3)
+     	    + dytab(i) * dx * ( u3 - 2.*u2 + u )
+     	    - dytab(i1) * dx * ( u2 - u3 ) ;
+     	
+ 	dy =   6. * ( ytab(i) - ytab(i1) ) * ( u2 - u ) / dx 
+     	     + dytab(i) * ( 3.*u2 - 4.*u + 1. )
+     	     + dytab(i1) * ( 3.*u2 - 2.*u ) ;
+	     
+	ddy = 6 * ( ( ytab(i) - ytab(i1) ) * ( 2.*u - 1. ) / dx
+		+  dytab(i) * (6.*u - 4.)
+		+  dytab(i1) * (6.*u - 2.) ) / dx ; 
+		   		
+}
+
+
