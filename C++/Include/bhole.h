@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/03/25 08:53:33  j_novak
+ * Error in the doc corrected.
+ *
  * Revision 1.9  2004/03/24 17:14:04  j_novak
  * Translation of comments to doxygen
  *
@@ -516,9 +519,9 @@ class Bhole {
 	/**
 	 * Solves the equation for \f$\Psi\f$~:
 	 *    \f[
-	 (\Delta \Psi = - \frac{\Psi^5} {8} K_{ij}K^{ij}
+	 * \Delta \Psi = - \frac{\Psi^5} {8} K_{ij}K^{ij}
 	 *  \f]
-	 * with the condition that \f$\partial_r \Psi=-\frac{1}{2 {\tt rayon} 
+	 * with the condition that \f$\partial_r \Psi =-\frac{1}{2 {\tt rayon}} 
 	 * f\left(\theta, \phi\right)\f$ on the horizon, where \c f is 
 	 * the value of \f$\Psi\f$ on the horizon at the preceeding step.
 	 * @param relax [input] : the relaxation parameter.
