@@ -30,6 +30,9 @@ char interpol_herm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/11/21 16:14:51  m_bejger
+ * Added the linear interpolation
+ *
  * Revision 1.3  2003/05/15 09:42:12  e_gourgoulhon
  * Added the new function interpol_herm_der
  *
@@ -56,6 +59,36 @@ char interpol_herm_C[] = "$Header$" ;
 // Prototypes of F77 subroutines
 #include "proto_f77.h"
 
+// Linear interpolation 
+void interpol_linear(const Tbl& xtab, const Tbl& ytab, 
+                     double x, int& i, double& y) {
+
+	assert(ytab.dim == xtab.dim) ;
+	//assert(dytab.dim == xtab.dim) ;	
+	
+	int np = xtab.get_dim(0) ;
+	
+	F77_huntm(xtab.t, &np, &x, &i) ;
+	
+	i-- ; 	// Fortran --> C
+	
+	int i1 = i + 1 ;
+	
+	// double dx  = xtab(i1) - xtab(i) ;
+        double y1  = ytab(i) ;
+        double y2  = ytab(i1) ;
+
+        double x1  = xtab(i) ;
+        double x2  = xtab(i1) ;
+        double x12 = x1-x2 ;
+  
+
+        double a  = (y1-y2)/x12 ;
+        double b  = (x1*y2-y1*x2)/x12 ;
+	
+        y  = x*a+b ; 
+
+}
 
 // Version returning the function and its first derivative 
 void interpol_herm(const Tbl& xtab, const Tbl& ytab, const Tbl& dytab,
