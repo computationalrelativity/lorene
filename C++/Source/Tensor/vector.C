@@ -32,6 +32,11 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2004/02/26 22:48:50  e_gourgoulhon
+ * -- Method divergence: call to Tensor::divergence and cast of the
+ *    result.
+ * -- Added method derive_lie.
+ *
  * Revision 1.17  2004/02/24 09:46:20  j_novak
  * Correction to cope with SGI compiler's warnings.
  *
@@ -291,21 +296,34 @@ void Vector::std_spectral_base() {
 
 }
 
+
+                    //-------------------------------//
+                    //    Computational methods      //
+                    //-------------------------------//
+                    
+
 const Scalar& Vector::divergence(const Metric& metre) const {
   
-  set_dependance(metre) ;
-  int j = get_place_met(metre) ;
-  assert ((j>=0) && (j<N_MET_MAX)) ;
-  if (p_divergence[j] == 0x0) {
-    p_divergence[j] = metre.connect().p_divergence(*this) ;
-  }
+    const Scalar* pscal = 
+        dynamic_cast<const Scalar*>( &(Tensor::divergence(metre)) ) ;
 
-  const Scalar* pscal = dynamic_cast<const Scalar*>(p_divergence[j]) ;
+    assert(pscal != 0x0) ;
 
-  assert(pscal != 0x0) ;
-
-  return *pscal ;
+    return *pscal ;
 }
+
+
+Vector Vector::derive_lie(const Vector& vv) const {
+
+    Vector resu(*mp, type_indice(0), triad) ; 
+    
+    compute_derive_lie(vv, resu) ;
+    
+    return resu ; 
+    
+}
+
+
 
 const Scalar& Vector::potential(const Metric& metre) const {
 

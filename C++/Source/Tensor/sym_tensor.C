@@ -35,6 +35,11 @@ char sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2004/02/26 22:48:50  e_gourgoulhon
+ * -- Method divergence: call to Tensor::divergence and cast of the
+ *    result.
+ * -- Added method derive_lie.
+ *
  * Revision 1.15  2004/01/04 20:54:00  e_gourgoulhon
  * Sym_tensor is now a derived class of Tensor_sym.
  * Methods indices and position have been suppressed (they are now
@@ -250,21 +255,27 @@ void Sym_tensor::set_der_met_0x0(int i) const {
                 //  Computation of derived members  //
                 //----------------------------------//
 	
-const Vector& Sym_tensor::divergence(const Metric& metre) const {
+const Vector& Sym_tensor::divergence(const Metric& gam) const {
   
-  set_dependance(metre) ;
-  int j = get_place_met(metre) ;
-  assert ((j>=0) && (j<N_MET_MAX)) ;
-  if (p_divergence[j] == 0x0) {
-    p_divergence[j] = metre.connect().p_divergence(*this) ;
-  }
+    const Vector* pvect = 
+        dynamic_cast<const Vector*>( &(Tensor::divergence(gam)) ) ;
 
-  const Vector* pvect = dynamic_cast<const Vector*>(p_divergence[j]) ;
+    assert(pvect != 0x0) ;
 
-  assert(pvect != 0x0) ;
-
-  return *pvect ;
+    return *pvect ;
 }
+
+
+Sym_tensor Sym_tensor::derive_lie(const Vector& vv) const {
+
+    Sym_tensor resu(*mp, type_indice, *triad) ; 
+    
+    compute_derive_lie(vv, resu) ;
+    
+    return resu ; 
+    
+}
+
 
 
 Sym_tensor* Sym_tensor::inverse() const {
