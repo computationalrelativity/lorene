@@ -25,6 +25,9 @@ char d2sdx2_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/10/16 15:05:54  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.2  2002/10/16 14:36:58  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -52,7 +55,7 @@ char d2sdx2_1d_C[] = "$Header$" ;
  *
  */
 
-
+#include <stdlib.h>
 #include "type_parite.h"
 #include "headcpp.h"
 
