@@ -30,6 +30,10 @@ char time_slice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/03/26 08:22:56  e_gourgoulhon
+ * Modifications to take into account the new setting of class
+ * Evolution.
+ *
  * Revision 1.1  2004/03/24 14:57:17  e_gourgoulhon
  * First version
  *
@@ -62,28 +66,28 @@ Time_slice::Time_slice(const Scalar& lapse_in, const Vector& shift_in,
                int depth_in) 
                : depth(depth_in),
                  jtime(0),
-                 the_time(0., 0., depth_in),
+                 the_time(0., depth_in),
                  gamma_dd(depth_in),
                  gamma_uu(depth_in),
                  kk_dd(depth_in),
                  kk_uu(depth_in),
-                 lapse(lapse_in, 0., depth_in),
-                 shift(shift_in, 0., depth_in) {
+                 lapse(lapse_in, depth_in),
+                 shift(shift_in, depth_in) {
                                   
-    double time_init = 0. ; 
+    double time_init = the_time[jtime] ; 
 
     if (gamma_in.get_index_type(0) == COV) {
-        gamma_dd.update( gamma_in, time_init) ; 
+        gamma_dd.update(gamma_in, jtime, time_init) ; 
     }
     else {
-        gamma_uu.update( gamma_in, time_init) ; 
+        gamma_uu.update(gamma_in, jtime, time_init) ; 
     }
                  
     if (kk_in.get_index_type(0) == COV) {
-        kk_dd.update( kk_in, time_init) ; 
+        kk_dd.update(kk_in, jtime, time_init) ; 
     }
     else {
-        kk_uu.update( kk_in, time_init) ; 
+        kk_uu.update(kk_in, jtime, time_init) ; 
     }
                  
     set_der_0x0() ; 
@@ -97,13 +101,13 @@ Time_slice::Time_slice(const Scalar& lapse_in, const Vector& shift_in,
                const Evolution_std<Sym_tensor>& gamma_in) 
                : depth(gamma_in.get_size()), 
                  jtime(0),
-                 the_time(0., 0., gamma_in.get_size()),
+                 the_time(0., gamma_in.get_size()),
                  gamma_dd( gamma_in.get_size() ),
                  gamma_uu( gamma_in.get_size() ),
                  kk_dd( gamma_in.get_size() ),
                  kk_uu( gamma_in.get_size() ),
-                 lapse(lapse_in, 0., gamma_in.get_size() ),
-                 shift(shift_in, 0., gamma_in.get_size() ) {
+                 lapse(lapse_in, gamma_in.get_size() ),
+                 shift(shift_in, gamma_in.get_size() ) {
 
     cerr << 
     "Time_slice constuctor from evolution of gamma not implemented yet !\n" ;
@@ -118,7 +122,7 @@ Time_slice::Time_slice(const Scalar& lapse_in, const Vector& shift_in,
 Time_slice::Time_slice(const Map& mp, const Base_vect& triad, int depth_in)  
                : depth(depth_in),
                  jtime(0),
-                 the_time(0., 0., depth_in),
+                 the_time(0., depth_in),
                  gamma_dd(depth_in),
                  gamma_uu(depth_in),
                  kk_dd(depth_in),
@@ -126,35 +130,35 @@ Time_slice::Time_slice(const Map& mp, const Base_vect& triad, int depth_in)
                  lapse(depth_in),
                  shift(depth_in) {
                  
-    double time_init = 0. ; 
+    double time_init = the_time[jtime] ; 
     
     const Base_vect_spher* ptriad_s = 
         dynamic_cast<const Base_vect_spher*>(&triad) ;                  
     bool spher = (ptriad_s != 0x0) ; 
     
     if (spher) {
-        gamma_dd.update( mp.flat_met_spher().cov(), time_init) ;  
+        gamma_dd.update( mp.flat_met_spher().cov(), jtime, time_init) ;  
     }         
     else {
         assert( dynamic_cast<const Base_vect_cart*>(&triad) != 0x0) ; 
-        gamma_dd.update( mp.flat_met_cart().cov(), time_init) ;                           
+        gamma_dd.update( mp.flat_met_cart().cov(), jtime, time_init) ;                           
     }
 
 
     // K_ij identically zero:
     Sym_tensor ktmp(mp, COV, triad) ;
     ktmp.set_etat_zero() ; 
-    kk_dd.update(ktmp, time_init) ;  
+    kk_dd.update(ktmp, jtime, time_init) ;  
 
     // Lapse identically one:
     Scalar tmp(mp) ; 
     tmp.set_etat_one() ; 
-    lapse.update(tmp, time_init) ; 
+    lapse.update(tmp, jtime, time_init) ; 
     
     // shift identically zero:
     Vector btmp(mp, CON, triad) ;
     btmp.set_etat_zero() ; 
-    shift.update(btmp, time_init) ;  
+    shift.update(btmp, jtime, time_init) ;  
     
     set_der_0x0() ; 
 }
@@ -232,30 +236,30 @@ void Time_slice::operator=(const Time_slice& tin) {
 
 ostream& operator<<(ostream& flux, const Time_slice& sigma) {
 
-  	flux << '\n' ;
-  	flux << "Lorene class : " << typeid(sigma).name() << '\n' ; 
-    flux << "Time label t = " << sigma.the_time.last_value() << '\n' ; 
-    int jlast = sigma.the_time.get_jlast() ; 
+    flux << '\n' ;
+    flux << "Lorene class : " << typeid(sigma).name() << '\n' ; 
+    int jlast = sigma.jtime ; 
+    flux << "Time label t = " << sigma.the_time[jlast] << '\n' ; 
     flux << "Index of time step j = " << jlast << '\n' ; 
     flux << "------------------------------------------------------------\n" 
         <<  "Max. of absolute values of the various fields in each domain: \n" ;
-    if (sigma.gamma_dd.is_updated(jlast)) {
-        maxabs( sigma.gamma_dd.last_value(), "gamma_dd", flux) ;
+    if (sigma.gamma_dd.is_known(jlast)) {
+        maxabs( sigma.gamma_dd[jlast], "gamma_dd", flux) ;
     }
-    if (sigma.gamma_uu.is_updated(jlast)) {
-        maxabs( sigma.gamma_uu.last_value(), "gamma_uu", flux) ;
+    if (sigma.gamma_uu.is_known(jlast)) {
+        maxabs( sigma.gamma_uu[jlast], "gamma_uu", flux) ;
     }
-    if (sigma.kk_dd.is_updated(jlast)) {
-        maxabs( sigma.kk_dd.last_value(), "kk_dd", flux) ;
+    if (sigma.kk_dd.is_known(jlast)) {
+        maxabs( sigma.kk_dd[jlast], "kk_dd", flux) ;
     }
-    if (sigma.kk_uu.is_updated(jlast)) {
-        maxabs( sigma.kk_uu.last_value(), "kk_uu", flux) ;
+    if (sigma.kk_uu.is_known(jlast)) {
+        maxabs( sigma.kk_uu[jlast], "kk_uu", flux) ;
     }
-    if (sigma.lapse.is_updated(jlast)) {
-        maxabs( sigma.lapse.last_value(), "lapse", flux) ;
+    if (sigma.lapse.is_known(jlast)) {
+        maxabs( sigma.lapse[jlast], "lapse", flux) ;
     }
-    if (sigma.shift.is_updated(jlast)) {
-        maxabs( sigma.shift.last_value(), "shift", flux) ;
+    if (sigma.shift.is_known(jlast)) {
+        maxabs( sigma.shift[jlast], "shift", flux) ;
     }
 
     if (sigma.p_gamma != 0x0) flux << *sigma.p_gamma << endl ; 
