@@ -41,15 +41,22 @@ rmin1 = 1.
 nr2 = 	9
 rmin2 = 2.
 
-# Adaptive-grid parameters
+# Adaptive-grid parameters [OPTIONAL]
 #----------------------------------------
 nzadapt 	= 0		# Number of domains for adaptive grid
 thres_adapt 	= 0.3     	# threshold on (dH/dr_eq)/dH/dr_pole) for the mapping adaptation
 precis_adapt 	= 1.e-14   	# precision in Map_et::adapt
 
 
-# Parameters to search for Keplerian rotation rate
-#--------------------------------------------------
-kepler_fluid	= 3		# Kepler limit for which fluid? 0=none, 1,2; 3 = both
+# Parameters to search for Keplerian rotation rate [OPTIONAL]
+#------------------------------------------------------------
+kepler_fluid	= 0		# Kepler limit for which fluid? 0=none, 1,2; 3 = both
 kepler_wait_steps = 1		# how many steps after mer_fix_omega shall we start?
 kepler_factor	= 1.01 		# factor to increase omega in each step to approach Kepler (>1!)
+
+# Parameters to converge to a fixed baryon mass for the two fluids [OPTIONAL]
+--------------------------------------------------------------------------------
+mer_mass 	= -1		# step to start converging to given baryon masses (-1 means OFF)
+mbar1_wanted	= 1.26		# neutron baryon mass [Msol]
+mbar2_wanted	= 0.14		# proton baryon mass  [Msol]
+aexp_mass 	= 0.5		# exponent for the increase factor of the central enthalpy

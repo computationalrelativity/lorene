@@ -29,6 +29,9 @@
 #include <gsl/gsl_integration.h>
 
 #include <sstream>
+#include <sys/types.h>
+#include <dirent.h>
+#include <sys/stat.h>
 // headers Lorene
 #include "et_rot_bifluid.h"
 #include "eos_bifluid.h"
@@ -41,7 +44,7 @@
 // Local prototype (for drawings only)
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
 
-void compare_analytic (Et_rot_bifluid& star, int adapt); 
+void compare_analytic (Et_rot_bifluid& star, int adapt, const char *resdir); 
 string get_file_base (bool relat, double xp, double sig);
 string get_file_base (bool relat, double xp, double sig, double eps, double om1, double om2, int typeos, int nzet, int adapt);
 
@@ -154,8 +157,8 @@ int main(){
 	exit (-1);
       }
 
-    // Read paramters specific to adaptive grid:
-    // ----------------------------------------
+    // Read paramters specific to adaptive grid (optional)
+    // --------------------------------------------------
     if ( (read_variable (NULL, "nzadapt", nzadapt) == 0) && (nzadapt > 0) )  // do we want adaptive grid?
       {
 	res += read_variable (NULL, "thres_adapt", thres_adapt);
@@ -165,8 +168,9 @@ int main(){
 	  cout << "WARNING: some adaptive-grid variables were not found! Using default ... \n";
       }
 
-    // Read parameters specific to Kepler-limit
-    // ----------------------------------------
+    // Read parameters specific to Kepler-limit (optional)
+    // --------------------------------------------------
+    // Default values: 
     int kepler_fluid	= 0; 	// Kepler limit for which fluid? 1,2; 3 = both
     int kepler_wait_steps = 1; 	// how many steps after mer_fix_omega shall we start?
     double kepler_factor = 1.01; // factor to increase omega in each step to approach Kepler (>1!)
@@ -182,6 +186,33 @@ int main(){
       }
 
 
+    // read parameters related to mass-convergence (optional)
+    // -------------------------------------------------------
+    int mer_mass = -1;	/* default: no mass-adaption */
+    double mbar1_wanted, mbar2_wanted, aexp_mass = 0.5;
+    res = 0;
+    if ( (read_variable (parrot, "mer_mass", mer_mass) == 0) && (mer_mass > 0) )
+      {
+	res += read_variable (NULL, "mbar1_wanted", mbar1_wanted);
+	res += read_variable (NULL, "mbar2_wanted", mbar2_wanted);
+	
+	if (res != 0)
+	  {
+	    cout << "ERROR: mer_mass > 0 but 'mbar1_wanted' or 'mbar2_wanted' not set!\n";
+	    exit (-1);
+	  }
+	// correct units of baryon-masses: (input is in Solar masses)
+	mbar1_wanted *= msol;
+	mbar2_wanted *= msol;
+	read_variable (NULL, "aexp_mass", aexp_mass);
+
+      } /* if fixed baryon masses */
+
+    /* Directory to store results in */
+    char *resdir = NULL;
+    if ( read_variable (NULL, "resdir", &resdir) != 0)
+      resdir = "Results";	/* default value */
+
     // Particular cases
     // ----------------
 
@@ -196,6 +227,32 @@ int main(){
     //-----------------------------------------------------------------------
     //		Equation of state
     //-----------------------------------------------------------------------
+    /*
+     * Eventually it would be nice to get rid of eos config-file and integrate 
+     * it into main config-file?
+     * but we postpone it to later...
+     */
+    /*
+    string EOSname;
+    double gamma1, gamma2, gamma3, gamma4, gamma5, gamma6;
+    double kappa1, kappa2, kappa3;
+    double beta;
+    double mass1, mass2; 
+    double relax=0.5, precis = 1.e-9, ecart = 1.e-8;	
+
+    res += read_variable (NULL, "gamma1", gamma1);
+    res += read_variable (NULL, "gamma2", gamma2);
+    res += read_variable (NULL, "gamma3", gamma3);
+    res += read_variable (NULL, "gamma4", gamma4);
+    res += read_variable (NULL, "gamma5", gamma5);
+    res += read_variable (NULL, "gamma6", gamma6);
+
+    res += read_variable (NULL, "kappa1", kappa1);
+    res += read_variable (NULL, "kappa2", kappa2);
+    res += read_variable (NULL, "kappa3", kappa3);
+
+    */
+
     Eos_bifluid* peos = Eos_bifluid::eos_from_file("eos.par") ;
     Eos_bifluid& eos = *peos ;
 
@@ -343,7 +400,8 @@ int main(){
     Tbl diff(8) ;     
 
     star.equilibrium_bi(ent1_c, ent2_c, omega, omega2, ent_limit, 
-		     ent2_limit, icontrol, control, diff) ;
+			ent2_limit, icontrol, control, diff, 
+			mer_mass, mbar1_wanted, mbar2_wanted, aexp_mass);
 
      
     cout << endl << "Final star : " 
@@ -481,7 +539,7 @@ int main(){
     // now print out key-values of the configuration in such a "translated" way
     // that we can compare the results to the analytic solution of PCA02:
     //    if (eos.identify() == 2)  // only do that if type = eos_bf_poly_newt
-    compare_analytic (star, nzadapt);
+    compare_analytic (star, nzadapt, resdir);
 
     // Cleaning
     // --------
@@ -501,7 +559,7 @@ int main(){
 // we can compare them to the analytic solution of PCA02
 //----------------------------------------------------------------------
 void 
-compare_analytic (Et_rot_bifluid& star, int adapt)
+compare_analytic (Et_rot_bifluid& star, int adapt, const char *resdir)
 {
   using namespace Unites ; 
 
@@ -591,10 +649,22 @@ compare_analytic (Et_rot_bifluid& star, int adapt)
   cout << "Total baryon mass: " << star.mass_b()/msol << "Msol\n";
 
   // save some data about this configuration: 
-  string resdir = "Results/";
   string fname;
 
-  fname = resdir + get_file_base (star.is_relativistic(), xp, sigma, eps, om_n, om_p, eos.get_typeos(), star.get_nzet(), adapt);
+  // make sure Results-directory exists, otherwise create it:
+  DIR *thisdir;
+  if ( (thisdir = opendir(resdir)) == NULL)
+    if (mkdir (resdir, S_IREAD|S_IWRITE|S_IEXEC) == -1)
+      {
+	cout << "Failed to create results-dir: " << resdir << endl;
+	exit (-1);
+      }
+  closedir (thisdir);
+      
+  // construct path+name for results-file
+  string path = resdir;
+  path += "/";
+  fname = path + get_file_base (star.is_relativistic(), xp, sigma, eps, om_n, om_p, eos.get_typeos(), star.get_nzet(), adapt);
 
 
   Map_et &map = (Map_et&)(star.get_mp());
