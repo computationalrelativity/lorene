@@ -33,6 +33,9 @@ char tenseur_sym_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/03/03 19:39:58  f_limousin
+ * Modification of an assert to have a check on a triad and not only on a pointer.
+ *
  * Revision 1.5  2002/10/16 14:37:14  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -329,7 +332,7 @@ void Tenseur_sym::fait_gradient () const {
 
 	// Vectorial basis
 	// ---------------
-	assert(*triad == mp->get_bvect_cart()) ;
+      	assert(*triad == mp->get_bvect_cart()) ;
 
 	p_gradient = new Tenseur_sym(*mp, valence+1, tipe, 
 				     mp->get_bvect_cart(), metric, poids) ;
@@ -371,7 +374,7 @@ void Tenseur_sym::fait_derive_cov (const Metrique& metre, int ind) const {
     
     if ((valence != 0) && (etat != ETATZERO)) {
 
-      assert( metre.gamma().get_triad() == triad ) ; 
+      assert( *(metre.gamma().get_triad()) == *triad ) ; 
 
       Tenseur* auxi ;
       for (int i=0 ; i<valence ; i++) {
