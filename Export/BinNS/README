@@ -1,10 +1,30 @@
+
 1/ Description of the various codes
    ================================
 
 read_bin_ns: code for reading a binary file containing data from a spectral computation
              with Lorene and exporting all the fields on a Cartesian grid
 
-2/ Compilation
+2/ Documentation
+   =============
+
+To produce the documentation, type
+
+        cd Doc
+        make
+
+Then you can either read the HTML version by
+
+        netscape Doc/html/index.html
+
+or compile the LaTeX version in Doc/documentation.tex.
+
+The above supposes that you have Doc++ installed on your system.
+If not, you can nevertheless access to the online documentation in
+
+  http://www.eu-network.org/Projects/MeudonData/BinNS/index.html
+
+3/ Compilation
    ===========
 
 Typing
@@ -22,7 +42,7 @@ You can clear everything by
 	make uninstall
 
 
-3/ Input parameters
+4/ Input parameters
    ================
 
 The code read_bin_ns needs one input file:
@@ -35,7 +55,7 @@ Meudon/Data/BinNS. See
 
         http://www.eu-network.org/Projects/InitialData.html
 
-4/ Running
+5/ Running
    =======
 
 Simply type
