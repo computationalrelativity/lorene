@@ -5,7 +5,7 @@
  */
 
 /*
- *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2004 Eric Gourgoulhon & Jerome Novak
  *
  *   Copyright (c) 1999-2001 Eric Gourgoulhon  (for a preceding Cmp version)
  *   Copyright (c) 1999-2001 Philippe Grandclement  (for a preceding Cmp version)
@@ -35,6 +35,10 @@ char scalar_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/01/22 16:11:30  e_gourgoulhon
+ * Added (provisory method) div_r_inc1().
+ * Case inc = 3 treated in inc_dzpuis.
+ *
  * Revision 1.13  2003/11/04 23:02:21  e_gourgoulhon
  * -- Method dec_dzpuis(int decrem) : the case decrem = 1 is now treated.
  * -- Method div_tant() is now defined in file scalar_th_manip.C.
@@ -90,7 +94,7 @@ char scalar_r_manip_C[] = "$Header$" ;
 
 
 			//-------------------//
-			//	    div_r        //
+			//	 div_r       //
 			//-------------------//
 
 void Scalar::div_r() {
@@ -107,7 +111,43 @@ void Scalar::div_r() {
 
 
 			//---------------------//
-			//	    div_r_inc2     //
+			//     div_r_inc2      //
+			//---------------------//
+
+
+void Scalar::div_r_inc1() {
+    
+	if (etat == ETATZERO) {
+		dzpuis += 1 ; 
+		return ; 
+	}
+	
+	assert((etat == ETATQCQ)||(etat == ETATUN)) ; 
+	
+	int nzm1 = mp->get_mg()->get_nzone() - 1 ; // index of the CED
+	
+	// Copy of the CED part of *this into uu_ext 
+	Scalar uu_ext(*mp) ; 
+	uu_ext.allocate_all() ;
+	uu_ext.annule(0,nzm1-1) ; // zero in all domains but the CED
+	uu_ext.set_domain(nzm1) = domain(nzm1) ; 
+	uu_ext.set_spectral_base(va.get_base()) ; 
+
+	// Division by r in all domains but the CED
+	annule(nzm1, nzm1) ; 	// zero in the CED
+	div_r() ; 
+	
+	// Add the CED part
+	set_domain(nzm1) = uu_ext.domain(nzm1) ; 
+	
+	dzpuis += 1 ; 
+	
+        del_deriv() ;   // Delete the derived members
+    
+}
+
+			//---------------------//
+			//     div_r_inc2      //
 			//---------------------//
 
 
@@ -310,28 +350,34 @@ void Scalar::inc_dzpuis(int inc) {
 	switch (inc) {
 	
 		case 0 : { 
-   			break ; 
+   		    break ; 
 		}
 
 		case 1 : { 
-			mp->inc_dzpuis(cuu) ;   
-    		break ; 
+		    mp->inc_dzpuis(cuu) ;   
+    		    break ; 
 		}
 
 		case 2 : {
-    		mp->inc2_dzpuis(cuu) ;  
-			break ; 
+    		    mp->inc2_dzpuis(cuu) ;  
+		    break ; 
+		}
+		
+		case 3 : {
+		    mp->inc_dzpuis(cuu) ;   
+    		    mp->inc2_dzpuis(cuu) ;  
+		    break ; 
 		}
 		
 		case 4 : {
-    		mp->inc2_dzpuis(cuu) ;  
-    		mp->inc2_dzpuis(cuu) ;  
-			break ; 
+    		    mp->inc2_dzpuis(cuu) ;  
+    		    mp->inc2_dzpuis(cuu) ;  
+		    break ; 
 		}
 		
 		default : {
-			cout << "Scalar::dec_dzpuis : unexpected value of dec !"
-				<< endl << "  dec = " << dec << endl ; 
+			cout << "Scalar::inc_dzpuis : unexpected value of inc !"
+				<< endl << "  inc = " << inc << endl ; 
 			abort() ;
 			break ; 
 		}
