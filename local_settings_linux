@@ -21,7 +21,7 @@ CXXFLAGS = -Wall -Wconversion -Woverloaded-virtual -O2 -DNDEBUG
 
 # Options for the C++ compiler to produce the library for debugging:
 # -----------------------------------------------------------------
-CXXFLAGS_G = -Wall -Wconversion -Woverloaded-virtual -g -DDEBOG
+CXXFLAGS_G = -Wall -Wconversion -Woverloaded-virtual -g
 
 # Path for the include files:
 # --------------------------
