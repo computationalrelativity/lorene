@@ -29,6 +29,9 @@ char fread_be_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2001/12/13 15:01:19  e_gourgoulhon
+ * Array bytes_big now created with a new char[]
+ *
  * Revision 1.1  2001/12/04 21:32:39  e_gourgoulhon
  * Functions similar to the stdio fread/fwrite except that they ensure
  * the big endian convention, whatever the system convention is.
@@ -63,7 +66,7 @@ int fread_be(int* aa, int size, int nb, FILE* fich) {
 
 		int size_tot = 4 * nb ;
 
-		char bytes_big[size_tot] ;
+		char* bytes_big = new char[size_tot] ;
 		
 		int nr = fread(bytes_big, 1, size_tot, fich) ;
 		
@@ -81,8 +84,10 @@ int fread_be(int* aa, int size, int nb, FILE* fich) {
 			
 		}
 		
+		delete [] bytes_big ; 
+
 		return nr / 4 ;		
-		
+
 	}
 	else {  // Big endian case: nothing to do:
 	
@@ -109,8 +114,8 @@ int fread_be(double* aa, int size, int nb, FILE* fich) {
 
 		int size_tot = 8 * nb ;
 
-		char bytes_big[size_tot] ;
-		
+		char* bytes_big = new char[size_tot] ;
+
 		int nr = fread(bytes_big, 1, size_tot, fich) ;
 		
 		char* pbig =  bytes_big ;
@@ -126,7 +131,9 @@ int fread_be(double* aa, int size, int nb, FILE* fich) {
 			pbig += 8 ;
 			
 		}
-		
+
+		delete [] bytes_big ;
+
 		return nr / 8 ;		
 		
 	}

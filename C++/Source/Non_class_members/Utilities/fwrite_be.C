@@ -29,6 +29,9 @@ char fwrite_be_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2001/12/13 15:01:19  e_gourgoulhon
+ * Array bytes_big now created with a new char[]
+ *
  * Revision 1.1  2001/12/04 21:32:39  e_gourgoulhon
  * Functions similar to the stdio fread/fwrite except that they ensure
  * the big endian convention, whatever the system convention is.
@@ -64,7 +67,7 @@ int fwrite_be(const int* aa, int size, int nb, FILE* fich) {
 
 		int size_tot = 4 * nb ;
 
-		char bytes_big[size_tot] ;
+		char* bytes_big = new char[size_tot] ;
 		char* pbig =  bytes_big ;
 		char* plit = (char*) aa ;
 		
@@ -79,8 +82,13 @@ int fwrite_be(const int* aa, int size, int nb, FILE* fich) {
 			
 		}
 		
-		return fwrite(bytes_big, 1, size_tot, fich) / 4 ;		
 		
+		int nx =  fwrite(bytes_big, 1, size_tot, fich) / 4 ;
+
+		delete [] bytes_big ; 
+		
+		return nx ; 
+
 	}
 	else {  // Big endian case: nothing to do:
 	
@@ -109,7 +117,7 @@ int fwrite_be(const double* aa, int size, int nb, FILE* fich) {
 
 		int size_tot = 8 * nb ;
 
-		char bytes_big[size_tot] ;
+		char* bytes_big = new char[size_tot] ;
 		char* pbig =  bytes_big ;
 		char* plit = (char*) aa ;
 		
@@ -124,8 +132,11 @@ int fwrite_be(const double* aa, int size, int nb, FILE* fich) {
 			
 		}
 		
-		return fwrite(bytes_big, 1, size_tot, fich) / 8 ;		
+		int nx = fwrite(bytes_big, 1, size_tot, fich) / 8 ;		
+		delete [] bytes_big ; 
 		
+		return nx ; 
+
 	}
 	else {  // Big endian case: nothing to do:
 	
