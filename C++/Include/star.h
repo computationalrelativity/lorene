@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/05/25 14:48:57  f_limousin
+ * Add a parameter for the function equilibrium.
+ *
  * Revision 1.8  2004/03/23 09:53:50  f_limousin
  * Minor changes
  *
@@ -931,7 +934,7 @@ class Star_bin : public Star {
 	void equilibrium(double ent_c, int mermax, int mermax_potvit, 
 			 int mermax_poisson, double relax_poisson, 
 			 double relax_potvit, double thres_adapt, 
-			 const Tbl& fact, Tbl& diff) ;
+			 const Tbl& fact, Tbl& diff, int step) ;
 
 
 	/** Computes the non-translational part of the velocity scalar potential
