@@ -30,6 +30,9 @@ char strot_dirac_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/03/10 09:39:19  j_novak
+ * The order of resolution has been changed in the iteration step.
+ *
  * Revision 1.3  2005/02/17 17:30:09  f_limousin
  * Change the name of some quantities to be consistent with other classes
  * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
@@ -127,7 +130,7 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
   diff.set_etat_qcq() ;
   double& diff_ent = diff.set(0) ; 
 
-  double alpha_r ;
+  double alpha_r = 1 ;
 
   // Initializations
   // ---------------
@@ -166,7 +169,6 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
   fichevol << 
     "#       |dH/dr_eq/dH/dr_pole|      r_pole/r_eq ent_c" 
 	   << endl ; 
-
 
   diff_ent = 1 ;
   double err_grv2 = 1 ;
@@ -222,16 +224,6 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
  ln_q_new.std_spectral_base() ;
 
 
- //---------------------------------------------//
- // Resolution of the Poisson equation for qqq  //
- //---------------------------------------------//
-
- Scalar q_new(mp) ;
-
- solve_qqq( q_new ) ;
-
- q_new.std_spectral_base() ;
-
  //--------------------------------------------------//
  // Resolution of the Poisson equation for shift     //
  //--------------------------------------------------//
@@ -239,18 +231,6 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
  Vector beta_new(mp, CON, mp.get_bvect_spher()) ;
 
  solve_shift( beta_new ) ;
-
- //----------------------------------------------//
- // Resolution of the Poisson equation for hh    //
- //----------------------------------------------//
-
- Sym_tensor_trans hij_new(mp, mp.get_bvect_spher(), flat) ;
-
- solve_hij( hij_new ) ;
-
- hh = hij_new ; 
- qqq = q_new ;
- beta = beta_new ; 
 
  //------------------------------------
  // Determination of the fluid velocity
@@ -403,13 +383,37 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
    cout << "**** New fact_omega : " << fact_omega << endl ; 
  }
 
- //---------------------------------
+
+//---------------------------------
  // Equation of state
  //---------------------------------
 
  equation_of_state() ;  // computes new values for nbar (n), ener (e),
                         // and press (p) from the new ent (H)
 
+ hydro_euler() ;
+
+ //---------------------------------------------//
+ // Resolution of the Poisson equation for qqq  //
+ //---------------------------------------------//
+
+ Scalar q_new(mp) ;
+
+ solve_qqq( q_new ) ;
+
+ q_new.std_spectral_base() ;
+
+ //----------------------------------------------//
+ // Resolution of the Poisson equation for hh    //
+ //----------------------------------------------//
+
+ Sym_tensor_trans hij_new(mp, mp.get_bvect_spher(), flat) ;
+
+ solve_hij( hij_new ) ;
+
+ hh = hij_new ; 
+ qqq = q_new ;
+ beta = beta_new ; 
 
  //---------------------------------------
  // Calculate error of the GRV2 identity 
