@@ -30,6 +30,10 @@ char connection_fspher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/10/15 10:46:18  e_gourgoulhon
+ * Introduced call to the new method Scalar::div_tant to perform
+ * division by tan(theta) in derive_cov.
+ *
  * Revision 1.6  2003/10/11 16:45:43  e_gourgoulhon
  * Suppressed the call to Itbl::set_etat_qcq() after
  * the construction of the Itbl's.
@@ -283,13 +287,9 @@ Tensor Connection_fspher::derive_cov(const Tensor& uu) const {
 	ind = ind0 ; 
 	ind.set(id) = 3 ;   // l = phi
 	tmp = uu(ind) ; 
-	tmp.div_rsint_ced() ; 
-					
-	// what follows does not apply if the mapping is not radial:
-	assert( dynamic_cast<const Map_radial*>(mp) != 0x0 ) ; 
-	Valeur vtmp = (tmp.get_spectral_va()).mult_ct() ; 
-	tmp.set_spectral_va() = vtmp ; 
-					
+	tmp.div_r_ced() ; 	// division by r 
+	tmp.div_tant() ; 	// division by tan(theta)
+										
 	cresu -= tmp ; 
 	break ; 
       }
@@ -306,12 +306,8 @@ Tensor Connection_fspher::derive_cov(const Tensor& uu) const {
 
 	ind.set(id) = 2 ;   // l = theta
 	tmp = uu(ind) ; 
-	tmp.div_rsint_ced() ; 
-
-	// what follows does not apply if the mapping is not radial:
-	assert( dynamic_cast<const Map_radial*>(mp) != 0x0 ) ; 
-	Valeur vtmp = (tmp.get_spectral_va()).mult_ct() ; 
-	tmp.set_spectral_va() = vtmp ; 
+	tmp.div_r_ced() ; 	// division by r 
+	tmp.div_tant() ; 	// division by tan(theta)
 
 	cresu += tmp ; 
 	break ; 
@@ -521,12 +517,8 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
 	ind = ind0 ; 
 	ind.set(id) = 3 ;   // l = phi
 	tmp = uu(ind) ; 
-	tmp.div_rsint_ced() ; 
-					
-	// what follows does not apply if the mapping is not radial:
-	assert( dynamic_cast<const Map_radial*>(mp) != 0x0 ) ; 
-	Valeur vtmp = (tmp.get_spectral_va()).mult_ct() ; 
-	tmp.set_spectral_va() = vtmp ; 
+	tmp.div_r_ced() ; 	// division by r 
+	tmp.div_tant() ; 	// division by tan(theta)
 					
 	cresu -= tmp ; 
 	break ; 
@@ -544,12 +536,8 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
 
 	ind.set(id) = 2 ;   // l = theta
 	tmp = uu(ind) ; 
-	tmp.div_rsint_ced() ; 
-
-	// what follows does not apply if the mapping is not radial:
-	assert( dynamic_cast<const Map_radial*>(mp) != 0x0 ) ; 
-	Valeur vtmp = (tmp.get_spectral_va()).mult_ct() ; 
-	tmp.set_spectral_va() = vtmp ; 
+	tmp.div_r_ced() ; 	// division by r 
+	tmp.div_tant() ; 	// division by tan(theta)
 
 	cresu += tmp ; 
 	break ; 
