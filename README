@@ -4,7 +4,7 @@
 		//		   (LORENE)			//
 		//----------------------------------------------//
 
-				$Id$
+	 $Id$
 
 LORENE is a free software under the GNU General Public License (see the
 file COPYING in this directory). 
@@ -78,7 +78,7 @@ Connect to the CVS repository in Meudon:
 
    Download Lorene by typying
 
-	cvs -d :pserver:anonymous@octane.obspm.fr:/cvsroot get Lorene
+	cvs -d :pserver:anonymous@octane.obspm.fr:/cvsroot checkout Lorene
 	
 
 2/ Set of the environment variable HOME_LORENE
