@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2003 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -25,6 +25,10 @@ char map_et_fait_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/15 10:40:26  e_gourgoulhon
+ * Added new Coord's drdt and stdrdp.
+ * Changed cast (const Map_et *) into static_cast<const Map_et*>.
+ *
  * Revision 1.2  2002/10/16 14:36:41  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -64,7 +68,7 @@ char map_et_fait_der_C[] = "$Header$" ;
 Mtbl* map_et_fait_dxdr(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_et* cv = (const Map_et *) cvi ;
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -134,6 +138,164 @@ Mtbl* map_et_fait_dxdr(const Map* cvi) {
 
 /*
  *******************************************************************************
+ *			     dR/dtheta	    ( dans la ZEC: - dU/dth )
+ *******************************************************************************
+ */
+
+Mtbl* map_et_fait_drdt(const Map* cvi) {
+
+    // recup du changement de variable
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
+    const Mg3d* mg = cv->get_mg() ;
+    int nz = mg->get_nzone() ;
+    
+    // Le resultat
+    Mtbl* mti = new Mtbl(mg) ;
+    mti->set_etat_qcq() ;
+    
+    // Pour le confort
+    const double* alpha = cv->alpha ;
+    const Valeur& ff = cv->ff ; 
+    const Valeur& gg = cv->gg ; 
+    const Valeur& dffdt = ff.dsdt() ; 
+    const Valeur& dggdt = gg.dsdt() ; 
+
+    
+    for (int l=0 ; l<nz ; l++) {
+
+	int nr = mg->get_nr(l);
+	int nt = mg->get_nt(l) ;
+	int np = mg->get_np(l) ;
+
+	const Tbl& aa = *((cv->aa)[l]) ; 
+	const Tbl& bb = *((cv->bb)[l]) ; 
+
+	Tbl* tb = (mti->t)[l] ;
+	tb->set_etat_qcq() ;
+	double* p_r = tb->t ;
+	
+	switch(mg->get_type_r(l)) {
+	
+		    
+	    case RARE : case FIN: {
+	    for (int k=0 ; k<np ; k++) {
+		for (int j=0 ; j<nt ; j++) {
+		    for (int i=0 ; i<nr ; i++) {
+			*p_r = alpha[l] * (   aa(i) * dffdt(l, k, j, 0)
+					    + bb(i) * dggdt(l, k, j, 0) ) ; 
+			p_r++ ;
+		    }	    // Fin de boucle sur r
+		}	// Fin de boucle sur theta
+	    }	    // Fin de boucle sur phi
+	    break ;
+	    }
+
+	    case UNSURR: {
+	    
+	    for (int k=0 ; k<np ; k++) {
+		for (int j=0 ; j<nt ; j++) {
+		    for (int i=0 ; i<nr ; i++) {
+			*p_r = - aa(i) * dffdt(l, k, j, 0)	;
+			p_r++ ;
+		    }	    // Fin de boucle sur r
+		}	// Fin de boucle sur theta
+	    }	    // Fin de boucle sur phi
+	    break ; 
+	    }    
+
+	    default: {
+	    cout << "map_et_fait_drdt: unknown type_r !" << endl ;
+	    abort() ;
+	    }
+	}	    // Fin du switch
+    }			// Fin de boucle sur zone
+
+    // Termine
+    return mti ;
+} 
+
+
+/*
+ *******************************************************************************
+ *			  1/sin(theta)   dR/dphi	    ( dans la ZEC: - 1/sin(th) dU/dth )
+ *******************************************************************************
+ */
+
+Mtbl* map_et_fait_stdrdp(const Map* cvi) {
+
+    // recup du changement de variable
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
+    const Mg3d* mg = cv->get_mg() ;
+    int nz = mg->get_nzone() ;
+    
+    // Le resultat
+    Mtbl* mti = new Mtbl(mg) ;
+    mti->set_etat_qcq() ;
+    
+    // Pour le confort
+    const double* alpha = cv->alpha ;
+    const Valeur& ff = cv->ff ; 
+    const Valeur& gg = cv->gg ; 
+    const Valeur& stdffdp = ff.stdsdp() ; 
+    const Valeur& stdggdp = gg.stdsdp() ; 
+
+    
+    for (int l=0 ; l<nz ; l++) {
+
+	int nr = mg->get_nr(l);
+	int nt = mg->get_nt(l) ;
+	int np = mg->get_np(l) ;
+
+	const Tbl& aa = *((cv->aa)[l]) ; 
+	const Tbl& bb = *((cv->bb)[l]) ; 
+
+	Tbl* tb = (mti->t)[l] ;
+	tb->set_etat_qcq() ;
+	double* p_r = tb->t ;
+	
+	switch(mg->get_type_r(l)) {
+	
+		    
+	    case RARE : case FIN: {
+	    for (int k=0 ; k<np ; k++) {
+		for (int j=0 ; j<nt ; j++) {
+		    for (int i=0 ; i<nr ; i++) {
+			*p_r = alpha[l] * (   aa(i) * stdffdp(l, k, j, 0)
+					    + bb(i) * stdggdp(l, k, j, 0) ) ; 
+			p_r++ ;
+		    }	    // Fin de boucle sur r
+		}	// Fin de boucle sur theta
+	    }	    // Fin de boucle sur phi
+	    break ;
+	    }
+
+	    case UNSURR: {
+	    
+	    for (int k=0 ; k<np ; k++) {
+		for (int j=0 ; j<nt ; j++) {
+		    for (int i=0 ; i<nr ; i++) {
+			*p_r = - aa(i) * stdffdp(l, k, j, 0)	;
+			p_r++ ;
+		    }	    // Fin de boucle sur r
+		}	// Fin de boucle sur theta
+	    }	    // Fin de boucle sur phi
+	    break ; 
+	    }    
+
+	    default: {
+	    cout << "map_et_fait_stdrdp: unknown type_r !" << endl ;
+	    abort() ;
+	    }
+	}	    // Fin du switch
+    }			// Fin de boucle sur zone
+
+    // Termine
+    return mti ;
+} 
+
+
+/*
+ *******************************************************************************
  *			    1/R dR/dtheta	    ( dans la ZEC: - 1/U dU/dth )
  *******************************************************************************
  */
@@ -141,7 +303,7 @@ Mtbl* map_et_fait_dxdr(const Map* cvi) {
 Mtbl* map_et_fait_srdrdt(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_et* cv = (const Map_et *) cvi ;
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -247,7 +409,7 @@ Mtbl* map_et_fait_srdrdt(const Map* cvi) {
 Mtbl* map_et_fait_srstdrdp(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_et* cv = (const Map_et *) cvi ;
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -352,7 +514,7 @@ Mtbl* map_et_fait_srstdrdp(const Map* cvi) {
 Mtbl* map_et_fait_sr2drdt(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_et* cv = (const Map_et *) cvi ;
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -470,7 +632,7 @@ Mtbl* map_et_fait_sr2drdt(const Map* cvi) {
 Mtbl* map_et_fait_sr2stdrdp(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_et* cv = (const Map_et *) cvi ;
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -590,7 +752,7 @@ Mtbl* map_et_fait_sr2stdrdp(const Map* cvi) {
 Mtbl* map_et_fait_rsxdxdr(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_et* cv = (const Map_et *) cvi ;
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -701,7 +863,7 @@ Mtbl* map_et_fait_rsxdxdr(const Map* cvi) {
 Mtbl* map_et_fait_rsx2drdx(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_et* cv = (const Map_et *) cvi ;
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -819,7 +981,7 @@ Mtbl* map_et_fait_rsx2drdx(const Map* cvi) {
 Mtbl* map_et_fait_d2rdx2(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_et* cv = (const Map_et *) cvi ;
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -897,7 +1059,7 @@ Mtbl* map_et_fait_d2rdx2(const Map* cvi) {
 Mtbl* map_et_fait_lapr_tp(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_et* cv = (const Map_et *) cvi ;
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -1020,7 +1182,7 @@ Mtbl* map_et_fait_lapr_tp(const Map* cvi) {
 Mtbl* map_et_fait_d2rdtdx(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_et* cv = (const Map_et *) cvi ;
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -1097,7 +1259,7 @@ Mtbl* map_et_fait_d2rdtdx(const Map* cvi) {
 Mtbl* map_et_fait_sstd2rdpdx(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_et* cv = (const Map_et *) cvi ;
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
@@ -1174,7 +1336,7 @@ Mtbl* map_et_fait_sstd2rdpdx(const Map* cvi) {
 Mtbl* map_et_fait_sr2d2rdt2(const Map* cvi) {
 
     // recup du changement de variable
-    const Map_et* cv = (const Map_et *) cvi ;
+    const Map_et* cv = static_cast<const Map_et*>(cvi) ;
     const Mg3d* mg = cv->get_mg() ;
     int nz = mg->get_nzone() ;
     
