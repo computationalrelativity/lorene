@@ -29,6 +29,9 @@ char map_et_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/04/08 17:16:07  f_limousin
+ * Add comments
+ *
  * Revision 1.5  2004/04/08 16:39:23  f_limousin
  * Add the case dzpuis different of 0 for methods dsdr, srdsdt, srstdsdp
  * for Scalar's.
@@ -78,9 +81,6 @@ char map_et_deriv_C[] = "$Header$" ;
 			
 void Map_et::dsdr(const Cmp& ci, Cmp& resu) const {
 
-
-    cout << "AVREN ! " << endl ;
-
     assert (ci.get_etat() != ETATNONDEF) ; 
     assert (ci.get_mp()->get_mg() == mg) ; 
     
@@ -108,9 +108,6 @@ void Map_et::dsdr(const Cmp& ci, Cmp& resu) const {
 }
 
 void Map_et::dsdr(const Scalar& uu, Scalar& resu) const {
-
-
-    cout << "ET VLAN ! " << endl ;
 
   assert (uu.get_etat() != ETATNONDEF) ; 
   assert (uu.get_mp().get_mg() == mg) ; 
