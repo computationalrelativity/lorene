@@ -32,6 +32,10 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/10/20 09:32:12  j_novak
+ * Members p_potential and p_div_free of the Helmholtz decomposition
+ * + the method decompose_div(Metric).
+ *
  * Revision 1.7  2003/10/16 14:21:37  j_novak
  * The calculation of the divergence of a Tensor is now possible.
  *
@@ -139,6 +143,9 @@ Vector::~Vector () {
 
 void Vector::del_deriv() const {
 
+  for (int i=0; i<N_MET_MAX; i++) 
+    del_derive_met(i) ;
+  
   set_der_0x0() ;
   Tensor::del_deriv() ;
 
@@ -146,8 +153,37 @@ void Vector::del_deriv() const {
 
 void Vector::set_der_0x0() const {
 
+  for (int i=0; i<N_MET_MAX; i++) 
+    set_der_met_0x0(i) ;
+
 }
 
+void Vector::del_derive_met(int j) const {
+
+  assert( (j>=0) && (j<N_MET_MAX) ) ;
+
+  if (met_depend[j] != 0x0) {
+    if (p_potential[j] != 0x0)
+      delete p_potential[j] ;
+    if (p_div_free[j] != 0x0)
+      delete p_div_free[j] ;
+    
+    set_der_met_0x0(j) ;
+    
+    Tensor::del_derive_met(j) ;
+  }
+}
+
+void Vector::set_der_met_0x0(int i) const {
+
+  assert( (i>=0) && (i<N_MET_MAX) ) ;
+
+  p_potential[i] = 0x0 ;
+  p_div_free[i] = 0x0 ;
+
+  Tensor::set_der_met_0x0(i) ;
+
+}
 void Vector::operator=(const Vector& t) {
     
     triad = t.triad ; 
@@ -239,5 +275,56 @@ const Scalar& Vector::divergence(const Metric& metre) const {
   assert(pscal != 0x0) ;
 
   return *pscal ;
+}
+
+const Scalar& Vector::potential(const Metric& metre) const {
+
+  set_dependance(metre) ;
+  int j = get_place_met(metre) ;
+  assert ((j>=0) && (j<N_MET_MAX)) ;
+  if (p_potential[j] == 0x0) {
+    decompose_div(metre) ;
+  }
+
+  return *p_potential[j] ;
+}
+
+const Vector_divfree& Vector::div_free(const Metric& metre) const {
+
+  set_dependance(metre) ;
+  int j = get_place_met(metre) ;
+  assert ((j>=0) && (j<N_MET_MAX)) ;
+  if (p_div_free[j] == 0x0) {
+    decompose_div(metre) ;
+  }
+
+  return *p_div_free[j] ;
+}
+
+void Vector::decompose_div(const Metric& metre) const {
+
+  assert( type_indice(0) == CON ) ; //Only for contravariant vectors...
+
+  set_dependance(metre) ;
+  int j =  get_place_met(metre) ;
+  assert ((j>=0) && (j<N_MET_MAX)) ;
+
+  if ( (p_potential[j] != 0x0) && (p_div_free[j] != 0x0) ) 
+    return ; // Nothing to do ...
+
+  else {
+    if (p_div_free[j] != 0x0)
+      delete p_div_free[j] ;  
+    if (p_potential[j] != 0x0) 
+      delete p_potential[j] ;
+
+    p_potential[j] = new Scalar( (divergence(metre)).poisson() ) ;
+
+    p_div_free[j] = new Vector_divfree(*mp, *triad, metre) ;
+
+    *p_div_free[j] = ( *this - p_potential[j]->derive_con(metre) ) ;
+
+  }
+  
 }
 

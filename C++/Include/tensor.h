@@ -36,6 +36,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2003/10/20 09:32:10  j_novak
+ * Members p_potential and p_div_free of the Helmholtz decomposition
+ * + the method decompose_div(Metric).
+ *
  * Revision 1.23  2003/10/19 19:47:31  e_gourgoulhon
  * Introduced new virtual method spectral_display.
  *
@@ -340,7 +344,7 @@ class Tensor {
 	 * Logical destructor of the derivatives depending on the i-th
 	 * element of {\tt met\_depend}.
 	 */	
-	void del_derive_met(int) const ;
+	virtual void del_derive_met(int) const ;
 
 	/**
 	 * Sets all the i-th components of {\tt met\_depend}, 

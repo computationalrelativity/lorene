@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2003/10/20 09:32:10  j_novak
+ * Members p_potential and p_div_free of the Helmholtz decomposition
+ * + the method decompose_div(Metric).
+ *
  * Revision 1.13  2003/10/17 16:36:53  e_gourgoulhon
  * Class Vector_divfree: Added new methods set_vr_eta_mu and set_vr_mu.
  *
@@ -75,6 +79,7 @@
  *
  */
 
+class Vector_divfree ;
 
 /**
  * Tensor field of valence 1.
@@ -82,6 +87,23 @@
  * @version #$Id$#
  */
 class Vector: public Tensor {
+
+    // Derived data : 
+    // ------------
+    protected:
+        /** The potential $\phi$giving the gradient part in the Helmholtz 
+	 * decomposition of any 3D vector $\vec{V}: \quad \vec{V} = 
+	 * \vec{\nabla} \phi + \vec{\nabla} \wedge \vec{\psi}$.
+	 * Only in the case of contravariant vectors.
+	 */
+        mutable Scalar* p_potential[N_MET_MAX] ;
+
+	/** The divergence-free vector $\vec{W} =  \vec{\nabla} \wedge 
+	 * \vec{\psi}$ of the Helmholtz decomposition of any 3D vector 
+	 *$\vec{V}: \quad \vec{V} = \vec{\nabla} \phi + \vec{\nabla} 
+	 *\wedge \vec{\psi}$. Only in the case of contravariant vectors.
+	 */
+	mutable Vector_divfree* p_div_free[N_MET_MAX] ;
 
     // Constructors - Destructor
     // -------------------------
@@ -136,6 +158,18 @@ class Vector: public Tensor {
 	/// Sets the pointers on derived quantities to 0x0
 	void set_der_0x0() const ; 
 
+	/**
+	 * Logical destructor of the derivatives depending on the i-th
+	 * element of {\tt met\_depend} in the class {\tt vector}.
+	 */	
+	virtual void del_derive_met(int) const ;
+
+	/**
+	 * Sets all the i-th components of {\tt met\_depend} in the 
+	 * class {\tt Vector} ({\tt p\_potential}, etc...) to 0x0.
+	 */
+	void set_der_met_0x0(int) const ;
+
 
     // Mutators / assignment
     // ---------------------
@@ -150,6 +184,30 @@ class Vector: public Tensor {
 	
 	/// Assignment from a Tensor
 	virtual void operator=(const Tensor&) ;	
+
+	/**Makes the Helmholtz decomposition (see documentation of
+	 * {\tt p_potential}) of {\tt this} with respect to a given
+	 * {\tt Metric}, only in the case of contravariant vectors.
+	 */
+	void decompose_div(const Metric&) const ;
+
+	/**Returns the potential in the Helmholtz decomposition.
+	 *
+	 * It first makes the Helmholtz decomposition (see documentation of
+	 * {\tt p_potential}) of {\tt this} with respect to a given
+	 * {\tt Metric} and then returns $\phi$. Only in the case
+	 * of contravariant vectors.
+	 */
+	const Scalar& potential(const Metric& ) const ;
+	
+	/**Returns the div-free vector in the Helmholtz decomposition.
+	 *
+	 * It first makes the Helmholtz decomposition (see documentation of
+	 * {\tt p_potential}) of {\tt this} with respect to a given
+	 * {\tt Metric} and then returns $\vec{W}$. Only in the case
+	 * of contravariant vectors.	
+	 */
+	const Vector_divfree& div_free(const Metric& ) const;
 	
     // Accessors
     // ---------
