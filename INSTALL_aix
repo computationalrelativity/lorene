@@ -1,0 +1,17 @@
+
+This file covers only features specific to IBM AIX systems.
+See the file INSTALL for the main installation instructions.
+
+
+64-bit compiler mode
+--------------------
+
+If you select the 64-bit compiler mode by providing the argument
+-q64 to xlC, you must set the environment variable OBJECT_MODE
+to 64 in order to run the archive command 'ar' properly:
+
+For instance, you can add the following line to your .tcshrc file:
+
+setenv OBJECT_MODE 64
+
+
