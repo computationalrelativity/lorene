@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2004/06/24 20:36:07  e_gourgoulhon
+ * Class Time_slice_conf: added method check_psi_dot.
+ *
  * Revision 1.21  2004/06/14 20:46:35  e_gourgoulhon
  * Added argument method_poisson to Tslice_dirac_max::solve_hij.
  *
@@ -826,6 +829,19 @@ class Time_slice_conf : public Time_slice {
          * necessary. 
          */
         virtual double adm_mass() const ; 
+        
+        /** Checks the \f$\frac{\partial}{\partial t} \ln\Psi \f$ relation.
+         *  @param tlnpsi_dot [output] maximun value in each domain of 
+         *      \f$ \left| \frac{\partial}{\partial t} \ln\Psi \right| \f$
+         *  @param tdiff [output] maximum value in each domain of  \f$ \left| 
+         *          \frac{\partial}{\partial t} \ln\Psi -
+         *          \beta^i {\cal D}_i \ln \Psi - \frac{1}{6} ( 
+         *          {\cal D}_i \beta^i - N K) \right| \f$
+         *  @param tdiff_rel [output] relative error on the above relation
+         *      in each domain.
+         *
+         */
+        void check_psi_dot(Tbl& tlnpsi_dot, Tbl& tdiff, Tbl& tdiff_rel) const ; 
         
     // Outputs
     // -------
