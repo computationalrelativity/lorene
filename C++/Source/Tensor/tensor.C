@@ -7,7 +7,8 @@
 
 /*
  *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
- *   Copyright (c) 1999-2001 Philippe Grandclement
+ *
+ *   Copyright (c) 1999-2001 Philippe Grandclement (for preceding class Tenseur)
  *
  *   This file is part of LORENE.
  *
@@ -33,6 +34,10 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/10/05 21:11:22  e_gourgoulhon
+ * - Added method std_spectral_base().
+ * - Removed method change_triad() from this file.
+ *
  * Revision 1.9  2003/10/03 15:09:38  j_novak
  * Improved display
  *
@@ -298,14 +303,6 @@ void Tensor::allocate_all() {
 } 
 
 
-
-void Tensor::change_triad(const Base_vect& bi) {
-    
-    // bi.change_basis(*this) ;
-    cout << "Tensor::change_triad not ready yet !" << endl ; 
-    abort(); 
-	
-}
 
 void Tensor::set_triad(const Base_vect& bi) {
     
@@ -590,5 +587,80 @@ void Tensor::sauve(FILE* fd) const {
       cmp[i]->sauve(fd) ;
 
 }
+
+
+
+// Sets the standard spectal bases of decomposition for each component
+
+void Tensor::std_spectral_base() {
+
+	switch (valence) {
+
+		case 0 : {
+			cmp[0]->std_spectral_base() ; 
+			break ; 
+		}	
+		
+		case 1 : {
+			cout << 
+			"Tensor::std_spectral_base: should not be called on a Tensor"
+			<< " of valence 1 but on a Vector !" << endl ;  
+			abort() ; 
+			break ; 
+		}
+	
+		case 2 : {
+		
+			Base_val** bases = 0x0 ; 
+			if( triad->identify() == (mp->get_bvect_cart()).identify() ) {
+				bases = mp->get_mg()->std_base_vect_cart() ;
+			}
+			else {
+				assert( triad->identify() == (mp->get_bvect_spher()).identify()) ;
+				bases = mp->get_mg()->std_base_vect_spher() ;
+			}
+
+	    	Itbl ind(2) ;
+	    	for (int i=0 ; i<n_comp ; i++) {   
+				ind = indices(i) ;
+				cmp[i]->set_spectral_base( (*bases[ind(0)-1]) * 
+				     (*bases[ind(1)-1]) ) ;
+	    	}
+	    
+			for (int i=0 ; i<3 ; i++) {
+				delete bases[i] ;
+			}
+			delete [] bases ;
+			break ; 
+
+		}
+	    
+	   
+	    default : {
+
+			cout << "Tensor::std_spectral_base: the case valence = " << valence
+		 	<< " is not treated yet !" << endl ;
+			abort() ;
+			break ;
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
