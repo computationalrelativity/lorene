@@ -30,6 +30,9 @@ char evolution_std_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/02/16 12:37:34  e_gourgoulhon
+ * Added an assert in method update.
+ *
  * Revision 1.1  2004/02/15 21:55:33  e_gourgoulhon
  * Introduced derived classes Evolution_full and Evolution_std.
  * Evolution is now an abstract base class.
@@ -111,6 +114,7 @@ void Evolution_std<TyT>::update(const TyT& new_value, double new_time) {
          
     if (pos_jlast == size) {  // re-organization of arrays val and the_time is necessary
     
+        assert( val[0] != 0x0 ) ; 
         delete val[0] ; 
             
         for (int j=0; j<size-1; j++) {
