@@ -47,6 +47,10 @@ char chebimp_ini_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/02/18 13:14:12  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.3  2003/01/31 10:31:23  e_gourgoulhon
  * Suppressed the directive #include <malloc.h> for malloc is defined
  * in <stdlib.h>
@@ -77,7 +81,7 @@ char chebimp_ini_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // Variable externe de loch
-int loch_chebimp_ini = 0 ;
+//int loch_chebimp_ini = 0 ;
 
 //*****************************************************************************
 
@@ -93,7 +97,7 @@ static	int	tbn[NMAX] ;		/* Tableau des points deja initialises */
 int indice ;
 
     // Mise en zone critique de toute la routine
-    #pragma critical (loch_chebimp_ini)
+//    #pragma critical (loch_chebimp_ini)
     {
     // Ce nombre de points a-t-il deja ete utilise ?
     indice = -1 ;
@@ -111,11 +115,7 @@ int indice ;
 	    }
 	indice = nwork ; nwork++ ; tbn[indice] = n ;
 
-	table_x[indice] = (double *) malloc( sizeof(double) * n ) ;
-	if ( table_x[indice] == 0 ) {
-	    cout << "chebimp_ini : malloc error !" << endl ; 
-	    abort() ; 
-	    }
+	table_x[indice] = new double[n] ; 
 
 	double xx = M_PI / double(2*(n-1));
 	for ( i = 0; i < n ; i++ ) {

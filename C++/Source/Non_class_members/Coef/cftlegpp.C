@@ -88,6 +88,10 @@ char cftlegpp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/02/18 13:14:10  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.3  2003/01/31 10:31:23  e_gourgoulhon
  * Suppressed the directive #include <malloc.h> for malloc is defined
  * in <stdlib.h>
@@ -128,7 +132,7 @@ void cftlegpp(const int* deg, const int* dimf, double* ff, const int* dimc,
 
     // Tableau de travail :
     int taille = dimc[0]*dimc[1]*dimc[2] ;
-    double* cf_cs =  (double*)( malloc( taille*sizeof(double) ) ) ;	
+    double* cf_cs =  new double[taille] ; 
 
 //--------------------------------------------------------------
 // 1/ Transformation esp. des configurations --> cos(2l theta)
@@ -143,5 +147,5 @@ void cftlegpp(const int* deg, const int* dimf, double* ff, const int* dimc,
     chb_cosp_legpp(deg , cf_cs, cf) ;
 
     // Menage
-    free (cf_cs) ;
+    delete [] cf_cs ;
 }

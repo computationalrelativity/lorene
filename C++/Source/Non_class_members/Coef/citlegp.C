@@ -90,6 +90,10 @@ char citlegp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/02/18 13:14:12  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.3  2003/01/31 10:31:23  e_gourgoulhon
  * Suppressed the directive #include <malloc.h> for malloc is defined
  * in <stdlib.h>
@@ -131,7 +135,7 @@ void citlegp(const int* deg, const int* dimc, double* cf, const int* dimf,
 
     // Tableau de travail :
     int taille = dimc[0]*dimc[1]*dimc[2] ;
-    double* cf_cs =  (double*)( malloc( taille*sizeof(double) ) ) ;	
+    double* cf_cs =  new double[taille] ;
 
 //--------------------------------------------------------------
 // 1/ Transformation Legendre ---> cos(2l theta)/sin((2l+1)theta)
@@ -146,6 +150,6 @@ void citlegp(const int* deg, const int* dimc, double* cf, const int* dimf,
     citcossincp(deg, dimc, cf_cs, dimf, ff) ;
 
     // Menage
-    free (cf_cs) ;
+    delete [] cf_cs ;
     
 }

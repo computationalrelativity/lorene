@@ -28,6 +28,10 @@ char Binary_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2005/02/18 13:14:06  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.10  2004/07/21 11:47:10  f_limousin
  * Add / Delete comments.
  *
@@ -460,7 +464,7 @@ void Binary::fait_decouple () {
     int nr = star2.mp.get_mg()->get_nr(2) ;
     int np = star2.mp.get_mg()->get_np(2) ;
     int nt = star2.mp.get_mg()->get_nt(2) ;
-    int nz = star2.mp.get_mg()->get_nzone() ;
+//    int nz = star2.mp.get_mg()->get_nzone() ;
 
 
     Scalar decouple_un (star1.mp) ;

@@ -88,6 +88,10 @@ char chb_cossinc_leg_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/02/18 13:14:10  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.2  2005/02/16 15:23:23  m_forot
  * Replace int1d_chebp by int1d_cheb
  *
@@ -124,7 +128,7 @@ int ip, k2, l, jmin, j, i, m ;
     assert(np < 4*nt) ;
 
     // Tableau de travail
-    double* som = (double*)( malloc( nr*sizeof(double) ) ) ;
+    double* som = new double[nr] ; 
 
 // Recherche de la matrice de passage  cos/sin --> Legendre 
     double* aa = mat_cossinc_leg(np, nt) ;
@@ -307,6 +311,6 @@ int ip, k2, l, jmin, j, i, m ;
 //    assert(resu == cfo + (np+2)*ntnr) ;
 
     // Menage
-    free (som) ;
+    delete [] som ;
     
 }

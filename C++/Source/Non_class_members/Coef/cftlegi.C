@@ -92,6 +92,10 @@ char cftlegi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/02/18 13:14:10  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.2  2002/10/16 14:36:52  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -128,7 +132,7 @@ void cftlegi(const int* deg, const int* dimf, double* ff, const int* dimc,
 
     // Tableau de travail :
     int taille = dimc[0]*dimc[1]*dimc[2] ;
-    double* cf_cs =  (double*)( malloc( taille*sizeof(double) ) ) ;	
+    double* cf_cs =  new double[taille] ; 
 
 //--------------------------------------------------------------
 // 1/ Transformation esp. des configurations --> cos((2j+1) theta)/sin(2j theta) 
@@ -143,5 +147,5 @@ void cftlegi(const int* deg, const int* dimf, double* ff, const int* dimc,
     chb_cossinci_legi(deg , cf_cs, cf) ;
 
     // Menage
-    free (cf_cs) ;
+    delete [] cf_cs ;
 }

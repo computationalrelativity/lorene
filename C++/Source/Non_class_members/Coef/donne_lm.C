@@ -28,6 +28,10 @@ char donne_lm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/02/18 13:14:13  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.4  2004/11/23 15:13:50  m_forot
  * Added the bases for the cases without any equatorial symmetry
  * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
@@ -272,6 +276,7 @@ void donne_lm (int nz, int zone, int j, int k, Base_val base,
 	
 	default :
 	    cout << "donne_lm : cas inconnu ..." << endl ;
+	    cout << nz << endl ; // to avoid compilation warnings ...
 	    abort() ;
 	    break ;
     }

@@ -31,6 +31,10 @@ char map_af_poisson_falloff_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/02/18 13:14:08  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.1  2004/11/30 20:53:38  k_taniguchi
  * *** empty log message ***
  *
@@ -46,7 +50,7 @@ char map_af_poisson_falloff_C[] = "$Header$" ;
 Mtbl_cf sol_poisson_falloff(const Map_af&, const Mtbl_cf&, const int) ;
 //*****************************************************************************
 
-void Map_af::poisson_falloff(const Cmp& source, Param& par, Cmp& pot, int k_falloff) const {
+void Map_af::poisson_falloff(const Cmp& source, Param& , Cmp& pot, int k_falloff) const {
     
     assert(source.get_etat() != ETATNONDEF) ; 
     assert(source.get_mp()->get_mg() == mg) ; 

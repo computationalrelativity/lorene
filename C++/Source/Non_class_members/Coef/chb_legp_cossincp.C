@@ -94,6 +94,10 @@ char chb_legp_cossincp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/02/18 13:14:10  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.3  2003/01/31 10:31:23  e_gourgoulhon
  * Suppressed the directive #include <malloc.h> for malloc is defined
  * in <stdlib.h>
@@ -136,7 +140,7 @@ int ip, k2, l, j, i, m ;
     assert(np < 4*nt) ;
 
     // Tableau de travail
-    double* som = (double*)( malloc( nr*sizeof(double) ) ) ;
+    double* som = new double[nr] ;
 
 // Recherche de la matrice de passage  Legendre -->  cos/sin 
     double* bb = mat_legp_cossincp(np, nt) ;
@@ -306,6 +310,6 @@ int ip, k2, l, j, i, m ;
 //    assert(resu == cfo + (np+2)*ntnr) ;
 
     // Menage
-    free (som) ;
+    delete [] som ;
 
 }

@@ -86,6 +86,10 @@ char chb_legpp_cosp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/02/18 13:14:11  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.4  2003/12/19 16:21:46  j_novak
  * Shadow hunt
  *
@@ -135,7 +139,7 @@ int k2, l, j, i, m ;
     assert(np < 4*nt) ;
 
     // Tableau de travail
-    double* som = (double*)( malloc( nr*sizeof(double) ) ) ;
+    double* som = new double[nr] ;
 
 // Recherche de la matrice de passage  Legendre -->  cos/sin 
     double* bb = mat_legpp_cosp(np, nt) ;
@@ -193,7 +197,7 @@ int k2, l, j, i, m ;
 	}	    
 
 	// On sort
-	free (som) ;
+	delete [] som ;
 	return ; 
 	
     }	// fin du cas np=1
@@ -263,6 +267,6 @@ int k2, l, j, i, m ;
     assert(resu == cfo + (np+2)*ntnr) ;
 
     // Menage
-    free (som) ;
+    delete [] som ;
     
 }

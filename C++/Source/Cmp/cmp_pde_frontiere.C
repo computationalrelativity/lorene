@@ -25,6 +25,10 @@ char cmp_pde_frontiere_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/02/18 13:14:08  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.5  2004/11/23 12:49:58  f_limousin
  * Intoduce function poisson_dir_neu(...) to solve a scalar poisson
  * equation with a mixed boundary condition (Dirichlet + Neumann).
@@ -464,7 +468,7 @@ void Map_et::poisson_interne(const Cmp& source, const Valeur& limite,
 
 
 void Map_af::poisson_interne(const Cmp& source, const Valeur& limite, 
-			     Param& par, Cmp& pot) const {
+			     Param& , Cmp& pot) const {
     
     assert(source.get_etat() != ETATNONDEF) ; 
     assert(source.get_mp()->get_mg() == mg) ; 

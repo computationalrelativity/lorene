@@ -91,6 +91,10 @@ char cftleg_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/02/18 13:14:10  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.1  2004/11/23 15:13:50  m_forot
  * Added the bases for the cases without any equatorial symmetry
  * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
@@ -121,7 +125,7 @@ void cftleg(const int* deg, const int* dimf, double* ff, const int* dimc,
 
     // Tableau de travail :
     int taille = dimc[0]*dimc[1]*dimc[2] ;
-    double* cf_cs =  (double*)( malloc( taille*sizeof(double) ) ) ;	
+    double* cf_cs =  new double[taille] ; 
 
 //--------------------------------------------------------------
 // 1/ Transformation esp. des configurations --> cos(l theta)/sin(l theta) 
@@ -136,5 +140,5 @@ void cftleg(const int* deg, const int* dimf, double* ff, const int* dimc,
     chb_cossinc_leg(deg , cf_cs, cf) ;
 
     // Menage
-    free (cf_cs) ;
+    delete [] cf_cs ;
 }

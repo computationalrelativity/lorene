@@ -88,6 +88,10 @@ char chb_cossins_leg_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/02/18 13:14:10  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.1  2004/11/23 15:13:50  m_forot
  * Added the bases for the cases without any equatorial symmetry
  * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
@@ -121,7 +125,7 @@ int ip, k2, l, jmin, j, i, m ;
     assert(np < 4*nt) ;
 
     // Tableau de travail
-    double* som = (double*)( malloc( nr*sizeof(double) ) ) ;
+    double* som = new double[nr] ;
 
 // Recherche de la matrice de passage  cos/sin --> Legendre 
     double* aa = mat_cossins_leg(np, nt) ;
@@ -303,6 +307,6 @@ int ip, k2, l, jmin, j, i, m ;
 //    assert(resu == cfo + (np+2)*ntnr) ;
 
     // Menage
-    free (som) ;
+    delete [] som ;
     
 }

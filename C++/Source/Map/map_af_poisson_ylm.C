@@ -31,6 +31,10 @@ char map_af_poisson_ylm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/02/18 13:14:08  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.1  2004/12/30 15:55:57  k_taniguchi
  * *** empty log message ***
  *
@@ -46,7 +50,7 @@ char map_af_poisson_ylm_C[] = "$Header$" ;
 Mtbl_cf sol_poisson_ylm(const Map_af&, const Mtbl_cf&, const int, const double*) ;
 //*****************************************************************************
 
-void Map_af::poisson_ylm(const Cmp& source, Param& par, Cmp& pot, int nylm, double* intvec) const {
+void Map_af::poisson_ylm(const Cmp& source, Param& , Cmp& pot, int nylm, double* intvec) const {
     
     assert(source.get_etat() != ETATNONDEF) ; 
     assert(source.get_mp()->get_mg() == mg) ; 

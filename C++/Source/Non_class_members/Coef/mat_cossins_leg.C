@@ -66,6 +66,10 @@ char mat_cossins_leg_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/02/18 13:14:14  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.3  2005/02/16 15:24:08  m_forot
  * Replace int1d_chebp by int1d_cheb
  *
@@ -106,7 +110,7 @@ static	int	nt_dejafait[NMAX] ;    // Valeurs de np pour lesquelles le
 
 int i, indice,  j,  j2,  m,  l ;
 	
-    #pragma critical (loch_mat_cossins_leg)
+//    #pragma critical (loch_mat_cossins_leg)
     { 
 
     // Les matrices A_{mlj} pour ce couple (np,nt) ont-elles deja ete calculees ? 
@@ -129,7 +133,7 @@ int i, indice,  j,  j2,  m,  l ;
 	np_dejafait[indice] = np ;
 	nt_dejafait[indice] = nt ;
 
-	tab[indice] = (double *) malloc( sizeof(double) * (np/2+1)*nt*nt ) ;
+	tab[indice] = new double[(np/2+1)*nt*nt] ;
 
 //-----------------------
 // Preparation du calcul 
@@ -145,9 +149,9 @@ int i, indice,  j,  j2,  m,  l ;
 	deg[2] = nt2 ;
 
 // Tableaux de travail
-	double* yy = (double*)( malloc( nt2*sizeof(double) ) ) ;
-	double* cost = (double*)( malloc( nt*nt2*sizeof(double) ) ) ;
-	double* sint = (double*)( malloc( nt*nt2*sizeof(double) ) ) ;
+	double* yy = new double[nt2] ;
+	double* cost = new double[nt*nt2] ; 
+	double* sint = new double[nt*nt2] ; 
    
 // Calcul des cos(j*theta) / sin( j*theta ) aux points de collocation
 //  de l'echantillonnage double : 
@@ -242,16 +246,16 @@ int i, indice,  j,  j2,  m,  l ;
 	    
 	    }   // fin du cas m impair
 
-	free(leg) ;
+	    delete [] leg ;
 	   	    
 	}  // fin de la boucle sur m
 
 // Liberation espace memoire
 // -------------------------
 
-	free(yy) ;
-	free(cost) ; 
-	free(sint) ; 
+	delete [] yy ;
+	delete [] cost ;
+	delete [] sint; 
 
     } // fin du cas ou le calcul etait necessaire
     

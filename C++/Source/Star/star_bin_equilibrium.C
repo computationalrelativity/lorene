@@ -29,6 +29,10 @@ char star_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2005/02/18 13:14:18  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.16  2005/02/17 17:32:53  f_limousin
  * Change the name of some quantities to be consistent with other classes
  * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
@@ -98,9 +102,9 @@ char star_bin_equilibrium_C[] = "$Header$" ;
 
 
 void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit, 
-			   int mermax_poisson, double relax_poisson, 
+			   int , double , 
 			   double relax_potvit, double thres_adapt,
-			   const Tbl& fact_resize, Tbl& diff, int step_coal,
+			   const Tbl& fact_resize, Tbl& diff, int ,
 			   double omega) {
 
     // Fundamental constants and units

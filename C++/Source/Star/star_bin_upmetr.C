@@ -31,6 +31,10 @@ char star_binupmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2005/02/18 13:14:18  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.10  2005/02/17 17:34:10  f_limousin
  * Change the name of some quantities to be consistent with other classes
  * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
@@ -591,7 +595,7 @@ void Star_bin::update_metric_init2(const Star_bin& comp) {
     logn = logn_auto + logn_comp ; 
 }
 
-void Star_bin::update_decouple(const Star_bin& comp) {
+void Star_bin::update_decouple(const Star_bin& ) {
 
     int nr = mp.get_mg()->get_nr(0);
     int nt = mp.get_mg()->get_nt(0);

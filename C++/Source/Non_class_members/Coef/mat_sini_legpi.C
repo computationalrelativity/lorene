@@ -62,6 +62,10 @@ char mat_sini_legpi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/02/18 13:14:15  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.3  2003/01/31 10:31:24  e_gourgoulhon
  * Suppressed the directive #include <malloc.h> for malloc is defined
  * in <stdlib.h>
@@ -110,7 +114,7 @@ static	int	nt_dejafait[NMAX] ;    // Valeurs de np pour lesquelles le
 
 int i, indice,  j,  j2,  m,  l ;
     
-    #pragma critical (loch_mat_sini_legpi)
+//    #pragma critical (loch_mat_sini_legpi)
     {
 	
     // Les matrices A_{mlj} pour ce couple (np,nt) ont-elles deja ete calculees ? 
@@ -133,7 +137,7 @@ int i, indice,  j,  j2,  m,  l ;
 	np_dejafait[indice] = np ;
 	nt_dejafait[indice] = nt ;
 
-	tab[indice] = (double *) malloc( sizeof(double) * (np/2+1)*nt*nt ) ;
+	tab[indice] = new double[(np/2+1)*nt*nt] ; //(double *) malloc( sizeof(double) * (np/2+1)*nt*nt ) ;
 
 //-----------------------
 // Preparation du calcul 
@@ -149,8 +153,8 @@ int i, indice,  j,  j2,  m,  l ;
 	deg[2] = nt2 ;
 
 // Tableaux de travail
-	double* yy = (double*)( malloc( nt2*sizeof(double) ) ) ;
-	double* sint = (double*)( malloc( nt*nt2*sizeof(double) ) ) ;
+	double* yy = new double[nt2] ;//(double*)( malloc( nt2*sizeof(double) ) ) ;
+	double* sint = new double[nt*nt2] ; //(double*)( malloc( nt*nt2*sizeof(double) ) ) ;
    
 // Calcul des sin( (2j+1) theta)  aux points de collocation
 //  de l'echantillonnage double : 
@@ -201,15 +205,15 @@ int i, indice,  j,  j2,  m,  l ;
 	    
 	    }  // fin de la boucle sur l (indice de P_{2l+1}^m)
 	    	    
-	free(leg) ;
+	delete [] leg ;
 	   	    
 	}  // fin de la boucle sur m
 
 // Liberation espace memoire
 // -------------------------
 
-	free(yy) ;
-	free(sint) ; 
+	delete [] yy ;
+	delete [] sint ;
 
     } // fin du cas ou le calcul etait necessaire
 

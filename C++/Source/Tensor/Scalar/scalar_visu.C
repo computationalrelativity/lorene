@@ -30,6 +30,10 @@ char scalar_visu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/02/18 13:14:19  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.6  2004/03/11 12:07:55  e_gourgoulhon
  * Added method visu_section_anim.
  *
@@ -522,7 +526,7 @@ void Scalar::visu_box(double xmin, double xmax, double ymin, double ymax,
 
                     
 void Scalar::visu_section_anim(const char section_type, double aa, double umin, 
-        double umax, double vmin, double vmax, int jtime, double ttime, 
+        double umax, double vmin, double vmax, int jtime, double , 
         int jgraph, const char* title, const char* filename_root, bool start_dx, 
         int nu, int nv) const {
         

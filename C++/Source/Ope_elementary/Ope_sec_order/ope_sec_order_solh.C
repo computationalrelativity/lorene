@@ -71,7 +71,7 @@ Tbl _solh_sec_order_r_cheb (int n, double alpha, double beta,
 
   // Determinant :
   double delta = b*b-4*a*c ;
-  int signe ;
+  int signe = 0 ;
   if (delta > 0)
     signe = + 1 ;
   if (delta < 0)

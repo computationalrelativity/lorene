@@ -67,6 +67,10 @@ char mat_legi_cossinci_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/02/18 13:14:15  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.2  2002/10/16 14:36:55  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -107,7 +111,7 @@ static	int	nt_dejafait[NMAX] ;    // Valeurs de np pour lesquelles le
 
 int i, indice,  j,  j2,  m,  l ;
 
-    #pragma critical (loch_mat_legi_cossinci)
+//    #pragma critical (loch_mat_legi_cossinci)
     {
     // Les matrices B_{mjl} pour ce couple (np,nt) ont-elles deja ete calculees ? 
     indice = -1 ;
@@ -129,7 +133,7 @@ int i, indice,  j,  j2,  m,  l ;
 	np_dejafait[indice] = np ;
 	nt_dejafait[indice] = nt ;
 
-	tab[indice] = (double *) malloc( sizeof(double) * (np/2+1)*nt*nt ) ;
+	tab[indice] = new double[(np/2+1)*nt*nt] ; //(double *) malloc( sizeof(double) * (np/2+1)*nt*nt ) ;
 
 //-----------------------
 // Preparation du calcul 
@@ -144,7 +148,7 @@ int i, indice,  j,  j2,  m,  l ;
 	deg[2] = 1 ;
 
 // Tableaux de travail
-	double* yy = (double*)( malloc( nt2*sizeof(double) ) ) ;
+	double* yy = new double[nt2] ; //(double*)( malloc( nt2*sizeof(double) ) ) ;
 
 
 //-------------------
@@ -209,14 +213,14 @@ int i, indice,  j,  j2,  m,  l ;
 
 	    } // fin du cas m impair
 	    
-	free(leg) ;
+	    delete [] leg ;
 	   	    
 	}  // fin de la boucle sur m
 
 // Liberation espace memoire
 // -------------------------
 
-	free(yy) ;
+	delete [] yy ;
 
     } // fin du cas ou le calcul etait necessaire
 

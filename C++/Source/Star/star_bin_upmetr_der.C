@@ -32,6 +32,10 @@ char star_bin_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2005/02/18 13:14:18  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.10  2005/02/17 17:34:28  f_limousin
  * Change the name of some quantities to be consistent with other classes
  * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
@@ -70,7 +74,7 @@ char star_bin_upmetr_der_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "graphique.h"
 
-void Star_bin::update_metric_der_comp(const Star_bin& comp) {
+void Star_bin::update_metric_der_comp(const Star_bin& ) {
   
 
   // Derivatives of metric coefficients

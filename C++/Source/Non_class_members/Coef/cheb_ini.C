@@ -36,6 +36,10 @@ char cheb_ini_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/02/18 13:14:12  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.3  2003/01/31 10:31:23  e_gourgoulhon
  * Suppressed the directive #include <malloc.h> for malloc is defined
  * in <stdlib.h>
@@ -65,7 +69,7 @@ char cheb_ini_C[] = "$Header$" ;
 #include "headcpp.h"
 
 // Variables externes de loch
-int loch_cheb_ini = 0 ;
+//int loch_cheb_ini = 0 ;
 
 //---------------------------------------------------------------------------------
 
@@ -81,7 +85,7 @@ static	int	tbn[NMAX] ;		/* Tableau des points deja initialises */
 int indice ;
 
 // Cette routine est entierement critique
-#pragma critical (loch_cheb_ini)
+//#pragma critical (loch_cheb_ini)
 {
 
     // Ce nombre de points a-t-il deja ete utilise ?
@@ -100,11 +104,7 @@ int indice ;
 	indice = nwork ; nwork++ ; tbn[indice] = n ;
 
 	int nm1s2 = (n-1) / 2 ;  		
-	table_sin[indice] = (double *) malloc( sizeof(double) * nm1s2 ) ;
-	if ( table_sin[indice] == 0 ) {
-	    cout << "cheb_ini : malloc error !" << endl ; 
-	    abort() ; 
-	}
+	table_sin[indice] = new double[nm1s2] ; 
 
 	double xx = M_PI / double(n-1);
 	for ( i = 0; i < nm1s2 ; i++ ) {

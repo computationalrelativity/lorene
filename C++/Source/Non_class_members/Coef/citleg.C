@@ -89,6 +89,10 @@ char citleg_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/02/18 13:14:12  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.1  2004/11/23 15:13:50  m_forot
  * Added the bases for the cases without any equatorial symmetry
  * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
@@ -120,7 +124,7 @@ void citleg(const int* deg, const int* dimc, double* cf, const int* dimf,
 
     // Tableau de travail :
     int taille = dimc[0]*dimc[1]*dimc[2] ;
-    double* cf_cs =  (double*)( malloc( taille*sizeof(double) ) ) ;	
+    double* cf_cs =  new double[taille] ; 
 
 //--------------------------------------------------------------
 // 1/ Transformation Legendre ---> cos(l theta)/sin(l theta)
@@ -135,6 +139,6 @@ void citleg(const int* deg, const int* dimc, double* cf, const int* dimf,
     citcossinc(deg, dimc, cf_cs, dimf, ff) ;
 
     // Menage
-    free (cf_cs) ;
+    delete [] cf_cs ;
     
 }

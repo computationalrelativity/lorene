@@ -67,6 +67,10 @@ char mat_leg_cossinc_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/02/18 13:14:15  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.2  2004/12/17 15:42:02  e_gourgoulhon
  * l_max = nt instead of nt2.
  *
@@ -104,7 +108,7 @@ static	int	nt_dejafait[NMAX] ;    // Valeurs de np pour lesquelles le
 
 int i, indice,  j,  j2,  m,  l ;
 
-    #pragma critical (loch_mat_leg_cossinc)
+//    #pragma critical (loch_mat_leg_cossinc)
     {
     // Les matrices B_{mjl} pour ce couple (np,nt) ont-elles deja ete calculees ? 
     indice = -1 ;
@@ -126,7 +130,7 @@ int i, indice,  j,  j2,  m,  l ;
 	np_dejafait[indice] = np ;
 	nt_dejafait[indice] = nt ;
 
-	tab[indice] = (double *) malloc( sizeof(double) * (np/2+1)*nt*nt ) ;
+	tab[indice] = new double[(np/2+1)*nt*nt] ; //(double *) malloc( sizeof(double) * (np/2+1)*nt*nt ) ;
 
 //-----------------------
 // Preparation du calcul 
@@ -141,7 +145,7 @@ int i, indice,  j,  j2,  m,  l ;
 	deg[2] = 1 ;
 
 // Tableaux de travail
-	double* yy = (double*)( malloc( nt2*sizeof(double) ) ) ;
+	double* yy = new double[nt2] ; //(double*)( malloc( nt2*sizeof(double) ) ) ;
 
 
 //-------------------
@@ -214,14 +218,14 @@ int i, indice,  j,  j2,  m,  l ;
 
 	    } // fin du cas m impair
 	    
-	free(leg) ;
+	    delete [] leg ;
 	   	    
 	}  // fin de la boucle sur m
 
 // Liberation espace memoire
 // -------------------------
 
-	free(yy) ;
+	delete [] yy ;
 
     } // fin du cas ou le calcul etait necessaire
 

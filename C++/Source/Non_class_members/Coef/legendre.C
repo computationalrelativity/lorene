@@ -53,6 +53,10 @@ char legendre_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/02/18 13:14:13  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.3  2003/01/31 10:31:24  e_gourgoulhon
  * Suppressed the directive #include <malloc.h> for malloc is defined
  * in <stdlib.h>
@@ -94,10 +98,10 @@ int i, j, l ;
 // Allocation memoire pour le tableau resultat 
 //--------------------------------------------
 
-    double* resu = (double *)(malloc( (lmax-m+1)*nt * sizeof(double) )) ;
+    double* resu = new double[(lmax-m+1)*nt] ; //(double *)(malloc( (lmax-m+1)*nt * sizeof(double) )) ;
 
     // Tableau de travail
-    double* cost = (double*)( malloc( nt*sizeof(double) ) ) ;
+    double* cost = new double[nt] ; //(double*)( malloc( nt*sizeof(double) ) ) ;
 
 //-----------------------
 // 1/ Calcul de P_m^m
@@ -128,7 +132,7 @@ int i, j, l ;
     }	// fin du cas m != 0
     
     if (lmax==m) {
-	free (cost) ;
+	delete [] cost ;
 	return resu ;
     }
     else {
@@ -164,7 +168,7 @@ int i, j, l ;
 	    }
 	}
 
-	free (cost) ;
+	delete [] cost ; //free (cost) ;
 	return resu ; 
     
     } // fin du cas lmax > m 

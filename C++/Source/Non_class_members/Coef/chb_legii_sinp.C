@@ -87,6 +87,10 @@ char chb_legii_sinp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/02/18 13:14:10  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.1  2003/09/16 08:58:01  j_novak
  * New functions for the T_LEG_II base
  *
@@ -118,8 +122,7 @@ int k2, l, j, i, m ;
     assert( cfi != cfo ) ; 
 
     // Tableau de travail
-    double* som = (double*)( malloc( nr*sizeof(double) ) ) ;
-
+    double* som = new double[nr] ;
 // Recherche de la matrice de passage  Legendre -->  cos/sin 
     double* bb = mat_legii_sinp(np, nt) ;
     
@@ -181,7 +184,7 @@ int k2, l, j, i, m ;
 	    *resu = 0 ;
 	    resu++ ; 
 	}
-	free( som ) ; 
+	delete []  som  ; 
 	return ; 			    
     }
 	
@@ -316,6 +319,6 @@ int k2, l, j, i, m ;
     assert(resu == cfo + (np+2)*ntnr) ;
 
     // Menage
-    free (som) ;
+    delete [] som ;
     
 }

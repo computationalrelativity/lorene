@@ -41,6 +41,10 @@ char som_r_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/02/18 13:14:17  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.4  2004/11/23 15:16:02  m_forot
  *
  * Added the bases for the cases without any equatorial symmetry
@@ -461,7 +465,6 @@ double* po = trtp ;	    // pointeur courant sur la sortie
     }
     
     // Sommation pour le premier phi, k=0
-    int m = 0;
     for (j=0 ; j<nt ; j++) {
       int l = j%2;
       if(l==0){
@@ -530,7 +533,6 @@ double* po = trtp ;	    // pointeur courant sur la sortie
     }
     
     // Sommation pour le premier phi, k=0
-    int m = 0;
     for (j=0 ; j<nt ; j++) {
       int l = j%2 ;
       if(l==1){

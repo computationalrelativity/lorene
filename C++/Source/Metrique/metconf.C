@@ -32,6 +32,10 @@ char metconf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/02/18 13:14:09  j_novak
+ * Changing of malloc/free to new/delete + suppression of some unused variables
+ * (trying to avoid compilation warnings).
+ *
  * Revision 1.7  2003/06/20 14:47:50  f_limousin
  * Put some assert on poids on comments.
  *
@@ -113,7 +117,7 @@ Metconf::Metconf (const Tenseur_sym& source, const Metrique& metplat,
   assert(gamij->get_etat() != ETATNONDEF) ;
   assert( metplat.cov().get_triad()->identify() == 
 	  gamij->cov().get_triad()->identify() ) ;
-  int tipe = source.get_type_indice(0) ;
+  //int tipe = source.get_type_indice(0) ;
   
   //  if (tipe == CON) assert(source.get_poids() == 2./3.) ;
   //else assert(source.get_poids() == -2./3.) ;
