@@ -32,6 +32,9 @@ char vector_df_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/16 21:38:02  e_gourgoulhon
+ * Added methods mu() and update_vtvp().
+ *
  * Revision 1.1  2003/10/16 15:28:25  e_gourgoulhon
  * First version
  *
@@ -82,6 +85,7 @@ const Scalar& Vector_divfree::eta() const {
 		
 		// Adding the CED part
 		dvr.set_domain(nzm1) = dvr_ext.domain(nzm1) ; 
+		dvr.set_dzpuis(0) ; 
 
 		// Final result for the V^r source for eta:
 		dvr -= 2. * (*cmp[0]) ; 
@@ -113,7 +117,10 @@ const Scalar& Vector_divfree::mu() const {
 		assert(bvs != 0x0) ; 
 		#endif
 
-		abort() ; 
+		Scalar tmp = *cmp[2] ; 	// v^ph
+		tmp.div_tant() ; 		// V^ph / tan(th)
+		
+		p_mu = new Scalar( cmp[2]->dsdt() + tmp - cmp[1]->stdsdp() ) ;  
 
 	}
 
@@ -122,6 +129,24 @@ const Scalar& Vector_divfree::mu() const {
 }
 
 
+			//----------------//
+			//  update_vtvp   //
+			//----------------//
+			
+
+void Vector_divfree::update_vtvp() {
+
+	assert( (p_eta != 0x0) && (p_mu != 0x0) ) ; 
+	
+	// V^theta :
+	*cmp[1] = p_eta->dsdt() - p_mu->stdsdp() ; 
+	
+	// V^phi : 
+	*cmp[2] = p_eta->stdsdp() + p_mu->dsdt() ; 
+	
+	del_deriv() ; 
+	
+}			
 
 
 
