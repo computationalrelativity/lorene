@@ -35,6 +35,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2003/10/27 14:51:25  e_gourgoulhon
+ * Correction of errors in constructor from a Tensor.
+ *
  * Revision 1.17  2003/10/22 08:35:30  j_novak
  * Error corrected
  *
@@ -124,10 +127,10 @@ Scalar::Scalar(const Map& mpi) : Tensor(mpi), etat(ETATNONDEF), dzpuis(0),
 
 // Constructor from a Tensor
 // -------------------------
-Scalar::Scalar(const Tensor& ti) : Tensor(*(ti.mp)), etat(ETATNONDEF), 
-				   dzpuis(0), va(ti.cmp[0]->va) {
+Scalar::Scalar(const Tensor& ti) : Tensor(*(ti.mp)), etat(ti.cmp[0]->etat), 
+				   dzpuis(ti.cmp[0]->dzpuis), va(ti.cmp[0]->va) {
 
-  assert(valence == 0) ;
+  assert(ti.valence == 0) ;
 
   cmp[0] = this ; 
   set_der_0x0() ;
