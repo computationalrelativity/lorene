@@ -30,6 +30,9 @@ char et_bin_bhns_extr_ylm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/01/03 19:52:56  k_taniguchi
+ * Change a factor multiplied/divided by sqrt(2).
+ *
  * Revision 1.1  2004/12/29 16:30:46  k_taniguchi
  * *** empty log message ***
  *
@@ -52,14 +55,8 @@ void Et_bin_bhns_extr::get_ylm(int nylm, Cmp** ylmvec) {
   //  IMPORTANT NOTE:
   // For Y_lm with m>=1, we have the real and imaginary parts, 
   // not Y_{l,m} and Y_{l,-m}.  This changes the normalization
-  // properties.  We multiply all harmonics with m>=1 by sqrt(2.0),
-  // in this routine, so that the volume integral of all terms squared
-  // is the same.  
-
-  // This is not sufficient to produce the proper Boundary condition, since
-  // the spherical harmonic decomposition of Cmp arrays is not given in the
-  // "balanced" representation.  In order to normalize properly, we multiply
-  // all fields in get_integrals below by anoth factor of sqrt(2.) when
+  // properties.  In order to normalize properly, we multiply
+  // all fields in get_integrals below by a factor of 2.0 when
   // m>=1.
 
   cout << "Constructing ylm" << endl;
@@ -95,8 +92,8 @@ void Et_bin_bhns_extr::get_ylm(int nylm, Cmp** ylmvec) {
 	      //l=1,m=0
 	  ylmvec[1]->set(l,k,j,i)=zval*sqrt(3.0/4.0/M_PI);
 	  //l=1,m=1
-	  ylmvec[2]->set(l,k,j,i)=-1.0*xval*sqrt(3.0/4.0/M_PI);
-	  ylmvec[3]->set(l,k,j,i)=-1.0*yval*sqrt(3.0/4.0/M_PI);
+	  ylmvec[2]->set(l,k,j,i)=-1.0*xval*sqrt(3.0/8.0/M_PI);
+	  ylmvec[3]->set(l,k,j,i)=-1.0*yval*sqrt(3.0/8.0/M_PI);
 	    }
 	  }
 	  // l=2 included?
@@ -105,11 +102,11 @@ void Et_bin_bhns_extr::get_ylm(int nylm, Cmp** ylmvec) {
 	  //l=2,m=0
 	  ylmvec[4]->set(l,k,j,i)=(3.0*zval*zval-rval*rval)*sqrt(5.0/16.0/M_PI);
 	  //l=2,m=1
-	  ylmvec[5]->set(l,k,j,i)=-1.0*zval*xval*sqrt(15.0/4.0/M_PI);
-	  ylmvec[6]->set(l,k,j,i)=-1.0*zval*yval*sqrt(15.0/4.0/M_PI);
+	  ylmvec[5]->set(l,k,j,i)=-1.0*zval*xval*sqrt(15.0/8.0/M_PI);
+	  ylmvec[6]->set(l,k,j,i)=-1.0*zval*yval*sqrt(15.0/8.0/M_PI);
 	  //l=2,m=2
-	  ylmvec[7]->set(l,k,j,i)=(xval*xval-yval*yval)*sqrt(15.0/16.0/M_PI);
-	  ylmvec[8]->set(l,k,j,i)=2.0*xval*yval*sqrt(15.0/16.0/M_PI);
+	  ylmvec[7]->set(l,k,j,i)=(xval*xval-yval*yval)*sqrt(15.0/32.0/M_PI);
+	  ylmvec[8]->set(l,k,j,i)=2.0*xval*yval*sqrt(15.0/32.0/M_PI);
 	    }
 	  }
 	  // l=3 included?
@@ -120,19 +117,19 @@ void Et_bin_bhns_extr::get_ylm(int nylm, Cmp** ylmvec) {
 	    sqrt(7.0/16.0/M_PI);
 	  //l=3,m=1
 	  ylmvec[10]->set(l,k,j,i)=-1.0*(5.0*zval*zval-rval*rval)*xval*
-	    sqrt(21.0/32.0/M_PI);
+	    sqrt(21.0/64.0/M_PI);
 	  ylmvec[11]->set(l,k,j,i)=-1.0*(5.0*zval*zval-rval*rval)*yval*
-	    sqrt(21.0/32.0/M_PI);
+	    sqrt(21.0/64.0/M_PI);
 	  //l=3,m=2
 	  ylmvec[12]->set(l,k,j,i)=zval*(xval*xval-yval*yval)*
-	    sqrt(105./16.0/M_PI);
+	    sqrt(105./32.0/M_PI);
 	  ylmvec[13]->set(l,k,j,i)=zval*(2.0*xval*yval)*
-	    sqrt(105./16.0/M_PI);
+	    sqrt(105./32.0/M_PI);
 	  //l=3,m=3
 	  ylmvec[14]->set(l,k,j,i)=-1.0*(pow(xval,3)-3.0*xval*yval*yval)*
-	    sqrt(35.0/32.0/M_PI);
+	    sqrt(35.0/64.0/M_PI);
 	  ylmvec[15]->set(l,k,j,i)=-1.0*(3.0*xval*xval*yval-pow(yval,3))*
-	    sqrt(35.0/32.0/M_PI);
+	    sqrt(35.0/64.0/M_PI);
 	    }
 	  }
 	  // l=4 included?
@@ -143,24 +140,24 @@ void Et_bin_bhns_extr::get_ylm(int nylm, Cmp** ylmvec) {
 	    sqrt(9.0/256.0/M_PI);
 	  //l=4,m=1
 	  ylmvec[17]->set(l,k,j,i)=-1.0*(7.0*pow(zval,3)-3*zval*rval*rval)*xval*
-	    sqrt(45.0/32.0/M_PI);
+	    sqrt(45.0/64.0/M_PI);
 	  ylmvec[18]->set(l,k,j,i)=-1.0*(7.0*pow(zval,3)-3*zval*rval*rval)*yval*
-	    sqrt(45.0/32.0/M_PI);
+	    sqrt(45.0/64.0/M_PI);
 	  //l=4,m=2
 	  ylmvec[19]->set(l,k,j,i)=(7.0*zval*zval-rval*rval)*(xval*xval-yval*yval)*
-	    sqrt(45./64.0/M_PI);
+	    sqrt(45./128.0/M_PI);
 	  ylmvec[20]->set(l,k,j,i)=(7.0*zval*zval-rval*rval)*(2.0*xval*yval)*
-	    sqrt(45./64.0/M_PI);
+	    sqrt(45./128.0/M_PI);
 	  //l=4,m=3
 	  ylmvec[21]->set(l,k,j,i)=-1.0*zval*(pow(xval,3)-3.0*xval*yval*yval)*
-	    sqrt(315.0/32.0/M_PI);
+	    sqrt(315.0/64.0/M_PI);
 	  ylmvec[22]->set(l,k,j,i)=-1.0*zval*(3.0*xval*xval*yval-pow(yval,3))*
-	    sqrt(315.0/32.0/M_PI);
+	    sqrt(315.0/64.0/M_PI);
 	  //l=4,m=4
 	  ylmvec[23]->set(l,k,j,i)=(pow(xval,4)-6*xval*xval*yval*yval+pow(yval,4))*
-	    sqrt(315.0/256.0/M_PI);
+	    sqrt(315.0/512.0/M_PI);
 	  ylmvec[24]->set(l,k,j,i)=4.0*xval*yval*(xval*xval-yval*yval)*
-	    sqrt(315.0/256.0/M_PI);
+	    sqrt(315.0/512.0/M_PI);
 	    }
 	  }
 	  // l=5 included?
@@ -171,29 +168,29 @@ void Et_bin_bhns_extr::get_ylm(int nylm, Cmp** ylmvec) {
 	    sqrt(11.0/256.0/M_PI);
 	  //l=5,m=1
 	  ylmvec[26]->set(l,k,j,i)=-1.0*(21.0*pow(zval,4)-14*zval*zval*rval*rval+pow(rval,4))*xval*
-	    sqrt(165.0/256.0/M_PI);
+	    sqrt(165.0/512.0/M_PI);
 	  ylmvec[27]->set(l,k,j,i)=-1.0*(21.0*pow(zval,4)-14*zval*zval*rval*rval+pow(rval,4))*yval*
-	    sqrt(165.0/256.0/M_PI);
+	    sqrt(165.0/512.0/M_PI);
 	  //l=5,m=2
 	  ylmvec[28]->set(l,k,j,i)=(3.0*pow(zval,3)-zval*rval*rval)*(xval*xval-yval*yval)*
-	    sqrt(1155./64.0/M_PI);
+	    sqrt(1155./128.0/M_PI);
 	  ylmvec[29]->set(l,k,j,i)=(3.0*pow(zval,3)-zval*rval*rval)*(2.0*xval*yval)*
-	    sqrt(1155./64.0/M_PI);
+	    sqrt(1155./128.0/M_PI);
 	  //l=5,m=3
 	  ylmvec[30]->set(l,k,j,i)=-1.0*(9.0*zval*zval-rval*rval)*(pow(xval,3)-3.0*xval*yval*yval)*
-	    sqrt(385.0/512.0/M_PI);
+	    sqrt(385.0/1024.0/M_PI);
 	  ylmvec[31]->set(l,k,j,i)=-1.0*(9.0*zval*zval-rval*rval)*(3.0*xval*xval*yval-pow(yval,3))*
-	    sqrt(385.0/512.0/M_PI);
+	    sqrt(385.0/1024.0/M_PI);
 	  //l=5,m=4
 	  ylmvec[32]->set(l,k,j,i)=zval*(pow(xval,4)-6*xval*xval*yval*yval+pow(yval,4))*
-	    sqrt(3465.0/256.0/M_PI);
+	    sqrt(3465.0/512.0/M_PI);
 	  ylmvec[33]->set(l,k,j,i)=zval*4.0*xval*yval*(xval*xval-yval*yval)*
-	    sqrt(3465.0/256.0/M_PI);
+	    sqrt(3465.0/512.0/M_PI);
 	  //l=5,m=5
 	  ylmvec[34]->set(l,k,j,i)=-1.0*(pow(xval,5)-10.0*pow(xval,3)*yval*yval+5.0*xval*pow(yval,4))*
-	    sqrt(693.0/512.0/M_PI);
+	    sqrt(693.0/1024.0/M_PI);
 	  ylmvec[35]->set(l,k,j,i)=-1.0*(5.0*pow(xval,4)*yval-10.0*xval*xval*pow(yval,3)+pow(yval,5))*
-	    sqrt(693.0/512.0/M_PI);
+	    sqrt(693.0/1024.0/M_PI);
 	    }
 	  }
 	  // l=6 included?
@@ -204,34 +201,34 @@ void Et_bin_bhns_extr::get_ylm(int nylm, Cmp** ylmvec) {
 	    sqrt(13.0/1024.0/M_PI);
 	  //l=6,m=1
 	  ylmvec[37]->set(l,k,j,i)=-1.0*(33.0*pow(zval,5)-30.0*pow(zval,3)*rval*rval+5.0*zval*pow(rval,4))*xval*
-	    sqrt(273.0/256.0/M_PI);
+	    sqrt(273.0/512.0/M_PI);
 	  ylmvec[38]->set(l,k,j,i)=-1.0*(33.0*pow(zval,5)-30.0*pow(zval,3)*rval*rval+5.0*zval*pow(rval,4))*yval*
-	    sqrt(273.0/256.0/M_PI);
+	    sqrt(273.0/512.0/M_PI);
 	  //l=6,m=2
 	  ylmvec[39]->set(l,k,j,i)=(33.0*pow(zval,4)-18.0*zval*zval*rval*rval+pow(rval,4))*(xval*xval-yval*yval)*
-	    sqrt(1365./2048.0/M_PI);
+	    sqrt(1365./4096.0/M_PI);
 	  ylmvec[40]->set(l,k,j,i)=(33.0*pow(zval,4)-18.0*zval*zval*rval*rval+pow(rval,4))*(2.0*xval*yval)*
-	    sqrt(1365./2048.0/M_PI);
+	    sqrt(1365./4096.0/M_PI);
 	  //l=6,m=3
 	  ylmvec[41]->set(l,k,j,i)=-1.0*(11.0*pow(zval,3)-3.0*zval*rval*rval)*(pow(xval,3)-3.0*xval*yval*yval)*
-	    sqrt(1365.0/512.0/M_PI);
+	    sqrt(1365.0/1024.0/M_PI);
 	  ylmvec[42]->set(l,k,j,i)=-1.0*(11.0*pow(zval,3)-3.0*zval*rval*rval)*(3.0*xval*xval*yval-pow(yval,3))*
-	    sqrt(1365.0/512.0/M_PI);
+	    sqrt(1365.0/1024.0/M_PI);
 	  //l=6,m=4
 	  ylmvec[43]->set(l,k,j,i)=(11.0*zval*zval-rval*rval)*(pow(xval,4)-6*xval*xval*yval*yval+pow(yval,4))*
-	    sqrt(819.0/1024.0/M_PI);
+	    sqrt(819.0/2048.0/M_PI);
 	  ylmvec[44]->set(l,k,j,i)=(11.0*zval*zval-rval*rval)*4.0*xval*yval*(xval*xval-yval*yval)*
-	    sqrt(819.0/1024.0/M_PI);
+	    sqrt(819.0/2048.0/M_PI);
 	  //l=6,m=5
 	  ylmvec[45]->set(l,k,j,i)=-1.0*zval*(pow(xval,5)-10.0*pow(xval,3)*yval*yval+5.0*xval*pow(yval,4))*
-	    sqrt(9009.0/512.0/M_PI);
+	    sqrt(9009.0/1024.0/M_PI);
 	  ylmvec[46]->set(l,k,j,i)=-1.0*zval*(5.0*pow(xval,4)*yval-10.0*xval*xval*pow(yval,3)+pow(yval,5))*
-	    sqrt(9009.0/512.0/M_PI);
+	    sqrt(9009.0/1024.0/M_PI);
 	  //l=6,m=6
 	  ylmvec[47]->set(l,k,j,i)=(pow(xval,6)-15.0*pow(xval,4)*yval*yval+15.0*xval*xval*pow(yval,4)-pow(yval,6))*
-	    sqrt(3003.0/2048.0/M_PI);
+	    sqrt(3003.0/4096.0/M_PI);
 	  ylmvec[48]->set(l,k,j,i)=(6.0*pow(xval,5)*yval-20.0*pow(xval,3)*pow(yval,3)+6.0*xval*pow(yval,5))*
-	    sqrt(3003.0/2048.0/M_PI);
+	    sqrt(3003.0/4096.0/M_PI);
 	    }
 	  }
 	  if(nylm >49) {
@@ -248,10 +245,11 @@ void Et_bin_bhns_extr::get_ylm(int nylm, Cmp** ylmvec) {
 void Et_bin_bhns_extr::get_integrals(int nylm, double* intvec, Cmp** ylmvec,
 				     Cmp source) {
 
-  // As mentioned in the comment before get_ylm, our "balanced" representation
-  // of the Y_lm Cmp's does not agree with the normalization used to define
+  // As mentioned in the comment before get_ylm, our real/imaginary
+  // representation of the Y_lm Cmp's does not agree with the normalization 
+  // used to define
   // the spherical harmonic decomposition of Cmp arrays.  Thus, we multiply
-  // all terms with m>=1 by another factor of sqrt(2.0) in order to
+  // all terms with m>=1 by a factor of 2.0 in order to
   // produce the correct decomposition.
 
   int nz=mp.get_mg()->get_nzone() ;
@@ -279,7 +277,7 @@ void Et_bin_bhns_extr::get_integrals(int nylm, double* intvec, Cmp** ylmvec,
     } else {
       intvec[n]=0;
     }
-    if(mm>=1)intvec[n]*=sqrt(2.0);
+    if(mm>=1)intvec[n]*=2.0;
 
     int lnew=0;
     int mnew=0;
