@@ -31,8 +31,11 @@ char et_bin_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/12/10 15:45:25  k_taniguchi
+ * Change the multiplication "*" to "%".
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.4  2000/07/06  10:02:22  eric
  * *** empty log message ***
@@ -69,7 +72,9 @@ double Etoile_bin::mass_b() const {
 	
 	if (relativistic) {
 
-	    Cmp dens = a_car() * sqrt(a_car()) * gam_euler() * nbar() ;
+	    Cmp sqrt_acar = sqrt(a_car()) ;
+	    sqrt_acar.std_base_scal() ;
+	    Cmp dens = a_car() % sqrt_acar % gam_euler() % nbar() ;
 	    
 	    dens.std_base_scal() ; 
 
@@ -99,8 +104,10 @@ double Etoile_bin::mass_g() const {
 	
 	if (relativistic) {
 
-	    Cmp dens = a_car() * sqrt(a_car()) * nnn() 
-				    * (ener_euler() + s_euler())  ;
+	    Cmp sqrt_acar = sqrt(a_car()) ;
+	    sqrt_acar.std_base_scal() ;
+	    Cmp dens = a_car() % sqrt_acar % nnn() 
+				    % (ener_euler() + s_euler())  ;
 	    dens.std_base_scal() ; 
 
 	    p_mass_g = new double( dens.integrale() ) ;
@@ -126,8 +133,11 @@ double Etoile_bin::xa_barycenter() const {
 	
 	Cmp xxa(mp) ; 
 	xxa = mp.xa ;	// Absolute X coordinate
-	
-	Cmp dens = a_car() * sqrt(a_car()) * gam_euler() * nbar() * xxa ; 
+	xxa.std_base_scal() ;
+
+	Cmp sqrt_acar = sqrt(a_car()) ;
+	sqrt_acar.std_base_scal() ;
+	Cmp dens = a_car() % sqrt_acar % gam_euler() % nbar() % xxa ; 
 	
 	dens.std_base_scal() ; 
 
