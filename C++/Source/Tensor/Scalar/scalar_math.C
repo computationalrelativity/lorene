@@ -34,6 +34,10 @@ char scalar_math_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/01 13:04:44  e_gourgoulhon
+ * The method Tensor::get_mp() returns now a reference (and not
+ * a pointer) onto a mapping.
+ *
  * Revision 1.1  2003/09/25 08:06:56  e_gourgoulhon
  * First versions (use Cmp as intermediate quantities).
  *
@@ -423,7 +427,7 @@ Tbl max(const Scalar& ci) {
     // Protection
     assert(ci.get_etat() != ETATNONDEF) ;
     
-    Tbl resu( ci.get_mp()->get_mg()->get_nzone() ) ; 
+    Tbl resu( ci.get_mp().get_mg()->get_nzone() ) ; 
     
     if (ci.get_etat() == ETATZERO) {
 	resu.annule_hard() ; 
@@ -446,7 +450,7 @@ Tbl min(const Scalar& ci) {
     // Protection
     assert(ci.get_etat() != ETATNONDEF) ;
     
-    Tbl resu( ci.get_mp()->get_mg()->get_nzone() ) ; 
+    Tbl resu( ci.get_mp().get_mg()->get_nzone() ) ; 
     
     if (ci.get_etat() == ETATZERO) {
 	resu.annule_hard() ; 
@@ -469,7 +473,7 @@ Tbl norme(const Scalar& ci) {
     // Protection
     assert(ci.get_etat() != ETATNONDEF) ;
     
-    Tbl resu( ci.get_mp()->get_mg()->get_nzone() ) ; 
+    Tbl resu( ci.get_mp().get_mg()->get_nzone() ) ; 
     
     if (ci.get_etat() == ETATZERO) {
 	resu.annule_hard() ; 
@@ -493,7 +497,7 @@ Tbl diffrel(const Scalar& c1, const Scalar& c2) {
     assert(c1.get_etat() != ETATNONDEF) ;
     assert(c2.get_etat() != ETATNONDEF) ;
 
-    int nz = c1.get_mp()->get_mg()->get_nzone() ;
+    int nz = c1.get_mp().get_mg()->get_nzone() ;
     Tbl resu(nz) ; 
     
     Scalar diff = c1 - c2 ;     // la compatibilite dzpuis est testee a ce niveau
@@ -528,7 +532,7 @@ Tbl diffrelmax(const Scalar& c1, const Scalar& c2) {
     assert(c1.get_etat() != ETATNONDEF) ;
     assert(c2.get_etat() != ETATNONDEF) ;
     
-    int nz = c1.get_mp()->get_mg()->get_nzone() ;
+    int nz = c1.get_mp().get_mg()->get_nzone() ;
     Tbl resu(nz) ; 
     
     Tbl max2 = max(abs(c2)) ;

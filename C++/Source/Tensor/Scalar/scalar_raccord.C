@@ -27,6 +27,10 @@ char scalar_raccord_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/01 13:04:44  e_gourgoulhon
+ * The method Tensor::get_mp() returns now a reference (and not
+ * a pointer) onto a mapping.
+ *
  * Revision 1.1  2003/09/25 08:58:10  e_gourgoulhon
  * First version.
  *
@@ -55,7 +59,7 @@ void Scalar::raccord (int aux) {
     assert (aux >=0) ;
     int cont = aux+1 ;
     
-    const Map_af* mapping = dynamic_cast<const Map_af*>(get_mp() ) ; 
+    const Map_af* mapping = dynamic_cast<const Map_af*>( mp ) ; 
 
     if (mapping == 0x0) {
 	cout << 

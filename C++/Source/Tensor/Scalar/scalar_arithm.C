@@ -31,6 +31,10 @@ char scalar_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/01 13:04:44  e_gourgoulhon
+ * The method Tensor::get_mp() returns now a reference (and not
+ * a pointer) onto a mapping.
+ *
  * Revision 1.1  2003/09/24 15:21:45  j_novak
  * New version
  *
@@ -297,7 +301,7 @@ Scalar operator*(const Scalar& c1, const Scalar& c2) {
     assert(c2.get_etat() == ETATQCQ) ;  // sinon...
     
     // Protection
-    assert(*(c1.get_mp()) == *(c2.get_mp())) ;
+    assert( c1.get_mp() == c2.get_mp() ) ;
     
     // Cas general
     Scalar r(c1) ;	    // Le resultat
@@ -525,7 +529,7 @@ Scalar operator/(int m, const Scalar& c2) {
 void Scalar::operator+=(const Scalar & ci) {
     
     // Protection
-    assert(mp == ci.get_mp()) ;	    // meme mapping
+    assert(mp == &(ci.get_mp()) ) ;	    // meme mapping
     if (etat == ETATNONDEF) 
 	return ;
  
@@ -573,7 +577,7 @@ void Scalar::operator+=(const Scalar & ci) {
 void Scalar::operator-=(const Scalar & ci) {
     
     // Protection
-    assert(mp == ci.get_mp()) ;	    // meme mapping
+    assert(mp == &(ci.get_mp()) ) ;	    // meme mapping
     if (etat == ETATNONDEF) 
 	return ;
  
@@ -618,7 +622,7 @@ void Scalar::operator-=(const Scalar & ci) {
 void Scalar::operator*=(const Scalar & ci) {
     
     // Protection
-    assert(mp == ci.get_mp()) ;	    // meme mapping
+    assert(mp == &(ci.get_mp()) ) ;	    // meme mapping
     if (etat == ETATNONDEF) 
 	return ;
  

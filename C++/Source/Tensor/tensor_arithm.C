@@ -35,6 +35,10 @@ char tensor_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/01 13:04:44  e_gourgoulhon
+ * The method Tensor::get_mp() returns now a reference (and not
+ * a pointer) onto a mapping.
+ *
  * Revision 1.1  2003/09/26 14:33:53  j_novak
  * Arithmetic functions for the class Tensor
  *
@@ -64,7 +68,7 @@ Tensor operator+(const Tensor & t) {
 
 Tensor operator-(const Tensor & t) {
     
-  Tensor res(*(t.get_mp()), t.get_valence(), t.get_index_type(), 
+  Tensor res(t.get_mp(), t.get_valence(), t.get_index_type(), 
 		    t.get_triad()) ;
 
   for (int i=0 ; i<res.get_n_comp() ; i++) {
@@ -90,7 +94,7 @@ Tensor operator+(const Tensor & t1, const Tensor & t2) {
     for (int i=0 ; i<t1.get_valence() ; i++)
 	assert(t1.get_index_type(i) == t2.get_index_type(i)) ;
 
-    Tensor res(*(t1.get_mp()), t1.get_valence(), t1.get_index_type(), 
+    Tensor res(t1.get_mp(), t1.get_valence(), t1.get_index_type(), 
 			t1.get_triad()) ;
 
     for (int i=0 ; i<res.get_n_comp() ; i++) {
@@ -119,7 +123,7 @@ Tensor operator-(const Tensor & t1, const Tensor & t2) {
 
 Tensor operator*(double x, const Tensor& t) {
     
-  Tensor res(*(t.get_mp()), t.get_valence(), t.get_index_type(), 
+  Tensor res(t.get_mp(), t.get_valence(), t.get_index_type(), 
 		    t.get_triad()) ;
 
   for (int i=0 ; i<res.get_n_comp() ; i++) {
@@ -164,7 +168,7 @@ Tensor operator/ (const Tensor& t1, const Scalar& s2) {
     // Cas general
     assert(s2.get_etat() == ETATQCQ) ;  // sinon...
 
-    Tensor res(*(t1.get_mp()), t1.get_valence(), t1.get_index_type(), 
+    Tensor res(t1.get_mp(), t1.get_valence(), t1.get_index_type(), 
 		t1.get_triad()) ;
 
     for (int i=0 ; i<res.get_n_comp() ; i++) {
@@ -186,7 +190,7 @@ Tensor operator/ (const Tensor& t, double x) {
     if (x == double(1)) 
       return t ;
     else {
-	Tensor res(*(t.get_mp()), t.get_valence(), t.get_index_type(), 
+	Tensor res(t.get_mp(), t.get_valence(), t.get_index_type(), 
 		    t.get_triad()) ;
 
 	for (int i=0 ; i<res.get_n_comp() ; i++) {

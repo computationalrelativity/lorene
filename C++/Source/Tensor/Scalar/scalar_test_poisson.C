@@ -35,6 +35,10 @@ char scalar_test_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/01 13:04:44  e_gourgoulhon
+ * The method Tensor::get_mp() returns now a reference (and not
+ * a pointer) onto a mapping.
+ *
  * Revision 1.1  2003/09/25 09:13:11  e_gourgoulhon
  * First version.
  *
@@ -48,7 +52,7 @@ char scalar_test_poisson_C[] = "$Header$" ;
 
 Tbl Scalar::test_poisson(const Scalar& uu, ostream& ostr, bool detail) const {
     
-    assert( uu.get_mp() == mp ) ; 
+    assert( &(uu.get_mp()) == mp ) ; 
     
     // Computation of the absolute and relative errors
     // -----------------------------------------------

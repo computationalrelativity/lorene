@@ -34,6 +34,10 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/01 13:04:44  e_gourgoulhon
+ * The method Tensor::get_mp() returns now a reference (and not
+ * a pointer) onto a mapping.
+ *
  * Revision 1.5  2003/09/29 12:52:58  j_novak
  * Methods for changing the triad are implemented.
  *
@@ -74,14 +78,6 @@ char scalar_C[] = "$Header$" ;
 
 Scalar::Scalar(const Map& mpi) : Tensor(mpi), etat(ETATNONDEF), dzpuis(0), 
 				 va(mpi.get_mg()) {
-
-	cmp[0] = this ; 
-    set_der_0x0() ;
-
-}
-
-Scalar::Scalar(const Map* mpi) : Tensor(*mpi), etat(ETATNONDEF), dzpuis(0),
-				 va(mpi->get_mg()) {
 
 	cmp[0] = this ; 
     set_der_0x0() ;

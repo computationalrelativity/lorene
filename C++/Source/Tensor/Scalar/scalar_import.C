@@ -31,6 +31,10 @@ char scalar_import_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/01 13:04:44  e_gourgoulhon
+ * The method Tensor::get_mp() returns now a reference (and not
+ * a pointer) onto a mapping.
+ *
  * Revision 1.1  2003/09/25 09:07:05  j_novak
  * Added the functions for importing from another mapping (to be tested).
  *
@@ -65,7 +69,7 @@ void Scalar::import(const Scalar& ci) {
 
 void Scalar::import(int nzet, const Scalar& cm_d) {
     
-    const Map* mp_d = cm_d.get_mp() ; // Departure mapping
+    const Map* mp_d = &(cm_d.get_mp()) ; // Departure mapping
 
     // Trivial case : mappings identical !
     // -----------------------------------
@@ -116,7 +120,7 @@ void Scalar::import(int nzet, const Scalar& cm_d) {
 
 void Scalar::import_gal(int nzet, const Scalar& cm_d) {
     
-    const Map* mp_d = cm_d.get_mp() ; // Departure mapping
+    const Map* mp_d = &(cm_d.get_mp()) ; // Departure mapping
 
     // Trivial case : mappings identical !
     // -----------------------------------
@@ -323,7 +327,7 @@ void Scalar::import_anti(int nzet, const Scalar& cm_d) {
 	return ; 
     }
 
-    const Map* mp_d = cm_d.get_mp() ; // Departure mapping
+    const Map* mp_d = &(cm_d.get_mp()) ; // Departure mapping
 
     // Protections
     // -----------
@@ -515,7 +519,7 @@ void Scalar::import_align(int nzet, const Scalar& cm_d) {
 	return ; 
     }
 
-    const Map* mp_d = cm_d.get_mp() ; // Departure mapping
+    const Map* mp_d = &(cm_d.get_mp()) ; // Departure mapping
 
     // Protections
     // -----------
