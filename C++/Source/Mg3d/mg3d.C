@@ -31,6 +31,9 @@ char mg3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2001/12/11 06:48:30  e_gourgoulhon
+ * Addition of the simplified constructor
+ *
  * Revision 1.2  2001/12/04 21:27:54  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -77,13 +80,14 @@ char mg3d_C[] = "$Header$" ;
  */
 
 
-// Fichiers include
-// ----------------
-#include <stdlib.h>
-#include <math.h>
+// C++ Headers
 #include <iostream.h>
+
+// C Headers
+#include <stdlib.h>
 #include <assert.h>
 
+// Lorene headers
 #include "grilles.h"
 #include "type_parite.h"
 #include "utilitaires.h"
@@ -94,25 +98,10 @@ char mg3d_C[] = "$Header$" ;
 
 
 //=============================================================================
-//    Standard constructor
+//    General constructor
 //=============================================================================
 
 
-/**
- * Constructor of class Mg3d.
- *
- * @param   nz	    number of zones
- * @param   nbr	    array of NDF in $r$-direction
- * @param   typr    array of type of sampling in $r$-direction
- * @param   nbt	    array of NDF in $\theta$-direction
- * @param   typt    type of sampling in $\theta$-direction
- * @param   nbp	    array of NDF in $\phi$-direction
- * @param   typp    type of sampling in $\phi$-direction
- * @return  void
- * @see	    Other classes of grid
- * @version #$Id$#
- * @author {\input auteur.txt }
- */
 Mg3d::Mg3d(int nz,
     int nbr[], int typr[], int nbt[], int typt, int nbp[], int typp)
     : nzone(nz), type_t(typt), type_p(typp)
@@ -284,6 +273,186 @@ Mg3d::Mg3d(int nz,
 
 
 }
+
+//=============================================================================
+//    Simplified constructor
+//=============================================================================
+
+Mg3d::Mg3d(int nz, int nbr, int nbt, int nbp, int typt, int typp)
+    		: nzone(nz),
+    		  type_t(typt),
+    		  type_p(typp)   {
+
+    // Type d'echantillonnage dans chaque zone
+    type_r = new int[nz];
+    	type_r[0] = RARE ;
+	for (int l=1; l<nz-1; l++) {
+		type_r[l] = FIN ;
+	}
+	type_r[nz-1] = UNSURR ;
+	
+
+    // Nombre de points
+    nr = new int[nz];
+    nt = new int[nz];
+    np = new int[nz];
+    for (int l=0 ; l<nz ; l++) {
+	nr[l] = nbr ;
+	nt[l] = nbt ;
+	np[l] = nbp ;
+    }
+
+    // Les grilles
+    // -----------
+    g = new (Grille3d* [nz]) ;
+
+    for (int i=0; i<nz; i++) {
+
+    //... Echantillonnage selon le type demande:
+    switch (type_p) {
+//----------------------------------------------------------------------------
+	case NONSYM :    // echantillonnage en phi sur [0, 2 pi[
+//----------------------------------------------------------------------------
+	    switch (type_t) {
+		case SYM :    // echantillonnage en theta sur [0,pi/2]
+		    switch (type_r[i]) {
+			case FIN :    // echantillonnage fin
+			    g[i] = new
+			     Grille3d_feq(nr[i], nt[i], np[i]) ;
+			    break ;
+			case RARE :    // echantillonnage rarefie
+			    g[i] = new
+			     Grille3d_req(nr[i], nt[i], np[i]) ;
+			    break ;
+			case UNSURR :    // echantillonnage fin en 1/r
+			    g[i] = new
+			     Grille3d_ieq(nr[i], nt[i], np[i]) ;
+			    break ;
+
+			default :
+			cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
+			     << " , type_t = " << type_t
+			     << " et type_r = " << type_r[i] << endl ;
+			cout << "n'est pas prevu !" << endl ;
+			abort() ;
+			
+		    }	// fin des differents types d'echantillonnage en r
+		    break ;  // fin du cas type_t = SYM et type_p = NONSYM
+
+		case NONSYM :    // echantillonnage en theta sur [0,pi]
+		    switch (type_r[i]) {
+			case FIN :    // echantillonnage fin
+			    g[i] = new
+			     Grille3d_f(nr[i], nt[i], np[i]) ;
+			    break ;
+			case RARE :    // echantillonnage rarefie
+			    g[i] = new
+			     Grille3d_r(nr[i], nt[i], np[i]) ;
+			    break ;
+			case UNSURR :    // echantillonnage fin en 1/r
+			    g[i] = new
+			     Grille3d_i(nr[i], nt[i], np[i]) ;
+			    break ;
+
+			default :
+			cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
+			     << " , type_t = " << type_t
+			     << " et type_r = " << type_r[i] << endl ;
+			cout << "n'est pas prevu !" << endl ;
+			abort() ;
+			
+		    }	// fin des differents types d'echantillonnage en r
+		    break ;  // fin du cas type_t = NONSYM et type_p = NONSYM
+
+		default :
+		    cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
+			 << " et type_t = " << type_t <<
+			    " n'est pas prevu !" << endl ;
+		    abort() ;
+		
+	    }  // fin des differents types d'echantillonnage en theta
+	    break ;	// fin du cas type_p = NONSYM
+
+//----------------------------------------------------------------------------
+	case SYM :    // echantillonnage en phi sur [0,pi[
+//----------------------------------------------------------------------------
+	    switch (type_t) {
+		case SYM :    // echantillonnage en theta sur [0,pi/2]
+		    switch (type_r[i]) {
+			case FIN :    // echantillonnage fin
+			    g[i] = new
+			     Grille3d_fs(nr[i], nt[i], np[i]) ;
+			    break ;
+			case RARE :    // echantillonnage rarefie
+			    g[i] = new
+			     Grille3d_rs(nr[i], nt[i], np[i]) ;
+			    break ;
+			case UNSURR :    // echantillonnage fin en 1/r
+			    g[i] = new
+			     Grille3d_is(nr[i], nt[i], np[i]) ;
+			    break ;
+
+			default :
+			cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
+			     << " , type_t = " << type_t
+			     << " et type_r = " << type_r[i] << endl ;
+			cout << "n'est pas prevu !" << endl ;
+			abort() ;
+			
+		    }	// fin des differents types d'echantillonnage en r
+		    break ;  // fin du cas type_t = SYM et type_p = SYM
+
+		case NONSYM :    // echantillonnage en theta sur [0,pi/2]
+		    switch (type_r[i]) {
+			case FIN :    // echantillonnage fin
+			    g[i] = new
+			     Grille3d_f2p(nr[i], nt[i], np[i]) ;
+			    break ;
+			case RARE :    // echantillonnage rarefie
+			    g[i] = new
+			     Grille3d_r2p(nr[i], nt[i], np[i]) ;
+			    break ;
+			case UNSURR :    // echantillonnage fin en 1/r
+			    g[i] = new
+			     Grille3d_i2p(nr[i], nt[i], np[i]) ;
+			    break ;
+
+			default :
+			cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
+			     << " , type_t = " << type_t
+			     << " et type_r = " << type_r[i] << endl ;
+			cout << "n'est pas prevu !" << endl ;
+			abort() ;
+			
+		    }	// fin des differents types d'echantillonnage en r
+		    break ;  // fin du cas type_t = NONSYM et type_p = SYM
+
+		default :
+		    cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
+			 << " et type_t = " << type_t <<
+			    " n'est pas prevu !" << endl ;
+		    abort() ;
+		
+	    }  // fin des differents types d'echantillonnage en theta
+	    break ;	// fin du cas type_p = SYM
+
+//----------------------------------------------------------------------------
+	default :
+//----------------------------------------------------------------------------
+	    cout << "Mg3d::Mg3d : Le cas type_p = " << type_p
+		 << " n'est pas prevu !" << endl ;
+	    abort() ;
+    }	// fin des differents types d'echantillonnage en phi
+}   // fin de la boucle sur les zones
+
+    // Pointers on derived grids initiated to 0x0:
+    // -------------------------------------------
+
+    set_deriv_0x0() ;
+	
+}
+
+
 
 //=============================================================================
 //    Constructor from a file
