@@ -32,6 +32,9 @@ char metrique_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/08/07 16:14:11  j_novak
+ * class Tenseur can now also handle tensor densities, this should be transparent to older codes
+ *
  * Revision 1.3  2002/08/02 15:07:41  j_novak
  * Member function determinant has been added to the class Metrique.
  * A better handling of spectral bases is now implemented for the class Tenseur.
@@ -119,7 +122,7 @@ Metrique::Metrique (const Metrique& source) : mp(source.mp) {
 	p_ricci_scal = 0x0 ;
     
     if (source.p_determinant != 0x0)
-	p_determinant = new Cmp(*source.p_determinant) ;
+	p_determinant = new Tenseur(*source.p_determinant) ;
     else
 	p_determinant = 0x0 ;
     
@@ -313,7 +316,7 @@ void Metrique::operator= (const Metrique& source) {
 	if (source.p_ricci_scal != 0x0)
 	    p_ricci_scal = new Tenseur(*source.p_ricci_scal) ;
 	if (source.p_determinant != 0x0)
-	    p_determinant = new Cmp(*source.p_determinant) ;
+	    p_determinant = new Tenseur(*source.p_determinant) ;
 	etat = ETATQCQ ;
     }
 }
@@ -581,14 +584,14 @@ void Metrique::fait_determinant() const {
   
   else {
     
-    p_determinant = new Cmp(*mp) ;	   
+    p_determinant = new Tenseur(*mp, this, 2) ;	   
     if (etat == ETATZERO)
       p_determinant->set_etat_zero() ;
     else {
       
       p_determinant->set_etat_qcq() ;
       
-      *p_determinant = cov()(0, 0)*cov()(1, 1)*cov()(2, 2) 
+      p_determinant->set() = cov()(0, 0)*cov()(1, 1)*cov()(2, 2) 
 	+ cov()(0, 1)*cov()(1, 2)*cov()(2, 0)
 	+ cov()(0, 2)*cov()(1, 0)*cov()(2, 1) 
 	- cov()(2, 0)*cov()(1, 1)*cov()(0, 2)
@@ -606,7 +609,8 @@ Tenseur_sym fait_inverse (const Tenseur_sym& s) {
     assert (s.get_type_indice(0) == s.get_type_indice(1)) ;
   
     //Le resultat :
-    Tenseur_sym res (*s.get_mp(), 2, -s.get_type_indice(0), *(s.get_triad()) ) ;
+    Tenseur_sym res (*s.get_mp(), 2, -s.get_type_indice(0), *(s.get_triad()),
+		     s.get_metric(), -s.get_poids() ) ;
     res.set_etat_qcq() ;
     
     // le determinant :
@@ -702,7 +706,7 @@ const Tenseur& Metrique::ricci_scal() const{
     return *p_ricci_scal ;
 }
 
-const Cmp& Metrique::determinant() const{
+const Tenseur& Metrique::determinant() const{
     if (p_determinant == 0x0)
 	fait_determinant() ;
     return *p_determinant ;

@@ -34,8 +34,11 @@ char tenseur_pde_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/08/07 16:14:11  j_novak
+ * class Tenseur can now also handle tensor densities, this should be transparent to older codes
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.1  2001/01/15  11:01:34  phil
  * vire version sans parametres
@@ -93,11 +96,11 @@ void Tenseur::poisson_vect_regu(int k_div, int nzet, double unsgam1,
     for (int i=0 ; i<3 ; i++)
 	assert ((*this)(i).check_dzpuis(4)) ;
 
-    Tenseur vecteur_regu(*mp, 1, CON, mp->get_bvect_cart()) ;
-    Tenseur vecteur_div(*mp, 1, CON, mp->get_bvect_cart()) ;
-    Tenseur dvect_div(*mp, 1, CON, mp->get_bvect_cart()) ;
-    Tenseur souvect_regu(*mp, 1, CON, mp->get_bvect_cart()) ;
-    Tenseur souvect_div(*mp, 1, CON, mp->get_bvect_cart()) ;
+    Tenseur vecteur_regu(*mp, 1, CON, mp->get_bvect_cart(), metric, poids) ;
+    Tenseur vecteur_div(*mp, 1, CON, mp->get_bvect_cart(), metric, poids) ;
+    Tenseur dvect_div(*mp, 1, CON, mp->get_bvect_cart(), metric, poids) ;
+    Tenseur souvect_regu(*mp, 1, CON, mp->get_bvect_cart(), metric, poids) ;
+    Tenseur souvect_div(*mp, 1, CON, mp->get_bvect_cart(), metric, poids) ;
 
     vecteur_regu.set_etat_qcq() ;
     vecteur_div.set_etat_qcq() ;
@@ -136,9 +139,9 @@ void Tenseur::poisson_vect_regu(int k_div, int nzet, double unsgam1,
 
     par = mp->donne_para_poisson_vect(para, 3) ; 
 
-    Tenseur scalaire_regu(*mp) ;
-    Tenseur scalaire_div(*mp) ;
-    Tenseur dscal_div(*mp, 1, CON, mp->get_bvect_cart()) ;
+    Tenseur scalaire_regu(*mp, metric, poids) ;
+    Tenseur scalaire_div(*mp, metric, poids) ;
+    Tenseur dscal_div(*mp, 1, CON, mp->get_bvect_cart(), metric, poids) ;
     Cmp souscal_regu(mp) ;
     Cmp souscal_div(mp) ;
 

@@ -36,8 +36,11 @@ char tenseur_math_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/08/07 16:14:11  j_novak
+ * class Tenseur can now also handle tensor densities, this should be transparent to older codes
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.1  2001/06/18  13:56:25  novak
  * Ajout de la fonction abs() pour les scalaires
@@ -95,8 +98,8 @@ Tenseur sqrt(const Tenseur& t) {
     
     assert (t.get_etat() != ETATNONDEF) ;
     assert (t.get_valence() == 0) ;	// Scalaire uniquement ...
-    
-    Tenseur res( *(t.get_mp()) ) ;
+
+    Tenseur res( *(t.get_mp()), t.get_metric(), 0.5*t.get_poids() ) ;
     res.set_etat_qcq() ;
     res.set() = sqrt(t()) ;
     return res ;
@@ -111,9 +114,63 @@ Tenseur abs(const Tenseur& t) {
     assert (t.get_etat() != ETATNONDEF) ;
     assert (t.get_valence() == 0) ;	// Scalaire uniquement ...
     
-    Tenseur res( *(t.get_mp()) ) ;
+    Tenseur res( *(t.get_mp()), t.get_metric(), t.get_poids() ) ;//!?
     res.set_etat_qcq() ;
     res.set() = abs(t()) ;
+    return res ;
+}
+
+			    //--------------//
+			    // Power^double //
+			    //--------------//
+
+Tenseur pow (const Tenseur& t, double a) {
+    
+    assert (t.get_etat() != ETATNONDEF) ;
+    assert (t.get_valence() == 0) ;	// Scalaire uniquement ...
+        
+    Tenseur res( *(t.get_mp()), t.get_metric(), a*t.get_poids() ) ;
+    res.set_etat_qcq() ;
+    if (t.get_etat() == ETATZERO)
+      if (a > double(0)) {
+	res.set_etat_zero() ;
+	return res ; 
+      }
+      else {
+	cout << "pow(Tenseur, double) : ETATZERO^x with x <= 0 !" << endl ; 
+	abort() ;
+      } 
+    else {
+      assert(t.get_etat() == ETATQCQ) ;
+      res.set() = pow( t(), a ) ;
+    }
+    return res ;
+}
+
+			    //--------------//
+			    //   Power^int  //
+			    //--------------//
+
+Tenseur pow (const Tenseur& t, int n) {
+    
+    assert (t.get_etat() != ETATNONDEF) ;
+    assert (t.get_valence() == 0) ;	// Scalaire uniquement ...
+        
+    Tenseur res( *(t.get_mp()), t.get_metric(), n*t.get_poids() ) ;
+    res.set_etat_qcq() ;
+    if (t.get_etat() == ETATZERO)
+      if (n > double(0)) {
+	res.set_etat_zero() ;
+	return res ; 
+      }
+      else {
+	cout << "pow(Tenseur, int) : ETATZERO^n with n <= 0 !" << endl ; 
+	abort() ;
+      } 
+    else {
+      assert(t.get_etat() == ETATQCQ) ;
+      res.set() = pow( t(), n ) ;
+    }
     return res ;
 }
 

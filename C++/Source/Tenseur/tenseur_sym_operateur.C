@@ -26,8 +26,11 @@ char tenseur_sym_operateur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/08/07 16:14:12  j_novak
+ * class Tenseur can now also handle tensor densities, this should be transparent to older codes
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.2  2000/02/09  19:32:22  eric
  * MODIF IMPORTANTE: la triade de decomposition est desormais passee en
@@ -62,7 +65,14 @@ Tenseur_sym operator*(const Tenseur& t1, const Tenseur_sym& t2) {
     assert (t1.get_mp() == t2.mp) ;
     
     int val_res = t1.get_valence() + t2.valence ;
-    
+    double poids_res = t1.get_poids() + t2.poids ;
+    poids_res = (fabs(poids_res) < 1.e-10 ? 0. : poids_res) ;
+    const Metrique* met_res = 0x0 ;
+    if (poids_res != 0.) {
+      assert((t1.get_metric() != 0x0) || (t2.metric != 0x0)) ;
+      if (t1.get_metric() != 0x0) met_res = t1.get_metric() ;
+      else met_res = t2.metric ;
+    }
    
     Itbl tipe (val_res) ;
     tipe.set_etat_qcq() ;
@@ -76,7 +86,8 @@ Tenseur_sym operator*(const Tenseur& t1, const Tenseur_sym& t2) {
 	    assert ( *(t1.get_triad()) == *(t2.get_triad()) ) ;
     }
 
-    Tenseur_sym res(*t1.get_mp(), val_res, tipe, *(t2.get_triad()) ) ;
+    Tenseur_sym res(*t1.get_mp(), val_res, tipe, *(t2.get_triad()),
+		    met_res, poids_res) ;
 	
 
     if ((t1.get_etat() == ETATZERO) || (t2.etat == ETATZERO))
@@ -132,7 +143,8 @@ Tenseur_sym manipule(const Tenseur_sym& t1, const Metrique& met, int place) {
 	tipe.set(i) = t1.type_indice(i) ;
     tipe.set(place) *= -1 ;
     
-    Tenseur_sym res(*t1.mp, valen, tipe, *(t1.get_triad()) ) ;
+    Tenseur_sym res(*t1.mp, valen, tipe, *(t1.get_triad()), auxi.get_metric(),
+		    auxi.get_poids()) ;
     res.set_etat_qcq() ;
     
     Itbl place_auxi(valen) ;

@@ -26,8 +26,11 @@ char tenseur_operateur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/08/07 16:14:11  j_novak
+ * class Tenseur can now also handle tensor densities, this should be transparent to older codes
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.11  2001/08/27  10:04:21  eric
  * Ajout de l'operator% (produit tensoriel avec desaliasing)
@@ -91,10 +94,18 @@ Tenseur operator*(const Tenseur& t1, const Tenseur& t2) {
     assert (t1.mp == t2.mp) ;
     
     int val_res = t1.valence + t2.valence ;
+    double poids_res = t1.poids + t2.poids ;
+    poids_res = (fabs(poids_res) < 1.e-10 ? 0. : poids_res) ;
+    const Metrique* met_res = 0x0 ;
+    if (poids_res != 0.) {
+      assert((t1.metric != 0x0) || (t2.metric != 0x0)) ;
+      if (t1.metric != 0x0) met_res = t1.metric ;
+      else met_res = t2.metric ;
+    }
     
    // cas scalaire :
     if (val_res == 0) {
-	Tenseur scal(*t1.mp) ;
+	Tenseur scal(*t1.mp, met_res, poids_res) ;
 	// cas ou un des deux est nul :
 	if ((t1.etat == ETATZERO) || (t2.etat == ETATZERO))
 	    scal.set_etat_zero() ;
@@ -127,9 +138,7 @@ Tenseur operator*(const Tenseur& t1, const Tenseur& t2) {
 	    triad_res = t2.get_triad() ; 
 	}
 
-	Tenseur res(*t1.mp, val_res, tipe, triad_res) ;
-
-
+	Tenseur res(*t1.mp, val_res, tipe, triad_res, met_res, poids_res) ;
 	
 	if ((t1.etat == ETATZERO) || (t2.etat == ETATZERO))
 	    res.set_etat_zero() ;
@@ -165,10 +174,18 @@ Tenseur operator%(const Tenseur& t1, const Tenseur& t2) {
     assert (t1.mp == t2.mp) ;
     
     int val_res = t1.valence + t2.valence ;
+    double poids_res = t1.poids + t2.poids ;
+    poids_res = (fabs(poids_res) < 1.e-10 ? 0. : poids_res) ;
+    const Metrique* met_res = 0x0 ;
+    if (poids_res != 0.) {
+      assert((t1.metric != 0x0) || (t2.metric != 0x0)) ;
+      if (t1.metric != 0x0) met_res = t1.metric ;
+      else met_res = t2.metric ;
+    }
     
    // cas scalaire :
     if (val_res == 0) {
-	Tenseur scal(*t1.mp) ;
+	Tenseur scal(*t1.mp, met_res, poids_res) ;
 	// cas ou un des deux est nul :
 	if ((t1.etat == ETATZERO) || (t2.etat == ETATZERO))
 	    scal.set_etat_zero() ;
@@ -201,7 +218,7 @@ Tenseur operator%(const Tenseur& t1, const Tenseur& t2) {
 	    triad_res = t2.get_triad() ; 
 	}
 
-	Tenseur res(*t1.mp, val_res, tipe, triad_res) ;
+	Tenseur res(*t1.mp, val_res, tipe, triad_res, met_res, poids_res) ;
 
 
 	
@@ -259,7 +276,8 @@ Tenseur contract(const Tenseur& source, int ind_1, int ind_2)  {
     for (int i = ind_2-1 ; i<val_res ; i++)
 	tipe.set(i) = source.type_indice(i+2) ;
 	
-    Tenseur res(*source.mp, val_res, tipe, source.triad) ;
+    Tenseur res(*source.mp, val_res, tipe, source.triad, source.metric, 
+		source.poids) ;
 
     // Cas particulier d'une source nulle
     if (source.etat == ETATZERO) {
@@ -314,6 +332,14 @@ Tenseur contract (const Tenseur& t1, int ind1, const Tenseur& t2, int ind2) {
     assert (t1.type_indice(ind1) != t2.type_indice(ind2)) ;
     
     int val_res = t1.valence + t2.valence - 2;
+    double poids_res = t1.poids + t2.poids ;
+    poids_res = (fabs(poids_res) < 1.e-10 ? 0. : poids_res) ;
+    const Metrique* met_res = 0x0 ;
+    if (poids_res != 0.) {
+      assert((t1.metric != 0x0) || (t2.metric != 0x0)) ;
+      if (t1.metric != 0x0) met_res = t1.metric ;
+      else met_res = t2.metric ;
+    }
     Itbl tipe(val_res) ;
     tipe.set_etat_qcq() ;
     for (int i=0 ; i<ind1 ; i++)
@@ -327,7 +353,7 @@ Tenseur contract (const Tenseur& t1, int ind1, const Tenseur& t2, int ind2) {
 	
     const Base_vect* triad_res = (val_res == 0) ? 0x0 : t1.get_triad() ; 
 
-    Tenseur res(*t1.mp, val_res, tipe, triad_res) ;
+    Tenseur res(*t1.mp, val_res, tipe, triad_res, met_res, poids_res) ;
 
     // Cas particulier ou l'un des deux tenseurs est nul
     if ( (t1.etat == ETATZERO) || (t2.etat == ETATZERO) ) {
@@ -402,7 +428,7 @@ Tenseur manipule(const Tenseur& t1, const Metrique& met, int place) {
 	tipe.set(i) = t1.type_indice(i) ;
     tipe.set(place) *= -1 ;
     
-    Tenseur res(*t1.mp, valen, tipe, t1.triad) ;
+    Tenseur res(*t1.mp, valen, tipe, t1.triad, auxi.metric, auxi.poids) ;
     res.set_etat_qcq() ;
     
     Itbl place_auxi(valen) ;
@@ -458,7 +484,8 @@ Tenseur skxk(const Tenseur& source) {
 	tipe.set(i) = source.type_indice(i) ;
     
     
-    Tenseur res (*source.mp, val_res, tipe, source.triad) ;
+    Tenseur res (*source.mp, val_res, tipe, source.triad, source.metric,
+		 source.poids) ;
     
     if (source.etat == ETATZERO)
 	res.set_etat_zero() ;
@@ -527,6 +554,14 @@ Tenseur flat_scalar_prod(const Tenseur& t1, const Tenseur& t2) {
     }
     
     int val_res = t1.valence + t2.valence - 2;
+    double poids_res = t1.poids + t2.poids ;
+    poids_res = (fabs(poids_res) < 1.e-10 ? 0. : poids_res) ;
+    const Metrique* met_res = 0x0 ;
+    if (poids_res != 0.) {
+      assert((t1.metric != 0x0) || (t2.metric != 0x0)) ;
+      if (t1.metric != 0x0) met_res = t1.metric ;
+      else met_res = t2.metric ;
+    }
     Itbl tipe(val_res) ;
     tipe.set_etat_qcq() ;
 
@@ -535,7 +570,7 @@ Tenseur flat_scalar_prod(const Tenseur& t1, const Tenseur& t2) {
     for (int i = t1.valence-1 ; i<val_res ; i++)
 	tipe.set(i) = t2.type_indice(i-t1.valence+2) ;
 	
-    Tenseur res(*t1.mp, val_res, tipe, t1.triad) ;
+    Tenseur res(*t1.mp, val_res, tipe, t1.triad, met_res, poids_res) ;
 
     // Cas particulier ou l'un des deux tenseurs est nul
     if ( (t1.etat == ETATZERO) || (t2.etat == ETATZERO) ) {
@@ -601,6 +636,14 @@ Tenseur flat_scalar_prod_desal(const Tenseur& t1, const Tenseur& t2) {
     }
     
     int val_res = t1.valence + t2.valence - 2;
+    double poids_res = t1.poids + t2.poids ;
+    poids_res = (fabs(poids_res) < 1.e-10 ? 0. : poids_res) ;
+    const Metrique* met_res = 0x0 ;
+    if (poids_res != 0.) {
+      assert((t1.metric != 0x0) || (t2.metric != 0x0)) ;
+      if (t1.metric != 0x0) met_res = t1.metric ;
+      else met_res = t2.metric ;
+    }
     Itbl tipe(val_res) ;
     tipe.set_etat_qcq() ;
 
@@ -609,7 +652,7 @@ Tenseur flat_scalar_prod_desal(const Tenseur& t1, const Tenseur& t2) {
     for (int i = t1.valence-1 ; i<val_res ; i++)
 	tipe.set(i) = t2.type_indice(i-t1.valence+2) ;
 	
-    Tenseur res(*t1.mp, val_res, tipe, t1.triad) ;
+    Tenseur res(*t1.mp, val_res, tipe, t1.triad, met_res, poids_res) ;
 
     // Cas particulier ou l'un des deux tenseurs est nul
     if ( (t1.etat == ETATZERO) || (t2.etat == ETATZERO) ) {

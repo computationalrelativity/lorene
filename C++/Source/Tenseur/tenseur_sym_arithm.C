@@ -35,8 +35,11 @@ char tenseur_sym_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/08/07 16:14:11  j_novak
+ * class Tenseur can now also handle tensor densities, this should be transparent to older codes
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.3  2000/02/09  19:30:36  eric
  * MODIF IMPORTANTE: la triade de decomposition est desormais passee en
@@ -87,7 +90,7 @@ Tenseur_sym operator-(const Tenseur_sym & t) {
 	return t ;
     else { 
 	Tenseur_sym res(*(t.get_mp()), t.get_valence(), t.get_type_indice(), 
-			*(t.get_triad()) ) ; 
+			*(t.get_triad()), t.get_metric(), t.get_poids() ) ; 
 
 	res.set_etat_qcq();
 	for (int i=0 ; i<t.get_n_comp() ; i++) {
@@ -114,6 +117,8 @@ Tenseur_sym operator+(const Tenseur_sym & t1, const Tenseur_sym & t2) {
     
     for (int i=0 ; i<t1.get_valence() ; i++)
 	assert(t1.get_type_indice(i) == t2.get_type_indice(i)) ;
+    assert (t1.get_metric() == t2.get_metric()) ;
+    assert (fabs(t1.get_poids() - t2.get_poids())<1.e-10) ;
    
     if (t1.get_etat() == ETATZERO)
 	return t2 ;
@@ -121,7 +126,8 @@ Tenseur_sym operator+(const Tenseur_sym & t1, const Tenseur_sym & t2) {
 	    return t1 ;
 	 else {
 	    Tenseur_sym res(*(t1.get_mp()), t1.get_valence(), 
-			    t1.get_type_indice(), *(t1.get_triad()) ) ; 
+			    t1.get_type_indice(), *(t1.get_triad()), 
+			    t1.get_metric(), t1.get_poids() ) ; 
 
 	    res.set_etat_qcq() ;
 	    for (int i=0 ; i<res.get_n_comp() ; i++) {
@@ -157,7 +163,7 @@ Tenseur_sym operator*(double x, const Tenseur_sym& t) {
 	return t ;
     else {
 	Tenseur_sym res(*(t.get_mp()), t.get_valence(), t.get_type_indice(), 
-			*(t.get_triad()) ) ; 
+			*(t.get_triad()), t.get_metric(), t.get_poids() ) ; 
 
 	if ( x == double(0) )
 	    res.set_etat_zero() ;
@@ -200,6 +206,14 @@ Tenseur_sym operator/ (const Tenseur_sym& t1, const Tenseur& t2) {
     assert(t2.get_valence() == 0) ; // t2 doit etre un scalaire !
     assert(t1.get_mp() == t2.get_mp()) ;
 
+    double poids_res = t1.get_poids() - t2.get_poids() ;
+    poids_res = (fabs(poids_res) < 1.e-10 ? 0. : poids_res) ;
+    const Metrique* met_res = 0x0 ;
+    if (poids_res != 0.) {
+      assert((t1.get_metric() != 0x0) || (t2.get_metric() != 0x0)) ;
+      if (t1.get_metric() != 0x0) met_res = t1.get_metric() ;
+      else met_res = t2.get_metric() ;
+    }
     
     // Cas particuliers
     if (t2.get_etat() == ETATZERO) {
@@ -207,7 +221,10 @@ Tenseur_sym operator/ (const Tenseur_sym& t1, const Tenseur& t2) {
 	abort() ; 
     }
     if (t1.get_etat() == ETATZERO) {
-    	return t1 ;
+        Tenseur_sym resu(t1) ;
+	resu.set_poids(poids_res) ;
+	resu.set_metric(*met_res) ;
+    	return resu ;
     }
 
     // Cas general
@@ -216,7 +233,7 @@ Tenseur_sym operator/ (const Tenseur_sym& t1, const Tenseur& t2) {
     assert(t2.get_etat() == ETATQCQ) ;  // sinon...
 
     Tenseur_sym res(*(t1.get_mp()), t1.get_valence(), t1.get_type_indice(), 
-		    *(t1.get_triad()) ) ; 
+		    *(t1.get_triad()), met_res, poids_res ) ; 
 
     res.set_etat_qcq() ;
     for (int i=0 ; i<res.get_n_comp() ; i++) {
@@ -241,7 +258,7 @@ Tenseur_sym operator/ (const Tenseur_sym& t, double x) {
 	return t ;
     else {
 	Tenseur_sym res(*(t.get_mp()), t.get_valence(), t.get_type_indice(), 
-			*(t.get_triad()) ) ; 
+			*(t.get_triad()), t.get_metric(), t.get_poids() ) ; 
 
 	res.set_etat_qcq() ;
 	for (int i=0 ; i<res.get_n_comp() ; i++) {

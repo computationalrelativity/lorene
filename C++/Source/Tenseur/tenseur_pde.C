@@ -26,6 +26,9 @@ char tenseur_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/08/07 16:14:11  j_novak
+ * class Tenseur can now also handle tensor densities, this should be transparent to older codes
+ *
  * Revision 1.2  2002/07/09 16:46:23  p_grandclement
  * The Param in the case of an affine mapping is now 0x0 and not deleted
  * (I wonder why it was working before)
@@ -187,7 +190,7 @@ Tenseur Tenseur::poisson_vect(double lambda, Tenseur& vecteur,
 				    Tenseur& scalaire) const {
       
     Param bidon ;
-    Tenseur resu(*mp, valence, type_indice, triad) ;
+    Tenseur resu(*mp, valence, type_indice, triad, metric, poids) ;
     resu.set_etat_qcq() ;
     poisson_vect(lambda, bidon, resu, vecteur, scalaire) ;
     return resu ;
@@ -274,7 +277,7 @@ void Tenseur::poisson_vect_oohara(double lambda, Param& para, Tenseur& shift,
 Tenseur Tenseur::poisson_vect_oohara(double lambda, Tenseur& scalaire) const {
       
     Param bidon ;
-    Tenseur resu(*mp, valence, type_indice, triad) ;
+    Tenseur resu(*mp, valence, type_indice, triad, metric, poids) ;
     resu.set_etat_qcq() ;
     poisson_vect_oohara(lambda, bidon, resu, scalaire) ;
     return resu ;

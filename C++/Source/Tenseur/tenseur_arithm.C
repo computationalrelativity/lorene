@@ -34,8 +34,11 @@ char tenseur_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/08/07 16:14:11  j_novak
+ * class Tenseur can now also handle tensor densities, this should be transparent to older codes
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.5  2000/02/09  19:30:22  eric
  * MODIF IMPORTANTE: la triade de decomposition est desormais passee en
@@ -93,7 +96,7 @@ Tenseur operator-(const Tenseur & t) {
 	return t ;
     else { 
 	Tenseur res(*(t.get_mp()), t.get_valence(), t.get_type_indice(), 
-		    t.get_triad()) ;
+		    t.get_triad(), t.get_metric(), t.get_poids()) ;
 
 
 	res.set_etat_qcq();
@@ -121,14 +124,16 @@ Tenseur operator+(const Tenseur & t1, const Tenseur & t2) {
     
     for (int i=0 ; i<t1.get_valence() ; i++)
 	assert(t1.get_type_indice(i) == t2.get_type_indice(i)) ;
-    
+    assert (t1.get_metric() == t2.get_metric()) ;
+    assert (fabs(t1.get_poids() - t2.get_poids())<1.e-10) ;
+
     if (t1.get_etat() == ETATZERO)
 	return t2 ;
     else if (t2.get_etat() == ETATZERO)
 	    return t1 ;
 	 else {
 	    Tenseur res(*(t1.get_mp()), t1.get_valence(), t1.get_type_indice(), 
-			t1.get_triad() ) ;
+			t1.get_triad(), t1.get_metric(), t1.get_poids() ) ;
 
 	    res.set_etat_qcq() ;
 	    for (int i=0 ; i<res.get_n_comp() ; i++) {
@@ -149,7 +154,7 @@ Tenseur operator+(const Tenseur & t1, double x) {
 	return t1 ;
     }
     
-    Tenseur res( *(t1.get_mp()) ) ;
+    Tenseur res( *(t1.get_mp()), t1.get_metric(), t1.get_poids() ) ;
 
     res.set_etat_qcq() ;
 
@@ -201,7 +206,7 @@ Tenseur operator-(const Tenseur & t1, double x) {
 	return t1 ;
     }
     
-    Tenseur res( *(t1.get_mp()) ) ;
+    Tenseur res( *(t1.get_mp()), t1.get_metric(), t1.get_poids() ) ;
 
     res.set_etat_qcq() ;
 
@@ -247,7 +252,7 @@ Tenseur operator*(double x, const Tenseur& t) {
 	return t ;
     else {
 	Tenseur res(*(t.get_mp()), t.get_valence(), t.get_type_indice(), 
-		    t.get_triad()) ;
+		    t.get_triad(), t.get_metric(), t.get_poids() ) ;
 
 	if ( x == double(0) )
 	    res.set_etat_zero() ;
@@ -289,14 +294,24 @@ Tenseur operator/ (const Tenseur& t1, const Tenseur& t2) {
     assert(t2.get_valence() == 0) ; // t2 doit etre un scalaire !
     assert(t1.get_mp() == t2.get_mp()) ;
 
-    
+    double poids_res = t1.get_poids() - t2.get_poids() ;
+    poids_res = (fabs(poids_res) < 1.e-10 ? 0. : poids_res) ;
+    const Metrique* met_res = 0x0 ;
+    if (poids_res != 0.) {
+      assert((t1.get_metric() != 0x0) || (t2.get_metric() != 0x0)) ;
+      if (t1.get_metric() != 0x0) met_res = t1.get_metric() ;
+      else met_res = t2.get_metric() ;
+    }
     // Cas particuliers
     if (t2.get_etat() == ETATZERO) {
 	cout << "Division by 0 in Tenseur / Tenseur !" << endl ;
 	abort() ; 
     }
     if (t1.get_etat() == ETATZERO) {
-    	return t1 ;
+        Tenseur resu(t1) ;
+	resu.set_poids(poids_res) ;
+	resu.set_metric(*met_res) ;
+    	return resu ;
     }
 
     // Cas general
@@ -305,7 +320,7 @@ Tenseur operator/ (const Tenseur& t1, const Tenseur& t2) {
     assert(t2.get_etat() == ETATQCQ) ;  // sinon...
 
     Tenseur res(*(t1.get_mp()), t1.get_valence(), t1.get_type_indice(), 
-		t1.get_triad()) ;
+		t1.get_triad(), met_res, poids_res) ;
 
     res.set_etat_qcq() ;
     for (int i=0 ; i<res.get_n_comp() ; i++) {
@@ -330,7 +345,7 @@ Tenseur operator/ (const Tenseur& t, double x) {
 	return t ;
     else {
 	Tenseur res(*(t.get_mp()), t.get_valence(), t.get_type_indice(), 
-		    t.get_triad()) ;
+		    t.get_triad(), t.get_metric(), t.get_poids()) ;
 
 	res.set_etat_qcq() ;
 	for (int i=0 ; i<res.get_n_comp() ; i++) {
@@ -355,7 +370,7 @@ Tenseur operator/ (double x, const Tenseur& t) {
     assert (t.get_etat() == ETATQCQ) ;
     assert(t.get_valence() == 0) ;	// Utilisable que sur scalaire !
     
-    Tenseur res( *(t.get_mp()) ) ;
+    Tenseur res( *(t.get_mp()), t.get_metric(), -t.get_poids() ) ;
     res.set_etat_qcq() ;
     res.set() = x / t() ;	// double / Cmp
     return res ;

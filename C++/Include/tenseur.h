@@ -7,6 +7,7 @@
 /*
  *   Copyright (c) 1999-2001 Philippe Grandclement
  *   Copyright (c) 2000-2001 Eric Gourgoulhon
+ *   Copyright (c) 2002 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -34,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/08/07 16:14:11  j_novak
+ * class Tenseur can now also handle tensor densities, this should be transparent to older codes
+ *
  * Revision 1.2  2002/06/17 14:05:17  j_novak
  * friend functions are now also declared outside the class definition
  *
@@ -225,9 +229,14 @@ class Tenseur_sym ;
  * Tensor handling.
  * 
  * This class is intended to store the components of a tensorial field in 
- * a specific basis. 
+ * a specific basis. {\em Tensor densities} can also be stored. A tensor
+ * density $\tau^{i_1\ldots i_p}_{j_1\ldots j_q}$ is defined by:
+ * $ \tau^{i_1\ldots i_p}_{j_1\ldots j_q} = \gamma^{\frac{n}{2}} 
+ * T^{i_1\ldots i_p}_{j_1\ldots j_q}$ where {\it T} is a {\it q}-covariant
+ * {\it p}-contravariant tensor and $\gamma$ is the determinant of the 
+ * used 3-metric. {\it n} is called the weight of the tensor density.
  * 
- * All this is $3D$ meaning that the indices go from $0$ to $2$.
+ * All this is {\it 3D} meaning that the indices go from 0 to 2.
  * 
  * When first constructed, the memory for each component is not allocated.
  * 
@@ -239,7 +248,7 @@ class Tenseur {
     // -----
     protected:
 	const Map* const mp ;	/// Reference mapping
-	int valence ;		/// Valence	
+	int valence ;		/// Valence
 	
 	/** Vectorial basis (triad) with respect to which the tensor
 	 *  components are defined. 
@@ -255,6 +264,9 @@ class Tenseur {
 	int n_comp ;	/// Number of components, depending on the symmetry.
 	int etat ;  /// Logical state {\tt (ETATZERO, ETATQCQ or ETATNONDEF)}
 	Cmp** c ;   /// The components.
+	double poids ; /// For tensor densities: the weight
+	/// For tensor densities: the metric defining the conformal factor
+	const Metrique* metric ;      
 	
     // Derived data : 
     // ------------
@@ -302,13 +314,17 @@ class Tenseur {
    
     // Constructors - Destructor :
     // -------------------------
-	
-    public:
+    protected:
+	/// Returns false for a tensor density without a defined {\tt metric} 
+	bool verif() const ; 
 		
-	explicit Tenseur (const Map& map) ; /// Constructor for a scalar field. 
+    public:
+	explicit Tenseur (const Map& map, const Metrique* met = 0x0, 
+		     double weight = 0) ; /// Constructor for a scalar field. 
 
 	/// Constructor for a scalar field and from a {\tt Cmp}. 
-	explicit Tenseur (const Cmp& cmp) ; 
+	explicit Tenseur (const Cmp& cmp, const Metrique* met = 0x0, 
+		     double weight = 0) ; 
 
 	/** Standard constructor.
 	 * 
@@ -323,9 +339,13 @@ class Tenseur {
 	 *			and so on... 
 	 * @param triad_i  vectorial basis (triad) with respect to which 
 	 *		    the tensor components are defined 
+	 * @param met   for tensor densities only: a pointer on the metric
+	 *              defining the conformal factor
+	 * @param weight for tensor densities: the weight
 	 */
 	Tenseur (const Map& map, int val, const Itbl& tipe, 
-		 const Base_vect& triad_i) ;
+		 const Base_vect& triad_i, const Metrique* met = 0x0, 
+		     double weight = 0) ;
 
 	/** Standard constructor with the triad passed as a pointer.
 	 * 
@@ -341,9 +361,13 @@ class Tenseur {
 	 * @param triad_i  pointer on the vectorial basis (triad) with respect 
 	 *		    to which the tensor components are defined 
 	 *		    (can be set to 0x0 for a scalar field)
+	 * @param met   for tensor densities only: a pointer on the metric
+	 *              defining the conformal factor
+	 * @param weight for tensor densities: the weight
 	 */
 	Tenseur (const Map& map, int val, const Itbl& tipe, 
-		 const Base_vect* triad_i) ;
+		 const Base_vect* triad_i, const Metrique* met = 0x0, 
+		     double weight = 0) ;
 
 	/** Standard constructor when all the indices are of 
 	 *  the same type.
@@ -353,8 +377,13 @@ class Tenseur {
 	 * @param tipe  the type of the indices.
 	 * @param triad_i  vectorial basis (triad) with respect to which 
 	 *			  the tensor components are defined.
+	 * @param met   for tensor densities only: a pointer on the metric
+	 *              defining the conformal factor
+	 * @param weight for tensor densities: the weight
 	 */
-	Tenseur (const Map& map, int val, int tipe, const Base_vect& triad_i) ;
+	Tenseur (const Map& map, int val, int tipe, const 
+		 Base_vect& triad_i, const Metrique* met = 0x0, 
+		     double weight = 0) ;
 
 	Tenseur (const Tenseur&) ;  /// Copy constructor
 
@@ -370,8 +399,11 @@ class Tenseur {
 	 *			  saved in the file.
 	 * @param fich  file which has been created by 
 	 *			    the function {\tt sauve(FILE* )}.
+	 * @param met   for tensor densities only: a pointer on the metric
+	 *              defining the conformal factor
 	 */
-	Tenseur (const Map& map, const Base_vect& triad_i, FILE* fich) ;
+	Tenseur (const Map& map, const Base_vect& triad_i, FILE* fich, 
+		 const Metrique* met = 0x0) ;
 
 	/** Constructor from a file for a scalar field
 	 *  (see {\tt sauve(FILE* )}).
@@ -379,8 +411,10 @@ class Tenseur {
 	 * @param map  the mapping
 	 * @param fich  file which has been created by 
 	 *			    the function {\tt sauve(FILE* )}.
+	 * @param met   for tensor densities only: a pointer on the metric
+	 *              defining the conformal factor
 	 */
-	Tenseur (const Map& map, FILE* fich) ;
+	Tenseur (const Map& map, FILE* fich, const Metrique* met = 0x0) ;
 
 	
     protected:
@@ -399,9 +433,13 @@ class Tenseur {
 	 * @param n_comp  the number of components.
 	 * @param triad_i  vectorial basis (triad) with respect to which 
 	 *			  the tensor components are defined
+	 * @param met   for tensor densities only: a pointer on the metric
+	 *              defining the conformal factor
+	 * @param weight for tensor densities: the weight
 	 */	 
 	Tenseur (const Map& map, int val, const Itbl& tipe, int n_comp,
-		 const Base_vect& triad_i) ;
+		 const Base_vect& triad_i, const Metrique* met = 0x0, 
+		     double weight = 0) ;
 
 	/**
 	 * Constructor used by the derived classes when all the indices are of 
@@ -413,9 +451,13 @@ class Tenseur {
 	 * @param n_comp  the number of components.
 	 * @param triad_i  vectorial basis (triad) with respect to which 
 	 *			  the tensor components are defined
+	 * @param met   for tensor densities only: a pointer on the metric
+	 *              defining the conformal factor
+	 * @param weight for tensor densities: the weight
 	 */
 	Tenseur (const Map&, int val, int tipe, int n_comp, 
-		 const Base_vect& triad_i) ;
+		 const Base_vect& triad_i, const Metrique* met = 0x0, 
+		     double weight = 0) ;
 
 
     public: 
@@ -493,6 +535,9 @@ class Tenseur {
 	 *  {\tt change\_triad(const Base\_vect\& )} must be called instead. 
 	 */
 	void set_triad(const Base_vect& new_triad) ; 
+	void set_poids(double weight) ; ///Sets the weight for a tensor density
+	/// Sets the pointer on the metric for a tensor density
+	void set_metric(const Metrique& met) ;
     
 	/// Assignment to another {\tt Tenseur}
 	virtual void operator=(const Tenseur&) ; 
@@ -509,8 +554,8 @@ class Tenseur {
 	/// Read/write for a scalar (see also {\tt operator=(const Cmp\&)}). 
 	Cmp& set () ;  
 	Cmp& set (int) ; /// Read/write for a vector.
-	Cmp& set (int, int) ; /// Read/write for a tensor of valence $2$.
-	Cmp& set (int, int, int) ; /// Read/write for a tensor of valence $3$.
+	Cmp& set (int, int) ; /// Read/write for a tensor of valence 2.
+	Cmp& set (int, int, int) ; /// Read/write for a tensor of valence 3.
 	Cmp& set (const Itbl&) ; /// Read/write in the general case.
 	    
 	/**
@@ -540,15 +585,15 @@ class Tenseur {
 	 */
 	void set_std_base() ; 
 	
-	void dec_dzpuis() ;	/// dzpuis $-= 1$ ;
-	void inc_dzpuis() ;	/// dzpuis $+= 1$ ;
-	void dec2_dzpuis() ;	/// dzpuis $-= 2$ ;
-	void inc2_dzpuis() ;	/// dzpuis $+= 2$ ;
-	void mult_r_zec() ; /// Multiplication by $r$ in the external zone.
+	void dec_dzpuis() ;	/// dzpuis -= 1 ;
+	void inc_dzpuis() ;	/// dzpuis += 1 ;
+	void dec2_dzpuis() ;	/// dzpuis -= 2 ;
+	void inc2_dzpuis() ;	/// dzpuis += 2 ;
+	void mult_r_zec() ; /// Multiplication by {\it r} in the external zone.
 	
 	/**
 	 * Compute $\Delta + \lambda \nabla\nabla$ of {\tt *this}, {\tt *this}
-	 * being of valence $1$.
+	 * being of valence 1.
 	 */
 	Tenseur inverse_poisson_vect (double lambda) const ;
 	
@@ -614,11 +659,20 @@ class Tenseur {
 	 *  for a contravariant one.
 	 */
 	Itbl get_type_indice () const {return type_indice ; } ;
+
+	double get_poids() const {return poids ; } ; ///Returns the weight
+
+	/**
+	 * Returns a pointer on the metric defining the conformal factor 
+	 * for tensor densities. Otherwise (case of a pure tensor), it
+	 * returns 0x0.
+	 */
+	const Metrique* get_metric() const {return metric ; } ; 
 	
 	const Cmp& operator()() const ; /// Read only for a scalar.
 	const Cmp& operator()(int) const ; /// Read only for a vector.
-	const Cmp& operator()(int, int) const ; /// Read only for a tensor of valence $2$.
-	const Cmp& operator()(int, int, int) const ; /// Read only for a tensor of valence $3$.
+	const Cmp& operator()(int, int) const ; /// Read only for a tensor of valence 2.
+	const Cmp& operator()(int, int, int) const ; /// Read only for a tensor of valence 3.
 	const Cmp& operator()(const Itbl&) const ; /// Read only in the general case.
 	
     // Outputs
@@ -960,7 +1014,7 @@ Tenseur manipule(const Tenseur&, const Metrique&) ;
 	
 /**
  * Contraction of the last index of (*this) with $x^k$ or $x_k$, depending
- * on the type of $S$. 
+ * on the type of {\it S}. 
  * 
  * The calculation is performed to avoid singularities in the external 
  * zone. This is done only for a flat metric.
@@ -1033,6 +1087,8 @@ Tenseur exp(const Tenseur& ) ;		/// Exponential (for a scalar only)
 Tenseur log(const Tenseur& ) ;		/// Neperian logarithm (for a scalar only)
 Tenseur sqrt(const Tenseur& ) ;		/// Square root (for a scalar only)
 Tenseur abs(const Tenseur& ) ;		/// Absolute value (for a scalar only)
+Tenseur pow(const Tenseur&, int ) ;	/// Power (for a scalar only)
+Tenseur pow(const Tenseur&, double ) ;	/// Power (for a scalar only)
 
     //@}
 
@@ -1049,7 +1105,7 @@ Tenseur abs(const Tenseur& ) ;		/// Absolute value (for a scalar only)
  * The storage and the calculations are different and quicker than with an 
  * usual {\tt Tenseur}.
  * 
- * The valence must be $>1$.
+ * The valence must be >1.
  */
 class Tenseur_sym : public Tenseur {
 
@@ -1072,7 +1128,8 @@ class Tenseur_sym : public Tenseur {
 	 *			  the tensor components are defined
 	 */
 	Tenseur_sym (const Map& map, int val, const Itbl& tipe, 
-		     const Base_vect& triad_i) ;
+		     const Base_vect& triad_i, const Metrique* met = 0x0,
+		     double weight = 0) ;
 
 	/** Standard constructor when all the indices are of the same type.
 	 * 
@@ -1084,7 +1141,8 @@ class Tenseur_sym : public Tenseur {
 	 * 
 	 */
 	Tenseur_sym (const Map& map, int val, int tipe, 
-		     const Base_vect& triad_i) ;
+		     const Base_vect& triad_i, const Metrique* met = 0x0,
+		     double weight = 0) ;
 
 	Tenseur_sym (const Tenseur_sym&) ; /// Copy constructor
 
@@ -1103,7 +1161,8 @@ class Tenseur_sym : public Tenseur {
 	 * @param fich  file which has been created by 
 	 *			    the function {\tt sauve(FILE* )}.
 	 */
-	Tenseur_sym (const Map& map, const Base_vect& triad_i, FILE* fich) ;
+	Tenseur_sym (const Map& map, const Base_vect& triad_i, FILE* fich,
+		     const Metrique* met = 0x0) ;
 
 	virtual ~Tenseur_sym() ;    /// Destructor
 	

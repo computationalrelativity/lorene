@@ -33,8 +33,11 @@ char tenseur_sym_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/08/07 16:14:11  j_novak
+ * class Tenseur can now also handle tensor densities, this should be transparent to older codes
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.3  2001/10/10  13:55:23  eric
  * Modif Joachim: pow(3, *) --> pow(3., *)
@@ -73,8 +76,10 @@ char tenseur_sym_C[] = "$Header$" ;
 // Standard constructor 
 // --------------------
 Tenseur_sym::Tenseur_sym(const Map& map, int val, const Itbl& tipe, 
-			 const Base_vect& triad_i) 
-		: Tenseur(map, val, tipe, int(pow(3., val-2)) * 6, triad_i) {
+			 const Base_vect& triad_i, const Metrique* met, 
+			 double weight) 
+		: Tenseur(map, val, tipe, int(pow(3., val-2)) * 6, triad_i, 
+			  met, weight) {
 
 	assert (val >= 2) ;
 }
@@ -82,8 +87,10 @@ Tenseur_sym::Tenseur_sym(const Map& map, int val, const Itbl& tipe,
 // Standard constructor when all the indices are of the same type
 // --------------------------------------------------------------
 Tenseur_sym::Tenseur_sym(const Map& map, int val, int tipe, 
-			 const Base_vect& triad_i)  
-		: Tenseur(map, val, tipe, int(pow(3., val-2)) * 6, triad_i) {
+			 const Base_vect& triad_i, const Metrique* met,
+			 double weight)  
+		: Tenseur(map, val, tipe, int(pow(3., val-2)) * 6, triad_i,
+			  met, weight) {
 
 	assert (val >= 2) ;
 }
@@ -92,7 +99,8 @@ Tenseur_sym::Tenseur_sym(const Map& map, int val, int tipe,
 // ----------------
 Tenseur_sym::Tenseur_sym (const Tenseur_sym& source) : 
     Tenseur (*source.mp, source.valence, source.type_indice, 
-	     int(pow(3., source.valence-2)*6), *(source.triad)) {
+	     int(pow(3., source.valence-2)*6), *(source.triad), source.metric,
+	     source.poids) {
     
     assert (valence >= 2) ;   
     for (int i=0 ; i<n_comp ; i++) {
@@ -123,7 +131,8 @@ Tenseur_sym::Tenseur_sym (const Tenseur_sym& source) :
 // --------------------------
 Tenseur_sym::Tenseur_sym (const Tenseur& source) :
    Tenseur (*source.mp, source.valence, source.type_indice, 
-	    int(pow(3., source.valence-2)*6), *(source.triad)) {
+	    int(pow(3., source.valence-2)*6), *(source.triad), source.metric,
+	    source.poids) {
 	
     assert (valence >= 2) ;
 
@@ -145,8 +154,9 @@ Tenseur_sym::Tenseur_sym (const Tenseur& source) :
 	
 // Constructor from a file
 // -----------------------
-Tenseur_sym::Tenseur_sym(const Map& map, const Base_vect& triad_i, FILE* fd)
-			: Tenseur(map, triad_i, fd) {
+Tenseur_sym::Tenseur_sym(const Map& map, const Base_vect& triad_i, FILE* fd,
+			 const Metrique* met)
+			: Tenseur(map, triad_i, fd, met) {
 	
 	assert (valence >= 2) ;
 	assert (n_comp == int(pow(3., valence-2))*6) ;
@@ -243,6 +253,8 @@ void Tenseur_sym::operator= (const Tenseur& t) {
     assert (valence == t.get_valence()) ;
     
     triad = t.triad ; 
+    poids = t.poids ;
+    metric = t.metric ;
     
     for (int i=0 ; i<valence ; i++)
 	assert (type_indice(i) == t.type_indice(i)) ;
@@ -298,7 +310,7 @@ void Tenseur_sym::fait_gradient () const {
 	assert(*triad == mp->get_bvect_cart()) ;
 
 	p_gradient = new Tenseur_sym(*mp, valence+1, tipe, 
-				     mp->get_bvect_cart()) ;
+				     mp->get_bvect_cart(), metric, poids) ;
     
 
 	if (etat == ETATZERO)
@@ -327,66 +339,70 @@ void Tenseur_sym::fait_gradient () const {
 
 void Tenseur_sym::fait_derive_cov (const Metrique& metre) const {
     
-    assert (etat != ETATNONDEF) ;
-    assert (valence != 0) ;
+  assert (etat != ETATNONDEF) ;
+  assert (valence != 0) ;
     
-    if (p_derive_cov != 0x0)
-	return ;
-    else {
-	p_derive_cov = new Tenseur_sym (gradient()) ;
+  if (p_derive_cov != 0x0)
+    return ;
+  else {
+    p_derive_cov = new Tenseur_sym (gradient()) ;
     
-	if ((valence != 0) && (etat != ETATZERO)) {
+    if ((valence != 0) && (etat != ETATZERO)) {
 
-	    assert( metre.gamma().get_triad() == triad ) ; 
+      assert( metre.gamma().get_triad() == triad ) ; 
 
-	    Tenseur* auxi ;
-	    for (int i=0 ; i<valence ; i++) {
+      Tenseur* auxi ;
+      for (int i=0 ; i<valence ; i++) {
 	
-		if (type_indice(i) == COV) {
-		auxi = new Tenseur(contract(metre.gamma(), 0,(*this), i)) ;
+	if (type_indice(i) == COV) {
+	  auxi = new Tenseur(contract(metre.gamma(), 0,(*this), i)) ;
 
-		    Itbl indices_gamma(p_derive_cov->valence) ;
-		    indices_gamma.set_etat_qcq() ;
-		    //On range comme il faut :
-		    for (int j=0 ; j<p_derive_cov->n_comp ; j++) {
+	  Itbl indices_gamma(p_derive_cov->valence) ;
+	  indices_gamma.set_etat_qcq() ;
+	  //On range comme il faut :
+	  for (int j=0 ; j<p_derive_cov->n_comp ; j++) {
 		    
-			Itbl indices (p_derive_cov->donne_indices(j)) ;
-			indices_gamma.set(0) = indices(0) ;
-			indices_gamma.set(1) = indices(i+1) ;
-			for (int idx=2 ; idx<p_derive_cov->valence ; idx++)
-			    if (idx<=i+1)
-				indices_gamma.set(idx) = indices(idx-1) ;
-			    else
-				indices_gamma.set(idx) = indices(idx) ;
+	    Itbl indices (p_derive_cov->donne_indices(j)) ;
+	    indices_gamma.set(0) = indices(0) ;
+	    indices_gamma.set(1) = indices(i+1) ;
+	    for (int idx=2 ; idx<p_derive_cov->valence ; idx++)
+	      if (idx<=i+1)
+		indices_gamma.set(idx) = indices(idx-1) ;
+	      else
+		indices_gamma.set(idx) = indices(idx) ;
 		    
-			p_derive_cov->set(indices) -= (*auxi)(indices_gamma) ;
-		    }
-	    }   
-		else {
-		    auxi = new Tenseur(contract(metre.gamma(), 1, (*this), i)) ;
+	    p_derive_cov->set(indices) -= (*auxi)(indices_gamma) ;
+	  }
+	}   
+	else {
+	  auxi = new Tenseur(contract(metre.gamma(), 1, (*this), i)) ;
 
-		    Itbl indices_gamma(p_derive_cov->valence) ;
-		    indices_gamma.set_etat_qcq() ;
+	  Itbl indices_gamma(p_derive_cov->valence) ;
+	  indices_gamma.set_etat_qcq() ;
 		
-		    //On range comme il faut :
-		    for (int j=0 ; j<p_derive_cov->n_comp ; j++) {
+	  //On range comme il faut :
+	  for (int j=0 ; j<p_derive_cov->n_comp ; j++) {
 		    
-			Itbl indices (p_derive_cov->donne_indices(j)) ;
-			indices.set_etat_qcq() ;
-			indices_gamma.set(0) = indices(0) ;
-			indices_gamma.set(1) = indices(i+1) ;
-			for (int idx=2 ; idx<p_derive_cov->valence ; idx++)
-			    if (idx<=i+1)
-				indices_gamma.set(idx) = indices(idx-1) ;
-			    else
-				indices_gamma.set(idx) = indices(idx) ;
-		    p_derive_cov->set(indices) += (*auxi)(indices_gamma) ;
-		}
-	    }
-	    delete auxi ;
-	   }
+	    Itbl indices (p_derive_cov->donne_indices(j)) ;
+	    indices.set_etat_qcq() ;
+	    indices_gamma.set(0) = indices(0) ;
+	    indices_gamma.set(1) = indices(i+1) ;
+	    for (int idx=2 ; idx<p_derive_cov->valence ; idx++)
+	      if (idx<=i+1)
+		indices_gamma.set(idx) = indices(idx-1) ;
+	      else
+		indices_gamma.set(idx) = indices(idx) ;
+	    p_derive_cov->set(indices) += (*auxi)(indices_gamma) ;
+	  }
 	}
+	delete auxi ;
+      }
     }
+    if ((poids != 0.)&&(etat != ETATZERO)) 
+      *p_derive_cov = *p_derive_cov - 
+	poids*contract(metric->gamma(), 0, 2) * (*this) ;
+    
+  }
 }
 
 

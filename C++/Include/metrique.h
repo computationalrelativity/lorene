@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/08/07 16:14:10  j_novak
+ * class Tenseur can now also handle tensor densities, this should be transparent to older codes
+ *
  * Revision 1.3  2002/08/02 15:07:41  j_novak
  * Member function determinant has been added to the class Metrique.
  * A better handling of spectral bases is now implemented for the class Tenseur.
@@ -124,7 +127,7 @@ class Metrique {
 	/**
 	 * Pointer on the determinant.
 	 */
-	mutable Cmp* p_determinant ;
+	mutable Tenseur* p_determinant ;
 	
 	/**
 	 * Pointer on the dependancies, that means the array contains pointers
@@ -232,7 +235,7 @@ class Metrique {
 	const Tenseur_sym& gamma() const ; /// Returns the Christoffel symbols.
 	const Tenseur_sym& ricci() const ; /// Returns the Ricci-curvature.
 	const Tenseur& ricci_scal() const ; /// Returns the Ricci-scalar.
-	const Cmp& determinant() const ; /// Returns the determinant.
+	const Tenseur& determinant() const ; /// Returns the determinant.
 	
 	const Map* get_mp() const{return mp ; } ; /// Returns a pointer on the mapping.
 	int get_etat() const{return etat ;} ; /// Returns the logical state.
