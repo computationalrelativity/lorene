@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/03/22 16:10:20  j_novak
+ * Excluding some files
+ *
  * Revision 1.10  2004/03/22 13:12:40  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -2036,7 +2039,6 @@ class Eos_strange_cr : public Eos {
  * EOS with domain dependency.
  *
  *
- * @version #\f$Id$#
  */
 class MEos : public Eos {
 

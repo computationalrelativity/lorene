@@ -322,8 +322,16 @@ RECURSIVE              = YES
 # excluded from the INPUT source files. This way you can easily exclude a 
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
-EXCLUDE                = Include_extra grille_cart.h headcpp.h indent.h \
-	map_cart.h nbr_spx.h proto_f77.h qmetrique.h qtenseur.h 
+EXCLUDE                = $(HOME_LORENE)/C++/Include_extra \
+	$(HOME_LORENE)/C++/Include/grille_cart.h \
+	$(HOME_LORENE)/C++/Include/headcpp.h \
+	$(HOME_LORENE)/C++/Include/indent.h \
+	$(HOME_LORENE)/C++/Include/map_cart.h \
+	$(HOME_LORENE)/C++/Include/champ_cart.h \
+	$(HOME_LORENE)/C++/Include/nbr_spx.h \
+	$(HOME_LORENE)/C++/Include/proto_f77.h \
+	$(HOME_LORENE)/C++/Include/qmetrique.h \
+	$(HOME_LORENE)/C++/Include/qtenseur.h 
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or directories 
 # that are symbolic links (a Unix filesystem feature) are excluded from the input.

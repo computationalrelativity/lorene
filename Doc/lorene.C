@@ -102,7 +102,7 @@
  * <A HREF="http://www.opendx.org/">http://www.opendx.org/</A>
  *
  * OpenDX is called from the methods Scalar::visu_section, 
- * \c Scalar::visu_box, \c Vector::visu_arrows}, etc...
+ * \c Scalar::visu_box, \c Vector::visu_arrows , etc...
  * The corresponding OpenDX scripts are provided in the 
  * directory \c Lorene/Visu/OpenDX. They must be copied to the
  * working directory in order to use the above methods.  
