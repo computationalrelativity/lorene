@@ -31,6 +31,10 @@ char binary_anashift_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/02/27 10:01:32  f_limousin
+ * Correct sign of shift_auto to agree with the new convention
+ * for shift.
+ *
  * Revision 1.4  2004/01/22 10:09:41  f_limousin
  * First executable version
  *
@@ -111,6 +115,22 @@ void Binary::analytical_shift(){
 	Scalar Wjxj = w_shift(1) * mp_x + w_shift(2) * mp_y + 
 	             w_shift(3) * mp_z ;
 
+	int nzone = mp.get_mg()->get_nzone() ;
+	int nr = mp.get_mg()->get_nr(0);
+	int nt = mp.get_mg()->get_nt(0);
+	int np = mp.get_mg()->get_np(0);
+	
+	// In the last domain, Wjwj does not depend on r but it 
+	// has a value nan at infinity : we put at infinity his value for 
+	// another r.
+
+	for (int k=0; k<=np-1; k++)
+	    for (int j=0; j<=nt-1; j++){
+		Wjxj.set_grid_point(nzone-1, k, j, nr-1) = 
+		                  Wjxj.val_grid_point(nzone-1, k, j, nr-2) ; 
+	    }
+	
+
 	Wjxj.std_spectral_base() ;
 
 	// Computation of khi_shift
@@ -133,15 +153,17 @@ void Binary::analytical_shift(){
 	
 	const Metric_flat& flat (mp.flat_met_cart()) ;
 	Vector temp(mp, CON, mp.get_bvect_cart()) ;
-	
+ 
 	temp = khi_shift.derive_con(flat) + Wjxj.derive_con(flat) ;
 	temp.dec_dzpuis(2) ;
 
-	et[i]->set_shift_auto() = 7./8. * w_shift - 1./8. * temp ;
-
-	et[i]->set_shift_auto().change_triad(mp.get_bvect_spher()) ;
-	et[i]->set_shift_auto().std_spectral_base() ;
+	// See Eq (92) from Gourgoulhon et al.(2001) and with the new 
+	// convention for shift = - N^i
 	
+	et[i]->set_shift_auto() = - 7./8. * w_shift + 1./8. * temp ;
+	 
+	et[i]->set_shift_auto().std_spectral_base() ;
+	et[i]->set_shift_auto().change_triad(mp.get_bvect_spher()) ;
 
     }
 
