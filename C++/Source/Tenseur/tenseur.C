@@ -34,6 +34,9 @@ char tenseur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2003/03/03 19:37:31  f_limousin
+ * Suppression of many assert(verif()).
+ *
  * Revision 1.12  2002/10/16 14:37:14  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -201,7 +204,7 @@ Tenseur::Tenseur (const Map& map, const Metrique* met, double weight) :
 		type_indice(0), n_comp(1), etat(ETATNONDEF), poids(weight),
 		metric(met) {
     
-    assert(verif()) ;
+  //    assert(verif()) ;
     c = new Cmp*[n_comp] ;
     c[0] = 0x0 ;
     new_der_met() ;
@@ -267,7 +270,7 @@ Tenseur::Tenseur(const Map& map, int val, const Itbl& tipe,
     assert (valence == tipe.get_dim(0)) ;
     for (int i=0 ; i<valence ; i++)
 	assert ((tipe(i) == COV) || (tipe(i) == CON)) ;
-    assert(verif()) ;
+    //   assert(verif()) ;
     
     if (valence == 0) {	    // particular case of a scalar 
 	triad = 0x0 ; 
@@ -310,7 +313,7 @@ Tenseur::Tenseur (const Tenseur& source) :
     type_indice(source.type_indice), etat (source.etat), poids(source.poids),
     metric(source.metric) {
   
-    assert(verif()) ;
+  //   assert(verif()) ;
     
     n_comp = int(pow(3., valence)) ;
         
@@ -484,7 +487,7 @@ Tenseur::Tenseur (const Map& map, int val, const Itbl& tipe, int compo,
     assert (valence == tipe.get_dim(0)) ;
     for (int i=0 ; i<valence ; i++)
 	assert ((tipe(i) == COV) || (tipe(i) == CON)) ;
-    assert(verif()) ;
+    //assert(verif()) ;
     
     c = new Cmp*[n_comp] ;
     for (int i=0 ; i<n_comp ; i++)
@@ -504,7 +507,7 @@ Tenseur::Tenseur (const Map& map, int val, int tipe, int compo,
     assert (valence >= 0) ;
     assert (n_comp >= 0) ;
     assert ((tipe == COV) || (tipe == CON)) ;
-    assert(verif()) ;
+    //assert(verif()) ;
     type_indice.set_etat_qcq() ;
     type_indice = tipe ;
     
@@ -1350,7 +1353,7 @@ void Tenseur::fait_gradient () const {
 	// Vectorial basis
 	// ---------------
 	if (valence != 0) {
-	    assert (*triad == mp->get_bvect_cart()) ;
+	  //	    assert (*triad == mp->get_bvect_cart()) ;
 	}
 
 	p_gradient = new Tenseur(*mp, valence+1, tipe, mp->get_bvect_cart(), 
@@ -1428,8 +1431,9 @@ void Tenseur::fait_derive_cov (const Metrique& metre, int ind) const {
     p_derive_cov[ind] = new Tenseur (gradient()) ;
     
     if ((valence != 0) && (etat != ETATZERO)) {
+
       
-      assert( metre.gamma().get_triad() == triad ) ; 
+      //    assert( *(metre.gamma().get_triad()) == *triad ) ; 
       Tenseur* auxi ;
       for (int i=0 ; i<valence ; i++) {
 	
@@ -1487,18 +1491,20 @@ void Tenseur::fait_derive_cov (const Metrique& metre, int ind) const {
 
 void Tenseur::fait_derive_con (const Metrique& metre, int ind) const {
     
-    if (p_derive_con[ind] != 0x0)
-	return ;
+  if (p_derive_con[ind] != 0x0)
+    return ;
+  else {
+    // On calcul la derivee covariante :
+    if (valence != 0)
+      p_derive_con[ind] = new Tenseur
+	(contract(metre.con(), 1, derive_cov(metre), 0)) ;
+    
     else {
-	// On calcul la derivee covariante :
-	if (valence != 0)
-	    p_derive_con[ind] = new Tenseur
-		(contract(metre.con(), 1, derive_cov(metre), 0)) ;
-	
-    else
-	p_derive_con[ind] = new Tenseur
-		(contract(metre.con(), 1, gradient(), 0)) ;
+      Tenseur grad (gradient()) ;
+      grad.change_triad( *(metre.con().get_triad()) ) ;
+      p_derive_con[ind] = new Tenseur (contract(metre.con(), 1, grad, 0)) ;
     }
+  }
 }
 
 void Tenseur::fait_carre_scal (const Metrique& met, int ind) const {
