@@ -28,6 +28,9 @@ char simple_wave_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/12/11 16:21:05  e_gourgoulhon
+ * Use simplified version of Scalar::visu_section.
+ *
  * Revision 1.1  2003/12/11 11:30:02  e_gourgoulhon
  * First version.
  *
@@ -115,25 +118,11 @@ int main() {
     des_coupe_z( Cmp(source), 0., 2, "Source") ; 
     
 
-    // Output for 3-D visualization 
+    // 3-D visualization via OpenDX
     // ----------------------------
-    // Definition of the section plane :
-    Tbl visuplane(3,3) ;        
-    visuplane.set_etat_qcq() ;  // Memory allocation for the Tbl
-     
-    visuplane.set(0,0) = 0. ;   // Origin in the plane
-    visuplane.set(0,1) = 0. ;   //  (absolute Cartesian coordinates)
-    visuplane.set(0,2) = 0. ;   //
     
-    visuplane.set(1,0) = 1. ;   // u-coordinate unit vector
-    visuplane.set(1,1) = 0. ;   //  (absolute Cartesian components)
-    visuplane.set(1,2) = 0. ;
-    
-    visuplane.set(2,0) = 0. ;   // v-coordinate unit vector
-    visuplane.set(2,1) = 1. ;   //  (absolute Cartesian components)
-    visuplane.set(2,2) = 0. ;
-    
-    source.visu_section(visuplane, -2., 2., -1., 2.) ;
+    double z0 = 0 ;     // section plane : z = z0
+    source.visu_section('z', z0, -2., 2., -1., 2.) ;
     
     // Resolution of a Poisson equation 
     // --------------------------------
@@ -141,11 +130,10 @@ int main() {
     Scalar pot = source.poisson() ; 
     
     cout << "Solution of the Poisson equation : " << endl ; 
-    cout << pot << endl ; 
-    
+        
     pot.spectral_display() ;     // prints the spectral expansions 
                                      
-    des_coupe_z( Cmp(pot), 0., 2, "Source") ; 
+    des_coupe_z( Cmp(pot), 0., 2, "Potential") ; 
 
     // Construction of a flat metric
     // -----------------------------
