@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2004 Eric Gourgoulhon & Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -32,6 +32,9 @@ char sym_tensor_trans_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/01/04 20:52:45  e_gourgoulhon
+ * Added assignement (operator=) to a Tensor_sym.
+ *
  * Revision 1.2  2003/10/28 21:24:52  e_gourgoulhon
  * Added new methods trace() and tt_part().
  *
@@ -149,6 +152,18 @@ void Sym_tensor_trans::operator=(const Sym_tensor& source) {
 	
 	del_deriv() ; 	
 }
+
+
+void Sym_tensor_trans::operator=(const Tensor_sym& source) {
+    
+    // Assignment of quantities common to all the derived classes of Sym_tensor
+    Sym_tensor::operator=(source) ; 
+
+    // The metric which was set by the constructor is kept
+	
+    del_deriv() ; 	
+}
+
 
 
 void Sym_tensor_trans::operator=(const Tensor& source) {
