@@ -1,7 +1,7 @@
 /*
  *   Copyright (c) 1999-2000 Jean-Alain Marck
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
  *   Copyright (c) 1999-2001 Philippe Grandclement
+ *   Copyright (c) 1999-2002 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -41,8 +41,12 @@ char som_r_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/05/05 16:20:40  e_gourgoulhon
+ * Error message (in unknwon basis case) in English
+ * Added the basis T_COSSIN_SP
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.4  2000/03/06  09:34:21  eric
  * Suppression des #include inutiles.
@@ -78,12 +82,11 @@ char som_r_C[] = "$Header$" ;
 			//-------------------
 
 void som_r_pas_prevu
-    (double* ti, const int nr, const int nt, const int np, const double x, double* trtp) {
-	cout << "Sommation en r sur une base non prevue" << endl ;
-	cout << ti << " " << nr << " " << nt << " " << np << " " 
-	    << x << " " << trtp << endl ;
-	abort () ;
-    }
+    (double*, const int, const int, const int, const double, double*) {
+	cout << "Mtbl_cf::val_point: r basis not implemented yet !"
+	     << endl ;
+	abort() ;
+}
 
 			//----------------
 			//- Cas R_CHEB ---
