@@ -23,6 +23,9 @@ char param_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/06/22 13:46:52  j_novak
+ * Deplacement du conte++ dans set_pois_vect_r
+ *
  * Revision 1.12  2004/06/22 08:49:59  p_grandclement
  * Addition of everything needed for using the logarithmic mapping
  *
@@ -437,8 +440,8 @@ void Param_elliptic::set_poisson_vect_r(int zone) {
 	    else
 	      operateurs[conte] = 0x0 ;
 	  }
-	}
       conte ++ ;
+	}
     }
   }
 }
