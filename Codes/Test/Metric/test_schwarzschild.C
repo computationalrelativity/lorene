@@ -28,6 +28,9 @@ char test_schwarzschild_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/01/28 15:27:59  e_gourgoulhon
+ * Minor modifs.
+ *
  * Revision 1.1  2004/01/27 14:46:22  e_gourgoulhon
  * First version of test_schwarzschild.
  *
@@ -204,9 +207,10 @@ int main() {
     
     const Scalar& ricci_scal = gam.ricci_scal() ; 
     
-    cout << "Ricci scalar : " << endl ; 
+    cout << "Hamiltonian constraint (Ricci scalar) : " << endl ; 
     ricci_scal.spectral_display() ; 
     maxabs(ricci_scal) ; 
+    arrete() ; 
 
     // Dynamical Einstein equations
     //-----------------------------
