@@ -28,6 +28,9 @@ char visu_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/06/02 21:34:39  e_gourgoulhon
+ * Added creation of file anime.dxcont for OpenDX.
+ *
  * Revision 1.1  2004/05/31 20:34:20  e_gourgoulhon
  * First version
  *
@@ -59,7 +62,7 @@ int main(){
         abort() ;
     }
     
-    char rootname[80], section_type ; 
+    char rootname[80], rootdxname[80], section_type ; 
     int jmin, jmax, jstep, nu, nv ;
     double a_section, umin, umax, vmin, vmax ;  
     fpar.ignore(1000,'\n') ;    // skip title
@@ -68,6 +71,8 @@ int main(){
     fpar >> jmin ; fpar.ignore(1000,'\n') ;
     fpar >> jmax ; fpar.ignore(1000,'\n') ;
     fpar >> jstep ; fpar.ignore(1000,'\n') ;
+    fpar.ignore(1000,'\n') ;    // skip comment
+    fpar.getline(rootdxname, 80) ;
     fpar.get(section_type) ; fpar.ignore(1000,'\n') ;
     fpar >> a_section ; fpar.ignore(1000,'\n') ;
     fpar >> umin ;  fpar >> umax ; fpar.ignore(1000,'\n') ;
@@ -85,6 +90,10 @@ int main(){
     cout << "vmin, vmax = " << vmin << ", " << vmax << endl ; 
     cout << "nu x nv = " << nu << " x " << nv << endl ; 
     arrete() ; 
+    
+    ofstream fdx("anime.dxcont") ; 
+    fdx << "fieldname     jmin   jmax  jstep  ampli " << endl ; 
+    fdx << rootdxname << "     " << jmin << "   " << jmax << "   " << jstep ;
          
     for (int j=jmin; j<=jmax; j += jstep) {         
  
@@ -108,7 +117,7 @@ int main(){
     
         Base_vect* ptriad = Base_vect::bvect_from_file(fich) ; 
         
-        // Flat metric f
+        // Flat metric f 
         // -------------
 
         const Metric_flat& ff = map.flat_met_spher() ; 
@@ -130,14 +139,20 @@ int main(){
 
         cout << sigma << endl ; 
         
-        bool start_dx = (j == jmin) ;
-        //bool start_dx = false ;
+        bool start_dx = ( (j >= jmax - jstep) && (j != jmax) ) ;
+        // bool start_dx = false ;
          
-        sigma.mu().spectral_display("mu") ; 
+        // sigma.mu().spectral_display("mu") ; 
          
-        sigma.mu(). visu_section_anim(section_type, a_section, umin, umax,
-		                      vmin, vmax, j, tc, 1, "mu", "mu", 
+        sigma.mu().visu_section_anim(section_type, a_section, umin, umax,
+		                      vmin, vmax, j, tc, 1, "mu", rootdxname, 
                                       start_dx, nu, nv) ; 
+                                      
+        if (j==jmin) {
+            double ampli = 1. / max(maxabs(sigma.mu())) ; 
+            fdx << "   " << ampli << endl ; 
+            fdx.close() ; 
+        }
 
         delete ptriad ; 
 
