@@ -32,6 +32,9 @@ char sym_tensor_tt_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/03/03 13:16:21  j_novak
+ * New potential khi (p_khi) and the functions manipulating it.
+ *
  * Revision 1.7  2004/02/05 13:44:50  e_gourgoulhon
  * Major modif. of methods eta(), mu() and update() to treat
  * any value of dzpuis, thanks to the new definitions of
@@ -69,6 +72,29 @@ char sym_tensor_tt_etamu_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "tensor.h"
+
+			//--------------//
+			//     khi      //
+			//--------------//
+
+const Scalar& Sym_tensor_tt::khi() const {
+
+  if (p_khi == 0x0) {   // a new computation is necessary
+		
+    // All this has a meaning only for spherical components:
+    assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
+
+    // khi is computed from $h^{rr}$ component
+
+    p_khi = new Scalar(operator()(1,1)) ;
+    p_khi->mult_r() ;
+    p_khi->mult_r() ;
+  }
+
+  return *p_khi ; 
+
+}
+
 
 			//--------------//
 			//     eta      //
@@ -204,6 +230,60 @@ void Sym_tensor_tt::set_rr_mu(const Scalar& hrr, const Scalar& mu_i) {
 		eta() ; // computes eta form the divergence-free condition
 		
 		update() ; // all h^{ij}, except for h^{rr}
+		
+}
+			
+			//-------------------//
+			//  set_khi_eta_mu    //
+			//-------------------//
+			
+
+void Sym_tensor_tt::set_khi_eta_mu(const Scalar& khi_i, const Scalar& eta_i, 
+		const Scalar& mu_i) {
+
+  // All this has a meaning only for spherical components:
+  assert( dynamic_cast<const Base_vect_spher*>(triad) != 0x0 ) ; 
+			
+  set(1,1) = khi_i ;
+  set(1,1).div_r() ;
+  set(1,1).div_r() ;     // h^{rr}
+
+  // calls del_deriv() and therefore delete previous
+  // p_khi, p_eta and p_mu
+		
+  p_khi = new Scalar( khi_i ) ;        // khi
+
+  p_eta = new Scalar( eta_i ) ; 	// eta
+  
+  p_mu = new Scalar( mu_i ) ; 	// mu 
+  
+  update() ; // all h^{ij}, except for h^{rr}
+		
+}
+			
+			//---------------//
+			//  set_khi_mu    //
+			//---------------//
+			
+
+void Sym_tensor_tt::set_khi_mu(const Scalar& khi_i, const Scalar& mu_i) {
+
+  // All this has a meaning only for spherical components:
+  assert( dynamic_cast<const Base_vect_spher*>(triad) != 0x0 ) ; 
+						
+  set(1,1) = khi_i ; 
+                        // calls del_deriv() and therefore delete previous
+                        // p_eta and p_mu
+  set(1,1).div_r() ;
+  set(1,1).div_r() ;	// h^{rr}
+		
+  p_khi = new Scalar ( khi_i ) ;  // khi
+
+  p_mu = new Scalar( mu_i ) ; 	// mu 
+		
+  eta() ; // computes eta form the divergence-free condition
+  
+  update() ; // all h^{ij}, except for h^{rr}
 		
 }
 			

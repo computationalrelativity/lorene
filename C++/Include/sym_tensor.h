@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/03/03 13:16:20  j_novak
+ * New potential khi (p_khi) and the functions manipulating it.
+ *
  * Revision 1.13  2004/02/26 22:45:13  e_gourgoulhon
  * Added method derive_lie.
  *
@@ -385,6 +388,10 @@ class Sym_tensor_tt: public Sym_tensor_trans {
     // -----
 
     protected:
+	/** Field $\khi$ such that the component $h^{rr} = \frac{\khi}{r^2}$.
+	 */
+	mutable Scalar* p_khi ;
+	
 	/** Field $\eta$ such that the components $(h^{r\theta}, h^{r\varphi})$
 	 * of the tensor are written:
 	 * \begin{equation}
@@ -487,7 +494,7 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	 */
 	void set_rr_eta_mu(const Scalar& hrr, const Scalar& eta_i, 
 						const Scalar& mu_i) ; 
-	
+
 	/** Sets the component $h^{rr}$, as well as the angular potential
 	 * $\mu$ (see member {\tt p\_mu}). 
 	 * The angular potential $\eta$ (member {\tt p\_eta}) is deduced from
@@ -502,10 +509,41 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	void set_rr_mu(const Scalar& hrr, const Scalar& mu_i) ; 
 	
 	
+	/** Sets the component $\khi$, as well as the angular potentials 
+	 * $\eta$ and $\mu$ (see members {\tt p_\khi},
+	 *  {\tt p\_eta} and {\tt p\_mu}). 
+	 *  The components are updated consistently
+	 *  by a call to the method {\tt update()}.
+	 *
+	 *	@param khi_i [input] value of $\khi$
+	 *	@param eta_i [input] angular potential $\eta$
+	 *	@param mu_i [input] angular potential $\mu$
+	 *
+	 */
+	void set_khi_eta_mu(const Scalar& khi_i, const Scalar& eta_i, 
+						const Scalar& mu_i) ; 
+		
+	/** Sets the component $\khi$, as well as the angular potential
+	 * $\mu$ (see member {\tt p_\khi} and {\tt p\_mu}). 
+	 * The angular potential $\eta$ (member {\tt p\_eta}) is deduced from
+	 * the divergence free condition. 
+	 * The tensor components are updated consistently
+	 * by a call to the method {\tt update()}.
+	 *
+	 *	@param khi_i [input] value of $\khi$
+	 *	@param mu_i [input] angular potential $\mu$
+	 *
+	 */
+	void set_khi_mu(const Scalar& khi_i, const Scalar& mu_i) ; 
+	
 	// Computational methods
 	// ---------------------
 	
 	public:
+	/** Gives the field $\khi$ such that the component $h^{rr} = \frac{\khi}{r^2}$.
+	 */
+	const Scalar& khi() const ;
+	
 	/** Gives the field $\eta$ such that the components $(h^{r\theta}, h^{r\varphi})$
 	 * of the tensor are written:
 	 * \begin{equation}

@@ -32,6 +32,9 @@ char sym_tensor_tt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/03 13:16:21  j_novak
+ * New potential khi (p_khi) and the functions manipulating it.
+ *
  * Revision 1.2  2004/01/04 20:52:45  e_gourgoulhon
  * Added assignement (operator=) to a Tensor_sym.
  *
@@ -71,6 +74,7 @@ Sym_tensor_tt::Sym_tensor_tt (const Sym_tensor_tt& source)
     
 	set_der_0x0() ;
 
+	if (source.p_khi != 0x0) p_khi = new Scalar( *(source.p_khi) ) ; 
 	if (source.p_eta != 0x0) p_eta = new Scalar( *(source.p_eta) ) ; 
 	if (source.p_mu != 0x0) p_mu = new Scalar( *(source.p_mu) ) ; 
 	
@@ -105,6 +109,7 @@ Sym_tensor_tt::~Sym_tensor_tt() {
 
 void Sym_tensor_tt::del_deriv() const {
 
+	if (p_khi != 0x0) delete p_khi ; 
 	if (p_eta != 0x0) delete p_eta ; 
 	if (p_mu != 0x0) delete p_mu ; 
 	
@@ -116,8 +121,9 @@ void Sym_tensor_tt::del_deriv() const {
 
 void Sym_tensor_tt::set_der_0x0() const {
 
-	p_eta = 0x0 ; 
-	p_mu = 0x0 ; 
+  p_khi = 0x0 ;
+  p_eta = 0x0 ; 
+  p_mu = 0x0 ; 
 
 }
 
