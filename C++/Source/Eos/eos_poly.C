@@ -31,6 +31,9 @@ char eos_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/04/11 13:28:40  e_gourgoulhon
+ * Added the parameter mu_0
+ *
  * Revision 1.3  2002/04/09 14:32:15  e_gourgoulhon
  * 1/ Added extra parameters in EOS computational functions (argument par)
  * 2/ New class MEos for multi-domain EOS
@@ -103,31 +106,41 @@ char eos_poly_C[] = "$Header$" ;
 			// Constructors //
 			//--------------//
 
-// Standard constructor with m_0 = 1
-// ---------------------------------
+// Standard constructor with m_0 = 1 and mu_0 = 1
+// -----------------------------------------------
 Eos_poly::Eos_poly(double gamma, double kappa) : 
 	Eos("Relativistic polytropic EOS"), 
-	gam(gamma), kap(kappa), m_0(double(1)) {
+	gam(gamma), kap(kappa), m_0(double(1)), mu_0(double(1)) {
 
     set_auxiliary() ; 
 
 }  
 
-// Standard constructor with m_0 specified
-// ---------------------------------------
-Eos_poly::Eos_poly(double gamma, double kappa, double mass) : 
-	Eos("Relativistic polytropic EOS"), 
-	gam(gamma), kap(kappa), m_0(mass) {
+// Standard constructor with mu_0 = 1
+// ----------------------------------
+Eos_poly::Eos_poly(double gamma, double kappa, double mass) :
+	Eos("Relativistic polytropic EOS"),
+	gam(gamma), kap(kappa), m_0(mass), mu_0(double(1)) {
 
-    set_auxiliary() ; 
+    set_auxiliary() ;
 
-}  
-  
+}
+
+// Standard constructor with mu_0 = 1
+// ----------------------------------
+Eos_poly::Eos_poly(double gamma, double kappa, double mass, double mu_zero) :
+	Eos("Relativistic polytropic EOS"),
+	gam(gamma), kap(kappa), m_0(mass), mu_0(mu_zero) {
+
+    set_auxiliary() ;
+
+}
+
 // Copy constructor
 // ----------------
 Eos_poly::Eos_poly(const Eos_poly& eosi) : 
 	Eos(eosi), 
-	gam(eosi.gam), kap(eosi.kap), m_0(eosi.m_0) {
+	gam(eosi.gam), kap(eosi.kap), m_0(eosi.m_0), mu_0(eosi.mu_0) {
 
     set_auxiliary() ; 
 
@@ -141,8 +154,17 @@ Eos_poly::Eos_poly(FILE* fich) :
         
     fread_be(&gam, sizeof(double), 1, fich) ;		
     fread_be(&kap, sizeof(double), 1, fich) ;		
-    fread_be(&m_0, sizeof(double), 1, fich) ;		
-    
+    fread_be(&m_0, sizeof(double), 1, fich) ;
+
+    if (m_0 < 0) {       // to ensure compatibility with previous version (revision <= 1.2)
+                        //  of Eos_poly
+        m_0 = fabs( m_0 ) ;
+        fread_be(&mu_0, sizeof(double), 1, fich) ;
+    }
+    else {
+        mu_0 = double(1) ;
+    }
+
     set_auxiliary() ; 
 
 }
@@ -158,7 +180,16 @@ Eos_poly::Eos_poly(ifstream& fich) :
     fich >> gam ; fich.getline(blabla, 80) ;
     fich >> kap ; fich.getline(blabla, 80) ;
     fich >> m_0 ; fich.getline(blabla, 80) ;
-    
+
+    if (m_0 < 0) {       // to ensure compatibility with previous version (revision <= 1.2)
+                        //  of Eos_poly
+        m_0 = fabs( m_0 ) ;
+        fich >> mu_0 ; fich.getline(blabla, 80) ;
+    }
+    else {
+        mu_0 = double(1) ;
+    }
+
     set_auxiliary() ; 
 
 }
@@ -181,10 +212,11 @@ void Eos_poly::operator=(const Eos_poly& eosi) {
     
     gam = eosi.gam ; 
     kap = eosi.kap ; 
-    m_0 = eosi.m_0 ; 
-    
-    set_auxiliary() ; 
-    
+    m_0 = eosi.m_0 ;
+    mu_0 = eosi.mu_0 ;
+
+    set_auxiliary() ;
+
 }
 
 
@@ -193,17 +225,21 @@ void Eos_poly::operator=(const Eos_poly& eosi) {
 		  //-----------------------//
 
 void Eos_poly::set_auxiliary() {
-    
-    gam1 = gam - double(1) ; 
-    
-    unsgam1 = double(1) / gam1 ; 
-    
-    gam1sgamkap = gam1 / (gam * kap) ; 
-    
+
+    gam1 = gam - double(1) ;
+
+    unsgam1 = double(1) / gam1 ;
+
+    gam1sgamkap = m_0 * gam1 / (gam * kap) ;
+
+    rel_mu_0 = mu_0 / m_0 ;
+
+    ent_0 = log( rel_mu_0 ) ;
+
 }
 
 double Eos_poly::get_gam() const {
-    return gam ; 
+    return gam ;
 }
 
 double Eos_poly::get_kap() const {
@@ -211,7 +247,11 @@ double Eos_poly::get_kap() const {
 }
 
 double Eos_poly::get_m_0() const {
-    return m_0 ; 
+    return m_0 ;
+}
+
+double Eos_poly::get_mu_0() const {
+    return mu_0 ;
 }
 
 
@@ -247,12 +287,19 @@ bool Eos_poly::operator==(const Eos& eos_i) const {
 	}
 
 	if (eos.m_0 != m_0) {
-	    cout 
-	    << "The two Eos_poly have different m_0 : " << m_0 << " <-> " 
-		<< eos.m_0 << endl ; 
-	    resu = false ; 
+	    cout
+	    << "The two Eos_poly have different m_0 : " << m_0 << " <-> "
+		<< eos.m_0 << endl ;
+	    resu = false ;
 	}
-	
+
+	if (eos.mu_0 != mu_0) {
+	    cout
+	    << "The two Eos_poly have different mu_0 : " << mu_0 << " <-> "
+		<< eos.mu_0 << endl ;
+	    resu = false ;
+	}
+
     }
     
     return resu ; 
@@ -275,9 +322,11 @@ void Eos_poly::sauve(FILE* fich) const {
     Eos::sauve(fich) ; 
     
     fwrite_be(&gam, sizeof(double), 1, fich) ;	
-    fwrite_be(&kap, sizeof(double), 1, fich) ;	
-    fwrite_be(&m_0, sizeof(double), 1, fich) ;	
-   
+    fwrite_be(&kap, sizeof(double), 1, fich) ;
+    double tempo = - m_0 ;
+    fwrite_be(&tempo, sizeof(double), 1, fich) ;
+    fwrite_be(&mu_0, sizeof(double), 1, fich) ;
+
 }
 
 ostream& Eos_poly::operator>>(ostream & ost) const {
@@ -287,7 +336,8 @@ ostream& Eos_poly::operator>>(ostream & ost) const {
     ost << "   Pressure coefficient kappa : " << kap << 
 	   " rho_nuc c^2 / n_nuc^gamma" << endl ; 
     ost << "   Mean particle mass : " << m_0 << " m_B" << endl ;
-    
+    ost << "   Relativistic chemical potential at zero pressure : " << mu_0 << " m_B c^2" << endl ;
+
     return ost ;
 
 }
@@ -297,14 +347,14 @@ ostream& Eos_poly::operator>>(ostream & ost) const {
 			//    Computational routines    //
 			//------------------------------//
 
-// Baryon density from enthalpy 
+// Baryon density from enthalpy
 //------------------------------
 
 double Eos_poly::nbar_ent_p(double ent, const Param* ) const {
 
-    if ( ent > double(0) ) {
+    if ( ent > ent_0 ) {
 
-	return pow( gam1sgamkap * ( exp(ent) - double(1) ), unsgam1 ) ;
+	return pow( gam1sgamkap * ( exp(ent) - rel_mu_0 ), unsgam1 ) ;
     }
     else{
 	return 0 ;
@@ -316,13 +366,13 @@ double Eos_poly::nbar_ent_p(double ent, const Param* ) const {
 
 double Eos_poly::ener_ent_p(double ent, const Param* ) const {
 
-    if ( ent > double(0) ) {
+    if ( ent > ent_0 ) {
 
-	double nn = pow( gam1sgamkap * ( exp(ent) - double(1) ),
+	double nn = pow( gam1sgamkap * ( exp(ent) - rel_mu_0 ),
 				     unsgam1 ) ;
 	double pp = kap * pow( nn, gam ) ;
 
-	return  unsgam1 * pp + m_0 * nn ;
+	return  unsgam1 * pp + mu_0 * nn ;
     }
     else{
 	return 0 ;
@@ -334,9 +384,9 @@ double Eos_poly::ener_ent_p(double ent, const Param* ) const {
 
 double Eos_poly::press_ent_p(double ent, const Param* ) const {
 
-    if ( ent > double(0) ) {
+    if ( ent > ent_0 ) {
 
-	double nn = pow( gam1sgamkap * ( exp(ent) - double(1) ),
+	double nn = pow( gam1sgamkap * ( exp(ent) - rel_mu_0 ),
 				     unsgam1 ) ;
 
 	return kap * pow( nn, gam ) ;
@@ -352,13 +402,14 @@ double Eos_poly::press_ent_p(double ent, const Param* ) const {
 
 double Eos_poly::der_nbar_ent_p(double ent, const Param* ) const {
 
-    if ( ent > double(0) ) {
+    if ( ent > ent_0 ) {
 
-	if ( ent < 1.e-13 ) {
+//## To be adapted
+        if ( ent < 1.e-13  + ent_0 ) {
 	    return ( double(1) + ent/double(2) + ent*ent/double(12) ) / gam1 ;
 	}
 	else {
-	    return ent / (double(1) - exp(-ent)) / gam1 ;
+	    return ent / (double(1) - rel_mu_0 * exp(-ent)) / gam1 ;
 	}
     }
     else{
@@ -371,7 +422,7 @@ double Eos_poly::der_nbar_ent_p(double ent, const Param* ) const {
 
 double Eos_poly::der_ener_ent_p(double ent, const Param* ) const {
 
-    if ( ent > double(0) ) {
+    if ( ent > ent_0 ) {
 
 
 	double nn = pow( gam1sgamkap * ( exp(ent) - double(1) ),
@@ -382,7 +433,7 @@ double Eos_poly::der_ener_ent_p(double ent, const Param* ) const {
 	double ee =  unsgam1 * pp + m_0 * nn ;
 
 
-	if ( ent < 1.e-13 ) {
+	if ( ent < ent_0 + 1.e-13 ) {
 	    return ( double(1) + ent/double(2) + ent*ent/double(12) ) / gam1
 		* ( double(1) + pp / ee) ;
 	}
