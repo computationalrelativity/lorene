@@ -23,6 +23,10 @@ SRC4 = visu_evol.C
 OBJ4 = $(SRC4:.C=.o)
 EXE4 = $(SRC4:.C=)
 
+SRC5 = analyse_evol.C
+OBJ5 = $(SRC5:.C=.o)
+EXE5 = $(SRC5:.C=)
+
 $(EXE1): $(OBJ1) $(LIBLOR) 
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
 	$(LIB_PGPLOT) $(LIB_CXX)
@@ -39,13 +43,17 @@ $(EXE4): $(OBJ4) $(LIBLOR)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ4) $(LIB_G) $(LIB_LAPACK) \
 	$(LIB_PGPLOT) $(LIB_CXX)
 
-all: $(EXE1) $(EXE2) $(EXE3) $(EXE4)
+$(EXE5): $(OBJ5) $(LIBLOR) 
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ5) $(LIB_G) $(LIB_LAPACK) \
+	$(LIB_PGPLOT) $(LIB_CXX)
+
+all: $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5)
 
 
 .C.o:
 	$(CXX)  -c $(CXXFLAGS_G) $(INC) $<
 
 uninstall:
-	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4)
-	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4)
+	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5)
+	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5)
 

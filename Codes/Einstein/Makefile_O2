@@ -23,6 +23,10 @@ SRC4 = visu_evol.C
 OBJ4 = $(SRC4:.C=.o)
 EXE4 = $(SRC4:.C=)
 
+SRC5 = analyse_evol.C
+OBJ5 = $(SRC5:.C=.o)
+EXE5 = $(SRC5:.C=)
+
 $(EXE1): $(OBJ1) $(LIBLOR)
 	$(CXX) -o $@ $(CXXFLAGS) $(OBJ1) $(LIB) $(LIB_LAPACK) \
         $(LIB_PGPLOT) $(LIB_CXX)
@@ -39,7 +43,11 @@ $(EXE4): $(OBJ4) $(LIBLOR)
 	$(CXX) -o $@ $(CXXFLAGS) $(OBJ4) $(LIB) $(LIB_LAPACK) \
         $(LIB_PGPLOT) $(LIB_CXX)
 
-all: $(EXE1) $(EXE2) $(EXE3) $(EXE4)
+$(EXE5): $(OBJ5) $(LIBLOR)
+	$(CXX) -o $@ $(CXXFLAGS) $(OBJ5) $(LIB) $(LIB_LAPACK) \
+        $(LIB_PGPLOT) $(LIB_CXX)
+
+all: $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5)
 
 .C.o:
 	$(CXX)  -c $(CXXFLAGS) $(INC) $<
