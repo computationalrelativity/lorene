@@ -1,0 +1,88 @@
+/*
+ * Method Mtbl_cf::poisson_angu().
+ *
+ *  (see file mtbl_cf.h for documentation)
+ *
+ */
+
+/*
+ *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *
+ *   This file is part of LORENE.
+ *
+ *   LORENE is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 2 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LORENE is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LORENE; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+
+char mtbl_cf_pde_C[] = "$Header$" ;
+
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.1  2003/10/15 21:12:22  e_gourgoulhon
+ * First version.
+ *
+ *
+ * $Header$
+ *
+ */
+
+
+// Headers Lorene
+#include "mtbl_cf.h"
+#include "base_val.h"
+#include "type_parite.h"
+
+
+// Prototypage des fonctions utilisees:
+void _poisangu_pas_prevu(Mtbl_cf *, int) ;
+void _poisangu_t_leg_p(Mtbl_cf *, int) ;
+void _poisangu_t_leg_i(Mtbl_cf *, int) ;
+void _poisangu_t_leg_pp(Mtbl_cf *, int) ;
+void _poisangu_t_leg_ip(Mtbl_cf *, int) ;
+void _poisangu_t_leg_pi(Mtbl_cf *, int) ;
+void _poisangu_t_leg_ii(Mtbl_cf *, int) ;
+
+//*****************************************************************************
+
+void Mtbl_cf::poisson_angu() {
+
+	// Routines de derivation
+	static void (*poisangu[MAX_BASE])(Mtbl_cf *, int) ;
+	static int nap = 0 ;
+
+    // Premier appel
+    if (nap==0) {
+		nap = 1 ;
+		for (int i=0 ; i<MAX_BASE ; i++) {
+	    	poisangu[i] = _poisangu_pas_prevu ;
+		}
+		// Les routines existantes
+		poisangu[T_LEG_P >> TRA_T] = _poisangu_t_leg_p ;
+		poisangu[T_LEG_PP >> TRA_T] = _poisangu_t_leg_pp ;
+		poisangu[T_LEG_I >> TRA_T] = _poisangu_t_leg_i ;
+		poisangu[T_LEG_IP >> TRA_T] = _poisangu_t_leg_ip ;
+		poisangu[T_LEG_PI >> TRA_T] = _poisangu_t_leg_pi ;
+		poisangu[T_LEG_II >> TRA_T] = _poisangu_t_leg_ii ;
+    }
+
+    // Boucle sur les zones
+    for (int l=0 ; l<get_mg()->get_nzone() ; l++) {
+		int base_t = (base.b[l] & MSQ_T) >> TRA_T ;
+		poisangu[base_t](this, l) ;
+    }
+    
+}
