@@ -14,7 +14,8 @@
 # Flag for makedepend commands:
 # WARNING: this flag should only be used in conjunction with the CXXFLAG
 # otherwise (C++ compliant cimpiler) see local_settings_linux file
-INCDEP  = -D_STANDARD_C_PLUS_PLUS
+INCDEP  = -I/usr/freeware/lib/gcc-lib/mips-sgi-irix6.5/3.3/include/c++/ \
+-I/usr/freeware/lib/gcc-lib/mips-sgi-irix6.5/3.3/include/c++/mips-sgi-irix6.5/
 
 #===============================#
 #           COMPILERS		#
@@ -22,19 +23,19 @@ INCDEP  = -D_STANDARD_C_PLUS_PLUS
 
 # C++ compiler:
 # ------------
-CXX 	 = CC
+CXX 	 = g++
 
 # Options for the C++ compiler to produce the optimized library:
 # -------------------------------------------------------------
-CXXFLAGS = -n32 -mips4 -r12000 -O2 -OPT:Olimit=0 -IPA -LANG:std -DNDEBUG 
+CXXFLAGS = -Wall -Wconversion -Woverloaded-virtual -O2 -DNDEBUG
 
 # Options for the C++ compiler to produce the library for debugging:
 # -----------------------------------------------------------------
-CXXFLAGS_G = -n32 -g -mips4 -LANG:std 
+CXXFLAGS_G = -Wall -Wconversion -Woverloaded-virtual -g 
 
 # Path for the include files:
 # --------------------------
-INC	= -I$(HOME_LORENE)/C++/Include -I/usr/include/CC \
+INC	= -I$(HOME_LORENE)/C++/Include \
 		-I$(HOME_LORENE)/C++/Include_extra
 
 # Converting archives to random libraries (if required, otherwise just ls)

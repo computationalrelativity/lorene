@@ -26,6 +26,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/09/09 08:24:43  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.2  2002/10/16 14:37:19  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -61,45 +64,46 @@ int main(){
   int type_t = SYM ; 
   int nbp[] = {np} ; 
   int type_p = NONSYM ;
-  
+
   Mg3d mg(nz, nbr, type_r, nbt, type_t, nbp, type_p) ;
   
   // Construction du mapping associe
   // -------------------------------
-
-  double r_limits[] = {0,1} ; 
-  Map_af mp(mg,r_limits) ; 
-
+  
+  double r_limits[] = {0,1} ;
+  
+  Map_af mp(mg, r_limits) ; 
+  
   // Phi
   // ---
-
+  
   const Coord& phi = mp.phi ; 
-
+  
   // Valeur de la fonction
   // ---------------------
-
+  
   Valeur ff(mg) ; 
   ff = pow(cos(phi),5) ; 
-
+  
   cout << "f : " << endl ; 
   cout << ff << endl ; 
-
-  // Transformation de Fourier
-  // -------------------------
-
+  
+  //    Transformation de Fourier
+  //    -------------------------
+  
   ff.std_base_scal() ; // definit la base spectrale a utiliser (Fourier)
-
+  
   ff.coef() ; // effectue la transformation de Fourier
-
+  
   cout << "Coefficients de la transformation de Fourier de f : " << endl ; 
-
+  
   ff.affiche_seuil(cout) ; 
-
+  
   // Dessin des coefficients de Fourier
   // ----------------------------------
   des_coef_phi(ff, 0, 0, 0, 1.e-14, "log|C_k|","Fourier coefficients") ; 
-
-
+  
+  
   // Fin du programme
   // ----------------
 
