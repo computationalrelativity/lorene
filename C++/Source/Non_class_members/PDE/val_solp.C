@@ -25,6 +25,9 @@ char val_solp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/12/11 15:37:09  p_grandclement
+ * sqrt(2) ----> sqrt(double(2))
+ *
  * Revision 1.1  2003/12/11 14:48:49  p_grandclement
  * Addition of ALL (and that is a lot !) the files needed for the general elliptic solver ... UNDER DEVELOPEMENT...
  *
@@ -90,7 +93,7 @@ Tbl _val_solp_r_cheb (const Tbl& sp, double alpha) {
     else
       res.set(3) += sp(i)*i*i/alpha ;
 
-  res /= sqrt(2) ;
+  res /= sqrt(double(2)) ;
   return res ;
 }	
 	
@@ -122,7 +125,7 @@ Tbl _val_solp_r_chebp (const Tbl& sp, double alpha) {
   // Derivee en 0
   res.set(3) = 0 ;
 
-  res /= sqrt(2) ;
+  res /= sqrt(double(2)) ;
   return res ;
 }
 	
@@ -155,7 +158,7 @@ Tbl _val_solp_r_chebi (const Tbl& sp, double alpha) {
     else
       res.set(3) -= (2*i+1)*sp(i) ;
 
-  res /= sqrt(2) ;
+  res /= sqrt(double(2)) ;
   return res ;   
 }
 	
@@ -185,7 +188,7 @@ Tbl _val_solp_r_chebu (const Tbl& sp, double alpha) {
     else
       res.set(3) -= 4.*alpha*i*i*sp(i) ;
  
-  res /= sqrt(2) ;
+  res /= sqrt(double(2)) ;
   return res ;
 }
 	

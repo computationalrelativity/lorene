@@ -25,6 +25,9 @@ char val_solh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/12/11 15:37:09  p_grandclement
+ * sqrt(2) ----> sqrt(double(2))
+ *
  * Revision 1.1  2003/12/11 14:48:49  p_grandclement
  * Addition of ALL (and that is a lot !) the files needed for the general elliptic solver ... UNDER DEVELOPEMENT...
  *
@@ -81,7 +84,7 @@ Tbl _val_solh_r_cheb (int l, double alpha, double beta) {
   res.set(1,2) = -1./pow(1.+echelle, l+2)*(l+1)/alpha ;
   res.set(1,3) = -1./pow(-1.+echelle, l+2)*(l+1)/alpha ;
 
-  res /= sqrt(2) ;
+  res /= sqrt(double(2)) ;
   return res ;
 }	
 	
@@ -100,7 +103,7 @@ Tbl _val_solh_r_chebp (int l, double alpha, double) {
   res.set(2) = 1./alpha*l ;
   res.set(3) = (l==1) ? 1 : 0 ;
   
-  res /= sqrt(2) ;
+  res /= sqrt(double(2)) ;
   return res ;
 }
 	
@@ -120,7 +123,7 @@ Tbl _val_solh_r_chebi (int l, double alpha, double) {
   res.set(2) = 1./alpha*l ;
   res.set(3) = (l==1) ? 1 : 0. ;
   
-  res /= sqrt(2) ;
+  res /= sqrt(double(2)) ;
   return res ;
 }
 	
@@ -137,9 +140,9 @@ Tbl _val_solh_r_chebu (int l, double alpha, double) {
   
   // Solution : 1/(x-1)^(l+1)
   res.set(0) = 0 ; /// Not used
-  res.set(1) = pow(-2., l+1)/sqrt(2) ; 
+  res.set(1) = pow(-2., l+1)/sqrt(double(2)) ; 
   res.set(2) = 0. ; /// noy used
-  res.set(3) = -alpha*(l+1)*pow(-2., l+2)/sqrt(2) ;        
+  res.set(3) = -alpha*(l+1)*pow(-2., l+2)/sqrt(double(2)) ;        
 
   return res ;
 }
