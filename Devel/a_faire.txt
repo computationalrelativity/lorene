@@ -1,0 +1,5 @@
+
+ -- Constructeur de Cmp par conversion d'un Tenseur (de valence 0)
+
+ -- Constructeur de Cmp par conversion d'un Coord
+
