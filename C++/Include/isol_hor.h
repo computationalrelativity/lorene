@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/10/01 16:51:16  f_limousin
+ * Pure Dirichlet boundary condition added
+ *
  * Revision 1.5  2004/09/28 16:03:58  f_limousin
  * Add parameter niter in the parameter file par_hor.d. It appears in
  * argument of the function init_data_schwarz(...).
@@ -263,15 +266,20 @@ class Isol_hor : public Time_slice_conf {
   /// --------------------------------------------------------------
   Valeur boundary_nn_Neu_kk() ;	
 
-  /// Dirichlet boundary condition on nn using the extrinsic curvature (eff)
+  /// Dirichlet boundary condition on nn (eff)
   /// dnn + a nn = 0 
   /// ----------------------------------------------------------------
   Valeur boundary_nn_Dir_eff(double aa) ;
 
-  /// Neumann boundary condition on nn using the extrinsic curvature (eff)
+  /// Neumann boundary condition on nn (eff)
   /// dnn + a nn = 0 
   ///---------------------------------------------------------------
   Valeur boundary_nn_Neu_eff(double aa) ;	
+
+  /// Dirichlet boundary condition nn = aa
+  /// ----------------------------------------------------------------
+  Valeur boundary_nn_Dir(double aa) ;
+
 
   /// Component r of boundary value of beta
   Valeur boundary_beta_r() ;
