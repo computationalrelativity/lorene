@@ -30,6 +30,10 @@ char tslice_conf_init_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/04/29 17:10:36  e_gourgoulhon
+ * Added argument pdt and update of depth slices at the end,
+ * taking into account the known time derivatives.
+ *
  * Revision 1.3  2004/04/08 16:45:11  e_gourgoulhon
  * Use of new methods set_*.
  *
@@ -62,7 +66,7 @@ char tslice_conf_init_C[] = "$Header$" ;
 
 void Time_slice_conf::initial_data_cts(const Sym_tensor& uu, 
                 const Scalar& trk_in, const Scalar& trk_point, 
-                double precis, 
+                double pdt, double precis,
                 const Scalar* p_ener_dens, const Vector* p_mom_dens, 
                 const Scalar* p_trace_stress) {
 
@@ -71,7 +75,7 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& uu,
     // Verifications
     // -------------
     double tr_uu = max(maxabs(uu.trace(tgam()), "trace tgam_{ij} u^{ij}")) ; 
-    if (tr_uu > 1.e-8) {
+    if (tr_uu > 1.e-7) {
         cerr << 
         "Time_slice_conf::initial_data_cts : the trace of u^{ij} with respect\n"
         << "  to the conformal metric tgam_{ij} is not zero !\n" 
@@ -265,7 +269,44 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& uu,
         // arrete() ; 
 
     }
+    
+    //==================================================================
+    // End of iteration 
+    //===================================================================
 
+    // Push forward in time to enable the computation of time derivatives
+    // ------------------------------------------------------------------
+    
+    double ttime1 = ttime ; 
+    int jtime1 = jtime ; 
+    for (int j=1; j < depth; j++) {
+        jtime1++ ; 
+        ttime1 += pdt ; 
+        psi_evol.update(psi_evol[jtime], jtime1, ttime1) ;  
+        n_evol.update(n_evol[jtime], jtime1, ttime1) ;  
+        beta_evol.update(beta_evol[jtime], jtime1, ttime1) ;  
+        hh_evol.update(hh_evol[jtime], jtime1, ttime1) ;
+        aa_evol.update(aa_evol[jtime], jtime1, ttime1) ;
+        trk_evol.update(trk_evol[jtime], jtime1, ttime1) ;
+        the_time.update(ttime1, jtime1, ttime1) ;         
+    } 
+    jtime += depth - 1 ; 
+    
+    // Taking into account the time derivative of h^{ij} and K : 
+    // ---------------------------------------------------------
+    Sym_tensor uu0 = uu ; 
+    uu0.dec_dzpuis(2) ; // dzpuis: 2 --> 0
+    
+    for (int j=1; j < depth; j++) {
+        hh_evol.update(hh_evol[jtime] - j*pdt* uu0, 
+                       jtime-j, the_time[jtime-j]) ;
+                       
+        trk_evol.update(trk_evol[jtime] - j*pdt* trk_point, 
+                       jtime-j, the_time[jtime-j]) ;
+                       
+    } 
+    
+    
 } 
 
 
