@@ -29,6 +29,11 @@ char rotseq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/08/26 08:58:50  e_gourgoulhon
+ *
+ * Added M/R and quantities in polytropic units in the
+ * output file res.d
+ *
  * Revision 1.5  2003/05/25 19:56:49  e_gourgoulhon
  *
  * Added the possibility to choose the factor a = R_eq / R0, instead of R0
@@ -411,7 +416,7 @@ int main(){
     icontrol.set(1) = mer_rot ;
     icontrol.set(2) = mer_change_omega ;
     icontrol.set(3) = mer_fix_omega ;
-    icontrol.set(4) = mer_mass ;
+    // icontrol.set(4) set later
     icontrol.set(5) = mermax_poisson ;
     icontrol.set(6) = mer_triax ;
     icontrol.set(7) = delta_mer_kep ;
@@ -428,7 +433,7 @@ int main(){
     Tbl diff(8) ;
 
     ofstream fichresu("seq.d") ;
-    fichresu << "# J [G M_sol^2/c] M [M_sol]   f_c [Hz]     H_c     r_p/r_e"
+    fichresu << "# M/R  M [poly]  M_B [poly]  J [G M_sol^2/c] M [M_sol]   f_c [Hz]     H_c     r_p/r_e"
              << "       T/W       M_B [M_sol]    GRV2       GRV3   " << endl ;
 
     // Loop on the configurations
@@ -443,14 +448,18 @@ int main(){
           }
     }
 
-    double domega = (omega_c_max - omega_c_min) / double(n_conf-1) ;
-    double dent = (entc_max - entc_min) / double(n_conf-1) ;
+    double domega = (n_conf > 1) ? 
+    			(omega_c_max - omega_c_min) / double(n_conf-1) : 0 ;
+    double dent = (n_conf > 1) ? (entc_max - entc_min) / double(n_conf-1) : 0 ;
 
     for (int jj = 0; jj < n_conf; jj++) {
 
     	double omega_c, ent_c ;
 
 	if ( seq_freq ) {
+
+    		icontrol.set(4) = mer_mass ;
+
 		ent_c = star.get_ent()()(0, 0, 0, 0) ;
 		omega_c = omega_c_min + jj * domega ;
 	}
@@ -478,10 +487,45 @@ int main(){
         star.equilibrium(ent_c, omega_c, fact_omega, nzadapt, ent_limit,
 			  icontrol, control, mbar_wanted, aexp_mass, diff) ;
 
+
+    	const Eos_poly* p_eos_poly = dynamic_cast<const Eos_poly*>(
+		&(star.get_eos()) ) ; 	  
+
+    	double mass_g_poly, mass_b_poly ; 
+	if (p_eos_poly != 0x0) {
+
+		double kappa = p_eos_poly->get_kap() ; 
+		double gamma = p_eos_poly->get_gam() ;  ; 
+
+		// kappa^{n/2}
+		double kap_ns2 = pow( kappa,  0.5 /(gamma-1) ) ; 
+    
+		// Polytropic unit of length in terms of r_unit : 
+		double r_poly = kap_ns2 / sqrt(ggrav) ; 
+    
+		// Polytropic unit of mass in terms of m_unit :
+		double m_poly = r_poly / ggrav ; 
+    
+		mass_g_poly = star.mass_g() / m_poly ;
+		mass_b_poly = star.mass_b() / m_poly ;
+
+	}
+	else{
+		mass_g_poly = 0 ;  
+		mass_b_poly = 0 ;  
+	}
+	
+	
 	int precisaff = 8 ;
 	int tailleaff = precisaff + 3 ;
 	fichresu.precision(precisaff) ;
 	fichresu << setw(tailleaff)
+		 << ggrav * star.mass_g() / star.r_circ() << " "
+		 << setw(tailleaff)
+		 << mass_g_poly << " "
+		 << setw(tailleaff)
+		 << mass_b_poly << " "
+		 << setw(tailleaff)
 		 << star.angu_mom()/( qpig / (4* M_PI) * msol*msol) << " "
 	         << setw(tailleaff)
 		 << star.mass_g() / msol << " "
