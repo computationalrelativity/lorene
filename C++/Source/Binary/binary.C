@@ -28,6 +28,9 @@ char Binary_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2005/02/24 17:31:27  f_limousin
+ * Update of the function decouple().
+ *
  * Revision 1.11  2005/02/18 13:14:06  j_novak
  * Changing of malloc/free to new/delete + suppression of some unused variables
  * (trying to avoid compilation warnings).
@@ -296,7 +299,7 @@ void Binary::display_poly(ostream& ost) const {
 
 
 void Binary::fait_decouple () {
-    /*
+    
     int nz_un = star1.mp.get_mg()->get_nzone() ;
     int nz_deux = star2.mp.get_mg()->get_nzone() ;
     
@@ -311,16 +314,13 @@ void Binary::fait_decouple () {
     
     // Les fonctions de base
     Cmp fonction_f_un (star1.mp) ;
-    //   fonction_f_un = (exp(-pow(star1.mp.r/lim_un, 2)) - exp(-1.)) / (1-exp(-1.))/2. + 0.5 ;
-    
+     
     fonction_f_un = 0.5*pow(
       cos((star1.mp.r-int_un)*M_PI/2./(lim_un-int_un)), 2.)+0.5 ;
     fonction_f_un.std_base_scal();
 
     Cmp fonction_g_un (star1.mp) ;
-    //   fonction_g_un = (1 - exp(-pow(star1.mp.r/lim_un, 2))) /
-    //(1-exp(-1.))/2. ;
-
+ 
     fonction_g_un = 0.5*pow
       (sin((star1.mp.r-int_un)*M_PI/2./(lim_un-int_un)), 2.) ;
     fonction_g_un.std_base_scal();
@@ -382,8 +382,8 @@ void Binary::fait_decouple () {
 			    decouple_un.set_grid_point(l, k, j, i) = 1 ;
 			else
 			// pres de l'etoile une :
-			decouple_un.set_grid_point(l, k, j, i) =  0.5*pow(
-      cos((air_un-int_un)*M_PI/2./(lim_un-int_un)), 2.)+0.5 ;
+			decouple_un.set_grid_point(l, k, j, i) =   
+			    fonction_f_un(l, k, j, i) ;
 
 		    else 
 			if (air_deux <= lim_deux)
@@ -391,9 +391,9 @@ void Binary::fait_decouple () {
 				decouple_un.set_grid_point(l, k, j, i) = 0 ;
 			    else
 			// On est pres de l'etoile deux :
-			     decouple_un.set_grid_point(l, k, j, i) = 0.5*pow
-      (sin((air_deux-int_deux)*M_PI/2./(lim_deux-int_deux)), 2.) ;
-						    
+			     decouple_un.set_grid_point(l, k, j, i) = 
+		       fonction_g_deux.val_point(air_deux, theta, phi) ;
+		    
 			else
 			    // On est loin des deux etoiles :
 			    decouple_un.set_grid_point(l, k, j, i) = 0.5 ;
@@ -436,18 +436,16 @@ void Binary::fait_decouple () {
 			    decouple_deux.set_grid_point(l, k, j, i) = 1 ;
 			else
 			  // pres de l'etoile deux :
-			decouple_deux.set_grid_point(l, k, j, i) =  0.5*pow(
-	       cos((air_deux-int_deux)*M_PI/2./(lim_deux-int_deux)), 2.)+0.5 ;
-			
+			decouple_deux.set_grid_point(l, k, j, i) =  						    fonction_f_deux (l, k, j, i) ;
+
 		    else 
 			if (air_un <= lim_un)
 			    if (air_un < int_un)
 				decouple_deux.set_grid_point(l, k, j, i) = 0 ;
 			    else
 			// On est pres de l'etoile une :
-			     decouple_deux.set_grid_point(l, k, j, i)=0.5*pow
-               (sin((air_un-int_un)*M_PI/2./(lim_un-int_un)), 2.) ;
-		   
+			     decouple_deux.set_grid_point(l, k, j, i)=
+		   		fonction_g_un.val_point (air_un, theta, phi) ;
 		
 			else
 			    // On est loin des deux etoiles :
@@ -459,32 +457,16 @@ void Binary::fait_decouple () {
 		    for (int k=0 ; k<np ; k++)
 			for (int j=0 ; j<nt ; j++)
 			    decouple_deux.set_grid_point(nz_un-1, k, j, nr) = 0.5 ;
-   }
-    */   
+    }
+      
     int nr = star2.mp.get_mg()->get_nr(2) ;
     int np = star2.mp.get_mg()->get_np(2) ;
     int nt = star2.mp.get_mg()->get_nt(2) ;
-//    int nz = star2.mp.get_mg()->get_nzone() ;
 
-
-    Scalar decouple_un (star1.mp) ;
-    Scalar decouple_deux (star2.mp) ;
-
-    decouple_un = 0.5 ;
-    decouple_deux = 0.5 ;
-
-/*
-    Cmp decouple_cmp (decouple_un) ;
-    decouple_cmp.std_base_scal() ;
-
-    des_coupe_z(decouple_cmp, 0, 4) ;
-    des_profile(decouple_cmp, 0, 10, 1.57, 0) ;
-
-    cout << "decouple_un" << endl << decouple_un << endl ;
-    cout << "decouple_deux" << endl << decouple_deux << endl ;
-*/
     cout << "decouple_un"  << endl << norme(decouple_un/(nr*nt*np)) << endl ;
     cout << "decouple_deux"  << endl << norme(decouple_deux/(nr*nt*np)) << endl ;
+    decouple_un.std_spectral_base() ;
+    decouple_deux.std_spectral_base() ;
     star1.decouple = decouple_un ;
     star2.decouple = decouple_deux ;
 
@@ -519,7 +501,8 @@ void Binary::write_global(ostream& ost) const {
       << "       d_G [km]       "
       << "     d/(a1 +a1')      "
       << "       f [Hz]         "
-      << "    M_ADM [M_sol]     "     
+      << "    M_ADM [M_sol]     "   
+      << "    M_ADM_vol M_sol]     "   
       << "   J [G M_sol^2/c]    "  << endl ;   
   
   ost.precision(14) ;
@@ -529,6 +512,7 @@ void Binary::write_global(ostream& ost) const {
   ost	<< separation() / (star1.ray_eq() + star2.ray_eq()) ; ost.width(22) ;
   ost	<< omega / (2*M_PI)* f_unit ; ost.width(22) ;
   ost	<< mass_adm() / msol ; ost.width(22) ; 
+  ost	<< mass_adm_vol() / msol ; ost.width(22) ; 
   ost	<< angu_mom()(2)/ ( qpig / (4* M_PI) * msol*msol) << endl ; 
   
   ost << "#     H_c(1)[c^2]     "
