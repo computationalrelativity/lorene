@@ -32,6 +32,9 @@ char vector_df_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/20 10:13:28  e_gourgoulhon
+ * Corrected error in the computation of mu.
+ *
  * Revision 1.3  2003/10/17 16:36:05  e_gourgoulhon
  * In method update_vtvp(): replaced del_deriv() by
  *   Vector::del_deriv().
@@ -121,10 +124,15 @@ const Scalar& Vector_divfree::mu() const {
 		assert(bvs != 0x0) ; 
 		#endif
 
-		Scalar tmp = *cmp[2] ; 	// v^ph
+		Scalar tmp = *cmp[2] ; 	// V^ph
 		tmp.div_tant() ; 		// V^ph / tan(th)
 		
-		p_mu = new Scalar( cmp[2]->dsdt() + tmp - cmp[1]->stdsdp() ) ;  
+		// dV^ph/dth + V^ph/tan(th) - 1/sin(th) dV^th/dphi 
+		tmp = cmp[2]->dsdt() + tmp - cmp[1]->stdsdp() ; 
+		
+		// Resolution of the angular Poisson equation for mu
+		// --------------------------------------------------
+		p_mu = new Scalar( tmp.poisson_angu() ) ;  
 
 	}
 
