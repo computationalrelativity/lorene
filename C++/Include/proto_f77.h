@@ -31,6 +31,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/12/29 12:27:35  j_novak
+ * permute is now a Itbl* which array is sent directly to the LAPACK routines.
+ * It is now possible to solve a general system (i.e. even if the Matrice
+ * is not in a banded form).
+ *
  * Revision 1.2  2002/09/09 13:54:20  e_gourgoulhon
  *
  * Change of name of the Fortran subroutines
@@ -74,12 +79,16 @@ void F77_fftrig(double [], int *, int *) ;
         #define F77_dswap dswap
         #define F77_dgbtrf dgbtrf
         #define F77_dgbtrs dgbtrs
+        #define F77_dgetrf dgetrf
+        #define F77_dgetrs dgetrs
         #define F77_dgeev dgeev
         #define F77_dgesv dgesv
 #else
         #define F77_dswap dswap_
         #define F77_dgbtrf dgbtrf_
         #define F77_dgbtrs dgbtrs_
+        #define F77_dgetrf dgetrf_
+        #define F77_dgetrs dgetrs_
         #define F77_dgeev dgeev_
         #define F77_dgesv dgesv_
 #endif
@@ -89,6 +98,8 @@ void F77_dswap(int*, double [], int*, double [], int*) ;
 void F77_dgbtrf(int*, int*, int*, int*, double[], int*, int[], int *) ;
 void F77_dgbtrs(char*, int*, int*, int*, int*,
 			double[], int*, int[], double [], int*, int *) ;
+void F77_dgetrf(int*, int*, double[], int*, int[], int *) ;
+void F77_dgetrs(char*, int*, int*, double[], int*, int[], double [], int*, int* ) ;
 void F77_dgeev(char*, char*, int*, double[], int*, double[], double[],
 			double[], int*, double[], int*, double[], int*, int*) ;
 void F77_dgesv(int *, int *, double [], int *, int [], double[], int *, int *) ;

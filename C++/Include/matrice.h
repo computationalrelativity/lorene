@@ -31,6 +31,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/12/29 12:27:35  j_novak
+ * permute is now a Itbl* which array is sent directly to the LAPACK routines.
+ * It is now possible to solve a general system (i.e. even if the Matrice
+ * is not in a banded form).
+ *
  * Revision 1.8  2004/08/24 09:14:40  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -113,6 +118,7 @@
 
 #include "type_parite.h"
 #include "tbl.h"
+#include "itbl.h"
 
 /**
  * Matrix handling.
@@ -149,7 +155,7 @@ class Matrice {
 	
 	
 	mutable Tbl* lu ;   ///< Pointer on the first array of the LU-representation.
-	mutable Tbl* permute ;	///< Pointer on the second array of the LU-representation.
+	mutable Itbl* permute ;	///< Pointer on the second array of the LU-representation.
 	
     // Constructeurs destructeurs
     public:
@@ -186,15 +192,16 @@ class Matrice {
 
     // manipulation des etats
     public:
-	///< Returns the logical state.
+	/// Returns the logical state.
 	int get_etat() const { return etat ; }; 
+
 	/**
 	 * Sets the logical state to \c ETATQCQ (ordinary state).
 	 * The state of \c *std is now \c ETATQCQ and the one of all the
 	 * other representations is \c ETATNONDEF.
 	 */
-	
 	void set_etat_qcq()  ;
+
 	/**
 	 * Sets the logical state to \c ETATZERO (zero).
 	 * The state of \c *std is now \c ETATZERO and the one of all the

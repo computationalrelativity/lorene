@@ -32,6 +32,11 @@ char matrice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/12/29 12:27:36  j_novak
+ * permute is now a Itbl* which array is sent directly to the LAPACK routines.
+ * It is now possible to solve a general system (i.e. even if the Matrice
+ * is not in a banded form).
+ *
  * Revision 1.9  2004/10/05 15:44:19  j_novak
  * Minor speed enhancements.
  *
@@ -113,8 +118,6 @@ char matrice_C[] = "$Header$" ;
 
 //fichiers includes
 #include <stdlib.h>
-#include "type_parite.h"
-#include "tbl.h"
 #include "matrice.h"
 #include "proto_f77.h"
 
@@ -184,7 +187,7 @@ Matrice::Matrice (const Matrice & source) {
     else band = 0x0 ;
     if (source.lu != 0x0) lu = new Tbl(*source.lu) ;
     else lu = 0x0 ;
-    if (source.permute != 0x0) permute = new Tbl(*source.permute) ;
+    if (source.permute != 0x0) permute = new Itbl(*source.permute) ;
     else permute = 0x0 ;
 }
 
@@ -261,7 +264,7 @@ void Matrice::operator= (const Matrice &source) {
 	    
 	    if (source.lu != 0x0) {
 		lu = new Tbl(*source.lu) ;
-		permute = new Tbl(*source.permute) ;
+		permute = new Itbl(*source.permute) ;
 	    }
 	    break ;
 	}
@@ -330,51 +333,57 @@ void Matrice::set_band (int u, int l) const {
 void Matrice::set_lu() const {
     
     // Decomposition LU
-    assert ((band != 0x0) && (band->get_etat() == ETATQCQ)) ;
-    
     int n = std->get_dim(0) ;
-    int ldab = 2*kl+ku+1 ;
-    int* ipiv = new int [n];
-    int info ;
-    
-    lu = new Tbl(*band) ;
-    
-    F77_dgbtrf(&n, &n, &kl, &ku, lu->t, &ldab, ipiv, &info) ;
-   
-    
-    permute = new Tbl(n) ;
+    int ldab, info ;
+    permute = new Itbl(n) ;
     permute->set_etat_qcq() ;
-    for (int i=0 ;i<n ;i++)
-	permute->set(i) = ipiv[i] ;
 
-    delete [] ipiv ;
+    // Cas d'une matrice a bandes
+    if (band != 0x0) {
+	assert (band->get_etat() == ETATQCQ) ;
+	ldab = 2*kl+ku+1 ;
+	lu = new Tbl(*band) ;
+    
+	F77_dgbtrf(&n, &n, &kl, &ku, lu->t, &ldab, permute->t, &info) ;
+    }
+    else { // matrice generale
+	assert (std->get_etat() == ETATQCQ) ;
+	ldab = n ;
+	lu = new Tbl(*std) ;
+	
+	F77_dgetrf(&n, &n, lu->t, &ldab, permute->t, &info) ;
+    }
 }
 
 // Solution de Ax = B : utilisation de LAPACK et decomposition lu.
 Tbl Matrice::inverse (const Tbl& source) const {
     
     assert(lu != 0x0) ;
+    assert(lu->get_etat() == ETATQCQ) ;
+    assert(permute != 0x0) ;
+    assert(permute->get_etat() == ETATQCQ) ;
        
     int n = source.get_dim(0) ;
     assert (get_dim(1) == n) ;
-    
-    int ldab = 2*kl+ku+1 ;
-    
-    int* ipiv = new int [n];
-    for (int i=0 ; i<n ; i++)
-	ipiv[i] = int((*permute)(i)) ;
-    
-    int info ;
-    char* trans = "N" ;
+    int ldab, info ;
+    char* trans ;
     int nrhs = 1 ;
     int ldb = n ;
         
     Tbl res(source) ;
     
-    F77_dgbtrs(trans, &n, &kl, &ku, &nrhs, lu->t,
-	    &ldab, ipiv, res.t, &ldb, &info);
-    
-    delete [] ipiv ;
+    if (band != 0x0) { //Cas d'une matrice a bandes
+	ldab = 2*kl+ku+1 ;
+	trans = "N" ;
+	F77_dgbtrs(trans, &n, &kl, &ku, &nrhs, lu->t,
+		   &ldab, permute->t, res.t, &ldb, &info);
+    }
+    else { // Cas general
+	ldab = n ;
+	trans = "T" ; // stockage different entre le C et le fortran
+	F77_dgetrs(trans, &n, &nrhs, lu->t, &ldab, permute->t,
+		   res.t, &ldb, &info) ;
+    }
     
     return res ;
 }
