@@ -34,6 +34,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/09/24 10:21:07  e_gourgoulhon
+ * added more methods
+ *
  * Revision 1.1  2003/09/23 08:52:17  e_gourgoulhon
  * new version
  *
@@ -51,6 +54,7 @@ char scalar_C[] = "$Header$" ;
 #include "tensor.h"
 #include "type_parite.h"
 #include "utilitaires.h"
+#include "proto.h"
 
 			//---------------//
 			// Constructors  //
@@ -431,4 +435,238 @@ void Scalar::sauve(FILE* fd) const {
 
 }
     
+			//------------//
+			// Impression //
+			//------------//
+
+// Operator <<
+// -----------
+ostream& operator<<(ostream& o, const Scalar& ci) {
+
+    switch(ci.etat) {
+	case ETATNONDEF: {
+	    o << "*** UNDEFINED STATE" ;
+	    break ;
+	}
+	
+	case ETATZERO: {
+	    o << "*** IDENTICALLY ZERO" ;
+	    break ; 
+	}
+	
+	case ETATQCQ: {
+	    o << "                        dzpuis = " << ci.get_dzpuis() << endl ; 
+	    o << ci.va << endl ; 
+	    break ;
+	}
+	
+	default: {
+	    cout << "operator<<(ostream&, const Scalar&) : unknown state !" 
+		 << endl ;
+	    abort() ;
+	    break ; 
+	}
+    }
+    
+    // Termine
+    return o ;
+}
+
+// affiche_seuil
+//---------------
+
+void Scalar::spectral_display(ostream& ost, double threshold,
+			int type, int precis) const {
+
+    // Cas particuliers
+    //-----------------
+
+    if (etat == ETATNONDEF) {
+		ost << "    state: UNDEFINED" << endl ;
+	return ;
+    }
+
+    if (etat == ETATZERO) {
+		ost << "    state: ZERO" << endl ;
+	return ;
+    }
+
+    // Cas general : on affiche la Valeur
+    //------------
+	   
+    ost << "                        dzpuis = " << dzpuis << endl ; 
+    va.affiche_seuil(ost, type, precis, threshold) ;
+
+}
+
+
+
+    
+		    //------------------------------------//
+		    //	Spectral bases of the Valeur va   //
+		    //------------------------------------//
+		    
+void Scalar::std_spectral_base_scal() {
+      
+    va.std_base_scal() ;  
+                   
+}    
+
+
+void Scalar::set_spectral_base(const Base_val& bi) {
+
+	va.set_base(bi) ; 
+
+}	 
+
+
+		    //--------------------------//
+		    //	dzpuis manipulations    //
+		    //--------------------------//
+		    
+void Scalar::set_dzpuis(int dzi) {
+    
+    dzpuis = dzi ;
+    
+}
+
+bool Scalar::dz_nonzero() const {
+    
+    assert(etat != ETATNONDEF) ; 
+    
+    const Mg3d* mg = mp->get_mg() ;
+    
+    int nzm1 = mg->get_nzone() - 1; 
+    if (mg->get_type_r(nzm1) != UNSURR) {
+		return false ; 
+    } 
+    
+    if (etat == ETATZERO) {
+		return false ; 
+    }
+    
+    assert(etat == ETATQCQ) ;
+    
+    if (va.etat == ETATZERO) {
+		return false ; 
+    }
+
+    assert(va.etat == ETATQCQ) ; 
+    
+    if (va.c != 0x0) {
+	if ( (va.c)->get_etat() == ETATZERO ) {
+	    return false ; 
+	}
+	
+	assert( (va.c)->get_etat() == ETATQCQ ) ; 
+	if ( (va.c)->t[nzm1]->get_etat() == ETATZERO ) {
+	    return false ; 
+	}
+	else {
+	    assert( (va.c)->t[nzm1]->get_etat() == ETATQCQ ) ; 
+	    return true ; 
+	}
+    }
+    else{
+	assert(va.c_cf != 0x0) ; 
+	if ( (va.c_cf)->get_etat() == ETATZERO ) {
+	    return false ; 
+	}
+	assert( (va.c_cf)->get_etat() == ETATQCQ ) ; 
+	if ( (va.c_cf)->t[nzm1]->get_etat() == ETATZERO ) {
+	    return false ; 
+	}
+	else {
+	    assert( (va.c_cf)->t[nzm1]->get_etat() == ETATQCQ ) ; 
+	    return true ; 
+	}
+    
+    } 
+    
+}
+
+bool Scalar::check_dzpuis(int dzi) const {
+    
+    if (dz_nonzero()) {	    // the check must be done
+		return (dzpuis == dzi) ; 
+    }
+    else{
+		return true ; 
+    }
+    
+}
+
+
+
+		//---------------------------------------//
+		//	    Value at an arbitrary point		 //
+		//---------------------------------------//
+
+double Scalar::val_point(double r, double theta, double phi) const {
+
+    assert(etat != ETATNONDEF) ; 
+    
+    if (etat == ETATZERO) {
+		return double(0) ; 
+    }
+    
+    assert(etat == ETATQCQ) ; 
+    
+    // 1/ Search for the domain and the grid coordinates (xi,theta',phi')
+    //    which corresponds to the point (r,theta,phi)
+    
+    int l ; 
+    double xi ; 
+    
+    mp->val_lx(r, theta, phi, l,  xi) ;	    // call of val_lx with default 
+					    // accuracy parameters
+    
+    // 2/ Call to the Valeur version
+    
+    return va.val_point(l, xi, theta, phi) ; 
+
+}
+ 
+		//---------------------------------//
+        //	    Multipolar spectrum	       //
+		//---------------------------------//
+
+Tbl Scalar::multipole_spectrum() {
+
+  assert (etat != ETATNONDEF) ;
+
+  const Mg3d* mg = mp->get_mg() ;
+  int nzone = mg->get_nzone() ;
+  int lmax = 0 ;
+  
+  for (int lz=0; lz<nzone; lz++) 
+    lmax = (lmax < 2*mg->get_nt(lz) - 1 ? 2*mg->get_nt(lz) - 1 : lmax) ;
+
+  Tbl resu(nzone, lmax) ;
+  if (etat == ETATZERO) {
+    resu.set_etat_zero() ;
+    return resu ;
+  }
+
+  assert(etat == ETATQCQ) ;
+
+  va.coef() ;
+  va.ylm() ;
+  resu.annule_hard() ;
+  const Base_val& base = va.c_cf->base ;
+  int m_quant, l_quant, base_r ;
+  for (int lz=0; lz<nzone; lz++) 
+    for (int k=0 ; k<mg->get_np(lz) ; k++) 
+      for (int j=0 ; j<mg->get_nt(lz) ; j++) {
+	if (nullite_plm(j, mg->get_nt(lz), k, mg->get_np(lz), base) == 1) 
+	  {
+	    // quantic numbers and spectral bases
+	    donne_lm(nzone, lz, j, k, base, m_quant, l_quant, base_r) ;
+	    for (int i=0; i<mg->get_nr(lz); i++) resu.set(lz, l_quant) 
+				     += fabs((*va.c_cf)(0, k, j, i)) ; 
+	  }
+      }
+
+  return resu ;
+}
 
