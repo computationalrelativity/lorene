@@ -30,6 +30,9 @@ char vector_df_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/27 09:03:01  j_novak
+ * Added an assert on the triad
+ *
  * Revision 1.2  2003/10/20 19:44:43  e_gourgoulhon
  * First full version
  *
@@ -50,7 +53,12 @@ char vector_df_poisson_C[] = "$Header$" ;
 
 Vector_divfree Vector_divfree::poisson() const {
 
-	// Solution for the r-component
+  // All this has a meaning only for spherical components:
+#ifndef NDEBUG 
+  const Base_vect_spher* bvs = dynamic_cast<const Base_vect_spher*>(triad) ;
+  assert(bvs != 0x0) ; 
+#endif
+        // Solution for the r-component
 	// ----------------------------
 	
 	Scalar source_r = *(cmp[0]) ; 
