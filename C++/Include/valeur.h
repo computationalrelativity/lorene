@@ -5,7 +5,7 @@
 
 /*
  *   Copyright (c) 1999-2000 Jean-Alain Marck
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2003 Eric Gourgoulhon
  *   Copyright (c) 1999-2001 Philippe Grandclement
  *   Copyright (c) 1999-2001 Jerome Novak
  *   Copyright (c) 2001 Keisuke Taniguchi
@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/10/19 19:48:31  e_gourgoulhon
+ * Introduced new method display_coef.
+ *
  * Revision 1.6  2003/10/13 20:48:52  e_gourgoulhon
  * Added new method get_base() (to prepare the encapsulation of the member
  * base).
@@ -536,6 +539,17 @@ class Valeur {
     public:
 	void sauve(FILE *) const ;	    /// Save in a file
     
+	/** Displays the spectral coefficients and the associated
+	 *  basis functions. This function shows only the values greater than a 
+	 *  given threshold.
+	 *   @param threshold [input] Value above which a coefficient is printed
+	 *    (default: 1.e-7)
+	 *   @param precision [input] Number of printed digits (default: 4)
+	 *   @param ostr [input] Output stream used for the printing (default: cout)
+	 */
+	void display_coef(double threshold = 1.e-7, int precision = 4, 
+			   ostream& ostr = cout) const ;
+
 	/** Prints only the values greater than a given threshold.
 	 *   @param ostr [input] Output stream used for the printing
 	 *   @param type [input] Type of display : 0 = prints only the
