@@ -32,6 +32,9 @@ char map_radial_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/17 15:07:29  j_novak
+ * The order of operations in div_tant() has been changed.
+ *
  * Revision 1.3  2003/10/15 10:41:49  e_gourgoulhon
  * Added new method div_tant.
  *
@@ -688,9 +691,9 @@ void Map_radial::div_tant(Scalar& ci) const {
 
     assert(val.get_mg() == mg) ; 
      
-    val = val.ssint() ;		// Division by sin(theta)
-
 	val = val.mult_ct() ; 	// Multiplication by cos(theta) 
     
+    val = val.ssint() ;		// Division by sin(theta)
+
 }
 
