@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/01/14 15:48:03  f_limousin
+ * Initial revision
+ *
  * Revision 1.5  2003/06/20 14:06:54  f_limousin
  * Add a new argument conf_flat for the constructors and a new function fait_decouple().
  *
@@ -223,6 +226,11 @@ class Bin_ns_ncp {
 
 	/// Display in polytropic units
 	void display_poly(ostream& ) const ; 
+
+	/** Write global quantities in a formatted file. 
+	 * This file can be read by an external program. 
+	 */
+	void write_global(ostream& ) const  ;
 
       private:
 	/// Operator >> (function called by the operator <<). 

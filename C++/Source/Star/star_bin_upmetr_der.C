@@ -1,0 +1,96 @@
+/*
+ * Methods Star_bin::update_metric_der_comp
+ *
+ * (see file star.h for documentation)
+ *
+ */
+
+/*
+ *   Copyright (c) 2004 Francois Limousin
+ *
+ *   This file is part of LORENE.
+ *
+ *   LORENE is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 2 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LORENE is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LORENE; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+
+char star_bin_upmetr_der_C[] = "$Header$" ;
+
+/*
+ * $Header$
+ *
+ */
+
+// Headers Lorene
+#include "star.h"
+#include "utilitaires.h"
+#include "graphique.h"
+
+void Star_bin::update_metric_der_comp(const Star_bin& comp) {
+  
+
+  // Derivatives of metric coefficients
+  // ----------------------------------
+  
+ 
+
+
+  // Computation of tkij_comp
+  // ------------------------
+    
+    // Gradient tilde (partial derivatives with respect to
+    //           the Spherical coordinates of the mapping)
+    // D~^j beta^i
+    
+    const Tensor& dshift_comp = shift_comp.derive_con(gtilde) ;
+    
+    // Trace of D~_j beta^i  :
+    Scalar divshift_comp = shift_comp.derive_cov(gtilde).scontract(0, 1) ;
+    
+    // Computation of K^{ij}
+    // -------------------------
+      
+    for (int i=1; i<=3; i++) 
+	for (int j=i; j<=3; j++) {
+
+	  tkij_comp.set(i, j) = dshift_comp(i, j) + dshift_comp(j, i) - 
+	    double(2) /double(3) * divshift_comp % (gtilde.con())(i,j) ; 
+	}
+      
+      tkij_comp = - 0.5 * tkij_comp / nnn ;
+      tkij_comp.std_spectral_base() ;
+      
+      // Computation of kcar_comp
+      // -------------------------
+      
+      Tensor temp11 = contract(gtilde.cov(),1, contract( 
+					  gtilde.cov(),1, tkij_auto,1),1) ;
+
+      Tensor tkij_auto_cov = tkij_auto ;
+
+      for (int i=1; i<=3; i++) 
+	for (int j=i; j<=3; j++) {
+	  
+	  tkij_auto_cov.set(i,j) = temp11(i,j) ;
+	  
+	  kcar_comp += tkij_auto_cov(i,j) % tkij_comp(i,j) ; 	
+      }
+      
+      Scalar a_car = psi4 * pow(flat.determinant(), 1./3.) ;
+      kcar_comp =  a_car % kcar_comp ; 
+      kcar_comp.std_spectral_base() ;
+}      
+
