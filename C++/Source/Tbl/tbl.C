@@ -33,6 +33,9 @@ char tbl_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/11/03 13:53:20  j_novak
+ * Yet another efficiency improvement.
+ *
  * Revision 1.6  2003/10/19 19:58:56  e_gourgoulhon
  * Slightly improved operator<<.
  *
@@ -145,10 +148,11 @@ Tbl::Tbl(const Tbl& tc) : etat(tc.etat), dim(tc.dim) {
 
     // La valeur eventuelle
     if (tc.etat == ETATQCQ) {
-	t = new double[get_taille()] ;
+      int n = dim.taille ;
+	t = new double[n] ;
 	double* tin = tc.t ; 
 	double* tout = t ;
-	for (int i=0 ; i<get_taille() ; i++) {
+	for (int i=0 ; i<n ; i++) {
 	  *tout = *tin ;
 	  tout++ ; tin++ ; 
 	}
@@ -230,7 +234,6 @@ void Tbl::operator=(const Tbl& tx)
     assert( dim == tx.dim ) ;
     assert(tx.get_etat() != ETATNONDEF) ;
 
-    int n = get_taille() ;
     switch (tx.etat) {
     case ETATZERO:
 	set_etat_zero() ;
@@ -238,6 +241,7 @@ void Tbl::operator=(const Tbl& tx)
 	
     case ETATQCQ: {
       set_etat_qcq() ;
+      int n = get_taille() ;
       double* tin = tx.t ;
       double* tout = t ;
       for (int i=0 ; i<n ; i++) {
