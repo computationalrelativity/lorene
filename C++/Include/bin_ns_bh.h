@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/24 12:45:22  k_taniguchi
+ * Change the class for the star from Etoile_bin to Et_bin_nsbh
+ *
  * Revision 1.4  2003/02/13 16:40:24  p_grandclement
  * Addition of various things for the Bin_ns_bh project, non of them being
  * completely tested
@@ -54,14 +57,14 @@
 
 
 // Lorene headers
-#include "etoile.h"
+#include "et_bin_nsbh.h"
 #include "bhole.h"
 
 /**
  * Neutron star - black hole binary system.
  *
  * The class {\tt Bin\_ns\_bh} is composed of an object of class
- * {\tt Etoile\_bin} and an object of class {\tt Bhole}.
+ * {\tt Et\_bin\_nsbh} and an object of class {\tt Bhole}.
  *
  * @version #$Id$#
  */
@@ -76,7 +79,7 @@ class Bin_ns_bh {
 	const Base_vect_cart ref_triad ;
 
 	/// The neutron star
-	Etoile_bin star ;
+	Et_bin_nsbh star ;
 
 	/// The black hole
 	Bhole hole ;
@@ -170,7 +173,7 @@ class Bin_ns_bh {
 	void operator=(const Bin_ns_bh& ) ;
 
 	/// Read/write of the neutron star
-	Etoile_bin& set_ns()
+	Et_bin_nsbh& set_ns()
 	    { del_deriv() ;
                return star ;} ;
 
@@ -189,7 +192,7 @@ class Bin_ns_bh {
     // ---------
     public:
 	/// Returns a constant reference to the neutron star
-	const Etoile_bin& get_ns() const
+	const Et_bin_nsbh& get_ns() const
 	    { return star ;} ;
 
 	/// Returns a constant reference to the black hole
