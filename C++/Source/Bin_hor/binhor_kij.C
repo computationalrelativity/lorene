@@ -26,6 +26,9 @@ char binhor_kij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/12/31 15:41:54  f_limousin
+ * Correction of an error
+ *
  * Revision 1.1  2004/12/29 16:12:03  f_limousin
  * First version
  *
@@ -198,7 +201,7 @@ void Bin_hor::decouple () {
 		    else 
 			if (air_deux <= lim_deux)
 			    if (air_deux < int_deux)
-				decouple_un.set(l, k, j, i) = 0 ;
+				decouple_un.set_grid_point(l, k, j, i) = 0 ;
 			    else
 			// Close to hole 2 :
 				decouple_un.set_grid_point(l, k, j, i) = 

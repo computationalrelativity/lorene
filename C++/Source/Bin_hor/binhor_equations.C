@@ -26,6 +26,9 @@ char binhor_equations_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/12/31 15:41:26  f_limousin
+ * Correction of an error
+ *
  * Revision 1.1  2004/12/29 16:11:34  f_limousin
  * First version
  *
@@ -122,7 +125,7 @@ void Bin_hor::solve_lapse (double precision, double relax) {
     Scalar n_un_temp (hole1.mp) ;
     Scalar n_deux_temp (hole2.mp) ;
     n_un_temp = hole1.n_auto() - 1./2. ;
-    n_deux_temp = hole1.n_auto() - 1./2. ;
+    n_deux_temp = hole2.n_auto() - 1./2. ;
     
     Cmp sour_un (hole1.mp) ;
     Cmp sour_deux (hole2.mp) ;
@@ -223,8 +226,8 @@ void Bin_hor::solve_psi (double precision, double relax) {
  
     // Scalar --> Cmp 
 
-    Scalar psi_un_temp (hole1.mp) ;
-    Scalar psi_deux_temp (hole2.mp) ;
+    Scalar psi_un_temp (hole1.psi_auto()) ;
+    Scalar psi_deux_temp (hole2.psi_auto()) ;
     
     Cmp sour_un (hole1.mp) ;
     Cmp sour_deux (hole2.mp) ;
