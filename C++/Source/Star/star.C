@@ -34,6 +34,10 @@ char star_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/03/08 11:48:00  f_limousin
+ * Error in del_deriv() and set_der_0x0() : p_mass_b and p_mass_g were
+ * missing. And so they were never recomputed.
+ *
  * Revision 1.5  2004/02/27 09:36:46  f_limousin
  * u_euler is now constructed on a cartesian basis instead
  * of a spherical one.
@@ -242,6 +246,8 @@ Star::~Star(){
 
 void Star::del_deriv() const {
 
+    if (p_mass_b != 0x0) delete p_mass_b ; 
+    if (p_mass_g != 0x0) delete p_mass_g ; 
     if (p_ray_eq != 0x0) delete p_ray_eq ; 
     if (p_ray_eq_pis2 != 0x0) delete p_ray_eq_pis2 ; 
     if (p_ray_eq_pi != 0x0) delete p_ray_eq_pi ; 
@@ -257,6 +263,8 @@ void Star::del_deriv() const {
 
 void Star::set_der_0x0() const {
 
+    p_mass_b = 0x0 ; 
+    p_mass_g = 0x0 ; 
     p_ray_eq = 0x0 ; 
     p_ray_eq_pis2 = 0x0 ; 
     p_ray_eq_pi = 0x0 ; 
