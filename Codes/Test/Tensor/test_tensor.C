@@ -14,7 +14,7 @@ int main() {
     int nz = 2 ;
     double R = 2. ;
 
-    int nr0 = 17 ; int nt0 = 9; int np0 = 4 ;
+    int nr0 = 33 ; int nt0 = 17; int np0 = 4 ;
     
     // echantillonnage en phi :
     int* np = new int [nz] ;
@@ -98,11 +98,14 @@ int main() {
     essai = cuu ;
 
     theo = -2*zz*exp(-rr*rr) ;
-    theo.std_base_scal() ;
+    theo.va.set_base_r(0,R_CHEBI) ;
+    theo.va.set_base_r(1,R_CHEBU) ;
+    theo.va.set_base_t(T_COS_I) ;
+    theo.va.set_base_p(P_COSSIN_P) ;
     theo.inc2_dzpuis() ;
     scalfich = theo ;
 
-    Scalar resu = essai.dsdz() - scalfich ;
+    Scalar resu = scalfich - essai.dsdz() ;
     resu.spectral_display(cout, 1.e-10) ;
 
     arrete() ; 
