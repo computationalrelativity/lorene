@@ -4,7 +4,7 @@
  */
 
 /*
- *   Copyright (c) 2004 Eric Gourgoulhon & Philippe Grandclement
+ *   Copyright (c) 2004-2005 Eric Gourgoulhon & Philippe Grandclement
  *
  *   This file is part of LORENE.
  *
@@ -31,6 +31,9 @@ char des_prof_scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/03/25 19:57:04  e_gourgoulhon
+ * Added plot of domain boundaries (new argument draw_bound).
+ *
  * Revision 1.7  2004/05/17 19:47:25  e_gourgoulhon
  *  -- Function des_profile_mult(const Scalar**,...): added argument
  *     device.
@@ -63,12 +66,11 @@ char des_prof_scalar_C[] = "$Header$" ;
 
 // Header C
 #include <math.h>
-
+#include <string.h>
 
 // Header Lorene
 #include "scalar.h"
 #include "graphique.h"
-#include "string.h"
 
 //******************************************************************************
 
@@ -76,7 +78,8 @@ char des_prof_scalar_C[] = "$Header$" ;
 // VERSION SCALAR SANS UNITES 
 
 void des_profile(const Scalar& uu, double r_min, double r_max, 
-		     double theta, double phi, char* nomy, char* title) {
+		     double theta, double phi, char* nomy, char* title,
+                     bool draw_bound) {
   
 
     const int npt = 400 ;   // Number of points along the axis
@@ -106,15 +109,40 @@ void des_profile(const Scalar& uu, double r_min, double r_max,
 	nomy = "" ;
     }
     
+    // Preparations for the drawing of boundaries
+    // ------------------------------------------
+    const Map& mp = uu.get_mp() ; 
+    int nz = mp.get_mg()->get_nzone() ;         
+    int l_max = (mp.get_mg()->get_type_r(nz-1) == UNSURR) ? nz-2 : nz-1 ; 
     
-    des_profile(uutab, npt, xmin, xmax, nomx, nomy, title) ; 
+    float* xbound = new float[l_max+1] ; 
+    int nbound = 0 ; 
+
+    if (draw_bound) {
+        const double xi_max = 1. ; 
+        for (int l=0; l<=l_max; l++) {
+    
+            double rb = mp.val_r(l, xi_max, theta, phi) ; 
+        
+            if ((rb >= r_min) && (rb <= r_max)) {
+                xbound[nbound] = rb ; 
+                nbound++ ;    
+            }
+        }
+    }
+    
+    des_profile(uutab, npt, xmin, xmax, nomx, nomy, title, 0x0, 
+                nbound, xbound) ; 
+    
+    delete [] xbound ; 
     
 } 
 
 //******************************************************************************
 
 void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
-		     double theta, double phi, char* nomx, char* nomy, char* title) {
+		     double theta, double phi, char* nomx, char* nomy, 
+                     char* title, bool draw_bound) {
 		
 
     const int npt = 400 ;   // Number of points along the axis
@@ -147,8 +175,34 @@ void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
 	nomy = "" ;
     }
     
+    // Preparations for the drawing of boundaries
+    // ------------------------------------------
+    const Map& mp = uu.get_mp() ; 
+    int nz = mp.get_mg()->get_nzone() ;         
+    int l_max = (mp.get_mg()->get_type_r(nz-1) == UNSURR) ? nz-2 : nz-1 ; 
     
-    des_profile(uutab, npt, xmin, xmax, nomx, nomy, title) ; 
+    float* xbound = new float[l_max+1] ; 
+    int nbound = 0 ; 
+
+    if (draw_bound) {
+        const double xi_max = 1. ; 
+        for (int l=0; l<=l_max; l++) {
+    
+            double rb = mp.val_r(l, xi_max, theta, phi) ; 
+        
+            if ((rb >= r_min) && (rb <= r_max)) {
+                xbound[nbound] = rb ; 
+                nbound++ ;    
+            }
+        }
+    }
+
+    // Call to the low level routine
+    // -----------------------------
+    des_profile(uutab, npt, xmin, xmax, nomx, nomy, title, 0x0, 
+                nbound, xbound) ; 
+    
+    delete [] xbound ; 
     
 } 
 
@@ -158,7 +212,8 @@ void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
 void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max, 
 	const double* theta, const double* phi, double radial_scale,
         bool closeit, const char* nomy, const char* title, int ngraph,
-        const char* nomx, const int* line_style, const char* device) {
+        const char* nomx, const int* line_style, const char* device,
+        bool draw_bound) {
 		
     // Special case of no graphical output:
     if (device != 0x0) {
@@ -196,13 +251,47 @@ void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max,
     if (nomy == 0x0) nomy = "" ;
 
     if (title == 0x0) title = "" ;
-   
+
+    // Preparations for the drawing of boundaries
+    // ------------------------------------------
+    
+    int nbound_max = 100 * nprof ; 
+    float* xbound = new float[nbound_max] ; 
+    int nbound = 0 ; 
+
+    if (draw_bound) {
+        const double xi_max = 1. ; 
+        for (int j=0; j<nprof; j++) {
+    
+            const Map& mp = uu[j]->get_mp() ; 
+            int nz = mp.get_mg()->get_nzone() ;         
+            int l_max = (mp.get_mg()->get_type_r(nz-1) == UNSURR) ? nz-2 : nz-1 ; 
+        
+            for (int l=0; l<=l_max; l++) {
+            
+                double rb = mp.val_r(l, xi_max, theta[j], phi[j]) ; 
+        
+                if ((rb >= r_min) && (rb <= r_max)) {
+                    xbound[nbound] = rb * radial_scale ; 
+                    nbound++ ; 
+                    if (nbound > nbound_max-1) {
+                        cout << "des_profile_mult : nbound too large !" << endl ; 
+                        abort() ; 
+                    }   
+                }
+            }
+        }
+    }
+
+    // Call to the low level routine
+    // -----------------------------
     
     des_profile_mult(uutab, nprof, npt, xmin, xmax, nomx, nomy, title, 
-                     line_style, ngraph, closeit, device) ; 
+                     line_style, ngraph, closeit, device, nbound, xbound) ; 
                      
       
     delete [] uutab ; 
+    delete [] xbound ; 
     
 } 
 
@@ -210,7 +299,7 @@ void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max,
 
 void des_meridian(const Scalar& uu, double r_min, double r_max,
                   const char* nomy, int ngraph, const char* device,
-                  bool closeit) {
+                  bool closeit, bool draw_bound) {
 
     // Special case of no graphical output:
     if (device != 0x0) {
@@ -224,7 +313,7 @@ void des_meridian(const Scalar& uu, double r_min, double r_max,
     des_profile_mult(des, 5, r_min, r_max, theta1, phi1, 1., closeit, 
             nomy, 
             "phi=0: th=0, pi/4, pi/2, phi=pi/4: th=0, pi/4",
-            ngraph, 0x0, 0x0, device) ;
+            ngraph, 0x0, 0x0, device, draw_bound) ;
         
 }
 
