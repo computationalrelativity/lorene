@@ -15,11 +15,18 @@ EXE2 = lit_ih
 SRC2 = lit_ih.C
 OBJ2 = $(SRC2:.C=.o)
 
+EXE3 = prepare_seq
+SRC3 = prepare_seq.C
+OBJ3 = $(SRC3:.C=.o)
+
 $(EXE1): $(OBJ1) $(LIBLOR)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_PGPLOT) $(LIB_CXX)  $(LIB_GSL)
 $(EXE2): $(OBJ2) $(LIBLOR)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ2) $(LIB_G) $(LIB_LAPACK) \
+					$(LIB_PGPLOT) $(LIB_CXX)  $(LIB_GSL)
+$(EXE3): $(OBJ3) $(LIBLOR)
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ3) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_PGPLOT) $(LIB_CXX)  $(LIB_GSL)
 
 
@@ -29,6 +36,6 @@ $(EXE2): $(OBJ2) $(LIBLOR)
 	$(CXX)  -c $(CXXFLAGS_G) $(INC) $<
 
 uninstall:
-	rm -f $(OBJ1)  $(OBJ2) 
-	rm -f $(EXE1) $(EXE2)
+	rm -f $(OBJ1) $(OBJ2) $(OBJ3) 
+	rm -f $(EXE1) $(EXE2) $(EXE3)
 
