@@ -31,6 +31,9 @@ char et_bin_hydro_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/03/03 19:46:09  f_limousin
+ * Set standard bases for s_euler.
+ *
  * Revision 1.3  2003/01/17 13:34:56  f_limousin
  * Replace A^2*flat_scalar_prod by sprod
  *
@@ -174,10 +177,17 @@ void Etoile_bin::hydro_euler(){
     // Trace of the stress tensor with respect to the Eulerian observer
     // See Eq (54) from Gourgoulhon et al. (2001)  
     //------------------------------------
-    
-    s_euler = 3 * press  +  ( ener_euler + press ) %
+
+    //Tenseur tmp00 = sprod(u_euler, u_euler) ; 
+    //cout << hex << u_euler(0).va.base.b[0] << endl ; 
+    //cout << hex << u_euler(1).va.base.b[0] << endl ; 
+    //cout << hex << u_euler(2).va.base.b[0] << endl ; 
+    //cout << hex << tmp00().va.base.b[0] << endl ; 
+
+    s_euler = 3 * press  +  ( ener_euler + press ) *
       sprod(u_euler, u_euler) ;
-    
+    s_euler.set_std_base() ; 
+
 
     //-------------------------------------------
     //	Lorentz factor between the fluid and		---> gam
