@@ -25,6 +25,10 @@ char base_val_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/09/16 08:54:09  j_novak
+ * Addition of the T_LEG_II base (odd in theta, only for odd m) and the
+ * transformation functions to and from the T_SIN_P base.
+ *
  * Revision 1.2  2002/10/16 14:36:30  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -160,6 +164,9 @@ void Base_val::ylm() {
     break ;
   case T_SIN_I:
     set_base_t(T_LEG_PI) ;
+    break ;
+  case T_SIN_P:
+    set_base_t(T_LEG_II) ;
     break ;
   case T_COSSIN_CP:
     set_base_t(T_LEG_P) ;

@@ -34,6 +34,10 @@ char valeur_ylm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/09/16 08:54:09  j_novak
+ * Addition of the T_LEG_II base (odd in theta, only for odd m) and the
+ * transformation functions to and from the T_SIN_P base.
+ *
  * Revision 1.2  2002/10/16 14:37:16  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -94,6 +98,7 @@ char valeur_ylm_C[] = "$Header$" ;
 #include <stdlib.h>
 
 // headers Lorene
+#include "type_parite.h"
 #include "valeur.h"
 #include "proto.h"
 
@@ -132,6 +137,9 @@ void Valeur::ylm() {
 
 	chbase_t[T_SIN_I >> TRA_T] = chb_sini_legpi ;
 	nouv_base_t[T_SIN_I >> TRA_T] = T_LEG_PI ;
+
+	chbase_t[T_SIN_P >> TRA_T] = chb_sinp_legii ;
+	nouv_base_t[T_SIN_P >> TRA_T] = T_LEG_II ;
     }
 
 //---------------------------------------------------------------------------

@@ -34,6 +34,10 @@ char base_val_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/09/16 08:54:09  j_novak
+ * Addition of the T_LEG_II base (odd in theta, only for odd m) and the
+ * transformation functions to and from the T_SIN_P base.
+ *
  * Revision 1.4  2002/11/13 15:05:59  j_novak
  * Affichage de la base T_COS
  *
@@ -227,6 +231,7 @@ ostream& operator<<(ostream& o, const Base_val & bi) {
     nom_t[T_LEG_I >> TRA_T] =     "T_LEG_I    " ;
     nom_t[T_LEG_IP >> TRA_T] =    "T_LEG_IP   " ;
     nom_t[T_LEG_PI >> TRA_T] =    "T_LEG_PI   " ;
+    nom_t[T_LEG_II >> TRA_T] =    "T_LEG_II   " ;
 
     nom_p[P_COSSIN >> TRA_P] =    "P_COSSIN   " ;
     nom_p[P_COSSIN_P >> TRA_P] =  "P_COSSIN_P " ;
