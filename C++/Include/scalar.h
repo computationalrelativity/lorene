@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.57  2004/06/14 15:24:23  e_gourgoulhon
+ * Added method primr (radial primitive).
+ *
  * Revision 1.56  2004/06/11 14:29:56  j_novak
  * Scalar::multipole_spectrum() is now a const method.
  *
@@ -718,6 +721,15 @@ class Scalar : public Tensor {
 
   void div_tant() ;    ///< Division by \f$\tan\theta\f$
   
+	/** Computes the radial primitive which vanishes at r = 0, 
+     *  i.e. the function 
+     *      \f$ F(r,\theta,\varphi) = \int_0^r f(r',\theta,\varphi) \, dr' \f$
+     *  where \e f is the function represented by \c *this. 
+     *
+     *      @return function \e F
+     */ 
+    Scalar primr() const  ;  	    
+
   /** Computes the integral over all space of \c *this .
    *  The computed quantity is (\e u  being the field represented by
    *   \c *this )
