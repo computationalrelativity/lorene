@@ -26,6 +26,9 @@ char binhor_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/12/31 15:40:21  f_limousin
+ * Improve the initialisation of several quantities in set_statiques().
+ *
  * Revision 1.1  2004/12/29 16:11:19  f_limousin
  * First version
  *
@@ -48,6 +51,10 @@ void Bin_hor::set_statiques (double precis, double relax) {
     
     set_omega(0) ;
     init_bin_hor() ;
+
+    hole1.init_met_trK() ;
+    hole2.init_met_trK() ;
+    extrinsic_curvature() ;
       
     int indic = 1 ;
     int conte = 0 ;
@@ -122,7 +129,7 @@ double Bin_hor::coal (double angu_vel, double precis, double relax,
 	if (sortie != 0) {
 	    fiche_iteration << conte << " " << erreur << endl ;
 //	    fiche_correction << conte << " " << hole1.get_regul() << endl ;
-	    fiche_viriel << conte << " " << viriel() << endl ;
+//	    fiche_viriel << conte << " " << viriel() << endl ;
 	    }
 	    
 	cout << "PAS TOTAL : " << conte << " DIFFERENCE : " << erreur << endl ;
@@ -151,7 +158,7 @@ double Bin_hor::coal (double angu_vel, double precis, double relax,
 	if (sortie != 0) {
 	    fiche_iteration << conte << " " << erreur << endl ;
 //	    fiche_correction << conte << " " << hole1.regul << endl ;
-	    fiche_viriel << conte << " " << viriel() << endl ;
+//	    fiche_viriel << conte << " " << viriel() << endl ;
 	    }
 	    
 	cout << "PAS TOTAL : " << conte << " DIFFERENCE : " << erreur << endl ;
@@ -164,5 +171,5 @@ double Bin_hor::coal (double angu_vel, double precis, double relax,
     fiche_correction.close() ;
     fiche_viriel.close() ;
       
-    return viriel() ;
+    return 1 ; //viriel() ;
 }
