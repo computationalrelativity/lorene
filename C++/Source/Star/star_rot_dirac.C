@@ -30,6 +30,11 @@ char star_rot_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/02/09 13:37:37  lm_lin
+ *
+ * Add pointers p_tsw, p_aplat, and p_r_circ; add more screen output
+ * information.
+ *
  * Revision 1.2  2005/02/02 09:22:29  lm_lin
  *
  * Add the GRV3 error to screen output
@@ -194,6 +199,9 @@ void Star_rot_Dirac::del_deriv() const {
        if (p_angu_mom != 0x0) delete p_angu_mom ;
        if (p_grv2 != 0x0) delete p_grv2 ;
        if (p_grv3 != 0x0) delete p_grv3 ;
+       if (p_tsw != 0x0) delete p_tsw ;
+       if (p_aplat != 0x0) delete p_aplat ; 
+       if (p_r_circ != 0x0) delete p_r_circ ;
 
        set_der_0x0() ;
 
@@ -207,6 +215,9 @@ void Star_rot_Dirac::set_der_0x0() const {
        p_angu_mom = 0x0 ;
        p_grv2 = 0x0 ;
        p_grv3 = 0x0 ;
+       p_tsw = 0x0 ;
+       p_aplat = 0x0 ;
+       p_r_circ = 0x0 ;
 
 }
 
@@ -296,18 +307,35 @@ ostream& Star_rot_Dirac::operator>>(ostream& ost) const {
      ost << "Rotation period : " << 1000. / (freq * f_unit) << " ms"
          << endl ;
 
+     ost << "Error on the virial identity GRV2 : " << endl ;
+     ost << "GRV2 = " << grv2() << endl ;
+     ost << "Error on the virial identity GRV3 : " << endl ;
+     ost << "GRV3 = " << grv3() << endl ;
+
      ost << "Angular momentum J :    "
          << angu_mom()/( qpig / (4*M_PI) *msol*msol) << " G M_sol^2 / c"
          << endl ;
      ost << "c J / (G M^2) :         "
          << angu_mom()/( qpig / (4*M_PI) * pow(mass_g(), 2.) ) << endl ;
 
+     if (omega != 0.) {
+       double mom_iner = angu_mom() / omega ; 
+       double mom_iner_38si = mom_iner * rho_unit * (pow(r_unit, double(5.)) 
+         / double(1.e38) ) ; 
+       ost << "Moment of inertia:       " << mom_iner_38si << " 10^38 kg m^2"
+	   << endl ; 
+     }
 
-     //     ost << "Error on the virial identity GRV2 : " << endl ;
-     // ost << "GRV2 = " << grv2() << endl ;
-     ost << "Error on the virial identity GRV3 : " << endl ;
-     ost << "GRV3 = " << grv3() << endl ;
+     ost << "Ratio T/W :              " << tsw() << endl ;
+     ost << "Circumferential equatorial radius R_circ :     "
+	 << r_circ()/km << " km" << endl ;
+     ost << "Coordinate equatorial radius r_eq : " << ray_eq()/km << " km"
+	 << endl ;
+     ost << "Flattening r_pole/r_eq :  " << aplat() << endl ;
 
+     double compact = qpig/(4.*M_PI) * mass_g() / r_circ() ;
+     ost << "Compaction parameter M_g / R_circ : " << compact << endl ; 
+     
 
      // More to come here.....
 
