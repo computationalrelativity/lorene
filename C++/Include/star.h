@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/01/22 10:06:33  f_limousin
+ * Add methods set_logn_comp() and set_shift_auto().
+ *
  * Revision 1.5  2004/01/20 15:26:00  f_limousin
  * New class star and star_bin.
  *
@@ -634,6 +637,14 @@ class Star_bin : public Star {
 	/// Read/write the centrifugal potential
 	Scalar& set_pot_centri() ;
 	
+        /** Read/write of the logarithm of the lapse generated 
+	 *  principaly by the companion.
+	 */ 
+	Scalar& set_logn_comp() ;
+
+	/// Read/write of $shift\_auto$
+	Vector& set_shift_auto() ;	
+	
     // Accessors
     // ---------
     public:
@@ -891,7 +902,7 @@ class Star_bin : public Star {
 	 *  @param star_prev   [input] star at the previous step.
 	 *  @param relax_ent   [input] Relaxation factor for {\tt ent} 
 	 *  @param relax_met   [input] Relaxation factor for {\tt logn\_auto},
-	 *			       {\tt beta\_auto}, {\tt shift\_auto}, 
+	 *			       {\tt qq\_auto}, {\tt shift\_auto}, 
 	 *			       only if {\tt (mer \% fmer\_met == 0)}.
 	 *  @param mer	       [input] Step number
 	 *  @param fmer_met    [input] Step interval between metric updates

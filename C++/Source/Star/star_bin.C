@@ -31,6 +31,9 @@ char star_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/01/22 10:07:18  f_limousin
+ * Add methods set_logn_comp() and set_shift_auto().
+ *
  * Revision 1.3  2004/01/20 15:17:34  f_limousin
  * First version
  *
@@ -365,6 +368,20 @@ Scalar& Star_bin::set_pot_centri() {
 
     del_deriv() ;	// sets to 0x0 all the derived quantities
     return pot_centri ;
+    
+} 
+
+Scalar& Star_bin::set_logn_comp() {
+
+    del_deriv() ;	// sets to 0x0 all the derived quantities
+    return logn_comp ;
+    
+} 
+
+
+Vector& Star_bin::set_shift_auto() {
+
+    return shift_auto ;
     
 } 
 
