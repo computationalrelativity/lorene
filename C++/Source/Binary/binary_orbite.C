@@ -33,6 +33,10 @@ char binary_orbite_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/24 12:39:30  f_limousin
+ * Change fonc_bin_ncp_orbit to fonc_binary_orbit and fonc_bin_ncp_axe
+ * to fonc_binary_axe.
+ *
  * Revision 1.2  2004/02/21 17:05:13  e_gourgoulhon
  * Method Scalar::point renamed Scalar::val_grid_point.
  * Method Scalar::set_point renamed Scalar::set_grid_point.
@@ -54,8 +58,8 @@ char binary_orbite_C[] = "$Header$" ;
 #include "param.h"
 #include "utilitaires.h"
 
-double  fonc_bin_ncp_axe(double , const Param& ) ;
-double  fonc_bin_ncp_orbit(double , const Param& ) ;
+double  fonc_binary_axe(double , const Param& ) ;
+double  fonc_binary_orbit(double , const Param& ) ;
 
 //******************************************************************************
 
@@ -87,27 +91,51 @@ void Binary::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
 	const Scalar& logn_comp = et[i]->get_logn_comp() ; 
 	const Scalar& loggam = et[i]->get_loggam() ; 
 	const Scalar& nnn = et[i]->get_nnn() ; 
-	const Vector& shift = et[i]->get_shift() ; 
+	Vector shift = et[i]->get_shift() ; 
 	const Metric& gamma = et[i]->get_gamma() ;
 
-	const Scalar& gg00 = gamma.cov()(1,1) ;
-	const Scalar& gg10 = gamma.cov()(2,1) ;
-	const Scalar& gg20 = gamma.cov()(3,1) ;
-	const Scalar& gg11 = gamma.cov()(2,2) ;
-	const Scalar& gg21 = gamma.cov()(3,2) ;
-	const Scalar& gg22 = gamma.cov()(3,3) ;
+	Tensor gamma_cov = gamma.cov() ;
+
+	// With the new convention for shift (beta^i = - N^i)
+	shift = - shift ;
+
+	// All tensors must be in the cartesian triad
+
+	shift.change_triad(et[i]->mp.get_bvect_cart()) ;
+	gamma_cov.change_triad(et[i]->mp.get_bvect_cart()) ;
+
+	const Scalar& gg00 = gamma_cov(1,1) ;
+	const Scalar& gg10 = gamma_cov(2,1) ;
+	const Scalar& gg20 = gamma_cov(3,1) ;
+	const Scalar& gg11 = gamma_cov(2,2) ;
+	const Scalar& gg21 = gamma_cov(3,2) ;
+	const Scalar& gg22 = gamma_cov(3,3) ;
 
 	const Scalar& bbx = shift(1) ;
 	const Scalar& bby = shift(2) ;
 	const Scalar& bbz = shift(3) ;
 
-	
+	cout << "gg00" << endl << norme(gg00) << endl ;
+	cout << "gg10" << endl << norme(gg10) << endl ;
+	cout << "gg20" << endl << norme(gg20) << endl ;
+	cout << "gg11" << endl << norme(gg11) << endl ;
+	cout << "gg21" << endl << norme(gg21) << endl ;
+	cout << "gg22" << endl << norme(gg22) << endl ;
+
+	cout << "bbx" << endl << norme(bbx) << endl ;
+	cout << "bby" << endl << norme(bby) << endl ;
+	cout << "bbz" << endl << norme(bbz) << endl ;
+
 	//----------------------------------
 	// Calcul de d/dX( nu + ln(Gamma) ) au centre de l'etoile ---> dnulg[i]
 	//----------------------------------
 
 	Scalar tmp = logn_auto + logn_comp + loggam ;
 	
+	cout << "logn" << endl << norme(logn_auto + logn_comp) << endl ;
+	cout << "loggam" << endl << norme(loggam) << endl ;
+	cout << "dnulg" << endl << norme(tmp.dsdx()) << endl ;
+
 	// ... gradient suivant X : 		
 	dnulg[i] = tmp.dsdx().val_grid_point(0, 0, 0, 0) ; 
 
@@ -254,7 +282,7 @@ void Binary::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
 	int nit_axe ; 
 	double precis_axe = 1.e-13 ;
 
-	x_axe = zerosec(fonc_bin_ncp_axe, paraxe, 0.9*ori_x1, 0.9*ori_x2,
+	x_axe = zerosec(fonc_binary_axe, paraxe, 0.9*ori_x1, 0.9*ori_x2,
 			precis_axe, nitmax_axe, nit_axe) ;
 
 	cout << "Binary::orbit : Number of iterations in zerosec for x_axe : "
@@ -304,7 +332,7 @@ void Binary::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
 	int nsub = 50 ;  // total number of subdivisions of the interval
 	Tbl* azer = 0x0 ;
 	Tbl* bzer = 0x0 ; 
-	zero_list(fonc_bin_ncp_orbit, parf, omega1, omega2, nsub,
+	zero_list(fonc_binary_orbit, parf, omega1, omega2, nsub,
 		  azer, bzer) ; 
 	
 	// Search for the zero closest to the previous value of omega
@@ -354,7 +382,7 @@ void Binary::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
     int nitermax = 200 ; 
     int niter ; 
     double precis = 1.e-13 ;
-    omega = zerosec_b(fonc_bin_ncp_orbit, parf, omeg_min, omeg_max,
+    omega = zerosec_b(fonc_binary_orbit, parf, omeg_min, omeg_max,
 		    precis, nitermax, niter) ;
     
     cout << "Binary::orbit : Number of iterations in zerosec for omega : "
@@ -371,7 +399,7 @@ void Binary::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
 //  Function used for search of the rotation axis
 //-------------------------------------------------
 
-double  fonc_bin_ncp_axe(double x_rot, const Param& paraxe) {
+double  fonc_binary_axe(double x_rot, const Param& paraxe) {
 
     double ori_x1 = paraxe.get_double(0) ;
     double ori_x2 = paraxe.get_double(1) ;
@@ -482,7 +510,7 @@ double  fonc_bin_ncp_axe(double x_rot, const Param& paraxe) {
 //  Fonction utilisee pour la recherche de omega par la methode de la secante
 //----------------------------------------------------------------------------
 
-double fonc_bin_ncp_orbit(double om, const Param& parf) {
+double fonc_binary_orbit(double om, const Param& parf) {
 
     double xc = parf.get_double(0) ; 
     double dnulg = parf.get_double(1) ;
