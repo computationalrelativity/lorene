@@ -30,6 +30,9 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/12/31 15:34:37  f_limousin
+ * Modifications to avoid warnings
+ *
  * Revision 1.11  2004/12/22 18:15:16  f_limousin
  * Many different changes.
  *
@@ -255,7 +258,7 @@ Valeur Isol_hor::boundary_nn_Dir_kk(){
 //--------------------------------------------------------------------------
 Valeur Isol_hor::boundary_nn_Neu_kk() {
   
-  const Vector& dnn= nn().derive_cov(ff) ;
+  const Vector& dnnn = nn().derive_cov(ff) ;
 
   Scalar kk_rr = contract( radial_vect_hor() * radial_vect_hor(), 0, 1
 			   , k_dd(), 0, 1 ) ; 
@@ -266,7 +269,7 @@ Valeur Isol_hor::boundary_nn_Neu_kk() {
   k_kerr.inc_dzpuis(2) ;
 
   Scalar tmp = k_kerr + nn() * kk_rr 
-             - radial_vect_hor()(2) * dnn(2) - radial_vect_hor()(3) * dnn(3)  ;
+             - radial_vect_hor()(2) * dnnn(2) - radial_vect_hor()(3) * dnnn(3)  ;
 
   tmp = tmp / radial_vect_hor()(1) ;
 
