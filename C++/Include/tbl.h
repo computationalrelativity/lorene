@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/12/02 09:33:04  p_grandclement
+ * *** empty log message ***
+ *
  * Revision 1.8  2004/03/22 13:12:43  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -263,6 +266,14 @@ class Tbl {
 	    return t[i] ;
 	} ;
 	
+	/// Affectation of a particular element (index \c i)  (1D case)
+	void affecte(int i, double val) {
+	    assert (etat == ETATQCQ) ;
+	    assert( dim.ndim == 1 ) ; 
+	    assert( i >= 0 ) ; 
+	    assert( i < dim.dim[0] ) ;
+	    t[i] = val ;
+	} ;
 	/// Read-only of a particular element (index \c i) (1D case)
 	double operator()(int i) const {
 	    assert(etat != ETATNONDEF) ;

@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.37  2004/12/02 09:33:04  p_grandclement
+ * *** empty log message ***
+ *
  * Revision 1.36  2004/11/30 20:42:05  k_taniguchi
  * Addition of some functions with the falloff condition and a method
  * to resize the external shell.
@@ -1772,7 +1775,19 @@ class Map_af : public Map_radial {
 	 *				 domain no. \c l 
 	 */
 	Map_af(const Mg3d& mgrille, const double* r_limits) ;	
-	
+	/**
+	 * Standard Constructor with Tbl
+	 * @param mgrille  [input] Multi-domain grid on which the mapping is defined
+	 * @param r_limits [input] Array (size: number of domains) of the
+	 *			   value of \e r  at the boundaries of the various 
+	 *			   domains : 
+	 *			   \li \c r_limits[l] : inner boundary of the 
+	 *				 domain no. \c l 
+	 *			   \li \c r_limits[l+1] : outer boundary of the 
+	 *				 domain no. \c l except in the last domain
+	 * The last boundary is set to inifnity if the grid contains a compactified domain.
+	 */
+	Map_af(const Mg3d& mgrille, const Tbl& r_limits) ;	
 	
 	Map_af(const Map_af& ) ;      ///< Copy constructor
 	Map_af(const Mg3d&, FILE* ) ; ///< Constructor from a file (see \c sauve(FILE*) )
@@ -3240,7 +3255,7 @@ class Map_log : public Map_radial {
 	virtual void operator=(const Map_af& mpa) ;
 
 	
-	virtual std::ostream& operator>> (std::ostream&) const ; ///< Operator >>
+	virtual ostream& operator>> (ostream&) const ; ///< Operator >>
 
 	/**
 	 *  Returns the value of the radial coordinate \e r  for a given

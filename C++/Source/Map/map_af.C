@@ -33,6 +33,9 @@ char map_af_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/12/02 09:33:06  p_grandclement
+ * *** empty log message ***
+ *
  * Revision 1.6  2004/03/25 10:29:23  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -174,6 +177,52 @@ Map_af::Map_af(const Mg3d& mgrille, const double* bornes) : Map_radial(mgrille)
 	    case UNSURR: {
 		double umax = 1./bornes[l] ;
 		double umin = 1./bornes[l+1] ;
+		alpha[l] = (umin - umax) * .5 ;  // u est une fonction decroissante
+		beta[l] = (umin + umax) * .5 ;   //  de l'indice i en r
+		break ;
+	    }
+	    
+	    default:	{
+		cout << "Map_af::Map_af: unkown type_r ! " << endl ;
+		abort () ;
+		break ;
+	    }
+	    
+	}
+    }	    // Fin de la boucle sur zone
+}
+
+// Constructor from a grid
+// -----------------------
+Map_af::Map_af(const Mg3d& mgrille, const Tbl& bornes) : Map_radial(mgrille)
+{
+    // Les coordonnees et les derivees du changement de variable
+    set_coord() ; 
+    
+    // Les bornes
+    int nzone = mg->get_nzone() ;
+    
+    alpha = new double[nzone] ;
+    beta = new double[nzone] ;
+
+    for (int l=0 ; l<nzone ; l++) {
+	switch (mg->get_type_r(l)) {
+	    case RARE:	{
+		alpha[l] = bornes(l+1) - bornes(l) ;
+		beta[l] = bornes(l) ;
+		break ; 
+	    }
+	    
+	    case FIN:	{
+		alpha[l] = (bornes(l+1) - bornes(l)) * .5 ;
+		beta[l] = (bornes(l+1) + bornes(l)) * .5 ;
+		break ;
+	    }
+	    
+	    case UNSURR: {
+	    	assert (l==nzone-1) ;
+		double umax = 1./bornes(l) ;
+		double umin = 0 ;
 		alpha[l] = (umin - umax) * .5 ;  // u est une fonction decroissante
 		beta[l] = (umin + umax) * .5 ;   //  de l'indice i en r
 		break ;
