@@ -5,7 +5,7 @@
  */
 
 /*
- *   Copyright (c) 2003  Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2004 Eric Gourgoulhon & Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/01/04 20:49:06  e_gourgoulhon
+ * Sym_tensor is now a derived class of Tensor_sym.
+ * Suppressed methods Sym_tensor::indices and Sym_tensor::position:
+ *  they are now implemented at the Tensor_sym level.
+ *
  * Revision 1.10  2003/11/27 16:05:11  e_gourgoulhon
  * Changed return value of methods transverse( ) and longit_pot( ).
  *
@@ -89,7 +94,7 @@ class Sym_tensor_tt ;
  *
  * @version #$Id$#
  */
-class Sym_tensor : public Tensor {
+class Sym_tensor : public Tensor_sym {
 
     // Derived data : 
     // ------------
@@ -131,7 +136,7 @@ class Sym_tensor : public Tensor {
 	 * @param triad_i  vectorial basis (triad) with respect to which 
 	 *			  the tensor components are defined
 	 */
-	Sym_tensor(const Map& map, const Itbl& tipe,const Base_vect& triad_i) ;
+	Sym_tensor(const Map& map, const Itbl& tipe, const Base_vect& triad_i) ;
 
 	/** Standard constructor when both indices are of the same type.
 	 * 
@@ -146,7 +151,7 @@ class Sym_tensor : public Tensor {
 	Sym_tensor(const Sym_tensor& a) ; /// Copy constructor
 
 	/** Constructor from a {\tt Tensor}.
-	 *  The symmetry of the input tensor is assumed to be true but not checked.
+	 *  The symmetry of the input tensor is assumed but is not checked.
 	 */
 	Sym_tensor(const Tensor& a) ;
 	
@@ -187,58 +192,23 @@ class Sym_tensor : public Tensor {
     // Mutators / assignment
     // ---------------------
     public:
-	/// Assignment to a {\tt Sym\_tensor}
+	/// Assignment to another {\tt Sym\_tensor}
 	virtual void operator=(const Sym_tensor& a) ;
 
+	/// Assignment to a {\tt Tensor\_sym}
+	virtual void operator=(const Tensor_sym& a) ;
+
 	/**
-	 * Assignment from a {\tt Tensor}.
+	 * Assignment to a {\tt Tensor}.
 	 * 
 	 * The symmetry is assumed but not checked.
 	 */
 	virtual void operator=(const Tensor& a) ;
     
 
-    // Accessors
-    // ---------
-    public:
-	/**
-	 * Returns the position in the array {\tt cmp} of a 
-	 * component given by its indices.  
-	 *
-	 * @param ind [input] 1-D array of integers (class {\tt Itbl})
-	 *		 of size 2 giving the 
-	 *		values of each index specifing the component,  with the 
-	 *		following storage convention: \\
-	 *			{\tt ind(0)} : value of the first index (1, 2 or 3) \\
-	 *			{\tt ind(1)} : value of the second index (1, 2 or 3) 
-	 *
-	 * @return position in the array {\tt cmp} of the pointer to the
-	 *  	{\tt Scalar} containing the component specified by {\tt ind}
-	 */
-	virtual int position(const Itbl& ind) const ;
-
-
-	/**
-	 * Returns the indices of a component given by its position in the 
-	 * array {\tt cmp}. 
-	 *
-	 * @param pos [input] position in the array {\tt cmp}
-	 *		of the pointer to the {\tt Scalar} representing a component
-	 *
-	 * @return 1-D array of integers (class {\tt Itbl}) of
-	 *         size 2 giving the value of each index 
-	 *	   for the component located at the position {\tt pos} in
-	 *		the array [\tt cmp}, with the 
-	 *		following storage convention: \\
-	 *			{\tt Itbl(0)} : value of the first index (1, 2 or 3) \\
-	 *			{\tt Itbl(1)} : value of the second index (1, 2 or 3) 
-	 */
-	virtual Itbl indices(int pos) const ;
-	
-		
     // Computation of derived members
     // ------------------------------
-	//    protected:
+    public:
 
 	/**Returns the divergence of {\tt this} with respect to a {\tt Metric}.
 	 * The indices are assumed to be contravariant.
@@ -356,13 +326,16 @@ class Sym_tensor_trans: public Sym_tensor {
     // ---------------------
 
 	public:
-	/// Assignment from another {\tt Sym\_tensor\_trans}
+	/// Assignment to another {\tt Sym\_tensor\_trans}
 	virtual void operator=(const Sym_tensor_trans& a) ;	
 	
-	/// Assignment from a {\tt Sym_tensor}
+	/// Assignment to a {\tt Sym_tensor}
 	virtual void operator=(const Sym_tensor& a) ;	
 	
-	/// Assignment from a {\tt Tensor}
+	/// Assignment to a {\tt Tensor\_sym}
+	virtual void operator=(const Tensor_sym& a) ;
+
+	/// Assignment to a {\tt Tensor}
 	virtual void operator=(const Tensor& a) ;	
 	
 	// Computational methods
@@ -474,16 +447,19 @@ class Sym_tensor_tt: public Sym_tensor_trans {
     // ---------------------
 
 	public:
-	/// Assignment from another {\tt Sym\_tensor\_tt}
+	/// Assignment to another {\tt Sym\_tensor\_tt}
 	virtual void operator=(const Sym_tensor_tt& a) ;	
 	
-	/// Assignment from a {\tt Sym_tensor\_trans}
+	/// Assignment to a {\tt Sym_tensor\_trans}
 	virtual void operator=(const Sym_tensor_trans& a) ;	
 	
-	/// Assignment from a {\tt Sym_tensor}
+	/// Assignment to a {\tt Sym_tensor}
 	virtual void operator=(const Sym_tensor& a) ;	
 	
-	/// Assignment from a {\tt Tensor}
+	/// Assignment to a {\tt Tensor\_sym}
+	virtual void operator=(const Tensor_sym& a) ;
+
+	/// Assignment to a {\tt Tensor}
 	virtual void operator=(const Tensor& a) ;	
 	
 	/** Sets the component $h^{rr}$, as well as the angular potentials 
