@@ -23,6 +23,9 @@ char param_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2005/02/15 15:43:17  j_novak
+ * First version of the block inversion for the vector Poisson equation (method 6).
+ *
  * Revision 1.15  2004/12/23 16:30:16  j_novak
  * New files and class for the solution of the rr component of the tensor Poisson
  * equation.
@@ -454,7 +457,7 @@ void Param_elliptic::set_helmholtz_plus (int zone, double masse) {
   }
 }
 
-void Param_elliptic::set_poisson_vect_r(int zone) {
+void Param_elliptic::set_poisson_vect_r(int zone, bool only_l_zero) {
  
   if (type_map != MAP_AFF) {
     cout << "set_poisson_vect_r only defined for an affine mapping..." << endl ;
@@ -483,8 +486,13 @@ void Param_elliptic::set_poisson_vect_r(int zone) {
 	    
 	    delete operateurs[conte] ;
 	    if (type_map == MAP_AFF) {
-	      operateurs[conte] = new Ope_pois_vect_r(nr, old_base,get_alpha(l), 
-						      get_beta(l), lq_old, dzp) ;
+		if ((!only_l_zero)||(lq_old == 0)) {
+		    operateurs[conte] = new Ope_pois_vect_r(nr, old_base,get_alpha(l), 
+							    get_beta(l), lq_old, dzp) ;
+		}
+		else {
+		    operateurs[conte] = 0x0 ;
+		}
 	    }
 	    else
 	      operateurs[conte] = 0x0 ;

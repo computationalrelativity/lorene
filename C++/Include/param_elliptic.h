@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2005/02/15 15:43:16  j_novak
+ * First version of the block inversion for the vector Poisson equation (method 6).
+ *
  * Revision 1.13  2004/12/23 16:30:14  j_novak
  * New files and class for the solution of the rr component of the tensor Poisson
  * equation.
@@ -227,8 +230,9 @@ class Param_elliptic {
     * \frac{\partial}{\partial r} - \frac{2}{r^2} \f$ in all domains otherwise.
     *
     * @param zone [input] : the domain.
+    * @param only_l_zero [input] : the operator in built only for l=0 
     **/
-  void set_poisson_vect_r(int zone) ; 
+  void set_poisson_vect_r(int zone, bool only_l_zero = false) ; 
 
    /**
     * Sets the operator to be a regular elliptic operator to solve for the
