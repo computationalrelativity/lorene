@@ -27,6 +27,11 @@
 char init_bin_C[] = "$Header$" ;
 
 /*
+ * $Id$
+ * $Log$
+ * Revision 1.2  2004/01/22 10:12:50  f_limousin
+ * First version
+ *
  * $Header$
  *
  */
@@ -251,8 +256,6 @@ int  main(){
     //		Construction of a binary system
     //-----------------------------------------------------------------------
   
-    Star_bin etoile(mp1, nzet1, eos1, irrot1, conf_flat) ;
-  
     Binary star(mp1, nzet1, eos1, irrot1, 
 		 mp2, nzet2, eos2, irrot2, conf_flat) ;			
     
@@ -264,7 +267,7 @@ int  main(){
     
     cout << endl << "Computation of a static configuration for star 1"
 	 << endl << "================================================" << endl ;
-    etoile.equilibrium_spher(ent_c2, precis) ; 
+    (star.set(1)).equilibrium_spher(ent_c2, precis) ; 
 
     cout << endl << "Computation of a static configuration for star 2"
 	 << endl << "================================================" << endl ; 
