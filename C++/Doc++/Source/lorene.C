@@ -1,7 +1,8 @@
 /**@name LORENE --- Reference manual
  *
- * {\sc Lorene} (Langage Objet pour la RElativit\'e Num\'eriquE) 
- *  is a C++ based language for numerical relativity.
+ * \URL[Lorene]{http://www.lorene.obspm.fr/}
+ * (Langage Objet pour la RElativit\'e Num\'eriquE)
+ * is a C++ based language for numerical relativity.
  *
  */
 
