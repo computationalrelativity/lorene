@@ -32,8 +32,11 @@ char etoile_equil_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/04/23 15:09:38  j_novak
+ * Standard basis is set to a_car and nnn before exiting.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.4  2000/02/02  09:23:51  eric
  * Ajout du theoreme du viriel.
@@ -280,7 +283,9 @@ void Etoile::equilibrium_spher(double ent_c, double precis){
     
     // ... metric
     nnn = exp( unsurc2 * logn ) ; 
+    nnn.set_std_base() ;
     shift = 0 ; 
+    a_car.set_std_base() ;
 
     // Info printing
     // -------------
