@@ -29,8 +29,11 @@ char init_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:31  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/06 16:18:39  jl_zdunik
+ * Return type of main changed from 'void' to 'int'.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:31  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.4  2000/03/16  09:47:18  eric
  * Suppression du shift analytique (c'est desormais fait dans coal).
@@ -68,7 +71,7 @@ char init_bin_C[] = "$Header$" ;
 
 //******************************************************************************
 
-void main(){
+int  main(){
     
 
     // Identification of all the subroutines called by the code : 
@@ -364,7 +367,7 @@ void main(){
     delete peos1 ;    
     delete peos2 ;    
 
-    exit(EXIT_SUCCESS) ; 
+    return EXIT_SUCCESS ; 
     
     
 }
