@@ -38,6 +38,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.48  2004/03/01 09:57:02  j_novak
+ * the wave equation is solved with Scalars. It now accepts a grid with a
+ * compactified external domain, which the solver ignores and where it copies
+ * the values of the field from one time-step to the next.
+ *
  * Revision 1.47  2004/02/27 09:43:58  f_limousin
  * New methods filtre_phi(int) and filtre_theta(int).
  *
@@ -1058,9 +1063,14 @@ class Scalar : public Tensor {
 	Scalar poisson_angu() const ;
 
 
-  /** Performs one time-step integration (from $t=j \to j+1$) of the 
+  /** Performs one time-step integration (from $t=J \to J+1$) of the 
    *   scalar d'Alembert equation with {\tt *this} being the value of 
-   *   the function {\it f} at time {\it j}.
+   *   the function {\it f} at time {\it J}.
+   *
+   *   Works only with an affine mapping (class {\tt Map\_af}) and,
+   *   if the last domain is a compactified one, it simply copies
+   *   the value of the field in this last domain at the time-step {\it J}
+   *   to the last domain of the returned solution.
    *   @param par [input/output] possible parameters to control the
    *   resolution of the d'Alembert equation: \\
    *   {\tt par.get\_double(0)} : [input] the time step {\it dt},\\
@@ -1071,13 +1081,13 @@ class Scalar : public Tensor {
    *   {\tt par.get\_int\_mod(0)} : [input/output] set to 0 at first
    *   call, is used as a working flag after (must not be modified after
    *   first call)\\
-   *   {\tt par.get\_Scalar\_mod(0)} : [input] (optional) if the wave 
+   *   {\tt par.get\_tensor\_mod(0)} : [input] (optional) if the wave 
    *   equation is on a curved space-time, this is the potential in front
-   *   of the Laplace operator. It has to be updated at every time-step
-   *   (for a potential depending on time).\\
+   *   of the Laplace operator. It has to be a Scalar and updated at 
+   *    every time-step (for a potential depending on time).\\
    *   Note: there are many other working objects attached to this
    *   {\tt Param}, so one should not modify it.\\
-   *   There should be one {\tt Param} for each wave equation to be 
+   *   There should be exactly one {\tt Param} for each wave equation to be 
    *   solved. 
    *   @param fJm1 [input] solution $f^{J-1}$ at time {\it J-1}
    *   @param source [input] source $\sigma$ of the d'Alembert equation 
@@ -1085,7 +1095,7 @@ class Scalar : public Tensor {
    *   @return solution $f^{J+1}$ at time {\it J+1}
    *   with boundary conditions defined by {\tt par.get\_int(0)}.
    */
-  Scalar avance_dalembert(Param& par, const Scalar& fjm1, const Scalar& source) 
+  Scalar avance_dalembert(Param& par, const Scalar& fJm1, const Scalar& source) 
     const ;
 
  /**

@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2000-2001 Jerome Novak
+ *   Copyright (c) 2000-2004 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -25,6 +25,11 @@ char map_af_dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/03/01 09:57:03  j_novak
+ * the wave equation is solved with Scalars. It now accepts a grid with a
+ * compactified external domain, which the solver ignores and where it copies
+ * the values of the field from one time-step to the next.
+ *
  * Revision 1.8  2003/07/22 13:24:48  j_novak
  * *** empty log message ***
  *
@@ -81,7 +86,7 @@ char map_af_dalembert_C[] = "$Header$" ;
 #include <math.h>
 
 // Header Lorene:
-#include "cmp.h"
+#include "tensor.h"
 #include "param.h"
 #include "proto.h"
 
@@ -89,16 +94,16 @@ char map_af_dalembert_C[] = "$Header$" ;
 
 
 
-void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
-		       const Cmp& source) const {
+void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar& fjm1,
+		       const Scalar& source) const {
     
     assert(source.get_etat() != ETATNONDEF) ; 
-    assert(source.get_mp()->get_mg() == mg) ; 
+    assert(source.get_mp().get_mg() == mg) ; 
     assert(fj.get_etat() != ETATNONDEF) ; 
-    assert(fj.get_mp()->get_mg() == mg) ; 
+    assert(fj.get_mp().get_mg() == mg) ; 
     assert(fjm1.get_etat() != ETATNONDEF) ; 
-    assert(fjm1.get_mp()->get_mg() == mg) ; 
-    assert(fjp1.get_mp()->get_mg() == mg) ;
+    assert(fjm1.get_mp().get_mg() == mg) ; 
+    assert(fjp1.get_mp().get_mg() == mg) ;
 
     assert(par.get_n_double() == 1) ;
     assert(par.get_n_int() == 1) ;
@@ -107,8 +112,12 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
     assert ((nap == 0) || (par.get_n_tbl_mod() > 1)) ;
 
     int nz = mg->get_nzone() ;
+    bool ced = (mg->get_type_r(nz-1) == UNSURR) ;
+    int nz0 = (ced ? nz - 1 : nz) ;
     double dt = par.get_double() ;
-    Cmp sigma = 2*fj - fjm1 ; // The source (first part) 
+
+    Scalar sigma = 2*fj - fjm1 ; // The source (first part) 
+    
 
     // Coefficients
     //-------------
@@ -125,10 +134,11 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
     Tbl a2(nz) ; a2 = 0 ;
     Tbl a3(nz) ; a3 = 0 ;
 
-    if (par.get_n_cmp_mod() > 0) { // Metric in front of the dalembertian
-      assert(par.get_n_cmp_mod() == 1) ;
-      Cmp& metri = par.get_cmp_mod() ;
-      assert (metri.get_etat() == ETATQCQ) ;
+    if (par.get_n_tensor_mod() > 0) { // Metric in front of the dalembertian
+      assert(par.get_n_tensor_mod() == 1) ;
+      Scalar* metri = dynamic_cast<Scalar*>(&par.get_tensor_mod()) ;
+      assert(metri != 0x0) ;
+      assert (metri->get_etat() == ETATQCQ) ;
 
       const Map_af* tmap ; //Spherically symmetric grid and mapping
       if (nap == 0) {
@@ -143,36 +153,35 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
 	tmap = dynamic_cast<const Map_af*>(&par.get_map()) ;
 	assert (tmap != 0x0) ;
       }
-      metri.va.coef() ;
-      metri.va.ylm() ;
+      metri->set_spectral_va().ylm() ;
 
-      Cmp xmetr(tmap) ; // l=0 part of the potential in front of the Laplacian
+      Scalar xmetr(*tmap) ; // l=0 part of the potential in front of the Laplacian
       xmetr.set_etat_qcq() ;
-      xmetr.std_base_scal() ;
-      xmetr.va.set_base_t(T_LEG_PP) ; // Only l=0 matters in any case...
-      xmetr.va.set_etat_cf_qcq() ;
-      Mtbl_cf* mt = xmetr.va.c_cf ; 
+      xmetr.std_spectral_base() ;
+      xmetr.set_spectral_va().set_base_t(T_LEG_PP) ; // Only l=0 matters in any case...
+      xmetr.set_spectral_va().set_etat_cf_qcq() ;
+      Mtbl_cf* mt = xmetr.set_spectral_va().c_cf ; 
       mt->annule_hard() ;
-      for (int lz=0; lz<nz; lz++) 
+      for (int lz=0; lz<nz0; lz++) 
 	for (int ir=0; ir<mg->get_nr(lz); ir++) 
-	  mt->set(lz,0,0,ir) = (*metri.va.c_cf)(lz, 0, 0, ir) ; //only l=0
+	  mt->set(lz,0,0,ir) = (*metri->get_spectral_va().c_cf)(lz, 0, 0, ir) ; //only l=0
 	
       if (mg->get_nt(0) != 1) xmetr = xmetr / sqrt(double(2)) ; //!!!
-      xmetr.va.ylm_i() ;
-      xmetr.va.coef_i() ;
+      xmetr.set_spectral_va().ylm_i() ;
+      xmetr.set_spectral_va().coef_i() ;
       const Mtbl& erre = this->r ;
 
       a1.set_etat_qcq() ;
       a2.set_etat_qcq() ;
       a3.set_etat_qcq() ;
-      Cmp mime(this) ;
-      mime.allocate_all() ;
-      for (int lz=0; lz<nz; lz++) {
+      Scalar mime(*this) ;
+      mime.annule_hard() ;
+      for (int lz=0; lz<nz0; lz++) {
 	int nr = mg->get_nr(lz);
 	double r1 = erre(lz, 0, 0, nr-1) ;
 	double rm1 = erre(lz, 0, 0, 0) ;
-	double x1 = xmetr(lz, 0, 0, nr-1) ;
-	double xm1 = xmetr(lz, 0, 0, 0) ;
+	double x1 = xmetr.val_grid_point(lz, 0, 0, nr-1) ;
+	double xm1 = xmetr.val_grid_point(lz, 0, 0, 0) ;
 
 	if (mg->get_type_r(lz) == RARE) { //In the nucleus, no a2*r
       	  a1.set(lz) = xm1 ;
@@ -182,7 +191,7 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
 	else { // In the shells, general case
 	  int i0 = (nr-1)/2 ;
 	  double r0 = erre(lz, 0, 0, i0) ;
-	  double x0 = xmetr(lz, 0, 0, i0) ;
+	  double x0 = xmetr.val_grid_point(lz, 0, 0, i0) ;
 	  double p1 = (r1 - rm1)*(r1 - r0) ;
 	  double pm1 = (r0 - rm1)*(r1 - rm1) ;
 	  double p0 = (r0 - rm1)*(r1 - r0) ;
@@ -198,19 +207,20 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
 	      mime.set(lz, k, j, i) = a1(lz) + erre(lz, 0, 0, i)*
 		(a2(lz) + erre(lz, 0, 0, i)*a3(lz)) ;
 
-	Tbl diff = metri(lz) - mime(lz) ;
+	Tbl diff = metri->domain(lz) - mime.domain(lz) ;
 	double offset = max(diff) ; // Not sure that this is really 
   	a1.set(lz) += offset ;  // necessary (supposed to ensure stability).
-  	mime.set(lz) += offset ;
+  	mime.set_domain(lz) += offset ;
       }
 
-      Cmp raz = metri - mime ;
-      sigma += dt*dt*(source + raz*fj.laplacien() 
-		      + 0.5*mime*fjm1.laplacien()); //Source (2nd part)
+      Scalar raz = *metri - mime ;
+      sigma += dt*dt*(source + raz*fj.laplacian() 
+		      + 0.5*mime*fjm1.laplacian()); //Source (2nd part)
     }
     else {
-      sigma += dt*dt * (source + 0.5*fjm1.laplacien()) ;
+      sigma += dt*dt * (source + 0.5*fjm1.laplacian()) ;
     }
+    if (ced) sigma.annule_domain(nz-1) ;
 
     //--------------------------------------------
     // The operator reads
@@ -234,10 +244,10 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
     // Defining the boundary conditions
     // --------------------------------
 
-    double R = this->val_r(nz-1, 1., 0., 0.) ;
-    int nr = mg->get_nr(nz-1) ;
-    int nt = mg->get_nt(nz-1) ;
-    int np2 = mg->get_np(nz-1) + 2;
+    double R = this->val_r(nz0-1, 1., 0., 0.) ;
+    int nr = mg->get_nr(nz0-1) ;
+    int nt = mg->get_nt(nz0-1) ;
+    int np2 = mg->get_np(nz0-1) + 2;
 
 
     // For each pair of quantic numbers l, m one the result must satisfy
@@ -288,15 +298,16 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
       break ;
     case 1:  { // Outgoing wave condition (f(t,r) = 1/r S(t-r/c))
       Valeur bound3(mg) ;
-      bound3 = R*(4*fj.va - fjm1.va) ;
+      bound3 = R*(4*fj.get_spectral_va() - fjm1.get_spectral_va()) ;
       if (bound3.get_etat() == ETATZERO) {
 	*bc1 = 3*R + 2*dt ;
 	*bc2 = 2*R*dt ;
 	*tbc3 = 0 ;
       }
       else {
-	if (nz>1) bound3.annule(0,nz-2) ;
-	
+	if (nz0>1) bound3.annule(0,nz0-2) ;
+	if (ced) bound3.annule(nz-1) ;
+
 	bound3.coef() ;
 	bound3.ylm() ;
 	
@@ -309,7 +320,7 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
 	  for (int j=0; j<nt; j++) {
 	    val = 0. ;
 	    for (int i=0; i<nr; i++) 
-	      val += (*bound3.c_cf)(nz-1,k,j,i) ;
+	      val += (*bound3.c_cf)(nz0-1,k,j,i) ;
 	    tbc3->set(k,j) = val ;
 	  }
       }
@@ -322,8 +333,9 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
      *****************************************************************/
      case 2: { 
       Valeur souphi(mg) ;
-      souphi = fj.va/R - fj.dsdr().va ;
-      if (nz>1) souphi.annule(0,nz-2) ;
+      souphi = fj.get_spectral_va()/R - fj.dsdr().get_spectral_va() ;
+      if (nz0>1) souphi.annule(0,nz0-2) ;
+      if (ced) souphi.annule(nz-1) ;
       souphi.coef() ;
       souphi.ylm() ;
       souphi = 4*dt*dt*souphi.lapang() ; 
@@ -340,11 +352,11 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
       double val ;
       for (int k=0; k<np2; k++) {
 	for (int j=0; j<nt; j++) {
-	  donne_lm(nz, nz-1, j, k, souphi.base, m_s, l_s, base_r) ;
+	  donne_lm(nz, nz0-1, j, k, souphi.base, m_s, l_s, base_r) ;
 	  val = 0. ;
 	  if (!zero)
 	    for (int i=0; i<nr; i++)
-	      val += (*souphi.c_cf)(nz-1,k,j,i) ;
+	      val += (*souphi.c_cf)(nz0-1,k,j,i) ;
 	  double multi = 8*R*R + dt*dt*(6+3*l_s*(l_s+1)) + 12*R*dt ;
 	  val = ( 16*R*R*(*phij)(k,j) -
 		  (multi-24*R*dt)*(*phijm1)(k,j) 
@@ -356,10 +368,11 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
       Valeur bound3(mg) ;
       *bc1 = 3*R + 2*dt ;
       *bc2 = 2*R*dt ;
-      bound3 = R*(4*fj.va - fjm1.va) ;
+      bound3 = R*(4*fj.get_spectral_va() - fjm1.get_spectral_va()) ;
       if (bound3.get_etat() == ETATZERO) *tbc3 = 0 ;
       else {
-	if (nz>1) bound3.annule(0,nz-2) ;
+	if (nz0 > 1) bound3.annule(0,nz0-2) ;
+	if (ced) bound3.annule(nz-1) ;
 
 	bound3.coef() ;
 	bound3.ylm() ;
@@ -368,7 +381,7 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
 	  for (int j=0; j<nt; j++) {
 	    val = 0. ;
 	    for (int i=0; i<nr; i++) 
-	      val += (*bound3.c_cf)(nz-1,k,j,i) ;
+	      val += (*bound3.c_cf)(nz0-1,k,j,i) ;
 	    tbc3->set(k,j) = val + 2*R*dt*(*phij)(k,j);
 	  }
       }
@@ -389,7 +402,7 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
     // Spherical harmonic expansion of the source
     // ------------------------------------------
     
-    Valeur& sourva = sigma.va ; 
+    Valeur& sourva = sigma.set_spectral_va() ; 
 
     // Spectral coefficients of the source
     assert(sourva.get_etat() == ETATQCQ) ; 
@@ -398,20 +411,21 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
     sourva.ylm() ;			// spherical harmonic transforms 
 
 
-    // Call to the Mtbl_cf version
-    // ---------------------------
-    Mtbl_cf resu = sol_dalembert(par, *this, *(sourva.c_cf) ) ;
-    
-    // Final result returned as a Cmp
+    // Final result returned as a Scalar
     // ------------------------------
     
-    fjp1.set_etat_zero() ;  // to call Cmp::del_t().
+    fjp1.set_etat_zero() ;  // to call Scalar::del_t().
 
     fjp1.set_etat_qcq() ; 
     
-    fjp1.va = resu ;
-    (fjp1.va).ylm_i() ; // Back to standard basis.	 
+    // Call to the Mtbl_cf version
+    // ---------------------------
+    fjp1.set_spectral_va() = sol_dalembert(par, *this, *(sourva.c_cf) ) ;
+    
 
+    fjp1.set_spectral_va().ylm_i() ; // Back to standard basis.	 
+
+    if (ced) fjp1.set_domain(nz-1) = fj.domain(nz-1) ;
 }
 
 

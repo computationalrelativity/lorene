@@ -38,6 +38,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2004/03/01 09:57:02  j_novak
+ * the wave equation is solved with Scalars. It now accepts a grid with a
+ * compactified external domain, which the solver ignores and where it copies
+ * the values of the field from one time-step to the next.
+ *
  * Revision 1.23  2004/02/11 09:47:44  p_grandclement
  * Addition of a new elliptic solver, matching with the homogeneous solution
  * at the outer shell and not solving in the external domain (more details
@@ -1202,8 +1207,8 @@ class Map {
 	 *   @param source [input] source $\sigma$ of the d'Alembert equation 
 	 *	    $\diamond u = \sigma$.
 	 */
-	virtual void dalembert(Param& par, Cmp& fJp1, const Cmp& fJ, 
-			       const Cmp& fJm1, const Cmp& source) const = 0 ;
+	virtual void dalembert(Param& par, Scalar& fJp1, const Scalar& fJ, 
+			       const Scalar& fJm1, const Scalar& source) const = 0 ;
 
     // Friend functions : 
     // ----------------
@@ -2137,8 +2142,8 @@ class Map_af : public Map_radial {
 	 *   @param source [input] source $\sigma$ of the d'Alembert equation 
 	 *	    $\diamond u = \sigma$.
 	 */
-	virtual void dalembert(Param& par, Cmp& fJp1, const Cmp& fJ, 
-			       const Cmp& fJm1, const Cmp& source) const ;
+	virtual void dalembert(Param& par, Scalar& fJp1, const Scalar& fJ, 
+			       const Scalar& fJm1, const Scalar& source) const ;
 
     // Building functions for the Coord's
     // ----------------------------------
@@ -2854,8 +2859,8 @@ class Map_et : public Map_radial {
 	/**
 	 * Not yet implemented.
 	 */
-	virtual void dalembert(Param& par, Cmp& fJp1, const Cmp& fJ, 
-			       const Cmp& fJm1, const Cmp& source) const ;
+	virtual void dalembert(Param& par, Scalar& fJp1, const Scalar& fJ, 
+			       const Scalar& fJm1, const Scalar& source) const ;
 
 
 

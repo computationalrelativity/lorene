@@ -35,6 +35,11 @@ char scalar_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/03/01 09:57:04  j_novak
+ * the wave equation is solved with Scalars. It now accepts a grid with a
+ * compactified external domain, which the solver ignores and where it copies
+ * the values of the field from one time-step to the next.
+ *
  * Revision 1.7  2004/02/11 09:47:46  p_grandclement
  * Addition of a new elliptic solver, matching with the homogeneous solution
  * at the outer shell and not solving in the external domain (more details
@@ -130,17 +135,13 @@ Scalar Scalar::poisson_angu() const {
 
 Scalar Scalar::avance_dalembert(Param& par, const Scalar& fjm1, 
 	const Scalar& source) const {
-  
-	Cmp csource(source) ; 
-	Cmp cfjm1(fjm1) ; 
-	Cmp cfjp1(mp) ;
-	Cmp cuu(*this) ; 
-  
-  	mp->dalembert(par, cfjp1, cuu, cfjm1, csource) ;
 
-	Scalar fjp1(cfjp1) ; 
+  Scalar fjp1(*mp) ;
+  
+  mp->dalembert(par, fjp1, *this, fjm1, source) ;
 	
-	return fjp1 ;
+  return fjp1 ;
+
 }
 
 

@@ -25,6 +25,11 @@ char dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/03/01 09:57:03  j_novak
+ * the wave equation is solved with Scalars. It now accepts a grid with a
+ * compactified external domain, which the solver ignores and where it copies
+ * the values of the field from one time-step to the next.
+ *
  * Revision 1.6  2003/12/19 16:21:49  j_novak
  * Shadow hunt
  *
@@ -90,8 +95,10 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
     
   // Verifications d'usage sur les zones
   int nz = source.get_mg()->get_nzone() ;
+  bool ced = (source.get_mg()->get_type_r(nz-1) == UNSURR ) ;
+  int nz0 = (ced ? nz - 1 : nz ) ;
   assert (source.get_mg()->get_type_r(0) == RARE) ;
-  for (int l=1 ; l<nz ; l++) {
+  for (int l=1 ; l<nz0 ; l++) {
     assert(source.get_mg()->get_type_r(l) == FIN) ;
     assert(source.get_mg()->get_nt(l) == source.get_mg()->get_nt(0)) ;
     assert(source.get_mg()->get_np(l) == source.get_mg()->get_np(0)) ;
@@ -206,7 +213,7 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
 	  }
 	  
 	  // If only one zone, the BC is set
-	  if (nz == 1) {
+	  if (nz0 == 1) {
 
 	    int base_pipo = 0 ;
 	    double part, dpart, hom, dhom;
@@ -255,7 +262,7 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
   //---------------------
   //--      SHELLS     --
   //---------------------
-  for (lz=1 ; lz<nz ; lz++) {
+  for (lz=1 ; lz<nz0 ; lz++) {
     nr = source.get_mg()->get_nr(lz) ;
     
     alpha = mapping.get_alpha()[lz] ;
@@ -331,20 +338,20 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
 	    delete sol_part ;
 	  }
   }
-  if (nz > 1) {
+  if (nz0 > 1) {
     //--------------------------------------------------------------------
     //
     //     Combinations of particular and homogeneous solutions
     //         to verify continuity and boundary conditions
     //
     //--------------------------------------------------------------------
-    int taille = 2*nz - 1 ; 
+    int taille = 2*nz0 - 1 ; 
     Tbl deuz(taille) ;
     deuz.set_etat_qcq() ;
     Matrice systeme(taille,taille) ;
     systeme.set_etat_qcq() ;
     int sup = 2;
-    int inf = (nz>2) ? 2 : 1 ;
+    int inf = (nz0>2) ? 2 : 1 ;
     for (int k=0; k<np+1; k++) {
       for (int j=0; j<nt; j++) {
 	if (nullite_plm(j, nt, k, np, base)) {
@@ -384,7 +391,7 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
 	  //----------
 	  //  Shells
 	  //----------
-	  for (lz=1; lz<nz; lz++) {
+	  for (lz=1; lz<nz0; lz++) {
 	    nr = source.get_mg()->get_nr(lz) ;
 	    alpha = mapping.get_alpha()[lz] ;
 	    l-- ; 
@@ -427,7 +434,7 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
 	    deuz.set(l) += xx/alpha ;
 
 	    l++ ; c--;
-	    if (lz == nz-1) { // Last domain, the outer BC is set
+	    if (lz == nz0-1) { // Last domain, the outer BC is set
 	      for (int i=0; i<nr; i++) systeme.set(l,c) +=
 		((*bc1)+(*bc2)*i*i/alpha)*solution_hom_un(lz, k, j, i) ;
 	      c++ ;
@@ -476,7 +483,7 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
 	      + facteur(0)*solution_hom_un(0, k, j, i) ;
 	  
 	  //Linear combination in the shells
-	  for (lz=1; lz<nz; lz++) {
+	  for (lz=1; lz<nz0; lz++) {
 	    nr = source.get_mg()->get_nr(lz) ;
 	    for (int i=0; i<nr; i++) 
 	      resultat.set(lz, k, j, i) = solution_part(lz, k, j, i) 
@@ -486,7 +493,7 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
 	}
       } //End of j/theta loop   
     } //End of k/phi loop 
-  } //End of case nz>1
+  } //End of case nz0>1
   
   return resultat ;
 
