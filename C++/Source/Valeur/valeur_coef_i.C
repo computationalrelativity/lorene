@@ -5,7 +5,7 @@
  */
 
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2003 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -31,6 +31,9 @@ char valeur_coef_i_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/13 20:51:25  e_gourgoulhon
+ * Replaced malloc by new
+ *
  * Revision 1.5  2003/09/17 12:30:22  j_novak
  * New checks for changing to T_LEG* bases.
  *
@@ -204,7 +207,7 @@ void Valeur::coef_i() const {
 
 	// Allocation de l'espace memoire pour le tableau de travail trav
 	int ntot = cf->get_taille() ;
-	double* trav = (double*)( malloc( ntot*sizeof(double) ) ) ;	
+	double* trav = new double[ntot] ; 
 
 	// On recupere les bases en r, theta et phi : 
 	int base_r = ( base.b[l] & MSQ_R ) >> TRA_R ;
@@ -258,7 +261,7 @@ void Valeur::coef_i() const {
 	  invcf_p[base_p]( deg, dimc, deg, trav, (f->t) ) ;
 	}
 	// Menage
-	free (trav) ;
+	delete [] trav ;
     }  // fin de la boucle sur les differentes zones
 
 }
