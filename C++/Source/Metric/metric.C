@@ -30,6 +30,10 @@ char metric_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/01/20 09:51:40  f_limousin
+ * Correction in metric::determinant() : indices of tensors go now from 1 to
+ * 3 !
+ *
  * Revision 1.6  2003/12/30 23:06:30  e_gourgoulhon
  * Important reorganization of class Metric:
  *   -- suppression of virtual methods fait_* : the actual computations
@@ -330,12 +334,12 @@ const Scalar& Metric::determinant() const {
     if (p_determinant == 0x0) {   // a new computation is necessary
 
         p_determinant = new Scalar(*mp) ;
-        *p_determinant = cov()(0, 0)*cov()(1, 1)*cov()(2, 2) 
-	    + cov()(0, 1)*cov()(1, 2)*cov()(2, 0)
-	    + cov()(0, 2)*cov()(1, 0)*cov()(2, 1) 
-	    - cov()(2, 0)*cov()(1, 1)*cov()(0, 2)
-	    - cov()(2, 1)*cov()(1, 2)*cov()(0, 0) 
-	    - cov()(2, 2)*cov()(1, 0)*cov()(0, 1) ;
+        *p_determinant = cov()(1, 1)*cov()(2, 2)*cov()(3, 3) 
+	    + cov()(1, 2)*cov()(2, 3)*cov()(3, 1)
+	    + cov()(1, 3)*cov()(2, 1)*cov()(3, 2) 
+	    - cov()(3, 1)*cov()(2, 2)*cov()(1, 3)
+	    - cov()(3, 2)*cov()(2, 3)*cov()(1, 1) 
+	    - cov()(3, 3)*cov()(2, 1)*cov()(1, 2) ;
     }
 
     return *p_determinant ; 
