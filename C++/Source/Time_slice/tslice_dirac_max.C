@@ -30,6 +30,9 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2004/12/28 14:21:48  j_novak
+ * Added the method Sym_tensor_trans::trace_from_det_one
+ *
  * Revision 1.15  2004/07/08 12:29:01  j_novak
  * use of new method Tensor::annule_extern_cn
  *
@@ -381,60 +384,17 @@ void Tslice_dirac_max::hh_det_one(int j0) const {
     Scalar mu0 = mu_evol[j0] ;       
     mu0.annule_extern_cn(nzm2, 4) ;     
 
-    int it_max = 100 ;
-    double precis = 1.e-14 ;
-  
     // The TT part of h^{ij}, which stays unchanged during the computation :
     Sym_tensor_tt hijtt(mp, *(ff.get_triad()), ff) ;
     hijtt.set_khi_mu(khi0, mu0, 2) ;
     
     // The representation of h^{ij} as an object of class Sym_tensor_trans :
-    Sym_tensor_trans hij = hijtt ; 
-
-    // The trace h = f_{ij} h^{ij} :
-    Scalar htrace(mp) ;
-        
-    // Value of h at previous step of the iterative procedure below :
-    Scalar htrace_prev(mp) ;
-    htrace_prev.set_etat_zero() ;   // initialisation to zero
-    
-    for (int it=0; it<=it_max; it++) {
-      
-        // Trace h from the condition det(f^{ij} + h^{ij}) = det f^{ij} :
-      
-        htrace = hij(1,1) * hij(2,3) * hij(2,3) 
-	    + hij(2,2) * hij(1,3) * hij(1,3) + hij(3,3) * hij(1,2) * hij(1,2)
-	    - 2.* hij(1,2) * hij(1,3) * hij(2,3) 
-            - hij(1,1) * hij(2,2) * hij(3,3) ;
-        
-        htrace.dec_dzpuis(2) ; // dzpuis: 6 --> 4
-        
-	htrace += hij(1,2) * hij(1,2) + hij(1,3) * hij(1,3) 
-                    + hij(2,3) * hij(2,3) - hij(1,1) * hij(2,2) 
-                    - hij(1,1) * hij(3,3) - hij(2,2) * hij(3,3) ;
-
-        // New value of hij from htrace and hijtt (obtained by solving 
-        //    the Poisson equation for Phi) : 
-
-        hij.set_tt_trace(hijtt, htrace) ; 
-
-        double diff = max(max(abs(htrace - htrace_prev))) ;
-        cout << "Tslide_dirac_max::hh_det_one : " 
-	     << "iteration : " << it << " convergence on trace(h): " << diff << endl ;
-        if (diff < precis) break ;
-        else htrace_prev = htrace ;
-
-        if (it == it_max) {
-            cout << "Tslide_dirac_max::hh_det_one : convergence not reached \n" ;
-            cout << "  for the required accuracy (" << precis << ") ! " << endl ;
-            abort() ;
-        }
-    }
-    
+    Sym_tensor_trans hij(mp, *(ff.get_triad()), ff) ;
+    hij.trace_from_det_one(hijtt) ;
 
     // Result set to trh_evol and hh_evol
     // ----------------------------------
-    trh_evol.update(htrace, j0, the_time[j0]) ;
+    trh_evol.update(hij.the_trace(), j0, the_time[j0]) ;
     
     // The longitudinal part of h^{ij}, which is zero by virtue of Dirac gauge :
     Vector wzero(mp, CON,  *(ff.get_triad())) ; 

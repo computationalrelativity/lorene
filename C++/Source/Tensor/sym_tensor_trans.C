@@ -32,6 +32,9 @@ char sym_tensor_trans_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/12/28 14:21:48  j_novak
+ * Added the method Sym_tensor_trans::trace_from_det_one
+ *
  * Revision 1.10  2004/05/25 15:07:12  f_limousin
  * Add parameters in argument of the function tt_part for the case
  * of a Map_et.
@@ -284,6 +287,61 @@ const Sym_tensor_tt& Sym_tensor_trans::tt_part(Param* par) const {
 }
 
 
+void Sym_tensor_trans::trace_from_det_one(const Sym_tensor_tt& hijtt, 
+					   double precis, int it_max) {
+    
+    assert (&hijtt != this) ;
+#ifndef NDEBUG
+    for (int i=0; i<hijtt.get_n_comp(); i++)
+	assert(hijtt.cmp[i]->check_dzpuis(2)) ;
+#endif
+    assert( (precis > 0.) && (it_max > 0) ) ;
+    assert (met_div == &hijtt.get_met_div() ) ;
+    
+    Sym_tensor_trans& hij = *this ;
+    hij = hijtt ; //initialization
+
+    // The trace h = f_{ij} h^{ij} :
+    Scalar htrace(*mp) ;
+        
+    // Value of h at previous step of the iterative procedure below :
+    Scalar htrace_prev(*mp) ;
+    htrace_prev.set_etat_zero() ;   // initialisation to zero
+    
+    for (int it=0; it<=it_max; it++) {
+      
+        // Trace h from the condition det(f^{ij} + h^{ij}) = det f^{ij} :
+      
+        htrace = hij(1,1) * hij(2,3) * hij(2,3) 
+	    + hij(2,2) * hij(1,3) * hij(1,3) + hij(3,3) * hij(1,2) * hij(1,2)
+	    - 2.* hij(1,2) * hij(1,3) * hij(2,3) 
+            - hij(1,1) * hij(2,2) * hij(3,3) ;
+        
+        htrace.dec_dzpuis(2) ; // dzpuis: 6 --> 4
+        
+	htrace += hij(1,2) * hij(1,2) + hij(1,3) * hij(1,3) 
+                    + hij(2,3) * hij(2,3) - hij(1,1) * hij(2,2) 
+                    - hij(1,1) * hij(3,3) - hij(2,2) * hij(3,3) ;
+
+        // New value of hij from htrace and hijtt (obtained by solving 
+        //    the Poisson equation for Phi) : 
+
+        set_tt_trace(hijtt, htrace) ; 
+
+        double diff = max(max(abs(htrace - htrace_prev))) ;
+        cout << "Sym_tensor_trans::trace_from_det_one : " 
+	     << "iteration : " << it << " convergence on trace(h): " << diff << endl ;
+        if (diff < precis) break ;
+        else htrace_prev = htrace ;
+
+        if (it == it_max) {
+            cout << "Sym_tensor_trans::trace_from_det_one : convergence not reached \n" ;
+            cout << "  for the required accuracy (" << precis << ") ! " << endl ;
+            abort() ;
+        }
+    }
+
+}
 
 
 

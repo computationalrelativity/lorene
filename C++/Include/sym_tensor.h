@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2004/12/28 14:21:46  j_novak
+ * Added the method Sym_tensor_trans::trace_from_det_one
+ *
  * Revision 1.23  2004/12/28 10:37:22  j_novak
  * Better way of enforcing zero divergence.
  *
@@ -421,10 +424,27 @@ class Sym_tensor_trans: public Sym_tensor {
 	/// Returns the trace of the tensor with respect to metric \c *met_div 
 	const Scalar& the_trace() const ; 
 	
-	/** Returns the transverse traceless part of the tensor, the trace being defined
+	/** Returns the transverse traceless part of the tensor, 
+	 * the trace being defined
 	 * with respect to metric \c *met_div 
 	 */
 	const Sym_tensor_tt& tt_part(Param* par = 0x0) const ; 
+
+	/** Assigns the derived member \c p_tt and computes the trace so that 
+	 * \c *this + the flat metric has a determinant equal to 1. It then
+	 * updates the components accordingly, with a \c dzpuis = 2. 
+	 * This function makes an 
+	 * iteration until the relative difference in the trace between 
+	 * two steps is lower than \c precis . 
+	 *
+	 * @param htt the transverse traceless part; all components must have
+	 *            dzpuis = 2.
+	 * @param precis relative difference in the trace computation to end
+	 *               the iteration.
+	 * @param it_max maximal number of iterations.
+	 */
+	void trace_from_det_one(const Sym_tensor_tt& htt, 
+				double precis = 1.e-14, int it_max = 100) ;
 
 } ; 
 	
