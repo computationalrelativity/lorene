@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/02/16 17:37:17  j_novak
+ * Arguments named for doc++.
+ *
  * Revision 1.3  2004/02/16 10:36:03  e_gourgoulhon
  * Replaced " = 0x0" by " = 0" in the declaration of pure virtual functions.
  *
@@ -91,7 +94,7 @@ template<typename TyT> class Evolution {
          */
         Evolution(const TyT& initial_value, double initial_time, int size_i) ;			
 	
-        Evolution(const Evolution<TyT>& ) ;		/// Copy constructor
+        Evolution(const Evolution<TyT>& t_in) ;		/// Copy constructor
 
     public: 
 
@@ -103,7 +106,7 @@ template<typename TyT> class Evolution {
         virtual void update(const TyT& new_value, double new_time) = 0 ; 
     
         /// Assignement
-        virtual void operator=(const Evolution<TyT>& ) ;
+        virtual void operator=(const Evolution<TyT>& t_in) ;
 
     
     // Accessors
@@ -170,7 +173,7 @@ template<typename TyT> class Evolution_full : public Evolution<TyT> {
                   int fact_resize_i = 2) ;			
 	
 	
-        Evolution_full(const Evolution_full<TyT>& ) ;	/// Copy constructor
+        Evolution_full(const Evolution_full<TyT>& t_in) ;  /// Copy constructor
 
         virtual ~Evolution_full() ;			/// Destructor
  
@@ -180,10 +183,10 @@ template<typename TyT> class Evolution_full : public Evolution<TyT> {
         virtual void update(const TyT& new_value, double new_time) ; 
     
         /// Assignement to another Evolution\_full
-        virtual void operator=(const Evolution_full<TyT>& ) ;
+        virtual void operator=(const Evolution_full<TyT>& t_in) ;
 
         /// Assignement to a generic Evolution
-        virtual void operator=(const Evolution<TyT>& ) ;
+        virtual void operator=(const Evolution<TyT>& t_in) ;
 
     
     // Accessors
@@ -244,7 +247,7 @@ template<typename TyT> class Evolution_std : public Evolution<TyT> {
                   int nstored) ;			
 	
 	
-        Evolution_std(const Evolution_std<TyT>& ) ;	/// Copy constructor
+        Evolution_std(const Evolution_std<TyT>& t_in) ;	/// Copy constructor
 
         virtual ~Evolution_std() ;			/// Destructor
  
@@ -254,10 +257,10 @@ template<typename TyT> class Evolution_std : public Evolution<TyT> {
         virtual void update(const TyT& new_value, double new_time) ; 
     
         /// Assignement to another Evolution\_std
-        virtual void operator=(const Evolution_std<TyT>& ) ;
+        virtual void operator=(const Evolution_std<TyT>& t_in) ;
 
         /// Assignement to a generic Evolution
-        virtual void operator=(const Evolution<TyT>& ) ;
+        virtual void operator=(const Evolution<TyT>& t_in) ;
 
     // Accessors
     // ---------
