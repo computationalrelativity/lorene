@@ -31,6 +31,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/11/18 18:32:36  r_prix
+ * added new class-member: EpS_euler := ener_euler + s_euler
+ * has the advantage of a nice Newtonian limit -> rho
+ * (ener_euler is no longer used in this class!)
+ *
  * Revision 1.9  2003/11/13 12:02:03  r_prix
  * - adapted/extended some of the documentation
  * - changed xxx2 -> Delta_car
@@ -121,16 +126,10 @@ class Et_rot_bifluid : virtual public Etoile_rot {
   
   Tenseur nbar2 ; /// Baryon density in the fluid frame, for fluid 2
   
-  /**
-   * The "relative velocity" (squared) $\Delta^2$ of the two fluids.
-   * See Prix et al.(2003) and see also {\tt Eos\_bifluid}. 
-   */
-  Tenseur Delta_car ; 
-  
   // Fluid quantities with respect to the Eulerian frame
   // ---------------------------------------------------
 
-  // FIXME: the following two variables are not specific to 2-fluid stars
+  // FIXME: the following three variables are not specific to 2-fluid stars
   //  and should ideally be moved to class Etoile!
 
   /// The component $S^\varphi_\varphi$ of the stress tensor ${S^i}_j$.
@@ -143,11 +142,20 @@ class Et_rot_bifluid : virtual public Etoile_rot {
    */
   Tenseur J_euler;
 
+  /// the combination $E+S_i^i$: useful because in the Newtonian limit $\rightarrow \rho$.
+  Tenseur EpS_euler;
+
+  /// Norm of the (fluid no.2) 3-velocity with respect to the eulerian observer
+  Tenseur uuu2 ;
+  
   /// Lorentz factor between the fluid 2 and Eulerian observers   
   Tenseur gam_euler2 ;
   
-  /// Norm of the (fluid no.2) 3-velocity with respect to the eulerian observer
-  Tenseur uuu2 ;
+  /**
+   * The "relative velocity" (squared) $\Delta^2$ of the two fluids.
+   * See Prix et al.(2003) and see also {\tt Eos\_bifluid}. 
+   */
+  Tenseur Delta_car ; 
 
   // Derived data : 
   // ------------
