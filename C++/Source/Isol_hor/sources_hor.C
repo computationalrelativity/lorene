@@ -30,6 +30,10 @@ char source_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2005/03/03 10:11:57  f_limousin
+ * The function source_psi(), source_nn() and source_beta() are
+ * now const and return an object const.
+ *
  * Revision 1.9  2005/02/07 10:37:21  f_limousin
  * Minor changes.
  *
@@ -77,7 +81,7 @@ char source_hor_C[] = "$Header$" ;
 #include "graphique.h"
 #include "utilitaires.h"
 
-Scalar Isol_hor::source_psi() {
+const Scalar Isol_hor::source_psi() const{
 
     using namespace Unites ;
    
@@ -119,7 +123,7 @@ Scalar Isol_hor::source_psi() {
 }
 
 
-Scalar Isol_hor::source_nn() {
+const Scalar Isol_hor::source_nn() const{
 
     using namespace Unites ;
    
@@ -168,7 +172,7 @@ Scalar Isol_hor::source_nn() {
 
 
 
-Vector Isol_hor::source_beta() {
+const Vector Isol_hor::source_beta() const {
 
     using namespace Unites ;
    
