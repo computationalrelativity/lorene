@@ -38,6 +38,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.29  2003/10/29 13:09:11  e_gourgoulhon
+ * -- Added integer argument to derivative functions dsdr, etc...
+ *    so that one can choose the dzpuis of the result (default=2).
+ * -- Change of method name: laplacien --> laplacian.
+ *
  * Revision 1.28  2003/10/29 11:00:42  e_gourgoulhon
  * Virtual functions dec_dzpuis and inc_dzpuis have now an integer argument to
  *  specify by which amount dzpuis is to be increased.
@@ -451,22 +456,28 @@ class Scalar : public Tensor {
   // ---------------------------------
  public:
   /** Returns $\partial / \partial r$ of {\tt *this}.
-   *  Note that in the  compactified external domain (CED), it returns
-   *  instead $r^2 \partial/ \partial r$.
+   * @param  ced_mult_r [input] value of {\tt dzpuis} of the result: 
+   *   the default is 2 since the computation naturally returns 
+   *   $r^2 \partial/ \partial r$
+   *   in the compactified external domain (CED). 
    */
-  const Scalar& dsdr() const ; 
+  const Scalar& dsdr(int ced_mult_r = 2) const ; 
   
   /** Returns $1/r \partial / \partial \theta$ of {\tt *this}.
-   *  Note that in the  compactified external domain (CED), it returns
-   *  instead $r \partial/ \partial \theta$.
+   * @param  ced_mult_r [input] value of {\tt dzpuis} of the result: 
+   *   the default is 2 since the computation naturally returns 
+   *   $r \partial/ \partial \theta$
+   *   in the compactified external domain (CED). 
    */
-  const Scalar& srdsdt() const ; 
+  const Scalar& srdsdt(int ced_mult_r = 2) const ; 
   
   /** Returns $1/(r\sin\theta) \partial / \partial \phi$ of {\tt *this}.
-   *  Note that in the  compactified external domain (CED), it returns
-   *  instead $r/\sin\theta \partial/ \partial \phi$.
+   * @param  ced_mult_r [input] value of {\tt dzpuis} of the result: 
+   *   the default is 2 since the computation naturally returns 
+   *    $r/\sin\theta \partial/ \partial \phi$
+   *   in the compactified external domain (CED). 
    */
-  const Scalar& srstdsdp() const ; 
+  const Scalar& srstdsdp(int ced_mult_r = 2) const ; 
   
   /** Returns $\partial / \partial \theta$ of {\tt *this}.
    */
@@ -478,32 +489,40 @@ class Scalar : public Tensor {
   
   /** Returns $\partial/\partial x$ of {\tt *this},
    *  where $x=r\sin\theta \cos\phi$.
-   *  Note that in the  compactified external domain (CED), it returns
-   *  instead $r^2 \partial/ \partial x$.
+   * @param  ced_mult_r [input] value of {\tt dzpuis} of the result: 
+   *   the default is 2 since the computation naturally returns 
+   *    $r^2 \partial/ \partial x$
+   *   in the compactified external domain (CED). 
    */
-  const Scalar& dsdx() const ;	
+  const Scalar& dsdx(int ced_mult_r = 2) const ;	
   
   /** Returns $\partial/\partial y$ of {\tt *this},
    *  where $y=r\sin\theta \sin\phi$.
-   *  Note that in the compactified external domain (CED), it returns
-   *  instead $r^2 \partial/ \partial y$.
+   * @param  ced_mult_r [input] value of {\tt dzpuis} of the result: 
+   *   the default is 2 since the computation naturally returns 
+   *    $r^2 \partial/ \partial y$
+   *   in the compactified external domain (CED). 
    */
-  const Scalar& dsdy() const ;	
+  const Scalar& dsdy(int ced_mult_r = 2) const ;	
   
   /** Returns $\partial/\partial z$ of {\tt *this},
    *  where $z=r\cos\theta$.
-   *  Note that in the compactified external domain (CED), it returns
-   *  instead $r^2 \partial/ \partial z$.
+   * @param  ced_mult_r [input] value of {\tt dzpuis} of the result: 
+   *   the default is 2 since the computation naturally returns 
+   *    $r^2 \partial/ \partial z$
+   *   in the compactified external domain (CED). 
    */
-  const Scalar& dsdz() const ;	
+  const Scalar& dsdz(int ced_mult_r = 2) const ;	
   
   /** Returns $\partial/\partial x_i$ of {\tt *this},
    *  where $x_i = (x, y, z)$.
-   *  Note that in the compactified external domain (CED), it returns
-   *  instead $r^2 \partial/ \partial x_i$.
    *  @param i [input] i=1 for {\it x},  i=2 for {\it y}, i=3 for {\it z}.
+   *  @param  ced_mult_r [input] value of {\tt dzpuis} of the result: 
+   *   the default is 2 since the computation naturally returns 
+   *    $r^2 \partial/ \partial x$
+   *   in the compactified external domain (CED). 
    */
-  const Scalar& deriv(int i) const ;	
+  const Scalar& deriv(int i, int ced_mult_r = 2) const ;	
   
   /** Returns the Laplacian of {\tt *this}
    *   @param ced_mult_r [input] Determines the quantity computed in
@@ -513,7 +532,7 @@ class Scalar : public Tensor {
    *		    ced\_mult\_r = 2 : $r^2 \,  \Delta u$	\\
    *		    ced\_mult\_r = 4 (default) : $r^4 \, \Delta u$	
    */
-  const Scalar& laplacien(int ced_mult_r = 4) const ; 
+  const Scalar& laplacian(int ced_mult_r = 4) const ; 
   
   /** Returns the angular Laplacian $\Delta_{\theta\varphi}$ of {\tt *this},
    *  where $\Delta_{\theta\varphi} f = \frac{\partial^2 f}
