@@ -30,6 +30,9 @@ char et_bin_ncp_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/17 13:00:02  f_limousin
+ * Changes from set_cov() to get_cov() for metrics.
+ *
  * Revision 1.5  2003/10/13 10:29:56  f_limousin
  * *** empty log message ***
  *
@@ -494,8 +497,9 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
   // Derivatives of gtilde
   // ---------------------
 
-  const Tenseur& dcov_gtilde = (gtilde.set_cov()).derive_cov(flat) ;
+     const Tenseur& dcov_gtilde = (gtilde.get_cov()).derive_cov(flat) ;
   
+
   // Derivatives of hij
   // ------------------
 
@@ -841,10 +845,6 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
     des_coef_xi(shift_auto(1).va, 2, 0, 0) ;
     */ 
 
-          arrete() ;
-
-    cout << "ok1" << endl ;
-   
     if (!conf_flat){
 	   
       //--------------------------------------------------------
@@ -876,26 +876,23 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
       sol_poisson = 0 ;
 
 
-
-    cout << "ok2" << endl ;
-    
-    const Tenseur& gtilde_cov = gtilde.cov() ;
-    const Tenseur& gtilde_con = gtilde.con() ;
+      const Tenseur& gtilde_cov = gtilde.cov() ;
+      const Tenseur& gtilde_con = gtilde.con() ;
  
 
     
-    Tenseur source1_1 = contract(contract(hij,0, dcovdcov_hij_auto,0),0,1) ;
+      Tenseur source1_1 = contract(contract(hij,0, dcovdcov_hij_auto,0),0,1) ;
  
-    Tenseur source2_1 = contract(contract(dcov_hij,0, dcov_hij_auto,2), 1, 2) ;
-    Tenseur source2_2 = contract(contract(gtilde_cov, 0, 
-  contract(contract(gtilde_con,0,dcov_hij,0),0,dcov_hij_auto, 0), 1), 0, 3) ;
-    Tenseur source2_3 = contract(gtilde_con, 1, contract(contract(
+      Tenseur source2_1 = contract(contract(dcov_hij,0, dcov_hij_auto,2), 1, 2) ;
+      Tenseur source2_2 = contract(contract(gtilde_cov, 0, 
+					    contract(contract(gtilde_con,0,dcov_hij,0),0,dcov_hij_auto, 0), 1), 0, 3) ;
+      Tenseur source2_3 = contract(gtilde_con, 1, contract(contract(
    contract(gtilde_cov,0,dcov_hij,1),0,dcov_hij_auto, 2),1, 2), 0) ;
     Tenseur source2_4 = contract(gtilde_con, 1, contract(contract(
    contract(gtilde_cov,1,dcov_hij,2),0,dcov_hij_auto, 2),1, 2), 0) ; 
-    Tenseur source2_5 = contract(gtilde_con,1, contract(gtilde_con,1,
-	    contract(contract(dcov_gtilde,1,dcov_hij_auto,1), 1, 3)*0.5 
-	      + pow(gamma, -2./3.)*dcov_acar*dcov_acar_auto, 1), 1) ;
+     Tenseur source2_5 = contract(gtilde_con,1, contract(gtilde_con,1,
+        contract(contract(dcov_gtilde,1,dcov_hij_auto,1), 1, 3)*0.5 
+        + pow(gamma, -2./3.)*dcov_acar*dcov_acar_auto, 1), 1) ;
 
 
     Tenseur source3_1 = 2.*(pow(nnn, -1.)*pow(gamma,-1./6.)*contract(
@@ -923,12 +920,12 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
     Cmp source7_1 = - 2.*pow(a_car, -1.)()
 	*contract(contract(gtilde_con,0, dcov_acar,0),0, dcov_logn,0)() ;
     Cmp source7_2 = - contract(contract(contract(contract(gtilde_con,0, 
-        dcov_hij,0),0, dcov_gtilde,0), 0, 2), 0, 1)() *0.25 ;
+      dcov_hij,0),0, dcov_gtilde,0), 0, 2), 0, 1)() *0.25 ;
     Cmp source7_3 = contract(contract(contract(contract(gtilde_con,0, 
         dcov_hij,0),0, dcov_gtilde,2), 0, 3), 0, 1)() *0.5 ;   
     Cmp source7_4 = - pow(gamma, -2./3.)()*contract(contract(gtilde_con,0,
         dcov_acar,0),0, dcov_acar,0)()*0.5 ;
-
+    
 
     Tenseur source8_1 = -2.*pow(gamma,1./3.)*(2*kcar_con
 		       - 2.*qpig*(pow(gamma, 1./3.)*stress
@@ -940,53 +937,37 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
     Tenseur source9_3 = - contract(tkij_auto,1, shift.derive_cov(flat),0) ;
     Tenseur source9_4 = 2./3.*(contract(shift.derive_cov(flat),0, 1)
 			       *tkij_auto) ;
-    
+			       
 
-    arrete() ;
-
-
+ 
     hij_auto.set_etat_qcq() ;    
 
       for(int i=0; i<=2; i++) {
 	for(int j=i; j<=2; j++) {
 
-	  source1 = - source1_1(i,j);
+	    source1 = - source1_1(i,j);
 
-	  cout << "ok3" << endl ;
+	    source2 =  source2_1(i,j) + source2_2(i,j) - source2_3(i,j) 
+	    - source2_4(j,i) ;//- source2_5(i,j) ;
 	  
-	  source2 =  source2_1(i,j) + source2_2(i,j) - source2_3(i,j) 
-		     - source2_4(j,i) - source2_5(i,j) ;
-	  
-	  cout << "ok4" << endl ;
-	  
-	  
-       	  source3 = source3_1(i,j) ;
+	    source3 = source3_1(i,j) ;
 		      
-
-	  source4 = 2.*pow(nnn, -1.)()*pow(gamma,-1./6.)()*
+	    source4 = 2.*pow(nnn, -1.)()*pow(gamma,-1./6.)()*
     (source4_1(i,j)*0.5 + source4_1(j,i)*0.5 - source4_2(i,j)*0.5)
 	  - 2*pow(gamma,-1./3.)()*(source4_3(i,j) + source4_4(i,j)) ; 
 		      
-
 	  source5 = source5_1(i,j) ;
 		                       
-
 	  source6 = source6_1(i,j) ;
 		                       
-
-	  source7 =  -2./3.*(source7_1 + source7_2 + source7_3 + source7_4)
-	                   *gtilde_auto.con()(i,j) ;
-		      
+	  source7 =  -2./3.*(source7_1 )//+ source7_2 + source7_3 + source7_4)
+	                   *gtilde_auto.con()(i,j) ;			   
 		      
 	  source8 =  source8_1(i,j) ;
 		       
-    cout << "ok5" << endl ;
-	       
-	  source9 = 0;/*- 2.*a_car()/nnn()*(
-	      source9_1(i,j)+ source9_2(j,i)+ source9_3(i,j) + source9_4(i,j)) 
-		      */
-
-    arrete() ;
+  	  source9 = - 2.*a_car()/nnn()*(
+          source9_1(i,j)+ source9_2(j,i)+ source9_3(i,j) + source9_4(i,j)); 
+		      
 
 	  source1.annule(nz-1) ;
 	  source2.annule(nz-1) ;
@@ -1003,7 +984,6 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	  source_tot.set() = source1() + source2() + source3() + source4() 
 	      + source5() + source6() + source7() + source8() + source9() ;
  
-   cout << "ok6" << endl ;
 
 	  //  source_tot.set_std_base() ;
 	  
@@ -1039,11 +1019,6 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	  cout << "moyenne de la source pour hij_auto" << endl ;
 	  cout <<  norme(source_tot()/(nr*nt*np)) << endl << endl ;
   
-
-	       
-
-    cout << "ok7" << endl ;
-
 
 	  // Resolution of the Poisson equations and
 	  // Check: has the Poisson equation been correctly solved ?

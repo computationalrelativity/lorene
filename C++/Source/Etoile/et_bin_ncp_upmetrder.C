@@ -95,11 +95,11 @@ void Et_bin_ncp::update_metric_der_comp(const Et_bin_ncp& comp) {
   // Derivatives of gtilde
   // ---------------------
 
-  const Tenseur& dcov_gtilde_auto = (gtilde_auto.set_cov()).derive_cov(flat) ;
-  const Tenseur& dcov_gtilde = (gtilde.set_cov()).derive_cov(flat) ;
-  const Tenseur& dcov_gtilde_con = (gtilde.set_con()).derive_cov(flat) ;
+  const Tenseur& dcov_gtilde_auto = (gtilde_auto.get_cov()).derive_cov(flat) ;
+  const Tenseur& dcov_gtilde = (gtilde.get_cov()).derive_cov(flat) ;
+  const Tenseur& dcov_gtilde_con = (gtilde.get_con()).derive_cov(flat) ;
   
-  Tenseur dcov_gtilde_auto2 = (gtilde_auto.set_cov()).derive_cov(flat) ;
+  Tenseur dcov_gtilde_auto2 = (gtilde_auto.get_cov()).derive_cov(flat) ;
   dcov_gtilde_auto2.dec2_dzpuis() ; 
   Tenseur dcovdcov_gtilde_auto = dcov_gtilde_auto2.derive_cov(flat) ;
   dcovdcov_gtilde_auto.inc2_dzpuis() ;
