@@ -27,6 +27,9 @@ char scalar_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/05/07 11:24:54  f_limousin
+ * Implement new method filtre_r (int* nn)
+ *
  * Revision 1.7  2004/02/27 09:47:26  f_limousin
  * New methods filtre_phi(int) and filtre_theta(int).
  *
@@ -90,6 +93,39 @@ void Scalar::filtre (int n) {
 		for (int i=nr-1 ; i>nr-1-n ; i--)
 		    va.c_cf->set(nz-1, k, j, i) = 0 ;
 }
+
+
+/*
+ * Annule les n derniers coefficients en r dans toutes les zones
+ */
+ 
+void Scalar::filtre_r (int* nn) {
+    assert (etat != ETATNONDEF) ;
+    if ( (etat == ETATZERO) || (etat == ETATUN) )
+	return ;
+    
+    del_deriv() ;
+    
+    va.coef() ;
+    va.set_etat_cf_qcq() ;
+    int nz = mp->get_mg()->get_nzone() ;
+    int* nr = new int[nz];
+    int* nt = new int[nz];
+    int* np = new int[nz];
+    for (int l=0; l<=nz-1; l++) {
+	nr[l] = mp->get_mg()->get_nr(l) ; 
+	nt[l] = mp->get_mg()->get_nt(l) ; 
+	np[l] = mp->get_mg()->get_np(l) ; 
+    }
+ 
+    for (int l=0; l<=nz-1; l++)
+	for (int k=0 ; k<np[l]+1 ; k++)
+	    if (k!=1)
+		for (int j=0 ; j<nt[l] ; j++)
+		    for (int i=nr[l]-1; i>nr[l]-1-nn[l] ; i--)
+			va.c_cf->set(l, k, j, i) = 0 ;
+}
+
 
 /*
  * Annule les n derniers coefficients en phi dans zone nz
