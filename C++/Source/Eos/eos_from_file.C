@@ -31,6 +31,9 @@ char eos_from_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/12/08 15:47:03  m_bejger
+ * GlendNH3 EOS (Glendenning 1985, case 3) added
+ *
  * Revision 1.4  2002/10/16 14:36:35  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -111,6 +114,8 @@ int Eos_BBB2::identify() const		{ return 14; }
 
 int Eos_BalbN1H1::identify() const	{ return 15; }
 
+int Eos_GlendNH3::identify() const	{ return 16; }
+
 int MEos::identify() const	{ return 100; }
 
 
@@ -185,6 +190,11 @@ Eos* Eos::eos_from_file(FILE* fich) {
 	
 	case 15 : {
 	    p_eos = new Eos_BalbN1H1(fich) ;
+	    break ;
+	}
+
+	case 16 : {
+	    p_eos = new Eos_GlendNH3(fich) ;
 	    break ;
 	}
 
@@ -279,6 +289,11 @@ Eos* Eos::eos_from_file(ifstream& fich) {
 	
 	case 15 : {
 	    p_eos = new Eos_BalbN1H1(fich) ;
+	    break ;
+	}
+
+	case 16 : {
+	    p_eos = new Eos_GlendNH3(fich) ;
 	    break ;
 	}
 

@@ -6,6 +6,7 @@
  *				 Eos_AkmalPR
  *				 Eos_BBB2
  *				 Eos_BalbN1H1
+ *                               Eos_GlendNH3
  */
 
 /*
@@ -36,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/12/08 15:48:43  m_bejger
+ * GlendNH3 EOS (Glendenning 1985, case 3) added
+ *
  * Revision 1.6  2003/11/25 13:44:15  m_bejger
  * Declared some vectors for Eos_tabul::read_table()
  *
@@ -759,6 +763,87 @@ class Eos_BalbN1H1 : public Eos_tabul {
 
     public:
 	virtual ~Eos_BalbN1H1() ;			/// Destructor
+
+    // Miscellaneous
+    // -------------
+
+    public :
+	/// Comparison operator (egality)
+	virtual bool operator==(const Eos& ) const ;
+
+	/// Comparison operator (difference)
+	virtual bool operator!=(const Eos& ) const ;
+
+	/** Returns a number to identify the sub-classe of {\tt Eos} the
+	 *  object belongs to.
+	 */
+	virtual int identify() const ;
+
+    // Outputs
+    // -------
+
+    protected:
+	virtual ostream& operator>>(ostream &) const ;    /// Operator >>
+
+
+};
+
+
+
+		    //------------------------------------//
+		    //		class Eos_GlendNH3	  //
+		    //------------------------------------//
+
+
+/**
+ * Equation of state GlendNH3 (Glendenning 1985, case 3 ).
+ *
+ *
+ * 
+ */
+class Eos_GlendNH3 : public Eos_tabul {
+
+
+    // Constructors - Destructor
+    // -------------------------
+    public:
+
+	/** Standard constructor.
+	 *
+	 * @param path Path to the directory containing the EOS file
+	 */
+	Eos_GlendNH3(const char* path) ;	
+
+	
+    protected:
+	/** Constructor from a binary file (created by the function
+	 *  {\tt sauve(FILE* )}).
+	 *  This constructor is protected because any EOS construction
+	 *  from a binary file must be done via the function
+	 *  {\tt Eos::eos\_from\_file(FILE* )}.
+	 */
+	Eos_GlendNH3(FILE* ) ;
+	
+	/** Constructor from a formatted file.
+	 *  This constructor is protected because any EOS construction
+	 *  from a formatted file must be done via the function
+	 *  {\tt Eos::eos\_from\_file(ifstream\& )}.
+	 */
+	Eos_GlendNH3(ifstream& ) ;
+
+    private:	
+	/** Copy constructor (private to make {\tt Eos\_GlendNH3}
+	 *  a non-copiable class)
+	 */	
+	Eos_GlendNH3(const Eos_GlendNH3& ) ;	
+	
+	
+	/// The construction functions from a file
+	friend Eos* Eos::eos_from_file(FILE* ) ;
+	friend Eos* Eos::eos_from_file(ifstream& ) ;
+
+    public:
+	virtual ~Eos_GlendNH3() ;			/// Destructor
 
     // Miscellaneous
     // -------------
