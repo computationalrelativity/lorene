@@ -31,6 +31,10 @@ char eos_bf_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2003/12/04 14:24:41  r_prix
+ * a really dirty hack: gam1 < 0 signals to use 'slow-rot-style' EOS
+ * inversion  (i.e. typeos=5). This only works for the 'analytic EOS'.
+ *
  * Revision 1.13  2003/11/18 18:28:38  r_prix
  * moved particle-masses m_1, m_2 of the two fluids into class eos_bifluid (from eos_bf_poly)
  *
@@ -127,8 +131,8 @@ Eos_bf_poly::Eos_bf_poly(double kappa1, double kappa2, double kappa3, double bet
   relax(0.5), precis(1.e-9), ecart(1.e-8) 
 {
 
-  set_auxiliary() ; 
   determine_type() ;
+  set_auxiliary() ; 
 
 }  
 
@@ -145,8 +149,9 @@ Eos_bf_poly::Eos_bf_poly(double gamma1, double gamma2, double gamma3,
   relax(rel), precis(prec), ecart(ec) 
 {
 
-  set_auxiliary() ; 
   determine_type() ;
+  set_auxiliary() ; 
+
 }  
   
 // Copy constructor
@@ -184,8 +189,9 @@ Eos_bf_poly::Eos_bf_poly(FILE* fich) :
     fread_be(&precis, sizeof(double), 1, fich) ;	
     fread_be(&ecart, sizeof(double), 1, fich) ;	
     
-    set_auxiliary() ; 
     determine_type() ;
+    set_auxiliary() ; 
+
 
 }
 
@@ -211,8 +217,8 @@ Eos_bf_poly::Eos_bf_poly(ifstream& fich) :
     fich >> precis ; fich.getline(blabla, 80) ;
     fich >> ecart ; fich.getline(blabla, 80) ;
 
-    set_auxiliary() ; 
     determine_type() ;
+    set_auxiliary() ; 
 
 }
 			//--------------//
@@ -270,6 +276,18 @@ void Eos_bf_poly::set_auxiliary() {
 
 void Eos_bf_poly::determine_type() {
     
+  bool slow_rot_style = false;
+
+  // RP: quick and dirty hack: gam1 negative indicates slow-rot-style EOS inversion!!
+  // this is only admissible with the "analytic" EOS (typeos=0) and is indexed as typeos=5
+  if (gam1 < 0)
+    {
+      slow_rot_style = true;
+      gam1 = - gam1;
+      cout << "DEBUG: slow-rot-style Inversion activated in EOS!" << endl;
+    }
+
+  
   if ((gam1 == double(2)) && (gam2 == double(2)) && (gam3 == double(1))
       && (gam4 == double(1)) && (gam5 == double(1)) 
       && (gam6 == double(0))) {
@@ -279,9 +297,8 @@ void Eos_bf_poly::determine_type() {
     cout << " density 2! This may be incorrect and should only be used"<<endl ;
     cout << " for testing purposes..." << endl ;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" <<endl ;
-    return ;
   }
-  if ((gam1 == double(2)) && (gam2 == double(2)) && (gam3 == double(1))
+  else if ((gam1 == double(2)) && (gam2 == double(2)) && (gam3 == double(1))
       && (gam4 == double(1)) && (gam5 == double(0)) 
       && (gam6 == double(1))) {
     typeos = -2 ;
@@ -290,28 +307,37 @@ void Eos_bf_poly::determine_type() {
     cout << " density 1! This may be incorrect and should only be used"<<endl ;
     cout << " for testing purposes..." << endl ;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" <<endl ;
-    return ;
   }
-  if ((gam1 == double(2)) && (gam2 == double(2)) && (gam3 == double(1))
+  else if ((gam1 == double(2)) && (gam2 == double(2)) && (gam3 == double(1))
       && (gam4 == double(1)) && (gam5 == double(1)) 
       && (gam6 == double(1))) {
     typeos = 0 ;
-    return ;
   }
-  if ((gam3 == double(1)) && (gam4 == double(1)) && (gam5 == double(1)) 
+  else if ((gam3 == double(1)) && (gam4 == double(1)) && (gam5 == double(1)) 
       && (gam6 == double(1))) {
     typeos = 1 ;
-    return ;
   }
-  if ((gam3 == double(1)) && (gam5 == double(1))) {
+  else if ((gam3 == double(1)) && (gam5 == double(1))) {
     typeos = 2 ;
-    return ;
   }
-  if ((gam4 == double(1)) && (gam6 == double(1))) {
+  else if ((gam4 == double(1)) && (gam6 == double(1))) {
     typeos = 3 ;
     return ;
   }
-  typeos = 4 ;
+  else {
+    typeos = 4 ;
+  }
+	
+  // now check if users asked for slow-rot-style 
+  if (slow_rot_style && (typeos != 0) )
+    {
+      cerr << "ERROR: slow-rot-style (gam1<0) only works with analytic EOS!!" << endl;
+      exit(-1);  // how do you do this Lorene-style?
+    }
+
+  if ( (typeos == 0) && slow_rot_style )
+    typeos = 5;
+	
   return ;  
 }
 
@@ -448,6 +474,7 @@ bool Eos_bf_poly::nbar_ent_p(const double ent1, const double ent2,
   bool one_fluid = ((ent1<=0.)||(ent2<=0.)) ;
   if (!one_fluid) {
     switch (typeos) {
+    case 5:  // same as typeos=0 but with slow-rot-style inversion
     case 0: {
       double kpd = kap3+beta*delta2 ;
       double determ = kap1*kap2 - kpd*kpd ;
