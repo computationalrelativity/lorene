@@ -34,6 +34,10 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/09/24 20:55:27  e_gourgoulhon
+ * Added -- constructor by conversion of a Cmp
+ *       -- operator=(const Cmp&)
+ *
  * Revision 1.3  2003/09/24 15:10:54  j_novak
  * Suppression of the etat flag in class Tensor (still present in Scalar)
  *
@@ -58,6 +62,7 @@ char scalar_C[] = "$Header$" ;
 #include "type_parite.h"
 #include "utilitaires.h"
 #include "proto.h"
+#include "cmp.h"
 
 			//---------------//
 			// Constructors  //
@@ -90,6 +95,16 @@ Scalar::Scalar(const Scalar& sci)  : Tensor(*(sci.mp)), etat(sci.etat),
   cmp[0] = this ; 
   set_der_0x0() ;	// On ne recopie pas les derivees
 
+}
+
+// Conversion of a Cmp
+//--------------------
+Scalar::Scalar(const Cmp& ci) : Tensor(*(ci.get_mp())),
+								etat(ci.get_etat()),
+								dzpuis(ci.get_dzpuis()),
+								va(ci.va) {
+	cmp[0] = this ;
+	set_der_0x0() ; 
 }
 	
 // From file
@@ -307,6 +322,56 @@ void Scalar::operator=(const Scalar& ci) {
 
 }
     
+// From Cmp
+// --------
+void Scalar::operator=(const Cmp& ci) {
+    
+
+    // Menage general de la Valeur, mais pas des quantites derivees !
+    va.del_t() ;
+    
+    // Les elements fixes
+    assert( mp == ci.get_mp() ) ;
+	
+    dzpuis = ci.get_dzpuis() ; 
+    
+    // La valeur eventuelle
+    switch(ci.get_etat()) {
+	
+	case ETATNONDEF: {
+	    set_etat_nondef() ; 
+	    break ;		    // valeur par defaut
+	}
+	
+	case ETATZERO: {
+	    set_etat_zero() ;
+	    break ;
+	}
+	
+	case ETATQCQ: {
+	    set_etat_qcq() ;
+	    va = ci.va ;
+
+	    // On detruit les quantites derivees (seulement lorsque tout est fini !)
+	    del_deriv() ; 
+
+	    break ;
+	}
+	
+	default: {
+	    cout << "Unkwown state in Scalar::operator=(const Cmp&) !" 
+		 << endl ;
+	    abort() ;
+	    break ;
+	}
+    }
+
+}
+    
+
+
+
+
 // From Valeur
 // -----------
 void Scalar::operator=(const Valeur& vi) {
