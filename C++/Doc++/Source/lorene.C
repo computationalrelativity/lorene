@@ -105,9 +105,6 @@
     //@{
 	//@Include:cmp.h_r
 	//@Include:tenseur.h_r
-	//@Include:metrique.h_r
-	//@Include:metconf.h_r
-	//@Include:qtenseur.h_r
     //@}  
 
     /**@name Time evolution (***under development***)

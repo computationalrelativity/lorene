@@ -14,7 +14,6 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Bin_ns_ncp; $(MAKE)
 	cd Source/Binaire; $(MAKE)
 	cd Source/Binary; $(MAKE)
-	cd Source/Champ_cart; $(MAKE)
 	cd Source/Change_var; $(MAKE)
 	cd Source/Cmp; $(MAKE)
 	cd Source/Connection; $(MAKE)
@@ -22,12 +21,10 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Eos; $(MAKE)
 	cd Source/Etoile; $(MAKE)
 	cd Source/Grille3d; $(MAKE)
-	cd Source/Grille_cart; $(MAKE)
 	cd Source/Itbl; $(MAKE)
 	cd Source/Map; $(MAKE)
 	cd Source/Matrice; $(MAKE)
 	cd Source/Metric; $(MAKE)
-	cd Source/Metrique; $(MAKE)
 	cd Source/Mg3d; $(MAKE)
 	cd Source/Mtbl; $(MAKE)
 	cd Source/Mtbl_cf; $(MAKE)
@@ -39,7 +36,6 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Ope_elementary; $(MAKE)
 	cd Source/Param; $(MAKE)
 	cd Source/Param_elliptic; $(MAKE)
-	cd Source/QuadriD; $(MAKE)
 	cd Source/Star; $(MAKE)
 	cd Source/Tbl; $(MAKE)
 	cd Source/Tenseur; $(MAKE)
@@ -61,7 +57,6 @@ uninstall:
 	cd Source/Bin_ns_ncp; $(MAKE) -i uninstall
 	cd Source/Binaire; $(MAKE) -i uninstall
 	cd Source/Binary; $(MAKE) -i uninstall
-	cd Source/Champ_cart; $(MAKE) -i uninstall
 	cd Source/Change_var; $(MAKE) -i uninstall
 	cd Source/Cmp; $(MAKE) -i uninstall
 	cd Source/Connection; $(MAKE) -i uninstall
@@ -69,12 +64,10 @@ uninstall:
 	cd Source/Eos; $(MAKE) -i uninstall
 	cd Source/Etoile; $(MAKE) -i uninstall
 	cd Source/Grille3d; $(MAKE) -i uninstall
-	cd Source/Grille_cart; $(MAKE) -i uninstall
 	cd Source/Itbl; $(MAKE) -i uninstall
 	cd Source/Map; $(MAKE) -i uninstall
 	cd Source/Matrice; $(MAKE) -i uninstall
 	cd Source/Metric; $(MAKE) -i uninstall
-	cd Source/Metrique; $(MAKE) -i uninstall
 	cd Source/Mg3d; $(MAKE) -i uninstall
 	cd Source/Mtbl; $(MAKE) -i uninstall
 	cd Source/Mtbl_cf; $(MAKE) -i uninstall
@@ -86,7 +79,6 @@ uninstall:
 	cd Source/Ope_elementary; $(MAKE) -i uninstall
 	cd Source/Param; $(MAKE) -i uninstall
 	cd Source/Param_elliptic; $(MAKE) -i uninstall
-	cd Source/QuadriD; $(MAKE) -i uninstall
 	cd Source/Star; $(MAKE) -i uninstall
 	cd Source/Tbl; $(MAKE) -i uninstall
 	cd Source/Tenseur; $(MAKE) -i uninstall
