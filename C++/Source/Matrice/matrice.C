@@ -32,6 +32,13 @@ char matrice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/09/24 08:36:44  e_gourgoulhon
+ *
+ * Corrected error in output (operator<<) : permutted number of rows and columns
+ *
+ * Added matrix multiplication
+ * Added function transpose()
+ *
  * Revision 1.3  2002/09/09 13:00:39  e_gourgoulhon
  * Modification of declaration of Fortran 77 prototypes for
  * a better portability (in particular on IBM AIX systems):
@@ -227,32 +234,32 @@ void Matrice::operator= (const Matrice &source) {
 ostream& operator<< (ostream& flux, const Matrice & source) {
     switch (source.std->get_etat()) {
 	case ETATZERO :
-	    cout << "Matrice nulle. " << endl ;
+	    flux << "Null matrix. " << endl ;
 	    break ;
 	case ETATNONDEF :
-	    cout << "Matrice non definie. " << endl ;
+	    flux << "Undefined matrix. " << endl ;
 	    break ;
 	case ETATQCQ :
-	    int nbl = source.std->get_dim(0) ;
-	    int nbc = source.std->get_dim(1) ;
-	    cout << "Matrice " << nbl << " * " << nbc << endl ;
+	    int nbl = source.std->get_dim(1) ;
+	    int nbc = source.std->get_dim(0) ;
+	    flux << "Matrix " << nbl << " * " << nbc << endl ;
 	    for (int i=0 ; i<nbl ; i++) {
 		for (int j=0 ; j<nbc ; j++)
-		    cout << (*source.std)(i, j) << "  " ;
-		cout << endl ;		    
+		    flux << (*source.std)(i, j) << "  " ;
+		flux << endl ;		
 	    }
 	}
 	
-    cout << endl ;
+    flux << endl ;
     
     if ((source.band != 0x0) && (source.band->get_etat() != ETATNONDEF)) {
-	cout << "Matrice : " << source.ku << " diags sup. et " 
-		 << source.kl << " diags inf ." << endl ;
+	flux << "Matrix : " << source.ku << " upper diags. and  "
+		 << source.kl << " lower diags." << endl ;
     }
-    else cout << "Diagonalisation non faite." << endl ;
+	//    else flux << "Diagonalisation non faite." << endl ;
     
     if ((source.lu != 0x0) && (source.lu->get_etat() != ETATNONDEF))
-	cout << "Factorisation LU faite." << endl ;
+	flux << "LU factorization done." << endl ;
 
 return flux ;
 }
@@ -412,6 +419,30 @@ double Matrice::determinant() const {
     return result ;
 }
 
+// Transposee
+Matrice Matrice::transpose() const {
+
+	int nbl = std->get_dim(1) ;
+	int nbc = std->get_dim(0) ;
+
+	Matrice resu(nbc, nbl) ;
+	
+	if (etat == ETATZERO) {
+		resu.set_etat_zero() ;
+	}
+	else{
+		assert(etat == ETATQCQ) ;
+		resu.set_etat_qcq() ;
+		for (int i=0; i<nbc; i++) {
+			for (int j=0; j<nbl; j++) {
+				resu.set(i,j) = (*std)(j,i) ;
+			}
+		}
+	}
+	return resu ;
+}
+
+
 // Operateurs d'arithmetique
 Matrice operator+ (const Matrice& a, const Matrice& b) {
     Tbl auxi (*a.std+*b.std) ;
@@ -435,6 +466,39 @@ Matrice operator* (double x, const Matrice& a) {
     Tbl auxi (*a.std*x) ;
     Matrice res(auxi) ;
     return res ;
+}
+
+Matrice operator* (const Matrice& aa, const Matrice& bb) {
+
+	int nbla = aa.std->get_dim(1) ;
+	int nbca = aa.std->get_dim(0) ;
+	int nblb = bb.std->get_dim(1) ;
+	int nbcb = bb.std->get_dim(0) ;
+	
+	assert( nbca == nblb ) ;
+	
+	Matrice resu(nbla, nbcb) ;
+	
+	if ( (aa.get_etat() == ETATZERO) || (bb.get_etat() == ETATZERO) ) {
+		resu.set_etat_zero() ;
+	}
+	else {
+		assert( aa.get_etat() == ETATQCQ ) ;
+		assert( bb.get_etat() == ETATQCQ ) ;
+		resu.set_etat_qcq() ;
+		for (int i=0; i<nbla; i++) {
+			for (int j=0; j<nbcb; j++) {
+				double sum = 0 ;
+				for (int k=0; k<nbca; k++) {
+					sum += aa(i,k) * bb(k, j) ;
+				}
+				resu.set(i,j) = sum ;
+			}
+			
+		}
+	}
+
+    return resu ;
 }
 
 Matrice operator/ (const Matrice& a, double x) {
