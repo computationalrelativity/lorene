@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/05/07 13:04:01  j_novak
+ * Forgotten #include<assert.h>
+ *
  * Revision 1.1  2004/05/07 08:09:56  k_taniguchi
  * Initial revision
  *
@@ -43,6 +46,7 @@
 
 // Headers C
 #include <stdio.h>
+#include <assert.h>
 
 // Lorene classes
 #include "eos.h"
