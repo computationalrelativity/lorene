@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2000-2001 Eric Gourgoulhon
+ *   Copyright (c) 2000-2002 Eric Gourgoulhon
  *   Copyright (c) 2000-2001 Philippe Grandclement
  *
  *   This file is part of LORENE.
@@ -32,6 +32,9 @@ char base_vect_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/01/15 09:09:49  e_gourgoulhon
+ * Suppression of cout printing in the comparison operator
+ *
  * Revision 1.2  2001/12/04 21:27:52  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -183,7 +186,7 @@ bool Base_vect_spher::operator==(const Base_vect& bi) const {
     bool resu = true ; 
     
     if ( bi.identify() != identify() ) {
-	cout << "The second Base_vect is not of type Base_vect_spher !" << endl ; 
+	// cout << "The second Base_vect is not of type Base_vect_spher !" << endl ;
 	resu = false ; 
     }
     else{
