@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/11/25 07:25:44  k_taniguchi
+ * Change the attribute of fait_decouple() from private to public.
+ *
  * Revision 1.6  2003/10/24 16:56:30  k_taniguchi
  * Add the method for the calculation of the orbital angular velocity
  *
@@ -226,12 +229,12 @@ class Bin_ns_bh {
 	/// Operator >> (function called by the operator <<).
 	ostream& operator>>(ostream& ) const ;
 
+    public:
 	/** Function used to compute the {\tt decouple} functions for both
 	 * the NS and the BH
 	 **/
 	void fait_decouple() ;
 
-    public:
 	/** Computation of the extrinsic curvature tensor for both
 	 * {\tt star} and {\tt bhole}.
 	 **/
