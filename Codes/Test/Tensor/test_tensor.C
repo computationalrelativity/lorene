@@ -14,7 +14,7 @@ int main() {
     int nz = 2 ;
     double R = 2. ;
 
-    int nr0 = 9 ; int nt0 = 5; int np0 = 4 ;
+    int nr0 = 17 ; int nt0 = 9; int np0 = 4 ;
     
     // echantillonnage en phi :
     int* np = new int [nz] ;
@@ -88,20 +88,25 @@ int main() {
 
     cout << num ;
     
-	Cmp cuu(essai) ;
+    Cmp cuu(mapping) ;
+    Cmp theo(mapping) ;
+    Coord& rr = mapping.r ;
+    Coord& zz = mapping.z ;
 	
-	cout << "cuu: " << cuu << endl ; 
-	
-	arrete() ; 
-	
-	Scalar essai0(essai) ; 
-	essai = cuu ; 
-	cout << "essai : " << essai << endl ; 
+    cuu = exp(-rr*rr) ;
+    cuu.std_base_scal() ;
+    essai = cuu ;
 
-	arrete() ; 
+    theo = -2*zz*exp(-rr*rr) ;
+    theo.std_base_scal() ;
+    theo.inc2_dzpuis() ;
+    scalfich = theo ;
 
-	cout << "essai - essai0 : " << essai - essai0 << endl ; 
-	
+    Scalar resu = essai.dsdz() - scalfich ;
+    resu.spectral_display(cout, 1.e-10) ;
+
+    arrete() ; 
+
     delete [] bornes ;
     delete [] nr ;
     delete [] nt ;

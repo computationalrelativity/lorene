@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/09/25 08:13:51  j_novak
+ * Added method for calculating derivatives
+ *
  * Revision 1.7  2003/09/25 07:59:26  e_gourgoulhon
  * Added prototypes for PDE resolutions.
  *
@@ -345,6 +348,66 @@ class Scalar : public Tensor {
      */
 	Tbl multipole_spectrum () ;
 	
+    // Differential operators and others
+    // ---------------------------------
+    public:
+	/** Returns $\partial / \partial r$ of {\tt *this}.
+	 *  Note that in the  compactified external domain (CED), it returns
+	 *  instead $r^2 \partial/ \partial r$.
+	 */
+	const Scalar& dsdr() const ; 
+	
+	/** Returns $1/r \partial / \partial \theta$ of {\tt *this}.
+	 *  Note that in the  compactified external domain (CED), it returns
+	 *  instead $r \partial/ \partial \theta$.
+	 */
+	const Scalar& srdsdt() const ; 
+
+	/** Returns $1/(r\sin\theta) \partial / \partial \phi$ of {\tt *this}.
+	 *  Note that in the  compactified external domain (CED), it returns
+	 *  instead $r/\sin\theta \partial/ \partial \phi$.
+	 */
+	const Scalar& srstdsdp() const ; 
+
+	/** Returns $\partial/\partial x$ of {\tt *this},
+	 *  where $x=r\sin\theta \cos\phi$.
+	 *  Note that in the  compactified external domain (CED), it returns
+	 *  instead $r^2 \partial/ \partial x$.
+	 */
+	const Scalar& dsdx() const ;	
+
+	/** Returns $\partial/\partial y$ of {\tt *this},
+	 *  where $y=r\sin\theta \sin\phi$.
+	 *  Note that in the compactified external domain (CED), it returns
+	 *  instead $r^2 \partial/ \partial y$.
+	 */
+	const Scalar& dsdy() const ;	
+
+	/** Returns $\partial/\partial z$ of {\tt *this},
+	 *  where $z=r\cos\theta$.
+	 *  Note that in the compactified external domain (CED), it returns
+	 *  instead $r^2 \partial/ \partial z$.
+	 */
+	const Scalar& dsdz() const ;	
+
+	/** Returns $\partial/\partial x_i$ of {\tt *this},
+	 *  where $x_i = (x, y, z)$.
+	 *  Note that in the compactified external domain (CED), it returns
+	 *  instead $r^2 \partial/ \partial x_i$.
+	 *  @param i [input] i=0 for {\it x},  i=1 for {\it y}, i=2 for {\it z}.
+	 */
+	const Scalar& deriv(int i) const ;	
+
+	/** Returns the Laplacian of {\tt *this}
+	 *   @param zec_mult_r [input] Determines the quantity computed in
+	 *			 the  compactified external domain (CED) 
+	 *		({\it u} in the field represented by {\tt *this}) :  \\
+	 *		    zec\_mult\_r = 0 : $\Delta u$	\\
+	 *		    zec\_mult\_r = 2 : $r^2 \,  \Delta u$	\\
+	 *		    zec\_mult\_r = 4 (default) : $r^4 \, \Delta u$	
+	 */
+	const Scalar& laplacien(int zec_mult_r = 4) const ; 
+
     // Outputs
     // -------
     public:
