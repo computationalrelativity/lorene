@@ -7,7 +7,7 @@
 
 /*
  *   Copyright (c) 1999-2001 Philippe Grandclement
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2003 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -33,6 +33,11 @@ char itbl_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/11 16:44:17  e_gourgoulhon
+ *
+ * IMPORTANT CHANGE: the standard constructors set now the logical state
+ * to ETATQCQ, and no longer to ETATNONDEF.
+ *
  * Revision 1.3  2002/10/16 14:36:37  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -76,23 +81,39 @@ char itbl_C[] = "$Header$" ;
 
 
 // Constructeur 1D
-Itbl::Itbl(int n1) : etat(ETATNONDEF), dim(n1), t(0x0) {
+Itbl::Itbl(int n1) : etat(ETATQCQ), dim(n1) {
+
     if (n1 == 0) {
-	set_etat_zero() ; 
+		t = 0x0 ; 
+		set_etat_zero() ; 
     }
+	else {
+		assert(n1 > 0) ; 
+    	t = new int[n1] ;
+	}
 }
 
 // Constructeur 2D
-Itbl::Itbl(int n1, int n0) : etat(ETATNONDEF), dim(n1, n0), t(0x0) {}
+Itbl::Itbl(int n1, int n0) : etat(ETATQCQ), dim(n1, n0) {
+
+    t = new int[get_taille()] ;
+}
 
 // Constructeur 3D
-Itbl::Itbl(int n2, int n1, int n0) : etat(ETATNONDEF), dim(n2, n1, n0), t(0x0) {}
+Itbl::Itbl(int n2, int n1, int n0) : etat(ETATQCQ), dim(n2, n1, n0) {
+	
+    t = new int[get_taille()] ;
+}
 
 // Constructeur a partir d'un Dim_tbl
-Itbl::Itbl(const Dim_tbl& dt) : etat(ETATNONDEF), dim(dt), t(0x0) {
+Itbl::Itbl(const Dim_tbl& dt) : etat(ETATQCQ), dim(dt) {
+
     if (get_taille() == 0) {
-	set_etat_zero() ; 
+		set_etat_zero() ; 
     }
+	else {
+    	t = new int[get_taille()] ;
+	}
 }
 
 // Copie
@@ -131,7 +152,7 @@ Itbl::Itbl(FILE* fd) : dim(fd) {
 			//-------------//
 
 Itbl::~Itbl() {
-    delete [] t ;
+    if (t != 0x0) delete [] t ;
 }
 
 			//-------------//
@@ -198,13 +219,13 @@ void Itbl::sauve(FILE* fd) const {
     }
 }
     
-		    //-----------------//
-    	    	    // Gestion memoire //
-		    //-----------------//
+			//-----------------//
+			// Gestion memoire //
+			//-----------------//
 
 // Destructeur logique
 void Itbl::del_t() {
-    delete [] t ;
+    if (t != 0x0) delete [] t ;
     t = 0x0 ;
     etat = ETATNONDEF ;
 }
@@ -247,7 +268,7 @@ void Itbl::annule_hard() {
 
 
 			//------------------------//
-			//	Display		  //
+			//        Display         //
 			//------------------------//
 			
 //-----------			
