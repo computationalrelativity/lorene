@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2003/10/24 12:24:41  k_taniguchi
+ * Suppress the methods of update metric for NS-BH
+ *
  * Revision 1.16  2003/10/21 11:44:43  k_taniguchi
  * Delete various things for the Bin_ns_bh project.
  * They are moved to et_bin_nsbh.h.
@@ -1206,14 +1209,6 @@ class Etoile_bin : public Etoile {
 	 */
 	void update_metric(const Etoile_bin& comp) ;
 
-	/** Computes metric coefficients from known potentials,
-	 *  when the companion is a black hole.
-	 *
-	 *  @param comp companion black hole
-	 *
-	 */
-	void update_metric(const Bhole& comp) ;
-
 	/** Same as {\tt update\_metric(const Etoile\_bin\& )} but with
 	 *  relaxation.
 	 *
@@ -1240,14 +1235,6 @@ class Etoile_bin : public Etoile {
 	 *
 	 */
 	 void update_metric_der_comp(const Etoile_bin& comp) ;
-
-	/** Computes the derivative of metric functions related to the
-	 *  companion black hole.
-	 *
-	 *  @param comp companion BH.
-	 *
-	 */
-	void update_metric_der_comp(const Bhole& comp) ;
 
 	/** Computes the quantities {\tt bsn} and {\tt pot\_centri}.
 	 * 
