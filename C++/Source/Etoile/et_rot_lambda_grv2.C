@@ -32,6 +32,9 @@ char et_rot_lambda_grv2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/27 10:53:16  e_gourgoulhon
+ * Changed variable name mp --> mprad in order not to shadow member mp.
+ *
  * Revision 1.2  2002/09/09 13:00:39  e_gourgoulhon
  * Modification of declaration of Fortran 77 prototypes for
  * a better portability (in particular on IBM AIX systems):
@@ -61,19 +64,19 @@ char et_rot_lambda_grv2_C[] = "$Header$" ;
 
 double Etoile_rot::lambda_grv2(const Cmp& sou_m, const Cmp& sou_q) {
 
-	const Map_radial* mp = dynamic_cast<const Map_radial*>( sou_m.get_mp() ) ;
+	const Map_radial* mprad = dynamic_cast<const Map_radial*>( sou_m.get_mp() ) ;
 	
-	if (mp == 0x0) {
+	if (mprad == 0x0) {
 		cout << "Etoile_rot::lambda_grv2: the mapping of sou_m does not"
 			 << endl << " belong to the class Map_radial !" << endl ;
 		abort() ;
 	} 	
 
-	assert( sou_q.get_mp() == mp ) ;
+	assert( sou_q.get_mp() == mprad ) ;
 	
 	sou_q.check_dzpuis(4) ;
 	
-	const Mg3d* mg = mp->get_mg() ;
+	const Mg3d* mg = mprad->get_mg() ;
 	int nz = mg->get_nzone() ;
 		
 	// Construction of a Map_af which coincides with *mp on the equator
@@ -82,27 +85,27 @@ double Etoile_rot::lambda_grv2(const Cmp& sou_m, const Cmp& sou_q) {
     double theta0 = M_PI / 2 ;	    // Equator
     double phi0 = 0 ;
 
-    Map_af mpaff(*mp) ;
+    Map_af mpaff(*mprad) ;
 
     for (int l=0 ; l<nz ; l++) {
-		double rmax = mp->val_r(l, double(1), theta0, phi0) ;
+		double rmax = mprad->val_r(l, double(1), theta0, phi0) ;
 		switch ( mg->get_type_r(l) ) {
 	    	case RARE:	{
-				double rmin = mp->val_r(l, double(0), theta0, phi0) ;
+				double rmin = mprad->val_r(l, double(0), theta0, phi0) ;
 				mpaff.set_alpha(rmax - rmin, l) ;
 				mpaff.set_beta(rmin, l) ;
 				break ;
 	    	}
 	
 	    	case FIN:	{
-				double rmin = mp->val_r(l, double(-1), theta0, phi0) ;
+				double rmin = mprad->val_r(l, double(-1), theta0, phi0) ;
 				mpaff.set_alpha( double(.5) * (rmax - rmin), l ) ;
 				mpaff.set_beta( double(.5) * (rmax + rmin), l) ;
 				break ;
 	    	}
 	
 	    	case UNSURR: {
-				double rmin = mp->val_r(l, double(-1), theta0, phi0) ;
+				double rmin = mprad->val_r(l, double(-1), theta0, phi0) ;
 				double umax = double(1) / rmin ;
 				double umin = double(1) / rmax ;
 				mpaff.set_alpha( double(.5) * (umin - umax),  l) ;
@@ -124,7 +127,7 @@ double Etoile_rot::lambda_grv2(const Cmp& sou_m, const Cmp& sou_q) {
 	// the transformation  (r,theta,phi) <-> (dzeta,theta',phi')
 	// ------------------------------------------------------------
 	
-	Mtbl jac = 1 / ( (mp->xsr) * (mp->dxdr) ) ;	
+	Mtbl jac = 1 / ( (mprad->xsr) * (mprad->dxdr) ) ;	
 								// R/x dR/dx in the nucleus
 								// R dR/dx   in the shells
 								// - U/(x-1) dU/dx in the ZEC						
