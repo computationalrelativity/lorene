@@ -5,7 +5,7 @@
  */
 
 /*
- *   Copyright (c) 2001 Keisuke Taniguchi
+ *   Copyright (c) 2001-2003 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,9 @@ char coal_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/09/17 15:43:53  e_gourgoulhon
+ * Test of good opening of the initial data file.
+ *
  * Revision 1.6  2003/09/16 13:36:50  e_gourgoulhon
  * -- initial analytical shift decreased by a factor reduce_shift which
  *    can be specified in the parcoal.d file (default value = 0.6)
@@ -232,6 +235,11 @@ int main(){
     //------------------------------------------------------------------
 
     FILE* fich = fopen(nomini, "r") ; 
+    if (fich == 0x0) {
+    	cout << "Problem in opening the file " << nomini << " ! " << endl ; 
+	perror(" reason") ; 
+	abort() ; 
+    }
 
     int mer_ini ; 
     fread(&mer_ini, sizeof(int), 1, fich) ;	
