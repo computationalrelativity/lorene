@@ -1,7 +1,7 @@
 /*
- *  Method of class Hor_isol to compute boundary conditions
+ *  Method of class Isol_hor to compute boundary conditions
  *
- *    (see file hor_isol.h for documentation).
+ *    (see file isol_hor.h for documentation).
  *
  */
 
@@ -30,6 +30,10 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2005/02/24 17:21:04  f_limousin
+ * Suppression of the function beta_bound_cart() and direct computation
+ * of boundary_beta_x, y and z.
+ *
  * Revision 1.12  2004/12/31 15:34:37  f_limousin
  * Modifications to avoid warnings
  *
@@ -82,8 +86,6 @@ char bound_hor_C[] = "$Header$" ;
 #include "unites.h"
 #include "graphique.h"
 #include "utilitaires.h"
-
-
 
 
 // Dirichlet boundary condition for Psi 
@@ -209,6 +211,27 @@ Valeur Isol_hor::boundary_psi_Neu_spat(){
 
 }
 
+Valeur Isol_hor::boundary_psi_app_hor(){
+
+    int nnp = mp.get_mg()->get_np(1) ;
+    int nnt = mp.get_mg()->get_nt(1) ;
+
+    Valeur psi_bound (mp.get_mg()->get_angu()) ;
+
+    psi_bound = 1 ; // Juste pour affecter dans espace des configs ;
+
+    for (int k=0 ; k<nnp ; k++)
+	for (int j=0 ; j<nnt ; j++)
+	    psi_bound.set(0, k, j, 0) = - 0.5/radius*(psi_auto()
+	 .val_grid_point(1, k, j, 0) + psi_comp().val_grid_point(1, k, j, 0)) ;
+
+    psi_bound.std_base_scal() ;
+
+    return psi_bound ;
+
+}    
+
+
 
 
 // Dirichlet boundary condition on nn using the extrinsic curvature
@@ -238,7 +261,7 @@ Valeur Isol_hor::boundary_nn_Dir_kk(){
 
   Valeur nn_bound (mp.get_mg()->get_angu()) ;
     
-  nn_bound = 1 ;   // Why is it necessary this and what it is actually doing?
+  nn_bound = 1 ;  // Juste pour affecter dans espace des configs ;
   
 
   for (int k=0 ; k<nnp ; k++)
@@ -280,9 +303,8 @@ Valeur Isol_hor::boundary_nn_Neu_kk() {
 
   Valeur nn_bound (mp.get_mg()->get_angu()) ;
     
-  nn_bound = 1 ;   // Why is it necessary this and what it is actually doing?
+  nn_bound = 1 ;  // Juste pour affecter dans espace des configs ; 
   
-
   for (int k=0 ; k<nnp ; k++)
     for (int j=0 ; j<nnt ; j++)
       nn_bound.set(0, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
@@ -311,8 +333,7 @@ Valeur Isol_hor::boundary_nn_Dir_eff(double cc){
 
   Valeur nn_bound (mp.get_mg()->get_angu()) ;
     
-  nn_bound = 1 ;   // Why is it necessary this and what it is actually doing?
-  
+  nn_bound = 1 ;   // Juste pour affecter dans espace des configs ;
 
   for (int k=0 ; k<nnp ; k++)
     for (int j=0 ; j<nnt ; j++)
@@ -337,9 +358,8 @@ Valeur Isol_hor::boundary_nn_Neu_eff(double cc) {
 
   Valeur nn_bound (mp.get_mg()->get_angu()) ;
     
-  nn_bound = 1 ;   // Why is it necessary this and what it is actually doing?
+  nn_bound = 1 ;   // Juste pour affecter dans espace des configs ;
   
-
   for (int k=0 ; k<nnp ; k++)
     for (int j=0 ; j<nnt ; j++)
       nn_bound.set(0, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
@@ -364,9 +384,8 @@ Valeur Isol_hor::boundary_nn_Dir(double cc){
 
   Valeur nn_bound (mp.get_mg()->get_angu()) ;
     
-  nn_bound = 1 ;   // Why is it necessary this and what it is actually doing?
+  nn_bound = 1 ;  // Juste pour affecter dans espace des configs ;
   
-
   for (int k=0 ; k<nnp ; k++)
     for (int j=0 ; j<nnt ; j++)
       nn_bound.set(0, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
@@ -392,7 +411,7 @@ Valeur Isol_hor:: boundary_beta_r(){
 
   Valeur bnd_beta_r (mp.get_mg()->get_angu()) ;
     
-  bnd_beta_r = 1 ;   // Why is it necessary this and what it is actually doing?
+  bnd_beta_r = 1 ;  // Juste pour affecter dans espace des configs ;
   
   for (int k=0 ; k<nnp ; k++)
     for (int j=0 ; j<nnt ; j++)
@@ -420,7 +439,7 @@ Valeur Isol_hor::boundary_beta_theta(){
 
   Valeur bnd_beta_theta (mp.get_mg()->get_angu()) ;
     
-  bnd_beta_theta = 1 ;   // Why is it necessary this and what it is actually doing?
+  bnd_beta_theta = 1 ;   // Juste pour affecter dans espace des configs ;
   
   for (int k=0 ; k<nnp ; k++)
     for (int j=0 ; j<nnt ; j++)
@@ -451,7 +470,7 @@ Valeur Isol_hor::boundary_beta_phi(){
 
   Valeur bnd_beta_phi (mp.get_mg()->get_angu()) ;
     
-  bnd_beta_phi = 1 ; // Why is it necessary this and what it is actually doing?
+  bnd_beta_phi = 1 ; // Juste pour affecter dans espace des configs ;
   
   for (int k=0 ; k<nnp ; k++)
     for (int j=0 ; j<nnt ; j++)
@@ -463,102 +482,103 @@ Valeur Isol_hor::boundary_beta_phi(){
 
 }
 
-
-
-
-// Component x of boundary value of beta (using expression in terms of radial vector)
+// Component x of boundary value of beta
 //--------------------------------------
-Valeur Isol_hor:: boundary_beta_x(double velang){
-  
-  int nnp = mp.get_mg()->get_np(1) ;
-  int nnt = mp.get_mg()->get_nt(1) ;
 
-  //Isol_hor boundary conditions
-  
-  Valeur lim_x (mp.get_mg()->get_angu()) ;
+Valeur Isol_hor:: boundary_beta_x(double omega){
     
-  lim_x = 1 ;   // Why is it necessary this and what it is actually doing?
-  
-  Scalar beta_x = beta_bound_cart(velang)(1) ;
+    // Les alignemenents pour le signe des CL.
+    double orientation = mp.get_rot_phi() ;
+    assert ((orientation == 0) || (orientation == M_PI)) ;
+    int aligne = (orientation == 0) ? 1 : -1 ;
+    
+    int nnp = mp.get_mg()->get_np(1) ;
+    int nnt = mp.get_mg()->get_nt(1) ;
 
-  for (int k=0 ; k<nnp ; k++)
-    for (int j=0 ; j<nnt ; j++)
-      lim_x.set(0, k, j, 0) = beta_x.val_grid_point(1, k, j, 0) ;
+    Vector tmp_vect = nn() * radial_vect_hor() ;
+    tmp_vect.change_triad(mp.get_bvect_cart() ) ;
+
+    //Isol_hor boundary conditions
   
-  lim_x.set_base(beta_x.get_spectral_va().get_base()) ;
+    Valeur lim_x (mp.get_mg()->get_angu()) ;
+    
+    lim_x = 1 ;  // Juste pour affecter dans espace des configs ;
+  
+    Mtbl ya_mtbl (mp.get_mg()) ;
+    ya_mtbl.set_etat_qcq() ;
+    ya_mtbl = mp.ya ;
+    
+    for (int k=0 ; k<nnp ; k++)
+	for (int j=0 ; j<nnt ; j++)
+	    lim_x.set(0, k, j, 0) = aligne * omega * ya_mtbl(1, k, j, 0) 
+		+ tmp_vect(1).val_grid_point(1, k, j, 0) ;
+    
+  lim_x.set_base(*(mp.get_mg()->std_base_vect_cart()[0])) ;
 
   return  lim_x ;
-
-
 }
 
 
-// Component y of boundary value of beta (using expression in terms of radial vector)
+// Component y of boundary value of beta 
 //--------------------------------------
-Valeur Isol_hor:: boundary_beta_y(double velang){
+
+Valeur Isol_hor:: boundary_beta_y(double omega){
+    
+    // Les alignemenents pour le signe des CL.
+    double orientation = mp.get_rot_phi() ;
+    assert ((orientation == 0) || (orientation == M_PI)) ;
+    int aligne = (orientation == 0) ? 1 : -1 ;
     
     int nnp = mp.get_mg()->get_np(1) ;
-  int nnt = mp.get_mg()->get_nt(1) ;
+    int nnt = mp.get_mg()->get_nt(1) ;
 
-  // Isol_hor boundary conditions
+    Vector tmp_vect = nn() * radial_vect_hor() ;
+    tmp_vect.change_triad(mp.get_bvect_cart() ) ;
+
+    //Isol_hor boundary conditions
   
-  Valeur lim_y (mp.get_mg()->get_angu()) ;
+    Valeur lim_y (mp.get_mg()->get_angu()) ;
     
-  lim_y = 1 ;   // Why is it necessary this and what it is actually doing?
- 
-  Scalar beta_y = beta_bound_cart(velang)(2) ;
-
-  for (int k=0 ; k<nnp ; k++)
-      for (int j=0 ; j<nnt ; j++)
-	  lim_y.set(0, k, j, 0) = beta_y.val_grid_point(1, k, j, 0) ;
-
-  lim_y.set_base(beta_y.get_spectral_va().get_base()) ;
+    lim_y = 1 ;  // Juste pour affecter dans espace des configs ;
+  
+    Mtbl xa_mtbl (mp.get_mg()) ;
+    xa_mtbl.set_etat_qcq() ;
+    xa_mtbl = mp.xa ;
+    
+    for (int k=0 ; k<nnp ; k++)
+	for (int j=0 ; j<nnt ; j++)
+	    lim_y.set(0, k, j, 0) = - aligne * omega * xa_mtbl(1, k, j, 0) 
+		+ tmp_vect(2).val_grid_point(1, k, j, 0) ;
+    
+  lim_y.set_base(*(mp.get_mg()->std_base_vect_cart()[1])) ;
 
   return  lim_y ;
 }
 
-
-// Component z of boundary value of beta (using expression in terms of radial vector)
+// Component z of boundary value of beta 
 //--------------------------------------
-Valeur Isol_hor:: boundary_beta_z(double velang){
 
-  int nnp = mp.get_mg()->get_np(1) ;
-  int nnt = mp.get_mg()->get_nt(1) ;
-
-  // Isol_hor boundary conditions
- 
-  Valeur lim_z (mp.get_mg()->get_angu()) ;
+Valeur Isol_hor:: boundary_beta_z(double omega){
     
-  lim_z = 1 ;   // Why is it necessary this and what it is actually doing?
-  
-  Scalar beta_z = beta_bound_cart(velang)(3) ;
+    int nnp = mp.get_mg()->get_np(1) ;
+    int nnt = mp.get_mg()->get_nt(1) ;
 
-  for (int k=0 ; k<nnp ; k++)
-    for (int j=0 ; j<nnt ; j++)
-      lim_z.set(0, k, j, 0) = beta_z.val_grid_point(1, k, j, 0) ;
- 
-  lim_z.set_base(beta_z.get_spectral_va().get_base()) ;
+    Vector tmp_vect = nn() * radial_vect_hor() ;
+    tmp_vect.change_triad(mp.get_bvect_cart() ) ;
+
+    //Isol_hor boundary conditions
+  
+    Valeur lim_z (mp.get_mg()->get_angu()) ;
+    
+    lim_z = 1 ;  // Juste pour affecter dans espace des configs ;
+  
+    for (int k=0 ; k<nnp ; k++)
+	for (int j=0 ; j<nnt ; j++)
+	    lim_z.set(0, k, j, 0) = tmp_vect(3).val_grid_point(1, k, j, 0) ;
+    
+  lim_z.set_base(*(mp.get_mg()->std_base_vect_cart()[2])) ;
 
   return  lim_z ;
-}
-
-
-Vector Isol_hor::beta_bound_cart(double velang) {
-
-  Vector tmp_vect = nn() * radial_vect_hor() ;
-
- 
-  Scalar vel_ang (mp) ;  
-  vel_ang = velang ;
-  vel_ang.std_spectral_base() ;
-  vel_ang.mult_rsint() ;
-
-  tmp_vect.set(3) = tmp_vect(3) - vel_ang ;
-
-  tmp_vect.change_triad(mp.get_bvect_cart() ) ;
-  
-  return tmp_vect ;
-
 }
 
 
@@ -587,11 +607,7 @@ Valeur Isol_hor::boundary_b_tilde_Neu(){
   constant.inc_dzpuis(2) ;
 
   tmp += constant ;
-    
-    
-
   tmp = tmp / (2 *  s_tilde(1) ) ;
-
 
   // in this case you don't have to substract any value
  
@@ -630,12 +646,7 @@ Valeur Isol_hor::boundary_b_tilde_Dir(){
     
   tmp = tmp / hh_tilde   ;
 
-
-
-
-
   //  des_profile(tmp, 1.00001, 10, M_PI/2., 0., "tmp") ;
-
 
   // We have substracted 1, since we solve for zero condition at infinity 
   //and then we add 1 to the solution  
@@ -664,22 +675,16 @@ Vector Isol_hor::vv_bound_cart(double velang) {
   //--------------
 
   Vector s_tilde =  tradial_vect_hor() ;
-
-  //cout<<"s_tilde"<<endl;
-  //  cout<<max(s_tilde)<<endl;
-
   
   Scalar hh_tilde = contract(s_tilde.derive_cov(met_gamt), 0, 1) ;
   hh_tilde.dec_dzpuis(2) ;
 
-  Vector tmp_vect = b_tilde() * s_tilde ;
-  
+  Vector tmp_vect = b_tilde() * s_tilde ;  
 
   Scalar vel_ang (mp) ;  
   vel_ang = velang ;
   vel_ang.std_spectral_base() ;
   vel_ang.mult_rsint() ;
-
   
   Scalar bc_source (mp) ;
   bc_source = 0. ;
@@ -688,7 +693,7 @@ Vector Isol_hor::vv_bound_cart(double velang) {
 
   // beta^r component
   //-----------------
-  double rho = 10. ; // rho>1 ; rho=1 "pure Dirichlet" version
+  double rho = 5. ; // rho>1 ; rho=1 "pure Dirichlet" version
   Scalar beta_r_corr =  (rho - 1) * b_tilde() * hh_tilde;
   beta_r_corr.inc_dzpuis(2) ;
 
@@ -702,28 +707,12 @@ Vector Isol_hor::vv_bound_cart(double velang) {
   Vector tmp = s_tilde.down(0, met_gamt) ;
   beta_r = beta_r/tmp(1) ;
 
-  //  cout<<"beta_r"<<beta_r<<endl ;
-  //  des_profile(beta_r, 1.00001, 10, M_PI/2., 0., "beta_r") ;
-  
-  
- 
-  //  Scalar beta_r (mp) ;
-  // beta_r = 0.5 ; 
   beta_r.set_spectral_va().set_base(s_tilde(1).get_spectral_va().get_base()) ;
   
-
-  //Vector tmp_vect = nn() * radial_vect_hor() ;
-  //  Vector tmp_vect (mp, CON, mp.get_bvect_spher() ) ;
-  //  tmp_vect.set_etat_zero() ; 
-
   tmp_vect.set(1) = beta_r ;
-  //  tmp_vect.set(2) = 0. ;
   tmp_vect.set(3) += - vel_ang ;
 
-  //  tmp_vect.std_spectral_base() ;
-
   tmp_vect.change_triad(mp.get_bvect_cart() ) ;
-  
 
   /*
   Scalar tmp(mp) ;
@@ -755,8 +744,8 @@ Valeur Isol_hor:: boundary_vv_x(double velang){
   
   Valeur lim_x (mp.get_mg()->get_angu()) ;
     
-  lim_x = 1 ;   // Why is it necessary this and what it is actually doing?
-  
+  lim_x = 1 ;  // Juste pour affecter dans espace des configs ;
+ 
   Scalar vv_x = vv_bound_cart(velang)(1) ;
 
   for (int k=0 ; k<nnp ; k++)
@@ -782,7 +771,7 @@ Valeur Isol_hor:: boundary_vv_y(double velang){
   
   Valeur lim_y (mp.get_mg()->get_angu()) ;
     
-  lim_y = 1 ;   // Why is it necessary this and what it is actually doing?
+  lim_y = 1 ;  // Juste pour affecter dans espace des configs ;
  
   Scalar vv_y = vv_bound_cart(velang)(2) ;
 
@@ -807,12 +796,9 @@ Valeur Isol_hor:: boundary_vv_z(double velang){
  
   Valeur lim_z (mp.get_mg()->get_angu()) ;
     
-  lim_z = 1 ;   // Why is it necessary this and what it is actually doing?
+  lim_z = 1 ;   // Juste pour affecter dans espace des configs ;
   
   Scalar vv_z = vv_bound_cart(velang)(3) ;
-  Scalar vv_x = vv_bound_cart(velang)(1) ; // This will be non zero, and we need a 
-                                           // non zero quantity in order to obtain a basis
-                                           // for the valeur lim_z
 
   for (int k=0 ; k<nnp ; k++)
     for (int j=0 ; j<nnt ; j++)
