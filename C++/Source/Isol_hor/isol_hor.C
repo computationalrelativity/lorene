@@ -30,6 +30,9 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2005/02/07 10:35:05  f_limousin
+ * Add the regularisation of the shift for the case N=0 on the horizon.
+ *
  * Revision 1.10  2004/12/31 15:36:43  f_limousin
  * Add the constructor from a file and change the standard constructor.
  *
@@ -84,14 +87,16 @@ char isol_hor_C[] = "$Header$" ;
 			    // Constructors //
 			    //--------------//
 // Standard constructor
+// --------------------
+
 Isol_hor::Isol_hor(Map_af& mpi, int depth_in) : 
   Time_slice_conf(mpi, mpi.get_bvect_spher(), mpi.flat_met_spher()),
-  mp(mpi), radius ((mpi.get_alpha())[0]), omega(0),
+  mp(mpi), radius ((mpi.get_alpha())[0]), omega(0), regul(0),
   n_auto_evol(depth_in), n_comp_evol(depth_in), 
   psi_auto_evol(depth_in), psi_comp_evol(depth_in),
   dn_evol(depth_in), dpsi_evol(depth_in),
   beta_auto_evol(depth_in), beta_comp_evol(depth_in),
-  aa_auto_evol(depth_in), aa_comp_evol(depth_in),
+  aa_auto_evol(depth_in), aa_comp_evol(depth_in), aa_nn(depth_in),
   met_gamt(mpi.flat_met_spher()), gamt_point(mpi, CON, mpi.get_bvect_spher()),
   trK(mpi), trK_point(mpi), decouple(mpi){
 }		  
@@ -108,18 +113,20 @@ Isol_hor::Isol_hor(Map_af& mpi, const Scalar& lapse_in,
     : Time_slice_conf(lapse_in, shift_in, ff_in, psi_in, metgamt.con() -
 		      ff_in.con(), aa_in, trK_in, depth_in),
       mp(mpi), radius ((mpi.get_alpha())[0]), 
-      omega(0),
+      omega(0), regul(0),
       n_auto_evol(depth_in), n_comp_evol(depth_in), 
       psi_auto_evol(depth_in), psi_comp_evol(depth_in),
       dn_evol(depth_in), dpsi_evol(depth_in),
       beta_auto_evol(depth_in), beta_comp_evol(depth_in),
-      aa_auto_evol(depth_in), aa_comp_evol(depth_in),
+      aa_auto_evol(depth_in), aa_comp_evol(depth_in), aa_nn(depth_in),
       met_gamt(metgamt), gamt_point(gamt_point_in),
       trK(trK_in), trK_point(trK_point_in), decouple(lapse_in.get_mp()){
+
+    // hh_evol, trk_evol
+    hh_evol.update(met_gamt.con() - ff.con(), jtime, the_time[jtime]) ;
+    trk_evol.update(trK, jtime, the_time[jtime]) ;
+ 
 }
-
-
-
 
 // Copy constructor
 // ----------------
@@ -128,7 +135,8 @@ Isol_hor::Isol_hor(const Isol_hor& isolhor_in)
     : Time_slice_conf(isolhor_in),
       mp(isolhor_in.mp),
       radius(isolhor_in.radius),
-      omega(isolhor_in.omega) ,
+      omega(isolhor_in.omega),
+      regul(isolhor_in.regul),
       n_auto_evol(isolhor_in.n_auto_evol),
       n_comp_evol(isolhor_in.n_comp_evol),
       psi_auto_evol(isolhor_in.psi_auto_evol),
@@ -139,6 +147,7 @@ Isol_hor::Isol_hor(const Isol_hor& isolhor_in)
       beta_comp_evol(isolhor_in.beta_comp_evol),
       aa_auto_evol(isolhor_in.aa_auto_evol),
       aa_comp_evol(isolhor_in.aa_comp_evol),
+      aa_nn(isolhor_in.aa_nn),
       met_gamt(isolhor_in.met_gamt),
       gamt_point(isolhor_in.gamt_point),
       trK(isolhor_in.trK),
@@ -153,18 +162,50 @@ Isol_hor::Isol_hor(Map_af& mpi, FILE* fich,
 		   bool partial_read, int depth_in)
     : Time_slice_conf(mpi, mpi.get_bvect_spher(), mpi.flat_met_spher(), 
 		      fich, partial_read, depth_in),
-      mp(mpi), radius ((mpi.get_alpha())[0]), omega(0),
+      mp(mpi), radius ((mpi.get_alpha())[0]), omega(0), regul(0),
       n_auto_evol(depth_in), n_comp_evol(depth_in), 
       psi_auto_evol(depth_in), psi_comp_evol(depth_in),
       dn_evol(depth_in), dpsi_evol(depth_in),
       beta_auto_evol(depth_in), beta_comp_evol(depth_in),
-      aa_auto_evol(depth_in), aa_comp_evol(depth_in),
-      met_gamt(mpi.flat_met_spher()), gamt_point(mpi, CON, mpi.get_bvect_spher()),
+      aa_auto_evol(depth_in), aa_comp_evol(depth_in), aa_nn(depth_in),
+      met_gamt(mpi.flat_met_spher()), 
+      gamt_point(mpi, CON, mpi.get_bvect_spher()),
       trK(mpi), trK_point(mpi), decouple(mpi){
 
-  fread_be(&omega, sizeof(double), 1, fich) ;
+    fread_be(&omega, sizeof(double), 1, fich) ;
   
+    int jmin = jtime - depth + 1 ; 
+    int indicator ; 
+
+    // n_auto_evol
+  for (int j=jmin; j<=jtime; j++) {
+      fread_be(&indicator, sizeof(int), 1, fich) ;	
+      if (indicator == 1) {
+	  Scalar nn_auto_file(mp, *(mp.get_mg()), fich) ; 
+	  n_auto_evol.update(nn_auto_file, j, the_time[j]) ; 
+      }
+  }
+
+  // psi_auto_evol
+  for (int j=jmin; j<=jtime; j++) {
+      fread_be(&indicator, sizeof(int), 1, fich) ;	
+      if (indicator == 1) {
+	  Scalar psi_auto_file(mp, *(mp.get_mg()), fich) ; 
+	  psi_auto_evol.update(psi_auto_file, j, the_time[j]) ; 
+      }
+  }
+
+  // beta_auto_evol
+  for (int j=jmin; j<=jtime; j++) {
+      fread_be(&indicator, sizeof(int), 1, fich) ;	
+      if (indicator == 1) {
+	  Vector beta_auto_file(mp, mpi.get_bvect_spher(), fich) ; 
+	  beta_auto_evol.update(beta_auto_file, j, the_time[j]) ; 
+      }
+  }
   
+  // met_gamt, gamt_point, trK, trK_point
+
   Sym_tensor met_file (mp, mp.get_bvect_spher(), fich) ;
   met_gamt = met_file ;
 
@@ -176,6 +217,10 @@ Isol_hor::Isol_hor(Map_af& mpi, FILE* fich,
   
   Scalar trK_point_file (mp, *(mp.get_mg()), fich) ;
   trK_point = trK_point_file ;
+  
+  // hh_evol, trk_evol
+  hh_evol.update(met_gamt.con() - ff.con(), jtime, the_time[jtime]) ;
+  trk_evol.update(trK, jtime, the_time[jtime]) ;
 
 }
 
@@ -196,6 +241,7 @@ void Isol_hor::operator=(const Isol_hor& isolhor_in) {
     mp = isolhor_in.mp ;
     radius = isolhor_in.radius ;
     omega = isolhor_in.omega ;
+    regul = isolhor_in.regul ;
     n_auto_evol = isolhor_in.n_auto_evol ;
     n_comp_evol = isolhor_in.n_comp_evol ;
     psi_auto_evol = isolhor_in.psi_auto_evol ;
@@ -206,6 +252,7 @@ void Isol_hor::operator=(const Isol_hor& isolhor_in) {
     beta_comp_evol = isolhor_in.beta_comp_evol ;
     aa_auto_evol = isolhor_in.aa_auto_evol ;
     aa_comp_evol = isolhor_in.aa_comp_evol ;
+    aa_nn = isolhor_in.aa_nn ;
     met_gamt = isolhor_in.met_gamt ;
     gamt_point = isolhor_in.gamt_point ;
     trK = isolhor_in.trK ;
@@ -246,14 +293,35 @@ void Isol_hor::sauve(FILE* fich, bool partial_save) const {
     // Writing of quantities common to Isol_hor
     // -----------------------------------------
 
+    int jmin = jtime - depth + 1 ; 
+
+    // n_auto_evol
+    for (int j=jmin; j<=jtime; j++) {
+	int indicator = (n_auto_evol.is_known(j)) ? 1 : 0 ; 
+        fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        if (indicator == 1) n_auto_evol[j].sauve(fich) ; 
+    }
+	 
+    // psi_auto_evol
+    for (int j=jmin; j<=jtime; j++) {
+	int indicator = (psi_auto_evol.is_known(j)) ? 1 : 0 ; 
+        fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        if (indicator == 1) psi_auto_evol[j].sauve(fich) ; 
+    }
+	 
+    // beta_auto_evol
+    for (int j=jmin; j<=jtime; j++) {
+	int indicator = (beta_auto_evol.is_known(j)) ? 1 : 0 ; 
+        fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        if (indicator == 1) beta_auto_evol[j].sauve(fich) ; 
+    }
+	
     met_gamt.con().sauve(fich) ;
     gamt_point.sauve(fich) ;    
     trK.sauve(fich) ;
     trK_point.sauve(fich) ;
 
 }
-
-
 
 // Import the lapse from the companion (Bhole case)
 
@@ -281,6 +349,9 @@ void Isol_hor::n_comp(const Isol_hor& comp) {
     dn_comp.std_spectral_base() ;
     dn_comp.inc_dzpuis(2) ;
     dn_comp.change_triad(mp.get_bvect_spher()) ;
+//    Vector temp2(n_auto().derive_cov(ff)) ;
+//    temp2.change_triad(mp.get_bvect_cart()) ;
+//    dn_evol.update(temp2 + dn_comp, jtime, ttime) ;
 
     dn_evol.update(n_auto().derive_cov(ff) + dn_comp, jtime, ttime) ;
 }
@@ -341,6 +412,8 @@ void Isol_hor::init_bhole () {
     double ttime = the_time[jtime] ;    
     Scalar auxi(mp) ;
     
+    // Initialisation of the lapse different of zero on the horizon
+    // at the first step
     auxi = 0.5 - radius/mp.r ;
     auxi.annule(0, 0);
     auxi.set_dzpuis(0) ;
