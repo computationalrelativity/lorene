@@ -33,6 +33,9 @@ char et_bin_vel_pot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/04/08 16:52:58  f_limousin
+ * Minor change
+ *
  * Revision 1.6  2004/04/08 16:36:36  f_limousin
  * Implement the resolution of the continuity equation for strange
  * stars.
@@ -309,7 +312,7 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax, C
 	
 
 	Tenseur dcov_psi = psi0.derive_cov(flat) ;
-	dcov_psi.change_triad(mp.get_bve-ct_spher()) ;
+	dcov_psi.change_triad(mp.get_bvect_spher()) ;
 
 	Cmp limite (mp) ;
 	limite =  ( - dcov_psi(1) * normal(1) - dcov_psi(2) * normal(2)
