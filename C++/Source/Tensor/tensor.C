@@ -34,6 +34,11 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2003/10/29 11:02:54  e_gourgoulhon
+ * Functions dec_dzpuis and inc_dzpuis have now an integer argument to
+ * specify by which amount dzpuis is to be increased.
+ * Accordingly methods dec2_dzpuis and inc2_dzpuis have been suppressed
+ *
  * Revision 1.23  2003/10/27 10:49:48  e_gourgoulhon
  * Slightly modified operator<<.
  *
@@ -629,29 +634,18 @@ const Scalar& Tensor::operator()(const Itbl& ind) const {
 
 
 // Gestion de la CED :
-void Tensor::dec_dzpuis() {
+void Tensor::dec_dzpuis(int dec) {
     
   for (int i=0 ; i<n_comp ; i++)
-    cmp[i]->dec_dzpuis() ;
+    cmp[i]->dec_dzpuis(dec) ;
 }
 
-void Tensor::inc_dzpuis() {
+void Tensor::inc_dzpuis(int inc) {
 
     for (int i=0 ; i<n_comp ; i++)
-      cmp[i]->inc_dzpuis() ;
+      cmp[i]->inc_dzpuis(inc) ;
 }
 
-void Tensor::dec2_dzpuis() {
-    
-  for (int i=0 ; i<n_comp ; i++)
-    cmp[i]->dec2_dzpuis() ;
-}
-
-void Tensor::inc2_dzpuis() {
-    
-  for (int i=0 ; i<n_comp ; i++)
-    cmp[i]->inc2_dzpuis() ;
-}
 
 void Tensor::mult_r_ced() {
     

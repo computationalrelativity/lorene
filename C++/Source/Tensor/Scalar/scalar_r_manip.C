@@ -35,6 +35,11 @@ char scalar_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/10/29 11:02:13  e_gourgoulhon
+ * Functions dec_dzpuis and inc_dzpuis have now an integer argument to
+ * specify by which amount dzpuis is to be increased.
+ * Accordingly methods dec2_dzpuis and inc2_dzpuis have been suppressed
+ *
  * Revision 1.9  2003/10/16 15:29:08  e_gourgoulhon
  * Name of method div_r_ced() changed to div_r_inc2().
  * Name of method div_rsint_ced() changed to div_rsint_inc2().
@@ -249,60 +254,81 @@ void Scalar::div_tant() {
 
 }
 
-			//---------------------------//
-			//	    dec_dzpuis	     //
-			//---------------------------//
+			//-----------------------//
+			//      dec_dzpuis       //
+			//-----------------------//
 
-void Scalar::dec_dzpuis() {
+void Scalar::dec_dzpuis(int dec) {
     
 	Cmp cuu(*this) ; 
+	
+	switch (dec) {
+	
+		case 1 : { 
+			mp->dec_dzpuis(cuu) ;   
+    		break ; 
+		}
 
-    mp->dec_dzpuis(cuu) ;   // Call of the appropriate routine of the mapping
-    
+		case 2 : {
+    		mp->dec2_dzpuis(cuu) ;  
+			break ; 
+		}
+		
+		case 4 : {
+    		mp->dec2_dzpuis(cuu) ;  
+    		mp->dec2_dzpuis(cuu) ;  
+			break ; 
+		}
+		
+		default : {
+			cout << "Scalar::dec_dzpuis : unexpected value of dec !"
+				<< endl << "  dec = " << dec << endl ; 
+			abort() ;
+			break ; 
+		}
+	}
+	
 	operator=(cuu) ; 
 
 }
 
-			//---------------------------//
-			//	    inc_dzpuis	     //
-			//---------------------------//
+			//-----------------------//
+			//      inc_dzpuis       //
+			//-----------------------//
 
-void Scalar::inc_dzpuis() {
+void Scalar::inc_dzpuis(int inc) {
     
 	Cmp cuu(*this) ; 
+	
+	switch (inc) {
+	
+		case 1 : { 
+			mp->inc_dzpuis(cuu) ;   
+    		break ; 
+		}
 
-    mp->inc_dzpuis(cuu) ;   // Call of the appropriate routine of the mapping
-    
+		case 2 : {
+    		mp->inc2_dzpuis(cuu) ;  
+			break ; 
+		}
+		
+		case 4 : {
+    		mp->inc2_dzpuis(cuu) ;  
+    		mp->inc2_dzpuis(cuu) ;  
+			break ; 
+		}
+		
+		default : {
+			cout << "Scalar::dec_dzpuis : unexpected value of dec !"
+				<< endl << "  dec = " << dec << endl ; 
+			abort() ;
+			break ; 
+		}
+	}
+	
 	operator=(cuu) ; 
+
 }
 
-
-
-			//---------------------------//
-			//	    dec2_dzpuis	     //
-			//---------------------------//
-
-void Scalar::dec2_dzpuis() {
-    
-	Cmp cuu(*this) ; 
-
-    mp->dec2_dzpuis(cuu) ;   // Call of the appropriate routine of the mapping 
-    
-	operator=(cuu) ; 
-
-}
-
-			//---------------------------//
-			//	    inc2_dzpuis	     //
-			//---------------------------//
-
-void Scalar::inc2_dzpuis() {
-    
-	Cmp cuu(*this) ; 
-
-    mp->inc2_dzpuis(cuu) ;   // Call of the appropriate routine of the mapping 
-    
-	operator=(cuu) ; 
-}
 
 
