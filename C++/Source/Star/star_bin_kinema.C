@@ -32,6 +32,9 @@ char star_bin_kinema_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/27 09:56:10  f_limousin
+ * Correction of an error on the computation of bsn.
+ *
  * Revision 1.2  2004/01/20 15:18:45  f_limousin
  * First version
  *
@@ -59,33 +62,34 @@ void Star_bin::kinematics(double omega, double x_axe) {
     const Coord& xa = mp.xa ; 
     const Coord& ya = mp.ya ; 
 
-    const Mtbl& ra = sqrt(xa * xa + ya * ya) ;
-
-    bsn.set_etat_qcq() ; 
+    bsn.change_triad(mp.get_bvect_cart()) ;
 
     if (fabs(mp.get_rot_phi()) < 1e-10){ 
-      bsn.set(1) =  0 ;
-      bsn.set(2) = - omega * ra ;
+      bsn.set(1) =  omega * ya ;
+      bsn.set(2) = - omega * (xa - x_axe) ;
       bsn.set(3) = 0 ;
     }
     else {
-      bsn.set(1) = 0 ;
-      bsn.set(2) = omega * ra ;
+      bsn.set(1) = - omega * ya ;
+      bsn.set(2) = omega * (xa - x_axe) ;
       bsn.set(3) = 0 ;
     }
 
-
+    bsn.std_spectral_base() ;
+ 
     bsn.annule(nzm1, nzm1) ;	// set to zero in the ZEC
     
     //	2/ Addition of shift and division by lapse
     // See Eq (47) from Gourgoulhon et al. (2001)
-
-    bsn = ( bsn + shift ) / nnn ; 
   
+    bsn.change_triad(mp.get_bvect_spher()) ;
+    bsn = ( bsn - shift ) / nnn ; 
+    bsn.change_triad(mp.get_bvect_cart()) ;
+
     bsn.annule(nzm1, nzm1) ;	// set to zero in the ZEC
     bsn.std_spectral_base() ;   // set the bases for spectral expansions
         
-    //-------------------------
+     //-------------------------
     // Centrifugal potential
     //-------------------------
 
