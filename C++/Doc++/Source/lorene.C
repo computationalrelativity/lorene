@@ -84,7 +84,7 @@
     //@}  
 
 
-   /**@name New tensorial fields (***under develoment***)
+   /**@name New tensorial fields (***under development***)
      *
      * These are new classes intended to replace {\tt Tenseur} and
      * {\tt Cmp}; they are currently under development. 
