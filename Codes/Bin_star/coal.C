@@ -30,6 +30,9 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/10/24 13:26:39  e_gourgoulhon
+ * Corrected error on reduce_shift (previously: it was read and not used !).
+ *
  * Revision 1.9  2003/09/18 15:06:59  e_gourgoulhon
  * Added printing of date and host name in the header of the file calcul.d.
  *
@@ -381,10 +384,9 @@ int main(){
 
 	star.analytical_shift() ;
 	
-	//## Shift decreased by a factor 2 
 	for (int i=1; i<=2; i++) {
-	     star.set(i).set_w_shift() = 0.6 * star(i).get_w_shift() ; 
-	     star.set(i).set_khi_shift() = 0.6 * star(i).get_khi_shift() ; 
+	     star.set(i).set_w_shift() = reduce_shift * star(i).get_w_shift() ; 
+	     star.set(i).set_khi_shift() = reduce_shift * star(i).get_khi_shift() ; 
 	}
 	
 
