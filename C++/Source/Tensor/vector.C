@@ -32,6 +32,9 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2004/01/30 10:30:17  j_novak
+ * Changed dzpuis handling in Vector::decompose_div (this may be temporary).
+ *
  * Revision 1.14  2003/12/30 23:09:47  e_gourgoulhon
  * Change in methods derive_cov() and divergence() to take into account
  *  the change of name: Metric::get_connect() --> Metric::connect().
@@ -342,7 +345,10 @@ void Vector::decompose_div(const Metric& metre) const {
     assert (cmp[1]->check_dzpuis(dzp)) ;
     assert (cmp[2]->check_dzpuis(dzp)) ;
 
-    p_potential[j] = new Scalar( divergence(metre).poisson() ) ;
+    Scalar dive = divergence(metre) ;
+    if (dzp == 4) dive.dec_dzpuis() ; //## this should be improved...
+
+    p_potential[j] = new Scalar( dive.poisson() ) ;
 
     p_div_free[j] = new Vector_divfree(*mp, *triad, metre) ;
 
