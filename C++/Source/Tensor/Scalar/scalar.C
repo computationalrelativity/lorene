@@ -35,6 +35,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2003/11/05 15:31:13  e_gourgoulhon
+ * Method set_etat_qcq(): del_t() is not invoqued for etat == ETATUN.
+ *
  * Revision 1.21  2003/11/03 10:25:27  j_novak
  * Suppressed the call to del_deriv() in set_etat_qcq() method.
  *
@@ -277,7 +280,7 @@ void Scalar::set_etat_qcq() {
 
     if (etat == ETATQCQ) return ;
     else {
-    	del_t() ;
+    	if (etat != ETATUN) del_t() ;
     	etat = ETATQCQ ;
     }
 }
