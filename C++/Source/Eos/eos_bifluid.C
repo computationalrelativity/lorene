@@ -31,6 +31,9 @@ char eos_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2002/05/31 16:13:36  j_novak
+ * better inversion for eos_bifluid
+ *
  * Revision 1.5  2002/05/10 09:55:27  j_novak
  * *** empty log message ***
  *
@@ -77,11 +80,13 @@ char eos_bifluid_C[] = "$Header$" ;
 // Headers C
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 // Headers Lorene
 #include "eos_bifluid.h"
 #include "cmp.h"
 #include "utilitaires.h"
+#include "graphique.h"
 
 			//--------------//
 			// Constructors //
@@ -208,83 +213,14 @@ void Eos_bifluid::calcule_tout(const Cmp& ent1, const Cmp& ent2,
     press.set_etat_zero() ; 
     return ; 
   }
-  
-  bool en1 = ent1.get_etat() == ETATQCQ ; 
-  bool en2 = ent2.get_etat() == ETATQCQ ; 
-  bool del = delta2.get_etat() == ETATQCQ ; 
-  const Valeur* vent1 = 0x0 ;
-  const Valeur* vent2 = 0x0 ; 
-  const Valeur* vdelta2 = 0x0 ;
-  if (en1) { vent1 = &ent1.va ;
-  vent1->coef_i() ; }
-  if (en2) { vent2 = &ent2.va ;
-  vent2->coef_i() ; }
-  if (del) { vdelta2 = &delta2.va ;
-  vdelta2->coef_i() ; }
-  
+  nbar1.allocate_all() ;
+  nbar2.allocate_all() ;
+  ener.allocate_all() ;
+  press.allocate_all() ;
+
   const Mg3d* mg = mp->get_mg() ;	// Multi-grid
   
   int nz = mg->get_nzone() ;		// total number of domains
-  
-  // Preparations for a point by point computation:
-  nbar1.set_etat_qcq() ;
-  nbar2.set_etat_qcq() ;
-  ener.set_etat_qcq() ;
-  press.set_etat_qcq() ;
-  Valeur& vnbar1 = nbar1.va ; 
-  vnbar1.set_etat_c_qcq() ;
-  vnbar1.c->set_etat_qcq() ;
-  Valeur& vnbar2 = nbar2.va ; 
-  vnbar2.set_etat_c_qcq() ;
-  vnbar2.c->set_etat_qcq() ;
-  Valeur& vener = ener.va ; 
-  vener.set_etat_c_qcq() ;
-  vener.c->set_etat_qcq() ;
-  Valeur& vpress = press.va ; 
-  vpress.set_etat_c_qcq() ;
-  vpress.c->set_etat_qcq() ;
-  
-  // Loop on domains where the computation has to be done :
-  for (int l = l_min; l< l_min + nzet; l++) {
-    
-    assert(l>=0) ; 
-    assert(l<nz) ; 
-
-    Tbl* tent1 = 0x0 ;
-    Tbl* tent2 = 0x0 ;
-    Tbl* tdelta2 = 0x0 ;
-    if (en1) tent1 = vent1->c->t[l] ; 
-    if (en2) tent2 = vent2->c->t[l] ; 
-    if (del) tdelta2 = vdelta2->c->t[l] ; 
-    Tbl* tnbar1 = vnbar1.c->t[l] ; 
-    Tbl* tnbar2 = vnbar2.c->t[l] ; 
-    Tbl* tener = vener.c->t[l] ; 
-    Tbl* tpress = vpress.c->t[l] ; 
-    
-    bool en1b = false ;
-    if (en1) en1b = tent1->get_etat() == ETATQCQ ; 
-    bool en2b = false ;
-    if (en2) en2b = tent2->get_etat() == ETATQCQ ; 
-    bool del2 = false ;
-    if (del) del2 = tdelta2->get_etat() == ETATQCQ  ; 
-    tnbar1->set_etat_qcq() ;
-    tnbar2->set_etat_qcq() ;
-    tener->set_etat_qcq() ;
-    tpress->set_etat_qcq() ;
-      
-    double xx, xx1, xx2 ;
-    
-    for (int i=0; i<tent1->get_taille(); i++) {
-      xx1 = en1b ? tent1->t[i] : 0 ;
-      xx2 = en2b ? tent2->t[i] : 0 ;
-      xx = del2 ? tdelta2->t[i] : 0 ;
-      nbar_ent_p(xx1, xx2, xx, tnbar1->t[i],tnbar2->t[i]) ;
-      tener->t[i] = ener_nbar_p(tnbar1->t[i], tnbar2->t[i],xx) ;
-      tpress->t[i] = press_nbar_p(tnbar1->t[i], tnbar2->t[i],xx) ;
-      
-    }  
-    
-  }  // End of the loop on domains where the computation had to be done
   
   // resu is set to zero in the other domains :
   
@@ -301,14 +237,65 @@ void Eos_bifluid::calcule_tout(const Cmp& ent1, const Cmp& ent2,
     ener.annule(l_min + nzet, nz - 1) ; 
     press.annule(l_min + nzet, nz - 1) ; 
   }
+
+  int np0 = mp->get_mg()->get_np(0) ;
+  int nt0 = mp->get_mg()->get_nt(0) ;
+  for (int l=l_min; l<l_min+nzet; l++) {
+    assert(mp->get_mg()->get_np(l) == np0) ;
+    assert(mp->get_mg()->get_nt(l) == nt0) ; 
+  }
+
+  for (int k=0; k<np0; k++) {
+    for (int j=0; j<nt0; j++) {
+      bool inside = true ;
+      bool inside1 = true ;
+      bool inside2 = true ;
+      for (int l=l_min; l< l_min + nzet; l++) {
+	for (int i=0; i<mp->get_mg()->get_nr(l); i++) {
+	  double xx, xx1, xx2, n1, n2 ;
+	  xx1 = ent1(l,k,j,i) ; 
+	  xx2 = ent2(l,k,j,i) ; 
+	  xx = delta2(l,k,j,i) ;
+	  if (inside) {
+	    inside = (!nbar_ent_p(xx1, xx2, xx, n1, n2)) ; 
+	    inside1 = ((n1 > 0.)&&(xx1>0.)) ;
+	    inside2 = ((n2 > 0.)&&(xx2>0.)) ;
+	  }
+	  if (inside) {
+	    nbar1.set(l,k,j,i) = n1 ;
+	    nbar2.set(l,k,j,i) = n2 ;
+	    ener.set(l,k,j,i) = ener_nbar_p(n1, n2, xx) ;
+	    press.set(l,k,j,i) = press_nbar_p(n1, n2, xx) ;
+	  }
+	  else {
+	    if (inside1) {
+	      n1 = nbar_ent_p1(xx1) ;
+	      inside1 = (n1 > 0.) ;
+	    }
+	    if (!inside1) n1 = 0. ;
+	    if (inside2) {
+	      n2 = nbar_ent_p2(xx2) ;
+	      inside2 = (n2 > 0.) ;
+	    }
+	    if (!inside2) n2 = 0. ;
+	    nbar1.set(l,k,j,i) = n1 ;
+	    nbar2.set(l,k,j,i) = n2 ;
+	    
+	    ener.set(l,k,j,i) = ener_nbar_p(n1, n2, 0.) ;
+	    press.set(l,k,j,i) = press_nbar_p(n1, n2, 0. ) ;
+	  }
+	}
+      }
+    }
+  }
+
 }
 
 // Baryon density from enthalpy 
 //------------------------------
 
 void Eos_bifluid::nbar_ent(const Cmp& ent1, const Cmp& ent2, const Cmp& delta2,
-			   Cmp& nbar1, Cmp& nbar2, int nzet, int l_min,
-			   bool tronc) const {
+			   Cmp& nbar1, Cmp& nbar2, int nzet, int l_min) const {
   
   assert(ent1.get_etat() != ETATNONDEF) ; 
   assert(ent2.get_etat() != ETATNONDEF) ; 
@@ -324,102 +311,73 @@ void Eos_bifluid::nbar_ent(const Cmp& ent1, const Cmp& ent2, const Cmp& delta2,
     nbar2.set_etat_zero() ; 
     return ; 
   }
-  
-  bool en1 = ent1.get_etat() == ETATQCQ ; 
-  bool en2 = ent2.get_etat() == ETATQCQ ; 
-  bool del = delta2.get_etat() == ETATQCQ ; 
-  const Valeur* vent1 = 0x0 ;
-  const Valeur* vent2 = 0x0 ; 
-  const Valeur* vdelta2 = 0x0 ;
-  if (en1) { vent1 = &ent1.va ;
-  vent1->coef_i() ; }
-  if (en2) { vent2 = &ent2.va ;
-  vent2->coef_i() ; }
-  if (del) { vdelta2 = &delta2.va ;
-  vdelta2->coef_i() ; }
-  
+  nbar1.allocate_all() ;
+  nbar2.allocate_all() ;
+
   const Mg3d* mg = mp->get_mg() ;	// Multi-grid
   
   int nz = mg->get_nzone() ;		// total number of domains
   
-  // Preparations for a point by point computation:
-  nbar1.set_etat_qcq() ;
-  nbar2.set_etat_qcq() ;
-  Valeur& vnbar1 = nbar1.va ; 
-  vnbar1.set_etat_c_qcq() ;
-  vnbar1.c->set_etat_qcq() ;
-  Valeur& vnbar2 = nbar2.va ; 
-  vnbar2.set_etat_c_qcq() ;
-  vnbar2.c->set_etat_qcq() ;
-    
-  // Loop on domains where the computation has to be done :
-  for (int l = l_min; l< l_min + nzet; l++) {
-	
-    assert(l>=0) ; 
-    assert(l<nz) ; 
-	
-    Tbl* tent1 = 0x0 ;
-    Tbl* tent2 = 0x0 ;
-    Tbl* tdelta2 = 0x0 ;
-
-    if (en1) tent1 = vent1->c->t[l] ; 
-    if (en2) tent2 = vent2->c->t[l] ; 
-    if (del) tdelta2 = vdelta2->c->t[l] ; 
-    Tbl* tnbar1 = vnbar1.c->t[l] ; 
-    Tbl* tnbar2 = vnbar2.c->t[l] ; 
-    
-    bool en1b = false ;
-    if (en1) en1b = tent1->get_etat() == ETATQCQ ; 
-    bool en2b = false ;
-    if (en2) en2b = tent2->get_etat() == ETATQCQ ; 
-    bool del2 = false ;
-    if (del) del2 = tdelta2->get_etat() == ETATQCQ  ; 
-    tnbar1->set_etat_qcq() ;
-    tnbar2->set_etat_qcq() ;
-    
-    double xx, xx1, xx2 ; 
-    
-    for (int i=0; i<tent1->get_taille(); i++) {
-      xx1 = en1b ? tent1->t[i] : 0 ;
-      xx2 = en2b ? tent2->t[i] : 0 ;
-      xx = del2 ? tdelta2->t[i] : 0 ;
-      nbar_ent_p(xx1, xx2, xx, tnbar1->t[i],tnbar2->t[i], tronc) ;
-    }  
-    
-  }  // End of the loop on domains where the computation had to be done
+  // resu is set to zero in the other domains :
+  
+  if (l_min > 0) {
+    nbar1.annule(0, l_min-1) ; 
+    nbar2.annule(0, l_min-1) ; 
+  }
+  
+  if (l_min + nzet < nz) {
+    nbar1.annule(l_min + nzet, nz - 1) ; 
+    nbar2.annule(l_min + nzet, nz - 1) ; 
+  }
 
   int np0 = mp->get_mg()->get_np(0) ;
   int nt0 = mp->get_mg()->get_nt(0) ;
   for (int l=l_min; l<l_min+nzet; l++) {
     assert(mp->get_mg()->get_np(l) == np0) ;
-    assert(mp->get_mg()->get_nt(l) == nt0) ; }
-  
-	  cout << "Under construction ..." << endl ;
+    assert(mp->get_mg()->get_nt(l) == nt0) ; 
+  }
+
   for (int k=0; k<np0; k++) {
     for (int j=0; j<nt0; j++) {
-      double nb1, nb2 ;
+      bool inside = true ;
+      bool inside1 = true ;
+      bool inside2 = true ;
       for (int l=l_min; l< l_min + nzet; l++) {
 	for (int i=0; i<mp->get_mg()->get_nr(l); i++) {
-	  nb1 = nbar1(l,k,j,i) ;
-	  nb2 = nbar2(l,k,j,i) ; //## a finir!!!
-	  cout << nb1 << ", " << nb2 << endl ;
+	  double xx, xx1, xx2, n1, n2 ;
+	  xx1 = ent1(l,k,j,i) ; 
+	  xx2 = ent2(l,k,j,i) ; 
+	  xx = delta2(l,k,j,i) ;
+	  if (inside) {
+	    inside = (!nbar_ent_p(xx1, xx2, xx, n1, n2)) ; 
+	    inside1 = ((n1 > 0.)&&(xx1>0.)) ;
+	    inside2 = ((n2 > 0.)&&(xx2>0.)) ;
+	  }
+	  if (inside) {
+	    nbar1.set(l,k,j,i) = n1 ;
+	    nbar2.set(l,k,j,i) = n2 ;
+	  }
+	  else {
+	    if (inside1) {
+	      n1 = nbar_ent_p1(xx1) ;
+	      inside1 = (n1 > 0.) ;
+	    }
+	    if (!inside1) n1 = 0. ;
+	    if (inside2) {
+	      n2 = nbar_ent_p2(xx2) ;
+	      inside2 = (n2 > 0.) ;
+	    }
+	    if (!inside2) n2 = 0. ;
+	    nbar1.set(l,k,j,i) = n1 ;
+	    nbar2.set(l,k,j,i) = n2 ;
+	  }
 	}
       }
     }
   }
 
-  // resu is set to zero in the other domains :
-    
-    if (l_min > 0) {
-	nbar1.annule(0, l_min-1) ; 
-	nbar2.annule(0, l_min-1) ; 
-   }
-    
-    if (l_min + nzet < nz) {
-	nbar1.annule(l_min + nzet, nz - 1) ; 
-	nbar2.annule(l_min + nzet, nz - 1) ; 
-   }
 }
+
 
 // Energy density from enthalpy 
 //------------------------------
@@ -441,79 +399,64 @@ Cmp Eos_bifluid::ener_ent(const Cmp& ent1, const Cmp& ent2, const Cmp& delta2,
     return ener; 
   }
   
+  ener.allocate_all() ;
 
-  bool en1 = ent1.get_etat() == ETATQCQ ; 
-  bool en2 = ent2.get_etat() == ETATQCQ ; 
-  bool del = delta2.get_etat() == ETATQCQ ; 
-  const Valeur* vent1 = 0x0 ;
-  const Valeur* vent2 = 0x0 ; 
-  const Valeur* vdelta2 = 0x0 ;
-  if (en1) { vent1 = &ent1.va ;
-  vent1->coef_i() ; }
-  if (en2) { vent2 = &ent2.va ;
-  vent2->coef_i() ; }
-  if (del) { vdelta2 = &delta2.va ;
-  vdelta2->coef_i() ; }
-  
   const Mg3d* mg = mp->get_mg() ;	// Multi-grid
   
   int nz = mg->get_nzone() ;		// total number of domains
   
-  // Preparations for a point by point computation:
-  ener.set_etat_qcq() ;
-  Valeur& vener = ener.va ; 
-  vener.set_etat_c_qcq() ;
-  vener.c->set_etat_qcq() ;
-    
-  // Loop on domains where the computation has to be done :
-  for (int l = l_min; l< l_min + nzet; l++) {
-	
-    assert(l>=0) ; 
-    assert(l<nz) ; 
-
-    Tbl* tent1 = 0x0 ;
-    Tbl* tent2 = 0x0 ;
-    Tbl* tdelta2 = 0x0 ;
-
-    if (en1) tent1 = vent1->c->t[l] ; 
-    if (en2) tent2 = vent2->c->t[l] ; 
-    if (del) tdelta2 = vdelta2->c->t[l] ; 
-    Tbl* tener = vener.c->t[l] ; 
-    
-    bool en1b = false ;
-    if (en1) en1b = tent1->get_etat() == ETATQCQ ; 
-    bool en2b = false ;
-    if (en2) en2b = tent2->get_etat() == ETATQCQ ; 
-    bool del2 = false ;
-    if (del) del2 = tdelta2->get_etat() == ETATQCQ  ; 
-    tener->set_etat_qcq() ;
-    
-    double n1, n2, xx, xx1, xx2 ;
-    
-    for (int i=0; i<tent1->get_taille(); i++) {
-      n1 = 0. ;
-      n2 = 0. ;
-      xx1 = en1b ? tent1->t[i] : 0 ;
-      xx2 = en2b ? tent2->t[i] : 0 ;
-      xx = del2 ? tdelta2->t[i] : 0 ;
-      nbar_ent_p(xx1, xx2, xx, n1, n2) ;
-      tener->t[i] = ener_nbar_p(n1, n2, xx) ;
-    }  
-    
-  }  // End of the loop on domains where the computation had to be done
-  
   // resu is set to zero in the other domains :
-    
-    if (l_min > 0) {
-	ener.annule(0, l_min-1) ; 
-   }
-    
-    if (l_min + nzet < nz) {
- 	ener.annule(l_min + nzet, nz - 1) ; 
-   }
+  
+  if (l_min > 0) 
+    ener.annule(0, l_min-1) ; 
+  
+  if (l_min + nzet < nz) 
+    ener.annule(l_min + nzet, nz - 1) ; 
 
-    return ener ; 
-    
+  int np0 = mp->get_mg()->get_np(0) ;
+  int nt0 = mp->get_mg()->get_nt(0) ;
+  for (int l=l_min; l<l_min+nzet; l++) {
+    assert(mp->get_mg()->get_np(l) == np0) ;
+    assert(mp->get_mg()->get_nt(l) == nt0) ; 
+  }
+
+  for (int k=0; k<np0; k++) {
+    for (int j=0; j<nt0; j++) {
+      bool inside = true ;
+      bool inside1 = true ;
+      bool inside2 = true ;
+      for (int l=l_min; l< l_min + nzet; l++) {
+	for (int i=0; i<mp->get_mg()->get_nr(l); i++) {
+	  double xx, xx1, xx2, n1, n2 ;
+	  xx1 = ent1(l,k,j,i) ; 
+	  xx2 = ent2(l,k,j,i) ; 
+	  xx = delta2(l,k,j,i) ;
+	  if (inside) {
+	    inside = (!nbar_ent_p(xx1, xx2, xx, n1, n2)) ; 
+	    inside1 = ((n1 > 0.)&&(xx1>0.)) ;
+	    inside2 = ((n2 > 0.)&&(xx2>0.)) ;
+	  }
+	  if (inside) {
+	    ener.set(l,k,j,i) = ener_nbar_p(n1, n2, xx) ;
+	  }
+	  else {
+	    if (inside1) {
+	      n1 = nbar_ent_p1(xx1) ;
+	      inside1 = (n1 > 0.) ;
+	    }
+	    if (!inside1) n1 = 0. ;
+	    if (inside2) {
+	      n2 = nbar_ent_p2(xx2) ;
+	      inside2 = (n2 > 0.) ;
+	    }
+	    if (!inside2) n2 = 0. ;
+	    ener.set(l,k,j,i) = ener_nbar_p(n1, n2, 0.) ;
+	  }
+	}
+      }
+    }
+  }
+  return ener ;
 }
 
 // Pressure from enthalpies 
@@ -534,79 +477,63 @@ Cmp Eos_bifluid::press_ent(const Cmp& ent1, const Cmp& ent2, const Cmp& delta2,
     press.set_etat_zero() ; 
     return press; 
   }
-  
-  bool en1 = ent1.get_etat() == ETATQCQ ; 
-  bool en2 = ent2.get_etat() == ETATQCQ ; 
-  bool del = delta2.get_etat() == ETATQCQ ; 
-  const Valeur* vent1 = 0x0 ;
-  const Valeur* vent2 = 0x0 ; 
-  const Valeur* vdelta2 = 0x0 ;
-  if (en1) { vent1 = &ent1.va ;
-  vent1->coef_i() ; }
-  if (en2) { vent2 = &ent2.va ;
-  vent2->coef_i() ; }
-  if (del) { vdelta2 = &delta2.va ;
-  vdelta2->coef_i() ; }
-  
+  press.allocate_all() ;
+
   const Mg3d* mg = mp->get_mg() ;	// Multi-grid
   
   int nz = mg->get_nzone() ;		// total number of domains
   
-  // Preparations for a point by point computation:
-  press.set_etat_qcq() ;
-  Valeur& vpress = press.va ; 
-  vpress.set_etat_c_qcq() ;
-  vpress.c->set_etat_qcq() ;
-    
-  // Loop on domains where the computation has to be done :
-  for (int l = l_min; l< l_min + nzet; l++) {
-	
-    assert(l>=0) ; 
-    assert(l<nz) ; 
-	
-    Tbl* tent1 = 0x0 ;
-    Tbl* tent2 = 0x0 ;
-    Tbl* tdelta2 = 0x0 ;
-
-    if (en1) tent1 = vent1->c->t[l] ; 
-    if (en2) tent2 = vent2->c->t[l] ; 
-    if (del) tdelta2 = vdelta2->c->t[l] ; 
-    Tbl* tpress = vpress.c->t[l] ; 
-    
-    bool en1b = false ;
-    if (en1) en1b = tent1->get_etat() == ETATQCQ ; 
-    bool en2b = false ;
-    if (en2) en2b = tent2->get_etat() == ETATQCQ ; 
-    bool del2 = false ;
-    if (del) del2 = tdelta2->get_etat() == ETATQCQ  ; 
-    tpress->set_etat_qcq() ;
-    
-    double xx, xx1, xx2, n1, n2 ;
-    
-    for (int i=0; i<tent1->get_taille(); i++) {
-      n1 = 0. ;
-      n2 = 0. ;
-      xx1 = en1b ? tent1->t[i] : 0 ;
-      xx2 = en2b ? tent2->t[i] : 0 ;
-      xx = del2 ? tdelta2->t[i] : 0 ;
-      nbar_ent_p(xx1, xx2, xx, n1, n2) ;
-      tpress->t[i] = press_nbar_p(n1, n2, xx) ;
-    }  
-
-  }  // End of the loop on domains where the computation had to be done
-
   // resu is set to zero in the other domains :
-    
-    if (l_min > 0) {
- 	press.annule(0, l_min-1) ; 
-   }
-    
-    if (l_min + nzet < nz) {
-	press.annule(l_min + nzet, nz - 1) ; 
-   }
-    
-    return press ; 
-    
+  
+  if (l_min > 0) 
+    press.annule(0, l_min-1) ; 
+  
+  if (l_min + nzet < nz) 
+    press.annule(l_min + nzet, nz - 1) ; 
+
+  int np0 = mp->get_mg()->get_np(0) ;
+  int nt0 = mp->get_mg()->get_nt(0) ;
+  for (int l=l_min; l<l_min+nzet; l++) {
+    assert(mp->get_mg()->get_np(l) == np0) ;
+    assert(mp->get_mg()->get_nt(l) == nt0) ; 
+  }
+
+  for (int k=0; k<np0; k++) {
+    for (int j=0; j<nt0; j++) {
+      bool inside = true ;
+      bool inside1 = true ;
+      bool inside2 = true ;
+      for (int l=l_min; l< l_min + nzet; l++) {
+	for (int i=0; i<mp->get_mg()->get_nr(l); i++) {
+	  double xx, xx1, xx2, n1, n2 ;
+	  xx1 = ent1(l,k,j,i) ; 
+	  xx2 = ent2(l,k,j,i) ; 
+	  xx = delta2(l,k,j,i) ;
+	  if (inside) {
+	    inside = (!nbar_ent_p(xx1, xx2, xx, n1, n2)) ; 
+	    inside1 = ((n1 > 0.)&&(xx1>0.)) ;
+	    inside2 = ((n2 > 0.)&&(xx2>0.)) ;
+	  }
+	  if (inside) 
+	    press.set(l,k,j,i) = press_nbar_p(n1, n2, xx) ;
+	  else {
+	    if (inside1) {
+	      n1 = nbar_ent_p1(xx1) ;
+	      inside1 = (n1 > 0.) ;
+	    }
+	    if (!inside1) n1 = 0. ;
+	    if (inside2) {
+	      n2 = nbar_ent_p2(xx2) ;
+	      inside2 = (n2 > 0.) ;
+	    }
+	    if (!inside2) n2 = 0. ;
+	    press.set(l,k,j,i) = press_nbar_p(n1, n2, 0. ) ;
+	  }
+	}
+      }
+    }
+  }
+  return press ;
 }
 
 // Generic computational routine for get_Kxx

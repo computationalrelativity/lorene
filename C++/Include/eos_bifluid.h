@@ -5,7 +5,7 @@
  */
 
 /*
- *   Copyright (c) 2001 Jerome Novak
+ *   Copyright (c) 2001-2002 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2002/05/31 16:13:36  j_novak
+ * better inversion for eos_bifluid
+ *
  * Revision 1.5  2002/05/02 15:16:22  j_novak
  * Added functions for more general bi-fluid EOS
  *
@@ -236,17 +239,31 @@ class Eos_bifluid {
 	 *  @param ent1 [input,  unit: $c^2$] log-enthalpy $H_1$ 
 	 *  @param ent2 [input,  unit: $c^2$] log-enthalpy $H_2$ 
 	 *  @param delta2 [input,  unit: $c^2$] relative velocity $\Delta^2$ 
-	 *  @param tronc [input] if true, the resulting densities cannot be
-	 *      negative.
 	 * 
 	 *  @param nbar1 [output] baryonic density of the first fluid
 	 *  @param nbar2 [output] baryonic density of the second fluid
 	 *  [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
-	 * 
+	 *  @return true if the 2-fluids model is correct, false otherwise.
 	 */
-    	virtual void nbar_ent_p(const double ent1, const double ent2, 
+    	virtual bool nbar_ent_p(const double ent1, const double ent2, 
 				const double delta2, double& nbar1, 
-				double& nbar2, bool tronc = true) const = 0 ; 
+				double& nbar2) const = 0 ;
+
+	/** Computes baryon density out of the log-enthalpy asuming
+	 *  that only fluid 1 is present (virtual function implemented 
+	 *  in the derived classes).
+	 *  @param ent1 [input,  unit: $c^2$] log-enthalpy $H_1$ 
+	 *  @return nbar1 baryonic density of the first fluid
+	 */
+	virtual double nbar_ent_p1(const double ent1) const = 0 ;
+
+	/** Computes baryon density out of the log-enthalpy assuming
+	 *  that only fluid 2 is present (virtual function implemented 
+	 *  in the derived classes).
+	 *  @param ent2 [input,  unit: $c^2$] log-enthalpy $H_1$ 
+	 *  @return nbar1 baryonic density of the first fluid
+	 */
+	virtual double nbar_ent_p2(const double ent2) const = 0 ;
 
 	/** Computes both baryon density fields from the log-enthalpy fields
 	 *  and the relative velocity.
@@ -266,13 +283,11 @@ class Eos_bifluid {
 	 *	computed only in domains whose indices are in 
 	 *      {\tt [l\_min, l\_min + nzet-1]}. In the other
 	 *	domains, it is set to zero. 
-	 *  @param tronc  if true, the resulting densities cannot be
-	 *      negative.
 	 * 
 	 */
     	void nbar_ent(const Cmp& ent1, const Cmp& ent2, const Cmp& delta2, 
-		      Cmp& nbar1, Cmp& nbar2, int nzet, int l_min = 0,
-		      bool tronc = true) const  ; 
+		      Cmp& nbar1, Cmp& nbar2, int nzet, int l_min = 0) 
+	  const  ; 
     
  	/** Computes the total energy density from the baryonic densities
 	 *  and the relative velocity.
@@ -872,10 +887,26 @@ class Eos_bf_poly : public Eos_bifluid {
 	 *  [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
 	 * 
 	 */
-    	virtual void nbar_ent_p(const double ent1, const double ent2, 
+    	virtual bool nbar_ent_p(const double ent1, const double ent2, 
 				const double delta2, double& nbar1, 
-				double& nbar2, bool tronc = true) const ; 
+				double& nbar2) const ; 
        
+	/** Computes baryon density out of the log-enthalpy asuming
+	 *  that only fluid 1 is present (virtual function implemented 
+	 *  in the derived classes).
+	 *  @param ent1 [input,  unit: $c^2$] log-enthalpy $H_1$ 
+	 *  @return nbar1 baryonic density of the first fluid
+	 */
+	virtual double nbar_ent_p1(const double ent1) const  ;
+
+	/** Computes baryon density out of the log-enthalpy assuming
+	 *  that only fluid 2 is present (virtual function implemented 
+	 *  in the derived classes).
+	 *  @param ent2 [input,  unit: $c^2$] log-enthalpy $H_1$ 
+	 *  @return nbar1 baryonic density of the first fluid
+	 */
+	virtual double nbar_ent_p2(const double ent2) const  ;
+
  	/** Computes the total energy density from the baryonic densities
 	 *  and the relative velocity. 
 	 * 
@@ -1165,10 +1196,26 @@ class Eos_bf_poly_newt : public Eos_bf_poly {
 	 *  [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
 	 * 
 	 */
-    	virtual void nbar_ent_p(const double ent1, const double ent2, 
+    	virtual bool nbar_ent_p(const double ent1, const double ent2, 
 				const double delta2, double& nbar1, 
-				double& nbar2, bool tronc = true) const ; 
+				double& nbar2) const ; 
        
+	/** Computes baryon density out of the log-enthalpy asuming
+	 *  that only fluid 1 is present (virtual function implemented 
+	 *  in the derived classes).
+	 *  @param ent1 [input,  unit: $c^2$] log-enthalpy $H_1$ 
+	 *  @return nbar1 baryonic density of the first fluid
+	 */
+	virtual double nbar_ent_p1(const double ent1) const  ;
+
+	/** Computes baryon density out of the log-enthalpy assuming
+	 *  that only fluid 2 is present (virtual function implemented 
+	 *  in the derived classes).
+	 *  @param ent2 [input,  unit: $c^2$] log-enthalpy $H_1$ 
+	 *  @return nbar1 baryonic density of the first fluid
+	 */
+	virtual double nbar_ent_p2(const double ent2) const  ;
+
  	/** Computes the total energy density from the baryonic densities
 	 *  and the relative velocity. 
 	 * 
