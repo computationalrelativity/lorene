@@ -28,9 +28,8 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
- * Revision 1.9  2004/11/03 17:17:35  f_limousin
- * Change the standart constructor and the argument of the
- * function init_data(...).
+ * Revision 1.10  2004/11/05 10:15:22  f_limousin
+ * The angular velocity is now a parameter (in par_hor.d).
  *
  * Revision 1.8  2004/11/02 17:42:00  f_limousin
  * New method sauve(...) to save in a binary file.
@@ -96,11 +95,12 @@ int main() {
     int symmetry_phi = SYM ; // no symmetry in phi
     bool compact = true ; // external domain is compactified
   
-    double radius, relax, seuil, niter ;
+    double radius, relax, seuil, niter, ang_vel ;
     fpar >> radius; fpar.ignore(1000, '\n');
     fpar >> relax; fpar.ignore(1000, '\n');
     fpar >> seuil; fpar.ignore(1000, '\n');
     fpar >> niter; fpar.ignore(1000, '\n');
+    fpar >> ang_vel; fpar.ignore(1000, '\n');
     
 
     // Multi-domain grid construction:
@@ -218,7 +218,7 @@ int main() {
     gamt.std_spectral_base() ;
     Metric met_gamt (gamt) ;     
 
-    Sym_tensor gamt_point(map, COV, map.get_bvect_spher()) ;
+    Sym_tensor gamt_point(map, CON, map.get_bvect_spher()) ;
     gamt_point.set_etat_zero() ;
 
     // Set up of extrinsic curvature
@@ -255,7 +255,6 @@ int main() {
     tmp_sym.set_etat_zero() ;
     tmp_scal.set_dzpuis(4) ;
 
-    double ang_vel = 0.01 ;
     isolhor.init_data(seuil, relax, niter, ang_vel) ;
 
     // Save in a file
