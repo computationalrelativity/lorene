@@ -87,6 +87,10 @@ On Linux system, you locate it by
 
 (for instance: /usr/share/doc/cvs-1.11/cvs.ps)
 
+WWW documentation:
+
+	Introduction to CVS: http://www.cvshome.org/docs/blandy.html
+	CVS home page: http://www.cvshome.org/
 
 
 	
