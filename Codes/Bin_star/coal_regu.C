@@ -30,6 +30,9 @@ char coal_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/09/18 15:06:59  e_gourgoulhon
+ * Added printing of date and host name in the header of the file calcul.d.
+ *
  * Revision 1.7  2003/09/17 15:43:53  e_gourgoulhon
  * Test of good opening of the initial data file.
  *
@@ -925,6 +928,16 @@ int main(){
     ofstream fichfinal("calcul.d") ;
     fichfinal.precision(6) ; 
     
+	time_t rawtime = time(0x0) ; 
+	fichfinal << "Date: " << asctime( localtime( &rawtime ) ) << endl ; 
+	char* hostname = getenv("HOST") ; 
+	if (hostname != 0x0) {
+		fichfinal << "Computer: " << hostname << endl ; 
+	}
+	fichfinal << 
+	"===================================================================" 
+	<< endl << endl ; 
+	
     if ( star(1).is_relativistic() ) {
 	fichfinal << "Relativistic computation"  ;
     }
@@ -953,8 +966,7 @@ int main(){
 	      << star.angu_mom()(2)/ ( qpig / (4* M_PI) * msol*msol)
 	      << " G M_sol^2 / c" << endl ;
 
-    fichfinal << endl << "Total CPU time for the " << mer << " steps : " << endl ;
-    fichfinal << "Memory size : " << endl << endl ; 
+    fichfinal << endl << "Number of steps : " << mer << endl ;
 
     for (int i=1 ; i<=2; i++) {
 	fichfinal << endl <<
@@ -1015,6 +1027,16 @@ int main(){
     fichfinal.close() ; 
     system("ident coal_regu >> calcul.d") ;
 
+    // Preparation for CPU infos printing :     	
+    fichfinal.open("calcul.d", ios::app ) ; 
+    fichfinal << endl <<
+    "================================================================" << endl ; 
+    fichfinal << "	    CPU TIME and MEMORY infos : " << endl ; 
+    fichfinal << 
+    "================================================================" << endl ; 
+	fichfinal << endl ; 
+    fichfinal.close() ; 
+        
 	//-----------------------------------------------
 	//  General features of the final configuration
 	//  saved in a file with scientific notation and
