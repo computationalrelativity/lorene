@@ -1,5 +1,7 @@
 2	Type of the EOS (cf. documentation of Eos::eos_from_file)
 Star EOS
+1.		mean particle mass [m_b]
+1.		mean particle mass [m_b]
 2.1		adiabatic index gamma1
 2.2		adiabatic index gamma2
 2.1		adiabatic index gamma3
@@ -10,8 +12,6 @@ Star EOS
 0.06		pressure coefficient kappa2 [rho_nuc c^2 / n_nuc^gamma]
 0.03		pressure coefficient kappa3 [rho_nuc c^2 / n_nuc^gamma]
 0.12		beta
-1.		mean particle mass [m_b]
-1.		mean particle mass [m_b]
 0.5             relaxation parameter for the EOS inversion
 1.e-9          precision 
 1.e-8           ecart
