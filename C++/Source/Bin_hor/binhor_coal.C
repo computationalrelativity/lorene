@@ -26,6 +26,9 @@ char binhor_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/03/10 17:09:05  f_limousin
+ * Display the logarithm of viriel and convergence.
+ *
  * Revision 1.5  2005/03/10 16:57:00  f_limousin
  * Improve the convergence of the code coal_bh.
  *
@@ -124,9 +127,9 @@ double Bin_hor::coal (double angu_vel, double relax, int nb_ome,
 	    if (diff(i) > erreur)
 		erreur = diff(i) ;
 	if (sortie != 0) {
-	  fich_iteration << step << " " << erreur << " " << homme << endl ;
-	  fich_correction << step << " " << hole1.regul << " " << homme << endl ;
-	  fich_viriel << step << " " << viriel() << " " << homme << endl ;
+	  fich_iteration << step << " " << log10(erreur) << " " << homme << endl ;
+	  fich_correction << step << " " << log10(hole1.regul) << " " << homme << endl ;
+	  fich_viriel << step << " " << log10(viriel()) << " " << homme << endl ;
 	    }
 	    
 	cout << "STEP : " << step << " DIFFERENCE : " << erreur << endl ;
@@ -153,10 +156,10 @@ double Bin_hor::coal (double angu_vel, double relax, int nb_ome,
 		erreur = diff(i) ;
 	
 	if (sortie != 0) {
-	  fich_iteration << step << " " << erreur << " " << homme << endl ;
-	  fich_correction << step << " " << hole1.regul << " " << homme << endl ;
-	  fich_viriel << step << " " << viriel() << " " << homme << endl ;
-	    }
+	  fich_iteration << step << " " << log10(erreur) << " " << homme << endl ;
+	  fich_correction << step << " " << log10(hole1.regul) << " " << homme << endl ;
+	  fich_viriel << step << " " << log10(viriel()) << " " << homme << endl ;
+    }
 
 	cout << "STEP : " << step << " DIFFERENCE : " << erreur << endl ;
  	step ++ ;
