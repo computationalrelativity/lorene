@@ -30,6 +30,9 @@ char time_slice_conf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/05/03 14:47:11  e_gourgoulhon
+ * Corrected method aa().
+ *
  * Revision 1.7  2004/04/08 16:43:26  e_gourgoulhon
  * Added methods set_*
  * Added test of determinant one in constructor and set_hh.
@@ -574,10 +577,13 @@ const Sym_tensor& Time_slice_conf::aa() const {
 
         assert( hh_evol.is_known(jtime) ) ; 
 
-        Sym_tensor resu = hh_evol.time_derive(jtime, scheme_order)
-            - hh().derive_lie(beta()) 
-            - 0.6666666666666666 * beta().divergence(ff)
+        Sym_tensor hh_point = hh_evol.time_derive(jtime, scheme_order) ; 
+        hh_point.inc_dzpuis(2) ; // dzpuis : 0 -> 2
+
+        Sym_tensor resu = hh_point - hh().derive_lie(beta()) 
+            - 0.6666666666666666 * beta().divergence(ff) * hh()
             + beta().ope_killing_conf(ff) ; 
+
         resu = resu / (2*nn()) ;
         
         aa_evol.update(resu, jtime, the_time[jtime]) ;
