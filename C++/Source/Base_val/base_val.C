@@ -34,6 +34,9 @@ char base_val_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/11/04 15:19:02  e_gourgoulhon
+ * operator<< : added names R_CHEBPI_P, R_CHEBPI_I, T_COSSIN_C, T_COSSIN_S.
+ *
  * Revision 1.6  2004/08/24 09:14:41  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -224,6 +227,8 @@ ostream& operator<<(ostream& o, const Base_val & bi) {
     nom_r[R_CHEBI >> TRA_R] =     "R_CHEBI    " ; 
     nom_r[R_CHEBPIM_P >> TRA_R] = "R_CHEBPIM_P" ; 
     nom_r[R_CHEBPIM_I >> TRA_R] = "R_CHEBPIM_I" ; 
+    nom_r[R_CHEBPI_P >> TRA_R] = "R_CHEBPI_P" ; 
+    nom_r[R_CHEBPI_I >> TRA_R] = "R_CHEBPI_I" ; 
     
     nom_t[T_COS >> TRA_T] =     "T_COS    " ; 
     nom_t[T_COS_P >> TRA_T] =     "T_COS_P    " ; 
@@ -234,6 +239,8 @@ ostream& operator<<(ostream& o, const Base_val & bi) {
     nom_t[T_COSSIN_SI >> TRA_T] = "T_COSSIN_SI" ;
     nom_t[T_COSSIN_SP >> TRA_T] = "T_COSSIN_SP" ;
     nom_t[T_COSSIN_CI >> TRA_T] = "T_COSSIN_CI" ;
+    nom_t[T_COSSIN_C >> TRA_T] = "T_COSSIN_C" ;
+    nom_t[T_COSSIN_S >> TRA_T] = "T_COSSIN_S" ;
     nom_t[T_LEG_P >> TRA_T] =     "T_LEG_P    " ;
     nom_t[T_LEG_PP >> TRA_T] =    "T_LEG_PP   " ;
     nom_t[T_LEG_I >> TRA_T] =     "T_LEG_I    " ;
