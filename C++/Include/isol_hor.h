@@ -5,6 +5,7 @@
 
 /*
  *   Copyright (c) 2004 Jose Luis Jaramillo
+ *                      Francois Limousin
  *
  *   This file is part of LORENE.
  *
@@ -29,6 +30,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2005/03/09 10:28:37  f_limousin
+ * Delete functions init_data_b_neumann(...) and init_data_berlin(...)
+ * --> New parameter solve_lapse in the function init_data(...).
+ * New function update_aa().
+ *
  * Revision 1.23  2005/03/06 16:59:33  f_limousin
  * New function Isol_hor::aa() (the one belonging to the class
  * Time_slice_conf need to compute the time derivative of hh and thus
@@ -506,23 +512,19 @@ class Isol_hor : public Time_slice_conf {
   //---------------------
  public:
   
-  /// function to compute initial data for a single black hole
+  /* function to compute initial data for a single black hole
+   *  @param bound_nn boundary condition for the lapse
+   *  @param lim_nn value of the boundary condition for the lapse 
+   *  @param bound_psi boundary condition for \f$ \Psi \f$
+   *  @param bound_beta boundary condition for the shift
+   *  @param solve_lapse do we solve the equation for the lapse ?
+   *  @param precis precision for the convergence
+   *  @param relax relaxation
+   *  @param niter number of iterations
+   */
   void init_data(int bound_nn, double lim_nn, int bound_psi, int bound_beta,
-		 double precis = 1.e-12, double relax = 1., int niter = 100) ; 
-
-  /// function to compute initial data for a single black hole using
-  /// Berlin boundary condition.
-  void init_data_b_neumann(int bound_psi, 
-			   int bound_beta,double precis = 1.e-12,
-			   double relax = 1., int niter = 100) ; 
-
-
-  /// function to compute initial data for a single black hole using
-  /// Berlin boundary condition.
-  void init_data_berlin(int bound_psi, 
-			int bound_beta,double precis = 1.e-12,
-			double relax = 1., int niter = 100) ; 
-
+		 int solve_lapse, double precis = 1.e-12, double relax = 1., 
+		 int niter = 100) ; 
 
   //Sources
   //-------
@@ -623,9 +625,8 @@ class Isol_hor : public Time_slice_conf {
   /** Conformal representation \f$ A^{ij} \f$ of the traceless part
    * of the extrinsic curvature:
    * \f$ A^{ij} = \Psi^4 \left( K^{ij} - \frac{1}{3} K \gamma^{ij} \right) \f$.
-   * Returns the value at the current time step (\c jtime ).
    */        
-  virtual const Sym_tensor& aa() const ; 
+  void update_aa() ; 
   
   /// Regularisation of the shift :
   double regularisation (const Vector& shift_auto, const Vector& shift_comp, 
