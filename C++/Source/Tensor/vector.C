@@ -32,6 +32,10 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2003/10/29 11:04:34  e_gourgoulhon
+ * dec2_dpzuis() replaced by dec_dzpuis(2).
+ * inc2_dpzuis() replaced by inc_dzpuis(2).
+ *
  * Revision 1.11  2003/10/22 14:24:19  j_novak
  * *** empty log message ***
  *
@@ -335,9 +339,9 @@ void Vector::decompose_div(const Metric& metre) const {
 
     Vector gradient = p_potential[j]->derive_con(metre) ;
     if (dzp == 4)
-      gradient.inc2_dzpuis() ;
+      gradient.inc_dzpuis(2) ;
     else
-      gradient.dec2_dzpuis() ;
+      gradient.dec_dzpuis(2) ;
 
     *p_div_free[j] = ( *this - gradient ) ;
 

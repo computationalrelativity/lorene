@@ -28,6 +28,10 @@ char scalar_raccord_zec_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/29 11:04:34  e_gourgoulhon
+ * dec2_dpzuis() replaced by dec_dzpuis(2).
+ * inc2_dpzuis() replaced by inc_dzpuis(2).
+ *
  * Revision 1.3  2003/10/10 15:57:29  j_novak
  * Added the state one (ETATUN) to the class Scalar
  *
@@ -128,7 +132,7 @@ void Scalar::raccord_c1_zec(int puis, int nbre, int lmax) {
 		    valeurs.set(conte, k, j) = res_val[0] ;
 		}
 	Scalar copie (courant) ;
-	copie.dec2_dzpuis() ;
+	copie.dec_dzpuis(2) ;
 	courant = copie.dsdr() ;
     }
  

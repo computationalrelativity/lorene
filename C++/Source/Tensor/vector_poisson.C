@@ -30,6 +30,10 @@ char vector_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/29 11:04:34  e_gourgoulhon
+ * dec2_dpzuis() replaced by dec_dzpuis(2).
+ * inc2_dpzuis() replaced by inc_dzpuis(2).
+ *
  * Revision 1.2  2003/10/22 13:08:06  j_novak
  * Better handling of dzpuis flags
  *
@@ -59,12 +63,12 @@ Vector Vector::poisson(const double lambda) const {
     poten.set_etat_zero() ;
   else {
     Scalar tmp = potential(met_local) / (lambda + 1) ;
-    tmp.inc2_dzpuis() ;
+    tmp.inc_dzpuis(2) ;
     poten = tmp.poisson() ;
   }
 
   Vector grad = poten.derive_con(met_local) ;
-  grad.dec2_dzpuis() ;
+  grad.dec_dzpuis(2) ;
 
   return ( div_free(met_local).poisson() + grad) ;
     
