@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/12/08 15:48:12  m_bejger
+ * GlendNH3 (Glendenning 1985, case 3) added
+ *
  * Revision 1.7  2002/10/16 14:36:28  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -214,6 +217,7 @@ class Eos {
 	 *     13 = AkmalPR (Akmal, Pandharipande \& Ravenhall 1998) \\
 	 *     14 = BBB2 (Baldo, Bombaci \& Burgio 1997) \\
 	 *     15 = BalbN1H1 (Balberg 2000) \\
+         *     16 = GlendNH3 (Glendenning 1985, case 3) \\ 
 	 *     100 = Multi-domain EOS (class {\tt MEos}) \\
 	 *  The second line in the file must be the EOS name.
 	 *  The following lines should contain the EOS parameters (one
