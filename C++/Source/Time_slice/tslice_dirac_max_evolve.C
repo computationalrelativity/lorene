@@ -30,6 +30,9 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/05/10 09:19:27  e_gourgoulhon
+ * Added a call to del_deriv() after set_khi_mu.
+ *
  * Revision 1.4  2004/05/09 20:59:06  e_gourgoulhon
  * Change of the time scheme: first solve d'Alembert equations,
  * then psuh forward in time and solve the elliptic equation
@@ -105,7 +108,6 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
     
         cout << *this << endl ; 
         cout << "ADM mass : " << adm_mass() << endl ; 
-        arrete() ; 
         
         // Resolution of hyperbolic equations
         // ----------------------------------
@@ -120,7 +122,10 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
         the_time.update(ttime, jtime, ttime) ; 
                 
         // Setting khi_evol, mu_evol, trh_evol and hh_evol at the new time:
-        set_khi_mu(khi_new, mu_new) ;           
+        set_khi_mu(khi_new, mu_new) ;    
+        
+        // Reset of derived quantities
+        del_deriv() ;        
 
         // Resolution of elliptic equations
         // --------------------------------
