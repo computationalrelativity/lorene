@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/06 15:30:32  j_novak
+ * Defined methods for flat metric.
+ *
  * Revision 1.3  2003/10/06 13:58:45  j_novak
  * The memory management has been improved.
  * Implementation of the covariant derivative with respect to the exact Tensor
@@ -125,10 +128,10 @@ class Metric {
     // -----------------
     protected:
 	/// Deletes all the derived quantities
-	virtual void del_deriv() const ; 
+	void del_deriv() const ; 
 	
 	/// Sets to {\tt 0x0} all the pointers on derived quantities
-	virtual void set_der_0x0() const ; 
+	void set_der_0x0() const ; 
 
 
     // Mutators / assignment
@@ -246,6 +249,15 @@ class Metric {
  */
 class Metric_flat: public Metric {
 
+    // Data : 
+    // -----
+    protected:
+	
+  /** Vectorial basis (triad) with respect to which the flat metric
+   *  is defined.
+   */
+  const Base_vect* triad ; 
+
     // Constructors - Destructor
     // -------------------------
     public:
@@ -263,16 +275,6 @@ class Metric_flat: public Metric {
 	virtual ~Metric_flat() ;			/// Destructor
  
 
-    // Memory management
-    // -----------------
-    protected:
-	/// Deletes all the derived quantities
-	virtual void del_deriv() const ; 
-	
-	/// Sets to {\tt 0x0} all the pointers on derived quantities
-	virtual void set_der_0x0() const ; 
-
-
     // Mutators / assignment
     // ---------------------
     public:
@@ -284,6 +286,17 @@ class Metric_flat: public Metric {
 	 * In principle, this method should not be used for a {\tt Metric\_flat}.
 	 */
 	virtual void operator= (const Sym_tensor& sym_t) ;
+
+    // Accessors
+    // ---------
+    public:
+	const Map& get_mp() const {return *mp ;} ; /// Returns the mapping.
+
+	/** Returns the vectorial basis (triad) on which the metric
+	 *  is defined.  
+	 */
+	const Base_vect* get_triad() const {return triad;} ; 
+    
 	
 
     // Computation of derived members
