@@ -30,6 +30,10 @@ char time_slice_conf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/05/27 15:25:04  e_gourgoulhon
+ * Added constructors from binary file, as well as corresponding
+ * functions sauve and save.
+ *
  * Revision 1.11  2004/05/12 15:24:20  e_gourgoulhon
  * Reorganized the #include 's, taking into account that
  * time_slice.h contains now an #include "metric.h".
@@ -77,9 +81,11 @@ char time_slice_conf_C[] = "$Header$" ;
 // C headers
 #include <stdlib.h>
 #include <assert.h>
+#include <stdio.h>
 
 // Lorene headers
 #include "time_slice.h"
+#include "utilitaires.h"
 
 
 
@@ -208,6 +214,51 @@ Time_slice_conf::Time_slice_conf(const Map& mp, const Base_vect& triad,
     set_der_0x0() ; 
 
 }
+
+
+// Constructor from binary file             
+// ----------------------------
+
+Time_slice_conf::Time_slice_conf(const Map& mp, const Base_vect& triad, 
+                        const Metric_flat& ff_in, FILE* fich, 
+                        bool partial_read, int depth_in) 
+        : Time_slice(mp, triad, fich, true, depth_in),
+          ff(ff_in), 
+          psi_evol(depth_in), 
+          qq_evol(depth_in),
+          hh_evol(depth_in), 
+          aa_evol(depth_in) {
+
+
+    // Reading of various fields
+    // -------------------------
+    
+    int jmin = jtime - depth + 1 ; 
+    int indicator ; 
+
+    // Q
+    for (int j=jmin; j<=jtime; j++) {
+	    fread_be(&indicator, sizeof(int), 1, fich) ;	
+        if (indicator == 1) {
+            Scalar qq_file(mp, *(mp.get_mg()), fich) ; 
+            qq_evol.update(qq_file, j, the_time[j]) ; 
+        }
+    }
+
+    // Case of a full reading
+    // -----------------------
+    if (!partial_read) {
+        cout << 
+        "Time_slice constructor from file: the case of full reading\n"
+        << " is not ready yet !" << endl ; 
+        abort() ; 
+    }
+
+    set_der_0x0() ; 
+
+} 
+
+
 
 
 // Copy constructor
@@ -677,6 +728,36 @@ ostream& Time_slice_conf::operator>>(ostream& flux) const {
 
 }
 
+
+
+void Time_slice_conf::sauve(FILE* fich, bool partial_save) const {
+    
+    // Writing of quantities common to all derived classes of Time_slice
+    // -----------------------------------------------------------------
+    
+    Time_slice::sauve(fich, true) ; 
+    
+    // Writing of quantities common to all derived classes of Time_slice_conf
+    // ----------------------------------------------------------------------
+    
+    int jmin = jtime - depth + 1 ; 
+
+    // Q
+    for (int j=jmin; j<=jtime; j++) {
+        int indicator = (qq_evol.is_known(j)) ? 1 : 0 ; 
+	    fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        if (indicator == 1) qq_evol[j].sauve(fich) ; 
+    }
+    
+    // Case of a complete save
+    // -----------------------
+    if (!partial_save) {
+        cout << "Time_slice_conf::sauve: the full writing is not ready yet !" 
+             << endl ; 
+        abort() ; 
+    }
+    
+}
 
 
                 

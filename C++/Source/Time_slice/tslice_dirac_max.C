@@ -30,6 +30,10 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/05/27 15:25:04  e_gourgoulhon
+ * Added constructors from binary file, as well as corresponding
+ * functions sauve and save.
+ *
  * Revision 1.8  2004/05/17 19:54:10  e_gourgoulhon
  * Method initial_data_cts: added arguments graph_device and method_poisson_vect.
  *
@@ -64,6 +68,7 @@ char tslice_dirac_max_C[] = "$Header$" ;
 
 // C headers
 #include <stdlib.h>
+#include <stdio.h>
 #include <assert.h>
 
 // Lorene headers
@@ -115,6 +120,66 @@ Tslice_dirac_max::Tslice_dirac_max(const Map& mp, const Base_vect& triad,
     trh_evol.update(tmp, jtime, time_init) ; 
     
 }   
+
+
+// Constructor from binary file             
+// ----------------------------
+
+Tslice_dirac_max::Tslice_dirac_max(const Map& mp, const Base_vect& triad, 
+                        const Metric_flat& ff_in, FILE* fich, 
+                        bool partial_read, int depth_in) 
+        : Time_slice_conf(mp, triad, ff_in, fich, true, depth_in),
+          khi_evol(depth_in),   
+          mu_evol(depth_in),   
+          trh_evol(depth_in) {
+
+    if (partial_read) {
+        cout << 
+        "Constructor of Tslice_dirac_max from file: the case of partial reading\n"
+        << "  is not ready yet !"
+            << endl ; 
+        abort() ; 
+    }
+    
+    // Reading of various fields
+    // -------------------------
+    
+    int jmin = jtime - depth + 1 ; 
+    int indicator ; 
+
+    // khi
+    for (int j=jmin; j<=jtime; j++) {
+	    fread_be(&indicator, sizeof(int), 1, fich) ;	
+        if (indicator == 1) {
+            Scalar khi_file(mp, *(mp.get_mg()), fich) ; 
+            khi_evol.update(khi_file, j, the_time[j]) ; 
+        }
+    }
+
+    // mu
+    for (int j=jmin; j<=jtime; j++) {
+	    fread_be(&indicator, sizeof(int), 1, fich) ;	
+        if (indicator == 1) {
+            Scalar mu_file(mp, *(mp.get_mg()), fich) ; 
+            mu_evol.update(mu_file, j, the_time[j]) ; 
+        }
+    }
+
+    // h^ij
+    for (int j=jmin; j<=jtime; j++) {
+	    fread_be(&indicator, sizeof(int), 1, fich) ;	
+        if (indicator == 1) {
+            Sym_tensor hh_file(mp, triad, fich) ; 
+            hh_evol.update(hh_file, j, the_time[j]) ; 
+        }
+    }
+    
+    // Updates
+    // -------
+    
+    set_khi_mu(khi_evol[jtime], mu_evol[jtime]) ; 
+      
+}
 
 
 
@@ -480,6 +545,48 @@ ostream& Tslice_dirac_max::operator>>(ostream& flux) const {
 
 }
 
+
+void Tslice_dirac_max::sauve(FILE* fich, bool partial_save) const {
+    
+    if (partial_save) {
+        cout << 
+        "Tslice_dirac_max::sauve : the partial_save case is not ready yet !"
+            << endl ; 
+        abort() ; 
+    }
+    
+    // Writing of quantities common to all derived classes of Time_slice_conf
+    // ----------------------------------------------------------------------
+    
+    Time_slice_conf::sauve(fich, true) ; 
+    
+    // Writing of the other fields
+    // ---------------------------
+    
+    int jmin = jtime - depth + 1 ; 
+
+    // khi
+    for (int j=jmin; j<=jtime; j++) {
+        int indicator = (khi_evol.is_known(j)) ? 1 : 0 ; 
+	    fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        if (indicator == 1) khi_evol[j].sauve(fich) ; 
+    }
+
+    // mu
+    for (int j=jmin; j<=jtime; j++) {
+        int indicator = (mu_evol.is_known(j)) ? 1 : 0 ; 
+	    fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        if (indicator == 1) mu_evol[j].sauve(fich) ; 
+    }
+
+    // h^ij
+    for (int j=jmin; j<=jtime; j++) {
+        int indicator = (hh_evol.is_known(j)) ? 1 : 0 ; 
+	    fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        if (indicator == 1) hh_evol[j].sauve(fich) ; 
+    }
+    
+}
 
 
                 

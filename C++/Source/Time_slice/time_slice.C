@@ -30,6 +30,10 @@ char time_slice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/05/27 15:25:04  e_gourgoulhon
+ * Added constructors from binary file, as well as corresponding
+ * functions sauve and save.
+ *
  * Revision 1.11  2004/05/12 15:24:20  e_gourgoulhon
  * Reorganized the #include 's, taking into account that
  * time_slice.h contains now an #include "metric.h".
@@ -78,9 +82,12 @@ char time_slice_C[] = "$Header$" ;
 // C headers
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
+#include <stdio.h>
 
 // Lorene headers
 #include "time_slice.h"
+#include "utilitaires.h"
 
 
 
@@ -210,7 +217,86 @@ Time_slice::Time_slice(const Map& mp, const Base_vect& triad, int depth_in)
     
     set_der_0x0() ; 
 }
-                 
+    
+// Constructor from binary file             
+// ----------------------------
+
+Time_slice::Time_slice(const Map& mp, const Base_vect& triad, FILE* fich, 
+                       bool partial_read, int depth_in) 
+               : depth(depth_in),
+                 the_time(depth_in),
+                 gam_dd_evol(depth_in),
+                 gam_uu_evol(depth_in),
+                 k_dd_evol(depth_in),
+                 k_uu_evol(depth_in),
+                 n_evol(depth_in),
+                 beta_evol(depth_in),
+		         trk_evol(depth_in),
+                 adm_mass_evol() {
+
+    // Reading various integer parameters
+    // ----------------------------------
+    
+    int depth_file ; 
+	fread_be(&depth_file, sizeof(int), 1, fich) ;
+    if (depth_file != depth_in) {
+        cout << 
+        "Time_slice constructor from file: the depth read in file \n"
+        << " is different from that given in the argument list : \n"
+        << "   depth_file = " << depth_file 
+        << " <-> depth_in " << depth_in << " !" << endl ; 
+        abort() ;  
+    }	
+	fread_be(&scheme_order, sizeof(int), 1, fich) ;	
+	fread_be(&jtime, sizeof(int), 1, fich) ;	
+    
+    // Reading the_time
+    // ----------------
+    int jmin = jtime - depth + 1 ; 
+    int indicator ; 
+    for (int j=jmin; j<=jtime; j++) {
+	    fread_be(&indicator, sizeof(int), 1, fich) ;	
+        if (indicator == 1) {	
+            double xx ; 
+	        fwrite_be(&xx, sizeof(double), 1, fich) ;	
+            the_time.update(xx, j, xx) ; 
+        }
+    }
+
+    // Reading of various fields
+    // -------------------------
+    
+    // N
+    for (int j=jmin; j<=jtime; j++) {
+	    fread_be(&indicator, sizeof(int), 1, fich) ;	
+        if (indicator == 1) {
+            Scalar nn_file(mp, *(mp.get_mg()), fich) ; 
+            n_evol.update(nn_file, j, the_time[j]) ; 
+        }
+    }
+
+    // beta
+    for (int j=jmin; j<=jtime; j++) {
+	    fread_be(&indicator, sizeof(int), 1, fich) ;	
+        if (indicator == 1) {
+            Vector beta_file(mp, triad, fich) ; 
+            beta_evol.update(beta_file, j, the_time[j]) ; 
+        }
+    }
+
+    // Case of a full reading
+    // -----------------------
+    if (!partial_read) {
+        cout << 
+        "Time_slice constructor from file: the case of full reading\n"
+        << " is not ready yet !" << endl ; 
+        abort() ; 
+    }
+
+    set_der_0x0() ; 
+
+} 
+
 
 // Copy constructor
 // ----------------
@@ -361,15 +447,101 @@ ostream& operator<<(ostream& flux, const Time_slice& sigma) {
 }
 
 
+void Time_slice::save(const char* rootname) const {
+
+    // Opening of file 
+    // ---------------
+    char* filename = new char[ strlen(rootname)+10 ] ; 
+    strcpy(filename, rootname) ; 
+    char nomj[7] ; 
+    sprintf(nomj, "%06d", jtime) ; 
+    strcat(filename, nomj) ; 
+    strcat(filename, ".d") ; 
+        
+    FILE* fich = fopen(filename, "w") ; 
+    if (fich == 0x0) {
+    	cout << "Problem in opening file " << filename << " ! " << endl ; 
+	    perror(" reason") ; 
+	    abort() ; 
+    }
+
+    // Write grid, mapping, triad and depth
+    // ------------------------------------
+    const Map& map = nn().get_mp() ;
+    const Mg3d& mgrid = *(map.get_mg()) ; 
+    const Base_vect& triad = *(beta().get_triad()) ; 
+    
+    mgrid.sauve(fich) ; 
+    map.sauve(fich) ; 
+    triad.sauve(fich) ;  
+   
+	fwrite_be(&depth, sizeof(int), 1, fich) ;	
+
+    // Write all binary data by means of virtual function sauve
+    // --------------------------------------------------------
+    bool partial_save = false ;
+    sauve(fich, partial_save) ; 
+    
+    // Close the file
+    // --------------
+    
+    fclose(fich) ; 
+        
+    delete [] filename ;        
+        
+}
 
 
 
+void Time_slice::sauve(FILE* fich, bool partial_save) const {
+
+    // Writing various integer parameters
+    // ----------------------------------
+    
+	fwrite_be(&depth, sizeof(int), 1, fich) ;	
+	fwrite_be(&scheme_order, sizeof(int), 1, fich) ;	
+	fwrite_be(&jtime, sizeof(int), 1, fich) ;	
+    
+    // Writing the_time
+    // ----------------
+    int jmin = jtime - depth + 1 ; 
+    for (int j=jmin; j<=jtime; j++) {
+        int indicator = (the_time.is_known(j)) ? 1 : 0 ; 
+	    fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        if (indicator == 1) {	
+            double xx = the_time[j] ; 
+	        fwrite_be(&xx, sizeof(double), 1, fich) ;	
+        }
+    }
+
+    // Writing of various fields
+    // -------------------------
+    
+    // N
+    for (int j=jmin; j<=jtime; j++) {
+        int indicator = (n_evol.is_known(j)) ? 1 : 0 ; 
+	    fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        if (indicator == 1) n_evol[j].sauve(fich) ; 
+    }
+
+    // beta
+    for (int j=jmin; j<=jtime; j++) {
+        int indicator = (beta_evol.is_known(j)) ? 1 : 0 ; 
+	    fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        if (indicator == 1) beta_evol[j].sauve(fich) ; 
+    }
+
+    // Case of a complete save
+    // -----------------------
+    if (!partial_save) {
+    
+        cout << "Time_slice::sauve: the full writing is not ready yet !" 
+             << endl ; 
+        abort() ; 
+    }
 
 
-
-
-
-
+}
 
 
 
