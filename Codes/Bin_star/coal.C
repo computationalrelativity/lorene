@@ -30,6 +30,9 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/09/08 12:06:20  e_gourgoulhon
+ * Added the printing of the virial errors in the output file "calcul.d".
+ *
  * Revision 1.5  2003/02/20 15:08:42  e_gourgoulhon
  * Suppressed the qualifier ios::nocreate in call to fstream::open
  * (not supported by gcc 3.2).
@@ -983,9 +986,17 @@ int main(){
 	      << diff_mass << endl ; 
     fichfinal << "dH/dx at r = 0 :  star 1 : " << dentdx[0] 
 		<< "   star 2 : " << dentdx[1] << endl ; 
-    if ( !(star(1).is_relativistic()) ) {
-	fichfinal << "Relative error on the virial theorem : "
-	      << star.virial() << endl ;   
+
+
+    if ( star(1).is_relativistic() ) {
+	fichfinal << "Relative error on the virial theorem : " << endl ; 
+	fichfinal << "   VE(M)= " << star.virial() 
+	          << "   VE(GB)= "<< star.virial_gb()  
+		  << "   VE(FUS)= " << star.virial_fus() << endl ;   
+    }
+    else {
+	fichfinal << "Relative error on the virial theorem : " 
+		  <<  star.virial() << endl ; 
     }
     
     fichfinal << endl <<
