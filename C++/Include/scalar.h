@@ -5,6 +5,12 @@
 
 /*
  *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *   
+ *   Copyright (c) 1999-2000 Jean-Alain Marck (for previous class Cmp)
+ *   Copyright (c) 1999-2002 Eric Gourgoulhon (for previous class Cmp)
+ *   Copyright (c) 1999-2001 Philippe Grandclement (for previous class Cmp)
+ *   Copyright (c) 2000-2002 Jerome Novak (for previous class Cmp)
+ *   Copyright (c) 2000-2001 Keisuke Taniguchi (for previous class Cmp)
  *
  *   This file is part of LORENE.
  *
@@ -32,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/09/24 12:01:44  j_novak
+ * Added friend functions for math.
+ *
  * Revision 1.2  2003/09/24 10:22:01  e_gourgoulhon
  * still in progress...
  *
@@ -872,6 +881,35 @@ class Scalar : public Tensor {
 	 * Matching of the external domain with the outermost shell
 	 */
 	void raccord_externe (int puis, int nbre, int lmax) ;
+
+friend Scalar operator-(const Scalar& ) ;			
+friend Scalar operator+(const Scalar&, const Scalar &) ;	
+friend Scalar operator+(const Scalar&, double ) ;		
+friend Scalar operator-(const Scalar &, const Scalar &) ;
+friend Scalar operator-(const Scalar&, double ) ;		
+friend Scalar operator*(const Scalar &, const Scalar &) ;
+friend Scalar operator%(const Scalar &, const Scalar &) ;
+friend Scalar operator*(double, const Scalar &) ;		
+friend Scalar operator/(const Scalar &, const Scalar &) ;
+friend Scalar operator/(const Scalar&, double ) ;	       
+friend Scalar operator/(double, const Scalar &) ;
+
+friend Scalar sin(const Scalar& ) ;
+friend Scalar cos(const Scalar& ) ;
+friend Scalar tan(const Scalar& ) ;
+friend Scalar asin(const Scalar& ) ;
+friend Scalar acos(const Scalar& ) ;
+friend Scalar atan(const Scalar& ) ;
+friend Scalar exp(const Scalar& ) ;	
+friend Scalar log(const Scalar& ) ;	
+friend Scalar log10(const Scalar& ) ;	
+friend Scalar sqrt(const Scalar& ) ;	
+friend Scalar racine_cubique (const Scalar& ) ;
+friend Scalar pow(const Scalar& , int ) ;	
+friend Scalar pow(const Scalar& , double ) ; 
+friend Scalar abs(const Scalar& ) ;	
+
+
 };
 ostream& operator<<(ostream& , const Scalar & ) ;	
 
