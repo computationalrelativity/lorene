@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/11/26 09:28:50  p_grandclement
+ * using in Derived templates are now public
+ *
  * Revision 1.11  2004/11/25 07:53:53  e_gourgoulhon
  * Added directives
  *        using Evolution<TyT>::...
@@ -250,6 +253,7 @@ template<typename TyT> class Evolution {
  */
 template<typename TyT> class Evolution_full : public Evolution<TyT> {
 
+   public:
     using Evolution<TyT>::size ; 
     using Evolution<TyT>::step ; 
     using Evolution<TyT>::the_time ; 
@@ -350,6 +354,7 @@ template<typename TyT> class Evolution_full : public Evolution<TyT> {
  */
 template<typename TyT> class Evolution_std : public Evolution<TyT> {
 
+   public:
     using Evolution<TyT>::size ; 
     using Evolution<TyT>::step ; 
     using Evolution<TyT>::the_time ; 

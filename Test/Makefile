@@ -3,10 +3,10 @@ SHELL=/bin/sh
 include $(HOME_LORENE)/local_settings		  # defines which compiler,...
 
 LIB	  = -L$(HOME_LORENE)/Lib -llorene_g -llorenef77_g \
-		$(LIB_LAPACK) \
 		$(LIB_GSL) \
 		$(LIB_PGPLOT) \
-		$(LIB_CXX)
+		$(LIB_CXX) \
+		$(LIB_LAPACK)
 
 .SUFFIXES : .o .C
 
