@@ -32,6 +32,9 @@ char sym_tensor_trans_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/03/29 16:13:07  j_novak
+ * New methods set_longit_trans and set_tt_trace .
+ *
  * Revision 1.6  2004/03/03 13:22:14  j_novak
  * The case where dzpuis = 0 is treated in tt_part().
  *
@@ -185,6 +188,30 @@ void Sym_tensor_trans::operator=(const Tensor& source) {
 	
 	del_deriv() ; 	
 }
+
+void Sym_tensor_trans::set_tt_trace(const Sym_tensor_tt& htt, 
+				    const Scalar& htrace ) {
+  
+  assert (met_div == &htt.get_met_div() ) ;
+
+  int dzp = htrace.get_dzpuis() ;
+
+  assert( (dzp == 4) || (dzp == 0) ) ;
+
+  Scalar pot = htrace.poisson() ;
+    
+  Sym_tensor tmp = (pot.derive_con(*met_div)).derive_con(*met_div) ; 
+  (dzp == 4) ? tmp.inc_dzpuis() : tmp.dec_dzpuis(3) ;  //## to be improved ?
+        
+  *this = htt + 0.5 * ( htrace * met_div->con() - tmp) ;
+  
+  del_deriv() ;
+
+  p_trace = new Scalar( htrace ) ;
+  p_tt = new Sym_tensor_tt( htt ) ;
+
+}
+
 
 
 			//-----------------------------//

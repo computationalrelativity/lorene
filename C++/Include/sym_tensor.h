@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2004/03/29 16:13:06  j_novak
+ * New methods set_longit_trans and set_tt_trace .
+ *
  * Revision 1.16  2004/03/22 13:12:43  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -219,7 +222,13 @@ class Sym_tensor : public Tensor_sym {
 	 * The symmetry is assumed but not checked.
 	 */
 	virtual void operator=(const Tensor& a) ;
-    
+
+	/**
+	 * Assigns the derived members \c p_longit_pot and \c p_transverse
+	 *  and updates the components accordingly.
+	 * (see the documentation of these derived members for details)
+	 */
+	void set_longit_trans(const Sym_tensor_trans& a, const Vector& v) ;
 
     // Computation of derived members
     // ------------------------------
@@ -341,6 +350,14 @@ class Sym_tensor_trans: public Sym_tensor {
 	void set_der_0x0() const ; 
 
 
+    // Accessors
+    // ---------
+        public:
+	/** Returns the metric with respect to which the divergence 
+	 *  and the trace are defined.
+	 */
+	const Metric& get_met_div() const {return *met_div ; } ;
+
     // Mutators / assignment
     // ---------------------
 
@@ -357,6 +374,13 @@ class Sym_tensor_trans: public Sym_tensor {
 	/// Assignment to a \c Tensor 
 	virtual void operator=(const Tensor& a) ;	
 	
+	/**
+	 * Assigns the derived members \c p_tt and \c p_trace
+	 *  and updates the components accordingly.
+	 * (see the documentation of these derived members for details)
+	 */
+	void set_tt_trace(const Sym_tensor_tt& a, const Scalar& h ) ;
+
 	// Computational methods
 	// ---------------------
 	/// Returns the trace of the tensor with respect to metric \c *met_div 

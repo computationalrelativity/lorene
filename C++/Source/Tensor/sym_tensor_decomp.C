@@ -30,6 +30,9 @@ char sym_tensor_decomp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/03/29 16:13:07  j_novak
+ * New methods set_longit_trans and set_tt_trace .
+ *
  * Revision 1.5  2004/02/09 12:56:27  e_gourgoulhon
  * Method longit_pot: added test of the vector Poisson equation.
  *
@@ -57,6 +60,26 @@ char sym_tensor_decomp_C[] = "$Header$" ;
 // Lorene headers
 #include "tensor.h"
 #include "metric.h"
+
+void Sym_tensor::set_longit_trans(const Sym_tensor_trans& ht, 
+				  const Vector& v_pot) {
+
+  assert ( v_pot.get_index_type(0) == CON ) ;
+
+  const Metric& metre = ht.get_met_div() ;
+
+  *this = ht + v_pot.ope_killing(metre) ;
+
+  del_deriv() ;
+
+  set_dependance(metre) ;
+  int jp = get_place_met(metre) ;
+  assert ((jp>=0) && (jp<N_MET_MAX)) ;
+
+  p_transverse[jp] = new Sym_tensor_trans(ht) ;
+  p_longit_pot[jp] = new Vector( v_pot ) ;
+  
+}
 
 const Sym_tensor_trans& Sym_tensor::transverse(const Metric& metre) const {
 
