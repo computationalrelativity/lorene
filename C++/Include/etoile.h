@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.25  2005/01/18 22:35:51  k_taniguchi
+ * Delete a pointer for Etoile::ray_eq(int kk).
+ *
  * Revision 1.24  2005/01/18 20:34:14  k_taniguchi
  * Addition of Etoile::ray_eq(int kk).
  *
@@ -493,9 +496,6 @@ class Etoile {
 	/// Coordinate radius at \f$\theta=0\f$. 
 	mutable double* p_ray_pole ;
 
-	/// Coordinate radius at \f$\phi=2k\pi/np\f$, \f$\theta=\pi/2\f$. 
-	mutable double* p_ray_eq_kk ;
-	
 	/** Description of the stellar surface: 2-D \c Itbl  containing the 
 	 *	values of the domain index \e l  on the surface at the 
 	 *	collocation points in \f$(\theta', \phi')\f$
