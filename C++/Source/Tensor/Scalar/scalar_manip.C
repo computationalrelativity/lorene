@@ -27,6 +27,10 @@ char scalar_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/11 14:47:17  e_gourgoulhon
+ * Lines 112 and 145 : replaced "0" by "double(0)" in the comparison
+ * statement.
+ *
  * Revision 1.3  2003/10/10 15:57:29  j_novak
  * Added the state one (ETATUN) to the class Scalar
  *
@@ -109,7 +113,7 @@ void Scalar::set_val_inf (double val) {
     
     assert (etat != ETATNONDEF) ;
     if (etat == ETATZERO)
-	if (val == 0)
+	if (val == double(0))
 	    return ;
 	else
 	    annule_hard() ;
@@ -142,7 +146,7 @@ void Scalar::set_val_hor (double val, int zone) {
     
     assert (etat != ETATNONDEF) ;
      if (etat == ETATZERO)
-	if (val == 0)
+	if (val == double(0))
 	    return ;
 	else
 	    annule_hard() ;
