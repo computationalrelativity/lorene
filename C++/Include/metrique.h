@@ -33,6 +33,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/02/07 15:41:46  e_gourgoulhon
+ *
+ * ### Added a PROVISORY set_cov method ###
+ *
  * Revision 1.8  2002/10/16 14:36:29  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -235,6 +239,9 @@ class Metrique {
 	 * Set the standard spectral basis on the allocated representations.
 	 */
 	void set_std_base() ;
+	
+	/// Sets a component
+	Cmp& set_cov(int i, int j) {return p_met_cov->set(i,j);} ; 
     
 
     // Accessors
