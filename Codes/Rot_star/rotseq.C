@@ -29,6 +29,9 @@ char rotseq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/09/16 13:06:24  e_gourgoulhon
+ * Replaced the fich.getline(blabla, 120) by fich.ignore(1000, '\n')
+ *
  * Revision 1.6  2003/08/26 08:58:50  e_gourgoulhon
  *
  * Added M/R and quantities in polytropic units in the
@@ -100,8 +103,6 @@ int main(){
     //	    Parameters of the computation 
     //------------------------------------------------------------------
 
-    char blabla[120] ;
-
     int relat_i, mer_max, mer_rot, mer_change_omega, mer_fix_omega, 
 	delta_mer_kep, mer_mass, mermax_poisson, graph, nz, nzet, nzadapt,
 	nt, np, mer_triax, n_conf, diffrot_i ;
@@ -110,66 +111,71 @@ int main(){
 	    ampli_triax, precis_adapt, rrot_km, arot ;  
     
     ifstream fich("parrotseq.d") ;
-    fich.getline(blabla, 120) ;
-    fich >> relat_i ; fich.getline(blabla, 120) ;
+	if ( !fich.good() ) {
+		cout << "Problem with opening the file parrotseq.d ! " << endl ;
+		abort() ;
+	}
+	
+	fich.ignore(1000,'\n') ;
+    fich >> relat_i ; fich.ignore(1000,'\n') ;
     bool relat = (relat_i == 1) ; 
-    fich >> entc_min ; fich.getline(blabla, 120) ;
-    fich >> entc_max ; fich.getline(blabla, 120) ;
-    fich >> freq_min_si ; fich.getline(blabla, 120) ;
-    fich >> freq_max_si ; fich.getline(blabla, 120) ;
-    fich >> n_conf ; fich.getline(blabla, 120) ;
-    
+    fich >> entc_min ; fich.ignore(1000,'\n') ;
+    fich >> entc_max ; fich.ignore(1000,'\n') ;
+    fich >> freq_min_si ; fich.ignore(1000,'\n') ;
+    fich >> freq_max_si ; fich.ignore(1000,'\n') ;
+    fich >> n_conf ; fich.ignore(1000,'\n') ;    
     if (n_conf > 1000) {
 	cout << "rotseq: n_conf must be smaller than 1000" << endl ;
         abort() ; 
     }
 
-    fich >> diffrot_i ;  fich.getline(blabla, 120) ;
-    if (diffrot_i <= 1) {
-    	fich >> rrot_km ; fich.getline(blabla, 120) ;
+    fich >> diffrot_i ;  fich.ignore(1000,'\n');
+	if (diffrot_i <= 1) {
+    	fich >> rrot_km ; fich.ignore(1000,'\n');
 	arot = 0 ; 
     }
     else {
     	assert (diffrot_i == 2) ; 
-    	fich >> arot ; fich.getline(blabla, 120) ;
+    	fich >> arot ; fich.ignore(1000,'\n');
 	rrot_km = 0 ; 	
     }
+	
     fact_omega = 1 ; 
-    fich >> mbar_wanted ; fich.getline(blabla, 120) ;
+    fich >> mbar_wanted ; fich.ignore(1000,'\n');
     mbar_wanted *= msol ; 
-    fich.getline(blabla, 120) ;
-    fich >> mer_max ; fich.getline(blabla, 120) ;
-    fich >> precis ; fich.getline(blabla, 120) ;
+    fich.ignore(1000,'\n');
+    fich >> mer_max ; fich.ignore(1000,'\n');
+    fich >> precis ; fich.ignore(1000,'\n');
     mer_rot = 0 ; 
     mer_change_omega = 0 ; 
     mer_fix_omega = 1 ; 
     delta_mer_kep = 0 ; 
-    fich >> thres_adapt ; fich.getline(blabla, 120) ;
+    fich >> thres_adapt ; fich.ignore(1000,'\n');
     mer_triax = 100000 ; 
     ampli_triax = 0 ; 
-    fich >> mer_mass ; fich.getline(blabla, 120) ;
-    fich >> aexp_mass ; fich.getline(blabla, 120) ;
-    fich >> relax ; fich.getline(blabla, 120) ;
-    fich >> mermax_poisson ; fich.getline(blabla, 120) ;
-    fich >> relax_poisson ; fich.getline(blabla, 120) ;
-    fich >> precis_adapt ; fich.getline(blabla, 120) ;
-    fich >> graph ; fich.getline(blabla, 120) ;
-    fich.getline(blabla, 120) ;
-    fich >> nz ; fich.getline(blabla, 120) ;
-    fich >> nzet; fich.getline(blabla, 120) ;
-    fich >> nzadapt; fich.getline(blabla, 120) ;
-    fich >> nt; fich.getline(blabla, 120) ;
-    fich >> np; fich.getline(blabla, 120) ;
+    fich >> mer_mass ; fich.ignore(1000,'\n');
+    fich >> aexp_mass ; fich.ignore(1000,'\n');
+    fich >> relax ; fich.ignore(1000,'\n');
+    fich >> mermax_poisson ; fich.ignore(1000,'\n');
+    fich >> relax_poisson ; fich.ignore(1000,'\n');
+    fich >> precis_adapt ; fich.ignore(1000,'\n');
+    fich >> graph ; fich.ignore(1000,'\n');
+    fich.ignore(1000,'\n');
+    fich >> nz ; fich.ignore(1000,'\n') ;
+    fich >> nzet; fich.ignore(1000,'\n') ;
+    fich >> nzadapt; fich.ignore(1000,'\n') ;
+    fich >> nt; fich.ignore(1000,'\n') ;
+    fich >> np; fich.ignore(1000,'\n') ;
 
     int* nr = new int[nz];
     int* nt_tab = new int[nz];
     int* np_tab = new int[nz];
     double* bornes = new double[nz+1];
      
-    fich.getline(blabla, 120);
+    fich.ignore(1000,'\n') ;
     for (int l=0; l<nz; l++) {
 	fich >> nr[l]; 
-	fich >> bornes[l]; fich.getline(blabla, 120) ;
+	fich >> bornes[l]; fich.ignore(1000,'\n');
 	np_tab[l] = np ; 
 	nt_tab[l] = nt ; 
     }
@@ -179,7 +185,7 @@ int main(){
     ent_limit.set_etat_qcq() ;
     ent_limit.set(nzet-1) = 0 ; 	// enthalpy at the stellar surface
     for (int l=0; l<nzet-1; l++) {
-    	fich >> ent_limit.set(l) ; fich.getline(blabla, 120) ;
+    	fich >> ent_limit.set(l) ; fich.ignore(1000,'\n');
     }
 
 
