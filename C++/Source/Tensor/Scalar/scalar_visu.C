@@ -30,6 +30,9 @@ char scalar_visu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/12/14 21:49:14  e_gourgoulhon
+ * Added argument start_dx (to launch OpenDX as a subprocess).
+ *
  * Revision 1.1  2003/12/11 16:20:25  e_gourgoulhon
  * First version.
  *
@@ -50,7 +53,7 @@ char scalar_visu_C[] = "$Header$" ;
                     
 void Scalar::visu_section(const char section_type, double aa, double umin, 
         double umax, double vmin, double vmax, const char* title0, 
-        const char* filename0, int nu, int nv) const {
+        const char* filename0, bool start_dx, int nu, int nv) const {
 
     Tbl plane(3,3) ;        
     plane.set_etat_qcq() ;  // Memory allocation for the Tbl
@@ -71,7 +74,7 @@ void Scalar::visu_section(const char section_type, double aa, double umin,
             plane.set(2,2) = 1. ;
 
             visu_section(plane, umin, umax, vmin, vmax, title0, filename0, 
-                         nu, nv) ;
+                         start_dx, nu, nv) ;
             break ; 
         }
 
@@ -89,7 +92,7 @@ void Scalar::visu_section(const char section_type, double aa, double umin,
             plane.set(2,2) = 1. ;
 
             visu_section(plane, umin, umax, vmin, vmax, title0, filename0, 
-                         nu, nv) ;
+                         start_dx, nu, nv) ;
             break ; 
         }
 
@@ -107,7 +110,7 @@ void Scalar::visu_section(const char section_type, double aa, double umin,
             plane.set(2,2) = 0. ;
 
             visu_section(plane, umin, umax, vmin, vmax, title0, filename0, 
-                         nu, nv) ;
+                         start_dx, nu, nv) ;
             break ; 
         }
 
@@ -128,16 +131,25 @@ void Scalar::visu_section(const char section_type, double aa, double umin,
 
 void Scalar::visu_section(const Tbl& plane, double umin, double umax, 
         double vmin, double vmax, const char* title0, const char* filename0,
-        int nu, int nv) const {
+        bool start_dx, int nu, int nv) const {
         
     char* title ;
+    char* title_quotes ;
     if (title0 == 0x0) {
         title = new char[2] ; 
         strcpy(title, " ") ; 
+
+        title_quotes = new char[4] ; 
+        strcpy(title_quotes, "\" \"") ; 
     }
     else {
         title = new char[ strlen(title0)+1 ] ; 
-        strcpy(title, title0) ; 
+        strcpy(title, title0) ;
+         
+        title_quotes = new char[ strlen(title0)+3 ] ; 
+        strcpy(title_quotes, "\"") ; 
+        strcat(title_quotes, title0) ; 
+        strcat(title_quotes, "\"") ; 
     }
     
     // --------------------------------------------------------
@@ -147,17 +159,20 @@ void Scalar::visu_section(const Tbl& plane, double umin, double umax,
     char* filename ;
     if (filename0 == 0x0) {
         filename = new char[30] ; 
-        strcpy(filename, "scalar_section.d") ; 
+        strcpy(filename, "scalar_section.dxdata") ; 
     }
     else {
-        filename = new char[ strlen(filename0)+3 ] ; 
+        filename = new char[ strlen(filename0)+8 ] ; 
         strcpy(filename, filename0) ; 
-        strcat(filename, ".d") ; 
+        strcat(filename, ".dxdata") ; 
     }
 
     ofstream fdata(filename) ; // output file
     
     fdata << title << "\n" ; 
+    fdata << "size : " << nu << " x " << nv << "\n" ;
+    fdata << "u_min = " << umin << "  u_max = " << umax << "\n" ; 
+    fdata << "v_min = " << vmin << "  v_max = " << vmax << "\n" ; 
 
     // Plane characterization
     // ----------------------
@@ -244,12 +259,12 @@ void Scalar::visu_section(const Tbl& plane, double umin, double umax,
     char* headername ;
     if (filename0 == 0x0) {
         headername = new char[30] ; 
-        strcpy(headername, "scalar_section.general") ; 
+        strcpy(headername, "scalar_section.dxhead") ; 
     }
     else {
         headername = new char[ strlen(filename0)+9 ] ; 
         strcpy(headername, filename0) ; 
-        strcat(headername, ".general") ; 
+        strcat(headername, ".dxhead") ; 
     }
 
     ofstream fheader(headername) ;
@@ -259,10 +274,10 @@ void Scalar::visu_section(const Tbl& plane, double umin, double umax,
     fheader << "format = ascii" << endl ;  
     fheader << "interleaving = record"  << endl ;
     fheader << "majority = column" << endl ; 
-    fheader << "header = lines 1" << endl ; 
-    fheader << "field = field0" << endl ; 
+    fheader << "header = lines 4" << endl ; 
+    fheader << "field = " << title_quotes << endl ; 
     fheader << "structure = scalar" << endl ; 
-    fheader << "type = double" << endl ; 
+    fheader << "type = float" << endl ; 
     fheader << "dependency = positions" << endl ; 
     fheader << "positions = regular, regular, " << umin << ", " << du 
         << ", " << vmin << ", " << dv << endl ; 
@@ -271,12 +286,27 @@ void Scalar::visu_section(const Tbl& plane, double umin, double umax,
     
     fheader.close() ; 
     
+
+    if ( start_dx ) {       // Launch of OpenDX
+        
+        char* commande = new char[ strlen(headername) + 60 ] ;
+        strcpy(commande, "ln -s ") ; 
+        strcat(commande, headername) ; 
+        strcat(commande, " visu_section.dxhead") ; 
     
+        system("rm -f visu_section.dxhead") ; 
+        system(commande) ;                      // ln -s headername visu_section.general
+        system("dx -image visu_section.net &") ; 
     
+        delete [] commande ;    
+    }
+
     // Final cleaning
+    // --------------
     delete [] title ; 
+    delete [] title_quotes ; 
     delete [] filename ; 
-    delete [] headername ; 
+    delete [] headername ;    
     
 }   
 
