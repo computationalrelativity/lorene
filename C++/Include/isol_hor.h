@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.30  2005/04/02 15:50:08  f_limousin
+ * New data member nz (number of zones). Delete ww.
+ *
  * Revision 1.29  2005/03/31 09:48:04  f_limousin
  * New functions compute_ww(..) and aa_kerr_ww() and new data ww.
  *
@@ -178,6 +181,9 @@ class Isol_hor : public Time_slice_conf {
   /// Affine mapping.
   Map_af& mp ;  
 
+  /// Number of zones.
+  int nz ;
+
   /// Radius of the horizon in LORENE's units.
   double radius ; 
 
@@ -259,12 +265,6 @@ class Isol_hor : public Time_slice_conf {
    * everywhere.
    */
   Scalar decouple ;
-
-  /** 
-   * Scalar omega used for the construction of the extrinsic curvature
-   * (See Dain (2002)).  
-   */
-  Scalar ww ;
 
   // Constructors - Destructor
   // -------------------------
@@ -693,18 +693,13 @@ class Isol_hor : public Time_slice_conf {
   /// Dain (2002). The determinant of this conformal metric is not one.
   void met_kerr_perturb() ;
   
-  /// Perturbation of Kerr using  \f$ A^{ij}A_{ij} \f$ from 
-  /// equation (14) of Dain (2002).
-  void aa_kerr_ww() ;
-
-  /**
-   * Computation of the scalar omega used to construct the extrinsic
-   * curvature (See Dain (2002)).
+  /* Perturbation of Kerr using  \f$ A^{ij}A_{ij} \f$ from 
+   * equation (14) of Dain (2002).
    * @param mm mass of the Kerr black hole metric.
    * @param aa rotation parameter of the Kerr black hole metric.
    */
-  void compute_ww(double mm, double aa) ;
-  
+  void aa_kerr_ww(double mm, double aa) ;
+
   // Outputs
   // -------
  protected:
