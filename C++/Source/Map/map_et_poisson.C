@@ -7,7 +7,8 @@
  */
 
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 2004 Francois Limousin
+ *   Copyright (c) 1999-2003 Eric Gourgoulhon
  *   Copyright (c) 2000-2001 Philippe Grandclement
  *
  *   This file is part of LORENE.
@@ -35,6 +36,11 @@ char map_et_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/04/04 21:31:31  e_gourgoulhon
+ *  Added argument lambda to method poisson_angu
+ *  to deal with the generalized angular Poisson equation:
+ *     Lap_ang u + lambda u = source.
+ *
  * Revision 1.4  2004/06/22 12:20:17  j_novak
  * *** empty log message ***
  *
@@ -331,7 +337,15 @@ void Map_et::poisson(const Cmp& source, Param& par, Cmp& uu) const {
 
 
 
-void Map_et::poisson_angu(const Scalar& source, Param& par, Scalar& uu) const {
+void Map_et::poisson_angu(const Scalar& source, Param& par, Scalar& uu,
+    double lambda) const {
+    
+    if (lambda != double(0)) {
+        cout << 
+        "Map_et::poisson_angu : the case lambda != 0 is not treated yet !"
+        << endl ; 
+        abort() ; 
+    }
 
     assert(source.get_mp() == *this) ;
     assert(uu.get_mp() == *this) ; 

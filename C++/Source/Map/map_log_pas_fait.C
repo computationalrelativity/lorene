@@ -32,6 +32,11 @@ char map_log_pas_fait_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/04/04 21:31:31  e_gourgoulhon
+ *  Added argument lambda to method poisson_angu
+ *  to deal with the generalized angular Poisson equation:
+ *     Lap_ang u + lambda u = source.
+ *
  * Revision 1.2  2004/11/23 12:54:45  f_limousin
  * Function poisson_frontiere(...) has two new default arguments,
  * to deal with the case of a Dirichlet + Neumann boundary condition.
@@ -121,7 +126,7 @@ void pas_fait() {
   pas_fait() ;
 }
 
- void Map_log::poisson_angu (const Scalar&, Param&, Scalar&) const {
+ void Map_log::poisson_angu (const Scalar&, Param&, Scalar&, double) const {
   pas_fait() ;
 }
 
