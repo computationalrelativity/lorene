@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2002/09/19 14:12:37  e_gourgoulhon
+ * Modif documentation for LaTeX compliance.
+ *
  * Revision 1.7  2002/09/10 13:44:17  j_novak
  * The method "manipule" of one indice has been removed for Tenseur_sym objects
  * (the result cannot be a Tenseur_sym).
@@ -341,7 +344,7 @@ class Tenseur {
 	bool verif() const ; 
 		
 	/** Builds the arrays {\tt met\_depend}, {\tt p\_derive\_cov}, 
-	 *  {\tt p\_derive\con} and {\tt p\_carre\_scal} and fills them with
+	 *  {\tt p\_derive\_con} and {\tt p\_carre\_scal} and fills them with
 	 *  null pointers.
 	 *
 	 */
