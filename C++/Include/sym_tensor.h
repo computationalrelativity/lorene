@@ -30,6 +30,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2004/06/14 20:44:44  e_gourgoulhon
+ * Added argument method_poisson to Sym_tensor::longit_pot and
+ * Sym_tensor::transverse.
+ *
  * Revision 1.21  2004/05/25 14:57:20  f_limousin
  * Add parameters in argument of functions transverse, longit_pot,
  * set_tt_trace, tt_part and set_khi_mu for the case of a Map_et.
@@ -267,14 +271,28 @@ class Sym_tensor : public Tensor_sym {
 	 * where \f$\nabla_i\f$ denotes the covariant derivative with respect
 	 * to the given metric and \f$W^i\f$ is the vector potential of the
 	 * longitudinal part of \f$T^{ij}\f$ (function \c longit_pot()  below)
+         * @param gam metric with respect to the transverse decomposition 
+         *      is performed
+         * @param par parameters for the vector Poisson equation
+         * @param method_poisson type of method for solving the vector
+         *      Poisson equation to get the longitudinal part (see 
+         *      method \c Vector::poisson)
 	 */
-	const Sym_tensor_trans& transverse(const Metric&, Param* par = 0x0) const ; 
+	const Sym_tensor_trans& transverse(const Metric& gam, Param* par = 0x0,
+                int method_poisson = 2) const ; 
 
 	/** Computes the vector potential \f$W^i\f$ of
 	 * longitudinal part of the tensor (see documentation of
 	 * method \c transverse() above).
+         * @param gam metric with respect to the transverse decomposition 
+         *      is performed
+         * @param par parameters for the vector Poisson equation
+         * @param method_poisson type of method for solving the vector
+         *      Poisson equation to get the longitudinal part (see 
+         *      method \c Vector::poisson)
 	 */
-	const Vector& longit_pot(const Metric&, Param* par = 0x0) const ; 
+	const Vector& longit_pot(const Metric& gam, Param* par = 0x0,
+                int method_poisson = 2) const ; 
 	
 	
     // Mathematical operators
