@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/05 21:04:25  e_gourgoulhon
+ * Improved comments
+ *
  * Revision 1.5  2003/10/03 14:07:23  e_gourgoulhon
  * Added derived class Connection_fcart.
  *
@@ -69,7 +72,9 @@ class Connection_flat ;
  * 
  * Note that we use the MTW convention for the indices of the connection 
  * coefficients with respect to a given triad $(e_i)$:
- * $$ \Gamma^i_[\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle $$  
+ * \begin{equation}
+ *  \Gamma^i_[\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle 
+ * \end{equation} 
  *  
  * @version #$Id$#
  */
@@ -81,7 +86,9 @@ class Connection {
 
 	const Map* const mp ;	/// Reference mapping
 
-	/// Triad with respect to which the tensor components are defined
+	/** Triad $(e_i)$ with respect to which the connection coefficients 
+	 * are defined.
+	 */
 	const Base_vect* const triad ; 
 	
 	/** Tensor $\Delta^i_{\ jk}$ which defines
@@ -89,9 +96,12 @@ class Connection {
 	 * is the difference between the connection coefficients 
 	 *  $\Gamma^i_{\ jk}$ and
 	 * the connection coefficients ${\bar \Gamma}^i_{\ jk}$ of the
-	 * flat connection. The connection coefficients are defined
+	 * flat connection. The connection coefficients with respect to the 
+	 * triad $(e_i)$ are defined
 	 * according to the MTW convention:
-	 * $$ \Gamma^i_[\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle $$  
+	 * \begin{equation}
+	 *  \Gamma^i_[\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle
+	 * \end{equation} 
 	 *
 	 */
 	Tensor_delta delta ; 
@@ -130,14 +140,16 @@ class Connection {
 	 * is the difference between the connection coefficients 
 	 *  $\Gamma^i_{\ jk}$ and
 	 * the connection coefficients ${\bar \Gamma}^i_{\ jk}$ of the
-	 * flat connection. The connection coefficients are defined
-	 * according to the MTW convention:
-	 * $$ \Gamma^i_[\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle $$  
+	 * flat connection. The connection coefficients with respect to the 
+	 * triad $(e_i)$ are defined according to the MTW convention:
+	 * \begin{equation}
+	 *  \Gamma^i_[\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle
+	 * \end{equation} 
 	 *
 	 */
 	explicit Connection(const Tensor_delta& delta_i) ;		
 	
-	/** Standard constructor from a metric. 
+	/** Standard constructor for a connection associated with a metric. 
 	 *
 	 * @param met  Metric to which the connection will be associated
 	 *
@@ -185,11 +197,13 @@ class Connection {
 	 * is the difference between the connection coefficients 
 	 *  $\Gamma^i_{\ jk}$ and
 	 * the connection coefficients ${\bar \Gamma}^i_{\ jk}$ of the
-	 * flat connection. The connection coefficients are defined
-	 * according to the MTW convention:
-	 * $$ \Gamma^i_[\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle $$  
+	 * flat connection. The connection coefficients with respect to the 
+	 * triad $(e_i)$ are defined according to the MTW convention:
+	 * \begin{equation}
+	 *  \Gamma^i_[\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle
+	 * \end{equation} 
 	 *
-	 * @return [\tt delta}(i,j,k) = $\Delta^i_{\ jk}$
+	 * @return {\tt delta}(i,j,k) = $\Delta^i_{\ jk}$
 	 */
 	const Tensor_delta& get_delta() const {return delta; } ; 
 
