@@ -28,6 +28,9 @@ char test_connect_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/03 14:27:51  e_gourgoulhon
+ * First non trivial test (successfull !).
+ *
  * Revision 1.1  2003/10/02 21:33:02  e_gourgoulhon
  * Test code for Connection.
  *
@@ -46,6 +49,7 @@ char test_connect_C[] = "$Header$" ;
 // Lorene headers
 #include "connection.h"
 #include "nbr_spx.h"
+#include "utilitaires.h"
 
 
 int main() {
@@ -54,7 +58,7 @@ int main() {
 	// -----------------------------------
   
 	int nz = 3 ; 	// Number of domains
-	int nr = 9 ; 	// Number of collocation points in r in each domain
+	int nr = 5 ; 	// Number of collocation points in r in each domain
 	int nt = 5 ; 	// Number of collocation points in theta in each domain
 	int np = 4 ; 	// Number of collocation points in phi in each domain
 	int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
@@ -74,18 +78,73 @@ int main() {
 	Map_af map(mgrid, r_limits) ; 
   
   
-	// Construction of a scalar field (Scalar)
-	// ---------------------------------------
-
-	//const Coord& z = map.z ; 
-	//const Coord& r = map.r ; 
-
-
 	// Construction of a flat connection
 	// ---------------------------------
 	
-	Connection_fspher conct(map, map.get_bvect_spher()) ; 
+	// Representation on a spherical orthonormal basis
+	Connection_fspher ders(map, map.get_bvect_spher()) ; 
+	
+	// Representation on a Cartesian orthonormal basis
+	Connection_fcart derc(map, map.get_bvect_cart()) ; 
 
+
+	// Construction of a scalar field (Scalar)
+	// ---------------------------------------
+
+	const Coord& x = map.x ; 
+
+	Scalar uu(map) ; 
+
+	uu = x ; 	
+	uu.annule(nz-1,nz-1) ; 	// zero in the last domain
+	
+	uu.std_spectral_base_scal() ;   // sets the standard spectral basis for 
+									// expansion of a scalar field
+									
+	cout << "uu : " << uu << endl ; 
+	uu.spectral_display(cout) ; 
+	arrete() ; 
+	
+	// Gradient of the scalar field
+	// ----------------------------
+	
+	Vector duuc = derc.derive_cov(uu)  ;  
+	cout << "duuc : " << duuc << endl ; 
+
+	arrete() ; 
+
+	Vector duus = ders.derive_cov(uu) ; 
+	cout << "duus : " << duus << endl ; 
+
+	arrete() ; 
+	
+	// Test
+	// ----
+	
+	Vector duus_c = duus ; 
+	duus_c.change_triad( map.get_bvect_cart() ) ; 
+	
+	Vector diffc = duus_c - duuc ; 
+	
+	cout << "diffc : " << diffc << endl ; 
+	cout << "Norm of diffc: " << endl ; 
+	for (int i=1; i<=3; i++) {
+		cout << norme(diffc(i)) << endl ; 
+	}
+	arrete() ; 
+	
+	
+	Vector duuc_s = duuc ; 
+	duuc_s.change_triad( map.get_bvect_spher() ) ; 
+	
+	Vector diffs = duuc_s - duus ; 
+
+	cout << "diffs : " << diffs << endl ; 
+	cout << "Norm of diffs: " << endl ; 
+	for (int i=1; i<=3; i++) {
+		cout << norme(diffs(i)) << endl ; 
+	}
+	
 
 	return EXIT_SUCCESS ; 
 }
