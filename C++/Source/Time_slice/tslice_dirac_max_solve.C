@@ -30,6 +30,12 @@ char tslice_dirac_max_solve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/05/24 21:00:44  e_gourgoulhon
+ * Method solve_hij: khi and mu.smooth_decay(2,2) --> smooth_decay(2,1) ;
+ *   added exponential_decay(khi) and exponential_decay(mu) after the
+ *   call to smooth_decay. Method exponential_decay is provisory defined
+ *   in this file.
+ *
  * Revision 1.7  2004/05/17 19:56:25  e_gourgoulhon
  * -- Method solve_beta: added argument method
  * -- Method solve_hij: added argument graph_device
@@ -67,6 +73,8 @@ char tslice_dirac_max_solve_C[] = "$Header$" ;
 #include "time_slice.h"
 #include "unites.h"
 #include "graphique.h"
+
+void exponential_decay(Scalar& ) ;
 
                     //--------------------------//
                     //      Equation for N      //
@@ -252,7 +260,7 @@ Vector Tslice_dirac_max::solve_beta(const Vector* p_mom_dens, int method)
 
 void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
                                  Scalar& khi_new, Scalar& mu_new,
-                                 const char* graph_device, 
+                                 const char*, 
                                  const Sym_tensor* p_strain_tens) const 
 {
   using namespace Unites ;
@@ -261,9 +269,9 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
   const Base_vect& otriad = *hh().get_triad() ;
     
     // For graphical outputs:
-    int ngraph0 = 40 ;  // index of the first graphic device to be used
-    int nz = map.get_mg()->get_nzone() ; 
-    double ray_des = 1.25 * map.val_r(nz-2, 1., 0., 0.) ; // outermost radius
+    // int ngraph0 = 40 ;  // index of the first graphic device to be used
+    // int nz = map.get_mg()->get_nzone() ; 
+    // double ray_des = 1.25 * map.val_r(nz-2, 1., 0., 0.) ; // outermost radius
                                                           // for plots
 
   Sym_tensor strain_tens(map, CON, otriad) ; 
@@ -281,13 +289,13 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
   
   hh_point.inc_dzpuis(2) ; // dzpuis : 0 -> 2
         
-  des_meridian(hh_point(1,1), 0., ray_des, "dot h\\urr\\d", ngraph0, 
-               graph_device) ; 
-  des_meridian(hh_point(2,3), 0., ray_des, "dot h\\u\\gh\\gf\\d", ngraph0+1,
-               graph_device) ; 
-  des_meridian(hh_point(3,3), 0., ray_des, "dot h\\u\\gf\\gf\\d", ngraph0+2,
-               graph_device) ; 
-
+  // des_meridian(hh_point(1,1), 0., ray_des, "dot h\\urr\\d", ngraph0, 
+  //            graph_device) ; 
+  // des_meridian(hh_point(2,3), 0., ray_des, "dot h\\u\\gh\\gf\\d", ngraph0+1,
+  //            graph_device) ; 
+  // des_meridian(hh_point(3,3), 0., ray_des, "dot h\\u\\gf\\gf\\d", ngraph0+2,
+  //            graph_device) ; 
+  
   //==================================
   // Source for hij
   //==================================
@@ -499,18 +507,41 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
                             
     khi_new = khi_evol[jtime].avance_dalembert(par_khi,
                                          khi_evol[jtime-1], khi_source) ;
-    khi_new.smooth_decay(2,2) ; 
-        
-    // des_meridian(khi_new, 0., 5., "khi_new", 32) ; 
+    khi_new.smooth_decay(2,1) ; 
+    exponential_decay(khi_new) ; 
         
     maxabs(khi_new - khi_evol[jtime], "Variation of khi") ;  
         
     mu_new = mu_evol[jtime].avance_dalembert(par_mu,  
                                          mu_evol[jtime-1], mu_source) ;
-    mu_new.smooth_decay(2,2) ; 
+    mu_new.smooth_decay(2,1) ; 
+    exponential_decay(mu_new) ; 
                                         
-    // des_meridian(mu_new, 0., 5., "mu_new", 33) ; 
-        
+
+}
 
 
+void exponential_decay(Scalar& uu) {
+
+    const Map& mp = uu.get_mp() ; 
+    const Mg3d& mg = *(mp.get_mg()) ; 
+    int nz = mg.get_nzone() ;
+    int nzm1 = nz - 1 ;  
+
+    const Map_af* mapaf  = dynamic_cast<const Map_af*>(&mp) ;
+    if (mapaf == 0x0) {
+	    cout << "exponential_decay: present version supports only \n" 
+         << "  affine mappings !" << endl ;
+	    abort() ;
+    }
+    
+    double rbound = mapaf->get_alpha()[nzm1-1] + mapaf->get_beta()[nzm1-1] ; 
+
+    Mtbl xx = mp.r - rbound ; 
+    Scalar tmp(mp) ; 
+    tmp = exp( - xx*xx ) ; 
+    tmp.annule(0, nz-2) ; 
+    tmp *= uu ; 
+    uu.set_domain(nzm1) = tmp.domain(nzm1) ; 
+    
 }
