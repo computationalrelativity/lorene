@@ -32,6 +32,9 @@ char et_rot_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2002/09/30 14:21:21  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.14  2002/09/30 08:50:37  j_novak
  * Output for central magnetic field value
  *
@@ -260,6 +263,8 @@ ostream& Et_rot_mag::operator>>(ostream& ost) const {
     / (press()(0,0,0,0)*rho_unit*pow(v_unit,2)) << endl ;
   ost << "Computed charge : " << Q_comput() << " [C]" << endl ;
   ost << "Interior charge : " << Q_int() << " [C]" << endl ;
+  ost << "Q^2/M^2 :" << mu_si*c_si*c_si*Q_comput()*Q_comput()/(4*M_PI*g_si*mass_g()*mass_g()*m_unit*m_unit) 
+      << endl ;
   ost << "Gyromagnetic ratio : " << GyroMag() << endl ;
 
   return ost ;
