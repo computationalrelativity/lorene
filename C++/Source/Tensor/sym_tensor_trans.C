@@ -32,6 +32,9 @@ char sym_tensor_trans_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/03/30 08:01:16  j_novak
+ * Better treatment of dzpuis in mutators.
+ *
  * Revision 1.7  2004/03/29 16:13:07  j_novak
  * New methods set_longit_trans and set_tt_trace .
  *
@@ -196,14 +199,16 @@ void Sym_tensor_trans::set_tt_trace(const Sym_tensor_tt& htt,
 
   int dzp = htrace.get_dzpuis() ;
 
-  assert( (dzp == 4) || (dzp == 0) ) ;
+  assert (dzp == 4) ;
 
   Scalar pot = htrace.poisson() ;
     
   Sym_tensor tmp = (pot.derive_con(*met_div)).derive_con(*met_div) ; 
-  (dzp == 4) ? tmp.inc_dzpuis() : tmp.dec_dzpuis(3) ;  //## to be improved ?
+  tmp.dec_dzpuis() ;  
         
-  *this = htt + 0.5 * ( htrace * met_div->con() - tmp) ;
+  *this = htrace * met_div->con() ; 
+  dec_dzpuis(2) ; // this has now dzpuis = 2
+  *this = htt + 0.5 * ( *this - tmp ) ;
   
   del_deriv() ;
 

@@ -30,6 +30,9 @@ char sym_tensor_decomp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/03/30 08:01:16  j_novak
+ * Better treatment of dzpuis in mutators.
+ *
  * Revision 1.6  2004/03/29 16:13:07  j_novak
  * New methods set_longit_trans and set_tt_trace .
  *
@@ -68,7 +71,8 @@ void Sym_tensor::set_longit_trans(const Sym_tensor_trans& ht,
 
   const Metric& metre = ht.get_met_div() ;
 
-  *this = ht + v_pot.ope_killing(metre) ;
+  *this = ht + v_pot.ope_killing(metre) ; // this has dzpuis = 2
+  dec_dzpuis(2) ; // which is decreased so to add *this to a flat metric
 
   del_deriv() ;
 
