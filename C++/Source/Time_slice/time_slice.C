@@ -30,6 +30,9 @@ char time_slice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/05/09 20:57:34  e_gourgoulhon
+ * Added data member adm_mass_evol.
+ *
  * Revision 1.8  2004/05/05 14:26:25  e_gourgoulhon
  * Minor modif. in operator>>(ostream& ).
  *
@@ -96,7 +99,8 @@ Time_slice::Time_slice(const Scalar& lapse_in, const Vector& shift_in,
                  k_uu_evol(depth_in),
                  n_evol(lapse_in, depth_in),
                  beta_evol(shift_in, depth_in),
-		 trk_evol(depth_in) {
+		 trk_evol(depth_in),
+                 adm_mass_evol() {
                                   
     set_der_0x0() ; 
 
@@ -137,7 +141,8 @@ Time_slice::Time_slice(const Scalar& lapse_in, const Vector& shift_in,
                  k_uu_evol( gamma_in.get_size() ),
                  n_evol(lapse_in, gamma_in.get_size() ),
                  beta_evol(shift_in, gamma_in.get_size() ),
-		 trk_evol(gamma_in.get_size() ) {
+		 trk_evol(gamma_in.get_size() ),
+                 adm_mass_evol() {
 
     cerr << 
     "Time_slice constuctor from evolution of gamma not implemented yet !\n" ;
@@ -160,7 +165,8 @@ Time_slice::Time_slice(const Map& mp, const Base_vect& triad, int depth_in)
                  k_uu_evol(depth_in),
                  n_evol(depth_in),
                  beta_evol(depth_in),
-		 trk_evol(depth_in) {
+		 trk_evol(depth_in),
+                 adm_mass_evol() {
                  
     double time_init = the_time[jtime] ; 
     
@@ -214,7 +220,8 @@ Time_slice::Time_slice(const Time_slice& tin)
                  k_uu_evol(tin.k_uu_evol),
                  n_evol(tin.n_evol),
                  beta_evol(tin.beta_evol),
-		 trk_evol(tin.trk_evol) {
+		 trk_evol(tin.trk_evol),
+                 adm_mass_evol(tin.adm_mass_evol) {
                  
     set_der_0x0() ; 
 }
@@ -232,7 +239,8 @@ Time_slice::Time_slice(int depth_in)
                  k_uu_evol(depth_in),
                  n_evol(depth_in),
                  beta_evol(depth_in),
-		 trk_evol(depth_in) {
+		 trk_evol(depth_in),
+                 adm_mass_evol() {
                  
     set_der_0x0() ; 
 }
