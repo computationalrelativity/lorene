@@ -6,6 +6,7 @@
 // Headers Lorene :
 #include "nbr_spx.h"
 #include "tensor.h" 
+#include "cmp.h" 
 #include "utilitaires.h"
 
 int main() {
@@ -13,7 +14,7 @@ int main() {
     int nz = 2 ;
     double R = 2. ;
 
-    int nr0 = 17 ; int nt0 = 5; int np0 = 4 ;
+    int nr0 = 9 ; int nt0 = 5; int np0 = 4 ;
     
     // echantillonnage en phi :
     int* np = new int [nz] ;
@@ -87,7 +88,20 @@ int main() {
 
     cout << num ;
     
+	Cmp cuu(essai) ;
+	
+	cout << "cuu: " << cuu << endl ; 
+	
+	arrete() ; 
+	
+	Scalar essai0(essai) ; 
+	essai = cuu ; 
+	cout << "essai : " << essai << endl ; 
 
+	arrete() ; 
+
+	cout << "essai - essai0 : " << essai - essai0 << endl ; 
+	
     delete [] bornes ;
     delete [] nr ;
     delete [] nt ;
