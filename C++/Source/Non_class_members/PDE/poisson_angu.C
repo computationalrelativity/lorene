@@ -5,7 +5,7 @@
  */
 
 /*
- *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2005 Eric Gourgoulhon & Jerome Novak
  *
  *
  *   This file is part of LORENE.
@@ -33,6 +33,11 @@ char poisson_angu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/04/04 21:33:37  e_gourgoulhon
+ * Solving now for the generalized angular Poisson equation
+ *    Lap_ang u + lambda u = source
+ * with new parameter lambda.
+ *
  * Revision 1.2  2004/12/17 13:35:03  m_forot
  * Add the case T_LEG
  *
@@ -57,7 +62,7 @@ char poisson_angu_C[] = "$Header$" ;
 		// Routine pour les cas non prevus ----
 		//------------------------------------
 
-void _poisangu_pas_prevu(Mtbl_cf* mt, int l) {
+void _poisangu_pas_prevu(Mtbl_cf* mt, int l, double) {
     cout << "Unknwon theta basis in the operator Mtbl_cf::poisson_angu() !" << endl ;
     cout << " basis : " << hex << (mt->base).b[l] << endl ; 
     abort () ;
@@ -67,7 +72,7 @@ void _poisangu_pas_prevu(Mtbl_cf* mt, int l) {
 			// cas T_LEG --
 			//---------------
 
-void _poisangu_t_leg(Mtbl_cf* mt, int l)
+void _poisangu_t_leg(Mtbl_cf* mt, int l, double lambda)
 {
 
     Tbl* tb = mt->t[l] ;	    // pt. sur tbl de travail
@@ -91,7 +96,7 @@ void _poisangu_t_leg(Mtbl_cf* mt, int l)
      
     for (j=0 ; j<nt ; j++) {
 		int ll = j ;
-		double xl = - ll*(ll+1) ;
+		double xl = - ll*(ll+1) + lambda ;
 
 		if (ll == 0) {
 			for (i=0 ; i<nr ; i++) {
@@ -115,7 +120,7 @@ void _poisangu_t_leg(Mtbl_cf* mt, int l)
 	tuu  += (m/2)*nr ;
 	for (j=m/2 ; j<nt ; j++) {
 	    int ll = j ;
-	    double xl = - ll*(ll+1) ;
+	    double xl = - ll*(ll+1) + lambda ;
 		
 		if (ll == 0) {
 			for (i=0 ; i<nr ; i++) {
@@ -130,7 +135,7 @@ void _poisangu_t_leg(Mtbl_cf* mt, int l)
 	    tuu  += nr ;
 	}     // Fin de boucle sur theta
     }	// Fin de boucle sur phi	
-	    
+
     // base de developpement inchangee 
 }
 
@@ -138,7 +143,7 @@ void _poisangu_t_leg(Mtbl_cf* mt, int l)
 			// cas T_LEG_P --
 			//---------------
 
-void _poisangu_t_leg_p(Mtbl_cf* mt, int l)
+void _poisangu_t_leg_p(Mtbl_cf* mt, int l, double lambda)
 {
 
     Tbl* tb = mt->t[l] ;	    // pt. sur tbl de travail
@@ -162,7 +167,7 @@ void _poisangu_t_leg_p(Mtbl_cf* mt, int l)
      
     for (j=0 ; j<nt ; j++) {
 		int ll = 2*j ;
-		double xl = - ll*(ll+1) ;
+		double xl = - ll*(ll+1) + lambda ;
 
 		if (ll == 0) {
 			for (i=0 ; i<nr ; i++) {
@@ -186,7 +191,7 @@ void _poisangu_t_leg_p(Mtbl_cf* mt, int l)
 	tuu  += (m/2)*nr ;
 	for (j=m/2 ; j<nt ; j++) {
 	    int ll = 2*j + (m%2) ;
-	    double xl = - ll*(ll+1) ;
+	    double xl = - ll*(ll+1) + lambda ;
 		
 		if (ll == 0) {
 			for (i=0 ; i<nr ; i++) {
@@ -209,7 +214,7 @@ void _poisangu_t_leg_p(Mtbl_cf* mt, int l)
 			// cas T_LEG_PP --
 			//----------------
 
-void _poisangu_t_leg_pp(Mtbl_cf* mt, int l)
+void _poisangu_t_leg_pp(Mtbl_cf* mt, int l, double lambda)
 {
 
     Tbl* tb = mt->t[l] ;	    // pt. sur tbl de travail
@@ -233,7 +238,7 @@ void _poisangu_t_leg_pp(Mtbl_cf* mt, int l)
      
     for (j=0 ; j<nt ; j++) {
 		int ll = 2*j ;
-		double xl = - ll*(ll+1) ;
+		double xl = - ll*(ll+1) + lambda ;
 
 		if (ll == 0) {
 			for (i=0 ; i<nr ; i++) {
@@ -257,7 +262,7 @@ void _poisangu_t_leg_pp(Mtbl_cf* mt, int l)
 	tuu  += (m/2)*nr ;
 	for (j=m/2 ; j<nt ; j++) {
 	    int ll = 2*j ;
-	    double xl = - ll*(ll+1) ;
+	    double xl = - ll*(ll+1) + lambda ;
 
 		if (ll == 0) {
 			for (i=0 ; i<nr ; i++) {
@@ -280,7 +285,7 @@ void _poisangu_t_leg_pp(Mtbl_cf* mt, int l)
 			// cas T_LEG_I --
 			//---------------
 
-void _poisangu_t_leg_i(Mtbl_cf* mt, int l)
+void _poisangu_t_leg_i(Mtbl_cf* mt, int l, double lambda)
 {
 
     Tbl* tb = mt->t[l] ;	    // pt. sur tbl de travail
@@ -304,7 +309,7 @@ void _poisangu_t_leg_i(Mtbl_cf* mt, int l)
      
     for (j=0 ; j<nt-1 ; j++) {
 		int ll = 2*j+1 ;
-		double xl = - ll*(ll+1) ;
+		double xl = - ll*(ll+1) + lambda ;
 
 		if (ll == 0) {
 			for (i=0 ; i<nr ; i++) {
@@ -329,7 +334,7 @@ void _poisangu_t_leg_i(Mtbl_cf* mt, int l)
 	tuu  += ((m+1)/2)*nr ;
 	for (j=(m+1)/2 ; j<nt-1 ; j++) {
 	    int ll = 2*j + ((m+1)%2) ;
-	    double xl = - ll*(ll+1) ;
+	    double xl = - ll*(ll+1) + lambda ;
 
 		if (ll == 0) {
 			for (i=0 ; i<nr ; i++) {
@@ -353,7 +358,7 @@ void _poisangu_t_leg_i(Mtbl_cf* mt, int l)
 			// cas T_LEG_IP --
 			//----------------
 
-void _poisangu_t_leg_ip(Mtbl_cf* mt, int l)
+void _poisangu_t_leg_ip(Mtbl_cf* mt, int l, double lambda)
 {
 
     Tbl* tb = mt->t[l] ;	    // pt. sur tbl de travail
@@ -377,7 +382,7 @@ void _poisangu_t_leg_ip(Mtbl_cf* mt, int l)
      
     for (j=0 ; j<nt-1 ; j++) {
 		int ll = 2*j+1 ;
-		double xl = - ll*(ll+1) ;
+		double xl = - ll*(ll+1) + lambda ;
 
 		if (ll == 0) {
 			for (i=0 ; i<nr ; i++) {
@@ -402,7 +407,7 @@ void _poisangu_t_leg_ip(Mtbl_cf* mt, int l)
 	tuu  += (m/2)*nr ;
 	for (j=m/2 ; j<nt-1 ; j++) {
 	    int ll = 2*j+1 ;
-	    double xl = - ll*(ll+1) ;
+	    double xl = - ll*(ll+1) + lambda ;
 
 		if (ll == 0) {
 			for (i=0 ; i<nr ; i++) {
@@ -429,7 +434,7 @@ void _poisangu_t_leg_ip(Mtbl_cf* mt, int l)
 			// cas T_LEG_PI --
 			//----------------
 
-void _poisangu_t_leg_pi(Mtbl_cf* mt, int l)
+void _poisangu_t_leg_pi(Mtbl_cf* mt, int l, double lambda)
 {
 
     Tbl* tb = mt->t[l] ;	    // pt. sur tbl de travail
@@ -452,7 +457,7 @@ void _poisangu_t_leg_pi(Mtbl_cf* mt, int l)
      
     for (j=0 ; j<nt-1 ; j++) {
 		int ll = 2*j+1 ;
-		double xl = - ll*(ll+1) ;
+		double xl = - ll*(ll+1) + lambda ;
 
 		if (ll == 0) {
 			for (i=0 ; i<nr ; i++) {
@@ -480,7 +485,7 @@ void _poisangu_t_leg_pi(Mtbl_cf* mt, int l)
     // ------
     for (j=0 ; j<nt-1 ; j++) {
 		int ll = 2*j+1 ;
-		double xl = - ll*(ll+1) ;
+		double xl = - ll*(ll+1) + lambda ;
 
 		if (ll == 0) {
 			for (i=0 ; i<nr ; i++) {
@@ -503,7 +508,7 @@ void _poisangu_t_leg_pi(Mtbl_cf* mt, int l)
 	tuu  += (m-1)/2*nr ;
 	for (j=(m-1)/2 ; j<nt-1 ; j++) {
 	    int ll = 2*j+1 ;
-	    double xl = - ll*(ll+1) ;
+	    double xl = - ll*(ll+1) + lambda ;
 
 		if (ll == 0) {
 			for (i=0 ; i<nr ; i++) {
@@ -530,7 +535,7 @@ void _poisangu_t_leg_pi(Mtbl_cf* mt, int l)
 			// cas T_LEG_II --
 			//----------------
 
-void _poisangu_t_leg_ii(Mtbl_cf* mt, int l)
+void _poisangu_t_leg_ii(Mtbl_cf* mt, int l, double lambda)
 {
 
     Tbl* tb = mt->t[l] ;	    // pt. sur tbl de travail
@@ -553,7 +558,7 @@ void _poisangu_t_leg_ii(Mtbl_cf* mt, int l)
      
     for (j=0 ; j<nt-1 ; j++) {
 		int ll = 2*j ;
-		double xl = - ll*(ll+1) ;
+		double xl = - ll*(ll+1) + lambda ;
 
 		if (ll == 0) {
 			for (i=0 ; i<nr ; i++) {
@@ -581,7 +586,7 @@ void _poisangu_t_leg_ii(Mtbl_cf* mt, int l)
     // ------
     for (j=0 ; j<nt-1 ; j++) {
 		int ll = 2*j+1 ;
-		double xl = - ll*(ll+1) ;
+		double xl = - ll*(ll+1) + lambda ;
 
 		if (ll == 0) {
 			for (i=0 ; i<nr ; i++) {
@@ -604,7 +609,7 @@ void _poisangu_t_leg_ii(Mtbl_cf* mt, int l)
 	tuu  += (m+1)/2*nr ;
 	for (j=(m+1)/2 ; j<nt-1 ; j++) {
 	    int ll = 2*j ;
-	    double xl = - ll*(ll+1) ;
+	    double xl = - ll*(ll+1) + lambda ;
 
 		if (ll == 0) {
 			for (i=0 ; i<nr ; i++) {
