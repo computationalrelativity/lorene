@@ -34,6 +34,10 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2002/06/05 15:15:59  j_novak
+ * The case of non-adapted mapping is treated.
+ * parmag.d and parrot.d have been merged.
+ *
  * Revision 1.10  2002/06/03 13:23:16  j_novak
  * The case when the mapping is not adapted is now treated
  *
@@ -83,8 +87,8 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
      double fact_omega, int nzadapt, const Tbl& ent_limit, 
      const Itbl& icontrol, const Tbl& control, double mbar_wanted, 
      double aexp_mass, Tbl& diff, const double Q0, const double a_j0, 
-     Cmp (*f_j)(const Cmp& x, const double a_j), 
-     Cmp (*M_j)(const Cmp& x, const double a_j)) {
+     Cmp (*f_j)(const Cmp&, const double), 
+     Cmp (*M_j)(const Cmp& x, const double)) {
 			     
     // Fundamental constants and units
     // -------------------------------
@@ -129,11 +133,10 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
     int mer_fix_omega = icontrol(3) ; 
     int mer_mass = icontrol(4) ; 
     int mermax_poisson = icontrol(5) ; 
-    int delta_mer_kep = icontrol(7) ; 
-    int mer_mag = icontrol(8) ;
-    int mer_change_mag = icontrol(9) ;
-    int mer_fix_mag = icontrol(10) ;
-    int conduc = icontrol(11) ;
+    int delta_mer_kep = icontrol(6) ; 
+    int mer_mag = icontrol(7) ;
+    int mer_change_mag = icontrol(8) ;
+    int mer_fix_mag = icontrol(9) ;
 
     // Protections:
     if (mer_change_omega < mer_rot) {
@@ -164,21 +167,15 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
     double relax_prev = double(1) - relax ;  
     double relax_poisson = control(3) ; 
     double thres_adapt = control(4) ; 
-    double precis_adapt = control(6) ; 
-    double Q_ini = control(7) ;
-    double a_j_ini = control (8) ;
+    double precis_adapt = control(5) ; 
+    double Q_ini = control(6) ;
+    double a_j_ini = control (7) ;
 
     // Error indicators
     // ----------------
     
     diff.set_etat_qcq() ; 
     double& diff_ent = diff.set(0) ; 
-//      double& diff_nuf = diff.set(1) ; 
-//      double& diff_nuq = diff.set(2) ; 
-//    double& diff_dzeta = diff.set(3) ; 
-//    double& diff_ggg = diff.set(4) ; 
-//      double& diff_shift_x = diff.set(5) ; 
-//      double& diff_shift_y = diff.set(6) ; 
 
     // Parameters for the function Map_et::adapt
     // -----------------------------------------
@@ -418,10 +415,8 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 	//-----------------------------------------------
 	// Computation of electromagnetic potentials :
 	// -------------------------------------------
-	magnet_comput(conduc, adapt_flag, 
+	magnet_comput(adapt_flag, 
 		      f_j, par_poisson_At, par_poisson_Avect) ;
-
-	cout << "mer, Q, a_j : " << mer << ";" << Q << ";" << a_j << endl ;
 
 	MHD_comput() ; // computes EM contributions to T_{mu,nu}
 
@@ -520,12 +515,7 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 	//----------------------------------------------
 
 	source_nuf().poisson(par_poisson_nuf, nuf.set()) ; 
-	
-//  	cout << "Test of the Poisson equation for nuf :" << endl ; 
-//  	Tbl err = source_nuf().test_poisson(nuf(), cout, true) ; 
-//  	diff_nuf = err(0, 0) ; 
-
-	
+		
 	if (relativistic) {
 	    
 	    //----------------------------------------------
@@ -534,10 +524,6 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 
 	    source_nuq().poisson(par_poisson_nuq, nuq.set()) ; 
 	    
-//  	    cout << "Test of the Poisson equation for nuq :" << endl ; 
-//  	    err = source_nuq().test_poisson(nuq(), cout, true) ;
-//  	    diff_nuq = err(0, 0) ; 
-	
 	    //---------------------------------------------------------
 	    // Resolution of the vector Poisson equation for the shift
 	    //---------------------------------------------------------
@@ -566,14 +552,6 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 	
 	    source_shift.poisson_vect(lambda_shift, par_poisson_vect, 
 				      shift, w_shift, khi_shift) ;      
-	    
-//  	    cout << "Test of the Poisson equation for shift_x :" << endl ; 
-//  	    err = source_shift(0).test_poisson(shift(0), cout, true) ;
-//  	    diff_shift_x = err(0, 0) ; 
-	
-//  	    cout << "Test of the Poisson equation for shift_y :" << endl ; 
-//  	    err = source_shift(1).test_poisson(shift(1), cout, true) ;
-//  	    diff_shift_y = err(0, 0) ; 
 	    
 	    // Computation of tnphi and nphi from the Cartesian components
 	    //  of the shift
@@ -669,11 +647,10 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 	    }
 
 	    Tenseur mag(mp) ;
-	    if (conduc==1) {
+	    if (is_conduct()) {
 	      mag = mu0*M_j(A_phi, a_j) ;}
 	    else{
-	      //	      mag = mu0*M_j(omega*A_phi-A_t, a_j) ;}
-	      mag = 0 ;} // Lorentz force neglected here
+	      mag = mu0*M_j(omega*A_phi-A_t, a_j) ;}
 
 	    // Equatorial values of various potentials :
 	    double nuf_b  = nuf()(l_b, k_b, j_b, i_b) ; 
@@ -740,11 +717,6 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 	    cout << "**** New fact_omega : " << fact_omega << endl ; 
 	}
 
-//##	if (mer >= mer_triax) {
-//	    des_coupe_y(ent(), 0., 1, "ent before adapt", &(ent()) ) ; 
-//	    des_coupe_z(ent(), 0., 1, "ent before adapt (EQUAT)", &(ent()) ) ; 
-//##	}
-
 	//----------------------------------------------------
 	// Adaptation of the mapping to the new enthalpy field
 	//----------------------------------------------------
@@ -770,11 +742,6 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 
 	mp.adapt(ent(), par_adapt) ; 
 
-//##	if (mer >= mer_triax) {
-//	    des_coupe_y(ent(), 0., 1, "ent after adapt", &(ent()) ) ; 
-//	    des_coupe_z(ent(), 0., 1, "ent after adapt (EQUAT)", &(ent()) ) ; 
-//##	}
-
  	//----------------------------------------------------
 	// Computation of the enthalpy at the new grid points
 	//----------------------------------------------------
@@ -782,12 +749,6 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 	mp_prev.homothetie(alpha_r) ; 
 	
 	mp.reevaluate(&mp_prev, nzet+1, ent.set()) ; 
-
-//##	if (mer >= mer_triax) {
-//	    des_coupe_y(ent(), 0., 1, "ent after reevaluate", &(ent()) ) ; 
-//	    des_coupe_z(ent(), 0., 1, "ent after reevaluate (EQUAT)", &(ent()) ) ; 
-//##	}
-
 
 	//----------------------------------------------------
 	// Equation of state  

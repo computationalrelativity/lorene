@@ -32,6 +32,10 @@ char et_rot_mag_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2002/06/05 15:15:59  j_novak
+ * The case of non-adapted mapping is treated.
+ * parmag.d and parrot.d have been merged.
+ *
  * Revision 1.10  2002/06/03 13:23:16  j_novak
  * The case when the mapping is not adapted is now treated
  *
@@ -82,434 +86,375 @@ extern "C" {
 
 // Algo du papier de 1995
 
-void Et_rot_mag::magnet_comput(const int conduc, const int adapt_flag,
-			       Cmp (*f_j)(const Cmp& x,const double a_j), 
+void Et_rot_mag::magnet_comput(const int adapt_flag,
+			       Cmp (*f_j)(const Cmp&, const double), 
 			       Param& par_poisson_At, 
 			       Param& par_poisson_Avect){
   double relax_mag = 0.5 ;
 
   int Z = mp.get_mg()->get_nzone();
 
-  //  int conduc = 0 ; // 0=isolant, 1=supracond
-
-  if(conduc==1) {
+  if(is_conduct()) {
     bool adapt(adapt_flag) ;
-  /****************************************************************
-   *  Assertion that all zones have same number of points in theta
-   ****************************************************************/
-  int nt = mp.get_mg()->get_nt(nzet-1) ; 
-  for (int l=0; l<Z; l++) assert(mp.get_mg()->get_nt(l) == nt) ;
+    /****************************************************************
+     *  Assertion that all zones have same number of points in theta
+     ****************************************************************/
+    int nt = mp.get_mg()->get_nt(nzet-1) ; 
+    for (int l=0; l<Z; l++) assert(mp.get_mg()->get_nt(l) == nt) ;
 
-  Tbl Rsurf(nt) ;
-  Rsurf.set_etat_qcq() ;
-  mp.r.fait() ;
-  mp.tet.fait() ;
-  Mtbl* theta = mp.tet.c ;
-  const Map_radial* mpr = dynamic_cast<const Map_radial*>(&mp) ;
-  assert (mpr != 0x0) ;
-  for (int j=0; j<nt; j++) 
-    Rsurf.set(j) = mpr->val_r_jk(l_surf()(0,j), xi_surf()(0,j), j, 0) ;
-
-
-  // Calcul de A_0t dans l'etoile (conducteur parfait)
-
-  Cmp A_0t(- omega * A_phi) ;
-  A_0t.annule(nzet,Z-1) ;
- 
-  Tenseur ATTENS(A_t) ; 
-  Tenseur APTENS(A_phi) ;
-  Tenseur BMN(-logn) ;
-  BMN =  BMN + log(bbb) ;
-  BMN.set_std_base() ;
-
-
-  Cmp grad1(flat_scalar_prod_desal(ATTENS.gradient_spher(),nphi.gradient_spher())());
-  Cmp grad2(flat_scalar_prod_desal(APTENS.gradient_spher(),nphi.gradient_spher())()) ;
-  Cmp grad3(flat_scalar_prod_desal(ATTENS.gradient_spher(),BMN.gradient_spher())()+2*nphi()*flat_scalar_prod_desal(APTENS.gradient_spher(),BMN.gradient_spher())()) ;
-
-  Cmp ATANT(A_phi.srdsdt()); // Constrction par copie pour mapping
-
-  ATANT.va = ATANT.va.mult_ct().ssint() ;
-
-  Cmp ttnphi(tnphi()) ;
-  ttnphi.mult_rsint() ;
-  Cmp BLAH(- b_car()/(nnn()*nnn())*ttnphi*grad1)  ;
-  BLAH -= (1+b_car()/(nnn()*nnn())*tnphi()*tnphi())*grad2  ;
-  Cmp nphisr(nphi()) ;
-  nphisr.div_r() ;
-  Cmp npgrada(2*nphisr*(A_phi.dsdr()+ATANT )) ;
-  npgrada.inc2_dzpuis() ;
-  BLAH -=  grad3 + npgrada ;
-  Cmp gtt(-nnn()*nnn()+b_car()*tnphi()*tnphi()) ;
-  Cmp gtphi( - b_car()*ttnphi) ;
-
-  // Calcul de j_t grace a Maxwell-Gauss
-  Cmp tmp(((BLAH - A_0t.laplacien())/a_car() - gtphi*j_phi)
-    / gtt);
-  tmp.annule(nzet, Z-1) ;
-  if (adapt) {
-    j_t = tmp ;
-  }
-  else {
-    j_t.allocate_all() ;
+    Tbl Rsurf(nt) ;
+    Rsurf.set_etat_qcq() ;
+    mp.r.fait() ;
+    mp.tet.fait() ;
+    Mtbl* theta = mp.tet.c ;
+    const Map_radial* mpr = dynamic_cast<const Map_radial*>(&mp) ;
+    assert (mpr != 0x0) ;
     for (int j=0; j<nt; j++) 
-      for (int l=0; l<nzet; l++) 
-	for (int i=0; i<mp.get_mg()->get_nr(l); i++) 
-	  j_t.set(l,0,j,i) = ( (*mp.r.c)(l,0,j,i) > Rsurf(j) ?
-			  0. : j_t(l,0,j,i) ) ;
-    j_t.annule(nzet,Z-1) ;
-  }
-  j_t.std_base_scal() ;
+      Rsurf.set(j) = mpr->val_r_jk(l_surf()(0,j), xi_surf()(0,j), j, 0) ;
 
-  // Calcul du courant j_phi
-  j_phi = omega * j_t + (ener() + press())*f_j(A_phi, a_j) ;
-  j_phi.std_base_scal() ;
 
-  // Resolution de Maxwell Ampere (-> A_phi)
-  // Calcul des termes sources avec A-t du pas precedent.
+    // Calcul de A_0t dans l'etoile (conducteur parfait)
 
-  Cmp grad4(flat_scalar_prod_desal(APTENS.gradient_spher(),
-				   BMN.gradient_spher())());
+    Cmp A_0t(- omega * A_phi) ;
+    A_0t.annule(nzet,Z-1) ;
+ 
+    Tenseur ATTENS(A_t) ; 
+    Tenseur APTENS(A_phi) ;
+    Tenseur BMN(-logn) ;
+    BMN =  BMN + log(bbb) ;
+    BMN.set_std_base() ;
 
-  Tenseur source_tAphi(mp, 1, CON, mp.get_bvect_spher()) ;
 
-  source_tAphi.set_etat_qcq() ;
-  Cmp tjphi(j_phi) ;
-  tjphi.mult_rsint() ;
-  Cmp tgrad1(grad1) ;
-  tgrad1.mult_rsint() ;
-  Cmp d_grad4(grad4) ;
-  d_grad4.div_rsint() ;
-  source_tAphi.set(0)=0 ;
-  source_tAphi.set(1)=0 ;
-  source_tAphi.set(2)= -b_car()*a_car()*(tjphi-tnphi()*j_t)
-    + b_car()/(nnn()*nnn())*(tgrad1+tnphi()*grad2)+d_grad4 ;
+    Cmp grad1(flat_scalar_prod_desal(ATTENS.gradient_spher(),
+				     nphi.gradient_spher())());
+    Cmp grad2(flat_scalar_prod_desal(APTENS.gradient_spher(),
+				     nphi.gradient_spher())()) ;
+    Cmp grad3(flat_scalar_prod_desal(ATTENS.gradient_spher(),
+				     BMN.gradient_spher())()
+	      + 2*nphi()*flat_scalar_prod_desal(APTENS.gradient_spher(),
+						BMN.gradient_spher())()) ;
 
-  source_tAphi.change_triad(mp.get_bvect_cart());
+    Cmp ATANT(A_phi.srdsdt()); // Constrction par copie pour mapping
 
-  Tenseur WORK_VECT(mp, 1, CON, mp.get_bvect_cart()) ;
+    ATANT.va = ATANT.va.mult_ct().ssint() ;
+
+    Cmp ttnphi(tnphi()) ;
+    ttnphi.mult_rsint() ;
+    Cmp BLAH(- b_car()/(nnn()*nnn())*ttnphi*grad1)  ;
+    BLAH -= (1+b_car()/(nnn()*nnn())*tnphi()*tnphi())*grad2  ;
+    Cmp nphisr(nphi()) ;
+    nphisr.div_r() ;
+    Cmp npgrada(2*nphisr*(A_phi.dsdr()+ATANT )) ;
+    npgrada.inc2_dzpuis() ;
+    BLAH -=  grad3 + npgrada ;
+    Cmp gtt(-nnn()*nnn()+b_car()*tnphi()*tnphi()) ;
+    Cmp gtphi( - b_car()*ttnphi) ;
+
+    // Calcul de j_t grace a Maxwell-Gauss
+    Cmp tmp(((BLAH - A_0t.laplacien())/a_car() - gtphi*j_phi)
+	    / gtt);
+    tmp.annule(nzet, Z-1) ;
+    if (adapt) {
+      j_t = tmp ;
+    }
+    else {
+      j_t.allocate_all() ;
+      for (int j=0; j<nt; j++) 
+	for (int l=0; l<nzet; l++) 
+	  for (int i=0; i<mp.get_mg()->get_nr(l); i++) 
+	    j_t.set(l,0,j,i) = ( (*mp.r.c)(l,0,j,i) > Rsurf(j) ?
+				 0. : tmp(l,0,j,i) ) ;
+      j_t.annule(nzet,Z-1) ;
+    }
+    j_t.std_base_scal() ;
+
+    // Calcul du courant j_phi
+    j_phi = omega * j_t + (ener() + press())*f_j(A_phi, a_j) ;
+    j_phi.std_base_scal() ;
+
+    // Resolution de Maxwell Ampere (-> A_phi)
+    // Calcul des termes sources avec A-t du pas precedent.
+
+    Cmp grad4(flat_scalar_prod_desal(APTENS.gradient_spher(),
+				     BMN.gradient_spher())());
+
+    Tenseur source_tAphi(mp, 1, CON, mp.get_bvect_spher()) ;
+
+    source_tAphi.set_etat_qcq() ;
+    Cmp tjphi(j_phi) ;
+    tjphi.mult_rsint() ;
+    Cmp tgrad1(grad1) ;
+    tgrad1.mult_rsint() ;
+    Cmp d_grad4(grad4) ;
+    d_grad4.div_rsint() ;
+    source_tAphi.set(0)=0 ;
+    source_tAphi.set(1)=0 ;
+    source_tAphi.set(2)= -b_car()*a_car()*(tjphi-tnphi()*j_t)
+      + b_car()/(nnn()*nnn())*(tgrad1+tnphi()*grad2)+d_grad4 ;
+
+    source_tAphi.change_triad(mp.get_bvect_cart());
+
+    Tenseur WORK_VECT(mp, 1, CON, mp.get_bvect_cart()) ;
     WORK_VECT.set_etat_qcq() ;
     for (int i=0; i<3; i++) {
       WORK_VECT.set(i) = 0 ; 
     }
-  Tenseur WORK_SCAL(mp) ;
-  WORK_SCAL.set_etat_qcq() ;
-  WORK_SCAL.set() = 0 ;
+    Tenseur WORK_SCAL(mp) ;
+    WORK_SCAL.set_etat_qcq() ;
+    WORK_SCAL.set() = 0 ;
   
-  double lambda_mag = 0. ; // No 3D version !
+    double lambda_mag = 0. ; // No 3D version !
 
-  Tenseur AVECT(source_tAphi) ;
-  if (source_tAphi.get_etat() != ETATZERO) {
+    Tenseur AVECT(source_tAphi) ;
+    if (source_tAphi.get_etat() != ETATZERO) {
     
-    for (int i=0; i<3; i++) {
-      if(source_tAphi(i).dz_nonzero()) {
-	assert( source_tAphi(i).get_dzpuis() == 4 ) ; 
+      for (int i=0; i<3; i++) {
+	if(source_tAphi(i).dz_nonzero()) {
+	  assert( source_tAphi(i).get_dzpuis() == 4 ) ; 
+	}
+	else{
+	  (source_tAphi.set(i)).set_dzpuis(4) ; 
+	}
       }
-      else{
-	(source_tAphi.set(i)).set_dzpuis(4) ; 
+    
+    }
+    source_tAphi.poisson_vect(lambda_mag, par_poisson_Avect, AVECT, WORK_VECT,
+			      WORK_SCAL) ;
+    AVECT.change_triad(mp.get_bvect_spher());
+    Cmp A_phi_n(AVECT(2));
+    A_phi_n.mult_rsint() ;
+
+    // Resolution de Maxwell-Ampere : A_1
+
+    Cmp source_A_1t(-a_car()*(j_t*gtt + j_phi*gtphi) + BLAH);
+
+    Cmp A_1t(mp);
+    A_1t = 0 ;
+    source_A_1t.poisson(par_poisson_At, A_1t) ;
+
+    int L = mp.get_mg()->get_nt(0);
+
+    Tbl MAT(L,L) ;
+    Tbl MAT_PHI(L,L);
+    Tbl VEC(L) ;
+
+    MAT.set_etat_qcq() ;
+    VEC.set_etat_qcq() ;
+    MAT_PHI.set_etat_qcq() ;
+
+    Tbl leg(L,2*L) ;
+    leg.set_etat_qcq() ;
+
+    // leg[k,l] : legendre_l(cos(theta_k))
+    // Construction par recurrence de degre 2
+    for(int k=0;k<L;k++){
+      for(int l=0;l<2*L;l++){
+
+	if(l==0) leg.set(k,l)=1. ;
+	if(l==1) leg.set(k,l)=cos((*theta)(l_surf()(0,k),0,k,0)) ;
+	if(l>=2) leg.set(k,l) = double(2*l-1)/double(l)  
+		   * cos((*theta)(l_surf()(0,k),0,k,0))
+		   * leg(k,l-1)-double(l-1)/double(l)*leg(k,l-2) ;
       }
     }
-    
-  }
-  source_tAphi.poisson_vect(lambda_mag, par_poisson_Avect, AVECT, WORK_VECT,
-			    WORK_SCAL) ;
-  AVECT.change_triad(mp.get_bvect_spher());
-  Cmp A_phi_n(AVECT(2));
-  A_phi_n.mult_rsint() ;
-
-  // Resolution de Maxwell-Ampere : A_1
-
-  Cmp source_A_1t(-a_car()*(j_t*gtt + j_phi*gtphi) + BLAH);
-
-  Cmp A_1t(mp);
-  A_1t = 0 ;
-  source_A_1t.poisson(par_poisson_At, A_1t) ;
-
-  int L = mp.get_mg()->get_nt(0);
-
-  Tbl MAT(L,L) ;
-  Tbl MAT_PHI(L,L);
-  Tbl VEC(L) ;
-
-  MAT.set_etat_qcq() ;
-  VEC.set_etat_qcq() ;
-  MAT_PHI.set_etat_qcq() ;
-
-  Tbl leg(L,2*L) ;
-  //  Tbl legp(L,2*L) ; // -sin(theta_k)*leg'_l(cos(theta_k))
-  leg.set_etat_qcq() ;
-  //  legp.set_etat_qcq() ;
-  for(int k=0;k<L;k++){
-
-    for(int l=0;l<2*L;l++){
-
-      // leg[k,l] : legendre_l(cos(theta_k))
-      // Construction par recurrence de degre 2
-
-      if(l==0){leg.set(k,l)=1. ;}
-      //               legp.set(k,l)=0. ;}
-      if(l==1){leg.set(k,l)=cos((*theta)(l_surf()(0,k),0,k,0)) ;}
-      //      legp.set(k,l)=-sin((*theta)(l_surf()(0,k),0,k,0)) ;}
-      if(l>=2){
-      leg.set(k,l) = double(2*l-1)/double(l)*cos((*theta)(l_surf()(0,k),0,k,0))
-	* leg(k,l-1)-double(l-1)/double(l)*leg(k,l-2) ;}
-
-      //      legp.set(k,l)= -sin((*theta)(l_surf()(0,k),0,k,0))*
-      //	(double(2*l-1)/double(l)*(cos((*theta)(l_surf()(0,k),0,k,0))*legp(k,l-1)+leg(k,l-1))-double(l-1)/double(l)*legp(k,l-2)) ; }
-
-
-    }
-  }
   
-  for(int k=0;k<L;k++){
+    for(int k=0;k<L;k++){
 
-    // Valeurs a la surface trouvees via va.val_point_jk(l,xisurf,k,0)
+      // Valeurs a la surface trouvees via va.val_point_jk(l,xisurf,k,0)
 
-    VEC.set(k) = A_0t.va.val_point_jk(l_surf()(0,k), xi_surf()(0,k), k, 0)
-      -A_1t.va.val_point_jk(l_surf()(0,k), xi_surf()(0,k), k, 0);
-    for(int l=0;l<L;l++){
-
-      MAT.set(l,k) = leg(k,2*l)/pow(Rsurf(k),2*l+1);
-      //      MAT_PHI.set(l,k) = -(l+1)*legp(k,2*l)/pow(Rsurf,2*l+2); // pair ou impair ?
+      VEC.set(k) = A_0t.va.val_point_jk(l_surf()(0,k), xi_surf()(0,k), k, 0)
+	-A_1t.va.val_point_jk(l_surf()(0,k), xi_surf()(0,k), k, 0);
+  
+      for(int l=0;l<L;l++) MAT.set(l,k) = leg(k,2*l)/pow(Rsurf(k),2*l+1);
+    
     }
-  }
-  // appel fortran : 
+    // appel fortran : 
 
-  int* IPIV=new int[L] ;
-  int INFO ;
+    int* IPIV=new int[L] ;
+    int INFO ;
 
-  Tbl MAT_SAVE(MAT) ;
-  Tbl VEC2(L) ;
-  VEC2.set_etat_qcq() ;
-  int un = 1 ;
+    Tbl MAT_SAVE(MAT) ;
+    Tbl VEC2(L) ;
+    VEC2.set_etat_qcq() ;
+    int un = 1 ;
 
-  dgesv_(&L, &un, MAT.t, &L, IPIV, VEC.t, &L, &INFO) ; 
+    dgesv_(&L, &un, MAT.t, &L, IPIV, VEC.t, &L, &INFO) ; 
 
-  // coeffs a_l dans VEC
+    // coeffs a_l dans VEC
 
-  for(int k=0;k<L;k++) {VEC2.set(k)=1. ; }
+    for(int k=0;k<L;k++) {VEC2.set(k)=1. ; }
 
-  dgesv_(&L, &un, MAT_SAVE.t, &L, IPIV, VEC2.t, &L, &INFO) ;
+    dgesv_(&L, &un, MAT_SAVE.t, &L, IPIV, VEC2.t, &L, &INFO) ;
 
-  delete [] IPIV ;
+    delete [] IPIV ;
 
-  Cmp psi(mp);
-  Cmp psi2(mp);
-  psi.allocate_all() ;
-  psi2.allocate_all() ;
+    Cmp psi(mp);
+    Cmp psi2(mp);
+    psi.allocate_all() ;
+    psi2.allocate_all() ;
 
-  for(int nz=0;nz < Z; nz++){
-    for(int i=0;i< mp.get_mg()->get_nr(nz);i++){
-      for(int k=0;k<L;k++){
-	psi.set(nz,0,k,i) = 0. ;
-	psi2.set(nz,0,k,i) = 0. ;
-	for(int l=0;l<L;l++){
-	  psi.set(nz,0,k,i) += VEC(l)*leg(k,2*l) / 
-	    pow((*mp.r.c)(nz,0,k,i),2*l+1);
-	  psi2.set(nz,0,k,i) += VEC2(l)*leg(k,2*l)/
-	    pow((*mp.r.c)(nz, 0, k,i),2*l+1);
+    for(int nz=0;nz < Z; nz++){
+      for(int i=0;i< mp.get_mg()->get_nr(nz);i++){
+	for(int k=0;k<L;k++){
+	  psi.set(nz,0,k,i) = 0. ;
+	  psi2.set(nz,0,k,i) = 0. ;
+	  for(int l=0;l<L;l++){
+	    psi.set(nz,0,k,i) += VEC(l)*leg(k,2*l) / 
+	      pow((*mp.r.c)(nz,0,k,i),2*l+1);
+	    psi2.set(nz,0,k,i) += VEC2(l)*leg(k,2*l)/
+	      pow((*mp.r.c)(nz, 0, k,i),2*l+1);
+	  }
 	}
       }
     }
-  }
-  psi.annule(0) ; 
-  psi2.annule(0) ;
-  psi.std_base_scal() ;
-  psi2.std_base_scal() ;
+    psi.std_base_scal() ;
+    psi2.std_base_scal() ;
   
-  assert(psi.get_dzpuis() == 0) ;
-  int dif = A_1t.get_dzpuis() ;
-  if (dif > 0) {
-    for (int d=0; d<dif; d++) A_1t.dec_dzpuis() ;
-  }
+    assert(psi.get_dzpuis() == 0) ;
+    int dif = A_1t.get_dzpuis() ;
+    if (dif > 0) {
+      for (int d=0; d<dif; d++) A_1t.dec_dzpuis() ;
+    }
 
-  if (adapt) {
-    Cmp A_t_ext(A_1t + psi) ;
-    A_t_ext.annule(0,nzet-1) ;
-    A_0t += A_t_ext ;
-  }
-  else {
-    tmp = A_0t ;
-    A_0t.allocate_all() ;
-    for (int j=0; j<nt; j++) 
-      for (int l=0; l<Z; l++) 
-	for (int i=0; i<mp.get_mg()->get_nr(l); i++) 
-	  A_0t.set(l,0,j,i) = ( (*mp.r.c)(l,0,j,i) > Rsurf(j) ?
-			  A_1t(l,0,j,i) + psi(l,0,j,i) : tmp(l,0,j,i) ) ;
-  } 
-  A_0t.std_base_scal() ;
+    if (adapt) {
+      Cmp A_t_ext(A_1t + psi) ;
+      A_t_ext.annule(0,nzet-1) ;
+      A_0t += A_t_ext ;
+    }
+    else {
+      tmp = A_0t ;
+      A_0t.allocate_all() ;
+      for (int j=0; j<nt; j++) 
+	for (int l=0; l<Z; l++) 
+	  for (int i=0; i<mp.get_mg()->get_nr(l); i++) 
+	    A_0t.set(l,0,j,i) = ( (*mp.r.c)(l,0,j,i) > Rsurf(j) ?
+				  A_1t(l,0,j,i) + psi(l,0,j,i) : tmp(l,0,j,i) ) ;
+    } 
+    A_0t.std_base_scal() ;
 
-  Valeur** asymp = A_0t.asymptot(1) ;
+    Valeur** asymp = A_0t.asymptot(1) ;
 
-  double Q_0 = -4*M_PI*(*asymp[1])(Z-1,0,0,0) ; // utilise A_0t plutot que E
-  delete asymp[0] ;
-  delete asymp[1] ;
+    double Q_0 = -4*M_PI*(*asymp[1])(Z-1,0,0,0) ; // utilise A_0t plutot que E
+    delete asymp[0] ;
+    delete asymp[1] ;
 
-  delete [] asymp ;
+    delete [] asymp ;
 
-  asymp = psi2.asymptot(1) ;
+    asymp = psi2.asymptot(1) ;
 
-  double Q_2 = -4*M_PI*(*asymp[1])(Z-1,0,0,0)  ; // A_2t = psi2 a l'infini
-  delete asymp[0] ;
-  delete asymp[1] ;
+    double Q_2 = -4*M_PI*(*asymp[1])(Z-1,0,0,0)  ; // A_2t = psi2 a l'infini
+    delete asymp[0] ;
+    delete asymp[1] ;
 
-  delete [] asymp ;
+    delete [] asymp ;
 
-  // solution definitive de A_t:
+    // solution definitive de A_t:
 
-  double C = (Q-Q_0)/Q_2 ;
+    double C = (Q-Q_0)/Q_2 ;
 
-  assert(psi2.get_dzpuis() == 0) ;
-  dif = A_0t.get_dzpuis() ;
-  if (dif > 0) {
-    for (int d=0; d<dif; d++) A_0t.dec_dzpuis() ;
-  }
-  Cmp A_t_n(mp) ;
-  if (adapt) {
-    A_t_n = A_0t + C ;
-    Cmp A_t_ext(A_0t + C*psi2) ;
-    A_t_ext.annule(0,nzet-1) ;
-    A_t_n.annule(nzet,Z-1) ;
-    A_t_n += A_t_ext ;
-  }
-  else {
-    cout << "Not adapt 3!!" << endl ;
-    cout << "#####################" << endl ;
-    A_t_n.allocate_all() ;
-    for (int j=0; j<nt; j++) 
-      for (int l=0; l<Z; l++) 
-	for (int i=0; i<mp.get_mg()->get_nr(l); i++) 
-	  A_t_n.set(l,0,j,i) = ( (*mp.r.c)(l,0,j,i) > Rsurf(j) ?
-			  A_0t(l,0,j,i) + C*psi2(l,0,j,i) : 
-			     A_0t(l,0,j,i) + C ) ;    
-  }
-  A_t_n.std_base_scal() ;
+    assert(psi2.get_dzpuis() == 0) ;
+    dif = A_0t.get_dzpuis() ;
+    if (dif > 0) {
+      for (int d=0; d<dif; d++) A_0t.dec_dzpuis() ;
+    }
+    Cmp A_t_n(mp) ;
+    if (adapt) {
+      A_t_n = A_0t + C ;
+      Cmp A_t_ext(A_0t + C*psi2) ;
+      A_t_ext.annule(0,nzet-1) ;
+      A_t_n.annule(nzet,Z-1) ;
+      A_t_n += A_t_ext ;
+    }
+    else {
+      A_t_n.allocate_all() ;
+      for (int j=0; j<nt; j++) 
+	for (int l=0; l<Z; l++) 
+	  for (int i=0; i<mp.get_mg()->get_nr(l); i++) 
+	    A_t_n.set(l,0,j,i) = ( (*mp.r.c)(l,0,j,i) > Rsurf(j) ?
+				   A_0t(l,0,j,i) + C*psi2(l,0,j,i) : 
+				   A_0t(l,0,j,i) + C ) ;    
+    }
+    A_t_n.std_base_scal() ;
 
-  // solution definitive de A_phi :
+    asymp = A_t_n.asymptot(1) ;
 
-//    Tbl VEC_PHI(L) ;
-//    VEC_PHI.set_etat_qcq() ;
+    delete asymp[0] ;
+    delete asymp[1] ;
 
-//    Cmp Delta_num(omega-nphi()) ;
-//    Delta_num.mult_rsint() ;
-//    Cmp Delta_den(nphi()*nphi()-2*nphi()) ;
-//    Delta_den.mult_rsint() ;
-//    Delta_den.mult_rsint() ;
-//    Delta_den = Delta_den - nnn()*nnn() ;
-//    Cmp Delta(Delta_num/Delta_den) ;
-//    Delta.std_base_scal() ;
-
-//    for(int k=0 ; k<L ; k++){
-//      double delta = Delta.va.val_point_jk(l_surf()(0,k), xi_surf()(0,k), k, 0);
-//      double dAt = A_t.dsdr()(nzet-1,0,k,mpr->get_mg()->get_nr(nzet-1)-1)-
-//        A_t.dsdr()(nzet,0,k,0);    
-//      VEC_PHI.set(k) = delta * dAt; 
-    
-//    }
-
-//    dgesv_(&L, &un, MAT_PHI.t, &L, IPIV, VEC_PHI.t, &L, &INFO) ;
-
-//    delete [] IPIV ;
-
-//    Cmp psi_phi(mp);
-//    psi_phi.allocate_all();
-
-//    for(int nz=0;nz < Z; nz++){
-//      for(int i=0;i< mp.get_mg()->get_nr(nz);i++){
-//        for(int k=0;k<L;k++){
-//  	psi_phi.set(nz,0,k,i) = 0. ;
-
-//  	for(int l=0;l<L;l++){
-//  	  psi_phi.set(nz,0,k,i) += VEC_PHI(l)*legp(k,2*l) / 
-//  	    pow((*mp.r.c)(nz,0,k,i),2*l+1);
-
-//  	}
-//        }
-//      }
-//    }
-//    psi_phi.annule(0,nzet-1);
-//    psi_phi.std_base_scal();
-
-//  A_phi_n = A_phi_n + psi_phi ;
-
-//  // fin de la modification
-
-  asymp = A_t_n.asymptot(1) ;
-
-  delete asymp[0] ;
-  delete asymp[1] ;
-
-  delete [] asymp ;
-  A_t = relax_mag*A_t_n + (1.-relax_mag)*A_t ;
-  A_phi = relax_mag*A_phi_n + (1. - relax_mag)*A_phi ;
+    delete [] asymp ;
+    A_t = relax_mag*A_t_n + (1.-relax_mag)*A_t ;
+    A_phi = relax_mag*A_phi_n + (1. - relax_mag)*A_phi ;
 
 
   }else{
+    
+    /***************
+     * CAS ISOLANT *
+     ***************/									
+    // Calcul de j_t
+    j_t = Q*nbar() + (ener()+press())*f_j(omega* A_phi - A_t,a_j) ;
+    j_t.annule(nzet,Z-1) ;
+    j_t.std_base_scal() ;
+    
+    // Calcul de j_phi
+    j_phi = omega * j_t ;
+    j_phi.std_base_scal() ;
+    
+    // Resolution de A_t
+    
+    Tenseur ATTENS(A_t) ; 
+    Tenseur APTENS(A_phi) ;
+    Tenseur BMN(-logn) ;
+    BMN =  BMN + log(bbb) ;
+    BMN.set_std_base() ;
 
 
-  /***************
-   * CAS ISOLANT *
-   ***************/									
-  // Calcul de j_t
-    //  j_t = (ener()+press())*f_j(omega* A_phi - A_t,a_j) ;
-  j_t = a_j * nbar() ;
-  j_t.annule(nzet,Z-1) ;
-  j_t.std_base_scal() ;
+    Cmp grad1(flat_scalar_prod_desal(ATTENS.gradient_spher(),
+				     nphi.gradient_spher())());
+    Cmp grad2(flat_scalar_prod_desal(APTENS.gradient_spher(),
+				     nphi.gradient_spher())()) ;
+    Cmp grad3(flat_scalar_prod_desal(ATTENS.gradient_spher(),
+				     BMN.gradient_spher())()
+	      + 2*nphi()*flat_scalar_prod_desal(APTENS.gradient_spher(),
+						BMN.gradient_spher())()) ;
 
-  // Calcul de j_phi
-  j_phi = omega * j_t ;
-  j_phi.std_base_scal() ;
+    Cmp ATANT(A_phi.srdsdt());
 
-  // Resolution de A_t
+    ATANT.va = ATANT.va.mult_ct().ssint() ;
 
-  Tenseur ATTENS(A_t) ; 
-  Tenseur APTENS(A_phi) ;
-  Tenseur BMN(-logn) ;
-  BMN =  BMN + log(bbb) ;
-  BMN.set_std_base() ;
+    Cmp ttnphi(tnphi()) ;
+    ttnphi.mult_rsint() ;
+    Cmp BLAH(- b_car()/(nnn()*nnn())*ttnphi*grad1)  ;
+    BLAH -= (1+b_car()/(nnn()*nnn())*tnphi()*tnphi())*grad2  ;
+    Cmp nphisr(nphi()) ;
+    nphisr.div_r() ;
+    Cmp npgrada(2*nphisr*(A_phi.dsdr()+ATANT )) ;
+    npgrada.inc2_dzpuis() ;
+    BLAH -=  grad3 + npgrada ;
+    Cmp gtt(-nnn()*nnn()+b_car()*tnphi()*tnphi()) ;
+    Cmp gtphi( - b_car()*ttnphi) ;
 
+    Cmp source_A_t_n(mp);
+    if (relativistic) {
+      source_A_t_n = (-a_car()*(j_t*gtt + j_phi*gtphi) + BLAH);
+      source_A_t_n.std_base_scal();}
+    else{
+      source_A_t_n = j_t;}
 
-  Cmp grad1(flat_scalar_prod_desal(ATTENS.gradient_spher(),nphi.gradient_spher())());
-  Cmp grad2(flat_scalar_prod_desal(APTENS.gradient_spher(),nphi.gradient_spher())()) ;
-  Cmp grad3(flat_scalar_prod_desal(ATTENS.gradient_spher(),BMN.gradient_spher())()+2*nphi()*flat_scalar_prod_desal(APTENS.gradient_spher(),BMN.gradient_spher())()) ;
+    Cmp A_t_n(A_t) ;
+    A_t_n = 0 ;
+    A_t_n.std_base_scal() ;
 
-  Cmp ATANT(A_phi.srdsdt());
+    source_A_t_n.poisson(par_poisson_At, A_t_n) ;
 
-  ATANT.va = ATANT.va.mult_ct().ssint() ;
+    // Resolution de A_phi
 
-  Cmp ttnphi(tnphi()) ;
-  ttnphi.mult_rsint() ;
-  Cmp BLAH(- b_car()/(nnn()*nnn())*ttnphi*grad1)  ;
-  BLAH -= (1+b_car()/(nnn()*nnn())*tnphi()*tnphi())*grad2  ;
-  Cmp nphisr(nphi()) ;
-  nphisr.div_r() ;
-  Cmp npgrada(2*nphisr*(A_phi.dsdr()+ATANT )) ;
-  npgrada.inc2_dzpuis() ;
-  BLAH -=  grad3 + npgrada ;
-  Cmp gtt(-nnn()*nnn()+b_car()*tnphi()*tnphi()) ;
-  Cmp gtphi( - b_car()*ttnphi) ;
+    Cmp grad4(flat_scalar_prod_desal(APTENS.gradient_spher(),
+				     BMN.gradient_spher())());
 
-  Cmp source_A_t_n(mp);
-  if (relativistic) {
-    source_A_t_n = (-a_car()*(j_t*gtt + j_phi*gtphi) + BLAH);
-    source_A_t_n.std_base_scal();}
-  else{
-    source_A_t_n = j_t;}
+    Tenseur source_tAphi(mp, 1, CON, mp.get_bvect_spher()) ;
 
-  Cmp A_t_n(A_t) ;
-  A_t_n = 0 ;
-  A_t_n.std_base_scal() ;
-
-  source_A_t_n.poisson(par_poisson_At, A_t_n) ;
-
-  // Resolution de A_phi
-
-  Cmp grad4(flat_scalar_prod_desal(APTENS.gradient_spher(),
-				   BMN.gradient_spher())());
-
-  Tenseur source_tAphi(mp, 1, CON, mp.get_bvect_spher()) ;
-
-  source_tAphi.set_etat_qcq() ;
+    source_tAphi.set_etat_qcq() ;
 
     Cmp tjphi(j_phi) ;
     tjphi.mult_rsint() ;
@@ -537,33 +482,33 @@ void Et_rot_mag::magnet_comput(const int conduc, const int adapt_flag,
     WORK_SCAL.set_etat_qcq() ;
     WORK_SCAL.set() = 0 ;
   
-  double lambda_mag = 0. ; // No 3D version !
+    double lambda_mag = 0. ; // No 3D version !
 
-  Tenseur AVECT(source_tAphi) ;
-  if (source_tAphi.get_etat() != ETATZERO) {
+    Tenseur AVECT(source_tAphi) ;
+    if (source_tAphi.get_etat() != ETATZERO) {
     
-    for (int i=0; i<3; i++) {
-      if(source_tAphi(i).dz_nonzero()) {
-	assert( source_tAphi(i).get_dzpuis() == 4 ) ; 
+      for (int i=0; i<3; i++) {
+	if(source_tAphi(i).dz_nonzero()) {
+	  assert( source_tAphi(i).get_dzpuis() == 4 ) ; 
+	}
+	else{
+	  (source_tAphi.set(i)).set_dzpuis(4) ; 
+	}
       }
-      else{
-	(source_tAphi.set(i)).set_dzpuis(4) ; 
-      }
+    
     }
-    
-  }
-  source_tAphi.poisson_vect(lambda_mag, par_poisson_Avect, AVECT, WORK_VECT,
-			    WORK_SCAL) ;
-  AVECT.change_triad(mp.get_bvect_spher());
-  Cmp A_phi_n(AVECT(2));
-  A_phi_n.mult_rsint() ;
+    source_tAphi.poisson_vect(lambda_mag, par_poisson_Avect, AVECT, WORK_VECT,
+			      WORK_SCAL) ;
+    AVECT.change_triad(mp.get_bvect_spher());
+    Cmp A_phi_n(AVECT(2));
+    A_phi_n.mult_rsint() ;
 
   // Relaxation
 
-  A_t = relax_mag*A_t_n + (1.-relax_mag)*A_t ;
-  A_phi = relax_mag*A_phi_n + (1. - relax_mag)*A_phi ;
+    A_t = relax_mag*A_t_n + (1.-relax_mag)*A_t ;
+    A_phi = relax_mag*A_phi_n + (1. - relax_mag)*A_phi ;
 
-    }
+  }
 
 
 }

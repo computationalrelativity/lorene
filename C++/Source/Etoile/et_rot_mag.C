@@ -32,6 +32,10 @@ char et_rot_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2002/06/05 15:15:59  j_novak
+ * The case of non-adapted mapping is treated.
+ * parmag.d and parrot.d have been merged.
+ *
  * Revision 1.12  2002/06/03 13:00:45  e_marcq
  *
  * conduc parameter read in parmag.d
@@ -87,7 +91,8 @@ char et_rot_mag_C[] = "$Header$" ;
 // --------------------
 
 
-Et_rot_mag::Et_rot_mag(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i)
+Et_rot_mag::Et_rot_mag(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
+		       const int cond)
   : Etoile_rot(mp_i, nzet_i, relat, eos_i),
     A_t(mp_i),
     A_phi(mp_i),
@@ -107,6 +112,7 @@ Et_rot_mag::Et_rot_mag(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i)
 
   Q = 0 ;
   a_j = 0 ;
+  conduc = cond ;
 
 set_der_0x0() ;  
 }
@@ -129,6 +135,7 @@ Et_rot_mag::Et_rot_mag(const Et_rot_mag& et)
 {
   Q = et.Q ;
   a_j = et.a_j ;
+  conduc = et.conduc ;
   set_der_0x0() ;
 }
 
@@ -150,8 +157,6 @@ void Et_rot_mag::del_deriv() const {
 
   Etoile_rot::del_deriv() ;
 
-  // Quelles quantites derivees ?
-
   set_der_0x0() ;
 
 }
@@ -160,14 +165,12 @@ void Et_rot_mag::del_deriv() const {
 void Et_rot_mag::set_der_0x0() const {
   Etoile_rot::set_der_0x0() ;
 
-  // Quelles quantites derivees ?
-
 }
 
 
 void Et_rot_mag::del_hydro_euler() {
   Etoile_rot::del_hydro_euler() ;
-  // Nouvelles qtes hydro a remettre en nondef
+
   del_deriv() ;
 }
 
@@ -189,6 +192,7 @@ void Et_rot_mag::operator=(const Et_rot_mag& et) {
   Spp_em = et.Spp_em ;
   Q      = et.Q      ;
   a_j    = et.a_j    ;
+  conduc = et.conduc ;
 
   del_deriv() ;
 
@@ -204,45 +208,52 @@ void Et_rot_mag::operator=(const Et_rot_mag& et) {
 
 ostream& Et_rot_mag::operator>>(ostream& ost) const {
 
-  //#include "unites.h"
-  // Compilation warnings ?
-
   Etoile_rot::operator>>(ost) ;
+  int theta_eq = mp.get_mg()->get_nt(nzet-1)-1 ;
   ost << endl ;
   ost << "Electromagnetic quantities" << endl ;
   ost << "----------------------" << endl ;
-  ost << "In construction. ALL OUTPUTS IN SI UNITS HERE" << endl ;
   ost << endl ;
-  ost << "Prescribed charge : " << Q*j_unit*pow(r_unit,3)/v_unit << endl;
-  ost << "Prescribed current amplitude : " << a_j*j_unit << endl ;
-  ost << "Magnetic Momentum : " << MagMom() << endl ;
+  if (is_conduct()) {
+    ost << "***************************" << endl ;
+    ost << "**** perfect conductor ****" << endl ;
+    ost << "***************************" << endl ;    
+    ost << "Prescribed charge : " << Q*j_unit*pow(r_unit,3)/v_unit 
+	<< " [C]" << endl;
+  }
+  else {
+    ost << "***************************" << endl ;
+    ost << "****     isolator      ****" << endl ;
+    ost << "***************************" << endl ;  
+  }  
+  ost << "Prescribed current amplitude : " << a_j*j_unit 
+      << " [A/m2]" << endl ;
+  ost << "Magnetic Momentum : " << MagMom()/1.e32
+      << " [10^32 Am^2]" << endl ;
   ost << "Radial magnetic field polar value : " << 
-    Magn()(0).va.val_point(l_surf()(0,0),xi_surf()(0,0),0.,0.) << endl;
+    Magn()(0).va.val_point(l_surf()(0,0),xi_surf()(0,0),0.,0.) 
+      << " [GT]" << endl;
 
-  ost << "Magnetic pressure (Srr_em) polar value : " << 
-    Srr_em().va.val_point(l_surf()(0,0),xi_surf()(0,0),0.,0.) << endl ;
-
-  ost << "Radial electric field polar value : " << 
-    Elec()(0).va.val_point(l_surf()(0,0),xi_surf()(0,0),0.,0.) << endl;
-
-  int theta_eq = mp.get_mg()->get_nt(nzet-1)-1 ;
-
-  ost << "Central pressure : "<< 1/(2*mu_si)*(pow(Magn()(0)(0,0,0,0),2)+pow(Magn()(1)(0,0,0,0),2)+pow(Magn()(2)(0,0,0,0),2))*rho_unit*pow(v_unit,2) << endl ;
   ost << "Tangent magnetic field equatorial value : " << 
   Magn()(1).va.val_point(l_surf()(0,theta_eq),xi_surf()(0,theta_eq),M_PI_2,0.) 
-      << endl;
-  ost << "Magnetic pressure equatorial value : " << 
-  Srr_em().va.val_point(l_surf()(0,theta_eq),xi_surf()(0,theta_eq),M_PI_2,0.) 
-      << endl ;
+      << " [GT]" << endl;
+
+  ost << "Radial electric field polar value : " << 
+    Elec()(0).va.val_point(l_surf()(0,0),xi_surf()(0,0),0.,0.) 
+      << " [TV]" << endl;
+
   ost << "Radial electric field equatorial value : " << 
   Elec()(0).va.val_point(l_surf()(0,theta_eq),xi_surf()(0,theta_eq),M_PI_2,0.) 
-      << endl;
-  ost << "Computed charge : " << Q_comput() << endl ;
-  ost << "Interior charge : " << Q_int() << endl ;
+      << " [TV]" << endl;
+
+  ost << "Magnetic/fluid pressure : "
+      << 1/(2*mu_si)*(pow(Magn()(0)(0,0,0,0),2) + 
+		      pow(Magn()(1)(0,0,0,0),2) + 
+		      pow(Magn()(2)(0,0,0,0),2))*1.e18
+    / (press()(0,0,0,0)*rho_unit*pow(v_unit,2)) << endl ;
+  ost << "Computed charge : " << Q_comput() << " [C]" << endl ;
+  ost << "Interior charge : " << Q_int() << " [C]" << endl ;
   ost << "Gyromagnetic ratio : " << GyroMag() << endl ;
-  //  ost << "R^2 Omega M / J : " << omega*mass_g()/angu_mom() << endl ;
-  //  ost << "MagMom : " << MagMom()*mu_si/(1e9*mag_unit*pow(r_unit,2)) << endl;
-  //  ost << "AnguMom : " << angu_mom() << endl;
 
   return ost ;
 }

@@ -1,9 +1,18 @@
 #################### PHYSICAL PARAMETERS ######################################
 1     Relativity parameter: 1 = relativistic computation , 0 = Newtonian
-0.4    ent_c : central enthalpy [c^2]
-300.     freq_si : rotation frequency [Hz]
+0.225   ent_c : central enthalpy [c^2]
+100.     freq_si : rotation frequency [Hz]
 1.    fact_omega : 1.01 = search for the Keplerian frequency, 1. = otherwise.
 1.60    Requested baryon mass [M_sol] (effective only if mer_mass > mer_max)
+0	Conductivity (0: isolator, 1: perfect conductor)
+#################### MAGNETIC PARAMETERS ######################################
+10.	Requested total charge(conduc=1), charge/baryon (conduc=0)[Lorene unit]
+0.	Requested CFA (current function amplitude) [Lorene unit]
+0.	Initial charge (mer =< mer_mag) [Lorene unit]
+0.	Initial CFA    (mer =< mer_mag) [Lorene unit]
+5	mer_mag : step at which magnetic quantites are plugged.
+6	mer_change_mag : step at which they are increased.
+12	mer_fix_mag : step at which they reach their final values.
 #################### COMPUTATIONAL PARAMETERS #################################
 100      mer_max : maximum number of steps
 1.e-6   precis : threshold on the enthalpy relative change for ending the computation
@@ -13,8 +22,6 @@
 20      mer_fix_omega : step at which f must have reached freq_si
 1      delta_mer_kep : number of steps after mer_fix_omega to search for Kepler.
 0.3    thres_adapt : threhold on (dH/dr_eq)/dH/dr_pole) for the mapping adaptation
-1800    mer_triax : step at which the 3-D perturbation is switched on
-1.e-3   ampli_triax : relative amplitude of the 3-D perturbation
 2000    mer_mass : step from which the baryon mass is forced to converge (if negative, variation of Omega)
 0.5     aexp_mass : exponent for the increase factor of the central enthalpy
 0.5     relax : relaxation factor in the main iteration 
@@ -31,6 +38,6 @@
 # Number of points in r and (initial) inner boundary of each domain:
 17	0.	<-   nr	  &   min(r)  in domain 0  (nucleus)  	
 17	1.	<-   nr	  &   min(r)  in domain 1
-17	2.	<-   nr   &   min(r)  in domain 2
+9	2.	<-   nr   &   min(r)  in domain 2
 9	3.	<-   nr   &   min(r)  in domain 2
 0.1	enthalpy defining boundary between domains 0 and 1

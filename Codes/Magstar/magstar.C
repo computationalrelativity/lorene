@@ -77,11 +77,14 @@ int main(){
 
     int relat_i, mer_max, mer_rot, mer_change_omega, mer_fix_omega, 
 	delta_mer_kep, mer_mass, mermax_poisson, graph, nz, nzet, nzadapt,
-	nt, np, mer_triax ; 
+	nt, np ; 
     double ent_c, freq_si, fact_omega, mbar_wanted, precis, freq_ini_si, 
-	   thres_adapt, aexp_mass, relax, relax_poisson, ampli_triax, 
-	   precis_adapt ;  
+	   thres_adapt, aexp_mass, relax, relax_poisson, precis_adapt ;  
     
+    double Q0, a_j0, Q_ini, a_j_ini ;
+    int mer_mag, mer_change_mag, mer_fix_mag ;
+    int conduct ;
+
     ifstream fich("parrot.d") ;
     fich.getline(blabla, 120) ;
     fich >> relat_i ; fich.getline(blabla, 120) ;
@@ -91,7 +94,16 @@ int main(){
     fich >> fact_omega ; fich.getline(blabla, 120) ;
     fich >> mbar_wanted ; fich.getline(blabla, 120) ;
     mbar_wanted *= msol ; 
+    fich >> conduct ; fich.getline(blabla, 120) ;
     fich.getline(blabla, 120) ;
+    fich >> Q0 ; fich.getline(blabla,120) ;
+    fich >> a_j0 ; fich.getline(blabla,120) ;
+    fich >> Q_ini; fich.getline(blabla,120) ;
+    fich >> a_j_ini ; fich.getline(blabla,120) ;
+    fich >> mer_mag ; fich.getline(blabla,120) ;
+    fich >> mer_change_mag ; fich.getline(blabla,120) ;
+    fich >> mer_fix_mag ; fich.getline(blabla,120);
+    fich.getline(blabla,120);
     fich >> mer_max ; fich.getline(blabla, 120) ;
     fich >> precis ; fich.getline(blabla, 120) ;
     fich >> mer_rot ; fich.getline(blabla, 120) ;
@@ -100,8 +112,6 @@ int main(){
     fich >> mer_fix_omega ; fich.getline(blabla, 120) ;
     fich >> delta_mer_kep ; fich.getline(blabla, 120) ;
     fich >> thres_adapt ; fich.getline(blabla, 120) ;
-    fich >> mer_triax ; fich.getline(blabla, 120) ;
-    fich >> ampli_triax ; fich.getline(blabla, 120) ;
     fich >> mer_mass ; fich.getline(blabla, 120) ;
     fich >> aexp_mass ; fich.getline(blabla, 120) ;
     fich >> relax ; fich.getline(blabla, 120) ;
@@ -139,27 +149,6 @@ int main(){
 
 
     fich.close();
-
-    // Magnetic quantities input
-    // -------------------------
-
-    double Q0, a_j0, Q_ini, a_j_ini ;
-    int mer_mag, mer_change_mag, mer_fix_mag ;
-
-    ifstream fichm("parmag.d");
-    fichm.getline(blabla,120);
-    fichm >> Q0 ; fichm.getline(blabla,120) ;
-    fichm >> a_j0 ; fichm.getline(blabla,120) ;
-    fichm.getline(blabla,120);
-    fichm >> Q_ini; fichm.getline(blabla,120) ;
-    fichm >> a_j_ini ; fichm.getline(blabla,120) ;
-    fichm >> mer_mag ; fichm.getline(blabla,120) ;
-    fichm >> mer_change_mag ; fichm.getline(blabla,120) ;
-    fichm >> mer_fix_mag ;
-    fichm.close();
-
-
-
 
     // Particular cases
     // ----------------
@@ -255,7 +244,6 @@ int main(){
 	cout << "Required Baryon mass [M_sol] : " 
 	     << mbar_wanted / msol << endl ; 
     }
-    
     cout << endl 
 	 << "==========================================================" << endl
 	 << "               Computational parameters                   " << endl
@@ -291,7 +279,7 @@ int main(){
     //		Construction of the star
     //-----------------------------------------------------------------------
     
-    Et_rot_mag star(mp, nzet, relat, eos) ; 
+    Et_rot_mag star(mp, nzet, relat, eos, conduct) ; 
     
     if ( star.is_relativistic() ) {
 	cout << "========================" << endl ;
@@ -330,7 +318,7 @@ int main(){
     cout << endl << "Initial star : " 
 	 << endl << "============   " << endl ;
 
-    //cout << star << endl ; 
+    cout << star << endl ; 
      
     //-----------------------------------------------------------------------
     //		Computation of the rotating equilibrium
@@ -339,33 +327,31 @@ int main(){
     double omega = 2 * M_PI * freq_si / f_unit ; 
     double omega_ini = 2 * M_PI * freq_ini_si / f_unit ; 
 
-    Itbl icontrol(11) ;
+    Itbl icontrol(10) ;
     icontrol.set_etat_qcq() ; 
     icontrol.set(0) = mer_max ; 
     icontrol.set(1) = mer_rot ; 
     icontrol.set(2) = mer_change_omega ; 
     icontrol.set(3) = mer_fix_omega ; 
     icontrol.set(4) = mer_mass ; 
-    icontrol.set(5) = mermax_poisson ; 
-    icontrol.set(6) = mer_triax ; 
-    icontrol.set(7) = delta_mer_kep ; 
-    icontrol.set(8) = mer_mag ;
-    icontrol.set(9) = mer_change_mag ;
-    icontrol.set(10)= mer_fix_mag ;
+    icontrol.set(5) = mermax_poisson ;  
+    icontrol.set(6) = delta_mer_kep ; 
+    icontrol.set(7) = mer_mag ;
+    icontrol.set(8) = mer_change_mag ;
+    icontrol.set(9)= mer_fix_mag ;
     
-    Tbl control(9) ; 
+    Tbl control(8) ; 
     control.set_etat_qcq() ; 
     control.set(0) = precis ; 
     control.set(1) = omega_ini ; 
     control.set(2) = relax ; 
     control.set(3) = relax_poisson ; 
     control.set(4) = thres_adapt ; 
-    control.set(5) = ampli_triax ; 
-    control.set(6) = precis_adapt ; 
-    control.set(7) = Q_ini ;
-    control.set(8) = a_j_ini ;
+    control.set(5) = precis_adapt ; 
+    control.set(6) = Q_ini ;
+    control.set(7) = a_j_ini ;
 
-    Tbl diff(8) ;     
+    Tbl diff(1) ;     
     
     star.equilibrium_mag(ent_c, omega, fact_omega, nzadapt, ent_limit, 
 			 icontrol, control, mbar_wanted, aexp_mass, diff, 
@@ -405,8 +391,6 @@ int main(){
     fichfinal << endl << "Physical characteristics : " << endl ; 
     fichfinal	  << "-------------------------" << endl ; 
     fichfinal << star << endl ;
-    //    fichfinal << "Growing rate of triaxial perturbation: " << vit_triax 
-    //      << endl ; 
 
     fichfinal << endl <<
     "===================================================================" 
@@ -466,9 +450,6 @@ int main(){
     
     if (graph == 1) {
 
-	des_map_et(mp, 0) ; 
-
-
 	char title[80] ;
 
 	// Cmp defining the surface of the star (via the enthalpy field)
@@ -482,15 +463,11 @@ int main(){
 
 	int nzdes = star.get_nzet() ; 
 
-	des_coupe_y(star.get_At(), 0., nzdes, "A\\dt\\u Potential", &surf) ; 
-	des_coupe_y(star.get_Aphi(), 0., nzdes, "A\\d\\gf\\u Potential", &surf) ; 
+	des_coupe_y(star.get_At(), 0., nzdes, "A\\dt\\u Potential", &surf,
+		    2.) ; 
+	des_coupe_y(star.get_Aphi(), 0., nzdes, "Magnetic field", &surf) ; 
 	des_coupe_y(star.get_ent()(), 0., nzdes, "Enthalpy", &surf) ; 
 
-	if (mer_triax < mer_max) { 
-	    des_coupe_z(star.get_ent()(), 0., nzdes, "Enthalpy (equatorial plane)", 
-			&surf) ; 
-	}
-	    
 	strcpy(title, "Gravitational potential \\gn") ; 
 
 	des_coupe_y(star.get_logn()(), 0., nzdes, title, &surf) ; 
