@@ -30,6 +30,9 @@ char eos_multi_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/05/09 10:43:52  k_taniguchi
+ * Change the searching method of the baryon density again.
+ *
  * Revision 1.2  2004/05/07 11:55:59  k_taniguchi
  * Change the searching procedure of the baryon density.
  *
@@ -54,6 +57,9 @@ char eos_multi_poly_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "param.h"
 
+double fonc_eos_mpoly_nb(double, const Param& ) ;
+
+//************************************************************************
 
                      //--------------------------------------//
                      //              Constructors            //
@@ -466,7 +472,7 @@ double Eos_multi_poly::nbar_ent_p(double ent, const Param* ) const {
 	// Switch the method of computation of the baryon density
 	double diff_gamma = gam_ep - gam_pr + double(1) ;
 
-	if (diff_gamma <= 0.) {
+	if (diff_gamma < 1.e-15) {
 	    while (abs(1.-nb_m1/nb) > 1.e-15) {
 	        nb_m1 = nb ;
 		nb = pow( (exp(ent) - double(1))
@@ -475,29 +481,39 @@ double Eos_multi_poly::nbar_ent_p(double ent, const Param* ) const {
 	    }
 	}
 	else {
-	    double aa = 0. ;
-	    double xx = 1. ;
-	    int m ;
-	    double yy ;
-	    double ent_value ;
+	    assert(i >= 1) ;
+	    assert(j >= 1) ;
 
-	    while (xx > 1.e-15) {
-
-	      ent_value = 1. ;   // Initialization
-	      xx = 0.1 * xx ;
-	      m = 0 ;
-
-	      while (ent_value > 1.e-15) {
-
-		m++ ;
-		yy = aa + m * xx ;
-		ent_value = exp(ent) - double(1) - kap_ep*pow(yy,gam_ep)
-		  - kap_pr*pow(yy,gam_pr-double(1)) ;
-
-	      }
-	      aa += (m - 1) * xx ;
+	    double nb_min ;
+	    double nb_max ;
+	    if (nb_press[i-1] > nb_epsil[j-1]) {
+	        nb_min = nb_press[i-1] ;
 	    }
-	    nb = aa ;
+	    else {
+	        nb_min = nb_epsil[j-1] ;
+	    }
+
+	    if (nb_press[i] < nb_epsil[j]) {
+	        nb_max = nb_press[i] ;
+	    }
+	    else {
+	        nb_max = nb_epsil[j] ;
+	    }
+
+	    Param parnb ;
+	    parnb.add_double( ent, 0 ) ;
+	    parnb.add_double( gam_pr, 1 ) ;
+	    parnb.add_double( gam_ep, 2 ) ;
+	    parnb.add_double( kap_pr, 3 ) ;
+	    parnb.add_double( kap_ep, 4 ) ;
+
+	    int nitmax_axe = 200 ;
+	    int nit_axe ;
+	    double precis_axe = 1.e-13 ;
+
+	    nb = zerosec(fonc_eos_mpoly_nb, parnb, nb_min, nb_max,
+			 precis_axe, nitmax_axe, nit_axe) ;
+
 	}
 
 	return nb ;
@@ -551,7 +567,7 @@ double Eos_multi_poly::ener_ent_p(double ent, const Param* ) const {
 	// Switch the method of computation of the baryon density
 	double diff_gamma = gam_ep - gam_pr + double(1) ;
 
-	if (diff_gamma <= 0.) {
+	if (diff_gamma < 1.e-15) {
 	    while (abs(1.-nb_m1/nb) > 1.e-15) {
 	        nb_m1 = nb ;
 		nb = pow( (exp(ent) - double(1))
@@ -560,29 +576,39 @@ double Eos_multi_poly::ener_ent_p(double ent, const Param* ) const {
 	    }
 	}
 	else {
-	    double aa = 0. ;
-	    double xx = 1. ;
-	    int m ;
-	    double yy ;
-	    double ent_value ;
+	    assert(i >= 1) ;
+	    assert(j >= 1) ;
 
-	    while (xx > 1.e-15) {
-
-	      ent_value = 1. ;   // Initialization
-	      xx = 0.1 * xx ;
-	      m = 0 ;
-
-	      while (ent_value > 1.e-15) {
-
-		m++ ;
-		yy = aa + m * xx ;
-		ent_value = exp(ent) - double(1) - kap_ep*pow(yy,gam_ep)
-		  - kap_pr*pow(yy,gam_pr-double(1)) ;
-
-	      }
-	      aa += (m - 1) * xx ;
+	    double nb_min ;
+	    double nb_max ;
+	    if (nb_press[i-1] > nb_epsil[j-1]) {
+	        nb_min = nb_press[i-1] ;
 	    }
-	    nb = aa ;
+	    else {
+	        nb_min = nb_epsil[j-1] ;
+	    }
+
+	    if (nb_press[i] < nb_epsil[j]) {
+	        nb_max = nb_press[i] ;
+	    }
+	    else {
+	        nb_max = nb_epsil[j] ;
+	    }
+
+	    Param parnb ;
+	    parnb.add_double( ent, 0 ) ;
+	    parnb.add_double( gam_pr, 1 ) ;
+	    parnb.add_double( gam_ep, 2 ) ;
+	    parnb.add_double( kap_pr, 3 ) ;
+	    parnb.add_double( kap_ep, 4 ) ;
+
+	    int nitmax_axe = 200 ;
+	    int nit_axe ;
+	    double precis_axe = 1.e-13 ;
+
+	    nb = zerosec(fonc_eos_mpoly_nb, parnb, nb_min, nb_max,
+			 precis_axe, nitmax_axe, nit_axe) ;
+
 	}
 	return nb * exp(ent) - kap_pr * pow(nb, gam_pr) ;
     }
@@ -635,7 +661,7 @@ double Eos_multi_poly::press_ent_p(double ent, const Param* ) const {
 	// Switch the method of computation of the baryon density
 	double diff_gamma = gam_ep - gam_pr + double(1) ;
 
-	if (diff_gamma <= 0.) {
+	if (diff_gamma < 1.e-15) {
 	    while (abs(1.-nb_m1/nb) > 1.e-15) {
 	        nb_m1 = nb ;
 		nb = pow( (exp(ent) - double(1))
@@ -644,29 +670,39 @@ double Eos_multi_poly::press_ent_p(double ent, const Param* ) const {
 	    }
 	}
 	else {
-	    double aa = 0. ;
-	    double xx = 1. ;
-	    int m ;
-	    double yy ;
-	    double ent_value ;
+	    assert(i >= 1) ;
+	    assert(j >= 1) ;
 
-	    while (xx > 1.e-15) {
-
-	      ent_value = 1. ;   // Initialization
-	      xx = 0.1 * xx ;
-	      m = 0 ;
-
-	      while (ent_value > 1.e-15) {
-
-		m++ ;
-		yy = aa + m * xx ;
-		ent_value = exp(ent) - double(1) - kap_ep*pow(yy,gam_ep)
-		  - kap_pr*pow(yy,gam_pr-double(1)) ;
-
-	      }
-	      aa += (m - 1) * xx ;
+	    double nb_min ;
+	    double nb_max ;
+	    if (nb_press[i-1] > nb_epsil[j-1]) {
+	        nb_min = nb_press[i-1] ;
 	    }
-	    nb = aa ;
+	    else {
+	        nb_min = nb_epsil[j-1] ;
+	    }
+
+	    if (nb_press[i] < nb_epsil[j]) {
+	        nb_max = nb_press[i] ;
+	    }
+	    else {
+	        nb_max = nb_epsil[j] ;
+	    }
+
+	    Param parnb ;
+	    parnb.add_double( ent, 0 ) ;
+	    parnb.add_double( gam_pr, 1 ) ;
+	    parnb.add_double( gam_ep, 2 ) ;
+	    parnb.add_double( kap_pr, 3 ) ;
+	    parnb.add_double( kap_ep, 4 ) ;
+
+	    int nitmax_axe = 200 ;
+	    int nit_axe ;
+	    double precis_axe = 1.e-13 ;
+
+	    nb = zerosec(fonc_eos_mpoly_nb, parnb, nb_min, nb_max,
+			 precis_axe, nitmax_axe, nit_axe) ;
+
 	}
 	return kap_pr * pow(nb, gam_pr) ;
     }
@@ -725,7 +761,7 @@ double Eos_multi_poly::der_nbar_ent_p(double ent, const Param* ) const {
 	    // Switch the method of computation of the baryon density
 	    double diff_gamma = gam_ep - gam_pr + double(1) ;
 
-	    if (diff_gamma <= 0.) {
+	    if (diff_gamma < 1.e-15) {
 	        while (abs(1.-nb_m1/nb) > 1.e-15) {
 		    nb_m1 = nb ;
 		    nb = pow( (exp(ent) - double(1))
@@ -734,30 +770,39 @@ double Eos_multi_poly::der_nbar_ent_p(double ent, const Param* ) const {
 		}
 	    }
 	    else {
-	        double aa = 0. ;
-		double xx = 1. ;
-		int m ;
-		double yy ;
-		double ent_value ;
+	        assert(i >= 1) ;
+		assert(j >= 1) ;
 
-		while (xx > 1.e-15) {
-
-		    ent_value = 1. ;   // Initialization
-		    xx = 0.1 * xx ;
-		    m = 0 ;
-
-		    while (ent_value > 1.e-15) {
-
-		        m++ ;
-			yy = aa + m * xx ;
-			ent_value = exp(ent) - double(1)
-			  - kap_ep*pow(yy,gam_ep)
-			  - kap_pr*pow(yy,gam_pr-double(1)) ;
-
-		    }
-		    aa += (m - 1) * xx ;
+		double nb_min ;
+		double nb_max ;
+		if (nb_press[i-1] > nb_epsil[j-1]) {
+		    nb_min = nb_press[i-1] ;
 		}
-		nb = aa ;
+		else {
+		    nb_min = nb_epsil[j-1] ;
+		}
+
+		if (nb_press[i] < nb_epsil[j]) {
+		    nb_max = nb_press[i] ;
+		}
+		else {
+		    nb_max = nb_epsil[j] ;
+		}
+
+	        Param parnb ;
+		parnb.add_double( ent, 0 ) ;
+		parnb.add_double( gam_pr, 1 ) ;
+		parnb.add_double( gam_ep, 2 ) ;
+		parnb.add_double( kap_pr, 3 ) ;
+		parnb.add_double( kap_ep, 4 ) ;
+
+		int nitmax_axe = 200 ;
+		int nit_axe ;
+		double precis_axe = 1.e-13 ;
+
+		nb = zerosec(fonc_eos_mpoly_nb, parnb, nb_min, nb_max,
+			     precis_axe, nitmax_axe, nit_axe) ;
+
 	    }
 
 	    return ent * exp(ent) / ( gam_ep * (exp(ent)-double(1))
@@ -828,7 +873,7 @@ double Eos_multi_poly::der_ener_ent_p(double ent, const Param* ) const {
 	    // Switch the method of computation of the baryon density
 	    double diff_gamma = gam_ep - gam_pr + double(1) ;
 
-	    if (diff_gamma <= 0.) {
+	    if (diff_gamma < 1.e-15) {
 	        while (abs(1.-nb_m1/nb) > 1.e-15) {
 		    nb_m1 = nb ;
 		    nb = pow( (exp(ent) - double(1))
@@ -837,30 +882,39 @@ double Eos_multi_poly::der_ener_ent_p(double ent, const Param* ) const {
 		}
 	    }
 	    else {
-	        double aa = 0. ;
-		double xx = 1. ;
-		int m ;
-		double yy ;
-		double ent_value ;
+	        assert(i >= 1) ;
+		assert(j >= 1) ;
 
-		while (xx > 1.e-15) {
-
-		    ent_value = 1. ;   // Initialization
-		    xx = 0.1 * xx ;
-		    m = 0 ;
-
-		    while (ent_value > 1.e-15) {
-
-		        m++ ;
-			yy = aa + m * xx ;
-			ent_value = exp(ent) - double(1)
-			  - kap_ep*pow(yy,gam_ep)
-			  - kap_pr*pow(yy,gam_pr-double(1)) ;
-
-		    }
-		    aa += (m - 1) * xx ;
+		double nb_min ;
+		double nb_max ;
+		if (nb_press[i-1] > nb_epsil[j-1]) {
+		    nb_min = nb_press[i-1] ;
 		}
-		nb = aa ;
+		else {
+		    nb_min = nb_epsil[j-1] ;
+		}
+
+		if (nb_press[i] < nb_epsil[j]) {
+		    nb_max = nb_press[i] ;
+		}
+		else {
+		    nb_max = nb_epsil[j] ;
+		}
+
+	        Param parnb ;
+		parnb.add_double( ent, 0 ) ;
+		parnb.add_double( gam_pr, 1 ) ;
+		parnb.add_double( gam_ep, 2 ) ;
+		parnb.add_double( kap_pr, 3 ) ;
+		parnb.add_double( kap_ep, 4 ) ;
+
+		int nitmax_axe = 200 ;
+		int nit_axe ;
+		double precis_axe = 1.e-13 ;
+
+		nb = zerosec(fonc_eos_mpoly_nb, parnb, nb_min, nb_max,
+			     precis_axe, nitmax_axe, nit_axe) ;
+
 	    }
 
 	    return ent * exp(ent) / ( gam_ep * (exp(ent)-double(1))
@@ -928,7 +982,7 @@ double Eos_multi_poly::der_press_ent_p(double ent, const Param* ) const {
 	    // Switch the method of computation of the baryon density
 	    double diff_gamma = gam_ep - gam_pr + double(1) ;
 
-	    if (diff_gamma <= 0.) {
+	    if (diff_gamma < 1.e-15) {
 	        while (abs(1.-nb_m1/nb) > 1.e-15) {
 		    nb_m1 = nb ;
 		    nb = pow( (exp(ent) - double(1))
@@ -937,30 +991,39 @@ double Eos_multi_poly::der_press_ent_p(double ent, const Param* ) const {
 		}
 	    }
 	    else {
-	        double aa = 0. ;
-		double xx = 1. ;
-		int m ;
-		double yy ;
-		double ent_value ;
+	        assert(i >= 1) ;
+		assert(j >= 1) ;
 
-		while (xx > 1.e-15) {
-
-		    ent_value = 1. ;   // Initialization
-		    xx = 0.1 * xx ;
-		    m = 0 ;
-
-		    while (ent_value > 1.e-15) {
-
-		        m++ ;
-			yy = aa + m * xx ;
-			ent_value = exp(ent) - double(1)
-			  - kap_ep*pow(yy,gam_ep)
-			  - kap_pr*pow(yy,gam_pr-double(1)) ;
-
-		    }
-		    aa += (m - 1) * xx ;
+		double nb_min ;
+		double nb_max ;
+		if (nb_press[i-1] > nb_epsil[j-1]) {
+		    nb_min = nb_press[i-1] ;
 		}
-		nb = aa ;
+		else {
+		    nb_min = nb_epsil[j-1] ;
+		}
+
+		if (nb_press[i] < nb_epsil[j]) {
+		    nb_max = nb_press[i] ;
+		}
+		else {
+		    nb_max = nb_epsil[j] ;
+		}
+
+	        Param parnb ;
+		parnb.add_double( ent, 0 ) ;
+		parnb.add_double( gam_pr, 1 ) ;
+		parnb.add_double( gam_ep, 2 ) ;
+		parnb.add_double( kap_pr, 3 ) ;
+		parnb.add_double( kap_ep, 4 ) ;
+
+		int nitmax_axe = 200 ;
+		int nit_axe ;
+		double precis_axe = 1.e-13 ;
+
+		nb = zerosec(fonc_eos_mpoly_nb, parnb, nb_min, nb_max,
+			     precis_axe, nitmax_axe, nit_axe) ;
+
 	    }
 
 	    return gam_pr * ent * exp(ent)
@@ -974,5 +1037,22 @@ double Eos_multi_poly::der_press_ent_p(double ent, const Param* ) const {
 	double gam_pr = gam_p[0] ;
         return gam_pr / gam_ep ;	//  to ensure continuity at ent=0
     }
+
+}
+
+//**************************************************
+//  Function used for search of the baryon density
+//**************************************************
+
+double fonc_eos_mpoly_nb(double nbnb, const Param& parnb) {
+
+    double ent_input = parnb.get_double(0) ;
+    double gamma_press = parnb.get_double(1) ;
+    double gamma_epsil = parnb.get_double(2) ;
+    double kappa_press = parnb.get_double(3) ;
+    double kappa_epsil = parnb.get_double(4) ;
+
+    return exp(ent_input) - double(1) - kappa_epsil*pow(nbnb, gamma_epsil)
+      - kappa_press*pow(nbnb, gamma_press-double(1)) ;
 
 }
