@@ -5,7 +5,7 @@
  */
 
 /*
- *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2004 Eric Gourgoulhon & Jerome Novak
  *
  *   Copyright (c) 1999-2001 Philippe Grandclement (for preceding class Tenseur)
  *
@@ -33,6 +33,10 @@ char tensor_calculus_ext_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/01/23 08:00:16  e_gourgoulhon
+ * Minor modifs. in output of methods min, max, maxabs, diffrel to
+ * better handle the display in the scalar case.
+ *
  * Revision 1.5  2004/01/15 10:59:53  f_limousin
  * Added method contract_desal for the contraction of two tensors with desaliasing
  *
@@ -306,11 +310,12 @@ Tbl diffrel(const Tensor& aa, const Tensor& bb, ostream& ost) {
 		idx = tmax->indices(ic) ; 
 		Tbl diff = diffrel( aa(idx), bb(idx) ) ; 
 		
-		ost << "   Comp." ; 
+		if (n_comp_max > 1) ost << "   Comp." ; 
 		for (int j=0 ; j<val ; j++) {
 	  		ost << " " << idx(j) ;
       	}
-		ost << " : " ; 
+		if (n_comp_max > 1) ost << " : " ; 
+                else ost << "   " ;
 		for (int l=0; l<nz; l++) {
 			ost << "  " << diff(l) ;
 			resu.set(ic, l) = diff(l) ; 
@@ -358,11 +363,12 @@ Tbl diffrelmax(const Tensor& aa, const Tensor& bb, ostream& ost) {
 		idx = tmax->indices(ic) ; 
 		Tbl diff = diffrelmax( aa(idx), bb(idx) ) ; 
 		
-		ost << "   Comp." ; 
+		if (n_comp_max > 1) ost << "   Comp." ; 
 		for (int j=0 ; j<val ; j++) {
 	  		ost << " " << idx(j) ;
       	}
-		ost << " : " ; 
+		if (n_comp_max > 1) ost << " : " ; 
+                else ost << "   " ;
 		for (int l=0; l<nz; l++) {
 			ost << "  " << diff(l) ;
 			resu.set(ic, l) = diff(l) ; 
@@ -377,7 +383,7 @@ Tbl diffrelmax(const Tensor& aa, const Tensor& bb, ostream& ost) {
 
 
 				//----------------//
-				//     max	      //
+				//     max	  //
 				//----------------//
 
 
@@ -398,11 +404,12 @@ Tbl max(const Tensor& aa, ostream& ost) {
 		idx = aa.indices(ic) ; 
 		Tbl diff = max( aa(idx) ) ; 
 		
-		ost << "   Comp." ; 
+		if (val > 0) ost << "   Comp." ; 
 		for (int j=0 ; j<val ; j++) {
 	  		ost << " " << idx(j) ;
       	}
-		ost << " : " ; 
+		if (val > 0) ost << " : " ; 
+                else ost << "   " ;
 		for (int l=0; l<nz; l++) {
 			ost << "  " << diff(l) ;
 			resu.set(ic, l) = diff(l) ; 
@@ -417,7 +424,7 @@ Tbl max(const Tensor& aa, ostream& ost) {
 
 
 				//----------------//
-				//     min	      //
+				//     min	  //
 				//----------------//
 
 
@@ -438,11 +445,12 @@ Tbl min(const Tensor& aa, ostream& ost) {
 		idx = aa.indices(ic) ; 
 		Tbl diff = min( aa(idx) ) ; 
 		
-		ost << "   Comp." ; 
+		if (val > 0) ost << "   Comp." ; 
 		for (int j=0 ; j<val ; j++) {
 	  		ost << " " << idx(j) ;
       	}
-		ost << " : " ; 
+		if (val > 0) ost << " : " ; 
+                else ost << "   " ;
 		for (int l=0; l<nz; l++) {
 			ost << "  " << diff(l) ;
 			resu.set(ic, l) = diff(l) ; 
@@ -477,11 +485,12 @@ Tbl maxabs(const Tensor& aa, ostream& ost) {
 		idx = aa.indices(ic) ; 
 		Tbl diff = max( abs( aa(idx) ) ) ; 
 		
-		ost << "   Comp." ; 
+		if (val > 0) ost << "   Comp." ; 
 		for (int j=0 ; j<val ; j++) {
 	  		ost << " " << idx(j) ;
-      	}
-		ost << " : " ; 
+      	        }
+		if (val > 0 ) ost << " : " ; 
+                else ost << "   " ; 
 		for (int l=0; l<nz; l++) {
 			ost << "  " << diff(l) ;
 			resu.set(ic, l) = diff(l) ; 
