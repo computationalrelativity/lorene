@@ -98,6 +98,9 @@ char circhebpimi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/12/27 14:27:28  j_novak
+ * Added forgotten "delete [] t1"
+ *
  * Revision 1.1  2004/12/21 17:06:02  j_novak
  * Added all files for using fftw3.
  *
@@ -416,9 +419,10 @@ int i, j, k ;
 
    }	// fin de la boucle sur les cas m pair
 
-    if (n1f<=3) 	    // cas m=0 seulement (symetrie axiale)
+    if (n1f<=3) {	    // cas m=0 seulement (symetrie axiale)
+	delete [] t1 ;
 	return ;
-
+    }
 
 //=======================================================================
 //				Cas m impair
