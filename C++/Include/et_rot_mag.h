@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2002/05/20 08:27:59  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.5  2002/05/17 15:08:01  e_marcq
  *
  * Rotation progressive plug-in, units corrected, Q and a_j new member data
@@ -136,8 +139,8 @@ class Et_rot_mag : public Etoile_rot {
   const Tenseur& get_Jpem() const {return Jp_em ;} ;
   const Tenseur& get_Srrem() const {return Srr_em ; } ;
   const Tenseur& get_Sppem() const {return Spp_em ;} ;
-  const double get_Q() const {return Q ;} ;
-  const double get_a_j() const {return a_j ;} ;
+  double get_Q() const {return Q ;} ;
+  double get_a_j() const {return a_j ;} ;
 
   // Outputs
   // -------

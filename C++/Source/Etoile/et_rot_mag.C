@@ -32,6 +32,9 @@ char et_rot_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2002/05/20 08:27:59  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.7  2002/05/17 15:08:01  e_marcq
  *
  * Rotation progressive plug-in, units corrected, Q and a_j new member data
@@ -75,8 +78,8 @@ char et_rot_mag_C[] = "$Header$" ;
 
 Et_rot_mag::Et_rot_mag(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i)
   : Etoile_rot(mp_i, nzet_i, relat, eos_i),
-    A_phi(mp_i),
     A_t(mp_i),
+    A_phi(mp_i),
     j_t(mp_i),
     j_phi(mp_i),
     E_em(mp_i),
@@ -103,8 +106,8 @@ set_der_0x0() ;
 
 Et_rot_mag::Et_rot_mag(const Et_rot_mag& et)
   : Etoile_rot(et),
-  A_phi(et.A_phi),
   A_t(et.A_t),
+  A_phi(et.A_phi),
   j_phi(et.j_phi),
   j_t(et.j_t),
   E_em(et.E_em),
@@ -163,10 +166,10 @@ void Et_rot_mag::operator=(const Et_rot_mag& et) {
 
   // Assignement of quantities common to all the derived classes of Etoile
   Etoile_rot::operator=(et) ;
-  A_phi  = et.A_phi  ;
   A_t    = et.A_t    ;
-  j_phi  = et.j_phi  ;
+  A_phi  = et.A_phi  ;
   j_t    = et.j_t    ;
+  j_phi  = et.j_phi  ;
   E_em   = et.E_em   ;
   Jp_em  = et.Jp_em  ;
   Srr_em = et.Srr_em ;

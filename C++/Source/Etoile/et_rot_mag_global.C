@@ -33,6 +33,9 @@ char et_rot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2002/05/20 08:27:59  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.8  2002/05/17 15:08:01  e_marcq
  *
  * Rotation progressive plug-in, units corrected, Q and a_j new member data
@@ -139,40 +142,37 @@ Tenseur Et_rot_mag::Magn() const {
 
 double Et_rot_mag::MagMom() const {
 
-  // idem : redimensionner comme il faut.
-
   int Z = mp.get_mg()->get_nzone();   
   double mm ;
-
-  // régler la base de A_phi ?
-  //  A_phi.std_base_scal() ;
 
   if(A_phi.get_etat()==ETATZERO) {
 
     mm = 0 ;
   }else{
 
-  Valeur** asymp = A_phi.asymptot(1) ;
-  mm = -4*M_PI/mu0*(*asymp[1])(Z-1,0,mp.get_mg()->get_nt(0)-1,0) ;
-
-  delete asymp[0] ;
-  delete asymp[1] ;
-
-  delete [] asymp ;
+    Valeur** asymp = A_phi.asymptot(1) ;
+    mm = -4*M_PI/mu0*(*asymp[1])(Z-1,0,mp.get_mg()->get_nt(0)-1,0) ;
+    
+    delete asymp[0] ;
+    delete asymp[1] ;
+    
+    delete [] asymp ;
   }
-
+  
   return mm*j_unit*pow(r_unit,4)/1e27 ;
 
 }
 
 double Et_rot_mag::Q_comput() const {
-  double Z = mp.get_mg()->get_nzone() ;
-  
+
+  int Z = mp.get_mg()->get_nzone();
+
   if(A_t.get_etat()==ETATZERO) {
     return 0 ;
   }else{
   Valeur** asymp = A_t.asymptot(1) ;
-  double Q_c = -4*M_PI/mu0*(*asymp[1])(Z-1,0,0,0) ;
+
+  double Q_c = -4*M_PI*(*asymp[1])(Z-1,0,0,0) ;
   delete asymp[0] ;
   delete asymp[1] ;
 
