@@ -33,6 +33,9 @@ char metrique_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2003/06/20 14:48:38  f_limousin
+ * The functions set_con() and set_cov() now return a Tenseur_sym&
+ *
  * Revision 1.11  2003/03/03 19:43:50  f_limousin
  * Add two new members : set_cov() and set_con().
  *
@@ -350,7 +353,7 @@ Cmp& Metrique::set_con (int ind1, int ind2) {
 }
 
 
-Tenseur_sym Metrique::set_cov () {
+Tenseur_sym& Metrique::set_cov () {
 
   del_dependances() ;
  
@@ -361,7 +364,7 @@ Tenseur_sym Metrique::set_cov () {
 
 }
   
-Tenseur_sym Metrique::set_con () {
+Tenseur_sym& Metrique::set_con () {
 
   del_dependances() ;
  
