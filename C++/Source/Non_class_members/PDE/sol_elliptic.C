@@ -23,6 +23,9 @@ char sol_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/05/26 20:32:44  p_grandclement
+ * utilisation of val_r_jk
+ *
  * Revision 1.2  2003/12/19 16:21:49  j_novak
  * Shadow hunt
  *
@@ -83,14 +86,16 @@ Mtbl_cf elliptic_solver  (const Param_elliptic& ope_var, const Mtbl_cf& source) 
   // Computation of the SP and SH's in every domain ...
   int conte = 0 ;
   for (int zone=0 ; zone<nz ; zone++) {
+
     nr = source.get_mg()->get_nr(zone) ;
     nt = source.get_mg()->get_nt(zone) ;
     np = source.get_mg()->get_np(zone) ;
-     
+
     for (int k=0 ; k<np+1 ; k++)
       for (int j=0 ; j<nt ; j++) {
+
 	if (ope_var.operateurs[conte] != 0x0) {
-	
+
 	  // Calcul de la SH
 	  sol_hom = new Tbl(ope_var.operateurs[conte]->get_solh()) ;
 	  
@@ -122,7 +127,8 @@ Mtbl_cf elliptic_solver  (const Param_elliptic& ope_var, const Mtbl_cf& source) 
 	conte ++ ;
       }
   }
-  
+
+
   //-------------------------------------------------
   // ON EST PARTI POUR LE RACCORD (Be carefull ....)
   //-------------------------------------------------
@@ -151,7 +157,8 @@ Mtbl_cf elliptic_solver  (const Param_elliptic& ope_var, const Mtbl_cf& source) 
 	//  Noyau :
 	//---------
 	conte = start ;
-	double rlim = ope_var.operateurs[conte]->get_alpha() ;
+	double rlim = ope_var.get_mp().val_r_jk (0,1,j,k) ;
+
 	systeme.set(0,0) = ope_var.variables[conte]->val_G(rlim) * 
 	  ope_var.operateurs[conte]->val_sh_one_plus() ;
 	systeme.set(1,0) = 
@@ -175,8 +182,8 @@ Mtbl_cf elliptic_solver  (const Param_elliptic& ope_var, const Mtbl_cf& source) 
 	  int nt_prec = source.get_mg()->get_nt(l-1) ;
 	  conte += (np_prec+1)*nt_prec ;
 	  
-	  rlim = ope_var.operateurs[conte]->get_beta()-ope_var.operateurs[conte]->get_alpha() ;
-
+	  rlim = ope_var.get_mp().val_r_jk (l, -1, j,k) ;
+	 
 	  systeme.set(2*l-2, 2*l-1) = -ope_var.variables[conte]->val_G(rlim) * 
 	    ope_var.operateurs[conte]->val_sh_one_minus() ;
 	  systeme.set(2*l-2, 2*l) = - ope_var.variables[conte]->val_G(rlim) * 
@@ -196,7 +203,7 @@ Mtbl_cf elliptic_solver  (const Param_elliptic& ope_var, const Mtbl_cf& source) 
 	  
 	  // Valeurs en +1 :
 	  
-	  rlim = ope_var.operateurs[conte]->get_beta()+ope_var.operateurs[conte]->get_alpha() ;
+	  rlim = ope_var.get_mp().val_r_jk (l, 1, j,k);
 	  
 	  systeme.set(2*l, 2*l-1) = ope_var.variables[conte]->val_G(rlim) * 
 	    ope_var.operateurs[conte]->val_sh_one_plus() ;
@@ -223,7 +230,7 @@ Mtbl_cf elliptic_solver  (const Param_elliptic& ope_var, const Mtbl_cf& source) 
 	int nt_prec = source.get_mg()->get_nt(nz-2) ;
 	conte += (np_prec+1)*nt_prec ;
 	
-	rlim = 1./2./ope_var.operateurs[conte]->get_alpha() ;
+	rlim = ope_var.get_mp().val_r_jk (nz-1, -1, j,k)  ;
 	
 	systeme.set(taille-2, taille-1) = -ope_var.variables[conte]->val_G(rlim) * 
 	  ope_var.operateurs[conte]->val_sh_one_minus() ;
