@@ -35,6 +35,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2003/11/03 10:25:27  j_novak
+ * Suppressed the call to del_deriv() in set_etat_qcq() method.
+ *
  * Revision 1.20  2003/10/28 21:33:13  e_gourgoulhon
  * In operator=(const Scalar& ci) changed the place of va.del_t()
  * in order to correct an error in the case where both this and ci
@@ -243,9 +246,11 @@ void Scalar::set_der_0x0() const {
 // ETATZERO
 void Scalar::set_etat_zero() {
     if (etat == ETATZERO) return ;
-    del_deriv() ;
-    va.set_etat_zero() ;
-    etat = ETATZERO ;
+    else {
+    	del_deriv() ;
+    	va.set_etat_zero() ;
+    	etat = ETATZERO ;
+    }
 }
 
 // ETATUN
@@ -261,21 +266,20 @@ void Scalar::set_etat_one() {
 // ETATNONDEF
 void Scalar::set_etat_nondef() {
     if (etat == ETATNONDEF) return ;
-    del_t() ;
-    etat = ETATNONDEF ;
+    else {
+    	del_t() ;
+    	etat = ETATNONDEF ;
+    }
 }
 
 // ETATQCQ
 void Scalar::set_etat_qcq() {
 
-    if (etat == ETATQCQ) {
-      del_deriv() ; 
-      return ;
+    if (etat == ETATQCQ) return ;
+    else {
+    	del_t() ;
+    	etat = ETATQCQ ;
     }
-    
-    del_t() ;
-    
-    etat = ETATQCQ ;
 }
 
 
@@ -392,7 +396,7 @@ void Scalar::operator=(const Scalar& ci) {
     	// Menage general de la Valeur, mais pas des quantites derivees !
     	va.del_t() ;
 	    
-		set_etat_qcq() ; //## a voir: set_etat_qcq appelle del_deriv() !!!
+		set_etat_qcq() ; // set_etat_qcq n'appelle pas del_deriv()
 	    va = ci.va ;
 
 	    // On detruit les quantites derivees (seulement lorsque tout est fini !)
