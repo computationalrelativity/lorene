@@ -1,0 +1,183 @@
+
+                //----------------------------------------------//
+		//  Langage Objet pour la RElativite NumeriquE  //
+		//		   (LORENE)			//
+		//----------------------------------------------//
+
+			*******************************
+			*  INSTALLATION INSTRUCTIONS  * 
+			*******************************
+
+	 $Id$
+
+Comments or questions should be addressed to Eric.Gourgoulhon@obspm.fr.
+
+See also the file INSTALL_linux for some features specific to Linux.
+				
+
+0/ Requisites (apart from a C++ and F77 compiler !)
+   ==========
+
+LAPACK: Lorene uses the LAPACK (Linear Algebra PACKage) library to perform
+        linear algebra operations. LAPACK must therefore be installed on
+	your system. LAPACK is a public domain software and can be downloaded
+	from 
+		http://www.netlib.org/lapack/
+
+	If you are using Linux, see the companion file INSTALL_linux. 
+
+PGPLOT: Lorene uses the PGPLOT library for producing 2-D graphical outputs. 
+	You can use Lorene without PGPLOT provided that you don't perform
+	any call to the routines 
+		Lorene/C++/Source/Non_class_members/Graphics/des_*
+	However, it is recommended to install PGPLOT on your system, from
+	the web site
+		http://www.astro.caltech.edu/~tjp/pgplot/
+
+	If you are using Linux, see the companion file INSTALL_linux. 
+
+
+DOC++: Lorene uses the DOC++ software to produce its LaTeX and HTML 
+       documentation. You can of course compile and run Lorene codes 
+       without DOC++ being installed on your system. But to write any
+       piece of code, it is necessary to have Lorene documentation. 
+       Therefore, it is strongly recommended to install DOC++ on your system, 
+       if you do not already have it. DOC++ is a free software under the
+       GNU General Public License. You can download it from the web site
+
+		http://docpp.sourceforge.net/
+
+   	Lorene requires version 3.4.8 or higher of DOC++.
+	If you are using Linux, see the companion file INSTALL_linux. 
+
+CVS: 	The internet access to Lorene sources is performed via a CVS server.
+	CVS (Concurrent Versions System) is powerfull tool to
+	manage versions and develop over the network. CVS is a free software
+        under the GNU General Public License. It comes in standard with
+        many Linux distributions. If you don't have it on your system, you
+	can download it from the web site
+
+		http://www.cvshome.org/
+
+
+
+1/ Download from the CVS repository
+   ================================
+
+Connect to the CVS repository in Meudon:
+
+	cvs -d :pserver:anonymous@octane.obspm.fr:/cvsroot login
+
+ 	password: anonymous
+
+   Download Lorene by typying
+
+	cvs -d :pserver:anonymous@octane.obspm.fr:/cvsroot checkout Lorene
+
+
+2/ Set of the environment variable HOME_LORENE
+   -------------------------------------------
+
+Enter to Lorene root directory which has just been created
+
+	cd Lorene
+
+   and define HOME_LORENE to be the full path name of this directory:
+   -- if your Unix shell is csh or tcsh, type
+
+   	setenv HOME_LORENE $PWD
+
+   -- if it is instead bash (common under Linux), type
+
+   	export HOME_LORENE=$PWD
+
+For future use of Lorene, it would be helpful to define HOME_LORENE in
+the resource file .cshrc .tchsrc or .bashrc in your home directory by
+inserting the line
+	setenv HOME_LORENE /??/Lorene        in .cshrc or .tchsrc
+	export HOME_LORENE=/??/Lorene        in .bashrc
+
+where /?? denotes the full path to the Lorene directory
+This will avoid to set it manually after each login.
+
+
+3/ Defining the parameters specific to your system
+   -----------------------------------------------
+
+Before to launch the compilation of Lorene, you have to specify which
+compilers to use, with which options, and where are located some system
+libraries. This information should be passed to Lorene via the
+file
+	$HOME_LORENE/local_settings
+
+This file is the only one of the Lorene distribution which is
+architecture/system dependent. It will be included by all the
+Lorene Makefiles, which are fully architecture independent.
+
+Some templates files are provided for
+   -- Linux with GNU compilers   (local_settings_linux)
+   -- SGI Irix                   (local_settings_irix)
+   -- Compaq Alpha Digital Unix  (local_settings_alpha)
+
+To create the file $HOME_LORENE/local_settings, you simply have to
+copy one of this file into local_settings by typing, e.g. under Linux
+
+	cd $HOME_LORENE
+	cp local_settings_linux local_settings
+
+You may then edit local_settings to adapt it to some special features of
+your system implementation.
+
+
+4/ Compiling
+   ---------
+
+The compilation of Lorene is launched via the command (in the HOME_LORENE
+directory)
+
+   	make
+
+This will first create the Lorene documentation, including the HTML
+reference guide, provided DOC++ is
+installed on your system (see the Requisites section above).
+Then the C++ part is compiled and the Fortran 77 one.
+
+To read Lorene's reference manual, type
+
+	netscape $HOME_LORENE/Doc/refguide/index.html
+
+
+5/ Testing the installation
+   ------------------------
+
+It everything went well the compilation, you can check the link with
+LAPACK and PGPLOT libraries with
+
+	make test
+
+This will produce three executables:
+
+	$HOME_LORENE/Test/test_fft	: check LAPACK and PGPLOT
+	$HOME_LORENE/Test/test_lapack	: check LAPACK only
+	$HOME_LORENE/Test/test_pgplot	: check LAPACK and PGPLOT
+
+
+6/ Upgrading the installation
+   --------------------------
+
+As a research software, LORENE is under permanent development. 
+You should therefore run from time to time the commands 
+
+	cd $HOME_LORENE
+	cvs update -d
+	make
+
+to get the latest version of LORENE. 
+The script $HOME_LORENE/lorene_up contains the above commands, so 
+that it is equivalent to type
+
+	$HOME_LORENE/lorene_up
+
+
+
+

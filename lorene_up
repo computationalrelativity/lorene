@@ -1,0 +1,5 @@
+#!/bin/sh
+cd $HOME_LORENE
+cvs update -d
+make
+exit

@@ -28,6 +28,9 @@ char test_mg3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2001/12/12 12:33:44  e_gourgoulhon
+ * Installation instructions now in files INSTALL and INSTALL_linux
+ *
  * Revision 1.2  2001/12/12 09:23:46  e_gourgoulhon
  * Parameter compact added to the simplified constructor of class Mg3d
  *
@@ -60,12 +63,10 @@ int main() {
 
 	{
 	  Mg3d mg(nz, nr, nt, np, SYM, NONSYM, true) ;
-
 	  cout << "Multi-grid:" << endl ;
 	  cout << mg << endl ;
-	
 	}
-
+	
 	return EXIT_SUCCESS ;
 
 }
