@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2003/10/19 19:47:31  e_gourgoulhon
+ * Introduced new virtual method spectral_display.
+ *
  * Revision 1.22  2003/10/16 15:24:30  e_gourgoulhon
  * Name of method annule(int ) changed to annule_domain(int ).
  *
@@ -671,6 +674,17 @@ class Tensor {
     // -------
     public:
 	virtual void sauve(FILE *) const ;	    /// Save in a file
+
+	/** Displays the spectral coefficients and the associated
+	 *  basis functions of each component. This function shows 
+	 *  only the values greater than a given threshold.
+	 *   @param threshold [input] Value above which a coefficient is printed
+	 *    (default: 1.e-7)
+	 *   @param precision [input] Number of printed digits (default: 4)
+	 *   @param ostr [input] Output stream used for the printing (default: cout)
+	 */
+	virtual void spectral_display(double threshold = 1.e-7, int precision = 4, 
+			   ostream& ostr = cout) const ;
 
 	friend ostream& operator<<(ostream& , const Tensor & ) ;
 	
