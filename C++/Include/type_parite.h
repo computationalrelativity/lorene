@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/11/04 15:40:14  e_gourgoulhon
+ * Added definition of symbol T_LEG.
+ *
  * Revision 1.5  2004/08/24 09:14:40  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -189,6 +192,8 @@
 #define T_CL_COS_I 0x00001500
 /// CL of odd sines.
 #define T_CL_SIN_I 0x00001600
+/// fct. de Legendre associees 
+#define T_LEG 0x00001700
 
 
     /* Phi */
