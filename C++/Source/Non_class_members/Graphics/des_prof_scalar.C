@@ -31,6 +31,11 @@ char des_prof_scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/05/17 19:47:25  e_gourgoulhon
+ *  -- Function des_profile_mult(const Scalar**,...): added argument
+ *     device.
+ *  -- Functions des_meridian: added arguments device and closeit.
+ *
  * Revision 1.6  2004/04/06 07:47:29  j_novak
  * Added a #include "string.h"
  *
@@ -153,8 +158,12 @@ void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
 void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max, 
 	const double* theta, const double* phi, double radial_scale,
         bool closeit, const char* nomy, const char* title, int ngraph,
-        const char* nomx, const int* line_style) {
+        const char* nomx, const int* line_style, const char* device) {
 		
+    // Special case of no graphical output:
+    if (device != 0x0) {
+        if ((device[0] == '/') && (device[1] == 'n')) return ; 
+    }
 
     const int npt = 400 ;   // Number of points along the axis
     double rr[npt] ; 
@@ -190,7 +199,7 @@ void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max,
    
     
     des_profile_mult(uutab, nprof, npt, xmin, xmax, nomx, nomy, title, 
-                     line_style, ngraph, closeit) ; 
+                     line_style, ngraph, closeit, device) ; 
                      
       
     delete [] uutab ; 
@@ -200,16 +209,22 @@ void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max,
 //******************************************************************************
 
 void des_meridian(const Scalar& uu, double r_min, double r_max,
-                  const char* nomy, int ngraph) {
+                  const char* nomy, int ngraph, const char* device,
+                  bool closeit) {
 
-        const Scalar* des[] = {&uu, &uu, &uu, &uu, &uu} ; 
-        double phi1[] = {0., 0., 0., 0.25*M_PI, 0.25*M_PI} ; 
-        double theta1[] = {0., 0.25*M_PI, 0.5*M_PI, 0., 0.25*M_PI} ;
+    // Special case of no graphical output:
+    if (device != 0x0) {
+        if ((device[0] == '/') && (device[1] == 'n')) return ; 
+    }
+
+    const Scalar* des[] = {&uu, &uu, &uu, &uu, &uu} ; 
+    double phi1[] = {0., 0., 0., 0.25*M_PI, 0.25*M_PI} ; 
+    double theta1[] = {0., 0.25*M_PI, 0.5*M_PI, 0., 0.25*M_PI} ;
          
-        des_profile_mult(des, 5, r_min, r_max, theta1, phi1, 1., false, 
+    des_profile_mult(des, 5, r_min, r_max, theta1, phi1, 1., closeit, 
             nomy, 
             "phi=0: th=0, pi/4, pi/2, phi=pi/4: th=0, pi/4",
-            ngraph) ;
+            ngraph, 0x0, 0x0, device) ;
         
 }
 
@@ -217,8 +232,14 @@ void des_meridian(const Scalar& uu, double r_min, double r_max,
 
 
 void des_meridian(const Sym_tensor& hh, double r_min, double r_max,
-                  const char* name) {
+                  const char* name, int ngraph0, const char* device,
+                  bool closeit) {
     
+    // Special case of no graphical output:
+    if (device != 0x0) {
+        if ((device[0] == '/') && (device[1] == 'n')) return ; 
+    }
+
     char nomy[80] ;
     
     int k = 0 ; 
@@ -234,7 +255,8 @@ void des_meridian(const Sym_tensor& hh, double r_min, double r_max,
 	            strcat(nomy, nom_i) ; 
 	            strcat(nomy, nom_j) ; 
     
-                des_meridian(hh(i,j), r_min, r_max, nomy, 50+k) ; 
+                des_meridian(hh(i,j), r_min, r_max, nomy, ngraph0+k, device,
+                             closeit) ; 
                 k++ ; 
                                 
         }
