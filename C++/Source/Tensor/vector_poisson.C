@@ -30,6 +30,10 @@ char vector_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2004/12/23 10:23:06  j_novak
+ * Improved method 5 in the case when some components are zero.
+ * Changed Vector_divfree::poisson to deduce eta from the equation. 
+ *
  * Revision 1.19  2004/08/24 09:14:50  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -191,15 +195,20 @@ Vector Vector::poisson(double lambda, const Metric_flat& met_f, int method)
       // Other source terms ....
       //------------------------
       source_r += *(cmp[0]) - lambda*divf.dsdr() ;
+      Scalar f_r(*mp) ;
+      if (source_r.get_etat() != ETATZERO) {
 
-      //------------------------
-      // The elliptic operator
-      //------------------------
-      Param_elliptic param_fr(source_r) ;
-      for (int lz=0; lz<nz; lz++) 
-	param_fr.set_poisson_vect_r(lz) ;
-
-      Scalar f_r = source_r.sol_elliptic(param_fr) ;
+	  //------------------------
+	  // The elliptic operator
+	  //------------------------
+	  Param_elliptic param_fr(source_r) ;
+	  for (int lz=0; lz<nz; lz++) 
+	      param_fr.set_poisson_vect_r(lz) ;
+	  
+	  f_r = source_r.sol_elliptic(param_fr) ;
+      }
+      else
+	  f_r.set_etat_zero() ;
             
       divf.dec_dzpuis(1) ;
       Scalar source_eta = divf - f_r.dsdr() ;
@@ -306,15 +315,20 @@ Vector Vector::poisson(double lambda, const Metric_flat& met_f, int method)
       // Other source terms ....
       //------------------------
       source_r += *(cmp[0]) - lambda*divf.dsdr() ;
+      Scalar f_r(*mp) ;
+      if (source_r.get_etat() != ETATZERO) {
 
-      //------------------------
-      // The elliptic operator
-      //------------------------
-      Param_elliptic param_fr(source_r) ;
-      for (int lz=0; lz<nz; lz++) 
-	param_fr.set_poisson_vect_r(lz) ;
-
-      Scalar f_r = source_r.sol_elliptic(param_fr) ;
+	  //------------------------
+	  // The elliptic operator
+	  //------------------------
+	  Param_elliptic param_fr(source_r) ;
+	  for (int lz=0; lz<nz; lz++) 
+	      param_fr.set_poisson_vect_r(lz) ;
+	  
+	  f_r = source_r.sol_elliptic(param_fr) ;
+      }
+      else
+	  f_r.set_etat_zero() ;
 
       //--------------------------
       // Equation for eta 
@@ -445,27 +459,34 @@ Vector Vector::poisson(double lambda, const Metric_flat& met_f, int method)
       // Other source terms ....
       //------------------------
       source_r += *(cmp[0]) - lambda*divf.dsdr() ;
+      Scalar f_r(*mp) ;
+      if (source_r.get_etat() != ETATZERO) {
 
-      //------------------------
-      // The elliptic operator
-      //------------------------
-      Param_elliptic param_fr(source_r) ;
-      for (int lz=0; lz<nz; lz++) 
-	param_fr.set_poisson_vect_r(lz) ;
-
-      Scalar f_r = source_r.sol_elliptic(param_fr) ;
-            
+	  //------------------------
+	  // The elliptic operator
+	  //------------------------
+	  
+	  Param_elliptic param_fr(source_r) ;
+	  for (int lz=0; lz<nz; lz++) 
+	      param_fr.set_poisson_vect_r(lz) ;
+	  
+	  f_r = source_r.sol_elliptic(param_fr) ;
+      }
+      else
+	  f_r.set_etat_zero() ;
+	  
       Scalar source_eta = - *(cmp[0]) ;
       source_eta.mult_r_dzpuis(3) ;
-      source_eta -= 2*(1.+lambda)*divf ;
-      source_eta.mult_r_dzpuis(2) ;
-      Scalar tmp = f_r ;
-      tmp.inc_dzpuis(2) ;
-      source_eta += tmp.lapang() ;
+      source_eta -= (lambda+2.)*divf ;
+      source_eta.dec_dzpuis() ;
+      f_r.set_spectral_va().ylm() ;
+      Scalar tmp = 2*f_r + f_r.lapang() ;
+      tmp.div_r_dzpuis(2) ;
+      source_eta += tmp ;
       tmp = (1.+lambda)*divf ;
       tmp.mult_r_dzpuis(0) ;
+      tmp += f_r ;
       source_eta = source_eta.primr() ;
-      source_eta.div_r() ;
 
       Scalar eta = (tmp+source_eta).poisson_angu() ;
 
