@@ -36,6 +36,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.52  2004/05/13 21:29:27  e_gourgoulhon
+ * Added (external) functions central_value, max_all_domains,
+ * min_all_domains and maxabs_all_domains.
+ *
  * Revision 1.51  2004/03/24 14:53:39  j_novak
  * Double declarations suppressed
  *
@@ -1322,6 +1326,66 @@ Tbl diffrel(const Tensor& aa, const Tensor& bb, const char* comment = 0x0,
  */
 Tbl diffrelmax(const Tensor& aa, const Tensor& bb, const char* comment = 0x0,
                ostream& ost = cout) ; 
+
+/** Central value of each component of a tensor. 
+ * @param aa tensor
+ * @param comment comment to be printed on \c ost
+ *    (default: 0x0 = nothing printed)
+ * @param ost output stream for a formatted output of the result; used
+ *  only if \c comment != \c 0x0. 
+ * @return 1-D \c Tbl  of size the number of independent components
+ *  (\c aa.get_ncomp()), the elements of which are the central values 
+ *  of the various components. 
+ */
+Tbl central_value(const Tensor& aa, const char* comment = 0x0, ostream& ost = cout) ; 
+
+/** Maximum value of each component of a tensor over all the domains. 
+ * @param aa tensor
+ * @param l_excluded index of domain to be excluded from the computation:
+ *   the default = -1 corresponds to no excluded domain
+ * @param comment comment to be printed on \c ost
+ *    (default: 0x0 = nothing printed)
+ * @param ost output stream for a formatted output of the result; used
+ *  only if \c comment != \c 0x0. 
+ * @return 1-D \c Tbl  of size the number of independent components
+ *  (\c aa.get_ncomp()), the elements of which are the maximum values 
+ *  of the various components. 
+ */
+Tbl max_all_domains(const Tensor& aa, int l_excluded = -1, const char* comment = 0x0, 
+    ostream& ost = cout) ; 
+
+
+/** Minimum value of each component of a tensor over all the domains. 
+ * @param aa tensor
+ * @param l_excluded index of domain to be excluded from the computation:
+ *   the default = -1 corresponds to no excluded domain
+ * @param comment comment to be printed on \c ost
+ *    (default: 0x0 = nothing printed)
+ * @param ost output stream for a formatted output of the result; used
+ *  only if \c comment != \c 0x0. 
+ * @return 1-D \c Tbl  of size the number of independent components
+ *  (\c aa.get_ncomp()), the elements of which are the minimum values 
+ *  of the various components. 
+ */
+Tbl min_all_domains(const Tensor& aa, int l_excluded = -1, const char* comment = 0x0, 
+    ostream& ost = cout) ; 
+
+/** Maximum of the absolute value of each component of a tensor over all the domains. 
+ * @param aa tensor
+ * @param l_excluded index of domain to be excluded from the computation:
+ *   the default = -1 corresponds to no excluded domain
+ * @param comment comment to be printed on \c ost
+ *    (default: 0x0 = nothing printed)
+ * @param ost output stream for a formatted output of the result; used
+ *  only if \c comment != \c 0x0. 
+ * @return 1-D \c Tbl  of size the number of independent components
+ *  (\c aa.get_ncomp()), the elements of which are the maximum of of the 
+ *  absolute value of the various components. 
+ */
+Tbl maxabs_all_domains(const Tensor& aa, int l_excluded = -1, const char* comment = 0x0, 
+    ostream& ost = cout) ; 
+
+
 
 /** @} */
 
