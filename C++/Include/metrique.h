@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2003/10/17 13:04:18  f_limousin
+ * Add new functions get_cov() and get_con().
+ *
  * Revision 1.12  2003/06/20 14:22:20  f_limousin
  * The functions set_con() and set_cov() now returns a Tenseur&.
  *
@@ -255,11 +258,24 @@ class Metrique {
 	/// Sets a component (contravariant representation)
 	Cmp& set_con(int i, int j) ; 
 
+	/// Gets a component (covariant representation)
+	const Cmp& get_cov(int i, int j) const ; 
+ 
+	/// Gets a component (contravariant representation)
+	const Cmp& get_con(int i, int j) const ; 
+		
 	/// Sets the covariant representation of the metric.
-	Tenseur_sym& set_cov() ;
+        Tenseur_sym& set_cov() ;
     
 	/// Sets the contravariant representation of the metric.
 	Tenseur_sym& set_con() ;
+
+	/// Gets the covariant representation of the metric.
+        const Tenseur_sym& get_cov() const ;
+    
+	/// Gets the contravariant representation of the metric.
+	const Tenseur_sym& get_con() const ;
+
  
     // Accessors
     // ---------
