@@ -32,6 +32,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2004/05/17 19:46:19  e_gourgoulhon
+ * -- Function des_profile_mult(const Scalar**,...): added argument
+ *    device.
+ * -- Functions des_meridian: added arguments device and closeit.
+ *
  * Revision 1.14  2004/05/11 20:08:11  e_gourgoulhon
  * des_evol: modified the ordering of the argument list; the default
  * value of closeit is now 'false'.
@@ -661,14 +666,17 @@ void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
  * (full line), 2 (dashed), 3 (dot-dash-dot-dash), 4 (dotted), 5 
  * (dash-dot-dot-dot). The default value = 0x0 corresponds to a cyclic sequence
  * of the above styles. 
- * 
+ *  @param device [input] type of PGPLOT device: 0x0 (default value) will 
+ *  result in interactive choice; \c "/xwin" in X-Window display; 
+ *  \c "filename.eps/cps" in Encapsulated PostScript output 
+ *  and \c "/n" in no output.    
  */
  
 void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max, 
         const double* theta, const double* phi, double radial_scale = 1, 
         bool closeit = true,  const char* nomy  = 0x0, 
         const char* title = 0x0, int ngraph = 0, const char* nomx  = 0x0, 
-        const int* line_style = 0x0) ;
+        const int* line_style = 0x0, const char* device = 0x0) ;
 
 
 /** Draws 5 profiles of a scalar field along various radial axes 
@@ -686,24 +694,45 @@ void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max,
  *  @param ngraph [input] Index of the graphic device (in the range [0,99])
  *  to be used for the plot: if this device has never been used or is closed, 
  *    it will be opened. 
+ *  @param device [input] type of PGPLOT device: 0x0 (default value) will 
+ *  result in interactive choice; \c "/xwin" in X-Window display; 
+ *  \c "filename.eps/cps" in Encapsulated PostScript output 
+ *  and \c "/n" in no output.  
+ *  @param closeit [input] determines whether the graphic device must be closed or not
+ *      after the plot has been performed
  */
 void des_meridian(const Scalar& uu, double r_min, double r_max,
-                  const char* nomy, int ngraph) ; 
+                  const char* nomy, int ngraph, const char* device = 0x0,
+                  bool closeit = false) ; 
 
 
 /** Draws profiles of the components of a symmetric tensor field 
  * along various radial axes 
  * in two meridional planes \f$\phi=0\f$ and \f$\phi=\pi/4\f$
- * (see funtion \c des_meridian(const Scalar&, double, double, const char*, int)
+ * (see funtion 
+ * \c des_meridian(const Scalar&, double, double, const char*, int, const char*,
+ *  bool)
  * for details). 
  *
  *  @param hh [input] Tensor field, the components of which are to be drawn
  *  @param r_min [input] Minimal value of \e r  for the drawing
  *  @param r_max [input] Maximal value of \e r  for the drawing
  *  @param name [input] Name of the tensor field (for the y legends). 
+ *  @param ngraph0 [input] Index of the graphic device (in the range [0,99])
+ *  to be used for the plot for the first component of the tensor: 
+ *  if this device has never been used or is closed, it will be opened.
+ *  The graphic devices for the 5 other components will be the 5 following
+ *  numbers. 
+ *  @param device [input] type of PGPLOT device: 0x0 (default value) will 
+ *  result in interactive choice; \c "/xwin" in X-Window display; 
+ *  \c "filename.eps/cps" in Encapsulated PostScript output 
+ *  and \c "/n" in no output.  
+ *  @param closeit [input] determines whether the graphic device must be closed or not
+ *      after the plot has been performed
  */
 void des_meridian(const Sym_tensor& hh, double r_min, double r_max,
-                  const char* name) ; 
+                  const char* name, int ngraph0, const char* device = 0x0,
+                  bool closeit = false) ; 
 
 
 /** Basic routine for drawing a stellar surface in a plane X=constant.
