@@ -29,6 +29,9 @@ char des_profile_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/02/15 21:56:49  e_gourgoulhon
+ * des_profile_mult: added call to cpgask(0).
+ *
  * Revision 1.3  2004/02/12 16:21:57  e_gourgoulhon
  * Added new function des_profile_mult.
  *
@@ -189,7 +192,9 @@ void des_profile_mult(const float* uutab, int nprof, int nx,
 	        cerr << "des_profile_mult: problem in opening PGPLOT display !\n" ;
             abort() ; 
         }
-
+        
+        cpgask(0) ;  // Disables the ``Type RETURN for next page:'' prompt
+        
     }
     else {   // the graphic device has been opened previously   
 
