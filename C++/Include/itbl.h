@@ -36,6 +36,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/11 16:43:05  e_gourgoulhon
+ *
+ * IMPORTANT CHANGE: the standard constructors sets now the logical state
+ *   to ETATQCQ, and no longer to ETATNONDEF.
+ *
  * Revision 1.3  2002/10/16 14:36:29  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -78,14 +83,17 @@
  * 
  * This class is essentially an {\tt int} array class. The elements of the 
  * array are stored continuously using the C convention.
- * A {\tt Itbl} is initialy created with a {\sl logical} state 
- * {\tt ETATNONDEF} (i.e. undefined),  except by the copy constructor and
- * the constructor from a file. 
+ * 
  * The general logical state of an initialized 
  * {\tt Itbl} is {\tt ETATQCQ}; it is the only state for which the memory
  * allocation is performed for the {\tt int} array {\tt t}. 
  * The value zero is treated as a special logical state ({\tt ETATZERO}), 
  * without any memory allocation. 
+ *
+ * Contrary to a {\tt Tbl}, an {\tt Itbl} is initialy created in a
+ * logical state {\tt ETATQCQ} (i.e. ordinary state, with memory allocated
+ * for the array {\tt t}).
+ *
  * Arithmetic operations are provided with the usual meaning (see 
  * below).
  * 
@@ -103,15 +111,18 @@ class Itbl {
 	int etat ;  
     
     public: 
-    	Dim_tbl dim ;	    /// Number of dimensions, size,...
-	int*	t ;	    /// The array of {\tt int}
+    Dim_tbl dim ;	    /// Number of dimensions, size,...
+	int*	t ;	    /// The array of {\tt int}'s
 
     // Constructors - Destructor
     // -------------------------
 	
     public:
 	/**
-	 * 1D constructor 
+	 * 1D constructor.
+	 * This constructor sets the {\tt Itbl} in the logical state {\tt ETATQCQ},
+	 * so that it is ready for initialization via the method {\tt set(int )}.
+	 * 
 	 * @param size0  [input] Number of elements of the array {\tt t}.
 	 *		  Will be assigned to {\tt dim.dim[0]}.
 	 *		  The size 0 is allowed (the corresponding 
@@ -120,7 +131,11 @@ class Itbl {
 	explicit Itbl(int size0) ;			
 
 	/**
-	 * 2D constructor
+	 * 2D constructor.
+	 * This constructor sets the {\tt Itbl} in the logical state {\tt ETATQCQ},
+	 * so that it is ready for initialization via the method 
+	 * {\tt set(int, int )}.
+	 *
 	 * @param size1  [input] Defines the range [0, size1-1] of the 
 	 *		  outermost index in the storage of the array {\tt t}. 
 	 *		  Will be assigned to {\tt dim.dim[1]}.
@@ -132,6 +147,10 @@ class Itbl {
 	
 	/**
 	 * 3D constructor
+	 * This constructor sets the {\tt Itbl} in the logical state {\tt ETATQCQ},
+	 * so that it is ready for initialization via the method 
+	 * {\tt set(int, int, int )}.
+	 *
 	 * @param size2  [input] Defines the range [0, size2-1]  of the 
 	 *		  outermost index in the storage of the array {\tt t}. 
 	 *		  Will be assigned to {\tt dim.dim[2]}.
@@ -144,9 +163,17 @@ class Itbl {
 	 */ 
 	Itbl(int size2, int size1, int size0) ;		
 	
-	explicit Itbl(const Dim_tbl& ) ;  /// Constructor from a {\tt Dim\_tbl}
+
+	/** Constructor from a {\tt Dim\_tbl}.
+	 * This constructor sets the {\tt Itbl} in the logical state {\tt ETATQCQ},
+	 * so that it is ready for initialization via the method 
+	 * {\tt set}.
+	 */
+	explicit Itbl(const Dim_tbl& ) ; 
+	
 	/// Constructor from a file (see {\tt sauve(FILE* )})
 	explicit Itbl(FILE* ) ;	
+	
 	Itbl(const Itbl& ) ;		/// Copy constructor
 
 	~Itbl() ;			/// Destructor
