@@ -31,6 +31,9 @@ char mg3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/06/20 14:50:15  f_limousin
+ * Add the operator==
+ *
  * Revision 1.7  2003/06/18 08:45:27  j_novak
  * In class Mg3d: added the member get_radial, returning only a radial grid
  * For dAlembert solver: the way the coefficients of the operator are defined has been changed.
@@ -830,3 +833,26 @@ const Mg3d* Mg3d::get_twice() const {
 
 }
 	
+
+bool Mg3d::operator==(const Mg3d& mgi) const {
+  
+  bool resu = true ;
+
+  if (mgi.get_nzone() != nzone) {
+    resu = false ;
+  }
+  else {
+    for (int i=0; i<nzone; i++) {
+      if (mgi.get_nr(i) != nr[i]) resu = false ;
+      if (mgi.get_np(i) != np[i]) resu = false ;
+      if (mgi.get_nt(i) != nt[i]) resu = false ;
+      if (mgi.get_type_r(i) != type_r[i]) resu =false ;
+    }
+  }
+  
+  if (mgi.get_type_t() != type_t) resu = false ;
+  if (mgi.get_type_p() != type_p) resu = false ;
+
+  return resu ;
+
+}
