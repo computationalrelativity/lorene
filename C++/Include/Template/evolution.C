@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/05/11 20:12:49  e_gourgoulhon
+ * Added methods j_min, j_max and save.
+ *
  * Revision 1.10  2004/05/03 15:23:22  e_gourgoulhon
  * Method downdate: changed the order of conditions (pos_jtop>=0)
  * and (val[pos_jtop] == 0x0) in the while(...) test.
@@ -85,6 +88,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
+#include <time.h>
 
 
 
@@ -314,6 +318,39 @@ TyT Evolution<TyT>::operator()(double ) const {
 
 }                  
  
+template<typename TyT> 
+int Evolution<TyT>::j_min() const {
+
+    int resu = UNDEF_STEP ; 
+    for (int i=0; i<=pos_jtop; i++) {
+        if (step[i] != UNDEF_STEP) {
+            resu = step[i] ; 
+            break ; 
+        }
+    }
+    
+    if (resu == UNDEF_STEP) {
+        cerr << "Evolution<TyT>::j_min() : no valid time step found !" << endl ; 
+        abort() ; 
+    }
+    
+    return resu ; 
+}
+
+template<typename TyT> 
+int Evolution<TyT>::j_max() const {
+    
+    if (pos_jtop == -1) {
+        cerr << "Evolution<TyT>::j_max() : no valid time step found !" << endl ; 
+        abort() ; 
+    }
+    
+    assert(pos_jtop >=0) ; 
+    int jmax = step[pos_jtop] ; 
+    assert(jmax != UNDEF_STEP) ; 
+    return jmax ; 
+}
+
 
 
 
@@ -389,3 +426,53 @@ TyT Evolution<TyT>::time_derive(int j, int n) const {
 }                    
  
                    
+
+                    //-----------------------//
+                    //        Outputs        //
+                    //-----------------------//
+
+                   
+template<typename TyT> 
+void Evolution<TyT>::save(const char* filename) const {
+
+    ofstream fich(filename) ; 
+
+    time_t temps = time(0x0) ; 
+    
+    fich << "# " << filename << "    " << ctime(&temps) ; 
+    fich << "# " << size << "  size" << '\n' ; 
+    fich << "# " << pos_jtop << "  pos_jtop" << '\n' ; 
+    fich << "#         t                  value                  J \n" ; 
+    
+    fich.precision(14) ; 
+    fich.setf(ios::scientific) ; 
+    fich.width(20) ; 
+    for (int i=0; i<=pos_jtop; i++) {
+        if (step[i] != UNDEF_STEP) {
+            fich << the_time[i] ; fich.width(23) ; 
+            assert(val[i] != 0x0) ; 
+            fich << *(val[i]) ; fich.width(10) ; 
+            fich << step[i] << '\n' ; 
+        }
+    }
+        
+    fich.close() ; 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
