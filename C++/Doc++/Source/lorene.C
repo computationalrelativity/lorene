@@ -92,6 +92,7 @@
      */
     //@{
 	//@Include:tensor.h_r
+	//@Include:vector.h_r
 	//@Include:scalar.h_r
     //@}  
     
