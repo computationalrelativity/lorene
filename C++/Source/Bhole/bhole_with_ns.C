@@ -25,6 +25,9 @@ char bhole_with_ns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/25 10:28:57  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.4  2003/11/25 07:11:09  k_taniguchi
  * Change some arguments from the class Etolie_bin to Et_bin_nsbh.
  *
@@ -51,7 +54,6 @@ char bhole_with_ns_C[] = "$Header$" ;
 // Lorene
 #include "tenseur.h"
 #include "bhole.h"
-#include "unites.h"
 #include "proto.h"
 #include "utilitaires.h"
 #include "et_bin_nsbh.h"

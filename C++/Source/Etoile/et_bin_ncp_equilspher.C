@@ -41,16 +41,13 @@ char et_bin_ncp_equilspher_C[] = "$Header$" ;
 #include "et_bin_ncp.h"
 #include "param.h"
 #include "graphique.h"
+#include "unites.h"	    
 
 void Et_bin_ncp::equilibrium_spher(double ent_c, double precis){
     
     // Fundamental constants and units
     // -------------------------------
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (ent_c < 0) {
-	cout << f_unit << msol << mevpfm3 << endl ; 
-    }    
+  using namespace Unites ;
     
     // Initializations
     // ---------------

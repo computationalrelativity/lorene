@@ -32,6 +32,9 @@ char et_rot_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/03/25 10:29:04  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.11  2003/12/04 14:28:26  r_prix
  * allow for the case of "slow-rot-style" EOS inversion, in which we need to adapt
  * the inner domain to n_outer=0 instead of mu_outer=0 ...
@@ -98,6 +101,7 @@ char et_rot_bifluid_C[] = "$Header$" ;
 // Headers Lorene
 #include "et_rot_bifluid.h"
 #include "utilitaires.h"
+#include "unites.h"	    
 
 			    //--------------//
 			    // Constructors //
@@ -328,11 +332,7 @@ void Et_rot_bifluid::sauve(FILE* fich) const {
 
 ostream& Et_rot_bifluid::operator>>(ostream& ost) const {
     
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (&ost == 0x0) {
-	cout << qpig << msol << f_unit << mevpfm3 << endl ; 
-    }    
+  using namespace Unites ;
 
     Etoile::operator>>(ost) ; 
     
@@ -415,11 +415,7 @@ ostream& Et_rot_bifluid::operator>>(ostream& ost) const {
 
 void Et_rot_bifluid::partial_display(ostream& ost) const {
     
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (&ost == 0x0) {
-	cout << qpig << msol << f_unit << mevpfm3 << endl ; 
-    }    
+  using namespace Unites ;
 
     double freq = omega / (2.*M_PI) ;  
     ost << "Omega : " << omega * f_unit 

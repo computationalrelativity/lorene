@@ -32,6 +32,9 @@ char binaire_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/03/25 10:28:59  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.5  2003/09/08 09:32:40  e_gourgoulhon
  * Corrected a problem of spectral basis initialisation in virial_gb() and
  * virial_fus(): introduced the new variable a1.
@@ -72,12 +75,14 @@ char binaire_global_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "binaire.h"
+#include "unites.h"
 
 		    //---------------------------------//
 		    //		ADM mass	       //
 		    //---------------------------------//
 
 double Binaire::mass_adm() const {
+  using namespace Unites ;
     
     if (p_mass_adm == 0x0) {	    // a new computation is requireed
 	
@@ -85,11 +90,6 @@ double Binaire::mass_adm() const {
 	    
 	if (star1.is_relativistic()) {	// Relativistic case
 					// -----------------
-#include "unites.h"
-    if (this == 0x0) {	// To avoid any compilation warning
-	cout << f_unit << msol << km << mevpfm3 ;
-    }
-	
 	    assert( star2.is_relativistic() ) ;
 	    
 	    *p_mass_adm = 0 ; 
@@ -131,18 +131,14 @@ double Binaire::mass_adm() const {
 
 double Binaire::mass_kom() const {
     
+  using namespace Unites ;
+
     if (p_mass_kom == 0x0) {	    // a new computation is requireed
 	
 	p_mass_kom = new double ; 
 	    
 	if (star1.is_relativistic()) {	// Relativistic case
 					// -----------------
-
-#include "unites.h"
-    if (this == 0x0) {	// To avoid any compilation warning
-	cout << f_unit << msol << km << mevpfm3 ;
-    }
-	
 	    assert( star2.is_relativistic() ) ; 
 	    
 	    *p_mass_kom = 0 ; 
@@ -407,17 +403,14 @@ double Binaire::virial() const {
 
 double Binaire::virial_gb() const {
     
+  using namespace Unites ;
+
     if (p_virial_gb == 0x0) {	    // a new computation is requireed
 	
 	p_virial_gb = new double ; 
 	    
 	if (star1.is_relativistic()) {	// Relativistic case
-					// -----------------
-	
-#include "unites.h"
-    if (this == 0x0) {	// To avoid any compilation warning
-	cout << f_unit << msol << km << mevpfm3 ;
-    }
+					// -----------------	
 
 	    assert( star2.is_relativistic() ) ; 
 	    
@@ -483,6 +476,8 @@ double Binaire::virial_gb() const {
 
 double Binaire::virial_fus() const {
     
+  using namespace Unites ;
+
     if (p_virial_fus == 0x0) {	    // a new computation is requireed
 	
 	p_virial_fus = new double ; 
@@ -490,11 +485,6 @@ double Binaire::virial_fus() const {
 	if (star1.is_relativistic()) {	// Relativistic case
 					// -----------------
 
-#include "unites.h"
-    if (this == 0x0) {	// To avoid any compilation warning
-	cout << f_unit << msol << km << mevpfm3 ;
-    }
-	
 	    assert( star2.is_relativistic() ) ; 
 	    
 	    *p_virial_fus = 0 ;

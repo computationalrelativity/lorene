@@ -34,6 +34,9 @@ char binaire_orbite_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/25 10:28:59  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.2  2003/09/16 13:41:27  e_gourgoulhon
  * Search of sub-intervals containing the zero(s) via zero_list
  * Selection of the sub-interval as the closest one to previous value of omega.
@@ -89,6 +92,7 @@ char binaire_orbite_C[] = "$Header$" ;
 #include "eos.h"
 #include "param.h"
 #include "utilitaires.h"
+#include "unites.h"
 
 double  fonc_binaire_axe(double , const Param& ) ;
 double  fonc_binaire_orbit(double , const Param& ) ;
@@ -98,11 +102,7 @@ double  fonc_binaire_orbit(double , const Param& ) ;
 void Binaire::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1, 
 		     double& xgg2) {
 
-    #include "unites.h"
-    // Pour eviter les warnings a la compilation :
-    if (this == 0x0) {
-	cout << qpig << msol << km << mevpfm3 ; 
-    }
+  using namespace Unites ;
     
     //-------------------------------------------------------------
     // Evaluation of various quantities at the center of each star

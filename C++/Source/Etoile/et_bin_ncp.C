@@ -29,6 +29,9 @@ char et_bin_ncp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/03/25 10:29:04  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.10  2003/12/05 14:50:26  j_novak
  * To suppress some warnings...
  *
@@ -386,6 +389,7 @@ void Et_bin_ncp::sauve(FILE* fich) const {
 
 ostream& Et_bin_ncp::operator>>(ostream& ost) const {
     
+  using namespace Unites ;
     Etoile_bin::operator>>(ost) ; 
     
     ost << endl ; 

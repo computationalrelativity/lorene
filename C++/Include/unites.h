@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/25 10:28:56  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.2  2004/03/22 13:12:43  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -45,11 +48,19 @@
  *
  */
 
-/** \defgroup std_unit Standard units (related to space, time and mass).
- * \ingroup (unites)
- * @{
- */
 
+                  //--------------------------//
+                  //  Standard LORENE units   //
+                  //--------------------------//     
+
+/** \namespace Unites
+ *  \brief Standard units of space, time and mass.
+ *
+ * These are the units used in LORENE for space, time and mass. They
+ * are mainly designed to study compact objects like neutron stars 
+ * and black holes. \ingroup (unites)
+ */
+namespace Unites {
 const double g_si = 6.6726E-11 ;	 ///< Newton gravitational constant [SI]
 const double c_si = 2.99792458E+8 ;	 ///< Velocity of light [m/s]
 const double rhonuc_si = 1.66E+17 ;	 ///< Nuclear density [kg/m3]
@@ -72,6 +83,29 @@ const double km = km_si/r_unit ;	///< One kilometer in Lorene's units
 /// 1 MeV/fm3 in Lorene's units
 const double mevpfm3 = mev_si/( 1.66E-27 * v_unit *v_unit) *10 ;  
 
-/** @} */
+}
+                  //-----------------------------//
+                  //  Electro-mag LORENE units   //
+                  //-----------------------------//     
 
-    
+
+
+/** \namespace Unites_mag
+ *  \brief Standard electro-magnetic units.
+ *
+ * \ingroup (unites)
+ */
+namespace Unites_mag {
+  using namespace Unites ;
+  const double mu_si = 1.2566370614359173e-6 ;///<Magnetic vacuum permeability
+  
+  const double j_unit = 1e11 ; ///<Lorene's current density unit [\f$A/m^2\f$]
+  /// Lorene's units for magnetic field [\f$10^9\f$ T]
+  const double mag_unit = mu_si * r_unit * j_unit / 1e9 ;
+  /// Lorene's unit for electric field [\f$10^{12}\f$ V/m]
+  const double elec_unit = mag_unit * c_si / 1e3 ;
+  /// \f$\mu_0\f$ in Lorene's units
+  const double mu0 = mu_si * pow(j_unit ,2) * pow(r_unit,2) 
+    / (rho_unit*pow(c_si,2)) ; 
+}
+  

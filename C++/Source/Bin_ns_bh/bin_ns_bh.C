@@ -29,6 +29,9 @@ char bin_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/25 10:28:58  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.4  2003/02/13 16:40:25  p_grandclement
  * Addition of various things for the Bin_ns_bh project, non of them being
  * completely tested
@@ -58,6 +61,7 @@ char bin_ns_bh_C[] = "$Header$" ;
 // Lorene headers
 #include "bin_ns_bh.h"
 #include "utilitaires.h"
+#include "unites.h"
 
   			    //--------------//
 			    // Constructors //
@@ -221,11 +225,7 @@ ostream& operator<<(ostream& ost, const Bin_ns_bh& bibi)  {
 
 ostream& Bin_ns_bh::operator>>(ostream& ost) const {
 
-    #include "unites.h"
-    // To avoid some compilation warnings
-    if (&ost == 0x0) {
-	cout << qpig << msol << mevpfm3 << endl ;
-    }
+  using namespace Unites ;
 
     ost << endl ;
     ost << "Neutron star - black hole binary system" << endl ;

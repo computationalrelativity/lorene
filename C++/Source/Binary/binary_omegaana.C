@@ -30,6 +30,9 @@ char binary_omegaana_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/25 10:29:01  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.2  2004/01/20 15:21:52  f_limousin
  * First version
  *
@@ -43,15 +46,12 @@ char binary_omegaana_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "binary.h"
+#include "unites.h"
 
 
 void Binary::analytical_omega() {
-    
-    #include "unites.h"
-    if (this == 0x0) {	// To avoid any compilation warning 
-	cout << f_unit << msol << km << mevpfm3 << qpig  ;
-    }
-    
+  
+  using namespace Unites ;
     
     double rr = separation() ;
     double mtot = star1.mass_g() + star2.mass_g() ; 

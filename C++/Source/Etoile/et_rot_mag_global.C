@@ -33,6 +33,9 @@ char et_rot_mag_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2004/03/25 10:29:06  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.16  2003/10/27 10:52:19  e_gourgoulhon
  * Suppressed the global #include "unites.h"
  * and made it local to each function.
@@ -88,18 +91,17 @@ char et_rot_mag_global_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "et_rot_mag.h"
+#include "unites.h"
 
 // Definition des fonctions membres differentes ou nouvelles
 
 void Et_rot_mag::MHD_comput() {
   // Calcule les grandeurs du tenseur impulsion-energie EM a partir des champs
-  #include"unites_mag.h"
-  if (mu0<0.) { //to avoid compilation warnings
-    cout << qpig << f_unit << msol << km << mevpfm3 << endl ; 
-    cout << mag_unit << elec_unit << endl ;
-  }    
+
+  using namespace Unites_mag ;
   
   Tenseur ATTENS(A_t) ;
+
   Tenseur APTENS(A_phi) ;
   
   Tenseur ApAp ( flat_scalar_prod_desal(APTENS.gradient_spher(),
@@ -127,7 +129,7 @@ void Et_rot_mag::MHD_comput() {
 
 Tenseur Et_rot_mag::Elec() const {
 
-  #include"unites_mag.h"
+  using namespace Unites_mag ;
   if (mu0<0.) { //to avoid compilation warnings
     cout << qpig << f_unit << msol << km << mevpfm3 << endl ; 
     cout << mag_unit << elec_unit << endl ;
@@ -150,7 +152,7 @@ Tenseur Et_rot_mag::Elec() const {
 
 Tenseur Et_rot_mag::Magn() const {
 
-  #include"unites_mag.h"
+  using namespace Unites_mag ;
   if (mu0<0.) { //to avoid compilation warnings
     cout << qpig << f_unit << msol << km << mevpfm3 << endl ; 
     cout << mag_unit << elec_unit << endl ;
@@ -176,7 +178,7 @@ Tenseur Et_rot_mag::Magn() const {
 
 double Et_rot_mag::MagMom() const {
 
-  #include"unites_mag.h"
+  using namespace Unites_mag ;
   if (mu0<0.) { //to avoid compilation warnings
     cout << qpig << f_unit << msol << km << mevpfm3 << endl ; 
     cout << mag_unit << elec_unit << endl ;
@@ -205,11 +207,7 @@ double Et_rot_mag::MagMom() const {
 
 double Et_rot_mag::Q_comput() const {
 
-  #include"unites_mag.h"
-  if (mu0<0.) { //to avoid compilation warnings
-    cout << qpig << f_unit << msol << km << mevpfm3 << endl ; 
-    cout << mag_unit << elec_unit << endl ;
-  }    
+  using namespace Unites_mag ;
 
   int Z = mp.get_mg()->get_nzone();
 
@@ -230,11 +228,7 @@ double Et_rot_mag::Q_comput() const {
 
 double Et_rot_mag::Q_int() const {
 
-  #include"unites_mag.h"
-  if (mu0<0.) { //to avoid compilation warnings
-    cout << qpig << f_unit << msol << km << mevpfm3 << endl ; 
-    cout << mag_unit << elec_unit << endl ;
-  }    
+  using namespace Unites_mag ;
 
   double Qi = 0. ;
 
@@ -264,13 +258,10 @@ double Et_rot_mag::Q_int() const {
 
 double Et_rot_mag::GyroMag() const {
 
-  #include"unites_mag.h"
-  if (mu0<0.) { //to avoid compilation warnings
-    cout << qpig << f_unit << msol << km << mevpfm3 << endl ; 
-    cout << mag_unit << elec_unit << endl ;
-  }    
+  using namespace Unites_mag ;
 
   return 2*MagMom()*mass_g()/(Q_comput()*angu_mom()*v_unit*r_unit); 
+
 }
 			//----------------------------//
 			//	Gravitational mass    //
@@ -379,21 +370,16 @@ double Et_rot_mag::grv2() const {
 
     if (p_grv2 == 0x0) {    // a new computation is required
 	
-		// To get qpig:	
-		#include "unites.h"	
-		// To avoid some compilation warnings
-		if (p_grv2 != 0x0) {
-	    	cout << f_unit << msol << km << mevpfm3 << endl ;
-		}
+      // To get qpig:	
+      using namespace Unites ;
 
-        Tenseur sou_m =  2 * qpig * a_car * (press + (ener_euler+press)
-        						* uuu*uuu ) ;
-        						
-        Tenseur sou_q =   2 * qpig * a_car * Spp_em + 1.5 * ak_car
-        				 - flat_scalar_prod(logn.gradient_spher(),
-						     				logn.gradient_spher() ) ;	
+      Tenseur sou_m =  2 * qpig * a_car * (press + (ener_euler+press)
+					   * uuu*uuu ) ;
+      
+      Tenseur sou_q =   2 * qpig * a_car * Spp_em + 1.5 * ak_car
+	- flat_scalar_prod(logn.gradient_spher(), logn.gradient_spher() ) ;
 
-		p_grv2 = new double( double(1) - lambda_grv2(sou_m(), sou_q()) ) ; 	
+      p_grv2 = new double( double(1) - lambda_grv2(sou_m(), sou_q()) ) ; 
 
     }
     
@@ -411,14 +397,9 @@ double Et_rot_mag::grv3(ostream* ost) const {
     if (p_grv3 == 0x0) {    // a new computation is required
 
 	// To get qpig:	
-	#include "unites.h"	    
-	// To avoid some compilation warnings
-	if (p_grv3 != 0x0) {
-	    cout << f_unit << msol << km << mevpfm3 << endl ; 
-	}    
-
-
-	Tenseur source(mp) ; 
+      using namespace Unites ;
+      
+      Tenseur source(mp) ; 
 	
 	// Gravitational term [cf. Eq. (43) of Gourgoulhon & Bonazzola
 	// ------------------	    Class. Quantum Grav. 11, 443 (1994)]
@@ -521,11 +502,7 @@ double Et_rot_mag::mom_quad() const {
     if (p_mom_quad == 0x0) {    // a new computation is required
 	
 	// To get qpig:	
-	#include "unites.h"	    
-	// To avoid some compilation warnings
-	if (p_mom_quad != 0x0) {
-	    cout << f_unit << msol << km << mevpfm3 << endl ; 
-	}    
+      using namespace Unites ;
 
 	// Source for of the Poisson equation for nu
 	// -----------------------------------------

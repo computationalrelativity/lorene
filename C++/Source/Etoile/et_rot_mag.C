@@ -32,6 +32,9 @@ char et_rot_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2004/03/25 10:29:06  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.15  2002/09/30 14:21:21  j_novak
  * *** empty log message ***
  *
@@ -88,7 +91,7 @@ char et_rot_mag_C[] = "$Header$" ;
 // Headers Lorene
 #include "et_rot_mag.h"
 #include "utilitaires.h"
-#include "unites_mag.h"
+#include "unites.h"
 
 			    //--------------//
 			    // Constructors //
@@ -213,6 +216,8 @@ void Et_rot_mag::operator=(const Et_rot_mag& et) {
 
 
 ostream& Et_rot_mag::operator>>(ostream& ost) const {
+
+  using namespace Unites_mag ;
 
   Etoile_rot::operator>>(ost) ;
   int theta_eq = mp.get_mg()->get_nt(nzet-1)-1 ;

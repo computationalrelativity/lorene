@@ -32,6 +32,9 @@ char etoile_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/25 10:29:06  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.4  2003/10/13 15:23:56  f_limousin
  * *** empty log message ***
  *
@@ -113,7 +116,7 @@ char etoile_C[] = "$Header$" ;
 #include "eos.h"
 #include "utilitaires.h"
 #include "param.h"
-
+#include "unites.h"
 
 			    //--------------//
 			    // Constructors //
@@ -489,11 +492,7 @@ ostream& operator<<(ostream& ost, const Etoile& et)  {
     
 ostream& Etoile::operator>>(ostream& ost) const {
     
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (&ost == 0x0) {
-	cout << qpig << msol << f_unit << mevpfm3 << endl ; 
-    }    
+  using namespace Unites ;
 
     ost << endl ; 
     if (relativistic) {

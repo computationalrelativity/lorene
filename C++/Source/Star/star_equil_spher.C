@@ -32,6 +32,9 @@ char star_equil_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/25 10:29:26  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.4  2004/02/27 09:57:55  f_limousin
  * We now update the metric gamma at the end of this routine for
  * the calculus of mass_b and mass_g.
@@ -56,16 +59,13 @@ char star_equil_spher_C[] = "$Header$" ;
 #include "star.h"
 #include "param.h"
 #include "graphique.h"
+#include "unites.h"	    
 
 void Star::equilibrium_spher(double ent_c, double precis){
     
     // Fundamental constants and units
     // -------------------------------
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (ent_c < 0) {
-	cout << f_unit << msol << mevpfm3 << endl ; 
-    }    
+  using namespace Unites ;
     
     // Initializations
     // ---------------

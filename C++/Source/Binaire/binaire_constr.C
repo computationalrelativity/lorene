@@ -32,8 +32,11 @@ char binaire_constr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2004/03/25 10:28:59  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.1  2000/03/13  17:05:34  eric
  * *** empty log message ***
@@ -51,6 +54,7 @@ char binaire_constr_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "binaire.h"
+#include "unites.h"
 
 
 
@@ -60,10 +64,7 @@ char binaire_constr_C[] = "$Header$" ;
 
 double Binaire::ham_constr() const {
     
-    #include "unites.h"
-    if (this == 0x0) {	// To avoid any compilation warning 
-	cout << f_unit << msol << km << mevpfm3 ;
-    }
+  using namespace Unites ;
 
     if (p_ham_constr == 0x0) {	    // A new computation is required
 	
@@ -152,10 +153,7 @@ double Binaire::ham_constr() const {
 
 const Tbl& Binaire::mom_constr() const {
 
-    #include "unites.h"
-    if (this == 0x0) {	// To avoid any compilation warning 
-	cout << f_unit << msol << km << mevpfm3 ;
-    }
+  using namespace Unites ;
 
     if (p_mom_constr == 0x0) {	    // A new computation is required
 	

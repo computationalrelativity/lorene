@@ -25,6 +25,9 @@ char des_vect_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/25 10:29:25  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.2  2002/09/06 15:18:52  e_gourgoulhon
  * Changement du nom de la variable "hz" en "hza"
  * pour assurer la compatibilite avec le compilateur xlC_r
@@ -54,6 +57,7 @@ char des_vect_bin_C[] = "$Header$" ;
 #include "graphique.h"
 #include "param.h"
 #include "utilitaires.h"
+#include "unites.h"
 
 //******************************************************************************
 
@@ -63,11 +67,7 @@ void des_vect_bin_x(const Tenseur& vv1, const Tenseur& vv2, double x0,
 		    const Cmp* defsurf1, const Cmp* defsurf2, 
 		    bool draw_bound, int ny, int nz) {
 		
-#include "unites.h"
-    // To avoid some compiler warnings :
-    if (vv1.get_etat() == ETATNONDEF) {
-	cout << f_unit << qpig << msol << mevpfm3 << endl ;
-    }
+  using namespace Unites ;
 
     const Map& mp1 = *(vv1.get_mp()) ; 
     const Map& mp2 = *(vv2.get_mp()) ; 
@@ -216,11 +216,7 @@ void des_vect_bin_y(const Tenseur& vv1, const Tenseur& vv2, double y0,
 		    const Cmp* defsurf1, const Cmp* defsurf2, 
 		    bool draw_bound, int nx, int nz) {
 		
-#include "unites.h"
-    // To avoid some compiler warnings :
-    if (vv1.get_etat() == ETATNONDEF) {
-	cout << f_unit << qpig << msol << mevpfm3 << endl ;
-    }
+  using namespace Unites ;
 
     const Map& mp1 = *(vv1.get_mp()) ; 
     const Map& mp2 = *(vv2.get_mp()) ; 
@@ -367,11 +363,7 @@ void des_vect_bin_z(const Tenseur& vv1, const Tenseur& vv2, double z0,
 		    const Cmp* defsurf1, const Cmp* defsurf2, 
 		    bool draw_bound, int nx, int ny) {
 		
-#include "unites.h"
-    // To avoid some compiler warnings :
-    if (vv1.get_etat() == ETATNONDEF) {
-	cout << f_unit << qpig << msol << mevpfm3 << endl ;
-    }
+  using namespace Unites ;
 
     const Map& mp1 = *(vv1.get_mp()) ; 
     const Map& mp2 = *(vv2.get_mp()) ; 

@@ -32,6 +32,9 @@ char et_rot_diff_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/25 10:29:05  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -64,6 +67,7 @@ char et_rot_diff_C[] = "$Header$" ;
 #include "eos.h"
 #include "nbr_spx.h"
 #include "utilitaires.h"
+#include "unites.h"	    
 
 			    //--------------//
 			    // Constructors //
@@ -187,11 +191,7 @@ void Et_rot_diff::sauve(FILE* fich) const {
 
 ostream& Et_rot_diff::operator>>(ostream& ost) const {
     
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (&ost == 0x0) {
-	cout << qpig << msol << mevpfm3 << km << endl ; 
-    }    
+  using namespace Unites ;
 
     Etoile_rot::operator>>(ost) ; 
     
@@ -263,11 +263,7 @@ ostream& Et_rot_diff::operator>>(ostream& ost) const {
 
 void Et_rot_diff::display_poly(ostream& ost) const {
 
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (&ost == 0x0) {
-	cout << f_unit << qpig << msol << km << mevpfm3 << endl ; 
-    }    
+  using namespace Unites ;
 
     Etoile_rot::display_poly( ost ) ; 
     

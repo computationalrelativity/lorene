@@ -31,6 +31,9 @@ char binary_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/25 10:29:01  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.4  2004/02/27 10:25:30  f_limousin
  * Modif. to avoid an error in compilation.
  *
@@ -51,6 +54,7 @@ char binary_global_C[] = "$Header$" ;
 // Headers Lorene
 #include "binary.h"
 #include "map.h"
+#include "unites.h"
 
 		    //---------------------------------//
 		    //		ADM mass	       //
@@ -58,16 +62,11 @@ char binary_global_C[] = "$Header$" ;
 
 double Binary::mass_adm() const {
     
-
-    if (p_mass_adm == 0x0) {	    // a new computation is requireed
-	
-	p_mass_adm = new double ; 
-	    
-#include "unites.h"
-    if (this == 0x0) {	// To avoid any compilation warning
-      cout << f_unit << msol << km << mevpfm3 << qpig ;
-    }
+  using namespace Unites ;
+  if (p_mass_adm == 0x0) {	    // a new computation is requireed
     
+    p_mass_adm = new double ; 
+	    
     *p_mass_adm = 0 ; 
     
     const Metric& gamij = (et[0]->get_gamma()) ;
@@ -102,15 +101,12 @@ double Binary::mass_adm() const {
 
 double Binary::mass_kom() const {
     
+  using namespace Unites ;
+
   if (p_mass_kom == 0x0) {	    // a new computation is requireed
     
     p_mass_kom = new double ; 
       
-#include "unites.h"
-    if (this == 0x0) {	// To avoid any compilation warning
-      cout << f_unit << msol << km << mevpfm3 ;
-    }
-    
     *p_mass_kom = 0 ; 
     
     const Tensor& logn = et[0]->get_logn() ;
@@ -294,11 +290,7 @@ double Bin_ns_ncp::virial_gb() const {
 	    
 	if (star1.is_relativistic()) {	// Relativistic case
 					// -----------------
-	
-#include "unites.h"
-    if (this == 0x0) {	// To avoid any compilation warning
-	cout << f_unit << msol << km << mevpfm3 ;
-    }
+	  using namespace Unites ;
 
 	    assert( star2.is_relativistic() ) ; 
 	    

@@ -32,6 +32,9 @@ char eos_tabul_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/03/25 10:29:02  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.7  2003/11/25 13:42:50  m_bejger
  * read_table written in more ordered way
  *
@@ -88,6 +91,7 @@ char eos_tabul_C[] = "$Header$" ;
 #include "eos.h"
 #include "tbl.h"
 #include "utilitaires.h"
+#include "unites.h"
 
 
 void interpol_herm(const Tbl& , const Tbl&, const Tbl&, double, int&,
@@ -172,10 +176,7 @@ void Eos_tabul::sauve(FILE* fich) const {
 			
 void Eos_tabul::read_table() {
 
-#include "unites.h"
-	if (this == 0x0) {
-		cout << mevpfm3 << km << msol << qpig << f_unit << endl ;
-	}
+  using namespace Unites ;
     	
     	char blabla[120] ;
     	

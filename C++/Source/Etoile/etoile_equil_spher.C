@@ -32,6 +32,9 @@ char etoile_equil_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/25 10:29:06  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.2  2003/04/23 15:09:38  j_novak
  * Standard basis is set to a_car and nnn before exiting.
  *
@@ -65,16 +68,13 @@ char etoile_equil_spher_C[] = "$Header$" ;
 // Headers Lorene
 #include "etoile.h"
 #include "param.h"
+#include "unites.h"	    
 
 void Etoile::equilibrium_spher(double ent_c, double precis){
     
     // Fundamental constants and units
     // -------------------------------
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (ent_c < 0) {
-	cout << f_unit << msol << mevpfm3 << endl ; 
-    }    
+  using namespace Unites ;
     
     // Initializations
     // ---------------

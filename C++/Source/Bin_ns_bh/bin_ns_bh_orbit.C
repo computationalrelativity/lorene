@@ -31,6 +31,9 @@ char bin_ns_bh_orbit_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/03/25 10:28:58  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.1  2003/10/24 16:57:43  k_taniguchi
  * Method for the calculation of the orbital angular velocity
  *
@@ -48,6 +51,7 @@ char bin_ns_bh_orbit_C[] = "$Header$" ;
 #include "eos.h"
 #include "param.h"
 #include "utilitaires.h"
+#include "unites.h"
 
 double  fonc_bin_ns_bh_orbit(double , const Param& ) ;
 
@@ -55,11 +59,7 @@ double  fonc_bin_ns_bh_orbit(double , const Param& ) ;
 
 void Bin_ns_bh::orbit_omega(double fact_omeg_min, double fact_omeg_max) {
 
-    #include "unites.h"
-    // For avoiding warnings at the compilation :
-    if (this == 0x0) {
-	cout << qpig << msol << km << mevpfm3 ;
-    }
+  using namespace Unites ; 
 
     //------------------------------------------------------------------
     // Evaluation of various quantities at the center of a neutron star

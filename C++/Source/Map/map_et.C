@@ -29,6 +29,9 @@ char map_et_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/03/25 10:29:23  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.9  2004/01/29 08:50:03  p_grandclement
  * Modification of Map::operator==(const Map&) and addition of the surface
  * integrales using Scalar.
@@ -113,6 +116,7 @@ char map_et_C[] = "$Header$" ;
 #include "proto.h"
 #include "map.h"
 #include "utilitaires.h"
+#include "unites.h"
 
 			//--------------//
 			// Constructors //
@@ -747,10 +751,7 @@ void Map_et::sauve(FILE* fich) const {
 
 ostream & Map_et::operator>>(ostream & ost) const {
 
-#include "unites.h"
-    if (this == 0x0) {	    // To avoid compiler's warnings
-	cout << qpig << f_unit << msol << mevpfm3 ;
-    }
+  using namespace Unites ;
 
     ost << 
     "Radial mapping of form r = xi + A(xi)F(t,p) + B(xi)G(t,p) (class Map_et)" 

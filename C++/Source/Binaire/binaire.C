@@ -31,6 +31,9 @@ char binaire_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/03/25 10:28:59  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.6  2003/09/15 20:24:24  e_gourgoulhon
  * Improvements in the function write_global.
  *
@@ -90,6 +93,7 @@ char binaire_bin_C[] = "$Header$" ;
 #include "binaire.h"
 #include "eos.h"
 #include "utilitaires.h"
+#include "unites.h"	    
 
 			    //--------------//
 			    // Constructors //
@@ -248,11 +252,7 @@ ostream& operator<<(ostream& ost, const Binaire& bibi)  {
 
 ostream& Binaire::operator>>(ostream& ost) const {
 
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (&ost == 0x0) {
-	cout << qpig << msol << mevpfm3 << endl ; 
-    }    
+  using namespace Unites ; 
 
     ost << endl ; 
     ost << "Binary system" << endl ; 
@@ -279,11 +279,7 @@ ostream& Binaire::operator>>(ostream& ost) const {
 
 void Binaire::display_poly(ostream& ost) const {
 
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (&ost == 0x0) {
-	cout << f_unit << qpig << msol << mevpfm3 << endl ; 
-    }    
+  using namespace Unites ; 
 
     const Eos* p_eos1 = &( star1.get_eos() ) ; 
     const Eos_poly* p_eos_poly = dynamic_cast<const Eos_poly*>( p_eos1 ) ; 	  
@@ -333,11 +329,7 @@ void Binaire::display_poly(ostream& ost) const {
 
 void Binaire::write_global(ostream& ost) const {
 
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (&ost == 0x0) {
-	cout << f_unit << qpig << msol << mevpfm3 << endl ; 
-    }    
+  using namespace Unites ; 
 
 	const Map& mp1 = star1.get_mp() ;
 	const Mg3d* mg1 = mp1.get_mg() ;

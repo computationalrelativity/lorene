@@ -30,6 +30,9 @@ char et_bin_ncp_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/03/25 10:29:04  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.7  2003/12/05 14:50:26  j_novak
  * To suppress some warnings...
  *
@@ -68,6 +71,7 @@ char et_bin_ncp_equilibrium_C[] = "$Header$" ;
 #include "param.h"
 #include "graphique.h"
 #include "utilitaires.h"
+#include "unites.h"	    
 
 
 void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson, 
@@ -78,11 +82,7 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
 
   // Fundamental constants and units
   // -------------------------------
-#include "unites.h"	    
-  // To avoid some compilation warnings
-  if (ent_c < 0) {
-    cout << f_unit << msol << km << mevpfm3 << endl ; 
-  }    
+  using namespace Unites ;
     
   // Initializations
   // ---------------

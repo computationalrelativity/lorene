@@ -32,6 +32,9 @@ char et_rot_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/25 10:29:06  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.4  2003/11/19 21:30:57  e_gourgoulhon
  * -- Relaxation on logn and dzeta performed only if mer >= 10.
  * -- err_grv2 is now evaluated also in the Newtonian case
@@ -129,6 +132,7 @@ char et_rot_equilibrium_C[] = "$Header$" ;
 
 #include "graphique.h"
 #include "utilitaires.h"
+#include "unites.h"
 
 void Etoile_rot::equilibrium(double ent_c, double omega0, double fact_omega, 
 			     int nzadapt, const Tbl& ent_limit, const Itbl& icontrol,
@@ -137,11 +141,8 @@ void Etoile_rot::equilibrium(double ent_c, double omega0, double fact_omega,
 			     
     // Fundamental constants and units
     // -------------------------------
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (ent_c < 0) {
-	cout << f_unit << msol << km << mevpfm3 << endl ; 
-    }    
+
+  using namespace Unites ;	    
     
     // For the display 
     // ---------------

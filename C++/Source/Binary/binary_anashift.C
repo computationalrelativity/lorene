@@ -31,6 +31,9 @@ char binary_anashift_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/03/25 10:29:01  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.5  2004/02/27 10:01:32  f_limousin
  * Correct sign of shift_auto to agree with the new convention
  * for shift.
@@ -51,13 +54,11 @@ char binary_anashift_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "binary.h"
+#include "unites.h"
 
 void Binary::analytical_shift(){
     
-    #include "unites.h"
-    if (this == 0x0) {	// To avoid any compilation warning 
-	cout << f_unit << msol << km << mevpfm3 << qpig ;
-    }
+  using namespace Unites ;
         
     for (int i=0; i<2; i++) {
 

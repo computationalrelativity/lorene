@@ -30,6 +30,9 @@ char et_bin_nsbh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/03/25 10:29:04  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.5  2003/12/16 05:30:18  k_taniguchi
  * Some changes in the constructor from file and the saving to file.
  *
@@ -59,6 +62,7 @@ char et_bin_nsbh_C[] = "$Header$" ;
 #include "eos.h"
 #include "utilitaires.h"
 #include "param.h"
+#include "unites.h"
 
                             //--------------//
                             // Constructors //
@@ -273,11 +277,7 @@ void Et_bin_nsbh::sauve(FILE* fich) const {
 
 ostream& Et_bin_nsbh::operator>>(ostream& ost) const {
 
-    #include "unites.h"
-    // To avoid some compilation warnings
-    if (&ost == 0x0) {
-      cout << qpig << msol << f_unit << mevpfm3 << endl ;
-    }
+  using namespace Unites ;
 
     Etoile::operator>>(ost) ;
 

@@ -34,6 +34,9 @@ char et_bin_equil_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/25 10:29:03  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.4  2003/09/01 06:48:08  k_taniguchi
  * Change of the domain which should be resized.
  *
@@ -122,8 +125,8 @@ char et_bin_equil_regu_C[] = "$Header$" ;
 #include "etoile.h"
 #include "param.h"
 #include "eos.h"
-//#include "graphique.h"
 #include "utilitaires.h"
+#include "unites.h"	    
 
 //********************************************************************
 
@@ -134,11 +137,7 @@ void Etoile_bin::equil_regular(double ent_c, int mermax, int mermax_poisson,
 
     // Fundamental constants and units
     // -------------------------------
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (ent_c < 0) {
-	cout << f_unit << msol << km << mevpfm3 << endl ; 
-    }
+  using namespace Unites ;
 
     // Initializations
     // ---------------

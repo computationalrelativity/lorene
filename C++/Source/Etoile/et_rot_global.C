@@ -31,6 +31,9 @@ char et_rot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/25 10:29:06  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.3  2003/11/03 16:47:13  e_gourgoulhon
  * Corrected error in grv2() in the Newtonian case.
  *
@@ -67,6 +70,7 @@ char et_rot_global_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "etoile.h"
+#include "unites.h"
 
 			//--------------------------//
 			//	Stellar surface	    //
@@ -233,34 +237,28 @@ double Etoile_rot::tsw() const {
 
 double Etoile_rot::grv2() const {
 
-    if (p_grv2 == 0x0) {    // a new computation is required
+      using namespace Unites ;	
+      if (p_grv2 == 0x0) {    // a new computation is required
 	
-		// To get qpig:	
-		#include "unites.h"	
-		// To avoid some compilation warnings
-		if (p_grv2 != 0x0) {
-	    	cout << f_unit << msol << km << mevpfm3 << endl ;
-		}
-
-		Tenseur sou_m(mp) ; 
-		if (relativistic) {
-			sou_m =  2 * qpig * a_car * (press + (ener_euler+press)
-        						* uuu*uuu ) ;
+	Tenseur sou_m(mp) ; 
+	if (relativistic) {
+	  sou_m =  2 * qpig * a_car * (press + (ener_euler+press)
+				       * uuu*uuu ) ;
         }
-		else {
-			sou_m = 2 * qpig * (press + nbar * uuu*uuu ) ;
-		}
-														        						
+	else {
+	  sou_m = 2 * qpig * (press + nbar * uuu*uuu ) ;
+	}
+	
         Tenseur sou_q =  1.5 * ak_car
-        				 - flat_scalar_prod(logn.gradient_spher(),
-						     				logn.gradient_spher() ) ;	
-
-		p_grv2 = new double( double(1) - lambda_grv2(sou_m(), sou_q()) ) ; 	
-
-    }
+	  - flat_scalar_prod(logn.gradient_spher(),
+			     logn.gradient_spher() ) ;	
+	
+	p_grv2 = new double( double(1) - lambda_grv2(sou_m(), sou_q()) ) ; 
+	
+      }
     
-    return *p_grv2 ; 
-
+      return *p_grv2 ; 
+      
 }
 
 
@@ -270,108 +268,102 @@ double Etoile_rot::grv2() const {
 
 double Etoile_rot::grv3(ostream* ost) const {
 
-    if (p_grv3 == 0x0) {    // a new computation is required
+  using namespace Unites ;	
+  
+  if (p_grv3 == 0x0) {    // a new computation is required
 
-	// To get qpig:	
-	#include "unites.h"	    
-	// To avoid some compilation warnings
-	if (p_grv3 != 0x0) {
-	    cout << f_unit << msol << km << mevpfm3 << endl ; 
-	}    
-
-
-	Tenseur source(mp) ; 
-	
-	// Gravitational term [cf. Eq. (43) of Gourgoulhon & Bonazzola
-	// ------------------	    Class. Quantum Grav. 11, 443 (1994)]
-
-	if (relativistic) {
-	    Tenseur alpha = dzeta - logn ; 
-	    Tenseur beta = log( bbb ) ; 
-	    beta.set_std_base() ; 
+    Tenseur source(mp) ; 
+    
+    // Gravitational term [cf. Eq. (43) of Gourgoulhon & Bonazzola
+    // ------------------	    Class. Quantum Grav. 11, 443 (1994)]
+    
+    if (relativistic) {
+      Tenseur alpha = dzeta - logn ; 
+      Tenseur beta = log( bbb ) ; 
+      beta.set_std_base() ; 
+      
+      source = 0.75 * ak_car 
+	- flat_scalar_prod(logn.gradient_spher(),
+			   logn.gradient_spher() )
+	+ 0.5 * flat_scalar_prod(alpha.gradient_spher(),
+				 beta.gradient_spher() ) ; 
+      
+      Cmp aa = alpha() - 0.5 * beta() ; 
+      Cmp daadt = aa.srdsdt() ;	// 1/r d/dth
 	    
-	    source = 0.75 * ak_car 
-		     - flat_scalar_prod(logn.gradient_spher(),
-					logn.gradient_spher() )
-		     + 0.5 * flat_scalar_prod(alpha.gradient_spher(),
-					      beta.gradient_spher() ) ; 
-	    
-	    Cmp aa = alpha() - 0.5 * beta() ; 
-	    Cmp daadt = aa.srdsdt() ;	// 1/r d/dth
-	    
-	    // What follows is valid only for a mapping of class Map_radial : 
-	    const Map_radial* mpr = dynamic_cast<const Map_radial*>(&mp) ; 
-	    if (mpr == 0x0) {
-		cout << "Etoile_rot::grv3: the mapping does not belong"
-		     << " to the class Map_radial !" << endl ; 
-		abort() ; 
-	    }
-		
-	    // Computation of 1/tan(theta) * 1/r daa/dtheta
-	    if (daadt.get_etat() == ETATQCQ) {
-		Valeur& vdaadt = daadt.va ; 
-		vdaadt = vdaadt.ssint() ;	// division by sin(theta)
-		vdaadt = vdaadt.mult_ct() ;	// multiplication by cos(theta)
-	    }
-	    
-	    Cmp temp = aa.dsdr() + daadt ; 
-	    temp = ( bbb() - a_car()/bbb() ) * temp ; 
-	    temp.std_base_scal() ; 
-	    
-	    // Division by r 
-	    Valeur& vtemp = temp.va ; 
-	    vtemp = vtemp.sx() ;    // division by xi in the nucleus
-				    // Id in the shells
-				    // division by xi-1 in the ZEC
-	    vtemp = (mpr->xsr) * vtemp ; // multiplication by xi/r in the nucleus
-					 //		  by 1/r in the shells
-					 //		  by r(xi-1) in the ZEC
-
-	    // In the ZEC, a multiplication by r has been performed instead
-	    //   of the division: 			
-	    temp.set_dzpuis( temp.get_dzpuis() + 2 ) ;  
-	    
-	    source = bbb() * source() + 0.5 * temp ; 
-
-	}
-	else{
-	    source = - 0.5 * flat_scalar_prod(logn.gradient_spher(),
-					      logn.gradient_spher() ) ; 
-	}
-	
-	source.set_std_base() ; 
-
-	double int_grav = source().integrale() ; 
-
-	// Matter term
-	// -----------
-	
-	if (relativistic) {    
-	    source  = qpig * a_car * bbb * s_euler ;
-	}
-	else{
-	    source = qpig * ( 3 * press + nbar * uuu * uuu ) ; 
-	}
-
-	source.set_std_base() ; 
-
-	double int_mat = source().integrale() ; 
-
-	// Virial error
-	// ------------
-	if (ost != 0x0) {
-	    *ost << "Etoile_rot::grv3 : gravitational term : " << int_grav 
-		 << endl ;
-	    *ost << "Etoile_rot::grv3 : matter term :        " << int_mat 
-		 << endl ;
-	}
-
-	p_grv3 = new double( (int_grav + int_mat) / int_mat ) ; 	 
-
+      // What follows is valid only for a mapping of class Map_radial : 
+      const Map_radial* mpr = dynamic_cast<const Map_radial*>(&mp) ; 
+      if (mpr == 0x0) {
+	cout << "Etoile_rot::grv3: the mapping does not belong"
+	     << " to the class Map_radial !" << endl ; 
+	abort() ; 
+      }
+      
+      // Computation of 1/tan(theta) * 1/r daa/dtheta
+      if (daadt.get_etat() == ETATQCQ) {
+	Valeur& vdaadt = daadt.va ; 
+	vdaadt = vdaadt.ssint() ;	// division by sin(theta)
+	vdaadt = vdaadt.mult_ct() ;	// multiplication by cos(theta)
+      }
+      
+      Cmp temp = aa.dsdr() + daadt ; 
+      temp = ( bbb() - a_car()/bbb() ) * temp ; 
+      temp.std_base_scal() ; 
+      
+      // Division by r 
+      Valeur& vtemp = temp.va ; 
+      vtemp = vtemp.sx() ;    // division by xi in the nucleus
+      // Id in the shells
+      // division by xi-1 in the ZEC
+      vtemp = (mpr->xsr) * vtemp ; // multiplication by xi/r in the nucleus
+      //		  by 1/r in the shells
+      //		  by r(xi-1) in the ZEC
+      
+      // In the ZEC, a multiplication by r has been performed instead
+      //   of the division: 			
+      temp.set_dzpuis( temp.get_dzpuis() + 2 ) ;  
+      
+      source = bbb() * source() + 0.5 * temp ; 
+      
+    }
+    else{
+      source = - 0.5 * flat_scalar_prod(logn.gradient_spher(),
+					logn.gradient_spher() ) ; 
     }
     
-    return *p_grv3 ; 
-
+    source.set_std_base() ; 
+    
+    double int_grav = source().integrale() ; 
+    
+    // Matter term
+    // -----------
+    
+    if (relativistic) {    
+      source  = qpig * a_car * bbb * s_euler ;
+    }
+    else{
+      source = qpig * ( 3 * press + nbar * uuu * uuu ) ; 
+    }
+    
+    source.set_std_base() ; 
+    
+    double int_mat = source().integrale() ; 
+    
+    // Virial error
+    // ------------
+    if (ost != 0x0) {
+      *ost << "Etoile_rot::grv3 : gravitational term : " << int_grav 
+	   << endl ;
+      *ost << "Etoile_rot::grv3 : matter term :        " << int_mat 
+	   << endl ;
+    }
+    
+    p_grv3 = new double( (int_grav + int_mat) / int_mat ) ; 	 
+    
+  }
+  
+  return *p_grv3 ; 
+  
 }
 
 
@@ -501,15 +493,9 @@ double Etoile_rot::z_pole() const {
 
 double Etoile_rot::mom_quad() const {
 
+  using namespace Unites ;
     if (p_mom_quad == 0x0) {    // a new computation is required
 	
-	// To get qpig:	
-	#include "unites.h"	    
-	// To avoid some compilation warnings
-	if (p_mom_quad != 0x0) {
-	    cout << f_unit << msol << km << mevpfm3 << endl ; 
-	}    
-
 	// Source for of the Poisson equation for nu
 	// -----------------------------------------
 

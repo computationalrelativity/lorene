@@ -34,8 +34,11 @@ char et_equil_spher_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2004/03/25 10:29:04  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.14  2001/03/06  16:34:04  keisuke
  * Change the regularization degree k_div=1 to the arbitrary one.
@@ -97,6 +100,7 @@ char et_equil_spher_regu_C[] = "$Header$" ;
 #include "etoile.h"
 #include "eos.h"
 #include "param.h"
+#include "unites.h"
 
 //********************************************************************
 
@@ -104,11 +108,7 @@ void Etoile::equil_spher_regular(double ent_c, double precis){
 
     // Fundamental constants and units
     // -------------------------------
-    #include "unites.h"
-    // To avoid some compilation warnings
-    if (ent_c < 0) {
-      cout << f_unit << msol << mevpfm3 <<endl ;
-    }
+  using namespace Unites ;
 
     // Initializations
     // ---------------

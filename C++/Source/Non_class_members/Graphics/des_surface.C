@@ -29,8 +29,11 @@ char des_surface_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2004/03/25 10:29:25  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.3  2000/03/21  11:14:45  eric
  * Le parametre precis est mis a 1e-8.
@@ -57,6 +60,7 @@ char des_surface_C[] = "$Header$" ;
 #include "cmp.h"
 #include "param.h"
 #include "utilitaires.h"
+#include "unites.h"
 
 // Local prototypes
 double fonc_des_surface_x(double, const Param&) ; 
@@ -69,11 +73,7 @@ void des_surface_x(const Cmp& defsurf, double x0, char* device, int newgraph,
 		   double y_min, double y_max, double z_min, double z_max, 
 		   char* nomy, char* nomz, char* title, int nxpage, int nypage)
 {
-#include "unites.h"
-    // To avoid some compiler warnings :
-    if (defsurf.get_etat() == ETATNONDEF) {
-	cout << f_unit << qpig << msol << mevpfm3 << endl ;
-    }
+  using namespace Unites ;
 
     assert(defsurf.get_etat() == ETATQCQ) ; 
 
@@ -193,11 +193,7 @@ void des_surface_y(const Cmp& defsurf, double y0, char* device, int newgraph,
 		   double x_min, double x_max, double z_min, double z_max, 
 		   char* nomx, char* nomz, char* title, int nxpage, int nypage)
 {
-#include "unites.h"
-    // To avoid some compiler warnings :
-    if (defsurf.get_etat() == ETATNONDEF) {
-	cout << f_unit << qpig << msol << mevpfm3 << endl ;
-    }
+  using namespace Unites ;
 
     assert(defsurf.get_etat() == ETATQCQ) ; 
 
@@ -317,11 +313,7 @@ void des_surface_z(const Cmp& defsurf, double z0, char* device, int newgraph,
 		   double x_min, double x_max, double y_min, double y_max, 
 		   char* nomx, char* nomy, char* title, int nxpage, int nypage)
 {
-#include "unites.h"
-    // To avoid some compiler warnings :
-    if (defsurf.get_etat() == ETATNONDEF) {
-	cout << f_unit << qpig << msol << mevpfm3 << endl ;
-    }
+  using namespace Unites ;
 
     assert(defsurf.get_etat() == ETATQCQ) ; 
 

@@ -37,15 +37,12 @@ char bin_ns_ncp_omegaana_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "bin_ns_ncp.h"
+#include "unites.h"
 
 
 void Bin_ns_ncp::analytical_omega() {
-    
-    #include "unites.h"
-    if (this == 0x0) {	// To avoid any compilation warning 
-	cout << f_unit << msol << km << mevpfm3 << qpig  ;
-    }
-    
+  
+  using namespace Unites ;
     
     double rr = separation() ;
     double mtot = star1.mass_g() + star2.mass_g() ; 

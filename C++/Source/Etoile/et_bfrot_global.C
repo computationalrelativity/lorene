@@ -25,6 +25,9 @@ char et_bfrot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/03/25 10:29:03  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.12  2003/11/20 14:01:26  r_prix
  * changed member names to better conform to Lorene coding standards:
  * J_euler -> j_euler, EpS_euler -> enerps_euler, Delta_car -> delta_car
@@ -203,6 +206,8 @@ double Et_rot_bifluid::angu_mom() const {
 
 double Et_rot_bifluid::grv2() const {
 
+  using namespace Unites ;
+
   if (p_grv2 == 0x0) {    // a new computation is required
 	
     Tenseur sou_m(mp);
@@ -225,6 +230,8 @@ double Et_rot_bifluid::grv2() const {
 //----------------------------//
 
 double Et_rot_bifluid::grv3(ostream* ost) const {
+
+  using namespace Unites ;
 
   if (p_grv3 == 0x0) {    // a new computation is required
 
@@ -363,6 +370,8 @@ double Et_rot_bifluid::aplat2() const {
 //----------------------------//
 
 double Et_rot_bifluid::mom_quad() const {
+
+  using namespace Unites ;
 
   if (p_mom_quad == 0x0) {    // a new computation is required
 	

@@ -32,6 +32,9 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/03/25 10:29:03  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.13  2003/12/11 12:43:35  r_prix
  * activated adaptive grid for 2-fluid star (taken from Etoile_rot)
  *
@@ -95,6 +98,7 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 // Headers Lorene
 #include "et_rot_bifluid.h"
 #include "param.h"
+#include "unites.h"	    
 
 #include "graphique.h"
 #include "utilitaires.h"
@@ -114,12 +118,8 @@ void Et_rot_bifluid::equilibrium_bi
 			     
   // Fundamental constants and units
   // -------------------------------
-#include "unites.h"	    
-  // To avoid some compilation warnings
-  if (ent_c < 0) {
-    cout << f_unit << msol << km << mevpfm3 << endl ; 
-  }    
-    
+  using namespace Unites ;
+
   // For the display 
   // ---------------
   char display_bold[]="x[1m" ; display_bold[0] = 27 ;

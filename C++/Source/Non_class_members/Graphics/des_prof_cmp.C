@@ -31,6 +31,9 @@ char des_prof_cmp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/25 10:29:25  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.4  2004/02/12 16:20:36  e_gourgoulhon
  * Functions des_profile for Scalar's are now in the new file
  *  des_prof_scalar.C
@@ -59,18 +62,14 @@ char des_prof_cmp_C[] = "$Header$" ;
 // Header Lorene
 #include "cmp.h"
 #include "graphique.h"
+#include "unites.h"
 
 //******************************************************************************
 
 void des_profile(const Cmp& uu, double r_min, double r_max, 
 		     double theta, double phi, char* nomy, char* title) {
 		
-#include "unites.h"
-    // To avoid some compiler warnings :
-    if (r_min < 0) {
-	cout << f_unit << qpig << msol << mevpfm3 << endl ;
-    }
-  
+using namespace Unites ;  
 
     const int npt = 400 ;   // Number of points along the axis
     

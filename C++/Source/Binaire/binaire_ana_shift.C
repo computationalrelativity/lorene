@@ -32,8 +32,11 @@ char binaire_ana_shift_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2004/03/25 10:28:59  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.3  2000/03/17  15:36:26  eric
  * Suppression de l'appel a analytical_omega().
@@ -57,6 +60,7 @@ char binaire_ana_shift_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "binaire.h"
+#include "unites.h"
 
 void Binaire::analytical_shift(){
     
@@ -68,10 +72,7 @@ void Binaire::analytical_shift(){
     }
 
 
-    #include "unites.h"
-    if (this == 0x0) {	// To avoid any compilation warning 
-	cout << f_unit << msol << km << mevpfm3 << qpig ;
-    }
+    using namespace Unites ;
         
     for (int i=0; i<2; i++) {
 

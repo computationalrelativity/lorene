@@ -31,6 +31,9 @@ char bin_ns_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/25 10:29:27  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.2  2002/01/15 09:11:04  e_gourgoulhon
  * Display of Lorene object (class binaire) read in file
  *
@@ -62,10 +65,7 @@ Bin_NS::Bin_NS(int nbpoints, const double* xi, const double* yi,
 	       const double* zi, const char* filename)
 	       : np(nbpoints) {
 
-    // To avoid some compilation warnings
-    if (filename == 0x0) {
-      cout << qpig << msol << km << mevpfm3 << endl ;
-    }
+  using namespace Unites ;
 
     // Reading of data
     // ---------------

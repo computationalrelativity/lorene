@@ -43,6 +43,7 @@ char bin_ns_ncp_orbite_C[] = "$Header$" ;
 #include "eos.h"
 #include "param.h"
 #include "utilitaires.h"
+#include "unites.h"
 
 double  fonc_bin_ncp_axe(double , const Param& ) ;
 double  fonc_bin_ncp_orbit(double , const Param& ) ;
@@ -51,12 +52,7 @@ double  fonc_bin_ncp_orbit(double , const Param& ) ;
 
 void Bin_ns_ncp::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1, 
 		     double& xgg2) {
-
-    #include "unites.h"
-    // Pour eviter les warnings a la compilation :
-    if (this == 0x0) {
-	cout << qpig << msol << km << mevpfm3 ; 
-    }
+  using namespace Unites ;
     
     //-------------------------------------------------------------
     // Evaluation of various quantities at the center of each star

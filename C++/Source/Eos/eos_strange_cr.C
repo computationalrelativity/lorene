@@ -33,6 +33,9 @@ char Eos_strange_cr_cr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/25 10:29:02  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.4  2002/10/16 14:36:35  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -79,6 +82,7 @@ char Eos_strange_cr_cr_C[] = "$Header$" ;
 #include "eos.h"
 #include "cmp.h"
 #include "utilitaires.h"
+#include "unites.h"
 
 		    //------------------------------------//
 		    //		Constructors		  //
@@ -197,11 +201,7 @@ void Eos_strange_cr::operator=(const Eos_strange_cr& eosi) {
 
 void Eos_strange_cr::set_auxiliary() {
 
-#include "unites.h"
-    if (this == 0x0) {
-	    cout << f_unit << qpig << msol << km ;  // to avoid compiler's
-						    //  warning
-    }
+  using namespace Unites ;
 
     rho_nd_nucl = rho_nd * mevpfm3 ;
 

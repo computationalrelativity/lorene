@@ -33,6 +33,9 @@ char et_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/25 10:29:04  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.3  2003/01/17 13:31:13  f_limousin
  * Add comments
  *
@@ -140,6 +143,7 @@ char et_bin_equilibrium_C[] = "$Header$" ;
 
 #include "graphique.h"
 #include "utilitaires.h"
+#include "unites.h"	    
 
 void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson, 
 			 double relax_poisson, int mermax_potvit, 
@@ -149,11 +153,8 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 
     // Fundamental constants and units
     // -------------------------------
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (ent_c < 0) {
-	cout << f_unit << msol << km << mevpfm3 << endl ; 
-    }    
+
+  using namespace Unites ;
     
     // Initializations
     // ---------------

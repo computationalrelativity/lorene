@@ -38,8 +38,11 @@ char bin_ns_ncp_anashift_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "bin_ns_ncp.h"
+#include "unites.h"
 
 void Bin_ns_ncp::analytical_shift(){
+
+  using namespace Unites ;
     
     // Does nothing for a Newtonian star
     // ---------------------------------
@@ -48,12 +51,6 @@ void Bin_ns_ncp::analytical_shift(){
 	return ; 
     }
 
-
-    #include "unites.h"
-    if (this == 0x0) {	// To avoid any compilation warning 
-	cout << f_unit << msol << km << mevpfm3 << qpig ;
-    }
-        
     for (int i=0; i<2; i++) {
 
 	// Radius of the star:

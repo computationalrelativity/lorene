@@ -38,23 +38,20 @@ char bin_ns_ncp_global_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "bin_ns_ncp.h"
+#include "unites.h"
 
 		    //---------------------------------//
 		    //		ADM mass	       //
 		    //---------------------------------//
 
 double Bin_ns_ncp::mass_adm() const {
-    
+
+  using namespace Unites ;
 
     if (p_mass_adm == 0x0) {	    // a new computation is requireed
 	
 	p_mass_adm = new double ; 
 	    
-#include "unites.h"
-    if (this == 0x0) {	// To avoid any compilation warning
-      cout << f_unit << msol << km << mevpfm3 << qpig ;
-    }
-    
     *p_mass_adm = 0 ; 
     
     const Metrique&  gtilde = (et[0]->get_gtilde()) ;
@@ -96,15 +93,12 @@ double Bin_ns_ncp::mass_adm() const {
 
 double Bin_ns_ncp::mass_kom() const {
     
+  using namespace Unites ;
+    
   if (p_mass_kom == 0x0) {	    // a new computation is requireed
     
     p_mass_kom = new double ; 
       
-#include "unites.h"
-    if (this == 0x0) {	// To avoid any compilation warning
-      cout << f_unit << msol << km << mevpfm3 ;
-    }
-    
     *p_mass_kom = 0 ; 
     
     const Tenseur& logn_auto = et[0]->get_logn_auto() ;
@@ -260,7 +254,9 @@ double Bin_ns_ncp::virial() const {
 	     //----------------------------------------------//
 
 double Bin_ns_ncp::virial_gb() const {
-    
+
+using namespace Unites ;
+
     if (p_virial_gb == 0x0) {	    // a new computation is requireed
 	
 	p_virial_gb = new double ; 
@@ -268,11 +264,6 @@ double Bin_ns_ncp::virial_gb() const {
 	if (star1.is_relativistic()) {	// Relativistic case
 					// -----------------
 	
-#include "unites.h"
-    if (this == 0x0) {	// To avoid any compilation warning
-	cout << f_unit << msol << km << mevpfm3 ;
-    }
-
 	    assert( star2.is_relativistic() ) ; 
 	    
 	    *p_virial_gb = 0 ;
@@ -339,11 +330,7 @@ double Bin_ns_ncp::virial_fus() const {
 	    
 	if (star1.is_relativistic()) {	// Relativistic case
 					// -----------------
-
-#include "unites.h"
-    if (this == 0x0) {	// To avoid any compilation warning
-	cout << f_unit << msol << km << mevpfm3 ;
-    }
+using namespace Unites ;
 	
 	    assert( star2.is_relativistic() ) ; 
 	    

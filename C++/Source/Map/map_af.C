@@ -33,6 +33,9 @@ char map_af_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/03/25 10:29:23  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.5  2004/01/29 08:50:03  p_grandclement
  * Modification of Map::operator==(const Map&) and addition of the surface
  * integrales using Scalar.
@@ -132,6 +135,7 @@ char map_af_C[] = "$Header$" ;
 #include "map.h"
 #include "cmp.h"
 #include "utilitaires.h"
+#include "unites.h"
 
 // Local prototype:
 void c_est_pas_fait(char * ) ;
@@ -410,10 +414,7 @@ void Map_af::sauve(FILE* fd) const {
 
 ostream & Map_af::operator>>(ostream & ost) const {
 
-#include "unites.h"
-    if (this == 0x0) {	    // To avoid compiler's warnings
-	cout << qpig << f_unit << msol << mevpfm3 ;
-    }
+  using namespace Unites ;
 
     ost << "Affine mapping (class Map_af)" << endl ; 
     int nz = mg->get_nzone() ;

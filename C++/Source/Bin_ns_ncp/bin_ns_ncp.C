@@ -28,6 +28,9 @@ char Bin_ns_ncp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/03/25 10:28:58  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.7  2003/10/13 10:31:59  f_limousin
  * *** empty log message ***
  *
@@ -67,6 +70,7 @@ char Bin_ns_ncp_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "graphique.h"
 #include "param.h"
+#include "unites.h"	    
 
 			    //--------------//
 			    // Constructors //
@@ -221,11 +225,7 @@ ostream& operator<<(ostream& ost, const Bin_ns_ncp& bibi)  {
 
 ostream& Bin_ns_ncp::operator>>(ostream& ost) const {
 
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (&ost == 0x0) {
-	cout << qpig << msol << mevpfm3 << endl ; 
-    }    
+  using namespace Unites ;
 
     ost << endl ; 
     ost << "Binary neutron stars with non comformally flat metric" << endl ; 
@@ -252,11 +252,7 @@ ostream& Bin_ns_ncp::operator>>(ostream& ost) const {
 
 void Bin_ns_ncp::display_poly(ostream& ost) const {
 
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (&ost == 0x0) {
-	cout << f_unit << qpig << msol << mevpfm3 << endl ; 
-    }    
+  using namespace Unites ;
 
     const Eos* p_eos1 = &( star1.get_eos() ) ; 
     const Eos_poly* p_eos_poly = dynamic_cast<const Eos_poly*>( p_eos1 ) ; 	  

@@ -28,6 +28,9 @@ char Binary_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/03/25 10:29:01  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.7  2004/03/23 10:00:47  f_limousin
  * Minor changes.
  *
@@ -56,6 +59,7 @@ char Binary_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "graphique.h"
 #include "param.h"
+#include "unites.h"	    
 
 			    //--------------//
 			    // Constructors //
@@ -203,11 +207,7 @@ ostream& operator<<(ostream& ost, const Binary& bibi)  {
 
 ostream& Binary::operator>>(ostream& ost) const {
 
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (&ost == 0x0) {
-	cout << qpig << msol << mevpfm3 << endl ; 
-    }    
+  using namespace Unites ;
 
     ost << endl ; 
     ost << "Binary neutron stars" << endl ; 
@@ -234,11 +234,7 @@ ostream& Binary::operator>>(ostream& ost) const {
 
 void Binary::display_poly(ostream& ost) const {
 
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (&ost == 0x0) {
-	cout << f_unit << qpig << msol << mevpfm3 << endl ; 
-    }    
+  using namespace Unites ;
 
     const Eos* p_eos1 = &( star1.get_eos() ) ; 
     const Eos_poly* p_eos_poly = dynamic_cast<const Eos_poly*>( p_eos1 ) ; 	  
@@ -487,45 +483,41 @@ void Binary::fait_decouple () {
 
 void Binary::write_global(ostream& ost) const {
 
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (&ost == 0x0) {
-	cout << f_unit << qpig << msol << mevpfm3 << endl ; 
-    }    
+  using namespace Unites ;
 
-	const Map& mp1 = star1.get_mp() ;
-	const Mg3d* mg1 = mp1.get_mg() ;
-	int nz1 = mg1->get_nzone() ; 
+  const Map& mp1 = star1.get_mp() ;
+  const Mg3d* mg1 = mp1.get_mg() ;
+  int nz1 = mg1->get_nzone() ; 
 
-	ost.precision(5) ;
-	ost << "# Grid 1 : " << nz1 << "x"
-		<< mg1->get_nr(0) << "x" << mg1->get_nt(0) << "x" << mg1->get_np(0) 
-		<< "  R_out(l) [km] : " ;
-    for (int l=0; l<nz1; l++) {
-		ost << " " << mp1.val_r(l, 1., M_PI/2, 0) / km ; 
-    }
-    ost << endl ; 
-
-		
-	ost.setf(ios::scientific) ; 
-	ost.width(14) ; 
-
-	ost << "#      d [km]         "  
-		<< "       d_G [km]       "
-		<< "     d/(a1 +a1')      "
-		<< "       f [Hz]         "
-		<< "    M_ADM [M_sol]     "     
-		<< "   J [G M_sol^2/c]    "  << endl ;   
-
-	ost.precision(14) ;
-	ost.width(20) ; 
-	ost << separation() / km ; ost.width(22) ;
-	ost	<< ( star2.xa_barycenter() - star1.xa_barycenter() ) / km ; ost.width(22) ;
-	ost	<< separation() / (star1.ray_eq() + star2.ray_eq()) ; ost.width(22) ;
-	ost	<< omega / (2*M_PI)* f_unit ; ost.width(22) ;
-	ost	<< mass_adm() / msol << endl ; ost.width(22) ; 
-	ost	<< angu_mom()(2)/ ( qpig / (4* M_PI) * msol*msol) << endl ; 
-				
+  ost.precision(5) ;
+  ost << "# Grid 1 : " << nz1 << "x"
+      << mg1->get_nr(0) << "x" << mg1->get_nt(0) << "x" << mg1->get_np(0) 
+      << "  R_out(l) [km] : " ;
+  for (int l=0; l<nz1; l++) {
+    ost << " " << mp1.val_r(l, 1., M_PI/2, 0) / km ; 
+  }
+  ost << endl ; 
+  
+  
+  ost.setf(ios::scientific) ; 
+  ost.width(14) ; 
+  
+  ost << "#      d [km]         "  
+      << "       d_G [km]       "
+      << "     d/(a1 +a1')      "
+      << "       f [Hz]         "
+      << "    M_ADM [M_sol]     "     
+      << "   J [G M_sol^2/c]    "  << endl ;   
+  
+  ost.precision(14) ;
+  ost.width(20) ; 
+  ost << separation() / km ; ost.width(22) ;
+  ost	<< ( star2.xa_barycenter() - star1.xa_barycenter() ) / km ; ost.width(22) ;
+  ost	<< separation() / (star1.ray_eq() + star2.ray_eq()) ; ost.width(22) ;
+  ost	<< omega / (2*M_PI)* f_unit ; ost.width(22) ;
+  ost	<< mass_adm() / msol << endl ; ost.width(22) ; 
+  ost	<< angu_mom()(2)/ ( qpig / (4* M_PI) * msol*msol) << endl ; 
+  
 	ost << "#     H_c(1)[c^2]     "
 	    << "    e_c(1)[rho_nuc]   " 
 	    << "    M_B(1) [M_sol]    "

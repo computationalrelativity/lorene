@@ -29,8 +29,11 @@ char des_domaine_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2004/03/25 10:29:25  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.4  2001/02/28  09:45:02  eric
  * Correction erreur affichage "des_domaine_y" dans des_domaine_z.
@@ -60,6 +63,7 @@ char des_domaine_C[] = "$Header$" ;
 #include "map.h"
 #include "param.h"
 #include "utilitaires.h"
+#include "unites.h"
 
 // Local prototypes
 double fonc_des_domaine_x(double, const Param&) ; 
@@ -72,11 +76,7 @@ void des_domaine_x(const Map& mp, int l0, double x0, char* device, int newgraph,
 		   double y_min, double y_max, double z_min, double z_max, 
 		   char* nomy, char* nomz, char* title, int nxpage, int nypage)
 {
-#include "unites.h"
-    // To avoid some compiler warnings :
-    if (&mp == 0x0) {
-	cout << f_unit << qpig << msol << mevpfm3 << endl ;
-    }
+  using namespace Unites ;
 
     double khi ;
 	
@@ -195,11 +195,7 @@ void des_domaine_y(const Map& mp, int l0, double y0, char* device, int newgraph,
 		   double x_min, double x_max, double z_min, double z_max, 
 		   char* nomx, char* nomz, char* title, int nxpage, int nypage)
 {
-#include "unites.h"
-    // To avoid some compiler warnings :
-    if (&mp == 0x0) {
-	cout << f_unit << qpig << msol << mevpfm3 << endl ;
-    }
+  using namespace Unites ;
 
     double khi ;
 	
@@ -317,11 +313,7 @@ void des_domaine_z(const Map& mp, int l0, double z0, char* device, int newgraph,
 		   double x_min, double x_max, double y_min, double y_max, 
 		   char* nomx, char* nomy, char* title, int nxpage, int nypage)
 {
-#include "unites.h"
-    // To avoid some compiler warnings :
-    if (&mp == 0x0) {
-	cout << f_unit << qpig << msol << mevpfm3 << endl ;
-    }
+  using namespace Unites ;
 
     double khi ;
 	

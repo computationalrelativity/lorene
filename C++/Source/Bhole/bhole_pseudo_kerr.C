@@ -25,6 +25,9 @@ char bhole_pseudo_kerr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/25 10:28:57  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.3  2003/10/03 15:58:43  j_novak
  * Cleaning of some headers
  *
@@ -77,7 +80,6 @@ char bhole_pseudo_kerr_C[] = "$Header$" ;
 // Lorene
 #include "tenseur.h"
 #include "bhole.h"
-#include "unites.h"
 #include "proto.h"
 
 //Resolution pour le lapse pour 1 seul trou

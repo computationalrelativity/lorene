@@ -32,6 +32,9 @@ char etoile_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/03/25 10:29:06  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.9  2003/10/21 11:47:56  k_taniguchi
  * Delete various things for the Bin_ns_bh project.
  * They are moved to et_bin_nsbh.C.
@@ -180,6 +183,7 @@ char etoile_bin_C[] = "$Header$" ;
 // Headers Lorene
 #include "etoile.h"
 #include "eos.h"
+#include "unites.h"	    
 
 // Local prototype
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
@@ -560,11 +564,7 @@ void Etoile_bin::sauve(FILE* fich) const {
 
 ostream& Etoile_bin::operator>>(ostream& ost) const {
     
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (&ost == 0x0) {
-	cout << qpig << msol << f_unit << mevpfm3 << endl ; 
-    }    
+  using namespace Unites ;
 
     Etoile::operator>>(ost) ; 
     

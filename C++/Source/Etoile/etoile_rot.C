@@ -31,6 +31,9 @@ char etoile_rot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/25 10:29:07  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.3  2001/12/06 15:11:43  jl_zdunik
  * Introduction of the new function f_eq() in the class Etoile_rot
  *
@@ -113,6 +116,7 @@ char etoile_rot_C[] = "$Header$" ;
 #include "eos.h"
 #include "nbr_spx.h"
 #include "utilitaires.h"
+#include "unites.h"	    
 
 			    //--------------//
 			    // Constructors //
@@ -445,11 +449,7 @@ void Etoile_rot::sauve(FILE* fich) const {
 
 ostream& Etoile_rot::operator>>(ostream& ost) const {
     
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (&ost == 0x0) {
-	cout << qpig << msol << f_unit << mevpfm3 << endl ; 
-    }    
+  using namespace Unites ;
 
     Etoile::operator>>(ost) ; 
 
@@ -604,11 +604,7 @@ ostream& Etoile_rot::operator>>(ostream& ost) const {
 
 void Etoile_rot::partial_display(ostream& ost) const {
     
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (&ost == 0x0) {
-	cout << qpig << msol << f_unit << mevpfm3 << endl ; 
-    }    
+  using namespace Unites ;
 
     double omega_c = get_omega_c() ; 
     double freq = omega_c / (2.*M_PI) ;  
@@ -668,13 +664,9 @@ double Etoile_rot::get_omega_c() const {
 
 void Etoile_rot::display_poly(ostream& ost) const {
 
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (&ost == 0x0) {
-	cout << f_unit << qpig << msol << mevpfm3 << endl ; 
-    }    
+  using namespace Unites ;
 
-    const Eos_poly* p_eos_poly = dynamic_cast<const Eos_poly*>( &eos ) ; 	  
+  const Eos_poly* p_eos_poly = dynamic_cast<const Eos_poly*>( &eos ) ; 	  
 
     if (p_eos_poly != 0x0) {
 

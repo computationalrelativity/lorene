@@ -33,6 +33,9 @@ char binary_orbite_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/25 10:29:02  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
  * Revision 1.3  2004/02/24 12:39:30  f_limousin
  * Change fonc_bin_ncp_orbit to fonc_binary_orbit and fonc_bin_ncp_axe
  * to fonc_binary_axe.
@@ -57,6 +60,7 @@ char binary_orbite_C[] = "$Header$" ;
 #include "eos.h"
 #include "param.h"
 #include "utilitaires.h"
+#include "unites.h"
 
 double  fonc_binary_axe(double , const Param& ) ;
 double  fonc_binary_orbit(double , const Param& ) ;
@@ -66,11 +70,7 @@ double  fonc_binary_orbit(double , const Param& ) ;
 void Binary::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1, 
 		     double& xgg2) {
 
-    #include "unites.h"
-    // Pour eviter les warnings a la compilation :
-    if (this == 0x0) {
-	cout << qpig << msol << km << mevpfm3 ; 
-    }
+using namespace Unites ;
     
     //-------------------------------------------------------------
     // Evaluation of various quantities at the center of each star

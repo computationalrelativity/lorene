@@ -25,8 +25,11 @@ char des_coupe_z_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2004/03/25 10:29:25  j_novak
+ * All LORENE's units are now defined in the namespace Unites (in file unites.h).
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.8  2000/02/12  11:19:20  eric
  * Ajout de la version avec determination automatique des bornes de la fenetre
@@ -68,6 +71,7 @@ char des_coupe_z_C[] = "$Header$" ;
 #include "graphique.h"
 #include "param.h"
 #include "utilitaires.h"
+#include "unites.h"
 
 //******************************************************************************
 
@@ -104,11 +108,7 @@ void des_coupe_z(const Cmp& uu, double z0, double x_min, double x_max,
 		 double y_min, double y_max, char* title, const Cmp* defsurf, 
 		 bool draw_bound, int ncour, int nx, int ny) {
 		
-#include "unites.h"
-    // To avoid some compiler warnings :
-    if (uu.get_etat() == ETATNONDEF) {
-	cout << f_unit << qpig << msol << mevpfm3 << endl ;
-    }
+  using namespace Unites ;
   
     const Map& mp = *(uu.get_mp()) ; 
 
