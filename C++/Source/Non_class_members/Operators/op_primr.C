@@ -29,6 +29,9 @@ char op_primr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/06/14 15:24:57  e_gourgoulhon
+ * First operationnal version (tested).
+ *
  * Revision 1.1  2004/06/13 21:33:13  e_gourgoulhon
  * First version.
  *
@@ -46,7 +49,7 @@ char op_primr_C[] = "$Header$" ;
 
 // Unexpected case
 //----------------
-void _primr_pas_prevu(const Tbl&, int bin, const Tbl&, Tbl&, int& ) {
+void _primr_pas_prevu(const Tbl&, int bin, const Tbl&, Tbl&, int&, Tbl& ) {
 
     cout << "Unexpected basis in primr : basis = " << hex << bin << endl ; 
     abort() ;  
@@ -56,7 +59,7 @@ void _primr_pas_prevu(const Tbl&, int bin, const Tbl&, Tbl&, int& ) {
 // case R_CHEB
 //------------
 void _primr_r_cheb(const Tbl& tin, int bin, const Tbl& valm1, Tbl& tout, 
-        int& bout ) {
+        int& bout, Tbl& valp1) {
 
     assert(tin.dim == tout.dim) ;   
 
@@ -75,11 +78,13 @@ void _primr_r_cheb(const Tbl& tin, int bin, const Tbl& valm1, Tbl& tout,
     if (tin.get_etat() == ETATZERO) {
         if (valm1.get_etat() == ETATZERO) {
             tout.set_etat_zero() ; 
+            valp1.set_etat_zero() ;
             return ; 
         }
         else {
             assert(valm1.get_etat() == ETATQCQ) ; 
             tout.set_etat_qcq() ; 
+            valp1.set_etat_qcq() ; 
             double* xco = tout.t ;	
             for (int k=0 ; k< borne_phi ; k++) {
 	        if (k==1) {     // jump over the coefficient of sin(0*phi) 
@@ -89,6 +94,7 @@ void _primr_r_cheb(const Tbl& tin, int bin, const Tbl& valm1, Tbl& tout,
 	            for (int j=0 ; j<nt ; j++) {
                         xco[0] = valm1(k,j) ;  // constant value = boundary value
                         for (int i=1; i<nr; i++) xco[i] = 0 ; 
+                        valp1.set(k,j) = xco[0]  ;
 	                xco += nr ;
                     }
                 }
@@ -102,6 +108,7 @@ void _primr_r_cheb(const Tbl& tin, int bin, const Tbl& valm1, Tbl& tout,
 
     assert(tin.get_etat() == ETATQCQ ) ; 
     tout.set_etat_qcq() ; 
+    valp1.set_etat_qcq() ; 
     
     const double* xci = tin.t ;	
     double* xco = tout.t ;	
@@ -130,92 +137,11 @@ void _primr_r_cheb(const Tbl& tin, int bin, const Tbl& valm1, Tbl& tout,
                 for (int i=3; i<nr; i+=2) som -= xco[i] ; 
                 xco[0] = valm1(k,j) - som ;                 
 
-                xci += nr ;
-                xco += nr ;
-            }   // end of theta loop
-        }   
-    }   // end of phi loop
-
-}
-
-
-// case R_CHEBU
-//------------
-void _primr_r_chebu(const Tbl& tin, int bin, const Tbl& valm1, Tbl& tout, 
-        int& bout) {
-
-    assert(tin.dim == tout.dim) ;   
-
-    // Output spectral basis
-    bout = bin ; 
-
-    // Number of coefficients
-    int nr = tin.get_dim(0) ;	    
-    int nt = tin.get_dim(1) ;	    
-    int np = tin.get_dim(2) - 2 ;
-    int borne_phi = np + 1 ; 
-    if (np == 1) borne_phi = 1 ; 
-    
-    // Case of a zero input
-    // --------------------
-    if (tin.get_etat() == ETATZERO) {
-        if (valm1.get_etat() == ETATZERO) {
-            tout.set_etat_zero() ; 
-            return ; 
-        }
-        else {
-            assert(valm1.get_etat() == ETATQCQ) ; 
-            tout.set_etat_qcq() ; 
-            double* xco = tout.t ;	
-            for (int k=0 ; k< borne_phi ; k++) {
-	        if (k==1) {     // jump over the coefficient of sin(0*phi) 
-	            xco += nr*nt ;
-	        }
-	        else {
-	            for (int j=0 ; j<nt ; j++) {
-                        xco[0] = valm1(k,j) ;  // constant value = boundary value
-                        for (int i=1; i<nr; i++) xco[i] = 0 ; 
-	                xco += nr ;
-                    }
-                }
-            }
-            return ; 
-        }
-    }
-
-    // Case of a non-zero input
-    // ------------------------
-
-    assert(tin.get_etat() == ETATQCQ ) ; 
-    tout.set_etat_qcq() ; 
-    
-    const double* xci = tin.t ;	
-    double* xco = tout.t ;	
-
-    for (int k=0 ; k< borne_phi ; k++) {
-        if (k==1) {     // jump over the coefficient of sin(0*phi) 
-            xci += nr*nt ;
-            xco += nr*nt ;
-        }
-        else {
-            for (int j=0 ; j<nt ; j++) {
-            
-                xco[1] = xci[2] - 2.* xci[0] ; // special case i = 1
-
-                for (int i=2; i<nr-2; i++) {
-                    xco[i] = (xci[i+1] - xci[i-1]) / double(i) ; 
-                }
+                // Value of primitive at xi = + 1 : 
+                som = xco[0] ; 
+                for (int i=1; i<nr; i++) som += xco[i] ;
+                valp1.set(k,j) = som ; 
                 
-                xco[nr-2] = - xci[nr-3] / double(nr - 2) ; 
-                xco[nr-1] = - xci[nr-2] / double(nr - 1) ; 
-
-                // Determination of the T_0 coefficient by maching with
-                // provided value at xi = - 1 : 
-                double som = - xco[1] ; 
-                for (int i=2; i<nr; i+=2) som += xco[i] ; 
-                for (int i=3; i<nr; i+=2) som -= xco[i] ; 
-                xco[0] = valm1(k,j) - som ;                 
-
                 xci += nr ;
                 xco += nr ;
             }   // end of theta loop
@@ -223,16 +149,13 @@ void _primr_r_chebu(const Tbl& tin, int bin, const Tbl& valm1, Tbl& tout,
     }   // end of phi loop
 
 }
-
-
-
 
 
 
 // case R_CHEBP
 //-------------
-void _primr_r_chebp(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout, 
-        int& bout ) {
+void _primr_r_chebp(const Tbl& tin, int bin, const Tbl&, Tbl& tout, 
+        int& bout, Tbl& valp1) {
 
     assert(tin.dim == tout.dim) ;   
 
@@ -247,13 +170,12 @@ void _primr_r_chebp(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
     int np = tin.get_dim(2) - 2 ;
     int borne_phi = np + 1 ; 
     if (np == 1) borne_phi = 1 ; 
-    
-    assert( val0.get_etat() == ETATZERO ) ; 
-    
+        
     // Case of a zero input
     // --------------------
     if (tin.get_etat() == ETATZERO) {
         tout.set_etat_zero() ; 
+        valp1.set_etat_zero() ; 
         return ; 
     }
 
@@ -262,6 +184,7 @@ void _primr_r_chebp(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
 
     assert(tin.get_etat() == ETATQCQ ) ; 
     tout.set_etat_qcq() ; 
+    valp1.set_etat_qcq() ; 
     
     const double* xci = tin.t ;	
     double* xco = tout.t ;	
@@ -283,6 +206,11 @@ void _primr_r_chebp(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
                 xco[nr-2] = xci[nr-2] / double(4*nr - 6) ; 
                 xco[nr-1] = 0 ; 
 
+                // Value of primitive at xi = + 1 : 
+                double som = xco[0] ; 
+                for (int i=1; i<nr; i++) som += xco[i] ;
+                valp1.set(k,j) = som ; 
+                
                 xci += nr ;
                 xco += nr ;
             }   // end of theta loop
@@ -295,7 +223,7 @@ void _primr_r_chebp(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
 // case R_CHEBI
 //-------------
 void _primr_r_chebi(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout, 
-        int& bout ) {
+        int& bout, Tbl& valp1) {
 
     assert(tin.dim == tout.dim) ;   
 
@@ -317,11 +245,13 @@ void _primr_r_chebi(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
     if (tin.get_etat() == ETATZERO) {
         if (val0.get_etat() == ETATZERO) {
             tout.set_etat_zero() ; 
+            valp1.set_etat_zero() ; 
             return ; 
         }
         else {
             assert(val0.get_etat() == ETATQCQ) ; 
             tout.set_etat_qcq() ; 
+            valp1.set_etat_qcq() ; 
             double* xco = tout.t ;	
             for (int k=0 ; k< borne_phi ; k++) {
 	        if (k==1) {     // jump over the coefficient of sin(0*phi) 
@@ -331,6 +261,7 @@ void _primr_r_chebi(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
 	            for (int j=0 ; j<nt ; j++) {
                         xco[0] = val0(k,j) ;  // constant value = boundary value
                         for (int i=1; i<nr; i++) xco[i] = 0 ; 
+                        valp1.set(k,j) = xco[0]  ;
 	                xco += nr ;
                     }
                 }
@@ -344,6 +275,7 @@ void _primr_r_chebi(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
 
     assert(tin.get_etat() == ETATQCQ ) ; 
     tout.set_etat_qcq() ; 
+    valp1.set_etat_qcq() ; 
     
     const double* xci = tin.t ;	
     double* xco = tout.t ;	
@@ -369,6 +301,11 @@ void _primr_r_chebi(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
                 for (int i=3; i<nr; i+=2) som -= xco[i] ; 
                 xco[0] = val0(k,j) - som ;                 
 
+                // Value of primitive at xi = + 1 : 
+                som = xco[0] ; 
+                for (int i=1; i<nr; i++) som += xco[i] ;
+                valp1.set(k,j) = som ; 
+
                 xci += nr ;
                 xco += nr ;
             }   // end of theta loop
@@ -382,7 +319,7 @@ void _primr_r_chebi(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
 // case R_CHEBPIM_P
 //-----------------
 void _primr_r_chebpim_p(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout, 
-        int& bout ) {
+        int& bout, Tbl& valp1) {
 
     assert(tin.dim == tout.dim) ;   
 
@@ -402,11 +339,13 @@ void _primr_r_chebpim_p(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
     if (tin.get_etat() == ETATZERO) {
         if (val0.get_etat() == ETATZERO) {
             tout.set_etat_zero() ; 
+            valp1.set_etat_zero() ; 
             return ; 
         }
         else {
             assert(val0.get_etat() == ETATQCQ) ; 
             tout.set_etat_qcq() ; 
+            valp1.set_etat_qcq() ; 
             double* xco = tout.t ;	
 
             // m even part 
@@ -420,6 +359,7 @@ void _primr_r_chebpim_p(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
 	                for (int j=0 ; j<nt ; j++) {
                             assert( val0(k+kmod,j) == double(0) ) ; 
                             for (int i=0; i<nr; i++) xco[i] = 0 ; 
+                            valp1.set(k+kmod,j) = 0. ;
 	                    xco += nr ;
                         }
                     }
@@ -435,6 +375,7 @@ void _primr_r_chebpim_p(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
 	            for (int j=0 ; j<nt ; j++) {
                         xco[0] = val0(k+kmod,j) ;  // constant value = boundary value
                         for (int i=1; i<nr; i++) xco[i] = 0 ; 
+                        valp1.set(k+kmod,j) = xco[0] ;
 	                xco += nr ;
                     }
                 }
@@ -449,6 +390,7 @@ void _primr_r_chebpim_p(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
 
     assert(tin.get_etat() == ETATQCQ ) ; 
     tout.set_etat_qcq() ; 
+    valp1.set_etat_qcq() ; 
     
     const double* xci = tin.t ;	
     double* xco = tout.t ;	
@@ -473,6 +415,11 @@ void _primr_r_chebpim_p(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
                     xco[nr-2] = xci[nr-2] / double(4*nr - 6) ; 
                     xco[nr-1] = 0 ; 
 
+                    // Value of primitive at xi = + 1 : 
+                    double som = xco[0] ; 
+                    for (int i=1; i<nr; i++) som += xco[i] ;
+                    valp1.set(k+kmod,j) = som ; 
+                
                     xci += nr ;
                     xco += nr ;
                 }   // end of theta loop
@@ -505,6 +452,11 @@ void _primr_r_chebpim_p(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
                 for (int i=3; i<nr; i+=2) som -= xco[i] ; 
                 xco[0] = val0(k+kmod,j) - som ;                 
 
+                // Value of primitive at xi = + 1 : 
+                som = xco[0] ; 
+                for (int i=1; i<nr; i++) som += xco[i] ;
+                valp1.set(k+kmod,j) = som ; 
+                
                 xci += nr ;
                 xco += nr ;
             }   // end of theta loop
@@ -521,7 +473,7 @@ void _primr_r_chebpim_p(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
 // case R_CHEBPIM_I
 //-----------------
 void _primr_r_chebpim_i(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout, 
-        int& bout ) {
+        int& bout, Tbl& valp1) {
 
     assert(tin.dim == tout.dim) ;   
 
@@ -541,11 +493,13 @@ void _primr_r_chebpim_i(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
     if (tin.get_etat() == ETATZERO) {
         if (val0.get_etat() == ETATZERO) {
             tout.set_etat_zero() ; 
+            valp1.set_etat_zero() ; 
             return ; 
         }
         else {
             assert(val0.get_etat() == ETATQCQ) ; 
             tout.set_etat_qcq() ; 
+            valp1.set_etat_qcq() ; 
             double* xco = tout.t ;	
 
             // m odd part 
@@ -559,6 +513,7 @@ void _primr_r_chebpim_i(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
 	                for (int j=0 ; j<nt ; j++) {
                             xco[0] = val0(k+kmod,j) ;  // constant value = boundary value
                             for (int i=1; i<nr; i++) xco[i] = 0 ; 
+                            valp1.set(k+kmod,j) = xco[0] ;
 	                    xco += nr ;
                         }
                     }
@@ -574,6 +529,7 @@ void _primr_r_chebpim_i(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
 	                for (int j=0 ; j<nt ; j++) {
                             assert( val0(k+kmod,j) == double(0) ) ; 
                             for (int i=0; i<nr; i++) xco[i] = 0 ; 
+                            valp1.set(k+kmod,j) = 0. ;
 	                    xco += nr ;
                         }
                 }
@@ -588,6 +544,7 @@ void _primr_r_chebpim_i(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
 
     assert(tin.get_etat() == ETATQCQ ) ; 
     tout.set_etat_qcq() ; 
+    valp1.set_etat_qcq() ; 
     
     const double* xci = tin.t ;	
     double* xco = tout.t ;	
@@ -617,6 +574,11 @@ void _primr_r_chebpim_i(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
                     for (int i=3; i<nr; i+=2) som -= xco[i] ; 
                     xco[0] = val0(k+kmod,j) - som ;                 
 
+                    // Value of primitive at xi = + 1 : 
+                    som = xco[0] ; 
+                    for (int i=1; i<nr; i++) som += xco[i] ;
+                    valp1.set(k+kmod,j) = som ; 
+                
                     xci += nr ;
                     xco += nr ;
                 }   // end of theta loop                    
@@ -644,6 +606,11 @@ void _primr_r_chebpim_i(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
                 xco[nr-2] = xci[nr-2] / double(4*nr - 6) ; 
                 xco[nr-1] = 0 ; 
 
+                // Value of primitive at xi = + 1 : 
+                double som = xco[0] ; 
+                for (int i=1; i<nr; i++) som += xco[i] ;
+                valp1.set(k+kmod,j) = som ; 
+                
                 xci += nr ;
                 xco += nr ;
             }   // end of theta loop
