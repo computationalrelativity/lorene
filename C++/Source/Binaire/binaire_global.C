@@ -32,6 +32,9 @@ char binaire_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2001/12/20 14:18:40  k_taniguchi
+ * Addition of the Komar mass, the virial error by Gourgoulhon and Bonazzola, and the virial error by Friedman, Uryu, and Shibata.
+ *
  * Revision 1.3  2001/12/16 16:21:38  e_gourgoulhon
  * #include "unites.h" is now local to Binaire::mass_adm(), in order
  * not to make Lorene's units global variables.
@@ -114,6 +117,72 @@ double Binaire::mass_adm() const {
     }	// End of the case where a new computation was necessary
     
     return *p_mass_adm ; 
+    
+}
+
+
+		    //---------------------------------//
+		    //		Komar mass	       //
+		    //---------------------------------//
+
+double Binaire::mass_kom() const {
+    
+    if (p_mass_kom == 0x0) {	    // a new computation is requireed
+	
+	p_mass_kom = new double ; 
+	    
+	if (star1.is_relativistic()) {	// Relativistic case
+					// -----------------
+
+#include "unites.h"
+    if (this == 0x0) {	// To avoid any compilation warning
+	cout << f_unit << msol << km << mevpfm3 ;
+    }
+	
+	    assert( star2.is_relativistic() ) ; 
+	    
+	    *p_mass_kom = 0 ; 
+	    
+	    for (int i=0; i<=1; i++) {	    // loop on the stars
+	    
+	        const Cmp& lapse = (et[i]->get_nnn())() ;
+	        const Cmp& a2 = (et[i]->get_a_car())() ; 
+		const Cmp& ee = (et[i]->get_ener_euler())() ; 
+		const Cmp& se = (et[i]->get_s_euler())() ; 
+		const Cmp& ak2_auto = (et[i]->get_akcar_auto())() ;
+		const Cmp& ak2_comp = (et[i]->get_akcar_comp())() ;
+
+		const Tenseur& dnu_auto = et[i]->get_d_logn_auto() ;
+		const Tenseur& dnu_comp = et[i]->get_d_logn_comp() ;
+		const Tenseur& dbe_auto = et[i]->get_d_beta_auto() ;
+		const Tenseur& dbe_comp = et[i]->get_d_beta_comp() ;
+
+		Tenseur dndb = flat_scalar_prod(dnu_auto,
+						dbe_auto + dbe_comp) ;
+		Tenseur dndn = flat_scalar_prod(dnu_auto,
+						dnu_auto + dnu_comp) ;
+
+		Cmp source = lapse * ( a2 * (ee + se)
+				       + (ak2_auto + ak2_comp)/qpig
+				       - dndb()/qpig + dndn()/qpig ) ;
+			   
+		source.std_base_scal() ; 
+			   
+		*p_mass_kom += source.integrale() ; 
+	    
+	    }    
+	
+	}
+	else {		// Newtonian case 
+			// --------------
+			
+	    *p_mass_kom = star1.mass_b() + star2.mass_b() ; 
+	    
+	}
+		
+    }	// End of the case where a new computation was necessary
+    
+    return *p_mass_kom ; 
     
 }
 
@@ -280,7 +349,7 @@ double Binaire::virial() const {
 	
 	    assert( star2.is_relativistic() ) ; 
 	    
-	    *p_virial = - 1000 ; 
+	    *p_virial = 1. - mass_kom() / mass_adm() ; 
 	    
 	}
 	else {		// Newtonian case 
@@ -327,4 +396,147 @@ double Binaire::virial() const {
     
 }
 
+
+	     //----------------------------------------------//
+	     //	 Virial error by Gourgoulhon and Bonazzola   //
+	     //----------------------------------------------//
+
+double Binaire::virial_gb() const {
+    
+    if (p_virial_gb == 0x0) {	    // a new computation is requireed
+	
+	p_virial_gb = new double ; 
+	    
+	if (star1.is_relativistic()) {	// Relativistic case
+					// -----------------
+	
+#include "unites.h"
+    if (this == 0x0) {	// To avoid any compilation warning
+	cout << f_unit << msol << km << mevpfm3 ;
+    }
+
+	    assert( star2.is_relativistic() ) ; 
+	    
+	    *p_virial_gb = 0 ;
+
+	    double vir_pres = 0. ;
+	    double vir_extr = 0. ;
+	    double vir_grav = 0. ;
+
+	    for (int i=0; i<=1; i++) {  // loop on the stars
+
+	      const Cmp& a2 = (et[i]->get_a_car())() ;
+	      const Cmp& se = (et[i]->get_s_euler())() ;
+	      const Cmp& ak2_auto = (et[i]->get_akcar_auto())() ;
+	      const Cmp& ak2_comp = (et[i]->get_akcar_comp())() ;
+
+	      const Tenseur& dnu_auto = et[i]->get_d_logn_auto() ;
+	      const Tenseur& dnu_comp = et[i]->get_d_logn_comp() ;
+	      const Tenseur& dbe_auto = et[i]->get_d_beta_auto() ;
+	      const Tenseur& dbe_comp = et[i]->get_d_beta_comp() ;
+
+	      Cmp source = 2. * a2 * sqrt(a2) * se ;
+	      vir_pres += source.integrale() ;
+
+	      source = 1.5 * sqrt(a2) * (ak2_auto + ak2_comp) / qpig ;
+	      vir_extr += source.integrale() ;
+
+	      Tenseur sprod1 = flat_scalar_prod(dbe_auto, dbe_auto+dbe_comp) ;
+	      Tenseur sprod2 = flat_scalar_prod(dnu_auto, dnu_auto+dnu_comp) ;
+	      Tenseur sprod3 = flat_scalar_prod(dbe_auto, dnu_auto+dnu_comp) ;
+
+	      source = sqrt(a2) * ( sprod1() - sprod2() - 2.*sprod3() )/qpig ;
+	      vir_grav += source.integrale() ;
+
+	    }  // End of the loop on the stars
+
+
+	    *p_virial_gb = (vir_pres + vir_extr + vir_grav) / mass_adm() ;
+	    
+	}
+	else {		// Newtonian case 
+			// --------------
+			
+	    *p_virial_gb = virial() ; 
+	    
+		
+	}   // End of the Newtonian case 
+
+    }	// End of the case where a new computation was necessary
+    
+    return *p_virial_gb ; 
+    
+}
+
+
+	     //------------------------------------------------//
+	     //	 Virial error by Friedman, Uryu, and Shibata   //
+	     //------------------------------------------------//
+
+double Binaire::virial_fus() const {
+    
+    if (p_virial_fus == 0x0) {	    // a new computation is requireed
+	
+	p_virial_fus = new double ; 
+	    
+	if (star1.is_relativistic()) {	// Relativistic case
+					// -----------------
+
+#include "unites.h"
+    if (this == 0x0) {	// To avoid any compilation warning
+	cout << f_unit << msol << km << mevpfm3 ;
+    }
+	
+	    assert( star2.is_relativistic() ) ; 
+	    
+	    *p_virial_fus = 0 ;
+
+	    double vir_pres = 0. ;
+	    double vir_extr = 0. ;
+	    double vir_grav = 0. ;
+
+	    for (int i=0; i<=1; i++) {  // loop on the stars
+
+	      const Cmp& lapse = (et[i]->get_nnn())() ;
+	      const Cmp& a2 = (et[i]->get_a_car())() ;
+	      const Cmp& se = (et[i]->get_s_euler())() ;
+	      const Cmp& ak2_auto = (et[i]->get_akcar_auto())() ;
+	      const Cmp& ak2_comp = (et[i]->get_akcar_comp())() ;
+
+	      const Tenseur& dnu_auto = et[i]->get_d_logn_auto() ;
+	      const Tenseur& dnu_comp = et[i]->get_d_logn_comp() ;
+	      const Tenseur& dbe_auto = et[i]->get_d_beta_auto() ;
+	      const Tenseur& dbe_comp = et[i]->get_d_beta_comp() ;
+
+	      Cmp source = 2. * lapse * a2 * sqrt(a2) * se ;
+	      vir_pres += source.integrale() ;
+
+	      source = 1.5 * lapse * sqrt(a2) * (ak2_auto + ak2_comp) / qpig ;
+	      vir_extr += source.integrale() ;
+
+	      Tenseur sprod = flat_scalar_prod( dbe_auto, dbe_auto+dbe_comp )
+		- flat_scalar_prod( dnu_auto, dnu_auto+dnu_comp ) ;
+
+	      source = lapse * sqrt(a2) * sprod() / qpig ;
+	      vir_grav += source.integrale() ;
+
+	    }  // End of the loop on the stars
+
+
+	    *p_virial_fus = (vir_pres + vir_extr + vir_grav) / mass_adm() ;
+	    
+	}
+	else {		// Newtonian case 
+			// --------------
+			
+	    *p_virial_fus = virial() ; 
+	    
+		
+	}   // End of the Newtonian case 
+
+    }	// End of the case where a new computation was necessary
+    
+    return *p_virial_fus ; 
+    
+}
 
