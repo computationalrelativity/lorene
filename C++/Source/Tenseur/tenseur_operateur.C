@@ -27,6 +27,9 @@ char tenseur_operateur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/06/20 14:53:38  f_limousin
+ * Add the function contract_desal()
+ *
  * Revision 1.6  2003/03/03 19:38:41  f_limousin
  * Suppression of an assert on a metric associated with a tensor.
  *
@@ -193,7 +196,7 @@ Tenseur operator%(const Tenseur& t1, const Tenseur& t2) {
     poids_res = (fabs(poids_res) < 1.e-10 ? 0. : poids_res) ;
     const Metrique* met_res = 0x0 ;
     if (poids_res != 0.) {
-      assert((t1.metric != 0x0) || (t2.metric != 0x0)) ;
+      // assert((t1.metric != 0x0) || (t2.metric != 0x0)) ;
       if (t1.metric != 0x0) met_res = t1.metric ;
       else met_res = t2.metric ;
     }
@@ -338,7 +341,7 @@ Tenseur contract (const Tenseur& t1, int ind1, const Tenseur& t2, int ind2) {
     // Verifs :
     assert ((ind1>=0) && (ind1<t1.valence)) ;
     assert ((ind2>=0) && (ind2<t2.valence)) ;
-    assert (t1.mp == t2.mp) ;
+    assert (*(t1.mp) == *(t2.mp)) ;
     
     // Contraction possible ?
     if ( (t1.valence != 0) && (t2.valence != 0) ) {
@@ -351,7 +354,7 @@ Tenseur contract (const Tenseur& t1, int ind1, const Tenseur& t2, int ind2) {
     poids_res = (fabs(poids_res) < 1.e-10 ? 0. : poids_res) ;
     const Metrique* met_res = 0x0 ;
     if (poids_res != 0.) {
-      assert((t1.metric != 0x0) || (t2.metric != 0x0)) ;
+      //  assert((t1.metric != 0x0) || (t2.metric != 0x0)) ;
       if (t1.metric != 0x0) met_res = t1.metric ;
       else met_res = t2.metric ;
     }
@@ -405,6 +408,86 @@ Tenseur contract (const Tenseur& t1, int ind1, const Tenseur& t2, int ind2) {
 	    jeux_indice_t1.set(ind1) = j ;
 	    jeux_indice_t2.set(ind2) = j ;
 	    work = work + t1(jeux_indice_t1)*t2(jeux_indice_t2) ;
+	    }
+	    
+	res.set(jeux_indice_res) = work ;
+	}
+    return res ;
+}
+
+Tenseur contract_desal (const Tenseur& t1, int ind1, const Tenseur& t2, int ind2) {
+    
+    assert ((t1.etat != ETATNONDEF) && (t2.etat != ETATNONDEF)) ;
+    // Verifs :
+    assert ((ind1>=0) && (ind1<t1.valence)) ;
+    assert ((ind2>=0) && (ind2<t2.valence)) ;
+    assert (t1.mp == t2.mp) ;
+    
+    // Contraction possible ?
+    if ( (t1.valence != 0) && (t2.valence != 0) ) {
+	    assert ( *(t1.get_triad()) == *(t2.get_triad()) ) ;
+    }
+    assert (t1.type_indice(ind1) != t2.type_indice(ind2)) ;
+    
+    int val_res = t1.valence + t2.valence - 2;
+    double poids_res = t1.poids + t2.poids ;
+    poids_res = (fabs(poids_res) < 1.e-10 ? 0. : poids_res) ;
+    const Metrique* met_res = 0x0 ;
+    if (poids_res != 0.) {
+      //  assert((t1.metric != 0x0) || (t2.metric != 0x0)) ;
+      if (t1.metric != 0x0) met_res = t1.metric ;
+      else met_res = t2.metric ;
+    }
+    Itbl tipe(val_res) ;
+    tipe.set_etat_qcq() ;
+    for (int i=0 ; i<ind1 ; i++)
+	tipe.set(i) = t1.type_indice(i) ;
+    for (int i=ind1 ; i<t1.valence-1 ; i++)
+	tipe.set(i) = t1.type_indice(i+1) ;
+    for (int i=t1.valence-1 ; i<t1.valence+ind2-1 ; i++)
+	tipe.set(i) = t2.type_indice(i-t1.valence+1) ;
+    for (int i = t1.valence+ind2-1 ; i<val_res ; i++)
+	tipe.set(i) = t2.type_indice(i-t1.valence+2) ;
+	
+    const Base_vect* triad_res = (val_res == 0) ? 0x0 : t1.get_triad() ; 
+
+    Tenseur res(*t1.mp, val_res, tipe, triad_res, met_res, poids_res) ;
+
+    // Cas particulier ou l'un des deux tenseurs est nul
+    if ( (t1.etat == ETATZERO) || (t2.etat == ETATZERO) ) {
+	res.set_etat_zero() ; 
+	return res ; 
+    }
+
+    res.set_etat_qcq() ;
+	
+    Cmp work(t1.mp) ;
+    
+    // Boucle sur les composantes de res :
+	
+    Itbl jeux_indice_t1(t1.valence) ;
+    Itbl jeux_indice_t2(t2.valence) ;
+    jeux_indice_t1.set_etat_qcq() ;
+    jeux_indice_t2.set_etat_qcq() ;
+    
+    for (int i=0 ; i<res.n_comp ; i++) {
+	Itbl jeux_indice_res (res.donne_indices(i)) ;
+	for (int i=0 ; i<ind1 ; i++)
+	    jeux_indice_t1.set(i) = jeux_indice_res(i) ;
+	for (int i=ind1+1 ; i<t1.valence ; i++)
+	    jeux_indice_t1.set(i) = jeux_indice_res(i-1) ;
+	for (int i=0 ; i<ind2 ; i++)
+	    jeux_indice_t2.set(i) = jeux_indice_res(t1.valence+i-1) ;
+	for (int i=ind2+1 ; i<t2.valence ; i++)
+	    jeux_indice_t2.set(i) = jeux_indice_res(t1.valence+i-2) ;
+	
+	    
+	    
+	work.set_etat_zero() ;
+	for (int j=0 ; j<3 ; j++) {
+	    jeux_indice_t1.set(ind1) = j ;
+	    jeux_indice_t2.set(ind2) = j ;
+	    work = work + t1(jeux_indice_t1)%t2(jeux_indice_t2) ;
 	    }
 	    
 	res.set(jeux_indice_res) = work ;
