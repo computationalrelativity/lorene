@@ -29,6 +29,9 @@ char test_sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/12/10 10:18:24  e_gourgoulhon
+ * First operational version.
+ *
  * Revision 1.1  2003/11/27 16:02:24  e_gourgoulhon
  * First version of code test_sym_tensor
  *
@@ -94,26 +97,43 @@ int main() {
 	const Coord& sint = map.sint ; 
 	const Coord& cosp = map.cosp ; 
 	const Coord& sinp = map.sinp ; 
-	const Coord& phi = map.phi ; 
 
 	Sym_tensor hhc(map, CON, map.get_bvect_cart()) ; 
 	
-	hhc.set(1,1) = 1 / (1 + pow(r,4)) ; 
+	
+	Scalar tmp(map) ; 
+		
+	hhc.set(1,1) = 1. / (1 + pow(r,4)) ; ;
+	tmp = 1. / (1. + 1./pow(r,4)) ;
+	hhc.set(1,1).set_domain(nzm1) = tmp.domain(nzm1) ; 
+	hhc.set(1,1).set_dzpuis(4); 	 
 
 	hhc.set(1,2) = x / (1 + pow(r,5)) ; 
-	hhc.set(1,2).set_val_inf(0.) ; 
+	tmp = sint*cosp / (1. + 1./pow(r,5)) ;
+	hhc.set(1,2).set_domain(nzm1) = tmp.domain(nzm1)  ; 
+	hhc.set(1,2).set_dzpuis(4); 	 
 
 	hhc.set(1,3) = y * z  / (1 + pow(r,6)) ; 
-	hhc.set(1,3).set_val_inf(0.) ; 
+	tmp = sint*sinp*cost / (1. + 1./pow(r,6)) ;
+	hhc.set(1,3).set_domain(nzm1) = tmp.domain(nzm1)  ; 
+	hhc.set(1,3).set_dzpuis(4); 	 
 
 	hhc.set(2,2) = x*y / (1 + pow(r,6)) ; 
-	hhc.set(2,2).set_val_inf(0.) ; 
+	tmp = sint*sint*cosp*sinp / (1. + 1./pow(r,6)) ;
+	hhc.set(2,2).set_domain(nzm1) = tmp.domain(nzm1)  ; 
+	hhc.set(2,2).set_dzpuis(4); 	 
 
 	hhc.set(2,3) = z / (1 + pow(r,5)) ; 
-	hhc.set(2,3).set_val_inf(0.) ; 
+	tmp = cost / (1. + 1./pow(r,5)) ;
+	hhc.set(2,3).set_domain(nzm1) = tmp.domain(nzm1)  ; 
+	hhc.set(2,3).set_dzpuis(4); 	 
 
 	hhc.set(3,3) = x / (1 + pow(r,5)) - y*z*z / (1 + pow(r,7)) ; 
-	hhc.set(3,3).set_val_inf(0.) ; 
+	tmp = sint*cosp / (1. + 1./pow(r,5))
+		- sint*sinp*cost*cost / (1. + 1./pow(r,7)) ;
+	hhc.set(3,3).set_domain(nzm1) = tmp.domain(nzm1)  ; 
+	hhc.set(3,3).set_dzpuis(4); 	 
+
 
 	hhc.std_spectral_base() ; 
 

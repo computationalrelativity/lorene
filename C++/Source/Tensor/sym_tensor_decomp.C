@@ -30,6 +30,9 @@ char sym_tensor_decomp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/12/10 10:17:54  e_gourgoulhon
+ * First operational version.
+ *
  * Revision 1.2  2003/11/27 16:01:47  e_gourgoulhon
  * First implmentation.
  *
@@ -59,9 +62,19 @@ const Sym_tensor_trans& Sym_tensor::transverse(const Metric& metre) const {
 
 		assert( (type_indice(0) == CON) && (type_indice(1) == CON) ) ; 
 
+		for (int ic=0; ic<n_comp; ic++) {
+			assert(cmp[ic]->check_dzpuis(4)) ;  // dzpuis=4 is assumed
+		}
+
 		const Vector& ww = longit_pot(metre) ;
 		
-		const Tensor& dww = ww.derive_con(metre) ; 
+		Tensor dww = ww.derive_con(metre) ; 
+				
+		for (int i=1; i<=3; i++) {
+			for (int j=1; j<=3; j++) {
+				dww.set(i,j).inc_dzpuis(2) ; 
+			}
+		}
 		
 		p_transverse[jp] = new Sym_tensor_trans(*mp, *triad, metre) ;
 		
@@ -97,10 +110,12 @@ const Vector& Sym_tensor::longit_pot(const Metric& metre) const {
 			abort() ; 
 		}
 		
-		Vector hhh = divergence(metre) ; 
-		for (int i=1; i<=3; i++) {
-			hhh.set(i).inc_dzpuis(2) ; 
+		for (int ic=0; ic<n_comp; ic++) {
+			assert(cmp[ic]->check_dzpuis(4)) ;  // dzpuis=4 is assumed
 		}
+
+		Vector hhh = divergence(metre) ; 
+
 				
 		p_longit_pot[jp] = new Vector( hhh.poisson(double(1)) ) ; 
 		
