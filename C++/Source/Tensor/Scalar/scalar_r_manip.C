@@ -35,6 +35,9 @@ char scalar_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2004/01/29 09:31:44  j_novak
+ * Better treatment of ETATUN
+ *
  * Revision 1.16  2004/01/28 10:34:27  j_novak
  * Corrected some errors.
  *
@@ -131,6 +134,10 @@ void Scalar::div_r_dzpuis(int ced_mult_r) {
  
   if (etat != ETATZERO) {
 	
+    assert((etat == ETATQCQ) || (etat == ETATUN)) ;
+    
+    set_etat_qcq() ;
+
     int nzm1 = mp->get_mg()->get_nzone() - 1 ; // index of the CED
 	
     // Copy of the CED part of *this into uu_ext 
@@ -166,6 +173,8 @@ void Scalar::div_r_dzpuis(int ced_mult_r) {
 			//---------------------------//
 
 void Scalar::div_r_ced() {
+
+  if (etat == ETATUN) set_etat_qcq() ;
     
     mp->div_r_zec(*this) ;   // Call of the appropriate routine of the mapping
     
@@ -179,9 +188,11 @@ void Scalar::div_r_ced() {
 
 void Scalar::mult_r() {
     
-    mp->mult_r(*this) ;   // Call of the appropriate routine of the mapping
+  if (etat == ETATUN)  set_etat_qcq() ;
+
+  mp->mult_r(*this) ;   // Call of the appropriate routine of the mapping
     
-    del_deriv() ;   // Delete the derived members
+  del_deriv() ;   // Delete the derived members
     
 }
 
@@ -197,6 +208,10 @@ void Scalar::mult_r_dzpuis(int ced_mult_r) {
   Base_val lbase = va.base ;
 
   if (etat != ETATZERO) {
+	
+    assert((etat == ETATQCQ) || (etat == ETATUN)) ;
+    
+    set_etat_qcq() ;
 	
     int nzm1 = mp->get_mg()->get_nzone() - 1 ; // index of the CED
 	
@@ -272,6 +287,10 @@ void Scalar::mult_rsint_dzpuis(int ced_mult_r) {
   Base_val lbase = va.base ;
 
   if (etat != ETATZERO) {
+
+    assert((etat == ETATQCQ) || (etat == ETATUN)) ;
+    
+    set_etat_qcq() ;
 	
     int nzm1 = mp->get_mg()->get_nzone() - 1 ; // index of the CED
 	
@@ -340,7 +359,11 @@ void Scalar::div_rsint_dzpuis(int ced_mult_r) {
   Base_val lbase = va.base ;
 
   if (etat != ETATZERO) {
-	
+
+    assert((etat == ETATQCQ) || (etat == ETATUN)) ;
+    
+    set_etat_qcq() ;
+
     int nzm1 = mp->get_mg()->get_nzone() - 1 ; // index of the CED
 	
     // Copy of the CED part of *this into uu_ext and multiplication by r
