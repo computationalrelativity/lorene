@@ -30,6 +30,9 @@ char coal_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/09/18 15:22:49  e_gourgoulhon
+ * Added #include <time.h>  which had been forgotten in previous commit.
+ *
  * Revision 1.8  2003/09/18 15:06:59  e_gourgoulhon
  * Added printing of date and host name in the header of the file calcul.d.
  *
@@ -83,6 +86,7 @@ char coal_regu_C[] = "$Header$" ;
 // headers C
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 // headers Lorene
 #include "binaire.h"
