@@ -18,6 +18,10 @@ SRC3 = rotseq.C
 OBJ3 = $(SRC3:.C=.o)
 EXE3 = $(SRC3:.C=)
 
+SRC4 = examrot.C
+OBJ4 = $(SRC4:.C=.o)
+EXE4 = $(SRC4:.C=)
+
 $(EXE1): $(OBJ1)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_PGPLOT) $(LIB_CXX)
@@ -27,12 +31,14 @@ $(EXE2): $(OBJ2)
 $(EXE3): $(OBJ3)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ3) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_PGPLOT) $(LIB_CXX)
+$(EXE4): $(OBJ4)
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ4) $(LIB_G) $(LIB_LAPACK) \
+					$(LIB_PGPLOT) $(LIB_CXX)
 
 .C.o:
 	$(CXX)  -c $(CXXFLAGS_G) $(INC) $<
 
 uninstall:
-	rm -f $(OBJ1) $(OBJ2) $(OBJ3)
-	rm -f $(EXE1) $(EXE2) $(EXE3)
-	rm -f *.d
+	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4)
+	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4)
 
