@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/06/09 06:23:50  k_taniguchi
+ * Introduce analytical_omega() and analytical_shift().
+ *
  * Revision 1.7  2003/11/25 07:25:44  k_taniguchi
  * Change the attribute of fait_decouple() from private to public.
  *
@@ -263,6 +266,16 @@ class Bin_ns_bh {
 	 *
 	 */
 	void orbit_omega(double fact_omeg_min, double fact_omeg_max) ;
+
+	/** Sets the orbital angular velocity of the neutron star
+	 *   to some 2-PN analytical value
+	 */
+	void analytical_omega() ;
+
+	/** Sets some analytical template for the shift vector (via the
+	 *   members {\tt w\_shift} and {\tt khi\_shift} of the neutron star
+	 */
+	void analytical_shift() ;
 
 };
 ostream& operator<<(ostream& , const Bin_ns_bh& ) ;
