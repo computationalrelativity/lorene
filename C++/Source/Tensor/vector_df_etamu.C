@@ -32,6 +32,9 @@ char vector_df_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/02/09 10:26:44  j_novak
+ * Treatment of the general dzpuis case.
+ *
  * Revision 1.6  2004/12/28 10:37:24  j_novak
  * Better way of enforcing zero divergence.
  *
@@ -80,9 +83,9 @@ const Scalar& Vector_divfree::eta() const {
 		#endif
 
 		// eta is computed from the divergence-free condition:
-
-		Scalar dvr = - cmp[0]->dsdr() ; 	// - dV^r/dr  ( -r^2 dV^r/dr in the CED)
-		dvr.mult_r_dzpuis(0) ;
+		int dzp = cmp[0]->get_dzpuis() ;
+		Scalar dvr = - cmp[0]->dsdr() ;  // - dV^r/dr  ( -r^2 dV^r/dr in the CED)
+		dvr.mult_r_dzpuis(dzp) ;
 
 		// Final result for the V^r source for eta:
 		dvr -= 2. * (*cmp[0]) ; 
