@@ -25,8 +25,11 @@ char map_radial_comp_rtp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/06/20 14:46:17  f_limousin
+ * Les assert sur le mapping sont realise a partir du mapping meme et non a partir du pointeur sur ce mapping
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.1  2000/09/19  15:25:50  phil
  * Initial revision
@@ -59,9 +62,9 @@ void Map_radial::comp_r_from_cartesian(const Cmp& v_x, const Cmp& v_y,
     assert(v_y.get_etat() != ETATNONDEF) ; 
     assert(v_z.get_etat() != ETATNONDEF) ; 
 
-    assert(v_x.get_mp() == this) ; 
-    assert(v_y.get_mp() == this) ; 
-    assert(v_z.get_mp() == this) ; 
+    assert(*(v_x.get_mp()) == *this) ; 
+    assert(*(v_y.get_mp()) == *this) ; 
+    assert(*(v_z.get_mp()) == *this) ; 
     
     int dzp ;
     if ( v_x.dz_nonzero() ) {
@@ -109,9 +112,9 @@ void Map_radial::comp_t_from_cartesian(const Cmp& v_x, const Cmp& v_y,
     assert(v_y.get_etat() != ETATNONDEF) ; 
     assert(v_z.get_etat() != ETATNONDEF) ; 
 
-    assert(v_x.get_mp() == this) ; 
-    assert(v_y.get_mp() == this) ; 
-    assert(v_z.get_mp() == this) ; 
+    assert(*(v_x.get_mp()) == *this) ; 
+    assert(*(v_y.get_mp()) == *this) ; 
+    assert(*(v_z.get_mp()) == *this) ; 
     
     int dzp ;
     if ( v_x.dz_nonzero() ) {
@@ -157,8 +160,8 @@ void Map_radial::comp_p_from_cartesian(const Cmp& v_x, const Cmp& v_y,
     assert(v_x.get_etat() != ETATNONDEF) ; 
     assert(v_y.get_etat() != ETATNONDEF) ; 
 
-    assert(v_x.get_mp() == this) ; 
-    assert(v_y.get_mp() == this) ; 
+    assert(*(v_x.get_mp()) == *this) ; 
+    assert(*(v_y.get_mp()) == *this) ; 
     
     int dzp ;
     if ( v_x.dz_nonzero() ) {
