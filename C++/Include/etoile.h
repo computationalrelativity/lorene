@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2005/01/17 20:39:32  k_taniguchi
+ * Addition of Etoile::ray_eq_3pis2().
+ *
  * Revision 1.22  2004/11/30 20:40:06  k_taniguchi
  * Addition of the method for calculating a spherical star with falloff
  * condition at the outer boundary.
@@ -481,6 +484,9 @@ class Etoile {
 	/// Coordinate radius at \f$\phi=\pi\f$, \f$\theta=\pi/2\f$. 
 	mutable double* p_ray_eq_pi ;
 	
+	/// Coordinate radius at \f$\phi=3\pi/2\f$, \f$\theta=\pi/2\f$. 
+	mutable double* p_ray_eq_3pis2 ;
+
 	/// Coordinate radius at \f$\theta=0\f$. 
 	mutable double* p_ray_pole ;
 	
@@ -703,6 +709,9 @@ class Etoile {
 	/// Coordinate radius at \f$\phi=\pi\f$, \f$\theta=\pi/2\f$ [r_unit].
 	double ray_eq_pi() const ; 
 	
+	/// Coordinate radius at \f$\phi=3\pi/2\f$, \f$\theta=\pi/2\f$ [r_unit].
+	double ray_eq_3pis2() const ;
+
 	/// Coordinate radius at \f$\theta=0\f$ [r_unit]. 
 	double ray_pole() const ; 
     
