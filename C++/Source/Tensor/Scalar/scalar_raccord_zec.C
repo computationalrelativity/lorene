@@ -28,6 +28,9 @@ char scalar_raccord_zec_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/05 15:09:59  e_gourgoulhon
+ * Added method smooth_decay.
+ *
  * Revision 1.4  2003/10/29 11:04:34  e_gourgoulhon
  * dec2_dpzuis() replaced by dec_dzpuis(2).
  * inc2_dpzuis() replaced by inc_dzpuis(2).
@@ -54,6 +57,8 @@ char scalar_raccord_zec_C[] = "$Header$" ;
 #include "matrice.h"
 #include "tensor.h"
 #include "proto.h"
+#include "nbr_spx.h"
+#include "utilitaires.h"
 
 // Fait le raccord C1 dans la zec ...
 // Suppose (pour le moment, le meme nbre de points sur les angles ...)
@@ -190,4 +195,215 @@ void Scalar::raccord_c1_zec(int puis, int nbre, int lmax) {
 	
     va.ylm_i() ;
     set_dzpuis (0) ;
+}
+
+
+//***************************************************************************
+
+void Scalar::smooth_decay(int kk, int nn) {
+
+    assert(kk >= 0) ; 
+
+    if (etat == ETATZERO) return ; 
+    if (va.get_etat() == ETATZERO) return ; 
+    
+    const Mg3d& mgrid = *(mp->get_mg()) ; 
+    
+    int nz = mgrid.get_nzone() ; 
+    int nzm1 = nz - 1 ; 
+    int np = mgrid.get_np(nzm1) ; 
+    int nt = mgrid.get_nt(nzm1) ; 
+    int nr_ced = mgrid.get_nr(nzm1) ; 
+    int nr_shell = mgrid.get_nr(nzm1-1) ; 
+    
+    assert(mgrid.get_np(nzm1-1) == np) ; 
+    assert(mgrid.get_nt(nzm1-1) == nt) ; 
+    
+    assert(mgrid.get_type_r(nzm1) == UNSURR) ; 
+
+    // In the present version, the mapping must be affine :
+    const Map_af* mapaf  = dynamic_cast<const Map_af*>(mp) ;
+    if (mapaf == 0x0) {
+	    cout << "Scalar::smooth_decay: present version supports only \n" 
+         << "  affine mappings !" << endl ;
+	    abort() ;
+    }
+
+
+    assert(va.get_etat() == ETATQCQ) ; 
+    
+    
+    // Spherical harmonics are required
+    va.ylm() ; 
+    
+    // Array for the spectral coefficients in the CED:
+    assert( va.c_cf->t[nzm1] != 0x0) ; 
+    Tbl& coefresu = *( va.c_cf->t[nzm1] ) ; 
+    coefresu.set_etat_qcq() ; 
+    
+    // 1-D grid 
+    //----------
+    int nbr1[] = {nr_shell, nr_ced} ; 
+    int nbt1[] = {1, 1} ; 
+    int nbp1[] = {1, 1} ; 
+    int typr1[] = {mgrid.get_type_r(nzm1-1), UNSURR} ; 
+    Mg3d grid1d(2, nbr1, typr1, nbt1, SYM, nbp1, SYM) ; 
+    
+    // 1-D mapping
+    //------------
+    double rbound = mapaf->get_alpha()[nzm1-1] 
+                    + mapaf->get_beta()[nzm1-1] ; 
+    double rmin = - mapaf->get_alpha()[nzm1-1] 
+                    + mapaf->get_beta()[nzm1-1] ; 
+    double bound1[] = {rmin, rbound, __infinity} ; 
+
+    Map_af map1d(grid1d, bound1) ;     
+    
+    // 1-D scalars
+    // -----------
+    Scalar uu(map1d) ; 
+    uu.std_spectral_base() ; 
+    Scalar duu(map1d) ; 
+    Scalar vv(map1d) ; 
+    Scalar tmp(map1d) ; 
+
+    const Base_val& base = va.get_base() ; 
+    
+    // Loop on the spherical harmonics
+    // -------------------------------
+    for (int k=0; k<=np; k++) {
+        for (int j=0; j<nt; j++) {
+            
+	        if (nullite_plm(j, nt, k, np, base) != 1) {
+                for (int i=0 ; i<nr_ced ; i++) {
+                    coefresu.set(k, j, i) = 0 ;
+                }
+            }
+            else {
+                int base_r_ced, base_r_shell , l_quant, m_quant ;
+	            donne_lm(nz, nzm1, j, k, base, m_quant, l_quant, base_r_ced) ;
+	            donne_lm(nz, nzm1-1, j, k, base, m_quant, l_quant, base_r_shell) ;
+               
+                int nn0 = l_quant + nn ;    // lowerst power of decay
+                
+                uu.set_etat_qcq() ; 
+                uu.va.set_etat_cf_qcq() ; 
+                uu.va.c_cf->set_etat_qcq() ; 
+                uu.va.c_cf->t[0]->set_etat_qcq() ;
+                uu.va.c_cf->t[1]->set_etat_qcq() ;
+                for (int i=0; i<nr_shell; i++) {
+                    uu.va.c_cf->t[0]->set(0, 0, i) = 
+                        va.c_cf->operator()(nzm1-1, k, j, i) ; 
+                    uu.va.c_cf->t[0]->set(1, 0, i) = 0. ; 
+                    uu.va.c_cf->t[0]->set(2, 0, i) = 0. ;
+                }
+ 
+                uu.va.c_cf->t[1]->set_etat_zero() ; 
+
+                uu.va.set_base_r(0, base_r_shell) ; 
+                uu.va.set_base_r(1, base_r_ced) ; 
+ 
+                // Computation of the derivatives up to order k at the outer
+                // of the last shell:
+                // ----------------------------------------------------------
+                Tbl derivb(kk+1) ;
+                derivb.set_etat_qcq() ; 
+                duu = uu ; 
+                derivb.set(0) = uu.val_grid_point(0, 0, 0, nr_shell-1) ; 
+                for (int p=1; p<=kk; p++) {
+                    tmp = duu.dsdr() ; 
+                    duu = tmp ; 
+                    derivb.set(p) = duu.val_grid_point(0, 0, 0, nr_shell-1) ; 
+                }
+               
+                // Matrix of the linear system to be solved
+                // ----------------------------------------
+                
+                Matrice mat(kk+1,kk+1) ; 
+                mat.set_etat_qcq() ; 
+                
+                for (int im=0; im<=kk; im++) {
+                    
+                    double fact = (im%2 == 0) ? 1. : -1. ; 
+                    fact /= pow(rbound, nn0 + im) ; 
+                
+                    for (int jm=0; jm<=kk; jm++) {
+                        
+                        double prod = 1 ; 
+                        for (int ir=0; ir<im; ir++) {
+                            prod *= nn0 + jm + ir ; 
+                        } 
+                        
+                        mat.set(im, jm) = fact * prod / pow(rbound, jm) ; 
+                        
+                    }
+                }
+           
+                // Resolution of the linear system to get the coefficients
+                // of the 1/r^i functions
+                //---------------------------------------------------------
+                mat.set_band(kk+1, kk+1) ;
+		        mat.set_lu() ;
+                Tbl aa = mat.inverse( derivb ) ; 
+
+                // Decaying function 
+                // -----------------
+                vv = 0 ; 
+                const Coord& r = map1d.r ; 
+                for (int p=0; p<=kk; p++) {
+                    tmp = aa(p) / pow(r, nn0 + p) ; 
+                    vv += tmp ; 
+                }
+                vv.va.set_base( uu.va.get_base() ) ; 
+
+                // The coefficients of the decaying function 
+                // are set to the result
+                //-------------------------------------------
+                vv.va.coef() ; 
+                
+                if (vv.get_etat() == ETATZERO) {
+                     for (int i=0; i<nr_ced; i++) {
+                        coefresu.set(k,j,i) = 0 ; 
+                    }
+                }
+                else {
+                    assert( vv.va.c_cf != 0x0 ) ; 
+                    for (int i=0; i<nr_ced; i++) {
+                        coefresu.set(k,j,i) = vv.va.c_cf->operator()(1,0,0,i) ; 
+                    }
+                }
+                
+               
+            }
+         
+            
+        }
+    } 
+    
+    
+    va.ylm_i() ;     
+    
+    // Test of the computation
+    // -----------------------
+        
+    Scalar tmp1(*this) ; 
+    Scalar tmp2(*mp) ; 
+    for (int p=0; p<=kk; p++) {
+        double rd = pow(rbound, tmp1.get_dzpuis()) ; 
+        double err = 0 ; 
+        for (int k=0; k<np; k++) {
+            for (int j=0; j<nt; j++) {
+                double diff = fabs( tmp1.val_grid_point(nzm1, k, j, 0) / rd - 
+                  tmp1.val_grid_point(nzm1-1, k, j, nr_shell-1) ) ;
+                if (diff > err) err = diff ;  
+            }
+        }
+        cout << 
+        "Scalar::smooth_decay: Max error matching of " << p 
+            << "-th derivative: " << err << endl ; 
+        tmp2 = tmp1.dsdr() ; 
+        tmp1 = tmp2 ; 
+    }
+    
+
 }

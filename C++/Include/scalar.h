@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.49  2004/03/05 15:09:40  e_gourgoulhon
+ * Added method smooth_decay.
+ *
  * Revision 1.48  2004/03/01 09:57:02  j_novak
  * the wave equation is solved with Scalars. It now accepts a grid with a
  * compactified external domain, which the solver ignores and where it copies
@@ -756,6 +759,13 @@ class Scalar : public Tensor {
    * decreases at least like $r^{\tt puis}$ at infinity.
    */
   void fixe_decroissance (int puis) ;
+
+    /** Performs a $C^k$ matching of the last non-compactified shell with
+     * a decaying function $\sum_{j=0}^k {\alpha_j \over r^{\ell+n+j}$ where
+     * $\ell$ is the spherical harmonic index and {\it n} is some 
+     * specifiable parameter. 
+     */
+    void smooth_decay(int k, int n) ; 
 
   /**
    * Performs the $C^n$ matching of the nucleus with respect to the 
