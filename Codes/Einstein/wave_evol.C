@@ -29,6 +29,9 @@ char wave_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/05/17 12:59:55  e_gourgoulhon
+ * Parameters of the computation are now read in file par_wave_evol.d.
+ *
  * Revision 1.7  2004/05/05 14:51:48  e_gourgoulhon
  * Introduced parameters ampli_init_khi and ampli_init_mu.
  * Added some checks regarding khi and mu.
@@ -67,8 +70,6 @@ char wave_evol_C[] = "$Header$" ;
 
 // Lorene headers
 #include "time_slice.h"
-#include "metric.h"
-#include "evolution.h"
 #include "param.h"
 #include "nbr_spx.h"
 #include "utilitaires.h"
@@ -77,17 +78,85 @@ char wave_evol_C[] = "$Header$" ;
 int main() {
 
     //======================================================================
-    //      Parameters of the computation
+    //     Reading the parameters of the computation
     //======================================================================
 
-    double pdt = 0.01 ; 
-    int nb_time_steps = 1000 ; 
-    int niter_elliptic = 2 ; 
-    double relax_elliptic = 1. ; 
+    ifstream fpar("par_wave_evol.d") ;
+    if ( !fpar.good() ) {
+        cerr << "Problem with opening the file par_wave_evol.d ! " << endl ;
+        abort() ;
+    }
+    
+    // Reading of physical paramaters
+    double ampli_init_khi, ampli_init_mu ;
+    fpar.ignore(1000,'\n') ;    // skip title
+    fpar >> ampli_init_khi ; fpar.ignore(1000,'\n') ;
+    fpar >> ampli_init_mu ; fpar.ignore(1000,'\n') ;
+    
+    // Reading of computational paramaters
+    int nb_time_steps, niter_elliptic, graph, graph_init ;
+    double pdt, relax_elliptic ; 
+    fpar.ignore(1000,'\n') ;    // skip title
+    fpar >> pdt ; fpar.ignore(1000,'\n') ;
+    fpar >> nb_time_steps ; fpar.ignore(1000,'\n') ;
+    fpar >> niter_elliptic ; fpar.ignore(1000,'\n') ;
+    fpar >> relax_elliptic ; fpar.ignore(1000,'\n') ;
+    fpar >> graph ; fpar.ignore(1000,'\n') ;
+    fpar >> graph_init ; fpar.ignore(1000,'\n') ;
 
-    double ampli_init_khi = 0.01 ;     
-    double ampli_init_mu = 0. ;     
-        
+    char graph_device[40] ;
+    if (graph == 0) strcpy(graph_device, "/n") ;
+    else if (graph == 1) strcpy(graph_device, "/xwin") ;
+        else if (graph == 2) strcpy(graph_device, "?") ;
+            else {
+                cerr << 
+                "Unexpected value of input parameter graph: graph = " << graph
+                << " !" << endl ; 
+                abort() ; 
+            }   
+    
+    char graph_device_init[40] ;
+    if (graph_init == 0) strcpy(graph_device_init, "/n") ;
+    else if (graph_init == 1) strcpy(graph_device_init, "/xwin") ;
+        else if (graph_init == 2) strcpy(graph_device_init, "?") ;
+            else {
+                cerr << 
+                "Unexpected value of input parameter graph: graph_init = " 
+                << graph_init << " !" << endl ; 
+                abort() ; 
+            }   
+    
+
+    // Reading of multi-domain grid parameters
+    int symmetry_phi0, nz, nr, nt, np ;
+    fpar.ignore(1000,'\n') ;    // skip title
+    fpar >> symmetry_phi0 ; fpar.ignore(1000,'\n') ;
+    fpar >> nz ; fpar.ignore(1000,'\n') ;
+    fpar >> nr ; fpar.ignore(1000,'\n') ;
+    fpar >> nt ; fpar.ignore(1000,'\n') ;
+    fpar >> np ; fpar.ignore(1000,'\n') ;
+    fpar.ignore(1000,'\n') ;    // skip title
+    double* r_limits = new double[nz+1] ; 
+    for (int l=0; l<nz; l++) {
+        fpar >> r_limits[l] ; fpar.ignore(1000,'\n') ;
+    }
+    r_limits[nz] = __infinity ; 
+    
+    // fpar >> ; fpar.ignore(1000,'\n') ;
+    fpar.close() ; 
+
+    cout << "Physical parameters: \n"
+         << "-------------------  \n" ; 
+    cout << "   ampli_init_khi = " <<  ampli_init_khi << endl ;        
+    cout << "   ampli_init_mu = " <<  ampli_init_mu << endl ;        
+    cout << "Computational parameters: \n"
+         << "------------------------ \n" ; 
+    cout << "   pdt = " << pdt << endl ; 
+    cout << "   nb_time_steps = " << nb_time_steps << endl ; 
+    cout << "   niter_elliptic = " << niter_elliptic << endl ; 
+    cout << "   relax_elliptic = " << relax_elliptic << endl ; 
+    cout << "   graph_device = " << graph_device << endl ;
+    cout << "   graph_device_init = " << graph_device_init << endl ;
 
     //======================================================================
     //      Construction and initialization of the various objects
@@ -96,30 +165,26 @@ int main() {
     // Setup of a multi-domain grid (Lorene class Mg3d)
     // ------------------------------------------------
   
-    int nz = 4 ; 	// Number of domains
-    int nr = 17 ; 	// Number of collocation points in r in each domain
-    int nt = 9 ; 	// Number of collocation points in theta in each domain
-    int np = 8 ; 	// Number of collocation points in phi in each domain
     int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
-    int symmetry_phi = SYM ; //  symmetry in phi
+    int symmetry_phi = (symmetry_phi0 == 1) ? SYM : NONSYM ; //  symmetry in phi
     bool compact = true ; // external domain is compactified
   
     // Multi-domain grid construction:
     Mg3d mgrid(nz, nr, nt, np, symmetry_theta, symmetry_phi, compact) ;
 	
-    cout << mgrid << endl ; 
+    cout << "Computational grid :\n" 
+         << "------------------ \n" 
+         << "  " << mgrid << endl ; 
 
   
     // Setup of an affine mapping : grid --> physical space (Lorene class Map_af)
     // --------------------------------------------------------------------------
-
-    // radial boundaries of each domain:
-    double r_limits[] = {0., 1., 2., 4., __infinity} ; 
-    assert( nz == 4 ) ;  // since the above array describes 4 domains
-  
+    
     Map_af map(mgrid, r_limits) ;   // Mapping construction
   	
-    cout << map << endl ;  
+    cout << "Mapping computational grid --> physical space :\n" 
+         << "---------------------------------------------\n" 
+         << "  " << map << endl ;  
     
     // Flat metric f
     // -------------
@@ -142,25 +207,20 @@ int main() {
     
     const Coord& x = map.x ; 
     const Coord& y = map.y ; 
-    // const Coord& z = map.z ; 
     const Coord& r = map.r ; 
-    //const Coord& cost = map.cost ; 
-    //const Coord& sint = map.sint ; 
-    //const Coord& cosp = map.cosp ; 
-    // const Coord& sinp = map.sinp ; 
     
     Scalar khi_init(map) ; 
 
     khi_init = ampli_init_khi * exp( - r*r ) * x*y ;
-    khi_init.set_outer_boundary(nz-1, 0.) ; 
+    khi_init.set_outer_boundary(nz-1, 0.) ;     // zero at spatial infinity
     
     khi_init.std_spectral_base() ; 
     
     //## khi_init.smooth_decay(2, 1) ; 
 
     khi_init.spectral_display("khi_init") ;   
-    //if (khi_init.get_etat() == ETATQCQ) 
-    //    des_meridian(khi_init, 0., 5., "khi_init", 1) ; 
+    if (khi_init.get_etat() == ETATQCQ) 
+        des_meridian(khi_init, 0., 5., "khi_init", 1) ; 
     
     Scalar mu_init(map) ; 
     mu_init = ampli_init_mu * x*y* exp( - r*r ) ;
@@ -171,8 +231,8 @@ int main() {
     mu_init.mult_cost() ; 
     
     mu_init.spectral_display("mu_init") ;   
-    if (mu_init.get_etat() == ETATQCQ) 
-        des_meridian(mu_init, 0., 5., "mu_init", 1) ; 
+    // if (mu_init.get_etat() == ETATQCQ) 
+    //    des_meridian(mu_init, 0., 5., "mu_init", 1) ; 
     
     
                   
@@ -212,12 +272,11 @@ int main() {
     sigmat.trh() ;  //   
         
     cout << "Initial data : " << sigmat << endl ;  
+    cout << "ADM mass : " << sigmat.adm_mass() << endl ; 
     
     cout << "Test upon khi : difference between khi and khi_init : " << endl ; 
     Scalar diff_khi = sigmat.khi() - khi_init ;
     maxabs(diff_khi, "diff_khi") ; 
-    
-    // des_meridian(sigmat.hh(), 0., 5., "h") ; 
     
     // sigmat.trh().visu_section ('x', 0., -4., 4., -4., 4., "h in x=0 plane", "h_x") ;
     
@@ -275,6 +334,10 @@ int main() {
     //======================================================================    
     
     sigmat.evolve(pdt, nb_time_steps, niter_elliptic, relax_elliptic) ; 
+    
+    // Freeing dynamically allocated memory
+    // ------------------------------------
+    delete [] r_limits ; 
     
     return EXIT_SUCCESS ; 
 }
