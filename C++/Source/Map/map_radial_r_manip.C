@@ -32,6 +32,9 @@ char map_radial_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/27 09:02:19  j_novak
+ * Corrected a bug in the case of null CED
+ *
  * Revision 1.4  2003/10/17 15:07:29  j_novak
  * The order of operations in div_tant() has been changed.
  *
@@ -538,7 +541,7 @@ void Map_radial::inc_dzpuis(Cmp& ci) const {
 
     // Nothing to do if the Cmp is null or if there is no ZEC:
     if ((ci.get_etat() == ETATZERO) || (mg->get_type_r(nzm1) != UNSURR)) {
-      ci.set_dzpuis( ci.get_dzpuis() - 1 ) ; 
+      ci.set_dzpuis( ci.get_dzpuis() + 1 ) ; 
       return ; 
     }
 
@@ -587,7 +590,7 @@ void Map_radial::dec2_dzpuis(Cmp& ci) const {
 
     // Nothing to do if the Cmp is null or if there is no ZEC:
     if ((ci.get_etat() == ETATZERO) || (mg->get_type_r(nzm1) != UNSURR)) {
-      ci.set_dzpuis( ci.get_dzpuis() - 1 ) ; 
+      ci.set_dzpuis( ci.get_dzpuis() - 2 ) ; 
       return ; 
     }
 
@@ -635,7 +638,7 @@ void Map_radial::inc2_dzpuis(Cmp& ci) const {
 
     // Nothing to do if the Cmp is null or if there is no ZEC:
     if ((ci.get_etat() == ETATZERO) || (mg->get_type_r(nzm1) != UNSURR)) {
-      ci.set_dzpuis( ci.get_dzpuis() - 1 ) ; 
+      ci.set_dzpuis( ci.get_dzpuis() + 2 ) ; 
       return ; 
     }
 
