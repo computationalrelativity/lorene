@@ -32,8 +32,11 @@ char et_bin_kinema_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/12/10 15:56:43  k_taniguchi
+ * Change the multiplication "*" to "%".
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.4  2000/02/17  18:51:22  eric
  * pot_centri is set to zero only in the external compactified domain.
@@ -96,7 +99,7 @@ void Etoile_bin::kinematics(double omega, double x_axe) {
     if (relativistic) {
 
 	// Lorentz factor between the co-orbiting observer and the Eulerian one
-	Tenseur gam0 = 1 / sqrt( 1 -  sprod(bsn, bsn) ) ;  
+	Tenseur gam0 = 1 / sqrt( 1-a_car%flat_scalar_prod_desal(bsn, bsn) ) ;
 	
 	pot_centri = - log( gam0 ) ;
 
