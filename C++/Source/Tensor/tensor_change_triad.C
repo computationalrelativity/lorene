@@ -29,6 +29,10 @@ char tensor_change_triad_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/05 21:12:19  e_gourgoulhon
+ * - Modified some assert.
+ * - Corrected bug on index range in line 200.
+ *
  * Revision 1.1  2003/09/29 12:52:57  j_novak
  * Methods for changing the triad are implemented.
  *
@@ -121,7 +125,7 @@ void Tensor::change_triad(const Base_vect& new_triad) {
       
       // The triads should be the same as that associated 
       // with the mapping :
-      assert( *triad == mp->get_bvect_cart() ) ; 
+      assert( *nbvc == mp->get_bvect_cart() ) ; 
       assert( *bvs == mp->get_bvect_spher() ) ; 
       //Only for double-covariant tensors
       for (int i=0; i<2; i++) 
@@ -175,7 +179,7 @@ void Tensor::change_triad(const Base_vect& new_triad) {
       
       // The triads should be the same as that associated 
       // with the mapping :
-      assert( *triad == mp->get_bvect_spher() ) ; 
+      assert( *nbvs == mp->get_bvect_spher() ) ; 
       assert( *bvc == mp->get_bvect_cart() ) ; 
       //Only for double-covariant tensors
       for (int i=0; i<2; i++) 
@@ -197,7 +201,7 @@ void Tensor::change_triad(const Base_vect& new_triad) {
 	tmp.set(2,i) = res2 ;
 	tmp.set(3,i) = res3 ;
       }
-      for (int i=0; i<3; i++) {
+      for (int i=1; i<=3; i++) {
 	Cmp cp1(tmp(i,1)) ;
 	Cmp cp2(tmp(i,2)) ;
 	Cmp cp3(tmp(i,3)) ;
