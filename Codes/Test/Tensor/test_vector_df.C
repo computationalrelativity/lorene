@@ -23,11 +23,14 @@
  *
  */
 
-char test_poisson_angu_C[] = "$Header$" ;
+char test_vector_df_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/28 21:37:02  e_gourgoulhon
+ * Change the name of the global char[] for code identification.
+ *
  * Revision 1.4  2003/10/20 10:14:08  e_gourgoulhon
  * Added test with more general vectors.
  *
