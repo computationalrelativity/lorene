@@ -31,6 +31,9 @@ char eos_bf_poly_newt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/12/04 14:22:33  r_prix
+ * removed enthalpy restrictions in eos-inversion
+ *
  * Revision 1.9  2003/11/18 18:28:38  r_prix
  * moved particle-masses m_1, m_2 of the two fluids into class eos_bifluid (from eos_bf_poly)
  *
@@ -259,14 +262,20 @@ ostream& Eos_bf_poly_newt::operator>>(ostream & ost) const {
 
 // Baryon densities from enthalpies 
 //---------------------------------
+// RETURN: bool true = if in a one-fluid region, false if two-fluids
 
 bool Eos_bf_poly_newt::nbar_ent_p(const double ent1, const double ent2, 
 			      const double delta2, double& nbar1, 
 			      double& nbar2) const {  
 
-  bool one_fluid = ((ent1<=0.)||(ent2<=0.)) ;
+  //RP: I think this is wrong!!
+  //  bool one_fluid = ((ent1<=0.)||(ent2<=0.)) ;
+  
+  bool one_fluid = false;
+  
   if (!one_fluid) {
     switch (typeos) {
+    case 5:  // same as typeos==0, just with slow-rot-style inversion
     case 0: {//gamma1=gamma2=2 all others = 1 easy case of a linear system
       double kpd = kap3+beta*delta2 ;
       double determ = kap1*kap2 - kpd*kpd ;
@@ -637,18 +646,16 @@ double Eos_bf_poly_newt::nbar_ent_p2(const double ent2) const {
 double Eos_bf_poly_newt::ener_nbar_p(const double nbar1, const double nbar2, 
 				const double delta2) const {
     
-    if (( nbar1 > double(0) ) || ( nbar2 > double(0))) {
-      
-      double n1 = (nbar1>double(0) ? nbar1 : double(0)) ;
-      double n2 = (nbar2>double(0) ? nbar2 : double(0)) ;
-      double x2 = ((nbar1>double(0))&&(nbar2>double(0))) ? delta2 : 0 ;
+  double n1 = (nbar1>double(0) ? nbar1 : 0) ;
+  double n2 = (nbar2>double(0) ? nbar2 : 0) ;
+  double x2 = ((nbar1>double(0))&&(nbar2>double(0))) ? delta2 : 0 ;
 
-      double resu = 0.5*kap1*pow(n1, gam1) + 0.5*kap2*pow(n2,gam2)
-	+ kap3*pow(n1,gam3)*pow(n2,gam4) 
-	+ x2*beta*pow(n1,gam5)*pow(n2,gam6) ;
-      return resu ;
-    }
-    else return 0 ;
+  double resu = 0.5*kap1*pow(n1, gam1) + 0.5*kap2*pow(n2,gam2)
+    + kap3*pow(n1,gam3)*pow(n2,gam4) 
+    + x2*beta*pow(n1,gam5)*pow(n2,gam6) ;
+
+  return resu ;
+
 }
 
 // Pressure from baryonic densities
@@ -657,19 +664,16 @@ double Eos_bf_poly_newt::ener_nbar_p(const double nbar1, const double nbar2,
 double Eos_bf_poly_newt::press_nbar_p(const double nbar1, const double nbar2,
 				const double delta2) const {
     
-  if (( nbar1 > double(0) ) || ( nbar2 > double(0))) {
-    
-    double n1 = (nbar1>double(0) ? nbar1 : double(0)) ;
-    double n2 = (nbar2>double(0) ? nbar2 : double(0)) ;
-    double x2 = ((nbar1>double(0))&&(nbar2>double(0))) ? delta2 : 0 ;
-    
-    double resu = 0.5*gam1m1*kap1*pow(n1,gam1) + 0.5*gam2m1*kap2*pow(n2,gam2)
-      + gam34m1*kap3*pow(n1,gam3)*pow(n2,gam4) + 
-      x2*gam56m1*beta*pow(n1,gam5)*pow(n2,gam6) ;
-    
-    return resu ;
-  }
-  else return 0 ;
+  double n1 = (nbar1>double(0) ? nbar1 : 0) ;
+  double n2 = (nbar2>double(0) ? nbar2 : 0) ;
+  double x2 = ((nbar1>double(0))&&(nbar2>double(0))) ? delta2 : 0 ;
+  
+  double resu = 0.5*gam1m1*kap1*pow(n1,gam1) + 0.5*gam2m1*kap2*pow(n2,gam2)
+    + gam34m1*kap3*pow(n1,gam3)*pow(n2,gam4) + 
+    x2*gam56m1*beta*pow(n1,gam5)*pow(n2,gam6) ;
+  
+  return resu ;
+
 }
 
 // Derivatives of energy
