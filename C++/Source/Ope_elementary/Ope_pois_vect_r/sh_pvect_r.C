@@ -30,6 +30,9 @@ char sh_pvect_r_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/05/10 15:36:42  j_novak
+ * Corrected a missing #include
+ *
  * Revision 1.1  2004/05/10 15:28:22  j_novak
  * First version of functions for the solution of the r-component of the
  * vector Poisson equation.
@@ -41,6 +44,7 @@ char sh_pvect_r_C[] = "$Header$" ;
 
 //fichiers includes
 #include <stdlib.h>
+#include <math.h>
 
 #include "matrice.h"
 #include "type_parite.h"
