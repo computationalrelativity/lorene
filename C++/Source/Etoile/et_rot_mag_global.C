@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2002/05/16 13:27:11  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.6  2002/05/16 10:02:09  j_novak
  * Errors in stress energy tensor corrected
  *
@@ -136,7 +139,7 @@ double Et_rot_mag::MagMom() const {
 
   // idem : redimensionner comme il faut.
 
-  double Z = mp.get_mg()->get_nzone();   
+  int Z = mp.get_mg()->get_nzone();   
   double mu0= 0.0000001 ;
   double mm ;
 
@@ -162,7 +165,7 @@ double Et_rot_mag::MagMom() const {
 }
 
 double Et_rot_mag::Q_comput() const {
-  double Z = mp.get_mg()->get_nzone();
+  int Z = mp.get_mg()->get_nzone();
   Valeur** asymp = A_t.asymptot(1) ;
   double Q_c = -4*M_PI/mu0*(*asymp[1])(Z-1,0,0,0) ;
   delete asymp[0] ;

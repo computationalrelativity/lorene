@@ -32,6 +32,9 @@ char et_rot_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2002/05/16 13:27:11  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.5  2002/05/16 11:54:11  j_novak
  * Fixed output pbs
  *
@@ -96,10 +99,10 @@ Et_rot_mag::Et_rot_mag(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i)
 
 Et_rot_mag::Et_rot_mag(const Et_rot_mag& et)
   : Etoile_rot(et),
-    A_phi(et.A_phi),
     A_t(et.A_t),
-    j_phi(et.j_phi),
+    A_phi(et.A_phi),
     j_t(et.j_t),
+    j_phi(et.j_phi),
     E_em(et.E_em),
     Jp_em(et.Jp_em),
     Srr_em(et.Srr_em),
