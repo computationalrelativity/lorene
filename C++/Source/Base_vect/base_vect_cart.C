@@ -32,6 +32,9 @@ char base_vect_cart_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/07/03 12:31:08  j_novak
+ * cartesian<->spherical triad change for valence 2 Tenseur added (not completely tested)
+ *
  * Revision 1.3  2002/01/15 09:09:49  e_gourgoulhon
  * Suppression of cout printing in the comparison operator
  *
@@ -374,6 +377,40 @@ void Base_vect_cart::change_basis(Tenseur& ti) const {
 		mp->comp_x_from_spherical(vr, vt, vp, ti.set(0)) ; 
 		mp->comp_y_from_spherical(vr, vt, vp, ti.set(1)) ; 
 		mp->comp_z_from_spherical(vr, vt, ti.set(2)) ; 
+		
+		break ; 	
+	    }
+		    
+	    case 2 : {	
+	    
+		// The triads should be the same as that associated 
+		// with the mapping :
+		const Map* mp = ti.get_mp() ; 
+		assert( *this == mp->get_bvect_cart() ) ; 
+		assert( *bvs == mp->get_bvect_spher() ) ; 
+		//Only for double-covariant tensors
+		for (int i=0; i<2; i++) 
+		  assert(ti.get_type_indice(i) == COV) ;  
+
+		// Temporary storage of the components
+		// the Base_vect *this is not valid...
+		Tenseur tmp(*mp, 2, COV, *this) ;
+		tmp.allocate_all() ;
+		for (int i=0; i<3; i++) {
+		  mp->comp_x_from_spherical(ti(0,i), ti(1,i), ti(2,i)
+					    , tmp.set(0,i) ) ; 
+		  mp->comp_y_from_spherical(ti(0,i), ti(1,i), ti(2,i)
+					    , tmp.set(1,i) ) ; 
+		  mp->comp_z_from_spherical(ti(0,i), ti(1,i), tmp.set(2,i) ) ;
+		}
+		for (int i=0; i<3; i++) {
+		  mp->comp_x_from_spherical(tmp(i,0), tmp(i,1), tmp(i,2)
+					    , ti.set(i,0) ) ; 
+		  mp->comp_y_from_spherical(tmp(i,0), tmp(i,1), tmp(i,2)
+					    , ti.set(i,1) ) ; 
+		  mp->comp_z_from_spherical(tmp(i,0), tmp(i,1), ti.set(i,2) ) ;
+		}
+		
 		
 		break ; 	
 	    }
