@@ -1,9 +1,16 @@
 /**@name Meudon initial data for binary black holes
  *
- *  The transfert of Meudon data, computed by means of LORENE
+ *  Meudon data represents quasistationary binary black configurations,
+ *  obtained by P. Grandcl\'ement, E. Gourgoulhon \& S. Bonazzola,
+ *   Phys. Rev. D 65, in press, preprint gr-qc/0106016.
+ *
+ *  The exportation of this data, computed by means of
+ *  \URL[LORENE]{http://www.lorene.obspm.fr/}
  *  on a multi-domain spectral grid, onto a Cartesian grid
- *  for CACTUS, is performed by means of the C++ class {\tt Bin\_BH}. 
- *  This class is very simple, with all data members being public. 
+ *  (e.g. for CACTUS), is performed by means of the C++ class {\tt Bin\_BH}.
+ *  The class {\tt Bin\_BH} comes along with
+ *  \URL[LORENE distribution]{http://www.lorene.obspm.fr/}.
+ *  This class is very simple, with all data members being public.
  *  A typical example of use is the following one
  *
  *  \begin{verbatim}
