@@ -33,6 +33,10 @@ char metrique_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2002/08/14 15:31:17  j_novak
+ * The ZEC is now correctly treated in Metconf. A test code is added in
+ * Codes/Test/Metrique
+ *
  * Revision 1.7  2002/08/14 13:46:15  j_novak
  * Derived quantities of a Tenseur can now depend on several Metrique's
  *
@@ -561,7 +565,7 @@ void Metrique::fait_ricci() const {
 	    Tenseur_sym copie_gamma(gamma()) ;
 	    copie_gamma.dec2_dzpuis() ;
 	    Tenseur_sym grad(copie_gamma.gradient()) ;
-	    grad.inc2_dzpuis() ;
+	    grad.inc_dzpuis() ;
 	    
 	    Tenseur_sym T1 (contract(grad, 0, 1)) ;
 	    
@@ -569,9 +573,11 @@ void Metrique::fait_ricci() const {
 	    
 	    Tenseur auxi_un (contract(gamma(), 0, 2)) ;
 	    Tenseur_sym T3 (contract(auxi_un, 0, gamma(), 0)) ;
+	    T3.dec_dzpuis() ;
 	
 	    Tenseur auxi_deux (contract(gamma(), 1, gamma(), 0)) ;
 	    Tenseur_sym T4 (contract(auxi_deux, 0, 3)) ;
+	    T4.dec_dzpuis() ;
 	    
 	    *p_ricci = T1-T2+T3-T4 ;
 	}

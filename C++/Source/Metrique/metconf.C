@@ -32,6 +32,10 @@ char metconf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/08/14 15:31:17  j_novak
+ * The ZEC is now correctly treated in Metconf. A test code is added in
+ * Codes/Test/Metrique
+ *
  * Revision 1.3  2002/08/14 13:46:15  j_novak
  * Derived quantities of a Tenseur can now depend on several Metrique's
  *
@@ -296,16 +300,24 @@ void Metconf::fait_ricci() const {
       p_ricci->set_etat_qcq() ;
 	    
       Tenseur_sym dcov(cov().derive_cov(*fij)) ;
-      Tenseur_sym dd(dcov.derive_cov(*fij)) ;
+      Tenseur_sym dcov2(dcov) ;
+      dcov2.dec2_dzpuis() ;
+      Tenseur_sym dd(dcov2.derive_cov(*fij)) ;
+      dd.inc_dzpuis() ;
       Tenseur_sym dcon(con().derive_cov(*fij)) ;
-      Tenseur dH(Hi().derive_cov(*fij)) ;
+      Tenseur Hi2(Hi()) ;
+      Hi2.dec2_dzpuis() ;
+      Tenseur dH(Hi2.derive_cov(*fij)) ;
+      dH.inc_dzpuis() ;
 
       Tenseur_sym T1( contract(contract(delta(), 0, delta(), 2) , 1,2) ) ;
+      T1.dec_dzpuis() ;
 	    
       Tenseur_sym T2( contract(contract(con(), 0, dd, 0) , 0, 1) ) ;
 	    
-      Tenseur auxi( contract(cov(), 1, dH, 1) ) ;
-      auxi = auxi + contract(contract(dcon, 1, dcov, 0), 1, 2) ;
+      Tenseur auxi(contract(contract(dcon, 1, dcov, 0), 1, 2)  ) ;
+      auxi.dec_dzpuis() ;
+      auxi = auxi + contract(cov(), 1, dH, 1) ;
       Tenseur_sym T3(*mp, 2, COV, mp->get_bvect_cart() ) ;
       T3.set_etat_qcq() ;
       // Boucle sur les composantes :
@@ -313,6 +325,7 @@ void Metconf::fait_ricci() const {
 	for (int j=i ; j<3 ; j++) 
 	  T3.set(i, j) = auxi(i, j) + auxi(j, i) ;
       Tenseur_sym T4 (contract(Hi(), 0, dcov, 0) );
+      T4.dec_dzpuis() ;
 	    
       *p_ricci = -0.5*(T2 + T3 + T4) - T1 ;
     }
@@ -335,16 +348,22 @@ void Metconf::fait_ricci_scal() const {
     else {
       
       p_ricci_scal->set_etat_qcq() ;
-      Tenseur T0(contract(Hi().derive_cov(*fij), 0, 1) ) ;
+      Tenseur Hi2(Hi()) ;
+      Hi2.dec2_dzpuis() ;
+      Tenseur T0(contract(Hi2.derive_cov(*fij), 0, 1) ) ;
+      T0.inc_dzpuis() ;
       Tenseur_sym dcov(cov().derive_cov(*fij)) ;
       Tenseur_sym dcon(con().derive_cov(*fij)) ;
       Tenseur auxi(contract(dcon, 1, dcov, 1)) ;
       Tenseur auxi1(contract(auxi, 1, 3)) ;
       Tenseur auxi2(contract(auxi, 1, 2)) ;
       Tenseur T1(contract(contract(con(), 0, auxi1, 0), 0, 1)) ;
+      T1.dec_dzpuis() ;
       Tenseur T2(contract(contract(con(), 0, auxi2, 0), 0, 1)) ;
+      T2.dec_dzpuis() ;
 
       *p_ricci_scal = -T0 + 0.25*T1 - 0.5*T2 ;
+      if (dirac) p_ricci_scal->inc_dzpuis() ;
     }
   }
 }
