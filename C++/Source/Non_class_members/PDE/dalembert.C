@@ -25,6 +25,9 @@ char dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/07/25 08:31:20  j_novak
+ * Error corrected in the case of only nucleus
+ *
  * Revision 1.4  2003/06/18 08:45:27  j_novak
  * In class Mg3d: added the member get_radial, returning only a radial grid
  * For dAlembert solver: the way the coefficients of the operator are defined has been changed.
@@ -232,14 +235,11 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
 	    
 	    part = part*(*bc1) + dpart*(*bc2)/alpha ;
 	    hom = hom*(*bc1) + dhom*(*bc2)/alpha ;
-	    double lambda = ((*tbc3)(k,j) - part) ;
-	    if (fabs(lambda)>1.e-33) {
-	      lambda/= hom ;
-	      for (int i=0 ; i<nr ; i++)
-		resultat.set(lz, k, j, i) = 
-		  solution_part(lz, k, j, i)
-		  +lambda*solution_hom_un(lz, k, j, i) ; 
-	    }
+	    double lambda = ((*tbc3)(k,j) - part) / hom ;
+	    for (int i=0 ; i<nr ; i++)
+	      resultat.set(lz, k, j, i) = 
+		solution_part(lz, k, j, i)
+		+lambda*solution_hom_un(lz, k, j, i) ; 
 	  }
 	  
 	  delete so ;
