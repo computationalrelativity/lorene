@@ -4,7 +4,7 @@
  */
 
 /*
- *   Copyright (c) 2003	Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2004 Eric Gourgoulhon & Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/01/04 20:50:24  e_gourgoulhon
+ * Class Connection: data member delta is now of type Tensor_sym (and no
+ *  longer of type Tensor_delta).
+ *
  * Revision 1.11  2003/12/30 22:56:40  e_gourgoulhon
  * Replaced member flat_conn (flat connection) by flat_met (flat metric)
  * Added argument flat_met to the constructors of Connection.
@@ -124,9 +128,11 @@ class Connection {
 	 * \begin{equation}
 	 *  \Gamma^i_{\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle
 	 * \end{equation} 
+         * Note that $\Delta^i_{\ jk}$ is symmetric with respect to the
+         * indices j and k.
 	 *
 	 */
-	Tensor_delta delta ; 
+	Tensor_sym delta ; 
 
 	/** Indicates whether the connection is associated with a metric
 	 *  (in which case the Ricci tensor is symmetric, i.e. the
@@ -167,11 +173,13 @@ class Connection {
 	 * \begin{equation}
 	 *  \Gamma^i_{\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle
 	 * \end{equation} 
+         * $\Delta^i_{\ jk}$ must be symmetric with respect to the
+         * indices j and k.
          * @param flat_met_i flat metric with respect to which $\Delta^i_{\ jk}$
          *   is defined
 	 *
 	 */
-	Connection(const Tensor_delta& delta_i, const Metric_flat& flat_met_i) ;		
+	Connection(const Tensor_sym& delta_i, const Metric_flat& flat_met_i) ;		
 	
 	/** Standard constructor for a connection associated with a metric. 
 	 *
@@ -219,8 +227,10 @@ class Connection {
 	 *  $\Gamma^i_{\ jk}$ and
 	 * the connection coefficients ${\bar \Gamma}^i_{\ jk}$ of the
 	 * flat connection. 
+         * $\Delta^i_{\ jk}$ must be symmetric with respect to the
+         * indices j and k.
 	 */
-	void update(const Tensor_delta& delta_i) ;		
+	void update(const Tensor_sym& delta_i) ;		
 	
 	/** Update the connection when it is associated with a metric. 
 	 *
@@ -247,10 +257,12 @@ class Connection {
 	 * \begin{equation}
 	 *  \Gamma^i_{\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle
 	 * \end{equation} 
+         * Note that $\Delta^i_{\ jk}$ is symmetric with respect to the
+         * indices j and k.
 	 *
 	 * @return {\tt delta}(i,j,k) = $\Delta^i_{\ jk}$
 	 */
-	const Tensor_delta& get_delta() const {return delta; } ; 
+	const Tensor_sym& get_delta() const {return delta; } ; 
 
 	// Computational methods
 	// ---------------------
