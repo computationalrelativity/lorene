@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.43  2004/02/15 21:53:48  e_gourgoulhon
+ * Modif. comments: suppressed the mention *** under development ***.
+ *
  * Revision 1.42  2004/01/30 12:44:17  e_gourgoulhon
  * Added Tensor_sym operator*(const Tensor_sym&, const Tensor_sym& ).
  *
@@ -206,9 +209,9 @@ class Metric ;
 			
 
 /**
- * Tensor handling *** UNDER DEVELOPMENT  ***.
+ * Tensor handling.
  *
- * This class is intended to replace {\tt Tenseur} and {\tt Cmp} (the
+ * This class has been devised to replace {\tt Tenseur} and {\tt Cmp} (the
  *  latter via the derived class {\tt Scalar}).
  * 
  * The {\tt Tensor} class is intended to store the components of a tensorial 
