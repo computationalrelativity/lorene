@@ -32,6 +32,9 @@ char sym_tensor_trans_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/28 21:24:52  e_gourgoulhon
+ * Added new methods trace() and tt_part().
+ *
  * Revision 1.1  2003/10/27 10:50:54  e_gourgoulhon
  * First version.
  *
@@ -45,7 +48,7 @@ char sym_tensor_trans_C[] = "$Header$" ;
 #include <stdlib.h>
 
 // Headers Lorene
-#include "tensor.h"
+#include "metric.h"
 
 			//--------------//
 			// Constructors //
@@ -157,6 +160,43 @@ void Sym_tensor_trans::operator=(const Tensor& source) {
 	
 	del_deriv() ; 	
 }
+
+
+			//-----------------------------//
+			//    Computational methods    //
+			//-----------------------------//
+
+const Scalar& Sym_tensor_trans::trace() const {
+
+	if (p_trace == 0x0) {   // a new computation is necessary
+
+		assert( (type_indice(0)==CON) && (type_indice(1)==CON) ) ; 
+		
+		Tensor tmp = contract( met_div->cov(), 0, *this, 0 ) ;
+		 
+		p_trace = new Scalar( tmp.scontract(0,1) ) ; 
+		
+	}
+	
+	return *p_trace ; 
+
+}
+
+
+const Sym_tensor_tt& Sym_tensor_trans::tt_part() const {
+
+	if (p_tt == 0x0) {   // a new computation is necessary
+
+		cout << "Sym_tensor_trans::tt_part() : not implemented yet ! " << endl ; 
+		abort() ; 
+		
+	}
+	
+	return *p_tt ; 
+
+}
+
+
 
 
 
