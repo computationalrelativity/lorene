@@ -29,6 +29,11 @@ char tensor_change_triad_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/02/03 14:31:37  f_limousin
+ * Correction of an error in the case Cartesian --> Cartesian for
+ * a Sym_tensor. Now the components of the tensor are modified
+ * using a temporary.
+ *
  * Revision 1.5  2003/10/28 21:29:08  e_gourgoulhon
  * -- Read-only access to the components performed via operator()(int, int)
  *     instead of set(int, int).
@@ -101,13 +106,15 @@ void Tensor::change_triad(const Base_vect& new_triad) {
 	
       case - 1 : {    // the two bases are anti-aligned 
 	// ------------------------------
-	
-	set(1, 3) = - operator()(1, 3) ; // {xz} --> - {xz}
-	set(2, 3) = - operator()(2, 3) ; // {yz} --> - {yz}
-	set(3, 1) = - operator()(3, 1) ; // {zx} --> - {zx}
-	set(3, 2) = - operator()(3, 2) ; // {zy} --> - {zy}
-	// all other components are unchanged
-	break ; 
+
+	  Tensor copie (*this) ;
+
+	  set(1, 3) = - copie(1, 3) ; // {xz} --> - {xz}
+	  set(2, 3) = - copie(2, 3) ; // {yz} --> - {yz}
+	  set(3, 1) = - copie(3, 1) ; // {zx} --> - {zx}
+	  set(3, 2) = - copie(3, 2) ; // {zy} --> - {zy}
+	  // all other components are unchanged
+	  break ; 
       }
       case 0 : {	// the two basis have not a special relative orientation
 			// -----------------------------------------------------
