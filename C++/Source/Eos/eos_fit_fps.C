@@ -30,6 +30,9 @@ char eos_fit_fps_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/10/24 19:14:53  k_taniguchi
+ * Correction of the file name which is called in the constructor from file.
+ *
  * Revision 1.1  2004/09/26 18:55:10  k_taniguchi
  * Initial revision
  *
@@ -60,7 +63,7 @@ Eos_fit_FPS::Eos_fit_FPS(FILE* fich) : Eos_fitting(fich) {}
 // Constructor from a formatted file
 // ---------------------------------
 Eos_fit_FPS::Eos_fit_FPS(ifstream& fich)
-    : Eos_fitting(fich, "eos_fit_sly4.d")
+    : Eos_fitting(fich, "eos_fit_fps.d")
 {}
 
           //------------------------------//
