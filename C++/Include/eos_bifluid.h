@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2002/09/13 09:17:31  j_novak
+ * Modif. commentaires
+ *
  * Revision 1.8  2002/06/17 14:05:16  j_novak
  * friend functions are now also declared outside the class definition
  *
@@ -226,7 +229,7 @@ class Eos_bifluid {
 	 *  [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
 	 *  @param ener [output] total energy density $\cal E$ 
 	 *                             of both fluids together
-	 *  @param press [output] pressure $p$ of both fluids together
+	 *  @param press [output] pressure {\it p} of both fluids together
 	 *  @param nzet  [input] number of domains where {\tt resu} is to be
 	 *	computed. 
 	 *  @param l_min [input] index of the innermost domain is which 
@@ -341,7 +344,7 @@ class Eos_bifluid {
 	 *  [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
 	 *  @param delta2 [input,  unit: $c^2$] relative velocity $\Delta^2$ 
 	 * 
-	 *  @return pressure $p$ [unit: $\rho_{\rm nuc} c^2$], where
+	 *  @return pressure {\it p} [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
     	virtual double press_nbar_p(const double nbar1, const double nbar2, 
@@ -600,7 +603,7 @@ ostream& operator<<(ostream& , const Eos_bifluid& ) ;
  * if $\gamma_1 = \gamma_2 = 2$ and $\gamma_3 = \gamma_4 = \gamma_5 =
  * \gamma_6 = 1$).
  *
- * The energy density $\cal E$and pressure $p$ can then be obtained
+ * The energy density $\cal E$and pressure {\it p} can then be obtained
  * as functions of baryonic densities.
  *
  * @version #$Id$#
@@ -934,7 +937,7 @@ class Eos_bf_poly : public Eos_bifluid {
 	 *  [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
 	 *  @param delta2 [input,  unit: $c^2$] relative velocity $\Delta^2$ 
 	 * 
-	 *  @return pressure $p$ [unit: $\rho_{\rm nuc} c^2$], where
+	 *  @return pressure {\it p} [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
     	virtual double press_nbar_p(const double nbar1, const double nbar2, 
@@ -1059,7 +1062,7 @@ class Eos_bf_poly : public Eos_bifluid {
  * if $\gamma_1 = \gamma_2 = 2$ and $\gamma_3 = \gamma_4 = \gamma_5 =
  * \gamma_6 = 1$).
  *
- * The energy density $\cal E$and pressure $p$ can then be obtained.
+ * The energy density $\cal E$and pressure {\it p} can then be obtained.
  *
  * @version #$Id$
  */
@@ -1242,7 +1245,7 @@ class Eos_bf_poly_newt : public Eos_bf_poly {
 	 *  [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
 	 *  @param delta2 [input,  unit: $c^2$] relative velocity $\Delta^2$ 
 	 * 
-	 *  @return pressure $p$ [unit: $\rho_{\rm nuc} c^2$], where
+	 *  @return pressure {\it p} [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
     	virtual double press_nbar_p(const double nbar1, const double nbar2, 

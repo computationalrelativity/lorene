@@ -31,8 +31,11 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/09/13 09:17:33  j_novak
+ * Modif. commentaires
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.2  2001/10/25  09:20:35  eric
  * Ajout de la fonction virtuelle display_poly.
@@ -218,7 +221,7 @@ class Et_rot_diff : public Etoile_rot {
 	/// Computes the member {\tt prim\_field} from {\tt omga\_field}. 
 	void fait_prim_field() ;
 	
-	/** Evaluates $F(\Omega)$, where $F$ is the function
+	/** Evaluates $F(\Omega)$, where {\it F} is the function
 	 *  defining the rotation profile.
 	 *  This function is linked to the components of the fluid 4-velocity
 	 *  by
@@ -235,7 +238,7 @@ class Et_rot_diff : public Etoile_rot {
 	 */
 	double funct_omega(double omeg) const ;  	
 
-	/** Evaluates the primitive of $F(\Omega)$, where $F$ is the function
+	/** Evaluates the primitive of $F(\Omega)$, where {\it F} is the function
 	 *  defining the rotation profile.
 	 *
 	 *  @param omeg [input] value of $\Omega$

@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/09/13 09:17:31  j_novak
+ * Modif. commentaires
+ *
  * Revision 1.2  2002/04/09 14:32:15  e_gourgoulhon
  * 1/ Added extra parameters in EOS computational functions (argument par)
  * 2/ New class MEos for multi-domain EOS
@@ -193,27 +196,27 @@ class Eos_tabul : public Eos {
     public:
 	/** Computes the baryon density from the log-enthalpy.
 	 *
-	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$
+	 *  @param ent [input,  unit: $c^2$] log-enthalpy {\it H}
 	 *
-	 *  @return baryon density $n$ [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
+	 *  @return baryon density {\it n} [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
 	 *
 	 */
     	virtual double nbar_ent_p(double ent, const Param* par=0x0) const ;
 
  	/** Computes the total energy density from the log-enthalpy.
 	 *
-	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$
+	 *  @param ent [input,  unit: $c^2$] log-enthalpy {\it H}
 	 *
-	 *  @return energy density $e$ [unit: $\rho_{\rm nuc} c^2$], where
+	 *  @return energy density {\it e} [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
     	virtual double ener_ent_p(double ent, const Param* par=0x0) const ;
 
  	/** Computes the pressure from the log-enthalpy.
 	 *
-	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$
+	 *  @param ent [input,  unit: $c^2$] log-enthalpy {\it H}
 	 *
-	 *  @return pressure $p$ [unit: $\rho_{\rm nuc} c^2$], where
+	 *  @return pressure {\it p} [unit: $\rho_{\rm nuc} c^2$], where
 	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
 	 */
     	virtual double press_ent_p(double ent, const Param* par=0x0) const ;
@@ -221,7 +224,7 @@ class Eos_tabul : public Eos {
 	/** Computes the logarithmic derivative $d\ln n/d\ln H$ 
 	 * from the log-enthalpy. 
 	 * 
-	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ 
+	 *  @param ent [input,  unit: $c^2$] log-enthalpy {\it H} 
 	 *
 	 *  @return dln(n)/dln(H)
 	 */
@@ -230,7 +233,7 @@ class Eos_tabul : public Eos {
 	/** Computes the logarithmic derivative $d\ln e/d\ln H$ 
 	 * from the log-enthalpy. 
 	 * 
-	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ 
+	 *  @param ent [input,  unit: $c^2$] log-enthalpy {\it H} 
 	 *
 	 *  @return dln(e)/dln(H)
 	 */
@@ -239,7 +242,7 @@ class Eos_tabul : public Eos {
 	/** Computes the logarithmic derivative $d\ln p/d\ln H$ 
 	 * from the log-enthalpy. 
 	 * 
-	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ 
+	 *  @param ent [input,  unit: $c^2$] log-enthalpy {\it H} 
 	 *
 	 *  @return dln(p)/dln(H)
 	 */

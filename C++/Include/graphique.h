@@ -32,8 +32,11 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/09/13 09:17:33  j_novak
+ * Modif. commentaires
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.24  2001/06/21  07:35:44  novak
  * Added two routines for 2-surface star drawing (des_bi_coupe_y)
@@ -430,8 +433,8 @@ void des_map_et(const Map_et& mp, int lz) ;
  *  a fixed value of $(\theta, \phi)$. 
  *
  *  @param uu [input] {\tt Cmp} to be drawn
- *  @param r_min [input] Minimal value of $r$ for the drawing
- *  @param r_max [input] Maximal value of $r$ for the drawing
+ *  @param r_min [input] Minimal value of {\it r} for the drawing
+ *  @param r_max [input] Maximal value of {\it r} for the drawing
  *  @param theta [input] Value of $\theta$ which defines the profile axis
  *  @param phi [input] Value of $\phi$ which defines the profile axis
  *  @param nomy [input] y legend of the figure (default value = 0x0,  
@@ -1541,7 +1544,7 @@ void des_explorer_symz(const Binaire& bibi, const char* name) ;
 
 /** Prepare a file for visualizing a meridian slice of a {\tt Cmp} 
  *  in a given domain with Iris Explorer.
- *  This is to draw a function $z=f(r,\theta)$, where $f$ is a
+ *  This is to draw a function $z=f(r,\theta)$, where {\it f} is a
  *  ``slice'' in the plane $\phi$ = const of the function defined by
  *  uu (to use with the {\bf Lit\_scal2D} module of Explorer).
  *

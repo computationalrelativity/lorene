@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/09/13 09:17:31  j_novak
+ * Modif. commentaires
+ *
  * Revision 1.2  2002/06/17 14:05:16  j_novak
  * friend functions are now also declared outside the class definition
  *
@@ -190,7 +193,7 @@ class Base_vect_cart : public Base_vect {
     // Data : 
     // -----
     private:
-	/// Angle between the $x$--axis and the absolute frame $X$--axis
+	/// Angle between the {\it x}--axis and the absolute frame {\it X}--axis
 	double rot_phi ;	
 
 	/**
@@ -236,7 +239,7 @@ class Base_vect_cart : public Base_vect {
 	void operator=(const Base_vect_cart& ) ;
 
 	/** Sets a new value to the angle {\tt rot\_phi} 
-	 *  between the $x$--axis and the absolute frame $X$--axis
+	 *  between the {\it x}--axis and the absolute frame {\it X}--axis
 	 */
 	void set_rot_phi(double rot_phi_i) ; 
 
@@ -298,11 +301,11 @@ class Base_vect_spher : public Base_vect {
     // Data : 
     // -----
     private:
-	double ori_x ;		/// Absolute coordinate $X$ of the origin
-	double ori_y ;		/// Absolute coordinate $Y$ of the origin
-	double ori_z ;		/// Absolute coordinate $Z$ of the origin
+	double ori_x ;		/// Absolute coordinate {\it X} of the origin
+	double ori_y ;		/// Absolute coordinate {\it Y} of the origin
+	double ori_z ;		/// Absolute coordinate {\it Z} of the origin
     
-	/// Angle between the $x$--axis and the absolute frame $X$--axis
+	/// Angle between the {\it x}--axis and the absolute frame {\it X}--axis
 	double rot_phi ;	
 
 	
@@ -345,7 +348,7 @@ class Base_vect_spher : public Base_vect {
 	void set_ori(double xa0, double ya0, double za0) ;  
 
 	/** Sets a new value to the angle {\tt rot\_phi} 
-	 *  between the $x$--axis and the absolute frame $X$--axis
+	 *  between the {\it x}--axis and the absolute frame {\it X}--axis
 	 */
 	void set_rot_phi(double rot_phi_i) ; 
 

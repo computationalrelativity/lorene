@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/09/13 09:17:31  j_novak
+ * Modif. commentaires
+ *
  * Revision 1.2  2002/06/17 14:05:15  j_novak
  * friend functions are now also declared outside the class definition
  *
@@ -123,34 +126,34 @@ class Tbl ;
  * spectral expansion of a given function is performed. The corresponding
  * coefficients will be stored in a {\tt Mtbl\_cf}. 
  * 
- * The various bases in each of the three dimensions $r$, $\theta$ and
+ * The various bases in each of the three dimensions {\it r}, $\theta$ and
  * $\phi$ are identified by an integer defined by a macro in the
  * file {\tt type\_parite.h}. These three integers are then merged (by means of 
  * the bitwise OR operator) to give a single integer, stored in 
  * {\tt Base\_val::b[l]},  
- * {\tt l} being the domain index. The bases in $r$, $\theta$ and $\phi$ can
+ * {\tt l} being the domain index. The bases in {\it r}, $\theta$ and $\phi$ can
  * be restored by applying the bitwise AND operator with the masks 
  * {\tt MSQ\_R}, {\tt MSQ\_T} and {\tt MSQ\_P} defined in {\tt type\_parite.h}.
  * 
  * The basis functions for expansion with respect to the radial coordinate $\xi$
- * are coded as follows, $m$ being the order of the Fourier expansion in $\phi$:
+ * are coded as follows, {\it m} being the order of the Fourier expansion in $\phi$:
  * \begin{itemize}
  *   \item {\tt R\_CHEB} (0x00000001) : Chebyshev polynomials 
- *					    ($r$-sampling: {\tt FIN});
+ *					    ({\it r}-sampling: {\tt FIN});
  *   \item {\tt R\_CHEBP} (0x00000002) : Even Chebyshev polynomials 
- *					    ($r$-sampling: {\tt RARE});
+ *					    ({\it r}-sampling: {\tt RARE});
  *   \item {\tt R\_CHEBI} (0x00000003) : Odd Chebyshev polynomials 
- *						($r$-sampling: {\tt RARE});
+ *						({\it r}-sampling: {\tt RARE});
  *   \item {\tt R\_CHEBPIM\_P} (0x00000006) : Even (resp. odd) Chebyshev
- *	     polynomials for $m$ even (resp. odd) ($r$-sampling: {\tt RARE});
+ *	     polynomials for {\it m} even (resp. odd) ({\it r}-sampling: {\tt RARE});
  *   \item {\tt R\_CHEBPIM\_I} (0x00000007) : Odd (resp. even) Chebyshev
- *	     polynomials for $m$ even (resp. odd) ($r$-sampling: {\tt RARE}) ;
+ *	     polynomials for {\it m} even (resp. odd) ({\it r}-sampling: {\tt RARE}) ;
  *   \item {\tt R\_CHEBU} (0x00000008) : Chebyshev polynomials 
- *					    ($r$-sampling: {\tt UNSURR}).
+ *					    ({\it r}-sampling: {\tt UNSURR}).
  * \end{itemize}
  * 
  * The basis functions for expansion with respect to the co-latitude coordinate 
- * $\theta$ are coded as follows, $m$ being the order of the Fourier expansion 
+ * $\theta$ are coded as follows, {\it m} being the order of the Fourier expansion 
  * in $\phi$:  
  * \begin{itemize}
  *   \item {\tt T\_COS\_P} (0x00000500) : $\cos(2j \theta)$
@@ -161,36 +164,36 @@ class Tbl ;
  *						($\theta$-sampling: {\tt SYM});
  *   \item {\tt T\_SIN\_I} (0x00000800) : $\sin((2j+1) \theta)$
  *						($\theta$-sampling: {\tt SYM});
- *   \item {\tt T\_COSSIN\_CP} (0x00000900) : $\cos(2j \theta)$ for $m$ even,
- *					      $\sin((2j+1) \theta)$ for $m$ odd
+ *   \item {\tt T\_COSSIN\_CP} (0x00000900) : $\cos(2j \theta)$ for {\it m} even,
+ *					      $\sin((2j+1) \theta)$ for {\it m} odd
  *						($\theta$-sampling: {\tt SYM});
- *   \item {\tt T\_COSSIN\_SP} (0x00000a00) : $\sin(2j \theta)$ for $m$ even,
- *					      $\cos((2j+1) \theta)$ for $m$ odd
+ *   \item {\tt T\_COSSIN\_SP} (0x00000a00) : $\sin(2j \theta)$ for {\it m} even,
+ *					      $\cos((2j+1) \theta)$ for {\it m} odd
  *						($\theta$-sampling: {\tt SYM});
- *   \item {\tt T\_COSSIN\_CI} (0x00000b00) : $\cos((2j+1) \theta)$ for $m$ even,
- *					      $\sin(2j \theta)$ for $m$ odd
+ *   \item {\tt T\_COSSIN\_CI} (0x00000b00) : $\cos((2j+1) \theta)$ for {\it m} even,
+ *					      $\sin(2j \theta)$ for {\it m} odd
  *						($\theta$-sampling: {\tt SYM});
- *   \item {\tt T\_COSSIN\_SI} (0x00000c00) : $\sin((2j+1) \theta)$ for $m$ even,
- *					      $\cos(2j \theta)$ for $m$ odd
+ *   \item {\tt T\_COSSIN\_SI} (0x00000c00) : $\sin((2j+1) \theta)$ for {\it m} even,
+ *					      $\cos(2j \theta)$ for {\it m} odd
  *						($\theta$-sampling: {\tt SYM});
  *   \item {\tt T\_LEG\_P} (0x00000d00) : Associated Legendre functions
- *					  $P_{2j}^m(\cos\theta)$ for $m$ even,
- *					  $P_{2j+1}^m(\cos\theta)$ for $m$ odd
+ *					  $P_{2j}^m(\cos\theta)$ for {\it m} even,
+ *					  $P_{2j+1}^m(\cos\theta)$ for {\it m} odd
  *						($\theta$-sampling: {\tt SYM});
  *   \item {\tt T\_LEG\_PP} (0x00000e00) : Associated Legendre functions
- *					  $P_{2j}^m(\cos\theta)$, $m$ being 
+ *					  $P_{2j}^m(\cos\theta)$, {\it m} being 
  *					   always even
  *						($\theta$-sampling: {\tt SYM});
  *   \item {\tt T\_LEG\_I} (0x00000f00) : Associated Legendre functions
- *					  $P_{2j+1}^m(\cos\theta)$ for $m$ even,
- *					  $P_{2j}^m(\cos\theta)$ for $m$ odd
+ *					  $P_{2j+1}^m(\cos\theta)$ for {\it m} even,
+ *					  $P_{2j}^m(\cos\theta)$ for {\it m} odd
  *						($\theta$-sampling: {\tt SYM});
  *   \item {\tt T\_LEG\_IP} (0x00001000) : Associated Legendre functions
- *					  $P_{2j+1}^m(\cos\theta)$, $m$ being 
+ *					  $P_{2j+1}^m(\cos\theta)$, {\it m} being 
  *					   always even
  *						($\theta$-sampling: {\tt SYM});
  *   \item {\tt T\_LEG\_PI} (0x00001100) : Associated Legendre functions
- *					  $P_{2j+1}^m(\cos\theta)$, $m$ being 
+ *					  $P_{2j+1}^m(\cos\theta)$, {\it m} being 
  *					   always odd
  *						($\theta$-sampling: {\tt SYM});
  * \end{itemize}
@@ -203,11 +206,11 @@ class Tbl ;
  *					   ($\phi$-sampling: {\tt NONSYM});
  *   \item {\tt P\_COSSIN\_P} (0x00020000) : Fourrier series 
  *					   $(\cos(m\phi),\ \sin(m\phi))$ with
- * 					   even harmonics only (i.e. $m$ even)
+ * 					   even harmonics only (i.e. {\it m} even)
  *					   ($\phi$-sampling: {\tt SYM});
  *   \item {\tt P\_COSSIN\_I} (0x00030000) : Fourrier series 
  *					   $(\cos(m\phi),\ \sin(m\phi))$ with
- * 					   odd harmonics only (i.e. $m$ odd)
+ * 					   odd harmonics only (i.e. {\it m} odd)
  *					   ($\phi$-sampling: {\tt SYM});
  * \end{itemize}
  *
@@ -240,11 +243,11 @@ class Base_val {
     public:
 	void set_base_nondef() ;    /// Sets the spectral bases to {\tt NONDEF}
 
-	/** Sets the expansion basis for $r$ ($\xi$) functions in a 
+	/** Sets the expansion basis for {\it r} ($\xi$) functions in a 
 	 *  given domain.
 	 *  
 	 *  @param l	    Domain index
-	 *  @param base_r   type of basis functions in $r$ ($\xi$)
+	 *  @param base_r   type of basis functions in {\it r} ($\xi$)
 	 *		    (e.g. {\tt R\_CHEB\_P}, etc..., 
 	 *		     see general documentation of class {\tt Base\_val}
 	 *		     for denomination of the various bases). 
@@ -278,7 +281,7 @@ class Base_val {
     public:
 	bool operator==(const Base_val& ) const ;  /// Comparison operator
 
-	/** Returns the expansion basis for $r$ ($\xi$) functions in the 
+	/** Returns the expansion basis for {\it r} ($\xi$) functions in the 
 	 *  domain of index {\tt l} 
 	 *  (e.g. {\tt R\_CHEB\_P}, etc..., 
 	 *   see general documentation of class {\tt Base\_val}
@@ -331,8 +334,8 @@ class Base_val {
 	 *    in phi), {\tt resu.get\_dim(2)} = 1 and {\tt ind\_phi} can take
 	 *    only the value 0; if the theta basis is
 	 *    {\tt T\_COSSIN\_CP}, {\tt resu.get\_dim(2)} = 2, with 
-	 *    {\tt ind\_phi} = 0 for $m$ even and  
-	 *    {\tt ind\_phi} = 1 for $m$ odd. 
+	 *    {\tt ind\_phi} = 0 for {\it m} even and  
+	 *    {\tt ind\_phi} = 1 for {\it m} odd. 
 	 * 
 	 */
 	const Tbl& theta_functions(int l, int nt) const ; 
@@ -402,8 +405,8 @@ ostream& operator<<(ostream& , const Base_val& ) ;
 /**
  * This operator is used when calling multiplication or division of {\tt Valeur}.
  * It returns the appropriate base, taking into account the symmetry of the result.
- * The calculation propreties are those of the multiplication of $-1$ for 
- * antisymmetry and $1$ for symmetry.
+ * The calculation propreties are those of the multiplication of -1 for 
+ * antisymmetry and 1 for symmetry.
  * 
  * Should the product of the {\tt Base\_val} not be possible, the result is set to
  * {\tt ETATNONDEF}, (state not defined). It would be the case,  for example,  if

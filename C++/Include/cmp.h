@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/09/13 09:17:31  j_novak
+ * Modif. commentaires
+ *
  * Revision 1.4  2002/06/17 14:05:16  j_novak
  * friend functions are now also declared outside the class definition
  *
@@ -394,7 +397,7 @@ class Cmp {
 	int etat ;	    
 
 	/**
-	 * Power of $r$ by which the quantity represented by {\tt this} 
+	 * Power of {\it r} by which the quantity represented by {\tt this} 
 	 * must be divided in the external compactified zone in order 
 	 * to get the correct physical values
 	 */
@@ -432,7 +435,7 @@ class Cmp {
 	 */
 	mutable Cmp* p_lap ;	
 
-	/** Power of $r$ by which the last computed Laplacian has been 
+	/** Power of {\it r} by which the last computed Laplacian has been 
 	 *  multiplied in the external compactified domain.  
 	 */
 	mutable int ind_lap ; 
@@ -684,7 +687,7 @@ class Cmp {
 	 * @param l [input] domain index
 	 * @param k [input] $\phi$ index
 	 * @param j [input] $\theta$ index
-	 * @param i [input] $r$ ($\xi$) index
+	 * @param i [input] {\it r} ($\xi$) index
 	 */ 
 	double& set(int l, int k, int j, int i) {
 	    assert(etat == ETATQCQ) ;
@@ -696,7 +699,7 @@ class Cmp {
 	 * @param l [input] domain index
 	 * @param k [input] $\phi$ index
 	 * @param j [input] $\theta$ index
-	 * @param i [input] $r$ ($\xi$) index
+	 * @param i [input] {\it r} ($\xi$) index
 	 */ 
 	double operator()(int l, int k, int j, int i) const {
 	    assert(etat != ETATNONDEF) ;
@@ -712,7 +715,7 @@ class Cmp {
 	/** Computes the value of the field represented by {\tt *this} at an
 	*   arbitrary point $(r, \theta, \phi)$, by means of the spectral 
 	*   expansion.
-	*	 @param r [input] value of the coordinate $r$
+	*	 @param r [input] value of the coordinate {\it r}
 	*	 @param theta [input] value of the coordinate $\theta$
 	*	 @param phi [input] value of the coordinate $\phi$
 	*	 @return value at the point $(r, \theta, \phi)$ 
@@ -792,12 +795,12 @@ class Cmp {
 	void annule(int l_min, int l_max) ; 
     
     /**
-     * Sets the {\tt n} lasts coefficients in $r$ to $0$ in the external domain.
+     * Sets the {\tt n} lasts coefficients in {\it r} to 0 in the external domain.
      */
 	void filtre (int n) ;
     
     /**
-     * Sets the {\tt n} lasts coefficients in $\Phi$ to $0$ in the 
+     * Sets the {\tt n} lasts coefficients in $\Phi$ to 0 in the 
      * domain {\tt zone}.
      */
 	void filtre_phi (int n, int zone) ;
@@ -817,7 +820,7 @@ class Cmp {
 	void set_val_hor (double val, int zone) ;
     /**
      * Substracts all the components behaving like $r^{-n}$ in the external 
-     * domain, with $n$ strictly lower than {\tt puis}, so that {\tt *this} 
+     * domain, with {\it n} strictly lower than {\tt puis}, so that {\tt *this} 
      * decreases at least like $r^{\tt puis}$ at infinity.
      */
 	void fixe_decroissance (int puis) ;
@@ -923,25 +926,25 @@ class Cmp {
 	 *  where $x_i = (x, y, z)$.
 	 *  Note that in the external compactified domain (ZEC), it returns
 	 *  instead $r^2 \partial/ \partial x_i$.
-	 *  @param i [input] i=0 for $x$,  i=1 for $y$, i=2 for $z$.
+	 *  @param i [input] i=0 for {\it x},  i=1 for {\it y}, i=2 for {\it z}.
 	 */
 	const Cmp& deriv(int i) const ;	
 
 	/** Returns the Laplacian of {\tt *this}
 	 *   @param zec_mult_r [input] Determines the quantity computed in
 	 *			 the external compactified domain (ZEC) 
-	 *		($u$ in the field represented by {\tt *this}) :  \\
+	 *		({\it u} in the field represented by {\tt *this}) :  \\
 	 *		    zec\_mult\_r = 0 : $\Delta u$	\\
 	 *		    zec\_mult\_r = 2 : $r^2 \,  \Delta u$	\\
 	 *		    zec\_mult\_r = 4 (default) : $r^4 \, \Delta u$	
 	 */
 	const Cmp& laplacien(int zec_mult_r = 4) const ; 
 
-	void div_r() ;    /// Division by $r$ everywhere.
+	void div_r() ;    /// Division by {\it r} everywhere.
 
-	void mult_r() ;   /// Multiplication by $r$ everywhere.
+	void mult_r() ;   /// Multiplication by {\it r} everywhere.
 
-	/** Multiplication by $r$ in the external compactified domain (ZEC)
+	/** Multiplication by {\it r} in the external compactified domain (ZEC)
 	 */
 	void mult_r_zec() ;
 	
@@ -972,7 +975,7 @@ class Cmp {
 	void set_dzpuis(int ) ;  /// Set a value to {\tt dzpuis}
 
 	/** Computes the integral over all space of {\tt *this}.
-	 *  The computed quantity is ($u$ being the field represented by
+	 *  The computed quantity is ({\it u} being the field represented by
 	 *   {\tt *this})
 	 *    $\int u \, r^2 \sin\theta \,  dr\, d\theta \, d\phi$.
 	 *  Note that in the external compactified domain (ZEC), {\tt dzpuis} 
@@ -981,7 +984,7 @@ class Cmp {
 	double integrale() const ; 
 	
 	/** Computes the integral in each domain of {\tt *this}.
-	 *  The computed quantity is ($u$ being the field represented by
+	 *  The computed quantity is ({\it u} being the field represented by
 	 *   {\tt *this})
 	 *    $\int u \, r^2 \sin\theta \,  dr\, d\theta \, d\phi$
 	 *  in each domain. The result is returned a {\tt Tbl} on the 
@@ -1017,7 +1020,7 @@ class Cmp {
 	 *   Note that {\tt dzpuis} must be equal to 2 or 4, i.e. that the
 	 *   quantity stored in {\tt *this} is in fact $r^2 \sigma$ or
 	 *   $r^4 \sigma$ in the external compactified domain. 
-	 *   The solution $u$ with the boundary condition $u=0$ at spatial
+	 *   The solution {\it u} with the boundary condition {\it u}=0 at spatial
 	 *   infinity is the returned {\tt Cmp}. 
 	 */
 	Cmp poisson() const ;
@@ -1030,8 +1033,8 @@ class Cmp {
 	 *   quantity stored in {\tt *this} is in fact $r^2 \sigma$ or
 	 *   $r^4 \sigma$ in the external compactified domain. 
 	 *   @param par [input/output] possible parameters
-	 *   @param uu [input/output] solution $u$ with the boundary condition 
-	 *   $u=0$ at spatial infinity. 
+	 *   @param uu [input/output] solution {\it u} with the boundary condition 
+	 *   {\it u}=0 at spatial infinity. 
 	 */
 	void poisson(Param& par, Cmp& uu) const ;
 	
@@ -1090,7 +1093,7 @@ class Cmp {
 	/** Checks if a Poisson equation with {\tt *this} as a source
 	 *  has been correctly solved.
 	 * 
-	 *  @param uu [input] Solution $u$ of the Poisson equation
+	 *  @param uu [input] Solution {\it u} of the Poisson equation
 	 *		      $\Delta u = \sigma$,  $\sigma$ being 
 	 *		      represented by the {\tt Cmp} {\tt *this}.
 	 * 
@@ -1106,14 +1109,14 @@ class Cmp {
 	 *	    domain: \\
 	 *	{\tt err(0, l) : } Relative error in domain no. {\tt l}, 
 	 *	    defined as the maximum value of 
-	 *	    $|\Delta u - \sigma|$ in that domain divided by $M$, 
-	 *	    where $M$ is the maximum value of $|\sigma|$ 
+	 *	    $|\Delta u - \sigma|$ in that domain divided by {\it M}, 
+	 *	    where {\it M} is the maximum value of $|\sigma|$ 
 	 *	    over all domains if {\tt dzpuis = 0} or $\sigma$ is
 	 *	    zero in the external compactified domain (ECD). If 
 	 *	    {\tt dzpuis != 0} and $\sigma$ does not vanish in the 
-	 *	    ECD, the value of $M$ used in the
+	 *	    ECD, the value of {\it M} used in the
 	 *	    non-compactified domains is the maximum value over
-	 *	    these domains, whereas the value of $M$ used in the
+	 *	    these domains, whereas the value of {\it M} used in the
 	 *	    external compactified domain is the maximum value
 	 *	    on that particular domain. \\
 	 *	{\tt err(1, l) : }  Maximum value of the absolute error
@@ -1126,17 +1129,17 @@ class Cmp {
 
 	/** Performs one time-step integration (from $t=j \to j+1$) of the 
 	 *   scalar d'Alembert equation with {\tt *this} being the value of 
-	 *   the function $f$ at time $j$.
-	 *   The value of $f(t=j-1)$ is represented by {\tt fjm1}.
+	 *   the function {\it f} at time {\it j}.
+	 *   The value of {\it f(t=j-1)} is represented by {\tt fjm1}.
 	 *   The source $\sigma$ of the equation $\diamond f = \sigma$ is 
 	 *   represented by the {\tt Cmp} {\tt source}.
-	 *   {\tt sourcejm1} contains the value of $\sigma$ at $t=j-1)$.
+	 *   {\tt sourcejm1} contains the value of $\sigma$ at {\it t=j-1)}.
 	 *   {\tt par} must contain at least the time-step (constant in time)
 	 *   as first {\tt double} parameter, and the type of BC as first
 	 *   {\tt int} parameter. If par.get\_int(0) == 0 the BC are 
 	 *   homogeneous
-	 *   (i.e. $f(t=j+1)(r=R) = 0$).If par.get\_int(0) == 1 then
-	 *   the returned {\tt Cmp} $f(t=j+1)$ has the boundary conditions 
+	 *   (i.e. {\it f(t=j+1)(r=R) = 0}).If par.get\_int(0) == 1 then
+	 *   the returned {\tt Cmp} {\it f(t=j+1)} has the boundary conditions 
 	 *   of outgoing wave (l=0 only), known as Sommerfeld boundary
 	 *   condition. If par.get\_int(0) == 2 then the enhanced outgoing
 	 *   wave condition is used (lets out all spherical harmonics 

@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2002/09/13 09:17:33  j_novak
+ * Modif. commentaires
+ *
  * Revision 1.5  2002/04/05 09:09:36  j_novak
  * The inversion of the EOS for 2-fluids polytrope has been modified.
  * Some errors in the determination of the surface were corrected.
@@ -134,7 +137,7 @@ class Et_rot_bifluid : public Etoile_rot {
   mutable double* p_ray_pole2 ;
 	
   /** Description of the surface of fluid 2: 2-D {\tt Itbl} containing the 
-   *	values of the domain index $l$ on the surface at the 
+   *	values of the domain index {\it l} on the surface at the 
    *	collocation points in $(\theta', \phi')$
    */
   mutable Itbl* p_l_surf2 ; 
@@ -258,7 +261,7 @@ class Et_rot_bifluid : public Etoile_rot {
 	
   /** Description of the surface of fluid 1: returns a 2-D {\tt Itbl} 
    *	containing the 
-   *	values of the domain index $l$ on the surface at the 
+   *	values of the domain index {\it l} on the surface at the 
    *	collocation points in $(\theta', \phi')$.
    *	The stellar surface is defined as the location where
    *	the enthalpy 2 (member {\tt ent2}) vanishes.
@@ -267,7 +270,7 @@ class Et_rot_bifluid : public Etoile_rot {
 	
   /** Description of the surface of fluid 2: returns a 2-D {\tt Itbl} 
    *	containing the 
-   *	values of the domain index $l$ on the surface at the 
+   *	values of the domain index {\it l} on the surface at the 
    *	collocation points in $(\theta', \phi')$.
    *	The stellar surface is defined as the location where
    *	the enthalpy 2 (member {\tt ent2}) vanishes.
@@ -317,12 +320,12 @@ class Et_rot_bifluid : public Etoile_rot {
   virtual double aplat2() const ;      /// Flatening r\_pole/r\_eq for fluid 2
 
   /** Quadrupole moment.
-   *  The quadrupole moment $Q$ is defined according to Eq. (7) of
+   *  The quadrupole moment {\it Q} is defined according to Eq. (7) of
    *  [Salgado, Bonazzola, Gourgoulhon and Haensel, Astron. Astrophys.
    *   {\bf 291}, 155 (1994)]. At the Newtonian limit it is related to
    *  the component ${\bar I}_{zz}$ of the MTW (1973) reduced quadrupole 
    *  moment ${\bar I}_{ij}$ by: $Q = -3/2 {\bar I}_{zz}$. 
-   *  Note that $Q$ is the negative of the quadrupole moment defined 
+   *  Note that {\it Q} is the negative of the quadrupole moment defined 
    *  by Laarakkers and Poisson, Astrophys. J. {\bf 512}, 282 (1999).
    */
   virtual double mom_quad() const ;	

@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2002/09/13 09:17:33  j_novak
+ * Modif. commentaires
+ *
  * Revision 1.6  2002/08/09 15:41:08  j_novak
  * New class Metconf added for conformal metric handling.
  *
@@ -87,9 +90,6 @@
  * Metric handling.
  * 
  * This class is used to described 3-dimensionnal metrics. 
- * It should be used ONLY for a metric decreasing as $\frac{1}{r^2}$ at 
- * infinity,  otherwise the calculation of the derivative terms will not be
- * correct in the external zone.
  * 
  * This class includes a dynamical calculation of the Christoffel symbols, 
  * the Ricci-curvature and the Ricci-scalar. 

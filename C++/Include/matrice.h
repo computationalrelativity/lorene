@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/09/13 09:17:33  j_novak
+ * Modif. commentaires
+ *
  * Revision 1.3  2002/06/17 14:05:17  j_novak
  * friend functions are now also declared outside the class definition
  *
@@ -121,7 +124,7 @@ class Matrice {
 	 * Pointer on the array of the band representation of a square matrix.
 	 * To be precise, {$ A(i, j)$} is stored in {\tt band}
 	 * $[ku+1+i-j, j]$ for $\mathrm {max}(1, j-ku) \leq i \leq
-	 * \mathrm{min} (n, j+kl)$, $n$ being the size of the matrix.
+	 * \mathrm{min} (n, j+kl)$, {\it n} being the size of the matrix.
 	 */
 	mutable Tbl* band ;
 	
@@ -190,7 +193,7 @@ class Matrice {
     public:
 	/**
 	 * Returns the dimension of the matrix.
-	 * @param i [input] if $i=0$ returns the number of lines and if $i=2$ 
+	 * @param i [input] if {\it i}=0 returns the number of lines and if {\it i}=2 
 	 * returns the number of columns.
 	 */
 	int get_dim(int i) const ;
@@ -198,7 +201,7 @@ class Matrice {
     // affectation
     public:	
 	/**
-	 * Sets all the element of {\tt *std} to $x$.
+	 * Sets all the element of {\tt *std} to {\it x}.
 	 * The other representations are set to {\tt ETATNONDEF}.
 	 */
 	void operator=(double x) ;
@@ -282,8 +285,8 @@ class Matrice {
 	/**
 	 * Returns the eigenvalues of the matrix, calculated using {\bf LAPACK}.
 	 * @return contains the real and the imaginary parts of the 
-	 * eigenvalues. The real parts are in {\tt Tbl$(0, *)$} and 
-	 * the imaginary parts in {\tt Tbl$(1, *)$}.
+	 * eigenvalues. The real parts are in {\tt Tbl}{\it (0, *)} and 
+	 * the imaginary parts in {\tt Tbl}{\it (1, *)}.
 	 */
 	Tbl val_propre() const ;
 	
@@ -306,11 +309,11 @@ ostream& operator<<(ostream& , const Matrice& ) ;
  * @name Matrice arithmetics
  */
 //@{
-Matrice operator+ (const Matrice&, const Matrice& ) ; /// {\tt Matrice $+$ Matrice}
-Matrice operator- (const Matrice&, const Matrice& ) ; /// {\tt Matrice $-$ Matrice}
-Matrice operator* (const Matrice&, double ) ;/// {\tt Matrice $*$ double}
-Matrice operator* (double, const Matrice& ) ;/// {\tt double $*$ Matrice}
-Matrice operator/ (const Matrice&,  double ) ; /// {\tt Matrice $/$ double}
+Matrice operator+ (const Matrice&, const Matrice& ) ; /// {\tt Matrice + Matrice}
+Matrice operator- (const Matrice&, const Matrice& ) ; /// {\tt Matrice - Matrice}
+Matrice operator* (const Matrice&, double ) ;/// {\tt Matrice * double}
+Matrice operator* (double, const Matrice& ) ;/// {\tt double * Matrice}
+Matrice operator/ (const Matrice&,  double ) ; /// {\tt Matrice / double}
 
     //@}
 

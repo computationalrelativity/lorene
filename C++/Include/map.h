@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/09/13 09:17:33  j_novak
+ * Modif. commentaires
+ *
  * Revision 1.4  2002/06/17 14:05:16  j_novak
  * friend functions are now also declared outside the class definition
  *
@@ -455,12 +458,12 @@ class Tenseur ;
  * equations). 
  *
  * The mapping is defined with respect to some ``absolute'' reference frame, 
- * whose Cartesian coordinates are denoted by $(X, Y, Z)$. The coordinates
- * (X, Y, Z) of center of the mapping (i.e. the point $r=0$) are given by the data 
+ * whose Cartesian coordinates are denoted by {\it (X, Y, Z)}. The coordinates
+ * (X, Y, Z) of center of the mapping (i.e. the point {\it r}=0) are given by the data 
  * members {\tt  (ori\_x,  ori\_y,  ori\_z)}. 
  * The Cartesian coordinate relative to the mapping (i.e. defined from 
  * $(r, \theta, \phi)$ by the usual formul\ae $x=r\sin\theta\cos\phi, \ldots$)
- * are denoted by $(x, y, z)$. The planes $(x, y)$ and $(X, Y)$ are supposed to
+ * are denoted by {\it (x, y, z)}. The planes {\it (x, y)} and {\it (X, Y)} are supposed to
  * coincide, so that the relative orientation of the mapping with respect to 
  * the absolute reference frame is described by only one angle (the data member
  * {\tt rot\_phi}).
@@ -477,10 +480,10 @@ class Map {
 	/// Pointer on the multi-grid {\tt Mgd3} on which {\tt this} is defined	
 	const Mg3d* mg ; 
 	 
-	double ori_x ;		/// Absolute coordinate $X$ of the origin
-	double ori_y ;		/// Absolute coordinate $Y$ of the origin
-	double ori_z ;		/// Absolute coordinate $Z$ of the origin
-	double rot_phi ;	/// Angle between the $x$--axis and $X$--axis
+	double ori_x ;		/// Absolute coordinate {\it X} of the origin
+	double ori_y ;		/// Absolute coordinate {\it Y} of the origin
+	double ori_z ;		/// Absolute coordinate {\it Z} of the origin
+	double rot_phi ;	/// Angle between the {\it x}--axis and {\it X}--axis
     
 	/** Orthonormal vectorial basis 
 	 *  $(\partial/\partial r,1/r\partial/\partial \theta,
@@ -492,7 +495,7 @@ class Map {
 
 	/** Cartesian basis 
 	 *  $(\partial/\partial x,\partial/\partial y,\partial/\partial z)$
-	 * associated with the coordinates $(x, y, z)$ of the
+	 * associated with the coordinates {\it (x, y, z)} of the
 	 * mapping, i.e. the Cartesian coordinates related to 
 	 * $(r, \theta, \phi)$ by means of usual formulae. 
 	 */
@@ -505,7 +508,7 @@ class Map {
 	Cmp* p_cmp_zero ; 
 
     public:
-	Coord r ;	/// $r$ coordinate centered on the grid
+	Coord r ;	/// {\it r} coordinate centered on the grid
 	Coord tet ;	/// $\theta$ coordinate centered on the grid
 	Coord phi ;	/// $\phi$ coordinate centered on the grid
 	Coord sint ;	/// $\sin\theta$
@@ -513,13 +516,13 @@ class Map {
 	Coord sinp ;	/// $\sin\phi$
 	Coord cosp ;	/// $\cos\phi$
 
-	Coord x ;	/// $x$ coordinate centered on the grid
-	Coord y ;	/// $y$ coordinate centered on the grid
-	Coord z ;	/// $z$ coordinate centered on the grid
+	Coord x ;	/// {\it x} coordinate centered on the grid
+	Coord y ;	/// {\it y} coordinate centered on the grid
+	Coord z ;	/// {\it z} coordinate centered on the grid
 
-	Coord xa ;	/// Absolute $X$ coordinate
-	Coord ya ;	/// Absolute $Y$ coordinate
-	Coord za ;	/// Absolute $Z$ coordinate
+	Coord xa ;	/// Absolute {\it X} coordinate
+	Coord ya ;	/// Absolute {\it Y} coordinate
+	Coord za ;	/// Absolute {\it Z} coordinate
     
 
     // Constructors, destructor : 
@@ -554,11 +557,11 @@ class Map {
 	/// Gives the {\tt Mg3d} on which the mapping is defined
 	const Mg3d* get_mg() const {return mg; };
 
-	double get_ori_x() const {return ori_x;} ; /// Returns the $X$ coordinate of the origin 
-	double get_ori_y() const {return ori_y;} ; /// Returns the $Y$ coordinate of the origin
-	double get_ori_z() const {return ori_z;} ; /// Returns the $Z$ coordinate of the origin
+	double get_ori_x() const {return ori_x;} ; /// Returns the {\it X} coordinate of the origin 
+	double get_ori_y() const {return ori_y;} ; /// Returns the {\it Y} coordinate of the origin
+	double get_ori_z() const {return ori_z;} ; /// Returns the {\it Z} coordinate of the origin
 
-	/// Returns the angle between the $x$--axis and $X$--axis
+	/// Returns the angle between the {\it x}--axis and {\it X}--axis
 	double get_rot_phi() const {return rot_phi;} ; 
 	
 	/** Returns the orthonormal vectorial basis 
@@ -571,7 +574,7 @@ class Map {
 
 	/** Returns the Cartesian basis 
 	 *  $(\partial/\partial x,\partial/\partial y,\partial/\partial z)$
-	 * associated with the coordinates $(x, y, z)$ of the
+	 * associated with the coordinates {\it (x, y, z)} of the
 	 * mapping, i.e. the Cartesian coordinates related to 
 	 * $(r, \theta, \phi)$ by means of usual formulae. 
 	 */
@@ -585,18 +588,18 @@ class Map {
 	
 	/** Determines the coordinates $(r,\theta,\phi)$
 	 *  corresponding to given absolute Cartesian coordinates
-	 *  $(X, Y, Z)$. 
-	 *	@param xx [input] value of the coordinate $X$ (absolute frame)
-	 *	@param yy [input] value of the coordinate $Y$ (absolute frame)
-	 *	@param zz [input] value of the coordinate $Z$ (absolute frame)
-	 *	@param rr [output] value of $r$
+	 *  {\it (X, Y, Z)}. 
+	 *	@param xx [input] value of the coordinate {\it X} (absolute frame)
+	 *	@param yy [input] value of the coordinate {\it Y} (absolute frame)
+	 *	@param zz [input] value of the coordinate {\it Z} (absolute frame)
+	 *	@param rr [output] value of {\it r}
 	 *	@param theta [output] value of $\theta$
 	 *	@param pphi [output] value of $\phi$
 	 */
 	void convert_absolute(double xx, double yy, double zz, 
 			      double& rr, double& theta, double& pphi) const ; 
 
-	/** Returns the value of the radial coordinate $r$ for a given
+	/** Returns the value of the radial coordinate {\it r} for a given
 	 *  $(\xi, \theta', \phi')$ in a given domain. 
 	 *	@param l [input] index of the domain
 	 *	@param xi [input] value of $\xi$
@@ -607,9 +610,9 @@ class Map {
 	virtual double val_r(int l, double xi, double theta, double pphi) 
 			     const = 0 ; 
 	
-	/** Computes the domain index $l$ and the value of $\xi$ corresponding
+	/** Computes the domain index {\it l} and the value of $\xi$ corresponding
 	 * to a point given by its physical coordinates $(r, \theta, \phi)$. 
-	 *	@param rr [input] value of $r$
+	 *	@param rr [input] value of {\it r}
 	 *	@param theta [input] value of $\theta$
 	 *	@param pphi [input] value of $\phi$
 	 *	@param l [output] value of the domain index
@@ -618,11 +621,11 @@ class Map {
 	virtual void val_lx(double rr, double theta, double pphi, 
 			    int& l, double& xi) const = 0 ; 
 	
-	/** Computes the domain index $l$ and the value of $\xi$ corresponding
+	/** Computes the domain index {\it l} and the value of $\xi$ corresponding
 	 * to a point given by its physical coordinates $(r, \theta, \phi)$. 
 	 * This version enables to pass some parameters to control the
 	 * accuracy of the computation. 
-	 *	@param rr [input] value of $r$
+	 *	@param rr [input] value of {\it r}
 	 *	@param theta [input] value of $\theta$
 	 *	@param pphi [input] value of $\phi$
 	 *	@param par [input/output] parameters to control the
@@ -640,7 +643,7 @@ class Map {
 	void set_rot_phi(double phi0) ;		/// Sets a new rotation angle
 
 	/** Sets a new radial scale.
-	 *	@param lambda [input] factor by which the value of $r$ is to
+	 *	@param lambda [input] factor by which the value of {\it r} is to
 	 *	    be multiplied
 	 */
 	virtual void homothetie(double lambda) = 0 ;	
@@ -734,14 +737,14 @@ class Map {
 	virtual void srstdsdp(const Cmp& ci, Cmp& resu) const = 0 ;  	    
     
 	/** Computes the Laplacian of a scalar field.
-	 *   @param uu	[input]  Scalar field $u$ (represented as a {\tt Cmp})
+	 *   @param uu	[input]  Scalar field {\it u} (represented as a {\tt Cmp})
 	 *			 the Laplacian $\Delta u$ of which is to be computed
 	 *   @param zec_mult_r [input] Determines the quantity computed in
 	 *			 the external compactified domain (ZEC) :  \\
 	 *		    zec\_mult\_r = 0 : $\Delta u$	\\
 	 *		    zec\_mult\_r = 2 : $r^2 \,  \Delta u$	\\
 	 *		    zec\_mult\_r = 4 (default) : $r^4 \, \Delta u$	
-	 *   @param lap [output] Laplacian of $u$
+	 *   @param lap [output] Laplacian of {\it u}
 	 */
 	virtual void laplacien(const Cmp& uu, int zec_mult_r, 
 			       Cmp& lap) const = 0 ; 
@@ -750,11 +753,11 @@ class Map {
     // Various linear operators
     // ------------------------
     public: 
-	/** Multiplication by $r$ of a {\tt Cmp}
+	/** Multiplication by {\it r} of a {\tt Cmp}
 	 */
 	virtual void mult_r(Cmp& ) const = 0 ; 
 
-	/** Multiplication by $r$ (in the external compactified domain only)
+	/** Multiplication by {\it r} (in the external compactified domain only)
 	 * of a {\tt Cmp}
 	 */
 	virtual void mult_r_zec(Cmp& ) const = 0 ;
@@ -767,7 +770,7 @@ class Map {
 	 */
 	virtual void div_rsint(Cmp& ) const = 0 ; 
 
-	/** Division by $r$ of a {\tt Cmp}
+	/** Division by {\it r} of a {\tt Cmp}
 	 */
 	virtual void div_r(Cmp& ) const = 0 ; 
 
@@ -775,7 +778,7 @@ class Map {
 	 *  {\tt bvect\_cart}) of a vector given
 	 *  by its spherical components with respect to {\tt bvect\_spher}.
 	 *  
-	 *  @param v_r [input] $r$-component of the vector 
+	 *  @param v_r [input] {\it r}-component of the vector 
 	 *  @param v_theta [input] $\theta$-component of the vector 
 	 *  @param v_phi [input] $\phi$-component of the vector 
 	 *  @param v_x [output] x-component of the vector 
@@ -787,7 +790,7 @@ class Map {
 	 *  {\tt bvect\_cart}) of a vector given
 	 *  by its spherical components with respect to {\tt bvect\_spher}.
 	 *  
-	 *  @param v_r [input] $r$-component of the vector 
+	 *  @param v_r [input] {\it r}-component of the vector 
 	 *  @param v_theta [input] $\theta$-component of the vector 
 	 *  @param v_phi [input] $\phi$-component of the vector 
 	 *  @param v_y [output] y-component of the vector 
@@ -799,7 +802,7 @@ class Map {
 	 *  {\tt bvect\_cart}) of a vector given
 	 *  by its spherical components with respect to {\tt bvect\_spher}.
 	 *  
-	 *  @param v_r [input] $r$-component of the vector 
+	 *  @param v_r [input] {\it r}-component of the vector 
 	 *  @param v_theta [input] $\theta$-component of the vector 
 	 *  @param v_z [output] z-component of the vector 
 	 */
@@ -813,7 +816,7 @@ class Map {
 	 *  @param v_x [input] x-component of the vector 
 	 *  @param v_y [input] y-component of the vector 
 	 *  @param v_z [input] z-component of the vector 
-	 *  @param v_r [output] $r$-component of the vector 
+	 *  @param v_r [output] {\it r}-component of the vector 
 	 */
 	virtual void comp_r_from_cartesian(const Cmp& v_x, const Cmp& v_y, 
 					   const Cmp& v_z, Cmp& v_r) const = 0 ; 
@@ -884,8 +887,8 @@ class Map {
 	 *   @param par [input/output] possible parameters to control the
 	 *   resolution of the Poisson equation. See the actual implementation 
 	 *   in the derived class of {\tt Map} for documentation. 
-	 *   @param uu [input/output] solution $u$ with the boundary condition 
-	 *	    $u=0$ at spatial infinity. 
+	 *   @param uu [input/output] solution {\it u} with the boundary condition 
+	 *	    {\it u}=0 at spatial infinity. 
 	 */
 	virtual void poisson(const Cmp& source, Param& par, Cmp& uu) const = 0 ;
 
@@ -901,8 +904,8 @@ class Map {
 	 *   @param par [input/output] possible parameters to control the
 	 *   resolution of the Poisson equation. See the actual implementation 
 	 *   in the derived class of {\tt Map} for documentation.
-	 *   @param uu [input/output] solution $u$ with the boundary condition 
-	 *	    $u=0$ at spatial infinity.
+	 *   @param uu [input/output] solution {\it u} with the boundary condition 
+	 *	    {\it u}=0 at spatial infinity.
 	 *   @param uu_regu [output] solution of the regular part of
 	 *          the source.
          *   @param uu_div [output] solution of the diverging part of
@@ -921,8 +924,8 @@ class Map {
 	 * $ a \Delta\psi + {\bf b} \cdot \nabla \psi = \sigma$.
 	 * 
 	 * @param source [input] source $\sigma$ of the above equation
-	 * @param aa [input] factor $a$ in the above equation
-	 * @param bb [input] vector ${\bf b}$ in the above equation
+	 * @param aa [input] factor {\it a} in the above equation
+	 * @param bb [input] vector {\it \bf b} in the above equation
 	 * @param par [input/output] possible parameters to control the
 	 *   resolution of the equation. See the actual implementation 
 	 *   in the derived class of {\tt Map} for documentation. 
@@ -951,11 +954,11 @@ class Map {
 	 * step.
 	 * 
 	 * @param i [input] number of the scalar Poisson equation that is being 
-	 * solved (values from $0$ to $2$ for the componants of the vectorial part
-	 * and $3$ for the scalar one).
+	 * solved (values from 0 to 2 for the componants of the vectorial part
+	 * and 3 for the scalar one).
 	 * 
 	 * @return the pointer on the parameter set used for solving the
-	 * scalar Poisson equation labelled by $i$.
+	 * scalar Poisson equation labelled by {\it i}.
 	 */
 	virtual Param* donne_para_poisson_vect (Param& para, int i) const = 0;
 	
@@ -968,7 +971,7 @@ class Map {
 	 * @param source [input] : source of the equation.
 	 * @param limite [input] : {\tt limite[num\_front]} contains the angular 
 	 * function being the boudary condition.
-	 * @param raccord [input] : $1$ for the Dirichlet problem and $2$ for 
+	 * @param raccord [input] : 1 for the Dirichlet problem and 2 for 
 	 * the Neumann one.
 	 * @param num_front [input] : index of the boudary at which the boundary 
 	 * condition has to be imposed.
@@ -998,8 +1001,8 @@ class Map {
 	 *   @param par [input/output] possible parameters to control the
 	 *   resolution of the Poisson equation. See the actual implementation 
 	 *   in the derived class of {\tt Map} for documentation. 
-	 *   @param uu [input/output] solution $u$ with the boundary condition 
-	 *	    $u=0$ at spatial infinity. 
+	 *   @param uu [input/output] solution {\it u} with the boundary condition 
+	 *	    {\it u}=0 at spatial infinity. 
 	 */
 	virtual void poisson2d(const Cmp& source_mat, const Cmp& source_quad, 
 			       Param& par, Cmp& uu) const = 0 ;
@@ -1010,10 +1013,10 @@ class Map {
 	 *   in the derived class of {\tt Map} for documentation. Note that, 
 	 *   at least, param must contain the time step as first {\tt double} 
 	 *   parameter.
-	 *   @param fJp1 [output] solution $f^{J+1}$ at time $J+1$
+	 *   @param fJp1 [output] solution $f^{J+1}$ at time {\it J+1}
 	 *   with boundary conditions of outgoing radiation (not exact!)
-	 *   @param fJ [input] solution $f^J$ at time $J$
-	 *   @param fJm1 [input] solution $f^{J-1}$ at time $J-1$
+	 *   @param fJ [input] solution $f^J$ at time {\it J}
+	 *   @param fJm1 [input] solution $f^{J-1}$ at time {\it J-1}
 	 *   @param source [input] source $\sigma$ of the d'Alembert equation 
 	 *	    $\diamond u = \sigma$.
 	 */
@@ -1057,7 +1060,7 @@ class Map_radial : public Map {
     public:
 	/**
 	 * $\xi/R$ in the nucleus; \\
-	 * $1/R$ in the non-compactified shells; \\
+	 * {\it 1/R} in the non-compactified shells; \\
 	 * $(\xi-1)/U$ in the compactified outer domain.
 	 */
 	Coord xsr ;	    
@@ -1179,7 +1182,7 @@ class Map_radial : public Map {
    
     // Extraction of information
     // -------------------------
-	/** Returns the value of the radial coordinate $r$ for a given
+	/** Returns the value of the radial coordinate {\it r} for a given
 	 *  $\xi$ and a given collocation point in $(\theta', \phi')$ 
 	 *   in a given domain. 
 	 *	@param l [input] index of the domain
@@ -1190,9 +1193,9 @@ class Map_radial : public Map {
 	 */
 	virtual double val_r_jk(int l, double xi, int j, int k) const = 0 ; 
 	
-	/** Computes the domain index $l$ and the value of $\xi$ corresponding
-	 * to a point of arbitrary $r$ but collocation values of $(\theta, \phi)$ 
-	 *	@param rr [input] value of $r$
+	/** Computes the domain index {\it l} and the value of $\xi$ corresponding
+	 * to a point of arbitrary {\it r} but collocation values of $(\theta, \phi)$ 
+	 *	@param rr [input] value of {\it r}
 	 *	@param j [input] index of the collocation point in $\theta$
 	 *	@param k [input] index of the collocation point in $\phi$
 	 *	@param par [input/output] parameters to control the
@@ -1240,12 +1243,12 @@ class Map_radial : public Map {
     // ------------------------
     public: 
 	/**
-	 * Multiplication by $r$ of a {\tt Cmp}
+	 * Multiplication by {\it r} of a {\tt Cmp}
 	 */
 	virtual void mult_r(Cmp& ) const ; 
 
 	/**
-	 * Multiplication by $r$ (in the external compactified domain only)
+	 * Multiplication by {\it r} (in the external compactified domain only)
 	 * of a {\tt Cmp}
 	 */
 	virtual void mult_r_zec(Cmp& ) const ;
@@ -1258,7 +1261,7 @@ class Map_radial : public Map {
 	 */
 	virtual void div_rsint(Cmp& ) const ; 
 
-	/** Division by $r$ of a {\tt Cmp}
+	/** Division by {\it r} of a {\tt Cmp}
 	 */
 	virtual void div_r(Cmp& ) const ; 
 
@@ -1266,7 +1269,7 @@ class Map_radial : public Map {
 	 *  {\tt bvect\_cart}) of a vector given
 	 *  by its spherical components with respect to {\tt bvect\_spher}.
 	 *  
-	 *  @param v_r [input] $r$-component of the vector 
+	 *  @param v_r [input] {\it r}-component of the vector 
 	 *  @param v_theta [input] $\theta$-component of the vector 
 	 *  @param v_phi [input] $\phi$-component of the vector 
 	 *  @param v_x [output] x-component of the vector 
@@ -1278,7 +1281,7 @@ class Map_radial : public Map {
 	 *  {\tt bvect\_cart}) of a vector given
 	 *  by its spherical components with respect to {\tt bvect\_spher}.
 	 *  
-	 *  @param v_r [input] $r$-component of the vector 
+	 *  @param v_r [input] {\it r}-component of the vector 
 	 *  @param v_theta [input] $\theta$-component of the vector 
 	 *  @param v_phi [input] $\phi$-component of the vector 
 	 *  @param v_y [output] y-component of the vector 
@@ -1290,7 +1293,7 @@ class Map_radial : public Map {
 	 *  {\tt bvect\_cart}) of a vector given
 	 *  by its spherical components with respect to {\tt bvect\_spher}.
 	 *  
-	 *  @param v_r [input] $r$-component of the vector 
+	 *  @param v_r [input] {\it r}-component of the vector 
 	 *  @param v_theta [input] $\theta$-component of the vector 
 	 *  @param v_z [output] z-component of the vector 
 	 */
@@ -1304,7 +1307,7 @@ class Map_radial : public Map {
 	 *  @param v_x [input] x-component of the vector 
 	 *  @param v_y [input] y-component of the vector 
 	 *  @param v_z [input] z-component of the vector 
-	 *  @param v_r [output] $r$-component of the vector 
+	 *  @param v_r [output] {\it r}-component of the vector 
 	 */
 	virtual void comp_r_from_cartesian(const Cmp& v_x, const Cmp& v_y, 
 					   const Cmp& v_z, Cmp& v_r) const ; 
@@ -1368,8 +1371,8 @@ class Map_radial : public Map {
 	 * $ a \Delta\psi + {\bf b} \cdot \nabla \psi = \sigma$.
 	 * 
 	 * @param source [input] source $\sigma$ of the above equation
-	 * @param aa [input] factor $a$ in the above equation
-	 * @param bb [input] vector ${\bf b}$ in the above equation
+	 * @param aa [input] factor {\it a} in the above equation
+	 * @param bb [input] vector {\it \bf b} in the above equation
 	 * @param par [input/output] parameters of the iterative method of
 	 *  resolution : \\
 	 *  {\tt par.get\_int(0)} : [input] maximum number of iterations \\
@@ -1432,7 +1435,7 @@ class Map_af : public Map_radial {
 	 * Standard Constructor
 	 * @param mgrille  [input] Multi-domain grid on which the mapping is defined
 	 * @param r_limits [input] Array (size: number of domains + 1) of the
-	 *			   value of $r$ at the boundaries of the various 
+	 *			   value of {\it r} at the boundaries of the various 
 	 *			   domains : 
 	 *			   \begin{itemize}
 	 *			   \item {\tt r\_limits[l]}: inner boundary of the 
@@ -1484,7 +1487,7 @@ class Map_af : public Map_radial {
 	const double* get_beta() const ; 
 	
 	/**
-	 *  Returns the value of the radial coordinate $r$ for a given
+	 *  Returns the value of the radial coordinate {\it r} for a given
 	 *  $(\xi, \theta', \phi')$ in a given domain. 
 	 *	@param l [input] index of the domain
 	 *	@param xi [input] value of $\xi$
@@ -1495,9 +1498,9 @@ class Map_af : public Map_radial {
 	virtual double val_r(int l, double xi, double theta, double pphi) const ; 
 
 	/**
-	 * Computes the domain index $l$ and the value of $\xi$ corresponding
+	 * Computes the domain index {\it l} and the value of $\xi$ corresponding
 	 * to a point given by its physical coordinates $(r, \theta, \phi)$. 
-	 *	@param rr [input] value of $r$
+	 *	@param rr [input] value of {\it r}
 	 *	@param theta [input] value of $\theta$
 	 *	@param pphi [input] value of $\phi$
 	 *	@param l [output] value of the domain index
@@ -1506,9 +1509,9 @@ class Map_af : public Map_radial {
 	virtual void val_lx(double rr, double theta, double pphi,
 			    int& l, double& xi) const ; 
 	
-	/** Computes the domain index $l$ and the value of $\xi$ corresponding
+	/** Computes the domain index {\it l} and the value of $\xi$ corresponding
 	 * to a point given by its physical coordinates $(r, \theta, \phi)$. 
-	 *	@param rr [input] value of $r$
+	 *	@param rr [input] value of {\it r}
 	 *	@param theta [input] value of $\theta$
 	 *	@param pphi [input] value of $\phi$
 	 *	@param par [] unused by the {\tt Map\_af} version
@@ -1518,7 +1521,7 @@ class Map_af : public Map_radial {
 	virtual void val_lx(double rr, double theta, double pphi, 
 			    const Param& par, int& l, double& xi) const ; 
 		
-	/** Returns the value of the radial coordinate $r$ for a given
+	/** Returns the value of the radial coordinate {\it r} for a given
 	 *  $\xi$ and a given collocation point in $(\theta', \phi')$ 
 	 *   in a given domain. 
 	 *	@param l [input] index of the domain
@@ -1529,9 +1532,9 @@ class Map_af : public Map_radial {
 	 */
 	virtual double val_r_jk(int l, double xi, int j, int k) const ; 
 	
-	/** Computes the domain index $l$ and the value of $\xi$ corresponding
-	 * to a point of arbitrary $r$ but collocation values of $(\theta, \phi)$ 
-	 *	@param rr [input] value of $r$
+	/** Computes the domain index {\it l} and the value of $\xi$ corresponding
+	 * to a point of arbitrary {\it r} but collocation values of $(\theta, \phi)$ 
+	 *	@param rr [input] value of {\it r}
 	 *	@param j [input] index of the collocation point in $\theta$
 	 *	@param k [input] index of the collocation point in $\phi$
 	 *	@param par [] unused by the {\tt Map\_af} version
@@ -1555,7 +1558,7 @@ class Map_af : public Map_radial {
     // ---------------------------
     public:
 	/** Sets a new radial scale.
-	 *	@param lambda [input] factor by which the value of $r$ is to
+	 *	@param lambda [input] factor by which the value of {\it r} is to
 	 *	    be multiplied
 	 */
 	virtual void homothetie(double lambda) ;
@@ -1573,7 +1576,7 @@ class Map_af : public Map_radial {
 
 	/** Sets a new radial scale at the bondary between the nucleus and the
 	 * first shell.
-	 *	@param lambda [input] factor by which the value of $r$ is to
+	 *	@param lambda [input] factor by which the value of {\it r} is to
 	 *	    be multiplied
 	 */
 	void homothetie_interne(double lambda) ;
@@ -1582,10 +1585,10 @@ class Map_af : public Map_radial {
 	 */
 	virtual void adapt(const Cmp& ent, const Param& par) ; 
 
-	/// Modifies the value of $\alpha$ in domain no. $l$
+	/// Modifies the value of $\alpha$ in domain no. {\it l}
 	void set_alpha(double alpha0, int l) ;
 
-	/// Modifies the value of $\beta$ in domain no. $l$
+	/// Modifies the value of $\beta$ in domain no. {\it l}
 	void set_beta(double beta0, int l) ;  
 
     // Differential operators:
@@ -1617,14 +1620,14 @@ class Map_af : public Map_radial {
 	virtual void srstdsdp(const Cmp& ci, Cmp& resu) const ;  	    
     
 	/** Computes the Laplacian of a scalar field.
-	 *   @param uu	[input]  Scalar field $u$ (represented as a {\tt Cmp})
+	 *   @param uu	[input]  Scalar field {\it u} (represented as a {\tt Cmp})
 	 *			 the Laplacian $\Delta u$ of which is to be computed
 	 *   @param zec_mult_r [input] Determines the quantity computed in
 	 *			 the external compactified domain (ZEC) :  \\
 	 *		    zec\_mult\_r = 0 : $\Delta u$	\\
 	 *		    zec\_mult\_r = 2 : $r^2 \,  \Delta u$	\\
 	 *		    zec\_mult\_r = 4 (default) : $r^4 \, \Delta u$	
-	 *  @param lap [output] Laplacian of $u$
+	 *  @param lap [output] Laplacian of {\it u}
 	 */
 	virtual void laplacien(const Cmp& uu, int zec_mult_r, Cmp& lap) const ; 
 	
@@ -1646,8 +1649,8 @@ class Map_af : public Map_radial {
 	 *   @param source [input] source $\sigma$ of the Poisson equation 
 	 *	    $\Delta u = \sigma$.
 	 *   @param par [] not used by this {\tt Map\_af} version. 
-	 *   @param uu [output] solution $u$ with the boundary condition 
-	 *	    $u=0$ at spatial infinity. 
+	 *   @param uu [output] solution {\it u} with the boundary condition 
+	 *	    {\it u}=0 at spatial infinity. 
 	 */
 	virtual void poisson(const Cmp& source, Param& par, Cmp& uu) const ;
 
@@ -1662,8 +1665,8 @@ class Map_af : public Map_radial {
 	 *   @param unsgam1 [input] parameter $1/(\gamma-1)$ where $\gamma$
          *          denotes the adiabatic index.
 	 *   @param par [] not used by this {\tt Map\_af} version.
-	 *   @param uu [output] solution $u$ with the boundary condition 
-	 *	    $u=0$ at spatial infinity.
+	 *   @param uu [output] solution {\it u} with the boundary condition 
+	 *	    {\it u}=0 at spatial infinity.
 	 *   @param uu_regu [output] solution of the regular part of
 	 *          the source.
          *   @param uu_div [output] solution of the diverging part of
@@ -1704,7 +1707,7 @@ class Map_af : public Map_radial {
 	
 	/**
 	 * Performs the surface integration of {\tt ci} at infinity.
-	 * {\tt ci} must have {\tt dzpuis} $=2$.
+	 * {\tt ci} must have {\tt dzpuis} =2.
 	 */
 	double integrale_surface_infini (const Cmp& ci) const ;
 	
@@ -1730,8 +1733,8 @@ class Map_af : public Map_radial {
 	 *  {\tt par.get\_double\_mod(0)} : [output] constant {\tt lambda}
 	 *	    such that the source of the equation effectively solved
 	 *	    is {\tt source\_mat + lambda * source\_quad}. 
-	 *   @param uu [input/output] solution $u$ with the boundary condition 
-	 *	    $u=0$ at spatial infinity. 
+	 *   @param uu [input/output] solution {\it u} with the boundary condition 
+	 *	    {\it u}=0 at spatial infinity. 
 	 */
 	virtual void poisson2d(const Cmp& source_mat, const Cmp& source_quad, 
 			       Param& par, Cmp& uu) const ;
@@ -1742,10 +1745,10 @@ class Map_af : public Map_radial {
 	 *   in the derived class of {\tt Map} for documentation. Note that, 
 	 *   at least, param must contain the time step as first {\tt double} 
 	 *   parameter.
-	 *   @param fJp1 [output] solution $f^{J+1}$ at time $J+1$
+	 *   @param fJp1 [output] solution $f^{J+1}$ at time {\it J+1}
 	 *   with boundary conditions of outgoing radiation (not exact!)
-	 *   @param fJ [input] solution $f^J$ at time $J$
-	 *   @param fJm1 [input] solution $f^{J-1}$ at time $J-1$
+	 *   @param fJ [input] solution $f^J$ at time {\it J}
+	 *   @param fJm1 [input] solution $f^{J-1}$ at time {\it J-1}
 	 *   @param source [input] source $\sigma$ of the d'Alembert equation 
 	 *	    $\diamond u = \sigma$.
 	 */
@@ -1840,7 +1843,7 @@ class Map_af : public Map_radial {
  * \begin{itemize}
  *	\item $A(\xi) = 3 \xi^4 - 2 \xi^6$ and 
  *	      $B(\xi) = (5\xi^3 - 3\xi^5)/2$ in the nucleus (innermost domain
- *		    which contains $r=0$);
+ *		    which contains {\it r}=0);
  *	\item $A(\xi) = (\xi^3 - 3\xi + 2)/4$ and
  *	      $B(\xi) = (-\xi^3 + 3\xi +2)/4$ in the other domains.
  *  \end{itemize}
@@ -1949,7 +1952,7 @@ class Map_et : public Map_radial {
 	 * Standard Constructor
 	 * @param mgrille  [input] Multi-domain grid on which the mapping is defined
 	 * @param r_limits [input] Array (size: number of domains + 1) of the
-	 *			   value of $r$ at the boundaries of the various 
+	 *			   value of {\it r} at the boundaries of the various 
 	 *			   domains : 
 	 *			   \begin{itemize}
 	 *			   \item {\tt r\_limits[l]}: inner boundary of the 
@@ -1965,7 +1968,7 @@ class Map_et : public Map_radial {
 	 * @param mgrille [input] Multi-domain grid on which the mapping is defined
 	 * It must contains at least one shell.
 	 * @param r_limits [input] Array (size: number of domains + 1) of the
-	 *			   value of $r$ at the boundaries of the various 
+	 *			   value of {\it r} at the boundaries of the various 
 	 *			   domains : 
 	 *			   \begin{itemize}
 	 *			   \item {\tt r\_limits[l]}: inner boundary of the 
@@ -2032,7 +2035,7 @@ class Map_et : public Map_radial {
 	const Valeur& get_gg() const ; 
 	
 	/**
-	 *  Returns the value of the radial coordinate $r$ for a given
+	 *  Returns the value of the radial coordinate {\it r} for a given
 	 *  $(\xi, \theta', \phi')$ in a given domain. 
 	 *	@param l [input] index of the domain
 	 *	@param xi [input] value of $\xi$
@@ -2043,9 +2046,9 @@ class Map_et : public Map_radial {
 	virtual double val_r(int l, double xi, double theta, double pphi) const ; 
 
 	/**
-	 * Computes the domain index $l$ and the value of $\xi$ corresponding
+	 * Computes the domain index {\it l} and the value of $\xi$ corresponding
 	 * to a point given by its physical coordinates $(r, \theta, \phi)$. 
-	 *	@param rr [input] value of $r$
+	 *	@param rr [input] value of {\it r}
 	 *	@param theta [input] value of $\theta$
 	 *	@param pphi [input] value of $\phi$
 	 *	@param l [output] value of the domain index
@@ -2054,11 +2057,11 @@ class Map_et : public Map_radial {
 	virtual void val_lx(double rr, double theta, double pphi,
 			    int& l, double& xi) const ; 
 	
-	/** Computes the domain index $l$ and the value of $\xi$ corresponding
+	/** Computes the domain index {\it l} and the value of $\xi$ corresponding
 	 * to a point given by its physical coordinates $(r, \theta, \phi)$. 
 	 * This version enables to pass some parameters to control the
 	 * accuracy of the computation. 
-	 *	@param rr [input] value of $r$
+	 *	@param rr [input] value of {\it r}
 	 *	@param theta [input] value of $\theta$
 	 *	@param pphi [input] value of $\phi$
 	 *	@param par [input/output] parameters to control the
@@ -2075,7 +2078,7 @@ class Map_et : public Map_radial {
 	virtual void val_lx(double rr, double theta, double pphi, 
 			    const Param& par, int& l, double& xi) const ; 
 		
-	/** Returns the value of the radial coordinate $r$ for a given
+	/** Returns the value of the radial coordinate {\it r} for a given
 	 *  $\xi$ and a given collocation point in $(\theta', \phi')$ 
 	 *   in a given domain. 
 	 *	@param l [input] index of the domain
@@ -2086,9 +2089,9 @@ class Map_et : public Map_radial {
 	 */
 	virtual double val_r_jk(int l, double xi, int j, int k) const ; 
 	
-	/** Computes the domain index $l$ and the value of $\xi$ corresponding
-	 * to a point of arbitrary $r$ but collocation values of $(\theta, \phi)$ 
-	 *	@param rr [input] value of $r$
+	/** Computes the domain index {\it l} and the value of $\xi$ corresponding
+	 * to a point of arbitrary {\it r} but collocation values of $(\theta, \phi)$ 
+	 *	@param rr [input] value of {\it r}
 	 *	@param j [input] index of the collocation point in $\theta$
 	 *	@param k [input] index of the collocation point in $\phi$
 	 *	@param par [input/output] parameters to control the
@@ -2119,7 +2122,7 @@ class Map_et : public Map_radial {
     // --------------------------------
     public:
 	/** Sets a new radial scale.
-	 *	@param lambda [input] factor by which the value of $r$ is to
+	 *	@param lambda [input] factor by which the value of {\it r} is to
 	 *	    be multiplied
 	 */
 	virtual void homothetie(double lambda) ;	
@@ -2212,14 +2215,14 @@ class Map_et : public Map_radial {
 	virtual void srstdsdp(const Cmp& ci, Cmp& resu) const ;  	    
     
 	/** Computes the Laplacian of a scalar field.
-	 *   @param uu	[input]  Scalar field $u$ (represented as a {\tt Cmp})
+	 *   @param uu	[input]  Scalar field {\it u} (represented as a {\tt Cmp})
 	 *			 the Laplacian $\Delta u$ of which is to be computed
 	 *   @param zec_mult_r [input] Determines the quantity computed in
 	 *			 the external compactified domain (ZEC) :  \\
 	 *		    zec\_mult\_r = 0 : $\Delta u$	\\
 	 *		    zec\_mult\_r = 2 : $r^2 \,  \Delta u$	\\
 	 *		    zec\_mult\_r = 4 (default) : $r^4 \, \Delta u$	
-	 *  @param lap [output] Laplacian of $u$
+	 *  @param lap [output] Laplacian of {\it u}
 	 */
 	virtual void laplacien(const Cmp& uu, int zec_mult_r, Cmp& lap) const ; 
 	
@@ -2243,16 +2246,16 @@ class Map_et : public Map_radial {
 	 * Gourgoulhon \& Marck, {\sl Phys. Rev. D} {\bf 58}, 104020 (1998),  
 	 * the Poisson equation $\Delta u = \sigma$ is re-written
 	 * as $a \tilde\Delta u = \sigma + R(u)$,  where $\tilde\Delta$
-	 * is the Laplacian in an affine mapping and $R(u)$ contains the
+	 * is the Laplacian in an affine mapping and {\it R(u)} contains the
 	 * terms generated by the deviation of the mapping {\tt *this}
 	 * from spherical symmetry. This equation is solved by iterations.
-	 * At each step $J$ the equation effectively solved is 
+	 * At each step {\it J} the equation effectively solved is 
 	 *  $\tilde\Delta u^{J+1} = s^J$ where
 	 * \begin{equation}
 	 *   s^J = 1/a_l^{\rm max} \{ {\tt source} + R(u^J) + (a_l^{\rm max}-a)
 	 *          [ \lambda s^{J-1} + (1-\lambda) s^{J-2} ] \} \ ,  
 	 * \end{equation}
-	 * with $a_l^{\rm max} := \max(a)$ in domain no. $l$ and $\lambda$
+	 * with $a_l^{\rm max} := \max(a)$ in domain no. {\it l} and $\lambda$
 	 * is a relaxation parameter. 
 	 *  @param source [input] source $\sigma$ of the Poisson equation
 	 *  @param par [input/output] parameters for the iterative method: \\
@@ -2269,10 +2272,10 @@ class Map_et : public Map_radial {
 	 *  {\tt par.get\_int\_mod(0)} : [output] number of iterations 
 	 *				    actually used to get the solution.
 	 *
-	 *  @param uu [input/output] input : previously computed value of $u$
-	 *	to start the iteration (term $R(u)$) (if nothing is known a 
-	 *	priori, {\tt uu} must be set to zero); output: solution $u$ 
-	 *	with the boundary condition $u=0$ at spatial infinity. 
+	 *  @param uu [input/output] input : previously computed value of {\it u}
+	 *	to start the iteration (term {\it R(u)}) (if nothing is known a 
+	 *	priori, {\tt uu} must be set to zero); output: solution {\it u} 
+	 *	with the boundary condition {\it u}=0 at spatial infinity. 
 	 */
 	virtual void poisson(const Cmp& source, Param& par, Cmp& uu) const ;
 
@@ -2299,10 +2302,10 @@ class Map_et : public Map_radial {
 	 *		of $s^{J-1}$, to used in a next call to the routine \\
 	 *  {\tt par.get\_int\_mod(0)} : [output] number of iterations 
 	 *				    actually used to get the solution.
-	 *   @param uu [input/output] input : previously computed value of $u$
-	 *	to start the iteration (term $R(u)$) (if nothing is known a 
-	 *	priori, {\tt uu} must be set to zero); output: solution $u$ 
-	 *	with the boundary condition $u=0$ at spatial infinity.
+	 *   @param uu [input/output] input : previously computed value of {\it u}
+	 *	to start the iteration (term {\it R(u)}) (if nothing is known a 
+	 *	priori, {\tt uu} must be set to zero); output: solution {\it u} 
+	 *	with the boundary condition {\it u}=0 at spatial infinity.
 	 *   @param uu_regu [output] solution of the regular part of
 	 *          the  source.
          *   @param uu_div [output] solution of the diverging part of
@@ -2334,11 +2337,11 @@ class Map_et : public Map_radial {
 	 * step.
 	 * 
 	 * @param i [input] number of the scalar Poisson equation that is being 
-	 * solved (values from $0$ to $2$ for the componants of the vectorial part
-	 * and $3$ for the scalar one).
+	 * solved (values from 0 to 2 for the componants of the vectorial part
+	 * and 3 for the scalar one).
 	 * 
 	 * @return the pointer on the parameter set used for solving the scalar 
-	 * Poisson equation labelled by $i$.
+	 * Poisson equation labelled by {\it i}.
 	 */
 	virtual Param* donne_para_poisson_vect (Param& para, int i) const ;
 	
@@ -2386,8 +2389,8 @@ class Map_et : public Map_radial {
 	 *  {\tt par.get\_int\_mod(0)} : [output] number of iterations 
 	 *				    actually used to get the solution.
 	 *	 
-	 *   @param uu [input/output] solution $u$ with the boundary condition 
-	 *	    $u=0$ at spatial infinity. 
+	 *   @param uu [input/output] solution {\it u} with the boundary condition 
+	 *	    {\it u}=0 at spatial infinity. 
 	 */
 	virtual void poisson2d(const Cmp& source_mat, const Cmp& source_quad, 
 			       Param& par, Cmp& uu) const ;

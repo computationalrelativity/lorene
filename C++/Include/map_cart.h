@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/09/13 09:17:33  j_novak
+ * Modif. commentaires
+ *
  * Revision 1.3  2002/06/17 14:05:17  j_novak
  * friend functions are now also declared outside the class definition
  *
@@ -67,7 +70,7 @@
  *   \begin{equation}
  *      z\mapsto Z, \quad z\in [-1,1] \ \mbox{or}\ z\in[0,1]          \nonumber
  *   \end{equation}
- * where $(x,y,z)$ (resp. $(X,Y,Z)$) are the grid (resp. physical) coordinates.
+ * where {\it (x,y,z)} (resp. {\it (X,Y,Z)}) are the grid (resp. physical) coordinates.
  *
  * The class {\tt Map\_cart} is an abstract one: it cannot be instanciated.
  * Specific implementation of coordinate mappings will be performed by derived
@@ -126,7 +129,7 @@ ostream& operator<<(ostream& , const Map_cart& ) ;
  *  \begin{equation}
  *    z\mapsto \alpha_3 z + \beta_3, \quad z\in [-1,1] \ \mbox{or}\ z\in[0,1]      \nonumber
  *  \end{equation}
- * where $(x,y,z)$  are the grid coordinates.
+ * where {\it (x,y,z)}  are the grid coordinates.
  *
  * @version #$Id$#
  */

@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/09/13 09:17:33  j_novak
+ * Modif. commentaires
+ *
  * Revision 1.2  2002/06/17 14:05:17  j_novak
  * friend functions are now also declared outside the class definition
  *
@@ -335,7 +338,7 @@ class Valeur {
 	 * @param l [input] domain index
 	 * @param k [input] $\phi$ index
 	 * @param j [input] $\theta$ index
-	 * @param i [input] $r$ ($\xi$) index
+	 * @param i [input] {\it r} ($\xi$) index
 	 */ 
 	double& set(int l, int k, int j, int i) {
 	    assert(l < mg->get_nzone()) ;
@@ -355,7 +358,7 @@ class Valeur {
 	 * @param l [input] domain index
 	 * @param k [input] $\phi$ index
 	 * @param j [input] $\theta$ index
-	 * @param i [input] $r$ ($\xi$) index
+	 * @param i [input] {\it r} ($\xi$) index
 	 */ 
 	double operator()(int l, int k, int j, int i) const {
 	    assert(etat != ETATNONDEF) ;
@@ -379,7 +382,7 @@ class Valeur {
 	*	 @param theta [input] value of the coordinate $\theta'$
 	*	 @param phi [input] value of the coordinate $\phi'$
 	*	 @return value at the point $(\xi, \theta', \phi')$ in
-	*	    the domain no. $l$ of the field represented by {\tt *this}. 
+	*	    the domain no. {\it l} of the field represented by {\tt *this}. 
 	*/
 	double val_point(int l, double x, double theta, double phi) const ; 
 
@@ -392,7 +395,7 @@ class Valeur {
 	*	 @param k [input] index of the collocation point in $\phi'$
 	*	 @return value at the point 
 	*		    $(\xi, {\theta'}_j, {\phi'}_k)$ in
-	*	    the domain no. $l$ of the field represented by {\tt *this}. 
+	*	    the domain no. {\it l} of the field represented by {\tt *this}. 
 	*/
 	double val_point_jk(int l, double x, int j, int k) const ; 
 
@@ -413,11 +416,11 @@ class Valeur {
 	 */
 	void std_base_scal() ;	 
 
-	/** Sets the expansion basis for $r$ ($\xi$) functions in a 
+	/** Sets the expansion basis for {\it r} ($\xi$) functions in a 
 	 *  given domain.
 	 *  
 	 *  @param l	    Domain index
-	 *  @param base_r   type of basis functions in $r$ ($\xi$)
+	 *  @param base_r   type of basis functions in {\it r} ($\xi$)
 	 *		    (e.g. {\tt R\_CHEB\_P}, etc..., 
 	 *		     see documentation of class {\tt Base\_val}
 	 *		     for denomination of the various bases). 
@@ -479,39 +482,39 @@ class Valeur {
 	/// Returns the angular Laplacian of {\tt *this}
 	const Valeur& lapang() const ;		
 
-	/** Returns ${1 \over \xi}$ ($r$-sampling = {\tt RARE}) \\
-	 * Id ($r$ sampling = {\tt FIN}) \\
-	 * ${1 \over \xi-1}$ ($r$-sampling = {\tt UNSURR})
+	/** Returns ${1 \over \xi}$ ({\it r}-sampling = {\tt RARE}) \\
+	 * Id ({\it r} sampling = {\tt FIN}) \\
+	 * ${1 \over \xi-1}$ ({\it r}-sampling = {\tt UNSURR})
 	 */
 	const Valeur& sx() const ;
 		    
-	/** Returns ${1 \over \xi^2}$ ($r$-sampling = {\tt RARE}) \\
-	 * Id ($r$ sampling = {\tt FIN}) \\
-	 * ${1 \over (\xi-1)^2}$ ($r$-sampling = {\tt UNSURR})
+	/** Returns ${1 \over \xi^2}$ ({\it r}-sampling = {\tt RARE}) \\
+	 * Id ({\it r} sampling = {\tt FIN}) \\
+	 * ${1 \over (\xi-1)^2}$ ({\it r}-sampling = {\tt UNSURR})
 	 */
 	const Valeur& sx2() const ;	    
 	
-	/** Returns $\xi \, Id$ ($r$-sampling = {\tt RARE}) \\
-	 * Id ($r$ sampling = {\tt FIN}) \\
-	 * $(\xi-1) \, Id $ ($r$-sampling = {\tt UNSURR})
+	/** Returns $\xi \, Id$ ({\it r}-sampling = {\tt RARE}) \\
+	 * Id ({\it r} sampling = {\tt FIN}) \\
+	 * $(\xi-1) \, Id $ ({\it r}-sampling = {\tt UNSURR})
 	 */
 	const Valeur& mult_x() const ;
 	
 	/** Applies the following operator to {\tt *this}: \\
-	 * Id ($r$ sampling = {\tt RARE, FIN}) \\
-	 * ${1 \over (\xi-1)}$ ($r$-sampling = {\tt UNSURR})
+	 * Id ({\it r} sampling = {\tt RARE, FIN}) \\
+	 * ${1 \over (\xi-1)}$ ({\it r}-sampling = {\tt UNSURR})
 	 */
 	void sxm1_zec() ;
 
 	/** Applies the following operator to {\tt *this}: \\
-	 * Id ($r$ sampling = {\tt RARE, FIN}) \\
-	 * $(\xi-1) \, Id$ ($r$-sampling = {\tt UNSURR})
+	 * Id ({\it r} sampling = {\tt RARE, FIN}) \\
+	 * $(\xi-1) \, Id$ ({\it r}-sampling = {\tt UNSURR})
 	 */
 	void mult_xm1_zec() ;	
 
 	/** Applies the following operator to {\tt *this}: \\
-	 * Id ($r$ sampling = {\tt RARE, FIN}) \\
-	 * $(\xi-1)^2 \, Id$ ($r$-sampling = {\tt UNSURR})
+	 * Id ({\it r} sampling = {\tt RARE, FIN}) \\
+	 * $(\xi-1)^2 \, Id$ ({\it r}-sampling = {\tt UNSURR})
 	 */
 	void mult2_xm1_zec() ;	
 	
@@ -638,10 +641,10 @@ class Valeur {
 	 *  The equipotential is supposed to have the form \\ 
 	 *   $l=L(\theta', \phi') \qquad (1) $    \\
 	 *   $\xi = X(\theta', \phi') \qquad (2)$ \\
-	 *  where $l$ is the domain index and $\xi$ the radial variable in
+	 *  where {\it l} is the domain index and $\xi$ the radial variable in
 	 *  each domain. 
 	 * @param uu0 [input] Value defining the equipotential by
-	 *			$u = {\rm const} = {\tt uu0}$ where $u$ is 
+	 *			{\it u} = const = {\tt uu0} where {\it u} is 
 	 *			the field represented by {\tt *this}.
 	 * @param nz_search [input] Number of domains where the equipotential is
 	 *			searched : the routine scans inward 
@@ -656,7 +659,7 @@ class Valeur {
 	 * @param niter [output] Number of iterations effectively used 
 	 *			    in the secant method
 	 * @param l_iso [output] 2-D {\tt Itbl} containing the values
-	 *	of $l$ on the equipotential surface at the collocation points
+	 *	of {\it l} on the equipotential surface at the collocation points
 	 *	 in $(\theta', \phi')$ [Eq. (1)], with the following storage
 	 *	 convention \\
 	 *	 {\tt l\_iso(k, j)} = $L({\theta'}_j, {\phi'}_k)$ 
@@ -675,10 +678,10 @@ class Valeur {
 	 *  The equipotential is supposed to have the form \\ 
 	 *   $l=L(\theta', \phi') \qquad (1) $    \\
 	 *   $\xi = X(\theta', \phi') \qquad (2)$ \\
-	 *  where $l$ is the domain index and $\xi$ the radial variable in
+	 *  where {\it l} is the domain index and $\xi$ the radial variable in
 	 *  each domain. 
 	 * @param uu0 [input] Value defining the equipotential by
-	 *			$u = {\rm const} = {\tt uu0}$ where $u$ is 
+	 *			{\it u} = const = {\tt uu0} where {\it u} is 
 	 *			the field represented by {\tt *this}.
 	 * @param nz_search [input] Number of domains where the equipotential is
 	 *			searched : the routine scans outward the 
@@ -692,7 +695,7 @@ class Valeur {
 	 * @param niter [output] Number of iterations effectively used 
 	 *			    in the secant method
 	 * @param l_iso [output] 2-D {\tt Itbl} containing the values
-	 *	of $l$ on the equipotential surface at the collocation points
+	 *	of {\it l} on the equipotential surface at the collocation points
 	 *	 in $(\theta', \phi')$ [Eq. (1)], with the following storage
 	 *	 convention \\
 	 *	 {\tt l\_iso(k, j)} = $L({\theta'}_j, {\phi'}_k)$ 

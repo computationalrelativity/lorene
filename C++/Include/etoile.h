@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2002/09/13 09:17:33  j_novak
+ * Modif. commentaires
+ *
  * Revision 1.5  2002/06/17 14:05:16  j_novak
  * friend functions are now also declared outside the class definition
  *
@@ -288,13 +291,13 @@ class Eos ;
  * \end{equation}
  * where ${\tilde h}_{ij}$ is a 3-metric, the exact form of which is specified
  * in the derived classes of {\tt Etoile}. The base class {\tt Etoile} by
- * itself provides only storage for the lapse function $N$ (member {\tt nnn}), 
+ * itself provides only storage for the lapse function {\it N} (member {\tt nnn}), 
  * the shift vector $N^i$ (member {\tt shift}) and the conformal factor
  * $A^2$ (member {\tt a\_car}). 
  * 
  * The 3+1 formalism introduces two kinds of priviledged observers: the
  * fluid comoving observer and the Eulerian observer, whose 4-velocity
- * is the unit future directed normal to the $t={\rm const}$ hypersurfaces. 
+ * is the unit future directed normal to the {\it t} = const hypersurfaces. 
  * The hydrodynamical quantities measured by the fluid observer correspond
  * to the members {\tt ent}, {\tt nbar}, {\tt ener}, and {\tt press}. 
  * The hydrodynamical quantities measured by the Eulerian observer correspond
@@ -303,7 +306,7 @@ class Eos ;
  * 
  * A star of class {\tt Etoile} can be either relativistic or Newtonian, 
  * depending on the boolean indicator {\tt relativistic}. For a Newtonian
- * star, the metric coefficients $N$ and $A$ are set to 1,  and $N^i$ is
+ * star, the metric coefficients {\it N} and {\it A} are set to 1,  and $N^i$ is
  * set to zero; the only relevant gravitational quantity in this case is
  * {\tt logn\_auto} which represents the (regular part of) the
  * Newtonian gravitational potential
@@ -367,14 +370,14 @@ class Etoile {
 	// Metric potentials
 	// -----------------
 	
-	/** Total of the logarithm of the part of the lapse $N$ 
+	/** Total of the logarithm of the part of the lapse {\it N} 
 	 *   generated principaly by the star. In the Newtonian case, 
 	 *   this is the Newtonian gravitational potential
 	 *   (in units of $c^2$). 
 	 */
 	Tenseur logn_auto ;
 
-	/** Regular part of the logarithm of the part of the lapse $N$ 
+	/** Regular part of the logarithm of the part of the lapse {\it N} 
 	 *   generated principaly by the star. In the Newtonian case, 
 	 *   this is the Newtonian gravitational potential
 	 *   (in units of $c^2$). 
@@ -382,7 +385,7 @@ class Etoile {
 	Tenseur logn_auto_regu ;
 	
 	/** Divergent part (if {\tt k\_div != 0} ) 
-	 *  of the logarithm of the part of the lapse $N$ 
+	 *  of the logarithm of the part of the lapse {\it N} 
 	 *   generated principaly by the star. 
 	 */
 	Tenseur logn_auto_div ; 
@@ -391,7 +394,7 @@ class Etoile {
 	 */
 	Tenseur d_logn_auto_div ; 
 
-	/** Logarithm of the part of the product $AN$ generated principaly by
+	/** Logarithm of the part of the product {\it AN} generated principaly by
 	 *   by the star
 	 */
 	Tenseur beta_auto ; 
@@ -421,7 +424,7 @@ class Etoile {
 	mutable double* p_ray_pole ;
 	
 	/** Description of the stellar surface: 2-D {\tt Itbl} containing the 
-	 *	values of the domain index $l$ on the surface at the 
+	 *	values of the domain index {\it l} on the surface at the 
 	 *	collocation points in $(\theta', \phi')$
 	 */
 	mutable Itbl* p_l_surf ; 
@@ -566,7 +569,7 @@ class Etoile {
 	/// Returns the fluid 3-velocity with respect to the Eulerian observer
 	const Tenseur& get_u_euler() const {return u_euler;} ;
 
-	/** Returns the logarithm of the part of the lapse $N$ generated 
+	/** Returns the logarithm of the part of the lapse {\it N} generated 
 	 *   principaly by the star.
 	 *   In the Newtonian case, this is the Newtonian
 	 *   gravitational potential (in units of $c^2$). 
@@ -574,14 +577,14 @@ class Etoile {
 	const Tenseur& get_logn_auto() const {return logn_auto;} ;
 
 	/** Returns the regular part of the logarithm of the part of
-	 *   the lapse $N$ generated principaly by the star.
+	 *   the lapse {\it N} generated principaly by the star.
 	 *   In the Newtonian case, this is the Newtonian
 	 *   gravitational potential (in units of $c^2$). 
 	 */
 	const Tenseur& get_logn_auto_regu() const {return logn_auto_regu;} ;
 
 	/** Returns the divergent part of the logarithm of the part of
-	 *   the lapse $N$ generated principaly by the star.
+	 *   the lapse {\it N} generated principaly by the star.
 	 *   In the Newtonian case, this is the diverging part of
 	 *   the Newtonian gravitational potential (in units of $c^2$). 
 	 */
@@ -591,12 +594,12 @@ class Etoile {
 	 */
 	const Tenseur& get_d_logn_auto_div() const {return d_logn_auto_div;} ;
 
-	/** Returns the logarithm of the part of the product $AN$ generated 
+	/** Returns the logarithm of the part of the product {\it AN} generated 
 	 *  principaly by the star.
 	 */
 	const Tenseur& get_beta_auto() const {return beta_auto;} ;
 
-	/// Returns the total lapse function $N$
+	/// Returns the total lapse function {\it N}
 	const Tenseur& get_nnn() const {return nnn;} ;
 
 	/// Returns the total shift vector $N^i$
@@ -634,7 +637,7 @@ class Etoile {
     
 	/** Description of the stellar surface: returns a 2-D {\tt Itbl} 
 	 *	containing the 
-	 *	values of the domain index $l$ on the surface at the 
+	 *	values of the domain index {\it l} on the surface at the 
 	 *	collocation points in $(\theta', \phi')$.
 	 *	The stellar surface is defined as the location where
 	 *	the enthalpy (member {\tt ent}) vanishes.
@@ -739,7 +742,7 @@ class Etoile_bin : public Etoile {
 	 */
 	Tenseur d_logn_comp ; 
 
-	/** Part of the logarithm of $AN$ generated principaly by the 
+	/** Part of the logarithm of {\it AN} generated principaly by the 
 	 *  companion star. 
 	 */
 	Tenseur beta_comp ; 
@@ -814,7 +817,7 @@ class Etoile_bin : public Etoile {
 	 */
 	Tenseur akcar_comp ;
 	
-	/** 3-vector shift, divided by $N$, of the rotating coordinates,
+	/** 3-vector shift, divided by {\it N}, of the rotating coordinates,
 	 *  $B^i/N$. 
 	 *  (Cartesian components with respect to {\tt ref\_triad})
 	 */
@@ -990,7 +993,7 @@ class Etoile_bin : public Etoile {
 	 */
 	const Tenseur& get_d_logn_comp() const {return d_logn_comp;} ;
 
-	/** Returns the part of the logarithm of $AN$ generated principaly 
+	/** Returns the part of the logarithm of {\it AN} generated principaly 
 	 *  by the companion star. 
 	 */
 	const Tenseur& get_beta_comp() const {return beta_comp;} ;
@@ -1069,7 +1072,7 @@ class Etoile_bin : public Etoile {
 	 */
 	const Tenseur& get_akcar_comp() const {return akcar_comp;} ;
 
-	/** Returns the shift vector, divided by $N$, of the rotating 
+	/** Returns the shift vector, divided by {\it N}, of the rotating 
 	 *   coordinates, $B^i/N$. 
 	 *  (Cartesian components with respect to {\tt ref\_triad})
 	 */
@@ -1354,10 +1357,10 @@ class Etoile_rot : public Etoile {
     protected:
 	double omega ;	    /// Rotation angular velocity ({\tt [f\_unit]}) 
 
-	/// Metric factor $B$
+	/// Metric factor {\it B}
 	Tenseur bbb ; 
 
-	/// Square of the metric factor $B$
+	/// Square of the metric factor {\it B}
 	Tenseur b_car ; 
 
 	/// Metric coefficient $N^\varphi$
@@ -1559,10 +1562,10 @@ class Etoile_rot : public Etoile {
 	 */ 
 	virtual double get_omega_c() const ;	    
 
-	/// Returns the metric factor $B$
+	/// Returns the metric factor {\it B}
 	const Tenseur& get_bbb() const {return bbb;} ; 
 
-	/// Returns the square of the metric factor $B$
+	/// Returns the square of the metric factor {\it B}
 	const Tenseur& get_b_car() const {return b_car;} ; 
 
 	/// Returns the metric coefficient $N^\varphi$
@@ -1670,7 +1673,7 @@ class Etoile_rot : public Etoile {
 	
 	/** Description of the stellar surface: returns a 2-D {\tt Itbl} 
 	 *	containing the 
-	 *	values of the domain index $l$ on the surface at the 
+	 *	values of the domain index {\it l} on the surface at the 
 	 *	collocation points in $(\theta', \phi')$.
 	 *	The stellar surface is defined as the location where
 	 *	the enthalpy (member {\tt ent}) vanishes.
@@ -1707,12 +1710,12 @@ class Etoile_rot : public Etoile {
 	virtual double z_pole() const ;	/// Redshift factor at North pole
     
 	/** Quadrupole moment.
-	 *  The quadrupole moment $Q$ is defined according to Eq. (7) of
+	 *  The quadrupole moment {\it Q} is defined according to Eq. (7) of
 	 *  [Salgado, Bonazzola, Gourgoulhon and Haensel, Astron. Astrophys.
 	 *   {\bf 291}, 155 (1994)]. At the Newtonian limit it is related to
 	 *  the component ${\bar I}_{zz}$ of the MTW (1973) reduced quadrupole 
 	 *  moment ${\bar I}_{ij}$ by: $Q = -3/2 {\bar I}_{zz}$. 
-	 *  Note that $Q$ is the negative of the quadrupole moment defined 
+	 *  Note that {\it Q} is the negative of the quadrupole moment defined 
 	 *  by Laarakkers and Poisson, Astrophys. J. {\bf 512}, 282 (1999).
 	 */
 	virtual double mom_quad() const ;	

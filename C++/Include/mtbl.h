@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/09/13 09:17:33  j_novak
+ * Modif. commentaires
+ *
  * Revision 1.2  2002/06/17 14:05:17  j_novak
  * friend functions are now also declared outside the class definition
  *
@@ -212,7 +215,7 @@ class Mtbl {
 	 * @param l [input] domain index
 	 * @param k [input] $\phi$ index
 	 * @param j [input] $\theta$ index
-	 * @param i [input] $r$ ($\xi$) index
+	 * @param i [input] {\it r} ($\xi$) index
 	 */ 
 	double& set(int l, int k, int j, int i) {
 	    assert(l < nzone) ;
@@ -226,7 +229,7 @@ class Mtbl {
 	 * @param l [input] domain index
 	 * @param k [input] $\phi$ index
 	 * @param j [input] $\theta$ index
-	 * @param i [input] $r$ ($\xi$) index
+	 * @param i [input] {\it r} ($\xi$) index
 	 */ 
 	double operator()(int l, int k, int j, int i) const {
 	    assert(etat != ETATNONDEF) ;
