@@ -30,6 +30,10 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/11/05 10:52:26  f_limousin
+ * Replace double aa by double cc in argument of boundary_beta_x
+ * boundary_beta_y and boundary_beta_z to avoid warnings.
+ *
  * Revision 1.7  2004/10/29 15:42:14  jl_jaramillo
  * Static shift boundary conbdition
  *
@@ -292,13 +296,13 @@ Valeur Isol_hor::boundary_nn_Neu_kk() {
 
 
 
-Valeur Isol_hor::boundary_nn_Dir_eff(double aa){
+Valeur Isol_hor::boundary_nn_Dir_eff(double cc){
 
   const Map& map = ff.get_mp() ;
 
   Scalar tmp(map) ;
 
-  tmp = - aa * nn().derive_cov(ff)(1) ;
+  tmp = - cc * nn().derive_cov(ff)(1) ;
   tmp.dec_dzpuis(2) ;
   tmp = tmp - 1. ;
   
@@ -325,11 +329,11 @@ Valeur Isol_hor::boundary_nn_Dir_eff(double aa){
 
 
 
-Valeur Isol_hor::boundary_nn_Neu_eff(double aa) {
+Valeur Isol_hor::boundary_nn_Neu_eff(double cc) {
   
   const Map& map = ff.get_mp() ;
   
-  Scalar tmp = - aa * nn() ;
+  Scalar tmp = - cc * nn() ;
 
   // in this case you don't have to substract any value
  
@@ -352,14 +356,14 @@ Valeur Isol_hor::boundary_nn_Neu_eff(double aa) {
 }
 
 
-Valeur Isol_hor::boundary_nn_Dir(double aa){
+Valeur Isol_hor::boundary_nn_Dir(double cc){
 
   const Map& map = ff.get_mp() ;
 
   Scalar tmp(map) ;
-  tmp = aa - 1 ;
+  tmp = cc - 1 ;
   
-  // We have substracted 1, since we solve for zero condition at infinity 
+  // We  have substracted 1, since we solve for zero condition at infinity 
   //and then we add 1 to the solution  
 
   int nnp = map.get_mg()->get_np(1) ;
