@@ -30,6 +30,9 @@ char vector_df_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/03/31 12:33:21  f_limousin
+ * Minor modifs.
+ *
  * Revision 1.6  2004/03/29 16:24:26  j_novak
  * *** empty log message ***
  *
@@ -95,11 +98,63 @@ Vector_divfree Vector_divfree::poisson() const {
 }
 
 
-Vector_divfree Vector_divfree::poisson(Param& ) const {
+Vector_divfree Vector_divfree::poisson(Param& par ) const {
 
-    cout << "Not implemented yet" << endl ;
-    abort() ;
-    return *this ;
+   // All this has a meaning only for spherical components:
+#ifndef NDEBUG 
+    const Base_vect_spher* bvs = dynamic_cast<const Base_vect_spher*>(triad) ;
+    assert(bvs != 0x0) ; 
+#endif
+    
+    int nitermax = par.get_int() ; 
+    int& niter = par.get_int_mod() ; 
+    double relax = par.get_double() ; 
+    double precis = par.get_double(1) ;     
+    Cmp& ss_khi = par.get_cmp_mod(0) ;
+    Cmp& ss_mu = par.get_cmp_mod(1) ;
+      
+    // Solution for the r-component
+    // ----------------------------
+    
+    Scalar source_r = *(cmp[0]) ; 
+    source_r.mult_r() ; 
+    
+    Param par_khi ;
+    par_khi.add_int(nitermax, 0) ;
+    par_khi.add_int_mod(niter, 0) ;
+    par_khi.add_double(relax, 0) ;
+    par_khi.add_double(precis, 1) ;
+    par_khi.add_cmp_mod(ss_khi, 0) ;
+
+    Scalar khi (*mp) ;
+    khi.set_etat_zero() ;
+
+    source_r.poisson(par_khi, khi) ; 
+    khi.div_r() ;   // khi now contains V^r
+    
+    // Solution for mu
+    // ---------------
+    
+    Param par_mu ;
+    par_mu.add_int(nitermax, 0) ;
+    par_mu.add_int_mod(niter, 0) ;
+    par_mu.add_double(relax, 0) ;
+    par_mu.add_double(precis, 1) ;
+    par_mu.add_cmp_mod(ss_mu, 0) ;
+
+    Scalar mu_resu (*mp) ;
+    mu_resu.set_etat_zero() ;
+ 
+    mu().poisson(par_mu, mu_resu) ;
+
+    // Final result
+    // ------------
+    
+    Vector_divfree resu(*mp, *triad, *met_div) ; 
+    
+    resu.set_vr_mu(khi, mu_resu) ; 
+    
+    return resu ;
 
 }
 
