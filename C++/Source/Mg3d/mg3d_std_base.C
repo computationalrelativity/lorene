@@ -30,6 +30,9 @@ char mg3d_std_base_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/11/04 15:21:42  e_gourgoulhon
+ * The case without any symmetry in theta is now treated.
+ *
  * Revision 1.3  2003/12/19 16:21:45  j_novak
  * Shadow hunt
  *
@@ -182,6 +185,58 @@ Base_val** Mg3d::std_base_vect_cart() const {
 
 		break ;	// fin du cas type_t = SYM
 		    
+
+		case NONSYM :  	
+// pas de symetrie en theta  :  theta dans [0, pi]	    
+//------------------------------------------------
+		base1 = base1 | T_COSSIN_C ; 
+		base2 = base2 | T_COSSIN_C ; 
+		base3 = base3 | T_COSSIN_C ; 
+
+// Base en r :
+//------------
+		switch ( type_r0 ) {
+		    
+		    case FIN : 			 
+// echantillonnage fin
+		    
+		    base1 = base1 | R_CHEB  ;  
+		    base2 = base2 | R_CHEB  ;  
+		    base3 = base3 | R_CHEB  ;  
+		    break ;
+
+		    case RARE : 		 
+// echantillonnage rarefie
+
+		    base1 = base1 | R_CHEBPI_P ;  
+		    base2 = base2 | R_CHEBPI_P ;  
+		    base3 = base3 | R_CHEBPI_P ;  
+		    
+		    break ;
+
+		    case UNSURR : 		    
+// echantillonnage fin (1/r)
+
+		    base1 = base1 | R_CHEBU  ;  
+		    base2 = base2 | R_CHEBU  ;  
+		    base3 = base3 | R_CHEBU  ;  
+		    break ;
+
+
+		    default : 
+			cout << 
+	    "Mg3d::std_base_vect_cart : le cas type_p, type_t, type_r = " 
+			  << type_p<< " " << type_t<< " " <<type_r0 << endl ;
+			cout << 
+			  " dans la zone l = " << l << " n'est pas prevu ! " 
+			  << endl ;
+			  abort () ;
+		}
+
+		break ;	// fin du cas type_t = NONSYM
+		    
+
+
 		    
 		default : 
 		    cout << 
@@ -375,6 +430,55 @@ Base_val** Mg3d::std_base_vect_spher() const {
 	  base1 = base1 | R_CHEBPIM_I ;  
 	  base2 = base2 | R_CHEBPIM_I ;  
 	  base3 = base3 | R_CHEBPIM_I ;  
+		    
+	  break ;
+
+	case UNSURR : 		    
+// echantillonnage fin (1/r)
+
+	  base1 = base1 | R_CHEBU  ;  
+	  base2 = base2 | R_CHEBU  ;  
+	  base3 = base3 | R_CHEBU  ;  
+	  break ;
+
+
+	default : 
+	  cout << 
+	    "Mg3d::std_base_vect_sphere : le cas type_p, type_t, type_r = " 
+	       << type_p<< " " << type_t<< " " <<type_r0 << endl ;
+	  cout << " dans la zone l = " << l << " n'est pas prevu ! " 
+	       << endl ;
+	  abort () ;
+	}
+
+	break ;	// fin du cas type_t = SYM
+		    
+      case NONSYM :  	
+// pas de symetrie en theta  :  theta dans [0, pi]	    
+//------------------------------------------------
+
+	base1 = base1 | T_COSSIN_C ; 
+	base2 = base2 | T_COSSIN_S ; 
+	base3 = base3 | T_COSSIN_S ; 
+
+	// Base en r :
+	//------------
+	switch ( type_r0 ) {
+		    
+	case FIN : 			 
+// echantillonnage fin
+		    
+	  base1 = base1 | R_CHEB  ;  
+	  base2 = base2 | R_CHEB  ;  
+	  base3 = base3 | R_CHEB  ;  
+	  break ;
+
+	case RARE : 		 
+// echantillonnage rarefie
+
+	  base1 = base1 | R_CHEBPI_I ;  
+	  base2 = base2 | R_CHEBPI_I ;  
+	  base3 = base3 | R_CHEBPI_I ;  
 		    
 	  break ;
 
