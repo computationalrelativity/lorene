@@ -31,6 +31,9 @@ char map_af_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/05/06 15:25:39  e_gourgoulhon
+ * The case dzpuis=5 with null value in CED is well treated now.
+ *
  * Revision 1.3  2004/02/20 10:55:23  j_novak
  * The versions dzpuis 5 -> 3 has been improved and polished. Should be
  * operational now...
@@ -99,7 +102,7 @@ void Map_af::poisson(const Cmp& source, Param& , Cmp& pot) const {
 
     int dzpuis ; 
     
-    if (source.dz_nonzero()){
+    if ( (source.dz_nonzero()) || (source.get_dzpuis() > 3)) { //##awkward??
 	dzpuis = source.get_dzpuis() ; 
     }
     else{
