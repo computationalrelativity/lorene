@@ -7,6 +7,7 @@
 
 /*
  *   Copyright (c) 2004 Jose Luis Jaramillo
+ *                      Francois Limousin
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +31,11 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2005/03/06 16:59:14  f_limousin
+ * New function Isol_hor::aa() (the one belonging to the class
+ * Time_slice_conf need to compute the time derivative of hh and thus
+ * cannot work in the class Isol_hor).
+ *
  * Revision 1.13  2005/03/03 15:12:17  f_limousin
  * Implement function operator>>
  *
@@ -392,9 +398,6 @@ void Isol_hor::n_comp(const Isol_hor& comp) {
     dn_comp.std_spectral_base() ;
     dn_comp.inc_dzpuis(2) ;
     dn_comp.change_triad(mp.get_bvect_spher()) ;
-//    Vector temp2(n_auto().derive_cov(ff)) ;
-//    temp2.change_triad(mp.get_bvect_cart()) ;
-//    dn_evol.update(temp2 + dn_comp, jtime, ttime) ;
 
     dn_evol.update(n_auto().derive_cov(ff) + dn_comp, jtime, ttime) ;
 }
@@ -615,8 +618,71 @@ const Sym_tensor& Isol_hor::aa_comp() const {
     return aa_comp_evol[jtime] ;   
 } 
 
-
-
+const Sym_tensor& Isol_hor::aa() const {
+	
+  Sym_tensor aa_new (mp, CON, mp.get_bvect_spher()) ;
+  int nnr = mp.get_mg()->get_nr(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
+  int nnp = mp.get_mg()->get_np(1) ;
+  
+  int check ;
+  check = 0 ;
+  for (int k=0; k<nnp; k++)
+    for (int j=0; j<nnt; j++){
+      if (nn().val_grid_point(1, k, j , 0) < 1e-12){
+	check = 1 ;
+	break ;
+      }
+    }
+  
+  if (check == 0)
+    aa_new = ( beta().ope_killing_conf(met_gamt) + gamt_point ) 
+      / (2.* nn()) ;            
+  else {
+    Scalar nn_sxpun (division_xpun (Cmp(nn()), 0)) ;
+    
+    Sym_tensor aa_sxpun = beta().ope_killing_conf(met_gamt)
+      + gamt_point ;
+    
+    const Coord& r = mp.r ;        // r field
+    Mtbl r_mtbl = r ;
+    Scalar rr (mp) ;
+    rr = r_mtbl ;
+    
+    double r1, r2 ;
+    r1 = mp.val_r(1, -1., 0., 0.) ;
+    r2 = mp.val_r(1, 1., 0., 0.) ;
+    
+    for(int k=0; k<nnp; k++)
+      for(int j=0; j<nnt; j++)
+	for(int m=1; m<=3; m++)
+	  for(int n=1; n<=m; n++){
+	    double aa_mn_jk = 
+	      aa_sxpun(m,n).val_grid_point(1, k, j, 0) ;     
+	    for(int i=0; i<nnr; i++){
+	      aa_sxpun.set(m,n).set_grid_point(1, k, j, i) -=
+		aa_mn_jk * 
+		(- 2 * rr.val_grid_point(1, k, j, i) + 3 * r1
+		 - r2) * (rr.val_grid_point(1, k, j, i) - r2) *
+		(rr.val_grid_point(1, k, j, i) - r2) /
+		(r1 - r2) / (r1 - r2) / (r1 - r2) ;
+	    }
+	  }
+    
+    for(int i=1; i<=3; i++)
+      for(int j=1; j<=i; j++){
+	aa_sxpun.set(i,j).set_inner_boundary(1, 0.) ;
+	aa_sxpun.set(i,j) = Scalar (division_xpun 
+				    (Cmp(aa_sxpun(i,j)), 0)) ;
+      }
+    aa_new = aa_sxpun / (2*nn_sxpun) ;
+  }
+  cout << "check = " << check << endl ;
+  
+  aa_evol.update(aa_new, jtime, the_time[jtime]) ;
+  return aa_evol[jtime] ;
+  
+}
 
 
 

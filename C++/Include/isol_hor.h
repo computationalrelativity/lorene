@@ -29,6 +29,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2005/03/06 16:59:33  f_limousin
+ * New function Isol_hor::aa() (the one belonging to the class
+ * Time_slice_conf need to compute the time derivative of hh and thus
+ * cannot work in the class Isol_hor).
+ *
  * Revision 1.22  2005/03/04 09:39:31  f_limousin
  * Implement the constructor from a file, operator>>, operator<<
  * and function sauve in the class Bin_hor.
@@ -615,7 +620,13 @@ class Isol_hor : public Time_slice_conf {
   /// Dirichlet boundary condition for \c b_tilde
   const Valeur boundary_b_tilde_Dir() const ;
  
-
+  /** Conformal representation \f$ A^{ij} \f$ of the traceless part
+   * of the extrinsic curvature:
+   * \f$ A^{ij} = \Psi^4 \left( K^{ij} - \frac{1}{3} K \gamma^{ij} \right) \f$.
+   * Returns the value at the current time step (\c jtime ).
+   */        
+  virtual const Sym_tensor& aa() const ; 
+  
   /// Regularisation of the shift :
   double regularisation (const Vector& shift_auto, const Vector& shift_comp, 
 			 double ang_vel) ;
