@@ -26,6 +26,7 @@ CXXFLAGS_G = -Wall -Wconversion -Woverloaded-virtual -g -DDEBOG
 # Path for the include files:
 # --------------------------
 INC	= -I$(HOME_LORENE)/C++/Include -I/usr/local/include \
+	  -I/usr/include/g++ \
 	  -I$(HOME_LORENE)/C++/Include_extra
 	  
 # Converting archives to random libraries (if required, otherwise just ls)
