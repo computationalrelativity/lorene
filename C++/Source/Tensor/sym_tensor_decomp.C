@@ -30,6 +30,9 @@ char sym_tensor_decomp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/02/02 09:18:11  e_gourgoulhon
+ * Method longit_pot: treatment of case divergence dzpuis = 5.
+ *
  * Revision 1.3  2003/12/10 10:17:54  e_gourgoulhon
  * First operational version.
  *
@@ -110,12 +113,14 @@ const Vector& Sym_tensor::longit_pot(const Metric& metre) const {
 			abort() ; 
 		}
 		
-		for (int ic=0; ic<n_comp; ic++) {
-			assert(cmp[ic]->check_dzpuis(4)) ;  // dzpuis=4 is assumed
-		}
-
 		Vector hhh = divergence(metre) ; 
 
+        // If dpzuis is 5, it should be decreased to 4 for the Poisson equation:
+        bool dzp5 = false ; 
+        for (int i=1; i<=3; i++) {
+            dzp5 = dzp5 || hhh(i).check_dzpuis(5) ;
+        }
+        if (dzp5) hhh.dec_dzpuis() ; 
 				
 		p_longit_pot[jp] = new Vector( hhh.poisson(double(1)) ) ; 
 		
