@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2003 Eric Gourgoulhon
  *   Copyright (c) 1999-2001 Philippe Grandclement
  *
  *   This file is part of LORENE.
@@ -34,6 +34,9 @@ char valeur_ylm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/13 20:52:58  e_gourgoulhon
+ * Loop variables i and l have now local scope.
+ *
  * Revision 1.4  2003/09/17 12:30:22  j_novak
  * New checks for changing to T_LEG* bases.
  *
@@ -116,12 +119,11 @@ void Valeur::ylm() {
     static int premier_appel = 1 ;
     
     int deg[3] ;
-    int i, l ;
 
     if (premier_appel==1) {
 	premier_appel = 0 ;
 
-	for (i=0; i<MAX_BASE; i++) {
+	for (int i=0; i<MAX_BASE; i++) {
 	    chbase_t[i] = ylm_pasprevu ;
 	    nouv_base_t[i] = NONDEF ; 
 	}
@@ -171,7 +173,7 @@ void Valeur::ylm() {
 
 // Boucle sur les differentes zones
 	
-	for (l=0; l<nzone; l++) {
+	for (int l=0; l<nzone; l++) {
 	
 // On recupere les anciennes bases en r, phi et theta : 
 	    int vbase_r = base.b[l] & MSQ_R  ;
@@ -231,7 +233,7 @@ void Valeur::ylm() {
 void ylm_pasprevu(const int* , const double*, double* ) {
 
     cout << 
-     "Valeur::ylm: le changement de base demande n'est pas implemente !" 
+     "Valeur::ylm: change of basis not implemented yet !" 
      << endl ;
     abort() ; 
 }
