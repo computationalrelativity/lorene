@@ -30,6 +30,9 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/10/24 13:28:51  e_gourgoulhon
+ * Suppressed des_explorer.
+ *
  * Revision 1.10  2003/10/24 13:26:39  e_gourgoulhon
  * Corrected error on reduce_shift (previously: it was read and not used !).
  *
@@ -1086,7 +1089,6 @@ int main(){
     
     if (graph == 1) {
 
-	des_explorer(star, "latbin") ; 
 
 //##	double xdes_min = - star(1).ray_eq_pi() + star(1).get_mp().get_ori_x() ; 
 //	xdes_min *= 1.5 ; 
