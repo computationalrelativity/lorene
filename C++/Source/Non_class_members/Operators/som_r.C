@@ -41,6 +41,11 @@ char som_r_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/11/23 15:16:02  m_forot
+ *
+ * Added the bases for the cases without any equatorial symmetry
+ *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
  * Revision 1.3  2002/10/16 14:36:59  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -423,6 +428,144 @@ double* po = trtp ;	    // pointeur courant sur la sortie
 	    *po = 0 ;
 	    for (i=0 ; i<nr ; i++) {
 		*po += (*pi) * cheb[2*i + 1 - m] ;
+		pi++ ;	// R suivant
+	    }
+	    po++ ;	// Theta suivant
+	}
+    }
+    
+    }	// fin du cas np > 1 
+    // Menage
+    delete [] cheb ;
+    
+}
+
+			//----------------------
+			//  Cas R_CHEBPI_P ---
+			//---------------------
+
+void som_r_chebpi_p
+    (double* ti, const int nr, const int nt, const int np, const double x, double* trtp) {
+
+// Variables diverses
+int i, j, k ;
+double* pi = ti ;	    // pointeur courant sur l'entree
+double* po = trtp ;	    // pointeur courant sur la sortie
+    
+    // Valeurs des polynomes de Chebyshev au point x demande
+    double* cheb = new double [2*nr] ;
+    cheb[0] = 1. ;
+    cheb[1] = x ;
+    for (i=2 ; i<2*nr ; i++) {
+	cheb[i] = 2*x* cheb[i-1] - cheb[i-2] ;	    
+    }
+    
+    // Sommation pour le premier phi, k=0
+    int m = 0;
+    for (j=0 ; j<nt ; j++) {
+      int l = j%2;
+      if(l==0){
+	*po = 0 ;
+	// Sommation sur r
+	for (i=0 ; i<nr ; i++) {
+	  *po += (*pi) * cheb[2*i] ;
+	  pi++ ;  // R suivant
+	}
+	po++ ;	    // Theta suivant
+      } else {
+	*po = 0 ;
+	// Sommation sur r
+	for (i=0 ; i<nr ; i++) {
+	    *po += (*pi) * cheb[2*i+1] ;
+	    pi++ ;  // R suivant
+	}
+	po++ ;	    // Theta suivant
+      }	
+    }
+    
+    if (np > 1) {	
+
+    // On saute le deuxieme phi (sin(0)), k=1
+    pi += nr*nt ;
+    po += nt ;
+    
+    // Sommation sur les phi suivants (pour k=2,...,np)
+    for (k=2 ; k<np+1 ; k++) {
+	for (j=0 ; j<nt ; j++) {
+	  int l = j% 2 ;		    // parite: 0 <-> 1
+	    // Sommation sur r
+	    *po = 0 ;
+	    for (i=0 ; i<nr ; i++) {
+		*po += (*pi) * cheb[2*i + l] ;
+		pi++ ;	// R suivant
+	    }
+	    po++ ;	// Theta suivant
+	}
+    }
+    
+    }	// fin du cas np > 1 
+    // Menage
+   delete [] cheb ;
+    
+}
+
+			//----------------------
+			//- Cas R_CHEBPI_I ----
+			//----------------------
+
+void som_r_chebpi_i
+    (double* ti, const int nr, const int nt, const int np, const double x, double* trtp) {
+
+// Variables diverses
+int i, j, k ;
+double* pi = ti ;	    // pointeur courant sur l'entree
+double* po = trtp ;	    // pointeur courant sur la sortie
+    
+    // Valeurs des polynomes de Chebyshev au point x demande
+    double* cheb = new double [2*nr] ;
+    cheb[0] = 1. ;
+    cheb[1] = x ;
+    for (i=2 ; i<2*nr ; i++) {
+	cheb[i] = 2*x* cheb[i-1] - cheb[i-2] ;	    
+    }
+    
+    // Sommation pour le premier phi, k=0
+    int m = 0;
+    for (j=0 ; j<nt ; j++) {
+      int l = j%2 ;
+      if(l==1){
+	*po = 0 ;
+	// Sommation sur r
+	for (i=0 ; i<nr ; i++) {
+	  *po += (*pi) * cheb[2*i] ;
+	  pi++ ;  // R suivant
+	}
+	po++ ;	    // Theta suivant
+      } else {
+	*po = 0 ;
+	// Sommation sur r
+	for (i=0 ; i<nr ; i++) {
+	    *po += (*pi) * cheb[2*i+1] ;
+	    pi++ ;  // R suivant
+	}
+	po++ ;	    // Theta suivant
+      }	
+    }
+    
+    if (np > 1) {	
+
+    // On saute le deuxieme phi (sin(0)), k=1
+    pi += nr*nt ;
+    po += nt ;
+    
+    // Sommation sur les phi suivants (pour k=2,...,np)
+    for (k=2 ; k<np+1 ; k++) {
+      for (j=0 ; j<nt ; j++) {
+	  int l = j % 2  ;		    // parite: 0 <-> 1
+	    // Sommation sur r
+	    *po = 0 ;
+	    for (i=0 ; i<nr ; i++) {
+		*po += (*pi) * cheb[2*i + 1 - l] ;
 		pi++ ;	// R suivant
 	    }
 	    po++ ;	// Theta suivant

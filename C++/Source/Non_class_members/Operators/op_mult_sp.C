@@ -35,8 +35,13 @@ char op_mult_sp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2004/11/23 15:16:01  m_forot
+ *
+ * Added the bases for the cases without any equatorial symmetry
+ *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.4  2000/11/14  15:12:01  eric
  * Traitement du cas np=1
@@ -98,7 +103,17 @@ void _mult_sp_p_cossin(Tbl* tb, int& base) {
 	    base_r = R_CHEBPIM_P ; 
 	    break ; 	    
 	}
+
+        case R_CHEBPI_P : {
+	    base_r = R_CHEBPI_I ; 
+	    break ; 
+	}
 	
+	case R_CHEBPI_I : {
+	    base_r = R_CHEBPI_P ; 
+	    break ; 	    
+	}  
+	  
 	case R_CHEB : {
 	    break ; 
 	}
@@ -135,7 +150,17 @@ void _mult_sp_p_cossin(Tbl* tb, int& base) {
 	    base_t = T_COSSIN_CI ; 
 	    break ; 
 	}
-	
+	  
+        case T_COSSIN_S : {
+	    base_t = T_COSSIN_C ; 
+	    break ; 
+	}
+
+	case T_COSSIN_C : {
+	    base_t = T_COSSIN_S ; 
+	    break ; 
+	}  
+	  
 	default : {
 	    cout << "_mult_cp_p_cossin : unknown basis in theta !" << endl ; 
 	    cout << "  base_t = " << hex << base_t << endl ; 

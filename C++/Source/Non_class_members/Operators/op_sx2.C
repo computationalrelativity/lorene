@@ -43,8 +43,13 @@ char op_sx2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2004/11/23 15:16:02  m_forot
+ *
+ * Added the bases for the cases without any equatorial symmetry
+ *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.4  2000/09/07  12:51:34  phil
  * *** empty log message ***
@@ -489,6 +494,181 @@ void _sx2_r_chebu(Tbl* tb, int&)
 	    
 	}   // Fin de la boucle sur theta
     }	// Fin de la boucle sur phi
+    
+    // base de developpement
+    // inchangee
+}
+
+			//---------------
+			// cas R_CHEBPI_P --
+			//--------------
+void _sx2_r_chebpi_p(Tbl* tb, int&)
+    {
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	return ;
+    }
+    
+    // Pour le confort
+    int nr = (tb->dim).dim[0] ;	    // Nombre
+    int nt = (tb->dim).dim[1] ;	    //	 de points
+    int np = (tb->dim).dim[2] ;	    //	    physiques REELS
+    np = np - 2 ;		    // Nombre de points physiques
+    
+    // pt. sur le tableau de double resultat
+    double* xo = new double [tb->get_taille()];
+
+    // Initialisation a zero :
+    for (int i=0; i<tb->get_taille(); i++) {
+	xo[i] = 0 ; 
+    }
+    
+    // On y va...
+    double* xi = tb->t ;
+    double* xci = xi ;	// Pointeurs
+    double* xco = xo ;	//  courants
+    
+    for (int k=0 ; k<np+1 ; k++) 
+	if (k==1) {
+	    xci += nr*nt ;
+	    xco += nr*nt ;
+	    }
+	    
+	else {
+	for (int j=0 ; j<nt ; j++) {
+	    int l = j%2 ;
+	    if(l==0){
+	      double somp, somn ;
+	      int sgn = 1 ;
+	      
+	      xco[nr-1] = 0 ;
+	      somp = 4 * sgn * (nr-1) * xci[nr-1] ;
+	      somn = 2 * sgn * xci[nr-1] ;
+	      xco[nr-2] = somp - 2*(nr-2)*somn ;
+	      for (int i = nr-3 ; i >= 0 ; i-- ) {
+		sgn = - sgn ;
+		somp += 4 * (i+1) * sgn * xci[i+1] ;
+		somn += 2 * sgn * xci[i+1] ;
+		xco[i] = somp - 2*i * somn ;
+	      }	// Fin de la premiere boucle sur r
+	      for (int i=0 ; i<nr ; i+=2) {
+		xco[i] = -xco[i] ;
+	      }	// Fin de la deuxieme boucle sur r
+	      xco[0] *= .5 ;
+	    } else {
+	      double somp, somn ;
+	      int sgn = 1 ;
+	      
+	      xco[nr-1] = 0 ;
+	      somp = 2 * sgn * (2*(nr-1)+1) * xci[nr-1] ;
+	      somn = 2 * sgn * xci[nr-1] ;
+	      xco[nr-2] = somp - (2*(nr-2)+1)*somn ;
+	      for (int i = nr-3 ; i >= 0 ; i-- ) {
+		sgn = - sgn ;
+		somp += 2 * (2*(i+1)+1) * sgn * xci[i+1] ;
+		somn += 2 * sgn * xci[i+1] ;
+		xco[i] = somp - (2*i+1) * somn ;
+	      }	// Fin de la premiere boucle sur r
+	      for (int i=0 ; i<nr ; i+=2) {
+		xco[i] = -xco[i] ;
+	      }	// Fin de la deuxieme boucle sur r
+	    }
+	    xci += nr ;
+	    xco += nr ;
+	}   // Fin de la boucle sur theta
+    }	// Fin de la boucle sur phi
+    
+    // On remet les choses la ou il faut
+    delete [] tb->t ;
+    tb->t = xo ;
+    
+    // base de developpement
+    // inchangee
+}
+
+			//----------------
+			// cas R_CHEBPI_I ---
+			//----------------
+
+void _sx2_r_chebpi_i(Tbl* tb, int&)
+{
+
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	return ;
+    }
+    
+    // Pour le confort
+    int nr = (tb->dim).dim[0] ;	    // Nombre
+    int nt = (tb->dim).dim[1] ;	    //	 de points
+    int np = (tb->dim).dim[2] ;	    //	    physiques REELS
+    np = np - 2 ;		    // Nombre de points physiques
+    
+    // pt. sur le tableau de double resultat
+    double* xo = new double [tb->get_taille()];
+     
+    // Initialisation a zero :
+    for (int i=0; i<tb->get_taille(); i++) {
+	xo[i] = 0 ; 
+    }
+    
+    // On y va...
+    double* xi = tb->t ;
+    double* xci = xi ;	// Pointeurs
+    double* xco = xo ;	//  courants
+    
+    for (int k=0 ; k<np+1 ; k++) 
+	if (k==1) {
+	    xci += nr*nt ;
+	    xco += nr*nt ;
+	    }
+	else {
+	for (int j=0 ; j<nt ; j++) {
+	    int l = j%2 ;
+	    if(l==1){
+	      double somp, somn ;
+	      int sgn = 1 ;
+	      
+	      xco[nr-1] = 0 ;
+	      somp = 4 * sgn * (nr-1) * xci[nr-1] ;
+	      somn = 2 * sgn * xci[nr-1] ;
+	      xco[nr-2] = somp - 2*(nr-2)*somn ;
+	      for (int i = nr-3 ; i >= 0 ; i-- ) {
+		sgn = - sgn ;
+		somp += 4 * (i+1) * sgn * xci[i+1] ;
+		somn += 2 * sgn * xci[i+1] ;
+		xco[i] = somp - 2*i * somn ;
+	      }	// Fin de la premiere boucle sur r
+	      for (int i=0 ; i<nr ; i+=2) {
+		xco[i] = -xco[i] ;
+	      }	// Fin de la deuxieme boucle sur r
+	      xco[0] *= .5 ;
+	    } else {
+	      double somp, somn ;
+	      int sgn = 1 ;
+	      
+	      xco[nr-1] = 0 ;
+	      somp = 2 * sgn * (2*(nr-1)+1) * xci[nr-1] ;
+	      somn = 2 * sgn * xci[nr-1] ;
+	      xco[nr-2] = somp - (2*(nr-2)+1)*somn ;
+	      for (int i = nr-3 ; i >= 0 ; i-- ) {
+		sgn = - sgn ;
+		somp += 2 * (2*(i+1)+1) * sgn * xci[i+1] ;
+		somn += 2 * sgn * xci[i+1] ;
+		xco[i] = somp - (2*i+1) * somn ;
+	      }	// Fin de la premiere boucle sur r
+	      for (int i=0 ; i<nr ; i+=2) {
+		xco[i] = -xco[i] ;
+	      }	// Fin de la deuxieme boucle sur r
+	    }
+	    xci += nr ;
+	    xco += nr ;
+	}   // Fin de la boucle sur theta
+    }	// Fin de la boucle sur phi
+    
+    // On remet les choses la ou il faut
+    delete [] tb->t;
+    tb->t = xo ;
     
     // base de developpement
     // inchangee

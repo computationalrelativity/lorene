@@ -39,6 +39,11 @@ char som_tet_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/11/23 15:16:02  m_forot
+ *
+ * Added the bases for the cases without any equatorial symmetry
+ *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
  * Revision 1.5  2002/10/16 14:36:59  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -611,5 +616,105 @@ double* po = to ;	    // Pointeur courant sur la sortie
 
 }
 
+			//---------------------
+			//  Cas T_COSSIN_C ---
+			//---------------------
 
+void som_tet_cossin_c
+    (double* ti, const int nt, const int np,
+    const double tet, double* to) {
+    
+// Variables diverses
+int j, k ;
+double* pi = ti ;	    // Pointeur courant sur l'entree
+double* po = to ;	    // Pointeur courant sur la sortie
+
+    // Initialisation des tables trigo
+    double* cossin = new double [2*nt] ;
+    for (j=0 ; j<2*nt ; j +=2) {
+	cossin[j] = cos(j/2 * tet) ;
+	cossin[j+1] = sin(j/2 * tet) ;
+    }
+    
+    // Sommation sur le premier phi -> cosinus, k=0
+    *po = 0 ;
+    for (j=0 ; j<nt ; j++) {
+	*po += (*pi) * cossin[2*j] ;
+	pi++ ;	// Theta suivant
+    }
+    po++ ;	// Phi suivant
+    
+    if (np > 1) {	
+
+    // On saute le phi suivant (sin(0)), k=1
+    pi += nt ;
+    po++ ;
+    
+    // Sommation sur le reste des phi (pour k=2,...,np), suivant parite de m
+    for (k=2 ; k<np+1 ; k++) {
+	int m = (k/2) % 2 ;	    // parite: 0 <-> 1
+	(*po) = 0 ;
+	for (j=0 ; j<nt ; j++) {
+	    *po += (*pi) * cossin[2*j + m] ;
+	    pi++ ;  // Theta suivant
+	}
+	po++ ;	    // Phi suivant
+    }
+    }	// fin du cas np > 1 
+
+    // Menage
+    delete [] cossin ;
+    
+}
+
+			//---------------------
+			//  Cas T_COSSIN_S ---
+			//---------------------
+
+void som_tet_cossin_s
+    (double* ti, const int nt, const int np,
+    const double tet, double* to) {
+    
+// Variables diverses
+int j, k ;
+double* pi = ti ;	    // Pointeur courant sur l'entree
+double* po = to ;	    // Pointeur courant sur la sortie
+
+    // Initialisation des tables trigo
+    double* cossin = new double [2*nt] ;
+    for (j=0 ; j<2*nt ; j +=2) {
+	cossin[j] = sin(j/2 * tet) ;
+	cossin[j+1] = cos(j/2 * tet) ;
+    }
+    
+    // Sommation sur le premier phi -> cosinus, k=0
+    *po = 0 ;
+    for (j=0 ; j<nt ; j++) {
+	*po += (*pi) * cossin[2*j] ;
+	pi++ ;	// Theta suivant
+    }
+    po++ ;	// Phi suivant
+    
+    if (np > 1) {	
+
+    // On saute le phi suivant (sin(0)), k=1
+    pi += nt ;
+    po++ ;
+    
+    // Sommation sur le reste des phi (pour k=2,...,np), suivant parite de m
+    for (k=2 ; k<np+1 ; k++) {
+	int m = (k/2) % 2 ;	    // parite: 0 <-> 1
+	(*po) = 0 ;
+	for (j=0 ; j<nt ; j++) {
+	    *po += (*pi) * cossin[2*j + m] ;
+	    pi++ ;  // Theta suivant
+	}
+	po++ ;	    // Phi suivant
+    }
+    }	// fin du cas np > 1 
+
+    // Menage
+    delete [] cossin ;
+    
+}
 

@@ -36,8 +36,13 @@ char op_d2dtet2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2004/11/23 15:16:01  m_forot
+ *
+ * Added the bases for the cases without any equatorial symmetry
+ *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.4  2000/10/04  11:50:20  eric
  * Ajout d' abort() dans le cas non prevu.
@@ -615,3 +620,180 @@ void _d2sdtet2_t_cossin_si(Tbl* tb, int &)
     // inchangee
 }
 
+// cas T_COSSIN_C
+//----------------
+void _d2sdtet2_t_cossin_c(Tbl* tb, int &)
+{
+
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	return ;
+    }
+    
+    // Protection
+    assert(tb->get_etat() == ETATQCQ) ;
+    
+    // Pour le confort
+    int nr = (tb->dim).dim[0] ;	    // Nombre
+    int nt = (tb->dim).dim[1] ;	    //	 de points
+    int np = (tb->dim).dim[2] ;	    //	    physiques REELS
+    np = np - 2 ;		    // Nombre de points physiques
+    
+    // Variables statiques
+    static double* cxp = 0 ;
+    static double* cxi = 0 ;
+    static int nt_pre =0 ;
+
+    // Test sur nt pour initialisation eventuelle
+    if (nt > nt_pre) {
+	nt_pre = nt ;
+	cxp = (double*)(realloc(cxp, nt * sizeof(double))) ;
+	cxi = (double*)(realloc(cxi, nt * sizeof(double))) ;
+	for (int i=0 ; i<nt ; i++) {
+	    cxp[i] = - i*i ;
+	    cxi[i] = - i*i ;
+	}
+    }
+
+    // pt. sur le tableau de double resultat
+    double* xo = new double[(tb->dim).taille] ;
+    
+    // Initialisation a zero :
+    for (int i=0; i<(tb->dim).taille; i++) {
+	xo[i] = 0 ; 
+    }
+    
+    // On y va...
+    double* xi = tb->t ;
+    double* xci = xi ;	// Pointeurs
+    double* xco = xo ;	//  courants
+    
+    // Partie cos(pair)
+    int k ;
+    for (k=0 ; k<np+1 ; k += 4) {
+     for (int m=0 ; m<2 ; m++) {
+	for (int j=0 ; j<nt ; j++) {
+	    for (int i=0 ; i<nr ; i++ ) {
+		*xco = cxp[j] * (*xci) ;
+		xci++ ;
+		xco++ ;
+	    }	// Fin de la boucle sur r
+	}   // Fin de la boucle sur theta
+     }	  // Fin de la boucle intermediaire
+    xci += 2*nr*nt ;
+    xco += 2*nr*nt ;
+    }	// Fin de la boucle sur phi
+
+    // Partie sin(impair)
+    xci = xi + 2*nr*nt ;
+    xco = xo + 2*nr*nt ;
+    for (k=2 ; k<np+1 ; k += 4) {
+     for (int m=0 ; m<2 ; m++) {
+	for (int j=0 ; j<nt ; j++) {
+	    for (int i=0 ; i<nr ; i++ ) {
+		*xco = cxi[j] * (*xci) ;
+		xci++ ;
+		xco++ ;
+	    }	// Fin de la boucle sur r
+	}   // Fin de la boucle sur theta
+     }	  // Fin de la boucle intermediaire
+    xci += 2*nr*nt ;
+    xco += 2*nr*nt ;
+    }	// Fin de la boucle sur phi
+
+    // On remet les choses la ou il faut
+    delete [] tb->t ;
+    tb->t = xo ;
+    
+    // base de developpement
+    // inchangee
+}
+
+// cas T_COSSIN_S
+//----------------
+void _d2sdtet2_t_cossin_s(Tbl* tb, int &)
+{
+
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	return ;
+    }
+    
+    // Protection
+    assert(tb->get_etat() == ETATQCQ) ;
+    
+    // Pour le confort
+    int nr = (tb->dim).dim[0] ;	    // Nombre
+    int nt = (tb->dim).dim[1] ;	    //	 de points
+    int np = (tb->dim).dim[2] ;	    //	    physiques REELS
+    np = np - 2 ;		    // Nombre de points physiques
+    
+    // Variables statiques
+    static double* cxp = 0 ;
+    static double* cxi = 0 ;
+    static int nt_pre =0 ;
+
+    // Test sur nt pour initialisation eventuelle
+    if (nt > nt_pre) {
+	nt_pre = nt ;
+	cxp = (double*)(realloc(cxp, nt * sizeof(double))) ;
+	cxi = (double*)(realloc(cxi, nt * sizeof(double))) ;
+	for (int i=0 ; i<nt ; i++) {
+	    cxp[i] = - i*i ;
+	    cxi[i] = - i*i ;
+	}
+    }
+
+    // pt. sur le tableau de double resultat
+    double* xo = new double[(tb->dim).taille] ;
+    
+    // Initialisation a zero :
+    for (int i=0; i<(tb->dim).taille; i++) {
+	xo[i] = 0 ; 
+    }
+    
+    // On y va...
+    double* xi = tb->t ;
+    double* xci = xi ;	// Pointeurs
+    double* xco = xo ;	//  courants
+    
+    // Partie sin(pair)
+    int k ;
+    for (k=0 ; k<np+1 ; k += 4) {
+     for (int m=0 ; m<2 ; m++) {
+	for (int j=0 ; j<nt ; j++) {
+	    for (int i=0 ; i<nr ; i++ ) {
+		*xco = cxp[j] * (*xci) ;
+		xci++ ;
+		xco++ ;
+	    }	// Fin de la boucle sur r
+	}   // Fin de la boucle sur theta
+     }	  // Fin de la boucle intermediaire
+    xci += 2*nr*nt ;
+    xco += 2*nr*nt ;
+    }	// Fin de la boucle sur phi
+
+    // Partie cos(impair)
+    xci = xi + 2*nr*nt ;
+    xco = xo + 2*nr*nt ;
+    for (k=2 ; k<np+1 ; k += 4) {
+     for (int m=0 ; m<2 ; m++) {
+	for (int j=0 ; j<nt ; j++) {
+	    for (int i=0 ; i<nr ; i++ ) {
+		*xco = cxi[j] * (*xci) ;
+		xci++ ;
+		xco++ ;
+	    }	// Fin de la boucle sur r
+	}   // Fin de la boucle sur theta
+     }	  // Fin de la boucle intermediaire
+    xci += 2*nr*nt ;
+    xco += 2*nr*nt ;
+    }	// Fin de la boucle sur phi
+
+    // On remet les choses la ou il faut
+    delete [] tb->t ;
+    tb->t = xo ;
+    
+    // base de developpement
+    // inchangee
+}

@@ -29,6 +29,11 @@ char op_primr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/11/23 15:16:01  m_forot
+ *
+ * Added the bases for the cases without any equatorial symmetry
+ *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
  * Revision 1.3  2004/10/12 09:58:24  j_novak
  * Better memory management.
  *
@@ -626,7 +631,236 @@ void _primr_r_chebpim_i(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout,
 
 }
 
+// case R_CHEBPI_P
+//-------------
+void _primr_r_chebpi_p(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout, 
+        int& bout, Tbl& valp1) {
 
+    assert(tin.dim == tout.dim) ;   
+
+    // Output spectral basis
+    int base_t = bin & MSQ_T ;
+    int base_p = bin & MSQ_P ;
+    bout = base_p | base_t | R_CHEBPI_I ;
+
+    // Number of coefficients
+    int nr = tin.get_dim(0) ;	    
+    int nt = tin.get_dim(1) ;	    
+    int np = tin.get_dim(2) - 2 ;
+    int borne_phi = np + 1 ; 
+    if (np == 1) borne_phi = 1 ; 
+      
+
+     // Case of a zero input
+    // --------------------
+    if (tin.get_etat() == ETATZERO) {
+        if (val0.get_etat() == ETATZERO) {
+            tout.set_etat_zero() ; 
+            valp1.set_etat_zero() ; 
+            return ; 
+        }
+        else {
+            assert(val0.get_etat() == ETATQCQ) ; 
+            tout.annule_hard() ; 
+            valp1.annule_hard() ; 
+            double* xco = tout.t ;	
+            for (int k=0 ; k< borne_phi ; k++) {
+	        if (k==1) {     // jump over the coefficient of sin(0*phi) 
+	            xco += nr*nt ;
+	        }
+	        else {
+	            for (int j=0 ; j<nt ; j++) {
+		      int l = j%2;
+		      if(l==0){
+			for (int i=0; i<nr; i++) xco[i] = 0 ; 
+			valp1.set(k,j) = 0. ;
+		      } else {
+                        xco[0] = val0(k,j) ;  // constant value = boundary value
+                        for (int i=1; i<nr; i++) xco[i] = 0 ; 
+                        valp1.set(k,j) = xco[0]  ;
+		      }
+		      xco += nr ;
+                    }
+                }
+            }
+            return ; 
+        }
+    }
+   
+    // Case of a non-zero input
+    // ------------------------
+
+    assert(tin.get_etat() == ETATQCQ ) ; 
+    tout.annule_hard() ; 
+    valp1.annule_hard() ; 
+    
+    const double* xci = tin.t ;	
+    double* xco = tout.t ;	
+
+    for (int k=0 ; k< borne_phi ; k++) {
+        if (k==1) {     // jump over the coefficient of sin(0*phi) 
+            xci += nr*nt ;
+            xco += nr*nt ;
+        }
+        else {
+            for (int j=0 ; j<nt ; j++) {
+
+	        int l = j%2;
+		if(l==0){
+		  xco[0] = xci[0] - 0.5*xci[1] ; // special case i = 0
+		  
+		  for (int i=1; i<nr-2; i++) {
+                    xco[i] = (xci[i] - xci[i+1]) / double(4*i+2) ; 
+		  }
+		  
+		  xco[nr-2] = xci[nr-2] / double(4*nr - 6) ; 
+		  xco[nr-1] = 0 ; 
+		  
+		  // Value of primitive at xi = + 1 : 
+		  double som = xco[0] ; 
+		  for (int i=1; i<nr; i++) som += xco[i] ;
+		  valp1.set(k,j) = som ;
+		} else {
+		  for (int i=1; i<nr-1; i++) {
+                    xco[i] = (xci[i-1] - xci[i]) / double(4*i) ; 
+		  }
+		  
+		  xco[nr-1] = xci[nr-2] / double(4*nr - 4) ; 
+		  
+		  // Determination of the T_0 coefficient by maching with
+		  // provided value at xi = 0 : 
+		  double som = - xco[1] ; 
+		  for (int i=2; i<nr; i+=2) som += xco[i] ; 
+		  for (int i=3; i<nr; i+=2) som -= xco[i] ; 
+		  xco[0] = val0(k,j) - som ;                 
+		  
+		  // Value of primitive at xi = + 1 : 
+		  som = xco[0] ; 
+		  for (int i=1; i<nr; i++) som += xco[i] ;
+		  valp1.set(k,j) = som ; 
+                }
+                xci += nr ;
+                xco += nr ;
+            }   // end of theta loop
+        }   
+    }   // end of phi loop
+
+}
+// case R_CHEBPI_I
+//-------------
+void _primr_r_chebpi_i(const Tbl& tin, int bin, const Tbl& val0, Tbl& tout, 
+        int& bout, Tbl& valp1) {
+
+    assert(tin.dim == tout.dim) ;   
+
+    // Output spectral basis
+    int base_t = bin & MSQ_T ;
+    int base_p = bin & MSQ_P ;
+    bout = base_p | base_t | R_CHEBPI_P ;
+
+    // Number of coefficients
+    int nr = tin.get_dim(0) ;	    
+    int nt = tin.get_dim(1) ;	    
+    int np = tin.get_dim(2) - 2 ;
+    int borne_phi = np + 1 ; 
+    if (np == 1) borne_phi = 1 ; 
+      
+
+     // Case of a zero input
+    // --------------------
+    if (tin.get_etat() == ETATZERO) {
+        if (val0.get_etat() == ETATZERO) {
+            tout.set_etat_zero() ; 
+            valp1.set_etat_zero() ; 
+            return ; 
+        }
+        else {
+            assert(val0.get_etat() == ETATQCQ) ; 
+            tout.annule_hard() ; 
+            valp1.annule_hard() ; 
+            double* xco = tout.t ;	
+            for (int k=0 ; k< borne_phi ; k++) {
+	        if (k==1) {     // jump over the coefficient of sin(0*phi) 
+	            xco += nr*nt ;
+	        }
+	        else {
+	            for (int j=0 ; j<nt ; j++) {
+		      int l = j%2;
+		      if(l==1){
+			for (int i=0; i<nr; i++) xco[i] = 0 ; 
+			valp1.set(k,j) = 0. ;
+		      } else {
+                        xco[0] = val0(k,j) ;  // constant value = boundary value
+                        for (int i=1; i<nr; i++) xco[i] = 0 ; 
+                        valp1.set(k,j) = xco[0]  ;
+		      }
+		      xco += nr ;
+                    }
+                }
+            }
+            return ; 
+        }
+    }
+   
+    // Case of a non-zero input
+    // ------------------------
+
+    assert(tin.get_etat() == ETATQCQ ) ; 
+    tout.annule_hard() ; 
+    valp1.annule_hard() ; 
+    
+    const double* xci = tin.t ;	
+    double* xco = tout.t ;	
+
+    for (int k=0 ; k< borne_phi ; k++) {
+        if (k==1) {     // jump over the coefficient of sin(0*phi) 
+            xci += nr*nt ;
+            xco += nr*nt ;
+        }
+        else {
+            for (int j=0 ; j<nt ; j++) {
+
+	        int l = j%2;
+		if(l==1){
+		  xco[0] = xci[0] - 0.5*xci[1] ; // special case i = 0
+		  
+		  for (int i=1; i<nr-2; i++) {
+                    xco[i] = (xci[i] - xci[i+1]) / double(4*i+2) ; 
+		  }
+		  
+		  xco[nr-2] = xci[nr-2] / double(4*nr - 6) ; 
+		  xco[nr-1] = 0 ; 
+		  
+		  // Value of primitive at xi = + 1 : 
+		  double som = xco[0] ; 
+		  for (int i=1; i<nr; i++) som += xco[i] ;
+		  valp1.set(k,j) = som ;
+		} else {
+		  for (int i=1; i<nr-1; i++) {
+                    xco[i] = (xci[i-1] - xci[i]) / double(4*i) ; 
+		  }
+		  
+		  xco[nr-1] = xci[nr-2] / double(4*nr - 4) ; 
+		  
+		  // Determination of the T_0 coefficient by maching with
+		  // provided value at xi = 0 : 
+		  double som = - xco[1] ; 
+		  for (int i=2; i<nr; i+=2) som += xco[i] ; 
+		  for (int i=3; i<nr; i+=2) som -= xco[i] ; 
+		  xco[0] = val0(k,j) - som ;                 
+		  
+		  // Value of primitive at xi = + 1 : 
+		  som = xco[0] ; 
+		  for (int i=1; i<nr; i++) som += xco[i] ;
+		  valp1.set(k,j) = som ; 
+                }
+                xci += nr ;
+                xco += nr ;
+            }   // end of theta loop
+        }   
+    }   // end of phi loop
+
+}
 
 
 

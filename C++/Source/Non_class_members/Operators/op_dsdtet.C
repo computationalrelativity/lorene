@@ -36,6 +36,11 @@ char op_dsdtet_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/11/23 15:16:01  m_forot
+ *
+ * Added the bases for the cases without any equatorial symmetry
+ *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
  * Revision 1.2  2003/12/19 16:21:48  j_novak
  * Shadow hunt
  *
@@ -809,4 +814,200 @@ void _dsdtet_t_cossin_si(Tbl* tb, int & b)
     int base_r = b & MSQ_R ;
     int base_p = b & MSQ_P ;
     b = base_r | base_p | T_COSSIN_CI ;
+}
+
+// cas T_COSSIN_C
+//----------------
+void _dsdtet_t_cossin_c(Tbl* tb, int & b)
+{
+
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	int base_r = b & MSQ_R ;
+	int base_p = b & MSQ_P ;
+	b = base_r | base_p | T_COSSIN_S ;
+	return ;
+    }
+    
+    // Protection
+    assert(tb->get_etat() == ETATQCQ) ;
+    
+    // Pour le confort
+    int nr = (tb->dim).dim[0] ;	    // Nombre
+    int nt = (tb->dim).dim[1] ;	    //	 de points
+    int np = (tb->dim).dim[2] ;	    //	    physiques REELS
+    np = np - 2 ;		    // Nombre de points physiques
+    
+    // Variables statiques
+    static double* cxp = 0 ;
+    static double* cxi = 0 ;
+    static int nt_pre = 0 ;
+
+    // Test sur np pour initialisation eventuelle
+    //#pragma critical (loch_dsdtet_t_cossin_cp)
+    {
+    if (nt > nt_pre) {
+	nt_pre = nt ;
+	cxp = (double*)(realloc(cxp, nt * sizeof(double))) ;
+	cxi = (double*)(realloc(cxi, nt * sizeof(double))) ;
+	for (int i=0 ; i<nt ; i++) {
+	    cxp[i] = - i ;
+	    cxi[i] = i ;
+	    }
+	}
+    }	    // Fin de region critique
+
+    // pt. sur le tableau de double resultat
+    double* xo = new double[(tb->dim).taille] ;
+    
+    // Initialisation a zero :
+    for (int i=0; i<(tb->dim).taille; i++) {
+	xo[i] = 0 ; 
+    }
+    
+    // On y va...
+    double* xi = tb->t ;
+    double* xci = xi ;	// Pointeurs
+    double* xco = xo ;	//  courants
+    double* cx[2] ;	// Tableau des Pointeur de coefficient
+    
+    // Initialisation des pointeurs de coefficients
+    cx[0] = cxp ;	// cos pairs pour m pair
+    cx[1] = cxi ;	// sin impair pour m impair
+
+    // k = 0
+    // Choix de la parite
+    double* cxl = cx[0] ;	// Pointeur de coefficients local
+    for (int j=0 ; j<nt ; j++) {
+	for (int i=0 ; i<nr ; i++) {
+	    *xco = cxl[j] * (*xci) ;
+	    xci++ ;
+	    xco++ ;
+	}	// Fin de la Boucle sur r
+    }   // Fin de la boucle sur theta
+
+    // k = 1
+    xci += nr*nt ;
+    xco += nr*nt ;
+    
+    // k >= 2
+    for (int k=2 ; k<np+1 ; k++) {
+	// Choix de la parite
+	int m = (k/2) % 2 ;
+	cxl = cx[m] ;	// Pointeur de coefficients local
+	for (int j=0 ; j<nt ; j++) {
+	    for (int i=0 ; i<nr ; i++) {
+		*xco = cxl[j] * (*xci) ;
+		xci++ ;
+		xco++ ;
+	    }	// Fin de la Boucle sur r
+	}   // Fin de la boucle sur theta
+    }	// Fin de la boucle sur phi
+
+    // On remet les choses la ou il faut
+    delete [] tb->t ;
+    tb->t = xo ;
+    
+    // base de developpement
+    int base_r = b & MSQ_R ;
+    int base_p = b & MSQ_P ;
+    b = base_r | base_p | T_COSSIN_S ;
+}
+
+// cas T_COSSIN_S
+//----------------
+void _dsdtet_t_cossin_s(Tbl* tb, int & b)
+{
+
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	int base_r = b & MSQ_R ;
+	int base_p = b & MSQ_P ;
+	b = base_r | base_p | T_COSSIN_C ;
+	return ;
+    }
+    
+    // Protection
+    assert(tb->get_etat() == ETATQCQ) ;
+    
+    // Pour le confort
+    int nr = (tb->dim).dim[0] ;	    // Nombre
+    int nt = (tb->dim).dim[1] ;	    //	 de points
+    int np = (tb->dim).dim[2] ;	    //	    physiques REELS
+    np = np - 2 ;		    // Nombre de points physiques
+    
+    // Variables statiques
+    static double* cxp = 0 ;
+    static double* cxi = 0 ;
+    static int nt_pre =0 ;
+
+    // Test sur np pour initialisation eventuelle
+    //#pragma critical (loch_dsdtet_t_cossin_sp)
+    {
+    if (nt > nt_pre) {
+	nt_pre = nt ;
+	cxp = (double*)(realloc(cxp, nt * sizeof(double))) ;
+	cxi = (double*)(realloc(cxi, nt * sizeof(double))) ;
+	for (int i=0 ; i<nt ; i++) {
+	    cxp[i] = i ;
+	    cxi[i] = - i ;
+	    }
+	}
+    }	    // Fin de region critique
+
+    // pt. sur le tableau de double resultat
+    double* xo = new double[(tb->dim).taille] ;
+    
+    // Initialisation a zero :
+    for (int i=0; i<(tb->dim).taille; i++) {
+	xo[i] = 0 ; 
+    }
+    
+    // On y va...
+    double* xi = tb->t ;
+    double* xci = xi ;	// Pointeurs
+    double* xco = xo ;	//  courants
+    double* cx[2] ;	// Tableau des Pointeur de coefficient
+    
+    // Initialisation des pointeurs de coefficients
+    cx[0] = cxp ;	// sin pairs pour m pair
+    cx[1] = cxi ;	// cos impair pour m impair
+
+    // k = 0
+    // Choix de la parite
+    double* cxl = cx[0] ;	// Pointeur de coefficients local
+    for (int j=0 ; j<nt ; j++) {
+	for (int i=0 ; i<nr ; i++) {
+	    *xco = cxl[j] * (*xci) ;
+	    xci++ ;
+	    xco++ ;
+	}	// Fin de la Boucle sur r
+    }   // Fin de la boucle sur theta
+
+    // k = 1
+    xci += nr*nt ;
+    xco += nr*nt ;
+    
+    // k >= 2
+    for (int k=2 ; k<np+1 ; k++) {
+	// Choix de la parite
+	int m = (k/2) % 2 ;
+	cxl = cx[m] ;	// Pointeur de coefficients local
+	for (int j=0 ; j<nt ; j++) {
+	    for (int i=0 ; i<nr ; i++) {
+		*xco = cxl[j] * (*xci) ;
+		xci++ ;
+		xco++ ;
+	    }	// Fin de la Boucle sur r
+	}   // Fin de la boucle sur theta
+    }	// Fin de la boucle sur phi
+
+    // On remet les choses la ou il faut
+    delete [] tb->t ;
+    tb->t = xo ;
+    
+    // base de developpement
+    int base_r = b & MSQ_R ;
+    int base_p = b & MSQ_P ;
+    b = base_r | base_p | T_COSSIN_C ;
 }

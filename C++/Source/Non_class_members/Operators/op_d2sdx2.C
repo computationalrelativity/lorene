@@ -37,8 +37,13 @@ char op_d2sdx2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2004/11/23 15:16:01  m_forot
+ *
+ * Added the bases for the cases without any equatorial symmetry
+ *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.7  2000/02/24  16:40:50  eric
  * Initialisation a zero du tableau xo avant le calcul.
@@ -719,3 +724,270 @@ void _d2sdx2_r_chebpim_i(Tbl *tb, int & )
     // inchangee
 }
 
+// cas R_CHEBPI_P
+//----------------
+void _d2sdx2_r_chebpi_p(Tbl *tb, int & )
+{
+
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	return ;
+    }
+    
+    // Protection
+    assert(tb->get_etat() == ETATQCQ) ;
+    
+    // Pour le confort
+    int nr = (tb->dim).dim[0] ;	    // Nombre
+    int nt = (tb->dim).dim[1] ;	    //	 de points
+    int np = (tb->dim).dim[2] ;	    //	    physiques REELS
+    np = np - 2 ;		    // Nombre de points physiques
+    
+    // Variables statiques
+    static double* cx1p = 0x0 ;
+    static double* cx2p = 0x0 ;
+    static double* cx3p = 0x0 ;
+    static double* cx1i = 0x0 ;
+    static double* cx2i = 0x0 ;
+    static double* cx3i = 0x0 ;
+    static int nr_pre = 0 ;
+
+    // Test sur np pour initialisation eventuelle
+    if (nr > nr_pre) {
+	nr_pre = nr ;
+	if (cx1p != 0x0) delete [] cx1p ;
+	if (cx2p != 0x0) delete [] cx2p ;
+	if (cx3p != 0x0) delete [] cx3p ;
+	if (cx1i != 0x0) delete [] cx1i ;
+	if (cx2i != 0x0) delete [] cx2i ;
+	if (cx3i != 0x0) delete [] cx3i ;
+	cx1p = new double[nr] ;
+	cx2p = new double[nr] ;
+	cx3p = new double[nr] ;
+	cx1i = new double[nr] ;
+	cx2i = new double[nr] ;
+	cx3i = new double[nr] ;
+	for (int i=0 ; i<nr ; i++) {
+	    cx1p[i] =  8*(i+1)*(i+1)*(i+1) ;
+	    cx2p[i] =  2*(i+1) ;
+	    cx3p[i] =  4*i*i ;
+
+	    cx1i[i] =  (2*i+3)*(2*i+3)*(2*i+3) ;
+	    cx2i[i] =  (2*i+3) ;
+	    cx3i[i] =  (2*i+1)*(2*i+1) ;
+	}
+    }
+    
+    double* cx1t[2] ;
+    double* cx2t[2] ;
+    double* cx3t[2] ;
+    cx1t[0] = cx1p ; cx1t[1] = cx1i ;
+    cx2t[0] = cx2p ; cx2t[1] = cx2i ;
+    cx3t[0] = cx3p ; cx3t[1] = cx3i ;
+
+    // pt. sur le tableau de double resultat
+    double* xo = new double[(tb->dim).taille] ;
+    
+    // Initialisation a zero :
+    for (int i=0; i<(tb->dim).taille; i++) {
+	xo[i] = 0 ; 
+    }
+    
+    // On y va...
+    double* xi = tb->t ;
+    double* xci ;	// Pointeurs
+    double* xco ;	//  courants
+    
+    // Position depart
+    xci = xi ;
+    xco = xo ;
+    
+    double *cx1, *cx2, *cx3 ;
+
+    // k = 0
+    for (int j=0 ; j<nt ; j++) {
+      int l = j % 2 ;
+      cx1 = cx1t[l] ;
+      cx2 = cx2t[l] ;
+      cx3 = cx3t[l] ;
+      double som1 = 0 ;
+      double som2 = 0 ;
+      
+      xco[nr-1] = 0 ;
+      for (int i = nr-2 ; i >= 0 ; i-- ) {
+	som1 += cx1[i] * xci[i+1] ;
+	som2 += cx2[i] * xci[i+1] ;
+	xco[i] = som1 - cx3[i] * som2 ;
+      }	// Fin de la boucle sur r
+      if (l == 0) xco[0] *= .5 ;	// normalisation	    
+      xci += nr ;	// au
+      xco += nr ;	//  suivant
+    }   // Fin de la boucle sur theta
+    
+    // k = 1
+    xci += nr*nt ;
+    xco += nr*nt ;
+    
+    // k >= 2
+    for (int k=2 ; k<np+1 ; k++) {
+      for (int j=0 ; j<nt ; j++) {
+	int l = j % 2 ;
+	cx1 = cx1t[l] ;
+	cx2 = cx2t[l] ;
+	cx3 = cx3t[l] ;
+	double som1 = 0 ;
+	double som2 = 0 ;
+	
+	xco[nr-1] = 0 ;
+	for (int i = nr-2 ; i >= 0 ; i-- ) {
+	  som1 += cx1[i] * xci[i+1] ;
+	  som2 += cx2[i] * xci[i+1] ;
+	  xco[i] = som1 - cx3[i] * som2 ;
+	}	// Fin de la boucle sur r
+	if (l == 0) xco[0] *= .5 ;  // normalisation eventuelle
+	xci += nr ; // au
+	xco += nr ; //	suivant
+      }   // Fin de la boucle sur theta
+    }	// Fin de la boucle sur phi
+    
+    // On remet les choses la ou il faut
+    delete [] tb->t ;
+    tb->t = xo ;
+    
+    // base de developpement
+    // inchangee
+}
+
+// cas R_CHEBPI_I
+//----------------
+void _d2sdx2_r_chebpi_i(Tbl *tb, int & )
+{
+
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	return ;
+    }
+    
+    // Protection
+    assert(tb->get_etat() == ETATQCQ) ;
+    
+    // Pour le confort
+    int nr = (tb->dim).dim[0] ;	    // Nombre
+    int nt = (tb->dim).dim[1] ;	    //	 de points
+    int np = (tb->dim).dim[2] ;	    //	    physiques REELS
+    np = np - 2 ;		    // Nombre de points physiques
+    
+     // Variables statiques
+    static double* cx1p = 0x0 ;
+    static double* cx2p = 0x0 ;
+    static double* cx3p = 0x0 ;
+    static double* cx1i = 0x0 ;
+    static double* cx2i = 0x0 ;
+    static double* cx3i = 0x0 ;
+    static int nr_pre = 0 ;
+
+    // Test sur np pour initialisation eventuelle
+    if (nr > nr_pre) {
+	nr_pre = nr ;
+	if (cx1p != 0x0) delete [] cx1p ;
+	if (cx2p != 0x0) delete [] cx2p ;
+	if (cx3p != 0x0) delete [] cx3p ;
+	if (cx1i != 0x0) delete [] cx1i ;
+	if (cx2i != 0x0) delete [] cx2i ;
+	if (cx3i != 0x0) delete [] cx3i ;
+	cx1p = new double[nr] ;
+	cx2p = new double[nr] ;
+	cx3p = new double[nr] ;
+	cx1i = new double[nr] ;
+	cx2i = new double[nr] ;
+	cx3i = new double[nr] ;
+	for (int i=0 ; i<nr ; i++) {
+	    cx1p[i] =  8*(i+1)*(i+1)*(i+1) ;
+	    cx2p[i] =  2*(i+1) ;
+	    cx3p[i] =  4*i*i ;
+
+	    cx1i[i] =  (2*i+3)*(2*i+3)*(2*i+3) ;
+	    cx2i[i] =  (2*i+3) ;
+	    cx3i[i] =  (2*i+1)*(2*i+1) ;
+	}
+    }
+
+    double* cx1t[2] ;
+    double* cx2t[2] ;
+    double* cx3t[2] ;
+    cx1t[1] = cx1p ; cx1t[0] = cx1i ;
+    cx2t[1] = cx2p ; cx2t[0] = cx2i ;
+    cx3t[1] = cx3p ; cx3t[0] = cx3i ;
+
+    // pt. sur le tableau de double resultat
+    double* xo = new double[(tb->dim).taille] ;
+    
+    // Initialisation a zero :
+    for (int i=0; i<(tb->dim).taille; i++) {
+	xo[i] = 0 ; 
+    }
+    
+    // On y va...
+    double* xi = tb->t ;
+    double* xci ;	// Pointeurs
+    double* xco ;	//  courants
+    
+    // Position depart
+    xci = xi ;
+    xco = xo ;
+
+    double *cx1, *cx2, *cx3 ;
+
+    // k = 0
+    for (int j=0 ; j<nt ; j++) {
+      int l = j % 2 ;
+      cx1 = cx1t[l] ;
+      cx2 = cx2t[l] ;
+      cx3 = cx3t[l] ;
+      double som1 = 0 ;
+      double som2 = 0 ;
+      
+      xco[nr-1] = 0 ;
+      for (int i = nr-2 ; i >= 0 ; i-- ) {
+	som1 += cx1[i] * xci[i+1] ;
+	som2 += cx2[i] * xci[i+1] ;
+	xco[i] = som1 - cx3[i] * som2 ;
+      }	// Fin de la boucle sur r
+      if (l == 1) xco[0] *= .5 ;
+      xci += nr ;
+      xco += nr ;
+    }   // Fin de la boucle sur theta
+    
+    // k = 1
+    xci += nr*nt ;
+    xco += nr*nt ;
+    
+    // k >= 2
+    for (int k=2 ; k<np+1 ; k++) {
+      for (int j=0 ; j<nt ; j++) {
+	int l = j % 2 ;
+	cx1 = cx1t[l] ;
+	cx2 = cx2t[l] ;
+	cx3 = cx3t[l] ;
+	double som1 = 0 ;
+	double som2 = 0 ;
+	
+	xco[nr-1] = 0 ;
+	for (int i = nr-2 ; i >= 0 ; i-- ) {
+	  som1 += cx1[i] * xci[i+1] ;
+	  som2 += cx2[i] * xci[i+1] ;
+	  xco[i] = som1 - cx3[i] * som2 ;
+	}	// Fin de la boucle sur r
+	if (l == 1) xco[0] *= .5 ;
+	xci += nr ;
+	xco += nr ;
+      }   // Fin de la boucle sur theta
+    }	// Fin de la boucle sur phi
+    
+    // On remet les choses la ou il faut
+    delete [] tb->t ;
+    tb->t = xo ;
+    
+    // base de developpement
+    // inchangee
+}

@@ -25,8 +25,13 @@ char op_mult_x_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2004/11/23 15:16:01  m_forot
+ *
+ * Added the bases for the cases without any equatorial symmetry
+ *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.3  2000/09/07  12:49:53  phil
  * *** empty log message ***
@@ -422,4 +427,156 @@ void _mult_x_r_chebpim_i(Tbl* tb, int& base)
     int base_t = base & MSQ_T ;
     int base_p = base & MSQ_P ;
     base = base_p | base_t | R_CHEBPIM_P ;
+}
+
+			//---------------
+			// cas R_CHEBPI_P --
+			//--------------
+
+void _mult_x_r_chebpi_p(Tbl* tb, int& base)
+    {
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	int base_t = base & MSQ_T ;
+	int base_p = base & MSQ_P ;
+	base = base_p | base_t | R_CHEBPI_I ;
+	return ;
+    }
+    
+    // Pour le confort
+    int nr = (tb->dim).dim[0] ;	    // Nombre
+    int nt = (tb->dim).dim[1] ;	    //	 de points
+    int np = (tb->dim).dim[2] ;	    //	    physiques REELS
+    np = np - 2 ;		    // Nombre de points physiques
+    
+    // pt. sur le tableau de double resultat
+    double* xo = new double [tb->get_taille()];
+    
+    // Initialisation a zero :
+    for (int i=0; i<tb->get_taille(); i++) {
+	xo[i] = 0 ; 
+    }
+    
+    // On y va...
+    double* xi = tb->t ;
+    double* xci = xi ;	// Pointeurs
+    double* xco = xo ;	//  courants
+
+    int borne_phi = np + 1 ; 
+    if (np == 1) {
+	borne_phi = 1 ; 
+    }
+    
+    for (int k=0 ; k< borne_phi ; k++)
+	if (k==1) {
+	    xci += nr*nt ;
+	    xco += nr*nt ;
+	}
+	else {
+	for (int j=0 ; j<nt ; j++) {
+	    int  l = j%2 ;
+	    if(l==0){
+	      xco[0] = xci[0] + 0.5*xci[1] ;
+	      for (int i = 1 ; i < nr-1 ; i++ ) {
+		xco[i] = 0.5*(xci[i]+xci[i+1]) ;
+	      }	// Fin de la boucle sur r
+	      xco[nr-1] = 0 ;
+	    } else {
+	      xco[0] = 0.5*xci[0] ;
+	      for (int i = 1 ; i < nr-1 ; i++ ) {
+		xco[i] = (xci[i]+xci[i-1])*0.5 ;
+	      }	// Fin de la premiere boucle sur r
+	      xco[nr-1] = 0.5*xci[nr-2] ;
+	    }
+	    xci += nr ;
+	    xco += nr ;
+	}   // Fin de la boucle sur theta
+    }	// Fin de la boucle sur phi
+    
+    // On remet les choses la ou il faut
+    delete [] tb->t ;
+    tb->t = xo ;
+    
+    // base de developpement
+    // pair -> impair
+    int base_t = base & MSQ_T ;
+    int base_p = base & MSQ_P ;
+    base = base_p | base_t | R_CHEBPI_I ;
+
+}
+
+			//----------------
+			// cas R_CHEBPI_I ---
+			//----------------
+
+void _mult_x_r_chebpi_i(Tbl* tb, int& base)
+{
+
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	int base_t = base & MSQ_T ;
+	int base_p = base & MSQ_P ;
+	base = base_p | base_t | R_CHEBPI_P ;
+	return ;
+    }
+    
+    // Pour le confort
+    int nr = (tb->dim).dim[0] ;	    // Nombre
+    int nt = (tb->dim).dim[1] ;	    //	 de points
+    int np = (tb->dim).dim[2] ;	    //	    physiques REELS
+    np = np - 2 ;		    // Nombre de points physiques
+    
+    // pt. sur le tableau de double resultat
+    double* xo = new double [tb->get_taille()];
+    
+    // Initialisation a zero :
+    for (int i=0; i<tb->get_taille(); i++) {
+	xo[i] = 0 ; 
+    }
+    
+    // On y va...
+    double* xi = tb->t ;
+    double* xci = xi ;	// Pointeurs
+    double* xco = xo ;	//  courants
+    
+    int borne_phi = np + 1 ; 
+    if (np == 1) {
+	borne_phi = 1 ; 
+    }
+    
+    for (int k=0 ; k< borne_phi ; k++) 
+	if (k == 1)  {
+		xci += nr*nt ;
+		xco += nr*nt ;
+		}
+	else {
+	for (int j=0 ; j<nt ; j++) {
+	    int  l = j%2 ;
+	    if(l==1){
+	      xco[0] = xci[0] + 0.5*xci[1] ;
+	      for (int i = 1 ; i < nr-1 ; i++ ) {
+		xco[i] = 0.5*(xci[i]+xci[i+1]) ;
+	      }	// Fin de la boucle sur r
+	      xco[nr-1] = 0 ;
+	    } else {
+	      xco[0] = 0.5*xci[0] ;
+	      for (int i = 1 ; i < nr-1 ; i++ ) {
+		xco[i] = (xci[i]+xci[i-1])*0.5 ;
+	      }	// Fin de la premiere boucle sur r
+	      xco[nr-1] = 0.5*xci[nr-2] ;
+	    }
+	    xci += nr ;
+	    xco += nr ;
+	}   // Fin de la boucle sur theta
+    }	// Fin de la boucle sur phi
+    
+    // On remet les choses la ou il faut
+    delete [] tb->t ;
+    tb->t = xo ;
+    
+    // base de developpement
+    // impair -> pair
+    int base_t = base & MSQ_T ;
+    int base_p = base & MSQ_P ;    
+    base = base_p | base_t | R_CHEBPI_P ;
 }
