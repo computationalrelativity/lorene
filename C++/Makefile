@@ -25,6 +25,7 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Map; $(MAKE)
 	cd Source/Matrice; $(MAKE)
 	cd Source/Metric; $(MAKE)
+	cd Source/Metrique; $(MAKE)
 	cd Source/Mg3d; $(MAKE)
 	cd Source/Mtbl; $(MAKE)
 	cd Source/Mtbl_cf; $(MAKE)
@@ -68,6 +69,7 @@ uninstall:
 	cd Source/Map; $(MAKE) -i uninstall
 	cd Source/Matrice; $(MAKE) -i uninstall
 	cd Source/Metric; $(MAKE) -i uninstall
+	cd Source/Metrique; $(MAKE) -i uninstall
 	cd Source/Mg3d; $(MAKE) -i uninstall
 	cd Source/Mtbl; $(MAKE) -i uninstall
 	cd Source/Mtbl_cf; $(MAKE) -i uninstall
