@@ -44,8 +44,8 @@ char bin_ns_ncp_orbite_C[] = "$Header$" ;
 #include "param.h"
 #include "utilitaires.h"
 
-/*double  fonc_binaire_axe(double , const Param& ) ;
-double  fonc_binaire_orbit(double , const Param& ) ;
+double  fonc_bin_ncp_axe(double , const Param& ) ;
+double  fonc_bin_ncp_orbit(double , const Param& ) ;
 
 //******************************************************************************
 
@@ -65,7 +65,7 @@ void Bin_ns_ncp::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
 
     double g00[2], g10[2], g20[2], g11[2], g21[2], g22[2], bx[2], by[2] ;
       
-    double bz[2], d1sb2[2], 1sb2[2] ;
+    double bz[2], d1sn2[2], unsn2[2] ;
 
     double dnulg[2], xgg[2], ori_x[2], dg00[2], dg10[2], dg20[2], dg11[2] ;
       
@@ -73,15 +73,13 @@ void Bin_ns_ncp::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
 
     for (int i=0; i<2; i++) {
 	
-	const Map& mp = et[i]->get_mp() ; 
-
-	const Cmp& logn_auto_regu = et[i]->get_logn_auto_regu()() ; 
+	const Cmp& logn_auto = et[i]->get_logn_auto()() ; 
 	const Cmp& logn_comp = et[i]->get_logn_comp()() ; 
 	const Cmp& loggam = et[i]->get_loggam()() ; 
 	const Cmp& nnn = et[i]->get_nnn()() ; 
 	const Tenseur& shift = et[i]->get_shift() ; 
-	const Tenseur& d_logn_auto_div = et[i]->get_d_logn_auto_div() ; 
 	const Metrique& met_gamma = et[i]->get_met_gamma() ;
+	const Tenseur a_car = et[i]->get_a_car() ;
 
 	const Cmp& gg00 = met_gamma.cov()(0,0) ;
 	const Cmp& gg10 = met_gamma.cov()(1,0) ;
@@ -94,43 +92,16 @@ void Bin_ns_ncp::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
 	const Cmp& bby = shift(1) ;
 	const Cmp& bbz = shift(2) ;
 
-	Tenseur dln_auto_div = d_logn_auto_div ;
-
-	if ( *(dln_auto_div.get_triad()) != ref_triad ) {
-
-	  // Change the basis from spherical coordinate to Cartesian one
-	  dln_auto_div.change_triad( mp.get_bvect_cart() ) ;
-
-	  // Change the basis from mapping coordinate to absolute one
-	  dln_auto_div.change_triad( ref_triad ) ;
-
-	}
-
+	
 	//----------------------------------
 	// Calcul de d/dX( nu + ln(Gamma) ) au centre de l'etoile ---> dnulg[i]
 	//----------------------------------
-	
-	// Facteur de passage x --> X :
-	double factx ;
-	if (fabs(mp.get_rot_phi()) < 1.e-14) {
-	    factx = 1. ; 
-	}
-	else {
-	    if (fabs(mp.get_rot_phi() - M_PI) < 1.e-14) {
-		factx = - 1. ; 
-	    }
-	    else {
-		cout << "Binaire::orbit : unknown value of rot_phi !" << endl ;
-		abort() ; 
-	    }
-	}
-	    
-	Cmp tmp = logn_auto_regu + logn_comp + loggam ;
+
+	Cmp tmp = logn_auto + logn_comp + loggam ;
 	
 	// ... gradient suivant X : 		
-	dnulg[i] = dln_auto_div(0)(0, 0, 0, 0)
-	  + factx * tmp.dsdx()(0, 0, 0, 0) ; 
-	
+	dnulg[i] = tmp.dsdx()(0, 0, 0, 0) ; 
+
 	//----------------------------------
 	// Calcul de gij, lapse et shift au centre de l'etoile
 	//----------------------------------
@@ -146,51 +117,54 @@ void Bin_ns_ncp::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
 	by[i] = bby(0,0,0,0) ;
 	bz[i] = bbz(0,0,0,0) ;
 
-	1sb2[i] = (nnn(0,0,0,0))^(-1./2.) ; 
+	unsn2[i] = 1/(nnn(0,0,0,0)*nnn(0,0,0,0)) ; 
 
 	//----------------------------------
 	// Calcul de d/dX(gij), d/dX(shift) au centre de l'etoile
 	//----------------------------------
 	
-	dg00[i] = factx * gg00.dsdx()(0,0,0,0) ;
-	dg10[i] = factx * gg10.dsdx()(0,0,0,0) ;
-	dg20[i] = factx * gg20.dsdx()(0,0,0,0) ;
-	dg11[i] = factx * gg11.dsdx()(0,0,0,0) ;
-	dg21[i] = factx * gg21.dsdx()(0,0,0,0) ;
-	dg22[i] = factx * gg22.dsdx()(0,0,0,0) ;
+	dg00[i] = gg00.dsdx()(0,0,0,0) ;
+	dg10[i] = gg10.dsdx()(0,0,0,0) ;
+	dg20[i] = gg20.dsdx()(0,0,0,0) ;
+	dg11[i] = gg11.dsdx()(0,0,0,0) ;
+	dg21[i] = gg21.dsdx()(0,0,0,0) ;
+	dg22[i] = gg22.dsdx()(0,0,0,0) ;
+	
+	dbx[i] = bbx.dsdx()(0,0,0,0) ;
+	dby[i] = bby.dsdx()(0,0,0,0) ;
+ 	dbz[i] = bbz.dsdx()(0,0,0,0) ;
 
-	dbx[i] = factx * bbx.dsdx()(0,0,0,0) ;
-	dby[i] = factx * bby.dsdx()(0,0,0,0) ;
- 	dbz[i] = factx * bbz.dsdx()(0,0,0,0) ;
-
-	dbymo[i] = factx * bby.dsdx()(0,0,0,0) - omega ;
-
-	d1sb2[i] = factx * (pow(nnn,(-1./2.))).dsdx()(0,0,0,0) ;
+	dbymo[i] = bby.dsdx()(0,0,0,0) - omega ;
 
 
-	cout << "Binaire::orbit: central d(nu+log(Gam))/dX : " 
+	d1sn2[i] = (1/(nnn*nnn)).dsdx()(0,0,0,0) ;
+
+
+	cout << "Bin_ns_ncp::orbit: central d(nu+log(Gam))/dX : " 
 	     << dnulg[i] << endl ; 
-	cout << "Binaire::orbit: central g00 :" << g00[i] << endl ;
-	cout << "Binaire::orbit: central g10 :" << g10[i] << endl ;
-	cout << "Binaire::orbit: central g20 :" << g20[i] << endl ;
-	cout << "Binaire::orbit: central g11 :" << g11[i] << endl ;
-	cout << "Binaire::orbit: central g21 :" << g21[i] << endl ;
-	cout << "Binaire::orbit: central g22 :" << g22[i] << endl ;
+	cout << "Bin_ns_ncp::orbit: central g00 :" << g00[i] << endl ;
+	cout << "Bin_ns_ncp::orbit: central g10 :" << g10[i] << endl ;
+	cout << "Bin_ns_ncp::orbit: central g20 :" << g20[i] << endl ;
+	cout << "Bin_ns_ncp::orbit: central g11 :" << g11[i] << endl ;
+	cout << "Bin_ns_ncp::orbit: central g21 :" << g21[i] << endl ;
+	cout << "Bin_ns_ncp::orbit: central g22 :" << g22[i] << endl ;
 
-	cout << "Binaire::orbit: central shift_x :" << bx[i] << endl ;
-	cout << "Binaire::orbit: central shift_y :" << by[i] << endl ;
-	cout << "Binaire::orbit: central shift_z :" << bz[i] << endl ;
+	cout << "Bin_ns_ncp::orbit: central shift_x :" << bx[i] << endl ;
+	cout << "Bin_ns_ncp::orbit: central shift_y :" << by[i] << endl ;
+	cout << "Bin_ns_ncp::orbit: central shift_z :" << bz[i] << endl ;
 
-	cout << "Binaire::orbit: central d/dX(g00) :" << dg00[i] << endl ;
-	cout << "Binaire::orbit: central d/dX(g10) :" << dg10[i] << endl ;
-	cout << "Binaire::orbit: central d/dX(g20) :" << dg20[i] << endl ;
-	cout << "Binaire::orbit: central d/dX(g11) :" << dg11[i] << endl ;
-	cout << "Binaire::orbit: central d/dX(g21) :" << dg21[i] << endl ;
-	cout << "Binaire::orbit: central d/dX(g22) :" << dg22[i] << endl ;
+	cout << "Bin_ns_ncp::orbit: central d/dX(g00) :" << dg00[i] << endl ;
+	cout << "Bin_ns_ncp::orbit: central d/dX(g10) :" << dg10[i] << endl ;
+	cout << "Bin_ns_ncp::orbit: central d/dX(g20) :" << dg20[i] << endl ;
+	cout << "Bin_ns_ncp::orbit: central d/dX(g11) :" << dg11[i] << endl ;
+	cout << "Bin_ns_ncp::orbit: central d/dX(g21) :" << dg21[i] << endl ;
+	cout << "Bin_ns_ncp::orbit: central d/dX(g22) :" << dg22[i] << endl ;
 
-	cout << "Binaire::orbit: central d/dX(shift_x) :" << dbx[i] << endl ;
-	cout << "Binaire::orbit: central d/dX(shift_y) :" <<dby[i] << endl ;
-	cout << "Binaire::orbit: central d/dX(shift_z) :" << dbz[i] << endl ;
+	cout << a_car()(0,0,0,0) << " " << a_car().dsdx()(0,0,0,0) << endl ;
+
+	cout << "Bin_ns_ncp::orbit: central d/dX(shift_x) :" << dbx[i] << endl ;
+	cout << "Bin_ns_ncp::orbit: central d/dX(shift_y) :" <<dby[i] << endl ;
+	cout << "Bin_ns_ncp::orbit: central d/dX(shift_z) :" << dbz[i] << endl ;
 
 	//----------------------
 	// Pour information seulement : 1/ calcul des positions des "centres de
@@ -200,7 +174,7 @@ void Bin_ns_ncp::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
 
         ori_x[i] = (et[i]->get_mp()).get_ori_x() ;
 
-	xgg[i] = factx * (et[i]->xa_barycenter() - ori_x[i]) ;
+	xgg[i] = (et[i]->xa_barycenter() - ori_x[i]) ;
 		 
     } // fin de la boucle sur les etoiles 
 
@@ -261,30 +235,28 @@ void Bin_ns_ncp::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
 	paraxe.add_double( dg22[1], 33) ;
 	paraxe.add_double( dbx[0], 34) ;
 	paraxe.add_double( dbx[1], 35) ;
-	paraxe.add_double( dby[0], 36) ;
-	paraxe.add_double( dby[1], 37) ;
-	paraxe.add_double( dbz[0], 38) ;
-	paraxe.add_double( dbz[1], 39) ;
-	paraxe.add_double( dbymo[0], 40) ;
-	paraxe.add_double( dbymo[1], 41) ;
-	paraxe.add_double( d1sb2[0], 42) ;
-	paraxe.add_double( d1sb2[1], 43) ;
-	paraxe.add_double( 1sb2[0], 44) ;
-	paraxe.add_double( 1sb2[1], 45) ;
-	paraxe.add_double( omega, 46) ;
+	paraxe.add_double( dbz[0], 36) ;
+	paraxe.add_double( dbz[1], 37) ;
+	paraxe.add_double( dbymo[0], 38) ;
+	paraxe.add_double( dbymo[1], 39) ;
+	paraxe.add_double( d1sn2[0], 40) ;
+	paraxe.add_double( d1sn2[1], 41) ;
+	paraxe.add_double( unsn2[0], 42) ;
+	paraxe.add_double( unsn2[1], 43) ;
+	paraxe.add_double( omega, 44) ;
 
 	int nitmax_axe = 200 ; 
 	int nit_axe ; 
 	double precis_axe = 1.e-13 ;
 
-	x_axe = zerosec(fonc_binaire_axe, paraxe, 0.9*ori_x1, 0.9*ori_x2,
+	x_axe = zerosec(fonc_bin_ncp_axe, paraxe, 0.9*ori_x1, 0.9*ori_x2,
 			precis_axe, nitmax_axe, nit_axe) ;
 
-	cout << "Binaire::orbit : Number of iterations in zerosec for x_axe : "
+	cout << "Bin_ns_ncp::orbit : Number of iterations in zerosec for x_axe : "
 	     << nit_axe << endl ;
     }
 
-    cout << "Binaire::orbit : x_axe [km] : " << x_axe / km << endl ; 
+    cout << "Bin_ns_ncp::orbit : x_axe [km] : " << x_axe / km << endl ; 
 
 //-------------------------------------
 //  Calcul de la vitesse orbitale    
@@ -313,30 +285,28 @@ void Bin_ns_ncp::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
     parf.add_double( dg21[0], 15) ;
     parf.add_double( dg22[0], 16) ;
     parf.add_double( dbx[0], 17) ;
-    parf.add_double( dby[0], 18) ;
-    parf.add_double( dbz[0], 19) ;
-    parf.add_double( dbymo[0], 20) ;
-    parf.add_double( d1sb2[0], 21) ;
-    parf.add_double( 1sb2[0], 22) ;
-    parf.add_double( x_axe, 23) ;
-    parf.add_double( omega, 24) ;
-
+    parf.add_double( dbz[0], 18) ;
+    parf.add_double( dby[0], 19) ;
+    parf.add_double( d1sn2[0], 20) ;
+    parf.add_double( unsn2[0], 21) ;
+    parf.add_double( x_axe, 22) ;
+ 
 
     double omega1 = fact_omeg_min * omega  ; 
     double omega2 = fact_omeg_max * omega ; 
-    cout << "Binaire::orbit: omega1,  omega2 [rad/s] : " 
+    cout << "Bin_ns_ncp::orbit: omega1,  omega2 [rad/s] : " 
 	 << omega1 * f_unit << "  " << omega2 * f_unit << endl ; 
 
     int nitermax = 200 ; 
     int niter ; 
     double precis = 1.e-13 ;
-    omega = zerosec(fonc_binaire_orbit, parf, omega1, omega2,
+    omega = zerosec(fonc_bin_ncp_orbit, parf, omega1, omega2,
 		    precis, nitermax, niter) ;
     
-    cout << "Binaire::orbit : Number of iterations in zerosec for omega : "
+    cout << "Bin_ns_ncp::orbit : Number of iterations in zerosec for omega : "
 	 << niter << endl ; 
 	
-    cout << "Binaire::orbit : omega [rad/s] : "
+    cout << "Bin_ns_ncp::orbit : omega [rad/s] : "
 	 << omega * f_unit << endl ; 
           
 
@@ -347,7 +317,7 @@ void Bin_ns_ncp::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
 //  Function used for search of the rotation axis
 //*************************************************
 
-double  fonc_binaire_axe(double x_rot, const Param& paraxe) {
+double  fonc_bin_ncp_axe(double x_rot, const Param& paraxe) {
 
     double ori_x1 = paraxe.get_double(0) ;
     double ori_x2 = paraxe.get_double(1) ;
@@ -385,19 +355,20 @@ double  fonc_binaire_axe(double x_rot, const Param& paraxe) {
     double dg22_2 = paraxe.get_double(33) ;
     double dbx_1 = paraxe.get_double(34) ;
     double dbx_2 = paraxe.get_double(35) ;
-    double dby_1 = paraxe.get_double(36) ;
-    double dby_2 = paraxe.get_double(37) ;
-    double dbz_1 = paraxe.get_double(38) ;
-    double dbz_2 = paraxe.get_double(39) ;
-    double dbymo_1 = paraxe.get_double(40) ;
-    double dbymo_2 = paraxe.get_double(41) ;
-    double d1sb2_1 = paraxe.get_double(42) ;
-    double d1sb2_2 = paraxe.get_double(43) ;
-    double 1sb2_1 = paraxe.get_double(44) ;
-    double 1sb2_2 = paraxe.get_double(45) ;
-    double omega = paraxe.get_double(46) ;
+    double dbz_1 = paraxe.get_double(36) ;
+    double dbz_2 = paraxe.get_double(37) ;
+    double dbymo_1 = paraxe.get_double(38) ;
+    double dbymo_2 = paraxe.get_double(39) ;
+    double d1sn2_1 = paraxe.get_double(40) ;
+    double d1sn2_2 = paraxe.get_double(41) ;
+    double unsn2_1 = paraxe.get_double(42) ;
+    double unsn2_2 = paraxe.get_double(43) ;
+    double omega = paraxe.get_double(44) ;
 
-     double x1 = ori_x1 - x_rot ;
+    double om2_star1 ;
+    double om2_star2 ;
+
+    double x1 = ori_x1 - x_rot ;
     double x2 = ori_x2 - x_rot ;
 
     double bymxo_1 = by_1-x1*omega ; 
@@ -405,51 +376,51 @@ double  fonc_binaire_axe(double x_rot, const Param& paraxe) {
 
     
     double beta1 = g00_1*bx_1*bx_1 + 2*g10_1*bx_1*bymxo_1 + 2*g20_1*bx_1*bz_1 ;
-    double beta2 = g11_1*bymxo_1^2 + 2*g21_1*bz_1*bymxo_1+ g22_1*bz_1*bz_1 ;
+    double beta2 = g11_1*bymxo_1*bymxo_1 + 2*g21_1*bz_1*bymxo_1 
+                   + g22_1*bz_1*bz_1 ;
+
     double beta_1 = beta1 + beta2 ;
-       
-    double alpha_1 = 1 - 1sb2_1*beta_1 ;
+
 
     double delta1 = dg00_1*bx_1*bx_1 + 2*g00_1*dbx_1*bx_1 + 2*dg10_1*bx_1*bymxo_1 ;
     double delta2 = 2*g10_1*bymxo_1*dbx_1 + 2*g10_1*bx_1*dbymo_1 + 2*dg20_1*bx_1*bz_1 ;
-    double delta3 = 2*g20_1*bx_1*dbz_1 +2*g20_1*bz_1*dbx_1 + dg11_1*bymxo_1*^2 ;
+    double delta3 = 2*g20_1*bx_1*dbz_1 +2*g20_1*bz_1*dbx_1 + dg11_1*bymxo_1*bymxo_1 ;
     double delta4 = 2*g11_1*bymxo_1*dbymo_1 + 2*dg21_1*bz_1*bymxo_1;
     double delta5 = 2*g21_1*bymxo_1*dbz_1 +2*g21_1*bz_1*dbymo_1 + dg22_1*bz_1*bz_1 + 2*g22_1*bz_1*dbz_1 ;
 
     double delta_1 = delta1 + delta2 + delta3 + delta4 + delta5 ;
 
-    // Difference entre les 2 termes de l'eq.(95) de Gourgoulhon et.al (2001) au    //centre de l'etoile 1
-    //-----------------------------------------------------------------------
+    // Computation of omega for star 1
+    //---------------------------------
 
-    double diff1 = 2*dnulg_1 + 1/alpha_1*(-d1sb2_1*beta_1 - 1sb2_1*delta_1) ; 
-
+    om2_star1 = dnulg_1 / (beta_1/(omega*omega)*(dnulg_1*unsn2_1 + d1sn2_1/2.) 
+			   + unsn2_1*delta_1/(omega*omega)/2.) ;
 
 
 
     double beta3 = g00_2*bx_2*bx_2 + 2*g10_2*bx_2*bymxo_2 + 2*g20_2*bx_2*bz_2 ;
-    double beta4 = g11_2*bymxo_2^2 + 2*g21_2*bz_2*bymxo_2+ g22_2*bz_2*bz_2 ;
-    double beta_2 = beta3 + beta4 ;
-       
-    double alpha_2 = 1 - 1sb2_2*beta_2 ;
+    double beta4 = g11_2*bymxo_2*bymxo_2 + 2*g21_2*bz_2*bymxo_2
+                   + g22_2*bz_2*bz_2 ;
 
+    double beta_2 = beta3 + beta4 ;
+
+       
     double delta6 = dg00_2*bx_2*bx_2 + 2*g00_2*dbx_2*bx_2 + 2*dg10_2*bx_2*bymxo_2 ;
     double delta7 = 2*g10_2*bymxo_2*dbx_2 + 2*g10_2*bx_2*dbymo_2 + 2*dg20_2*bx_2*bz_2 ;
-    double delta8 = 2*g20_2*bx_2*dbz_2 +2*g20_2*bz_2*dbx_2 + dg11_2*bymxo_2*^2 ;
+    double delta8 = 2*g20_2*bx_2*dbz_2 +2*g20_2*bz_2*dbx_2 + dg11_2*bymxo_2*bymxo_2 ;
     double delta9 = 2*g11_2*bymxo_2*dbymo_2 + 2*dg21_2*bz_2*bymxo_2;
     double delta10 = 2*g21_2*bymxo_2*dbz_2 +2*g21_2*bz_2*dbymo_2 + dg22_2*bz_2*bz_2 + 2*g22_2*bz_2*dbz_2 ;
 
-    double delta_2 = delta5 + delta6 + delta7 + delta8 + delta9 ;
+    double delta_2 = delta6 + delta7 + delta8 + delta9 + delta10 ;
 
-   // Difference entre les 2 termes de l'eq.(95) de Gourgoulhon et.al (2001) au    //centre de l'etoile 2
-    //-----------------------------------------------------------------------
+    // Computation of omega for star 2
+    //---------------------------------
 
-    double diff2 = 2*dnulg_2 + 1/alpha_2*(-d1sb2_2*beta_2 - 1sb2_2*delta_2) ; 
-
-
-    double diff = abs(diff1) + abs(diff2) ;
-
-
-    return diff ;
+    om2_star2 = dnulg_2 / (beta_2/(omega*omega)*(dnulg_2*unsn2_2 + d1sn2_2/2.) 
+			   + unsn2_2*delta_2/(omega*omega)/2.) ;
+                                                                            ; 
+  
+    return om2_star1 - om2_star2 ;
 
 }
 
@@ -457,7 +428,7 @@ double  fonc_binaire_axe(double x_rot, const Param& paraxe) {
 //  Fonction utilisee pour la recherche de omega par la methode de la secante
 //*****************************************************************************
 
-double fonc_binaire_orbit(double om, const Param& parf) {
+double fonc_bin_ncp_orbit(double om, const Param& parf) {
 
     double xc = parf.get_double(0) ; 
     double dnulg = parf.get_double(1) ;
@@ -477,43 +448,42 @@ double fonc_binaire_orbit(double om, const Param& parf) {
     double dg21 = parf.get_double(15) ;
     double dg22 = parf.get_double(16) ;
     double dbx = parf.get_double(17) ;
-    double dby = parf.get_double(18) ;
-    double dbz = parf.get_double(19) ;
-    double dbymo = parf.get_double(20) ;
-    double d1sb2 = parf.get_double(21) ;
-    double 1sb2 = parf.get_double(22) ;
-    double x_axe = parf.get_double(23) ;
-    double omega = parf.get_double(24) ;
+    double dbz = parf.get_double(18) ;
+    double dby = parf.get_double(19) ;
+    double d1sn2 = parf.get_double(20) ;
+    double unsn2 = parf.get_double(21) ;
+    double x_axe = parf.get_double(22) ;
+ 
 
-
+    double dbymo = dby - om ;
     double xx = xc - x_axe ; 
     
     double bymxo = by-xx*om ;  
 
 
     double beta1 = g00*bx*bx + 2*g10*bx*bymxo + 2*g20*bx*bz ;
-    double beta2 = g11*bymxo^2 + 2*g21*bz*bymxo+ g22*bz*bz ;
+    double beta2 = g11*bymxo*bymxo + 2*g21*bz*bymxo+ g22*bz*bz ;
     double beta = beta1 + beta2 ;
        
-    double alpha = 1 - 1sb2*beta ;
+    double alpha = 1 - unsn2*beta ;
 
     double delta1 = dg00*bx*bx + 2*g00*dbx*bx + 2*dg10*bx*bymxo ;
     double delta2 = 2*g10*bymxo*dbx + 2*g10*bx*dbymo + 2*dg20*bx*bz ;
-    double delta3 = 2*g20*bx*dbz +2*g20*bz*dbx + dg11*bymxo*^2 ;
+    double delta3 = 2*g20*bx*dbz +2*g20*bz*dbx + dg11*bymxo*bymxo ;
     double delta4 = 2*g11*bymxo*dbymo + 2*dg21*bz*bymxo;
     double delta5 = 2*g21*bymxo*dbz +2*g21*bz*dbymo + dg22*bz*bz + 2*g22*bz*dbz ;
 
     double delta = delta1 + delta2 + delta3 + delta4 + delta5 ;
 
-    // Difference entre les 2 termes de l'eq.(95) de Gourgoulhon et.al (2001) au    //centre de l'etoile 
+    // Difference entre les 2 termes de l'eq.(95) de Gourgoulhon et.al (2001)  
+    //centre de l'etoile 
     //-----------------------------------------------------------------------
 
-    double diff = 2*dnulg + 1/alpha*(-d1sb2*beta - 1sb2*delta) ; 
-
-
-    return diff ; 
+     double diff = dnulg + (1/(2.*alpha))*(-d1sn2*beta - unsn2*delta) ; 
+ 
+     return diff ; 
        
 }
 
-*/
+
 
