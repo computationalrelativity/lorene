@@ -30,6 +30,9 @@ char base_val_name_theta_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/10/04 13:40:38  j_novak
+ * Added the T_COS base case.
+ *
  * Revision 1.2  2004/08/24 09:14:41  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -57,6 +60,7 @@ char base_val_name_theta_C[] = "$Header$" ;
 
 // Local prototypes
 void basename_t_unknown(int, int, char*) ; 
+void basename_t_cos(int, int, char*) ; 
 void basename_t_cos_p(int, int, char*) ; 
 void basename_t_sin_p(int, int, char*) ; 
 void basename_t_cos_i(int, int, char*) ; 
@@ -97,6 +101,7 @@ void Base_val::name_theta(int l, int k, int j, char* name) const {
 	    	vbasename_t[i] = basename_t_unknown ;
 		}
 
+		vbasename_t[T_COS >> TRA_T] = basename_t_cos ;
 		vbasename_t[T_COS_P >> TRA_T] = basename_t_cos_p ;
 		vbasename_t[T_SIN_P >> TRA_T] = basename_t_sin_p ;
 		vbasename_t[T_COS_I >> TRA_T] = basename_t_cos_i ;
@@ -138,6 +143,22 @@ void basename_t_unknown(int, int, char*) {
 	cout << "Base_val::name_theta : unknwon basis !" << endl ; 
 	abort() ; 
 } 
+
+
+void basename_t_cos(int , int j, char* name) {
+
+	assert( j>=0 ) ; 
+
+	strcpy(name, "cos") ; 
+		
+	int xt = j ; 
+		
+	char cxt[4] ;
+	assert( xt < 1000) ; 
+	sprintf(cxt, "%d", xt) ; 
+	strcat(name, cxt) ; 
+	strcat(name, "t") ; 
+}	
 
 
 void basename_t_cos_p(int , int j, char* name) {
