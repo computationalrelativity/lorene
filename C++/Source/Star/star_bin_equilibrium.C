@@ -30,6 +30,9 @@ char star_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/05/10 10:26:22  f_limousin
+ * Minor changes to avoid warnings in the compilation of Lorene
+ *
  * Revision 1.9  2004/04/08 16:32:48  f_limousin
  * The new variable is ln(Q) instead of Q=psi^2*N. It improves the
  * convergence of the code.
@@ -940,10 +943,10 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	    Scalar source_tot_hij(mp) ;
 
 
-	    Tensor source1 (mp, 2, CON, mp.get_bvect_spher()) ;
-	    Tensor source2 (mp, 2, CON, mp.get_bvect_spher()) ;
-	    Tensor source3 (mp, 2, CON, mp.get_bvect_spher()) ;
-	    Tensor source4 (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source_1 (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source_2 (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source_3 (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source_4 (mp, 2, CON, mp.get_bvect_spher()) ;
 
 
 	    Tensor source1_Hij (mp, 2, CON, mp.get_bvect_spher()) ;
@@ -980,14 +983,14 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	    // Source
 	    //--------
 
-	    source1 = contract(dcon_hij_auto, 1, dcov_logn + 2*dcov_lnpsi, 0) ;
+	    source_1 = contract(dcon_hij_auto, 1, dcov_logn + 2*dcov_lnpsi, 0) ;
 
-	    source2 = - contract(dcon_hij_auto, 2, dcov_logn + 2*dcov_lnpsi, 0) ;
+	    source_2 = - contract(dcon_hij_auto, 2, dcov_logn + 2*dcov_lnpsi, 0) ;
 	    
-	    source3 =  tkij_auto.derive_lie(shift) ;
-	    source3.inc_dzpuis() ;
+	    source_3 =  tkij_auto.derive_lie(shift) ;
+	    source_3.inc_dzpuis() ;
 
-	    source4 = 2.* shift.divergence(flat) * tkij_auto / 3. ;
+	    source_4 = 2.* shift.divergence(flat) * tkij_auto / 3. ;
 
 	    
 	    // Source terms for Hij
@@ -1112,10 +1115,10 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 
 
 
-	    source1.change_triad(mp.get_bvect_cart()) ;
-	    source2.change_triad(mp.get_bvect_cart()) ;
-	    source3.change_triad(mp.get_bvect_cart()) ;
-	    source4.change_triad(mp.get_bvect_cart()) ;
+	    source_1.change_triad(mp.get_bvect_cart()) ;
+	    source_2.change_triad(mp.get_bvect_cart()) ;
+	    source_3.change_triad(mp.get_bvect_cart()) ;
+	    source_4.change_triad(mp.get_bvect_cart()) ;
 
 	    source1_Hij.change_triad(mp.get_bvect_cart()) ;
 	    source2_Hij.change_triad(mp.get_bvect_cart()) ;
@@ -1176,9 +1179,9 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 			     / psi4 ;  
 
 
-		    source_tot_hij = source1(i,j) + source1(j,i) 
-			+ source2(i,j) - 2 * psi4 / nnn * (
-			    source3(i,j) + source4(i,j) + source4(i,j) +
+		    source_tot_hij = source_1(i,j) + source_1(j,i) 
+			+ source_2(i,j) - 2 * psi4 / nnn * (
+			    source_3(i,j) + source_4(i,j) + source_4(i,j) +
 			    source_Hij + source_Qij + source_Sij ) ;
 	
 /*	    
@@ -1189,10 +1192,10 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 
 //		    source_tot_hij.annule(nz-1, nz-1) ;
 		    
-		    cout << "source1" << endl << norme(source1(i,j)/(nr*nt*np)) << endl ;
-		    cout << "source2" << endl << norme(source2(i,j)/(nr*nt*np)) << endl ;
-		    cout << "source3" << endl << norme(source3(i,j)/(nr*nt*np)) << endl ;
-		    cout << "source4" << endl << norme(source4(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source1" << endl << norme(source_1(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source2" << endl << norme(source_2(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source3" << endl << norme(source_3(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source4" << endl << norme(source_4(i,j)/(nr*nt*np)) << endl ;
 		    cout << "source_Hij" << endl << norme(source_Hij/(nr*nt*np)) << endl ;
 		    cout << "source_Qij" << endl << norme(source_Qij/(nr*nt*np)) << endl ;
 		    cout << "source_Sij" << endl << norme(source_Sij/(nr*nt*np)) << endl ;
