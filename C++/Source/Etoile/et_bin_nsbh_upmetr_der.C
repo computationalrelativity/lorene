@@ -1,0 +1,108 @@
+/*
+ *  Methods Et_bin_nsbh::update_metric_der_comp
+ *
+ *    (see file et_bin_nsbh.h for documentation).
+ *
+ */
+
+/*
+ *   Copyright (c) 2003 Philippe Grandclement
+ *                 2003 Keisuke Taniguchi
+ *
+ *   This file is part of LORENE.
+ *
+ *   LORENE is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License version 2
+ *   as published by the Free Software Foundation.
+ *
+ *   LORENE is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LORENE; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+char et_bin_nsbh_upmetr_der_C[] = "$Header$" ;
+
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.1  2003/10/24 12:29:21  k_taniguchi
+ * Method of update metric for the BH companion
+ *
+ *
+ *
+ * $Header$
+ *
+ */
+
+// Lorene headers
+#include "et_bin_nsbh.h"
+#include "bhole.h"
+
+        //---------------------------------------//
+	//      Version with BH companion       //
+        //---------------------------------------//
+
+
+void Et_bin_nsbh::update_metric_der_comp(const Bhole& comp) {
+
+    // Computation of Grad(N) ---> stored in d_logn_comp
+    // -------------------------------------------------
+
+    Tenseur dncomp = ( comp.get_n_auto() ).gradient() ;
+
+    if ( dncomp.get_etat() == ETATZERO ) {
+	d_n_comp.set_etat_zero() ;
+    }
+    else{
+
+	// 1/ Division by r^2 of comp.d_n_auto in the ZEC
+	dncomp.dec2_dzpuis() ;
+
+	// 2/ Interpolation of the result
+
+	d_n_comp.set_etat_qcq() ;
+	(d_n_comp.set(0)).import_symy( dncomp(0) ) ;  // d/dx sym.
+	(d_n_comp.set(1)).import_asymy( dncomp(1) ) ; // d/dy antisym.
+	(d_n_comp.set(2)).import_symy( dncomp(2) ) ;  // d/dz sym.
+
+    }
+
+    d_n_comp.set_triad( *(dncomp.get_triad()) ) ;
+
+
+    // Computation of Grad(Psi) ---> stored in d_confpsi_comp
+    // ------------------------------------------------------
+
+    Tenseur dpsicomp = ( comp.get_psi_auto() ).gradient() ;
+
+    if ( dpsicomp.get_etat() == ETATZERO ) {
+	d_confpsi_comp.set_etat_zero() ;
+    }
+    else {
+	// 1/ Division by r^2 of comp.d_confpsi_auto in the ZEC
+        dpsicomp.dec2_dzpuis() ;
+
+	// 2/ Interpolation of the result
+
+	d_confpsi_comp.set_etat_qcq() ;
+
+	(d_confpsi_comp.set(0)).import_symy(dpsicomp(0) ) ;  // d/dx sym.
+	(d_confpsi_comp.set(1)).import_asymy(dpsicomp(1) ) ; // d/dy antisym.
+	(d_confpsi_comp.set(2)).import_symy(dpsicomp(2) ) ;  // d/dz sym.
+
+    }
+
+    d_confpsi_comp.set_triad( *(dpsicomp.get_triad()) ) ;
+
+    // The derived quantities are obsolete
+    // -----------------------------------
+
+    del_deriv() ;
+
+}
