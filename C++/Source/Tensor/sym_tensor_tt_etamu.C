@@ -32,6 +32,11 @@ char sym_tensor_tt_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/11/04 23:03:34  e_gourgoulhon
+ * First full version of method update().
+ * Add method set_rr_mu.
+ * Method set_eta_mu ---> set_rr_eta_mu.
+ *
  * Revision 1.3  2003/11/04 09:35:27  e_gourgoulhon
  * First operational version of update_tp().
  *
@@ -139,12 +144,58 @@ const Scalar& Sym_tensor_tt::mu() const {
 
 }
 
-			//----------------//
-			//   update_tp    //
-			//----------------//
+			//-------------------//
+			//  set_rr_eta_mu    //
+			//-------------------//
 			
 
-void Sym_tensor_tt::update_tp() {
+void Sym_tensor_tt::set_rr_eta_mu(const Scalar& hrr, const Scalar& eta_i, 
+		const Scalar& mu_i) {
+
+		// All this has a meaning only for spherical components:
+		assert( dynamic_cast<const Base_vect_spher*>(triad) != 0x0 ) ; 
+						
+		set(1,1) = hrr ; 	// h^{rr}
+							// calls del_deriv() and therefore delete previous
+							// p_eta and p_mu
+		
+		p_eta = new Scalar( eta_i ) ; 	// eta
+
+		p_mu = new Scalar( mu_i ) ; 	// mu 
+		
+		update() ; // all h^{ij}, except for h^{rr}
+		
+}
+			
+			//---------------//
+			//  set_rr_mu    //
+			//---------------//
+			
+
+void Sym_tensor_tt::set_rr_mu(const Scalar& hrr, const Scalar& mu_i) {
+
+		// All this has a meaning only for spherical components:
+		assert( dynamic_cast<const Base_vect_spher*>(triad) != 0x0 ) ; 
+						
+		set(1,1) = hrr ; 	// h^{rr}
+							// calls del_deriv() and therefore delete previous
+							// p_eta and p_mu
+		
+		p_mu = new Scalar( mu_i ) ; 	// mu 
+		
+		eta() ; // computes eta form the divergence-free condition
+		
+		update() ; // all h^{ij}, except for h^{rr}
+		
+}
+			
+
+			//-------------//
+			//   update    //
+			//-------------//
+			
+
+void Sym_tensor_tt::update() {
 
 	// All this has a meaning only for spherical components:
 	assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
@@ -165,31 +216,78 @@ void Sym_tensor_tt::update_tp() {
 	idx.set(1) = 3 ;	// phi index
 	*cmp[position(idx)] = p_eta->srstdsdp(0) + p_mu->srdsdt(0) ; 
 	
+	
+	// h^{theta phi} and h^{phi phi}
+	// -----------------------------
+	
+	Scalar tautst = operator()(1,2).dsdr() ; // dh^{rt}/dr (r^2 dh^{rt}/dr in the CED)
+	tautst.dec_dzpuis(1) ; // r dh^{rt}/dr in the CED
+	tautst.mult_r() ; // r dh^{rt}/dr  
+				   // NB: mult_r() does nothing in the CED but dzpuis--
+	
+	tautst += 3 * operator()(1,2) - operator()(1,1).dsdt() ; 
+	tautst.mult_sint() ; 
+	
+	Scalar tmp = operator()(1,1) ;
+	tmp.mult_cost() ; 		// h^{rr} cos(th)
+	
+	tautst -= tmp ; 	// T^th / sin(th)
+	
+	Scalar taut = tautst ; 
+	taut.mult_sint() ; 	// T^th
+	
+	Scalar taupst = - operator()(1,3).dsdr() ; // - dh^{rp}/dr (- r^2 dh^{rp}/dr in the CED)
+	taupst.dec_dzpuis(1) ; // - r dh^{rp}/dr in the CED
+	taupst.mult_r() ; // - r dh^{rp}/dr  
+				   // NB: mult_r() does nothing in the CED but dzpuis--
+	
+	taupst -= 3 * operator()(1,3) ; 
+	taupst.mult_sint() ; 	// T^ph / sin(th)
+	
+	Scalar taup = taupst ; 
+	taup.mult_sint() ; 		// T^ph 
+	
+	tmp = tautst ; 
+	tmp.mult_cost() ; 	// T^th / tan(th)
+	
+	// dT^th/dth + T^th / tan(th) + 1/sin(th) dT^ph/dph :
+	tmp = taut.dsdt() + tmp + taup.stdsdp() ;
+		
+	Scalar tmp2 = tmp.poisson_angu() ;  // F
+	
+	tmp2.div_sint() ; 
+	tmp2.div_sint() ; // h^{ph ph}
+	
+	idx.set(0) = 3 ;	// phi index
+	idx.set(1) = 3 ;	// phi index
+	*cmp[position(idx)] = tmp2 ; 		// h^{ph ph} is updated
+	
+	tmp = taupst ; 
+	tmp.mult_cost() ; // T^ph / tan(th)
+	
+	// 1/sin(th) dT^th/dph - dT^ph/dth - T^ph / tan(th) :
+	tmp = taut.stdsdp() - taup.dsdt() - tmp ; 
+	
+	tmp2 = tmp.poisson_angu() ; 	// G
+	
+	tmp2.div_sint() ; 
+	tmp2.div_sint() ; // h^{th ph}
+	
+	idx.set(0) = 2 ;	// theta index
+	idx.set(1) = 3 ;	// phi index
+	*cmp[position(idx)] = tmp2 ; 		// h^{th ph} is updated
+	
+	// h^{th th}  (from the trace-free condition)
+	// ---------
+	idx.set(1) = 2 ;	// theta index
+	*cmp[position(idx)] = - operator()(1,1) - operator()(3,3) ; 
+	
+
 	Sym_tensor_trans::del_deriv() ; //## in order not to delete p_eta and p_mu
 	
+
+
 }			
-
-			//----------------//
-			//  set_eta_mu    //
-			//----------------//
-			
-
-void Sym_tensor_tt::set_eta_mu(const Scalar& eta_i, const Scalar& mu_i) {
-
-		// All this has a meaning only for spherical components:
-		assert( dynamic_cast<const Base_vect_spher*>(triad) != 0x0 ) ; 
-		
-		del_deriv() ; // delete previous p_eta and p_mu, as well as 
-					  //  derived quantities
-				
-		p_eta = new Scalar( eta_i ) ; 	// eta
-
-		p_mu = new Scalar( mu_i ) ; 	// mu 
-		
-		update_tp() ; // h^{r theta} and h^{r phi}
-		
-}
-			
 
 
 
