@@ -33,6 +33,9 @@ char metrique_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/03/03 19:43:50  f_limousin
+ * Add two new members : set_cov() and set_con().
+ *
  * Revision 1.10  2003/02/12 18:30:44  f_limousin
  * Added set_cov and set_con methods
  *
@@ -343,6 +346,29 @@ Cmp& Metrique::set_con (int ind1, int ind2) {
     fait_con() ;
 
   return  p_met_con->set(ind1, ind2);
+
+}
+
+
+Tenseur_sym Metrique::set_cov () {
+
+  del_dependances() ;
+ 
+  if (p_met_cov == 0x0)
+    fait_cov() ;
+
+  return  *(p_met_cov) ;
+
+}
+  
+Tenseur_sym Metrique::set_con () {
+
+  del_dependances() ;
+ 
+  if (p_met_con == 0x0)
+    fait_con() ;
+
+  return  *(p_met_con) ;
 
 }
 
