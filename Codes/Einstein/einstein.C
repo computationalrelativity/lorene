@@ -29,6 +29,9 @@ char einstein_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/03 11:35:25  e_gourgoulhon
+ * First version with Evolution_std's and d'Alembert.
+ *
  * Revision 1.4  2004/03/02 14:54:17  e_gourgoulhon
  * Started to encode source for h from new equations.
  *
@@ -54,6 +57,8 @@ char einstein_C[] = "$Header$" ;
 
 // Lorene headers
 #include "metric.h"
+#include "evolution.h"
+#include "param.h"
 #include "nbr_spx.h"
 #include "utilitaires.h"
 
@@ -112,7 +117,7 @@ int main() {
     // Set up of tensor h
     // ------------------
     
-    Sym_tensor_trans hh(map, otriad, ff) ;  // hh is a transverse tensor
+    Sym_tensor_trans hh_init(map, otriad, ff) ;  // hh is a transverse tensor
                                             // with respect to the flat metric
                                             // thanks to Dirac gauge
     
@@ -127,54 +132,37 @@ int main() {
     const Coord& cosp = map.cosp ; 
     const Coord& sinp = map.sinp ; 
     const Coord& phi = map.phi ; 
-
-    Scalar pot_hh(map) ; 
-    pot_hh =  // 1                    // P_0^0
-           + x                  // P_1^1 cos(p)
-           + y                  // P_1^1 sin(p)
-           + (3*z*z - r*r)      // P_2^0
-           + (x*x - y*y )       // P_2^2 cos(2p)
-           + x*y ;                // P_2^2 sin(2p)
-     //      + x*(5*z*z-r*r)      // P_3^1 cos(p)
-     //      + y*(5*z*z-r*r)      // P_3^1 sin(p)
-     //      + x*(x*x-3*y*y)      // P_3^3 cos(3p)
-     //      + y*(y*y-3*x*x) ;    // P_3^3 sin(3p)
-           
-    pot_hh.annule_domain(nzm1) ; 
-
-    Mtbl potced = // 1 / r         // P_0^0
-           + sint*cosp / pow(r,2)   // P_1^1 cos(p)
-           + sint*sinp / pow(r,2)   // P_1^1 sin(p)
-           + (3*cost*cost - 1) / pow(r,3)           // P_2^0
-           + sint*sint*cos(2*phi) / pow(r,3)        // P_2^2 cos(2p)
-           + sint*sint*sin(2*phi) / pow(r,3)  ;      // P_2^2 sin(2p)
-         //  + sint*(15*cost*cost-3)*cosp / pow(r,4)      // P_3^1 cos(p)
-         //  + sint*(15*cost*cost-3)*sinp / pow(r,4)      // P_3^1 sin(p)
-         //  + pow(sint,3) * cos(3*phi) / pow(r,4)        // P_3^3 cos(3p)
-         //  + pow(sint,3) * sin(3*phi) / pow(r,4) ;      // P_3^3 sin(3p)
-           
-    pot_hh.set_domain(nzm1) = potced(nzm1) ; 
-    pot_hh.std_spectral_base() ; 
     
-    pot_hh = relativistic_init * pot_hh ; 
+    Sym_tensor_tt htt(map, otriad, ff) ;  // htt is the TT part of hh
     
-    maxabs(pot_hh.laplacian(), "Laplacian of potential") ; 
+    Scalar htt_rr(map) ; 
+    htt_rr = relativistic_init * (3*cost*cost-1) / (r*r*r*r + 1./(r*r)) ; 
+    htt_rr.std_spectral_base() ; 
     
-    hh = pot_hh.derive_con(ff).derive_con(ff) ; 
-    hh.dec_dzpuis(3) ; 
+    Scalar htt_mu(map) ; 
+    htt_mu = relativistic_init / (1+r*r*r*r*r*r) ; 
+    htt_mu.std_spectral_base() ; 
+    htt_mu.mult_r() ; 
+    htt_mu.mult_cost() ; 
+    
+    htt.set_rr_mu(htt_rr, htt_mu) ; 
+    
+    hh_init = htt ; 
+    
+    hh_init.annule_domain(nzm1) ;           // h set to zero in the CED     
 
-    // hh.set_etat_zero() ;    //  initialization to zero
 
     // Set up of field Q = Psi^2 N
     // ---------------------------
     
-    Scalar qq(map) ; 
+    Scalar qq_init(map) ; 
+    Scalar tmp(map) ; 
     
-    qq = 1. + relativistic_init * r*r ; 
-    potced = 1. + relativistic_init / (r*r) ; 
-    qq.set_domain(nzm1) = potced(nzm1) ; 
+    qq_init = 1. + relativistic_init * r*r ; 
+    tmp = 1. + relativistic_init / (r*r) ; 
+    qq_init.set_domain(nzm1) = tmp.domain(nzm1) ; 
      
-    qq.std_spectral_base() ;    // sets standard spectral bases
+    qq_init.std_spectral_base() ;    // sets standard spectral bases
 
 
     // Set up of conformal metric gamma_tilde
@@ -182,54 +170,31 @@ int main() {
     
     Metric tgam( ff.con() ) ;   // construction from the flat metric
 
-    tgam = ff.con() + hh ;      // initialization  [ Eq. (51) ]
+    tgam = ff.con() + hh_init ;      // initialization  [ Eq. (51) ]
     
 
     // Set up of shift vector beta
     // ---------------------------    
 
-    Vector beta(map, CON, otriad ) ;   
-    beta = relativistic_init * pot_hh.derive_con(ff) ;   
+    Vector beta_init(map, CON, otriad ) ; 
+    tmp =  sint * cosp / ( r + 1 / r ) ;   
+    tmp.std_spectral_base() ;    // sets standard spectral bases
+    beta_init = relativistic_init * tmp.derive_con(ff) ;   
 
     // Set up of lapse function N
     // --------------------------
     
-    Scalar nn(map) ; 
+    Scalar nn_init(map) ; 
 
-    nn = 1. - relativistic_init * r*r ; 
-    potced = 1. - relativistic_init / (r*r) ; 
-    nn.set_domain(nzm1) = potced(nzm1) ; 
+    nn_init = 1. - relativistic_init * r*r ; 
+    tmp = 1. - relativistic_init / (r*r) ; 
+    nn_init.set_domain(nzm1) = tmp.domain(nzm1) ; 
 
-    nn.std_spectral_base() ;    // sets standard spectral bases
+    nn_init.std_spectral_base() ;    // sets standard spectral bases
 
-    // Set up of conformal factor Psi
-    // ------------------------------
-    
-    Scalar psi(map) ;           // Psi
-    Scalar psi2(map) ;          // Psi^2
-    Scalar psi4(map) ;          // Psi^4
-    Scalar ln_psi(map) ;           // ln(Psi)
-    
-    psi = sqrt(qq / nn) ;   
-    psi.std_spectral_base() ;    // sets standard spectral bases
-    psi2 = psi * psi ; 
-    psi4 = psi2 * psi2 ; 
-    ln_psi = log( psi ) ;  
-    ln_psi.std_spectral_base() ;    // sets standard spectral bases
-
-    // Set up of conformal extrinsic curvature A
-    // -----------------------------------------
-    
-    Sym_tensor aa(map, CON, otriad) ;   // A^{ij}
-    aa.set_etat_zero() ;    //  initialization to zero
-    
-    Sym_tensor taa(map, COV, otriad) ;  // {\tilde A}_{ij}
-    taa = aa.up_down(ff) ;
-    
     // Working stuff
     // -------------
     
-    Scalar tmp(map) ; 
     Scalar tmp0(map) ; 
     Sym_tensor sym_tmp(map, CON, otriad) ; 
 
@@ -237,11 +202,72 @@ int main() {
     //                  Start of time evolution
     //======================================================================
     
-    int jmax = 1 ; 
+    double pdt = 0.01 ; 
+    double ttime = 0 ; 
     
-    for (int jtime = 0; jtime <= jmax; jtime++) {
+
+    Evolution_std<Scalar> nn_time(nn_init, ttime, 3) ; 
+    Evolution_std<Vector> beta_time(beta_init, ttime, 3) ; 
+    Evolution_std<Scalar> qq_time(qq_init, ttime, 3) ; 
+    Evolution_std<Sym_tensor_trans> hh_time(hh_init, ttime, 3) ; 
+    
+    ttime += pdt ; 
+    nn_time.update(nn_init, ttime) ; 
+    beta_time.update(beta_init, ttime) ; 
+    qq_time.update(qq_init, ttime) ; 
+    hh_time.update(hh_init, ttime) ; 
+    
+    ttime += pdt ; 
+    nn_time.update(nn_init, ttime) ; 
+    beta_time.update(beta_init, ttime) ; 
+    qq_time.update(qq_init, ttime) ; 
+    hh_time.update(hh_init, ttime) ; 
+    
+    // khi and mu at previous time step for the resolution 
+    // of the wave equation for h^{ij}_TT
+    //-----------------------------------------------------
+    Scalar khi_prev = ((hh_time[1]).tt_part())(1,1) ;  
+    khi_prev.annule_domain(nzm1) ; 
+    khi_prev.mult_r() ; 
+    khi_prev.mult_r() ; 
+    
+    
+    Scalar mu_prev = ((hh_time[1]).tt_part()).mu() ;  
+    mu_prev.annule_domain(nzm1) ; 
+
+    
+    // Parameters for the d'Alembert equations
+    // ----------------------------------------
+    int bc = 2 ;    // type of boundary condition : 2 = Bayliss & Turkel outgoing wave
+ 
+    Param par_khi ; 
+    par_khi.add_double(pdt) ; 
+    par_khi.add_int(bc) ; 
+    int *workflag_khi = new int(0) ; // working flag 
+    par_khi.add_int_mod(*workflag_khi) ; 
+    
+    Param par_mu ; 
+    par_mu.add_double(pdt) ; 
+    par_mu.add_int(bc) ; 
+    int *workflag_mu = new int(0) ; // working flag 
+    par_mu.add_int_mod(*workflag_mu) ; 
+
+    int jmax = 3 ; 
+    
+    for (int jtime = 2; jtime <= jmax; jtime++) {
     
         
+        const Scalar& nn = nn_time[jtime] ; 
+        const Vector& beta = beta_time[jtime] ; 
+        const Scalar& qq = qq_time[jtime] ; 
+        const Sym_tensor_trans& hh = hh_time[jtime] ;
+        
+        Scalar source_nn(map) ; 
+        Vector source_beta(map, CON, otriad) ;
+        Scalar source_qq(map) ; 
+        Sym_tensor_trans source_hh(map, otriad, ff) ;  
+        
+
         {
         //==============================================
         //  Definition of references on derivatives: 
@@ -249,24 +275,41 @@ int main() {
         //   in this scope
         //==============================================  
 
+        Scalar psi = sqrt(qq / nn) ;   
+        psi.std_spectral_base() ;    
+
+        Scalar ln_psi = log( psi ) ;  
+        ln_psi.std_spectral_base() ;    
+        Scalar psi2 = psi * psi ; 
+        Scalar psi4 = psi2 * psi2 ; 
+
         const Sym_tensor& tgam_dd = tgam.cov() ;    // {\tilde \gamma}_{ij}
         const Sym_tensor& tgam_uu = tgam.con() ;    // {\tilde \gamma}^{ij}
         const Tensor_sym& dtgam = tgam_dd.derive_cov(ff) ;    
                                                     // D_k {\tilde \gamma}_{ij}
         const Tensor_sym& dhh = hh.derive_cov(ff) ; // D_k h^{ij}
         const Vector& dln_psi = ln_psi.derive_cov(ff) ; // D_i ln(Psi)
-        const Vector& dln_psi_u = ln_psi.derive_con(ff) ; // D^i ln(Psi)
+        const Vector& tdln_psi_u = ln_psi.derive_con(tgam) ; // tD^i ln(Psi)
         const Vector& dnn = nn.derive_cov(ff) ;         // D_i N
-        const Vector& dnn_u = nn.derive_con(ff) ;       // D^i N
+        const Vector& tdnn_u = nn.derive_con(tgam) ;       // tD^i N
         const Vector& dqq = qq.derive_cov(ff) ;         // D_i Q
 
+        // Conformal extrinsic curvature A
+        // -----------------------------------------
+    
+        Sym_tensor aa(map, CON, otriad) ;   // A^{ij}
+        aa.set_etat_zero() ;    //  initialization to zero
+    
+        Sym_tensor taa(map, COV, otriad) ;  // {\tilde A}_{ij}
+        taa = aa.up_down(ff) ;
+        
 
-        // Source for Q  [ Eq. (76) ]
+       // Source for Q  [ Eq. (76) ]
         // ------------
         
         Scalar aa_quad = contract(taa, 0, 1, aa, 0, 1) ; 
         
-        Scalar source_qq = 0.75 * psi4 * qq * aa_quad  
+        source_qq = 0.75 * psi4 * qq * aa_quad  
             - contract( hh, 0, 1, dqq.derive_cov(ff), 0, 1 ) ; 
             
         source_qq.inc_dzpuis() ;  
@@ -287,7 +330,7 @@ int main() {
         // Source for N  [ Eq. (80) ]
         // ------------
         
-        Scalar source_nn = psi4 * nn * aa_quad ;
+        source_nn = psi4 * nn * aa_quad ;
         
         tmp = contract( hh, 0, 1, dnn.derive_cov(ff), 0, 1 ) ;
         tmp.inc_dzpuis() ; 
@@ -299,7 +342,7 @@ int main() {
         // Source for beta [ Eq. (79) ]
         // ---------------
 
-        Vector source_beta = 2. * ( contract(aa, 1, 
+        source_beta = 2. * ( contract(aa, 1, 
                         dnn - 6.*nn * dln_psi, 0)
                 - nn * contract(tgam.connect().get_delta(), 1, 2, aa, 0, 1) )
                 - contract(hh, 0, 1, 
@@ -372,12 +415,12 @@ int main() {
         
         Sym_tensor ss(map, CON, otriad) ; 
         
-        ss = nn * (ricci_star + 8.* dln_psi_u * dln_psi_u)
-                + 4.*( dln_psi_u * dnn_u + dnn_u * dln_psi_u ) 
+        ss = nn * (ricci_star + 8.* tdln_psi_u * tdln_psi_u)
+                + 4.*( tdln_psi_u * tdnn_u + tdnn_u * tdln_psi_u ) 
                 - 0.3333333333333333 * ( 
                     nn * (tricci_scal 
-                            + 8.* contract(dln_psi, 0, dln_psi_u, 0) )
-                    + 8.* contract(dln_psi, 0, dnn_u, 0) ) * tgam_uu ;
+                            + 8.* contract(dln_psi, 0, tdln_psi_u, 0) )
+                    + 8.* contract(dln_psi, 0, tdnn_u, 0) ) * tgam_uu ;
 
         ss = ss / psi4  ;
 
@@ -385,29 +428,12 @@ int main() {
         // Source for h 
         // ------------
                  
-                 
-          
-        Sym_tensor_trans source_hh(map, otriad, ff) ;  
-        
-        source_hh = (1. - nn*nn/psi4) * hh.derive_con(ff).divergence(ff) ;
+        source_hh = (nn*nn/psi4 - 1.) * hh.derive_con(ff).divergence(ff) ;
         
         source_hh.inc_dzpuis() ; 
         
-        // Computation of D^i h^{j k} + D^j h^{ik} - D^k h^{ij}
-        Tensor_sym tstmp(map, 3, CON, otriad, 0, 1) ; 
-        for (int i=1; i<=3; i++) {
-            for (int j=1; j<=i; j++) {
-                for (int k=1; k<=3; k++) {
-                    tstmp.set(i,j,k) = hh.derive_con(ff)(j,k,i)
-                                     + hh.derive_con(ff)(i,k,j) 
-                                     - hh.derive_con(ff)(i,j,k) ;
-                }
-            }
-        }
-        
 
-        source_hh += nn / psi4 * contract( tstmp, 2, nn.derive_cov(ff)
-                                    + 2.*nn* ln_psi.derive_cov(ff), 0) ;         
+        source_hh += 2. * nn * ss ;       
         
 
         }
@@ -415,12 +441,63 @@ int main() {
         //  End of scope for references on derivatives
         //==============================================  
 
+        //=============================================
+        // Resolution of wave equation for h
+        //=============================================
+    
+        const Sym_tensor_tt& source_htt = source_hh.tt_part() ;
         
+        Scalar khi_source = source_htt(1,1) ; 
+        khi_source.mult_r() ;  
+        khi_source.mult_r() ;  
+        
+        const Scalar& mu_source = source_htt.mu() ; 
+        
+        Scalar khi_j = hh.tt_part()(1,1) ; 
+        khi_j.mult_r() ; 
+        khi_j.mult_r() ; 
+             
+        Scalar khi_jp1 = khi_j.avance_dalembert(par_khi, khi_prev, khi_source) ;
+        
+        Scalar mu_jp1 = hh.tt_part().mu().avance_dalembert(par_mu, mu_prev, 
+                                                            mu_source) ;
+        
+        Sym_tensor_tt htt_jp1(map, otriad, ff) ;
+        
+	    khi_jp1.div_r() ;   		// division 
+	    khi_jp1.div_r() ;   		// by r^2 --> khi_jp1 now contains h^{rr}
+
+        htt_jp1.set_rr_mu(khi_jp1, mu_jp1) ;
+         
+        htt_jp1.annule_domain(nzm1) ; 
+        
+        Sym_tensor_trans hh_jp1 = htt_jp1 ;    
 
         cout << "Next step ?" << endl ; 
         arrete() ;  
+
+        // Next time step         
+        // --------------
+        
+        ttime += pdt ; 
+        
+        khi_prev = khi_j ; 
+        khi_prev.annule_domain(nzm1) ; 
+
+        mu_prev = hh.tt_part().mu() ; 
+        mu_prev.annule_domain(nzm1) ; 
+                
+
+        nn_time.update(nn, ttime) ; 
+        beta_time.update(beta, ttime) ; 
+        qq_time.update(qq, ttime) ; 
+        hh_time.update(hh_jp1, ttime) ; 
+        
     }
 
+
+    par_khi.clean_all() ; 
+    par_mu.clean_all() ; 
 
     return EXIT_SUCCESS ; 
 }
