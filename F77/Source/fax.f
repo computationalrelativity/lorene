@@ -1,8 +1,25 @@
+C Fast Fourier Transform subroutines
+C
+C Copyright (c) 1978 Clive Temperton (European Centre for Medium-Range 
+C                                     Weather Forecasts, Reading, UK)
+C Copyright (c) 1980 Russ Rew (National Center for Atmospheric Research,
+C                              Boulder, Colorado, USA) 
+C
+C References:
+C ----------
+C    C. Temperton: ``Self-Sorting Mixed-Radix Fast Fourier
+C          Transforms.'', Journal of Computational Physics 52, 1 (1983)
+C    C. Temperton: ``Fast Mixed-Radix Real Fourier Transforms.'',
+C          Journal of Computational Physics 52, 340 (1983)
+C               
 C
 C $Id$
 C $Log$
-C Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
-C Initial revision
+C Revision 1.2  2004/10/04 19:22:00  e_gourgoulhon
+C Added copyright and references.
+C
+C Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+C LORENE
 C
 c Revision 1.3  2000/12/14  15:41:16  eric
 c subroutine VPASSM (ligne 152) : les DATA sont forces a la double
