@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/02 15:44:23  j_novak
+ * The destructor is now public...
+ *
  * Revision 1.2  2003/10/01 15:41:49  e_gourgoulhon
  * Added mapping
  *
@@ -129,6 +132,7 @@ class Connection {
 	/// Constructor for derived classes
 	Connection(const Map&, const Base_vect& ) ; 		
 
+        public:
 	virtual ~Connection() ;			/// Destructor
  
 
