@@ -28,6 +28,9 @@ char simple_wave_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/02/18 18:59:29  e_gourgoulhon
+ * Suppressed unnecessary #include's.
+ *
  * Revision 1.8  2004/02/17 22:20:49  e_gourgoulhon
  * Much better plots thanks to the new function des_profile_mult.
  * Added evolution of the central value of the field and its plot
@@ -72,8 +75,6 @@ char simple_wave_C[] = "$Header$" ;
 #include "math.h"
 
 // Lorene headers
-#include "nbr_spx.h"
-#include "tensor.h"
 #include "metric.h"
 #include "cmp.h"
 #include "graphique.h"
