@@ -81,6 +81,14 @@ Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i,
       tkij_comp(mpi, CON, mpi.get_bvect_spher()), 
       kcar_auto(mpi), 
       kcar_comp(mpi), 
+      ssjm1_logn(mpi),
+      ssjm1_qq(mpi),
+      ssjm1_hij00(mpi),
+      ssjm1_hij10(mpi),
+      ssjm1_hij20(mpi),
+      ssjm1_hij11(mpi),
+      ssjm1_hij21(mpi),
+      ssjm1_hij22(mpi),
       decouple(mpi),
       conf_flat(conf_flat0){
     
@@ -149,6 +157,14 @@ Star_bin::Star_bin(const Star_bin& star)
 			 tkij_comp(star.tkij_comp), 
 			 kcar_auto(star.kcar_auto), 
 			 kcar_comp(star.kcar_comp), 
+			 ssjm1_logn(star.ssjm1_logn),
+			 ssjm1_qq(star.ssjm1_qq),
+			 ssjm1_hij00(star.ssjm1_hij00),
+			 ssjm1_hij10(star.ssjm1_hij10),
+			 ssjm1_hij20(star.ssjm1_hij20),
+			 ssjm1_hij11(star.ssjm1_hij11),
+			 ssjm1_hij21(star.ssjm1_hij21),
+			 ssjm1_hij22(star.ssjm1_hij22),
 			 decouple(star.decouple),
 			 conf_flat(star.conf_flat)
 {
@@ -187,6 +203,14 @@ Star_bin::Star_bin(Map& mpi, const Eos& eos_i, FILE* fich)
 			 tkij_comp(mpi, CON, mpi.get_bvect_spher()), 
 			 kcar_auto(mpi), 
 			 kcar_comp(mpi), 
+			 ssjm1_logn(mpi),
+			 ssjm1_qq(mpi),
+			 ssjm1_hij00(mpi),
+			 ssjm1_hij10(mpi),
+			 ssjm1_hij20(mpi),
+			 ssjm1_hij11(mpi),
+			 ssjm1_hij21(mpi),
+			 ssjm1_hij22(mpi),
 			 decouple(mpi){
 
     // Etoile parameters
@@ -322,6 +346,14 @@ void Star_bin::operator=(const Star_bin& star) {
     tkij_comp = star.tkij_comp ;
     kcar_auto = star.kcar_auto ;
     kcar_comp = star.kcar_comp ;
+    ssjm1_logn = star.ssjm1_logn ;
+    ssjm1_qq = star.ssjm1_qq ;
+    ssjm1_hij00 = star.ssjm1_hij00 ;
+    ssjm1_hij10 = star.ssjm1_hij10 ;
+    ssjm1_hij20 = star.ssjm1_hij20 ;
+    ssjm1_hij11 = star.ssjm1_hij11 ;
+    ssjm1_hij21 = star.ssjm1_hij21 ;
+    ssjm1_hij22 = star.ssjm1_hij22 ;
     decouple = star.decouple ;
     conf_flat = star.conf_flat ;
     
