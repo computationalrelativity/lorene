@@ -15,6 +15,7 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Binaire; $(MAKE)
 	cd Source/Champ_cart; $(MAKE)
 	cd Source/Cmp; $(MAKE)
+	cd Source/Connection; $(MAKE)
 	cd Source/Coord; $(MAKE)
 	cd Source/Eos; $(MAKE)
 	cd Source/Etoile; $(MAKE)
@@ -23,6 +24,7 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Itbl; $(MAKE)
 	cd Source/Map; $(MAKE)
 	cd Source/Matrice; $(MAKE)
+	cd Source/Metric; $(MAKE)
 	cd Source/Metrique; $(MAKE)
 	cd Source/Mg3d; $(MAKE)
 	cd Source/Mtbl; $(MAKE)
@@ -38,8 +40,8 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Tenseur; $(MAKE)
 	cd Source/Tensor; $(MAKE)
 	cd Source/Tensor/Scalar; $(MAKE)
-	cd Source/Valeur; $(MAKE)
 	cd Source/Valencia; $(MAKE)
+	cd Source/Valeur; $(MAKE)
 	touch $(LIB)/date_mark
 
 uninstall:
