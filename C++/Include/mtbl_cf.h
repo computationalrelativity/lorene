@@ -5,7 +5,7 @@
 
 /*
  *   Copyright (c) 1999-2000 Jean-Alain Marck
- *   Copyright (c) 1999-2003 Eric Gourgoulhon
+ *   Copyright (c) 1999-2005 Eric Gourgoulhon
  *   Copyright (c) 1999-2001 Philippe Grandclement
  *   Copyright (c) 1999-2001 Jerome Novak
  *
@@ -34,6 +34,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/04/04 21:30:42  e_gourgoulhon
+ *  Added argument lambda to method poisson_angu
+ *  to treat the generalized angular Poisson equation:
+ *     Lap_ang u + lambda u = source.
+ *
  * Revision 1.7  2004/03/22 13:12:42  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -541,8 +546,9 @@ class Mtbl_cf {
 	// PDE resolution
 	//---------------
 	public: 
-	/** Resolution of an angular Poisson equation.
-	 * The angular Poisson equation is \f$\Delta_{\theta\varphi} u = \sigma\f$,
+	/** Resolution of the generalized angular Poisson equation.
+	 * The generalized angular Poisson equation is 
+         * \f$\Delta_{\theta\varphi} u + \lambda u = \sigma\f$,
 	 * where \f$\Delta_{\theta\varphi} u := \frac{\partial^2 u}
 	 *  {\partial \theta^2} + \frac{1}{\tan \theta} \frac{\partial u}
 	 *  {\partial \theta} +\frac{1}{\sin^2 \theta}\frac{\partial^2 u}
@@ -551,8 +557,11 @@ class Mtbl_cf {
 	 * Before the call to \c poisson_angu() , \c *this  contains the
 	 * coefficients of the source \f$\sigma\f$; after the call, it contains the
 	 * coefficients of the solution \f$u\f$.
+         *
+         *    @param lambda [input] coefficient \f$\lambda\f$ in the above equation
+         *      (default value = 0)
 	 */
-	void poisson_angu() ; 
+	void poisson_angu(double lambda = 0) ; 
 	
 } ;
 ostream& operator<<(ostream& , const Mtbl_cf& ) ;   

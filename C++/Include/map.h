@@ -39,6 +39,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.39  2005/04/04 21:30:41  e_gourgoulhon
+ *  Added argument lambda to method poisson_angu
+ *  to treat the generalized angular Poisson equation:
+ *     Lap_ang u + lambda u = source.
+ *
  * Revision 1.38  2004/12/29 16:37:22  k_taniguchi
  * Addition of some functions with the multipole falloff condition.
  *
@@ -1191,22 +1196,25 @@ class Map {
 				     const Tenseur& bb, const Param& par, 
 				     Cmp& psi) const = 0 ;
 
-	/** Computes the solution of an angular Poisson equation.
-	 * The angular Poisson equation is \f$\Delta_{\theta\varphi} u = \sigma\f$,
+	/** Computes the solution of the generalized angular Poisson equation.
+	 * The generalized angular Poisson equation is 
+         * \f$\Delta_{\theta\varphi} u + \lambda u = \sigma\f$,
 	 * where \f$\Delta_{\theta\varphi} u := \frac{\partial^2 u}
 	 *  {\partial \theta^2} + \frac{1}{\tan \theta} \frac{\partial u}
 	 *  {\partial \theta} +\frac{1}{\sin^2 \theta}\frac{\partial^2 u}
 	 *  {\partial \varphi^2}\f$.
 	 * 
-	 *   @param source [input] source \f$\sigma\f$ of the Poisson equation 
-	 *	    \f$\Delta_{\theta\varphi} u = \sigma\f$.
+	 *   @param source [input] source \f$\sigma\f$ of the equation 
+	 *	    \f$\Delta_{\theta\varphi} u + \lambda u = \sigma\f$.
 	 *   @param par [input/output] possible parameters to control the
 	 *   resolution of the Poisson equation. See the actual implementation 
 	 *   in the derived class of \c Map for documentation. 
 	 *   @param uu [input/output] solution \e u  
+         *    @param lambda [input] coefficient \f$\lambda\f$ in the above equation
+         *      (default value = 0)
 	 */
 	virtual void poisson_angu(const Scalar& source, Param& par, 
-					Scalar& uu) const = 0 ;
+					Scalar& uu, double lambda=0) const = 0 ;
 
 	
     public:
@@ -2110,22 +2118,25 @@ class Map_af : public Map_radial {
 				     Tenseur& duu_div, Cmp& source_regu,
 				     Cmp& source_div) const ;
 
-	/** Computes the solution of an angular Poisson equation.
-	 * The angular Poisson equation is \f$\Delta_{\theta\varphi} u = \sigma\f$,
+	/** Computes the solution of the generalized angular Poisson equation.
+	 * The generalized angular Poisson equation is 
+         * \f$\Delta_{\theta\varphi} u + \lambda u = \sigma\f$,
 	 * where \f$\Delta_{\theta\varphi} u := \frac{\partial^2 u}
 	 *  {\partial \theta^2} + \frac{1}{\tan \theta} \frac{\partial u}
 	 *  {\partial \theta} +\frac{1}{\sin^2 \theta}\frac{\partial^2 u}
 	 *  {\partial \varphi^2}\f$.
 	 * 
-	 *   @param source [input] source \f$\sigma\f$ of the Poisson equation 
-	 *	    \f$\Delta_{\theta\varphi} u = \sigma\f$.
-	 *   @param par There must be one integer to force the result to
-	 *          be expressed in spherical harmonics; otherwise (empty
-	 *          \c Param ), standard angular bases are used. 
+	 *   @param source [input] source \f$\sigma\f$ of the equation 
+	 *	    \f$\Delta_{\theta\varphi} u + \lambda u = \sigma\f$.
+	 *   @param par [input/output] possible parameters to control the
+	 *   resolution of the Poisson equation. See the actual implementation 
+	 *   in the derived class of \c Map for documentation. 
 	 *   @param uu [input/output] solution \e u  
+         *    @param lambda [input] coefficient \f$\lambda\f$ in the above equation
+         *      (default value = 0)
 	 */
 	virtual void poisson_angu(const Scalar& source, Param& par, 
-					Scalar& uu) const ;
+					Scalar& uu, double lambda=0) const ;
 
 	/**
 	 * Internal function intended to be used by \c Map::poisson_vect 
@@ -2981,21 +2992,25 @@ class Map_et : public Map_radial {
 				     Tenseur& duu_div, Cmp& source_regu,
 				     Cmp& source_div) const ;
 
-	/** Computes the solution of an angular Poisson equation.
-	 * The angular Poisson equation is \f$\Delta_{\theta\varphi}  u = \sigma\f$,
+	/** Computes the solution of the generalized angular Poisson equation.
+	 * The generalized angular Poisson equation is 
+         * \f$\Delta_{\theta\varphi} u + \lambda u = \sigma\f$,
 	 * where \f$\Delta_{\theta\varphi} u := \frac{\partial^2 u}
 	 *  {\partial \theta^2} + \frac{1}{\tan \theta} \frac{\partial u}
 	 *  {\partial \theta} +\frac{1}{\sin^2 \theta}\frac{\partial^2 u}
 	 *  {\partial \varphi^2}\f$.
 	 * 
-	 *   @param source [input] source \f$\sigma\f$ of the Poisson equation 
-	 *	    \f$\Delta_{\theta\varphi} u = \sigma\f$.
-	 *   @param par [input/output] parameters to control the
-	 *   resolution of the Poisson equation.  
+	 *   @param source [input] source \f$\sigma\f$ of the equation 
+	 *	    \f$\Delta_{\theta\varphi} u + \lambda u = \sigma\f$.
+	 *   @param par [input/output] possible parameters to control the
+	 *   resolution of the Poisson equation. See the actual implementation 
+	 *   in the derived class of \c Map for documentation. 
 	 *   @param uu [input/output] solution \e u  
+         *   @param lambda [input] coefficient \f$\lambda\f$ in the above equation
+         *      (default value = 0)
 	 */
 	virtual void poisson_angu(const Scalar& source, Param& par, 
-					Scalar& uu) const ;
+					Scalar& uu, double lambda=0) const ;
 
 	/**
 	 * Internal function intended to be used by \c Map::poisson_vect 
@@ -3364,7 +3379,7 @@ class Map_log : public Map_radial {
 	virtual void poisson (const Cmp&, Param&, Cmp&) const ;/// < Not implemented
 	virtual void poisson_regular (const Cmp&, int, int, double, Param&, Cmp&, Cmp&, Cmp&, 
 				      Tenseur&, Cmp&, Cmp&) const ;/// < Not implemented
-	virtual void poisson_angu (const Scalar&, Param&, Scalar&) const ;/// < Not implemented
+	virtual void poisson_angu (const Scalar&, Param&, Scalar&, double=0) const ;/// < Not implemented
 	virtual Param* donne_para_poisson_vect (Param&, int) const ;/// < Not implemented
 	virtual void poisson_frontiere (const Cmp&, const Valeur&, int, int, Cmp&, double = 0., double = 0.) const ;/// < Not implemented
 	virtual void poisson_frontiere_double (const Cmp&, const Valeur&, const Valeur&, int, Cmp&) const ;/// < Not implemented
