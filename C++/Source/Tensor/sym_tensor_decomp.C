@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2003  Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2004  Eric Gourgoulhon & Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,9 @@ char sym_tensor_decomp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/02/09 12:56:27  e_gourgoulhon
+ * Method longit_pot: added test of the vector Poisson equation.
+ *
  * Revision 1.4  2004/02/02 09:18:11  e_gourgoulhon
  * Method longit_pot: treatment of case divergence dzpuis = 5.
  *
@@ -57,41 +60,41 @@ char sym_tensor_decomp_C[] = "$Header$" ;
 
 const Sym_tensor_trans& Sym_tensor::transverse(const Metric& metre) const {
 
-	set_dependance(metre) ;
-	int jp = get_place_met(metre) ;
-	assert ((jp>=0) && (jp<N_MET_MAX)) ;
+    set_dependance(metre) ;
+    int jp = get_place_met(metre) ;
+    assert ((jp>=0) && (jp<N_MET_MAX)) ;
 
-	if (p_transverse[jp] == 0x0) { // a new computation is necessary
+    if (p_transverse[jp] == 0x0) { // a new computation is necessary
 
-		assert( (type_indice(0) == CON) && (type_indice(1) == CON) ) ; 
+        assert( (type_indice(0) == CON) && (type_indice(1) == CON) ) ; 
 
-		for (int ic=0; ic<n_comp; ic++) {
-			assert(cmp[ic]->check_dzpuis(4)) ;  // dzpuis=4 is assumed
-		}
+        for (int ic=0; ic<n_comp; ic++) {
+            assert(cmp[ic]->check_dzpuis(4)) ;  // dzpuis=4 is assumed
+        }
 
-		const Vector& ww = longit_pot(metre) ;
-		
-		Tensor dww = ww.derive_con(metre) ; 
-				
-		for (int i=1; i<=3; i++) {
-			for (int j=1; j<=3; j++) {
-				dww.set(i,j).inc_dzpuis(2) ; 
-			}
-		}
-		
-		p_transverse[jp] = new Sym_tensor_trans(*mp, *triad, metre) ;
-		
-		for (int i=1; i<=3; i++) {
-			for (int j=i; j<=3; j++) {
-				p_transverse[jp]->set(i,j) = operator()(i,j) 
-					- dww(i,j) - dww(j,i) ; 
-			}
-		}
+        const Vector& ww = longit_pot(metre) ;
+        
+        Tensor dww = ww.derive_con(metre) ; 
+                
+        for (int i=1; i<=3; i++) {
+            for (int j=1; j<=3; j++) {
+                dww.set(i,j).inc_dzpuis(2) ; 
+            }
+        }
+        
+        p_transverse[jp] = new Sym_tensor_trans(*mp, *triad, metre) ;
+        
+        for (int i=1; i<=3; i++) {
+            for (int j=i; j<=3; j++) {
+                p_transverse[jp]->set(i,j) = operator()(i,j) 
+                    - dww(i,j) - dww(j,i) ; 
+            }
+        }
 
-	}
+    }
 
-  	return *p_transverse[jp] ;
-	
+    return *p_transverse[jp] ;
+    
 
 }
 
@@ -100,20 +103,21 @@ const Sym_tensor_trans& Sym_tensor::transverse(const Metric& metre) const {
 
 const Vector& Sym_tensor::longit_pot(const Metric& metre) const {
 
-	set_dependance(metre) ;
-	int jp = get_place_met(metre) ;
-	assert ((jp>=0) && (jp<N_MET_MAX)) ;
+    set_dependance(metre) ;
+    int jp = get_place_met(metre) ;
+    assert ((jp>=0) && (jp<N_MET_MAX)) ;
 
-	if (p_longit_pot[jp] == 0x0) {  // a new computation is necessary
-		
-		const Metric_flat* metf = dynamic_cast<const Metric_flat*>(&metre) ; 
-		if (metf == 0x0) {
-			cout << "Sym_tensor::longit_pot : the case of a non flat metric"
-			 << endl <<"  is not treated yet !" << endl ; 
-			abort() ; 
-		}
-		
-		Vector hhh = divergence(metre) ; 
+    if (p_longit_pot[jp] == 0x0) {  // a new computation is necessary
+        
+        const Metric_flat* metf = dynamic_cast<const Metric_flat*>(&metre) ; 
+        if (metf == 0x0) {
+            cout << "Sym_tensor::longit_pot : the case of a non flat metric"
+             << endl <<"  is not treated yet !" << endl ; 
+            abort() ; 
+        }
+        
+        Vector hhh = divergence(metre) ; 
+
 
         // If dpzuis is 5, it should be decreased to 4 for the Poisson equation:
         bool dzp5 = false ; 
@@ -121,13 +125,29 @@ const Vector& Sym_tensor::longit_pot(const Metric& metre) const {
             dzp5 = dzp5 || hhh(i).check_dzpuis(5) ;
         }
         if (dzp5) hhh.dec_dzpuis() ; 
-				
-		p_longit_pot[jp] = new Vector( hhh.poisson(double(1)) ) ; 
-		
-	}
+                
+        p_longit_pot[jp] = new Vector( hhh.poisson(double(1)) ) ; 
+        
+        //## Test of resolution of the vector Poisson equation:
+        const Vector& vv = *(p_longit_pot[jp]) ; 
 
-	return *p_longit_pot[jp] ;
-	
+        hhh.dec_dzpuis() ; 
+
+        Vector vtest = vv.derive_con(metre).divergence(metre) 
+                        + (vv.divergence(metre)).derive_con(metre)
+                        - hhh ;
+
+        // cout << "## Sym_tensor::longit_pot : test of Poisson : \n " ; 
+        // vtest.spectral_display() ;  
+        cout << "## Sym_tensor::longit_pot : test of Poisson : \n " ;
+        cout << 
+        "  Max absolute error in each domain on the vector Poisson equation: \n" ;   
+        maxabs(vtest) ; 
+        
+    }
+
+    return *p_longit_pot[jp] ;
+    
 
 }
 
