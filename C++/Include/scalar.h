@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.56  2004/06/11 14:29:56  j_novak
+ * Scalar::multipole_spectrum() is now a const method.
+ *
  * Revision 1.55  2004/05/24 14:07:31  e_gourgoulhon
  * Method set_domain now includes a call to del_deriv() for safety.
  *
@@ -564,7 +567,7 @@ class Scalar : public Tensor {
    *  (\e i.e. a sum over all \e m of the norms (coefficient space)
    *  of the component of a given \f$Y_l^m\f$.
    */
-  Tbl multipole_spectrum () ;
+  Tbl multipole_spectrum () const ;
   
   // Differential operators and others
   // ---------------------------------

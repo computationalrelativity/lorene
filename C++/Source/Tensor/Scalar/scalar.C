@@ -35,6 +35,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.26  2004/06/11 14:29:58  j_novak
+ * Scalar::multipole_spectrum() is now a const method.
+ *
  * Revision 1.25  2004/03/04 09:51:36  e_gourgoulhon
  * Method dz_nonzero() : treated the case ETATUN.
  *
@@ -839,7 +842,7 @@ double Scalar::val_point(double r, double theta, double phi) const {
         //	    Multipolar spectrum	       //
 		//---------------------------------//
 
-Tbl Scalar::multipole_spectrum() {
+Tbl Scalar::multipole_spectrum() const {
 
   assert (etat != ETATNONDEF) ;
 
@@ -858,10 +861,12 @@ Tbl Scalar::multipole_spectrum() {
 
   assert((etat == ETATQCQ) || (etat == ETATUN));
 
-  va.coef() ;
-  va.ylm() ;
+  Valeur va_copy = va ;
+
+  va_copy.coef() ;
+  va_copy.ylm() ;
   resu.annule_hard() ;
-  const Base_val& base = va.c_cf->base ;
+  const Base_val& base = va_copy.c_cf->base ;
   int m_quant, l_quant, base_r ;
   for (int lz=0; lz<nzone; lz++) 
     for (int k=0 ; k<mg->get_np(lz) ; k++) 
@@ -871,7 +876,7 @@ Tbl Scalar::multipole_spectrum() {
 	    // quantic numbers and spectral bases
 	    donne_lm(nzone, lz, j, k, base, m_quant, l_quant, base_r) ;
 	    for (int i=0; i<mg->get_nr(lz); i++) resu.set(lz, l_quant) 
-				     += fabs((*va.c_cf)(0, k, j, i)) ; 
+				     += fabs((*va_copy.c_cf)(0, k, j, i)) ; 
 	  }
       }
 
