@@ -33,6 +33,9 @@ char et_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/05/10 10:15:57  f_limousin
+ * Change to avoid a warning in the compilation of Lorene
+ *
  * Revision 1.7  2004/05/07 12:36:34  f_limousin
  * Add new member ssjm1_psi in order to have only one function
  * equilibrium (the same for strange stars and neutron stars)
@@ -316,13 +319,6 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	//-----------------------------------------------------
 
 	if (irrotational) {
-	    
-	    if (eos.identify() == 5 || eos.identify() == 4 || 
-		eos.identify() == 3) 
-		diff_vel_pot = velocity_potential(mermax_potvit, 
-						  precis_poisson, 
-						  relax_potvit, ssjm1_psi) ; 
-	    else 
 		diff_vel_pot = velocity_potential(mermax_potvit, 
 					       precis_poisson, relax_potvit) ; 
 
