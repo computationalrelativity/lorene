@@ -29,6 +29,9 @@ char des_profile_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/02/16 10:54:08  e_gourgoulhon
+ * Added #include <stdlib.h>.
+ *
  * Revision 1.4  2004/02/15 21:56:49  e_gourgoulhon
  * des_profile_mult: added call to cpgask(0).
  *
@@ -55,6 +58,7 @@ char des_profile_C[] = "$Header$" ;
 #include"headcpp.h"
 
 // C headers:
+#include <stdlib.h>
 #include <math.h>
 #include <cpgplot.h>
 
