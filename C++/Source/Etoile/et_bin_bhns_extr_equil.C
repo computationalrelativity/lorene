@@ -31,6 +31,9 @@ char et_bin_bhns_extr_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/12/02 21:31:56  k_taniguchi
+ * Set a filter for the shift vector.
+ *
  * Revision 1.2  2004/12/02 15:05:36  k_taniguchi
  * Modification of the procedure for resize.
  *
@@ -651,15 +654,14 @@ void Et_bin_bhns_extr::equil_bhns_extr(double ent_c, const double& mass,
 	    // Resolution of the Poisson equation
 	    // ----------------------------------
 
-	    // Filter for the source of shift vector : No filter (tempo)
-	    /*
+	    // Filter for the source of shift vector :
+
 	    for (int i=0; i<3; i++) {
 
 	        if (source_shift(i).get_etat() != ETATZERO)
 		    source_shift.set(i).filtre(4) ;
 
 	    }
-	    */
 
 	    // For Tenseur::poisson_vect, the triad must be the mapping
 	    // triad, not the reference one:
