@@ -29,6 +29,10 @@ char init_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/12/19 14:57:15  e_gourgoulhon
+ * New prototype for Bin_ns_bh::set_omega and set_x_axe.
+ * The BH is now of the left (xa <0) and the NS on the right (xa>0).
+ *
  * Revision 1.1  2002/12/18 10:33:10  e_gourgoulhon
  * Computations of NS - BH binaries
  *
@@ -267,28 +271,28 @@ int  main(){
     cout << "NS mass : " << mass_ns / msol << " M_sol" << endl ;
     cout << "BH mass : " << mass_bh / msol << " M_sol" << endl ;
 
-    bibi.set_omega() = sqrt( g_si/g_unit * total_mass / pow(separ, 3.) ) ;
+    bibi.set_omega( sqrt( g_si/g_unit * total_mass / pow(separ, 3.) ) ) ;
 
-    bibi.set_x_axe() = 0 ;
+    bibi.set_x_axe(0.) ;
 
 
     // Position of the two objects
     // ---------------------------
 
-    double xa_ns = - mass_bh / total_mass * separ ;
+    double xa_ns = mass_bh / total_mass * separ ;
     ((bibi.set_ns()).set_mp()).set_ori(xa_ns, 0., 0.) ;
 
-    double xa_bh = mass_ns /  total_mass * separ ;
+    double xa_bh = - mass_ns /  total_mass * separ ;
     ((bibi.set_bh()).set_mp()).set_ori(xa_bh, 0., 0.) ;
 
     // Orientation of the two stars
     // ----------------------------
 
     // NS aligned with the absolute frame :
-    ((bibi.set_ns()).set_mp()).set_rot_phi(0.) ;
+    ((bibi.set_ns()).set_mp()).set_rot_phi(M_PI) ;
 
     // BH anti-aligned with the absolute frame :
-    ((bibi.set_bh()).set_mp()).set_rot_phi(M_PI) ;
+    ((bibi.set_bh()).set_mp()).set_rot_phi(0) ;
 
 
     cout << endl
