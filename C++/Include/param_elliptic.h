@@ -29,6 +29,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/11 09:47:44  p_grandclement
+ * Addition of a new elliptic solver, matching with the homogeneous solution
+ * at the outer shell and not solving in the external domain (more details
+ * coming soon ; check your local Lorene dealer...)
+ *
  * Revision 1.2  2004/01/28 16:46:22  p_grandclement
  * Addition of the sol_elliptic_fixe_der_zero stuff
  *
@@ -108,6 +113,8 @@ class Param_elliptic {
   friend Mtbl_cf elliptic_solver  (const Param_elliptic&, const Mtbl_cf&) ;
   friend Mtbl_cf elliptic_solver_no_zec  
     (const Param_elliptic&, const Mtbl_cf&) ;
+  friend Mtbl_cf elliptic_solver_sin_zec  
+    (const Param_elliptic&, const Mtbl_cf&, double, int, double&, double&) ;
   friend Mtbl_cf elliptic_solver_fixe_der_zero  
     (double, const Param_elliptic&, const Mtbl_cf&) ;
 } ;

@@ -35,6 +35,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2004/02/11 09:47:44  p_grandclement
+ * Addition of a new elliptic solver, matching with the homogeneous solution
+ * at the outer shell and not solving in the external domain (more details
+ * coming soon ; check your local Lorene dealer...)
+ *
  * Revision 1.16  2004/02/09 08:55:30  j_novak
  * Corrected error in the arguments of _solp_r_chebu_cinq
  *
@@ -586,6 +591,8 @@ Mtbl_cf elliptic_solver  (const Param_elliptic&, const Mtbl_cf&) ;
 
 Mtbl_cf elliptic_solver_no_zec  (const Param_elliptic&, const Mtbl_cf&) ;
 
+Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic&, const Mtbl_cf&, 
+				 double, int, double&, double&) ;
 Mtbl_cf elliptic_solver_fixe_der_zero  (double, 
 					    const Param_elliptic&, 
 					    const Mtbl_cf&) ;

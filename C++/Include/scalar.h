@@ -38,6 +38,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.43  2004/02/11 09:47:44  p_grandclement
+ * Addition of a new elliptic solver, matching with the homogeneous solution
+ * at the outer shell and not solving in the external domain (more details
+ * coming soon ; check your local Lorene dealer...)
+ *
  * Revision 1.42  2004/01/28 16:46:22  p_grandclement
  * Addition of the sol_elliptic_fixe_der_zero stuff
  *
@@ -912,10 +917,17 @@ class Scalar : public Tensor {
   Scalar poisson_dirichlet (const Valeur& limite, int num) const ;
 	
   /**
-   * Idem as {\tt Scalar::poisson\_neumann}, the boundary condition being on 
+   * Idem as {\tt Scalar::poisson\_dirichlet}, the boundary condition being on 
    * the radial derivative of the solution.
    */
   Scalar poisson_neumann   (const Valeur&, int) const ;
+
+  /**
+   * Idem as {\tt Scalar::poisson\_dirichlet}, the boundary condition being on 
+   * both the function and its radial derivative. The boundary condition 
+   * at infinity is relaxed.
+   */
+
   Scalar poisson_frontiere_double   (const Valeur&, const Valeur&, int) const ;
 
   /** Solves the scalar Poisson equation with {\tt *this} as a source
@@ -1038,6 +1050,25 @@ class Scalar : public Tensor {
    * @param params [input] the operators and variables to be used.
    **/
   Scalar sol_elliptic_no_zec(const Param_elliptic& params) const ;
+
+  /**
+   * General elliptic solver.
+   * The equation is not solved in the compactified domain and the 
+   * matching is done with a solution of the type 
+   * $\frac{\sin \left( f r + \phi \right)}{r}$ , minimizing the coefficient 
+   * with respect to $\phi$.
+   * @param params [input] the operators and variables to be used.
+   * @param freq [input] : the frequency $f$.
+   * @param nbr_phase [input] : number of points for the maximization 
+   * over $\phi$.
+   * @param error [output] : coefficient of the oscillatory solution 
+   * in the external domain.
+   * @param phase [output] : phase that minimizes {\tt coef}.
+   **/
+  Scalar sol_elliptic_sin_zec(const Param_elliptic& params, double freq,
+			      int nbr_phase, double& coef, 
+			      double& phase) const ;
+
    
   /**
    * Resolution of a general elliptic equation fixing the dericative at 

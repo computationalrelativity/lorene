@@ -35,6 +35,11 @@ char scalar_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/02/11 09:47:46  p_grandclement
+ * Addition of a new elliptic solver, matching with the homogeneous solution
+ * at the outer shell and not solving in the external domain (more details
+ * coming soon ; check your local Lorene dealer...)
+ *
  * Revision 1.6  2004/01/28 16:59:14  p_grandclement
  * *** empty log message ***
  *
@@ -185,10 +190,36 @@ Scalar Scalar::sol_elliptic_no_zec(const Param_elliptic& ope_var) const {
 
   return (res) ;
 }
-    
+    		    //-----------------------------------//
+		    //      General elliptic equation	 //
+                    //         with no ZEC and a         //
+                    //        matching with sin(r)/r     //
+		    //-----------------------------------//
+
+Scalar Scalar::sol_elliptic_sin_zec(const Param_elliptic& ope_var, 
+				    double freq, int nbr_phase, 
+				    double& ampli_min ,double& phase_min) 
+  const {
+
+  // Right now, only applicable with affine mapping
+  const Map_af* map_affine = dynamic_cast <const Map_af*> (mp) ;
+  
+  if (map_affine == 0x0) {
+    cout << "sol_elliptic_sin_zec only defined for affine mapping" << endl ;
+    abort() ;
+  }
+  
+  Scalar res (*mp) ;
+  res.set_etat_qcq() ;
+  
+  map_affine->sol_elliptic_sin_zec (ope_var, *this, res, freq, 
+				    nbr_phase, ampli_min, phase_min) ;
+
+  return (res) ;
+}
 		    //-----------------------------------//
 		    //      General elliptic equation	 //
-                    //                                   //
+                    //      fixing the radial derivative //
 		    //-----------------------------------//
 
 Scalar Scalar::sol_elliptic_fixe_der_zero (double valeur, 

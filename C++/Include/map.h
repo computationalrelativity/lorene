@@ -38,6 +38,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2004/02/11 09:47:44  p_grandclement
+ * Addition of a new elliptic solver, matching with the homogeneous solution
+ * at the outer shell and not solving in the external domain (more details
+ * coming soon ; check your local Lorene dealer...)
+ *
  * Revision 1.22  2004/01/29 08:50:01  p_grandclement
  * Modification of Map::operator==(const Map&) and addition of the surface
  * integrales using Scalar.
@@ -1992,6 +1997,13 @@ class Map_af : public Map_radial {
 	 * affine mapping case.
 	 */
 	virtual void poisson_frontiere (const Cmp&, const Valeur&, int, int, Cmp&) const ;
+
+	/**
+	 * Solver of the Poisson equation with boundary condition for the 
+	 * affine mapping case, cases with boundary conditions of both 
+	 * Dirichlet and Neumann type (no condition imposed at infinity).
+	 */
+
 	virtual void poisson_frontiere_double (const Cmp& source, const Valeur& lim_func,
 			const Valeur& lim_der, int num_zone, Cmp& pot) const  ;
 	/**
@@ -2038,6 +2050,28 @@ class Map_af : public Map_radial {
 	 **/
 	void sol_elliptic_no_zec (const Param_elliptic& params, 
 				  const Scalar& so, Scalar& uu) const ;
+
+	/**
+	 * General elliptic solver.
+	 * The equation is not solved in the compactified domain and the 
+	 * matching is done with a solution of the type 
+	 * $\frac{\sin \left( f r + \phi \right)}{r}$, minimizing the coefficient 
+	 * with respect to $\phi$.
+	 *
+	 * @param params [input] : the operators and variables to be uses.
+	 * @param so [input] : the source.
+	 * @param uu [output] : the solution.
+	 * @param freq [input] : the frequency $f$.
+	 * @param nbr_phase [input] : number of points for the maximization 
+	 * over $\phi$.
+	 * @param error [output] : coefficient of the oscillatory solution 
+	 * in the external domain.
+	 * @param phase [output] : phase that minimizes {\tt coef}.
+	 **/
+	void sol_elliptic_sin_zec (const Param_elliptic& params, 
+				  const Scalar& so, Scalar& uu, double freq, 
+				   int nbr_phase, double& coef, 
+				   double& phase) const ;
 	/**
 	 * General elliptic solver fixing the derivative at the origin 
 	 * and relaxing the continuity of the first derivative at the 
