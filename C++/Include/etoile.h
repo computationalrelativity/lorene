@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2004/05/10 10:18:33  f_limousin
+ * Change to avoid warning in the compilation of Lorene
+ *
  * Revision 1.20  2004/05/07 12:37:12  f_limousin
  * Add new member ssjm1_psi
  *
@@ -1381,9 +1384,6 @@ class Etoile_bin : public Etoile {
 	 */
 	double velocity_potential(int mermax, double precis, double relax) ;
 	
-	double velocity_potential(int mermax, double precis, double relax,
-				  Cmp& ssjm1_psi) ;
-
 	/** Performs a relaxation on \c ent , \c logn_auto ,
 	 *  \c beta_auto  and \c shift_auto . 
 	 * 
