@@ -28,6 +28,9 @@ char test_vdf_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/29 13:16:11  e_gourgoulhon
+ * Change of method name: Scalar::laplacien --> Scalar::laplacian.
+ *
  * Revision 1.4  2003/10/29 11:06:11  e_gourgoulhon
  * inc2_dzpuis() replaced by inc_dzpuis(2).
  *
@@ -182,9 +185,9 @@ int main() {
 	arrete() ; 
 	
 	Vector vdiff(map, CON, map.get_bvect_cart() ) ;
-	vdiff.set(1) = wwc(1).laplacien(2) - vvc(1) ; 		// dzpuis = 2
-	vdiff.set(2) = wwc(2).laplacien(2) - vvc(2) ; 
-	vdiff.set(3) = wwc(3).laplacien(2) - vvc(3) ; 
+	vdiff.set(1) = wwc(1).laplacian(2) - vvc(1) ; 		// dzpuis = 2
+	vdiff.set(2) = wwc(2).laplacian(2) - vvc(2) ; 
+	vdiff.set(3) = wwc(3).laplacian(2) - vvc(3) ; 
 
 	cout << "vdiff : " << endl ;
 	vdiff.spectral_display() ; 
