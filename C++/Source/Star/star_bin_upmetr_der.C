@@ -45,6 +45,13 @@ void Star_bin::update_metric_der_comp(const Star_bin& comp) {
   // Derivatives of metric coefficients
   // ----------------------------------
   
+    dcov_logn = logn.derive_cov(flat) ;
+    dcon_logn = logn.derive_con(flat) ;
+
+    Scalar lnpsi = log (psi4) / 4. ;
+    dcov_lnpsi = lnpsi.derive_cov(flat) ;
+    dcon_lnpsi = lnpsi.derive_con(flat) ;
+
  
 
 

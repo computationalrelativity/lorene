@@ -44,6 +44,7 @@ char star_bin_equilibrium_C[] = "$Header$" ;
 
 
 void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit, 
+			   int mermax_poisson, double relax_poisson, 
 			   double relax_potvit, double thres_adapt,
 			   const Tbl& fact_resize, Tbl& diff) {
 
@@ -142,10 +143,121 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
     	   
     par_adapt.add_tbl(ent_limit, 0) ;	// array of values of the field ent 
 				        // to define the isosurfaces. 
+ 
+
+    // Parameters for the function Tensor::poisson for logn_auto
+    // ---------------------------------------------------------
 			   
     double precis_poisson = 1.e-16 ;     
    
-    // External potential
+    Param par_poisson1 ; 
+    
+    Cmp ssjm1logn (ssjm1_logn) ;
+    Cmp ssjm1qq (ssjm1_qq) ;
+    Cmp ssjm1hij00 (ssjm1_hij00) ;
+    Cmp ssjm1hij10 (ssjm1_hij10) ;
+    Cmp ssjm1hij20 (ssjm1_hij20) ;
+    Cmp ssjm1hij11 (ssjm1_hij11) ;
+    Cmp ssjm1hij21 (ssjm1_hij21) ;
+    Cmp ssjm1hij22 (ssjm1_hij22) ;
+
+    par_poisson1.add_int(mermax_poisson,  0) ;  // maximum number of iterations
+    par_poisson1.add_double(relax_poisson,  0) ; // relaxation parameter
+    par_poisson1.add_double(precis_poisson, 1) ; // required precision
+    par_poisson1.add_int_mod(niter, 0) ; // number of iterations actually used 
+    par_poisson1.add_cmp_mod( ssjm1logn ) ; 
+    
+    // Parameters for the function Tensor::poisson for qq_auto
+    // ---------------------------------------------------------------
+    
+    Param par_poisson2 ; 
+    
+    par_poisson2.add_int(mermax_poisson,  0) ;  // maximum number of iterations
+    par_poisson2.add_double(relax_poisson,  0) ; // relaxation parameter
+    par_poisson2.add_double(precis_poisson, 1) ; // required precision
+    par_poisson2.add_int_mod(niter, 0) ; // number of iterations actually used 
+    par_poisson2.add_cmp_mod( ssjm1qq ) ; 
+    
+    // Parameters for the function Tensor::poisson for hij00_auto
+    // -------------------------------------------------------------
+    
+    Param par_poisson3 ; 
+    
+    par_poisson3.add_int(mermax_poisson,  0) ;  // maximum number of iterations
+    par_poisson3.add_double(relax_poisson,  0) ; // relaxation parameter
+    par_poisson3.add_double(precis_poisson, 1) ; // required precision
+    par_poisson3.add_int_mod(niter, 0) ; // number of iterations actually used 
+    par_poisson3.add_cmp_mod( ssjm1hij00 ) ; 
+    
+    // Parameters for the function Tensor::poisson for hij10_auto
+    // -------------------------------------------------------------
+    
+    Param par_poisson4 ; 
+    
+    par_poisson4.add_int(mermax_poisson,  0) ;  // maximum number of iterations
+    par_poisson4.add_double(relax_poisson,  0) ; // relaxation parameter
+    par_poisson4.add_double(precis_poisson, 1) ; // required precision
+    par_poisson4.add_int_mod(niter, 0) ; // number of iterations actually used 
+    par_poisson4.add_cmp_mod( ssjm1hij10 ) ; 
+    
+    // Parameters for the function Tensor::poisson for hij20_auto
+    // -------------------------------------------------------------
+    
+    Param par_poisson5 ; 
+    
+    par_poisson5.add_int(mermax_poisson,  0) ;  // maximum number of iterations
+    par_poisson5.add_double(relax_poisson,  0) ; // relaxation parameter
+    par_poisson5.add_double(precis_poisson, 1) ; // required precision
+    par_poisson5.add_int_mod(niter, 0) ; // number of iterations actually used 
+    par_poisson5.add_cmp_mod( ssjm1hij20 ) ; 
+    
+    // Parameters for the function Tensor::poisson for hij11_auto
+    // -------------------------------------------------------------
+    
+    Param par_poisson6 ; 
+    
+    par_poisson6.add_int(mermax_poisson,  0) ;  // maximum number of iterations
+    par_poisson6.add_double(relax_poisson,  0) ; // relaxation parameter
+    par_poisson6.add_double(precis_poisson, 1) ; // required precision
+    par_poisson6.add_int_mod(niter, 0) ; // number of iterations actually used 
+    par_poisson6.add_cmp_mod( ssjm1hij11 ) ; 
+    
+    // Parameters for the function Tensor::poisson for hij21_auto
+    // -------------------------------------------------------------
+    
+    Param par_poisson7 ; 
+    
+    par_poisson7.add_int(mermax_poisson,  0) ;  // maximum number of iterations
+    par_poisson7.add_double(relax_poisson,  0) ; // relaxation parameter
+    par_poisson7.add_double(precis_poisson, 1) ; // required precision
+    par_poisson7.add_int_mod(niter, 0) ; // number of iterations actually used 
+    par_poisson7.add_cmp_mod( ssjm1hij21 ) ; 
+    
+    // Parameters for the function Tensor::poisson for hij22_auto
+    // -------------------------------------------------------------
+    
+    Param par_poisson8 ; 
+    
+    par_poisson8.add_int(mermax_poisson,  0) ;  // maximum number of iterations
+    par_poisson8.add_double(relax_poisson,  0) ; // relaxation parameter
+    par_poisson8.add_double(precis_poisson, 1) ; // required precision
+    par_poisson8.add_int_mod(niter, 0) ; // number of iterations actually used 
+    par_poisson8.add_cmp_mod( ssjm1hij22 ) ; 
+    
+    // Parameters for the function Tensor::poisson_vect
+    // -------------------------------------------------
+    
+    Param par_poisson_vect ; 
+    
+    par_poisson_vect.add_int(mermax_poisson,  0) ;  // maximum number of 
+    //  iterations
+    par_poisson_vect.add_double(relax_poisson,  0) ; // relaxation parameter
+    par_poisson_vect.add_double(precis_poisson, 1) ; // required precision
+    par_poisson_vect.add_int_mod(niter, 0) ;  
+    
+    
+
+   // External potential
     // See Eq (99) from Gourgoulhon et al. (2001)
     // ------------------
     
@@ -154,10 +266,8 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
     
     Scalar ent_jm1 = ent ;	// Enthalpy at previous step
     
-    Scalar source(mp) ;    // source term in the equation for logn_auto,
-    // qq_auto 
-
-    Scalar source_tot(mp) ; // source term in the equation for gtildeij
+    Scalar source_tot(mp) ; // source term in the equation for hij_auto, 
+                            // logn_auto and qq_auto
 			    
     Vector source_shift(mp, CON, mp.get_bvect_spher()) ;  // source term 
     // in the equation for shift_auto
@@ -185,6 +295,8 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	    
 	}
 */
+	diff_vel_pot = 0. ; // to avoid the warning 
+
 	//-----------------------------------------------------
 	// Computation of the new radial scale
 	//--------------------------------------------------
@@ -359,7 +471,7 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	dcovdcov_nnn.inc_dzpuis(2) ;
 
 
-	// Derivatives of Q and shift
+	// Derivatives of Q and shift 
 	//---------------------------
 
 	const Vector& dcov_qq = qq.derive_cov(flat) ;
@@ -372,22 +484,32 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	dcovdcov_qq.inc_dzpuis(2) ;
 	dcondcov_qq.inc_dzpuis(2) ;
 	
+	Vector dcon_qq_auto = qq_auto.derive_con(flat) ;
+	dcon_qq_auto.dec_dzpuis(2) ;
+	Tensor dcondcon_qq_auto = dcon_qq_auto.derive_con(flat) ;
+	dcon_qq_auto.inc_dzpuis(2) ;
+	dcondcon_qq_auto.inc_dzpuis(2) ;
+	
+
 	Vector dcon_qq = qq.derive_con(flat) ;
 	dcon_qq.dec_dzpuis(2) ;
         Tensor dcondcon_qq = dcon_qq.derive_con(flat) ;
 	dcon_qq.inc_dzpuis(2) ;
 	dcondcon_qq.inc_dzpuis(2) ;
 
-	const Scalar divshift = shift.derive_cov(flat).scontract(0, 1) ;
-	const Tensor dcov_divshift = divshift.derive_cov(flat) ;
+	Tensor dcov_shift = shift.derive_cov(flat) ;
+	dcov_shift.dec_dzpuis(2) ;
+	Tensor dcovdcov_shift = dcov_shift.derive_cov(flat) ;
+	dcov_shift.inc_dzpuis(2) ;
+	dcovdcov_shift.inc_dzpuis(2) ;
 
 
 	// Derivatives oh hij, gtilde... 
 	//------------------------------
 
 	const Tensor& dcov_hij = hij.derive_cov(flat) ;
-	const Tensor& dcon_hij = hij.derive_con(flat) ;
 	const Tensor& dcov_hij_auto = hij_auto.derive_cov(flat) ;
+	const Tensor& dcon_hij_auto = hij_auto.derive_con(flat) ;
 
 	Tensor dcov_hij2 =  hij.derive_cov(flat) ;
 	dcov_hij2.dec_dzpuis(2) ;
@@ -396,6 +518,14 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	dcovdcov_hij.inc_dzpuis(2) ;
 
 	const Tensor& dcov_gtildeij = (gtilde.cov()).derive_cov(flat) ;
+
+	Connection gamijk (gtilde, flat) ;
+	const Tensor& deltaijk = gamijk.get_delta() ;
+
+	const Sym_tensor& gtilde_cov = gtilde.cov() ;
+	const Sym_tensor& gtilde_con = gtilde.con() ;
+
+	const Tensor& dcov_tkij_auto = tkij_auto.derive_cov(flat) ;
 
    
 	//--------------------------------------------------------
@@ -417,9 +547,25 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	Scalar source6(mp) ;
 	Scalar source7(mp) ;
 	Scalar source8(mp) ;
-	Scalar source9(mp) ;
-	Scalar source10(mp) ;
  
+	source1 = qpig * psi4 % (ener_euler + s_euler) ; 
+
+	source2 = kcar_auto + kcar_comp ;
+
+	source3 = - contract_desal(dcov_logn_auto, 0, dcon_logn, 0) ;
+
+	source4 = -2 * contract_desal(dcov_lnpsi, 0, dcon_logn_auto, 0) ;
+	
+	source5 = - contract(contract(hij_auto, 0, dcovdcov_nnn/nnn, 0), 
+			     0, 1) ;
+
+	source6 = 2 * contract(contract(hij_auto, 0, dcov_lnpsi, 0), 
+			       0, dcov_logn, 0) ;
+
+
+	source_tot = source1 + source2 + source3 + source4 +
+	             source5 + source6 ;
+      
  
 	cout << "moyenne de la source 1 pour logn_auto" << endl ;
 	cout <<  norme(source1/(nr*nt*np)) << endl ;
@@ -431,11 +577,13 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	cout <<  norme(source4/(nr*nt*np)) << endl ;
 	cout << "moyenne de la source 5 pour logn_auto" << endl ;
 	cout <<  norme(source5/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 6 pour logn_auto" << endl ;
+	cout <<  norme(source6/(nr*nt*np)) << endl ;
 	cout << "moyenne de la source pour logn_auto" << endl ;
-	cout <<  norme(source/(nr*nt*np)) << endl ;
+	cout <<  norme(source_tot/(nr*nt*np)) << endl ;
 	
 	
-	source.std_spectral_base() ;
+	source_tot.std_spectral_base() ;
 	/*
 	  des_profile(source1(), 0, 20, 0, 0) ;
 	  des_profile(source2(), 0, 20, 0, 0) ;
@@ -452,14 +600,14 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	//   source.annule(nz-1) ;
  
 
-	logn_auto = source.poisson() ; 
+	source_tot.poisson(par_poisson1, logn_auto) ; 
 
 	cout << "logn_auto" << endl << norme(logn_auto/(nr*nt*np)) << endl ;
   
 	// Check: has the Poisson equation been correctly solved ?
 	// -----------------------------------------------------
 
-	Tbl tdiff_logn = diffrel(logn_auto.laplacian(), source) ;
+	Tbl tdiff_logn = diffrel(logn_auto.laplacian(), source_tot) ;
 	cout << 
 	    "Relative error in the resolution of the equation for logn_auto : "
 	     << endl ; 
@@ -469,8 +617,8 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	cout << endl ;
 	diff_logn = max(abs(tdiff_logn)) ; 
 
-	cout << "Rel error: " << norme(logn_auto.laplacian()- source)
-	    / max( max( source )) << endl ; 
+	cout << "Rel error: " << norme(logn_auto.laplacian()- source_tot)
+	    / max( max( source_tot )) << endl ; 
 
     
 	//--------------------------------------------------------
@@ -480,6 +628,29 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	// Source
 	//--------
 
+	source1 = qpig * pow(psi4, 3./2.) % nnn % s_euler ;
+
+	source2 = 3. * pow(psi4, 1./2.) % nnn % (kcar_auto + kcar_comp)/ 4. ;
+	
+	source3 = 2 * qq_auto % contract_desal(dcov_lnpsi, 0, dcon_lnpsi, 0) ;
+
+	source4 = 2 * qq_auto % contract_desal(dcov_lnpsi, 0, dcon_logn, 0) ;
+
+	source5 = contract(contract(contract(contract(gtilde_con, 0, 
+		   dcov_hij_auto, 2), 0, dcov_gtildeij, 2), 0, 2), 0, 1)/16. ;
+
+	source6 =  - contract(contract(contract(contract(gtilde_con, 0, 
+		    dcov_hij_auto, 2), 0, dcov_gtildeij, 1), 0, 2), 0, 1)/8. ;
+
+	source7 = 2 * contract(contract(hij, 0, dcov_lnpsi, 0)
+			       , 0, dcov_lnpsi, 0) ;
+
+	source8 = 2 * nnn * contract(contract(hij, 0, dcov_lnpsi, 0)
+				     , 0, dcov_logn, 0) ;
+
+
+	source_tot = source1 + source2 + source3 + source4 + source5 + 
+	             source6 + source7 + source8 ;
 
   	
 	cout << "moyenne de la source 1 pour qq_auto" << endl ;
@@ -490,11 +661,19 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	cout <<  norme(source3/(nr*nt*np)) << endl ;
 	cout << "moyenne de la source 4 pour qq_auto" << endl ;
 	cout <<  norme(source4/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 5 pour qq_auto" << endl ;
+	cout <<  norme(source5/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 6 pour qq_auto" << endl ;
+	cout <<  norme(source6/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 7 pour qq_auto" << endl ;
+	cout <<  norme(source7/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 8 pour qq_auto" << endl ;
+	cout <<  norme(source8/(nr*nt*np)) << endl ;
 	cout << "moyenne de la source pour qq_auto" << endl ;
-	cout <<  norme(source/(nr*nt*np)) << endl ;
+	cout <<  norme(source_tot/(nr*nt*np)) << endl ;
 	
 
-	source.std_spectral_base() ;
+	source_tot.std_spectral_base() ;
 
 	// Resolution of the Poisson equation 
 	// ----------------------------------
@@ -502,8 +681,9 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	//source.set().filtre(4) ;
 	//   source.annule(nz-1) ;
  
-	qq_auto = source.poisson() ; 
-	/*
+	source_tot.poisson(par_poisson2, qq_auto) ; 
+	
+         /*
 	  des_profile(qq_auto(), 0, 20, 0, 0) ;
 	  des_coef_xi(qq_auto().va, 0, 0, 0) ;
 	  des_coef_xi(qq_auto().va, 1, 0, 0) ;
@@ -512,7 +692,7 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	// Check: has the Poisson equation been correctly solved 
 	// -----------------------------------------------------
     
-	Tbl tdiff_qq = diffrel(qq_auto.laplacian(), source) ;
+	Tbl tdiff_qq = diffrel(qq_auto.laplacian(), source_tot) ;
 	cout << 
 	    "Relative error in the resolution of the equation for qq : "
 	     << endl ; 
@@ -522,8 +702,8 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	cout << endl ;
 	diff_qq = max(abs(tdiff_qq)) ; 
 
-	cout << "Rel error: " << norme(qq_auto.laplacian()- source)
-	    / max( max( source ) ) << endl ; 
+	cout << "Rel error: " << norme(qq_auto.laplacian()- source_tot)
+	    / max( max( source_tot ) ) << endl ; 
 
 	qq_auto = qq_auto + decouple  ;
 
@@ -541,29 +721,59 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	Vector source2_shift(mp, CON, mp.get_bvect_spher()) ;
 	Vector source3_shift(mp, CON, mp.get_bvect_spher()) ;
 	Vector source4_shift(mp, CON, mp.get_bvect_spher()) ;
+	Vector source5_shift(mp, CON, mp.get_bvect_spher()) ;
+	Vector source6_shift(mp, CON, mp.get_bvect_spher()) ;
  
+	source1_shift = (-4.*qpig) * nnn % psi4
+	                   %(ener_euler + press) % u_euler ;
+
+	source2_shift = 2 * nnn % contract_desal(tkij_auto, 1, dcov_logn, 0) ;
+
+	source3_shift = -12 * nnn % contract_desal(tkij_auto, 1, 
+						   dcov_lnpsi, 0) ;
+
+	source4_shift = - 2 * nnn * contract(contract(tkij_auto, 0, 
+						      deltaijk, 1), 0, 2) ;
+
+	source5_shift = - contract(contract(hij_auto, 0, dcovdcov_shift, 2)
+				   , 0, 2) ;
+
+	source6_shift = - contract(contract(hij_auto, 1, dcovdcov_shift, 2)
+				   , 1, 2) ;
+	
+	
+	source_shift = source1_shift + source2_shift + source3_shift + 
+	               source4_shift + source5_shift + source6_shift ;
 
        
 	cout << "moyenne de la source 1 pour shift_auto" << endl ;
-	cout <<  norme(source1_shift(0)/(nr*nt*np)) << endl ;
 	cout <<  norme(source1_shift(1)/(nr*nt*np)) << endl ;
 	cout <<  norme(source1_shift(2)/(nr*nt*np)) << endl ;
+	cout <<  norme(source1_shift(3)/(nr*nt*np)) << endl ;
 	cout << "moyenne de la source 2 pour shift_auto" << endl ;
-	cout <<  norme(source2_shift(0)/(nr*nt*np)) << endl ;
 	cout <<  norme(source2_shift(1)/(nr*nt*np)) << endl ;
 	cout <<  norme(source2_shift(2)/(nr*nt*np)) << endl ;
+	cout <<  norme(source2_shift(3)/(nr*nt*np)) << endl ;
 	cout << "moyenne de la source 3 pour shift_auto" << endl ;
-	cout <<  norme(source3_shift(0)/(nr*nt*np)) << endl ;
 	cout <<  norme(source3_shift(1)/(nr*nt*np)) << endl ;
 	cout <<  norme(source3_shift(2)/(nr*nt*np)) << endl ;
+	cout <<  norme(source3_shift(3)/(nr*nt*np)) << endl ;
 	cout << "moyenne de la source 4 pour shift_auto" << endl ;
-	cout <<  norme(source4_shift(0)/(nr*nt*np)) << endl ;
 	cout <<  norme(source4_shift(1)/(nr*nt*np)) << endl ;
 	cout <<  norme(source4_shift(2)/(nr*nt*np)) << endl ;
+	cout <<  norme(source4_shift(3)/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 5 pour shift_auto" << endl ;
+	cout <<  norme(source5_shift(1)/(nr*nt*np)) << endl ;
+	cout <<  norme(source5_shift(2)/(nr*nt*np)) << endl ;
+	cout <<  norme(source5_shift(3)/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 6 pour shift_auto" << endl ;
+	cout <<  norme(source6_shift(1)/(nr*nt*np)) << endl ;
+	cout <<  norme(source6_shift(2)/(nr*nt*np)) << endl ;
+	cout <<  norme(source6_shift(3)/(nr*nt*np)) << endl ;
 	cout << "moyenne de la source pour shift_auto" << endl ;
-	cout <<  norme(source_shift(0)/(nr*nt*np)) << endl ;
 	cout <<  norme(source_shift(1)/(nr*nt*np)) << endl ;
 	cout <<  norme(source_shift(2)/(nr*nt*np)) << endl ;
+	cout <<  norme(source_shift(3)/(nr*nt*np)) << endl ;
 	
 	source_shift.std_spectral_base() ; 	
 	
@@ -588,13 +798,13 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 
 	double lambda_shift = double(1)/double(3) ; 
 
-	shift_auto = source_shift.poisson(lambda_shift) ;      
-
+	shift_auto = source_shift.poisson(lambda_shift) ; 
+     
 
 	// Check: has the equation for shift_auto been correctly solved ?
 	// --------------------------------------------------------------
 	// Divergence of shift_auto : 
-	Scalar divn = shift_auto.derive_cov(flat).scontract(0, 1) ; 
+	Scalar divn = contract(shift_auto.derive_cov(flat), 0, 1) ; 
 	divn.dec_dzpuis(2) ;    // dzpuis 2 -> 0
 	    
 	// Grad(div) : 
@@ -608,9 +818,9 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 		+ lambda_shift * graddivn(i) ;
 	}
 
-	Tbl tdiff_shift_x = diffrel(lap_shift(0), source_shift(0)) ; 
-	Tbl tdiff_shift_y = diffrel(lap_shift(1), source_shift(1)) ; 
-	Tbl tdiff_shift_z = diffrel(lap_shift(2), source_shift(2)) ; 
+	Tbl tdiff_shift_x = diffrel(lap_shift(1), source_shift(1)) ; 
+	Tbl tdiff_shift_y = diffrel(lap_shift(2), source_shift(2)) ; 
+	Tbl tdiff_shift_z = diffrel(lap_shift(3), source_shift(3)) ; 
 
 	cout << 
 	    "Relative error in the resolution of the equation for shift_auto : "
@@ -640,37 +850,221 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	    //--------------------------------------------------------
 	    // Poisson equation for hij
 	    //--------------------------------------------------------
-	   
+	 
+	 
+	    // Declaration of all sources 
+	    //---------------------------
 
+	    Scalar sol_poisson(mp) ;
+	    Scalar source_Hij(mp) ;
+	    Scalar source_Qij(mp) ;
+	    Scalar source_Sij(mp) ;
+	    Scalar source_tot_hij(mp) ;
+
+
+	    Tensor source1 (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source2 (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source3 (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source4 (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source5 (mp, 2, CON, mp.get_bvect_spher()) ;
+
+
+	    Tensor source1_Hij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source2_Hij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source3_Hij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source4_Hij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source5_Hij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source6_Hij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source7_Hij (mp, 2, CON, mp.get_bvect_spher()) ;
+
+	    
+	    Tensor source1_Qij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source2_Qij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source3_Qij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source4_Qij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source5_Qij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source6_Qij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source7_Qij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source8_Qij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source9_Qij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source10_Qij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source11_Qij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    
+
+	    Tensor source1_Sij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source2_Sij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source3_Sij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source4_Sij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source5_Sij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source6_Sij (mp, 2, CON, mp.get_bvect_spher()) ;
+	    Tensor source7_Sij (mp, 2, CON, mp.get_bvect_spher()) ;
+
+   
 	    // Source
 	    //--------
+
+	    source1 = contract(dcon_hij_auto, 1, dcov_logn + 2*dcov_lnpsi, 0) ;
+
+	    source2 = contract(dcon_hij_auto, 2, dcov_logn + 2*dcov_lnpsi, 0) ;
+
+	    source3 = contract(shift, 0, dcov_tkij_auto, 2) ;
+
+	    source4 = - contract(tkij_auto, 1, dcov_shift, 1) ;
+
+	    source5 = - 2 * contract(dcov_shift, 0, 1) * tkij_auto / 3. ;
+
 	    
-	    Scalar sol_poisson(mp) ;
+	    // Source terms for Hij
+	    //---------------------
+
+	    source1_Hij = 8*nnn*contract(hij_auto,1,dcov_lnpsi,0)*dcon_lnpsi ;
+
+	    source2_Hij = - pow(psi4, -1./2.) * contract(hij_auto, 1
+							 , dcondcov_qq, 0) ;
+
+	    source3_Hij = 4*nnn*contract(hij_auto,1,dcov_logn,0)*dcon_lnpsi ; 
+
+	    source4_Hij = 4*nnn*contract(hij_auto,1,dcov_lnpsi,0)*dcon_logn ;
+
+	    source5_Hij = (pow(psi4, -1./2.) * contract(contract(hij_auto, 0
+						  , dcovdcov_qq, 1), 0, 1)
+			   - 8 * nnn * contract(contract(hij_auto,0
+					  , dcov_lnpsi, 0), 0, dcov_logn, 0)
+			   - 8 * nnn * contract(contract(hij_auto,0
+					  , dcov_lnpsi, 0), 0, dcov_lnpsi, 0))
+		* flat.con() / 3. ; 
+
+	    source6_Hij = (pow(psi4, -1./2.) * qq.laplacian()
+			   - 8 * nnn * contract(dcov_lnpsi, 0, dcon_logn, 0)
+			   - 8 * nnn * contract(dcov_lnpsi, 0, dcon_lnpsi, 0))
+		* hij_auto / 3. ;
+
+	    source7_Hij = 2 * qpig * nnn * s_euler * hij_auto / 3. ;
+
+
+
+	    // Source_terms for Qij
+	    //---------------------
+
+	    
+	    source1_Qij = nnn * contract(contract(hij_auto, 0, 
+						  dcovdcov_hij, 1), 0, 3) /2. ;
+
+	    source2_Qij = nnn / 2. * ( - contract(contract(dcov_hij_auto, 1, 
+							   dcov_hij, 2), 1, 3)
+	     - contract(contract(contract(contract(gtilde_cov, 0, 
+		  dcov_hij_auto, 1), 0, dcov_hij, 1), 1, gtilde_con, 0), 2, 3)
+	     + contract(contract(contract(contract(gtilde_con, 1, 
+		  dcov_hij_auto, 2), 2, dcov_hij, 2), 1, gtilde_cov, 0), 2, 3)
+	     + contract(contract(contract(contract(gtilde_con, 1, 
+	        dcov_gtildeij, 2), 2, dcov_hij_auto, 1), 1, 2), 1
+			, gtilde_con, 1) ) ;
+
+	    source3_Qij = contract(contract(contract(contract(gtilde_con, 1, 
+	         dcov_hij_auto, 2), 1, dcov_hij, 2), 1, gtilde_cov, 1), 2, 3) ;
+
+	    source4_Qij = 16 * contract(contract(hij_auto, 1, 
+				        dcov_lnpsi, 0)*hij, 2, dcov_lnpsi, 0) ;
+	    
+	    source5_Qij = - pow(psi4, -1./2.) * contract(contract(hij_auto, 1, 
+					        dcovdcov_qq, 1), 1, hij, 1) ;
+	    
+
+	    source6_Qij = - pow(psi4, -1./2.) / 2. * (contract(contract(
+			        hij_auto, 1, dcov_hij, 2), 2, dcov_qq, 0)) ;
+
+
+	    source7_Qij = - pow(psi4, -1./2.) / 2. * (contract(contract(
+			        hij_auto, 1, dcov_hij, 2), 0, dcov_qq, 0)) ;
+
+
+	    source8_Qij = 4. * nnn * contract(contract(hij_auto, 1, 
+				       dcov_lnpsi, 0)*hij, 2, dcov_logn, 0)
+
+		        + 4. * nnn * contract(contract(hij_auto, 1, 
+				       dcov_logn, 0)*hij, 2, dcov_lnpsi, 0) ;
+
+
+	    source9_Qij = nnn / 6. * (contract(contract(contract(contract(
+          gtilde_con, 0, dcov_hij_auto, 2), 0, dcov_gtildeij, 1), 0, 2), 0, 1)
+		- contract(contract(contract(contract(gtilde_con, 0, 
+		   dcov_hij_auto, 2), 0, dcov_gtildeij, 2), 0, 2), 0, 1) / 2.)
+		* gtilde_con ;
+
+	    
+	    source10_Qij = - 8./3. * nnn * ( contract(contract(hij, 0, 
+			        dcov_lnpsi, 0), 0, dcov_lnpsi, 0) * hij_auto 
+					   + contract(contract(hij, 0, 
+				dcov_lnpsi, 0), 0, dcov_logn, 0) * hij_auto ) ;
+
+
+
+	    source11_Qij = pow(psi4, -1./2.) / 3. * contract(contract(hij, 0, 
+				 dcovdcov_qq, 0), 0, 1) * hij_auto ;
+
+
+
+
+	    // Source terms for Sij
+	    //---------------------
+
+	    
+	    source1_Sij = 8 * qq_auto * pow(psi4, -1./2.) * 
+		              dcon_lnpsi * dcon_lnpsi ;
+
+	    source2_Sij = - pow(psi4, -1./2.) * dcondcon_qq_auto ;
+
+	    source3_Sij = 4 * nnn * dcon_lnpsi * dcon_logn_auto ;
+
+	    source4_Sij = pow(psi4, -1./2.) * qq_auto.laplacian() / 3. *
+		          flat.con() ;
+
+	    source5_Sij = - 8 * ( nnn * contract(dcov_lnpsi, 0, dcon_logn, 0)
+	                          - qq_auto * pow(psi4, -1./2.) 
+				  * contract(dcov_lnpsi, 0, dcon_lnpsi, 0))/3.
+		           * flat.con() ;
+
+	    source6_Sij = 2 * nnn * contract(contract(gtilde_cov, 0, 
+				 tkij_auto + tkij_auto, 1), 0, tkij_auto, 1) ;
+
+
+	    source7_Sij = - 2 * qpig * nnn * ( psi4 * stress 
+					       - s_euler * flat.con()/3. ) ; 
+
 
 	    for(int i=0; i<=2; i++) 
 		for(int j=i; j<=2; j++) {
-		    
-		    cout << "moyenne de la source 1 pour hij_auto" << endl ;
-		    cout <<  norme(source1/(nr*nt*np)) << endl ;
-		    cout << "moyenne de la source 2 pour hij_auto" << endl ;
-		    cout <<  norme(source2/(nr*nt*np)) << endl ;
-		    cout << "moyenne de la source 3 pour hij_auto" << endl ;
-		    cout <<  norme(source3/(nr*nt*np)) << endl ;
-		    cout << "moyenne de la source 4 pour hij_auto" << endl ;
-		    cout <<  norme(source4/(nr*nt*np)) << endl ;
-		    cout << "moyenne de la source5 pour hij_auto" << endl ;
-		    cout <<  norme(source5/(nr*nt*np)) << endl ;
-		    cout << "moyenne de la source6 pour hij_auto" << endl ;
-		    cout <<  norme(source6/(nr*nt*np)) << endl ;
-		    cout << "moyenne de la source7 pour hij_auto" << endl ;
-		    cout <<  norme(source7/(nr*nt*np)) << endl ;
-		    cout << "moyenne de la source8 pour hij_auto" << endl ;
-		    cout <<  norme(source8/(nr*nt*np)) << endl ;
-		    cout << "moyenne de la source9 pour hij_auto" << endl ;
-		    cout <<  norme(source9/(nr*nt*np)) << endl ;
-		    cout << "moyenne de la source pour hij_auto" << endl ;
-		    cout <<  norme(source_tot/(nr*nt*np)) << endl << endl ;
-  
+
+		    source_Hij = ( source1_Hij(i,j) + source1_Hij(j,i) +
+				   source2_Hij(j,i) + source2_Hij(i,j) +
+				   source3_Hij(j,i) + source3_Hij(i,j) +
+				   source4_Hij(j,i) + source4_Hij(i,j) +
+				   source5_Hij(i,j) + source6_Hij(i,j)) / psi4
+			        + source7_Hij(i,j) ;
+
+
+		    source_Qij = ( source1_Qij(i,j) + source2_Qij(i,j) +
+				   source3_Qij(j,i) + source4_Qij(i,j) +
+				   source5_Qij(i,j) + source6_Qij(i,j) +
+				   source6_Qij(j,i) + source7_Qij(i,j) +
+				   source8_Qij(i,j) + source9_Qij(i,j) +
+				   source10_Qij(i,j) + source11_Qij(i,j)) 
+			      / psi4 ;
+		   
+
+		    source_Sij = ( source1_Sij(i,j) + source2_Sij(i,j) +
+				   source3_Sij(i,j) + source3_Sij(j,i) +
+				   source4_Sij(i,j) + source5_Sij(i,j) +
+				   source6_Sij(i,j) + source7_Sij(i,j) )
+			     / psi4 ;  
+
+		    source_tot_hij = source1(i,j) + source1(j,i) - source2(i,j)
+			+ source3(i,j) + source4(i,j) + source4(j,i) 
+			+ source5(i,j) + source_Hij + source_Qij 
+			+ source_Sij ;
+
+
+
 
 		    // Resolution of the Poisson equations and
 		    // Check: has the Poisson equation been correctly solved ?
