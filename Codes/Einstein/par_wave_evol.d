@@ -12,12 +12,14 @@
 0       nopause : 1 = no pause during output printing, 0 otherwise 
 1       graph : 1 = graphical outputs during the computation, 0 = no graph
 1       graph_init : 1 = graphical outputs for initial data
+1       jmod_check_constraints : 1/frequency of constraint checking
+10      jmod_save  : 1/frequency of saving monitoring quantities to file
 #################### MULTI-GRID PARAMETERS ###################################
 1       symmetry_phi : 1 = symmetry phi --> phi + pi, 0 otherwise
 4       nz : total number of domains
 17      nr : number of collocation points in r (the same in each domain)
 9       nt : number of collocation points in theta (the same in each domain)
-12      np : number of collocation points in phi   (the same in each domain)
+8       np : number of collocation points in phi   (the same in each domain)
 # Inner boundary of each domain:
 0.      min(r)  in domain 0  (nucleus)  	
 1.      min(r)  in domain 1

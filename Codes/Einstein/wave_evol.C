@@ -29,6 +29,10 @@ char wave_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/05/20 20:33:34  e_gourgoulhon
+ * Added parameters jmod_check_constraints and jmod_save,
+ * which are passed to Tslice_dirac_max::evolve.
+ *
  * Revision 1.9  2004/05/17 20:00:09  e_gourgoulhon
  * Added parameters ampli_tgam_dot, method_poisson_vect, precis_init,
  * nopause from the input file. These arguments are passed to
@@ -102,7 +106,7 @@ int main() {
     
     // Reading of computational paramaters
     int nb_time_steps, niter_elliptic, nopause, graph, graph_init,
-        method_poisson_vect ;
+        method_poisson_vect, jmod_check_constraints, jmod_save ;
     double pdt, relax_elliptic, precis_init ; 
     fpar.ignore(1000,'\n') ;    // skip title
     fpar >> pdt ; fpar.ignore(1000,'\n') ;
@@ -114,6 +118,8 @@ int main() {
     fpar >> nopause ; fpar.ignore(1000,'\n') ;
     fpar >> graph ; fpar.ignore(1000,'\n') ;
     fpar >> graph_init ; fpar.ignore(1000,'\n') ;
+    fpar >> jmod_check_constraints ; fpar.ignore(1000,'\n') ;
+    fpar >> jmod_save ; fpar.ignore(1000,'\n') ;
 
     char graph_device[40] ;
     if (graph == 0) strcpy(graph_device, "/n") ;
@@ -170,6 +176,8 @@ int main() {
     cout << "   precis_init = " << precis_init << endl ;
     cout << "   graph_device = " << graph_device << endl ;
     cout << "   graph_device_init = " << graph_device_init << endl ;
+    cout << "   jmod_check_constraints = " << jmod_check_constraints << endl ;
+    cout << "   jmod_save = " << jmod_save << endl ;
 
     //======================================================================
     //      Construction and initialization of the various objects
@@ -357,6 +365,7 @@ int main() {
     //======================================================================    
     
     sigmat.evolve(pdt, nb_time_steps, niter_elliptic, relax_elliptic,
+                  jmod_check_constraints, jmod_save,
                   method_poisson_vect, nopause, graph_device) ; 
     
     // Freeing dynamically allocated memory
