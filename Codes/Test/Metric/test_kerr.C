@@ -28,6 +28,11 @@ char test_kerr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/02/18 18:53:41  e_gourgoulhon
+ * -- Trace of K now computed directly, thanks to the new
+ *    method Tensor::trace.
+ * -- Method Tensor::scontract renamed Tensor::trace.
+ *
  * Revision 1.10  2004/02/18 15:58:29  e_gourgoulhon
  * Double contraction K_ij K^ij in Hamiltonian constraint now handled
  * by the new function contract for contraction on two indices.
@@ -351,8 +356,7 @@ int main() {
     // Trace of K
     // ----------
     
-    Tensor kk_du = kk.up(1, gam) ; 
-    Scalar trkk = kk_du.scontract(0,1) ; 
+    Scalar trkk = kk.trace(gam) ; 
     cout << "Trace of K  (max. absolute value in each domain) :" << endl ; 
     maxabs(trkk) ; 
     
@@ -370,6 +374,7 @@ int main() {
     // Momentum constraint
     // -------------------
     
+    Tensor kk_du = kk.up(1, gam) ; 
     Vector mom_constr = kk_du.divergence(gam) - trkk.derive_cov(gam) ; 
     
     cout << "Momentum constraint : " << endl ; 
@@ -378,7 +383,7 @@ int main() {
     maxabs(mom_constr) ; 
 
     const Tensor& dkk = kk_du.derive_cov(gam) ; 
-    mom_constr = dkk.scontract(1,2) - trkk.derive_cov(gam) ; 
+    mom_constr = dkk.trace(1,2) - trkk.derive_cov(gam) ; 
     cout << "Momentum constraint by direct computation of divergence\n "
          << "   (max absolute error in each domain) : " << endl ; 
     maxabs(mom_constr) ; 
@@ -525,8 +530,7 @@ int main() {
     // Trace of K
     // ----------
     
-    Tensor kk_du_c = kk_c.up(1, gam_c) ; 
-    Scalar trkk_c = kk_du_c.scontract(0,1) ; 
+    Scalar trkk_c = kk_c.trace(gam_c) ; 
     cout << "Trace of K:" << endl ; 
     maxabs(trkk_c) ; 
 
@@ -544,6 +548,7 @@ int main() {
     // Momentum constraint
     // -------------------
         
+    Tensor kk_du_c = kk_c.up(1, gam_c) ; 
     Vector mom_constr_c = kk_du_c.divergence(gam_c) - trkk_c.derive_cov(gam_c) ; 
 
     cout << "Momentum constraint (Cart.) : " << endl ; 
@@ -552,7 +557,7 @@ int main() {
     maxabs(mom_constr_c) ; 
 
     const Tensor& dkk_c = kk_du_c.derive_cov(gam_c) ; 
-    mom_constr_c = dkk_c.scontract(1,2) - trkk_c.derive_cov(gam_c) ; 
+    mom_constr_c = dkk_c.trace(1,2) - trkk_c.derive_cov(gam_c) ; 
     
     cout << "Momentum constraint (Cart.) by direct computation of divergence \n"
         << "  (max absolute error in each domain) : " << endl ; 
