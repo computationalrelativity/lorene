@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/03/03 19:09:44  f_limousin
+ * Add a constructor from a tensor and a metric.
+ *
  * Revision 1.5  2002/12/09 09:51:02  f_limousin
  *
  * Added some Doc++ comments
@@ -114,6 +117,15 @@ class Metconf: public Metrique {
 	 */
 	Metconf (const Tenseur_sym& source, const Metrique& metplat, 
 	         bool jauge = false, bool plate = false) ;
+
+	/** Constructor from a {\tt Tenseur\_sym} of {\tt valence} = 2
+	 * and a metric.   
+	 *  One representation is allocated depending on the 
+	 *  type of {\tt source}.
+	 */
+	Metconf (const Tenseur_sym& source, const Metrique& metric, 
+	         const Metrique& metplat, bool jauge = false, 
+		 bool plate = false) ;
 
 	/** Constructor from a file (see {\tt sauve(FILE* )}).
 	 * 
