@@ -25,6 +25,9 @@ char cmp_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/23 09:41:27  p_grandclement
+ * small modif of set_val_hor (one can work at the origin now)
+ *
  * Revision 1.2  2003/10/03 15:58:44  j_novak
  * Cleaning of some headers
  *
@@ -151,7 +154,7 @@ void Cmp::set_val_hor (double val, int zone) {
 	else
 	    annule_hard() ;
     
-    assert ((zone>0) && (zone < mp->get_mg()->get_nzone())) ;
+    assert (zone < mp->get_mg()->get_nzone()) ;
     del_deriv() ;
     
     int nt = mp->get_mg()->get_nt(zone) ;
@@ -162,7 +165,7 @@ void Cmp::set_val_hor (double val, int zone) {
     
     for (int k=0 ; k<np ; k++)
 	for (int j=0 ; j<nt ; j++)
-	    va.set(1, k, j, 0) = val ;
+	    va.set(zone, k, j, 0) = val ;
 }
 
 /*
