@@ -28,6 +28,9 @@ char scalar_raccord_zec_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/06/04 16:14:18  j_novak
+ * In smooth_decay, the configuration space was not up-to-date.
+ *
  * Revision 1.5  2004/03/05 15:09:59  e_gourgoulhon
  * Added method smooth_decay.
  *
@@ -380,7 +383,10 @@ void Scalar::smooth_decay(int kk, int nn) {
         }
     } 
     
-    
+    if (va.c != 0x0) {
+      delete va.c ;
+      va.c = 0x0 ;
+    }
     va.ylm_i() ;     
     
     // Test of the computation
