@@ -83,6 +83,17 @@
         //@Include:qtenseur.h_r
         //@Include:qmetrique.h_r
     //@}  
+
+   /**@name New tensorial fields (***under develoment***)
+     *
+     * These are new classes intended to replace {\tt Tenseur} and
+     * {\tt Cmp}; they are currently under development. 
+     *
+     */
+    //@{
+	//@Include:tensor.h_r
+	//@Include:scalar.h_r
+    //@}  
     
     /**@name Grid wedding
      *

@@ -25,13 +25,16 @@
  */
 
 
-#ifndef __TENSOR_H_
-#define __TENSOR_H_
+#ifndef __TENSOR_H_ 
+#define __TENSOR_H_ 
 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/09/24 08:46:31  j_novak
+ * Added tensor.h and scalar.h to the documentation
+ *
  * Revision 1.2  2003/09/23 08:53:11  e_gourgoulhon
  * not ready yet
  *
@@ -62,7 +65,7 @@ class Scalar ;
 
 /**
  * Tensor handling *** UNDER DEVELOPMENT  ***.
- * This class is intended to replace {\tt Tensor} and {\tt Scalar} (via
+ * This class is intended to replace {\tt Tenseur} and {\tt Cmp} (via
  *  its derived class {\tt Scalar}).
  * 
  * This class is intended to store the components of a tensorial field in 
