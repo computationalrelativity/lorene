@@ -33,6 +33,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/10/03 15:09:38  j_novak
+ * Improved display
+ *
  * Revision 1.8  2003/10/03 11:21:48  j_novak
  * More methods for the class Metric
  *
@@ -529,24 +532,26 @@ void Tensor::mult_r_zec() {
 
 // Le cout :
 ostream& operator<<(ostream& flux, const Tensor &source ) {
-  flux << typeid(source).name() << endl ;
+
+  flux << '\n' ;
+  flux << typeid(source).name() << '\n' ;
     
-    flux << "Valence : " << source.valence << endl ;
+    flux << "Valence : " << source.valence << '\n' ;
 
     if (source.get_triad() != 0x0) {
 	flux << "Vectorial basis (triad) on which the components are defined :" 
-	     << endl ; 
-	flux << *(source.get_triad()) << endl ;
+	     << '\n' ; 
+	flux << *(source.get_triad()) << '\n' ;
     }
     
     if (source.valence != 0)
-	flux << "Type of the indices : " << endl ;
+	flux << "Type of the indices : " << '\n' ;
     for (int i=0 ; i<source.valence ; i++) {
 	flux << "Index " << i << " : " ;
 	if (source.type_indice(i) == CON)
-	    flux << " contravariant." << endl ;
+	    flux << " contravariant." << '\n' ;
 	else
-	    flux << " covariant." << endl ;
+	    flux << " covariant." << '\n' ;
 	}
     
     for (int i=0 ; i<source.n_comp ; i++) {
@@ -560,10 +565,10 @@ ostream& operator<<(ostream& flux, const Tensor &source ) {
       }
       else
 	flux << "  " << 0 ;
-      flux << " : " << endl ;
-      flux << "-------------" << endl ; 
+      flux << " : " << '\n' ;
+      flux << "-------------" << '\n' ; 
       
-      flux << *source.cmp[i] << endl ;
+      flux << *source.cmp[i] << '\n' ;
     }
     
     flux << " -----------------------------------------------------" << endl ;
