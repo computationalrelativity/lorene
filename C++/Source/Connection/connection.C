@@ -30,6 +30,9 @@ char connection_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/10/16 14:21:36  j_novak
+ * The calculation of the divergence of a Tensor is now possible.
+ *
  * Revision 1.6  2003/10/11 14:39:49  e_gourgoulhon
  * Suppressed declaration of unusued arguments in some methods.
  *
@@ -242,6 +245,13 @@ Tensor Connection::derive_cov(const Tensor& ti) const {
 Tensor* Connection::p_derive_cov(const Tensor& ) const {
 
 	cout << "Connection::p_derive_cov : not implemented yet !" << endl ; 
+	abort() ; 
+	return 0x0 ;
+} 
+
+Tensor* Connection::p_divergence(const Tensor& ) const {
+
+	cout << "Connection::p_divergence : not implemented yet !" << endl ; 
 	abort() ; 
 	return 0x0 ;
 } 

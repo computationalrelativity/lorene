@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/10/16 14:21:33  j_novak
+ * The calculation of the divergence of a Tensor is now possible.
+ *
  * Revision 1.9  2003/10/13 20:49:26  e_gourgoulhon
  * Corrected typo in the comments.
  *
@@ -185,10 +188,15 @@ class Vector: public Tensor {
 	
 	/**
 	 * Sets the standard spectal bases of decomposition for each component.
-     *
+	 *
 	 */
 	virtual void std_spectral_base() ; 
 	
+	/**The divergence of {\tt this} with respect to a {\tt Metric}.
+	 * The {\tt Vector} is assumed to be contravariant.
+	 */
+	const Scalar& divergence(const Metric&) const ; 
+
  
 };
 

@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/10/16 14:21:33  j_novak
+ * The calculation of the divergence of a Tensor is now possible.
+ *
  * Revision 1.8  2003/10/06 13:58:45  j_novak
  * The memory management has been improved.
  * Implementation of the covariant derivative with respect to the exact Tensor
@@ -229,6 +232,13 @@ class Connection {
 	 */
 	virtual Tensor* p_derive_cov(const Tensor&) const ; 
 
+	/** Pointer on the divergence of a tensor 
+	 * (with respect to the current connection). This method allocates memory
+	 * that must be deallocated by the user afterwards. It is also
+	 * assumed that the first index of the {\tt Tensor} is contravariant.
+	 */
+	virtual Tensor* p_divergence(const Tensor&) const ; 
+
 	/// Returns the Ricci tensor associated with the current connection
 	const Tensor& ricci() const ; 
 	
@@ -316,6 +326,13 @@ class Connection_flat : public Connection {
    */
   virtual Tensor* p_derive_cov(const Tensor&) const = 0 ; 
 
+  /** Pointer on the divergence of a tensor 
+   * (with respect to the current connection). This method allocates memory
+   * that must be deallocated by the user afterwards. It is also
+   * assumed that the first index of the {\tt Tensor} is contravariant.
+   */
+  virtual Tensor* p_divergence(const Tensor&) const = 0 ; 
+
  protected:
 
   /// Computes the Ricci tensor when necessary
@@ -374,6 +391,12 @@ class Connection_fspher : public Connection_flat {
    */
   virtual Tensor* p_derive_cov(const Tensor&) const ; 
 
+  /** Pointer on the covariant derivative of a tensor 
+   * (with respect to the current connection). This method allocates memory
+   * that must be deallocated by the user afterwards.
+   */
+  virtual Tensor* p_divergence(const Tensor&) const ; 
+
   
 };
 
@@ -428,6 +451,12 @@ class Connection_fcart : public Connection_flat {
    * that must be deallocated by the user afterwards.
    */
   virtual Tensor* p_derive_cov(const Tensor&) const  ; 
+
+  /** Pointer on the covariant derivative of a tensor 
+   * (with respect to the current connection). This method allocates memory
+   * that must be deallocated by the user afterwards.
+   */
+  virtual Tensor* p_divergence(const Tensor&) const ; 
 
   
 };

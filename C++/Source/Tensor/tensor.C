@@ -34,6 +34,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2003/10/16 14:21:36  j_novak
+ * The calculation of the divergence of a Tensor is now possible.
+ *
  * Revision 1.19  2003/10/13 13:52:40  j_novak
  * Better managment of derived quantities.
  *
@@ -336,6 +339,8 @@ void Tensor::del_derive_met(int j) const {
       delete p_derive_cov[j] ;
     if (p_derive_con[j] != 0x0)
       delete p_derive_con[j] ;
+    if (p_divergence[j] != 0x0)
+      delete p_divergence[j] ;
 
     set_der_met_0x0(j) ;
   }
@@ -347,6 +352,7 @@ void Tensor::set_der_met_0x0(int i) const {
   met_depend[i] = 0x0 ;
   p_derive_cov[i] = 0x0 ;
   p_derive_con[i] = 0x0 ;
+  p_divergence[i] = 0x0 ;
 
 }
 
@@ -791,6 +797,16 @@ const Tensor& Tensor::derive_con(const Metric& metre) const {
 
 }
 
+const Tensor& Tensor::divergence(const Metric& metre) const {
+  
+  set_dependance(metre) ;
+  int j = get_place_met(metre) ;
+  assert ((j>=0) && (j<N_MET_MAX)) ;
+  if (p_divergence[j] == 0x0) {
+    p_divergence[j] = metre.get_connect().p_divergence(*this) ;
+  }
+  return *p_divergence[j] ;
+}
 
 
 

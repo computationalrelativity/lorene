@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2003/10/16 14:21:33  j_novak
+ * The calculation of the divergence of a Tensor is now possible.
+ *
  * Revision 1.20  2003/10/13 13:52:39  j_novak
  * Better managment of derived quantities.
  *
@@ -185,6 +188,12 @@ class Tensor {
 	 * (see the comments of {\tt met\_depend}).
 	 */
 	mutable Tensor* p_derive_con[N_MET_MAX];
+
+	/**Array of pointers on the divergence of {\tt this}
+	 * (see the comments of {\tt met\_depend}). It is assumed that the first 
+	 * index of {\tt this} is contravariant.
+	 */
+	mutable Tensor* p_divergence[N_MET_MAX];
 
    
     // Constructors - Destructor :
@@ -476,6 +485,11 @@ class Tensor {
 	 * raises the first index.
 	 */
 	const Tensor& derive_con(const Metric&) const ; 
+
+	/**The divergence of {\tt this} with respect to a {\tt Metric}.
+	 * The first index of {\tt this} is assumed to be contravariant.
+	 */
+	const Tensor& divergence(const Metric&) const ; 
 
 	/** Index contraction on two indices of different type (contravariant
  	 *  or covariant) of the tensor. 
@@ -838,6 +852,11 @@ class Sym_tensor : public Tensor {
 	virtual Itbl indices(int pos) const ;
 	
 		
+	/**Returns the divergence of {\tt this} with respect to a {\tt Metric}.
+	 * The indices are assumed to be contravariant.
+	 */
+	const Vector& divergence(const Metric&) const ; 
+
     // Computation of derived members
     // ------------------------------
 	//    protected:

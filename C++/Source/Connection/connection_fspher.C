@@ -30,6 +30,9 @@ char connection_fspher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/10/16 14:21:36  j_novak
+ * The calculation of the divergence of a Tensor is now possible.
+ *
  * Revision 1.7  2003/10/15 10:46:18  e_gourgoulhon
  * Introduced call to the new method Scalar::div_tant to perform
  * division by tan(theta) in derive_cov.
@@ -556,6 +559,121 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
   }
 
 
+
+  // C'est fini !
+  // -----------
+  return resu ; 
+
+}
+
+// Divergence, returning a pointer.
+//---------------------------------
+
+Tensor* Connection_fspher::p_divergence(const Tensor& uu) const {
+
+  int valence0 = uu.get_valence() ; 
+  int ncomp0 = uu.get_n_comp() ;
+	
+  // Protections
+  // -----------
+  assert (valence0 >= 1) ;
+  assert (uu.get_triad() == triad) ; 
+  assert (uu.get_index_type(0) == CON) ;
+
+
+  // Indices of the result
+  // ---------------------
+  Itbl tipe(valence0-1) ; 
+
+  // Creation of the pointer on the result tensor
+  // --------------------------------------------
+  Tensor* resu ;
+
+  // If u is a Vector, the result is a Scalar
+  //----------------------------------------
+  if (valence0 == 1) 
+    resu = new Scalar(*mp) ;
+  else {
+    const Itbl tipeuu = uu.get_index_type() ;  
+    for (int id = 0; id<valence0-1; id++) {
+      tipe.set(id) = tipeuu(id+1) ; 
+    }
+    if (valence0 == 2) {
+      resu = new Vector(*mp, tipe(0), *triad) ;
+    }
+    else {
+      const Tensor_delta* del_uu 
+	= dynamic_cast<const Tensor_delta*>(&uu) ;
+      if (del_uu != 0x0) { //Then the type Sym_tensor reduces the storage
+	resu = new Sym_tensor(*mp, tipe, *triad) ;
+      }
+      else { //Most general case...
+	resu = new Tensor(*mp, valence0-1, tipe, *triad) ;
+      }
+    }
+  }
+
+  int ncomp1 = resu->get_n_comp() ;
+	
+  Itbl ind0(valence0) ; // working Itbl to store the indices of uu
+	
+  Itbl ind1(valence0-1) ; // working Itbl to store the indices of resu
+	
+  Scalar tmp1(*mp) ;	// working scalar
+  Scalar tmp2(*mp) ;	// working scalar
+
+	
+  // Loop on all the components of the output tensor
+  for (int ic=0; ic<ncomp1; ic++) {
+	
+    ind1 = resu->indices(ic) ; 
+    Scalar& cresu = resu->set(ind1) ;
+
+    // Derivation index = r
+    // --------------------
+    int k = 1 ; 	
+
+    // indices (k,ind1) in the input tensor
+    ind0.set(0) = k ; 
+    for (int id = 1; id<valence0; id++) {
+      ind0.set(id) = ind1(id-1) ; 
+    }
+
+    cresu = 2*uu(ind0) ;  //2*T^r...
+    tmp1 = uu(ind0).dsdr() ; //dT^r/dr
+
+  // Derivation index = theta
+  // ------------------------
+    k = 2 ; 	
+
+    // indices (k,ind1) in the input tensor
+    ind0.set(0) = k ; 
+    for (int id = 1; id<valence0; id++) {
+      ind0.set(id) = ind1(id-1) ; 
+    }
+		
+    tmp2 = uu(ind0) ; 
+    tmp2.div_tant() ; //T^theta.. / tan(theta)
+    cresu += uu(ind0).dsdt() + tmp2 ; //dT^theta/dtheta + T^theta/tan(theta)
+
+  // Derivation index = phi
+  // ----------------------
+    k = 3 ; 			
+    // indices (k,ind1) in the input tensor
+    ind0.set(0) = k ; 
+    for (int id = 1; id<valence0; id++) {
+      ind0.set(id) = ind1(id-1) ; 
+    }
+		
+    cresu += uu(ind0).stdsdp() ; // 1/sin(theta) dT^phi / dphi
+
+    // There remains a division by r:
+    //-------------------------------
+
+    cresu.div_r_ced() ;
+    cresu += tmp1 ; // the d/dr term...
+
+  }
 
   // C'est fini !
   // -----------

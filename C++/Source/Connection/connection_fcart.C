@@ -30,6 +30,9 @@ char connection_fcart_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/16 14:21:36  j_novak
+ * The calculation of the divergence of a Tensor is now possible.
+ *
  * Revision 1.4  2003/10/11 16:45:43  e_gourgoulhon
  * Suppressed the call to Itbl::set_etat_qcq() after
  * the construction of the Itbl's.
@@ -341,11 +344,81 @@ Tensor* Connection_fcart::p_derive_cov(const Tensor& uu) const {
 
 }
 
+// Divergence, returning a pointer.
+//---------------------------------
+
+Tensor* Connection_fcart::p_divergence(const Tensor& uu) const {
+
+  int valence0 = uu.get_valence() ; 
+  int ncomp0 = uu.get_n_comp() ;
+	
+  // Protections
+  // -----------
+  assert (valence0 >= 1) ;
+  assert (uu.get_triad() == triad) ; 
+  assert (uu.get_index_type(0) == CON) ;
 
 
+  // Indices of the result
+  // ---------------------
+  Itbl tipe(valence0-1) ; 
 
+  // Creation of the pointer on the result tensor
+  // --------------------------------------------
+  Tensor* resu ;
 
+  // If u is a Vector, the result is a Scalar
+  //----------------------------------------
+  if (valence0 == 1) 
+    resu = new Scalar(*mp) ;
+  else {
+    const Itbl tipeuu = uu.get_index_type() ;  
+    for (int id = 0; id<valence0-1; id++) {
+      tipe.set(id) = tipeuu(id+1) ; 
+    }
+    if (valence0 == 2) {
+      resu = new Vector(*mp, tipe(0), *triad) ;
+    }
+    else {
+      const Tensor_delta* del_uu 
+	= dynamic_cast<const Tensor_delta*>(&uu) ;
+      if (del_uu != 0x0) { //Then the type Sym_tensor reduces the storage
+	resu = new Sym_tensor(*mp, tipe, *triad) ;
+      }
+      else { //Most general case...
+	resu = new Tensor(*mp, valence0-1, tipe, *triad) ;
+      }
+    }
+  }
 
+  int ncomp1 = resu->get_n_comp() ;
+	
+  Itbl ind0(valence0) ; // working Itbl to store the indices of uu
+	
+  Itbl ind1(valence0-1) ; // working Itbl to store the indices of resu
+	
+  // Loop on all the components of the output tensor
+  for (int ic=0; ic<ncomp1; ic++) {
+	
+    ind1 = resu->indices(ic) ; 
+    Scalar& cresu = resu->set(ind1) ;
+    cresu.set_etat_zero() ;
 
+    for (int k=1; k<=3; k++) {
+      
+      // indices (k,ind1) in the input tensor
+      ind0.set(0) = k ; 
+      for (int id = 1; id<valence0; id++) {
+	ind0.set(id) = ind1(id-1) ; 
+      }
+      cresu += uu(ind0).deriv(k) ; //Addition of dT^i/dx^i
+    }
 
+  }
+
+  // C'est fini !
+  // -----------
+  return resu ; 
+
+}
 

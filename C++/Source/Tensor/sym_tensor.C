@@ -35,6 +35,9 @@ char sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/10/16 14:21:36  j_novak
+ * The calculation of the divergence of a Tensor is now possible.
+ *
  * Revision 1.9  2003/10/13 13:52:39  j_novak
  * Better managment of derived quantities.
  *
@@ -76,7 +79,7 @@ char sym_tensor_C[] = "$Header$" ;
 #include <math.h>
 
 // Headers Lorene
-#include "tensor.h"
+#include "metric.h"
 
 			//--------------//
 			// Constructors //
@@ -245,6 +248,22 @@ void Sym_tensor::operator= (const Tensor& t) {
     }
 
     del_deriv() ;
+}
+
+const Vector& Sym_tensor::divergence(const Metric& metre) const {
+  
+  set_dependance(metre) ;
+  int j = get_place_met(metre) ;
+  assert ((j>=0) && (j<N_MET_MAX)) ;
+  if (p_divergence[j] == 0x0) {
+    p_divergence[j] = metre.get_connect().p_divergence(*this) ;
+  }
+
+  const Vector* pvect = dynamic_cast<const Vector*>(p_divergence[j]) ;
+
+  assert(pvect != 0x0) ;
+
+  return *pvect ;
 }
 
 Sym_tensor* Sym_tensor::inverse() const {

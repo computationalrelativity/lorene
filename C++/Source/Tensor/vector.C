@@ -32,6 +32,9 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/10/16 14:21:37  j_novak
+ * The calculation of the divergence of a Tensor is now possible.
+ *
  * Revision 1.6  2003/10/13 13:52:40  j_novak
  * Better managment of derived quantities.
  *
@@ -62,7 +65,8 @@ char vector_C[] = "$Header$" ;
 #include <assert.h>
 
 // Headers Lorene
-#include "tensor.h"
+#include "metric.h"
+
 
 			//--------------//
 			// Constructors //
@@ -219,5 +223,21 @@ void Vector::std_spectral_base() {
 	delete [] bases ;
 
 
+}
+
+const Scalar& Vector::divergence(const Metric& metre) const {
+  
+  set_dependance(metre) ;
+  int j = get_place_met(metre) ;
+  assert ((j>=0) && (j<N_MET_MAX)) ;
+  if (p_divergence[j] == 0x0) {
+    p_divergence[j] = metre.get_connect().p_divergence(*this) ;
+  }
+
+  const Scalar* pscal = dynamic_cast<const Scalar*>(p_divergence[j]) ;
+
+  assert(pscal != 0x0) ;
+
+  return *pscal ;
 }
 
