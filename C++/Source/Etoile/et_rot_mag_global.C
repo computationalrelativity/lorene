@@ -33,6 +33,10 @@ char et_rot_mag_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2003/10/27 10:52:19  e_gourgoulhon
+ * Suppressed the global #include "unites.h"
+ * and made it local to each function.
+ *
  * Revision 1.15  2002/10/17 11:30:54  j_novak
  * Corrected mistake in angu_mom()
  *
@@ -84,7 +88,6 @@ char et_rot_mag_global_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "et_rot_mag.h"
-#include "unites_mag.h"
 
 // Definition des fonctions membres differentes ou nouvelles
 
@@ -124,6 +127,12 @@ void Et_rot_mag::MHD_comput() {
 
 Tenseur Et_rot_mag::Elec() const {
 
+  #include"unites_mag.h"
+  if (mu0<0.) { //to avoid compilation warnings
+    cout << qpig << f_unit << msol << km << mevpfm3 << endl ; 
+    cout << mag_unit << elec_unit << endl ;
+  }    
+
   Cmp E_r(mp); Cmp E_t(mp);
   E_r = 1/(sqrt(a_car())*nnn())*(A_t.dsdr()+nphi()*A_phi.dsdr()) ;
   E_t = 1/(sqrt(a_car())*nnn())*(A_t.srdsdt()+nphi()*A_phi.srdsdt()) ;
@@ -140,6 +149,12 @@ Tenseur Et_rot_mag::Elec() const {
 }
 
 Tenseur Et_rot_mag::Magn() const {
+
+  #include"unites_mag.h"
+  if (mu0<0.) { //to avoid compilation warnings
+    cout << qpig << f_unit << msol << km << mevpfm3 << endl ; 
+    cout << mag_unit << elec_unit << endl ;
+  }    
 
   Cmp B_r(mp); Cmp B_t(mp);
   B_r = 1/(sqrt(a_car())*bbb())*A_phi.srdsdt();
@@ -160,6 +175,12 @@ Tenseur Et_rot_mag::Magn() const {
 }
 
 double Et_rot_mag::MagMom() const {
+
+  #include"unites_mag.h"
+  if (mu0<0.) { //to avoid compilation warnings
+    cout << qpig << f_unit << msol << km << mevpfm3 << endl ; 
+    cout << mag_unit << elec_unit << endl ;
+  }    
 
   int Z = mp.get_mg()->get_nzone();   
   double mm ;
@@ -184,6 +205,12 @@ double Et_rot_mag::MagMom() const {
 
 double Et_rot_mag::Q_comput() const {
 
+  #include"unites_mag.h"
+  if (mu0<0.) { //to avoid compilation warnings
+    cout << qpig << f_unit << msol << km << mevpfm3 << endl ; 
+    cout << mag_unit << elec_unit << endl ;
+  }    
+
   int Z = mp.get_mg()->get_nzone();
 
   if(A_t.get_etat()==ETATZERO) {
@@ -200,7 +227,14 @@ double Et_rot_mag::Q_comput() const {
   return Q_c *(j_unit/v_unit*pow(r_unit,3)) ;}
   }
 
+
 double Et_rot_mag::Q_int() const {
+
+  #include"unites_mag.h"
+  if (mu0<0.) { //to avoid compilation warnings
+    cout << qpig << f_unit << msol << km << mevpfm3 << endl ; 
+    cout << mag_unit << elec_unit << endl ;
+  }    
 
   double Qi = 0. ;
 
@@ -225,10 +259,17 @@ double Et_rot_mag::Q_int() const {
     
     return Qi * (j_unit/v_unit*pow(r_unit,3)) ; 
 
-
 }
 
+
 double Et_rot_mag::GyroMag() const {
+
+  #include"unites_mag.h"
+  if (mu0<0.) { //to avoid compilation warnings
+    cout << qpig << f_unit << msol << km << mevpfm3 << endl ; 
+    cout << mag_unit << elec_unit << endl ;
+  }    
+
   return 2*MagMom()*mass_g()/(Q_comput()*angu_mom()*v_unit*r_unit); 
 }
 			//----------------------------//
