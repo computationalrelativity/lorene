@@ -28,6 +28,9 @@ char simple_wave_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/04/06 08:26:21  j_novak
+ * Update of the list of arguments for Evolution constructors.
+ *
  * Revision 1.11  2004/02/25 16:44:57  j_novak
  * workflag is now allocated dynamically.
  *
@@ -173,28 +176,33 @@ int main() {
     
     double t = 0 ; 
 
-    Evolution_std<Scalar> uu(uu0, t, 3) ; // Time evolution of U    
+    int j_min = 0 ;
 
-    uu.update(uu0, dt) ; 
-
+    Evolution_std<Scalar> uu(uu0, 3, j_min, t) ; // Time evolution of U    
     // Time evolution of the central value of U : 
-    Evolution_full<double> uu_c(uu0.val_grid_point(0,0,0,0), t) ; 
+    Evolution_full<double> uu_c(uu0.val_grid_point(0,0,0,0), j_min, t) ; 
+    j_min++ ;
+    t += dt ;
+
+    uu.update(uu0, j_min, t) ;
+    uu_c.update(uu0.val_grid_point(0,0,0,0), j_min, t) ;
 
     int j_max = 500 ; 
     
-    for (int j = 1; j <= j_max ; j++) {
+    for (int j = j_min; j <= j_max ; j++) {
     
         Scalar uu_jp1 = uu[j].avance_dalembert(par, uu[j-1], source) ; 
     
-        t += dt ; 
-        uu.update(uu_jp1, t) ; 
+	t += dt ;
+        uu.update(uu_jp1, j+1, t) ; 
         
-        uu_c.update(uu_jp1.val_grid_point(0,0,0,0), t) ; 
+        uu_c.update(uu_jp1.val_grid_point(0,0,0,0), j+1, t) ; 
+   
     
         if ( j%2 == 0 ) {
 
         
-            cout << "Step = " << j << ", time = " << t << endl ; 
+            cout << "Step = " << j+1 << ", time = " << t << endl ; 
         
             const Scalar* des[] = {&uu[j+1], &uu[j+1], &uu[j+1]} ;            
             double tab_theta0[] = {0.5*M_PI, 0.5*M_PI, 0.5*M_PI} ; 
