@@ -11,8 +11,8 @@ EXE1 = isolhor
 SRC1 = isolhor.C
 OBJ1 = $(SRC1:.C=.o)
 
-EXE2 = ih_berlin
-SRC2 = ih_berlin.C
+EXE2 = lit_ih
+SRC2 = lit_ih.C
 OBJ2 = $(SRC2:.C=.o)
 
 $(EXE1): $(OBJ1) $(LIBLOR)

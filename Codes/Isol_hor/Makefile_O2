@@ -10,7 +10,7 @@ SRC1 = isolhor.C
 OBJ1 = $(SRC1:.C=.o)
 EXE1 = $(SRC1:.C=)
 
-SRC2 = ih_berlin.C
+SRC2 = lit_ih.C
 OBJ2 = $(SRC2:.C=.o)
 EXE2 = $(SRC2:.C=)
 
