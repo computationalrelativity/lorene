@@ -36,6 +36,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.54  2004/07/08 12:21:51  j_novak
+ * Replaced tensor::annule_extern_c2 with tensor::annule_extern_cn for a
+ * more general transition.
+ *
  * Revision 1.53  2004/06/17 06:54:23  e_gourgoulhon
  * Added method annule_extern_c2.
  *
@@ -603,15 +607,18 @@ class Tensor {
 	 */
 	virtual void annule(int l_min, int l_max) ; 
 
-        /** Performs a smooth (C^2) transition in a given domain 
+        /** Performs a smooth (C^n) transition in a given domain 
          *  to zero.
          *  @param l_0 [input] in the domain of index l0 the tensor is
-         *  multiplied by the Hermite basis function \e H(r) of degree 5, to 
-         *  ensure continuty of the function and its first and second
+         *  multiplied by the right polynomial (of degree \e 2n+1), to 
+         *  ensure continuty of the function and its \e n first 
          *  derivative at both ends of this domain. The tensor is unchanged
-         *  in the domains l < l_0 and set to zero in domains l > l_0.
+         *  in the domains \e l < \e l_0 and set to zero in domains \e l > 
+	 *  \e l_0.
+	 *  @param deg [input] the degree \e n of smoothness of the 
+	 *  transition.
          */
-         void annule_extern_c2(int l_0) ;
+         void annule_extern_cn(int l_0, int deg) ;
 
 	/**
 	 * Sets the standard spectal bases of decomposition for each component.

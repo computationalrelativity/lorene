@@ -34,6 +34,10 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.36  2004/07/08 12:21:53  j_novak
+ * Replaced tensor::annule_extern_c2 with tensor::annule_extern_cn for a
+ * more general transition.
+ *
  * Revision 1.35  2004/06/17 06:55:07  e_gourgoulhon
  * Added method annule_extern_c2.
  *
@@ -661,26 +665,66 @@ void Tensor::annule(int l_min, int l_max) {
 }
 
 
-void Tensor::annule_extern_c2(int lrac) {
+void Tensor::annule_extern_cn(int lrac, int deg) {
 
     // Not applicable in the nucleus nor the CED:
     assert( mp->get_mg()->get_type_r(lrac) == FIN ) ; 
 
-    int nz = mp->get_mg()->get_nzone() ; 
-    
+    int nz = mp->get_mg()->get_nzone() ;
+#ifndef NDEBUG
+    if ((2*deg+1) >= mp->get_mg()->get_nr(lrac)) 
+      cout << "Tensor::annule_extern_cn : \n" 
+	   << "WARNING!! \n"
+	   << "The number of coefficients in r is too low \n"
+	   << "to do a clean matching..." << endl ;
+#endif
     // Boundary of domain lrac
     double r_min = mp->val_r(lrac, -1., 0., 0.)  ; 
     double r_max = mp->val_r(lrac, 1., 0., 0.)  ; 
 
-    Mtbl mx = (mp->r - r_min) / (r_max - r_min) ; 
+    //Definition of binomial coefficients array
+    Itbl binom(deg+1, deg+1) ;
+    binom.annule_hard() ;
+    binom.set(0,0) = 1 ;
+    for (int n=1; n<=deg; n++) {
+      binom.set(n,0) = 1 ;
+      for (int k=1; k<=n; k++) 
+	binom.set(n,k) = binom(n-1, k) + binom(n-1, k-1) ;
+    }
+	
+    // Coefficient of the second polynomial factor
+    Tbl coef(deg+1) ;
+    coef.set_etat_qcq() ;
+    coef.set(deg) = 1 ;
+    int sg = -1 ;
+    for (int i=deg-1; i>=0; i--) {
+      
+      coef.set(i) = double(r_max*(i+1)*coef(i+1) 
+			   + sg*binom(deg,i)*(2*deg+1)*pow(r_min,deg-i))
+	/ double(deg+i+1) ;
+      sg *= -1 ;
+    }
     
-    Tbl xx = mx(lrac) ; 
-    Tbl herm = - 6.*pow(xx,5) + 15.*pow(xx,4) - 10.*xx*xx*xx + 1. ;
+    // Normalization to have 1 at r_min
+    double aa = coef(deg) ;
+    for (int i = deg-1; i>=0; i--) 
+      aa = r_min*aa + coef(i) ;
+    aa *= pow(r_min - r_max, deg+1) ;
+    aa = 1/aa ;
+
+    Mtbl mr = mp->r ;
+    Tbl rr = mr(lrac) ;
+    
+    Tbl poly(rr) ;
+    poly = coef(deg) ;
+    for (int i=deg-1; i>=0; i--)
+      poly = rr*poly + coef(i) ;
+    poly *= aa*pow((rr-r_max), deg+1) ;
     
     Scalar rac(*mp) ; 
     rac.allocate_all() ; 
     for (int l=0; l<lrac; l++) rac.set_domain(l) = 1 ; 
-    rac.set_domain(lrac) = herm ; 
+    rac.set_domain(lrac) = poly ; 
     rac.annule(lrac+1,nz-1) ; 
     rac.std_spectral_base() ;
     
