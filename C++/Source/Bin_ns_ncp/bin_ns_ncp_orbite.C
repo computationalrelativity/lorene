@@ -33,6 +33,9 @@ char bin_ns_ncp_orbite_C[] = "$Header$" ;
 /*
  * $Header$
  * $Log$
+ * Revision 1.4  2003/06/20 13:45:56  f_limousin
+ * Change in fonc_binaire_axe
+ *
  * Revision 1.3  2003/05/28 11:45:13  e_gourgoulhon
  * Changed the "abs" to "fabs" at the end of the
  * funtion fonc_binaire_axe.
@@ -436,16 +439,15 @@ double  fonc_binaire_axe(double x_rot, const Param& paraxe) {
 
     double delta_2 = delta6 + delta7 + delta8 + delta9 + delta10 ;
 
-   // Difference entre les 2 termes de l'eq.(95) de Gourgoulhon et.al (2001) au    //centre de l'etoile 2
-    //-----------------------------------------------------------------------
+    // Computation of omega for star 2
+    //---------------------------------
 
-    double diff2 = 2*dnulg_2 + 1/alpha_2*(-d1sn2_2*beta_2 - unsb2_2*delta_2) ; 
+    om2_star2 = dnulg_2 / (beta_2/(omega*omega)*(dnulg_2*unsn2_2 + d1sn2_2/2.) 
+			   + unsn2_2*delta_2/(omega*omega)/2.) ;
+                                                                            ; 
+  
+    return om2_star1 - om2_star2 ;
 
-
-    double diff = fabs(diff1) + fabs(diff2) ;
-
-
-    return diff ;
 
 }
 
