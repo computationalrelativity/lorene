@@ -15,7 +15,6 @@ install: $(SRC) Objects Objects_g
 	mv *.o Objects_g
 	mv Objects/*.o .
 	make -f Makefile_lib
-	touch $(HOME_LORENE)/Lib/date_mark
 	mv *.o Objects
 
 uninstall:
@@ -25,7 +24,7 @@ uninstall:
 	rm List_obj
 	rm -fr Objects	
 	rm -fr Objects_g
-	
+
 Objects:
 	mkdir Objects
 	touch Objects/_rien.o

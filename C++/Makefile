@@ -33,6 +33,7 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Tenseur; $(MAKE)
 	cd Source/Valeur; $(MAKE)
 	cd Source/Valencia; $(MAKE)
+	touch $(LIB)/date_mark
 
 uninstall:
 	rm -fr $(LIB)/liblorene.a
