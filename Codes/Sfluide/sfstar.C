@@ -26,6 +26,8 @@
 
 // // headers C
 #include <math.h>
+#include <gsl/gsl_integration.h>
+
 #include <sstream>
 // headers Lorene
 #include "et_rot_bifluid.h"
@@ -47,6 +49,18 @@ string get_file_base (bool relat, double xp, double sig, double eps, double om1,
 double kap1, kap2, kap3, beta, m1, m2, detA, k1, k2, kk, R;
 double sigma, eps, eps_n, xp;
 double nc, rhoc;  // central density
+
+
+//----------------------------------------------------------------------
+// stuff for GSL-integration of A(r)
+typedef struct {
+  Cmp *AofR;
+  double theta;
+  double phi;
+} AofR_params;
+
+double AofR (double r, void *params);
+//----------------------------------------------------------------------
 
 //******************************************************************************
 
@@ -402,7 +416,9 @@ int main(){
     // --------
 
     if (graph == 1) {
-      
+      char title[80] ;
+      char bslash[2] = {92, '\0'} ;  // 92 is the ASCII code for backslash 
+
       int nzdes = star.get_nzet() ; 
       
       // Cmp defining the surface of the star (via the density fields)
@@ -424,21 +440,31 @@ int main(){
       surf2 += star.get_nbar2()() ; ;
       surf2 = prolonge_c1(surf2, star.get_nzet()) ;
 
-      des_bi_coupe_y(star.get_nbar()(), 0., nzdes, "Fluid 1 baryonic density", 
-		     &surf, &surf) ; 
+      des_bi_coupe_y(star.get_nbar()(), 0., nzdes, "Fluid 1 baryonic density", &surf, &surf) ; 
 
-      des_bi_coupe_y(star.get_nbar2()(), 0., nzdes, "Fluid 2 baryonic density", 
-      	     &surf2, &surf2) ; 
+      des_bi_coupe_y(star.get_nbar2()(), 0., nzdes, "Fluid 2 baryonic density", &surf2, &surf2) ; 
       
-      des_bi_coupe_y(star.get_logn()(), 0., nzdes, "Grav. potential", 
-		     &surf, &surf2) ; 
+      des_bi_coupe_y(star.get_logn()(), 0., nzdes, "Grav. potential", &surf, &surf2) ; 
+
+      strcpy(title, "Azimuthal shift N") ; 
+      strcat(title, bslash) ; 
+      strcat(title, "u") ; 
+      strcat(title, bslash) ; 
+      strcat(title, "gf") ; 
+      des_bi_coupe_y(star.get_nphi()(), 0., nzdes, title, &surf, &surf2) ; 
+	
+      strcpy(title, "Metric potential ") ; 
+      strcat(title, bslash) ; 
+      strcat(title, "gz") ; 
+      des_bi_coupe_y(star.get_dzeta()(), 0., nzdes, title, &surf, &surf2) ; 
+
     }
 
     // now print out key-values of the configuration in such a "translated" way
     // that we can compare the results to the analytic solution of PCA02:
     //    if (eos.identify() == 2)  // only do that if type = eos_bf_poly_newt
-      compare_analytic (star, nzadapt);
- 
+    compare_analytic (star, nzadapt);
+
     // Cleaning
     // --------
     
@@ -459,7 +485,7 @@ int main(){
 void 
 compare_analytic (Et_rot_bifluid& star, int adapt)
 {
-  bool is_static = false;
+  using namespace Unites ; 
 
   Eos_bf_poly eos = dynamic_cast<const Eos_bf_poly&>(star.get_eos());
 
@@ -481,10 +507,6 @@ compare_analytic (Et_rot_bifluid& star, int adapt)
   cout.precision (15);
   if (muc1 != muc2)
     cout << "\n!! WARNING !!: central chemical potentials differ..!!\n: mu1 = " << muc1 << "; mu2 = " << muc2 << endl;;
-
-
-  if ( star.get_omega_c() == 0  && star.get_omega2() == 0 )
-    is_static = true;
 
   // get "raw" EOS parameters
   kap1 = eos.get_kap1();
@@ -521,7 +543,9 @@ compare_analytic (Et_rot_bifluid& star, int adapt)
   eps_n = 2.0 * beta * np_c / m1;
 
   xp =  k2 / (k1 + k2);
-  
+
+  double xp_num = np_c / (nn_c + np_c) ;
+
   cout << setprecision(9);  
   cout << "Translated EOS parameters: sigma = " << sigma << ", epsilon_c = " << eps << ", xp = " << xp << endl;
   
@@ -558,35 +582,6 @@ compare_analytic (Et_rot_bifluid& star, int adapt)
   Map_et &map = (Map_et&)(star.get_mp());
   const Mg3d* mg = map.get_mg() ;	// Multi-grid
 
-  // --------------------------------------------------------------------------------
-  // try to check EOS inversion: 
-  // here we output enthalpy and density profiles in some theta-direction
-
-//   std::ofstream prof((fname+".prof").c_str());
-//   prof << setprecision(17);
-  
-//   int j = mg->get_nt(0)-1;   // theta 
-
-//   Cmp ent1 = star.get_ent()();
-//   Cmp ent2 = star.get_ent2()();
-//   Cmp delta2 = star.get_delta_car()();
-
-
-//   cout << "Equator,  xi=1: R = " << map.val_r(0, 1.0, M_PI/2, 0) << "; ent1 = " << ent1.va.val_point(0,1.0,M_PI/2,1.0);
-//   cout << "  ent2 = " << ent2.va.val_point(0,1.0,M_PI/2,1.0) << endl;
-//   cout << "dens1 = " << nn.va.val_point(0,1.0,M_PI/2,1.0) << "  nbar2 = " << np.va.val_point(0,1.0,M_PI/2,1.0) <<endl;
-
-//   for (int i=0; i<mg->get_nr(0); i++) {
-//     double xi, rr;
-
-//     xi = mg->get_grille3d(0)->x[i] ;
-//     rr = map.val_r_jk (0, xi, j, 0);
-
-//     prof << rr << "\t" << ent1(0,0,j,i) << "\t" << ent2(0,0,j,i) << "\t" << delta2(0,0,j,i) << "\t";
-//     prof << star.get_nbar()()(0,0,j,i) << "\t" << star.get_nbar2()()(0,0,j,i) << endl;
-//   }
-
-
   //----------------------------------------------------------------------
   // get radii at intermediate angle, ~pi/4
 
@@ -600,6 +595,72 @@ compare_analytic (Et_rot_bifluid& star, int adapt)
   cout << "theta = " << thetaI << "; RnI = " << RnI << "; RpI = " << RpI << endl;
 
   double mnat = rhoc * R * R * R;
+
+  //----------------------------------------------------------------------
+  // calculate proper radii!
+  Cmp aaa = sqrt( star.get_a_car()());		// a = sqrt(a^2)
+  aaa.std_base_scal();
+  // ok, not too sure about the spectral inner workings of this, so we
+  // integrate this "by hand"... (i.e using GSL...)
+  double rmax;
+  double abserr;
+  size_t neval;
+  double RR_pol_n, RR_pol_p, RR_eq_n, RR_eq_p;	// the proper radii
+
+
+  AofR_params params;
+  params.AofR = &aaa;
+  params.phi = 0;
+
+  gsl_function func_AofR;
+  func_AofR.function = AofR;
+  func_AofR.params = &params;
+
+  // RR_pol_n
+  rmax = star.ray_pole();	/* upper limit of integration */  
+  params.theta = 0;		/* pole */
+  if (gsl_integration_qng (&func_AofR, 0, rmax, 0, 1e-7, &RR_pol_n, &abserr, &neval) ) 
+    {
+      cout << "Integration of proper radius RR_pol_n failed!" << endl;
+      exit (-1);
+    }
+  cout << "Proper-radius RR_pol_n = "<<RR_pol_n<< ", abserr= "<<abserr<<", neval= "<<neval <<endl;
+  // RR_pol_p
+  rmax = star.ray_pole2();	/* upper limit of integration */  
+  params.theta = 0;		/* pole */
+  if (gsl_integration_qng (&func_AofR, 0, rmax, 0, 1e-7, &RR_pol_p, &abserr, &neval) ) 
+    {
+      cout << "Integration of proper radius RR_pol_p failed!" << endl;
+      exit (-1);
+    }
+  cout << "Proper-radius RR_pol_p = "<<RR_pol_p<< ", abserr= "<<abserr<<", neval= "<<neval <<endl;
+  // RR_eq_n
+  rmax = star.ray_eq();		/* upper limit of integration */  
+  params.theta = M_PI/2;	/* equator */
+  if (gsl_integration_qng (&func_AofR, 0, rmax, 0, 1e-7, &RR_eq_n, &abserr, &neval) ) 
+    {
+      cout << "Integration of proper radius RR_eq_n failed!" << endl;
+      exit (-1);
+    }
+  cout << "Proper-radius RR_eq_n = "<<RR_eq_n<< ", abserr= "<<abserr<<", neval= "<<neval <<endl;
+  // RR_eq_p
+  rmax = star.ray_eq2();	/* upper limit of integration */  
+  params.theta = M_PI/2;	/* equator */
+  if (gsl_integration_qng (&func_AofR, 0, rmax, 0, 1e-7, &RR_eq_p, &abserr, &neval) ) 
+    {
+      cout << "Integration of proper radius RR_eq_p failed!" << endl;
+      exit (-1);
+    }
+  cout << "Proper-radius RR_eq_p = "<<RR_eq_p<< ", abserr= "<<abserr<<", neval= "<<neval <<endl;
+
+
+  cout << "Flattening of neutrons, r_pole/r_eq = " << RR_pol_n / RR_eq_n << endl;
+  cout << "Flattening of protons,  r_pole/r_eq = " << RR_pol_p / RR_eq_p << endl;
+
+  //----------------------------------------------------------------------
+
+
+
   std::ofstream data((fname+".d").c_str());
   data << setprecision(17);
 
@@ -621,6 +682,7 @@ compare_analytic (Et_rot_bifluid& star, int adapt)
   data << "sigma = "   << sigma << endl;
   data << "epsilon = " << eps   << endl;
   data << "xp = "      << xp    << endl;
+  data << "xp_num = "  << xp_num << endl;
 
   data << "Om_n = " << om_n << endl;
   data << "Om_p = " << om_p << endl;
@@ -640,6 +702,28 @@ compare_analytic (Et_rot_bifluid& star, int adapt)
   data << "GRV3 = " << star.grv3() << endl;
   data << "GRV2 = " << star.grv2() << endl;
 
+  data << "\n# relativistic stuff in physical units: \n";
+  data << "Mbar_n = " << star.mass_b1() / msol << " Msol\n";
+  data << "Mbar_p = " << star.mass_b2() / msol << " Msol\n";
+  data << "Mbar = " << star.mass_b() / msol << " Msol\n";
+  data << "Mgrav = " << star.mass_g() / msol << " Msol\n";
+  data << "Rcirc_n = " << star.r_circ() * 10.0 << " km\n";
+  data << "Rcirc_p = " << star.r_circ2() * 10.0 << " km\n";
+  data << "RcoordEq_n = " << star.ray_eq() * 10.0 << " km\n";
+  data << "RcoordEq_p = " << star.ray_eq2() * 10.0 << " km\n";
+  data << "RcoordPol_n = " << star.ray_pole() * 10.0 << " km\n";
+  data << "RcoordPol_p = " << star.ray_pole2() * 10.0 << " km\n";
+  data << "lapse N(0)      = " << star.get_nnn()()(0,0,0,0) << endl;
+  data << "lapse N(eq)     = " << star.get_nnn()().va.val_point(0,1,M_PI/2,0) << endl;
+  data << "lapse N(pol)    = " << star.get_nnn()().va.val_point(0,1,0, 0) << endl;
+  data << "shift N^phi(0)  = " << star.get_nphi()()(0,0,0,0) << endl;
+  data << "shift N^phi(eq) = " << star.get_nphi()().va.val_point(0,1,M_PI/2,0) << endl;
+  data << "shift N^phi(pol)= " << star.get_nphi()().va.val_point(0,1, 0, 0) << endl;
+
+  data << "RR_eq_n         = " << RR_eq_n << endl;
+  data << "RR_pol_n        = " << RR_pol_n << endl;
+  data << "RR_eq_p         = " << RR_eq_p << endl;
+  data << "RR_pol_p        = " << RR_pol_p << endl;
 
   // in order to uniquely idenfity the run, we append the output of "calcul.d" to this file:
   data << "\n======================================================================\n";
@@ -653,6 +737,20 @@ compare_analytic (Et_rot_bifluid& star, int adapt)
   return;
 
 } //  compare_analytic
+
+//----------------------------------------------------------------------
+// function A(r) for numerical integration
+double AofR (double r, void *params)
+{
+  double res;
+  AofR_params *myparams = (AofR_params*)params;
+
+  res = myparams->AofR->val_point( r, myparams->theta, myparams->phi);
+
+  return (res);
+  
+} /* AofR() */
+//----------------------------------------------------------------------
 
 /*----------------------------------------------------------------------
  * get_file_base(): construct filename-base from EOS parameters

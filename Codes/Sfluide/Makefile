@@ -2,7 +2,7 @@ SHELL=/bin/sh
 
 include $(HOME_LORENE)/local_settings		  # defines which compiler,...
 
-LIB_G = -L$(HOME_LORENE)/Lib -llorene_g -llorenef77_g 
+LIB_G = -L$(HOME_LORENE)/Lib -llorene_g -llorenef77_g -lgsl -lgslcblas
 
 .SUFFIXES : .o .C
 
