@@ -30,6 +30,9 @@ char vector_df_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/12/28 10:37:24  j_novak
+ * Better way of enforcing zero divergence.
+ *
  * Revision 1.8  2004/12/23 10:23:06  j_novak
  * Improved method 5 in the case when some components are zero.
  * Changed Vector_divfree::poisson to deduce eta from the equation. 
@@ -75,6 +78,8 @@ Vector_divfree Vector_divfree::poisson() const {
 #ifndef NDEBUG 
   const Base_vect_spher* bvs = dynamic_cast<const Base_vect_spher*>(triad) ;
   assert(bvs != 0x0) ; 
+  //## ... and affine mapping, for the moment!
+  assert(dynamic_cast<const Map_af*>(mp) != 0x0) ;
 #endif
   // Solution for the r-component
   // ----------------------------
@@ -96,18 +101,6 @@ Vector_divfree Vector_divfree::poisson() const {
   else
       f_r.set_etat_zero() ;
   
-  // Deduction of eta from the div=0 cond. + the Poisson eq.
-  //--------------------------------------------------------
-  Scalar source_eta = - *(cmp[0]) ;
-  source_eta.mult_r_dzpuis(2) ;
-  f_r.set_spectral_va().ylm() ;
-  Scalar tmp = 2*f_r + f_r.lapang() ;
-  tmp.div_r_dzpuis(2) ;
-  source_eta += tmp ;
-  source_eta = source_eta.primr() ;
-  
-  Scalar eta_resu = (f_r + source_eta).poisson_angu() ;
-  
   // Solution for mu
   // ---------------
 	
@@ -118,9 +111,9 @@ Vector_divfree Vector_divfree::poisson() const {
 	
   Vector_divfree resu(*mp, *triad, *met_div) ; 
 
-  resu.set_vr_eta_mu(f_r, eta_resu, mu_resu) ; 
+  resu.set_vr_mu(f_r, mu_resu) ; 
 	
-	return resu ;
+  return resu ;
 
 }
 

@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2004/12/28 10:37:22  j_novak
+ * Better way of enforcing zero divergence.
+ *
  * Revision 1.22  2004/06/14 20:44:44  e_gourgoulhon
  * Added argument method_poisson to Sym_tensor::longit_pot and
  * Sym_tensor::transverse.
@@ -652,10 +655,12 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	 *    \Delta h^{ij} = S^{ij}
 	 *\f] 
 	 * 
+	 * @param dzfin [input] the \c dzpuis for all the components of the result 
+	 *        (see the documentation for \c Scalar ).
 	 * @return solution \f$h^{ij}\f$ of the above equation with the boundary
 	 *	condition \f$h^{ij}=0\f$ at spatial infinity.
 	 */
-	Sym_tensor_tt poisson() const ; 
+	Sym_tensor_tt poisson(int dzfin = 2) const ; 
 	
 
 

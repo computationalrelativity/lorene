@@ -30,6 +30,9 @@ char sym_ttt_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/12/28 10:37:24  j_novak
+ * Better way of enforcing zero divergence.
+ *
  * Revision 1.3  2004/12/27 14:33:12  j_novak
  * New algorithm for the tensor Poisson eq.
  *
@@ -52,12 +55,14 @@ char sym_ttt_poisson_C[] = "$Header$" ;
 #include "param_elliptic.h"
 
 
-Sym_tensor_tt Sym_tensor_tt::poisson() const {
+Sym_tensor_tt Sym_tensor_tt::poisson(int dzfin) const {
 
     // All this has a meaning only for spherical components...
     assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
     //## ... and affine mapping, for the moment!
     assert(dynamic_cast<const Map_af*>(mp) != 0x0) ;
+    assert( (dzfin == 0) || (dzfin == 2) ) ;
+    Sym_tensor_tt resu(*mp, *triad, *met_div) ; 
 
     // Solution for the rr-component
     // ----------------------------
@@ -81,40 +86,43 @@ Sym_tensor_tt Sym_tensor_tt::poisson() const {
     else
 	h_rr.set_etat_zero() ;
 
-    // Solution for (eta / r)
-    //-----------------------
-    Scalar source_eta = - source_rr ;
-    source_eta.mult_r_dzpuis(2) ;
-    h_rr.set_spectral_va().ylm() ;
-    Scalar tmp = 6*h_rr + h_rr.lapang() ;
-    tmp.div_r_dzpuis(2) ;
-    source_eta += tmp ;
-    source_eta = source_eta.primr() ;
+    h_rr.inc_dzpuis(dzfin) ; //## can we improve here?
+    resu.set(1,1) = h_rr ;
 
-    Scalar etasurr = (2.*h_rr+source_eta).poisson_angu() ;
+    // Solution for (eta / r) 
+    //-----------------------
+//     Scalar source_eta = - source_rr ;
+//     source_eta.mult_r_dzpuis(3) ;
+//     source_eta.mult_r_dzpuis(2) ;
+//     h_rr.set_spectral_va().ylm() ;
+//     Scalar tmp = 2*h_rr + h_rr.lapang() ;
+//     if (dzfin == 0) 
+// 	tmp.inc_dzpuis(2) ;
+//     source_eta += tmp ;
+//     source_eta = source_eta.primr() ;
+
+//     source_eta.div_r_dzpuis(dzfin) ;
+
+//     Scalar etasurr = (h_rr+source_eta).poisson_angu() ;
+
+    Scalar source_eta = -resu(1,1).dsdr() ;
+    source_eta.mult_r_dzpuis(dzfin) ;
+    source_eta -= 3.*resu(1,1) ;
+    Scalar etasurr = source_eta.poisson_angu() ;
 		
     // Solution for mu
     // ---------------
 	
     Scalar musurr = mu().poisson() ;
-    musurr.div_r() ;
+    musurr.div_r_dzpuis(dzfin) ;
 
-    h_rr.set_spectral_va().ylm_i() ;
+    resu.set(1,1).set_spectral_va().ylm_i() ;
     
-    // Final result
-    // ------------
-	
-    Sym_tensor_tt resu(*mp, *triad, *met_div) ; 
     Scalar** rcmp = resu.cmp ;
 
     Itbl idx(2) ;
     idx.set(0) = 1 ;	// r index
 	
-    // h^{r theta} : 
-    // ------------
-    idx.set(1) = 1 ;	// r index
-    *rcmp[position(idx)] = h_rr ;
-
     // h^{r theta} : 
     // ------------
     idx.set(1) = 2 ;	// theta index
@@ -133,16 +141,17 @@ Sym_tensor_tt Sym_tensor_tt::poisson() const {
     Scalar tautst = resu(1,2).dsdr() ; 
 
     // dhrr contains  dh^{rt}/dr in all domains but the CED,    
-    // in the CED:    r^2 dh^{rt}/dr        if dzp = 0          (1)
+    // in the CED:    r^2 dh^{rt}/dr        if dzfin = 0          (1)
+    //                r^3 dh^{rt}/dr        if dzfin = 2          (2)
                                                     
     // Multiplication by r of dh^{rt}/dr (with the same dzpuis than h^{rt})
-    tautst.mult_r_dzpuis(0) ; 	
+    tautst.mult_r_dzpuis(dzfin) ; 	
     
     // Addition of the remaining parts :	
     tautst += 3 * resu(1,2) - resu(1,1).dsdt() ; 
     tautst.mult_sint() ; 
 	
-    tmp = resu(1,1) ;
+    Scalar tmp = resu(1,1) ;
     tmp.mult_cost() ; 		// h^{rr} cos(th)
 	
     tautst -= tmp ; 	// T^th / sin(th)
@@ -156,10 +165,11 @@ Sym_tensor_tt Sym_tensor_tt::poisson() const {
     Scalar taupst = - resu(1,3).dsdr() ; 
 
     // dhrr contains  - dh^{rp}/dr in all domains but the CED,  
-    // in the CED:    - r^2 dh^{rp}/dr        if dzp = 0          (3)
+    // in the CED:    - r^2 dh^{rp}/dr        if dzfin = 0          (3)
+    //                - r^3 dh^{rp}/dr        if dzfin = 2          (4)
                                                     	        
     // Multiplication by r of -dh^{rp}/dr  (with the same dzpuis than h^{rp})
-    taupst.mult_r_dzpuis(0) ; 	
+    taupst.mult_r_dzpuis(dzfin) ; 	
                           
     // Addition of the remaining part :	
 	
