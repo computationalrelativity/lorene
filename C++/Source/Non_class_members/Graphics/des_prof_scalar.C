@@ -31,6 +31,9 @@ char des_prof_scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/02/15 21:57:45  e_gourgoulhon
+ * des_profile_mult: changed argument Scalar* to Scalar**.
+ *
  * Revision 1.1  2004/02/12 16:21:28  e_gourgoulhon
  * Functions des_profile for Scalar's transfered from file des_prof_cmp.C.
  * Added new function des_profile_mult.
@@ -131,7 +134,7 @@ void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
 
 //******************************************************************************
 
-void des_profile_mult(const Scalar* uu, int nprof, double r_min, double r_max, 
+void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max, 
 		     double theta, double phi, int ngraph, bool closeit, 
              char* nomy, char* title) {
 		
@@ -151,18 +154,18 @@ void des_profile_mult(const Scalar* uu, int nprof, double r_min, double r_max,
     double hr = (r_max - r_min) / double(npt-1) ; 
     
     for (int i=0; i<npt; i++) {
-		rr[i] = hr * i + r_min ; 
-	}
+        rr[i] = hr * i + r_min ; 
+    }
 	
     
-	for (int j=0; j<nprof; j++) {
+    for (int j=0; j<nprof; j++) {
 	
-		const Scalar* vv = uu + j ; 
+        const Scalar& vv = *(uu[j]) ; 
 		
-    	for (int i=0; i<npt; i++) {
-			uutab[j*npt+i] = vv->val_point(rr[i], theta, phi) ; 
-    	}
-	}
+        for (int i=0; i<npt; i++) {
+            uutab[j*npt+i] = vv.val_point(rr[i], theta, phi) ; 
+        }
+    }
 
     
     float xmin = r_min / km ;
