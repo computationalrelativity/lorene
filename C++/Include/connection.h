@@ -29,6 +29,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/10/06 13:58:45  j_novak
+ * The memory management has been improved.
+ * Implementation of the covariant derivative with respect to the exact Tensor
+ * type.
+ *
  * Revision 1.7  2003/10/06 06:52:26  e_gourgoulhon
  * Corrected documentation.
  *
@@ -218,6 +223,12 @@ class Connection {
 	/// Covariant derivative of a tensor (with respect to the current connection)
 	virtual Tensor derive_cov(const Tensor&) const ; 
 
+	/** Pointer on the covariant derivative of a tensor 
+	 * (with respect to the current connection). This method allocates memory
+	 * that must be deallocated by the user afterwards.
+	 */
+	virtual Tensor* p_derive_cov(const Tensor&) const ; 
+
 	/// Returns the Ricci tensor associated with the current connection
 	const Tensor& ricci() const ; 
 	
@@ -299,6 +310,12 @@ class Connection_flat : public Connection {
   /// Covariant derivative of a tensor (with respect to the current connection)
   virtual Tensor derive_cov(const Tensor&) const = 0 ; 
 
+  /** Pointer on the covariant derivative of a tensor 
+   * (with respect to the current connection). This method allocates memory
+   * that must be deallocated by the user afterwards.
+   */
+  virtual Tensor* p_derive_cov(const Tensor&) const = 0 ; 
+
  protected:
 
   /// Computes the Ricci tensor when necessary
@@ -351,6 +368,12 @@ class Connection_fspher : public Connection_flat {
   /// Covariant derivative of a tensor (with respect to the current connection)
   virtual Tensor derive_cov(const Tensor&) const ; 
 
+  /** Pointer on the covariant derivative of a tensor 
+   * (with respect to the current connection). This method allocates memory
+   * that must be deallocated by the user afterwards.
+   */
+  virtual Tensor* p_derive_cov(const Tensor&) const ; 
+
   
 };
 
@@ -399,6 +422,12 @@ class Connection_fcart : public Connection_flat {
  public: 
   /// Covariant derivative of a tensor (with respect to the current connection)
   virtual Tensor derive_cov(const Tensor&) const ; 
+
+  /** Pointer on the covariant derivative of a tensor 
+   * (with respect to the current connection). This method allocates memory
+   * that must be deallocated by the user afterwards.
+   */
+  virtual Tensor* p_derive_cov(const Tensor&) const  ; 
 
   
 };

@@ -34,6 +34,11 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/10/06 13:58:48  j_novak
+ * The memory management has been improved.
+ * Implementation of the covariant derivative with respect to the exact Tensor
+ * type.
+ *
  * Revision 1.7  2003/10/05 21:15:42  e_gourgoulhon
  * - Suppressed method std_spectral_base_scal().
  * - Added method std_spectral_base().
@@ -133,7 +138,9 @@ Scalar::Scalar(const Map& mpi, const Mg3d& mgi, FILE* fd) : Tensor(mpi),
 // Destructeur
 Scalar::~Scalar() {
     del_t() ;
-    cmp[0] = 0x0 ;
+    cmp[0] = 0x0 ; //cmp[0] was set to 'this' before (now 0x0 to break a 
+                   // in loop in ~Tensor!)
+           
 }
 
 			//-----------------------//
@@ -149,19 +156,21 @@ void Scalar::del_t() {
 
 }
 
-void Scalar::del_deriv() {
-    delete p_dsdr ;
-    delete p_srdsdt ;
-    delete p_srstdsdp ; 
-    delete p_dsdx ; 
-    delete p_dsdy ;
-    delete p_dsdz ;
-    delete p_lap ; 
-    delete p_integ ; 
+void Scalar::del_deriv() const{
+    if (p_dsdr != 0x0) delete p_dsdr ;
+    if (p_srdsdt != 0x0) delete p_srdsdt ;
+    if (p_srstdsdp != 0x0) delete p_srstdsdp ; 
+    if (p_dsdx != 0x0) delete p_dsdx ; 
+    if (p_dsdy != 0x0) delete p_dsdy ;
+    if (p_dsdz != 0x0) delete p_dsdz ;
+    if (p_lap != 0x0) delete p_lap ; 
+    if (p_integ != 0x0) delete p_integ ; 
     set_der_0x0() ;
+
+    Tensor::del_deriv() ;
 }
 
-void Scalar::set_der_0x0() {
+void Scalar::set_der_0x0() const {
     p_dsdr = 0x0 ;
     p_srdsdt = 0x0 ;
     p_srstdsdp = 0x0 ;

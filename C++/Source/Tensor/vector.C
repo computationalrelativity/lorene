@@ -1,7 +1,7 @@
 /*
  *  Methods of class Vector
  *
- *   (see file tensor.h for documentation)
+ *   (see file vector.h for documentation)
  *
  */
 
@@ -32,6 +32,11 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/06 13:58:48  j_novak
+ * The memory management has been improved.
+ * Implementation of the covariant derivative with respect to the exact Tensor
+ * type.
+ *
  * Revision 1.4  2003/10/05 21:14:20  e_gourgoulhon
  * Added method std_spectral_base().
  *
@@ -65,6 +70,8 @@ char vector_C[] = "$Header$" ;
 Vector::Vector(const Map& map, int tipe, const Base_vect& triad_i) 
 		: Tensor(map, 1, tipe, triad_i) {
 		
+  set_der_0x0() ;
+
 }
 
 // Standard constructor with the triad passed as a pointer
@@ -72,6 +79,7 @@ Vector::Vector(const Map& map, int tipe, const Base_vect& triad_i)
 Vector::Vector(const Map& map, int tipe, const Base_vect* triad_i) 
 		: Tensor(map, 1, tipe, *triad_i) {
 		
+  set_der_0x0() ;
 }
 	
 // Copy constructor
@@ -80,6 +88,7 @@ Vector::Vector (const Vector& source) :
     Tensor(source) {
   
   assert(valence == 1) ;
+  set_der_0x0() ;
 
 }   
 
@@ -88,7 +97,8 @@ Vector::Vector (const Vector& source) :
 //--------------------------------
 Vector::Vector(const Tensor& uu) : Tensor(uu) {
 
-	assert(valence == 1) ;
+  assert(valence == 1) ;
+  set_der_0x0() ;
 
 }
 
@@ -99,6 +109,7 @@ Vector::Vector(const Map& mapping, const Base_vect& triad_i, FILE* fd) :
   Tensor(mapping, triad_i, fd) {
    
   assert ( (valence == 1) && (n_comp == 3) ) ;
+  set_der_0x0() ;
 
 }
 
@@ -109,9 +120,24 @@ Vector::Vector(const Map& mapping, const Base_vect& triad_i, FILE* fd) :
 
 
 Vector::~Vector () {
-    
+  del_deriv() ;
 }
 
+
+			//-------------------//
+			// Memory managment  //
+			//-------------------//
+
+void Vector::del_deriv() const {
+
+  set_der_0x0() ;
+  Tensor::del_deriv() ;
+
+}
+
+void Vector::set_der_0x0() const {
+
+}
 
 void Vector::operator=(const Tensor& t) {
     
@@ -126,6 +152,7 @@ void Vector::operator=(const Tensor& t) {
     for (int i=0 ; i<3 ; i++) {
       *cmp[i] = *t.cmp[i] ;
     }
+    del_deriv() ;
 }
 
 

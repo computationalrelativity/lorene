@@ -31,6 +31,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/06 13:58:45  j_novak
+ * The memory management has been improved.
+ * Implementation of the covariant derivative with respect to the exact Tensor
+ * type.
+ *
  * Revision 1.2  2003/10/03 11:21:45  j_novak
  * More methods for the class Metric
  *
@@ -45,8 +50,9 @@
  */
 
 // Lorene headers
-#include "tensor.h"
 #include "connection.h"
+
+#define N_TENSOR_DEPEND 200
 
 /**
  * Metric for tensor calculation.
@@ -85,6 +91,13 @@ class Metric {
 	 * Pointer on the determinant.
 	 */
 	mutable Scalar* p_determinant ;
+	
+	/**
+	 * Pointer on the dependancies, that means the array contains pointers
+	 * on all the {\tt Tensor} whom derivative members have been calculated
+	 * using {\tt *this}.
+	 */
+	mutable const Tensor* tensor_depend[N_TENSOR_DEPEND] ;
 	
     // Constructors - Destructor
     // -------------------------
@@ -132,7 +145,17 @@ class Metric {
 	 */
 	virtual void operator= (const Sym_tensor& sym_t) ;
 	
-
+     protected:
+	/**
+	 * Deletes all the derivative members of the {\tt Tensor} contained in
+	 * {\tt tensor_depend}. Those quantities had been previously 
+	 * calculated using {\tt *this}.
+	 */
+	void del_tensor_depend() const ;
+		
+	///Sets all elements of {\tt tensor_depend} to 0x0.
+	void set_tensor_depend_0x0() const ;
+		
     // Accessors
     // ---------
     public:
@@ -213,6 +236,8 @@ class Metric {
 	/// Operator >> (virtual function called by the operator <<). 
 	virtual ostream& operator>>(ostream& ) const ;    
 
+
+	friend class Tensor ;
 
 };
 /**

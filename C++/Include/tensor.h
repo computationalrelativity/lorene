@@ -36,6 +36,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2003/10/06 13:58:45  j_novak
+ * The memory management has been improved.
+ * Implementation of the covariant derivative with respect to the exact Tensor
+ * type.
+ *
  * Revision 1.14  2003/10/05 21:07:27  e_gourgoulhon
  * Method std_spectral_base() is now virtual.
  *
@@ -96,6 +101,7 @@
 
 class Scalar ; 
 class Sym_tensor ;
+class Metric ;
 
 			//-------------------------//
 			//       class Tensor      //
@@ -146,7 +152,25 @@ class Tensor {
 
     // Derived data : 
     // ------------
-    // protected:
+     protected:
+	/**
+	 * Array on the {\tt Metric} which were used to compute derived
+	 * quantities, like {\tt p\_derive\_cov}, etc... 
+	 * The i-th element of this array is the {\tt Metric} used to
+	 * compute the i-th element of {\tt p\_derive\_cov}, etc..
+	 */
+	mutable const Metric* met_depend[N_MET_MAX] ; 
+
+	/**Array of pointers on the covariant derivatives of {\tt this}
+	 * (see the comments of {\tt met\_depend}).
+	 */
+	mutable Tensor* p_derive_cov[N_MET_MAX];
+	
+	/**Array of pointers on the contravariant derivatives of {\tt this}
+	 * (see the comments of {\tt met\_depend}).
+	 */
+	mutable Tensor* p_derive_con[N_MET_MAX];
+
    
     // Constructors - Destructor :
     // -------------------------
@@ -277,8 +301,41 @@ class Tensor {
     // Memory management
     // -----------------
     protected:
-	virtual void del_deriv() ;	/// Deletes the derived quantities
+	void del_deriv() const ;	/// Deletes the derived quantities
 
+	/// Sets the pointers on derived quantities to 0x0
+	void set_der_0x0() const ; 
+
+	/**
+	 * Logical destructor of the derivatives depending on the i-th
+	 * element of {\tt met\_depend}.
+	 */	
+	void del_derive_met(int) const ;
+
+	/**
+	 * Sets all the i-th components of {\tt met\_depend}, 
+	 * {\tt p\_derive\_cov}, etc... to 0x0.
+	 */
+	void set_der_met_0x0(int) const ;
+
+	/**
+	 * To be used to describe the fact that the derivatives members have
+	 * been calculated with {\tt met}.
+	 * 
+	 * First it sets a null element of {\tt met\_depend} to 
+	 * {\tt \&met} and puts {\tt this} in 
+	 * the list of the dependancies of {\tt met}.
+	 * 
+	 */
+	void set_dependance (const Metric&) const ;
+
+	/**
+	 * Returns the position of the pointer on {\tt metre} in 
+	 * the array {\tt met\_depend}.
+	 *
+	 */
+	int get_place_met(const Metric&) const ;
+	
     // Mutators / assignment
     // ---------------------
     public:
@@ -394,7 +451,16 @@ class Tensor {
 	virtual void dec2_dzpuis() ;	/// dzpuis -= 2 ;
 	virtual void inc2_dzpuis() ;	/// dzpuis += 2 ;
 	virtual void mult_r_zec() ; /// Multiplication by {\it r} in the external zone.
-	
+
+	///The covariant derivative of {\tt this} with respect to a {\tt Metric}
+	const Tensor& derive_cov(const Metric&) const ; 
+
+	/**The contravariant derivative of {\tt this} with respect 
+	 * to a {\tt Metric}. It uses the covariant derivative and then
+	 * raises the first index.
+	 */
+	const Tensor& derive_con(const Metric&) const ; 
+
     // Accessors
     // ---------
         public:
@@ -530,6 +596,7 @@ class Tensor {
 	friend class Vector ;
 	friend class Sym_tensor ;
 	friend class Tensor_delta ;
+	friend class Metric ;
     
 };
 
@@ -627,6 +694,15 @@ class Sym_tensor : public Tensor {
 
 	virtual ~Sym_tensor() ;    /// Destructor
 	
+    // Memory management
+    // -----------------
+    protected:
+	void del_deriv() const;	/// Deletes the derived quantities
+
+	/// Sets the pointers on derived quantities to 0x0
+	void set_der_0x0() const ; 
+
+
     // Mutators / assignment
     // ---------------------
     public:

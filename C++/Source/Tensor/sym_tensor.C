@@ -35,6 +35,11 @@ char sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/06 13:58:48  j_novak
+ * The memory management has been improved.
+ * Implementation of the covariant derivative with respect to the exact Tensor
+ * type.
+ *
  * Revision 1.5  2003/10/03 11:21:48  j_novak
  * More methods for the class Metric
  *
@@ -73,6 +78,7 @@ Sym_tensor::Sym_tensor(const Map& map, const Itbl& tipe,const Base_vect& triad_i
 		: Tensor(map, 2, tipe, 6, triad_i) {
 		
 		assert(tipe(0) == tipe(1)) ; 
+		set_der_0x0() ;
 
 }
 
@@ -81,6 +87,7 @@ Sym_tensor::Sym_tensor(const Map& map, const Itbl& tipe,const Base_vect& triad_i
 Sym_tensor::Sym_tensor(const Map& map, int tipe, const Base_vect& triad_i)  
   : Tensor(map, 2, tipe, 6, triad_i){
 
+		set_der_0x0() ;
 }
 
 // Copy constructor
@@ -92,6 +99,7 @@ Sym_tensor::Sym_tensor (const Sym_tensor& source) :
 	int place_source = source.position(indices(i)) ;
 	cmp[i] = new Scalar (*source.cmp[place_source]) ;
     }
+		set_der_0x0() ;
 }   
 
 
@@ -109,6 +117,7 @@ Sym_tensor::Sym_tensor (const Tensor& source) :
 	cmp[i] = new Scalar (*source.cmp[place_source]) ;
     }
 	    
+		set_der_0x0() ;
 }   
 
 	
@@ -119,15 +128,35 @@ Sym_tensor::Sym_tensor(const Map& map, const Base_vect& triad_i, FILE* fd)
 	
 	assert (valence == 2) ;
 	assert (n_comp == 6) ;
+	set_der_0x0() ;
 }
 
 			//--------------//
 			//  Destructor  //
 			//--------------//
 
-Sym_tensor::~Sym_tensor() {}
+Sym_tensor::~Sym_tensor() {
+
+  del_deriv() ;
+
+}
 
 
+
+			//-------------------//
+			// Memory managment  //
+			//-------------------//
+
+void Sym_tensor::del_deriv() const {
+
+  set_der_0x0() ;
+  Tensor::del_deriv() ;
+
+}
+
+void Sym_tensor::set_der_0x0() const {
+
+}
 
 
 	
@@ -205,6 +234,8 @@ void Sym_tensor::operator= (const Tensor& t) {
       int place_t = t.position(indices(i)) ;
       *cmp[i] = *t.cmp[place_t] ;
     }
+
+    del_deriv() ;
 }
 
 Sym_tensor* Sym_tensor::inverse() const {

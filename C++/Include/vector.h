@@ -29,6 +29,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/06 13:58:45  j_novak
+ * The memory management has been improved.
+ * Implementation of the covariant derivative with respect to the exact Tensor
+ * type.
+ *
  * Revision 1.5  2003/10/05 21:07:27  e_gourgoulhon
  * Method std_spectral_base() is now virtual.
  *
@@ -101,7 +106,16 @@ class Vector: public Tensor {
 	Vector(const Map& map, const Base_vect& triad_i, FILE* fich) ;
 
 	virtual ~Vector() ;			/// Destructor
+
  
+    // Memory management
+    // -----------------
+    protected:
+	void del_deriv() const;	/// Deletes the derived quantities
+
+	/// Sets the pointers on derived quantities to 0x0
+	void set_der_0x0() const ; 
+
 
     // Mutators / assignment
     // ---------------------

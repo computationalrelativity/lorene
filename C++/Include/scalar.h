@@ -38,6 +38,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2003/10/06 13:58:45  j_novak
+ * The memory management has been improved.
+ * Implementation of the covariant derivative with respect to the exact Tensor
+ * type.
+ *
  * Revision 1.15  2003/10/05 21:06:31  e_gourgoulhon
  * - Added new methods div_r_ced() and div_rsint_ced().
  * - Added new virtual method std_spectral_base()
@@ -177,7 +182,7 @@ class Scalar : public Tensor {
   /// Constructor from a file (see {\tt sauve(FILE* )})
   Scalar(const Map&, const Mg3d&, FILE* ) ;    		
   
-  ~Scalar() ;			/// Destructor
+  virtual ~Scalar() ;			/// Destructor
   
   
   // Extraction of information
@@ -298,8 +303,8 @@ class Scalar : public Tensor {
   // -----------------
  protected:
   void del_t() ;		    /// Logical destructor
-  virtual void del_deriv() ;	    /// Logical destructor of the derivatives
-  virtual void set_der_0x0() ;	    /// Sets the pointers for derivatives to 0x0
+  void del_deriv() const;	    /// Logical destructor of the derivatives
+  void set_der_0x0() const;	    /// Sets the pointers for derivatives to 0x0
   
  public:
   

@@ -30,6 +30,11 @@ char connection_fcart_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/06 13:58:46  j_novak
+ * The memory management has been improved.
+ * Implementation of the covariant derivative with respect to the exact Tensor
+ * type.
+ *
  * Revision 1.1  2003/10/03 14:11:48  e_gourgoulhon
  * Methods of class Connection_fcart.
  *
@@ -49,29 +54,29 @@ char connection_fcart_C[] = "$Header$" ;
 #include "connection.h"
 
 
-					//------------------------------//
-					//	       Constructors         //
-					//------------------------------//
+//------------------------------//
+//	       Constructors     //
+//------------------------------//
 
 
 
 // Contructor from a Cartesian flat-metric-orthonormal basis
 
 Connection_fcart::Connection_fcart(const Map& mpi, const Base_vect_cart& bi) 
-	: Connection_flat(mpi, bi) {
+  : Connection_flat(mpi, bi) {
 
 }		
 
 // Copy constructor
 Connection_fcart::Connection_fcart(const Connection_fcart& ci) 
-	: Connection_flat(ci) {
+  : Connection_flat(ci) {
 
 }		
 
 	
-					//----------------------------//
-					//	       Destructor         //
-					//----------------------------//
+//----------------------------//
+//	       Destructor     //
+//----------------------------//
 
 
 Connection_fcart::~Connection_fcart(){
@@ -79,131 +84,259 @@ Connection_fcart::~Connection_fcart(){
 }
 
 
-					//-----------------------------//
-    				//     Mutators / assignment   //
-					//-----------------------------//
+//-----------------------------//
+//     Mutators / assignment   //
+//-----------------------------//
 
 
 void Connection_fcart::operator=(const Connection_fcart& ci) {
 	
-	cout << "Connection_fcart::operator= : not implemented yet !" << endl ; 
-	abort() ; 
+  cout << "Connection_fcart::operator= : not implemented yet !" << endl ; 
+  abort() ; 
 
 }	
 
 
 
-					//-----------------------------//
-					//    Computational methods    //
-					//-----------------------------//
+//-----------------------------//
+//    Computational methods    //
+//-----------------------------//
 
-
+// Covariant derivative, returning a value.
+//-----------------------------------------
 
 Tensor Connection_fcart::derive_cov(const Tensor& uu) const {
 
-	int valence0 = uu.get_valence() ; 
-	int ncomp0 = uu.get_n_comp() ;
+  int valence0 = uu.get_valence() ; 
+  int ncomp0 = uu.get_n_comp() ;
 	
-	// Protections
-	// -----------
-	if (valence0 >= 1) {
-		assert(uu.get_triad() == triad) ; 
-	}
+  // Protections
+  // -----------
+  if (valence0 >= 1) {
+    assert(uu.get_triad() == triad) ; 
+  }
 
-	// Indices of the result
-	// ---------------------
-	Itbl tipe(valence0+1) ; 
-	tipe.set_etat_qcq() ; 
-	tipe.set(0) = COV ; 
-	const Itbl tipeuu = uu.get_index_type() ;  
-	for (int id = 1; id<=valence0; id++) {
-		tipe.set(id) = tipeuu(id-1) ; 
-	}
+  // Indices of the result
+  // ---------------------
+  Itbl tipe(valence0+1) ; 
+  tipe.set_etat_qcq() ; 
+  tipe.set(0) = COV ; 
+  const Itbl tipeuu = uu.get_index_type() ;  
+  for (int id = 1; id<=valence0; id++) {
+    tipe.set(id) = tipeuu(id-1) ; 
+  }
 
-	// Creation of the result tensor
-	// -----------------------------
-	Tensor resu(*mp, valence0+1, tipe, *triad) ;
+  // Creation of the result tensor
+  // -----------------------------
+  Tensor resu(*mp, valence0+1, tipe, *triad) ;
 	
-	Itbl ind1(valence0+1) ; // working Itbl to store the indices of resu
-	ind1.set_etat_qcq() ; 
+  Itbl ind1(valence0+1) ; // working Itbl to store the indices of resu
+  ind1.set_etat_qcq() ; 
 	
-	Itbl ind0(valence0) ; // working Itbl to store the indices of uu
-	ind0.set_etat_qcq() ; 
+  Itbl ind0(valence0) ; // working Itbl to store the indices of uu
+  ind0.set_etat_qcq() ; 
 	
 
-	// Derivation index = x
-	// --------------------
-	int k = 1 ; 	
+  // Derivation index = x
+  // --------------------
+  int k = 1 ; 	
 
-	// Loop on all the components of the input tensor
-	for (int ic=0; ic<ncomp0; ic++) {
+  // Loop on all the components of the input tensor
+  for (int ic=0; ic<ncomp0; ic++) {
 	
-		// indices corresponding to the component no. ic in the input tensor
-		ind0 = uu.indices(ic) ; 
+    // indices corresponding to the component no. ic in the input tensor
+    ind0 = uu.indices(ic) ; 
 		
-		// indices (k,ind0) in the output tensor
-		ind1.set(0) = k ; 
-		for (int id = 1; id<=valence0; id++) {
-			ind1.set(id) = ind0(id-1) ; 
-		}
+    // indices (k,ind0) in the output tensor
+    ind1.set(0) = k ; 
+    for (int id = 1; id<=valence0; id++) {
+      ind1.set(id) = ind0(id-1) ; 
+    }
 		
-		Scalar& cresu = resu.set(ind1) ; 
+    Scalar& cresu = resu.set(ind1) ; 
 		
-		cresu = (uu(ind0)).dsdx() ; 	// d/dx
+    cresu = (uu(ind0)).dsdx() ; 	// d/dx
 		
-	}
+  }
 
 
 
-	// Derivation index = y
-	// ---------------------
-	k = 2 ; 	
+  // Derivation index = y
+  // ---------------------
+  k = 2 ; 	
 
-	// Loop on all the components of the input tensor
-	for (int ic=0; ic<ncomp0; ic++) {
+  // Loop on all the components of the input tensor
+  for (int ic=0; ic<ncomp0; ic++) {
 	
-		// indices corresponding to the component no. ic in the input tensor
-		ind0 = uu.indices(ic) ; 
+    // indices corresponding to the component no. ic in the input tensor
+    ind0 = uu.indices(ic) ; 
 		
-		// indices (k,ind0) in the output tensor
-		ind1.set(0) = k ; 
-		for (int id = 1; id<=valence0; id++) {
-			ind1.set(id) = ind0(id-1) ; 
-		}
+    // indices (k,ind0) in the output tensor
+    ind1.set(0) = k ; 
+    for (int id = 1; id<=valence0; id++) {
+      ind1.set(id) = ind0(id-1) ; 
+    }
 		
-		Scalar& cresu = resu.set(ind1) ; 
+    Scalar& cresu = resu.set(ind1) ; 
 		
-		cresu = (uu(ind0)).dsdy() ;  	// d/dy	
+    cresu = (uu(ind0)).dsdy() ;  	// d/dy	
 		
-	}
+  }
 
 
-	// Derivation index = z
-	// --------------------
-	k = 3 ; 	
+  // Derivation index = z
+  // --------------------
+  k = 3 ; 	
 
-	// Loop on all the components of the input tensor
-	for (int ic=0; ic<ncomp0; ic++) {
+  // Loop on all the components of the input tensor
+  for (int ic=0; ic<ncomp0; ic++) {
 	
-		// indices corresponding to the component no. ic in the input tensor
-		ind0 = uu.indices(ic) ; 
+    // indices corresponding to the component no. ic in the input tensor
+    ind0 = uu.indices(ic) ; 
 		
-		// indices (k,ind0) in the output tensor
-		ind1.set(0) = k ; 
-		for (int id = 1; id<=valence0; id++) {
-			ind1.set(id) = ind0(id-1) ; 
-		}
+    // indices (k,ind0) in the output tensor
+    ind1.set(0) = k ; 
+    for (int id = 1; id<=valence0; id++) {
+      ind1.set(id) = ind0(id-1) ; 
+    }
 		
-		Scalar& cresu = resu.set(ind1) ; 
+    Scalar& cresu = resu.set(ind1) ; 
 		
-		cresu = (uu(ind0)).dsdz() ;  	// d/dz
+    cresu = (uu(ind0)).dsdz() ;  	// d/dz
 
-	}
+  }
 
 
-	// C'est fini !
-	// -----------
-	return resu ; 
+  // C'est fini !
+  // -----------
+  return resu ; 
+
+}
+
+
+// Covariant derivative, returning a pointer.
+//-------------------------------------------
+
+Tensor* Connection_fcart::p_derive_cov(const Tensor& uu) const {
+
+  int valence0 = uu.get_valence() ; 
+  int ncomp0 = uu.get_n_comp() ;
+	
+  // Protections
+  // -----------
+  if (valence0 >= 1) {
+    assert(uu.get_triad() == triad) ; 
+  }
+
+  // Indices of the result
+  // ---------------------
+  Itbl tipe(valence0+1) ; 
+
+  // Creation of the result pointer
+  // ------------------------------
+  Tensor* resu ;
+
+  // If u is a Scalar, the result is a vector
+  //----------------------------------------
+  if (valence0 == 0) 
+    resu = new Vector(*mp, COV, triad) ;
+  else {
+    tipe.set_etat_qcq() ; 
+    tipe.set(0) = COV ; 
+    const Itbl tipeuu = uu.get_index_type() ;  
+    for (int id = 1; id<=valence0; id++) {
+      tipe.set(id) = tipeuu(id-1) ; 
+    }
+    const Sym_tensor* stuu 
+      = dynamic_cast<const Sym_tensor*>(&uu) ;
+    if (stuu != 0x0) { //Then the type Tensor_delta reduces the storage
+      resu = new Tensor_delta(*mp, tipe, *triad) ;
+    }
+    else { //Most general case...
+      resu = new Tensor(*mp, valence0+1, tipe, *triad) ;
+    }
+  }
+	
+  Itbl ind1(valence0+1) ; // working Itbl to store the indices of resu
+  ind1.set_etat_qcq() ; 
+	
+  Itbl ind0(valence0) ; // working Itbl to store the indices of uu
+  ind0.set_etat_qcq() ; 
+	
+
+  // Derivation index = x
+  // --------------------
+  int k = 1 ; 	
+
+  // Loop on all the components of the input tensor
+  for (int ic=0; ic<ncomp0; ic++) {
+	
+    // indices corresponding to the component no. ic in the input tensor
+    ind0 = uu.indices(ic) ; 
+		
+    // indices (k,ind0) in the output tensor
+    ind1.set(0) = k ; 
+    for (int id = 1; id<=valence0; id++) {
+      ind1.set(id) = ind0(id-1) ; 
+    }
+		
+    Scalar& cresu = resu->set(ind1) ; 
+		
+    cresu = (uu(ind0)).dsdx() ; 	// d/dx
+		
+  }
+
+
+
+  // Derivation index = y
+  // ---------------------
+  k = 2 ; 	
+
+  // Loop on all the components of the input tensor
+  for (int ic=0; ic<ncomp0; ic++) {
+	
+    // indices corresponding to the component no. ic in the input tensor
+    ind0 = uu.indices(ic) ; 
+		
+    // indices (k,ind0) in the output tensor
+    ind1.set(0) = k ; 
+    for (int id = 1; id<=valence0; id++) {
+      ind1.set(id) = ind0(id-1) ; 
+    }
+		
+    Scalar& cresu = resu->set(ind1) ; 
+		
+    cresu = (uu(ind0)).dsdy() ;  	// d/dy	
+		
+  }
+
+
+  // Derivation index = z
+  // --------------------
+  k = 3 ; 	
+
+  // Loop on all the components of the input tensor
+  for (int ic=0; ic<ncomp0; ic++) {
+	
+    // indices corresponding to the component no. ic in the input tensor
+    ind0 = uu.indices(ic) ; 
+		
+    // indices (k,ind0) in the output tensor
+    ind1.set(0) = k ; 
+    for (int id = 1; id<=valence0; id++) {
+      ind1.set(id) = ind0(id-1) ; 
+    }
+		
+    Scalar& cresu = resu->set(ind1) ; 
+		
+    cresu = (uu(ind0)).dsdz() ;  	// d/dz
+
+  }
+
+
+  // C'est fini !
+  // -----------
+  return resu ; 
 
 }
 

@@ -34,6 +34,11 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/10/06 13:58:48  j_novak
+ * The memory management has been improved.
+ * Implementation of the covariant derivative with respect to the exact Tensor
+ * type.
+ *
  * Revision 1.10  2003/10/05 21:11:22  e_gourgoulhon
  * - Added method std_spectral_base().
  * - Removed method change_triad() from this file.
@@ -76,7 +81,7 @@ char tensor_C[] = "$Header$" ;
 #include <math.h>
 
 // Headers Lorene
-#include "tensor.h"
+#include "metric.h"
 #include "utilitaires.h"
 
 			//--------------//
@@ -101,6 +106,8 @@ Tensor::Tensor(const Map& map, int val, const Itbl& tipe,
 
     for (int i=0 ; i<n_comp ; i++)
 	cmp[i] = new Scalar(map) ;
+
+    set_der_0x0() ;
 	
 }
 
@@ -122,6 +129,9 @@ Tensor::Tensor(const Map& map, int val, const Itbl& tipe,
 
     for (int i=0 ; i<n_comp ; i++)
 	cmp[i] = new Scalar(map) ;
+
+    set_der_0x0() ;
+
 }
 
 
@@ -144,6 +154,7 @@ Tensor::Tensor(const Map& map, int val, int tipe, const Base_vect& triad_i)
     for (int i=0 ; i<n_comp ; i++)
 	cmp[i] = new Scalar(map) ;
 
+    set_der_0x0() ;
 }	
 	
 // Copy constructor
@@ -160,6 +171,7 @@ Tensor::Tensor (const Tensor& source) :
 	cmp[i] = new Scalar(*source.cmp[place_source]) ;
     }
 
+    set_der_0x0() ;
 
 }   
 
@@ -186,6 +198,7 @@ Tensor::Tensor(const Map& mapping, const Base_vect& triad_i, FILE* fd)
     for (int i=0 ; i<n_comp ; i++)
       cmp[i] = new Scalar(*mp, *(mp->get_mg()), fd) ;
 
+    set_der_0x0() ;
 }
 
 
@@ -195,9 +208,10 @@ Tensor::Tensor(const Map& mapping, const Base_vect& triad_i, FILE* fd)
 Tensor::Tensor(const Map& map) : mp(&map), valence(0), triad(0x0),
 		type_indice(0), n_comp(1) {
 		
-		cmp = new Scalar*[n_comp] ; 
-		cmp[0] = 0x0 ; 
-		
+  cmp = new Scalar*[n_comp] ; 
+  cmp[0] = 0x0 ; 
+  
+  set_der_0x0() ;
 }
 
 
@@ -220,7 +234,9 @@ Tensor::Tensor (const Map& map, int val, const Itbl& tipe, int compo,
 
     for (int i=0 ; i<n_comp ; i++)
 	cmp[i] = new Scalar(map) ;
-    
+
+    set_der_0x0() ;
+  
 }
 
 // Constructor used by the derived classes when all the indices are of 
@@ -243,6 +259,8 @@ Tensor::Tensor (const Map& map, int val, int tipe, int compo,
     for (int i=0 ; i<n_comp ; i++)
       cmp[i] = new Scalar(map) ;
 
+    set_der_0x0() ;
+
 }
 
 			//--------------//
@@ -261,10 +279,82 @@ Tensor::~Tensor () {
 
 
 
-void Tensor::del_deriv() {
+void Tensor::del_deriv() const {
+
+  set_der_0x0() ;
 
 }
 
+void Tensor::set_der_0x0() const {
+
+  for (int i=0; i<N_MET_MAX; i++) 
+    set_der_met_0x0(i) ;
+
+}
+
+void Tensor::del_derive_met(int j) const {
+
+  assert( (j>=0) && (j<N_MET_MAX) ) ;
+
+  if (met_depend[j] != 0x0) {
+    for (int i=0 ; i<N_TENSOR_DEPEND ; i++)
+      if (met_depend[j]->tensor_depend[i] == this)
+	met_depend[j]->tensor_depend[i] = 0x0 ;
+    if (p_derive_cov[j] != 0x0)
+      delete p_derive_cov[j] ;
+    if (p_derive_con[j] != 0x0)
+      delete p_derive_con[j] ;
+
+    set_der_met_0x0(j) ;
+  }
+}
+
+void Tensor::set_der_met_0x0(int i) const {
+
+  assert( (i>=0) && (i<N_MET_MAX) ) ;
+  met_depend[i] = 0x0 ;
+  p_derive_cov[i] = 0x0 ;
+  p_derive_con[i] = 0x0 ;
+
+}
+
+int Tensor::get_place_met(const Metric& metre) const {
+  int resu = -1 ;
+  for (int i=0; i<N_MET_MAX; i++) 
+    if (met_depend[i] == &metre) {
+      assert(resu == -1) ;
+      resu = i ;
+    }
+  return resu ;
+}
+
+void Tensor::set_dependance (const Metric& met) const {
+    
+  int nmet = 0 ;
+  bool deja = false ;
+  for (int i=0; i<N_MET_MAX; i++) {
+    if (met_depend[i] == &met) deja = true ;
+    if ((!deja) && (met_depend[i] != 0x0)) nmet++ ;
+  }
+  if (nmet == N_MET_MAX) {
+    cout << "Too many metrics in Tensor::set_dependances" << endl ;
+    abort() ;
+  }
+  if (!deja) { 
+    int conte = 0 ;
+    while ((conte < N_TENSOR_DEPEND) && (met.tensor_depend[conte] != 0x0))
+      conte ++ ;
+    
+    if (conte == N_TENSOR_DEPEND) {
+      cout << "Too many dependancies in Tensor::set_dependances " << endl ;
+      abort() ;
+    }
+    else {
+      met.tensor_depend[conte] = this ;
+      met_depend[nmet] = &met ;
+    }
+  }
+}
 
 void Tensor::set_etat_qcq() { 
     
@@ -343,8 +433,6 @@ void Tensor::operator=(const Tensor& t) {
     
     assert (valence == t.valence) ;
 
-    del_deriv() ;
-
     triad = t.triad ; 
 
     for (int i=0 ; i<valence ; i++)
@@ -354,6 +442,9 @@ void Tensor::operator=(const Tensor& t) {
       int place_t = t.position(indices(i)) ;
       *cmp[i] = *t.cmp[place_t] ;
     }
+
+    del_deriv() ;
+
 }
 
 void Tensor::operator+=(const Tensor& t) {
@@ -393,7 +484,6 @@ void Tensor::operator-=(const Tensor& t) {
 // Affectation d'un tenseur d'ordre 2 :
 Scalar& Tensor::set(int ind1, int ind2) {
     
-    del_deriv() ;
     assert (valence == 2) ;
     
     Itbl ind (valence) ;
@@ -403,13 +493,13 @@ Scalar& Tensor::set(int ind1, int ind2) {
     
     int place = position(ind) ;
     
+    del_deriv() ;
     return *cmp[place] ;
 }
 
 // Affectation d'un tenseur d'ordre 3 :
 Scalar& Tensor::set(int ind1, int ind2, int ind3) {
     
-    del_deriv() ;
     assert (valence == 3) ;
     
     Itbl indices(valence) ;
@@ -418,6 +508,7 @@ Scalar& Tensor::set(int ind1, int ind2, int ind3) {
     indices.set(1) = ind2 ;
     indices.set(2) = ind3 ;
     int place = position(indices) ;
+    del_deriv() ;
  
     return *cmp[place] ;
 }
@@ -427,11 +518,10 @@ Scalar& Tensor::set(const Itbl& indices) {
     
     assert (indices.get_ndim() == 1) ;
     assert (indices.get_dim(0) == valence) ;
-    
-    del_deriv() ;
-	
+    	
     int place = position(indices) ;
     
+    del_deriv() ;
     return *cmp[place] ;
 }
 
@@ -590,6 +680,8 @@ void Tensor::sauve(FILE* fd) const {
 
 
 
+
+
 // Sets the standard spectal bases of decomposition for each component
 
 void Tensor::std_spectral_base() {
@@ -647,7 +739,26 @@ void Tensor::std_spectral_base() {
 }
 
 
+const Tensor& Tensor::derive_cov(const Metric& metre) const {
+  
+  set_dependance(metre) ;
+  int j = get_place_met(metre) ;
+  assert ((j>=0) && (j<N_MET_MAX)) ;
+  if (p_derive_cov[j] == 0x0) {
+    p_derive_cov[j] = metre.get_connect().p_derive_cov(*this) ;
+  }
+  return *p_derive_cov[j] ;
+}
 
+const Tensor& Tensor::derive_con(const Metric& metre) const {
+  
+  cout << "Tensor::derive_con : not implemented yet!" << endl ;
+
+  abort() ;
+
+  return *this ;
+
+}
 
 
 

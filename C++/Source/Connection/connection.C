@@ -30,6 +30,11 @@ char connection_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/06 13:58:46  j_novak
+ * The memory management has been improved.
+ * Implementation of the covariant derivative with respect to the exact Tensor
+ * type.
+ *
  * Revision 1.4  2003/10/03 14:16:04  e_gourgoulhon
  * Added set_der_0x0 in some constructors.
  *
@@ -223,11 +228,19 @@ void Connection::operator=(const Connection& ci) {
 					//-----------------------------//
 
 
-Tensor Connection::derive_cov(const Tensor&) const {
+Tensor Connection::derive_cov(const Tensor& ti) const {
 
 	cout << "Connection::derive_cov : not implemented yet !" << endl ; 
 	abort() ; 
+	return ti ;
 
+} 
+
+Tensor* Connection::p_derive_cov(const Tensor& ti) const {
+
+	cout << "Connection::p_derive_cov : not implemented yet !" << endl ; 
+	abort() ; 
+	return 0x0 ;
 } 
 
 

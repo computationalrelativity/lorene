@@ -30,6 +30,11 @@ char metric_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/06 13:58:47  j_novak
+ * The memory management has been improved.
+ * Implementation of the covariant derivative with respect to the exact Tensor
+ * type.
+ *
  * Revision 1.2  2003/10/03 11:21:47  j_novak
  * More methods for the class Metric
  *
@@ -64,6 +69,7 @@ Metric::Metric(const Sym_tensor& symti) : mp(&symti.get_mp()), p_connect(0x0),
   }
 
   set_der_0x0() ;
+  set_tensor_depend_0x0() ;
 
 }
 
@@ -76,6 +82,7 @@ Metric::Metric(const Metric& meti) : mp(meti.mp), p_connect(0x0), p_met_cov(0x0)
   if (meti.p_met_con != 0x0) p_met_con = new Sym_tensor(*meti.p_met_con) ;
 
   set_der_0x0() ;
+  set_tensor_depend_0x0() ;
 
 }
 
@@ -89,6 +96,8 @@ Metric::Metric(const Map& mpi, FILE* ) : mp(&mpi), p_connect(0x0),
 
 Metric::Metric(const Map& mpi) : mp(&mpi), p_connect(0x0), 
 					 p_met_cov(0x0), p_met_con(0x0) {
+  set_der_0x0() ;
+  set_tensor_depend_0x0() ;
 
 }
 
@@ -101,6 +110,8 @@ Metric::~Metric() {
   if (p_met_con != 0x0) delete p_met_con ;
 
   del_deriv() ;
+
+  del_tensor_depend() ;
 
 }
 
@@ -121,6 +132,26 @@ void Metric::set_der_0x0() const {
   p_determinant = 0x0 ;
 
 }
+
+void Metric::del_tensor_depend() const {
+
+    for (int i=0 ; i<N_TENSOR_DEPEND ; i++)
+	if (tensor_depend[i] != 0x0) {
+	  int j = tensor_depend[i]->get_place_met(*this) ;
+	  if (j!=-1) tensor_depend[i]->del_derive_met(j) ;
+	}
+    set_tensor_depend_0x0() ;
+ 
+}
+
+void Metric::set_tensor_depend_0x0() const {
+
+  for (int i=0 ; i<N_TENSOR_DEPEND ; i++) {
+    tensor_depend[i] = 0x0 ;
+  }
+}
+
+  
 
 void Metric::operator=(const Metric& meti) {
 
