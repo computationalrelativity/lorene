@@ -30,8 +30,11 @@ char et_bin_extr_curv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/12/10 14:20:43  k_taniguchi
+ * Change the multiplication "*" to "%".
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.0  2000/03/07  14:51:49  eric
  * *** empty log message ***
@@ -75,6 +78,8 @@ void Etoile_bin::extrinsic_curvature(){
     
     tkij_auto = - 0.5 * tkij_auto / nnn ; 
     
+    tkij_auto.set_std_base() ;
+
     // Computation of A^2 K_{ij} K^{ij}
     // --------------------------------
     
@@ -82,15 +87,18 @@ void Etoile_bin::extrinsic_curvature(){
     
     akcar_auto.set() = 0 ; 
     
+    akcar_auto.set_std_base() ;
+
     for (int i=0; i<3; i++) {
 	for (int j=0; j<3; j++) {
 	
-	    akcar_auto.set() += tkij_auto(i, j) * tkij_auto(i, j) ; 
+	    akcar_auto.set() += tkij_auto(i, j) % tkij_auto(i, j) ; 
 	
 	}
     }
     
-    akcar_auto = a_car * akcar_auto ; 
+    akcar_auto.set_std_base() ;
+    akcar_auto = a_car % akcar_auto ; 
     
     
 }
