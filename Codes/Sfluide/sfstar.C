@@ -597,6 +597,12 @@ compare_analytic (Et_rot_bifluid& star, int adapt)
   double mnat = rhoc * R * R * R;
 
   //----------------------------------------------------------------------
+  // calculate magnitude of shift-vector = N^phi B r sin(th)
+  Cmp shiftMag = star.get_tnphi()(); 	// N^phi r sin(th)
+  shiftMag *= star.get_bbb()();
+
+
+  //----------------------------------------------------------------------
   // calculate proper radii!
   Cmp aaa = sqrt( star.get_a_car()());		// a = sqrt(a^2)
   aaa.std_base_scal();
@@ -709,16 +715,10 @@ compare_analytic (Et_rot_bifluid& star, int adapt)
   data << "Mgrav = " << star.mass_g() / msol << " Msol\n";
   data << "Rcirc_n = " << star.r_circ() * 10.0 << " km\n";
   data << "Rcirc_p = " << star.r_circ2() * 10.0 << " km\n";
-  data << "RcoordEq_n = " << star.ray_eq() * 10.0 << " km\n";
-  data << "RcoordEq_p = " << star.ray_eq2() * 10.0 << " km\n";
-  data << "RcoordPol_n = " << star.ray_pole() * 10.0 << " km\n";
-  data << "RcoordPol_p = " << star.ray_pole2() * 10.0 << " km\n";
   data << "lapse N(0)      = " << star.get_nnn()()(0,0,0,0) << endl;
   data << "lapse N(eq)     = " << star.get_nnn()().va.val_point(0,1,M_PI/2,0) << endl;
   data << "lapse N(pol)    = " << star.get_nnn()().va.val_point(0,1,0, 0) << endl;
-  data << "shift N^phi(0)  = " << star.get_nphi()()(0,0,0,0) << endl;
-  data << "shift N^phi(eq) = " << star.get_nphi()().va.val_point(0,1,M_PI/2,0) << endl;
-  data << "shift N^phi(pol)= " << star.get_nphi()().va.val_point(0,1, 0, 0) << endl;
+  data << "|N^phi|(eq)     = " << shiftMag.va.val_point(0,1,M_PI/2,0) << endl;
 
   data << "RR_eq_n         = " << RR_eq_n << endl;
   data << "RR_pol_n        = " << RR_pol_n << endl;
