@@ -28,6 +28,9 @@ char test_vdf_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/29 11:06:11  e_gourgoulhon
+ * inc2_dzpuis() replaced by inc_dzpuis(2).
+ *
  * Revision 1.3  2003/10/21 13:59:36  e_gourgoulhon
  * new version
  *
@@ -156,9 +159,9 @@ int main() {
 	vvs.spectral_display() ; 
 	arrete() ; 
 
-	vvs.inc2_dzpuis() ; 
+	vvs.inc_dzpuis(2) ; 
 	
-	cout << "vvs after 2*inc2_dzpuis() : " << endl ;
+	cout << "vvs after inc_dzpuis(2) : " << endl ;
 	vvs.spectral_display() ; 
 
 	cout << "mu : " << endl ; 
