@@ -31,6 +31,9 @@ char eos_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/11/18 18:28:38  r_prix
+ * moved particle-masses m_1, m_2 of the two fluids into class eos_bifluid (from eos_bf_poly)
+ *
  * Revision 1.8  2003/10/03 15:58:46  j_novak
  * Cleaning of some headers
  *
@@ -97,26 +100,28 @@ char eos_bifluid_C[] = "$Header$" ;
 
 // Standard constructor without name
 // ---------------------------------
-Eos_bifluid::Eos_bifluid(){
-        
+Eos_bifluid::Eos_bifluid() :
+  m_1(1), m_2(1) 
+{
     set_name("") ; 
-    
 }
 
-// Standard constructor with name
+// Standard constructor with name and masses
 // ---------------------------------
-Eos_bifluid::Eos_bifluid(const char* name_i){
-        
+Eos_bifluid::Eos_bifluid(const char* name_i, double mass1, double mass2) :
+  m_1(mass1), m_2(mass2)
+{
     set_name(name_i) ; 
-    
 }
 
 // Copy constructor
 // ----------------
-Eos_bifluid::Eos_bifluid(const Eos_bifluid& eos_i){
-        
+Eos_bifluid::Eos_bifluid(const Eos_bifluid& eos_i) :
+  m_1(eos_i.m_1), m_2(eos_i.m_2)
+{
+  
     set_name(eos_i.name) ; 
-    
+
 }
 
 // Constructor from a binary file
@@ -124,6 +129,8 @@ Eos_bifluid::Eos_bifluid(const Eos_bifluid& eos_i){
 Eos_bifluid::Eos_bifluid(FILE* fich){
         
     fread(name, sizeof(char), 100, fich) ;		
+    fread_be(&m_1, sizeof(double), 1, fich) ;		
+    fread_be(&m_2, sizeof(double), 1, fich) ;	
     
 }
 
@@ -131,7 +138,11 @@ Eos_bifluid::Eos_bifluid(FILE* fich){
 // ---------------------------------
 Eos_bifluid::Eos_bifluid(ifstream& fich){
         
+    char blabla[80] ;
+
     fich.getline(name, 100) ;
+    fich >> m_1 ; fich.getline(blabla, 80) ;
+    fich >> m_2 ; fich.getline(blabla, 80) ;
     
 }
 
@@ -146,6 +157,20 @@ Eos_bifluid::~Eos_bifluid(){
     // does nothing
         
 }
+
+			//--------------//
+			//  Assignment  //
+			//--------------//
+void Eos_bifluid::operator=(const Eos_bifluid& eosi) {
+    
+    set_name(eosi.name) ; 
+
+    m_1 = eosi.m_1;
+    m_2 = eosi.m_2;
+    
+}
+
+
 
 			//-------------------------//
 			//  Manipulation of name   //
@@ -173,7 +198,9 @@ void Eos_bifluid::sauve(FILE* fich) const {
     int ident = identify() ; 
     fwrite_be(&ident, sizeof(int), 1, fich) ;	
     	
-    fwrite(name, sizeof(char), 100, fich) ;		
+    fwrite(name, sizeof(char), 100, fich) ;
+    fwrite_be(&m_1, sizeof(double), 1, fich) ;	
+    fwrite_be(&m_2, sizeof(double), 1, fich) ;	
    
 }
     
@@ -182,6 +209,9 @@ void Eos_bifluid::sauve(FILE* fich) const {
 
 ostream& operator<<(ostream& ost, const Eos_bifluid& eqetat)  {
     ost << eqetat.get_name() << endl ; 
+    ost << "   Mean particle 1 mass : " << eqetat.get_m1() << " m_B" << endl ;
+    ost << "   Mean particle 2 mass : " << eqetat.get_m2() << " m_B" << endl ;
+
     eqetat >> ost ;
     return ost ;
 }

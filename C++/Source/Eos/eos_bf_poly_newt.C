@@ -31,6 +31,9 @@ char eos_bf_poly_newt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/11/18 18:28:38  r_prix
+ * moved particle-masses m_1, m_2 of the two fluids into class eos_bifluid (from eos_bf_poly)
+ *
  * Revision 1.8  2003/02/07 10:47:43  j_novak
  * The possibility of having gamma5 xor gamma6 =0 has been introduced for
  * tests. The corresponding parameter files have been added.
@@ -101,11 +104,11 @@ Eos_bf_poly_newt::Eos_bf_poly_newt(double kappa1, double kappa2, double kappa3,
 Eos_bf_poly_newt::Eos_bf_poly_newt(double gamma1, double gamma2, double gamma3,
 			 double gamma4, double gamma5, double gamma6,
 			 double kappa1, double kappa2, double kappa3,
-			 double bet, double mass1, double mass2, double
-			 relax, double precis, double ecart) : 
+			 double bet, double mass1, double mass2, 
+			 double l_relax, double l_precis, double l_ecart) : 
   Eos_bf_poly(gamma1, gamma2, gamma3, gamma4, gamma5, gamma6,
-	      kappa1, kappa2, kappa3, bet, mass1, mass2, relax, precis, 
-	      ecart) {
+	      kappa1, kappa2, kappa3, bet, mass1, mass2, l_relax, l_precis, 
+	      l_ecart) {
   set_name("bi-fluid polytropic non-relativistic EOS") ;
 } 
   
@@ -139,24 +142,9 @@ Eos_bf_poly_newt::~Eos_bf_poly_newt(){
 			//--------------//
 
 void Eos_bf_poly_newt::operator=(const Eos_bf_poly_newt& eosi) {
-    
-    set_name(eosi.name) ; 
-    
-    gam1 = eosi.gam1 ; 
-    gam2 = eosi.gam2 ; 
-    gam3 = eosi.gam3 ; 
-    kap1 = eosi.kap1 ; 
-    kap2 = eosi.kap2 ; 
-    kap3 = eosi.kap3 ;
-    beta = eosi.beta ;
-    m_1 = eosi.m_1 ; 
-    m_2 = eosi.m_2 ;
-    relax = eosi.relax ;
-    precis = eosi.precis ;
-    ecart = eosi.ecart ;
-    
-    set_auxiliary() ; 
-    
+  
+  Eos_bf_poly::operator=(eosi) ;	    
+
 }
 
 			//------------------------//
@@ -327,10 +315,10 @@ bool Eos_bf_poly_newt::nbar_ent_p(const double ent1, const double ent2,
 	      abort() ;
 	    }
 	  } while (enthal1(xmax,parent)*f0 > 0.) ;
-	  double precis = 1.e-12 ;
+	  double l_precis = 1.e-12 ;
 	  int nitermax = 400 ;
 	  int niter = 0 ;
-	  nbar1 = zerosec_b(enthal1, parent, xmin, xmax, precis, 
+	  nbar1 = zerosec_b(enthal1, parent, xmin, xmax, l_precis, 
 			    nitermax, niter) ;
 	}
 	nbar2 = (b1 - coef1*puis(nbar1, gam1m1))/denom ;
@@ -394,10 +382,10 @@ bool Eos_bf_poly_newt::nbar_ent_p(const double ent1, const double ent2,
 	      abort() ;
 	    }
 	  } while (enthal23(xmax,parent)*f0 > 0.) ;
-	  double precis = 1.e-12 ;
+	  double l_precis = 1.e-12 ;
 	  int nitermax = 400 ;
 	  int niter = 0 ;
-	  nbar2 = zerosec_b(enthal23, parent, xmin, xmax, precis, 
+	  nbar2 = zerosec_b(enthal23, parent, xmin, xmax, l_precis, 
 			    nitermax, niter) ;
 	}
 	nbar1 = (b1 - kap3*puis(nbar2,gam4) - coef0*puis(nbar2,gam6))
@@ -467,10 +455,10 @@ bool Eos_bf_poly_newt::nbar_ent_p(const double ent1, const double ent2,
 	      abort() ;
 	    }
 	  } while (enthal23(xmax,parent)*f0 > 0.) ;
-	  double precis = 1.e-12 ;
+	  double l_precis = 1.e-12 ;
 	  int nitermax = 400 ;
 	  int niter = 0 ;
-	  nbar1 = zerosec_b(enthal23, parent, xmin, xmax, precis, 
+	  nbar1 = zerosec_b(enthal23, parent, xmin, xmax, l_precis, 
 			    nitermax, niter) ;
 	}
 	nbar2 = (b2 - kap3*puis(nbar1,gam3) - coef0*puis(nbar1,gam5))

@@ -31,6 +31,9 @@ char eos_bf_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2003/11/18 18:28:38  r_prix
+ * moved particle-masses m_1, m_2 of the two fluids into class eos_bifluid (from eos_bf_poly)
+ *
  * Revision 1.12  2003/03/17 10:28:04  j_novak
  * Removed too strong asserts on beta and kappa
  *
@@ -117,12 +120,12 @@ double enthal(const double x, const Param& parent) ;
 // Standard constructor with gam1 = gam2 = 2, 
 // gam3 = gam4 = gam5 = gam6 = 1, m_1 = 1 and m_2 =1
 // -------------------------------------------------
-Eos_bf_poly::Eos_bf_poly(double kappa1, double kappa2, double kappa3,
-			 double bet) :
-  Eos_bifluid("bi-fluid polytropic EOS"), 
+Eos_bf_poly::Eos_bf_poly(double kappa1, double kappa2, double kappa3, double bet) :
+  Eos_bifluid("bi-fluid polytropic EOS", 1, 1), 
   gam1(2), gam2(2),gam3(1),gam4(1),gam5(1),
   gam6(1),kap1(kappa1), kap2(kappa2), kap3(kappa3),beta(bet),
-  m_1(1),m_2(1), relax(0.5), precis(1.e-9), ecart(1.e-8) {
+  relax(0.5), precis(1.e-9), ecart(1.e-8) 
+{
 
   set_auxiliary() ; 
   determine_type() ;
@@ -134,12 +137,13 @@ Eos_bf_poly::Eos_bf_poly(double kappa1, double kappa2, double kappa3,
 Eos_bf_poly::Eos_bf_poly(double gamma1, double gamma2, double gamma3,
 			 double gamma4, double gamma5, double gamma6,
 			 double kappa1, double kappa2, double kappa3,
-			 double bet, double mass1, double mass2,
+			 double bet, double mass1, double mass2, 
 			 double rel, double prec, double ec) : 
-  Eos_bifluid("bi-fluid polytropic EOS"), 
+  Eos_bifluid("bi-fluid polytropic EOS", mass1, mass2), 
   gam1(gamma1),gam2(gamma2),gam3(gamma3),gam4(gamma4),gam5(gamma5),
   gam6(gamma6),kap1(kappa1),kap2(kappa2),kap3(kappa3),beta(bet), 
-  m_1(mass1),m_2(mass2), relax(rel), precis(prec), ecart(ec) {
+  relax(rel), precis(prec), ecart(ec) 
+{
 
   set_auxiliary() ; 
   determine_type() ;
@@ -152,7 +156,7 @@ Eos_bf_poly::Eos_bf_poly(const Eos_bf_poly& eosi) :
 	gam1(eosi.gam1), gam2(eosi.gam2), gam3(eosi.gam3),
 	gam4(eosi.gam4), gam5(eosi.gam5), gam6(eosi.gam6),
 	kap1(eosi.kap1), kap2(eosi.kap2), kap3(eosi.kap3),
-	beta(eosi.beta),m_1(eosi.m_1), m_2(eosi.m_2),
+	beta(eosi.beta),
         typeos(eosi.typeos), relax(eosi.relax), precis(eosi.precis),
         ecart(eosi.ecart) {
   
@@ -176,8 +180,6 @@ Eos_bf_poly::Eos_bf_poly(FILE* fich) :
     fread_be(&kap2, sizeof(double), 1, fich) ;		
     fread_be(&kap3, sizeof(double), 1, fich) ;		
     fread_be(&beta, sizeof(double), 1, fich) ;		
-    fread_be(&m_1, sizeof(double), 1, fich) ;		
-    fread_be(&m_2, sizeof(double), 1, fich) ;	
     fread_be(&relax, sizeof(double), 1, fich) ;	
     fread_be(&precis, sizeof(double), 1, fich) ;	
     fread_be(&ecart, sizeof(double), 1, fich) ;	
@@ -205,8 +207,6 @@ Eos_bf_poly::Eos_bf_poly(ifstream& fich) :
     fich >> kap2 ; fich.getline(blabla, 80) ;
     fich >> kap3 ; fich.getline(blabla, 80) ;
     fich >> beta ; fich.getline(blabla, 80) ;
-    fich >> m_1 ; fich.getline(blabla, 80) ;
-    fich >> m_2 ; fich.getline(blabla, 80) ;
     fich >> relax ; fich.getline(blabla, 80) ;
     fich >> precis ; fich.getline(blabla, 80) ;
     fich >> ecart ; fich.getline(blabla, 80) ;
@@ -230,7 +230,8 @@ Eos_bf_poly::~Eos_bf_poly(){
 
 void Eos_bf_poly::operator=(const Eos_bf_poly& eosi) {
     
-    set_name(eosi.name) ; 
+  // Assignment of quantities common to all the derived classes of Eos_bifluid
+  Eos_bifluid::operator=(eosi) ;	    
     
     gam1 = eosi.gam1 ; 
     gam2 = eosi.gam2 ; 
@@ -239,8 +240,6 @@ void Eos_bf_poly::operator=(const Eos_bf_poly& eosi) {
     kap2 = eosi.kap2 ; 
     kap3 = eosi.kap3 ;
     beta = eosi.beta ;
-    m_1 = eosi.m_1 ; 
-    m_2 = eosi.m_2 ; 
     typeos = eosi.typeos ;
     relax = eosi.relax ;
     precis = eosi.precis ;
@@ -401,8 +400,6 @@ void Eos_bf_poly::sauve(FILE* fich) const {
     fwrite_be(&kap2, sizeof(double), 1, fich) ;	
     fwrite_be(&kap3, sizeof(double), 1, fich) ;	
     fwrite_be(&beta, sizeof(double), 1, fich) ;	
-    fwrite_be(&m_1, sizeof(double), 1, fich) ;	
-    fwrite_be(&m_2, sizeof(double), 1, fich) ;	
     fwrite_be(&relax, sizeof(double), 1, fich) ;
     fwrite_be(&precis, sizeof(double), 1, fich) ;
     fwrite_be(&ecart, sizeof(double), 1, fich) ;
@@ -426,8 +423,6 @@ ostream& Eos_bf_poly::operator>>(ostream & ost) const {
 	   " rho_nuc c^2 / n_nuc^gamma" << endl ; 
     ost << "   Coefficient beta : " << beta << 
 	   " rho_nuc c^2 / n_nuc^gamma" << endl ; 
-    ost << "   Mean particle 1 mass : " << m_1 << " m_B" << endl ;
-    ost << "   Mean particle 2 mass : " << m_2 << " m_B" << endl ;
     ost << "   Type for inversion : " << typeos << endl ;
     ost << "   Parameters for inversion (used if typeos = 4) : " << endl ;
     ost << "   relaxation : " << relax << endl ;
@@ -501,10 +496,10 @@ bool Eos_bf_poly::nbar_ent_p(const double ent1, const double ent2,
 	      abort() ;
 	    }
 	  } while (enthal1(xmax,parent)*f0 > 0.) ;
-	  double precis = 1.e-12 ;
+	  double l_precis = 1.e-12 ;
 	  int nitermax = 400 ;
 	  int niter = 0 ;
-	  nbar1 = zerosec_b(enthal1, parent, xmin, xmax, precis, 
+	  nbar1 = zerosec_b(enthal1, parent, xmin, xmax, l_precis, 
 			    nitermax, niter) ;
 	}
 	nbar2 = (b1 - coef1*puis(nbar1, gam1m1))/denom ;
@@ -568,10 +563,10 @@ bool Eos_bf_poly::nbar_ent_p(const double ent1, const double ent2,
 	      abort() ;
 	    }
 	  } while (enthal23(xmax,parent)*f0 > 0.) ;
-	  double precis = 1.e-12 ;
+	  double l_precis = 1.e-12 ;
 	  int nitermax = 400 ;
 	  int niter = 0 ;
-	  nbar2 = zerosec_b(enthal23, parent, xmin, xmax, precis, 
+	  nbar2 = zerosec_b(enthal23, parent, xmin, xmax, l_precis, 
 			    nitermax, niter) ;
 	}
 	nbar1 = (b1 - kap3*puis(nbar2,gam4) - coef0*puis(nbar2,gam6))
@@ -641,10 +636,10 @@ bool Eos_bf_poly::nbar_ent_p(const double ent1, const double ent2,
 	      abort() ;
 	    }
 	  } while (enthal23(xmax,parent)*f0 > 0.) ;
-	  double precis = 1.e-12 ;
+	  double l_precis = 1.e-12 ;
 	  int nitermax = 400 ;
 	  int niter = 0 ;
-	  nbar1 = zerosec_b(enthal23, parent, xmin, xmax, precis, 
+	  nbar1 = zerosec_b(enthal23, parent, xmin, xmax, l_precis, 
 			    nitermax, niter) ;
 	}
 	nbar2 = (b2 - kap3*puis(nbar1,gam3) - coef0*puis(nbar1,gam5))

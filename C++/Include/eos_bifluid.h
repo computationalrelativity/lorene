@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/11/18 18:25:15  r_prix
+ * moved particle-masses m_1, m_2 of the two fluids into class eos_bifluid (from eos_bf_poly)
+ *
  * Revision 1.10  2002/10/16 14:36:29  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -137,13 +140,24 @@ class Eos_bifluid {
     protected: 
 	char name[100] ;	    /// EOS name
 
+	/** Individual particle mass $m_1$  
+	 *  [unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$]. 
+	 */
+	double m_1 ; 
+
+	/** Individual particle mass $m_2$  
+	 *  [unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$]. 
+	 */
+	double m_2 ; 
+
+
     // Constructors - Destructor
     // -------------------------
     protected:
 	Eos_bifluid() ;			/// Standard constructor
 
-	/// Standard constructor with name
-	explicit Eos_bifluid(const char* name_i) ; 
+	/// Standard constructor with name and the two masses per particle
+	explicit Eos_bifluid(const char* name_i, double mass1, double mass2) ; 
 
 	Eos_bifluid(const Eos_bifluid& ) ;	/// Copy constructor	
 
@@ -167,6 +181,11 @@ class Eos_bifluid {
     public:
 	virtual ~Eos_bifluid() ;			/// Destructor
 
+    // Assignment
+    // ----------
+	/// Assignment to another {\tt Eos\_bifluid}
+	void operator=(const Eos_bifluid& ) ;
+
 
     // Name manipulation
     // -----------------
@@ -179,6 +198,19 @@ class Eos_bifluid {
     // Miscellaneous
     // -------------
     public:
+
+	/** Return the individual particule mass $m_1$  
+	 *  
+	 *  [unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$]. 
+	 */
+	double get_m1() const {return m_1 ;}; 
+
+	/** Return the individual particule mass $m_2$  
+	 *  
+	 *  [unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$]. 
+	 */
+	double get_m2() const {return m_2 ;}; 
+
 	/** Construction of an EOS from a binary file.
 	 *  The file must have been created by the function 
 	 *  {\tt sauve(FILE* )}.
@@ -663,16 +695,6 @@ class Eos_bf_poly : public Eos_bifluid {
 	 */
 	double beta ; 
 
-	/** Individual particule mass $m_1$  
-	 *  [unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$]. 
-	 */
-	double m_1 ; 
-
-	/** Individual particule mass $m_2$  
-	 *  [unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$]. 
-	 */
-	double m_2 ; 
-
 	double gam1m1 ;	    /// $\gamma_1-1$
 	double gam2m1 ;	    /// $\gamma_2-1$
 	double gam34m1 ;    /// $\gamma_3+\gamma_4-1$
@@ -730,8 +752,7 @@ class Eos_bf_poly : public Eos_bifluid {
 	 *		[unit: $\rho_{\rm nuc} c^2$], where
 	 *		$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$ 
 	 */
-	Eos_bf_poly(double kappa1, double kappa2, double kappa3,
-		    double beta) ;
+	Eos_bf_poly(double kappa1, double kappa2, double kappa3, double beta) ;
 
 	/** Standard constructor with all parameters. 
 	 * 
@@ -762,7 +783,7 @@ class Eos_bf_poly : public Eos_bifluid {
 	Eos_bf_poly(double gamma1, double gamma2, double gamma3,
 		    double gamma4, double gamma5, double gamma6,
 		    double kappa1, double kappa2, double kappa3,
-		    double beta, double mass1, double mass2, 
+		    double beta, double mass1=1, double mass2=1, 
 		    double relax=0.5, double precis = 1.e-9,
 		    double ecart = 1.e-8) ;	
 
@@ -852,18 +873,6 @@ class Eos_bf_poly : public Eos_bifluid {
 	 *  $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$.
 	 */
 	double get_beta() const {return beta ;}; 
-
-	/** Return the individual particule mass $m_1$  
-	 *  
-	 *  [unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$]. 
-	 */
-	double get_m1() const {return m_1 ;}; 
-
-	/** Return the individual particule mass $m_2$  
-	 *  
-	 *  [unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$]. 
-	 */
-	double get_m2() const {return m_2 ;}; 
 
     protected:
 	/** Computes the auxiliary quantities {\tt gam1m1}, {\tt gam2m1}
