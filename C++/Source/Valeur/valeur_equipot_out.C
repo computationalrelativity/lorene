@@ -32,6 +32,9 @@ char valeur_equipot_out_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/12/19 15:05:57  j_novak
+ * Added some initializations
+ *
  * Revision 1.2  2002/10/16 14:37:15  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -118,7 +121,7 @@ void Valeur::equipot_outward(double uu0, int nz_search, double precis,
 // 1. Recherche du point de collocation en r (l2,i2) egal a ou situe 
 //    immediatement apres r_iso(phi,theta)
 
-	int i2 ;
+	int i2 = 0 ;
 	l2 = nz ;
 	for (int l=0; l<nz_search; l++) {	
 	    int nr = mg->get_nr(l) ;
@@ -147,7 +150,7 @@ void Valeur::equipot_outward(double uu0, int nz_search, double precis,
 	}	    
 
 // 2. Point precedent (l2,i3) 
-	int i3 ;
+	int i3 = 0 ;
 	if (i2 != 0) { // on reste dans la meme zone
 	    i3 = i2 - 1 ;
 	}

@@ -31,6 +31,9 @@ char valeur_equipot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/12/19 15:05:56  j_novak
+ * Added some initializations
+ *
  * Revision 1.2  2002/10/16 14:37:15  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -113,7 +116,7 @@ void Valeur::equipot(double uu0, int nz_search, double precis, int nitermax,
 // 1. Recherche du point de collocation en r (l2,i2) egal a ou situe 
 //    immediatement avant r_iso(phi,theta)
 
-	int i2 ;
+	int i2 = 0;
 	l2 = nz ;
 	for (int l=nz_search-1; l>= 0; l--) {	// On part de la zone la plus extreme
 	    int nr = mg->get_nr(l) ;
@@ -140,7 +143,7 @@ void Valeur::equipot(double uu0, int nz_search, double precis, int nitermax,
 	}	    
 
 // 2. Point suivant (l2,i3) 
-	int i3 ;
+	int i3 = 0 ;
 	if (i2 < mg->get_nr(l2) -1) { // on reste dans la meme zone
 	    i3 = i2 + 1 ;
 	}
