@@ -7,7 +7,8 @@
 
 /*
  *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
- *   Copyright (c) 1999-2001 Philippe Grandclement
+ *
+ *   Copyright (c) 1999-2001 Philippe Grandclement (for preceding class Cmp)
  *
  *   This file is part of LORENE.
  *
@@ -34,6 +35,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2003/10/15 10:43:06  e_gourgoulhon
+ * Added new members p_dsdt and p_stdsdp.
+ *
  * Revision 1.13  2003/10/13 13:52:40  j_novak
  * Better managment of derived quantities.
  *
@@ -187,6 +191,8 @@ void Scalar::del_deriv() const{
     if (p_dsdr != 0x0) delete p_dsdr ;
     if (p_srdsdt != 0x0) delete p_srdsdt ;
     if (p_srstdsdp != 0x0) delete p_srstdsdp ; 
+    if (p_dsdt != 0x0) delete p_dsdt ;
+    if (p_stdsdp != 0x0) delete p_stdsdp ;
     if (p_dsdx != 0x0) delete p_dsdx ; 
     if (p_dsdy != 0x0) delete p_dsdy ;
     if (p_dsdz != 0x0) delete p_dsdz ;
@@ -201,6 +207,8 @@ void Scalar::set_der_0x0() const {
     p_dsdr = 0x0 ;
     p_srdsdt = 0x0 ;
     p_srstdsdp = 0x0 ;
+    p_dsdt = 0x0 ;
+    p_stdsdp = 0x0 ;
     p_dsdx = 0x0 ;
     p_dsdy = 0x0 ;
     p_dsdz = 0x0 ;
@@ -298,6 +306,8 @@ void Scalar::annule(int l_min, int l_max) {
 		if (p_dsdr != 0x0) p_dsdr->annule(l_min, l_max) ;
 		if (p_srdsdt != 0x0) p_srdsdt->annule(l_min, l_max) ;
 		if (p_srstdsdp != 0x0) p_srstdsdp->annule(l_min, l_max) ;
+		if (p_dsdt != 0x0) p_dsdt->annule(l_min, l_max) ;
+		if (p_stdsdp != 0x0) p_stdsdp->annule(l_min, l_max) ;
 		if (p_dsdx != 0x0) p_dsdx->annule(l_min, l_max) ;
 		if (p_dsdy != 0x0) p_dsdy->annule(l_min, l_max) ;
 		if (p_dsdz != 0x0) p_dsdz->annule(l_min, l_max) ;
