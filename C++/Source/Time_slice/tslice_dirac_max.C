@@ -30,6 +30,9 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/05/06 15:23:55  e_gourgoulhon
+ * Added method initial_data_cts.
+ *
  * Revision 1.4  2004/05/03 08:15:48  e_gourgoulhon
  * Method hh_det_one(): added check at the end (deviation from det = 1).
  *
@@ -55,6 +58,7 @@ char tslice_dirac_max_C[] = "$Header$" ;
 #include "time_slice.h"
 #include "metric.h"
 #include "evolution.h"
+#include "utilitaires.h"
 
 
 
@@ -145,6 +149,58 @@ void Tslice_dirac_max::set_hh(const Sym_tensor& hh_in) {
     mu_evol.downdate(jtime) ; 
     trh_evol.downdate(jtime) ; 
          
+}
+
+
+void Tslice_dirac_max::initial_data_cts(const Sym_tensor& uu, 
+                const Scalar& trk_in, const Scalar& trk_point, 
+                double pdt, double precis,
+                const Scalar* p_ener_dens, const Vector* p_mom_dens, 
+                const Scalar* p_trace_stress) {
+
+    
+    Time_slice_conf::initial_data_cts(uu, trk_in, trk_point, pdt, precis,
+                p_ener_dens, p_mom_dens, p_trace_stress) ;
+
+    for (int j = jtime-depth+1 ; j < jtime; j++) {
+            
+        Sym_tensor hhtmp = hh_evol[j] ;
+        int nz = uu.get_mp().get_mg()->get_nzone() ; 
+        hhtmp.annule_domain(nz-1) ; 
+        for (int i=1; i<=3; i++) {
+            for (int k=i; k<=3; k++) {
+                hhtmp.set(i,k).set_dzpuis(4) ; 
+            }
+        }
+        
+        Scalar tmp = hhtmp.transverse(ff).tt_part().khi() ;
+        tmp.annule_domain(nz-1) ;
+//##        khi_evol.update(tmp, j, the_time[j]) ;
+
+// Formula valid for vanishing time derivative only : 
+        khi_evol.update(hh_evol[jtime].transverse(ff).tt_part().khi(),
+                           j, the_time[j]) ;
+
+        tmp = hhtmp.transverse(ff).tt_part().mu() ;
+        tmp.annule_domain(nz-1) ;
+//##        mu_evol.update(tmp, j, the_time[j]) ;
+
+// Formula valid for vanishing time derivative only : 
+
+        mu_evol.update(hh_evol[jtime].transverse(ff).tt_part().mu(),
+                           j, the_time[j]) ;
+    }
+  
+    khi_evol.update(hh_evol[jtime].transverse(ff).tt_part().khi(),
+                           jtime, the_time[jtime]) ;
+    mu_evol.update(hh_evol[jtime].transverse(ff).tt_part().mu(),
+                           jtime, the_time[jtime]) ;
+    
+    maxabs(khi_evol[jtime] - khi_evol[jtime-1], "khi^J - khi^{J-1}") ; 
+    
+    maxabs(mu_evol[jtime] - mu_evol[jtime-1], "mu^J - mu^{J-1}") ; 
+    arrete() ; 
+    
 }
 
 
