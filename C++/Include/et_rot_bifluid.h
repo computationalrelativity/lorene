@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/03/22 13:12:41  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.12  2003/12/04 14:13:32  r_prix
  * added method get_typeos {return typeos}; and fixed some comments.
  *
@@ -96,34 +99,33 @@
 Cmp prolonge_c1(const Cmp& uu, const int nzet) ;
 
 /**
- * Class for two-fluid rotating relativistic stars.
+ * Class for two-fluid rotating relativistic stars. \ingroup (star)
  * 
- * This is a child class of {\tt Etoile\_rot}, with the same metric
+ * This is a child class of \c Etoile_rot , with the same metric
  * and overloaded member functions. 
  * 
- * There are two number-density fields {\tt nbar} and {\tt nbar2} (and 2 log-enthalpies, 
- * see class {\tt Eos\_bifluid}), as well as two velocity fields, with phi-components
- * (with respect to the Eulerian observer) {\tt uuu} and {\tt uuu2}.
+ * There are two number-density fields \c nbar  and \c nbar2  (and 2 log-enthalpies, 
+ * see class \c Eos_bifluid ), as well as two velocity fields, with phi-components
+ * (with respect to the Eulerian observer) \c uuu  and \c uuu2 .
  *
  * Fluid 1 can be considered to correspond to the (superfluid) neutrons, whereas 
  * fluid 2 would consist of the protons (and electrons)
  *.
- * The quantity {\tt u_euler} of the {\tt class Etoile} is 
- * {\em not used} in this class!
- * Only the "3+1" components of ${T^\mu}_\nu$ should be used outside
- * of {\tt hydro_euler()}, namely {\tt s_euler, sphph_euler, j_euler} and 
- * {\tt ener_euler}.
+ * The quantity \c u_euler  of the \c class Etoile  is 
+ * \b not \b used  in this class!
+ * Only the "3+1" components of \f${T^\mu}_\nu\f$ should be used outside
+ * of \c hydro_euler() , namely \c s_euler, \c sphph_euler, \c j_euler and 
+ * \c ener_euler.
  *
- * @version #$Id$#
  */
 class Et_rot_bifluid : virtual public Etoile_rot {
   
   // Data : 
   // -----
  protected:
-  const Eos_bifluid& eos ; /// Equation of state for two-fluids model
+  const Eos_bifluid& eos ; ///< Equation of state for two-fluids model
   
-    double omega2 ; /// Rotation angular velocity for fluid 2 ({\tt [f\_unit]})
+    double omega2 ; ///< Rotation angular velocity for fluid 2 (\c [f_unit] )
 
   // Fluid quantities with respect to the fluid frame
   // ------------------------------------------------
@@ -131,7 +133,7 @@ class Et_rot_bifluid : virtual public Etoile_rot {
   /// Log-enthalpy for the second fluid
   Tenseur ent2 ;
   
-  Tenseur nbar2 ; /// Baryon density in the fluid frame, for fluid 2
+  Tenseur nbar2 ; ///< Baryon density in the fluid frame, for fluid 2
   
   // Fluid quantities with respect to the Eulerian frame
   // ---------------------------------------------------
@@ -139,17 +141,17 @@ class Et_rot_bifluid : virtual public Etoile_rot {
   // FIXME: the following three variables are not specific to 2-fluid stars
   //  and should ideally be moved to class Etoile!
 
-  /// The component $S^\varphi_\varphi$ of the stress tensor ${S^i}_j$.
+  /// The component \f$S^\varphi_\varphi\f$ of the stress tensor \f${S^i}_j\f$.
   Tenseur sphph_euler;
 	
-  /** Total angular momentum (flat-space!) 3-vector $J_\mathrm{euler}$, which is related to
-   * $J^i$ of the "3+1" decomposition, but expressed in a flat-space triad.
-   * In axisymmetric circular cases, only $J_\mathrm{euler}(\varphi)=r \sin\theta\, J^\varphi$
+  /** Total angular momentum (flat-space!) 3-vector \f$J_\mathrm{euler}\f$, which is related to
+   * \f$J^i\f$ of the "3+1" decomposition, but expressed in a flat-space triad.
+   * In axisymmetric circular cases, only \f$J_\mathrm{euler}(\varphi)=r \sin\theta\, J^\varphi\f$
    * is nonzero.
    */
   Tenseur j_euler;
 
-  /// the combination $E+S_i^i$: useful because in the Newtonian limit $\rightarrow \rho$.
+  /// the combination \f$E+S_i^i\f$: useful because in the Newtonian limit \f$\rightarrow \rho\f$.
   Tenseur enerps_euler;
 
   /// Norm of the (fluid no.2) 3-velocity with respect to the eulerian observer
@@ -159,44 +161,44 @@ class Et_rot_bifluid : virtual public Etoile_rot {
   Tenseur gam_euler2 ;
   
   /**
-   * The "relative velocity" (squared) $\Delta^2$ of the two fluids.
-   * See Prix et al.(2003) and see also {\tt Eos\_bifluid}. 
+   * The "relative velocity" (squared) \f$\Delta^2\f$ of the two fluids.
+   * See Prix et al.(2003) and see also \c Eos_bifluid . 
    */
   Tenseur delta_car ; 
 
   // Derived data : 
   // ------------
  protected:
-  /// Coordinate radius at $\phi=0$, $\theta=\pi/2$. 
+  /// Coordinate radius at \f$\phi=0\f$, \f$\theta=\pi/2\f$. 
   mutable double* p_ray_eq2 ; 
   
-  /// Coordinate radius at $\phi=\pi/2$, $\theta=\pi/2$. 
+  /// Coordinate radius at \f$\phi=\pi/2\f$, \f$\theta=\pi/2\f$. 
   mutable double* p_ray_eq2_pis2 ;
   
-  /// Coordinate radius at $\phi=\pi$, $\theta=\pi/2$. 
+  /// Coordinate radius at \f$\phi=\pi\f$, \f$\theta=\pi/2\f$. 
   mutable double* p_ray_eq2_pi ;
   
-  /// Coordinate radius at $\theta=0$. 
+  /// Coordinate radius at \f$\theta=0\f$. 
   mutable double* p_ray_pole2 ;
 	
-  /** Description of the surface of fluid 2: 2-D {\tt Itbl} containing the 
-   *	values of the domain index {\it l} on the surface at the 
-   *	collocation points in $(\theta', \phi')$
+  /** Description of the surface of fluid 2: 2-D \c Itbl  containing the 
+   *	values of the domain index \e l  on the surface at the 
+   *	collocation points in \f$(\theta', \phi')\f$
    */
   mutable Itbl* p_l_surf2 ; 
 	
-  /** Description of the surface of fluid 2: 2-D {\tt Tbl} containing the 
-   *	values of the radial coordinate $\xi$ on the surface at the 
-   *	collocation points in $(\theta', \phi')$
+  /** Description of the surface of fluid 2: 2-D \c Tbl  containing the 
+   *	values of the radial coordinate \f$\xi\f$ on the surface at the 
+   *	collocation points in \f$(\theta', \phi')\f$
    */
   mutable Tbl* p_xi_surf2 ; 
 	
-  mutable double* p_r_circ2 ;	/// Circumferential radius of fluid no.2
-  mutable double* p_aplat2 ;	/// Flatening r\_pole/r\_eq of fluid no.2
+  mutable double* p_r_circ2 ;	///< Circumferential radius of fluid no.2
+  mutable double* p_aplat2 ;	///< Flatening r_pole/r_eq of fluid no.2
 
 	
-  mutable double* p_mass_b1 ;	/// Baryon mass of fluid 1
-  mutable double* p_mass_b2 ;	/// Baryon mass of fluid 2
+  mutable double* p_mass_b1 ;	///< Baryon mass of fluid 1
+  mutable double* p_mass_b2 ;	///< Baryon mass of fluid 2
 
 
   // Constructors - Destructor
@@ -204,17 +206,17 @@ class Et_rot_bifluid : virtual public Etoile_rot {
  public:
 
   Et_rot_bifluid(Map& mp_i, int nzet_i, bool relat, 
-		 const Eos_bifluid& eos_i) ;     /// Standard constructor
+		 const Eos_bifluid& eos_i) ;     ///< Standard constructor
 
-  Et_rot_bifluid(const Et_rot_bifluid& ) ;       /// Copy constructor
+  Et_rot_bifluid(const Et_rot_bifluid& ) ;       ///< Copy constructor
 
-  /** Constructor from a file (see {\tt sauve(FILE* )}) Works only for 
+  /** Constructor from a file (see \c sauve(FILE*) ) Works only for 
    *  relativistic stars.
    *  This has to be improved....
    */ 
   Et_rot_bifluid(Map& mp_i, const Eos_bifluid& eos_i, FILE* fich) ;    
 
-  virtual ~Et_rot_bifluid() ;			/// Destructor
+  virtual ~Et_rot_bifluid() ;			///< Destructor
  
 
   // Memory management
@@ -224,10 +226,10 @@ class Et_rot_bifluid : virtual public Etoile_rot {
   /// Deletes all the derived quantities
   virtual void del_deriv() const ; 
 	
-  /// Sets to {\tt 0x0} all the pointers on derived quantities
+  /// Sets to \c 0x0  all the pointers on derived quantities
   virtual void set_der_0x0() const ; 
 
-  /** Sets to {\tt ETATNONDEF} (undefined state) the hydrodynamical 
+  /** Sets to \c ETATNONDEF  (undefined state) the hydrodynamical 
    *  quantities relative to the Eulerian observer.
    */
   virtual void del_hydro_euler() ; 
@@ -280,13 +282,13 @@ class Et_rot_bifluid : virtual public Etoile_rot {
   /// Returns the proper baryon density for fluid 2
   const Tenseur& get_nbar2() const {return nbar2 ; } ;
 	
-  /// Returns the "relative velocity" (squared) $\Delta^2$ of the two fluids
+  /// Returns the "relative velocity" (squared) \f$\Delta^2\f$ of the two fluids
   const Tenseur& get_delta_car() const {return delta_car ; } ;
 
   /// Returns the Lorentz factor between the fluid 2 and Eulerian observers
   const Tenseur& get_gam_euler2() const {return gam_euler2 ; } ;
 
-  /// Returns the rotation angular velocity of fluid 2({\tt [f\_unit]}) 
+  /// Returns the rotation angular velocity of fluid 2(\c [f_unit] ) 
   double get_omega2() const {return omega2 ; } ;
 
   /// Returns the norm of the fluid 2 3-velocity with respect to the eulerian frame
@@ -295,7 +297,7 @@ class Et_rot_bifluid : virtual public Etoile_rot {
   // Outputs
   // -------
  public:
-  virtual void sauve(FILE *) const ;	    /// Save in a file
+  virtual void sauve(FILE *) const ;	    ///< Save in a file
     
   /// Operator >> (virtual function called by the operator <<). 
   virtual ostream& operator>>(ostream& ) const ;    
@@ -307,43 +309,43 @@ class Et_rot_bifluid : virtual public Etoile_rot {
   // -----------------
  public:
 	
-  /** Description of the surface of fluid 1: returns a 2-D {\tt Itbl} 
+  /** Description of the surface of fluid 1: returns a 2-D \c Itbl  
    *	containing the 
-   *	values of the domain index {\it l} on the surface at the 
-   *	collocation points in $(\theta', \phi')$.
+   *	values of the domain index \e l  on the surface at the 
+   *	collocation points in \f$(\theta', \phi')\f$.
    *	This surface is defined as the location where
-   *	the density 1 (member {\tt nbar}) vanishes.
+   *	the density 1 (member \c nbar ) vanishes.
    */
   virtual const Itbl& l_surf() const ; 
 	
-  /** Description of the surface of fluid 2: returns a 2-D {\tt Itbl} 
+  /** Description of the surface of fluid 2: returns a 2-D \c Itbl  
    *	containing the 
-   *	values of the domain index {\it l} on the surface at the 
-   *	collocation points in $(\theta', \phi')$.
+   *	values of the domain index \e l  on the surface at the 
+   *	collocation points in \f$(\theta', \phi')\f$.
    *	This surface is defined as the location where
-   *	the density 2 (member {\tt nbar2}) vanishes.
+   *	the density 2 (member \c nbar2 ) vanishes.
    */
   const Itbl& l_surf2() const ; 
 	
-  /** Description of the surface of fluid 2: returns a 2-D {\tt Tbl} 
-   *	containing the values of the radial coordinate $\xi$ 
+  /** Description of the surface of fluid 2: returns a 2-D \c Tbl  
+   *	containing the values of the radial coordinate \f$\xi\f$ 
    *	on the surface at the 
-   *	collocation points in $(\theta', \phi')$. 
+   *	collocation points in \f$(\theta', \phi')\f$. 
    *	This surface is defined as the location where
-   *	the density 2 (member {\tt nbar2}) vanishes.
+   *	the density 2 (member \c nbar2 ) vanishes.
    */
   const Tbl& xi_surf2() const ; 
 
-  /// Coordinate radius for fluid 2 at $\phi=0$, $\theta=\pi/2$ [r\_unit].
+  /// Coordinate radius for fluid 2 at \f$\phi=0\f$, \f$\theta=\pi/2\f$ [r_unit].
   double ray_eq2() const ; 
 	
-  /// Coordinate radius for fluid 2 at $\phi=\pi/2$, $\theta=\pi/2$ [r\_unit].
+  /// Coordinate radius for fluid 2 at \f$\phi=\pi/2\f$, \f$\theta=\pi/2\f$ [r_unit].
   double ray_eq2_pis2() const ; 
 	
-  /// Coordinate radius for fluid 2 at $\phi=\pi$, $\theta=\pi/2$ [r\_unit].
+  /// Coordinate radius for fluid 2 at \f$\phi=\pi\f$, \f$\theta=\pi/2\f$ [r_unit].
   double ray_eq2_pi() const ; 
 	
-  /// Coordinate radius for fluid 2 at $\theta=0$ [r\_unit]. 
+  /// Coordinate radius for fluid 2 at \f$\theta=0\f$ [r_unit]. 
   double ray_pole2() const ; 
     
   /// Baryon mass of fluid 1
@@ -352,20 +354,20 @@ class Et_rot_bifluid : virtual public Etoile_rot {
   /// Baryon mass of fluid 2
   double mass_b2() const ;
 
-  virtual double mass_b() const ;	/// Total Baryon mass
-  virtual double mass_g() const ;	/// Gravitational mass
-  virtual double angu_mom() const ;	/// Angular momentum
+  virtual double mass_b() const ;	///< Total Baryon mass
+  virtual double mass_g() const ;	///< Gravitational mass
+  virtual double angu_mom() const ;	///< Angular momentum
 
   /** Error on the virial identity GRV2.
    * Given by the integral Eq. (4.6) in 
-   * [Bonazzola, Gougoulhon, Salgado, Marck, A\&A \textbf{278}, 421 (1993)].
+   * [Bonazzola, Gougoulhon, Salgado, Marck, A\&A \b 278 , 421 (1993)].
    */
   virtual double grv2() const ;		
 
   /** Error on the virial identity GRV3.
    *  The error is computed as the integral defined
    *  by Eq. (43) of [Gourgoulhon and Bonazzola, 
-   *  Class. Quantum Grav. {\bf 11}, 443 (1994)] divided by
+   *  \a Class. \a Quantum \a Grav. \b 11 , 443 (1994)] divided by
    *  the integral of the matter terms.
    * 
    *  @param ost output stream to give details of the computation;
@@ -375,17 +377,17 @@ class Et_rot_bifluid : virtual public Etoile_rot {
    */
   virtual double grv3(ostream* ost = 0x0) const ;	
 
-  virtual double r_circ2() const ;     /// Circumferential radius for fluid 2
-  virtual double aplat2() const ;      /// Flatening r\_pole/r\_eq for fluid 2
+  virtual double r_circ2() const ;     ///< Circumferential radius for fluid 2
+  virtual double aplat2() const ;      ///< Flatening r_pole/r_eq for fluid 2
 
   /** Quadrupole moment.
-   *  The quadrupole moment {\it Q} is defined according to Eq. (7) of
-   *  [Salgado, Bonazzola, Gourgoulhon and Haensel, Astron. Astrophys.
-   *   {\bf 291}, 155 (1994)]. At the Newtonian limit it is related to
-   *  the component ${\bar I}_{zz}$ of the MTW (1973) reduced quadrupole 
-   *  moment ${\bar I}_{ij}$ by: $Q = -3/2 {\bar I}_{zz}$. 
-   *  Note that {\it Q} is the negative of the quadrupole moment defined 
-   *  by Laarakkers and Poisson, Astrophys. J. {\bf 512}, 282 (1999).
+   *  The quadrupole moment \e Q is defined according to Eq. (7) of
+   *  [Salgado, Bonazzola, Gourgoulhon and Haensel, \a Astron. \a Astrophys.
+   *   \b 291 , 155 (1994)]. At the Newtonian limit it is related to
+   *  the component \f${\bar I}_{zz}\f$ of the MTW (1973) reduced quadrupole 
+   *  moment \f${\bar I}_{ij}\f$ by: \f$Q = -3/2 {\bar I}_{zz}\f$. 
+   *  Note that \e Q is the negative of the quadrupole moment defined 
+   *  by Laarakkers and Poisson, \a Astrophys. \a J. \b 512 , 282 (1999).
    */
   virtual double mom_quad() const ;	
 
@@ -396,11 +398,11 @@ class Et_rot_bifluid : virtual public Etoile_rot {
    *  observer from those in the fluid frame.
    *
    *  The calculation is performed starting from the quantities
-   *  {\tt ent}, {\tt ent2}, {\tt ener}, {\tt press}, and {\tt a\_car},  
+   *  \c ent , \c ent2 , \c ener , \c press , and \c a_car ,  
    *  which are supposed to be up to date.  
    *  From these,  the following fields are updated:
-   *  {\tt delta_car}, {\tt gam\_euler}, {\tt gam\_euler2}, {\tt ener\_euler}, 
-   *  {\tt s\_euler}, {\tt sphph_euler} and {tt j_euler}.
+   *  \c delta_car , \c gam_euler , \c gam_euler2 , \c ener_euler , 
+   *  \c s_euler , \c sphph_euler  and \c j_euler .
    */
   virtual void hydro_euler() ; 
 	
@@ -415,57 +417,57 @@ class Et_rot_bifluid : virtual public Etoile_rot {
    *  @param ent_c2 [input] Central enthalpy for fluid 2
    *  @param omega0  [input] Requested angular velocity for fluid 1
    *  @param omega20  [input] Requested angular velocity for fluid 2
-   *  @param ent_limit [input] 1-D {\tt Tbl} of dimension {\tt nzet} which
+   *  @param ent_limit [input] 1-D \c Tbl  of dimension \c nzet  which
    *				defines the enthalpy for fluid 1 at the 
    *                            outer boundary of each domain
-   *  @param ent2_limit [input] 1-D {\tt Tbl} of dimension {\tt nzet} which
+   *  @param ent2_limit [input] 1-D \c Tbl  of dimension \c nzet  which
    *				defines the enthalpy for fluid 2 at the 
    *                            outer boundary of each domain
    *  @param icontrol [input] Set of integer parameters (stored as a
-   *			    1-D {\tt Itbl} of size 5) to control the 
-   *			    iteration: \\
-   *	{\tt icontrol(0) = mer\_max} : maximum number of steps \\
-   *	{\tt icontrol(1) = mer\_rot} : step at which the rotation is 
-   *				      switched on \\
-   *	{\tt icontrol(2) = mer\_change\_omega} : step at which the rotation
-   *			  velocity is changed to reach the final one  \\
-   *	{\tt icontrol(3) = mer\_fix\_omega} :  step at which the final
-   *			    rotation velocity must have been reached  \\
-   *	{\tt icontrol(4) = mermax\_poisson} : maximum number of steps in 
-   *				{\tt Map\_et::poisson} \\
+   *			    1-D \c Itbl  of size 5) to control the 
+   *			    iteration: 
+   *	\li \c icontrol(0) = mer_max  : maximum number of steps 
+   *	\li \c icontrol(1) = mer_rot  : step at which the rotation is 
+   *				      switched on 
+   *	\li \c icontrol(2) = mer_change_omega  : step at which the rotation
+   *			  velocity is changed to reach the final one  
+   *	\li \c icontrol(3) = mer_fix_omega  :  step at which the final
+   *			    rotation velocity must have been reached  
+   *	\li \c icontrol(4) = mermax_poisson  : maximum number of steps in 
+   *				\c Map_et::poisson  
    *  @param control [input] Set of parameters (stored as a 
-   *			    1-D {\tt Tbl} of size 5) to control the 
-   *			    iteration: \\
-   *	{\tt control(0) = precis} : threshold on the enthalpy relative 
-   *				change for ending the computation \\
-   *	{\tt control(1) = omega\_ini} : initial angular velocity, 
-   *			    switched on only if {\tt mer\_rot < 0}, 
-   *			    otherwise 0 is used \\ 
-   *	{\tt control(2) = omega2\_ini} : initial angular velocity, 
-   *			    switched on only if {\tt mer\_rot < 0}, 
-   *			    otherwise 0 is used \\ 
-   *	{\tt control(3) = relax} : relaxation factor in the main 
-   *				   iteration \\ 
-   *	{\tt control(4) = relax\_poisson} : relaxation factor in 
-   *				   {\tt Map\_et::poisson}\\ 
-   *  @param diff [output]   1-D {\tt Tbl} of size 8 for the storage of 
-   *			    some error indicators : \\
-   *	    {\tt diff(0)} : Relative change in the enthalpy field 1
-   *			      between two successive steps \\
-   *	    {\tt diff(1)} : Relative change in the enthalpy field 2
-   *			      between two successive steps \\
-   *	    {\tt diff(2)} : Relative error in the resolution of the
-   *			    Poisson equation for {\tt nuf} \\  
-   *	    {\tt diff(3)} : Relative error in the resolution of the
-   *			    Poisson equation for {\tt nuq} \\  
-   *	    {\tt diff(4)} : Relative error in the resolution of the
-   *			    Poisson equation for {\tt dzeta} \\  
-   *	    {\tt diff(5)} : Relative error in the resolution of the
-   *			    Poisson equation for {\tt tggg} \\  
-   *	    {\tt diff(6)} : Relative error in the resolution of the
-   *			    equation for {\tt shift} (x comp.) \\  
-   *	    {\tt diff(7)} : Relative error in the resolution of the
-   *			    equation for {\tt shift} (y comp.) \\  
+   *			    1-D \c Tbl  of size 5) to control the 
+   *			    iteration: 
+   *	\li \c control(0) = precis  : threshold on the enthalpy relative 
+   *				change for ending the computation 
+   *	\li \c control(1) = omega_ini  : initial angular velocity, 
+   *			    switched on only if \c mer_rot < 0 , 
+   *			    otherwise 0 is used  
+   *	\li \c control(2) = omega2_ini  : initial angular velocity, 
+   *			    switched on only if \c mer_rot < 0 , 
+   *			    otherwise 0 is used  
+   *	\li \c control(3) = relax  : relaxation factor in the main 
+   *				   iteration  
+   *	\li \c control(4) = relax_poisson  : relaxation factor in 
+   *				   \c Map_et::poisson  
+   *  @param diff [output]   1-D \c Tbl  of size 8 for the storage of 
+   *			    some error indicators : 
+   *	    \li \c diff(0)  : Relative change in the enthalpy field 1
+   *			      between two successive steps 
+   *	    \li \c diff(1)  : Relative change in the enthalpy field 2
+   *			      between two successive steps 
+   *	    \li \c diff(2)  : Relative error in the resolution of the
+   *			    Poisson equation for \c nuf    
+   *	    \li \c diff(3)  : Relative error in the resolution of the
+   *			    Poisson equation for \c nuq    
+   *	    \li \c diff(4)  : Relative error in the resolution of the
+   *			    Poisson equation for \c dzeta    
+   *	    \li \c diff(5)  : Relative error in the resolution of the
+   *			    Poisson equation for \c tggg    
+   *	    \li \c diff(6)  : Relative error in the resolution of the
+   *			    equation for \c shift  (x comp.)   
+   *	    \li \c diff(7)  : Relative error in the resolution of the
+   *			    equation for \c shift  (y comp.)   
    */
   void equilibrium_bi(double ent_c, double ent_c2, double omega0, 
 		   double omega20, const Tbl& ent_limit, 

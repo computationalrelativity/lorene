@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/03/22 13:12:41  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.7  2003/12/08 15:48:43  m_bejger
  * GlendNH3 EOS (Glendenning 1985, case 3) added
  *
@@ -104,19 +107,18 @@ class Cmp ;
 
 
 /**
- * Base class for tabulated equations of state.
+ * Base class for tabulated equations of state. \ingroup (eos)
  *
  * The interpolation through the tables is
  * a cubic Hermite interpolation, which is
  * thermodynamically consistent, i.e. preserves the
  * Gibbs-Duhem relation. It is defined in
  * [Nozawa, Stergioulas, Gourgoulhon \& Eriguchi,
- * {\sl Astron. Astrophys. Suppl. Ser.} {\bf 132}, 431 (1998)],
+ * \a Astron. \a Astrophys. Suppl. Ser.  \b 132 , 431 (1998)],
  * and derives from a general technique presented in
- * [Swesty, {\bf J. Comp. Phys.} {\bf 127}, 118 (1996)].
+ * [Swesty, \a J. \a Comp. \a Phys.  \b 127 , 118 (1996)].
  *
  *
- * @version #$Id$#                                                              * @version #$Id$#
  */
 class Eos_tabul : public Eos {
 
@@ -133,19 +135,19 @@ class Eos_tabul : public Eos {
     	/// Upper boundary of the enthalpy interval
     	double hmax ;
     	
-    	/// Table of $\log H$
+    	/// Table of \f$\log H\f$
     	Tbl* logh ;
     	
-    	/// Table of $\log p$
+    	/// Table of \f$\log p\f$
     	Tbl* logp ;
     	
-    	/// Table of $d\log P/d\log H$
+    	/// Table of \f$d\log P/d\log H\f$
     	Tbl* dlpsdlh ;
 
-    	/// Table of $\log n_b$
+    	/// Table of \f$\log n_b\f$
     	Tbl* lognb ;
     	
-        /// Table of $d\log P/d\log nb$
+        /// Table of \f$d\log P/d\log nb\f$
         Tbl* dlpsdlnb ;
 
         double* press ; 
@@ -165,22 +167,22 @@ class Eos_tabul : public Eos {
 	 */
 	Eos_tabul(const char* name_i, const char* table, const char* path) ;	
 
-	Eos_tabul(const Eos_tabul& ) ;	/// Copy constructor	
+	Eos_tabul(const Eos_tabul& ) ;	///< Copy constructor	
 	
     protected:
 	
 	/** Constructor from a binary file (created by the function
-	 *  {\tt sauve(FILE* )}).
+	 *  \c sauve(FILE*) ).
 	 *  This constructor is protected because any EOS construction
 	 *  from a binary file must be done via the function
-	 *  {\tt Eos::eos\_from\_file(FILE* )}.
+	 * \c Eos::eos_from_file(FILE*) .
 	 */
 	Eos_tabul(FILE* ) ;
 	
 	/** Constructor from a formatted file.
 	 *  This constructor is protected because any EOS construction
 	 *  from a formatted file must be done via the function
-	 *  {\tt Eos::eos\_from\_file(ifstream\& )}.
+	 *  \c  Eos::eos_from_file(ifstream\& ) .
 	 *
 	 *   @param ist input file stream containing a name as first line
 	 *		and the path to the directory containing the EOS file
@@ -194,7 +196,7 @@ class Eos_tabul : public Eos {
 	friend Eos* Eos::eos_from_file(ifstream& ) ;
 
     public:
-	virtual ~Eos_tabul() ;			/// Destructor
+	virtual ~Eos_tabul() ;			///< Destructor
 
 
     // Miscellaneous
@@ -202,7 +204,7 @@ class Eos_tabul : public Eos {
 
     protected: 	
     	/** Reads the file containing the table and initializes
-    	 *  in the arrays {\tt logh}, {\tt logp} and {\tt dlpsdlh}.
+    	 *  in the arrays \c  logh , \c  logp  and \c  dlpsdlh .
     	 */
     	void read_table() ;
 
@@ -211,7 +213,7 @@ class Eos_tabul : public Eos {
     // -------
 
     public:
-	virtual void sauve(FILE* ) const ;	/// Save in a file
+	virtual void sauve(FILE* ) const ;	///< Save in a file
 
 
     // Computational functions
@@ -220,9 +222,9 @@ class Eos_tabul : public Eos {
     public:
 	/** Computes the baryon density from the log-enthalpy.
 	 *
-	 *  @param ent [input,  unit: $c^2$] log-enthalpy {\it H}
+	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H 
 	 *
-	 *  @return baryon density {\it n} [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
+	 *  @return baryon density \e n  [unit: \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$]
 	 *
 	 */
     	virtual double nbar_ent_p(double ent, const Param* par=0x0) const ;
@@ -233,56 +235,56 @@ class Eos_tabul : public Eos {
 
  	/** Computes the total energy density from the log-enthalpy.
 	 *
-	 *  @param ent [input,  unit: $c^2$] log-enthalpy {\it H}
+	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H 
 	 *
-	 *  @return energy density {\it e} [unit: $\rho_{\rm nuc} c^2$], where
-	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
+	 *  @return energy density \e e  [unit: \f$\rho_{\rm nuc} c^2\f$], where
+	 *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
 	 */
     	virtual double ener_ent_p(double ent, const Param* par=0x0) const ;
 
  	/** Computes the pressure from the log-enthalpy.
 	 *
-	 *  @param ent [input,  unit: $c^2$] log-enthalpy {\it H}
+	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H 
 	 *
-	 *  @return pressure {\it p} [unit: $\rho_{\rm nuc} c^2$], where
-	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
+	 *  @return pressure \e p  [unit: \f$\rho_{\rm nuc} c^2\f$], where
+	 *      \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
 	 */
     	virtual double press_ent_p(double ent, const Param* par=0x0) const ;
 	/* mb test version for linear interpolation 
     	virtual double press_ent_p_mbtest(double ent, const Param* par=0x0) const ;
         */
 
-	/** Computes the logarithmic derivative $d\ln n/d\ln H$ 
+	/** Computes the logarithmic derivative \f$d\ln n/d\ln H\f$ 
 	 * from the log-enthalpy. 
 	 * 
-	 *  @param ent [input,  unit: $c^2$] log-enthalpy {\it H} 
+	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  
 	 *
 	 *  @return dln(n)/dln(H)
 	 */
     	virtual double der_nbar_ent_p(double ent, const Param* par=0x0) const ; 
        
-	/** Computes the logarithmic derivative $d\ln e/d\ln H$ 
+	/** Computes the logarithmic derivative \f$d\ln e/d\ln H\f$ 
 	 * from the log-enthalpy. 
 	 * 
-	 *  @param ent [input,  unit: $c^2$] log-enthalpy {\it H} 
+	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  
 	 *
 	 *  @return dln(e)/dln(H)
 	 */
     	virtual double der_ener_ent_p(double ent, const Param* par=0x0) const ; 
        
-	/** Computes the logarithmic derivative $d\ln p/d\ln H$ 
+	/** Computes the logarithmic derivative \f$d\ln p/d\ln H\f$ 
 	 * from the log-enthalpy. 
 	 * 
-	 *  @param ent [input,  unit: $c^2$] log-enthalpy {\it H} 
+	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  
 	 *
 	 *  @return dln(p)/dln(H)
 	 */
     	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ; 
 
-        /** Computes the logarithmic derivative $d\ln p/d\ln n$ 
+        /** Computes the logarithmic derivative \f$d\ln p/d\ln n\f$ 
 	 * from the log-enthalpy. 
 	 * 
-	 *  @param ent [input,  unit: $c^2$] log-enthalpy {\it H} 
+	 *  @param ent [input,  unit: \f$c^2\f$] log-enthalpy \e H  
 	 *
 	 *  @return dln(p)/dln(n)
 	 */
@@ -297,17 +299,16 @@ class Eos_tabul : public Eos {
 
 
 /**
- * Equation of state SLy4 (Douchin \& Haensel 2001).
+ * Equation of state SLy4 (Douchin \& Haensel 2001).\ingroup (eos)
  *
  * Interior: neutrons, protons, electrons and muons described by the Skyrme
  * Lyon 4 potential.
  * 
  * Inner crust: Douchin \& Haensel 2001
  *
- * Outer crust: Haensel \& Pichon,  Astron. Astrophys. {\bf 283},  
+ * Outer crust: Haensel \& Pichon,  \a Astron. \a Astrophys. \b 283 ,  
  *  313 (1994)
  *
- * @version #$Id$#                                                              * @version #$Id$#
  */
 class Eos_SLy4 : public Eos_tabul {
 
@@ -325,22 +326,22 @@ class Eos_SLy4 : public Eos_tabul {
 	
     protected:
 	/** Constructor from a binary file (created by the function
-	 *  {\tt sauve(FILE* )}).
+	 *  \c sauve(FILE*) ).
 	 *  This constructor is protected because any EOS construction
 	 *  from a binary file must be done via the function
-	 *  {\tt Eos::eos\_from\_file(FILE* )}.
+	 * \c Eos::eos_from_file(FILE*) .
 	 */
 	Eos_SLy4(FILE* ) ;
 	
 	/** Constructor from a formatted file.
 	 *  This constructor is protected because any EOS construction
 	 *  from a formatted file must be done via the function
-	 *  {\tt Eos::eos\_from\_file(ifstream\& )}.
+	 *  \c  Eos::eos_from_file(ifstream\& ) .
 	 */
 	Eos_SLy4(ifstream& ) ;
 
     private:	
-	/** Copy constructor (private to make {\tt Eos\_SLy4}
+	/** Copy constructor (private to make \c  Eos_SLy4 
 	 *  a non-copiable class)
 	 */	
 	Eos_SLy4(const Eos_SLy4& ) ;	
@@ -351,7 +352,7 @@ class Eos_SLy4 : public Eos_tabul {
 	friend Eos* Eos::eos_from_file(ifstream& ) ;
 
     public:
-	virtual ~Eos_SLy4() ;			/// Destructor
+	virtual ~Eos_SLy4() ;			///< Destructor
 
     // Miscellaneous
     // -------------
@@ -363,7 +364,7 @@ class Eos_SLy4 : public Eos_tabul {
 	/// Comparison operator (difference)
 	virtual bool operator!=(const Eos& ) const ;
 
-	/** Returns a number to identify the sub-classe of {\tt Eos} the
+	/** Returns a number to identify the sub-classe of \c  Eos  the
 	 *  object belongs to.
 	 */
 	virtual int identify() const ;
@@ -372,7 +373,7 @@ class Eos_SLy4 : public Eos_tabul {
     // -------
 
     protected:
-	virtual ostream& operator>>(ostream &) const ;    /// Operator >>
+	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
 
 
 };
@@ -383,11 +384,10 @@ class Eos_SLy4 : public Eos_tabul {
 
 
 /**
- * Equation of state FPS (Friedman-Pandharipande + Skyrme).
+ * Equation of state FPS (Friedman-Pandharipande + Skyrme).\ingroup (eos)
  * Authors: Lorenz, Ravenhall \& Pethick (unpublished).
  *
  *
- * @version #$Id$#                                                              * @version #$Id$#
  */
 class Eos_FPS : public Eos_tabul {
 
@@ -405,22 +405,22 @@ class Eos_FPS : public Eos_tabul {
 	
     protected:
 	/** Constructor from a binary file (created by the function
-	 *  {\tt sauve(FILE* )}).
+	 *  \c sauve(FILE*) ).
 	 *  This constructor is protected because any EOS construction
 	 *  from a binary file must be done via the function
-	 *  {\tt Eos::eos\_from\_file(FILE* )}.
+	 * \c Eos::eos_from_file(FILE*) .
 	 */
 	Eos_FPS(FILE* ) ;
 	
 	/** Constructor from a formatted file.
 	 *  This constructor is protected because any EOS construction
 	 *  from a formatted file must be done via the function
-	 *  {\tt Eos::eos\_from\_file(ifstream\& )}.
+	 *  \c  Eos::eos_from_file(ifstream\& ) .
 	 */
 	Eos_FPS(ifstream& ) ;
 
     private:	
-	/** Copy constructor (private to make {\tt Eos\_FPS}
+	/** Copy constructor (private to make \c  Eos_FPS 
 	 *  a non-copiable class)
 	 */	
 	Eos_FPS(const Eos_FPS& ) ;	
@@ -431,7 +431,7 @@ class Eos_FPS : public Eos_tabul {
 	friend Eos* Eos::eos_from_file(ifstream& ) ;
 
     public:
-	virtual ~Eos_FPS() ;			/// Destructor
+	virtual ~Eos_FPS() ;			///< Destructor
 
     // Miscellaneous
     // -------------
@@ -443,7 +443,7 @@ class Eos_FPS : public Eos_tabul {
 	/// Comparison operator (difference)
 	virtual bool operator!=(const Eos& ) const ;
 
-	/** Returns a number to identify the sub-classe of {\tt Eos} the
+	/** Returns a number to identify the sub-classe of \c  Eos  the
 	 *  object belongs to.
 	 */
 	virtual int identify() const ;
@@ -452,7 +452,7 @@ class Eos_FPS : public Eos_tabul {
     // -------
 
     protected:
-	virtual ostream& operator>>(ostream &) const ;    /// Operator >>
+	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
 
 
 };
@@ -463,10 +463,9 @@ class Eos_FPS : public Eos_tabul {
 
 
 /**
- * Equation of state BPAL12 (Bombaci et al 1995).
+ * Equation of state BPAL12 (Bombaci et al 1995).\ingroup (eos)
  *
  *
- * @version #$Id$#                                                              * @version #$Id$#
  */
 class Eos_BPAL12 : public Eos_tabul {
 
@@ -484,22 +483,22 @@ class Eos_BPAL12 : public Eos_tabul {
 	
     protected:
 	/** Constructor from a binary file (created by the function
-	 *  {\tt sauve(FILE* )}).
+	 *  \c sauve(FILE*) ).
 	 *  This constructor is protected because any EOS construction
 	 *  from a binary file must be done via the function
-	 *  {\tt Eos::eos\_from\_file(FILE* )}.
+	 * \c Eos::eos_from_file(FILE*) .
 	 */
 	Eos_BPAL12(FILE* ) ;
 	
 	/** Constructor from a formatted file.
 	 *  This constructor is protected because any EOS construction
 	 *  from a formatted file must be done via the function
-	 *  {\tt Eos::eos\_from\_file(ifstream\& )}.
+	 *  \c  Eos::eos_from_file(ifstream\& ) .
 	 */
 	Eos_BPAL12(ifstream& ) ;
 
     private:	
-	/** Copy constructor (private to make {\tt Eos\_BPAL12}
+	/** Copy constructor (private to make \c  Eos_BPAL12 
 	 *  a non-copiable class)
 	 */	
 	Eos_BPAL12(const Eos_BPAL12& ) ;	
@@ -510,7 +509,7 @@ class Eos_BPAL12 : public Eos_tabul {
 	friend Eos* Eos::eos_from_file(ifstream& ) ;
 
     public:
-	virtual ~Eos_BPAL12() ;			/// Destructor
+	virtual ~Eos_BPAL12() ;			///< Destructor
 
     // Miscellaneous
     // -------------
@@ -522,7 +521,7 @@ class Eos_BPAL12 : public Eos_tabul {
 	/// Comparison operator (difference)
 	virtual bool operator!=(const Eos& ) const ;
 
-	/** Returns a number to identify the sub-classe of {\tt Eos} the
+	/** Returns a number to identify the sub-classe of \c  Eos  the
 	 *  object belongs to.
 	 */
 	virtual int identify() const ;
@@ -531,7 +530,7 @@ class Eos_BPAL12 : public Eos_tabul {
     // -------
 
     protected:
-	virtual ostream& operator>>(ostream &) const ;    /// Operator >>
+	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
 
 
 };
@@ -547,14 +546,13 @@ class Eos_BPAL12 : public Eos_tabul {
  *
  * Interior: neutrons, protons, electrons and muons described by the 
  *  A18+dv+UIX* model of Akmal, Pandharipande \& Ravenhall, 
- *  Phys. Rev. C {\bf 58},  1804 (1998)
+ *  Phys. Rev. C \b 58 ,  1804 (1998) \ingroup (eos)
  * 
  * Inner crust: SLy4
  *
- * Outer crust: BPS + Haensel \& Pichon,  Astron. Astrophys. {\bf 283},  
+ * Outer crust: BPS + Haensel \& Pichon,  \a Astron. \a Astrophys. \b 283 ,  
  *  313 (1994)
  *
- * @version #$Id$#                                                              * @version #$Id$#
  */
 class Eos_AkmalPR : public Eos_tabul {
 
@@ -572,22 +570,22 @@ class Eos_AkmalPR : public Eos_tabul {
 	
     protected:
 	/** Constructor from a binary file (created by the function
-	 *  {\tt sauve(FILE* )}).
+	 *  \c sauve(FILE*) ).
 	 *  This constructor is protected because any EOS construction
 	 *  from a binary file must be done via the function
-	 *  {\tt Eos::eos\_from\_file(FILE* )}.
+	 * \c Eos::eos_from_file(FILE*) .
 	 */
 	Eos_AkmalPR(FILE* ) ;
 	
 	/** Constructor from a formatted file.
 	 *  This constructor is protected because any EOS construction
 	 *  from a formatted file must be done via the function
-	 *  {\tt Eos::eos\_from\_file(ifstream\& )}.
+	 *  \c  Eos::eos_from_file(ifstream\& ) .
 	 */
 	Eos_AkmalPR(ifstream& ) ;
 
     private:	
-	/** Copy constructor (private to make {\tt Eos\_AkmalPR}
+	/** Copy constructor (private to make \c  Eos_AkmalPR 
 	 *  a non-copiable class)
 	 */	
 	Eos_AkmalPR(const Eos_AkmalPR& ) ;	
@@ -598,7 +596,7 @@ class Eos_AkmalPR : public Eos_tabul {
 	friend Eos* Eos::eos_from_file(ifstream& ) ;
 
     public:
-	virtual ~Eos_AkmalPR() ;			/// Destructor
+	virtual ~Eos_AkmalPR() ;			///< Destructor
 
     // Miscellaneous
     // -------------
@@ -610,7 +608,7 @@ class Eos_AkmalPR : public Eos_tabul {
 	/// Comparison operator (difference)
 	virtual bool operator!=(const Eos& ) const ;
 
-	/** Returns a number to identify the sub-classe of {\tt Eos} the
+	/** Returns a number to identify the sub-classe of \c  Eos  the
 	 *  object belongs to.
 	 */
 	virtual int identify() const ;
@@ -619,7 +617,7 @@ class Eos_AkmalPR : public Eos_tabul {
     // -------
 
     protected:
-	virtual ostream& operator>>(ostream &) const ;    /// Operator >>
+	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
 
 
 };
@@ -633,12 +631,11 @@ class Eos_AkmalPR : public Eos_tabul {
  * Equation of state BBB2 (Baldo, Bombaci \& Burgio 1997).
  *
  * Interior: BHF (Paris +TBF) model of Baldo, Bombaci \& Burgio, 
- *  Astron. Astrophys. {\bf 328}, 274 (1997)
+ *  \a Astron. \a Astrophys. \b 328 , 274 (1997)
  * 
- * Crust: SLy
+ * Crust: SLy \ingroup (eos)
  *
  *
- * @version #$Id$#                                                              * @version #$Id$#
  */
 class Eos_BBB2 : public Eos_tabul {
 
@@ -656,22 +653,22 @@ class Eos_BBB2 : public Eos_tabul {
 	
     protected:
 	/** Constructor from a binary file (created by the function
-	 *  {\tt sauve(FILE* )}).
+	 *  \c sauve(FILE*) ).
 	 *  This constructor is protected because any EOS construction
 	 *  from a binary file must be done via the function
-	 *  {\tt Eos::eos\_from\_file(FILE* )}.
+	 * \c Eos::eos_from_file(FILE*) .
 	 */
 	Eos_BBB2(FILE* ) ;
 	
 	/** Constructor from a formatted file.
 	 *  This constructor is protected because any EOS construction
 	 *  from a formatted file must be done via the function
-	 *  {\tt Eos::eos\_from\_file(ifstream\& )}.
+	 *  \c  Eos::eos_from_file(ifstream\& ) .
 	 */
 	Eos_BBB2(ifstream& ) ;
 
     private:	
-	/** Copy constructor (private to make {\tt Eos\_BBB2}
+	/** Copy constructor (private to make \c  Eos_BBB2 
 	 *  a non-copiable class)
 	 */	
 	Eos_BBB2(const Eos_BBB2& ) ;	
@@ -682,7 +679,7 @@ class Eos_BBB2 : public Eos_tabul {
 	friend Eos* Eos::eos_from_file(ifstream& ) ;
 
     public:
-	virtual ~Eos_BBB2() ;			/// Destructor
+	virtual ~Eos_BBB2() ;			///< Destructor
 
     // Miscellaneous
     // -------------
@@ -694,7 +691,7 @@ class Eos_BBB2 : public Eos_tabul {
 	/// Comparison operator (difference)
 	virtual bool operator!=(const Eos& ) const ;
 
-	/** Returns a number to identify the sub-classe of {\tt Eos} the
+	/** Returns a number to identify the sub-classe of \c  Eos  the
 	 *  object belongs to.
 	 */
 	virtual int identify() const ;
@@ -703,7 +700,7 @@ class Eos_BBB2 : public Eos_tabul {
     // -------
 
     protected:
-	virtual ostream& operator>>(ostream &) const ;    /// Operator >>
+	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
 
 
 };
@@ -715,10 +712,9 @@ class Eos_BBB2 : public Eos_tabul {
 
 
 /**
- * Equation of state BalbN1H1 (Balberg 2000).
+ * Equation of state BalbN1H1 (Balberg 2000). \ingroup (eos)
  *
  *
- * @version #$Id$#                                                              * @version #$Id$#
  */
 class Eos_BalbN1H1 : public Eos_tabul {
 
@@ -736,22 +732,22 @@ class Eos_BalbN1H1 : public Eos_tabul {
 	
     protected:
 	/** Constructor from a binary file (created by the function
-	 *  {\tt sauve(FILE* )}).
+	 *  \c sauve(FILE*) ).
 	 *  This constructor is protected because any EOS construction
 	 *  from a binary file must be done via the function
-	 *  {\tt Eos::eos\_from\_file(FILE* )}.
+	 * \c Eos::eos_from_file(FILE*) .
 	 */
 	Eos_BalbN1H1(FILE* ) ;
 	
 	/** Constructor from a formatted file.
 	 *  This constructor is protected because any EOS construction
 	 *  from a formatted file must be done via the function
-	 *  {\tt Eos::eos\_from\_file(ifstream\& )}.
+	 *  \c  Eos::eos_from_file(ifstream\& ) .
 	 */
 	Eos_BalbN1H1(ifstream& ) ;
 
     private:	
-	/** Copy constructor (private to make {\tt Eos\_BalbN1H1}
+	/** Copy constructor (private to make \c  Eos_BalbN1H1 
 	 *  a non-copiable class)
 	 */	
 	Eos_BalbN1H1(const Eos_BalbN1H1& ) ;	
@@ -762,7 +758,7 @@ class Eos_BalbN1H1 : public Eos_tabul {
 	friend Eos* Eos::eos_from_file(ifstream& ) ;
 
     public:
-	virtual ~Eos_BalbN1H1() ;			/// Destructor
+	virtual ~Eos_BalbN1H1() ;			///< Destructor
 
     // Miscellaneous
     // -------------
@@ -774,7 +770,7 @@ class Eos_BalbN1H1 : public Eos_tabul {
 	/// Comparison operator (difference)
 	virtual bool operator!=(const Eos& ) const ;
 
-	/** Returns a number to identify the sub-classe of {\tt Eos} the
+	/** Returns a number to identify the sub-classe of \c  Eos  the
 	 *  object belongs to.
 	 */
 	virtual int identify() const ;
@@ -783,7 +779,7 @@ class Eos_BalbN1H1 : public Eos_tabul {
     // -------
 
     protected:
-	virtual ostream& operator>>(ostream &) const ;    /// Operator >>
+	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
 
 
 };
@@ -798,7 +794,7 @@ class Eos_BalbN1H1 : public Eos_tabul {
 /**
  * Equation of state GlendNH3 (Glendenning 1985, case 3 ).
  *
- *
+ *\ingroup (eos)
  * 
  */
 class Eos_GlendNH3 : public Eos_tabul {
@@ -817,22 +813,22 @@ class Eos_GlendNH3 : public Eos_tabul {
 	
     protected:
 	/** Constructor from a binary file (created by the function
-	 *  {\tt sauve(FILE* )}).
+	 *  \c sauve(FILE*) ).
 	 *  This constructor is protected because any EOS construction
 	 *  from a binary file must be done via the function
-	 *  {\tt Eos::eos\_from\_file(FILE* )}.
+	 * \c Eos::eos_from_file(FILE*) .
 	 */
 	Eos_GlendNH3(FILE* ) ;
 	
 	/** Constructor from a formatted file.
 	 *  This constructor is protected because any EOS construction
 	 *  from a formatted file must be done via the function
-	 *  {\tt Eos::eos\_from\_file(ifstream\& )}.
+	 *  \c  Eos::eos_from_file(ifstream\& ) .
 	 */
 	Eos_GlendNH3(ifstream& ) ;
 
     private:	
-	/** Copy constructor (private to make {\tt Eos\_GlendNH3}
+	/** Copy constructor (private to make \c  Eos_GlendNH3 
 	 *  a non-copiable class)
 	 */	
 	Eos_GlendNH3(const Eos_GlendNH3& ) ;	
@@ -843,7 +839,7 @@ class Eos_GlendNH3 : public Eos_tabul {
 	friend Eos* Eos::eos_from_file(ifstream& ) ;
 
     public:
-	virtual ~Eos_GlendNH3() ;			/// Destructor
+	virtual ~Eos_GlendNH3() ;			///< Destructor
 
     // Miscellaneous
     // -------------
@@ -855,7 +851,7 @@ class Eos_GlendNH3 : public Eos_tabul {
 	/// Comparison operator (difference)
 	virtual bool operator!=(const Eos& ) const ;
 
-	/** Returns a number to identify the sub-classe of {\tt Eos} the
+	/** Returns a number to identify the sub-classe of \c Eos  the
 	 *  object belongs to.
 	 */
 	virtual int identify() const ;
@@ -864,7 +860,7 @@ class Eos_GlendNH3 : public Eos_tabul {
     // -------
 
     protected:
-	virtual ostream& operator>>(ostream &) const ;    /// Operator >>
+	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
 
 
 };

@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/03/22 13:12:42  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.6  2002/09/24 10:49:41  e_gourgoulhon
  *
  * Modif commentaires.
@@ -105,65 +108,64 @@
 
 /**
  * Matrix handling.
- * The matrix can be stored in the usual way in {\tt std},  in a band-way by
- * {\tt band} and on a LU-decomposition by the two arrays {\tt lu} and 
- * {\tt permute}. All the storage conventions are those af {\bf LAPACK} which is
+ * The matrix can be stored in the usual way in \c std,  in a band-way by
+ * \c band and on a LU-decomposition by the two arrays \c lu and 
+ * \c permute. All the storage conventions are those af \b LAPACK which is
  * used to make the LU-decomposition,  the inversion and to compute the
  * eigenvalues of the matrix. All those representations are redondant, that means
  * that doing the LU-decomposition, for example,  does NOT destroy 
  * previously calculated type of storage.
  * 
- * @version #$Id$#
- * 
+ * \ingroup (util)
  */
 
 class Matrice {
     //Elements
     private:
     
-	int etat ; /// logical state {\tt (ETATZERO, ETATQCQ or ETATNONDEF)}
+	int etat ; ///< logical state \c (ETATZERO, ETATQCQ or ETATNONDEF)
 	
-	Tbl* std ; /// Pointer on the array of the standard representation.
+	Tbl* std ; ///< Pointer on the array of the standard representation.
 	
 	
-	mutable int ku ;    /// Number of upper-diagonals in the band representation.
-	mutable int kl ;    /// Number of lower-diagonals in the band representation.
+	mutable int ku ;    ///< Number of upper-diagonals in the band representation.
+	mutable int kl ;    ///< Number of lower-diagonals in the band representation.
 	
 	/**
 	 * Pointer on the array of the band representation of a square matrix.
-	 * To be precise, {$ A(i, j)$} is stored in {\tt band}
-	 * $[ku+1+i-j, j]$ for $\mathrm {max}(1, j-ku) \leq i \leq
-	 * \mathrm{min} (n, j+kl)$, {\it n} being the size of the matrix.
+	 * To be precise, \f$ A(i, j)\f$ is stored in \c band
+	 * \f$[ku+1+i-j, j]\f$ for \f$\mathrm {max}(1, j-ku) \leq i \leq
+	 * \mathrm{min} (n, j+kl)\f$, \e n being the size of the matrix.
 	 */
 	mutable Tbl* band ;
 	
 	
-	mutable Tbl* lu ;   /// Pointer on the first array of the LU-representation.
-	mutable Tbl* permute ;	/// Pointer on the second array of the LU-representation.
+	mutable Tbl* lu ;   ///< Pointer on the first array of the LU-representation.
+	mutable Tbl* permute ;	///< Pointer on the second array of the LU-representation.
 	
     // Constructeurs destructeurs
     public:
 	/**
 	 * Standard constructor.
-	 * All the representations are set to {\tt ETATNONDEF}.
+	 * All the representations are set to \c ETATNONDEF.
 	 * @param size1 [input] number of lines.
 	 * @param size2 [input] number of columns.
 	 */
 	Matrice (int size1, int size2 ) ;
 	
-	Matrice (const Matrice& ) ; /// Constructor by copy.
+	Matrice (const Matrice& ) ; ///< Constructor by copy.
 	
 	/**
-	 * Constructor from a {\tt Tbl}.
+	 * Constructor from a \c Tbl.
 	 * @param tab [input]  2-dimension or 1-dimension array
 	 *
-        * If {\tt tab} is a 1-dimension {\tt Tbl}, a single-column matrix is created,
-	 *  otherwise {\tt *std} is simply constructed by a {\tt Tbl} copy of {\tt tab}.
+        * If \c tab is a 1-dimension \c Tbl, a single-column matrix is created,
+	 *  otherwise \c *std is simply constructed by a \c Tbl copy of \c tab.
 	 *
 	 */
 	Matrice (const Tbl& tab) ;
 
-	~Matrice() ; /// Destructor
+	~Matrice() ; ///< Destructor
     
         //Gestion memoire
 	/**
@@ -176,31 +178,32 @@ class Matrice {
 
     // manipulation des etats
     public:
-	int get_etat() const { return etat ; }; /// Returns the logical state.
+	///< Returns the logical state.
+	int get_etat() const { return etat ; }; 
 	/**
-	 * Sets the logical state to {\tt ETATQCQ} (ordinary state).
-	 * The state of {\tt *std} is now {\tt ETATQCQ} and the one of all the
-	 * other representations is {\tt ETATNONDEF}.
+	 * Sets the logical state to \c ETATQCQ (ordinary state).
+	 * The state of \c *std is now \c ETATQCQ and the one of all the
+	 * other representations is \c ETATNONDEF.
 	 */
 	
 	void set_etat_qcq()  ;
 	/**
-	 * Sets the logical state to {\tt ETATZERO} (zero).
-	 * The state of {\tt *std} is now {\tt ETATZERO} and the one of all the
-	 * other representations is {\tt ETATNONDEF}.
+	 * Sets the logical state to \c ETATZERO (zero).
+	 * The state of \c *std is now \c ETATZERO and the one of all the
+	 * other representations is \c ETATNONDEF.
 	 */
 	void set_etat_zero() ;
 
 	/**
-	 * Sets the logical state to {\tt ETATNONDEF} (undefined state).
-	 * The state of of all the representations is now {\tt ETATNONDEF}.
+	 * Sets the logical state to \c ETATNONDEF (undefined state).
+	 * The state of of all the representations is now \c ETATNONDEF.
 	 */
 	 void set_etat_nondef() ;
 
     public:
 	/**
 	 * Returns the dimension of the matrix.
-	 * @param i [input] if {\it i}=0 returns the number of lines and if {\it i}=2 
+	 * @param i [input] if \e i =0 returns the number of lines and if \e i =2 
 	 * returns the number of columns.
 	 */
 	int get_dim(int i) const ;
@@ -211,21 +214,21 @@ class Matrice {
     // affectation
     public:	
 	/**
-	 * Sets all the element of {\tt *std} to {\it x}.
-	 * The other representations are set to {\tt ETATNONDEF}.
+	 * Sets all the element of \c *std to \e x.
+	 * The other representations are set to \c ETATNONDEF.
 	 */
 	void operator=(double x) ;
 
-	void operator=(const Matrice& ) ; /// Assignement to another {\tt Matrice}.
+	void operator=(const Matrice& ) ; ///< Assignement to another \c Matrice.
  
     //Impression
-	friend ostream& operator<<(ostream& , const Matrice& ) ; /// Display
+	friend ostream& operator<<(ostream& , const Matrice& ) ; ///< Display
     	
     // extraction d'un element :
     public:
 	/**
 	 * Read/write of a particuliar element.
-	 * This is done in {\tt *std} and all the other representations are no
+	 * This is done in \c *std and all the other representations are no
 	 * longer valid.
 	 * @param j [input] line coordinate.
 	 * @param i [input] column coordinate.
@@ -267,8 +270,8 @@ class Matrice {
 	
     // Passage matrice a bande
 	/**
-	 * Calculate the band storage of {\tt *std}.
-	 * Please note that this function does NOT check if {\tt *std} 
+	 * Calculate the band storage of \c *std.
+	 * Please note that this function does NOT check if \c *std 
 	 * represents a real band-matrix.
 	 * @param up [input] number of upper-diagonals.
 	 * @param low [input] number of lower-diagonals.
@@ -278,7 +281,7 @@ class Matrice {
     // Decomposition LU
 	/**
 	 * Calculate the LU-representation,  assuming the band-storage has been
-	 * done. The calculus is done using {\bf LAPACK}.
+	 * done. The calculus is done using \b LAPACK.
 	 */
 	void set_lu () const ;
         
@@ -286,22 +289,22 @@ class Matrice {
 	/**
 	 * Solves the linear system represented by the matrix.
 	 * The calculus assumes the the LU-decomposition has been done and is
-	 * conducted using {\bf LAPACK}.
+	 * conducted using \b LAPACK.
 	 * @param sec_membre [input] the right-hand side of the system.
 	 */
 	Tbl inverse (const Tbl& sec_membre) const ;
 
     // Les valeurs propres :
 	/**
-	 * Returns the eigenvalues of the matrix, calculated using {\bf LAPACK}.
+	 * Returns the eigenvalues of the matrix, calculated using \b LAPACK.
 	 * @return contains the real and the imaginary parts of the 
-	 * eigenvalues. The real parts are in {\tt Tbl}{\it (0, *)} and 
-	 * the imaginary parts in {\tt Tbl}{\it (1, *)}.
+	 * eigenvalues. The real parts are in \c Tbl \e (0, *) and 
+	 * the imaginary parts in \c Tbl \e (1, *).
 	 */
 	Tbl val_propre() const ;
 	
 	/**
-	 * Computes the determinant of the matrix, using {\bf LAPACK} and the
+	 * Computes the determinant of the matrix, using \b LAPACK and the
 	 * standard decomposition.
 	 */
 	double determinant() const ;
@@ -322,16 +325,17 @@ class Matrice {
 ostream& operator<<(ostream& , const Matrice& ) ; 
 
 /**
- * @name Matrice arithmetics
+ * \defgroup mat_mat Matrice arithmetics
+ * \ingroup (util)
+ * @{
  */
-//@{
-Matrice operator+ (const Matrice&, const Matrice& ) ; /// {\tt Matrice + Matrice}
-Matrice operator- (const Matrice&, const Matrice& ) ; /// {\tt Matrice - Matrice}
-Matrice operator* (const Matrice&, double ) ;/// {\tt Matrice * double}
-Matrice operator* (double, const Matrice& ) ;/// {\tt double * Matrice}
-Matrice operator* (const Matrice&, const Matrice& ) ; /// Matrix product
-Matrice operator/ (const Matrice&,  double ) ; /// {\tt Matrice / double}
+Matrice operator+ (const Matrice&, const Matrice& ) ; ///< \c Matrice + \c Matrice
+Matrice operator- (const Matrice&, const Matrice& ) ; ///< \c Matrice - \c Matrice
+Matrice operator* (const Matrice&, double ) ;///< \c Matrice * \c double
+Matrice operator* (double, const Matrice& ) ;///< \c double * \c Matrice
+Matrice operator* (const Matrice&, const Matrice& ) ; ///< Matrix product
+Matrice operator/ (const Matrice&,  double ) ; ///< \c Matrice / \c double
 
-    //@}
+/**@} */
 
 #endif	

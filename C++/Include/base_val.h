@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/03/22 13:12:40  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.9  2004/01/27 14:31:25  j_novak
  * New method Base_val::mult_sint()
  *
@@ -143,103 +146,97 @@
 class Tbl ;
 
 /**
- * Bases of the spectral expansions.
+ * Bases of the spectral expansions. \ingroup (spec)
  * 
- * The class {\tt Base\_val} describes, in each domain, on which basis the
+ * The class \c Base_val  describes, in each domain, on which basis the
  * spectral expansion of a given function is performed. The corresponding
- * coefficients will be stored in a {\tt Mtbl\_cf}. 
+ * coefficients will be stored in a \c Mtbl_cf. 
  * 
- * The various bases in each of the three dimensions {\it r}, $\theta$ and
- * $\phi$ are identified by an integer defined by a macro in the
- * file {\tt type\_parite.h}. These three integers are then merged (by means of 
+ * The various bases in each of the three dimensions \e r , \f$\theta\f$ and
+ * \f$\phi\f$ are identified by an integer defined by a macro in the
+ * file \c type_parite.h. These three integers are then merged (by means of 
  * the bitwise OR operator) to give a single integer, stored in 
- * {\tt Base\_val::b[l]},  
- * {\tt l} being the domain index. The bases in {\it r}, $\theta$ and $\phi$ can
+ * \c Base_val::b[l],  
+ * \c l being the domain index. The bases in \e r , \f$\theta\f$ and \f$\phi\f$ can
  * be restored by applying the bitwise AND operator with the masks 
- * {\tt MSQ\_R}, {\tt MSQ\_T} and {\tt MSQ\_P} defined in {\tt type\_parite.h}.
+ * \c MSQ_R, \c MSQ_T and \c MSQ_P defined in \c type_parite.h.
  * 
- * The basis functions for expansion with respect to the radial coordinate $\xi$
- * are coded as follows, {\it m} being the order of the Fourier expansion in $\phi$:
- * \begin{itemize}
- *   \item {\tt R\_CHEB} (0x00000001) : Chebyshev polynomials 
- *					    ({\it r}-sampling: {\tt FIN});
- *   \item {\tt R\_CHEBP} (0x00000002) : Even Chebyshev polynomials 
- *					    ({\it r}-sampling: {\tt RARE});
- *   \item {\tt R\_CHEBI} (0x00000003) : Odd Chebyshev polynomials 
- *						({\it r}-sampling: {\tt RARE});
- *   \item {\tt R\_CHEBPIM\_P} (0x00000006) : Even (resp. odd) Chebyshev
- *	     polynomials for {\it m} even (resp. odd) ({\it r}-sampling: {\tt RARE});
- *   \item {\tt R\_CHEBPIM\_I} (0x00000007) : Odd (resp. even) Chebyshev
- *	     polynomials for {\it m} even (resp. odd) ({\it r}-sampling: {\tt RARE}) ;
- *   \item {\tt R\_CHEBU} (0x00000008) : Chebyshev polynomials 
- *					    ({\it r}-sampling: {\tt UNSURR}).
- * \end{itemize}
+ * The basis functions for expansion with respect to the radial coordinate \f$\xi\f$
+ * are coded as follows, \e m being the order of the Fourier expansion in \f$\phi\f$:
+ *   \li \c R_CHEB (0x00000001) : Chebyshev polynomials 
+ *					    (\e r -sampling: \c FIN);
+ *   \li \c R_CHEBP (0x00000002) : Even Chebyshev polynomials 
+ *					    (\e r -sampling: \c RARE);
+ *   \li \c R_CHEBI (0x00000003) : Odd Chebyshev polynomials 
+ *						(\e r -sampling: \c RARE );
+ *   \li \c R_CHEBPIM_P (0x00000006) : Even (resp. odd) Chebyshev
+ *	     polynomials for \e m even (resp. odd) (\e r -sampling: \c RARE );
+ *   \li \c R_CHEBPIM_I (0x00000007) : Odd (resp. even) Chebyshev
+ *	     polynomials for \e m even (resp. odd) (\e r -sampling: \c RARE ) ;
+ *   \li \c R_CHEBU  (0x00000008) : Chebyshev polynomials 
+ *					    (\e r -sampling: \c UNSURR ).
  * 
  * The basis functions for expansion with respect to the co-latitude coordinate 
- * $\theta$ are coded as follows, {\it m} being the order of the Fourier expansion 
- * in $\phi$:  
- * \begin{itemize}
- *   \item {\tt T\_COS\_P} (0x00000500) : $\cos(2j \theta)$
- *						($\theta$-sampling: {\tt SYM});
- *   \item {\tt T\_SIN\_P} (0x00000600) : $\sin(2j \theta)$
- *						($\theta$-sampling: {\tt SYM});
- *   \item {\tt T\_COS\_I} (0x00000700) : $\cos((2j+1) \theta)$
- *						($\theta$-sampling: {\tt SYM});
- *   \item {\tt T\_SIN\_I} (0x00000800) : $\sin((2j+1) \theta)$
- *						($\theta$-sampling: {\tt SYM});
- *   \item {\tt T\_COSSIN\_CP} (0x00000900) : $\cos(2j \theta)$ for {\it m} even,
- *					      $\sin((2j+1) \theta)$ for {\it m} odd
- *						($\theta$-sampling: {\tt SYM});
- *   \item {\tt T\_COSSIN\_SP} (0x00000a00) : $\sin(2j \theta)$ for {\it m} even,
- *					      $\cos((2j+1) \theta)$ for {\it m} odd
- *						($\theta$-sampling: {\tt SYM});
- *   \item {\tt T\_COSSIN\_CI} (0x00000b00) : $\cos((2j+1) \theta)$ for {\it m} even,
- *					      $\sin(2j \theta)$ for {\it m} odd
- *						($\theta$-sampling: {\tt SYM});
- *   \item {\tt T\_COSSIN\_SI} (0x00000c00) : $\sin((2j+1) \theta)$ for {\it m} even,
- *					      $\cos(2j \theta)$ for {\it m} odd
- *						($\theta$-sampling: {\tt SYM});
- *   \item {\tt T\_LEG\_P} (0x00000d00) : Associated Legendre functions
- *					  $P_{2j}^m(\cos\theta)$ for {\it m} even,
- *					  $P_{2j+1}^m(\cos\theta)$ for {\it m} odd
- *						($\theta$-sampling: {\tt SYM});
- *   \item {\tt T\_LEG\_PP} (0x00000e00) : Associated Legendre functions
- *					  $P_{2j}^m(\cos\theta)$, {\it m} being 
+ * \f$\theta\f$ are coded as follows, \e m being the order of the Fourier expansion 
+ * in \f$\phi\f$:  
+ *   \li \c T_COS_P  (0x00000500) : \f$\cos(2j \theta)\f$
+ *						(\f$\theta\f$-sampling: \c SYM);
+ *   \li \c T_SIN_P  (0x00000600) : \f$\sin(2j \theta)\f$
+ *						(\f$\theta\f$-sampling: \c SYM);
+ *   \li \c T_COS_I  (0x00000700) : \f$\cos((2j+1) \theta)\f$
+ *						(\f$\theta\f$-sampling: \c SYM);
+ *   \li \c T_SIN_I  (0x00000800) : \f$\sin((2j+1) \theta)\f$
+ *						(\f$\theta\f$-sampling: \c SYM);
+ *   \li \c T_COSSIN_CP  (0x00000900) : \f$\cos(2j \theta)\f$ for \e m even,
+ *					      \f$\sin((2j+1) \theta)\f$ for \e m odd
+ *						(\f$\theta\f$-sampling: \c SYM);
+ *   \li \c T_COSSIN_SP  (0x00000a00) : \f$\sin(2j \theta)\f$ for \e m even,
+ *					      \f$\cos((2j+1) \theta)\f$ for \e m odd
+ *						(\f$\theta\f$-sampling: \c SYM);
+ *   \li \c T_COSSIN_CI  (0x00000b00) : \f$\cos((2j+1) \theta)\f$ for \e m even,
+ *					      \f$\sin(2j \theta)\f$ for \e m odd
+ *						(\f$\theta\f$-sampling: \c SYM);
+ *   \li \c T_COSSIN_SI  (0x00000c00) : \f$\sin((2j+1) \theta)\f$ for \e m even,
+ *					      \f$\cos(2j \theta)\f$ for \e m odd
+ *						(\f$\theta\f$-sampling: \c SYM);
+ *   \li \c T_LEG_P  (0x00000d00) : Associated Legendre functions
+ *					  \f$P_{2j}^m(\cos\theta)\f$ for \e m even,
+ *					  \f$P_{2j+1}^m(\cos\theta)\f$ for \e m odd
+ *						(\f$\theta\f$-sampling: \c SYM);
+ *   \li \c T_LEG_PP  (0x00000e00) : Associated Legendre functions
+ *					  \f$P_{2j}^m(\cos\theta)\f$, \e m being 
  *					   always even
- *						($\theta$-sampling: {\tt SYM});
- *   \item {\tt T\_LEG\_I} (0x00000f00) : Associated Legendre functions
- *					  $P_{2j+1}^m(\cos\theta)$ for {\it m} even,
- *					  $P_{2j}^m(\cos\theta)$ for {\it m} odd
- *						($\theta$-sampling: {\tt SYM});
- *   \item {\tt T\_LEG\_IP} (0x00001000) : Associated Legendre functions
- *					  $P_{2j+1}^m(\cos\theta)$, {\it m} being 
+ *						(\f$\theta\f$-sampling: \c SYM);
+ *   \li \c T_LEG_I  (0x00000f00) : Associated Legendre functions
+ *					  \f$P_{2j+1}^m(\cos\theta)\f$ for \e m even,
+ *					  \f$P_{2j}^m(\cos\theta)\f$ for \e m odd
+ *						(\f$\theta\f$-sampling: \c SYM);
+ *   \li \c T_LEG_IP  (0x00001000) : Associated Legendre functions
+ *					  \f$P_{2j+1}^m(\cos\theta)\f$, \e m being 
  *					   always even
- *						($\theta$-sampling: {\tt SYM});
- *   \item {\tt T\_LEG\_PI} (0x00001100) : Associated Legendre functions
- *					  $P_{2j+1}^m(\cos\theta)$, {\it m} being 
+ *						(\f$\theta\f$-sampling: \c SYM);
+ *   \li \c T_LEG_PI  (0x00001100) : Associated Legendre functions
+ *					  \f$P_{2j+1}^m(\cos\theta)\f$, \e m being 
  *					   always odd
- *						($\theta$-sampling: {\tt SYM});
- *   \item {\tt T\_LEG\_II} (0x00001200) : Associated Legendre functions
- *					  $P_{2j}^m(\cos\theta)$, {\it m} being 
+ *						(\f$\theta\f$-sampling: \c SYM);
+ *   \li \c T_LEG_II  (0x00001200) : Associated Legendre functions
+ *					  \f$P_{2j}^m(\cos\theta)\f$, \e m being 
  *					   always odd
- *						($\theta$-sampling: {\tt SYM});
- * \end{itemize}
+ *						(\f$\theta\f$-sampling: \c SYM);
  *
  * The basis functions for expansion with respect to the azimuthal coordinate 
- * $\phi$ are coded as follows
- * \begin{itemize}
- *   \item {\tt P\_COSSIN} (0x00010000) : Fourrier series 
- *					   $(\cos(m\phi),\ \sin(m\phi))$
- *					   ($\phi$-sampling: {\tt NONSYM});
- *   \item {\tt P\_COSSIN\_P} (0x00020000) : Fourrier series 
- *					   $(\cos(m\phi),\ \sin(m\phi))$ with
- * 					   even harmonics only (i.e. {\it m} even)
- *					   ($\phi$-sampling: {\tt SYM});
- *   \item {\tt P\_COSSIN\_I} (0x00030000) : Fourrier series 
- *					   $(\cos(m\phi),\ \sin(m\phi))$ with
- * 					   odd harmonics only (i.e. {\it m} odd)
- *					   ($\phi$-sampling: {\tt SYM});
- * \end{itemize}
+ * \f$\phi\f$ are coded as follows
+ *   \li \c P_COSSIN  (0x00010000) : Fourrier series 
+ *					   \f$(\cos(m\phi),\ \sin(m\phi))\f$
+ *					   (\f$\phi\f$-sampling: \c NONSYM);
+ *   \li \c P_COSSIN_P  (0x00020000) : Fourrier series 
+ *					   \f$(\cos(m\phi),\ \sin(m\phi))\f$ with
+ * 					   even harmonics only (i.e. \e m even)
+ *					   (\f$\phi\f$-sampling: \c SYM);
+ *   \li \c P_COSSIN_I  (0x00030000) : Fourrier series 
+ *					   \f$(\cos(m\phi),\ \sin(m\phi))\f$ with
+ * 					   odd harmonics only (i.e. \e m odd)
+ *					   (\f$\phi\f$-sampling: \c SYM);
  *
  */
 
@@ -248,77 +245,77 @@ class Base_val {
     // Data 
     // ----
     private:
-	int nzone ;	/// Number of domains (zones)
+	int nzone ;	///< Number of domains (zones)
 
 	public:	
-	/// Array (size: {\tt nzone}) of the spectral basis in each domain
+	/// Array (size: \c nzone ) of the spectral basis in each domain
 	int* b ;	
 
     // Constructors - Destructor
     // -------------------------
     public:
-	explicit Base_val(int nb_of_domains) ;	    /// Standard constructor
-	Base_val(const Base_val& ) ;		    /// Copy constructor
+	explicit Base_val(int nb_of_domains) ;	    ///< Standard constructor
+	Base_val(const Base_val& ) ;		    ///< Copy constructor
 
-	/// Constructor from a file (see {\tt sauve(FILE* )})
+	/// Constructor from a file (see \c sauve(FILE*) )
 	explicit Base_val(FILE* ) ;    	   
 
-	~Base_val() ;			    /// Destructor
+	~Base_val() ;			    ///< Destructor
 
 
     // Mutators / assignment
     // ---------------------
     public:
-	void set_base_nondef() ;    /// Sets the spectral bases to {\tt NONDEF}
+	void set_base_nondef() ;    ///< Sets the spectral bases to \c NONDEF 
 
-	/** Sets the expansion basis for {\it r} ($\xi$) functions in a 
+	/** Sets the expansion basis for \e r  (\f$\xi\f$) functions in a 
 	 *  given domain.
 	 *  
 	 *  @param l	    Domain index
-	 *  @param base_r   type of basis functions in {\it r} ($\xi$)
-	 *		    (e.g. {\tt R\_CHEB\_P}, etc..., 
-	 *		     see general documentation of class {\tt Base\_val}
+	 *  @param base_r   type of basis functions in \e r  (\f$\xi\f$)
+	 *		    (e.g. \c R_CHEB_P , etc..., 
+	 *		     see general documentation of class \c Base_val 
 	 *		     for denomination of the various bases). 
 	 */
 	void set_base_r(int l, int base_r) ; 
 
-	/** Sets the expansion basis for $\theta$ functions in all
+	/** Sets the expansion basis for \f$\theta\f$ functions in all
 	 *  domains.
 	 *  
-	 *  @param base_t   type of basis functions in $\theta$
-	 *		    (e.g. {\tt T\_COS\_P}, etc..., 
-	 *		     see general documentation of class {\tt Base\_val}
+	 *  @param base_t   type of basis functions in \f$\theta\f$
+	 *		    (e.g. \c T_COS_P , etc..., 
+	 *		     see general documentation of class \c Base_val 
 	 *		     for denomination of the various bases). 
 	 */
 	void set_base_t(int base_t) ; 
 
-	/** Sets the expansion basis for $\phi$ functions in all
+	/** Sets the expansion basis for \f$\phi\f$ functions in all
 	 *  domains.
 	 *  
-	 *  @param base_p   type of basis functions in $\phi$
-	 *		    (e.g. {\tt P\_COSSIN}, etc..., 
-	 *		     see general documentation of class {\tt Base\_val}
+	 *  @param base_p   type of basis functions in \f$\phi\f$
+	 *		    (e.g. \c P_COSSIN , etc..., 
+	 *		     see general documentation of class \c Base_val 
 	 *		     for denomination of the various bases). 
 	 */
 	void set_base_p(int base_p) ; 
 
-	void operator=(const Base_val& ) ;	/// Assignment
+	void operator=(const Base_val& ) ;	///< Assignment
     
     // Accessors
     // ---------
     public:
-	bool operator==(const Base_val& ) const ;  /// Comparison operator
+	bool operator==(const Base_val& ) const ;  ///< Comparison operator
 
-	/// Returns the code for the expansion basis in domain no. {\tt l}
+	/// Returns the code for the expansion basis in domain no. \c l 
 	int get_b(int l) const {
 	    assert( (l>=0) && (l<nzone) ) ;
 	    return b[l] ; 
 	}
 
-	/** Returns the expansion basis for {\it r} ($\xi$) functions in the 
-	 *  domain of index {\tt l} 
-	 *  (e.g. {\tt R\_CHEB\_P}, etc..., 
-	 *   see general documentation of class {\tt Base\_val}
+	/** Returns the expansion basis for \e r  (\f$\xi\f$) functions in the 
+	 *  domain of index \c l  
+	 *  (e.g. \c R_CHEB_P , etc..., 
+	 *   see general documentation of class \c Base_val 
 	 *   for denomination of the various bases). 
 	 */
 	int get_base_r(int l) const {
@@ -326,10 +323,10 @@ class Base_val {
 	    return b[l] & MSQ_R ; 
 	} ; 
 
-	/** Returns the expansion basis for $\theta$ functions in the
-	 *  domain of index {\tt l} 
-	 *  (e.g. {\tt T\_COS\_P}, etc..., 
-	 *   see general documentation of class {\tt Base\_val}
+	/** Returns the expansion basis for \f$\theta\f$ functions in the
+	 *  domain of index \c l  
+	 *  (e.g. \c T_COS_P , etc..., 
+	 *   see general documentation of class \c Base_val 
 	 *   for denomination of the various bases). 
 	 */
 	int get_base_t(int l) const {
@@ -337,10 +334,10 @@ class Base_val {
 	    return b[l] & MSQ_T ; 
 	} ; 
 
-	/** Returns the expansion basis for $\phi$ functions in the 
-	 *  domain of index {\tt l} 
-	 *  (e.g. {\tt P\_COSSIN}, etc..., 
-	 *   see general documentation of class {\tt Base\_val}
+	/** Returns the expansion basis for \f$\phi\f$ functions in the 
+	 *  domain of index \c l  
+	 *  (e.g. \c P_COSSIN , etc..., 
+	 *   see general documentation of class \c Base_val 
 	 *   for denomination of the various bases). 
 	 */
 	int get_base_p(int l) const {
@@ -348,42 +345,42 @@ class Base_val {
 	    return b[l] & MSQ_P ; 
 	} ; 
 
-	/** Name of the basis function in {\it r} ($\xi$)
+	/** Name of the basis function in \e r  (\f$\xi\f$)
 	 *
 	 *	@param l [input] domain index
-	 *	@param k [input] phi index (for the basis in {\it r} may depend upon
+	 *	@param k [input] phi index (for the basis in \e r  may depend upon
 	 *		the phi index)
-	 *	@param j [input] theta index (for the basis in {\it r} may depend upon
+	 *	@param j [input] theta index (for the basis in \e r  may depend upon
 	 *		the theta index)
 	 *	@param i [input] r index
 	 *  @param basename [output] string containing the name of the basis function;
-	 *		this {\tt char} array must have a size of (at least) 8 elements
+	 *		this \c char  array must have a size of (at least) 8 elements
 	 *		and must have been allocated before the call
-	 *		to {\tt name\_r}.
+	 *		to \c name_r .
 	 */
 	void name_r(int l, int k, int j, int i, char* basename) const ; 
 
-	/** Name of the basis function in $\theta$
+	/** Name of the basis function in \f$\theta\f$
 	 *
 	 *	@param l [input] domain index
-	 *	@param k [input] phi index (for the basis in $\theta$ may depend upon
+	 *	@param k [input] phi index (for the basis in \f$\theta\f$ may depend upon
 	 *		the phi index)
 	 *	@param j [input] theta index
 	 *  @param basename [output] string containing the name of the basis function;
-	 *		this {\tt char} array must have a size of (at least) 8 elements
+	 *		this \c char  array must have a size of (at least) 8 elements
 	 *		and must have been allocated before the call
-	 *		to {\tt name\_theta}.
+	 *		to \c name_theta .
 	 */
 	void name_theta(int l, int k, int j, char* basename) const ; 
 
-	/** Name of the basis function in $\varphi$
+	/** Name of the basis function in \f$\varphi\f$
 	 *
 	 *	@param l [input] domain index
 	 *	@param k [input] phi index
 	 *  @param basename [output] string containing the name of the basis function;
-	 *		this {\tt char} array must have a size of (at least) 8 elements
+	 *		this \c char  array must have a size of (at least) 8 elements
 	 *		and must have been allocated before the call
-	 *		to {\tt name\_phi}.
+	 *		to \c name_phi .
 	 */
 	void name_phi(int l, int k, char* basename) const ; 
 
@@ -392,22 +389,22 @@ class Base_val {
 	 *  @param l [input] domain index
 	 *  @param nt [input] number of theta collocation points 
 	 *    (or equivalently number of theta basis functions) in the 
-	 *     domain of index {\tt l}
-	 *  @return resu : {\tt Tbl} 3-D containing the values 
-	 *    $B_i(\theta_j)$ of 
-	 *    the {\tt nt} theta basis functions $B_i$ at the 
-	 *    {\tt nt} collocation points
-	 *    $\theta_j$ in the domain of index {\tt l}. The storage convention
+	 *     domain of index \c l 
+	 *  @return resu : \c Tbl  3-D containing the values 
+	 *    \f$B_i(\theta_j)\f$ of 
+	 *    the \c nt  theta basis functions \f$B_i\f$ at the 
+	 *    \c nt  collocation points
+	 *    \f$\theta_j\f$ in the domain of index \c l . The storage convention
 	 *    is the following one : \\
-	 *    {\tt resu(ind\_phi, i, j)} = $B_i(\theta_j)$ with {\tt ind\_phi}
+	 *    \c resu(ind_phi,i,j)  = \f$B_i(\theta_j)\f$ with \c ind_phi 
 	 *    being a supplementary dimension in case of a dependence in 
 	 *    phi of the theta basis : 
-	 *    for example, if the theta basis is {\tt T\_COS\_P} (no dependence
-	 *    in phi), {\tt resu.get\_dim(2)} = 1 and {\tt ind\_phi} can take
+	 *    for example, if the theta basis is \c T_COS_P  (no dependence
+	 *    in phi), \c resu.get_dim(2)  = 1 and \c ind_phi  can take
 	 *    only the value 0; if the theta basis is
-	 *    {\tt T\_COSSIN\_CP}, {\tt resu.get\_dim(2)} = 2, with 
-	 *    {\tt ind\_phi} = 0 for {\it m} even and  
-	 *    {\tt ind\_phi} = 1 for {\it m} odd. 
+	 *    \c T_COSSIN_CP , \c resu.get_dim(2)  = 2, with 
+	 *    \c ind_phi  = 0 for \e m even and  
+	 *    \c ind_phi  = 1 for \e m odd. 
 	 * 
 	 */
 	const Tbl& theta_functions(int l, int nt) const ; 
@@ -416,14 +413,14 @@ class Base_val {
 	 *  @param l [input] domain index
 	 *  @param np [input] number of phi collocation points 
 	 *   (or equivalently number of phi basis functions) in the 
-	 *     domain of index {\tt l}
-	 *  @return resu : {\tt Tbl} 2-D containing the values 
-	 *    $B_i(\phi_k)$ of 
-	 *    the {\tt np} phi basis functions $B_i$ at the {\tt np} 
+	 *     domain of index \c l 
+	 *  @return resu : \c Tbl  2-D containing the values 
+	 *    \f$B_i(\phi_k)\f$ of 
+	 *    the \c np  phi basis functions \f$B_i\f$ at the \c np  
 	 *    collocation points
-	 *    $\phi_k$ in the domain of index {\tt l}. The storage convention
+	 *    \f$\phi_k\f$ in the domain of index \c l . The storage convention
 	 *    is the following one : \\
-	 *    {\tt resu(i, k)} = $B_i(\phi_k)$. 
+	 *    \c resu(i,k)  = \f$B_i(\phi_k)\f$. 
 	 * 
 	 */
 	const Tbl& phi_functions(int l, int np) const ; 
@@ -435,75 +432,75 @@ class Base_val {
     // ----------------------
     public:
 	/**
-	 * The basis is transformed as with a $\frac{\partial}{\partial \xi}$
+	 * The basis is transformed as with a \f$\frac{\partial}{\partial \xi}\f$
 	 * operation.
 	 */
 	void dsdx() ; 
  
 	/**
-	 * The basis is transformed as with a $\frac{1}{\xi}$
+	 * The basis is transformed as with a \f$\frac{1}{\xi}\f$
 	 * multiplication.
 	 */
 	void sx() ;
 
 	/**
 	 * The basis is transformed as with a
-	 * multiplication by $\xi$.
+	 * multiplication by \f$\xi\f$.
 	 */
 	void mult_x() ;
 
 	/**
 	 * The basis is transformed as with a 
-	 * $\frac{\partial}{\partial \theta}$ operation.
+	 * \f$\frac{\partial}{\partial \theta}\f$ operation.
 	 */
 	void dsdt() ;  
 
 	/**
 	 * The basis is transformed as with a 
-	 * $\frac{1}{\sin \theta}$ multiplication.
+	 * \f$\frac{1}{\sin \theta}\f$ multiplication.
 	 */
 	void ssint() ;  
   
 	/**
 	 * The basis is transformed as with a 
-	 * $\sin \theta$ multiplication.
+	 * \f$\sin \theta\f$ multiplication.
 	 */
 	void mult_sint() ;  
   
 	/**
 	 * The basis is transformed as with a transformation to 
-	 * $Y^l_m$ basis.
+	 * \f$Y^l_m\f$ basis.
 	 */
 	void ylm() ;  
 
    // Outputs
     // -------
     public:	    
-	void sauve(FILE *) const ;	    /// Save in a file
+	void sauve(FILE *) const ;	    ///< Save in a file
     
-	friend ostream& operator<<(ostream& , const Base_val& ) ; /// Display	
+	friend ostream& operator<<(ostream& , const Base_val& ) ; ///< Display	
 	friend Base_val operator*(const Base_val&, const Base_val&) ;
 };
 ostream& operator<<(ostream& , const Base_val& ) ;
 /**
- * @name Base\_val arithmetic.
+ * \defgroup baseval_m Base_val Mathematics
+ * \ingroup (spec)
+ * @{
  */
-    //@{
 
 /**
- * This operator is used when calling multiplication or division of {\tt Valeur}.
+ * This operator is used when calling multiplication or division of \c Valeur .
  * It returns the appropriate base, taking into account the symmetry of the result.
  * The calculation propreties are those of the multiplication of -1 for 
  * antisymmetry and 1 for symmetry.
  * 
- * Should the product of the {\tt Base\_val} not be possible, the result is set to
- * {\tt ETATNONDEF}, (state not defined). It would be the case,  for example,  if
- * one and only one of the {\tt Valeur} is given in spherical harmonics.
+ * Should the product of the \c Base_val  not be possible, the result is set to
+ * \c ETATNONDEF , (state not defined). It would be the case,  for example,  if
+ * one and only one of the \c Valeur is given in spherical harmonics.
  * 
  */
-
 Base_val operator*(const Base_val&, const Base_val&) ;
 
-   //@}
+/** @}*/
 
 #endif

@@ -1,7 +1,6 @@
 SHELL=/bin/sh
 
-SRC = $(HOME_LORENE)/C++/Doc++/Source/lorene.C \
-      $(HOME_LORENE)/C++/Include/*.h
+SRC = lorene.C $(HOME_LORENE)/C++/Include/*.h 
 
 install: features.dvi refguide
 
@@ -10,14 +9,9 @@ features.dvi: features.tex
 	rm -f *.aux *.log
 
 refguide: $(SRC)
-	cd $(HOME_LORENE)/C++/Doc++; $(MAKE)
-
-refguide.dvi: $(SRC)
-	cd $(HOME_LORENE)/C++/Doc++; $(MAKE) refguide.tex
-	latex refguide
-	latex refguide
-	rm -f *.aux *.log
-	xdvi refguide &
+	mv refguide html
+	doxygen lorene.dox
+	mv html refguide
 
 uninstall:
 	cd $(HOME_LORENE)/C++/Doc++; $(MAKE) -i uninstall

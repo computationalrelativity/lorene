@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/03/22 13:12:43  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.11  2003/11/06 12:17:31  r_prix
  * fixed mini-bug in documentation: without explicit argument in function-prototype,
  * doc++ seemed to merge docu of Tensor::operator=(Cmp&) and operator=(Tenseur&)
@@ -255,91 +258,90 @@ class Tenseur_sym ;
 			
 
 /**
- * Tensor handling.
+ * Tensor handling. \ingroup (otens)
  * 
  * This class is intended to store the components of a tensorial field in 
- * a specific basis. {\em Tensor densities} can also be stored. A tensor
- * density $\tau^{i_1\ldots i_p}_{j_1\ldots j_q}$ is defined by:
- * $ \tau^{i_1\ldots i_p}_{j_1\ldots j_q} = \gamma^{\frac{n}{2}} 
- * T^{i_1\ldots i_p}_{j_1\ldots j_q}$ where {\it T} is a {\it q}-covariant
- * {\it p}-contravariant tensor and $\gamma$ is the determinant of the 
- * used 3-metric. {\it n} is called the weight of the tensor density.
+ * a specific basis. \a Tensor \a densities can also be stored. A tensor
+ * density \f$\tau^{i_1\ldots i_p}_{j_1\ldots j_q}\f$ is defined by:
+ * \f$ \tau^{i_1\ldots i_p}_{j_1\ldots j_q} = \gamma^{\frac{n}{2}} 
+ * T^{i_1\ldots i_p}_{j_1\ldots j_q}\f$ where \e T is a \e q -covariant
+ * \e p -contravariant tensor and \f$\gamma\f$ is the determinant of the 
+ * used 3-metric. \e n is called the weight of the tensor density.
  * 
- * All this is {\it 3D} meaning that the indices go from 0 to 2. Moreover,
+ * All this is \b 3D meaning that the indices go from 0 to 2. Moreover,
  * the components are described in orthonormal bases.
  * 
  * When first constructed, the memory for each component is not allocated.
  * 
- * @version #$Id$#
  */
 class Tenseur { 
 
     // Data : 
     // -----
     protected:
-	const Map* const mp ;	/// Reference mapping
-	int valence ;		/// Valence
+	const Map* const mp ;	///< Reference mapping
+	int valence ;		///< Valence
 	
 	/** Vectorial basis (triad) with respect to which the tensor
 	 *  components are defined. 
 	 */
 	const Base_vect* triad ; 
 
-	/** Array of size {\tt valence} contening the type of each index, 
-	 * {\tt COV} for a covariant one and {\tt CON} for a contravariant one.
+	/** Array of size \c valence  contening the type of each index, 
+	 * \c COV  for a covariant one and \c CON  for a contravariant one.
 	 * 
 	 */	
 	Itbl type_indice ;	
 	
-	int n_comp ;	/// Number of components, depending on the symmetry.
-	int etat ;  /// Logical state {\tt (ETATZERO, ETATQCQ or ETATNONDEF)}
-	Cmp** c ;   /// The components.
-	double poids ; /// For tensor densities: the weight
+	int n_comp ;	///< Number of components, depending on the symmetry.
+	int etat ;  ///< Logical state \c ETATZERO , \c ETATQCQ or \c ETATNONDEF
+	Cmp** c ;   ///< The components.
+	double poids ; ///< For tensor densities: the weight
 	/// For tensor densities: the metric defining the conformal factor
 	const Metrique* metric ;      
 	
     // Derived data : 
     // ------------
     protected:
-	/** Array of pointers on the {\tt Metrique}'s used to calculate 
+	/** Array of pointers on the \c Metrique 's used to calculate 
 	 * derivatives members. If no such member has been calculated 
 	 * the pointer is set to zero. The array has the size 
-	 * {\tt N\_MET\_MAX} abd the i-th corresponds to the i-th ones
-	 * in {\tt p\_derive\_cov} and {\tt p\_derive\_con}.
+	 * \c N_MET_MAX  abd the i-th corresponds to the i-th ones
+	 * in \c p_derive_cov and p_derive_con.
 	 * 
 	 */
 	const Metrique** met_depend ;
 	
-	/** Pointer on the gradient of {\tt *this}.
+	/** Pointer on the gradient of \c *this .
 	 * It is set to zero if it has not been calculated yet.
 	 * 
 	 */
 	mutable Tenseur* p_gradient ;
 	
-	/** Pointer on the gradient of {\tt *this} in a spherical orthonormal
+	/** Pointer on the gradient of \c *this  in a spherical orthonormal
 	 * basis (scalar field only).
 	 * It is set to zero if it has not been calculated yet.
 	 * 
 	 */
 	mutable Tenseur* p_gradient_spher ;
 	
-	/** Array of pointers on the covariant derivatives of {\tt *this} 
-	 * with respect to the corresponding metric in {\tt *met\_depend}. 
+	/** Array of pointers on the covariant derivatives of \c *this  
+	 * with respect to the corresponding metric in \c *met_depend . 
 	 * It is set to zero if it has not been calculated yet, or 
 	 * for a scalar field.
 	 * 
 	 */
 	Tenseur** p_derive_cov ;
 
-	/** Array of pointers on the contravariant derivatives of {\tt *this} 
-	 * with respect to the corresponding metric in {\tt *met\_depend}. 
+	/** Array of pointers on the contravariant derivatives of \c *this  
+	 * with respect to the corresponding metric in \c *met_depend . 
 	 * It is set to zero if it has not been calculated yet.
 	 * 
 	 */
 	Tenseur** p_derive_con ;
 
-	/** Array of pointers on the scalar squares of {\tt *this} 
-	 * with respect to the corresponding metric in {\tt *met\_depend}. 
+	/** Array of pointers on the scalar squares of \c *this  
+	 * with respect to the corresponding metric in \c *met_depend . 
 	 * It is set to zero if it has not been calculated yet.
 	 * 
 	 */
@@ -348,11 +350,11 @@ class Tenseur {
     // Constructors - Destructor :
     // -------------------------
     protected:
-	/// Returns false for a tensor density without a defined {\tt metric} 
+	/// Returns false for a tensor density without a defined metric
 	bool verif() const ; 
 		
-	/** Builds the arrays {\tt met\_depend}, {\tt p\_derive\_cov}, 
-	 *  {\tt p\_derive\_con} and {\tt p\_carre\_scal} and fills them with
+	/** Builds the arrays \c met_depend , \c p_derive_cov , 
+	 *  \c p_derive_con and  \c p_carre_scal and fills them with
 	 *  null pointers.
 	 *
 	 */
@@ -360,9 +362,9 @@ class Tenseur {
 	
     public:
 	explicit Tenseur (const Map& map, const Metrique* met = 0x0, 
-		     double weight = 0) ; /// Constructor for a scalar field. 
+		     double weight = 0) ; ///< Constructor for a scalar field. 
 
-	/// Constructor for a scalar field and from a {\tt Cmp}. 
+	/// Constructor for a scalar field and from a \c Cmp . 
 	explicit Tenseur (const Cmp& cmp, const Metrique* met = 0x0, 
 		     double weight = 0) ; 
 
@@ -370,13 +372,13 @@ class Tenseur {
 	 * 
 	 * @param map   the mapping 
 	 * @param val   valence of the tensor
-	 * @param tipe  1-D {\tt Itbl} of size {\tt valence} containing the type 
-	 *		of each index, {\tt COV} for a covariant one 
-	 *		and {\tt CON} for a contravariant one,  with the 
-	 *		following storage convention: \\
-	 *			{\tt tipe(0)} : type of the first index \\
-	 *			{\tt tipe(1)} : type of the second index \\
-	 *			and so on... 
+	 * @param tipe  1-D \c Itbl  of size \c valence  containing the type 
+	 *		of each index, \c COV  for a covariant one 
+	 *		and \c CON  for a contravariant one,  with the 
+	 *		following storage convention: 
+	 *			\li \c tipe(0)  : type of the first index 
+	 *			\li \c tipe(1)  : type of the second index 
+	 *			\li and so on... 
 	 * @param triad_i  vectorial basis (triad) with respect to which 
 	 *		    the tensor components are defined 
 	 * @param met   for tensor densities only: a pointer on the metric
@@ -391,13 +393,13 @@ class Tenseur {
 	 * 
 	 * @param map   the mapping 
 	 * @param val   valence of the tensor
-	 * @param tipe  1-D {\tt Itbl} of size {\tt valence} containing the type 
-	 *		of each index, {\tt COV} for a covariant one 
-	 *		and {\tt CON} for a contravariant one,  with the 
-	 *		following storage convention: \\
-	 *			{\tt tipe(0)} : type of the first index \\
-	 *			{\tt tipe(1)} : type of the second index \\
-	 *			and so on... 
+	 * @param tipe  1-D \c Itbl  of size \c valence  containing the type 
+	 *		of each index, \c COV  for a covariant one 
+	 *		and \c CON  for a contravariant one,  with the 
+	 *		following storage convention: 
+	 *			\li \c tipe(0)  : type of the first index 
+	 *			\li \c tipe(1)  : type of the second index
+	 *			\li and so on... 
 	 * @param triad_i  pointer on the vectorial basis (triad) with respect 
 	 *		    to which the tensor components are defined 
 	 *		    (can be set to 0x0 for a scalar field)
@@ -425,12 +427,12 @@ class Tenseur {
 		 Base_vect& triad_i, const Metrique* met = 0x0, 
 		     double weight = 0) ;
 
-	Tenseur (const Tenseur&) ;  /// Copy constructor
+	Tenseur (const Tenseur&) ;  ///< Copy constructor
 
 	/// Constructor from a symmetric tensor.
 	explicit Tenseur (const Tenseur_sym&) ;
 	
-	/** Constructor from a file (see {\tt sauve(FILE* )}).
+	/** Constructor from a file (see \c  sauve(FILE*) ).
 	 * 
 	 * @param map  the mapping
 	 * @param triad_i   vectorial basis (triad) with respect to which 
@@ -438,7 +440,7 @@ class Tenseur {
 	 *			  be checked that it coincides with the basis
 	 *			  saved in the file.
 	 * @param fich  file which has been created by 
-	 *			    the function {\tt sauve(FILE* )}.
+	 *			    the function \c sauve(FILE*) .
 	 * @param met   for tensor densities only: a pointer on the metric
 	 *              defining the conformal factor
 	 */
@@ -446,11 +448,11 @@ class Tenseur {
 		 const Metrique* met = 0x0) ;
 
 	/** Constructor from a file for a scalar field
-	 *  (see {\tt sauve(FILE* )}).
+	 *  (see \c sauve(FILE*) ).
 	 * 
 	 * @param map  the mapping
 	 * @param fich  file which has been created by 
-	 *			    the function {\tt sauve(FILE* )}.
+	 *			    the function \c sauve(FILE*) .
 	 * @param met   for tensor densities only: a pointer on the metric
 	 *              defining the conformal factor
 	 */
@@ -463,13 +465,13 @@ class Tenseur {
 	 * 
 	 * @param map  the mapping
 	 * @param val   valence of the tensor
-	 * @param tipe  1-D {\tt Itbl} of size {\tt valence} containing the type 
-	 *		of each index, {\tt COV} for a covariant one 
-	 *		and {\tt CON} for a contravariant one,  with the 
-	 *		following storage convention: \\
-	 *			{\tt tipe(0)} : type of the first index \\
-	 *			{\tt tipe(1)} : type of the second index \\
-	 *			and so on... 
+	 * @param tipe  1-D \c Itbl  of size \c valence  containing the type 
+	 *		of each index, \c COV  for a covariant one 
+	 *		and \c CON  for a contravariant one,  with the 
+	 *		following storage convention: 
+	 *			\li \c tipe(0)  : type of the first index 
+	 *			\li \c tipe(1)  : type of the second index 
+	 *			\li and so on... 
 	 * @param n_comp  the number of components.
 	 * @param triad_i  vectorial basis (triad) with respect to which 
 	 *			  the tensor components are defined
@@ -502,16 +504,16 @@ class Tenseur {
 
     public: 
 
-	virtual ~Tenseur() ;	/// Destructor
+	virtual ~Tenseur() ;	///< Destructor
 	
     // Memory management
     // -----------------
     protected:
-	void del_t() ;	/// Logical destructor
+	void del_t() ;	///< Logical destructor
 
 	/**
 	 * Logical destructor of the derivatives depending on the i-th
-	 * element of {\tt *met\_depend}.
+	 * element of \c *met_depend .
 	 */	
 	void del_derive_met(int i) const ;
 
@@ -522,7 +524,7 @@ class Tenseur {
 	
 	/**
 	 * Sets the pointers of the derivatives depending on the i-th
-	 * element of {\tt *met\_depend} to zero (as well as that i-th 
+	 * element of \c *met_depend  to zero (as well as that i-th 
 	 * element).
 	 */
 	void set_der_met_0x0(int i) const ;
@@ -537,31 +539,31 @@ class Tenseur {
     // ---------------------
     public:
 	/**
-	 * Sets the logical state to {\tt ETATNONDEF} (undefined state).
+	 * Sets the logical state to \c ETATNONDEF  (undefined state).
 	 * The components are not allocated.
 	 */
 	void set_etat_nondef() ;
 	
 	/**
-	 * Sets the logical state to {\tt ETATZERO} (zero state).
+	 * Sets the logical state to \c ETATZERO  (zero state).
 	 * The components are not allocated.
 	 */
 	void set_etat_zero() ;
 
 	/**
-	 * Sets the logical state to {\tt ETATQCQ} (ordinary state).
-	 * The components are now allocated and set to {\tt ETATNONDEF}.
+	 * Sets the logical state to \c ETATQCQ  (ordinary state).
+	 * The components are now allocated and set to \c ETATNONDEF .
 	 */
 	void set_etat_qcq() ;
 	
 	/**
-	 * Sets the logical state to {\tt ETATQCQ} (ordinary state)
+	 * Sets the logical state to \c ETATQCQ  (ordinary state)
 	 *  and performs the memory allocation of all the 
-	 *  elements, down to the {\tt double} arrays of the {\tt Tbl}s. 
+	 *  elements, down to the \c double  arrays of the \c Tbl s. 
 	 *  This function performs in fact recursive calls to 
-	 *  {\tt set\_etat\_qcq()}
-	 *  on each element of the chain {\tt Tenseur} -> {\tt Cmp} ->
-	 *  {\tt Valeur} -> {\tt Mtbl} -> {\tt Tbl}. 
+	 *  \c set_etat_qcq() 
+	 *  on each element of the chain \c Tenseur  -> \c Cmp  ->
+	 *  \c Valeur  -> \c Mtbl  -> \c Tbl . 
 	 */
 	void allocate_all() ; 
 
@@ -571,70 +573,70 @@ class Tenseur {
 	void change_triad(const Base_vect& new_triad) ; 
     
 	/** Assigns a new vectorial basis (triad) of decomposition. 
-	 *  NB: this function modifies only the member {\tt triad} and
-	 *  leave unchanged the components (member {\tt c}). In order to 
+	 *  NB: this function modifies only the member \c triad  and
+	 *  leave unchanged the components (member \c c ). In order to 
 	 *  change them coherently with the new basis, the function 
-	 *  {\tt change\_triad(const Base\_vect\& )} must be called instead. 
+	 *  \c change_triad(const Base_vect\&)  must be called instead. 
 	 */
 	void set_triad(const Base_vect& new_triad) ; 
-	void set_poids(double weight) ; ///Sets the weight for a tensor density
+	void set_poids(double weight) ; ///<Sets the weight for a tensor density
 	/// Sets the pointer on the metric for a tensor density
 	void set_metric(const Metrique& met) ;
     
-	/// Assignment to another {\tt Tenseur}
+	/// Assignment to another \c Tenseur 
 	virtual void operator=(const Tenseur& tens) ; 
 	
-	/// Assignment to a {\tt Cmp} (scalar field only)
+	/// Assignment to a \c Cmp  (scalar field only)
 	void operator=(const Cmp& field) ; 
 	
-	 /// Assignment to a {\tt double} (scalar field only, except for zero)
+	 /// Assignment to a \c double  (scalar field only, except for zero)
 	void operator=(double ) ;	
 
-	 /// Assignment to a {\tt int} (scalar field only, except for zero)
+	 /// Assignment to a \c int  (scalar field only, except for zero)
 	void operator=(int ) ;	
 
-	/// Read/write for a scalar (see also {\tt operator=(const Cmp\&)}). 
+	/// Read/write for a scalar (see also \c operator=(const \c Cmp\&) ). 
 	Cmp& set () ;  
-	Cmp& set (int) ; /// Read/write for a vector.
-	Cmp& set (int, int) ; /// Read/write for a tensor of valence 2.
-	Cmp& set (int, int, int) ; /// Read/write for a tensor of valence 3.
-	Cmp& set (const Itbl&) ; /// Read/write in the general case.
+	Cmp& set (int) ; ///< Read/write for a vector.
+	Cmp& set (int, int) ; ///< Read/write for a tensor of valence 2.
+	Cmp& set (int, int, int) ; ///< Read/write for a tensor of valence 3.
+	Cmp& set (const Itbl&) ; ///< Read/write in the general case.
 	    
 	/**
-	 * Sets the {\tt Tenseur} to zero in a given domain.
-	 *	@param l [input]  Index of the domain in which the {\tt Tenseur}
+	 * Sets the \c Tenseur  to zero in a given domain.
+	 *	@param l [input]  Index of the domain in which the \c Tenseur 
 	 *			  will be set (logically) to zero.
 	 */
 	void annule(int l) ; 
 
 	/**
-	 * Sets the {\tt Tenseur} to zero in several domains.
-	 *	@param l_min [input] The {\tt Tenseur} will be set (logically) 
+	 * Sets the \c Tenseur  to zero in several domains.
+	 *	@param l_min [input] The \c Tenseur  will be set (logically) 
 	 *			     to zero
 	 *			     in the domains whose indices are in the range
-	 *			     {\tt [l\_min, l\_max]}.
-	 *	@param l_max [input] see the comments for {\tt l\_min}.
+	 *			     \c [l_min,l_max] .
+	 *	@param l_max [input] see the comments for \c l_min .
 	 * 
-         * Note that {\tt annule(0, nz-1)}, where {\tt nz} is the total number
-	 * of domains, is equivalent to {\tt set\_etat\_zero()}.
+         * Note that \c annule(0,nz-1), where \c nz  is the total number
+	 * of domains, is equivalent to \c set_etat_zero() .
          */
 	void annule(int l_min, int l_max) ; 
 
 	/**
 	 * Set the standard spectal basis of decomposition for each component.
-	 * To be used only with {\tt valence} strictly lower than 3.
+	 * To be used only with \c valence  strictly lower than 3.
 	 * 
 	 */
 	void set_std_base() ; 
 	
-	void dec_dzpuis() ;	/// dzpuis -= 1 ;
-	void inc_dzpuis() ;	/// dzpuis += 1 ;
-	void dec2_dzpuis() ;	/// dzpuis -= 2 ;
-	void inc2_dzpuis() ;	/// dzpuis += 2 ;
-	void mult_r_zec() ; /// Multiplication by {\it r} in the external zone.
+	void dec_dzpuis() ;	///< dzpuis -= 1 ;
+	void inc_dzpuis() ;	///< dzpuis += 1 ;
+	void dec2_dzpuis() ;	///< dzpuis -= 2 ;
+	void inc2_dzpuis() ;	///< dzpuis += 2 ;
+	void mult_r_zec() ; ///< Multiplication by \e r  in the external zone.
 	
 	/**
-	 * Compute $\Delta + \lambda \nabla\nabla$ of {\tt *this}, {\tt *this}
+	 * Compute \f$\Delta + \lambda \nabla\nabla\f$ of \c *this , \c *this 
 	 * being of valence 1.
 	 */
 	Tenseur inverse_poisson_vect (double lambda) const ;
@@ -643,12 +645,12 @@ class Tenseur {
     // ---------
     public:
 	/**
-	 * Returns the position in the {\tt Cmp} 1-D array {\tt c} of a 
+	 * Returns the position in the \c Cmp  1-D array \c c  of a 
 	 * component given by its indices.  
 	 *
-	 * @return position in the {\tt Cmp} 1-D array {\tt c}  
-	 * corresponding to the indices given in {\tt idx}. {\tt idx}
-	 * must be a 1-D {\tt Itbl} of size {\tt valence}, 
+	 * @return position in the \c Cmp  1-D array \c c   
+	 * corresponding to the indices given in \c idx . \c idx 
+	 * must be a 1-D \c Itbl  of size \c valence , 
 	 * each element of which must be 0, 1 or 2, 
 	 * corresponding to spatial indices 1, 2 or 3 respectively. 
 	 */
@@ -656,37 +658,43 @@ class Tenseur {
 
 	/**
 	 * Returns the indices of a component given by its position in the 
-	 * {\tt Cmp} 1-D array {\tt c}. 
+	 * \c Cmp  1-D array \c c . 
 	 *
-	 * @return 1-D array of integers ({\tt Itbl}) of
-	 *         size {\tt valence} giving the value of each index 
-	 *	   for the component located at the position {\tt place}
-	 *	   in the {\tt Cmp} 1-D array {\tt c}. 
-	 *	   Each element of this {\tt Itbl} is 0, 1 or 2, which 
+	 * @return 1-D array of integers (\c Itbl ) of
+	 *         size \c valence  giving the value of each index 
+	 *	   for the component located at the position \c place 
+	 *	   in the \c Cmp  1-D array \c c . 
+	 *	   Each element of this \c Itbl  is 0, 1 or 2, which 
 	 *	   corresponds to spatial indices 1, 2 or 3 respectively. 
-	 * If {\tt (*this)} is a scalar the function returns an undefined 
-	 * {\tt Itbl}.
+	 * If \c (*this)  is a scalar the function returns an undefined 
+	 * \c Itbl .
 	 */
 	virtual Itbl donne_indices (int place) const ;
 	
-	const Map* get_mp() const {return mp ;} ; /// Returns pointer on the mapping.
+	/// Returns pointer on the mapping.
+	const Map* get_mp() const {return mp ;} ; 
 
 	/** Returns the vectorial basis (triad) on which the components
 	 *  are defined.  
 	 */
 	const Base_vect* get_triad() const {return triad;} ; 
     
-	int get_etat() const {return etat ;} ; /// Returns the logical state.
-	int get_valence() const {return valence ; } ; ///Returns the valence.
-	int get_n_comp() const {return n_comp ;} ; ///Returns the number of components.
+	/// Returns the logical state.
+	int get_etat() const {return etat ;} ;
+ 
+	///Returns the valence.
+	int get_valence() const {return valence ; } ;
+
+	///Returns the number of components. 
+	int get_n_comp() const {return n_comp ;} ; 
 	
 	/**
-	 *  Returns the type of the index number {\tt i}. {\tt i} must be
-	 *  strictly lower than {\tt valence} and obey the following
-	 *		      convention: \\
-	 *			{\tt i} = 0 : first index \\
-	 *			{\tt i} = 1 : second index \\
-	 *			and so on... 
+	 *  Returns the type of the index number \c i . \c i  must be
+	 *  strictly lower than \c valence  and obey the following
+	 *		      convention: 
+	 *			\li \c i  = 0 : first index 
+	 *			\li \c i  = 1 : second index
+	 *			\li and so on... 
 	 * 
 	 *  @return COV for a covariant index, CON for a
 	 *	    contravariant one. 
@@ -696,13 +704,14 @@ class Tenseur {
 	/**
 	 * Returns the types of all the indices.
 	 * 
-	 *  @return 1-D {\tt Itbl} of size {\tt valence} containing the type 
-	 *  of each index, {\tt COV} for a covariant one and {\tt CON} 
+	 *  @return 1-D \c Itbl  of size \c valence  containing the type 
+	 *  of each index, \c COV  for a covariant one and \c CON  
 	 *  for a contravariant one.
 	 */
 	Itbl get_type_indice () const {return type_indice ; } ;
 
-	double get_poids() const {return poids ; } ; ///Returns the weight
+	///Returns the weight
+	double get_poids() const {return poids ; } ; 
 
 	/**
 	 * Returns a pointer on the metric defining the conformal factor 
@@ -711,70 +720,69 @@ class Tenseur {
 	 */
 	const Metrique* get_metric() const {return metric ; } ; 
 	
-	const Cmp& operator()() const ; /// Read only for a scalar.
-	const Cmp& operator()(int) const ; /// Read only for a vector.
-	const Cmp& operator()(int, int) const ; /// Read only for a tensor of valence 2.
-	const Cmp& operator()(int, int, int) const ; /// Read only for a tensor of valence 3.
-	const Cmp& operator()(const Itbl&) const ; /// Read only in the general case.
+	const Cmp& operator()() const ; ///< Read only for a scalar.
+	const Cmp& operator()(int) const ; ///< Read only for a vector.
+	const Cmp& operator()(int, int) const ; ///< Read only for a tensor of valence 2.
+	const Cmp& operator()(int, int, int) const ; ///< Read only for a tensor of valence 3.
+	const Cmp& operator()(const Itbl&) const ; ///< Read only in the general case.
 	
     // Outputs
     // -------
     public:
-	void sauve(FILE *) const ;	    /// Save in a file
-
+	void sauve(FILE *) const ;	    ///< Save in a file
 	friend ostream& operator<<(ostream& , const Tenseur & ) ;
 	
     // Computation of derived members
     // ------------------------------
     protected:
 	/**
-	 * Calculates, if needed, the gradient of {\tt *this}.
-	 * The result is in {\tt *p\_gradient}
+	 * Calculates, if needed, the gradient of \c *this .
+	 * The result is in \c *p_gradient 
 	 */
 	virtual void fait_gradient () const ;
 
 	/**
-	 * Calculates, if needed, the gradient of {\tt *this} in a 
+	 * Calculates, if needed, the gradient of \c *this  in a 
 	 * spherical orthonormal basis (scalar field only). 
-	 * The result is in {\tt *p\_gradient\_spher}
+	 * The result is in \c *p_gradient_spher 
 	 */
 	void fait_gradient_spher () const ;
 
 	/**
-	 * Calculates, if needed, the covariant derivative of {\tt *this}, 
-	 * with respect to {\tt met}.
-	 * The result is in {\tt *p\_derive\_cov[i]}
+	 * Calculates, if needed, the covariant derivative of \c *this , 
+	 * with respect to \c met .
+	 * The result is in \c *p_derive_cov[i] 
 	 */
 	virtual void fait_derive_cov (const Metrique& met, int i) const ;
 
 	/**
-	 * Calculates, if needed, the contravariant derivative of {\tt *this},
-	 * with respect to {\tt met}.
-	 * The result is in {\tt *p\_derive\_con[i]}
+	 * Calculates, if needed, the contravariant derivative of \c *this ,
+	 * with respect to \c met .
+	 * The result is in \c *p_derive_con[i] 
 	 */
 	virtual void fait_derive_con (const Metrique&, int i) const ;
 
 	/**
-	 * Calculates, if needed, the scalar square of {\tt *this},
-	 * with respect to {\tt met}.
-	 * The result is in {\tt *p\_carre\_scal[i]}
+	 * Calculates, if needed, the scalar square of \c *this ,
+	 * with respect to \c met .
+	 * The result is in \c *p_carre_scal[i] 
 	 */
 	void fait_carre_scal (const Metrique&, int i) const ;
 	
 	/**
 	 * To be used to describe the fact that the derivatives members have
-	 * been calculated with {\tt met}.
+	 * been calculated with \c met .
 	 * 
-	 * First it sets a null element of {\tt met\_depend} to 
-	 * {\tt \&met} and puts {\tt this} in 
-	 * the list of the dependancies of {\tt met}.
+	 * First it sets a null element of \c met_depend  to 
+	 * \c \&met  and puts \c this  in 
+	 * the list of the dependancies of \c met .
 	 * 
 	 */
 	void set_dependance (const Metrique& met) const ;
 
 	/**
-	 * Returns the position of the pointer on {\tt metre} in 
-	 * the array {\tt met\_depend}.
+	 * Returns the position of the pointer on \c metre  in 
+	 * the array \c met_depend .
 	 *
 	 */
 	int get_place_met(const Metrique& metre) const ;
@@ -782,174 +790,174 @@ class Tenseur {
     // Differential operators
     // ----------------------
     public:
-	/// Returns the gradient of {\tt *this} (Cartesian coordinates)
+	/// Returns the gradient of \c *this  (Cartesian coordinates)
 	const Tenseur& gradient() const ; 
 	
-	/** Returns the gradient of {\tt *this} (Spherical coordinates)
+	/** Returns the gradient of \c *this  (Spherical coordinates)
 	 *	(scalar field only). 
 	 */
 	const Tenseur& gradient_spher() const ; 
 	
 	/**
-	 * @return the covariant derivative of {\tt *this}, with respect to 
-	 * {\tt met}.
+	 * Returns the covariant derivative of \c *this , with respect to 
+	 * \c met .
 	 */
 	const Tenseur& derive_cov (const Metrique& met) const ;
 
 	/**
-	 * @return the contravariant derivative of {\tt *this}, with respect to 
-	 * {\tt met}.
+	 * Returns the contravariant derivative of \c *this , with respect to 
+	 * \c met .
 	 */
 	const Tenseur& derive_con (const Metrique&) const ;	
 
 	/**
-	 * @return the scalar square of {\tt *this}, with respect to 
-	 * {\tt met}.
+	 * Returns the scalar square of \c *this , with respect to 
+	 * \c met .
 	 */
 	const Tenseur& carre_scal (const Metrique&) const ;
     
     // Resolution d'EDP :
     /**
      * Solves the vectorial Poisson equation :
-     * $\Delta N^i +\lambda \nabla^i \nabla_k N^k = S^i$.
-     * with $\lambda \not= 1$.
+     * \f$\Delta N^i +\lambda \nabla^i \nabla_k N^k = S^i\f$.
+     * with \f$\lambda \not= 1\f$.
      * 
-     * {\tt *this} must be given with {\tt dzpuis} = 4.
+     * \c *this  must be given with \c dzpuis  = 4.
      * 
-     * It uses the Shibata scheme,  where $N^i$ is given by :
-     * \begin{equation}
+     * It uses the Shibata scheme,  where \f$N^i\f$ is given by :
+     * \f[
      *  N^i = \frac{1}{2}\frac{\lambda+2}{\lambda+1}W^i-\frac{1}{2}
      * \frac{\lambda}{\lambda+1}\left(\nabla^i\chi+\nabla^iW^kx_k\right)
-     * \end{equation}
-     * with $\Delta W^i = S^i$ and $\Delta \chi = -x_kS^k$.
+     * \f]
+     * with \f$\Delta W^i = S^i\f$ and \f$\Delta \chi = -x_kS^k\f$.
      * 
-     * @param lambda [input] $\lambda$.
-     * @param par [input/output] see Map::donne\_para\_poisson\_vect.
-     * @param shift [input] solution $N^i$ at the previous step.
+     * @param lambda [input] \f$\lambda\f$.
+     * @param par [input/output] see Map::donne_para_poisson_vect.
+     * @param shift [input] solution \f$N^i\f$ at the previous step.
      *			Zero if nothing is known.
      * @param shift [output] solution at this step.
-     * @param vect [input/output] the same thing than for {\tt shift} but for 
-     * $W^i$.
-     * @param scal [input/output] the same thing than for {\tt shift} but for 
-     * $\chi$.
+     * @param vect [input/output] the same thing than for \c shift  but for 
+     * \f$W^i\f$.
+     * @param scal [input/output] the same thing than for \c shift  but for 
+     * \f$\chi\f$.
      */
 
     void poisson_vect(double lambda, Param& par, Tenseur& shift, Tenseur& vect
 			, Tenseur& scal) const ;
     
     /**
-     * Solves the vectorial Poisson equation $\Delta N^i +\lambda \nabla^i
-     * \nabla_k N^k = S^i$.
-     * with $\lambda \not= 1$.
+     * Solves the vectorial Poisson equation \f$\Delta N^i +\lambda \nabla^i
+     * \nabla_k N^k = S^i\f$.
+     * with \f$\lambda \not= 1\f$.
      *  
-     * {\tt *this} must be given with {\tt dzpuis} = 4.
+     * \c *this  must be given with \c dzpuis  = 4.
      * 
-     * It uses the Shibata scheme,  where $N^i$ is given by :
-     * \begin{equation}
+     * It uses the Shibata scheme,  where \f$N^i\f$ is given by :
+     * \f[
      * N^i = \frac{1}{2}\frac{\lambda+2}{\lambda+1}W^i-\frac{1}{2}
      * \frac{\lambda}{\lambda+1}\left(\nabla^i\chi+\nabla^iW^kx_k\right)
-     * \end{equation}
-     * with $\Delta W^i = S^i$ and $\Delta \chi = -x_kS^k$.
+     * \f]
+     * with \f$\Delta W^i = S^i\f$ and \f$\Delta \chi = -x_kS^k\f$.
      * 
      * This version is to be used only with an affine mapping.
      * 
-     * @param lambda [input] $\lambda$.
-     * @param vect [input] $W^i$ at the previous step.
+     * @param lambda [input] \f$\lambda\f$.
+     * @param vect [input] \f$W^i\f$ at the previous step.
      *			Zero if nothing is known.
-     * @param vect [output] $W^i$ at this step.
-     * @param scal [input/output] the same thing than for {\tt shift} but for 
-     * $\chi$.
+     * @param vect [output] \f$W^i\f$ at this step.
+     * @param scal [input/output] the same thing than for \c shift  but for 
+     * \f$\chi\f$.
      *
-     * @return the solution $N^i$.
+     * @return the solution \f$N^i\f$.
      */
     
 
     Tenseur poisson_vect(double lambda, Tenseur& vect , Tenseur& scal ) const ;
     
     /**
-     * Solves the vectorial Poisson equation $\Delta N^i +\lambda \nabla^i
-     * \nabla_k N^k = S^i$.
-     * with $\lambda \not= 1$.
+     * Solves the vectorial Poisson equation \f$\Delta N^i +\lambda \nabla^i
+     * \nabla_k N^k = S^i\f$.
+     * with \f$\lambda \not= 1\f$.
      *
-     * {\tt *this} must be given with {\tt dzpuis} = 3 or 4 and be continuous.
+     * \c *this  must be given with \c dzpuis  = 3 or 4 and be continuous.
      * 
-     * It uses the Oohara scheme, where $N^i$ is given by 
-     * \begin{equation}
+     * It uses the Oohara scheme, where \f$N^i\f$ is given by 
+     * \f[
      *  \Delta N^i = S^i-\lambda \nabla^i \chi 
-     * \end{equation}
-     * with $\chi$ solution of :
-     * \begin{equation}
+     * \f]
+     * with \f$\chi\f$ solution of :
+     * \f[
      *   \Delta \chi = \frac{1}{\lambda+1}\nabla_k S^k
-     * \end{equation}
+     * \f]
      *
-     * @param lambda [input] $\lambda$.
-     * @param par [input/output] see Map::donne\_para\_poisson\_vect.
-     * @param shift [input] solution $N^i$ at the previous step.
+     * @param lambda [input] \f$\lambda\f$.
+     * @param par [input/output] see Map::donne_para_poisson_vect.
+     * @param shift [input] solution \f$N^i\f$ at the previous step.
      *			Zero if nothing is known.
      * @param shift [output] solution at this step.
-     * @param scal [input/output] the same thing than for {\tt shift} but for 
-     * $\chi$.
+     * @param scal [input/output] the same thing than for \c shift  but for 
+     * \f$\chi\f$.
      */
 
     void poisson_vect_oohara(double lambda, Param& par, Tenseur& shift, 
 				    Tenseur& scal) const ;
     
   /**
-     * Solves the vectorial Poisson equation $\Delta N^i +\lambda \nabla^i
-     * \nabla_k N^k = S^i$.
-     * with $\lambda \not= 1$.
+     * Solves the vectorial Poisson equation \f$\Delta N^i +\lambda \nabla^i
+     * \nabla_k N^k = S^i\f$.
+     * with \f$\lambda \not= 1\f$.
      * 
-     * {\tt *this} must be given with {\tt dzpuis} = 3 or 4 and be continuous.
+     * \c *this  must be given with \c dzpuis  = 3 or 4 and be continuous.
      *
      * This version is to be used only with an affine mapping.
      *
-     * It uses the Oohara scheme,  where $N^i$ is given by :
-     * \begin{equation}
+     * It uses the Oohara scheme,  where \f$N^i\f$ is given by :
+     * \f[
      *  \Delta N^i = S^i-\lambda \nabla^i \chi 
-     * \end{equation}
+     * \f]
      * 
-     * with $\chi$ solution of :
-     * \begin{equation}
+     * with \f$\chi\f$ solution of :
+     * \f[
      *  \Delta \chi = \frac{1}{\lambda+1}\nabla_k S^k
-     * \end{equation}
+     * \f]
      * 
      * This version is to be used only with an affine mapping.
      *
-     * @param lambda [input] $\lambda$.
-     * @param scal [input]$\chi$ at the previous step.
+     * @param lambda [input] \f$\lambda\f$.
+     * @param scal [input]\f$\chi\f$ at the previous step.
      *			Zero if nothing is known.
-     * @param scal [output] $\chi$ at this step.
-     * @return the solution $N^i$.
+     * @param scal [output] \f$\chi\f$ at this step.
+     * @return the solution \f$N^i\f$.
      */
 			    
     Tenseur poisson_vect_oohara(double lambda, Tenseur& scal) const ;
    
     /**
      * Solves the vectorial Poisson equation :
-     * $\Delta N^i +\lambda \nabla^i \nabla_k N^k = S^i$.
-     * with $\lambda \not= 1$ by regularizing the source term.
+     * \f$\Delta N^i +\lambda \nabla^i \nabla_k N^k = S^i\f$.
+     * with \f$\lambda \not= 1\f$ by regularizing the source term.
      * 
-     * {\tt *this} must be given with {\tt dzpuis} = 4.
+     * \c *this  must be given with \c dzpuis  = 4.
      * 
-     * It uses the Shibata scheme,  where $N^i$ is given by :
-     * \begin{equation}
+     * It uses the Shibata scheme,  where \f$N^i\f$ is given by :
+     * \f[
      *  N^i = \frac{1}{2}\frac{\lambda+2}{\lambda+1}W^i-\frac{1}{2}
      * \frac{\lambda}{\lambda+1}\left(\nabla^i\chi+\nabla^iW^kx_k\right)
-     * \end{equation}
-     * with $\Delta W^i = S^i$ and $\Delta \chi = -x_kS^k$.
+     * \f]
+     * with \f$\Delta W^i = S^i\f$ and \f$\Delta \chi = -x_kS^k\f$.
      * 
      * @param k_div [input] regularization degree.
      * @param nzet [input] number of domains covering a star.
-     * @param unsgam1 [input] $1/(\gamma - 1)$.
-     * @param lambda [input] $\lambda$.
-     * @param par [input/output] see Map::donne\_para\_poisson\_vect.
-     * @param shift [input] solution $N^i$ at the previous step.
+     * @param unsgam1 [input] \f$1/(\gamma - 1)\f$.
+     * @param lambda [input] \f$\lambda\f$.
+     * @param par [input/output] see Map::donne_para_poisson_vect.
+     * @param shift [input] solution \f$N^i\f$ at the previous step.
      *			Zero if nothing is known.
      * @param shift [output] solution at this step.
-     * @param vect [input/output] the same thing than for {\tt shift} but for 
-     * $W^i$.
-     * @param scal [input/output] the same thing than for {\tt shift} but for 
-     * $\chi$.
+     * @param vect [input/output] the same thing than for \c shift but for 
+     * \f$W^i\f$.
+     * @param scal [input/output] the same thing than for \c shift  but for 
+     * \f$\chi\f$.
      */
 
     void poisson_vect_regu(int k_div, int nzet, double unsgam1,
@@ -992,9 +1000,11 @@ class Tenseur {
 
 
 /**
- * @name Tenseur calculus
+ * \defgroup tens_cal Tenseur calculus 
+ *  \ingroup (otens)
+ *
+ *@{
  */
-//@{
 /// Tensorial product.
 Tenseur operator*(const Tenseur&, const Tenseur&) ; 
 
@@ -1002,81 +1012,81 @@ Tenseur operator*(const Tenseur&, const Tenseur&) ;
 Tenseur operator%(const Tenseur&, const Tenseur&) ; 
 
 /**
- * Self contraction of two indices of a {\tt Tenseur}.
+ * Self contraction of two indices of a \c Tenseur .
  * 
  * The two indices must be of different type, i.e. covariant and
  * contravariant, or contravariant and covariant.
  *
  * @param id1 [input] number of the first index for the contraction;
- *		      {\tt id1} must be strictly lower than the
+ *		      \c id1  must be strictly lower than the
  *		      valence of the tensor and obeys the following
- *		      convention: \\
- *			{\tt id1} = 0 : first index \\
- *			{\tt id1} = 1 : second index \\
- *			and so on...
+ *		      convention: 
+ *			\li \c id1  = 0 : first index 
+ *			\li \c id1  = 1 : second index 
+ *			\li and so on...
  * @param id2 [input] number of the second index for the contraction;
- *		      {\tt id2} must be strictly lower than the
+ *		      \c id2  must be strictly lower than the
  *		      valence of the tensor and obeys the following
- *		      convention: \\
- *			{\tt id2} = 0 : first index \\
- *			{\tt id2} = 1 : second index \\
- *			and so on...
+ *		      convention: 
+ *			\li \c id2  = 0 : first index 
+ *			\li \c id2  = 1 : second index 
+ *			\li and so on...
  * 
  */
 Tenseur contract(const Tenseur&, int id1, int id2) ;
 
 /**
- * Contraction of two {\tt Tenseur}.
+ * Contraction of two \c Tenseur .
  * 
  * The two indices must be of different type, i.e. covariant and
  * contravariant, or contravariant and covariant.
  *
  * @param id1 [input] number of the index of contraction for
- *		      the first {\tt Tenseur};
- *		      {\tt id1} must be strictly lower than the
+ *		      the first \c Tenseur ;
+ *		      \c id1  must be strictly lower than the
  *		      valence of the tensor and obeys the following
- *		      convention: \\
- *			{\tt id1} = 0 : first index \\
- *			{\tt id1} = 1 : second index \\
- *			and so on...
+ *		      convention: 
+ *			\li \c id1  = 0 : first index 
+ *			\li \c id1  = 1 : second index 
+ *			\li and so on...
  * @param id2 [input] number of index of contraction for the second one;
- *		      {\tt id2} must be strictly lower than the
+ *		      \c id2  must be strictly lower than the
  *		      valence of the tensor and obeys the following
- *		      convention: \\
- *			{\tt id2} = 0 : first index \\
- *			{\tt id2} = 1 : second index \\
- *			and so on...
+ *		      convention: 
+ *			\li \c id2  = 0 : first index 
+ *			\li \c id2  = 1 : second index 
+ *			\li and so on...
  */	
 Tenseur contract(const Tenseur&, int id1, const Tenseur&, int id2) ;
 
 /**
- *  Scalar product of two {\tt Tenseur} when the metric is
- *  $\delta_{ij}$: performs the contraction of the 
- *  last index of {\tt t1} with the first one of {\tt t2}, irrespective
+ *  Scalar product of two \c Tenseur  when the metric is
+ *  \f$\delta_{ij}\f$: performs the contraction of the 
+ *  last index of \c t1  with the first one of \c t2 , irrespective
  *  of the type of these indices. 
  */
 Tenseur flat_scalar_prod(const Tenseur& t1, const Tenseur& t2) ;
 	
 /**
- *  Same as {\tt flat\_scalar\_prod} but with desaliasing. 
+ *  Same as \c flat_scalar_prod  but with desaliasing. 
  */
 Tenseur flat_scalar_prod_desal(const Tenseur& t1, const Tenseur& t2) ;
 	
 /**
- * Raise or lower the index {\tt idx} depending on its type, using the
- * given {\tt Metrique}.
+ * Raise or lower the index \c idx  depending on its type, using the
+ * given \c Metrique .
  */
 Tenseur manipule(const Tenseur&, const Metrique&, int idx) ;
 
 /**
  * Raise or lower all the indices, depending on their type,  using the given
- * {\tt Metrique}.
+ * \c Metrique .
  */
 Tenseur manipule(const Tenseur&, const Metrique&) ;
 	
 /**
- * Contraction of the last index of (*this) with $x^k$ or $x_k$, depending
- * on the type of {\it S}. 
+ * Contraction of the last index of (*this) with \f$x^k\f$ or \f$x_k\f$, depending
+ * on the type of \e S . 
  * 
  * The calculation is performed to avoid singularities in the external 
  * zone. This is done only for a flat metric.
@@ -1084,7 +1094,7 @@ Tenseur manipule(const Tenseur&, const Metrique&) ;
 Tenseur skxk (const Tenseur&) ;
 
 /**
- * Lie Derivative of {\tt t} with respect to {\tt x}. If no other argument
+ * Lie Derivative of \c t  with respect to \c x . If no other argument
  * is given, it uses partial derivatives with respect to cartesian coordinates
  * to calculate the result (this is the default). Otherwise, it uses the 
  * covariant derivative associated to the metric given as last argument.
@@ -1092,50 +1102,52 @@ Tenseur skxk (const Tenseur&) ;
 Tenseur lie_derive (const Tenseur& t, const Tenseur& x, const Metrique* = 0x0);
 
 /**
- *  Computes the traceless part of a {\tt Tenseur} of valence 2.
+ *  Computes the traceless part of a \c Tenseur  of valence 2.
  * 
- * @param tens [input] the {\tt Tenseur} of valence 2
+ * @param tens [input] the \c Tenseur  of valence 2
  * @param metre [input] the metric used to raise or lower the indices
  * 
- * @return The traceless part of the input {\tt Tenseur}
+ * @return The traceless part of the input \c Tenseur 
  */
 Tenseur sans_trace(const Tenseur& tens, const Metrique& metre) ;
 
 
-//@}
+/** @} */
 
 /**
- * @name Tenseur mathematics
+ * \defgroup tens_ma Tenseur mathematics 
+ * \ingroup (otens)
+ *
+ *  @{
  */
-    //@{
-Tenseur operator+(const Tenseur& ) ;			/// + Tenseur
-Tenseur operator-(const Tenseur& ) ;			/// - Tenseur
-Tenseur operator+(const Tenseur&, const Tenseur &) ;	/// Tenseur + Tenseur
+Tenseur operator+(const Tenseur& ) ;			///< + Tenseur
+Tenseur operator-(const Tenseur& ) ;			///< \c - Tenseur
+Tenseur operator+(const Tenseur&, const Tenseur &) ;	///< Tenseur + Tenseur
 
-/// Tenseur + double (the {\tt Tenseur} must be a scalar)
+/// Tenseur + double (the \c Tenseur  must be a scalar)
 Tenseur operator+(const Tenseur&, double ) ;		
 
-/// double + Tenseur (the {\tt Tenseur} must be a scalar)
+/// double + Tenseur (the \c Tenseur  must be a scalar)
 Tenseur operator+(double, const Tenseur& ) ;		
 
-/// Tenseur + int (the {\tt Tenseur} must be a scalar)
+/// Tenseur + int (the \c Tenseur  must be a scalar)
 Tenseur operator+(const Tenseur&, int ) ;		
 
-/// int + Tenseur (the {\tt Tenseur} must be a scalar)
+/// int + Tenseur (the \c Tenseur  must be a scalar)
 Tenseur operator+(int, const Tenseur& ) ;		
 
-Tenseur operator-(const Tenseur &, const Tenseur &) ;	/// Tenseur - Tenseur
+Tenseur operator-(const Tenseur &, const Tenseur &) ;	///< Tenseur - Tenseur
 
-/// Tenseur - double (the {\tt Tenseur} must be a scalar)
+/// Tenseur - double (the \c Tenseur  must be a scalar)
 Tenseur operator-(const Tenseur&, double ) ;		
 
-/// double - Tenseur (the {\tt Tenseur} must be a scalar)
+/// double - Tenseur (the \c Tenseur  must be a scalar)
 Tenseur operator-(double, const Tenseur& ) ;		
 
-/// Tenseur - int (the {\tt Tenseur} must be a scalar)
+/// Tenseur - int (the \c Tenseur  must be a scalar)
 Tenseur operator-(const Tenseur&, int ) ;		
 
-/// int - Tenseur (the {\tt Tenseur} must be a scalar)
+/// int - Tenseur (the \c Tenseur  must be a scalar)
 Tenseur operator-(int, const Tenseur& ) ;		
 
 /// Tenseur * double 
@@ -1150,27 +1162,27 @@ Tenseur operator*(const Tenseur&, int ) ;
 /// int * Tenseur 
 Tenseur operator*(int, const Tenseur& ) ;		
 
-/// Tenseur / Tenseur ({\tt b} must be a scalar)
+/// Tenseur / Tenseur (\c b  must be a scalar)
 Tenseur operator/(const Tenseur& a, const Tenseur& b) ;	
 
-Tenseur operator/(const Tenseur&, double ) ;	/// Tenseur / double
+Tenseur operator/(const Tenseur&, double ) ;	///< Tenseur / double
 
-/// double / Tenseur  (the {\tt Tenseur} must be a scalar)
+/// double / Tenseur  (the \c Tenseur  must be a scalar)
 Tenseur operator/(double, const Tenseur &) ;		
 
-Tenseur operator/(const Tenseur&, int ) ;		/// Tenseur / int
+Tenseur operator/(const Tenseur&, int ) ;		///< Tenseur / int
 
-/// int / Tenseur  (the {\tt Tenseur} must be a scalar)
+/// int / Tenseur  (the \c Tenseur  must be a scalar)
 Tenseur operator/(int, const Tenseur &) ;		
 
-Tenseur exp(const Tenseur& ) ;		/// Exponential (for a scalar only)
-Tenseur log(const Tenseur& ) ;		/// Neperian logarithm (for a scalar only)
-Tenseur sqrt(const Tenseur& ) ;		/// Square root (for a scalar only)
-Tenseur abs(const Tenseur& ) ;		/// Absolute value (for a scalar only)
-Tenseur pow(const Tenseur&, int ) ;	/// Power (for a scalar only)
-Tenseur pow(const Tenseur&, double ) ;	/// Power (for a scalar only)
+Tenseur exp(const Tenseur& ) ;		///< Exponential (for a scalar only)
+Tenseur log(const Tenseur& ) ;		///< Neperian logarithm (for a scalar only)
+Tenseur sqrt(const Tenseur& ) ;		///< Square root (for a scalar only)
+Tenseur abs(const Tenseur& ) ;		///< Absolute value (for a scalar only)
+Tenseur pow(const Tenseur&, int ) ;	///< Power (for a scalar only)
+Tenseur pow(const Tenseur&, double ) ;	///< Power (for a scalar only)
 
-    //@}
+/** @} */
 
 
 
@@ -1183,7 +1195,7 @@ Tenseur pow(const Tenseur&, double ) ;	/// Power (for a scalar only)
 /**
  * Class intended to describe tensors with a symmetry on the two last indices.
  * The storage and the calculations are different and quicker than with an 
- * usual {\tt Tenseur}.
+ * usual \c Tenseur . \ingroup (otens)
  * 
  * The valence must be >1.
  */
@@ -1197,13 +1209,13 @@ class Tenseur_sym : public Tenseur {
 	 * 
 	 * @param map   the mapping 
 	 * @param val   valence of the tensor; must be greater or equal to 2.
-	 * @param tipe  1-D {\tt Itbl} of size {\tt valence} containing the type 
-	 *		of each index, {\tt COV} for a covariant one 
-	 *		and {\tt CON} for a contravariant one,  with the 
-	 *		following storage convention: \\
-	 *			{\tt tipe(0)} : type of the first index \\
-	 *			{\tt tipe(1)} : type of the second index \\
-	 *			and so on... 
+	 * @param tipe  1-D \c Itbl  of size \c valence  containing the type 
+	 *		of each index, \c COV  for a covariant one 
+	 *		and \c CON  for a contravariant one,  with the 
+	 *		following storage convention: 
+	 *			\li \c tipe(0)  : type of the first index 
+	 *			\li \c tipe(1)  : type of the second index 
+	 *			\li and so on... 
 	 * @param triad_i  vectorial basis (triad) with respect to which 
 	 *			  the tensor components are defined
 	 */
@@ -1224,14 +1236,14 @@ class Tenseur_sym : public Tenseur {
 		     const Base_vect& triad_i, const Metrique* met = 0x0,
 		     double weight = 0) ;
 
-	Tenseur_sym (const Tenseur_sym&) ; /// Copy constructor
+	Tenseur_sym (const Tenseur_sym&) ; ///< Copy constructor
 
-	/** Constructor from a {\tt Tenseur}.
+	/** Constructor from a \c Tenseur .
 	 *  The symmetry is assumed to be true but not checked.
 	 */
 	explicit Tenseur_sym (const Tenseur&) ;
 	
-	/** Constructor from a file (see {\tt sauve(FILE* )}).
+	/** Constructor from a file (see \c sauve(FILE*) ).
 	 * 
 	 * @param map  the mapping
 	 * @param triad_i   vectorial basis (triad) with respect to which 
@@ -1239,18 +1251,18 @@ class Tenseur_sym : public Tenseur {
 	 *			  be checked that it coincides with the basis
 	 *			  saved in the file.
 	 * @param fich  file which has been created by 
-	 *			    the function {\tt sauve(FILE* )}.
+	 *			    the function \c sauve(FILE*) .
 	 */
 	Tenseur_sym (const Map& map, const Base_vect& triad_i, FILE* fich,
 		     const Metrique* met = 0x0) ;
 
-	virtual ~Tenseur_sym() ;    /// Destructor
+	virtual ~Tenseur_sym() ;    ///< Destructor
 	
     // Mutators / assignment
     // ---------------------
     public:
 	/**
-	 * Assignment from a {\tt Tenseur}.
+	 * Assignment from a \c Tenseur .
 	 * 
 	 * The symmetry is assumed but not checked.
 	 */
@@ -1261,12 +1273,12 @@ class Tenseur_sym : public Tenseur {
     // ---------
     public:
 	/**
-	 * Returns the position in the {\tt Cmp} 1-D array {\tt c} of a 
+	 * Returns the position in the \c Cmp  1-D array \c c  of a 
 	 * component given by its indices.  
 	 *
-	 * @return position in the {\tt Cmp} 1-D array {\tt c}  
-	 * corresponding to the indices given in {\tt idx}. {\tt idx}
-	 * must be a 1-D {\tt Itbl} of size {\tt valence}, 
+	 * @return position in the \c Cmp  1-D array \c c   
+	 * corresponding to the indices given in \c idx . \c idx 
+	 * must be a 1-D \c Itbl  of size \c valence , 
 	 * each element of which must be 0, 1 or 2, 
 	 * corresponding to spatial indices 1, 2 or 3 respectively. 
 	 */
@@ -1274,13 +1286,13 @@ class Tenseur_sym : public Tenseur {
 
 	/**
 	 * Returns the indices of a component given by its position in the 
-	 * {\tt Cmp} 1-D array {\tt c}. 
+	 * \c Cmp  1-D array \c c . 
 	 *
-	 * @return 1-D array of integers ({\tt Itbl}) of
-	 *         size {\tt valence} giving the value of each index 
-	 *	   for the component located at the position {\tt place}
-	 *	   in the {\tt Cmp} 1-D array {\tt c}. 
-	 *	   Each element of this {\tt Itbl} is 0, 1 or 2, which 
+	 * @return 1-D array of integers (\c Itbl ) of
+	 *         size \c valence  giving the value of each index 
+	 *	   for the component located at the position \c place 
+	 *	   in the \c Cmp  1-D array \c c . 
+	 *	   Each element of this \c Itbl  is 0, 1 or 2, which 
 	 *	   corresponds to spatial indices 1, 2 or 3 respectively. 
 	 */
 	virtual Itbl donne_indices (int place) const ;
@@ -1289,22 +1301,22 @@ class Tenseur_sym : public Tenseur {
     // ------------------------------
     protected:
 	/**
-	 * Calculates, if needed, the gradient of {\tt *this}.
-	 * The result is in {\tt *p\_gradient}
+	 * Calculates, if needed, the gradient of \c *this .
+	 * The result is in \c *p_gradient 
 	 */
 	virtual void fait_gradient () const ;
 
 	/**
-	 * Calculates, if needed, the covariant derivative of {\tt *this}, with 
-	 * respect to {\tt met}.
-	 * The result is in {\tt *p\_derive\_cov[i]}
+	 * Calculates, if needed, the covariant derivative of \c *this , with 
+	 * respect to \c met .
+	 * The result is in \c *p_derive_cov[i] 
 	 */
 	virtual void fait_derive_cov (const Metrique& met, int i) const ;
 
 	/**
-	 * Calculates, if needed, the contravariant derivative of {\tt *this},
-	 * with respect to {\tt met}.
-	 * The result is in {\tt *p\_derive\_con[i]}
+	 * Calculates, if needed, the contravariant derivative of \c *this ,
+	 * with respect to \c met .
+	 * The result is in \c *p_derive_con[i] 
 	 */
 	virtual void fait_derive_con (const Metrique&, int i) const ;
 	
@@ -1317,20 +1329,22 @@ class Tenseur_sym : public Tenseur {
  
 } ;
 /**
- * @name Tenseur\_sym calculus
+ * \defgroup tsym_cal Tenseur_sym calculus 
+ * \ingroup (otens)
+ *
+ * @{
  */
-//@{
 /// Tensorial product.
 Tenseur_sym operator* (const Tenseur&, const Tenseur_sym&) ; 
 
 /**
  * Raise or lower all the indices, depending on their type,  using the given
- * {\tt Metrique}.
+ * \c Metrique .
  */
 Tenseur_sym manipule(const Tenseur_sym&, const Metrique&) ;
 
 /**
- * Lie Derivative of {\tt t} with respect to {\tt x}. If no other 
+ * Lie Derivative of \c t  with respect to \c x . If no other 
  * argument is given, it uses partial derivatives with respect to 
  * cartesian coordinates to calculate the result (this is the 
  * default). Otherwise, it uses the covariant derivative associated 
@@ -1340,52 +1354,54 @@ Tenseur_sym lie_derive (const Tenseur_sym& t, const Tenseur& x,
 			    const Metrique* = 0x0);
 
 /**
- *  Computes the traceless part of a {\tt Tenseur\_sym} of valence 2.
+ *  Computes the traceless part of a \c Tenseur_sym  of valence 2.
  * 
- * @param tens [input] the {\tt Tenseur\_sym} of valence 2
+ * @param tens [input] the \c Tenseur_sym  of valence 2
  * @param metre [input] the metric used to raise or lower the indices
  * 
- * @return The traceless part of the input {\tt Tenseur\_sym}
+ * @return The traceless part of the input \c Tenseur_sym 
  */
 Tenseur_sym sans_trace(const Tenseur_sym& tens, const Metrique& metre) ;
 
-//@}
+/** @} */
 
 
 
 /**
- * @name Tenseur\_sym mathematics
+ * \defgroup tsym_mat Tenseur_sym mathematics 
+ *  \ingroup (otens)
+ *
+ * @{
  */
-    //@{
-Tenseur_sym operator+(const Tenseur_sym& ) ;	/// + Tenseur\_sym
-Tenseur_sym operator-(const Tenseur_sym& ) ;	/// - Tenseur\_sym
+Tenseur_sym operator+(const Tenseur_sym& ) ;	///< + Tenseur_sym
+Tenseur_sym operator-(const Tenseur_sym& ) ;	///< \c - Tenseur_sym
 
-/// Tenseur\_sym + Tenseur\_sym
+/// Tenseur_sym + Tenseur_sym
 Tenseur_sym operator+(const Tenseur_sym&, const Tenseur_sym &) ;	
 
-/// Tenseur\_sym - Tenseur\_sym
+/// Tenseur_sym - Tenseur_sym
 Tenseur_sym operator-(const Tenseur_sym &, const Tenseur_sym &) ;	
 
-/// Tenseur\_sym * double 
+/// Tenseur_sym * double 
 Tenseur_sym operator*(const Tenseur_sym&, double ) ;		
 
-/// double * Tenseur\_sym 
+/// double * Tenseur_sym 
 Tenseur_sym operator*(double, const Tenseur_sym& ) ;		
 
-/// Tenseur\_sym * int 
+/// Tenseur_sym * int 
 Tenseur_sym operator*(const Tenseur_sym&, int ) ;		
 
-/// int * Tenseur\_sym 
+/// int * Tenseur_sym 
 Tenseur_sym operator*(int, const Tenseur_sym& ) ;		
 
-/// Tenseur\_sym / Tenseur ({\tt b} must be a scalar)
+/// Tenseur_sym / Tenseur (\c b  must be a scalar)
 Tenseur_sym operator/(const Tenseur_sym& a, const Tenseur& b) ;	
 
-Tenseur_sym operator/(const Tenseur_sym&, double ) ;  /// Tenseur\_sym / double
+Tenseur_sym operator/(const Tenseur_sym&, double ) ;  ///< Tenseur_sym / double
 
-Tenseur_sym operator/(const Tenseur_sym&, int ) ;     /// Tenseur\_sym / int
+Tenseur_sym operator/(const Tenseur_sym&, int ) ;     ///< Tenseur_sym / int
 
-    //@}
+/** @} */
 
 
 

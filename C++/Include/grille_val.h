@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/22 13:12:41  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.4  2002/11/13 11:22:57  j_novak
  * Version "provisoire" de l'interpolation (sommation depuis la grille
  * spectrale) aux interfaces de la grille de Valence.
@@ -57,18 +60,17 @@
 #include "cmp.h"
 
 /**
- * Base class for Godunov-type grids.
+ * Base class for Godunov-type grids. \ingroup (mdm)
  * 
  * Takes into account hidden cells and interfaces between cells, 
  * in 1,2 or 3D. 
  * The derived classes stand for spherical and cartesian grids.
  * this base class settles quantities for 1D grid, which is minimal
  * and independent from the geometry (cartesian or spherical).
- * Therefore, the coordinates z and r are identified.
+ * Therefore, the coordinates \e z and \e r are identified.
  *
  * This is an abstract class (cannot be instanciated).
  *
- * @version #$Id$#
  **/
 class Grille_val {
   /// Arrays defined on Godunov-type grids.
@@ -82,26 +84,26 @@ class Grille_val {
   /// The number of hidden cells (same on each side)
   int nfantome ;
   /**
-   * Type of symmetry in $\theta$: SYM -> $\theta \to -\theta$\\
-   *                               NONSYM no symmetry
+   * Type of symmetry in \f$\theta\f$:\li \c SYM -> \f$\theta \to -\theta\f$
+   *                               \li \c NONSYM no symmetry
    */                  
   int type_t ;
   /**
-   * Type of symmetry in $\phi$: SYM -> $(x,y) \to (-x,-y)$\\
-   *                             NONSYM no symmetry
+   * Type of symmetry in \f$\phi\f$: \li \c SYM -> \f$(x,y) \to (-x,-y)\f$
+   *                             \li \c NONSYM no symmetry
    */                  
   int type_p ;
 
-  /// Lower boundary for z (or r) direction  
+  /// Lower boundary for \e z (or \e r ) direction  
   double *zrmin;
 
-  /// Higher boundary for z (or r) direction  
+  /// Higher boundary for \e z (or \e r ) direction  
   double *zrmax ;
   
  public:
-  /// Arrays containing the values of coordinate z (or r) on the nodes  
+  /// Arrays containing the values of coordinate \e z (or \e r) on the nodes  
   Tbl *zr;
-  /// Arrays containing the values of coordinate z (or r) on the interfaces
+  /// Arrays containing the values of coordinate \e z (or \e r) on the interfaces
   Tbl *zri ;
 
   // Constructors - Destructor
@@ -127,7 +129,7 @@ class Grille_val {
   /// Copy constructor
   Grille_val(const Grille_val& ) ;		
   
-  /// Constructor from a file (see {\tt sauve(FILE* )})
+  /// Constructor from a file (see \c sauve(FILE*) )
   Grille_val(FILE* ) ;    		
   
   /// Destructor
@@ -148,12 +150,12 @@ class Grille_val {
     return nfantome ;
   } ;
   
-  /// Returns the type of symmetry in $\theta$
+  /// Returns the type of symmetry in \f$\theta\f$
   int get_type_t() const {
     return type_t ;
   } ;
   
-  /// Returns the type of symmetry in $\phi$
+  /// Returns the type of symmetry in \f$\phi\f$
   int get_type_p() const {
     return type_p ;
   } ;
@@ -169,12 +171,12 @@ class Grille_val {
     return dim.dim[i] ;
   } ;
   
-  /// Returns the {\tt Dim_tbl} associated with the grid.
+  /// Returns the \c Dim_tbl  associated with the grid.
   const Dim_tbl* get_dim_tbl() const {
     return &dim ;
   } ;
 
-  /// Read-only of a particular value of the coordinate z (or r) at the nodes
+  /// Read-only of a particular value of the coordinate \e z (or \e r ) at the nodes
   double get_zr(const int i) const {
     assert (i>= -nfantome) ;
     assert (i<dim.dim[0]+nfantome) ;
@@ -182,7 +184,7 @@ class Grille_val {
     return zr->t[i+nfantome] ;
   } ;
   
-  /// Read-only of a particular value of the coordinate z (or r) at the interfaces
+  /// Read-only of a particular value of the coordinate \e z (or \e r ) at the interfaces
   double get_zri(const int i) const {
     assert (i>= -nfantome) ;
     assert (i<dim.dim[0]+nfantome+1) ;
@@ -209,24 +211,24 @@ class Grille_val {
  public:
   /**
    * Checks if the spectral grid and mapping are compatible with the
-   * {\tt Grille_val} caracteristics for the interpolation to be done.
+   * \c Grille_val  caracteristics for the interpolation to be done.
    * It checks wether the spectral grid is included in the Godunov one,
    * if the numbers of dimensions are the same (1,2 or 3D), and if the
-   * spectral collocation points in $\theta$ and $\phi$ are well
-   * defined across all the domains (see the documentation of {\tt
-   * Tbl_val}).
+   * spectral collocation points in \f$\theta\f$ and \f$\phi\f$ are well
+   * defined across all the domains (see the documentation of \c
+   * Tbl_val ).
    **/
   virtual bool compatible(const Map* mp, const int lmax, const int lmin=0) 
     const = 0 ;
 
   /**
    * Performs 1D interpolation.
-   * @param rdep [input] the coordinates r of the source points
-   * @param rarr [input] the coordinates r of the destination points
+   * @param rdep [input] the coordinates \e r of the source points
+   * @param rarr [input] the coordinates \e r of the destination points
    * @param fdep [input] values of the function at the source points
-   * @param flag [input] = 1 used for {\tt INSMTS} -- ought to disappear
-   * @param type_inter [input] type of interpolation (see {\tt Tbl_val})
-   * @return Tbl 1D of the same size as rarr, containing the values
+   * @param flag [input] = 1 used for \c INSMTS  -- ought to disappear
+   * @param type_inter [input] type of interpolation (see \c Tbl_val )
+   * @return \c Tbl 1D of the same size as rarr, containing the values
    * of the function at destination points
    **/
   Tbl interpol1(const Tbl& rdep, const Tbl& rarr, const Tbl& fdep, 
@@ -235,9 +237,9 @@ class Grille_val {
   /** 
    * Performs 2D interpolation.
    * @param fdep [input] values of the function at the source points
-   * @param rarr [input] the coordinates r of the destination points
-   * @param tetarr [input] the coordinates $\theta$ of the destination points
-   * @param type_inter [input] type of interpolation (see {\tt Tbl_val})
+   * @param rarr [input] the coordinates \e r of the destination points
+   * @param tetarr [input] the coordinates \f$\theta\f$ of the destination points
+   * @param type_inter [input] type of interpolation (see \c Tbl_val )
    * @return Tbl 2D size1:that of rarr, size2: that of tetarr,
    * containing the values of the function at destination points.
    **/
@@ -246,10 +248,10 @@ class Grille_val {
   /** 
    * Performs 3D interpolation.
    * @param fdep [input] values of the function at the source points
-   * @param rarr [input] the coordinates r of the destination points
-   * @param tetarr [input] the coordinates $\theta$ of the destination points
-   * @param phiarr [input] the coordinates $\phi$ of the destination points
-   * @param type_inter [input] type of interpolation (see {\tt Tbl_val})
+   * @param rarr [input] the coordinates \e r of the destination points
+   * @param tetarr [input] the coordinates \f$\theta\f$ of the destination points
+   * @param phiarr [input] the coordinates \f$\phi\f$ of the destination points
+   * @param type_inter [input] type of interpolation (see \c Tbl_val )
    * @return Tbl 3D size1:that of rarr, size2: that of tetarr,
    * size3: that of phiarr, containing the values of the function at 
    * destination points.
@@ -259,7 +261,7 @@ class Grille_val {
 		       const int type_inter) const = 0 ;
 
   /**
-   * Checks if {\tt Grille_val} is contained inside the spectral grid/mapping
+   * Checks if \c Grille_val  is contained inside the spectral grid/mapping
    * within the domains [lmin, lmax[, if the numbers of dimensions are 
    * the same (1,2 or 3D), and if the symmetries are compatible.
    **/
@@ -269,9 +271,9 @@ class Grille_val {
  protected:
   /**
    * Makes the sommation of the spectral basis functions to know
-   * the values of the function described by the {\tt Cmp} meudon 
-   * at the points of the 1D Godunov grid {\tt this}.
-   * The result is an array of all the values of the function at {\tt this} 
+   * the values of the function described by the \c Cmp  meudon 
+   * at the points of the 1D Godunov grid \c this .
+   * The result is an array of all the values of the function at \c this  
    * grid points.
    */
   double* somme_spectrale1(const Cmp& meudon) const ;
@@ -291,16 +293,15 @@ ostream& operator<<(ostream& , const Grille_val& ) ;
 		    //------------------------------------//
 
 /**
- * Class for cartesian Godunov-type grids.
+ * Class for cartesian Godunov-type grids.\ingroup (mdm)
  *         
  * Can be used for 1D (only z-coordinate), 2D (x and z) or 3D (y,x and z)
- * grids. The coordinates of the nodes are stored in {\tt Tbl}'s zr
- * (derived from {\tt Grille_val}),x and y. 
- * The coordinates of the interfaces are stored in {\tt Tbl}'s zri 
- * (derived from {\tt Grille_val}),xi and yi.
+ * grids. The coordinates of the nodes are stored in \c Tbl 's zr
+ * (derived from \c Grille_val ),x and y. 
+ * The coordinates of the interfaces are stored in \c Tbl 's zri 
+ * (derived from \c Grille_val ),xi and yi.
  * The standard constructors only allow for equally-spaced nodes.
  *
- * @version #$Id$#
  **/
 class Gval_cart : public Grille_val {
   /// Arrays defined on Godunov-type grids.
@@ -309,23 +310,23 @@ class Gval_cart : public Grille_val {
   // Data : 
   // -----
  protected:
-  /// Lower boundary for x dimension
+  /// Lower boundary for \e x dimension
   double *xmin ;
-  /// Higher boundary for x dimension
+  /// Higher boundary for \e x dimension
   double *xmax ;
-  /// Lower boundary for y dimension
+  /// Lower boundary for \e y dimension
   double *ymin ;
-  /// Higher boundary for x dimension
+  /// Higher boundary for \e y dimension
   double *ymax ;
   
  public:
-  /// Arrays containing the values of coordinate x on the nodes
+  /// Arrays containing the values of coordinate \e x on the nodes
   Tbl *x ;
-  /// Arrays containing the values of coordinate x on the interfaces
+  /// Arrays containing the values of coordinate \e x on the interfaces
   Tbl *xi ;
-  /// Arrays containing the values of coordinate y on the nodes
+  /// Arrays containing the values of coordinate \e y on the nodes
   Tbl *y ; 
-  /// Arrays containing the values of coordinate y on the interfaces
+  /// Arrays containing the values of coordinate \e y on the interfaces
   Tbl *yi ;
 
   // Constructors - Destructor
@@ -333,8 +334,8 @@ class Gval_cart : public Grille_val {
 
   /**
    * Standard 1D constructor.
-   * @param izmin [input] lower z boundary
-   * @param izmax [input] higher z boundary
+   * @param izmin [input] lower \e z boundary
+   * @param izmax [input] higher \e z boundary
    * @param n1 [input] the number of cells (without the hidden ones)
    * @param fantome [input] the number of hidden cells on each side
    */
@@ -343,15 +344,15 @@ class Gval_cart : public Grille_val {
   
   /**
    * Standard 2D constructor.
-   * @param ixmin [input] lower x boundary
-   * @param ixmax [input] higher x boundary
-   * @param izmin [input] lower z boundary
-   * @param izmax [input] higher z boundary
-   * @param nx [input] the number of cells in x direction 
+   * @param ixmin [input] lower \e x boundary
+   * @param ixmax [input] higher \e x boundary
+   * @param izmin [input] lower \e z boundary
+   * @param izmax [input] higher \e z boundary
+   * @param nx [input] the number of cells in \e x direction 
    * (without the hidden ones)
-   * @param nz [input] the number of cells in z direction 
+   * @param nz [input] the number of cells in \e z direction 
    * (without the hidden ones)
-   * @param type_t [input] the type of symmetry in $\theta$ (SYM, NONSYM,
+   * @param type_t [input] the type of symmetry in \f$\theta\f$ (SYM, NONSYM,
    * see base class documentation)
    * @param fantome [input] the number of hidden cells on each side
    */
@@ -361,21 +362,21 @@ class Gval_cart : public Grille_val {
 
   /**
    * Standard 3D constructor.
-   * @param iymin [input] lower y boundary
-   * @param iymax [input] higher y boundary
-   * @param ixmin [input] lower x boundary
-   * @param ixmax [input] higher x boundary
-   * @param izmin [input] lower z boundary
-   * @param izmax [input] higher z boundary
-   * @param ny [input] the number of cells in y direction 
+   * @param iymin [input] lower \e y boundary
+   * @param iymax [input] higher \e y boundary
+   * @param ixmin [input] lower \e x boundary
+   * @param ixmax [input] higher \e x boundary
+   * @param izmin [input] lower \e z boundary
+   * @param izmax [input] higher \e z boundary
+   * @param ny [input] the number of cells in \e y direction 
    * (without the hidden ones)
-   * @param nx [input] the number of cells in x direction 
+   * @param nx [input] the number of cells in \e x direction 
    * (without the hidden ones)
-   * @param nz [input] the number of cells in z direction 
+   * @param nz [input] the number of cells in \e z direction 
    * (without the hidden ones)
-   * @param type_t [input] the type of symmetry in $\theta$ (SYM, NONSYM,
+   * @param type_t [input] the type of symmetry in \f$\theta\f$ (SYM, NONSYM,
    * see base class documentation)
-   * @param type_p [input] the type of symmetry in $\phi$ (SYM, NONSYM,
+   * @param type_p [input] the type of symmetry in \f$\phi\f$ (SYM, NONSYM,
    * see base class documentation)
    * @param fantome [input] the number of hidden cells on each side
    */
@@ -387,7 +388,7 @@ class Gval_cart : public Grille_val {
   /// Copy constructor
   Gval_cart(const Gval_cart& ) ;		
   
-  /// Constructor from a file (see {\tt sauve(FILE* )})
+  /// Constructor from a file (see \c sauve(FILE*) )
   Gval_cart(FILE* ) ;    		
   
   /// Destructor
@@ -403,7 +404,7 @@ class Gval_cart : public Grille_val {
   // Accessors
   // ---------
  public:
-  /// Read-only of a particular value of the coordinate x at the nodes
+  /// Read-only of a particular value of the coordinate \e x at the nodes
   double get_x(const int i) const {
     assert (i>= -nfantome) ;
     assert (i<dim.dim[1]+nfantome) ;
@@ -412,7 +413,7 @@ class Gval_cart : public Grille_val {
     return (*x)(i+nfantome) ;
   } ;
   
-  /// Read-only of a particular value of the coordinate y at the nodes
+  /// Read-only of a particular value of the coordinate \e y at the nodes
   double get_y(const int i) const {
     assert (i>= -nfantome) ;
     assert (i<dim.dim[2]+nfantome) ;
@@ -421,7 +422,7 @@ class Gval_cart : public Grille_val {
     return (*y)(i+nfantome) ;
   } ;
   
-  /// Read-only of a particular value of the coordinate x at the interfaces
+  /// Read-only of a particular value of the coordinate \e x at the interfaces
   double get_xi(const int i) const {
     assert (i>= -nfantome) ;
     assert (i<dim.dim[1]+nfantome+1) ;
@@ -430,7 +431,7 @@ class Gval_cart : public Grille_val {
     return (*xi)(i+nfantome) ;
   } ;
   
-  /// Read-only of a particular value of the coordinate y at the interfaces
+  /// Read-only of a particular value of the coordinate \e y at the interfaces
   double get_yi(const int i) const {
     assert (i>= -nfantome) ;
     assert (i<dim.dim[2]+nfantome+1) ;
@@ -474,12 +475,12 @@ class Gval_cart : public Grille_val {
  public:
   /**
    * Checks if the spectral grid and mapping are compatible with the
-   * {\tt Grille_val} caracteristics for the interpolation to be done.
+   * \c Grille_val  caracteristics for the interpolation to be done.
    *
    * It checks wether the spectral grid is included in the Godunov one,
    * if the numbers of dimensions are the same (1,2 or 3D), and if the
-   * spectral collocation points in $\theta$ and $\phi$ are well
-   * defined across all the domains (see the documentation of {\tt Tbl_val}.
+   * spectral collocation points in \f$\theta\f$ and \f$\phi\f$ are well
+   * defined across all the domains (see the documentation of \c Tbl_val .
    **/
   virtual bool compatible(const Map* mp, const int lmax, const int lmin=0) 
     const ;
@@ -488,9 +489,9 @@ class Gval_cart : public Grille_val {
    * Performs 2D interpolation.
    * @param fdep [input] values of the function at the source points,
    * defined as the nodes of the Godunov grid 
-   * @param rarr [input] the coordinates r of the destination points
-   * @param tetarr [input] the coordinates $\theta$ of the destination points
-   * @param type_inter [input] type of interpolation (see {\tt Tbl_val})
+   * @param rarr [input] the coordinates \e r of the destination points
+   * @param tetarr [input] the coordinates \f$\theta\f$ of the destination points
+   * @param type_inter [input] type of interpolation (see \c Tbl_val )
    * @return Tbl 2D size1:that of rarr, size2: that of tetarr,
    * containing the values of the function at destination points.
    **/
@@ -507,10 +508,10 @@ class Gval_cart : public Grille_val {
   /** 
    * Performs 3D interpolation.
    * @param fdep [input] values of the function at the source points
-   * @param rarr [input] the coordinates r of the destination points
-   * @param tetarr [input] the coordinates $\theta$ of the destination points
-   * @param phiarr [input] the coordinates $\phi$ of the destination points
-   * @param type_inter [input] type of interpolation (see {\tt Tbl_val})
+   * @param rarr [input] the coordinates \e r of the destination points
+   * @param tetarr [input] the coordinates \f$\theta\f$ of the destination points
+   * @param phiarr [input] the coordinates \f$\phi\f$ of the destination points
+   * @param type_inter [input] type of interpolation (see \c Tbl_val )
    * @return Tbl 3D size1:that of rarr, size2: that of tetarr,
    * size3: that of phiarr, containing the values of the function at 
    * destination points.
@@ -519,7 +520,7 @@ class Gval_cart : public Grille_val {
 		       const Tbl& tetarr, const Tbl& phiarr, 
 		       const int type_inter) const ;
   /**
-   * Checks if {\tt Gval_cart} is contained inside the spectral grid/mapping
+   * Checks if \c Gval_cart  is contained inside the spectral grid/mapping
    * within the domains [lmin, lmax[, if the numbers of dimensions are 
    * the same (1,2 or 3D), and if the symmetries are compatible.
    **/
@@ -529,9 +530,9 @@ class Gval_cart : public Grille_val {
  protected:
   /**
    * Makes the sommation of the spectral basis functions to know
-   * the values of the function described by the {\tt Cmp} meudon 
-   * at the points of the 2D Godunov grid {\tt this}.
-   * The result is an array of all the values of the function at {\tt this} 
+   * the values of the function described by the \c Cmp  meudon 
+   * at the points of the 2D Godunov grid \c this .
+   * The result is an array of all the values of the function at \c this  
    * grid points.
    */
   virtual double* somme_spectrale2(const Cmp& meudon) const  ;
@@ -545,17 +546,16 @@ class Gval_cart : public Grille_val {
 		    //------------------------------------//
 
 /**
- * Class for spherical Godunov-type grids.
+ * Class for spherical Godunov-type grids.\ingroup (mdm)
  *         
- * Can be used for 1D (only r-coordinate), 2D ($\theta$ and r) 
- * or 3D ($\phi$, $\theta$ and r)
- * grids. The coordinates of the nodes are stored in {\tt Tbl}'s zr
- * (derived from {\tt Grille_val}),tet and phi. 
- * The coordinates of the interfaces are stored in {\tt Tbl}'s zri 
- * (derived from {\tt Grille_val}),teti and phii.
+ * Can be used for 1D (only r-coordinate), 2D (\f$\theta\f$ and \e r ) 
+ * or 3D (\f$\phi\f$, \f$\theta\f$ and \e r )
+ * grids. The coordinates of the nodes are stored in \c Tbl 's zr
+ * (derived from \c Grille_val ),tet and phi. 
+ * The coordinates of the interfaces are stored in \c Tbl 's zri 
+ * (derived from \c Grille_val ),teti and phii.
  * The standard constructors only allow for equally-spaced nodes.
  *
- * @version #$Id$#
  **/
 class Gval_spher : public Grille_val {
   /// Arrays defined on Godunov-type grids.
@@ -564,13 +564,13 @@ class Gval_spher : public Grille_val {
   // Data : 
   // -----
  public:
-  /// Arrays containing the values of coordinate $\theta$ on the nodes
+  /// Arrays containing the values of coordinate \f$\theta\f$ on the nodes
   Tbl *tet ;
-  /// Arrays containing the values of coordinate $\theta$ on the interfaces
+  /// Arrays containing the values of coordinate \f$\theta\f$ on the interfaces
   Tbl *teti ;
-  /// Arrays containing the values of coordinate $\phi$ on the nodes
+  /// Arrays containing the values of coordinate \f$\phi\f$ on the nodes
   Tbl *phi ;
-  /// Arrays containing the values of coordinate $\phi$ on the interfaces
+  /// Arrays containing the values of coordinate \f$\phi\f$ on the interfaces
   Tbl *phii ;
 
   // Constructors - Destructor
@@ -578,8 +578,8 @@ class Gval_spher : public Grille_val {
 
   /**
    * Standard 1D constructor.
-   * @param irmin [input] lower r boundary
-   * @param irmax [input] higher r boundary
+   * @param irmin [input] lower \e r boundary
+   * @param irmax [input] higher \e r boundary
    * @param nr [input] the number of cells (without the hidden ones)
    * @param fantome [input] the number of hidden cells on each side
    */
@@ -588,11 +588,11 @@ class Gval_spher : public Grille_val {
   
   /**
    * Standard 2D constructor.
-   * @param irmin [input] lower r boundary
-   * @param irmax [input] higher r boundary
-   * @param nt [input] the number of cells in $\theta$ (without hidden ones)
+   * @param irmin [input] lower \e r boundary
+   * @param irmax [input] higher \e r boundary
+   * @param nt [input] the number of cells in \f$\theta\f$ (without hidden ones)
    * @param nr [input] the number of cells in r(without the hidden ones)
-   * @param type_t [input] the type of symmetry in $\theta$ (SYM, NONSYM,
+   * @param type_t [input] the type of symmetry in \f$\theta\f$ (SYM, NONSYM,
    * see base class documentation)
    * @param fantome [input] the number of hidden cells on each side
    */
@@ -601,14 +601,14 @@ class Gval_spher : public Grille_val {
 
   /**
    * Standard 3D constructor.
-   * @param irmin [input] lower r boundary
-   * @param irmax [input] higher r boundary
-   * @param np [input] the number of cells in $\phi$ (without the hidden ones)
-   * @param nt [input] the number of cells in $\theta$ (without hidden ones)
+   * @param irmin [input] lower \e r boundary
+   * @param irmax [input] higher \e r boundary
+   * @param np [input] the number of cells in \f$\phi\f$ (without the hidden ones)
+   * @param nt [input] the number of cells in \f$\theta\f$ (without hidden ones)
    * @param nr [input] the number of cells in r(without the hidden ones)
-   * @param type_t [input] the type of symmetry in $\theta$ (SYM, NONSYM,
+   * @param type_t [input] the type of symmetry in \f$\theta\f$ (SYM, NONSYM,
    * see base class documentation)
-   * @param type_p [input] the type of symmetry in $\phi$ (SYM, NONSYM,
+   * @param type_p [input] the type of symmetry in \f$\phi\f$ (SYM, NONSYM,
    * see base class documentation)
    * @param fantome [input] the number of hidden cells on each side
    */
@@ -619,7 +619,7 @@ class Gval_spher : public Grille_val {
   /// Copy constructor
   Gval_spher(const Gval_spher& ) ;		
   
-  /// Constructor from a file (see {\tt sauve(FILE* )})
+  /// Constructor from a file (see \c sauve(FILE*) )
   Gval_spher(FILE* ) ;    		
   
   /// Destructor
@@ -636,7 +636,7 @@ class Gval_spher : public Grille_val {
   // ---------
  public:
 
-  /// Read-only of a particular value of the coordinate $\theta$ at the nodes
+  /// Read-only of a particular value of the coordinate \f$\theta\f$ at the nodes
   double get_tet(const int i) const {
     assert (i>= -nfantome) ;
     assert (dim.ndim >= 2) ;
@@ -645,7 +645,7 @@ class Gval_spher : public Grille_val {
     return tet->t[i+nfantome] ;
   } ;
   
-  /// Read-only of a particular value of the coordinate $\phi$ at the nodes
+  /// Read-only of a particular value of the coordinate \f$\phi\f$ at the nodes
   double get_phi(const int i) const {
     assert (i>= -nfantome) ;
     assert (dim.ndim == 3) ;
@@ -654,7 +654,7 @@ class Gval_spher : public Grille_val {
     return phi->t[i+nfantome] ;
   } ;
   
-  /// Read-only of a particular value of coordinate $\theta$ at the interfaces
+  /// Read-only of a particular value of coordinate \f$\theta\f$ at the interfaces
   double get_teti(const int i) const {
     assert (i>= -nfantome) ;
     assert (dim.ndim >= 2) ;
@@ -663,7 +663,7 @@ class Gval_spher : public Grille_val {
     return teti->t[i+nfantome] ;
   } ;
   
-  /// Read-only of a particular value of coordinate $\phi$ at the interfaces
+  /// Read-only of a particular value of coordinate \f$\phi\f$ at the interfaces
   double get_phii(const int i) const {
     assert (i>= -nfantome) ;
     assert (dim.ndim == 3) ;
@@ -687,12 +687,12 @@ class Gval_spher : public Grille_val {
  public:
   /**
    * Checks if the spectral grid and mapping are compatible with the
-   * {\tt Grille_val} caracteristics for the interpolation to be done.
+   * \c Grille_val  caracteristics for the interpolation to be done.
    *
    * It checks wether the spectral grid is included in the Godunov one,
    * if the numbers of dimensions are the same (1,2 or 3D), and if the
-   * spectral collocation points in $\theta$ and $\phi$ are well
-   * defined across all the domains (see the documentation of {\tt Tbl_val}.
+   * spectral collocation points in \f$\theta\f$ and \f$\phi\f$ are well
+   * defined across all the domains (see the documentation of \c Tbl_val .
    **/
   virtual bool compatible(const Map* mp, const int lmax, const int lmin=0) 
     const ;
@@ -701,9 +701,9 @@ class Gval_spher : public Grille_val {
    * Performs 2D interpolation.
    * @param fdep [input] values of the function at the source points,
    * defined as the nodes of the Godunov grid 
-   * @param rarr [input] the coordinates r of the destination points
-   * @param tetarr [input] the coordinates $\theta$ of the destination points
-   * @param type_inter [input] type of interpolation (see {\tt Tbl_val})
+   * @param rarr [input] the coordinates \e r of the destination points
+   * @param tetarr [input] the coordinates \f$\theta\f$ of the destination points
+   * @param type_inter [input] type of interpolation (see \c Tbl_val )
    * @return Tbl 2D size1:that of rarr, size2: that of tetarr,
    * containing the values of the function at destination points.
    **/
@@ -712,11 +712,11 @@ class Gval_spher : public Grille_val {
    /** 
    * Performs 3D interpolation.
    * @param fdep [input] values of the function at the source points
-   * defined as the nodes of the Godunov grid {\tt this}
-   * @param rarr [input] the coordinates r of the destination points
-   * @param tetarr [input] the coordinates $\theta$ of the destination points
-   * @param phiarr [input] the coordinates $\phi$ of the destination points
-   * @param type_inter [input] type of interpolation (see {\tt Tbl_val})
+   * defined as the nodes of the Godunov grid \c this 
+   * @param rarr [input] the coordinates \e r of the destination points
+   * @param tetarr [input] the coordinates \f$\theta\f$ of the destination points
+   * @param phiarr [input] the coordinates \f$\phi\f$ of the destination points
+   * @param type_inter [input] type of interpolation (see \c Tbl_val )
    * @return Tbl 3D size1:that of rarr, size2: that of tetarr,
    * size3: that of phiarr, containing the values of the function at 
    * destination points.
@@ -725,7 +725,7 @@ class Gval_spher : public Grille_val {
 		       const Tbl& phiarr, const int type_inter) const ;
 
   /**
-   * Checks if {\tt Gval_spher} is contained inside the spectral grid/mapping
+   * Checks if \c Gval_spher  is contained inside the spectral grid/mapping
    * within the domains [lmin, lmax[, if the numbers of dimensions are 
    * the same (1,2 or 3D), and if the symmetries are compatible.
    **/
@@ -735,9 +735,9 @@ class Gval_spher : public Grille_val {
  protected:
   /**
    * Makes the sommation of the spectral basis functions to know
-   * the values of the function described by the {\tt Cmp} meudon 
-   * at the points of the 2D Godunov grid {\tt this}.
-   * The result is an array of all the values of the function at {\tt this} 
+   * the values of the function described by the \c Cmp  meudon 
+   * at the points of the 2D Godunov grid \c this .
+   * The result is an array of all the values of the function at \c this  
    * grid points.
    */
   virtual double* somme_spectrale2(const Cmp& meudon) const  ;

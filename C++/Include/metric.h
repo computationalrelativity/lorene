@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/03/22 13:12:42  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.6  2003/12/30 23:04:58  e_gourgoulhon
  * Important reorganization of class Metric:
  *  -- suppression of virtual methods fait_* : the actual computations
@@ -73,16 +76,15 @@
 #define N_TENSOR_DEPEND 200
 
 /**
- * Metric for tensor calculation.
+ * Metric for tensor calculation. \ingroup (tensor)
  * 
- * @version #$Id$#
  */
 class Metric {
 
     // Data : 
     // -----
     protected:
-	const Map* const mp ;	/// Reference mapping.
+	const Map* const mp ;	///< Reference mapping.
 
 	/**
 	 * Pointer on the contravariant representation.
@@ -99,12 +101,12 @@ class Metric {
     // ------------
     protected:
     
-	mutable Connection* p_connect ; /// Connection associated with the metric
+	mutable Connection* p_connect ; ///< Connection associated with the metric
 
 	/**
 	 * Pointer on the Ricci scalar.
          * Remark: the Ricci tensor is stored in the connection (member
-         *  {\tt p\_connect->p\_ricci}).
+         *  \c p_connect->p_ricci ).
 	 */
 	mutable Scalar* p_ricci_scal ;
 	
@@ -115,24 +117,24 @@ class Metric {
 	
 	/**
 	 * Pointer on the dependancies, that means the array contains pointers
-	 * on all the {\tt Tensor} whom derivative members have been calculated
-	 * using {\tt *this}.
+	 * on all the \c Tensor  whom derivative members have been calculated
+	 * using \c *this .
 	 */
 	mutable const Tensor* tensor_depend[N_TENSOR_DEPEND] ;
 	
     // Constructors - Destructor
     // -------------------------
     public:
-	/** Standard constructor from a {\tt Sym\_tensor}.
+	/** Standard constructor from a \c Sym_tensor .
 	 *
 	 *  The symmetric tensor can be either the covariant or
 	 *  the contravariant representation of the metric.
 	 */
 	explicit Metric(const Sym_tensor& tens) ;  
          
-	Metric(const Metric& met) ;		/// Copy constructor
+	Metric(const Metric& met) ;		///< Copy constructor
 
-	/// Constructor from a file (see {\tt sauve(FILE* )})
+	/// Constructor from a file (see \c sauve(FILE*) )
 	Metric(const Map&, FILE* ) ;    		
 
     protected:
@@ -140,7 +142,7 @@ class Metric {
 	explicit Metric(const Map& mpi) ;
 
     public:
-	virtual ~Metric() ;			/// Destructor
+	virtual ~Metric() ;			///< Destructor
  
 
     // Memory management
@@ -149,17 +151,17 @@ class Metric {
 	/// Deletes all the derived quantities
 	void del_deriv() const ; 
 	
-	/// Sets to {\tt 0x0} all the pointers on derived quantities
+	/// Sets to \c 0x0  all the pointers on derived quantities
 	void set_der_0x0() const ; 
 
 	/**
-	 * Deletes all the derivative members of the {\tt Tensor} contained in
-	 * {\tt tensor_depend}. Those quantities had been previously 
-	 * calculated using {\tt *this}.
+	 * Deletes all the derivative members of the \c Tensor  contained in
+	 * \c tensor_depend . Those quantities had been previously 
+	 * calculated using \c *this .
 	 */
 	void del_tensor_depend() const ;
 		
-	///Sets all elements of {\tt tensor_depend} to 0x0.
+	///Sets all elements of \c tensor_depend  to 0x0.
 	void set_tensor_depend_0x0() const ;
 		
 
@@ -170,7 +172,7 @@ class Metric {
 	void operator=(const Metric& met) ;	
 
 	/**
-	 * Assignment from a {\tt Sym\_tensor}.
+	 * Assignment from a \c Sym_tensor .
 	 * The allocated representation depends on the type of the
 	 * input tensor indices.
 	 * All the other members are deleted.
@@ -192,8 +194,8 @@ class Metric {
 	/// Returns the connection
 	virtual const Connection& connect() const ;
 
-	/** Returns the Ricci tensor (given by the {\tt Connection} 
-         *  {\tt p\_connect})
+	/** Returns the Ricci tensor (given by the \c Connection  
+         *  \c p_connect )
          */
 	const Sym_tensor& ricci() const ;
 	
@@ -202,7 +204,7 @@ class Metric {
 
 	/**Returns the determinant.
 	 * 
-	 * This determinant is stored as a {\tt Scalar} although it
+	 * This determinant is stored as a \c Scalar  although it
 	 * a scalar density. To be a real scalar it must be divided
 	 * by e.g. the determinant of a flat metric.
 	 */
@@ -211,7 +213,7 @@ class Metric {
     // Outputs
     // -------
     public:
-	virtual void sauve(FILE *) const ;	    /// Save in a file
+	virtual void sauve(FILE *) const ;	    ///< Save in a file
     
 	/// Display
 	friend ostream& operator<<(ostream& , const Metric& ) ;	
@@ -226,7 +228,7 @@ class Metric {
 };
 
 /**
- * Flat metric for tensor calculation.
+ * Flat metric for tensor calculation.\ingroup (tensor)
  * 
  */
 class Metric_flat: public Metric {
@@ -249,13 +251,13 @@ class Metric_flat: public Metric {
 	 */
 	Metric_flat(const Map&, const Base_vect& ) ;   
 
-	Metric_flat(const Metric_flat& ) ;		/// Copy constructor
+	Metric_flat(const Metric_flat& ) ;		///< Copy constructor
 
-	/// Constructor from a file (see {\tt sauve(FILE* )})
+	/// Constructor from a file (see \c sauve(FILE*) )
 	Metric_flat(const Map&, FILE* ) ;    		
 
    public:
-	virtual ~Metric_flat() ;			/// Destructor
+	virtual ~Metric_flat() ;			///< Destructor
  
 
     // Mutators / assignment
@@ -265,8 +267,8 @@ class Metric_flat: public Metric {
 	void operator=(const Metric_flat&) ;	
 
 	/**
-	 * Assignment from a {\tt Sym\_tensor}.
-	 * In principle, this method should not be used for a {\tt Metric\_flat}.
+	 * Assignment from a \c Sym_tensor .
+	 * In principle, this method should not be used for a \c Metric_flat .
 	 */
 	virtual void operator=(const Sym_tensor& tens) ;
 
@@ -293,7 +295,7 @@ class Metric_flat: public Metric {
 
 	/**Returns the determinant.
 	 * 
-	 * This determinant is stored as a {\tt Scalar} although it
+	 * This determinant is stored as a \c Scalar  although it
 	 * a scalar density. To be a real scalar it must be divided
 	 * by e.g. the determinant of a flat metric.
 	 */
@@ -303,7 +305,7 @@ class Metric_flat: public Metric {
     // Outputs
     // -------
     public:
-	virtual void sauve(FILE *) const ;	    /// Save in a file
+	virtual void sauve(FILE *) const ;	    ///< Save in a file
     
     protected:
 	/// Operator >> (virtual function called by the operator <<). 

@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/22 13:12:41  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.2  2002/09/13 09:17:33  j_novak
  * Modif. commentaires
  *
@@ -49,10 +52,9 @@
  */
 
 /**
- * Class for differentially rotating stars.
+ * Class for differentially rotating stars. \ingroup (star)
  * 
  *
- * @version #$Id$#
  */
 
 // Headers Lorene
@@ -63,42 +65,42 @@ class Et_rot_diff : public Etoile_rot {
     // Data : 
     // -----
     protected:
-	/** Function $F(\Omega)$ defining the rotation profile.
+	/** Function \f$F(\Omega)\f$ defining the rotation profile.
 	 *  This function is linked to the components of the fluid 4-velocity
 	 *  by 
-	 *  \begin{equation}
+	 *  \f[
 	 *	F(\Omega) = u^t u_\varphi \ . 
-	 *  \end{equation}
-	 *  The first argument of {\tt frot} must be $\Omega$; the second
+	 *  \f]
+	 *  The first argument of \c frot  must be \f$\Omega\f$; the second
 	 *  argument contains the parameters, the first of which being
-	 *  necessarily the central value of $\Omega$.   
+	 *  necessarily the central value of \f$\Omega\f$.   
 	 */
 	double (*frot)(double, const Tbl&) ;
 	
-	/** Primitive of the function $F(\Omega)$, which vanishes at the
+	/** Primitive of the function \f$F(\Omega)\f$, which vanishes at the
 	 *  stellar center. 
-	 *  The first argument of {\tt primfrot} must be $\Omega$; the second
+	 *  The first argument of \c primfrot  must be \f$\Omega\f$; the second
 	 *  argument contains the parameters, the first of which being
-	 *  necessarily the central value of $\Omega$.   
+	 *  necessarily the central value of \f$\Omega\f$.   
 	 */
 	double (*primfrot)(double, const Tbl&) ;
 	
-	/** Parameters of the function $F(\Omega)$.
+	/** Parameters of the function \f$F(\Omega)\f$.
 	 * 
-	 * To be used as the second argument of functions {\tt frot}
-	 * and {\tt primfrot}. 
-	 * The parameter {\tt par\_frot(0)} must always be the central angular
+	 * To be used as the second argument of functions \c frot 
+	 * and \c primfrot . 
+	 * The parameter \c par_frot(0)  must always be the central angular
 	 * velocity. 
 	 */
 	Tbl par_frot ; 
 	
-	/// Field $\Omega(r,\theta)$
+	/// Field \f$\Omega(r,\theta)\f$
 	Tenseur omega_field ; 
 	
-	double omega_min ;   /// Minimum value of $\Omega$
-	double omega_max ;   /// Maximum value of $\Omega$
+	double omega_min ;   ///< Minimum value of \f$\Omega\f$
+	double omega_max ;   ///< Maximum value of \f$\Omega\f$
 	
-	/// Field $\int_{\Omega_{\rm c}}^\Omega F(\Omega') \, d\Omega' $
+	/// Field \f$\int_{\Omega_{\rm c}}^\Omega F(\Omega') \, d\Omega' \f$
 	Tenseur prim_field ; 
 	
     // Constructors - Destructor
@@ -108,39 +110,39 @@ class Et_rot_diff : public Etoile_rot {
 	 * 
 	 * @param mp_i Mapping on which the star will be defined
 	 * @param nzet_i Number of domains occupied by the star
-	 * @param relat should be {\tt true} for a relativistic
-	 *			star,  {\tt false} for a Newtonian one
+	 * @param relat should be \c true  for a relativistic
+	 *			star,  \c false  for a Newtonian one
 	 * @param eos_i Equation of state of the stellar matter
-	 * @param frot_i Function $F(\Omega)$ defining the rotation profile.
-	 * @param primfrot_i Primitive of $F(\Omega)$ which vanishes at the
+	 * @param frot_i Function \f$F(\Omega)\f$ defining the rotation profile.
+	 * @param primfrot_i Primitive of \f$F(\Omega)\f$ which vanishes at the
 	 *   stellar center
-	 * @param par_frot_i Parameters of functions {\tt frot\_i}
-	 *     and {\tt primfrot\_i}, 
-	 *	    {\tt par\_frot\_i(0)} being the central value of
-	 *	    $\Omega$. 
+	 * @param par_frot_i Parameters of functions \c frot_i 
+	 *     and \c primfrot_i , 
+	 *	    \c par_frot_i(0)  being the central value of
+	 *	    \f$\Omega\f$. 
 	 */
 	Et_rot_diff(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i, 
 		    double (*frot_i)(double, const Tbl&), 
 		    double (*primfrot_i)(double, const Tbl&), 
 		    const Tbl& par_frot_i) ;			
 
-	Et_rot_diff(const Et_rot_diff& ) ;		/// Copy constructor
+	Et_rot_diff(const Et_rot_diff& ) ;		///< Copy constructor
 
-	/** Constructor from a file (see {\tt sauve(FILE* )}). 
+	/** Constructor from a file (see \c sauve(FILE*) ). 
 	 * 
 	 * @param mp_i Mapping on which the star will be defined
 	 * @param eos_i Equation of state of the stellar matter
 	 * @param fich	input file (must have been created by the function
-	 *	{\tt sauve})
-	 * @param frot_i Function $F(\Omega)$ defining the rotation profile.
-	 * @param primfrot_i Primitive of $F(\Omega)$ which vanishes at the
+	 *	\c sauve )
+	 * @param frot_i Function \f$F(\Omega)\f$ defining the rotation profile.
+	 * @param primfrot_i Primitive of \f$F(\Omega)\f$ which vanishes at the
 	 *   stellar center
 	 */
 	Et_rot_diff(Map& mp_i, const Eos& eos_i, FILE* fich,
 		    double (*frot_i)(double, const Tbl&), 
 		    double (*primfrot_i)(double, const Tbl&) ) ;			
 	
-	virtual ~Et_rot_diff() ;			/// Destructor
+	virtual ~Et_rot_diff() ;			///< Destructor
 
 
     // Memory management
@@ -151,24 +153,24 @@ class Et_rot_diff : public Etoile_rot {
     // Mutators / assignment
     // ---------------------
     public:
-	/// Assignment to another {\tt Et\_rot\_diff}
+	/// Assignment to another \c Et_rot_diff 
 	void operator=(const Et_rot_diff& ) ;	
 	
     // Accessors
     // ---------
     public:
-	/// Returns the angular velocity field $\Omega$
+	/// Returns the angular velocity field \f$\Omega\f$
 	const Tenseur& get_omega_field() const {return omega_field;} ; 
 
 	/** Returns the central value of the rotation angular velocity 
-	 *  ({\tt [f\_unit]})
+	 *  (\c [f_unit] )
 	 */ 
 	virtual double get_omega_c() const ;	    
 
     // Outputs
     // -------
     public:
-	virtual void sauve(FILE *) const ;	    /// Save in a file
+	virtual void sauve(FILE *) const ;	    ///< Save in a file
     
 	/// Display in polytropic units
 	virtual void display_poly(ostream& ) const ; 
@@ -182,29 +184,29 @@ class Et_rot_diff : public Etoile_rot {
     // ----------------------
     public: 
 
-	virtual double tsw() const ;		/// Ratio T/W
+	virtual double tsw() const ;		///< Ratio T/W
 
 	/** Computes the hydrodynamical quantities relative to the Eulerian
 	 *  observer from those in the fluid frame.
 	 *
 	 *  The calculation is performed starting from the quantities
-	 *  {\tt omega\_field}, {\tt ent}, {\tt ener}, {\tt press}, 
-	 *  and {\tt a\_car},  
+	 *  \c omega_field , \c ent , \c ener , \c press , 
+	 *  and \c a_car ,  
 	 *  which are supposed to be up to date.  
 	 *  From these,  the following fields are updated:
-	 *  {\tt gam\_euler}, {\tt u\_euler}, {\tt ener\_euler}, {\tt s\_euler}. 
+	 *  \c gam_euler , \c u_euler , \c ener_euler , \c s_euler . 
 	 * 
 	 */
 	virtual void hydro_euler() ; 
 
-	/** Computes $\Omega(r,\theta)$ (member {\tt omega\_field}).
+	/** Computes \f$\Omega(r,\theta)\f$ (member \c omega_field ).
 	 *  
 	 *  The computation amounts to solving the equation
-	 *  \begin{equation}
+	 *  \f[
 	 *	F(\Omega) - {B^2 r^2\sin^2\theta (\Omega - N^\varphi)
 	 *	    \over N^2 - B^2 r^2 \sin^2(\Omega-N^\varphi)^2} = 0
-	 *  \end{equation}
-	 *  for $\Omega$. 
+	 *  \f]
+	 *  for \f$\Omega\f$. 
 	 *
 	 *  @param omeg_min [input] Lower bound of the interval for
 	 *			     searching omega
@@ -218,32 +220,32 @@ class Et_rot_diff : public Etoile_rot {
 	void fait_omega_field(double omeg_min, double omeg_max,
 			      double precis, int nitermax) ;
 	
-	/// Computes the member {\tt prim\_field} from {\tt omga\_field}. 
+	/// Computes the member \c prim_field  from \c omga_field . 
 	void fait_prim_field() ;
 	
-	/** Evaluates $F(\Omega)$, where {\it F} is the function
+	/** Evaluates \f$F(\Omega)\f$, where \e F is the function
 	 *  defining the rotation profile.
 	 *  This function is linked to the components of the fluid 4-velocity
 	 *  by
-	 *  \begin{equation}
+	 *  \f[
 	 *	F(\Omega) = u^t u_\varphi \ .
-	 *  \end{equation}
+	 *  \f]
 	 *
-	 *  {\tt funct\_omega} calls {\tt frot} with the parameters
-	 *  {\tt par\_frot}.
+	 *  \c funct_omega  calls \c frot  with the parameters
+	 *  \c par_frot .
 	 *
-	 *  @param omeg [input] value of $\Omega$
-	 *  @return value of $F(\Omega)$
+	 *  @param omeg [input] value of \f$\Omega\f$
+	 *  @return value of \f$F(\Omega)\f$
 	 *
 	 */
 	double funct_omega(double omeg) const ;  	
 
-	/** Evaluates the primitive of $F(\Omega)$, where {\it F} is the function
+	/** Evaluates the primitive of \f$F(\Omega)\f$, where \e F is the function
 	 *  defining the rotation profile.
 	 *
-	 *  @param omeg [input] value of $\Omega$
+	 *  @param omeg [input] value of \f$\Omega\f$
 	 *  @return value of 
-	 *	$\int_{\Omega_{\rm c}}^\Omega F(\Omega') \, d\Omega' $
+	 *	\f$\int_{\Omega_{\rm c}}^\Omega F(\Omega') \, d\Omega' \f$
 	 *
 	 */
 	double prim_funct_omega(double omeg) const ;  	
@@ -252,80 +254,80 @@ class Et_rot_diff : public Etoile_rot {
 	 *  
 	 *  @param ent_c  [input] Central enthalpy 
 	 *  @param omega0  [input] Requested central angular velocity 
-	 *			     (if {\tt fact\_omega=1.})
+	 *			     (if \c fact_omega=1. )
 	 *  @param fact_omega [input] 1.01 = search for the Keplerian frequency,
 	 *			      1. = otherwise.
 	 *  @param nzadapt  [input] Number of (inner) domains where the mapping 
 	 *			    adaptation to an iso-enthalpy surface
 	 *			    should be performed
-	 *  @param ent_limit [input] 1-D {\tt Tbl} of dimension {\tt nzet} which
+	 *  @param ent_limit [input] 1-D \c Tbl of dimension \c nzet  which
 	 *				defines the enthalpy at the outer boundary
 	 *				of each domain
 	 *  @param icontrol [input] Set of integer parameters (stored as a
-	 *			    1-D {\tt Itbl} of size 8) to control the 
-	 *			    iteration: \\
-	 *	{\tt icontrol(0) = mer\_max} : maximum number of steps \\
-	 *	{\tt icontrol(1) = mer\_rot} : step at which the rotation is 
-	 *				      switched on \\
-	 *	{\tt icontrol(2) = mer\_change\_omega} : step at which the rotation
-	 *			  velocity is changed to reach the final one  \\
-	 *	{\tt icontrol(3) = mer\_fix\_omega} :  step at which the final
-	 *			    rotation velocity must have been reached  \\
-	 *	{\tt icontrol(4) = mer\_mass} : the absolute value of 
-	 *			    {\tt mer\_mass} is the step from which the 
+	 *			    1-D \c Itbl  of size 8) to control the 
+	 *			    iteration: 
+	 *	\li \c icontrol(0) = mer_max  : maximum number of steps 
+	 *	\li \c icontrol(1) = mer_rot  : step at which the rotation is 
+	 *				      switched on 
+	 *	\li \c icontrol(2) = mer_change_omega  : step at which the rotation
+	 *			  velocity is changed to reach the final one  
+	 *	\li \c icontrol(3) = mer_fix_omega  :  step at which the final
+	 *			    rotation velocity must have been reached  
+	 *	\li \c icontrol(4) = mer_mass  : the absolute value of 
+	 *			    \c mer_mass  is the step from which the 
 	 *			    baryon mass is forced to converge, 
 	 *			    by varying the central enthalpy 
-	 *			    ({\tt mer\_mass > 0}) or the angular 
-	 *			    velocity ({\tt mer\_mass < 0}) \\
-	 *	{\tt icontrol(5) = mermax\_poisson} : maximum number of steps in 
-	 *				{\tt Map\_et::poisson} \\
-	 *	{\tt icontrol(6) = mer\_triax} : step at which the 3-D 
-	 *				perturbation is switched on \\
-	 *	{\tt icontrol(7) = delta\_mer\_kep} : number of steps
-	 *			    after {\tt mer\_fix\_omega} when {\tt omega}
-	 *			    starts to be increased by {\tt fact\_omega}
+	 *			    (\c mer_mass > 0 ) or the angular 
+	 *			    velocity (\c mer_mass < 0 ) 
+	 *	\li \c icontrol(5) = mermax_poisson  : maximum number of steps in 
+	 *				\c Map_et::poisson  
+	 *	\li \c icontrol(6) = mer_triax  : step at which the 3-D 
+	 *				perturbation is switched on 
+	 *	\li \c icontrol(7) = delta_mer_kep  : number of steps
+	 *			    after \c mer_fix_omega  when \c omega 
+	 *			    starts to be increased by \c fact_omega 
 	 *			    to search for the Keplerian velocity
 	 * 	 
 	 *  @param control [input] Set of parameters (stored as a 
-	 *			    1-D {\tt Tbl} of size 7) to control the 
-	 *			    iteration: \\
-	 *	{\tt control(0) = precis} : threshold on the enthalpy relative 
-	 *				change for ending the computation \\
-	 *	{\tt control(1) = omega\_ini} : initial central angular velocity, 
-	 *			    switched on only if {\tt mer\_rot < 0}, 
-	 *			    otherwise 0 is used \\ 
-	 *	{\tt control(2) = relax} : relaxation factor in the main 
-	 *				   iteration \\ 
-	 *	{\tt control(3) = relax\_poisson} : relaxation factor in 
-	 *				   {\tt Map\_et::poisson}\\ 
-	 *	{\tt control(4) = thres\_adapt} :  threshold on dH/dr for 
-	 *			    freezing the adaptation of the mapping \\
-	 *	{\tt control(5) = ampli\_triax} :  relative amplitude of 
-	 *			    the 3-D perturbation \\
-	 *	{\tt control(6) = precis\_adapt} : precision for 
-	 *			    {\tt Map\_et::adapt}
+	 *			    1-D \c Tbl  of size 7) to control the 
+	 *			    iteration: 
+	 *	\li \c control(0) = precis  : threshold on the enthalpy relative 
+	 *				change for ending the computation 
+	 *	\li \c control(1) = omega_ini  : initial central angular velocity, 
+	 *			    switched on only if \c mer_rot < 0 , 
+	 *			    otherwise 0 is used  
+	 *	\li \c control(2) = relax  : relaxation factor in the main 
+	 *				   iteration  
+	 *	\li \c control(3) = relax_poisson  : relaxation factor in 
+	 *				   \c Map_et::poisson  
+	 *	\li \c control(4) = thres_adapt  :  threshold on dH/dr for 
+	 *			    freezing the adaptation of the mapping 
+	 *	\li \c control(5) = ampli_triax  :  relative amplitude of 
+	 *			    the 3-D perturbation 
+	 *	\li \c control(6) = precis_adapt  : precision for 
+	 *			    \c Map_et::adapt 
 	 *
 	 *  @param mbar_wanted [input] Requested baryon mass (effective only 
-	 *				if {\tt mer\_mass > mer\_max})
+	 *				if \c mer_mass > mer_max )
 	 *  @param aexp_mass [input] Exponent for the increase factor of the 
 	 *			      central enthalpy to converge to the 
 	 *			      requested baryon mass
-	 *  @param diff [output]   1-D {\tt Tbl} of size 7 for the storage of 
-	 *			    some error indicators : \\
-	 *	    {\tt diff(0)} : Relative change in the enthalpy field
-	 *			      between two successive steps \\
-	 *	    {\tt diff(1)} : Relative error in the resolution of the
-	 *			    Poisson equation for {\tt nuf} \\  
-	 *	    {\tt diff(2)} : Relative error in the resolution of the
-	 *			    Poisson equation for {\tt nuq} \\  
-	 *	    {\tt diff(3)} : Relative error in the resolution of the
-	 *			    Poisson equation for {\tt dzeta} \\  
-	 *	    {\tt diff(4)} : Relative error in the resolution of the
-	 *			    Poisson equation for {\tt tggg} \\  
-	 *	    {\tt diff(5)} : Relative error in the resolution of the
-	 *			    equation for {\tt shift} (x comp.) \\  
-	 *	    {\tt diff(6)} : Relative error in the resolution of the
-	 *			    equation for {\tt shift} (y comp.) \\  
+	 *  @param diff [output]   1-D \c Tbl  of size 7 for the storage of 
+	 *			    some error indicators : 
+	 *	    \li \c diff(0)  : Relative change in the enthalpy field
+	 *			      between two successive steps 
+	 *	    \li \c diff(1)  : Relative error in the resolution of the
+	 *			    Poisson equation for \c nuf    
+	 *	    \li \c diff(2)  : Relative error in the resolution of the
+	 *			    Poisson equation for \c nuq    
+	 *	    \li \c diff(3)  : Relative error in the resolution of the
+	 *			    Poisson equation for \c dzeta    
+	 *	    \li \c diff(4)  : Relative error in the resolution of the
+	 *			    Poisson equation for \c tggg    
+	 *	    \li \c diff(5)  : Relative error in the resolution of the
+	 *			    equation for \c shift  (x comp.)   
+	 *	    \li \c diff(6)  : Relative error in the resolution of the
+	 *			    equation for \c shift  (y comp.)   
 	 */
 	virtual void equilibrium(double ent_c, double omega0, double fact_omega, 
 			 int nzadapt, const Tbl& ent_limit,
@@ -333,6 +335,6 @@ class Et_rot_diff : public Etoile_rot {
 			 double mbar_wanted, double aexp_mass, 
 			 Tbl& diff) ;
 	
-};
+ };
 
 #endif

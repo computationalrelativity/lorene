@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/03/22 13:12:44  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.8  2003/12/17 23:12:30  r_prix
  * replaced use of C++ <string> by standard ANSI char* to be backwards compatible
  * with broken compilers like MIPSpro Compiler 7.2 on SGI Origin200. ;-)
@@ -89,9 +92,12 @@
 class Param ;
 class Tbl ;
 
-    /** @name Miscellaneous.
-     */
-    //@{     
+/**
+ * \defgroup misc Miscellaneous
+ * \ingroup (util)
+ * @{
+ */
+
 
 /** Setting a stop point in a code.
  * 
@@ -110,7 +116,7 @@ void arrete(int a = 0) ;
  *		    to be searched: 
  *			f(x0, par) = 0 , where par are the parameters of the
  *		    function f, stored in an object of the Lorene class 
- *		    {\tt Param}. 
+ *		    \c Param . 
  *  @param a [input] Lower bound of the search interval [a, b]
  *  @param b [input] Higher bound of the search interval [a, b]
  *  @param n [input] Number of subdivisions of the interval [a, b]
@@ -135,7 +141,7 @@ bool zero_premier(double (*f)(double, const Param&), const Param& par,
  *		    interval [a, b] such that 
  *			f(x0, par) = 0 , where par are the parameters of the
  *		    function f, stored in an object of the Lorene class 
- *		    {\tt Param}. 
+ *		    \c Param . 
  *  @param par [input] Parameters of the function f.
  *  @param a [input] Lower bound of the search interval [a, b]
  *  @param b [input] Higher bound of the search interval [a, b]
@@ -153,7 +159,7 @@ double zerosec( double (*f)(double, const Param&), const Param& par,
 
 /** Finding the zero a function on a bounded domain.
  * 
- *  Same as {\tt zerosec} but insures that all calls to the function f
+ *  Same as \c zerosec  but insures that all calls to the function f
  *  are within [x1,x2]. Namely, it requires that f(x1)*f(x2)<0. 
  * 
  *  @param (*f)(double, const Param\&) [input] Function the zero of which is 
@@ -161,7 +167,7 @@ double zerosec( double (*f)(double, const Param&), const Param& par,
  *		    interval [a, b] such that 
  *			f(x0, par) = 0 , where par are the parameters of the
  *		    function f, stored in an object of the Lorene class 
- *		    {\tt Param}. 
+ *		    \c Param . 
  *  @param par [input] Parameters of the function f.
  *  @param a [input] Lower bound of the search interval [a, b]
  *  @param b [input] Higher bound of the search interval [a, b]
@@ -179,25 +185,25 @@ double zerosec_b( double (*f)(double, const Param&),const Param& par,
 
 /** Locates approximatively all the zeros of a function in a given interval.
  *  The N zeros are located in N intervals [az(i), bz(i)] with
- *   $0\leq i \leq N-1$.  
+ *   \f$0\leq i \leq N-1\f$.  
  * 
  *  @param (*f)(double, const Param\&) [input] Function the zeros of which are 
  *		    to be located: a zero x0 is defined by 
  *			f(x0, par) = 0 , where par are the parameters of the
  *		    function f, stored in an object of the Lorene class 
- *		    {\tt Param}. 
+ *		    \c Param . 
  *  @param par [input] Parameters of the function f.
  *  @param xmin [input] Lower bound of the search interval 
  *  @param xmax [input] Higher bound of the search interval 
  *  @param nsub [input] Number of subdivision of the interval [xmin, xmax]
  *		        to locate the zeros
- *  @param az [output] 1-D array (Lorene {\tt Tbl}) contain the lower bounds
- *			of the intervals containing a zero. This {\tt Tbl}\ 
- *			is allocated by the routine via a {\tt new Tbl}\ 
+ *  @param az [output] 1-D array (Lorene \c Tbl ) contain the lower bounds
+ *			of the intervals containing a zero. This \c Tbl \ 
+ *			is allocated by the routine via a \c new Tbl \ 
  *			command (hence the pointer type). 
- *  @param bz [output] 1-D array (Lorene {\tt Tbl}) contain the higher bounds
- *			of the intervals containing a zero. This {\tt Tbl}\ 
- *			is allocated by the routine via a {\tt new Tbl}\ 
+ *  @param bz [output] 1-D array (Lorene \c Tbl ) contain the higher bounds
+ *			of the intervals containing a zero. This \c Tbl \ 
+ *			is allocated by the routine via a \c new Tbl \ 
  *			command (hence the pointer type). 
  *  
  */
@@ -209,17 +215,17 @@ void zero_list( double (*f)(double, const Param&), const Param& par,
  *  big endian convention.
  *
  *  This function has the same prototype and return value than
- *  the {\tt fwrite} function of the {\tt stdio} C library.
+ *  the \c fwrite  function of the \c stdio  C library.
  *  The difference is that it ensures that the binary file is
  *  written in the big endian format, whatever the system is
  *  using little endian or big endian.
  *	@param aa [input] integer array to be written (in case of one
  *		element, address of this integer)
- *	@param size [input] number of bytes of one {\tt int} (must
+ *	@param size [input] number of bytes of one \c int  (must
  *		be 4)
- *	@param nb [input] number of elements in the array {\tt aa}
+ *	@param nb [input] number of elements in the array \c aa 
  *	@param fich [input] binary file (must have been
- *		open by {\tt fopen})
+ *		open by \c fopen )
  *	@return number of integers effectively written in the file
  */		
 int fwrite_be(const int* aa, int size, int nb, FILE* fich) ;
@@ -228,18 +234,18 @@ int fwrite_be(const int* aa, int size, int nb, FILE* fich) ;
  *  big endian convention.
  *
  *  This function has the same prototype and return value than
- *  the {\tt fwrite} function of the {\tt stdio} C library.
+ *  the \c fwrite  function of the \c stdio  C library.
  *  The difference is that it ensures that the binary file is
  *  written in the big endian format, whatever the system is
  *  using little endian or big endian.
- *	@param aa [input] array of {\tt double} to be written (in case of one
- *		element, address of this {\tt double})
- *	@param size [input] number of bytes of one {\tt double} (must
+ *	@param aa [input] array of \c double  to be written (in case of one
+ *		element, address of this \c double )
+ *	@param size [input] number of bytes of one \c double  (must
  *		be 8)
- *	@param nb [input] number of elements in the array {\tt aa}
+ *	@param nb [input] number of elements in the array \c aa 
  *	@param fich [input] binary file (must have been
- *		open by {\tt fopen})
- *	@return number of {\tt double} effectively written in the file
+ *		open by \c fopen )
+ *	@return number of \c double  effectively written in the file
  */		
 int fwrite_be(const double* aa, int size, int nb, FILE* fich) ;
 
@@ -247,17 +253,17 @@ int fwrite_be(const double* aa, int size, int nb, FILE* fich) ;
  *  big endian convention.
  *
  *  This function has the same prototype and return value than
- *  the {\tt fread} function of the {\tt stdio} C library.
+ *  the \c fread  function of the \c stdio  C library.
  *  The difference is that it assumes that the binary file is
  *  written in the big endian format, whatever the system is
  *  using little endian or big endian.
  *	@param aa [output] integer array to be read (in case of one
  *		element, address of this integer)
- *	@param size [input] number of bytes of one {\tt int} (must
+ *	@param size [input] number of bytes of one \c int  (must
  *		be 4)
- *	@param nb [input] number of elements in the array {\tt aa}
+ *	@param nb [input] number of elements in the array \c aa 
  *	@param fich [input] binary file (must have been
- *		open by {\tt fopen})
+ *		open by \c fopen )
  *	@return number of integers effectively read in the file
  */		
 int fread_be(int* aa, int size, int nb, FILE* fich) ;
@@ -266,18 +272,18 @@ int fread_be(int* aa, int size, int nb, FILE* fich) ;
  *  big endian convention.
  *
  *  This function has the same prototype and return value than
- *  the {\tt fread} function of the {\tt stdio} C library.
+ *  the \c fread  function of the \c stdio  C library.
  *  The difference is that it assumes that the binary file is
  *  written in the big endian format, whatever the system is
  *  using little endian or big endian.
- *	@param aa [output] array of {\tt double} to be read (in case of one
- *		element, address of this {\tt double})
- *	@param size [input] number of bytes of one {\tt double} (must
+ *	@param aa [output] array of \c double  to be read (in case of one
+ *		element, address of this \c double )
+ *	@param size [input] number of bytes of one \c double  (must
  *		be 8)
- *	@param nb [input] number of elements in the array {\tt aa}
+ *	@param nb [input] number of elements in the array \c aa 
  *	@param fich [input] binary file (must have been
- *		open by {\tt fopen})
- *	@return number of {\tt double} effectively read in the file
+ *		open by \c fopen )
+ *	@return number of \c double  effectively read in the file
  */		
 int fread_be(double* aa, int size, int nb, FILE* fich) ;
 
@@ -310,7 +316,7 @@ char *load_file_buffered(char *fname);
  *
  *	@param fname [input] Name of config-file to read from. Use NULL to use buffered file.
  *	@param var_name [input] Variable-name to read from config-file
- *	@param fmt [input]  C-style format string for reading (see {\tt sscanf}).
+ *	@param fmt [input]  C-style format string for reading (see \c sscanf ).
  *	@param varp [output] Pointer to C-variable to read value into (has to be big enough!!)
  *
  *	@return 0 on success, -1 on error. \\
@@ -320,11 +326,11 @@ char *load_file_buffered(char *fname);
  */
 int read_variable(char *fname, char *var_name, char *fmt, void *varp);
 
-/// Read an integer-variable from file (cf {\tt read_variable(char *, char *, char *, void *)}).
+/// Read an integer-variable from file (cf \c read_variable(char *, char *, char *, void *) ).
 int read_variable(char *fname, char *var_name, int &var);
-/// Read a bool variable from file (cf {\tt read_variable(char *, char *, char *, void *)}).
+/// Read a bool variable from file (cf \c read_variable(char *, char *, char *, void *) ).
 int read_variable(char *fname, char *var_name, bool &var);
-/// Read a double variable from file (cf {\tt read_variable(char *, char *, char *, void *)}).
+/// Read a double variable from file (cf \c read_variable(char *, char *, char *, void *) ).
 int read_variable(char *fname, char *var_name, double &var);
 /// Read a (ANSI C) string variable from file.
 int read_variable (char *fname, char *var_name, char *str);
@@ -337,6 +343,6 @@ int FS_filelength (FILE *f);
 
 
     
-    //@}
+/** @} */
     
 #endif

@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/03/22 13:12:41  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.13  2002/10/11 11:47:35  j_novak
  * Et_rot_mag::MHD_comput is now virtual.
  * Use of standard constructor for Tenseur mtmp in Et_rot_mag::equilibrium_mag
@@ -89,13 +92,12 @@ Cmp prolonge_c1(const Cmp& uu, const int nzet) ;
 
 /**
  * Class for magnetized (isolator or perfect conductor), 
- * rigidly rotating stars.
+ * rigidly rotating stars. \ingroup (star)
  *
- * This is a child class of {\tt Etoile\_rot}, with the same metric
+ * This is a child class of \c Etoile_rot , with the same metric
  * and overloaded member functions. Triaxial pertubrations are not 
  * operational.
  *
- * @version #$Id$#
  */
 class Et_rot_mag : virtual public Etoile_rot {
   
@@ -103,29 +105,29 @@ class Et_rot_mag : virtual public Etoile_rot {
   // -----
  protected:
 
-  Cmp A_t ; /// t-component of the elecctromagnetic potential 1-form
-  Cmp A_phi; /// $\varphi$-component of the electromagnetic potential 1-form
-  Cmp j_t; /// t-component of the current 4-vector
-  Cmp j_phi; /// $\varphi$-component of the current 4-vector
+  Cmp A_t ; ///< t-component of the elecctromagnetic potential 1-form
+  Cmp A_phi; ///< \f$\varphi\f$-component of the electromagnetic potential 1-form
+  Cmp j_t; ///< t-component of the current 4-vector
+  Cmp j_phi; ///< \f$\varphi\f$-component of the current 4-vector
 
-  Tenseur E_em; /// electromagnetic energy density in the Eulerian frame
+  Tenseur E_em; ///< electromagnetic energy density in the Eulerian frame
 
-  ///$\varphi$ component of the electromagnetic momentum density 3-vector (as measured in the Eulerian frame).
+  ///\f$\varphi\f$ component of the electromagnetic momentum density 3-vector (as measured in the Eulerian frame).
   Tenseur Jp_em; 
 
   ///rr component of the electromagnetic stress 3-tensor, as measured in the Eulerian frame. (not used and set to 0, should be supressed)
   Tenseur Srr_em;
 
-  ///$\varphi \varphi$ component of the electromagnetic stress 3-tensor, as measured in the Eulerian frame. 
+  ///\f$\varphi \varphi\f$ component of the electromagnetic stress 3-tensor, as measured in the Eulerian frame. 
   Tenseur Spp_em; 
 
   /**
-   * In the case of a perfect conductor, the requated baryonic charge.\\
+   * In the case of a perfect conductor, the requated baryonic charge.
    * For an isolator, the charge/baryon.
    */
   double Q ;
-  double a_j ; ///Amplitude of the curent/charge function
-  int conduc ; ///Flag: conduc=0->isolator, 1->perfect conductor
+  double a_j ; ///<Amplitude of the curent/charge function
+  int conduc ; ///<Flag: conduc=0->isolator, 1->perfect conductor
 
   // Constructors - Destructor
   // -------------------------
@@ -136,9 +138,9 @@ class Et_rot_mag : virtual public Etoile_rot {
 	     const int cond); 
 
 
-  Et_rot_mag(const Et_rot_mag& ) ;       /// Copy constructor
+  Et_rot_mag(const Et_rot_mag& ) ;       ///< Copy constructor
 
-  virtual ~Et_rot_mag() ;			/// Destructor
+  virtual ~Et_rot_mag() ;			///< Destructor
  
 
   // Memory management
@@ -148,10 +150,10 @@ class Et_rot_mag : virtual public Etoile_rot {
   /// Deletes all the derived quantities
   virtual void del_deriv() const ; 
 	
-  /// Sets to {\tt 0x0} all the pointers on derived quantities
+  /// Sets to \c 0x0  all the pointers on derived quantities
   virtual void set_der_0x0() const ; 
 
-  /** Sets to {\tt ETATNONDEF} (undefined state) the hydrodynamical 
+  /** Sets to \c ETATNONDEF  (undefined state) the hydrodynamical 
    *  quantities relative to the Eulerian observer.
    */
   virtual void del_hydro_euler() ; 
@@ -171,16 +173,16 @@ class Et_rot_mag : virtual public Etoile_rot {
   bool is_conduct() const {return (conduc==1) ;} ;
   ///Returns the t component of the electromagnetic potential
   const Cmp& get_At() const {return A_t ; } ; 
-  ///Returns the $\varphi$ component of the electromagnetic potential
+  ///Returns the \f$\varphi\f$ component of the electromagnetic potential
   const Cmp& get_Aphi() const {return A_phi ;} ;
   ///Returns the t component of the current 4-vector
   const Cmp& get_jt() const {return j_t ; } ;
-  ///Returns the $\varphi$ component of the current 4-vector
+  ///Returns the \f$\varphi\f$ component of the current 4-vector
   const Cmp& get_jphi() const {return j_phi ;} ;
   ///Returns the electromagnetic energy density in the Eulerian frame
   const Tenseur& get_Eem() const {return E_em ; } ;
 
-  /** Returns the $\varphi$-component of the electromagnetic momentum
+  /** Returns the \f$\varphi\f$-component of the electromagnetic momentum
    * density 3-vector, as measured in the Eulerian frame.
    */
   const Tenseur& get_Jpem() const {return Jp_em ;} ;
@@ -191,7 +193,7 @@ class Et_rot_mag : virtual public Etoile_rot {
    */
   const Tenseur& get_Srrem() const {return Srr_em ; } ;
 
-  /** Returns the $\varphi \varphi$ component of the electromagnetic 
+  /** Returns the \f$\varphi \varphi\f$ component of the electromagnetic 
    * stress 3-tensor, as measured in the Eulerian frame. 
    */
   const Tenseur& get_Sppem() const {return Spp_em ;} ;
@@ -215,15 +217,15 @@ class Et_rot_mag : virtual public Etoile_rot {
   // -----------------
  public:
 
-  Tenseur Elec() const ; /// Computes the electric field spherical components
-  Tenseur Magn() const ; /// Computes the magnetic field spherical components
+  Tenseur Elec() const ; ///< Computes the electric field spherical components
+  Tenseur Magn() const ; ///< Computes the magnetic field spherical components
   /// Computes the electromagnetic part of the stress-energy tensor
   void MHD_comput() ; 
-  virtual double mass_g() const ;	    /// Gravitational mass
-  virtual double angu_mom() const ;  /// Angular momentum
-  virtual double grv2() const ;	/// Error on the virial identity GRV2
-  virtual double tsw() const ; /// Ratio T/W
-  double MagMom() const ; /// Magnetic Momentum $\cal M$
+  virtual double mass_g() const ;	    ///< Gravitational mass
+  virtual double angu_mom() const ;  ///< Angular momentum
+  virtual double grv2() const ;	///< Error on the virial identity GRV2
+  virtual double tsw() const ; ///< Ratio T/W
+  double MagMom() const ; ///< Magnetic Momentum \f$\cal M\f$
   /// Computed charge deduced from the asymptotic behaviour of At.
   double Q_comput() const; 
 
@@ -232,13 +234,13 @@ class Et_rot_mag : virtual public Etoile_rot {
    */
   double Q_int() const; 
 
-  /// Gyromagnetic ratio $\sigma = \frac{2{\cal M}M}{QJ}$.
+  /// Gyromagnetic ratio \f$\sigma = \frac{2{\cal M}M}{QJ}\f$.
   double GyroMag() const ; 
 
   /** Error on the virial identity GRV3.
    *  The error is computed as the integral defined
    *  by Eq. (43) of [Gourgoulhon and Bonazzola, 
-   *  Class. Quantum Grav. {\bf 11}, 443 (1994)] divided by
+   *  \a Class. \a Quantum \a Grav. \b 11 , 443 (1994)] divided by
    *  the integral of the matter terms.
    * 
    *  @param ost output stream to give details of the computation;
@@ -249,13 +251,13 @@ class Et_rot_mag : virtual public Etoile_rot {
   virtual double grv3(ostream* ost = 0x0) const ;	
 
   /** Quadrupole moment.
-   *  The quadrupole moment {\it Q} is defined according to Eq. (7) of
-   *  [Salgado, Bonazzola, Gourgoulhon and Haensel, Astron. Astrophys.
-   *   {\bf 291}, 155 (1994)]. At the Newtonian limit it is related to
-   *  the component ${\bar I}_{zz}$ of the MTW (1973) reduced quadrupole 
-   *  moment ${\bar I}_{ij}$ by: $Q = -3/2 {\bar I}_{zz}$. 
-   *  Note that {\it Q} is the negative of the quadrupole moment defined 
-   *  by Laarakkers and Poisson, Astrophys. J. {\bf 512}, 282 (1999).
+   *  The quadrupole moment \e Q  is defined according to Eq. (7) of
+   *  [Salgado, Bonazzola, Gourgoulhon and Haensel, \a Astron. \a Astrophys.
+   *   \b 291 , 155 (1994)]. At the Newtonian limit it is related to
+   *  the component \f${\bar I}_{zz}\f$ of the MTW (1973) reduced quadrupole 
+   *  moment \f${\bar I}_{ij}\f$ by: \f$Q = -3/2 {\bar I}_{zz}\f$. 
+   *  Note that \e Q  is the negative of the quadrupole moment defined 
+   *  by Laarakkers and Poisson, \a Astrophys. \a J. \b 512 , 282 (1999).
    */
   virtual double mom_quad() const ;	
 
@@ -264,7 +266,7 @@ class Et_rot_mag : virtual public Etoile_rot {
  public: 
   /** Computes the electromagnetic quantities solving the Maxwell
    *  equations (6) and (7) of [Bocquet, Bonazzola, Gourgoulhon and
-   *  Novak, Astron. Astrophys. {\bf 301}, 757 (1995)]. In the case 
+   *  Novak, \a Astron. \a Astrophys. \b 301 , 757 (1995)]. In the case 
    *  of a perfect conductor, le electromagnetic potential may have
    *  a discontinuous derivative across star's surface.
    *
@@ -277,11 +279,11 @@ class Et_rot_mag : virtual public Etoile_rot {
    *  @param par_poisson_At [input] parameters for controlling the 
    *                                  solution of the Poisson equation
    *                                  for At potential (see file
-   *                                  et\_rot\_mag\_equil.C)
+   *                                  et_rot_mag_equil.C)
    *  @param par_poisson_Avect [input] parameters for controlling the 
    *                                  solution of vector Poisson equation
    *                                  for magnetic potential (see file
-   *                                  et\_rot\_mag\_equil.C)
+   *                                  et_rot_mag_equil.C)
    */
   void magnet_comput(const int adapt_flag,
 			     Cmp (*f_j)(const Cmp& x, const double),
@@ -291,83 +293,83 @@ class Et_rot_mag : virtual public Etoile_rot {
    *  
    *  @param ent_c  [input] Central enthalpy 
    *  @param omega0  [input] Requested angular velocity 
-   *			     (if {\tt fact\_omega=1.})
+   *			     (if \c fact_omega=1. )
    *  @param fact_omega [input] 1.01 = search for the Keplerian frequency,
    *			      1. = otherwise.
    *  @param nzadapt  [input] Number of (inner) domains where the mapping 
    *			    adaptation to an iso-enthalpy surface
    *			    should be performed
-   *  @param ent_limit [input] 1-D {\tt Tbl} of dimension {\tt nzet} which
+   *  @param ent_limit [input] 1-D \c Tbl  of dimension \c nzet  which
    *				defines the enthalpy at the outer boundary
    *				of each domain
    *  @param icontrol [input] Set of integer parameters (stored as a
-   *			    1-D {\tt Itbl} of size 8) to control the 
-   *			    iteration: \\
-   *	{\tt icontrol(0) = mer\_max} : maximum number of steps \\
-   *	{\tt icontrol(1) = mer\_rot} : step at which the rotation is 
-   *				      switched on \\
-   *	{\tt icontrol(2) = mer\_change\_omega} : step at which the rotation
-   *			  velocity is changed to reach the final one  \\
-   *	{\tt icontrol(3) = mer\_fix\_omega} :  step at which the final
-   *			    rotation velocity must have been reached  \\
-   *	{\tt icontrol(4) = mer\_mass} : the absolute value of 
-   *			    {\tt mer\_mass} is the step from which the 
+   *			    1-D \c Itbl  of size 8) to control the 
+   *			    iteration: 
+   *	\li \c icontrol(0) = mer_max  : maximum number of steps 
+   *	\li \c icontrol(1) = mer_rot  : step at which the rotation is 
+   *				      switched on 
+   *	\li \c icontrol(2) = mer_change_omega  : step at which the rotation
+   *			  velocity is changed to reach the final one  
+   *	\li \c icontrol(3) = mer_fix_omega  :  step at which the final
+   *			    rotation velocity must have been reached  
+   *	\li \c icontrol(4) = mer_mass  : the absolute value of 
+   *			    \c mer_mass  is the step from which the 
    *			    baryon mass is forced to converge, 
    *			    by varying the central enthalpy 
-   *			    ({\tt mer\_mass > 0}) or the angular 
-   *			    velocity ({\tt mer\_mass < 0}) \\
-   *	{\tt icontrol(5) = mermax\_poisson} : maximum number of steps in 
-   *				{\tt Map\_et::poisson} \\
-   *	{\tt icontrol(6) = mer\_triax} : step at which the 3-D 
-   *				perturbation is switched on \\
-   *	{\tt icontrol(7) = delta\_mer\_kep} : number of steps
-   *			    after {\tt mer\_fix\_omega} when {\tt omega}
-   *			    starts to be increased by {\tt fact\_omega}
-   *			    to search for the Keplerian velocity\\
-   *    {\tt icontrol(8) = mer\_mag} : step at which the electromagnetic
-   *                        part is switched on \\
-   *    {\tt icontrol(9) = mer\_change\_mag} : step at which the amplitude
+   *			    (\c mer_mass > 0 ) or the angular 
+   *			    velocity (\c mer_mass < 0 ) 
+   *	\li \c icontrol(5) = mermax_poisson  : maximum number of steps in 
+   *				\c Map_et::poisson  
+   *	\li \c icontrol(6) = mer_triax  : step at which the 3-D 
+   *				perturbation is switched on 
+   *	\li \c icontrol(7) = delta_mer_kep  : number of steps
+   *			    after \c mer_fix_omega  when \c omega 
+   *			    starts to be increased by \c fact_omega 
+   *			    to search for the Keplerian velocity
+   *    \li \c icontrol(8) = mer_mag  : step at which the electromagnetic
+   *                        part is switched on 
+   *    \li \c icontrol(9) = mer_change_mag  : step at which the amplitude
    *                        of the current/charge coupling function is changed
-   *                        to reach a_j0 or Q\\
-   *	{\tt icontrol(10) = mer\_fix\_mag} :  step at which the final
+   *                        to reach a_j0 or Q
+   *	\li \c icontrol(10) = mer_fix_mag  :  step at which the final
    *			    current/charge amplitude a_j0 or Q must have 
-   *                        been reached  \\
-   *    {\tt icontrol(11) = conduc} : flag 0 -> isolator material, 
-   *                        1 -> perfect conductor \\
+   *                        been reached  
+   *    \li \c icontrol(11) = conduc  : flag 0 -> isolator material, 
+   *                        1 -> perfect conductor 
    * 	 
    *  @param control [input] Set of parameters (stored as a 
-   *			    1-D {\tt Tbl} of size 7) to control the 
-   *			    iteration: \\
-   *	{\tt control(0) = precis} : threshold on the enthalpy relative 
-   *				change for ending the computation \\
-   *	{\tt control(1) = omega\_ini} : initial angular velocity, 
-   *			    switched on only if {\tt mer\_rot < 0}, 
-   *			    otherwise 0 is used \\ 
-   *	{\tt control(2) = relax} : relaxation factor in the main 
-   *				   iteration \\ 
-   *	{\tt control(3) = relax\_poisson} : relaxation factor in 
-   *				   {\tt Map\_et::poisson}\\ 
-   *	{\tt control(4) = thres\_adapt} :  threshold on dH/dr for 
-   *			    freezing the adaptation of the mapping \\
-   *	{\tt control(5) = ampli\_triax} :  relative amplitude of 
-   *			    the 3-D perturbation \\
-   *	{\tt control(6) = precis\_adapt} : precision for 
-   *			    {\tt Map\_et::adapt}
-   *	{\tt control(7) = Q\_ini} : initial charge (total for the perfect 
-   *                      conductor, per baryon for an isolator)\\
-   *	{\tt control(8) = a\_j\_ini} : initial amplitude for the coupling
-   *                      function\\
+   *			    1-D \c Tbl  of size 7) to control the 
+   *			    iteration: 
+   *	\li \c control(0) = precis  : threshold on the enthalpy relative 
+   *				change for ending the computation 
+   *	\li \c control(1) = omega_ini  : initial angular velocity, 
+   *			    switched on only if \c mer_rot < 0 , 
+   *			    otherwise 0 is used  
+   *	\li \c control(2) = relax  : relaxation factor in the main 
+   *				   iteration  
+   *	\li \c control(3) = relax_poisson  : relaxation factor in 
+   *				   \c Map_et::poisson  
+   *	\li \c control(4) = thres_adapt  :  threshold on dH/dr for 
+   *			    freezing the adaptation of the mapping 
+   *	\li \c control(5) = ampli_triax  :  relative amplitude of 
+   *			    the 3-D perturbation 
+   *	\li \c control(6) = precis_adapt  : precision for 
+   *			    \c Map_et::adapt 
+   *	\li \c control(7) = Q_ini  : initial charge (total for the perfect 
+   *                      conductor, per baryon for an isolator)
+   *	\li \c control(8) = a_j_ini  : initial amplitude for the coupling
+   *                      function
    * 
    *
    *  @param mbar_wanted [input] Requested baryon mass (effective only 
-   *				if {\tt mer\_mass > mer\_max})
+   *				if \c mer_mass>mer_max )
    *  @param aexp_mass [input] Exponent for the increase factor of the 
    *			      central enthalpy to converge to the 
    *			      requested baryon mass
-   *  @param diff [output]   1-D {\tt Tbl} of size 1 for the storage of 
-   *			    some error indicators : \\
-   *	    {\tt diff(0)} : Relative change in the enthalpy field
-   *			      between two successive steps \\
+   *  @param diff [output]   1-D \c Tbl  of size 1 for the storage of 
+   *			    some error indicators : 
+   *	    \li \c diff(0)  : Relative change in the enthalpy field
+   *			      between two successive steps 
    *  @param Q0 [input] Requested electric charge for the case of a
    *                    perfect conductor. Charge per baryon for the case
    *                    of an isolator.

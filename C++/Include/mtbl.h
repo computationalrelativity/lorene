@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/22 13:12:42  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.4  2003/11/06 14:43:37  e_gourgoulhon
  * Gave a name to const arguments in certain method prototypes (e.g.
  * constructors) to correct a bug of DOC++.
@@ -94,11 +97,11 @@
 class Coord ;
 
 /**
- * Multi-domain array.
+ * Multi-domain array. \ingroup (spec)
  * 
- * This class is essentially an array of {\tt Tbl}. It is intended to be 
- * used in conjunction with the class {\tt Mtbl\_cf}.
- * A {\tt Mtbl} is initialy created with a {\sl logical} state {\tt NONDEF}.
+ * This class is essentially an array of \c Tbl . It is intended to be 
+ * used in conjunction with the class \c Mtbl_cf .
+ * A \c Mtbl  is initialy created with a \a logical  state \c NONDEF .
  * Arithmetic operations are provided with the usual meaning (see 
  * below).
  * 
@@ -110,82 +113,93 @@ class Mtbl {
     // Data : 
     // -----
     private:
-	const Mg3d* mg ;  /// Pointer on the multi-grid {\tt Mgd3} on which {\tt this} is defined
-	int nzone ;	/// Number of domains (zones)
-	/// Logical state ({\tt ETATNONDEF}, {\tt ETATQCQ} or {\tt ETATZERO}).
+/// Pointer on the multi-grid \c Mgd3  on which \c this  is defined
+	const Mg3d* mg ;  
+/// Number of domains (zones)
+	int nzone ;	
+	/// Logical state (\c ETATNONDEF , \c ETATQCQ  or \c ETATZERO ).
 	int etat ;	
 
     public:
-	Tbl** t;	/// Array (size {\tt nzone}) of pointers on the {\tt Tbl}'s
+/// Array (size \c nzone ) of pointers on the \c Tbl 's
+	Tbl** t;	
 
     // Constructors - Destructor
     // -------------------------
 	
     public:
-	explicit Mtbl(const Mg3d& mgrid) ;	/// Constructor
-	explicit Mtbl(const Mg3d* p_mgrid) ;	/// Constructor
-	/// Constructor from a file (see {\tt sauve(FILE* )})
+/// Constructor
+	explicit Mtbl(const Mg3d& mgrid) ;	
+/// Constructor
+	explicit Mtbl(const Mg3d* p_mgrid) ;	
+	/// Constructor from a file (see \c sauve(FILE*))
 	Mtbl(const Mg3d&, FILE* ) ;		    
-	Mtbl(const Coord& c) ;		/// Constructor from a Coord
-	Mtbl(const Mtbl& a) ;		    /// Copy constructor
-	~Mtbl() ;			    /// Destructor
+/// Constructor from a Coord
+	Mtbl(const Coord& c) ;		
+/// Copy constructor
+	Mtbl(const Mtbl& a) ;		    
+/// Destructor
+	~Mtbl() ;			    
 
     // Assignement
     // -----------
     public:
-	void operator=(const Mtbl& ) ;	    /// Assignement to another {\tt Mtbl}
-	void operator=(double ) ;	    /// Assignement to a {\tt double}
-	void operator=(int ) ;		    /// Assignement to a {\tt int}
+/// Assignement to another \c Mtbl 
+	void operator=(const Mtbl& ) ;	    
+/// Assignement to a \c double 
+	void operator=(double ) ;	    
+/// Assignement to a \c int 
+	void operator=(int ) ;		    
 
     // Memory management
     // -----------------
     private:
-	/** Logical destructor: dellocates the memory occupied by the {\tt Tbl}
-	 * array {\tt t}. 
+	/** Logical destructor: dellocates the memory occupied by the \c Tbl 
+	 * array \c t . 
 	 */
 	void del_t() ;	
 			
     public:
 
     /**
-     * Sets the logical state to {\tt ETATNONDEF} (undefined). 
-     * Deallocates the memory occupied by the {\tt Tbl} array {\tt t}.
+     * Sets the logical state to \c ETATNONDEF  (undefined). 
+     * Deallocates the memory occupied by the \c Tbl  array \c t .
      */
 	void set_etat_nondef() ;
 	
     /**
-     * Sets the logical state to {\tt ETATZERO} (zero). 
-     * Deallocates the memory occupied by the {\tt Tbl} array {\tt t}.
+     * Sets the logical state to \c ETATZERO  (zero). 
+     * Deallocates the memory occupied by the \c Tbl  array \c t .
      */
 	void set_etat_zero() ;	    	
 
     /**
-     * Sets the logical state to {\tt ETATQCQ} (ordinary state).
-     * If the state (member {\tt etat}) is already {\tt ETATQCQ}, this 
+     * Sets the logical state to \c ETATQCQ  (ordinary state).
+     * If the state (member \c etat ) is already \c ETATQCQ , this 
      * function does nothing. Otherwise, it performs the memory allocation
-     * for the {\tt Tbl} array {\tt t}.  
+     * for the \c Tbl  array \c t .  
      */
 	void set_etat_qcq() ;	    	
 
     /**
-     * Sets the {\tt Mtbl} to zero in a hard way. 
-     * 1/ Sets the logical state to {\tt ETATQCQ}, i.e. to an ordinary state.
-     * 2/ Allocates the memory of the {\tt Tbl} array {\tt t}, and fills it
+     * Sets the \c Mtbl  to zero in a hard way. 
+     * 1/ Sets the logical state to \c ETATQCQ , i.e. to an ordinary state.
+     * 2/ Allocates the memory of the \c Tbl  array \c t , and fills it
      * with zeros. NB: this function must be used for debugging purposes only.
-     * For other operations, the functions {\tt set\_etat\_zero()}
-     * or {\tt annule(int, int)} must be perferred. 
+     * For other operations, the functions \c set_etat_zero() 
+     * or \c annule(int, int)  must be perferred. 
      */
 	void annule_hard() ;	
 	
     /**
-     * Sets the {\tt Mtbl} to zero in some domains.
-     *	@param l_min [input] The {\tt Mtbl} will be set (logically) to zero
+     * Sets the \c Mtbl  to zero in some domains.
+     *	@param l_min [input] The \c Mtbl  will be set (logically) to zero
      *			     in the domains whose indices are in the range
-     *			     {\tt [l\_min, l\_max]}.
-     *	@param l_max [input] see the comments for {\tt l\_min}.
+     *			     \c [l_min,l_max] .
+     *	@param l_max [input] see the comments for \c l_min .
      * 
-     * Note that {\tt annule(0, nzone-1)} is equivalent to
-     *	 {\tt set\_etat\_zero()}.
+     * Note that \c annule(0,nzone-1) is equivalent to
+     *	 \c set_etat_zero() .
      */
 	void annule(int l_min, int l_max) ; 
 
@@ -194,7 +208,7 @@ class Mtbl {
     // -----------------------------
     public:
 	/** 
-	 * Read/write of the {\tt Tbl} in a given domain.
+	 * Read/write of the \c Tbl  in a given domain.
 	 * @param l [input] domain index
 	 */ 
 	Tbl& set(int l) {
@@ -205,7 +219,7 @@ class Mtbl {
 	
 	
 	/** 
-	 * Read-only of the {\tt Tbl} in a given domain.
+	 * Read-only of the \c Tbl  in a given domain.
 	 * @param l [input] domain index
 	 */ 
 	const Tbl& operator()(int l) const {
@@ -217,9 +231,9 @@ class Mtbl {
 	/** 
 	 * Read/write of a particular element.
 	 * @param l [input] domain index
-	 * @param k [input] $\phi$ index
-	 * @param j [input] $\theta$ index
-	 * @param i [input] {\it r} ($\xi$) index
+	 * @param k [input] \f$\phi\f$ index
+	 * @param j [input] \f$\theta\f$ index
+	 * @param i [input] \e r  (\f$\xi\f$) index
 	 */ 
 	double& set(int l, int k, int j, int i) {
 	    assert(l < nzone) ;
@@ -231,9 +245,9 @@ class Mtbl {
 	/** 
 	 * Read-only of a particular element.
 	 * @param l [input] domain index
-	 * @param k [input] $\phi$ index
-	 * @param j [input] $\theta$ index
-	 * @param i [input] {\it r} ($\xi$) index
+	 * @param k [input] \f$\phi\f$ index
+	 * @param j [input] \f$\theta\f$ index
+	 * @param i [input] \e r  (\f$\xi\f$) index
 	 */ 
 	double operator()(int l, int k, int j, int i) const {
 	    assert(etat != ETATNONDEF) ;
@@ -249,10 +263,11 @@ class Mtbl {
     // Extraction of information
     // -------------------------
     public:
-	/// Gives the {\tt Mg3d} on which the {\tt Mtbl} is defined
+	/// Gives the \c Mg3d  on which the \c Mtbl  is defined
 	const Mg3d* get_mg() const { return mg ; }; 
 
-	int get_etat() const { return etat ; };   /// Gives the logical state
+/// Gives the logical state
+	int get_etat() const { return etat ; };   
 	
 	/// Gives the number of zones (domains)
 	int get_nzone() const { return nzone ; } ; 
@@ -260,7 +275,8 @@ class Mtbl {
     // Outputs
     // -------
     public:
-	void sauve(FILE *) const ;	    /// Save in a file
+/// Save in a file
+	void sauve(FILE *) const ;	    
 	
 	/** Prints only the values greater than a given threshold.
 	 *   @param ostr [input] Output stream used for the printing 
@@ -276,102 +292,148 @@ class Mtbl {
     // Member arithmetics
     // ------------------
     public:
-	void operator+=(const Mtbl & ) ;	/// += Mtbl
-	void operator+=(double ) ;		/// += double
-	void operator-=(const Mtbl & ) ;	/// -= Mtbl
-	void operator-=(double ) ;		/// -= double
-	void operator*=(const Mtbl & ) ;	/// *= Mtbl
-	void operator*=(double ) ;		/// *= double
-	void operator/=(const Mtbl & ) ;	/// /= Mtbl
-	void operator/=(double ) ;		/// /= double
+/// += Mtbl
+	void operator+=(const Mtbl & ) ;	
+/// += double
+	void operator+=(double ) ;		
+/// -= Mtbl
+	void operator-=(const Mtbl & ) ;	
+/// -= double
+	void operator-=(double ) ;		
+/// *= Mtbl
+	void operator*=(const Mtbl & ) ;	
+/// *= double
+	void operator*=(double ) ;		
+/// /= Mtbl
+	void operator/=(const Mtbl & ) ;	
+/// /= double
+	void operator/=(double ) ;		
 
 } ;
 ostream& operator<<(ostream& , const Mtbl & ) ;   
 
 /**
- * @name Mtbl Mathematics
+ * \defgroup mtbl_mat Mtbl Mathematics
+ * \ingroup (spec)
+ *
+ * @{
  */
-    //@{
-Mtbl operator+(const Mtbl& ) ;		    /// + Mtbl
-Mtbl operator-(const Mtbl& ) ;		    /// - Mtbl
-Mtbl operator+(const Mtbl&, const Mtbl& ) ; /// Mtbl + Mtbl
-Mtbl operator+(const Mtbl&, double ) ;	    /// Mtbl + double
-Mtbl operator+(double , const Mtbl& ) ;	    /// double + Mtbl
-Mtbl operator+(const Mtbl&, int ) ;	    /// Mtbl + int
-Mtbl operator+(int, const Mtbl& ) ;	    /// int + Mtbl
-Mtbl operator-(const Mtbl&, const Mtbl& ) ; /// Mtbl - Mtbl
-Mtbl operator-(const Mtbl&, double ) ;	    /// Mtbl - double
-Mtbl operator-(double, const Mtbl& ) ;	    /// double - Mtbl
-Mtbl operator-(const Mtbl&, int ) ;	    /// Mtbl - int
-Mtbl operator-(int, const Mtbl& ) ;	    /// int - Mtbl
-Mtbl operator*(const Mtbl&, const Mtbl& ) ; /// Mtbl * Mtbl
-Mtbl operator*(const Mtbl&, double ) ;	    /// Mtbl * double
-Mtbl operator*(double, const Mtbl& ) ;	    /// double * Mtbl
-Mtbl operator*(const Mtbl&, int ) ;	    /// Mtbl * int
-Mtbl operator*(int, const Mtbl& ) ;	    /// int * Mtbl
-Mtbl operator/(const Mtbl&, const Mtbl& ) ; /// Mtbl / Mtbl
-Mtbl operator/(const Mtbl&, double ) ;	    /// Mtbl / double
-Mtbl operator/(double, const Mtbl& ) ;	    /// double / Mtbl
-Mtbl operator/(const Mtbl&, int ) ;	    /// Mtbl / int
-Mtbl operator/(int, const Mtbl& ) ;	    /// int / Mtbl
+/// + Mtbl
+Mtbl operator+(const Mtbl& ) ;		    
+/// \c - Mtbl
+Mtbl operator-(const Mtbl& ) ;		    
+/// Mtbl + Mtbl
+Mtbl operator+(const Mtbl&, const Mtbl& ) ; 
+/// Mtbl + double
+Mtbl operator+(const Mtbl&, double ) ;	    
+/// double + Mtbl
+Mtbl operator+(double , const Mtbl& ) ;	    
+/// Mtbl + int
+Mtbl operator+(const Mtbl&, int ) ;	    
+/// int + Mtbl
+Mtbl operator+(int, const Mtbl& ) ;	    
+/// Mtbl - Mtbl
+Mtbl operator-(const Mtbl&, const Mtbl& ) ; 
+/// Mtbl - double
+Mtbl operator-(const Mtbl&, double ) ;	    
+/// double - Mtbl
+Mtbl operator-(double, const Mtbl& ) ;	    
+/// Mtbl - int
+Mtbl operator-(const Mtbl&, int ) ;	    
+/// int - Mtbl
+Mtbl operator-(int, const Mtbl& ) ;	    
+/// Mtbl * Mtbl
+Mtbl operator*(const Mtbl&, const Mtbl& ) ; 
+/// Mtbl * double
+Mtbl operator*(const Mtbl&, double ) ;	    
+/// double * Mtbl
+Mtbl operator*(double, const Mtbl& ) ;	    
+/// Mtbl * int
+Mtbl operator*(const Mtbl&, int ) ;	    
+/// int * Mtbl
+Mtbl operator*(int, const Mtbl& ) ;	    
+/// Mtbl / Mtbl
+Mtbl operator/(const Mtbl&, const Mtbl& ) ; 
+/// Mtbl / double
+Mtbl operator/(const Mtbl&, double ) ;	    
+/// double / Mtbl
+Mtbl operator/(double, const Mtbl& ) ;	    
+/// Mtbl / int
+Mtbl operator/(const Mtbl&, int ) ;	    
+/// int / Mtbl
+Mtbl operator/(int, const Mtbl& ) ;	    
 
-Mtbl sin(const Mtbl& ) ;	    /// Sine
-Mtbl cos(const Mtbl& ) ;	    /// Cosine
-Mtbl tan(const Mtbl& ) ;	    /// Tangent
-Mtbl asin(const Mtbl& ) ;	    /// Arcsine
-Mtbl acos(const Mtbl& ) ;	    /// Arccosine
-Mtbl atan(const Mtbl& ) ;	    /// Arctangent
-Mtbl exp(const Mtbl& ) ;	    /// Exponential
-Mtbl log(const Mtbl& ) ;	    /// Neperian logarithm
-Mtbl log10(const Mtbl& ) ;    /// Basis 10 logarithm
-Mtbl sqrt(const Mtbl& ) ;	    /// Square root
-Mtbl racine_cubique (const Mtbl&) ; /// Cube root
-Mtbl pow(const Mtbl& , int ) ;  /// Power ${\tt Mtbl}^{\tt int}$
-Mtbl pow(const Mtbl& , double ) ; /// Power ${\tt Mtbl}^{\tt double}$
-Mtbl abs(const Mtbl& ) ;	    /// Absolute value
+/// Sine
+Mtbl sin(const Mtbl& ) ;	    
+/// Cosine
+Mtbl cos(const Mtbl& ) ;	    
+/// Tangent
+Mtbl tan(const Mtbl& ) ;	    
+/// Arcsine
+Mtbl asin(const Mtbl& ) ;	    
+/// Arccosine
+Mtbl acos(const Mtbl& ) ;	    
+/// Arctangent
+Mtbl atan(const Mtbl& ) ;	    
+/// Exponential
+Mtbl exp(const Mtbl& ) ;	    
+/// Neperian logarithm
+Mtbl log(const Mtbl& ) ;	    
+/// Basis 10 logarithm
+Mtbl log10(const Mtbl& ) ;    
+/// Square root
+Mtbl sqrt(const Mtbl& ) ;	    
+/// Cube root
+Mtbl racine_cubique (const Mtbl&) ; 
+/// Power \f${\tt Mtbl}^{\tt int}\f$
+Mtbl pow(const Mtbl& , int ) ;  
+/// Power \f${\tt Mtbl}^{\tt double}\f$
+Mtbl pow(const Mtbl& , double ) ; 
+/// Absolute value
+Mtbl abs(const Mtbl& ) ;	    
 
 /**
- * Maximum values of the {\tt Mtbl} elements in each domain.
- * @return 1-D {\tt Tbl} of size the number of domains, the elements of which 
+ * Maximum values of the \c Mtbl  elements in each domain.
+ * @return 1-D \c Tbl  of size the number of domains, the elements of which 
  *	   are the set of the maximum values in each domain.  
  */
 Tbl max(const Mtbl& ) ;   
 
 /**
- * Minimum values of the {\tt Mtbl} elements in each domain.
- * @return 1-D {\tt Tbl} of size the number of domains, the elements of which 
+ * Minimum values of the \c Mtbl  elements in each domain.
+ * @return 1-D \c Tbl  of size the number of domains, the elements of which 
  *	   are the set of the minimum values in each domain.  
  */
 Tbl min(const Mtbl& ) ;   
 
 /**
- * Sums of the absolute values of all the {\tt Mtbl} elements in each domain.
- * @return 1-D {\tt Tbl} of size the number of domains, the elements of which 
+ * Sums of the absolute values of all the \c Mtbl  elements in each domain.
+ * @return 1-D \c Tbl  of size the number of domains, the elements of which 
  *	   are the set of the sums of the absolute values in each domain.  
  */
 Tbl norme(const Mtbl& ) ;   
 
 /**
- * Relative difference between two {\tt Mtbl} (norme version).
- * @return 1-D {\tt Tbl} of size the number of domains, the elements of which 
- *	   are {\tt norme[a(l)-b(l)]/norme[b(l)]} if {\tt b(l)!=0} and
- *	   {\tt norme[a(l)-b(l)]} if  {\tt b(l)=0},  where {\tt a(l)} and 
- *	   {\tt b(l)} denote symbolically the values of {\tt a} and {\tt b} 
- *	   in domain no. {\tt l}. 
+ * Relative difference between two \c Mtbl  (norme version).
+ * @return 1-D \c Tbl  of size the number of domains, the elements of which 
+ *	   are \c norme[a(l)-b(l)]/norme[b(l)]  if \c b(l)!=0  and
+ *	   \c norme[a(l)-b(l)]  if  \c b(l)=0 ,  where \c a(l)  and 
+ *	   \c b(l)  denote symbolically the values of \c a  and \c b  
+ *	   in domain no. \c l . 
  */
 Tbl diffrel(const Mtbl& a, const Mtbl& b) ; 
 
 /**
- * Relative difference between two {\tt Mtbl} (max version).
- * @return 1-D {\tt Tbl} of size the number of domains, the elements of which 
- *	   are {\tt max[abs(a(l)-b(l))]/max[abs(b(l))]} if {\tt b(l)!=0} and
- *	   {\tt max[abs(a(l)-b(l))]} if  {\tt b(l)=0},  where {\tt a(l)} and 
- *	   {\tt b(l)} denote symbolically the values of {\tt a} and {\tt b} 
- *	   in domain no. {\tt l}. 
+ * Relative difference between two \c Mtbl  (max version).
+ * @return 1-D \c Tbl  of size the number of domains, the elements of which 
+ *	   are \c max[abs(a(l)-b(l))]/max[abs(b(l))]  if \c b(l)!=0  and
+ *	   \c max[abs(a(l)-b(l))]  if  \c b(l)=0 ,  where \c a(l)  and 
+ *	   \c b(l)  denote symbolically the values of \c a  and \c b  
+ *	   in domain no. \c l . 
  */
 Tbl diffrelmax(const Mtbl& a, const Mtbl& b) ; 
 
-    //@}
+/**@} */
 
 
 #endif

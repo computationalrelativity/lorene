@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/03/22 13:12:41  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.5  2003/11/06 14:43:37  e_gourgoulhon
  * Gave a name to const arguments in certain method prototypes (e.g.
  * constructors) to correct a bug of DOC++.
@@ -85,38 +88,38 @@
 /**
  * Basic integer array class.
  * 
- * This class is essentially an {\tt int} array class. The elements of the 
+ * This class is essentially an \c int  array class. The elements of the 
  * array are stored continuously using the C convention.
  * 
  * The general logical state of an initialized 
- * {\tt Itbl} is {\tt ETATQCQ}; it is the only state for which the memory
- * allocation is performed for the {\tt int} array {\tt t}. 
- * The value zero is treated as a special logical state ({\tt ETATZERO}), 
+ * \c Itbl  is \c ETATQCQ ; it is the only state for which the memory
+ * allocation is performed for the \c int  array \c t . 
+ * The value zero is treated as a special logical state (\c ETATZERO ), 
  * without any memory allocation. 
  *
- * Contrary to a {\tt Tbl}, an {\tt Itbl} is initialy created in a
- * logical state {\tt ETATQCQ} (i.e. ordinary state, with memory allocated
- * for the array {\tt t}).
+ * Contrary to a \c Tbl , an \c Itbl  is initialy created in a
+ * logical state \c ETATQCQ  (i.e. ordinary state, with memory allocated
+ * for the array \c t ).
  *
  * Arithmetic operations are provided with the usual meaning (see 
  * below).
  * 
  * A 1D Itbl can be of dimension 0 (size 0). Its logical state is then
- * {\tt ETATZERO} (by convention). 
+ * \c ETATZERO  (by convention). 
  * 
- * @version #$Id$#.
+ * \ingroup (util)
  */
 class Itbl {
 
     // Data : 
     // -----
     private:
-	/// logical state ({\tt ETATNONDEF}, {\tt ETATQCQ} or {\tt ETATZERO}).
+	/// logical state (\c ETATNONDEF , \c ETATQCQ  or \c ETATZERO ).
 	int etat ;  
     
     public: 
-    Dim_tbl dim ;	    /// Number of dimensions, size,...
-	int*	t ;	    /// The array of {\tt int}'s
+    Dim_tbl dim ;	    ///< Number of dimensions, size,...
+	int*	t ;	    ///< The array of \c int 's
 
     // Constructors - Destructor
     // -------------------------
@@ -124,11 +127,11 @@ class Itbl {
     public:
 	/**
 	 * 1D constructor.
-	 * This constructor sets the {\tt Itbl} in the logical state {\tt ETATQCQ},
-	 * so that it is ready for initialization via the method {\tt set(int )}.
+	 * This constructor sets the \c Itbl  in the logical state \c ETATQCQ ,
+	 * so that it is ready for initialization via the method \c set(int ) .
 	 * 
-	 * @param size0  [input] Number of elements of the array {\tt t}.
-	 *		  Will be assigned to {\tt dim.dim[0]}.
+	 * @param size0  [input] Number of elements of the array \c t .
+	 *		  Will be assigned to \c dim.dim[0] .
 	 *		  The size 0 is allowed (the corresponding 
 	 *		  logical state will be then ETATZERO).
 	 */
@@ -136,93 +139,93 @@ class Itbl {
 
 	/**
 	 * 2D constructor.
-	 * This constructor sets the {\tt Itbl} in the logical state {\tt ETATQCQ},
+	 * This constructor sets the \c Itbl  in the logical state \c ETATQCQ ,
 	 * so that it is ready for initialization via the method 
-	 * {\tt set(int, int )}.
+	 * \c set(int, int ) .
 	 *
 	 * @param size1  [input] Defines the range [0, size1-1] of the 
-	 *		  outermost index in the storage of the array {\tt t}. 
-	 *		  Will be assigned to {\tt dim.dim[1]}.
+	 *		  outermost index in the storage of the array \c t . 
+	 *		  Will be assigned to \c dim.dim[1] .
 	 * @param size0  [input] Defines the range [0, size0-1] of the 
-	 *		  innermost index in the storage of the array {\tt t}. 
-	 *		  Will be assigned to {\tt dim.dim[0]}.
+	 *		  innermost index in the storage of the array \c t . 
+	 *		  Will be assigned to \c dim.dim[0] .
 	 */ 
 	Itbl(int size1, int size0) ;		
 	
 	/**
 	 * 3D constructor
-	 * This constructor sets the {\tt Itbl} in the logical state {\tt ETATQCQ},
+	 * This constructor sets the \c Itbl  in the logical state \c ETATQCQ ,
 	 * so that it is ready for initialization via the method 
-	 * {\tt set(int, int, int )}.
+	 * \c set(int, int, int ) .
 	 *
 	 * @param size2  [input] Defines the range [0, size2-1]  of the 
-	 *		  outermost index in the storage of the array {\tt t}. 
-	 *		  Will be assigned to {\tt dim.dim[2]}.
+	 *		  outermost index in the storage of the array \c t . 
+	 *		  Will be assigned to \c dim.dim[2] .
 	 * @param size1  [input] Defines the range [0, size1-1] of the 
-	 *		  intermediate index in the storage of the array {\tt t}. 
-	 *		  Will be assigned to {\tt dim.dim[1]}.
+	 *		  intermediate index in the storage of the array \c t . 
+	 *		  Will be assigned to \c dim.dim[1] .
 	 * @param size0  [input] Defines the range [0, size0-1] of the 
-	 *		  innermost index in the storage of the array {\tt t}. 
-	 *		  Will be assigned to {\tt dim.dim[0]}.
+	 *		  innermost index in the storage of the array \c t . 
+	 *		  Will be assigned to \c dim.dim[0] .
 	 */ 
 	Itbl(int size2, int size1, int size0) ;		
 	
 
-	/** Constructor from a {\tt Dim\_tbl}.
-	 * This constructor sets the {\tt Itbl} in the logical state {\tt ETATQCQ},
+	/** Constructor from a \c Dim_tbl .
+	 * This constructor sets the \c Itbl  in the logical state \c ETATQCQ ,
 	 * so that it is ready for initialization via the method 
-	 * {\tt set}.
+	 * \c set .
 	 */
 	explicit Itbl(const Dim_tbl& ) ; 
 	
-	/// Constructor from a file (see {\tt sauve(FILE* )})
+	/// Constructor from a file (see \c sauve(FILE* ) )
 	explicit Itbl(FILE* ) ;	
 	
-	Itbl(const Itbl& ) ;		/// Copy constructor
+	Itbl(const Itbl& ) ;		///< Copy constructor
 
-	~Itbl() ;			/// Destructor
+	~Itbl() ;			///< Destructor
 
     // Assignement
     // -----------
-	void operator=(const Itbl& ) ;	/// Assignment to another {\tt Itbl}
-	void operator=(int ) ;	 /// Assignment to a {\tt int}
+	void operator=(const Itbl& ) ;	///< Assignment to another \c Itbl 
+	void operator=(int ) ;	 ///< Assignment to a \c int 
 
     // Memory management
     // -----------------
     private:
 	/** Logical destructor: dellocates the memory occupied by the array
-	 *  {\tt t} and sets the logical state to ETATNONDEF. 
+	 *  \c t  and sets the logical state to ETATNONDEF. 
 	 */
 	void del_t() ;		
 
     public:
 
     /**
-     * Sets the logical state to {\tt ETATNONDEF} (undefined). 
-     * Deallocates the memory occupied by the {\tt int} array {\tt t}.
+     * Sets the logical state to \c ETATNONDEF  (undefined). 
+     * Deallocates the memory occupied by the \c int  array \c t .
      */
 	void set_etat_nondef() ;	
 	
     /**
-     * Sets the logical state to {\tt ETATZERO} (zero). 
-     * Deallocates the memory occupied by the {\tt int} array {\tt t}.
+     * Sets the logical state to \c ETATZERO  (zero). 
+     * Deallocates the memory occupied by the \c int  array \c t .
      */
 	void set_etat_zero() ;	    	
 
     /**
-     * Sets the logical state to {\tt ETATQCQ} (ordinary state).
-     * If the state (member {\tt etat}) is already {\tt ETATQCQ}, this 
+     * Sets the logical state to \c ETATQCQ  (ordinary state).
+     * If the state (member \c etat ) is already \c ETATQCQ , this 
      * function does nothing. Otherwise, it performs the memory allocation
-     * for the {\tt int} array {\tt t}.  
+     * for the \c int  array \c t .  
      */
 	void set_etat_qcq() ;	    	
     
     /**
-     * Sets the {\tt Itbl} to zero in a hard way. 
-     * 1/ Sets the logical state to {\tt ETATQCQ}, i.e. to an ordinary state.
-     * 2/ Allocates the memory of the {\tt int} array {\tt t}, and fills it
+     * Sets the \c Itbl  to zero in a hard way. 
+     * 1/ Sets the logical state to \c ETATQCQ , i.e. to an ordinary state.
+     * 2/ Allocates the memory of the \c int  array \c t , and fills it
      * with zeros. NB: this function must be used for debugging purposes only.
-     * For other operations, the function {\tt set\_etat\_zero()} must
+     * For other operations, the function \c set_etat_zero()  must
      * be perferred. 
      */
 	void annule_hard() ;			
@@ -230,7 +233,7 @@ class Itbl {
     // Access to individual elements
     // -----------------------------
     public:
-	/// Read/write of a particular element (index {\tt i})  (1D case)
+	/// Read/write of a particular element (index \c i )  (1D case)
 	int& set(int i) {
 	    assert (etat == ETATQCQ) ;
 	    assert( dim.ndim == 1 ) ; 
@@ -239,7 +242,7 @@ class Itbl {
 	    return t[i] ;
 	} ;
 	
-	/// Read-only of a particular element (index {\tt i}) (1D case)
+	/// Read-only of a particular element (index \c i ) (1D case)
 	int operator()(int i) const {
 	    assert(etat != ETATNONDEF) ;
 	    assert( dim.ndim == 1 ) ; 
@@ -252,7 +255,7 @@ class Itbl {
 	    else return t[i] ;
 	};
 
-	/// Read/write of a particular element (index {\tt (j,i)}) (2D case)
+	/// Read/write of a particular element (index \c (j,i) ) (2D case)
 	int& set(int j, int i) {
 	    assert (etat == ETATQCQ) ;
 	    assert( dim.ndim == 2 ) ;
@@ -261,7 +264,7 @@ class Itbl {
 	    return t[dim.dim[0] * j + i] ;
 	};
 
-	/// Read-only of a particular element (index {\tt (j,i)}) (2D case)
+	/// Read-only of a particular element (index \c (j,i) ) (2D case)
 	int operator()(int j, int i) const {
 	    assert(etat != ETATNONDEF) ;
 	    assert( dim.ndim == 2 ) ;
@@ -274,7 +277,7 @@ class Itbl {
 	    else return t[dim.dim[0] * j + i] ;
 	};
 
-	/// Read/write of a particular element (index {\tt (k,j,i)}) (3D case)
+	/// Read/write of a particular element (index \c (k,j,i) ) (3D case)
 	int& set(int k, int j, int i) {	
 	    assert (etat == ETATQCQ) ;
 	    assert( dim.ndim == 3 ) ;
@@ -284,7 +287,7 @@ class Itbl {
 	    return t[dim.dim[1]*dim.dim[0]*k + dim.dim[0]*j + i] ;
 	};
 
-	/// Read-only of a particular element (index {\tt (k,j,i)}) (3D case)
+	/// Read-only of a particular element (index \c (k,j,i) ) (3D case)
 	int operator()(int k, int j, int i) const {
 	    assert(etat != ETATNONDEF) ;
 	    assert( dim.ndim == 3 ) ;
@@ -300,15 +303,16 @@ class Itbl {
 
     // Extraction of information
     // -------------------------
-	int get_etat() const { return etat ; };	    /// Gives the logical state
+    /// Gives the logical state
+	int get_etat() const { return etat ; } ;	
 
-	/// Gives the total size (ie {\tt dim.taille})
+	/// Gives the total size (ie \c dim.taille )
 	int get_taille() const { return dim.taille ; }; 
 
-	/// Gives the number of dimensions (ie {\tt dim.ndim})
+	/// Gives the number of dimensions (ie \c dim.ndim )
 	int get_ndim() const { return dim.ndim ; };	
 	
-	/// Gives the {\tt i}th dimension (ie {tt dim.dim[i]})
+	/// Gives the \c i th dimension (ie {tt dim.dim[i] )
 	int get_dim(int i) const {	
 	    assert( (i>=0) && (i<dim.ndim) ) ;
 	    return dim.dim[i] ;
@@ -317,7 +321,7 @@ class Itbl {
     // Outputs
     // -------
     public:
-	void sauve(FILE* ) const ;	/// Save in a file
+	void sauve(FILE* ) const ;	///< Save in a file
 
 	/// Display   
 	friend ostream& operator<<(ostream& , const Itbl& ) ;	
@@ -326,53 +330,55 @@ class Itbl {
     // ------------------
     public:
 	
-	void operator+=(const Itbl &) ;	/// Addition of a {\tt Itbl} to {\tt this}
-	void operator+=(int) ;	/// Addition of a {\tt int} to {\tt this}
-	void operator-=(const Itbl &) ;	/// Subtraction of a {\tt Itbl} to {\tt this}
-	void operator-=(int) ;	/// Subtraction of a {\tt int} to {\tt this}
-	void operator*=(const Itbl &) ;	/// Multiplication of {\tt this} by a {\tt Itbl}
-	void operator*=(int) ;	/// Multiplication of {\tt this} by a {\tt int}
+	void operator+=(const Itbl &) ;	///< Addition of a \c Itbl  to \c this 
+	void operator+=(int) ;	///< Addition of a \c int  to \c this 
+	void operator-=(const Itbl &) ;	///< Subtraction of a \c Itbl  to \c this 
+	void operator-=(int) ;	///< Subtraction of a \c int  to \c this 
+	void operator*=(const Itbl &) ;	///< Multiplication of \c this  by a \c Itbl 
+	void operator*=(int) ;	///< Multiplication of \c this  by a \c int 
 } ;
 ostream& operator<<(ostream& , const Itbl& ) ;	
 
 
 /**
- * @name Itbl Mathematics
+ * \defgroup itb_mat Itbl Mathematics
+ * \ingroup (util)
+ *
+ * @{
  */
-    //@{
-Itbl operator+(const Itbl&) ;			/// + Ibl
-Itbl operator-(const Itbl&) ;			/// - Itbl
-Itbl operator+(const Itbl&, const Itbl&) ;	/// Itbl + Itbl
-Itbl operator+(const Itbl&, int) ;		/// Itbl + int
-Itbl operator+(int a, const Itbl& b) ;		/// int + Itbl
-Itbl operator+(const Itbl& b, int a) ;		/// Itbl + int
-Itbl operator-(const Itbl&, const Itbl&) ;	/// Itbl - Itbl
-Itbl operator-(const Itbl&, int) ;		/// Itbl - int
-Itbl operator-(int, const Itbl&) ;		/// int - Itbl
-Itbl operator*(const Itbl&, const Itbl&) ;	/// Itbl * Itbl
-Itbl operator*(const Itbl&, int) ;		/// Itbl * int
-Itbl operator*(int, const Itbl&) ;		/// int * Itbl
+Itbl operator+(const Itbl&) ;			///< + Ibl
+Itbl operator-(const Itbl&) ;			///< - Itbl
+Itbl operator+(const Itbl&, const Itbl&) ;	///< Itbl + Itbl
+Itbl operator+(const Itbl&, int) ;		///< Itbl + int
+Itbl operator+(int a, const Itbl& b) ;		///< int + Itbl
+Itbl operator+(const Itbl& b, int a) ;		///< Itbl + int
+Itbl operator-(const Itbl&, const Itbl&) ;	///< Itbl - Itbl
+Itbl operator-(const Itbl&, int) ;		///< Itbl - int
+Itbl operator-(int, const Itbl&) ;		///< int - Itbl
+Itbl operator*(const Itbl&, const Itbl&) ;	///< Itbl * Itbl
+Itbl operator*(const Itbl&, int) ;		///< Itbl * int
+Itbl operator*(int, const Itbl&) ;		///< int * Itbl
 
-Itbl abs(const Itbl& ) ;	    /// Absolute value
-int max(const Itbl& ) ;   /// Maximum value of the {\tt Itbl} elements
-int min(const Itbl& ) ;   /// Minimum value of the {\tt Itbl} elements
+Itbl abs(const Itbl& ) ;	    ///< Absolute value
+int max(const Itbl& ) ;   ///< Maximum value of the \c Itbl  elements
+int min(const Itbl& ) ;   ///< Minimum value of the \c Itbl  elements
 
-/// Sum of the absolute values of all the {\tt Itbl} elements
+/// Sum of the absolute values of all the \c Itbl  elements
 int norme(const Itbl& ) ;   
 
 /**
- * Relative difference between two {\tt Itbl} (norme version).
- * Returns {\tt norme(a-b)/norme(b)} unless {\tt b=0}, in which
- * case it returns {\tt norme(a-b)}.
+ * Relative difference between two \c Itbl  (norme version).
+ * Returns \c norme(a-b)/norme(b)  unless \c b=0 , in which
+ * case it returns \c norme(a-b) .
  */
 double diffrel(const Itbl& a, const Itbl& b) ; 
 
 /**
- * Relative difference between two {\tt Itbl} (max version).
- * Returns {\tt max(abs(a-b))/max(abs(b))} unless {\tt b=0}, in which
- * case it returns {\tt max(abs(a-b))}.
+ * Relative difference between two \c Itbl  (max version).
+ * Returns \c max(abs(a-b))/max(abs(b))  unless \c b=0 , in which
+ * case it returns \c max(abs(a-b)) .
  */
 double diffrelmax(const Itbl& a, const Itbl& b) ; 
 
-    //@}
+/** @}*/
 #endif

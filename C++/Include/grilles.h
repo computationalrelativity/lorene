@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/03/22 13:12:41  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.8  2003/06/20 14:16:57  f_limousin
  * Add the operator== to compare two Mg3d
  *
@@ -128,66 +131,72 @@ class Base_val ;
 
 // Classe de base
 /**
- * Base 3D grid class.
+ * Base 3D grid class.\ingroup (spec)
  * 
  * This class is an abstract one. It can't be instanciated. 
- * There is no {\tt ostream} 
+ * There is no \c ostream 
  * operator. For historical reasons, the mnemonics refer to spherical 
- * coordinates $(r,\theta,\phi)$. However all this stuff can be used for 
+ * coordinates \f$(r,\theta,\phi)\f$. However all this stuff can be used for 
  * any coordinate system if the appropriated constructors are created.
  *
- * The radial coordinate $\xi$ lies in the range [0, 1] or [-1, 1]
+ * The radial coordinate \f$\xi\f$ lies in the range [0, 1] or [-1, 1]
  * depending upon the sampling. Its relation with the physical radial 
- * coordinate {\it r} is defined by the mapping (cf. class {\tt Map}) and 
- * is described in Bonazzola, Gourgoulhon \& Marck, {\sl Phys. Rev. D}
- * {\bf 58}, 104020 (1998).
+ * coordinate \e r is defined by the mapping (cf. class \c Map) and 
+ * is described in Bonazzola, Gourgoulhon \& Marck, \a Phys. \a Rev. \a D
+ * \b 58, 104020 (1998).
  *
  * @version #$Id$#
  */
 
 class Grille3d {
     protected:
-	const int nr ;	/// Number of points in {\it r} ($\xi$)
-	const int nt ;	/// Number of points in $\theta$
-	const int np ;	/// Number of points in $\phi$
+	const int nr ;	///< Number of points in \e r (\f$\xi\f$)
+	const int nt ;	///< Number of points in \f$\theta\f$
+	const int np ;	///< Number of points in \f$\phi\f$
 
-	int type_r ;	/// Type of sampling in {\it r} ($\xi$) ({\tt RARE, FIN, UNSURR})
-	int type_t ;	/// Type of sampling in $\theta$ ({\tt SYM, NONSYM})
-	int type_p ;	/// Type of sampling in $\phi$ ({\tt SYM, NONSYM})
+	int type_r ;	///< Type of sampling in \e r (\f$\xi\f$) (\c RARE, FIN, UNSURR)
+	int type_t ;	///< Type of sampling in \f$\theta\f$ (\c SYM, NONSYM)
+	int type_p ;	///< Type of sampling in \f$\phi\f$ (\c SYM, NONSYM)
     public:
-	/// Array of values of $\xi$ at the {\tt nr} collocation points
+	/// Array of values of \f$\xi\f$ at the \c nr collocation points
 	double* x ;	
-	/// Array of values of $\theta$ at the {\tt nt} collocation points
+	/// Array of values of \f$\theta\f$ at the \c nt collocation points
 	double* tet ;	
-	/// Array of values of $\phi$ at the {\tt np} collocation points
+	/// Array of values of \f$\phi\f$ at the \c np collocation points
 	double* phi ;	
 
     protected: 
-	/// Constructor (protected to make {\tt Grille3d} an abstract class) 
+	/// Constructor (protected to make \c Grille3d an abstract class) 
 	Grille3d(int n_r, int n_t, int n_p) ;
     
     private:
-	/** Copy constructor (private and not implemented to make {\tt Grille3d}
+	/** Copy constructor (private and not implemented to make \c Grille3d
 	 * a non-copyable class)
 	 */ 
 	Grille3d(const Grille3d& ) ;
 	
 	/** Assignement operator (private and not implemented to make 
-	 *   {\tt Grille3d} a non-copyable class)
+	 *   \c Grille3d a non-copyable class)
 	 */
 	void operator=(const Grille3d& ) ;
 	 	
     public:
-	virtual ~Grille3d() ;		/// Destructor
+	virtual ~Grille3d() ;		///< Destructor
 
     public:
-    	int get_nr() const {return nr ;} ;	    /// Returns {\tt nr}
-    	int get_nt() const {return nt ;} ;	    /// Returns {\tt nt}
-    	int get_np() const {return np ;} ;	    /// Returns {\tt np}
+	/// Returns \c nr
+    	int get_nr() const {return nr ;} ;
+	/// Returns \c nt	    
+    	int get_nt() const {return nt ;} ;
+	/// Returns \c np
+    	int get_np() const {return np ;} ;
 
-    	int get_type_r() const {return type_r ;} ;    /// Returns {\tt type\_r}
-    	int get_type_t() const {return type_t ;} ;    /// Returns {\tt type\_t}
-    	int get_type_p() const {return type_p ;} ;    /// Returns {\tt type\_p}
+	/// Returns \c type_r
+    	int get_type_r() const {return type_r ;} ; 
+	/// Returns \c type_t
+    	int get_type_t() const {return type_t ;} ; 
+	/// Returns \c type_p
+    	int get_type_p() const {return type_p ;} ; 
 
 };
 
@@ -196,11 +205,11 @@ class Grille3d {
     	    	    // Les classes derivees //
 		    // -------------------- //
 
-/**@name Derived classes of class Grille3d.
+/**@name Derived classes of class Grille3d.\ingroup (spec)
  * These derived classes differ only by their constructors 
  * (see the corresponding constructors for details).
  * 
- * Note: the monogrids should not be used. Use instead {\tt Mg3d}.
+ * Note: the monogrids should not be used. Use instead \c Mg3d.
  */
 //@{
 
@@ -209,15 +218,14 @@ class Grille3d {
 /**
  * 3D grid for a spherical kernel without symmetry.
  * It contains only a constructor and a destructor. 
- * Coordinates ranges are: $\xi \in [0,1]$, $\theta \in [0,\pi]$ and 
- * $\phi \in [0,2\pi[$.
+ * Coordinates ranges are: \f$\xi \in [0,1]\f$, \f$\theta \in [0,\pi]\f$ and 
+ * \f$\phi \in [0,2\pi[\f$.
  *
- * @version #$Id$#
  */
 class Grille3d_r : public Grille3d {
     public:
-	Grille3d_r(int n_r, int n_t, int n_p) ; /// Constructor
-	~Grille3d_r() ; /// Destructor
+	Grille3d_r(int n_r, int n_t, int n_p) ; ///< Constructor
+	~Grille3d_r() ; ///< Destructor
 };
 
 // cas fin + sans symetrie
@@ -225,15 +233,15 @@ class Grille3d_r : public Grille3d {
 /**
  * 3D grid for a spherical shell without symmetry.
  * It contains only a constructor and a destructor. 
- * Coordinates ranges are: $\xi \in [-1,1]$, $\theta \in [0,\pi]$ and 
- * $\phi \in [0,2\pi[$.
+ * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi]\f$ and 
+ * \f$\phi \in [0,2\pi[\f$.
  *
  * @version #$Id$#
  */
 class Grille3d_f : public Grille3d {
     public:
-	Grille3d_f(int n_r, int n_t, int n_p) ; /// Constructor
-	~Grille3d_f() ; /// Destructor
+	Grille3d_f(int n_r, int n_t, int n_p) ; ///< Constructor
+	~Grille3d_f() ; ///< Destructor
 };
 
 // cas echantillonnage (fin) en 1/r + sans symetrie
@@ -241,166 +249,166 @@ class Grille3d_f : public Grille3d {
 /**
  * 3D grid for a compatified spherical shell without symmetry.
  * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: $\xi \in [-1,1]$, $\theta \in [0,\pi]$ and 
- * $\phi \in [0,2\pi[$.
+ * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi]\f$ and 
+ * \f$\phi \in [0,2\pi[\f$.
  *
  * @version #$Id$#
  */
 class Grille3d_i : public Grille3d {
     public:
-	Grille3d_i(int n_r, int n_t, int n_p) ; /// Constructor
-	~Grille3d_i() ; /// Destructor
+	Grille3d_i(int n_r, int n_t, int n_p) ; ///< Constructor
+	~Grille3d_i() ; ///< Destructor
 };
 
 // Cas rare + symetrie equatoriale
 // -------------------------------
 /**
  * 3D grid for a spherical kernel with equatorial symmetry.
- * $z \rightarrow -z$.
+ * \f$z \rightarrow -z\f$.
  * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: $\xi \in [0,1]$, $\theta \in [0,\pi/2]$ and 
- * $\phi \in [0,2\pi[$.
+ * Coordinates ranges are: \f$\xi \in [0,1]\f$, \f$\theta \in [0,\pi/2]\f$ and 
+ * \f$\phi \in [0,2\pi[\f$.
  *
  * @version #$Id$#
  */
 class Grille3d_req : public Grille3d {
     public:
-	Grille3d_req(int n_r, int n_t, int n_p) ; /// Constructor
-	~Grille3d_req() ; /// Destructor
+	Grille3d_req(int n_r, int n_t, int n_p) ; ///< Constructor
+	~Grille3d_req() ; ///< Destructor
 };
 
 // cas fin + symetrie equatoriale
 // ------------------------------
 /**
  * 3D grid for a spherical shell with equatorial symmetry 
- * $z \rightarrow -z$.
+ * \f$z \rightarrow -z\f$.
  * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: $\xi \in [-1,1]$, $\theta \in [0,\pi/2]$ and 
- * $\phi \in [0,2\pi[$.
+ * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi/2]\f$ and 
+ * \f$\phi \in [0,2\pi[\f$.
  *
  * @version #$Id$#
  */
 class Grille3d_feq : public Grille3d {
     public:
-	Grille3d_feq(int n_r, int n_t, int n_p) ; /// Constructor
-	~Grille3d_feq() ; /// Destructor
+	Grille3d_feq(int n_r, int n_t, int n_p) ; ///< Constructor
+	~Grille3d_feq() ; ///< Destructor
 };
 
 // cas echantillonnage (fin) en 1/r + symetrie equatoriale
 // -------------------------------------------------------
 /**
  * 3D grid for a compatified spherical shell with equatorial symmetry
- * $z \rightarrow -z$.
+ * \f$z \rightarrow -z\f$.
  * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: $\xi \in [-1,1]$, $\theta \in [0,\pi/2]$ and 
- * $\phi \in [0,2\pi[$.
+ * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi/2]\f$ and 
+ * \f$\phi \in [0,2\pi[\f$.
  *
  * @version #$Id$#
  */
 class Grille3d_ieq : public Grille3d {
     public:
-	Grille3d_ieq(int n_r, int n_t, int n_p) ; /// Constructor
-	~Grille3d_ieq() ; /// Destructor
+	Grille3d_ieq(int n_r, int n_t, int n_p) ; ///< Constructor
+	~Grille3d_ieq() ; ///< Destructor
 };
 
 // Cas rare supersymetrique
 // ------------------------
 /**
  * 3D grid for a spherical kernel with super-symmetry 
- * $(x,y) \rightarrow (-x,-y)$.
+ * \f$(x,y) \rightarrow (-x,-y)\f$.
  * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: $\xi \in [0,1]$, $\theta \in [0,\pi/2]$ and 
- * $\phi \in [0,\pi[$.
+ * Coordinates ranges are: \f$\xi \in [0,1]\f$, \f$\theta \in [0,\pi/2]\f$ and 
+ * \f$\phi \in [0,\pi[\f$.
  *
  * @version #$Id$#
  */
 class Grille3d_rs : public Grille3d {
     public:
-	Grille3d_rs(int n_r, int n_t, int n_p) ; /// Constructor
-	~Grille3d_rs() ; /// Destructor
+	Grille3d_rs(int n_r, int n_t, int n_p) ; ///< Constructor
+	~Grille3d_rs() ; ///< Destructor
 };
 
 // cas fin supersymetrique
 // -----------------------
 /**
  * 3D grid for a spherical shell with super-symmetry 
- * $(x,y) \rightarrow (-x,-y)$.
+ * \f$(x,y) \rightarrow (-x,-y)\f$.
  * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: $\xi \in [-1,1]$, $\theta \in [0,\pi/2]$ and 
- * $\phi \in [0,\pi[$.
+ * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi/2]\f$ and 
+ * \f$\phi \in [0,\pi[\f$.
  *
  * @version #$Id$#
  */
 class Grille3d_fs : public Grille3d {
     public:
-	Grille3d_fs(int n_r, int n_t, int n_p) ; /// Constructor
-	~Grille3d_fs() ; /// Destructor
+	Grille3d_fs(int n_r, int n_t, int n_p) ; ///< Constructor
+	~Grille3d_fs() ; ///< Destructor
 };
 
 // cas echantillonnage (fin) en 1/r supersymetrique
 // --------------------------
 /**
  * 3D grid for a compactified spherical shell with super-symmetry 
- * $(x,y) \rightarrow (-x,-y)$.
+ * \f$(x,y) \rightarrow (-x,-y)\f$.
  * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: $\xi \in [-1,1]$, $\theta \in [0,\pi/2]$ and 
- * $\phi \in [0,\pi[$.
+ * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi/2]\f$ and 
+ * \f$\phi \in [0,\pi[\f$.
  *
  * @version #$Id$#
  */
 class Grille3d_is : public Grille3d {
     public:
-	Grille3d_is(int n_r, int n_t, int n_p) ; /// Constructor
-	~Grille3d_is() ; /// Destructor
+	Grille3d_is(int n_r, int n_t, int n_p) ; ///< Constructor
+	~Grille3d_is() ; ///< Destructor
 };
 
 // Cas rare + 2 phi
 // ----------------
 /**
- * 3D grid for a spherical kernel with only even harmonics in $\phi$. 
+ * 3D grid for a spherical kernel with only even harmonics in \f$\phi\f$. 
  * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: $\xi \in [0,1]$, $\theta \in [0,\pi]$ and 
- * $\phi \in [0,\pi[$.
+ * Coordinates ranges are: \f$\xi \in [0,1]\f$, \f$\theta \in [0,\pi]\f$ and 
+ * \f$\phi \in [0,\pi[\f$.
  *
  * @version #$Id$#
  */
 class Grille3d_r2p : public Grille3d {
     public:
-	Grille3d_r2p(int n_r, int n_t, int n_p) ; /// Constructor
-	~Grille3d_r2p() ; /// Destructor
+	Grille3d_r2p(int n_r, int n_t, int n_p) ; ///< Constructor
+	~Grille3d_r2p() ; ///< Destructor
 };
 
 // cas fin + 2 phi
 // ---------------
 /**
- * 3D grid for a spherical shell with only even harmonics in $\phi$. 
+ * 3D grid for a spherical shell with only even harmonics in \f$\phi\f$. 
  * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: $\xi \in [-1,1]$, $\theta \in [0,\pi]$ and 
- * $\phi \in [0,\pi[$.
+ * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi]\f$ and 
+ * \f$\phi \in [0,\pi[\f$.
  *
  * @version #$Id$#
  */
 class Grille3d_f2p : public Grille3d {
     public:
-	Grille3d_f2p(int n_r, int n_t, int n_p) ; /// Constructor
-	~Grille3d_f2p() ; /// Destructor
+	Grille3d_f2p(int n_r, int n_t, int n_p) ; ///< Constructor
+	~Grille3d_f2p() ; ///< Destructor
 };
 
 // cas echantillonnage (fin) en 1/r + 2 phi
 // ----------------------------------------
 /**
  * 3D grid for a compactified spherical kernel 
- * with only even harmonics in $\phi$. 
+ * with only even harmonics in \f$\phi\f$. 
  * This class contains only a constructor and a destructor. 
- * Coordinates ranges are: $\xi \in [-1,1]$, $\theta \in [0,\pi]$ and 
- * $\phi \in [0,\pi[$.
+ * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi]\f$ and 
+ * \f$\phi \in [0,\pi[\f$.
  *
  * @version #$Id$#
  */
 class Grille3d_i2p : public Grille3d {
     public:
-	Grille3d_i2p(int n_r, int n_t, int n_p) ; /// Constructor
-	~Grille3d_i2p() ; /// Destructor
+	Grille3d_i2p(int n_r, int n_t, int n_p) ; ///< Constructor
+	~Grille3d_i2p() ; ///< Destructor
 };
 
 //@}
@@ -414,12 +422,12 @@ class Grille3d_i2p : public Grille3d {
  *
  * A multi-domain grid is a set of 3D grids for the implementation of 
  * the multi-domain spectral method described in Bonazzola, Gourgoulhon 
- * \& Marck, {\sl Phys. Rev. D} {\bf 58}, 104020 (1998).
- * Each domain is represented by a 3D mono grid ({\tt Grille3d}) and
- * is called a {\em zone}. 
+ * \& Marck, \a Phys. \a Rev. \a D \b 58, 104020 (1998).
+ * Each domain is represented by a 3D mono grid (\c Grille3d) and
+ * is called a \e zone. 
  * For each direction, the Number of Degrees of Freedom (NDF) is 
- * {\em a priori} independent of the zone. However, some methods or 
- * routines may refuse to work if the NDF of some $(\theta, \phi)$ 
+ * \e a \e priori independent of the zone. However, some methods or 
+ * routines may refuse to work if the NDF of some \f$(\theta, \phi)\f$ 
  * direction is not identical in all the zones. 
  * This holds for the type of sampling (symmetry) too.
  *
@@ -431,24 +439,24 @@ class Mg3d {
     // Data  
     // ----
     private:
-	int nzone ;	/// Number of zones
+	int nzone ;	///< Number of zones
 	
-	int* nr ;	/// Array (size: {\tt nzone}) of nb. of points in {\it r} ($\xi$)
-	int* nt ;	/// Array (size: {\tt nzone}) of nb. of points in $\theta$
-	int* np ;	/// Array (size: {\tt nzone}) of nb. of points in $\phi$
+	int* nr ;	///< Array (size: \c nzone) of nb. of points in \e r (\f$\xi\f$)
+	int* nt ;	///< Array (size: \c nzone) of nb. of points in \f$\theta\f$
+	int* np ;	///< Array (size: \c nzone) of nb. of points in \f$\phi\f$
 	
-	/// Array (size: {\tt nzone}) of type of sampling in {\it r} ($\xi$) ({\tt RARE, FIN, UNSURR})
+	/// Array (size: \c nzone) of type of sampling in \e r (\f$\xi\f$) (\c RARE, FIN, UNSURR)
 	int* type_r ;	
-	/// Type of sampling in $\theta$ ({\tt SYM, NONSYM})
+	/// Type of sampling in \f$\theta\f$ (\c SYM, NONSYM)
 	int type_t ;
-	/// Type of sampling in $\phi$ ({\tt SYM, NONSYM})	
+	/// Type of sampling in \f$\phi\f$ (\c SYM, NONSYM)	
 	int type_p ;	
 	
-	/// Array (size: {\tt nzone}) of pointers on the {\tt Grille3d}'s
+	/// Array (size: \c nzone) of pointers on the \c Grille3d's
 	Grille3d** g ;	
 
-	mutable Mg3d* g_angu ;	/// Pointer on the associated angular grid
-	mutable Mg3d* g_radial ; /// Pointer on the associated radial grid
+	mutable Mg3d* g_angu ;	///< Pointer on the associated angular grid
+	mutable Mg3d* g_radial ; ///< Pointer on the associated radial grid
 	
 	/** Pointer on the grid which has twice the number of points in
 	 *  each dimension (for desaliasing).
@@ -464,13 +472,13 @@ class Mg3d {
  * General constructor.
  *
  * @param   nz	    [input] Number of domains (zones).
- * @param   nbr[]   [input] Array (size: {\tt nz}) of number of degree of
- *		    freedom (NDF) in {\it r}-direction
- * @param   typr[]  [input] Array (size: {\tt nz}) of type of sampling in {\it r}-direction
- * @param   nbt[]   [input] Array (size: {\tt nz}) of NDF in $\theta$-direction
- * @param   typt    [input] Type of sampling in $\theta$-direction
- * @param   nbp[]   [input] Array (size: {\tt nz}) of NDF in $\phi$-direction
- * @param   typp    [input] Type of sampling in $\phi$-direction
+ * @param   nbr[]   [input] Array (size: \c nz ) of number of degree of
+ *		    freedom (NDF) in \e r-direction
+ * @param   typr[]  [input] Array (size: \c nz ) of type of sampling in \e r -direction
+ * @param   nbt[]   [input] Array (size: \c nz ) of NDF in \f$\theta\f$-direction
+ * @param   typt    [input] Type of sampling in \f$\theta\f$-direction
+ * @param   nbp[]   [input] Array (size: \c nz) of NDF in \f$\phi\f$-direction
+ * @param   typp    [input] Type of sampling in \f$\phi\f$-direction
  *
  */
 	Mg3d(int nz, int nbr[], int typr[], int nbt[], int typt, int nbp[],
@@ -480,58 +488,58 @@ class Mg3d {
  * Simplified constructor for a standard multi-grid.
  * This provides a multi-grid with the same number of degrees of freedom
  * in all the domains. \\
- * The domain of index {\tt l = 0} will be a nucleus:
- * $\xi\in [0,1]$, rarefied sampling (type {\tt RARE}) near the origin; \\
- * domains of indices $ 1 \le {\tt l} \le {\tt nz}-2$ will be shells:
- * $\xi\in [-1,1]$, dense sampling (type {\tt FIN}) near -1 and 1; \\
- * if {\tt compact == true}, 
- * the domains of index {\tt l = nz-1} will be the outermost compactified
+ * The domain of index \c l = 0 will be a nucleus:
+ * \f$\xi\in [0,1]\f$, rarefied sampling (type \c RARE) near the origin; \\
+ * domains of indices \f$ 1 \le {\tt l} \le {\tt nz}-2\f$ will be shells:
+ * \f$\xi\in [-1,1]\f$, dense sampling (type \c FIN) near -1 and 1; \\
+ * if \c compact == true, 
+ * the domains of index \c l = \c nz-1 will be the outermost compactified
  * shell:
- * $\xi\in [-1,1]$, dense sampling (type {\tt UNSURR}) near -1 and 1
- * for a {\it 1/r} discretization.
+ * \f$\xi\in [-1,1]\f$, dense sampling (type \c UNSURR) near -1 and 1
+ * for a \e 1/r discretization.
  *
  *
  * @param   nz	    [input] Number of domains (zones).
  * @param   nbr     [input] Number of degree of freedom (NDF) in
- *				{\it r}-direction in each domain
+ *				\e r -direction in each domain
  * @param   nbt     [input] Number of degree of freedom (NDF) in
- *				$\theta$-direction in each domain
+ *				\f$\theta\f$-direction in each domain
  * @param   nbp     [input] Number of degree of freedom (NDF) in
- *				$\phi$-direction in each domain
- * @param   typt    [input] Type of sampling in $\theta$-direction:  \\
- *				{\tt SYM} for a sampling in $[0,\pi/2]$
+ *				\f$\phi\f$-direction in each domain
+ * @param   typt    [input] Type of sampling in \f$\theta\f$-direction:  \\
+ *				\c SYM  for a sampling in \f$[0,\pi/2]\f$
  *			(symmetry with respect to the equatorial plane), \\
- *			{\tt NONSYM} for a sampling in $[0,\pi]$
- * @param   typp    [input] Type of sampling in $\phi$-direction: \\
- *			{\tt SYM} for a sampling in $[0,\pi[$
- *			(symmetry with respect to a $\pi$ translation
- *			 in $\phi$) \\
- *			{\tt NONSYM} for a sampling in $[0,2\pi[$
- * @param  compact [input] {\tt true} for the last domain to have 
- *			a {\it 1/r} sampling ({\tt UNSURR}) instead of a
- *			{\it r} sampling ({\tt FIN}). 
+ *			\c NONSYM  for a sampling in \f$[0,\pi]\f$
+ * @param   typp    [input] Type of sampling in \f$\phi\f$-direction: \\
+ *			\c SYM  for a sampling in \f$[0,\pi[\f$
+ *			(symmetry with respect to a \f$\pi\f$ translation
+ *			 in \f$\phi\f$) \\
+ *			\c NONSYM  for a sampling in \f$[0,2\pi[\f$
+ * @param  compact [input] \c true  for the last domain to have 
+ *			a \e 1/r  sampling (\c UNSURR ) instead of a
+ *			\e r  sampling (\c FIN ). 
  */
 	Mg3d(int nz, int nbr, int nbt, int nbp, int typt, int typp, 
 	     bool compact) ;
 
-	Mg3d(FILE* ) ;	 /// Constructor from a file (see {\tt sauve(FILE* )})
+	Mg3d(FILE* ) ;	 ///< Constructor from a file (see \c sauve(FILE*))
 	
    private:
 	/**
-	 * Copy constructor (private and not implemented to make {\tt Mg3d} a 
+	 * Copy constructor (private and not implemented to make \c Mg3d  a 
 	 * non-copyable class)
 	 */
 	Mg3d(const Mg3d& ) ;
 	
     public:
 	
-	~Mg3d() ;   /// Destructor
+	~Mg3d() ;   ///< Destructor
 		
     // Assignement
     // -----------
     private:
 	/** 
-	 * Assignement operator (private and not implemented to make {\tt Mg3d}
+	 * Assignement operator (private and not implemented to make \c Mg3d 
 	 * a non-copyable class)
 	 */
 	void operator=(const Mg3d& ) ;
@@ -539,35 +547,36 @@ class Mg3d {
     // Extraction of information
     // -------------------------
     public:
-	int get_nzone() const { 	    	/// Returns {\tt nzone}
+   	/// Returns \c nzone 
+	int get_nzone() const { 	 
 	    return nzone ;
 	} ;
-
-	int get_nr(int l) const { 	    	/// Returns {\tt nr[l]}
+	/// Returns \c nr[l] 
+	int get_nr(int l) const { 
 	    assert(l>=0 && l<nzone) ;
 	    return nr[l] ;
 	} ;
-	
-	int get_nt(int l) const { 	    	/// Returns {\tt nt[l]}
+	/// Returns \c nt[l] 
+	int get_nt(int l) const { 
 	    assert(l>=0 && l<nzone) ;
 	    return nt[l] ;
 	} ;
-	
-	int get_np(int l) const { 	    	/// Returns {\tt np[l]}
+	/// Returns \c np[l] 
+	int get_np(int l) const { 
 	    assert(l>=0 && l<nzone) ;
 	    return np[l] ;
 	} ;
-	
-	int get_type_r(int l) const { 	/// Returns {\tt type\_r[l]}
+	/// Returns \c type_r[l] 
+	int get_type_r(int l) const {
 	    assert(l>=0 && l<nzone) ;
 	    return type_r[l] ;
 	} ;
-	
-	int get_type_t() const { 	    	/// Returns {\tt type\_t}
+	/// Returns \c type_t 
+	int get_type_t() const { 	
 	    return type_t ;
 	} ;
-	
-	int get_type_p() const {		/// Returns {\tt type\_p}
+	/// Returns \c type_p 
+	int get_type_p() const {
 	    return type_p ;
 	} ;
 	
@@ -596,20 +605,20 @@ class Mg3d {
     // Outputs
     // -------
     public: 
-	void sauve(FILE* ) const ; /// Save in a file
+	void sauve(FILE* ) const ; ///< Save in a file
 	
-	friend ostream& operator<<(ostream& , const Mg3d & ) ;	/// Display
+	friend ostream& operator<<(ostream& , const Mg3d & ) ;	///< Display
 	
     // Management of derived quantities
     // --------------------------------
     protected:
 	/** Deletes all the derived quantities 
-	 *   ({\tt g\_radial}, {\tt g\_angu} and {\tt g\_twice})
+	 *   (\c g_radial , \c g_angu  and \c g_twice )
 	 */
 	void del_deriv() const ; 
 	
-	/** Sets to {\tt 0x0} all the pointers on derived quantities
-	 *   ({\tt g\_radial}, {\tt g\_angu} and {\tt g\_twice})
+	/** Sets to \c 0x0  all the pointers on derived quantities
+	 *   (\c g_radial , \c g_angu  and \c g_twice )
 	 */
 	void set_deriv_0x0() const ; 
 
@@ -617,7 +626,7 @@ class Mg3d {
     // Miscellaneous
     // -------------
     public:
-	bool operator!=(const Mg3d & ) const ;  /// Operator !=
+	bool operator!=(const Mg3d & ) const ;  ///< Operator !=
 
 	/// Returns the standard spectral bases for a scalar
 	Base_val std_base_scal() const ; 	

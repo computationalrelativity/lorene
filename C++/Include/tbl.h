@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/03/22 13:12:43  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.7  2003/11/06 14:43:37  e_gourgoulhon
  * Gave a name to const arguments in certain method prototypes (e.g.
  * constructors) to correct a bug of DOC++.
@@ -122,20 +125,20 @@ class Matrice ;
 /**
  * Basic array class.
  * 
- * This class is essentially an {\tt double} array class. The elements of the 
+ * This class is essentially an \c double array class. The elements of the 
  * array are stored continuously using the C convention.
- * A {\tt Tbl} is initialy created with a {\sl logical} state 
- * {\tt ETATNONDEF} (i.e. undefined),  except by the copy constructor and
+ * A \c Tbl is initialy created with a \a logical state 
+ * \c ETATNONDEF (i.e. undefined),  except by the copy constructor and
  * the constructor from a file. 
  * The general logical state of an initialized 
- * {\tt Tbl} is {\tt ETATQCQ}; it is the only state for which the memory
- * allocation is performed for the {\tt double} array {\tt t}. 
- * The value zero is treated as a special logical state ({\tt ETATZERO}), 
+ * \c Tbl is \c ETATQCQ; it is the only state for which the memory
+ * allocation is performed for the \c double} array \c t. 
+ * The value zero is treated as a special logical state (\c ETATZERO), 
  * without any memory allocation. 
  * Arithmetic operations are provided with the usual meaning (see 
  * below).
+ * \ingroup (util)
  * 
- * @version #$Id$#
  */
 class Tbl {
 
@@ -144,12 +147,12 @@ class Tbl {
     // Data : 
     // -----
     private:
-	/// logical state ({\tt ETATNONDEF}, {\tt ETATQCQ} or {\tt ETATZERO}).
+	/// logical state (\c ETATNONDEF, \c ETATQCQ or \c ETATZERO).
 	int etat ;  
 
     public:
-    	Dim_tbl dim ;	    /// Number of dimensions, size,...
-	double*	t ;	    /// The array of {\tt double}
+    	Dim_tbl dim ;	    ///< Number of dimensions, size,...
+	double*	t ;	    ///< The array of \c double
 
     // Constructors - Destructor
     // -------------------------
@@ -157,93 +160,93 @@ class Tbl {
     public:
 	/**
 	 * 1D constructor 
-	 * @param size0  [input] Number of elements of the array {\tt t}.
-	 *		  Will be assigned to {\tt dim.dim[0]}.  
+	 * @param size0  [input] Number of elements of the array \c t.
+	 *		  Will be assigned to \c dim.dim[0].  
 	 */
 	explicit Tbl(int size0) ;			
 
 	/**
 	 * 2D constructor
 	 * @param size1  [input] Defines the range [0, size1-1] of the 
-	 *		  outermost index in the storage of the array {\tt t}. 
-	 *		  Will be assigned to {\tt dim.dim[1]}.
+	 *		  outermost index in the storage of the array \c t. 
+	 *		  Will be assigned to \c dim.dim[1].
 	 * @param size0  [input] Defines the range [0, size0-1] of the 
-	 *		  innermost index in the storage of the array {\tt t}. 
-	 *		  Will be assigned to {\tt dim.dim[0]}.
+	 *		  innermost index in the storage of the array \c t. 
+	 *		  Will be assigned to \c dim.dim[0].
 	 */ 
 	Tbl(int size1, int size0) ;		
 	
 	/**
 	 * 3D constructor
 	 * @param size2  [input] Defines the range [0, size2-1]  of the 
-	 *		  outermost index in the storage of the array {\tt t}. 
-	 *		  Will be assigned to {\tt dim.dim[2]}.
+	 *		  outermost index in the storage of the array \c t. 
+	 *		  Will be assigned to \c dim.dim[2].
 	 * @param size1  [input] Defines the range [0, size1-1] of the 
-	 *		  intermediate index in the storage of the array {\tt t}. 
-	 *		  Will be assigned to {\tt dim.dim[1]}.
+	 *		  intermediate index in the storage of the array \c t. 
+	 *		  Will be assigned to \c dim.dim[1].
 	 * @param size0  [input] Defines the range [0, size0-1] of the 
-	 *		  innermost index in the storage of the array {\tt t}. 
-	 *		  Will be assigned to {\tt dim.dim[0]}.
+	 *		  innermost index in the storage of the array \c t. 
+	 *		  Will be assigned to \c dim.dim[0].
 	 */ 
 	Tbl(int size2, int size1, int size0) ;		
 	
-	explicit Tbl(const Grille3d& grid) ; /// Constructor from a 3D grid
-	explicit Tbl(const Dim_tbl& dim) ;	 /// Constructor from a {\tt Dim\_tbl}
-	/// Constructor from a file (see {\tt sauve(FILE* )})
+	explicit Tbl(const Grille3d& grid) ; ///< Constructor from a 3D grid
+	explicit Tbl(const Dim_tbl& dim) ;	 ///< Constructor from a \c Dim_tbl
+	/// Constructor from a file (see \c sauve(FILE* ))
 	explicit Tbl(FILE* ) ;	
-	Tbl(const Tbl& a) ;		/// Copy constructor
+	Tbl(const Tbl& a) ;		///< Copy constructor
 	
 	/** Constructor from a matrix.
-	 *  If the matrix has only one row or one column, the {\tt Tbl}
+	 *  If the matrix has only one row or one column, the \c Tbl
 	 *  is 1D, otherwise it is 2D.
 	 */
 	explicit Tbl(const Matrice& mat) ;
 	
 
-	~Tbl() ;			/// Destructor
+	~Tbl() ;			///< Destructor
 
     // Assignement
     // -----------
-	void operator=(const Tbl& ) ;	/// Assignment to another {\tt Tbl}
-	void operator=(double ) ; /// Assignment to a {\tt double}
-	void operator=(int ) ;	 /// Assignment to a {\tt int}
+	void operator=(const Tbl& ) ;	///< Assignment to another \c Tbl
+	void operator=(double ) ; ///< Assignment to a \c double
+	void operator=(int ) ;	 ///< Assignment to a \c int
 
     // Memory management
     // -----------------
     private:
 	/** Logical destructor: dellocates the memory occupied by the array
-	 *  {\tt t} and sets the logical state to ETATNONDEF. 
+	 *  \c t and sets the logical state to ETATNONDEF. 
 	 */
 	void del_t() ;		
 
     public:
 
     /**
-     * Sets the logical state to {\tt ETATNONDEF} (undefined). 
-     * Deallocates the memory occupied by the {\tt double} array {\tt t}.
+     * Sets the logical state to \c ETATNONDEF (undefined). 
+     * Deallocates the memory occupied by the \c double array \c t.
      */
 	void set_etat_nondef() ;	
 	
     /**
-     * Sets the logical state to {\tt ETATZERO} (zero). 
-     * Deallocates the memory occupied by the {\tt double} array {\tt t}.
+     * Sets the logical state to \c ETATZERO (zero). 
+     * Deallocates the memory occupied by the \c double array \c t.
      */
 	void set_etat_zero() ;	    	
 
     /**
-     * Sets the logical state to {\tt ETATQCQ} (ordinary state).
-     * If the state (member {\tt etat}) is already {\tt ETATQCQ}, this 
+     * Sets the logical state to \c ETATQCQ (ordinary state).
+     * If the state (member \c etat) is already \c ETATQCQ, this 
      * function does nothing. Otherwise, it performs the memory allocation
-     * for the {\tt double} array {\tt t}.  
+     * for the \c double array \c t.  
      */
 	void set_etat_qcq() ;	    	
     
     /**
-     * Sets the {\tt Tbl} to zero in a hard way. 
-     * 1/ Sets the logical state to {\tt ETATQCQ}, i.e. to an ordinary state.
-     * 2/ Allocates the memory of the {\tt double} array {\tt t}, and fills it
+     * Sets the \c Tbl to zero in a hard way. 
+     * 1/ Sets the logical state to \c ETATQCQ, i.e. to an ordinary state.
+     * 2/ Allocates the memory of the \c double array \c t, and fills it
      * with zeros. NB: this function must be used for debugging purposes only.
-     * For other operations, the function {\tt set\_etat\_zero()} must
+     * For other operations, the function \c set_etat_zero() must
      * be perferred. 
      */
 	void annule_hard() ;			
@@ -251,7 +254,7 @@ class Tbl {
     // Access to individual elements
     // -----------------------------
     public:
-	/// Read/write of a particular element (index {\tt i})  (1D case)
+	/// Read/write of a particular element (index \c i)  (1D case)
 	double& set(int i) {
 	    assert (etat == ETATQCQ) ;
 	    assert( dim.ndim == 1 ) ; 
@@ -260,7 +263,7 @@ class Tbl {
 	    return t[i] ;
 	} ;
 	
-	/// Read-only of a particular element (index {\tt i}) (1D case)
+	/// Read-only of a particular element (index \c i) (1D case)
 	double operator()(int i) const {
 	    assert(etat != ETATNONDEF) ;
 	    assert( dim.ndim == 1 ) ; 
@@ -273,7 +276,7 @@ class Tbl {
 	    else return t[i] ;
 	};
 
-	/// Read/write of a particular element (index {\tt (j,i)}) (2D case)
+	/// Read/write of a particular element (index \c (j,i)) (2D case)
 	double& set(int j, int i) {
 	    assert (etat == ETATQCQ) ;
 	    assert( dim.ndim == 2 ) ;
@@ -282,7 +285,7 @@ class Tbl {
 	    return t[dim.dim[0] * j + i] ;
 	};
 
-	/// Read-only of a particular element (index {\tt (j,i)}) (2D case)
+	/// Read-only of a particular element (index \c (j,i)) (2D case)
 	double operator()(int j, int i) const {
 	    assert(etat != ETATNONDEF) ;
 	    assert( dim.ndim == 2 ) ;
@@ -295,7 +298,7 @@ class Tbl {
 	    else return t[dim.dim[0] * j + i] ;
 	};
 
-	/// Read/write of a particular element (index {\tt (k,j,i)}) (3D case)
+	/// Read/write of a particular element (index \c (k,j,i)) (3D case)
 	double& set(int k, int j, int i) {	
 	    assert (etat == ETATQCQ) ;
 	    assert( dim.ndim == 3 ) ;
@@ -305,7 +308,7 @@ class Tbl {
 	    return t[dim.dim[1]*dim.dim[0]*k + dim.dim[0]*j + i] ;
 	};
 
-	/// Read-only of a particular element (index {\tt (k,j,i)}) (3D case)
+	/// Read-only of a particular element (index \c (k,j,i)) (3D case)
 	double operator()(int k, int j, int i) const {
 	    assert(etat != ETATNONDEF) ;
 	    assert( dim.ndim == 3 ) ;
@@ -321,15 +324,16 @@ class Tbl {
 
     // Extraction of information
     // -------------------------
-	int get_etat() const { return etat ; };	    /// Gives the logical state
+    /// Gives the logical state
+	int get_etat() const { return etat ; };	
 
-	/// Gives the total size (ie {\tt dim.taille})
+	/// Gives the total size (ie \c dim.taille)
 	int get_taille() const { return dim.taille ; };
 
-	/// Gives the number of dimensions (ie {\tt dim.ndim})
+	/// Gives the number of dimensions (ie \c dim.ndim)
 	int get_ndim() const { return dim.ndim ; };
 	
-	/// Gives the {\tt i}th dimension (ie {\tt dim.dim[i]})
+	/// Gives the i-th dimension (ie \c dim.dim[i])
 	int get_dim(int i) const {	
 	    assert( (i>=0) && (i<dim.ndim) ) ;
 	    return dim.dim[i] ;
@@ -338,7 +342,7 @@ class Tbl {
     // Outputs
     // -------
     public:
-	void sauve(FILE* ) const ;	/// Save in a file
+	void sauve(FILE* ) const ;	///< Save in a file
 
 	/** Prints only the values greater than a given threshold.
 	 *   @param ostr [input] Output stream used for the printing 
@@ -355,81 +359,82 @@ class Tbl {
     // ------------------
     public:
 	
-	void operator+=(const Tbl &) ;	/// Addition of a {\tt Tbl} to {\tt this}
-	void operator+=(double) ;	/// Addition of a {\tt double} to {\tt this}
-	void operator-=(const Tbl &) ;	/// Subtraction of a {\tt Tbl} to {\tt this}
-	void operator-=(double) ;	/// Subtraction of a {\tt double} to {\tt this}
-	void operator*=(const Tbl &) ;	/// Multiplication of {\tt this} by a {\tt Tbl}
-	void operator*=(double) ;	/// Multiplication of {\tt this} by a {\tt double}
-	void operator/=(const Tbl &) ;	/// Division of {\tt this} by a {\tt Tbl}
-	void operator/=(double) ;	/// Division of {\tt this} by a {\tt double}
+	void operator+=(const Tbl &) ;	///< Addition of a \c Tbl to \c this
+	void operator+=(double) ;	///< Addition of a \c double to \c this
+	void operator-=(const Tbl &) ;	///< Subtraction of a \c Tbl to \c this
+	void operator-=(double) ;	///< Subtraction of a \c double to \c this
+	void operator*=(const Tbl &) ;	///< Multiplication of \c this by a \c Tbl
+	void operator*=(double) ;	///< Multiplication of \c this by a \c double
+	void operator/=(const Tbl &) ;	///< Division of \c this by a \c Tbl
+	void operator/=(double) ;	///< Division of \c this by a \c double
 
 } ;
 ostream& operator<<(ostream& , const Tbl& ) ;	
 
 
 /**
- * @name Tbl Mathematics
+ * \defgroup tbl_m Tbl Mathematics
+ * \ingroup (util)
+ * @{
  */
-    //@{
-Tbl operator+(const Tbl&) ;			/// + Tbl
-Tbl operator-(const Tbl&) ;			/// - Tbl
-Tbl operator+(const Tbl&, const Tbl&) ;		/// Tbl + Tbl
-Tbl operator+(const Tbl&, double) ;		/// Tbl + double
-Tbl operator+(double, const Tbl&) ;		/// double + Tbl
-Tbl operator+(const Tbl&, int) ;		/// Tbl + int
-Tbl operator+(int, const Tbl&) ;		/// int + Tbl
-Tbl operator-(const Tbl&, const Tbl&) ;		/// Tbl - Tbl
-Tbl operator-(const Tbl&, double) ;		/// Tbl - double
-Tbl operator-(double, const Tbl&) ;		/// double - Tbl
-Tbl operator-(const Tbl&, int) ;		/// Tbl - int
-Tbl operator-(int, const Tbl&) ;		/// int - Tbl
-Tbl operator*(const Tbl&, const Tbl&) ;		/// Tbl * Tbl
-Tbl operator*(const Tbl&, double) ;		/// Tbl * double
-Tbl operator*(double, const Tbl&) ;		/// double * Tbl
-Tbl operator*(const Tbl&, int) ;		/// Tbl * int
-Tbl operator*(int, const Tbl&) ;		/// int * Tbl
-Tbl operator/(const Tbl&, const Tbl&) ;		/// Tbl / Tbl
-Tbl operator/(const Tbl&, double) ;		/// Tbl / double
-Tbl operator/(double, const Tbl&) ;		/// double / Tbl
-Tbl operator/(const Tbl&, int) ;		/// Tbl / int
-Tbl operator/(int, const Tbl&) ;		/// int / Tbl
+Tbl operator+(const Tbl&) ;			///< + Tbl
+Tbl operator-(const Tbl&) ;			///< \c - Tbl
+Tbl operator+(const Tbl&, const Tbl&) ;		///< Tbl + Tbl
+Tbl operator+(const Tbl&, double) ;		///< Tbl + double
+Tbl operator+(double, const Tbl&) ;		///< double + Tbl
+Tbl operator+(const Tbl&, int) ;		///< Tbl + int
+Tbl operator+(int, const Tbl&) ;		///< int + Tbl
+Tbl operator-(const Tbl&, const Tbl&) ;		///< Tbl - Tbl
+Tbl operator-(const Tbl&, double) ;		///< Tbl - double
+Tbl operator-(double, const Tbl&) ;		///< double - Tbl
+Tbl operator-(const Tbl&, int) ;		///< Tbl - int
+Tbl operator-(int, const Tbl&) ;		///< int - Tbl
+Tbl operator*(const Tbl&, const Tbl&) ;		///< Tbl * Tbl
+Tbl operator*(const Tbl&, double) ;		///< Tbl * double
+Tbl operator*(double, const Tbl&) ;		///< double * Tbl
+Tbl operator*(const Tbl&, int) ;		///< Tbl * int
+Tbl operator*(int, const Tbl&) ;		///< int * Tbl
+Tbl operator/(const Tbl&, const Tbl&) ;		///< Tbl / Tbl
+Tbl operator/(const Tbl&, double) ;		///< Tbl / double
+Tbl operator/(double, const Tbl&) ;		///< double / Tbl
+Tbl operator/(const Tbl&, int) ;		///< Tbl / int
+Tbl operator/(int, const Tbl&) ;		///< int / Tbl
 
-Tbl sin(const Tbl& ) ;	    /// Sine
-Tbl cos(const Tbl& ) ;	    /// Cosine
-Tbl tan(const Tbl& ) ;	    /// Tangent
-Tbl asin(const Tbl& ) ;	    /// Arcsine
-Tbl acos(const Tbl& ) ;	    /// Arccosine
-Tbl atan(const Tbl& ) ;	    /// Arctangent
-Tbl exp(const Tbl& ) ;	    /// Exponential
-Tbl log(const Tbl& ) ;	    /// Neperian logarithm
-Tbl log10(const Tbl& ) ;    /// Basis 10 logarithm
-Tbl sqrt(const Tbl& ) ;	    /// Square root
-Tbl racine_cubique (const Tbl&) ; /// cube root
-Tbl pow(const Tbl& , int ) ;  /// Power ${\tt Tbl}^{\tt int}$
-Tbl pow(const Tbl& , double ) ; /// Power ${\tt Tbl}^{\tt double}$
-Tbl abs(const Tbl& ) ;	    /// Absolute value
-double max(const Tbl& ) ;   /// Maximum value of the {\tt Tbl} elements
-double min(const Tbl& ) ;   /// Minimum value of the {\tt Tbl} elements
+Tbl sin(const Tbl& ) ;	    ///< Sine
+Tbl cos(const Tbl& ) ;	    ///< Cosine
+Tbl tan(const Tbl& ) ;	    ///< Tangent
+Tbl asin(const Tbl& ) ;	    ///< Arcsine
+Tbl acos(const Tbl& ) ;	    ///< Arccosine
+Tbl atan(const Tbl& ) ;	    ///< Arctangent
+Tbl exp(const Tbl& ) ;	    ///< Exponential
+Tbl log(const Tbl& ) ;	    ///< Neperian logarithm
+Tbl log10(const Tbl& ) ;    ///< Basis 10 logarithm
+Tbl sqrt(const Tbl& ) ;	    ///< Square root
+Tbl racine_cubique (const Tbl&) ; ///< cube root
+Tbl pow(const Tbl& , int ) ;  ///< Power \f${\tt Tbl}^{\tt int}\f$
+Tbl pow(const Tbl& , double ) ; ///< Power \f${\tt Tbl}^{\tt double}\f$
+Tbl abs(const Tbl& ) ;	    ///< Absolute value
+double max(const Tbl& ) ;   ///< Maximum value of the \c Tbl elements
+double min(const Tbl& ) ;   ///< Minimum value of the \c Tbl elements
 
-/// Sum of the absolute values of all the {\tt Tbl} elements
+/// Sum of the absolute values of all the \c Tbl elements
 double norme(const Tbl& ) ;   
 
 /**
- * Relative difference between two {\tt Tbl} (norme version).
- * Returns {\tt norme(a-b)/norme(b)} unless {\tt b=0}, in which
- * case it returns {\tt norme(a-b)}.
+ * Relative difference between two \c Tbl (norme version).
+ * Returns \c norme(a-b)/norme(b) unless \c b=0, in which
+ * case it returns \c norme(a-b).
  */
 double diffrel(const Tbl& a, const Tbl& b) ; 
 
 /**
- * Relative difference between two {\tt Tbl} (max version).
- * Returns {\tt max(abs(a-b))/max(abs(b))} unless {\tt b=0}, in which
- * case it returns {\tt max(abs(a-b))}.
+ * Relative difference between two \c Tbl (max version).
+ * Returns \c max(abs(a-b))/max(abs(b)) unless \c b=0, in which
+ * case it returns \c max(abs(a-b)).
  */
 double diffrelmax(const Tbl& a, const Tbl& b) ; 
 
-    //@}
+/** @}*/
 
 
 #endif

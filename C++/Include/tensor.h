@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.50  2004/03/22 13:12:43  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.49  2004/02/27 21:12:44  e_gourgoulhon
  * Suppressed function contract_desal (since contract has now the
  * boolean argument "desaliasing").
@@ -234,18 +237,17 @@ class Metric ;
 			
 
 /**
- * Tensor handling.
+ * Tensor handling. \ingroup (tensor)
  *
- * This class has been devised to replace {\tt Tenseur} and {\tt Cmp} (the
- *  latter via the derived class {\tt Scalar}).
+ * This class has been devised to replace \c Tenseur  and \c Cmp  (the
+ *  latter via the derived class \c Scalar ).
  * 
- * The {\tt Tensor} class is intended to store the components of a tensorial 
+ * The \c Tensor  class is intended to store the components of a tensorial 
  * field with respect to a specific basis (triad).  
  * 
- * All this is {\it 3D} meaning that the indices go from 1 to 3. 
+ * All this is \e 3D meaning that the indices go from 1 to 3. 
  * 
  * 
- * @version #$Id$#
  */
 class Tensor { 
 
@@ -264,16 +266,16 @@ class Tensor {
 	 */
 	const Base_vect* triad ; 
 
-	/** 1D array of integers (class {\tt Itbl}) of size {\tt valence} 
+	/** 1D array of integers (class \c Itbl ) of size \c valence  
 	 *  containing the type of each index: 
-	 *  {\tt COV} for a covariant one and {\tt CON} for a contravariant one.
+	 *  \c COV  for a covariant one and \c CON  for a contravariant one.
 	 * 
 	 */	
 	Itbl type_indice ;	
 	
-	int n_comp ;	/// Number of stored components, depending on the symmetry.
+	int n_comp ;	///< Number of stored components, depending on the symmetry.
 
-	/// Array of size {\tt n\_comp} of pointers onto the components.
+	/// Array of size \c n_comp  of pointers onto the components.
 	Scalar** cmp ;   
 
 
@@ -281,33 +283,33 @@ class Tensor {
     // ------------
      protected:
 	/**
-	 * Array on the {\tt Metric}'s which were used to compute derived
-	 * quantities, like {\tt p\_derive\_cov}, etc... 
-	 * The i-th element of this array is the {\tt Metric} used to
-	 * compute the i-th element of {\tt p\_derive\_cov}, etc..
+	 * Array on the \c Metric 's which were used to compute derived
+	 * quantities, like \c p_derive_cov , etc... 
+	 * The i-th element of this array is the \c Metric  used to
+	 * compute the i-th element of \c p_derive_cov , etc..
 	 */
 	mutable const Metric* met_depend[N_MET_MAX] ; 
 
-	/** Array of pointers on the covariant derivatives of {\tt this}
+	/** Array of pointers on the covariant derivatives of \c this 
          * with respect to various metrics.
-	 * See the comments of {\tt met\_depend}. See also the comments
-         * of method {\tt derive\_cov()} for the index convention of the
+	 * See the comments of \c met_depend . See also the comments
+         * of method \c derive_cov()  for the index convention of the
          * covariant derivation.  
 	 */
 	mutable Tensor* p_derive_cov[N_MET_MAX];
 	
-	/** Array of pointers on the contravariant derivatives of {\tt this}
+	/** Array of pointers on the contravariant derivatives of \c this 
          * with respect to various metrics.
-	 * See the comments of {\tt met\_depend}. See also the comments
-         * of method {\tt derive\_con()} for a precise definition of a
+	 * See the comments of \c met_depend . See also the comments
+         * of method \c derive_con()  for a precise definition of a
          * "contravariant" derivative.
  	 */
 	mutable Tensor* p_derive_con[N_MET_MAX];
 
-	/** Array of pointers on the divergence of {\tt this}
+	/** Array of pointers on the divergence of \c this 
          * with respect to various metrics.
-	 * See the comments of {\tt met\_depend}. See also the comments
-         * of method {\tt divergence()} for a precise definition of a
+	 * See the comments of \c met_depend . See also the comments
+         * of method \c divergence()  for a precise definition of a
          * the divergence with respect to a given metric.
 	 */
 	mutable Tensor* p_divergence[N_MET_MAX];
@@ -322,14 +324,14 @@ class Tensor {
 	 * 
 	 * @param map   the mapping 
 	 * @param val   valence of the tensor
-	 * @param tipe  1-D array of integers (class {\tt Itbl}) 
-	 *		of size {\tt valence} containing the type 
-	 *		of each index, {\tt COV} for a covariant one 
-	 *		and {\tt CON} for a contravariant one,  with the 
-	 *		following storage convention: \\
-	 *			{\tt tipe(0)} : type of the first index \\
-	 *			{\tt tipe(1)} : type of the second index \\
-	 *			and so on... 
+	 * @param tipe  1-D array of integers (class \c Itbl ) 
+	 *		of size \c valence  containing the type 
+	 *		of each index, \c COV  for a covariant one 
+	 *		and \c CON  for a contravariant one,  with the 
+	 *		following storage convention: 
+	 *			\li \c tipe(0)  : type of the first index 
+	 *			\li \c tipe(1)  : type of the second index 
+	 *			\li and so on... 
 	 * @param triad_i  vectorial basis (triad) with respect to which 
 	 *		    the tensor components are defined 
 	 */
@@ -340,14 +342,14 @@ class Tensor {
 	 * 
 	 * @param map   the mapping 
 	 * @param val   valence of the tensor
-	 * @param tipe  1-D array of integers (class {\tt Itbl}) 
-	 *		of size {\tt valence} containing the type 
-	 *		of each index, {\tt COV} for a covariant one 
-	 *		and {\tt CON} for a contravariant one,  with the 
-	 *		following storage convention: \\
-	 *			{\tt tipe(0)} : type of the first index \\
-	 *			{\tt tipe(1)} : type of the second index \\
-	 *			and so on... 
+	 * @param tipe  1-D array of integers (class \c Itbl ) 
+	 *		of size \c valence  containing the type 
+	 *		of each index, \c COV  for a covariant one 
+	 *		and \c CON  for a contravariant one,  with the 
+	 *		following storage convention: 
+	 *			\li \c tipe(0)  : type of the first index 
+	 *			\li \c tipe(1)  : type of the second index 
+	 *			\li and so on... 
 	 * @param triad_i  pointer on the vectorial basis (triad) with respect 
 	 *		    to which the tensor components are defined 
 	 *		    (can be set to 0x0 for a scalar field)
@@ -360,16 +362,16 @@ class Tensor {
 	 * 
 	 * @param map  the mapping
 	 * @param val   valence of the tensor
-	 * @param tipe  the type ({\tt COV} or {\tt CON}) of the indices.
+	 * @param tipe  the type (\c COV  or \c CON ) of the indices.
 	 * @param triad_i  vectorial basis (triad) with respect to which 
 	 *			  the tensor components are defined.
 	 */
 	Tensor(const Map& map, int val, int tipe, 
 			const Base_vect& triad_i) ;
 
-	Tensor(const Tensor&) ;  /// Copy constructor
+	Tensor(const Tensor&) ;  ///< Copy constructor
 
-	/** Constructor from a file (see {\tt sauve(FILE* )}).
+	/** Constructor from a file (see \c sauve(FILE*) ).
 	 * 
 	 * @param map  the mapping
 	 * @param triad_i   vectorial basis (triad) with respect to which 
@@ -377,14 +379,14 @@ class Tensor {
 	 *			  be checked that it coincides with the basis
 	 *			  saved in the file.
 	 * @param fich  file which has been created by 
-	 *			    the function {\tt sauve(FILE* )}.
+	 *			    the function \c sauve(FILE*) .
 	 */
 	Tensor(const Map& map, const Base_vect& triad_i, FILE* fich) ;
 
     protected:
 	/**
 	 *  Constructor for a scalar field: to be used only by the derived
-	 *  class {\tt Scalar}.
+	 *  class \c Scalar .
 	 *
 	 */
 	 explicit Tensor(const Map& map) ;
@@ -392,20 +394,20 @@ class Tensor {
 	/**
 	 * Constructor to be used by derived classes, with symmetries among
 	 *  the components. The number of independent components is
-	 *  given as an argument ({\tt n\_comp\_i}), and not computed
+	 *  given as an argument (\c n_comp_i ), and not computed
 	 *	from the valence, as in the standard constructor.  
 	 *
 	 * 
 	 * @param map  the mapping
 	 * @param val   valence of the tensor
-	 * @param tipe  1-D array of integers (class {\tt Itbl}) 
-	 *		of size {\tt valence} containing the type 
-	 *		of each index, {\tt COV} for a covariant one 
-	 *		and {\tt CON} for a contravariant one,  with the 
-	 *		following storage convention: \\
-	 *			{\tt tipe(0)} : type of the first index \\
-	 *			{\tt tipe(1)} : type of the second index \\
-	 *			and so on... 
+	 * @param tipe  1-D array of integers (class \c Itbl ) 
+	 *		of size \c valence  containing the type 
+	 *		of each index, \c COV  for a covariant one 
+	 *		and \c CON  for a contravariant one,  with the 
+	 *		following storage convention: 
+	 *			\li \c tipe(0)  : type of the first index 
+	 *			\li \c tipe(1)  : type of the second index 
+	 *			\li and so on... 
 	 * @param n_comp_i number of components to be stored
 	 * @param triad_i  vectorial basis (triad) with respect to which 
 	 *			  the tensor components are defined
@@ -417,7 +419,7 @@ class Tensor {
 	 * Constructor used by derived classes, with symmetries among
 	 *  the components, when all the indices are of 
 	 *  the same type. The number of independent components is
-	 *  given as a argument ({\tt n\_comp\_i}), and not computed
+	 *  given as a argument (\c n_comp_i ), and not computed
 	 *	from the valence, as in the standard constructor.  
 	 * 
 	 * @param map  the mapping
@@ -433,42 +435,42 @@ class Tensor {
 
     public: 
 
-	virtual ~Tensor() ;	/// Destructor
+	virtual ~Tensor() ;	///< Destructor
 	
     // Memory management
     // -----------------
     protected:
-	virtual void del_deriv() const ;	/// Deletes the derived quantities
+	virtual void del_deriv() const ;	///< Deletes the derived quantities
 
 	/// Sets the pointers on derived quantities to 0x0
 	void set_der_0x0() const ; 
 
 	/**
 	 * Logical destructor of the derivatives depending on the i-th
-	 * element of {\tt met\_depend}.
+	 * element of \c met_depend .
 	 */	
 	virtual void del_derive_met(int) const ;
 
 	/**
-	 * Sets all the i-th components of {\tt met\_depend}, 
-	 * {\tt p\_derive\_cov}, etc... to 0x0.
+	 * Sets all the i-th components of \c met_depend , 
+	 * \c p_derive_cov , etc... to 0x0.
 	 */
 	void set_der_met_0x0(int) const ;
 
 	/**
 	 * To be used to describe the fact that the derivatives members have
-	 * been calculated with {\tt met}.
+	 * been calculated with \c met .
 	 * 
-	 * First it sets a null element of {\tt met\_depend} to 
-	 * {\tt \&met} and puts {\tt this} in 
-	 * the list of the dependancies of {\tt met}.
+	 * First it sets a null element of \c met_depend  to 
+	 * \c \&met  and puts \c this  in 
+	 * the list of the dependancies of \c met .
 	 * 
 	 */
 	void set_dependance (const Metric&) const ;
 
 	/**
-	 * Returns the position of the pointer on {\tt metre} in 
-	 * the array {\tt met\_depend}.
+	 * Returns the position of the pointer on \c metre  in 
+	 * the array \c met_depend .
 	 *
 	 */
 	int get_place_met(const Metric&) const ;
@@ -477,30 +479,30 @@ class Tensor {
     // ---------------------
     public:
 	/**
-	 * Sets the logical state of all components to {\tt ETATNONDEF} 
+	 * Sets the logical state of all components to \c ETATNONDEF  
 	 * (undefined state).
 	 */
 	virtual void set_etat_nondef() ;
 	
 	/**
-	 * Sets the logical state of all components to {\tt ETATZERO} 
+	 * Sets the logical state of all components to \c ETATZERO  
 	 *(zero state).
 	 */
 	virtual void set_etat_zero() ;
 
 	/**
-	 * Sets the logical state of all components to {\tt ETATQCQ} 
+	 * Sets the logical state of all components to \c ETATQCQ  
 	 * (ordinary state).
 	 */
 	virtual void set_etat_qcq() ;
 	
 	/**
 	 *  Performs the memory allocation of all the 
-	 *  elements, down to the {\tt double} arrays of the {\tt Tbl}s. 
+	 *  elements, down to the \c double  arrays of the \c Tbl s. 
 	 *  This function performs in fact recursive calls to 
-	 *  {\tt set\_etat\_qcq()}
-	 *  on each element of the chain {\tt Scalar} ->
-	 *  {\tt Valeur} -> {\tt Mtbl} -> {\tt Tbl}. 
+	 *  \c set_etat_qcq() 
+	 *  on each element of the chain \c Scalar  ->
+	 *  \c Valeur  -> \c Mtbl  -> \c Tbl . 
 	 */
 	virtual void allocate_all() ; 
 
@@ -510,25 +512,25 @@ class Tensor {
 	virtual void change_triad(const Base_vect& new_triad) ; 
     
 	/** Assigns a new vectorial basis (triad) of decomposition. 
-	 *  NB: this function modifies only the member {\tt triad} and
-	 *  leave unchanged the components (member {\tt cmp}). In order to 
+	 *  NB: this function modifies only the member \c triad  and
+	 *  leave unchanged the components (member \c cmp ). In order to 
 	 *  change them coherently with the new basis, the function 
-	 *  {\tt change\_triad(const Base\_vect\& )} must be called instead. 
+	 *  \c change_triad(const Base_vect\& ) must be called instead. 
 	 */
 	void set_triad(const Base_vect& new_triad) ; 
 
 	
-	virtual void operator=(const Tensor&) ;/// Assignment to a {\tt Tensor}
+	virtual void operator=(const Tensor&) ;///< Assignment to a \c Tensor 
 	
 	/** Returns the value of a component (read/write version).
 	 *
-	 * @param ind  1-D {\tt Itbl} of size {\tt valence} containing the 
+	 * @param ind  1-D \c Itbl  of size \c valence  containing the 
 	 *		values of each index specifing the component,  with the 
-	 *		following storage convention: \\
-	 *			{\tt ind(0)} : value of the first index (1, 2 or 3) \\
-	 *			{\tt ind(1)} : value of the second index (1, 2 or 3) \\
-	 *			and so on... 
-	 * @return modifiable reference on the component specified by {\tt ind}
+	 *		following storage convention: 
+	 *			\li \c ind(0)  : value of the first index (1, 2 or 3) 
+	 *			\li \c ind(1)  : value of the second index (1, 2 or 3) 
+	 *			\li and so on... 
+	 * @return modifiable reference on the component specified by \c ind 
 	 *
 	 */
 	Scalar& set(const Itbl& ind) ; 
@@ -539,7 +541,7 @@ class Tensor {
 	 * @param i1  value of the first index (1, 2 or 3)
 	 * @param i2  value of the second index (1, 2 or 3)
 	 *
-	 * @return modifiable reference on the component specified by {\tt (i1,i2)}
+	 * @return modifiable reference on the component specified by \c (i1,i2) 
 	 *
 	 */
 	Scalar& set(int i1, int i2) ; 
@@ -552,7 +554,7 @@ class Tensor {
 	 * @param i2  value of the second index (1, 2 or 3)
 	 * @param i3  value of the third index (1, 2 or 3)
 	 *
-	 * @return modifiable reference on the component specified by {\tt (i1,i2,i3)}
+	 * @return modifiable reference on the component specified by \c (i1,i2,i3) 
 	 *
 	 */
 	Scalar& set(int i1, int i2, int i3) ; 
@@ -566,44 +568,44 @@ class Tensor {
 	 * @param i4  value of the fourth index (1, 2 or 3)
 	 *
 	 * @return modifiable reference on the component specified by 
-     *   {\tt (i1,i2,i3,i4)}
+     *   \c (i1,i2,i3,i4) 
 	 *
 	 */
 	Scalar& set(int i1, int i2, int i3, int i4) ; 
 	
 	/**
-	 * Sets the {\tt Tensor} to zero in a given domain.
-	 *	@param l [input]  Index of the domain in which the {\tt Tensor}
+	 * Sets the \c Tensor  to zero in a given domain.
+	 *	@param l [input]  Index of the domain in which the \c Tensor 
 	 *			  will be set (logically) to zero.
 	 */
 	void annule_domain(int l) ; 
 
 	/**
-	 * Sets the {\tt Tensor} to zero in several domains.
-	 *	@param l_min [input] The {\tt Tensor} will be set (logically) 
+	 * Sets the \c Tensor  to zero in several domains.
+	 *	@param l_min [input] The \c Tensor  will be set (logically) 
 	 *			     to zero
 	 *			     in the domains whose indices are in the range
-	 *			     {\tt [l\_min, l\_max]}.
-	 *	@param l_max [input] see the comments for {\tt l\_min}.
+	 *			     \c [l_min,l_max] .
+	 *	@param l_max [input] see the comments for \c l_min .
 	 * 
-	 * Note that {\tt annule(0, nz-1)}, where {\tt nz} is the total number
-	 * of domains, is equivalent to {\tt set\_etat\_zero()}.
+	 * Note that \c annule(0,nz-1) , where \c nz  is the total number
+	 * of domains, is equivalent to \c set_etat_zero() .
 	 */
 	virtual void annule(int l_min, int l_max) ; 
 
 	/**
 	 * Sets the standard spectal bases of decomposition for each component.
-	 * To be used only with {\tt valence} lower than or equal 2.
+	 * To be used only with \c valence  lower than or equal 2.
 	 */
 	virtual void std_spectral_base() ; 
 	
-	/** Decreases by {\tt dec} units the value of {\tt dzpuis} and 
+	/** Decreases by \c dec  units the value of \c dzpuis  and 
 	 *  changes accordingly the values in the 
 	 *  compactified external domain (CED).
 	 */
 	virtual void dec_dzpuis(int dec = 1) ; 
 
-	/** Increases by {\tt inc} units the value of {\tt dzpuis} and 
+	/** Increases by \c inc  units the value of \c dzpuis  and 
 	 *  changes accordingly the values in the 
 	 *  compactified external domain (CED).
 	 */
@@ -614,100 +616,100 @@ class Tensor {
     // ---------------------
     
     protected: 
-        /** Computes the Lie derivative of {\tt this} with respect to some
-         *  vector field {\tt v} (protected method; the public interface
-         *  is method {\tt derive\_lie}).
+        /** Computes the Lie derivative of \c this  with respect to some
+         *  vector field \c v  (protected method; the public interface
+         *  is method \c derive_lie ).
          */
         void compute_derive_lie(const Vector& v, Tensor& resu) const ; 
 
     
     public:
-	/** Returns the covariant derivative of {\tt this} with respect to some 
-         * metric $\gamma$.
-         * $T$ denoting the tensor represented by {\tt this} and
-         * $\nabla T$ its covariant derivative with respect to 
-         * the metric $\gamma$, 
-         * the extra index (with respect to the indices of $T$)
-         * of $\nabla T$ is chosen to be the {\bf last} one.
+	/** Returns the covariant derivative of \c this  with respect to some 
+         * metric \f$\gamma\f$.
+         * \f$T\f$ denoting the tensor represented by \c this  and
+         * \f$\nabla T\f$ its covariant derivative with respect to 
+         * the metric \f$\gamma\f$, 
+         * the extra index (with respect to the indices of \f$T\f$)
+         * of \f$\nabla T\f$ is chosen to be the \b last  one.
          * This convention agrees with that of MTW (see Eq. (10.17) of MTW).
-         * For instance, if $T$ is a 1-form, whose components
-         * w.r.t. the triad $e^i$ are $T_i$: $T=T_i \; e^i$,
-         * then the covariant derivative of $T$ is the bilinear form
-         * $\nabla T$ whose components $\nabla_j T_i$ are
+         * For instance, if \f$T\f$ is a 1-form, whose components
+         * w.r.t. the triad \f$e^i\f$ are \f$T_i\f$: \f$T=T_i \; e^i\f$,
+         * then the covariant derivative of \f$T\f$ is the bilinear form
+         * \f$\nabla T\f$ whose components \f$\nabla_j T_i\f$ are
          * such that 
-         * \begin{equation}
+         * \f[
          *  \nabla T = \nabla_j T_i \; e^i \otimes e^j
-         * \end{equation}
+         * \f]
          *
-         * @param gam metric $\gamma$
-         * @return covariant derivative $\nabla T$ of {\tt this} with 
-         *  respect to the connection $\nabla$ associated with the
-         *  metric $\gamma$ 
+         * @param gam metric \f$\gamma\f$
+         * @return covariant derivative \f$\nabla T\f$ of \c this  with 
+         *  respect to the connection \f$\nabla\f$ associated with the
+         *  metric \f$\gamma\f$ 
 	 */
 	const Tensor& derive_cov(const Metric& gam) const ; 
 
-	/** Returns the "contravariant" derivative of {\tt this} with respect 
-	 * to some metric $\gamma$, by raising the last index of the
-         * covariant derivative (cf. method {\tt derive\_cov()}) with 
-         * $\gamma$.
+	/** Returns the "contravariant" derivative of \c this  with respect 
+	 * to some metric \f$\gamma\f$, by raising the last index of the
+         * covariant derivative (cf. method \c derive_cov() ) with 
+         * \f$\gamma\f$.
 	 */
 	const Tensor& derive_con(const Metric& gam) const ; 
 
-	/** Computes the divergence of {\tt this} with respect to 
-         * some metric $\gamma$. 
-         * The divergence is taken with respect of the last index of {\tt this}
+	/** Computes the divergence of \c this  with respect to 
+         * some metric \f$\gamma\f$. 
+         * The divergence is taken with respect of the last index of \c this 
          * which thus must be contravariant.
-         * For instance if the tensor $T$ represented by {\tt this}
+         * For instance if the tensor \f$T\f$ represented by \c this 
          * is a twice contravariant tensor, whose 
          * components w.r.t. the
-         * triad $e_i$ are $T^{ij}$: $T = T^{ij} \; e_i \otimes e_j$,
-         * the divergence of $T$ w.r.t. $\gamma$ is the vector 
-         * \begin{equation}
+         * triad \f$e_i\f$ are \f$T^{ij}\f$: \f$T = T^{ij} \; e_i \otimes e_j\f$,
+         * the divergence of \f$T\f$ w.r.t. \f$\gamma\f$ is the vector 
+         * \f[
          *   {\rm div}\,  T = \nabla_k T^{ik} \; e_i
-         * \end{equation}
-         * where $\nabla$ denotes the connection associated with the metric
-         * $\gamma$. 
-         * @param gam metric $\gamma$
-         * @return divergence of {\tt this} with respect to $\gamma$. 
+         * \f]
+         * where \f$\nabla\f$ denotes the connection associated with the metric
+         * \f$\gamma\f$. 
+         * @param gam metric \f$\gamma\f$
+         * @return divergence of \c this  with respect to \f$\gamma\f$. 
 	 */
 	const Tensor& divergence(const Metric& gam) const ; 
 
 
-        /** Computes the Lie derivative of {\tt this} with respect to some
-         *  vector field {\tt v}
+        /** Computes the Lie derivative of \c this  with respect to some
+         *  vector field \c v 
          */
         Tensor derive_lie(const Vector& v) const ; 
 
-	/** Computes a new tensor by raising an index of {\tt *this}
+	/** Computes a new tensor by raising an index of \c *this 
 	 *
 	 *  @param ind index to be raised, with the 
- 	 *   following convention : \\
- 	 *    {\tt ind1} = 0 : first index of the tensor \\
- 	 *    {\tt ind1} = 1 : second index of the tensor \\
-	 *    and so on... \\
-	 *   ({\tt ind} must be of covariant type ({\tt COV})).
+ 	 *   following convention : 
+ 	 *    \li \c ind1  = 0 : first index of the tensor 
+ 	 *    \li \c ind1  = 1 : second index of the tensor 
+	 *    \li and so on... 
+	 *   (\c ind  must be of covariant type (\c COV )).
 	 *  @param gam metric used to raise the index (contraction with the
-	 *    twice contravariant form of the metric on the index {\tt ind}). 
+	 *    twice contravariant form of the metric on the index \c ind ). 
 	 * 
 	 */
 	Tensor up(int ind, const Metric& gam) const ; 
 
-	/** Computes a new tensor by lowering an index of {\tt *this}
+	/** Computes a new tensor by lowering an index of \c *this 
 	 *
 	 *  @param ind index to be lowered, with the 
- 	 *   following convention : \\
- 	 *    {\tt ind1} = 0 : first index of the tensor \\
- 	 *    {\tt ind1} = 1 : second index of the tensor \\
-	 *    and so on... \\
-	 *   ({\tt ind} must be of covariant type ({\tt CON})).
+ 	 *   following convention : 
+ 	 *    \li \c ind1  = 0 : first index of the tensor 
+ 	 *    \li \c ind1  = 1 : second index of the tensor 
+	 *    \li and so on... 
+	 *   (\c ind  must be of covariant type (\c CON )).
 	 *  @param gam metric used to lower the index (contraction with the
-	 *    twice covariant form of the metric on the index {\tt ind}). 
+	 *    twice covariant form of the metric on the index \c ind ). 
 	 * 
 	 */
 	Tensor down(int ind, const Metric& gam) const ; 
 
 	/** Computes a new tensor by raising or lowering all the indices 
-	 *  of {\tt *this}.
+	 *  of \c *this .
 	 *
 	 *  @param gam metric used to lower the contravariant indices
 	 *    and raising the covariant ones. 
@@ -717,20 +719,20 @@ class Tensor {
 
     /** Trace on two different type indices.
      *  @param ind1 first index for the contraction, with the 
- 	 *   following convention : \\
- 	 *    {\tt ind1} = 0 : first index of the tensor \\
- 	 *    {\tt ind1} = 1 : second index of the tensor \\
-	 *    and so on... 
+ 	 *   following convention : 
+ 	 *    \li \c ind1  = 0 : first index of the tensor 
+ 	 *    \li \c ind1  = 1 : second index of the tensor 
+	 *    \li and so on... 
      *  @param ind2 second index for the contraction 
      */
     Tensor trace(int ind1, int ind2) const ; 
 
     /** Trace with respect to a given metric.
      *  @param ind1 first index for the contraction, with the 
- 	 *   following convention : \\
- 	 *    {\tt ind1} = 0 : first index of the tensor \\
- 	 *    {\tt ind1} = 1 : second index of the tensor \\
-	 *    and so on... 
+ 	 *   following convention : 
+ 	 *    \li \c ind1  = 0 : first index of the tensor 
+ 	 *    \li \c ind1  = 1 : second index of the tensor 
+	 *    \li and so on... 
      *  @param ind2 second index for the contraction 
      *  @param gam metric used to raise or lower ind1 in order that it
      *      has a opposite type than ind2
@@ -752,61 +754,63 @@ class Tensor {
     // ---------
         public:
 	/**
-	 * Returns the position in the array {\tt cmp} of a 
+	 * Returns the position in the array \c cmp  of a 
 	 * component given by its indices.  
 	 *
-	 * @param ind [input] 1-D array of integers (class {\tt Itbl})
-	 *		 of size {\tt valence} giving the 
+	 * @param ind [input] 1-D array of integers (class \c Itbl )
+	 *		 of size \c valence  giving the 
 	 *		values of each index specifing the component,  with the 
-	 *		following storage convention: \\
-	 *			{\tt ind(0)} : value of the first index (1, 2 or 3) \\
-	 *			{\tt ind(1)} : value of the second index (1, 2 or 3) \\
-	 *			and so on... 
+	 *		following storage convention: 
+	 *			\li \c ind(0)  : value of the first index (1, 2 or 3) 
+	 *			\li \c ind(1)  : value of the second index (1, 2 or 3) 
+	 *			\li and so on... 
 	 *
-	 * @return position in the array {\tt cmp} of the pointer to the
-	 *  	{\tt Scalar} containing the component specified by {\tt ind}
+	 * @return position in the array \c cmp  of the pointer to the
+	 *  	\c Scalar  containing the component specified by \c ind 
 	 */
 	virtual int position(const Itbl& ind) const ;
 
 	/**
 	 * Returns the indices of a component given by its position in the 
-	 * array {\tt cmp}. 
+	 * array \c cmp . 
 	 *
-	 * @param pos [input] position in the array {\tt cmp}
-	 *		of the pointer to the {\tt Scalar} representing a component
+	 * @param pos [input] position in the array \c cmp 
+	 *		of the pointer to the \c Scalar  representing a component
 	 *
-	 * @return 1-D array of integers (class {\tt Itbl}) of
-	 *         size {\tt valence} giving the value of each index 
-	 *	   for the component located at the position {\tt pos} in
-	 *		the array [\tt cmp}, with the 
-	 *		following storage convention: \\
-	 *			{\tt Itbl(0)} : value of the first index (1, 2 or 3) \\
-	 *			{\tt Itbl(1)} : value of the second index (1, 2 or 3) \\
-	 *			and so on... 
+	 * @return 1-D array of integers (class \c Itbl ) of
+	 *         size \c valence  giving the value of each index 
+	 *	   for the component located at the position \c pos  in
+	 *		the array \c cmp, with the 
+	 *		following storage convention: 
+	 *			\li \c Itbl(0)  : value of the first index (1, 2 or 3) 
+	 *			\li \c Itbl(1)  : value of the second index (1, 2 or 3) 
+	 *			\li and so on... 
 	 */
 	virtual Itbl indices(int pos) const ;
 	
 	public:
-	const Map& get_mp() const {return *mp ;} ; /// Returns the mapping.
+	/// Returns the mapping.
+	const Map& get_mp() const {return *mp ;} ; 
 
 	/** Returns the vectorial basis (triad) on which the components
 	 *  are defined.  
 	 */
 	const Base_vect* get_triad() const {return triad;} ; 
     
-	int get_valence() const {return valence ; } ; /// Returns the valence.
+	/// Returns the valence.
+	int get_valence() const {return valence ; } ; 
 
 	/// Returns the number of stored components.
 	int get_n_comp() const {return n_comp ;} ; 
 	
 	/**
 	 *  Gives the type (covariant or contravariant)
-	 *  of the index number {\tt i}. {\tt i} must be
-	 *  strictly lower than {\tt valence} and obey the following
-	 *		      convention: \\
-	 *			{\tt i} = 0 : first index \\
-	 *			{\tt i} = 1 : second index \\
-	 *			and so on... 
+	 *  of the index number \c i . \c i  must be
+	 *  strictly lower than \c valence  and obey the following
+	 *		      convention: 
+	 *			\li \c i  = 0 : first index 
+	 *			\li \c i  = 1 : second index 
+	 *			\li and so on... 
 	 * 
 	 *  @return COV for a covariant index, CON for a
 	 *	    contravariant one. 
@@ -816,9 +820,9 @@ class Tensor {
 	/**
 	 * Returns the types of all the indices.
 	 * 
-	 *  @return 1-D array of integers (class {\tt Itbl}) of size {\tt valence} 
+	 *  @return 1-D array of integers (class \c Itbl ) of size \c valence  
 	 *  containing the type of each index, 
-	 *  {\tt COV} for a covariant one and {\tt CON} 
+	 *  \c COV  for a covariant one and \c CON  
 	 *  for a contravariant one.
 	 */
 	Itbl get_index_type() const {return type_indice ; } ;
@@ -826,13 +830,13 @@ class Tensor {
 	
 	/** Returns the value of a component (read-only version).
 	 *
-	 * @param ind  1-D {\tt Itbl} of size {\tt valence} containing the 
+	 * @param ind  1-D \c Itbl  of size \c valence  containing the 
 	 *		values of each index specifing the component,  with the 
-	 *		following storage convention: \\
-	 *			{\tt ind(0)} : value of the first index (1, 2 or 3) \\
-	 *			{\tt ind(1)} : value of the second index (1, 2 or 3) \\
-	 *			and so on... 
-	 * @return reference on the component specified by {\tt ind}
+	 *		following storage convention: 
+	 *			\li \c ind(0)  : value of the first index (1, 2 or 3) 
+	 *			\li \c ind(1)  : value of the second index (1, 2 or 3) 
+	 *			\li and so on... 
+	 * @return reference on the component specified by \c ind 
 	 *
 	 */
 	const Scalar& operator()(const Itbl& ind) const ; 
@@ -843,7 +847,7 @@ class Tensor {
 	 * @param i1  value of the first index (1, 2 or 3)
 	 * @param i2  value of the second index (1, 2 or 3)
 	 *
-	 * @return reference on the component specified by {\tt (i1,i2)}
+	 * @return reference on the component specified by \c (i1,i2) 
 	 *
 	 */
 	const Scalar& operator()(int i1, int i2) const ; 
@@ -855,7 +859,7 @@ class Tensor {
 	 * @param i2  value of the second index (1, 2 or 3)
 	 * @param i3  value of the third index (1, 2 or 3)
 	 *
-	 * @return reference on the component specified by {\tt (i1,i2,i3)}
+	 * @return reference on the component specified by \c (i1,i2,i3) 
 	 *
 	 */
 	const Scalar& operator()(int i1, int i2, int i3) const ; 
@@ -868,7 +872,7 @@ class Tensor {
 	 * @param i3  value of the third index (1, 2 or 3)
 	 * @param i4  value of the fourth index (1, 2 or 3)
 	 *
-	 * @return reference on the component specified by {\tt (i1,i2,i3,i4)}
+	 * @return reference on the component specified by \c (i1,i2,i3,i4) 
 	 *
 	 */
 	const Scalar& operator()(int i1, int i2, int i3, int i4) const ; 
@@ -876,13 +880,13 @@ class Tensor {
     // Member arithmetics
     // ------------------
     public:
-	void operator+=(const Tensor &) ;		    /// += Tensor
-	void operator-=(const Tensor &) ;		    /// -= Tensor
+	void operator+=(const Tensor &) ;		    ///< += Tensor
+	void operator-=(const Tensor &) ;		    ///< -= Tensor
 
     // Outputs
     // -------
     public:
-	virtual void sauve(FILE *) const ;	    /// Save in a binary file
+	virtual void sauve(FILE *) const ;	    ///< Save in a binary file
 
 	/** Displays the spectral coefficients and the associated
 	 *  basis functions of each component. This function shows 
@@ -932,14 +936,13 @@ class Tensor {
 /**
  * Symmetric tensors (with respect to two of their arguments).
  *
- * This subclass of {\tt Tensor} is intended to store the components of a 
+ * This subclass of \c Tensor  is intended to store the components of a 
  * tensorial field with respect to a specific basis (triad), in the case
  * the tensor has a valence at least 2 and is symmetric with respect 
  * to two of its arguments (or in other words, the components are
  * symmetric with respect to two of their indices).   
+ * \ingroup (tensor)
  * 
- * 
- * @version #$Id$#
  */
 class Tensor_sym : public Tensor { 
 
@@ -947,11 +950,11 @@ class Tensor_sym : public Tensor {
     // -----
     protected:
 	
-        /// Number of the first symmetric index ({\tt 0<= id\_sym1 < valence})
+        /// Number of the first symmetric index (\c 0<= \c id_sym1 < \c valence )
         int id_sym1 ;
         
         /** Number of the second symmetric index 
-         * ({\tt id\_sym1 < id\_sym2 < valence})
+         * (\c id_sym1 < \c id_sym2 < \c valence )
          */
         int id_sym2 ;
         
@@ -965,20 +968,20 @@ class Tensor_sym : public Tensor {
 	 * 
 	 * @param map   the mapping 
 	 * @param val   valence of the tensor (must be at least 2)
-	 * @param tipe  1-D array of integers (class {\tt Itbl}) 
-	 *		of size {\tt valence} containing the type 
-	 *		of each index, {\tt COV} for a covariant one 
-	 *		and {\tt CON} for a contravariant one,  with the 
-	 *		following storage convention: \\
-	 *			{\tt tipe(0)} : type of the first index \\
-	 *			{\tt tipe(1)} : type of the second index \\
-	 *			and so on... 
+	 * @param tipe  1-D array of integers (class \c Itbl ) 
+	 *		of size \c valence  containing the type 
+	 *		of each index, \c COV  for a covariant one 
+	 *		and \c CON  for a contravariant one,  with the 
+	 *		following storage convention: 
+	 *			\li \c tipe(0)  : type of the first index 
+	 *			\li \c tipe(1)  : type of the second index 
+	 *			\li and so on... 
 	 * @param triad_i  vectorial basis (triad) with respect to which 
 	 *		    the tensor components are defined 
          * @param index_sym1 number of the first symmetric index 
-         *                      ({\tt 0<= index\_sym1 < valence})
+         *                      (\c 0<= \c index_sym1 < \c valence )
          * @param index_sym2 number of the second symmetric index 
-         *                      ({\tt index\_sym1 < index\_sym2 < valence})
+         *                      (\c index_sym1 < \c index_sym2 < \c valence )
 	 */
 	Tensor_sym(const Map& map, int val, const Itbl& tipe, 
 		 	const Base_vect& triad_i, int index_sym1, 
@@ -989,13 +992,13 @@ class Tensor_sym : public Tensor {
 	 * 
 	 * @param map  the mapping
 	 * @param val   valence of the tensor (must be at least 2)
-	 * @param tipe  the type ({\tt COV} or {\tt CON}) of the indices.
+	 * @param tipe  the type (\c COV  or \c CON ) of the indices.
 	 * @param triad_i  vectorial basis (triad) with respect to which 
 	 *			  the tensor components are defined.
          * @param index_sym1 number of the first symmetric index 
-         *                      ({\tt 0<= index\_sym1 < valence})
+         *                      (\c 0<= \c index_sym1 < \c valence )
          * @param index_sym2 number of the second symmetric index 
-         *                      ({\tt index\_sym1 < index\_sym2 < valence})
+         *                      (\c index_sym1 < \c index_sym2 < \c valence )
 	 */
 	Tensor_sym(const Map& map, int val, int tipe, const Base_vect& triad_i,
                     int index_sym1, int index_sym2) ;
@@ -1003,23 +1006,23 @@ class Tensor_sym : public Tensor {
 	/** Constructor for a valence 3 symmetric tensor.
 	 * 
 	 * @param map  the mapping
-	 * @param tipe0 type ({\tt COV} or {\tt CON}) of the first index.
-	 * @param tipe1 type ({\tt COV} or {\tt CON}) of the second index.
-	 * @param tipe2 type ({\tt COV} or {\tt CON}) of the third index.
+	 * @param tipe0 type (\c COV  or \c CON ) of the first index.
+	 * @param tipe1 type (\c COV  or \c CON ) of the second index.
+	 * @param tipe2 type (\c COV  or \c CON ) of the third index.
 	 * @param triad_i  vectorial basis (triad) with respect to which 
 	 *			  the tensor components are defined.
          * @param index_sym1 number of the first symmetric index 
-         *                      ({\tt 0<= index\_sym1 <=2})
+         *                      (\c 0<= \c index_sym1 \c <=2 )
          * @param index_sym2 number of the second symmetric index 
-         *                      ({\tt index\_sym1 < index\_sym2 <=2})
+         *                      (\c index_sym1 < \c index_sym2 \c <=2 )
 	 */
 	Tensor_sym(const Map& map, int tipe0, int tipe1, int tipe2, 
                    const Base_vect& triad_i,
                    int index_sym1, int index_sym2) ;
 
-	Tensor_sym(const Tensor_sym& a) ;  /// Copy constructor
+	Tensor_sym(const Tensor_sym& a) ;  ///< Copy constructor
 
-	/** Constructor from a file (see {\tt sauve(FILE* )}).
+	/** Constructor from a file (see \c sauve(FILE*) ).
 	 * 
 	 * @param map  the mapping
 	 * @param triad_i   vectorial basis (triad) with respect to which 
@@ -1027,24 +1030,24 @@ class Tensor_sym : public Tensor {
 	 *			  be checked that it coincides with the basis
 	 *			  saved in the file.
 	 * @param fich  file which has been created by 
-	 *			    the function {\tt sauve(FILE* )}.
+	 *			    the function \c sauve(FILE*).
 	 */
 	Tensor_sym(const Map& map, const Base_vect& triad_i, FILE* fich) ;
 
     public: 
 
-	virtual ~Tensor_sym() ;	/// Destructor
+	virtual ~Tensor_sym() ;	///< Destructor
 	
     // Mutators / assignment
     // ---------------------
     public:
 	
-        /// Assignment to another {\tt Tensor\_sym}
+        /// Assignment to another \c Tensor_sym 
 	virtual void operator=(const Tensor_sym& a) ;
 	
-        /** Assignment to a {\tt Tensor}
-         * NB: the symmetry about the indices {\tt id\_sym1} and 
-         * {\tt id\_sym2} of the input tensor is assumed but is not checked
+        /** Assignment to a \c Tensor 
+         * NB: the symmetry about the indices \c id_sym1  and 
+         * \c id_sym2  of the input tensor is assumed but is not checked
          */
 	virtual void operator=(const Tensor& a) ; 
 	
@@ -1052,46 +1055,46 @@ class Tensor_sym : public Tensor {
     // Accessors
     // ---------
         public:
-        /// Number of the first symmetric index ({\tt 0<= id\_sym1 < valence})
+        /// Number of the first symmetric index (\c 0<= \c id_sym1 < \c valence )
         int sym_index1() const {return id_sym1;} ;
         
         /** Number of the second symmetric index 
-         * ({\tt id\_sym1 < id\_sym2 < valence})
+         * (\c  id_sym1 < \c id_sym2 < \c valence )
          */
         int sym_index2() const {return id_sym2;} ;
         
 	/**
-	 * Returns the position in the array {\tt cmp} of a 
+	 * Returns the position in the array \c cmp  of a 
 	 * component given by its indices.  
 	 *
-	 * @param ind [input] 1-D array of integers (class {\tt Itbl})
-	 *		 of size {\tt valence} giving the 
+	 * @param ind [input] 1-D array of integers (class \c Itbl )
+	 *		 of size \c valence  giving the 
 	 *		values of each index specifing the component,  with the 
-	 *		following storage convention: \\
-	 *			{\tt ind(0)} : value of the first index (1, 2 or 3) \\
-	 *			{\tt ind(1)} : value of the second index (1, 2 or 3) \\
-	 *			and so on... 
+	 *		following storage convention: 
+	 *			\li \c ind(0)  : value of the first index (1, 2 or 3) 
+	 *			\li \c ind(1)  : value of the second index (1, 2 or 3) 
+	 *			\li and so on... 
 	 *
-	 * @return position in the array {\tt cmp} of the pointer to the
-	 *  	{\tt Scalar} containing the component specified by {\tt ind}
+	 * @return position in the array \c cmp  of the pointer to the
+	 *  	\c Scalar  containing the component specified by \c ind 
 	 */
 	virtual int position(const Itbl& ind) const ;
 
 	/**
 	 * Returns the indices of a component given by its position in the 
-	 * array {\tt cmp}. 
+	 * array \c cmp . 
 	 *
-	 * @param pos [input] position in the array {\tt cmp}
-	 *		of the pointer to the {\tt Scalar} representing a component
+	 * @param pos [input] position in the array \c cmp 
+	 *		of the pointer to the \c Scalar  representing a component
 	 *
-	 * @return 1-D array of integers (class {\tt Itbl}) of
-	 *         size {\tt valence} giving the value of each index 
-	 *	   for the component located at the position {\tt pos} in
-	 *		the array [\tt cmp}, with the 
-	 *		following storage convention: \\
-	 *			{\tt Itbl(0)} : value of the first index (1, 2 or 3) \\
-	 *			{\tt Itbl(1)} : value of the second index (1, 2 or 3) \\
-	 *			and so on... 
+	 * @return 1-D array of integers (class \c Itbl ) of
+	 *         size \c valence  giving the value of each index 
+	 *	   for the component located at the position \c pos  in
+	 *		the array \c cmp, with the 
+	 *		following storage convention: 
+	 *			\li \c Itbl(0)  : value of the first index (1, 2 or 3) 
+	 *			\li \c Itbl(1)  : value of the second index (1, 2 or 3) 
+	 *			\li and so on... 
 	 */
 	virtual Itbl indices(int pos) const ;
         
@@ -1099,38 +1102,38 @@ class Tensor_sym : public Tensor {
     // Outputs
     // -------
     public:
-	virtual void sauve(FILE *) const ;      /// Save in a binary file
+	virtual void sauve(FILE *) const ;      ///< Save in a binary file
 	
 
     // Tensor calculus
     // ---------------
     public:
     
-	/** Returns the covariant derivative of {\tt this} with respect to some 
-         * metric $\gamma$.
-         * $T$ denoting the tensor represented by {\tt this} and
-         * $\nabla T$ its covariant derivative with respect to 
-         * the metric $\gamma$, 
-         * the extra index (with respect to the indices of $T$)
-         * of $\nabla T$ is chosen to be the {\bf last} one.
+	/** Returns the covariant derivative of \c this  with respect to some 
+         * metric \f$\gamma\f$.
+         * \f$T\f$ denoting the tensor represented by \c this  and
+         * \f$\nabla T\f$ its covariant derivative with respect to 
+         * the metric \f$\gamma\f$, 
+         * the extra index (with respect to the indices of \f$T\f$)
+         * of \f$\nabla T\f$ is chosen to be the \b last  one.
          * This convention agrees with that of MTW (see Eq. (10.17) of MTW).
          *
-         * @param gam metric $\gamma$
-         * @return covariant derivative $\nabla T$ of {\tt this} with 
-         *  respect to the connection $\nabla$ associated with the
-         *  metric $\gamma$ 
+         * @param gam metric \f$\gamma\f$
+         * @return covariant derivative \f$\nabla T\f$ of \c this  with 
+         *  respect to the connection \f$\nabla\f$ associated with the
+         *  metric \f$\gamma\f$ 
 	 */
 	const Tensor_sym& derive_cov(const Metric& gam) const ; 
 
-	/** Returns the "contravariant" derivative of {\tt this} with respect 
-	 * to some metric $\gamma$, by raising the last index of the
-         * covariant derivative (cf. method {\tt derive\_cov()}) with 
-         * $\gamma$.
+	/** Returns the "contravariant" derivative of \c this  with respect 
+	 * to some metric \f$\gamma\f$, by raising the last index of the
+         * covariant derivative (cf. method \c derive_cov() ) with 
+         * \f$\gamma\f$.
 	 */
 	const Tensor_sym& derive_con(const Metric& gam) const ; 
 
-        /** Computes the Lie derivative of {\tt this} with respect to some
-         *  vector field {\tt v}
+        /** Computes the Lie derivative of \c this  with respect to some
+         *  vector field \c v 
          */
         Tensor_sym derive_lie(const Vector& v) const ; 
 
@@ -1146,9 +1149,11 @@ class Tensor_sym : public Tensor {
 
 
 /**
- * @name Tensor calculus
+ * \defgroup tenso_cal Tensor calculus
+ * \ingroup (tensor)
+ * @{
  */
-//@{
+
 /// Tensorial product
 Tensor operator*(const Tensor& a, const Tensor& b) ; 
 
@@ -1159,10 +1164,10 @@ Tensor_sym operator*(const Tensor& a, const Tensor_sym& b) ;
 Tensor_sym operator*(const Tensor_sym& a, const Tensor& b) ; 
 
 /** Tensorial product of two symmetric tensors.
- * NB: the output is an object of class {\tt Tensor\_sym}, with
+ * NB: the output is an object of class \c Tensor_sym , with
  * the two symmetric indices corresponding to the symmetric indices
- * of tensor {\tt a}. This means that the symmetries of tensor
- * {\tt b} indices are not used in the storage, since 
+ * of tensor \c a . This means that the symmetries of tensor
+ * \c b  indices are not used in the storage, since 
  * there is currently no class in Lorene to manage
  * tensors with more than two symmetric indices. 
  */
@@ -1173,20 +1178,20 @@ Tensor_sym operator*(const Tensor_sym& a, const Tensor_sym& b) ;
  *
  * @param t1 [input] first tensor 
  * @param ind1 [input] index of the first tensor for the contraction, 
- *    obeying to the following convention : \\
- *    {\tt ind1} = 0 : first index of the tensor \\
- *    {\tt ind1} = 1 : second index of the tensor \\
- *    and so on... \\
- *  ({\tt ind1} must thus be in the range 0...t1.valence-1)  
+ *    obeying to the following convention : 
+ *    \li \c ind1  = 0 : first index of the tensor 
+ *    \li \c ind1  = 1 : second index of the tensor 
+ *    \li and so on... 
+ *  (\c ind1  must thus be in the range 0...t1.valence-1)  
  * @param t2 [input] second tensor 
  * @param ind2 [input] index of the second tensor for the contraction, with 
- *   the same convention as {\tt ind1}
+ *   the same convention as \c ind1 
  * @param desaliasing [input] determines whether the products are performed
  *      with desaliasing or not  
- * @return tensor resulting of the contraction of the index {\tt ind1} of
- *  {\tt t1} with the index {\tt ind2} of {\tt t2}.
- * NB: the types ({\tt COV} or {\tt CON}) of the indices {\tt ind1} and
- * {\tt ind2} must be different. 
+ * @return tensor resulting of the contraction of the index \c ind1  of
+ *  \c t1  with the index \c ind2  of \c t2 .
+ * NB: the types (\c COV  or \c CON ) of the indices \c ind1  and
+ * \c ind2  must be different. 
  */
 Tensor contract(const Tensor& t1, int ind1, const Tensor& t2, int ind2, 
         bool desaliasing = false) ;
@@ -1194,28 +1199,28 @@ Tensor contract(const Tensor& t1, int ind1, const Tensor& t2, int ind2,
 /** Double contraction of two tensors. 
  *
  * @param t1 [input] first tensor 
- * @param ind_i1 [input] position of the first index {\it i1} in the first 
+ * @param ind_i1 [input] position of the first index \e i1 in the first 
  *      tensor for the contraction, 
- *    obeying to the following convention : \\
- *    {\tt ind\_i1} = 0 : first index of the tensor \\
- *    {\tt ind\_i1} = 1 : second index of the tensor \\
- *    and so on... \\
- *  ({\tt ind\_i1} must thus be in the range 0...t1.valence-1)  
- * @param ind_j1 [input] position of the second index {\it j1} in the first 
- *      tensor for the contraction; one must have {\tt ind\_i1 < ind\_ j1}
+ *    obeying to the following convention : 
+ *    \li \c ind_i1  = 0 : first index of the tensor 
+ *    \li \c ind_i1  = 1 : second index of the tensor 
+ *    \li and so on... 
+ *  (\c ind_i1  must thus be in the range 0...t1.valence-1)  
+ * @param ind_j1 [input] position of the second index \e j1 in the first 
+ *      tensor for the contraction; one must have \c ind_i1 < \c ind_ j1
  * @param t2 [input] second tensor 
- * @param ind_i2 [input] position of the first index {\it i2} in the second 
+ * @param ind_i2 [input] position of the first index \e i2 in the second 
  *      tensor for the contraction 
- * @param ind_j2 [input] position of the second index {\it j2} in the second 
- *      tensor for the contraction; one must have {\tt ind\_i2 < ind\_ j2}
+ * @param ind_j2 [input] position of the second index \e j2 in the second 
+ *      tensor for the contraction; one must have \c ind_i2 < \c ind_ j2
  * @param desaliasing [input] determines whether the products are performed
  *      with desaliasing or not  
- * @return tensor resulting of the contraction of the index {\tt ind\_i1} 
- *  of {\tt t1} with the index {\tt ind\_i2} of {\tt t2} and of the 
- * contraction of the index {\tt ind\_j1} 
- *  of {\tt t1} with the index {\tt ind\_j2} of {\tt t2}
- * NB: the types ({\tt COV} or {\tt CON}) of the indices {\tt ind\_i1} and
- * {\tt ind\_i2} (resp. {\tt ind\_j1} and {\tt ind\_j2}) must be different. 
+ * @return tensor resulting of the contraction of the index \c ind_i1  
+ *  of \c t1  with the index \c ind_i2  of \c t2  and of the 
+ * contraction of the index \c ind_j1  
+ *  of \c t1  with the index \c ind_j2  of \c t2 
+ * NB: the types (\c COV  or \c CON ) of the indices \c ind_i1  and
+ * \c ind_i2  (resp. \c ind_j1  and \c ind_j2 ) must be different. 
  */
 Tensor contract(const Tensor& t1, int ind_i1, int ind_j1, 
                 const Tensor& t2, int ind_i2, int ind_j2,
@@ -1226,205 +1231,207 @@ Tensor contract(const Tensor& t1, int ind_i1, int ind_j1,
  *
  * @param t1 [input] tensor 
  * @param ind1 [input] first index of the tensor for the contraction, 
- *    obeying to the following convention : \\
- *    {\tt ind1} = 0 : first index of the tensor \\
- *    {\tt ind1} = 1 : second index of the tensor \\
- *    and so on... \\
- *  ({\tt ind1} must thus be in the range 0...t1.valence-1)  
+ *    obeying to the following convention : 
+ *    \li \c ind1  = 0 : first index of the tensor 
+ *    \li \c ind1  = 1 : second index of the tensor 
+ *    \li and so on... 
+ *  (\c ind1  must thus be in the range 0...t1.valence-1)  
  * @param ind2 [input] second index of the tensor for the contraction, with 
- *   the same convention as {\tt ind1} 
+ *   the same convention as \c ind1  
  * @return tensor resulting of the contraction 
- * NB: the types ({\tt COV} or {\tt CON}) of the indices {\tt ind1} and
- * {\tt ind2} must be different. 
+ * NB: the types (\c COV  or \c CON ) of the indices \c ind1  and
+ * \c ind2  must be different. 
  */
 Tensor contract(const Tensor& t1, int ind1, int ind2) ;
 
 
 /** Maxima in each domain of the values of the tensor components
  * @param aa tensor
- * @param comment comment to be printed on {\tt ost} before the result
+ * @param comment comment to be printed on \c ost  before the result
  *    (default: 0x0 = nothing printed)
  * @param ost output stream for a formatted output of the result
- * @return 2-D {\tt Tbl} of size the number of independent components
- *	times the number of domains, the elements {\tt (i,l)}
- *     of which are {\tt max( a(l) )}, where {\tt a(l)} 
- *      denotes symbolically the values of {\tt aa} 
- *	   in domain no. {\tt l} and for component no.{\tt i}. 
+ * @return 2-D \c Tbl  of size the number of independent components
+ *	times the number of domains, the elements \c (i,l) 
+ *     of which are \c max(a(l)) , where \c a(l)  
+ *      denotes symbolically the values of \c aa  
+ *	   in domain no. \c l  and for component no.\c i . 
  */
 Tbl max(const Tensor& aa, const char* comment = 0x0, ostream& ost = cout) ; 
 
 
 /** Minima in each domain of the values of the tensor components
  * @param aa tensor
- * @param comment comment to be printed on {\tt ost} before the result
+ * @param comment comment to be printed on \c ost  before the result
  *    (default: 0x0 = nothing printed)
  * @param ost output stream for a formatted output of the result
- * @return 2-D {\tt Tbl} of size the number of independent components
- *	times the number of domains, the elements {\tt (i,l)}
- *     of which are {\tt min( a(l) )}, where {\tt a(l)} 
- *      denotes symbolically the values of {\tt aa} 
- *	   in domain no. {\tt l} and for component no.{\tt i}. 
+ * @return 2-D \c Tbl  of size the number of independent components
+ *	times the number of domains, the elements \c (i,l) 
+ *     of which are \c min(a(l)), where \c a(l)  
+ *      denotes symbolically the values of \c aa  
+ *	   in domain no. \c l  and for component no.\c i . 
  */
 Tbl min(const Tensor& aa, const char* comment = 0x0, ostream& ost = cout) ; 
 
 /** Maxima in each domain of the absolute values of the tensor components
  * @param aa tensor
- * @param comment comment to be printed on {\tt ost} before the result
+ * @param comment comment to be printed on \c ost  before the result
  *    (default: 0x0 = nothing printed)
  * @param ost output stream for a formatted output of the result
- * @return 2-D {\tt Tbl} of size the number of independent components
- *	times the number of domains, the elements {\tt (i,l)}
- *     of which are {\tt max[ abs( a(l) )]}, where {\tt a(l)} 
- *      denotes symbolically the values of {\tt aa} 
- *	   in domain no. {\tt l} and for component no.{\tt i}. 
+ * @return 2-D \c Tbl  of size the number of independent components
+ *	times the number of domains, the elements \c (i,l) 
+ *     of which are \c max[abs(a(l))] , where \c a(l)  
+ *      denotes symbolically the values of \c aa  
+ *	   in domain no. \c l  and for component no.\c i . 
  */
 Tbl maxabs(const Tensor& aa, const char* comment = 0x0, ostream& ost = cout) ; 
 
 
-/** Relative difference between two {\tt Tensor} ($L^1$ version).
+/** Relative difference between two \c Tensor  (\f$L^1\f$ version).
  * @param aa first tensor
  * @param bb second tensor
- * @param comment comment to be printed on {\tt ost} before the result
+ * @param comment comment to be printed on \c ost  before the result
  *    (default: 0x0 = nothing printed)
  * @param ost output stream for a formatted output of the result
- * @return 2-D {\tt Tbl} of size the number of independent components
- *	times the number of domains, the elements {\tt (i,l)}
+ * @return 2-D \c Tbl  of size the number of independent components
+ *	times the number of domains, the elements \c (i,l) 
  *     of which 
- *	   are {\tt norme[a(l)-b(l)]/norme[b(l)]} if {\tt b(l)!=0} and
- *	   {\tt norme[a(l)-b(l)]} if  {\tt b(l)=0},  where {\tt a(l)} and 
- *	   {\tt b(l)} denote symbolically the values of {\tt aa} and {\tt bb} 
- *	   in domain no. {\tt l} and for component no.{\tt i}. 
+ *	   are \c norme[a(l)-b(l)]/norme[b(l)]  if \c b(l)!=0  and
+ *	   \c norme[a(l)-b(l)]  if  \c b(l)=0 ,  where \c a(l)  and 
+ *	   \c b(l)  denote symbolically the values of \c aa  and \c bb  
+ *	   in domain no. \c l  and for component no.\c i . 
  */
 Tbl diffrel(const Tensor& aa, const Tensor& bb, const char* comment = 0x0,
             ostream& ost = cout) ; 
 
-/** Relative difference between two {\tt Tensor} (max version).
+/** Relative difference between two \c Tensor  (max version).
  * @param aa first tensor
  * @param bb second tensor
- * @param comment comment to be printed on {\tt ost} before the result
+ * @param comment comment to be printed on \c ost  before the result
  *    (default: 0x0 = nothing printed)
  * @param ost output stream for a formatted output of the result
- * @return 2-D {\tt Tbl} of size the number of independent components
- *	times the number of domains, the elements {\tt (i,l)}
+ * @return 2-D \c Tbl  of size the number of independent components
+ *	times the number of domains, the elements \c (i,l) 
  *     of which 
- *	   are {\tt max[abs(a(l)-b(l))]/max[abs(b(l))]} if {\tt b(l)!=0} and
- *	   {\tt max[abs(a(l)-b(l))]} if  {\tt b(l)=0}, where {\tt a(l)} and 
- *	   {\tt b(l)} denote symbolically the values of {\tt aa} and {\tt bb} 
- *	   in domain no. {\tt l} and for component no.{\tt i}. 
+ *	   are \c max[abs(a(l)-b(l))]/max[abs(b(l))]  if \c b(l)!=0  and
+ *	   \c max[abs(a(l)-b(l))]  if  \c b(l)=0 , where \c a(l)  and 
+ *	   \c b(l)  denote symbolically the values of \c aa  and \c bb  
+ *	   in domain no. \c l  and for component no.\c i . 
  */
 Tbl diffrelmax(const Tensor& aa, const Tensor& bb, const char* comment = 0x0,
                ostream& ost = cout) ; 
 
-//@}
+/** @} */
 
 
 /**
- * @name Tensor arithmetics
+ * \defgroup tens_ari Tensor arithmetics
+ * \ingroup (tensor)
+ * @{
  */
-    //@{
-Tensor operator+(const Tensor& ) ;			/// + Tensor
-Tensor operator-(const Tensor& ) ;			/// - Tensor
-Tensor operator+(const Tensor& a, const Tensor& b) ;	/// Tensor + Tensor
 
-/// Tensor + Scalar. The {\tt Tensor} must be of valence 0.
+Tensor operator+(const Tensor& ) ;			///< + Tensor
+Tensor operator-(const Tensor& ) ;			///< \c - Tensor
+Tensor operator+(const Tensor& a, const Tensor& b) ;	///< Tensor + Tensor
+
+/// Tensor + Scalar. The \c Tensor  must be of valence 0.
 Scalar operator+(const Tensor& a, const Scalar& b) ;	
 
-/// Scalar + Tensor. The {\tt Tensor} must be of valence 0.
+/// Scalar + Tensor. The \c Tensor  must be of valence 0.
 Scalar operator+(const Scalar& a, const Tensor& b) ;	
 
-Tensor operator-(const Tensor& a, const Tensor& b) ;    /// Tensor - Tensor
+Tensor operator-(const Tensor& a, const Tensor& b) ;    ///< Tensor - Tensor
 
-/// Tensor - Scalar. The {\tt Tensor} must be of valence 0.
+/// Tensor - Scalar. The \c Tensor  must be of valence 0.
 Scalar operator-(const Tensor& a, const Scalar& b) ;	
 
-/// Scalar - Tensor. The {\tt Tensor} must be of valence 0.
+/// Scalar - Tensor. The \c Tensor must be of valence 0.
 Scalar operator-(const Scalar& a, const Tensor& b) ;	
 
-Tensor operator*(const Scalar& a , const Tensor& b) ;   /// Scalar * Tensor
-Tensor operator*(const Tensor& a, const Scalar& b) ;    /// Tensor * Scalar 
-Tensor operator*(double , const Tensor&) ;              /// double * Tensor
-Tensor operator* (const Tensor&, double) ;              /// Tensor * double
-Tensor operator*(int, const Tensor &) ;                 /// int* Tensor
-Tensor operator*(const Tensor&, int) ;                 /// Tensor * int
-Tensor operator/(const Tensor&, const Scalar&) ;       /// Tensor / Scalar
-Tensor operator/(const Tensor&, double) ;              /// Tensor / double
-Tensor operator/(const Tensor&, int) ;                 /// Tensor / int
+Tensor operator*(const Scalar& a , const Tensor& b) ;   ///< Scalar * Tensor
+Tensor operator*(const Tensor& a, const Scalar& b) ;    ///< Tensor * Scalar 
+Tensor operator*(double , const Tensor&) ;              ///< double * Tensor
+Tensor operator* (const Tensor&, double) ;              ///< Tensor * double
+Tensor operator*(int, const Tensor &) ;                 ///< int* Tensor
+Tensor operator*(const Tensor&, int) ;                 ///< Tensor * int
+Tensor operator/(const Tensor&, const Scalar&) ;       ///< Tensor / Scalar
+Tensor operator/(const Tensor&, double) ;              ///< Tensor / double
+Tensor operator/(const Tensor&, int) ;                 ///< Tensor / int
 
     //@}
 
 /**
- * @name Tensor\_sym arithmetics
+ * @name Tensor_sym arithmetics
  */
     //@{
-/** + Tensor\_sym.  For efficiency reasons this function is 
- *  distinct from {\tt Tensor operator+(const Tensor\& )}.
+/** + Tensor_sym.  For efficiency reasons this function is 
+ *  distinct from \c Tensor \c operator+(const Tensor\& ) .
  */
 Tensor_sym operator+(const Tensor_sym&) ;  
 
-/** - Tensor\_sym.  For efficiency reasons this function is 
- *  distinct from {\tt Tensor operator+(const Tensor\& )}.
+/** - Tensor_sym.  For efficiency reasons this function is 
+ *  distinct from \c Tensor \c operator+(const Tensor\& ).
  */
 Tensor_sym operator-(const Tensor_sym&) ;  
 
-/** Tensor\_sym + Tensor\_sym.  For efficiency reasons this function is 
+/** Tensor_sym + Tensor_sym.  For efficiency reasons this function is 
  *  distinct
- *  from {\tt Tensor operator+(const Tensor\&, const Tensor\&)}.
+ *  from \c Tensor \c operator+(const Tensor\&, const Tensor\& ).
  */
 Tensor_sym operator+(const Tensor_sym&, const Tensor_sym&) ;  
 
-Tensor operator-(const Tensor&, const Tensor &) ;       /// Tensor - Tensor
-/** Tensor\_sym - Tensor\_sym. For efficiency reasons this function is 
+Tensor operator-(const Tensor&, const Tensor &) ;       ///< Tensor - Tensor
+/** Tensor_sym - Tensor_sym. For efficiency reasons this function is 
  *  distinct
- *  from {\tt Tensor operator-(const Tensor\&, const Tensor\&)}.
+ *  from \c Tensor \c operator-(const Tensor\&, const Tensor\&) .
  */
 Tensor_sym operator-(const Tensor_sym&, const Tensor_sym&) ;  
 
-/** Scalar * Tensor\_sym. For efficiency reasons this function is distinct
- *  from {\tt Tensor operator*(const Scalar\&, const Tensor\&)}.
+/** Scalar * Tensor_sym. For efficiency reasons this function is distinct
+ *  from \c Tensor \c operator*(const Scalar\&, const Tensor\&) .
  */
 Tensor_sym operator*(const Scalar& a, const Tensor_sym& b) ;   
 
-/** Tensor\_sym * Scalar. For efficiency reasons this function is distinct
- *  from {\tt Tensor operator*(const Tensor\&, const Scalar\&)}.
+/** Tensor_sym * Scalar. For efficiency reasons this function is distinct
+ *  from \c Tensor \c operator*(const Tensor\&, const Scalar\&) .
  */
 Tensor_sym operator*(const Tensor_sym& a, const Scalar& b) ;  
 
-/** double * Tensor\_sym. For efficiency reasons this function is distinct
- *  from {\tt Tensor operator*(double, const Tensor\&)}.
+/** double * Tensor_sym. For efficiency reasons this function is distinct
+ *  from \c Tensor \c operator*(double, const Tensor\&) .
  */
 Tensor_sym operator*(double, const Tensor_sym&) ;  
 
-/**  Tensor\_sym * double. For efficiency reasons this function is distinct
- *  from {\tt Tensor operator*(const Tensor\&, double)}.
+/**  Tensor_sym * double. For efficiency reasons this function is distinct
+ *  from \c Tensor \c operator*(const Tensor\&, double) .
  */
 Tensor_sym operator*(const Tensor_sym&, double) ;  
 
-/** int * Tensor\_sym. For efficiency reasons this function is distinct
- *  from {\tt Tensor operator*(int, const Tensor\&)}.
+/** int * Tensor_sym. For efficiency reasons this function is distinct
+ *  from \c Tensor \c operator*(int, const Tensor\&) .
  */
 Tensor_sym operator*(int, const Tensor_sym&) ;  
 
-/**  Tensor\_sym * int. For efficiency reasons this function is distinct
- *  from {\tt Tensor operator*(const Tensor\&, int)}.
+/**  Tensor_sym * int. For efficiency reasons this function is distinct
+ *  from \c Tensor \c operator*(const Tensor\&, int) .
  */
 Tensor_sym operator*(const Tensor_sym&, int) ;  
 
-/** Tensor\_sym / Scalar. For efficiency reasons this function is distinct
- *  from {\tt Tensor operator/(const Tensor\&, const Scalar\&)}.
+/** Tensor_sym / Scalar. For efficiency reasons this function is distinct
+ *  from \c Tensor \c operator/(const Tensor\&, const Scalar\&) .
  */
 Tensor_sym operator/(const Tensor_sym&, const Scalar&) ;  
 
-/**  Tensor\_sym / double. For efficiency reasons this function is distinct
- *  from {\tt Tensor operator/(const Tensor\&, double)}.
+/**  Tensor_sym / double. For efficiency reasons this function is distinct
+ *  from \c Tensor \c operator/(const Tensor\&, double) .
  */
 Tensor_sym operator/(const Tensor_sym&, double) ;  
 
-/**  Tensor\_sym / int. For efficiency reasons this function is distinct
- *  from {\tt Tensor operator/(const Tensor\&, int)}.
+/**  Tensor_sym / int. For efficiency reasons this function is distinct
+ *  from \c Tensor \c operator/(const Tensor\&, int) .
  */
 Tensor_sym operator/(const Tensor_sym&, int) ;  
 
-    //@}
+/** @} */
 
 
 #include "scalar.h"

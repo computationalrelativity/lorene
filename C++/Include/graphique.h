@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/03/22 13:12:41  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.11  2004/02/17 22:15:26  e_gourgoulhon
  * -- Modified prototypes of des_profile's and des_profile_mult's
  * -- Added des_profile_mult with arbitrary x sampling
@@ -161,15 +164,16 @@ class Binaire ;
 class Bin_ns_ncp ;
 template<typename TyT> class Evolution ; 
 
-    /** @name Basic 2-D routines.
-     */
-    //@{     
-
+/**
+ * \defgroup graf2D Basic 2-D routines.
+ *  \ingroup (graphics)
+ * @{
+ */
 
 /** Basic routine for drawing a single profile with uniform x sampling.
  *  A profile is a function y=y(x). 
  *
- *  @param uutab [input] Array (size: {\tt nx}) of y values to be drawn
+ *  @param uutab [input] Array (size: \c nx ) of y values to be drawn
  *			 (the x sampling is supposed to be uniform).
  *  @param nx [input] Number of points
  *  @param xmin [input] lowest value of x
@@ -189,7 +193,7 @@ void des_profile(const float* uutab, int nx, float xmin, float xmax,
 /** Basic routine for drawing multiple profiles with uniform x sampling.
  *  A profile is a function y=y(x). 
  *
- *  @param uutab [input] Array (size: {\tt nprof}*{\tt nx}) of y values to be drawn
+ *  @param uutab [input] Array (size: \c nprof *\c nx ) of y values to be drawn
  *			 (the x sampling is supposed to be uniform).
  *  @param nprof [input] Number of profiles
  *  @param nx [input] Number of points for each profile
@@ -198,14 +202,14 @@ void des_profile(const float* uutab, int nx, float xmin, float xmax,
  *  @param nomx [input] x legend of the figure
  *  @param nomy [input] y legend of the figure
  *  @param title [input] title of the figure
- *  @param line_style [input] Array (size {\tt nprof}) defining the line style
- *      for each plot: the possible values are {\tt line\_style[i] = 1} 
+ *  @param line_style [input] Array (size \c nprof ) defining the line style
+ *      for each plot: the possible values are \c line_style[i] = 1  
  * (full line), 2 (dashed), 3 (dot-dash-dot-dash), 4 (dotted), 5 
  * (dash-dot-dot-dot). The value = 0x0 corresponds to a cyclic sequence
  * of the above styles.  
  *  @param ngraph [input] Index of the graphic device (in the range [0,99])
  *  to be used for the plot: if this device has never been used or is closed, 
- *    it will be opened with the name {\tt device} provided by the last
+ *    it will be opened with the name \c device  provided by the last
  *      argument. 
  *  @param closeit [input] determines whether the device must be closed or not
  *      after the plot has been performed
@@ -222,23 +226,23 @@ void des_profile_mult(const float* uutab, int nprof, int nx,
 /** Basic routine for drawing multiple profiles with arbitrary x sampling.
  *  A profile is a function y=y(x). 
  *
- *  @param uutab [input] Array (size: {\tt nprof}*{\tt nx}) of y values to be drawn
+ *  @param uutab [input] Array (size: \c nprof *\c nx ) of y values to be drawn
  *			 (the x sampling is supposed to be uniform).
  *  @param nprof [input] Number of profiles
  *  @param nx [input] Number of points for each profile
- *  @param xtab [input] Array (size: {\tt nprof}*{\tt nx}) of x values for each
+ *  @param xtab [input] Array (size: \c nprof *\c nx ) of x values for each
  *              profile
  *  @param nomx [input] x legend of the figure
  *  @param nomy [input] y legend of the figure
  *  @param title [input] title of the figure
- *  @param line_style [input] Array (size {\tt nprof}) defining the line style
- *      for each plot: the possible values are {\tt line\_style[i] = 1} 
+ *  @param line_style [input] Array (size \c nprof ) defining the line style
+ *      for each plot: the possible values are \c line_style[i] = 1  
  * (full line), 2 (dashed), 3 (dot-dash-dot-dash), 4 (dotted), 5 
  * (dash-dot-dot-dot). The value = 0x0 corresponds to a cyclic sequence
  * of the above styles.  
  *  @param ngraph [input] Index of the graphic device (in the range [0,99])
  *  to be used for the plot: if this device has never been used or is closed, 
- *    it will be opened with the name {\tt device} provided by the last
+ *    it will be opened with the name \c device  provided by the last
  *      argument. 
  *  @param closeit [input] determines whether the device must be closed or not
  *      after the plot has been performed
@@ -259,8 +263,8 @@ void des_profile_mult(const float* uutab, int nprof, int nx,
  *
  *  @param uutab [input] field to be drawn;  
  *	    the value of the field a the point of coordinates \\
- *		      x\_i = xmin + i (xmax-xmin)/(nx-1)     0 <= i <= nx-1 \\  
- *		      y\_j = ymin + j (ymax-ymin)/(ny-1)     0 <= j <= ny-1 \\
+ *		      x_i = xmin + i (xmax-xmin)/(nx-1)     0 <= i <= nx-1 \\  
+ *		      y_j = ymin + j (ymax-ymin)/(ny-1)     0 <= j <= ny-1 \\
  *     must be stored at the following position in the float 1-D array uu : \\
  *			index = j * nx + i 
  *  @param nx [input]  number of points in the x direction
@@ -283,10 +287,10 @@ void des_profile_mult(const float* uutab, int nprof, int nx,
  *			    
  *  @param nxpage [input] number of graphs in the horizontal direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  *  @param nypage [input] number of graphs in the vertical direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  */
 void des_equipot(float* uutab, int nx, int ny, float xmin, float xmax, 
 		 float ymin, float ymax, int ncour, char* nomx, char* nomy, 
@@ -298,24 +302,24 @@ void des_equipot(float* uutab, int nx, int ny, float xmin, float xmax,
  *
  *  @param vvx [input] x-component of the vector field to be drawn ;  
  *	    the value of the field a the point of coordinates \\
- *		      x\_i = xmin + i (xmax-xmin)/(nx-1)     0 <= i <= nx-1 \\  
- *		      y\_j = ymin + j (ymax-ymin)/(ny-1)     0 <= j <= ny-1 \\
+ *		      x_i = xmin + i (xmax-xmin)/(nx-1)     0 <= i <= nx-1 \\  
+ *		      y_j = ymin + j (ymax-ymin)/(ny-1)     0 <= j <= ny-1 \\
  *     must be stored at the following position in the float 1-D array uu : \\
  *			index = j * nx + i 
  *  @param vvy [input] y-component of the vector field to be drawn ;  
- *		       same storage as {\tt vvx}.
+ *		       same storage as \c vvx .
  *  @param nx [input]  number of points in the x direction
  *  @param ny [input]  number of points in the y direction
  *  @param xmin [input] lowest value of x 
  *  @param xmax [input] highest value of x 
  *  @param ymin [input] lowest value of y 
  *  @param ymax [input] highest value of y
- *  @param scale [input] controls the length of the drawn arrows; if {\tt scale}
+ *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
  *			 the routine: \\
- *			{\tt scale = -1} : max. length = step of the rectangular
+ *			\c scale = -1  : max. length = step of the rectangular
  *					   grid \\ 
- *			{\tt scale = -2} : max. length = 2* step of the rectangular
+ *			\c scale = -2  : max. length = 2* step of the rectangular
  *					   grid \\ 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
@@ -332,10 +336,10 @@ void des_equipot(float* uutab, int nx, int ny, float xmin, float xmax,
  *			    
  *  @param nxpage [input] number of graphs in the horizontal direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  *  @param nypage [input] number of graphs in the vertical direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  */
 void des_vect(float* vvx, float* vvy, int nx, int ny, float xmin, float xmax, 
 		 float ymin, float ymax, double scale,  double sizefl, 
@@ -345,7 +349,7 @@ void des_vect(float* vvx, float* vvy, int nx, int ny, float xmin, float xmax,
 
 /** Basic routine for drawing spectral coefficients.
  *  
- *  @param cf  [input] 1-D array of the coefficients to be drawn (size: {\tt n})
+ *  @param cf  [input] 1-D array of the coefficients to be drawn (size: \c n )
  *  @param n  [input] number of coefficients
  *  @param pzero [input] positive number under which (in absolute value)
  *		        a coefficient will be considered as zero 
@@ -362,36 +366,38 @@ void des_vect(float* vvx, float* vvy, int nx, int ny, float xmin, float xmax,
  *			    
  *  @param nxpage [input] number of graphs in the horizontal direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  *  @param nypage [input] number of graphs in the vertical direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  */
 void des_coef(const double* cf, int n, double pzero,
 	      char* nomx, char* nomy, char* title, char* device = 0x0, 
 	      int newgraph = 3, int nxpage = 1, int nypage = 1) ;
 
-    //@}
+/** @} */
     
-    /** @name Plots of spectral coefficients
-     */
-    //@{     
+/**
+ * \defgroup grafspec Plots of spectral coefficients.
+ *  \ingroup (graphics)
+ * @{
+ */
 
-/** Plots the coefficients of the spectral expansion in $\xi$ of a {\tt Valeur}.
+/** Plots the coefficients of the spectral expansion in \f$\xi\f$ of a \c Valeur .
  * 
  *  This routine performs a logarithmic plot of the coefficients of the
- *  $\xi$ expansion of the coefficient which is in front of a given
- *  $\phi'$ basis function (index {\tt k}) and a given $\theta'$
- *  basis function (index {\tt j}) in the general spectral expansion of a
+ *  \f$\xi\f$ expansion of the coefficient which is in front of a given
+ *  \f$\phi'\f$ basis function (index \c k ) and a given \f$\theta'\f$
+ *  basis function (index \c j ) in the general spectral expansion of a
  *  field. The plotted quantities are the logarithm of the absolute value
  *  of the coefficients, using solid lines (resp. dashed lines) for 
  *  positive coefficients (resp. negative coefficients). 
  * 
- *  @param uu [input] {\tt Valeur} the $\xi$ coefficients of which are to 
+ *  @param uu [input] \c Valeur  the \f$\xi\f$ coefficients of which are to 
  *		      be plotted
  *  @param l [input] index of the domain 
- *  @param k [input] index of the considered basis function in $\phi'$
- *  @param j [input] index of the considered basis function in $\theta'$
+ *  @param k [input] index of the considered basis function in \f$\phi'\f$
+ *  @param j [input] index of the considered basis function in \f$\theta'\f$
  *  @param pzero [input] positive number under which (in absolute value)
  *		        a coefficient will be considered as zero 
  *		        (default value = 1.e-14)
@@ -409,32 +415,32 @@ void des_coef(const double* cf, int n, double pzero,
  *			    
  *  @param nxpage [input] number of graphs in the horizontal direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  *  @param nypage [input] number of graphs in the vertical direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  */
 void des_coef_xi(const Valeur& uu, int l, int k, int j, double pzero = 1.e-14, 
 		 char* nomy = 0x0, char* title = 0x0, char* device = 0x0, 
 	         int newgraph = 3, int nxpage = 1, int nypage = 1) ;
 
 
-/** Plots the coefficients of the spectral expansion in $\theta'$ of a 
- * {\tt Valeur}.
+/** Plots the coefficients of the spectral expansion in \f$\theta'\f$ of a 
+ * \c Valeur .
  * 
  *  This routine performs a logarithmic plot of the coefficients of the
- *  $\theta'$ expansion of the coefficient which is in front of a given
- *  $\phi'$ basis function (index {\tt k}) and a given $\xi$
- *  basis function (index {\tt i}) in the general spectral expansion of a
+ *  \f$\theta'\f$ expansion of the coefficient which is in front of a given
+ *  \f$\phi'\f$ basis function (index \c k ) and a given \f$\xi\f$
+ *  basis function (index \c i ) in the general spectral expansion of a
  *  field. The plotted quantities are the logarithm of the absolute value
  *  of the coefficients, using solid lines (resp. dashed lines) for 
  *  positive coefficients (resp. negative coefficients). 
  * 
- *  @param uu [input] {\tt Valeur} the $\xi$ coefficients of which are to 
+ *  @param uu [input] \c Valeur  the \f$\xi\f$ coefficients of which are to 
  *		      be plotted
  *  @param l [input] index of the domain 
- *  @param k [input] index of the considered basis function in $\phi'$
- *  @param i [input] index of the considered basis function in $\xi$
+ *  @param k [input] index of the considered basis function in \f$\phi'\f$
+ *  @param i [input] index of the considered basis function in \f$\xi\f$
  *  @param pzero [input] positive number under which (in absolute value)
  *		        a coefficient will be considered as zero 
  *		        (default value = 1.e-14)
@@ -452,32 +458,32 @@ void des_coef_xi(const Valeur& uu, int l, int k, int j, double pzero = 1.e-14,
  *			    
  *  @param nxpage [input] number of graphs in the horizontal direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  *  @param nypage [input] number of graphs in the vertical direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  */
 void des_coef_theta(const Valeur& uu, int l, int k, int i, double pzero = 1.e-14, 
 		    char* nomy = 0x0, char* title = 0x0, char* device = 0x0, 
 	            int newgraph = 3, int nxpage = 1, int nypage = 1) ;
 		 
 		 
-/** Plots the coefficients of the spectral expansion in $\phi'$ of a 
- *  {\tt Valeur}.
+/** Plots the coefficients of the spectral expansion in \f$\phi'\f$ of a 
+ *  \c Valeur .
  * 
  *  This routine performs a logarithmic plot of the coefficients of the
- *  $\phi'$ expansion of the coefficient which is in front of a given
- *  $\theta'$ basis function (index {\tt j}) and a given $\xi$
- *  basis function (index {\tt i}) in the general spectral expansion of a
+ *  \f$\phi'\f$ expansion of the coefficient which is in front of a given
+ *  \f$\theta'\f$ basis function (index \c j ) and a given \f$\xi\f$
+ *  basis function (index \c i ) in the general spectral expansion of a
  *  field. The plotted quantities are the logarithm of the absolute value
  *  of the coefficients, using solid lines (resp. dashed lines) for 
  *  positive coefficients (resp. negative coefficients). 
  * 
- *  @param uu [input] {\tt Valeur} the $\xi$ coefficients of which are to 
+ *  @param uu [input] \c Valeur  the \f$\xi\f$ coefficients of which are to 
  *		      be plotted
  *  @param l [input] index of the domain 
- *  @param j [input] index of the considered basis function in $\theta'$
- *  @param i [input] index of the considered basis function in $\xi$
+ *  @param j [input] index of the considered basis function in \f$\theta'\f$
+ *  @param i [input] index of the considered basis function in \f$\xi\f$
  *  @param pzero [input] positive number under which (in absolute value)
  *		        a coefficient will be considered as zero 
  *		        (default value = 1.e-14)
@@ -495,50 +501,49 @@ void des_coef_theta(const Valeur& uu, int l, int k, int i, double pzero = 1.e-14
  *			    
  *  @param nxpage [input] number of graphs in the horizontal direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  *  @param nypage [input] number of graphs in the vertical direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  */
 void des_coef_phi(const Valeur& uu, int l, int j, int i, double pzero = 1.e-14, 
 		  char* nomy = 0x0, char* title = 0x0, char* device = 0x0, 
 	          int newgraph = 3, int nxpage = 1, int nypage = 1) ;
 
-/** Plots the coefficients of the functions $F_l(\theta', \phi')$ and
- *  $G_l(\theta', \phi')$ of a mapping of class {\tt Map\_et}. 
+/** Plots the coefficients of the functions \f$F_l(\theta', \phi')\f$ and
+ *  \f$G_l(\theta', \phi')\f$ of a mapping of class \c Map_et . 
  * 
  *  This routine performs a logarithmic plot of the coefficients of the
- *  $\theta'$ (resp. $\phi'$) expansion of the coefficient which is in front 
- *  of a given $\phi'$ (resp. $\theta'$) basis function (index {\tt k}
- *  (resp. index {\tt j})).
+ *  \f$\theta'\f$ (resp. \f$\phi'\f$) expansion of the coefficient which is in front 
+ *  of a given \f$\phi'\f$ (resp. \f$\theta'\f$) basis function (index \c k 
+ *  (resp. index \c j )).
  *  The plotted quantities are the logarithm of the absolute value
  *  of the coefficients, using solid lines (resp. dashed lines) for 
  *  positive coefficients (resp. negative coefficients). 
  * 
- *  @param mp [input] Mapping of class {\tt Map\_et}
+ *  @param mp [input] Mapping of class \c Map_et 
  *  @param lz [input] Index of the domain where the plot is to performed
  * 
  */
 void des_map_et(const Map_et& mp, int lz) ;
 
-
-    //@}
-
+/** @} */
 
 
-    /** @name 2-D plot of a scalar field
-     */
-    //@{     
+/**
+ * \defgroup grafscal Plot  of a scalar field.
+ *  \ingroup (graphics)
+ * @{
+ */
 
-
-/** Draws the profile of a {\tt Cmp} along some radial axis determined by
- *  a fixed value of $(\theta, \phi)$. 
+/** Draws the profile of a \c Cmp  along some radial axis determined by
+ *  a fixed value of \f$(\theta, \phi)\f$. 
  *
- *  @param uu [input] {\tt Cmp} to be drawn
- *  @param r_min [input] Minimal value of {\it r} for the drawing
- *  @param r_max [input] Maximal value of {\it r} for the drawing
- *  @param theta [input] Value of $\theta$ which defines the profile axis
- *  @param phi [input] Value of $\phi$ which defines the profile axis
+ *  @param uu [input] \c Cmp  to be drawn
+ *  @param r_min [input] Minimal value of \e r  for the drawing
+ *  @param r_max [input] Maximal value of \e r  for the drawing
+ *  @param theta [input] Value of \f$\theta\f$ which defines the profile axis
+ *  @param phi [input] Value of \f$\phi\f$ which defines the profile axis
  *  @param nomy [input] y legend of the figure (default value = 0x0,  
  *		        corresponds to no y legend)
  *  @param title [input] title of the figure (default value = 0x0, 
@@ -551,15 +556,15 @@ void des_profile(const Cmp& uu, double r_min, double r_max,
 		     char* title = 0x0 ) ;
 
 
-/** Draws the profile of a {\tt Cmp} along some radial axis determined by
- *  a fixed value of $(\theta, \phi)$. 
+/** Draws the profile of a \c Cmp  along some radial axis determined by
+ *  a fixed value of \f$(\theta, \phi)\f$. 
  *
- *  @param uu [input] {\tt Cmp} to be drawn
- *  @param r_min [input] Minimal value of {\it r} for the drawing
- *  @param r_max [input] Maximal value of {\it r} for the drawing
+ *  @param uu [input] \c Cmp  to be drawn
+ *  @param r_min [input] Minimal value of \e r  for the drawing
+ *  @param r_max [input] Maximal value of \e r  for the drawing
  *  @param scale scale factor for the radius in the plot
- *  @param theta [input] Value of $\theta$ which defines the profile axis
- *  @param phi [input] Value of $\phi$ which defines the profile axis
+ *  @param theta [input] Value of \f$\theta\f$ which defines the profile axis
+ *  @param phi [input] Value of \f$\phi\f$ which defines the profile axis
  *  @param nomx [input] x legend of the figure (default value = 0x0,  
  *		        corresponds to no x legend)
  *  @param nomy [input] y legend of the figure (default value = 0x0,  
@@ -572,14 +577,14 @@ void des_profile(const Cmp& uu, double r_min, double r_max,
 void des_profile(const Cmp& uu, double r_min, double r_max, double scale,
 		     double theta, double phi, char* nomx = 0x0, 
 		     char* nomy = 0x0, char* title= 0x0) ;
-/** Draws the profile of a {\tt Scalar} along some radial axis determined by
- *  a fixed value of $(\theta, \phi)$. 
+/** Draws the profile of a \c Scalar  along some radial axis determined by
+ *  a fixed value of \f$(\theta, \phi)\f$. 
  *
- *  @param uu [input] {\tt Cmp} to be drawn
- *  @param r_min [input] Minimal value of {\it r} for the drawing
- *  @param r_max [input] Maximal value of {\it r} for the drawing
- *  @param theta [input] Value of $\theta$ which defines the profile axis
- *  @param phi [input] Value of $\phi$ which defines the profile axis
+ *  @param uu [input] \c Cmp  to be drawn
+ *  @param r_min [input] Minimal value of \e r  for the drawing
+ *  @param r_max [input] Maximal value of \e r  for the drawing
+ *  @param theta [input] Value of \f$\theta\f$ which defines the profile axis
+ *  @param phi [input] Value of \f$\phi\f$ which defines the profile axis
  *  @param nomy [input] y legend of the figure (default value = 0x0,  
  *		        corresponds to no y legend)
  *  @param title [input] title of the figure (default value = 0x0, 
@@ -592,15 +597,15 @@ void des_profile(const Scalar& uu, double r_min, double r_max,
 		     char* title = 0x0 ) ;
 
 
-/** Draws the profile of a {\tt Scalar} along some radial axis determined by
- *  a fixed value of $(\theta, \phi)$. 
+/** Draws the profile of a \c Scalar  along some radial axis determined by
+ *  a fixed value of \f$(\theta, \phi)\f$. 
  *
- *  @param uu [input] {\tt Scalar} to be drawn
- *  @param r_min [input] Minimal value of {\it r} for the drawing
- *  @param r_max [input] Maximal value of {\it r} for the drawing
+ *  @param uu [input] \c Scalar  to be drawn
+ *  @param r_min [input] Minimal value of \e r  for the drawing
+ *  @param r_max [input] Maximal value of \e r  for the drawing
  *  @param scale scale factor for the radius in the plot
- *  @param theta [input] Value of $\theta$ which defines the profile axis
- *  @param phi [input] Value of $\phi$ which defines the profile axis
+ *  @param theta [input] Value of \f$\theta\f$ which defines the profile axis
+ *  @param phi [input] Value of \f$\phi\f$ which defines the profile axis
  *  @param nomx [input] x legend of the figure (default value = 0x0,  
  *		        corresponds to no x legend)
  *  @param nomy [input] y legend of the figure (default value = 0x0,  
@@ -615,21 +620,21 @@ void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
 		     char* nomy = 0x0, char* title= 0x0) ;
 
 
-/** Draws the profile of {\tt Scalar}'s along some radial axis determined by
- *  a fixed value of $(\theta, \phi)$. 
+/** Draws the profile of \c Scalar 's along some radial axis determined by
+ *  a fixed value of \f$(\theta, \phi)\f$. 
  *
- *  @param uu [input] Array (size {\tt nprof}) containing the addresses 
- *                    of the {\tt Scalar} to be drawn
- *  @param nprof [input] Number of {\tt Scalar}'s to be drawn
- *  @param r_min [input] Minimal value of {\it r} for the drawing
- *  @param r_max [input] Maximal value of {\it r} for the drawing
- *  @param theta [input] Array (size {\tt nprof}) of the values of $\theta$ 
- *      defining the profile axis for each plot: the line no.{\tt i} represents
- *      the scalar {\tt uu[i]} along the direction {\tt (theta[i],phi[i])}
- *  @param phi [input] Array (size {\tt nprof}) of the values of $\phi$ 
- *      defining the profile axis for each plot: the line no.{\tt i} represents
- *      the scalar {\tt uu[i]} along the direction {\tt (theta[i],phi[i])}
- *  @param radial_scale [input] factor by which the values of {\tt r} are to 
+ *  @param uu [input] Array (size \c nprof ) containing the addresses 
+ *                    of the \c Scalar  to be drawn
+ *  @param nprof [input] Number of \c Scalar 's to be drawn
+ *  @param r_min [input] Minimal value of \e r  for the drawing
+ *  @param r_max [input] Maximal value of \e r  for the drawing
+ *  @param theta [input] Array (size \c nprof ) of the values of \f$\theta\f$ 
+ *      defining the profile axis for each plot: the line no.\c i  represents
+ *      the scalar \c uu[i]  along the direction \c (theta[i],phi[i]) 
+ *  @param phi [input] Array (size \c nprof ) of the values of \f$\phi\f$ 
+ *      defining the profile axis for each plot: the line no.\c i  represents
+ *      the scalar \c uu[i]  along the direction \c (theta[i],phi[i]) 
+ *  @param radial_scale [input] factor by which the values of \c r  are to 
  *      be multiplied to get the abscidia scale 
  *  @param closeit [input] determines whether the graphic device must be closed or not
  *      after the plot has been performed
@@ -642,8 +647,8 @@ void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
  *    it will be opened. 
  *  @param nomx [input] x legend of the figure (default value = 0x0,  
  *		        corresponds to "r")
- *  @param line_style [input] Array (size {\tt nprof}) defining the line style
- *      for each plot: the possible values are {\tt line\_style[i] = 1} 
+ *  @param line_style [input] Array (size \c nprof ) defining the line style
+ *      for each plot: the possible values are \c line_style[i] = 1  
  * (full line), 2 (dashed), 3 (dot-dash-dot-dash), 4 (dotted), 5 
  * (dash-dot-dot-dot). The default value = 0x0 corresponds to a cyclic sequence
  * of the above styles. 
@@ -665,7 +670,7 @@ void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max,
  *  
  *  @param defsurf [input] field defining the 
  *			   surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes 
+ *			   where this \c Cmp  vanishes 
  *  @param x0 [input] value of the absolute coordinate X which defines the plane
  *		      of the drawing
  *  @param device [input] PGPLOT device (default value = 0x0)
@@ -684,10 +689,10 @@ void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max,
  *  @param title [input] title of the figure (default value = 0x0)
  *  @param nxpage [input] number of graphs in the horizontal direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  *  @param nypage [input] number of graphs in the vertical direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  */
 void des_surface_x(const Cmp& defsurf, double x0, char* device = 0x0, 
 		   int newgraph = 3, double y_min = -1, double y_max = 1, 
@@ -703,7 +708,7 @@ void des_surface_x(const Cmp& defsurf, double x0, char* device = 0x0,
  *  
  *  @param defsurf [input] field defining the 
  *			   surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes 
+ *			   where this \c Cmp  vanishes 
  *  @param y0 [input] value of the coordinate Y which defines the plane
  *		      of the drawing
  *  @param device [input] PGPLOT device (default value = 0x0)
@@ -722,10 +727,10 @@ void des_surface_x(const Cmp& defsurf, double x0, char* device = 0x0,
  *  @param title [input] title of the figure (default value = 0x0)
  *  @param nxpage [input] number of graphs in the horizontal direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  *  @param nypage [input] number of graphs in the vertical direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  */
 void des_surface_y(const Cmp& defsurf, double y0, char* device = 0x0, 
 		   int newgraph = 3, double x_min = -1, double x_max = 1, 
@@ -742,7 +747,7 @@ void des_surface_y(const Cmp& defsurf, double y0, char* device = 0x0,
  *  
  *  @param defsurf [input] field defining the 
  *			   surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes 
+ *			   where this \c Cmp  vanishes 
  *  @param z0 [input] value of the coordinate Z which defines the plane
  *		      of the drawing
  *  @param device [input] PGPLOT device (default value = 0x0)
@@ -761,10 +766,10 @@ void des_surface_y(const Cmp& defsurf, double y0, char* device = 0x0,
  *  @param title [input] title of the figure (default value = 0x0)
  *  @param nxpage [input] number of graphs in the horizontal direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  *  @param nypage [input] number of graphs in the vertical direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  */
 void des_surface_z(const Cmp& defsurf, double z0, char* device = 0x0, 
 		   int newgraph = 3, double x_min = -1, double x_max = 1, 
@@ -777,7 +782,7 @@ void des_surface_z(const Cmp& defsurf, double z0, char* device = 0x0,
  *  in a plane X=constant.
  * 
  *  X is the Cartesian coordinate relative to the absolute frame.  
- *  The domain outer boundary is defined by $\xi = 1$. 
+ *  The domain outer boundary is defined by \f$\xi = 1\f$. 
  *  
  *  @param mp [input] Mapping defining the various domains
  *  @param l0 [input] Index of the domain, the outer boundary of which is
@@ -800,10 +805,10 @@ void des_surface_z(const Cmp& defsurf, double z0, char* device = 0x0,
  *  @param title [input] title of the figure (default value = 0x0)
  *  @param nxpage [input] number of graphs in the horizontal direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  *  @param nypage [input] number of graphs in the vertical direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  */
 void des_domaine_x(const Map& mp, int l0, double x0, char* device = 0x0, 
 		   int newgraph = 3, double y_min = -1, double y_max = 1, 
@@ -816,7 +821,7 @@ void des_domaine_x(const Map& mp, int l0, double x0, char* device = 0x0,
  *  in a plane Y=constant.
  * 
  *  Y is the Cartesian coordinate relative to the absolute frame.  
- *  The domain outer boundary is defined by $\xi = 1$. 
+ *  The domain outer boundary is defined by \f$\xi = 1\f$. 
  *  
  *  @param mp [input] Mapping defining the various domains
  *  @param l0 [input] Index of the domain, the outer boundary of which is
@@ -839,10 +844,10 @@ void des_domaine_x(const Map& mp, int l0, double x0, char* device = 0x0,
  *  @param title [input] title of the figure (default value = 0x0)
  *  @param nxpage [input] number of graphs in the horizontal direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  *  @param nypage [input] number of graphs in the vertical direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  */
 void des_domaine_y(const Map& mp, int l0, double y0, char* device = 0x0, 
 		   int newgraph = 3, double x_min = -1, double x_max = 1, 
@@ -855,7 +860,7 @@ void des_domaine_y(const Map& mp, int l0, double y0, char* device = 0x0,
  *  in a plane Z=constant.
  * 
  *  Z is the Cartesian coordinate relative to the absolute frame.  
- *  The domain outer boundary is defined by $\xi = 1$. 
+ *  The domain outer boundary is defined by \f$\xi = 1\f$. 
  *  
  *  @param mp [input] Mapping defining the various domains
  *  @param l0 [input] Index of the domain, the outer boundary of which is
@@ -878,10 +883,10 @@ void des_domaine_y(const Map& mp, int l0, double y0, char* device = 0x0,
  *  @param title [input] title of the figure (default value = 0x0)
  *  @param nxpage [input] number of graphs in the horizontal direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  *  @param nypage [input] number of graphs in the vertical direction of the
  *			  display window (meaningfull only if 
- *			  {\tt newgraph} = 1 or 3) (default value = 1)
+ *			  \c newgraph  = 1 or 3) (default value = 1)
  */
 void des_domaine_z(const Map& mp, int l0, double z0, char* device = 0x0, 
 		   int newgraph = 3, double x_min = -1, double x_max = 1, 
@@ -891,27 +896,27 @@ void des_domaine_z(const Map& mp, int l0, double z0, char* device = 0x0,
 
 
 
-/** Draws isocontour lines of a {\tt Cmp} in a plane X=constant.
+/** Draws isocontour lines of a \c Cmp  in a plane X=constant.
  *
  *  X is the Cartesian coordinate relative to the absolute frame.  
  *  Solid (resp. dashed) lines correspond to positive (resp. negative)
  *  values of the field. 
  *
- *  @param uu [input] {\tt Cmp} to be drawn
+ *  @param uu [input] \c Cmp  to be drawn
  *  @param x0 [input] value of the coordinate X which defines the plane
  *		      of the drawing
  *  @param nzdes [input] number of domains for which the plot is performed:
  *			the size of the graphic window is determined so that
- *			the {\tt nzdes} innermost domains fit in it (for
- *			{\tt zoom} = 1.)
+ *			the \c nzdes  innermost domains fit in it (for
+ *			\c zoom  = 1.)
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
- *  @param defsurf [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf [input] pointer on a \c Cmp  giving the definition of the 
  *			   surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
  *  @param zoom [input] Factor by which the size of the graphic window 
- *			(determined from the size of the {\tt nzdes} innermost 
+ *			(determined from the size of the \c nzdes  innermost 
  *			 domains) is multiplied (default value = 1.2)
  *  @param draw_bound [input] true for drawing the boundaries of the various
  *			      domains (default value = true)
@@ -925,14 +930,14 @@ void des_coupe_x(const Cmp& uu, double x0, int nzdes, char* title = 0x0,
 		 int nz = 100) ; 
 
 
-/** Draws isocontour lines of a {\tt Cmp} in a plane X=constant
+/** Draws isocontour lines of a \c Cmp  in a plane X=constant
  *  within a specified graphic window. 
  *
  *  X is the Cartesian coordinate relative to the absolute frame.  
  *  Solid (resp. dashed) lines correspond to positive (resp. negative)
  *  values of the field. 
  *
- *  @param uu [input] {\tt Cmp} to be drawn
+ *  @param uu [input] \c Cmp  to be drawn
  *  @param x0 [input] value of the coordinate X which defines the plane
  *		      of the drawing
  *  @param y_min [input] lowest value of absol. coord. Y 
@@ -941,9 +946,9 @@ void des_coupe_x(const Cmp& uu, double x0, int nzdes, char* title = 0x0,
  *  @param z_max [input] highest value of absol. coord. Z
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
- *  @param defsurf [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf [input] pointer on a \c Cmp  giving the definition of the 
  *			   surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
  *  @param draw_bound [input] true for drawing the boundaries of the various
  *			      domains (default value = true)
@@ -957,27 +962,27 @@ void des_coupe_x(const Cmp& uu, double x0, double y_min, double y_max,
 		 int ncour = 15, int ny = 100, int nz = 100) ; 
 
 
-/** Draws isocontour lines of a {\tt Cmp} in a plane Y=constant.
+/** Draws isocontour lines of a \c Cmp  in a plane Y=constant.
  *
  *  Y is the Cartesian coordinate relative to the absolute frame.  
  *  Solid (resp. dashed) lines correspond to positive (resp. negative)
  *  values of the field. 
  *
- *  @param uu [input] {\tt Cmp} to be drawn
+ *  @param uu [input] \c Cmp  to be drawn
  *  @param y0 [input] value of the coordinate Y which defines the plane
  *		      of the drawing
  *  @param nzdes [input] number of domains for which the plot is performed:
  *			the size of the graphic window is determined so that
- *			the {\tt nzdes} innermost domains fit in it (for
- *			{\tt zoom} = 1.)
+ *			the \c nzdes  innermost domains fit in it (for
+ *			\c zoom  = 1.)
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
- *  @param defsurf [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf [input] pointer on a \c Cmp  giving the definition of the 
  *			   surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
  *  @param zoom [input] Factor by which the size of the graphic window 
- *			(determined from the size of the {\tt nzdes} innermost 
+ *			(determined from the size of the \c nzdes  innermost 
  *			 domains) is multiplied (default value = 1.2)
  *  @param draw_bound [input] true for drawing the boundaries of the various
  *			      domains (default value = true)
@@ -990,14 +995,14 @@ void des_coupe_y(const Cmp& uu, double y0, int nzdes, char* title = 0x0,
 		 bool draw_bound = true, int ncour = 15, int nx = 100, 
 		 int nz = 100) ; 
 
-/** Draws isocontour lines of a {\tt Cmp} in a plane Y=constant
+/** Draws isocontour lines of a \c Cmp  in a plane Y=constant
  *  within a specified graphic window. 
  *
  *  Y is the Cartesian coordinate relative to the absolute frame.  
  *  Solid (resp. dashed) lines correspond to positive (resp. negative)
  *  values of the field. 
  *
- *  @param uu [input] {\tt Cmp} to be drawn
+ *  @param uu [input] \c Cmp  to be drawn
  *  @param y0 [input] value of the coordinate Y which defines the plane
  *		      of the drawing
  *  @param x_min [input] lowest value of absol. coord. X 
@@ -1006,9 +1011,9 @@ void des_coupe_y(const Cmp& uu, double y0, int nzdes, char* title = 0x0,
  *  @param z_max [input] highest value of absol. coord. Z
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
- *  @param defsurf [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf [input] pointer on a \c Cmp  giving the definition of the 
  *			   surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
  *  @param draw_bound [input] true for drawing the boundaries of the various
  *			      domains (default value = true)
@@ -1022,27 +1027,27 @@ void des_coupe_y(const Cmp& uu, double y0, double x_min, double x_max,
 		 int ncour = 15, int nx = 100, int nz = 100) ; 
 
 
-/** Draws isocontour lines of a {\tt Cmp} in a plane Z=constant.
+/** Draws isocontour lines of a \c Cmp  in a plane Z=constant.
  *
  *  Z is the Cartesian coordinate relative to the absolute frame.  
  *  Solid (resp. dashed) lines correspond to positive (resp. negative)
  *  values of the field. 
  *
- *  @param uu [input] {\tt Cmp} to be drawn
+ *  @param uu [input] \c Cmp  to be drawn
  *  @param z0 [input] value of the coordinate Z which defines the plane
  *		      of the drawing
  *  @param nzdes [input] number of domains for which the plot is performed:
  *			the size of the graphic window is determined so that
- *			the {\tt nzdes} innermost domains fit in it (for
- *			{\tt zoom} = 1.)
+ *			the \c nzdes  innermost domains fit in it (for
+ *			\c zoom  = 1.)
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
- *  @param defsurf [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf [input] pointer on a \c Cmp  giving the definition of the 
  *			   surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
  *  @param zoom [input] Factor by which the size of the graphic window 
- *			(determined from the size of the {\tt nzdes} innermost 
+ *			(determined from the size of the \c nzdes  innermost 
  *			 domains) is multiplied (default value = 1.2)
  *  @param draw_bound [input] true for drawing the boundaries of the various
  *			      domains (default value = true)
@@ -1055,14 +1060,14 @@ void des_coupe_z(const Cmp& uu, double z0, int nzdes, char* title = 0x0,
 		 bool draw_bound = true, int ncour = 15, int nx = 100, 
 		 int ny = 100) ;
 
-/** Draws isocontour lines of a {\tt Cmp} in a plane Z=constant
+/** Draws isocontour lines of a \c Cmp  in a plane Z=constant
  *  within a specified graphic window. 
  *
  *  Z is the Cartesian coordinate relative to the absolute frame.  
  *  Solid (resp. dashed) lines correspond to positive (resp. negative)
  *  values of the field. 
  *
- *  @param uu [input] {\tt Cmp} to be drawn
+ *  @param uu [input] \c Cmp  to be drawn
  *  @param z0 [input] value of the coordinate Z which defines the plane
  *		      of the drawing
  *  @param x_min [input] lowest value of absol. coord. X 
@@ -1071,9 +1076,9 @@ void des_coupe_z(const Cmp& uu, double z0, int nzdes, char* title = 0x0,
  *  @param y_max [input] highest value of absol. coord. Y
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
- *  @param defsurf [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf [input] pointer on a \c Cmp  giving the definition of the 
  *			   surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
  *  @param draw_bound [input] true for drawing the boundaries of the various
  *			      domains (default value = true)
@@ -1087,31 +1092,31 @@ void des_coupe_z(const Cmp& uu, double z0, double x_min, double x_max,
 		 int ncour = 15, int nx = 100, int ny = 100) ;
 
 
-/** Draws isocontour lines of a {\tt Cmp} in a plane Y=constant.
+/** Draws isocontour lines of a \c Cmp  in a plane Y=constant.
  *
  *  Y is the Cartesian coordinate relative to the absolute frame.  
  *  Solid (resp. dashed) lines correspond to positive (resp. negative)
  *  values of the field. The routine allows for the drawing of two
  *  surfaces given by two enthalpies (defsurf and defsurf2).
  *
- *  @param uu [input] {\tt Cmp} to be drawn
+ *  @param uu [input] \c Cmp  to be drawn
  *  @param y0 [input] value of the coordinate Y which defines the plane
  *		      of the drawing
  *  @param nzdes [input] number of domains for which the plot is performed:
  *			the size of the graphic window is determined so that
- *			the {\tt nzdes} innermost domains fit in it (for
- *			{\tt zoom} = 1.)
+ *			the \c nzdes  innermost domains fit in it (for
+ *			\c zoom  = 1.)
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
- *  @param defsurf [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf [input] pointer on a \c Cmp  giving the definition of the 
  *			   surface for the first fluid (see et_rot_biluid.h): 
  *                         the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
- *  @param defsurf2 [input] pointer on a {\tt Cmp} giving the definition of 
+ *  @param defsurf2 [input] pointer on a \c Cmp  giving the definition of 
  *			   the surface for the second fluid (analog to defsurf)
  *  @param zoom [input] Factor by which the size of the graphic window 
- *			(determined from the size of the {\tt nzdes} innermost 
+ *			(determined from the size of the \c nzdes  innermost 
  *			 domains) is multiplied (default value = 1.2)
  *  @param draw_bound [input] true for drawing the boundaries of the various
  *			      domains (default value = true)
@@ -1125,7 +1130,7 @@ void des_bi_coupe_y(const Cmp& uu, double y0, int nzdes, char* title = 0x0,
                  bool draw_bound = true, int ncour = 15, int nx = 100, 
                  int nz = 100) ; 
 
-/** Draws isocontour lines of a {\tt Cmp} in a plane Y=constant
+/** Draws isocontour lines of a \c Cmp  in a plane Y=constant
  *  within a specified graphic window. 
  *
  *  Y is the Cartesian coordinate relative to the absolute frame.  
@@ -1133,7 +1138,7 @@ void des_bi_coupe_y(const Cmp& uu, double y0, int nzdes, char* title = 0x0,
  *  values of the field. The routine allows for the drawing of two
  *  surfaces given by two enthalpies (defsurf and defsurf2).
  *
- *  @param uu [input] {\tt Cmp} to be drawn
+ *  @param uu [input] \c Cmp  to be drawn
  *  @param y0 [input] value of the coordinate Y which defines the plane
  *		      of the drawing
  *  @param x_min [input] lowest value of absol. coord. X 
@@ -1142,12 +1147,12 @@ void des_bi_coupe_y(const Cmp& uu, double y0, int nzdes, char* title = 0x0,
  *  @param z_max [input] highest value of absol. coord. Z
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
- *  @param defsurf [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf [input] pointer on a \c Cmp  giving the definition of the 
  *			   surface for the first fluid (see et_rot_biluid.h): 
  *                         the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
- *  @param defsurf2 [input] pointer on a {\tt Cmp} giving the definition of  
+ *  @param defsurf2 [input] pointer on a \c Cmp  giving the definition of  
  *			   the surface for the second fluid (analog to defsurf)
  *  @param draw_bound [input] true for drawing the boundaries of the various
  *			      domains (default value = true)
@@ -1162,15 +1167,15 @@ void des_bi_coupe_y(const Cmp& uu, double y0, double x_min, double x_max,
 		 int ncour = 15, int nx = 100, int nz = 100) ; 
 
 
-/** Draws isocontour lines of a the sum of two {\tt Cmp}'s in a plane X=constant.
+/** Draws isocontour lines of a the sum of two \c Cmp 's in a plane X=constant.
  *
  *  X is the Cartesian coordinate relative to the absolute frame.  
  *  Solid (resp. dashed) lines correspond to positive (resp. negative)
- *  values of the field {\tt uu1 + uu2}. 
+ *  values of the field \c uu1 + \c uu2 . 
  *
- *  @param uu1 [input] first {\tt Cmp} to define the field {\tt uu1 + uu2} to
+ *  @param uu1 [input] first \c Cmp  to define the field \c uu1 + \c uu2 to
  *		       be drawn.  
- *  @param uu2 [input] second {\tt Cmp} to define the field {\tt uu1 + uu2} to
+ *  @param uu2 [input] second \c Cmp  to define the field \c uu1 + \c uu2 to
  *		       be drawn.  
  *  @param x0 [input] value of the coordinate X which defines the plane
  *		      of the drawing
@@ -1180,13 +1185,13 @@ void des_bi_coupe_y(const Cmp& uu, double y0, double x_min, double x_max,
  *  @param z_max [input] highest value of absol. coord. Z
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
- *  @param defsurf1 [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf1 [input] pointer on a \c Cmp  giving the definition of the 
  *			   first surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
- *  @param defsurf2 [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf2 [input] pointer on a \c Cmp  giving the definition of the 
  *			   second surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
  *  @param draw_bound [input] true for drawing the boundaries of the various
  *			      domains (default value = true)
@@ -1201,15 +1206,15 @@ void des_coupe_bin_x(const Cmp& uu1, const Cmp& uu2, double x0, double y_min,
 		     int nz = 100) ; 
 
 
-/** Draws isocontour lines of a the sum of two {\tt Cmp}'s in a plane Y=constant.
+/** Draws isocontour lines of a the sum of two \c Cmp 's in a plane Y=constant.
  *
  *  Y is the Cartesian coordinate relative to the absolute frame.  
  *  Solid (resp. dashed) lines correspond to positive (resp. negative)
- *  values of the field {\tt uu1 + uu2}. 
+ *  values of the field \c uu1 \c uu2 . 
  *
- *  @param uu1 [input] first {\tt Cmp} to define the field {\tt uu1 + uu2} to
+ *  @param uu1 [input] first \c Cmp  to define the field \c uu1 \c uu2  to
  *		       be drawn.  
- *  @param uu2 [input] second {\tt Cmp} to define the field {\tt uu1 + uu2} to
+ *  @param uu2 [input] second \c Cmp  to define the field \c uu1 \c uu2  to
  *		       be drawn.  
  *  @param y0 [input] value of the coordinate Y which defines the plane
  *		      of the drawing
@@ -1219,13 +1224,13 @@ void des_coupe_bin_x(const Cmp& uu1, const Cmp& uu2, double x0, double y_min,
  *  @param z_max [input] highest value of absol. coord. Z
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
- *  @param defsurf1 [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf1 [input] pointer on a \c Cmp  giving the definition of the 
  *			   first surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
- *  @param defsurf2 [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf2 [input] pointer on a \c Cmp  giving the definition of the 
  *			   second surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
  *  @param draw_bound [input] true for drawing the boundaries of the various
  *			      domains (default value = true)
@@ -1240,15 +1245,15 @@ void des_coupe_bin_y(const Cmp& uu1, const Cmp& uu2, double y0, double x_min,
 		     int nz = 100) ; 
 
 
-/** Draws isocontour lines of a the sum of two {\tt Cmp}'s in a plane Z=constant.
+/** Draws isocontour lines of a the sum of two \c Cmp 's in a plane Z=constant.
  *
  *  Z is the Cartesian coordinate relative to the absolute frame.  
  *  Solid (resp. dashed) lines correspond to positive (resp. negative)
- *  values of the field {\tt uu1 + uu2}. 
+ *  values of the field \c uu1 \c uu2 . 
  *
- *  @param uu1 [input] first {\tt Cmp} to define the field {\tt uu1 + uu2} to
+ *  @param uu1 [input] first \c Cmp  to define the field \c uu1 \c uu2  to
  *		       be drawn.  
- *  @param uu2 [input] second {\tt Cmp} to define the field {\tt uu1 + uu2} to
+ *  @param uu2 [input] second \c Cmp  to define the field \c uu1 \c uu2  to
  *		       be drawn.  
  *  @param z0 [input] value of the coordinate Z which defines the plane
  *		      of the drawing
@@ -1258,13 +1263,13 @@ void des_coupe_bin_y(const Cmp& uu1, const Cmp& uu2, double y0, double x_min,
  *  @param y_max [input] highest value of absol. coord. Y
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
- *  @param defsurf1 [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf1 [input] pointer on a \c Cmp  giving the definition of the 
  *			   first surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
- *  @param defsurf2 [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf2 [input] pointer on a \c Cmp  giving the definition of the 
  *			   second surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
  *  @param draw_bound [input] true for drawing the boundaries of the various
  *			      domains (default value = true)
@@ -1278,13 +1283,14 @@ void des_coupe_bin_z(const Cmp& uu1, const Cmp& uu2, double z0, double x_min,
 		     bool draw_bound = true, int ncour = 15, int nx = 100, 
 		     int ny = 100) ; 
 
+/** @} */
 
-    //@}
 
-
-    /** @name 2-D plot of a vector field
-     */
-    //@{     
+/**
+ * \defgroup grafvec Plot of a vector field.
+ *  \ingroup (graphics)
+ * @{
+ */
 
 /** Plots a vector field in a plane X=constant.
  *
@@ -1293,27 +1299,27 @@ void des_coupe_bin_z(const Cmp& uu1, const Cmp& uu2, double z0, double x_min,
  *  @param vv [input] vector field to be drawn
  *  @param x0 [input] value of the coordinate X which defines the plane
  *		      of the drawing
- *  @param scale [input] controls the length of the drawn arrows; if {\tt scale}
+ *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
  *			 the routine: \\
- *			{\tt scale = -1} : max. length = step of the rectangular
+ *			\c scale = -1  : max. length = step of the rectangular
  *					   grid \\ 
- *			{\tt scale = -2} : max. length = 2* step of the rectangular
+ *			\c scale = -2  : max. length = 2* step of the rectangular
  *					   grid \\ 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
  *  @param nzdes [input] number of domains for which the plot is performed:
  *			the size of the graphic window is determined so that
- *			the {\tt nzdes} innermost domains fit in it (for
- *			{\tt zoom} = 1.)
+ *			the \c nzdes  innermost domains fit in it (for
+ *			\c zoom  = 1.)
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
- *  @param defsurf [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf [input] pointer on a \c Cmp  giving the definition of the 
  *			   surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
  *  @param zoom [input] Factor by which the size of the graphic window 
- *			(determined from the size of the {\tt nzdes} innermost 
+ *			(determined from the size of the \c nzdes  innermost 
  *			 domains) is multiplied (default value = 1.2)
  *  @param draw_bound [input] true for drawing the boundaries of the various
  *			      domains (default value = true)
@@ -1334,12 +1340,12 @@ void des_coupe_vect_x(const Tenseur& vv, double x0, double scale, double sizefl,
  *  @param vv [input] vector field to be drawn
  *  @param x0 [input] value of the coordinate X which defines the plane
  *		      of the drawing
- *  @param scale [input] controls the length of the drawn arrows; if {\tt scale}
+ *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
  *			 the routine: \\
- *			{\tt scale = -1} : max. length = step of the rectangular
+ *			\c scale = -1  : max. length = step of the rectangular
  *					   grid \\ 
- *			{\tt scale = -2} : max. length = 2* step of the rectangular
+ *			\c scale = -2  : max. length = 2* step of the rectangular
  *					   grid \\ 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
@@ -1349,9 +1355,9 @@ void des_coupe_vect_x(const Tenseur& vv, double x0, double scale, double sizefl,
  *  @param z_max [input] highest value of absol. coord. Z
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
- *  @param defsurf [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf [input] pointer on a \c Cmp  giving the definition of the 
  *			   surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
  *  @param draw_bound [input] true for drawing the boundaries of the various
  *			      domains (default value = true)
@@ -1370,27 +1376,27 @@ void des_coupe_vect_x(const Tenseur& vv, double x0, double scale, double
  *  @param vv [input] vector field to be drawn
  *  @param y0 [input] value of the coordinate Y which defines the plane
  *		      of the drawing
- *  @param scale [input] controls the length of the drawn arrows; if {\tt scale}
+ *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
  *			 the routine: \\
- *			{\tt scale = -1} : max. length = step of the rectangular
+ *			\c scale = -1  : max. length = step of the rectangular
  *					   grid \\ 
- *			{\tt scale = -2} : max. length = 2* step of the rectangular
+ *			\c scale = -2  : max. length = 2* step of the rectangular
  *					   grid \\ 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
  *  @param nzdes [input] number of domains for which the plot is performed:
  *			the size of the graphic window is determined so that
- *			the {\tt nzdes} innermost domains fit in it (for
- *			{\tt zoom} = 1.)
+ *			the \c nzdes  innermost domains fit in it (for
+ *			\c zoom  = 1.)
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
- *  @param defsurf [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf [input] pointer on a \c Cmp  giving the definition of the 
  *			   surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
  *  @param zoom [input] Factor by which the size of the graphic window 
- *			(determined from the size of the {\tt nzdes} innermost 
+ *			(determined from the size of the \c nzdes  innermost 
  *			 domains) is multiplied (default value = 1.2)
  *  @param draw_bound [input] true for drawing the boundaries of the various
  *			      domains (default value = true)
@@ -1411,12 +1417,12 @@ void des_coupe_vect_y(const Tenseur& vv, double y0, double scale, double sizefl,
  *  @param vv [input] vector field to be drawn
  *  @param y0 [input] value of the coordinate Y which defines the plane
  *		      of the drawing
- *  @param scale [input] controls the length of the drawn arrows; if {\tt scale}
+ *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
  *			 the routine: \\
- *			{\tt scale = -1} : max. length = step of the rectangular
+ *			\c scale = -1  : max. length = step of the rectangular
  *					   grid \\ 
- *			{\tt scale = -2} : max. length = 2* step of the rectangular
+ *			\c scale = -2  : max. length = 2* step of the rectangular
  *					   grid \\ 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
@@ -1426,9 +1432,9 @@ void des_coupe_vect_y(const Tenseur& vv, double y0, double scale, double sizefl,
  *  @param z_max [input] highest value of absol. coord. Z
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
- *  @param defsurf [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf [input] pointer on a \c Cmp  giving the definition of the 
  *			   surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
  *  @param draw_bound [input] true for drawing the boundaries of the various
  *			      domains (default value = true)
@@ -1447,27 +1453,27 @@ void des_coupe_vect_y(const Tenseur& vv, double y0, double scale, double
  *  @param vv [input] vector field to be drawn
  *  @param z0 [input] value of the coordinate Y which defines the plane
  *		      of the drawing
- *  @param scale [input] controls the length of the drawn arrows; if {\tt scale}
+ *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
  *			 the routine: \\
- *			{\tt scale = -1} : max. length = step of the rectangular
+ *			\c scale = -1  : max. length = step of the rectangular
  *					   grid \\ 
- *			{\tt scale = -2} : max. length = 2* step of the rectangular
+ *			\c scale = -2  : max. length = 2* step of the rectangular
  *					   grid \\ 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
  *  @param nzdes [input] number of domains for which the plot is performed:
  *			the size of the graphic window is determined so that
- *			the {\tt nzdes} innermost domains fit in it (for
- *			{\tt zoom} = 1.)
+ *			the \c nzdes  innermost domains fit in it (for
+ *			\c zoom  = 1.)
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
- *  @param defsurf [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf [input] pointer on a \c Cmp  giving the definition of the 
  *			   surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
  *  @param zoom [input] Factor by which the size of the graphic window 
- *			(determined from the size of the {\tt nzdes} innermost 
+ *			(determined from the size of the \c nzdes  innermost 
  *			 domains) is multiplied (default value = 1.2)
  *  @param draw_bound [input] true for drawing the boundaries of the various
  *			      domains (default value = true)
@@ -1488,12 +1494,12 @@ void des_coupe_vect_z(const Tenseur& vv, double z0, double scale, double sizefl,
  *  @param vv [input] vector field to be drawn
  *  @param z0 [input] value of the coordinate Z which defines the plane
  *		      of the drawing
- *  @param scale [input] controls the length of the drawn arrows; if {\tt scale}
+ *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
  *			 the routine: \\
- *			{\tt scale = -1} : max. length = step of the rectangular
+ *			\c scale = -1  : max. length = step of the rectangular
  *					   grid \\ 
- *			{\tt scale = -2} : max. length = 2* step of the rectangular
+ *			\c scale = -2  : max. length = 2* step of the rectangular
  *					   grid \\ 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
@@ -1503,9 +1509,9 @@ void des_coupe_vect_z(const Tenseur& vv, double z0, double scale, double sizefl,
  *  @param y_max [input] highest value of absol. coord. Y
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
- *  @param defsurf [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf [input] pointer on a \c Cmp  giving the definition of the 
  *			   surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
  *  @param draw_bound [input] true for drawing the boundaries of the various
  *			      domains (default value = true)
@@ -1522,18 +1528,18 @@ void des_coupe_vect_z(const Tenseur& vv, double z0, double scale, double
  *
  *  X is the Cartesian coordinate relative to the absolute frame.  
  *
- *  @param vv1 [input] first vector to define the field {\tt vv1 + vv2} to
+ *  @param vv1 [input] first vector to define the field \c vv1 + \c vv2  to
  *		       be drawn.  
- *  @param vv2 [input] second vector to define the field {\tt vv1 + vv2} to
+ *  @param vv2 [input] second vector to define the field \c vv1 + \c vv2  to
  *		       be drawn.  
  *  @param x0 [input] value of the coordinate X which defines the plane
  *		      of the drawing
- *  @param scale [input] controls the length of the drawn arrows; if {\tt scale}
+ *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
  *			 the routine: \\
- *			{\tt scale = -1} : max. length = step of the rectangular
+ *			\c scale = -1  : max. length = step of the rectangular
  *					   grid \\ 
- *			{\tt scale = -2} : max. length = 2* step of the rectangular
+ *			\c scale = -2  : max. length = 2* step of the rectangular
  *					   grid \\ 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
@@ -1543,13 +1549,13 @@ void des_coupe_vect_z(const Tenseur& vv, double z0, double scale, double
  *  @param z_max [input] highest value of absol. coord. Z
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
- *  @param defsurf1 [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf1 [input] pointer on a \c Cmp  giving the definition of the 
  *			   first surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
- *  @param defsurf2 [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf2 [input] pointer on a \c Cmp  giving the definition of the 
  *			   second surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
  *  @param draw_bound [input] true for drawing the boundaries of the various
  *			      domains (default value = true)
@@ -1567,18 +1573,18 @@ void des_vect_bin_x(const Tenseur& vv1, const Tenseur& vv2, double x0,
  *
  *  Y is the Cartesian coordinate relative to the absolute frame.  
  *
- *  @param vv1 [input] first vector to define the field {\tt vv1 + vv2} to
+ *  @param vv1 [input] first vector to define the field \c vv1 + \c vv2  to
  *		       be drawn.  
- *  @param vv2 [input] second vector to define the field {\tt vv1 + vv2} to
+ *  @param vv2 [input] second vector to define the field \c vv1 + \c vv2  to
  *		       be drawn.  
  *  @param y0 [input] value of the coordinate Y which defines the plane
  *		      of the drawing
- *  @param scale [input] controls the length of the drawn arrows; if {\tt scale}
+ *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
  *			 the routine: \\
- *			{\tt scale = -1} : max. length = step of the rectangular
+ *			\c scale = -1  : max. length = step of the rectangular
  *					   grid \\ 
- *			{\tt scale = -2} : max. length = 2* step of the rectangular
+ *			\c scale = -2  : max. length = 2* step of the rectangular
  *					   grid \\ 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
@@ -1588,13 +1594,13 @@ void des_vect_bin_x(const Tenseur& vv1, const Tenseur& vv2, double x0,
  *  @param z_max [input] highest value of absol. coord. Z
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
- *  @param defsurf1 [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf1 [input] pointer on a \c Cmp  giving the definition of the 
  *			   first surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
- *  @param defsurf2 [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf2 [input] pointer on a \c Cmp  giving the definition of the 
  *			   second surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp  vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
  *  @param draw_bound [input] true for drawing the boundaries of the various
  *			      domains (default value = true)
@@ -1612,18 +1618,18 @@ void des_vect_bin_y(const Tenseur& vv1, const Tenseur& vv2, double x0,
  *
  *  Z is the Cartesian coordinate relative to the absolute frame.  
  *
- *  @param vv1 [input] first vector to define the field {\tt vv1 + vv2} to
+ *  @param vv1 [input] first vector to define the field \c vv1 + \c vv2  to
  *		       be drawn.  
- *  @param vv2 [input] second vector to define the field {\tt vv1 + vv2} to
+ *  @param vv2 [input] second vector to define the field \c vv1 + \c vv2  to
  *		       be drawn.  
  *  @param z0 [input] value of the coordinate Z which defines the plane
  *		      of the drawing
- *  @param scale [input] controls the length of the drawn arrows; if {\tt scale}
+ *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
  *			 the routine: \\
- *			{\tt scale = -1} : max. length = step of the rectangular
+ *			\c scale = -1  : max. length = step of the rectangular
  *					   grid \\ 
- *			{\tt scale = -2} : max. length = 2* step of the rectangular
+ *			\c scale = -2  : max. length = 2* step of the rectangular
  *					   grid \\ 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
@@ -1633,13 +1639,13 @@ void des_vect_bin_y(const Tenseur& vv1, const Tenseur& vv2, double x0,
  *  @param y_max [input] highest value of absol. coord. Y
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
- *  @param defsurf1 [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf1 [input] pointer on a \c Cmp  giving the definition of the 
  *			   first surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
- *  @param defsurf2 [input] pointer on a {\tt Cmp} giving the definition of the 
+ *  @param defsurf2 [input] pointer on a \c Cmp  giving the definition of the 
  *			   second surface: the surface is defined as the location
- *			   where this {\tt Cmp} vanishes (default value = 0x0, 
+ *			   where this \c Cmp vanishes (default value = 0x0, 
  *			   corresponds to no surface plot)
  *  @param draw_bound [input] true for drawing the boundaries of the various
  *			      domains (default value = true)
@@ -1653,13 +1659,13 @@ void des_vect_bin_z(const Tenseur& vv1, const Tenseur& vv2, double x0,
 		    bool draw_bound = true, int nx = 20, int ny = 20) ;
 
 
-    //@}
+/** @} */
 
-
-
-    /** @name Time evolution graphs
-     */
-    //@{     
+/**
+ * \defgroup graftime Time evolution graphs.
+ *  \ingroup (graphics)
+ * @{
+ */
 
 /** Plots the variation of some quantity against time
  *
@@ -1678,8 +1684,8 @@ void des_vect_bin_z(const Tenseur& vv1, const Tenseur& vv2, double x0,
  *  to be used for the plot: if this device has never been used or is closed, 
  *    it will be opened. 
  *  @param nomx [input] x legend of the figure (default value = 0x0,  
- *		        corresponds to "t" if {\tt show\_time=true} and
- *                      to "j" if {\tt show\_time=false})
+ *		        corresponds to "t" if \c show_time=true  and
+ *                      to "j" if \c show_time=false )
  */
 void des_evol(const Evolution<double>& uu, int j_min, int j_max, 
     bool closeit = true, const char* nomy = 0x0, 
@@ -1687,8 +1693,7 @@ void des_evol(const Evolution<double>& uu, int j_min, int j_max,
     int ngraph = 0, const char* nomx = 0x0) ;
 
 
-
-    //@}
+/** @} */
 
 
 #endif

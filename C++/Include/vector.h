@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.27  2004/03/22 13:12:44  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.26  2004/03/10 12:52:19  f_limousin
  * Add a new argument "method" in poisson method.
  *
@@ -128,26 +131,25 @@ class Vector_divfree ;
 			
 
 /**
- * Tensor field of valence 1.
+ * Tensor field of valence 1. \ingroup(tensor)
  * 
- * @version #$Id$#
  */
 class Vector: public Tensor {
 
     // Derived data : 
     // ------------
     protected:
-        /** The potential $\phi$giving the gradient part in the Helmholtz 
-	 * decomposition of any 3D vector $\vec{V}: \quad \vec{V} = 
-	 * \vec{\nabla} \phi + \vec{\nabla} \wedge \vec{\psi}$.
+        /** The potential \f$\phi\f$ giving the gradient part in the Helmholtz 
+	 * decomposition of any 3D vector \f$\vec{V}: \quad \vec{V} = 
+	 * \vec{\nabla} \phi + \vec{\nabla} \wedge \vec{\psi}\f$.
 	 * Only in the case of contravariant vectors.
 	 */
         mutable Scalar* p_potential[N_MET_MAX] ;
 
-	/** The divergence-free vector $\vec{W} =  \vec{\nabla} \wedge 
-	 * \vec{\psi}$ of the Helmholtz decomposition of any 3D vector 
-	 *$\vec{V}: \quad \vec{V} = \vec{\nabla} \phi + \vec{\nabla} 
-	 *\wedge \vec{\psi}$. Only in the case of contravariant vectors.
+	/** The divergence-free vector \f$\vec{W} =  \vec{\nabla} \wedge 
+	 * \vec{\psi}\f$ of the Helmholtz decomposition of any 3D vector 
+	 *\f$\vec{V}: \quad \vec{V} = \vec{\nabla} \phi + \vec{\nabla} 
+	 *\wedge \vec{\psi}\f$. Only in the case of contravariant vectors.
 	 */
 	mutable Vector_divfree* p_div_free[N_MET_MAX] ;
 
@@ -157,8 +159,8 @@ class Vector: public Tensor {
 	/** Standard constructor.
 	 * 
 	 * @param map   the mapping 
-	 * @param tipe  the type {\tt COV} for a covariant vector (1-form) 
-	 *		and {\tt CON} for a contravariant one
+	 * @param tipe  the type \c COV  for a covariant vector (1-form) 
+	 *		and \c CON  for a contravariant one
 	 * @param triad_i  vectorial basis (triad) with respect to which 
 	 *		    the vector components are defined 
 	 */
@@ -167,21 +169,21 @@ class Vector: public Tensor {
 	/** Standard constructor with the triad passed as a pointer.
 	 * 
 	 * @param map   the mapping 
-	 * @param tipe  the type {\tt COV} for a covariant vector (1-form) 
-	 *		and {\tt CON} for a contravariant one
+	 * @param tipe  the type \c COV  for a covariant vector (1-form) 
+	 *		and \c CON  for a contravariant one
 	 * @param triad_i  pointer on the vectorial basis (triad) 
 	 * with respect to which the vector components are defined 
 	 */
 	Vector(const Map& map, int tipe, const Base_vect* triad_i) ;
 
-	Vector(const Vector& a) ;       /// Copy constructor
+	Vector(const Vector& a) ;       ///< Copy constructor
 
-	/** Constructor from a {\tt Tensor}.
-	 *  The {\tt Tensor} must be of valence one.
+	/** Constructor from a \c Tensor .
+	 *  The \c Tensor  must be of valence one.
 	 */
 	Vector(const Tensor& a) ;	
 
-	/** Constructor from a file (see {\tt Tensor::sauve(FILE* )}).
+	/** Constructor from a file (see \c Tensor::sauve(FILE*) ).
 	 * 
 	 * @param map  the mapping
 	 * @param triad_i   vectorial basis (triad) with respect to which 
@@ -189,30 +191,30 @@ class Vector: public Tensor {
 	 *			  be checked that it coincides with the basis
 	 *			  saved in the file.
 	 * @param fich  file which has been created by 
-	 *			    the function {\tt sauve(FILE* )}.
+	 *			    the function \c sauve(FILE*) .
 	 */
 	Vector(const Map& map, const Base_vect& triad_i, FILE* fich) ;
 
-	virtual ~Vector() ;			/// Destructor
+	virtual ~Vector() ;			///< Destructor
 
  
     // Memory management
     // -----------------
     protected:
-	virtual void del_deriv() const;	/// Deletes the derived quantities
+	virtual void del_deriv() const;	///< Deletes the derived quantities
 
 	/// Sets the pointers on derived quantities to 0x0
 	void set_der_0x0() const ; 
 
 	/**
 	 * Logical destructor of the derivatives depending on the i-th
-	 * element of {\tt met\_depend} in the class {\tt vector}.
+	 * element of \c met_depend  in the class \c Vector.
 	 */	
 	virtual void del_derive_met(int) const ;
 
 	/**
-	 * Sets all the i-th components of {\tt met\_depend} in the 
-	 * class {\tt Vector} ({\tt p\_potential}, etc...) to 0x0.
+	 * Sets all the i-th components of \c met_depend  in the 
+	 * class \c Vector  (\c p_potential , etc...) to 0x0.
 	 */
 	void set_der_met_0x0(int) const ;
 
@@ -232,16 +234,16 @@ class Vector: public Tensor {
 	virtual void operator=(const Tensor& a) ;	
 
 	/**Makes the Helmholtz decomposition (see documentation of
-	 * {\tt p_potential}) of {\tt this} with respect to a given
-	 * {\tt Metric}, only in the case of contravariant vectors.
+	 * \c p_potential ) of \c this  with respect to a given
+	 * \c Metric , only in the case of contravariant vectors.
 	 */
 	void decompose_div(const Metric&) const ;
 
 	/**Returns the potential in the Helmholtz decomposition.
 	 *
 	 * It first makes the Helmholtz decomposition (see documentation of
-	 * {\tt p_potential}) of {\tt this} with respect to a given
-	 * {\tt Metric} and then returns $\phi$. Only in the case
+	 * \c p_potential ) of \c this  with respect to a given
+	 * \c Metric  and then returns \f$\phi\f$. Only in the case
 	 * of contravariant vectors.
 	 */
 	const Scalar& potential(const Metric& ) const ;
@@ -249,8 +251,8 @@ class Vector: public Tensor {
 	/**Returns the div-free vector in the Helmholtz decomposition.
 	 *
 	 * It first makes the Helmholtz decomposition (see documentation of
-	 * {\tt p_potential}) of {\tt this} with respect to a given
-	 * {\tt Metric} and then returns $\vec{W}$. Only in the case
+	 * \c p_potential ) of \c this  with respect to a given
+	 * \c Metric  and then returns \f$\vec{W}\f$. Only in the case
 	 * of contravariant vectors.	
 	 */
 	const Vector_divfree& div_free(const Metric& ) const;
@@ -258,17 +260,17 @@ class Vector: public Tensor {
     // Accessors
     // ---------
     public:
-	Scalar& set(int ) ; /// Read/write access to a component
+	Scalar& set(int ) ; ///< Read/write access to a component
 
-	const Scalar& operator()(int ) const; ///Readonly access to a component
+	const Scalar& operator()(int ) const; ///<Readonly access to a component
 
 	/**
-	 * Returns the position in the {\tt Scalar} array {\tt cmp} of a 
+	 * Returns the position in the \c Scalar  array \c cmp  of a 
 	 * component given by its index.  
 	 *
-	 * @return position in the {\tt Scalar} array {\tt cmp}  
-	 * corresponding to the index given in {\tt idx}. {\tt idx}
-	 * must be a 1-D {\tt Itbl} of size 1, the element of which 
+	 * @return position in the \c Scalar  array \c cmp   
+	 * corresponding to the index given in \c idx . \c idx 
+	 * must be a 1-D \c Itbl  of size 1, the element of which 
 	 * must be one of the spatial indices 1, 2 or 3. 
 	 */
 	virtual int position(const Itbl& idx) const {
@@ -282,12 +284,12 @@ class Vector: public Tensor {
 
 	/**
 	 * Returns the index of a component given by its position in the 
-	 * {\tt Scalar} array {\tt cmp}. 
+	 * \c Scalar  array \c cmp . 
 	 *
-	 * @return the index is stored in an 1-D array ({\tt Itbl}) of
+	 * @return the index is stored in an 1-D array (\c Itbl ) of
 	 *         size 1 giving its value for the component located at 
-	 *         the position {\tt place} in the {\tt Scalar} array 
-	 *         {\tt cmp}. The element of this {\tt Itbl} 
+	 *         the position \c place  in the \c Scalar  array 
+	 *         \c cmp . The element of this \c Itbl  
 	 *	   corresponds to a spatial index 1, 2 or 3. 
 	 */
 	virtual Itbl indices(int place) const {
@@ -308,72 +310,72 @@ class Vector: public Tensor {
     // Differential operators/ PDE solvers
     // -----------------------------------
     public:
-	/**The divergence of {\tt this} with respect to a {\tt Metric}.
-	 * The {\tt Vector} is assumed to be contravariant.
+	/**The divergence of \c this  with respect to a \c Metric .
+	 * The \c Vector  is assumed to be contravariant.
 	 */
 	const Scalar& divergence(const Metric&) const ; 
 
-        /** Computes the Lie derivative of {\tt this} with respect to some
-         *  vector field {\tt v}
+        /** Computes the Lie derivative of \c this  with respect to some
+         *  vector field \c v 
          */
         Vector derive_lie(const Vector& v) const ; 
 
-	/**Solves the vector Poisson equation with {\tt *this} as a source.
+	/**Solves the vector Poisson equation with \c *this  as a source.
 	 * 
-	 * The equation solved is $\Delta N^i +\lambda \nabla^i 
-	 * \nabla_k N^k = S^i$.
-	 * {\tt *this} must be given with {\tt dzpuis} = 4.
+	 * The equation solved is \f$\Delta N^i +\lambda \nabla^i 
+	 * \nabla_k N^k = S^i\f$.
+	 * \c *this  must be given with \c dzpuis  = 4.
 	 * It uses the Helmholtz decomposition (see documentation of
-	 * {\tt p_potential}), with a flat metric, deduced from the triad.
+	 * \c p_potential ), with a flat metric, deduced from the triad.
 	 *
-	 * @param lambda [input] $\lambda$.
+	 * @param lambda [input] \f$\lambda\f$.
 	 * @param method [input] method used to solve the equation 
-	 * (see Vector::poisson(double, Metric\_flat, int) for details).
+	 * (see Vector::poisson(double, Metric_flat, int) for details).
 	 *
-	 * @return the solution $N^i$.
+	 * @return the solution \f$N^i\f$.
 	 */
 	Vector poisson(double lambda, int method = 0) const ;
      
-	/**Solves the vector Poisson equation with {\tt *this} as a source.
+	/**Solves the vector Poisson equation with \c *this  as a source.
 	 * 
-	 * The equation solved is $\Delta N^i +\lambda \nabla^i 
-	 * \nabla_k N^k = S^i$.
-	 * {\tt *this} must be given with {\tt dzpuis} = 4.
+	 * The equation solved is \f$\Delta N^i +\lambda \nabla^i 
+	 * \nabla_k N^k = S^i\f$.
+	 * \c *this  must be given with \c dzpuis  = 4.
 	 * It uses the Helmholtz decomposition (see documentation of
-	 * {\tt p_potential}), with the flat metric {\tt met\_f} given 
+	 * \c p_potential ), with the flat metric \c met_f  given 
 	 * in argument.
 	 *
-	 * @param lambda [input] $\lambda$.
+	 * @param lambda [input] \f$\lambda\f$.
 	 * @param met_f [input] the flat metric for the Helmholtz decomposition.
-	 * @param method [input] method used to solve the equation:\\
-	 *        0 : It uses the Helmholtz decomposition (see documentation of
-	 *            {\tt p_potential}), with the flat metric {\tt met\_f} given 
-	 *            in argument (the default).\\
-	 *        1 : It solves, first for the divergence (calculated using 
-	 *            {\tt met\_f}), then the {\it r}-component, the $\eta$ 
-	 *            potential, and fianlly the $\mu$ potential (see documentation
-	 *            of {\tt Vector\_div\_free}.\\
-	 *        2 : The sources is transformed to cartesian components and the 
-	 *            equation is solved using Shibata method (see Grancl\'ement 
-	 *            {\it et al.\/} JCPH 2001.
+	 * @param method [input] method used to solve the equation:
+	 *        \li 0 : It uses the Helmholtz decomposition (see documentation of
+	 *            \c p_potential ), with the flat metric \c met_f  given 
+	 *            in argument (the default).
+	 *        \li 1 : It solves, first for the divergence (calculated using 
+	 *            \c met_f ), then the \e r -component, the \f$\eta\f$ 
+	 *            potential, and fianlly the \f$\mu\f$ potential (see documentation
+	 *            of \c Vector_div_free .
+	 *        \li 2 : The sources is transformed to cartesian components and the 
+	 *            equation is solved using Shibata method (see Granclement 
+	 *            \e et \e al. JCPH 2001.
 	 *
-	 * @return the solution $N^i$.
+	 * @return the solution \f$N^i\f$.
 	 */
 	Vector poisson(double lambda, const Metric_flat& met_f, int method = 0) const ;
      
-	/**Solves the vector Poisson equation with {\tt *this} as a source
+	/**Solves the vector Poisson equation with \c *this  as a source
 	 * and parameters controlling the solution.
 	 * 
-	 * The equatiopn solved is $\Delta N^i +\lambda \nabla^i 
-	 * \nabla_k N^k = S^i$.
-	 * {\tt *this} must be given with {\tt dzpuis} = 4.
+	 * The equatiopn solved is \f$\Delta N^i +\lambda \nabla^i 
+	 * \nabla_k N^k = S^i\f$.
+	 * \c *this  must be given with \c dzpuis  = 4.
 	 * It uses the Helmholtz decomposition (see documentation of
-	 * {\tt p_potential}), with a flat metric, deduced from the triad.
+	 * \c p_potential ), with a flat metric, deduced from the triad.
 	 *
-	 * @param lambda [input] $\lambda$.
+	 * @param lambda [input] \f$\lambda\f$.
 	 *   @param par [input/output] possible parameters
-	 *   @param uu [input/output] solution {\it u} with the 
-	 *              boundary condition {\it u}=0 at spatial infinity. 
+	 *   @param uu [input/output] solution \e u  with the 
+	 *              boundary condition \e u =0 at spatial infinity. 
 	 */
 
 	void poisson(const double lambda, Param& par, Vector& uu , 
@@ -384,17 +386,17 @@ class Vector: public Tensor {
 
   /** 3D visualization via OpenDX.
    *
-   * @param xmin [input] defines with {\tt xmax} the x range of the visualization box 
-   * @param xmax [input] defines with {\tt xmin} the x range of the visualization box 
-   * @param ymin [input] defines with {\tt ymax} the y range of the visualization box 
-   * @param ymax [input] defines with {\tt ymin} the y range of the visualization box 
-   * @param zmin [input] defines with {\tt zmax} the z range of the visualization box 
-   * @param zmax [input] defines with {\tt zmin} the z range of the visualization box 
+   * @param xmin [input] defines with \c xmax  the x range of the visualization box 
+   * @param xmax [input] defines with \c xmin  the x range of the visualization box 
+   * @param ymin [input] defines with \c ymax  the y range of the visualization box 
+   * @param ymax [input] defines with \c ymin  the y range of the visualization box 
+   * @param zmin [input] defines with \c zmax  the z range of the visualization box 
+   * @param zmax [input] defines with \c zmin  the z range of the visualization box 
    * @param title [input] title for the graph (for OpenDX legend)
    * @param filename [input] name for the file which will be the input for 
    *    OpenDX; the default 0x0 is transformed into "vector_arrows"
    * @param start_dx [input] determines whether OpenDX must be launched (as a
-   *     subprocess) to view the field; if set to {\tt false}, only input files
+   *     subprocess) to view the field; if set to \c false , only input files
    *     for future usage of OpenDX are created 
    * @param nx [input] number of points in the x direction (uniform sampling)   
    * @param ny [input] number of points in the y direction (uniform sampling)   
@@ -418,14 +420,13 @@ class Vector: public Tensor {
 			
 
 /**
- * Divergence-free vectors.
+ * Divergence-free vectors. \ingroup (tensor)
  *
  * This class is designed to store divergence-free vectors,
  * with the component expressed in a orthonormal spherical basis
- * $(e_r,e_\theta,e_\varphi)$.
+ * \f$(e_r,e_\theta,e_\varphi)\f$.
  *
  * 
- * @version #$Id$#
  */
 class Vector_divfree: public Vector {
 
@@ -435,31 +436,31 @@ class Vector_divfree: public Vector {
 	/// Metric with respect to which the divergence is defined
 	const Metric* const met_div ; 
 	
-	/** Field $\eta$ such that the angular components $(V^\theta, V^\varphi)$
+	/** Field \f$\eta\f$ such that the angular components \f$(V^\theta, V^\varphi)\f$
 	 * of the vector are written:
-	 * \begin{equation}
+	 * \f[
 	 *	V^\theta =   {\partial \eta \over \partial\theta}
 	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} 
-	 * \end{equation} 
-	 * \begin{equation}
+	 * \f] 
+	 * \f[
 	 *	V^\varphi =  {1\over\sin\theta} 
 	 *				{\partial \eta \over \partial\varphi}
 	 *				+ {\partial \mu \over \partial\theta} 
-	 * \end{equation} 
+	 * \f] 
 	 */
 	mutable Scalar* p_eta ;
 	
-	/** Field $\mu$ such that the angular components $(V^\theta, V^\varphi)$
+	/** Field \f$\mu\f$ such that the angular components \f$(V^\theta, V^\varphi)\f$
 	 * of the vector are written:
-	 * \begin{equation}
+	 * \f[
 	 *	V^\theta =  {\partial \eta \over \partial\theta}
 	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} 
-	 * \end{equation} 
-	 * \begin{equation}
+	 * \f] 
+	 * \f[
 	 *	V^\varphi =  {1\over\sin\theta} 
 	 *				{\partial \eta \over \partial\varphi}
 	 *				+ {\partial \mu \over \partial\theta} 
-	 * \end{equation} 
+	 * \f] 
 	 */
 	mutable Scalar* p_mu ;
 	
@@ -476,9 +477,9 @@ class Vector_divfree: public Vector {
 	Vector_divfree(const Map& map, const Base_vect& triad_i, 
 		const Metric& met) ;
 
-	Vector_divfree(const Vector_divfree& ) ;       /// Copy constructor
+	Vector_divfree(const Vector_divfree& ) ;       ///< Copy constructor
 
-	/** Constructor from a file (see {\tt Tensor::sauve(FILE* )}).
+	/** Constructor from a file (see \c Tensor::sauve(FILE*) ).
 	 * 
 	 * @param map  the mapping
 	 * @param triad_i   vectorial basis (triad) with respect to which 
@@ -487,18 +488,18 @@ class Vector_divfree: public Vector {
 	 *			  saved in the file.
 	 * @param met the metric with respect to which the divergence is defined
 	 * @param fich  file which has been created by 
-	 *			    the function {\tt sauve(FILE* )}.
+	 *			    the function \c sauve(FILE*) .
 	 */
 	Vector_divfree(const Map& map, const Base_vect& triad_i, 
 		const Metric& met, FILE* fich) ;
 
-	virtual ~Vector_divfree() ;			/// Destructor
+	virtual ~Vector_divfree() ;			///< Destructor
 
  
     // Memory management
     // -----------------
     protected:
-	virtual void del_deriv() const;	/// Deletes the derived quantities
+	virtual void del_deriv() const;	///< Deletes the derived quantities
 
 	/// Sets the pointers on derived quantities to 0x0
 	void set_der_0x0() const ; 
@@ -508,38 +509,38 @@ class Vector_divfree: public Vector {
     // ---------------------
 
 	public:
-	/// Assignment from another {\tt Vector\_divfree}
+	/// Assignment from another \c Vector_divfree 
 	void operator=(const Vector_divfree& a) ;	
 	
-	/// Assignment from a {\tt Vector}
+	/// Assignment from a \c Vector 
 	virtual void operator=(const Vector& a) ;	
 	
-	/// Assignment from a {\tt Tensor}
+	/// Assignment from a \c Tensor 
 	virtual void operator=(const Tensor& a) ;	
 	
-	/** Sets the angular potentials $\eta$ and $\mu$ (see members
-	 *  {\tt p\_eta} and {\tt p\_mu}), as well as the $V^r$ component
+	/** Sets the angular potentials \f$\eta\f$ and \f$\mu\f$ (see members
+	 *  \c p_eta  and \c p_mu ), as well as the \f$V^r\f$ component
 	 *  of the vector. 
-	 *  The components $V^\theta$ and $V^\varphi$ are updated consistently
-	 *  by a call to the method {\tt update\_vtvp()}.
+	 *  The components \f$V^\theta\f$ and \f$V^\varphi\f$ are updated consistently
+	 *  by a call to the method \c update_vtvp() .
 	 *
-	 *	@param vr_i [input] component $V^r$ of the vector
-	 *	@param eta_i [input] angular potential $\eta$
-	 *	@param mu_i [input] angular potential $\mu$
+	 *	@param vr_i [input] component \f$V^r\f$ of the vector
+	 *	@param eta_i [input] angular potential \f$\eta\f$
+	 *	@param mu_i [input] angular potential \f$\mu\f$
 	 *
 	 */
 	void set_vr_eta_mu(const Scalar& vr_i, const Scalar& eta_i,
 		const Scalar& mu_i) ; 
 
-	/** Sets the angular potentials $\mu$ (see member
-	 *  {\tt p\_mu}), and the $V^r$ component
-	 *  of the vector. The potential $\eta$ is then deduced from
-	 *  $V^r$ by the divergence-free condition. 
-	 *  The components $V^\theta$ and $V^\varphi$ are updated consistently
-	 *  by a call to the method {\tt update\_vtvp()}.
+	/** Sets the angular potentials \f$\mu\f$ (see member
+	 *  \c p_mu ), and the \f$V^r\f$ component
+	 *  of the vector. The potential \f$\eta\f$ is then deduced from
+	 *  \f$V^r\f$ by the divergence-free condition. 
+	 *  The components \f$V^\theta\f$ and \f$V^\varphi\f$ are updated consistently
+	 *  by a call to the method \c update_vtvp() .
 	 *
-	 *	@param vr_i [input] component $V^r$ of the vector
-	 *	@param mu_i [input] angular potential $\mu$
+	 *	@param vr_i [input] component \f$V^r\f$ of the vector
+	 *	@param mu_i [input] angular potential \f$\mu\f$
 	 *
 	 */
 	void set_vr_mu(const Scalar& vr_i, const Scalar& mu_i) ; 
@@ -548,67 +549,67 @@ class Vector_divfree: public Vector {
 	// Computational methods
 	// ---------------------
 	public:
-	/** Gives the field $\eta$ such that the angular components 
-	 * $(V^\theta, V^\varphi)$ of the vector are written:
-	 * \begin{equation}
-	 *	V^\theta =  {\partial \eta \over \partial\theta}
+	/** Gives the field \f$\eta\f$ such that the angular components 
+	 * \f$(V^\theta, V^\varphi)\f$ of the vector are written:
+	 * \f[
+	 *	V^\theta =  {\partial \eta \over \partial\theta} 
 	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} 
-	 * \end{equation} 
-	 * \begin{equation}
+	 * \f] 
+	 * \f[
 	 *	V^\varphi =  {1\over\sin\theta} 
 	 *				{\partial \eta \over \partial\varphi}
 	 *				+ {\partial \mu \over \partial\theta} 
-	 * \end{equation} 
+	 * \f] 
 	 */
 	const Scalar& eta() const ;
 	
-	/** Gives the field $\mu$ such that the angular components 
-	 * $(V^\theta, V^\varphi)$ of the vector are written:
-	 * \begin{equation}
+	/** Gives the field \f$\mu\f$ such that the angular components 
+	 * \f$(V^\theta, V^\varphi)\f$ of the vector are written:
+	 * \f[
 	 *	V^\theta =  {\partial \eta \over \partial\theta}
 	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi}
-	 * \end{equation} 
-	 * \begin{equation}
+	 * \f] 
+	 * \f[
 	 *	V^\varphi =  {1\over\sin\theta} 
 	 *				{\partial \eta \over \partial\varphi}
 	 *				+ {\partial \mu \over \partial\theta} 
-	 * \end{equation} 
+	 * \f] 
 	 */
 	const Scalar& mu() const ;
 	
-	/** Computes the components $V^\theta$ and $V^\varphi$ from the
-	 *  potential $\eta$ and  $\mu$, according to:
-	 * \begin{equation}
+	/** Computes the components \f$V^\theta\f$ and \f$V^\varphi\f$ from the
+	 *  potential \f$\eta\f$ and  \f$\mu\f$, according to:
+	 * \f[
 	 *	V^\theta =  {\partial \eta \over \partial\theta}
 	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi}
-	 * \end{equation} 
-	 * \begin{equation}
+	 * \f] 
+	 * \f[
 	 *	V^\varphi =  {1\over\sin\theta} 
 	 *				{\partial \eta \over \partial\varphi}
 	 *				+ {\partial \mu \over \partial\theta} 
-	 * \end{equation} 
+	 * \f] 
 	 */
 	void update_vtvp() ;
 	
 	/** Computes the solution of a vectorial Poisson equation
-	 *  with {\tt *this} $= \vec{V}$ as a source:
-	 * \begin{equation}
+	 *  with \c *this  \f$= \vec{V}\f$ as a source:
+	 * \f[
 	 *    \Delta \vec{W} = \vec{V}
-	 * \end{equation} 
+	 * \f] 
 	 * 
-	 * @return solution $\vec{W}$ of the above equation with the boundary
-	 *	condition $\vec{W}=0$ at spatial infinity.
+	 * @return solution \f$\vec{W}\f$ of the above equation with the boundary
+	 *	condition \f$\vec{W}=0\f$ at spatial infinity.
 	 */
 	Vector_divfree poisson() const ; 
 	
 	/** Computes the solution of a vectorial Poisson equation
-	 *  with {\tt *this} $= \vec{V}$ as a source:
-	 * \begin{equation}
+	 *  with \c *this  \f$= \vec{V}\f$ as a source:
+	 * \f[
 	 *    \Delta \vec{W} = \vec{V}
-	 * \end{equation} 
+	 * \f] 
 	 * 
-	 * @return solution $\vec{W}$ of the above equation with the boundary
-	 *	condition $\vec{W}=0$ at spatial infinity.
+	 * @return solution \f$\vec{W}\f$ of the above equation with the boundary
+	 *	condition \f$\vec{W}=0\f$ at spatial infinity.
 	 */
 	Vector_divfree poisson(Param& par) const ; 
 	

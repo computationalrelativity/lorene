@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/22 13:12:40  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.4  2002/10/16 14:36:28  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -89,39 +92,38 @@ class Tenseur ;
 
 /**
  * Vectorial bases (triads) with respect to which the tensorial components are
- * defined. 
+ * defined. \ingroup (tensor)
  *
- * @version #$Id$#
  */
 class Base_vect {
     
     // Data : 
     // -----
     protected:
-	char name[100] ;		/// Name of the basis
+	char name[100] ;		///< Name of the basis
 
 
     // Constructors - Destructor
     // -------------------------
 	
     protected:
-	Base_vect() ;			    /// Standard constructor
+	Base_vect() ;			    ///< Standard constructor
 
 	/// Standard constructor with name
 	explicit Base_vect(const char* name_i) ; 
 
-	Base_vect(const Base_vect& ) ;	/// Copy constructor 
+	Base_vect(const Base_vect& ) ;	///< Copy constructor 
 	 
     protected:
 	/** Constructor from a file.
-	 *  This constructor is protected because any {\tt Base\_vect} 
+	 *  This constructor is protected because any \c Base_vect 
 	 *  construction from a file must be done via the function 
-	 *  {\tt Base\_vect::bvect\_from\_file}. 
+	 *  \c Base_vect::bvect_from_file . 
 	 */
 	explicit Base_vect(FILE* ) ; 
 
     public:
-	virtual ~Base_vect() ;			/// Destructor
+	virtual ~Base_vect() ;			///< Destructor
 
     // Mutator / Assignment
     // --------------------
@@ -139,9 +141,9 @@ class Base_vect {
     // Extraction of information
     // -------------------------
     public:
-	const char* get_name() const ;	/// Returns the basis name
+	const char* get_name() const ;	///< Returns the basis name
 	
-	/** Returns a number to identify the sub-classe of {\tt Base\_vect} the
+	/** Returns a number to identify the sub-classe of \c Base_vect the
 	 *  object belongs to. 
 	 */
 	virtual int identify() const = 0 ; 
@@ -149,20 +151,20 @@ class Base_vect {
     // Outputs
     // -------
     public:
-	virtual void sauve(FILE* ) const ;	/// Save in a file
+	virtual void sauve(FILE* ) const ;	///< Save in a file
 
 	/// Display
 	friend ostream& operator<<(ostream& , const Base_vect& ) ;	
 
     protected: 
-	virtual ostream& operator>>(ostream &) const = 0 ;    /// Operator >>
+	virtual ostream& operator>>(ostream &) const = 0 ;    ///< Operator >>
 
     // Miscellaneous
     // -------------
     
     public:
 	/** Construction of a vectorial basis from a file 
-	 * (see {\tt sauve(FILE* )}).
+	 * (see \c sauve(FILE* ) ).
 	 */
 	static Base_vect* bvect_from_file(FILE* ) ; 
 
@@ -186,25 +188,24 @@ ostream& operator<<(ostream& , const Base_vect& ) ;
 
 
 /**
- * Cartesian vectorial bases (triads). 
+ * Cartesian vectorial bases (triads). \ingroup (tensor)
  *
- * @version #$Id$#
  */
 class Base_vect_cart : public Base_vect {
     
     // Data : 
     // -----
     private:
-	/// Angle between the {\it x}--axis and the absolute frame {\it X}--axis
+	/// Angle between the \e x --axis and the absolute frame \e X --axis
 	double rot_phi ;	
 
 	/**
 	 * Indicator of alignment with respect to the absolute frame: \\
-	 *   {\tt align = 1} : basis aligned with the absolute frame 
-	 *			(${\tt rot\_phi = 0}$) \\
-	 *   {\tt align = -1} : basis anti-aligned with the absolute frame 
-	 *			(${\tt rot\_phi} = \pi$) \\
-	 *   {\tt align = 0} : general case 
+	 *   \c align = 1  : basis aligned with the absolute frame 
+	 *			(\f${\tt rot\_phi = 0}\f$) \\
+	 *   \c align = -1  : basis anti-aligned with the absolute frame 
+	 *			(\f${\tt rot\_phi} = \pi\f$) \\
+	 *   \c align = 0  : general case 
 	 */
 	int align ; 
 
@@ -212,18 +213,18 @@ class Base_vect_cart : public Base_vect {
     // -------------------------
 	
     public:
-	explicit Base_vect_cart(double rot_phi_i) ;   /// Standard constructor
+	explicit Base_vect_cart(double rot_phi_i) ;   ///< Standard constructor
 
 	/// Standard constructor with name
 	Base_vect_cart(double rot_phi_i, const char* name_i) ; 
 
- 	Base_vect_cart(const Base_vect_cart& ) ;    /// Copy constructor
+ 	Base_vect_cart(const Base_vect_cart& ) ;    ///< Copy constructor
 	 
     protected:
 	/** Constructor from a file.
-	 *  This constructor is protected because any {\tt Base\_vect\_cart} 
+	 *  This constructor is protected because any \c Base_vect_cart  
 	 *  construction from a file must be done via the function 
-	 *  {\tt Base\_vect::bvect\_from\_file}. 
+	 *  \c Base_vect::bvect_from_file . 
 	 */
 	explicit Base_vect_cart(FILE* ) ; 
 
@@ -231,22 +232,22 @@ class Base_vect_cart : public Base_vect {
 	friend Base_vect* Base_vect::bvect_from_file(FILE* ) ; 
 
     public:
-	virtual ~Base_vect_cart() ;			/// Destructor
+	virtual ~Base_vect_cart() ;			///< Destructor
 
     // Mutators
     // --------
 
     public:
-	/// Assignment to another {\tt Base\_vect\_cart}
+	/// Assignment to another \c Base_vect_cart 
 	void operator=(const Base_vect_cart& ) ;
 
-	/** Sets a new value to the angle {\tt rot\_phi} 
-	 *  between the {\it x}--axis and the absolute frame {\it X}--axis
+	/** Sets a new value to the angle \c rot_phi 
+	 *  between the \e x --axis and the absolute frame \e X --axis
 	 */
 	void set_rot_phi(double rot_phi_i) ; 
 
     private: 
-	/// Computes {\tt align} from the value of {\tt rot\_phi}
+	/// Computes \c align  from the value of \c rot_phi
 	void set_align() ; 
 	
     // Miscellaneous
@@ -259,7 +260,7 @@ class Base_vect_cart : public Base_vect {
 	/// Change the basis in which the components of a tensor are expressed
 	virtual void change_basis(Tenseur& ) const ; 
 
-	/** Returns a number to identify the sub-classe of {\tt Base\_vect} the
+	/** Returns a number to identify the sub-classe of \c Base_vect the
 	 *  object belongs to. 
 	 */
 	virtual int identify() const ; 
@@ -269,9 +270,9 @@ class Base_vect_cart : public Base_vect {
 	 * 
 	 *  @return 
 	 *   1 : basis aligned with the absolute frame 
-	 *			(${\tt rot\_phi = 0}$) \\
+	 *			(\f${\tt rot\_phi = 0}\f$) \\
 	 *   -1 : basis anti-aligned with the absolute frame 
-	 *			(${\tt rot\_phi} = \pi$) \\
+	 *			(\f${\tt rot\_phi} = \pi\f$) \\
 	 *   0 : general case 
 	 */
 	int get_align() const {return align;} ; 
@@ -280,10 +281,10 @@ class Base_vect_cart : public Base_vect {
     // -------
 
     public: 
-	virtual void sauve(FILE* ) const ;	/// Save in a file
+	virtual void sauve(FILE* ) const ;	///< Save in a file
 
     protected: 
-	virtual ostream& operator>>(ostream &) const ;    /// Operator >>
+	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
 
 
 };
@@ -294,20 +295,19 @@ class Base_vect_cart : public Base_vect {
 
 
 /**
- * Spherical orthonormal vectorial bases (triads).
+ * Spherical orthonormal vectorial bases (triads).\ingroup (tensor)
  *
- * @version #$Id$#
  */
 class Base_vect_spher : public Base_vect {
     
     // Data : 
     // -----
     private:
-	double ori_x ;		/// Absolute coordinate {\it X} of the origin
-	double ori_y ;		/// Absolute coordinate {\it Y} of the origin
-	double ori_z ;		/// Absolute coordinate {\it Z} of the origin
+	double ori_x ;		///< Absolute coordinate \e X of the origin
+	double ori_y ;		///< Absolute coordinate \e Y  of the origin
+	double ori_z ;		///< Absolute coordinate \e Z of the origin
     
-	/// Angle between the {\it x}--axis and the absolute frame {\it X}--axis
+	/// Angle between the \e x --axis and the absolute frame \e X --axis
 	double rot_phi ;	
 
 	
@@ -317,19 +317,19 @@ class Base_vect_spher : public Base_vect {
 	
     public:
 	Base_vect_spher(double xa0, double ya0, double za0,  
-			double rot_phi_i) ;   /// Standard constructor
+			double rot_phi_i) ;   ///< Standard constructor
 
 	/// Standard constructor with name
 	Base_vect_spher(double xa0, double ya0, double za0, 
 			double rot_phi_i, const char* name_i) ; 
 
-	Base_vect_spher(const Base_vect_spher& ) ;	/// Copy constructor
+	Base_vect_spher(const Base_vect_spher& ) ;	///< Copy constructor
 	 
     protected:
 	/** Constructor from a file.
-	 *  This constructor is protected because any {\tt Base\_vect\_spher} 
+	 *  This constructor is protected because any \c Base_vect_spher  
 	 *  construction from a file must be done via the function 
-	 *  {\tt Base\_vect::bvect\_from\_file}. 
+	 *  \c Base_vect::bvect_from_file . 
 	 */
 	explicit Base_vect_spher(FILE* ) ; 
 
@@ -337,20 +337,20 @@ class Base_vect_spher : public Base_vect {
 	friend Base_vect* Base_vect::bvect_from_file(FILE* ) ; 
 
     public:
-	virtual ~Base_vect_spher() ;			/// Destructor
+	virtual ~Base_vect_spher() ;			///< Destructor
 
     // Mutators
     // --------
     public:
-	/// Assignment to another {\tt Base\_vect\_spher}
+	/// Assignment to another \c Base_vect_spher 
 	void operator=(const Base_vect_spher& ) ;
 
     public:
 	/// Sets a new origin
 	void set_ori(double xa0, double ya0, double za0) ;  
 
-	/** Sets a new value to the angle {\tt rot\_phi} 
-	 *  between the {\it x}--axis and the absolute frame {\it X}--axis
+	/** Sets a new value to the angle \c rot_phi 
+	 *  between the \e x --axis and the absolute frame \e X --axis
 	 */
 	void set_rot_phi(double rot_phi_i) ; 
 
@@ -364,7 +364,7 @@ class Base_vect_spher : public Base_vect {
 	/// Change the basis in which the components of a tensor are expressed
 	virtual void change_basis(Tenseur& ) const ; 
 
-	/** Returns a number to identify the sub-classe of {\tt Base\_vect} the
+	/** Returns a number to identify the sub-classe of \c Base_vect the
 	 *  object belongs to. 
 	 */
 	virtual int identify() const ; 
@@ -373,10 +373,10 @@ class Base_vect_spher : public Base_vect {
     // -------
 
     public: 
-	virtual void sauve(FILE* ) const ;	/// Save in a file
+	virtual void sauve(FILE* ) const ;	///< Save in a file
 
     protected: 
-	virtual ostream& operator>>(ostream &) const ;    /// Operator >>
+	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
 
 
 };

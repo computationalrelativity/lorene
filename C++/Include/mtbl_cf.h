@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/03/22 13:12:42  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.6  2003/11/06 14:43:37  e_gourgoulhon
  * Gave a name to const arguments in certain method prototypes (e.g.
  * constructors) to correct a bug of DOC++.
@@ -154,36 +157,37 @@ class Mg3d ;
  * Coefficients storage for the multi-domain spectral method.
  * 
  * This class is essentially an array (on the various physical domains)
- * of {\tt Tbl} specially designed for 
+ * of \c Tbl  specially designed for 
  * storage of the coefficients of the spectral expansions in each domain.  
  * It is intended to be 
- * used in conjunction with the class {\tt Mtbl} (see class {\tt Valeur}).
- * A difference between a {\tt Mtbl} and a {\tt Mtbl\_cf}, both defined one
- * the same grid {\tt Mg3d}, is that each {\tt Tbl} of the {\tt Mtbl\_cf}
- * has 2 more elements in the $\phi$-dimension (Dim\_tbl::dim[2]) than the
- * corresponding {\tt Tbl} of the {\tt Mtbl}. 
- * A {\tt Mbl\_cf} is initialy created with a {\it logical} state {\tt ETATZERO}.
+ * used in conjunction with the class \c Mtbl  (see class \c Valeur ).
+ * A difference between a \c Mtbl  and a \c Mtbl_cf , both defined one
+ * the same grid \c Mg3d , is that each \c Tbl  of the \c Mtbl_cf 
+ * has 2 more elements in the \f$\phi\f$-dimension (Dim_tbl::dim[2]) than the
+ * corresponding \c Tbl  of the \c Mtbl . 
+ * A \c Mbl_cf  is initialy created with a \e logical  state \c ETATZERO .
  * Arithmetic operations are provided with the usual meaning (see 
  * below). 
  * 
- * @version #$Id$#
- *
+ * \ingroup (spec)
  */
 class Mtbl_cf {
 
     // Data : 
     // -----
     private:
-	const Mg3d* mg ;  /// Pointer on the multi-grid {\tt Mgd3} on which {\tt this} is defined
-	int nzone ;	/// Number of domains (zones)
-	/// Logical state ({\tt ETATNONDEF}, {\tt ETATQCQ} or {\tt ETATZERO}).
+/// Pointer on the multi-grid \c Mgd3  on which \c this  is defined
+	const Mg3d* mg ;  
+/// Number of domains (zones)
+	int nzone ;	
+	/// Logical state (\c ETATNONDEF , \c ETATQCQ  or \c ETATZERO ).
 	int etat ;	
 
     public:
 	/// Bases of the spectral expansions
 	Base_val base ;
 	
-	/** Array (size {\tt nzone}) of pointers on the {\tt Tbl}'s which 
+	/** Array (size \c nzone ) of pointers on the \c Tbl 's which 
 	 * contain the spectral coefficients in each domain
 	 */
 	Tbl** t ;	
@@ -192,70 +196,77 @@ class Mtbl_cf {
     // -------------------------
 	
     public:
-	Mtbl_cf(const Mg3d& mgrid, const Base_val& basis) ; /// Constructor 
-	Mtbl_cf(const Mg3d* p_mgrid, const Base_val& basis) ; /// Constructor
+/// Constructor 
+	Mtbl_cf(const Mg3d& mgrid, const Base_val& basis) ; 
+/// Constructor
+	Mtbl_cf(const Mg3d* p_mgrid, const Base_val& basis) ; 
 
-	/// Constructor from a file (see {\tt sauve(FILE* )})
+	/// Constructor from a file (see \c sauve(FILE*) )
 	Mtbl_cf(const Mg3d&, FILE* ) ;		    
 
-	Mtbl_cf(const Mtbl_cf& ) ;	    /// Copy constructor
-	~Mtbl_cf() ;			    /// Destructor
+/// Copy constructor
+	Mtbl_cf(const Mtbl_cf& ) ;	    
+/// Destructor
+	~Mtbl_cf() ;			    
 
     // Assignement
     // -----------
-	void operator=(const Mtbl_cf& ) ;   /// Assignement to another {\tt Mtbl\_cf}
-	void operator=(double ) ;	    /// Assignement to a {\tt double}
-	void operator=(int ) ;		    /// Assignement to a {\tt int}
+/// Assignement to another \c Mtbl_cf 
+	void operator=(const Mtbl_cf& ) ;   
+/// Assignement to a \c double 
+	void operator=(double ) ;	    
+/// Assignement to a \c int 
+	void operator=(int ) ;		    
 
     // Memory management
     // -----------------
     private:
-	/** Logical destructor: dellocates the memory occupied by the {\tt Tbl}
-	 * array {\tt t}. 
+	/** Logical destructor: dellocates the memory occupied by the \c Tbl 
+	 * array \c t . 
 	 */
 	void del_t() ;	
 			
     public:
 
     /**
-     * Sets the logical state to {\tt ETATNONDEF} (undefined). 
-     * Deallocates the memory occupied by the {\tt Tbl} array {\tt t}.
+     * Sets the logical state to \c ETATNONDEF  (undefined). 
+     * Deallocates the memory occupied by the \c Tbl  array \c t .
      */
 	void set_etat_nondef() ;
 	
     /**
-     * Sets the logical state to {\tt ETATZERO} (zero). 
-     * Deallocates the memory occupied by the {\tt Tbl} array {\tt t}.
+     * Sets the logical state to \c ETATZERO  (zero). 
+     * Deallocates the memory occupied by the \c Tbl  array \c t .
      */
 	void set_etat_zero() ;	    	
 
     /**
-     * Sets the logical state to {\tt ETATQCQ} (ordinary state).
-     * If the state (member {\tt etat}) is already {\tt ETATQCQ}, this 
+     * Sets the logical state to \c ETATQCQ  (ordinary state).
+     * If the state (member \c etat ) is already \c ETATQCQ , this 
      * function does nothing. Otherwise, it performs the memory allocation
-     * for the {\tt Tbl} array {\tt t}.  
+     * for the \c Tbl  array \c t .  
      */
 	void set_etat_qcq() ;	    	
 
     /**
-     * Sets the {\tt Mtbl\_cf} to zero in a hard way. 
-     * 1/ Sets the logical state to {\tt ETATQCQ}, i.e. to an ordinary state.
-     * 2/ Allocates the memory of the {\tt Tbl} array {\tt t}, and fills it
+     * Sets the \c Mtbl_cf  to zero in a hard way. 
+     * 1/ Sets the logical state to \c ETATQCQ , i.e. to an ordinary state.
+     * 2/ Allocates the memory of the \c Tbl  array \c t , and fills it
      * with zeros. NB: this function must be used for debugging purposes only.
-     * For other operations, the functions {\tt set\_etat\_zero()}
-     * or {\tt annule(int, int)} must be perferred. 
+     * For other operations, the functions \c set_etat_zero() 
+     * or \c annule(int, int)  must be perferred. 
      */
 	void annule_hard() ;	
 	
     /**
-     * Sets the {\tt Mtbl\_cf} to zero in some domains.
-     *	@param l_min [input] The {\tt Mtbl\_cf} will be set (logically) to zero
+     * Sets the \c Mtbl_cf  to zero in some domains.
+     *	@param l_min [input] The \c Mtbl_cf  will be set (logically) to zero
      *			     in the domains whose indices are in the range
-     *			     {\tt [l\_min, l\_max]}.
-     *	@param l_max [input] see the comments for {\tt l\_min}.
+     *			     \c [l_min, l_max] .
+     *	@param l_max [input] see the comments for \c l_min .
      * 
-     * Note that {\tt annule(0, nzone-1)} is equivalent to
-     *	 {\tt set\_etat\_zero()}.
+     * Note that \c annule(0, nzone-1)  is equivalent to
+     *	 \c set_etat_zero() .
      */
 	void annule(int l_min, int l_max) ; 
 
@@ -264,7 +275,7 @@ class Mtbl_cf {
     public:
 
 	/** 
-	 * Read/write of the {\tt Tbl} containing the coefficients
+	 * Read/write of the \c Tbl  containing the coefficients
 	 * in a given domain.
 	 * @param l [input] domain index
 	 */ 
@@ -276,7 +287,7 @@ class Mtbl_cf {
 	
 	
 	/** 
-	 * Read-only of the {\tt Tbl} containing the coefficients
+	 * Read-only of the \c Tbl  containing the coefficients
 	 * in a given domain.
 	 * @param l [input] domain index
 	 */ 
@@ -289,9 +300,9 @@ class Mtbl_cf {
 
 	/** Read/write of a particular element.
 	 * @param l [input] domain index
-	 * @param k [input] $\phi$ index
-	 * @param j [input] $\theta$ index
-	 * @param i [input] {\it r} ($\xi$) index
+	 * @param k [input] \f$\phi\f$ index
+	 * @param j [input] \f$\theta\f$ index
+	 * @param i [input] \e r  (\f$\xi\f$) index
 	 */ 
 	double& set(int l, int k, int j, int i) {
 	    assert(l < nzone) ;
@@ -302,9 +313,9 @@ class Mtbl_cf {
 	
 	/** Read-only of a particular element.
 	 * @param l [input] domain index
-	 * @param k [input] $\phi$ index
-	 * @param j [input] $\theta$ index
-	 * @param i [input] {\it r} ($\xi$) index
+	 * @param k [input] \f$\phi\f$ index
+	 * @param j [input] \f$\theta\f$ index
+	 * @param i [input] \e r  (\f$\xi\f$) index
 	 */ 
 	double operator()(int l, int k, int j, int i) const {
 	    assert(etat != ETATNONDEF) ;
@@ -316,85 +327,85 @@ class Mtbl_cf {
 	    else return (*t[l])(k, j, i) ;
 	};
 
-	/** Computes the value of the field represented by {\tt *this} at an
+	/** Computes the value of the field represented by \c *this  at an
 	*   arbitrary point, by means of the spectral expansion.
 	*	 @param l [input] index of the domain
-	*	 @param x [input] value of the coordinate $\xi$
-	*	 @param theta [input] value of the coordinate $\theta'$
-	*	 @param phi [input] value of the coordinate $\phi'$
-	*	 @return value at the point $(\xi, \theta', \phi')$ in
-	*	    the domain no. {\it l} of the field whose spectral coefficients
-	*	    are stored in {\tt *this}. 
+	*	 @param x [input] value of the coordinate \f$\xi\f$
+	*	 @param theta [input] value of the coordinate \f$\theta'\f$
+	*	 @param phi [input] value of the coordinate \f$\phi'\f$
+	*	 @return value at the point \f$(\xi, \theta', \phi')\f$ in
+	*	    the domain no. \e l  of the field whose spectral coefficients
+	*	    are stored in \c *this . 
 	*/
 	double val_point(int l, double x, double theta, double phi) const ; 
 
-	/** Computes the value of the field represented by {\tt *this} at an
+	/** Computes the value of the field represented by \c *this  at an
 	*   arbitrary point, by means of the spectral expansion.
 	*   Case where the field is symmetric with respect to the y=0 plane. 
 	*	 @param l [input] index of the domain
-	*	 @param x [input] value of the coordinate $\xi$
-	*	 @param theta [input] value of the coordinate $\theta'$
-	*	 @param phi [input] value of the coordinate $\phi'$
-	*	 @return value at the point $(\xi, \theta', \phi')$ in
-	*	    the domain no. {\it l} of the field whose spectral coefficients
-	*	    are stored in {\tt *this}. 
+	*	 @param x [input] value of the coordinate \f$\xi\f$
+	*	 @param theta [input] value of the coordinate \f$\theta'\f$
+	*	 @param phi [input] value of the coordinate \f$\phi'\f$
+	*	 @return value at the point \f$(\xi, \theta', \phi')\f$ in
+	*	    the domain no. \e l  of the field whose spectral coefficients
+	*	    are stored in \c *this . 
 	*/
 	double val_point_symy(int l, double x, double theta, double phi) const ; 
 
-	/** Computes the value of the field represented by {\tt *this} at an
+	/** Computes the value of the field represented by \c *this  at an
 	*   arbitrary point, by means of the spectral expansion.
 	*   Case where the field is antisymmetric with respect to the y=0 plane. 
 	*	 @param l [input] index of the domain
-	*	 @param x [input] value of the coordinate $\xi$
-	*	 @param theta [input] value of the coordinate $\theta'$
-	*	 @param phi [input] value of the coordinate $\phi'$
-	*	 @return value at the point $(\xi, \theta', \phi')$ in
-	*	    the domain no. {\it l} of the field whose spectral coefficients
-	*	    are stored in {\tt *this}. 
+	*	 @param x [input] value of the coordinate \f$\xi\f$
+	*	 @param theta [input] value of the coordinate \f$\theta'\f$
+	*	 @param phi [input] value of the coordinate \f$\phi'\f$
+	*	 @return value at the point \f$(\xi, \theta', \phi')\f$ in
+	*	    the domain no. \e l  of the field whose spectral coefficients
+	*	    are stored in \c *this . 
 	*/
 	double val_point_asymy(int l, double x, double theta, double phi) const ; 
 
-	/** Computes the value of the field represented by {\tt *this} at an
-	*   arbitrary point in $\xi$, but collocation point in 
-	*   $(\theta', \phi')$, by means of the spectral expansion.
+	/** Computes the value of the field represented by \c *this  at an
+	*   arbitrary point in \f$\xi\f$, but collocation point in 
+	*   \f$(\theta', \phi')\f$, by means of the spectral expansion.
 	*	 @param l [input] index of the domain
-	*	 @param x [input] value of the coordinate $\xi$
-	*	 @param j [input] index of the collocation point in $\theta'$
-	*	 @param k [input] index of the collocation point in $\phi'$
+	*	 @param x [input] value of the coordinate \f$\xi\f$
+	*	 @param j [input] index of the collocation point in \f$\theta'\f$
+	*	 @param k [input] index of the collocation point in \f$\phi'\f$
 	*	 @return value at the point 
-	*		    $(\xi, {\theta'}_j, {\phi'}_k)$ in
-	*	    the domain no. {\it l} of the field whose spectral coefficients
-	*	    are stored in {\tt *this}. 
+	*		    \f$(\xi, {\theta'}_j, {\phi'}_k)\f$ in
+	*	    the domain no. \e l  of the field whose spectral coefficients
+	*	    are stored in \c *this . 
 	*/
 	double val_point_jk(int l, double x, int j, int k) const ; 
 
-	/** Computes the value of the field represented by {\tt *this} at an
-	*   arbitrary point in $\xi$, but collocation point in 
-	*   $(\theta', \phi')$, by means of the spectral expansion.
+	/** Computes the value of the field represented by \c *this  at an
+	*   arbitrary point in \f$\xi\f$, but collocation point in 
+	*   \f$(\theta', \phi')\f$, by means of the spectral expansion.
 	*   Case where the field is symmetric with respect to the y=0 plane. 
 	*	 @param l [input] index of the domain
-	*	 @param x [input] value of the coordinate $\xi$
-	*	 @param j [input] index of the collocation point in $\theta'$
-	*	 @param k [input] index of the collocation point in $\phi'$
+	*	 @param x [input] value of the coordinate \f$\xi\f$
+	*	 @param j [input] index of the collocation point in \f$\theta'\f$
+	*	 @param k [input] index of the collocation point in \f$\phi'\f$
 	*	 @return value at the point 
-	*		    $(\xi, {\theta'}_j, {\phi'}_k)$ in
-	*	    the domain no. {\it l} of the field whose spectral coefficients
-	*	    are stored in {\tt *this}. 
+	*		    \f$(\xi, {\theta'}_j, {\phi'}_k)\f$ in
+	*	    the domain no. \e l  of the field whose spectral coefficients
+	*	    are stored in \c *this . 
 	*/
 	double val_point_jk_symy(int l, double x, int j, int k) const ; 
 
-	/** Computes the value of the field represented by {\tt *this} at an
-	*   arbitrary point in $\xi$, but collocation point in 
-	*   $(\theta', \phi')$, by means of the spectral expansion.
+	/** Computes the value of the field represented by \c *this  at an
+	*   arbitrary point in \f$\xi\f$, but collocation point in 
+	*   \f$(\theta', \phi')\f$, by means of the spectral expansion.
 	*   Case where the field is antisymmetric with respect to the y=0 plane. 
 	*	 @param l [input] index of the domain
-	*	 @param x [input] value of the coordinate $\xi$
-	*	 @param j [input] index of the collocation point in $\theta'$
-	*	 @param k [input] index of the collocation point in $\phi'$
+	*	 @param x [input] value of the coordinate \f$\xi\f$
+	*	 @param j [input] index of the collocation point in \f$\theta'\f$
+	*	 @param k [input] index of the collocation point in \f$\phi'\f$
 	*	 @return value at the point 
-	*		    $(\xi, {\theta'}_j, {\phi'}_k)$ in
-	*	    the domain no. {\it l} of the field whose spectral coefficients
-	*	    are stored in {\tt *this}. 
+	*		    \f$(\xi, {\theta'}_j, {\phi'}_k)\f$ in
+	*	    the domain no. \e l  of the field whose spectral coefficients
+	*	    are stored in \c *this . 
 	*/
 	double val_point_jk_asymy(int l, double x, int j, int k) const ; 
 
@@ -402,10 +413,11 @@ class Mtbl_cf {
     // Extraction of information
     // -------------------------
     public:
-	/// Returns the {\tt Mg3d} on which the {\tt Mtbl\_cf} is defined
+	/// Returns the \c Mg3d  on which the \c Mtbl_cf  is defined
 	const Mg3d* get_mg() const { return mg ; }; 
 
-	int get_etat() const { return etat ; };   /// Returns the logical state
+/// Returns the logical state
+	int get_etat() const { return etat ; };   
 	
 	/// Returns the number of zones (domains)
 	int get_nzone() const { return nzone ; } ; 
@@ -415,7 +427,8 @@ class Mtbl_cf {
     // -------
     public:
 
-	void sauve(FILE *) const ;	    /// Save in a file
+/// Save in a file
+	void sauve(FILE *) const ;	    
 
 	/** Prints the coefficients whose values are greater than a given threshold,
 	 *  as well as the corresponding basis
@@ -441,81 +454,85 @@ class Mtbl_cf {
     // Member arithmetics
     // ------------------
     public:
-	void operator+=(const Mtbl_cf & ) ;	/// += Mtbl\_cf
-	void operator-=(const Mtbl_cf & ) ;	/// -= Mtbl\_cf
-	void operator*=(double ) ;		/// *= double
-	void operator/=(double ) ;		/// /= double
+/// += Mtbl_cf
+	void operator+=(const Mtbl_cf & ) ;	
+/// -= Mtbl_cf
+	void operator-=(const Mtbl_cf & ) ;	
+/// *= double
+	void operator*=(double ) ;		
+/// /= double
+	void operator/=(double ) ;		
 
     // Linear operators
     // ----------------
     public:
-	/// ${\partial \over \partial \xi}$ 
+	/// \f${\partial \over \partial \xi} \f$ 
 	void dsdx() ;		    
 
-	/// ${\partial^2\over \partial \xi^2}$ 
+	/// \f${\partial^2\over \partial \xi^2} \f$ 
 	void d2sdx2() ;		    
 
-	/** ${1 \over \xi}$ ({\it r}-sampling = {\tt RARE}) \\
-	 * Id ({\it r} sampling = {\tt FIN}) \\
-	 * ${1 \over \xi-1}$ ({\it r}-sampling = {\tt UNSURR})
+	/** \f${1 \over \xi} \f$ (\e r -sampling = \c RARE ) \\
+	 * Id (\e r  sampling = \c FIN ) \\
+	 * \f${1 \over \xi-1} \f$ (\e r -sampling = \c UNSURR )
 	 */
 	void sx() ;		    
 
-	/** ${1 \over \xi^2}$ ({\it r}-sampling = {\tt RARE}) \\
-	 * Id ({\it r} sampling = {\tt FIN}) \\
-	 * ${1 \over (\xi-1)^2}$ ({\it r}-sampling = {\tt UNSURR})
+	/** \f${1 \over \xi^2}\f$ (\e r -sampling = \c RARE ) \\
+	 * Id (\e r  sampling = \c FIN ) \\
+	 * \f${1 \over (\xi-1)^2}\f$ (\e r -sampling = \c UNSURR )
 	 */
 	void sx2() ;		    
 	
-	/** $\xi \, Id$ ({\it r}-sampling = {\tt RARE}) \\
-	 * Id ({\it r} sampling = {\tt FIN}) \\
-	 * $(\xi-1) \, Id $ ({\it r}-sampling = {\tt UNSURR})
+	/** \f$\xi \, Id\f$ (\e r -sampling = \c RARE ) \\
+	 * Id (\e r  sampling = \c FIN ) \\
+	 * \f$(\xi-1) \, Id \f$ (\e r -sampling = \c UNSURR )
 	 */
 	void mult_x() ;		    
 	
-	/** Id ({\it r} sampling = {\tt RARE, FIN}) \\
-	 * ${1 \over (\xi-1)}$ ({\it r}-sampling = {\tt UNSURR})
+	/** Id (\e r  sampling = \c RARE, FIN ) \\
+	 * \f${1 \over (\xi-1)}\f$ (\e r -sampling = \c UNSURR )
 	 */
 	void sxm1_zec() ;		    
 
-	/** Id ({\it r} sampling = {\tt RARE, FIN}) \\
-	 * $(\xi-1) \, Id$ ({\it r}-sampling = {\tt UNSURR})
+	/** Id (\e r  sampling = \c RARE, FIN ) \\
+	 * \f$(\xi-1) \, Id\f$ (\e r -sampling = \c UNSURR )
 	 */
 	void mult_xm1_zec() ;	    
 
-	/** Id ({\it r} sampling = {\tt RARE, FIN}) \\
-	 * $(\xi-1)^2 \, Id$ ({\it r}-sampling = {\tt UNSURR})
+	/** Id (\e r  sampling = \c RARE, FIN ) \\
+	 * \f$(\xi-1)^2 \, Id\f$ (\e r -sampling = \c UNSURR )
 	 */
 	void mult2_xm1_zec() ;	    
 
-	/// ${\partial \over \partial \theta}$ 
+	/// \f${\partial \over \partial \theta}\f$ 
 	void dsdt() ;		   
 
-	/// ${\partial^2 \over \partial \theta^2}$
+	/// \f${\partial^2 \over \partial \theta^2}\f$
 	void d2sdt2() ;		    
 
-	/// $Id\over\sin\theta$
+	/// \f$Id\over\sin\theta\f$
 	void ssint() ;		    
 		
-	/// $Id\over\cos\theta$
+	/// \f$Id\over\cos\theta\f$
 	void scost() ;		    
 
-	/// $\cos\theta \, Id$
+	/// \f$\cos\theta \, Id\f$
 	void mult_ct() ;		    
 
-	/// $\sin\theta \, Id$
+	/// \f$\sin\theta \, Id\f$
 	void mult_st() ;		    
 
-	/// ${\partial \over \partial \phi}$ 
+	/// \f${\partial \over \partial \phi}\f$ 
 	void dsdp() ;		    
 
-	/// ${\partial^2 \over \partial \phi^2}$ 
+	/// \f${\partial^2 \over \partial \phi^2}\f$ 
 	void d2sdp2() ;		    
 
-	/// $\cos\phi \, Id$
+	/// \f$\cos\phi \, Id\f$
 	void mult_cp() ;		    
 
-	/// $\sin\phi \, Id$
+	/// \f$\sin\phi \, Id\f$
 	void mult_sp() ;		    
 
 	/// Angular Laplacian
@@ -525,15 +542,15 @@ class Mtbl_cf {
 	//---------------
 	public: 
 	/** Resolution of an angular Poisson equation.
-	 * The angular Poisson equation is $\Delta_{\theta\varphi} u = \sigma$,
-	 * where $\Delta_{\theta\varphi} u := \frac{\partial^2 u}
+	 * The angular Poisson equation is \f$\Delta_{\theta\varphi} u = \sigma\f$,
+	 * where \f$\Delta_{\theta\varphi} u := \frac{\partial^2 u}
 	 *  {\partial \theta^2} + \frac{1}{\tan \theta} \frac{\partial u}
 	 *  {\partial \theta} +\frac{1}{\sin^2 \theta}\frac{\partial^2 u}
-	 *  {\partial \varphi^2}$.
+	 *  {\partial \varphi^2}\f$.
 	 * 
-	 * Before the call to {\tt poisson\_angu()}, {\tt *this} contains the
-	 * coefficients of the source $\sigma$; after the call, it contains the
-	 * coefficients of the solution $u$.
+	 * Before the call to \c poisson_angu() , \c *this  contains the
+	 * coefficients of the source \f$\sigma\f$; after the call, it contains the
+	 * coefficients of the solution \f$u\f$.
 	 */
 	void poisson_angu() ; 
 	
@@ -541,63 +558,76 @@ class Mtbl_cf {
 ostream& operator<<(ostream& , const Mtbl_cf& ) ;   
 
 /**
- * @name Mtbl\_cf Mathematics
+ * \defgroup mtbl_cf_mat Mtbl_cf Mathematics
+ * \ingroup (spec)
+ *
+ * @{
  */
-    //@{
-Mtbl_cf operator+(const Mtbl_cf& ) ;			/// + Mtbl\_cf
-Mtbl_cf operator-(const Mtbl_cf& ) ;			/// - Mtbl\_cf
-Mtbl_cf operator+(const Mtbl_cf&, const Mtbl_cf& ) ;	/// Mtbl\_cf + Mtbl\_cf
-Mtbl_cf operator-(const Mtbl_cf&, const Mtbl_cf& ) ;	/// Mtbl\_cf - Mtbl\_cf
-Mtbl_cf operator*(const Mtbl_cf&, double ) ;		/// Mtbl\_cf * double
-Mtbl_cf operator*(double, const Mtbl_cf& ) ;		/// double * Mtbl\_cf
-Mtbl_cf operator*(const Mtbl_cf&, int ) ;		/// Mtbl\_cf * int
-Mtbl_cf operator*(int, const Mtbl_cf& ) ;		/// int * Mtbl\_cf
-Mtbl_cf operator/(const Mtbl_cf&, double ) ;		/// Mtbl\_cf / double
-Mtbl_cf operator/(const Mtbl_cf&, int ) ;		/// Mtbl\_cf / int
+/// + Mtbl_cf
+Mtbl_cf operator+(const Mtbl_cf& ) ;			
+/// \c - Mtbl_cf
+Mtbl_cf operator-(const Mtbl_cf& ) ;			
+/// Mtbl_cf + Mtbl_cf
+Mtbl_cf operator+(const Mtbl_cf&, const Mtbl_cf& ) ;	
+/// Mtbl_cf - Mtbl_cf
+Mtbl_cf operator-(const Mtbl_cf&, const Mtbl_cf& ) ;	
+/// Mtbl_cf * double
+Mtbl_cf operator*(const Mtbl_cf&, double ) ;		
+/// double * Mtbl_cf
+Mtbl_cf operator*(double, const Mtbl_cf& ) ;		
+/// Mtbl_cf * int
+Mtbl_cf operator*(const Mtbl_cf&, int ) ;		
+/// int * Mtbl_cf
+Mtbl_cf operator*(int, const Mtbl_cf& ) ;		
+/// Mtbl_cf / double
+Mtbl_cf operator/(const Mtbl_cf&, double ) ;		
+/// Mtbl_cf / int
+Mtbl_cf operator/(const Mtbl_cf&, int ) ;		
 
-Mtbl_cf abs(const Mtbl_cf& ) ;	    /// Absolute value
+/// Absolute value
+Mtbl_cf abs(const Mtbl_cf& ) ;	    
 
 /**
- * Maximum values of the {\tt Mtbl\_cf} elements in each domain.
- * @return 1-D {\tt Tbl} of size the number of domains, the elements of which 
+ * Maximum values of the \c Mtbl_cf  elements in each domain.
+ * @return 1-D \c Tbl  of size the number of domains, the elements of which 
  *	   are the set of the maximum values in each domain.  
  */
 Tbl max(const Mtbl_cf& ) ;   
 
 /**
- * Minimum values of the {\tt Mtbl\_cf} elements in each domain.
- * @return 1-D {\tt Tbl} of size the number of domains, the elements of which 
+ * Minimum values of the \c Mtbl_cf  elements in each domain.
+ * @return 1-D \c Tbl  of size the number of domains, the elements of which 
  *	   are the set of the minimum values in each domain.  
  */
 Tbl min(const Mtbl_cf& ) ;   
 
 /**
- * Sums of the absolute values of all the {\tt Mtbl\_cf} elements in each domain.
- * @return 1-D {\tt Tbl} of size the number of domains, the elements of which 
+ * Sums of the absolute values of all the \c Mtbl_cf  elements in each domain.
+ * @return 1-D \c Tbl  of size the number of domains, the elements of which 
  *	   are the set of the sums of the absolute values in each domain.  
  */
 Tbl norme(const Mtbl_cf& ) ;   
 
 /**
- * Relative difference between two {\tt Mtbl\_cf} (norme version).
- * @return 1-D {\tt Tbl} of size the number of domains, the elements of which 
- *	   are {\tt norme[a(l)-b(l)]/norme[b(l)]} if {\tt b(l)!=0} and
- *	   {\tt norme[a(l)-b(l)]} if  {\tt b(l)=0},  where {\tt a(l)} and 
- *	   {\tt b(l)} denote symbolically the values of {\tt a} and {\tt b} 
- *	   in domain no. {\tt l}. 
+ * Relative difference between two \c Mtbl_cf  (norme version).
+ * @return 1-D \c Tbl  of size the number of domains, the elements of which 
+ *	   are \c norme[a(l)-b(l)]/norme[b(l)]  if \c b(l)!=0  and
+ *	   \c norme[a(l)-b(l)]  if  \c b(l)=0 ,  where \c a(l)  and 
+ *	   \c b(l)  denote symbolically the values of \c a  and \c b  
+ *	   in domain no. \c l . 
  */
 Tbl diffrel(const Mtbl_cf& a, const Mtbl_cf& b) ; 
 
 /**
- * Relative difference between two {\tt Mtbl\_cf} (max version).
- * @return 1-D {\tt Tbl} of size the number of domains, the elements of which 
- *	   are {\tt max[abs(a(l)-b(l))]/max[abs(b(l))]} if {\tt b(l)!=0} and
- *	   {\tt max[abs(a(l)-b(l))]} if  {\tt b(l)=0},  where {\tt a(l)} and 
- *	   {\tt b(l)} denote symbolically the values of {\tt a} and {\tt b} 
- *	   in domain no. {\tt l}. 
+ * Relative difference between two \c Mtbl_cf  (max version).
+ * @return 1-D \c Tbl  of size the number of domains, the elements of which 
+ *	   are \c max[abs(a(l)-b(l))]/max[abs(b(l))]  if \c b(l)!=0  and
+ *	   \c max[abs(a(l)-b(l))]  if  \c b(l)=0 ,  where \c a(l)  and 
+ *	   \c b(l)  denote symbolically the values of \c a  and \c b  
+ *	   in domain no. \c l . 
  */
 Tbl diffrelmax(const Mtbl_cf& a, const Mtbl_cf& b) ; 
 
-    //@}
+/**@} */
 
 #endif

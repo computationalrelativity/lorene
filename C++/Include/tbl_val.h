@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/22 13:12:43  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.4  2002/11/13 11:22:57  j_novak
  * Version "provisoire" de l'interpolation (sommation depuis la grille
  * spectrale) aux interfaces de la grille de Valence.
@@ -60,37 +63,36 @@
 class Grille_val ; 
 
 /**
- * Tbl_val.
+ * Finite-difference array intended to store field values.\ingroup (mdm)
  *
- * Class defined on a cartesian ({\tt Gval_cart}) or spherical 
- * ({\tt Gval_spher}) grid, in order to represent 
+ * Class defined on a cartesian (\c Gval_cart ) or spherical 
+ * (\c Gval_spher ) grid, in order to represent 
  * Godunov-type arrays in 1,2 or 3D. 
  *
- * @version #$Id$#
  */
 class Tbl_val {
 
   // Data : 
   // -----
  private:
-  /// logical state ({\tt ETATNONDEF}, {\tt ETATQCQ} or {\tt ETATZERO}).
+  /// logical state (\c ETATNONDEF , \c ETATQCQ  or \c ETATZERO ).
   int etat ;
   /**
-   * The {\tt Dim_tbl} giving the dimensions and number of points (without 
+   * The \c Dim_tbl  giving the dimensions and number of points (without 
    * the hidden cells).
    */
   const Dim_tbl* dim ;
-/// The {\tt Grille_val} (cartesian or spherical) on which the array is defined
+/// The \c Grille_val (cartesian or spherical) on which the array is defined
   const Grille_val* gval ;  
   
  public:
-  /// The array of {\tt double} at the nodes
+  /// The array of \c double at the nodes
   double* t ;	    
   /// The array at z (or r) interfaces
   double* tzri ;    
-  /// The array at x (or $\theta$) interfaces
+  /// The array at x (or \f$\theta\f$) interfaces
   double* txti ;    
-  /// The array at y (or $\phi$) interfaces
+  /// The array at y (or \f$\phi\f$) interfaces
   double* typi ;    
   
   // Constructors - Destructor
@@ -99,7 +101,7 @@ class Tbl_val {
  public:
   /// Constructor from a 3D grid
   explicit Tbl_val(const Grille_val* ) ; 
-  /// Constructor from a file (see {\tt sauve(FILE* )})
+  /// Constructor from a file (see \c sauve(FILE*) )
   explicit Tbl_val(const Grille_val*, FILE* ) ;	
   /// Copy constructor
   Tbl_val(const Tbl_val& ) ;		
@@ -109,49 +111,49 @@ class Tbl_val {
   
   // Assignement
   // -----------
-  /// Assignment to another {\tt Tbl_val}
+  /// Assignment to another \c Tbl_val
   void operator=(const Tbl_val& ) ;	
-  /// Assignment to a {\tt double}
+  /// Assignment to a \c double
   void operator=(double ) ; 
-  /// Assignment to a {\tt int}
+  /// Assignment to a \c int
   void operator=(int ) ;	 
 
   // Memory management
   // -----------------
  private:
   /** Logical destructor: dellocates the memory occupied by the array
-   *  {\tt t} and sets the logical state to ETATNONDEF. 
+   *  \c t  and sets the logical state to ETATNONDEF. 
    */
   void del_t() ;		
   
  public:
   
   /**
-   * Sets the logical state to {\tt ETATNONDEF} (undefined). 
-   * Deallocates the memory occupied by the {\tt double} array {\tt t}.
+   * Sets the logical state to \c ETATNONDEF  (undefined). 
+   * Deallocates the memory occupied by the \c double array \c t .
    */
   void set_etat_nondef() ;	
   
   /**
-   * Sets the logical state to {\tt ETATZERO} (zero). 
-   * Deallocates the memory occupied by the {\tt double} array {\tt t}.
+   * Sets the logical state to \c ETATZERO  (zero). 
+   * Deallocates the memory occupied by the \c double array \c t .
    */
   void set_etat_zero() ;	    	
   
   /**
-   * Sets the logical state to {\tt ETATQCQ} (ordinary state).
-   * If the state (member {\tt etat}) is already {\tt ETATQCQ}, this 
+   * Sets the logical state to \c ETATQCQ  (ordinary state).
+   * If the state (member \c etat ) is already \c ETATQCQ , this 
    * function does nothing. Otherwise, it performs the memory allocation
-   * for the {\tt double} array {\tt t}.  
+   * for the \c double array \c t .  
    */
   void set_etat_qcq() ;	    	
     
   /**
-   * Sets the {\tt Tbl_val} to zero in a hard way. 
-   * 1/ Sets the logical state to {\tt ETATQCQ}, i.e. to an ordinary state.
-   * 2/ Allocates the memory of the {\tt double} array {\tt t}, and fills it
+   * Sets the \c Tbl_val to zero in a hard way. 
+   * 1/ Sets the logical state to \c ETATQCQ , i.e. to an ordinary state.
+   * 2/ Allocates the memory of the \c double array \c t , and fills it
    * with zeros. NB: this function must be used for debugging purposes only.
-   * For other operations, the function {\tt set\_etat\_zero()} must
+   * For other operations, the function \c set_etat_zero()  must
    * be perferred. 
    */
   void annule_hard() ;			
@@ -159,7 +161,7 @@ class Tbl_val {
   // Access to individual elements
   // -----------------------------
  public:
-  /// Read/write of a particular element (index {\tt i})  (1D case)
+  /// Read/write of a particular element (index \c i )  (1D case)
   double& set(int i) {
     assert (etat == ETATQCQ) ;
     assert( dim->ndim == 1 ) ;
@@ -169,7 +171,7 @@ class Tbl_val {
     return t[i + fant] ;
   } ;
   
-  /// Read/write of a particular element on the interface (index {\tt i})  (1D case)
+  /// Read/write of a particular element on the interface (index \c i )  (1D case)
   double& set_zri(int i) {
     assert (etat == ETATQCQ) ;
     assert( dim->ndim == 1 ) ; 
@@ -179,7 +181,7 @@ class Tbl_val {
     return tzri[i+fant] ;
   } ;
   
-  /// Read-only of a particular element (index {\tt i}) (1D case)
+  /// Read-only of a particular element (index \c i ) (1D case)
   double operator()(int i) const {
     assert(etat != ETATNONDEF) ;
     assert( dim->ndim == 1 ) ; 
@@ -193,7 +195,7 @@ class Tbl_val {
     else return t[i+fant] ;
   };
   
-  /// Read-only of a particular element on the interface (index {\tt i}) (1D case)
+  /// Read-only of a particular element on the interface (index \c i ) (1D case)
   double get_zri(int i) const {
     assert(etat != ETATNONDEF) ;
     assert( dim->ndim == 1 ) ; 
@@ -207,7 +209,7 @@ class Tbl_val {
     else return tzri[i+fant] ;
   };
   
-  /// Read/write of a particular element (index {\tt (j,i)}) (2D case)
+  /// Read/write of a particular element (index \c (j,i) ) (2D case)
   double& set(int j, int i) {
     assert (etat == ETATQCQ) ;
     assert( dim->ndim == 2 ) ;
@@ -218,8 +220,8 @@ class Tbl_val {
   };
 
   /**
-   * Read/write of a particular element on the x (or $\theta$) 
-   * interface (index {\tt (j,i)}) (2D case)
+   * Read/write of a particular element on the x (or \f$\theta\f$) 
+   * interface (index \c (j,i) ) (2D case)
    */
   double& set_xti(int j, int i) {
     assert (etat == ETATQCQ) ;
@@ -232,7 +234,7 @@ class Tbl_val {
   
   /**
    * Read/write of a particular element on the z (or r) 
-   * interface (index {\tt (j,i)}) (2D case)
+   * interface (index \c (j,i) ) (2D case)
    */
   double& set_zri(int j, int i) {
     assert (etat == ETATQCQ) ;
@@ -243,7 +245,7 @@ class Tbl_val {
     return tzri[(dim->dim[0] +2*fant+1)*(j+fant) + i + fant] ;
   };
   
-  /// Read-only of a particular element (index {\tt (j,i)}) (2D case)
+  /// Read-only of a particular element (index \c (j,i) ) (2D case)
   double operator()(int j, int i) const {
     assert(etat != ETATNONDEF) ;
     assert( dim->ndim == 2 ) ;
@@ -258,8 +260,8 @@ class Tbl_val {
   };
   
   /**
-   * Read-only of a particular element on the x (or $\theta$) interface 
-   * (index {\tt (j,i)}) (2D case)
+   * Read-only of a particular element on the x (or \f$\theta\f$) interface 
+   * (index \c (j,i) ) (2D case)
    */
   double get_xti(int j, int i) const {
     assert(etat != ETATNONDEF) ;
@@ -276,7 +278,7 @@ class Tbl_val {
   
   /**
    * Read-only of a particular element on the z (or r) interface 
-   * (index {\tt (j,i)}) (2D case)
+   * (index \c (j,i) ) (2D case)
    */
   double get_zri(int j, int i) const {
     assert(etat != ETATNONDEF) ;
@@ -291,7 +293,7 @@ class Tbl_val {
     else return tzri[(dim->dim[0] + 2*fant + 1) *(j+fant) + i + fant] ;
   };
   
-  /// Read/write of a particular element (index {\tt (k,j,i)}) (3D case)
+  /// Read/write of a particular element (index \c (k,j,i) ) (3D case)
   double& set(int k, int j, int i) {	
     assert (etat == ETATQCQ) ;
     assert( dim->ndim == 3 ) ;
@@ -304,8 +306,8 @@ class Tbl_val {
   };
   
   /**
-   * Read/write of a particular element on the y (or $\phi$) 
-   * interface (index {\tt (k,j,i)}) (3D case)
+   * Read/write of a particular element on the y (or \f$\phi\f$) 
+   * interface (index \c (k,j,i) ) (3D case)
    */
   double& set_ypi(int k, int j, int i) {	
     assert (etat == ETATQCQ) ;
@@ -319,8 +321,8 @@ class Tbl_val {
   };
 
   /**
-   * Read/write of a particular element on the x (or $\theta$) 
-   * interface (index {\tt (k,j,i)}) (3D case)
+   * Read/write of a particular element on the x (or \f$\theta\f$) 
+   * interface (index \c (k,j,i) ) (3D case)
    */
   double& set_xti(int k, int j, int i) {	
     assert (etat == ETATQCQ) ;
@@ -335,7 +337,7 @@ class Tbl_val {
 
   /**
    * Read/write of a particular element on the z (or r) 
-   * interface (index {\tt (k,j,i)}) (3D case)
+   * interface (index \c (k,j,i) ) (3D case)
    */
   double& set_zri(int k, int j, int i) {	
     assert (etat == ETATQCQ) ;
@@ -348,7 +350,7 @@ class Tbl_val {
 	      (dim->dim[0]+2*fant+1)*(j+fant) + i +fant] ;
   };
   
-  /// Read-only of a particular element (index {\tt (k,j,i)}) (3D case)
+  /// Read-only of a particular element (index \c (k,j,i) ) (3D case)
   double operator()(int k, int j, int i) const {
     assert(etat != ETATNONDEF) ;
     assert( dim->ndim == 3 ) ;
@@ -365,8 +367,8 @@ class Tbl_val {
   };
 
   /**
-   * Read-only of a particular element on the y (or $\phi$) interface 
-   * (index {\tt (k,j,i)}) (3D case)
+   * Read-only of a particular element on the y (or \f$\phi\f$) interface 
+   * (index \c (k,j,i) ) (3D case)
    */
   double get_ypi(int k, int j, int i) const {
     assert(etat != ETATNONDEF) ;
@@ -384,8 +386,8 @@ class Tbl_val {
   };
   
   /**
-   * Read-only of a particular element on the x (or $\theta$) interface 
-   * (index {\tt (k,j,i)}) (3D case)
+   * Read-only of a particular element on the x (or \f$\theta\f$) interface 
+   * (index \c (k,j,i) ) (3D case)
    */
   double get_xti(int k, int j, int i) const {
     assert(etat != ETATNONDEF) ;
@@ -404,7 +406,7 @@ class Tbl_val {
   
   /**
    * Read-only of a particular element on the z (or r) interface 
-   * (index {\tt (k,j,i)}) (3D case)
+   * (index \c (k,j,i) ) (3D case)
    */
   double get_zri(int k, int j, int i) const {
     assert(etat != ETATNONDEF) ;
@@ -446,16 +448,16 @@ class Tbl_val {
       }
     return resu ; }; 
   
-  /// Gives the number of dimensions (ie {\tt dim->ndim})
+  /// Gives the number of dimensions (ie \c dim->ndim )
   int get_ndim() const { return dim->ndim ; };	
   
-  /// Gives the {\tt i}th dimension (ie {tt dim->dim[i]}, without hidden cells)
+  /// Gives the \c i th dimension (ie \c dim->dim[i] , without hidden cells)
   int get_dim(int i) const {	
     assert( (i>=0) && (i<dim->ndim) ) ;
     return dim->dim[i] ;
   };
 
-  /// Returns a pointer on the grid on which the {\tt Tbl\_val} is defined
+  /// Returns a pointer on the grid on which the \c Tbl_val is defined
   const Grille_val* get_grille() const { return gval ; } ;
   
   // Outputs
@@ -479,39 +481,39 @@ class Tbl_val {
   // ------------------
  public:
   
-/// Addition of a {\tt Tbl_val} to {\tt this}
+/// Addition of a \c Tbl_val to \c this
   void operator+=(const Tbl_val &) ;	
-/// Addition of a {\tt double} to {\tt this}
+/// Addition of a \c double to \c this
   void operator+=(double) ;	
-/// Subtraction of a {\tt Tbl_val} to {\tt this}
+/// Subtraction of a \c Tbl_val to \c this
   void operator-=(const Tbl_val &) ;	
-/// Subtraction of a {\tt double} to {\tt this}
+/// Subtraction of a \c double to \c this
   void operator-=(double) ;	
-/// Multiplication of {\tt this} by a {\tt Tbl_val}
+/// Multiplication of \c this by a \c Tbl_val
   void operator*=(const Tbl_val &) ;	
-/// Multiplication of {\tt this} by a {\tt double}
+/// Multiplication of \c this by a \c double
   void operator*=(double) ;	
-/// Division of {\tt this} by a {\tt Tbl_val}
+/// Division of \c this by a \c Tbl_val
   void operator/=(const Tbl_val &) ;	
-/// Division of {\tt this} by a {\tt double}
+/// Division of \c this by a \c double
   void operator/=(double) ;	
 
   /**
-   * Interpolation from a {\tt Tbl\_val} to a {\tt Cmp}. The 
-   * {\tt Cmp} is evaluated only in zones [lmin, lmax[. 
-   * @param map [input] The {\tt Mapping} to which the {\tt Tbl_val} is 
+   * Interpolation from a \c Tbl_val to a \c Cmp . The 
+   * \c Cmp  is evaluated only in zones [lmin, lmax[. 
+   * @param map [input] The \c Mapping  to which the \c Tbl_val is 
    *                    interpolated. The symetries of both grids must be
-   *                    the same (see {\tt Mg3d} and {\tt Grille_val} 
+   *                    the same (see \c Mg3d  and \c Grille_val 
    *                    documentation), and the spectral grid (between lmin
    *                    and lmax-1) must be included in the Godunov one.
-   *                    The number of points in $\theta$ and $\phi$ of the
+   *                    The number of points in \f$\theta\f$ and \f$\phi\f$ of the
    *                    spectral grid may be different/domain. Still, the
-   *                    domain with the highest number of points in $\theta$
-   *                    (resp.$\phi$) must contain the collocation points
-   * @param lmax [input] index of the outer zone {\bf +1}
+   *                    domain with the highest number of points in \f$\theta\f$
+   *                    (resp.\f$\phi\f$) must contain the collocation points
+   * @param lmax [input] index of the outer zone \b +1
    * @param lmin [input] index of the inner zone 
    * @param type_inter [input] type of interpolation: \\
-   *    0 -> uses the {\tt INSMTS} routine of second derivative minimization\\
+   *    0 -> uses the \c INSMTS  routine of second derivative minimization\\
    *    1 -> linear interpolation\\
    *    2 -> parabolic interpolation\\
    *    3 -> spline interpolation (not implemented yet)\\
@@ -522,10 +524,10 @@ class Tbl_val {
 		      int type_inter = 2) const ;
   
   /**
-   * Interpolation from a {\tt Cmp} to a {\tt Tbl\_val} (spectral
-   * summation). The {\tt Cmp} is considered only in zones [lmin,lmax[.
-   * @param meudon [input] The {\tt Cmp} from which the interpolation is done
-   * @param lmax [input] index of the outer zone {\bf +1}
+   * Interpolation from a \c Cmp  to a \c Tbl_val (spectral
+   * summation). The \c Cmp  is considered only in zones [lmin,lmax[.
+   * @param meudon [input] The \c Cmp  from which the interpolation is done
+   * @param lmax [input] index of the outer zone \b +1
    * @param lmin [input] index of the inner zone 
    */
   void from_spectral(const Cmp& meudon, int lmax, int lmin=0,
@@ -534,12 +536,14 @@ class Tbl_val {
 
 
 /**
- * @name Tbl_val Mathematics
+ * \defgroup tbl_val_m Tbl_val Mathematics
+ * \ingroup (mdm)
+ * @{
  */
-//@{
+
 /// + Tbl_val
 Tbl_val operator+(const Tbl_val&) ;			
-/// - Tbl_val
+/// \c - Tbl_val
 Tbl_val operator-(const Tbl_val&) ;			
 /// Tbl_val + Tbl_val
 Tbl_val operator+(const Tbl_val&, const Tbl_val&) ;	
@@ -604,35 +608,35 @@ Tbl_val log10(const Tbl_val& ) ;
 Tbl_val sqrt(const Tbl_val& ) ;	    
 /// cube root
 Tbl_val racine_cubique (const Tbl_val&) ; 
-/// Power ${\tt Tbl_val}^{\tt int}$
+/// Power \f${\tt Tbl_val}^{\tt int}\f$
 Tbl_val pow(const Tbl_val& , int ) ;  
-/// Power ${\tt Tbl_val}^{\tt double}$
+/// Power \f${\tt Tbl_val}^{\tt double}\f$
 Tbl_val pow(const Tbl_val& , double ) ; 
 /// Absolute value
 Tbl_val abs(const Tbl_val& ) ;	    
-/// Maximum value of the {\tt Tbl_val} elements
+/// Maximum value of the \c Tbl_val elements
 double max(const Tbl_val& ) ;   
-/// Minimum value of the {\tt Tbl_val} elements
+/// Minimum value of the \c Tbl_val elements
 double min(const Tbl_val& ) ;   
 
-/// Sum of the absolute values of all the {\tt Tbl_val} elements
+/// Sum of the absolute values of all the \c Tbl_val elements
 double norme(const Tbl_val& ) ;   
 
 /**
- * Relative difference between two {\tt Tbl_val} (norme version).
- * Returns {\tt norme(a-b)/norme(b)} unless {\tt b=0}, in which
- * case it returns {\tt norme(a-b)}.
+ * Relative difference between two \c Tbl_val (norme version).
+ * Returns \c norme(a-b)/norme(b)  unless \c b=0 , in which
+ * case it returns \c norme(a-b) .
  */
 double diffrel(const Tbl_val& a, const Tbl_val& b) ; 
 
 /**
- * Relative difference between two {\tt Tbl_val} (max version).
- * Returns {\tt max(abs(a-b))/max(abs(b))} unless {\tt b=0}, in which
- * case it returns {\tt max(abs(a-b))}.
+ * Relative difference between two \c Tbl_val (max version).
+ * Returns \c max(abs(a-b))/max(abs(b))  unless \c b=0 , in which
+ * case it returns \c max(abs(a-b)) .
  */
 double diffrelmax(const Tbl_val& a, const Tbl_val& b) ; 
 
-//@}
+/** @} */
 
 #endif
 

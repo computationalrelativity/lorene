@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/03/22 13:12:40  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.11  2004/03/01 09:54:58  j_novak
  * Suppression of the Cmp version of avance_dalembert (now only with Scalar's)
  *
@@ -400,10 +403,7 @@ class Param ;
 class Scalar ;
 
 /**
- * Component of a tensorial field.
- * 
- * @version #$Id$#
- * 
+ * Component of a tensorial field. \ingroup (otens)
  */
 
 class Cmp {
@@ -411,56 +411,56 @@ class Cmp {
     // Data : 
     // -----
     private:
-	const Map* mp ;	    /// Reference mapping
+	const Map* mp ;	    ///< Reference mapping
 
-	/// Logical state ({\tt ETATNONDEF}, {\tt ETATQCQ} or {\tt ETATZERO}).
+	/// Logical state (\c ETATNONDEF , \c ETATQCQ  or \c ETATZERO ).
 	int etat ;	    
 
 	/**
-	 * Power of {\it r} by which the quantity represented by {\tt this} 
+	 * Power of \e r  by which the quantity represented by \c this  
 	 * must be divided in the external compactified zone in order 
 	 * to get the correct physical values
 	 */
 	int dzpuis ;	
 
     public:
-	Valeur va ;		/// The numerical value of the {\tt Cmp}    
+	Valeur va ;		///< The numerical value of the \c Cmp     
 
     // Derived data : 
     // ------------
     private:
-	/// Pointer on $\partial/\partial r$ of {\tt *this}
+	/// Pointer on \f$\partial/\partial r\f$ of \c *this 
 	mutable Cmp* p_dsdr ;	
-	/// Pointer on $1/r \partial/\partial \theta$ of {\tt *this}
+	/// Pointer on \f$1/r \partial/\partial \theta\f$ of \c *this 
 	mutable Cmp* p_srdsdt ;	
-	/// Pointer on $1/(r\sin\theta) \partial/\partial \phi$ of {\tt *this}
+	/// Pointer on \f$1/(r\sin\theta) \partial/\partial \phi\f$ of \c *this 
 	mutable Cmp* p_srstdsdp ;
 	
-	/** Pointer on $\partial/\partial x$ of {\tt *this},
-	 *  where $x=r\sin\theta \cos\phi$
+	/** Pointer on \f$\partial/\partial x\f$ of \c *this ,
+	 *  where \f$x=r\sin\theta \cos\phi\f$
 	 */
 	mutable Cmp* p_dsdx ;	
 
-	/** Pointer on $\partial/\partial y$ of {\tt *this},
-	 *  where $y=r\sin\theta \sin\phi$
+	/** Pointer on \f$\partial/\partial y\f$ of \c *this ,
+	 *  where \f$y=r\sin\theta \sin\phi\f$
 	 */
 	mutable Cmp* p_dsdy ;	
 
-	/** Pointer on $\partial/\partial z$ of {\tt *this},
-	 *  where $z=r\cos\theta$
+	/** Pointer on \f$\partial/\partial z\f$ of \c *this ,
+	 *  where \f$z=r\cos\theta\f$
 	 */
 	mutable Cmp* p_dsdz ;	
 
-	/** Pointer on the Laplacian of {\tt *this}
+	/** Pointer on the Laplacian of \c *this 
 	 */
 	mutable Cmp* p_lap ;	
 
-	/** Power of {\it r} by which the last computed Laplacian has been 
+	/** Power of \e r  by which the last computed Laplacian has been 
 	 *  multiplied in the external compactified domain.  
 	 */
 	mutable int ind_lap ; 
 
-	/** Pointer on the space integral of {\tt *this} (values in each 
+	/** Pointer on the space integral of \c *this  (values in each 
 	 *  domain)
 	 */
 	mutable Tbl* p_integ ; 
@@ -469,205 +469,205 @@ class Cmp {
     // -------------------------
 	
     public:
-	explicit Cmp(const Map& map) ;	/// Constructor from mapping
-	explicit Cmp(const Map* p_map) ;	/// Constructor from mapping
-	Cmp(const Cmp& a) ;		/// Copy constructor
-	explicit Cmp(const Scalar& a) ; 	/// Constructor by conversion of a {\tt Scalar} 
+	explicit Cmp(const Map& map) ;	///< Constructor from mapping
+	explicit Cmp(const Map* p_map) ;	///< Constructor from mapping
+	Cmp(const Cmp& a) ;		///< Copy constructor
+	explicit Cmp(const Scalar& a) ; 	///< Constructor by conversion of a \c Scalar  
 
-	/// Constructor from a file (see {\tt sauve(FILE* )})
+	/// Constructor from a file (see \c sauve(FILE*) )
 	Cmp(const Map&, const Mg3d&, FILE* ) ;    		
 
-	~Cmp() ;			/// Destructor
+	~Cmp() ;			///< Destructor
 
     // Assignment
     // -----------
     public: 
-	/// Assignment to another {\tt Cmp} defined on the same mapping
+	/// Assignment to another \c Cmp  defined on the same mapping
 	void operator=(const Cmp& a) ;	
 
-	void operator=(const Valeur& a) ; /// Assignment to a {\tt Valeur}
-	void operator=(const Mtbl& a) ;	 /// Assignment to a {\tt Mtbl}
-	void operator=(double ) ;	 /// Assignment to a {\tt double}
-	void operator=(int ) ;		 /// Assignment to an {\tt int}
+	void operator=(const Valeur& a) ; ///< Assignment to a \c Valeur 
+	void operator=(const Mtbl& a) ;	 ///< Assignment to a \c Mtbl 
+	void operator=(double ) ;	 ///< Assignment to a \c double 
+	void operator=(int ) ;		 ///< Assignment to an \c int 
 	    
-	/** Assignment to another {\tt Cmp} defined on a different mapping.
+	/** Assignment to another \c Cmp  defined on a different mapping.
 	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Cmp}. 
-	 *	@param ci [input] {\tt Cmp} to be imported.
+	 *  spectral expansion of the original \c Cmp . 
+	 *	@param ci [input] \c Cmp  to be imported.
 	 */
 	void import(const Cmp& ci) ;	 
 
-	/** Assignment to another {\tt Cmp} defined on a different mapping.
-	 *  Case where the {\tt Cmp} is symmetric with respect to the plane y=0.
+	/** Assignment to another \c Cmp  defined on a different mapping.
+	 *  Case where the \c Cmp  is symmetric with respect to the plane y=0.
 	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Cmp}. 
-	 *	@param ci [input] {\tt Cmp} to be imported.
+	 *  spectral expansion of the original \c Cmp . 
+	 *	@param ci [input] \c Cmp  to be imported.
 	 */
 	void import_symy(const Cmp& ci) ;	 
 
-	/** Assignment to another {\tt Cmp} defined on a different mapping.
-	 *  Case where the {\tt Cmp} is antisymmetric with respect to the 
+	/** Assignment to another \c Cmp  defined on a different mapping.
+	 *  Case where the \c Cmp  is antisymmetric with respect to the 
 	 *  plane y=0.
 	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Cmp}. 
-	 *	@param ci [input] {\tt Cmp} to be imported.
+	 *  spectral expansion of the original \c Cmp . 
+	 *	@param ci [input] \c Cmp  to be imported.
 	 */
 	void import_asymy(const Cmp& ci) ;	 
 
-	/** Assignment to another {\tt Cmp} defined on a different mapping.
+	/** Assignment to another \c Cmp  defined on a different mapping.
 	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Cmp}. 
+	 *  spectral expansion of the original \c Cmp . 
 	 *	@param nzet [input] Number of domains of the destination
-	 *			    mapping (i.e. {\tt this->mp}) where the 
+	 *			    mapping (i.e. \c this->mp ) where the 
 	 *			    importation is performed: the assignment
 	 *			    is done for the domains whose indices are
-	 *			    between 0 and {\tt nzet-1}. In the other
-	 *			    domains, {\tt *this} is set to zero. 
-	 *	@param ci [input] {\tt Cmp} to be imported.
+	 *			    between 0 and \c nzet-1 . In the other
+	 *			    domains, \c *this  is set to zero. 
+	 *	@param ci [input] \c Cmp  to be imported.
 	 */
 	void import(int nzet, const Cmp& ci) ;	 
 
-	/** Assignment to another {\tt Cmp} defined on a different mapping.
-	 *  Case where the {\tt Cmp} is symmetric with respect to the plane y=0.
+	/** Assignment to another \c Cmp  defined on a different mapping.
+	 *  Case where the \c Cmp  is symmetric with respect to the plane y=0.
 	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Cmp}. 
+	 *  spectral expansion of the original \c Cmp . 
 	 *	@param nzet [input] Number of domains of the destination
-	 *			    mapping (i.e. {\tt this->mp}) where the 
+	 *			    mapping (i.e. \c this->mp ) where the 
 	 *			    importation is performed: the assignment
 	 *			    is done for the domains whose indices are
-	 *			    between 0 and {\tt nzet-1}. In the other
-	 *			    domains, {\tt *this} is set to zero. 
-	 *	@param ci [input] {\tt Cmp} to be imported.
+	 *			    between 0 and \c nzet-1 . In the other
+	 *			    domains, \c *this  is set to zero. 
+	 *	@param ci [input] \c Cmp  to be imported.
 	 */
 	void import_symy(int nzet, const Cmp& ci) ;	 
 
-	/** Assignment to another {\tt Cmp} defined on a different mapping.
-	 *  Case where the {\tt Cmp} is antisymmetric with respect to the 
+	/** Assignment to another \c Cmp  defined on a different mapping.
+	 *  Case where the \c Cmp  is antisymmetric with respect to the 
 	 *  plane y=0.
 	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Cmp}. 
+	 *  spectral expansion of the original \c Cmp . 
 	 *	@param nzet [input] Number of domains of the destination
-	 *			    mapping (i.e. {\tt this->mp}) where the 
+	 *			    mapping (i.e. \c this->mp ) where the 
 	 *			    importation is performed: the assignment
 	 *			    is done for the domains whose indices are
-	 *			    between 0 and {\tt nzet-1}. In the other
-	 *			    domains, {\tt *this} is set to zero. 
-	 *	@param ci [input] {\tt Cmp} to be imported.
+	 *			    between 0 and \c nzet-1 . In the other
+	 *			    domains, \c *this  is set to zero. 
+	 *	@param ci [input] \c Cmp  to be imported.
 	 */
 	void import_asymy(int nzet, const Cmp& ci) ;	 
 
     private:
-	/** Assignment to another {\tt Cmp} defined on a different mapping,
+	/** Assignment to another \c Cmp  defined on a different mapping,
 	 *  when the two mappings do not have a particular relative orientation.
 	 *
 	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Cmp}. 
+	 *  spectral expansion of the original \c Cmp . 
 	 *	@param nzet [input] Number of domains of the destination
-	 *			    mapping (i.e. {\tt this->mp}) where the 
+	 *			    mapping (i.e. \c this->mp ) where the 
 	 *			    importation is performed: the assignment
 	 *			    is done for the domains whose indices are
-	 *			    between 0 and {\tt nzet-1}. In the other
-	 *			    domains, {\tt *this} is set to zero. 
-	 *	@param ci [input] {\tt Cmp} to be imported.
+	 *			    between 0 and \c nzet-1 . In the other
+	 *			    domains, \c *this  is set to zero. 
+	 *	@param ci [input] \c Cmp  to be imported.
 	 */
 	void import_gal(int nzet, const Cmp& ci) ;	 
 
-	/** Assignment to another {\tt Cmp} defined on a different mapping,
+	/** Assignment to another \c Cmp  defined on a different mapping,
 	 *  when the two mappings have aligned Cartesian axis. 
 	 *
 	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Cmp}. 
+	 *  spectral expansion of the original \c Cmp . 
 	 *	@param nzet [input] Number of domains of the destination
-	 *			    mapping (i.e. {\tt this->mp}) where the 
+	 *			    mapping (i.e. \c this->mp ) where the 
 	 *			    importation is performed: the assignment
 	 *			    is done for the domains whose indices are
-	 *			    between 0 and {\tt nzet-1}. In the other
-	 *			    domains, {\tt *this} is set to zero. 
-	 *	@param ci [input] {\tt Cmp} to be imported.
+	 *			    between 0 and \c nzet-1 . In the other
+	 *			    domains, \c *this  is set to zero. 
+	 *	@param ci [input] \c Cmp  to be imported.
 	 */
 	void import_align(int nzet, const Cmp& ci) ;	 
 
-	/** Assignment to another {\tt Cmp} defined on a different mapping,
+	/** Assignment to another \c Cmp  defined on a different mapping,
 	 *  when the two mappings have anti-aligned Cartesian axis (i.e.
-	 *  $x_1 = - x_2$,  $y_1 = - y_2$,  $z_1 = z_2$). 
+	 *  \f$x_1 = - x_2\f$,  \f$y_1 = - y_2\f$,  \f$z_1 = z_2\f$). 
 	 *
 	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Cmp}. 
+	 *  spectral expansion of the original \c Cmp . 
 	 *	@param nzet [input] Number of domains of the destination
-	 *			    mapping (i.e. {\tt this->mp}) where the 
+	 *			    mapping (i.e. \c this->mp ) where the 
 	 *			    importation is performed: the assignment
 	 *			    is done for the domains whose indices are
-	 *			    between 0 and {\tt nzet-1}. In the other
-	 *			    domains, {\tt *this} is set to zero. 
-	 *	@param ci [input] {\tt Cmp} to be imported.
+	 *			    between 0 and \c nzet-1 . In the other
+	 *			    domains, \c *this  is set to zero. 
+	 *	@param ci [input] \c Cmp  to be imported.
 	 */
 	void import_anti(int nzet, const Cmp& ci) ;	 
 
-	/** Assignment to another {\tt Cmp} defined on a different mapping,
+	/** Assignment to another \c Cmp  defined on a different mapping,
 	 *  when the two mappings have aligned Cartesian axis. 
-	 *  Case where the {\tt Cmp} is symmetric with respect to the plane y=0.
+	 *  Case where the \c Cmp  is symmetric with respect to the plane y=0.
 	 *
 	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Cmp}. 
+	 *  spectral expansion of the original \c Cmp . 
 	 *	@param nzet [input] Number of domains of the destination
-	 *			    mapping (i.e. {\tt this->mp}) where the 
+	 *			    mapping (i.e. \c this->mp ) where the 
 	 *			    importation is performed: the assignment
 	 *			    is done for the domains whose indices are
-	 *			    between 0 and {\tt nzet-1}. In the other
-	 *			    domains, {\tt *this} is set to zero. 
-	 *	@param ci [input] {\tt Cmp} to be imported.
+	 *			    between 0 and \c nzet-1 . In the other
+	 *			    domains, \c *this  is set to zero. 
+	 *	@param ci [input] \c Cmp  to be imported.
 	 */
 	void import_align_symy(int nzet, const Cmp& ci) ;	 
 
-	/** Assignment to another {\tt Cmp} defined on a different mapping,
+	/** Assignment to another \c Cmp  defined on a different mapping,
 	 *  when the two mappings have anti-aligned Cartesian axis (i.e.
-	 *  $x_1 = - x_2$,  $y_1 = - y_2$,  $z_1 = z_2$). 
-	 *  Case where the {\tt Cmp} is symmetric with respect to the plane y=0.
+	 *  \f$x_1 = - x_2\f$,  \f$y_1 = - y_2\f$,  \f$z_1 = z_2\f$). 
+	 *  Case where the \c Cmp  is symmetric with respect to the plane y=0.
 	 *
 	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Cmp}. 
+	 *  spectral expansion of the original \c Cmp . 
 	 *	@param nzet [input] Number of domains of the destination
-	 *			    mapping (i.e. {\tt this->mp}) where the 
+	 *			    mapping (i.e. \c this->mp ) where the 
 	 *			    importation is performed: the assignment
 	 *			    is done for the domains whose indices are
-	 *			    between 0 and {\tt nzet-1}. In the other
-	 *			    domains, {\tt *this} is set to zero. 
-	 *	@param ci [input] {\tt Cmp} to be imported.
+	 *			    between 0 and \c nzet-1 . In the other
+	 *			    domains, \c *this  is set to zero. 
+	 *	@param ci [input] \c Cmp  to be imported.
 	 */
 	void import_anti_symy(int nzet, const Cmp& ci) ;	 
 
-	/** Assignment to another {\tt Cmp} defined on a different mapping,
+	/** Assignment to another \c Cmp  defined on a different mapping,
 	 *  when the two mappings have aligned Cartesian axis. 
-	 *  Case where the {\tt Cmp} is antisymmetric with respect to the 
+	 *  Case where the \c Cmp  is antisymmetric with respect to the 
 	 *  plane y=0.
 	 *
 	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Cmp}. 
+	 *  spectral expansion of the original \c Cmp . 
 	 *	@param nzet [input] Number of domains of the destination
-	 *			    mapping (i.e. {\tt this->mp}) where the 
+	 *			    mapping (i.e. \c this->mp ) where the 
 	 *			    importation is performed: the assignment
 	 *			    is done for the domains whose indices are
-	 *			    between 0 and {\tt nzet-1}. In the other
-	 *			    domains, {\tt *this} is set to zero. 
-	 *	@param ci [input] {\tt Cmp} to be imported.
+	 *			    between 0 and \c nzet-1 . In the other
+	 *			    domains, \c *this  is set to zero. 
+	 *	@param ci [input] \c Cmp  to be imported.
 	 */
 	void import_align_asymy(int nzet, const Cmp& ci) ;	 
 
-	/** Assignment to another {\tt Cmp} defined on a different mapping,
+	/** Assignment to another \c Cmp  defined on a different mapping,
 	 *  when the two mappings have anti-aligned Cartesian axis (i.e.
-	 *  $x_1 = - x_2$,  $y_1 = - y_2$,  $z_1 = z_2$). 
-	 *  Case where the {\tt Cmp} is antisymmetric with respect to the 
+	 *  \f$x_1 = - x_2\f$,  \f$y_1 = - y_2\f$,  \f$z_1 = z_2\f$). 
+	 *  Case where the \c Cmp  is antisymmetric with respect to the 
 	 *  plane y=0.
 	 *
 	 *  This assignment is performed point to point by means of the
-	 *  spectral expansion of the original {\tt Cmp}. 
+	 *  spectral expansion of the original \c Cmp . 
 	 *	@param nzet [input] Number of domains of the destination
-	 *			    mapping (i.e. {\tt this->mp}) where the 
+	 *			    mapping (i.e. \c this->mp ) where the 
 	 *			    importation is performed: the assignment
 	 *			    is done for the domains whose indices are
-	 *			    between 0 and {\tt nzet-1}. In the other
-	 *			    domains, {\tt *this} is set to zero. 
-	 *	@param ci [input] {\tt Cmp} to be imported.
+	 *			    between 0 and \c nzet-1 . In the other
+	 *			    domains, \c *this  is set to zero. 
+	 *	@param ci [input] \c Cmp  to be imported.
 	 */
 	void import_anti_asymy(int nzet, const Cmp& ci) ;	 
 
@@ -678,12 +678,12 @@ class Cmp {
     public:
 
 	/** Read/write of the value in a given domain.
-	 * NB: to gain in efficiency, the method {\tt del\_deriv()} (to delete
+	 * NB: to gain in efficiency, the method \c del_deriv()  (to delete
 	 *     the derived members) is not called by this function. It must
 	 *     thus be invoqued by the user.  
 	 *
 	 * @param l [input] domain index
-	 * @return Tbl containing the value of the field in domain {\tt l}.
+	 * @return Tbl containing the value of the field in domain \c l .
 	 */ 
 	Tbl& set(int l) {
 	    assert(etat == ETATQCQ) ;
@@ -692,7 +692,7 @@ class Cmp {
 	
 	/** Read-only of the value in a given domain.
 	 * @param l [input] domain index
-	 * @return Tbl containing the value of the field in domain {\tt l}.
+	 * @return Tbl containing the value of the field in domain \c l .
 	 */ 
 	const Tbl& operator()(int l) const {
 	    assert(etat == ETATQCQ) ;
@@ -701,14 +701,14 @@ class Cmp {
 
 
 	/** Read/write of a particular element.
-	 * NB: to gain in efficiency, the method {\tt del\_deriv()} (to delete
+	 * NB: to gain in efficiency, the method \c del_deriv()  (to delete
 	 *     the derived members) is not called by this function. It must
 	 *     thus be invoqued by the user.  
 	 *     
 	 * @param l [input] domain index
-	 * @param k [input] $\phi$ index
-	 * @param j [input] $\theta$ index
-	 * @param i [input] {\it r} ($\xi$) index
+	 * @param k [input] \f$\phi\f$ index
+	 * @param j [input] \f$\theta\f$ index
+	 * @param i [input] \e r  (\f$\xi\f$) index
 	 */ 
 	double& set(int l, int k, int j, int i) {
 	    assert(etat == ETATQCQ) ;
@@ -718,9 +718,9 @@ class Cmp {
 	
 	/** Read-only of a particular element.
 	 * @param l [input] domain index
-	 * @param k [input] $\phi$ index
-	 * @param j [input] $\theta$ index
-	 * @param i [input] {\it r} ($\xi$) index
+	 * @param k [input] \f$\phi\f$ index
+	 * @param j [input] \f$\theta\f$ index
+	 * @param i [input] \e r  (\f$\xi\f$) index
 	 */ 
 	double operator()(int l, int k, int j, int i) const {
 	    assert(etat != ETATNONDEF) ;
@@ -733,14 +733,14 @@ class Cmp {
 	    }
 	};
 
-	/** Computes the value of the field represented by {\tt *this} at an
-	*   arbitrary point $(r, \theta, \phi)$, by means of the spectral 
+	/** Computes the value of the field represented by \c *this  at an
+	*   arbitrary point \f$(r, \theta, \phi)\f$, by means of the spectral 
 	*   expansion.
-	*	 @param r [input] value of the coordinate {\it r}
-	*	 @param theta [input] value of the coordinate $\theta$
-	*	 @param phi [input] value of the coordinate $\phi$
-	*	 @return value at the point $(r, \theta, \phi)$ 
-	*		 of the field represented by {\tt *this}. 
+	*	 @param r [input] value of the coordinate \e r 
+	*	 @param theta [input] value of the coordinate \f$\theta\f$
+	*	 @param phi [input] value of the coordinate \f$\phi\f$
+	*	 @return value at the point \f$(r, \theta, \phi)\f$ 
+	*		 of the field represented by \c *this . 
 	*/
 	double val_point(double r, double theta, double phi) const ; 
 
@@ -748,129 +748,132 @@ class Cmp {
     // Memory management
     // -----------------
     private:
-	void del_t() ;		    /// Logical destructor
-	void del_deriv() ;	    /// Logical destructor of the derivatives
-	void set_der_0x0() ;	    /// Sets the pointers for derivatives to 0x0
+	void del_t() ;		    ///< Logical destructor
+	void del_deriv() ;	    ///< Logical destructor of the derivatives
+	void set_der_0x0() ;	    ///< Sets the pointers for derivatives to 0x0
 
     public:
 
     /**
-     * Sets the logical state to {\tt ETATNONDEF} (undefined). 
-     * Calls the logical destructor of the {\tt Valeur va} and
+     * Sets the logical state to \c ETATNONDEF  (undefined). 
+     * Calls the logical destructor of the \c Valeur \c va  and
      * deallocates the memory occupied by all the derivatives. 
      */
 	void set_etat_nondef() ;   
 
     /**
-     * Sets the logical state to {\tt ETATZERO} (zero). 
-     * Calls the logical destructor of the {\tt Valeur va} and
+     * Sets the logical state to \c ETATZERO (zero). 
+     * Calls the logical destructor of the \c Valeur \c va  and
      * deallocates the memory occupied by all the derivatives. 
      */
 	void set_etat_zero() ;	    
 	
     /**
-     * Sets the logical state to {\tt ETATQCQ} (ordinary state).
-     * If the state is already {\tt ETATQCQ}, this function does nothing.
-     * Otherwise, it calls the logical destructor of the {\tt Valeur va} and
+     * Sets the logical state to \c ETATQCQ  (ordinary state).
+     * If the state is already \c ETATQCQ , this function does nothing.
+     * Otherwise, it calls the logical destructor of the \c Valeur \c va  and
      * deallocates the memory occupied by all the derivatives.
      */
 	void set_etat_qcq() ;	    
 
     /**
-     * Sets the logical state to {\tt ETATQCQ} (ordinary state)
+     * Sets the logical state to \c ETATQCQ  (ordinary state)
      *  and performs the memory allocation of all the 
-     *  elements, down to the {\tt double} arrays of the {\tt Tbl}s. 
-     *  This function performs in fact recursive calls to {\tt set\_etat\_qcq()}
-     *  on each element of the chain {\tt Cmp} ->
-     *  {\tt Valeur} -> {\tt Mtbl} -> {\tt Tbl}. 
+     *  elements, down to the \c double  arrays of the \c Tbl s. 
+     *  This function performs in fact recursive calls to \c set_etat_qcq() 
+     *  on each element of the chain \c Cmp  ->
+     *  \c Valeur  -> \c Mtbl  -> \c Tbl . 
      */
 	void allocate_all() ; 
 
     /**
-     * Sets the {\tt Cmp} to zero in a hard way. 
-     * 1/ Sets the logical state to {\tt ETATQCQ}, i.e. to an ordinary state.
-     * 2/ Fills the {\tt Valeur va} with zeros. 
+     * Sets the \c Cmp  to zero in a hard way. 
+     * 1/ Sets the logical state to \c ETATQCQ , i.e. to an ordinary state.
+     * 2/ Fills the \c Valeur \c va  with zeros. 
      * NB: this function must be used for debugging purposes only.
-     * For other operations, the functions {\tt set\_etat\_zero()}
-     * or {\tt annule(int, int)} must be perferred. 
+     * For other operations, the functions \c set_etat_zero()
+     * or \c annule(int, int) must be perferred. 
      */
 	void annule_hard() ;
 
     /**
-     * Sets the {\tt Cmp} to zero in a given domain.
-     *	@param l [input]  Index of the domain in which the {\tt Cmp}
+     * Sets the \c Cmp  to zero in a given domain.
+     *	@param l [input]  Index of the domain in which the \c Cmp 
      *			  will be set (logically) to zero.
      */
 	void annule(int l) ; 
 
     /**
-     * Sets the {\tt Cmp} to zero in several domains.
-     *	@param l_min [input] The {\tt Cmp} will be set (logically) to zero
+     * Sets the \c Cmp  to zero in several domains.
+     *	@param l_min [input] The \c Cmp  will be set (logically) to zero
      *			     in the domains whose indices are in the range
-     *			     {\tt [l\_min, l\_max]}.
-     *	@param l_max [input] see the comments for {\tt l\_min}.
+     *			     \c [l_min,l_max].
+     *	@param l_max [input] see the comments for \c l_min .
      * 
-     * Note that {\tt annule(0, va.mg->get\_nzone()-1)} is equivalent to
-     *	 {\tt set\_etat\_zero()}.
+     * Note that \c annule(0,va.mg->get_nzone()-1) is equivalent to
+     *	 \c set_etat_zero() .
      */
 	void annule(int l_min, int l_max) ; 
     
     /**
-     * Sets the {\tt n} lasts coefficients in {\it r} to 0 in the external domain.
+     * Sets the \c n  lasts coefficients in \e r  to 0 in the external domain.
      */
 	void filtre (int n) ;
     
     /**
-     * Sets the {\tt n} lasts coefficients in $\Phi$ to 0 in the 
-     * domain {\tt zone}.
+     * Sets the \c n  lasts coefficients in \f$\Phi\f$ to 0 in the 
+     * domain \c zone .
      */
 	void filtre_phi (int n, int zone) ;
     
     /**
-     * Sets the value of the {\tt Cmp} to {\tt val} at infinity. This is usefull
+     * Sets the value of the \c Cmp  to \c val  at infinity. This is usefull
      * for dealing with undefined values. The external domain must be 
      * compactified.
      */
 	void set_val_inf (double val) ;
     
     /**
-     * Sets the value of the {\tt Cmp} to {\tt val} on the inner boudary of the
-     * shell number {\tt zone}.This is usefull
+     * Sets the value of the \c Cmp  to \c val  on the inner boudary of the
+     * shell number \c zone .This is usefull
      * for dealing with undefined values.
      */
 	void set_val_hor (double val, int zone) ;
     /**
-     * Substracts all the components behaving like $r^{-n}$ in the external 
-     * domain, with {\it n} strictly lower than {\tt puis}, so that {\tt *this} 
-     * decreases at least like $r^{\tt puis}$ at infinity.
+     * Substracts all the components behaving like \f$r^{-n}\f$ in the external 
+     * domain, with \e n  strictly lower than \c puis , so that \c *this  
+     * decreases at least like \f$r^{\tt puis} \f$ at infinity.
      */
 	void fixe_decroissance (int puis) ;
 
     /**
-     * Gives the spectrum in terms of multipolar modes {\it l}.
-     *  @return a {\tt Tbl} of size (nzone, lmax), where lmax is the
-     *  maximal multipolar momentum over all domains. The {\it l}-th
-     *  element contains the L1 norm of the {\it l}-th multipole 
-     *  ({\it i.e.} a sum over all {\it m} of the norms (coefficient space)
-     *  of the component of a given $Y_l^m$.
+     * Gives the spectrum in terms of multipolar modes \e l .
+     *  @return a \c Tbl  of size (nzone, lmax), where lmax is the
+     *  maximal multipolar momentum over all domains. The \e l -th
+     *  element contains the L1 norm of the \e l -th multipole 
+     *  (i.e. a sum over all \e m  of the norms (coefficient space)
+     *  of the component of a given \f$Y_l^m\f$.
      */
 	Tbl multipole_spectrum () ;
 	
     // Extraction of information
     // -------------------------
     public:
-	int get_etat() const {return etat;} ;	/// Returns the logical state
-	const Map* get_mp() const {return mp;};	 /// Returns the mapping
-	int get_dzpuis() const {return dzpuis;} ; /// Returns {\tt dzpuis}
+	/// Returns the logical state
+	int get_etat() const {return etat;} ;	
+	/// Returns the mapping
+	const Map* get_mp() const {return mp;};	 
+	/// Returns \c dzpuis 
+	int get_dzpuis() const {return dzpuis;} ;
 	
-	/** Returns {\tt true} if the last domain is compactified and
-	 *  {\tt *this} is not zero in this domain
+	/** Returns \c true  if the last domain is compactified and
+	 *  \c *this  is not zero in this domain
 	 */
 	bool dz_nonzero() const ; 
 	
-	/** Returns {\tt false} if the last domain is compactified 
-	 *  and {\tt *this} is not zero in this domain and {\tt dzpuis}
-	 *  is not equal to {\tt dzi}, otherwise return true. 
+	/** Returns \c false  if the last domain is compactified 
+	 *  and \c *this  is not zero in this domain and \c dzpuis 
+	 *  is not equal to \c dzi , otherwise return true. 
 	 */
 	bool check_dzpuis(int dzi) const ; 
 	
@@ -878,7 +881,7 @@ class Cmp {
     // Outputs
     // -------
     public:
-	void sauve(FILE *) const ;	    /// Save in a file
+	void sauve(FILE *) const ;	    ///< Save in a file
     
 	/** Prints only the values greater than a given threshold.
 	 *   @param ostr [input] Output stream used for the printing
@@ -899,13 +902,13 @@ class Cmp {
     // Member arithmetics
     // ------------------
     public:
-	void operator+=(const Cmp &) ;		    /// += Cmp
-	void operator-=(const Cmp &) ;		    /// -= Cmp
-	void operator*=(const Cmp &) ;		    /// *= Cmp
+	void operator+=(const Cmp &) ;		    ///< += Cmp
+	void operator-=(const Cmp &) ;		    ///< -= Cmp
+	void operator*=(const Cmp &) ;		    ///< *= Cmp
 
     // Manipulation of spectral bases
     // ------------------------------    
-    /** Sets the spectral bases of the {\tt Valeur va} to the standard ones 
+    /** Sets the spectral bases of the \c Valeur \c va  to the standard ones 
      *  for a scalar
      */
     void std_base_scal() ;	 
@@ -914,129 +917,129 @@ class Cmp {
     // Differential operators and others
     // ---------------------------------
     public:
-	/** Returns $\partial / \partial r$ of {\tt *this}.
+	/** Returns \f$\partial / \partial r\f$ of \c *this .
 	 *  Note that in the external compactified domain (ZEC), it returns
-	 *  instead $r^2 \partial/ \partial r$.
+	 *  instead \f$r^2 \partial/ \partial r\f$.
 	 */
 	const Cmp& dsdr() const ; 
 	
-	/** Returns $1/r \partial / \partial \theta$ of {\tt *this}.
+	/** Returns \f$1/r \partial / \partial \theta\f$ of \c *this .
 	 *  Note that in the external compactified domain (ZEC), it returns
-	 *  instead $r \partial/ \partial \theta$.
+	 *  instead \f$r \partial/ \partial \theta\f$.
 	 */
 	const Cmp& srdsdt() const ; 
 
-	/** Returns $1/(r\sin\theta) \partial / \partial \phi$ of {\tt *this}.
+	/** Returns \f$1/(r\sin\theta) \partial / \partial \phi\f$ of \c *this .
 	 *  Note that in the external compactified domain (ZEC), it returns
-	 *  instead $r/\sin\theta \partial/ \partial \phi$.
+	 *  instead \f$r/\sin\theta \partial/ \partial \phi\f$.
 	 */
 	const Cmp& srstdsdp() const ; 
 
-	/** Returns $\partial/\partial x$ of {\tt *this},
-	 *  where $x=r\sin\theta \cos\phi$.
+	/** Returns \f$\partial/\partial x\f$ of \c *this ,
+	 *  where \f$x=r\sin\theta \cos\phi\f$.
 	 *  Note that in the external compactified domain (ZEC), it returns
-	 *  instead $r^2 \partial/ \partial x$.
+	 *  instead \f$r^2 \partial/ \partial x\f$.
 	 */
 	const Cmp& dsdx() const ;	
 
-	/** Returns $\partial/\partial y$ of {\tt *this},
-	 *  where $y=r\sin\theta \sin\phi$.
+	/** Returns \f$\partial/\partial y\f$ of \c *this ,
+	 *  where \f$y=r\sin\theta \sin\phi\f$.
 	 *  Note that in the external compactified domain (ZEC), it returns
-	 *  instead $r^2 \partial/ \partial y$.
+	 *  instead \f$r^2 \partial/ \partial y\f$.
 	 */
 	const Cmp& dsdy() const ;	
 
-	/** Returns $\partial/\partial z$ of {\tt *this},
-	 *  where $z=r\cos\theta$.
+	/** Returns \f$\partial/\partial z\f$ of \c *this ,
+	 *  where \f$z=r\cos\theta\f$.
 	 *  Note that in the external compactified domain (ZEC), it returns
-	 *  instead $r^2 \partial/ \partial z$.
+	 *  instead \f$r^2 \partial/ \partial z\f$.
 	 */
 	const Cmp& dsdz() const ;	
 
-	/** Returns $\partial/\partial x_i$ of {\tt *this},
-	 *  where $x_i = (x, y, z)$.
+	/** Returns \f$\partial/\partial x_i\f$ of \c *this ,
+	 *  where \f$x_i = (x, y, z)\f$.
 	 *  Note that in the external compactified domain (ZEC), it returns
-	 *  instead $r^2 \partial/ \partial x_i$.
-	 *  @param i [input] i=0 for {\it x},  i=1 for {\it y}, i=2 for {\it z}.
+	 *  instead \f$r^2 \partial/ \partial x_i\f$.
+	 *  @param i [input] i=0 for \e x ,  i=1 for \e y , i=2 for \e z .
 	 */
 	const Cmp& deriv(int i) const ;	
 
-	/** Returns the Laplacian of {\tt *this}
+	/** Returns the Laplacian of \c *this 
 	 *   @param zec_mult_r [input] Determines the quantity computed in
 	 *			 the external compactified domain (ZEC) 
-	 *		({\it u} in the field represented by {\tt *this}) :  \\
-	 *		    zec\_mult\_r = 0 : $\Delta u$	\\
-	 *		    zec\_mult\_r = 2 : $r^2 \,  \Delta u$	\\
-	 *		    zec\_mult\_r = 4 (default) : $r^4 \, \Delta u$	
+	 *		(\e u  in the field represented by \c *this ) :  \\
+	 *		    zec_mult_r = 0 : \f$\Delta u\f$	\\
+	 *		    zec_mult_r = 2 : \f$r^2 \,  \Delta u\f$	\\
+	 *		    zec_mult_r = 4 (default) : \f$r^4 \, \Delta u\f$	
 	 */
 	const Cmp& laplacien(int zec_mult_r = 4) const ; 
 
-	void div_r() ;    /// Division by {\it r} everywhere.
+	void div_r() ;    /// Division by \e r  everywhere.
 
-	void mult_r() ;   /// Multiplication by {\it r} everywhere.
+	void mult_r() ;   /// Multiplication by \e r  everywhere.
 
-	/** Multiplication by {\it r} in the external compactified domain (ZEC)
+	/** Multiplication by \e r  in the external compactified domain (ZEC)
 	 */
 	void mult_r_zec() ;
 	
-	void mult_rsint() ;   /// Multiplication by $r\sin\theta$
+	void mult_rsint() ;   /// Multiplication by \f$r\sin\theta\f$
 
-	void div_rsint() ;    /// Division by $r\sin\theta$
+	void div_rsint() ;    /// Division by \f$r\sin\theta\f$
 
-	/** Decreases by 1 the value of {\tt dzpuis} and changes accordingly
-	 *  the values of the {\tt Cmp} in the external compactified domain (ZEC).
+	/** Decreases by 1 the value of \c dzpuis  and changes accordingly
+	 *  the values of the \c Cmp  in the external compactified domain (ZEC).
 	 */
 	void dec_dzpuis() ; 
 
-	/** Increases by the value of {\tt dzpuis} and changes accordingly
-	 *  the values of the {\tt Cmp} in the external compactified domain (ZEC).
+	/** Increases by the value of \c dzpuis  and changes accordingly
+	 *  the values of the \c Cmp  in the external compactified domain (ZEC).
 	 */
 	void inc_dzpuis() ; 
 	
-	/** Decreases by 2 the value of {\tt dzpuis} and changes accordingly
-	 *  the values of the {\tt Cmp} in the external compactified domain (ZEC).
+	/** Decreases by 2 the value of \c dzpuis  and changes accordingly
+	 *  the values of the \c Cmp  in the external compactified domain (ZEC).
 	 */
 	void dec2_dzpuis() ; 
 
-	/** Increases by 2 the value of {\tt dzpuis} and changes accordingly
-	 *  the values of the {\tt Cmp} in the external compactified domain (ZEC).
+	/** Increases by 2 the value of \c dzpuis  and changes accordingly
+	 *  the values of the \c Cmp  in the external compactified domain (ZEC).
 	 */
 	void inc2_dzpuis() ; 
 
-	void set_dzpuis(int ) ;  /// Set a value to {\tt dzpuis}
+	void set_dzpuis(int ) ;  ///< Set a value to \c dzpuis 
 
-	/** Computes the integral over all space of {\tt *this}.
-	 *  The computed quantity is ({\it u} being the field represented by
-	 *   {\tt *this})
-	 *    $\int u \, r^2 \sin\theta \,  dr\, d\theta \, d\phi$.
-	 *  Note that in the external compactified domain (ZEC), {\tt dzpuis} 
+	/** Computes the integral over all space of \c *this .
+	 *  The computed quantity is (\e u  being the field represented by
+	 *   \c *this )
+	 *    \f$\int u \, r^2 \sin\theta \,  dr\, d\theta \, d\phi\f$.
+	 *  Note that in the external compactified domain (ZEC), \c dzpuis  
 	 *  must be 4 for the computation to take place. 
 	 */
 	double integrale() const ; 
 	
-	/** Computes the integral in each domain of {\tt *this}.
-	 *  The computed quantity is ({\it u} being the field represented by
-	 *   {\tt *this})
-	 *    $\int u \, r^2 \sin\theta \,  dr\, d\theta \, d\phi$
-	 *  in each domain. The result is returned a {\tt Tbl} on the 
+	/** Computes the integral in each domain of \c *this .
+	 *  The computed quantity is (\e u  being the field represented by
+	 *   \c *this )
+	 *    \f$\int u \, r^2 \sin\theta \,  dr\, d\theta \, d\phi\f$
+	 *  in each domain. The result is returned a \c Tbl  on the 
 	 *  various domains. 
-	 *  Note that in the external compactified domain (ZEC), {\tt dzpuis} 
+	 *  Note that in the external compactified domain (ZEC), \c dzpuis  
 	 *  must be 4 for the computation to take place. 
 	 */
 	const Tbl& integrale_domains() const ; 
 	
 	/** Asymptotic expansion at r = infinity. 
 	 * 
-	 *  Determines the coefficients $a_k(\theta, \phi)$ of the expansion
-	 *  \begin{equation}
+	 *  Determines the coefficients \f$a_k(\theta, \phi)\f$ of the expansion
+	 *  \f[
 	 *	\sum_{k=0}^n {a_k(\theta, \phi) \over r^k}
-	 *  \end{equation} 
-	 *  of {\tt *this} when $r \rightarrow \infty$. 
+	 *  \f] 
+	 *  of \c *this  when \f$r \rightarrow \infty\f$. 
 	 *
 	 *	@param n order of the expansion
 	 *	@param flag : output
-	 *	@return Array of {\tt n}+1 {\tt Valeur}s on {\tt mg->angu} 
-	 *		describing the coefficients $a_k(\theta, \phi)$. 
+	 *	@return Array of n+1 \c Valeur s on \c mg->angu  
+	 *		describing the coefficients \f$a_k(\theta, \phi)\f$. 
 	 *		This array is allocated by the routine. 
 	 * 
 	 */
@@ -1054,66 +1057,66 @@ class Cmp {
     // PDE resolution 
     // --------------
     public:
-	/** Solves the scalar Poisson equation with {\tt *this} as a source.
-	 *   The source $\sigma$ of the equation $\Delta u = \sigma$ is 
-	 *   represented by the {\tt Cmp} {\tt *this}. 
-	 *   Note that {\tt dzpuis} must be equal to 2 or 4, i.e. that the
-	 *   quantity stored in {\tt *this} is in fact $r^2 \sigma$ or
-	 *   $r^4 \sigma$ in the external compactified domain. 
-	 *   The solution {\it u} with the boundary condition {\it u}=0 at spatial
-	 *   infinity is the returned {\tt Cmp}. 
+	/** Solves the scalar Poisson equation with \c *this  as a source.
+	 *   The source \f$\sigma\f$ of the equation \f$\Delta u = \sigma\f$ is 
+	 *   represented by the \c Cmp  \c *this . 
+	 *   Note that \c dzpuis  must be equal to 2 or 4, i.e. that the
+	 *   quantity stored in \c *this  is in fact \f$r^2 \sigma\f$ or
+	 *   \f$r^4 \sigma\f$ in the external compactified domain. 
+	 *   The solution \e u  with the boundary condition \e u =0 at spatial
+	 *   infinity is the returned \c Cmp . 
 	 */
 	Cmp poisson() const ;
 
-	/** Solves the scalar Poisson equation with {\tt *this} as a source
+	/** Solves the scalar Poisson equation with \c *this  as a source
 	 *   (version with parameters to control the resolution).
-	 *   The source $\sigma$ of the equation $\Delta u = \sigma$ is 
-	 *   represented by the {\tt Cmp} {\tt *this}. 
-	 *   Note that {\tt dzpuis} must be equal to 2 or 4, i.e. that the
-	 *   quantity stored in {\tt *this} is in fact $r^2 \sigma$ or
-	 *   $r^4 \sigma$ in the external compactified domain. 
+	 *   The source \f$\sigma\f$ of the equation \f$\Delta u = \sigma\f$ is 
+	 *   represented by the \c Cmp  \c *this . 
+	 *   Note that \c dzpuis  must be equal to 2 or 4, i.e. that the
+	 *   quantity stored in \c *this  is in fact \f$r^2 \sigma\f$ or
+	 *   \f$r^4 \sigma\f$ in the external compactified domain. 
 	 *   @param par [input/output] possible parameters
-	 *   @param uu [input/output] solution {\it u} with the boundary condition 
-	 *   {\it u}=0 at spatial infinity. 
+	 *   @param uu [input/output] solution \e u  with the boundary condition 
+	 *   \e u =0 at spatial infinity. 
 	 */
 	void poisson(Param& par, Cmp& uu) const ;
 	
 	/**
-	 * Is identicall to {\tt Cmp::poisson()}. The regularity condition at the 
+	 * Is identicall to \c Cmp::poisson() . The regularity condition at the 
 	 * origin is replace by a boundary condition of the Dirichlet type.
 	 * 
 	 * @param limite [input] : angular function. The boundary condition is 
-	 * given by {\tt limite[num]}.
+	 * given by \c limite[num] .
 	 * @param num [input] : index of the boudary at which the condition is to 
 	 * be fullfilled.
 	 * 
-	 * More precisely we impose the solution is equal to {\tt limite[num]} at the
-	 * boundary between the domains {\tt num} and {\tt num+1} (the latter one being 
+	 * More precisely we impose the solution is equal to \c limite[num]  at the
+	 * boundary between the domains \c num  and \c num+1  (the latter one being 
 	 * a shell).
 	 * 
 	 */
 	Cmp poisson_dirichlet (const Valeur& limite, int num) const ;
 	
 	/**
-	 * Idem as {\tt Cmp::poisson\_neumann}, the boundary condition being on 
+	 * Idem as \c Cmp::poisson_neumann , the boundary condition being on 
 	 * the radial derivative of the solution.
 	 */
 	Cmp poisson_neumann   (const Valeur&, int) const ;
 	Cmp poisson_frontiere_double   (const Valeur&, const Valeur&, int) const ;
 
-	/** Solves the scalar Poisson equation with {\tt *this} as a source
+	/** Solves the scalar Poisson equation with \c *this  as a source
 	 *   (version with parameters to control the resolution).
-	 *   The source $\sigma$ of the equation $\Delta u = \sigma$ is 
-	 *   represented by the {\tt Cmp} {\tt *this}. 
+	 *   The source \f$\sigma\f$ of the equation \f$\Delta u = \sigma\f$ is 
+	 *   represented by the \c Cmp  \c *this . 
 	 *   The regularized source
-	 *   $\sigma_{\rm regu} = \sigma - \sigma_{\rm div}$
+	 *   \f$\sigma_{\rm regu} = \sigma - \sigma_{\rm div}\f$
 	 *   is constructed and solved.
-	 *   Note that {\tt dzpuis} must be equal to 2 or 4, i.e. that the
-	 *   quantity stored in {\tt *this} is in fact $r^2 \sigma$ or
-	 *   $r^4 \sigma$ in the external compactified domain.
+	 *   Note that \c dzpuis  must be equal to 2 or 4, i.e. that the
+	 *   quantity stored in \c *this  is in fact \f$r^2 \sigma\f$ or
+	 *   \f$r^4 \sigma\f$ in the external compactified domain.
 	 *   @param k_div [input] regularization degree of the procedure
 	 *   @param nzet [input] number of domains covering the star
-	 *   @param unsgam1 [input] parameter $1/(\gamma-1)$ where $\gamma$
+	 *   @param unsgam1 [input] parameter \f$1/(\gamma-1)\f$ where \f$\gamma\f$
 	 *          denotes the adiabatic index
 	 *   @param par [input/output] possible parameters
 	     @param uu [input/output] solution
@@ -1130,53 +1133,53 @@ class Cmp {
 			     Tenseur& duu_div,
 			     Cmp& source_regu, Cmp& source_div) const ;
 
-	/** Checks if a Poisson equation with {\tt *this} as a source
+	/** Checks if a Poisson equation with \c *this  as a source
 	 *  has been correctly solved.
 	 * 
-	 *  @param uu [input] Solution {\it u} of the Poisson equation
-	 *		      $\Delta u = \sigma$,  $\sigma$ being 
-	 *		      represented by the {\tt Cmp} {\tt *this}.
+	 *  @param uu [input] Solution \e u  of the Poisson equation
+	 *		      \f$\Delta u = \sigma\f$,  \f$\sigma\f$ being 
+	 *		      represented by the \c Cmp  \c *this .
 	 * 
 	 *  @param ostr [input/output] Output stream used for displaying
-	 *		{\tt err}.
+	 *		\c err .
 	 *
-	 *  @param detail [input] if {\tt true} displays {\tt err(0, *)}, 
-	 *		    {\tt err(1, *)} and {\tt err(2, *)} \\
-	 *		if {\tt false} (default),  displays only 
-	 *		the relative error {\tt err(0, *)}. 
+	 *  @param detail [input] \li if \c true  displays \c err(0,*) , 
+	 *		    \c err(1,*) and \c err(2,*) 
+	 *		\li if \c false (default),  displays only 
+	 *		the relative error \c err(0,*). 
 	 *  
-	 *  @return 2-D {\tt Tbl} {\tt err} decribing the errors in each 
-	 *	    domain: \\
-	 *	{\tt err(0, l) : } Relative error in domain no. {\tt l}, 
+	 *  @return 2-D \c Tbl  \c err decribing the errors in each 
+	 *	    domain: 
+	 *	\li \c err(0,l) :  Relative error in domain no. \c l , 
 	 *	    defined as the maximum value of 
-	 *	    $|\Delta u - \sigma|$ in that domain divided by {\it M}, 
-	 *	    where {\it M} is the maximum value of $|\sigma|$ 
-	 *	    over all domains if {\tt dzpuis = 0} or $\sigma$ is
+	 *	    \f$|\Delta u - \sigma|\f$ in that domain divided by \e m , 
+	 *	    where \e m  is the maximum value of \f$|\sigma|\f$ 
+	 *	    over all domains if \c dzpuis = 0} or \f$\sigma\f$ is
 	 *	    zero in the external compactified domain (ECD). If 
-	 *	    {\tt dzpuis != 0} and $\sigma$ does not vanish in the 
-	 *	    ECD, the value of {\it M} used in the
+	 *	    \c dzpuis != 0} and \f$\sigma\f$ does not vanish in the 
+	 *	    ECD, the value of \e m  used in the
 	 *	    non-compactified domains is the maximum value over
-	 *	    these domains, whereas the value of {\it M} used in the
+	 *	    these domains, whereas the value of \e m  used in the
 	 *	    external compactified domain is the maximum value
-	 *	    on that particular domain. \\
-	 *	{\tt err(1, l) : }  Maximum value of the absolute error
-	 *			$|\Delta u - \sigma|$ in domain no. {\tt l} \\
-	 *	{\tt err(2, l) : }  Maximum value of $|\sigma|$ in domain 
-	 *			    no. {\tt l} 
+	 *	    on that particular domain. 
+	 *	\li \c err(1,l) :   Maximum value of the absolute error
+	 *			\f$|\Delta u - \sigma|\f$ in domain no. \c l  
+	 *	\li \c err(2,l) :   Maximum value of \f$|\sigma|\f$ in domain 
+	 *			    no. \c l  
 	 */
 	Tbl test_poisson(const Cmp& uu, ostream& ostr, 
 					bool detail = false) const ;  	
 	/**
-	 * Performs the $C^n$ matching of the nucleus with respect to the 
+	 * Performs the \f$C^n\f$ matching of the nucleus with respect to the 
 	 * first shell.
 	 */
 	void raccord(int n) ;
 	
 	/**
-	 * Performs the $C^1$ matching of the external domain with respect to
-	 * the last shell using function like $\frac{1}{r^i}$ with 
-	 * ${\tt puis} \leq i \leq {\tt puis+nbre}$ for each spherical harmonics 
-	 * with $l \leq {\tt lmax}$.
+	 * Performs the \f$C^1\f$ matching of the external domain with respect to
+	 * the last shell using function like \f$\frac{1}{r^i}\f$ with 
+	 * \f${\tt puis} \leq i \leq {\tt puis+nbre}\f$ for each spherical harmonics 
+	 * with \f$l \leq {\tt lmax}\f$.
 	 */
 	void raccord_c1_zec (int puis, int nbre, int lmax) ;
 	/**
@@ -1186,91 +1189,93 @@ class Cmp {
 };
 ostream& operator<<(ostream& , const Cmp & ) ;	
 
-// Prototypage de l'arithmetique
 /**
- * @name Cmp mathematics
+ * \defgroup cmp_m Cmp Mathematics
+ * \ingroup (otens)
+ * @{
  */
-    //@{
-Cmp operator+(const Cmp& ) ;			/// + Cmp
-Cmp operator-(const Cmp& ) ;			/// - Cmp
-Cmp operator+(const Cmp&, const Cmp &) ;	/// Cmp + Cmp
-Cmp operator+(const Cmp&, double ) ;		/// Cmp + double
-Cmp operator+(double, const Cmp& ) ;		/// double + Cmp 
-Cmp operator+(const Cmp&, int ) ;		/// Cmp + int
-Cmp operator+(int, const Cmp& ) ;		/// int + Cmp 
-Cmp operator-(const Cmp &, const Cmp &) ;	/// Cmp - Cmp
-Cmp operator-(const Cmp&, double ) ;		/// Cmp - double
-Cmp operator-(double, const Cmp& ) ;		/// double - Cmp 
-Cmp operator-(const Cmp&, int ) ;		/// Cmp - int
-Cmp operator-(int, const Cmp& ) ;		/// int - Cmp 
-Cmp operator*(const Cmp &, const Cmp &) ;	/// Cmp * Cmp
-Cmp operator%(const Cmp &, const Cmp &) ;	/// Cmp * Cmp with desaliasing
-Cmp operator*(const Cmp&, double ) ;		/// Cmp * double
-Cmp operator*(double, const Cmp &) ;		/// double * Cmp
-Cmp operator*(const Cmp&, int ) ;		/// Cmp * int
-Cmp operator*(int, const Cmp& ) ;		/// int * Cmp 
-Cmp operator/(const Cmp &, const Cmp &) ;	/// Cmp / Cmp
-Cmp operator/(const Cmp&, double ) ;		/// Cmp / double
-Cmp operator/(double, const Cmp &) ;		/// double / Cmp
-Cmp operator/(const Cmp&, int ) ;		/// Cmp / int
-Cmp operator/(int, const Cmp &) ;		/// int / Cmp
 
-Cmp sin(const Cmp& ) ;		/// Sine
-Cmp cos(const Cmp& ) ;		/// Cosine
-Cmp tan(const Cmp& ) ;		/// Tangent
-Cmp asin(const Cmp& ) ;		/// Arcsine
-Cmp acos(const Cmp& ) ;		/// Arccosine
-Cmp atan(const Cmp& ) ;		/// Arctangent
-Cmp exp(const Cmp& ) ;		/// Exponential
-Cmp log(const Cmp& ) ;		/// Neperian logarithm
-Cmp log10(const Cmp& ) ;	/// Basis 10 logarithm
-Cmp sqrt(const Cmp& ) ;		/// Square root
-Cmp racine_cubique (const Cmp& ) ;		/// Cube root
-Cmp pow(const Cmp& , int ) ;	/// Power ${\tt Cmp}^{\tt int}$
-Cmp pow(const Cmp& , double ) ; /// Power ${\tt Cmp}^{\tt double}$
-Cmp abs(const Cmp& ) ;		/// Absolute value
+Cmp operator+(const Cmp& ) ;			///< + Cmp
+Cmp operator-(const Cmp& ) ;			///< \c - Cmp
+Cmp operator+(const Cmp&, const Cmp &) ;	///< Cmp + Cmp
+Cmp operator+(const Cmp&, double ) ;		///< Cmp + double
+Cmp operator+(double, const Cmp& ) ;		///< double + Cmp 
+Cmp operator+(const Cmp&, int ) ;		///< Cmp + int
+Cmp operator+(int, const Cmp& ) ;		///< int + Cmp 
+Cmp operator-(const Cmp &, const Cmp &) ;	///< Cmp - Cmp
+Cmp operator-(const Cmp&, double ) ;		///< Cmp - double
+Cmp operator-(double, const Cmp& ) ;		///< double - Cmp 
+Cmp operator-(const Cmp&, int ) ;		///< Cmp - int
+Cmp operator-(int, const Cmp& ) ;		///< int - Cmp 
+Cmp operator*(const Cmp &, const Cmp &) ;	///< Cmp * Cmp
+Cmp operator%(const Cmp &, const Cmp &) ;	///< Cmp * Cmp with desaliasing
+Cmp operator*(const Cmp&, double ) ;		///< Cmp * double
+Cmp operator*(double, const Cmp &) ;		///< double * Cmp
+Cmp operator*(const Cmp&, int ) ;		///< Cmp * int
+Cmp operator*(int, const Cmp& ) ;		///< int * Cmp 
+Cmp operator/(const Cmp &, const Cmp &) ;	///< Cmp / Cmp
+Cmp operator/(const Cmp&, double ) ;		///< Cmp / double
+Cmp operator/(double, const Cmp &) ;		///< double / Cmp
+Cmp operator/(const Cmp&, int ) ;		///< Cmp / int
+Cmp operator/(int, const Cmp &) ;		///< int / Cmp
+
+Cmp sin(const Cmp& ) ;		///< Sine
+Cmp cos(const Cmp& ) ;		///< Cosine
+Cmp tan(const Cmp& ) ;		///< Tangent
+Cmp asin(const Cmp& ) ;		///< Arcsine
+Cmp acos(const Cmp& ) ;		///< Arccosine
+Cmp atan(const Cmp& ) ;		///< Arctangent
+Cmp exp(const Cmp& ) ;		///< Exponential
+Cmp log(const Cmp& ) ;		///< Neperian logarithm
+Cmp log10(const Cmp& ) ;	///< Basis 10 logarithm
+Cmp sqrt(const Cmp& ) ;		///< Square root
+Cmp racine_cubique (const Cmp& ) ;		///< Cube root
+Cmp pow(const Cmp& , int ) ;	///< Power \f${\tt Cmp} ^{\tt int}\f$
+Cmp pow(const Cmp& , double ) ; ///< Power \f${\tt Cmp} ^{\tt double}\f$
+Cmp abs(const Cmp& ) ;		///< Absolute value
 
 /**
- * Maximum values of a {\tt Cmp} in each domain.
- * @return 1-D {\tt Tbl} of size the number of domains, the elements of which 
+ * Maximum values of a \c Cmp  in each domain.
+ * @return 1-D \c Tbl  of size the number of domains, the elements of which 
  *	   are the set of the maximum values in each domain.  
  */
 Tbl max(const Cmp& ) ;   
 
 /**
- * Minimum values of a {\tt Cmp} in each domain.
- * @return 1-D {\tt Tbl} of size the number of domains, the elements of which 
+ * Minimum values of a \c Cmp  in each domain.
+ * @return 1-D \c Tbl  of size the number of domains, the elements of which 
  *	   are the set of the minimum values in each domain.  
  */
 Tbl min(const Cmp& ) ;   
 
 /**
- * Sums of the absolute values of all the values of the {\tt Cmp} 
+ * Sums of the absolute values of all the values of the \c Cmp  
  * in each domain.
- * @return 1-D {\tt Tbl} of size the number of domains, the elements of which 
+ * @return 1-D \c Tbl  of size the number of domains, the elements of which 
  *	   are the set of the sums of the absolute values in each domain.  
  */
 Tbl norme(const Cmp& ) ;   
 
 /**
- * Relative difference between two {\tt Cmp} (norme version).
- * @return 1-D {\tt Tbl} of size the number of domains, the elements of which 
- *	   are {\tt norme[a(l)-b(l)]/norme[b(l)]} if {\tt b(l)!=0} and
- *	   {\tt norme[a(l)-b(l)]} if  {\tt b(l)=0},  where {\tt a(l)} and 
- *	   {\tt b(l)} denote symbolically the values of {\tt a} and {\tt b} 
- *	   in domain no. {\tt l}. 
+ * Relative difference between two \c Cmp  (norme version).
+ * @return 1-D \c Tbl  of size the number of domains, the elements of which 
+ *	   are \c norme[a(l)-b(l)]/norme[b(l)]  if \c b(l)!=0  and
+ *	   \c norme[a(l)-b(l)]  if  \c b(l)=0 ,  where \c a(l)  and 
+ *	   \c b(l)  denote symbolically the values of \c a  and \c b  
+ *	   in domain no. \c l . 
  */
 Tbl diffrel(const Cmp& a, const Cmp& b) ; 
 
 /**
- * Relative difference between two {\tt Cmp} (max version).
- * @return 1-D {\tt Tbl} of size the number of domains, the elements of which 
- *	   are {\tt max[abs(a(l)-b(l))]/max[abs(b(l))]} if {\tt b(l)!=0} and
- *	   {\tt max[abs(a(l)-b(l))]} if  {\tt b(l)=0},  where {\tt a(l)} and 
- *	   {\tt b(l)} denote symbolically the values of {\tt a} and {\tt b} 
- *	   in domain no. {\tt l}. 
+ * Relative difference between two \c Cmp  (max version).
+ * @return 1-D \c Tbl  of size the number of domains, the elements of which 
+ *	   are \c max[abs(a(l)-b(l))]/max[abs(b(l))]  if \c b(l)!=0  and
+ *	   \c max[abs(a(l)-b(l))]  if  \c b(l)=0 ,  where \c a(l)  and 
+ *	   \c b(l)  denote symbolically the values of \c a  and \c b  
+ *	   in domain no. \c l . 
  */
 Tbl diffrelmax(const Cmp& a, const Cmp& b) ; 
 
-    //@}
+/** @}*/
+
 #endif

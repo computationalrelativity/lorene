@@ -29,19 +29,13 @@
 #ifndef __DIM_TBL_H_ 
 #define __DIM_TBL_H_ 
 
-/**
- * Storage of array dimensions.
- * This class is designed for internal purposes related to the class
- * {\tt Tbl}, namely the storage of the {\tt Tbl} dimensions. 
- *
- * @version #$Id$#
- * @see	tbl.h
- */
-
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/22 13:12:40  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.3  2002/10/16 14:36:28  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -86,18 +80,24 @@
 
 #include "headcpp.h"
 
+/**
+ * Storage of array dimensions.
+ * This class is designed for internal purposes related to the class
+ * \c Tbl}, namely the storage of the \c Tbl} dimensions. 
+ * \ingroup (util)
+ */
 class Dim_tbl {
     public:
-	int ndim ;	/// Number of dimensions of the {\tt Tbl}: can be 1, 2 or 3.
-	int* dim ;	/// Array of dimensions (size: {\tt ndim}). 
+	int ndim ;	///< Number of dimensions of the \c Tbl: can be 1, 2 or 3.
+	int* dim ;	///< Array of dimensions (size: \c ndim). 
 
 	/**
-	 * Total size of the array {\tt Tbl::t}. 
-	 * \begin{itemize}
-	 * \item[] {\tt taille = dim[0]} if {\tt ndim = 1}
-	 * \item[] {\tt taille = dim[0]*dim[1]} if {\tt ndim = 2}
-	 * \item[] {\tt taille = dim[0]*dim[1]*dim[2]} if {\tt ndim = 3}
-	 * \end{itemize}
+	 * Total size of the array \c Tbl::t. 
+	 * 
+	 * \li \c taille = dim[0] if \c ndim = 1
+	 * \li \c taille = dim[0]*dim[1] if \c ndim = 2
+	 * \li \c taille = dim[0]*dim[1]*dim[2] if \c ndim = 3
+	 * 
 	 */
 	int taille ;	
 	
@@ -105,8 +105,8 @@ class Dim_tbl {
 	// Constructeurs
 	/**
 	 * 1D constructor 
-	 * @param size0  [input] Number of elements of the array {\tt Tbl::t}.
-	 *		  Will be assigned to {\tt dim[0]}.  
+	 * @param size0  [input] Number of elements of the array \c Tbl::t.
+	 *		  Will be assigned to \c dim[0].  
 	 *		  The size 0 is allowed for the 1D constructor but
 	 *		  not for the 2D or 3D ones. 
 	 */
@@ -116,13 +116,13 @@ class Dim_tbl {
 	 * 2D constructor
 	 * @param size1  [input] Defines the range [0, size1-1] of the outermost
 	 *		  index in the storage of
-	 *		  the array {\tt Tbl::t}. 
-	 *		  Will be assigned to {\tt dim[1]}.
+	 *		  the array \c Tbl::t. 
+	 *		  Will be assigned to \c dim[1].
 	 * @param size0  [input] Defines the range [0, size0-1]  of the 
 	 *		  innermost index
 	 *		  in the storage of
-	 *		  the array {\tt Tbl::t}. 
-	 *		  Will be assigned to {\tt dim[0]}.
+	 *		  the array \c Tbl::t. 
+	 *		  Will be assigned to \c dim[0].
 	 */ 
 	Dim_tbl(int size1, int size0) ;	    
 
@@ -130,33 +130,33 @@ class Dim_tbl {
 	 * 3D constructor
 	 * @param size2  [input] Defines the range [0, size2-1]  of the 
 	 *		  outermost index in the storage of
-	 *		  the array {\tt Tbl::t}. 
-	 *		  Will be assigned to {\tt dim[2]}.
+	 *		  the array \c Tbl::t. 
+	 *		  Will be assigned to \c dim[2].
 	 * @param size1  [input] Defines the range [0, size1-1] of the 
 	 *		  intermediate index in the storage of
-	 *		  the array {\tt Tbl::t}. 
-	 *		  Will be assigned to {\tt dim[1]}.
+	 *		  the array \c Tbl::t. 
+	 *		  Will be assigned to \c dim[1].
 	 * @param size0  [input] Defines the range [0, size0-1] of the 
 	 *		  innermost index in the storage of
-	 *		  the array {\tt Tbl::t}. 
-	 *		  Will be assigned to {\tt dim[0]}.
+	 *		  the array \c Tbl::t. 
+	 *		  Will be assigned to \c dim[0].
 	 */ 
 	Dim_tbl(int size2, int size1, int size0) ; 
 
-	Dim_tbl(const Dim_tbl & ) ; /// Copy constructor
+	Dim_tbl(const Dim_tbl & ) ; ///< Copy constructor
 
-	/// Constructor from a file (see {\tt sauve(FILE* )} )	
+	/// Constructor from a file (see \c sauve(FILE*) )	
 	explicit Dim_tbl(FILE* ) ;   	    
 
-	~Dim_tbl() ;	    	    /// Destructor
+	~Dim_tbl() ;	    	    ///< Destructor
 
-	void operator=(const Dim_tbl &) ;   	/// Assignment
+	void operator=(const Dim_tbl &) ;   	///< Assignment
     
-	void sauve(FILE* ) const ;			/// Save in a file
+	void sauve(FILE* ) const ;			///< Save in a file
 
-	bool operator==(const Dim_tbl &) const ;  /// Comparison operator
+	bool operator==(const Dim_tbl &) const ;  ///< Comparison operator
 
-    	friend ostream& operator<<(ostream& , const Dim_tbl &) ;  /// Display
+    	friend ostream& operator<<(ostream& , const Dim_tbl &) ;  ///< Display
 	
 };
 ostream& operator<<(ostream& , const Dim_tbl &) ;  

@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/22 13:12:40  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.4  2003/11/06 14:43:37  e_gourgoulhon
  * Gave a name to const arguments in certain method prototypes (e.g.
  * constructors) to correct a bug of DOC++.
@@ -74,50 +77,48 @@ class Map ;
 
 /**
  * Active physical coordinates and mapping derivatives.
- * 
- * @version #$Id$#
+ * \ingroup (map)
  *
  */
-
 class Coord {
     
 	// Data :
 	// -----
     public:
-	const Map* mp ;			 /// Mapping on which the {\tt Coord} is defined
-	Mtbl* (*met_fait)(const Map* ) ; /// Function to compute the coordinate
-	mutable Mtbl* c ;		 /// The coordinate values at each grid point
+	const Map* mp ;			 ///< Mapping on which the \c Coord  is defined
+	Mtbl* (*met_fait)(const Map* ) ; ///< Function to compute the coordinate
+	mutable Mtbl* c ;		 ///< The coordinate values at each grid point
 
 	// Constructors, destructor : 
 	// ------------------------
     public:
-	Coord() ;			    /// Default constructor
+	Coord() ;			    ///< Default constructor
 	
 	/**
 	 * Constructor from a mapping and a method.
 	 * @param mp [input] Mapping on which the Coord is defined
-	 * @param construct [input] Method to construct the {\tt Coord}, i.e. to
-	 *		    initialize the {\tt Mtbl} which contains the value of
+	 * @param construct [input] Method to construct the \c Coord , i.e. to
+	 *		    initialize the \c Mtbl  which contains the value of
 	 *		    the coordinate or mapping derivative represented by 
-	 *                  the {\tt Coord} 
+	 *                  the \c Coord  
 	 */
 	Coord(const Map* mp, Mtbl* (*construct)(const Map*) ) ;
 	
 
     private:
-	/** Copy constructor (private and not implemented to make {\tt Coord}
+	/** Copy constructor (private and not implemented to make \c Coord 
 	 * a non-copyable class)
 	 */ 
 	Coord(const Coord & ) ;		    
 	
     public: 
-	~Coord() ;			    /// Destructor
+	~Coord() ;			    ///< Destructor
 
 	// Various methods :
 	// ---------------	
 
 	/** Assignement operator (private and not implemented to make 
-	 *   {\tt Coord} a non-copyable class)
+	 *   \c Coord  a non-copyable class)
 	 */
     private: 
 	void operator=(const Coord& ) ;
@@ -128,47 +129,49 @@ class Coord {
 	 * This function is intended to complete the construction started by
 	 * the default constructor.
 	 * @param mp [input] Mapping on which the Coord is defined
-	 * @param construct [input] Method to construct the {\tt Coord}, i.e. to
-	 *		    initialize the {\tt Mtbl} which contains the value of
+	 * @param construct [input] Method to construct the \c Coord , i.e. to
+	 *		    initialize the \c Mtbl  which contains the value of
 	 *		    the coordinate or mapping derivative represented by 
-	 *                  the {\tt Coord} 
+	 *                  the \c Coord  
 	 */
 	void set(const Map* mp, Mtbl* (*construct)(const Map*) ) ;	    
 
 	/**
 	 * Computes, at each point of the grid, the value of the coordinate or 
-	 * mapping derivative represented by the {\tt Coord}.
-	 * The result is stored in the {\tt Mtbl} member {\tt *c}. 
+	 * mapping derivative represented by the \c Coord .
+	 * The result is stored in the \c Mtbl  member \c *c . 
 	 */
 	void fait() const ;	
 
-	/// Logical destructor (deletes the {\tt Mtbl} member {\tt *c}).
+	/// Logical destructor (deletes the \c Mtbl  member \c *c ).
  	void del_t() const ; 
 
-	friend ostream& operator<<(ostream& , const Coord& ) ;	/// Display 
+	friend ostream& operator<<(ostream& , const Coord& ) ;	///< Display 
 
-};
+ } ;
 ostream& operator<<(ostream& , const Coord& ) ;	
 
 // Prototypage de l'arithmetique
 /**
- * @name {\tt Coord} Arithmetics
+ * \defgroup coord_ari Coord  Arithmetics.
+ * \ingroup (map)
+ * @{
  */
-    //@{
-Mtbl operator+(const Coord&) ;			/// + {\tt Coord}
-Mtbl operator-(const Coord&) ;			/// - {\tt Coord}
 
-Mtbl operator+(const Coord& a, const Coord& b) ;	/// {\tt Coord} + {\tt Coord}
-Mtbl operator-(const Coord& a, const Coord& b) ;	/// {\tt Coord} - {\tt Coord} 
-Mtbl operator*(const Coord& a, const Coord& b) ;	/// {\tt Coord} * {\tt Coord}
+Mtbl operator+(const Coord&) ;			///< + \c Coord 
+Mtbl operator-(const Coord&) ;			///< \c - \c Coord 
 
-Mtbl operator+(const Coord& a, const Mtbl& b) ;	/// {\tt Coord} + {\tt Mtbl}
-Mtbl operator-(const Coord& a, const Mtbl& b) ;	/// {\tt Coord} - {\tt Mtbl}
-Mtbl operator*(const Coord& a, const Mtbl& b) ;	/// {\tt Coord} * {\tt Mtbl}
+Mtbl operator+(const Coord& a, const Coord& b) ;	///< \c Coord  + \c Coord 
+Mtbl operator-(const Coord& a, const Coord& b) ;	///< \c Coord  - \c Coord  
+Mtbl operator*(const Coord& a, const Coord& b) ;	///< \c Coord  * \c Coord 
 
-Mtbl operator+(const Mtbl& a, const Coord& b) ;	/// {\tt Mtbl} + {\tt Coord}
-Mtbl operator-(const Mtbl& a, const Coord& b) ;	/// {\tt Mtbl} - {\tt Coord}
-Mtbl operator*(const Mtbl& a, const Coord& b) ;	/// {\tt Mtbl} * {\tt Coord}
-    //@}
+Mtbl operator+(const Coord& a, const Mtbl& b) ;	///< \c Coord  + \c Mtbl 
+Mtbl operator-(const Coord& a, const Mtbl& b) ;	///< \c Coord  - \c Mtbl 
+Mtbl operator*(const Coord& a, const Mtbl& b) ;	///< \c Coord  * \c Mtbl 
+
+Mtbl operator+(const Mtbl& a, const Coord& b) ;	///< \c Mtbl  + \c Coord 
+Mtbl operator-(const Mtbl& a, const Coord& b) ;	///< \c Mtbl  - \c Coord 
+Mtbl operator*(const Mtbl& a, const Coord& b) ;	///< \c Mtbl  * \c Coord 
+/** @} */
 
 #endif

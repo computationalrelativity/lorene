@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2004/03/22 13:12:43  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.15  2004/03/03 13:54:16  j_novak
  * Error in comments corrected.
  *
@@ -101,34 +104,33 @@ class Sym_tensor_tt ;
 /**
  * Class intended to describe valence-2 symmetric tensors.
  * The storage and the calculations are different and quicker than with an 
- * usual {\tt Tensor}.
+ * usual \c Tensor .
  * 
- * The valence must be 2.
+ * The valence must be 2. \ingroup (tensor)
  *
- * @version #$Id$#
  */
 class Sym_tensor : public Tensor_sym {
 
     // Derived data : 
     // ------------
     protected:
-	/** Array of the transverse part ${}^t T^{ij}$ of the tensor with respect 
+	/** Array of the transverse part \f${}^t T^{ij}\f$ of the tensor with respect 
 	 * to various metrics, transverse meaning divergence-free with respect
-	 * to a metric. Denoting {\tt *this} by $T^{ij}$, we then have
-	 * \begin{equation}
+	 * to a metric. Denoting \c *this  by \f$T^{ij}\f$, we then have
+	 * \f[
 	 *		T^{ij} = {}^t T^{ij} + \nabla^i W^j + \nabla^j W^i  
 	 *		\qquad\mbox{with}\quad \nabla_j {}^t T^{ij} = 0 
-	 * \end{equation}
-	 * where $\nabla_i$ denotes the covariant derivative with respect
-	 * to the given metric and $W^i$ is the vector potential of the
-	 * longitudinal part of $T^{ij}$ (member {\tt p\_longit\_pot} below)
+	 *\f]
+	 * where \f$\nabla_i\f$ denotes the covariant derivative with respect
+	 * to the given metric and \f$W^i\f$ is the vector potential of the
+	 * longitudinal part of \f$T^{ij}\f$ (member \c p_longit_pot  below)
 	 */
 	mutable Sym_tensor_trans* p_transverse[N_MET_MAX] ;
 
 	/** Array of the vector potential of the
 	 * longitudinal part of the tensor with respect 
 	 * to various metrics (see documentation of member 
-	 * {\tt p\_transverse}
+	 * \c p_transverse 
 	 */
 	mutable Vector* p_longit_pot[N_MET_MAX] ;
 
@@ -139,13 +141,13 @@ class Sym_tensor : public Tensor_sym {
 	/** Standard constructor.
 	 * 
 	 * @param map   the mapping 
-	 * @param tipe  1-D array of integers (class {\tt Itbl}) of size 2 
+	 * @param tipe  1-D array of integers (class \c Itbl ) of size 2 
 	 *		containing the type 
-	 *		of each index, {\tt COV} for a covariant one 
-	 *		and {\tt CON} for a contravariant one,  with the 
-	 *		following storage convention: \\
-	 *			{\tt tipe(0)} : type of the first index \\
-	 *			{\tt tipe(1)} : type of the second index 
+	 *		of each index, \c COV  for a covariant one 
+	 *		and \c CON  for a contravariant one,  with the 
+	 *		following storage convention: 
+	 *			\li \c tipe(0)  : type of the first index 
+	 *			\li \c tipe(1)  : type of the second index 
 	 * @param triad_i  vectorial basis (triad) with respect to which 
 	 *			  the tensor components are defined
 	 */
@@ -161,14 +163,14 @@ class Sym_tensor : public Tensor_sym {
 	 */
 	Sym_tensor(const Map& map, int tipe, const Base_vect& triad_i) ;
 
-	Sym_tensor(const Sym_tensor& a) ; /// Copy constructor
+	Sym_tensor(const Sym_tensor& a) ; ///< Copy constructor
 
-	/** Constructor from a {\tt Tensor}.
+	/** Constructor from a \c Tensor .
 	 *  The symmetry of the input tensor is assumed but is not checked.
 	 */
 	Sym_tensor(const Tensor& a) ;
 	
-	/** Constructor from a file (see {\tt sauve(FILE* )}).
+	/** Constructor from a file (see \c sauve(FILE*) ).
 	 * 
 	 * @param map  the mapping
 	 * @param triad_i   vectorial basis (triad) with respect to which 
@@ -176,28 +178,28 @@ class Sym_tensor : public Tensor_sym {
 	 *			  be checked that it coincides with the basis
 	 *			  saved in the file.
 	 * @param fich  file which has been used by 
-	 *			    the function {\tt sauve(FILE* )}.
+	 *			    the function \c sauve(FILE*) .
 	 */
 	Sym_tensor(const Map& map, const Base_vect& triad_i, FILE* fich) ;
 
-	virtual ~Sym_tensor() ;    /// Destructor
+	virtual ~Sym_tensor() ;    ///< Destructor
 	
     // Memory management
     // -----------------
     protected:
-	virtual void del_deriv() const;	/// Deletes the derived quantities
+	virtual void del_deriv() const;	///< Deletes the derived quantities
 
 	/// Sets the pointers on derived quantities to 0x0
 	void set_der_0x0() const ; 
 
 	/** Logical destructor of the derivatives depending on the i-th
-	 *  element of {\tt met\_depend} specific to the
-	 *  class {\tt Sym\_tensor} ({\tt p\_transverse}, etc...).
+	 *  element of \c met_depend  specific to the
+	 *  class \c Sym_tensor  (\c p_transverse , etc...).
 	 */	
 	virtual void del_derive_met(int i) const ;
 
-	/** Sets all the i-th components of {\tt met\_depend} specific to the
-	 * class {\tt Sym\_tensor} ({\tt p\_transverse}, etc...) to 0x0.
+	/** Sets all the i-th components of \c met_depend  specific to the
+	 * class \c Sym_tensor  (\c p_transverse , etc...) to 0x0.
 	 */
 	void set_der_met_0x0(int i) const ;
 
@@ -205,14 +207,14 @@ class Sym_tensor : public Tensor_sym {
     // Mutators / assignment
     // ---------------------
     public:
-	/// Assignment to another {\tt Sym\_tensor}
+	/// Assignment to another \c Sym_tensor 
 	virtual void operator=(const Sym_tensor& a) ;
 
-	/// Assignment to a {\tt Tensor\_sym}
+	/// Assignment to a \c Tensor_sym 
 	virtual void operator=(const Tensor_sym& a) ;
 
 	/**
-	 * Assignment to a {\tt Tensor}.
+	 * Assignment to a \c Tensor .
 	 * 
 	 * The symmetry is assumed but not checked.
 	 */
@@ -223,32 +225,32 @@ class Sym_tensor : public Tensor_sym {
     // ------------------------------
     public:
 
-	/**Returns the divergence of {\tt this} with respect to a {\tt Metric}.
+	/**Returns the divergence of \c this  with respect to a \c Metric .
 	 * The indices are assumed to be contravariant.
 	 */
 	const Vector& divergence(const Metric&) const ; 
 
-        /** Computes the Lie derivative of {\tt this} with respect to some
-         *  vector field {\tt v}
+        /** Computes the Lie derivative of \c this  with respect to some
+         *  vector field \c v 
          */
         Sym_tensor derive_lie(const Vector& v) const ; 
 
-	/** Computes the transverse part ${}^t T^{ij}$ of the tensor with respect 
+	/** Computes the transverse part \f${}^t T^{ij}\f$ of the tensor with respect 
 	 * to a given metric, transverse meaning divergence-free with respect
-	 * to that metric. Denoting {\tt *this} by $T^{ij}$, we then have
-	 * \begin{equation}
+	 * to that metric. Denoting \c *this  by \f$T^{ij}\f$, we then have
+	 * \f[
 	 *		T^{ij} = {}^t T^{ij} + \nabla^i W^j + \nabla^j W^i  
 	 *		\qquad\mbox{with}\quad \nabla_j {}^t T^{ij} = 0 
-	 * \end{equation}
-	 * where $\nabla_i$ denotes the covariant derivative with respect
-	 * to the given metric and $W^i$ is the vector potential of the
-	 * longitudinal part of $T^{ij}$ (function {\tt longit\_pot( )} below)
+	 *\f]
+	 * where \f$\nabla_i\f$ denotes the covariant derivative with respect
+	 * to the given metric and \f$W^i\f$ is the vector potential of the
+	 * longitudinal part of \f$T^{ij}\f$ (function \c longit_pot()  below)
 	 */
 	const Sym_tensor_trans& transverse(const Metric&) const ; 
 
-	/** Computes the vector potential $W^i$ of
+	/** Computes the vector potential \f$W^i\f$ of
 	 * longitudinal part of the tensor (see documentation of
-	 * method {\tt transverse( )} above).
+	 * method \c transverse() above).
 	 */
 	const Vector& longit_pot(const Metric&) const ; 
 	
@@ -257,7 +259,7 @@ class Sym_tensor : public Tensor_sym {
     // ----------------------
  protected:
 	/**
-	 * Returns a pointer on the inverse of the {\tt Sym\_tensor} 
+	 * Returns a pointer on the inverse of the \c Sym_tensor  
 	 * (seen as a matrix).
 	 */
 	Sym_tensor* inverse() const ;
@@ -275,15 +277,14 @@ class Sym_tensor : public Tensor_sym {
 			
 
 /**
- * Transverse symmetric tensors of rank 2.
+ * Transverse symmetric tensors of rank 2. \ingroup (tensor)
  *
  * This class is designed to store transverse (divergence-free) 
  * symmetric contravariant tensors of rank 2,
  * with the component expressed in an orthonormal spherical basis
- * $(e_r,e_\theta,e_\varphi)$.
+ * \f$(e_r,e_\theta,e_\varphi)\f$.
  *
  * 
- * @version #$Id$#
  */
 class Sym_tensor_trans: public Sym_tensor {
 
@@ -293,10 +294,10 @@ class Sym_tensor_trans: public Sym_tensor {
 	/// Metric with respect to which the divergence and the trace are defined
 	const Metric* const met_div ; 
 	
-	/// Trace with respect to the metric {\tt *met\_div} 
+	/// Trace with respect to the metric \c *met_div  
 	mutable Scalar* p_trace ; 
 	
-	/// Traceless part with respect to the metric {\tt *met\_div} 
+	/// Traceless part with respect to the metric \c *met_div  
 	mutable Sym_tensor_tt* p_tt ;
 	
     // Constructors - Destructor
@@ -312,9 +313,9 @@ class Sym_tensor_trans: public Sym_tensor {
 	Sym_tensor_trans(const Map& map, const Base_vect& triad_i, 
 		const Metric& met) ;
 
-	Sym_tensor_trans(const Sym_tensor_trans& ) ;       /// Copy constructor
+	Sym_tensor_trans(const Sym_tensor_trans& ) ;       ///< Copy constructor
 
-	/** Constructor from a file (see {\tt Tensor::sauve(FILE* )}).
+	/** Constructor from a file (see \c Tensor::sauve(FILE*) ).
 	 * 
 	 * @param map  the mapping
 	 * @param triad_i   vectorial basis (triad) with respect to which 
@@ -323,18 +324,18 @@ class Sym_tensor_trans: public Sym_tensor {
 	 *			  saved in the file.
 	 * @param met the metric with respect to which the divergence is defined
 	 * @param fich  file which has been used by 
-	 *			    the function {\tt sauve(FILE* )}.
+	 *			    the function \c sauve(FILE*) .
 	 */
 	Sym_tensor_trans(const Map& map, const Base_vect& triad_i, 
 		const Metric& met, FILE* fich) ;
 
-	virtual ~Sym_tensor_trans() ;			/// Destructor
+	virtual ~Sym_tensor_trans() ;			///< Destructor
 
  
     // Memory management
     // -----------------
     protected:
-	virtual void del_deriv() const;	/// Deletes the derived quantities
+	virtual void del_deriv() const;	///< Deletes the derived quantities
 
 	/// Sets the pointers on derived quantities to 0x0
 	void set_der_0x0() const ; 
@@ -344,25 +345,25 @@ class Sym_tensor_trans: public Sym_tensor {
     // ---------------------
 
 	public:
-	/// Assignment to another {\tt Sym\_tensor\_trans}
+	/// Assignment to another \c Sym_tensor_trans 
 	virtual void operator=(const Sym_tensor_trans& a) ;	
 	
-	/// Assignment to a {\tt Sym_tensor}
+	/// Assignment to a \c Sym_tensor 
 	virtual void operator=(const Sym_tensor& a) ;	
 	
-	/// Assignment to a {\tt Tensor\_sym}
+	/// Assignment to a \c Tensor_sym 
 	virtual void operator=(const Tensor_sym& a) ;
 
-	/// Assignment to a {\tt Tensor}
+	/// Assignment to a \c Tensor 
 	virtual void operator=(const Tensor& a) ;	
 	
 	// Computational methods
 	// ---------------------
-	/// Returns the trace of the tensor with respect to metric {\tt *met\_div}
+	/// Returns the trace of the tensor with respect to metric \c *met_div 
 	const Scalar& the_trace() const ; 
 	
 	/** Returns the transverse traceless part of the tensor, the trace being defined
-	 * with respect to metric {\tt *met\_div}
+	 * with respect to metric \c *met_div 
 	 */
 	const Sym_tensor_tt& tt_part() const ; 
 	
@@ -380,10 +381,9 @@ class Sym_tensor_trans: public Sym_tensor {
  * This class is designed to store transverse (divergence-free) 
  * and transverse symmetric contravariant tensors of rank 2,
  * with the component expressed in an orthonormal spherical basis
- * $(e_r,e_\theta,e_\varphi)$.
+ * \f$(e_r,e_\theta,e_\varphi)\f$.\ingroup (tensor)
  *
  * 
- * @version #$Id$#
  */
 class Sym_tensor_tt: public Sym_tensor_trans {
 
@@ -391,35 +391,35 @@ class Sym_tensor_tt: public Sym_tensor_trans {
     // -----
 
     protected:
-	/** Field $\chi$ such that the component $h^{rr} = \frac{\chi}{r^2}$.
+	/** Field \f$\chi\f$ such that the component \f$h^{rr} = \frac{\chi}{r^2}\f$.
 	 */
 	mutable Scalar* p_khi ;
 	
-	/** Field $\eta$ such that the components $(h^{r\theta}, h^{r\varphi})$
+	/** Field \f$\eta\f$ such that the components \f$(h^{r\theta}, h^{r\varphi})\f$
 	 * of the tensor are written:
-	 * \begin{equation}
+	 * \f[
 	 *	h^{r\theta} =  {1\over r} \left( {\partial \eta \over \partial\theta}
 	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right) 
-	 * \end{equation} 
-	 * \begin{equation}
+	 *\f] 
+	 * \f[
 	 *	h^{r\varphi} =  {1\over r} \left( {1\over\sin\theta} 
 	 *				{\partial \eta \over \partial\varphi}
 	 *				+ {\partial \mu \over \partial\theta} \right)
-	 * \end{equation} 
+	 *\f] 
 	 */
 	mutable Scalar* p_eta ;
 	
-	/** Field $\mu$ such that the components $(h^{r\theta}, h^{r\varphi})$
+	/** Field \f$\mu\f$ such that the components \f$(h^{r\theta}, h^{r\varphi})\f$
 	 * of the tensor are written:
-	 * \begin{equation}
+	 * \f[
 	 *	h^{r\theta} =  {1\over r} \left( {\partial \eta \over \partial\theta}
 	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right) 
-	 * \end{equation} 
-	 * \begin{equation}
+	 *\f] 
+	 * \f[
 	 *	h^{r\varphi} =  {1\over r} \left( {1\over\sin\theta} 
 	 *				{\partial \eta \over \partial\varphi}
 	 *				+ {\partial \mu \over \partial\theta} \right)
-	 * \end{equation} 
+	 *\f] 
 	 */
 	mutable Scalar* p_mu ;
 	
@@ -437,9 +437,9 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	Sym_tensor_tt(const Map& map, const Base_vect& triad_i, 
 		const Metric& met) ;
 
-	Sym_tensor_tt(const Sym_tensor_tt& ) ;       /// Copy constructor
+	Sym_tensor_tt(const Sym_tensor_tt& ) ;       ///< Copy constructor
 
-	/** Constructor from a file (see {\tt Tensor::sauve(FILE* )}).
+	/** Constructor from a file (see \c Tensor::sauve(FILE*) ).
 	 * 
 	 * @param map  the mapping
 	 * @param triad_i   vectorial basis (triad) with respect to which 
@@ -448,18 +448,18 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	 *			  saved in the file.
 	 * @param met the metric with respect to which the divergence is defined
 	 * @param fich  file which has been used by 
-	 *			    the function {\tt sauve(FILE* )}.
+	 *			    the function \c sauve(FILE*) .
 	 */
 	Sym_tensor_tt(const Map& map, const Base_vect& triad_i, 
 		const Metric& met, FILE* fich) ;
 
-	virtual ~Sym_tensor_tt() ;			/// Destructor
+	virtual ~Sym_tensor_tt() ;			///< Destructor
 
  
     // Memory management
     // -----------------
     protected:
-	virtual void del_deriv() const;	/// Deletes the derived quantities
+	virtual void del_deriv() const;	///< Deletes the derived quantities
 
 	/// Sets the pointers on derived quantities to 0x0
 	void set_der_0x0() const ; 
@@ -469,72 +469,72 @@ class Sym_tensor_tt: public Sym_tensor_trans {
     // ---------------------
 
 	public:
-	/// Assignment to another {\tt Sym\_tensor\_tt}
+	/// Assignment to another \c Sym_tensor_tt 
 	virtual void operator=(const Sym_tensor_tt& a) ;	
 	
-	/// Assignment to a {\tt Sym_tensor\_trans}
+	/// Assignment to a \c Sym_tensor_trans 
 	virtual void operator=(const Sym_tensor_trans& a) ;	
 	
-	/// Assignment to a {\tt Sym_tensor}
+	/// Assignment to a \c Sym_tensor 
 	virtual void operator=(const Sym_tensor& a) ;	
 	
-	/// Assignment to a {\tt Tensor\_sym}
+	/// Assignment to a \c Tensor_sym 
 	virtual void operator=(const Tensor_sym& a) ;
 
-	/// Assignment to a {\tt Tensor}
+	/// Assignment to a \c Tensor 
 	virtual void operator=(const Tensor& a) ;	
 	
-	/** Sets the component $h^{rr}$, as well as the angular potentials 
-	 * $\eta$ and $\mu$ (see members
-	 *  {\tt p\_eta} and {\tt p\_mu}). 
+	/** Sets the component \f$h^{rr}\f$, as well as the angular potentials 
+	 * \f$\eta\f$ and \f$\mu\f$ (see members
+	 *  \c p_eta  and \c p_mu ). 
 	 *  The other components are updated consistently
-	 *  by a call to the method {\tt update()}.
+	 *  by a call to the method \c update() .
 	 *
-	 *	@param hrr [input] value of $h^{rr}$
-	 *	@param eta_i [input] angular potential $\eta$
-	 *	@param mu_i [input] angular potential $\mu$
+	 *	@param hrr [input] value of \f$h^{rr}\f$
+	 *	@param eta_i [input] angular potential \f$\eta\f$
+	 *	@param mu_i [input] angular potential \f$\mu\f$
 	 *
 	 */
 	void set_rr_eta_mu(const Scalar& hrr, const Scalar& eta_i, 
 						const Scalar& mu_i) ; 
 
-	/** Sets the component $h^{rr}$, as well as the angular potential
-	 * $\mu$ (see member {\tt p\_mu}). 
-	 * The angular potential $\eta$ (member {\tt p\_eta}) is deduced from
+	/** Sets the component \f$h^{rr}\f$, as well as the angular potential
+	 * \f$\mu\f$ (see member \c p_mu ). 
+	 * The angular potential \f$\eta\f$ (member \c p_eta ) is deduced from
 	 * the divergence free condition. 
 	 * The other tensor components are updated consistently
-	 * by a call to the method {\tt update()}.
+	 * by a call to the method \c update() .
 	 *
-	 *	@param hrr [input] value of $h^{rr}$
-	 *	@param mu_i [input] angular potential $\mu$
+	 *	@param hrr [input] value of \f$h^{rr}\f$
+	 *	@param mu_i [input] angular potential \f$\mu\f$
 	 *
 	 */
 	void set_rr_mu(const Scalar& hrr, const Scalar& mu_i) ; 
 	
 	
-	/** Sets the component $\chi$, as well as the angular potentials 
-	 * $\eta$ and $\mu$ (see members {\tt p\_\chi},
-	 *  {\tt p\_eta} and {\tt p\_mu}). 
+	/** Sets the component \f$\chi\f$, as well as the angular potentials 
+	 * \f$\eta\f$ and \f$\mu\f$ (see members \c p_khi ,
+	 *  \c p_eta  and \c p_mu ). 
 	 *  The components are updated consistently
-	 *  by a call to the method {\tt update()}.
+	 *  by a call to the method \c update() .
 	 *
-	 *	@param khi_i [input] value of $\chi$
-	 *	@param eta_i [input] angular potential $\eta$
-	 *	@param mu_i [input] angular potential $\mu$
+	 *	@param khi_i [input] value of \f$\chi\f$
+	 *	@param eta_i [input] angular potential \f$\eta\f$
+	 *	@param mu_i [input] angular potential \f$\mu\f$
 	 *
 	 */
 	void set_khi_eta_mu(const Scalar& khi_i, const Scalar& eta_i, 
 						const Scalar& mu_i) ; 
 		
-	/** Sets the component $\chi$, as well as the angular potential
-	 * $\mu$ (see member {\tt p\_\chi} and {\tt p\_mu}). 
-	 * The angular potential $\eta$ (member {\tt p\_eta}) is deduced from
+	/** Sets the component \f$\chi\f$, as well as the angular potential
+	 * \f$\mu\f$ (see member \c p_khi  and \c p_mu ). 
+	 * The angular potential \f$\eta\f$ (member \c p_eta ) is deduced from
 	 * the divergence free condition. 
 	 * The tensor components are updated consistently
-	 * by a call to the method {\tt update()}.
+	 * by a call to the method \c update() .
 	 *
-	 *	@param khi_i [input] value of $\chi$
-	 *	@param mu_i [input] angular potential $\mu$
+	 *	@param khi_i [input] value of \f$\chi\f$
+	 *	@param mu_i [input] angular potential \f$\mu\f$
 	 *
 	 */
 	void set_khi_mu(const Scalar& khi_i, const Scalar& mu_i) ; 
@@ -543,56 +543,56 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	// ---------------------
 	
 	public:
-	/** Gives the field $\chi$ such that the component $h^{rr} = \frac{\chi}{r^2}$.
+	/** Gives the field \f$\chi\f$ such that the component \f$h^{rr} = \frac{\chi}{r^2}\f$.
 	 */
 	const Scalar& khi() const ;
 	
-	/** Gives the field $\eta$ such that the components $(h^{r\theta}, h^{r\varphi})$
+	/** Gives the field \f$\eta\f$ such that the components \f$(h^{r\theta}, h^{r\varphi})\f$
 	 * of the tensor are written:
-	 * \begin{equation}
+	 * \f[
 	 *	h^{r\theta} =  {1\over r} \left( {\partial \eta \over \partial\theta}
 	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right) 
-	 * \end{equation} 
-	 * \begin{equation}
+	 *\f] 
+	 * \f[
 	 *	h^{r\varphi} =  {1\over r} \left( {1\over\sin\theta} 
 	 *				{\partial \eta \over \partial\varphi}
 	 *				+ {\partial \mu \over \partial\theta} \right)
-	 * \end{equation} 
+	 *\f] 
 	 */
 	const Scalar& eta() const ;
 	
-	/** Gives the field $\mu$ such that the components $(h^{r\theta}, h^{r\varphi})$
+	/** Gives the field \f$\mu\f$ such that the components \f$(h^{r\theta}, h^{r\varphi})\f$
 	 * of the tensor are written:
-	 * \begin{equation}
+	 * \f[
 	 *	h^{r\theta} =  {1\over r} \left( {\partial \eta \over \partial\theta}
 	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right) 
-	 * \end{equation} 
-	 * \begin{equation}
+	 *\f] 
+	 * \f[
 	 *	h^{r\varphi} =  {1\over r} \left( {1\over\sin\theta} 
 	 *				{\partial \eta \over \partial\varphi}
 	 *				+ {\partial \mu \over \partial\theta} \right)
-	 * \end{equation} 
+	 *\f] 
 	 */
 	const Scalar& mu() const ;
 	
 
 	protected:
-	/** Computes the components $h^{r\theta}$, $h^{r\varphi}$,
-	 * $h^{\theta\theta}$, $h^{\theta\varphi}$ and $h^{\varphi\varphi}$,
-	 *  from $h^{rr}$ and the potentials $\eta$ and $\mu$.
+	/** Computes the components \f$h^{r\theta}\f$, \f$h^{r\varphi}\f$,
+	 * \f$h^{\theta\theta}\f$, \f$h^{\theta\varphi}\f$ and \f$h^{\varphi\varphi}\f$,
+	 *  from \f$h^{rr}\f$ and the potentials \f$\eta\f$ and \f$\mu\f$.
 	 */
 	void update() ;
 	
 
 	public:
 	/** Computes the solution of a tensorial TT Poisson equation
-	 *  with {\tt *this} $= S^{ij}$ as a source:
-	 * \begin{equation}
+	 *  with \c *this  \f$= S^{ij}\f$ as a source:
+	 * \f[
 	 *    \Delta h^{ij} = S^{ij}
-	 * \end{equation} 
+	 *\f] 
 	 * 
-	 * @return solution $h^{ij}$ of the above equation with the boundary
-	 *	condition $h^{ij}=0$ at spatial infinity.
+	 * @return solution \f$h^{ij}\f$ of the above equation with the boundary
+	 *	condition \f$h^{ij}=0\f$ at spatial infinity.
 	 */
 	Sym_tensor_tt poisson() const ; 
 	

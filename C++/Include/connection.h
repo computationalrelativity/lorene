@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/03/22 13:12:40  j_novak
+ * Modification of comments to use doxygen instead of doc++
+ *
  * Revision 1.12  2004/01/04 20:50:24  e_gourgoulhon
  * Class Connection: data member delta is now of type Tensor_sym (and no
  *  longer of type Tensor_delta).
@@ -92,17 +95,16 @@ class Metric_flat ;
 				//--------------------------//
 
 /**
- * Class Connection.
+ * Class Connection. \ingroup (tensor)
  *
  * This class deals only with torsion-free connections. 
  * 
  * Note that we use the MTW convention for the indices of the connection 
- * coefficients with respect to a given triad $(e_i)$:
- * \begin{equation}
+ * coefficients with respect to a given triad \f$(e_i)\f$:
+ * \f[
  *  \Gamma^i_{\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle 
- * \end{equation} 
+ * \f] 
  *  
- * @version #$Id$#
  */
 class Connection {
 
@@ -110,25 +112,25 @@ class Connection {
     // -----
     protected:
 
-	const Map* const mp ;	/// Reference mapping
+	const Map* const mp ;	///< Reference mapping
 
-	/** Triad $(e_i)$ with respect to which the connection coefficients 
+	/** Triad \f$(e_i)\f$ with respect to which the connection coefficients 
 	 * are defined.
 	 */
 	const Base_vect* const triad ; 
 	
-	/** Tensor $\Delta^i_{\ jk}$ which defines
-	 *  the connection with respect to the flat one: $\Delta^i_{\ jk}$ 
+	/** Tensor \f$\Delta^i_{\ jk}\f$ which defines
+	 *  the connection with respect to the flat one: \f$\Delta^i_{\ jk}\f$ 
 	 * is the difference between the connection coefficients 
-	 *  $\Gamma^i_{\ jk}$ and
-	 * the connection coefficients ${\bar \Gamma}^i_{\ jk}$ of the
+	 *  \f$\Gamma^i_{\ jk}\f$ and
+	 * the connection coefficients \f${\bar \Gamma}^i_{\ jk}\f$ of the
 	 * flat connection. The connection coefficients with respect to the 
-	 * triad $(e_i)$ are defined
+	 * triad \f$(e_i)\f$ are defined
 	 * according to the MTW convention:
-	 * \begin{equation}
+	 * \f[
 	 *  \Gamma^i_{\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle
-	 * \end{equation} 
-         * Note that $\Delta^i_{\ jk}$ is symmetric with respect to the
+	 * \f] 
+         * Note that \f$\Delta^i_{\ jk}\f$ is symmetric with respect to the
          * indices j and k.
 	 *
 	 */
@@ -136,15 +138,15 @@ class Connection {
 
 	/** Indicates whether the connection is associated with a metric
 	 *  (in which case the Ricci tensor is symmetric, i.e. the
-	 *	  actual type of {\tt p\_ricci} is a {\tt Sym\_tensor})
+	 *	  actual type of \c p_ricci  is a \c Sym_tensor )
 	 */
 	bool assoc_metric ;
 
 
 	private:
 
-	/** Flat metric with respect to which $\Delta^i_{\ jk}$ 
-	 *   (member {\tt delta}) is defined. 
+	/** Flat metric with respect to which \f$\Delta^i_{\ jk}\f$ 
+	 *   (member \c delta ) is defined. 
 	 *
 	 */
 	const Metric_flat* flat_met ;
@@ -163,19 +165,19 @@ class Connection {
 	
 	/** Standard constructor ab initio.
 	 *
-	 * @param delta_i tensor $\Delta^i_{\ jk}$ which defines
-	 *  the connection with respect to the flat one: $\Delta^i_{\ jk}$ 
+	 * @param delta_i tensor \f$\Delta^i_{\ jk}\f$ which defines
+	 *  the connection with respect to the flat one: \f$\Delta^i_{\ jk}\f$ 
 	 * is the difference between the connection coefficients 
-	 *  $\Gamma^i_{\ jk}$ and
-	 * the connection coefficients ${\bar \Gamma}^i_{\ jk}$ of the
+	 *  \f$\Gamma^i_{\ jk}\f$ and
+	 * the connection coefficients \f${\bar \Gamma}^i_{\ jk}\f$ of the
 	 * flat connection. The connection coefficients with respect to the 
-	 * triad $(e_i)$ are defined according to the MTW convention:
-	 * \begin{equation}
+	 * triad \f$(e_i)\f$ are defined according to the MTW convention:
+	 * \f[
 	 *  \Gamma^i_{\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle
-	 * \end{equation} 
-         * $\Delta^i_{\ jk}$ must be symmetric with respect to the
+	 * \f] 
+         * \f$\Delta^i_{\ jk}\f$ must be symmetric with respect to the
          * indices j and k.
-         * @param flat_met_i flat metric with respect to which $\Delta^i_{\ jk}$
+         * @param flat_met_i flat metric with respect to which \f$\Delta^i_{\ jk}\f$
          *   is defined
 	 *
 	 */
@@ -184,13 +186,13 @@ class Connection {
 	/** Standard constructor for a connection associated with a metric. 
 	 *
 	 * @param met  Metric to which the connection will be associated
-         * @param flat_met_i flat metric to define the $\Delta^i_{\ jk}$
+         * @param flat_met_i flat metric to define the \f$\Delta^i_{\ jk}\f$
          *  representation of the connection 
 	 *
 	 */
 	Connection(const Metric& met, const Metric_flat& flat_met_i) ;		
 	
-	Connection(const Connection& ) ;		/// Copy constructor
+	Connection(const Connection& ) ;		///< Copy constructor
 	
 	protected:
 
@@ -198,7 +200,7 @@ class Connection {
 	Connection(const Map&, const Base_vect& ) ; 		
 
         public:
-	virtual ~Connection() ;			/// Destructor
+	virtual ~Connection() ;			///< Destructor
  
 
     // Memory management
@@ -208,7 +210,7 @@ class Connection {
 	/// Deletes all the derived quantities
 	void del_deriv() const ; 
 	
-	/// Sets to {\tt 0x0} all the pointers on derived quantities
+	/// Sets to \c 0x0  all the pointers on derived quantities
 	void set_der_0x0() const ; 
 
 
@@ -216,18 +218,18 @@ class Connection {
     // ---------------------
     public:
 
-	/// Assignment to another {\tt Connection}
+	/// Assignment to another \c Connection 
 	void operator=(const Connection&) ;	
 	
 	/** Update the connection when it is defined ab initio.
 	 *
-	 * @param delta_i tensor $\Delta^i_{\ jk}$ which defines
-	 *  the connection with respect to the flat one: $\Delta^i_{\ jk}$ 
+	 * @param delta_i tensor \f$\Delta^i_{\ jk}\f$ which defines
+	 *  the connection with respect to the flat one: \f$\Delta^i_{\ jk}\f$ 
 	 * is the difference between the connection coefficients 
-	 *  $\Gamma^i_{\ jk}$ and
-	 * the connection coefficients ${\bar \Gamma}^i_{\ jk}$ of the
+	 *  \f$\Gamma^i_{\ jk}\f$ and
+	 * the connection coefficients \f${\bar \Gamma}^i_{\ jk}\f$ of the
 	 * flat connection. 
-         * $\Delta^i_{\ jk}$ must be symmetric with respect to the
+         * \f$\Delta^i_{\ jk}\f$ must be symmetric with respect to the
          * indices j and k.
 	 */
 	void update(const Tensor_sym& delta_i) ;		
@@ -243,24 +245,24 @@ class Connection {
     // Accessors
     // ---------
     public:
+	/// Returns the mapping
+	const Map& get_mp() const {return *mp; } ;  
 
-	const Map& get_mp() const {return *mp; } ;  /// Returns the mapping
 
-
-	/** Returns the tensor $\Delta^i_{\ jk}$ which defines
-	 *  the connection with respect to the flat one: $\Delta^i_{\ jk}$ 
+	/** Returns the tensor \f$\Delta^i_{\ jk}\f$ which defines
+	 *  the connection with respect to the flat one: \f$\Delta^i_{\ jk}\f$ 
 	 * is the difference between the connection coefficients 
-	 *  $\Gamma^i_{\ jk}$ and
-	 * the connection coefficients ${\bar \Gamma}^i_{\ jk}$ of the
+	 *  \f$\Gamma^i_{\ jk}\f$ and
+	 * the connection coefficients \f${\bar \Gamma}^i_{\ jk}\f$ of the
 	 * flat connection. The connection coefficients with respect to the 
-	 * triad $(e_i)$ are defined according to the MTW convention:
-	 * \begin{equation}
+	 * triad \f$(e_i)\f$ are defined according to the MTW convention:
+	 * \f[
 	 *  \Gamma^i_{\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle
-	 * \end{equation} 
-         * Note that $\Delta^i_{\ jk}$ is symmetric with respect to the
+	 * \f] 
+         * Note that \f$\Delta^i_{\ jk}\f$ is symmetric with respect to the
          * indices j and k.
 	 *
-	 * @return {\tt delta}(i,j,k) = $\Delta^i_{\ jk}$
+	 * @return \c delta}(i,j,k) = \f$\Delta^i_{\ jk}\f$
 	 */
 	const Tensor_sym& get_delta() const {return delta; } ; 
 
@@ -269,52 +271,52 @@ class Connection {
 	
 	public: 
 
-	/** Computes the covariant derivative $\nabla T$ of a tensor $T$
+	/** Computes the covariant derivative \f$\nabla T\f$ of a tensor \f$T\f$
 	 * (with respect to the current connection). 
          * 
-         * The extra index (with respect to the indices of $T$)
-         * of $\nabla T$ is chosen to be the {\bf last} one.
+         * The extra index (with respect to the indices of \f$T\f$)
+         * of \f$\nabla T\f$ is chosen to be the \b last  one.
          * This convention agrees with that of MTW (see Eq. (10.17) of MTW).
-         * For instance, if $T$ is a 1-form, whose components
-         * w.r.t. the triad $e^i$ are $T_i$: $T=T_i \; e^i$,
-         * then the covariant derivative of $T$ is the bilinear form
-         * $\nabla T$ whose components $\nabla_j T_i$ are
+         * For instance, if \f$T\f$ is a 1-form, whose components
+         * w.r.t. the triad \f$e^i\f$ are \f$T_i\f$: \f$T=T_i \; e^i\f$,
+         * then the covariant derivative of \f$T\f$ is the bilinear form
+         * \f$\nabla T\f$ whose components \f$\nabla_j T_i\f$ are
          * such that 
-         * \begin{equation}
+         * \f[
          *  \nabla T = \nabla_j T_i \; e^i \otimes e^j
-         * \end{equation}
+         * \f]
          *
-         * @param tens tensor $T$
-         * @return pointer on the covariant derivative $\nabla T$ ; 
+         * @param tens tensor \f$T\f$
+         * @return pointer on the covariant derivative \f$\nabla T\f$ ; 
          * this pointer is
-         * polymorphe, i.e. it is a pointer on a {\tt Vector}
-         * if the argument is a {\tt Scalar}, and on a {\tt Tensor} otherwise.
+         * polymorphe, i.e. it is a pointer on a \c Vector 
+         * if the argument is a \c Scalar , and on a \c Tensor  otherwise.
          * NB: The corresponding memory is allocated by the method 
-         * {\tt p\_derive\_cov()} and 
+         * \c p_derive_cov()  and 
          * must be deallocated by the user afterwards. 
 	 */
 	virtual Tensor* p_derive_cov(const Tensor& tens) const ; 
 
-	/** Computes the divergence of a tensor $T$
+	/** Computes the divergence of a tensor \f$T\f$
 	 * (with respect to the current connection). 
-         * The divergence is taken with respect of the last index of $T$
+         * The divergence is taken with respect of the last index of \f$T\f$
          * which thus must be contravariant.
-         * For instance if $T$ is a twice contravariant tensor, whose 
+         * For instance if \f$T\f$ is a twice contravariant tensor, whose 
          * components w.r.t. the
-         * triad $e_i$ are $T^{ij}$: $T = T^{ij} \; e_i \otimes e_j$,
-         * the divergence of $T$ is the vector 
-         * \begin{equation}
+         * triad \f$e_i\f$ are \f$T^{ij}\f$: \f$T = T^{ij} \; e_i \otimes e_j\f$,
+         * the divergence of \f$T\f$ is the vector 
+         * \f[
          *   {\rm div}\, T = \nabla_k T^{ik} \; e_i
-         * \end{equation}
-         * where $\nabla$ denotes the current connection. 
-         * @param tens tensor $T$
-         * @return pointer on the divergence of $T$ ; 
+         * \f]
+         * where \f$\nabla\f$ denotes the current connection. 
+         * @param tens tensor \f$T\f$
+         * @return pointer on the divergence of \f$T\f$ ; 
          * this pointer is
-         * polymorphe, i.e. its is a pointer on a {\tt Scalar}
-         * if $T$ is a {\tt Vector}, on a {\tt Vector} if $T$ is a tensor
-         * of valence 2, and on a {\tt Tensor} otherwise.
+         * polymorphe, i.e. its is a pointer on a \c Scalar 
+         * if \f$T\f$ is a \c Vector , on a \c Vector  if \f$T\f$ is a tensor
+         * of valence 2, and on a \c Tensor  otherwise.
          * NB: The corresponding memory is allocated by the method 
-         * {\tt p\_divergence()} and 
+         * \c p_divergence()  and 
          * must be deallocated by the user afterwards. 
 	 */
 	virtual Tensor* p_divergence(const Tensor& tens) const ; 
@@ -325,7 +327,7 @@ class Connection {
 	virtual const Tensor& ricci() const ; 
 	
 	private:
-	/** Computes the difference $\Delta^i_{\ jk}$ between the
+	/** Computes the difference \f$\Delta^i_{\ jk}\f$ between the
 	 *  connection coefficients and that a the flat connection
 	 *  in the case where the current connection is associated
 	 *  with a metric
@@ -340,11 +342,10 @@ class Connection {
 				//-------------------------------//
 
 /**
- * Class Connection\_flat.
+ * Class Connection_flat. \ingroup (tensor)
  *
  * Abstract class for connections associated with a flat metric. 
  * 
- * @version #$Id$#
  */
 class Connection_flat : public Connection {
 
@@ -357,16 +358,16 @@ class Connection_flat : public Connection {
 
  public:
 
-	Connection_flat(const Connection_flat & ) ;	/// Copy constructor
+	Connection_flat(const Connection_flat & ) ;	///< Copy constructor
 
-  virtual ~Connection_flat() ; /// destructor
+  virtual ~Connection_flat() ; ///< destructor
 
 
   // Mutators / assignment
   // ---------------------
  public:
 
-  /// Assignment to another {\tt Connection\_flat}
+  /// Assignment to another \c Connection_flat 
   void operator=(const Connection_flat&) ;	
   
 
@@ -375,52 +376,52 @@ class Connection_flat : public Connection {
   
  public: 
 
-	/** Computes the covariant derivative $\nabla T$ of a tensor $T$
+	/** Computes the covariant derivative \f$\nabla T\f$ of a tensor \f$T\f$
 	 * (with respect to the current connection). 
          * 
-         * The extra index (with respect to the indices of $T$)
-         * of $\nabla T$ is chosen to be the {\bf last} one.
+         * The extra index (with respect to the indices of \f$T\f$)
+         * of \f$\nabla T\f$ is chosen to be the \b last  one.
          * This convention agrees with that of MTW (see Eq. (10.17) of MTW).
-         * For instance, if $T$ is a 1-form, whose components
-         * w.r.t. the triad $e^i$ are $T_i$: $T=T_i \; e^i$,
-         * then the covariant derivative of $T$ is the bilinear form
-         * $\nabla T$ whose components $\nabla_j T_i$ are
+         * For instance, if \f$T\f$ is a 1-form, whose components
+         * w.r.t. the triad \f$e^i\f$ are \f$T_i\f$: \f$T=T_i \; e^i\f$,
+         * then the covariant derivative of \f$T\f$ is the bilinear form
+         * \f$\nabla T\f$ whose components \f$\nabla_j T_i\f$ are
          * such that 
-         * \begin{equation}
+         * \f[
          *  \nabla T = \nabla_j T_i \; e^i \otimes e^j
-         * \end{equation}
+         * \f]
          *
-         * @param tens tensor $T$
-         * @return pointer on the covariant derivative $\nabla T$ ; 
+         * @param tens tensor \f$T\f$
+         * @return pointer on the covariant derivative \f$\nabla T\f$ ; 
          * this pointer is
-         * polymorphe, i.e. it is a pointer on a {\tt Vector}
-         * if the argument is a {\tt Scalar}, and on a {\tt Tensor} otherwise.
+         * polymorphe, i.e. it is a pointer on a \c Vector 
+         * if the argument is a \c Scalar , and on a \c Tensor  otherwise.
          * NB: The corresponding memory is allocated by the method 
-         * {\tt p\_derive\_cov()} and 
+         * \c p_derive_cov()  and 
          * must be deallocated by the user afterwards. 
 	 */
         virtual Tensor* p_derive_cov(const Tensor& tens) const = 0 ; 
 
-	/** Computes the divergence of a tensor $T$
+	/** Computes the divergence of a tensor \f$T\f$
 	 * (with respect to the current connection). 
-         * The divergence is taken with respect of the last index of $T$
+         * The divergence is taken with respect of the last index of \f$T\f$
          * which thus must be contravariant.
-         * For instance if $T$ is a twice contravariant tensor, whose 
+         * For instance if \f$T\f$ is a twice contravariant tensor, whose 
          * components w.r.t. the
-         * triad $e_i$ are $T^{ij}$: $T = T^{ij} \; e_i \otimes e_j$,
-         * the divergence of $T$ is the vector 
-         * \begin{equation}
+         * triad \f$e_i\f$ are \f$T^{ij}\f$: \f$T = T^{ij} \; e_i \otimes e_j\f$,
+         * the divergence of \f$T\f$ is the vector 
+         * \f[
          *   {\rm div} T = \nabla_k T^{ik} \; e_i
-         * \end{equation}
-         * where $\nabla$ denotes the current connection. 
-         * @param tens tensor $T$
-         * @return pointer on the divergence of $T$ ; 
+         * \f]
+         * where \f$\nabla\f$ denotes the current connection. 
+         * @param tens tensor \f$T\f$
+         * @return pointer on the divergence of \f$T\f$ ; 
          * this pointer is
-         * polymorphe, i.e. its is a pointer on a {\tt Scalar}
-         * if $T$ is a {\tt Vector}, on a {\tt Vector} if $T$ is a tensor
-         * of valence 2, and on a {\tt Tensor} otherwise.
+         * polymorphe, i.e. its is a pointer on a \c Scalar 
+         * if \f$T\f$ is a \c Vector , on a \c Vector  if \f$T\f$ is a tensor
+         * of valence 2, and on a \c Tensor  otherwise.
          * NB: The corresponding memory is allocated by the method 
-         * {\tt p\_divergence()} and 
+         * \c p_divergence()  and 
          * must be deallocated by the user afterwards. 
 	 */
         virtual Tensor* p_divergence(const Tensor& tens) const = 0 ; 
@@ -438,12 +439,11 @@ class Connection_flat : public Connection {
 				//-------------------------------//
 
 /**
- * Class Connection\_fspher.
+ * Class Connection_fspher.\ingroup (tensor)
  *
  * Class for connections associated with a flat metric and given onto
  * an orthonormal spherical triad. 
  * 
- * @version #$Id$#
  */
 class Connection_fspher : public Connection_flat {
 
@@ -455,18 +455,18 @@ class Connection_fspher : public Connection_flat {
   /// Contructor from a spherical flat-metric-orthonormal basis
 	Connection_fspher(const Map&, const Base_vect_spher&) ; 
 
-	Connection_fspher(const Connection_fspher& ) ;		/// Copy constructor
+	Connection_fspher(const Connection_fspher& ) ;		///< Copy constructor
 	
  public:
 
-  virtual ~Connection_fspher() ; ///destructor
+  virtual ~Connection_fspher() ; ///<destructor
 
 
   // Mutators / assignment
   // ---------------------
  public:
 
-  /// Assignment to another {\tt Connection\_fspher}
+  /// Assignment to another \c Connection_fspher 
   void operator=(const Connection_fspher&) ;	
   
 
@@ -474,52 +474,52 @@ class Connection_fspher : public Connection_flat {
   // ---------------------
   
  public: 
-	/** Computes the covariant derivative $\nabla T$ of a tensor $T$
+	/** Computes the covariant derivative \f$\nabla T\f$ of a tensor \f$T\f$
 	 * (with respect to the current connection). 
          * 
-         * The extra index (with respect to the indices of $T$)
-         * of $\nabla T$ is chosen to be the {\bf last} one.
+         * The extra index (with respect to the indices of \f$T\f$)
+         * of \f$\nabla T\f$ is chosen to be the \b last  one.
          * This convention agrees with that of MTW (see Eq. (10.17) of MTW).
-         * For instance, if $T$ is a 1-form, whose components
-         * w.r.t. the triad $e^i$ are $T_i$: $T=T_i \; e^i$,
-         * then the covariant derivative of $T$ is the bilinear form
-         * $\nabla T$ whose components $\nabla_j T_i$ are
+         * For instance, if \f$T\f$ is a 1-form, whose components
+         * w.r.t. the triad \f$e^i\f$ are \f$T_i\f$: \f$T=T_i \; e^i\f$,
+         * then the covariant derivative of \f$T\f$ is the bilinear form
+         * \f$\nabla T\f$ whose components \f$\nabla_j T_i\f$ are
          * such that 
-         * \begin{equation}
+         * \f[
          *  \nabla T = \nabla_j T_i \; e^i \otimes e^j
-         * \end{equation}
+         * \f]
          *
-         * @param tens tensor $T$
-         * @return pointer on the covariant derivative $\nabla T$ ; 
+         * @param tens tensor \f$T\f$
+         * @return pointer on the covariant derivative \f$\nabla T\f$ ; 
          * this pointer is
-         * polymorphe, i.e. it is a pointer on a {\tt Vector}
-         * if the argument is a {\tt Scalar}, and on a {\tt Tensor} otherwise.
+         * polymorphe, i.e. it is a pointer on a \c Vector 
+         * if the argument is a \c Scalar , and on a \c Tensor  otherwise.
          * NB: The corresponding memory is allocated by the method 
-         * {\tt p\_derive\_cov()} and 
+         * \c p_derive_cov()  and 
          * must be deallocated by the user afterwards. 
 	 */
 	virtual Tensor* p_derive_cov(const Tensor& tens) const ; 
 
-	/** Computes the divergence of a tensor $T$
+	/** Computes the divergence of a tensor \f$T\f$
 	 * (with respect to the current connection). 
-         * The divergence is taken with respect of the last index of $T$
+         * The divergence is taken with respect of the last index of \f$T\f$
          * which thus must be contravariant.
-         * For instance if $T$ is a twice contravariant tensor, whose 
+         * For instance if \f$T\f$ is a twice contravariant tensor, whose 
          * components w.r.t. the
-         * triad $e_i$ are $T^{ij}$: $T = T^{ij} \; e_i \otimes e_j$,
-         * the divergence of $T$ is the vector 
-         * \begin{equation}
+         * triad \f$e_i\f$ are \f$T^{ij}\f$: \f$T = T^{ij} \; e_i \otimes e_j\f$,
+         * the divergence of \f$T\f$ is the vector 
+         * \f[
          *   {\rm div} T = \nabla_k T^{ik} \; e_i
-         * \end{equation}
-         * where $\nabla$ denotes the current connection. 
-         * @param tens tensor $T$
-         * @return pointer on the divergence of $T$ ; 
+         * \f]
+         * where \f$\nabla\f$ denotes the current connection. 
+         * @param tens tensor \f$T\f$
+         * @return pointer on the divergence of \f$T\f$ ; 
          * this pointer is
-         * polymorphe, i.e. its is a pointer on a {\tt Scalar}
-         * if $T$ is a {\tt Vector}, on a {\tt Vector} if $T$ is a tensor
-         * of valence 2, and on a {\tt Tensor} otherwise.
+         * polymorphe, i.e. its is a pointer on a \c Scalar 
+         * if \f$T\f$ is a \c Vector , on a \c Vector  if \f$T\f$ is a tensor
+         * of valence 2, and on a \c Tensor  otherwise.
          * NB: The corresponding memory is allocated by the method 
-         * {\tt p\_divergence()} and 
+         * \c p_divergence()  and 
          * must be deallocated by the user afterwards. 
 	 */
 	virtual Tensor* p_divergence(const Tensor& tens) const ; 
@@ -533,12 +533,11 @@ class Connection_fspher : public Connection_flat {
 				//-------------------------------//
 
 /**
- * Class Connection\_fcart.
+ * Class Connection_fcart.\ingroup (tensor)
  *
  * Class for connections associated with a flat metric and given onto
  * an orthonormal Cartesian triad. 
  * 
- * @version #$Id$#
  */
 class Connection_fcart : public Connection_flat {
 
@@ -550,18 +549,18 @@ class Connection_fcart : public Connection_flat {
   /// Contructor from a Cartesian flat-metric-orthonormal basis
 	Connection_fcart(const Map&, const Base_vect_cart&) ; 
 
-	Connection_fcart(const Connection_fcart& ) ;		/// Copy constructor
+	Connection_fcart(const Connection_fcart& ) ;		///< Copy constructor
 	
  public:
 
-  virtual ~Connection_fcart() ; ///destructor
+  virtual ~Connection_fcart() ; ///<destructor
 
 
   // Mutators / assignment
   // ---------------------
  public:
 
-  /// Assignment to another {\tt Connection\_fcart}
+  /// Assignment to another \c Connection_fcart 
   void operator=(const Connection_fcart&) ;	
   
 
@@ -569,52 +568,52 @@ class Connection_fcart : public Connection_flat {
   // ---------------------
   
  public: 
-	/** Computes the covariant derivative $\nabla T$ of a tensor $T$
+	/** Computes the covariant derivative \f$\nabla T\f$ of a tensor \f$T\f$
 	 * (with respect to the current connection). 
          * 
-         * The extra index (with respect to the indices of $T$)
-         * of $\nabla T$ is chosen to be the {\bf last} one.
+         * The extra index (with respect to the indices of \f$T\f$)
+         * of \f$\nabla T\f$ is chosen to be the \b last  one.
          * This convention agrees with that of MTW (see Eq. (10.17) of MTW).
-         * For instance, if $T$ is a 1-form, whose components
-         * w.r.t. the triad $e^i$ are $T_i$: $T=T_i \; e^i$,
-         * then the covariant derivative of $T$ is the bilinear form
-         * $\nabla T$ whose components $\nabla_j T_i$ are
+         * For instance, if \f$T\f$ is a 1-form, whose components
+         * w.r.t. the triad \f$e^i\f$ are \f$T_i\f$: \f$T=T_i \; e^i\f$,
+         * then the covariant derivative of \f$T\f$ is the bilinear form
+         * \f$\nabla T\f$ whose components \f$\nabla_j T_i\f$ are
          * such that 
-         * \begin{equation}
+         * \f[
          *  \nabla T = \nabla_j T_i \; e^i \otimes e^j
-         * \end{equation}
+         * \f]
          *
-         * @param tens tensor $T$
-         * @return pointer on the covariant derivative $\nabla T$ ; 
+         * @param tens tensor \f$T\f$
+         * @return pointer on the covariant derivative \f$\nabla T\f$ ; 
          * this pointer is
-         * polymorphe, i.e. it is a pointer on a {\tt Vector}
-         * if the argument is a {\tt Scalar}, and on a {\tt Tensor} otherwise.
+         * polymorphe, i.e. it is a pointer on a \c Vector 
+         * if the argument is a \c Scalar , and on a \c Tensor  otherwise.
          * NB: The corresponding memory is allocated by the method 
-         * {\tt p\_derive\_cov()} and 
+         * \c p_derive_cov()  and 
          * must be deallocated by the user afterwards. 
 	 */
 	virtual Tensor* p_derive_cov(const Tensor& tens) const ; 
 
-	/** Computes the divergence of a tensor $T$
+	/** Computes the divergence of a tensor \f$T\f$
 	 * (with respect to the current connection). 
-         * The divergence is taken with respect of the last index of $T$
+         * The divergence is taken with respect of the last index of \f$T\f$
          * which thus must be contravariant.
-         * For instance if $T$ is a twice contravariant tensor, whose 
+         * For instance if \f$T\f$ is a twice contravariant tensor, whose 
          * components w.r.t. the
-         * triad $e_i$ are $T^{ij}$: $T = T^{ij} \; e_i \otimes e_j$,
-         * the divergence of $T$ is the vector 
-         * \begin{equation}
+         * triad \f$e_i\f$ are \f$T^{ij}\f$: \f$T = T^{ij} \; e_i \otimes e_j\f$,
+         * the divergence of \f$T\f$ is the vector 
+         * \f[
          *   {\rm div} T = \nabla_k T^{ik} \; e_i
-         * \end{equation}
-         * where $\nabla$ denotes the current connection. 
-         * @param tens tensor $T$
-         * @return pointer on the divergence of $T$ ; 
+         * \f]
+         * where \f$\nabla\f$ denotes the current connection. 
+         * @param tens tensor \f$T\f$
+         * @return pointer on the divergence of \f$T\f$ ; 
          * this pointer is
-         * polymorphe, i.e. its is a pointer on a {\tt Scalar}
-         * if $T$ is a {\tt Vector}, on a {\tt Vector} if $T$ is a tensor
-         * of valence 2, and on a {\tt Tensor} otherwise.
+         * polymorphe, i.e. its is a pointer on a \c Scalar 
+         * if \f$T\f$ is a \c Vector , on a \c Vector  if \f$T\f$ is a tensor
+         * of valence 2, and on a \c Tensor  otherwise.
          * NB: The corresponding memory is allocated by the method 
-         * {\tt p\_divergence()} and 
+         * \c p_divergence()  and 
          * must be deallocated by the user afterwards. 
 	 */
 	virtual Tensor* p_divergence(const Tensor& tens) const ; 
