@@ -33,6 +33,9 @@ char tensor_calculus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/28 21:25:34  e_gourgoulhon
+ * Method contract renamed scontract.
+ *
  * Revision 1.3  2003/10/11 16:47:10  e_gourgoulhon
  * Suppressed the call to Ibtl::set_etat_qcq() after the construction
  * of the Itbl's, thanks to the new property of the Itbl class.
@@ -62,7 +65,7 @@ char tensor_calculus_C[] = "$Header$" ;
 				//------------------//
 
 
-Tensor Tensor::contract(int ind_1, int ind_2) const {
+Tensor Tensor::scontract(int ind_1, int ind_2) const {
     
     // Les verifications :
     assert ((ind_1 >= 0) && (ind_1 < valence)) ;
