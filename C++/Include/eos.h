@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/04/11 13:27:48  e_gourgoulhon
+ * *** empty log message ***
+ *
  * Revision 1.3  2002/04/09 15:19:03  e_gourgoulhon
  * Add EOS number 100 in the comments of eos_from_file
  *
@@ -491,13 +494,14 @@ class Eos {
  * particles of rest mass is $m_0$,  whose total energy density $e$ is
  * related to their numerical density $n$ by
  * \begin{equation} \label{eeospolye}
- *   e(n) = {\kappa \over \gamma-1} n^\gamma + m_0 c^2 \, n \ .
+ *   e(n) = {\kappa \over \gamma-1} n^\gamma + \mu_0 \, n \ ,
  * \end{equation}
+ * where $\mu_0$ is the chemical potential at zero pressure.
  * The relativistic (i.e. including rest mass energy) chemical potential is
  * then
  * \begin{equation}  \label{eeospolymu}
  *   \mu(n) := {de\over dn} = {\kappa \gamma \over \gamma-1} n^{\gamma-1}
- *		+ m_0 c^2  \ .
+ *		+ \mu_0 \ .
  * \end{equation}
  * The pressure is given by the (zero-temperature) First Law of Thermodynamics:
  * $p = \mu n - e$, so that
@@ -517,7 +521,8 @@ class Eos {
  * From this expression and relation (\ref{eeospolymu}), the expression
  * of the particle density in term of the log-enthalpy is
  * \begin{equation}
- *   n(H) = \left[ {\gamma-1\over \gamma} {m_0 c^2 \over \kappa} (\exp(H) - 1)
+ *   n(H) = \left[ {\gamma-1\over \gamma} {m_0 c^2 \over \kappa}
+                \left( \exp(H) - {\mu_0\over m_0 c^2} \right)
  *	    \right] ^{1/(\gamma-1)}  \ .
  * \end{equation}
  * The energy density and pressure as functions of $H$ can then be obtained
@@ -546,17 +551,26 @@ class Eos_poly : public Eos {
 	 *  [unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$].
 	 */
 	double m_0 ;
-	
+
+        /** Relativistic chemical potential at zero pressure
+	 *  [unit: $m_B c^2$, with $m_B = 1.66\ 10^{-27} \ {\rm kg}$].
+         * (standard value: 1)
+        */
+        double mu_0 ;
+
+
+
 	double gam1 ;	    /// $\gamma-1$
 	double unsgam1 ;    /// $1/(\gamma-1)$
-	double gam1sgamkap ; /// $(\gamma-1) / (\gamma \kappa)$
-
+	double gam1sgamkap ; /// $(\gamma-1) / (\gamma \kappa) m_0$
+        double rel_mu_0 ;       /// $\mu_0/m_0$
+        double ent_0 ;          /// Enthalpy at zero pressure ($\ln (\mu_0/m_0)$)
 
     // Constructors - Destructor
     // -------------------------
     public:
-    
-	/** Standard constructor.
+
+	/** Standard constructor (sets both {\tt m\_0} and {\tt mu\_0} to 1).
 	 *
 	 *  The individual particle mass $m_0$ is set to the mean baryon
 	 *  mass $m_B = 1.66\ 10^{-27} \ {\rm kg}$.
@@ -571,19 +585,37 @@ class Eos_poly : public Eos {
 	 */
 	Eos_poly(double gamma, double kappa) ;
 
-	/** Standard constructor with individual particle mass.
-	 * 
+	/** Standard constructor with individual particle mass
+	*   (sets {\tt mu\_0} to 1).
 	 *  @param gamma  adiabatic index $\gamma$ (cf. Eq.~(\ref{eeospolyp}))
 	 *  @param kappa  pressure coefficient $\kappa$
 	 *		(cf. Eq.~(\ref{eeospolyp}))
 	 *		[unit: $\rho_{\rm nuc} c^2 / n_{\rm nuc}^\gamma$], where
 	 *		$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$ and
 	 *		$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$
-	 *  @param mass  individual particule mass $m_0$  
+	 *  @param mass  individual particule mass $m_0$
 	 *		 (cf. Eq.~(\ref{eeospolye}))
 	 *		[unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$]
 	 */
 	Eos_poly(double gamma, double kappa, double mass) ;
+
+	/** Standard constructor with individual particle mass and zero-pressure
+         * chemical potential
+	 *
+	 *  @param gamma  adiabatic index $\gamma$ (cf. Eq.~(\ref{eeospolyp}))
+	 *  @param kappa  pressure coefficient $\kappa$
+	 *		(cf. Eq.~(\ref{eeospolyp}))
+	 *		[unit: $\rho_{\rm nuc} c^2 / n_{\rm nuc}^\gamma$], where
+	 *		$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$ and
+	 *		$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$
+	 *  @param mass  individual particule mass $m_0$
+	 *		 (cf. Eq.~(\ref{eeospolye}))
+	 *		[unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$]
+        *  @param mu_zero  Relativistic chemical potential at zero pressure
+	 *  [unit: $m_B c^2$, with $m_B = 1.66\ 10^{-27} \ {\rm kg}$].
+         * (standard value: 1)
+        */
+	Eos_poly(double gamma, double kappa, double mass, double mu_zero) ;
 
 	Eos_poly(const Eos_poly& ) ;	/// Copy constructor
 	
@@ -647,12 +679,17 @@ class Eos_poly : public Eos {
 	 */
 	double get_m_0() const ;
 
+	/** Return the relativistic chemical potential at zero pressure
+	 *  [unit: $m_B c^2$, with $m_B = 1.66\ 10^{-27} \ {\rm kg}$].
+	 */
+	double get_mu_0() const ;
+
     protected:
 	/** Computes the auxiliary quantities {\tt gam1}, {\tt unsgam1},
 	 *  {\tt gam1sgamkap} from the values of {\tt gam} and {\tt kap}
 	 */
 	void set_auxiliary() ;
-    
+
 
     // Outputs
     // -------
@@ -680,7 +717,7 @@ class Eos_poly : public Eos {
     	virtual double nbar_ent_p(double ent, const Param* par=0x0) const ;
 
  	/** Computes the total energy density from the log-enthalpy.
-	 * 
+	 *
 	 *  @param ent [input,  unit: $c^2$] log-enthalpy $H$ defined by
 	 *				     Eq. (\ref{eeospolyh})
 	 *
