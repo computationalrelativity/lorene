@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.25  2003/10/17 13:46:14  j_novak
+ * The argument is now between 1 and 3 (instead of 0->2)
+ *
  * Revision 1.24  2003/10/16 15:23:41  e_gourgoulhon
  * Name of method div_r_ced() changed to div_r_inc2().
  * Name of method div_rsint_ced() changed to div_rsint_inc2().
@@ -486,7 +489,7 @@ class Scalar : public Tensor {
    *  where $x_i = (x, y, z)$.
    *  Note that in the compactified external domain (CED), it returns
    *  instead $r^2 \partial/ \partial x_i$.
-   *  @param i [input] i=0 for {\it x},  i=1 for {\it y}, i=2 for {\it z}.
+   *  @param i [input] i=1 for {\it x},  i=2 for {\it y}, i=3 for {\it z}.
    */
   const Scalar& deriv(int i) const ;	
   

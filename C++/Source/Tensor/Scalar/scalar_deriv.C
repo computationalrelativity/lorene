@@ -34,6 +34,9 @@ char scalar_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/17 13:46:15  j_novak
+ * The argument is now between 1 and 3 (instead of 0->2)
+ *
  * Revision 1.5  2003/10/15 16:03:38  j_novak
  * Added the angular Laplace operator for Scalar.
  *
@@ -304,15 +307,15 @@ const Scalar& Scalar::deriv(int i) const {
     
     switch (i) {
 	
-	case 0 : {
+	case 1 : {
 	    return dsdx() ; 
 	}
 	
-	case 1 : {
+	case 2 : {
 	    return dsdy() ; 
 	}
 	
-	case 2 : {
+	case 3 : {
 	    return dsdz() ; 
 	}
 	
