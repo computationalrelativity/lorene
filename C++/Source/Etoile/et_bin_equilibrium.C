@@ -33,6 +33,9 @@ char et_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/09/28 15:49:23  f_limousin
+ * Improve the rescaling of the domains for nzone = 4 and nzone = 5.
+ *
  * Revision 1.9  2004/05/13 08:47:01  f_limousin
  * Decomment the procedure resize.
  *
@@ -473,24 +476,50 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	// Readjustment of the external boundary of domain l=nzet
 	// to keep a fixed ratio with respect to star's surface
 	
-	int n_resize ;
-	//      	if (nz > 4) {
-	//       	  n_resize = nz - 4 ;
-    	if (nz > 3) {
-      	  n_resize = nz - 3 ;
+	
+    	if (nz == 4 && nzet == 1) {
+	double rr_in_1 = mp.val_r(1,-1., M_PI/2, 0.) ; 
+	double rr_out_1 = mp.val_r(1, 1., M_PI/2, 0.) ; 
+	double rr_out_2 = mp.val_r(2, 1., M_PI/2, 0.) ; 
+
+	mp.resize(1, rr_in_1/rr_out_1 * fact_resize(0)) ; 
+	mp.resize(2, rr_in_1/rr_out_2 * fact_resize(1)) ; 
 	}
-	else {
-	  n_resize = nzet ;
+	else{
+
+	    if (nz == 5 && nzet == 1) {
+		double rr_in_1 = mp.val_r(1,-1., M_PI/2, 0.) ; 
+		double rr_out_1 = mp.val_r(1, 1., M_PI/2, 0.) ; 
+		double rr_out_2 = mp.val_r(2, 1., M_PI/2, 0.) ; 
+		double rr_out_3 = mp.val_r(3, 1., M_PI/2, 0.) ; 
+		
+		double fact_resize_0 ;
+		if (fact_resize(0) > 2.4) fact_resize_0 = fact_resize(0)/2. ;
+		else fact_resize_0 = fact_resize(0)/2. + 0.5 ;
+
+
+		mp.resize(1, rr_in_1/rr_out_1 * fact_resize_0) ; 
+		mp.resize(2, rr_in_1/rr_out_2 * fact_resize(0)) ; 
+		mp.resize(3, rr_in_1/rr_out_3 * fact_resize(1)) ; 
+	    }
+	    else{		
+		int n_resize ;
+		//      	if (nz > 4) {
+		//       	  n_resize = nz - 4 ;
+		if (nz > 4) {
+		    n_resize = nz - 3 ;
+		}
+		else {
+		    n_resize = nzet ;
+		}
+		
+		double rr_in = mp.val_r(nzet,-1., M_PI/2, 0.) ; 
+		double rr_out = mp.val_r(n_resize,1., M_PI/2, 0.) ; 
+		
+		mp.resize(n_resize, rr_in/rr_out * fact_resize(0)) ; 
+	    }
 	}
 
-	double rr_in = mp.val_r(nzet,-1., M_PI/2, 0.) ; 
-	double rr_out = mp.val_r(n_resize,1., M_PI/2, 0.) ; 
-
-	mp.resize(n_resize, rr_in/rr_out * fact_resize(0)) ; 
-
-//##
-//	des_coupe_z(ent(), 0., 1, "ent after adapt", &(ent()) ) ; 
-//##
 	//----------------------------------------------------
 	// Computation of the enthalpy at the new grid points
 	//----------------------------------------------------
@@ -547,11 +576,6 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	     - flat_scalar_prod_desal(d_logn_auto,
 	   		     d_beta_auto + d_beta_comp) ;
 	 
-	    cout << "kcar_auto : " << endl << norme(akcar_auto()) << endl ;
-	    cout << "kcar_comp : " << endl << norme(akcar_comp()) << endl ;
-	    cout << "dlogn_auto : " << endl << norme(d_logn_auto(0)) << endl ;
-	    cout << "dbeta : " << endl << norme((d_beta_auto + d_beta_comp)(0)) << endl ;
-
 	}
 	else {
 	    source = qpig * nbar ; 
@@ -559,19 +583,10 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	
 	source.set_std_base() ; 	
 
-	int nr = mp.get_mg()->get_nr(0) ;
-	int nt = mp.get_mg()->get_nt(0) ;
-	int np = mp.get_mg()->get_np(0) ;
-	cout << "moyenne de la source pour logn_auto" << endl ;
-	cout <<  norme(source()/(nr*nt*np)) << endl ;
- 	
-	
-
 	// Resolution of the Poisson equation 
 	// ----------------------------------
 
 	source().poisson(par_poisson1, logn_auto.set()) ; 
-    cout << "logn_auto" << endl << norme(logn_auto()/(nr*nt*np)) << endl ;
 
 	// Construct logn_auto_regu for et_bin_upmetr.C
 	// --------------------------------------------
@@ -611,16 +626,10 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 		     
 	    source.set_std_base() ; 	
 
-	    cout << "moyenne de la source pour beta_auto" << endl ;
-	    cout <<  norme(source()/(nr*nt*np)) << endl ;
- 	    
-	    
-
 	    // Resolution of the Poisson equation 
 	    // ----------------------------------
 
 	    source().poisson(par_poisson2, beta_auto.set()) ; 
-	    cout << "beta_auto" << endl << norme(beta_auto()/(nr*nt*np)) << endl ;
 
 	    // Check: has the Poisson equation been correctly solved ?
 	    // -----------------------------------------------------
@@ -650,15 +659,7 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	      % u_euler 
 	    + nnn % flat_scalar_prod_desal(tkij_auto, vtmp) ;
 	
-	    cout << "tkij_auto : " << endl << norme(tkij_auto(0,0)) << endl ;
-	    cout << "vtmp : " << endl << norme(vtmp(0)) << endl ;
-
 	    source_shift.set_std_base() ; 	
-	
-	    cout << "moyenne de la source pour shift_auto" << endl ;
-	    cout <<  norme(source_shift(0)/(nr*nt*np)) << endl ;
-	    cout <<  norme(source_shift(1)/(nr*nt*np)) << endl ;
-	    cout <<  norme(source_shift(2)/(nr*nt*np)) << endl ;
  
 	    // Resolution of the Poisson equation 
 	    // ----------------------------------
@@ -694,7 +695,6 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	    source_shift.poisson_vect(lambda_shift, par_poisson_vect, 
 				      shift_auto, w_shift, khi_shift) ;      
 
-	    cout << "shift_auto" << endl << norme(shift_auto(0)/(nr*nt*np)) << endl << norme(shift_auto(1)/(nr*nt*np)) << endl << norme(shift_auto(2)/(nr*nt*np)) << endl ; 
 
 	    // Check: has the equation for shift_auto been correctly solved ?
 	    // --------------------------------------------------------------

@@ -30,6 +30,9 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/09/28 15:53:25  f_limousin
+ * Improve the rescaling of the domains for nzone = 4 and nzone = 5.
+ *
  * Revision 1.12  2004/03/25 12:35:36  j_novak
  * now using namespace Unites
  *
@@ -367,7 +370,7 @@ int main(){
 	(star.set(i)).fait_d_psi() ; 
 	(star.set(i)).hydro_euler() ; 
     }
-
+ 
     // If the shift vector has not been set previously, it is set to
     //  some analytical value
     // -------------------------------------------------------------
@@ -428,10 +431,6 @@ int main(){
     }  // End of the setting of an analytical shift
 
 
-
-
-
-
 //##
 	FILE* fresu = fopen("resu.d", "w") ; 
     
@@ -481,7 +480,7 @@ int main(){
 
     // Resizing factor of the first shell
     // Computation is shown just befor "equilibrium"
-    Tbl fact_resize[] = {Tbl(1), Tbl(1)} ;
+    Tbl fact_resize[] = {Tbl(2), Tbl(2)} ;
     fact_resize[0].set_etat_qcq() ; 
     fact_resize[1].set_etat_qcq() ; 
 
@@ -566,6 +565,7 @@ int main(){
     double omega_kep, diff_mass ; 
     int mer ; 
     
+
 //============================================================================
 //		Start of iteration 
 //============================================================================
@@ -727,6 +727,7 @@ int main(){
 	// Computation of the resizing factor
 	double ray_eq_auto = star(i).ray_eq() ;
 	double ray_eq_comp = star(3-i).ray_eq() ;
+	double ray_eq_pi_comp = star(3-i).ray_eq_pi() ;
 
 	int num_resize ;
 
@@ -743,6 +744,9 @@ int main(){
 	fact_resize[i-1].set(0) =
 	  (lambda_resize < 2.*num_resize) ? lambda_resize : 2.*num_resize ;
 
+	fact_resize[i-1].set(1) = 1.05 *
+	  (star.separation() + ray_eq_pi_comp)/ray_eq_auto ;
+	
     }
 
     for (int i=1; i<=2; i++) {
@@ -763,7 +767,6 @@ int main(){
 
 	// Call to Etoile_bin::equilibrium
 	// --------------------------------
-	
 	(star.set(i)).equilibrium(ent_c[i-1], mermax_eqb, mermax_poisson, 
 				  relax_poisson, mermax_potvit, relax_potvit, 
 				  thres_adapt[i-1], fact_resize[i-1], differ[i-1]) ;
@@ -1001,6 +1004,11 @@ int main(){
     fichfinal << "1/2 ADM mass :        " << 0.5 * star.mass_adm() / msol 
 	      << " Mo" << endl ;
     fichfinal << "Total angular momentum : "  
+	      << star.angu_mom()(2)/ ( qpig / (4* M_PI) * msol*msol)
+	      << " G M_sol^2 / c" << endl ;
+    cout << "1/2 ADM mass :        " << 0.5 * star.mass_adm() / msol 
+	      << " Mo" << endl ;
+    cout << "Total angular momentum : "  
 	      << star.angu_mom()(2)/ ( qpig / (4* M_PI) * msol*msol)
 	      << " G M_sol^2 / c" << endl ;
 
