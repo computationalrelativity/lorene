@@ -28,6 +28,9 @@ char test_kerr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/01/23 13:28:14  e_gourgoulhon
+ * Scalar::set_val_hor --> Scalar::set_inner_boundary.
+ *
  * Revision 1.4  2004/01/23 08:01:36  e_gourgoulhon
  * All Einstein equations are now verified.
  *
@@ -276,7 +279,7 @@ int main() {
     tmp.set_domain(0) = 1 ; 
     
     Scalar nn = sqrt(abs(tmp)) ; 
-    nn.set_val_hor(0., 1) ; 
+    nn.set_inner_boundary(1, 0.) ; 
 
     nn.std_spectral_base() ;
     
@@ -332,7 +335,7 @@ int main() {
             tmp = 0.5 * ( beta_cov.derive_cov(gam)(i,j)
                         + beta_cov.derive_cov(gam)(j,i) ) ; 
 
-            tmp.set_val_hor(0., 1) ; 
+            tmp.set_inner_boundary(1, 0.) ;
 
             cout << "######### Component " << i << " " << j << endl ; 
             for (int k=0; k<mgrid.get_np(1); k++) {
