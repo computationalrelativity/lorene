@@ -28,6 +28,9 @@ char test_sym_tensor_tt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/28 21:37:22  e_gourgoulhon
+ * New version.
+ *
  * Revision 1.2  2003/10/28 12:36:52  e_gourgoulhon
  * improved version
  *
@@ -60,7 +63,7 @@ int main() {
 	int nzm1 = nz - 1 ;  
 	int nr = 9 ; 	// Number of collocation points in r in each domain
 	int nt = 9 ; 	// Number of collocation points in theta in each domain
-	int np = 4 ; 	// Number of collocation points in phi in each domain
+	int np = 12 ; 	// Number of collocation points in phi in each domain
 	int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
 	int symmetry_phi = NONSYM ; // no symmetry in phi
 	bool compact = true ; // external domain is compactified
@@ -116,8 +119,10 @@ int main() {
 	cout << "Cartesian components : hhc : " << hhc << endl ;
 	arrete() ; 
 
-	Sym_tensor_trans hhs = hhc ; 
-	hhs.change_triad( map.get_bvect_spher() ) ; 
+	Tensor tmp = hhc ; 
+	tmp.change_triad( map.get_bvect_spher() ) ; 
+	Sym_tensor_trans hhs(map, map.get_bvect_spher(), mets ) ; 
+	hhs = tmp ; 
 	
 	cout << "Spherical components : hhs : " << endl ;
 	hhs.spectral_display() ; 
@@ -142,6 +147,82 @@ int main() {
 	for (int i=1; i<=3; i++) {
 		cout << max( hhs.divergence(mets)(i) ) << endl ; 
 	}
+		
+	arrete() ;
+	 
+	cout << "Trace of hhc : " << hhc.trace() << endl ; 	
+	arrete() ; 
+		
+	cout << "Trace of hhs : " << hhs.trace() << endl ; 	
+	
+
+	cout << "========================================================" << endl ;
+	cout << "                Test with the tensor" << endl ;
+	cout << "   Cart. comp. h^{ij} = d_i d_j Phi  with Lap(Phi) = 0 " << endl ; 
+	cout << "========================================================" << endl ;
+	
+	arrete() ; 
+	
+	Scalar pot(map) ; 
+	pot = x*y ; 
+	pot.annule_domain(nzm1) ; 
+	Mtbl potced = 1 / r ; 
+	pot.set_domain(nzm1) = potced(nzm1) ; 
+	pot.std_spectral_base() ; 
+
+	cout << "Potential : " << endl ; 
+	pot.spectral_display() ; 
+	arrete() ; 
+	
+	cout << "Laplacian of potential : " << endl ; 
+	pot.laplacien().spectral_display() ; 
+	arrete() ; 
+	
+	hhc.set(1,1) = pot.dsdx().dsdx() ; 
+	hhc.set(1,2) = pot.dsdx().dsdy() ; 
+	hhc.set(1,3) = pot.dsdx().dsdz() ; 
+	hhc.set(2,2) = pot.dsdy().dsdy() ; 
+	hhc.set(2,3) = pot.dsdy().dsdz() ; 
+	hhc.set(3,3) = pot.dsdz().dsdz() ; 
+
+	cout << "Cartesian components : hhc : " << hhc << endl ;
+	arrete() ; 
+
+	tmp = hhc ; 
+	tmp.change_triad( map.get_bvect_spher() ) ; 
+	hhs = tmp ; 
+	
+	cout << "Spherical components : hhs : " << endl ;
+	hhs.spectral_display() ; 
+	arrete() ; 
+	
+	hhc.divergence(metc) ; 
+	cout << "Norme divergence hhc : " << endl ; 
+	for (int i=1; i<=3; i++) {
+		cout << norme( hhc.divergence(metc)(i) ) << endl ; 
+	}
+	cout << "Norme divergence hhs : " << endl ; 
+	for (int i=1; i<=3; i++) {
+		cout << norme( hhs.divergence(mets)(i) ) << endl ; 
+	}
+
+	cout << "Max divergence hhc : " << endl ; 
+	for (int i=1; i<=3; i++) {
+		cout << max( hhc.divergence(metc)(i) ) << endl ; 
+	}
+	
+	cout << "Max divergence hhs : " << endl ; 
+	for (int i=1; i<=3; i++) {
+		cout << max( hhs.divergence(mets)(i) ) << endl ; 
+	}
+		
+	arrete() ;
+	 
+	cout << "Trace of hhc : " << hhc.trace() << endl ; 	
+	arrete() ; 
+		
+	cout << "Trace of hhs : " << hhs.trace() << endl ; 	
+		
 		
 	return EXIT_SUCCESS ; 
 }
