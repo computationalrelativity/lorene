@@ -39,6 +39,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.35  2004/11/23 12:39:12  f_limousin
+ * Intoduce function poisson_dir_neu(...) to solve a scalar poisson
+ * equation with a mixed boundary condition (Dirichlet + Neumann).
+ *
  * Revision 1.34  2004/10/11 15:08:59  j_novak
  * The radial manipulation functions take Scalar as arguments, instead of Cmp.
  * Added a conversion operator from Scalar to Cmp.
@@ -1226,13 +1230,19 @@ class Map {
 	 * @param limite [input] : \c limite[num_front]  contains the angular 
 	 * function being the boudary condition.
 	 * @param raccord [input] : 1 for the Dirichlet problem and 2 for 
-	 * the Neumann one.
+	 * the Neumann one and 3 for Dirichlet-Neumann.
 	 * @param num_front [input] : index of the boudary at which the boundary 
 	 * condition has to be imposed.
 	 * @param pot [output] : result.
+	 * @param fact_dir [input] : Valeur by which we multiply the quantity 
+	 * we solve. (in the case of Dirichlet-Neumann boundary condition.)
+	 * @param fact_neu [input] : Valeur by which we multiply the radial 
+	 * derivative of the quantity we solve.	(in the case of 
+	 * Dirichlet-Neumann boundary condition.)
 	 */
-	virtual void poisson_frontiere (const Cmp& source, const Valeur& limite,
-			 int raccord, int num_front, Cmp& pot) const = 0 ;
+	virtual void poisson_frontiere (const Cmp& source,const Valeur& limite,
+					int raccord, int num_front, Cmp& pot, 
+					double = 0., double = 0.) const = 0 ;
 	
 	virtual void poisson_frontiere_double (const Cmp& source, const Valeur& lim_func,
 			const Valeur& lim_der, int num_zone, Cmp& pot) const = 0 ;
@@ -2099,7 +2109,7 @@ class Map_af : public Map_radial {
 	 * Solver of the Poisson equation with boundary condition for the 
 	 * affine mapping case.
 	 */
-	virtual void poisson_frontiere (const Cmp&, const Valeur&, int, int, Cmp&) const ;
+	virtual void poisson_frontiere (const Cmp&, const Valeur&, int, int, Cmp&, double = 0., double = 0.) const ;
 
 	/**
 	 * Solver of the Poisson equation with boundary condition for the 
@@ -2967,7 +2977,7 @@ class Map_et : public Map_radial {
 	 * Not yet implemented.
 	 */
 	virtual void poisson_frontiere (const Cmp&, const Valeur&, int, int, 
-					Cmp&) const ;
+					Cmp&, double = 0., double = 0.) const ;
 	virtual void poisson_frontiere_double (const Cmp& source, 
 			const Valeur& lim_func, const Valeur& lim_der, 
 			int num_zone, Cmp& pot) const  ;
@@ -3307,7 +3317,7 @@ class Map_log : public Map_radial {
 				      Tenseur&, Cmp&, Cmp&) const ;/// < Not implemented
 	virtual void poisson_angu (const Scalar&, Param&, Scalar&) const ;/// < Not implemented
 	virtual Param* donne_para_poisson_vect (Param&, int) const ;/// < Not implemented
-	virtual void poisson_frontiere (const Cmp&, const Valeur&, int, int, Cmp&) const ;/// < Not implemented
+	virtual void poisson_frontiere (const Cmp&, const Valeur&, int, int, Cmp&, double = 0., double = 0.) const ;/// < Not implemented
 	virtual void poisson_frontiere_double (const Cmp&, const Valeur&, const Valeur&, int, Cmp&) const ;/// < Not implemented
 	virtual void poisson_interne (const Cmp&, const Valeur&, Param&, Cmp&) const ;/// < Not implemented
 	virtual void poisson2d (const Cmp&, const Cmp&, Param&, Cmp&) const ;/// < Not implemented

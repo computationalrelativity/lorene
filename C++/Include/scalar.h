@@ -38,6 +38,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.64  2004/11/23 12:41:53  f_limousin
+ * Intoduce function poisson_dir_neu(...) to solve a scalar poisson
+ * equation with a mixed boundary condition (Dirichlet + Neumann).
+ *
  * Revision 1.63  2004/10/11 15:09:00  j_novak
  * The radial manipulation functions take Scalar as arguments, instead of Cmp.
  * Added a conversion operator from Scalar to Cmp.
@@ -393,8 +397,7 @@ class Scalar : public Tensor {
   
   /**
    * Sets the logical state to \c ETATNONDEF  (undefined). 
-   * Calls the logical destructor of the \c Valeur \c va and
-   * deallocates the memory occupied by all the derivatives. 
+   * Calls the logical destructor of the \c Valeur \c va   * deallocates the memory occupied by all the derivatives. 
    */
   virtual void set_etat_nondef() ;   
   
@@ -837,16 +840,13 @@ class Scalar : public Tensor {
    * domain \c zone .
    */
   void filtre_phi (int n, int zone) ;
-    
+ 
   /**
-   * Sets the \c n  lasts coefficients in \f$\Phi\f$ to 0 in all domains
+   * Sets the \c n  lasts coefficients in \f$\theta\f$ to 0 in the 
+   * domain \c nz1 to \c nz2 when expressed in spherical harmonics.
    */
-  void filtre_phi (int n) ;
-
-   /**
-   * Sets the \c n  lasts coefficients in \f$\Theta\f$ to 0 in all domains
-   */
-  void filtre_theta (int n) ;
+  void filtre_tp(int nn, int nz1, int nz2) ;
+  
    
   /**
    * Substracts all the components behaving like \f$r^{-n}\f$ in the external 
@@ -1114,6 +1114,29 @@ class Scalar : public Tensor {
    * the radial derivative of the solution.
    */
   Scalar poisson_neumann   (const Valeur&, int) const ;
+
+
+  /**
+   * Is identicall to \c Scalar::poisson() . The regularity condition at the 
+   * origin is replace by a mixed boundary condition (Dirichlet + Neumann).
+   * 
+   * @param limite [input] : angular function. The boundary condition is 
+   * given by \c limite[num] .
+   * @param num [input] : index of the boudary at which the condition is to 
+   * be fullfilled.
+   * @param num [input] : index of the boudary at which the condition is to 
+   * @param fact_dir [input] : double in front of \f$\Psi\f$ (if \f$\Psi\f$
+   * is the variable solved).
+   * @param fact_neu [input] : double in front of the radial derivative
+   * of \f$\Psi\f$.
+   *
+   * More precisely we impose \f$fact_dir.\Psi + fact_neu.\frac{1}{\partial 
+   * \Phi}{\partial r}\f$ is equal to the source at the
+   * boundary between the domains \c num  and \c num+1  (the latter one being 
+   * a shell).
+   */
+  Scalar poisson_dir_neu  (const Valeur& limite , int num, 
+			   double fact_dir, double fact_neu) const ;
 
   /**
    * Idem as \c Scalar::poisson_dirichlet , the boundary condition being on 
