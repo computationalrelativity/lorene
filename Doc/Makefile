@@ -20,7 +20,7 @@ doxyfile: lorene.dox
 
 uninstall:
 	cd $(HOME_LORENE)/C++/Doc++; $(MAKE) -i uninstall
-	rm -f *.aux *.log *.dvi
+	rm -f *.aux *.log *.dvi doxyfile*
 	rm -fr refguide
 	rm -f refguide.tex
 
