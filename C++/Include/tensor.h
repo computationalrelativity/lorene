@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.30  2003/11/03 10:58:00  j_novak
+ * Suppressed the constructor from a Sym_tensor.
+ *
  * Revision 1.29  2003/10/29 11:00:42  e_gourgoulhon
  * Virtual functions dec_dzpuis and inc_dzpuis have now an integer argument to
  *  specify by which amount dzpuis is to be increased.
@@ -294,10 +297,6 @@ class Tensor {
 	 */
 	Tensor(const Map& map, const Base_vect& triad_i, FILE* fich) ;
 
-	/// Constructor from a symmetric tensor.
-	explicit Tensor(const Sym_tensor& );
-	
-	
     protected:
 	/**
 	 *  Constructor for a scalar field: to be used only by the derived
