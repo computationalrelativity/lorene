@@ -30,6 +30,9 @@ char connection_fspher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/11/03 10:58:30  j_novak
+ * Treatment of the general case for divergence.
+ *
  * Revision 1.10  2003/10/22 13:08:03  j_novak
  * Better handling of dzpuis flags
  *
@@ -598,10 +601,17 @@ Tensor* Connection_fspher::p_divergence(const Tensor& uu) const {
   // --------------------------------------------
   Tensor* resu ;
 
+  // Booleans to know the dynamical type (better than typeid...)
+  //------------------------------------------------------------
+  //##  bool bvec = false ;
+  //##  int sym_flag = 1 ;
+
   // If u is a Vector, the result is a Scalar
   //----------------------------------------
-  if (valence0 == 1) 
+  if (valence0 == 1) {
+    //    bvec = true ;
     resu = new Scalar(*mp) ;
+  }
   else {
     const Itbl tipeuu = uu.get_index_type() ;  
     for (int id = 0; id<valence0-1; id++) {
@@ -609,6 +619,9 @@ Tensor* Connection_fspher::p_divergence(const Tensor& uu) const {
     }
     if (valence0 == 2) {
       resu = new Vector(*mp, tipe(0), *triad) ;
+//       const Sym_tensor* sym_uu 
+// 	= dynamic_cast<const Sym_tensor*>(&uu) ;
+//       if (sym_uu != 0x0) sym_flag = 2 ;
     }
     else {
       const Tensor_delta* del_uu 
@@ -627,6 +640,8 @@ Tensor* Connection_fspher::p_divergence(const Tensor& uu) const {
   Itbl ind0(valence0) ; // working Itbl to store the indices of uu
 	
   Itbl ind1(valence0-1) ; // working Itbl to store the indices of resu
+	
+  Itbl ind(valence0) ; // working Itbl to store the indices of uu
 	
   Scalar tmp1(*mp) ;	// working scalar
   Scalar tmp2(*mp) ;	// working scalar
@@ -648,8 +663,7 @@ Tensor* Connection_fspher::p_divergence(const Tensor& uu) const {
       ind0.set(id) = ind1(id-1) ; 
     }
 
-    cresu = 2*uu(ind0) ;  //2*T^r...
-    tmp1 = uu(ind0).dsdr() ; //dT^r/dr
+    cresu = uu(ind0).dsdr() ; //dT^{r l}/dr
 
   // Derivation index = theta
   // ------------------------
@@ -661,9 +675,45 @@ Tensor* Connection_fspher::p_divergence(const Tensor& uu) const {
       ind0.set(id) = ind1(id-1) ; 
     }
 		
-    tmp2 = uu(ind0) ; 
-    tmp2.div_tant() ; //T^theta.. / tan(theta)
-    cresu += uu(ind0).dsdt() + tmp2 ; //dT^theta/dtheta + T^theta/tan(theta)
+    tmp1 = uu(ind0).dsdt() ; //dT^{theta l} /dtheta
+
+    ind = ind0 ;
+    ind.set(0) = 1 ;
+    tmp1 += uu(ind) ;//##Gamma^theta_{r theta}T^{r l} (div_r later)+sym_flag
+    
+
+    // Loop on all the indices of uu
+    for (int id=1; id<valence0; id++) {
+		
+      switch ( ind0(id) ) {
+      case 1 : {	// Gamma^r_{l theta} V^l 
+	// or -Gamma^l_{r theta} V_l 
+	ind = ind0 ; 
+	ind.set(id) = 2 ;   // l = theta
+	tmp1 -= uu(ind) ; 
+	break ; 
+      }
+				
+      case 2 : {	// Gamma^theta_{l theta} V^l 
+	// or -Gamma^l_{theta theta} V_l
+	ind = ind0 ; 
+	ind.set(id) = 1 ;   // l = r
+	tmp1 += uu(ind) ; 
+	break ; 
+      }
+				
+      case 3 : {	// Gamma^phi_{l theta} V^l 
+	// or -Gamma^l_{phi theta} V_l
+	break ; 
+      }
+				
+      default : {
+	cout << "Connection_fspher::divergence : index problem ! "
+	     << endl ; 
+	abort() ;  
+      }
+      }
+    }
 
   // Derivation index = phi
   // ----------------------
@@ -673,13 +723,61 @@ Tensor* Connection_fspher::p_divergence(const Tensor& uu) const {
     for (int id = 1; id<valence0; id++) {
       ind0.set(id) = ind1(id-1) ; 
     }
-		
-    cresu += uu(ind0).stdsdp() ; // 1/sin(theta) dT^phi / dphi
+    
+    tmp1 += uu(ind0).stdsdp() ; // 1/sin(theta) dT^phi / dphi
+    
+    ind = ind0 ;
+    ind.set(0) = 1 ;
+    tmp1 += uu(ind) ;//##Gamma^phi_{r phi}T^{r l} (div_r later)+sym_flag
+    ind.set(0) = 2 ;
+    tmp2 = uu(ind) ;//##Gamma^phi_{theta phi}T^{theta l} (div_r later)+sym_flag
 
-    // There remains a division by r:
-    //-------------------------------
-    int dzp = cresu.get_dzpuis() ;
-    dzp == 4 ? cresu.div_r() : cresu.div_r_inc2() ;
+    // Loop on all the indices of uu
+    for (int id=1; id<valence0; id++) {
+      
+      switch ( ind0(id) ) {
+      case 1 : {	// Gamma^r_{l phi} V^l 
+	// or -Gamma^l_{r phi} V_l 
+	ind = ind0 ; 
+	ind.set(id) = 3 ;   // l = phi
+	tmp1 -= uu(ind) ; 
+	break ; 
+      }
+				
+      case 2 : {	// Gamma^theta_{l phi} V^l 
+	// or -Gamma^l_{theta phi} V_l
+	ind = ind0 ; 
+	ind.set(id) = 3 ;   // l = phi
+	tmp2 -= uu(ind) ; 
+	break ; 
+      }
+				
+      case 3 : {	// Gamma^phi_{l phi} V^l 
+	// or -Gamma^l_{phi phi} V_l
+							
+	ind = ind0 ; 
+
+	ind.set(id) = 1 ;   // l = r
+	tmp1 += uu(ind) ; 
+
+	ind.set(id) = 2 ;   // l = theta
+	tmp2 += uu(ind) ; 
+	break ; 
+      }
+				
+      default : {
+	cout << "Connection_fspher::divergence : index problem ! "
+	     << endl ; 
+	abort() ;  
+      }
+      }
+    }
+    // There remains a division by tan(theta) and r:
+    //----------------------------------------------
+    tmp2.div_tant() ;
+    tmp1 += tmp2 ;
+    tmp1.div_r_inc2() ;
+
     cresu += tmp1 ; // the d/dr term...
 
   }
