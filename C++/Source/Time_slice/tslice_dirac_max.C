@@ -30,6 +30,9 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/05/03 08:15:48  e_gourgoulhon
+ * Method hh_det_one(): added check at the end (deviation from det = 1).
+ *
  * Revision 1.3  2004/04/08 16:44:19  e_gourgoulhon
  * Added methods set_* and hh_det_one().
  *
@@ -154,6 +157,7 @@ void Tslice_dirac_max::set_khi_mu(const Scalar& khi_in, const Scalar& mu_in) {
 
     hh_det_one() ;
     
+    
 } 
 
 
@@ -274,6 +278,8 @@ void Tslice_dirac_max::hh_det_one() const {
     gam_dd_evol.downdate(jtime) ; 
     gam_uu_evol.downdate(jtime) ; 
          
+    maxabs(tgam().determinant() - 1, 
+    "Max. of absolute value of deviation from det tgam = 1") ; 
 
 }
 
