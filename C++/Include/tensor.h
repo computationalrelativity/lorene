@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.26  2003/10/24 15:00:19  j_novak
+ * Forgotten Class declaration... thanks IBM aix!
+ *
  * Revision 1.25  2003/10/20 14:26:02  j_novak
  * New assignement operators.
  *
@@ -130,7 +133,8 @@
 #include "base_vect.h"
 #include "map.h"
 
-class Scalar ; 
+class Scalar ;
+class Vector ; 
 class Sym_tensor ;
 class Metric ;
 
