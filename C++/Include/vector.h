@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.34  2005/02/16 15:00:05  m_forot
+ * Add visu_streamlime function
+ *
  * Revision 1.33  2005/02/14 13:01:48  j_novak
  * p_eta and p_mu are members of the class Vector. Most of associated functions
  * have been moved from the class Vector_divfree to the class Vector.
@@ -544,7 +547,12 @@ class Vector: public Tensor {
     void visu_arrows(double xmin, double xmax, double ymin, double ymax,
     double zmin, double zmax, const char* title0 = 0x0, 
     const char* filename0 = 0x0, bool start_dx = true, int nx = 8, int ny = 8, 
-    int nz = 8) const ;      
+    int nz = 8) const ;    
+
+    void visu_streamline(double xmin, double xmax, double ymin, double ymax,
+    double zmin, double zmax, const char* title0 = 0x0, 
+    const char* filename0 = 0x0, bool start_dx = true, int nx = 8, int ny = 8, 
+    int nz = 8) const ;   
         
      
  
