@@ -25,8 +25,11 @@ char cmp_pde_frontiere_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/10/03 15:58:45  j_novak
+ * Cleaning of some headers
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.6  2000/05/22  16:07:03  phil
  * *** empty log message ***
@@ -55,10 +58,7 @@ char cmp_pde_frontiere_C[] = "$Header$" ;
  */
 
 // Header Lorene:
-#include "map.h"
 #include "cmp.h"
-#include "valeur.h"
-#include "utilitaires.h"
 
 Mtbl_cf sol_poisson_frontiere(const Map_af&, const Mtbl_cf&, const Mtbl_cf&,
 				    int, int, int) ;

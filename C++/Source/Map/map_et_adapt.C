@@ -32,8 +32,11 @@ char map_et_adapt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/10/03 15:58:48  j_novak
+ * Cleaning of some headers
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.6  2000/11/10  15:19:30  eric
  * Appel de Valeur::equipot_outward plutot que Valeur::equipot
@@ -68,13 +71,10 @@ char map_et_adapt_C[] = "$Header$" ;
 #include <assert.h>
 
 // Headers Lorene
-#include "map.h"
 #include "cmp.h"
 #include "itbl.h"
 #include "param.h"
-#include "type_parite.h"
 #include "proto.h"
-#include "utilitaires.h"
 
 void Map_et::adapt(const Cmp& ent, const Param& par) {
     

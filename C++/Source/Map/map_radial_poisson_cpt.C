@@ -39,6 +39,9 @@ char map_radial_poisson_cpt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/03 15:58:48  j_novak
+ * Cleaning of some headers
+ *
  * Revision 1.2  2002/12/11 13:17:07  k_taniguchi
  * Change the multiplication "*" to "%".
  *
@@ -117,11 +120,9 @@ char map_radial_poisson_cpt_C[] = "$Header$" ;
 #include <math.h>
 
 // Headers Lorene
-#include "map.h"
 #include "tenseur.h"
 #include "param.h"
 #include "proto.h"
-#include "graphique.h"
 
 // Local prototype
 Mtbl_cf sol_poisson_compact(const Mtbl_cf& source, double a, double b, 
@@ -266,8 +267,6 @@ void Map_radial::poisson_compact(const Cmp& source, const Cmp& aa,
 		 << somlzero << endl ; 
 	}
 
-	
-	//des_coef_xi (sour_j, 0, 5, 1) ;
 	
 	// Resolution of the equation 
 	//   a (1-xi^2) Lap_xi(psi) + b xi dpsi/dxi = sour_j 

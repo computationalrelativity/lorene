@@ -25,8 +25,11 @@ char cmp_raccord_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/10/03 15:58:45  j_novak
+ * Cleaning of some headers
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.1  2000/09/07  13:19:58  phil
  * *** empty log message ***
@@ -44,11 +47,9 @@ char cmp_raccord_C[] = "$Header$" ;
 #include <math.h>
 
 // LORENE
-#include "tbl.h"
 #include "matrice.h"
 #include "cmp.h"
 #include "proto.h"
-#include "utilitaires.h"
 
 
 Matrice matrice_raccord_pair (int cont, double alpha_kernel) {

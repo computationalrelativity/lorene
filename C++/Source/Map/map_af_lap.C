@@ -28,6 +28,9 @@ char map_af_lap_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/03 15:58:48  j_novak
+ * Cleaning of some headers
+ *
  * Revision 1.2  2002/10/16 14:36:41  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -100,10 +103,7 @@ char map_af_lap_C[] = "$Header$" ;
 #include <stdlib.h>
 #include <math.h>
 
-#include "map.h"
 #include "cmp.h"
-#include "type_parite.h"
-#include "utilitaires.h"
 
 //******************************************************************************
 

@@ -25,8 +25,11 @@ char bhole_pseudo_viriel_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/10/03 15:58:44  j_novak
+ * Cleaning of some headers
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.6  2000/12/15  13:52:38  phil
  * modification critere sans les derivees
@@ -54,18 +57,11 @@ char bhole_pseudo_viriel_C[] = "$Header$" ;
  *
  */
 
-
-
-//standard
-#include <stdlib.h>
-#include <math.h>
+#include<math.h>
 
 // Lorene
-#include "map.h"
-#include "cmp.h"
 #include "tenseur.h"
 #include "bhole.h"
-#include "utilitaires.h"
 
 double Bhole::viriel_seul () const{
     

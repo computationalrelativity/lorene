@@ -25,8 +25,11 @@ char division_xpun_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/10/03 15:58:49  j_novak
+ * Cleaning of some headers
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.3  2000/09/07  13:19:20  phil
  * *** empty log message ***
@@ -46,10 +49,7 @@ char division_xpun_C[] = "$Header$" ;
 #include <stdlib.h>
 
 // Lorene
-#include "type_parite.h"
-#include "nbr_spx.h"
 #include "cmp.h"
-#include "utilitaires.h"
 #include "proto.h"
 
 Cmp division_xpun (const Cmp& source, int num_front) {

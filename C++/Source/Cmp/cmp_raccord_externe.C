@@ -25,8 +25,11 @@ char cmp_raccord_externe_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/10/03 15:58:45  j_novak
+ * Cleaning of some headers
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.2  2001/10/10  13:53:27  eric
  * Modif Joachim: sqrt(2) --> sqrt(double(2))
@@ -49,13 +52,9 @@ char cmp_raccord_externe_C[] = "$Header$" ;
 #include <math.h>
 
 // LORENE
-#include "tbl.h"
 #include "matrice.h"
 #include "cmp.h"
 #include "proto.h"
-#include "utilitaires.h"
-#include "map.h"
-#include "base_val.h"
 
 
 // Calcul des Cnp

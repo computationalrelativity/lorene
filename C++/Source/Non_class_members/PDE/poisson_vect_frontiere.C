@@ -25,6 +25,9 @@ char poisson_vect_frontiere_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/03 15:58:50  j_novak
+ * Cleaning of some headers
+ *
  * Revision 1.2  2003/02/13 16:40:25  p_grandclement
  * Addition of various things for the Bin_ns_bh project, non of them being
  * completely tested
@@ -52,8 +55,6 @@ char poisson_vect_frontiere_C[] = "$Header$" ;
 
 // Headers Lorene :
 #include "proto.h"
-#include "valeur.h"
-#include "cmp.h"
 #include "tenseur.h"
 
     // USING OOhara

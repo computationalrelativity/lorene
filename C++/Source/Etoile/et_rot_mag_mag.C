@@ -32,6 +32,9 @@ char et_rot_mag_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2003/10/03 15:58:47  j_novak
+ * Cleaning of some headers
+ *
  * Revision 1.12  2002/09/09 13:00:39  e_gourgoulhon
  * Modification of declaration of Fortran 77 prototypes for
  * a better portability (in particular on IBM AIX systems):
@@ -83,7 +86,6 @@ char et_rot_mag_mag_C[] = "$Header$" ;
 #include "et_rot_mag.h"
 #include "utilitaires.h"
 #include "param.h"
-#include "graphique.h"
 #include "proto_f77.h"
 
 // Algo du papier de 1995

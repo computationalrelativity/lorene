@@ -25,8 +25,11 @@ char pde_frontiere_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/10/03 15:58:50  j_novak
+ * Cleaning of some headers
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.3  2000/12/04  14:30:16  phil
  * correction CL.
@@ -50,12 +53,8 @@ char pde_frontiere_bin_C[] = "$Header$" ;
 #include <math.h>
 
 // LORENE
-#include "valeur.h"
-#include "coord.h"
-#include "cmp.h"
 #include "tenseur.h"
 #include "proto.h"
-#include "graphique.h"
 
 // Version avec une fonction de theta, phi.
 

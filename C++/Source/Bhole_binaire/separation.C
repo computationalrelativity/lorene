@@ -25,8 +25,11 @@ char separation_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/10/03 15:58:44  j_novak
+ * Cleaning of some headers
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.6  2001/04/02  12:16:20  phil
  * *** empty log message ***
@@ -58,12 +61,8 @@ char separation_C[] = "$Header$" ;
 #include <stdlib.h>
 
 // Lorene
-#include "map.h"
-#include "valeur.h"
 #include "cmp.h"
 #include "proto.h"
-#include "utilitaires.h"
-#include "graphique.h"
 
 void separation (const Cmp& c1, const Cmp& c2, Cmp& res1, Cmp& res2, int decrois, 
     int puiss, int lmax, double precision, const double relax, const int itemax, const int flag) {

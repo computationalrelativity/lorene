@@ -34,6 +34,9 @@ char tenseur_pde_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/03 15:58:51  j_novak
+ * Cleaning of some headers
+ *
  * Revision 1.2  2002/08/07 16:14:11  j_novak
  * class Tenseur can now also handle tensor densities, this should be transparent to older codes
  *
@@ -52,8 +55,6 @@ char tenseur_pde_regu_C[] = "$Header$" ;
  */
 
 // Header Lorene:
-#include "map.h"
-#include "cmp.h"
 #include "param.h"
 #include "tenseur.h"
 

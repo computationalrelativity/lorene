@@ -25,6 +25,9 @@ char regularise_shift_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/03 15:58:44  j_novak
+ * Cleaning of some headers
+ *
  * Revision 1.2  2003/02/13 16:40:25  p_grandclement
  * Addition of various things for the Bin_ns_bh project, non of them being
  * completely tested
@@ -66,10 +69,7 @@ char regularise_shift_C[] = "$Header$" ;
 
 //Lorene
 #include "nbr_spx.h"
-#include "valeur.h"
-#include "cmp.h"
 #include "tenseur.h"
-#include "graphique.h"
 
 double regle (Tenseur& shift_auto, const Tenseur& shift_comp, double omega) {
     

@@ -30,8 +30,11 @@ char map_af_poisson_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/10/03 15:58:48  j_novak
+ * Cleaning of some headers
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.13  2000/10/25  16:05:11  keisuke
  * Remake for the arbitrary regularization degree (k_div).
@@ -85,13 +88,10 @@ char map_af_poisson_regu_C[] = "$Header$" ;
 #include <math.h>
 
 // Header Lorene
-#include "map.h"
-#include "cmp.h"
 #include "tenseur.h"
 #include "matrice.h"
 #include "param.h"
 #include "proto.h"
-#include "utilitaires.h"
 
 //******************************************************************
 

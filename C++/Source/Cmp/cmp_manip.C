@@ -25,8 +25,11 @@ char cmp_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/10/03 15:58:44  j_novak
+ * Cleaning of some headers
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.2  2001/05/25  09:29:58  phil
  * ajout de filtre_phi
@@ -49,7 +52,7 @@ char cmp_manip_C[] = "$Header$" ;
 // Lorene
 #include "cmp.h"
 #include "proto.h"
-#include "utilitaires.h"
+
 /*
  * Annule les n derniers coefficients en r dans la derniere zone
  */

@@ -33,8 +33,11 @@ char et_rot_f_eccentric_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/10/03 15:58:47  j_novak
+ * Cleaning of some headers
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.0  2001/02/08  15:13:24  eric
  * *** empty log message ***
@@ -51,7 +54,6 @@ char et_rot_f_eccentric_C[] = "$Header$" ;
 // Headers Lorene
 #include "etoile.h"
 #include "param.h"
-#include "utilitaires.h"
 
 //=============================================================================
 //		r_isco()

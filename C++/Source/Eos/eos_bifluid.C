@@ -31,6 +31,9 @@ char eos_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/10/03 15:58:46  j_novak
+ * Cleaning of some headers
+ *
  * Revision 1.7  2002/10/16 14:36:35  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -86,7 +89,6 @@ char eos_bifluid_C[] = "$Header$" ;
 #include "eos_bifluid.h"
 #include "cmp.h"
 #include "utilitaires.h"
-#include "graphique.h"
 
 			//--------------//
 			// Constructors //

@@ -31,6 +31,9 @@ char scalar_pde_frontiere_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/03 15:58:52  j_novak
+ * Cleaning of some headers
+ *
  * Revision 1.2  2003/09/25 08:57:27  e_gourgoulhon
  * modif comments
  *
@@ -43,11 +46,8 @@ char scalar_pde_frontiere_C[] = "$Header$" ;
  */
 
 // Header Lorene:
-#include "map.h"
 #include "tensor.h"
 #include "cmp.h"
-#include "valeur.h"
-#include "utilitaires.h"
 
 
 Scalar Scalar::poisson_dirichlet(const Valeur& limite, int num_front) const {

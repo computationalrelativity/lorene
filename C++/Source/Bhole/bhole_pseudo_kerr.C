@@ -25,6 +25,9 @@ char bhole_pseudo_kerr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/03 15:58:43  j_novak
+ * Cleaning of some headers
+ *
  * Revision 1.2  2002/10/16 14:36:32  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -76,7 +79,6 @@ char bhole_pseudo_kerr_C[] = "$Header$" ;
 #include "bhole.h"
 #include "unites.h"
 #include "proto.h"
-#include "utilitaires.h"
 
 //Resolution pour le lapse pour 1 seul trou
 void Bhole::solve_lapse_seul (double relax) {

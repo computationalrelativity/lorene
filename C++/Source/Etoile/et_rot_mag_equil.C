@@ -34,6 +34,9 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2003/10/03 15:58:47  j_novak
+ * Cleaning of some headers
+ *
  * Revision 1.13  2002/10/16 14:36:36  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -82,10 +85,6 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 // Headers Lorene
 #include "et_rot_mag.h"
 #include "param.h"
-
-#include "graphique.h"
-#include "utilitaires.h"
-
 
 void Et_rot_mag::equilibrium_mag(double ent_c, double omega0, 
      double fact_omega, int nzadapt, const Tbl& ent_limit, 
