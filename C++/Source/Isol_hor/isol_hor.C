@@ -30,6 +30,9 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/10/29 15:44:45  jl_jaramillo
+ * Remove two members
+ *
  * Revision 1.2  2004/09/28 16:07:16  f_limousin
  * Remove all unused functions.
  *
@@ -69,11 +72,7 @@ char isol_hor_C[] = "$Header$" ;
 Isol_hor::Isol_hor(const Scalar& lapse_in, const Vector& shift_in,
 		   const Sym_tensor& gamma_in, const Sym_tensor kk_in, 
 		   const Metric_flat& ff_in, int depth_in) 	  
-  : Time_slice_conf( lapse_in, shift_in, gamma_in, kk_in, ff_in, depth_in), 
-    gam_point_evol(gamma_in, depth_in),
-    gamt_point_evol(gamma_in, depth_in){
-
-}
+  : Time_slice_conf( lapse_in, shift_in, gamma_in, kk_in, ff_in, depth_in){}
                  
 
 
@@ -82,18 +81,12 @@ Isol_hor::Isol_hor(const Scalar& lapse_in, const Vector& shift_in,
 // ----------------
 
 Isol_hor::Isol_hor(const Isol_hor& isolhor_in) 
-                    : Time_slice_conf(isolhor_in), 
-                      gam_point_evol(isolhor_in.gam_point_evol), 
-                      gamt_point_evol(isolhor_in.gamt_point_evol){
-
-}
+                    : Time_slice_conf(isolhor_in){}
 			    //--------------//
 			    //  Destructor  //
 			    //--------------//
 
-Isol_hor::~Isol_hor(){
-
-}
+Isol_hor::~Isol_hor(){}
 
 
                     //-----------------------//
@@ -103,9 +96,6 @@ Isol_hor::~Isol_hor(){
 void Isol_hor::operator=(const Isol_hor& isolhor_in) {
 
     Time_slice_conf::operator=(isolhor_in) ; 
-    gam_point_evol = isolhor_in.gam_point_evol ; 
-    gamt_point_evol = isolhor_in.gamt_point_evol ; 
-       
 }
 
 
@@ -117,19 +107,6 @@ void Isol_hor::operator=(const Isol_hor& isolhor_in) {
 ostream& Isol_hor::operator>>(ostream& flux) const {
 
     Isol_hor::operator>>(flux) ; 
-
-    flux << "Isolated Horizon without gauge choices" << '\n' ;
-
-    //    if (khi_evol.is_known(jtime)) {
-    //        maxabs( khi_evol[jtime], "Khi", flux) ;
-    //    }
-    //    if (mu_evol.is_known(jtime)) {
-    //        maxabs( mu_evol[jtime], "Mu", flux) ;
-    //    }
-    //    if (trh_evol.is_known(jtime)) {
-    //        maxabs( trh_evol[jtime], "tr h", flux) ;
-    //    }
-    
     return flux ; 
 
 }
