@@ -35,6 +35,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2003/10/22 08:35:30  j_novak
+ * Error corrected
+ *
  * Revision 1.16  2003/10/19 19:54:37  e_gourgoulhon
  * -- Modified method spectral_display: now calling Valeur::display_coef.
  *
@@ -306,7 +309,7 @@ void Scalar::annule(int l_min, int l_max) {
 		return ;		// rien n'a faire si c'est deja zero
     }
     else {
-		assert( etat == ETATQCQ ) ;	// sinon...
+		assert( (etat == ETATQCQ) || (etat == ETATUN) ) ;	// sinon...
 
 		va.annule(l_min, l_max) ;	// Annule la Valeur
 	
