@@ -25,6 +25,9 @@ char solp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/02/09 08:55:31  j_novak
+ * Corrected error in the arguments of _solp_r_chebu_cinq
+ *
  * Revision 1.3  2004/02/06 10:53:54  j_novak
  * New dzpuis = 5 -> dzpuis = 3 case (not ready yet).
  *
@@ -264,7 +267,7 @@ Tbl _solp_r_chebu (const Matrice &lap, const Matrice &nondege, double alpha,
     
     switch (puis) {
 	case 5 :
-	    res = _solp_r_chebu_cinq (lap, nondege, alpha, source) ;
+	    res = _solp_r_chebu_cinq (lap, nondege, source) ;
 	    break ;
 	case 4 :
 	    res = _solp_r_chebu_quatre (lap, nondege, alpha, source) ;

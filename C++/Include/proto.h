@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2004/02/09 08:55:30  j_novak
+ * Corrected error in the arguments of _solp_r_chebu_cinq
+ *
  * Revision 1.15  2004/02/06 10:53:51  j_novak
  * New dzpuis = 5 -> dzpuis = 3 case (not ready yet).
  *
@@ -345,7 +348,7 @@ Tbl _solp_r_chebu (const Matrice&, const Matrice&, double, double, const Tbl&, i
 Tbl _solp_r_chebu_deux (const Matrice&, const Matrice&, const Tbl&) ;
 Tbl _solp_r_chebu_trois (const Matrice&, const Matrice&, double, const Tbl&) ;
 Tbl _solp_r_chebu_quatre (const Matrice&, const Matrice&, double, const Tbl&) ;
-Tbl _solp_r_chebu_cinq (const Matrice&, const Matrice&, double, const Tbl&) ;
+Tbl _solp_r_chebu_cinq (const Matrice&, const Matrice&, const Tbl&) ;
 Tbl solp (const Matrice&, const Matrice&, double, double, const Tbl&, int, int) ;
 
 //Routines de calcul des solutions homogenes
