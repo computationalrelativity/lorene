@@ -30,6 +30,10 @@ char metric_flat_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/02/19 10:57:18  e_gourgoulhon
+ * Methods cov() and con(): set the spectral bases to the standard ones
+ * after the initialization of p_met_cov and p_met_con.
+ *
  * Revision 1.3  2003/12/30 23:07:29  e_gourgoulhon
  * Suppression of virtual methods fait_* : the actual computations
  *      are now performed via the virtual methods con(), cov(), connect(),
@@ -125,6 +129,8 @@ const Sym_tensor& Metric_flat::cov() const {
         p_met_cov->set(2,2) = 1 ; 
         p_met_cov->set(2,3) = 0 ; 
         p_met_cov->set(3,3) = 1 ; 
+        
+        p_met_cov->std_spectral_base() ; 
     }
 
     return *p_met_cov ; 
@@ -142,6 +148,9 @@ const Sym_tensor& Metric_flat::con() const {
         p_met_con->set(2,2) = 1 ; 
         p_met_con->set(2,3) = 0 ; 
         p_met_con->set(3,3) = 1 ; 
+
+        p_met_con->std_spectral_base() ; 
+
     }
 
 
