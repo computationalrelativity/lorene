@@ -28,6 +28,9 @@ char test_vector_df_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/29 11:06:50  e_gourgoulhon
+ * dec2_dzpuis() replaced by dec_dzpuis(2).
+ *
  * Revision 1.5  2003/10/28 21:37:02  e_gourgoulhon
  * Change the name of the global char[] for code identification.
  *
@@ -234,7 +237,7 @@ int main() {
 	vvc.set(1) = aa(3).dsdy() - aa(2).dsdz() ; 
 	vvc.set(2) = aa(1).dsdz() - aa(3).dsdx() ; 
 	vvc.set(3) = aa(2).dsdx() - aa(1).dsdy() ; 
-	vvc.dec2_dzpuis() ; 
+	vvc.dec_dzpuis(2) ; 
 	
 	vvs.set_triad( map.get_bvect_cart() ) ;
 	vvs = vvc ; 
