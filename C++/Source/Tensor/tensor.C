@@ -34,6 +34,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.33  2004/02/27 21:14:27  e_gourgoulhon
+ * Modif of method derive_con to create proper type of the result.
+ *
  * Revision 1.32  2004/02/19 22:10:14  e_gourgoulhon
  * Added argument "comment" in method spectral_display.
  *
@@ -881,19 +884,45 @@ const Tensor& Tensor::derive_cov(const Metric& metre) const {
   return *p_derive_cov[j] ;
 }
 
+
 const Tensor& Tensor::derive_con(const Metric& metre) const {
   
-  set_dependance(metre) ;
-  int j = get_place_met(metre) ;
-  assert ((j>=0) && (j<N_MET_MAX)) ;
-  if (p_derive_con[j] == 0x0) {
-    p_derive_con[j] = 
-      new Tensor( ::contract(derive_cov(metre), valence, metre.con(), 0) ) ;
-            // valence is the number of the last index of derive_cov 
-            //  (the "derivation" index)
-  }
+    set_dependance(metre) ;
+    int j = get_place_met(metre) ;
+    assert ((j>=0) && (j<N_MET_MAX)) ;
+    if (p_derive_con[j] == 0x0) {
+    
+    if (valence == 0) {
+        p_derive_con[j] = 
+            new Vector( contract(derive_cov(metre), 0, metre.con(), 0) ) ;
+    }
+    else {
+        const Tensor_sym* tsym = dynamic_cast<const Tensor_sym*>(this) ; 
+
+        if (tsym != 0x0) { // symmetric case, preserved by derive_con
+            const Tensor& dercov = derive_cov(metre) ; 
+            Itbl type_ind = dercov.get_index_type() ;
+            type_ind.set(valence) = CON ; 
+            p_derive_con[j] = new Tensor_sym(*mp, valence+1, type_ind, *triad,
+                                       tsym->sym_index1(), tsym->sym_index2()) ; 
+ 
+            *(p_derive_con[j]) = contract(dercov, valence, metre.con(), 0) ;
+                        // valence is the number of the last index of derive_cov 
+                        //  (the "derivation" index)
+        }
+        else {  // general case, no symmetry
+        
+            p_derive_con[j] =  new Tensor( contract(derive_cov(metre), valence,
+                                                    metre.con(), 0) ) ;
+                    // valence is the number of the last index of derive_cov 
+                    //  (the "derivation" index)
+        }
+        
+    }
+
+    }
   
-  return *p_derive_con[j] ;
+    return *p_derive_con[j] ;
 
 }
 
