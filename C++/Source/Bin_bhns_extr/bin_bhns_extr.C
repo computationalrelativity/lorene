@@ -30,6 +30,9 @@ char bin_bhns_extr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/12/01 16:37:11  k_taniguchi
+ * Modification of the output again.
+ *
  * Revision 1.2  2004/12/01 16:27:09  k_taniguchi
  * Modification of the output.
  *
@@ -238,7 +241,12 @@ ostream& Bin_bhns_extr::operator>>(ostream& ost) const {
 	<< star.ray_eq()/km << " km" << endl ;
 
     ost << endl
-	<< "Baryon mass : " << mass_b_extr() / msol << " Mo" << endl ;
+	<< "Baryon mass in isolation :        " << star.mass_b() / msol
+	<< " Mo" << endl
+	<< "Gravitational mass in isolation : " << star.mass_g() / msol
+	<< " Mo" << endl
+	<< "Baryon mass in a binary system :  " << mass_b_extr() / msol
+	<< " Mo" << endl ;
 
     ost << endl ;
     ost << "Star in a binary system" << endl ; 
