@@ -28,6 +28,10 @@ char test_kerr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/01/29 15:22:47  e_gourgoulhon
+ * Introduced call to method Tensor::divergence in momentum constraint.
+ * Polishing.
+ *
  * Revision 1.6  2004/01/28 15:28:27  e_gourgoulhon
  * Added tests with Cartesian components.
  *
@@ -156,7 +160,15 @@ int main() {
     
     Metric gam(gij_spher) ; // construction from the covariant components 
    
-    cout << gam << endl ; 
+    cout << 
+    "Minimum val. of the covariant components of the metric in each domain: " 
+    << endl ; 
+    min(gam.cov()) ;
+    cout << 
+    "Maximum val. of the covariant components of the metric in each domain: " 
+    << endl ; 
+    max(gam.cov()) ;
+    arrete() ; 
     
     // Flat metric :
     // -----------
@@ -221,7 +233,8 @@ int main() {
     
     const Tensor& dg_auto = gam.cov().derive_cov( gam ) ; 
     
-    cout << "Error on the covariant derivative of the metric / itself:" << endl ; 
+    cout << "\n Error on the covariant derivative of the metric / itself \n" ;
+    cout << "  (maximum absolute value in each domain) : \n" ; 
     maxabs(dg_auto) ; 
     arrete() ; 
 
@@ -240,8 +253,11 @@ int main() {
 
     nn.std_spectral_base() ;
     
-    cout << "Lapse N : " << nn << endl ; 
-    arrete() ; 
+    cout << "Minimum value of the lapse N in each domain : " << endl ; 
+    min(nn, cout) ;
+    cout << "Maximum value of the lapse N in each domain : " << endl ; 
+    max(nn, cout) ;
+    arrete() ;  
 
     // Shift vector
     // ------------
@@ -254,20 +270,24 @@ int main() {
     Vector beta(map, CON, map.get_bvect_spher() ) ;     
     beta.set(1) = 0 ; 
     beta.set(2) = 0 ; 
-    beta.set(3) = nphi ; 
+    beta.set(3) = - nphi ; 
     beta.std_spectral_base() ;
 
-    cout << "Shift vector beta: " << beta << endl ; 
-	arrete() ; 
-	    
+    cout << "Minimum value of the shift vector beta^i in each domain : \n" ; 
+    min(beta) ;
+    cout << "Maximum value of the shift vector beta^i in each domain : \n" ; 
+    max(beta) ;
+    cout << endl ; 
+
+    Vector beta_cov = beta.down(0, gam) ; 
+    cout << "Minimum value of the covariant comp. beta_i in each domain : \n" ; 
+    min(beta_cov) ;
+    cout << "Maximum value of the covariant comp. beta_i in each domain : \n" ; 
+    max(beta_cov) ;
+    arrete() ; 
         
     // Extrinsic curvature
     // -------------------
-    
-    Vector beta_cov = beta.down(0, gam) ; 
-    cout << "beta_cov : " << endl ; 
-    maxabs(beta_cov) ; 
-    arrete() ; 
     
     cout << "Dbeta: " << endl ; 
     beta_cov.derive_cov(gam).spectral_display() ; 
@@ -307,21 +327,42 @@ int main() {
     kk.spectral_display() ; 
     maxabs(kk) ; 
     
-    // Momentum constraint
-    // -------------------
+    // Trace of K
+    // ----------
     
     Tensor kk_du = kk.up(1, gam) ; 
     Scalar trkk = kk_du.scontract(0,1) ; 
     cout << "Trace of K:" << endl ; 
     maxabs(trkk) ; 
     
-    const Tensor& dkk = kk_du.derive_cov(gam) ; 
+    // Test:
+    Scalar div_beta = beta.divergence(gam) ; 
+    cout << "Divergence of beta:\n" ; 
+    maxabs(div_beta) ; 
     
-    Vector mom_constr = dkk.scontract(1,2) - trkk.derive_cov(gam) ; 
+    tmp = nn * trkk - div_beta ; 
+    cout << "N K - div(beta): \n" ;
+    maxabs(tmp) ; 
+
+    arrete() ; 
+
+    // Momentum constraint
+    // -------------------
+    
+    Vector mom_constr = kk_du.divergence(gam) - trkk.derive_cov(gam) ; 
+    
     cout << "Momentum constraint : " << endl ; 
     mom_constr.spectral_display() ;     
-    cout << "Momentum constraint (max absolute error): " << endl ; 
+    cout << "Momentum constraint (max absolute error in each domain): " << endl ; 
     maxabs(mom_constr) ; 
+
+    const Tensor& dkk = kk_du.derive_cov(gam) ; 
+    mom_constr = dkk.scontract(1,2) - trkk.derive_cov(gam) ; 
+    cout << "Momentum constraint by direct computation of divergence\n "
+         << "   (max absolute error in each domain) : " << endl ; 
+    maxabs(mom_constr) ; 
+
+
     arrete() ; 
 
     // Hamiltonian constraint
@@ -343,7 +384,7 @@ int main() {
         
     cout << "Hamiltonian constraint : " << endl ; 
     ham_constr.spectral_display() ;     
-    cout << "Hamiltonian constraint (max absolute error): " << endl ; 
+    cout << "Hamiltonian constraint (max absolute error in each domain): " << endl ; 
     maxabs(ham_constr) ; 
     arrete() ; 
 
@@ -369,7 +410,7 @@ int main() {
     
     cout << "Dynamical Einstein equations:" << endl ; 
     dyn_einstein.spectral_display() ;     
-    cout << "Dynamical Einstein equations (max absolute error): " << endl ; 
+    cout << "Dynamical Einstein equations (max absolute error in each domain): " << endl ; 
     maxabs(dyn_einstein) ; 
     
     cout << "maxabs(dyn1) : " << endl ; 
@@ -381,7 +422,7 @@ int main() {
     cout << "maxabs(dyn4) : " << endl ; 
     maxabs(dyn4) ; 
     
-    cout << "Dynamical Einstein equations (relative error): " << endl ; 
+    cout << "Dynamical Einstein equations (relative error in each domain): " << endl ; 
     diffrel(dyn2+dyn3+dyn4, -dyn1) ; 
     arrete() ; 
     
@@ -456,20 +497,40 @@ int main() {
     diffrelmax(kk_c, kk_test) ;  
     arrete() ; 
     
-    // Momentum constraint
-    // -------------------
+    // Trace of K
+    // ----------
     
     Tensor kk_du_c = kk_c.up(1, gam_c) ; 
     Scalar trkk_c = kk_du_c.scontract(0,1) ; 
     cout << "Trace of K:" << endl ; 
     maxabs(trkk_c) ; 
+
+    // Test:
+    Scalar div_beta_c = beta_c.divergence(gam_c) ; 
+    cout << "Divergence of beta:\n" ; 
+    maxabs(div_beta_c) ; 
     
-    const Tensor& dkk_c = kk_du_c.derive_cov(gam_c) ; 
-    
-    Vector mom_constr_c = dkk_c.scontract(1,2) - trkk_c.derive_cov(gam_c) ; 
+    tmp = nn * trkk_c - div_beta_c ; 
+    cout << "N K - div(beta): \n" ;
+    maxabs(tmp) ; 
+
+    arrete() ; 
+
+    // Momentum constraint
+    // -------------------
+        
+    Vector mom_constr_c = kk_du_c.divergence(gam_c) - trkk_c.derive_cov(gam_c) ; 
+
     cout << "Momentum constraint (Cart.) : " << endl ; 
     mom_constr_c.spectral_display() ;     
-    cout << "Momentum constraint (Cart.) (max absolute error): " << endl ; 
+    cout << "Momentum constraint (Cart.) (max absolute error in each domain): " << endl ; 
+    maxabs(mom_constr_c) ; 
+
+    const Tensor& dkk_c = kk_du_c.derive_cov(gam_c) ; 
+    mom_constr_c = dkk_c.scontract(1,2) - trkk_c.derive_cov(gam_c) ; 
+    
+    cout << "Momentum constraint (Cart.) by direct computation of divergence \n"
+        << "  (max absolute error in each domain) : " << endl ; 
     maxabs(mom_constr_c) ; 
     arrete() ; 
 
@@ -499,7 +560,7 @@ int main() {
         
     cout << "Hamiltonian constraint (Cart) : " << endl ; 
     ham_constr_c.spectral_display() ;     
-    cout << "Hamiltonian constraint (max absolute error): " << endl ; 
+    cout << "Hamiltonian constraint (max absolute error in each domain): " << endl ; 
     maxabs(ham_constr_c) ; 
     arrete() ; 
 
@@ -524,7 +585,7 @@ int main() {
     
     cout << "Dynamical Einstein equations:" << endl ; 
     dyn_einstein_c.spectral_display() ;     
-    cout << "Dynamical Einstein equations (max absolute error): " << endl ; 
+    cout << "Dynamical Einstein equations (max absolute error in each domain): " << endl ; 
     maxabs(dyn_einstein_c) ; 
     
     cout << "maxabs(dyn1_c) : " << endl ; 
@@ -536,7 +597,7 @@ int main() {
     cout << "maxabs(dyn4_c) : " << endl ; 
     maxabs(dyn4_c) ; 
     
-    cout << "Dynamical Einstein equations (relative error): " << endl ; 
+    cout << "Dynamical Einstein equations (relative error in each domain): " << endl ; 
     diffrel(dyn2_c+dyn3_c+dyn4_c, -dyn1_c) ; 
     
     return EXIT_SUCCESS ; 
