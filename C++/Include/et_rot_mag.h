@@ -32,9 +32,10 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.2  2002/05/13 15:44:25  e_marcq
+ * Revision 1.3  2002/05/14 13:38:36  e_marcq
  *
- * Mise a jour du merging de la classe Et_rot_mag
+ *
+ * Unit update, new outputs
  *
  * Revision 1.1  2002/05/10 09:26:51  j_novak
  * Added new class Et_rot_mag for magnetized rotating neutron stars (under development)
@@ -155,7 +156,8 @@ Tenseur Spp_em;
   virtual double grv2() const ;	/// Error on the virial identity GRV2
   virtual double tsw() const ; // Ratio T/W
   double MagMom() const ; // Magnetic Momentum
-
+  double Q_comput() const ; // Computed charge
+  double GyroMag() const ; // Gyromagnetic ratio
 
   /** Error on the virial identity GRV3.
    *  The error is computed as the integral defined

@@ -34,9 +34,10 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.2  2002/05/13 15:44:25  e_marcq
+ * Revision 1.3  2002/05/14 13:38:36  e_marcq
  *
- * Mise a jour du merging de la classe Et_rot_mag
+ *
+ * Unit update, new outputs
  *
  * Revision 1.1  2002/05/10 09:26:52  j_novak
  * Added new class Et_rot_mag for magnetized rotating neutron stars (under development)

@@ -32,9 +32,10 @@ char et_rot_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.2  2002/05/13 15:44:25  e_marcq
+ * Revision 1.3  2002/05/14 13:38:36  e_marcq
  *
- * Mise a jour du merging de la classe Et_rot_mag
+ *
+ * Unit update, new outputs
  *
  * Revision 1.1  2002/05/10 09:26:52  j_novak
  * Added new class Et_rot_mag for magnetized rotating neutron stars (under development)
@@ -194,11 +195,16 @@ ostream& Et_rot_mag::operator>>(ostream& ost) const {
   ost << "Tangent magnetic field equatorial value : " << Magn()(1).va.val_point_jk(l_surf()(0,theta_eq),xi_surf()(0,theta_eq),theta_eq,0) << endl;
   ost << "Magnetic pressure equatorial value : " << Srr_em().va.val_point_jk(l_surf()(0,theta_eq),xi_surf()(0,theta_eq),theta_eq,0) << endl ;
   ost << "Radial electric field equatorial value : " << Elec()(0).va.val_point_jk(l_surf()(0,theta_eq),xi_surf()(0,theta_eq),theta_eq,0) << endl;
-
+  ost << "Computed charge : " << Q_comput() << endl ;
+  ost << "Gyromagnetic ratio : " << GyroMag() << endl ;
 
 
   return ost ;
 }
+
+
+
+
 
 
 

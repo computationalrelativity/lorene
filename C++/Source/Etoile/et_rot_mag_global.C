@@ -33,9 +33,10 @@ char et_rot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.2  2002/05/13 15:44:26  e_marcq
+ * Revision 1.3  2002/05/14 13:38:36  e_marcq
  *
- * Mise a jour du merging de la classe Et_rot_mag
+ *
+ * Unit update, new outputs
  *
  * Revision 1.1  2002/05/10 09:26:52  j_novak
  * Added new class Et_rot_mag for magnetized rotating neutron stars (under development)
@@ -51,6 +52,7 @@ char et_rot_global_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "et_rot_mag.h"
+#include "unites_mag.h"
 
 // Definition des fonctions membres differentes ou nouvelles
 
@@ -99,7 +101,7 @@ Tenseur Et_rot_mag::Elec() const {
   E.set(1) = E_t ;
   E.set(2) = 0. ;
 
-    return E ;
+    return E*elec_unit ;
 
 }
 
@@ -118,7 +120,7 @@ Tenseur Et_rot_mag::Magn() const {
   B.set(1) = B_t ;
   B.set(2) = 0. ;
 
-    return B ;
+    return B*mag_unit ;
 
 }
 
@@ -147,12 +149,25 @@ double Et_rot_mag::MagMom() const {
   delete [] asymp ;
   }
 
-  return mm ;
+  return mm*mag_unit*r_unit*r_unit ;
 
 }
 
+double Et_rot_mag::Q_comput() const {
+  double Z = mp.get_mg()->get_nzone();
+  Valeur** asymp = A_t.asymptot(1) ;
+  double Q_c = -4*M_PI/mu0*(*asymp[1])(Z-1,0,0,0) ;
+  delete asymp[0] ;
+  delete asymp[1] ;
 
+  delete [] asymp ;
 
+  return Q_c * j_unit/v_unit*pow(r_unit,3) ;
+  }
+
+double Et_rot_mag::GyroMag() const {
+  return Q_comput()*MagMom()/(angu_mom()*omega); 
+  }
 			//----------------------------//
 			//	Gravitational mass    //
 			//----------------------------//
