@@ -28,6 +28,9 @@ char test_sym_tensor_tt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/30 17:29:07  e_gourgoulhon
+ * new version
+ *
  * Revision 1.4  2003/10/29 13:15:26  e_gourgoulhon
  * Change of method name: Scalar::laplacien --> Scalar::laplacian.
  *
@@ -181,14 +184,15 @@ int main() {
 	pot.laplacian().spectral_display() ; 
 	arrete() ; 
 	
-	hhc.set(1,1) = pot.dsdx().dsdx() ; 
-	hhc.set(1,2) = pot.dsdx().dsdy() ; 
-	hhc.set(1,3) = pot.dsdx().dsdz() ; 
-	hhc.set(2,2) = pot.dsdy().dsdy() ; 
-	hhc.set(2,3) = pot.dsdy().dsdz() ; 
-	hhc.set(3,3) = pot.dsdz().dsdz() ; 
+	hhc.set(1,1) = pot.dsdx(0).dsdx(0) ; 
+	hhc.set(1,2) = pot.dsdx(0).dsdy(0) ; 
+	hhc.set(1,3) = pot.dsdx(0).dsdz(0) ; 
+	hhc.set(2,2) = pot.dsdy(0).dsdy(0) ; 
+	hhc.set(2,3) = pot.dsdy(0).dsdz(0) ; 
+	hhc.set(3,3) = pot.dsdz(0).dsdz(0) ; 
 
-	cout << "Cartesian components : hhc : " << hhc << endl ;
+	cout << "Cartesian components : hhc : " <<  endl ;
+	hhc.spectral_display() ; 
 	arrete() ; 
 
 	tmp = hhc ; 
@@ -199,32 +203,31 @@ int main() {
 	hhs.spectral_display() ; 
 	arrete() ; 
 	
-	hhc.divergence(metc) ; 
-	cout << "Norme divergence hhc : " << endl ; 
-	for (int i=1; i<=3; i++) {
-		cout << norme( hhc.divergence(metc)(i) ) << endl ; 
-	}
-	cout << "Norme divergence hhs : " << endl ; 
-	for (int i=1; i<=3; i++) {
-		cout << norme( hhs.divergence(mets)(i) ) << endl ; 
-	}
-
+	Vector divc = hhc.divergence(metc) ; 
+	cout << "Divergence of hhc : " << endl ; 
+	divc.spectral_display() ; 
+	
 	cout << "Max divergence hhc : " << endl ; 
 	for (int i=1; i<=3; i++) {
-		cout << max( hhc.divergence(metc)(i) ) << endl ; 
+		cout << max( abs(divc(i)) ) << endl ; 
 	}
+	
+	arrete() ;
+	
+	Vector divs = hhs.divergence(mets) ; 
+	cout << "Divergence of hhs : " << endl ; 
+	divs.spectral_display() ; 
 	
 	cout << "Max divergence hhs : " << endl ; 
 	for (int i=1; i<=3; i++) {
-		cout << max( hhs.divergence(mets)(i) ) << endl ; 
+		cout << max( abs(divs(i)) ) << endl ; 
 	}
 		
-	arrete() ;
-	 
-	cout << "Trace of hhc : " << hhc.trace() << endl ; 	
-	arrete() ; 
+	cout << "Max of trace of hhc : " << endl ; 
+	cout << max( abs(hhc.trace()) ) << endl ; 	
 		
-	cout << "Trace of hhs : " << hhs.trace() << endl ; 	
+	cout << "Max of trace of hhs : " << endl ; 
+	cout << max( abs(hhs.trace()) ) << endl ; 	
 		
 		
 	return EXIT_SUCCESS ; 
