@@ -31,8 +31,8 @@ char zerosec_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.2  2002/04/08 07:37:29  j_novak
- * zerosec method changed!
+ * Revision 1.3  2002/04/11 09:19:46  j_novak
+ * Back to old version of zerosec
  *
  * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
  * LORENE
@@ -77,33 +77,35 @@ char zerosec_C[] = "$Header$" ;
 double zerosec(double (*f)(double, const Param&), const Param& parf, 
     double x1, double x2, double precis, int nitermax, int& niter) {
     
-    double f0_moins, f0, x0, x0_moins, dx, df , fnew, xnew;
+    double f0_prec, f0, x0, x0_prec, dx, df ;
 
 // Teste si un zero unique existe dans l'intervalle [x_1,x_2]
 
-    f0_moins = f(x1, parf) ;
+    bool warning = false ; 
+    
+    f0_prec = f(x1, parf) ;
     f0 = f(x2, parf) ;
-    if ( f0*f0_moins > 0.) {
+    if ( f0*f0_prec > 0.) {
+	warning = true ; 
 	cout << 
       "WARNING: zerosec: there does not exist a unique zero of the function" 
 	<< endl ;
-	cout << "  between x1 = " << x1 << " ( f(x1)=" << f0_moins << " )" << endl ; 
+	cout << "  between x1 = " << x1 << " ( f(x1)=" << f0_prec << " )" << endl ; 
 	cout << "      and x2 = " << x2 << " ( f(x2)=" << f0 << " )" << endl ;
-	abort() ;
     }
 
-// Choisit la borne avec la plus grande valeur de f(x) (borne positive) 
-//  comme la valeur la de x0
+// Choisit la borne avec la plus petite valeur de |f(x)| comme la valeur la
+//  "plus recente" de x0
 
-    if ( f0_moins < f0) {  // On a bien choisi f0_moins et f0
-	x0_moins = x1 ;
+    if ( fabs(f0) < fabs(f0_prec) ) {  // On a bien choisi f0_prec et f0
+	x0_prec = x1 ;
 	x0 = x2 ;
     }
-    else {  // il faut interchanger f0_moins et f0
-	x0_moins = x2 ;
+    else {  // il faut interchanger f0_prec et f0
+	x0_prec = x2 ;
 	x0 = x1 ;
-	double swap = f0_moins ;
-	f0_moins = f0 ;
+	double swap = f0_prec ;
+	f0_prec = f0 ;
 	f0 = swap ;	
     }
 
@@ -111,33 +113,27 @@ double zerosec(double (*f)(double, const Param&), const Param& parf,
     
     niter = 0 ;
     do {
-	df = f0 - f0_moins ;
+	df = f0 - f0_prec ;
 	assert(df != double(0)) ; 
-	xnew = (x0_moins*f0 - x0*f0_moins)/df ; ;
-	fnew = f(xnew, parf) ;
-	if (fnew < 0.) {
-	  dx = x0_moins - xnew ;
-	  x0_moins = xnew ;
-	  f0_moins = fnew ;
-	}
-	else {
-	  dx = x0 - xnew ; 
-	  x0 = xnew ;
-	  f0 = fnew ;
-	}
+	dx = (x0_prec - x0) * f0 / df ;
+	x0_prec = x0 ;
+	f0_prec = f0 ;
+	x0 += dx ;
+	f0 = f(x0, parf) ;
 	niter++ ;
 	if (niter > nitermax) {
 	    cout << "zerosec: Maximum number of iterations has been reached ! " 
 	    << endl ;
-	cout << x0_moins << ", " << xnew << ", " << x0 << endl ;
-	cout << f0_moins << ", " << fnew << ", " << f0 << endl ;
-	
 	    abort () ;
 	}
     }
-    while ( ( fabs(dx) > precis ) && ( fabs(fnew) > 1.e-15 ) ) ;
+    while ( ( fabs(dx) > precis ) && ( fabs(f0) > 1.e-15 ) ) ;
 
-    return xnew ;
+    if (warning) {
+	cout << "      A zero has been found at x0 = " << x0 << endl ; 
+    }
+
+    return x0 ;
 }  
 
 

@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/04/11 09:19:46  j_novak
+ * Back to old version of zerosec
+ *
  * Revision 1.2  2001/12/04 21:24:33  e_gourgoulhon
  *
  * New functions fwrite_be and fread_be for writing/reading in a
@@ -107,7 +110,7 @@ bool zero_premier(double (*f)(double, const Param&), const Param& par,
 
 /** Finding the zero a function.
  * 
- *  This routine locates a zero by means of the secant method.
+ *  This routine locates a zero by means of the secant method. 
  * 
  *  @param (*f)(double, const Param\&) [input] Function the zero of which is 
  *		    to be searched: the routine computes x0 in a given
