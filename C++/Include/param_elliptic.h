@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/01/28 16:46:22  p_grandclement
+ * Addition of the sol_elliptic_fixe_der_zero stuff
+ *
  * Revision 1.1  2003/12/11 14:57:00  p_grandclement
  * I had forgotten the .h (sorry folks...)
  *
@@ -105,6 +108,8 @@ class Param_elliptic {
   friend Mtbl_cf elliptic_solver  (const Param_elliptic&, const Mtbl_cf&) ;
   friend Mtbl_cf elliptic_solver_no_zec  
     (const Param_elliptic&, const Mtbl_cf&) ;
+  friend Mtbl_cf elliptic_solver_fixe_der_zero  
+    (double, const Param_elliptic&, const Mtbl_cf&) ;
 } ;
 
 #endif

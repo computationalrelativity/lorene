@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.42  2004/01/28 16:46:22  p_grandclement
+ * Addition of the sol_elliptic_fixe_der_zero stuff
+ *
  * Revision 1.41  2004/01/28 13:25:40  j_novak
  * The ced_mult_r arguments have been suppressed from the Scalar::*dsd* methods.
  * In the div/mult _r_dzpuis, there is no more default value.
@@ -1035,6 +1038,16 @@ class Scalar : public Tensor {
    * @param params [input] the operators and variables to be used.
    **/
   Scalar sol_elliptic_no_zec(const Param_elliptic& params) const ;
+   
+  /**
+   * Resolution of a general elliptic equation fixing the dericative at 
+   * the origin and relaxing one continuity  condition.
+   * 
+   * @param val [input] value of the derivative.
+   * @param params [input] the operators and variables to be used.
+   **/
+  Scalar sol_elliptic_fixe_der_zero(double val, 
+				    const Param_elliptic& params) const ;
   
 	
   // Import from other mapping 

@@ -26,6 +26,9 @@ char map_af_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/01/28 16:46:23  p_grandclement
+ * Addition of the sol_elliptic_fixe_der_zero stuff
+ *
  * Revision 1.1  2003/12/11 14:48:48  p_grandclement
  * Addition of ALL (and that is a lot !) the files needed for the general elliptic solver ... UNDER DEVELOPEMENT...
  *
@@ -128,6 +131,59 @@ void Map_af::sol_elliptic_no_zec(const Param_elliptic& ope_var, const Scalar& so
   // Call to the Mtbl_cf version
   // ---------------------------
   Mtbl_cf resu = elliptic_solver_no_zec (ope_var, *(rho.c_cf)) ;
+  
+  // Final result returned as a Scalar
+  // ---------------------------------
+  
+  pot.set_etat_zero() ;  // to call Scalar::del_t().
+  
+  pot.set_etat_qcq() ; 
+  
+  pot.set_spectral_va() = resu ;
+  pot.set_spectral_va().ylm_i() ; // On repasse en base standard.	    
+  
+  pot.set_dzpuis(0) ; 
+}
+
+
+            //----------------------------------------------
+	   //	   General elliptic solver with no ZEC
+	  //----------------------------------------------
+
+void Map_af::sol_elliptic_fixe_der_zero (double valeur, 
+					 const Param_elliptic& ope_var, 
+					 const Scalar& source, 
+					 Scalar& pot) const {
+    
+  assert(source.get_etat() != ETATNONDEF) ; 
+  assert(source.get_mp().get_mg() == mg) ; 
+  assert(pot.get_mp().get_mg() == mg) ; 
+  
+  assert(source.check_dzpuis(2) || source.check_dzpuis(3) || 
+	 source.check_dzpuis(4)) ; 
+  // Spherical harmonic expansion of the source
+  // ------------------------------------------
+  
+  const Valeur& sourva = source.get_spectral_va() ; 
+  
+  if (sourva.get_etat() == ETATZERO) {
+    pot.set_etat_zero() ;
+    return ;  
+    }
+  
+  // Spectral coefficients of the source
+  assert(sourva.get_etat() == ETATQCQ) ; 
+  
+  Valeur rho(sourva.get_mg()) ; 
+  sourva.coef() ; 
+  rho = *(sourva.c_cf) ;	// copy of the coefficients of the source
+  
+  rho.ylm() ;			// spherical harmonic transforms 
+  
+  // Call to the Mtbl_cf version
+  // ---------------------------
+  valeur *= alpha[0] ;
+  Mtbl_cf resu = elliptic_solver_fixe_der_zero (valeur, ope_var, *(rho.c_cf)) ;
   
   // Final result returned as a Scalar
   // ---------------------------------

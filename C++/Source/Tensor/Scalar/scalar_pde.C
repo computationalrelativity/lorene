@@ -35,6 +35,9 @@ char scalar_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/01/28 16:46:24  p_grandclement
+ * Addition of the sol_elliptic_fixe_der_zero stuff
+ *
  * Revision 1.4  2004/01/14 10:11:51  f_limousin
  * Corrected bug in poisson with parameters.
  *
@@ -58,6 +61,7 @@ char scalar_pde_C[] = "$Header$" ;
 #include "param.h"
 #include "cmp.h"
 #include "param_elliptic.h"
+#include "scalar.h"
   
 		    //-----------------------------------//
 		    //      Scalar Poisson equation      //
@@ -175,6 +179,30 @@ Scalar Scalar::sol_elliptic_no_zec(const Param_elliptic& ope_var) const {
   res.set_etat_qcq() ;
   
   map_affine->sol_elliptic_no_zec (ope_var, *this, res) ;
+
+  return (res) ;
+}
+    
+		    //-----------------------------------//
+		    //      General elliptic equation	 //
+                    //             with continuity           //
+		    //-----------------------------------//
+
+Scalar Scalar::sol_elliptic_fixe_der_zero (double valeur, 
+					   const Param_elliptic& ope_var) const {
+
+  // Right now, only applicable with affine mapping
+  const Map_af* map_affine = dynamic_cast <const Map_af*> (mp) ;
+  
+  if (map_affine == 0x0) {
+    cout << "sol_elliptic_no_zec only defined for affine mapping" << endl ;
+    abort() ;
+  }
+  
+  Scalar res (*mp) ;
+  res.set_etat_qcq() ;
+  
+  map_affine->sol_elliptic_fixe_der_zero (valeur, ope_var, *this, res) ;
 
   return (res) ;
 }

@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2004/01/28 16:46:22  p_grandclement
+ * Addition of the sol_elliptic_fixe_der_zero stuff
+ *
  * Revision 1.20  2004/01/28 10:35:52  j_novak
  * Added new methods mult_r() for Scalars. These do not change the dzpuis flag.
  *
@@ -2015,6 +2018,19 @@ class Map_af : public Map_radial {
 	 **/
 	void sol_elliptic_no_zec (const Param_elliptic& params, 
 				  const Scalar& so, Scalar& uu) const ;
+	/**
+	 * General elliptic solver fixing the derivative at the origin 
+	 * and relaxing the continuity of the first derivative at the 
+	 * boundary between the nucleus and the first shell.
+	 *
+	 * @param val [input] : valeur of the derivative.
+	 * @param params [input] : the operators and variables to be uses.
+	 * @param so [input] : the source.
+	 * @param uu [output] : the solution.
+	 **/
+	void sol_elliptic_fixe_der_zero (double val, 
+					 const Param_elliptic& params, 
+					 const Scalar& so, Scalar& uu) const ;
 	
 	/** Computes the solution of a 2-D Poisson equation.
 	 *  The 2-D Poisson equation writes

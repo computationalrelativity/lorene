@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/01/28 16:46:22  p_grandclement
+ * Addition of the sol_elliptic_fixe_der_zero stuff
+ *
  * Revision 1.13  2004/01/15 09:15:36  p_grandclement
  * Modification and addition of the Helmholtz operators
  *
@@ -568,7 +571,7 @@ Mtbl_cf elliptic_solver  (const Param_elliptic&, const Mtbl_cf&) ;
 
 Mtbl_cf elliptic_solver_no_zec  (const Param_elliptic&, const Mtbl_cf&) ;
 
-Mtbl_cf elliptic_solver_no_zec_no_raccord  (double, 
+Mtbl_cf elliptic_solver_fixe_der_zero  (double, 
 					    const Param_elliptic&, 
 					    const Mtbl_cf&) ;
 
