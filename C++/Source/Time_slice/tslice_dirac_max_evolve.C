@@ -30,6 +30,10 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/05/31 09:09:59  e_gourgoulhon
+ * Added monitoring of khi and mu.
+ * Added writing of whole configuration in file (via Time_slice::save).
+ *
  * Revision 1.11  2004/05/24 20:58:05  e_gourgoulhon
  * Added graphical output of khi, mu and trh.
  *
@@ -130,6 +134,8 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
     Evolution_full<double> test_mom_constr_p ; 
     Evolution_full<Tbl> nn_monitor ;
     Evolution_full<Tbl> psi_monitor ;
+    Evolution_full<Tbl> khi_monitor ;
+    Evolution_full<Tbl> mu_monitor ;
     Evolution_full<Tbl> trh_monitor ;
     Evolution_full<Tbl> beta_monitor_maxabs ;
     Evolution_full<Tbl> hh_monitor_central ;
@@ -165,6 +171,12 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
                             jtime, the_time[jtime]) ; 
         
         psi_monitor.update(monitor_scalar(psi(), select_scalar), 
+                            jtime, the_time[jtime]) ; 
+        
+        khi_monitor.update(monitor_scalar(khi(), select_scalar), 
+                            jtime, the_time[jtime]) ; 
+        
+        mu_monitor.update(monitor_scalar(mu(), select_scalar), 
                             jtime, the_time[jtime]) ; 
         
         trh_monitor.update(monitor_scalar(trh(), select_scalar), 
@@ -236,6 +248,8 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
             m_adm.save("adm_mass.d") ; 
             nn_monitor.save("nn_monitor.d") ;
             psi_monitor.save("psi_monitor.d") ;
+            khi_monitor.save("khi_monitor.d") ;
+            mu_monitor.save("mu_monitor.d") ;
             trh_monitor.save("trh_monitor.d") ;
             beta_monitor_maxabs.save("beta_monitor_maxabs.d") ; 
             hh_monitor_central.save("hh_monitor_central.d") ; 
@@ -246,6 +260,9 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
             test_mom_constr_r.save("test_mom_constr_r.d") ; 
             test_mom_constr_t.save("test_mom_constr_t.d") ; 
             test_mom_constr_p.save("test_mom_constr_p.d") ; 
+            
+            save("sigma") ;
+            
         }
 
 
