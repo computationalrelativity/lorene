@@ -31,6 +31,10 @@ char eos_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/09/01 16:12:30  r_prix
+ * (hopefully) fixed seg-fault bug with my inconsistent treatment of eos-bifluid 'name'
+ * (was char-array, now char*)
+ *
  * Revision 1.13  2004/09/01 09:50:34  r_prix
  * adapted to change in read_variable() for strings
  *
@@ -118,7 +122,8 @@ char eos_bifluid_C[] = "$Header$" ;
 Eos_bifluid::Eos_bifluid() :
   m_1(1), m_2(1)
 {
-    set_name("") ; 
+  name = NULL;
+  set_name("") ; 
 }
 
 // Standard constructor with name and masses
@@ -126,7 +131,8 @@ Eos_bifluid::Eos_bifluid() :
 Eos_bifluid::Eos_bifluid(const char* name_i, double mass1, double mass2) :
   m_1(mass1), m_2(mass2)
 {
-    set_name(name_i) ; 
+  name = NULL;
+  set_name(name_i) ; 
 }
 
 // Copy constructor
@@ -134,16 +140,20 @@ Eos_bifluid::Eos_bifluid(const char* name_i, double mass1, double mass2) :
 Eos_bifluid::Eos_bifluid(const Eos_bifluid& eos_i) :
   m_1(eos_i.m_1), m_2(eos_i.m_2)
 {
-    set_name(eos_i.name) ; 
+  name = NULL;
+  set_name(eos_i.name) ; 
 }
 
 // Constructor from a binary file
 // ------------------------------
 Eos_bifluid::Eos_bifluid(FILE* fich)
 {
-    fread(name, sizeof(char), MAX_EOSNAME, fich) ;
-    fread_be(&m_1, sizeof(double), 1, fich) ;		
-    fread_be(&m_2, sizeof(double), 1, fich) ;	
+  char dummy [MAX_EOSNAME];
+  fread(dummy, sizeof(char),MAX_EOSNAME, fich) ;
+  name = (char*)MyMalloc(strlen(dummy)+1);
+  strcpy (name, dummy);
+  fread_be(&m_1, sizeof(double), 1, fich) ;		
+  fread_be(&m_2, sizeof(double), 1, fich) ;	
     
 }
 
@@ -152,15 +162,10 @@ Eos_bifluid::Eos_bifluid(FILE* fich)
 Eos_bifluid::Eos_bifluid(char *fname)
 {
   int res=0;
-  char *dummy = NULL;
-  res += read_variable (fname, "name", &dummy);
+  name = NULL;
+  res += read_variable (fname, "name", &name);
   res += read_variable (fname, "m_1", m_1);
   res += read_variable (fname, "m_2", m_2);
-
-  if (dummy != NULL)
-    name = dummy;
-  else
-    res = 1;
 
   if (res)
     {
@@ -177,10 +182,10 @@ the variables 'name', 'm_1, or 'm_2' from file " << fname << endl;
 			//  Destructor  //
 			//--------------//
 
-Eos_bifluid::~Eos_bifluid(){
-    
-    // does nothing
-        
+Eos_bifluid::~Eos_bifluid()
+{
+  if (name)
+    free (name);
 }
 
 			//--------------//
@@ -202,9 +207,13 @@ void Eos_bifluid::operator=(const Eos_bifluid& eosi) {
 			//-------------------------//
 			
 			
-void Eos_bifluid::set_name(const char* name_i) {
+void Eos_bifluid::set_name(const char* name_i) 
+{
+  if (name)
+    free (name);
 
-  strncpy(name, name_i,  100) ; 
+  name = (char*)MyMalloc (strlen(name_i) +1);
+  strcpy(name, name_i);
     
 }
 
@@ -218,19 +227,22 @@ const char* Eos_bifluid::get_name() const {
 			//  Outputs   //
 			//------------//
 
-void Eos_bifluid::sauve(FILE* fich) const {
+void Eos_bifluid::sauve(FILE* fich) const 
+{
+  char dummy [MAX_EOSNAME];
+  int ident = identify() ; 
 
-    int ident = identify() ; 
-    fwrite_be(&ident, sizeof(int), 1, fich) ;	
-    	
-    fwrite(name, sizeof(char), 100, fich) ;
-    fwrite_be(&m_1, sizeof(double), 1, fich) ;	
-    fwrite_be(&m_2, sizeof(double), 1, fich) ;	
+  fwrite_be(&ident, sizeof(int), 1, fich) ;	
+
+  strncpy (dummy, name, MAX_EOSNAME);
+  dummy[MAX_EOSNAME-1] = 0;
+  fwrite(dummy, sizeof(char), MAX_EOSNAME, fich );
+
+  fwrite_be(&m_1, sizeof(double), 1, fich) ;	
+  fwrite_be(&m_2, sizeof(double), 1, fich) ;	
    
 }
     
-
-
 
 ostream& operator<<(ostream& ost, const Eos_bifluid& eqetat)  {
     ost << eqetat.get_name() << endl ; 
