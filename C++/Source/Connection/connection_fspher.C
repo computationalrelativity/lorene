@@ -30,6 +30,11 @@ char connection_fspher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2004/01/29 15:21:21  e_gourgoulhon
+ * Method p_divergence: changed treatment of dzpuis.
+ * Methods p_derive_cov and p_divergence: add warning if all the input component
+ *  do not have the same dzpuis.
+ *
  * Revision 1.20  2004/01/28 13:25:40  j_novak
  * The ced_mult_r arguments have been suppressed from the Scalar::*dsd* methods.
  * In the div/mult _r_dzpuis, there is no more default value.
@@ -174,6 +179,7 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
     int valence1 = valence0 + 1 ; 
     int valence1m1 = valence1 - 1 ; // same as valence0, but introduced for 
                                     // the sake of clarity
+    int ncomp0 = uu.get_n_comp() ;
 	
     // Protections
     // -----------
@@ -222,11 +228,24 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
     // Determination of the dzpuis parameter of the result  --> dz_resu
     // ---------------------------------------------------
     int dz_in = 0 ;
-    for (int ic=0; ic<uu.get_n_comp(); ic++) {
+    for (int ic=0; ic<ncomp0; ic++) {
         int dzp = uu(uu.indices(ic)).get_dzpuis() ; 
         assert(dzp >= 0) ; 
         if (dzp > dz_in) dz_in = dzp ; 
     }
+        
+#ifndef NDEBUG
+    // Check : do all components have the same dzpuis ?
+    for (int ic=0; ic<ncomp0; ic++) {
+        if ( !(uu(uu.indices(ic)).check_dzpuis(dz_in)) ) {
+            cout << "######## WARNING #######\n" ; 
+            cout << "  Connection_fspher::p_derive_cov : the tensor components \n"
+            << "    do not have all the same dzpuis ! : \n" 
+            << "    ic, dzpuis(ic), dz_in : " << ic << "  " 
+            <<  uu(uu.indices(ic)).get_dzpuis() << "  " << dz_in << endl ; 
+        } 
+    }
+#endif
         
     int dz_resu = (dz_in == 0) ? 2 : dz_in + 1 ;
 
@@ -406,7 +425,8 @@ Tensor* Connection_fspher::p_divergence(const Tensor& uu) const {
     int valence1 = valence0 - 1 ; 
     int valence0m1 = valence0 - 1 ; // same as valence1 but introduced for 
                                     // the sake of clarity
-	
+    int ncomp0 = uu.get_n_comp() ;
+
     // Protections
     // -----------
     assert (valence0 >= 1) ;
@@ -473,6 +493,30 @@ Tensor* Connection_fspher::p_divergence(const Tensor& uu) const {
     Scalar tmp1(*mp) ;	// working scalar
     Scalar tmp2(*mp) ;	// working scalar
 
+    // Determination of the dzpuis parameter of the result  --> dz_resu
+    // ---------------------------------------------------
+    int dz_in = 0 ;
+    for (int ic=0; ic<ncomp0; ic++) {
+        int dzp = uu(uu.indices(ic)).get_dzpuis() ; 
+        assert(dzp >= 0) ; 
+        if (dzp > dz_in) dz_in = dzp ; 
+    }
+        
+#ifndef NDEBUG
+    // Check : do all components have the same dzpuis ?
+    for (int ic=0; ic<ncomp0; ic++) {
+        if ( !(uu(uu.indices(ic)).check_dzpuis(dz_in)) ) {
+            cout << "######## WARNING #######\n" ; 
+            cout << "  Connection_fspher::p_divergence : the tensor components \n"
+            << "    do not have all the same dzpuis ! : \n" 
+            << "    ic, dzpuis(ic), dz_in : " << ic << "  " 
+            <<  uu(uu.indices(ic)).get_dzpuis() << "  " << dz_in << endl ; 
+        } 
+    }
+#endif
+        
+    int dz_resu = (dz_in == 0) ? 2 : dz_in + 1 ;
+
     // Loop on all the components of the output tensor
     for (int ic=0; ic<ncomp1; ic++) {
 	
@@ -488,11 +532,6 @@ Tensor* Connection_fspher::p_divergence(const Tensor& uu) const {
 	    ind0.set(id) = ind1(id) ; 
         }
         ind0.set(valence0m1) = k ; 
-
-        // dzpuis of the result
-        //---------------------
-        int dz_in = uu(ind0).get_dzpuis() ;
-        int dz_resu = (dz_in == 0) ? 2 : dz_in + 1 ;
 
         cresu = uu(ind0).dsdr() ; //dT^{l r}/dr
 
