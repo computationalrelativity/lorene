@@ -30,6 +30,9 @@ char connection_fspher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/01 21:49:45  e_gourgoulhon
+ * First version of derive_cov --- not tested yet.
+ *
  * Revision 1.1  2003/10/01 15:42:49  e_gourgoulhon
  * still ongoing...
  *
@@ -99,10 +102,213 @@ void Connection_fspher::operator=(const Connection_fspher& ci) {
 
 
 
-Tensor Connection_fspher::derive_cov(const Tensor&) const {
+Tensor Connection_fspher::derive_cov(const Tensor& uu) const {
 
-	cout << "Connection_fspher::derive_cov: not implemented yet !" << endl ; 
-	abort() ; 
+	int valence0 = uu.get_valence() ; 
+	int ncomp0 = uu.get_n_comp() ;
+	
+	// Protections
+	// -----------
+	if (valence0 >= 1) {
+		assert(uu.get_triad() == triad) ; 
+	}
+
+	// Indices of the result
+	// ---------------------
+	Itbl tipe(valence0+1) ; 
+	tipe.set_etat_qcq() ; 
+	tipe.set(0) = COV ; 
+	const Itbl tipeuu = uu.get_index_type() ;  
+	for (int id = 1; id<=valence0; id++) {
+		tipe.set(id) = tipeuu(id-1) ; 
+	}
+
+	// Creation of the result tensor
+	// -----------------------------
+	Tensor resu(*mp, valence0+1, tipe, *triad) ;
+	
+	Itbl ind1(valence0+1) ; // working Itbl to store the indices of resu
+	ind1.set_etat_qcq() ; 
+	
+	Itbl ind0(valence0) ; // working Itbl to store the indices of uu
+	ind0.set_etat_qcq() ; 
+	
+	Itbl ind(valence0) ; // working Itbl to store the indices of uu
+	ind.set_etat_qcq() ; 
+	
+	Scalar tmp(*mp) ;	// working scalar
+
+	// Derivation index = r
+	// --------------------
+	int k = 1 ; 	
+
+	// Loop on all the components of the input tensor
+	for (int ic=0; ic<ncomp0; ic++) {
+	
+		// indices corresponding to the component no. ic in the input tensor
+		ind0 = uu.indices(ic) ; 
+		
+		// indices (k,ind0) in the output tensor
+		ind1.set(0) = k ; 
+		for (int id = 1; id<=valence0; id++) {
+			ind1.set(id) = ind0(id-1) ; 
+		}
+		
+		Scalar& cresu = resu.set(ind1) ; 
+		
+		cresu = (uu(ind0)).dsdr() ; 	// d/dr
+		
+		// all the connection coefficients Gamma^i_{jk} are zero for k=1
+	}
+
+
+
+	// Derivation index = theta
+	// ------------------------
+	k = 2 ; 	
+
+	// Loop on all the components of the input tensor
+	for (int ic=0; ic<ncomp0; ic++) {
+	
+		// indices corresponding to the component no. ic in the input tensor
+		ind0 = uu.indices(ic) ; 
+		
+		// indices (k,ind0) in the output tensor
+		ind1.set(0) = k ; 
+		for (int id = 1; id<=valence0; id++) {
+			ind1.set(id) = ind0(id-1) ; 
+		}
+		
+		Scalar& cresu = resu.set(ind1) ; 
+		
+		cresu = (uu(ind0)).srdsdt() ;  // 1/r d/dtheta 	
+		
+		// Loop on all the indices of uu
+		for (int id=0; id<valence0; id++) {
+		
+			switch ( ind0(id) ) {
+				
+				case 1 : {	// Gamma^r_{l theta} V^l 
+							// or -Gamma^l_{r theta} V_l 
+					ind = ind0 ; 
+					ind.set(id) = 2 ;   // l = theta
+					tmp = uu(ind) ; 
+					tmp.div_r() ; 
+					cresu -= tmp ; 
+					break ; 
+				}
+				
+				case 2 : {	// Gamma^theta_{l theta} V^l 
+							// or -Gamma^l_{theta theta} V_l
+					ind = ind0 ; 
+					ind.set(id) = 1 ;   // l = r
+					tmp = uu(ind) ; 
+					tmp.div_r() ; 
+					cresu += tmp ; 
+					break ; 
+				}
+				
+				case 3 : {	// Gamma^phi_{l theta} V^l 
+							// or -Gamma^l_{phi theta} V_l
+					break ; 
+				}
+				
+				default : {
+					cout << "Connection_fspher::derive_cov : index problem ! "
+					<< endl ; 
+					abort() ;  
+				}
+			}
+
+		}
+
+
+	}
+
+
+	// Derivation index = phi
+	// ----------------------
+	k = 3 ; 	
+
+	// Loop on all the components of the input tensor
+	for (int ic=0; ic<ncomp0; ic++) {
+	
+		// indices corresponding to the component no. ic in the input tensor
+		ind0 = uu.indices(ic) ; 
+		
+		// indices (k,ind0) in the output tensor
+		ind1.set(0) = k ; 
+		for (int id = 1; id<=valence0; id++) {
+			ind1.set(id) = ind0(id-1) ; 
+		}
+		
+		Scalar& cresu = resu.set(ind1) ; 
+		
+		cresu = (uu(ind0)).srstdsdp() ;  // 1/(r sin(theta)) d/dphi 	
+		
+		// Loop on all the indices of uu
+		for (int id=0; id<valence0; id++) {
+		
+			switch ( ind0(id) ) {
+				
+				case 1 : {	// Gamma^r_{l phi} V^l 
+							// or -Gamma^l_{r phi} V_l 
+					ind = ind0 ; 
+					ind.set(id) = 3 ;   // l = phi
+					tmp = uu(ind) ; 
+					tmp.div_r() ; 
+					cresu -= tmp ; 
+					break ; 
+				}
+				
+				case 2 : {	// Gamma^theta_{l phi} V^l 
+							// or -Gamma^l_{theta phi} V_l
+					ind = ind0 ; 
+					ind.set(id) = 3 ;   // l = phi
+					tmp = uu(ind) ; 
+					tmp.div_rsint() ; 
+					Valeur vtmp = (tmp.get_spectral_va()).mult_ct() ; 
+					tmp.set_spectral_va() = vtmp ; 
+					cresu -= tmp ; 
+					break ; 
+				}
+				
+				case 3 : {	// Gamma^phi_{l phi} V^l 
+							// or -Gamma^l_{phi phi} V_l
+							
+					ind = ind0 ; 
+
+					ind.set(id) = 1 ;   // l = r
+					tmp = uu(ind) ; 
+					tmp.div_r() ; 
+					cresu += tmp ; 
+
+					ind.set(id) = 2 ;   // l = theta
+					tmp = uu(ind) ; 
+					tmp.div_rsint() ; 
+					Valeur vtmp = (tmp.get_spectral_va()).mult_ct() ; 
+					tmp.set_spectral_va() = vtmp ; 
+					cresu += tmp ; 
+					break ; 
+				}
+				
+				default : {
+					cout << "Connection_fspher::derive_cov : index problem ! "
+					<< endl ; 
+					abort() ;  
+				}
+			}
+
+		}
+
+
+	}
+
+
+
+	// C'est fini !
+	// -----------
+	return resu ; 
 
 }
 
