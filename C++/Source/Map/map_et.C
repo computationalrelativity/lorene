@@ -29,6 +29,10 @@ char map_et_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/10/15 10:36:52  e_gourgoulhon
+ * In method fait_poly(): changed local variable name x to x1, not to shadow
+ *  Coord's x.
+ *
  * Revision 1.7  2003/07/07 20:01:43  p_grandclement
  * change assert in constructor for map_et from a surface
  *
@@ -545,6 +549,8 @@ void Map_et::set_coord(){
     // ... Coord's introduced by the base class Map_radial : 
     xsr.set(this, map_et_fait_xsr) ;
     dxdr.set(this, map_et_fait_dxdr) ;
+    drdt.set(this, map_et_fait_drdt) ;
+    stdrdp.set(this, map_et_fait_stdrdp) ;
     srdrdt.set(this, map_et_fait_srdrdt) ;
     srstdrdp.set(this, map_et_fait_srstdrdp) ;
     sr2drdt.set(this, map_et_fait_sr2drdt) ;
@@ -621,9 +627,9 @@ void Map_et::fait_poly() {
     
     for (int i=0; i<mg->get_nr(0); i++) {
 
-	double x =  (mg->get_grille3d(0))->x[i]  ;
-	double x2 = x * x ;
-	double x3 = x * x2 ; 
+	double x1 =  (mg->get_grille3d(0))->x[i]  ;
+	double x2 = x1 * x1 ;
+	double x3 = x1 * x2 ; 
 
 				//##...... A(x) = 2 x^2 - x^4 :	
 				//	(aa[0])->t[i] = x2 * (2. - x2) ;
@@ -635,7 +641,7 @@ void Map_et::fait_poly() {
 	//...... A(x) = 3 x^4 - 2 x^6 :	
 
 	aa[0]->set(i) = x2 * x2 * (3. - 2.*x2) ;
-	daa[0]->set(i) = 12. * x3 * (1. + x) * (1. - x)  ;
+	daa[0]->set(i) = 12. * x3 * (1. + x1) * (1. - x1)  ;
 	ddaa[0]->set(i) = 12. *x2 *(3. - 5.* x2)  ;
 	aasx.set(i) = x3 * (3. - 2.*x2) ;
 	aasx2.set(i) = x2 * (3. - 2.*x2) ;
@@ -643,10 +649,10 @@ void Map_et::fait_poly() {
 	//... B(x) = 5/2 x^3 - 3/2 x^5   :  
 
 	bb[0]->set(i) = 0.5 * x3 * (5. - 3.* x2) ; 
-	dbb[0]->set(i) = 7.5 * x2 * (1. + x) * (1. - x) ;
-	ddbb[0]->set(i) =  15. * x * ( 1. - 2.*x2 )   ;
+	dbb[0]->set(i) = 7.5 * x2 * (1. + x1) * (1. - x1) ;
+	ddbb[0]->set(i) =  15. * x1 * ( 1. - 2.*x2 )   ;
 	bbsx.set(i) = 0.5 * x2 * (5. - 3.* x2) ;
-	bbsx2.set(i) = 0.5 * x * (5. - 3.* x2) ;
+	bbsx2.set(i) = 0.5 * x1 * (5. - 3.* x2) ;
     }
     
     // Values in the shells and the outermost domain
@@ -666,21 +672,21 @@ void Map_et::fait_poly() {
 	
 	for (int i=0; i<mg->get_nr(l); i++) {
 
-	    double x = (mg->get_grille3d(l))->x[i] ;
-	    double xm1 = x - 1. ; 
-	    double xp1 = x + 1. ; 
+	    double x1 = (mg->get_grille3d(l))->x[i] ;
+	    double xm1 = x1 - 1. ; 
+	    double xp1 = x1 + 1. ; 
 
 	    //... A(x) = 1/4 (x-1)^2 (x+2) = 1/4(x^3 -3x +2)  : 
 
-	    aa[l]->set(i) = 0.25* xm1 * xm1 * (x + 2.) ;
+	    aa[l]->set(i) = 0.25* xm1 * xm1 * (x1 + 2.) ;
 	    daa[l]->set(i) = 0.75* xm1 * xp1  ;
-	    ddaa[l]->set(i) = 1.5* x ;
+	    ddaa[l]->set(i) = 1.5* x1 ;
 
 	    //... B(x) = 1/4 (x+1)^2 (-x+2) = 1/4(-x^3 +3x +2)   : 
 
-	    bb[l]->set(i) = 0.25* xp1 * xp1 * (2. - x) ;
+	    bb[l]->set(i) = 0.25* xp1 * xp1 * (2. - x1) ;
 	    dbb[l]->set(i) = - 0.75* xm1 * xp1  ;
-	    ddbb[l]->set(i) = - 1.5* x  ;
+	    ddbb[l]->set(i) = - 1.5* x1  ;
 	}
 
     }	    // End of the loop onto the domains
@@ -696,9 +702,9 @@ void Map_et::fait_poly() {
 	
 	for (int i=0; i<mg->get_nr(nzm1); i++) {
 	    
-	    double x = (mg->get_grille3d(nzm1))->x[i] ; 
-	    zaasx.set(i) = 0.25 * (x - 1.) * (2. + x) ;	    // A(x)/(x-1)
-	    zaasx2.set(i) = 0.25 * (2. + x) ;		    // A(x)/(x-1)^2
+	    double x1 = (mg->get_grille3d(nzm1))->x[i] ; 
+	    zaasx.set(i) = 0.25 * (x1 - 1.) * (2. + x1) ;	    // A(x)/(x-1)
+	    zaasx2.set(i) = 0.25 * (2. + x1) ;		    // A(x)/(x-1)^2
 	    
 	}
 	
