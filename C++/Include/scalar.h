@@ -38,6 +38,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2003/10/05 21:06:31  e_gourgoulhon
+ * - Added new methods div_r_ced() and div_rsint_ced().
+ * - Added new virtual method std_spectral_base()
+ * - Removed method std_spectral_base_scal()
+ *
  * Revision 1.14  2003/10/01 13:02:58  e_gourgoulhon
  * Suppressed the constructor from Map* .
  *
@@ -423,6 +428,12 @@ class Scalar : public Tensor {
   const Scalar& laplacien(int zec_mult_r = 4) const ; 
   
   void div_r() ;    /// Division by {\it r} everywhere.
+ 
+  /** Division by {\it r} everywhere but with the flag {\tt dzpuis}
+   * increased by 2 units. This means that a multiplication by {\it r},
+   * instead of a division, is performed in the CED.
+   */
+  void div_r_ced() ; 
   
   void mult_r() ;   /// Multiplication by {\it r} everywhere.
   
@@ -433,6 +444,12 @@ class Scalar : public Tensor {
   void mult_rsint() ;   /// Multiplication by $r\sin\theta$
   
   void div_rsint() ;    /// Division by $r\sin\theta$
+  
+  /** Division by $r\sin\theta$ but with the flag {\tt dzpuis}
+   * increased by 2 units. This means that a division by $\sin\theta/r$
+   * is performed in the CED.
+   */
+  void div_rsint_ced() ; 
   
   /** Computes the integral over all space of {\tt *this}.
    *  The computed quantity is ({\it u} being the field represented by
@@ -564,7 +581,7 @@ class Scalar : public Tensor {
   /** Sets the spectral bases of the {\tt Valeur va} to the standard ones 
    *  for a scalar field
    */
-  void std_spectral_base_scal() ;	 
+  virtual void std_spectral_base() ;	 
 
   /** Sets the spectral bases of the {\tt Valeur va} 
    */
