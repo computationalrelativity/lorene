@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/03/23 09:53:50  f_limousin
+ * Minor changes
+ *
  * Revision 1.7  2004/02/27 09:41:52  f_limousin
  * Scalars ssjm1_logn, ssjm1_qq ... for all metric coefficients have been
  * in class Star_bin for the resolution of Poisson equations.
@@ -554,6 +557,9 @@ class Star_bin : public Star {
 	 */
 	Scalar ssjm1_mu ;
 
+	Vector ssjm1_wshift ;
+	
+
 	/** Effective source at the previous step for the resolution of 
 	 *  the Poisson equation for {\tt h00\_auto}.
 	 */
@@ -855,17 +861,14 @@ class Star_bin : public Star {
 	/** Function used to update {\tt qq\_auto} and {\tt logn\_auto}
 	 *  at the beginning of coal. 
 	 */
-	void update_metric_init1(const Star_bin& comp) ;
+	void update_metric_init1() ;
 
 	/** Function used to update {\tt qq\_auto} and {\tt logn\_auto}
 	 *  at the beginning of coal. 
 	 */
 	void update_metric_init2(const Star_bin& comp) ;
 
-	/** Function used to update {\tt qq\_auto} and {\tt logn\_auto}
-	 *  at the beginning of coal. 
-	 */
-	void update_metric_init3() ;
+	void update_decouple(const Star_bin& comp) ;
 
 	/** Same as {\tt update\_metric(const Star\_bin\& )} but with
 	 *  relaxation.
