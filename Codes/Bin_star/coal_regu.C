@@ -30,8 +30,13 @@ char coal_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:31  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/12/11 14:16:14  k_taniguchi
+ * Return type of main changed from 'void' to 'int'.
+ * Add "thres_adapt" to star 2
+ *   and modify the part of "resize".
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:31  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.3  2001/08/07  09:54:27  keisuke
  * Change of the argument in Etoile_bin::equil_regular.
@@ -70,7 +75,7 @@ Cmp raccord_c1(const Cmp& uu, int l1) ;
 
 //******************************************************************************
 
-void main(){
+int main(){
 
     // Identification of all the subroutines called by the code : 
     
@@ -95,7 +100,7 @@ void main(){
     int mermax_potvit, mer_masse, fmer_upd_met, ind_rel_met ;  
     double seuil, relax_poisson, relax_potvit, relax, aexp_masse ; 
     double mbar_voulue[2], fact_separ, relax_met, relax_omeg ;
-    double fact_omeg_min, fact_omeg_max, thres_adapt ; 
+    double fact_omeg_min, fact_omeg_max, thres_adapt[2] ; 
     
     ifstream fpar("parcoal.d") ;
     fpar.getline(blabla, 120) ;
@@ -128,7 +133,8 @@ void main(){
     fpar >> relax_omeg ; fpar.getline(blabla, 120);
     fpar >> fact_omeg_min ; fpar.getline(blabla, 120);
     fpar >> fact_omeg_max ; fpar.getline(blabla, 120);
-    fpar >> thres_adapt ; fpar.getline(blabla, 120);
+    fpar >> thres_adapt[0] ; fpar.getline(blabla, 120);
+    fpar >> thres_adapt[1] ; fpar.getline(blabla, 120);
     fpar.close() ; 
     
     cout << endl 
@@ -189,8 +195,11 @@ void main(){
     cout << "Relative high bound in the omega search : " 
 	 << fact_omeg_max << endl ; 
     cout << 
-    "Threshold on |dH/dr|_eq / |dH/dr|_pole for the adaptation of the mapping"
-    << endl << thres_adapt << endl ; 
+    "Threshold on |dH/dr|_eq / |dH/dr|_pole for the adaptation of the mapping for star 1"
+    << endl << thres_adapt[0] << endl ;
+    cout << 
+    "Threshold on |dH/dr|_eq / |dH/dr|_pole for the adaptation of the mapping for star 2"
+    << endl << thres_adapt[1] << endl ;
 
     arrete(prompt) ; 
     
@@ -644,9 +653,21 @@ void main(){
 	// Computation of the resizing factor
 	double ray_eq_auto = star(i).ray_eq() ;
 	double ray_eq_comp = star(3-i).ray_eq() ;
+
+	int num_resize ;
+
+	if (mg1.get_nzone() > 3) {
+	  assert( mg2.get_nzone() == mg1.get_nzone() ) ;
+	  num_resize = mg1.get_nzone() -3 ;
+	}
+	else {
+	  num_resize = star(i).get_nzet() ;
+	}
+
 	double lambda_resize = 0.95 *
 	  (star.separation() - ray_eq_comp)/ray_eq_auto ;
-	fact_resize[i-1].set(0) = (lambda_resize < 2.) ? lambda_resize : 2. ;
+	fact_resize[i-1].set(0) =
+	  (lambda_resize < 2.*num_resize) ? lambda_resize : 2.*num_resize ;
 
     }
 
@@ -671,7 +692,7 @@ void main(){
 
 	(star.set(i)).equil_regular(ent_c[i-1], mermax_eqb, mermax_poisson, 
 				    relax_poisson, mermax_potvit,
-				    relax_potvit, thres_adapt,
+				    relax_potvit, thres_adapt[i-1],
 				    fact_resize[i-1], differ[i-1]) ;
 
     }
@@ -985,5 +1006,7 @@ void main(){
 
     delete peos1 ;    
     delete peos2 ;    
+
+    return EXIT_SUCCESS ;
 
 }
