@@ -28,6 +28,10 @@ char simple_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/27 21:19:12  e_gourgoulhon
+ * Benefits from the fact that now derive_cov applied to a scalar
+ * returns a reference on a Vector (treatment of dpot).
+ *
  * Revision 1.2  2004/02/16 13:00:00  e_gourgoulhon
  * Added the C headers (not required by GNU g++ !!!).
  *
@@ -149,7 +153,7 @@ int main() {
     Metric_flat mets(map, map.get_bvect_spher()) ; // spherical representation
     Metric_flat metc(map, map.get_bvect_cart()) ;  // Cartesian representation
 
-    Vector dpot = pot.derive_cov(metc) ; 
+    const Vector& dpot = pot.derive_cov(metc) ; 
     
     // des_coupe_vect_z(dpot, 0., -2., 0.5, 2, "Gradient of potential") ; 
 
