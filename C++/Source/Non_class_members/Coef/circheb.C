@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2002 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -86,6 +86,10 @@ char circheb_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/09/09 14:04:22  e_gourgoulhon
+ *
+ * Correction of an error : fft991_  ->  F77_fft991
+ *
  * Revision 1.2  2002/09/09 13:00:40  e_gourgoulhon
  * Modification of declaration of Fortran 77 prototypes for
  * a better portability (in particular on IBM AIX systems):
@@ -258,7 +262,7 @@ int i, j, k ;
 //---------------------------------------
 
 // FFT inverse
-    	    fft991_( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
+    	    F77_fft991( g, t1, trigo, facto, &inc, &jump, &nm1, &lot, &isign) ;
 
 // Valeurs de f deduites de celles de G
 //-------------------------------------
