@@ -33,6 +33,9 @@ char param_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/09/25 12:08:03  j_novak
+ * Tensors can be stored in Param objects
+ *
  * Revision 1.3  2002/10/16 14:37:12  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -84,10 +87,8 @@ char param_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "param.h"
-#include "tbl.h"
-#include "itbl.h"
-#include "cmp.h"
 #include "qtenseur.h"
+#include "tensor.h"
 
 			//------------------------//
 			//	Constructor	  //
@@ -109,6 +110,8 @@ Param::Param() : n_int(0),
 		 n_qtenseur_mod(0), 
 		 n_map(0), 
 		 n_mtbl_cf(0), 
+		 n_tensor(0),
+		 n_tensor_mod(0),
 		 n_etoile(0)
 		 {}
 
@@ -135,6 +138,8 @@ Param::~Param(){
     if (n_qtenseur_mod > 0) delete [] p_qtenseur_mod ; 
     if (n_map > 0)  delete [] p_map ; 
     if (n_mtbl_cf > 0)  delete [] p_mtbl_cf ; 
+    if (n_tensor > 0) delete [] p_tensor ; 
+    if (n_tensor_mod > 0) delete [] p_tensor_mod ; 
     if (n_etoile > 0)  delete [] p_etoile ; 
 
 }
@@ -185,6 +190,12 @@ void Param::clean_all() {
     if (p_qtenseur_mod[i] != 0x0) {
       delete p_qtenseur_mod[i] ;
       p_qtenseur_mod[i] = 0x0 ;
+    }
+
+  for (int i=0; i<n_tensor_mod; i++) 
+    if (p_tensor_mod[i] != 0x0) {
+      delete p_tensor_mod[i] ;
+      p_tensor_mod[i] = 0x0 ;
     }
 }
 
@@ -1292,6 +1303,143 @@ const Mtbl_cf& Param::get_mtbl_cf(int index) const {
 
 } 
 		    
+		    //------------------------------------//
+		    //		Tensor storage		  //
+		    //------------------------------------//
+
+// Total number of stored addresses
+// --------------------------------
+
+int Param::get_n_tensor() const {
+    return n_tensor ; 
+}
+
+// Addition  
+// --------
+		    
+void Param::add_tensor(const Tensor& ti, int index){
+    
+	if (index >= n_tensor) {    // p_tensor must be rescaled
+	    	    
+	    int n_tensor_nouveau = index + 1 ; 
+	    const Tensor** p_tensor_nouveau = new const Tensor*[n_tensor_nouveau] ; 
+	    
+	   
+	    // Copy of the previous addresses  
+	    for (int i=0; i<n_tensor; i++) {
+		p_tensor_nouveau[i] = p_tensor[i] ; 
+	    }
+	    
+	    // The intermediate addresses are set to 0x0
+	    for (int i=n_tensor; i<index; i++) {
+		p_tensor_nouveau[i] = 0x0 ; 
+	    }
+	    
+	    // The new address 
+	    p_tensor_nouveau[index] = &ti ; 
+	    
+	    // Update 
+	    if (n_tensor > 0) delete [] p_tensor ; 
+	    p_tensor = p_tensor_nouveau ; 
+	    n_tensor = n_tensor_nouveau ; 
+	    
+	}
+	else {
+	
+	    if (p_tensor[index] != 0x0) {
+		cout << "Param::add_tensor : the position " << index 
+		     << " is already occupied !" << endl ; 
+		abort() ; 
+	    }
+	    else{
+		p_tensor[index] = &ti ; 
+	    }
+	    
+	}   
+    
+}
+
+// Extraction 
+// ----------
+		    
+const Tensor& Param::get_tensor(int index) const {
+
+    assert(index >= 0) ;
+    assert(index < n_tensor) ; 
+    
+    return *(p_tensor[index]) ; 
+
+} 
+		    
+
+		    //------------------------------------//
+		    //	    Modifiable Tensor storage	  //
+		    //------------------------------------//
+
+// Total number of stored addresses
+// --------------------------------
+
+int Param::get_n_tensor_mod() const {
+    return n_tensor_mod ; 
+}
+
+// Addition  
+// --------
+		    
+void Param::add_tensor_mod(Tensor& ti, int index){
+    
+	if (index >= n_tensor_mod) {    // p_tensor_mod must be rescaled
+	    	    
+	    int n_tensor_nouveau = index + 1 ; 
+	    Tensor** p_tensor_nouveau = new Tensor*[n_tensor_nouveau] ; 
+	    
+	   
+	    // Copy of the previous addresses  
+	    for (int i=0; i<n_tensor_mod; i++) {
+		p_tensor_nouveau[i] = p_tensor_mod[i] ; 
+	    }
+	    
+	    // The intermediate addresses are set to 0x0
+	    for (int i=n_tensor_mod; i<index; i++) {
+		p_tensor_nouveau[i] = 0x0 ; 
+	    }
+	    
+	    // The new address 
+	    p_tensor_nouveau[index] = &ti ; 
+	    
+	    // Update 
+	    if (n_tensor_mod > 0) delete [] p_tensor_mod ; 
+	    p_tensor_mod = p_tensor_nouveau ; 
+	    n_tensor_mod = n_tensor_nouveau ; 
+	    
+	}
+	else {
+	
+	    if (p_tensor_mod[index] != 0x0) {
+		cout << "Param::add_tensor_mod : the position " << index 
+		     << " is already occupied !" << endl ; 
+		abort() ; 
+	    }
+	    else{
+		p_tensor_mod[index] = &ti ; 
+	    }
+	    
+	}   
+    
+}
+
+// Extraction 
+// ----------
+		    
+Tensor& Param::get_tensor_mod(int index) const {
+
+    assert(index >= 0) ;
+    assert(index < n_tensor_mod) ; 
+    
+    return *(p_tensor_mod[index]) ; 
+
+} 
+
 
 		    //------------------------------------//
 		    //		Etoile storage		  //

@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/09/25 12:08:02  j_novak
+ * Tensors can be stored in Param objects
+ *
  * Revision 1.3  2002/10/16 14:36:29  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -330,8 +333,3 @@ class Qmetrique {
 ostream& operator<<(ostream& , const Qmetrique & ) ; 
 
 #endif
-
-
-
-
-

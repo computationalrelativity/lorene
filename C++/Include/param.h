@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/09/25 12:08:02  j_novak
+ * Tensors can be stored in Param objects
+ *
  * Revision 1.2  2002/09/19 09:52:42  j_novak
  * Added objects Qtenseur and Qmetrique for 4D tensor and metric handling.
  *
@@ -87,6 +90,7 @@ class Map ;
 class Cmp ; 
 class Tenseur ;
 class Qtenseur ;
+class Tensor ;
 class Etoile ;
 
 /** Parameter storage.
@@ -165,6 +169,14 @@ class Param {
 	/// Array (size {\tt n\_mtbl\_cf}) of the {\tt Mtbl\_cf}'s addresses
 	const Mtbl_cf** p_mtbl_cf ;	
     
+	int n_tensor ;	/// Number of {\tt Tensor}'s 
+	/// Array (size {\tt n\_tensor}) of the {\tt Tensor}'s addresses
+	const Tensor** p_tensor ;	
+    
+	int n_tensor_mod ;	/// Number of modifiable {\tt Tensor}'s 
+	/// Array (size {\tt n\_tensor\_mod}) of the modifiable {\tt Tensor}'s addresses
+	Tensor** p_tensor_mod ;
+	
 	int n_etoile ;	/// Number of {\tt Etoile}'s
 	/// Array (size {\tt n\_etoile}) of the {\tt Etoile}'s addresses
 	const Etoile** p_etoile ;	
@@ -599,6 +611,53 @@ class Param {
 	 */
 	const Mtbl_cf& get_mtbl_cf(int position = 0) const; 
 	
+	///Returns the number of {\tt Tensor}'s addresses in the list.
+	int get_n_tensor() const ; 
+    
+	/** Adds the address of a new {\tt Tensor} to the list.
+	 * 
+	 *  @param ti [input] {\tt Tensor} the address of which is to be stored
+	 *  @param position [input] position of the {\tt Tensor} in the list
+	 *			    of stored {\tt Tensor} addresses (default
+	 *			    value = 0)
+	 * 
+	 */
+	void add_tensor(const Tensor& ti, int position = 0) ;
+	
+	/** Returns the reference of a {\tt Tensor} stored in the list.
+	 * 
+	 *  @param position [input] position of the {\tt Tensor} in the list
+	 *			    of stored {\tt Tensor} addresses (default
+	 *			    value = 0)
+	 *  @return Reference to the {\tt Tensor} the address of which is stored at 
+	 *		    the location  {\tt position} in the list
+	 */
+	const Tensor& get_tensor(int position = 0) const; 
+	
+
+	///Returns the number of modifiable {\tt Tensor}'s addresses in the list.
+	int get_n_tensor_mod() const ; 
+    
+	/** Adds the address of a new modifiable {\tt Tensor} to the list.
+	 * 
+	 *  @param ti [input] modifiable {\tt Tensor} the address of which is 
+	 *                    to be stored
+	 *  @param position [input] position of the {\tt Tensor} in the list
+	 *			    of stored modifiable {\tt Tensor} addresses 
+	 *                          (default value = 0)
+	 */
+	void add_tensor_mod(Tensor& ti, int position = 0) ;
+	
+	/** Returns the reference of a modifiable {\tt Tensor} stored in the list.
+	 * 
+	 *  @param position [input] position of the {\tt Tensor} in the list
+	 *			    of stored modifiable {\tt Tensor} addresses 
+	 *                          (default value = 0)
+	 *  @return Reference to the modifiable {\tt Tensor} the address of 
+	 *           which is stored at  the location  {\tt position} in the 
+	 *           list
+	 */
+	 Tensor& get_tensor_mod(int position = 0) const; 
 	///Returns the number of {\tt Etoile}'s addresses in the list.
 	int get_n_etoile() const ;
 
