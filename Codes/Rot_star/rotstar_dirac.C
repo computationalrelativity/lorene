@@ -31,6 +31,9 @@ char rotstar_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/03/10 09:38:35  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.1  2005/01/31 09:10:06  j_novak
  * Main code for rotating stars in Dirac gauge.
  *
@@ -274,6 +277,8 @@ int main(){
 
     cout << endl << "Initial star : " 
 	 << endl << "============   " << endl ;
+
+    cout << star.get_gamma() ;
 
     cout << star << endl ; 
      
