@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/01/20 09:31:56  f_limousin
+ * Modification of the standard constructor
+ *
  * Revision 1.2  2003/01/14 14:13:25  f_limousin
  * Binary NS with Nonconformally flat metric.
  *
@@ -90,7 +93,7 @@ class Et_bin_ncp : public Etoile_bin {
 	 */
          Et_bin_ncp(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
 		    bool irrot, const Base_vect& ref_triad_i, 
-		    const Metrique& flat_i) ;
+		    const Metrique& flat_i,const Tenseur_sym &source) ;
 		  
         Et_bin_ncp(const Et_bin_ncp& ) ;		/// Copy constructor
 
