@@ -32,8 +32,12 @@ char map_et_poisson2d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/02/07 14:55:58  e_gourgoulhon
+ * Corrected a bug when the source is known only in the coefficient
+ * space.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.4  2000/11/07  14:21:03  eric
  * Correction d'une erreur dans le cas T_SIN_I (calcul de R(u)).
@@ -159,8 +163,11 @@ void Map_et::poisson2d(const Cmp& source_mat, const Cmp& source_quad,
     saff_q.import( nzm1, set_q ) ; 
     (saff_q.va).set_base( (set_q.va).base ) ; 
 
-    // Copy in the external domain : 
+    // Copy in the external domain :
     if ( (set_q.va).get_etat() == ETATQCQ) {
+        (set_q.va).coef_i() ; // the values in configuration space are required
+        assert(   (set_q.va).c->get_etat() == ETATQCQ ) ;
+        assert(  (saff_q.va).c->get_etat() == ETATQCQ ) ;
 	*( (saff_q.va).c->t[nzm1] ) = *( (set_q.va).c->t[nzm1] ) ;
     }
 
