@@ -30,8 +30,11 @@ char source_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/09/28 16:08:26  f_limousin
+ * Minor modifs.
+ *
  * Revision 1.2  2004/09/09 16:55:08  f_limousin
- * Add the 2 lines $Id: and $Log: for CVS
+ * Add the 2 lines $Id$Log: for CVS
  *
  *
  * $Header$
@@ -54,17 +57,15 @@ char source_hor_C[] = "$Header$" ;
 #include "graphique.h"
 #include "utilitaires.h"
 
-Scalar Isol_hor::source_psi_hor( const Scalar* p_ener_dens, const Vector* p_mom_dens, 
-                const Scalar* p_trace_stress) {
+Scalar Isol_hor::source_psi_hor( const Scalar* p_ener_dens, 
+				 const Vector* p_mom_dens, 
+				 const Scalar* p_trace_stress) {
 
     using namespace Unites ;
    
 
     // Initialisations
     // ---------------
-    //    double ttime = the_time[jtime] ; 
-         
-    //    trk_evol.update(trk_in, jtime, ttime) ; 
 
     const Map& map = ff.get_mp() ; 
     const Base_vect& triad = *(ff.get_triad()) ;
@@ -72,16 +73,6 @@ Scalar Isol_hor::source_psi_hor( const Scalar* p_ener_dens, const Vector* p_mom_
     Scalar tmp(map) ;
     Scalar tmp_scal(map) ; 
     Sym_tensor tmp_sym(map, CON, triad) ;
-
-
-    // Reset of quantities depending on K:
-    //    k_dd_evol.downdate(jtime) ; 
-    //    k_uu_evol.downdate(jtime) ; 
-
-    //    tmp_sym = ( beta().ope_killing_conf(tgam()) + uu ) 
-    //                                / (2.* nn()) ; 
-        
-    //    set_aa(uu / (2.* nn()) ) ; // porque beta es cero, supongo
 
     Scalar ener_dens(map) ; 
     if (p_ener_dens != 0x0) ener_dens = *(p_ener_dens) ; 
@@ -103,16 +94,10 @@ Scalar Isol_hor::source_psi_hor( const Scalar* p_ener_dens, const Vector* p_mom_
     //===============================================
     
     const Vector& dpsi = psi().derive_cov(ff) ;       // D_i Psi
-    //    const Vector& dln_psi = ln_psi().derive_cov(ff) ; // D_i ln(Psi)
-    //    const Vector& dnn = nn().derive_cov(ff) ;         // D_i N
-    
+     
     Sym_tensor taa = aa().up_down(tgam()) ; 
         
     Scalar aa_quad = contract(taa, 0, 1, aa(), 0, 1) ; 
-
-    //    cout<<"Dzpuis de aa_quad:   "<<aa_quad.get_dzpuis() <<endl ;
-        
-    //    arrete() ;
 
     // Source for Psi 
     // --------------
@@ -125,41 +110,30 @@ Scalar Isol_hor::source_psi_hor( const Scalar* p_ener_dens, const Vector* p_mom_
     source_psi = tmp - psi()*psi4()* ( 0.5*qpig* ener_dens 
 				       + 0.125* aa_quad 
 				       - 8.33333333333333e-2* trk()*trk() ) ;
+    source_psi.annule_domain(0) ;
 
     return source_psi ;
 
 }
 
 
-Scalar Isol_hor::source_nn_hor( const Scalar& trk_point, const Scalar* p_ener_dens, const Vector* p_mom_dens, 
-                const Scalar* p_trace_stress) {
+Scalar Isol_hor::source_nn_hor( const Scalar& trk_point, 
+				const Scalar* p_ener_dens, 
+				const Vector* p_mom_dens, 
+				const Scalar* p_trace_stress) {
 
     using namespace Unites ;
    
 
     // Initialisations
     // ---------------
-    //    double ttime = the_time[jtime] ; 
-         
-    //    trk_evol.update(trk_in, jtime, ttime) ; 
-
+ 
     const Map& map = ff.get_mp() ; 
     const Base_vect& triad = *(ff.get_triad()) ;
     
     Scalar tmp(map) ;
     Scalar tmp_scal(map) ; 
     Sym_tensor tmp_sym(map, CON, triad) ;
-
-
-
-    // Reset of quantities depending on K:
-    //    k_dd_evol.downdate(jtime) ; 
-    //    k_uu_evol.downdate(jtime) ; 
-
-    //    tmp_sym = ( beta().ope_killing_conf(tgam()) + uu ) 
-    //                                / (2.* nn()) ; 
-        
-    //    set_aa(uu / (2.* nn()) ) ; // porque beta es cero, supongo
 
     Scalar ener_dens(map) ; 
     if (p_ener_dens != 0x0) ener_dens = *(p_ener_dens) ; 
@@ -180,7 +154,6 @@ Scalar Isol_hor::source_nn_hor( const Scalar& trk_point, const Scalar* p_ener_de
     //  Computations of the source for NN 
     //===============================================
     
-    //    const Vector& dpsi = psi().derive_cov(ff) ;       // D_i Psi
     const Vector& dln_psi = ln_psi().derive_cov(ff) ; // D_i ln(Psi)
     const Vector& dnn = nn().derive_cov(ff) ;         // D_i N
     
@@ -190,16 +163,12 @@ Scalar Isol_hor::source_nn_hor( const Scalar& trk_point, const Scalar* p_ener_de
 
     // Source for N 
     // ------------
-        
-    //    tmp_scal = 0.3333333333333333* trk()*trk() ;
-    //    tmp_scal.inc_dzpuis(4) ;
-    
 
     source_nn = psi4()*( nn()*( qpig* (ener_dens + trace_stress) + aa_quad
-				- 0.3333333333333333* trk()*trk() )
+				+ 0.3333333333333333* trk()*trk() )
 			 - trk_point ) 
-      - 2.* contract(dln_psi, 0, nn().derive_con(tgam()), 0)  
-      - contract(hdirac(), 0, dnn, 0) ; 
+	     - 2.* contract(dln_psi, 0, nn().derive_con(tgam()), 0)  
+    - contract(hdirac(), 0, dnn, 0) ; 
         
     tmp = psi4()* contract(beta(), 0, trk().derive_cov(ff), 0) 
       - contract( hh(), 0, 1, dnn.derive_cov(ff), 0, 1 ) ;
@@ -208,6 +177,7 @@ Scalar Isol_hor::source_nn_hor( const Scalar& trk_point, const Scalar* p_ener_de
         
     source_nn += tmp ;
 
+    source_nn.annule_domain(0) ;
 
     return source_nn ;
 
@@ -215,17 +185,15 @@ Scalar Isol_hor::source_nn_hor( const Scalar& trk_point, const Scalar* p_ener_de
 
 
 
-Vector Isol_hor::source_beta_hor( const Scalar* p_ener_dens, const Vector* p_mom_dens, 
-                const Scalar* p_trace_stress) {
+Vector Isol_hor::source_beta_hor( const Scalar* p_ener_dens, 
+				  const Vector* p_mom_dens, 
+				  const Scalar* p_trace_stress) {
 
     using namespace Unites ;
    
 
     // Initialisations
     // ---------------
-    //    double ttime = the_time[jtime] ; 
-         
-    //    trk_evol.update(trk_in, jtime, ttime) ; 
 
     const Map& map = ff.get_mp() ; 
     const Base_vect& triad = *(ff.get_triad()) ;
@@ -234,17 +202,6 @@ Vector Isol_hor::source_beta_hor( const Scalar* p_ener_dens, const Vector* p_mom
     Scalar tmp_scal(map) ; 
     Sym_tensor tmp_sym(map, CON, triad) ;
     Vector tmp_vect(map, CON, triad) ;
-
-
-
-    // Reset of quantities depending on K:
-    //    k_dd_evol.downdate(jtime) ; 
-    //    k_uu_evol.downdate(jtime) ; 
-
-    //    tmp_sym = ( beta().ope_killing_conf(tgam()) + uu ) 
-    //                                / (2.* nn()) ; 
-        
-    //    set_aa(uu / (2.* nn()) ) ; // porque beta es cero, supongo
 
     Scalar ener_dens(map) ; 
     if (p_ener_dens != 0x0) ener_dens = *(p_ener_dens) ; 
@@ -265,8 +222,7 @@ Vector Isol_hor::source_beta_hor( const Scalar* p_ener_dens, const Vector* p_mom
     //  Computations of the source for beta 
     //===============================================
     
-    //    const Vector& dpsi = psi().derive_cov(ff) ;       // D_i Psi
-    const Vector& dln_psi = ln_psi().derive_cov(ff) ; // D_i ln(Psi)
+     const Vector& dln_psi = ln_psi().derive_cov(ff) ; // D_i ln(Psi)
     const Vector& dnn = nn().derive_cov(ff) ;         // D_i N
     
     Sym_tensor taa = aa().up_down(tgam()) ; 
@@ -302,7 +258,7 @@ Vector Isol_hor::source_beta_hor( const Scalar* p_ener_dens, const Vector* p_mom
         
     source_beta += 0.66666666666666666* beta().divergence(ff) * hdirac() ;
 
-
+    source_beta.annule_domain(0) ;
 
     return source_beta ;
 
