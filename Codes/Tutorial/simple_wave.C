@@ -28,6 +28,11 @@ char simple_wave_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/02/17 22:20:49  e_gourgoulhon
+ * Much better plots thanks to the new function des_profile_mult.
+ * Added evolution of the central value of the field and its plot
+ * through the new function des_evol.
+ *
  * Revision 1.7  2004/02/17 09:19:08  j_novak
  * Cleaning of Param at the end of the code (memory leaks).
  *
@@ -74,6 +79,8 @@ char simple_wave_C[] = "$Header$" ;
 #include "graphique.h"
 #include "param.h"
 #include "evolution.h"
+#include "utilitaires.h"
+
 
 int main() {
 
@@ -109,11 +116,8 @@ int main() {
     // ---------------------------------------------------------------
 
     const Coord& r = map.r ;        // r field 
-    const Coord& th = map.tet ;     // theta field 
-    const Coord& phi = map.phi ;    // phi field 
     const Coord& x = map.x ;        // x field
     const Coord& y = map.y ;        // y field
-    const Coord& z = map.z ;        // z field
     
     // Setup of a scalar field (initial value for the d'Alembert equation)
     // -------------------------------------------------------------------
@@ -138,7 +142,7 @@ int main() {
     // 3-D visualization via OpenDX
     // ----------------------------
     
-    double z0 = 0 ;     // section plane : z = z0
+    // double z0 = 0 ;     // section plane : z = z0
   
     // uu0.visu_section('z', z0, -2., 2., -1.5, 1.5, "Example of section vis.") ;
 
@@ -150,7 +154,7 @@ int main() {
     Scalar source(map) ; // source of d'Alembert equation 
     source = 0 ; 
 
-    double dt = 0.005 ;  // time step 
+    double dt = 0.02 ;  // time step 
     int bc = 2 ;    // type of boundary condition : 2 = Bayliss & Turkel outgoing wave
     int workflag = 0 ; // working flag 
  
@@ -161,32 +165,50 @@ int main() {
     
     
     double t = 0 ; 
-    Evolution_std<Scalar> uu(uu0, t, 3) ; // Time evolution of U
-    
+
+    Evolution_std<Scalar> uu(uu0, t, 3) ; // Time evolution of U    
+
     uu.update(uu0, dt) ; 
 
-    int j_max = 2000 ; 
+    // Time evolution of the central value of U : 
+    Evolution_full<double> uu_c(uu0.point(0,0,0,0), t) ; 
+
+    int j_max = 500 ; 
     
-    for (int j = 1; j < j_max ; j++) {
+    for (int j = 1; j <= j_max ; j++) {
     
         Scalar uu_jp1 = uu[j].avance_dalembert(par, uu[j-1], source) ; 
     
         t += dt ; 
         uu.update(uu_jp1, t) ; 
-    
-        cout << "Solution of the d'Alembert equation : " << endl ; 
         
+        uu_c.update(uu_jp1.point(0,0,0,0), t) ; 
+    
         if ( j%2 == 0 ) {
         
-            const Scalar* des[3] ; 
-            des[0] = &uu[j+1] ;
-            des[1] = &uu[j] ;
-            des[2] = &uu[j-1] ;
+            cout << "Step = " << j << ", time = " << t << endl ; 
+        
+            const Scalar* des[] = {&uu[j+1], &uu[j+1], &uu[j+1]} ;            
+            double tab_theta0[] = {0.5*M_PI, 0.5*M_PI, 0.5*M_PI} ; 
+            double tab_phi0[] = {0., 0.5*M_PI, M_PI} ; 
             
-            des_profile_mult(des, 3, 0., 4., 0.5*M_PI, 0., 0, false) ;
+            des_profile_mult(des, 3, 0., 4., tab_theta0, tab_phi0, 1., false, 
+            "U", 
+            "U in the equatorial plane for phi=0, pi/2, pi", 0) ;
+        
+            double tab_theta1[] = {0, 0.25*M_PI, 0.5*M_PI} ; 
+            double tab_phi1[] = {0., 0., 0.} ; 
+ 
+            des_profile_mult(des, 3, 0., 4., tab_theta1, tab_phi1, 1., false, 
+            "U", "U in the merional plane phi=0 for theta=0, pi/4, pi/2", 1) ;
         
         }
     }
+    
+    des_evol(uu_c, 0, j_max, false, "U\\dc\\u", 
+             "Evolution of central value of U") ; 
+    arrete() ; 
+    
     
 //  uu.visu_section('z', z0, -2., 2., -1.5, 1.5, "Potential", "uu") ;
 
@@ -207,3 +229,6 @@ int main() {
 
     return EXIT_SUCCESS ; 
 }
+
+
+
