@@ -25,6 +25,9 @@ char base_val_quantum_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/08/30 16:27:59  r_prix
+ * added #include <stdlib.h> (got ERROR 'abort' is undefined without this...)
+ *
  * Revision 1.1  2004/08/24 09:14:41  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -41,6 +44,7 @@ char base_val_quantum_C[] = "$Header$" ;
 // Headers C
 #include <stdio.h>
 #include <assert.h>
+#include <stdlib.h>
 
 // Headers Lorene
 #include "type_parite.h"
