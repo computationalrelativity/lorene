@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2004/05/12 15:16:25  e_gourgoulhon
+ * Added #include "metric.h" before #include "evolution.h".
+ *
  * Revision 1.15  2004/05/09 20:56:09  e_gourgoulhon
  * Added member adm_mass_evol and corresponding virtual method adm_mass().
  *
@@ -93,12 +96,6 @@
  *
  */
 
-class Sym_tensor_trans ; 
-class Sym_tensor ; 
-class Vector ; 
-class Scalar ; 
-class Metric ; 
-class Metric_flat ; 
 class Base_vect ; 
 class Map ; 
 class Tbl ;
@@ -106,6 +103,7 @@ class Param ;
 
 #include "headcpp.h"
 
+#include "metric.h"
 #include "evolution.h"
 
                     //---------------------------//
