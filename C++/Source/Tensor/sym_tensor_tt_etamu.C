@@ -32,6 +32,10 @@ char sym_tensor_tt_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/01/28 13:25:41  j_novak
+ * The ced_mult_r arguments have been suppressed from the Scalar::*dsd* methods.
+ * In the div/mult _r_dzpuis, there is no more default value.
+ *
  * Revision 1.5  2003/11/05 15:28:31  e_gourgoulhon
  * Corrected error in update.
  *
@@ -212,12 +216,14 @@ void Sym_tensor_tt::update() {
 	// h^{r theta} : 
 	// ------------
 	idx.set(1) = 2 ;	// theta index
-	*cmp[position(idx)] = p_eta->srdsdt(0) - p_mu->srstdsdp(0) ; 
+	*cmp[position(idx)] = p_eta->srdsdt() - p_mu->srstdsdp() ; 
+	cmp[position(idx)]->dec_dzpuis(2) ;
 	
 	// h^{r phi} :
 	// ------------
 	idx.set(1) = 3 ;	// phi index
-	*cmp[position(idx)] = p_eta->srstdsdp(0) + p_mu->srdsdt(0) ; 
+	*cmp[position(idx)] = p_eta->srstdsdp() + p_mu->srdsdt() ; 
+	cmp[position(idx)]->dec_dzpuis(2) ;
 	
 	
 	// h^{theta phi} and h^{phi phi}

@@ -30,6 +30,10 @@ char connection_fspher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2004/01/28 13:25:40  j_novak
+ * The ced_mult_r arguments have been suppressed from the Scalar::*dsd* methods.
+ * In the div/mult _r_dzpuis, there is no more default value.
+ *
  * Revision 1.19  2004/01/27 15:10:02  j_novak
  * New methods Scalar::div_r_dzpuis(int) and Scalar_mult_r_dzpuis(int)
  * which replace div_r_inc*. Tried to clean the dzpuis handling.
@@ -224,22 +228,7 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
         if (dzp > dz_in) dz_in = dzp ; 
     }
         
-    int dz_resu ;
-
-    switch( dz_in ) {
- 
-        case 0 : { dz_resu = 2 ;  break ; }
-        case 2 : { dz_resu = 3 ;  break ; }
-        case 4 : { dz_resu = 4 ;  break ; }
- 
-        default : {
-            cerr << "Connection_fspher::p_derive_cov : unexpected value"
-                << " of input dzpuis !\n" << "  dz_in = " << dz_in << endl ;
-            abort() ; 
-            break ; 
-        }
-    }
-        
+    int dz_resu = (dz_in == 0) ? 2 : dz_in + 1 ;
 
     // Loop on all the components of the output tensor
     // -----------------------------------------------
@@ -264,7 +253,7 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
         case 1 : {  // Derivation index = r
                     //---------------------
 	
-            cresu = (uu(ind0)).dsdr(dz_resu) ; 	// d/dr
+            cresu = (uu(ind0)).dsdr() ; 	// d/dr
 		
             // all the connection coefficients Gamma^i_{jk} are zero for k=1
             break ; 
@@ -273,7 +262,7 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
         case 2 : {  // Derivation index = theta
                     //-------------------------
 			
-            cresu = (uu(ind0)).srdsdt(dz_resu) ;  // 1/r d/dtheta 
+            cresu = (uu(ind0)).srdsdt() ;  // 1/r d/dtheta 
 		
             // Loop on all the indices of uu
             for (int id=0; id<valence0; id++) {
@@ -324,7 +313,7 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
         case 3 : {  // Derivation index = phi
                     //-----------------------
 					
-            cresu = (uu(ind0)).srstdsdp(dz_resu) ;  // 1/(r sin(theta)) d/dphi 	
+            cresu = (uu(ind0)).srstdsdp() ;  // 1/(r sin(theta)) d/dphi 	
 		
             // Loop on all the indices of uu
             for (int id=0; id<valence0; id++) {
@@ -502,11 +491,10 @@ Tensor* Connection_fspher::p_divergence(const Tensor& uu) const {
 
         // dzpuis of the result
         //---------------------
-        int dz_resu = uu(ind0).get_dzpuis() ;
-        bool dz4 = (dz_resu == 4) ;
-        dz_resu += dz4 ? 0 : 2 ;
+        int dz_in = uu(ind0).get_dzpuis() ;
+        int dz_resu = (dz_in == 0) ? 2 : dz_in + 1 ;
 
-        cresu = uu(ind0).dsdr(dz_resu) ; //dT^{l r}/dr
+        cresu = uu(ind0).dsdr() ; //dT^{l r}/dr
 
         // Derivation index = theta
         // ------------------------

@@ -30,6 +30,10 @@ char connection_fcart_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/01/28 13:25:40  j_novak
+ * The ced_mult_r arguments have been suppressed from the Scalar::*dsd* methods.
+ * In the div/mult _r_dzpuis, there is no more default value.
+ *
  * Revision 1.11  2004/01/04 21:00:50  e_gourgoulhon
  * Better handling of tensor symmetries in methods p_derive_cov() and
  * p_divergence() (thanks to the new class Tensor_sym).
@@ -204,17 +208,12 @@ Tensor* Connection_fcart::p_derive_cov(const Tensor& uu) const {
             ind0.set(id) = ind1(id) ; 
         }
  
-        // dzpuis
-        int dz_resu = uu(ind0).get_dzpuis() ;
-        bool dz4 = (dz_resu == 4) ;
-        dz_resu += dz4 ? 0 : 2 ;
-
         // Value of last index (derivation index)
         int k = ind1(valence1m1) ; 
         
         // Partial derivation with respect to x^k:
 
-        cresu = (uu(ind0)).deriv(k, dz_resu) ; 	
+        cresu = (uu(ind0)).deriv(k) ; 	
 
     }
 

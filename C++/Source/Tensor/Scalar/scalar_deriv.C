@@ -34,6 +34,10 @@ char scalar_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/01/28 13:25:42  j_novak
+ * The ced_mult_r arguments have been suppressed from the Scalar::*dsd* methods.
+ * In the div/mult _r_dzpuis, there is no more default value.
+ *
  * Revision 1.9  2004/01/27 15:10:02  j_novak
  * New methods Scalar::div_r_dzpuis(int) and Scalar_mult_r_dzpuis(int)
  * which replace div_r_inc*. Tried to clean the dzpuis handling.
@@ -78,7 +82,7 @@ char scalar_deriv_C[] = "$Header$" ;
 			//         d/dr        //
 			//---------------------//
 
-const Scalar& Scalar::dsdr(int ced_mult_r) const {
+const Scalar& Scalar::dsdr() const {
 
     // Protection
     assert(etat != ETATNONDEF) ;
@@ -97,9 +101,11 @@ const Scalar& Scalar::dsdr(int ced_mult_r) const {
       }
     }
      
-    int diff_dzpuis = ced_mult_r - p_dsdr->get_dzpuis() ;
-    (diff_dzpuis >= 0) ? p_dsdr->inc_dzpuis(diff_dzpuis) : 
-      p_dsdr->dec_dzpuis(-diff_dzpuis) ;
+    Base_val base = va.base ;
+    base.dsdx() ;
+    p_dsdr->set_spectral_base(base) ;
+    int dzp = (dzpuis == 0) ? 2 : dzpuis+1 ;
+    p_dsdr->set_dzpuis(dzp) ;
 
     return *p_dsdr ;
 
@@ -109,7 +115,7 @@ const Scalar& Scalar::dsdr(int ced_mult_r) const {
 			//    1/r d/dtheta    //
 			//--------------------//
 
-const Scalar& Scalar::srdsdt(int ced_mult_r) const {
+const Scalar& Scalar::srdsdt() const {
 
     // Protection
     assert(etat != ETATNONDEF) ;
@@ -126,10 +132,13 @@ const Scalar& Scalar::srdsdt(int ced_mult_r) const {
 	  mp->srdsdt(*this, *p_srdsdt) ;
 	}
     }
-    int diff_dzpuis = ced_mult_r - p_srdsdt->get_dzpuis() ;
-    (diff_dzpuis >= 0) ? p_srdsdt->inc_dzpuis(diff_dzpuis) : 
-      p_srdsdt->dec_dzpuis(-diff_dzpuis) ;
-     
+
+    Base_val base = va.base ;
+    base.sx() ; base.dsdt() ;
+    p_srdsdt->set_spectral_base(base) ;
+    int dzp = (dzpuis == 0) ? 2 : dzpuis+1 ;
+    p_srdsdt->set_dzpuis(dzp) ;
+
     return *p_srdsdt ;
 
 }
@@ -139,7 +148,7 @@ const Scalar& Scalar::srdsdt(int ced_mult_r) const {
 			//    1/(r sin(theta) d/dphi    //
 			//------------------------------//
 
-const Scalar& Scalar::srstdsdp(int ced_mult_r) const {
+const Scalar& Scalar::srstdsdp() const {
 
     // Protection
     assert(etat != ETATNONDEF) ;
@@ -157,10 +166,12 @@ const Scalar& Scalar::srstdsdp(int ced_mult_r) const {
       }
     }
 
-    int diff_dzpuis = ced_mult_r - p_srstdsdp->get_dzpuis() ;
-    (diff_dzpuis >= 0) ? p_srstdsdp->inc_dzpuis(diff_dzpuis) : 
-      p_srstdsdp->dec_dzpuis(-diff_dzpuis) ;
-     
+    Base_val base = va.base ;
+    base.sx() ; base.ssint() ;
+    p_srstdsdp->set_spectral_base(base) ;
+    int dzp = (dzpuis == 0) ? 2 : dzpuis+1 ;
+    p_srstdsdp->set_dzpuis(dzp) ;
+
     return *p_srstdsdp ;
 
 }
@@ -186,11 +197,15 @@ const Scalar& Scalar::dsdt() const {
 		else {
 			mp->dsdt(*this, *p_dsdt) ;
 		}
-    }
+	}
 	
+	
+	Base_val base = va.base ;
+	base.dsdt() ;
+	p_dsdt->set_spectral_base(base) ;
 	p_dsdt->set_dzpuis(dzpuis) ;
 
-    return *p_dsdt ;
+	return *p_dsdt ;
 
 }
 
@@ -216,6 +231,9 @@ const Scalar& Scalar::stdsdp() const {
 			mp->stdsdp(*this, *p_stdsdp) ;
 		}
     }
+	Base_val base = va.base ;
+	base.ssint() ;
+	p_stdsdp->set_spectral_base(base) ;
 	p_stdsdp->set_dzpuis(dzpuis) ;
 
     return *p_stdsdp ;
@@ -226,7 +244,7 @@ const Scalar& Scalar::stdsdp() const {
 			//      d/dx       //
 			//-----------------//
 
-const Scalar& Scalar::dsdx(int ced_mult_r) const {
+const Scalar& Scalar::dsdx() const {
 
     // Protection
     assert(etat != ETATNONDEF) ;
@@ -241,17 +259,15 @@ const Scalar& Scalar::dsdx(int ced_mult_r) const {
       }
       else {
 	Cmp result(mp) ;
-	mp->comp_x_from_spherical(Cmp(dsdr(ced_mult_r)), 
-				  Cmp(srdsdt(ced_mult_r)), 
-				  Cmp(srstdsdp(ced_mult_r)), result) ;
+	mp->comp_x_from_spherical(Cmp(dsdr()), Cmp(srdsdt()), 
+				  Cmp(srstdsdp()), result) ;
 	*p_dsdx = result ;
       }
     }	
 
-    int diff_dzpuis = ced_mult_r - p_dsdx->get_dzpuis() ;
-    (diff_dzpuis >= 0) ? p_dsdx->inc_dzpuis(diff_dzpuis) : 
-      p_dsdx->dec_dzpuis(-diff_dzpuis) ;
-     
+    int dzp = (dzpuis == 0) ? 2 : dzpuis+1 ;
+    p_dsdx->set_dzpuis(dzp) ;
+
     return *p_dsdx ;
 
 }
@@ -260,7 +276,7 @@ const Scalar& Scalar::dsdx(int ced_mult_r) const {
 			//      d/dy       //
 			//-----------------//
 
-const Scalar& Scalar::dsdy(int ced_mult_r) const {
+const Scalar& Scalar::dsdy() const {
 
     // Protection
     assert(etat != ETATNONDEF) ;
@@ -275,17 +291,15 @@ const Scalar& Scalar::dsdy(int ced_mult_r) const {
       }
       else {
 	Cmp result(mp) ;
-	mp->comp_y_from_spherical(Cmp(dsdr(ced_mult_r)), 
-				  Cmp(srdsdt(ced_mult_r)), 
-				  Cmp(srstdsdp(ced_mult_r)), result) ;
-	*p_dsdy = result ;
+	mp->comp_y_from_spherical(Cmp(dsdr()), Cmp(srdsdt()), 
+				  Cmp(srstdsdp()), result) ;
+      *p_dsdy = result ;
       }
     }
 
-    int diff_dzpuis = ced_mult_r - p_dsdy->get_dzpuis() ;
-    (diff_dzpuis >= 0) ? p_dsdy->inc_dzpuis(diff_dzpuis) : 
-      p_dsdy->dec_dzpuis(-diff_dzpuis) ;
-    
+    int dzp = (dzpuis == 0) ? 2 : dzpuis+1 ;
+    p_dsdy->set_dzpuis(dzp) ;
+
     return *p_dsdy ;
 
 }
@@ -294,7 +308,7 @@ const Scalar& Scalar::dsdy(int ced_mult_r) const {
 			//      d/dz       //
 			//-----------------//
 
-const Scalar& Scalar::dsdz(int ced_mult_r) const {
+const Scalar& Scalar::dsdz() const {
 
     // Protection
     assert(etat != ETATNONDEF) ;
@@ -309,15 +323,13 @@ const Scalar& Scalar::dsdz(int ced_mult_r) const {
       }
       else {
 	Cmp result(mp) ;
-	mp->comp_z_from_spherical(Cmp(dsdr(ced_mult_r)), 
-				  Cmp(srdsdt(ced_mult_r)), result) ;
+	mp->comp_z_from_spherical(Cmp(dsdr()), Cmp(srdsdt()), result) ;
 	*p_dsdz = result ;
       }
     }
 
-    int diff_dzpuis = ced_mult_r - p_dsdz->get_dzpuis() ;
-    (diff_dzpuis >= 0) ? p_dsdz->inc_dzpuis(diff_dzpuis) : 
-      p_dsdz->dec_dzpuis(-diff_dzpuis) ;
+    int dzp = (dzpuis == 0) ? 2 : dzpuis+1 ;
+    p_dsdz->set_dzpuis(dzp) ;
 
     return *p_dsdz ;
 
@@ -327,27 +339,27 @@ const Scalar& Scalar::dsdz(int ced_mult_r) const {
 			//      d/dx^i     //
 			//-----------------//
 
-const Scalar& Scalar::deriv(int i, int ced_mult_r) const {
+const Scalar& Scalar::deriv(int i) const {
     
     switch (i) {
 	
 	case 1 : {
-	    return dsdx(ced_mult_r) ; 
+	    return dsdx() ; 
 	}
 	
 	case 2 : {
-	    return dsdy(ced_mult_r) ; 
+	    return dsdy() ; 
 	}
 	
 	case 3 : {
-	    return dsdz(ced_mult_r) ; 
+	    return dsdz() ; 
 	}
 	
 	default : {
 	    cout << "Scalar::deriv : index i out of range !" << endl ; 
 	    cout << "  i = " << i << endl ; 
 	    abort() ; 
-	    return dsdx(ced_mult_r) ;  // Pour satisfaire le compilateur !
+	    return dsdx() ;  // Pour satisfaire le compilateur !
 	}
 	
     }
