@@ -32,6 +32,9 @@ char eos_tabul_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/11/21 16:11:16  m_bejger
+ * added the computation dlnp/dlnn_b, dlnn/dlnH
+ *
  * Revision 1.5  2003/05/30 07:50:06  e_gourgoulhon
  *
  * Reformulate the computation of der_nbar_ent
@@ -87,9 +90,7 @@ char eos_tabul_C[] = "$Header$" ;
 void interpol_herm(const Tbl& , const Tbl&, const Tbl&, double, int&,
 		   double&, double& ) ;
 
-void interpol_herm_der(const Tbl& , const Tbl&, const Tbl&, double, int&,
-		   double&, double&, double& ) ;
-
+void interpol_linear(const Tbl&, const Tbl&, double, int&, double&) ;
 
 			//----------------------------//
 			//   	Constructors	      //
@@ -146,6 +147,8 @@ Eos_tabul::~Eos_tabul(){
 	delete logh ;
 	delete logp ;
 	delete dlpsdlh ;
+        delete lognb ;
+        delete dlpsdlnb ;
 }
 
 			//------------//
@@ -181,6 +184,8 @@ void Eos_tabul::read_table() {
 
     	int nbp ;
     	fich >> nbp ; fich.getline(blabla, 120) ;   // number of data
+   
+        double press[nbp], nb[nbp], ro[nbp]; 
     	    	
 	for (int i=0; i<3; i++) {		//  jump over the table
     		fich.getline(blabla, 120) ;     //  header
@@ -189,11 +194,14 @@ void Eos_tabul::read_table() {
     	logh = new Tbl(nbp) ;
     	logp = new Tbl(nbp) ;
     	dlpsdlh = new Tbl(nbp) ;
+	lognb = new Tbl(nbp) ;
+        dlpsdlnb = new Tbl(nbp) ;
     	
     	logh->set_etat_qcq() ;
     	logp->set_etat_qcq() ;
     	dlpsdlh->set_etat_qcq() ;
-    	
+        lognb->set_etat_qcq() ;
+        dlpsdlnb->set_etat_qcq() ;   	
     	
 	double rhonuc_cgs = rhonuc_si * 1e-3 ;
 	double c2_cgs = c_si * c_si * 1e4 ;    	
@@ -213,9 +221,11 @@ void Eos_tabul::read_table() {
     		double h = log( (rho_cgs + psc2_cgs) /
     		                    (10 * nb_fm3 * rhonuc_cgs) ) ;
     		
-    		if (i==0) {
-    			ww = h ;
-    		}
+                press[i] = psc2_cgs ; 
+                nb[i]    = nb_fm3 ;
+                ro[i]    = rho_cgs ; 
+
+    		if (i==0) { ww = h ; }
     		
     		h = h - ww + 1.e-14 ;    		
     		
@@ -228,9 +238,76 @@ void Eos_tabul::read_table() {
     		logh->set(i) = log10( h ) ;
     		logp->set(i) = log10( psc2_cgs / rhonuc_cgs ) ;
     		dlpsdlh->set(i) = h * (rho_cgs + psc2_cgs) / psc2_cgs ;
-    	
+		lognb->set(i) = log10(nb_fm3) ;
+
     	}
+
+        double p0, p1, p2, n0, n1, n2, dpdnb; 
+
+	// special case: i=0
+
+          p0 = log(press[0]);
+          p1 = log(press[1]);
+          p2 = log(press[2]);
+
+          n0 = log(nb[0]);
+          n1 = log(nb[1]);
+          n2 = log(nb[2]);
+
+          dpdnb = p0*(2*n0-n1-n2)/(n0-n1)/(n0-n2) +
+	                 p1*(n0-n2)/(n1-n0)/(n1-n2) +
+                         p2*(n0-n1)/(n2-n0)/(n2-n1) ;
+
+          dlpsdlnb->set(0) = dpdnb ; 
+
+/*
+	  cout << exp(n0) << "  " << ro[0] << "  " 
+               << c2_cgs*exp(p0) << "  " << dpdnb << endl ;
+*/
+	for(int i=1;i<nbp-1;i++) { 
+
+          p0 = log(press[i-1]);
+          p1 = log(press[i]);
+          p2 = log(press[i+1]);
+
+          n0 = log(nb[i-1]);
+          n1 = log(nb[i]);
+          n2 = log(nb[i+1]);
+
+          dpdnb = p0*(n1-n2)/(n0-n1)/(n0-n2) +
+	                 p1*(2*n1-n0-n2)/(n1-n0)/(n1-n2) +
+                         p2*(n1-n0)/(n2-n0)/(n2-n1) ;
+
+	  dlpsdlnb->set(i) = dpdnb ;
+
+/*
+	  cout << exp(n1) << "  " << ro[i] << "  " 
+               << c2_cgs*exp(p1) << "  " << dpdnb << endl ;
+*/
+
+        } 
      	
+	// special case: i=nbp-1
+
+          p0 = log(press[nbp-3]);
+          p1 = log(press[nbp-2]);
+          p2 = log(press[nbp-1]);
+
+          n0 = log(nb[nbp-3]);
+          n1 = log(nb[nbp-2]);
+          n2 = log(nb[nbp-1]);
+
+          dpdnb = p0*(n2-n1)/(n0-n1)/(n0-n2) +
+	                 p1*(n2-n0)/(n1-n0)/(n1-n2) +
+                         p2*(2*n2-n0-n1)/(n2-n0)/(n2-n1) ;
+
+	  dlpsdlnb->set(nbp-1) = dpdnb ;
+
+/*
+	  cout << exp(n2) << "  " << ro[nbp-1] << "  " 
+               << c2_cgs*exp(p2) << "  " << dpdnb << endl ;
+*/
+                
      	hmin = pow( double(10), (*logh)(0) ) ;
      	hmax = pow( double(10), (*logh)(nbp-1) ) ;
      	
@@ -238,11 +315,16 @@ void Eos_tabul::read_table() {
 //     	cout << "logh : " << endl ;
 //     	cout << *logh << endl ;
 //     	
+//
 //     	cout << "logp : " << endl ;
 //     	cout << *logp << endl ;
 //     	
 //     	cout << "dlpsdlh : " << endl ;
 //     	cout << *dlpsdlh << endl ;
+//
+//     	cout << "dlpsdlnb : " << endl ;
+//     	cout << *dlpsdlnb << endl ;
+//
 //     	
 //     	cout << "hmin, hmax : " << hmin << "  " << hmax << endl ;
 //##     	
@@ -341,41 +423,20 @@ double Eos_tabul::press_ent_p(double ent, const Param* ) const {
 
 double Eos_tabul::der_nbar_ent_p(double ent, const Param* ) const {
 
-    if ( ent >= hmin ) {
+    if ( ent > hmin ) {
            if (ent > hmax) {
            	cout << "Eos_tabul::der_nbar_ent_p : ent > hmax !" << endl ;
            	abort() ;
            }
 
-	   // Computation of gamma
-	   double ent1 = .999 * ent ; 
-	   double ent2 = 1.001 * ent ; 
+	   double zeta = der_press_ent_p(ent) / der_press_nbar_p(ent) ; 
 
-	   double p0 = press_ent_p(ent) ; 
-	   double p1 = press_ent_p(ent1) ; 
-	   double p2 = press_ent_p(ent2) ; 
-
-	   double n0 = nbar_ent_p(ent) ; 
-	   double n1 = nbar_ent_p(ent1) ; 
-	   double n2 = nbar_ent_p(ent2) ;
-	   
-	   double n01 = n0 - n1 ; 
-	   double n02 = n0 - n2 ; 
-	   double n12 = n1 - n2 ; 
-	   
-	   double gamma = p0 / n0 * ( p0 / (n01*n02) * (2*n0-n1-n2)
-	   	- p1/(n01*n12) * (n0-n2)
-		+ p2/(n02*n12) * (n0-n1) ) ;
-	
-	   double zeta = der_press_ent_p(ent) / gamma ; 
-	   
 	   return zeta ; 
 	  
     }
-    else{
-	return der_nbar_ent_p(hmin) ;  // to ensure continuity
-    }
+    else return 1 ;  
 
+    // return 1./(der_press_nbar_p(hmin)-1.) ;  // to ensure continuity
 
 }
 
@@ -408,7 +469,7 @@ double Eos_tabul::der_press_ent_p(double ent, const Param* ) const {
 
     static int i_near = logh->get_taille() / 2 ;
 
-    if ( ent >= hmin ) {
+    if ( ent > hmin ) {
            if (ent > hmax) {
            	cout << "Eos_tabul::der_press_ent_p : ent > hmax !" << endl ;
            	abort() ;
@@ -424,6 +485,43 @@ double Eos_tabul::der_press_ent_p(double ent, const Param* ) const {
 
     }
     else{
+        
+        return 0 ; 
 	return der_press_ent_p(hmin) ; // to ensure continuity
     }
+}
+
+
+// dln(p)/dln(n) from enthalpy 
+//---------------------------
+
+double Eos_tabul::der_press_nbar_p(double ent, const Param*) const {
+
+    static int i_near = logh->get_taille() / 2 ;
+
+    if ( ent > hmin ) {
+           if (ent > hmax) {
+           	cout << "Eos_tabul::der_press_nbar_p : ent > hmax !" << endl ;
+           	abort() ;
+           }
+
+           double logh0 = log10( ent ) ;
+           double dlpsdlnb0 ;
+
+           interpol_linear(*logh, *dlpsdlnb, logh0, i_near, dlpsdlnb0) ;
+ 
+	   cout << "gamma: " << dlpsdlnb0 << " ent: " << ent << endl; 
+
+          return dlpsdlnb0 ;
+
+    }
+    else{
+        
+        return 0 ; 
+
+	return der_press_nbar_p(hmin) ; // to ensure continuity
+
+    }
+
+          
 }
