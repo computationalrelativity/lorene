@@ -148,6 +148,7 @@ Some templates files are provided for
    -- Linux with GNU compilers   (local_settings_linux)
    -- SGI Irix                   (local_settings_irix)
    -- Compaq Alpha Digital Unix  (local_settings_alpha)
+   -- IBM AIX                    (local_settings_aix)
 
 To create the file $HOME_LORENE/local_settings, you simply have to
 copy one of this file into local_settings by typing, e.g. under Linux
