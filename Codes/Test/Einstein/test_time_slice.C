@@ -30,6 +30,9 @@ char test_time_slice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/30 14:02:05  j_novak
+ * Test of the class Tslide_dirac_max (preliminary version).
+ *
  * Revision 1.3  2004/03/29 12:01:12  e_gourgoulhon
  * Added test for new class Time_slice_conf.
  *
@@ -95,26 +98,26 @@ int main() {
 
     sigma.set_scheme_order(0) ; //stationary space-time
     
-    cout << sigma << endl ; 
-    arrete() ; 
+//     cout << sigma << endl ; 
+//     arrete() ; 
 
-    cout << sigma.nn() ;
-    arrete() ;
-    cout << sigma.beta() ;
-    arrete() ;
-    cout << sigma.gam_uu() ;
-    arrete() ;
-    cout << sigma.gam_dd() ;
-    arrete() ;
-    cout << sigma.k_dd() ;
-    arrete() ;
-    cout << sigma.k_uu() << endl ;
+//     cout << sigma.nn() ;
+//     arrete() ;
+//     cout << sigma.beta() ;
+//     arrete() ;
+//     cout << sigma.gam_uu() ;
+//     arrete() ;
+//     cout << sigma.gam_dd() ;
+//     arrete() ;
+//     cout << sigma.k_dd() ;
+//     arrete() ;
+//     cout << sigma.k_uu() << endl ;
     
-    cout << "nn : " << sigma.nn() << endl ; 
-    cout << "beta : " << sigma.beta() << endl ; 
-    cout << "gam_uu : " << sigma.gam_uu() << endl ; 
-    cout << "gam : " << sigma.gam() << endl ; 
-    cout << "gam_dd : " << sigma.gam_dd() << endl ; 
+//     cout << "nn : " << sigma.nn() << endl ; 
+//     cout << "beta : " << sigma.beta() << endl ; 
+//     cout << "gam_uu : " << sigma.gam_uu() << endl ; 
+//     cout << "gam : " << sigma.gam() << endl ; 
+//     cout << "gam_dd : " << sigma.gam_dd() << endl ; 
     
     
     // Construction of a time slice with conformal decomposition
@@ -123,7 +126,38 @@ int main() {
     Time_slice_conf sigma_c(sigma.nn(), sigma.beta(), sigma.gam_uu(),
                 sigma.k_uu(), map.flat_met_spher()) ; 
     
-    cout << sigma_c << endl ; 
+    //cout << sigma_c << endl ; 
+
+    const Coord& x = map.x ; 
+    const Coord& y = map.y ; 
+    const Coord& r = map.r ; 
+
+    Scalar khi_init(map) ; 
+    khi_init = exp( - r*r ) * x*y ;
+    khi_init.std_spectral_base() ; 
+    khi_init.set_outer_boundary(nz-1, 0.) ;
+    
+    Scalar mu_init(map) ; 
+    mu_init = 1. / (1.+r*r*r*r*r*r) ; 
+    mu_init.std_spectral_base() ; 
+    mu_init.mult_r() ; 
+    mu_init.mult_r() ; 
+    mu_init.mult_r() ; 
+    mu_init.mult_cost() ; 
+    
+    Sym_tensor_tt hijtt(map, map.get_bvect_spher() , map.flat_met_spher()) ;
+    hijtt.set_khi_mu( khi_init, mu_init ) ;
+
+    Scalar trace_nulle(map) ;
+    trace_nulle = 0 ;
+    Sym_tensor_trans hij(map, map.get_bvect_spher() , map.flat_met_spher()) ;
+    hij.set_tt_trace(hijtt, trace_nulle) ;
+    
+    Tslice_dirac_max dirac_slice(sigma_c.nn(), sigma_c.beta() , 
+				 map.flat_met_spher(), sigma_c.psi(), 
+				 hij, sigma_c.aa()) ;
+
+    cout << dirac_slice ;
 
 
     return EXIT_SUCCESS ; 
