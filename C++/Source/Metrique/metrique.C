@@ -33,6 +33,9 @@ char metrique_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2003/10/03 11:41:35  j_novak
+ * Display method corrected.
+ *
  * Revision 1.12  2003/06/20 14:48:38  f_limousin
  * The functions set_con() and set_cov() now return a Tenseur_sym&
  *
@@ -436,54 +439,54 @@ ostream& operator<<(ostream& flux, const Metrique & source) {
     switch (source.etat) {
 	
 	case ETATNONDEF : {
-	    cout << "Undefined metric in operator << ." << endl ;
+	    flux << "Undefined metric in operator << ." << endl ;
 	    break ;
 	    }
 	case ETATZERO : {
-	    cout << "Nul metric." << endl ;
+	    flux << "Nul metric." << endl ;
 	    break ;
 	   }
 	   
 	case ETATQCQ : {
 
-	if (source.plat) cout << "Flat metric" << endl ; 
+	if (source.plat) flux << "Flat metric" << endl ; 
 	if (source.p_met_con != 0x0) {
-	    cout << "CONTRA-variant representation : " << endl ;
-	    cout << *source.p_met_con << endl ;
-	    cout << "-------------------------------------------" << endl ;
+	    flux << "CONTRA-variant representation : " << endl ;
+	    flux << *source.p_met_con << endl ;
+	    flux << "-------------------------------------------" << endl ;
 	    }
 	else 
-	    cout << "CONTRA-variant representation unknown : " << endl ;
+	    flux << "CONTRA-variant representation unknown : " << endl ;
 	
 	if (source.p_met_cov != 0x0) {
-	    cout << "CO-variant representation : " << endl ;
-	    cout << *source.p_met_cov << endl ;
-	    cout << "-------------------------------------------" << endl ;
+	    flux << "CO-variant representation : " << endl ;
+	    flux << *source.p_met_cov << endl ;
+	    flux << "-------------------------------------------" << endl ;
 	}
 	else 
-	    cout << "CO-variant representation unknown : " << endl ;
+	    flux << "CO-variant representation unknown : " << endl ;
 	
 	if (source.p_gamma == 0x0)
-	    cout << "Christoffel unknown." << endl ;
+	    flux << "Christoffel unknown." << endl ;
 	else
-	    cout << "Christoffel known." << endl ;
+	    flux << "Christoffel known." << endl ;
 	
 	if (source.p_ricci == 0x0)
-	    cout << "Ricci unknown." << endl ;
+	    flux << "Ricci unknown." << endl ;
 	else
-	    cout << "Ricci known." << endl ;
+	    flux << "Ricci known." << endl ;
 	
 	if (source.p_ricci_scal == 0x0)
-	    cout << "Ricci scalar unknown." << endl ;
+	    flux << "Ricci scalar unknown." << endl ;
 	else
-	    cout << "Ricci scalar known." << endl ;
+	    flux << "Ricci scalar known." << endl ;
 	
 	if (source.p_determinant == 0x0)
 	  
 
-  cout << "determinant unknown." << endl ;
+  flux << "determinant unknown." << endl ;
 	else
-	    cout << "determinant known." << endl ;
+	    flux << "determinant known." << endl ;
 	break ;
 	}
 	default : {
