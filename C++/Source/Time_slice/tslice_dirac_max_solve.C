@@ -30,6 +30,9 @@ char tslice_dirac_max_solve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/05/03 14:50:00  e_gourgoulhon
+ * Finished the implementation of method solve_hij.
+ *
  * Revision 1.2  2004/04/30 14:36:15  j_novak
  * Added the method Tslice_dirac_max::solve_hij(...)
  * NOT READY YET!!!
@@ -89,11 +92,13 @@ Scalar Tslice_dirac_max::solve_n(const Scalar* p_ener_dens,
     tmp.inc_dzpuis() ; // dzpuis: 3 -> 4
         
     source_nn += tmp ;
-    
+        
     // Resolution of the Poisson equation for the lapse
     // ------------------------------------------------
         
     Scalar nn_new = source_nn.poisson() + 1. ; 
+
+    if (nn_new.get_etat() == ETATUN) nn_new.std_spectral_base() ; 
 
     // Test:
     maxabs(nn_new.laplacian() - source_nn,
@@ -149,6 +154,8 @@ Scalar Tslice_dirac_max::solve_q(const Scalar* p_trace_stress) const {
     // -----------------------------------------
         
     Scalar qq_new = source_qq.poisson() + 1. ; 
+
+    if (qq_new.get_etat() == ETATUN) qq_new.std_spectral_base() ; 
 
     // Test:
     maxabs(qq_new.laplacian() - source_qq,
@@ -213,12 +220,14 @@ Vector Tslice_dirac_max::solve_beta(const Vector* p_mom_dens) const {
 
 }
                 
+
                     //-------------------------------//
                     //      Equation for h^{ij}      //
                     //-------------------------------//
 
-Sym_tensor_trans Tslice_dirac_max::solve_hij(const Sym_tensor* p_strain_tens, 
-					     const Scalar* p_ener_dens ) const 
+void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
+                                 Scalar& khi_new, Scalar& mu_new,
+                                 const Sym_tensor* p_strain_tens) const 
 {
   using namespace Unites ;
   
@@ -229,23 +238,19 @@ Sym_tensor_trans Tslice_dirac_max::solve_hij(const Sym_tensor* p_strain_tens,
   if (p_strain_tens != 0x0) strain_tens = *(p_strain_tens) ; 
   else strain_tens.set_etat_zero() ; 
 
-  Scalar ener_dens(map) ; 
-  if (p_ener_dens != 0x0) ener_dens = *(p_ener_dens) ; 
-  else ener_dens.set_etat_zero() ; 
-    
   // Time derivatives:
-  Scalar nn_point = n_evol.time_derive(jtime) ; 
+  Scalar nn_point = n_evol.time_derive(jtime, scheme_order) ; 
   nn_point.inc_dzpuis(2) ; // dzpuis : 0 -> 2
   
-  Vector beta_point = beta_evol.time_derive(jtime) ; 
+  Vector beta_point = beta_evol.time_derive(jtime, scheme_order) ; 
   beta_point.inc_dzpuis(2) ; // dzpuis : 0 -> 2
   
-  //### to check urgently... do we have to use a Sym_tensor_trans??
-  Sym_tensor hh_point = hh_evol.time_derive(jtime) ; 
+  Sym_tensor hh_point = hh_evol.time_derive(jtime, scheme_order) ; 
   hh_point.inc_dzpuis(2) ; // dzpuis : 0 -> 2
         
+  //==================================
   // Source for hij
-  // ---------------
+  //==================================
         
   const Sym_tensor& tgam_dd = tgam().cov() ;    // {\tilde \gamma}_{ij}
   const Sym_tensor& tgam_uu = tgam().con() ;    // {\tilde \gamma}^{ij}
@@ -315,6 +320,9 @@ Sym_tensor_trans Tslice_dirac_max::solve_hij(const Sym_tensor* p_strain_tens,
     - 0.5  * contract(tgam_uu, 0, 1,
 		      contract(dhh, 0, 1, dtgam, 0, 2), 0, 1 ) ;  
                                                        
+  // Full quadratic part of source for h : S^{ij}
+  // --------------------------------------------
+        
   Sym_tensor ss(map, CON, otriad) ; 
         
   sym_tmp = nn() * (ricci_star + 8.* tdln_psi_u * tdln_psi_u)
@@ -364,8 +372,8 @@ Sym_tensor_trans Tslice_dirac_max::solve_hij(const Sym_tensor* p_strain_tens,
         
   ss += nn() * sym_tmp ; 
 
-  // Source for h 
-  // ------------
+  // Source for h^{ij} 
+  // -----------------
                  
   Sym_tensor lbh = hh().derive_lie(beta()) ; 
 
@@ -408,32 +416,48 @@ Sym_tensor_trans Tslice_dirac_max::solve_hij(const Sym_tensor* p_strain_tens,
     ( tmp - 0.6666666666666666* div_beta * div_beta ) * hh() ; 
                
         
-        
-  // Conformal Killing operator applied to beta ## can we use ope_killing??
-  // ------------------------------------------
-  Sym_tensor l_beta(map, CON, otriad) ;   // (L beta)^{ij}
-  for (int i=1; i<=3; i++) {
-    for (int j=1; j<=i; j++) {
-      l_beta.set(i,j) = beta().derive_con(ff)(i,j)  
-	+ beta().derive_con(ff)(j,i) 
-	- 0.6666666666666666* div_beta * ff.con()(i,j) ;
-    }
-  }
+  // Term (d/dt - Lie_beta) (L beta)^{ij}--> sym_tmp        
+  // ---------------------------------------
+  Sym_tensor l_beta = beta().ope_killing_conf(ff) ; 
+
+  sym_tmp = beta_point.ope_killing_conf(ff) - l_beta.derive_lie(beta()) ;
   
-  // (L beta_point)^ij --> sym_tmp
-  for (int i=1; i<=3; i++) {
-    for (int j=1; j<=i; j++) {
-      sym_tmp.set(i,j) = beta_point.derive_con(ff)(i,j)  
-	+ beta_point.derive_con(ff)(j,i) 
-	- 0.6666666666666666 * beta_point.divergence(ff) * ff.con()(i,j) ;
-    }
-  }
-  sym_tmp -= l_beta.derive_lie(beta()) ;
   sym_tmp.inc_dzpuis() ; 
   
+  // Final source:
+  // ------------
   source_hh += 0.6666666666666666* div_beta * l_beta - sym_tmp ; 
            
-  return source_hh.transverse(ff) ;
+
+    //=============================================
+    // Resolution of wave equation for h
+    //=============================================
+    
+    const Sym_tensor_tt& source_htt = source_hh.transverse(ff).tt_part() ;
+         
+    maxabs( source_htt.divergence(ff), "Divergence of source_htt") ; 
+    maxabs( source_htt.trace(ff), "Trace of source_hhtt") ; 
+
+    const Scalar& khi_source = source_htt.khi() ; 
+        
+    const Scalar& mu_source = source_htt.mu() ; 
+       
+    // des_meridian(khi_source, 0., 2., "khi_source", 11) ; 
+                     
+    khi_new = khi_evol[jtime].avance_dalembert(par_khi,
+                                         khi_evol[jtime-1], khi_source) ;
+    khi_new.smooth_decay(2,2) ; 
+        
+    // des_meridian(khi_jp1, 0., 5., "khi_jp1", 12) ; 
+        
+    maxabs(khi_new - khi_evol[jtime], "Variation of khi") ;  
+        
+    mu_new = mu_evol[jtime].avance_dalembert(par_mu,  
+                                         mu_evol[jtime-1], mu_source) ;
+    mu_new.smooth_decay(2,2) ; 
+                                        
+    // des_meridian(mu_jp1, 0., 5., "mu_jp1", 14) ; 
+        
 
 
 }
