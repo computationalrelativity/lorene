@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/05/31 09:06:12  e_gourgoulhon
+ * Added protection against self-assignement in method update.
+ *
  * Revision 1.6  2004/03/26 13:31:09  j_novak
  * Definition of the macro UNDEF_STEP for non-defined time-steps.
  * Changes in the way the time derivative is calculated.
@@ -142,6 +145,7 @@ void Evolution_full<TyT>::update(const TyT& new_value, int j,
                          //-----------------------------------
         int pos = position(j) ; 
         assert( fabs(the_time[pos] - time_j) < 1.e-14 ) ;   
+        assert( val[pos] != &new_value ) ; // to avoid self assignment
         delete val[pos] ; 
         val[pos] = new TyT(new_value) ; 
     }
