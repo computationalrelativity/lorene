@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.30  2003/11/04 22:55:50  e_gourgoulhon
+ * Added new methods mult_cost(), mult_sint() and div_sint().
+ *
  * Revision 1.29  2003/10/29 13:09:11  e_gourgoulhon
  * -- Added integer argument to derivative functions dsdr, etc...
  *    so that one can choose the dzpuis of the result (default=2).
@@ -551,7 +554,11 @@ class Scalar : public Tensor {
    */
   void div_r_inc2() ; 
   
-  void mult_r() ;   /// Multiplication by {\it r} everywhere.
+  /** Multiplication by  {\it r}.
+   * NB: in the CED, this method does not perform anything but {\tt dzpuis--}.
+   *
+   */
+  void mult_r() ;  
   
   /** Multiplication by {\it r} in the compactified external domain (CED)
    */
@@ -567,6 +574,12 @@ class Scalar : public Tensor {
    */
   void div_rsint_inc2() ; 
   
+  void mult_cost() ;   /// Multiplication by $\cos\theta$
+
+  void mult_sint() ;   /// Multiplication by $\sin\theta$
+
+  void div_sint() ;    /// Division by $\sin\theta$
+
   void div_tant() ;    /// Division by $\tan\theta$
   
   /** Computes the integral over all space of {\tt *this}.
