@@ -36,6 +36,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/10/01 13:03:52  e_gourgoulhon
+ * The method get_mp() returns now a reference (and not a pointer)
+ * onto a mapping.
+ *
  * Revision 1.9  2003/09/29 13:48:17  j_novak
  * New class Delta.
  *
@@ -419,14 +423,14 @@ class Tensor {
 	virtual Itbl indices(int pos) const ;
 	
 	public:
-	const Map* get_mp() const {return mp ;} ; /// Returns pointer on the mapping.
+	const Map& get_mp() const {return *mp ;} ; /// Returns the mapping.
 
 	/** Returns the vectorial basis (triad) on which the components
 	 *  are defined.  
 	 */
 	const Base_vect* get_triad() const {return triad;} ; 
     
-	int get_valence() const {return valence ; } ; ///Returns the valence.
+	int get_valence() const {return valence ; } ; /// Returns the valence.
 
 	/// Returns the number of stored components.
 	int get_n_comp() const {return n_comp ;} ; 
