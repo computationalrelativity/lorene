@@ -30,6 +30,9 @@ char valeur_coef_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/09/16 13:07:41  j_novak
+ * New files for coefficient trnasformation to/from the T_LEG_II base.
+ *
  * Revision 1.3  2002/11/12 17:44:35  j_novak
  * Added transformation function for T_COS basis.
  *
@@ -137,6 +140,7 @@ void Valeur::coef() const {
 	coef_t[T_LEG_I >> TRA_T] = cftlegi ;
 	coef_t[T_LEG_IP >> TRA_T] = cftlegip ;
 	coef_t[T_LEG_PI >> TRA_T] = cftlegpi ;
+	coef_t[T_LEG_II >> TRA_T] = cftlegii ;
 
 	coef_p[NONDEF] = base_non_def_p ;
 	coef_p[P_COSSIN >> TRA_P] = cfpcossin ;

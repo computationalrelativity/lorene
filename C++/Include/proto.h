@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/09/16 13:07:40  j_novak
+ * New files for coefficient trnasformation to/from the T_LEG_II base.
+ *
  * Revision 1.10  2003/09/16 08:53:05  j_novak
  * Addition of the T_LEG_II base (odd in theta, only for odd m) and the
  * transformation functions from and to T_SIN_P.
@@ -196,6 +199,7 @@ void cftlegpp(const int*, const int*, double*, const int*, double*) ;
 void cftlegi(const int*, const int*, double*, const int*, double*) ;
 void cftlegip(const int*, const int*, double*, const int*, double*) ;
 void cftlegpi(const int*, const int*, double*, const int*, double*) ;
+void cftlegii(const int*, const int*, double*, const int*, double*) ;
 void cfrcheb(const int*, const int*, double*, const int*, double*) ;
 void cfrchebp(const int*, const int*, double*, const int*, double*) ;
 void cfrchebi(const int*, const int*, double*, const int*, double*) ;
@@ -217,6 +221,7 @@ void citlegpp(const int*, const int*, double*, const int*, double*) ;
 void citlegi(const int*, const int*, double*, const int*, double*) ;
 void citlegip(const int*, const int*, double*, const int*, double*) ;
 void citlegpi(const int*, const int*, double*, const int*, double*) ;
+void citlegii(const int*, const int*, double*, const int*, double*) ;
 void circheb(const int*, const int*, double*, const int*, double*) ;
 void circhebp(const int*, const int*, double*, const int*, double*) ;
 void circhebi(const int*, const int*, double*, const int*, double*) ;
