@@ -25,6 +25,9 @@ char solh_helmholtz_minusC[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/08/24 10:11:12  p_grandclement
+ * Correction of the includes of gsl
+ *
  * Revision 1.3  2004/08/24 09:14:44  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -48,7 +51,7 @@ char solh_helmholtz_minusC[] = "$Header $" ;
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <gsl_sf_bessel.h>
+#include <gsl/gsl_sf_bessel.h>
 
 #include "proto.h"
 #include "matrice.h"
