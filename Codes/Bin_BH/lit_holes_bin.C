@@ -28,6 +28,9 @@ char lit_holes_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/11/14 08:14:52  p_grandclement
+ * Correction of the codes for binary black holes in circular orbit
+ *
  * Revision 1.2  2003/04/09 15:05:09  e_gourgoulhon
  * Added copyright and log messages.
  *
@@ -63,7 +66,7 @@ char lit_holes_bin_C[] = "$Header$" ;
 #include "unites.h"
 
 
-void main(int argc, char** argv) {
+int main(int argc, char** argv) {
     if (argc <2) {
 	cout <<" Passer nom du ficher en arguments SVP !" << endl ;
 	abort() ;
@@ -299,4 +302,6 @@ void main(int argc, char** argv) {
 	-ta, ta, -ta, ta, "A\\uYY\\d (Z=0)", &surface_un, &surface_deux, 
 	false, 15, 300, 300) ;
     */
+
+    return 1; 
 }

@@ -30,6 +30,9 @@ char coal_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/11/14 08:14:52  p_grandclement
+ * Correction of the codes for binary black holes in circular orbit
+ *
  * Revision 1.2  2003/04/09 15:01:14  e_gourgoulhon
  *
  * Added copyright and log messages.
@@ -65,7 +68,7 @@ char coal_bh_C[] = "$Header$" ;
 #include "graphique.h"
 #include "unites.h"
 
-void main(int argc, char** argv) {
+int main(int argc, char** argv) {
     
     // Lecture du fichier de parametres :
      if (argc <3) {
@@ -123,30 +126,59 @@ void main(int argc, char** argv) {
     
     Bhole_binaire courant(map_un, map_deux) ;
     
-    int nbre = 10 ;
-    double omega = omega_inf ;
-    
-    for (int i=0 ; i<nbre ; i++) {
-	
-      courant = bin ;
-      double erreur = courant.coal (omega, precis, relax, nbre_homme, 1) ;
-      fiche_omega << omega << " " << erreur << endl ;
-	 
-      char name[20] ;
-      sprintf(name, "bin_%e.dat", omega) ;
-      FILE* fich_sortie = fopen(name, "w") ;
-      grille.sauve(fich_sortie) ;
-      map_un.sauve(fich_sortie) ;
-      map_deux.sauve(fich_sortie) ;
-      courant(1).sauve(fich_sortie) ;
-      courant(2).sauve(fich_sortie) ;
-      fclose(fich_sortie) ;
-	 
-      omega += (omega_sup-omega_inf)/(nbre-1) ;
-      
+    courant = bin ;
+    double omega_min = omega_inf ;
+    double erreur_min = courant.coal (omega_min, precis, relax, nbre_homme, 1) ; 
+    fiche_omega << omega_min << " " << erreur_min << endl ;
+    if (erreur_min < 0) {
+      cout << "Borne inf. too big" << endl ;
+      abort() ;
     }
+
+    courant = bin ;
+    double omega_max = omega_sup ;
+    double erreur_max = courant.coal (omega_max, precis, relax, nbre_homme, 1) ;
+    if (erreur_max > 0) {
+      cout << "Borne max. too small" << endl ;
+      abort() ;
+    }
+    fiche_omega << omega_max << " " << erreur_max << endl ;
+	 
+    bool boucle = true ;
+    double erreur, omega ;
+
+    while (boucle) {
+      
+      courant = bin ;
+      omega = omega_min - erreur_min * (omega_max-omega_min)/(erreur_max-erreur_min) ;
+      erreur = courant.coal (omega, precis, relax, nbre_homme, 1) ;
+      
+      fiche_omega << omega << " " << erreur << endl ;
+      
+      if (fabs(erreur) < precis_viriel)
+	boucle = false ;
+
+      
+      if (erreur > 0) {
+	omega_min = omega ;
+	erreur_min = erreur ;
+      }
+      else {
+	omega_max = omega ;
+	erreur_max = erreur ;
+      }
+    }
+
+    char name[20] ;
+    sprintf(name, "bin_%e.dat", omega) ;
+    FILE* fich_sortie = fopen(name, "w") ;
+    grille.sauve(fich_sortie) ;
+    map_un.sauve(fich_sortie) ;
+    map_deux.sauve(fich_sortie) ;
+    courant(1).sauve(fich_sortie) ;
+    courant(2).sauve(fich_sortie) ;
+    fclose(fich_sortie) ;
     
-    
-   
     fiche_omega.close() ;
+    return 1 ;
 }

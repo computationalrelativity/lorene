@@ -28,6 +28,9 @@ char init_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/11/14 08:14:52  p_grandclement
+ * Correction of the codes for binary black holes in circular orbit
+ *
  * Revision 1.2  2003/04/09 15:05:09  e_gourgoulhon
  * Added copyright and log messages.
  *
@@ -61,7 +64,7 @@ char init_bh_C[] = "$Header$" ;
 #include "graphique.h"
 
 
-void main(int argc, char** argv) {
+int main(int argc, char** argv) {
     
     // Lecture du fichier de parametres :
      if (argc <2) {
@@ -142,4 +145,6 @@ void main(int argc, char** argv) {
     delete [] np ;
     delete [] type_r ;
     delete [] bornes ;
+
+    return 1 ;
 }
