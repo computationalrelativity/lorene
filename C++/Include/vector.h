@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/03 14:08:03  e_gourgoulhon
+ * Added constructor from Tensor.
+ *
  * Revision 1.3  2003/09/29 13:48:17  j_novak
  * New class Delta.
  *
@@ -77,6 +80,11 @@ class Vector: public Tensor {
 
 	Vector(const Vector& ) ;       /// Copy constructor
 
+	/** Constructor from a {\tt Tensor}.
+	 *  The {\tt Tensor} must be of valence one.
+	 */
+	Vector(const Tensor& ) ;	
+
 	/** Constructor from a file (see {\tt Tensor::sauve(FILE* )}).
 	 * 
 	 * @param map  the mapping
@@ -87,7 +95,7 @@ class Vector: public Tensor {
 	 * @param fich  file which has been created by 
 	 *			    the function {\tt sauve(FILE* )}.
 	 */
-	Vector (const Map& map, const Base_vect& triad_i, FILE* fich) ;
+	Vector(const Map& map, const Base_vect& triad_i, FILE* fich) ;
 
 	virtual ~Vector() ;			/// Destructor
  
