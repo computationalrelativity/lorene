@@ -3,8 +3,10 @@
  */
 
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
- *   Copyright (c) 1999-2001 Philippe Grandclement
+ *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *
+ *   Copyright (c) 1999-2001 Eric Gourgoulhon (for a preceding Cmp version)
+ *   Copyright (c) 1999-2001 Philippe Grandclement (for a preceding Cmp version)
  *
  *   This file is part of LORENE.
  *
@@ -32,6 +34,9 @@ char scalar_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/15 10:43:58  e_gourgoulhon
+ * Added new methods dsdt and stdsdp.
+ *
  * Revision 1.3  2003/10/11 14:43:29  e_gourgoulhon
  * Changed name of local Cmp "deriv" to "derivee" (in order not
  * to shadow the member deriv).
@@ -137,6 +142,60 @@ const Scalar& Scalar::srstdsdp() const {
       }
     }
     return *p_srstdsdp ;
+
+}
+
+			//--------------------//
+			//      d/dtheta      //
+			//--------------------//
+
+const Scalar& Scalar::dsdt() const {
+    
+    assert(etat != ETATNONDEF) ;	// Protection
+
+    // If the derivative has not been previously computed, the 
+    //  computation must be done by the appropriate routine of the mapping : 
+
+	if (p_dsdt == 0x0) {
+	
+		p_dsdt = new Scalar(*mp) ;
+
+		if (etat == ETATUN) {
+			p_dsdt->set_etat_zero() ;	
+		}
+		else {
+			mp->dsdt(*this, *p_dsdt) ;
+		}
+    }
+	
+    return *p_dsdt ;
+
+}
+
+			//------------------------------//
+			//      1/sin(theta) d/dphi     //
+			//------------------------------//
+
+const Scalar& Scalar::stdsdp() const {
+    
+    assert(etat != ETATNONDEF) ;	// Protection
+
+    // If the derivative has not been previously computed, the 
+    //  computation must be done by the appropriate routine of the mapping : 
+
+	if (p_stdsdp == 0x0) {
+	
+		p_stdsdp = new Scalar(*mp) ;
+
+		if (etat == ETATUN) {
+			p_stdsdp->set_etat_zero() ;	
+		}
+		else {
+			mp->stdsdp(*this, *p_stdsdp) ;
+		}
+    }
+	
+    return *p_stdsdp ;
 
 }
 
