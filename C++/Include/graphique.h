@@ -4,7 +4,7 @@
  */
 
 /*
- *   Copyright (c) 1999-2004 Eric Gourgoulhon, Jerome Novak 
+ *   Copyright (c) 1999-2005 Eric Gourgoulhon, Jerome Novak 
  *                           & Philippe Grandclement
  *
  *   This file is part of LORENE.
@@ -32,6 +32,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2005/03/24 22:00:08  e_gourgoulhon
+ * -- New functions des_coupe_* to plot a  Scalar and a Vector
+ * -- Reorganization of documentation (functions referring to a Cmp
+ *    or a Tenseur are now declared 'obsolete').
+ *
  * Revision 1.16  2004/05/20 20:29:03  e_gourgoulhon
  * Added argument 'device' to functions des_evol.
  *
@@ -174,6 +179,7 @@ class Map ;
 class Map_et ; 
 class Cmp ; 
 class Scalar ;
+class Vector ;
 class Sym_tensor ;
 class Tenseur ; 
 class Etoile ; 
@@ -182,7 +188,7 @@ class Bin_ns_ncp ;
 template<typename TyT> class Evolution ; 
 
 /**
- * \defgroup graf2D Basic 2-D routines.
+ * \defgroup grafbasic  Low level graphical routines.
  *  \ingroup (graphics)
  * @{
  */
@@ -362,6 +368,125 @@ void des_vect(float* vvx, float* vvy, int nx, int ny, float xmin, float xmax,
 		 float ymin, float ymax, double scale,  double sizefl, 
 		 char* nomx, char* nomy, char* title, char* device = 0x0, 
 		 int newgraph = 3, int nxpage = 1, int nypage = 1) ;
+
+
+/** Basic routine for drawing the outer boundary of a given domain 
+ *  in a plane X=constant.
+ * 
+ *  X is the Cartesian coordinate relative to the absolute frame.  
+ *  The domain outer boundary is defined by \f$\xi = 1\f$. 
+ *  
+ *  @param mp [input] Mapping defining the various domains
+ *  @param l0 [input] Index of the domain, the outer boundary of which is
+ *		      to be drawn
+ *  @param x0 [input] value of the coordinate X which defines the plane
+ *		      of the drawing
+ *  @param device [input] PGPLOT device (default value = 0x0)
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \\
+ *			0 : does nothing (the device must be already opened) \\
+ *			1 : opens the device but does not close it at the end \\
+ *			2 : closes the device at the end but does not open it at
+ *			    the beginning \\
+ *		        3 (default value) : opens and closes the device 
+ *  @param y_min [input] lowest value of absol. coord. Y (default value = -1)
+ *  @param y_max [input] highest value of absol. coord. Y (default value = 1)
+ *  @param z_min [input] lowest value of absol. coord. Z (default value = -1)
+ *  @param z_max [input] highest value of absol. coord. Z (default value = 1)
+ *  @param nomy [input] y legend of the figure (default value = 0x0)
+ *  @param nomz [input] z legend of the figure (default value = 0x0)
+ *  @param title [input] title of the figure (default value = 0x0)
+ *  @param nxpage [input] number of graphs in the horizontal direction of the
+ *			  display window (meaningfull only if 
+ *			  \c newgraph  = 1 or 3) (default value = 1)
+ *  @param nypage [input] number of graphs in the vertical direction of the
+ *			  display window (meaningfull only if 
+ *			  \c newgraph  = 1 or 3) (default value = 1)
+ */
+void des_domaine_x(const Map& mp, int l0, double x0, char* device = 0x0, 
+		   int newgraph = 3, double y_min = -1, double y_max = 1, 
+		   double z_min = -1, double z_max = 1, 
+		   char* nomy = 0x0, char* nomz = 0x0, char* title = 0x0, 
+		   int nxpage = 1, int nypage = 1) ;
+
+
+/** Basic routine for drawing the outer boundary of a given domain 
+ *  in a plane Y=constant.
+ * 
+ *  Y is the Cartesian coordinate relative to the absolute frame.  
+ *  The domain outer boundary is defined by \f$\xi = 1\f$. 
+ *  
+ *  @param mp [input] Mapping defining the various domains
+ *  @param l0 [input] Index of the domain, the outer boundary of which is
+ *		      to be drawn
+ *  @param y0 [input] value of the coordinate Y which defines the plane
+ *		      of the drawing
+ *  @param device [input] PGPLOT device (default value = 0x0)
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \\
+ *			0 : does nothing (the device must be already opened) \\
+ *			1 : opens the device but does not close it at the end \\
+ *			2 : closes the device at the end but does not open it at
+ *			    the beginning \\
+ *		        3 (default value) : opens and closes the device 
+ *  @param x_min [input] lowest value of absol. coord. X (default value = -1)
+ *  @param x_max [input] highest value of absol. coord. X (default value = 1)
+ *  @param z_min [input] lowest value of absol. coord. Z (default value = -1)
+ *  @param z_max [input] highest value of absol. coord. Z (default value = 1)
+ *  @param nomx [input] x legend of the figure (default value = 0x0)
+ *  @param nomz [input] z legend of the figure (default value = 0x0)
+ *  @param title [input] title of the figure (default value = 0x0)
+ *  @param nxpage [input] number of graphs in the horizontal direction of the
+ *			  display window (meaningfull only if 
+ *			  \c newgraph  = 1 or 3) (default value = 1)
+ *  @param nypage [input] number of graphs in the vertical direction of the
+ *			  display window (meaningfull only if 
+ *			  \c newgraph  = 1 or 3) (default value = 1)
+ */
+void des_domaine_y(const Map& mp, int l0, double y0, char* device = 0x0, 
+		   int newgraph = 3, double x_min = -1, double x_max = 1, 
+		   double z_min = -1, double z_max = 1, 
+		   char* nomx = 0x0, char* nomz = 0x0, char* title = 0x0, 
+		   int nxpage = 1, int nypage = 1) ;
+
+
+/** Basic routine for drawing the outer boundary of a given domain 
+ *  in a plane Z=constant.
+ * 
+ *  Z is the Cartesian coordinate relative to the absolute frame.  
+ *  The domain outer boundary is defined by \f$\xi = 1\f$. 
+ *  
+ *  @param mp [input] Mapping defining the various domains
+ *  @param l0 [input] Index of the domain, the outer boundary of which is
+ *		      to be drawn
+ *  @param z0 [input] value of the coordinate Z which defines the plane
+ *		      of the drawing
+ *  @param device [input] PGPLOT device (default value = 0x0)
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \\
+ *			0 : does nothing (the device must be already opened) \\
+ *			1 : opens the device but does not close it at the end \\
+ *			2 : closes the device at the end but does not open it at
+ *			    the beginning \\
+ *		        3 (default value) : opens and closes the device 
+ *  @param x_min [input] lowest value of absol. coord. X (default value = -1)
+ *  @param x_max [input] highest value of absol. coord. X (default value = 1)
+ *  @param y_min [input] lowest value of absol. coord. Y (default value = -1)
+ *  @param y_max [input] highest value of absol. coord. Y (default value = 1)
+ *  @param nomx [input] x legend of the figure (default value = 0x0)
+ *  @param nomy [input] y legend of the figure (default value = 0x0)
+ *  @param title [input] title of the figure (default value = 0x0)
+ *  @param nxpage [input] number of graphs in the horizontal direction of the
+ *			  display window (meaningfull only if 
+ *			  \c newgraph  = 1 or 3) (default value = 1)
+ *  @param nypage [input] number of graphs in the vertical direction of the
+ *			  display window (meaningfull only if 
+ *			  \c newgraph  = 1 or 3) (default value = 1)
+ */
+void des_domaine_z(const Map& mp, int l0, double z0, char* device = 0x0, 
+		   int newgraph = 3, double x_min = -1, double x_max = 1, 
+		   double y_min = -1, double y_max = 1, 
+		   char* nomx = 0x0, char* nomz = 0x0, char* title = 0x0, 
+		   int nxpage = 1, int nypage = 1) ;
+
+
 
 
 /** Basic routine for drawing spectral coefficients.
@@ -548,65 +673,9 @@ void des_map_et(const Map_et& mp, int lz) ;
 
 
 /**
- * \defgroup grafscal Plot  of a scalar field.
+ * \defgroup grafscal Plot of a scalar field
  *  \ingroup (graphics)
  * @{
- */
-
-/** Draws the profile of a \c Cmp  along some radial axis determined by
- *  a fixed value of \f$(\theta, \phi)\f$. 
- *
- *  @param uu [input] \c Cmp  to be drawn
- *  @param r_min [input] Minimal value of \e r  for the drawing
- *  @param r_max [input] Maximal value of \e r  for the drawing
- *  @param theta [input] Value of \f$\theta\f$ which defines the profile axis
- *  @param phi [input] Value of \f$\phi\f$ which defines the profile axis
- *  @param nomy [input] y legend of the figure (default value = 0x0,  
- *		        corresponds to no y legend)
- *  @param title [input] title of the figure (default value = 0x0, 
- *			corresponds to no title)
- * 
- */
- 
-void des_profile(const Cmp& uu, double r_min, double r_max, 
-		     double theta, double phi, char* nomy = 0x0,  
-		     char* title = 0x0 ) ;
-
-
-/** Draws the profile of a \c Cmp  along some radial axis determined by
- *  a fixed value of \f$(\theta, \phi)\f$. 
- *
- *  @param uu [input] \c Cmp  to be drawn
- *  @param r_min [input] Minimal value of \e r  for the drawing
- *  @param r_max [input] Maximal value of \e r  for the drawing
- *  @param scale scale factor for the radius in the plot
- *  @param theta [input] Value of \f$\theta\f$ which defines the profile axis
- *  @param phi [input] Value of \f$\phi\f$ which defines the profile axis
- *  @param nomx [input] x legend of the figure (default value = 0x0,  
- *		        corresponds to no x legend)
- *  @param nomy [input] y legend of the figure (default value = 0x0,  
- *		        corresponds to no y legend)
- *  @param title [input] title of the figure (default value = 0x0, 
- *			corresponds to no title)
- * 
- */
- 
-void des_profile(const Cmp& uu, double r_min, double r_max, double scale,
-		     double theta, double phi, char* nomx = 0x0, 
-		     char* nomy = 0x0, char* title= 0x0) ;
-/** Draws the profile of a \c Scalar  along some radial axis determined by
- *  a fixed value of \f$(\theta, \phi)\f$. 
- *
- *  @param uu [input] \c Cmp  to be drawn
- *  @param r_min [input] Minimal value of \e r  for the drawing
- *  @param r_max [input] Maximal value of \e r  for the drawing
- *  @param theta [input] Value of \f$\theta\f$ which defines the profile axis
- *  @param phi [input] Value of \f$\phi\f$ which defines the profile axis
- *  @param nomy [input] y legend of the figure (default value = 0x0,  
- *		        corresponds to no y legend)
- *  @param title [input] title of the figure (default value = 0x0, 
- *			corresponds to no title)
- * 
  */
  
 void des_profile(const Scalar& uu, double r_min, double r_max, 
@@ -709,6 +778,570 @@ void des_meridian(const Scalar& uu, double r_min, double r_max,
                   bool closeit = false) ; 
 
 
+
+/** Basic routine for drawing a stellar surface in a plane X=constant.
+ * 
+ *  X is the Cartesian coordinate relative to the absolute frame.  
+ *  The surface to be drawn is defined as the location where a given scalar
+ *  field vanishes. 
+ *  
+ *  @param defsurf [input] field defining the 
+ *			   surface: the surface is defined as the location
+ *			   where this \c Scalar  vanishes 
+ *  @param x0 [input] value of the absolute coordinate X which defines the plane
+ *		      of the drawing
+ *  @param device [input] PGPLOT device (default value = 0x0)
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \\
+ *			0 : does nothing (the device must be already opened) \\
+ *			1 : opens the device but does not close it at the end \\
+ *			2 : closes the device at the end but does not open it at
+ *			    the beginning \\
+ *		        3 (default value) : opens and closes the device 
+ *  @param y_min [input] lowest value of absol. coord. Y (default value = -1)
+ *  @param y_max [input] highest value of absol. coord. Y (default value = 1)
+ *  @param z_min [input] lowest value of absol. coord. Z (default value = -1)
+ *  @param z_max [input] highest value of absol. coord. Z (default value = 1)
+ *  @param nomy [input] y legend of the figure (default value = 0x0)
+ *  @param nomz [input] z legend of the figure (default value = 0x0)
+ *  @param title [input] title of the figure (default value = 0x0)
+ *  @param nxpage [input] number of graphs in the horizontal direction of the
+ *			  display window (meaningfull only if 
+ *			  \c newgraph  = 1 or 3) (default value = 1)
+ *  @param nypage [input] number of graphs in the vertical direction of the
+ *			  display window (meaningfull only if 
+ *			  \c newgraph  = 1 or 3) (default value = 1)
+ */
+void des_surface_x(const Scalar& defsurf, double x0, char* device = 0x0, 
+		   int newgraph = 3, double y_min = -1, double y_max = 1, 
+		   double z_min = -1, double z_max = 1, 
+		   char* nomy = 0x0, char* nomz = 0x0, char* title = 0x0, 
+		   int nxpage = 1, int nypage = 1) ;
+
+/** Basic routine for drawing a stellar surface in a plane Y=constant.
+ * 
+ *  Y is the Cartesian coordinate relative to the absolute frame.  
+ *  The surface to be drawn is defined as the location where a given scalar
+ *  field vanishes. 
+ *  
+ *  @param defsurf [input] field defining the 
+ *			   surface: the surface is defined as the location
+ *			   where this \c Scalar  vanishes 
+ *  @param y0 [input] value of the coordinate Y which defines the plane
+ *		      of the drawing
+ *  @param device [input] PGPLOT device (default value = 0x0)
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \\
+ *			0 : does nothing (the device must be already opened) \\
+ *			1 : opens the device but does not close it at the end \\
+ *			2 : closes the device at the end but does not open it at
+ *			    the beginning \\
+ *		        3 (default value) : opens and closes the device 
+ *  @param x_min [input] lowest value of absol. coord. X (default value = -1)
+ *  @param x_max [input] highest value of absol. coord. X (default value = 1)
+ *  @param z_min [input] lowest value of absol. coord. Z (default value = -1)
+ *  @param z_max [input] highest value of absol. coord. Z (default value = 1)
+ *  @param nomx [input] x legend of the figure (default value = 0x0)
+ *  @param nomz [input] z legend of the figure (default value = 0x0)
+ *  @param title [input] title of the figure (default value = 0x0)
+ *  @param nxpage [input] number of graphs in the horizontal direction of the
+ *			  display window (meaningfull only if 
+ *			  \c newgraph  = 1 or 3) (default value = 1)
+ *  @param nypage [input] number of graphs in the vertical direction of the
+ *			  display window (meaningfull only if 
+ *			  \c newgraph  = 1 or 3) (default value = 1)
+ */
+void des_surface_y(const Scalar& defsurf, double y0, char* device = 0x0, 
+		   int newgraph = 3, double x_min = -1, double x_max = 1, 
+		   double z_min = -1, double z_max = 1, 
+		   char* nomx = 0x0, char* nomz = 0x0, char* title = 0x0, 
+		   int nxpage = 1, int nypage = 1) ;
+
+
+/** Basic routine for drawing a stellar surface in a plane Z=constant.
+ * 
+ *  Z is the Cartesian coordinate relative to the absolute frame.  
+ *  The surface to be drawn is defined as the location where a given scalar
+ *  field vanishes. 
+ *  
+ *  @param defsurf [input] field defining the 
+ *			   surface: the surface is defined as the location
+ *			   where this \c Scalar  vanishes 
+ *  @param z0 [input] value of the coordinate Z which defines the plane
+ *		      of the drawing
+ *  @param device [input] PGPLOT device (default value = 0x0)
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \\
+ *			0 : does nothing (the device must be already opened) \\
+ *			1 : opens the device but does not close it at the end \\
+ *			2 : closes the device at the end but does not open it at
+ *			    the beginning \\
+ *		        3 (default value) : opens and closes the device 
+ *  @param x_min [input] lowest value of absol. coord. X (default value = -1)
+ *  @param x_max [input] highest value of absol. coord. X (default value = 1)
+ *  @param y_min [input] lowest value of absol. coord. Y (default value = -1)
+ *  @param y_max [input] highest value of absol. coord. Y (default value = 1)
+ *  @param nomx [input] x legend of the figure (default value = 0x0)
+ *  @param nomy [input] y legend of the figure (default value = 0x0)
+ *  @param title [input] title of the figure (default value = 0x0)
+ *  @param nxpage [input] number of graphs in the horizontal direction of the
+ *			  display window (meaningfull only if 
+ *			  \c newgraph  = 1 or 3) (default value = 1)
+ *  @param nypage [input] number of graphs in the vertical direction of the
+ *			  display window (meaningfull only if 
+ *			  \c newgraph  = 1 or 3) (default value = 1)
+ */
+void des_surface_z(const Scalar& defsurf, double z0, char* device = 0x0, 
+		   int newgraph = 3, double x_min = -1, double x_max = 1, 
+		   double y_min = -1, double y_max = 1, 
+		   char* nomx = 0x0, char* nomz = 0x0, char* title = 0x0, 
+		   int nxpage = 1, int nypage = 1) ;
+
+
+
+/** Draws isocontour lines of a \c Scalar  in a plane X=constant.
+ *
+ *  X is the Cartesian coordinate relative to the absolute frame.  
+ *  Solid (resp. dashed) lines correspond to positive (resp. negative)
+ *  values of the field. 
+ *
+ *  @param uu [input] \c Scalar  to be drawn
+ *  @param x0 [input] value of the coordinate X which defines the plane
+ *		      of the drawing
+ *  @param nzdes [input] number of domains for which the plot is performed:
+ *			the size of the graphic window is determined so that
+ *			the \c nzdes  innermost domains fit in it (for
+ *			\c zoom  = 1.)
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ *  @param defsurf [input] pointer on a \c Scalar  giving the definition of the 
+ *			   surface: the surface is defined as the location
+ *			   where this \c Scalar  vanishes (default value = 0x0, 
+ *			   corresponds to no surface plot)
+ *  @param zoom [input] Factor by which the size of the graphic window 
+ *			(determined from the size of the \c nzdes  innermost 
+ *			 domains) is multiplied (default value = 1.2)
+ *  @param draw_bound [input] true for drawing the boundaries of the various
+ *			      domains (default value = true)
+ *  @param ncour [input] number of isocontour lines (default value = 15)
+ *  @param ny [input]  number of points in the Y direction (default value = 100)
+ *  @param nz [input]  number of points in the Z direction (default value = 100)
+ */
+void des_coupe_x(const Scalar& uu, double x0, int nzdes, char* title = 0x0, 
+		 const Scalar* defsurf = 0x0, double zoom = 1.2, 
+		 bool draw_bound = true, int ncour = 15, int ny = 100, 
+		 int nz = 100) ; 
+
+
+/** Draws isocontour lines of a \c Scalar  in a plane X=constant
+ *  within a specified graphic window. 
+ *
+ *  X is the Cartesian coordinate relative to the absolute frame.  
+ *  Solid (resp. dashed) lines correspond to positive (resp. negative)
+ *  values of the field. 
+ *
+ *  @param uu [input] \c Scalar  to be drawn
+ *  @param x0 [input] value of the coordinate X which defines the plane
+ *		      of the drawing
+ *  @param y_min [input] lowest value of absol. coord. Y 
+ *  @param y_max [input] highest value of absol. coord. Y 
+ *  @param z_min [input] lowest value of absol. coord. Z
+ *  @param z_max [input] highest value of absol. coord. Z
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ *  @param defsurf [input] pointer on a \c Scalar  giving the definition of the 
+ *			   surface: the surface is defined as the location
+ *			   where this \c Scalar  vanishes (default value = 0x0, 
+ *			   corresponds to no surface plot)
+ *  @param draw_bound [input] true for drawing the boundaries of the various
+ *			      domains (default value = true)
+ *  @param ncour [input] number of isocontour lines (default value = 15)
+ *  @param ny [input]  number of points in the Y direction (default value = 100)
+ *  @param nz [input]  number of points in the Z direction (default value = 100)
+ */
+void des_coupe_x(const Scalar& uu, double x0, double y_min, double y_max, 
+		 double z_min, double z_max, char* title = 0x0, 
+		 const Scalar* defsurf = 0x0, bool draw_bound = true,
+		 int ncour = 15, int ny = 100, int nz = 100) ; 
+
+
+/** Draws isocontour lines of a \c Scalar  in a plane Y=constant.
+ *
+ *  Y is the Cartesian coordinate relative to the absolute frame.  
+ *  Solid (resp. dashed) lines correspond to positive (resp. negative)
+ *  values of the field. 
+ *
+ *  @param uu [input] \c Scalar  to be drawn
+ *  @param y0 [input] value of the coordinate Y which defines the plane
+ *		      of the drawing
+ *  @param nzdes [input] number of domains for which the plot is performed:
+ *			the size of the graphic window is determined so that
+ *			the \c nzdes  innermost domains fit in it (for
+ *			\c zoom  = 1.)
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ *  @param defsurf [input] pointer on a \c Scalar  giving the definition of the 
+ *			   surface: the surface is defined as the location
+ *			   where this \c Scalar  vanishes (default value = 0x0, 
+ *			   corresponds to no surface plot)
+ *  @param zoom [input] Factor by which the size of the graphic window 
+ *			(determined from the size of the \c nzdes  innermost 
+ *			 domains) is multiplied (default value = 1.2)
+ *  @param draw_bound [input] true for drawing the boundaries of the various
+ *			      domains (default value = true)
+ *  @param ncour [input] number of isocontour lines (default value = 15)
+ *  @param nx [input]  number of points in the X direction (default value = 100)
+ *  @param nz [input]  number of points in the Z direction (default value = 100)
+ */
+void des_coupe_y(const Scalar& uu, double y0, int nzdes, char* title = 0x0, 
+		 const Scalar* defsurf = 0x0, double zoom = 1.2,
+		 bool draw_bound = true, int ncour = 15, int nx = 100, 
+		 int nz = 100) ; 
+
+/** Draws isocontour lines of a \c Scalar  in a plane Y=constant
+ *  within a specified graphic window. 
+ *
+ *  Y is the Cartesian coordinate relative to the absolute frame.  
+ *  Solid (resp. dashed) lines correspond to positive (resp. negative)
+ *  values of the field. 
+ *
+ *  @param uu [input] \c Scalar  to be drawn
+ *  @param y0 [input] value of the coordinate Y which defines the plane
+ *		      of the drawing
+ *  @param x_min [input] lowest value of absol. coord. X 
+ *  @param x_max [input] highest value of absol. coord. X 
+ *  @param z_min [input] lowest value of absol. coord. Z 
+ *  @param z_max [input] highest value of absol. coord. Z
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ *  @param defsurf [input] pointer on a \c Scalar  giving the definition of the 
+ *			   surface: the surface is defined as the location
+ *			   where this \c Scalar  vanishes (default value = 0x0, 
+ *			   corresponds to no surface plot)
+ *  @param draw_bound [input] true for drawing the boundaries of the various
+ *			      domains (default value = true)
+ *  @param ncour [input] number of isocontour lines (default value = 15)
+ *  @param nx [input]  number of points in the X direction (default value = 100)
+ *  @param nz [input]  number of points in the Z direction (default value = 100)
+ */
+void des_coupe_y(const Scalar& uu, double y0, double x_min, double x_max, 
+		 double z_min, double z_max, char* title = 0x0, 
+		 const Scalar* defsurf = 0x0, bool draw_bound = true,
+		 int ncour = 15, int nx = 100, int nz = 100) ; 
+
+
+/** Draws isocontour lines of a \c Scalar  in a plane Z=constant.
+ *
+ *  Z is the Cartesian coordinate relative to the absolute frame.  
+ *  Solid (resp. dashed) lines correspond to positive (resp. negative)
+ *  values of the field. 
+ *
+ *  @param uu [input] \c Scalar  to be drawn
+ *  @param z0 [input] value of the coordinate Z which defines the plane
+ *		      of the drawing
+ *  @param nzdes [input] number of domains for which the plot is performed:
+ *			the size of the graphic window is determined so that
+ *			the \c nzdes  innermost domains fit in it (for
+ *			\c zoom  = 1.)
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ *  @param defsurf [input] pointer on a \c Scalar  giving the definition of the 
+ *			   surface: the surface is defined as the location
+ *			   where this \c Scalar  vanishes (default value = 0x0, 
+ *			   corresponds to no surface plot)
+ *  @param zoom [input] Factor by which the size of the graphic window 
+ *			(determined from the size of the \c nzdes  innermost 
+ *			 domains) is multiplied (default value = 1.2)
+ *  @param draw_bound [input] true for drawing the boundaries of the various
+ *			      domains (default value = true)
+ *  @param ncour [input] number of isocontour lines (default value = 15)
+ *  @param nx [input]  number of points in the X direction (default value = 100)
+ *  @param ny [input]  number of points in the Y direction (default value = 100)
+ */
+void des_coupe_z(const Scalar& uu, double z0, int nzdes, char* title = 0x0, 
+		 const Scalar* defsurf = 0x0, double zoom = 1.2, 
+		 bool draw_bound = true, int ncour = 15, int nx = 100, 
+		 int ny = 100) ;
+
+/** Draws isocontour lines of a \c Scalar  in a plane Z=constant
+ *  within a specified graphic window. 
+ *
+ *  Z is the Cartesian coordinate relative to the absolute frame.  
+ *  Solid (resp. dashed) lines correspond to positive (resp. negative)
+ *  values of the field. 
+ *
+ *  @param uu [input] \c Scalar  to be drawn
+ *  @param z0 [input] value of the coordinate Z which defines the plane
+ *		      of the drawing
+ *  @param x_min [input] lowest value of absol. coord. X 
+ *  @param x_max [input] highest value of absol. coord. X 
+ *  @param y_min [input] lowest value of absol. coord. Y
+ *  @param y_max [input] highest value of absol. coord. Y
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ *  @param defsurf [input] pointer on a \c Scalar  giving the definition of the 
+ *			   surface: the surface is defined as the location
+ *			   where this \c Scalar  vanishes (default value = 0x0, 
+ *			   corresponds to no surface plot)
+ *  @param draw_bound [input] true for drawing the boundaries of the various
+ *			      domains (default value = true)
+ *  @param ncour [input] number of isocontour lines (default value = 15)
+ *  @param nx [input]  number of points in the X direction (default value = 100)
+ *  @param ny [input]  number of points in the Y direction (default value = 100)
+ */
+void des_coupe_z(const Scalar& uu, double z0, double x_min, double x_max, 
+		 double y_min, double y_max, char* title = 0x0, 
+		 const Scalar* defsurf = 0x0, bool draw_bound = true,
+		 int ncour = 15, int nx = 100, int ny = 100) ;
+
+
+/** @} */
+
+
+/**
+ * \defgroup grafvec Plot of a vector field.
+ *  \ingroup (graphics)
+ * @{
+ */
+
+/** Plots a vector field in a plane X=constant.
+ *
+ *  X is the Cartesian coordinate relative to the absolute frame.  
+ *
+ *  @param vv [input] vector field to be drawn
+ *  @param x0 [input] value of the coordinate X which defines the plane
+ *		      of the drawing
+ *  @param scale [input] controls the length of the drawn arrows; if \c scale 
+ *			 is negative, the length is determined automatically by
+ *			 the routine: \\
+ *			\c scale = -1  : max. length = step of the rectangular
+ *					   grid \\ 
+ *			\c scale = -2  : max. length = 2* step of the rectangular
+ *					   grid \\ 
+ *			 etc...	   
+ *  @param sizefl [input] size of the arrows extremities (standard value: 1)
+ *  @param nzdes [input] number of domains for which the plot is performed:
+ *			the size of the graphic window is determined so that
+ *			the \c nzdes  innermost domains fit in it (for
+ *			\c zoom  = 1.)
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ *  @param defsurf [input] pointer on a \c Scalar  giving the definition of the 
+ *			   surface: the surface is defined as the location
+ *			   where this \c Scalar  vanishes (default value = 0x0, 
+ *			   corresponds to no surface plot)
+ *  @param zoom [input] Factor by which the size of the graphic window 
+ *			(determined from the size of the \c nzdes  innermost 
+ *			 domains) is multiplied (default value = 1.2)
+ *  @param draw_bound [input] true for drawing the boundaries of the various
+ *			      domains (default value = true)
+ *  @param ny [input]  number of points in the Y direction (default value = 20)
+ *  @param nz [input]  number of points in the Z direction (default value = 20)
+ */
+void des_coupe_vect_x(const Vector& vv, double x0, double scale, double sizefl,
+		      int nzdes, char* title = 0x0, const Scalar* defsurf = 0x0, 
+		      double zoom = 1.2, bool draw_bound = true, 
+		      int ny = 20, int nz = 20) ; 
+
+
+/** Plots a vector field in a plane X=constant
+ *  within a specified graphic window. 
+ *
+ *  X is the Cartesian coordinate relative to the absolute frame.  
+ *
+ *  @param vv [input] vector field to be drawn
+ *  @param x0 [input] value of the coordinate X which defines the plane
+ *		      of the drawing
+ *  @param scale [input] controls the length of the drawn arrows; if \c scale 
+ *			 is negative, the length is determined automatically by
+ *			 the routine: \\
+ *			\c scale = -1  : max. length = step of the rectangular
+ *					   grid \\ 
+ *			\c scale = -2  : max. length = 2* step of the rectangular
+ *					   grid \\ 
+ *			 etc...	   
+ *  @param sizefl [input] size of the arrows extremities (standard value: 1)
+ *  @param y_min [input] lowest value of absol. coord. Y 
+ *  @param y_max [input] highest value of absol. coord. Y 
+ *  @param z_min [input] lowest value of absol. coord. Z
+ *  @param z_max [input] highest value of absol. coord. Z
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ *  @param defsurf [input] pointer on a \c Scalar  giving the definition of the 
+ *			   surface: the surface is defined as the location
+ *			   where this \c Scalar  vanishes (default value = 0x0, 
+ *			   corresponds to no surface plot)
+ *  @param draw_bound [input] true for drawing the boundaries of the various
+ *			      domains (default value = true)
+ *  @param ny [input]  number of points in the Y direction (default value = 20)
+ *  @param nz [input]  number of points in the Z direction (default value = 20)
+ */
+void des_coupe_vect_x(const Vector& vv, double x0, double scale, double
+		      sizefl, double y_min, double y_max, double z_min, 
+		      double z_max, char* title = 0x0, const Scalar* defsurf = 0x0,
+		      bool draw_bound = true, int ny = 20, int nz = 20) ;
+
+/** Plots a vector field in a plane Y=constant.
+ *
+ *  Y is the Cartesian coordinate relative to the absolute frame.  
+ *
+ *  @param vv [input] vector field to be drawn
+ *  @param y0 [input] value of the coordinate Y which defines the plane
+ *		      of the drawing
+ *  @param scale [input] controls the length of the drawn arrows; if \c scale 
+ *			 is negative, the length is determined automatically by
+ *			 the routine: \\
+ *			\c scale = -1  : max. length = step of the rectangular
+ *					   grid \\ 
+ *			\c scale = -2  : max. length = 2* step of the rectangular
+ *					   grid \\ 
+ *			 etc...	   
+ *  @param sizefl [input] size of the arrows extremities (standard value: 1)
+ *  @param nzdes [input] number of domains for which the plot is performed:
+ *			the size of the graphic window is determined so that
+ *			the \c nzdes  innermost domains fit in it (for
+ *			\c zoom  = 1.)
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ *  @param defsurf [input] pointer on a \c Scalar  giving the definition of the 
+ *			   surface: the surface is defined as the location
+ *			   where this \c Scalar  vanishes (default value = 0x0, 
+ *			   corresponds to no surface plot)
+ *  @param zoom [input] Factor by which the size of the graphic window 
+ *			(determined from the size of the \c nzdes  innermost 
+ *			 domains) is multiplied (default value = 1.2)
+ *  @param draw_bound [input] true for drawing the boundaries of the various
+ *			      domains (default value = true)
+ *  @param nx [input]  number of points in the X direction (default value = 20)
+ *  @param nz [input]  number of points in the Z direction (default value = 20)
+ */
+void des_coupe_vect_y(const Vector& vv, double y0, double scale, double sizefl,
+		      int nzdes, char* title = 0x0, const Scalar* defsurf = 0x0, 
+		      double zoom = 1.2, bool draw_bound = true, 
+		      int nx = 20, int nz = 20) ; 
+
+
+/** Plots a vector field in a plane Y=constant
+ *  within a specified graphic window. 
+ *
+ *  Y is the Cartesian coordinate relative to the absolute frame.  
+ *
+ *  @param vv [input] vector field to be drawn
+ *  @param y0 [input] value of the coordinate Y which defines the plane
+ *		      of the drawing
+ *  @param scale [input] controls the length of the drawn arrows; if \c scale 
+ *			 is negative, the length is determined automatically by
+ *			 the routine: \\
+ *			\c scale = -1  : max. length = step of the rectangular
+ *					   grid \\ 
+ *			\c scale = -2  : max. length = 2* step of the rectangular
+ *					   grid \\ 
+ *			 etc...	   
+ *  @param sizefl [input] size of the arrows extremities (standard value: 1)
+ *  @param x_min [input] lowest value of absol. coord. X 
+ *  @param x_max [input] highest value of absol. coord. X 
+ *  @param z_min [input] lowest value of absol. coord. Z
+ *  @param z_max [input] highest value of absol. coord. Z
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ *  @param defsurf [input] pointer on a \c Scalar  giving the definition of the 
+ *			   surface: the surface is defined as the location
+ *			   where this \c Scalar  vanishes (default value = 0x0, 
+ *			   corresponds to no surface plot)
+ *  @param draw_bound [input] true for drawing the boundaries of the various
+ *			      domains (default value = true)
+ *  @param nx [input]  number of points in the X direction (default value = 20)
+ *  @param nz [input]  number of points in the Z direction (default value = 20)
+ */
+void des_coupe_vect_y(const Vector& vv, double y0, double scale, double
+		      sizefl, double x_min, double x_max, double z_min, 
+		      double z_max, char* title = 0x0, const Scalar* defsurf = 0x0,
+		      bool draw_bound = true, int nx = 20, int nz = 20) ;
+
+/** Plots a vector field in a plane Z=constant.
+ *
+ *  Z is the Cartesian coordinate relative to the absolute frame.  
+ *
+ *  @param vv [input] vector field to be drawn
+ *  @param z0 [input] value of the coordinate Y which defines the plane
+ *		      of the drawing
+ *  @param scale [input] controls the length of the drawn arrows; if \c scale 
+ *			 is negative, the length is determined automatically by
+ *			 the routine: \\
+ *			\c scale = -1  : max. length = step of the rectangular
+ *					   grid \\ 
+ *			\c scale = -2  : max. length = 2* step of the rectangular
+ *					   grid \\ 
+ *			 etc...	   
+ *  @param sizefl [input] size of the arrows extremities (standard value: 1)
+ *  @param nzdes [input] number of domains for which the plot is performed:
+ *			the size of the graphic window is determined so that
+ *			the \c nzdes  innermost domains fit in it (for
+ *			\c zoom  = 1.)
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ *  @param defsurf [input] pointer on a \c Scalar  giving the definition of the 
+ *			   surface: the surface is defined as the location
+ *			   where this \c Scalar  vanishes (default value = 0x0, 
+ *			   corresponds to no surface plot)
+ *  @param zoom [input] Factor by which the size of the graphic window 
+ *			(determined from the size of the \c nzdes  innermost 
+ *			 domains) is multiplied (default value = 1.2)
+ *  @param draw_bound [input] true for drawing the boundaries of the various
+ *			      domains (default value = true)
+ *  @param nx [input]  number of points in the X direction (default value = 20)
+ *  @param ny [input]  number of points in the Y direction (default value = 20)
+ */
+void des_coupe_vect_z(const Vector& vv, double z0, double scale, double sizefl,
+		      int nzdes, char* title = 0x0, const Scalar* defsurf = 0x0, 
+		      double zoom = 1.2, bool draw_bound = true, 
+		      int nx = 20, int ny = 20) ; 
+
+
+/** Plots a vector field in a plane Z=constant
+ *  within a specified graphic window. 
+ *
+ *  Z is the Cartesian coordinate relative to the absolute frame.  
+ *
+ *  @param vv [input] vector field to be drawn
+ *  @param z0 [input] value of the coordinate Z which defines the plane
+ *		      of the drawing
+ *  @param scale [input] controls the length of the drawn arrows; if \c scale 
+ *			 is negative, the length is determined automatically by
+ *			 the routine: \\
+ *			\c scale = -1  : max. length = step of the rectangular
+ *					   grid \\ 
+ *			\c scale = -2  : max. length = 2* step of the rectangular
+ *					   grid \\ 
+ *			 etc...	   
+ *  @param sizefl [input] size of the arrows extremities (standard value: 1)
+ *  @param x_min [input] lowest value of absol. coord. X 
+ *  @param x_max [input] highest value of absol. coord. X 
+ *  @param y_min [input] lowest value of absol. coord. Y
+ *  @param y_max [input] highest value of absol. coord. Y
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ *  @param defsurf [input] pointer on a \c Scalar  giving the definition of the 
+ *			   surface: the surface is defined as the location
+ *			   where this \c Scalar  vanishes (default value = 0x0, 
+ *			   corresponds to no surface plot)
+ *  @param draw_bound [input] true for drawing the boundaries of the various
+ *			      domains (default value = true)
+ *  @param nx [input]  number of points in the X direction (default value = 20)
+ *  @param ny [input]  number of points in the Y direction (default value = 20)
+ */
+void des_coupe_vect_z(const Vector& vv, double z0, double scale, double
+		      sizefl, double x_min, double x_max, double y_min, 
+		      double y_max, char* title = 0x0, const Scalar* defsurf = 0x0,
+		      bool draw_bound = true, int nx = 20, int ny = 20) ;
+
+
+/** @} */
+
+
+/**
+ * \defgroup graftens Plot of a tensor field of valence 2
+ *  \ingroup (graphics)
+ * @{
+ */
+
 /** Draws profiles of the components of a symmetric tensor field 
  * along various radial axes 
  * in two meridional planes \f$\phi=0\f$ and \f$\phi=\pi/4\f$
@@ -738,238 +1371,58 @@ void des_meridian(const Sym_tensor& hh, double r_min, double r_max,
                   bool closeit = false) ; 
 
 
-/** Basic routine for drawing a stellar surface in a plane X=constant.
- * 
- *  X is the Cartesian coordinate relative to the absolute frame.  
- *  The surface to be drawn is defined as the location where a given scalar
- *  field vanishes. 
- *  
- *  @param defsurf [input] field defining the 
- *			   surface: the surface is defined as the location
- *			   where this \c Cmp  vanishes 
- *  @param x0 [input] value of the absolute coordinate X which defines the plane
- *		      of the drawing
- *  @param device [input] PGPLOT device (default value = 0x0)
- *  @param newgraph [input] controls the opening/closing of the graphic device: \\
- *			0 : does nothing (the device must be already opened) \\
- *			1 : opens the device but does not close it at the end \\
- *			2 : closes the device at the end but does not open it at
- *			    the beginning \\
- *		        3 (default value) : opens and closes the device 
- *  @param y_min [input] lowest value of absol. coord. Y (default value = -1)
- *  @param y_max [input] highest value of absol. coord. Y (default value = 1)
- *  @param z_min [input] lowest value of absol. coord. Z (default value = -1)
- *  @param z_max [input] highest value of absol. coord. Z (default value = 1)
- *  @param nomy [input] y legend of the figure (default value = 0x0)
- *  @param nomz [input] z legend of the figure (default value = 0x0)
- *  @param title [input] title of the figure (default value = 0x0)
- *  @param nxpage [input] number of graphs in the horizontal direction of the
- *			  display window (meaningfull only if 
- *			  \c newgraph  = 1 or 3) (default value = 1)
- *  @param nypage [input] number of graphs in the vertical direction of the
- *			  display window (meaningfull only if 
- *			  \c newgraph  = 1 or 3) (default value = 1)
+/** @} */
+
+
+
+
+/**
+ * \defgroup grafscalobs Plot of a Cmp (obsolete)
+ *  \ingroup (graphics)
+ * @{
  */
-void des_surface_x(const Cmp& defsurf, double x0, char* device = 0x0, 
-		   int newgraph = 3, double y_min = -1, double y_max = 1, 
-		   double z_min = -1, double z_max = 1, 
-		   char* nomy = 0x0, char* nomz = 0x0, char* title = 0x0, 
-		   int nxpage = 1, int nypage = 1) ;
 
-/** Basic routine for drawing a stellar surface in a plane Y=constant.
+/** Draws the profile of a \c Cmp  along some radial axis determined by
+ *  a fixed value of \f$(\theta, \phi)\f$. 
+ *
+ *  @param uu [input] \c Cmp  to be drawn
+ *  @param r_min [input] Minimal value of \e r  for the drawing
+ *  @param r_max [input] Maximal value of \e r  for the drawing
+ *  @param theta [input] Value of \f$\theta\f$ which defines the profile axis
+ *  @param phi [input] Value of \f$\phi\f$ which defines the profile axis
+ *  @param nomy [input] y legend of the figure (default value = 0x0,  
+ *		        corresponds to no y legend)
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
  * 
- *  Y is the Cartesian coordinate relative to the absolute frame.  
- *  The surface to be drawn is defined as the location where a given scalar
- *  field vanishes. 
- *  
- *  @param defsurf [input] field defining the 
- *			   surface: the surface is defined as the location
- *			   where this \c Cmp  vanishes 
- *  @param y0 [input] value of the coordinate Y which defines the plane
- *		      of the drawing
- *  @param device [input] PGPLOT device (default value = 0x0)
- *  @param newgraph [input] controls the opening/closing of the graphic device: \\
- *			0 : does nothing (the device must be already opened) \\
- *			1 : opens the device but does not close it at the end \\
- *			2 : closes the device at the end but does not open it at
- *			    the beginning \\
- *		        3 (default value) : opens and closes the device 
- *  @param x_min [input] lowest value of absol. coord. X (default value = -1)
- *  @param x_max [input] highest value of absol. coord. X (default value = 1)
- *  @param z_min [input] lowest value of absol. coord. Z (default value = -1)
- *  @param z_max [input] highest value of absol. coord. Z (default value = 1)
- *  @param nomx [input] x legend of the figure (default value = 0x0)
- *  @param nomz [input] z legend of the figure (default value = 0x0)
- *  @param title [input] title of the figure (default value = 0x0)
- *  @param nxpage [input] number of graphs in the horizontal direction of the
- *			  display window (meaningfull only if 
- *			  \c newgraph  = 1 or 3) (default value = 1)
- *  @param nypage [input] number of graphs in the vertical direction of the
- *			  display window (meaningfull only if 
- *			  \c newgraph  = 1 or 3) (default value = 1)
  */
-void des_surface_y(const Cmp& defsurf, double y0, char* device = 0x0, 
-		   int newgraph = 3, double x_min = -1, double x_max = 1, 
-		   double z_min = -1, double z_max = 1, 
-		   char* nomx = 0x0, char* nomz = 0x0, char* title = 0x0, 
-		   int nxpage = 1, int nypage = 1) ;
+ 
+void des_profile(const Cmp& uu, double r_min, double r_max, 
+		     double theta, double phi, char* nomy = 0x0,  
+		     char* title = 0x0 ) ;
 
 
-/** Basic routine for drawing a stellar surface in a plane Z=constant.
+/** Draws the profile of a \c Cmp  along some radial axis determined by
+ *  a fixed value of \f$(\theta, \phi)\f$. 
+ *
+ *  @param uu [input] \c Cmp  to be drawn
+ *  @param r_min [input] Minimal value of \e r  for the drawing
+ *  @param r_max [input] Maximal value of \e r  for the drawing
+ *  @param scale scale factor for the radius in the plot
+ *  @param theta [input] Value of \f$\theta\f$ which defines the profile axis
+ *  @param phi [input] Value of \f$\phi\f$ which defines the profile axis
+ *  @param nomx [input] x legend of the figure (default value = 0x0,  
+ *		        corresponds to no x legend)
+ *  @param nomy [input] y legend of the figure (default value = 0x0,  
+ *		        corresponds to no y legend)
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
  * 
- *  Z is the Cartesian coordinate relative to the absolute frame.  
- *  The surface to be drawn is defined as the location where a given scalar
- *  field vanishes. 
- *  
- *  @param defsurf [input] field defining the 
- *			   surface: the surface is defined as the location
- *			   where this \c Cmp  vanishes 
- *  @param z0 [input] value of the coordinate Z which defines the plane
- *		      of the drawing
- *  @param device [input] PGPLOT device (default value = 0x0)
- *  @param newgraph [input] controls the opening/closing of the graphic device: \\
- *			0 : does nothing (the device must be already opened) \\
- *			1 : opens the device but does not close it at the end \\
- *			2 : closes the device at the end but does not open it at
- *			    the beginning \\
- *		        3 (default value) : opens and closes the device 
- *  @param x_min [input] lowest value of absol. coord. X (default value = -1)
- *  @param x_max [input] highest value of absol. coord. X (default value = 1)
- *  @param y_min [input] lowest value of absol. coord. Y (default value = -1)
- *  @param y_max [input] highest value of absol. coord. Y (default value = 1)
- *  @param nomx [input] x legend of the figure (default value = 0x0)
- *  @param nomy [input] y legend of the figure (default value = 0x0)
- *  @param title [input] title of the figure (default value = 0x0)
- *  @param nxpage [input] number of graphs in the horizontal direction of the
- *			  display window (meaningfull only if 
- *			  \c newgraph  = 1 or 3) (default value = 1)
- *  @param nypage [input] number of graphs in the vertical direction of the
- *			  display window (meaningfull only if 
- *			  \c newgraph  = 1 or 3) (default value = 1)
  */
-void des_surface_z(const Cmp& defsurf, double z0, char* device = 0x0, 
-		   int newgraph = 3, double x_min = -1, double x_max = 1, 
-		   double y_min = -1, double y_max = 1, 
-		   char* nomx = 0x0, char* nomz = 0x0, char* title = 0x0, 
-		   int nxpage = 1, int nypage = 1) ;
-
-
-/** Basic routine for drawing the outer boundary of a given domain 
- *  in a plane X=constant.
- * 
- *  X is the Cartesian coordinate relative to the absolute frame.  
- *  The domain outer boundary is defined by \f$\xi = 1\f$. 
- *  
- *  @param mp [input] Mapping defining the various domains
- *  @param l0 [input] Index of the domain, the outer boundary of which is
- *		      to be drawn
- *  @param x0 [input] value of the coordinate X which defines the plane
- *		      of the drawing
- *  @param device [input] PGPLOT device (default value = 0x0)
- *  @param newgraph [input] controls the opening/closing of the graphic device: \\
- *			0 : does nothing (the device must be already opened) \\
- *			1 : opens the device but does not close it at the end \\
- *			2 : closes the device at the end but does not open it at
- *			    the beginning \\
- *		        3 (default value) : opens and closes the device 
- *  @param y_min [input] lowest value of absol. coord. Y (default value = -1)
- *  @param y_max [input] highest value of absol. coord. Y (default value = 1)
- *  @param z_min [input] lowest value of absol. coord. Z (default value = -1)
- *  @param z_max [input] highest value of absol. coord. Z (default value = 1)
- *  @param nomy [input] y legend of the figure (default value = 0x0)
- *  @param nomz [input] z legend of the figure (default value = 0x0)
- *  @param title [input] title of the figure (default value = 0x0)
- *  @param nxpage [input] number of graphs in the horizontal direction of the
- *			  display window (meaningfull only if 
- *			  \c newgraph  = 1 or 3) (default value = 1)
- *  @param nypage [input] number of graphs in the vertical direction of the
- *			  display window (meaningfull only if 
- *			  \c newgraph  = 1 or 3) (default value = 1)
- */
-void des_domaine_x(const Map& mp, int l0, double x0, char* device = 0x0, 
-		   int newgraph = 3, double y_min = -1, double y_max = 1, 
-		   double z_min = -1, double z_max = 1, 
-		   char* nomy = 0x0, char* nomz = 0x0, char* title = 0x0, 
-		   int nxpage = 1, int nypage = 1) ;
-
-
-/** Basic routine for drawing the outer boundary of a given domain 
- *  in a plane Y=constant.
- * 
- *  Y is the Cartesian coordinate relative to the absolute frame.  
- *  The domain outer boundary is defined by \f$\xi = 1\f$. 
- *  
- *  @param mp [input] Mapping defining the various domains
- *  @param l0 [input] Index of the domain, the outer boundary of which is
- *		      to be drawn
- *  @param y0 [input] value of the coordinate Y which defines the plane
- *		      of the drawing
- *  @param device [input] PGPLOT device (default value = 0x0)
- *  @param newgraph [input] controls the opening/closing of the graphic device: \\
- *			0 : does nothing (the device must be already opened) \\
- *			1 : opens the device but does not close it at the end \\
- *			2 : closes the device at the end but does not open it at
- *			    the beginning \\
- *		        3 (default value) : opens and closes the device 
- *  @param x_min [input] lowest value of absol. coord. X (default value = -1)
- *  @param x_max [input] highest value of absol. coord. X (default value = 1)
- *  @param z_min [input] lowest value of absol. coord. Z (default value = -1)
- *  @param z_max [input] highest value of absol. coord. Z (default value = 1)
- *  @param nomx [input] x legend of the figure (default value = 0x0)
- *  @param nomz [input] z legend of the figure (default value = 0x0)
- *  @param title [input] title of the figure (default value = 0x0)
- *  @param nxpage [input] number of graphs in the horizontal direction of the
- *			  display window (meaningfull only if 
- *			  \c newgraph  = 1 or 3) (default value = 1)
- *  @param nypage [input] number of graphs in the vertical direction of the
- *			  display window (meaningfull only if 
- *			  \c newgraph  = 1 or 3) (default value = 1)
- */
-void des_domaine_y(const Map& mp, int l0, double y0, char* device = 0x0, 
-		   int newgraph = 3, double x_min = -1, double x_max = 1, 
-		   double z_min = -1, double z_max = 1, 
-		   char* nomx = 0x0, char* nomz = 0x0, char* title = 0x0, 
-		   int nxpage = 1, int nypage = 1) ;
-
-
-/** Basic routine for drawing the outer boundary of a given domain 
- *  in a plane Z=constant.
- * 
- *  Z is the Cartesian coordinate relative to the absolute frame.  
- *  The domain outer boundary is defined by \f$\xi = 1\f$. 
- *  
- *  @param mp [input] Mapping defining the various domains
- *  @param l0 [input] Index of the domain, the outer boundary of which is
- *		      to be drawn
- *  @param z0 [input] value of the coordinate Z which defines the plane
- *		      of the drawing
- *  @param device [input] PGPLOT device (default value = 0x0)
- *  @param newgraph [input] controls the opening/closing of the graphic device: \\
- *			0 : does nothing (the device must be already opened) \\
- *			1 : opens the device but does not close it at the end \\
- *			2 : closes the device at the end but does not open it at
- *			    the beginning \\
- *		        3 (default value) : opens and closes the device 
- *  @param x_min [input] lowest value of absol. coord. X (default value = -1)
- *  @param x_max [input] highest value of absol. coord. X (default value = 1)
- *  @param y_min [input] lowest value of absol. coord. Y (default value = -1)
- *  @param y_max [input] highest value of absol. coord. Y (default value = 1)
- *  @param nomx [input] x legend of the figure (default value = 0x0)
- *  @param nomy [input] y legend of the figure (default value = 0x0)
- *  @param title [input] title of the figure (default value = 0x0)
- *  @param nxpage [input] number of graphs in the horizontal direction of the
- *			  display window (meaningfull only if 
- *			  \c newgraph  = 1 or 3) (default value = 1)
- *  @param nypage [input] number of graphs in the vertical direction of the
- *			  display window (meaningfull only if 
- *			  \c newgraph  = 1 or 3) (default value = 1)
- */
-void des_domaine_z(const Map& mp, int l0, double z0, char* device = 0x0, 
-		   int newgraph = 3, double x_min = -1, double x_max = 1, 
-		   double y_min = -1, double y_max = 1, 
-		   char* nomx = 0x0, char* nomz = 0x0, char* title = 0x0, 
-		   int nxpage = 1, int nypage = 1) ;
-
+ 
+void des_profile(const Cmp& uu, double r_min, double r_max, double scale,
+		     double theta, double phi, char* nomx = 0x0, 
+		     char* nomy = 0x0, char* title= 0x0) ;
 
 
 /** Draws isocontour lines of a \c Cmp  in a plane X=constant.
@@ -1359,11 +1812,130 @@ void des_coupe_bin_z(const Cmp& uu1, const Cmp& uu2, double z0, double x_min,
 		     bool draw_bound = true, int ncour = 15, int nx = 100, 
 		     int ny = 100) ; 
 
+
+
+/** Basic routine for drawing a stellar surface in a plane X=constant.
+ * 
+ *  X is the Cartesian coordinate relative to the absolute frame.  
+ *  The surface to be drawn is defined as the location where a given scalar
+ *  field vanishes. 
+ *  
+ *  @param defsurf [input] field defining the 
+ *			   surface: the surface is defined as the location
+ *			   where this \c Cmp  vanishes 
+ *  @param x0 [input] value of the absolute coordinate X which defines the plane
+ *		      of the drawing
+ *  @param device [input] PGPLOT device (default value = 0x0)
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \\
+ *			0 : does nothing (the device must be already opened) \\
+ *			1 : opens the device but does not close it at the end \\
+ *			2 : closes the device at the end but does not open it at
+ *			    the beginning \\
+ *		        3 (default value) : opens and closes the device 
+ *  @param y_min [input] lowest value of absol. coord. Y (default value = -1)
+ *  @param y_max [input] highest value of absol. coord. Y (default value = 1)
+ *  @param z_min [input] lowest value of absol. coord. Z (default value = -1)
+ *  @param z_max [input] highest value of absol. coord. Z (default value = 1)
+ *  @param nomy [input] y legend of the figure (default value = 0x0)
+ *  @param nomz [input] z legend of the figure (default value = 0x0)
+ *  @param title [input] title of the figure (default value = 0x0)
+ *  @param nxpage [input] number of graphs in the horizontal direction of the
+ *			  display window (meaningfull only if 
+ *			  \c newgraph  = 1 or 3) (default value = 1)
+ *  @param nypage [input] number of graphs in the vertical direction of the
+ *			  display window (meaningfull only if 
+ *			  \c newgraph  = 1 or 3) (default value = 1)
+ */
+void des_surface_x(const Cmp& defsurf, double x0, char* device = 0x0, 
+		   int newgraph = 3, double y_min = -1, double y_max = 1, 
+		   double z_min = -1, double z_max = 1, 
+		   char* nomy = 0x0, char* nomz = 0x0, char* title = 0x0, 
+		   int nxpage = 1, int nypage = 1) ;
+
+/** Basic routine for drawing a stellar surface in a plane Y=constant.
+ * 
+ *  Y is the Cartesian coordinate relative to the absolute frame.  
+ *  The surface to be drawn is defined as the location where a given scalar
+ *  field vanishes. 
+ *  
+ *  @param defsurf [input] field defining the 
+ *			   surface: the surface is defined as the location
+ *			   where this \c Cmp  vanishes 
+ *  @param y0 [input] value of the coordinate Y which defines the plane
+ *		      of the drawing
+ *  @param device [input] PGPLOT device (default value = 0x0)
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \\
+ *			0 : does nothing (the device must be already opened) \\
+ *			1 : opens the device but does not close it at the end \\
+ *			2 : closes the device at the end but does not open it at
+ *			    the beginning \\
+ *		        3 (default value) : opens and closes the device 
+ *  @param x_min [input] lowest value of absol. coord. X (default value = -1)
+ *  @param x_max [input] highest value of absol. coord. X (default value = 1)
+ *  @param z_min [input] lowest value of absol. coord. Z (default value = -1)
+ *  @param z_max [input] highest value of absol. coord. Z (default value = 1)
+ *  @param nomx [input] x legend of the figure (default value = 0x0)
+ *  @param nomz [input] z legend of the figure (default value = 0x0)
+ *  @param title [input] title of the figure (default value = 0x0)
+ *  @param nxpage [input] number of graphs in the horizontal direction of the
+ *			  display window (meaningfull only if 
+ *			  \c newgraph  = 1 or 3) (default value = 1)
+ *  @param nypage [input] number of graphs in the vertical direction of the
+ *			  display window (meaningfull only if 
+ *			  \c newgraph  = 1 or 3) (default value = 1)
+ */
+void des_surface_y(const Cmp& defsurf, double y0, char* device = 0x0, 
+		   int newgraph = 3, double x_min = -1, double x_max = 1, 
+		   double z_min = -1, double z_max = 1, 
+		   char* nomx = 0x0, char* nomz = 0x0, char* title = 0x0, 
+		   int nxpage = 1, int nypage = 1) ;
+
+
+/** Basic routine for drawing a stellar surface in a plane Z=constant.
+ * 
+ *  Z is the Cartesian coordinate relative to the absolute frame.  
+ *  The surface to be drawn is defined as the location where a given scalar
+ *  field vanishes. 
+ *  
+ *  @param defsurf [input] field defining the 
+ *			   surface: the surface is defined as the location
+ *			   where this \c Cmp  vanishes 
+ *  @param z0 [input] value of the coordinate Z which defines the plane
+ *		      of the drawing
+ *  @param device [input] PGPLOT device (default value = 0x0)
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \\
+ *			0 : does nothing (the device must be already opened) \\
+ *			1 : opens the device but does not close it at the end \\
+ *			2 : closes the device at the end but does not open it at
+ *			    the beginning \\
+ *		        3 (default value) : opens and closes the device 
+ *  @param x_min [input] lowest value of absol. coord. X (default value = -1)
+ *  @param x_max [input] highest value of absol. coord. X (default value = 1)
+ *  @param y_min [input] lowest value of absol. coord. Y (default value = -1)
+ *  @param y_max [input] highest value of absol. coord. Y (default value = 1)
+ *  @param nomx [input] x legend of the figure (default value = 0x0)
+ *  @param nomy [input] y legend of the figure (default value = 0x0)
+ *  @param title [input] title of the figure (default value = 0x0)
+ *  @param nxpage [input] number of graphs in the horizontal direction of the
+ *			  display window (meaningfull only if 
+ *			  \c newgraph  = 1 or 3) (default value = 1)
+ *  @param nypage [input] number of graphs in the vertical direction of the
+ *			  display window (meaningfull only if 
+ *			  \c newgraph  = 1 or 3) (default value = 1)
+ */
+void des_surface_z(const Cmp& defsurf, double z0, char* device = 0x0, 
+		   int newgraph = 3, double x_min = -1, double x_max = 1, 
+		   double y_min = -1, double y_max = 1, 
+		   char* nomx = 0x0, char* nomz = 0x0, char* title = 0x0, 
+		   int nxpage = 1, int nypage = 1) ;
+
+
+
 /** @} */
 
 
 /**
- * \defgroup grafvec Plot of a vector field.
+ * \defgroup grafvecobs Plot of a vector field (obsolete).
  *  \ingroup (graphics)
  * @{
  */
@@ -1736,6 +2308,8 @@ void des_vect_bin_z(const Tenseur& vv1, const Tenseur& vv2, double x0,
 
 
 /** @} */
+
+
 
 /**
  * \defgroup graftime Time evolution graphs.
