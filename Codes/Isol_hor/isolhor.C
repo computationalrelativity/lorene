@@ -28,6 +28,9 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.13  2004/11/09 12:40:08  f_limousin
+ * Add some printing
+ *
  * Revision 1.12  2004/11/05 17:53:26  f_limousin
  * Perturbations of the conformal metric and its time derivative.
  *
@@ -92,7 +95,7 @@ int main() {
     fpar >> nr; fpar.ignore(1000, '\n');
 
     int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
-    int symmetry_phi = SYM ; // no symmetry in phi
+    int symmetry_phi = NONSYM ; // no symmetry in phi
     bool compact = true ; // external domain is compactified
   
     double radius, relax, seuil, niter, ang_vel ;
@@ -136,7 +139,8 @@ int main() {
     // -------------
 
     const Metric_flat& ff = map.flat_met_spher() ; 
-    
+    Scalar det = ff.determinant() ;
+
     // Triad orthonormal with respect to the flat metric f
     // ----------------------------------------------------
 
@@ -201,14 +205,14 @@ int main() {
     // --------------------------
     
     Scalar nn_init(map) ; 
-    nn_init = 1 + unsr ;
+    nn_init = 1 - unsr ;
     nn_init.std_spectral_base() ;    // sets standard spectral bases
 
     // Set up of field Psi 
     // -------------------
 
     Scalar psi_init(map) ; 
-    psi_init =  1 + unsr*unsr ;
+    psi_init =  1 + unsr ;
     psi_init.std_spectral_base() ;    // sets standard spectral bases
 
     // Set up of shift vector beta
@@ -240,12 +244,9 @@ int main() {
     // ----------------
 
     Sym_tensor gamt(map, COV, map.get_bvect_spher()) ;
-    gamt.set(1,1) = pow(a2/b2, 1./6.) ;
-    gamt.set(1,1).std_spectral_base() ;
-    gamt.set(2,2) = pow(a2/b2, 1./6.) ;
-    gamt.set(2,2).std_spectral_base() ;
-    gamt.set(3,3) = pow(b2/a2, 1./3.) ;
-    gamt.set(3,3).std_spectral_base() ;
+    gamt.set(1,1) = 1. ;//pow(a2/b2, 1./6.) ;
+    gamt.set(2,2) = 1. ;//pow(a2/b2, 1./6.) ;
+    gamt.set(3,3) = 1. ;//pow(b2/a2, 1./3.) ;
     gamt.set(2,1) = 0. ;
     gamt.set(3,1) = 0. ;
     gamt.set(3,2) = 0. ;
@@ -265,7 +266,7 @@ int main() {
     gamt_point.set(3,3) = 0. ;
     gamt_point.set(2,1) = 0. ;
     gamt_point.set(3,1) = -0*unsr*unsr ;
-    gamt_point.set(3,2) = -0.01*unsr*unsr ;
+    gamt_point.set(3,2) = -0*0.01*unsr*unsr ;
     gamt_point.std_spectral_base() ;
     gamt_point.inc_dzpuis(2) ;
 
@@ -327,16 +328,14 @@ int main() {
     // Graphic output of the different fields
     //---------------------------------------
 
-    des_profile(isolhor.nn(), 1.00001, 10, 1., 1., "nn") ;
-    
+/*
+    des_profile(isolhor.nn(), 1.00001, 10, 1., 1., "nn") ;    
     des_profile(isolhor.psi(), 1.00001, 10, 1., 1., "psi") ;
-     
     des_profile(isolhor.beta()(1), 1.00001, 10, 1., 1., "beta_r") ;
     des_profile(isolhor.beta()(3), 1.00001, 10, 1., 1., "beta_phi en 1,1") ;
     des_profile(isolhor.beta()(3), 1.00001, 10, M_PI/2., 0., "beta_phi en pi/2") ;
-
-
-    
+*/
+   
     // Physical parameters of the Black Hole
     //--------------------------------------
     
@@ -364,9 +363,9 @@ int main() {
     //--------------------------------
 
     cout<< endl;
-    cout<< "------------------------------------------------"<<endl;
+    cout<< "------------------------------------------------" <<endl;
     cout<< "      Physical parameters of the Bulk           " <<endl;
-    cout<< "------------------------------------------------"<<endl;
+    cout<< "------------------------------------------------" <<endl;
     
     double mm_adm = isolhor.adm_mass() ;
     cout << "ADM mass= " << mm_adm <<endl ;  
@@ -375,9 +374,26 @@ int main() {
     cout << "ADM angular momentum= " << jj_adm <<endl ;  
 
     //--------------------------------------
+    //        Comparison
     //--------------------------------------
 
-    cout<<"Tout va bien boudiou / Todo bien!!! (Viva Cai!)"<<endl ;
+    cout<< endl;
+    cout<< "------------------------------------------------" <<endl;
+    cout<< "      Comparison of the physical parameters     " <<endl;
+    cout<< "------------------------------------------------" <<endl;
+
+    double diff_mass = (isolhor.adm_mass()-isolhor.mass_hor())
+	/ isolhor.mass_hor() ;
+    cout << "relative difference between masses : " << diff_mass << endl ;
+
+    double diff_J = (isolhor.ang_mom_adm()-isolhor.ang_mom_hor())
+	/ isolhor.ang_mom_hor() ;
+    cout << "relative difference between J : " << diff_J << endl ;
+
+    cout << "a = " << mm_adm / jj_adm << endl ;
+    
+
+    cout<<"Tout va bien / Todo bien!!! (Viva Cai!)" <<endl << endl ;
 
     return EXIT_SUCCESS ; 
 }
