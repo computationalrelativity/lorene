@@ -30,6 +30,9 @@ char vector_df_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/29 16:11:24  j_novak
+ * Minor modifs. not to have compilation warnings.
+ *
  * Revision 1.4  2004/03/11 13:14:09  f_limousin
  * Add method Vector_divfree::poisson with parameters.
  *
@@ -92,7 +95,8 @@ Vector_divfree Vector_divfree::poisson() const {
 Vector_divfree Vector_divfree::poisson(Param& par) const {
 
     cout << "Not implemented yet" << endl ;
-    abort ;
+    abort() ;
+    return *this ;
 
 }
 
