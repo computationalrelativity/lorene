@@ -30,6 +30,9 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/05/24 20:58:05  e_gourgoulhon
+ * Added graphical output of khi, mu and trh.
+ *
  * Revision 1.10  2004/05/20 20:32:01  e_gourgoulhon
  * Added arguments check_mod and save_mod.
  * Argument graph_device passed to des_evol.
@@ -307,11 +310,17 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
                      graph_device) ; 
         des_meridian(beta()(3), 0., ray_des, "\\gb\\u\\gf\\d", ngraph0+8,
                      graph_device) ; 
-        des_meridian(hh()(1,1), 0., ray_des, "h\\urr\\d", ngraph0+9,
+        des_meridian(khi(), 0., ray_des, "\\gx", ngraph0+9,
                      graph_device) ; 
-        des_meridian(hh()(2,3), 0., ray_des, "h\\u\\gh\\gf\\d", ngraph0+10,
+        des_meridian(mu(), 0., ray_des, "\\gm", ngraph0+10,
+                     graph_device) ;
+        des_meridian(trh(), 0., ray_des, "tr h", ngraph0+11,
                      graph_device) ; 
-        des_meridian(hh()(3,3), 0., ray_des, "h\\u\\gf\\gf\\d", ngraph0+11,
+        des_meridian(hh()(1,1), 0., ray_des, "h\\urr\\d", ngraph0+12,
+                     graph_device) ; 
+        des_meridian(hh()(2,3), 0., ray_des, "h\\u\\gh\\gf\\d", ngraph0+13,
+                     graph_device) ; 
+        des_meridian(hh()(3,3), 0., ray_des, "h\\u\\gf\\gf\\d", ngraph0+14,
                      graph_device) ; 
                 
         arrete(nopause) ; 
