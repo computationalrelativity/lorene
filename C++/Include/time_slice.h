@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2004/06/14 20:46:35  e_gourgoulhon
+ * Added argument method_poisson to Tslice_dirac_max::solve_hij.
+ *
  * Revision 1.20  2004/05/31 20:28:20  e_gourgoulhon
  * -- Class Time_slice : added inline functions get_latest_j() and
  *    get_time()
@@ -1077,6 +1080,10 @@ class Tslice_dirac_max : public Time_slice_conf {
      *      time step 
      *  @param mu_new [output] : solution \f$\mu_{\rm new}\f$ at the next
      *      time step 
+     *  @param method_poisson method to be used for solving 
+     *      vector Poisson equation to get the transverse part of the 
+     *      source for \f$ h^{ij} \f$ , see 
+     *      \c Vector::poisson(double, const Metric_flat&, int) const.  
      *  @param graph_device [input] : name of type of graphical device: 0x0 
      *      (default value) will result in interactive choice; 
      *      "/xwin" in X-Window display and "/n" in no output.
@@ -1087,6 +1094,7 @@ class Tslice_dirac_max : public Time_slice_conf {
      */
     virtual void solve_hij(Param& par_khi, Param& par_mu,
                            Scalar& khi_new, Scalar& mu_new,
+                           int method_poisson, 
                            const char* graph_device = 0x0, 
                            const Sym_tensor* strain_tensor = 0x0) const ; 
         
