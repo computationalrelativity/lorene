@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/11/02 16:15:12  f_limousin
+ * Add new argument ang_vel in function init_dat(...).
+ *
  * Revision 1.7  2004/10/29 15:46:14  jl_jaramillo
  * Remove 2 members, add ADM angular momentum and change name
  * of functions.
@@ -153,7 +156,7 @@ class Isol_hor : public Time_slice_conf {
   
   void init_data(const Sym_tensor& uu, const Scalar& trk_in, 
 		 const Scalar& trk_point, double precis = 1.e-12,
-			double relax = 1., int niter = 100,
+		 double relax = 1., int niter = 100, double ang_vel = 0.,
 		 const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
 		 const Scalar* trace_stress=0x0 ) ; 
         
