@@ -28,6 +28,9 @@ char simple_wave_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/02/17 09:19:08  j_novak
+ * Cleaning of Param at the end of the code (memory leaks).
+ *
  * Revision 1.6  2004/02/16 13:00:00  e_gourgoulhon
  * Added the C headers (not required by GNU g++ !!!).
  *
@@ -199,6 +202,8 @@ int main() {
 
     //duu.visu_arrows(-1., 1., -1., 1., -1., 1., "Gradient of potential", 
     //                 "gradient") ; 
+
+    par.clean_all() ;
 
     return EXIT_SUCCESS ; 
 }
