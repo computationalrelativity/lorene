@@ -128,18 +128,18 @@
      *
      * The (online) graphical outputs of the various Lorene objects 
      * are performed via the PGPLOT library:
-     * \begin{verbatim}
-     * http://astro.caltech.edu/~tjp/pgplot/.
-     * \end{verbatim}
      *
-     * To open an X11 display area, use the command 'pgdisp'. 
+     * \URL[http://astro.caltech.edu/~tjp/pgplot/]{http://astro.caltech.edu/~tjp/pgplot/}
+     *
+    *
+     * To open an X11 display area, use the command 'pgdisp'.
      *
      * Offline 3-D visualization of various Lorene objects can be done
      * by means of IRIS Explorer:
-     * \begin{verbatim}
-     * http://www.nag.com/Welcome_IEC.html.
-     * \end{verbatim}
-     * The functions {\tt des\_explorer} construct from Lorene
+    *
+    * \URL[http://www.nag.com/Welcome_IEC.html]{http://www.nag.com/Welcome_IEC.html}
+    *
+    * The functions {\tt des\_explorer} construct from Lorene
      * objects some files in a format readable by IRIS Explorer.
      */
     //@{
