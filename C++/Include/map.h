@@ -39,6 +39,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.36  2004/11/30 20:42:05  k_taniguchi
+ * Addition of some functions with the falloff condition and a method
+ * to resize the external shell.
+ *
  * Revision 1.35  2004/11/23 12:39:12  f_limousin
  * Intoduce function poisson_dir_neu(...) to solve a scalar poisson
  * equation with a mixed boundary condition (Dirichlet + Neumann).
@@ -1131,6 +1135,7 @@ class Map {
 	 *	    \e u =0 at spatial infinity. 
 	 */
 	virtual void poisson(const Cmp& source, Param& par, Cmp& uu) const = 0 ;
+	virtual void poisson_falloff(const Cmp& source, Param& par, Cmp& uu, int k_falloff) const = 0 ;
 
 	/** Computes the solution of a scalar Poisson equation.
 	 *   The regularized source
@@ -2050,6 +2055,8 @@ class Map_af : public Map_radial {
 	 */
 	virtual void poisson(const Cmp& source, Param& par, Cmp& uu) const ;
 
+	virtual void poisson_falloff(const Cmp& source, Param& par, Cmp& uu, int k_falloff) const ;
+
 	/** Computes the solution of a scalar Poisson equation.
 	 *   The regularized source
          *   \f$\sigma_{\rm regu} = \sigma - \sigma_{\rm div}\f$
@@ -2144,6 +2151,8 @@ class Map_af : public Map_radial {
 	 */
 	double integrale_surface (const Scalar& ci, double rayon) const ;
 	
+	double integrale_surface_falloff (const Cmp& ci) const ;
+
 	/**
 	 * Performs the surface integration of \c ci  at infinity.
 	 * \c ci  must have \c dzpuis  =2.
@@ -2678,6 +2687,14 @@ class Map_et : public Map_radial {
 	 */
 	virtual void resize(int l, double lambda) ; 
 
+	/** Rescales the outer boundary of the outermost domain
+	 *  in the case of non-compactified external domain.
+	 *  The inner boundary is unchanged.
+	 *  @param lambda [input] factor by which the value of the radius
+	 *                        of the outermost domain is to be multiplied.
+	 */
+	void resize_extr(double lambda) ;
+
     // Modification of the mapping
     // ---------------------------
 	/** Adaptation of the mapping to a given scalar field.
@@ -2890,6 +2907,8 @@ class Map_et : public Map_radial {
 	 *	with the boundary condition \e u =0 at spatial infinity. 
 	 */
 	virtual void poisson(const Cmp& source, Param& par, Cmp& uu) const ;
+
+	virtual void poisson_falloff(const Cmp& source, Param& par, Cmp& uu, int k_falloff) const ;
 
 	/** Computes the solution of a scalar Poisson equation.
 	 *   The regularized source
