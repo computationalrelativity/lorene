@@ -34,6 +34,10 @@ char et_bin_equil_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/08/31 05:35:38  k_taniguchi
+ * Addition of the specification of the domain
+ *  which is resized.
+ *
  * Revision 1.2  2002/12/11 12:51:26  k_taniguchi
  * Change the multiplication "*" to "%"
  *   and flat_scalar_prod to flat_scalar_prod_desal.
@@ -395,6 +399,15 @@ void Etoile_bin::equil_regular(double ent_c, int mermax, int mermax_poisson,
 	// Readjustment of the external boundary of domain l=nzet
 	// to keep a fixed ratio with respect to star's surface
 	
+	int n_resize ;
+
+    	if (nz > 3) {
+      	  n_resize = nz - 3 ;
+	}
+	else {
+	  n_resize = nzet ;
+	}
+
 	double rr_in = mp.val_r(nzet,-1., M_PI/2, 0.) ; 
 	double rr_out = mp.val_r(nzet,1., M_PI/2, 0.) ; 
 
