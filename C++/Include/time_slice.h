@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/04/30 14:36:15  j_novak
+ * Added the method Tslice_dirac_max::solve_hij(...)
+ * NOT READY YET!!!
+ *
  * Revision 1.11  2004/04/30 10:51:38  e_gourgoulhon
  * Class Tslice_dirac_max: added methods solve_n, solve_q and solve_beta
  * for resolution of the elliptic part of Einstein equations.
@@ -869,6 +873,23 @@ class Tslice_dirac_max : public Time_slice_conf {
      *  
      */
     virtual Vector solve_beta(const Vector* mom_dens = 0x0) const ; 
+        
+    /** Solves the evolution equation for the deviation \f$ h^{ij} \f$ 
+     * of the conformal metric \f$ \tilde\gamma^{ij} \f$ from 
+     * the flat metric \f$ f^{ij} \f$ 
+     *  @param strain_tensor : a pointer on the strain_tensor 
+     *      \f$ S_{ij} \f$ measured by the Eulerian observer of 4-velocity 
+     *      \f$\mbox{\boldmath{$n $}}\f$ ; if this is the null pointer, 
+     *       it is assumed that \f$ S_{ij} \f$ = 0 (vacuum).
+     *  @param ener_dens matter energy density \e E as measured by the 
+     *      Eulerian observer; this quantity is passed as a pointer,
+     *      the null value of which (default) meaning \e E=0.
+     *  @return solution \f$h^{ij}_{\rm new}\f$ of the evolution equation 
+     *  with the source computed from the quantities at the current time step. 
+     *  
+     */
+    virtual Sym_tensor_trans solve_hij(const Sym_tensor* strain_tensor=0x0, 
+				       const Scalar* ener_dens=0x0) const ; 
         
     protected:
         /** Computes \f$ h^{ij} \f$ from the values of \f$\chi\f$ and 

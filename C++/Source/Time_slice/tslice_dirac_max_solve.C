@@ -30,6 +30,10 @@ char tslice_dirac_max_solve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/04/30 14:36:15  j_novak
+ * Added the method Tslice_dirac_max::solve_hij(...)
+ * NOT READY YET!!!
+ *
  * Revision 1.1  2004/04/30 10:52:14  e_gourgoulhon
  * First version.
  *
@@ -209,3 +213,227 @@ Vector Tslice_dirac_max::solve_beta(const Vector* p_mom_dens) const {
 
 }
                 
+                    //-------------------------------//
+                    //      Equation for h^{ij}      //
+                    //-------------------------------//
+
+Sym_tensor_trans Tslice_dirac_max::solve_hij(const Sym_tensor* p_strain_tens, 
+					     const Scalar* p_ener_dens ) const 
+{
+  using namespace Unites ;
+  
+  const Map& map = hh().get_mp() ; 
+  const Base_vect& otriad = *hh().get_triad() ;
+    
+  Sym_tensor strain_tens(map, CON, otriad) ; 
+  if (p_strain_tens != 0x0) strain_tens = *(p_strain_tens) ; 
+  else strain_tens.set_etat_zero() ; 
+
+  Scalar ener_dens(map) ; 
+  if (p_ener_dens != 0x0) ener_dens = *(p_ener_dens) ; 
+  else ener_dens.set_etat_zero() ; 
+    
+  // Time derivatives:
+  Scalar nn_point = n_evol.time_derive(jtime) ; 
+  nn_point.inc_dzpuis(2) ; // dzpuis : 0 -> 2
+  
+  Vector beta_point = beta_evol.time_derive(jtime) ; 
+  beta_point.inc_dzpuis(2) ; // dzpuis : 0 -> 2
+  
+  //### to check urgently... do we have to use a Sym_tensor_trans??
+  Sym_tensor hh_point = hh_evol.time_derive(jtime) ; 
+  hh_point.inc_dzpuis(2) ; // dzpuis : 0 -> 2
+        
+  // Source for hij
+  // ---------------
+        
+  const Sym_tensor& tgam_dd = tgam().cov() ;    // {\tilde \gamma}_{ij}
+  const Sym_tensor& tgam_uu = tgam().con() ;    // {\tilde \gamma}^{ij}
+  const Tensor_sym& dtgam = tgam_dd.derive_cov(ff) ;// D_k {\tilde \gamma}_{ij}
+  const Tensor_sym& dhh = hh().derive_cov(ff) ; // D_k h^{ij}
+  const Vector& dln_psi = ln_psi().derive_cov(ff) ; // D_i ln(Psi)
+  const Vector& tdln_psi_u = ln_psi().derive_con(tgam()) ; // tD^i ln(Psi)
+  const Vector& tdnn_u = nn().derive_con(tgam()) ;       // tD^i N
+  const Vector& dqq = qq().derive_cov(ff) ;         // D_i Q
+  const Scalar& div_beta = beta().divergence(ff) ;  // D_k beta^k
+
+  Scalar tmp(map) ;
+  Sym_tensor sym_tmp(map, CON, otriad) ; 
+
+  // Quadratic part of the Ricci tensor of gam_tilde 
+  // ------------------------------------------------
+        
+  Sym_tensor ricci_star(map, CON, otriad) ; 
+        
+  ricci_star = contract(hh(), 0, 1, dhh.derive_cov(ff), 2, 3) ; 
+
+  ricci_star.inc_dzpuis() ;   // dzpuis : 3 --> 4
+
+  for (int i=1; i<=3; i++) {
+    for (int j=1; j<=i; j++) {
+      tmp = 0 ; 
+      for (int k=1; k<=3; k++) {
+	for (int l=1; l<=3; l++) {
+	  tmp += dhh(i,k,l) * dhh(j,l,k) ; 
+	}
+      }
+      sym_tmp.set(i,j) = tmp ; 
+    }
+  }
+  ricci_star -= sym_tmp ;
+
+  for (int i=1; i<=3; i++) {
+    for (int j=1; j<=i; j++) {
+      tmp = 0 ; 
+      for (int k=1; k<=3; k++) {
+	for (int l=1; l<=3; l++) {
+	  for (int m=1; m<=3; m++) {
+	    for (int n=1; n<=3; n++) {
+                            
+     tmp += 0.5 * tgam_uu(i,k)* tgam_uu(j,l) 
+       * dhh(m,n,k) * dtgam(m,n,l)
+       + tgam_dd(n,l) * dhh(m,n,k) 
+       * (tgam_uu(i,k) * dhh(j,l,m) + tgam_uu(j,k) *  dhh(i,l,m) )
+       - tgam_dd(k,l) *tgam_uu(m,n) * dhh(i,k,m) * dhh(j,l,n) ;
+	    }
+	  } 
+	}
+      }
+      sym_tmp.set(i,j) = tmp ; 
+    }
+  }
+  ricci_star += sym_tmp ;
+
+  ricci_star = 0.5 * ricci_star ; 
+        
+  // Curvature scalar of conformal metric :
+  // -------------------------------------
+        
+  Scalar tricci_scal = 
+    0.25 * contract(tgam_uu, 0, 1,
+		    contract(dhh, 0, 1, dtgam, 0, 1), 0, 1 ) 
+    - 0.5  * contract(tgam_uu, 0, 1,
+		      contract(dhh, 0, 1, dtgam, 0, 2), 0, 1 ) ;  
+                                                       
+  Sym_tensor ss(map, CON, otriad) ; 
+        
+  sym_tmp = nn() * (ricci_star + 8.* tdln_psi_u * tdln_psi_u)
+    + 4.*( tdln_psi_u * tdnn_u + tdnn_u * tdln_psi_u ) 
+    - 0.3333333333333333 * 
+    ( nn() * (tricci_scal  + 8.* contract(dln_psi, 0, tdln_psi_u, 0) )
+      + 8.* contract(dln_psi, 0, tdnn_u, 0) ) *tgam_uu ;
+
+  ss = sym_tmp / psi4()  ;
+        
+  sym_tmp = contract(tgam_uu, 1, 
+		     contract(tgam_uu, 1, dqq.derive_cov(ff), 0), 1) ;
+                            
+  sym_tmp.inc_dzpuis() ; // dzpuis : 3 --> 4
+        
+  for (int i=1; i<=3; i++) {
+    for (int j=1; j<=i; j++) {
+      tmp = 0 ; 
+      for (int k=1; k<=3; k++) {
+	for (int l=1; l<=3; l++) {
+	  tmp += ( hh()(i,k)*dhh(l,j,k) + hh()(k,j)*dhh(i,l,k)
+		   - hh()(k,l)*dhh(i,j,k) ) * dqq(l) ; 
+	}
+      }
+      sym_tmp.set(i,j) += 0.5 * tmp ; 
+    }
+  }
+        
+  tmp = qq().derive_con(tgam()).divergence(tgam()) ; 
+  tmp.inc_dzpuis() ; // dzpuis : 3 --> 4
+        
+  sym_tmp -= 0.3333333333333333 * tmp *tgam_uu ; 
+                    
+  ss -= sym_tmp / (psi4()*psi()*psi()) ; 
+
+  for (int i=1; i<=3; i++) {
+    for (int j=1; j<=i; j++) {
+      tmp = 0 ; 
+      for (int k=1; k<=3; k++) {
+	for (int l=1; l<=3; l++) {
+	  tmp += tgam_dd(k,l) * aa()(i,k) * aa()(j,l) ; 
+	}
+      }
+      sym_tmp.set(i,j) = 2. * tmp ; 
+    }
+  }
+        
+  ss += nn() * sym_tmp ; 
+
+  // Source for h 
+  // ------------
+                 
+  Sym_tensor lbh = hh().derive_lie(beta()) ; 
+
+  Sym_tensor source_hh = (nn()*nn()/psi4() - 1.) 
+    * hh().derive_con(ff).divergence(ff) 
+    + 2.* hh_point.derive_lie(beta()) - lbh.derive_lie(beta()) ;
+  source_hh.inc_dzpuis() ; 
+        
+  source_hh += 2.* nn() * ss ;
+              
+  //## Provisory: waiting for the Lie derivative to allow
+  //  derivation with respect to a vector with dzpuis != 0
+  Vector vtmp = beta_point ; 
+  vtmp.dec_dzpuis(2) ; 
+  sym_tmp = hh().derive_lie(vtmp) ; 
+  sym_tmp.inc_dzpuis(2) ;             
+
+  source_hh += sym_tmp 
+    + 1.3333333333333333 * div_beta* (hh_point - lbh)
+    + 2. * (nn_point - nn().derive_lie(beta())) * aa()  ;
+              
+
+  for (int i=1; i<=3; i++) {
+    for (int j=1; j<=i; j++) {
+      tmp = 0 ; 
+      for (int k=1; k<=3; k++) {
+	tmp += ( hh().derive_con(ff)(k,j,i) 
+		 + hh().derive_con(ff)(i,k,j) 
+		 - hh().derive_con(ff)(i,j,k) ) * dqq(k) ;
+      }
+      sym_tmp.set(i,j) = tmp ; 
+    }
+  }
+            
+  source_hh -= nn() / (psi4()*psi()*psi()) * sym_tmp ; 
+         
+  tmp =  beta_point.divergence(ff) - div_beta.derive_lie(beta()) ; 
+  tmp.inc_dzpuis() ; 
+  source_hh += 0.6666666666666666* 
+    ( tmp - 0.6666666666666666* div_beta * div_beta ) * hh() ; 
+               
+        
+        
+  // Conformal Killing operator applied to beta ## can we use ope_killing??
+  // ------------------------------------------
+  Sym_tensor l_beta(map, CON, otriad) ;   // (L beta)^{ij}
+  for (int i=1; i<=3; i++) {
+    for (int j=1; j<=i; j++) {
+      l_beta.set(i,j) = beta().derive_con(ff)(i,j)  
+	+ beta().derive_con(ff)(j,i) 
+	- 0.6666666666666666* div_beta * ff.con()(i,j) ;
+    }
+  }
+  
+  // (L beta_point)^ij --> sym_tmp
+  for (int i=1; i<=3; i++) {
+    for (int j=1; j<=i; j++) {
+      sym_tmp.set(i,j) = beta_point.derive_con(ff)(i,j)  
+	+ beta_point.derive_con(ff)(j,i) 
+	- 0.6666666666666666 * beta_point.divergence(ff) * ff.con()(i,j) ;
+    }
+  }
+  sym_tmp -= l_beta.derive_lie(beta()) ;
+  sym_tmp.inc_dzpuis() ; 
+  
+  source_hh += 0.6666666666666666* div_beta * l_beta - sym_tmp ; 
+           
+  return source_hh.transverse(ff) ;
+
+
+}
