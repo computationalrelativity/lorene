@@ -35,6 +35,9 @@ char map_et_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/06/22 12:20:17  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.3  2004/05/25 14:28:01  f_limousin
  * First version of method Map_et::poisson_angu().
  *
@@ -337,14 +340,14 @@ void Map_et::poisson_angu(const Scalar& source, Param& par, Scalar& uu) const {
     int nzm1 = nz - 1 ; 
  
     int* nrm6 = new int[nz];
-    for (int l=0; l<=nz-1; l++) 
+    for (int l=0; l<=nzm1; l++) 
 	nrm6[l] = mg->get_nr(l) - 6 ; 
  
-    // Indicator of existence of a compactified external domain
-    bool zec = false ; 		
-    if (mg->get_type_r(nzm1) == UNSURR) {
-	zec = true ;
-    }
+//##     // Indicator of existence of a compactified external domain
+//     bool zec = false ; 		
+//     if (mg->get_type_r(nzm1) == UNSURR) {
+// 	zec = true ;
+//     }
 
     //-------------------
     //  Initializations 

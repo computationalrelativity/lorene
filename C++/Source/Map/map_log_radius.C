@@ -30,6 +30,9 @@ char map_log_radius_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/06/22 12:20:17  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.1  2004/06/22 08:49:58  p_grandclement
  * Addition of everything needed for using the logarithmic mapping
  *
@@ -37,6 +40,8 @@ char map_log_radius_C[] = "$Header$" ;
  * $Header$
  *
  */
+
+#include<math.h>
 
 // Headers Lorene
 #include "map.h"
