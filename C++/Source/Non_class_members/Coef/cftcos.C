@@ -83,6 +83,9 @@ char cftcos_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/10/04 13:42:36  j_novak
+ * Using new and delete instead of malloc.
+ *
  * Revision 1.2  2003/01/31 10:31:23  e_gourgoulhon
  * Suppressed the directive #include <malloc.h> for malloc is defined
  * in <stdlib.h>
@@ -165,8 +168,8 @@ int i, j, k ;
 	
     // tableau de travail G et t1
     // (la dimension nm1+2 = nt+1 est exigee par la routine fft991)
-    double* g = (double*)( malloc( (nm1+2)*sizeof(double) ) );	
-    double* t1 = (double*)( malloc( (nm1+2)*sizeof(double) ) ) ;
+    double* g = new double[nm1+2] ;
+    double* t1 = new double[nm1+2] ;
 
 // Parametres pour la routine FFT991
     int jump = 1 ;
@@ -268,7 +271,7 @@ int i, j, k ;
    }	// fin de la boucle sur phi
 
     // Menage
-    free (t1) ;
-    free (g) ;
+    delete [] t1 ;
+    delete [] g ;
 
 }
