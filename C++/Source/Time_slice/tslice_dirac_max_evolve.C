@@ -30,6 +30,9 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/05/05 14:39:32  e_gourgoulhon
+ * Added graphical outputs.
+ *
  * Revision 1.1  2004/05/03 14:49:10  e_gourgoulhon
  * First version
  *
@@ -70,6 +73,9 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
     // -----------------------
     const Map& map = nn().get_mp() ; 
     const Base_vect& triad = *(beta().get_triad()) ;
+    int nz = map.get_mg()->get_nzone() ; 
+    double ray_des = 1.25 * map.val_r(nz-2, 1., 0., 0.) ; // outermost radius
+                                                          // for plots
 
     Scalar n_new(map) ; 
     Scalar q_new(map) ; 
@@ -117,8 +123,10 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
             //                j, the_time[j]) ;
        }
     }
+    
 
-
+    //## To force the computation of A^{ij} from dh^{ij}/dt + ...
+    // aa_evol.downdate(jtime) ; 
 
     // Evolution loop
     // --------------
@@ -143,6 +151,10 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
         
         for (int k = 0; k < niter_elliptic; k++) {
     
+            des_meridian(aa()(1,1), 0., ray_des, "A\\urr\\d", 20) ; 
+            des_meridian(aa()(2,3), 0., ray_des, "A\\u\\gh\\gf\\d", 21) ; 
+            des_meridian(aa()(3,3), 0., ray_des, "A\\u\\gf\\gf\\d", 22) ; 
+
             n_new = solve_n() ; 
             q_new = solve_q() ; 
             beta_new = solve_beta() ; 
@@ -187,11 +199,14 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
         // Updates of khi_evol, mu_evol, trh_evol and hh_evol:
         set_khi_mu(khi_new, mu_new) ;           
 
-        des_meridian(hh()(1,1), 0., 5., "h\\urr\\d", 30) ; 
-        des_meridian(hh()(2,3), 0., 5., "h\\u\\gh\\gf\\d", 31) ; 
-        des_meridian(hh()(3,3), 0., 5., "h\\u\\gf\\gf\\d", 32) ; 
+        des_meridian(beta()(1), 0., ray_des, "\\gb\\ur\\d", 10) ; 
+        des_meridian(beta()(2), 0., ray_des, "\\gb\\u\\gh\\d", 11) ; 
+        des_meridian(beta()(3), 0., ray_des, "\\gb\\u\\gf\\d", 12) ; 
+        des_meridian(hh()(1,1), 0., ray_des, "h\\urr\\d", 13) ; 
+        des_meridian(hh()(2,3), 0., ray_des, "h\\u\\gh\\gf\\d", 14) ; 
+        des_meridian(hh()(3,3), 0., ray_des, "h\\u\\gf\\gf\\d", 15) ; 
         
-        arrete() ; 
+        // arrete() ; 
 
     }
 
