@@ -35,6 +35,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2005/02/24 16:09:29  f_limousin
+ * Change the name of some variables (for instance dcov_logn --> dlogn).
+ * Add also member dlnq but delete dlnpsi_auto and dlogn_auto.
+ *
  * Revision 1.15  2005/02/17 17:28:18  f_limousin
  * Change the name of some quantities to be consistent with other classes
  * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
@@ -474,11 +478,8 @@ class Star_bin : public Star {
 	Scalar logn_comp ; 
 
 	/// Covariant derivative of the total logarithm of the lapse. 
-	Vector dcov_logn ;
+	Vector dlogn ;
 
-	/// Contravariant derivative of the total logarithm of the lapse. 
-	Vector dcon_logn ;
-	
 	/** Scalar field \f$ ln(q) = ln\psi^2 N \f$ generated principaly by the
 	 *  star.
 	 */
@@ -489,14 +490,14 @@ class Star_bin : public Star {
 	 */
 	Scalar lnq_comp ;
 
+	/// Covariant derivative of \f$ ln(q) = ln\psi^2 N \f$
+	Vector dlnq ;
 	
 	/// Conformal factor \f$\psi^4\f$
 	Scalar psi4 ;
 
 	/// Covariant derivative of the logarithm of the conformal factor
-	Vector dcov_lnpsi ;
-	/// Contravariant derivative of the logarithm of the conformal factor
-	Vector dcon_lnpsi ;
+	Vector dlnpsi ;
 
 	/** Flat metric defined on the mapping (Spherical components 
 	 * with respect to the mapping of the star ).
@@ -871,8 +872,6 @@ class Star_bin : public Star {
 	 *  at the beginning of coal. 
 	 */
 	void update_metric_init2(const Star_bin& comp) ;
-
-	void update_decouple(const Star_bin& comp) ;
 
 	/** Same as \c update_metric(const Star_bin\& )  but with
 	 *  relaxation.
