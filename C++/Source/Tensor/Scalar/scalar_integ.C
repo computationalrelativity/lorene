@@ -31,6 +31,9 @@ char scalar_integ_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/06/14 15:28:17  e_gourgoulhon
+ * Added method primr().
+ *
  * Revision 1.1  2003/09/25 09:33:36  j_novak
  * Added methods for integral calculation and various manipulations
  *
@@ -81,4 +84,21 @@ const Tbl& Scalar::integrale_domains() const {
     return *p_integ ;
 
 }
+
+
+            //----------------------//
+            //  Radial primitive    // 
+            //----------------------//
+
+Scalar Scalar::primr() const {
+
+    Scalar resu(*mp) ; 
+
+    mp->primr(*this, resu) ; 
+    
+    return resu ; 
+}
+
+
+
 
