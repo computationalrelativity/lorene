@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.39  2004/01/15 11:09:27  f_limousin
+ * Modif in method contract_desal
+ *
  * Revision 1.38  2004/01/15 11:00:44  f_limousin
  * Added method contract_desal for the contraction of two tensors with desaliasing
  *
@@ -1058,7 +1061,7 @@ Tensor contract(const Tensor& t1, int ind1, const Tensor& t2, int ind2) ;
  * NB: the types ({\tt COV} or {\tt CON}) of the indices {\tt ind1} and
  * {\tt ind2} must be different. 
  */
-Tensor contract(const Tensor& t1, int ind1, const Tensor& t2, int ind2) ;
+Tensor contract_desal(const Tensor& t1, int ind1, const Tensor& t2, int ind2) ;
 
 /** Contraction of a tensor. 
  *
