@@ -35,6 +35,9 @@ char scalar_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/01/14 10:11:51  f_limousin
+ * Corrected bug in poisson with parameters.
+ *
  * Revision 1.3  2003/12/11 14:48:51  p_grandclement
  * Addition of ALL (and that is a lot !) the files needed for the general elliptic solver ... UNDER DEVELOPEMENT...
  *
@@ -80,12 +83,12 @@ Scalar Scalar::poisson() const {
 
 void Scalar::poisson(Param& par, Scalar& uu) const {
     
-	Cmp csource(*this) ; 
-    Cmp cuu(mp) ;     
+    Cmp csource(*this) ; 
+    Cmp cuu(uu) ;     
 
     mp->poisson(csource, par, cuu) ;     
     
-	uu = cuu ; 
+    uu = cuu ; 
 }
 
 
