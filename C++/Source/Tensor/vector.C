@@ -32,6 +32,10 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2004/02/20 10:53:04  j_novak
+ * Added the matching of the potential adapted to the case where the
+ * vector is the source of a Poisson equation (dzpuis = 4).
+ *
  * Revision 1.15  2004/01/30 10:30:17  j_novak
  * Changed dzpuis handling in Vector::decompose_div (this may be temporary).
  *
@@ -89,7 +93,10 @@ char vector_C[] = "$Header$" ;
 #include <assert.h>
 
 // Headers Lorene
+#include "param.h"
 #include "metric.h"
+#include "proto.h"
+#include "matrice.h"
 
 
 			//--------------//
@@ -325,40 +332,262 @@ void Vector::decompose_div(const Metric& metre) const {
   assert( type_indice(0) == CON ) ; //Only for contravariant vectors...
 
   set_dependance(metre) ;
-  int j =  get_place_met(metre) ;
-  assert ((j>=0) && (j<N_MET_MAX)) ;
+  int ind =  get_place_met(metre) ;
+  assert ((ind>=0) && (ind<N_MET_MAX)) ;
 
-  if ( (p_potential[j] != 0x0) && (p_div_free[j] != 0x0) ) 
+  if ( (p_potential[ind] != 0x0) && (p_div_free[ind] != 0x0) ) 
     return ; // Nothing to do ...
 
   else {
-    if (p_div_free[j] != 0x0)
-      delete p_div_free[j] ;  
-    if (p_potential[j] != 0x0) 
-      delete p_potential[j] ;
+    if (p_div_free[ind] != 0x0)
+      delete p_div_free[ind] ;  
+    if (p_potential[ind] != 0x0) 
+      delete p_potential[ind] ;
 
     int dzp = cmp[0]->get_dzpuis() ;
-#ifndef NDEBUG
     bool dz_zero = cmp[0]->check_dzpuis(0) ;
-#endif
-    assert( dz_zero || (dzp == 4) ) ;
+
+    assert( dz_zero || (dzp == 4)) ;
     assert (cmp[1]->check_dzpuis(dzp)) ;
     assert (cmp[2]->check_dzpuis(dzp)) ;
 
     Scalar dive = divergence(metre) ;
-    if (dzp == 4) dive.dec_dzpuis() ; //## this should be improved...
 
-    p_potential[j] = new Scalar( dive.poisson() ) ;
+    p_potential[ind] = new Scalar(dive.poisson()) ; //No matching of the solution at this point
 
-    p_div_free[j] = new Vector_divfree(*mp, *triad, metre) ;
+    if (dzp == 4) {
+      // Let's now do the matching ... in the case dzpuis = 4
+      const Map_af* mapping = dynamic_cast<const Map_af*>(mp) ;
+      assert (mapping != 0x0) ;
+      Valeur& val = p_potential[ind]->set_spectral_va() ;
+      val.ylm() ;
+      Mtbl_cf& mtc = *val.c_cf ;
+      const Mg3d* mmg = val.get_mg() ;
+      int nz = mmg->get_nzone() ;
+      if (nz > 1) {
+	int np = mmg->get_np(0) ;
+	int nt = mmg->get_nt(0) ;
+#ifndef NDEBUG
+	for (int lz=0; lz<nz; lz++) {
+	  assert (mmg->get_np(lz) == np) ;
+	  assert (mmg->get_nt(lz) == nt) ;
+	}
+#endif
+	
+	for (int k=0; k<np+1; k++) {
+	  for (int j=0; j<nt; j++) {
+	    if ( nullite_plm(j, nt, k, np, val.base)) {
+	      int m_quant, l_quant, base_r, l, c ;
+	      donne_lm (nz, 0, j, k, val.base, m_quant, l_quant, base_r) ; 
+	      
+	      bool lzero = (l_quant == 0) || (l_quant == 1) ;
+	      
+	      int nb_hom_ced ; 
+	      Scalar rl(*mp), rmlm1(*mp) ;
+	      Scalar erre(*mp) ;
+	      erre = mp->r ;
+	      
+	      if (l_quant == 0) 
+		rl = 1 ;
+	      else
+		rl = pow(erre, l_quant) ;
+	      rl.std_spectral_base() ;
+		
+	      rmlm1 = pow(erre, -l_quant-1) ;
+	      rmlm1.annule(nz-1, nz-1) ;
+	      Scalar rmlm1_ced(*mp) ;
+	      if (l_quant == 2) 
+		rmlm1_ced = 1 ;
+	      else
+		rmlm1_ced = pow(erre, -l_quant+2);
+	      rmlm1_ced.set_dzpuis(3) ;
+	      rmlm1_ced.annule(0, nz-2) ;
+	      rmlm1 += rmlm1_ced ;
+	      rmlm1.std_spectral_base() ;
+	      nb_hom_ced = (l_quant < 2 ? 0 : 1) ;
+	      
+	      int taille = 2*(nz-1) - 1 + nb_hom_ced ;
+	      Tbl deuz(taille) ;
+	      deuz.set_etat_qcq() ;
+	      Matrice systeme(taille,taille) ;
+	      systeme.set_etat_qcq() ;
+	      for (l=0; l<taille; l++) 
+		for (c=0; c<taille; c++) systeme.set(l,c) = 0 ;
+	      for (l=0; l<taille; l++) deuz.set(l) = 0 ;
+	      
+	      //---------
+	      // Nucleus
+	      //---------
+	      assert(mmg->get_type_r(0) == RARE) ;
+	      assert ((base_r == R_CHEBP)||(base_r == R_CHEBI)) ;
+	      rmlm1.annule_domain(0) ;
+	      rl.set_spectral_va().set_base_r(0, base_r) ;
+	  
+	      double alpha = mapping->get_alpha()[0] ;
+	      int nr = mmg->get_nr(0) ;
+	      Tbl partn(nr) ;
+	      partn.set_etat_qcq() ;
+	      for (int i=0; i<nr; i++)
+		partn.set(i) = mtc(0, k, j, i) ;
+	      l=0 ; c=0 ;
 
-    Vector gradient = p_potential[j]->derive_con(metre) ;
-    if (dzp == 4)
-      gradient.inc_dzpuis(2) ;
-    else
-      gradient.dec_dzpuis(2) ;
+	      systeme.set(l,c) += pow(alpha, double(l_quant)) ;
 
-    *p_div_free[j] = ( *this - gradient ) ;
+	      deuz.set(l) -= val1_dern_1d(0, partn, base_r) ;
+	      l++ ;
+
+	      if (!lzero) {
+		systeme.set(l,c) += l_quant * pow(alpha, double(l_quant - 1)) ;
+   
+		deuz.set(l) -= val1_dern_1d(1, partn, base_r) / alpha ;
+	      }
+
+	      //----------
+	      //  Shells
+	      //----------
+
+	      for (int lz=1; lz<nz-1; lz++) {
+		alpha = mapping->get_alpha()[lz] ;
+		double beta = mapping->get_beta()[lz] ;
+		double xm1 = beta - alpha ;
+		double xp1 = alpha + beta ;
+		nr = mmg->get_nr(lz) ;
+		Tbl parts(nr) ;
+		parts.set_etat_qcq() ;
+		for (int i=0; i<nr; i++)
+		  parts.set(i) = mtc(lz, k, j, i) ;
+  
+		//Function at x = -1
+		l-- ; 
+		c = 2*lz - 1 ;
+		systeme.set(l,c) -= pow(xm1, double(l_quant)) ;
+		c++;
+		systeme.set(l,c) -= pow(xm1, double(-l_quant-1)) ;
+	      
+		deuz.set(l) += valm1_dern_1d(0, parts, R_CHEB) ;
+	    
+		if ((lz>1) || (!lzero)) {
+		  //First derivative at x=-1
+		  l++ ;
+		  c-- ;
+		  systeme.set(l,c) -=  l_quant*pow(xm1, double(l_quant - 1)) ;
+		  c++;
+		  systeme.set(l,c) -= (-l_quant - 1)*
+		    pow(xm1, double(-l_quant - 2)) ;
+
+		  deuz.set(l) += valm1_dern_1d(1, parts, R_CHEB) / alpha ;
+		}
+
+		//Function at x = 1
+		l++ ; 
+		c-- ;
+		systeme.set(l,c) += pow(xp1, double(l_quant)) ;
+		c++;
+		systeme.set(l,c) += pow(xp1, double(-l_quant-1)) ;
+
+		deuz.set(l) -= val1_dern_1d(0, parts, R_CHEB) ;
+	    
+		//First derivative at x = 1
+		l++ ; 
+		c-- ;
+		systeme.set(l,c) +=  l_quant*pow(xp1, double(l_quant - 1)) ;
+		c++;
+		systeme.set(l,c) += (-l_quant - 1)*
+		  pow(xp1, double(-l_quant - 2)) ;
+	    
+		deuz.set(l) -= val1_dern_1d(1, parts, R_CHEB) / alpha ;
+	    
+	      } //End of the loop on different shells
+
+	      //-------------------------------
+	      //  Compactified external domain
+	      //-------------------------------
+	      assert(mmg->get_type_r(nz-1) == UNSURR) ;
+	      rl.annule_domain(nz-1) ;
+	      nr = mmg->get_nr(nz-1) ;
+	      Tbl partc(nr) ;
+	      partc.set_etat_qcq() ;
+	      for (int i=0; i<nr; i++)
+		partc.set(i) = mtc(nz-1, k, j, i) ;
+
+	      alpha = mapping->get_alpha()[nz-1] ;
+	      double beta =  mapping->get_beta()[nz-1] ;
+	      double xm1 = beta - alpha ; // 1 / r_left
+	      double part0, part1 ;
+	      part0 = valm1_dern_1d(0, partc, R_CHEB) ;
+	      part1 = xm1*valm1_dern_1d(1, partc, R_CHEB) / alpha ;
+	      assert (p_potential[ind]->get_dzpuis() == 3) ;
+		
+	      //Function at x = -1
+	      l--;
+	      if (!lzero) {
+		c++;
+		systeme.set(l,c) -= pow(xm1, double(l_quant+1)) ;
+	      }
+	      deuz.set(l) += part0*xm1*xm1*xm1 ;
+
+	      // First derivative at x = -1
+	      l++ ;
+	      if (!lzero) {
+		systeme.set(l,c) -= (-l_quant - 1)*
+		  pow(xm1, double(l_quant + 2)) ;
+	      }
+	      if ( (nz > 2) || (!lzero))
+		deuz.set(l) += -xm1*xm1*xm1*xm1*(3*part0 + part1) ;
+
+	      //--------------------------------------
+	      //   Solution of the linear system
+	      //--------------------------------------
+	  
+	      int inf = 1 + nb_hom_ced;
+	      int sup = 3 - nb_hom_ced;
+	      systeme.set_band(sup, inf) ;
+	      systeme.set_lu() ;
+	      Tbl facteur(systeme.inverse(deuz)) ;
+	      rl.set_spectral_va().coef() ;
+	      rmlm1.set_spectral_va().coef() ;
+
+	      //Linear combination in the nucleus
+	      nr = mmg->get_nr(0) ;
+	      for (int i=0; i<nr; i++) 
+		mtc.set(0, k, j, i) += 
+		  facteur(0)*(*rl.get_spectral_va().c_cf)(0, 0, 0, i) ;
+	    
+	      //Linear combination in the shells
+	      for (int lz=1; lz<nz-1; lz++) {
+		nr = mmg->get_nr(lz) ;
+		for (int i=0; i<nr; i++) 
+		  mtc.set(lz, k, j, i) += facteur(2*lz - 1)*
+		    (*rl.get_spectral_va().c_cf)(lz, 0, 0, i) ;
+		for (int i=0; i<nr; i++) 
+		  mtc.set(lz, k, j, i) += facteur(2*lz)*
+		    (*rmlm1.get_spectral_va().c_cf)(lz, 0, 0, i) ;
+	      }
+
+	      //Linear combination in the CED
+	      nr = mmg->get_nr(nz-1) ;
+	      if (!lzero) {
+		for (int i=0; i<nr; i++) 
+		  mtc.set(nz-1, k, j, i) += facteur(taille - 1)*
+		  (*rmlm1.get_spectral_va().c_cf)(nz-1, 0, 0, i) ;
+	      }
+	    } //End of nullite_plm ...
+
+	  } //End of j/theta loop   
+	} //End of k/phi loop 
+
+      } //End of the case of more than one domain
+
+      val.ylm_i() ;
+
+    } //End of the case dzp = 4
+
+    p_div_free[ind] = new Vector_divfree(*mp, *triad, metre) ;
+
+    Vector gradient = p_potential[ind]->derive_con(metre) ;
+    if (dz_zero)  gradient.dec_dzpuis(2) ;
+
+    *p_div_free[ind] = ( *this - gradient ) ;
 
   }
   
