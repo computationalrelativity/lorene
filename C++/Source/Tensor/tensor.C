@@ -33,6 +33,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/10/01 11:56:31  e_gourgoulhon
+ * Corrected error: '=' replaced by '==' in two assert tests.
+ *
  * Revision 1.6  2003/09/30 08:38:23  j_novak
  * added a header typeinfo
  *
@@ -355,7 +358,7 @@ void Tensor::operator=(const Tensor& t) {
 void Tensor::operator+=(const Tensor& t) {
     
     assert (valence == t.valence) ;
-    assert (triad = t.triad) ; 
+    assert (triad == t.triad) ; 
     for (int i=0 ; i<valence ; i++)
       assert(t.type_indice(i) == type_indice(i)) ;
 	
@@ -371,7 +374,7 @@ void Tensor::operator+=(const Tensor& t) {
 void Tensor::operator-=(const Tensor& t) {
     
     assert (valence == t.valence) ;
-    assert (triad = t.triad) ; 
+    assert (triad == t.triad) ; 
     for (int i=0 ; i<valence ; i++)
       assert(t.type_indice(i) == type_indice(i)) ;
 	
