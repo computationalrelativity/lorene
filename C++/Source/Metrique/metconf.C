@@ -32,6 +32,9 @@ char metconf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/03/03 19:43:09  f_limousin
+ * Add a new constructo from a tensor and a metric and put some assert into comments.
+ *
  * Revision 1.5  2002/10/16 14:36:42  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -71,9 +74,9 @@ Metconf::Metconf (const Map& mapping, const Metrique& metric, const Metrique&
   assert (metplat.is_flat()) ;
   assert(metplat.get_etat() != ETATNONDEF) ;
   assert(metplat.cov().get_poids() == 0.) ;
-  assert(metric.cov().get_poids() == 0.) ;
-  assert(metric.get_etat() != ETATNONDEF) ;
-  assert( *(metplat.cov().get_triad()) == *(metric.cov().get_triad()) ) ;
+  //  assert(metric.cov().get_poids() == 0.) ;
+  //  assert(metric.get_etat() != ETATNONDEF) ;
+  //  assert( *(metplat.cov().get_triad()) == *(metric.cov().get_triad()) ) ;
   set_der_0x0() ;
 }
 
@@ -113,6 +116,26 @@ Metconf::Metconf (const Tenseur_sym& source, const Metrique& metplat,
   else assert(source.get_poids() == -2./3.) ;
   set_der_0x0() ;
 }
+
+// Constructeur from Tensor d'ordre 2 symetrique and a metric :
+Metconf::Metconf (const Tenseur_sym& source, const Metrique& metric, const Metrique& metplat, bool jauge, bool plate) : 
+  Metrique(source, plate), gamij(&metric), fij(&metplat),
+  dirac(jauge) {
+  
+  assert(metplat.is_flat()) ;
+  assert(metplat.get_etat() != ETATNONDEF) ;
+  assert(metplat.cov().get_poids() == 0.) ;
+  assert(gamij->cov().get_poids() == 0.) ;
+  assert(gamij->get_etat() != ETATNONDEF) ;
+  assert( metplat.cov().get_triad()->identify() == 
+	  gamij->cov().get_triad()->identify() ) ;
+  int tipe = source.get_type_indice(0) ;
+  
+  if (tipe == CON) assert(source.get_poids() == 2./3.) ;
+  else assert(source.get_poids() == -2./3.) ;
+  set_der_0x0() ;
+}
+
 	
 // From a file and a mapping :
 Metconf::Metconf (const Map& mapping, const Base_vect& triad, const Metrique&
@@ -130,7 +153,7 @@ Metconf::Metconf (const Map& mapping, const Base_vect& triad, const Metrique&
   dirac = jauge ;
   set_der_0x0() ;
     
-}
+} 
 
 //Destructor :
 Metconf::~Metconf() {
@@ -255,7 +278,8 @@ void Metconf::fait_gamma() const {
     Itbl tipe (3) ;
     tipe.set_etat_qcq() ;
     tipe.set(0) = CON ; tipe.set(1) = COV ; tipe.set(2) = COV ; 
-    p_gamma = new Tenseur_sym (*mp, 3, tipe, mp->get_bvect_cart() ) ;
+    
+    p_gamma = new Tenseur_sym (*mp, 3, tipe, *((*this).cov().get_triad()) ) ;
     if (etat == ETATZERO) p_gamma->set_etat_zero() ;
     else {
       assert(fij != 0x0) ;
