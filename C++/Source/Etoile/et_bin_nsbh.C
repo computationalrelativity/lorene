@@ -30,6 +30,9 @@ char et_bin_nsbh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/12/16 05:30:18  k_taniguchi
+ * Some changes in the constructor from file and the saving to file.
+ *
  * Revision 1.4  2003/11/28 04:30:22  k_taniguchi
  * Add the output operator.
  *
@@ -82,6 +85,9 @@ Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
       tkij_tot(mp_i, 2, CON, ref_triad_i),
       ssjm1_lapse(mp_i),
       ssjm1_confpsi(mp_i) {
+
+    // Pointers of derived quantities initialized to zero :
+    set_der_0x0() ;
 
     // The metric is initialized to the flat one :
     n_auto = 0.5 ;
@@ -160,27 +166,23 @@ Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, const Eos& eos_i,
       ssjm1_confpsi(mp_i) {
 
     // Read of the saved fields :
-    Tenseur ent_file(mp_i, fich) ;
-    ent = ent_file ;
-
-    Tenseur n_auto_file(mp_i, fich) ;
-    n_auto = n_auto_file ;
-
-    Tenseur confpsi_auto_file(mp_i, fich) ;
-    confpsi_auto = confpsi_auto_file ;
-
     Cmp ssjm1_lapse_file(mp_i, *(mp_i.get_mg()), fich) ;
     ssjm1_lapse = ssjm1_lapse_file ;
 
     Cmp ssjm1_confpsi_file(mp_i, *(mp_i.get_mg()), fich) ;
     ssjm1_confpsi = ssjm1_confpsi_file ;
 
+    // Construct from data in Etoile_bin
+    n_auto = exp(logn_auto) ;
+    n_auto.set_std_base() ;
+    confpsi_auto = exp(0.5*(beta_auto-logn_auto)) ;
+    confpsi_auto.set_std_base() ;
+
     // All other fields are initialized to zero or some constants :
     // ----------------------------------------------------------
     n_comp = 0.5 ;
     d_n_auto = 0 ;
     d_n_comp = 0 ;
-    confpsi = 1. ;
     confpsi_comp = 0.5 ;
     d_confpsi_auto = 0 ;
     d_confpsi_comp = 0 ;
@@ -189,6 +191,10 @@ Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, const Eos& eos_i,
     taij_tot.set_etat_zero() ;
     tkij_auto.set_etat_zero() ;
     tkij_tot.set_etat_zero() ;
+
+    // Pointers of derived quantities initialized to zero
+    // --------------------------------------------------
+    set_der_0x0() ;
 
 }
 
@@ -230,6 +236,7 @@ void Et_bin_nsbh::operator=(const Et_bin_nsbh& et) {
     ssjm1_lapse = et.ssjm1_lapse ;
     ssjm1_confpsi = et.ssjm1_confpsi ;
 
+    del_deriv() ;  // Deletes all derived quantities
 }
 
 Tenseur& Et_bin_nsbh::set_n_comp() {
@@ -254,23 +261,10 @@ Tenseur& Et_bin_nsbh::set_confpsi_comp() {
 // --------------
 void Et_bin_nsbh::sauve(FILE* fich) const {
 
-    Etoile::sauve(fich) ;
-
-    fwrite(&irrotational, sizeof(bool), 1, fich) ;
-
-    if (irrotational) {
-	gam_euler.sauve(fich) ; // required to construct d_psi from psi0
-	psi0.sauve(fich) ;
-    }
-
-    w_shift.sauve(fich) ;
-    khi_shift.sauve(fich) ;
+    Etoile_bin::sauve(fich) ;
 
     ssjm1_lapse.sauve(fich) ;
     ssjm1_confpsi.sauve(fich) ;
-    ssjm1_khi.sauve(fich) ;
-    ssjm1_wshift.sauve(fich) ;
-
 }
 
 
