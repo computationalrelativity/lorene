@@ -34,6 +34,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2003/10/16 15:27:46  e_gourgoulhon
+ * Name of method annule(int ) changed to annule_domain(int ).
+ *
  * Revision 1.20  2003/10/16 14:21:36  j_novak
  * The calculation of the divergence of a Tensor is now possible.
  *
@@ -561,7 +564,7 @@ Scalar& Tensor::set(const Itbl& idx) {
 }
 
 // Annulation dans des domaines
-void Tensor::annule(int l) {
+void Tensor::annule_domain(int l) {
     
     annule(l, l) ;     
 }

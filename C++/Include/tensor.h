@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2003/10/16 15:24:30  e_gourgoulhon
+ * Name of method annule(int ) changed to annule_domain(int ).
+ *
  * Revision 1.21  2003/10/16 14:21:33  j_novak
  * The calculation of the divergence of a Tensor is now possible.
  *
@@ -449,7 +452,7 @@ class Tensor {
 	 *	@param l [input]  Index of the domain in which the {\tt Tensor}
 	 *			  will be set (logically) to zero.
 	 */
-	void annule(int l) ; 
+	void annule_domain(int l) ; 
 
 	/**
 	 * Sets the {\tt Tensor} to zero in several domains.
