@@ -32,6 +32,9 @@ char vector_divfree_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/15 13:52:57  j_novak
+ * Initialization of met_div in the copy constructor
+ *
  * Revision 1.1  2003/10/13 20:53:53  e_gourgoulhon
  * First version
  *
@@ -66,7 +69,7 @@ Vector_divfree::Vector_divfree(const Map& map, const Base_vect& triad_i,
 // Copy constructor
 // ----------------
 Vector_divfree::Vector_divfree (const Vector_divfree& source) : 
-    Vector(source) {
+    Vector(source), met_div(source.met_div) {
   
 	set_der_0x0() ;
 	if (source.p_eta != 0x0) p_eta = new Scalar(*(source.p_eta)) ;
