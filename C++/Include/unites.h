@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/12/01 12:28:32  p_grandclement
+ * Include math.h in unite.h
+ *
  * Revision 1.3  2004/03/25 10:28:56  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -48,6 +51,7 @@
  *
  */
 
+#include <math.h>
 
                   //--------------------------//
                   //  Standard LORENE units   //
