@@ -7,7 +7,7 @@
  */
 
 /*
- *   Copyright (c) 2004  Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2004  Jose Luis Jaramillo
  *
  *   This file is part of LORENE.
  *
@@ -31,6 +31,9 @@ char init_data_schwar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/09/17 13:34:50  f_limousin
+ * Introduction of relaxation
+ *
  * Revision 1.1  2004/09/09 16:41:50  f_limousin
  * First version
  *
@@ -59,13 +62,12 @@ char init_data_schwar_C[] = "$Header$" ;
 
 void Isol_hor::init_data_schwar(const Sym_tensor& uu, 
                 const Scalar& trk_in, const Scalar& trk_point, 
-                double precis, 
+		double precis, double relax,
                 const Scalar* p_ener_dens, const Vector* p_mom_dens, 
                 const Scalar* p_trace_stress) {
 
     using namespace Unites ;
    
- 
     // Verifications
     // -------------
     double tr_uu = max(maxabs(uu.trace(tgam()), "trace tgam_{ij} u^{ij}")) ; 
@@ -94,8 +96,6 @@ void Isol_hor::init_data_schwar(const Sym_tensor& uu,
     Scalar tmp_scal(map) ; 
     Sym_tensor tmp_sym(map, CON, triad) ;
 
-
-
     // Reset of quantities depending on K:
     k_dd_evol.downdate(jtime) ; 
     k_uu_evol.downdate(jtime) ; 
@@ -107,50 +107,20 @@ void Isol_hor::init_data_schwar(const Sym_tensor& uu,
     // ---------
     int imax = 100 ; 
     for (int i=0; i<imax; i++) {
-    
-       
-
-      //============================================
-      //          Boundary conditions
-      //============================================
-      
-      // Boundary for N	
-      //---------------
-      //	tmp_scal= -1 ;
-      //	tmp_scal.std_spectral_base() ;
 	
-      Valeur nn_bound (map.get_mg()->get_angu() )  ;
+	//============================================
+	//          Boundary conditions
+	//============================================
       
-      int nnp = map.get_mg()->get_np(1) ;
-      int nnt = map.get_mg()->get_nt(1) ;
-      
-      nn_bound = -1. ;
-			
-      //	for (int k=0 ; k<nnp ; k++)
-      //	  for (int j=0 ; j<nnt ; j++)
-      //	    nn_bound.set(0, k, j, 0) = tmp_scal.val_grid_point(1, k, j, 0) ;
-      
-      nn_bound.std_base_scal() ;
-      
-      
-      // Boundary for Psi (Neumann)
-      //---------------------------
-      tmp_scal = - 0.5 * psi() ;
-      tmp_scal.std_spectral_base() ;
-      tmp_scal.div_r() ;
-      
-      Valeur psi_bound (map.get_mg()->get_angu()) ;
+	// Boundary for N	
+	//---------------
 	
-      psi_bound = 1 ;
-      
-      for (int k=0 ; k<nnp ; k++)
-	for (int j=0 ; j<nnt ; j++)
-	  psi_bound.set(0, k, j, 0) = tmp_scal.val_grid_point(1, k, j, 0) ;
-      
-      psi_bound.std_base_scal() ;
-       
-
-  
+	Valeur nn_bound (boundary_nn_Dir_eff(0)) ;
+	
+	// Boundary for Psi (Neumann)
+	//---------------------------
+	
+	Valeur psi_bound (boundary_psi_Dir_spat()) ;
 
       //=============================================
       // Resolution of elliptic equations
@@ -159,14 +129,20 @@ void Isol_hor::init_data_schwar(const Sym_tensor& uu,
       // Resolution of the Poisson equation for the lapse
       // ------------------------------------------------
       
-      Scalar nn_jp1 = source_nn_hor(trk_in).poisson_dirichlet(nn_bound, 0) + 1. ; 
+	
+	des_profile(source_nn_hor(trk_in), 1.00001, 10, 0., 0., "source") ;
+	des_coef_xi(source_nn_hor(trk_in).get_spectral_va(), 1, 0, 0) ;
+	des_coef_theta(source_nn_hor(trk_in).get_spectral_va(), 1, 0, 0) ;
 
+	Scalar nn_jp1 = source_nn_hor(trk_in).poisson_dirichlet(nn_bound, 0) 
+	    + 1. ; 
+
+	
       // Relaxation (relax=1 -> new ; relax=0 -> old )  
       //-----------
       
-      //      double relax = 1. ;
-      
-      //      nn_jp1 = relax * nn_jp1 + (1 - relax) * nn() ;
+	double relax = 0.5 ;      
+	nn_jp1 = relax * nn_jp1 + (1 - relax) * nn() ;
       
 
       // Test:
@@ -178,18 +154,15 @@ void Isol_hor::init_data_schwar(const Sym_tensor& uu,
       // Resolution of the Poisson equation for Psi
       // ------------------------------------------
       
-      Scalar psi_jp1 = source_psi_hor().poisson_neumann(psi_bound, 0) + 1. ; 
+      Scalar psi_jp1 = source_psi_hor().poisson_dirichlet(psi_bound, 0) + 1. ; 
 
       
       // Relaxation (relax=1 -> new ; relax=0 -> old )  
       //-----------
       
-      //      relax = 1. ;
-      
-      //      psi_jp1 = relax * psi_jp1 + (1 - relax) * psi() ;
-      
-
-
+      relax = 0.5 ;      
+      psi_jp1 = relax * psi_jp1 + (1 - relax) * psi() ;
+     
       
       // Test:
       maxabs(psi_jp1.laplacian() - source_psi_hor(),
@@ -197,18 +170,10 @@ void Isol_hor::init_data_schwar(const Sym_tensor& uu,
       
       //        des_meridian(psi_jp1, 0., 5., "Psi", 1) ; 
 
-        
+/*        
       // Resolution of the vector Poisson equation for the shift
       //---------------------------------------------------------
       
-      //      Vector beta_jp1 = source_beta_hor().poisson(0.3333333333333333, 1) ; 
-      
-      //        des_meridian(beta_jp1(1), 0., 5., "\\gb\\ur\\d", 3) ; 
-      //        des_meridian(beta_jp1(2), 0., 5., "\\gb\\u\\gh\\d", 4) ; 
-      //        des_meridian(beta_jp1(3), 0., 5., "\\gb\\u\\gf\\d", 5) ; 
-
-   
-
       Vector beta_jp1(ff.get_mp(), CON, *(ff.get_triad()) ) ;
 
       Vector beta_cartesian = beta_bound_cart() ;
@@ -289,7 +254,7 @@ void Isol_hor::init_data_schwar(const Sym_tensor& uu,
       
       beta_jp1 = beta_cartesian  ;
 
-
+*/
       
 
 
@@ -302,17 +267,19 @@ void Isol_hor::init_data_schwar(const Sym_tensor& uu,
       
       double diff_psi = max( diffrel(psi(), psi_jp1) ) ; 
       double diff_nn = max( diffrel(nn(), nn_jp1) ) ; 
-      
-      
+        
+      /*
       Vector beta_diff = beta() - beta_jp1 ;
       Scalar mod_diff_beta = contract( beta_diff.down(0, ff), 0,  beta_diff, 0 ) ;
       tmp.set_etat_zero() ;
       double diff_beta = max( diffrel(mod_diff_beta, tmp) ) ; 
-      
+      */
+
       cout << "step = " << i << " :  diff_psi = " << diff_psi 
-	   << "  diff_nn = " << diff_nn
-	   << "  diff_beta = " << diff_beta << endl ; 
-      if ( (diff_psi < precis) && (diff_nn < precis) && (diff_beta < precis) )
+	   << "  diff_nn = " << diff_nn << endl << endl ;
+//	   << "  diff_beta = " << diff_beta << endl ; 
+      cout << "----------------------------------------------" << endl ;
+	  if ( (diff_psi < precis) && (diff_nn < precis) )//&& (diff_beta < precis) )
 	break ; 
       
       //=============================================
@@ -323,7 +290,7 @@ void Isol_hor::init_data_schwar(const Sym_tensor& uu,
       
       n_evol.update(nn_jp1, jtime, ttime) ; 
       
-      beta_evol.update(beta_jp1, jtime, ttime) ; 
+//      beta_evol.update(beta_jp1, jtime, ttime) ; 
       
       // New value of A^{ij}:
       Sym_tensor aa_jp1 = ( beta().ope_killing_conf(tgam()) + uu ) 
@@ -337,8 +304,6 @@ void Isol_hor::init_data_schwar(const Sym_tensor& uu,
       
       set_aa(aa_jp1) ; 
       
-      // arrete() ; 
-
     }
 
 } 
