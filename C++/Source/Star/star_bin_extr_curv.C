@@ -30,6 +30,9 @@ char star_bin_extr_curv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/27 09:52:41  f_limousin
+ * Correction of an error on the computation of kcar_auto.
+ *
  * Revision 1.2  2004/01/20 15:18:00  f_limousin
  * First version
  *
@@ -43,49 +46,35 @@ char star_bin_extr_curv_C[] = "$Header$" ;
 
 void Star_bin::extrinsic_curvature(){
     
-     // Gradient tilde (with respect to the spherical coordinates
+    // Gradient tilde (with respect to the spherical coordinates
     //           of the mapping)
     // D~_j beta^i 
     
     const Tensor& dshift = shift_auto.derive_con(flat) ; 
     
      // Trace of D~_j beta^i : 
-    Scalar div_shift = contract(shift_auto.derive_cov(flat),0, 1) ; 
-    
+    Scalar div_shift = shift_auto.divergence(flat) ; 
+
     // Computation of K^{ij}
     // See Eq (49) from Gourgoulhon et al. (2001)
     // ------------------------------------------
 
     for (int i=1; i<=3; i++) 
-	for (int j=i; j<=3; j++) {
-	    
+	for (int j=1; j<=i; j++) {
 	    tkij_auto.set(i, j) = dshift(i, j) + dshift(j, i) - 
-		double(2) /double(3) * div_shift % (gtilde.con())(i,j) ; 
+		double(2) /double(3) * div_shift * (gtilde.con())(i,j) ; 
 	}
     
     
-    tkij_auto = - 0.5 * tkij_auto / nnn ;   
-    tkij_auto.std_spectral_base() ;
-    
+    tkij_auto = 0.5 * tkij_auto / nnn ;   
+     
     // Computation of K_{ij} K^{ij}
-    // --------------------------------
+    // ----------------------------
     
-    Tensor temp1 = contract(gtilde.cov(), 1, contract(
-				      gtilde.cov(),1, tkij_auto,1), 1) ;
+    Tensor tkij_auto_cov = tkij_auto.down(0, gtilde).down(1, gtilde) ;
   
-    Tensor tkij_auto_cov = tkij_auto ;
-    
-    for (int i=1; i<=3; i++) 
-	for (int j=1; j<=3; j++) {
-	    
-	    tkij_auto_cov.set(i,j) = temp1(i,j) ;
-	  
-	    kcar_auto += tkij_auto_cov(i,j) % tkij_auto(i,j) ; 
-	}
-    
-    Scalar a_car = psi4 *pow(flat.determinant(), 1./3.) ;
-    
-    kcar_auto =  a_car % kcar_auto ; 
+    kcar_comp = contract(tkij_auto_cov, 0, 1, tkij_auto, 0, 1, true) ; 
+      
     kcar_auto.std_spectral_base() ; 
     
 }
