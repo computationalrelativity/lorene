@@ -29,6 +29,9 @@ char map_et_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/06/04 21:11:55  p_grandclement
+ * Correction of separation in odd-even harmonics
+ *
  * Revision 1.5  2002/10/16 14:36:41  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -242,26 +245,25 @@ Map_et::Map_et(const Mg3d& grille, const double* r_lim, const Tbl& S_0) :
      odd = new double [nt*(np+2)] ;
      even = new double [nt*(np+2)] ;
 
+
      for (int k=0 ; k<np+2 ; k++)
-       if (k%4 == 0)
+       if ((k%4 == 0) || (k%4==1))
 	 for (int j=0 ; j<nt ; j++) {
 	   odd[k*nt+j] = 0 ;
 	   even[k*nt+j] = cf[k*nt+j] ;
 	 }
        else
-	 if (k%4 == 2)
+	 if ((k%4 == 2) || (k%4 == 3))
 	 for (int j=0 ; j<nt ; j++) {
 	   even[k*nt+j] = 0 ;
 	   odd[k*nt+j] = cf[k*nt+j] ;
 	 }
 
-        else
-	   for (int j=0 ; j<nt ; j++) {
-	   even[k*nt+j] = 0 ;
-	   odd[k*nt+j] = 0 ;
-	   }
-    
-    
+	 else {
+	   cout << "Erreur bizzare..." << endl ;
+	   abort() ;
+	 }
+
      coloc_odd = new double [nt*np] ;
      coloc_even = new double [nt*np] ;
 
