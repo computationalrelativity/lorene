@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/03/24 14:53:39  j_novak
+ * Double declarations suppressed
+ *
  * Revision 1.6  2004/03/22 13:12:41  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -351,7 +354,6 @@ Itbl operator-(const Itbl&) ;			///< - Itbl
 Itbl operator+(const Itbl&, const Itbl&) ;	///< Itbl + Itbl
 Itbl operator+(const Itbl&, int) ;		///< Itbl + int
 Itbl operator+(int a, const Itbl& b) ;		///< int + Itbl
-Itbl operator+(const Itbl& b, int a) ;		///< Itbl + int
 Itbl operator-(const Itbl&, const Itbl&) ;	///< Itbl - Itbl
 Itbl operator-(const Itbl&, int) ;		///< Itbl - int
 Itbl operator-(int, const Itbl&) ;		///< int - Itbl

@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.51  2004/03/24 14:53:39  j_novak
+ * Double declarations suppressed
+ *
  * Revision 1.50  2004/03/22 13:12:43  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -1379,7 +1382,6 @@ Tensor_sym operator-(const Tensor_sym&) ;
  */
 Tensor_sym operator+(const Tensor_sym&, const Tensor_sym&) ;  
 
-Tensor operator-(const Tensor&, const Tensor &) ;       ///< Tensor - Tensor
 /** Tensor_sym - Tensor_sym. For efficiency reasons this function is 
  *  distinct
  *  from \c Tensor \c operator-(const Tensor\&, const Tensor\&) .
