@@ -30,6 +30,9 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2005/03/03 10:05:36  f_limousin
+ * Introduction of members boost_x and boost_z.
+ *
  * Revision 1.11  2005/02/07 10:35:05  f_limousin
  * Add the regularisation of the shift for the case N=0 on the horizon.
  *
@@ -91,7 +94,8 @@ char isol_hor_C[] = "$Header$" ;
 
 Isol_hor::Isol_hor(Map_af& mpi, int depth_in) : 
   Time_slice_conf(mpi, mpi.get_bvect_spher(), mpi.flat_met_spher()),
-  mp(mpi), radius ((mpi.get_alpha())[0]), omega(0), regul(0),
+  mp(mpi), radius ((mpi.get_alpha())[0]), omega(0), boost_x(0),
+  boost_z(0), regul(0),
   n_auto_evol(depth_in), n_comp_evol(depth_in), 
   psi_auto_evol(depth_in), psi_comp_evol(depth_in),
   dn_evol(depth_in), dpsi_evol(depth_in),
@@ -113,7 +117,7 @@ Isol_hor::Isol_hor(Map_af& mpi, const Scalar& lapse_in,
     : Time_slice_conf(lapse_in, shift_in, ff_in, psi_in, metgamt.con() -
 		      ff_in.con(), aa_in, trK_in, depth_in),
       mp(mpi), radius ((mpi.get_alpha())[0]), 
-      omega(0), regul(0),
+      omega(0), boost_x(0), boost_z(0), regul(0),
       n_auto_evol(depth_in), n_comp_evol(depth_in), 
       psi_auto_evol(depth_in), psi_comp_evol(depth_in),
       dn_evol(depth_in), dpsi_evol(depth_in),
@@ -136,6 +140,8 @@ Isol_hor::Isol_hor(const Isol_hor& isolhor_in)
       mp(isolhor_in.mp),
       radius(isolhor_in.radius),
       omega(isolhor_in.omega),
+      boost_x(isolhor_in.boost_x),
+      boost_z(isolhor_in.boost_z),
       regul(isolhor_in.regul),
       n_auto_evol(isolhor_in.n_auto_evol),
       n_comp_evol(isolhor_in.n_comp_evol),
@@ -162,7 +168,8 @@ Isol_hor::Isol_hor(Map_af& mpi, FILE* fich,
 		   bool partial_read, int depth_in)
     : Time_slice_conf(mpi, mpi.get_bvect_spher(), mpi.flat_met_spher(), 
 		      fich, partial_read, depth_in),
-      mp(mpi), radius ((mpi.get_alpha())[0]), omega(0), regul(0),
+      mp(mpi), radius ((mpi.get_alpha())[0]), omega(0), boost_x(0),
+      boost_z(0), regul(0),
       n_auto_evol(depth_in), n_comp_evol(depth_in), 
       psi_auto_evol(depth_in), psi_comp_evol(depth_in),
       dn_evol(depth_in), dpsi_evol(depth_in),
@@ -173,18 +180,29 @@ Isol_hor::Isol_hor(Map_af& mpi, FILE* fich,
       trK(mpi), trK_point(mpi), decouple(mpi){
 
     fread_be(&omega, sizeof(double), 1, fich) ;
+    fread_be(&boost_x, sizeof(double), 1, fich) ;
+    fread_be(&boost_z, sizeof(double), 1, fich) ;
   
     int jmin = jtime - depth + 1 ; 
     int indicator ; 
 
+    // psi_evol
+    for (int j=jmin; j<=jtime; j++) {
+	fread_be(&indicator, sizeof(int), 1, fich) ;	
+	if (indicator == 1) {
+	    Scalar psi_file(mp, *(mp.get_mg()), fich) ; 
+	    psi_evol.update(psi_file, j, the_time[j]) ; 
+	}
+    }
+
     // n_auto_evol
-  for (int j=jmin; j<=jtime; j++) {
-      fread_be(&indicator, sizeof(int), 1, fich) ;	
-      if (indicator == 1) {
-	  Scalar nn_auto_file(mp, *(mp.get_mg()), fich) ; 
-	  n_auto_evol.update(nn_auto_file, j, the_time[j]) ; 
-      }
-  }
+    for (int j=jmin; j<=jtime; j++) {
+	fread_be(&indicator, sizeof(int), 1, fich) ;	
+	if (indicator == 1) {
+	    Scalar nn_auto_file(mp, *(mp.get_mg()), fich) ; 
+	    n_auto_evol.update(nn_auto_file, j, the_time[j]) ; 
+	}
+    }
 
   // psi_auto_evol
   for (int j=jmin; j<=jtime; j++) {
@@ -241,6 +259,8 @@ void Isol_hor::operator=(const Isol_hor& isolhor_in) {
     mp = isolhor_in.mp ;
     radius = isolhor_in.radius ;
     omega = isolhor_in.omega ;
+    boost_x = isolhor_in.boost_x ;
+    boost_z = isolhor_in.boost_z ;
     regul = isolhor_in.regul ;
     n_auto_evol = isolhor_in.n_auto_evol ;
     n_comp_evol = isolhor_in.n_comp_evol ;
@@ -289,12 +309,21 @@ void Isol_hor::sauve(FILE* fich, bool partial_save) const {
     Time_slice_conf::sauve(fich, partial_save) ; 
 
     fwrite_be (&omega, sizeof(double), 1, fich) ;
+    fwrite_be (&boost_x, sizeof(double), 1, fich) ;
+    fwrite_be (&boost_z, sizeof(double), 1, fich) ;
     
     // Writing of quantities common to Isol_hor
     // -----------------------------------------
 
     int jmin = jtime - depth + 1 ; 
 
+    // psi_evol
+    for (int j=jmin; j<=jtime; j++) {
+	int indicator = (psi_evol.is_known(j)) ? 1 : 0 ; 
+        fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        if (indicator == 1) psi_evol[j].sauve(fich) ; 
+    }
+    
     // n_auto_evol
     for (int j=jmin; j<=jtime; j++) {
 	int indicator = (n_auto_evol.is_known(j)) ? 1 : 0 ; 
