@@ -31,6 +31,9 @@ char bin_ns_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/01/15 09:11:04  e_gourgoulhon
+ * Display of Lorene object (class binaire) read in file
+ *
  * Revision 1.1  2002/01/11 17:03:02  e_gourgoulhon
  * Exportation of binary neutron stars configuration to a Cartesian grid
  *
@@ -74,7 +77,7 @@ Bin_NS::Bin_NS(int nbpoints, const double* xi, const double* yi,
     Mg3d mg1(fich) ;
     Map_et mp1(mg1, fich) ; 
     Eos* peos1 = Eos::eos_from_file(fich) ; 
-    
+
     Mg3d mg2(fich) ;
     Map_et mp2(mg2, fich) ; 
     Eos* peos2 = Eos::eos_from_file(fich) ; 
@@ -154,6 +157,9 @@ Bin_NS::Bin_NS(int nbpoints, const double* xi, const double* yi,
     cout.precision(13) ;
     cout << endl << "Binary system read in file : " << endl ;
     cout <<	    "---------------------------- " << endl ;
+    cout << star << endl ;
+    cout << endl << "Summary : " << endl ;
+    cout << "-------" << endl ;
     cout << "  Separation d   : " << dist << " km" << endl ;
     cout << "  Separation d_G : " << dist_mass << " km" << endl ;
     cout << "  Omega          : " << omega << " rad/s" << endl ;
