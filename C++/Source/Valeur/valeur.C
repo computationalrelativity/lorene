@@ -7,7 +7,7 @@
 
 /*
  *   Copyright (c) 1999-2000 Jean-Alain Marck
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2003 Eric Gourgoulhon
  *   Copyright (c) 1999-2001 Philippe Grandclement
  *
  *   This file is part of LORENE.
@@ -34,6 +34,9 @@ char valeur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/19 19:52:56  e_gourgoulhon
+ * Added new method display_coef.
+ *
  * Revision 1.3  2002/10/16 14:37:15  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -513,6 +516,27 @@ ostream& operator<<(ostream& o, const Valeur & vi) {
     // Termine
     return o ;
 }
+
+// display_coef
+// ------------
+void Valeur::display_coef(double thres, int precis, ostream& ost) const {
+
+    if (etat == ETATNONDEF) {
+		ost << "    state: UNDEFINED" << endl ;
+		return ;
+    }
+
+    if (etat == ETATZERO) {
+		ost << "    state: ZERO" << endl ;
+		return ;
+    }
+
+	coef() ; 	// the coefficients are required
+	
+	c_cf->display(thres, precis, ost) ; 
+		
+}
+
 
 // affiche_seuil
 //---------------
