@@ -29,6 +29,10 @@ char einstein_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/03/04 22:19:25  e_gourgoulhon
+ * All sources completed (except for the time derivatives and
+ * shift terms in the source for h).
+ *
  * Revision 1.6  2004/03/04 16:25:56  e_gourgoulhon
  * Still in progress...
  *
@@ -82,8 +86,8 @@ int main() {
     // ------------------------------------------------
   
     int nz = 3 ; 	// Number of domains
-    int nr = 33 ; 	// Number of collocation points in r in each domain
-    int nt = 17 ; 	// Number of collocation points in theta in each domain
+    int nr = 25 ; 	// Number of collocation points in r in each domain
+    int nt = 13 ; 	// Number of collocation points in theta in each domain
     int np = 8 ; 	// Number of collocation points in phi in each domain
     int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
     int symmetry_phi = NONSYM ; // no symmetry in phi
@@ -195,7 +199,8 @@ int main() {
     Vector beta_init(map, CON, otriad ) ; 
     tmp =  sint * cosp / ( r + 1 / r ) ;   
     tmp.std_spectral_base() ;    // sets standard spectral bases
-    beta_init = relativistic_init * tmp.derive_con(ff) ;   
+    beta_init = relativistic_init * tmp.derive_con(ff) ; 
+    beta_init.dec_dzpuis(2) ;   // dzpuis: 2 -> 0  
 
     // Set up of lapse function N
     // --------------------------
@@ -302,10 +307,23 @@ int main() {
         const Vector& dqq = qq.derive_cov(ff) ;         // D_i Q
 
         // Conformal extrinsic curvature A
-        // -----------------------------------------
+        // -------------------------------
     
         Sym_tensor aa(map, CON, otriad) ;   // A^{ij}
-        aa.set_etat_zero() ;    //  initialization to zero
+        for (int i=1; i<=3; i++) {
+            for (int j=1; j<=i; j++) {
+                aa.set(i,j) = beta.derive_con(ff)(i,j)  
+                            + beta.derive_con(ff)(j,i) 
+                            - 0.6666666666666666 * beta.divergence(ff) 
+                                * tgam_uu(i,j) ;
+            }
+        }
+        
+        aa -= hh.derive_lie(beta) ;         
+ 
+        //### time derivative of h is missing
+        
+        aa = aa / (2.*nn) ; 
     
         Sym_tensor taa(map, COV, otriad) ;  // {\tilde A}_{ij}
         taa = aa.up_down(ff) ;
@@ -316,11 +334,13 @@ int main() {
         
         Scalar aa_quad = contract(taa, 0, 1, aa, 0, 1) ; 
         
-        source_qq = 0.75 * psi4 * qq * aa_quad  
-            - contract( hh, 0, 1, dqq.derive_cov(ff), 0, 1 ) ; 
-            
-        source_qq.inc_dzpuis() ;  
-            
+        source_qq = 0.75 * psi4 * qq * aa_quad ;
+        
+        tmp = contract( hh, 0, 1, dqq.derive_cov(ff), 0, 1 ) ;             
+        tmp.inc_dzpuis() ; 
+        
+        source_qq -= tmp ;  
+                        
         tmp = 0.0625 * contract( dhh, 0, 1, dtgam, 0, 1 ).trace(tgam) 
              - 0.125 * contract( dhh, 0, 1, dtgam, 0, 2 ).trace(tgam) 
              + 2.* contract( contract( tgam_uu, 0, dln_psi, 0), 0,
@@ -351,12 +371,16 @@ int main() {
 
         source_beta = 2. * ( contract(aa, 1, 
                         dnn - 6.*nn * dln_psi, 0)
-                - nn * contract(tgam.connect().get_delta(), 1, 2, aa, 0, 1) )
-                - contract(hh, 0, 1, 
+                - nn * contract(tgam.connect().get_delta(), 1, 2, aa, 0, 1) ) ;
+                
+        Vector vtmp = contract(hh, 0, 1, 
                            beta.derive_cov(ff).derive_cov(ff), 1, 2)
-                - 0.3333333333333333 *
+                + 0.3333333333333333 *
                   contract(hh, 1, beta.divergence(ff).derive_cov(ff), 0) ; 
+        vtmp.inc_dzpuis() ; // dzpuis: 3 -> 4
                     
+        source_beta -= vtmp ; 
+        
         source_beta.spectral_display("source_beta") ; 
         
 
@@ -422,15 +446,53 @@ int main() {
         
         Sym_tensor ss(map, CON, otriad) ; 
         
-        ss = nn * (ricci_star + 8.* tdln_psi_u * tdln_psi_u)
+        sym_tmp = nn * (ricci_star + 8.* tdln_psi_u * tdln_psi_u)
                 + 4.*( tdln_psi_u * tdnn_u + tdnn_u * tdln_psi_u ) 
                 - 0.3333333333333333 * ( 
                     nn * (tricci_scal 
                             + 8.* contract(dln_psi, 0, tdln_psi_u, 0) )
                     + 8.* contract(dln_psi, 0, tdnn_u, 0) ) * tgam_uu ;
 
-        ss = ss / psi4  ;
+        ss = sym_tmp / psi4  ;
+        
+        sym_tmp = contract( tgam_uu, 1, 
+                            contract(tgam_uu, 1, dqq.derive_cov(ff), 0), 1) ;
+                            
+        sym_tmp.inc_dzpuis() ; // dzpuis : 3 --> 4
+        
+        for (int i=1; i<=3; i++) {
+            for (int j=1; j<=i; j++) {
+                tmp = 0 ; 
+                for (int k=1; k<=3; k++) {
+                    for (int l=1; l<=3; l++) {
+                        tmp += ( hh(i,k)*dhh(l,j,k) + hh(k,j)*dhh(i,l,k)
+                                    - hh(k,l)*dhh(i,j,k) ) * dqq(l) ; 
+                    }
+                }
+                sym_tmp.set(i,j) += 0.5 * tmp ; 
+            }
+        }
+        
+        tmp = qq.derive_con(tgam).divergence(tgam) ; 
+        tmp.inc_dzpuis() ; // dzpuis : 3 --> 4
+        
+        sym_tmp -= 0.3333333333333333 * tmp * tgam_uu ; 
+                    
+        ss -= sym_tmp / (psi4*psi2) ; 
 
+        for (int i=1; i<=3; i++) {
+            for (int j=1; j<=i; j++) {
+                tmp = 0 ; 
+                for (int k=1; k<=3; k++) {
+                    for (int l=1; l<=3; l++) {
+                        tmp += tgam_dd(k,l) * aa(i,k) * aa(j,l) ; 
+                    }
+                }
+                sym_tmp.set(i,j) = 2. * tmp ; 
+            }
+        }
+        
+        ss += nn * sym_tmp ; 
 
         // Source for h 
         // ------------
@@ -460,10 +522,10 @@ int main() {
 
         arrete() ; 
 
-//##        const Sym_tensor_tt& source_htt = source_hh.transverse(ff).tt_part() ;
+        const Sym_tensor_tt& source_htt = source_hh.transverse(ff).tt_part() ;
   
-        Sym_tensor_tt source_htt(map, otriad, ff) ; 
-        source_htt = source_hh ; 
+        //## Sym_tensor_tt source_htt(map, otriad, ff) ; 
+        //## source_htt = source_hh ; 
         
         maxabs( source_htt.divergence(ff), "Divergence of source_htt") ; 
         maxabs( source_htt.trace(ff), "Trace of source_hhtt") ; 
@@ -535,7 +597,7 @@ void des_meridian(const Scalar& uu, double r_min, double r_max,
             "Meridional plane phi=0: plot for theta=0, pi/4, pi/2",
             ngraph) ;
         
-        double phi2[] = {0.5*M_PI, 0.5*M_PI, 0.5*M_PI} ; 
+ //      double phi2[] = {0.5*M_PI, 0.5*M_PI, 0.5*M_PI} ; 
     
  //       des_profile_mult(des, 3, r_min, r_max, theta1, phi2, 1., false, 
  //           nomy, 
