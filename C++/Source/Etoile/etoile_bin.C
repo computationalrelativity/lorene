@@ -32,6 +32,9 @@ char etoile_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/10/20 15:08:22  k_taniguchi
+ * Minor changes.
+ *
  * Revision 1.7  2003/10/20 14:51:26  k_taniguchi
  * Addition of various things for the Bin_ns_bh project
  * which are related with the part of the neutron star.
@@ -272,10 +275,10 @@ Etoile_bin::Etoile_bin(Map& mpi, int nzet_i, bool relat, const Eos& eos_i,
     pot_centri = 0 ;
     ssjm1_logn = 0 ; 
     ssjm1_beta = 0 ; 
+    ssjm1_n_auto.set_etat_qcq() ;
     ssjm1_n_auto = 0.5 ;
-    ssjm1_n_auto.set_std_base() ;
+    ssjm1_confpsi.set_etat_qcq() ;
     ssjm1_confpsi = 0.5 ;
-    ssjm1_confpsi.set_std_base() ;
     ssjm1_khi = 0 ; 
     
     ssjm1_wshift.set_etat_qcq() ; 
