@@ -30,6 +30,9 @@ char map_af_poisson_angu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/16 08:49:23  j_novak
+ * Added a flag to decide wether the output is in the Ylm or in the standard base.
+ *
  * Revision 1.1  2003/10/15 21:11:26  e_gourgoulhon
  * Added method poisson_angu.
  *
@@ -43,7 +46,7 @@ char map_af_poisson_angu_C[] = "$Header$" ;
 #include "tensor.h"
 #include "param.h"
 
-void Map_af::poisson_angu(const Scalar& source, Param& , Scalar& uu) const {
+void Map_af::poisson_angu(const Scalar& source, Param& par, Scalar& uu) const {
 
     assert(source.get_etat() != ETATNONDEF) ; 
 	
@@ -73,17 +76,15 @@ void Map_af::poisson_angu(const Scalar& source, Param& , Scalar& uu) const {
     // ---------------------------
     (resu.c_cf)->poisson_angu() ; 
 	
-	resu.ylm_i() ; // Back to standard bases 
+    if (par.get_n_int() == 0) resu.ylm_i() ; // Back to standard bases 
+                                             //in the case of no flag present
+                                             // in the Param
 
     // Final result returned as a Scalar
     // ---------------------------------
     
-    uu.set_etat_zero() ;  // to call Scalar::del_t().
-
-    uu.set_etat_qcq() ; 
-    
-    uu.set_spectral_va() = resu ;
+    uu = resu ;
 	
-	uu.set_dzpuis( source.get_dzpuis() ) ;  // dzpuis unchanged
+    uu.set_dzpuis( source.get_dzpuis() ) ;  // dzpuis unchanged
 }
 

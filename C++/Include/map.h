@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2003/10/16 08:49:21  j_novak
+ * Added a flag to decide wether the output is in the Ylm or in the standard base.
+ *
  * Revision 1.11  2003/10/15 21:08:22  e_gourgoulhon
  * Added method poisson_angu.
  *
@@ -1806,7 +1809,9 @@ class Map_af : public Map_radial {
 	 * 
 	 *   @param source [input] source $\sigma$ of the Poisson equation 
 	 *	    $\Delta_{\theta\varphi} u = \sigma$.
-	 *   @param par unused. 
+	 *   @param par There must be one integer to force the result to
+	 *          be expressed in spherical harmonics; otherwise (empty
+	 *          {\tt Param}), standard angular bases are used. 
 	 *   @param uu [input/output] solution {\it u} 
 	 */
 	virtual void poisson_angu(const Scalar& source, Param& par, 
