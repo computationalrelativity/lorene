@@ -29,6 +29,9 @@ char wave_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/04/29 17:13:08  e_gourgoulhon
+ * New argument pdt to Time_slice_conf::initial_data_cts.
+ *
  * Revision 1.3  2004/04/08 16:47:09  e_gourgoulhon
  * Many changes.
  *
@@ -143,8 +146,8 @@ int main() {
     khi_init.std_spectral_base() ; 
     
     khi_init.spectral_display("khi_init") ;   
-    if (khi_init.get_etat() == ETATQCQ) 
-        des_meridian(khi_init, 0., 5., "khi_init", 1) ; 
+    //if (khi_init.get_etat() == ETATQCQ) 
+    //    des_meridian(khi_init, 0., 5., "khi_init", 1) ; 
 
     //## khi_init.smooth_decay(2, 1) ; 
     
@@ -185,9 +188,27 @@ int main() {
     Scalar tmp(map) ; 
     tmp.set_etat_zero() ; 
     
-    sigmat.initial_data_cts(uu_init, tmp, tmp, 1.e-10) ;
+    sigmat.initial_data_cts(uu_init, tmp, tmp, pdt, 1.e-10) ;
         
     cout << "sigmat : " << sigmat << endl ;  
+    
+    cout << "Test upon khi : difference between khi and khi_init : " << endl ; 
+    Scalar diff_khi = sigmat.khi() - khi_init ;
+    maxabs(diff_khi, "diff_khi") ; 
+    arrete() ; 
+    
+    diff_khi.spectral_display("diff_khi", 1.e-14) ; 
+    
+    // des_meridian(sigmat.hh(), 0., 5., "h") ; 
+    
+    // sigmat.trh().visu_section ('x', 0., -4., 4., -4., 4., "h in x=0 plane", "h_x") ;
+    
+    // sigmat.trh().visu_section ('z', 0., -4., 4., -4., 4., "h in z=0 plane", "h_z") ;
+    
+    // sigmat.psi().visu_section ('z', 0., -4., 4., -4., 4., "Psi in z=0 plane",
+    //                          "psi_z") ;
+    
+    // sigmat.trh().visu_box(-4., 4.,-4., 4.,-4., 4., "h") ; 
     
     // Check of constraints:
     sigmat.check_hamiltonian_constraint() ;    
@@ -204,6 +225,9 @@ int main() {
     
     maxabs(sigmat.gam().cov()(1,1) / sigmat.tgam().cov()(1,1) -
             sigmat.psi4(), "Difference between the conformal factor and psi4") ; 
+
+    
+    arrete() ; 
 
     return EXIT_SUCCESS ; 
 }
