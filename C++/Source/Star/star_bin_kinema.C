@@ -32,6 +32,9 @@ char star_bin_kinema_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/06/22 12:51:59  f_limousin
+ * Simplify the computation of gam_pot to improve the convergence of the code.
+ *
  * Revision 1.4  2004/05/25 14:21:26  f_limousin
  * New method to compute pot_centri to improve the convergence of the code.
  *
@@ -85,12 +88,28 @@ void Star_bin::kinematics(double omega, double x_axe) {
     //	2/ Addition of shift and division by lapse
     // See Eq (47) from Gourgoulhon et al. (2001)
   
+    cout << "bsn1" << endl << norme(bsn(1)) << endl ;
+    cout << "bsn2" << endl << norme(bsn(2)) << endl ;
+    cout << "bsn3" << endl << norme(bsn(3)) << endl ;
+    shift.change_triad(mp.get_bvect_cart()) ;
+    cout << "shift1" << endl << norme(shift(1)) << endl ;
+    cout << "shift2" << endl << norme(shift(2)) << endl ;
+    cout << "shift3" << endl << norme(shift(3)) << endl ;
+    shift.change_triad(mp.get_bvect_spher()) ;
+    cout << "nnn" << endl << norme(nnn) << endl ;
+ 
     bsn.change_triad(mp.get_bvect_spher()) ;
     bsn = ( bsn - shift ) / nnn ; 
     bsn.change_triad(mp.get_bvect_cart()) ;
 
+    cout << "bsn1" << endl << norme(bsn(1)) << endl ;
+    cout << "bsn2" << endl << norme(bsn(2)) << endl ;
+    cout << "bsn3" << endl << norme(bsn(3)) << endl ;
+
+    
+    
+
     bsn.annule(nzm1, nzm1) ;	// set to zero in the ZEC
-    bsn.std_spectral_base() ;   // set the bases for spectral expansions
         
     //-------------------------
     // Centrifugal potential
@@ -99,13 +118,15 @@ void Star_bin::kinematics(double omega, double x_axe) {
     // Lorentz factor between the co-orbiting observer and the Eulerian one
     // See Eq (23) from Gourgoulhon et al. (2001)
 
-    Tensor flat_cov = flat.cov() * psi4 ;
+    Sym_tensor flat_cov = flat.cov() * psi4 ;
     flat_cov.change_triad(mp.get_bvect_cart()) ;
+    Sym_tensor gamma_cov (gamma.cov()) ;
+    gamma_cov.change_triad(mp.get_bvect_cart()) ;
     //## For the convergence of the code, we introduce a flat scalar 
     // product to compute gam_pot and so pot_centri. 
-    Scalar gam_pot = 1 / sqrt( 1 - contract(contract(flat_cov, 0, bsn, 0), 0, bsn, 0) ) ;
+    Scalar gam_pot = 1 / sqrt( 1 - contract(flat_cov, 0, 1, bsn * bsn, 0, 1)) ;
 
-    Scalar gam0 = 1 / sqrt( 1 - sprod(bsn, bsn) ) ;
+    Scalar gam0 = 1 / sqrt(1 - contract(gamma_cov, 0, 1, bsn * bsn, 0, 1)) ;
     
     // Error made when we take gam_pot instead of gam0 for the computation
     // of pot_centri. 
