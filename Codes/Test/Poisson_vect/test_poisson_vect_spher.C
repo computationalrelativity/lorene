@@ -1,0 +1,135 @@
+/*
+ *  Code for testing the vector Poisson equation in spherical components.
+ *
+ */
+
+/*
+ *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *
+ *   This file is part of LORENE.
+ *
+ *   LORENE is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License version 2
+ *   as published by the Free Software Foundation.
+ *
+ *   LORENE is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LORENE; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+char test_poisson_vect_spher_C[] = "$Header$" ;
+
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.1  2003/10/27 09:19:26  j_novak
+ * Test file for vector Poisson equation in spherical components
+ *
+ *
+ * $Header$
+ *
+ */
+
+// Lorene headers
+#include "metric.h"
+#include "nbr_spx.h"
+#include "utilitaires.h"
+
+int main() {
+
+	// Construction of a multi-grid (Mg3d)
+	// -----------------------------------
+  
+	const int nz = 3 ; 	// Number of domains
+	int nr = 17 ; 	// Number of collocation points in r in each domain
+	int nt = 5 ; 	// Number of collocation points in theta in each domain
+	int np = 12 ; 	// Number of collocation points in phi in each domain
+	int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
+	int symmetry_phi = NONSYM ; // no symmetry in phi
+
+	int nbr[] = {nr, 2*nr - 1, 2*nr - 1};
+	int nbt[] = {nt, nt, nt} ;
+	int nbp[] = {np, np, np} ;
+	int tipe_r[] = {RARE, FIN, UNSURR} ;
+  	assert( nz == 3 ) ;// since the above arrays are described in only 3 domains
+  
+	Mg3d mgrid(nz, nbr, tipe_r, nbt, symmetry_theta, nbp, symmetry_phi) ;
+	
+  	// Construction of an affine mapping (Map_af)
+  	// ------------------------------------------
+
+	// Boundaries of each domains
+	double r_limits[] = {0., 1, 2., __infinity} ; 
+  
+	Map_af map(mgrid, r_limits) ; 
+  	
+
+	// Construction of flat metrics
+	// ----------------------------
+
+	Metric_flat mets(map, map.get_bvect_spher()) ; // spherical representation
+	Metric_flat metc(map, map.get_bvect_cart()) ;  // Cartesian representation
+
+
+	// Construction of a divergence free vector field 
+	// ----------------------------------------------
+
+	const Coord& x = map.x ; 
+	const Coord& y = map.y ; 
+	const Coord& z = map.z ; 
+	const Coord& r = map.r ; 
+
+	double lamda = 1./3. ; //for the vector equation Delta V + lamda grad(div V)
+
+	Mtbl denom(mgrid) ;
+	denom = r*r*r*r+ 1 ;
+	Mtbl denom2 = denom*denom ;
+	Mtbl denom3 = denom*denom2 ;
+	
+	Vector theo(map, CON, map.get_bvect_cart()) ; 
+	theo.set(1) = x*x / denom ;
+	theo.set(2) = 0 ;
+	theo.set(3) =  0 ;
+	theo.set(1).set_val_inf(0.) ;
+	theo.std_spectral_base() ; 
+
+	Vector vvc(map, CON, map.get_bvect_cart()) ;
+	vvc.set(1) = 2*(1+lamda)/denom 
+	  - ((36+20*lamda)*r*r + 8*lamda*x*x)*x*x/denom2
+	  + (r*r+lamda*x*x)*32*r*r*r*r*x*x/denom3 ;
+	vvc.set(1).set_val_inf(0.) ;
+	vvc.set(2) = lamda*(-8*x*y*(r*r + x*x)/denom2 + 32*r*r*r*r*x*x*x*y/denom3) ;
+	vvc.set(2).set_val_inf(0.) ;
+	vvc.set(3) = lamda*(-8*x*z*(r*r + x*x)/denom2 + 32*r*r*r*r*x*x*x*z/denom3) ;
+	vvc.set(3).set_val_inf(0.) ;
+	vvc.std_spectral_base() ;
+
+  	Vector vvs = vvc ; 
+  	vvs.change_triad( map.get_bvect_spher() ) ;
+  	vvs.inc2_dzpuis() ;
+  	vvs.inc2_dzpuis() ;
+
+	Vector resus = vvs.poisson(lamda) ;
+	Vector resu = resus ;
+	resu.change_triad(map.get_bvect_cart() ) ;
+//   	Tensor grad = resu.derive_con(metc) ;
+//   	grad.dec2_dzpuis() ;
+//   	Scalar div = resu.divergence(metc) ;
+//   	div.dec2_dzpuis() ;
+//   	Vector delta = grad.divergence(metc) + lamda* div.derive_con(metc) ;
+//      delta.dec2_dzpuis() ;
+
+	cout << "Max of relative difference (in cartesian components): " << endl ; 
+	for (int i=1; i<=3; i++) {
+	  cout << "Component " << i << ": " << endl ;
+	  cout <<  diffrelmax(resu(i), theo(i)) << endl ; 
+	}
+
+	return EXIT_SUCCESS ; 
+}
