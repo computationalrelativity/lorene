@@ -32,6 +32,9 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2005/01/25 15:37:35  j_novak
+ * Solved some dzpuis problem...
+ *
  * Revision 1.23  2005/01/12 16:48:23  j_novak
  * Better treatment of the case where all vector components are null in
  * decompose_div .
@@ -439,8 +442,8 @@ void Vector::decompose_div(const Metric& metre) const {
     int nz = mmg->get_nzone() ;
 
     int dzp = cmp[0]->get_dzpuis() ;
-    bool dz_zero = cmp[0]->check_dzpuis(0) ;
 #ifndef NDEBUG
+    bool dz_zero = cmp[0]->check_dzpuis(0) ;
     bool dz_four = cmp[0]->check_dzpuis(4) ;
 #endif
     assert( dz_zero || dz_four) ;
@@ -699,7 +702,7 @@ void Vector::decompose_div(const Metric& metre) const {
     p_div_free[ind] = new Vector_divfree(*mp, *triad, metre) ;
 
     Vector gradient = p_potential[ind]->derive_con(metre) ;
-    if (dz_zero)  gradient.dec_dzpuis(2) ;
+    if (dzp != 4)  gradient.dec_dzpuis(2) ;
 
     *p_div_free[ind] = ( *this - gradient ) ;
 
