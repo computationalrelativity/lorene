@@ -25,6 +25,9 @@ char prepa_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/02/06 10:53:54  j_novak
+ * New dzpuis = 5 -> dzpuis = 3 case (not ready yet).
+ *
  * Revision 1.3  2003/01/31 08:49:58  e_gourgoulhon
  * Increased the number nmax of stored matrices from 100 to 200.
  *
@@ -361,6 +364,8 @@ Matrice _prepa_nondege_r_chebi (const Matrice &lap, int l, double, int) {
 Matrice _prepa_nondege_r_chebu (const Matrice &lap, int l, double, int puis) {
 
     switch (puis) {
+	case 5 :
+	    return _prepa_nondege_r_chebu_cinq (lap, l) ;
 	case 4 :
 	    return _prepa_nondege_r_chebu_quatre (lap, l) ;
 	case 3 :
@@ -483,6 +488,68 @@ Matrice _prepa_nondege_r_chebu_trois (const Matrice &lap, int l) {
 
 // Cas dzpuis = 2 ;
 Matrice _prepa_nondege_r_chebu_deux (const Matrice &lap, int l) {
+    
+   int n = lap.get_dim(0) ;
+    
+   const int nmax = 200; // Nombre de Matrices stockees
+   static Matrice* tab[nmax] ;  // les matrices calculees
+   static int nb_dejafait = 0 ; // nbre de matrices calculees
+   static int l_dejafait[nmax] ;
+   static int nr_dejafait[nmax] ;
+    
+   int indice = -1 ;
+   
+   // On determine si la matrice a deja ete calculee :
+   for (int conte=0 ; conte<nb_dejafait ; conte ++)
+    if ((l_dejafait[conte] == l) && (nr_dejafait[conte] == n))
+	indice = conte ;
+    
+   // Calcul a faire : 
+   if (indice  == -1) {
+       if (nb_dejafait >= nmax) {
+	   cout << "_prepa_nondege_r_chebu : trop de matrices" << endl ;
+	   abort() ;
+	   exit (-1) ;
+       }
+       
+    	
+    l_dejafait[nb_dejafait] = l ;
+    nr_dejafait[nb_dejafait] = n ;
+    
+  //  assert (l<=n-2) ;
+    
+    if (l==0) {
+	Matrice res(n-2, n-2) ;
+	res.set_etat_qcq() ;
+	for (int i=0 ;i<n-2 ; i++)
+	    for (int j=0 ; j<n-2 ; j++)
+		res.set(i, j) = lap(i, j+2) ;
+	res.set_band(3, 2) ;
+	res.set_lu() ;
+	tab[nb_dejafait] = new Matrice(res) ;
+	nb_dejafait ++ ;
+	return res ;
+    }
+    else {
+	Matrice res(n-1, n-1) ;
+	res.set_etat_qcq() ;
+	for (int i=0 ;i<n-1 ; i++)
+	    for (int j=0 ; j<n-1 ; j++)
+		res.set(i, j) = lap(i, j+1) ;
+	res.set_band(4, 1) ;
+	res.set_lu() ;
+	tab[nb_dejafait] = new Matrice(res) ;
+	nb_dejafait ++ ;
+	return res ;
+	}
+    }
+    // Cas ou le calcul a deja ete effectue :
+    else
+	return *tab[indice] ;
+}
+
+// Cas dzpuis = 5 ;
+Matrice _prepa_nondege_r_chebu_cinq (const Matrice &lap, int l) {
     
    int n = lap.get_dim(0) ;
     

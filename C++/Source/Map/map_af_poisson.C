@@ -31,8 +31,11 @@ char map_af_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2004/02/06 10:53:52  j_novak
+ * New dzpuis = 5 -> dzpuis = 3 case (not ready yet).
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.9  2000/05/22  13:46:48  phil
  * ajout du cas dzpuis = 3
@@ -86,7 +89,7 @@ void Map_af::poisson(const Cmp& source, Param&, Cmp& pot) const {
     assert(pot.get_mp()->get_mg() == mg) ; 
 
     assert( source.check_dzpuis(2) || source.check_dzpuis(4) 
-	    || source.check_dzpuis(3)) ; 
+	    || source.check_dzpuis(3) || source.check_dzpuis(5) ) ; 
     
     int dzpuis ; 
     
@@ -96,6 +99,9 @@ void Map_af::poisson(const Cmp& source, Param&, Cmp& pot) const {
     else{
 	dzpuis = 4 ; 
     }
+
+    if (dzpuis == 5) 
+      cout << "Warning: the dzpuis = 5 case is not ready yet!" << endl ;
 
     // Spherical harmonic expansion of the source
     // ------------------------------------------
@@ -130,7 +136,7 @@ void Map_af::poisson(const Cmp& source, Param&, Cmp& pot) const {
     pot.va = resu ;
     (pot.va).ylm_i() ; // On repasse en base standard.	    
 
-    pot.set_dzpuis(0) ; 
+    (dzpuis == 5) ? pot.set_dzpuis(3) : pot.set_dzpuis(0) ; 
     
 }
 

@@ -25,6 +25,9 @@ char comb_lin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/02/06 10:53:54  j_novak
+ * New dzpuis = 5 -> dzpuis = 3 case (not ready yet).
+ *
  * Revision 1.3  2002/10/16 14:37:11  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -325,6 +328,9 @@ Matrice _cl_r_chebu (const Matrice &source, int l, double, int puis) {
     res.set_etat_qcq() ;
     
     switch (puis) {
+	case 5 :
+	    res = _cl_r_chebu_cinq(source, l) ;
+	    break ;
 	case 4 :
 	    res = _cl_r_chebu_quatre(source, l) ;
 	    break ;
@@ -524,6 +530,66 @@ Matrice _cl_r_chebu_deux (const Matrice &source, int l) {
 }
 
 
+//Cas dzpuis == 5
+Matrice _cl_r_chebu_cinq (const Matrice &source, int l) {
+    int n = source.get_dim(0) ;
+    assert (n == source.get_dim(1)) ;
+    
+            
+   const int nmax = 200 ; // Nombre de Matrices stockees
+   static Matrice* tab[nmax] ;  // les matrices calculees
+   static int nb_dejafait = 0 ; // nbre de matrices calculees
+   static int l_dejafait[nmax] ;
+   static int nr_dejafait[nmax] ;
+    
+   int indice = -1 ;
+   
+   // On determine si la matrice a deja ete calculee :
+   for (int conte=0 ; conte<nb_dejafait ; conte ++)
+    if ((l_dejafait[conte] == l) && (nr_dejafait[conte] == n))
+	indice = conte ;
+    
+   // Calcul a faire : 
+   if (indice  == -1) {
+       if (nb_dejafait >= nmax) {
+	   cout << "_cl_r_chebu_cinq : trop de matrices" << endl ;
+	   abort() ;
+	   exit (-1) ;
+       }
+       
+    l_dejafait[nb_dejafait] = l ;
+    nr_dejafait[nb_dejafait] = n ;
+    
+    Matrice barre(source) ;
+  
+    int dirac = 1 ;
+    for (int i=0 ; i<n-2 ; i++) {
+	for (int j=0 ; j<n ; j++)
+	     barre.set(i, j) = ((1+dirac)*source(i, j)-source(i+2, j)) ;
+	if (i==0) dirac = 0 ;
+	}
+   
+    Matrice tilde(barre) ;
+    for (int i=0 ; i<n-4 ; i++)
+	for (int j=0 ; j<n ; j++)
+	    tilde.set(i, j) = (barre(i, j)-barre(i+2, j)) ;
+	    
+    Matrice res(tilde) ;
+    for (int i=0 ; i<n-4 ; i++)
+	for (int j=0 ; j<n ; j++)
+	    res.set(i, j) = (tilde(i, j)+tilde(i+1, j)) ;
+
+    cout << "Apres comb. lin. : " << endl ;
+    cout << res ;
+    int fg ; cin >> fg ;
+
+    return res ;
+    } 
+    
+    // Cas ou le calcul a deja ete effectue :
+    else
+	return *tab[indice] ;
+}
 
 		//-------------------------
 	       //- La routine a appeler ---
@@ -649,6 +715,9 @@ Tbl _cl_r_chebu (const Tbl &source, int puis) {
     res.set_etat_qcq() ;
     
     switch(puis) {
+	case 5 :
+	    res = _cl_r_chebu_cinq(source) ;
+	    break ;
 	case 4 :
 	    res = _cl_r_chebu_quatre(source) ;
 	    break ;
@@ -715,6 +784,27 @@ Tbl _cl_r_chebu_trois (const Tbl &source) {
 
 // Cas dzpuis = 2 ;
 Tbl _cl_r_chebu_deux (const Tbl &source) {
+    Tbl barre(source) ;
+    int n = source.get_dim(0) ;
+    
+    int dirac = 1 ;
+    for (int i=0 ; i<n-2 ; i++) {
+	     barre.set(i) = ((1+dirac)*source(i)-source(i+2)) ;
+	if (i==0) dirac = 0 ;
+	}
+    
+    Tbl tilde(barre) ;
+    for (int i=0 ; i<n-4 ; i++)
+	    tilde.set(i) = (barre(i)-barre(i+2)) ;
+	    
+    Tbl res(tilde) ;
+    for (int i=0 ; i<n-4 ; i++)
+	    res.set(i) = (tilde(i)+tilde(i+1)) ;
+   return res ;
+}
+
+// Cas dzpuis = 5 ;
+Tbl _cl_r_chebu_cinq (const Tbl &source) {
     Tbl barre(source) ;
     int n = source.get_dim(0) ;
     

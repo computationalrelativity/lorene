@@ -26,8 +26,11 @@ char poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2004/02/06 10:53:54  j_novak
+ * New dzpuis = 5 -> dzpuis = 3 case (not ready yet).
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.24  2000/07/18  10:23:09  eric
  * Suppression d'une erreur sans consequence : dans le noyau, remplacement de
@@ -123,10 +126,7 @@ char poisson_C[] = "$Header$" ;
 
 // Headers Lorene :
 #include "matrice.h"
-#include "tbl.h"
-#include "mtbl_cf.h"
 #include "map.h"
-#include "base_val.h"
 #include "proto.h"
 #include "type_parite.h"
 
@@ -163,7 +163,7 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis)
     for (int l=1 ; l<nz-1 ; l++)
 	assert(source.get_mg()->get_type_r(l) == FIN) ;
 
-     assert ((dzpuis==4) || (dzpuis==2) || (dzpuis==3)) ;
+     assert ((dzpuis==4) || (dzpuis==2) || (dzpuis==3) || (dzpuis==5)) ;
     
     
     // Bases spectrales
@@ -299,7 +299,8 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis)
 							     dzpuis, base_r)) ;
 	   
 	    // Calcul de la SH
-	    sol_hom = new Tbl(solh(nr, l_quant, 0., base_r)) ;
+	    if (dzpuis !=5) 
+	      sol_hom = new Tbl(solh(nr, l_quant, 0., base_r)) ;
 	   
 	    // Calcul de la SP
 	    so = new Tbl(nr) ;
@@ -312,9 +313,11 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis)
 	    // Rangement
 	    for (int i=0 ; i<nr ; i++) {
 		solution_part.set(nz-1, k, j, i) = (*sol_part)(i) ;
-		solution_hom_un.set(nz-1, k, j, i) = (*sol_hom)(i) ;
-		solution_hom_deux.set(nz-1, k, j, i) = 0. ;
+		if (dzpuis !=5) {
+		  solution_hom_un.set(nz-1, k, j, i) = (*sol_hom)(i) ;
+		  solution_hom_deux.set(nz-1, k, j, i) = 0. ;
 		}
+	    }
 	  
 	    delete operateur ;
 	    delete nondege ;
@@ -384,6 +387,9 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis)
 		delete sol_part ;
 	    }
 	}
+
+
+    if (dzpuis !=5) {
 
 	     //-------------------------------------------
 	    // On est parti pour le raccord des solutions
@@ -681,11 +687,27 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis)
 			}
 		    delete sec_membre ;
 		    delete systeme ;
-	    }
+		}
     
     }
     
     delete [] indic ;
+
+    } 
+    else { //Si dzpuis =5, seule la sol. part est renvoyee
+
+      for (int zone = 0; zone < nz; zone++) 
+	for (int k=0 ; k<k<source.get_mg()->get_np(zone)+1 ; k++)
+	  for (int j=0 ; j<source.get_mg()->get_nt(zone) ; j++)
+	    if (nullite_plm(j,source.get_mg()->get_nt(zone) , 
+			    k, source.get_mg()->get_np(zone), base) == 1) 
+	      for (int i=0; i<source.get_mg()->get_nr(zone); i++)
+		resultat.set(zone, k, j, i) = solution_part(zone, k, j, i) ;
+
+    }
+
+      
+
 
     return resultat;
 }

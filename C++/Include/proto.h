@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2004/02/06 10:53:51  j_novak
+ * New dzpuis = 5 -> dzpuis = 3 case (not ready yet).
+ *
  * Revision 1.14  2004/01/28 16:46:22  p_grandclement
  * Addition of the sol_elliptic_fixe_der_zero stuff
  *
@@ -293,6 +296,7 @@ Matrice _laplacien_mat_r_chebu(int, int, double, int) ;
 Matrice _laplacien_mat_r_chebu_deux(int, int) ;
 Matrice _laplacien_mat_r_chebu_trois(int, int) ;
 Matrice _laplacien_mat_r_chebu_quatre(int, int) ;
+Matrice _laplacien_mat_r_chebu_cinq(int, int) ;
 Matrice _laplacien_mat_r_cheb(int, int, double, int) ;
 Matrice laplacien_mat(int , int , double , int, int ) ;
 
@@ -301,6 +305,7 @@ Matrice _cl_pas_prevu (const Matrice&, int, double, int) ;
 Matrice _cl_r_cheb (const Matrice&, int, double, int) ;
 Matrice _cl_r_chebi (const Matrice&, int, double, int) ;
 Matrice _cl_r_chebu (const Matrice&, int, double, int) ;
+Matrice _cl_r_chebu_cinq (const Matrice&, int) ;
 Matrice _cl_r_chebu_quatre (const Matrice&, int) ;
 Matrice _cl_r_chebu_trois (const Matrice&, int) ;
 Matrice _cl_r_chebu_deux (const Matrice&, int) ;
@@ -314,6 +319,7 @@ Tbl _cl_r_chebu (const Tbl&, int) ;
 Tbl _cl_r_chebu_deux (const Tbl&) ;
 Tbl _cl_r_chebu_trois (const Tbl&) ;
 Tbl _cl_r_chebu_quatre (const Tbl&) ;
+Tbl _cl_r_chebu_cinq (const Tbl&) ;
 Tbl _cl_r_chebp (const Tbl&, int) ;
 Tbl combinaison (const Tbl&, int, int) ;
 
@@ -327,6 +333,7 @@ Matrice _prepa_nondege_r_chebu (const Matrice&, int, double, int) ;
 Matrice _prepa_nondege_r_chebu_deux (const Matrice&, int) ;
 Matrice _prepa_nondege_r_chebu_trois (const Matrice&, int) ;
 Matrice _prepa_nondege_r_chebu_quatre (const Matrice&, int) ;
+Matrice _prepa_nondege_r_chebu_cinq (const Matrice&, int) ;
 Matrice prepa_nondege (const Matrice&, int, double, int, int) ;
 
 //Routines de calcul de la solution particuliere
@@ -338,6 +345,7 @@ Tbl _solp_r_chebu (const Matrice&, const Matrice&, double, double, const Tbl&, i
 Tbl _solp_r_chebu_deux (const Matrice&, const Matrice&, const Tbl&) ;
 Tbl _solp_r_chebu_trois (const Matrice&, const Matrice&, double, const Tbl&) ;
 Tbl _solp_r_chebu_quatre (const Matrice&, const Matrice&, double, const Tbl&) ;
+Tbl _solp_r_chebu_cinq (const Matrice&, const Matrice&, double, const Tbl&) ;
 Tbl solp (const Matrice&, const Matrice&, double, double, const Tbl&, int, int) ;
 
 //Routines de calcul des solutions homogenes
@@ -380,6 +388,10 @@ void _d2sdx2_1d_r_cheb(int, double*, double* ) ;
 void _d2sdx2_1d_r_chebp(int, double*, double* ) ;
 void _d2sdx2_1d_r_chebi(int, double*, double * ) ;
 void d2sdx2_1d(int, double** , int) ;
+
+void _dsdx_1d_pas_prevu(int, double*, double* ) ;
+void _dsdx_1d_r_chebu(int, double*, double* ) ;
+void dsdx_1d(int, double** , int) ;
 
 void _multx_1d_pas_prevu(int, double*, double* ) ;
 void _multx_1d_r_cheb(int, double*, double* ) ;

@@ -25,6 +25,9 @@ char solp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/06 10:53:54  j_novak
+ * New dzpuis = 5 -> dzpuis = 3 case (not ready yet).
+ *
  * Revision 1.2  2002/10/16 14:37:12  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -260,6 +263,9 @@ Tbl _solp_r_chebu (const Matrice &lap, const Matrice &nondege, double alpha,
     res.set_etat_qcq() ;
     
     switch (puis) {
+	case 5 :
+	    res = _solp_r_chebu_cinq (lap, nondege, alpha, source) ;
+	    break ;
 	case 4 :
 	    res = _solp_r_chebu_quatre (lap, nondege, alpha, source) ;
 	    break ;
@@ -358,6 +364,41 @@ Tbl _solp_r_chebu_trois (const Matrice &lap, const Matrice &nondege, double alph
 	
 // Cas dzpuis = 2 ;
 Tbl _solp_r_chebu_deux (const Matrice &lap, const Matrice &nondege, 
+			const Tbl &source) {
+    
+    int n = lap.get_dim(0) ;	  
+    int dege = n-nondege.get_dim(0) ;
+    assert ((dege==1) || (dege ==2)) ;
+    Tbl source_aux(combinaison(source, 2, R_CHEBU)) ;
+    
+    Tbl so(n-dege) ;
+    so.set_etat_qcq() ;
+    for (int i=0 ; i<n-dege ; i++)
+	so.set(i) = source_aux(i);
+    
+    Tbl auxi(nondege.inverse(so)) ;
+	
+    Tbl res(n) ;
+    res.set_etat_qcq() ;
+    for (int i=dege ; i<n ; i++)
+	res.set(i) = auxi(i-dege) ;
+	    
+    for (int i=0 ; i<dege ; i++)
+	res.set(i) = 0 ;
+    
+    if (dege == 2) {
+	double somme = 0 ;
+	for (int i=0 ; i<n ; i++)
+	    somme+=res(i) ;
+    
+	res.set(0) = -somme ;
+    }
+    
+    return res ;
+}
+
+// Cas dzpuis = 5 ;
+Tbl _solp_r_chebu_cinq (const Matrice &lap, const Matrice &nondege, 
 			const Tbl &source) {
     
     int n = lap.get_dim(0) ;	  

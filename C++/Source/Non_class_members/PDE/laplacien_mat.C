@@ -25,6 +25,9 @@ char laplacien_mat_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/02/06 10:53:54  j_novak
+ * New dzpuis = 5 -> dzpuis = 3 case (not ready yet).
+ *
  * Revision 1.4  2003/01/31 08:49:58  e_gourgoulhon
  * Increased the number nmax of stored matrices from 100 to 200.
  *
@@ -326,6 +329,9 @@ Matrice _laplacien_mat_r_chebu( int n, int l, double, int puis) {
 	case 2 :
 	    res = _laplacien_mat_r_chebu_deux (n, l) ;
 	    break ;
+	case 5 :
+	    res = _laplacien_mat_r_chebu_cinq (n, l) ;
+	    break ;
 	default :
 	    abort() ;
 	    exit(-1) ;
@@ -522,6 +528,75 @@ Matrice _laplacien_mat_r_chebu_deux (int n, int l) {
     
     for (int i=0 ; i<n ; i++)
 	res.set(i, i) = res.set(i, i) - l*(l+1) ;
+    
+    tab[nb_dejafait] = new Matrice(res) ;
+    nb_dejafait ++ ;
+    return res ;
+    } 
+    
+    // Cas ou le calcul a deja ete effectue :
+    else
+	return *tab[indice] ;
+}
+
+    //Cas ou dzpuis = 5
+Matrice _laplacien_mat_r_chebu_cinq (int n, int l) {
+        
+   const int nmax = 200 ;// Nombre de Matrices stockees
+   static Matrice* tab[nmax] ;  // les matrices calculees
+   static int nb_dejafait = 0 ; // nbre de matrices calculees
+   static int l_dejafait[nmax] ;
+   static int nr_dejafait[nmax] ;
+    
+   int indice = -1 ;
+   
+   // On determine si la matrice a deja ete calculee :
+   for (int conte=0 ; conte<nb_dejafait ; conte ++)
+    if ((l_dejafait[conte] == l) && (nr_dejafait[conte] == n))
+	indice = conte ;
+    
+   // Calcul a faire : 
+   if (indice  == -1) {
+       if (nb_dejafait >= nmax) {
+	   cout << "_laplacien_mat_r_chebu_cinq : trop de matrices" << endl ;
+	   abort() ;
+	   exit (-1) ;
+       }
+       
+    	
+    l_dejafait[nb_dejafait] = l ;
+    nr_dejafait[nb_dejafait] = n ;
+    
+    Matrice res(n, n) ;
+    res.set_etat_qcq() ;
+
+    double* vect = new double[n] ;
+
+    double* xvect = new double[n] ;
+    
+    double* x2vect = new double[n] ;
+    
+    for (int i=0 ; i<n ; i++) {
+	for (int j=0 ; j<n ; j++)
+	    vect[j] = 0 ;
+	vect[i] = 1 ;
+	d2sdx2_1d (n, &vect, R_CHEBU) ;  // appel dans le cas unsurr
+	mult2_xm1_1d_cheb (n, vect, x2vect) ; // multiplication par (x-1)^2
+	for (int j=0 ; j<n ; j++)
+	    vect[j] = 0 ;
+	vect[i] = 1 ;
+	dsdx_1d (n, &vect, R_CHEBU) ;  // appel dans le cas unsurr
+	mult_xm1_1d_cheb (n, vect, xvect) ; // multiplication par (x-1)
+	for (int j=0 ; j<n ; j++)
+	    res.set(j, i) = x2vect[j] + 6*xvect[j] ;
+    }
+    
+    delete [] vect ;
+    delete [] xvect ;
+    delete [] x2vect ;
+    
+    for (int i=0 ; i<n ; i++)
+	res.set(i, i) += 6 - l*(l+1) ;
     
     tab[nb_dejafait] = new Matrice(res) ;
     nb_dejafait ++ ;
