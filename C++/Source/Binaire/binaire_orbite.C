@@ -1,4 +1,4 @@
-/*
+ /*
  * Method of class Binaire to compute the orbital angular velocity {\tt omega}
  * and the position of the rotation axis {\tt x_axe}.
  *
@@ -7,7 +7,7 @@
  */
 
 /*
- *   Copyright (c) 2000-2001 Eric Gourgoulhon
+ *   Copyright (c) 2000-2003 Eric Gourgoulhon
  *   Copyright (c) 2000-2001 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
@@ -34,8 +34,13 @@ char binaire_orbite_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/09/16 13:41:27  e_gourgoulhon
+ * Search of sub-intervals containing the zero(s) via zero_list
+ * Selection of the sub-interval as the closest one to previous value of omega.
+ * Replaced zerosec by zerosec_b.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.9  2001/08/14  12:36:45  keisuke
  * Change of the minimum and maximum values for searching a new position
@@ -295,9 +300,6 @@ void Binaire::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
 //  Calcul de la vitesse orbitale    
 //-------------------------------------
 
-    // iterative calculation
-    //-----------------------
-
     Param parf ; 
     parf.add_int(relat) ; 
     parf.add_double( (et[0]->get_mp()).get_ori_x(), 0) ; 
@@ -315,10 +317,62 @@ void Binaire::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1,
     cout << "Binaire::orbit: omega1,  omega2 [rad/s] : " 
 	 << omega1 * f_unit << "  " << omega2 * f_unit << endl ; 
 
+	// Search for the various zeros in the interval [omega1,omega2]
+	// ------------------------------------------------------------
+	int nsub = 50 ;  // total number of subdivisions of the interval
+	Tbl* azer = 0x0 ;
+	Tbl* bzer = 0x0 ; 
+	zero_list(fonc_binaire_orbit, parf, omega1, omega2, nsub,
+		  azer, bzer) ; 
+	
+	// Search for the zero closest to the previous value of omega
+	// ----------------------------------------------------------
+	double omeg_min, omeg_max ; 
+	int nzer = azer->get_taille() ; // number of zeros found by zero_list
+	cout << "Binaire:orbit : " << nzer << 
+	     " zero(s) found in the interval [omega1,  omega2]." << endl ; 
+	cout << "omega, omega1, omega2 : " << omega << "  " << omega1
+		<< "  " << omega2 << endl ; 
+	cout << "azer : " << *azer << endl ;
+	cout << "bzer : " << *bzer << endl ;
+	
+	if (nzer == 0) {
+		cout << 
+		"Binaire::orbit: WARNING : no zero detected in the interval"
+		<< endl << "   [" << omega1 * f_unit << ", " 
+		<< omega2 * f_unit << "]  rad/s  !" << endl ; 
+		omeg_min = omega1 ; 
+		omeg_max = omega2 ; 
+	}
+	else {
+		double dist_min = fabs(omega2 - omega1) ;  
+		int i_dist_min = -1 ; 		
+		for (int i=0; i<nzer; i++) {
+			// Distance of previous value of omega from the center of the
+			//  interval [azer(i), bzer(i)] 
+			double dist = fabs( omega - 0.5 * ( (*azer)(i) + (*bzer)(i) ) ) ; 
+			if (dist < dist_min) {
+				dist_min = dist ; 
+				i_dist_min = i ; 
+			} 
+		}
+		omeg_min = (*azer)(i_dist_min) ;
+		omeg_max = (*bzer)(i_dist_min) ;
+	}
+
+    delete azer ; // Tbl allocated by zero_list
+    delete bzer ; //  
+    
+	cout << "Binaire:orbit : interval selected for the search of the zero : "
+		<< endl << "  [" << omeg_min << ", " << omeg_max << "]  =  [" 
+		 << omeg_min * f_unit << ", " << omeg_max * f_unit << "] rad/s " << endl ; 
+	
+	// Computation of the zero in the selected interval by the secant method
+	// ---------------------------------------------------------------------
     int nitermax = 200 ; 
     int niter ; 
     double precis = 1.e-13 ;
-    omega = zerosec(fonc_binaire_orbit, parf, omega1, omega2,
+    omega = zerosec_b(fonc_binaire_orbit, parf, omeg_min, omeg_max,
 		    precis, nitermax, niter) ;
     
     cout << "Binaire::orbit : Number of iterations in zerosec for omega : "
