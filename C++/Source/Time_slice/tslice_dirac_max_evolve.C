@@ -30,6 +30,10 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/06/14 20:51:37  e_gourgoulhon
+ * Method solve_hij has now argument method_poisson.
+ * Its value is set **provisory** to 1 (instead of method_poisson_vect !).
+ *
  * Revision 1.12  2004/05/31 09:09:59  e_gourgoulhon
  * Added monitoring of khi and mu.
  * Added writing of whole configuration in file (via Time_slice::save).
@@ -269,7 +273,10 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
         // Resolution of hyperbolic equations
         // ----------------------------------
         
-        solve_hij(par_khi, par_mu, khi_new, mu_new, graph_device) ;
+        solve_hij(par_khi, par_mu, khi_new, mu_new, 1, 
+                  graph_device) ;
+//##        solve_hij(par_khi, par_mu, khi_new, mu_new, method_poisson_vect, 
+//                  graph_device) ;
         
         // Advance in time
         // ---------------
