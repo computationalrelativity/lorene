@@ -32,6 +32,10 @@ char et_rot_diff_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/27 10:54:43  e_gourgoulhon
+ * Changed local variable name lambda_grv2 to lbda_grv2 in order not
+ * to shadow method name.
+ *
  * Revision 1.3  2003/05/25 19:59:02  e_gourgoulhon
  * Added the possibility to choose the factor a = R_eq / R0, instead of R0
  * in the differential rotation law.
@@ -232,8 +236,8 @@ void Et_rot_diff::equilibrium(double ent_c, double omega_c0, double fact_omega,
     par_poisson_tggg.add_double_mod( lambda_tggg ) ; 
     
     Param par_poisson_dzeta ; 
-    double lambda_grv2 ;
-    par_poisson_dzeta.add_double_mod( lambda_grv2 ) ; 
+    double lbda_grv2 ;
+    par_poisson_dzeta.add_double_mod( lbda_grv2 ) ; 
  					   
     // Parameters for the function Tenseur::poisson_vect
     // -------------------------------------------------
@@ -570,10 +574,10 @@ void Et_rot_diff::equilibrium(double ent_c, double omega_c0, double fact_omega,
 		    }
 		    double omeg_min = 0 ; 
 		    double omeg_max = omega_c ; 
-		    double precis = 1.e-14 ;
-		    int nitermax = 100 ; 
+		    double precis1 = 1.e-14 ;
+		    int nitermax1 = 100 ; 
 
-		    fait_omega_field(omeg_min, omeg_max, precis, nitermax) ;
+		    fait_omega_field(omeg_min, omeg_max, precis1, nitermax1) ;
 		}
 
 		// New fluid velocity U :
@@ -771,7 +775,7 @@ void Et_rot_diff::equilibrium(double ent_c, double omega_c0, double fact_omega,
 	    mp.poisson2d(source_dzf(), source_dzq(), par_poisson_dzeta,
 			 dzeta.set()) ; 
 	    
-	    err_grv2 = lambda_grv2 - 1; 
+	    err_grv2 = lbda_grv2 - 1; 
 	    cout << "GRV2: " << err_grv2 << endl ; 
 	    
 	}

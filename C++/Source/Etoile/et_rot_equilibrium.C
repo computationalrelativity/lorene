@@ -32,6 +32,10 @@ char et_rot_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/27 10:54:43  e_gourgoulhon
+ * Changed local variable name lambda_grv2 to lbda_grv2 in order not
+ * to shadow method name.
+ *
  * Revision 1.2  2002/10/16 14:36:36  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -290,8 +294,8 @@ void Etoile_rot::equilibrium(double ent_c, double omega0, double fact_omega,
     par_poisson_tggg.add_double_mod( lambda_tggg ) ; 
     
     Param par_poisson_dzeta ; 
-    double lambda_grv2 ;
-    par_poisson_dzeta.add_double_mod( lambda_grv2 ) ; 
+    double lbda_grv2 ;
+    par_poisson_dzeta.add_double_mod( lbda_grv2 ) ; 
  					   
     // Parameters for the function Tenseur::poisson_vect
     // -------------------------------------------------
@@ -825,7 +829,7 @@ void Etoile_rot::equilibrium(double ent_c, double omega0, double fact_omega,
 	    mp.poisson2d(source_dzf(), source_dzq(), par_poisson_dzeta,
 			 dzeta.set()) ; 
 	    
-	    err_grv2 = lambda_grv2 - 1; 
+	    err_grv2 = lbda_grv2 - 1; 
 	    cout << "GRV2: " << err_grv2 << endl ; 
 	    
 	}

@@ -34,6 +34,10 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2003/10/27 10:54:43  e_gourgoulhon
+ * Changed local variable name lambda_grv2 to lbda_grv2 in order not
+ * to shadow method name.
+ *
  * Revision 1.14  2003/10/03 15:58:47  j_novak
  * Cleaning of some headers
  *
@@ -252,8 +256,8 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
     par_poisson_tggg.add_double_mod( lambda_tggg ) ; 
     
     Param par_poisson_dzeta ; 
-    double lambda_grv2 ;
-    par_poisson_dzeta.add_double_mod( lambda_grv2 ) ; 
+    double lbda_grv2 ;
+    par_poisson_dzeta.add_double_mod( lbda_grv2 ) ; 
 
     // Parameters for the function Tenseur::poisson_vect
     // -------------------------------------------------
@@ -791,7 +795,7 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 	    mp.poisson2d(source_dzf(), source_dzq(), par_poisson_dzeta,
 			 dzeta.set()) ; 
 	    
-	    err_grv2 = lambda_grv2 - 1; 
+	    err_grv2 = lbda_grv2 - 1; 
 	    cout << "GRV2: " << err_grv2 << endl ; 
 	    
 	}
