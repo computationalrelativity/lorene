@@ -5,8 +5,6 @@
 
 /*
  *   Copyright (c) 2000-2001 Eric Gourgoulhon
- *   Copyright (c) 2002 Emmanuel Marcq
- *   Copyright (c) 2002 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -23,19 +21,6 @@
  *   You should have received a copy of the GNU General Public License
  *   along with LORENE; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- */
-
-char magstar_C[] = "$Header$" ;
-
-/*
- * $Id$
- * $Log$
- * Revision 1.2  2002/05/16 10:02:09  j_novak
- * Errors in stress energy tensor corrected
- *
- *
- * $Header$
  *
  */
 
@@ -357,96 +342,97 @@ int main(){
     Tbl diff(8) ;     
 
 
-    star.equilibrium_mag(ent_c, omega, fact_omega, nzadapt, ent_limit, icontrol, control,
-		     mbar_wanted, aexp_mass, diff, 0., 1.e4, &f_j, &M_j) ;
+    star.equilibrium_mag(ent_c, omega, fact_omega, nzadapt, ent_limit, 
+			 icontrol, control, mbar_wanted, aexp_mass, diff, 
+			 0., 1.e4, &f_j, &M_j) ;
 
      
-//      cout << endl << "Final star : " 
-//  	 << endl << "==========   " << endl ;
+    cout << endl << "Final star : " 
+	 << endl << "==========   " << endl ;
 
-//      cout.precision(10) ; 
-//      //cout << star << endl ; 
+    cout.precision(10) ; 
+    cout << star << endl ; 
 
-//      //-----------------------------------------------
-//      //  General features of the final configuration
-//      //  saved in a file
-//      //-----------------------------------------------
+    //-----------------------------------------------
+    //  General features of the final configuration
+    //  saved in a file
+    //-----------------------------------------------
 
-//      ofstream fichfinal("calcul.d") ;
-//      fichfinal.precision(10) ; 
+    ofstream fichfinal("calcul.d") ;
+    fichfinal.precision(10) ; 
     
-//      if ( star.is_relativistic() ) {
-//  	fichfinal << "Relativistic computation" << endl ;
-//      }
-//      else {
-//  	fichfinal << "Newtonian computation" << endl ;
-//      }
+    if ( star.is_relativistic() ) {
+	fichfinal << "Relativistic computation" << endl ;
+    }
+    else {
+	fichfinal << "Newtonian computation" << endl ;
+    }
     
-//      fichfinal << star.get_eos() << endl ;
+    fichfinal << star.get_eos() << endl ;
     
-//      fichfinal << endl << "Total CPU time  : " << endl ;
-//      fichfinal << "Memory size : " << endl << endl ; 
+    fichfinal << endl << "Total CPU time  : " << endl ;
+    fichfinal << "Memory size : " << endl << endl ; 
 
-//      fichfinal << endl << endl ; 
-//      fichfinal << "Grid : " << endl ; 
-//      fichfinal << "------ " << endl ; 
-//      fichfinal << *(star.get_mp().get_mg()) << endl ; 
-//      fichfinal << endl << "Physical characteristics : " << endl ; 
-//      fichfinal	  << "-------------------------" << endl ; 
-//      fichfinal << star << endl ;
-//      //    fichfinal << "Growing rate of triaxial perturbation: " << vit_triax 
-//      //      << endl ; 
+    fichfinal << endl << endl ; 
+    fichfinal << "Grid : " << endl ; 
+    fichfinal << "------ " << endl ; 
+    fichfinal << *(star.get_mp().get_mg()) << endl ; 
+    fichfinal << endl << "Physical characteristics : " << endl ; 
+    fichfinal	  << "-------------------------" << endl ; 
+    fichfinal << star << endl ;
+    //    fichfinal << "Growing rate of triaxial perturbation: " << vit_triax 
+    //      << endl ; 
 
-//      fichfinal << endl <<
-//      "===================================================================" 
-//      << endl ; 
-//      fichfinal << "Diff_ent : " << diff(0) << endl ; 
-//      fichfinal << "Relative error on the virial theorem GRV2 : "
-//  	      << star.grv2() << endl ;   
-//      fichfinal << "Relative error on the virial theorem GRV3 : "
-//  	      << star.grv3() << endl ;   
+    fichfinal << endl <<
+    "===================================================================" 
+    << endl ; 
+    fichfinal << "Diff_ent : " << diff(0) << endl ; 
+    fichfinal << "Relative error on the virial theorem GRV2 : "
+	      << star.grv2() << endl ;   
+    fichfinal << "Relative error on the virial theorem GRV3 : "
+	      << star.grv3() << endl ;   
     
-//      fichfinal << endl <<
-//      "================================================================" << endl ;
-//      fichfinal <<
-//      "   PARAMETERS USED FOR THE COMPUTATION (file parrot.d) : " << endl ;
-//      fichfinal <<
-//      "================================================================" << endl ;
-//      fichfinal.close() ;
-//      system("cat parrot.d >> calcul.d") ; 
+    fichfinal << endl <<
+    "================================================================" << endl ;
+    fichfinal <<
+    "   PARAMETERS USED FOR THE COMPUTATION (file parrot.d) : " << endl ;
+    fichfinal <<
+    "================================================================" << endl ;
+    fichfinal.close() ;
+    system("cat parrot.d >> calcul.d") ; 
 
-//      fichfinal.open("calcul.d", ios::app | ios::nocreate) ;
-//      fichfinal << endl <<
-//      "================================================================" << endl ;
-//      fichfinal <<
-//      "	           EOS PARAMETERS (file par_eos.d) : " << endl ;
-//      fichfinal <<
-//      "================================================================" << endl ;
-//      fichfinal.close() ;
-//      system("cat par_eos.d >> calcul.d") ;
+    fichfinal.open("calcul.d", ios::app | ios::nocreate) ;
+    fichfinal << endl <<
+    "================================================================" << endl ;
+    fichfinal <<
+    "	           EOS PARAMETERS (file par_eos.d) : " << endl ;
+    fichfinal <<
+    "================================================================" << endl ;
+    fichfinal.close() ;
+    system("cat par_eos.d >> calcul.d") ;
 
-//      // Identification du code et de ses sous-routines (no. de version RCS) :     	
-//      fichfinal.open("calcul.d", ios::app | ios::nocreate) ; 
-//      fichfinal << endl <<
-//      "================================================================" << endl ; 
-//      fichfinal << "	    IDENTIFICATION OF THE CODE : " << endl ; 
-//      fichfinal << 
-//      "================================================================" << endl ; 
-//      fichfinal.close() ; 
-//      system("ident magstar >> calcul.d") ; 
+    // Identification du code et de ses sous-routines (no. de version RCS) :     	
+    fichfinal.open("calcul.d", ios::app | ios::nocreate) ; 
+    fichfinal << endl <<
+    "================================================================" << endl ; 
+    fichfinal << "	    IDENTIFICATION OF THE CODE : " << endl ; 
+    fichfinal << 
+    "================================================================" << endl ; 
+    fichfinal.close() ; 
+    system("ident magstar >> calcul.d") ; 
 
 
-//      // Saveguard of the whole configuration
-//  	// ------------------------------------
+    // Saveguard of the whole configuration
+	// ------------------------------------
 
-//  	FILE* fresu = fopen("resu.d", "w") ;
+	FILE* fresu = fopen("resu.d", "w") ;
 
-//  	star.get_mp().get_mg()->sauve(fresu) ;		// writing of the grid
-//  	star.get_mp().sauve(fresu) ;                // writing of the mapping
-//  	star.get_eos().sauve(fresu) ;  				// writing of the EOS
-//  	star.sauve(fresu) ;                         // writing of the star
+	star.get_mp().get_mg()->sauve(fresu) ;		// writing of the grid
+	star.get_mp().sauve(fresu) ;                // writing of the mapping
+	star.get_eos().sauve(fresu) ;  				// writing of the EOS
+	star.sauve(fresu) ;                         // writing of the star
 	
-//  	fclose(fresu) ;
+	fclose(fresu) ;
 	
 	
 

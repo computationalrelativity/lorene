@@ -32,6 +32,9 @@ char et_rot_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/05/16 11:54:11  j_novak
+ * Fixed output pbs
+ *
  * Revision 1.4  2002/05/15 09:53:59  j_novak
  * First operational version
  *
@@ -186,18 +189,27 @@ ostream& Et_rot_mag::operator>>(ostream& ost) const {
   ost << "In construction..." << endl ;
   ost << endl ;
   ost << "Magnetic Momentum : " << MagMom() << endl ;
-  ost << "Radial magnetic field polar value : " << Magn()(0).va.val_point_jk(l_surf()(0,0),xi_surf()(0,0),0,0) << endl;
+  ost << "Radial magnetic field polar value : " << 
+    Magn()(0).va.val_point(l_surf()(0,0),xi_surf()(0,0),0.,0.) << endl;
 
-  ost << "Magnetic pressure (Srr_em) polar value : " << Srr_em().va.val_point_jk(l_surf()(0,0),xi_surf()(0,0),0,0) << endl ;
+  ost << "Magnetic pressure (Srr_em) polar value : " << 
+    Srr_em().va.val_point(l_surf()(0,0),xi_surf()(0,0),0.,0.) << endl ;
 
-  ost << "Radial electric field polar value : " << Elec()(0).va.val_point_jk(l_surf()(0,0),xi_surf()(0,0),0,0) << endl;
+  ost << "Radial electric field polar value : " << 
+    Elec()(0).va.val_point(l_surf()(0,0),xi_surf()(0,0),0.,0.) << endl;
 
 
   int theta_eq = mp.get_mg()->get_nt(nzet-1)-1 ;
 
-  ost << "Tangent magnetic field equatorial value : " << Magn()(1).va.val_point_jk(l_surf()(0,theta_eq),xi_surf()(0,theta_eq),theta_eq,0) << endl;
-  ost << "Magnetic pressure equatorial value : " << Srr_em().va.val_point_jk(l_surf()(0,theta_eq),xi_surf()(0,theta_eq),theta_eq,0) << endl ;
-  ost << "Radial electric field equatorial value : " << Elec()(0).va.val_point_jk(l_surf()(0,theta_eq),xi_surf()(0,theta_eq),theta_eq,0) << endl;
+  ost << "Tangent magnetic field equatorial value : " << 
+  Magn()(1).va.val_point(l_surf()(0,theta_eq),xi_surf()(0,theta_eq),M_PI_2,0.) 
+      << endl;
+  ost << "Magnetic pressure equatorial value : " << 
+  Srr_em().va.val_point(l_surf()(0,theta_eq),xi_surf()(0,theta_eq),M_PI_2,0.) 
+      << endl ;
+  ost << "Radial electric field equatorial value : " << 
+  Elec()(0).va.val_point(l_surf()(0,theta_eq),xi_surf()(0,theta_eq),M_PI_2,0.) 
+      << endl;
   ost << "Computed charge : " << Q_comput() << endl ;
   ost << "Gyromagnetic ratio : " << GyroMag() << endl ;
 
