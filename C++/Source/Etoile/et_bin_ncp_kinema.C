@@ -34,6 +34,8 @@ char et_bin_ncp_kinema_C[] = "$Header$" ;
  *
  */
 
+#include <math.h>
+
 // Headers Lorene
 #include "et_bin_ncp.h"
 
