@@ -27,6 +27,12 @@
 #define __BINARY_H_ 
 
 /*
+ * $Id$
+ * $Log$
+ * Revision 1.3  2004/01/20 15:25:39  f_limousin
+ * Nex class binary
+ *
+ *
  * $Header$
  *
  */
@@ -109,6 +115,8 @@ class Binary {
 	 * @param eos2 Equation of state of {\tt star2}
 	 * @param irrot2 should be {\tt true} if {\tt star2} is irrotational, 
 	 *		    {\tt false} if {\tt star2} is corotating
+	 * @param conf_flat should be {\tt true} for a 3-metric conformally
+	 *            flat and {\tt false} for a more general one.
 	 */
 	Binary(Map& mp1, int nzet1, const Eos& eos1, int irrot1, 
 		   Map& mp2, int nzet2, const Eos& eos2, int irrot2,
@@ -238,19 +246,10 @@ class Binary {
     	double virial() const ;	
 
 	/** Estimates the relative error on the Hamiltonian constraint 
-	 *  equation by comparing $\underline\Delta\ln A$ with
-//	 *  \begin{equation}
-//	 *    -4\pi A^2 E - {A^2\over 4} K_{ij} K^{ij} - {1\over 2} 
-	 *	    {\overline\nabla}_i \ln A {\overline\nabla}^i \ln A
-	 *  \end{equation} 
 	 */
     	double ham_constr() const ;	
 
 	/** Estimates the relative error on the momentum constraint 
-	 *  equation by comparing ${\overline\nabla}_j K^{ij}$ with
-//	 *  \begin{equation}
-	 *    8\pi J^i - 5 K^{ij} {\overline\nabla}_j \ln A
-	 *  \end{equation} 
 	 */
     	const Tbl& mom_constr() const ;	
 
@@ -297,7 +296,7 @@ class Binary {
 	/**
 	 * Calculates {tt decouple} which is used to obtain 
 	 * {\tt qq\_auto} by the formula : 
-	 * {\tt qq\_auto} = {\tt decouple} * {\tt qq\_tot}.
+	 * {\tt qq\_auto} = {\tt decouple} * {\tt qq}.
 	 * (see the membre {tt Scalar decouple} for more 
 	 * precisions about its value).
 	 * 
