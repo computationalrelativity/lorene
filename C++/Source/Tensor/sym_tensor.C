@@ -35,6 +35,9 @@ char sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2005/04/01 14:28:32  j_novak
+ * Members p_eta and p_mu are now defined in class Sym_tensor.
+ *
  * Revision 1.17  2004/03/30 14:01:19  j_novak
  * Copy constructors and operator= now copy the "derived" members.
  *
@@ -156,8 +159,10 @@ Sym_tensor::Sym_tensor(const Sym_tensor& source)
 	p_longit_pot[jp] = 
 	new Vector ( *source.p_longit_pot[i_met] ) ;
       }
-
     }
+    if (source.p_eta != 0x0) p_eta = new Scalar( *(source.p_eta) ) ; 
+    if (source.p_mu != 0x0) p_mu = new Scalar( *(source.p_mu) ) ; 
+
 }   
 
 
@@ -229,6 +234,8 @@ void Sym_tensor::operator=(const Sym_tensor& source) {
       }
 
     }
+    if (source.p_eta != 0x0) p_eta = new Scalar( *(source.p_eta) ) ; 
+    if (source.p_mu != 0x0) p_mu = new Scalar( *(source.p_mu) ) ; 
     
 }
 
@@ -257,6 +264,9 @@ void Sym_tensor::del_deriv() const {
 	for (int i=0; i<N_MET_MAX; i++) 
     	del_derive_met(i) ;
 	
+	if (p_eta != 0x0) delete p_eta ; 
+	if (p_mu != 0x0) delete p_mu ; 
+
 	set_der_0x0() ;
 	Tensor::del_deriv() ;
 
@@ -264,8 +274,10 @@ void Sym_tensor::del_deriv() const {
 
 void Sym_tensor::set_der_0x0() const {
 
-	for (int i=0; i<N_MET_MAX; i++) 
-		set_der_met_0x0(i) ;
+  for (int i=0; i<N_MET_MAX; i++) 
+    set_der_met_0x0(i) ;
+  p_eta = 0x0 ; 
+  p_mu = 0x0 ; 
 
 }
 

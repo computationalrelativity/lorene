@@ -32,6 +32,9 @@ char sym_tensor_tt_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2005/04/01 14:28:32  j_novak
+ * Members p_eta and p_mu are now defined in class Sym_tensor.
+ *
  * Revision 1.14  2004/06/04 09:25:58  e_gourgoulhon
  * Method eta(): eta is no longer computed from h^rr but from khi (in the
  *   case where khi is known).
@@ -192,45 +195,6 @@ const Scalar& Sym_tensor_tt::eta(Param* par) const {
 }
 
 			
-			//--------------//
-			//     mu       //
-			//--------------//
-			
-
-const Scalar& Sym_tensor_tt::mu(Param* par) const {
-
-	if (p_mu == 0x0) {   // a new computation is necessary
-		
-		// All this has a meaning only for spherical components:
-		assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
-
-		Scalar tmp = operator()(1,3) ; 	// h^{r ph}
-		tmp.div_tant() ; 		// h^{r ph} / tan(th)
-		
-		// dh^{r ph}/dth + h^{r ph}/tan(th) - 1/sin(th) dh^{r th}/dphi 
-		tmp = operator()(1,3).dsdt() + tmp - operator()(1,2).stdsdp() ; 
-		
-		// Multiplication by r
-        int dzp = operator()(1,2).get_dzpuis() ; 
-        int dzp_resu = ((dzp == 0) ? 0 : dzp-1) ;
-		tmp.mult_r_dzpuis(dzp_resu) ; 
-		
-		// Resolution of the angular Poisson equation for mu
-		// --------------------------------------------------
-		if (dynamic_cast<const Map_af*>(mp) != 0x0) {
-		    p_mu = new Scalar( tmp.poisson_angu() ) ;  
-		}
-		else {
-		    Scalar resu (*mp) ;
-		    resu = 0. ;
-		    mp->poisson_angu(tmp, *par, resu) ;
-		    p_mu = new Scalar( resu ) ;  	    
-		}
-	}
-	return *p_mu ; 
-
-}
-
 
 			//-------------------//
 			//  set_rr_eta_mu    //

@@ -32,6 +32,9 @@ char sym_tensor_tt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/04/01 14:28:32  j_novak
+ * Members p_eta and p_mu are now defined in class Sym_tensor.
+ *
  * Revision 1.4  2004/03/30 14:01:19  j_novak
  * Copy constructors and operator= now copy the "derived" members.
  *
@@ -78,8 +81,6 @@ Sym_tensor_tt::Sym_tensor_tt (const Sym_tensor_tt& source)
 	set_der_0x0() ;
 
 	if (source.p_khi != 0x0) p_khi = new Scalar( *(source.p_khi) ) ; 
-	if (source.p_eta != 0x0) p_eta = new Scalar( *(source.p_eta) ) ; 
-	if (source.p_mu != 0x0) p_mu = new Scalar( *(source.p_mu) ) ; 
 	
 }   
 
@@ -113,8 +114,6 @@ Sym_tensor_tt::~Sym_tensor_tt() {
 void Sym_tensor_tt::del_deriv() const {
 
 	if (p_khi != 0x0) delete p_khi ; 
-	if (p_eta != 0x0) delete p_eta ; 
-	if (p_mu != 0x0) delete p_mu ; 
 	
 	set_der_0x0() ;
 	
@@ -125,9 +124,6 @@ void Sym_tensor_tt::del_deriv() const {
 void Sym_tensor_tt::set_der_0x0() const {
 
   p_khi = 0x0 ;
-  p_eta = 0x0 ; 
-  p_mu = 0x0 ; 
-
 }
 
 
@@ -143,8 +139,6 @@ void Sym_tensor_tt::operator=(const Sym_tensor_tt& source) {
 	del_deriv() ; 
 	
 	if (source.p_khi != 0x0) p_khi = new Scalar( *(source.p_khi) ) ; 
-	if (source.p_eta != 0x0) p_eta = new Scalar( *(source.p_eta) ) ; 
-	if (source.p_mu != 0x0) p_mu = new Scalar( *(source.p_mu) ) ; 
 	
 }
 

@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.27  2005/04/01 14:28:31  j_novak
+ * Members p_eta and p_mu are now defined in class Sym_tensor.
+ *
  * Revision 1.26  2005/01/03 08:34:58  f_limousin
  * Come back to the previous version.
  *
@@ -168,6 +171,34 @@ class Sym_tensor : public Tensor_sym {
 	 */
 	mutable Vector* p_longit_pot[N_MET_MAX] ;
 
+	/** Field \f$\eta\f$ such that the components \f$(T^{r\theta}, T^{r\varphi})\f$
+	 * of the tensor are written (has only meaning with spherical components!):
+	 * \f[
+	 *	T^{r\theta} =  {1\over r} \left( {\partial \eta \over \partial\theta} -
+	 *	{1\over\sin\theta} {\partial \mu \over \partial\varphi} \right) 
+	 *\f] 
+	 * \f[
+	 *	T^{r\varphi} =  {1\over r} \left( {1\over\sin\theta} 
+	 *				{\partial \eta \over \partial\varphi}
+	 *				+ {\partial \mu \over \partial\theta} \right)
+	 *\f] 
+	 */
+	mutable Scalar* p_eta ;
+	
+	/** Field \f$\mu\f$ such that the components \f$(T^{r\theta}, T^{r\varphi})\f$
+	 * of the tensor are written (has only meaning with spherical components!):
+	 * \f[
+	 *	T^{r\theta} =  {1\over r} \left( {\partial \eta \over \partial\theta} -
+	 *	 {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right) 
+	 *\f] 
+	 * \f[
+	 *	T^{r\varphi} =  {1\over r} \left( {1\over\sin\theta} 
+	 *				{\partial \eta \over \partial\varphi}
+	 *				+ {\partial \mu \over \partial\theta} \right)
+	 *\f] 
+	 */
+	mutable Scalar* p_mu ;
+	
     // Constructors - Destructor :
     // -------------------------
 	
@@ -308,6 +339,12 @@ class Sym_tensor : public Tensor_sym {
 	const Vector& longit_pot(const Metric& gam, Param* par = 0x0,
                 int method_poisson = 2) const ; 
 	
+	/// Gives the field \f$\eta\f$ (see member \c p_eta ).
+	virtual const Scalar& eta(Param* par = 0x0) const ;
+
+	/// Gives the field \f$\mu\f$ (see member \c p_mu ).
+	const Scalar& mu(Param* par = 0x0) const ;
+
 	
     // Mathematical operators
     // ----------------------
@@ -482,34 +519,6 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	 */
 	mutable Scalar* p_khi ;
 	
-	/** Field \f$\eta\f$ such that the components \f$(h^{r\theta}, h^{r\varphi})\f$
-	 * of the tensor are written:
-	 * \f[
-	 *	h^{r\theta} =  {1\over r} \left( {\partial \eta \over \partial\theta} -
-	 *	{1\over\sin\theta} {\partial \mu \over \partial\varphi} \right) 
-	 *\f] 
-	 * \f[
-	 *	h^{r\varphi} =  {1\over r} \left( {1\over\sin\theta} 
-	 *				{\partial \eta \over \partial\varphi}
-	 *				+ {\partial \mu \over \partial\theta} \right)
-	 *\f] 
-	 */
-	mutable Scalar* p_eta ;
-	
-	/** Field \f$\mu\f$ such that the components \f$(h^{r\theta}, h^{r\varphi})\f$
-	 * of the tensor are written:
-	 * \f[
-	 *	h^{r\theta} =  {1\over r} \left( {\partial \eta \over \partial\theta} -
-	 *	 {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right) 
-	 *\f] 
-	 * \f[
-	 *	h^{r\varphi} =  {1\over r} \left( {1\over\sin\theta} 
-	 *				{\partial \eta \over \partial\varphi}
-	 *				+ {\partial \mu \over \partial\theta} \right)
-	 *\f] 
-	 */
-	mutable Scalar* p_mu ;
-	
 	
     // Constructors - Destructor
     // -------------------------
@@ -638,34 +647,8 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	 */
 	const Scalar& khi() const ;
 	
-	/** Gives the field \f$\eta\f$ such that the components \f$(h^{r\theta}, h^{r\varphi})\f$
-	 * of the tensor are written:
-	 * \f[
-	 *	h^{r\theta} =  {1\over r} \left( {\partial \eta \over \partial\theta} -
-	 *	 {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right) 
-	 *\f] 
-	 * \f[
-	 *	h^{r\varphi} =  {1\over r} \left( {1\over\sin\theta} 
-	 *				{\partial \eta \over \partial\varphi}
-	 *				+ {\partial \mu \over \partial\theta} \right)
-	 *\f] 
-	 */
-	const Scalar& eta(Param* par = 0x0) const ;
-
-	/** Gives the field \f$\mu\f$ such that the components \f$(h^{r\theta}, h^{r\varphi})\f$
-	 * of the tensor are written:
-	 * \f[
-	 *	h^{r\theta} =  {1\over r} \left( {\partial \eta \over \partial\theta} -
-	 *		 {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right) 
-	 *\f] 
-	 * \f[
-	 *	h^{r\varphi} =  {1\over r} \left( {1\over\sin\theta} 
-	 *				{\partial \eta \over \partial\varphi}
-	 *				+ {\partial \mu \over \partial\theta} \right)
-	 *\f] 
-	 */
-	const Scalar& mu(Param* par = 0x0) const ;
-
+	/// Gives the field \f$\eta\f$ (see member \c p_eta ).
+	virtual const Scalar& eta(Param* par = 0x0) const ;
 
 	protected:
 	/** Computes the components \f$h^{r\theta}\f$, \f$h^{r\varphi}\f$,
