@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/11/23 15:03:14  m_forot
+ * Corrected error in comments.
+ *
  * Revision 1.12  2004/11/04 15:39:45  e_gourgoulhon
  * Modif documentation: added description of bases without any symmetry
  *  in theta.
@@ -197,10 +200,10 @@ class Tbl ;
  * in \f$\phi\f$:  
  *   \li \c T_COSSIN_C  (0x00000100) : \f$\cos(j \theta)\f$ for \e m even,
  *					      \f$\sin(j \theta)\f$ for \e m odd
- *						(\f$\theta\f$-sampling: \c SYM);
+ *						(\f$\theta\f$-sampling: \c NONSYM);
  *   \li \c T_COSSIN_S  (0x00000200) : \f$\sin(j \theta)\f$ for \e m even,
  *					      \f$\cos(j \theta)\f$ for \e m odd
- *						(\f$\theta\f$-sampling: \c SYM);
+ *						(\f$\theta\f$-sampling: \c NONSYM);
  *   \li \c T_COS_P  (0x00000500) : \f$\cos(2j \theta)\f$
  *						(\f$\theta\f$-sampling: \c SYM);
  *   \li \c T_SIN_P  (0x00000600) : \f$\sin(2j \theta)\f$
