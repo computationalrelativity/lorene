@@ -38,6 +38,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/09/24 20:53:38  e_gourgoulhon
+ * Added  -- constructor by conversion from a Cmp
+ *        -- assignment from Cmp
+ *
  * Revision 1.4  2003/09/24 15:10:54  j_novak
  * Suppression of the etat flag in class Tensor (still present in Scalar)
  *
@@ -59,6 +63,7 @@
 #include "valeur.h"
 
 class Param ; 
+class Cmp ;
 
 /**
  * Tensor field of valence 0 (or component of a tensorial field).
@@ -136,6 +141,8 @@ class Scalar : public Tensor {
 	explicit Scalar(const Map* ) ;	/// Constructor from mapping
 	
 	Scalar(const Scalar& ) ;		/// Copy constructor
+	
+	explicit Scalar(const Cmp& ) ;	/// Constructor by conversion of a Cmp
 
 	/// Constructor from a file (see {\tt sauve(FILE* )})
 	Scalar(const Map&, const Mg3d&, FILE* ) ;    		
@@ -191,6 +198,7 @@ class Scalar : public Tensor {
 	/// Assignment to a {\tt Tensor} (of valence 0)
 	virtual void operator=(const Tensor&) ; 
 
+	void operator=(const Cmp& ) ; 	/// Assignment to a {\tt Cmp}
 	void operator=(const Valeur& ) ; /// Assignment to a {\tt Valeur}
 	void operator=(const Mtbl& ) ;	 /// Assignment to a {\tt Mtbl}
 	void operator=(double ) ;	 /// Assignment to a {\tt double}
