@@ -29,8 +29,8 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.4  2004/03/23 12:47:12  e_gourgoulhon
- * new version
+ * Revision 1.5  2004/03/29 14:31:39  j_novak
+ * set_der_0x0 is no longer virtual cvs update
  *
  *
  *
@@ -49,7 +49,7 @@
 class YYY ; 
 
 /**
- * Extended description of the class for Doc++ documentation.
+ * Extended description of the class for doxygen documentation.
  * \ingroup(???)
  * 
  */
@@ -79,14 +79,11 @@ class XXX {
     // Memory management
     // -----------------
     protected:
-	/// Logical destructor
-	virtual void del_t() ;	
-	    
 	/// Deletes all the derived quantities
 	virtual void del_deriv() const ; 
 	
 	/// Sets to \c 0x0 all the pointers on derived quantities
-	virtual void set_der_0x0() const ; 
+	void set_der_0x0() const ; 
 
 
     // Mutators / assignment
