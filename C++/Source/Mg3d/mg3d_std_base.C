@@ -30,6 +30,9 @@ char mg3d_std_base_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/02/16 15:09:16  m_forot
+ * Add R_CHEBPI_I and R_CHEBPI_P cases
+ *
  * Revision 1.4  2004/11/04 15:21:42  e_gourgoulhon
  * The case without any symmetry in theta is now treated.
  *
@@ -478,7 +481,7 @@ Base_val** Mg3d::std_base_vect_spher() const {
 
 	  base1 = base1 | R_CHEBPI_I ;  
 	  base2 = base2 | R_CHEBPI_I ;  
-	  base3 = base3 | R_CHEBPI_I ;  
+	  base3 = base3 | R_CHEBPI_P ;  
 		    
 	  break ;
 
