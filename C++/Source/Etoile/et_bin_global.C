@@ -31,6 +31,9 @@ char et_bin_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/12/30 17:22:25  f_limousin
+ * Remove all functions belonging to the class Et_bin_ncp
+ *
  * Revision 1.9  2003/06/20 14:02:44  f_limousin
  * pow(gamma(), 1./2.) is changed to  pow(a_car(), 3./2.)
  *
@@ -121,34 +124,6 @@ double Etoile_bin::mass_b() const {
 } 
 
 
-double Et_bin_ncp::mass_b() const {
-
-    if (p_mass_b == 0x0) {    // a new computation is required
-	
-	if (relativistic) {
-	  
-	    Cmp dens = pow(a_car(), 3./2.) * gam_euler() * nbar() ;
-	    
-	    dens.std_base_scal() ; 
-
-	    p_mass_b = new double( dens.integrale() ) ;
-
-	}
-	else{
-	    assert(nbar.get_etat() == ETATQCQ) ; 
-
-	    p_mass_b = new double( nbar().integrale() ) ;
-
-	}
-
-    }
-    
-    return *p_mass_b ; 
-
-} 
-
-
-
 			//----------------------------//
 			//	Gravitational mass    //
 			//----------------------------//
@@ -181,23 +156,6 @@ double Etoile_bin::mass_g() const {
 } 
 
 
-double Et_bin_ncp::mass_g() const {
-
-    if (p_mass_g == 0x0) {    // a new computation is required
-	
-	    Cmp dens = pow(a_car(), 3./2.) * nnn()
-		* ( ener_euler() + s_euler() ) ;
-
-	    dens.std_base_scal() ; 
-
-	    p_mass_g = new double( dens.integrale() ) ;
-
-    }
-    
-    return *p_mass_g ; 
-
-} 
-
 		
 			//----------------------------------//
 			//  X coordinate of the barycenter  //
@@ -224,23 +182,4 @@ double Etoile_bin::xa_barycenter() const {
 }
 
 
-double Et_bin_ncp::xa_barycenter() const {
-
-    if (p_xa_barycenter == 0x0) {    // a new computation is required
-	
-	Cmp xxa(mp) ; 
-	xxa = mp.xa ;	// Absolute X coordinate
-	xxa.std_base_scal() ;
-
-	Cmp dens = pow(gamma(), 1./2.) * gam_euler() * nbar() * xxa ; 
-	
-	dens.std_base_scal() ; 
-
-	p_xa_barycenter = new double( dens.integrale() / mass_b() ) ;
-	
-    }
-    
-    return *p_xa_barycenter ; 
-
-}
 
