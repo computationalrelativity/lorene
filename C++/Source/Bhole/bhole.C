@@ -32,6 +32,9 @@ char bhole_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/11/25 07:10:05  k_taniguchi
+ * Change some arguments from the class Etoile_bin to Et_bin_nsbh.
+ *
  * Revision 1.5  2003/02/13 16:40:25  p_grandclement
  * Addition of various things for the Bin_ns_bh project, non of them being
  * completely tested
@@ -136,7 +139,7 @@ char bhole_C[] = "$Header$" ;
 #include "bhole.h"
 #include "proto.h"
 #include "utilitaires.h"
-#include "etoile.h"
+#include "et_bin_nsbh.h"
 #include "graphique.h"
 
 // Constructeur standard
@@ -276,7 +279,7 @@ void Bhole::fait_psi_comp (const Bhole& comp) {
 
 
 // Importe le lapse du compagnon (NS case)
-void Bhole::fait_n_comp (const Etoile_bin& comp) {
+void Bhole::fait_n_comp (const Et_bin_nsbh& comp) {
      // Alignes ou non ?
     double orientation = mp.get_rot_phi() ;
     assert ((orientation==0) || (orientation==M_PI)) ;
@@ -306,7 +309,7 @@ void Bhole::fait_n_comp (const Etoile_bin& comp) {
 
 // Importe le facteur conforme du compagnon (Bhole case)
 
-void Bhole::fait_psi_comp (const Etoile_bin& comp) {
+void Bhole::fait_psi_comp (const Et_bin_nsbh& comp) {
   
     // Alignes ou non ?
     double orientation = mp.get_rot_phi() ;
