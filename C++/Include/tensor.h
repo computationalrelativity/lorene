@@ -36,6 +36,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.28  2003/10/28 21:21:50  e_gourgoulhon
+ * Member function Tensor::contract(int, int) renamed
+ *  Tensor::scontract(int, int) in order not to mask
+ * the non-member function contract.
+ *
  * Revision 1.27  2003/10/27 10:44:00  e_gourgoulhon
  * Declaration of class Sym_tensor is now in file sym_tensor.h.
  *
@@ -527,7 +532,7 @@ class Tensor {
  	 * NB: the types ({\tt COV} or {\tt CON}) of the indices {\tt ind1} and
  	 * {\tt ind2} must be different. 
  	 */
-	Tensor contract(int ind1, int ind2) const ; 
+	Tensor scontract(int ind1, int ind2) const ; 
 	
 	/** Computes a new tensor by raising an index of {\tt *this}
 	 *
