@@ -34,6 +34,10 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/10/05 21:15:42  e_gourgoulhon
+ * - Suppressed method std_spectral_base_scal().
+ * - Added method std_spectral_base().
+ *
  * Revision 1.6  2003/10/01 13:04:44  e_gourgoulhon
  * The method Tensor::get_mp() returns now a reference (and not
  * a pointer) onto a mapping.
@@ -573,7 +577,7 @@ void Scalar::spectral_display(ostream& ost, double threshold,
 		    //	Spectral bases of the Valeur va   //
 		    //------------------------------------//
 		    
-void Scalar::std_spectral_base_scal() {
+void Scalar::std_spectral_base() {
       
     va.std_base_scal() ;  
                    
