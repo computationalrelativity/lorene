@@ -32,8 +32,11 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/11/29 15:05:26  j_novak
+ * The entrainment term in 2-fluid eos is modified
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.6  2001/08/31  15:47:35  novak
  * The flag tronc has been added to nbar_ent.. functions
@@ -524,36 +527,35 @@ class Eos_bifluid {
  * \Gamma_\Delta = -g_{\alpha\beta} u^\alpha_{\rm n} u^\beta_{\rm p}
  * \label{e:defgamamdelta}
  * \end{equation}
- * ($u^\alpha_{\rm n}$ and $u^\alpha_{\rm p}$ beign the 4-velocities of 
+ * ($u^\alpha_{\rm n}$ and $u^\alpha_{\rm p}$ being the 4-velocities of 
  * both fluids), by
  * \begin{equation} \label{eeosbfpolye}
  *   {\cal{E}} = \frac{1}{2}\kappa_1 n_1^{\gamma_1} + m_1 c^2 \, n_1 
  *          \  + \frac{1}{2}\kappa_2 n_2^{\gamma_2} + m_2 c^2 \, n_2 
  *          \  + \kappa_3 n_1^{\gamma_3} n_2^{\gamma_4} 
- *          \  + \Delta^2(\beta^1n_1^{\gamma_5} + \beta^2n_2^{\gamma_6})\ .  
+ *          \  + \Delta^2 \beta n_1^{\gamma_5} n_2^{\gamma_6}\ .  
  * \end{equation}
  * The relativistic (i.e. including rest mass energy) chemical potentials
  * are then
  * \begin{equation} 
  * \mu_1 := {{\rm d}{\cal{E}} \over {\rm d}n_1} = \frac{1}{2}\gamma_1\kappa_1
  *         n_1^{\gamma_1-1} + m_1 c^2 + \gamma_3 \kappa_3 
- *         n_1^{\gamma_3-1} n_2^{\gamma_4} + \Delta^2 (\gamma_5 \beta^1
- *         n_1^{\gamma_5-1} )\ , 
+ *         n_1^{\gamma_3-1} n_2^{\gamma_4} + \Delta^2 \gamma_5 \beta
+ *         n_1^{\gamma_5-1} n_2^{\gamma_6}\ , 
  * \end{equation}
  * \begin{equation}
  * \mu_2 := {{\rm d}{\cal{E}} \over {\rm d}n_2} = \frac{1}{2}\gamma_2\kappa_2
  *         n_2^{\gamma_2-1} + m_2 c^2 + \gamma_4 \kappa_3 
- *         n_1^{\gamma_3} n_2^{\gamma_4-1} + \Delta^2 (\gamma_6 \beta^2
- *         n_2^{\gamma_6-1} )\ .
+ *         n_1^{\gamma_3} n_2^{\gamma_4-1} + \Delta^2 \gamma_6 \beta
+ *         n_1^{\gamma_5} n_2^{\gamma_6-1} \ .
  * \end{equation}
  * The pressure is given by the (zero-temperature) First Law of Thermodynamics:
  * $p = \mu_1 n_1 + \mu_2 n_2 - {\cal E}$, so that
  * \begin{equation} 
  *   p = \frac{1}{2} (\gamma_1 -1)\kappa_1 n_1^{\gamma_1} +
  *  \frac{1}{2}(\gamma_2-1)\kappa_2 n_2^{\gamma_2} + (\gamma_3 +\gamma_4
- *  -1)\kappa_3 n_1^{\gamma_3}n_2^{\gamma_4} + \Delta^2 \left(
- *  (\gamma_5-1) \beta^1 n_1^{\gamma_5} + (\gamma_6-1) \beta^2
- *  n_2^{\gamma_6} \right) \ .  
+ *  -1)\kappa_3 n_1^{\gamma_3}n_2^{\gamma_4} + \Delta^2 \beta \left(
+ *  (\gamma_5 + \gamma_6 - 1) n_1^{\gamma_5} n_2^{\gamma_6} \right) \ .  
  * \end{equation}
  * The log-enthalpies are defined as the logarithm of the ratio of the enthalpy
  * per particle (see Eq.~\ref{eeosbfdefent}) by the particle rest mass energy :
@@ -614,19 +616,12 @@ class Eos_bf_poly : public Eos_bifluid {
 	 */
 	double kap3 ; 
 	
-	/** Coefficient $\beta^1$  , see Eq.~\ref{eeosbfpolye}
+	/** Coefficient $\beta$  , see Eq.~\ref{eeosbfpolye}
 	 *  [unit: $\rho_{\rm nuc} c^2 / n_{\rm nuc}^\gamma$], where
 	 *  $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$ and
 	 *  $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$. 
 	 */
-	double bet1 ; 
-
-	/** Coefficient $\beta^2$  , see Eq.~\ref{eeosbfpolye}
-	 *  [unit: $\rho_{\rm nuc} c^2 / n_{\rm nuc}^\gamma$], where
-	 *  $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$ and
-	 *  $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$. 
-	 */
-	double bet2 ; 
+	double beta ; 
 
 	/** Individual particule mass $m_1$  
 	 *  [unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$]. 
@@ -641,8 +636,7 @@ class Eos_bf_poly : public Eos_bifluid {
 	double gam1m1 ;	    /// $\gamma_1-1$
 	double gam2m1 ;	    /// $\gamma_2-1$
 	double gam34m1 ;    /// $\gamma_3+\gamma_4-1$
-	double gam5m1 ;	    /// $\gamma_5-1$
-	double gam6m1 ;	    /// $\gamma_6-1$
+	double gam56m1 ;    /// $\gamma_5+\gamma_6-1$
 
 
     // Constructors - Destructor
@@ -660,14 +654,13 @@ class Eos_bf_poly : public Eos_bifluid {
 	 *  @param kappa1  pressure coefficient $\kappa_1$  
 	 *  @param kappa2  pressure coefficient $\kappa_2$  
 	 *  @param kappa3  pressure coefficient $\kappa_3$  
-	 *  @param beta1 coefficient in the entrainment term $\beta^1$  
-	 *  @param beta2 coefficient in the entrainment term $\beta^2$  
+	 *  @param beta coefficient in the entrainment term $\beta$  
 	 *		(cf. Eq.~(\ref{eeosbfpolye}))
 	 *		[unit: $\rho_{\rm nuc} c^2$], where
 	 *		$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$ 
 	 */
 	Eos_bf_poly(double kappa1, double kappa2, double kappa3,
-		    double beta1, double beta2) ;	
+		    double beta) ;
 
 	/** Standard constructor with all parameters. 
 	 * 
@@ -681,8 +674,7 @@ class Eos_bf_poly : public Eos_bifluid {
 	 *  @param kappa1  pressure coefficient $\kappa_1$  
 	 *  @param kappa2  pressure coefficient $\kappa_2$  
 	 *  @param kappa3  pressure coefficient $\kappa_3$  
-	 *  @param beta1 coefficient in the entrainment term $\beta^1$  
-	 *  @param beta2 coefficient in the entrainment term $\beta^2$  
+	 *  @param beta coefficient in the entrainment term $\beta$  
 	 *		(cf. Eq.~(\ref{eeosbfpolye}))
 	 *		[unit: $\rho_{\rm nuc} c^2$], where
 	 *		$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$ 
@@ -694,8 +686,7 @@ class Eos_bf_poly : public Eos_bifluid {
 	Eos_bf_poly(double gamma1, double gamma2, double gamma3,
 		    double gamma4, double gamma5, double gamma6,
 		    double kappa1, double kappa2, double kappa3,
-		    double beta1, double beta2,
-		    double mass1, double mass2) ;	
+		    double beta, double mass1, double mass2) ;	
 
 	Eos_bf_poly(const Eos_bf_poly& ) ;	/// Copy constructor	
 	
@@ -779,17 +770,11 @@ class Eos_bf_poly : public Eos_bifluid {
 	 */
 	double get_kap3() const {return kap3 ;}; 
 
-	/** Returns the coefficient $\beta^1$  
+	/** Returns the coefficient $\beta$  
 	 *  [unit: $\rho_{\rm nuc} c^2 $], where
 	 *  $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$.
 	 */
-	double get_bet1() const {return bet1 ;}; 
-
-	/** Returns the coefficient $\beta^2$  
-	 *  [unit: $\rho_{\rm nuc} c^2 $], where
-	 *  $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$.
-	 */
-	double get_bet2() const {return bet2 ;}; 
+	double get_beta() const {return beta ;}; 
 
 	/** Return the individual particule mass $m_1$  
 	 *  

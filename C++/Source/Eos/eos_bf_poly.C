@@ -31,8 +31,11 @@ char eos_bf_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/11/29 15:05:26  j_novak
+ * The entrainment term in 2-fluid eos is modified
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.4  2001/08/31  15:48:50  novak
  * The flag tronc has been added to nbar_ent_p
@@ -73,11 +76,11 @@ char eos_bf_poly_C[] = "$Header$" ;
 // gam3 = gam4 = gam5 = gam6 = 1, m_1 = 1 and m_2 =1
 // -------------------------------------------------
 Eos_bf_poly::Eos_bf_poly(double kappa1, double kappa2, double kappa3,
-			 double beta1, double beta2) :
+			 double bet) :
   Eos_bifluid("bi-fluid polytropic EOS"), 
   gam1(2), gam2(2),gam3(1),gam4(1),gam5(1),
-  gam6(1),kap1(kappa1), kap2(kappa2), kap3(kappa3),bet1(beta1),
-  bet2(beta2),m_1(1),m_2(1) {
+  gam6(1),kap1(kappa1), kap2(kappa2), kap3(kappa3),beta(bet),
+  m_1(1),m_2(1) {
 
   set_auxiliary() ; 
 
@@ -88,12 +91,11 @@ Eos_bf_poly::Eos_bf_poly(double kappa1, double kappa2, double kappa3,
 Eos_bf_poly::Eos_bf_poly(double gamma1, double gamma2, double gamma3,
 			 double gamma4, double gamma5, double gamma6,
 			 double kappa1, double kappa2, double kappa3,
-			 double beta1, double beta2, double mass1, 
-			 double mass2) : 
+			 double bet, double mass1, double mass2) : 
   Eos_bifluid("bi-fluid polytropic EOS"), 
   gam1(gamma1),gam2(gamma2),gam3(gamma3),gam4(gamma4),gam5(gamma5),
-  gam6(gamma6),kap1(kappa1),kap2(kappa2),kap3(kappa3),bet1(beta1), 
-  bet2(beta2),m_1(mass1),m_2(mass2) {
+  gam6(gamma6),kap1(kappa1),kap2(kappa2),kap3(kappa3),beta(bet), 
+  m_1(mass1),m_2(mass2) {
 
     set_auxiliary() ; 
 
@@ -106,7 +108,7 @@ Eos_bf_poly::Eos_bf_poly(const Eos_bf_poly& eosi) :
 	gam1(eosi.gam1), gam2(eosi.gam2), gam3(eosi.gam3),
 	gam4(eosi.gam4), gam5(eosi.gam5), gam6(eosi.gam6),
 	kap1(eosi.kap1), kap2(eosi.kap2), kap3(eosi.kap3),
-	bet1(eosi.bet1),bet2(eosi.bet2),m_1(eosi.m_1), m_2(eosi.m_2) {
+	beta(eosi.beta),m_1(eosi.m_1), m_2(eosi.m_2) {
 
     set_auxiliary() ; 
 
@@ -127,8 +129,7 @@ Eos_bf_poly::Eos_bf_poly(FILE* fich) :
     fread(&kap1, sizeof(double), 1, fich) ;		
     fread(&kap2, sizeof(double), 1, fich) ;		
     fread(&kap3, sizeof(double), 1, fich) ;		
-    fread(&bet1, sizeof(double), 1, fich) ;		
-    fread(&bet2, sizeof(double), 1, fich) ;		
+    fread(&beta, sizeof(double), 1, fich) ;		
     fread(&m_1, sizeof(double), 1, fich) ;		
     fread(&m_2, sizeof(double), 1, fich) ;		
     
@@ -153,8 +154,7 @@ Eos_bf_poly::Eos_bf_poly(ifstream& fich) :
     fich >> kap1 ; fich.getline(blabla, 80) ;
     fich >> kap2 ; fich.getline(blabla, 80) ;
     fich >> kap3 ; fich.getline(blabla, 80) ;
-    fich >> bet1 ; fich.getline(blabla, 80) ;
-    fich >> bet2 ; fich.getline(blabla, 80) ;
+    fich >> beta ; fich.getline(blabla, 80) ;
     fich >> m_1 ; fich.getline(blabla, 80) ;
     fich >> m_2 ; fich.getline(blabla, 80) ;
     cout << m_2 << endl ;
@@ -202,8 +202,7 @@ void Eos_bf_poly::set_auxiliary() {
     gam1m1 = gam1 - double(1) ; 
     gam2m1 = gam2 - double(1) ; 
     gam34m1 = gam3 + gam4 - double(1) ; 
-    gam5m1 = gam5 - double(1) ;
-    gam6m1 = gam6 - double(1) ;
+    gam56m1 = gam5 + gam6 - double(1) ;
 
     if (fabs(kap3*kap3-kap2*kap1) < 1.e-15) {
       cout << "WARNING!: Eos_bf_poly: the parameters are degenerate!" << endl ;
@@ -252,11 +251,10 @@ bool Eos_bf_poly::operator==(const Eos_bifluid& eos_i) const {
       resu = false ; 
     }
     
-    if ((eos.bet1 != bet1)||(eos.bet2 != bet2)) {
+    if (eos.beta != beta) {
       cout 
-	<< "The two Eos_bf_poly have different betas : " << bet1 << " <-> " 
-	<< eos.bet1 << ", " << bet2 << " <-> " 
-	<< eos.bet2 << endl ; 
+	<< "The two Eos_bf_poly have different betas : " << beta << " <-> " 
+	<< eos.beta << endl ; 
       resu = false ; 
     }
 
@@ -298,8 +296,7 @@ void Eos_bf_poly::sauve(FILE* fich) const {
     fwrite(&kap1, sizeof(double), 1, fich) ;	
     fwrite(&kap2, sizeof(double), 1, fich) ;	
     fwrite(&kap3, sizeof(double), 1, fich) ;	
-    fwrite(&bet1, sizeof(double), 1, fich) ;	
-    fwrite(&bet2, sizeof(double), 1, fich) ;	
+    fwrite(&beta, sizeof(double), 1, fich) ;	
     fwrite(&m_1, sizeof(double), 1, fich) ;	
     fwrite(&m_2, sizeof(double), 1, fich) ;	
    
@@ -320,9 +317,7 @@ ostream& Eos_bf_poly::operator>>(ostream & ost) const {
 	   " rho_nuc c^2 / n_nuc^gamma" << endl ; 
     ost << "   Pressure coefficient kappa3 : " << kap3 << 
 	   " rho_nuc c^2 / n_nuc^gamma" << endl ; 
-    ost << "   Coefficient beta1 : " << bet1 << 
-	   " rho_nuc c^2 / n_nuc^gamma" << endl ; 
-    ost << "   Coefficient beta2 : " << bet2 << 
+    ost << "   Coefficient beta : " << beta << 
 	   " rho_nuc c^2 / n_nuc^gamma" << endl ; 
     ost << "   Mean particle 1 mass : " << m_1 << " m_B" << endl ;
     ost << "   Mean particle 2 mass : " << m_2 << " m_B" << endl ;
@@ -346,20 +341,34 @@ void  Eos_bf_poly::nbar_ent_p(const double ent1, const double ent2,
   if ((gam1 == double(2)) && (gam2 == double(2)) && (gam3 == double(1))
       && (gam4 == double(1)) && (gam5 == double(1)) 
       && (gam6 == double(1))) {
-    double determ = kap1*kap2 - kap3*kap3 ;
+
+    double kpd = kap3+beta*delta2 ;
+    double determ = kap1*kap2 - kpd*kpd ;
     
-    nbar1 = (kap2*(exp(ent1) - m_1 - delta2*bet1)
-	     - kap3*(exp(ent2) - m_2 - delta2*bet2)) / determ ;
-    nbar2 = (kap1*(exp(ent2) - m_2 - delta2*bet2)
-	     - kap3*(exp(ent1) - m_1 - delta2*bet1)) / determ ;
-    nbar1 = ((nbar1 < double(0)) && tronc) ? 0 : nbar1 ; 
-    nbar2 = ((nbar2 < double(0)) && tronc) ? 0 : nbar2 ;
+    nbar1 = (kap2*(exp(ent1) - m_1) - kpd*(exp(ent2) - m_2)) / determ ;
+    nbar2 = (kap1*(exp(ent2) - m_2) - kpd*(exp(ent1) - m_1)) / determ ;
+
+    if (tronc) {
+      if (nbar1 < 0.) {
+	nbar1 = 0. ;
+	nbar2 = (exp(ent2) - m_2)/kap2 ;
+	nbar2 = nbar2 < 0. ? 0. : nbar2 ;
+	return ;
+      }
+      if (nbar2 < 0.) {
+	nbar2 = 0. ;
+	nbar1 = (exp(ent1) - m_1)/kap1 ;
+	nbar1 = nbar1 < 0. ? 0. : nbar1 ;
+	return ;
+      }
+    }
+    return ;
   }
   else {
     cout << "Eos_bf_poly::nbar_ent_p: the case gamma_i != 2" << endl;
     cout << " is not implemented yet. Sorry!" << endl ;
     abort() ;
-    }
+  }
 }
 
 // Energy density from baryonic densities
@@ -373,11 +382,10 @@ double Eos_bf_poly::ener_nbar_p(const double nbar1, const double nbar2,
       double n1 = (nbar1>double(0) ? nbar1 : double(0)) ;
       double n2 = (nbar2>double(0) ? nbar2 : double(0)) ;
       double x2 = ((nbar1>double(0))&&(nbar2>double(0))) ? delta2 : 0 ;
-      if (x2 < double(0)) x2 = 0 ;
 
       double resu = 0.5*kap1*pow(n1, gam1) + 0.5*kap2*pow(n2,gam2)
 	+ kap3*pow(n1,gam3)*pow(n2,gam4) + m_1*n1 + m_2*n2
-	+ x2*(bet1*pow(n1,gam5) + bet2*pow(n2,gam6)) ;
+	+ x2*beta*pow(n1,gam5)*pow(n2,gam6) ;
       return resu ;
     }
     else return 0 ;
@@ -394,11 +402,10 @@ double Eos_bf_poly::press_nbar_p(const double nbar1, const double nbar2,
     double n1 = (nbar1>double(0) ? nbar1 : double(0)) ;
     double n2 = (nbar2>double(0) ? nbar2 : double(0)) ;
     double x2 = ((nbar1>double(0))&&(nbar2>double(0))) ? delta2 : 0 ;
-    if (x2 < double(0)) x2 = 0 ;
     
     double resu = 0.5*gam1m1*kap1*pow(n1,gam1) + 0.5*gam2m1*kap2*pow(n2,gam2)
       + gam34m1*kap3*pow(n1,gam3)*pow(n2,gam4) + 
-      x2*(gam5m1*bet1*pow(n1,gam5) + gam6m1*bet2*pow(n2,gam6)) ;
+      x2*gam56m1*beta*pow(n1,gam5)*pow(n2,gam6) ;
     
     return resu ;
   }
@@ -418,7 +425,7 @@ double Eos_bf_poly::get_K11(const double n1, const double n2, const
   else {
     xx = 0.5*gam1*kap1 * pow(n1,gam1 - 2) + m_1/n1 + 
       gam3*kap3 * pow(n1,gam3 - 2) * pow(n2,gam4) + 
-      delta2*gam5*bet1 * pow(n1,gam5 - 2) ;
+      delta2*gam5*beta * pow(n1,gam5 - 2)*pow(n2, gam6) ;
   }
   return xx ;
 }
@@ -433,7 +440,7 @@ double Eos_bf_poly::get_K22(const double n1, const double n2, const
   else {
     xx = 0.5*gam2*kap2 * pow(n2,gam2 - 2) + m_2/n2 + 
       gam3*kap3 * pow(n2,gam4 - 2) * pow(n1,gam3) + 
-      delta2*gam6*bet2 * pow(n2,gam6 - 2) ;
+      delta2*gam6*beta * pow(n1, gam5) * pow(n2,gam6 - 2) ;
   }
   return xx ;
 }
@@ -445,7 +452,7 @@ double Eos_bf_poly::get_K12(const double n1, const double n2, const
   if ((n1 <= 0.) || (n2 <= 0.)) { xx = 0.; }
   else { 
     double gamma_delta3 = pow(1-delta2,-1.5) ;
-    xx = 2*(bet1/n2 + bet2/n1) / gamma_delta3 ;
+    xx = 2*beta / gamma_delta3 ;
   }
   return xx ;
 }
