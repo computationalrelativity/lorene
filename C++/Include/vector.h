@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2003/10/20 14:44:49  e_gourgoulhon
+ * Class Vector_divfree: added method poisson().
+ *
  * Revision 1.14  2003/10/20 09:32:10  j_novak
  * Members p_potential and p_div_free of the Helmholtz decomposition
  * + the method decompose_div(Metric).
@@ -440,6 +443,17 @@ class Vector_divfree: public Vector {
 	 * \end{equation} 
 	 */
 	void update_vtvp() ;
+	
+	/** Computes the solution of a vectorial Poisson equation
+	 *  with {\tt *this} $= \vec{V}$ as a source:
+	 * \begin{equation}
+	 *    \Delta \vec{W} = \vec{V}
+	 * \end{equation} 
+	 * 
+	 * @return solution $\vec{W}$ of the above equation with the boundary
+	 *	condition $\vec{W}=0$ at spatial infinity.
+	 */
+	Vector_divfree poisson() const ; 
 	
 	
 };
