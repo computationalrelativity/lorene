@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.54  2004/05/07 11:26:10  f_limousin
+ * New method filtre_r(int*)
+ *
  * Revision 1.53  2004/03/22 13:12:43  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -751,6 +754,12 @@ class Scalar : public Tensor {
   void filtre (int n) ;
     
   /**
+   * Sets the \c n  lasts coefficients in \e r  to 0 in all
+   *  domains.
+   */
+  void filtre_r (int* nn) ;
+
+  /**
    * Sets the \c n  lasts coefficients in \f$\Phi\f$ to 0 in the 
    * domain \c zone .
    */
@@ -1117,7 +1126,6 @@ class Scalar : public Tensor {
 	 *   @return solution \e u . 
 	 */
 	Scalar poisson_angu() const ;
-
 
   /** Performs one time-step integration (from \f$t=J \to J+1\f$) of the 
    *   scalar d'Alembert equation with \c *this  being the value of 
