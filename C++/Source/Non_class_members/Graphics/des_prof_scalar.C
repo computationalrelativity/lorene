@@ -31,6 +31,10 @@ char des_prof_scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/02/17 22:18:00  e_gourgoulhon
+ * Changed prototype of des_profile_mult (added radial_scale, theta and
+ * phi can now vary from one profile to the other, etc...)
+ *
  * Revision 1.3  2004/02/16 13:23:33  e_gourgoulhon
  * Function des_profile_mult: added delete [] uutab at the end.
  *
@@ -138,15 +142,10 @@ void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
 //******************************************************************************
 
 void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max, 
-		     double theta, double phi, int ngraph, bool closeit, 
-             char* nomy, char* title) {
+	const double* theta, const double* phi, double radial_scale,
+        bool closeit, const char* nomy, const char* title, int ngraph,
+        const char* nomx, const int* line_style) {
 		
-#include "unites.h"
-    // To avoid some compiler warnings :
-    if (r_min < 0) {
-	cout << f_unit << qpig << msol << mevpfm3 << endl ;
-    }
-  
 
     const int npt = 400 ;   // Number of points along the axis
     double rr[npt] ; 
@@ -166,23 +165,23 @@ void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max,
         const Scalar& vv = *(uu[j]) ; 
 		
         for (int i=0; i<npt; i++) {
-            uutab[j*npt+i] = vv.val_point(rr[i], theta, phi) ; 
+            uutab[j*npt+i] = vv.val_point(rr[i], theta[j], phi[j]) ; 
         }
     }
 
     
-    float xmin = r_min / km ;
-    float xmax = r_max / km ;
+    float xmin = radial_scale * r_min ;
+    float xmax = radial_scale * r_max ;
     
-    char* nomx = "r [km]" ; 
-    
-    if (title == 0x0) title = "" ;
-    
+    if (nomx == 0x0) nomx = "r" ;
+
     if (nomy == 0x0) nomy = "" ;
+
+    if (title == 0x0) title = "" ;
    
     
-    des_profile_mult(uutab, nprof, npt, ngraph, closeit, xmin, xmax, 
-                     nomx, nomy, title) ; 
+    des_profile_mult(uutab, nprof, npt, xmin, xmax, nomx, nomy, title, 
+                     line_style, ngraph, closeit) ; 
                      
       
     delete [] uutab ; 
