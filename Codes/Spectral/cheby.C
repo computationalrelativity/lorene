@@ -29,6 +29,10 @@ char cheby_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/09/24 22:10:40  e_gourgoulhon
+ *
+ * Added computation of infinite norm of the error for each method
+ *
  * Revision 1.2  2002/09/24 13:15:31  e_gourgoulhon
  *
  * First operational version.
@@ -351,10 +355,13 @@ int main() {
     file.open("sol_gal.d") ;
     file << "#    x            uu_exact(x)        uu(x)      uu(x) - uu_exact(x)  "  << endl ;
     file.precision(8) ;
+    double err_max_gal = 0 ;
     for (int i=0; i<ndes; i++) {
     	double xd = -1. + h * i ;
     	double yuu_exact = exp(xd) - sinh(1.) / sinh(2.) * exp(2*xd) + cc / 4.  ;
     	double yuu = uu_gal.val_point(0, xd, 0., 0.) ;
+    	double err = fabs(yuu - yuu_exact) ;
+    	if (err > err_max_gal ) err_max_gal = err ;
     	file << xd << "  " << yuu_exact << "  " << yuu << "  "
 	     << yuu - yuu_exact << endl ;
     }
@@ -447,11 +454,14 @@ int main() {
     file.open("sol_tau.d") ;
     file << "#    x            uu_exact(x)        uu(x)      uu(x) - uu_exact(x)    uu(x) - uu_gal(x)"  << endl ;
     file.precision(8) ;
+    double err_max_tau = 0 ;
     for (int i=0; i<ndes; i++) {
     	double xd = -1. + h * i ;
     	double yuu_exact = exp(xd) - sinh(1.) / sinh(2.) * exp(2*xd) + cc / 4.  ;
     	double yuu = uu_tau.val_point(0, xd, 0., 0.) ;
     	double yuu_gal = uu_gal.val_point(0, xd, 0., 0.) ;
+    	double err = fabs(yuu - yuu_exact) ;
+    	if (err > err_max_tau ) err_max_tau = err ;
     	file << xd << "  " << yuu_exact << "  " << yuu << "  "
 	     << yuu - yuu_exact << "  " << yuu - yuu_gal << endl ;
     }
@@ -561,12 +571,15 @@ int main() {
     file <<
     "#    x            uu_exact(x)        uu(x)      uu(x)-uu_exact(x)    uu(x)-uu_gal(x)   uu(x)-uu_tau(x)"  << endl ;
     file.precision(8) ;
+    double err_max_psp = 0 ;
     for (int i=0; i<ndes; i++) {
     	double xd = -1. + h * i ;
     	double yuu_exact = exp(xd) - sinh(1.) / sinh(2.) * exp(2*xd) + cc / 4.  ;
     	double yuu = uu_psp.val_point(0, xd, 0., 0.) ;
     	double yuu_gal = uu_gal.val_point(0, xd, 0., 0.) ;
     	double yuu_tau = uu_tau.val_point(0, xd, 0., 0.) ;
+    	double err = fabs(yuu - yuu_exact) ;
+    	if (err > err_max_psp ) err_max_psp = err ;
     	file << xd << "  " << yuu_exact << "  " << yuu << "  "
 	     << yuu - yuu_exact << "  " << yuu - yuu_gal << "  " << yuu - yuu_tau << endl ;
     }
@@ -580,7 +593,9 @@ int main() {
     file.close() ;
 
 
-
+    cout << "Max of the error for Galerkin, tau and pseudospectral:" << endl ;
+    cout << nn-1 << "  " << err_max_gal << "  " << err_max_tau
+          << "  " << err_max_psp << endl ;
 
     return EXIT_SUCCESS ;
 
