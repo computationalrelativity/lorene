@@ -30,6 +30,9 @@ char et_bin_bhns_extr_ylm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/02/28 23:18:07  k_taniguchi
+ * Change the functions to constant ones
+ *
  * Revision 1.2  2005/01/03 19:52:56  k_taniguchi
  * Change a factor multiplied/divided by sqrt(2).
  *
@@ -50,7 +53,7 @@ char et_bin_bhns_extr_ylm_C[] = "$Header$" ;
 #include "tenseur.h"
 #include "et_bin_bhns_extr.h"
 
-void Et_bin_bhns_extr::get_ylm(int nylm, Cmp** ylmvec) {
+void Et_bin_bhns_extr::get_ylm(int nylm, Cmp** ylmvec) const {
   
   //  IMPORTANT NOTE:
   // For Y_lm with m>=1, we have the real and imaginary parts, 
@@ -243,7 +246,7 @@ void Et_bin_bhns_extr::get_ylm(int nylm, Cmp** ylmvec) {
 }
 
 void Et_bin_bhns_extr::get_integrals(int nylm, double* intvec, Cmp** ylmvec,
-				     Cmp source) {
+				     Cmp source) const {
 
   // As mentioned in the comment before get_ylm, our real/imaginary
   // representation of the Y_lm Cmp's does not agree with the normalization 
