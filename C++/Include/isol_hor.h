@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/11/24 19:32:05  jl_jaramillo
+ * Method for initial data with Berlin boundary conditions
+ *
  * Revision 1.13  2004/11/18 10:53:03  jl_jaramillo
  * Declarations for Berlin boundary conditions
  *
@@ -199,6 +202,9 @@ class Isol_hor : public Time_slice_conf {
  public:
   
   void init_data(double precis = 1.e-12,
+		 double relax = 1., int niter = 100, double ang_vel = 0.) ; 
+
+  void init_data_b_neumann(double precis = 1.e-12,
 		 double relax = 1., int niter = 100, double ang_vel = 0.) ; 
 
 
