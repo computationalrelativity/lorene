@@ -33,6 +33,9 @@ char poisson_angu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/04/05 08:34:10  e_gourgoulhon
+ * Treatment case l(l+1) = lambda.
+ *
  * Revision 1.3  2005/04/04 21:33:37  e_gourgoulhon
  * Solving now for the generalized angular Poisson equation
  *    Lap_ang u + lambda u = source
@@ -98,7 +101,7 @@ void _poisangu_t_leg(Mtbl_cf* mt, int l, double lambda)
 		int ll = j ;
 		double xl = - ll*(ll+1) + lambda ;
 
-		if (ll == 0) {
+		if (fabs(xl) < 1.e-14) {
 			for (i=0 ; i<nr ; i++) {
 	    		tuu[i] = 0 ;
 			}	
@@ -122,7 +125,7 @@ void _poisangu_t_leg(Mtbl_cf* mt, int l, double lambda)
 	    int ll = j ;
 	    double xl = - ll*(ll+1) + lambda ;
 		
-		if (ll == 0) {
+		if (fabs(xl) < 1.e-14) {
 			for (i=0 ; i<nr ; i++) {
 	    		tuu[i] = 0 ;
 			}	
@@ -169,7 +172,7 @@ void _poisangu_t_leg_p(Mtbl_cf* mt, int l, double lambda)
 		int ll = 2*j ;
 		double xl = - ll*(ll+1) + lambda ;
 
-		if (ll == 0) {
+		if (fabs(xl) < 1.e-14) {
 			for (i=0 ; i<nr ; i++) {
 	    		tuu[i] = 0 ;
 			}	
@@ -193,7 +196,7 @@ void _poisangu_t_leg_p(Mtbl_cf* mt, int l, double lambda)
 	    int ll = 2*j + (m%2) ;
 	    double xl = - ll*(ll+1) + lambda ;
 		
-		if (ll == 0) {
+		if (fabs(xl) < 1.e-14) {
 			for (i=0 ; i<nr ; i++) {
 	    		tuu[i] = 0 ;
 			}	
@@ -240,7 +243,7 @@ void _poisangu_t_leg_pp(Mtbl_cf* mt, int l, double lambda)
 		int ll = 2*j ;
 		double xl = - ll*(ll+1) + lambda ;
 
-		if (ll == 0) {
+		if (fabs(xl) < 1.e-14) {
 			for (i=0 ; i<nr ; i++) {
 	    		tuu[i] = 0 ;
 			}	
@@ -264,7 +267,7 @@ void _poisangu_t_leg_pp(Mtbl_cf* mt, int l, double lambda)
 	    int ll = 2*j ;
 	    double xl = - ll*(ll+1) + lambda ;
 
-		if (ll == 0) {
+		if (fabs(xl) < 1.e-14) {
 			for (i=0 ; i<nr ; i++) {
 	    		tuu[i] = 0 ;
 			}	
@@ -311,7 +314,7 @@ void _poisangu_t_leg_i(Mtbl_cf* mt, int l, double lambda)
 		int ll = 2*j+1 ;
 		double xl = - ll*(ll+1) + lambda ;
 
-		if (ll == 0) {
+		if (fabs(xl) < 1.e-14) {
 			for (i=0 ; i<nr ; i++) {
 	    		tuu[i] = 0 ;
 			}	
@@ -336,7 +339,7 @@ void _poisangu_t_leg_i(Mtbl_cf* mt, int l, double lambda)
 	    int ll = 2*j + ((m+1)%2) ;
 	    double xl = - ll*(ll+1) + lambda ;
 
-		if (ll == 0) {
+		if (fabs(xl) < 1.e-14) {
 			for (i=0 ; i<nr ; i++) {
 	    		tuu[i] = 0 ;
 			}	
@@ -384,7 +387,7 @@ void _poisangu_t_leg_ip(Mtbl_cf* mt, int l, double lambda)
 		int ll = 2*j+1 ;
 		double xl = - ll*(ll+1) + lambda ;
 
-		if (ll == 0) {
+		if (fabs(xl) < 1.e-14) {
 			for (i=0 ; i<nr ; i++) {
 	    		tuu[i] = 0 ;
 			}	
@@ -409,7 +412,7 @@ void _poisangu_t_leg_ip(Mtbl_cf* mt, int l, double lambda)
 	    int ll = 2*j+1 ;
 	    double xl = - ll*(ll+1) + lambda ;
 
-		if (ll == 0) {
+		if (fabs(xl) < 1.e-14) {
 			for (i=0 ; i<nr ; i++) {
 	    		tuu[i] = 0 ;
 			}	
@@ -459,7 +462,7 @@ void _poisangu_t_leg_pi(Mtbl_cf* mt, int l, double lambda)
 		int ll = 2*j+1 ;
 		double xl = - ll*(ll+1) + lambda ;
 
-		if (ll == 0) {
+		if (fabs(xl) < 1.e-14) {
 			for (i=0 ; i<nr ; i++) {
 	    		tuu[i] = 0 ;
 			}	
@@ -487,7 +490,7 @@ void _poisangu_t_leg_pi(Mtbl_cf* mt, int l, double lambda)
 		int ll = 2*j+1 ;
 		double xl = - ll*(ll+1) + lambda ;
 
-		if (ll == 0) {
+		if (fabs(xl) < 1.e-14) {
 			for (i=0 ; i<nr ; i++) {
 	    		tuu[i] = 0 ;
 			}	
@@ -510,7 +513,7 @@ void _poisangu_t_leg_pi(Mtbl_cf* mt, int l, double lambda)
 	    int ll = 2*j+1 ;
 	    double xl = - ll*(ll+1) + lambda ;
 
-		if (ll == 0) {
+		if (fabs(xl) < 1.e-14) {
 			for (i=0 ; i<nr ; i++) {
 	    		tuu[i] = 0 ;
 			}	
@@ -560,7 +563,7 @@ void _poisangu_t_leg_ii(Mtbl_cf* mt, int l, double lambda)
 		int ll = 2*j ;
 		double xl = - ll*(ll+1) + lambda ;
 
-		if (ll == 0) {
+		if (fabs(xl) < 1.e-14) {
 			for (i=0 ; i<nr ; i++) {
 	    		tuu[i] = 0 ;
 			}	
@@ -588,7 +591,7 @@ void _poisangu_t_leg_ii(Mtbl_cf* mt, int l, double lambda)
 		int ll = 2*j+1 ;
 		double xl = - ll*(ll+1) + lambda ;
 
-		if (ll == 0) {
+		if (fabs(xl) < 1.e-14) {
 			for (i=0 ; i<nr ; i++) {
 	    		tuu[i] = 0 ;
 			}	
@@ -611,7 +614,7 @@ void _poisangu_t_leg_ii(Mtbl_cf* mt, int l, double lambda)
 	    int ll = 2*j ;
 	    double xl = - ll*(ll+1) + lambda ;
 
-		if (ll == 0) {
+		if (fabs(xl) < 1.e-14) {
 			for (i=0 ; i<nr ; i++) {
 	    		tuu[i] = 0 ;
 			}	
