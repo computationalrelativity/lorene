@@ -34,6 +34,13 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2002/12/19 14:48:00  e_gourgoulhon
+ *
+ * Class Etoile_bin: added the new functions:
+ * 	void update_metric(const Bhole& comp)
+ *  	void update_metric_der_comp(const Bhole& comp)
+ * to treat the case where the companion is a black hole
+ *
  * Revision 1.7  2002/12/17 21:17:08  e_gourgoulhon
  * Class Etoile_bin: suppression of the member p_companion
  *                   as well as the associated functions set_companion
@@ -273,6 +280,7 @@
 // Headers Lorene
 #include "tenseur.h"
 class Eos ;
+class Bhole ;
 
 
 			//---------------------------//
@@ -883,7 +891,7 @@ class Etoile_bin : public Etoile {
 	 *	    and {\tt ssjm1\_wshift} whose components are defined
 	 *	    with respect to the mapping {\tt mp} Cartesian triad. 
 	 */
-	Etoile_bin(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i, 
+	Etoile_bin(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
 		   bool irrot, const Base_vect& ref_triad_i) ;			
 	
 	
@@ -1133,27 +1141,36 @@ class Etoile_bin : public Etoile {
 	 */
 	virtual void hydro_euler() ; 
 	
-	/** Computes metric coefficients from known potentials. 
-	 * 
+	/** Computes metric coefficients from known potentials,
+	 * when the companion is another star.
+	 *
 	 *  The calculation is performed starting from the quantities
-	 *  {\tt logn\_auto},  {\tt beta\_auto}, {\tt shift\_auto}, 
-	 *  {\tt comp.logn\_auto},  {\tt comp.beta\_auto}, 
+	 *  {\tt logn\_auto},  {\tt beta\_auto}, {\tt shift\_auto},
+	 *  {\tt comp.logn\_auto},  {\tt comp.beta\_auto},
 	 *  {\tt comp.shift\_auto}
-	 *  which are supposed to be up to date.  
+	 *  which are supposed to be up to date.
 	 *  From these,  the following fields are updated:
-	 *  {\tt logn\_comp}, {\tt beta\_comp}, {\tt shift\_comp}, 
-	 *  {\tt nnn},  {\tt a\_car},  {\tt shift}, 
-	 *  {\tt d\_logn\_auto}, {\tt d\_beta\_auto}, {\tt tkij\_auto}, 
-	 *  {\tt akcar\_auto}.  
-	 * 
+	 *  {\tt logn\_comp}, {\tt beta\_comp}, {\tt shift\_comp},
+	 *  {\tt nnn},  {\tt a\_car},  {\tt shift},
+	 *  {\tt d\_logn\_auto}, {\tt d\_beta\_auto}, {\tt tkij\_auto},
+	 *  {\tt akcar\_auto}.
+	 *
 	 *  @param comp companion star.
-	 * 
+	 *
 	 */
-	void update_metric(const Etoile_bin& comp) ; 
-	
+	void update_metric(const Etoile_bin& comp) ;
+
+	/** Computes metric coefficients from known potentials,
+	 *  when the companion is a black hole.
+	 *
+	 *  @param comp companion black hole
+	 *
+	 */
+	void update_metric(const Bhole& comp) ;
+
 	/** Same as {\tt update\_metric(const Etoile\_bin\& )} but with
-	 *  relaxation. 
-	 * 
+	 *  relaxation.
+	 *
 	 *  @param comp companion star.
 	 *  @param star_prev previous value of the star. 
 	 *  @param relax relaxation parameter. 
@@ -1163,22 +1180,30 @@ class Etoile_bin : public Etoile {
 			   double relax) ; 
 	
 	/** Computes the derivative of metric functions related to the
-	 *  companion star. 
-	 * 
+	 *  companion star.
+	 *
 	 *  The calculation is performed starting from the quantities
-	 *  {\tt comp.d\_logn\_auto},  {\tt comp.d\_beta\_auto}, 
+	 *  {\tt comp.d\_logn\_auto},  {\tt comp.d\_beta\_auto},
 	 *  {\tt comp.tkij\_auto}
-	 *  which are supposed to be up to date.  
+	 *  which are supposed to be up to date.
 	 *  From these,  the following fields are updated:
-	 *  {\tt d\_logn\_comp}, {\tt d\_beta\_comp}, {\tt tkij\_comp}, 
-	 *  {\tt akcar\_comp}.  
-	 * 
+	 *  {\tt d\_logn\_comp}, {\tt d\_beta\_comp}, {\tt tkij\_comp},
+	 *  {\tt akcar\_comp}.
+	 *
 	 *  @param comp companion star.
-	 * 
+	 *
 	 */
-	void update_metric_der_comp(const Etoile_bin& comp) ; 
-	
-	/** Computes the quantities {\tt bsn} and {\tt pot\_centri}. 
+	void update_metric_der_comp(const Etoile_bin& comp) ;
+
+	/** Computes the derivative of metric functions related to the
+	 *  companion black hole.
+	 *
+	 *  @param comp companion BH.
+	 *
+	 */
+	void update_metric_der_comp(const Bhole& comp) ;
+
+	/** Computes the quantities {\tt bsn} and {\tt pot\_centri}.
 	 * 
 	 *  The calculation is performed starting from the quantities
 	 *  {\tt nnn}, {\tt shift},  {\tt a\_car},  
