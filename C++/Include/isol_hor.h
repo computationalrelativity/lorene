@@ -29,6 +29,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/11/05 11:01:13  f_limousin
+ * Delete arguments ener_dens, mom_dens and trace_stress in all functions
+ * source_nn, source_psi, source_beta, init_data. Delete also
+ * argument partial_save in function save.
+ *
  * Revision 1.11  2004/11/05 10:11:23  f_limousin
  * The member Metric met_gamt replace Sym_tensor gamt.
  *
@@ -185,9 +190,7 @@ class Isol_hor : public Time_slice_conf {
  public:
   
   void init_data(double precis = 1.e-12,
-		 double relax = 1., int niter = 100, double ang_vel = 0.,
-		 const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
-		 const Scalar* trace_stress=0x0 ) ; 
+		 double relax = 1., int niter = 100, double ang_vel = 0.) ; 
         
 
 
@@ -195,16 +198,13 @@ class Isol_hor : public Time_slice_conf {
   //-------
   
   // Source Psi
-  Scalar source_psi(const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
-		 const Scalar* trace_stress=0x0) ;
+  Scalar source_psi() ;
 
   // Source NN
-  Scalar source_nn(const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
-		 const Scalar* trace_stress=0x0) ;
+  Scalar source_nn() ;
 
   // Source beta
-  Vector source_beta(const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
-		 const Scalar* trace_stress=0x0) ;
+  Vector source_beta() ;
   
 
   // BOUNDARY CONDITIONS
@@ -281,7 +281,7 @@ class Isol_hor : public Time_slice_conf {
    *  @param partial_save indicates whether the whole object must be
    *      saved.
    */
-  virtual void sauve(FILE* fich, bool partial_save) const ; 
+      void sauve(FILE* fich) const ; 
     
   
 };
