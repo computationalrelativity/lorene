@@ -32,6 +32,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2005/03/25 19:55:41  e_gourgoulhon
+ * Added the arguments nbound and xbound or draw_bound to the
+ * functions des_profile and des_profile_mult
+ * (draw of the domain boundaries).
+ *
  * Revision 1.17  2005/03/24 22:00:08  e_gourgoulhon
  * -- New functions des_coupe_* to plot a  Scalar and a Vector
  * -- Reorganization of documentation (functions referring to a Cmp
@@ -206,11 +211,15 @@ template<typename TyT> class Evolution ;
  *  @param title [input] title of the figure
  *  @param device [input] PGPLOT device (default value = 0x0, will result in
  *  interactive choice)
- *
+ *  @param nbound [input] number of domain boundaries to be drawn (default value
+ *      = 0, meaning that the domain boundaries are not drawn)
+ *  @param xbound [input] array of size \c nbound containing the abscidia of 
+ *          each domain boundary
  */
 void des_profile(const float* uutab, int nx, float xmin, float xmax, 
 		 const char* nomx, const char* nomy, const char* title, 
-                 const char* device = 0x0) ;
+                 const char* device = 0x0, int nbound = 0, 
+                 float* xbound = 0x0) ;
 
 
 /** Basic routine for drawing multiple profiles with uniform x sampling.
@@ -238,12 +247,16 @@ void des_profile(const float* uutab, int nx, float xmin, float xmax,
  *      after the plot has been performed
  *  @param device [input] PGPLOT device (default value = 0x0, will result in
  *  interactive choice)
- *
+ *  @param nbound [input] number of domain boundaries to be drawn (default value
+ *      = 0, meaning that the domain boundaries are not drawn)
+ *  @param xbound [input] array of size \c nbound containing the abscidia of 
+ *          each domain boundary
  */
 void des_profile_mult(const float* uutab, int nprof, int nx, 
             float xmin, float xmax, const char* nomx, 
             const char* nomy, const char* title, const int* line_style, 
-            int ngraph, bool closeit, const char* device = 0x0) ; 
+            int ngraph, bool closeit, const char* device = 0x0,
+            int nbound = 0, float* xbound = 0x0) ; 
 
 
 /** Basic routine for drawing multiple profiles with arbitrary x sampling.
@@ -271,12 +284,16 @@ void des_profile_mult(const float* uutab, int nprof, int nx,
  *      after the plot has been performed
  *  @param device [input] PGPLOT device (default value = 0x0, will result in
  *  interactive choice)
- *
+ *  @param nbound [input] number of domain boundaries to be drawn (default value
+ *      = 0, meaning that the domain boundaries are not drawn)
+ *  @param xbound [input] array of size \c nbound containing the abscidia of 
+ *          each domain boundary
  */
 void des_profile_mult(const float* uutab, int nprof, int nx, 
             const float* xtab, const char* nomx, 
             const char* nomy, const char* title, const int* line_style, 
-            int ngraph, bool closeit, const char* device = 0x0) ; 
+            int ngraph, bool closeit, const char* device = 0x0, int nbound = 0, 
+            float* xbound = 0x0) ; 
 
 
 /** Basic routine for drawing isocontours.
@@ -285,10 +302,10 @@ void des_profile_mult(const float* uutab, int nprof, int nx,
  *  values of the field. 
  *
  *  @param uutab [input] field to be drawn;  
- *	    the value of the field a the point of coordinates \\
- *		      x_i = xmin + i (xmax-xmin)/(nx-1)     0 <= i <= nx-1 \\  
- *		      y_j = ymin + j (ymax-ymin)/(ny-1)     0 <= j <= ny-1 \\
- *     must be stored at the following position in the float 1-D array uu : \\
+ *	    the value of the field a the point of coordinates \n
+ *		      x_i = xmin + i (xmax-xmin)/(nx-1)     0 <= i <= nx-1 \n  
+ *		      y_j = ymin + j (ymax-ymin)/(ny-1)     0 <= j <= ny-1 \n
+ *     must be stored at the following position in the float 1-D array uu : \n
  *			index = j * nx + i 
  *  @param nx [input]  number of points in the x direction
  *  @param ny [input]  number of points in the y direction
@@ -301,11 +318,11 @@ void des_profile_mult(const float* uutab, int nprof, int nx,
  *  @param nomy [input] y legend of the figure
  *  @param title [input] title of the figure
  *  @param device [input] PGPLOT device (default value = 0x0)
- *  @param newgraph [input] controls the opening/closing of the graphic device: \\
- *			0 : does nothing (the device must be already opened) \\
- *			1 : opens the device but does not close it at the end \\
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \n
+ *			0 : does nothing (the device must be already opened) \n
+ *			1 : opens the device but does not close it at the end \n
  *			2 : closes the device at the end but does not open it at
- *			    the beginning \\
+ *			    the beginning \n
  *		        3 (default value) : opens and closes the device 
  *			    
  *  @param nxpage [input] number of graphs in the horizontal direction of the
@@ -324,10 +341,10 @@ void des_equipot(float* uutab, int nx, int ny, float xmin, float xmax,
  * 
  *
  *  @param vvx [input] x-component of the vector field to be drawn ;  
- *	    the value of the field a the point of coordinates \\
- *		      x_i = xmin + i (xmax-xmin)/(nx-1)     0 <= i <= nx-1 \\  
- *		      y_j = ymin + j (ymax-ymin)/(ny-1)     0 <= j <= ny-1 \\
- *     must be stored at the following position in the float 1-D array uu : \\
+ *	    the value of the field a the point of coordinates \n
+ *		      x_i = xmin + i (xmax-xmin)/(nx-1)     0 <= i <= nx-1 \n  
+ *		      y_j = ymin + j (ymax-ymin)/(ny-1)     0 <= j <= ny-1 \n
+ *     must be stored at the following position in the float 1-D array uu : \n
  *			index = j * nx + i 
  *  @param vvy [input] y-component of the vector field to be drawn ;  
  *		       same storage as \c vvx .
@@ -339,22 +356,22 @@ void des_equipot(float* uutab, int nx, int ny, float xmin, float xmax,
  *  @param ymax [input] highest value of y
  *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
- *			 the routine: \\
+ *			 the routine: \n
  *			\c scale = -1  : max. length = step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			\c scale = -2  : max. length = 2* step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
  *  @param nomx [input] x legend of the figure
  *  @param nomy [input] y legend of the figure
  *  @param title [input] title of the figure
  *  @param device [input] PGPLOT device (default value = 0x0)
- *  @param newgraph [input] controls the opening/closing of the graphic device: \\
- *			0 : does nothing (the device must be already opened) \\
- *			1 : opens the device but does not close it at the end \\
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \n
+ *			0 : does nothing (the device must be already opened) \n
+ *			1 : opens the device but does not close it at the end \n
  *			2 : closes the device at the end but does not open it at
- *			    the beginning \\
+ *			    the beginning \n
  *		        3 (default value) : opens and closes the device 
  *			    
  *  @param nxpage [input] number of graphs in the horizontal direction of the
@@ -382,11 +399,11 @@ void des_vect(float* vvx, float* vvy, int nx, int ny, float xmin, float xmax,
  *  @param x0 [input] value of the coordinate X which defines the plane
  *		      of the drawing
  *  @param device [input] PGPLOT device (default value = 0x0)
- *  @param newgraph [input] controls the opening/closing of the graphic device: \\
- *			0 : does nothing (the device must be already opened) \\
- *			1 : opens the device but does not close it at the end \\
+ *  @param newgraph [input] controls the opening/closing of the graphic device:\n
+ *			0 : does nothing (the device must be already opened) \n
+ *			1 : opens the device but does not close it at the end \n
  *			2 : closes the device at the end but does not open it at
- *			    the beginning \\
+ *			    the beginning \n
  *		        3 (default value) : opens and closes the device 
  *  @param y_min [input] lowest value of absol. coord. Y (default value = -1)
  *  @param y_max [input] highest value of absol. coord. Y (default value = 1)
@@ -421,11 +438,11 @@ void des_domaine_x(const Map& mp, int l0, double x0, char* device = 0x0,
  *  @param y0 [input] value of the coordinate Y which defines the plane
  *		      of the drawing
  *  @param device [input] PGPLOT device (default value = 0x0)
- *  @param newgraph [input] controls the opening/closing of the graphic device: \\
- *			0 : does nothing (the device must be already opened) \\
- *			1 : opens the device but does not close it at the end \\
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \n
+ *			0 : does nothing (the device must be already opened) \n
+ *			1 : opens the device but does not close it at the end \n
  *			2 : closes the device at the end but does not open it at
- *			    the beginning \\
+ *			    the beginning \n
  *		        3 (default value) : opens and closes the device 
  *  @param x_min [input] lowest value of absol. coord. X (default value = -1)
  *  @param x_max [input] highest value of absol. coord. X (default value = 1)
@@ -460,11 +477,11 @@ void des_domaine_y(const Map& mp, int l0, double y0, char* device = 0x0,
  *  @param z0 [input] value of the coordinate Z which defines the plane
  *		      of the drawing
  *  @param device [input] PGPLOT device (default value = 0x0)
- *  @param newgraph [input] controls the opening/closing of the graphic device: \\
- *			0 : does nothing (the device must be already opened) \\
- *			1 : opens the device but does not close it at the end \\
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \n
+ *			0 : does nothing (the device must be already opened) \n
+ *			1 : opens the device but does not close it at the end \n
  *			2 : closes the device at the end but does not open it at
- *			    the beginning \\
+ *			    the beginning \n
  *		        3 (default value) : opens and closes the device 
  *  @param x_min [input] lowest value of absol. coord. X (default value = -1)
  *  @param x_max [input] highest value of absol. coord. X (default value = 1)
@@ -499,11 +516,11 @@ void des_domaine_z(const Map& mp, int l0, double z0, char* device = 0x0,
  *  @param nomy [input] y legend of the figure 
  *  @param title [input] title of the figure
  *  @param device [input] PGPLOT device (default value = 0x0)
- *  @param newgraph [input] controls the opening/closing of the graphic device: \\
- *			0 : does nothing (the device must be already opened) \\
- *			1 : opens the device but does not close it at the end \\
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \n
+ *			0 : does nothing (the device must be already opened) \n
+ *			1 : opens the device but does not close it at the end \n
  *			2 : closes the device at the end but does not open it at
- *			    the beginning \\
+ *			    the beginning \n
  *		        3 (default value) : opens and closes the device 
  *			    
  *  @param nxpage [input] number of graphs in the horizontal direction of the
@@ -548,11 +565,11 @@ void des_coef(const double* cf, int n, double pzero,
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
  *  @param device [input] PGPLOT device (default value = 0x0)
- *  @param newgraph [input] controls the opening/closing of the graphic device: \\
- *			0 : does nothing (the device must be already opened) \\
- *			1 : opens the device but does not close it at the end \\
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \n
+ *			0 : does nothing (the device must be already opened) \n
+ *			1 : opens the device but does not close it at the end \n
  *			2 : closes the device at the end but does not open it at
- *			    the beginning \\
+ *			    the beginning \n
  *		        3 (default value) : opens and closes the device 
  *			    
  *  @param nxpage [input] number of graphs in the horizontal direction of the
@@ -591,11 +608,11 @@ void des_coef_xi(const Valeur& uu, int l, int k, int j, double pzero = 1.e-14,
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
  *  @param device [input] PGPLOT device (default value = 0x0)
- *  @param newgraph [input] controls the opening/closing of the graphic device: \\
- *			0 : does nothing (the device must be already opened) \\
- *			1 : opens the device but does not close it at the end \\
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \n
+ *			0 : does nothing (the device must be already opened) \n
+ *			1 : opens the device but does not close it at the end \n
  *			2 : closes the device at the end but does not open it at
- *			    the beginning \\
+ *			    the beginning \n
  *		        3 (default value) : opens and closes the device 
  *			    
  *  @param nxpage [input] number of graphs in the horizontal direction of the
@@ -634,11 +651,11 @@ void des_coef_theta(const Valeur& uu, int l, int k, int i, double pzero = 1.e-14
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
  *  @param device [input] PGPLOT device (default value = 0x0)
- *  @param newgraph [input] controls the opening/closing of the graphic device: \\
- *			0 : does nothing (the device must be already opened) \\
- *			1 : opens the device but does not close it at the end \\
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \n
+ *			0 : does nothing (the device must be already opened) \n
+ *			1 : opens the device but does not close it at the end \n
  *			2 : closes the device at the end but does not open it at
- *			    the beginning \\
+ *			    the beginning \n
  *		        3 (default value) : opens and closes the device 
  *			    
  *  @param nxpage [input] number of graphs in the horizontal direction of the
@@ -678,13 +695,30 @@ void des_map_et(const Map_et& mp, int lz) ;
  * @{
  */
  
+/** Draws the profile of a \c Scalar  along some radial axis determined by
+ *  a fixed value of \f$(\theta, \phi)\f$ (version with x-axis labelled with
+ *      Lorene's unit of length)
+ *
+ *  @param uu [input] \c Scalar  to be drawn
+ *  @param r_min [input] Minimal value of \e r  for the drawing
+ *  @param r_max [input] Maximal value of \e r  for the drawing
+ *  @param theta [input] Value of \f$\theta\f$ which defines the profile axis
+ *  @param phi [input] Value of \f$\phi\f$ which defines the profile axis
+ *  @param nomy [input] y legend of the figure (default value = 0x0,  
+ *		        corresponds to no y legend)
+ *  @param title [input] title of the figure (default value = 0x0, 
+ *			corresponds to no title)
+ *  @param draw_bound [input] true for drawing the boundaries of the various
+ *			      domains (default value = true)
+ * 
+ */
 void des_profile(const Scalar& uu, double r_min, double r_max, 
 		     double theta, double phi, char* nomy = 0x0,  
-		     char* title = 0x0 ) ;
+		     char* title = 0x0, bool draw_bound = true) ;
 
 
 /** Draws the profile of a \c Scalar  along some radial axis determined by
- *  a fixed value of \f$(\theta, \phi)\f$. 
+ *  a fixed value of \f$(\theta, \phi)\f$ (general version)
  *
  *  @param uu [input] \c Scalar  to be drawn
  *  @param r_min [input] Minimal value of \e r  for the drawing
@@ -698,12 +732,14 @@ void des_profile(const Scalar& uu, double r_min, double r_max,
  *		        corresponds to no y legend)
  *  @param title [input] title of the figure (default value = 0x0, 
  *			corresponds to no title)
+ *  @param draw_bound [input] true for drawing the boundaries of the various
+ *			      domains (default value = true)
  * 
  */
- 
 void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
 		     double theta, double phi, char* nomx = 0x0, 
-		     char* nomy = 0x0, char* title= 0x0) ;
+		     char* nomy = 0x0, char* title= 0x0,
+                     bool draw_bound = true) ;
 
 
 /** Draws the profile of \c Scalar 's along some radial axis determined by
@@ -742,13 +778,16 @@ void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
  *  result in interactive choice; \c "/xwin" in X-Window display; 
  *  \c "filename.eps/cps" in Encapsulated PostScript output 
  *  and \c "/n" in no output.    
+ *  @param draw_bound [input] true for drawing the boundaries of the various
+ *			      domains (default value = true)
  */
  
 void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max, 
         const double* theta, const double* phi, double radial_scale = 1, 
         bool closeit = true,  const char* nomy  = 0x0, 
         const char* title = 0x0, int ngraph = 0, const char* nomx  = 0x0, 
-        const int* line_style = 0x0, const char* device = 0x0) ;
+        const int* line_style = 0x0, const char* device = 0x0,
+        bool draw_bound = true) ;
 
 
 /** Draws 5 profiles of a scalar field along various radial axes 
@@ -772,10 +811,12 @@ void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max,
  *  and \c "/n" in no output.  
  *  @param closeit [input] determines whether the graphic device must be closed or not
  *      after the plot has been performed
+ *  @param draw_bound [input] true for drawing the boundaries of the various
+ *			      domains (default value = true)
  */
 void des_meridian(const Scalar& uu, double r_min, double r_max,
                   const char* nomy, int ngraph, const char* device = 0x0,
-                  bool closeit = false) ; 
+                  bool closeit = false, bool draw_bound = true) ; 
 
 
 
@@ -791,11 +832,11 @@ void des_meridian(const Scalar& uu, double r_min, double r_max,
  *  @param x0 [input] value of the absolute coordinate X which defines the plane
  *		      of the drawing
  *  @param device [input] PGPLOT device (default value = 0x0)
- *  @param newgraph [input] controls the opening/closing of the graphic device: \\
- *			0 : does nothing (the device must be already opened) \\
- *			1 : opens the device but does not close it at the end \\
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \n
+ *			0 : does nothing (the device must be already opened) \n
+ *			1 : opens the device but does not close it at the end \n
  *			2 : closes the device at the end but does not open it at
- *			    the beginning \\
+ *			    the beginning \n
  *		        3 (default value) : opens and closes the device 
  *  @param y_min [input] lowest value of absol. coord. Y (default value = -1)
  *  @param y_max [input] highest value of absol. coord. Y (default value = 1)
@@ -829,11 +870,11 @@ void des_surface_x(const Scalar& defsurf, double x0, char* device = 0x0,
  *  @param y0 [input] value of the coordinate Y which defines the plane
  *		      of the drawing
  *  @param device [input] PGPLOT device (default value = 0x0)
- *  @param newgraph [input] controls the opening/closing of the graphic device: \\
- *			0 : does nothing (the device must be already opened) \\
- *			1 : opens the device but does not close it at the end \\
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \n
+ *			0 : does nothing (the device must be already opened) \n
+ *			1 : opens the device but does not close it at the end \n
  *			2 : closes the device at the end but does not open it at
- *			    the beginning \\
+ *			    the beginning \n
  *		        3 (default value) : opens and closes the device 
  *  @param x_min [input] lowest value of absol. coord. X (default value = -1)
  *  @param x_max [input] highest value of absol. coord. X (default value = 1)
@@ -868,11 +909,11 @@ void des_surface_y(const Scalar& defsurf, double y0, char* device = 0x0,
  *  @param z0 [input] value of the coordinate Z which defines the plane
  *		      of the drawing
  *  @param device [input] PGPLOT device (default value = 0x0)
- *  @param newgraph [input] controls the opening/closing of the graphic device: \\
- *			0 : does nothing (the device must be already opened) \\
- *			1 : opens the device but does not close it at the end \\
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \n
+ *			0 : does nothing (the device must be already opened) \n
+ *			1 : opens the device but does not close it at the end \n
  *			2 : closes the device at the end but does not open it at
- *			    the beginning \\
+ *			    the beginning \n
  *		        3 (default value) : opens and closes the device 
  *  @param x_min [input] lowest value of absol. coord. X (default value = -1)
  *  @param x_max [input] highest value of absol. coord. X (default value = 1)
@@ -1110,11 +1151,11 @@ void des_coupe_z(const Scalar& uu, double z0, double x_min, double x_max,
  *		      of the drawing
  *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
- *			 the routine: \\
+ *			 the routine: \n
  *			\c scale = -1  : max. length = step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			\c scale = -2  : max. length = 2* step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
  *  @param nzdes [input] number of domains for which the plot is performed:
@@ -1151,11 +1192,11 @@ void des_coupe_vect_x(const Vector& vv, double x0, double scale, double sizefl,
  *		      of the drawing
  *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
- *			 the routine: \\
+ *			 the routine: \n
  *			\c scale = -1  : max. length = step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			\c scale = -2  : max. length = 2* step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
  *  @param y_min [input] lowest value of absol. coord. Y 
@@ -1187,11 +1228,11 @@ void des_coupe_vect_x(const Vector& vv, double x0, double scale, double
  *		      of the drawing
  *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
- *			 the routine: \\
+ *			 the routine: \n
  *			\c scale = -1  : max. length = step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			\c scale = -2  : max. length = 2* step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
  *  @param nzdes [input] number of domains for which the plot is performed:
@@ -1228,11 +1269,11 @@ void des_coupe_vect_y(const Vector& vv, double y0, double scale, double sizefl,
  *		      of the drawing
  *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
- *			 the routine: \\
+ *			 the routine: \n
  *			\c scale = -1  : max. length = step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			\c scale = -2  : max. length = 2* step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
  *  @param x_min [input] lowest value of absol. coord. X 
@@ -1264,11 +1305,11 @@ void des_coupe_vect_y(const Vector& vv, double y0, double scale, double
  *		      of the drawing
  *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
- *			 the routine: \\
+ *			 the routine: \n
  *			\c scale = -1  : max. length = step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			\c scale = -2  : max. length = 2* step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
  *  @param nzdes [input] number of domains for which the plot is performed:
@@ -1305,11 +1346,11 @@ void des_coupe_vect_z(const Vector& vv, double z0, double scale, double sizefl,
  *		      of the drawing
  *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
- *			 the routine: \\
+ *			 the routine: \n
  *			\c scale = -1  : max. length = step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			\c scale = -2  : max. length = 2* step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
  *  @param x_min [input] lowest value of absol. coord. X 
@@ -1826,11 +1867,11 @@ void des_coupe_bin_z(const Cmp& uu1, const Cmp& uu2, double z0, double x_min,
  *  @param x0 [input] value of the absolute coordinate X which defines the plane
  *		      of the drawing
  *  @param device [input] PGPLOT device (default value = 0x0)
- *  @param newgraph [input] controls the opening/closing of the graphic device: \\
- *			0 : does nothing (the device must be already opened) \\
- *			1 : opens the device but does not close it at the end \\
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \n
+ *			0 : does nothing (the device must be already opened) \n
+ *			1 : opens the device but does not close it at the end \n
  *			2 : closes the device at the end but does not open it at
- *			    the beginning \\
+ *			    the beginning \n
  *		        3 (default value) : opens and closes the device 
  *  @param y_min [input] lowest value of absol. coord. Y (default value = -1)
  *  @param y_max [input] highest value of absol. coord. Y (default value = 1)
@@ -1864,11 +1905,11 @@ void des_surface_x(const Cmp& defsurf, double x0, char* device = 0x0,
  *  @param y0 [input] value of the coordinate Y which defines the plane
  *		      of the drawing
  *  @param device [input] PGPLOT device (default value = 0x0)
- *  @param newgraph [input] controls the opening/closing of the graphic device: \\
- *			0 : does nothing (the device must be already opened) \\
- *			1 : opens the device but does not close it at the end \\
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \n
+ *			0 : does nothing (the device must be already opened) \n
+ *			1 : opens the device but does not close it at the end \n
  *			2 : closes the device at the end but does not open it at
- *			    the beginning \\
+ *			    the beginning \n
  *		        3 (default value) : opens and closes the device 
  *  @param x_min [input] lowest value of absol. coord. X (default value = -1)
  *  @param x_max [input] highest value of absol. coord. X (default value = 1)
@@ -1903,11 +1944,11 @@ void des_surface_y(const Cmp& defsurf, double y0, char* device = 0x0,
  *  @param z0 [input] value of the coordinate Z which defines the plane
  *		      of the drawing
  *  @param device [input] PGPLOT device (default value = 0x0)
- *  @param newgraph [input] controls the opening/closing of the graphic device: \\
- *			0 : does nothing (the device must be already opened) \\
- *			1 : opens the device but does not close it at the end \\
+ *  @param newgraph [input] controls the opening/closing of the graphic device: \n
+ *			0 : does nothing (the device must be already opened) \n
+ *			1 : opens the device but does not close it at the end \n
  *			2 : closes the device at the end but does not open it at
- *			    the beginning \\
+ *			    the beginning \n
  *		        3 (default value) : opens and closes the device 
  *  @param x_min [input] lowest value of absol. coord. X (default value = -1)
  *  @param x_max [input] highest value of absol. coord. X (default value = 1)
@@ -1949,11 +1990,11 @@ void des_surface_z(const Cmp& defsurf, double z0, char* device = 0x0,
  *		      of the drawing
  *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
- *			 the routine: \\
+ *			 the routine: \n
  *			\c scale = -1  : max. length = step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			\c scale = -2  : max. length = 2* step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
  *  @param nzdes [input] number of domains for which the plot is performed:
@@ -1990,11 +2031,11 @@ void des_coupe_vect_x(const Tenseur& vv, double x0, double scale, double sizefl,
  *		      of the drawing
  *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
- *			 the routine: \\
+ *			 the routine: \n
  *			\c scale = -1  : max. length = step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			\c scale = -2  : max. length = 2* step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
  *  @param y_min [input] lowest value of absol. coord. Y 
@@ -2026,11 +2067,11 @@ void des_coupe_vect_x(const Tenseur& vv, double x0, double scale, double
  *		      of the drawing
  *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
- *			 the routine: \\
+ *			 the routine: \n
  *			\c scale = -1  : max. length = step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			\c scale = -2  : max. length = 2* step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
  *  @param nzdes [input] number of domains for which the plot is performed:
@@ -2067,11 +2108,11 @@ void des_coupe_vect_y(const Tenseur& vv, double y0, double scale, double sizefl,
  *		      of the drawing
  *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
- *			 the routine: \\
+ *			 the routine: \n
  *			\c scale = -1  : max. length = step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			\c scale = -2  : max. length = 2* step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
  *  @param x_min [input] lowest value of absol. coord. X 
@@ -2103,11 +2144,11 @@ void des_coupe_vect_y(const Tenseur& vv, double y0, double scale, double
  *		      of the drawing
  *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
- *			 the routine: \\
+ *			 the routine: \n
  *			\c scale = -1  : max. length = step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			\c scale = -2  : max. length = 2* step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
  *  @param nzdes [input] number of domains for which the plot is performed:
@@ -2144,11 +2185,11 @@ void des_coupe_vect_z(const Tenseur& vv, double z0, double scale, double sizefl,
  *		      of the drawing
  *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
- *			 the routine: \\
+ *			 the routine: \n
  *			\c scale = -1  : max. length = step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			\c scale = -2  : max. length = 2* step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
  *  @param x_min [input] lowest value of absol. coord. X 
@@ -2184,11 +2225,11 @@ void des_coupe_vect_z(const Tenseur& vv, double z0, double scale, double
  *		      of the drawing
  *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
- *			 the routine: \\
+ *			 the routine: \n
  *			\c scale = -1  : max. length = step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			\c scale = -2  : max. length = 2* step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
  *  @param y_min [input] lowest value of absol. coord. Y 
@@ -2229,11 +2270,11 @@ void des_vect_bin_x(const Tenseur& vv1, const Tenseur& vv2, double x0,
  *		      of the drawing
  *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
- *			 the routine: \\
+ *			 the routine: \n
  *			\c scale = -1  : max. length = step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			\c scale = -2  : max. length = 2* step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
  *  @param x_min [input] lowest value of absol. coord. X 
@@ -2274,11 +2315,11 @@ void des_vect_bin_y(const Tenseur& vv1, const Tenseur& vv2, double x0,
  *		      of the drawing
  *  @param scale [input] controls the length of the drawn arrows; if \c scale 
  *			 is negative, the length is determined automatically by
- *			 the routine: \\
+ *			 the routine: \n
  *			\c scale = -1  : max. length = step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			\c scale = -2  : max. length = 2* step of the rectangular
- *					   grid \\ 
+ *					   grid \n 
  *			 etc...	   
  *  @param sizefl [input] size of the arrows extremities (standard value: 1)
  *  @param x_min [input] lowest value of absol. coord. X 
