@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2004/05/09 20:56:09  e_gourgoulhon
+ * Added member adm_mass_evol and corresponding virtual method adm_mass().
+ *
  * Revision 1.14  2004/05/06 15:23:10  e_gourgoulhon
  * initial_data_cts is know a virtual function of class Time_slice_conf
  * and is implemented also for class Tslice_dirac_max.
@@ -167,6 +170,14 @@ class Time_slice {
          */        
 	mutable Evolution_std<Scalar> trk_evol ; 
 
+        /** ADM mass at each time step, since the creation of the slice.
+         * At a given time step \c j, \c adm_mass_evol[j] is a 1-D \c Tbl
+         *  of size the number \c nz of domains, containing the "ADM mass" 
+         *  evaluated at the outer boundary of each domain. The true ADM
+         *  mass is thus the last value, i.e. \c adm_mass_evol[j](nz-1). 
+         *
+         */
+        mutable Evolution_full<Tbl> adm_mass_evol ; 
 
     // Derived data : 
     // ------------
@@ -360,7 +371,12 @@ class Time_slice {
 				       ostream& ost = cout) const  ; 
 	
 
-
+        /** Returns the ADM mass (geometrical units) at the current step.
+         * Moreover this method updates \c adm_mass_evol if
+         * necessary. 
+         */
+        virtual double adm_mass() const ; 
+        
 
     // Outputs
     // -------
@@ -713,6 +729,12 @@ class Time_slice_conf : public Time_slice {
                 const Scalar* ener_dens=0x0, const Vector* mom_dens=0x0, 
                 const Scalar* trace_stress=0x0 ) ; 
         
+        /** Returns the ADM mass (geometrical units) at the current step.
+         * Moreover this method updates \c adm_mass_evol if
+         * necessary. 
+         */
+        virtual double adm_mass() const ; 
+        
     // Outputs
     // -------
     protected:
@@ -946,6 +968,12 @@ class Tslice_dirac_max : public Time_slice_conf {
      */
     void evolve(double pdt, int nb_time_steps, int niter_elliptic,
                 double relax_elliptic) ; 
+        
+    /** Returns the ADM mass at (geometrical units) the current step.
+     * Moreover this method updates \c adm_mass_evol if
+     * necessary. 
+     */
+    virtual double adm_mass() const ; 
         
     protected:
         /** Computes \f$ h^{ij} \f$ from the values of \f$\chi\f$ and 
