@@ -28,6 +28,9 @@ char test_kerr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/01/23 08:01:36  e_gourgoulhon
+ * All Einstein equations are now verified.
+ *
  * Revision 1.3  2004/01/19 16:58:49  e_gourgoulhon
  * Momemtum constraint OK !
  * Next step: Hamiltonian constraint.
@@ -351,8 +354,6 @@ int main() {
         }
     } 
     
-    kk.dec_dzpuis(2) ; 
-    
     cout << "Extrinsic curvature : " << endl ;  
     kk.spectral_display() ; 
     maxabs(kk) ; 
@@ -360,19 +361,18 @@ int main() {
     // Momentum constraint
     // -------------------
     
-    Tensor kkup = kk.up(1, gam) ; 
-    Scalar trkk = kkup.scontract(0,1) ; 
+    Tensor kk_du = kk.up(1, gam) ; 
+    Scalar trkk = kk_du.scontract(0,1) ; 
     cout << "Trace of K:" << endl ; 
     trkk.spectral_display() ;
     maxabs(trkk) ; 
     arrete() ; 
     
-    const Tensor& dkk = kkup.derive_cov(gam) ; 
+    const Tensor& dkk = kk_du.derive_cov(gam) ; 
     
     Vector mom_constr = dkk.scontract(1,2) - trkk.derive_cov(gam) ; 
     cout << "Momentum constraint : " << endl ; 
-    mom_constr.spectral_display() ; 
-    
+    mom_constr.spectral_display() ;     
     maxabs(mom_constr) ; 
 
     // Hamiltonian constraint
@@ -385,6 +385,52 @@ int main() {
     cout << "Ricci scalar : " << endl ; 
     ricci_scal.spectral_display() ; 
     maxabs(ricci_scal) ; 
+
+    Tensor kk_uu = kk_du.up(0, gam) ; 
+    
+    tmp = trkk * trkk - contract( contract(kk, 1, kk_uu, 1), 0, 1) ; 
+    tmp.dec_dzpuis() ; 
+    Scalar ham_constr = ricci_scal + tmp ;
+        
+    cout << "Hamiltonian constraint : " << endl ; 
+    ham_constr.spectral_display() ;     
+    maxabs(ham_constr) ; 
+
+   // ham_constr.visu_section('y', 0., 0., 5., 0., 5., "Ham. constr.") ; 
+    
+    // Dynamical Einstein equations
+    //-----------------------------
+    
+    Sym_tensor dyn1 = - (nn.derive_cov(gam)).derive_cov(gam) ;
+    
+    Sym_tensor dyn2 = nn * ricci ; 
+        
+    Sym_tensor dyn3 = nn * ( trkk * kk - 2 * contract(kk_du, 1, kk, 0) ) ; 
+    dyn3.dec_dzpuis() ; 
+    
+    // Lie derivative of K along beta:
+    Sym_tensor dyn4 = contract( beta.derive_cov(gam), 0, kk, 0)
+                + contract( kk, 0, beta.derive_cov(gam), 0) ;
+    dyn4.dec_dzpuis() ; 
+    dyn4 += contract(beta, 0, kk.derive_cov(gam), 2)  ;  
+
+    Sym_tensor dyn_einstein = dyn1 + dyn2 + dyn3 + dyn4; 
+    
+    cout << "Dynamical Einstein equations:" << endl ; 
+    dyn_einstein.spectral_display() ;     
+    maxabs(dyn_einstein) ; 
+    
+    cout << "maxabs(dyn1) : " << endl ; 
+    maxabs(dyn1) ; 
+    cout << "maxabs(dyn2) : " << endl ; 
+    maxabs(dyn2) ; 
+    cout << "maxabs(dyn3) : " << endl ; 
+    maxabs(dyn3) ; 
+    cout << "maxabs(dyn4) : " << endl ; 
+    maxabs(dyn4) ; 
+    
+    cout << "Relative error:" << endl ; 
+    diffrel(dyn2+dyn3+dyn4, -dyn1) ; 
 
     return EXIT_SUCCESS ; 
 
