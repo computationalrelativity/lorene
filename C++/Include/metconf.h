@@ -31,6 +31,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/12/09 09:51:02  f_limousin
+ *
+ * Added some Doc++ comments
+ *
  * Revision 1.4  2002/10/16 14:36:29  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -71,8 +75,13 @@ class Metconf: public Metrique {
     // Data : 
     // -----
     protected:
+  /// Pointer on the physical 3-metric
         const Metrique* gamij ;
+
+	/// Pointer on the flat 3-metric
 	const Metrique* fij ;
+
+	/// Flag for Dirac gauge
 	bool dirac ;
 
     // Derived data : 
