@@ -30,6 +30,9 @@ char tslice_dirac_max_solve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/06/15 09:43:36  j_novak
+ * Attenuation of the source for khi in the last shell (temporary?).
+ *
  * Revision 1.10  2004/06/14 20:47:31  e_gourgoulhon
  * Added argument method_poisson to method solve_hij.
  *
@@ -491,7 +494,24 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
   // ------------
   source_hh += 0.6666666666666666* div_beta * l_beta - sym_tmp ; 
            
-    maxabs(hh(), "h^{ij}") ;
+  // Attenuation factor
+  //-------------------
+  const Map_af* mp_aff = dynamic_cast<const Map_af*>(&map) ;
+  double r_out = mp_aff->get_alpha()[nz-2] + mp_aff->get_beta()[nz-2] ; 
+  double r_in = mp_aff->get_beta()[nz-2] - mp_aff->get_alpha()[nz-2]   ; 
+  Mtbl xx1 = mp_aff->r - r_in ;
+  Mtbl xx2 = mp_aff->r - r_out ;
+  Scalar tempo(map) ;
+  tempo = exp(-(xx1*xx1)/(xx2*xx2)) ;
+  for (int lz=0; lz<nz-2; lz++) 
+    tempo.set_domain(lz) = 1. ;
+  tempo.annule_domain(nz-1) ;
+  tempo.std_spectral_base() ;
+  
+//##     source_hh = source_hh * tempo ;
+//##     source_hh.std_spectral_base() ;
+
+   maxabs(hh(), "h^{ij}") ;
     maxabs(source_hh, "Maxabs source_hh") ; 
 
     maxabs( source_hh.divergence(ff), "Divergence of source_hh") ; 
@@ -518,6 +538,8 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
       nfiltre[lz] = map.get_mg()->get_nr(lz) / 3 + 1 ;
     
     Scalar khi_source = source_htt.khi() ; 
+    khi_source *= tempo ;  //##
+    khi_source.std_spectral_base() ; //##
     filtre_l(khi_source, 0, 1) ;
     khi_source.filtre_r(nfiltre) ;
 
