@@ -30,6 +30,10 @@ char time_slice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/04/01 16:09:02  j_novak
+ * Trace of K_ij is now member of Time_slice (it was member of Time_slice_conf).
+ * Added new methods for checking 3+1 Einstein equations (preliminary).
+ *
  * Revision 1.5  2004/03/29 11:59:23  e_gourgoulhon
  * Added operator>>.
  *
@@ -84,10 +88,15 @@ Time_slice::Time_slice(const Scalar& lapse_in, const Vector& shift_in,
                  k_dd_evol(depth_in),
                  k_uu_evol(depth_in),
                  n_evol(lapse_in, depth_in),
-                 beta_evol(shift_in, depth_in) {
+                 beta_evol(shift_in, depth_in),
+		 trk_evol(depth_in) {
                                   
+    set_der_0x0() ; 
+
     double time_init = the_time[jtime] ; 
 
+    p_gamma = new Metric(gamma_in) ; 
+                    
     if (gamma_in.get_index_type(0) == COV) {
         gam_dd_evol.update(gamma_in, jtime, time_init) ; 
     }
@@ -102,8 +111,8 @@ Time_slice::Time_slice(const Scalar& lapse_in, const Vector& shift_in,
         k_uu_evol.update(kk_in, jtime, time_init) ; 
     }
                  
-    set_der_0x0() ; 
-
+    trk_evol.update( kk_in.trace(*p_gamma), jtime, the_time[jtime] ) ; 
+    
 }
                  
                  
@@ -120,7 +129,8 @@ Time_slice::Time_slice(const Scalar& lapse_in, const Vector& shift_in,
                  k_dd_evol( gamma_in.get_size() ),
                  k_uu_evol( gamma_in.get_size() ),
                  n_evol(lapse_in, gamma_in.get_size() ),
-                 beta_evol(shift_in, gamma_in.get_size() ) {
+                 beta_evol(shift_in, gamma_in.get_size() ),
+		 trk_evol(gamma_in.get_size() ) {
 
     cerr << 
     "Time_slice constuctor from evolution of gamma not implemented yet !\n" ;
@@ -142,7 +152,8 @@ Time_slice::Time_slice(const Map& mp, const Base_vect& triad, int depth_in)
                  k_dd_evol(depth_in),
                  k_uu_evol(depth_in),
                  n_evol(depth_in),
-                 beta_evol(depth_in) {
+                 beta_evol(depth_in),
+		 trk_evol(depth_in) {
                  
     double time_init = the_time[jtime] ; 
     
@@ -174,6 +185,10 @@ Time_slice::Time_slice(const Map& mp, const Base_vect& triad, int depth_in)
     btmp.set_etat_zero() ; 
     beta_evol.update(btmp, jtime, time_init) ;  
     
+    // trace(K) identically zero:
+    tmp.set_etat_zero() ; 
+    trk_evol.update(tmp, jtime, time_init) ; 
+    
     set_der_0x0() ; 
 }
                  
@@ -190,7 +205,8 @@ Time_slice::Time_slice(const Time_slice& tin)
                  k_dd_evol(tin.k_dd_evol),
                  k_uu_evol(tin.k_uu_evol),
                  n_evol(tin.n_evol),
-                 beta_evol(tin.beta_evol) {
+                 beta_evol(tin.beta_evol),
+		 trk_evol(tin.trk_evol) {
                  
     set_der_0x0() ; 
 }
@@ -207,7 +223,8 @@ Time_slice::Time_slice(int depth_in)
                  k_dd_evol(depth_in),
                  k_uu_evol(depth_in),
                  n_evol(depth_in),
-                 beta_evol(depth_in) {
+                 beta_evol(depth_in),
+		 trk_evol(depth_in) {
                  
     set_der_0x0() ; 
 }
@@ -260,6 +277,7 @@ void Time_slice::operator=(const Time_slice& tin) {
     k_uu_evol = tin.k_uu_evol;
     n_evol = tin.n_evol;
     beta_evol = tin.beta_evol; 
+    trk_evol = tin.trk_evol ;
     
     del_deriv() ; 
     
@@ -295,6 +313,9 @@ ostream& Time_slice::operator>>(ostream& flux) const {
     }
     if (beta_evol.is_known(jtime)) {
         maxabs( beta_evol[jtime], "beta^i", flux) ;
+    }
+    if (trk_evol.is_known(jtime)) {
+        maxabs( trk_evol[jtime], "tr K", flux) ;
     }
 
     if (p_gamma != 0x0) flux << "Metric gamma is up to date" << endl ; 

@@ -30,6 +30,10 @@ char time_slice_conf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/04/01 16:09:02  j_novak
+ * Trace of K_ij is now member of Time_slice (it was member of Time_slice_conf).
+ * Added new methods for checking 3+1 Einstein equations (preliminary).
+ *
  * Revision 1.3  2004/03/29 12:00:41  e_gourgoulhon
  * Many modifs.
  *
@@ -73,8 +77,7 @@ Time_slice_conf::Time_slice_conf(const Scalar& lapse_in, const Vector& shift_in,
                       psi_evol(psi_in, depth_in), 
                       qq_evol(depth_in),
                       hh_evol(hh_in, depth_in), 
-                      aa_evol(aa_in, depth_in),
-                      trk_evol(trk_in, depth_in) {
+                      aa_evol(aa_in, depth_in) {
 
     assert(hh_in.get_index_type(0) == CON) ; 
     assert(hh_in.get_index_type(1) == CON) ; 
@@ -102,10 +105,7 @@ Time_slice_conf::Time_slice_conf(const Scalar& lapse_in, const Vector& shift_in,
                       psi_evol(depth_in), 
                       qq_evol(depth_in),
                       hh_evol(depth_in), 
-                      aa_evol(depth_in),
-                      trk_evol(depth_in) {
-                    
-    p_gamma = new Metric(gamma_in) ; 
+                      aa_evol(depth_in) {
                     
     set_der_0x0() ; // put here in order not to erase p_psi4
 
@@ -116,8 +116,6 @@ Time_slice_conf::Time_slice_conf(const Scalar& lapse_in, const Vector& shift_in,
     
     hh_evol.update( (*p_psi4) * p_gamma->con() - ff.con(), 
                     jtime, the_time[jtime] ) ; 
-    
-    trk_evol.update( kk_in.trace(*p_gamma), jtime, the_time[jtime] ) ; 
     
     aa_evol.update( (*p_psi4) *( Time_slice::k_uu() 
                     - 0.3333333333333333 * trk_evol[jtime] * p_gamma->con() ), 
@@ -135,8 +133,7 @@ Time_slice_conf::Time_slice_conf(const Time_slice_conf& tin)
                       psi_evol(tin.psi_evol), 
                       qq_evol(tin.qq_evol),
                       hh_evol(tin.hh_evol), 
-                      aa_evol(tin.aa_evol),
-                      trk_evol(tin.trk_evol) {
+                      aa_evol(tin.aa_evol) {
 
     set_der_0x0() ; 
                        
@@ -190,7 +187,6 @@ void Time_slice_conf::operator=(const Time_slice_conf& tin) {
     qq_evol = tin.qq_evol ; 
     hh_evol = tin.hh_evol ; 
     aa_evol = tin.aa_evol ; 
-    trk_evol = tin.trk_evol ; 
        
     del_deriv() ; 
     
@@ -420,9 +416,6 @@ ostream& Time_slice_conf::operator>>(ostream& flux) const {
     }
     if (aa_evol.is_known(jtime)) {
         maxabs( aa_evol[jtime], "A^{ij}", flux) ;
-    }
-    if (trk_evol.is_known(jtime)) {
-        maxabs( trk_evol[jtime], "tr K", flux) ;
     }
 
     if (p_tgamma != 0x0) flux << 

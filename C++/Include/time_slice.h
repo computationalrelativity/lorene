@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/04/01 16:09:01  j_novak
+ * Trace of K_ij is now member of Time_slice (it was member of Time_slice_conf).
+ * Added new methods for checking 3+1 Einstein equations (preliminary).
+ *
  * Revision 1.6  2004/03/30 14:00:30  j_novak
  * New class Tslide_dirac_max (first version).
  *
@@ -63,6 +67,7 @@ class Metric ;
 class Metric_flat ; 
 class Base_vect ; 
 class Map ; 
+class Tbl ;
 
 #include "headcpp.h"
 
@@ -125,6 +130,11 @@ class Time_slice {
         /// Values at successive time steps of the shift vector \f$ \beta^i \f$
 	mutable Evolution_std<Vector> beta_evol ; 
         
+        /** Values at successive time steps of the trace \e K of the 
+         *  extrinsic curvature
+         */        
+	mutable Evolution_std<Scalar> trk_evol ; 
+
 
     // Derived data : 
     // ------------
@@ -246,7 +256,80 @@ class Time_slice {
 	 */
 	virtual const Sym_tensor& k_uu() const ;
 	
+        /** Trace \e K of the extrinsic curvature 
+         *  at the current time step (\c jtime )
+         */        
+        virtual const Scalar& trk() const ; 
+        
 	
+    // Computational functions
+    // -----------------------
+    public:
+	/** 
+	 *  Checks the level at which the hamiltonian constraint is verified.
+	 * 
+	 * \f[
+	 * R + K^2 - K_{ij}K^{ij} = 16\pi E 
+	 * \f]
+	 * @param energy_density : a pointer on the energy density \e E
+	 * measured by the Eulerian observer of 4-velocity 
+	 * \f$\mbox{\boldmath{$n $}}\f$ ; if this
+	 * is the null pointer, it is assumed that \e E = 0 (vacuum).
+	 * @param ost : output stream for a formatted output of the result
+	 * @return Tbl  of size the number of domains containing the 
+	 * absolute ( if \e E = 0 ) or the relative (in presence of matter)
+	 * error in max version.
+	 */
+	 Tbl check_hamiltonian_constraint(const Scalar* energy_density = 0x0,
+					  ostream& ost = cout) const ;
+	
+	/** 
+	 *  Checks the level at which the momentum constraints are verified.
+	 * 
+	 * \f[
+	 * D_j K_i^{\ j} - D_i K = 8 \pi J_i
+	 * \f]
+	 * @param momentum_density : a pointer on the momentum density 
+	 * \f$ J_i \f$ measured by the Eulerian observer of 4-velocity 
+	 * \f$\mbox{\boldmath{$n $}}\f$ ; if this is the null pointer, 
+	 * it is assumed that\f$ J_i \f$ = 0 (vacuum).
+	 * @param ost : output stream for a formatted output of the result
+	 * @return Tbl 2D of size the number of domains times 3 
+	 * (components)containing the absolute ( if \f$ J_i \f$ = 0 ) 
+	 * or the relative (in presence of matter) error in max version.
+	 */
+	 Tbl check_momentum_constraint(const Vector* momentum_density = 0x0,
+				       ostream& ost = cout) const ;
+	
+	/** 
+	 *  Checks the level at which the dynamical equations are verified.
+	 * 
+	 * \f[
+	 * 	\frac{\partial K_{ij}}{\partial t} - 
+	 * \pounds_{\mbox{\boldmath{$\beta $}}} K_{ij} =  - D_i D_j N 
+	 *	+ N \left[ R_{ij} - 2 K_{ik} K^k_{\ j} + K K_{ij} 
+	 *	+ 4\pi \left( (S-E)\gamma_{ij} - 2 S_{ij} \right) 
+	 *	\right]
+	 * \f]
+	 * @param strain_tensor : a pointer on the strain_tensor 
+	 * \f$ S_{ij} \f$ measured by the Eulerian observer of 4-velocity 
+	 * \f$\mbox{\boldmath{$n $}}\f$ ; if this is the null pointer, 
+	 * it is assumed that \f$ S_{ij} \f$ = 0 (vacuum).
+	 * @param energy_density : a pointer on the energy density \e E
+	 * (see \c check_hamiltonian_constraint)
+	 * @param ost : output stream for a formatted output of the result
+	 * @return Tbl 3D of size the number of domains times 3 times 3
+	 * (corresponding to the rank-2 tensor, with the symmetry in the 
+	 * components) containing the absolute ( if  \f$ J_i \f$ = 0 ) or 
+	 * the relative (in presence of matter) error in max version.
+	 */
+	 Tbl check_dynamical_equations(const Sym_tensor* strain_tensor = 0x0,
+				       const Scalar* energy_density = 0x0,
+				       ostream& ost = cout) const  ; 
+	
+
+
+
     // Outputs
     // -------
     protected:
@@ -315,11 +398,6 @@ class Time_slice_conf : public Time_slice {
          *  \right) \f$.
          */        
 	mutable Evolution_std<Sym_tensor> aa_evol ; 
-
-        /** Values at successive time steps of the trace \e K of the 
-         *  extrinsic curvature
-         */        
-	mutable Evolution_std<Scalar> trk_evol ; 
 
         
     // Derived data : 

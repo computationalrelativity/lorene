@@ -30,6 +30,10 @@ char time_slice_access_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/04/01 16:09:02  j_novak
+ * Trace of K_ij is now member of Time_slice (it was member of Time_slice_conf).
+ * Added new methods for checking 3+1 Einstein equations (preliminary).
+ *
  * Revision 1.3  2004/03/29 12:00:16  e_gourgoulhon
  * Computation of extrinsic curvature now performed via new methods
  *  Vector::ope_killing.
@@ -154,6 +158,21 @@ const Sym_tensor& Time_slice::k_uu() const {
     }
 
     return k_uu_evol[jtime] ;
+
+}
+
+const Scalar& Time_slice::trk() const {
+
+  if ( ! (trk_evol.is_known(jtime)) ) {
+
+    if ( k_uu_evol.is_known(jtime) )
+      trk_evol.update( k_dd().trace(gam()), jtime, the_time[jtime] ) ;
+    else 
+      trk_evol.update( k_uu().trace(gam()), jtime, the_time[jtime] ) ;
+
+  }
+
+  return trk_evol[jtime] ; 
 
 }
 
