@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/09/11 08:50:56  j_novak
+ * Modifs. des commentaires
+ *
  * Revision 1.2  2002/08/13 08:02:45  j_novak
  * Handling of spherical vector/tensor components added in the classes
  * Mg3d and Tenseur. Minor corrections for the class Metconf.
@@ -144,8 +147,10 @@ class Metconf: public Metrique {
     // ---------
     public:
 	const Tenseur_sym& delta() const ; ///Returns $\Delta^i_{jk}$
-	const Tenseur& Hi() const ; ///Returns the divergence of {\it this}
-	const Metrique* get_fij() const{return fij ; } ; /// Returns a pointer on the mapping.
+	///Returns the divergence of {\it this}, using the flat metric.
+	const Tenseur& Hi() const ; 
+	/// Returns a pointer on the flat metric.
+	const Metrique* get_fij() const{return fij ; } ; 
 	///Is the metric in the Dirac gauge?
 	bool dirac_gauge() const {return dirac;} ; 
 	void set_dirac_gauge(bool gauge) ; ///Sets the dirac flag
