@@ -35,6 +35,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/11/06 12:17:31  r_prix
+ * fixed mini-bug in documentation: without explicit argument in function-prototype,
+ * doc++ seemed to merge docu of Tensor::operator=(Cmp&) and operator=(Tenseur&)
+ *
  * Revision 1.10  2003/06/20 14:23:38  f_limousin
  * Add the functions compare().
  *
@@ -578,10 +582,10 @@ class Tenseur {
 	void set_metric(const Metrique& met) ;
     
 	/// Assignment to another {\tt Tenseur}
-	virtual void operator=(const Tenseur&) ; 
+	virtual void operator=(const Tenseur& tens) ; 
 	
 	/// Assignment to a {\tt Cmp} (scalar field only)
-	void operator=(const Cmp&) ; 
+	void operator=(const Cmp& field) ; 
 	
 	 /// Assignment to a {\tt double} (scalar field only, except for zero)
 	void operator=(double ) ;	
