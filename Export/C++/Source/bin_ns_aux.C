@@ -31,6 +31,9 @@ char bin_ns_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/04/29 20:29:18  e_gourgoulhon
+ * Corrected a bug in the computation of ener_spec.
+ *
  * Revision 1.3  2004/03/25 10:29:27  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -396,7 +399,7 @@ Bin_NS::Bin_NS(int nbpoints, const double* xi, const double* yi,
 	k_zz[i] = pre*(  vkzz1.c_cf->val_point_asymy(l1, xi1, theta1, phi1)
 		       +vkzz2.c_cf->val_point_asymy(l2, xi2, theta2, phi2) ) ;
 
-	// Baryon density (rho*10^{-57})
+	// Baryon density [kg/m^3]
 	// --------------
 	
 	nbar[i] = rho_unit*(
@@ -414,8 +417,9 @@ Bin_NS::Bin_NS(int nbpoints, const double* xi, const double* yi,
                 ener_spec[i] = 0 ;
         }
         else {
-                ener_spec[i] = ener / nbar[i] - double(1) ;
+                ener_spec[i] = ener / (nbar[i]/rho_unit) - double(1) ;
         }
+        
 
         // 3-velocity with respect to the Eulerian observer
         // ------------------------------------------------
