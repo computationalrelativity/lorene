@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/04/30 10:51:38  e_gourgoulhon
+ * Class Tslice_dirac_max: added methods solve_n, solve_q and solve_beta
+ * for resolution of the elliptic part of Einstein equations.
+ *
  * Revision 1.10  2004/04/29 17:07:27  e_gourgoulhon
  * Added argument pdt to Time_slice_conf::initial_data_cts.
  *
@@ -681,15 +685,15 @@ class Time_slice_conf : public Time_slice {
          *      slices
          *  @param precis convergence threshold required to stop the 
          *          iteration
-         *  @param ener_dens matter energy density \c E as measured by the 
+         *  @param ener_dens matter energy density \e E as measured by the 
          *      Eulerian observer; this quantity is passed as a pointer,
-         *      the null value of which (default) meaning \c E=0.
-         *  @param mom_dens matter momentum density \c J as measured by the 
+         *      the null value of which (default) meaning \e E=0.
+         *  @param mom_dens matter momentum density \e J as measured by the 
          *      Eulerian observer; this quantity is passed as a pointer,
-         *      the null value of which (default) meaning \c J=0.
-         *  @param trace_stress trace of the matter stress \c S as measured 
+         *      the null value of which (default) meaning \e J=0.
+         *  @param trace_stress trace of the matter stress \e S as measured 
          *      by the Eulerian observer; this quantity is passed as a pointer,
-         *      the null value of which (default) meaning \c E=0.
+         *      the null value of which (default) meaning \e S=0.
          */
          void initial_data_cts(const Sym_tensor& uu, const Scalar& trk_in, 
                 const Scalar& trk_point, double pdt, double precis = 1.e-12,
@@ -825,6 +829,46 @@ class Tslice_dirac_max : public Time_slice_conf {
          * metric is unimodular. 
 	 */
 	virtual void set_trh(const Scalar& trh_in) ;
+    
+    /** Solves the elliptic equation for the lapse function \e N (maximal
+     *  slicing condition + Hamiltonian constraint)
+     *  @param ener_dens matter energy density \e E as measured by the 
+     *      Eulerian observer; this quantity is passed as a pointer,
+     *      the null value of which (default) meaning \e E=0.
+     *  @param trace_stress trace of the matter stress \e S as measured 
+     *      by the Eulerian observer; this quantity is passed as a pointer,
+     *      the null value of which (default) meaning \e S=0.
+     *  @return solution \f$N_{\rm new}\f$ of the elliptic equation 
+     *  (flat Laplacian) for the lapse with the source computed from the
+     *  quantities at the current time step. 
+     *  
+     */
+    virtual Scalar solve_n(const Scalar* ener_dens=0x0,
+                           const Scalar* trace_stress=0x0) const ; 
+        
+    /** Solves the elliptic equation for \e Q (maximal
+     *  slicing condition + Hamiltonian constraint)
+     *  @param trace_stress trace of the matter stress \e S as measured 
+     *      by the Eulerian observer; this quantity is passed as a pointer,
+     *      the null value of which (default) meaning \e S=0.
+     *  @return solution \f$Q_{\rm new}\f$ of the elliptic equation 
+     *  (flat Laplacian) for \e Q with the source computed from the
+     *  quantities at the current time step. 
+     *  
+     */
+    virtual Scalar solve_q(const Scalar* trace_stress=0x0) const ; 
+        
+    /** Solves the elliptic equation for the shift vector \f$\beta^i\f$ 
+     *  (momentum constraint + Dirac gauge)
+     *  @param mom_dens matter momentum density \e J as measured by the 
+     *      Eulerian observer; this quantity is passed as a pointer,
+     *      the null value of which (default) meaning \e J=0.
+     *  @return solution \f$\beta^i_{\rm new}\f$ of the elliptic equation 
+     *  (flat vector Laplacian) for the shift with the source computed from the
+     *  quantities at the current time step. 
+     *  
+     */
+    virtual Vector solve_beta(const Vector* mom_dens = 0x0) const ; 
         
     protected:
         /** Computes \f$ h^{ij} \f$ from the values of \f$\chi\f$ and 
