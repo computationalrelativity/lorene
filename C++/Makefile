@@ -33,6 +33,7 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Tbl; $(MAKE)
 	cd Source/Tenseur; $(MAKE)
 	cd Source/Valeur; $(MAKE)
+	cd Source/Valencia; $(MAKE)
 
 uninstall:
 	rm -fr $(LIB)/liblorene.a
@@ -65,6 +66,7 @@ uninstall:
 	cd Source/Tbl; $(MAKE) -i uninstall
 	cd Source/Tenseur; $(MAKE) -i uninstall
 	cd Source/Valeur; $(MAKE) -i uninstall
+	cd Source/Valencia; $(MAKE) -i uninstall
 
 $(LIB):
 	mkdir $@
@@ -74,5 +76,4 @@ $(BIN_TOOLS):
 
 $(BIN_TOOLS)/pointCpointo:
 	$(CXX) $(CXXFLAGS) -o $@ $(HOME_LORENE)/Inst_tools/pointCpointo.C
-	
-	
+

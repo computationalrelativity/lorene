@@ -72,6 +72,17 @@
 	//@Include:metrique.h_r
     //@}  
     
+    /**@name Grid wedding
+     *
+     * These classes are used to make the interface with Godunov-type
+     * methods, used by the Valencia group.
+     *
+     */
+    //@{
+    	//@Include:grille_val.h_r
+	//@Include:tbl_val.h_r
+    //@}
+
     /**@name Physical units
      *
      */
