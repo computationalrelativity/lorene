@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/05/14 11:35:17  k_taniguchi
+ * Minor changes in some comments.
+ *
  * Revision 1.2  2004/05/07 13:04:01  j_novak
  * Forgotten #include<assert.h>
  *
@@ -93,13 +96,13 @@ class Eos_multi_poly : public Eos {
 	 */
 	double* nb_epsil ;
 
-	/** Array (size \c ndom_press+ndom_epsil-2) of the enthalpy
+	/** Array (size \c ndom_press - 1) of the enthalpy
 	 *   at the points where the polytropic EOS for the pressure
 	 *   changes its index and constant
 	 */
 	double* ent_crit_p ;
 
-	/** Array (size \c ndom_press+ndom_epsil-2) of the enthalpy
+	/** Array (size \c ndom_epsil - 1) of the enthalpy
 	 *   at the points where the polytropic EOS for the energy density
 	 *   changes its index and constant
 	 */
