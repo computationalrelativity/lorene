@@ -30,6 +30,10 @@ char connection_fspher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/11 16:45:43  e_gourgoulhon
+ * Suppressed the call to Itbl::set_etat_qcq() after
+ * the construction of the Itbl's.
+ *
  * Revision 1.5  2003/10/11 14:39:50  e_gourgoulhon
  * Suppressed declaration of unusued arguments in some methods.
  *
@@ -129,7 +133,6 @@ Tensor Connection_fspher::derive_cov(const Tensor& uu) const {
   // Indices of the result
   // ---------------------
   Itbl tipe(valence0+1) ; 
-  tipe.set_etat_qcq() ; 
   tipe.set(0) = COV ; 
   const Itbl tipeuu = uu.get_index_type() ;  
   for (int id = 1; id<=valence0; id++) {
@@ -141,13 +144,10 @@ Tensor Connection_fspher::derive_cov(const Tensor& uu) const {
   Tensor resu(*mp, valence0+1, tipe, *triad) ;
 	
   Itbl ind1(valence0+1) ; // working Itbl to store the indices of resu
-  ind1.set_etat_qcq() ; 
 	
   Itbl ind0(valence0) ; // working Itbl to store the indices of uu
-  ind0.set_etat_qcq() ; 
 	
   Itbl ind(valence0) ; // working Itbl to store the indices of uu
-  ind.set_etat_qcq() ; 
 	
   Scalar tmp(*mp) ;	// working scalar
 
@@ -366,7 +366,6 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
   if (valence0 == 0) 
     resu = new Vector(*mp, COV, triad) ;
   else {
-    tipe.set_etat_qcq() ; 
     tipe.set(0) = COV ; 
     const Itbl tipeuu = uu.get_index_type() ;  
     for (int id = 1; id<=valence0; id++) {
@@ -383,13 +382,10 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
   }
 	
   Itbl ind1(valence0+1) ; // working Itbl to store the indices of resu
-  ind1.set_etat_qcq() ; 
 	
   Itbl ind0(valence0) ; // working Itbl to store the indices of uu
-  ind0.set_etat_qcq() ; 
 	
   Itbl ind(valence0) ; // working Itbl to store the indices of uu
-  ind.set_etat_qcq() ; 
 	
   Scalar tmp(*mp) ;	// working scalar
 
