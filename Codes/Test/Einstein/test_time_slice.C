@@ -30,6 +30,9 @@ char test_time_slice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/29 12:01:12  e_gourgoulhon
+ * Added test for new class Time_slice_conf.
+ *
  * Revision 1.2  2004/03/26 13:33:03  j_novak
  * New methods for accessing/updating members (nn(), beta(), gam_uu(), k_uu(), ...)
  *
@@ -93,6 +96,7 @@ int main() {
     sigma.set_scheme_order(0) ; //stationary space-time
     
     cout << sigma << endl ; 
+    arrete() ; 
 
     cout << sigma.nn() ;
     arrete() ;
@@ -106,6 +110,21 @@ int main() {
     arrete() ;
     cout << sigma.k_uu() << endl ;
     
+    cout << "nn : " << sigma.nn() << endl ; 
+    cout << "beta : " << sigma.beta() << endl ; 
+    cout << "gam_uu : " << sigma.gam_uu() << endl ; 
+    cout << "gam : " << sigma.gam() << endl ; 
+    cout << "gam_dd : " << sigma.gam_dd() << endl ; 
+    
+    
+    // Construction of a time slice with conformal decomposition
+    // ---------------------------------------------------------
+    
+    Time_slice_conf sigma_c(sigma.nn(), sigma.beta(), sigma.gam_uu(),
+                sigma.k_uu(), map.flat_met_spher()) ; 
+    
+    cout << sigma_c << endl ; 
+
 
     return EXIT_SUCCESS ; 
 }
