@@ -30,6 +30,10 @@ char metric_flat_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/01/12 16:03:32  j_novak
+ * We initialize the covariant representation of a flat metric, to avoid any
+ * possible problem when building a general metric from a flat one.
+ *
  * Revision 1.4  2004/02/19 10:57:18  e_gourgoulhon
  * Methods cov() and con(): set the spectral bases to the standard ones
  * after the initialization of p_met_cov and p_met_con.
@@ -64,6 +68,9 @@ char metric_flat_C[] = "$Header$" ;
 
 Metric_flat::Metric_flat(const Map& mpi, const Base_vect& triadi) :
   Metric(mpi), triad(&triadi) {
+
+    cov() ; //## to avoid problems when initializing general metrics
+            //## to flat ones. Might be improved??
   
 }
   
