@@ -25,6 +25,10 @@ char poisson_frontiere_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/11/23 12:50:44  f_limousin
+ * Intoduce function poisson_dir_neu(...) to solve a scalar poisson
+ * equation with a mixed boundary condition (Dirichlet + Neumann).
+ *
  * Revision 1.2  2004/09/08 15:12:16  f_limousin
  * Delete some assert.
  *
@@ -65,6 +69,7 @@ char poisson_frontiere_C[] = "$Header$" ;
 #include "proto.h"
 #include "type_parite.h"
 #include "utilitaires.h"
+#include "valeur.h"
 
 
 
@@ -94,7 +99,7 @@ char poisson_frontiere_C[] = "$Header$" ;
 
 
 Mtbl_cf sol_poisson_frontiere(const Map_af& mapping, const Mtbl_cf& source,
-		const Mtbl_cf& limite, int type_raccord, int num_front, int dzpuis)
+		const Mtbl_cf& limite, int type_raccord, int num_front, int dzpuis, double fact_dir, double fact_neu)
 
 {
     
@@ -110,7 +115,7 @@ Mtbl_cf sol_poisson_frontiere(const Map_af& mapping, const Mtbl_cf& source,
     assert (limite.get_etat() != ETATNONDEF) ;
      
     assert ((dzpuis==4) || (dzpuis==2) || (dzpuis==3)) ;
-    assert ((type_raccord == 1) || (type_raccord == 2)) ;
+    assert ((type_raccord == 1) || (type_raccord == 2)|| (type_raccord == 3)) ;
     
     // Bases spectrales
     const Base_val& base = source.base ;
@@ -342,6 +347,41 @@ Mtbl_cf sol_poisson_frontiere(const Map_af& mapping, const Mtbl_cf& source,
 			    facteur*solution_hom_deux(num_front+1, k, j, i) ;
 		    break ;
 		    
+		case 3 : 
+		    // Conditions de raccord type Dirichlet-Neumann :
+		    somme = 0 ;
+		    for (int i=0 ; i<nr ; i++)
+			if (i%2 == 0)
+			    somme += solution_part(num_front+1, k, j, i) *
+				fact_dir - fact_neu *
+			        i*i/alpha*solution_part(num_front+1, k, j, i) ;
+			else
+			    somme += - solution_part(num_front+1, k, j, i) *
+				fact_dir + fact_neu *
+				i*i/alpha*solution_part(num_front+1, k, j, i) ;
+
+		    double somme2 ;
+		    somme2 = fact_dir * pow(echelle-1, -l_quant-1) - 
+			fact_neu/alpha*pow(echelle-1, -l_quant-2)*(l_quant+1) ;
+
+		    facteur = (limite(num_front, k, j, 0)- somme) / somme2 ;
+
+		    for (int i=0 ; i<nr ; i++)
+			solution_part.set(num_front+1, k, j, i) +=
+			    facteur*solution_hom_deux(num_front+1, k, j, i) ;
+		    
+		    // pour la solution homogene :
+		    double somme1 ;
+		    somme1 = fact_dir * pow(echelle-1, l_quant) + 
+			fact_neu / alpha * pow(echelle-1, l_quant-1) * 
+			l_quant ;
+		    facteur = - somme1 / somme2 ;
+		    for (int i=0 ; i<nr ; i++)
+			solution_hom_un.set(num_front+1, k, j, i) +=
+			    facteur*solution_hom_deux(num_front+1, k, j, i) ;
+
+		    break ;
+
 		 default :
 		    cout << "Diantres nous ne devrions pas etre ici ! " << endl ;
 		    abort() ;

@@ -25,6 +25,10 @@ char cmp_pde_frontiere_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/11/23 12:49:58  f_limousin
+ * Intoduce function poisson_dir_neu(...) to solve a scalar poisson
+ * equation with a mixed boundary condition (Dirichlet + Neumann).
+ *
  * Revision 1.4  2004/05/20 07:04:02  k_taniguchi
  * Recovery of "->get_angu()" in the assertion of Map_af::poisson_frontiere
  * because "limite" is the boundary value.
@@ -72,7 +76,8 @@ char cmp_pde_frontiere_C[] = "$Header$" ;
 #include "cmp.h"
 
 Mtbl_cf sol_poisson_frontiere(const Map_af&, const Mtbl_cf&, const Mtbl_cf&,
-				    int, int, int) ;
+			      int, int, int, double = 0.,
+			      double = 0.) ;
 
 Mtbl_cf sol_poisson_frontiere_double (const Map_af&, const Mtbl_cf&, const Mtbl_cf&,
 				    const Mtbl_cf&, int) ;
@@ -108,7 +113,7 @@ Cmp Cmp::poisson_frontiere_double (const Valeur& lim_func, const Valeur& lim_der
     return resu ;    
 }		
 
-void Map_et::poisson_frontiere(const Cmp&, const Valeur&, int, int, Cmp&) const {
+void Map_et::poisson_frontiere(const Cmp&, const Valeur&, int, int, Cmp&, double, double) const {
     cout << "Procedure non implantee ! " << endl ;
     abort() ;
 }
@@ -119,17 +124,17 @@ void Map_et::poisson_frontiere_double (const Cmp&, const Valeur&, const Valeur&,
     abort() ;
 }
 
-void Map_af::poisson_frontiere(const Cmp& source, const Valeur& limite, int type_raccord, 
-			int num_front, Cmp& pot) const {
+void Map_af::poisson_frontiere(const Cmp& source, const Valeur& limite, 
+			       int type_raccord, int num_front, 
+			       Cmp& pot, double fact_dir, double fact_neu) const {
     
     assert(source.get_etat() != ETATNONDEF) ; 
     assert(source.get_mp()->get_mg() == mg) ; 
     assert(pot.get_mp()->get_mg() == mg) ; 
-    assert (source.get_mp()->get_mg()->get_angu() == limite.get_mg()) ;
     
     assert( source.check_dzpuis(2) || source.check_dzpuis(4) 
 	    || source.check_dzpuis(3)) ; 
-    assert ((type_raccord == 1) || (type_raccord==2)) ;
+    assert ((type_raccord == 1) || (type_raccord==2)|| (type_raccord==3)) ;
     int dzpuis ; 
     
     if (source.dz_nonzero()){
@@ -165,13 +170,22 @@ void Map_af::poisson_frontiere(const Cmp& source, const Valeur& limite, int type
 	auxiliaire.set_etat_zero() ;
     else
 	auxiliaire = *conditions.c_cf ;
-	
+    
+    Mtbl_cf resu (sourva.get_mg(), sourva.base) ;
+
+    if (type_raccord == 3){
+
     // Call to the Mtbl_cf version
     // ---------------------------
-    
-    Mtbl_cf resu = sol_poisson_frontiere(*this, so_cf, auxiliaire, 
-					type_raccord, num_front, dzpuis) ;
-    
+	resu = sol_poisson_frontiere(*this, so_cf, auxiliaire, 
+					type_raccord, num_front, dzpuis,
+					 fact_dir, fact_neu) ;
+    }
+    else{
+	resu = sol_poisson_frontiere(*this, so_cf, auxiliaire, 
+					     type_raccord, num_front, dzpuis) ;
+    }
+
     // Final result returned as a Cmp
     // ------------------------------
     

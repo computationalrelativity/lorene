@@ -31,6 +31,10 @@ char scalar_pde_frontiere_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/11/23 12:46:57  f_limousin
+ * Intoduce function poisson_dir_neu(...) to solve a scalar poisson
+ * equation with a mixed boundary condition (Dirichlet + Neumann).
+ *
  * Revision 1.3  2003/10/03 15:58:52  j_novak
  * Cleaning of some headers
  *
@@ -52,7 +56,7 @@ char scalar_pde_frontiere_C[] = "$Header$" ;
 
 Scalar Scalar::poisson_dirichlet(const Valeur& limite, int num_front) const {
     
-	Cmp csource(*this) ; 
+    Cmp csource(*this) ; 
     Cmp cresu(mp) ;
 	
     mp->poisson_frontiere(csource, limite, 1, num_front, cresu) ; 
@@ -61,28 +65,40 @@ Scalar Scalar::poisson_dirichlet(const Valeur& limite, int num_front) const {
     return resu ;          
 }
 
+Scalar Scalar::poisson_dir_neu(const Valeur& limite, int num_front, 
+	        double fact_dir, double fact_neu) const {
+    
+    Cmp csource(*this) ; 
+    Cmp cresu(mp) ;
+ 	
+    mp->poisson_frontiere(csource, limite, 3, num_front, cresu, fact_dir,
+			  fact_neu) ; 
+	
+    Scalar resu(cresu) ; 
+    return resu ;          
+}
 
 Scalar Scalar::poisson_neumann(const Valeur& limite, int num_front) const {
     
-	Cmp csource(*this) ; 
+    Cmp csource(*this) ; 
     Cmp cresu(mp) ;
 
     mp->poisson_frontiere (csource, limite, 2, num_front, cresu) ; 
 
-	Scalar resu(cresu) ; 
+    Scalar resu(cresu) ; 
     return resu ;    
 }
 
 
 Scalar Scalar::poisson_frontiere_double (const Valeur& lim_func, 
-	const Valeur& lim_der, int num_zone) const {
+			 const Valeur& lim_der, int num_zone) const {
 	
-	Cmp csource(*this) ; 
+    Cmp csource(*this) ; 
     Cmp cresu(mp) ;
 
     mp->poisson_frontiere_double(csource, lim_func, lim_der, num_zone, cresu) ; 
 
-	Scalar resu(cresu) ; 
+    Scalar resu(cresu) ; 
     return resu ;    
 }		
 
