@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/06/17 14:05:16  j_novak
+ * friend functions are now also declared outside the class definition
+ *
  * Revision 1.3  2002/05/17 12:08:46  e_gourgoulhon
  * Corrected error in the comment about dzpuis: multiplied --> divided
  *
@@ -1164,6 +1167,7 @@ class Cmp {
 	 */
 	void raccord_externe (int puis, int nbre, int lmax) ;
 };
+ostream& operator<<(ostream& , const Cmp & ) ;	
 
 // Prototypage de l'arithmetique
 /**

@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/06/17 14:05:16  j_novak
+ * friend functions are now also declared outside the class definition
+ *
  * Revision 1.1  2002/03/28 10:47:29  n_chamel
  * New class Champ_cart for fields on Cartesian grids.
  *
@@ -170,5 +173,6 @@ class Champ_cart{
               void coef_i() const ;
 
 };
+ostream& operator<<(ostream& , const Champ_cart& ) ;
 
 #endif

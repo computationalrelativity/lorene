@@ -42,8 +42,11 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/06/17 14:05:16  j_novak
+ * friend functions are now also declared outside the class definition
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.7  1999/11/23  12:16:24  eric
  * Modif commentaires (dimension 0 autorisee).
@@ -150,5 +153,6 @@ class Dim_tbl {
     	friend ostream& operator<<(ostream& , const Dim_tbl &) ;  /// Display
 	
 };
+ostream& operator<<(ostream& , const Dim_tbl &) ;  
 
 #endif

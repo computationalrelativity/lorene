@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/06/17 14:05:16  j_novak
+ * friend functions are now also declared outside the class definition
+ *
  * Revision 1.2  2002/03/15 13:14:56  n_chamel
  * Introduced the private method init_grid_points, to be called by
  * the constructors
@@ -123,5 +126,6 @@ class Grille_cart {
 	friend ostream& operator<<(ostream& , const Grille_cart& ) ;
 
 };
+ostream& operator<<(ostream& , const Grille_cart& ) ;
 
 #endif

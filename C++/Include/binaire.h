@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/06/17 14:05:16  j_novak
+ * friend functions are now also declared outside the class definition
+ *
  * Revision 1.2  2001/12/20 13:00:31  k_taniguchi
  * Addition of the Komar mass, the virial error by Gourgoulhon and Bonazzola, and the virial error by Friedman, Uryu, and Shibata.
  *
@@ -360,5 +363,6 @@ class Binaire {
 	void analytical_shift() ; 
 
 };
+ostream& operator<<(ostream& , const Binaire& ) ;	
 
 #endif

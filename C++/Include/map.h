@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/06/17 14:05:16  j_novak
+ * friend functions are now also declared outside the class definition
+ *
  * Revision 1.3  2002/05/07 07:06:37  e_gourgoulhon
  * Compatibily with xlC compiler on IBM SP2:
  *   added declaration of functions map_af_fait_* and map_et_fait_*
@@ -1021,6 +1024,7 @@ class Map {
     // ----------------
 	friend ostream& operator<<(ostream& , const Map& ) ;	/// Operator <<
 };
+ostream& operator<<(ostream& , const Map& ) ; 
 
 
 

@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/06/17 14:05:16  j_novak
+ * friend functions are now also declared outside the class definition
+ *
  * Revision 1.4  2002/04/11 13:27:48  e_gourgoulhon
  * *** empty log message ***
  *
@@ -480,6 +483,7 @@ class Eos {
     	Cmp der_press_ent(const Cmp& ent, int nzet, int l_min = 0, const Param* par=0x0) const ;
 
 };
+ostream& operator<<(ostream& , const Eos& ) ;	
 
 
 		    //------------------------------------//

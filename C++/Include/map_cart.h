@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/06/17 14:05:17  j_novak
+ * friend functions are now also declared outside the class definition
+ *
  * Revision 1.2  2002/03/28 10:47:29  n_chamel
  * New class Champ_cart for fields on Cartesian grids.
  *
@@ -48,9 +51,9 @@
 // Lorene headers
 #include "grille_cart.h"
 
-                                                                   //-------------------------------//
-                                                                   //                   basis class Map_cart                //
-                                                                   //-------------------------------//
+                  //-------------------------------//
+                  //     basis class Map_cart      //
+                  //-------------------------------//
 
 /**
  * Mapping between Cartesian grid and physical space.
@@ -106,10 +109,11 @@ class Map_cart{
 
 
 };
+ostream& operator<<(ostream& , const Map_cart& ) ;
 
-                                                                  //-------------------------------//
-                                                                   //                   class Map_cart_aff                    //
-                                                                   //-------------------------------//
+                   //-------------------------------//
+                   //      class Map_cart_aff       //
+                   //-------------------------------//
 
 /**
  * Affine mapping between Cartesian grid and physical space:
@@ -118,11 +122,11 @@ class Map_cart{
  *  \end{equation}
  *  \begin{equation}
  *    y\mapsto \alpha_2 y + \beta_2, \quad  y\in [-1,1] \ \mbox{or}\ y\in[0,1]    \nonumber
-  *  \end{equation}
- *  \begin{equation}
-*    z\mapsto \alpha_3 z + \beta_3, \quad z\in [-1,1] \ \mbox{or}\ z\in[0,1]      \nonumber
  *  \end{equation}
-  * where $(x,y,z)$  are the grid coordinates.
+ *  \begin{equation}
+ *    z\mapsto \alpha_3 z + \beta_3, \quad z\in [-1,1] \ \mbox{or}\ z\in[0,1]      \nonumber
+ *  \end{equation}
+ * where $(x,y,z)$  are the grid coordinates.
  *
  * @version #$Id$#
  */

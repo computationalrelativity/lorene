@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2002/06/17 14:05:16  j_novak
+ * friend functions are now also declared outside the class definition
+ *
  * Revision 1.7  2002/06/03 13:23:16  j_novak
  * The case when the mapping is not adapted is now treated
  *
@@ -539,6 +542,7 @@ class Eos_bifluid {
 	virtual Eos* trans2Eos() const = 0 ;
     
 };
+ostream& operator<<(ostream& , const Eos_bifluid& ) ;	
 
 
 		    //------------------------------------//

@@ -32,8 +32,11 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/06/17 14:05:17  j_novak
+ * friend functions are now also declared outside the class definition
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.9  2000/08/16  10:29:45  eric
  * Suppression du membre dzpuis.
@@ -276,6 +279,7 @@ class Mtbl {
 	void operator/=(double ) ;		/// /= double
 
 } ;
+ostream& operator<<(ostream& , const Mtbl & ) ;   
 
 /**
  * @name Mtbl Mathematics

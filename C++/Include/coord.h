@@ -33,8 +33,11 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/06/17 14:05:16  j_novak
+ * friend functions are now also declared outside the class definition
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.1  1999/10/15  09:15:56  eric
  * Depoussierage.
@@ -138,6 +141,7 @@ class Coord {
 	friend ostream& operator<<(ostream& , const Coord& ) ;	/// Display 
 
 };
+ostream& operator<<(ostream& , const Coord& ) ;	
 
 // Prototypage de l'arithmetique
 /**

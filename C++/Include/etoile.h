@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/06/17 14:05:16  j_novak
+ * friend functions are now also declared outside the class definition
+ *
  * Revision 1.4  2002/04/05 09:09:36  j_novak
  * The inversion of the EOS for 2-fluids polytrope has been modified.
  * Some errors in the determination of the surface were corrected.
@@ -654,6 +657,7 @@ class Etoile {
     	virtual double mass_g() const ;
 	
 };
+ostream& operator<<(ostream& , const Etoile& ) ;	
 
 
 			//---------------------------//

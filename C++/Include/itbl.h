@@ -36,8 +36,11 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/06/17 14:05:16  j_novak
+ * friend functions are now also declared outside the class definition
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.2  1999/11/23  13:16:12  eric
  * Le constructeur Itbl::Itbl(const Dim_tbl ) devient desormais
@@ -296,6 +299,7 @@ class Itbl {
 	void operator*=(const Itbl &) ;	/// Multiplication of {\tt this} by a {\tt Itbl}
 	void operator*=(int) ;	/// Multiplication of {\tt this} by a {\tt int}
 } ;
+ostream& operator<<(ostream& , const Itbl& ) ;	
 
 
 /**

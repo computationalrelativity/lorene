@@ -34,8 +34,11 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/06/17 14:05:16  j_novak
+ * friend functions are now also declared outside the class definition
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.6  2000/02/28  15:42:15  eric
  * Ajout de la fonction Base_vect_cart::get_align().
@@ -168,6 +171,8 @@ class Base_vect {
 	virtual void change_basis(Tenseur& ) const = 0 ; 
 
 };
+
+ostream& operator<<(ostream& , const Base_vect& ) ;	
 
 
 		    //-----------------------------------//

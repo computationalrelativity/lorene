@@ -34,8 +34,11 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/06/17 14:05:17  j_novak
+ * friend functions are now also declared outside the class definition
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.46  2001/08/27  10:03:56  eric
  * Ajout de l'operator% (produit tensoriel avec desaliasing)
@@ -623,7 +626,7 @@ class Tenseur {
     public:
 	void sauve(FILE *) const ;	    /// Save in a file
 
-	friend ostream& operator<<(ostream& , const Tenseur & ) ; /// Display
+	friend ostream& operator<<(ostream& , const Tenseur & ) ;
 	
     // Computation of derived members
     // ------------------------------
@@ -851,106 +854,121 @@ class Tenseur {
 
     // Friend classes 
     // ---------------
-	/// Friend class of symmetric tensors.
-	friend class Tenseur_sym ;
-	
-	/// Friend class {\tt Metrique}.
-	friend class Metrique ;
-	
+    friend class Tenseur_sym ;
+    friend class Metrique ;
+    
     // Mathematical operators
     // ----------------------
-
-	/// Tensorial product.
-	friend Tenseur operator* (const Tenseur&, const Tenseur&) ; 
-
-	/// Tensorial product with desaliasing.
-	friend Tenseur operator% (const Tenseur&, const Tenseur&) ; 
-
-	/**
-	 * Self contraction of two indices of a {\tt Tenseur}.
-	 * 
-	 * The two indices must be of different type, i.e. covariant and
-	 * contravariant, or contravariant and covariant.
-         *
-	 * @param id1 [input] number of the first index for the contraction;
-	 *		      {\tt id1} must be strictly lower than the
-	 *		      valence of the tensor and obeys the following
-	 *		      convention: \\
-	 *			{\tt id1} = 0 : first index \\
-	 *			{\tt id1} = 1 : second index \\
-	 *			and so on...
-	 * @param id2 [input] number of the second index for the contraction;
-	 *		      {\tt id2} must be strictly lower than the
-	 *		      valence of the tensor and obeys the following
-	 *		      convention: \\
-	 *			{\tt id2} = 0 : first index \\
-	 *			{\tt id2} = 1 : second index \\
-	 *			and so on...
-	 * 
-	 */
-	friend Tenseur contract(const Tenseur&, int id1, int id2) ;
-
-	/**
-	 * Contraction of two {\tt Tenseur}.
-	 * 
-	 * The two indices must be of different type, i.e. covariant and
-	 * contravariant, or contravariant and covariant.
-	 *
-	 * @param id1 [input] number of the index of contraction for
-	 *		      the first {\tt Tenseur};
-	 *		      {\tt id1} must be strictly lower than the
-	 *		      valence of the tensor and obeys the following
-	 *		      convention: \\
-	 *			{\tt id1} = 0 : first index \\
-	 *			{\tt id1} = 1 : second index \\
-	 *			and so on...
-	 * @param id2 [input] number of index of contraction for the second one;
-	 *		      {\tt id2} must be strictly lower than the
-	 *		      valence of the tensor and obeys the following
-	 *		      convention: \\
-	 *			{\tt id2} = 0 : first index \\
-	 *			{\tt id2} = 1 : second index \\
-	 *			and so on...
-	 */	
-	friend Tenseur contract(const Tenseur&, int id1, const Tenseur&, int id2) ;
-
-	/**
-	 *  Scalar product of two {\tt Tenseur} when the metric is
-	 *  $\delta_{ij}$: performs the contraction of the 
-	 *  last index of {\tt t1} with the first one of {\tt t2}, irrespective
-	 *  of the type of these indices. 
-	 */
-	friend Tenseur flat_scalar_prod(const Tenseur& t1, const Tenseur& t2) ;
-	
-	/**
-	 *  Same as {\tt flat\_scalar\_prod} but with desaliasing. 
-	 */
-	friend Tenseur flat_scalar_prod_desal(const Tenseur& t1, const Tenseur& t2) ;
-	
-	/**
-	 * Raise or lower the index {\tt idx} depending on its type, using the
-	 * given {\tt Metrique}.
-	 */
-	friend Tenseur manipule(const Tenseur&, const Metrique&, int idx) ;
-
-	/**
-	 * Raise or lower all the indices, depending on their type,  using the given
-	 * {\tt Metric}.
-	 */
-	friend Tenseur manipule(const Tenseur&, const Metrique&) ;
-	
-	/**
-	 * Contraction of the last index of (*this) with $x^k$ or $x_k$, depending
-	 * on the type of $S$. 
-	 * 
-	 * The calculation is performed to avoid singularities in the external 
-	 * zone. This is done only for a flat metric.
-	 */
-	 
-	 friend Tenseur skxk (const Tenseur&) ;
+    
+    friend Tenseur operator* (const Tenseur&, const Tenseur&) ; 
+    friend Tenseur operator% (const Tenseur&, const Tenseur&) ; 
+    friend Tenseur contract(const Tenseur&, int id1, int id2) ;
+    friend Tenseur contract(const Tenseur&, int id1, const Tenseur&, 
+			    int id2) ;
+    friend Tenseur flat_scalar_prod(const Tenseur& t1, const Tenseur& t2) ;
+    friend Tenseur flat_scalar_prod_desal(const Tenseur& t1, 
+					  const Tenseur& t2) ;
+    friend Tenseur manipule(const Tenseur&, const Metrique&, int idx) ;
+    friend Tenseur manipule(const Tenseur&, const Metrique&) ;
+    friend Tenseur skxk (const Tenseur&) ;
 
 };
 
+
+/**
+ * @name Tenseur calculus
+ */
+//@{
+/// Tensorial product.
+Tenseur operator*(const Tenseur&, const Tenseur&) ; 
+
+/// Tensorial product with desaliasing.
+Tenseur operator%(const Tenseur&, const Tenseur&) ; 
+
+/**
+ * Self contraction of two indices of a {\tt Tenseur}.
+ * 
+ * The two indices must be of different type, i.e. covariant and
+ * contravariant, or contravariant and covariant.
+ *
+ * @param id1 [input] number of the first index for the contraction;
+ *		      {\tt id1} must be strictly lower than the
+ *		      valence of the tensor and obeys the following
+ *		      convention: \\
+ *			{\tt id1} = 0 : first index \\
+ *			{\tt id1} = 1 : second index \\
+ *			and so on...
+ * @param id2 [input] number of the second index for the contraction;
+ *		      {\tt id2} must be strictly lower than the
+ *		      valence of the tensor and obeys the following
+ *		      convention: \\
+ *			{\tt id2} = 0 : first index \\
+ *			{\tt id2} = 1 : second index \\
+ *			and so on...
+ * 
+ */
+Tenseur contract(const Tenseur&, int id1, int id2) ;
+
+/**
+ * Contraction of two {\tt Tenseur}.
+ * 
+ * The two indices must be of different type, i.e. covariant and
+ * contravariant, or contravariant and covariant.
+ *
+ * @param id1 [input] number of the index of contraction for
+ *		      the first {\tt Tenseur};
+ *		      {\tt id1} must be strictly lower than the
+ *		      valence of the tensor and obeys the following
+ *		      convention: \\
+ *			{\tt id1} = 0 : first index \\
+ *			{\tt id1} = 1 : second index \\
+ *			and so on...
+ * @param id2 [input] number of index of contraction for the second one;
+ *		      {\tt id2} must be strictly lower than the
+ *		      valence of the tensor and obeys the following
+ *		      convention: \\
+ *			{\tt id2} = 0 : first index \\
+ *			{\tt id2} = 1 : second index \\
+ *			and so on...
+ */	
+Tenseur contract(const Tenseur&, int id1, const Tenseur&, int id2) ;
+
+/**
+ *  Scalar product of two {\tt Tenseur} when the metric is
+ *  $\delta_{ij}$: performs the contraction of the 
+ *  last index of {\tt t1} with the first one of {\tt t2}, irrespective
+ *  of the type of these indices. 
+ */
+Tenseur flat_scalar_prod(const Tenseur& t1, const Tenseur& t2) ;
+	
+/**
+ *  Same as {\tt flat\_scalar\_prod} but with desaliasing. 
+ */
+Tenseur flat_scalar_prod_desal(const Tenseur& t1, const Tenseur& t2) ;
+	
+/**
+ * Raise or lower the index {\tt idx} depending on its type, using the
+ * given {\tt Metrique}.
+ */
+Tenseur manipule(const Tenseur&, const Metrique&, int idx) ;
+
+/**
+ * Raise or lower all the indices, depending on their type,  using the given
+ * {\tt Metrique}.
+ */
+Tenseur manipule(const Tenseur&, const Metrique&) ;
+	
+/**
+ * Contraction of the last index of (*this) with $x^k$ or $x_k$, depending
+ * on the type of $S$. 
+ * 
+ * The calculation is performed to avoid singularities in the external 
+ * zone. This is done only for a flat metric.
+ */
+Tenseur skxk (const Tenseur&) ;
+
+
+//@}
 
 /**
  * @name Tenseur mathematics

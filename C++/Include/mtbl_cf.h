@@ -34,8 +34,11 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/06/17 14:05:17  j_novak
+ * friend functions are now also declared outside the class definition
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.28  2000/09/11  13:52:21  eric
  * Ajout des methodes mult_cp() et mult_sp().
@@ -495,6 +498,7 @@ class Mtbl_cf {
 	/// Angular Laplacian
 	void lapang() ;
 } ;
+ostream& operator<<(ostream& , const Mtbl_cf& ) ;   
 
 /**
  * @name Mtbl\_cf Mathematics

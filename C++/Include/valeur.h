@@ -35,8 +35,11 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/06/17 14:05:17  j_novak
+ * friend functions are now also declared outside the class definition
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.51  2001/05/29  16:11:58  eric
  * Modif commentaires (mise en conformite Doc++ 3.4.7).
@@ -716,6 +719,7 @@ class Valeur {
 
     friend class Cmp ;	    /// Friend class
 };
+ostream& operator<<(ostream& , const Valeur& ) ;   
 
 /**
  * @name Valeur mathematics

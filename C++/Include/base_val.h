@@ -34,8 +34,11 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/06/17 14:05:15  j_novak
+ * friend functions are now also declared outside the class definition
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.20  2001/10/12  14:56:09  novak
  * Ajout des methodes dsdx(), dsdt(), etc...
@@ -390,7 +393,7 @@ class Base_val {
     
 	friend ostream& operator<<(ostream& , const Base_val& ) ; /// Display	
 };
-
+ostream& operator<<(ostream& , const Base_val& ) ;
 /**
  * @name Base\_val arithmetic.
  */

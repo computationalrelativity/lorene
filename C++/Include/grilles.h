@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/06/17 14:05:16  j_novak
+ * friend functions are now also declared outside the class definition
+ *
  * Revision 1.3  2001/12/12 09:23:46  e_gourgoulhon
  * Parameter compact added to the simplified constructor of class Mg3d
  *
@@ -601,5 +604,6 @@ class Mg3d {
 	Base_val** std_base_vect_cart() const ;
 
 };
+ostream& operator<<(ostream& , const Mg3d & ) ;
 
 #endif 

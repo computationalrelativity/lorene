@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/06/17 14:05:16  j_novak
+ * friend functions are now also declared outside the class definition
+ *
  * Revision 1.1  2001/11/22 13:38:09  j_novak
  * added Include files for Valencia objects: tbl_val.h and grille_val.h
  *
@@ -273,6 +276,7 @@ class Grille_val {
   virtual double* somme_spectrale3(const Cmp& meudon) const = 0 ;
   
 };
+ostream& operator<<(ostream& , const Grille_val& ) ;	
 
 
 		    //------------------------------------//

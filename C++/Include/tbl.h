@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/06/17 14:05:17  j_novak
+ * friend functions are now also declared outside the class definition
+ *
  * Revision 1.2  2002/01/03 13:18:40  j_novak
  * Optimization: the members set(i,j) and operator(i,j) of class Matrice are
  * now defined inline. Matrice is a friend class of Tbl.
@@ -339,6 +342,7 @@ class Tbl {
 	void operator/=(double) ;	/// Division of {\tt this} by a {\tt double}
 
 } ;
+ostream& operator<<(ostream& , const Tbl& ) ;	
 
 
 /**

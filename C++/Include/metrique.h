@@ -32,8 +32,11 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/06/17 14:05:17  j_novak
+ * friend functions are now also declared outside the class definition
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.4  2000/02/09  19:28:54  eric
  * Ajout de l'argument triad dans le constructeur par lecture de fichier.
@@ -270,6 +273,7 @@ class Metrique {
 	friend class Tenseur ;	/// Friend class {\tt Tenseur}.
 
 };
+ostream& operator<<(ostream& , const Metrique & ) ; 
 
  /**
  * @name Utilities for {\tt Metrique}
