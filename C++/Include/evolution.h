@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/16 10:36:03  e_gourgoulhon
+ * Replaced " = 0x0" by " = 0" in the declaration of pure virtual functions.
+ *
  * Revision 1.2  2004/02/15 21:55:32  e_gourgoulhon
  * Introduced derived classes Evolution_full and Evolution_std.
  * Evolution is now an abstract base class.
@@ -97,7 +100,7 @@ template<typename TyT> class Evolution {
     // Mutators 
     // --------
         /// Update
-        virtual void update(const TyT& new_value, double new_time) = 0x0 ; 
+        virtual void update(const TyT& new_value, double new_time) = 0 ; 
     
         /// Assignement
         virtual void operator=(const Evolution<TyT>& ) ;
@@ -106,13 +109,13 @@ template<typename TyT> class Evolution {
     // Accessors
     // ---------
         /// Returns value at time step j
-        virtual const TyT& operator[](int j) const = 0x0 ;
+        virtual const TyT& operator[](int j) const = 0 ;
 
         /// Returns value at time t
         TyT operator()(double t) const ;
 
         /// Returns the time t at time step j
-        virtual double get_time(int j) const = 0x0 ;
+        virtual double get_time(int j) const = 0 ;
 
     // Outputs
     // -------
