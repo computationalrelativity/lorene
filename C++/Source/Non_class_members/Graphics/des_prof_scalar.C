@@ -31,6 +31,9 @@ char des_prof_scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/16 13:23:33  e_gourgoulhon
+ * Function des_profile_mult: added delete [] uutab at the end.
+ *
  * Revision 1.2  2004/02/15 21:57:45  e_gourgoulhon
  * des_profile_mult: changed argument Scalar* to Scalar**.
  *
@@ -180,6 +183,9 @@ void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max,
     
     des_profile_mult(uutab, nprof, npt, ngraph, closeit, xmin, xmax, 
                      nomx, nomy, title) ; 
+                     
+      
+    delete [] uutab ; 
     
 } 
 
