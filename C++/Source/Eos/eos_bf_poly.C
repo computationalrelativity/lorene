@@ -31,6 +31,11 @@ char eos_bf_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2003/12/10 08:58:20  r_prix
+ * - added new Eos_bifluid paramter for eos-file: bool slow_rot_style
+ *  to indicate if we want this particular kind of EOS-inversion (only works for
+ *  the  Newtonian 'analytic' polytropes) --> replaces former dirty hack with gamma1<0
+ *
  * Revision 1.15  2003/12/05 15:09:47  r_prix
  * adapted Eos_bifluid class and subclasses to use read_variable() for
  * (formatted) file-reading.
@@ -218,6 +223,13 @@ Eos_bf_poly::Eos_bf_poly( char *fname ) :
   res += read_variable (fname, "kappa3", kap3);
   res += read_variable (fname, "beta", beta);
 
+
+  if (res != 0)
+    {
+      cerr << "ERROR: could not read all required eos-paramters for Eos_bf_poly()" << endl;
+      exit (-1);
+    }
+
   determine_type() ;
 
   if (get_typeos() == 4)
@@ -226,6 +238,14 @@ Eos_bf_poly::Eos_bf_poly( char *fname ) :
       res += read_variable (fname, "precis", precis);
       res += read_variable (fname, "ecart", ecart);
     }
+  else if (get_typeos() == 0) // analytic EOS: check if we want slow-rot-style inversion
+    {
+      bool slowrot = false;
+      read_variable (fname, "slow_rot_style", slowrot); // dont require this variable!
+      if (slowrot)
+	typeos = 5;  // type=5 is reserved for (type0 + slow-rot-style)
+    }
+
 
   if (res != 0)
     {
@@ -292,18 +312,6 @@ void Eos_bf_poly::set_auxiliary() {
 
 void Eos_bf_poly::determine_type() {
     
-  bool slow_rot_style = false;
-
-  // RP: quick and dirty hack: gam1 negative indicates slow-rot-style EOS inversion!!
-  // this is only admissible with the "analytic" EOS (typeos=0) and is indexed as typeos=5
-  if (gam1 < 0)
-    {
-      slow_rot_style = true;
-      gam1 = - gam1;
-      cout << "DEBUG: slow-rot-style Inversion activated in EOS!" << endl;
-    }
-
-  
   if ((gam1 == double(2)) && (gam2 == double(2)) && (gam3 == double(1))
       && (gam4 == double(1)) && (gam5 == double(1)) 
       && (gam6 == double(0))) {
@@ -343,16 +351,8 @@ void Eos_bf_poly::determine_type() {
   else {
     typeos = 4 ;
   }
-	
-  // now check if users asked for slow-rot-style 
-  if (slow_rot_style && (typeos != 0) )
-    {
-      cerr << "ERROR: slow-rot-style (gam1<0) only works with analytic EOS!!" << endl;
-      exit(-1);  // how do you do this Lorene-style?
-    }
 
-  if ( (typeos == 0) && slow_rot_style )
-    typeos = 5;
+  cout << "DEBUG: EOS-type was determined as typeos = " << typeos << endl;
 	
   return ;  
 }

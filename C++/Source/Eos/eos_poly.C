@@ -31,6 +31,11 @@ char eos_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/12/10 08:58:20  r_prix
+ * - added new Eos_bifluid paramter for eos-file: bool slow_rot_style
+ *  to indicate if we want this particular kind of EOS-inversion (only works for
+ *  the  Newtonian 'analytic' polytropes) --> replaces former dirty hack with gamma1<0
+ *
  * Revision 1.5  2002/10/16 14:36:35  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -108,9 +113,9 @@ char eos_poly_C[] = "$Header$" ;
 
 // Standard constructor with m_0 = 1 and mu_0 = 1
 // -----------------------------------------------
-Eos_poly::Eos_poly(double gamma, double kappa) : 
+Eos_poly::Eos_poly(double gam0, double kappa) : 
 	Eos("Relativistic polytropic EOS"), 
-	gam(gamma), kap(kappa), m_0(double(1)), mu_0(double(1)) {
+	gam(gam0), kap(kappa), m_0(double(1)), mu_0(double(1)) {
 
     set_auxiliary() ; 
 
@@ -118,9 +123,9 @@ Eos_poly::Eos_poly(double gamma, double kappa) :
 
 // Standard constructor with mu_0 = 1
 // ----------------------------------
-Eos_poly::Eos_poly(double gamma, double kappa, double mass) :
+Eos_poly::Eos_poly(double gam0, double kappa, double mass) :
 	Eos("Relativistic polytropic EOS"),
-	gam(gamma), kap(kappa), m_0(mass), mu_0(double(1)) {
+	gam(gam0), kap(kappa), m_0(mass), mu_0(double(1)) {
 
     set_auxiliary() ;
 
@@ -128,9 +133,9 @@ Eos_poly::Eos_poly(double gamma, double kappa, double mass) :
 
 // Standard constructor with mu_0 = 1
 // ----------------------------------
-Eos_poly::Eos_poly(double gamma, double kappa, double mass, double mu_zero) :
+Eos_poly::Eos_poly(double gam0, double kappa, double mass, double mu_zero) :
 	Eos("Relativistic polytropic EOS"),
-	gam(gamma), kap(kappa), m_0(mass), mu_0(mu_zero) {
+	gam(gam0), kap(kappa), m_0(mass), mu_0(mu_zero) {
 
     set_auxiliary() ;
 
