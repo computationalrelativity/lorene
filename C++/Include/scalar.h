@@ -38,6 +38,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2003/10/16 15:23:41  e_gourgoulhon
+ * Name of method div_r_ced() changed to div_r_inc2().
+ * Name of method div_rsint_ced() changed to div_rsint_inc2().
+ *
  * Revision 1.23  2003/10/15 21:10:11  e_gourgoulhon
  * Added method poisson_angu().
  *
@@ -511,7 +515,7 @@ class Scalar : public Tensor {
    * increased by 2 units. This means that a multiplication by {\it r},
    * instead of a division, is performed in the CED.
    */
-  void div_r_ced() ; 
+  void div_r_inc2() ; 
   
   void mult_r() ;   /// Multiplication by {\it r} everywhere.
   
@@ -527,7 +531,7 @@ class Scalar : public Tensor {
    * increased by 2 units. This means that a division by $\sin\theta/r$
    * is performed in the CED.
    */
-  void div_rsint_ced() ; 
+  void div_rsint_inc2() ; 
   
   void div_tant() ;    /// Division by $\tan\theta$
   
