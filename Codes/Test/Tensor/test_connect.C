@@ -28,6 +28,9 @@ char test_connect_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/02/18 18:54:44  e_gourgoulhon
+ * Method Tensor::scontract renamed Tensor::trace.
+ *
  * Revision 1.7  2003/12/27 15:03:31  e_gourgoulhon
  * New tests (new index convention of covariant derivatives).
  *
@@ -240,14 +243,14 @@ int main() {
         Vector uvvc = vvc.up(0, metc) ; 
         Scalar divc = uvvc.divergence(metc) ; 
         Tensor udvvc = dvvc.up(0, metc) ; 
-        Scalar diffdivc = divc - Scalar( udvvc.scontract(0,1) ) ; 
+        Scalar diffdivc = divc - Scalar( udvvc.trace(0,1) ) ; 
         cout << "Error on the divergence (Cart.): " << endl ; 
         maxabs(diffdivc) ; 
         
         Vector uvvs = vvs.up(0, mets) ; 
         Scalar divs = uvvs.divergence(mets) ; 
         Tensor udvvs = dvvs.up(0, mets) ; 
-        Scalar diffdivs = divs - Scalar( udvvs.scontract(0,1) ) ; 
+        Scalar diffdivs = divs - Scalar( udvvs.trace(0,1) ) ; 
         cout << "Error on the divergence (spher.): " << endl ; 
         maxabs(diffdivs) ; 
         
@@ -326,7 +329,7 @@ int main() {
         Tensor uddvvc = ddvvc.up(1, metc) ; 
         cout << "div_udvvc : \n " << endl ; 
         div_udvvc.spectral_display() ; 
-        Vector diff_div_udvvc = div_udvvc - uddvvc.scontract(1,2)  ; 
+        Vector diff_div_udvvc = div_udvvc - uddvvc.trace(1,2)  ; 
         cout << "Error on the divergence (Cart.): " << endl ; 
         maxabs(diff_div_udvvc) ; 
         
