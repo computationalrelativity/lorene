@@ -31,6 +31,9 @@ char init_data_schwar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/10/01 16:47:51  f_limousin
+ * Case \alpha=0 included
+ *
  * Revision 1.3  2004/09/28 16:10:05  f_limousin
  * Many improvements. Now the resolution for the shift is working !
  *
@@ -114,7 +117,7 @@ void Isol_hor::init_data_schwar(const Sym_tensor& uu,
 	// Boundary for N	
 	//---------------
 	
-	Valeur nn_bound (boundary_nn_Dir_eff(-0.25)) ;
+	Valeur nn_bound (boundary_nn_Dir(0.2)) ;
 	
 	// Boundary for Psi (Neumann)
 	//---------------------------
@@ -128,30 +131,32 @@ void Isol_hor::init_data_schwar(const Sym_tensor& uu,
       // Resolution of the Poisson equation for the lapse
       // ------------------------------------------------
      
-/*	
+	
 	Scalar source_nn (source_nn_hor(trk_point)) ;
 	source_nn.dec_dzpuis(4) ;
-	des_profile(nn(), 1.00001, 10, 0., 0., "source nn") ;
+//	des_profile(source_nn, 1.00001, 10, 0., 0., "source nn") ;
 
-	Scalar nn_jp1 = source_nn_hor(trk_point).poisson_dirichlet(nn_bound, 0) 
-	    + 1. ; 
-//	Scalar nn_jp1 = nn() ;
+	Scalar nn_jp1 = source_nn_hor(trk_point)
+	    .poisson_dirichlet(nn_bound, 0) + 1. ; 
 
-      // Relaxation (relax=1 -> new ; relax=0 -> old )  
-      //-----------
-      
-	nn_jp1 = relax * nn_jp1 + (1 - relax) * nn() ;
-
-      // Test:
+     // Test:
       maxabs(nn_jp1.laplacian() - source_nn_hor(trk_point),
 	     "Absolute error in the resolution of the equation for N") ;  
       
-       
+      // Relaxation (relax=1 -> new ; relax=0 -> old )  
+      //-----------
+	if (i>0)
+	    nn_jp1 = relax * nn_jp1 + (1 - relax) * nn() ;
+	double diff_nn = max( diffrel(nn(), nn_jp1) ) ;   
+	n_evol.update(nn_jp1, jtime, ttime) ; 
+          
       // Resolution of the Poisson equation for Psi
       // ------------------------------------------
 
 //     des_profile(psi(), 1.00001, 10, 0., 0., "psi") ;
-//     des_profile(source_psi_hor(), 1.00001, 10, 0., 0., "source psi") ;
+	Scalar source_psi (source_psi_hor()) ;
+	source_psi.dec_dzpuis(4) ;
+//	des_profile(source_psi, 1.00001, 10, 0., 0., "source psi") ;
 
        Scalar psi_jp1 = source_psi_hor().poisson_neumann(psi_bound, 0) + 1. ;
 
@@ -167,10 +172,10 @@ void Isol_hor::init_data_schwar(const Sym_tensor& uu,
 	     "Absolute error in the resolution of the equation for Psi") ;  
 
 
-*/         
+              
       // Resolution of the vector Poisson equation for the shift
       //---------------------------------------------------------
-     
+	  
       Vector beta_jp1(beta()) ;
       
       // Source
@@ -218,15 +223,17 @@ void Isol_hor::init_data_schwar(const Sym_tensor& uu,
       //-----------
             
       beta_jp1 = relax * beta_jp1 + (1 - relax) * beta() ;
+      //     beta_jp1.set(3) = 0. ; 
+      //   des_profile(beta_jp1(1), 1.00001, 10, 0., 0., "beta") ;
      
- 
+      
       
       //===========================================
       //      Convergence control
       //===========================================
       
-      double diff_nn = 0;//max( diffrel(nn(), nn_jp1) ) ;   
-      double diff_psi = 0;//max( diffrel(psi(), psi_jp1) ) ; 
+      //     double diff_nn = max( diffrel(nn(), nn_jp1) ) ;   
+      double diff_psi = max( diffrel(psi(), psi_jp1) ) ; 
       double diff_beta = max( maxabs(beta_jp1 - beta()) ) ; 
        
       cout << "step = " << i << " :  diff_psi = " << diff_psi 
@@ -240,16 +247,54 @@ void Isol_hor::init_data_schwar(const Sym_tensor& uu,
       //      Updates for next step 
       //=============================================
       
-//      set_psi_del_q(psi_jp1) ; 
+      set_psi_del_q(psi_jp1) ; 
       
-//      n_evol.update(nn_jp1, jtime, ttime) ; 
+      n_evol.update(nn_jp1, jtime, ttime) ; 
       
       beta_evol.update(beta_jp1, jtime, ttime) ; 
       
       // New value of A^{ij}:
-           Sym_tensor aa_jp1 = ( beta().ope_killing_conf(tgam()) + uu ) 
-	/ (2.* nn()) ; 
+
+      Sym_tensor aa_jp1 (map, CON, map.get_bvect_spher()) ;
+      int nnr = map.get_mg()->get_nr(1) ;
+      int nnp = map.get_mg()->get_np(1) ;
+      int nnt = map.get_mg()->get_nt(1) ;
+
+      int check ;
+      check = 0 ;
+      for (int k=0; k<nnp; k++)
+	  for (int j=0; j<nnt; j++){
+	      if (nn().val_grid_point(1, k, j , 0) < 1e-1){
+		  check = 1 ;
+		  break ;
+	      }
+	  }
+
+      if (check == 0)
+	  aa_jp1 = ( 0*beta().ope_killing_conf(tgam()) + uu ) 
+	      / (2.* nn()) ;            
+      else {
+	  Scalar nn_sxpun (division_xpun (Cmp(nn()), 0)) ;
+	  
+	  Sym_tensor aa_sxpun = beta().ope_killing_conf(tgam()) + uu ;
+	  
+	  for(int i=1; i<=3; i++)
+	      for(int j=1; j<=i; j++){
+		  aa_sxpun.set(i,j).set_inner_boundary(1, 0.) ;
+		  aa_sxpun.set(i,j) = Scalar (division_xpun 
+					    (Cmp(aa_sxpun(i,j)), 0)) ;
+//		  aa_jp1.set(i,j) = aa_sxpun / (2*nn_sxpun) ;
+	      }
+ 		  aa_jp1 = aa_sxpun / (2*nn_sxpun) ;
+     }
       
+      cout << "aa" << endl << norme(aa_jp1(1,1)/(nnr*nnt*nnp)) << endl ;
+      cout << "beta" << endl << norme(beta()(1)/(nnr*nnt*nnp)) << endl ;
+      //     des_profile(aa_jp1(1,1), 0.9, 10, 0., 0., "aa(1,1)") ;
+      
+      
+      cout << "check = " << check << endl ;
+
       //## Alternative formula:
       // Sym_tensor aa_jp1 = ( beta().ope_killing_conf(ff) 
       //                      - hh().derive_lie(beta())
