@@ -31,8 +31,14 @@ char eos_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.5  2001/10/10  13:49:53  eric
  * Modif Joachim: &(Eos_bifluid::...) --> &Eos_bifluid::...
@@ -66,6 +72,7 @@ char eos_bifluid_C[] = "$Header$" ;
 // Headers Lorene
 #include "eos_bifluid.h"
 #include "cmp.h"
+#include "utilitaires.h"
 
 			//--------------//
 			// Constructors //
@@ -148,7 +155,7 @@ const char* Eos_bifluid::get_name() const {
 void Eos_bifluid::sauve(FILE* fich) const {
 
     int ident = identify() ; 
-    fwrite(&ident, sizeof(int), 1, fich) ;	
+    fwrite_be(&ident, sizeof(int), 1, fich) ;	
     	
     fwrite(name, sizeof(char), 100, fich) ;		
    

@@ -31,8 +31,14 @@ char eos_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.9  2001/02/23  15:17:30  eric
  * Methodes der_nbar_ent_p, der_ener_ent_p, der_press_ent_p :
@@ -87,6 +93,7 @@ char eos_poly_C[] = "$Header$" ;
 // Headers Lorene
 #include "eos.h"
 #include "cmp.h"
+#include "utilitaires.h"
 
 			//--------------//
 			// Constructors //
@@ -128,9 +135,9 @@ Eos_poly::Eos_poly(const Eos_poly& eosi) :
 Eos_poly::Eos_poly(FILE* fich) : 
 	Eos(fich) {
         
-    fread(&gam, sizeof(double), 1, fich) ;		
-    fread(&kap, sizeof(double), 1, fich) ;		
-    fread(&m_0, sizeof(double), 1, fich) ;		
+    fread_be(&gam, sizeof(double), 1, fich) ;		
+    fread_be(&kap, sizeof(double), 1, fich) ;		
+    fread_be(&m_0, sizeof(double), 1, fich) ;		
     
     set_auxiliary() ; 
 
@@ -263,9 +270,9 @@ void Eos_poly::sauve(FILE* fich) const {
 
     Eos::sauve(fich) ; 
     
-    fwrite(&gam, sizeof(double), 1, fich) ;	
-    fwrite(&kap, sizeof(double), 1, fich) ;	
-    fwrite(&m_0, sizeof(double), 1, fich) ;	
+    fwrite_be(&gam, sizeof(double), 1, fich) ;	
+    fwrite_be(&kap, sizeof(double), 1, fich) ;	
+    fwrite_be(&m_0, sizeof(double), 1, fich) ;	
    
 }
 

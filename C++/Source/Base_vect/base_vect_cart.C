@@ -32,8 +32,14 @@ char base_vect_cart_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:52  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.6  2000/09/12  12:15:15  eric
  * Fonction change_basis : ajout du cas spherique --> cartesiennes
@@ -115,7 +121,7 @@ Base_vect_cart::Base_vect_cart(const Base_vect_cart& bi)
 Base_vect_cart::Base_vect_cart(FILE* fich) 
 			       : Base_vect(fich) {
         
-    fread(&rot_phi, sizeof(double), 1, fich) ;		
+    fread_be(&rot_phi, sizeof(double), 1, fich) ;		
 
     set_align() ;     
 }
@@ -231,7 +237,7 @@ void Base_vect_cart::sauve(FILE* fich) const {
 
     Base_vect::sauve(fich) ; 
     
-    fwrite(&rot_phi, sizeof(double), 1, fich) ;	
+    fwrite_be(&rot_phi, sizeof(double), 1, fich) ;	
    
 }
 

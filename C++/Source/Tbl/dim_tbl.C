@@ -33,6 +33,12 @@ char dim_tbl[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2001/12/04 21:27:54  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
  * Revision 1.1  2001/11/23 09:37:51  e_gourgoulhon
  * dim_tbl.C now in directory Tbl
  *
@@ -70,6 +76,7 @@ char dim_tbl[] = "$Header$" ;
 
 // Headers Lorene
 #include "dim_tbl.h"
+#include "utilitaires.h"
 
 			//---------------//
 			// Constructeurs //
@@ -111,9 +118,9 @@ Dim_tbl::Dim_tbl(const Dim_tbl & titi) : ndim(titi.ndim) {
 	
 // From a file
 Dim_tbl::Dim_tbl(FILE* fd) {
-    fread(&ndim, sizeof(int), 1, fd) ;		// ndim
+    fread_be(&ndim, sizeof(int), 1, fd) ;		// ndim
     dim = new int[ndim] ;
-    fread(dim, sizeof(int), ndim, fd) ;		// dim[]
+    fread_be(dim, sizeof(int), ndim, fd) ;		// dim[]
     taille = dim[0] ;
     for (int i=1; i<ndim; i++) {
 	taille *= dim[i] ; 
@@ -150,8 +157,8 @@ void Dim_tbl::operator=(const Dim_tbl & titi) {
 
 // Save in a file
 void Dim_tbl::sauve(FILE* fd) const {
-    fwrite(&ndim, sizeof(int), 1, fd) ;		    // ndim
-    fwrite(dim, sizeof(int), ndim, fd) ;	    // dim[]
+    fwrite_be(&ndim, sizeof(int), 1, fd) ;		    // ndim
+    fwrite_be(dim, sizeof(int), ndim, fd) ;	    // dim[]
 }
     
 			//------------//

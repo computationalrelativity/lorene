@@ -33,8 +33,14 @@ char map_af_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.23  2001/02/28  11:04:05  eric
  * 1ere version testee de resize.
@@ -117,6 +123,7 @@ char map_af_C[] = "$Header$" ;
 #include "coord.h"
 #include "map.h"
 #include "cmp.h"
+#include "utilitaires.h"
 
 // Local prototype:
 void c_est_pas_fait(char * ) ;
@@ -196,8 +203,8 @@ Map_af::Map_af(const Mg3d& mgi, FILE* fd) : Map_radial(mgi, fd)
     int nz = mg->get_nzone() ;
     alpha = new double[nz] ;
     beta = new double[nz] ;
-    fread(alpha, sizeof(double), nz, fd) ;	
-    fread(beta, sizeof(double), nz, fd) ;	
+    fread_be(alpha, sizeof(double), nz, fd) ;	
+    fread_be(beta, sizeof(double), nz, fd) ;	
 
     // Les coordonnees et les derivees du changement de variable
     set_coord() ; 
@@ -348,8 +355,8 @@ void Map_af::sauve(FILE* fd) const {
     Map_radial::sauve(fd) ; 
 
     int nz = mg->get_nzone() ;
-    fwrite(alpha, sizeof(double), nz, fd) ;	
-    fwrite(beta, sizeof(double), nz, fd) ;	
+    fwrite_be(alpha, sizeof(double), nz, fd) ;	
+    fwrite_be(beta, sizeof(double), nz, fd) ;	
     
 }
     

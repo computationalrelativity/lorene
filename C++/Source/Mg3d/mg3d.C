@@ -31,8 +31,14 @@ char mg3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:54  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.10  2001/05/26  14:50:46  eric
  * *** empty log message ***
@@ -80,6 +86,7 @@ char mg3d_C[] = "$Header$" ;
 
 #include "grilles.h"
 #include "type_parite.h"
+#include "utilitaires.h"
 
 		//--------------//
 		// Multi-grille //
@@ -290,17 +297,17 @@ Mg3d::Mg3d(int nz,
 Mg3d::Mg3d(FILE* fd)
 {
     // Lecture sur le fichier
-    fread(&nzone, sizeof(int), 1, fd) ;		// nzone
+    fread_be(&nzone, sizeof(int), 1, fd) ;		// nzone
     nr = new int[nzone] ;
-    fread(nr, sizeof(int), nzone, fd) ;		// nr
+    fread_be(nr, sizeof(int), nzone, fd) ;		// nr
     nt = new int[nzone] ;
-    fread(nt, sizeof(int), nzone, fd) ;		// nt
+    fread_be(nt, sizeof(int), nzone, fd) ;		// nt
     np = new int[nzone] ;
-    fread(np, sizeof(int), nzone, fd) ;		// np
+    fread_be(np, sizeof(int), nzone, fd) ;		// np
     type_r = new int[nzone] ;
-    fread(type_r, sizeof(int), nzone, fd) ;	// type_r
-    fread(&type_t, sizeof(int), 1, fd) ;	// type_t
-    fread(&type_p, sizeof(int), 1, fd) ;	// type_p
+    fread_be(type_r, sizeof(int), nzone, fd) ;	// type_r
+    fread_be(&type_t, sizeof(int), 1, fd) ;	// type_t
+    fread_be(&type_p, sizeof(int), 1, fd) ;	// type_p
 
     // Les grilles
     // -----------
@@ -476,13 +483,13 @@ Mg3d::~Mg3d() {
 //==================================================================
 
 void Mg3d::sauve(FILE* fd) const {	
-	    fwrite(&nzone, sizeof(int), 1, fd) ;	// nzone
-	    fwrite(nr, sizeof(int), nzone, fd) ;	// nr
-	    fwrite(nt, sizeof(int), nzone, fd) ;	// nt
-	    fwrite(np, sizeof(int), nzone, fd) ;	// np
-	    fwrite(type_r, sizeof(int), nzone, fd) ;	// type_r
-	    fwrite(&type_t, sizeof(int), 1, fd) ;	// type_t
-	    fwrite(&type_p, sizeof(int), 1, fd) ;	// type_p
+	    fwrite_be(&nzone, sizeof(int), 1, fd) ;	// nzone
+	    fwrite_be(nr, sizeof(int), nzone, fd) ;	// nr
+	    fwrite_be(nt, sizeof(int), nzone, fd) ;	// nt
+	    fwrite_be(np, sizeof(int), nzone, fd) ;	// np
+	    fwrite_be(type_r, sizeof(int), nzone, fd) ;	// type_r
+	    fwrite_be(&type_t, sizeof(int), 1, fd) ;	// type_t
+	    fwrite_be(&type_p, sizeof(int), 1, fd) ;	// type_p
 }
 
 

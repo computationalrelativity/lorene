@@ -33,8 +33,14 @@ char eos_strange_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.2  2001/02/07  09:49:47  eric
  * Suppression de la fonction derent_ent_p.
@@ -66,6 +72,7 @@ char eos_strange_C[] = "$Header$" ;
 // Headers Lorene
 #include "eos.h"
 #include "cmp.h"
+#include "utilitaires.h"
 
 		    //------------------------------------//
 		    //		Constructors		  //
@@ -107,11 +114,11 @@ Eos_strange::Eos_strange(const Eos_strange& eos_i) :
 Eos_strange::Eos_strange(FILE* fich) : 
 	Eos(fich) {
         
-    fread(&n0_b60, sizeof(double), 1, fich) ;		
-    fread(&b60, sizeof(double), 1, fich) ;		
-    fread(&ent0, sizeof(double), 1, fich) ;		
-    fread(&eps_fit, sizeof(double), 1, fich) ;		
-    fread(&rho0_b60, sizeof(double), 1, fich) ;		
+    fread_be(&n0_b60, sizeof(double), 1, fich) ;		
+    fread_be(&b60, sizeof(double), 1, fich) ;		
+    fread_be(&ent0, sizeof(double), 1, fich) ;		
+    fread_be(&eps_fit, sizeof(double), 1, fich) ;		
+    fread_be(&rho0_b60, sizeof(double), 1, fich) ;		
     
     set_auxiliary() ; 
 
@@ -258,11 +265,11 @@ void Eos_strange::sauve(FILE* fich) const {
 
     Eos::sauve(fich) ; 
     
-    fwrite(&n0_b60, sizeof(double), 1, fich) ;	
-    fwrite(&b60, sizeof(double), 1, fich) ;	
-    fwrite(&ent0, sizeof(double), 1, fich) ;	
-    fwrite(&eps_fit, sizeof(double), 1, fich) ;	
-    fwrite(&rho0_b60, sizeof(double), 1, fich) ;	
+    fwrite_be(&n0_b60, sizeof(double), 1, fich) ;	
+    fwrite_be(&b60, sizeof(double), 1, fich) ;	
+    fwrite_be(&ent0, sizeof(double), 1, fich) ;	
+    fwrite_be(&eps_fit, sizeof(double), 1, fich) ;	
+    fwrite_be(&rho0_b60, sizeof(double), 1, fich) ;	
 
 }		    
 

@@ -32,8 +32,14 @@ char metrique_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:54  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.2  2000/02/09  19:31:42  eric
  * Ajout de l'argument triad dans le constructeur par lecture de fichier.
@@ -63,6 +69,7 @@ char metrique_C[] = "$Header$" ;
 #include "tenseur.h"
 #include "cmp.h"
 #include "metrique.h"
+#include "utilitaires.h"
 
 //Constructeur standard (ne fait pas grand chose) :
 
@@ -144,7 +151,7 @@ Metrique::Metrique (const Tenseur_sym &source) : mp(source.get_mp()) {
 Metrique::Metrique (const Map& mapping, const Base_vect& triad,
 		    FILE* fd) : mp(&mapping){
     
-    fread (&etat, sizeof(int), 1, fd) ;
+    fread_be (&etat, sizeof(int), 1, fd) ;
     
     p_met_cov = 0x0 ;
     p_met_con = 0x0 ;
@@ -152,7 +159,7 @@ Metrique::Metrique (const Map& mapping, const Base_vect& triad,
     
     if (etat == ETATQCQ) {
 	int indic ;
-	fread (&indic, sizeof(int), 1, fd) ;
+	fread_be (&indic, sizeof(int), 1, fd) ;
 	switch (indic) {
 	    case COV : {
 		p_met_cov = new Tenseur_sym(mapping, triad, fd) ;
@@ -377,7 +384,7 @@ ostream& operator<<(ostream& flux, const Metrique & source) {
 
 void Metrique::sauve(FILE* fd) const {
 
-    fwrite(&etat, sizeof(int), 1, fd) ;
+    fwrite_be(&etat, sizeof(int), 1, fd) ;
     
     if (etat == ETATQCQ) {
     
@@ -388,7 +395,7 @@ void Metrique::sauve(FILE* fd) const {
     else if (p_met_con != 0x0)
 	    indic = CON ;
 	 else indic = 0 ;
-    fwrite(&indic, sizeof(int), 1, fd) ;
+    fwrite_be(&indic, sizeof(int), 1, fd) ;
     switch (indic) {
 	case COV : {
 	    p_met_cov->sauve(fd) ;

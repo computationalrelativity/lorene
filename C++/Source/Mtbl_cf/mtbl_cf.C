@@ -33,8 +33,14 @@ char mtbl_cf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:54  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.13  2000/08/16  10:43:09  eric
  * Suppression du membre dzpuis.
@@ -88,6 +94,7 @@ char mtbl_cf_C[] = "$Header$" ;
 
 // headers Lorene
 #include "mtbl_cf.h"
+#include "utilitaires.h"
 
 // Prototypage
 void c_est_pas_fait(char * ) ;
@@ -159,7 +166,7 @@ Mtbl_cf::Mtbl_cf(const Mg3d& g, FILE* fd) : mg(&g),
     // Lecture
     nzone = mg->get_nzone() ;
     assert(base.nzone == nzone) ; 
-    fread(&etat, sizeof(int), 1, fd) ;		// etat
+    fread_be(&etat, sizeof(int), 1, fd) ;		// etat
     
     // Le tableau
     t = 0x0 ;
@@ -170,7 +177,7 @@ Mtbl_cf::Mtbl_cf(const Mg3d& g, FILE* fd) : mg(&g),
 	}
     }
     int dzpuis_vieux ;
-    fread(&dzpuis_vieux, sizeof(int), 1, fd) ;	    // le vieux dzpuis !
+    fread_be(&dzpuis_vieux, sizeof(int), 1, fd) ;	    // le vieux dzpuis !
 }
 
 // Sauvegarde sur un fichier
@@ -179,14 +186,14 @@ void Mtbl_cf::sauve(FILE* fd) const {
 
     base.sauve(fd) ;			    // la base
     mg->sauve(fd) ;			    // la multi-grille
-    fwrite(&etat, sizeof(int), 1, fd) ;		    // etat
+    fwrite_be(&etat, sizeof(int), 1, fd) ;		    // etat
     if (etat == ETATQCQ) {
 	for (int i=0 ; i<nzone ; i++) {
 	    t[i]->sauve(fd) ;
 	}
     }
     int dzpuis_vieux = 0 ;
-    fwrite(&dzpuis_vieux, sizeof(int), 1, fd) ;	    // le vieux dzpuis !
+    fwrite_be(&dzpuis_vieux, sizeof(int), 1, fd) ;	    // le vieux dzpuis !
 }
 
 // Affectations

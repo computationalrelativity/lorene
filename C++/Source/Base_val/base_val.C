@@ -34,8 +34,14 @@ char base_val_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:52  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.8  2000/09/28  10:20:19  eric
  * Affichage: nouvelles bases T_LEG_IP et T_LEG_PI.
@@ -82,6 +88,7 @@ char base_val_C[] = "$Header$" ;
 #include "indent.h"
 #include "type_parite.h"
 #include "base_val.h"
+#include "utilitaires.h"
 
 
 			//---------------//
@@ -106,9 +113,9 @@ Base_val::Base_val(const Base_val & bi) : nzone(bi.nzone) {
 	
 // From file
 Base_val::Base_val(FILE* fd) {
-  fread(&nzone, sizeof(int), 1, fd) ;		// nzone
+  fread_be(&nzone, sizeof(int), 1, fd) ;		// nzone
   b = new int[nzone] ; 
-  fread(b, sizeof(int), nzone, fd) ;		// b[]
+  fread_be(b, sizeof(int), nzone, fd) ;		// b[]
 }
 
 			//--------------//
@@ -168,8 +175,8 @@ void Base_val::operator=(const Base_val & bi) {
 
 // Save in a file
 void Base_val::sauve(FILE* fd) const {
-    fwrite(&nzone, sizeof(int), 1, fd) ;	    // nzone
-    fwrite(b, sizeof(int), nzone, fd) ;	            // b[]
+    fwrite_be(&nzone, sizeof(int), 1, fd) ;	    // nzone
+    fwrite_be(b, sizeof(int), nzone, fd) ;	            // b[]
 }
     
 			//------------//

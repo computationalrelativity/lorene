@@ -33,8 +33,14 @@ char tbl_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:54  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.13  1999/11/24  16:00:43  eric
  * Modif affichage dimensions dans affiche_seuil.
@@ -97,6 +103,7 @@ char tbl_C[] = "$Header$" ;
 // headers Lorene
 #include "tbl.h"
 #include "grilles.h"
+#include "utilitaires.h"
 
 
 			//---------------//
@@ -140,12 +147,12 @@ Tbl::Tbl(const Tbl& tc) : etat(tc.etat), dim(tc.dim) {
 // From file
 Tbl::Tbl(FILE* fd) : dim(fd) {
 
-    fread(&etat, sizeof(int), 1, fd) ;		// etat
+    fread_be(&etat, sizeof(int), 1, fd) ;		// etat
     
     // Le tableau
     if (etat == ETATQCQ) {
 	t = new double[get_taille()] ;
-	fread(t, sizeof(double), get_taille(), fd) ;	    // le tableau
+	fread_be(t, sizeof(double), get_taille(), fd) ;	    // le tableau
     }
     else{
 	t = 0x0 ; 
@@ -231,9 +238,9 @@ void Tbl::operator=(int m)
 void Tbl::sauve(FILE* fd) const {
 
     dim.sauve(fd) ;	    	    	    	    // dim
-    fwrite(&etat, sizeof(int), 1, fd) ;		    // etat
+    fwrite_be(&etat, sizeof(int), 1, fd) ;		    // etat
     if (etat == ETATQCQ) {
-	fwrite(t, sizeof(double), get_taille(), fd) ;	    // le tableau
+	fwrite_be(t, sizeof(double), get_taille(), fd) ;   // le tableau
     }
 }
     

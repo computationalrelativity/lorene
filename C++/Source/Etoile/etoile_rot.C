@@ -31,8 +31,14 @@ char etoile_rot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.17  2001/10/24  15:36:20  eric
  * Ajout de la fonction display_poly.
@@ -103,6 +109,7 @@ char etoile_rot_C[] = "$Header$" ;
 #include "etoile.h"
 #include "eos.h"
 #include "nbr_spx.h"
+#include "utilitaires.h"
 
 			    //--------------//
 			    // Constructors //
@@ -240,7 +247,7 @@ Etoile_rot::Etoile_rot(Map& mpi, const Eos& eos_i, FILE* fich)
     // -----------------
 
     // omega is read in the file:     
-    fread(&omega, sizeof(double), 1, fich) ;		
+    fread_be(&omega, sizeof(double), 1, fich) ;		
     	  
    
     // Read of the saved fields:
@@ -410,7 +417,7 @@ void Etoile_rot::sauve(FILE* fich) const {
     
     Etoile::sauve(fich) ; 
     
-    fwrite(&omega, sizeof(double), 1, fich) ;		
+    fwrite_be(&omega, sizeof(double), 1, fich) ;		
     
     nuf.sauve(fich) ; 
     nuq.sauve(fich) ; 

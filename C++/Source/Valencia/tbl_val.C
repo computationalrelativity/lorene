@@ -32,6 +32,12 @@ char TBL_VAL_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2001/12/04 21:27:54  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
  * Revision 1.1  2001/11/22 13:41:54  j_novak
  * Added all source files for manipulating Valencia type objects and making
  * interpolations to and from Meudon grids.
@@ -49,6 +55,7 @@ char TBL_VAL_C[] = "$Header$" ;
 
 // headers Lorene
 #include "tbl_val.h"
+#include "utilitaires.h"
 
 
 			//---------------//
@@ -99,21 +106,21 @@ Tbl_val::Tbl_val(const Tbl_val& tc) : etat(tc.etat), dim(tc.dim),
 Tbl_val::Tbl_val(const Grille_val* g, FILE* fd) : dim(g->get_dim_tbl()), 
   gval(g) {
   
-  fread(&etat, sizeof(int), 1, fd) ;		// etat
+  fread_be(&etat, sizeof(int), 1, fd) ;		// etat
   
   // Le tableau
   if (etat == ETATQCQ) {
     t = new double[get_taille()] ;
-    fread(t, sizeof(double), get_taille(), fd) ;	    // le tableau
+    fread_be(t, sizeof(double), get_taille(), fd) ;	    // le tableau
     tzri = new double[get_taille_i(0)] ;
-    fread(tzri, sizeof(double), get_taille_i(0), fd) ;
+    fread_be(tzri, sizeof(double), get_taille_i(0), fd) ;
     if (get_ndim() > 1) {
       txti = new double[get_taille_i(1)] ;
-      fread(txti, sizeof(double), get_taille_i(1), fd) ; }
+      fread_be(txti, sizeof(double), get_taille_i(1), fd) ; }
     else txti = 0x0 ;
     if (get_ndim() > 2) {
       typi = new double[get_taille_i(2)] ;
-      fread(typi, sizeof(double), get_taille_i(2), fd) ; }
+      fread_be(typi, sizeof(double), get_taille_i(2), fd) ; }
     else typi = 0x0 ;
   }
   else{
@@ -225,14 +232,14 @@ void Tbl_val::operator=(int m)
 
 void Tbl_val::sauve(FILE* fd) const {
   
-  fwrite(&etat, sizeof(int), 1, fd) ;		    // etat
+  fwrite_be(&etat, sizeof(int), 1, fd) ;		    // etat
   if (etat == ETATQCQ) {
-    fwrite(t, sizeof(double), get_taille(), fd) ;	    // le tableau
-    fwrite(tzri, sizeof(double), get_taille_i(0), fd) ;
+    fwrite_be(t, sizeof(double), get_taille(), fd) ;	    // le tableau
+    fwrite_be(tzri, sizeof(double), get_taille_i(0), fd) ;
     if (get_ndim() > 1) 
-      fwrite(txti, sizeof(double), get_taille_i(1), fd) ; 
+      fwrite_be(txti, sizeof(double), get_taille_i(1), fd) ;
     if (get_ndim() > 2) 
-      fwrite(typi, sizeof(double), get_taille_i(2), fd) ; 
+      fwrite_be(typi, sizeof(double), get_taille_i(2), fd) ;
   }
 }
 

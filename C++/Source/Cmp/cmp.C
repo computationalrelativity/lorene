@@ -35,8 +35,14 @@ char cmp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.36  2000/09/13  12:11:56  eric
  * Ajout de la fonction allocate_all().
@@ -164,6 +170,7 @@ char cmp_C[] = "$Header$" ;
 // headers Lorene
 #include "cmp.h"
 #include "type_parite.h"
+#include "utilitaires.h"
 
 
 			//---------------//
@@ -201,8 +208,8 @@ Cmp::Cmp(const Map& mpi, const Mg3d& mgi, FILE* fd) : mp(&mpi), va(mgi, fd) {
 
     assert( mpi.get_mg() == &mgi ) ; 
 
-    fread(&etat, sizeof(int), 1, fd) ;		    // L'etat
-    fread(&dzpuis, sizeof(int), 1, fd) ;	    // dzpuis
+    fread_be(&etat, sizeof(int), 1, fd) ;		    // L'etat
+    fread_be(&dzpuis, sizeof(int), 1, fd) ;	    // dzpuis
 
     set_der_0x0() ;	// Les derivees sont initialisees a zero
 
@@ -529,8 +536,8 @@ void Cmp::sauve(FILE* fd) const {
     va.sauve(fd) ;	    // la valeur (en premier pour la construction
 			    //   lors de la lecture du fichier)
 
-    fwrite(&etat, sizeof(int), 1, fd) ;		    // l'etat
-    fwrite(&dzpuis, sizeof(int), 1, fd) ;	    // dzpuis
+    fwrite_be(&etat, sizeof(int), 1, fd) ;		    // l'etat
+    fwrite_be(&dzpuis, sizeof(int), 1, fd) ;	    // dzpuis
 
 }
     

@@ -32,8 +32,14 @@ char base_vect_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:52  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.5  2000/09/19  16:09:40  phil
  * *** empty log message ***
@@ -115,10 +121,10 @@ Base_vect_spher::Base_vect_spher(const Base_vect_spher& bi)
 Base_vect_spher::Base_vect_spher(FILE* fich) 
 			       : Base_vect(fich) {
         
-    fread(&ori_x, sizeof(double), 1, fich) ;		
-    fread(&ori_y, sizeof(double), 1, fich) ;		
-    fread(&ori_z, sizeof(double), 1, fich) ;		
-    fread(&rot_phi, sizeof(double), 1, fich) ;		
+    fread_be(&ori_x, sizeof(double), 1, fich) ;		
+    fread_be(&ori_y, sizeof(double), 1, fich) ;		
+    fread_be(&ori_z, sizeof(double), 1, fich) ;		
+    fread_be(&rot_phi, sizeof(double), 1, fich) ;		
 
 }
 
@@ -227,10 +233,10 @@ void Base_vect_spher::sauve(FILE* fich) const {
 
     Base_vect::sauve(fich) ; 
     
-    fwrite(&ori_x, sizeof(double), 1, fich) ;	
-    fwrite(&ori_y, sizeof(double), 1, fich) ;	
-    fwrite(&ori_z, sizeof(double), 1, fich) ;	
-    fwrite(&rot_phi, sizeof(double), 1, fich) ;	
+    fwrite_be(&ori_x, sizeof(double), 1, fich) ;	
+    fwrite_be(&ori_y, sizeof(double), 1, fich) ;	
+    fwrite_be(&ori_z, sizeof(double), 1, fich) ;	
+    fwrite_be(&rot_phi, sizeof(double), 1, fich) ;	
    
 }
 

@@ -33,8 +33,14 @@ char map_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.12  2000/02/11  14:26:54  eric
  * *** empty log message ***
@@ -91,6 +97,7 @@ char map_C[] = "$Header$" ;
 // headers Lorene
 #include "map.h"
 #include "cmp.h"
+#include "utilitaires.h"
 
 			//---------------//
 			// Constructeurs //
@@ -142,10 +149,10 @@ Map::Map(const Mg3d& mgi, FILE* fd) : mg(&mgi),
     }
     delete mg_tmp ;
     
-    fread(&ori_x, sizeof(double), 1, fd) ;		// ori_x
-    fread(&ori_y, sizeof(double), 1, fd) ;		// ori_y
-    fread(&ori_z, sizeof(double), 1, fd) ;		// ori_z
-    fread(&rot_phi, sizeof(double), 1, fd) ;		// rot_phi
+    fread_be(&ori_x, sizeof(double), 1, fd) ;		// ori_x
+    fread_be(&ori_y, sizeof(double), 1, fd) ;		// ori_y
+    fread_be(&ori_z, sizeof(double), 1, fd) ;		// ori_z
+    fread_be(&rot_phi, sizeof(double), 1, fd) ;		// rot_phi
 
     bvect_spher.set_ori(ori_x, ori_y, ori_z) ; 
     bvect_spher.set_rot_phi(rot_phi) ; 
@@ -175,10 +182,10 @@ void Map::sauve(FILE* fd) const {
 
     mg->sauve(fd) ;			    // la multi-grille
 
-    fwrite(&ori_x, sizeof(double), 1, fd) ;		// ori_x
-    fwrite(&ori_y, sizeof(double), 1, fd) ;		// ori_y
-    fwrite(&ori_z, sizeof(double), 1, fd) ;		// ori_z
-    fwrite(&rot_phi, sizeof(double), 1, fd) ;		// rot_phi
+    fwrite_be(&ori_x, sizeof(double), 1, fd) ;		// ori_x
+    fwrite_be(&ori_y, sizeof(double), 1, fd) ;		// ori_y
+    fwrite_be(&ori_z, sizeof(double), 1, fd) ;		// ori_z
+    fwrite_be(&rot_phi, sizeof(double), 1, fd) ;		// rot_phi
 }
     
 			//------------//

@@ -30,8 +30,14 @@ char base_vect_from_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:52  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.0  2000/02/09  13:25:23  eric
  * *** empty log message ***
@@ -49,6 +55,7 @@ char base_vect_from_file_C[] = "$Header$" ;
 
 // Header Lorene
 #include "base_vect.h"
+#include "utilitaires.h"
 
 		//--------------------------------------//
 		//  Identification virtual functions	//
@@ -71,7 +78,7 @@ Base_vect* Base_vect::bvect_from_file(FILE* fich) {
     
     // Type (class) of vectorial basis identificator ; 
     int identificator ;     
-    fread(&identificator, sizeof(int), 1, fich) ;		
+    fread_be(&identificator, sizeof(int), 1, fich) ;		
 
     switch(identificator) {
 	

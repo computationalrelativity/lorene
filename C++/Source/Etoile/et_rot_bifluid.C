@@ -32,8 +32,14 @@ char et_rot_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.3  2001/08/28  16:04:22  novak
  * Use of new definition of relative velocity and new declarations for EOS
@@ -53,6 +59,7 @@ char et_rot_bifluid_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "et_rot_bifluid.h"
+#include "utilitaires.h"
 
 			    //--------------//
 			    // Constructors //
@@ -120,7 +127,7 @@ Et_rot_bifluid::Et_rot_bifluid(Map& mpi, const Eos_bifluid& eos_i, FILE* fich):
   // Etoile parameters
   // -----------------
   // omega2 is read in the file:     
-  fread(&omega2, sizeof(double), 1, fich) ;		
+  fread_be(&omega2, sizeof(double), 1, fich) ;		
   
   
   // Read of the saved fields:
@@ -247,7 +254,7 @@ void Et_rot_bifluid::sauve(FILE* fich) const {
     
     Etoile_rot::sauve(fich) ; 
     
-    fwrite(&omega2, sizeof(double), 1, fich) ;		
+    fwrite_be(&omega2, sizeof(double), 1, fich) ;		
     
     ent2.sauve(fich) ; 
     

@@ -29,8 +29,14 @@ char map_et_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.11  2001/02/28  11:04:20  eric
  * 1ere version testee de resize.
@@ -80,6 +86,7 @@ char map_et_C[] = "$Header$" ;
 
 // headers Lorene
 #include "map.h"
+#include "utilitaires.h"
 
 			//--------------//
 			// Constructors //
@@ -221,8 +228,8 @@ Map_et::Map_et(const Mg3d& mgi, FILE* fich)
     int nz = mg->get_nzone() ;
     alpha = new double[nz] ;
     beta = new double[nz] ;
-    fread(alpha, sizeof(double), nz, fich) ;	
-    fread(beta, sizeof(double), nz, fich) ;	
+    fread_be(alpha, sizeof(double), nz, fich) ;	
+    fread_be(beta, sizeof(double), nz, fich) ;	
 
     // Assignement of the building functions of the Coord's
     // ----------------------------------------------------
@@ -540,8 +547,8 @@ void Map_et::sauve(FILE* fich) const {
     
     // Write of alpha and beta :
     int nz = mg->get_nzone() ;
-    fwrite(alpha, sizeof(double), nz, fich) ;	
-    fwrite(beta, sizeof(double), nz, fich) ;	
+    fwrite_be(alpha, sizeof(double), nz, fich) ;	
+    fwrite_be(beta, sizeof(double), nz, fich) ;	
     
 }
 

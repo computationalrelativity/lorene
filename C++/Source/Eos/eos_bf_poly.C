@@ -31,6 +31,12 @@ char eos_bf_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2001/12/04 21:27:53  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
  * Revision 1.2  2001/11/29 15:05:26  j_novak
  * The entrainment term in 2-fluid eos is modified
  *
@@ -67,6 +73,7 @@ char eos_bf_poly_C[] = "$Header$" ;
 #include "eos_bifluid.h"
 #include "eos.h"
 #include "cmp.h"
+#include "utilitaires.h"
 
 			//--------------//
 			// Constructors //
@@ -120,18 +127,18 @@ Eos_bf_poly::Eos_bf_poly(const Eos_bf_poly& eosi) :
 Eos_bf_poly::Eos_bf_poly(FILE* fich) : 
 	Eos_bifluid(fich) {
         
-    fread(&gam1, sizeof(double), 1, fich) ;		
-    fread(&gam2, sizeof(double), 1, fich) ;		
-    fread(&gam3, sizeof(double), 1, fich) ;		
-    fread(&gam4, sizeof(double), 1, fich) ;		
-    fread(&gam5, sizeof(double), 1, fich) ;		
-    fread(&gam6, sizeof(double), 1, fich) ;		
-    fread(&kap1, sizeof(double), 1, fich) ;		
-    fread(&kap2, sizeof(double), 1, fich) ;		
-    fread(&kap3, sizeof(double), 1, fich) ;		
-    fread(&beta, sizeof(double), 1, fich) ;		
-    fread(&m_1, sizeof(double), 1, fich) ;		
-    fread(&m_2, sizeof(double), 1, fich) ;		
+    fread_be(&gam1, sizeof(double), 1, fich) ;		
+    fread_be(&gam2, sizeof(double), 1, fich) ;		
+    fread_be(&gam3, sizeof(double), 1, fich) ;		
+    fread_be(&gam4, sizeof(double), 1, fich) ;		
+    fread_be(&gam5, sizeof(double), 1, fich) ;		
+    fread_be(&gam6, sizeof(double), 1, fich) ;		
+    fread_be(&kap1, sizeof(double), 1, fich) ;		
+    fread_be(&kap2, sizeof(double), 1, fich) ;		
+    fread_be(&kap3, sizeof(double), 1, fich) ;		
+    fread_be(&beta, sizeof(double), 1, fich) ;		
+    fread_be(&m_1, sizeof(double), 1, fich) ;		
+    fread_be(&m_2, sizeof(double), 1, fich) ;		
     
     set_auxiliary() ; 
 
@@ -287,18 +294,18 @@ void Eos_bf_poly::sauve(FILE* fich) const {
 
     Eos_bifluid::sauve(fich) ; 
     
-    fwrite(&gam1, sizeof(double), 1, fich) ;	
-    fwrite(&gam2, sizeof(double), 1, fich) ;	
-    fwrite(&gam3, sizeof(double), 1, fich) ;	
-    fwrite(&gam4, sizeof(double), 1, fich) ;	
-    fwrite(&gam5, sizeof(double), 1, fich) ;	
-    fwrite(&gam6, sizeof(double), 1, fich) ;	
-    fwrite(&kap1, sizeof(double), 1, fich) ;	
-    fwrite(&kap2, sizeof(double), 1, fich) ;	
-    fwrite(&kap3, sizeof(double), 1, fich) ;	
-    fwrite(&beta, sizeof(double), 1, fich) ;	
-    fwrite(&m_1, sizeof(double), 1, fich) ;	
-    fwrite(&m_2, sizeof(double), 1, fich) ;	
+    fwrite_be(&gam1, sizeof(double), 1, fich) ;	
+    fwrite_be(&gam2, sizeof(double), 1, fich) ;	
+    fwrite_be(&gam3, sizeof(double), 1, fich) ;	
+    fwrite_be(&gam4, sizeof(double), 1, fich) ;	
+    fwrite_be(&gam5, sizeof(double), 1, fich) ;	
+    fwrite_be(&gam6, sizeof(double), 1, fich) ;	
+    fwrite_be(&kap1, sizeof(double), 1, fich) ;	
+    fwrite_be(&kap2, sizeof(double), 1, fich) ;	
+    fwrite_be(&kap3, sizeof(double), 1, fich) ;	
+    fwrite_be(&beta, sizeof(double), 1, fich) ;	
+    fwrite_be(&m_1, sizeof(double), 1, fich) ;	
+    fwrite_be(&m_2, sizeof(double), 1, fich) ;	
    
 }
 

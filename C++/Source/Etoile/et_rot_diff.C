@@ -32,8 +32,14 @@ char et_rot_diff_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.3  2001/10/25  09:20:54  eric
  * Ajout de la fonction virtuelle display_poly.
@@ -57,6 +63,7 @@ char et_rot_diff_C[] = "$Header$" ;
 #include "et_rot_diff.h"
 #include "eos.h"
 #include "nbr_spx.h"
+#include "utilitaires.h"
 
 			    //--------------//
 			    // Constructors //
@@ -119,8 +126,8 @@ Et_rot_diff::Et_rot_diff(Map& mp_i, const Eos& eos_i, FILE* fich,
     fait_prim_field() ; 
 			 
     // omega_min and omega_max are read in the file:     
-    fread(&omega_min, sizeof(double), 1, fich) ;		
-    fread(&omega_max, sizeof(double), 1, fich) ;		
+    fread_be(&omega_min, sizeof(double), 1, fich) ;		
+    fread_be(&omega_max, sizeof(double), 1, fich) ;		
 
 }
 
@@ -169,8 +176,8 @@ void Et_rot_diff::sauve(FILE* fich) const {
     
     omega_field.sauve(fich) ; 
     
-    fwrite(&omega_min, sizeof(double), 1, fich) ;		
-    fwrite(&omega_max, sizeof(double), 1, fich) ;		
+    fwrite_be(&omega_min, sizeof(double), 1, fich) ;		
+    fwrite_be(&omega_max, sizeof(double), 1, fich) ;		
 
 }
 

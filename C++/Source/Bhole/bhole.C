@@ -32,8 +32,14 @@ char bhole_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:52  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.23  2001/06/28  15:08:27  eric
  * Ajout de la fonction area().
@@ -119,6 +125,7 @@ char bhole_C[] = "$Header$" ;
 #include "tenseur.h"
 #include "bhole.h"
 #include "proto.h"
+#include "utilitaires.h"
 
 // Constructeur standard
 Bhole::Bhole (Map_af& mpi) : mp(mpi),
@@ -361,9 +368,9 @@ void Bhole::init_bhole_seul () {
 // Sauvegarde dans fichier
 void Bhole::sauve (FILE* fich) const {
     
-    fwrite (&omega, sizeof(double), 1, fich) ;
-    fwrite (boost, sizeof(double), 3, fich) ;
-    fwrite (&regul, sizeof(double), 1, fich) ;
+    fwrite_be (&omega, sizeof(double), 1, fich) ;
+    fwrite_be (boost, sizeof(double), 3, fich) ;
+    fwrite_be (&regul, sizeof(double), 1, fich) ;
     
     n_auto.sauve(fich) ;
     psi_auto.sauve(fich) ;
@@ -385,9 +392,9 @@ Bhole::Bhole(Map_af& mpi, FILE* fich) :
 			tkij_tot (mpi, 2, CON,  mpi.get_bvect_cart()) , 
 			decouple (mpi) {
 
-	fread(&omega, sizeof(double), 1, fich) ;
-	fread(boost, sizeof(double), 3, fich) ;
-	fread(&regul, sizeof(double), 1, fich) ;
+	fread_be(&omega, sizeof(double), 1, fich) ;
+	fread_be(boost, sizeof(double), 3, fich) ;
+	fread_be(&regul, sizeof(double), 1, fich) ;
 	
 	Tenseur n_auto_file (mp, fich) ;
 	n_auto = n_auto_file ;

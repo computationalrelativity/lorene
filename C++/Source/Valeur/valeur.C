@@ -34,8 +34,14 @@ char valeur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:54  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.37  2000/09/11  13:53:07  eric
  * Ajout des membres p_mult_cp et p_mult_sp.
@@ -165,6 +171,7 @@ char valeur_C[] = "$Header$" ;
 
 // headers Lorene
 #include "valeur.h"
+#include "utilitaires.h"
 
 
 
@@ -247,7 +254,7 @@ Valeur::Valeur(const Mg3d& g, FILE* fd) : mg(&g), base(fd) {
     }
     delete mg_tmp ;
 
-    fread(&etat, sizeof(int), 1, fd) ;	    // L'etat
+    fread_be(&etat, sizeof(int), 1, fd) ;	    // L'etat
 
     if (etat == ETATQCQ) {
 	c = new Mtbl(g, fd) ;		    // Les valeurs ds l'espace des conf.
@@ -451,7 +458,7 @@ void Valeur::sauve(FILE* fd) const {
 
     base.sauve(fd) ;			    // la base 
     mg->sauve(fd) ;			    // la multi-grille
-    fwrite(&etat, sizeof(int), 1, fd) ;	    // l'etat
+    fwrite_be(&etat, sizeof(int), 1, fd) ;	    // l'etat
 
     if (etat == ETATQCQ) {	
 	if (c == 0x0) {		// La sauvegarde s'effectue dans l'espace

@@ -33,8 +33,14 @@ char itbl_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.1  1999/11/23  13:17:09  eric
  * Le constructeur Itbl::Itbl(const Dim_tbl ) devient desormais
@@ -60,6 +66,7 @@ char itbl_C[] = "$Header$" ;
 // headers Lorene
 #include "itbl.h"
 #include "indent.h"
+#include "utilitaires.h"
 
 
 			//---------------//
@@ -106,12 +113,12 @@ Itbl::Itbl(const Itbl& tc) : etat(tc.etat), dim(tc.dim) {
 // From file
 Itbl::Itbl(FILE* fd) : dim(fd) {
 
-    fread(&etat, sizeof(int), 1, fd) ;		// etat
+    fread_be(&etat, sizeof(int), 1, fd) ;		// etat
     
     // Le tableau
     if (etat == ETATQCQ) {
 	t = new int[get_taille()] ;
-	fread(t, sizeof(int), get_taille(), fd) ;	    // le tableau
+	fread_be(t, sizeof(int), get_taille(), fd) ;	    // le tableau
     }
     else{
 	t = 0x0 ; 
@@ -184,9 +191,9 @@ void Itbl::operator=(int a)
 void Itbl::sauve(FILE* fd) const {
 
     dim.sauve(fd) ;	    	    	    	    // dim
-    fwrite(&etat, sizeof(int), 1, fd) ;		    // etat
+    fwrite_be(&etat, sizeof(int), 1, fd) ;		    // etat
     if (etat == ETATQCQ) {
-	fwrite(t, sizeof(int), get_taille(), fd) ;	    // le tableau
+	fwrite_be(t, sizeof(int), get_taille(), fd) ;	    // le tableau
     }
 }
     

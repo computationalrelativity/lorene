@@ -33,8 +33,14 @@ char tenseur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:54  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.21  2001/10/10  13:54:40  eric
  * Modif Joachim: pow(3, *) --> pow(3., *)
@@ -132,6 +138,7 @@ char tenseur_C[] = "$Header$" ;
 // Headers Lorene
 #include "tenseur.h"
 #include "metrique.h"
+#include "utilitaires.h"
 
 			//--------------//
 			// Constructors //
@@ -313,7 +320,7 @@ Tenseur::Tenseur (const Tenseur_sym& source) :
 Tenseur::Tenseur(const Map& mapping, const Base_vect& triad_i, FILE* fd)
 		 : mp(&mapping), triad(&triad_i), type_indice(fd) {
    
-    fread(&valence, sizeof(int), 1, fd) ;
+    fread_be(&valence, sizeof(int), 1, fd) ;
 
     if (valence != 0) {
 	Base_vect* triad_fich = Base_vect::bvect_from_file(fd) ; 
@@ -324,8 +331,8 @@ Tenseur::Tenseur(const Map& mapping, const Base_vect& triad_i, FILE* fd)
 	triad = 0x0 ; 
     }
     
-    fread(&n_comp, sizeof(int), 1, fd) ;
-    fread(&etat, sizeof(int), 1, fd) ;
+    fread_be(&n_comp, sizeof(int), 1, fd) ;
+    fread_be(&etat, sizeof(int), 1, fd) ;
     
     c = new (Cmp* [n_comp]) ;
     for (int i=0 ; i<n_comp ; i++)
@@ -345,17 +352,17 @@ Tenseur::Tenseur(const Map& mapping, const Base_vect& triad_i, FILE* fd)
 Tenseur::Tenseur (const Map& mapping, FILE* fd) 
 		 : mp(&mapping), type_indice(fd) {
    
-    fread(&valence, sizeof(int), 1, fd) ;
+    fread_be(&valence, sizeof(int), 1, fd) ;
 
     assert(valence == 0) ; 
     
     triad = 0x0 ; 
     
-    fread(&n_comp, sizeof(int), 1, fd) ;
+    fread_be(&n_comp, sizeof(int), 1, fd) ;
     
     assert(n_comp == 1) ; 
 
-    fread(&etat, sizeof(int), 1, fd) ;
+    fread_be(&etat, sizeof(int), 1, fd) ;
     
     c = new (Cmp* [n_comp]) ;
 
@@ -1156,14 +1163,14 @@ ostream& operator<<(ostream& flux, const Tenseur &source ) {
 void Tenseur::sauve(FILE* fd) const {
     
     type_indice.sauve(fd) ;	// type des composantes
-    fwrite(&valence, sizeof(int), 1, fd) ;    // la valence
+    fwrite_be(&valence, sizeof(int), 1, fd) ;    // la valence
     
     if (valence != 0) {
 	triad->sauve(fd) ;	    // Vectorial basis
     }
     
-    fwrite(&n_comp, sizeof(int), 1, fd) ; // nbre composantes
-    fwrite(&etat, sizeof(int), 1, fd) ; // etat
+    fwrite_be(&n_comp, sizeof(int), 1, fd) ; // nbre composantes
+    fwrite_be(&etat, sizeof(int), 1, fd) ; // etat
    
     if (etat == ETATQCQ)
 	for (int i=0 ; i<n_comp ; i++)

@@ -31,8 +31,14 @@ char binaire_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:52  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.7  2001/06/25  12:55:46  eric
  * Traitement des etoiles compagnons (appel de Etoile_bin::set_companion dans
@@ -71,6 +77,7 @@ char binaire_bin_C[] = "$Header$" ;
 // Headers Lorene
 #include "binaire.h"
 #include "eos.h"
+#include "utilitaires.h"
 
 			    //--------------//
 			    // Constructors //
@@ -137,8 +144,8 @@ Binaire::Binaire(Map& mp1, const Eos& eos1, Map& mp2, const Eos& eos2,
     star2.set_companion( star1 ) ; 
 
     // omega and x_axe are read in the file:     
-    fread(&omega, sizeof(double), 1, fich) ;		
-    fread(&x_axe, sizeof(double), 1, fich) ;		
+    fread_be(&omega, sizeof(double), 1, fich) ;		
+    fread_be(&x_axe, sizeof(double), 1, fich) ;		
 
     // Pointers of derived quantities initialized to zero : 
     set_der_0x0() ;    
@@ -220,8 +227,8 @@ void Binaire::sauve(FILE* fich) const {
     star1.sauve(fich) ; 
     star2.sauve(fich) ; 
     
-    fwrite(&omega, sizeof(double), 1, fich) ;		
-    fwrite(&x_axe, sizeof(double), 1, fich) ;		
+    fwrite_be(&omega, sizeof(double), 1, fich) ;		
+    fwrite_be(&x_axe, sizeof(double), 1, fich) ;		
     
 }
 

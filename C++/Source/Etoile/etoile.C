@@ -32,8 +32,14 @@ char etoile_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.14  2000/11/24  13:27:44  eric
  * Dans eqution_of_state(): changement leger de ent dans le cas ou l'on a
@@ -98,6 +104,7 @@ char etoile_C[] = "$Header$" ;
 // Headers Lorene
 #include "etoile.h"
 #include "eos.h"
+#include "utilitaires.h"
 
 
 			    //--------------//
@@ -263,7 +270,7 @@ Etoile::Etoile(Map& mpi, const Eos& eos_i, FILE* fich)
 
     // nzet and relativistic are read in the file:     
     int xx ; 
-    fread(&xx, sizeof(int), 1, fich) ;	
+    fread_be(&xx, sizeof(int), 1, fich) ;	
     k_div = xx / 1000 ;	    // integer part
     nzet = xx - k_div * 1000  ;
     		
@@ -446,7 +453,7 @@ void Etoile::set_enthalpy(const Cmp& ent_i) {
 void Etoile::sauve(FILE* fich) const {
     
     int xx = nzet + k_div * 1000 ;     
-    fwrite(&xx, sizeof(int), 1, fich) ;			
+    fwrite_be(&xx, sizeof(int), 1, fich) ;			
 
     fwrite(&relativistic, sizeof(bool), 1, fich) ;		
 

@@ -32,6 +32,12 @@ char Grille_val_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2001/12/04 21:27:54  e_gourgoulhon
+ *
+ * All writing/reading to a binary file are now performed according to
+ * the big endian convention, whatever the system is big endian or
+ * small endian, thanks to the functions fwrite_be and fread_be
+ *
  * Revision 1.1  2001/11/22 13:41:54  j_novak
  * Added all source files for manipulating Valencia type objects and making
  * interpolations to and from Meudon grids.
@@ -43,6 +49,7 @@ char Grille_val_C[] = "$Header$" ;
 
 // Fichier includes
 #include "grille_val.h"
+#include "utilitaires.h"
 
 			//---------------//
 			// Constructeurs //
@@ -136,13 +143,13 @@ Grille_val::Grille_val(const Grille_val & titi): dim(titi.dim),
 // Depuis un fichier
 Grille_val::Grille_val(FILE* fd):dim(fd) {
 
-  fread(&nfantome, sizeof(int), 1, fd) ;		
-  fread(&type_t, sizeof(int), 1, fd) ;		
-  fread(&type_p, sizeof(int), 1, fd) ;		
+  fread_be(&nfantome, sizeof(int), 1, fd) ;		
+  fread_be(&type_t, sizeof(int), 1, fd) ;		
+  fread_be(&type_p, sizeof(int), 1, fd) ;		
   
   double amin, amax ;
-  fread(&amin, sizeof(double), 1, fd) ;		
-  fread(&amax, sizeof(double), 1, fd) ;		
+  fread_be(&amin, sizeof(double), 1, fd) ;		
+  fread_be(&amax, sizeof(double), 1, fd) ;		
   zrmin = new double(amin) ;
   zrmax = new double(amax) ;
   zr = new Tbl(fd) ;
@@ -201,12 +208,12 @@ void Grille_val::operator=(const Grille_val & titi) {
 void Grille_val::sauve(FILE* fd) const {
 
   dim.sauve(fd) ;
-  fwrite(&nfantome, sizeof(int), 1, fd) ;		
-  fwrite(&type_t, sizeof(int), 1, fd) ;		
-  fwrite(&type_p, sizeof(int), 1, fd) ;		
+  fwrite_be(&nfantome, sizeof(int), 1, fd) ;		
+  fwrite_be(&type_t, sizeof(int), 1, fd) ;		
+  fwrite_be(&type_p, sizeof(int), 1, fd) ;		
   
-  fwrite(zrmin, sizeof(double), 1, fd) ;		
-  fwrite(zrmax, sizeof(double), 1, fd) ;		
+  fwrite_be(zrmin, sizeof(double), 1, fd) ;		
+  fwrite_be(zrmax, sizeof(double), 1, fd) ;		
   
   zr->sauve(fd) ; zri->sauve(fd) ;
 
@@ -341,16 +348,16 @@ Gval_cart::Gval_cart(FILE* fd)
 {
   double amin, amax ;
   if (dim.ndim >= 2) {
-    fread(&amin, sizeof(double), 1, fd) ;		
-    fread(&amax, sizeof(double), 1, fd) ;		
+    fread_be(&amin, sizeof(double), 1, fd) ;		
+    fread_be(&amax, sizeof(double), 1, fd) ;		
     xmin = new double(amin) ;
     xmax = new double(amax) ;
     x = new Tbl(fd) ;
     xi = new Tbl(fd) ;
   }
   if (dim.ndim >= 3) {
-    fread(&amin, sizeof(double), 1, fd) ;		
-    fread(&amax, sizeof(double), 1, fd) ;		
+    fread_be(&amin, sizeof(double), 1, fd) ;		
+    fread_be(&amax, sizeof(double), 1, fd) ;		
     ymin = new double(amin) ;
     ymax = new double(amax) ;
     y = new Tbl(fd) ;
@@ -406,13 +413,13 @@ void Gval_cart::sauve(FILE* fd) const {
   Grille_val::sauve(fd) ;
 
   if (dim.ndim >= 2) {
-    fwrite(xmin, sizeof(double), 1, fd) ;		
-    fwrite(xmax, sizeof(double), 1, fd) ;		
+    fwrite_be(xmin, sizeof(double), 1, fd) ;		
+    fwrite_be(xmax, sizeof(double), 1, fd) ;		
     x->sauve(fd) ; xi->sauve(fd) ;
   }
   if (dim.ndim >= 3) {
-    fwrite(ymin, sizeof(double), 1, fd) ;		
-    fwrite(ymax, sizeof(double), 1, fd) ;		
+    fwrite_be(ymin, sizeof(double), 1, fd) ;		
+    fwrite_be(ymax, sizeof(double), 1, fd) ;		
     y->sauve(fd) ; yi->sauve(fd) ;
   }
 
