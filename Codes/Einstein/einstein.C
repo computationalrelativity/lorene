@@ -29,6 +29,9 @@ char einstein_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/02 14:54:17  e_gourgoulhon
+ * Started to encode source for h from new equations.
+ *
  * Revision 1.3  2004/02/27 21:17:26  e_gourgoulhon
  * Still in progress...
  *
@@ -181,11 +184,6 @@ int main() {
 
     tgam = ff.con() + hh ;      // initialization  [ Eq. (51) ]
     
-    // Some shortcuts:
-    const Sym_tensor& tgam_dd = tgam.cov() ;    
-    const Sym_tensor& tgam_uu = tgam.con() ;    
-    const Tensor_sym& delta = tgam.connect().get_delta() ;   // Eq. (26)
-
 
     // Set up of shift vector beta
     // ---------------------------    
@@ -233,6 +231,7 @@ int main() {
     
     Scalar tmp(map) ; 
     Scalar tmp0(map) ; 
+    Sym_tensor sym_tmp(map, CON, otriad) ; 
 
     //======================================================================
     //                  Start of time evolution
@@ -241,6 +240,26 @@ int main() {
     int jmax = 1 ; 
     
     for (int jtime = 0; jtime <= jmax; jtime++) {
+    
+        
+        {
+        //==============================================
+        //  Definition of references on derivatives: 
+        //   the source objects should not be modified
+        //   in this scope
+        //==============================================  
+
+        const Sym_tensor& tgam_dd = tgam.cov() ;    // {\tilde \gamma}_{ij}
+        const Sym_tensor& tgam_uu = tgam.con() ;    // {\tilde \gamma}^{ij}
+        const Tensor_sym& dtgam = tgam_dd.derive_cov(ff) ;    
+                                                    // D_k {\tilde \gamma}_{ij}
+        const Tensor_sym& dhh = hh.derive_cov(ff) ; // D_k h^{ij}
+        const Vector& dln_psi = ln_psi.derive_cov(ff) ; // D_i ln(Psi)
+        const Vector& dln_psi_u = ln_psi.derive_con(ff) ; // D^i ln(Psi)
+        const Vector& dnn = nn.derive_cov(ff) ;         // D_i N
+        const Vector& dnn_u = nn.derive_con(ff) ;       // D^i N
+        const Vector& dqq = qq.derive_cov(ff) ;         // D_i Q
+
 
         // Source for Q  [ Eq. (76) ]
         // ------------
@@ -248,19 +267,17 @@ int main() {
         Scalar aa_quad = contract(taa, 0, 1, aa, 0, 1) ; 
         
         Scalar source_qq = 0.75 * psi4 * qq * aa_quad  
-            - contract( hh, 0, 1, qq.derive_cov(ff).derive_cov(ff), 0, 1 ) ; 
+            - contract( hh, 0, 1, dqq.derive_cov(ff), 0, 1 ) ; 
             
         source_qq.inc_dzpuis() ;  
             
-        tmp = 0.0625 * contract( hh.derive_cov(ff), 0, 1, 
-                        tgam_dd.derive_cov(ff), 0, 1 ).trace(tgam) 
-             - 0.125 * contract( hh.derive_cov(ff), 0, 1,      
-                        tgam_dd.derive_cov(ff), 0, 2 ).trace(tgam) 
-             + 2.* contract( contract( tgam_uu, 0, ln_psi.derive_cov(ff), 0), 0,
-                                 ln_psi.derive_cov(ff), 0 ) ;
+        tmp = 0.0625 * contract( dhh, 0, 1, dtgam, 0, 1 ).trace(tgam) 
+             - 0.125 * contract( dhh, 0, 1, dtgam, 0, 2 ).trace(tgam) 
+             + 2.* contract( contract( tgam_uu, 0, dln_psi, 0), 0,
+                             dln_psi, 0 ) ;
      
         tmp0 = 2. * contract( tgam_uu, 0, 1, 
-                              ln_psi.derive_cov(ff) * nn.derive_cov(ff), 0, 1) ;
+                              dln_psi * dnn, 0, 1) ;
         
         source_qq += psi2 * ( nn * tmp + tmp0 ) ; 
                              
@@ -272,7 +289,7 @@ int main() {
         
         Scalar source_nn = psi4 * nn * aa_quad ;
         
-        tmp = contract( hh, 0, 1, nn.derive_cov(ff).derive_cov(ff), 0, 1 ) ;
+        tmp = contract( hh, 0, 1, dnn.derive_cov(ff), 0, 1 ) ;
         tmp.inc_dzpuis() ; 
         
         source_nn -= tmp + tmp0 ; 
@@ -283,8 +300,8 @@ int main() {
         // ---------------
 
         Vector source_beta = 2. * ( contract(aa, 1, 
-                        nn.derive_cov(ff) - 6.*nn * ln_psi.derive_cov(ff), 0)
-                    - nn * contract(delta, 1, 2, aa, 0, 1) )
+                        dnn - 6.*nn * dln_psi, 0)
+                - nn * contract(tgam.connect().get_delta(), 1, 2, aa, 0, 1) )
                 - contract(hh, 0, 1, 
                            beta.derive_cov(ff).derive_cov(ff), 1, 2)
                 - 0.3333333333333333 *
@@ -292,9 +309,84 @@ int main() {
                     
         source_beta.spectral_display("source_beta") ; 
         
-        // Source for h [ Eq. (93) ]
-        // -------------
+
+        // Quadratic part of the Ricci tensor of gam_tilde 
+        // ------------------------------------------------
+        
+        Sym_tensor ricci_star(map, CON, otriad) ; 
+        
+        ricci_star = contract(hh, 0, 1, dhh.derive_cov(ff), 2, 3) ; 
+
+        ricci_star.inc_dzpuis() ;   // dzpuis : 3 --> 4
+
+
+        for (int i=1; i<=3; i++) {
+            for (int j=1; j<=i; j++) {
+                tmp = 0 ; 
+                for (int k=1; k<=3; k++) {
+                    for (int l=1; l<=3; l++) {
+                        tmp += dhh(i,k,l) * dhh(j,l,k) ; 
+                    }
+                }
+                sym_tmp.set(i,j) = tmp ; 
+            }
+        }
+        ricci_star -= sym_tmp ;
+
+        for (int i=1; i<=3; i++) {
+            for (int j=1; j<=i; j++) {
+                tmp = 0 ; 
+                for (int k=1; k<=3; k++) {
+                    for (int l=1; l<=3; l++) {
+                        for (int m=1; m<=3; m++) {
+                            for (int n=1; n<=3; n++) {
+                            
+        tmp += 0.5 * tgam_uu(i,k)*tgam_uu(j,l) * dhh(m,n,k) * dtgam(m,n,l)
+                + tgam_dd(n,l) * dhh(m,n,k) * ( tgam_uu(i,k) * dhh(j,l,m)
+                                                + tgam_uu(j,k) *  dhh(i,l,m) )
+                - tgam_dd(k,l) * tgam_uu(m,n) * dhh(i,k,m) * dhh(j,l,n) ;
+                            }
+                        } 
+                    }
+                }
+                sym_tmp.set(i,j) = tmp ; 
+            }
+        }
+        ricci_star += sym_tmp ;
+
+        ricci_star = 0.5 * ricci_star ; 
+        
+        
+        // Curvature scalar of conformal metric :
+        // -------------------------------------
+        
+        Scalar tricci_scal = 
+            0.25 * contract( tgam_uu, 0, 1,
+                             contract(dhh, 0, 1, dtgam, 0, 1), 0, 1 ) 
+          - 0.5  * contract( tgam_uu, 0, 1,
+                             contract(dhh, 0, 1, dtgam, 0, 2), 0, 1 ) ;  
+                                             
+          
+        // Full quadratic part of source for h : S^{ij}
+        // --------------------------------------------
+        
+        Sym_tensor ss(map, CON, otriad) ; 
+        
+        ss = nn * (ricci_star + 8.* dln_psi_u * dln_psi_u)
+                + 4.*( dln_psi_u * dnn_u + dnn_u * dln_psi_u ) 
+                - 0.3333333333333333 * ( 
+                    nn * (tricci_scal 
+                            + 8.* contract(dln_psi, 0, dln_psi_u, 0) )
+                    + 8.* contract(dln_psi, 0, dnn_u, 0) ) * tgam_uu ;
+
+        ss = ss / psi4  ;
+
+
+        // Source for h 
+        // ------------
                  
+                 
+          
         Sym_tensor_trans source_hh(map, otriad, ff) ;  
         
         source_hh = (1. - nn*nn/psi4) * hh.derive_con(ff).divergence(ff) ;
@@ -315,13 +407,16 @@ int main() {
         
 
         source_hh += nn / psi4 * contract( tstmp, 2, nn.derive_cov(ff)
-                                    + 2.*nn* ln_psi.derive_cov(ff), 0) ; 
-       
-        Sym_tensor tmpsym = beta * beta ; 
-        source_hh += contract(tmpsym, 0, 1, 
-                              hh.derive_cov(ff).derive_cov(ff), 2, 3) ; 
+                                    + 2.*nn* ln_psi.derive_cov(ff), 0) ;         
         
+
+        }
+        //==============================================
+        //  End of scope for references on derivatives
+        //==============================================  
+
         
+
         cout << "Next step ?" << endl ; 
         arrete() ;  
     }
