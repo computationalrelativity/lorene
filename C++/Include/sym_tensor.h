@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2004/05/24 13:44:54  e_gourgoulhon
+ * Added parameter dzp to method Sym_tensor_tt::update.
+ *
  * Revision 1.19  2004/04/08 16:37:54  e_gourgoulhon
  * Sym_tensor_tt::set_khi_mu: added argument dzp (dzpuis of resulting h^{ij}).
  *
@@ -428,8 +431,8 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	/** Field \f$\eta\f$ such that the components \f$(h^{r\theta}, h^{r\varphi})\f$
 	 * of the tensor are written:
 	 * \f[
-	 *	h^{r\theta} =  {1\over r} \left( {\partial \eta \over \partial\theta}
-	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right) 
+	 *	h^{r\theta} =  {1\over r} \left( {\partial \eta \over \partial\theta} -
+	 *	{1\over\sin\theta} {\partial \mu \over \partial\varphi} \right) 
 	 *\f] 
 	 * \f[
 	 *	h^{r\varphi} =  {1\over r} \left( {1\over\sin\theta} 
@@ -442,8 +445,8 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	/** Field \f$\mu\f$ such that the components \f$(h^{r\theta}, h^{r\varphi})\f$
 	 * of the tensor are written:
 	 * \f[
-	 *	h^{r\theta} =  {1\over r} \left( {\partial \eta \over \partial\theta}
-	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right) 
+	 *	h^{r\theta} =  {1\over r} \left( {\partial \eta \over \partial\theta} -
+	 *	 {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right) 
 	 *\f] 
 	 * \f[
 	 *	h^{r\varphi} =  {1\over r} \left( {1\over\sin\theta} 
@@ -582,8 +585,8 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	/** Gives the field \f$\eta\f$ such that the components \f$(h^{r\theta}, h^{r\varphi})\f$
 	 * of the tensor are written:
 	 * \f[
-	 *	h^{r\theta} =  {1\over r} \left( {\partial \eta \over \partial\theta}
-	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right) 
+	 *	h^{r\theta} =  {1\over r} \left( {\partial \eta \over \partial\theta} -
+	 *	 {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right) 
 	 *\f] 
 	 * \f[
 	 *	h^{r\varphi} =  {1\over r} \left( {1\over\sin\theta} 
@@ -596,8 +599,8 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	/** Gives the field \f$\mu\f$ such that the components \f$(h^{r\theta}, h^{r\varphi})\f$
 	 * of the tensor are written:
 	 * \f[
-	 *	h^{r\theta} =  {1\over r} \left( {\partial \eta \over \partial\theta}
-	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right) 
+	 *	h^{r\theta} =  {1\over r} \left( {\partial \eta \over \partial\theta} -
+	 *		 {1\over\sin\theta} {\partial \mu \over \partial\varphi} \right) 
 	 *\f] 
 	 * \f[
 	 *	h^{r\varphi} =  {1\over r} \left( {1\over\sin\theta} 
@@ -612,8 +615,10 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	/** Computes the components \f$h^{r\theta}\f$, \f$h^{r\varphi}\f$,
 	 * \f$h^{\theta\theta}\f$, \f$h^{\theta\varphi}\f$ and \f$h^{\varphi\varphi}\f$,
 	 *  from \f$h^{rr}\f$ and the potentials \f$\eta\f$ and \f$\mu\f$.
+         *  @param dzp \c dzpuis parameter of the result, i.e. of the 
+         *      components \f$ h^{ij} \f$.
 	 */
-	void update() ;
+	void update(int dzp) ;
 	
 
 	public:

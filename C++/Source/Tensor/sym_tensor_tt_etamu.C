@@ -32,6 +32,9 @@ char sym_tensor_tt_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/05/24 13:45:29  e_gourgoulhon
+ * Added parameter dzp to method Sym_tensor_tt::update.
+ *
  * Revision 1.11  2004/05/05 14:24:54  e_gourgoulhon
  * Corrected a bug in method set_khi_mu: the division of khi by r^2
  * was ommitted in the case dzp=2 !!!
@@ -204,7 +207,7 @@ void Sym_tensor_tt::set_rr_eta_mu(const Scalar& hrr, const Scalar& eta_i,
 
 		p_mu = new Scalar( mu_i ) ; 	// mu 
 		
-		update() ; // all h^{ij}, except for h^{rr}
+		update( hrr.get_dzpuis() ) ; // all h^{ij}, except for h^{rr}
 		
 }
 			
@@ -226,7 +229,7 @@ void Sym_tensor_tt::set_rr_mu(const Scalar& hrr, const Scalar& mu_i) {
 		
 		eta() ; // computes eta form the divergence-free condition
 		
-		update() ; // all h^{ij}, except for h^{rr}
+		update( hrr.get_dzpuis() ) ; // all h^{ij}, except for h^{rr}
 		
 }
 			
@@ -254,7 +257,7 @@ void Sym_tensor_tt::set_khi_eta_mu(const Scalar& khi_i, const Scalar& eta_i,
   
   p_mu = new Scalar( mu_i ) ; 	// mu 
   
-  update() ; // all h^{ij}, except for h^{rr}
+  update( khi_i.get_dzpuis() ) ; // all h^{ij}, except for h^{rr}
 		
 }
 			
@@ -292,7 +295,7 @@ void Sym_tensor_tt::set_khi_mu(const Scalar& khi_i, const Scalar& mu_i,
           // dzp = 0 ==> eta.dzpuis = 0
           // dzp = 2 ==> eta.dzpuis = 1
     
-  update() ; // all h^{ij}, except for h^{rr}
+  update(dzp) ; // all h^{ij}, except for h^{rr}
 		
 }
 			
@@ -302,14 +305,13 @@ void Sym_tensor_tt::set_khi_mu(const Scalar& khi_i, const Scalar& mu_i,
 			//-------------//
 			
 
-void Sym_tensor_tt::update() {
+void Sym_tensor_tt::update(int dzp) {
 
-	// All this has a meaning only for spherical components:
-	assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
+    // All this has a meaning only for spherical components:
+    assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
 
-	assert( (p_eta != 0x0) && (p_mu != 0x0) ) ; 
-	
-	
+    assert( (p_eta != 0x0) && (p_mu != 0x0) ) ; 
+	        
     Itbl idx(2) ;
     idx.set(0) = 1 ;	// r index
 	
@@ -318,21 +320,24 @@ void Sym_tensor_tt::update() {
 	idx.set(1) = 2 ;	// theta index
 	*cmp[position(idx)] = p_eta->srdsdt() - p_mu->srstdsdp() ; 
     
-    if (p_eta->get_dzpuis() == 0) {
+    if (dzp == 0) {
         assert( cmp[position(idx)]->check_dzpuis(2) ) ; 
         cmp[position(idx)]->dec_dzpuis(2) ;
     }
+    
+    assert( cmp[position(idx)]->check_dzpuis(dzp) ) ; 
     
 	// h^{r phi} :
 	// ------------
 	idx.set(1) = 3 ;	// phi index
 	*cmp[position(idx)] = p_eta->srstdsdp() + p_mu->srdsdt() ; 
 
-    if (p_eta->get_dzpuis() == 0) {
+    if (dzp == 0) {
         assert( cmp[position(idx)]->check_dzpuis(2) ) ; 
         cmp[position(idx)]->dec_dzpuis(2) ;
     }
 	
+    assert( cmp[position(idx)]->check_dzpuis(dzp) ) ; 
 	
 	// h^{theta phi} and h^{phi phi}
 	// -----------------------------
