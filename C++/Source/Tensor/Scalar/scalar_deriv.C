@@ -32,6 +32,10 @@ char scalar_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/10/11 14:43:29  e_gourgoulhon
+ * Changed name of local Cmp "deriv" to "derivee" (in order not
+ * to shadow the member deriv).
+ *
  * Revision 1.2  2003/10/10 15:57:29  j_novak
  * Added the state one (ETATUN) to the class Scalar
  *
@@ -51,7 +55,7 @@ char scalar_deriv_C[] = "$Header$" ;
 #include "cmp.h"
 
 			//---------------------//
-			//	d/dr	       //
+			//         d/dr        //
 			//---------------------//
 
 const Scalar& Scalar::dsdr() const {
@@ -69,9 +73,9 @@ const Scalar& Scalar::dsdr() const {
       }
       else {
 	Cmp orig(*this) ;
-	Cmp deriv(mp) ;
-	mp->dsdr(orig, deriv) ;
-	p_dsdr = new Scalar(deriv) ; 
+	Cmp derivee(mp) ;
+	mp->dsdr(orig, derivee) ;
+	p_dsdr = new Scalar(derivee) ; 
       }
     }
     
@@ -79,9 +83,9 @@ const Scalar& Scalar::dsdr() const {
 
 }
 
-			//------------------------//
-			//	1/r d/dtheta      //
-			//------------------------//
+			//--------------------//
+			//    1/r d/dtheta    //
+			//--------------------//
 
 const Scalar& Scalar::srdsdt() const {
 
@@ -98,9 +102,9 @@ const Scalar& Scalar::srdsdt() const {
       }
       else {
 	Cmp orig(*this) ;
-	Cmp deriv(mp) ;
-	mp->srdsdt(orig, deriv) ;
-	p_srdsdt = new Scalar(deriv) ;
+	Cmp derivee(mp) ;
+	mp->srdsdt(orig, derivee) ;
+	p_srdsdt = new Scalar(derivee) ;
       }
     }
     return *p_srdsdt ;
@@ -108,9 +112,9 @@ const Scalar& Scalar::srdsdt() const {
 }
 
 
-			//----------------------------------//
-			//	1/(r sin(theta) d/dphi	    //
-			//----------------------------------//
+			//------------------------------//
+			//    1/(r sin(theta) d/dphi    //
+			//------------------------------//
 
 const Scalar& Scalar::srstdsdp() const {
 
@@ -127,18 +131,18 @@ const Scalar& Scalar::srstdsdp() const {
       }
       else {
 	Cmp orig(*this) ;
-	Cmp deriv(mp) ;
-	mp->srstdsdp(orig, deriv) ;
-	p_srstdsdp = new Scalar(deriv) ; 
+	Cmp derivee(mp) ;
+	mp->srstdsdp(orig, derivee) ;
+	p_srstdsdp = new Scalar(derivee) ; 
       }
     }
     return *p_srstdsdp ;
 
 }
 
-			//---------------------//
-			//	d/dx	       //
-			//---------------------//
+			//-----------------//
+			//      d/dx       //
+			//-----------------//
 
 const Scalar& Scalar::dsdx() const {
 
@@ -168,9 +172,9 @@ const Scalar& Scalar::dsdx() const {
 
 }
 
-			//---------------------//
-			//	d/dy	       //
-			//---------------------//
+			//-----------------//
+			//      d/dy       //
+			//-----------------//
 
 const Scalar& Scalar::dsdy() const {
 
@@ -199,9 +203,9 @@ const Scalar& Scalar::dsdy() const {
 
 }
 
-			//---------------------//
-			//	d/dz	       //
-			//---------------------//
+			//-----------------//
+			//      d/dz       //
+			//-----------------//
 
 const Scalar& Scalar::dsdz() const {
 
@@ -230,9 +234,9 @@ const Scalar& Scalar::dsdz() const {
 
 }
 
-			//---------------------//
-			//	d/dx^i	       //
-			//---------------------//
+			//-----------------//
+			//      d/dx^i     //
+			//-----------------//
 
 const Scalar& Scalar::deriv(int i) const {
     
