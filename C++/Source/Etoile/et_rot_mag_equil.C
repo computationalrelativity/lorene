@@ -34,6 +34,10 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2002/10/11 11:47:35  j_novak
+ * Et_rot_mag::MHD_comput is now virtual.
+ * Use of standard constructor for Tenseur mtmp in Et_rot_mag::equilibrium_mag
+ *
  * Revision 1.11  2002/06/05 15:15:59  j_novak
  * The case of non-adapted mapping is treated.
  * parmag.d and parrot.d have been merged.
@@ -475,11 +479,14 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 
 	// Quadratic terms:
 	Tenseur vtmp =  6 * beta.gradient_spher() - 2 * logn.gradient_spher() ;
-	Tenseur mtmp(vtmp) ;
-	mtmp.set(0) = 0 ;
-	mtmp.set(1) = 0 ;
-	mtmp.set(2) = (-4*qpig)*tjpem*nnn()*a_car()/b_car() ;
-
+	Tenseur mtmp(mp, 1, COV, mp.get_bvect_spher()) ;
+	if (tjpem.get_etat() == ETATZERO) mtmp.set_etat_zero() ;
+	else {
+	  mtmp.set_etat_qcq() ;
+	  mtmp.set(0) = 0 ;
+	  mtmp.set(1) = 0 ;
+	  mtmp.set(2) = (-4*qpig)*tjpem*nnn()*a_car()/b_car() ;
+	}
 	mtmp.change_triad(mp.get_bvect_cart()) ; 
 
 	vtmp.change_triad(mp.get_bvect_cart()) ; 

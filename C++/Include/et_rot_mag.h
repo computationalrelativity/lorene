@@ -32,6 +32,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2002/10/11 11:47:35  j_novak
+ * Et_rot_mag::MHD_comput is now virtual.
+ * Use of standard constructor for Tenseur mtmp in Et_rot_mag::equilibrium_mag
+ *
  * Revision 1.12  2002/10/09 07:54:29  j_novak
  * Et_rot_bifluid and Et_rot_mag inheritate virtually from Etoile_rot
  *
@@ -279,7 +283,7 @@ class Et_rot_mag : virtual public Etoile_rot {
    *                                  for magnetic potential (see file
    *                                  et\_rot\_mag\_equil.C)
    */
-  virtual void magnet_comput(const int adapt_flag,
+  void magnet_comput(const int adapt_flag,
 			     Cmp (*f_j)(const Cmp& x, const double),
 		      Param& par_poisson_At, Param& par_poisson_Avect) ;
 	
