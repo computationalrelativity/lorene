@@ -30,6 +30,9 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2004/07/08 12:29:01  j_novak
+ * use of new method Tensor::annule_extern_cn
+ *
  * Revision 1.14  2004/06/30 08:02:40  j_novak
  * Added filtering in l of khi_new and mu_new. ki_source is forced to go to
  * zero at least as r^2.
@@ -374,9 +377,9 @@ void Tslice_dirac_max::hh_det_one(int j0) const {
 
     // khi and mu are smoothly mached to a zero value in the CED
     Scalar khi0 = khi_evol[j0] ; 
-    khi0.annule_extern_c2(nzm2) ;     
+    khi0.annule_extern_cn(nzm2, 4) ;     
     Scalar mu0 = mu_evol[j0] ;       
-    mu0.annule_extern_c2(nzm2) ;     
+    mu0.annule_extern_cn(nzm2, 4) ;     
 
     int it_max = 100 ;
     double precis = 1.e-14 ;

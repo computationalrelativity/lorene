@@ -30,6 +30,9 @@ char tslice_dirac_max_solve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/07/08 12:29:01  j_novak
+ * use of new method Tensor::annule_extern_cn
+ *
  * Revision 1.13  2004/06/30 08:02:40  j_novak
  * Added filtering in l of khi_new and mu_new. ki_source is forced to go to
  * zero at least as r^2.
@@ -506,7 +509,7 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
   source_hh += 0.6666666666666666* div_beta * l_beta - sym_tmp ; 
            
   // Source set to zero in the external domain
-  //## source_hh.annule_extern_c2(nz-2) ; 
+  //## source_hh.annule_extern_cn(nz-2, 1) ; 
   
     maxabs(hh(), "h^{ij}") ;
     maxabs(source_hh, "Maxabs source_hh") ; 
@@ -559,7 +562,7 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
     
     Scalar khi_source = source_htt.khi() ; 
 
-    khi_source.annule_extern_c2(nz-2) ;  
+    khi_source.annule_extern_cn(nz-2, 1) ;  
     filtre_l(khi_source, 0, 1, true) ;
 //    khi_source.filtre_r(nfiltre) ;
 
