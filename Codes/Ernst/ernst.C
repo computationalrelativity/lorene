@@ -4,7 +4,38 @@
  * 18.09.2002
  *
  */
-/* $Id */
+
+/*
+ *   Copyright (c) 2002  Jörg Frauendiener
+ *
+ *   This file is part of LORENE.
+ *
+ *   LORENE is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License version 2
+ *   as published by the Free Software Foundation.
+ *
+ *   LORENE is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LORENE; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+char name_of_this_file_C[] = "$Header$" ;
+
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.2  2002/10/17 07:56:49  j_frauendiener
+ * Initial revision
+ *
+ * $Header$
+ *
+ */
 
 // C++ headers
 #include <iostream.h>
@@ -18,8 +49,8 @@
 #include "nbr_spx.h"
 #include "graphique.h"
 
-const double alpha = 0.75;
-const double M = 1.0;
+const double alpha = 1.2;
+const double M = 1.5;
 
 const double c = cos(alpha);
 const double c2 = cos(2*alpha);
@@ -27,6 +58,7 @@ const double s = sin(alpha);
 const double cc = c*c;
 const double Mc = M*c;
 
+const double mu = 0.1;
 
 //=============================================================
 
@@ -153,14 +185,16 @@ int main() {
       Usource.set(0) = 1.0;
       Vsource.set(0) = 1.0;
 
-      Cmp U1 = Usource.poisson_dirichlet(bcU, 0) ;
-      U1.set(0) = 1.0;
+      Cmp UV = Usource.poisson_dirichlet(bcU, 0) ;
+      UV.set(0) = 1.0;
 
-      cout << norme(abs(U-U1)) << endl;
-      U = U1;
+      cout << norme(abs(U-UV)) << endl;
+      U = (1-mu)*U + mu*UV;
       
-      V = Vsource.poisson_dirichlet(bcV, 0) ;
-      V.set(0) = 0.0;      
+      UV = Vsource.poisson_dirichlet(bcV, 0) ;
+      UV.set(0) = 0.0;
+      V = (1-mu)*V + mu*UV;
+      
     }
 
   des_profile(U-F,1.0001,20.0,M_PI/2,0);

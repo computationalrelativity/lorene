@@ -6,7 +6,7 @@ LIB_G = -L$(HOME_LORENE)/Lib -llorene_g -llorenef77_g
 
 .SUFFIXES : .o .C
 
-SRC1 = ernst.C
+SRC1 = nnphi.C
 OBJ1 = $(SRC1:.C=.o)
 EXE1 = $(SRC1:.C=)
 
