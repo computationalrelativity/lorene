@@ -30,6 +30,9 @@ char tslice_dirac_max_solve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/06/03 10:02:45  j_novak
+ * Some filtering is done on source_khi and khi_new.
+ *
  * Revision 1.8  2004/05/24 21:00:44  e_gourgoulhon
  * Method solve_hij: khi and mu.smooth_decay(2,2) --> smooth_decay(2,1) ;
  *   added exponential_decay(khi) and exponential_decay(mu) after the
@@ -73,8 +76,10 @@ char tslice_dirac_max_solve_C[] = "$Header$" ;
 #include "time_slice.h"
 #include "unites.h"
 #include "graphique.h"
+#include "proto.h"
 
 void exponential_decay(Scalar& ) ;
+void filtre_l(Scalar& , int, int) ;
 
                     //--------------------------//
                     //      Equation for N      //
@@ -260,7 +265,7 @@ Vector Tslice_dirac_max::solve_beta(const Vector* p_mom_dens, int method)
 
 void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
                                  Scalar& khi_new, Scalar& mu_new,
-                                 const char*, 
+                                 const char* graph_device, 
                                  const Sym_tensor* p_strain_tens) const 
 {
   using namespace Unites ;
@@ -268,10 +273,10 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
   const Map& map = hh().get_mp() ; 
   const Base_vect& otriad = *hh().get_triad() ;
     
-    // For graphical outputs:
-    // int ngraph0 = 40 ;  // index of the first graphic device to be used
-    // int nz = map.get_mg()->get_nzone() ; 
-    // double ray_des = 1.25 * map.val_r(nz-2, 1., 0., 0.) ; // outermost radius
+  // For graphical outputs:
+  //  int ngraph0 = 40 ;  // index of the first graphic device to be used
+    int nz = map.get_mg()->get_nzone() ; 
+    //   double ray_des = map.val_r(nz-2, 1., 0., 0.) ; // outermost radius
                                                           // for plots
 
   Sym_tensor strain_tens(map, CON, otriad) ; 
@@ -487,7 +492,7 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
 
     maxabs( source_hh.divergence(ff), "Divergence of source_hh") ; 
     maxabs( source_hh.transverse(ff).divergence(ff), 
-                "Divergence of source_hh_transverse") ; 
+                "Divergence of source_hh_transverse") ;
     maxabs( source_hh.transverse(ff).trace(ff), 
                 "Trace of source_hh_transverse") ; 
 
@@ -501,14 +506,23 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
     maxabs( source_htt.divergence(ff), "Divergence of source_htt") ; 
     maxabs( source_htt.trace(ff), "Trace of source_hhtt") ; 
 
-    const Scalar& khi_source = source_htt.khi() ; 
-        
+    int *nfiltre = new int[nz] ;
+    nfiltre[0] = 0 ;
+    nfiltre[nz-1] = 0 ;
+    for (int lz=1; lz<nz-1; lz++)
+      nfiltre[lz] = map.get_mg()->get_nr(lz) / 3 + 1 ;
+    
+    Scalar khi_source = source_htt.khi() ; 
+    filtre_l(khi_source, 0, 1) ;
+    khi_source.filtre_r(nfiltre) ;
+
     const Scalar& mu_source = source_htt.mu() ; 
                             
     khi_new = khi_evol[jtime].avance_dalembert(par_khi,
                                          khi_evol[jtime-1], khi_source) ;
     khi_new.smooth_decay(2,1) ; 
     exponential_decay(khi_new) ; 
+    khi_new.filtre_r(nfiltre) ;
         
     maxabs(khi_new - khi_evol[jtime], "Variation of khi") ;  
         
@@ -544,4 +558,37 @@ void exponential_decay(Scalar& uu) {
     tmp *= uu ; 
     uu.set_domain(nzm1) = tmp.domain(nzm1) ; 
     
+}
+
+void filtre_l(Scalar& uu, int l_min, int l_max) {
+
+    const Map& mp = uu.get_mp() ; 
+    const Mg3d& mg = *(mp.get_mg()) ; 
+    int nz = mg.get_nzone() ;
+
+    Valeur& uuva = uu.set_spectral_va() ;
+    if (uuva.get_etat() != ETATZERO) {
+      assert (uuva.get_etat() == ETATQCQ) ;
+      uuva.ylm() ;
+      for (int lz=0; lz<nz; lz++) {
+	int np = mg.get_np(lz) ;
+	int nt = mg.get_nt(lz) ;
+	int nr = mg.get_nr(lz) ;
+	if (uuva.c_cf->operator()(lz).get_etat() != ETATZERO)
+	  for (int k=0; k<np+1; k++) 
+	    for (int j=0; j<nt; j++) {
+	      int l_q, m_q, base_r ;
+	      if (nullite_plm(j, nt, k, np, uuva.base) == 1) {
+		donne_lm(nz, lz, j, k, uuva.base, m_q, l_q, base_r) ;
+		if ( (l_q>=l_min) && (l_q <=l_max) ) 
+		  for (int i=0; i<nr; i++) 
+		    uuva.c_cf->set(lz, k, j, i) = 0. ;
+	      }
+	    } 
+      }
+      if (uuva.c != 0x0) {
+	delete uuva.c ;
+	uuva.c = 0x0 ;
+      }
+    }
 }
