@@ -79,6 +79,7 @@
 	//@Include:cmp.h_r
 	//@Include:tenseur.h_r
 	//@Include:metrique.h_r
+	//@Include:metconf.h_r
     //@}  
     
     /**@name Grid wedding

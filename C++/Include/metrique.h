@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2002/08/09 15:41:08  j_novak
+ * New class Metconf added for conformal metric handling.
+ *
  * Revision 1.5  2002/08/08 15:10:44  j_novak
  * The flag "plat" has been added to the class Metrique to show flat metrics.
  *
@@ -188,7 +191,7 @@ class Metrique {
 	 * {\tt dependances}. Those quantities had been previously 
 	 * calculated using {\tt *this}.
 	 */
-	virtual void del_dependances() ;
+	void del_dependances() ;
 		
     // Mutators / assignment
     // ---------------------
@@ -218,7 +221,7 @@ class Metrique {
 	void set_etat_cov_qcq() ;
 	
 	///Assignment from another {\tt Metrique}.
-	virtual void operator= (const Metrique&) ; 
+	void operator= (const Metrique&) ; 
 
 	/**
 	 * Assignment from a {\tt Tenseur\_sym} of {\tt valence =2}.
@@ -236,21 +239,28 @@ class Metrique {
     // Accessors
     // ---------
     public:
-	const Tenseur_sym& con() const ; /// Returns the contravariant representation.
-	const Tenseur_sym& cov() const ; /// Returns the covariant representation.
-	const Tenseur_sym& gamma() const ; /// Returns the Christoffel symbols.
-	const Tenseur_sym& ricci() const ; /// Returns the Ricci-curvature.
-	const Tenseur& ricci_scal() const ; /// Returns the Ricci-scalar.
-	const Tenseur& determinant() const ; /// Returns the determinant.
+	/// Returns the contravariant representation.
+	const Tenseur_sym& con() const ; 
+	/// Returns the covariant representation.
+	const Tenseur_sym& cov() const ; 	
+	/// Returns the Christoffel symbols.
+	const Tenseur_sym& gamma() const ; 
+	/// Returns the Ricci-curvature.
+	const Tenseur_sym& ricci() const ; 
+	/// Returns the Ricci-scalar.
+	const Tenseur& ricci_scal() const ; 
+	/// Returns the determinant.
+	const Tenseur& determinant() const ; 
 	
-	const Map* get_mp() const{return mp ; } ; /// Returns a pointer on the mapping.
+	/// Returns a pointer on the mapping.
+	const Map* get_mp() const{return mp ; } ; 
 	int get_etat() const{return etat ;} ; /// Returns the logical state.
 	bool is_flat() const {return plat;} ; ///Is the metric a flat one?
 	void set_flat(bool plate) {plat = plate;} ;///Sets the flat flag
     // Outputs
     // -------
     public:
-	void sauve(FILE *) const ;	    /// Save in a file
+	virtual void sauve(FILE *) const ;	    /// Save in a file
 
 	friend ostream& operator<<(ostream& , const Metrique & ) ; /// Display.
 
