@@ -30,6 +30,9 @@ char tslice_check_einstein_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/04/05 12:38:45  j_novak
+ * Minor modifs to prevent some warnings.
+ *
  * Revision 1.1  2004/04/05 11:54:20  j_novak
  * First operational (but not tested!) version of checks of Eintein equations.
  *
@@ -125,8 +128,8 @@ Tbl Time_slice::check_dynamical_equations(const Sym_tensor* strain_tensor,
   if (vacuum) 
     matter = new Sym_tensor(0 * dyn_lhs) ;
   else {
-    const Scalar* ener ;
-    const Sym_tensor* sij ;
+    const Scalar* ener = 0x0 ;
+    const Sym_tensor* sij = 0x0 ;
     bool new_e = false ;
     bool new_s = false ;
     if (energy_density == 0x0) {

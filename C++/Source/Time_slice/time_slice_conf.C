@@ -30,6 +30,9 @@ char time_slice_conf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/04/05 12:38:45  j_novak
+ * Minor modifs to prevent some warnings.
+ *
  * Revision 1.4  2004/04/01 16:09:02  j_novak
  * Trace of K_ij is now member of Time_slice (it was member of Time_slice_conf).
  * Added new methods for checking 3+1 Einstein equations (preliminary).
@@ -87,7 +90,8 @@ Time_slice_conf::Time_slice_conf(const Scalar& lapse_in, const Vector& shift_in,
     double time_init = the_time[jtime] ; 
 
     n_evol.update(lapse_in, jtime, time_init) ;     
-    beta_evol.update(shift_in, jtime, time_init) ;    
+    beta_evol.update(shift_in, jtime, time_init) ; 
+    trk_evol.update(trk_in, jtime, time_init) ;
     
     set_der_0x0() ;  
     
