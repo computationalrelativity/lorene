@@ -33,6 +33,10 @@ char tensor_calculus_ext_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/11/05 15:29:36  e_gourgoulhon
+ *  Added declaration of externa functions max, min, maxabs,
+ * diffrel and diffrelmax.
+ *
  * Revision 1.2  2003/10/11 16:47:10  e_gourgoulhon
  * Suppressed the call to Ibtl::set_etat_qcq() after the construction
  * of the Itbl's, thanks to the new property of the Itbl class.
@@ -127,6 +131,228 @@ Tensor contract(const Tensor& t1, int ind1, const Tensor& t2, int ind2) {
     return res ;
 }
 
+
+				//------------------//
+				//     diffrel	    //
+				//------------------//
+
+
+Tbl diffrel(const Tensor& aa, const Tensor& bb, ostream& ost) {
+
+	int val = aa.get_valence() ; 
+
+	assert(bb.get_valence() == val) ; 
+	
+	int n_comp_a = aa.get_n_comp() ; 
+	int n_comp_b = bb.get_n_comp() ; 
+	
+	const Tensor* tmax ; 
+	int n_comp_max ; 
+	if (n_comp_a >= n_comp_b) {
+		n_comp_max = n_comp_a ; 
+		tmax = &aa ; 
+	}
+	else {
+		n_comp_max = n_comp_b ; 
+		tmax = &bb ; 
+	}
+	
+	int nz = aa.get_mp().get_mg()->get_nzone() ; 
+	Tbl resu(n_comp_max, nz) ; 
+	resu.set_etat_qcq() ; 
+
+	Itbl idx(val) ; 
+	
+	for (int ic=0; ic<n_comp_max; ic++) {
+		idx = tmax->indices(ic) ; 
+		Tbl diff = diffrel( aa(idx), bb(idx) ) ; 
+		
+		ost << "   Comp." ; 
+		for (int j=0 ; j<val ; j++) {
+	  		ost << " " << idx(j) ;
+      	}
+		ost << " : " ; 
+		for (int l=0; l<nz; l++) {
+			ost << "  " << diff(l) ;
+			resu.set(ic, l) = diff(l) ; 
+		}
+		ost << "\n" ; 
+		
+	}
+	
+	return resu ; 
+}
+
+
+				//--------------------//
+				//     diffrelmax	  //
+				//--------------------//
+
+
+Tbl diffrelmax(const Tensor& aa, const Tensor& bb, ostream& ost) {
+
+	int val = aa.get_valence() ; 
+
+	assert(bb.get_valence() == val) ; 
+	
+	int n_comp_a = aa.get_n_comp() ; 
+	int n_comp_b = bb.get_n_comp() ; 
+	
+	const Tensor* tmax ; 
+	int n_comp_max ; 
+	if (n_comp_a >= n_comp_b) {
+		n_comp_max = n_comp_a ; 
+		tmax = &aa ; 
+	}
+	else {
+		n_comp_max = n_comp_b ; 
+		tmax = &bb ; 
+	}
+	
+	int nz = aa.get_mp().get_mg()->get_nzone() ; 
+	Tbl resu(n_comp_max, nz) ; 
+	resu.set_etat_qcq() ; 
+
+	Itbl idx(val) ; 
+	
+	for (int ic=0; ic<n_comp_max; ic++) {
+		idx = tmax->indices(ic) ; 
+		Tbl diff = diffrelmax( aa(idx), bb(idx) ) ; 
+		
+		ost << "   Comp." ; 
+		for (int j=0 ; j<val ; j++) {
+	  		ost << " " << idx(j) ;
+      	}
+		ost << " : " ; 
+		for (int l=0; l<nz; l++) {
+			ost << "  " << diff(l) ;
+			resu.set(ic, l) = diff(l) ; 
+		}
+		ost << "\n" ; 
+		
+	}
+	
+	return resu ; 
+}
+
+
+
+				//----------------//
+				//     max	      //
+				//----------------//
+
+
+Tbl max(const Tensor& aa, ostream& ost) {
+
+	int val = aa.get_valence() ; 
+
+	int n_comp = aa.get_n_comp() ; 
+	
+	int nz = aa.get_mp().get_mg()->get_nzone() ; 
+	Tbl resu(n_comp, nz) ; 
+	resu.set_etat_qcq() ; 
+
+	Itbl idx(val) ; 
+	
+	for (int ic=0; ic<n_comp; ic++) {
+
+		idx = aa.indices(ic) ; 
+		Tbl diff = max( aa(idx) ) ; 
+		
+		ost << "   Comp." ; 
+		for (int j=0 ; j<val ; j++) {
+	  		ost << " " << idx(j) ;
+      	}
+		ost << " : " ; 
+		for (int l=0; l<nz; l++) {
+			ost << "  " << diff(l) ;
+			resu.set(ic, l) = diff(l) ; 
+		}
+		ost << "\n" ; 
+		
+	}
+	
+	return resu ; 
+}
+
+
+
+				//----------------//
+				//     min	      //
+				//----------------//
+
+
+Tbl min(const Tensor& aa, ostream& ost) {
+
+	int val = aa.get_valence() ; 
+
+	int n_comp = aa.get_n_comp() ; 
+	
+	int nz = aa.get_mp().get_mg()->get_nzone() ; 
+	Tbl resu(n_comp, nz) ; 
+	resu.set_etat_qcq() ; 
+
+	Itbl idx(val) ; 
+	
+	for (int ic=0; ic<n_comp; ic++) {
+
+		idx = aa.indices(ic) ; 
+		Tbl diff = min( aa(idx) ) ; 
+		
+		ost << "   Comp." ; 
+		for (int j=0 ; j<val ; j++) {
+	  		ost << " " << idx(j) ;
+      	}
+		ost << " : " ; 
+		for (int l=0; l<nz; l++) {
+			ost << "  " << diff(l) ;
+			resu.set(ic, l) = diff(l) ; 
+		}
+		ost << "\n" ; 
+		
+	}
+	
+	return resu ; 
+}
+
+
+				//--------------------//
+				//     maxabs	      //
+				//--------------------//
+
+
+Tbl maxabs(const Tensor& aa, ostream& ost) {
+
+	int val = aa.get_valence() ; 
+
+	int n_comp = aa.get_n_comp() ; 
+	
+	int nz = aa.get_mp().get_mg()->get_nzone() ; 
+	Tbl resu(n_comp, nz) ; 
+	resu.set_etat_qcq() ; 
+
+	Itbl idx(val) ; 
+	
+	for (int ic=0; ic<n_comp; ic++) {
+
+		idx = aa.indices(ic) ; 
+		Tbl diff = max( abs( aa(idx) ) ) ; 
+		
+		ost << "   Comp." ; 
+		for (int j=0 ; j<val ; j++) {
+	  		ost << " " << idx(j) ;
+      	}
+		ost << " : " ; 
+		for (int l=0; l<nz; l++) {
+			ost << "  " << diff(l) ;
+			resu.set(ic, l) = diff(l) ; 
+		}
+		ost << "\n" ; 
+		
+	}
+	
+	return resu ; 
+}
 
 
 
