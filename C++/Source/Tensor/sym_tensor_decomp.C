@@ -30,6 +30,10 @@ char sym_tensor_decomp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/05/25 15:05:57  f_limousin
+ * Add parameters in argument of the functions transverse, longit_pot
+ * for the case of Map_et.
+ *
  * Revision 1.8  2004/03/30 14:01:19  j_novak
  * Copy constructors and operator= now copy the "derived" members.
  *
@@ -66,6 +70,7 @@ char sym_tensor_decomp_C[] = "$Header$" ;
 // Lorene headers
 #include "tensor.h"
 #include "metric.h"
+#include "param.h"
 
 void Sym_tensor::set_longit_trans(const Vector& v_pot, 
 				  const Sym_tensor_trans& ht ) {
@@ -88,7 +93,7 @@ void Sym_tensor::set_longit_trans(const Vector& v_pot,
   
 }
 
-const Sym_tensor_trans& Sym_tensor::transverse(const Metric& metre) const {
+const Sym_tensor_trans& Sym_tensor::transverse(const Metric& metre, Param* par) const {
 
     set_dependance(metre) ;
     int jp = get_place_met(metre) ;
@@ -102,10 +107,17 @@ const Sym_tensor_trans& Sym_tensor::transverse(const Metric& metre) const {
             assert(cmp[ic]->check_dzpuis(4)) ;  // dzpuis=4 is assumed
         }
 
-        const Vector& ww = longit_pot(metre) ;
-        
-        Tensor dww = ww.derive_con(metre) ; 
-                
+	Tensor dww (*mp, 2, CON, mp->get_bvect_spher()) ;
+
+	if (dynamic_cast<const Map_af*>(mp) != 0x0) {
+	    const Vector& ww = longit_pot(metre) ;
+	    dww = ww.derive_con(metre) ; 
+	}
+	else {
+	    const Vector& ww = longit_pot(metre, par) ;	    
+	    dww = ww.derive_con(metre) ;  
+	}
+                    
         for (int i=1; i<=3; i++) {
             for (int j=1; j<=3; j++) {
                 dww.set(i,j).inc_dzpuis(2) ; 
@@ -129,9 +141,7 @@ const Sym_tensor_trans& Sym_tensor::transverse(const Metric& metre) const {
 }
 
 
-
-
-const Vector& Sym_tensor::longit_pot(const Metric& metre) const {
+const Vector& Sym_tensor::longit_pot(const Metric& metre, Param* par) const {
 
     set_dependance(metre) ;
     int jp = get_place_met(metre) ;
@@ -156,9 +166,13 @@ const Vector& Sym_tensor::longit_pot(const Metric& metre) const {
         }
         if (dzp5) hhh.dec_dzpuis() ; 
                 
-        p_longit_pot[jp] = new Vector( hhh.poisson(double(1)) ) ; 
-        
-        //## Test of resolution of the vector Poisson equation:
+	if (dynamic_cast<const Map_af*>(mp) != 0x0) 
+	    p_longit_pot[jp] = new Vector( hhh.poisson(double(1), 2) ) ; 
+        else
+	    p_longit_pot[jp] = new Vector( hhh.poisson(double(1), *par, 2) ) ; 
+
+
+       //## Test of resolution of the vector Poisson equation:
         const Vector& vv = *(p_longit_pot[jp]) ; 
 
         hhh.dec_dzpuis() ; 
@@ -173,11 +187,27 @@ const Vector& Sym_tensor::longit_pot(const Metric& metre) const {
         cout << 
         "  Max absolute error in each domain on the vector Poisson equation: \n" ;   
         maxabs(vtest) ; 
-        
+  
+	int nz = mp->get_mg()->get_nzone() ;	    // total number of domains
+	
+	Vector vvv = vv.derive_con(metre).divergence(metre)
+	    + (vv.divergence(metre)).derive_con(metre) ;
+	
+	cout << "Relative difference in each domain on the vector Poisson equation:" << endl ;
+	for (int i=1; i<=3; i++){
+	    cout << "  Comp. " << i << " :  " ;
+	    for (int l=0; l<nz; l++){
+		cout << diffrel(vvv(i),hhh(i) )(l) << " " ;
+	    }
+	    cout << endl ;
+	}
+	cout << endl ;
+
     }
 
     return *p_longit_pot[jp] ;
     
 
 }
+
 
