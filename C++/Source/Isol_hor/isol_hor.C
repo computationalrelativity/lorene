@@ -31,6 +31,10 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2005/03/28 19:42:39  f_limousin
+ * Implement the metric and A^{ij}A_{ij} of Sergio for pertubations
+ * of Kerr black holes.
+ *
  * Revision 1.18  2005/03/24 17:05:34  f_limousin
  * Small change
  *
@@ -123,7 +127,8 @@ Isol_hor::Isol_hor(Map_af& mpi, int depth_in) :
   psi_auto_evol(depth_in), psi_comp_evol(depth_in),
   dn_evol(depth_in), dpsi_evol(depth_in),
   beta_auto_evol(depth_in), beta_comp_evol(depth_in),
-  aa_auto_evol(depth_in), aa_comp_evol(depth_in), aa_nn(depth_in),
+  aa_auto_evol(depth_in), aa_comp_evol(depth_in),
+  aa_nn(depth_in), aa_quad_evol(depth_in),
   met_gamt(mpi.flat_met_spher()), gamt_point(mpi, CON, mpi.get_bvect_spher()),
   trK(mpi), trK_point(mpi), decouple(mpi){
 }		  
@@ -145,7 +150,8 @@ Isol_hor::Isol_hor(Map_af& mpi, const Scalar& lapse_in,
       psi_auto_evol(depth_in), psi_comp_evol(depth_in),
       dn_evol(depth_in), dpsi_evol(depth_in),
       beta_auto_evol(depth_in), beta_comp_evol(depth_in),
-      aa_auto_evol(depth_in), aa_comp_evol(depth_in), aa_nn(depth_in),
+      aa_auto_evol(depth_in), aa_comp_evol(depth_in), 
+      aa_nn(depth_in), aa_quad_evol(depth_in),
       met_gamt(metgamt), gamt_point(gamt_point_in),
       trK(trK_in), trK_point(trK_point_in), decouple(lapse_in.get_mp()){
 
@@ -177,6 +183,7 @@ Isol_hor::Isol_hor(const Isol_hor& isolhor_in)
       aa_auto_evol(isolhor_in.aa_auto_evol),
       aa_comp_evol(isolhor_in.aa_comp_evol),
       aa_nn(isolhor_in.aa_nn),
+      aa_quad_evol(isolhor_in.aa_quad_evol),
       met_gamt(isolhor_in.met_gamt),
       gamt_point(isolhor_in.gamt_point),
       trK(isolhor_in.trK),
@@ -197,7 +204,8 @@ Isol_hor::Isol_hor(Map_af& mpi, FILE* fich,
       psi_auto_evol(depth_in), psi_comp_evol(depth_in),
       dn_evol(depth_in), dpsi_evol(depth_in),
       beta_auto_evol(depth_in), beta_comp_evol(depth_in),
-      aa_auto_evol(depth_in), aa_comp_evol(depth_in), aa_nn(depth_in),
+      aa_auto_evol(depth_in), aa_comp_evol(depth_in), 
+      aa_nn(depth_in), aa_quad_evol(depth_in),
       met_gamt(mpi.flat_met_spher()), 
       gamt_point(mpi, CON, mpi.get_bvect_spher()),
       trK(mpi), trK_point(mpi), decouple(mpi){
@@ -296,6 +304,7 @@ void Isol_hor::operator=(const Isol_hor& isolhor_in) {
     aa_auto_evol = isolhor_in.aa_auto_evol ;
     aa_comp_evol = isolhor_in.aa_comp_evol ;
     aa_nn = isolhor_in.aa_nn ;
+    aa_quad_evol = isolhor_in.aa_quad_evol ;
     met_gamt = isolhor_in.met_gamt ;
     gamt_point = isolhor_in.gamt_point ;
     trK = isolhor_in.trK ;
@@ -667,12 +676,26 @@ void Isol_hor::update_aa() {
   }
   
   set_aa(aa_new) ;
+  Sym_tensor aa_dd (aa_new.up_down(met_gamt)) ;
+  Scalar aquad (contract(aa_dd, 0, 1, aa_new, 0, 1)) ;
+  aa_quad_evol.update(aquad, jtime, the_time[jtime]) ;
 
   return ;
   
 }
 
-void Isol_hor::kerr_perturb() {
+const Scalar& Isol_hor::aa_quad() const {
+
+  if (!aa_quad_evol.is_known(jtime) ) {
+    Sym_tensor aa_dd (aa().up_down(met_gamt)) ;
+    Scalar aquad (contract(aa_dd, 0, 1, aa(), 0, 1)) ;
+    aa_quad_evol.update(aquad, jtime, the_time[jtime]) ;
+  } 
+
+    return aa_quad_evol[jtime] ;   
+} 
+
+void Isol_hor::met_kerr_perturb() {
 
     Sym_tensor gamm (gam().cov()) ;
     Sym_tensor gamt (gamm / gamm(3,3)) ;
@@ -680,10 +703,83 @@ void Isol_hor::kerr_perturb() {
     Metric metgamt (gamt) ;
     met_gamt = metgamt ;
 
-    cout << "met_gamt" << endl << norme(met_gamt.cov()(1,1)) << endl << norme(met_gamt.cov()(2,1)) << endl << norme(met_gamt.cov()(3,1)) << endl << norme(met_gamt.cov()(2,2)) << endl << norme(met_gamt.cov()(3,2)) << endl << norme(met_gamt.cov()(3,3)) << endl ;
+    Scalar psi_perturb (pow(gamm(3,3), 0.25)) ;
+    psi_perturb.std_spectral_base() ;
+    set_psi_del_q(psi_perturb) ;
+   
+    Metric metgam (gamt*psi_perturb*psi_perturb*psi_perturb*psi_perturb) ;
+
+    cout << "met_gamt" << endl << norme(met_gamt.cov()(1,1)) << endl 
+	 << norme(met_gamt.cov()(2,1)) << endl << norme(met_gamt.cov()(3,1)) 
+	 << endl << norme(met_gamt.cov()(2,2)) << endl 
+	 << norme(met_gamt.cov()(3,2)) << endl << norme(met_gamt.cov()(3,3)) 
+	 << endl ;
     cout << "determinant" << norme(met_gamt.determinant()) << endl ;
 
-
     hh_evol.update(met_gamt.con() - ff.con(), jtime, the_time[jtime]) ;
+     
+    return ;  
+}
 
+void Isol_hor::aa_kerr_perturb(double mm, double aaa) {
+
+  int nz = mp.get_mg()->get_nzone() ;
+  
+  const Coord& r = mp.r ;        // r field 
+  const Coord& costt = mp.cost ;  // cos(theta) field
+  const Coord& sintt = mp.sint ;  // sin(theta) field
+  
+  Scalar rr(mp) ;
+  rr = r ;
+  Scalar cost (mp) ;
+  cost = costt ;
+  Scalar sint (mp) ;
+  sint = sintt ;
+  
+  // rbl
+  Scalar rbl = rr + mm + (mm*mm - aaa*aaa) / (4*rr) ;
+  rbl.std_spectral_base() ;
+  
+  // sigma
+  Scalar sigma = 1. / (rbl*rbl + aaa*aaa*cost*cost) ;
+  sigma.set_domain(0) = 1. ;
+  sigma.std_spectral_base() ;
+  
+  // wby
+  Scalar wby = aaa*mm*(cost*cost*cost - 3*cost) ;
+  wby.set_spectral_va().set_base_r(0,R_CHEBPIM_P) ;
+  for (int l=1; l<nz-1; l++)
+    wby.set_spectral_va().set_base_r(l,R_CHEB) ;
+  wby.set_spectral_va().set_base_r(nz-1,R_CHEBU) ;
+  wby.set_spectral_va().set_base_t(T_COSSIN_CI) ;
+  wby.set_spectral_va().set_base_p(P_COSSIN) ;
+  
+  
+  // ww
+  Scalar ww = wby - (mm*aaa*aaa*aaa*pow(sint, 4.)*cost) * sigma ;
+  ww.set_spectral_va().set_base_r(0,R_CHEBPIM_P) ;
+  for (int l=1; l<nz-1; l++)
+    ww.set_spectral_va().set_base_r(l,R_CHEB) ;
+  ww.set_spectral_va().set_base_r(nz-1,R_CHEBU) ;
+  ww.set_spectral_va().set_base_t(T_COSSIN_CI) ;
+  ww.set_spectral_va().set_base_p(P_COSSIN) ;
+  
+  // A^{ij]A_{ij}
+  Scalar aquad = 2*contract(ww.derive_con(met_gamt), 0, 
+			    ww.derive_cov(met_gamt), 0) ;
+  
+  aquad.div_rsint() ;
+  aquad.div_rsint() ;
+  aquad.div_rsint() ;
+  aquad.div_rsint() ;
+  aquad.set_domain(0) = 0. ;
+  Base_val sauve_base (aquad.get_spectral_va().get_base()) ;
+  
+  aquad = aquad * pow(gam_dd()(3,3), -3) ;
+  aquad.set_spectral_va().set_base(sauve_base) ;
+  
+  aa_quad_evol.update(aquad, jtime, the_time[jtime]) ;
+  
+  return ;
+  
 }

@@ -1,6 +1,6 @@
 # Parameters for the computation
 ###############################
-4	nz: total number of domains
+6	nz: total number of domains
 9	nt: number of points in theta (the same in each domain)
 8	np: number of points in phi   (the same in each domain)
 17	nr: number of points in r in the first domain
@@ -8,7 +8,7 @@
 1.	coordinate radius
 0.6	relaxation (1 -> no relaxation)
 1e-7	threshold
-500	maximum of iterations
+5000	maximum of iterations
 0.01	angular velocity
 0. 0.	boost velocity in x direction / z direction
 0 0.2	boundary condition for the lapse / value of the coefficient

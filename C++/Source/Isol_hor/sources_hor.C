@@ -6,7 +6,8 @@
  */
 
 /*
- *   Copyright (c) 2004  Jose Luis Jaramillo
+ *   Copyright (c) 2004-2005  Jose Luis Jaramillo
+ *                            Francois Limousin
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +31,10 @@ char source_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2005/03/28 19:42:39  f_limousin
+ * Implement the metric and A^{ij}A_{ij} of Sergio for pertubations
+ * of Kerr black holes.
+ *
  * Revision 1.11  2005/03/22 13:25:36  f_limousin
  * Small changes. The angular velocity and A^{ij} are computed
  * with a differnet sign.
@@ -106,10 +111,6 @@ const Scalar Isol_hor::source_psi() const{
     
     const Vector& d_psi = psi().derive_cov(ff) ;       // D_i Psi
      
-    Sym_tensor taa = aa().up_down(met_gamt) ; 
-        
-    Scalar aa_quad = contract(taa, 0, 1, aa(), 0, 1) ; 
-
     // Source for Psi 
     // --------------
     tmp = 0.125* psi() * met_gamt.ricci_scal() 
@@ -118,7 +119,7 @@ const Scalar Isol_hor::source_psi() const{
     
     tmp -= contract(hdirac(), 0, d_psi, 0) ;  
                 
-    source = tmp - psi()*psi4()* ( 0.125* aa_quad 
+    source = tmp - psi()*psi4()* ( 0.125* aa_quad() 
 				       - 8.33333333333333e-2* trK*trK ) ;
     source.annule_domain(0) ;
 
@@ -149,14 +150,10 @@ const Scalar Isol_hor::source_nn() const{
     const Vector& dln_psi = ln_psi().derive_cov(ff) ; // D_i ln(Psi)
     const Vector& dnnn = nn().derive_cov(ff) ;         // D_i N
     
-    Sym_tensor taa = aa().up_down(met_gamt) ; 
-        
-    Scalar aa_quad = contract(taa, 0, 1, aa(), 0, 1) ; 
-
     // Source for N 
     // ------------
 
-    source = psi4()*( nn()*( aa_quad + 0.3333333333333333* trK*trK )
+    source = psi4()*( nn()*( aa_quad() + 0.3333333333333333* trK*trK )
 			 - trK_point ) 
 	     - 2.* contract(dln_psi, 0, nn().derive_con(met_gamt), 0)  
     - contract(hdirac(), 0, dnnn, 0) ; 
@@ -198,10 +195,6 @@ const Vector Isol_hor::source_beta() const {
     
     const Vector& dln_psi = ln_psi().derive_cov(ff) ; // D_i ln(Psi)
     const Vector& dnnn = nn().derive_cov(ff) ;         // D_i N
-    
-    Sym_tensor taa = aa().up_down(met_gamt) ; 
-        
-    Scalar aa_quad = contract(taa, 0, 1, aa(), 0, 1) ; 
 
     // Source for beta 
     // ---------------
