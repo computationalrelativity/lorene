@@ -34,6 +34,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2003/10/27 10:49:48  e_gourgoulhon
+ * Slightly modified operator<<.
+ *
  * Revision 1.22  2003/10/19 19:57:00  e_gourgoulhon
  * -- Added new method spectral_display
  * -- slightly rearranged the operator<<
@@ -661,9 +664,7 @@ void Tensor::mult_r_ced() {
 ostream& operator<<(ostream& flux, const Tensor &source ) {
 
   	flux << '\n' ;
-  	flux << typeid(source).name() << '\n' ;
-    
-    flux << "Valence : " << source.valence << '\n' ;
+  	flux << typeid(source).name() << "           Valence : " << source.valence << '\n' ;
 
     if (source.get_triad() != 0x0) {
 		flux << "Vectorial basis (triad) on which the components are defined :" 
@@ -679,7 +680,7 @@ ostream& operator<<(ostream& flux, const Tensor &source ) {
 	    		flux << " contravariant." << '\n' ;
 			else
 	    		flux << " covariant." << '\n' ;
-			if ( i < source.valence-1 ) flux << "                     " ;
+			if ( i < source.valence-1 ) flux << "                      " ;
 		}
 		flux << '\n' ; 
 	}
