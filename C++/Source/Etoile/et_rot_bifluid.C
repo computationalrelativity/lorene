@@ -32,6 +32,9 @@ char et_rot_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/01/11 14:09:34  j_novak
+ * Added newtonian version for 2-fluid stars
+ *
  * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -68,7 +71,7 @@ char et_rot_bifluid_C[] = "$Header$" ;
 // --------------------
 Et_rot_bifluid::Et_rot_bifluid(Map& mpi, int nzet_i, bool relat, 
 			      const Eos_bifluid& eos_i)
-  : Etoile_rot(mpi, nzet_i, relat, *eos_i.trans2Eos(relat)), 
+  : Etoile_rot(mpi, nzet_i, relat, *eos_i.trans2Eos()), 
   eos(eos_i),
   ent2(mpi),
   nbar2(mpi),
@@ -116,7 +119,7 @@ Et_rot_bifluid::Et_rot_bifluid(const Et_rot_bifluid& et)
 // Constructor from a file (works only for relativistic stars!)
 // ------------------------------------------------------------
 Et_rot_bifluid::Et_rot_bifluid(Map& mpi, const Eos_bifluid& eos_i, FILE* fich):
-  Etoile_rot(mpi, *eos_i.trans2Eos(true), fich),
+  Etoile_rot(mpi, *eos_i.trans2Eos(), fich),
   eos(eos_i),
   ent2(mpi),
   nbar2(mpi),

@@ -31,6 +31,9 @@ char eos_bf_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/01/11 14:09:34  j_novak
+ * Added newtonian version for 2-fluid stars
+ *
  * Revision 1.3  2001/12/04 21:27:53  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -191,7 +194,8 @@ void Eos_bf_poly::operator=(const Eos_bf_poly& eosi) {
     gam3 = eosi.gam3 ; 
     kap1 = eosi.kap1 ; 
     kap2 = eosi.kap2 ; 
-    kap3 = eosi.kap3 ; 
+    kap3 = eosi.kap3 ;
+    beta = eosi.beta ;
     m_1 = eosi.m_1 ; 
     m_2 = eosi.m_2 ; 
     
@@ -432,7 +436,8 @@ double Eos_bf_poly::get_K11(const double n1, const double n2, const
   else {
     xx = 0.5*gam1*kap1 * pow(n1,gam1 - 2) + m_1/n1 + 
       gam3*kap3 * pow(n1,gam3 - 2) * pow(n2,gam4) + 
-      delta2*gam5*beta * pow(n1,gam5 - 2)*pow(n2, gam6) ;
+      delta2*gam5*beta * pow(n1,gam5 - 2)*pow(n2, gam6) - 
+      2*(1-delta2)*beta*pow(n1,gam5-2)*pow(n2,gam6) ;
   }
   return xx ;
 }
@@ -447,7 +452,8 @@ double Eos_bf_poly::get_K22(const double n1, const double n2, const
   else {
     xx = 0.5*gam2*kap2 * pow(n2,gam2 - 2) + m_2/n2 + 
       gam3*kap3 * pow(n2,gam4 - 2) * pow(n1,gam3) + 
-      delta2*gam6*beta * pow(n1, gam5) * pow(n2,gam6 - 2) ;
+      delta2*gam6*beta * pow(n1, gam5) * pow(n2,gam6 - 2) - 
+      2*(1-delta2)*beta*pow(n1,gam5)*pow(n2,gam6-2) ;
   }
   return xx ;
 }
@@ -459,7 +465,7 @@ double Eos_bf_poly::get_K12(const double n1, const double n2, const
   if ((n1 <= 0.) || (n2 <= 0.)) { xx = 0.; }
   else { 
     double gamma_delta3 = pow(1-delta2,-1.5) ;
-    xx = 2*beta / gamma_delta3 ;
+    xx = 2*beta*pow(n1,gam5-1)*pow(n2,gam6-1) / gamma_delta3 ;
   }
   return xx ;
 }
@@ -467,15 +473,10 @@ double Eos_bf_poly::get_K12(const double n1, const double n2, const
 // Conversion functions
 // ---------------------
 
-Eos* Eos_bf_poly::trans2Eos(bool relat) const {
+Eos* Eos_bf_poly::trans2Eos() const {
 
-  if (relat) {
-    Eos_poly* eos_simple = new Eos_poly(gam1, kap1, m_1) ;
-    return eos_simple ;
-  }
-  else {
-    Eos_poly_newt* eos_simple = new Eos_poly_newt(gam1, kap1) ;
-    return eos_simple ;
-  }
+  Eos_poly* eos_simple = new Eos_poly(gam1, kap1, m_1) ;
+  return eos_simple ;
 }
+
        

@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/01/11 14:09:34  j_novak
+ * Added newtonian version for 2-fluid stars
+ *
  * Revision 1.2  2001/12/06 15:11:43  jl_zdunik
  * Introduction of the new function f_eq() in the class Etoile_rot
  *
@@ -1661,7 +1664,11 @@ class Etoile_rot : public Etoile {
 	virtual double mass_g() const ;	    /// Gravitational mass
 	virtual double angu_mom() const ;	/// Angular momentum 
 	virtual double tsw() const ;		/// Ratio T/W
-	virtual double grv2() const ;	/// Error on the virial identity GRV2
+
+	/** Error on the virial identity GRV2.
+	 *  This indicator is only valid for relativistic computations.
+	 */
+	virtual double grv2() const ;	
 
 	/** Error on the virial identity GRV3.
 	 *  The error is computed as the integral defined

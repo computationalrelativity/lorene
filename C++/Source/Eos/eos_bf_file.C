@@ -31,6 +31,9 @@ char eos_bf_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/01/11 14:09:34  j_novak
+ * Added newtonian version for 2-fluid stars
+ *
  * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -65,6 +68,8 @@ char eos_bf_file_C[] = "$Header$" ;
 
 
 int Eos_bf_poly::identify() const	{ return 1; }
+
+int Eos_bf_poly_newt::identify() const	{ return 2; }
 
 
 		//---------------------------------------------//
@@ -117,6 +122,11 @@ Eos_bifluid* Eos_bifluid::eos_from_file(ifstream& fich) {
 	
 	case 1 : {
 	    p_eos = new Eos_bf_poly(fich) ; 
+	    break ; 
+	}
+	
+	case 2 : {
+	    p_eos = new Eos_bf_poly_newt(fich) ; 
 	    break ; 
 	}
 	

@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/01/11 14:09:34  j_novak
+ * Added newtonian version for 2-fluid stars
+ *
  * Revision 1.2  2001/11/29 15:05:26  j_novak
  * The entrainment term in 2-fluid eos is modified
  *
@@ -507,7 +510,7 @@ class Eos_bifluid {
 	 *  star and ought not to be used in other situations.
 	 *  @param relat [input] Relativistic EOS or not. 
 	 */
-	virtual Eos* trans2Eos(bool relat) const = 0 ;
+	virtual Eos* trans2Eos() const = 0 ;
     
 };
 
@@ -567,7 +570,8 @@ class Eos_bifluid {
  * if $\gamma_1 = \gamma_2 = 2$ and $\gamma_3 = \gamma_4 = \gamma_5 =
  * \gamma_6 = 1$).
  *
- * The energy density $\cal E$and pressure $p$ can then be obtained.
+ * The energy density $\cal E$and pressure $p$ can then be obtained
+ * as functions of baryonic densities.
  *
  * @version #$Id$#
  */
@@ -860,9 +864,295 @@ class Eos_bf_poly : public Eos_bifluid {
 	 *  This is only useful for the construction of a 
 	 *  {\tt Et\_rot\_bifluid}
 	 *  star and ought not to be used in other situations.
-	 *  @param relat [input] relativistic EOS or not.
 	 */
-	virtual Eos* trans2Eos(bool relat) const ;
+	virtual Eos* trans2Eos() const ;
+       
+	/** Computes the derivative of the energy with respect to
+	 * (baryonic density 1)$^2$.
+	 *
+	 *  @param n1 [input, unit $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
+	 *           baryonic density of fluid 1 at which the derivative 
+	 *           is to be computed
+	 *  @param n2 [input, unit $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
+	 *           baryonic density of fluid 2 at which the derivative 
+	 *           is to be computed
+	 *  @param x [input, unit $n_{\rm nuc}^2c^2$]
+	 *           relative Lorentz factor$\times$both densities at which 
+	 *           the derivative is to be computed
+	 *
+	 *  @return derivative $K^{11}=2\frac{\partial{\cal{E}}}{\partial{n_1^2}}$ 
+	 */
+	virtual double get_K11(const double n1, const double n2, const
+			       double delta2)  const  ;
+
+	/** Computes the derivative of the energy with respect to 
+	 *  $x^2=n_1n_2\Gamma_\Delta$.
+	 *
+	 *  @param n1 [input, unit $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
+	 *           baryonic density of fluid 1 at which the derivative 
+	 *           is to be computed
+	 *  @param n2 [input, unit $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
+	 *           baryonic density of fluid 2 at which the derivative 
+	 *           is to be computed
+	 *  @param x [input, unit $n_{\rm nuc}^2c^2$]
+	 *           relative Lorentz factor$\times$both densities at which 
+	 *           the derivative is to be computed
+	 *
+	 *  @return derivative $K^{12}=\frac{\partial {\cal E}}{\partial (n_1n_2\Gamma_\Delta)}$ 
+	 */
+	virtual double get_K12(const double n1, const double n2,const
+			       double delta2) const ;
+
+	/** Computes the derivative of the energy/(baryonic density 2)$^2$.
+	 *
+	 *  @param n1 [input, unit $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
+	 *           baryonic density of fluid 1 at which the derivative 
+	 *           is to be computed
+	 *  @param n2 [input, unit $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
+	 *           baryonic density of fluid 2 at which the derivative 
+	 *           is to be computed
+	 *  @param x [input, unit $n_{\rm nuc}^2c^2$]
+	 *           relative Lorentz factor$\times$both densities at which 
+	 *           the derivative is to be computed
+	 *
+	 *  @return derivative $K^{22} = 2\frac{\partial {\cal E}}{\partial n_2^2}$ 
+	 */
+	virtual double get_K22(const double n1, const double n2, const
+			       double delta2) const ;
+
+};
+
+		    //------------------------------------//
+		    //	      class Eos_bf_poly_newt	  //
+		    //------------------------------------//
+
+/**
+ * Analytic equation of state for two fluids (Newtonian case).
+ * 
+ * This equation of state (EOS) corresponds to two types of non-relativistic
+ * particles of rest mass is $m_1$ and $m_2$,  whose total energy density 
+ * $\cal{E}$ is related to their numerical densities $n_1$, $n_2$ and 
+ * relative velocity $\Delta^2$
+ * \begin{equation}
+ * \Delta = \left( \vec{v}_n - \vec{v}_p \right)^2
+ * \label{e:defdeltan}
+ * \end{equation}
+ * by
+ * \begin{equation} \label{eeosbfnewte}
+ *   {\cal{E}} = \frac{1}{2}\kappa_1 n_1^{\gamma_1} 
+ *          \  + \frac{1}{2}\kappa_2 n_2^{\gamma_2} 
+ *          \  + \kappa_3 n_1^{\gamma_3} n_2^{\gamma_4} 
+ *          \  + \Delta^2 \beta n_1^{\gamma_5} n_2^{\gamma_6}\ .  
+ * \end{equation}
+ * The non-relativistic chemical potentials are then
+ * \begin{equation} 
+ * \mu_1 := {{\rm d}{\cal{E}} \over {\rm d}n_1} = \frac{1}{2}\gamma_1\kappa_1
+ *         n_1^{\gamma_1-1} + \gamma_3 \kappa_3 
+ *         n_1^{\gamma_3-1} n_2^{\gamma_4} + \Delta^2 \gamma_5 \beta
+ *         n_1^{\gamma_5-1} n_2^{\gamma_6}\ , 
+ * \end{equation}
+ * \begin{equation}
+ * \mu_2 := {{\rm d}{\cal{E}} \over {\rm d}n_2} = \frac{1}{2}\gamma_2\kappa_2
+ *         n_2^{\gamma_2-1} + \gamma_4 \kappa_3 
+ *         n_1^{\gamma_3} n_2^{\gamma_4-1} + \Delta^2 \gamma_6 \beta
+ *         n_1^{\gamma_5} n_2^{\gamma_6-1} \ .
+ * \end{equation}
+ * The pressure is given by the (zero-temperature) First Law of Thermodynamics:
+ * $p = \mu_1 n_1 + \mu_2 n_2 - {\cal E}$, so that
+ * \begin{equation} 
+ *   p = \frac{1}{2} (\gamma_1 -1)\kappa_1 n_1^{\gamma_1} +
+ *  \frac{1}{2}(\gamma_2-1)\kappa_2 n_2^{\gamma_2} + (\gamma_3 +\gamma_4
+ *  -1)\kappa_3 n_1^{\gamma_3}n_2^{\gamma_4} + \Delta^2 \beta \left(
+ *  (\gamma_5 + \gamma_6 - 1) n_1^{\gamma_5} n_2^{\gamma_6} \right) \ .  
+ * \end{equation}
+ * The (non-relativistic) specific enthalpies are:
+ * \begin{equation}
+ * h_i := \frac{{\cal E} + p}{m_i n_i}.
+ * \end{equation}
+ * According to the (zero-temperature) First Law of Thermodynamics, the
+ * specific enthalpies are related to the chemical potentials by
+ * \begin{equation}
+ * h_i = \frac{\mu_i}{m_i}
+ * \end{equation}
+ *
+ * From this system, the particle densities are obtained in term of 
+ * the enthalpies. (The system is a linear one
+ * if $\gamma_1 = \gamma_2 = 2$ and $\gamma_3 = \gamma_4 = \gamma_5 =
+ * \gamma_6 = 1$).
+ *
+ * The energy density $\cal E$and pressure $p$ can then be obtained.
+ *
+ * @version #$Id$
+ */
+class Eos_bf_poly_newt : public Eos_bf_poly {
+
+    // Data :
+    // -----
+
+    // no new data with respect to Eos_poly	
+
+    // Constructors - Destructor
+    // -------------------------
+    public:
+    
+	/** Standard constructor.
+	 *
+	 *  The adiabatic indexes $\gamma_1$ and $\gamma_2$ are set to 2.
+	 *  All other adiabatic indexes $\gamma_i$, $i\in 3\dots 6$ are
+	 *  set to 1.
+	 *  The individual particle masses $m_1$ and $m_2$ are set to the 
+	 *  mean baryon mass $m_B = 1.66\ 10^{-27} \ {\rm kg}$. 
+	 *  
+	 *  @param kappa1  pressure coefficient $\kappa_1$  
+	 *  @param kappa2  pressure coefficient $\kappa_2$  
+	 *  @param kappa3  pressure coefficient $\kappa_3$  
+	 *  @param beta coefficient in the entrainment term $\beta$  
+	 *		(cf. Eq.~(\ref{eeosbfpolye}))
+	 *		[unit: $\rho_{\rm nuc} c^2$], where
+	 *		$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$ 
+	 */
+	Eos_bf_poly_newt(double kappa1, double kappa2, double kappa3,
+		    double beta) ;
+
+	/** Standard constructor with all parameters. 
+	 * 
+	 *  @param gamma1  adiabatic index $\gamma_1$ 
+	 *  @param gamma2  adiabatic index $\gamma_2$ 
+	 *  @param gamma3  adiabatic index $\gamma_3$ 
+	 *  @param gamma4  adiabatic index $\gamma_4$ 
+	 *  @param gamma5  adiabatic index $\gamma_5$ 
+	 *  @param gamma6  adiabatic index $\gamma_6$ 
+	 *				(cf. Eq.~(\ref{eeosbfpolye}))
+	 *  @param kappa1  pressure coefficient $\kappa_1$  
+	 *  @param kappa2  pressure coefficient $\kappa_2$  
+	 *  @param kappa3  pressure coefficient $\kappa_3$  
+	 *  @param beta coefficient in the entrainment term $\beta$  
+	 *		(cf. Eq.~(\ref{eeosbfpolye}))
+	 *		[unit: $\rho_{\rm nuc} c^2$], where
+	 *		$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$ 
+	 *  @param mass1  individual particule mass $m_1$ (neutrons)  
+	 *  @param mass2  individual particule mass $m_2$ (protons)  
+	 *		 
+	 *		[unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$]
+	 */
+	Eos_bf_poly_newt(double gamma1, double gamma2, double gamma3,
+		    double gamma4, double gamma5, double gamma6,
+		    double kappa1, double kappa2, double kappa3,
+		    double beta, double mass1, double mass2) ;	
+
+	Eos_bf_poly_newt(const Eos_bf_poly_newt& ) ;	/// Copy constructor	
+	
+    protected:
+	/** Constructor from a binary file (created by the function 
+	 *  {\tt sauve(FILE* )}). 
+	 *  This constructor is protected because any EOS construction
+	 *  from a binary file must be done via the function 
+	 *  {\tt Eos\_bifluid::eos\_from\_file(FILE* )}. 
+	 */
+	Eos_bf_poly_newt(FILE* ) ; 
+	
+	/** Constructor from a formatted file.
+	 *  This constructor is protected because any EOS construction
+	 *  from a formatted file must be done via the function 
+	 *  {\tt Eos\_bifluid::eos\_from\_file(ifstream\& )}. 
+	 */
+	Eos_bf_poly_newt(ifstream& ) ; 
+	
+	/// The construction functions from a file
+	friend Eos_bifluid* Eos_bifluid::eos_from_file(FILE* ) ; 
+	friend Eos_bifluid* Eos_bifluid::eos_from_file(ifstream& ) ; 
+
+    public:
+	virtual ~Eos_bf_poly_newt() ;			/// Destructor
+
+    // Assignment
+    // ----------
+	/// Assignment to another {\tt Eos\_bf\_poly\_newt}
+	void operator=(const Eos_bf_poly_newt& ) ;
+
+
+    // Miscellaneous
+    // -------------
+
+    public : 
+	/// Comparison operator (egality)
+	virtual bool operator==(const Eos_bifluid& ) const ; 
+
+	/// Comparison operator (difference)
+	virtual bool operator!=(const Eos_bifluid& ) const ; 
+    
+	/** Returns a number to identify the sub-classe of {\tt Eos\_bifluid} 
+	 *  the object belongs to. 
+	 */
+	virtual int identify() const ; 
+
+    // Outputs
+    // -------
+
+    public: 
+	virtual void sauve(FILE* ) const ;	/// Save in a file
+
+    protected: 
+	virtual ostream& operator>>(ostream &) const ;    /// Operator >>
+
+
+    // Computational functions
+    // -----------------------
+
+    public: 
+
+ 	/** Computes both baryon densities from the log-enthalpies
+	 * 
+	 *  @param ent1 [input,  unit: $c^2$] log-enthalpy $H_1$ 
+	 *  @param ent2 [input,  unit: $c^2$] log-enthalpy $H_2$ 
+	 *  @param delta2 [input,  unit: $c^2$] relative velocity $\Delta^2$ 
+	 * 
+	 *  @param nbar1 [output] baryonic density of the first fluid
+	 *  @param nbar2 [output] baryonic density of the second fluid
+	 *  [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
+	 * 
+	 */
+    	virtual void nbar_ent_p(const double ent1, const double ent2, 
+				const double delta2, double& nbar1, 
+				double& nbar2, bool tronc = true) const ; 
+       
+ 	/** Computes the total energy density from the baryonic densities
+	 *  and the relative velocity. 
+	 * 
+	 *  @param nbar1 [input] baryonic density of the first fluid
+	 *  @param nbar2 [input] baryonic density of the second fluid
+	 *  [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
+	 *  @param delta2 [input,  unit: $c^2$] relative velocity $\Delta^2$ 
+	 * 
+	 *  @return energy density $\cal E$ [unit: $\rho_{\rm nuc} c^2$], where
+	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
+	 */
+    	virtual double ener_nbar_p(const double nbar1, const double nbar2, 
+				   const double delta2) const  ; 
+       
+ 	/** Computes the pressure from the baryonic densities
+	 *  and the relative velocity.
+	 * 
+	 *  @param nbar1 [input] baryonic density of the first fluid
+	 *  @param nbar2 [input] baryonic density of the second fluid
+	 *  [unit: $n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}$]
+	 *  @param delta2 [input,  unit: $c^2$] relative velocity $\Delta^2$ 
+	 * 
+	 *  @return pressure $p$ [unit: $\rho_{\rm nuc} c^2$], where
+	 *      $\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3$
+	 */
+    	virtual double press_nbar_p(const double nbar1, const double nbar2, 
+				    const double delta2) const ; 
+     // Conversion functions
+     // ---------------------
+
+	/** Makes a translation from {\tt Eos\_bifluid} to {\tt Eos}. 
+	 *
+	 *  This is only useful for the construction of a 
+	 *  {\tt Et\_rot\_bifluid}
+	 *  star and ought not to be used in other situations.
+	 */
+	virtual Eos* trans2Eos() const ;
        
 	/** Computes the derivative of the energy with respect to
 	 * (baryonic density 1)$^2$.
