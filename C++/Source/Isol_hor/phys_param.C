@@ -30,8 +30,11 @@ char phys_param_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/09/17 13:37:21  f_limousin
+ * Correction of an error in calculation of the radius
+ *
  * Revision 1.2  2004/09/09 16:54:53  f_limousin
- * Add the 2 lines $Id: and $Log: for CVS
+ * Add the 2 lines $Id$Log: for CVS
  *
  *
  *
@@ -69,7 +72,7 @@ Vector Isol_hor::radial_vect_hor()  {
 
   get_radial_vect.set(3) = gam_uu()(1,3) ;
 
-  get_radial_vect = get_radial_vect / (psi() * psi() * sqrt(gam_uu()(1,1))) ;
+  get_radial_vect = get_radial_vect / sqrt(gam_uu()(1,1)) ;
 
   get_radial_vect.std_spectral_base() ;
 
@@ -78,45 +81,25 @@ Vector Isol_hor::radial_vect_hor()  {
 
 }
 
+// Think of defining this as a pointer
+Vector Isol_hor::tradial_vect_hor()  {
 
-Vector Isol_hor::beta_bound_cart() {
-
-
-  const Map& map = ff.get_mp() ; 
-
-  Vector tmp_vect = nn() * radial_vect_hor() ;
-
-  tmp_vect.set_etat_zero() ;
-
-  Scalar vel_ang (map) ;
-  
-  vel_ang = omega_hor() ;
-
-  vel_ang.std_spectral_base() ;
-
-  vel_ang.mult_rsint() ;
-
-  tmp_vect.set(3) = tmp_vect(3)  -  vel_ang ;
-
-  
-
-  tmp_vect.change_triad(map.get_bvect_cart() ) ;
+  Vector get_radial_vect (ff.get_mp(), CON, *(ff.get_triad()) ) ;
+       
+  get_radial_vect.set(1) = (tgam().con())(1,1) ;
  
-  /*
-     for (int i=1 ; i<4 ; i++) {
-	cout<<"component: ("<<i<<") of beta_cart"<<endl ;      
-	des_profile(tmp_vect(i), 1.000001, 10., M_PI/2., 0., "vector comp beta_cart(tmp) ", "radial distance") ;
-      }
-  */
-  return tmp_vect ;
+  get_radial_vect.set(2) = (tgam().con())(1,2) ;
+
+  get_radial_vect.set(3) = (tgam().con())(1,3) ;
+
+  get_radial_vect = get_radial_vect / sqrt((tgam().con())(1,1)) ;
+
+  get_radial_vect.std_spectral_base() ;
+
+
+  return get_radial_vect ;
 
 }
-
-
-
-
-
-
 
 
 Scalar Isol_hor::darea_hor() {
@@ -133,25 +116,11 @@ Scalar Isol_hor::darea_hor() {
 
 double Isol_hor::radius_hor()  {
 
-  //  if( !(radius_evol.is_known(jtime)) {
-
-    //    assert(   .isknown(jtime) ) ;
-
-  //  Scalar tmp = sqrt( gam_dd()(2,2) * gam_dd()(3,3) - gam_dd()(2,3) * gam_dd()(2,3)) ;
-
-  //  tmp.std_spectral_base() ;
-
-
-
   Map_af map_affine (ff.get_mp()) ; 
 
   double resu =  map_affine.integrale_surface(darea_hor(), 1.0000000001) / (4. * M_PI);
 
-    //   radius_evol.update(resu, jtime, thetime(jtime)) ;
-
-    //  }
-
-    //  return radius_evol[jtime] ;
+  resu = pow(resu, 1./2.) ;
 
   return resu ;
 
