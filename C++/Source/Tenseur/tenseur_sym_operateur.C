@@ -26,6 +26,10 @@ char tenseur_sym_operateur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/09/06 14:49:26  j_novak
+ * Added method lie_derive for Tenseur and Tenseur_sym.
+ * Corrected various errors for derive_cov and arithmetic.
+ *
  * Revision 1.2  2002/08/07 16:14:12  j_novak
  * class Tenseur can now also handle tensor densities, this should be transparent to older codes
  *
@@ -120,7 +124,7 @@ Tenseur_sym manipule(const Tenseur_sym& t1, const Metrique& met, int place) {
     assert (met.get_etat() != ETATNONDEF) ;
     
     int valen = t1.valence ;
-    assert ((place >=0) && (place < valen)) ;
+    assert ((place >=0) && (place < valen-2)) ;
     
     Itbl tipe (valen) ;
     tipe.set_etat_qcq() ;
@@ -184,3 +188,85 @@ Tenseur_sym manipule (const Tenseur_sym& t1, const Metrique& met) {
     return result ;
 }
   
+Tenseur_sym lie_derive (const Tenseur_sym& t, const Tenseur& x, 
+			const Metrique* met)
+{
+  assert ( (t.get_etat() != ETATNONDEF) && (x.get_etat() != ETATNONDEF) ) ;
+  assert(x.get_valence() == 1) ;
+  assert(x.get_type_indice(0) == CON) ;
+  assert(x.get_poids() == 0.) ;
+  assert(t.get_mp() == x.get_mp()) ;
+ 
+  int val = t.get_valence() ;
+  double poids = t.get_poids() ;
+  Itbl tipe (val+1) ;
+  tipe.set_etat_qcq() ;
+  tipe.set(0) = COV ;
+  Itbl tipx(2) ;
+  tipx.set_etat_qcq() ;
+  tipx.set(0) = COV ;
+  tipx.set(1) = CON ;
+  for (int i=0 ; i<val ; i++)
+    tipe.set(i+1) = t.get_type_indice(i) ;
+  Tenseur_sym dt(*t.get_mp(), val+1, tipe, *t.get_triad(), t.get_metric(), 
+		 poids) ;
+  Tenseur dx(*x.get_mp(), 2, tipx, x.get_triad()) ; 
+  if (met == 0x0) {
+    dx = x.gradient() ;
+    dt = t.gradient() ;
+  }
+  else {
+    dx = x.derive_cov(*met) ;
+    dt = t.derive_cov(*met) ;
+  }
+  Tenseur_sym resu(contract(x,0,dt,0)) ;
+  Tenseur* auxi ;
+  if ((val!=0)&&(t.get_etat()!=ETATZERO)&&(x.get_etat()!=ETATZERO)) {
+    assert(t.get_triad()->identify() == x.get_triad()->identify()) ;
+
+    for (int i=0 ; i<val ; i++) {
+      if (t.get_type_indice(i) == COV) {
+	auxi = new Tenseur(contract(t,i,dx,1)) ;
+	
+	Itbl indices_aux(val) ;
+	indices_aux.set_etat_qcq() ;
+	for (int j=0 ; j<resu.get_n_comp() ; j++) {
+	  
+	  Itbl indices (resu.donne_indices(j)) ;
+	  indices_aux.set(val-1) = indices(i) ;
+	  for (int idx=0 ; idx<val-1 ; idx++)
+	    if (idx<i)
+	      indices_aux.set(idx) = indices(idx) ;
+	    else
+	      indices_aux.set(idx) = indices(idx+1) ;
+	  
+	  resu.set(indices) += (*auxi)(indices_aux) ;
+	}
+      }   
+      else {
+	auxi = new Tenseur(contract(t,i,dx,0)) ;
+	
+	Itbl indices_aux(val) ;
+	indices_aux.set_etat_qcq() ;
+	
+	//On range comme il faut :
+	for (int j=0 ; j<resu.get_n_comp() ; j++) {
+	  
+	  Itbl indices (resu.donne_indices(j)) ;
+	  indices_aux.set(val-1) = indices(i) ;
+	  for (int idx=0 ; idx<val-1 ; idx++)
+	    if (idx<i)
+	      indices_aux.set(idx) = indices(idx) ;
+	    else
+	      indices_aux.set(idx) = indices(idx+1) ;
+	  resu.set(indices) -= (*auxi)(indices_aux) ;
+	}
+      }
+      delete auxi ;
+    }
+  }
+  if ((poids != 0.)&&(t.get_etat()!=ETATZERO)&&(x.get_etat()!=ETATZERO)) 
+    resu = resu + poids*contract(dx,0,1)*t ;
+
+  return resu ;
+}

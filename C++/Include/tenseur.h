@@ -35,6 +35,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2002/09/06 14:49:25  j_novak
+ * Added method lie_derive for Tenseur and Tenseur_sym.
+ * Corrected various errors for derive_cov and arithmetic.
+ *
  * Revision 1.5  2002/08/14 13:46:14  j_novak
  * Derived quantities of a Tenseur can now depend on several Metrique's
  *
@@ -954,6 +958,8 @@ class Tenseur {
     friend Tenseur manipule(const Tenseur&, const Metrique&, int idx) ;
     friend Tenseur manipule(const Tenseur&, const Metrique&) ;
     friend Tenseur skxk (const Tenseur&) ;
+    friend Tenseur lie_derive(const Tenseur& , const Tenseur& , 
+			      const Metrique* ) ;
 
 };
 
@@ -1049,6 +1055,14 @@ Tenseur manipule(const Tenseur&, const Metrique&) ;
  * zone. This is done only for a flat metric.
  */
 Tenseur skxk (const Tenseur&) ;
+
+/**
+ * Lie Derivative of {\tt t} with respect to {\tt x}. If no other argument
+ * is given, it uses partial derivatives with respect to cartesian coordinates
+ * to calculate the result (this is the default). Otherwise, it uses the 
+ * covariant derivative associated to the metric given as last argument.
+ */
+Tenseur lie_derive (const Tenseur& t, const Tenseur& x, const Metrique* = 0x0);
 
 
 //@}
@@ -1259,22 +1273,44 @@ class Tenseur_sym : public Tenseur {
 	
     // Mathematical operators
     // ----------------------
-
-	/// Tensorial product.
 	friend Tenseur_sym operator* (const Tenseur&, const Tenseur_sym&) ; 
-
-	/**
-	 * Raise or lower the index {\tt idx} depending on its type, using the
-	 * given {\tt Metrique}.
-	 */
-	friend Tenseur_sym manipule(const Tenseur_sym&, const Metrique&, int idx) ;
-
-	/**
-	 * Raise or lower all the indices, depending on their type,  using the given
-	 * {\tt Metrique}.
-	 */
+	friend Tenseur_sym manipule(const Tenseur_sym&, const Metrique&, 
+				    int idx) ;   
 	friend Tenseur_sym manipule(const Tenseur_sym&, const Metrique&) ;
-};
+	friend Tenseur lie_derive (const Tenseur& , const Tenseur& , 
+			    const Metrique* );
+ 
+} ;
+/**
+ * @name Tenseur\_sym calculus
+ */
+//@{
+/// Tensorial product.
+Tenseur_sym operator* (const Tenseur&, const Tenseur_sym&) ; 
+
+/**
+ * Raise or lower the index {\tt idx} depending on its type, using the
+ * given {\tt Metrique}.
+ */
+Tenseur_sym manipule(const Tenseur_sym&, const Metrique&, int idx) ;
+
+/**
+ * Raise or lower all the indices, depending on their type,  using the given
+ * {\tt Metrique}.
+ */
+Tenseur_sym manipule(const Tenseur_sym&, const Metrique&) ;
+
+/**
+ * Lie Derivative of {\tt t} with respect to {\tt x}. If no other 
+ * argument is given, it uses partial derivatives with respect to 
+ * cartesian coordinates to calculate the result (this is the 
+ * default). Otherwise, it uses the covariant derivative associated 
+ * to the metric given as last argument.
+ */
+Tenseur_sym lie_derive (const Tenseur_sym& t, const Tenseur& x, 
+			    const Metrique* = 0x0);
+
+//@}
 
 
 

@@ -66,7 +66,7 @@ int main() {
     Mtbl sigmasr(rs + (a*a*cost*cost)/rs) ;
     Cmp adeux(mapping) ; Cmp bdeux(mapping) ;
     adeux = erre*erre + (a*a*cost*cost)/(r*r) ; //Kerr dans la jauge quasi-
-    bdeux = erre*erre + a*a/(r*r) + 2*a*a*sint*sint*M/sigmasr ; //isotrope
+    bdeux = erre*erre + a*a/(r*r) + 2*a*a*sint*sint*M/(sigmasr*r*r) ; //isotrope
 
     Tenseur_sym gspher(mapping, 2, COV, mapping.get_bvect_spher() ) ;
     gspher.set_etat_qcq() ;

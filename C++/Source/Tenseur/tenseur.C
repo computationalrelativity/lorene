@@ -34,6 +34,10 @@ char tenseur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2002/09/06 14:49:25  j_novak
+ * Added method lie_derive for Tenseur and Tenseur_sym.
+ * Corrected various errors for derive_cov and arithmetic.
+ *
  * Revision 1.10  2002/08/30 13:21:38  j_novak
  * Corrected error in constructor
  *
@@ -1458,9 +1462,8 @@ void Tenseur::fait_derive_cov (const Metrique& metre, int ind) const {
 	  for (int j=0 ; j<p_derive_cov[ind]->n_comp ; j++) {
 	    
 	    Itbl indices (p_derive_cov[ind]->donne_indices(j)) ;
-	    indices.set_etat_qcq() ;
-	    indices_gamma.set(0) = indices(0) ;
-	    indices_gamma.set(1) = indices(i+1) ;
+	    indices_gamma.set(0) = indices(i+1) ;
+	    indices_gamma.set(1) = indices(0) ;
 	    for (int idx=2 ; idx<p_derive_cov[ind]->valence ; idx++)
 	      if (idx<=i+1)
 		indices_gamma.set(idx) = indices(idx-1) ;

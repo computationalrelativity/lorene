@@ -34,6 +34,10 @@ char tenseur_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/09/06 14:49:25  j_novak
+ * Added method lie_derive for Tenseur and Tenseur_sym.
+ * Corrected various errors for derive_cov and arithmetic.
+ *
  * Revision 1.2  2002/08/07 16:14:11  j_novak
  * class Tenseur can now also handle tensor densities, this should be transparent to older codes
  *
@@ -101,8 +105,8 @@ Tenseur operator-(const Tenseur & t) {
 
 	res.set_etat_qcq();
 
-	for (int i=0 ; i<t.get_n_comp() ; i++) {
-	    Itbl indices (t.donne_indices(i)) ;    
+	for (int i=0 ; i<res.get_n_comp() ; i++) {
+	    Itbl indices (res.donne_indices(i)) ;    
 	    res.set(indices) = -t(indices) ;
 	    }
 	return res ;
@@ -259,7 +263,7 @@ Tenseur operator*(double x, const Tenseur& t) {
 	else {
 	    res.set_etat_qcq() ;
 	    for (int i=0 ; i<res.get_n_comp() ; i++) {
-		Itbl indices (t.donne_indices(i)) ;
+		Itbl indices (res.donne_indices(i)) ;
 		res.set(indices) = x*t(indices) ;
 		}
 	    }
@@ -349,7 +353,7 @@ Tenseur operator/ (const Tenseur& t, double x) {
 
 	res.set_etat_qcq() ;
 	for (int i=0 ; i<res.get_n_comp() ; i++) {
-	    Itbl indices (t.donne_indices(i)) ;
+	    Itbl indices (res.donne_indices(i)) ;
 	    res.set(indices) = t(indices) / x ;	    // Cmp / double
 	}
 	return res ; 
