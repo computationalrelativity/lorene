@@ -1,6 +1,6 @@
 # Parameters for the binary equilibrium computation by coal
 ###################################################################
-ini_cor_17x13x12.d
+ini.d
 0.6	fact_separ : Factor by which the initial separation is multiplied
 1.55	mbar_voulue[0] : Baryon mass required for star 1 [M_sol]
 1.55	mbar_voulue[1] : Baryon mass required for star 2 [M_sol]
