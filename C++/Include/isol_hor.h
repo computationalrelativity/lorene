@@ -4,7 +4,7 @@
  */
 
 /*
- *   Copyright (c) 2004 Jose Luis Jaramillo
+ *   Copyright (c) 2004-2005 Jose Luis Jaramillo
  *                      Francois Limousin
  *
  *   This file is part of LORENE.
@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.28  2005/03/28 19:45:41  f_limousin
+ * Implement Isol_hor::aa_kerr_perturb(...) and new member aa_quad_evol.
+ *
  * Revision 1.27  2005/03/24 16:50:40  f_limousin
  * Add parameters solve_shift and solve_psi in par_isol.d and in function
  * init_dat(...). Implement Isolhor::kerr_perturb().
@@ -229,6 +232,9 @@ class Isol_hor : public Time_slice_conf {
    */        
   mutable Evolution_std<Sym_tensor> aa_nn ; 
 
+  /// Values at successive time steps of the components \f$ A^{ij}A_{ij} \f$
+  mutable Evolution_std<Scalar> aa_quad_evol ;
+
   /// 3 metric tilde
   Metric met_gamt ;
   
@@ -409,6 +415,17 @@ class Isol_hor : public Time_slice_conf {
    * Returns the value at the current time step \c jtime.
    */        
   virtual const Sym_tensor& aa_comp() const ; 
+
+  /** Conformal representation \f$ A^{ij}A_{ij} \f$.
+   * Returns the value at the current time step \c jtime.
+   */        
+  virtual const Scalar& aa_quad() const ; 
+
+  /** Conformal metric 
+   * \f$ \tilde\gamma_{ij} = \Psi^{-4} \gamma_{ij} \f$
+   * Returns the value at the current time step (\c jtime ).
+   */        
+  virtual const Metric& tgam() const {return met_gamt ;}
 
   /**
    * Returns the function used to construct \c tkij_auto  from \c tkij_tot .
@@ -664,7 +681,13 @@ class Isol_hor : public Time_slice_conf {
    */
   double regularise_one() ;
 
-  void kerr_perturb() ;
+  /// Initialisation of the metric tilde from equation (15) of
+  /// Dain (2002). The determinant of this conformal metric is not one.
+  void met_kerr_perturb() ;
+  
+  /// Perturbation of Kerr using  \f$ A^{ij}A_{ij} \f$ from 
+  /// equation (14) of Dain (2002).
+  void aa_kerr_perturb(double mm, double aa) ;
   
   // Outputs
   // -------
