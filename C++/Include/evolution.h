@@ -31,6 +31,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/05/11 20:11:49  e_gourgoulhon
+ * Class Evolution:
+ *  -- suppressed method get_jtop()
+ *  -- added methods j_min(), j_max() and save().
+ *
  * Revision 1.9  2004/03/26 13:31:08  j_novak
  * Definition of the macro UNDEF_STEP for non-defined time-steps.
  * Changes in the way the time derivative is calculated.
@@ -174,9 +179,12 @@ template<typename TyT> class Evolution {
 
         /// Returns the member \c size
         int get_size() const {return size; } ; 
+        
+        /// Returns the smaller time step j stored in \c *this
+        int j_min() const ; 
 
-        /// Returns the member \c jtop
-        int get_jtop() const {return jtop; } ; 
+        /// Returns the larger time step j stored in \c *this
+        int j_max() const ; 
 
         /** Checks whether the value a given time step has been set
          * @param j time step index
@@ -206,7 +214,14 @@ template<typename TyT> class Evolution {
     // Outputs
     // -------
     
-    
+        /** Saves \c *this in a formatted file.
+         *  If \c TyT = \c double, this file is readable by 2-D plotting
+         *  software (e.g. \e Xmgrace) to produce a curve of the time
+         *  evolution.
+         *  @param filename name of the file: this file will be created
+         *  in the working directory.  
+         */
+         void save(const char* filename) const ; 
 
 };
 
