@@ -29,6 +29,13 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2004/05/31 20:28:20  e_gourgoulhon
+ * -- Class Time_slice : added inline functions get_latest_j() and
+ *    get_time()
+ * -- Class Tslice_dirac_max: method hh_det_one takes now a time step
+ *    as argument, to compute h^{ij} from khi and mu at an arbitrary
+ *    time step and not only the latest one.
+ *
  * Revision 1.19  2004/05/27 15:22:28  e_gourgoulhon
  * Added functions save and sauve, as well as constructors from file.
  *
@@ -194,7 +201,7 @@ class Time_slice {
     // Derived data : 
     // ------------
     protected:
-        /// Pointer on the induced metric 
+        /// Pointer on the induced metric at the current time step (\c jtime) 
 	mutable Metric* p_gamma ;   
 
     // Constructors - Destructor
@@ -297,6 +304,12 @@ class Time_slice {
 
 	/// Gets the order of the finite-differences scheme.
 	int get_scheme_order() const { return scheme_order ; } ;
+        
+        /// Gets the latest value of time step index
+        int get_latest_j() const {return jtime; } ;
+        
+        /// Gets the time coordinate \e t at successive time steps
+        const Evolution_std<double>& get_time() const {return the_time; } ; 
 	
 	/// Lapse function \e N at the current time step (\c jtime )
 	virtual const Scalar& nn() const ;
@@ -497,17 +510,19 @@ class Time_slice_conf : public Time_slice {
     // Derived data : 
     // ------------
     protected:
-        /// Pointer on the conformal metric \f$ \tilde\gamma_{ij} \f$
+        /** Pointer on the conformal metric \f$ \tilde\gamma_{ij} \f$
+         * at the current time step (\c jtime)
+         */
 	    mutable Metric* p_tgamma ; 
         
-        /// Pointer on the factor \f$ \Psi^4 \f$
+        /// Pointer on the factor \f$ \Psi^4 \f$ at the current time step (\c jtime)
 	    mutable Scalar* p_psi4 ; 
         
-        /// Pointer on the logarithm of \f$ \Psi \f$
+        /// Pointer on the logarithm of \f$ \Psi \f$ at the current time step (\c jtime)
 	    mutable Scalar* p_ln_psi ; 
         
         /** Pointer on the vector \f$ H^i = {\cal D}_j \tilde\gamma^{ij} \f$ 
-         * which vanishes in Dirac gauge.
+         * (which vanishes in Dirac gauge), at the current time step (\c jtime).
          */
         mutable Vector* p_hdirac ; 
          
@@ -1112,8 +1127,10 @@ class Tslice_dirac_max : public Time_slice_conf {
          * \f$\mu\f$ and using the condition 
          * \f$\det\tilde\gamma^{ij} = \det f^{ij} \f$, which fixes the
          * trace of \f$ h^{ij} \f$.
+         * @param j time step at which the computation of \f$ h^{ij} \f$
+         *      is required.
          */
-        void hh_det_one() const ; 
+        void hh_det_one(int j) const ; 
 
     // Accessors
     // ---------
