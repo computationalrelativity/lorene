@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/11/07 16:54:23  e_gourgoulhon
+ * Added method Sym_tensor_tt::poisson().
+ *
  * Revision 1.7  2003/11/06 14:43:37  e_gourgoulhon
  * Gave a name to const arguments in certain method prototypes (e.g.
  * constructors) to correct a bug of DOC++.
@@ -489,6 +492,20 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 	 */
 	void update() ;
 	
+
+	public:
+	/** Computes the solution of a tensorial TT Poisson equation
+	 *  with {\tt *this} $= S^{ij}$ as a source:
+	 * \begin{equation}
+	 *    \Delta h^{ij} = S^{ij}
+	 * \end{equation} 
+	 * 
+	 * @return solution $h^{ij}$ of the above equation with the boundary
+	 *	condition $h^{ij}=0$ at spatial infinity.
+	 */
+	Sym_tensor_tt poisson() const ; 
+	
+
 
 } ; 
 	
