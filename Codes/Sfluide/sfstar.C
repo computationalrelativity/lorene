@@ -40,8 +40,8 @@
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
 
 void compare_analytic (Et_rot_bifluid& star, int adapt); 
-string get_file_base (double xp, double sig);
-string get_file_base (double xp, double sig, double eps, double om1, double om2, int typeos, int nzet, int adapt);
+string get_file_base (bool relat, double xp, double sig);
+string get_file_base (bool relat, double xp, double sig, double eps, double om1, double om2, int typeos, int nzet, int adapt);
 
 // some global EOS parameters 
 double kap1, kap2, kap3, beta, m1, m2, detA, k1, k2, kk, R;
@@ -439,7 +439,7 @@ int main(){
 
     // now print out key-values of the configuration in such a "translated" way
     // that we can compare the results to the analytic solution of PCA02:
-    if (eos.identify() == 2)  // only do that if type = eos_bf_poly_newt
+    //    if (eos.identify() == 2)  // only do that if type = eos_bf_poly_newt
       compare_analytic (star, nzadapt);
  
     // Cleaning
@@ -464,20 +464,20 @@ compare_analytic (Et_rot_bifluid& star, int adapt)
 {
   bool is_static = false;
 
-  Eos_bf_poly_newt eos = dynamic_cast<const Eos_bf_poly_newt&>(star.get_eos());
+  Eos_bf_poly eos = dynamic_cast<const Eos_bf_poly&>(star.get_eos());
 
-  // let's see if it's really what we called  "analytic" EOS in PCA02:
-  if ( (eos.identify() != 2) || (eos.get_gam1() != 2) || (eos.get_gam2() != 2) ||
-       (eos.get_gam3() != 1) || (eos.get_gam4() != 1) )
-    {
-      cout << "This EOS is not of type Newtonian analytic EOS, compare_analytic() useless here!\n";
-      return;
-    }
-  else
-    {
-      cout << "\n\n----------------------------------------------------------------------" << endl;
-      cout << " compare_analytic() called on AnalyticEOS: now comparing... " << endl << endl;
-    }
+//   // let's see if it's really what we called  "analytic" EOS in PCA02:
+//   if ( (eos.identify() != 2) || (eos.get_gam1() != 2) || (eos.get_gam2() != 2) ||
+//        (eos.get_gam3() != 1) || (eos.get_gam4() != 1) )
+//     {
+//       cout << "This EOS is not of type Newtonian analytic EOS, compare_analytic() useless here!\n";
+//       return;
+//     }
+//   else
+//     {
+//       cout << "\n\n----------------------------------------------------------------------" << endl;
+//       cout << " compare_analytic() called on AnalyticEOS: now comparing... " << endl << endl;
+//     }
 
   double muc1 = star.get_ent()()(0,0,0,0);
   double muc2 = star.get_ent2()()(0,0,0,0);
@@ -555,7 +555,7 @@ compare_analytic (Et_rot_bifluid& star, int adapt)
   string resdir = "Results/";
   string fname;
 
-  fname = resdir + get_file_base (xp, sigma, eps, om_n, om_p, eos.get_typeos(), star.get_nzet(), adapt);
+  fname = resdir + get_file_base (star.is_relativistic(), xp, sigma, eps, om_n, om_p, eos.get_typeos(), star.get_nzet(), adapt);
 
 
   Map_et &map = (Map_et&)(star.get_mp());
@@ -662,12 +662,18 @@ compare_analytic (Et_rot_bifluid& star, int adapt)
  *
  *----------------------------------------------------------------------*/
 string
-get_file_base (double xp0, double sig0)
+get_file_base (bool relat, double xp0, double sig0)
 {
   ostringstream s;
   char cbuf[50]; // man, <ios> does not seem to exist here... 
+  char *head;
 
-  sprintf (cbuf, "Newt_xp%4.2f_sig%4.2f", xp0, sig0);
+  if (relat)
+    head = "Rel";
+  else
+    head = "Newt";
+
+  sprintf (cbuf, "%s_xp%4.2f_sig%4.2f", head, xp0, sig0);
 
   s << cbuf;
   
@@ -675,7 +681,7 @@ get_file_base (double xp0, double sig0)
 }
 
 string
-get_file_base (double xp0, double sig0, double eps0, double om1, double om2, int typeos, int nzet, int adapt)
+get_file_base (bool relat, double xp0, double sig0, double eps0, double om1, double om2, int typeos, int nzet, int adapt)
 {
   ostringstream s;
   char cbuf[50]; // man, <ios> does not seem to exist here... 
@@ -686,7 +692,7 @@ get_file_base (double xp0, double sig0, double eps0, double om1, double om2, int
   else
     relOm = 0;
 
-  s << get_file_base (xp0, sig0);
+  s << get_file_base (relat, xp0, sig0);
 
   sprintf (cbuf, "_eps%4.2f_Om%8.6f_R%4.2f%s%s%s", eps0, om2, relOm, 
 	   (typeos==5)? "_sr" : "",
