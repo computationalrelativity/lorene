@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/05/07 12:32:12  j_novak
+ * New summation from spectral to FD grid. Much faster!
+ *
  * Revision 1.5  2004/03/22 13:12:41  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -750,7 +753,15 @@ class Gval_spher : public Grille_val {
 
   /// Same as before but for the 3D case
   virtual double* somme_spectrale3(const Cmp& meudon) const  ;
-};
+
+  void initialize_spectral_r(const Map* mp, const Base_val& base, int*& idom, 
+			     double*& chebnri) const ;
+  void initialize_spectral_theta(const Map* mp, const Base_val& base, 
+				 double*& tetlj) const ;
+  void initialize_spectral_phi(const Map* mp, const Base_val& base,
+			       double*& expmk) const ;
+
+ };
 
 #endif
 
