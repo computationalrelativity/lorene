@@ -18,6 +18,7 @@ install: $(SRC) Objects Objects_g
 	mv *.o Objects
 
 uninstall:
+	rm -f *.o
 	rm Dependencies
 	touch Dependencies.bak
 	rm Dependencies.bak
