@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/09/16 08:36:57  f_limousin
+ * New boundary conditions for lapse and psi.
+ *
  * Revision 1.2  2004/09/09 17:04:27  jl_jaramillo
  * Elimination of _ih
  *
@@ -163,6 +166,9 @@ class Isol_hor : public Time_slice_conf {
   /** Vector radial normal */
   Vector radial_vect_hor() ;
 
+  /** Vector radial normal tilde */
+  Vector tradial_vect_hor() ;
+
   /** Vector beta for boundary conditions in cartesian  */
   Vector beta_bound_cart() ;
 
@@ -233,23 +239,35 @@ class Isol_hor : public Time_slice_conf {
   // BOUNDARY CONDITIONS
   //--------------------
   
-  /// Dirichlet boundary condition for Psi   
-  Valeur boundary_psi_Dir() ;
+  /// Dirichlet boundary condition for Psi (evolution)
+  Valeur boundary_psi_Dir_evol() ;
 
-  /// Neumann boundary condition for Psi   
-  Valeur boundary_psi_Neu() ;
+  /// Neumann boundary condition for Psi (evolution)
+  Valeur boundary_psi_Neu_evol() ;
 
+  /// Dirichlet boundary condition for Psi (spatial)
+  Valeur boundary_psi_Dir_spat() ;
+
+  /// Neumann boundary condition for Psi (spatial)  
+  Valeur boundary_psi_Neu_spat() ;
 
   /// Dirichlet boundary condition on nn using the extrinsic curvature
-  ///< (No time evolution taken into account! Make this)
-  ///<--------------------------------------------------------------------------
+  /// ----------------------------------------------------------------
   Valeur boundary_nn_Dir_kk() ;
 
   /// Neumann boundary condition on nn using the extrinsic curvature
-  /// (No time evolution taken into account! Make this)
-  ///<--------------------------------------------------------------------------
+  /// --------------------------------------------------------------
   Valeur boundary_nn_Neu_kk() ;	
 
+  /// Dirichlet boundary condition on nn using the extrinsic curvature (eff)
+  /// dnn + a nn = 0 
+  /// ----------------------------------------------------------------
+  Valeur boundary_nn_Dir_eff(double aa) ;
+
+  /// Neumann boundary condition on nn using the extrinsic curvature (eff)
+  /// dnn + a nn = 0 
+  ///---------------------------------------------------------------
+  Valeur boundary_nn_Neu_eff(double aa) ;	
 
   /// Component r of boundary value of beta
   Valeur boundary_beta_r() ;
