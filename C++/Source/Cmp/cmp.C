@@ -35,6 +35,12 @@ char cmp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/10/11 15:09:01  j_novak
+ * The radial manipulation functions take Scalar as arguments, instead of Cmp.
+ * Added a conversion operator from Scalar to Cmp.
+ * The Cmp radial manipulation function make conversion to Scalar, call to the
+ * Map_radial version with a Scalar argument and back.
+ *
  * Revision 1.7  2003/10/16 21:39:02  e_gourgoulhon
  * Treated the case ETATUN in the constructor from Scalar.
  *
@@ -186,7 +192,6 @@ char cmp_C[] = "$Header$" ;
 #include "type_parite.h"
 #include "utilitaires.h"
 #include "proto.h"
-#include "tensor.h"
 
 			//---------------//
 			// Constructeurs //
@@ -217,20 +222,6 @@ Cmp::Cmp(const Cmp& ci)  : mp(ci.mp), etat(ci.etat), dzpuis(ci.dzpuis),
 
 }
 
-// Conversion of a Scalar
-//-----------------------
-Cmp::Cmp(const Scalar& uu) : mp(&(uu.get_mp())), 
-							 etat(uu.get_etat()),
-							 dzpuis(uu.get_dzpuis()),
-							 va(uu.get_spectral_va()) {	
-							 
-	if (uu.get_etat() == ETATUN) {
-		etat = ETATQCQ ; 
-	}
-							 
-	set_der_0x0() ; 
-}
-	
 // From file
 // ---------
 Cmp::Cmp(const Map& mpi, const Mg3d& mgi, FILE* fd) : mp(&mpi), va(mgi, fd) {

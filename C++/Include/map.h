@@ -39,6 +39,12 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.34  2004/10/11 15:08:59  j_novak
+ * The radial manipulation functions take Scalar as arguments, instead of Cmp.
+ * Added a conversion operator from Scalar to Cmp.
+ * The Cmp radial manipulation function make conversion to Scalar, call to the
+ * Map_radial version with a Scalar argument and back.
+ *
  * Revision 1.33  2004/10/08 13:34:35  j_novak
  * Scalar::div_r() does not need to pass through Cmp version anymore.
  *
@@ -967,21 +973,17 @@ class Map {
 	virtual void mult_r(Cmp& ci) const = 0 ; 
 
 	/** Multiplication by \e r  (in the  compactified external domain only)
-	 * of a \c Cmp 
+	 * of a \c Scalar 
 	 */
-	virtual void mult_r_zec(Cmp& ) const = 0 ;
+	virtual void mult_r_zec(Scalar& ) const = 0 ;
 
-	/** Multiplication by \f$r\sin\theta\f$ of a \c Cmp 
+	/** Multiplication by \f$r\sin\theta\f$ of a \c Scalar 
 	 */
-	virtual void mult_rsint(Cmp& ) const = 0 ; 
+	virtual void mult_rsint(Scalar& ) const = 0 ; 
 
-	/** Division by \f$r\sin\theta\f$ of a \c Cmp 
+	/** Division by \f$r\sin\theta\f$ of a \c Scalar
 	 */
-	virtual void div_rsint(Cmp& ) const = 0 ; 
-
-	/** Division by \e r  of a \c Cmp 
-	 */
-	virtual void div_r(Cmp& ) const = 0 ; 
+	virtual void div_rsint(Scalar& ) const = 0 ; 
 
 	/** Division by \e r  of a \c Scalar 
 	 */
@@ -1078,29 +1080,29 @@ class Map {
 	virtual void comp_p_from_cartesian(const Cmp& v_x, const Cmp& v_y, 
 					   Cmp& v_p) const = 0 ; 
 	
-	/** Decreases by 1 the value of \c dzpuis  of a \c Cmp  
+	/** Decreases by 1 the value of \c dzpuis  of a \c Scalar  
 	 *  and changes accordingly its values in the  
 	 *  compactified external domain (CED).
 	 */
-	virtual void dec_dzpuis(Cmp& ) const = 0 ; 
+	virtual void dec_dzpuis(Scalar& ) const = 0 ; 
 	
-	/** Decreases by 2 the value of \c dzpuis  of a \c Cmp  
+	/** Decreases by 2 the value of \c dzpuis  of a \c Scalar  
 	 *  and changes accordingly its values in the  
 	 *  compactified external domain (CED).
 	 */
-	virtual void dec2_dzpuis(Cmp& ) const = 0 ; 
+	virtual void dec2_dzpuis(Scalar& ) const = 0 ; 
 	
-	/** Increases by 1 the value of \c dzpuis  of a \c Cmp  
+	/** Increases by 1 the value of \c dzpuis  of a \c Scalar  
 	 *  and changes accordingly its values in the  
 	 *  compactified external domain (CED).
 	 */
-	virtual void inc_dzpuis(Cmp& ) const = 0 ; 
+	virtual void inc_dzpuis(Scalar& ) const = 0 ; 
 	
-	/** Increases by 2 the value of \c dzpuis  of a \c Cmp  
+	/** Increases by 2 the value of \c dzpuis  of a \c Scalar  
 	 *  and changes accordingly its values in the  
 	 *  compactified external domain (CED).
 	 */
-	virtual void inc2_dzpuis(Cmp& ) const = 0 ; 
+	virtual void inc2_dzpuis(Scalar& ) const = 0 ; 
 	
 	/** Computes the integral over all space of a \c Cmp .
 	 *  The computed quantity is 
@@ -1544,21 +1546,17 @@ class Map_radial : public Map {
 
 	/**
 	 * Multiplication by \e r  (in the compactified external domain only)
-	 * of a \c Cmp
+	 * of a \c Scalar
 	 */
-	virtual void mult_r_zec(Cmp& ) const ;
+	virtual void mult_r_zec(Scalar& ) const ;
 
-	/** Multiplication by \f$r\sin\theta\f$ of a \c Cmp
+	/** Multiplication by \f$r\sin\theta\f$ of a \c Scalar
 	 */
-	virtual void mult_rsint(Cmp& ) const ; 
+	virtual void mult_rsint(Scalar& ) const ; 
 
-	/** Division by \f$r\sin\theta\f$ of a \c Cmp
+	/** Division by \f$r\sin\theta\f$ of a \c Scalar
 	 */
-	virtual void div_rsint(Cmp& ) const ; 
-
-	/** Division by \e r  of a \c Cmp
-	 */
-	virtual void div_r(Cmp& ) const ; 
+	virtual void div_rsint(Scalar& ) const ; 
 
 	/** Division by \e r  of a \c Scalar
 	 */
@@ -1656,32 +1654,32 @@ class Map_radial : public Map {
 					   Cmp& v_p) const ; 
 	
 	/**
-	 * Decreases by 1 the value of \c dzpuis  of a \c Cmp 
+	 * Decreases by 1 the value of \c dzpuis  of a \c Scalar 
 	 *  and changes accordingly its values in the 
 	 *  compactified external domain (CED).
 	 */
-	virtual void dec_dzpuis(Cmp& ) const ; 
+	virtual void dec_dzpuis(Scalar& ) const ; 
 
 	/**
-	 * Decreases by 2 the value of \c dzpuis  of a \c Cmp 
+	 * Decreases by 2 the value of \c dzpuis  of a \c Scalar 
 	 *  and changes accordingly its values in the  
 	 *  compactified external domain (CED).
 	 */
-	virtual void dec2_dzpuis(Cmp& ) const ; 
+	virtual void dec2_dzpuis(Scalar& ) const ; 
 
 	/**
-	 * Increases by 1 the value of \c dzpuis  of a \c Cmp 
+	 * Increases by 1 the value of \c dzpuis  of a \c Scalar 
 	 *  and changes accordingly its values in the  
 	 *  compactified external domain (CED).
 	 */
-	virtual void inc_dzpuis(Cmp& ) const ; 
+	virtual void inc_dzpuis(Scalar& ) const ; 
 	
 	/**
-	 * Increases by 2 the value of \c dzpuis  of a \c Cmp 
+	 * Increases by 2 the value of \c dzpuis  of a \c Scalar 
 	 *  and changes accordingly its values in the  
 	 *  compactified external domain (CED).
 	 */
-	virtual void inc2_dzpuis(Cmp& ) const ; 
+	virtual void inc2_dzpuis(Scalar& ) const ; 
 	
 
     // PDE resolution :

@@ -35,6 +35,12 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.29  2004/10/11 15:09:04  j_novak
+ * The radial manipulation functions take Scalar as arguments, instead of Cmp.
+ * Added a conversion operator from Scalar to Cmp.
+ * The Cmp radial manipulation function make conversion to Scalar, call to the
+ * Map_radial version with a Scalar argument and back.
+ *
  * Revision 1.28  2004/08/24 09:14:51  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -189,8 +195,8 @@ Scalar::Scalar(const Scalar& sci)  : Tensor(*(sci.mp)), etat(sci.etat),
 
 }
 
-// Conversion of a Cmp
-//--------------------
+// Conversion from a Cmp
+//----------------------
 Scalar::Scalar(const Cmp& ci) : Tensor(*(ci.get_mp())),
 								etat(ci.get_etat()),
 								dzpuis(ci.get_dzpuis()),
@@ -625,7 +631,16 @@ void Scalar::operator=(int n) {
   
 }
 
+// Conversion to a Cmp
+//----------------------
+Scalar::operator Cmp() const {
 
+  Cmp resu(mp) ;
+  resu = va ;
+  resu.set_dzpuis(dzpuis) ;
+  return resu ;
+
+}
 			//------------//
 			// Sauvegarde //
 			//------------//

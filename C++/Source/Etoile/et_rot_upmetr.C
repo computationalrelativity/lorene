@@ -32,8 +32,14 @@ char et_rot_upmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2004/10/11 15:09:02  j_novak
+ * The radial manipulation functions take Scalar as arguments, instead of Cmp.
+ * Added a conversion operator from Scalar to Cmp.
+ * The Cmp radial manipulation function make conversion to Scalar, call to the
+ * Map_radial version with a Scalar argument and back.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.4  2001/01/25  13:01:28  eric
  * Appel de set_std_base() sur bbb et b_car.
@@ -77,7 +83,7 @@ void Etoile_rot::update_metric() {
     // ---------------
     
     Cmp tmp = tggg() ; 
-    mp.div_rsint(tmp) ;	        //... Division of tG by r sin(theta)
+    tmp.div_rsint() ;	        //... Division of tG by r sin(theta)
 
     bbb.set_etat_qcq() ;
     bbb.set() = tmp ;

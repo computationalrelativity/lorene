@@ -1,6 +1,6 @@
 /*
  *  Member functions of the class Map_radial for various r manipulations
- *  of the Cmp's.
+ *  of the Scalar's.
  */
 
 /*
@@ -32,6 +32,12 @@ char map_radial_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/10/11 15:09:03  j_novak
+ * The radial manipulation functions take Scalar as arguments, instead of Cmp.
+ * Added a conversion operator from Scalar to Cmp.
+ * The Cmp radial manipulation function make conversion to Scalar, call to the
+ * Map_radial version with a Scalar argument and back.
+ *
  * Revision 1.9  2004/10/08 13:34:37  j_novak
  * Scalar::div_r() does not need to pass through Cmp version anymore.
  *
@@ -120,7 +126,6 @@ char map_radial_r_manip_C[] = "$Header$" ;
  *
  */
 
-#include "map.h"
 #include "cmp.h"
 #include "tensor.h"
 
@@ -139,8 +144,10 @@ void Map_radial::mult_r(Scalar& uu) const {
 	return ; 
     }
 
-    assert(uu.get_etat() == ETATQCQ) ;
+    assert((uu.get_etat() == ETATQCQ)||(uu.get_etat() == ETATUN)) ;
         
+    uu.set_etat_qcq() ;
+
     int nz = mg->get_nzone() ;
     int nzm1 = nz-1 ;
 
@@ -279,20 +286,22 @@ void Map_radial::mult_r(Cmp& ci) const {
 			//	    mult_r_zec	     //
 			//---------------------------//
 
-void Map_radial::mult_r_zec(Cmp& ci) const {
+void Map_radial::mult_r_zec(Scalar& ci) const {
     
     // Verifications d'usage :
     assert(ci.get_etat() != ETATNONDEF) ;
     
-    // Nothing to do if the Cmp is null :
+    // Nothing to do if the Scalar is null :
     if (ci.get_etat() == ETATZERO) {
 	return ; 
     }
 
-    assert(ci.get_etat() == ETATQCQ) ;
+    assert((ci.get_etat() == ETATQCQ)||(ci.get_etat() == ETATUN)) ;
     
+    ci.set_etat_qcq() ;
+
     //Confort :
-    Valeur& uu = ci.va ; 
+    Valeur& uu = ci.set_spectral_va() ; 
     assert(uu.get_mg() == mg) ; 
     
     int nz = mg->get_nzone() ;
@@ -336,17 +345,19 @@ void Map_radial::mult_r_zec(Cmp& ci) const {
 			//	    mult_rsint	     //
 			//---------------------------//
 
-void Map_radial::mult_rsint(Cmp& ci) const {
+void Map_radial::mult_rsint(Scalar& ci) const {
     
     assert(ci.get_etat() != ETATNONDEF) ;
     
     if (ci.get_etat() == ETATZERO) {
-	return ;			 // Nothing to do if the Cmp is null 
+	return ;		    // Nothing to do if the Scalar is null 
     }
 
-    assert(ci.get_etat() == ETATQCQ) ;
+    assert((ci.get_etat() == ETATQCQ)||(ci.get_etat() == ETATUN)) ;
             
-    Valeur& val = ci.va ; 
+    ci.set_etat_qcq() ;
+
+    Valeur& val = ci.set_spectral_va() ; 
     assert(val.get_mg() == mg) ; 
 
     int nz = mg->get_nzone() ;
@@ -360,7 +371,7 @@ void Map_radial::mult_rsint(Cmp& ci) const {
     // 2/ Multiplication by r
     // ----------------------    
 
-    Cmp ci_ext(this) ; 
+    Scalar ci_ext(*this) ; 
 
     if (mg->get_type_r(nzm1) == UNSURR) {   // Case with ZEC
 					    // -------------
@@ -369,11 +380,11 @@ void Map_radial::mult_rsint(Cmp& ci) const {
     
 	ci_ext = ci ; 
 	ci_ext.annule(0, nzm1-1) ; 
-	ci.annule(nzm1) ; 
+	ci.annule_domain(nzm1) ; 
 
 	// External domain 
 	// ---------------
-	Valeur& val_ext = ci_ext.va ; 
+	Valeur& val_ext = ci_ext.set_spectral_va() ; 
 	assert(val_ext.get_mg() == mg) ; 
 
 	val_ext.sxm1_zec() ;		// Division by (xi-1) 
@@ -413,17 +424,19 @@ void Map_radial::mult_rsint(Cmp& ci) const {
 			//	    div_rsint	     //
 			//---------------------------//
 
-void Map_radial::div_rsint(Cmp& ci) const {
+void Map_radial::div_rsint(Scalar& ci) const {
     
     assert(ci.get_etat() != ETATNONDEF) ;
     
     if (ci.get_etat() == ETATZERO) {
-	return ;			 // Nothing to do if the Cmp is null 
+	return ;		   // Nothing to do if the Scalar is null 
     }
 
-    assert(ci.get_etat() == ETATQCQ) ;
+    assert((ci.get_etat() == ETATQCQ)||(ci.get_etat() == ETATUN)) ;
             
-    Valeur& val = ci.va ; 
+    ci.set_etat_qcq() ;
+
+    Valeur& val = ci.set_spectral_va() ; 
     assert(val.get_mg() == mg) ; 
 
     int nz = mg->get_nzone() ;
@@ -438,7 +451,7 @@ void Map_radial::div_rsint(Cmp& ci) const {
     // 2/ Division by r
     // ----------------    
 
-    Cmp ci_ext(this) ; 
+    Scalar ci_ext(*this) ; 
 
     if (mg->get_type_r(nzm1) == UNSURR) {   // Case with ZEC
 					    // -------------
@@ -448,11 +461,11 @@ void Map_radial::div_rsint(Cmp& ci) const {
     
 	ci_ext = ci ; 
 	ci_ext.annule(0, nzm1-1) ; 
-	ci.annule(nzm1) ; 
+	ci.annule_domain(nzm1) ; 
 
 	// External domain
 	// ---------------
-	Valeur& val_ext = ci_ext.va ; 
+	Valeur& val_ext = ci_ext.set_spectral_va() ; 
 	assert(val_ext.get_mg() == mg) ; 
 
 	val_ext = val_ext.mult_x() ;	// Multiplication by (xi-1)
@@ -496,11 +509,13 @@ void Map_radial::div_r(Scalar& ci) const {
     assert(ci.get_etat() != ETATNONDEF) ;
     
     if (ci.get_etat() == ETATZERO) {
-	return ;			 // Nothing to do if the Cmp is null 
+	return ;		   // Nothing to do if the Scalar is null 
     }
 
-    assert(ci.get_etat() == ETATQCQ) ;
+    assert((ci.get_etat() == ETATQCQ)||(ci.get_etat() == ETATUN)) ;
             
+    ci.set_etat_qcq() ;
+
     Valeur& val = ci.set_spectral_va() ; 
     assert(val.get_mg() == mg) ; 
 
@@ -556,72 +571,6 @@ void Map_radial::div_r(Scalar& ci) const {
     
 }
 
-void Map_radial::div_r(Cmp& ci) const {
-    
-    assert(ci.get_etat() != ETATNONDEF) ;
-    
-    if (ci.get_etat() == ETATZERO) {
-	return ;			 // Nothing to do if the Cmp is null 
-    }
-
-    assert(ci.get_etat() == ETATQCQ) ;
-            
-    Valeur& val = ci.va ; 
-    assert(val.get_mg() == mg) ; 
-
-    int nz = mg->get_nzone() ;
-    int nzm1 = nz-1 ;
-
-    Cmp ci_ext(this) ; 
-
-    if (mg->get_type_r(nzm1) == UNSURR) {   // Case with ZEC
-					    // -------------
-    
-	// Decomposition inner domains / external domain : 
-	// ----------------------------------------------
-    
-	ci_ext = ci ; 
-	ci_ext.annule(0, nzm1-1) ; 
-	ci.annule(nzm1) ; 
-
-	// External domain
-	// ---------------
-	Valeur& val_ext = ci_ext.va ; 
-	assert(val_ext.get_mg() == mg) ; 
-
-	val_ext = val_ext.mult_x() ;	// Multiplication by (xi-1)
-	
-	Base_val sauve_base = val_ext.base ; 
-	val_ext = val_ext / xsr ;	// Division by (xi-1)/R
-	val_ext.base = sauve_base ; 
-
-    }
-    else{   // Case without ZEC
-	    //-----------------
-
-	ci_ext = 0 ; 
-
-    }
-
-    // Inner domains: 
-    // -------------
-
-    val = val.sx() ;	// Division by xi in the nucleus
-			// Identity in the shells
-
-    Base_val sauve_base = val.base ; 
-    val = val * xsr ;    // Multiplication by xi/R in the nucleus
-			 // Multiplication by 1/R  in the shells
-    val.base = sauve_base ; 
-
-    // Recombination
-    // -------------
-
-    ci = ci + ci_ext ;         
-    
-}
-
-
 			//---------------------------//
 			//	    div_r_zec	     //
 			//---------------------------//
@@ -631,13 +580,15 @@ void Map_radial::div_r_zec(Scalar& uu) const {
     // Verifications d'usage :
     assert(uu.get_etat() != ETATNONDEF) ;
     
-    // Nothing to do if the Cmp is null :
+    // Nothing to do if the Scalar is null :
     if (uu.get_etat() == ETATZERO) {
 	return ; 
     }
 
-    assert(uu.get_etat() == ETATQCQ) ;
+    assert((uu.get_etat() == ETATQCQ)||(uu.get_etat() == ETATUN)) ;
     
+    uu.set_etat_qcq() ;
+
     //Confort :
     const Valeur& vu = uu.get_spectral_va() ; 
     assert(vu.get_mg() == mg) ; 
@@ -682,7 +633,7 @@ void Map_radial::div_r_zec(Scalar& uu) const {
 			//	  dec_dzpuis	     //
 			//---------------------------//
 			
-void Map_radial::dec_dzpuis(Cmp& ci) const {
+void Map_radial::dec_dzpuis(Scalar& ci) const {
 
     // Verifications d'usage :
     assert(ci.get_etat() != ETATNONDEF) ;
@@ -690,15 +641,17 @@ void Map_radial::dec_dzpuis(Cmp& ci) const {
     int nz = mg->get_nzone() ;
     int nzm1 = nz-1 ;
 
-    // Nothing to do if the Cmp is null or if there is no ZEC:
+    // Nothing to do if the Scalar is null or if there is no ZEC:
     if ((ci.get_etat() == ETATZERO) || (mg->get_type_r(nzm1) != UNSURR)) {
       ci.set_dzpuis( ci.get_dzpuis() - 1 ) ; 
       return ; 
     }
 
-    assert(ci.get_etat() == ETATQCQ) ;
+    assert((ci.get_etat() == ETATQCQ)||(ci.get_etat() == ETATUN)) ;
     
-    Valeur& uu = ci.va ; 
+    ci.set_etat_qcq() ;
+
+    Valeur& uu = ci.set_spectral_va() ; 
     assert(uu.get_mg() == mg) ; 
     
     
@@ -730,7 +683,7 @@ void Map_radial::dec_dzpuis(Cmp& ci) const {
 			//	  inc_dzpuis	     //
 			//---------------------------//
 			
-void Map_radial::inc_dzpuis(Cmp& ci) const {
+void Map_radial::inc_dzpuis(Scalar& ci) const {
 
     // Verifications d'usage :
     assert(ci.get_etat() != ETATNONDEF) ;
@@ -738,15 +691,17 @@ void Map_radial::inc_dzpuis(Cmp& ci) const {
     int nz = mg->get_nzone() ;
     int nzm1 = nz-1 ;
 
-    // Nothing to do if the Cmp is null or if there is no ZEC:
+    // Nothing to do if the Scalar is null or if there is no ZEC:
     if ((ci.get_etat() == ETATZERO) || (mg->get_type_r(nzm1) != UNSURR)) {
       ci.set_dzpuis( ci.get_dzpuis() + 1 ) ; 
       return ; 
     }
 
-    assert(ci.get_etat() == ETATQCQ) ;
+    assert((ci.get_etat() == ETATQCQ)||(ci.get_etat() == ETATUN)) ;
     
-    Valeur& uu = ci.va ; 
+    ci.set_etat_qcq() ;
+
+    Valeur& uu = ci.set_spectral_va() ; 
     assert(uu.get_mg() == mg) ; 
     
     
@@ -779,7 +734,7 @@ void Map_radial::inc_dzpuis(Cmp& ci) const {
 			//	  dec2_dzpuis	     //
 			//---------------------------//
 			
-void Map_radial::dec2_dzpuis(Cmp& ci) const {
+void Map_radial::dec2_dzpuis(Scalar& ci) const {
 
     // Verifications d'usage :
     assert(ci.get_etat() != ETATNONDEF) ;
@@ -787,15 +742,17 @@ void Map_radial::dec2_dzpuis(Cmp& ci) const {
     int nz = mg->get_nzone() ;
     int nzm1 = nz-1 ;
 
-    // Nothing to do if the Cmp is null or if there is no ZEC:
+    // Nothing to do if the Scalar is null or if there is no ZEC:
     if ((ci.get_etat() == ETATZERO) || (mg->get_type_r(nzm1) != UNSURR)) {
       ci.set_dzpuis( ci.get_dzpuis() - 2 ) ; 
       return ; 
     }
 
-    assert(ci.get_etat() == ETATQCQ) ;
+    assert((ci.get_etat() == ETATQCQ)||(ci.get_etat() == ETATUN)) ;
     
-    Valeur& uu = ci.va ; 
+    ci.set_etat_qcq() ;
+
+    Valeur& uu = ci.set_spectral_va() ; 
     assert(uu.get_mg() == mg) ; 
     
     
@@ -827,7 +784,7 @@ void Map_radial::dec2_dzpuis(Cmp& ci) const {
 			//	  inc2_dzpuis	     //
 			//---------------------------//
 			
-void Map_radial::inc2_dzpuis(Cmp& ci) const {
+void Map_radial::inc2_dzpuis(Scalar& ci) const {
 
     // Verifications d'usage :
     assert(ci.get_etat() != ETATNONDEF) ;
@@ -835,15 +792,17 @@ void Map_radial::inc2_dzpuis(Cmp& ci) const {
     int nz = mg->get_nzone() ;
     int nzm1 = nz-1 ;
 
-    // Nothing to do if the Cmp is null or if there is no ZEC:
+    // Nothing to do if the Scalar is null or if there is no ZEC:
     if ((ci.get_etat() == ETATZERO) || (mg->get_type_r(nzm1) != UNSURR)) {
       ci.set_dzpuis( ci.get_dzpuis() + 2 ) ; 
       return ; 
     }
 
-    assert(ci.get_etat() == ETATQCQ) ;
+    assert((ci.get_etat() == ETATQCQ)||(ci.get_etat() == ETATUN)) ;
     
-    Valeur& uu = ci.va ; 
+    ci.set_etat_qcq() ;
+
+    Valeur& uu = ci.set_spectral_va() ; 
     assert(uu.get_mg() == mg) ; 
     
     

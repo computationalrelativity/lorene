@@ -36,6 +36,12 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/10/11 15:08:59  j_novak
+ * The radial manipulation functions take Scalar as arguments, instead of Cmp.
+ * Added a conversion operator from Scalar to Cmp.
+ * The Cmp radial manipulation function make conversion to Scalar, call to the
+ * Map_radial version with a Scalar argument and back.
+ *
  * Revision 1.13  2004/03/31 11:21:02  f_limousin
  * Method Cmp::poisson_neumann_interne has been implemented to solve
  * the continuity equation for strange stars.
@@ -404,7 +410,6 @@
 #include "map.h"
 
 class Param ; 
-class Scalar ;
 
 /**
  * Component of a tensorial field. \ingroup (otens)
@@ -476,7 +481,6 @@ class Cmp {
 	explicit Cmp(const Map& map) ;	///< Constructor from mapping
 	explicit Cmp(const Map* p_map) ;	///< Constructor from mapping
 	Cmp(const Cmp& a) ;		///< Copy constructor
-	explicit Cmp(const Scalar& a) ; 	///< Constructor by conversion of a \c Scalar  
 
 	/// Constructor from a file (see \c sauve(FILE*) )
 	Cmp(const Map&, const Mg3d&, FILE* ) ;    		

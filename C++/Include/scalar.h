@@ -38,6 +38,12 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.63  2004/10/11 15:09:00  j_novak
+ * The radial manipulation functions take Scalar as arguments, instead of Cmp.
+ * Added a conversion operator from Scalar to Cmp.
+ * The Cmp radial manipulation function make conversion to Scalar, call to the
+ * Map_radial version with a Scalar argument and back.
+ *
  * Revision 1.62  2004/08/24 09:14:40  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -368,7 +374,7 @@ class Scalar : public Tensor {
 
   Scalar(const Scalar& a) ;		///< Copy constructor
   
-  explicit Scalar(const Cmp& a) ;	///< Constructor by conversion of a Cmp
+  Scalar(const Cmp& a) ;	///< Constructor by conversion of a Cmp
   
   /// Constructor from a file (see \c sauve(FILE*) )
   Scalar(const Map&, const Mg3d&, FILE* ) ;    		
@@ -471,6 +477,10 @@ class Scalar : public Tensor {
   void operator=(double ) ;	 ///< Assignment to a \c double 
   void operator=(int ) ;		 ///< Assignment to an \c int 
   
+  // Conversion oprators
+  //---------------------
+  operator Cmp() const ; ///< Conversion to a \c Cmp
+
   // Access to individual elements
   // -----------------------------
     public:

@@ -31,8 +31,14 @@ char cmp_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2004/10/11 15:09:01  j_novak
+ * The radial manipulation functions take Scalar as arguments, instead of Cmp.
+ * Added a conversion operator from Scalar to Cmp.
+ * The Cmp radial manipulation function make conversion to Scalar, call to the
+ * Map_radial version with a Scalar argument and back.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.5  2001/10/29  15:37:06  novak
  * Ajout de Cmp::div_r()
@@ -55,6 +61,7 @@ char cmp_r_manip_C[] = "$Header$" ;
  */
 
 #include "cmp.h" 
+#include "scalar.h"
 
 
 			//---------------------------//
@@ -62,10 +69,12 @@ char cmp_r_manip_C[] = "$Header$" ;
 			//---------------------------//
 
 void Cmp::div_r() {
+
+  Scalar resu(*this) ;
+  mp->div_r(resu) ;   // Call to the Scalar version
+  operator=(Cmp(resu)) ;
     
-    mp->div_r(*this) ;   // Call of the appropriate routine of the mapping
-    
-    del_deriv() ;   // Delete the derived members
+  del_deriv() ;   // Delete the derived members
 
 }
 			//---------------------------//
@@ -86,9 +95,10 @@ void Cmp::mult_r() {
 
 void Cmp::mult_r_zec() {
     
-    mp->mult_r_zec(*this) ;   // Call of the appropriate routine of the mapping
-    
-    del_deriv() ;   // Delete the derived members
+  Scalar resu(*this) ;
+  mp->mult_r_zec(resu) ;   // Call of the appropriate routine of the mapping
+  operator=(resu) ;
+  del_deriv() ;   // Delete the derived members
 
 }
 
@@ -98,9 +108,10 @@ void Cmp::mult_r_zec() {
 
 void Cmp::mult_rsint() {
     
-    mp->mult_rsint(*this) ;   // Call of the appropriate routine of the mapping 
-    
-    del_deriv() ;   // Delete the derived members
+  Scalar resu(*this) ;
+  mp->mult_rsint(resu) ;   // Call of the appropriate routine of the mapping 
+  operator=(resu) ;
+  del_deriv() ;   // Delete the derived members
 
 }
 
@@ -110,9 +121,10 @@ void Cmp::mult_rsint() {
 
 void Cmp::div_rsint() {
     
-    mp->div_rsint(*this) ;   // Call of the appropriate routine of the mapping
-    
-    del_deriv() ;   // Delete the derived members
+  Scalar resu(*this) ;
+  mp->div_rsint(resu) ;   // Call of the appropriate routine of the mapping
+  operator=(resu) ;
+  del_deriv() ;   // Delete the derived members
 
 }
 
@@ -122,7 +134,9 @@ void Cmp::div_rsint() {
 
 void Cmp::dec_dzpuis() {
     
-    mp->dec_dzpuis(*this) ;   // Call of the appropriate routine of the mapping
+  Scalar resu(*this) ;
+  mp->dec_dzpuis(resu) ;   // Call of the appropriate routine of the mapping
+  operator=(resu) ;
     
 }
 
@@ -132,7 +146,9 @@ void Cmp::dec_dzpuis() {
 
 void Cmp::inc_dzpuis() {
     
-    mp->inc_dzpuis(*this) ;   // Call of the appropriate routine of the mapping
+  Scalar resu(*this) ;
+  mp->inc_dzpuis(resu) ;   // Call of the appropriate routine of the mapping
+  operator=(resu) ;
     
 }
 
@@ -144,8 +160,10 @@ void Cmp::inc_dzpuis() {
 
 void Cmp::dec2_dzpuis() {
     
-    mp->dec2_dzpuis(*this) ;   // Call of the appropriate routine of the mapping 
-    
+  Scalar resu(*this) ;
+  mp->dec2_dzpuis(resu) ;  // Call of the appropriate routine of the mapping   
+  operator=(resu) ;
+  
 }
 
 			//---------------------------//
@@ -154,8 +172,10 @@ void Cmp::dec2_dzpuis() {
 
 void Cmp::inc2_dzpuis() {
     
-    mp->inc2_dzpuis(*this) ;   // Call of the appropriate routine of the mapping 
-    
+  Scalar resu(*this) ;
+  mp->inc2_dzpuis(resu) ;  // Call of the appropriate routine of the mapping 
+  operator=(resu) ;
+   
 }
 
 

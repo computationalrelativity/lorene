@@ -35,6 +35,12 @@ char scalar_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2004/10/11 15:09:04  j_novak
+ * The radial manipulation functions take Scalar as arguments, instead of Cmp.
+ * Added a conversion operator from Scalar to Cmp.
+ * The Cmp radial manipulation function make conversion to Scalar, call to the
+ * Map_radial version with a Scalar argument and back.
+ *
  * Revision 1.19  2004/10/08 13:34:37  j_novak
  * Scalar::div_r() does not need to pass through Cmp version anymore.
  *
@@ -116,9 +122,9 @@ char scalar_r_manip_C[] = "$Header$" ;
 
 void Scalar::div_r() {
     
-    mp->div_r(*this) ;   // Call of the appropriate routine of the mapping
+  mp->div_r(*this) ;   // Call of the appropriate routine of the mapping
     
-    del_deriv() ;   // Delete the derived members
+  del_deriv() ;   // Delete the derived members
 
 }
 
@@ -176,11 +182,9 @@ void Scalar::div_r_dzpuis(int ced_mult_r) {
 
 void Scalar::div_r_ced() {
 
-  if (etat == ETATUN) set_etat_qcq() ;
+  mp->div_r_zec(*this) ;   // Call of the appropriate routine of the mapping
     
-    mp->div_r_zec(*this) ;   // Call of the appropriate routine of the mapping
-    
-    del_deriv() ;   // Delete the derived members
+  del_deriv() ;   // Delete the derived members
 
 }
 
@@ -190,8 +194,6 @@ void Scalar::div_r_ced() {
 
 void Scalar::mult_r() {
     
-  if (etat == ETATUN)  set_etat_qcq() ;
-
   mp->mult_r(*this) ;   // Call of the appropriate routine of the mapping
     
   del_deriv() ;   // Delete the derived members
@@ -251,13 +253,9 @@ void Scalar::mult_r_dzpuis(int ced_mult_r) {
 
 void Scalar::mult_r_ced() {
     
-	Cmp cuu(*this) ; 
-
-    mp->mult_r_zec(cuu) ;   // Call of the appropriate routine of the mapping
+  mp->mult_r_zec(*this) ;   // Call of the appropriate routine of the mapping
     
-	operator=(cuu) ; 
-
-    del_deriv() ;   // Delete the derived members
+  del_deriv() ;   // Delete the derived members
 
 }
 
@@ -267,13 +265,9 @@ void Scalar::mult_r_ced() {
 
 void Scalar::mult_rsint() {
     
-	Cmp cuu(*this) ; 
-
-    mp->mult_rsint(cuu) ;   // Call of the appropriate routine of the mapping 
+  mp->mult_rsint(*this) ; // Call of the appropriate routine of the mapping 
     
-	operator=(cuu) ; 
-
-    del_deriv() ;   // Delete the derived members
+  del_deriv() ;   // Delete the derived members
 
 }
 
@@ -337,14 +331,10 @@ void Scalar::mult_rsint_dzpuis(int ced_mult_r) {
 			//---------------------------//
 
 void Scalar::div_rsint() {
-    
-	Cmp cuu(*this) ; 
 
-    mp->div_rsint(cuu) ;   // Call of the appropriate routine of the mapping
+  mp->div_rsint(*this) ;   // Call of the appropriate routine of the mapping
     
-	operator=(cuu) ; 
-
-    del_deriv() ;   // Delete the derived members
+  del_deriv() ;   // Delete the derived members
 
 }
 
@@ -418,9 +408,6 @@ void Scalar::dec_dzpuis(int decrem) {
 	    return ; 
 	}
 
-
-	Cmp cuu(*this) ; 
-	
 	switch (decrem) {
 	
 		case 0 : { 
@@ -428,24 +415,24 @@ void Scalar::dec_dzpuis(int decrem) {
 		}
 
 		case 1 : { 
-			mp->dec_dzpuis(cuu) ;   
+			mp->dec_dzpuis(*this) ;   
     		break ; 
 		}
 
 		case 2 : {
-    		mp->dec2_dzpuis(cuu) ;  
+    		mp->dec2_dzpuis(*this) ;  
 			break ; 
 		}
 		
 		case 3 : {
-    		mp->dec2_dzpuis(cuu) ;  
-		mp->dec_dzpuis(cuu) ;   
+    		mp->dec2_dzpuis(*this) ;  
+		mp->dec_dzpuis(*this) ;   
 			break ; 
 		}
 		
 		case 4 : {
-    		mp->dec2_dzpuis(cuu) ;  
-    		mp->dec2_dzpuis(cuu) ;  
+    		mp->dec2_dzpuis(*this) ;  
+    		mp->dec2_dzpuis(*this) ;  
 			break ; 
 		}
 		
@@ -457,8 +444,6 @@ void Scalar::dec_dzpuis(int decrem) {
 		}
 	}
 	
-	operator=(cuu) ; 
-
 }
 
 			//-----------------------//
@@ -474,8 +459,6 @@ void Scalar::inc_dzpuis(int inc) {
 	    return ; 
 	}
 
-	Cmp cuu(*this) ; 
-	
 	switch (inc) {
 	
 		case 0 : { 
@@ -483,24 +466,24 @@ void Scalar::inc_dzpuis(int inc) {
 		}
 
 		case 1 : { 
-		    mp->inc_dzpuis(cuu) ;   
+		    mp->inc_dzpuis(*this) ;   
     		    break ; 
 		}
 
 		case 2 : {
-    		    mp->inc2_dzpuis(cuu) ;  
+    		    mp->inc2_dzpuis(*this) ;  
 		    break ; 
 		}
 		
 		case 3 : {
-		    mp->inc_dzpuis(cuu) ;   
-    		    mp->inc2_dzpuis(cuu) ;  
+		    mp->inc_dzpuis(*this) ;   
+    		    mp->inc2_dzpuis(*this) ;  
 		    break ; 
 		}
 		
 		case 4 : {
-    		    mp->inc2_dzpuis(cuu) ;  
-    		    mp->inc2_dzpuis(cuu) ;  
+    		    mp->inc2_dzpuis(*this) ;  
+    		    mp->inc2_dzpuis(*this) ;  
 		    break ; 
 		}
 		
@@ -512,8 +495,6 @@ void Scalar::inc_dzpuis(int inc) {
 		}
 	}
 	
-	operator=(cuu) ; 
-
 }
 
 
