@@ -32,6 +32,9 @@ char et_bin_upmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/24 12:26:38  k_taniguchi
+ * Suppress the method of update metric for NS-BH
+ *
  * Revision 1.3  2003/10/24 11:46:07  k_taniguchi
  * Change some notations
  *
@@ -299,88 +302,3 @@ void Etoile_bin::update_metric(const Etoile_bin& comp,
     
 			      
 } 
-
-		    //----------------------------------//
-		    //	 Version a BH companion 	//
-		    //----------------------------------//
-
-void Etoile_bin::update_metric(const Bhole& comp) {
-
-    // Computation of quantities coming from the companion
-    // ---------------------------------------------------
-
-    // Computes N_comp  ---> stored in logn_comp
-    if ( (comp.get_n_auto()).get_etat() == ETATZERO ) {
-	n_comp.set_etat_zero() ;
-    }
-    else{
-	n_comp.set_etat_qcq() ;
-	(n_comp.set()).import_symy( comp.get_n_auto()() ) ;
-	n_comp.set_std_base() ;   // set the bases for spectral expansions
-    }
-
-
-    // Computes Psi_comp  ---> stored in beta_comp
-    if ( (comp.get_psi_auto()).get_etat() == ETATZERO ) {
-	confpsi_comp.set_etat_zero() ;
-    }
-    else{
-	confpsi_comp.set_etat_qcq() ;
-	(confpsi_comp.set()).import_symy( comp.get_psi_auto()() ) ;
-	confpsi_comp.set_std_base() ; // set the bases for spectral expansions
-    }
-
-
-    // Computes N^i_comp  ---> stored in shift_comp
-    if ( (comp.get_shift_auto()).get_etat() == ETATZERO ) {
-	shift_comp.set_etat_zero() ;
-    }
-    else{
-	shift_comp.set_etat_qcq() ;
-
-	(shift_comp.set(0)).import_asymy( comp.get_shift_auto()(0) ) ;  // N^x antisym
-	(shift_comp.set(1)).import_symy( comp.get_shift_auto()(1) ) ;   // N^y sym.
-	(shift_comp.set(2)).import_asymy( comp.get_shift_auto()(2) ) ;  // N^z anisym
-
-	shift_comp.set_std_base() ;   // set the bases for spectral expansions
-    }
-    shift_comp.set_triad( *((comp.get_shift_auto()).get_triad()) ) ;
-
-    // Lapse function N
-    // ----------------
-
-    nnn = n_auto + n_comp ;
-
-    // Conformal factor confpsi
-    // ------------------------
-
-    confpsi = confpsi_auto + confpsi_comp ;
-
-    confpsi.set_std_base() ;   // set the bases for spectral expansions
-
-    // Shift vector N^i
-    // ----------------
-
-    shift = shift_auto + shift_comp ;
-
-    // Derivatives of metric coefficients
-    // ----------------------------------
-
-    // ... (d/dX,d/dY,d/dZ)(n_auto) :
-    d_n_auto = n_auto.gradient() ;    // (d/dx, d/dy, d/dz)
-    d_n_auto.change_triad(ref_triad) ;   // --> (d/dX, d/dY, d/dZ)
-
-    // ... (d/dX,d/dY,d/dZ)(confpsi_auto) :
-    d_confpsi_auto = confpsi_auto.gradient() ;    // (d/dx, d/dy, d/dz)
-    d_confpsi_auto.change_triad(ref_triad) ;   // --> (d/dX, d/dY, d/dZ)
-
-    // The derived quantities are obsolete
-    // -----------------------------------
-
-    del_deriv() ;
-
-
-}
-
-
-

@@ -32,6 +32,9 @@ char et_bin_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/24 12:27:16  k_taniguchi
+ * Suppress the method of update metric for NS-BH
+ *
  * Revision 1.5  2003/10/24 11:47:02  k_taniguchi
  * Change some notations
  *
@@ -285,67 +288,3 @@ void Etoile_bin::update_metric_der_comp(const Etoile_bin& comp) {
     //#################################
 
 }
-
-        //---------------------------------------//
-	//      Version with BH companion       //
-        //---------------------------------------//
-
-
-void Etoile_bin::update_metric_der_comp(const Bhole& comp) {
-
-    // Computation of Grad(N) ---> stored in d_logn_comp
-    // -------------------------------------------------
-
-    Tenseur dncomp = ( comp.get_n_auto() ).gradient() ;
-
-    if ( dncomp.get_etat() == ETATZERO ) {
-	d_n_comp.set_etat_zero() ;
-    }
-    else{
-
-	// 1/ Division by r^2 of comp.d_n_auto in the ZEC
-	dncomp.dec2_dzpuis() ;
-
-	// 2/ Interpolation of the result
-
-	d_n_comp.set_etat_qcq() ;
-	(d_n_comp.set(0)).import_symy( dncomp(0) ) ;  // d/dx sym.
-	(d_n_comp.set(1)).import_asymy( dncomp(1) ) ; // d/dy antisym.
-	(d_n_comp.set(2)).import_symy( dncomp(2) ) ;  // d/dz sym.
-
-    }
-
-    d_n_comp.set_triad( *(dncomp.get_triad()) ) ;
-
-
-    // Computation of Grad(Psi) ---> stored in d_confpsi_comp
-    // ------------------------------------------------------
-
-    Tenseur dpsicomp = ( comp.get_psi_auto() ).gradient() ;
-
-    if ( dpsicomp.get_etat() == ETATZERO ) {
-	d_confpsi_comp.set_etat_zero() ;
-    }
-    else {
-	// 1/ Division by r^2 of comp.d_confpsi_auto in the ZEC
-        dpsicomp.dec2_dzpuis() ;
-
-	// 2/ Interpolation of the result
-
-	d_confpsi_comp.set_etat_qcq() ;
-
-	(d_confpsi_comp.set(0)).import_symy(dpsicomp(0) ) ;  // d/dx sym.
-	(d_confpsi_comp.set(1)).import_asymy(dpsicomp(1) ) ; // d/dy antisym.
-	(d_confpsi_comp.set(2)).import_symy(dpsicomp(2) ) ;  // d/dz sym.
-
-    }
-
-    d_confpsi_comp.set_triad( *(dpsicomp.get_triad()) ) ;
-
-    // The derived quantities are obsolete
-    // -----------------------------------
-
-    del_deriv() ;
-
-}
-
