@@ -34,6 +34,10 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.26  2003/12/27 15:01:50  e_gourgoulhon
+ * Method derive_con(): the position of the derivation index has
+ * been changed from the first one to the last one.
+ *
  * Revision 1.25  2003/11/03 22:34:41  e_gourgoulhon
  * Method dec_dzpuis: changed the name of argument dec --> decrem
  * (in order not to shadow some globally defined dec).
@@ -824,7 +828,9 @@ const Tensor& Tensor::derive_con(const Metric& metre) const {
   assert ((j>=0) && (j<N_MET_MAX)) ;
   if (p_derive_con[j] == 0x0) {
     p_derive_con[j] = 
-      new Tensor(::contract(metre.con(), 1, derive_cov(metre),0)) ;
+      new Tensor(::contract(metre.con(), 1, derive_cov(metre), valence)) ;
+            // valence if the number of the last index of derive_cov 
+            //  (the "derivation" index)
   }
   
   return *p_derive_con[j] ;
