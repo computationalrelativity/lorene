@@ -35,6 +35,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.30  2005/03/11 13:16:37  j_novak
+ * Corrected an error in multipole_spectrum().
+ *
  * Revision 1.29  2004/10/11 15:09:04  j_novak
  * The radial manipulation functions take Scalar as arguments, instead of Cmp.
  * Added a conversion operator from Scalar to Cmp.
@@ -910,7 +913,7 @@ Tbl Scalar::multipole_spectrum() const {
 	    // quantic numbers and spectral bases
 	    donne_lm(nzone, lz, j, k, base, m_quant, l_quant, base_r) ;
 	    for (int i=0; i<mg->get_nr(lz); i++) resu.set(lz, l_quant) 
-				     += fabs((*va_copy.c_cf)(0, k, j, i)) ; 
+				     += fabs((*va_copy.c_cf)(lz, k, j, i)) ; 
 	  }
       }
 
