@@ -32,6 +32,11 @@ char eos_tabul_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/05/30 07:50:06  e_gourgoulhon
+ *
+ * Reformulate the computation of der_nbar_ent
+ * Added computation of der_press_ent_p.
+ *
  * Revision 1.4  2003/05/15 09:42:47  e_gourgoulhon
  *
  * Now computes d ln / dln H.
@@ -336,34 +341,39 @@ double Eos_tabul::press_ent_p(double ent, const Param* ) const {
 
 double Eos_tabul::der_nbar_ent_p(double ent, const Param* ) const {
 
-    static int i_near = logh->get_taille() / 2 ;
-
-    if ( ent > hmin ) {
+    if ( ent >= hmin ) {
            if (ent > hmax) {
            	cout << "Eos_tabul::der_nbar_ent_p : ent > hmax !" << endl ;
            	abort() ;
            }
 
-           double logh0 = log10( ent ) ;
-           double logp0 ;
-           double dlpsdlh0 ; // chi = dlog p / dln h
-	   double dchisdlh0 ; // dchi / d log h
-           interpol_herm_der(*logh, *logp, *dlpsdlh, logh0, i_near, logp0,
-           		 dlpsdlh0, dchisdlh0) ;
+	   // Computation of gamma
+	   double ent1 = .999 * ent ; 
+	   double ent2 = 1.001 * ent ; 
 
+	   double p0 = press_ent_p(ent) ; 
+	   double p1 = press_ent_p(ent1) ; 
+	   double p2 = press_ent_p(ent2) ; 
 
-           double zeta =  - 1. + dlpsdlh0 + 
-	   		+ 0.4342944819032518 * dchisdlh0 / dlpsdlh0
-			- ent ; 
-			 
-    	// 0.4342944819032518 = 1 / ln(10)
-
-	cout << "i, dchisdlh0, zeta : " << i_near << "  " <<  dchisdlh0
-	<< "  " << zeta << endl ; 
-	return zeta ; 
+	   double n0 = nbar_ent_p(ent) ; 
+	   double n1 = nbar_ent_p(ent1) ; 
+	   double n2 = nbar_ent_p(ent2) ;
+	   
+	   double n01 = n0 - n1 ; 
+	   double n02 = n0 - n2 ; 
+	   double n12 = n1 - n2 ; 
+	   
+	   double gamma = p0 / n0 * ( p0 / (n01*n02) * (2*n0-n1-n2)
+	   	- p1/(n01*n12) * (n0-n2)
+		+ p2/(n02*n12) * (n0-n1) ) ;
+	
+	   double zeta = der_press_ent_p(ent) / gamma ; 
+	   
+	   return zeta ; 
+	  
     }
     else{
-	return 0 ;
+	return der_nbar_ent_p(hmin) ;  // to ensure continuity
     }
 
 
@@ -396,18 +406,24 @@ double Eos_tabul::der_ener_ent_p(double ent, const Param* ) const {
 
 double Eos_tabul::der_press_ent_p(double ent, const Param* ) const {
 
-    if ( ent > hmin ) {
+    static int i_near = logh->get_taille() / 2 ;
+
+    if ( ent >= hmin ) {
            if (ent > hmax) {
            	cout << "Eos_tabul::der_press_ent_p : ent > hmax !" << endl ;
            	abort() ;
            }
 
-           cout << "Eos_tabul::der_press_ent_p : not ready yet !" << endl ;
-           abort() ;
-	   return 0 ;
+           double logh0 = log10( ent ) ;
+           double logp0 ;
+           double dlpsdlh0 ;
+           interpol_herm(*logh, *logp, *dlpsdlh, logh0, i_near, logp0,
+           		 dlpsdlh0) ;
+
+           return dlpsdlh0 ;
 
     }
     else{
-	return 0 ;
+	return der_press_ent_p(hmin) ; // to ensure continuity
     }
 }
