@@ -31,6 +31,9 @@ char binary_anashift_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/01/22 10:09:41  f_limousin
+ * First executable version
+ *
  * Revision 1.3  2004/01/20 15:21:23  f_limousin
  * First version
  *
@@ -47,8 +50,6 @@ char binary_anashift_C[] = "$Header$" ;
 
 void Binary::analytical_shift(){
     
-/*
-
     #include "unites.h"
     if (this == 0x0) {	// To avoid any compilation warning 
 	cout << f_unit << msol << km << mevpfm3 << qpig ;
@@ -72,44 +73,46 @@ void Binary::analytical_shift(){
 	int nzet = et[i]->get_nzet() ; 
 	int nzm1 = mp.get_mg()->get_nzone() - 1 ; 
     
+	Vector w_shift (mp, CON, mp.get_bvect_cart()) ;
+	Scalar khi_shift (mp) ;
+
 	// Computation of w_shift 
 	// ----------------------
 	// X component
 	// -----------
 
-	et[i]->set_w_shift().set_triad(mp.get_bvect_cart()) ;
-	et[i]->set_w_shift().set(0) = 0 ; 
+	w_shift.set(1) = 0 ; 
 
 	// Y component
 	// -----------
 
-// For the incompressible case :
+        // For the incompressible case :
 	tmp = - 6  * www / a0 * ( 1 - (mp.r)*(mp.r) / (3*a0*a0) ) ; 
-
-// For the compressible (n=1) case : 
-//	Mtbl xi = M_PI * mp.r / a0 ; 
-//	Mtbl sinc = sin(xi) / xi ; 	
-//	 The value of sinc is set to 1 at the origin
-//	for (int k=0; k<mp.get_mg()->get_np(0); k++) {
-//	    for (int j=0; j<mp.get_mg()->get_nt(0); j++) {
-//		sinc.set(0, k, j, 0) = 1 ; 
-//	    }
-//	}
-//	tmp = - 4 * www / a0 * ( 1 + sinc ) ; 
 
 	tmp.annule(nzet, nzm1) ; 
 	tmp_ext = - 4 * www / mp.r ;
 	tmp_ext.annule(0, nzet-1) ; 
     
-	et[i]->set_w_shift().set(1) = tmp + tmp_ext ; 
+	w_shift.set(2) = tmp + tmp_ext ; 
 
 	// Z component
 	// -----------
-	et[i]->set_w_shift().set(2) = 0 ; 
+	w_shift.set(3) = 0 ; 
 
-	et[i]->set_w_shift().set_triad(mp.get_bvect_spher()) ;
-	et[i]->set_w_shift().std_spectral_base() ; 
+	w_shift.std_spectral_base() ; 
 	    
+	Scalar mp_x (mp) ;
+	Scalar mp_y (mp) ;
+	Scalar mp_z (mp) ;
+	mp_x = mp.x ;
+	mp_y = mp.y ;
+	mp_z = mp.z ;
+
+	Scalar Wjxj = w_shift(1) * mp_x + w_shift(2) * mp_y + 
+	             w_shift(3) * mp_z ;
+
+	Wjxj.std_spectral_base() ;
+
 	// Computation of khi_shift
 	// ------------------------
 
@@ -119,11 +122,27 @@ void Binary::analytical_shift(){
 					    / (mp.r * mp.r) ;   
 	tmp_ext.annule(0, nzet-1) ; 
 
-	et[i]->set_khi_shift() = tmp + tmp_ext ; 
+	khi_shift = tmp + tmp_ext ; 
 
 	// Sets the standard spectral bases for a scalar field
-	et[i]->set_khi_shift().std_spectral_base() ; 	    
+	khi_shift.std_spectral_base() ; 	    
     
+
+	// Computation of shift auto.
+	// --------------------------
+	
+	const Metric_flat& flat (mp.flat_met_cart()) ;
+	Vector temp(mp, CON, mp.get_bvect_cart()) ;
+	
+	temp = khi_shift.derive_con(flat) + Wjxj.derive_con(flat) ;
+	temp.dec_dzpuis(2) ;
+
+	et[i]->set_shift_auto() = 7./8. * w_shift - 1./8. * temp ;
+
+	et[i]->set_shift_auto().change_triad(mp.get_bvect_spher()) ;
+	et[i]->set_shift_auto().std_spectral_base() ;
+	
+
     }
-*/ 
+
 }
