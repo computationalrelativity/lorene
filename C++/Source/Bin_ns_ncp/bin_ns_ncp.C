@@ -28,6 +28,9 @@ char Binaire_ncp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/03/03 19:32:06  f_limousin
+ * Suppression of the member ref_triad.
+ *
  * Revision 1.4  2003/02/12 18:46:59  f_limousin
  * Change the arguments of the standard constructor.
  *
@@ -67,10 +70,11 @@ char Binaire_ncp_C[] = "$Header$" ;
 Bin_ns_ncp::Bin_ns_ncp(Map& mp1, int nzet1, const Eos& eos1, int irrot1, 
 		 Map& mp2, int nzet2, const Eos& eos2, int irrot2, int relat,
 		 const Metrique& flat1, const Metrique& flat2,
-		 const Tenseur_sym &source1, const Tenseur_sym &source2) 
-		 : ref_triad(0., "Absolute frame Cartesian basis"),  
-		   star1(mp1, nzet1, relat, eos1, irrot1, ref_triad, flat1, source1), 
-		   star2(mp2, nzet2, relat, eos2, irrot2, ref_triad, flat2, source2)
+		       const Tenseur_sym &source1, const Tenseur_sym &source2) 
+                 : star1(mp1, nzet1, relat, eos1, irrot1, 
+			 mp1.get_bvect_cart(), flat1, source1), 
+		   star2(mp2, nzet2, relat, eos2, irrot2, 
+			 mp2.get_bvect_cart(), flat2, source2)
 {
 
     et[0] = &star1 ; 
@@ -86,8 +90,7 @@ Bin_ns_ncp::Bin_ns_ncp(Map& mp1, int nzet1, const Eos& eos1, int irrot1,
 // Copy constructor
 // ----------------
 Bin_ns_ncp::Bin_ns_ncp(const Bin_ns_ncp& bibi) 
-		: ref_triad(0., "Absolute frame Cartesian basis"), 
-		  star1(bibi.star1), 
+		: star1(bibi.star1), 
 		  star2(bibi.star2),
 		  omega(bibi.omega), 
 		  x_axe(bibi.x_axe) 
@@ -103,9 +106,8 @@ Bin_ns_ncp::Bin_ns_ncp(const Bin_ns_ncp& bibi)
 // -----------------------
 Bin_ns_ncp::Bin_ns_ncp(Map& mp1, const Eos& eos1, Map& mp2, const Eos& eos2, 
 		 const Metrique& flat1, const Metrique& flat2, FILE* fich)
-		: ref_triad(0., "Absolute frame Cartesian basis"), 
-		  star1(mp1, eos1, ref_triad, flat1, fich), 
-		  star2(mp2, eos2, ref_triad, flat2, fich) 
+		: star1(mp1, eos1, mp1.get_bvect_cart(), flat1, fich), 
+		  star2(mp2, eos2, mp2.get_bvect_cart(), flat2, fich) 
 {
     et[0] = &star1 ; 
     et[1] = &star2 ; 
@@ -175,15 +177,11 @@ void Bin_ns_ncp::set_der_0x0() const {
 
 void Bin_ns_ncp::operator=(const Bin_ns_ncp& bibi) {
 
-    assert( bibi.ref_triad == ref_triad ) ; 
-    
     star1 = bibi.star1 ; 
     star2 = bibi.star2 ; 
     
     omega = bibi.omega ; 
     x_axe = bibi.x_axe ; 
-    
-    // ref_triad remains unchanged 
     
     del_deriv() ;  // Deletes all derived quantities
     
@@ -273,7 +271,7 @@ void Bin_ns_ncp::display_poly(ostream& ost) const {
 	double m_poly = r_poly / ggrav ; 
     
 	// Polytropic unit of angular momentum in terms of j_unit :
-	double j_poly = r_poly * r_poly / ggrav ; 
+	//	double j_poly = r_poly * r_poly / ggrav ; 
     
 	ost.precision(10) ; 
 	ost << endl << "Quantities in polytropic units : " << endl ; 
