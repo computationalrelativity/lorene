@@ -34,6 +34,10 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.34  2004/03/04 09:47:51  e_gourgoulhon
+ * Method annule_domain(int, int): added call to virtual function
+ *  del_deriv() at the end !
+ *
  * Revision 1.33  2004/02/27 21:14:27  e_gourgoulhon
  * Modif of method derive_con to create proper type of the result.
  *
@@ -648,8 +652,8 @@ void Tensor::annule(int l_min, int l_max) {
       cmp[i]->annule(l_min, l_max) ; 
     }
 	
-    //## Annulation des membres derives
-    //## pas avec un del_deriv() ;
+    // The derived members are no longer up to date:
+    del_deriv() ;
     
 }
 
