@@ -29,6 +29,12 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/12/30 22:56:40  e_gourgoulhon
+ * Replaced member flat_conn (flat connection) by flat_met (flat metric)
+ * Added argument flat_met to the constructors of Connection.
+ * Suppressed method fait_ricci() (the computation of the Ricci is
+ * now devoted to the virtual method ricci()).
+ *
  * Revision 1.10  2003/12/27 14:56:20  e_gourgoulhon
  * -- Method derive_cov() suppressed.
  * -- Change of the position of the derivation index from the first one
@@ -75,7 +81,7 @@
 #include "tensor.h"
 
 class Metric ; 
-class Connection_flat ; 
+class Metric_flat ; 
 
 				//--------------------------//
 				//     class Connection     // 
@@ -131,11 +137,11 @@ class Connection {
 
 	private:
 
-	/** Flat connection with respect to which $\Delta^i_{\ jk}$ 
+	/** Flat metric with respect to which $\Delta^i_{\ jk}$ 
 	 *   (member {\tt delta}) is defined. 
 	 *
 	 */
-	const Connection_flat* flat_conn ;
+	const Metric_flat* flat_met ;
 
 
     // Derived data : 
@@ -161,16 +167,20 @@ class Connection {
 	 * \begin{equation}
 	 *  \Gamma^i_{\ jk} := \langle e^i, \nabla_{e_k} \, e_j \rangle
 	 * \end{equation} 
+         * @param flat_met_i flat metric with respect to which $\Delta^i_{\ jk}$
+         *   is defined
 	 *
 	 */
-	explicit Connection(const Tensor_delta& delta_i) ;		
+	Connection(const Tensor_delta& delta_i, const Metric_flat& flat_met_i) ;		
 	
 	/** Standard constructor for a connection associated with a metric. 
 	 *
 	 * @param met  Metric to which the connection will be associated
+         * @param flat_met_i flat metric to define the $\Delta^i_{\ jk}$
+         *  representation of the connection 
 	 *
 	 */
-	explicit Connection(const Metric& met) ;		
+	Connection(const Metric& met, const Metric_flat& flat_met_i) ;		
 	
 	Connection(const Connection& ) ;		/// Copy constructor
 	
@@ -201,6 +211,25 @@ class Connection {
 	/// Assignment to another {\tt Connection}
 	void operator=(const Connection&) ;	
 	
+	/** Update the connection when it is defined ab initio.
+	 *
+	 * @param delta_i tensor $\Delta^i_{\ jk}$ which defines
+	 *  the connection with respect to the flat one: $\Delta^i_{\ jk}$ 
+	 * is the difference between the connection coefficients 
+	 *  $\Gamma^i_{\ jk}$ and
+	 * the connection coefficients ${\bar \Gamma}^i_{\ jk}$ of the
+	 * flat connection. 
+	 */
+	void update(const Tensor_delta& delta_i) ;		
+	
+	/** Update the connection when it is associated with a metric. 
+	 *
+	 * @param met  Metric to which the connection is associated
+	 *
+	 */
+	void update(const Metric& met) ;
+	
+
     // Accessors
     // ---------
     public:
@@ -278,33 +307,11 @@ class Connection {
 	 */
 	virtual Tensor* p_divergence(const Tensor& tens) const ; 
 
-	/// Returns the Ricci tensor associated with the current connection
-	const Tensor& ricci() const ; 
+	/** Computes (if not up to date) and returns the Ricci tensor 
+         * associated with the current connection
+         */
+	virtual const Tensor& ricci() const ; 
 	
-	/** Update the connection when it is defined ab initio.
-	 *
-	 * @param delta_i tensor $\Delta^i_{\ jk}$ which defines
-	 *  the connection with respect to the flat one: $\Delta^i_{\ jk}$ 
-	 * is the difference between the connection coefficients 
-	 *  $\Gamma^i_{\ jk}$ and
-	 * the connection coefficients ${\bar \Gamma}^i_{\ jk}$ of the
-	 * flat connection. 
-	 */
-	void update(const Tensor_delta& delta_i) ;		
-	
-	/** Update the connection when it is associated with a metric. 
-	 *
-	 * @param met  Metric to which the connection is associated
-	 *
-	 */
-	void update(const Metric& met) ;
-	
-			
-	protected:
-
-	/// Computes the Ricci tensor when necessary
-	virtual void compute_ricci() const ; 
-
 	private:
 	/** Computes the difference $\Delta^i_{\ jk}$ between the
 	 *  connection coefficients and that a the flat connection
@@ -380,7 +387,7 @@ class Connection_flat : public Connection {
          * {\tt p\_derive\_cov()} and 
          * must be deallocated by the user afterwards. 
 	 */
-  virtual Tensor* p_derive_cov(const Tensor& tens) const = 0 ; 
+        virtual Tensor* p_derive_cov(const Tensor& tens) const = 0 ; 
 
 	/** Computes the divergence of a tensor $T$
 	 * (with respect to the current connection). 
@@ -404,13 +411,13 @@ class Connection_flat : public Connection {
          * {\tt p\_divergence()} and 
          * must be deallocated by the user afterwards. 
 	 */
-  virtual Tensor* p_divergence(const Tensor& tens) const = 0 ; 
+        virtual Tensor* p_divergence(const Tensor& tens) const = 0 ; 
 
- protected:
-
-  /// Computes the Ricci tensor when necessary
-  virtual void compute_ricci() const ; 
-  
+	/** Computes (if not up to date) and returns the Ricci tensor 
+         * associated with the current connection
+         */
+	virtual const Tensor& ricci() const ; 
+	
 };
 
 
