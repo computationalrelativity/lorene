@@ -31,6 +31,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2002/09/24 10:49:41  e_gourgoulhon
+ *
+ * Modif commentaires.
+ *
  * Revision 1.5  2002/09/24 08:34:12  e_gourgoulhon
  *
  * Added member function transpose()
@@ -151,11 +155,11 @@ class Matrice {
 	
 	/**
 	 * Constructor from a {\tt Tbl}.
-	 * @param tab [input] a 2-dimension array.
-	 * 
-	 * {\tt *std} is set to {\tt tab} and all the other representations to 
-	 * {\tt ETATNONDEF}
-	 * 
+	 * @param tab [input]  2-dimension or 1-dimension array
+	 *
+        * If {\tt tab} is a 1-dimension {\tt Tbl}, a single-column matrix is created,
+	 *  otherwise {\tt *std} is simply constructed by a {\tt Tbl} copy of {\tt tab}.
+	 *
 	 */
 	Matrice (const Tbl& tab) ;
 

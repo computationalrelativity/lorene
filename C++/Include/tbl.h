@@ -37,6 +37,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/09/24 10:49:42  e_gourgoulhon
+ *
+ * Modif commentaires.
+ *
  * Revision 1.4  2002/09/24 08:33:35  e_gourgoulhon
  *
  * Added constructor from Matrice
@@ -313,12 +317,12 @@ class Tbl {
 	int get_etat() const { return etat ; };	    /// Gives the logical state
 
 	/// Gives the total size (ie {\tt dim.taille})
-	int get_taille() const { return dim.taille ; }; 
+	int get_taille() const { return dim.taille ; };
 
 	/// Gives the number of dimensions (ie {\tt dim.ndim})
-	int get_ndim() const { return dim.ndim ; };	
+	int get_ndim() const { return dim.ndim ; };
 	
-	/// Gives the {\tt i}th dimension (ie {tt dim.dim[i]})
+	/// Gives the {\tt i}th dimension (ie {\tt dim.dim[i]})
 	int get_dim(int i) const {	
 	    assert( (i>=0) && (i<dim.ndim) ) ;
 	    return dim.dim[i] ;
