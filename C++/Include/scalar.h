@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/09/25 08:50:11  j_novak
+ * Added the members import
+ *
  * Revision 1.8  2003/09/25 08:13:51  j_novak
  * Added method for calculating derivatives
  *
@@ -619,7 +622,190 @@ class Scalar : public Tensor {
 	Scalar avance_dalembert(Param& par, const Scalar& fjm1, const Scalar& source) 
 	  const ;
 	
+    // Import from other mapping 
+    // -------------------------
 
+	/** Assignment to another {\tt Scalar} defined on a different mapping.
+	 *  This assignment is performed point to point by means of the
+	 *  spectral expansion of the original {\tt Scalar}. 
+	 *	@param ci [input] {\tt Scalar} to be imported.
+	 */
+	void import(const Scalar& ci) ;	 
+
+	/** Assignment to another {\tt Scalar} defined on a different mapping.
+	 *  Case where the {\tt Scalar} is symmetric with respect to the plane y=0.
+	 *  This assignment is performed point to point by means of the
+	 *  spectral expansion of the original {\tt Scalar}. 
+	 *	@param ci [input] {\tt Scalar} to be imported.
+	 */
+	void import_symy(const Scalar& ci) ;	 
+
+	/** Assignment to another {\tt Scalar} defined on a different mapping.
+	 *  Case where the {\tt Scalar} is antisymmetric with respect to the 
+	 *  plane y=0.
+	 *  This assignment is performed point to point by means of the
+	 *  spectral expansion of the original {\tt Scalar}. 
+	 *	@param ci [input] {\tt Scalar} to be imported.
+	 */
+	void import_asymy(const Scalar& ci) ;	 
+
+	/** Assignment to another {\tt Scalar} defined on a different mapping.
+	 *  This assignment is performed point to point by means of the
+	 *  spectral expansion of the original {\tt Scalar}. 
+	 *	@param nzet [input] Number of domains of the destination
+	 *			    mapping (i.e. {\tt this->mp}) where the 
+	 *			    importation is performed: the assignment
+	 *			    is done for the domains whose indices are
+	 *			    between 0 and {\tt nzet-1}. In the other
+	 *			    domains, {\tt *this} is set to zero. 
+	 *	@param ci [input] {\tt Scalar} to be imported.
+	 */
+	void import(int nzet, const Scalar& ci) ;	 
+
+	/** Assignment to another {\tt Scalar} defined on a different mapping.
+	 *  Case where the {\tt Scalar} is symmetric with respect to the plane y=0.
+	 *  This assignment is performed point to point by means of the
+	 *  spectral expansion of the original {\tt Scalar}. 
+	 *	@param nzet [input] Number of domains of the destination
+	 *			    mapping (i.e. {\tt this->mp}) where the 
+	 *			    importation is performed: the assignment
+	 *			    is done for the domains whose indices are
+	 *			    between 0 and {\tt nzet-1}. In the other
+	 *			    domains, {\tt *this} is set to zero. 
+	 *	@param ci [input] {\tt Scalar} to be imported.
+	 */
+	void import_symy(int nzet, const Scalar& ci) ;	 
+
+	/** Assignment to another {\tt Scalar} defined on a different mapping.
+	 *  Case where the {\tt Scalar} is antisymmetric with respect to the 
+	 *  plane y=0.
+	 *  This assignment is performed point to point by means of the
+	 *  spectral expansion of the original {\tt Scalar}. 
+	 *	@param nzet [input] Number of domains of the destination
+	 *			    mapping (i.e. {\tt this->mp}) where the 
+	 *			    importation is performed: the assignment
+	 *			    is done for the domains whose indices are
+	 *			    between 0 and {\tt nzet-1}. In the other
+	 *			    domains, {\tt *this} is set to zero. 
+	 *	@param ci [input] {\tt Scalar} to be imported.
+	 */
+	void import_asymy(int nzet, const Scalar& ci) ;	 
+
+    protected:
+	/** Assignment to another {\tt Scalar} defined on a different mapping,
+	 *  when the two mappings do not have a particular relative orientation.
+	 *
+	 *  This assignment is performed point to point by means of the
+	 *  spectral expansion of the original {\tt Scalar}. 
+	 *	@param nzet [input] Number of domains of the destination
+	 *			    mapping (i.e. {\tt this->mp}) where the 
+	 *			    importation is performed: the assignment
+	 *			    is done for the domains whose indices are
+	 *			    between 0 and {\tt nzet-1}. In the other
+	 *			    domains, {\tt *this} is set to zero. 
+	 *	@param ci [input] {\tt Scalar} to be imported.
+	 */
+	void import_gal(int nzet, const Scalar& ci) ;	 
+
+	/** Assignment to another {\tt Scalar} defined on a different mapping,
+	 *  when the two mappings have aligned Cartesian axis. 
+	 *
+	 *  This assignment is performed point to point by means of the
+	 *  spectral expansion of the original {\tt Scalar}. 
+	 *	@param nzet [input] Number of domains of the destination
+	 *			    mapping (i.e. {\tt this->mp}) where the 
+	 *			    importation is performed: the assignment
+	 *			    is done for the domains whose indices are
+	 *			    between 0 and {\tt nzet-1}. In the other
+	 *			    domains, {\tt *this} is set to zero. 
+	 *	@param ci [input] {\tt Scalar} to be imported.
+	 */
+	void import_align(int nzet, const Scalar& ci) ;	 
+
+	/** Assignment to another {\tt Scalar} defined on a different mapping,
+	 *  when the two mappings have anti-aligned Cartesian axis (i.e.
+	 *  $x_1 = - x_2$,  $y_1 = - y_2$,  $z_1 = z_2$). 
+	 *
+	 *  This assignment is performed point to point by means of the
+	 *  spectral expansion of the original {\tt Scalar}. 
+	 *	@param nzet [input] Number of domains of the destination
+	 *			    mapping (i.e. {\tt this->mp}) where the 
+	 *			    importation is performed: the assignment
+	 *			    is done for the domains whose indices are
+	 *			    between 0 and {\tt nzet-1}. In the other
+	 *			    domains, {\tt *this} is set to zero. 
+	 *	@param ci [input] {\tt Scalar} to be imported.
+	 */
+	void import_anti(int nzet, const Scalar& ci) ;	 
+
+	/** Assignment to another {\tt Scalar} defined on a different mapping,
+	 *  when the two mappings have aligned Cartesian axis. 
+	 *  Case where the {\tt Scalar} is symmetric with respect to the plane y=0.
+	 *
+	 *  This assignment is performed point to point by means of the
+	 *  spectral expansion of the original {\tt Scalar}. 
+	 *	@param nzet [input] Number of domains of the destination
+	 *			    mapping (i.e. {\tt this->mp}) where the 
+	 *			    importation is performed: the assignment
+	 *			    is done for the domains whose indices are
+	 *			    between 0 and {\tt nzet-1}. In the other
+	 *			    domains, {\tt *this} is set to zero. 
+	 *	@param ci [input] {\tt Scalar} to be imported.
+	 */
+	void import_align_symy(int nzet, const Scalar& ci) ;	 
+
+	/** Assignment to another {\tt Scalar} defined on a different mapping,
+	 *  when the two mappings have anti-aligned Cartesian axis (i.e.
+	 *  $x_1 = - x_2$,  $y_1 = - y_2$,  $z_1 = z_2$). 
+	 *  Case where the {\tt Scalar} is symmetric with respect to the plane y=0.
+	 *
+	 *  This assignment is performed point to point by means of the
+	 *  spectral expansion of the original {\tt Scalar}. 
+	 *	@param nzet [input] Number of domains of the destination
+	 *			    mapping (i.e. {\tt this->mp}) where the 
+	 *			    importation is performed: the assignment
+	 *			    is done for the domains whose indices are
+	 *			    between 0 and {\tt nzet-1}. In the other
+	 *			    domains, {\tt *this} is set to zero. 
+	 *	@param ci [input] {\tt Scalar} to be imported.
+	 */
+	void import_anti_symy(int nzet, const Scalar& ci) ;	 
+
+	/** Assignment to another {\tt Scalar} defined on a different mapping,
+	 *  when the two mappings have aligned Cartesian axis. 
+	 *  Case where the {\tt Scalar} is antisymmetric with respect to the 
+	 *  plane y=0.
+	 *
+	 *  This assignment is performed point to point by means of the
+	 *  spectral expansion of the original {\tt Scalar}. 
+	 *	@param nzet [input] Number of domains of the destination
+	 *			    mapping (i.e. {\tt this->mp}) where the 
+	 *			    importation is performed: the assignment
+	 *			    is done for the domains whose indices are
+	 *			    between 0 and {\tt nzet-1}. In the other
+	 *			    domains, {\tt *this} is set to zero. 
+	 *	@param ci [input] {\tt Scalar} to be imported.
+	 */
+	void import_align_asymy(int nzet, const Scalar& ci) ;	 
+
+	/** Assignment to another {\tt Scalar} defined on a different mapping,
+	 *  when the two mappings have anti-aligned Cartesian axis (i.e.
+	 *  $x_1 = - x_2$,  $y_1 = - y_2$,  $z_1 = z_2$). 
+	 *  Case where the {\tt Scalar} is antisymmetric with respect to the 
+	 *  plane y=0.
+	 *
+	 *  This assignment is performed point to point by means of the
+	 *  spectral expansion of the original {\tt Scalar}. 
+	 *	@param nzet [input] Number of domains of the destination
+	 *			    mapping (i.e. {\tt this->mp}) where the 
+	 *			    importation is performed: the assignment
+	 *			    is done for the domains whose indices are
+	 *			    between 0 and {\tt nzet-1}. In the other
+	 *			    domains, {\tt *this} is set to zero. 
+	 *	@param ci [input] {\tt Scalar} to be imported.
+	 */
+	void import_anti_asymy(int nzet, const Scalar& ci) ;	 
+	
 
 friend Scalar operator-(const Scalar& ) ;			
 friend Scalar operator+(const Scalar&, const Scalar &) ;	
