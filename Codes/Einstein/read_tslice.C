@@ -28,6 +28,9 @@ char read_tslice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/06/24 15:42:16  j_novak
+ * Display of log(n) and log(psi) instead of N/psi.
+ *
  * Revision 1.3  2004/06/15 10:25:27  e_gourgoulhon
  * Added plot of hrt and hrp.
  *
@@ -118,6 +121,9 @@ int main(int argc, char** argv){
     
     fclose(fich) ;     
 
+    Scalar lnn = log(sigmat.nn()) ;
+    lnn.std_spectral_base() ;
+    
     cout << sigmat << endl ; 
     
     // For graphical outputs:
@@ -127,9 +133,9 @@ int main(int argc, char** argv){
     int nz = mgrid.get_nzone() ; 
     double ray_des = 1.25 * map.val_r(nz-2, 1., 0., 0.) ; // outermost radius
                                                           // for plots
-    des_meridian(sigmat.nn(), 0., ray_des, "N", ngraph0,
+    des_meridian(lnn, 0., ray_des, "log(N)", ngraph0,
                      graph_device) ; 
-    des_meridian(sigmat.psi(), 0., ray_des, "\\gQ", ngraph0+1,
+    des_meridian(sigmat.ln_psi(), 0., ray_des, "log(\\gQ)", ngraph0+1,
                      graph_device) ; 
     des_meridian(sigmat.beta()(1), 0., ray_des, "\\gb\\ur\\d", ngraph0+6,
                      graph_device) ; 
@@ -158,8 +164,7 @@ int main(int argc, char** argv){
     des_meridian(sigmat.aa()(2,3), 0., ray_des, "A\\u\\gh\\gf\\d", ngraph0+18,
                          graph_device) ; 
     des_meridian(sigmat.aa()(3,3), 0., ray_des, "A\\u\\gf\\gf\\d", ngraph0+19,
-                         graph_device) ; 
-
+                          graph_device) ; 
     arrete() ; 
 
     return EXIT_SUCCESS ; 
