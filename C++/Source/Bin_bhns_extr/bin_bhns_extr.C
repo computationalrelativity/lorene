@@ -30,6 +30,9 @@ char bin_bhns_extr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/12/01 16:27:09  k_taniguchi
+ * Modification of the output.
+ *
  * Revision 1.1  2004/11/30 20:45:49  k_taniguchi
  * *** empty log message ***
  *
@@ -229,10 +232,13 @@ ostream& Bin_bhns_extr::operator>>(ostream& ost) const {
 	<< star.get_a_car()()(0,0,0,0) << endl ;
 
     ost << endl
-	<< "Equatorial radius (to BH) a_to =       "
+	<< "Equatorial radius (to BH) a_to :       "
 	<< star.ray_eq_pi()/km << " km" << endl ;
-    ost << "Equatorial radius (opp. to BH) a_opp = "
+    ost << "Equatorial radius (opp. to BH) a_opp : "
 	<< star.ray_eq()/km << " km" << endl ;
+
+    ost << endl
+	<< "Baryon mass : " << mass_b_extr() / msol << " Mo" << endl ;
 
     ost << endl ;
     ost << "Star in a binary system" << endl ; 
@@ -257,7 +263,7 @@ ostream& Bin_bhns_extr::operator>>(ostream& ost) const {
     double d_tilde = d_ns / r0 ; // Normalized separation of Baumgarte et al.
 
     ost << endl << "Comparison with those by Baumgarte et al. :" << endl ;
-    ost << "     Radius r0    :           " << r0 / km << " km " << endl ;
+    ost << "     Radius r0 :              " << r0 / km << " km " << endl ;
     ost << "     Separation d :           " << d_ns / km << " km " << endl ;
     ost << "     Normalized sep. (d/r0) : " << d_tilde << endl ;
 
