@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2002/05/30 16:06:30  j_novak
+ * added the right et_rot_mag.h
+ *
  * Revision 1.6  2002/05/20 08:27:59  j_novak
  * *** empty log message ***
  *
@@ -168,9 +171,10 @@ class Et_rot_mag : public Etoile_rot {
   virtual double angu_mom() const ;  /// Angular momentum
   virtual double grv2() const ;	/// Error on the virial identity GRV2
   virtual double tsw() const ; // Ratio T/W
-  double MagMom() const ; // Magnetic Momentum
-  double Q_comput() const; // Computed charge
-  double GyroMag() const ; // Gyromagnetic ratio
+  double MagMom() const ; /// Magnetic Momentum
+  double Q_comput() const; /// Computed charge
+  double Q_int() const; /// Interior charge
+  double GyroMag() const ; /// Gyromagnetic ratio
 
   /** Error on the virial identity GRV3.
    *  The error is computed as the integral defined

@@ -60,6 +60,6 @@ LIB_LAPACK = -lcomplib.sgimath
 
 # Graphical libraries: PGPLOT and X11
 # -----------------------------------
-LIB_PGPLOT = -L/usr/freeware/lib -lcpgplot -lpgplot -lX11
+LIB_PGPLOT = -L/Octane/freeware/lib -lcpgplot -lpgplot -lX11
 
 
