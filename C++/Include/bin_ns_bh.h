@@ -30,6 +30,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/12/18 10:29:18  e_gourgoulhon
+ *
+ * Added set_omega() and set_x_axe()
+ *
  * Revision 1.1  2002/12/17 13:10:49  e_gourgoulhon
  * Definition of class Bin_ns_bh
  *
@@ -122,7 +126,7 @@ class Bin_ns_bh {
 	 * @param mp_bh Mapping on which {\tt bhole} will be defined
 	 *
 	 */
-	Bin_ns_bh(Map& mp_ns, int nzet, const Eos& eos, int irrot_ns,
+	Bin_ns_bh(Map& mp_ns, int nzet, const Eos& eos, bool irrot_ns,
 	        Map_af& mp_bh) ;
 
 
@@ -166,6 +170,13 @@ class Bin_ns_bh {
 	Bhole& set_bh()
 	    { del_deriv() ;
 	       return hole ;} ;
+
+	/// Sets the orbital angular velocity [{\tt f\_unit}]
+	double& set_omega() {return omega; } ;
+
+	/// Sets the absolute coordinate X of the rotation axis [{\tt r\_unit}]
+	double& set_x_axe() {return x_axe; } ;
+
 
     // Accessors
     // ---------
