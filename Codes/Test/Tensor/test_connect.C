@@ -28,6 +28,9 @@ char test_connect_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/15 10:47:01  e_gourgoulhon
+ * Reorganised the arrete()'s.
+ *
  * Revision 1.4  2003/10/06 20:53:16  e_gourgoulhon
  * New version: constructs flat_metric and calls Tensor::derive_cov.
  *
@@ -158,7 +161,7 @@ int main() {
 	for (int i=1; i<=3; i++) {
 		cout << norme(diffc(i)) << endl ; 
 	}
-	arrete(arret) ; 
+	arrete() ; 
 	
 	
 	Vector duuc_s = duuc ; 
@@ -171,7 +174,7 @@ int main() {
 	for (int i=1; i<=3; i++) {
 		cout << norme(diffs(i)) << endl ; 
 	}
-	arrete(arret) ; 
+	arrete() ; 
 	
 	cout << endl << 
 	"================ TEST FOR A VECTOR FIELD =================\n" ; 
@@ -200,11 +203,11 @@ int main() {
 	
 	cout << "dvvc(1,1) : "  << endl ;
 	dvvc(1,1).spectral_display(cout) ;  
-	arrete() ; 
+	arrete(arret) ; 
 	
 	cout << "dvvs_c(1,1) : " << endl ; 
 	dvvs_c(1,1).spectral_display(cout) ;  
-	arrete() ; 
+	arrete(arret) ; 
 	
 	cout << "Norm of diffvvc: " << endl ; 
 	for (int i=1; i<=3; i++) {
@@ -212,7 +215,7 @@ int main() {
 			cout << i << " " << j << " : " << norme(diffvvc(i,j)) << endl ; 
 		}
 	}
-	arrete(arret) ; 
+	arrete() ; 
 
 
 
@@ -227,7 +230,6 @@ int main() {
 			cout << i << " " << j << " : " << norme(diffvvs(i,j)) << endl ; 
 		}
 	}
-	arrete(arret) ; 
 	
 	return EXIT_SUCCESS ; 
 }
