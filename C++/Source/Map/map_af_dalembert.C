@@ -25,6 +25,9 @@ char map_af_dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/06/19 16:16:38  j_novak
+ * Parabolic approximation for a non flat dalembert operator
+ *
  * Revision 1.4  2003/06/18 08:45:27  j_novak
  * In class Mg3d: added the member get_radial, returning only a radial grid
  * For dAlembert solver: the way the coefficients of the operator are defined has been changed.
@@ -94,30 +97,9 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
     int& nap = par.get_int_mod() ;
     assert ((nap == 0) || (par.get_n_tbl_mod() > 1)) ;
 
-    // The source and explicit parts
-    // -----------------------------
-
-    Cmp sigma = 2*fj ;
     int nz = mg->get_nzone() ;
     double dt = par.get_double() ;
-    sigma += dt*dt * (source + 0.5*fjm1.laplacien(0)) - fjm1 ;
-
-    // Spherical harmonic expansion of the source
-    // ------------------------------------------
-    
-    Valeur& sourva = sigma.va ; 
-
-    if (sourva.get_etat() == ETATZERO) {
-	fjp1.set_etat_zero() ;
-	return ;  
-    }
-
-    // Spectral coefficients of the source
-    assert(sourva.get_etat() == ETATQCQ) ; 
-    
-    sourva.coef() ; 
-    sourva.ylm() ;			// spherical harmonic transforms 
-
+    Cmp sigma = 2*fj - fjm1 ; // The source (first part) 
 
     // Coefficients
     //-------------
@@ -130,16 +112,109 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
     }
     else 
       coeff= &par.get_tbl_mod() ;
+    Tbl a1(nz) ; a1 = 1 ; //Flat dalembertian
+    Tbl a2(nz) ; a2 = 0 ;
+    Tbl a3(nz) ; a3 = 0 ;
+
     if (par.get_n_cmp_mod() > 0) { // Metric in front of the dalembertian
-      cout << "Map_af_dalembert: ERROR:" <<endl ;
-      cout << "only a flat dalembertian is implemented!" << endl ;
-      exit(-1) ;
+      assert(par.get_n_cmp_mod() == 1) ;
+      Cmp& metri = par.get_cmp_mod() ;
+      assert (metri.get_etat() == ETATQCQ) ;
+
+      const Map_af* tmap ; //Spherically symmetric grid and mapping
+      if (nap == 0) {
+	double* bornes = new double[nz+1] ;
+	bornes[0] = beta[0] ;
+	for (int i=0; i<nz; i++) bornes[i+1] = alpha[i] + beta[i] ;
+	tmap = new Map_af(*mg->get_radial() , bornes) ;
+	par.add_map(*tmap) ;
+	delete [] bornes ;
+      }
+      else
+	tmap = dynamic_cast<const Map_af*>(&par.get_map()) ;
+
+      metri.va.coef() ;
+      metri.va.ylm() ;
+
+      Cmp xmetr(tmap) ; // l=0 part of the potential in front of the Laplacian
+      xmetr.set_etat_qcq() ;
+      xmetr.std_base_scal() ;
+      xmetr.va.set_base_t(T_LEG_PP) ; // Only l=0 matters in any case...
+      xmetr.va.set_etat_cf_qcq() ;
+      Mtbl_cf* mt = xmetr.va.c_cf ; 
+      mt->annule_hard() ;
+      for (int lz=0; lz<nz; lz++) 
+	for (int ir=0; ir<mg->get_nr(lz); ir++) 
+	  mt->set(lz,0,0,ir) = (*metri.va.c_cf)(lz, 0, 0, ir) ; //only l=0
+	
+      if (mg->get_nt(0) != 1) xmetr = xmetr / sqrt(2) ; //!!!
+      xmetr.va.ylm_i() ;
+      xmetr.va.coef_i() ;
+      const Mtbl& erre = this->r ;
+
+      a1.set_etat_qcq() ;
+      a2.set_etat_qcq() ;
+      a3.set_etat_qcq() ;
+      Cmp mime(this) ;
+      mime.allocate_all() ;
+      for (int lz=0; lz<nz; lz++) {
+	int nr = mg->get_nr(lz);
+	double r1 = erre(lz, 0, 0, nr-1) ;
+	double rm1 = erre(lz, 0, 0, 0) ;
+	double x1 = xmetr(lz, 0, 0, nr-1) ;
+	double xm1 = xmetr(lz, 0, 0, 0) ;
+
+	if (mg->get_type_r(lz) == RARE) { //In the nucleus, no a2*r
+      	  a1.set(lz) = xm1 ;
+    	  a2.set(lz) = 0 ;
+      	  a3.set(lz) = (x1 - a1(lz)) / (r1 * r1);
+	}
+	else { // In the shells, general case
+	  int i0 = (nr-1)/2 ;
+	  double r0 = erre(lz, 0, 0, i0) ;
+	  double x0 = xmetr(lz, 0, 0, i0) ;
+	  double p1 = (r1 - rm1)*(r1 - r0) ;
+	  double pm1 = (r0 - rm1)*(r1 - rm1) ;
+	  double p0 = (r0 - rm1)*(r1 - r0) ;
+	  a1.set(lz) = xm1*r1*r0/pm1 + x1*rm1*r0/p1 - x0*rm1*r1/p0 ;
+	  a2.set(lz) = x0*(rm1 + r1)/p0 - xm1*(r1 + r0)/pm1 
+	    - x1*(rm1 + r0)/p1 ;
+	  a3.set(lz) = xm1/pm1+x1/p1-x0/p0 ;
+	}
+
+	for (int k=0; k<mg->get_np(lz); k++) 
+	  for (int j=0; j<mg->get_nt(lz); j++) 
+	    for (int i=0; i<nr; i++)
+	      mime.set(lz, k, j, i) = a1(lz) + erre(lz, 0, 0, i)*
+		(a2(lz) + erre(lz, 0, 0, i)*a3(lz)) ;
+
+	Tbl diff = metri(lz) - mime(lz) ;
+	double offset = max(diff) ; // Not sure that this is really 
+  	a1.set(lz) += offset ;  // necessary (supposed to ensure stability).
+  	mime.set(lz) += offset ;
+      }
+
+      Cmp raz = metri - mime ;
+      sigma += dt*dt*(source + raz*fj.laplacien() 
+		      + 0.5*mime*fjm1.laplacien()); //Source (2nd part)
     }
-    else  // Flat dalembertian
-      for (int i=0; i<nz; i++) {
-	coeff->set(1,i) = 1. ;
-	coeff->set(2,i) = 0. ;
-	coeff->set(3,i) = 0. ;
+    else {
+      sigma += dt*dt * (source + 0.5*fjm1.laplacien()) ;
+    }
+    if (sigma.get_etat() == ETATZERO) {
+      fjp1.set_etat_zero() ;
+      return ;  
+    }
+
+    //--------------------------------------------
+    // The operator reads
+    // Id - 0.5dt^2*(a1 + a2 r + a3 r^2)Laplacian
+    //
+    //--------------------------------------------
+    for (int i=0; i<nz; i++) {
+	coeff->set(1,i) = a1(i) ; 
+	coeff->set(2,i) = a2(i) ;
+	coeff->set(3,i) = a3(i) ;
 	coeff->set(4,i) = 0. ;
 	coeff->set(5,i) = 0. ;
 	coeff->set(6,i) = 0. ;
@@ -148,7 +223,7 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
 	coeff->set(9,i) = 0. ; 
 	coeff->set(10,i) = beta[i] ;
 	coeff->set(11,i) = alpha[i] ;
-      }
+    }
 
     // Defining the boundary conditions
     // --------------------------------
@@ -299,6 +374,18 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
 	   << " is unknown!" << endl ;
       abort() ;
     }
+
+    // Spherical harmonic expansion of the source
+    // ------------------------------------------
+    
+    Valeur& sourva = sigma.va ; 
+
+    // Spectral coefficients of the source
+    assert(sourva.get_etat() == ETATQCQ) ; 
+    
+    sourva.coef() ; 
+    sourva.ylm() ;			// spherical harmonic transforms 
+
 
     // Call to the Mtbl_cf version
     // ---------------------------
