@@ -10,5 +10,5 @@
  
  -- Classes Tenseur T et TT
  
- 
+ -- Classe Valeur: rendre prive tous les champs (surtout base).
 
