@@ -39,8 +39,11 @@ char map_radial_poisson_cpt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/12/11 13:17:07  k_taniguchi
+ * Change the multiplication "*" to "%".
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.17  2001/08/28  15:08:06  keisuke
  *  Uncomment "sour_j.std_base_scal()" and "sour_j.ylm()".
@@ -215,9 +218,9 @@ void Map_radial::poisson_compact(const Cmp& source, const Cmp& aa,
 	// Computation of the source for sol_poisson_compact
 	// -------------------------------------------------
 
-	b_grad_psi = bb(0) * psi.dsdr() + 
-			 bb(1) * psi.srdsdt() +
-			 bb(2) * psi.srstdsdp() ; 
+	b_grad_psi = bb(0) % psi.dsdr() + 
+			 bb(1) % psi.srdsdt() +
+			 bb(2) % psi.srstdsdp() ; 
     
 
 	vpsi.ylm() ;	// Expansion of psi onto spherical harmonics
@@ -230,7 +233,7 @@ void Map_radial::poisson_compact(const Cmp& source, const Cmp& aa,
 				    // non-spherical harmonics bases) by
 				    // the call psi.dsdr() above
 
-	aux_psi = 2*dpsi + (vpsi.lapang()).sx() ;
+	aux_psi = 2.*dpsi + (vpsi.lapang()).sx() ;
 
 	d2psi = vpsi.d2sdx2() ; 
 	d2psi.ylm() ; 
@@ -356,7 +359,7 @@ void Map_radial::poisson_compact(const Cmp& source, const Cmp& aa,
 	// Lap_xi(psi) :
 	aux_psi = vpsi.dsdx() ; 
 	
-	aux_psi = 2*aux_psi + (vpsi.lapang()).sx() ;
+	aux_psi = 2.*aux_psi + (vpsi.lapang()).sx() ;
 		
 	lap_xi_psi = vpsi.d2sdx2() + aux_psi.sx() ; 
 			
