@@ -25,6 +25,9 @@ char map_af_dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/03/04 15:15:48  e_gourgoulhon
+ * Treatment of case fj in state ETATZERO at the end.
+ *
  * Revision 1.10  2004/03/01 13:30:28  j_novak
  * Corrected some errors
  *
@@ -433,7 +436,14 @@ void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar&
 
     fjp1.set_spectral_va().ylm_i() ; // Back to standard basis.	 
 
-    if (ced) fjp1.set_domain(nz-1) = fj.domain(nz-1) ;
+    if (ced) {
+        if (fj.get_etat() == ETATZERO) {
+            fjp1.annule_domain(nz-1) ; 
+        }
+        else {
+            fjp1.set_domain(nz-1) = fj.domain(nz-1) ;
+        }
+    }
 }
 
 
