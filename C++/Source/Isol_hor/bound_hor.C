@@ -30,8 +30,8 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.3  2004/09/15 18:05:02  f_limousin
- * New boundary conditions for psi and lapse
+ * Revision 1.4  2004/09/17 13:36:23  f_limousin
+ * Add some new boundary conditions
  *
  * Revision 1.2  2004/09/09 16:53:49  f_limousin
  * Add the two lines $Id$Log: for CVS.
@@ -288,7 +288,9 @@ Valeur Isol_hor::boundary_nn_Dir_eff(double aa){
 
   Scalar tmp(map) ;
 
-  tmp = - aa * nn().derive_cov(ff)(1) - 1. ;
+  tmp = - aa * nn().derive_cov(ff)(1) ;
+  tmp.dec_dzpuis(2) ;
+  tmp = tmp - 1. ;
   
   // We have substracted 1, since we solve for zero condition at infinity 
   //and then we add 1 to the solution  
@@ -353,12 +355,8 @@ Valeur Isol_hor:: boundary_beta_r(){
 
   Scalar tmp (map) ;
 
-  Scalar beta_r = nn() * radial_vect_hor()(1) ;
+  tmp = nn() * radial_vect_hor()(1) ;
  
-  //  tmp = 0.;
-  
-  tmp = beta_r ;
-
   int nnp = map.get_mg()->get_np(1) ;
   int nnt = map.get_mg()->get_nt(1) ;
 
@@ -366,7 +364,6 @@ Valeur Isol_hor:: boundary_beta_r(){
     
   bnd_beta_r = 1 ;   // Why is it necessary this and what it is actually doing?
   
-
   for (int k=0 ; k<nnp ; k++)
     for (int j=0 ; j<nnt ; j++)
       bnd_beta_r.set(0, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
@@ -388,10 +385,7 @@ Valeur Isol_hor::boundary_beta_theta(){
 
   Scalar tmp(map) ;  
   
-  Scalar beta_theta = nn() * radial_vect_hor()(2) ;
-
-  tmp = beta_theta ;  
-  //  tmp = 0. ;
+  tmp = nn() * radial_vect_hor()(2) ;
 
   int nnp = map.get_mg()->get_np(1) ;
   int nnt = map.get_mg()->get_nt(1) ;
@@ -400,7 +394,6 @@ Valeur Isol_hor::boundary_beta_theta(){
     
   bnd_beta_theta = 1 ;   // Why is it necessary this and what it is actually doing?
   
-
   for (int k=0 ; k<nnp ; k++)
     for (int j=0 ; j<nnt ; j++)
       bnd_beta_theta.set(0, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
@@ -421,31 +414,19 @@ Valeur Isol_hor::boundary_beta_phi(){
   Scalar tmp (map) ;
 
   Scalar vel_ang(map) ;
-
   vel_ang = omega_hor() ;
-
   vel_ang.std_spectral_base() ;
-
   vel_ang.mult_rsint() ;
 
-  cout<<"dzpuis: "<< vel_ang.get_dzpuis() <<endl ;
-
-  Scalar beta_phi = nn() * radial_vect_hor()(3)  -  vel_ang ;
-
-  tmp = beta_phi ;
-  //  tmp = 0. ;
-
-  //  des_profile(beta_phi, 2., 10., 1.57, 0., "beta_phi", "radial distance") ;
-
+  tmp = nn() * radial_vect_hor()(3)  -  vel_ang ;
 
   int nnp = map.get_mg()->get_np(1) ;
   int nnt = map.get_mg()->get_nt(1) ;
 
   Valeur bnd_beta_phi (map.get_mg()->get_angu()) ;
     
-  bnd_beta_phi = 1 ;   // Why is it necessary this and what it is actually doing?
+  bnd_beta_phi = 1 ; // Why is it necessary this and what it is actually doing?
   
-
   for (int k=0 ; k<nnp ; k++)
     for (int j=0 ; j<nnt ; j++)
       bnd_beta_phi.set(0, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
@@ -465,31 +446,9 @@ Valeur Isol_hor:: boundary_beta_x(){
 
   const Map& map = ff.get_mp() ; 
   
- 
   int nnp = map.get_mg()->get_np(1) ;
   int nnt = map.get_mg()->get_nt(1) ;
 
-
-  Mtbl x_mtbl (map.get_mg()) ;
-  x_mtbl.set_etat_qcq() ;
-  Mtbl y_mtbl (map.get_mg()) ;
-  y_mtbl.set_etat_qcq() ;
-  x_mtbl = map.x ;
-  y_mtbl = map.y ;
-
-
-  
-  // Bases for limit conditions  (WHY IS THIS NECESSARY?)
-  Base_val** bases = map.get_mg()->std_base_vect_cart() ;
- 
-  Valeur lim_x (map.get_mg()->get_angu()) ;
-  lim_x = 1 ;
-  for (int k=0 ; k<nnp ; k++)
-    for (int j=0 ; j<nnt ; j++)
-      lim_x.set(0, k, j, 0) = omega_hor()*y_mtbl(1, k, j, 0) ;
-      //      lim_x.set(0, k, j, 0) = y_mtbl(1, k, j, 0) ;
-
-  /*
   //Isol_hor boundary conditions
   
   Valeur lim_x (map.get_mg()->get_angu()) ;
@@ -498,20 +457,10 @@ Valeur Isol_hor:: boundary_beta_x(){
   
   Scalar beta_x = beta_bound_cart()(1) ;
 
-
   for (int k=0 ; k<nnp ; k++)
     for (int j=0 ; j<nnt ; j++)
       lim_x.set(0, k, j, 0) = beta_x.val_grid_point(1, k, j, 0) ;
-  */
-
-  lim_x.base = *bases[0] ;
   
-     
-  // We do not need it any more
-  for (int i=0 ; i<3 ; i++)
-    delete bases[i] ;
-  delete [] bases ;
-    
   return  lim_x ;
 
 
@@ -522,60 +471,24 @@ Valeur Isol_hor:: boundary_beta_x(){
 //--------------------------------------
 Valeur Isol_hor:: boundary_beta_y(){
   
-  const Map& map = ff.get_mp() ; 
-  
+  const Map& map = ff.get_mp() ;
  
   int nnp = map.get_mg()->get_np(1) ;
   int nnt = map.get_mg()->get_nt(1) ;
 
-
-  Mtbl x_mtbl (map.get_mg()) ;
-  x_mtbl.set_etat_qcq() ;
-  Mtbl y_mtbl (map.get_mg()) ;
-  y_mtbl.set_etat_qcq() ;
-  x_mtbl = map.x ;
-  y_mtbl = map.y ;
-
-
+  // Isol_hor boundary conditions
   
-  // Bases for limit conditions  (WHY IS THIS NECESSARY?)
-  Base_val** bases = map.get_mg()->std_base_vect_cart() ;
-      
   Valeur lim_y (map.get_mg()->get_angu()) ;
-    lim_y = 1 ;
-    for (int k=0 ; k<nnp ; k++)
-	for (int j=0 ; j<nnt ; j++)
-	  lim_y.set(0, k, j, 0) = - omega_hor()*x_mtbl(1, k, j, 0) ;
-    //lim_y.set(0, k, j, 0) = - x_mtbl(1, k, j, 0) ;
     
-    /*
-    // Isol_hor boundary conditions
-    
-    Valeur lim_y (map.get_mg()->get_angu()) ;
-    
-    lim_y = 1 ;   // Why is it necessary this and what it is actually doing?
+  lim_y = 1 ;   // Why is it necessary this and what it is actually doing?
  
-    Scalar beta_y = beta_bound_cart()(2) ;
-   
+  Scalar beta_y = beta_bound_cart()(2) ;
 
-    for (int k=0 ; k<nnp ; k++)
-    for (int j=0 ; j<nnt ; j++)
-    lim_y.set(0, k, j, 0) = beta_y.val_grid_point(1, k, j, 0) ;
-    */
-
-  
-    lim_y.base = *bases[1] ;
-   
-
-
-  // We do not need it any more
-  for (int i=0 ; i<3 ; i++)
-    delete bases[i] ;
-  delete [] bases ;
+  for (int k=0 ; k<nnp ; k++)
+      for (int j=0 ; j<nnt ; j++)
+	  lim_y.set(0, k, j, 0) = beta_y.val_grid_point(1, k, j, 0) ;
 
   return  lim_y ;
-
-
 }
 
 
@@ -585,20 +498,9 @@ Valeur Isol_hor:: boundary_beta_z(){
 
   const Map& map = ff.get_mp() ; 
 
-  
-
   int nnp = map.get_mg()->get_np(1) ;
   int nnt = map.get_mg()->get_nt(1) ;
 
-  Base_val** bases = map.get_mg()->std_base_vect_cart() ;
-  
-  Valeur lim_z (map.get_mg()->get_angu()) ;
-  lim_z = 1 ;
-  for (int k=0 ; k<nnp ; k++)
-    for (int j=0 ; j<nnt ; j++)
-      lim_z.set(0, k, j, 0) = 0. ;
-  
-    /* 
   // Isol_hor boundary conditions
  
   Valeur lim_z (map.get_mg()->get_angu()) ;
@@ -607,22 +509,29 @@ Valeur Isol_hor:: boundary_beta_z(){
   
   Scalar beta_z = beta_bound_cart()(3) ;
 
-
   for (int k=0 ; k<nnp ; k++)
     for (int j=0 ; j<nnt ; j++)
       lim_z.set(0, k, j, 0) = beta_z.val_grid_point(1, k, j, 0) ;
-    */ 
-
-  lim_z.base = *bases[2] ;
-   
-  // On n'en a plus besoin
-  for (int i=0 ; i<3 ; i++)
-    delete bases[i] ;
-  delete [] bases ;
-
-
  
   return  lim_z ;
+}
 
+
+Vector Isol_hor::beta_bound_cart() {
+
+  const Map& map = ff.get_mp() ; 
+
+  Vector tmp_vect = nn() * radial_vect_hor() ;
+
+  Scalar vel_ang (map) ;  
+  vel_ang = omega_hor() ;
+  vel_ang.std_spectral_base() ;
+  vel_ang.mult_rsint() ;
+
+  tmp_vect.set(3) = tmp_vect(3) - vel_ang ;
+
+  tmp_vect.change_triad(map.get_bvect_cart() ) ;
+ 
+  return tmp_vect ;
 
 }
