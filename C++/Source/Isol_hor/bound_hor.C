@@ -30,6 +30,10 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/09/28 16:06:41  f_limousin
+ * Correction of an error when taking the bases of the boundary
+ * condition for the shift.
+ *
  * Revision 1.4  2004/09/17 13:36:23  f_limousin
  * Add some new boundary conditions
  *
@@ -152,7 +156,7 @@ Valeur Isol_hor::boundary_psi_Dir_spat(){
 			
   for (int k=0 ; k<nnp ; k++)
     for (int j=0 ; j<nnt ; j++)
-      psi_bound.set(0, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
+      psi_bound.set(0, k, j, 0) = tmp.val_grid_point(1, k, j, 0)  ;
 
   psi_bound.std_base_scal() ;
   
@@ -461,6 +465,8 @@ Valeur Isol_hor:: boundary_beta_x(){
     for (int j=0 ; j<nnt ; j++)
       lim_x.set(0, k, j, 0) = beta_x.val_grid_point(1, k, j, 0) ;
   
+  lim_x.set_base(beta_x.get_spectral_va().get_base()) ;
+
   return  lim_x ;
 
 
@@ -488,6 +494,8 @@ Valeur Isol_hor:: boundary_beta_y(){
       for (int j=0 ; j<nnt ; j++)
 	  lim_y.set(0, k, j, 0) = beta_y.val_grid_point(1, k, j, 0) ;
 
+  lim_y.set_base(beta_y.get_spectral_va().get_base()) ;
+
   return  lim_y ;
 }
 
@@ -513,6 +521,8 @@ Valeur Isol_hor:: boundary_beta_z(){
     for (int j=0 ; j<nnt ; j++)
       lim_z.set(0, k, j, 0) = beta_z.val_grid_point(1, k, j, 0) ;
  
+  lim_z.set_base(beta_z.get_spectral_va().get_base()) ;
+
   return  lim_z ;
 }
 
