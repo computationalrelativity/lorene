@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/12/29 16:26:02  k_taniguchi
+ * Addition of a comutational method to calculate equilibrium figures
+ * with a multipole falloff condition at the outer boundary.
+ *
  * Revision 1.1  2004/11/30 20:36:31  k_taniguchi
  * *** empty log message ***
  *
@@ -218,6 +222,92 @@ class Et_bin_bhns_extr : public Etoile_bin {
 			     double relax_potvit, double thres_adapt, 
 			     Tbl& diff) ;
 
+	/** Computes an equilibrium configuration of a BH-NS binary system
+	 *  with an extreme mass ratio using a multipole falloff condition
+	 *  at the outer boundary
+	 * 
+	 *  The values of \c logn_comp , \c beta_comp , \c pot_centri 
+	 *  are held fixed during the iteration. 
+	 *  
+	 *  @param ent_c  [input] Central enthalpy
+	 *  @param mass   [input] Mass of BH
+	 *  @param sepa   [input] Orbital separation
+	 *  @param nu_int [input] Multipole moment for logn in the previous
+	 *                        step
+	 *  @param beta_int [input] Multipole moment for beta in the
+	 *                          previous step
+	 *  @param shift_int [input] Multipole moment for shift in the
+	 *                           previous step
+	 *  @param mermax [input] Maximum number of steps 
+	 *  @param mermax_poisson [input]   Maximum number of steps in 
+	 *				    Map_et::poisson
+	 *  @param relax_poisson [input]  Relaxation factor in Map_et::poisson
+	 *  @param relax_ylm [input] Relaxation factor on the outer boundary
+	                             condition
+	 *  @param mermax_potvit [input]  Maximum number of steps in 
+	 *				  Map_radial::poisson_compact
+	 *  @param relax_potvit [input]   Relaxation factor in 
+	 *				  Map_radial::poisson_compact
+	 *  @param thres_adapt  [input]   Threshold on dH/dr for the adaptation 
+	 *				  of the mapping
+	 *  @param diff [output]   1-D \c Tbl  for the storage of some
+	 *			    error indicators : 
+	 *	    \li \c diff(0)  : Relative change in the enthalpy field
+	 *			      between two successive steps 
+	 *	    \li \c diff(1)  : Relative error returned by the routine
+	 *				\c Etoile_bin::velocity_potential   
+	 *	    \li \c diff(2)  : Relative error in the resolution of the
+	 *			    Poisson equation for \c logn_auto    
+	 *	    \li \c diff(3)  : Relative error in the resolution of the
+	 *			    Poisson equation for \c beta_auto    
+	 *	    \li \c diff(4)  : Relative error in the resolution of the
+	 *			    equation for \c shift_auto  (x comp.)   
+	 *	    \li \c diff(5)  : Relative error in the resolution of the
+	 *			    equation for \c shift_auto  (y comp.)   
+	 *	    \li \c diff(6)  : Relative error in the resolution of the
+	 *			    equation for \c shift_auto  (z comp.)   
+	 */
+	void equil_bhns_extr_ylm(double ent_c, const double& mass,
+				 const double& sepa, double* nu_int,
+				 double* beta_int, double* shift_int,
+				 int mermax, int mermax_poisson, 
+				 double relax_poisson, double relax_ylm,
+				 int mermax_potvit, double relax_potvit,
+				 double thres_adapt, Tbl& diff) ;
+
+	/** Tests the resolution of the Poisson equations
+	 *  when the NS has no matter source.
+	 *  The solution should be the same as the Kerr-Schild metric
+	 * 
+	 *  @param mass   [input] Mass of BH
+	 *  @param sepa   [input] Orbital separation
+	 *  @param mermax_poisson [input]   Maximum number of steps in 
+	 *				    Map_et::poisson
+	 *  @param relax_poisson [input]  Relaxation factor in Map_et::poisson
+	 *  @param mermax_potvit [input]  Maximum number of steps in 
+	 *				  Map_radial::poisson_compact
+	 *  @param relax_potvit [input]   Relaxation factor in 
+	 *				  Map_radial::poisson_compact
+	 *  @param diff [output]   1-D \c Tbl  for the storage of some
+	 *			    error indicators : 
+	 *	    \li \c diff(0)  : Relative error returned by the routine
+	 *				\c Etoile_bin::velocity_potential   
+	 *	    \li \c diff(1)  : Relative error in the resolution of the
+	 *			    Poisson equation for \c logn_auto    
+	 *	    \li \c diff(2)  : Relative error in the resolution of the
+	 *			    Poisson equation for \c beta_auto    
+	 *	    \li \c diff(3)  : Relative error in the resolution of the
+	 *			    equation for \c shift_auto  (x comp.)   
+	 *	    \li \c diff(4)  : Relative error in the resolution of the
+	 *			    equation for \c shift_auto  (y comp.)   
+	 *	    \li \c diff(5)  : Relative error in the resolution of the
+	 *			    equation for \c shift_auto  (z comp.)   
+	 */
+	void test_bhns_extr(const double& mass,
+			    const double& sepa, int mermax_poisson,
+			    double relax_poisson, int mermax_potvit,
+			    double relax_potvit, Tbl& diff) ;
+
 	/** Computes the non-translational part of the velocity scalar
 	 *  potential \f$\psi0\f$ by solving the continuity equation
 	 *  in the Kerr-Schild background metric with extreme mass ratio
@@ -249,6 +339,13 @@ class Et_bin_bhns_extr : public Etoile_bin {
 	 *  @param y_max [input] y-coordinate of the maximum enthalpy
 	 */
 	double phi_longest_rad(double x_max, double y_max) const ;
+
+	/// Constructs spherical harmonics
+	void get_ylm(int nylm, Cmp** ylmvec) ;
+
+	/// Computes multipole moments
+	void get_integrals(int nylm, double* intvec, Cmp** ylmvec,
+			   Cmp source) ;
 
 	friend class Bin_bhns_extr ;
 
