@@ -29,6 +29,10 @@ char des_profile_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/02/17 22:19:22  e_gourgoulhon
+ * Changed prototype of des_profile_mult.
+ * Added version of des_profile_mult with arbitrary x sampling.
+ *
  * Revision 1.5  2004/02/16 10:54:08  e_gourgoulhon
  * Added #include <stdlib.h>.
  *
@@ -62,10 +66,14 @@ char des_profile_C[] = "$Header$" ;
 #include <math.h>
 #include <cpgplot.h>
 
+
+//******************************************************************************
+//      Single profile, single device, uniform sampling 
 //******************************************************************************
 
-void des_profile(float* uutab, int nx, float xmin, float xmax, 
-		 char* nomx, char* nomy, char* title, char* device) {
+void des_profile(const float* uutab, int nx, float xmin, float xmax, 
+		 const char* nomx, const char* nomy, 
+                 const char* title, const char* device) {
 		 
     // Search for the extremal values of the field : 
     // -------------------------------------------
@@ -128,12 +136,15 @@ void des_profile(float* uutab, int nx, float xmin, float xmax,
 }
 
 
+
+//******************************************************************************
+//      Multiple profiles, multiple device, uniform sampling 
 //******************************************************************************
 
 void des_profile_mult(const float* uutab, int nprof, int nx,
-            int ngraph, bool closeit, float xmin, float xmax, 
-            const char* nomx, const char* nomy, 
-			const char* title, const char* device) {
+            float xmin, float xmax, const char* nomx, const char* nomy, 
+	    const char* title, const int* line_style, 
+            int ngraph, bool closeit, const char* device) {
 
     const int ngraph_max = 100 ; 
     static int graph_list[ngraph_max] ; 
@@ -223,12 +234,18 @@ void des_profile_mult(const float* uutab, int nprof, int nx,
     float uuamp = uumax - uumin ; 
     float uumin1 = uumin - 0.05 * uuamp ; 
     float uumax1 = uumax + 0.05 * uuamp ; 
+    cpgsls(1) ;  
     cpgenv(xmin, xmax, uumin1, uumax1, 0, 0 ) ; 
     cpglab(nomx,nomy,title) ;
      
-	for (int i=0; i<nprof; i++) {
-		const float* uudes = uutab + i*nx ; 
-    	cpgline(nx, xx, uudes) ; 
+    
+    for (int i=0; i<nprof; i++) {
+	const float* uudes = uutab + i*nx ;
+        
+        if (line_style == 0x0) cpgsls(i%5 + 1) ; 
+        else cpgsls(line_style[i]) ;  
+    	
+        cpgline(nx, xx, uudes) ; 
     }
 	
     if (closeit) {
@@ -239,3 +256,124 @@ void des_profile_mult(const float* uutab, int nprof, int nx,
     delete [] xx ; 
 
 }
+
+
+
+//******************************************************************************
+//      Multiple profiles, multiple device, arbitrary sampling 
+//******************************************************************************
+
+void des_profile_mult(const float* uutab, int nprof, int nx, const float* xtab, 
+            const char* nomx, const char* nomy, const char* title, 
+            const int* line_style, int ngraph, bool closeit,
+            const char* device) {
+
+    const int ngraph_max = 100 ; 
+    static int graph_list[ngraph_max] ; 
+    static bool first_call = true ; 
+    
+    // First call operations
+    // ---------------------
+        
+    if (first_call) {       // initialization of all the graphic devices to 0 :
+        for (int i=0; i<ngraph_max; i++) {
+            graph_list[i] = 0 ; 
+        } 
+        first_call = false ; 
+    }
+		          
+         
+    // Search for the extremal values of x and of the field : 
+    // ----------------------------------------------------
+
+    int ntot = nprof * nx ; 
+    float uumin = uutab[0] ;
+    float uumax = uutab[0] ;
+    for (int i=1; i<ntot; i++) {
+	    if (uutab[i] < uumin) uumin = uutab[i] ;
+	    if (uutab[i] > uumax) uumax = uutab[i] ;
+    }
+
+    float xmin = xtab[0] ;
+    float xmax = xtab[0] ;
+    for (int i=1; i<ntot; i++) {
+	    if (xtab[i] < xmin) xmin = xtab[i] ;
+	    if (xtab[i] > xmax) xmax = xtab[i] ;
+    }
+
+    cout << "  " << nomy << " : min, max : " << uumin << "   " << uumax 
+         << endl ; 
+
+         
+    // Graphics display
+    // ----------------
+    
+    // Opening of the device
+    
+    if ( (ngraph < 0) || (ngraph >= ngraph_max) ) {
+        cerr << "des_profile_mult : graph index out of range ! \n" ;
+        cerr << " ngraph = " << ngraph << "  while range = 0, " 
+            << ngraph_max-1 << endl ; 
+        abort() ;
+    }
+    
+    if (graph_list[ngraph] == 0) { // opening is required
+                                   // -------------------
+    
+        if (device == 0x0) device = "?" ; 
+   
+        graph_list[ngraph] = cpgopen(device) ; 
+        
+        if ( graph_list[ngraph] <= 0 ) {
+	        cerr << "des_profile_mult: problem in opening PGPLOT display !\n" ;
+            abort() ; 
+        }
+        
+        cpgask(0) ;  // Disables the ``Type RETURN for next page:'' prompt
+        
+    }
+    else {   // the graphic device has been opened previously   
+
+        cpgslct( graph_list[ngraph] ) ; // selects the appropriate device
+    }
+    
+    // Drawing
+    // -------
+     
+    // Taille des caracteres:
+    float size = 1.3 ;
+    cpgsch(size) ;
+    
+    // Epaisseur des traits:
+    int lepais = 1 ; 
+    cpgslw(lepais) ;
+    
+    // Fonte axes: caracteres romains:
+    cpgscf(2) ;
+
+    // Cadre de la figure
+    float uuamp = uumax - uumin ; 
+    float uumin1 = uumin - 0.05 * uuamp ; 
+    float uumax1 = uumax + 0.05 * uuamp ; 
+    cpgsls(1) ;  
+    cpgenv(xmin, xmax, uumin1, uumax1, 0, 0 ) ; 
+    cpglab(nomx,nomy,title) ;
+     
+    
+    for (int i=0; i<nprof; i++) {
+	const float* uudes = uutab + i*nx ;
+	const float* xdes = xtab + i*nx ;
+        
+        if (line_style == 0x0) cpgsls(i%5 + 1) ; 
+        else cpgsls(line_style[i]) ;  
+    	
+        cpgline(nx, xdes, uudes) ; 
+    }
+	
+    if (closeit) {
+        cpgclos() ; 
+        graph_list[ngraph] = 0 ; 
+    }
+    
+}
+
