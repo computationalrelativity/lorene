@@ -35,6 +35,9 @@ char cmp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/08/26 09:46:10  j_novak
+ * Added the method multipole_spectrum
+ *
  * Revision 1.3  2002/10/16 14:36:33  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -167,12 +170,13 @@ char cmp_C[] = "$Header$" ;
 // headers C
 #include <assert.h>
 #include <stdlib.h>
+#include <math.h>
 
 // headers Lorene
 #include "cmp.h"
 #include "type_parite.h"
 #include "utilitaires.h"
-
+#include "proto.h"
 
 			//---------------//
 			// Constructeurs //
@@ -728,3 +732,46 @@ double Cmp::val_point(double r, double theta, double phi) const {
 
 }
  
+
+		//-------------------------------------//
+                //	    Multipolar spectrum	       //
+		//-------------------------------------//
+
+Tbl Cmp::multipole_spectrum() {
+  assert (etat != ETATNONDEF) ;
+
+  const Mg3d* mg = mp->get_mg() ;
+  int nzone = mg->get_nzone() ;
+  int lmax = 0 ;
+  
+  for (int lz=0; lz<nzone; lz++) 
+    lmax = (lmax < 2*mg->get_nt(lz) - 1 ? 2*mg->get_nt(lz) - 1 : lmax) ;
+
+  Tbl resu(nzone, lmax) ;
+  if (etat == ETATZERO) {
+    resu.set_etat_zero() ;
+    return resu ;
+  }
+
+  assert(etat == ETATQCQ) ;
+
+  va.coef() ;
+  va.ylm() ;
+  resu.annule_hard() ;
+  const Base_val& base = va.c_cf->base ;
+  int m_quant, l_quant, base_r ;
+  for (int lz=0; lz<nzone; lz++) 
+    for (int k=0 ; k<mg->get_np(lz) ; k++) 
+      for (int j=0 ; j<mg->get_nt(lz) ; j++) {
+	if (nullite_plm(j, mg->get_nt(lz), k, mg->get_np(lz), base) == 1) 
+	  {
+	    // quantic numbers and spectral bases
+	    donne_lm(nzone, lz, j, k, base, m_quant, l_quant, base_r) ;
+	    for (int i=0; i<mg->get_nr(lz); i++) resu.set(lz, l_quant) 
+				     += fabs((*va.c_cf)(0, k, j, i)) ; 
+	  }
+      }
+
+  return resu ;
+}
+

@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/08/26 09:46:10  j_novak
+ * Added the method multipole_spectrum
+ *
  * Revision 1.7  2003/06/20 14:16:10  f_limousin
  * Add the function compare().
  *
@@ -830,6 +833,16 @@ class Cmp {
      * decreases at least like $r^{\tt puis}$ at infinity.
      */
 	void fixe_decroissance (int puis) ;
+
+    /**
+     * Gives the spectrum in terms of multipolar modes {\it l}.
+     *  @return a {\tt Tbl} of size (nzone, lmax), where lmax is the
+     *  maximal multipolar momentum over all domains. The {\it l}-th
+     *  element contains the L1 norm of the {\it l}-th multipole 
+     *  ({\it i.e.} a sum over all {\it m} of the norms (coefficient space)
+     *  of the component of a given $Y_l^m$.
+     */
+	Tbl multipole_spectrum () ;
 	
     // Extraction of information
     // -------------------------
