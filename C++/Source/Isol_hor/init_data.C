@@ -31,6 +31,9 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2005/04/03 19:48:22  f_limousin
+ * Implementation of set_psi(psi_in). And minor changes to avoid warnings.
+ *
  * Revision 1.14  2005/04/02 15:49:21  f_limousin
  * New choice (Lichnerowicz) for aaquad. New member data nz.
  *
@@ -356,8 +359,7 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	
 	
 	if (solve_psi == 1)
-	    set_psi_del_q(psi_jp1) ; 
-	//	psi_evol.update(psi_jp1, jtime, ttime) ; 	
+	    set_psi(psi_jp1) ; 
 	if (solve_lapse == 1)
 	    n_evol.update(nn_jp1, jtime, ttime) ; 
 	if (solve_shift == 1)

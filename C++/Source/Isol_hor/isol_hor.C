@@ -31,6 +31,9 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2005/04/03 19:48:22  f_limousin
+ * Implementation of set_psi(psi_in). And minor changes to avoid warnings.
+ *
  * Revision 1.22  2005/04/02 15:49:21  f_limousin
  * New choice (Lichnerowicz) for aaquad. New member data nz.
  *
@@ -405,6 +408,94 @@ void Isol_hor::sauve(FILE* fich, bool partial_save) const {
 
 }
 
+// Accessors
+// ---------
+
+const Scalar& Isol_hor::n_auto() const {
+
+    assert( n_auto_evol.is_known(jtime) ) ; 
+    return n_auto_evol[jtime] ;   
+} 
+
+const Scalar& Isol_hor::n_comp() const {
+
+    assert( n_comp_evol.is_known(jtime) ) ; 
+    return n_comp_evol[jtime] ;   
+} 
+
+const Scalar& Isol_hor::psi_auto() const {
+
+    assert( psi_auto_evol.is_known(jtime) ) ; 
+    return psi_auto_evol[jtime] ;   
+} 
+
+const Scalar& Isol_hor::psi_comp() const {
+
+    assert( psi_comp_evol.is_known(jtime) ) ; 
+    return psi_comp_evol[jtime] ;   
+} 
+
+const Vector& Isol_hor::dnn() const {
+
+    assert( dn_evol.is_known(jtime) ) ; 
+    return dn_evol[jtime] ;   
+} 
+
+const Vector& Isol_hor::dpsi() const {
+
+    assert( dpsi_evol.is_known(jtime) ) ; 
+    return dpsi_evol[jtime] ;   
+} 
+
+const Vector& Isol_hor::beta_auto() const {
+
+    assert( beta_auto_evol.is_known(jtime) ) ; 
+    return beta_auto_evol[jtime] ;   
+} 
+
+const Vector& Isol_hor::beta_comp() const {
+
+    assert( beta_comp_evol.is_known(jtime) ) ; 
+    return beta_comp_evol[jtime] ;   
+} 
+
+const Sym_tensor& Isol_hor::aa_auto() const {
+
+    assert( aa_auto_evol.is_known(jtime) ) ; 
+    return aa_auto_evol[jtime] ;   
+} 
+
+const Sym_tensor& Isol_hor::aa_comp() const {
+
+    assert( aa_comp_evol.is_known(jtime) ) ; 
+    return aa_comp_evol[jtime] ;   
+} 
+
+void Isol_hor::set_psi(const Scalar& psi_in) {
+
+    psi_evol.update(psi_in, jtime, the_time[jtime]) ;
+
+    // Reset of quantities depending on Psi:
+    if (p_psi4 != 0x0) {
+        delete p_psi4 ;
+        p_psi4 = 0x0 ;
+    }
+    if (p_ln_psi != 0x0) {
+        delete p_ln_psi ;
+        p_ln_psi = 0x0 ;
+    }
+    if (p_gamma != 0x0) {
+        delete p_gamma ;
+        p_gamma = 0x0 ;
+    }
+    gam_dd_evol.downdate(jtime) ;
+    gam_uu_evol.downdate(jtime) ;
+    k_dd_evol.downdate(jtime) ;
+    k_uu_evol.downdate(jtime) ;
+    adm_mass_evol.downdate(jtime) ;
+}
+
+
 // Import the lapse from the companion (Bhole case)
 
 void Isol_hor::n_comp(const Isol_hor& comp) {
@@ -587,70 +678,6 @@ void Isol_hor::init_bhole_seul () {
     beta_evol.update(temp_vect, jtime, ttime) ;    		   
 }		   
 
-
-// Accessors
-// ---------
-
-const Scalar& Isol_hor::n_auto() const {
-
-    assert( n_auto_evol.is_known(jtime) ) ; 
-    return n_auto_evol[jtime] ;   
-} 
-
-const Scalar& Isol_hor::n_comp() const {
-
-    assert( n_comp_evol.is_known(jtime) ) ; 
-    return n_comp_evol[jtime] ;   
-} 
-
-const Scalar& Isol_hor::psi_auto() const {
-
-    assert( psi_auto_evol.is_known(jtime) ) ; 
-    return psi_auto_evol[jtime] ;   
-} 
-
-const Scalar& Isol_hor::psi_comp() const {
-
-    assert( psi_comp_evol.is_known(jtime) ) ; 
-    return psi_comp_evol[jtime] ;   
-} 
-
-const Vector& Isol_hor::dnn() const {
-
-    assert( dn_evol.is_known(jtime) ) ; 
-    return dn_evol[jtime] ;   
-} 
-
-const Vector& Isol_hor::dpsi() const {
-
-    assert( dpsi_evol.is_known(jtime) ) ; 
-    return dpsi_evol[jtime] ;   
-} 
-
-const Vector& Isol_hor::beta_auto() const {
-
-    assert( beta_auto_evol.is_known(jtime) ) ; 
-    return beta_auto_evol[jtime] ;   
-} 
-
-const Vector& Isol_hor::beta_comp() const {
-
-    assert( beta_comp_evol.is_known(jtime) ) ; 
-    return beta_comp_evol[jtime] ;   
-} 
-
-const Sym_tensor& Isol_hor::aa_auto() const {
-
-    assert( aa_auto_evol.is_known(jtime) ) ; 
-    return aa_auto_evol[jtime] ;   
-} 
-
-const Sym_tensor& Isol_hor::aa_comp() const {
-
-    assert( aa_comp_evol.is_known(jtime) ) ; 
-    return aa_comp_evol[jtime] ;   
-} 
-
 void Isol_hor::update_aa() {
 	
   Sym_tensor aa_new (mp, CON, mp.get_bvect_spher()) ;
@@ -685,7 +712,8 @@ void Isol_hor::update_aa() {
 	}
   }
   
-  set_aa(aa_new) ;
+  set_aa(aa_new) ;  // set aa to aa_new and delete values of 
+                    // k_uu and k_dd.
   Sym_tensor aa_dd (aa_new.up_down(met_gamt)) ;
   Scalar aquad (contract(aa_dd, 0, 1, aa_new, 0, 1)*psi4()*psi4()*psi4()) ;
   aa_quad_evol.update(aquad, jtime, the_time[jtime]) ;
@@ -715,7 +743,7 @@ void Isol_hor::met_kerr_perturb() {
 
     Scalar psi_perturb (pow(gamm(3,3), 0.25)) ;
     psi_perturb.std_spectral_base() ;
-    set_psi_del_q(psi_perturb) ;
+    set_psi(psi_perturb) ;
 
     cout << "met_gamt" << endl << norme(met_gamt.cov()(1,1)) << endl 
 	 << norme(met_gamt.cov()(2,1)) << endl << norme(met_gamt.cov()(3,1)) 

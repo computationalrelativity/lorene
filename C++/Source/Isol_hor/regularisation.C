@@ -26,6 +26,9 @@ char regularisation_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/04/03 19:48:22  f_limousin
+ * Implementation of set_psi(psi_in). And minor changes to avoid warnings.
+ *
  * Revision 1.5  2005/03/24 16:50:28  f_limousin
  * Add parameters solve_shift and solve_psi in par_isol.d and in function
  * init_dat(...). Implement Isolhor::kerr_perturb().
@@ -75,7 +78,6 @@ double Isol_hor::regularisation (const Vector& shift_auto_temp,
     
     int alignes = (orientation == orientation_autre) ? 1 : -1 ;
     
-    int nz = shift_auto.get_mp().get_mg()->get_nzone() ;
     int np = shift_auto.get_mp().get_mg()->get_np(1) ;
     int nt = shift_auto.get_mp().get_mg()->get_nt(1) ;
     int nr = shift_auto.get_mp().get_mg()->get_nr(1) ;
@@ -193,7 +195,6 @@ double Isol_hor::regularise_one () {
     Scalar enleve (mp) ;
     
     double erreur = 0 ;
-    int nz = mp.get_mg()->get_nzone() ;
     int np = mp.get_mg()->get_np(1) ;
     int nt = mp.get_mg()->get_nt(1) ;
     int nr = mp.get_mg()->get_nr(1) ;
