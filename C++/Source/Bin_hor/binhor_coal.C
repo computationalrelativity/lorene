@@ -26,6 +26,9 @@ char binhor_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/03/10 16:57:00  f_limousin
+ * Improve the convergence of the code coal_bh.
+ *
  * Revision 1.4  2005/02/24 17:24:26  f_limousin
  * The boundary conditions for psi, N and beta are now parameters in
  * par_init.d and par_coal.d.
@@ -89,40 +92,23 @@ void Bin_hor::set_statiques (double precis, double relax, int bound_nn,
     }
 }
 
-double Bin_hor::coal (double angu_vel, double precis, double relax, 
-		      double nb_ome, int bound_nn, double lim_nn, 
-		      int bound_psi, int bound_beta, const int sortie) {
+double Bin_hor::coal (double angu_vel, double relax, int nb_ome,
+		      int nb_it, int bound_nn, double lim_nn, 
+		      int bound_psi, int bound_beta,
+		      ostream& fich_iteration, ostream& fich_correction,
+		      ostream& fich_viriel, int step, const int sortie) {
     
-    assert (omega == 0) ;
-    int nz = hole1.mp.get_mg()->get_nzone() ;
+  int nz = hole1.mp.get_mg()->get_nzone() ;
     
-    int indic = 1 ;
-    int conte = 0 ;
+  double precis = 1e-7 ;
     
-    char name_iteration[40] ;
-    char name_correction[40] ;
-    char name_viriel[40] ;
-     
-    sprintf(name_iteration, "ite_%e.dat", angu_vel) ;
-    sprintf(name_correction, "cor_%e.dat", angu_vel) ;
-    sprintf(name_viriel, "vir_%e.dat", angu_vel) ;
-    
-    ofstream fiche_iteration(name_iteration) ;
-    fiche_iteration.precision(8) ; 
-
-    ofstream fiche_correction(name_correction) ;
-    fiche_correction.precision(8) ; 
-    
-    ofstream fiche_viriel(name_viriel) ;
-    fiche_viriel.precision(8) ; 
-
-    
-    // LA BOUCLE EN AUGMENTANT OMEGA  : 
-    cout << "OMEGA AUGMENTE A LA MAIN." << endl ;
-    double homme = 0 ;
+    // LOOP INCREASING OMEGA  : 
+    cout << "OMEGA INCREASED STEP BY STEP." << endl ;
+    double homme = get_omega() ;
+    double inc_homme = (angu_vel - homme)/nb_ome ;
     for (int pas = 0 ; pas <nb_ome ; pas ++) {
 	
-	homme += angu_vel/nb_ome ;
+	homme += inc_homme ;
 	set_omega (homme) ;
 	Scalar beta_un_old (hole1.beta_auto()(1)) ;
 	
@@ -138,20 +124,20 @@ double Bin_hor::coal (double angu_vel, double precis, double relax,
 	    if (diff(i) > erreur)
 		erreur = diff(i) ;
 	if (sortie != 0) {
-	    fiche_iteration << conte << " " << erreur << endl ;
-	    fiche_correction << conte << " " << hole1.regul << endl ;
-	    fiche_viriel << conte << " " << viriel() << endl ;
+	  fich_iteration << step << " " << erreur << " " << homme << endl ;
+	  fich_correction << step << " " << hole1.regul << " " << homme << endl ;
+	  fich_viriel << step << " " << viriel() << " " << homme << endl ;
 	    }
 	    
-	cout << "PAS TOTAL : " << conte << " DIFFERENCE : " << erreur << endl ;
-	conte ++ ;
+	cout << "STEP : " << step << " DIFFERENCE : " << erreur << endl ;
+	step ++ ;
     }
     
-    // BOUCLE AVEC OMEGA BLOQUE :
-    cout << "OMEGA BLOQUE" << endl ;
-    indic = 1 ; 
+    // LOOP WITH FIXED OMEGA :
+    cout << "OMEGA FIXED" << endl ;
     double erreur ;
-    while (indic == 1) {
+
+    for (int pas = 0 ; pas <nb_it ; pas ++) {
 	
 	Scalar beta_un_old (hole1.beta_auto()(1)) ;
 	solve_shift (precis, relax, bound_beta) ;
@@ -167,20 +153,18 @@ double Bin_hor::coal (double angu_vel, double precis, double relax,
 		erreur = diff(i) ;
 	
 	if (sortie != 0) {
-	    fiche_iteration << conte << " " << erreur << endl ;
-	    fiche_correction << conte << " " << hole1.regul << endl ;
-	    fiche_viriel << conte << " " << viriel() << endl ;
+	  fich_iteration << step << " " << erreur << " " << homme << endl ;
+	  fich_correction << step << " " << hole1.regul << " " << homme << endl ;
+	  fich_viriel << step << " " << viriel() << " " << homme << endl ;
 	    }
-	    
-	cout << "PAS TOTAL : " << conte << " DIFFERENCE : " << erreur << endl ;
-	if (erreur < precis)
-	    indic = -1 ;
-	conte ++ ;
-    }
-    
-    fiche_iteration.close() ;
-    fiche_correction.close() ;
-    fiche_viriel.close() ;
-      
+
+	cout << "STEP : " << step << " DIFFERENCE : " << erreur << endl ;
+ 	step ++ ;
+   }
+
+    fich_iteration << "#----------------------------"  << endl ;
+    fich_correction << "#-----------------------------" << endl ;
+    fich_viriel << "#------------------------------"  << endl ;
+
     return viriel() ;
 }

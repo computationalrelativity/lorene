@@ -31,6 +31,9 @@ char coal_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/03/10 16:57:02  f_limousin
+ * Improve the convergence of the code coal_bh.
+ *
  * Revision 1.3  2005/03/04 09:41:34  f_limousin
  * New construction of the object Bin_hor
  *
@@ -50,7 +53,6 @@ char coal_bh_C[] = "$Header$" ;
 //standard
 #include <stdlib.h>
 #include <math.h>
-//#include <fstream.h>
 
 // LORENE
 #include "type_parite.h"
@@ -67,8 +69,8 @@ int main() {
         
     char blabla [120] ;
     char nomini[120] ;
-    double omega_inf, omega_sup, precis, relax, precis_viriel, lim_nn ;
-    int nb_om, bound_nn, bound_psi, bound_beta ;
+    double omega_init, relax, precis_viriel, lim_nn ;
+    int nb_om, nb_it, bound_nn, bound_psi, bound_beta ;
     
     ifstream param("par_coal.d") ;
 	if ( !param.good() ) {
@@ -78,11 +80,11 @@ int main() {
     param.ignore(1000, '\n') ;
     param.ignore(1000, '\n') ;
     param.getline(nomini, 80) ; 
-    param >> omega_inf ; param >> omega_sup ; param.getline(blabla, 120) ;
-    param >> precis ; param.getline(blabla, 120) ;
+    param >> omega_init ; param.getline(blabla, 120) ;
     param >> precis_viriel ;  param.getline(blabla, 120) ;
     param >> relax ; param.getline(blabla, 120) ;
     param >> nb_om ; param.getline(blabla, 120) ;
+    param >> nb_it ; param.getline(blabla, 120) ;
     param >> bound_beta ; param.getline(blabla, 120) ;    
 
     param.close() ;
@@ -118,55 +120,79 @@ int main() {
     
     cout << "CALCUL AVEC BETA = " << beta << endl ;
     
-    Bin_hor courant(map_un, map_deux, depth) ;
-    
-    courant = bin ;
-    double omega_min = omega_inf ;
-    double erreur_min = courant.coal(omega_min, precis, relax, nb_om, bound_nn,
-				     lim_nn, bound_psi, bound_beta, 1) ;
- 
-    fiche_omega << omega_min << " " << erreur_min << endl ;
-    if (erreur_min < 0) {
-      cout << "Borne inf. too big" << endl ;
-      abort() ;
-    }
+    ofstream fich_iteration("iteration.dat") ;
+    fich_iteration.precision(8) ; 
 
-    courant = bin ;
-    double omega_max = omega_sup ;
-    double erreur_max = courant.coal(omega_max, precis, relax, nb_om, bound_nn,
-				     lim_nn, bound_psi, bound_beta, 1) ;
-    if (erreur_max > 0) {
-      cout << "Borne max. too small" << endl ;
-      abort() ;
+    ofstream fich_correction("correction.dat") ;
+    fich_correction.precision(8) ; 
+    
+    ofstream fich_viriel("viriel.dat") ;
+    fich_viriel.precision(8) ; 
+
+    fich_iteration << "# step  precision  omega"  << endl ;
+    fich_correction << "# step  regularisation  omega"  << endl ;
+    fich_viriel << "# step  viriel  omega"  << endl ;
+
+    int step = 0 ;
+    double omega_jp1, erreur_jp1 ;
+    double omega_j = omega_init ;
+    
+    cout << "step = " << step << endl ;
+    double erreur_j = bin.coal(omega_j, relax, nb_om, nb_it, bound_nn,
+			       lim_nn, bound_psi, bound_beta, 
+			       fich_iteration, fich_correction,
+			       fich_viriel, step, 1) ;
+    step += nb_om + nb_it ;
+ 
+    fiche_omega << omega_j << " " << erreur_j << endl ;
+    
+    //    nb_om = (nb_om + nb_om%2) / 2 ;
+    if (erreur_j < 0) {
+      omega_jp1 = 0.8 * omega_j ;
+      erreur_jp1 = bin.coal(omega_jp1, relax, nb_om, nb_it, bound_nn,
+			    lim_nn, bound_psi, bound_beta, 
+			    fich_iteration, fich_correction,
+			    fich_viriel, step, 1) ;
+      fiche_omega << omega_jp1 << " " << erreur_jp1 << endl ;
     }
-    fiche_omega << omega_max << " " << erreur_max << endl ;
-	 
+    else {
+      omega_jp1 = 1.25 * omega_j ;
+      erreur_jp1 = bin.coal(omega_jp1, relax, nb_om, nb_it, bound_nn,
+			    lim_nn, bound_psi, bound_beta, 
+			    fich_iteration, fich_correction,
+			    fich_viriel, step, 1) ;
+      fiche_omega << omega_jp1 << " " << erreur_jp1 << endl ;
+    }
+    step += nb_om + nb_it ;
+
     bool boucle = true ;
     double erreur, omega ;
 
     while (boucle) {
       
-      courant = bin ;
-      omega = omega_min - erreur_min * (omega_max-omega_min)
-	  /(erreur_max-erreur_min) ;
-      erreur = courant.coal (omega, precis, relax, nb_om, bound_nn,
-			     lim_nn, bound_psi, bound_beta,1) ;
-      
+      omega = omega_j - erreur_j * (omega_jp1-omega_j)
+	  /(erreur_jp1-erreur_j) ;
+      erreur = bin.coal (omega, relax, nb_om, nb_it, bound_nn,
+			 lim_nn, bound_psi, bound_beta, 
+			 fich_iteration, fich_correction,
+			 fich_viriel, step, 1) ;
+     step += nb_om + nb_it ;
+     
       fiche_omega << omega << " " << erreur << endl ;
       
       if (fabs(erreur) < precis_viriel)
 	boucle = false ;
 
-      
-      if (erreur > 0) {
-	omega_min = omega ;
-	erreur_min = erreur ;
-      }
-      else {
-	omega_max = omega ;
-	erreur_max = erreur ;
-      }
+      omega_j = omega_jp1 ;
+      erreur_j = erreur_jp1 ;
+      omega_jp1 = omega ;
+      erreur_jp1 = erreur ;
     }
+
+
+    fich_iteration.close() ;
+    fich_correction.close() ;
+    fich_viriel.close() ;
 
     char name[20] ;
     sprintf(name, "bin_%e.dat", omega) ;
@@ -174,7 +200,7 @@ int main() {
     grid.sauve(fich_sortie) ;
     map_un.sauve(fich_sortie) ;
     map_deux.sauve(fich_sortie) ;
-    courant.sauve(fich_sortie, true) ;
+    bin.sauve(fich_sortie, true) ;
     fclose(fich_sortie) ;
     
     fiche_omega.close() ;

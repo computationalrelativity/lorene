@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.26  2005/03/10 16:57:01  f_limousin
+ * Improve the convergence of the code coal_bh.
+ *
  * Revision 1.25  2005/03/10 10:19:42  f_limousin
  * Add the regularisation of the shift in the case of a single black hole
  * and lapse zero on the horizon.
@@ -832,12 +835,11 @@ class Bin_hor {
 	  * @param angu [input] : angular velocity used for 
 	  * the boundary condition on 
 	  * \f$\vec{\beta}\f$.
-	  * @param precis [input] : precision for the convergence 
-	  * (on \f$\beta\f$).
 	  * @param relax [input] : relaxation parameter.
 	  * @param nb_om [input] : number of intermediates 
 	  * velocities to go from 0 to 
 	  * \c omega , typically 10.
+	  * @param nb_it [input] : number of iteration when omega is fixed 
 	  * @param bound_nn [input] : type of the boundary condition for 
 	  * the lapse.
 	  * @param lim_nn [input] : value (double) of the coefficient for
@@ -847,13 +849,16 @@ class Bin_hor {
 	  * psi.
 	  * @param bound_nn [input] : type of the boundary condition for 
 	  * the shift.
+	  * @param step current step of the iteration 
 	  * @param sortie [input] : flag for the output on files 
 	  * (0 no output files).
 	  * @returns : the virial error.
 	  */
-	  double coal (double ang_vel, double precis, double relax,
-		       double nb_om, int bound_nn, double lim_nn, 
-		       int bound_psi, int bound_beta, const int sortie = 0) ;
+	double coal (double ang_vel, double relax, int nb_om,
+		     int nb_it, int bound_nn, double lim_nn, 
+		     int bound_psi, int bound_beta, 
+		     ostream& fich_iteration, ostream& fich_correction,
+		     ostream& fich_viriel, int step, const int sortie = 0) ;
 
 	  
 	  /**
