@@ -1,7 +1,7 @@
 /*
  *  Methods for computing global quantities within the class Star_rot_Dirac
  *
- *    (see file star_rot_dirac.h for documentation).
+ *    (see file star.h for documentation).
  *
  */
 
@@ -30,8 +30,9 @@ char strot_dirac_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2005/01/31 08:51:48  j_novak
- * New files for rotating stars in Dirac gauge (still under developement).
+ * Revision 1.2  2005/02/02 09:25:51  lm_lin
+ *
+ * Add the virial identity GRV3. GRV2 is still under development.
  *
  *
  *
@@ -46,6 +47,7 @@ char strot_dirac_global_C[] = "$Header$" ;
 
 // Lorene headers
 #include "star_rot_dirac.h"
+#include "unites.h"
 #include "utilitaires.h" 
 
 
@@ -109,6 +111,8 @@ double Star_rot_Dirac::angu_mom() const {
 
   if (p_angu_mom == 0x0) {    // a new computation is required
 
+    // phi_kill = axial killing vector 
+
     Vector phi_kill(mp, CON, mp.get_bvect_spher()) ;
 
     phi_kill.set(1).set_etat_zero() ;
@@ -134,7 +138,120 @@ double Star_rot_Dirac::angu_mom() const {
 }
 
 
+                  //-----------------------//
+                  //        GRV2           //   
+                  // ** still under development  //
+                  //-----------------------//
+
+double Star_rot_Dirac::grv2() const {
+
+  using namespace Unites ;
+  if (p_grv2 == 0x0) {    // a new computation is required
 
 
+    Scalar u_square = contract(contract(gamma.cov(),0, u_euler, 0),
+			     0, u_euler, 0) ;
+
+    //**
+    // sou_m = 8\pi T_{\mu\nu} m^{\mu}m^{\nu}
+    // m^{\mu} = (0,0,0, r sint/M) in the spherical orthonormal basis. 
+    //
+    // => sou_m = (r sint)^2 [ (E+P) U^2 + P ], U=v_i v^i 
+    //
+    // GRV2 paper (cf. Bonazzola & Gourgoulhon CQG 11, 1775 (1994). 
+    //**
+
+    Scalar sou_m = 2 * qpig * ( (ener_euler + press)*u_square + press ) ;
+
+    sou_m.std_spectral_base() ;
+
+    sou_m.mult_rsint() ;
+    
+    sou_m.mult_rsint() ;
 
 
+    // aa_quad = \tilde{A}_{ij} A^{ij} = K_{ij} K^{ij} (for trace(K)=0)
+
+    Scalar sou_q = 1.5 * aa_quad ;
+
+    // Here is the term \nu_{|| a}\nu^{|| a} in the GRV2 paper. 
+    //
+
+    Scalar sou_tmp = gamma.con()(1,1) * logn.dsdr() * logn.dsdr() ;
+    
+    Scalar term_2 = 2 * gamma.con()(1,2) * logn.dsdr() * logn.dsdt() ;
+    term_2.div_r_dzpuis(4) ;
+
+    Scalar term_3 = gamma.con()(2,2) * logn.dsdt() * logn.dsdt() ;
+    term_3.div_r_dzpuis(4) ;
+    term_3.div_r_dzpuis(4) ;
+
+    sou_tmp += term_2 + term_3 ;
+
+    sou_q -= sou_tmp ;
+
+
+    p_grv2 = new double( double(1) - lambda_grv2(sou_m, sou_q) ) ;
+    
+  }
+
+  return *p_grv2 ;
+
+}
+
+
+     //-------------------------------------------------------------//
+     //                 GRV3                                        //
+     // cf. Eq. (29) of Gourgoulhon & Bonazzola CQG, 11, 443 (1994) //
+     //-------------------------------------------------------------//
+
+double Star_rot_Dirac::grv3() const {
+
+  using namespace Unites ;
+
+  if (p_grv3 == 0x0) {    // a new computation is required
+
+    // Gravitational term 
+    // -------------------
+
+    Scalar sou_q = 0.75*aa_quad - contract(logn.derive_cov(gamma), 0,
+					   logn.derive_con(gamma), 0) ;
+
+    Scalar tmp_1 = 0.25* contract( gamma.con(), 0, 1, 
+	    contract( gamma.connect().get_delta(), 0, 2,
+		      gamma.connect().get_delta(), 2, 0), 0, 1 ) ;
+
+    Scalar tmp_2 = 0.25* contract( gamma.con(), 0, 1, 
+	      contract( contract( gamma.connect().get_delta(), 0, 1), 
+                       0, gamma.connect().get_delta(), 0), 0, 1)  ;
+
+    sou_q = sou_q + tmp_1 - tmp_2 ;
+
+    sou_q = sqrt( gamma.determinant() ) * sou_q ; 
+
+    sou_q.std_spectral_base() ;
+
+    double int_grav = sou_q.integrale() ;
+
+
+    // Matter term 
+    // --------------
+
+    Scalar sou_m = qpig*s_euler ;
+
+    sou_m = sqrt( gamma.determinant() ) * sou_m ;
+
+    sou_m.std_spectral_base() ;
+
+    double int_mat = sou_m.integrale() ;
+
+    //    p_grv3 = new double( (int_grav + int_mat) / int_mat ) ;
+    
+    p_grv3 = new double( int_grav + int_mat ) ;
+
+
+  }
+
+  return *p_grv3 ;
+
+}
