@@ -25,8 +25,14 @@ char des_coupe_y_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/09/06 15:18:52  e_gourgoulhon
+ * Changement du nom de la variable "hz" en "hza"
+ * pour assurer la compatibilite avec le compilateur xlC_r
+ * sur IBM Regatta (le preprocesseur de ce compilateur remplace
+ * "hz" par "100").
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.8  2000/02/12  11:18:59  eric
  * Ajout de la version avec determination automatique des bornes de la fenetre
@@ -118,13 +124,13 @@ void des_coupe_y(const Cmp& uu, double y0, double x_min, double x_max,
     float* uutab = new float[nx*nz] ; 
     
     double hx = (x_max - x_min) / double(nx-1) ; 
-    double hz = (z_max - z_min) / double(nz-1) ; 
+    double hza = (z_max - z_min) / double(nz-1) ; 
     
 
 
     for (int j=0; j<nz; j++) {
 	
-	double z = z_min + hz * j ; 
+	double z = z_min + hza * j ; 
 	
 	for (int i=0; i<nx; i++) {
     

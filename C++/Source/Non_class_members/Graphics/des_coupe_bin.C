@@ -25,8 +25,14 @@ char des_coupe_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/09/06 15:18:52  e_gourgoulhon
+ * Changement du nom de la variable "hz" en "hza"
+ * pour assurer la compatibilite avec le compilateur xlC_r
+ * sur IBM Regatta (le preprocesseur de ce compilateur remplace
+ * "hz" par "100").
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.1  2000/02/11  18:44:28  eric
  * Ajout de l'argument draw_bound.
@@ -70,11 +76,11 @@ void des_coupe_bin_x(const Cmp& uu1, const Cmp& uu2, double x0, double y_min,
     float* uutab = new float[ny*nz] ; 
     
     double hy = (y_max - y_min) / double(ny-1) ; 
-    double hz = (z_max - z_min) / double(nz-1) ; 
+    double hza = (z_max - z_min) / double(nz-1) ; 
     
     for (int j=0; j<nz; j++) {
 	
-	double z = z_min + hz * j ; 
+	double z = z_min + hza * j ; 
 	
 	for (int i=0; i<ny; i++) {
     
@@ -180,13 +186,13 @@ void des_coupe_bin_y(const Cmp& uu1, const Cmp& uu2, double y0, double x_min,
     float* uutab = new float[nx*nz] ; 
     
     double hx = (x_max - x_min) / double(nx-1) ; 
-    double hz = (z_max - z_min) / double(nz-1) ; 
+    double hza = (z_max - z_min) / double(nz-1) ; 
     
 
 
     for (int j=0; j<nz; j++) {
 	
-	double z = z_min + hz * j ; 
+	double z = z_min + hza * j ; 
 	
 	for (int i=0; i<nx; i++) {
     
