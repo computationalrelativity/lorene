@@ -33,6 +33,10 @@ char et_bin_vel_pot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/05/10 10:17:27  f_limousin
+ * Add a new member ssjm1_psi of class Etoile for the resolution of the
+ * oisson_interne equation
+ *
  * Revision 1.9  2004/04/19 11:26:17  f_limousin
  * Add a new function Etoile_bin::velocity_potential( , , , ) for the
  * case of strange stars
@@ -115,14 +119,16 @@ char et_bin_vel_pot_C[] = "$Header$" ;
 // Local prototype
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
 
-double Etoile_bin::velocity_potential(int mermax, double precis, double relax, Cmp& ssjm1_psi) {
+double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
+  if (eos.identify() == 5 || eos.identify() == 4 || 
+      eos.identify() == 3) {
     
     int nzm1 = mp.get_mg()->get_nzone() - 1 ;    
 
     //----------------------------------
     // Specific relativistic enthalpy		    ---> hhh
     //----------------------------------
-    
+   
     Tenseur hhh = exp(unsurc2 * ent) ;  // = 1 at the Newtonian limit
     hhh.set_std_base() ;
 
@@ -393,10 +399,9 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax, C
     return erreur ; 
  
 
-}
+  }
 
-
-double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
+  else {
     
     int nzm1 = mp.get_mg()->get_nzone() - 1 ;    
 
@@ -546,4 +551,5 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
     return erreur ; 
  
 
+  }
 }
