@@ -36,6 +36,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.46  2004/02/18 18:42:41  e_gourgoulhon
+ * -- Added methods trace.
+ * -- Method scontract suppressed ( since it is the same as trace(int, int) ).
+ *
  * Revision 1.45  2004/02/18 15:52:39  e_gourgoulhon
  * -- Added optional argument desaliasing in function contract.
  * -- Added new function contract for double contraction.
@@ -592,6 +596,10 @@ class Tensor {
 	 */
 	virtual void inc_dzpuis(int inc = 1) ; 
 	
+    
+    // Computational methods
+    // ---------------------
+    
 	/** Returns the covariant derivative of {\tt this} with respect to some 
          * metric $\gamma$.
          * $T$ denoting the tensor represented by {\tt this} and
@@ -621,7 +629,7 @@ class Tensor {
          * covariant derivative (cf. method {\tt derive\_cov()}) with 
          * $\gamma$.
 	 */
-	const Tensor& derive_con(const Metric&) const ; 
+	const Tensor& derive_con(const Metric& gam) const ; 
 
 	/** Computes the divergence of a {\tt this} with respect to 
          * some metric $\gamma$. 
@@ -642,24 +650,7 @@ class Tensor {
 	 */
 	const Tensor& divergence(const Metric& gam) const ; 
 
-	/** Index contraction on two indices of different type (contravariant
- 	 *  or covariant) of the tensor. 
- 	 * 
-	 * @param ind1 [input] first index for the contraction, obeying to the
- 	 *   following convention : \\
- 	 *    {\tt ind1} = 0 : first index of the tensor \\
- 	 *    {\tt ind1} = 1 : second index of the tensor \\
-	 *    and so on... \\
- 	 *  ({\tt ind1} must thus be in the range 0...valence-1)  
- 	 * @param ind2 [input] second index for the contraction, with the same convention 
- 	 *   as {\tt ind1} 
- 	 * @return tensor resulting of the contraction of the index {\tt ind1} with
- 	 *   the index {\tt ind2}.
- 	 * NB: the types ({\tt COV} or {\tt CON}) of the indices {\tt ind1} and
- 	 * {\tt ind2} must be different. 
- 	 */
-	Tensor scontract(int ind1, int ind2) const ; 
-	
+
 	/** Computes a new tensor by raising an index of {\tt *this}
 	 *
 	 *  @param ind index to be raised, with the 
@@ -668,11 +659,11 @@ class Tensor {
  	 *    {\tt ind1} = 1 : second index of the tensor \\
 	 *    and so on... \\
 	 *   ({\tt ind} must be of covariant type ({\tt COV})).
-	 *  @param met metric used to raise the index (contraction with the
+	 *  @param gam metric used to raise the index (contraction with the
 	 *    twice contravariant form of the metric on the index {\tt ind}). 
 	 * 
 	 */
-	Tensor up(int ind, const Metric& met) const ; 
+	Tensor up(int ind, const Metric& gam) const ; 
 
 	/** Computes a new tensor by lowering an index of {\tt *this}
 	 *
@@ -682,20 +673,53 @@ class Tensor {
  	 *    {\tt ind1} = 1 : second index of the tensor \\
 	 *    and so on... \\
 	 *   ({\tt ind} must be of covariant type ({\tt CON})).
-	 *  @param met metric used to lower the index (contraction with the
+	 *  @param gam metric used to lower the index (contraction with the
 	 *    twice covariant form of the metric on the index {\tt ind}). 
 	 * 
 	 */
-	Tensor down(int ind, const Metric& met) const ; 
+	Tensor down(int ind, const Metric& gam) const ; 
 
 	/** Computes a new tensor by raising or lowering all the indices 
 	 *  of {\tt *this}.
 	 *
-	 *  @param met metric used to lower the contravariant indices
+	 *  @param gam metric used to lower the contravariant indices
 	 *    and raising the covariant ones. 
 	 * 
 	 */
-	Tensor up_down(const Metric& met) const ; 
+	Tensor up_down(const Metric& gam) const ; 
+
+    /** Trace on two different type indices.
+     *  @param ind1 first index for the contraction, with the 
+ 	 *   following convention : \\
+ 	 *    {\tt ind1} = 0 : first index of the tensor \\
+ 	 *    {\tt ind1} = 1 : second index of the tensor \\
+	 *    and so on... 
+     *  @param ind2 second index for the contraction 
+     */
+    Tensor trace(int ind1, int ind2) const ; 
+
+    /** Trace with respect to a given metric.
+     *  @param ind1 first index for the contraction, with the 
+ 	 *   following convention : \\
+ 	 *    {\tt ind1} = 0 : first index of the tensor \\
+ 	 *    {\tt ind1} = 1 : second index of the tensor \\
+	 *    and so on... 
+     *  @param ind2 second index for the contraction 
+     *  @param gam metric used to raise or lower ind1 in order that it
+     *      has a opposite type than ind2
+     */
+    Tensor trace(int ind1, int ind2, const Metric& gam) const ; 
+
+    /** Trace on two different type indices for a valence 2 tensor.
+     */
+    Scalar trace() const ; 
+
+    /** Trace with respect to a given metric for a valence 2 tensor.
+     *  @param gam metric used to raise or lower one of the indices, 
+     *      in order to take the trace 
+     */
+    Scalar trace(const Metric& gam) const ; 
+
 
     // Accessors
     // ---------
