@@ -57,6 +57,7 @@ uninstall:
 	cd Source/Binaire; $(MAKE) -i uninstall
 	cd Source/Champ_cart; $(MAKE) -i uninstall
 	cd Source/Cmp; $(MAKE) -i uninstall
+	cd Source/Connection; $(MAKE) -i uninstall
 	cd Source/Coord; $(MAKE) -i uninstall
 	cd Source/Eos; $(MAKE) -i uninstall
 	cd Source/Etoile; $(MAKE) -i uninstall
@@ -65,6 +66,7 @@ uninstall:
 	cd Source/Itbl; $(MAKE) -i uninstall
 	cd Source/Map; $(MAKE) -i uninstall
 	cd Source/Matrice; $(MAKE) -i uninstall
+	cd Source/Metric; $(MAKE) -i uninstall
 	cd Source/Metrique; $(MAKE) -i uninstall
 	cd Source/Mg3d; $(MAKE) -i uninstall
 	cd Source/Mtbl; $(MAKE) -i uninstall
@@ -80,8 +82,8 @@ uninstall:
 	cd Source/Tenseur; $(MAKE) -i uninstall
 	cd Source/Tensor; $(MAKE)  -i uninstall
 	cd Source/Tensor/Scalar; $(MAKE)  -i uninstall
-	cd Source/Valeur; $(MAKE) -i uninstall
 	cd Source/Valencia; $(MAKE) -i uninstall
+	cd Source/Valeur; $(MAKE) -i uninstall
 
 $(LIB):
 	mkdir $@
