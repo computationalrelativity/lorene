@@ -61,7 +61,7 @@ void Et_bin_ncp::extrinsic_curvature(){
 	}
     }
     
-    tkij_auto =  0.5 * tkij_auto / nnn * pow(gamma, -1./3.) ; 
+    tkij_auto = - 0.5 * tkij_auto / nnn ;
     
     tkij_auto.set_std_base() ;
 
@@ -77,11 +77,16 @@ void Et_bin_ncp::extrinsic_curvature(){
     for (int i=0; i<3; i++) {
 	for (int j=0; j<3; j++) {
 	
-	  kcar_auto.set() += contract(contract(met_gamma.cov() * contract(contract(met_gamma.cov() * tkij_auto * tkij_auto, 0, 3), 0, 3), 0, 2), 0, 1)() ; 
-	
+	  Tenseur tkij_auto_cov = tkij_auto ;
+	  tkij_auto_cov.set(i,j) = contract(contract(gtilde.cov() * 
+		        gtilde.cov() * tkij_auto, 1, 4), 2, 3)(i,j) ;
+	  
+
+	  kcar_auto.set() += tkij_auto_cov(i,j) % tkij_auto(i,j) ; 
 	}
     }
-    
+
+    kcar_auto.set() =  pow(gamma, 1./3.)() % kcar_auto() ; 
     kcar_auto.set_std_base() ; 
     
 }
