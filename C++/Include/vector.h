@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2004/02/21 16:27:53  j_novak
+ * Modif. comments
+ *
  * Revision 1.21  2004/02/16 17:40:14  j_novak
  * Added a version of poisson with the flat metric as argument (avoids
  * unnecessary calculations by decompose_div)
@@ -399,7 +402,7 @@ class Vector_divfree: public Vector {
 	/// Metric with respect to which the divergence is defined
 	const Metric* const met_div ; 
 	
-	/** Field $\eta$ such that the angular components $(V^r,V^\theta)$
+	/** Field $\eta$ such that the angular components $(V^\theta, V^\varphi)$
 	 * of the vector are written:
 	 * \begin{equation}
 	 *	V^\theta =   {\partial \eta \over \partial\theta}
@@ -413,7 +416,7 @@ class Vector_divfree: public Vector {
 	 */
 	mutable Scalar* p_eta ;
 	
-	/** Field $\mu$ such that the angular components $(V^r,V^\theta)$
+	/** Field $\mu$ such that the angular components $(V^\theta, V^\varphi)$
 	 * of the vector are written:
 	 * \begin{equation}
 	 *	V^\theta =  {\partial \eta \over \partial\theta}
@@ -512,8 +515,8 @@ class Vector_divfree: public Vector {
 	// Computational methods
 	// ---------------------
 	public:
-	/** Gives the field $\eta$ such that the angular components $(V^r,V^\theta)$
-	 * of the vector are written:
+	/** Gives the field $\eta$ such that the angular components 
+	 * $(V^\theta, V^\varphi)$ of the vector are written:
 	 * \begin{equation}
 	 *	V^\theta =  {\partial \eta \over \partial\theta}
 	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi} 
@@ -526,8 +529,8 @@ class Vector_divfree: public Vector {
 	 */
 	const Scalar& eta() const ;
 	
-	/** Gives the field $\mu$ such that the angular components $(V^r,V^\theta)$
-	 * of the vector are written:
+	/** Gives the field $\mu$ such that the angular components 
+	 * $(V^\theta, V^\varphi)$ of the vector are written:
 	 * \begin{equation}
 	 *	V^\theta =  {\partial \eta \over \partial\theta}
 	 *		- {1\over\sin\theta} {\partial \mu \over \partial\varphi}
