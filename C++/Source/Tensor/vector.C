@@ -32,6 +32,9 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/10/20 13:00:38  j_novak
+ * Memory error corrected
+ *
  * Revision 1.8  2003/10/20 09:32:12  j_novak
  * Members p_potential and p_div_free of the Helmholtz decomposition
  * + the method decompose_div(Metric).
@@ -181,9 +184,8 @@ void Vector::set_der_met_0x0(int i) const {
   p_potential[i] = 0x0 ;
   p_div_free[i] = 0x0 ;
 
-  Tensor::set_der_met_0x0(i) ;
-
 }
+
 void Vector::operator=(const Vector& t) {
     
     triad = t.triad ; 
