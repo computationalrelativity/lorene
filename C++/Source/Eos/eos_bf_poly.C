@@ -31,6 +31,9 @@ char eos_bf_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2004/05/13 15:27:42  r_prix
+ * fixed a little eos-bug also in the relativistic case (same as done already in Newt)
+ *
  * Revision 1.17  2003/12/17 23:12:32  r_prix
  * replaced use of C++ <string> by standard ANSI char* to be backwards compatible
  * with broken compilers like MIPSpro Compiler 7.2 on SGI Origin200. ;-)
@@ -490,7 +493,11 @@ bool Eos_bf_poly::nbar_ent_p(const double ent1, const double ent2,
 			      const double delta2, double& nbar1, 
 			      double& nbar2) const {  
 
-  bool one_fluid = ((ent1<=0.)||(ent2<=0.)) ;
+  // RP: follow Newtonian case in this: the following is wrong, I think
+  //  bool one_fluid = ((ent1<=0.)||(ent2<=0.)) ;
+
+  bool one_fluid = false;
+
   if (!one_fluid) {
     switch (typeos) {
     case 5:  // same as typeos=0 but with slow-rot-style inversion
