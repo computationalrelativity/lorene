@@ -1,3 +1,8 @@
+/***********************************************************************
+ *   calculate stationary configuration of superfluid neutron star
+ *
+ ***********************************************************************/
+
 // headers C
 #include <stdlib.h>
 #include <math.h>
