@@ -4,15 +4,17 @@ include $(HOME_LORENE)/local_settings
 
 BIN_TOOLS = $(HOME_LORENE)/bin
 
+INCEXP    = $(HOME_LORENE)/Export/C++/Include
+
 install: $(BIN_TOOLS) $(BIN_TOOLS)/reorg_comments html documentation.tex
 
-html: Source/documentation.C ../*.h
+html: Source/documentation.C $(INCEXP)/bin_bh.h
 	$(BIN_TOOLS)/reorg_comments $?
 	mv $(?:=_r) .
 	rm -fr $@
 	doc++ -p -d $@ documentation.C_r
-	
-documentation.tex: Source/documentation.C ../*.h
+
+documentation.tex: Source/documentation.C $(INCEXP)/bin_bh.h
 	$(BIN_TOOLS)/reorg_comments $?
 	mv $(?:=_r) .
 	doc++ -p -t -o $@ documentation.C_r

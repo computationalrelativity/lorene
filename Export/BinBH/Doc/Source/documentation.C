@@ -17,7 +17,7 @@
  *	    // Read the file containing the spectral data and evaluate 
  *	    //  all the fields on the Cartesian grid :
  *	    
- *	    Bin_BH binary_system(nb_points, xg, yg, zg, datafile) ;
+ *	    Bin_BH binary_system(nb_points, xg, yg, zg, fill, datafile) ;
  *
  *	    // Extract what you need : 
  *
@@ -38,5 +38,5 @@
  */
 
 //@{
-    	//@Include:../bin_bh.h
+    	//@Include:bin_bh.h_r
 //@}
