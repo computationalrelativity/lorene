@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2004/02/16 17:40:14  j_novak
+ * Added a version of poisson with the flat metric as argument (avoids
+ * unnecessary calculations by decompose_div)
+ *
  * Revision 1.20  2003/12/14 21:47:24  e_gourgoulhon
  * Added method visu_arrows for visualization through OpenDX.
  *
@@ -295,7 +299,7 @@ class Vector: public Tensor {
 
 	/**Solves the vector Poisson equation with {\tt *this} as a source.
 	 * 
-	 * The equatiopn solved is $\Delta N^i +\lambda \nabla^i 
+	 * The equation solved is $\Delta N^i +\lambda \nabla^i 
 	 * \nabla_k N^k = S^i$.
 	 * {\tt *this} must be given with {\tt dzpuis} = 4.
 	 * It uses the Helmholtz decomposition (see documentation of
@@ -306,6 +310,22 @@ class Vector: public Tensor {
 	 * @return the solution $N^i$.
 	 */
 	Vector poisson(const double lambda) const ;
+     
+	/**Solves the vector Poisson equation with {\tt *this} as a source.
+	 * 
+	 * The equation solved is $\Delta N^i +\lambda \nabla^i 
+	 * \nabla_k N^k = S^i$.
+	 * {\tt *this} must be given with {\tt dzpuis} = 4.
+	 * It uses the Helmholtz decomposition (see documentation of
+	 * {\tt p_potential}), with the flat metric {\tt met\_f} given 
+	 * in argument.
+	 *
+	 * @param lambda [input] $\lambda$.
+	 * @param met_f [input] the flat metric for the Helmholtz decomposition.
+	 *
+	 * @return the solution $N^i$.
+	 */
+	Vector poisson(const double lambda, const Metric_flat& met_f) const ;
      
 	/**Solves the vector Poisson equation with {\tt *this} as a source
 	 * and parameters controlling the solution.

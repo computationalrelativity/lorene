@@ -30,6 +30,10 @@ char vector_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/02/16 17:40:14  j_novak
+ * Added a version of poisson with the flat metric as argument (avoids
+ * unnecessary calculations by decompose_div)
+ *
  * Revision 1.3  2003/10/29 11:04:34  e_gourgoulhon
  * dec2_dpzuis() replaced by dec_dzpuis(2).
  * inc2_dpzuis() replaced by inc_dzpuis(2).
@@ -51,28 +55,34 @@ char vector_poisson_C[] = "$Header$" ;
 // Lorene headers
 #include "metric.h"
 
-Vector Vector::poisson(const double lambda) const {
+Vector Vector::poisson(const double lambda, const Metric_flat& met_f) const {
  
   for (int i=0; i<3; i++)
     assert(cmp[i]->check_dzpuis(4)) ;
-
-  Metric_flat met_local(*mp, *triad) ;
 
   Scalar poten(*mp) ;
   if (fabs(lambda+1) < 1.e-6)
     poten.set_etat_zero() ;
   else {
-    Scalar tmp = potential(met_local) / (lambda + 1) ;
+    Scalar tmp = potential(met_f) / (lambda + 1) ;
     tmp.inc_dzpuis(2) ;
     poten = tmp.poisson() ;
   }
 
-  Vector grad = poten.derive_con(met_local) ;
+  Vector grad = poten.derive_con(met_f) ;
   grad.dec_dzpuis(2) ;
 
-  return ( div_free(met_local).poisson() + grad) ;
+  return ( div_free(met_f).poisson() + grad) ;
     
  
+}
+
+Vector Vector::poisson(const double lambda) const {
+ 
+  Metric_flat met_local(*mp, *triad) ;
+
+  return ( poisson(lambda, met_local) );
+    
 }
 
 // Version with parameters
