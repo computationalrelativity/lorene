@@ -19,6 +19,10 @@ SRC3 = read_tslice.C
 OBJ3 = $(SRC3:.C=.o)
 EXE3 = $(SRC3:.C=)
 
+SRC4 = visu_evol.C
+OBJ4 = $(SRC4:.C=.o)
+EXE4 = $(SRC4:.C=)
+
 $(EXE1): $(OBJ1) $(LIBLOR) 
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
 	$(LIB_PGPLOT) $(LIB_CXX)
@@ -31,13 +35,17 @@ $(EXE3): $(OBJ3) $(LIBLOR)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ3) $(LIB_G) $(LIB_LAPACK) \
 	$(LIB_PGPLOT) $(LIB_CXX)
 
-all: $(EXE1) $(EXE2) $(EXE3)
+$(EXE4): $(OBJ4) $(LIBLOR) 
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ4) $(LIB_G) $(LIB_LAPACK) \
+	$(LIB_PGPLOT) $(LIB_CXX)
+
+all: $(EXE1) $(EXE2) $(EXE3) $(EXE4)
 
 
 .C.o:
 	$(CXX)  -c $(CXXFLAGS_G) $(INC) $<
 
 uninstall:
-	rm -f $(OBJ1) $(OBJ2) $(OBJ3)
-	rm -f $(EXE1) $(EXE2) $(EXE3)
+	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4)
+	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4)
 

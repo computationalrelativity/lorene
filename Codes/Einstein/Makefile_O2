@@ -15,6 +15,14 @@ SRC2 = einstein.C
 OBJ2 = $(SRC2:.C=.o)
 EXE2 = $(SRC2:.C=)
 
+SRC3 = read_tslice.C
+OBJ3 = $(SRC3:.C=.o)
+EXE3 = $(SRC3:.C=)
+
+SRC4 = visu_evol.C
+OBJ4 = $(SRC4:.C=.o)
+EXE4 = $(SRC4:.C=)
+
 $(EXE1): $(OBJ1) $(LIBLOR)
 	$(CXX) -o $@ $(CXXFLAGS) $(OBJ1) $(LIB) $(LIB_LAPACK) \
         $(LIB_PGPLOT) $(LIB_CXX)
@@ -23,7 +31,15 @@ $(EXE2): $(OBJ2) $(LIBLOR)
 	$(CXX) -o $@ $(CXXFLAGS) $(OBJ2) $(LIB) $(LIB_LAPACK) \
         $(LIB_PGPLOT) $(LIB_CXX)
 
-all: $(EXE1) $(EXE2)
+$(EXE3): $(OBJ3) $(LIBLOR)
+	$(CXX) -o $@ $(CXXFLAGS) $(OBJ3) $(LIB) $(LIB_LAPACK) \
+        $(LIB_PGPLOT) $(LIB_CXX)
+
+$(EXE4): $(OBJ4) $(LIBLOR)
+	$(CXX) -o $@ $(CXXFLAGS) $(OBJ4) $(LIB) $(LIB_LAPACK) \
+        $(LIB_PGPLOT) $(LIB_CXX)
+
+all: $(EXE1) $(EXE2) $(EXE3) $(EXE4)
 
 .C.o:
 	$(CXX)  -c $(CXXFLAGS) $(INC) $<
