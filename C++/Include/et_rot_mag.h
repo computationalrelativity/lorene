@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2002/10/09 07:54:29  j_novak
+ * Et_rot_bifluid and Et_rot_mag inheritate virtually from Etoile_rot
+ *
  * Revision 1.11  2002/08/02 15:07:41  j_novak
  * Member function determinant has been added to the class Metrique.
  * A better handling of spectral bases is now implemented for the class Tenseur.
@@ -90,7 +93,7 @@ Cmp prolonge_c1(const Cmp& uu, const int nzet) ;
  *
  * @version #$Id$#
  */
-class Et_rot_mag : public Etoile_rot {
+class Et_rot_mag : virtual public Etoile_rot {
   
   // Data : 
   // -----

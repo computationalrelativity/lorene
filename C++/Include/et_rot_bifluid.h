@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2002/10/09 07:54:29  j_novak
+ * Et_rot_bifluid and Et_rot_mag inheritate virtually from Etoile_rot
+ *
  * Revision 1.6  2002/09/13 09:17:33  j_novak
  * Modif. commentaires
  *
@@ -89,7 +92,7 @@ Cmp prolonge_c1(const Cmp& uu, const int nzet) ;
  *
  * @version #$Id$#
  */
-class Et_rot_bifluid : public Etoile_rot {
+class Et_rot_bifluid : virtual public Etoile_rot {
   
   // Data : 
   // -----
