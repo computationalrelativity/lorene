@@ -30,6 +30,9 @@ char et_bin_ncp_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/12/05 14:50:26  j_novak
+ * To suppress some warnings...
+ *
  * Revision 1.6  2003/10/17 13:00:02  f_limousin
  * Changes from set_cov() to get_cov() for metrics.
  *
@@ -1162,9 +1165,9 @@ void Et_bin_ncp::equilibrium(double ent_c, int mermax, int mermax_poisson,
 
       //gtilde_auto.set_std_base() ;
      
-      double nr = (*(mp.get_mg())).get_nr(0) ;
-      double nt = (*(mp.get_mg())).get_nt(0) ;
-      double np = (*(mp.get_mg())).get_np(0) ;
+//##       double nr = (*(mp.get_mg())).get_nr(0) ;
+//##       double nt = (*(mp.get_mg())).get_nt(0) ;
+//##       double np = (*(mp.get_mg())).get_np(0) ;
 	   
       // Only valuable if nr is the same in all domains
 

@@ -33,6 +33,9 @@ char et_rot_f_eccentric_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/12/05 14:50:26  j_novak
+ * To suppress some warnings...
+ *
  * Revision 1.2  2003/10/03 15:58:47  j_novak
  * Cleaning of some headers
  *
@@ -172,8 +175,8 @@ double Etoile_rot::f_eccentric(double ecc, double periast, ostream* ost) const {
 	if ( vorbit.val_point(l_ms, xi_min, theta_ms, phi_ms) *
  	     vorbit.val_point(l_ms, xi_max, theta_ms, phi_ms) < double(0) ) {
 
-     	double precis_ms = 1.e-12 ;    // precision in the determination of xi_ms
-     	int nitermax_ms = 100 ;	       // max number of iterations
+//##      	double precis_ms = 1.e-12 ;    // precision in the determination of xi_ms
+//##      	int nitermax_ms = 100 ;	       // max number of iterations
 
      	int niter ;
  

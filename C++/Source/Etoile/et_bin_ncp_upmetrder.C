@@ -47,11 +47,11 @@ void Et_bin_ncp::update_metric_der_comp(const Et_bin_ncp& comp) {
   
     cout << "update metric derivatives 1" << endl ;
 
-  int nr = mp.get_mg()->get_nr(0) ;
-  int nt = mp.get_mg()->get_nt(0) ;
-  int np = mp.get_mg()->get_np(0) ;
+//##   int nr = mp.get_mg()->get_nr(0) ;
+//   int nt = mp.get_mg()->get_nt(0) ;
+//   int np = mp.get_mg()->get_np(0) ;
   
-  int nz = mp.get_mg()->get_nzone() ;
+//##   int nz = mp.get_mg()->get_nzone() ;
 
   dcov_logn_auto = logn_auto.derive_cov(flat) ;
   dcov_logn = (logn_auto + logn_comp).derive_cov(flat) ;

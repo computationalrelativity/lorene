@@ -29,8 +29,11 @@ char etoile_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/12/05 14:50:26  j_novak
+ * To suppress some warnings...
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.2  2000/07/21  12:02:14  eric
  * Etoile::ray_eq_pi() : traitement du cas type_p = SYM.
@@ -105,7 +108,9 @@ double Etoile::ray_eq() const {
 	const Mg3d& mg = *(mp.get_mg()) ;
 	
 	int type_t = mg.get_type_t() ; 
+#ifndef NDEBUG
 	int type_p = mg.get_type_p() ; 
+#endif
 	int nt = mg.get_nt(0) ; 	
 	
 	if ( type_t == SYM ) {
@@ -243,10 +248,10 @@ double Etoile::ray_pole() const {
 
     if (p_ray_pole == 0x0) {    // a new computation is required
 	
+#ifndef NDEBUG
 	const Mg3d& mg = *(mp.get_mg()) ;
-	
 	int type_t = mg.get_type_t() ; 
-	
+#endif	
 	assert( (type_t == SYM) || (type_t == NONSYM) ) ;  
 	
 	int k = 0 ; 

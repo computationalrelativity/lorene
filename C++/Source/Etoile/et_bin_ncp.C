@@ -29,6 +29,9 @@ char et_bin_ncp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/12/05 14:50:26  j_novak
+ * To suppress some warnings...
+ *
  * Revision 1.9  2003/10/13 10:29:36  f_limousin
  * *** empty log message ***
  *
@@ -432,7 +435,7 @@ ostream& Et_bin_ncp::operator>>(ostream& ost) const {
 
 Tenseur Et_bin_ncp::sprod(const Tenseur& t1, const Tenseur& t2) const {
      
-    Tenseur* p_tens_metr  ;
+    Tenseur* p_tens_metr = 0x0 ;
   
    // Both indices should be contravariant or both covariant : 
     if (t1.get_type_indice(t1.get_valence()-1) == CON) {
