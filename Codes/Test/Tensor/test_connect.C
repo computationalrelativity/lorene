@@ -28,6 +28,9 @@ char test_connect_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/06 20:53:16  e_gourgoulhon
+ * New version: constructs flat_metric and calls Tensor::derive_cov.
+ *
  * Revision 1.3  2003/10/05 21:18:08  e_gourgoulhon
  * Added test onto a vector field.
  *
@@ -50,7 +53,7 @@ char test_connect_C[] = "$Header$" ;
 #include <stdlib.h>
 
 // Lorene headers
-#include "connection.h"
+#include "metric.h"
 #include "nbr_spx.h"
 #include "utilitaires.h"
 
@@ -65,7 +68,7 @@ int main() {
 	int nz = 3 ; 	// Number of domains
 	int nr = 5 ; 	// Number of collocation points in r in each domain
 	int nt = 5 ; 	// Number of collocation points in theta in each domain
-	int np = 8 ; 	// Number of collocation points in phi in each domain
+	int np = 12 ; 	// Number of collocation points in phi in each domain
 	int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
 	int symmetry_phi = NONSYM ; // no symmetry in phi
 	bool compact = true ; // external domain is compactified
@@ -82,7 +85,14 @@ int main() {
   
 	Map_af map(mgrid, r_limits) ; 
   
-  
+	
+	// Construction of a flat metric
+	// -----------------------------
+
+	Metric_flat mets(map, map.get_bvect_spher()) ; // spherical representation
+	Metric_flat metc(map, map.get_bvect_cart()) ;  // Cartesian representation
+
+
 	// Construction of a flat connection
 	// ---------------------------------
 	
@@ -90,7 +100,7 @@ int main() {
 	Connection_fspher ders(map, map.get_bvect_spher()) ; 
 	
 	// Representation on a Cartesian orthonormal basis
-	Connection_fcart derc(map, map.get_bvect_cart()) ; 
+	 Connection_fcart derc(map, map.get_bvect_cart()) ; 
 
 
 	cout << endl << 
@@ -123,13 +133,13 @@ int main() {
 	// Gradient of the scalar field
 	// ----------------------------
 	
-	Vector duuc = derc.derive_cov(uu)  ;  
+	Vector duuc = uu.derive_cov(metc)  ;  
 
 	cout << "duuc : " << duuc << endl ; 
 
 	arrete(arret) ; 
 
-	Vector duus = ders.derive_cov(uu) ; 
+	Vector duus = uu.derive_cov(mets) ; 
 	
 	cout << "duus : " << duus << endl ; 
 
@@ -170,12 +180,11 @@ int main() {
 	
 	vvc.set(1) = uu ; 
 	vvc.set(2) = uu*uu ; 
-	vvc.set(3) = 0 ; 
 	vvc.set(3) = z + x * z ; 
 	vvc.set(3).set_domain(nz-1) = duuc(3).domain(nz-1) ; 
 	
 	vvc.std_spectral_base() ; 
-	Tensor dvvc = derc.derive_cov(vvc) ;
+	Tensor dvvc = vvc.derive_cov(metc) ;
 	
 	// cout << "dvvc : " << dvvc << endl ; 
 	
