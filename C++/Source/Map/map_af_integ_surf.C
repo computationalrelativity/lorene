@@ -25,6 +25,9 @@ char map_af_integ_surf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/10 12:43:06  jl_jaramillo
+ * Treatment of case ETATUN in surface integrals for Scalar's.
+ *
  * Revision 1.2  2004/01/29 08:50:03  p_grandclement
  * Modification of Map::operator==(const Map&) and addition of the surface
  * integrales using Scalar.
@@ -249,7 +252,7 @@ double Map_af::integrale_surface (const Scalar& ci, double rayon) const {
     if (ci.get_etat() == ETATZERO)
 	return 0 ;
     
-    assert (ci.get_etat() == ETATQCQ) ;
+    assert ( (ci.get_etat() == ETATQCQ) ||  (ci.get_etat() == ETATUN) ) ;
     
     int l ;
     double xi ;
@@ -345,8 +348,8 @@ double Map_af::integrale_surface_infini (const Scalar& ci) const {
     if (ci.get_etat() == ETATZERO)
 	return 0 ;
     
-    assert (ci.get_etat() == ETATQCQ) ;
-    
+    assert ( (ci.get_etat() == ETATQCQ) ||  (ci.get_etat() == ETATUN) ) ; 
+   
     int nz = ci.get_mp().get_mg()->get_nzone() ;
     
     ci.get_spectral_va().coef() ;
