@@ -28,6 +28,9 @@ char test_sym_tensor_tt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/11/05 15:32:12  e_gourgoulhon
+ * Use of new functions maxabs and diffrelmax acting on tensors.
+ *
  * Revision 1.8  2003/11/04 23:04:43  e_gourgoulhon
  * First test of Sym_tensor_tt::set_rr_eta_mu.
  *
@@ -145,34 +148,17 @@ int main() {
 	hhs.spectral_display() ; 
 	arrete() ; 
 	
-	hhc.divergence(metc) ; 
-	cout << "Norme divergence hhc : " << endl ; 
-	for (int i=1; i<=3; i++) {
-		cout << norme( hhc.divergence(metc)(i) ) << endl ; 
-	}
-	cout << "Norme divergence hhs : " << endl ; 
-	for (int i=1; i<=3; i++) {
-		cout << norme( hhs.divergence(mets)(i) ) << endl ; 
-	}
-
-	cout << "Max divergence hhc : " << endl ; 
-	for (int i=1; i<=3; i++) {
-		cout << max( hhc.divergence(metc)(i) ) << endl ; 
-	}
-	
-	cout << "Max divergence hhs : " << endl ; 
-	for (int i=1; i<=3; i++) {
-		cout << max( hhs.divergence(mets)(i) ) << endl ; 
-	}
+	cout << "Maxabs divergence hhc : " << endl ; 
+	maxabs( hhc.divergence(metc) ) ; 
+	cout << "Maxabs divergence hhs : " << endl ; 
+	maxabs( hhs.divergence(mets) ) ; 
 		
-	arrete() ;
-	
 	Scalar trace =  hhc.trace() ; 
-	cout << "Trace of hhc : " << max(abs(trace)) << endl ; 	
+	cout << "Maxabs Trace of hhc : " << endl ; 	
+	maxabs( trace ) ; 	
 		
-	trace = hhs.trace() ; 
-	cout << "Trace of hhs : " << max(abs(trace)) << endl ; 	
-	
+	cout << "Maxabs Trace of hhs : " << endl ; 	
+	maxabs( hhs.trace() ) ; 
 
 	cout << "========================================================" << endl ;
 	cout << "                Test with the tensor" << endl ;
@@ -240,10 +226,8 @@ int main() {
 	cout << "Divergence of hhc : " << endl ; 
 	divc.spectral_display() ; 
 	
-	cout << "Max divergence hhc : " << endl ; 
-	for (int i=1; i<=3; i++) {
-		cout << max( abs(divc(i)) ) << endl ; 
-	}
+	cout << "Maxabs divergence hhc : " << endl ; 
+	maxabs( divc ) ; 
 	
 	arrete() ;
 	
@@ -251,16 +235,14 @@ int main() {
 	cout << "Divergence of hhs : " << endl ; 
 	divs.spectral_display() ; 
 	
-	cout << "Max divergence hhs : " << endl ; 
-	for (int i=1; i<=3; i++) {
-		cout << max( abs(divs(i)) ) << endl ; 
-	}
+	cout << "Maxabs divergence hhs : " << endl ; 
+	maxabs( divs ) ; 
 		
-	cout << "Max of trace of hhc : " << endl ; 
-	cout << max( abs(hhc.trace()) ) << endl ; 	
+	cout << "Maxabs of trace of hhc : " << endl ; 
+	maxabs( hhc.trace() ) ; 
 		
-	cout << "Max of trace of hhs : " << endl ; 
-	cout << max( abs(hhs.trace()) ) << endl ; 	
+	cout << "Maxabs of trace of hhs : " << endl ; 
+	maxabs( hhs.trace() ) ; 
 		
 	arrete() ; 
 	
@@ -281,14 +263,8 @@ int main() {
 		
 	htt2.set_rr_eta_mu(htt(1,1), htt.eta(), htt.mu()) ; 
 
-	for (int i=1; i<=3; i++) {
-		for (int j=i; j<=3; j++) {
-			Scalar diff = htt2(i,j) - htt(i, j) ; 
-			cout << "Component " << i << "," << j << " : " << endl ; 
-			diff.spectral_display() ; 
-			cout << "  max: " << max(abs(diff)) << endl ; 
-		}
-	}
+	cout << "Relative difference (max) between htt2 and htt : " << endl ; 
+	diffrelmax(htt2, htt) ; 
 	
 	return EXIT_SUCCESS ; 
 }
