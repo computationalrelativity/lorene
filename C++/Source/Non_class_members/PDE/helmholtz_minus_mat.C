@@ -25,6 +25,9 @@ char helmholtz_minus_mat_C[] = "$$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/12/11 15:57:26  p_grandclement
+ * include stdlib.h encore ...
+ *
  * Revision 1.1  2003/12/11 14:48:49  p_grandclement
  * Addition of ALL (and that is a lot !) the files needed for the general elliptic solver ... UNDER DEVELOPEMENT...
  *
@@ -32,6 +35,7 @@ char helmholtz_minus_mat_C[] = "$$" ;
  * $Header$
  *
  */
+#include <stdlib.h>
 
 #include "matrice.h"
 #include "type_parite.h"

@@ -23,6 +23,9 @@ char param_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/12/11 15:57:27  p_grandclement
+ * include stdlib.h encore ...
+ *
  * Revision 1.1  2003/12/11 14:48:51  p_grandclement
  * Addition of ALL (and that is a lot !) the files needed for the general elliptic solver ... UNDER DEVELOPEMENT...
  *
@@ -33,6 +36,7 @@ char param_elliptic_C[] = "$Header$" ;
 
 #include <math.h>
 #include <iostream.h>
+#include <stdlib.h>
 
 #include "ope_elementary.h"
 #include "param_elliptic.h"
