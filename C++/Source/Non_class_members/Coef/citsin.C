@@ -81,11 +81,14 @@
  *
  */
 
-char citcos_C[] = "$Header$" ;
+char citsin_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/12/17 15:34:30  e_gourgoulhon
+ * Corrected name: citcos --> citsin.
+ *
  * Revision 1.1  2004/11/23 15:13:50  m_forot
  * Added the bases for the cases without any equatorial symmetry
  * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
@@ -117,7 +120,7 @@ double*	trigo_ini(int ) ;
 double* cheb_ini(const int) ;
 //*****************************************************************************
 
-void citcos(const int* deg, const int* dimc, double* cf, const int* dimf,
+void citsin(const int* deg, const int* dimc, double* cf, const int* dimf,
 		   double* ff)
 {
 
