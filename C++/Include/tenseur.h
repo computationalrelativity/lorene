@@ -35,6 +35,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/11/30 20:43:32  k_taniguchi
+ * Addition of the method for vectorial Poisson equations with falloff
+ * condition at the outer boundary.
+ *
  * Revision 1.12  2004/03/22 13:12:43  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -845,6 +849,9 @@ class Tenseur {
     void poisson_vect(double lambda, Param& par, Tenseur& shift, Tenseur& vect
 			, Tenseur& scal) const ;
     
+    void poisson_vect_falloff(double lambda, Param& par, Tenseur& shift, 
+			      Tenseur& vect, Tenseur& scal, int k_falloff) const ;
+
     /**
      * Solves the vectorial Poisson equation \f$\Delta N^i +\lambda \nabla^i
      * \nabla_k N^k = S^i\f$.
@@ -874,6 +881,9 @@ class Tenseur {
 
     Tenseur poisson_vect(double lambda, Tenseur& vect , Tenseur& scal ) const ;
     
+    Tenseur poisson_vect_falloff(double lambda, Tenseur& vect , 
+				 Tenseur& scal, int k_falloff ) const ;
+
     /**
      * Solves the vectorial Poisson equation \f$\Delta N^i +\lambda \nabla^i
      * \nabla_k N^k = S^i\f$.
