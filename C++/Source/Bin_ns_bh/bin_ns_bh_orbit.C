@@ -31,6 +31,9 @@ char bin_ns_bh_orbit_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/06/09 07:26:16  k_taniguchi
+ * Minor changes.
+ *
  * Revision 1.3  2004/06/09 06:20:11  k_taniguchi
  * Set the standard basis for some Cmp.
  *
@@ -39,7 +42,6 @@ char bin_ns_bh_orbit_C[] = "$Header$" ;
  *
  * Revision 1.1  2003/10/24 16:57:43  k_taniguchi
  * Method for the calculation of the orbital angular velocity
- *
  *
  *
  * $Header$
@@ -254,7 +256,7 @@ void Bin_ns_bh::orbit_omega(double fact_omeg_min, double fact_omeg_max) {
 	 << "Number of iterations in zerosec for omega : "
 	 << niter << endl ;
 
-    cout << "Binaire::orbit : omega [rad/s] : "
+    cout << "Bin_ns_bh::orbit_omega : omega [rad/s] : "
 	 << omega * f_unit << endl ;
 
 }
