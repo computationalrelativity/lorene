@@ -25,6 +25,9 @@ char et_bfort_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/01/08 14:43:53  j_novak
+ * better determination of surfaces for 2-fluid stars
+ *
  * Revision 1.2  2002/01/03 15:30:28  j_novak
  * Some comments modified.
  *
@@ -435,8 +438,12 @@ const Itbl& Et_rot_bifluid::l_surf() const {
     double precis = 1.e-15 ; 
     int nitermax = 100 ; 
     int niter ; 
-	
-    (nbar().va).equipot(nb0, nzet, precis, nitermax, niter, *p_l_surf, 
+	      
+    // Cmp defining the surface of the star (via the density fields)
+    // 
+    Cmp surf(prolonge_c1(nbar(), nzet)) ;
+    
+    (surf.va).equipot(nb0, nzet, precis, nitermax, niter, *p_l_surf, 
 			*p_xi_surf) ; 
     
   }
@@ -461,7 +468,11 @@ const Itbl& Et_rot_bifluid::l_surf2() const {
     int nitermax = 100 ; 
     int niter ; 
 	
-    (nbar2().va).equipot(nb0, nzet, precis, nitermax, niter, *p_l_surf2, 
+    // Cmp defining the surface of the star (via the density fields)
+    // 
+    Cmp surf2(prolonge_c1(nbar2(), nzet) );
+    
+    (surf2.va).equipot(nb0, nzet, precis, nitermax, niter, *p_l_surf2, 
 			*p_xi_surf2) ; 
     
   }

@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/01/08 14:43:53  j_novak
+ * better determination of surfaces for 2-fluid stars
+ *
  * Revision 1.2  2002/01/03 15:30:27  j_novak
  * Some comments modified.
  *
@@ -73,6 +76,9 @@
 // Headers Lorene
 #include "eos_bifluid.h"
 #include "etoile.h"
+
+// Local prototype (for determining the surface)
+Cmp prolonge_c1(const Cmp& uu, const int nzet) ;
 
 class Et_rot_bifluid : public Etoile_rot {
   
