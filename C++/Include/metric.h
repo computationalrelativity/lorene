@@ -1,4 +1,4 @@
-/*
+ /*
  *  Definition of Lorene class Metric
  *
  */
@@ -31,6 +31,17 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/12/30 23:04:58  e_gourgoulhon
+ * Important reorganization of class Metric:
+ *  -- suppression of virtual methods fait_* : the actual computations
+ *     are now performed via the virtual methods con(), cov(), connect(),
+ *     ricci(), ricci_scal(), determinant()
+ *  -- the member p_connect is now treated as an ordinary derived data
+ *     member
+ *  -- the construction of the associated connection (member p_connect)
+ *     is performed thanks to the new methods Map::flat_met_spher() and
+ *     Map::flat_met_cart().
+ *
  * Revision 1.5  2003/11/06 14:43:37  e_gourgoulhon
  * Gave a name to const arguments in certain method prototypes (e.g.
  * constructors) to correct a bug of DOC++.
@@ -73,8 +84,6 @@ class Metric {
     protected:
 	const Map* const mp ;	/// Reference mapping.
 
-	mutable Connection* p_connect ; ///Connection associated with the metric
-
 	/**
 	 * Pointer on the contravariant representation.
 	 */
@@ -89,8 +98,13 @@ class Metric {
     // Derived data : 
     // ------------
     protected:
+    
+	mutable Connection* p_connect ; /// Connection associated with the metric
+
 	/**
 	 * Pointer on the Ricci scalar.
+         * Remark: the Ricci tensor is stored in the connection (member
+         *  {\tt p\_connect->p\_ricci}).
 	 */
 	mutable Scalar* p_ricci_scal ;
 	
@@ -114,15 +128,16 @@ class Metric {
 	 *  The symmetric tensor can be either the covariant or
 	 *  the contravariant representation of the metric.
 	 */
-	Metric(const Sym_tensor& tens) ;   
+	explicit Metric(const Sym_tensor& tens) ;  
+         
 	Metric(const Metric& met) ;		/// Copy constructor
 
 	/// Constructor from a file (see {\tt sauve(FILE* )})
 	Metric(const Map&, FILE* ) ;    		
 
     protected:
-	///Simplified constructor used by derived classes.
-	Metric(const Map& mpi) ;
+	/// Simplified constructor used by derived classes.
+	explicit Metric(const Map& mpi) ;
 
     public:
 	virtual ~Metric() ;			/// Destructor
@@ -137,6 +152,16 @@ class Metric {
 	/// Sets to {\tt 0x0} all the pointers on derived quantities
 	void set_der_0x0() const ; 
 
+	/**
+	 * Deletes all the derivative members of the {\tt Tensor} contained in
+	 * {\tt tensor_depend}. Those quantities had been previously 
+	 * calculated using {\tt *this}.
+	 */
+	void del_tensor_depend() const ;
+		
+	///Sets all elements of {\tt tensor_depend} to 0x0.
+	void set_tensor_depend_0x0() const ;
+		
 
     // Mutators / assignment
     // ---------------------
@@ -152,41 +177,28 @@ class Metric {
 	 */
 	virtual void operator=(const Sym_tensor& tens) ;
 	
-     protected:
-	/**
-	 * Deletes all the derivative members of the {\tt Tensor} contained in
-	 * {\tt tensor_depend}. Those quantities had been previously 
-	 * calculated using {\tt *this}.
-	 */
-	void del_tensor_depend() const ;
-		
-	///Sets all elements of {\tt tensor_depend} to 0x0.
-	void set_tensor_depend_0x0() const ;
-		
     // Accessors
     // ---------
     public:
-	///Read-only access to the covariant representation
-	const Sym_tensor& cov() const {
-	  if (p_met_cov == 0x0) fait_cov() ;
-	  return *p_met_cov ; } ;
-
-	///Read-only access to the contravariant representation
-	const Sym_tensor& con() const {
-	  if (p_met_con == 0x0) fait_con() ;
-	  return *p_met_con ; };
-
-	///Returns the mapping
+	/// Returns the mapping
 	const Map& get_mp() const {return *mp ; } ;
 
-	///Returns the connection
-	const Connection& get_connect() const ;
+	/// Read-only access to the covariant representation
+	virtual const Sym_tensor& cov() const ;
 
-	///Returns the Ricci tensor (given by the {\tt Connection})
+	/// Read-only access to the contravariant representation
+	virtual const Sym_tensor& con() const ;
+
+	/// Returns the connection
+	virtual const Connection& connect() const ;
+
+	/** Returns the Ricci tensor (given by the {\tt Connection} 
+         *  {\tt p\_connect})
+         */
 	const Sym_tensor& ricci() const ;
 	
-	///Returns the Ricci scalar
-	const Scalar& ricci_scal() const ;
+	/// Returns the Ricci scalar
+	virtual const Scalar& ricci_scal() const ;
 
 	/**Returns the determinant.
 	 * 
@@ -194,42 +206,7 @@ class Metric {
 	 * a scalar density. To be a real scalar it must be divided
 	 * by e.g. the determinant of a flat metric.
 	 */
-	const Scalar& determinant() const ;
-
-
-    // Computation of derived members
-    // ------------------------------
-    protected:
-	/**
-	 * Calculates, if needed, the covariant representation.
-	 * The result is in {\tt *p\_met\_cov}.
-	 */
-	virtual void fait_cov() const ;
-
-	/**
-	 * Calculates, if needed, the contravariant representation.
-	 * The result is in {\tt *p\_met\_con}.
-	 */
-	virtual void fait_con() const ;
-
-	/**
-	 * Calculates, when needed, the connection from this metric.
-	 * The result is in {\tt *p_connect}.
-	 */
-	virtual void fait_connection() const ;
-
-	/**
-	 * Calculates, if needed, the Ricci-scalar.
-	 * The result is in {\tt *p\_ricci\_scal}.
-	 */
-	virtual void fait_ricci_scal() const ;
-
-	/**
-	 * Calculates, if needed, the determinant.
-	 * The result is in {\tt *p\_determinant}.
-	 */
-	virtual void fait_determinant() const ;
-
+	virtual const Scalar& determinant() const ;
 
     // Outputs
     // -------
@@ -247,6 +224,7 @@ class Metric {
 	friend class Tensor ;
 
 };
+
 /**
  * Flat metric for tensor calculation.
  * 
@@ -257,8 +235,8 @@ class Metric_flat: public Metric {
     // -----
     protected:
 	
-  /** Vectorial basis (triad) with respect to which the flat metric
-   *  is defined.
+  /** Vectorial basis (triad) with respect to which the components of
+   * the flat metric are defined.
    */
   const Base_vect* triad ; 
 
@@ -270,6 +248,7 @@ class Metric_flat: public Metric {
 	 *  Standard constructor from a mapping and a triad.
 	 */
 	Metric_flat(const Map&, const Base_vect& ) ;   
+
 	Metric_flat(const Metric_flat& ) ;		/// Copy constructor
 
 	/// Constructor from a file (see {\tt sauve(FILE* )})
@@ -291,50 +270,34 @@ class Metric_flat: public Metric {
 	 */
 	virtual void operator=(const Sym_tensor& tens) ;
 
+
     // Accessors
     // ---------
     public:
-	const Map& get_mp() const {return *mp ;} ; /// Returns the mapping.
-
 	/** Returns the vectorial basis (triad) on which the metric
 	 *  is defined.  
 	 */
 	const Base_vect* get_triad() const {return triad;} ; 
     
-	
+	/// Read-only access to the covariant representation
+	virtual const Sym_tensor& cov() const ;
 
-    // Computation of derived members
-    // ------------------------------
-    protected:
-	/**
-	 * Calculates, if needed, the contravariant representation.
-	 * The result is in {\tt *p\_met\_con}.
-	 */
-	virtual void fait_con() const ;
+	/// Read-only access to the contravariant representation
+	virtual const Sym_tensor& con() const ;
 
-	/**
-	 * Calculates, if needed, the covariant representation.
-	 * The result is in {\tt *p\_met\_cov}.
-	 */
-	virtual void fait_cov() const ;
+	/// Returns the connection
+	virtual const Connection& connect() const ;
 
-	/**
-	 * Calculates, when needed, the connection from this metric.
-	 * The result is in {\tt *p_connect}.
-	 */
-	virtual void fait_connection() const ;
+	/// Returns the Ricci scalar
+	virtual const Scalar& ricci_scal() const ;
 
-	/**
-	 * Calculates, if needed, the Ricci-scalar.
-	 * The result is in {\tt *p\_ricci\_scal}.
+	/**Returns the determinant.
+	 * 
+	 * This determinant is stored as a {\tt Scalar} although it
+	 * a scalar density. To be a real scalar it must be divided
+	 * by e.g. the determinant of a flat metric.
 	 */
-	virtual void fait_ricci_scal() const ;
-
-	/**
-	 * Calculates, if needed, the determinant.
-	 * The result is in {\tt *p\_determinant}.
-	 */
-	virtual void fait_determinant() const ;
+	virtual const Scalar& determinant() const ;
 
 
     // Outputs
