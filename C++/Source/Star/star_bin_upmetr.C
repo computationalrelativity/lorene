@@ -31,6 +31,10 @@ char star_binupmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/04/08 16:33:16  f_limousin
+ * The new variable is ln(Q) instead of Q=psi^2*N. It improves the
+ * convergence of the code.
+ *
  * Revision 1.6  2004/03/23 09:58:55  f_limousin
  * Add function Star::update_decouple()
  *
@@ -144,8 +148,12 @@ void Star_bin::update_metric(const Star_bin& comp) {
 // ----------------------
 
     qq = qq_auto + qq_comp ;
-  
-    psi4 = qq * qq / (nnn * nnn) ;
+    
+    Scalar exp_qq = exp(qq) ;
+    exp_qq.std_spectral_base() ;
+    
+    psi4 = exp_qq * exp_qq / (nnn * nnn) ;
+    psi4.std_spectral_base() ;
 
 // Shift vector 
 // -------------
@@ -308,7 +316,7 @@ void Star_bin::update_metric(const Star_bin& comp,
 
 
   
-// Relaxation on logn_comp, beta_tilde_comp, qq_comp, hij_comp
+// Relaxation on logn_comp, shift_comp, qq_comp, hij_comp
 // ---------------------------------------------------------------
     double relaxjm1 = 1. - relax ; 
     
@@ -343,10 +351,14 @@ void Star_bin::update_metric(const Star_bin& comp,
 
     qq = qq_auto + qq_comp ;
 
-    psi4 = qq * qq / (nnn*nnn) ;
+    Scalar exp_qq = exp(qq) ;
+    exp_qq.std_spectral_base() ;
+    
+    psi4 = exp_qq * exp_qq / (nnn * nnn) ;
+    psi4.std_spectral_base() ;
 
-// Shift vector beta^i
-// -------------------
+// Shift vector
+// ------------
 
     shift = shift_auto + shift_comp ;
     
@@ -461,7 +473,7 @@ void Star_bin::update_metric(const Star_bin& comp,
 void Star_bin::update_metric_init1() {
 
     logn_auto = logn ;
-    qq_auto = qq - 1 + decouple ;
+    qq_auto = qq ;
 
 }
 
@@ -486,11 +498,9 @@ void Star_bin::update_decouple(const Star_bin& comp) {
     int nr = mp.get_mg()->get_nr(0);
     int nt = mp.get_mg()->get_nt(0);
     int np = mp.get_mg()->get_np(0);
-    /*  
-    qq_auto = qq_auto - decouple ;    
-    decouple = 0.4 + 0.1*(logn_auto - 1.e-12) / (logn - 2.e-12) ;
-    qq_auto = qq_auto + decouple ;    
-    */
+
+//    decouple = (logn_auto - 1.e-12) / (logn - 2.e-12) ;
+
     decouple = 0.5 ;
 
     Cmp decouple_cmp (decouple) ;

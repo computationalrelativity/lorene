@@ -34,6 +34,10 @@ char star_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/04/08 16:32:10  f_limousin
+ * The new variable is ln(Q) instead of Q=psi^2*N. It improves the
+ * convergence of the code.
+ *
  * Revision 1.7  2004/03/25 10:29:26  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -128,7 +132,7 @@ Star::Star(Map& mpi, int nzet_i, const Eos& eos_i)
     ent = 0 ; 
     ener_euler = 0 ; 
     s_euler = 0 ; 
-    gam_euler = 1 ; 
+    gam_euler = 1. ; 
     gam_euler.std_spectral_base() ; 
     u_euler.set_etat_zero() ; 
     stress_euler.set_etat_zero() ;
@@ -139,10 +143,10 @@ Star::Star(Map& mpi, int nzet_i, const Eos& eos_i)
     gamma = flat ;
 
     logn = 0 ; 
-    nnn = 1 ; 
+    nnn = 1. ; 
     nnn.std_spectral_base() ; 
     shift.set_etat_zero() ; 
-    qq = 1 ;
+    qq = 0 ;
 
 }
 

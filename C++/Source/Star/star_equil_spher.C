@@ -32,6 +32,10 @@ char star_equil_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/04/08 16:33:42  f_limousin
+ * The new variable is ln(Q) instead of Q=psi^2*N. It improves the
+ * convergence of the code.
+ *
  * Revision 1.5  2004/03/25 10:29:26  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -94,7 +98,7 @@ void Star::equilibrium_spher(double ent_c, double precis){
 
     Scalar a_car(mp) ;
     a_car = 1 ;	    
-    qq = 1 ;
+    qq = 0 ;
     qq.std_spectral_base() ;
 
     // Auxiliary quantities
@@ -163,7 +167,7 @@ void Star::equilibrium_spher(double ent_c, double precis){
 	dlogn = logn.dsdr() ; 
 	dqq = qq.dsdr() ; 
 		
-	source = - dlogn * dqq / qq ; 
+	source = - dlogn * dqq ; 
 
 	Cmp source_logn_quad (source) ;
 	Cmp logn_quad_cmp (logn_quad) ;
@@ -220,9 +224,9 @@ void Star::equilibrium_spher(double ent_c, double precis){
 	dlogn = logn.dsdr() ; 
 	dqq = qq.dsdr() ; 
 	
-	source = 3 * qpig * a_car * qq * press ;
+	source = 3 * qpig * a_car * press ;
 	
-	source = source + ( dqq * dqq / qq - qq * dlogn * dlogn ) / 2. ;
+	source = source - 0.5 * ( dqq * dqq + dlogn * dlogn ) ;
 
 	source.std_spectral_base() ;	  // Sets the standard spectral bases. 
 
@@ -234,15 +238,17 @@ void Star::equilibrium_spher(double ent_c, double precis){
 
 	qq = qq_cmp ;
 
-	qq = qq + 1 ;
-    
       	qq.std_spectral_base() ;
 
 	// Metric coefficient psi4 update
 	
 	nnn = exp( logn ) ; 
-	a_car = qq * qq / ( nnn * nnn ) ;
 
+	Scalar exp_qq = exp( qq ) ;
+	exp_qq.std_spectral_base() ;
+
+	a_car = exp_qq * exp_qq / ( nnn * nnn ) ;
+	a_car.std_spectral_base() ;
 
     // Relative difference with enthalpy at the previous step
     // ------------------------------------------------------
@@ -269,7 +275,13 @@ void Star::equilibrium_spher(double ent_c, double precis){
     // -------------------------------------------
     
     nnn = exp( logn ) ; 
-    a_car = qq * qq / ( nnn * nnn ) ;
+   
+    Scalar exp_qq = exp( qq ) ;
+    exp_qq.std_spectral_base() ;
+    
+    a_car = exp_qq * exp_qq / ( nnn * nnn ) ;
+    a_car.std_spectral_base() ;
+   
     Sym_tensor gamma_cov(mp, COV, mp.get_bvect_spher()) ;
     gamma_cov.set_etat_zero() ;
 

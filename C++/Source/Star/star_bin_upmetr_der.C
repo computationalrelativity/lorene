@@ -32,6 +32,10 @@ char star_bin_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/04/08 16:33:32  f_limousin
+ * The new variable is ln(Q) instead of Q=psi^2*N. It improves the
+ * convergence of the code.
+ *
  * Revision 1.6  2004/03/23 10:00:09  f_limousin
  * We now make the derivation with respect to the metric tilde
  * instead of the flat metric for the computation of dshift_comp.
@@ -70,16 +74,39 @@ void Star_bin::update_metric_der_comp(const Star_bin& comp) {
     dcov_lnpsi = lnpsi.derive_cov(flat) ;
     dcon_lnpsi = lnpsi.derive_con(flat) ;
 
-    // We update h33 only now to preserve symmetry between the two stars
+    // We update hij only now to preserve symmetry between the two stars
     // -----------------------------------------------------------------
 
-    /*
+/*    
     hij_auto.set(3,3) = hij(3,3) * decouple ;
     hij_comp.set(3,3) = hij(3,3) * (1 - decouple) ;
     hij_auto.std_spectral_base() ;
     hij_comp.std_spectral_base() ;
-    */
+*/
+/*
+    for(int i=1; i<=3; i++){
+	hij_auto.set(i,i) = (hij(3,3) * decouple + hij_auto(1,1) 
+			     + hij_auto(2,2)) / 3. ;
+	hij_comp.set(i,i) = (hij(3,3) * (1-decouple) + hij_comp(1,1) 
+			     + hij_comp(2,2)) / 3. ;
+	hij.set(i,i) = hij_auto(i,i) + hij_comp(i,i) ;
+    }
+    hij_auto.std_spectral_base() ;
+    hij_comp.std_spectral_base() ;
+    hij.std_spectral_base() ;
 
+    Sym_tensor gtilde_con(mp, CON, mp.get_bvect_spher()) ;
+
+    for(int i=1; i<=3; i++) 
+	for(int j=i; j<=3; j++) {
+	    gtilde_con.set(i,j) = hij(i,j) + flat.con()(i,j) ;
+	}
+    
+    gtilde_con.std_spectral_base() ;
+    gtilde = gtilde_con ;
+    Tensor tens_gamma(gtilde_con / psi4) ;
+    gamma = tens_gamma ;
+*/
     // Computation of tkij_comp
     // ------------------------
     

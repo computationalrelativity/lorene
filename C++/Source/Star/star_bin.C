@@ -31,6 +31,10 @@ char star_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/04/08 16:32:28  f_limousin
+ * The new variable is ln(Q) instead of Q=psi^2*N. It improves the
+ * convergence of the code.
+ *
  * Revision 1.8  2004/03/25 10:29:26  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -137,7 +141,7 @@ Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i,
     dcon_logn.set_etat_zero() ;
     shift_auto.set_etat_zero() ; 
     shift_comp.set_etat_zero() ; 
-    qq_auto = 1 ;
+    qq_auto = 0 ;
     qq_comp = 0 ;
     psi4 = 1 ;
     dcov_lnpsi.set_etat_zero() ;
@@ -701,8 +705,7 @@ void Star_bin::fait_d_psi() {
     //----------------------------------------------
 
     Vector www = - hhh * gam_euler * bsn ; 
-    
-    
+      
     // Constant value of W^i at the center of the star
     //-------------------------------------------------
     
@@ -718,9 +721,13 @@ void Star_bin::fait_d_psi() {
     Vector d_psi0 = psi0.derive_cov(flat) ; 
     
     d_psi0.change_triad( mp.get_bvect_cart() ) ; 
+    d_psi0.std_spectral_base() ;
 
     d_psi = d_psi0 + v_orb ; 
-    
+    for (int i=1; i<=3; i++) {
+	if (d_psi(i).get_etat() == ETATZERO)
+	    d_psi.set(i).annule_hard() ;
+    }
 
     // C^1 continuation of d_psi outside the star
     //  (to ensure a smooth enthalpy field accross the stellar surface)
