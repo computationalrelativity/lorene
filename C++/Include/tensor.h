@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.41  2004/01/27 13:05:10  j_novak
+ * Removed the method Tensor::mult_r_ced()
+ *
  * Revision 1.40  2004/01/19 16:31:40  e_gourgoulhon
  * Added operator()(int, int, int, int) and set(int, int, int, int)
  * for direct access to components of valence 4 tensors.
@@ -575,9 +578,6 @@ class Tensor {
 	 */
 	virtual void inc_dzpuis(int inc = 1) ; 
 	
-	/// Multiplication by {\it r} in the external domain.
-	virtual void mult_r_ced() ; 
-
 	/** Returns the covariant derivative of {\tt this} with respect to some 
          * metric $\gamma$.
          * $T$ denoting the tensor represented by {\tt this} and

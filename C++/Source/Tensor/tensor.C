@@ -34,6 +34,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.30  2004/01/27 13:05:11  j_novak
+ * Removed the method Tensor::mult_r_ced()
+ *
  * Revision 1.29  2004/01/19 16:32:13  e_gourgoulhon
  * Added operator()(int, int, int, int) and set(int, int, int, int)
  * for direct access to components of valence 4 tensors.
@@ -701,13 +704,6 @@ void Tensor::inc_dzpuis(int inc) {
 
     for (int i=0 ; i<n_comp ; i++)
       cmp[i]->inc_dzpuis(inc) ;
-}
-
-
-void Tensor::mult_r_ced() {
-    
-  for (int i=0 ; i<n_comp ; i++) 
-    cmp[i]->mult_r_ced() ;
 }
 
 
