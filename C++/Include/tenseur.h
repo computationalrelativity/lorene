@@ -35,8 +35,12 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2004/12/29 16:24:03  k_taniguchi
+ * Addition of the method for vectorial Poisson equations with a multipole
+ * falloff condition at the outer boundary.
+ *
  * Revision 1.14  2004/12/22 18:25:12  k_taniguchi
- * Change an argument of poisson_vect_falloff.
+ * Change an argument of poisson_vect_falloff
  *
  * Revision 1.13  2004/11/30 20:43:32  k_taniguchi
  * Addition of the method for vectorial Poisson equations with falloff
@@ -855,6 +859,10 @@ class Tenseur {
     void poisson_vect_falloff(double lambda, Param& par, Tenseur& shift, 
 			      Tenseur& vect, Tenseur& scal, int* k_falloff) const ;
 
+    void poisson_vect_ylm(double lambda, Param& para, Tenseur& shift,
+			  Tenseur& vecteur, Tenseur& scalaire, int nylm,
+			  double* intvec) const ;
+
     /**
      * Solves the vectorial Poisson equation \f$\Delta N^i +\lambda \nabla^i
      * \nabla_k N^k = S^i\f$.
@@ -886,6 +894,9 @@ class Tenseur {
     
     Tenseur poisson_vect_falloff(double lambda, Tenseur& vect , 
 				 Tenseur& scal, int* k_falloff ) const ;
+
+    Tenseur poisson_vect_ylm(double lambda, Tenseur& vecteur, 
+			     Tenseur& scalaire, int nylm, double* intvec) const ;
 
     /**
      * Solves the vectorial Poisson equation \f$\Delta N^i +\lambda \nabla^i
