@@ -1,0 +1,241 @@
+/*
+ *  Definition of Lorene class Etoile_bin_nsbh
+ *
+ */
+
+/*
+ *   Copyright (c) 2003 Keisuke Taniguchi
+ *
+ *   This file is part of LORENE.
+ *
+ *   LORENE is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License version 2
+ *   as published by the Free Software Foundation.
+ *
+ *   LORENE is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LORENE; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+#ifndef __ET_BIN_NSBH_H_ 
+#define __ET_BIN_NSBH_H_ 
+
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.1  2003/10/21 11:46:13  k_taniguchi
+ * Definition of class Et_bin_nsbh
+ *
+ *
+ *
+ *
+ * $Header$
+ *
+ */
+
+// Lorene headers
+#include "etoile.h"
+
+/**
+ * Class for a star in a NS-BH binary system
+ * 
+ * This class is a derived class from {\tt Etoile\_bin}
+ *
+ * @version #$Id$#
+ */
+class Et_bin_nsbh : public Etoile_bin {
+
+    // Data : 
+    // -----
+    protected:
+    /// Part of the lapse {\it N} generated principaly by the star.
+    Tenseur n_auto ;
+
+    /// Part of the lapse {\it N} generated principaly by the companion star. 
+    Tenseur n_comp ;
+
+    /// Total conformal factor $\Psi$
+    Tenseur confpsi ;
+
+    /// Part of the conformal factor $\Psi$ generated principaly by the star.
+    Tenseur confpsi_auto ;
+
+    /** Part of the conformal factor $\Psi$ generated principaly
+     *  by the companion star.
+     */
+    Tenseur confpsi_comp ;
+
+    /** Effective source at the previous step for the resolution of 
+     *  the Poisson equation for {\tt n\_auto} by means of
+     *  {\tt Map\_et::poisson}.
+     */
+    Cmp ssjm1_n_auto ;
+
+    /** Effective source at the previous step for the resolution of 
+     *  the Poisson equation for {\tt confpsi\_auto} by means of
+     *  {\tt Map\_et::poisson}.
+     */
+    Cmp ssjm1_confpsi ;
+
+
+    // Constructors - Destructor
+    // -------------------------
+    public:
+    /** Standard constructor.
+     *
+     * @param mp_i Mapping on which the star will be defined
+     * @param nzet_i Number of domains occupied by the star
+     * @param relat should be {\tt true} for a relativistic star,
+     *                        {\tt false} for a Newtonian one
+     * @param eos_i Equation of state of the stellar matter
+     * @param irrot should be {\tt true} for an irrotational star,
+     *                        {\tt false} for a corotating one
+     * @param ref_triad_i  Reference triad ("absolute frame"),
+     *        with respect to which the components of all the member
+     *        {\tt Tenseur}'s are defined, except for {\tt w\_shift}
+     *        and {\tt ssjm1\_wshift} whose components are defined
+     *        with respect to the mapping {\tt mp} Cartesian triad.
+     */
+    Et_bin_nsbh(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
+		bool irrot, const Base_vect& ref_triad_i) ;
+
+    Et_bin_nsbh(const Et_bin_nsbh& ) ;		/// Copy constructor
+
+    /** Constructor from a file (see {\tt sauve(FILE* )})
+     *
+     * @param mp_i Mapping on which the star will be defined
+     * @param eos_i Equation of state of the stellar matter
+     * @param ref_triad_i  Reference triad ("absolute frame"),
+     *        with respect to which the components of all the member
+     *        {\tt Tenseur}'s are defined, except for {\tt w\_shift}
+     *        and {\tt ssjm1\_wshift} whose components are defined
+     *        with respect to the mapping {\tt mp} Cartesian triad.
+     * @param fich  input file (must have been created by the function
+     *        {\tt sauve})
+     */
+    Et_bin_nsbh(Map& mp_i, const Eos& eos_i, const Base_vect& ref_triad_i,
+		FILE* fich) ;    		
+
+    virtual ~Et_bin_nsbh() ;			/// Destructor
+ 
+
+    // Mutators / assignment
+    // ---------------------
+    public:
+    /// Assignment to another {\tt Et\_bin\_nsbh}
+    void operator=(const Et_bin_nsbh&) ;	
+	
+    /** Read/write the lapse {\it N} generated principaly
+     *  by the companion star.
+     */
+    Tenseur& set_n_comp() ;
+
+    /** Read/write the conformal factor $\Psi$ generated principaly
+     *  by the companion star.
+     */
+    Tenseur& set_confpsi_comp() ;
+
+    // Accessors
+    // ---------
+    public:
+    /** Returns the part of the lapse {\it N} generated principaly
+     *  by the star. 
+     */
+    const Tenseur& get_n_auto() const {return n_auto;} ;
+
+    /** Returns the part of the lapse {\it N} generated principaly
+     *  by the companion star. 
+     */
+    const Tenseur& get_n_comp() const {return n_comp;} ;
+
+    /// Returns the part of the conformal factor $\Psi$
+    const Tenseur& get_confpsi() const {return confpsi;} ;
+
+    /** Returns the part of the conformal factor $\Psi$
+     *  generated principaly by the star. 
+     */
+    const Tenseur& get_confpsi_auto() const {return confpsi_auto;} ;
+
+    /** Returns the part of the conformal factor $\Psi$
+     *  generated principaly by the companion star. 
+     */
+    const Tenseur& get_confpsi_comp() const {return confpsi_comp;} ;
+
+
+    // Outputs
+    // -------
+    public:
+    virtual void sauve(FILE *) const ;	    /// Save in a file
+
+    protected:
+    /// Operator >> (virtual function called by the operator <<).
+    virtual ostream& operator>>(ostream& ) const ;
+
+
+    // Global quantities
+    // -----------------
+    public:
+    /// Baryon mass
+    virtual double mass_b() const ;
+
+    /// Gravitational mass
+    virtual double mass_g() const ;
+
+
+    // Computational routines
+    // ----------------------
+    public: 
+
+    /** Computes an equilibrium configuration in a NS-BH binary system.
+     * 
+     *  The values of {\tt n\_comp}, {\tt confpsi\_comp}, {\tt pot\_centri}
+     *  are held fixed during the iteration. 
+     *  
+     *  @param ent_c  [input] Central enthalpy
+     *  @param mermax [input] Maximum number of steps 
+     *  @param mermax_poisson [input]   Maximum number of steps in 
+     *				    Map\_et::poisson
+     *  @param relax_poisson [input]  Relaxation factor in Map\_et::poisson
+     *  @param mermax_potvit [input]  Maximum number of steps in 
+     *				  Map\_radial::poisson\_compact
+     *  @param relax_potvit [input]   Relaxation factor in 
+     *				  Map\_radial::poisson\_compact
+     *  @param thres_adapt  [input]   Threshold on dH/dr for the adaptation 
+     *				  of the mapping
+     *  @param fact [input]    1-D {\tt Tbl} for the input
+     *                          of some factors : \\
+     *          {\tt fact(0)} : A resizing factor for the first shell
+     *  @param diff [output]   1-D {\tt Tbl} for the storage of some
+     *			    error indicators : \\
+     *	    {\tt diff(0)} : Relative change in the enthalpy field
+     *			      between two successive steps \\
+     *	    {\tt diff(1)} : Relative error returned by the routine
+     *				{\tt Etoile\_bin::velocity\_potential}  
+     *	    {\tt diff(2)} : Relative error in the resolution of the
+     *			    Poisson equation for {\tt n\_auto} \\  
+     *	    {\tt diff(3)} : Relative error in the resolution of the
+     *			    Poisson equation for {\tt confpsi\_auto} \\  
+     *	    {\tt diff(4)} : Relative error in the resolution of the
+     *			    equation for {\tt shift\_auto} (x comp.) \\  
+     *	    {\tt diff(5)} : Relative error in the resolution of the
+     *			    equation for {\tt shift\_auto} (y comp.) \\  
+     *	    {\tt diff(6)} : Relative error in the resolution of the
+     *			    equation for {\tt shift\_auto} (z comp.)   
+     */
+    virtual void ns_equilibrium(double ent_c, int mermax,
+				int mermax_poisson, double relax_poisson,
+				int mermax_potvit, double relax_potvit,
+				double thres_adapt,
+				const Tbl& fact, Tbl& diff) ;
+
+    friend class Bin_ns_bh ;
+
+};
+
+#endif
