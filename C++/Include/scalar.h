@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.58  2004/06/22 08:49:57  p_grandclement
+ * Addition of everything needed for using the logarithmic mapping
+ *
  * Revision 1.57  2004/06/14 15:24:23  e_gourgoulhon
  * Added method primr (radial primitive).
  *
@@ -318,7 +321,10 @@ class Scalar : public Tensor {
   /** Pointer on the Laplacian of \c *this  (0x0 if not up to date)
    */
   mutable Scalar* p_lapang ;	
-  
+   
+  /// Pointer on \f$\partial/\partial radial \f$ of \c *this  
+  mutable Scalar* p_dsdradial ;	
+
   /** Power of \e r  by which the last computed Laplacian has been 
    *  multiplied in the compactified external domain.  
    */
@@ -580,7 +586,7 @@ class Scalar : public Tensor {
    *  \c dzpuis  = 2. It is increased by 1 otherwise.
    */
   const Scalar& dsdr() const ; 
-  
+ 
   /** Returns \f$1/r \partial / \partial \theta\f$ of \c *this .
    *  If \c dzpuis  is zero, then the returned \c Scalar has 
    *  \c dzpuis  = 2. It is increased by 1 otherwise.
@@ -596,6 +602,12 @@ class Scalar : public Tensor {
   /** Returns \f$\partial / \partial \theta\f$ of \c *this .
    */
   const Scalar& dsdt() const ; 
+  
+  /** Returns \f$\partial / \partial radial\f$ of \c *this .
+   *  If \c dzpuis  is zero, then the returned \c Scalar has 
+   *  \c dzpuis  = 2. It is increased by 1 otherwise.
+   */
+  const Scalar& dsdradial() const ; 
   
   /** Returns \f$1/\sin\theta \partial / \partial \phi\f$ of \c *this .
    */
@@ -1189,12 +1201,21 @@ class Scalar : public Tensor {
   Scalar sol_elliptic(const Param_elliptic& params) const ;
 
    /**
-   * Resolution of a general elliptic equation, putting zero at the outermost 
+   * Resolution of a general elliptic equation, putting a given value 
+   * at the outermost 
    * shell and not solving in the compactified domain.
    * @param params [input] the operators and variables to be used.
    * @param val [input] value at the last shell.
    **/
   Scalar sol_elliptic_no_zec(const Param_elliptic& params, double val = 0) const ;
+  
+  /**
+   * Resolution of a general elliptic equation solving in the 
+   * compactified domain and putting a given value at the inner boundary.
+   * @param params [input] the operators and variables to be used.
+   * @param val [input] value at the inner boundary of the external domain.
+   **/
+  Scalar sol_elliptic_only_zec(const Param_elliptic& params, double val) const ;
 
   /**
    * General elliptic solver.

@@ -23,6 +23,9 @@ char sol_elliptic_no_zec_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/06/22 08:49:58  p_grandclement
+ * Addition of everything needed for using the logarithmic mapping
+ *
  * Revision 1.3  2004/03/17 15:58:49  p_grandclement
  * Slight modification of sol_elliptic_no_zec
  *
@@ -151,7 +154,7 @@ Mtbl_cf elliptic_solver_no_zec  (const Param_elliptic& ope_var, const Mtbl_cf& s
 	//  Noyau :
 	//---------
 	conte = start ;
-	double rlim = ope_var.operateurs[conte]->get_alpha() ;
+	double rlim = ope_var.get_mp().val_r_jk (0,1,j,k) ;
 	systeme.set(0,0) = ope_var.variables[conte]->val_G(rlim) * 
 	  ope_var.operateurs[conte]->val_sh_one_plus() ;
 	systeme.set(1,0) = 
@@ -176,7 +179,7 @@ Mtbl_cf elliptic_solver_no_zec  (const Param_elliptic& ope_var, const Mtbl_cf& s
 	  int nt_prec = source.get_mg()->get_nt(l-1) ;
 	  conte += (np_prec+1)*nt_prec ;
 	  
-	  rlim = ope_var.operateurs[conte]->get_beta()-ope_var.operateurs[conte]->get_alpha() ;
+	  rlim = ope_var.get_mp().val_r_jk (l, -1, j,k)  ;
 
 	  systeme.set(2*l-2, 2*l-1) = -ope_var.variables[conte]->val_G(rlim) * 
 	    ope_var.operateurs[conte]->val_sh_one_minus() ;
@@ -197,7 +200,7 @@ Mtbl_cf elliptic_solver_no_zec  (const Param_elliptic& ope_var, const Mtbl_cf& s
 	  
 	  // Valeurs en +1 :
 	  
-	  rlim = ope_var.operateurs[conte]->get_beta()+ope_var.operateurs[conte]->get_alpha() ;
+	  rlim = ope_var.get_mp().val_r_jk (l, 1, j,k) ;
 	  
 	  systeme.set(2*l, 2*l-1) = ope_var.variables[conte]->val_G(rlim) * 
 	    ope_var.operateurs[conte]->val_sh_one_plus() ;

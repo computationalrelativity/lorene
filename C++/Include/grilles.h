@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/06/22 08:49:56  p_grandclement
+ * Addition of everything needed for using the logarithmic mapping
+ *
  * Revision 1.9  2004/03/22 13:12:41  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -122,6 +125,7 @@
 #include "headcpp.h"
 
 #include "indent.h"
+#include "type_parite.h"
 
 class Base_val ; 
 

@@ -35,6 +35,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.27  2004/06/22 08:50:00  p_grandclement
+ * Addition of everything needed for using the logarithmic mapping
+ *
  * Revision 1.26  2004/06/11 14:29:58  j_novak
  * Scalar::multipole_spectrum() is now a const method.
  *
@@ -132,11 +135,14 @@ char scalar_C[] = "$Header$" ;
 #include <math.h>
 
 // headers Lorene
+#include "map.h"
+#include "scalar.h"
 #include "tensor.h"
 #include "type_parite.h"
 #include "utilitaires.h"
 #include "proto.h"
 #include "cmp.h"
+
 
 			//---------------//
 			// Constructors  //
@@ -237,7 +243,8 @@ void Scalar::del_deriv() const{
     if (p_dsdz != 0x0) delete p_dsdz ;
     if (p_lap != 0x0) delete p_lap ; 
     if (p_lapang != 0x0) delete p_lapang ; 
-    if (p_integ != 0x0) delete p_integ ; 
+    if (p_integ != 0x0) delete p_integ ;
+    if (p_dsdradial != 0x0) delete p_dsdradial ;
     set_der_0x0() ;
 
     Tensor::del_deriv() ;
@@ -256,6 +263,7 @@ void Scalar::set_der_0x0() const {
     p_lapang = 0x0 ; 
     ind_lap = - 1 ; 
     p_integ = 0x0 ; 
+    p_dsdradial = 0x0 ;
 }
 
 // ETATZERO
@@ -357,6 +365,7 @@ void Scalar::annule(int l_min, int l_max) {
 		if (p_lap != 0x0) p_lap->annule(l_min, l_max) ;
 		if (p_lapang != 0x0) p_lapang->annule(l_min, l_max) ;
 		if (p_integ != 0x0) delete p_integ ;
+		if (p_dsdradial != 0x0) p_dsdradial->annule(l_min, l_max) ;
     }
     
 }

@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2004/06/22 08:49:57  p_grandclement
+ * Addition of everything needed for using the logarithmic mapping
+ *
  * Revision 1.19  2004/03/17 15:58:47  p_grandclement
  * Slight modification of sol_elliptic_no_zec
  *
@@ -600,7 +603,8 @@ Mtbl_cf elliptic_solver  (const Param_elliptic&, const Mtbl_cf&) ;
 
 Mtbl_cf elliptic_solver_no_zec  (const Param_elliptic&, const Mtbl_cf&, 
 				 double val) ;
-
+Mtbl_cf elliptic_solver_only_zec  (const Param_elliptic&, const Mtbl_cf&, 
+				 double val) ;
 Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic&, const Mtbl_cf&, 
 				 double, int, double&, double&) ;
 Mtbl_cf elliptic_solver_fixe_der_zero  (double, 

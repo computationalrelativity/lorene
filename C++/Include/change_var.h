@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/06/22 08:49:56  p_grandclement
+ * Addition of everything needed for using the logarithmic mapping
+ *
  * Revision 1.4  2004/05/14 08:51:00  p_grandclement
  * *** empty log message ***
  *
@@ -78,11 +81,11 @@ double plus_sur(double) ;
  * the change is defined as 
  * follows : \ingroup (ellip)
  * 
- * $W = F\left(r\right) + G \left(r\right) w$
+ * \f$W = F\left(r\right) + G \left(r\right) w\f$
  *
- * where $W$ is the usual variable, i.e. the one that is $\mathcal{C}^1$ 
- * and $w$ is the variable used for solving the elliptic equation.
- * The functions $F$ and $G$ are arbitrary functions of $r$.
+ * where \f$W\f$ is the usual variable, i.e. the one that is \f$\mathcal{C}^1\f$ 
+ * and \f$w\f$ is the variable used for solving the elliptic equation.
+ * The functions \f$F\f$ and \f$G\f$ are arbitrary functions of \f$r\f$.
  * The type of change must be explicitely implemented in the constructor for 
  * {\tt Change_var}.
  * 
@@ -91,10 +94,10 @@ double plus_sur(double) ;
 class Change_var {
 
  protected:
-  double (* func_F) (double) ; /// Pointer on the function $F$.
-  double (* der_F) (double) ; /// Pointer on the derivative of $F$.
-  double (* func_G) (double) ; /// Pointer on the function $G$.
-  double (* der_G) (double) ; /// Pointer on the derivative of $G$.
+  double (* func_F) (double) ; /// Pointer on the function \f$F\f$.
+  double (* der_F) (double) ; /// Pointer on the derivative of \f$F\f$.
+  double (* func_G) (double) ; /// Pointer on the function \f$G\f$.
+  double (* der_G) (double) ; /// Pointer on the derivative of \f$G\f$.
 
   double mult_F ; /// Multiplicative factor for F ## PROVISORY
   double add_F ; /// Additive factor for F ## PROVISORY
@@ -106,12 +109,12 @@ class Change_var {
    * {\tt var} defines explicitely the type of variable to be used.
    * Are currently implemented :
    * \begin{itemize}
-   * \item {\tt var} $= {\rm STD} \Longrightarrow F=0 \, \& \, G=1$.
-   * \item {\tt var} $= {\rm W\_BETA} \Longrightarrow F=1 \, \& \, G = r$.
-   * \item {\tt var} $= {\rm W\_BETA\_INF} \Longrightarrow F = 1+ \frac{1}{3}r^2\ln r \, \& \, G = r$.
-   * \item {\tt var} $= {\rm H\_BETA} \Longrightarrow F=1 \, \&\, G=1$.
-   * \item {\tt var} $= {\rm LAMBDA_RN} \Longrightarrow F=-\ln r \, \& \, G=1$.
-   * \item {\tt var} $= {\rm NU_RN} \Longrightarrow F=\ln r \, \& \, G=1$.
+   * \item {\tt var} \f$= {\rm STD} \Longrightarrow F=0 \, \& \, G=1\f$.
+   * \item {\tt var} \f$= {\rm W\_BETA} \Longrightarrow F=1 \, \& \, G = r\f$.
+   * \item {\tt var} \f$= {\rm W\_BETA\_INF} \Longrightarrow F = 1+ \frac{1}{3}r^2\ln r \, \& \, G = r\f$.
+   * \item {\tt var} \f$= {\rm H\_BETA} \Longrightarrow F=1 \, \&\, G=1\f$.
+   * \item {\tt var} \f$= {\rm LAMBDA_RN} \Longrightarrow F=-\ln r \, \& \, G=1\f$.
+   * \item {\tt var} \f$= {\rm NU_RN} \Longrightarrow F=\ln r \, \& \, G=1\f$.
    * \end{itemize} 
    **/
   
@@ -136,10 +139,10 @@ class Change_var {
   ~Change_var() ; /// Standard destructor.
 
  public:
-  double val_F (double x) ; /// Returns the value of $F$ at {\tt x}.
-  double val_der_F (double x) ; /// Returns the value of $F'$ at {\tt x}.
-  double val_G (double x) ; /// Returns the value of $G$ at {\tt x}.
-  double val_der_G (double x) ; /// Returns the value of $G'$ at {\tt x}.
+  double val_F (double x) ; /// Returns the value of \f$F\f$ at {\tt x}.
+  double val_der_F (double x) ; /// Returns the value of \f$F'\f$ at {\tt x}.
+  double val_G (double x) ; /// Returns the value of \f$G\f$ at {\tt x}.
+  double val_der_G (double x) ; /// Returns the value of \f$G'\f$ at {\tt x}.
 } ;
 
 #endif

@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/06/22 08:49:57  p_grandclement
+ * Addition of everything needed for using the logarithmic mapping
+ *
  * Revision 1.6  2004/06/14 15:07:10  j_novak
  * New methods for the construction of the elliptic operator appearing in
  * the vector Poisson equation (acting on eta).
@@ -503,6 +506,69 @@ class Ope_sec_order_r2 : public Ope_elementary {
   virtual Tbl get_solh() const ;
   /**
    * Increases the quatum number \e l  by one unit (CURRENTLY NOT IMPLEMENTED)
+   **/
+  virtual void inc_l_quant() ;
+} ;
+
+/**
+ * Class for operator of the type 
+ * \f$ a \partial^2 / \partial r^2 + b \partial / \partial r + c\f$.
+ * 
+ * It is implemented only in the shells.
+ **/
+class Ope_sec_order : public Ope_elementary {
+
+ protected:
+
+  double a_param ; ///< The parameter \f$a\f$.
+  double b_param ; ///< The parameter \f$b\f$.
+  double c_param ; ///< The parameter \f$c\f$.
+
+ public:
+  /**
+   * Standard constructor.
+   * 
+   * @param nbr [input] number of radial points.
+   * @param baser [input] radial basis of decomposition.
+   * @param alf [input] parameter \f$\alpha\f$ of the mapping.
+   * @param bet [input] parameter \f$\beta\f$ of the mapping.
+   * @param a [input] parameter \f$a\f$ .
+   * @param b [input] parameter \f$b\f$ .    
+   * @param c [input] parameter \f$c\f$ .
+   **/
+
+  Ope_sec_order (int nbr, int baser, double alf, double bet, 
+		      double a, double b, double c) ;
+
+  Ope_sec_order (const Ope_sec_order&) ; ///< Constructor by copy
+  virtual ~Ope_sec_order() ; ///< Destructor
+  
+ private:
+  /**
+   * Computes the matrix of the operator.
+   **/
+  virtual void do_ope_mat() const ;
+  /**
+   * Computes the banded-matrix of the operator.
+   **/
+  virtual void do_ope_cl() const ;
+  /**
+   * Computes the non-degenerated matrix of the operator.
+   **/
+  virtual void do_non_dege() const ;  
+  
+ public:
+
+  /**
+   * Computes the particular solution, given the source \c so .
+   **/
+  virtual Tbl get_solp(const Tbl& so) const ;
+  /**
+   * Computes the homogeneous solutions(s).
+   **/
+  virtual Tbl get_solh() const ;
+  /**
+   * Increases the quatum number \f$l\f$ by one unit (CURRENTLY NOT IMPLEMENTED)
    **/
   virtual void inc_l_quant() ;
 } ;

@@ -3,6 +3,7 @@
  *				 Map_radial
  *				 Map_af
  *				 Map_et
+ *                               Map_log
  *
  */
 
@@ -38,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.29  2004/06/22 08:49:57  p_grandclement
+ * Addition of everything needed for using the logarithmic mapping
+ *
  * Revision 1.28  2004/06/14 15:23:53  e_gourgoulhon
  * Added virtual function primr for computation of radial primitives.
  *
@@ -506,6 +510,8 @@
 #include "coord.h"
 #include "base_vect.h"
 #include "valeur.h"
+#include "tbl.h"
+#include "itbl.h"
 
 class Scalar ;
 class Cmp ;
@@ -515,6 +521,8 @@ class Map_et ;
 class Tenseur ;
 class Param_elliptic ;
 class Metric_flat ; 
+class Tbl ;
+class Itbl ;
 
 			//------------------------------------//
 			//            class Map               //
@@ -849,7 +857,17 @@ class Map {
 	 *  @param uu [input] field to consider
 	 *  @param resu [output] derivative of \c uu 
 	 */
-	virtual void dsdr(const Scalar& uu, Scalar& resu) const = 0 ;  	    
+	virtual void dsdr(const Scalar& uu, Scalar& resu) const = 0 ;
+	
+	/** Computes \f$\partial/ \partial r\f$ of a \c Scalar if the description is affine and 
+	 * \f$\partial/ \partial \ln r\f$ if it is logarithmic.
+	 *  Note that in the  compactified external domain (CED), the \c dzpuis 
+	 *  flag of the output is 2 if the input has \c dzpuis  = 0, and 
+	 *  is increased by 1 in other cases.
+	 *  @param uu [input] field to consider
+	 *  @param resu [output] derivative of \c uu 
+	 */
+	virtual void dsdradial(const Scalar& uu, Scalar& resu) const = 0 ;  
 
 	/** Computes \f$1/r \partial/ \partial \theta\f$ of a \c Scalar .
 	 *  Note that in the  compactified external domain (CED), the \c dzpuis 
@@ -1663,7 +1681,6 @@ class Map_radial : public Map {
 	virtual void poisson_compact(const Cmp& source, const Cmp& aa, 
 				     const Tenseur& bb, const Param& par, 
 				     Cmp& psi) const ;
-
 };
 
 
@@ -1895,7 +1912,16 @@ class Map_af : public Map_radial {
 	 *  @param uu [input] field to consider
 	 *  @param resu [output] derivative of \c uu 
 	 */
-	virtual void dsdr(const Scalar& uu, Scalar& resu) const  ;  	    
+	virtual void dsdr(const Scalar& uu, Scalar& resu) const  ;  
+	    
+	/** Computes \f$\partial/ \partial r\f$ of a \c Scalar.
+	 *  Note that in the  compactified external domain (CED), the \c dzpuis 
+	 *  flag of the output is 2 if the input has \c dzpuis  = 0, and 
+	 *  is increased by 1 in other cases.
+	 *  @param uu [input] field to consider
+	 *  @param resu [output] derivative of \c uu 
+	 */
+	virtual void dsdradial(const Scalar&, Scalar&) const  ;  	    
 
 	/** Computes \f$1/r \partial/ \partial \theta\f$ of a \c Scalar.
 	 *  Note that in the  compactified external domain (CED), the \c dzpuis 
@@ -2099,7 +2125,7 @@ class Map_af : public Map_radial {
 			   const Scalar& so,  Scalar& uu) const ;
 
 	/**
-	 * General elliptic solver. The field is zero at the outermost shell.
+	 * General elliptic solver.
 	 * The equation is not solved in the compactified domain.
 	 *
 	 * @param params [input] : the operators and variables to be uses.
@@ -2108,6 +2134,18 @@ class Map_af : public Map_radial {
 	 * @param val [input] : value at the last shell.
 	 **/
 	void sol_elliptic_no_zec (const Param_elliptic& params, 
+				  const Scalar& so, Scalar& uu, double val) const ;
+
+	/**
+	 * General elliptic solver.
+	 * The equation is solved only in the compactified domain.
+	 *
+	 * @param params [input] : the operators and variables to be uses.
+	 * @param so [input] : the source.
+	 * @param uu [output] : the solution.
+	 * @param val [input] : value at the inner boundary.
+	 **/
+	void sol_elliptic_only_zec (const Param_elliptic& params, 
 				  const Scalar& so, Scalar& uu, double val) const ;
 
 	/**
@@ -2663,8 +2701,18 @@ class Map_et : public Map_radial {
 	 *  @param uu [input] field to consider
 	 *  @param resu [output] derivative of \c uu 
 	 */
-	virtual void dsdr(const Scalar& uu, Scalar& resu) const ;  	    
-
+	virtual void dsdr(const Scalar& uu, Scalar& resu) const ;
+	
+	/** Computes \f$\partial/ \partial r\f$ of a \c Scalar if the description is affine and 
+	 * \f$\partial/ \partial \ln r\f$ if it is logarithmic.
+	 *  Note that in the  compactified external domain (CED), the \c dzpuis 
+	 *  flag of the output is 2 if the input has \c dzpuis  = 0, and 
+	 *  is increased by 1 in other cases.
+	 *  @param uu [input] field to consider
+	 *  @param resu [output] derivative of \c uu 
+	 */
+	virtual void dsdradial(const Scalar& uu, Scalar& resu) const ;  	    
+	
 	/** Computes \f$1/r \partial/ \partial \theta\f$ of a \c Scalar.
 	 *  Note that in the  compactified external domain (CED), the \c dzpuis 
 	 *  flag of the output is 2 if the input has \c dzpuis  = 0, and 
@@ -3004,6 +3052,279 @@ class Map_et : public Map_radial {
      Mtbl* map_et_fait_rsxdxdr(const Map* ) ;
      Mtbl* map_et_fait_rsx2drdx(const Map* ) ;
 
+			//------------------------------------//
+			//            class Map_log            //
+			//------------------------------------//
 
+#define AFFINE 0
+#define LOG 1
+
+/**
+ * Logarithmic radial mapping. \ingroup (map)
+ * 
+ * This mapping is a variation of the affine one.
+ *
+ * In each domain the description can be either affine (cf. Map_af documentation) or 
+ * logarithmic. In that case (implemented only in the shells) we have
+ *
+ *  \li \f$\ln r=\alpha \xi + \beta\f$,
+ * where \f$\alpha\f$ and \f$\beta\f$ are constant in each domain. 
+ * 
+ * 
+ */
+
+class Map_log : public Map_radial {
+
+    // Data :
+    // ----
+    private:
+	/// Array (size: \c mg->nzone ) of the values of \f$\alpha\f$ in each domain
+	Tbl alpha ;	 
+	/// Array (size: \c mg->nzone ) of the values of \f$\beta\f$ in each domain
+	Tbl beta ;
+	/** Array (size: \c mg->nzone ) of the type of variable in each domain.	  
+	 * The possibles types are AFFINE and LOG.
+	 **/
+	Itbl type_var ;
+
+ public:
+	/**
+	 * Same as dxdr if the domains where the description is affine and 
+	 * \f$ \partial x / \partial \ln r\f$ where it is logarithmic.
+	 */
+	
+	Coord dxdlnr ;
+
+ private:
+	void set_coord() ;
+
+    // Constructors, destructor : 
+    // ------------------------
+    public:
+	/**
+	 * Standard Constructor
+	 * @param mgrille  [input] Multi-domain grid on which the mapping is defined
+	 * @param r_limits [input] Tbl (size: number of domains + 1) of the
+	 *			   value of \e r  at the boundaries of the various 
+	 *			   domains : 
+	 *			   \li \c r_limits[l] : inner boundary of the 
+	 *				 domain no. \c l 
+	 *			   \li \c r_limits[l+1] : outer boundary of the 
+	 *				 domain no. \c l 
+	 * @param type_var [input] Array (size: number of domains) defining the type f mapping in each domain.
+	 */
+	Map_log (const Mg3d& mgrille, const Tbl& r_limits, const Itbl& typevar) ;	
+	
+	
+	Map_log (const Map_log& ) ;      ///< Copy constructor
+	Map_log (const Mg3d&, FILE* ) ; ///< Constructor from a file (see \c sauve(FILE*)
+
+	virtual ~Map_log() ;	      ///< Destructor
+	
+	/// Returns \f$\alpha\f$ in the domain \c l
+	double get_alpha (int l) const {return alpha(l) ;} ;
+	/// Returns \f$\beta\f$ in the domain \c l
+	double get_beta (int l) const {return beta(l) ;} ;
+	/// Returns the type of description in the domain \c l
+	int get_type (int l) const {return type_var(l) ;} ;
+	
+	/**
+	 * General elliptic solver. The field is zero at infinity.
+	 *
+	 * @param params [input] : the operators and variables to be uses.
+	 * @param so [input] : the source.
+	 * @param uu [output] : the solution.
+	 **/
+	void sol_elliptic (const Param_elliptic& params, 
+			   const Scalar& so,  Scalar& uu) const ;
+
+	/**
+	 * General elliptic solver.
+	 * The equation is not solved in the compactified domain.
+	 *
+	 * @param params [input] : the operators and variables to be uses.
+	 * @param so [input] : the source.
+	 * @param uu [output] : the solution.
+	 * @param val [input] : value at the last shell.
+	 **/
+	void sol_elliptic_no_zec (const Param_elliptic& params, 
+			   const Scalar& so,  Scalar& uu, double) const ;
+
+	
+	virtual void sauve(FILE*) const ; ///< Save in a file
+
+	/// Assignment to an affine mapping. 
+	virtual void operator=(const Map_af& mpa) ;
+
+	
+	virtual std::ostream& operator>> (std::ostream&) const ; ///< Operator >>
+
+	/**
+	 *  Returns the value of the radial coordinate \e r  for a given
+	 *  \f$(\xi, \theta', \phi')\f$ in a given domain. 
+	 *	@param l [input] index of the domain
+	 *	@param xi [input] value of \f$\xi\f$
+	 *	@param theta [input] value of \f$\theta'\f$
+	 *	@param pphi [input] value of \f$\phi'\f$
+	 *	@return value of \f$r=R_l(\xi, \theta', \phi')\f$
+	 */
+	virtual double val_r (int l, double xi, double theta, double pphi) const ;
+
+	/**
+	 * Computes the domain index \e l  and the value of \f$\xi\f$ corresponding
+	 * to a point given by its physical coordinates \f$(r, \theta, \phi)\f$. 
+	 *	@param rr [input] value of \e r 
+	 *	@param theta [input] value of \f$\theta\f$
+	 *	@param pphi [input] value of \f$\phi\f$
+	 *	@param l [output] value of the domain index
+	 *	@param xi [output] value of \f$\xi\f$
+	 */
+	virtual void val_lx (double rr, double theta, double pphi, int& l, double& xi) const ;
+	
+	/** Computes the domain index \e l  and the value of \f$\xi\f$ corresponding
+	 * to a point given by its physical coordinates \f$(r, \theta, \phi)\f$. 
+	 *	@param rr [input] value of \e r 
+	 *	@param theta [input] value of \f$\theta\f$
+	 *	@param pphi [input] value of \f$\phi\f$
+	 *	@param par [] unused by the \c Map_af  version
+	 *	@param l [output] value of the domain index
+	 *	@param xi [output] value of \f$\xi\f$
+	 */
+	virtual void val_lx (double rr, double theta, double pphi, const Param& par, int& l, double& xi) const ;
+
+	
+	virtual bool operator== (const Map&) const ;   /// < Comparison operator
+	
+	/** Returns the value of the radial coordinate \e r  for a given
+	 *  \f$\xi\f$ and a given collocation point in \f$(\theta', \phi')\f$ 
+	 *   in a given domain. 
+	 *	@param l [input] index of the domain
+	 *	@param xi [input] value of \f$\xi\f$
+	 *	@param j [input] index of the collocation point in \f$\theta'\f$
+	 *	@param k [input] index of the collocation point in \f$\phi'\f$
+	 *	@return value of \f$r=R_l(\xi, {\theta'}_j, {\phi'}_k)\f$
+	 */
+	virtual double val_r_jk (int l, double xi, int j, int k) const ;
+	
+	/** Computes the domain index \e l  and the value of \f$\xi\f$ corresponding
+	 * to a point of arbitrary \e r  but collocation values of \f$(\theta, \phi)\f$ 
+	 *	@param rr [input] value of \e r 
+	 *	@param j [input] index of the collocation point in \f$\theta\f$
+	 *	@param k [input] index of the collocation point in \f$\phi\f$
+	 *	@param par [] unused by the \c Map_af  version
+	 *	@param l [output] value of the domain index
+	 *	@param xi [output] value of \f$\xi\f$
+	 */
+	virtual void val_lx_jk (double rr, int j, int k, const Param& par, int& l, double& xi) const ;
+	
+	/** Computes \f$\partial/ \partial r\f$ of a \c Scalar.
+	 *  Note that in the  compactified external domain (CED), it computes
+	 *  \f$-\partial/ \partial u = r^2 \partial/ \partial r\f$.
+	 *  @param ci [input] field to consider
+	 *  @param resu [output] derivative of \c ci 
+	 */
+	virtual void dsdr (const Scalar& ci, Scalar& resu) const ;
+	
+	/** Computes \f$\partial/ \partial r\f$ of a \c Scalar if the description is affine and 
+	 * \f$\partial/ \partial \ln r\f$ if it is logarithmic.
+	 *  Note that in the  compactified external domain (CED), the \c dzpuis 
+	 *  flag of the output is 2 if the input has \c dzpuis  = 0, and 
+	 *  is increased by 1 in other cases.
+	 *  @param uu [input] field to consider
+	 *  @param resu [output] derivative of \c uu 
+	 */
+	virtual void dsdradial (const Scalar& uu, Scalar& resu) const ;
+
+	virtual void homothetie (double) ; /// < Not implemented
+	virtual void resize (int, double) ;/// < Not implemented
+	virtual void adapt (const Cmp&, const Param&) ;/// < Not implemented
+	virtual void dsdr (const Cmp&, Cmp&) const ;/// < Not implemented
+	virtual void srdsdt (const Cmp&, Cmp&) const ;/// < Not implemented
+	virtual void srstdsdp (const Cmp&, Cmp&) const ;/// < Not implemented
+	virtual void srdsdt (const Scalar&, Scalar&) const ;/// < Not implemented
+	virtual void srstdsdp (const Scalar&, Scalar&) const ;/// < Not implemented
+	virtual void dsdt (const Scalar&, Scalar&) const ;/// < Not implemented
+	virtual void stdsdp (const Scalar&, Scalar&) const ;/// < Not implemented
+	virtual void laplacien (const Cmp&, int, Cmp&) const ;/// < Not implemented
+	virtual void lapang (const Scalar&, Scalar&) const ;/// < Not implemented
+	virtual Tbl* integrale (const Cmp&) const ;/// < Not implemented
+	virtual void poisson (const Cmp&, Param&, Cmp&) const ;/// < Not implemented
+	virtual void poisson_regular (const Cmp&, int, int, double, Param&, Cmp&, Cmp&, Cmp&, 
+				      Tenseur&, Cmp&, Cmp&) const ;/// < Not implemented
+	virtual void poisson_angu (const Scalar&, Param&, Scalar&) const ;/// < Not implemented
+	virtual Param* donne_para_poisson_vect (Param&, int) const ;/// < Not implemented
+	virtual void poisson_frontiere (const Cmp&, const Valeur&, int, int, Cmp&) const ;/// < Not implemented
+	virtual void poisson_frontiere_double (const Cmp&, const Valeur&, const Valeur&, int, Cmp&) const ;/// < Not implemented
+	virtual void poisson_interne (const Cmp&, const Valeur&, Param&, Cmp&) const ;/// < Not implemented
+	virtual void poisson2d (const Cmp&, const Cmp&, Param&, Cmp&) const ;/// < Not implemented
+	virtual void dalembert (Param&, Scalar&, const Scalar&, const Scalar&, const Scalar&) const ;/// < Not implemented
+
+
+	// Building functions for the Coord's
+	// ----------------------------------
+	friend Mtbl* map_log_fait_r(const Map* ) ;
+	friend Mtbl* map_log_fait_tet(const Map* ) ;
+	friend Mtbl* map_log_fait_phi(const Map* ) ;
+	friend Mtbl* map_log_fait_sint(const Map* ) ;
+	friend Mtbl* map_log_fait_cost(const Map* ) ;
+	friend Mtbl* map_log_fait_sinp(const Map* ) ;
+	friend Mtbl* map_log_fait_cosp(const Map* ) ;
+	
+	friend Mtbl* map_log_fait_x(const Map* ) ;
+	friend Mtbl* map_log_fait_y(const Map* ) ;
+	friend Mtbl* map_log_fait_z(const Map* ) ;
+	
+	friend Mtbl* map_log_fait_xa(const Map* ) ;
+	friend Mtbl* map_log_fait_ya(const Map* ) ;
+	friend Mtbl* map_log_fait_za(const Map* ) ;
+	
+	friend Mtbl* map_log_fait_xsr(const Map* ) ;
+	friend Mtbl* map_log_fait_dxdr(const Map* ) ;
+	friend Mtbl* map_log_fait_drdt(const Map* ) ;
+	friend Mtbl* map_log_fait_stdrdp(const Map* ) ;
+	friend Mtbl* map_log_fait_srdrdt(const Map* ) ;
+	friend Mtbl* map_log_fait_srstdrdp(const Map* ) ;
+	friend Mtbl* map_log_fait_sr2drdt(const Map* ) ;
+	friend Mtbl* map_log_fait_sr2stdrdp(const Map* ) ;
+	friend Mtbl* map_log_fait_d2rdx2(const Map* ) ;
+	friend Mtbl* map_log_fait_lapr_tp(const Map* ) ;
+	friend Mtbl* map_log_fait_d2rdtdx(const Map* ) ;
+	friend Mtbl* map_log_fait_sstd2rdpdx(const Map* ) ;
+	friend Mtbl* map_log_fait_sr2d2rdt2(const Map* ) ;
+	friend Mtbl* map_log_fait_dxdlnr(const Map* ) ;
+	
+};
+
+Mtbl* map_log_fait_r(const Map* ) ;
+Mtbl* map_log_fait_tet(const Map* ) ;
+Mtbl* map_log_fait_phi(const Map* ) ;
+Mtbl* map_log_fait_sint(const Map* ) ;
+Mtbl* map_log_fait_cost(const Map* ) ;
+Mtbl* map_log_fait_sinp(const Map* ) ;
+Mtbl* map_log_fait_cosp(const Map* ) ;
+
+Mtbl* map_log_fait_x(const Map* ) ;
+Mtbl* map_log_fait_y(const Map* ) ;
+Mtbl* map_log_fait_z(const Map* ) ;
+
+Mtbl* map_log_fait_xa(const Map* ) ;
+Mtbl* map_log_fait_ya(const Map* ) ;
+Mtbl* map_log_fait_za(const Map* ) ;
+
+Mtbl* map_log_fait_xsr(const Map* ) ;
+Mtbl* map_log_fait_dxdr(const Map* ) ;
+Mtbl* map_log_fait_drdt(const Map* ) ;
+Mtbl* map_log_fait_stdrdp(const Map* ) ;
+Mtbl* map_log_fait_srdrdt(const Map* ) ;
+Mtbl* map_log_fait_srstdrdp(const Map* ) ;
+Mtbl* map_log_fait_sr2drdt(const Map* ) ;
+Mtbl* map_log_fait_sr2stdrdp(const Map* ) ;
+Mtbl* map_log_fait_d2rdx2(const Map* ) ;
+Mtbl* map_log_fait_lapr_tp(const Map* ) ;
+Mtbl* map_log_fait_d2rdtdx(const Map* ) ;
+Mtbl* map_log_fait_sstd2rdpdx(const Map* ) ;
+Mtbl* map_log_fait_sr2d2rdt2(const Map* ) ;
+
+Mtbl* map_log_fait_dxdlnr (const Map*) ;
 
 #endif

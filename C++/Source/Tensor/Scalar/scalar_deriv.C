@@ -34,6 +34,9 @@ char scalar_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/06/22 08:50:00  p_grandclement
+ * Addition of everything needed for using the logarithmic mapping
+ *
  * Revision 1.12  2004/02/26 22:51:34  e_gourgoulhon
  * Added methods derive_cov, derive_con and derive_lie.
  *
@@ -81,6 +84,8 @@ char scalar_deriv_C[] = "$Header$" ;
  */
  
 // Headers Lorene
+#include "map.h"
+#include "scalar.h"
 #include "tensor.h"
 #include "cmp.h"
 
@@ -467,3 +472,31 @@ const Scalar& Scalar::lapang() const {
    
     
     
+			//---------------------//
+			//         d/dradial   //
+			//---------------------//
+
+const Scalar& Scalar::dsdradial() const {
+
+    // Protection
+    assert(etat != ETATNONDEF) ;
+
+    // If the derivative has not been previously computed, the 
+    //  computation must be done by the appropriate routine of the mapping : 
+
+    if (p_dsdradial == 0x0) {
+      p_dsdradial = new Scalar(*mp) ;
+      if (etat == ETATUN) {
+	p_dsdradial->set_etat_zero() ;
+      }
+      else {
+	mp->dsdradial(*this, *p_dsdradial) ;
+      }
+    }
+
+    int dzp = (dzpuis == 0) ? 2 : dzpuis+1 ;
+    p_dsdradial->set_dzpuis(dzp) ;
+
+    return *p_dsdradial ;
+
+}

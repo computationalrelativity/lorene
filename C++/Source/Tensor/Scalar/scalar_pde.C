@@ -35,6 +35,9 @@ char scalar_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/06/22 08:50:00  p_grandclement
+ * Addition of everything needed for using the logarithmic mapping
+ *
  * Revision 1.10  2004/05/25 14:30:48  f_limousin
  * Minor modif.
  *
@@ -159,18 +162,22 @@ Scalar Scalar::avance_dalembert(Param& par, const Scalar& fjm1,
 
 Scalar Scalar::sol_elliptic(const Param_elliptic& ope_var) const {
 
-  // Right now, only applicable with affine mapping
+  // Right now, only applicable with affine mapping or log one
   const Map_af* map_affine = dynamic_cast <const Map_af*> (mp) ;
-  
-  if (map_affine == 0x0) {
-    cout << "sol_elliptic only defined for affine mapping" << endl ;
+  const Map_log* map_log = dynamic_cast <const Map_log*> (mp) ;
+
+  if ((map_affine == 0x0) && (map_log == 0x0))  {
+    cout << "sol_elliptic only defined for affine or log mapping" << endl ;
     abort() ;
   }
   
   Scalar res (*mp) ;
   res.set_etat_qcq() ;
   
-  map_affine->sol_elliptic (ope_var, *this, res) ;
+  if (map_affine != 0x0)
+    map_affine->sol_elliptic (ope_var, *this, res) ;
+  else
+    map_log->sol_elliptic (ope_var, *this, res) ;
 
   return (res) ;
 }
@@ -185,17 +192,43 @@ Scalar Scalar::sol_elliptic_no_zec(const Param_elliptic& ope_var, double val) co
 
   // Right now, only applicable with affine mapping
   const Map_af* map_affine = dynamic_cast <const Map_af*> (mp) ;
-  
-  if (map_affine == 0x0) {
-    cout << "sol_elliptic_no_zec only defined for affine mapping" << endl ;
+  const Map_log* map_log = dynamic_cast <const Map_log*> (mp) ;
+
+  if ((map_affine == 0x0) && (map_log == 0x0)) {
+    cout << "sol_elliptic_no_zec only defined for affine or log mapping" << endl ;
     abort() ;
   }
   
   Scalar res (*mp) ;
   res.set_etat_qcq() ;
   
-  map_affine->sol_elliptic_no_zec (ope_var, *this, res, val) ;
+  if (map_affine != 0x0)
+    map_affine->sol_elliptic_no_zec (ope_var, *this, res, val) ;
+  else 
+    map_log->sol_elliptic_no_zec (ope_var, *this, res, val) ;
 
+  return (res) ;
+}		
+ 
+                    //-----------------------------------//  
+                    //      General elliptic equation	 //
+                    //             with no ZEC           //
+		    //-----------------------------------//
+
+Scalar Scalar::sol_elliptic_only_zec(const Param_elliptic& ope_var, double val) const {
+
+  // Right now, only applicable with affine mapping
+  const Map_af* map_affine = dynamic_cast <const Map_af*> (mp) ;
+
+  if (map_affine == 0x0) {
+    cout << "sol_elliptic_no_zec only defined for affine or log mapping" << endl ;
+    abort() ;
+  }
+  
+  Scalar res (*mp) ;
+  res.set_etat_qcq() ;
+  
+  map_affine->sol_elliptic_only_zec (ope_var, *this, res, val) ;
   return (res) ;
 }
     		    //-----------------------------------//

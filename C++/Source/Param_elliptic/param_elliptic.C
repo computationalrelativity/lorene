@@ -23,6 +23,9 @@ char param_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/06/22 08:49:59  p_grandclement
+ * Addition of everything needed for using the logarithmic mapping
+ *
  * Revision 1.11  2004/06/14 15:07:12  j_novak
  * New methods for the construction of the elliptic operator appearing in
  * the vector Poisson equation (acting on eta).
@@ -69,11 +72,77 @@ char param_elliptic_C[] = "$Header$" ;
 #include <math.h>
 #include <stdlib.h>
 
+#include "map.h"
 #include "ope_elementary.h"
 #include "param_elliptic.h"
 #include "change_var.h"
 #include "base_val.h" 
 #include "scalar.h"
+
+
+const Map_radial& Param_elliptic::get_mp() const {
+
+  switch (type_map) {
+  case MAP_AFF:
+    return *mp_af ;
+    break ;
+  case MAP_LOG:
+    return *mp_log ;
+    break ;
+  default:
+    cout << "Unknown mapping in Param_elliptic" << endl ;
+    abort() ;
+    return *mp_af ;
+  }
+}
+
+double Param_elliptic::get_alpha(int l) const {
+  
+ switch (type_map) {
+  case MAP_AFF:
+    return mp_af->get_alpha()[l] ;
+    break ;
+  case MAP_LOG:
+    return mp_log->get_alpha(l) ;
+    break ;
+  default:
+    cout << "Unknown mapping in Param_elliptic" << endl ;
+    abort() ;
+    return 1 ;
+  }
+}
+
+double Param_elliptic::get_beta(int l) const {
+  
+ switch (type_map) {
+  case MAP_AFF:
+    return mp_af->get_beta()[l] ;
+    break ;
+  case MAP_LOG:
+    return mp_log->get_beta(l) ;
+    break ;
+  default:
+    cout << "Unknown mapping in Param_elliptic" << endl ;
+    abort() ;
+    return 1 ;
+  }
+}
+
+int Param_elliptic::get_type(int l) const {
+  
+ switch (type_map) {
+  case MAP_AFF:
+    return AFFINE ;
+    break ;
+  case MAP_LOG:
+    return mp_log->get_type(l) ;
+    break ;
+  default:
+    cout << "Unknown mapping in Param_elliptic" << endl ;
+    abort() ;
+    return 1 ;
+  }
+}
 
 // Construction (By default it is set to Poisson with appropriate dzpuis...)
 Param_elliptic::Param_elliptic(const Scalar& so) {
@@ -88,19 +157,30 @@ Param_elliptic::Param_elliptic(const Scalar& so) {
   
   // Right now, only applicable with affine mapping
   const Map_af* map_affine = dynamic_cast <const Map_af*> (&so.get_mp()) ;
-  mp = map_affine ;
+  const Map_log* map_log = dynamic_cast <const Map_log*> (&so.get_mp()) ;
 
-  if (map_affine == 0x0) {
-    cout << "Param_elliptic only defined for affine mapping" << endl ;
+  
+  if ((map_affine == 0x0) && (map_log == 0x0)) {
+    cout << "Param_elliptic not yet defined on this type of mapping" << endl ;
     abort() ;
   }
-  else {
-  
-    int nz = mp->get_mg()->get_nzone() ;
+  else  {
+    
+    if (map_affine != 0x0) {
+      type_map = MAP_AFF ;
+      mp_af = map_affine ;
+      mp_log = 0x0 ;
+    }
+    if (map_log != 0x0) {
+      type_map = MAP_LOG ;
+      mp_af = 0x0 ;
+      mp_log = map_log ;
+    }
+    int nz = get_mp().get_mg()->get_nzone() ;
     int nbr = 0 ;
     for (int l=0 ; l<nz ; l++)
-      nbr += (mp->get_mg()->get_np(l)+1)*
-	mp->get_mg()->get_nt(l) ;
+      nbr += (get_mp().get_mg()->get_np(l)+1)*
+	get_mp().get_mg()->get_nt(l) ;
     
     operateurs = new Ope_elementary* [nbr] ;
     variables = new Change_var* [nbr] ;
@@ -111,26 +191,42 @@ Param_elliptic::Param_elliptic(const Scalar& so) {
     }
     
     int nr ;
-    double alpha, beta ;
     int base_r, m_quant, l_quant ;
     
     int conte = 0 ;
     for (int l=0 ; l<nz ; l++) {
       
-      nr = mp->get_mg()->get_nr(l) ;
-      
-      alpha = mp->get_alpha()[l] ;
-      beta = mp->get_beta()[l] ;
-      
-      for (int k=0 ; k<mp->get_mg()->get_np(l)+1 ; k++)
-	for (int j=0 ; j<mp->get_mg()->get_nt(l) ; j++) {
-	  if (nullite_plm(j, mp->get_mg()->get_nt(l), k, 
-			  mp->get_mg()->get_np(l), base)) {
+      nr = get_mp().get_mg()->get_nr(l) ;
+
+      for (int k=0 ; k<get_mp().get_mg()->get_np(l)+1 ; k++)
+	for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
+	  if (nullite_plm(j, get_mp().get_mg()->get_nt(l), k, 
+			  get_mp().get_mg()->get_np(l), base)) {
 	    
 	    donne_lm(nz, l, j, k, base, m_quant, l_quant, base_r) ;
-	    operateurs[conte] = new 
-	      Ope_poisson(nr, base_r, alpha, beta, l_quant, dzpuis) ;
-	    variables[conte] = new Change_var(STD) ;
+	    
+	    switch (type_map) {
+	    case MAP_AFF: 
+	      operateurs[conte] = new 
+		Ope_poisson(nr, base_r, get_alpha(l), 
+			    get_beta(l), l_quant, dzpuis) ;
+	      variables[conte] = new Change_var(STD) ;
+	      break ;
+	    case MAP_LOG:
+	      if (mp_log->get_type(l) == AFFINE)
+		operateurs[conte] = new 
+		  Ope_poisson(nr, base_r, get_alpha(l), 
+			      get_beta(l), l_quant, dzpuis) ;
+	      else 
+		operateurs[conte] = new 
+		  Ope_sec_order (nr, base_r, get_alpha(l), get_beta(l), 
+				 1., 2. , l_quant) ;
+	      variables[conte] = new Change_var(STD) ;
+	      break ;
+	    default :
+	      cout << "Unknown mapping in Param_elliptic::Param_elliptic" 
+		   << endl ; 
+	    }
 	  }
 	  conte ++ ;
 	}
@@ -141,8 +237,8 @@ Param_elliptic::Param_elliptic(const Scalar& so) {
 Param_elliptic::~Param_elliptic () {
   
   int nbr = 0 ;
-  for (int l=0 ; l<mp->get_mg()->get_nzone() ; l++) 
-    nbr += (mp->get_mg()->get_np(l)+1)*mp->get_mg()->get_nt(l) ;
+  for (int l=0 ; l<get_mp().get_mg()->get_nzone() ; l++) 
+    nbr += (get_mp().get_mg()->get_np(l)+1)*get_mp().get_mg()->get_nt(l) ;
 
   for (int i=0 ; i<nbr ; i++) {
     if (operateurs[i] != 0x0)
@@ -150,7 +246,7 @@ Param_elliptic::~Param_elliptic () {
     if (variables[i] != 0x0)
       delete variables[i] ;
   }
-
+  
   delete [] operateurs ;
   delete [] variables ;
 }
@@ -160,13 +256,13 @@ void Param_elliptic::inc_l_quant (int zone) {
   int np, nt ;
 
   int conte = 0 ;
-  for (int l=0 ; l<mp->get_mg()->get_nzone() ; l++) {
+  for (int l=0 ; l<get_mp().get_mg()->get_nzone() ; l++) {
     
-    np = mp->get_mg()->get_np(l) ;
-    nt = mp->get_mg()->get_nt(l) ;
+    np = get_mp().get_mg()->get_np(l) ;
+    nt = get_mp().get_mg()->get_nt(l) ;
 
     for (int k=0 ; k<np+1 ; k++)
-      for (int j=0 ; j<nt ; j++) {
+      for (int j=0 ; j<nt ; j++) { 
 	if ((operateurs[conte] != 0x0) && (l==zone))
 	  operateurs[conte]->inc_l_quant() ;
 	conte ++ ;
@@ -176,111 +272,187 @@ void Param_elliptic::inc_l_quant (int zone) {
 
 
 void Param_elliptic::set_helmholtz_minus (int zone, double masse) {
- 
-  int nz = mp->get_mg()->get_nzone() ;
-
+  int nz = get_mp().get_mg()->get_nzone() ;
   int nr ;
-  double alpha, beta ;
-
   int conte = 0 ;
-  for (int l=0 ; l<nz ; l++) {
 
-    nr = mp->get_mg()->get_nr(l) ;
+  switch (type_map) {
 
-    alpha = mp->get_alpha()[l] ;
-    beta = mp->get_beta()[l] ;
-  
-    for (int k=0 ; k<mp->get_mg()->get_np(l)+1 ; k++)
-      for (int j=0 ; j<mp->get_mg()->get_nt(l) ; j++) {
-	if ((operateurs[conte] != 0x0) && (l==zone)) {
-	  int old_base = operateurs[conte]->get_base_r() ;
-	  // PROVISOIRE, DANS LE NOYAU SEUL LE CAS SPHERIQUE EST IMPLEMENTE
-	  if (old_base != R_CHEBI) {
-	    delete operateurs[conte] ;
-	    operateurs[conte] = new Ope_helmholtz_minus (nr, old_base, 
-							 alpha, beta, masse) ;
+  case MAP_AFF:
+ 
+    for (int l=0 ; l<nz ; l++) {
+      
+      nr = get_mp().get_mg()->get_nr(l) ;
+      
+      for (int k=0 ; k<get_mp().get_mg()->get_np(l)+1 ; k++)
+	for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
+	  if ((operateurs[conte] != 0x0) && (l==zone)) {
+	    int old_base = operateurs[conte]->get_base_r() ;
+	    // PROVISOIRE, DANS LE NOYAU SEUL LE CAS SPHERIQUE EST IMPLEMENTE
+	    if ((old_base != R_CHEBI)) {
+	      delete operateurs[conte] ;
+	      operateurs[conte] = new Ope_helmholtz_minus (nr, old_base, 
+							   get_alpha(l), 
+							   get_beta(l), masse) ;
+	    }
 	  }
+	  conte ++ ;
 	}
-	conte ++ ;
+    }
+    break ;
+    
+  case MAP_LOG :
+    if (mp_log->get_type(zone) != AFFINE) {
+      cout << "Operator not define with LOG mapping..." << endl ;
+      abort() ;
+    }
+    else {
+      for (int l=0 ; l<nz ; l++) {
+	
+	nr = get_mp().get_mg()->get_nr(l) ;
+	
+	for (int k=0 ; k<get_mp().get_mg()->get_np(l)+1 ; k++)
+	  for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
+	    if ((operateurs[conte] != 0x0) && (l==zone)) {
+	      int old_base = operateurs[conte]->get_base_r() ;
+	      // PROVISOIRE, DANS LE NOYAU SEUL LE CAS SPHERIQUE EST IMPLEMENTE
+	      if ((old_base != R_CHEBI)) {
+		delete operateurs[conte] ;
+		operateurs[conte] = new Ope_helmholtz_minus (nr, old_base, 
+							     get_alpha(l), 
+							     get_beta(l), masse) ;
+	      }
+	    }
+	    conte ++ ;
+	  }
       }
+    }
+    break ;
+    
+  default :
+    cout << "Unkown mapping in set_helmhotz_minus" << endl ;
+    abort() ;
+    break ;
   }
 }
 
 void Param_elliptic::set_helmholtz_plus (int zone, double masse) {
- 
-  int nz = mp->get_mg()->get_nzone() ;
-  
+   
+  int nz = get_mp().get_mg()->get_nzone() ;
   int nr ;
-  double alpha, beta ;
-
   int conte = 0 ;
-  for (int l=0 ; l<nz ; l++) {
 
-    nr = mp->get_mg()->get_nr(l) ;
+  switch (type_map) {
 
-    alpha = mp->get_alpha()[l] ;
-    beta = mp->get_beta()[l] ;
-  
-    for (int k=0 ; k<mp->get_mg()->get_np(l)+1 ; k++)
-      for (int j=0 ; j<mp->get_mg()->get_nt(l) ; j++) {
-	if ((operateurs[conte] != 0x0) && (l==zone)) {
-	  int old_base = operateurs[conte]->get_base_r() ;
-	  // PROVISOIRE, DANS LE NOYAU SEUL LE CAS SPHERIQUE EST IMPLEMENTE
-	  if (old_base != R_CHEBI) {
-	    delete operateurs[conte] ;
-	    operateurs[conte] = new Ope_helmholtz_plus (nr, old_base, 
-							alpha, beta,  masse) ;
+  case MAP_AFF:
+ 
+    for (int l=0 ; l<nz ; l++) {
+      
+      nr = get_mp().get_mg()->get_nr(l) ;
+      
+      for (int k=0 ; k<get_mp().get_mg()->get_np(l)+1 ; k++)
+	for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
+	  if ((operateurs[conte] != 0x0) && (l==zone)) {
+	    int old_base = operateurs[conte]->get_base_r() ;
+	    // PROVISOIRE, DANS LE NOYAU SEUL LE CAS SPHERIQUE EST IMPLEMENTE
+	    if ((old_base != R_CHEBI)) {
+	      delete operateurs[conte] ;
+	      operateurs[conte] = new Ope_helmholtz_plus (nr, old_base, 
+							   get_alpha(l), 
+							   get_beta(l), masse) ;
+	    }
 	  }
+	  conte ++ ;
 	}
-	conte ++ ;
+    }
+    break ;
+    
+  case MAP_LOG :
+    if (mp_log->get_type(zone) != AFFINE) {
+      cout << "Operator not define with LOG mapping..." << endl ;
+      abort() ;
+    }
+    else {
+      for (int l=0 ; l<nz ; l++) {
+	
+	nr = get_mp().get_mg()->get_nr(l) ;
+	
+	for (int k=0 ; k<get_mp().get_mg()->get_np(l)+1 ; k++)
+	  for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
+	    if ((operateurs[conte] != 0x0) && (l==zone)) {
+	      int old_base = operateurs[conte]->get_base_r() ;
+	      // PROVISOIRE, DANS LE NOYAU SEUL LE CAS SPHERIQUE EST IMPLEMENTE
+	      if ((old_base != R_CHEBI)) {
+		delete operateurs[conte] ;
+		operateurs[conte] = new Ope_helmholtz_plus (nr, old_base, 
+							     get_alpha(l), 
+							     get_beta(l), masse) ;
+	      }
+	    }
+	    conte ++ ;
+	  }
       }
+    }
+    break ;
+    
+  default :
+    cout << "Unkown mapping in set_helmhotz_plus" << endl ;
+    abort() ;
+    break ;
   }
 }
 
 void Param_elliptic::set_poisson_vect_r(int zone) {
  
-  int nz = mp->get_mg()->get_nzone() ;
-  
-  int nr ;
-  double alpha, beta ;
-  
-  int conte = 0 ;
-  for (int l=0 ; l<nz ; l++) {
-    
-    nr = mp->get_mg()->get_nr(l) ;
-    
-    alpha = mp->get_alpha()[l] ;
-    beta = mp->get_beta()[l] ;
-    
-    for (int k=0 ; k<mp->get_mg()->get_np(l)+1 ; k++)
-      for (int j=0 ; j<mp->get_mg()->get_nt(l) ; j++) {
-	if ((operateurs[conte] != 0x0) && (l==zone)) {
-	  int old_base = operateurs[conte]->get_base_r() ;
-	  Ope_poisson* op_pois = 
-	    dynamic_cast<Ope_poisson*>(operateurs[conte]) ;
-	  assert (op_pois !=0x0) ;
-	  int lq_old = op_pois->get_lquant() ;
-	  int dzp = op_pois->get_dzpuis() ;
+  if (type_map != MAP_AFF) {
+    cout << "set_poisson_vect_r only defined for an affine mapping..." << endl ;
+    abort() ;
+  }
+  else {
 
-	  delete operateurs[conte] ;
-	  operateurs[conte] = new Ope_pois_vect_r(nr, old_base,alpha, 
-						  beta, lq_old, dzp) ;
+    int nz = get_mp().get_mg()->get_nzone() ;
+    
+    int nr ;
+    
+    int conte = 0 ;
+    for (int l=0 ; l<nz ; l++) {
+      
+      nr = get_mp().get_mg()->get_nr(l) ;
+      
+      for (int k=0 ; k<get_mp().get_mg()->get_np(l)+1 ; k++)
+	for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
+	  if ((operateurs[conte] != 0x0) && (l==zone)) {
+	    int old_base = operateurs[conte]->get_base_r() ;
+	    Ope_poisson* op_pois = 
+	      dynamic_cast<Ope_poisson*>(operateurs[conte]) ;
+	    assert (op_pois !=0x0) ;
+	    int lq_old = op_pois->get_lquant() ;
+	    int dzp = op_pois->get_dzpuis() ;
+	    
+	    delete operateurs[conte] ;
+	    if (type_map == MAP_AFF) {
+	      operateurs[conte] = new Ope_pois_vect_r(nr, old_base,get_alpha(l), 
+						      get_beta(l), lq_old, dzp) ;
+	    }
+	    else
+	      operateurs[conte] = 0x0 ;
+	  }
 	}
-	conte ++ ;
-      }
+      conte ++ ;
+    }
   }
 }
 
 void Param_elliptic::set_poisson_vect_eta(int zone) {
  
-  int nz = mp->get_mg()->get_nzone() ;
+  int nz = get_mp().get_mg()->get_nzone() ;
   
   int conte = 0 ;
   for (int l=0 ; l<nz ; l++) {
     
-    bool ced = (mp->get_mg()->get_type_r(l) == UNSURR ) ;
-    for (int k=0 ; k<mp->get_mg()->get_np(l)+1 ; k++)
-      for (int j=0 ; j<mp->get_mg()->get_nt(l) ; j++) {
+    bool ced = (get_mp().get_mg()->get_type_r(l) == UNSURR ) ;
+    for (int k=0 ; k<get_mp().get_mg()->get_np(l)+1 ; k++)
+      for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
 	if ((operateurs[conte] != 0x0) && (l==zone)) {
 	  Ope_poisson* op_pois = 
 	    dynamic_cast<Ope_poisson*>(operateurs[conte]) ;
@@ -301,44 +473,115 @@ void Param_elliptic::set_poisson_vect_eta(int zone) {
 
 void Param_elliptic::set_sec_order_r2 (int zone, double a, double b, double c){
  
-  int nz = mp->get_mg()->get_nzone() ;
-  
+   
+  int nz = get_mp().get_mg()->get_nzone() ;
   int nr ;
-  double alpha, beta ;
-
   int conte = 0 ;
-  for (int l=0 ; l<nz ; l++) {
 
-    nr = mp->get_mg()->get_nr(l) ;
+  switch (type_map) {
 
-    alpha = mp->get_alpha()[l] ;
-    beta = mp->get_beta()[l] ;
-  
-    for (int k=0 ; k<mp->get_mg()->get_np(l)+1 ; k++)
-      for (int j=0 ; j<mp->get_mg()->get_nt(l) ; j++) {
-	if ((operateurs[conte] != 0x0) && (l==zone)) {
-	  int old_base = operateurs[conte]->get_base_r() ;
-	  // PROVISOIRE, DANS LE NOYAU SEUL LE CAS SPHERIQUE EST IMPLEMENTE
-	  if (old_base != R_CHEBI) {
-	    delete operateurs[conte] ;
-	    operateurs[conte] = new Ope_sec_order_r2 (nr, old_base, 
-						      alpha, beta, a, b, c) ;
+  case MAP_AFF:
+ 
+    for (int l=0 ; l<nz ; l++) {
+      
+      nr = get_mp().get_mg()->get_nr(l) ;
+      
+      for (int k=0 ; k<get_mp().get_mg()->get_np(l)+1 ; k++)
+	for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
+	  if ((operateurs[conte] != 0x0) && (l==zone)) {
+	    int old_base = operateurs[conte]->get_base_r() ;
+	    // PROVISOIRE, DANS LE NOYAU SEUL LE CAS SPHERIQUE EST IMPLEMENTE
+	    if ((old_base != R_CHEBI)) {
+	      delete operateurs[conte] ;
+	      operateurs[conte] = new Ope_sec_order_r2 (nr, old_base, 
+							   get_alpha(l), 
+							   get_beta(l), a, b, c) ;
+	    }
 	  }
+	  conte ++ ;
 	}
-	conte ++ ;
+    }
+    break ;
+    
+  case MAP_LOG :
+    if (mp_log->get_type(zone) != AFFINE) {
+      cout << "Operator not define with LOG mapping..." << endl ;
+      abort() ;
+    }
+    else {
+      for (int l=0 ; l<nz ; l++) {
+	
+	nr = get_mp().get_mg()->get_nr(l) ;
+	
+	for (int k=0 ; k<get_mp().get_mg()->get_np(l)+1 ; k++)
+	  for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
+	    if ((operateurs[conte] != 0x0) && (l==zone)) {
+	      int old_base = operateurs[conte]->get_base_r() ;
+	      // PROVISOIRE, DANS LE NOYAU SEUL LE CAS SPHERIQUE EST IMPLEMENTE
+	      if ((old_base != R_CHEBI)) {
+		delete operateurs[conte] ;
+		operateurs[conte] = new Ope_sec_order_r2 (nr, old_base, 
+							     get_alpha(l), 
+							     get_beta(l), a, b, c) ;
+	      }
+	    }
+	    conte ++ ;
+	  }
       }
+    }
+    break ;
+    
+  default :
+    cout << "Unkown mapping in set_sec_order_r2" << endl ;
+    abort() ;
+    break ;
+  }
+}
+
+void Param_elliptic::set_sec_order (int zone, double a, double b, double c){
+ 
+  if ((type_map == MAP_AFF) || (mp_log->get_type(zone) == AFFINE)) {
+    cout << "set_sec_order only defined for a log mapping" << endl ;
+    abort() ;
+  }
+  else {
+ 
+    int nz = get_mp().get_mg()->get_nzone() ;
+    
+    int nr ;
+    
+    int conte = 0 ;
+    for (int l=0 ; l<nz ; l++) {
+      
+      nr = get_mp().get_mg()->get_nr(l) ;
+      
+      for (int k=0 ; k<get_mp().get_mg()->get_np(l)+1 ; k++)
+	for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
+	  if ((operateurs[conte] != 0x0) && (l==zone)) {
+
+	    int old_base = operateurs[conte]->get_base_r() ;
+	    // PROVISOIRE, DANS LE NOYAU SEUL LE CAS SPHERIQUE EST IMPLEMENTE
+	    if (old_base != R_CHEBI) {
+	      delete operateurs[conte] ;
+	      operateurs[conte] = new Ope_sec_order (nr, old_base, 
+						     get_alpha(l), 
+						     get_beta(l), a, b, c) ;
+	    }
+	  }
+	  conte ++ ;
+	}
+    }
   }
 }
 
 void Param_elliptic::set_variable (int type_variable, int zone) {
- 
   int np, nt ;
   
   int conte = 0 ;
-  for (int l=0 ; l<mp->get_mg()->get_nzone() ; l++) {
+  for (int l=0 ; l<get_mp().get_mg()->get_nzone() ; l++) {
     
-    np = mp->get_mg()->get_np(l) ;
-    nt = mp->get_mg()->get_nt(l) ;
+    np = get_mp().get_mg()->get_np(l) ;
+    nt = get_mp().get_mg()->get_nt(l) ;
     
     for (int k=0 ; k<np+1 ; k++)
       for (int j=0 ; j<nt ; j++) {
@@ -356,11 +599,11 @@ void Param_elliptic::set_variable (int type_variable, double mult, int zone) {
   int np, nt ;
   
   int conte = 0 ;
-  for (int l=0 ; l<mp->get_mg()->get_nzone() ; l++) {
+  for (int l=0 ; l<get_mp().get_mg()->get_nzone() ; l++) {
     
-    np = mp->get_mg()->get_np(l) ;
-    nt = mp->get_mg()->get_nt(l) ;
-    
+    np = get_mp().get_mg()->get_np(l) ;
+    nt = get_mp().get_mg()->get_nt(l) ;
+
     for (int k=0 ; k<np+1 ; k++)
       for (int j=0 ; j<nt ; j++) {
 	if ((variables[conte] != 0x0) && (l==zone) && (k==0) && (j==0)) {
@@ -377,11 +620,11 @@ void Param_elliptic::set_variable (int type_variable, double mult, double add, i
   int np, nt ;
   
   int conte = 0 ;
-  for (int l=0 ; l<mp->get_mg()->get_nzone() ; l++) {
+  for (int l=0 ; l<get_mp().get_mg()->get_nzone() ; l++) {
     
-    np = mp->get_mg()->get_np(l) ;
-    nt = mp->get_mg()->get_nt(l) ;
-    
+    np = get_mp().get_mg()->get_np(l) ;
+    nt = get_mp().get_mg()->get_nt(l) ;
+   
     for (int k=0 ; k<np+1 ; k++)
       for (int j=0 ; j<nt ; j++) {
 	if ((variables[conte] != 0x0) && (l==zone) && (k==0) && (j==0)) {

@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/06/22 08:49:57  p_grandclement
+ * Addition of everything needed for using the logarithmic mapping
+ *
  * Revision 1.10  2004/06/14 15:23:07  j_novak
  * Modif. comments.
  *
@@ -74,6 +77,8 @@
 #include "change_var.h"
 #include "scalar.h"
 
+#define MAP_AFF 0 
+#define MAP_LOG 1 
 
 /**
  * This class contains the parameters needed to call the general
@@ -83,14 +88,17 @@
  * appropriate operator of type \c Ope_elementary and the appropriate
  * variable given by a \c Change_var . \ingroup (ellip)
  *
- * This class is only defined on an affine mapping \c Map_af .
+ * This class is only defined on an affine mapping \c Map_af or 
+ * a logarithmic one \c Map_log
  * 
  **/
-
 class Param_elliptic {
 
  protected:
-  const Map_af* mp ; ///< The affine mapping.
+  int type_map ; ///< Type of mapping either MAP_AFF or MAP_LOG
+  const Map_af* mp_af ; ///< The mapping, if affine.
+  const Map_log* mp_log ; ///< The mapping if log type.
+ 
   Ope_elementary** operateurs ; ///< Array on the elementary operators.
   Change_var** variables ; ///< Array on the variable changes.
 
@@ -108,8 +116,11 @@ class Param_elliptic {
   Param_elliptic (const Scalar&) ;
   ~Param_elliptic() ; ///< Destructor.
   
-  /// Returns the affine mapping.
-  const Map_af& get_mp() const {return *mp ;} ;
+  /// Returns the mapping.
+  const Map_radial& get_mp() const ;
+  double get_alpha (int) const ;
+  double get_beta (int) const ;
+  int get_type (int) const ;
 
  public:  
   /**
@@ -139,6 +150,17 @@ class Param_elliptic {
     * @param c [input] : the parameter \f$c\f$.
     **/
   void set_sec_order_r2 (int zone, double a, double b, double c) ;
+  
+  /**
+    * Set the operator to \f$a \partial^2/\partial r^2 + 
+    * b \partial /\partial r + c\f$ in one domain (only in the shells).
+    *
+    * @param zone [input] : the domain.
+    * @param a [input] : the parameter \f$a\f$.
+    * @param b [input] : the parameter \f$b\f$.
+    * @param c [input] : the parameter \f$c\f$.
+    **/
+  void set_sec_order (int zone, double a, double b, double c) ;
   
    /**
     * Sets the operator to \f$\Delta + \frac{2}{r} \frac{\partial}{\partial r} 
@@ -190,6 +212,8 @@ class Param_elliptic {
 
   friend Mtbl_cf elliptic_solver  (const Param_elliptic&, const Mtbl_cf&) ;
   friend Mtbl_cf elliptic_solver_no_zec  
+    (const Param_elliptic&, const Mtbl_cf&, double) ;
+  friend Mtbl_cf elliptic_solver_only_zec  
     (const Param_elliptic&, const Mtbl_cf&, double) ;
   friend Mtbl_cf elliptic_solver_sin_zec  
     (const Param_elliptic&, const Mtbl_cf&, double, int, double&, double&) ;

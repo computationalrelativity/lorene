@@ -26,6 +26,9 @@ char map_af_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/06/22 08:49:58  p_grandclement
+ * Addition of everything needed for using the logarithmic mapping
+ *
  * Revision 1.4  2004/03/17 15:58:48  p_grandclement
  * Slight modification of sol_elliptic_no_zec
  *
@@ -153,6 +156,55 @@ void Map_af::sol_elliptic_no_zec(const Param_elliptic& ope_var, const Scalar& so
   pot.set_dzpuis(0) ; 
 }
 
+          //----------------------------------------------
+	   //	   General elliptic solver only in the ZEC
+	  //----------------------------------------------
+
+void Map_af::sol_elliptic_only_zec(const Param_elliptic& ope_var, 
+				   const Scalar& source, 
+				   Scalar& pot, double val) const {
+    
+  assert(source.get_etat() != ETATNONDEF) ; 
+  assert(source.get_mp().get_mg() == mg) ; 
+  assert(pot.get_mp().get_mg() == mg) ; 
+  
+  assert(source.check_dzpuis(2) || source.check_dzpuis(3) || 
+	 source.check_dzpuis(4)) ; 
+  // Spherical harmonic expansion of the source
+  // ------------------------------------------
+  
+  const Valeur& sourva = source.get_spectral_va() ; 
+  
+  if (sourva.get_etat() == ETATZERO) {
+    pot.set_etat_zero() ;
+    return ;  
+    }
+  
+  // Spectral coefficients of the source
+  assert(sourva.get_etat() == ETATQCQ) ; 
+  
+  Valeur rho(sourva.get_mg()) ; 
+  sourva.coef() ; 
+  rho = *(sourva.c_cf) ;	// copy of the coefficients of the source
+  
+  rho.ylm() ;			// spherical harmonic transforms 
+  
+  // Call to the Mtbl_cf version
+  // ---------------------------
+  Mtbl_cf resu = elliptic_solver_only_zec (ope_var, *(rho.c_cf), val) ;
+  
+  // Final result returned as a Scalar
+  // ---------------------------------
+  
+  pot.set_etat_zero() ;  // to call Scalar::del_t().
+  
+  pot.set_etat_qcq() ; 
+  
+  pot.set_spectral_va() = resu ;
+  pot.set_spectral_va().ylm_i() ; // On repasse en base standard.	    
+  
+  pot.set_dzpuis(0) ; 
+}
 
             //----------------------------------------------
 	   //	   General elliptic solver with no ZEC
