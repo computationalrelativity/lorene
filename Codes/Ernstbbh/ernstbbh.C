@@ -134,11 +134,13 @@ cout << "mass: " << Mc <<"\t" << J <<"\t" << Om  << endl;
   Cmp X = 0.5*(Rp+Rm)/Mc;
   Cmp Y = 0.5*(Rp-Rm)/Mc;
   
+  
+  
   Cmp N = (c*X+1)*(c*X+1)+s*s*Y*Y;
   F = (cc*X*X+s*s*Y*Y-1)/N;
   B = -2*s*Y/N;
-  A = 2*M*(1-Y*Y)*(1+c*X)/N;
-  
+  A = 2*M*s*(1-Y*Y)*(1+c*X)/N;
+
 
   for (int i=0;i<np;i++) // set at infinity
   {
@@ -162,6 +164,9 @@ cout << "mass: " << Mc <<"\t" << J <<"\t" << Om  << endl;
   Cmp R(map);
   Cmp Ct(map);
   Cmp St(map);
+  Cmp At(map); //A_theta/r/rho
+  Cmp Ft(map); //F_theta/r/rho
+  
   
   R = r;
   Ct = cost;
@@ -170,19 +175,24 @@ cout << "mass: " << Mc <<"\t" << J <<"\t" << Om  << endl;
   Omrsint = Om*R*St;
   Omrsint.std_base_scal();
 //   Omrsint.mult_rsint();
-  N = (A*A-R*St*R*St)/F+R*St*R*St+2*M*R*St*St+2*M*M*St*St;
-  Frot = F-1+2*Om*A+Om*Om*N;
+  Cmp H = (A*A-R*St*R*St)/F+R*St*R*St+2*M*R*St*St+2*M*M*St*St;
+  Frot = F-1+2*Om*A+Om*Om*H;
+  At = 2*X*(1+c*X)*(1+c*X)*(1+c*X)+s*s*X*(1+c*X)*(1+Y*Y)+s*s*c*Y*Y*(1-Y*Y);
+  At = At*2*Mc*M*s*Y/Rp/Rm/N/N/R;   
+  Ft = (c-s*s*X)*(1+c*X)*(1+c*X)-c*s*s*Y*Y;
+  Ft = Ft*2*Mc*Y/Rp/Rm/N/N/R;  
 
   
   Cmp H1 = F*F+2*Om*A*F+Om*Om*A*A+Omrsint*Omrsint;
-  Cmp At = A;
-  At.srdsdt();     
-  At.div_rsint();
+//   At = A;
+//   At.srdsdt();     
+
+// At.div_rsint();
  //   arrete();
   Cmp H2 = (H1*A-2*Omrsint*R*St*(F+Om*A))/F;
-  Cmp Ft = F;
-  Ft.srdsdt();
-  Ft.div_rsint();
+//   Cmp Ft = F;
+//   Ft.srdsdt();
+//   Ft.div_rsint();
   Cmp H3 = 2*Om*Ct*(F+Om*A);  
   Brrot = (H1*At-H2*Ft/F-H3)/F+2*Om*Ct;
   
@@ -199,8 +209,8 @@ cout << "mass: " << Mc <<"\t" << J <<"\t" << Om  << endl;
   Frot.std_base_scal();		
   Brrot.std_base_scal();  
   Brrot.va.set_base_t(T_COSSIN_CI) ;
-//     des_profile(A,1.0001,20.0,M_PI/2,0);
-   des_profile(At,1.0001,20.0,M_PI/2,0);
+//    des_profile(A,1.0001,20.0,M_PI/2,0);
+//    des_profile(At,1.0001,20.0,M_PI/2,0);
 // des_coupe_z(Brrot,0,nz-1);
 // des_coupe_x(Brrot,0,nz-1);
 
@@ -208,7 +218,7 @@ cout << "mass: " << Mc <<"\t" << J <<"\t" << Om  << endl;
   // Boundary Values
   //-----------------------------------------------------
   
-/*    
+    
 
   Valeur bcU( mgrid.get_angu());
   Valeur bcV( mgrid.get_angu());
@@ -228,7 +238,6 @@ cout << "mass: " << Mc <<"\t" << J <<"\t" << Om  << endl;
   bcV.std_base_scal() ;// sets standard spectral bases 
   bcV.set_base_t(T_COSSIN_CI) ;
   
-    
   // initial values
   U = 1.0;
   U.std_base_scal() ;
@@ -242,16 +251,37 @@ cout << "mass: " << Mc <<"\t" << J <<"\t" << Om  << endl;
 
   // No stopping criterion provided for the moment
   
-  for (int iter=0; iter < MaxIt;iter++)
-    {
+//   for (int iter=0; iter < MaxIt;iter++)
+//     {
+//       
+//       cout << "Iteration " << iter << endl;
       
-      cout << "Iteration " << iter << endl;
+      Cmp Urot = U+1-Om*Om*St*St*(R*R+2*M*R+2*M*M); //F with correct asymptotic behavior
+      Cmp Usource1 = 4*Om*Om*(1+2*M/R*(1-St*St)+M*M/R/R*(2-3*St*St));
+      Usource = (U.dsdr()-2*Om*Om*St*St*(M+R)*(M+R))*(U.dsdr()-2*Om*Om*St*St*(M+R)*(M+R))
+		+(U.srdsdt()-2*Om*Om*St*Ct*(R+2*M+2*M*M/R))*(U.srdsdt()-2*Om*Om*St*Ct*(R+2*M+2*M*M/R))
+		- (V.dsdr()-2*Om*Ct)*(V.dsdr()-2*Om*Ct)
+		- (V.srdsdt()+2*Om*St+6*Om*Om*M*M*s*St*St*St/R-4*Om*M*St/R)
+		*(V.srdsdt()+2*Om*St+6*Om*Om*M*M*s*St*St*St/R-4*Om*M*St/R);
+      Usource = Usource/Urot+Usource1;
+	
+      Cmp Vsource1 = 8*Om*M*Ct/R/R-24*Om*Om*M*M*s*Ct*St*St/R/R;
+      Vsource = (V.dsdr()-2*Om*Ct)*(U.dsdr()-2*Om*Om*St*St*(R+M))
+      +(V.srdsdt()+2*Om*St+6*Om*Om*M*M*s*St*St*St/R-4*Om*M*St/R)
+      *(U.srdsdt()-2*Om*Om*St*Ct*(R+2*M+2*M*M/R));
+      Vsource = Vsource/Urot+Vsource1;
       
-      Usource = (U.dsdr()*U.dsdr() + U.srdsdt()*U.srdsdt()
-		 - V.dsdr()*V.dsdr() - V.srdsdt()*V.srdsdt())/(1.0+U);
-      Vsource = 2.0*(V.dsdr()*U.dsdr()+V.srdsdt()*U.srdsdt())/(1.0+U) ;
       Usource.set(0) = 1.0;
       Vsource.set(0) = 1.0;
+      for (int i=0;i<np;i++) // set at infinity
+  {
+    for(int j=0; j<nt;j++)
+    {
+	Usource.set(nz-1,i,j,nr-1) = 0.0;
+	Vsource.set(nz-1,i,j,nr-1) = 0.0;
+    }
+  }
+
 
       Cmp UV = Usource.poisson_dirichlet(bcU, 0) ;
       UV.set(0) = 1.0;
@@ -260,15 +290,15 @@ cout << "mass: " << Mc <<"\t" << J <<"\t" << Om  << endl;
       cout << diff(1) << "   " << diff(2) << endl;
       U = (1-mu)*U + mu*UV;
       
-      UV = Vsource.poisson_dirichlet(bcV, 0) ;
+      UV = Vsource.poisson_neumann(bcV, 0) ;
       UV.set(0) = 0.0;
       V = (1-mu)*V + mu*UV;
       
-    }
+//     }
 
-  des_profile(U-F,1.0001,20.0,M_PI/2,0);
-  des_profile(V-B,1.0001,20.0,0,M_PI/2);
-  */
+//   des_profile(U-F,1.0001,20.0,M_PI/2,0);
+//   des_profile(V-B,1.0001,20.0,0,M_PI/2);
+  
   
 //   des_coupe_x(U, 0., 2, "field U at x=0") ; 
 //   des_coupe_y(U, 0., 2, "field U at y=0") ; 
