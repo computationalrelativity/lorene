@@ -35,8 +35,11 @@ char map_et_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/10/15 21:11:26  e_gourgoulhon
+ * Added method poisson_angu.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.7  2000/05/22  14:55:30  phil
  * ajout du cas dzpuis = 3
@@ -316,3 +319,16 @@ void Map_et::poisson(const Cmp& source, Param& par, Cmp& uu) const {
 //==========================================================================
 
 }
+
+
+
+
+void Map_et::poisson_angu(const Scalar&, Param& , Scalar& ) const {
+
+	cout << "Map_et::poisson_angu: not implemented !" << endl ; 
+	abort() ; 
+
+}
+
+
+

@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/10/15 21:08:22  e_gourgoulhon
+ * Added method poisson_angu.
+ *
  * Revision 1.10  2003/10/15 16:03:35  j_novak
  * Added the angular Laplace operator for Scalar.
  *
@@ -948,7 +951,7 @@ class Map {
 	 *   @param k_div [input] regularization degree of the procedure
 	 *   @param nzet [input] number of domains covering the star
 	 *   @param unsgam1 [input] parameter $1/(\gamma-1)$ where $\gamma$
-         *          denotes the adiabatic index.
+	 *          denotes the adiabatic index.
 	 *   @param par [input/output] possible parameters to control the
 	 *   resolution of the Poisson equation. See the actual implementation 
 	 *   in the derived class of {\tt Map} for documentation.
@@ -983,6 +986,24 @@ class Map {
 	virtual void poisson_compact(const Cmp& source, const Cmp& aa, 
 				     const Tenseur& bb, const Param& par, 
 				     Cmp& psi) const = 0 ;
+
+	/** Computes the solution of an angular Poisson equation.
+	 * The angular Poisson equation is $\Delta_{\theta\varphi} u = \sigma$,
+	 * where $\Delta_{\theta\varphi} u := \frac{\partial^2 u}
+	 *  {\partial \theta^2} + \frac{1}{\tan \theta} \frac{\partial u}
+	 *  {\partial \theta} +\frac{1}{\sin^2 \theta}\frac{\partial^2 u}
+	 *  {\partial \varphi^2}$.
+	 * 
+	 *   @param source [input] source $\sigma$ of the Poisson equation 
+	 *	    $\Delta_{\theta\varphi} u = \sigma$.
+	 *   @param par [input/output] possible parameters to control the
+	 *   resolution of the Poisson equation. See the actual implementation 
+	 *   in the derived class of {\tt Map} for documentation. 
+	 *   @param uu [input/output] solution {\it u} 
+	 */
+	virtual void poisson_angu(const Scalar& source, Param& par, 
+					Scalar& uu) const = 0 ;
+
 	
     public:
 	/**
@@ -1776,6 +1797,21 @@ class Map_af : public Map_radial {
 				     Tenseur& duu_div, Cmp& source_regu,
 				     Cmp& source_div) const ;
 
+	/** Computes the solution of an angular Poisson equation.
+	 * The angular Poisson equation is $\Delta_{\theta\varphi} u = \sigma$,
+	 * where $\Delta_{\theta\varphi} u := \frac{\partial^2 u}
+	 *  {\partial \theta^2} + \frac{1}{\tan \theta} \frac{\partial u}
+	 *  {\partial \theta} +\frac{1}{\sin^2 \theta}\frac{\partial^2 u}
+	 *  {\partial \varphi^2}$.
+	 * 
+	 *   @param source [input] source $\sigma$ of the Poisson equation 
+	 *	    $\Delta_{\theta\varphi} u = \sigma$.
+	 *   @param par unused. 
+	 *   @param uu [input/output] solution {\it u} 
+	 */
+	virtual void poisson_angu(const Scalar& source, Param& par, 
+					Scalar& uu) const ;
+
 	/**
 	 * Internal function intended to be used by {\tt Map::poisson\_vect}
 	 * and {\tt Map::poisson\_vect\_oohara}. It constructs the sets of 
@@ -2450,6 +2486,22 @@ class Map_et : public Map_radial {
 				     Cmp& uu_regu, Cmp& uu_div,
 				     Tenseur& duu_div, Cmp& source_regu,
 				     Cmp& source_div) const ;
+
+	/** Computes the solution of an angular Poisson equation.
+	 * The angular Poisson equation is $\Delta_{\theta\varphi} u = \sigma$,
+	 * where $\Delta_{\theta\varphi} u := \frac{\partial^2 u}
+	 *  {\partial \theta^2} + \frac{1}{\tan \theta} \frac{\partial u}
+	 *  {\partial \theta} +\frac{1}{\sin^2 \theta}\frac{\partial^2 u}
+	 *  {\partial \varphi^2}$.
+	 * 
+	 *   @param source [input] source $\sigma$ of the Poisson equation 
+	 *	    $\Delta_{\theta\varphi} u = \sigma$.
+	 *   @param par [input/output] parameters to control the
+	 *   resolution of the Poisson equation.  
+	 *   @param uu [input/output] solution {\it u} 
+	 */
+	virtual void poisson_angu(const Scalar& source, Param& par, 
+					Scalar& uu) const ;
 
 	/**
 	 * Internal function intended to be used by {\tt Map::poisson\_vect}
