@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2003/06/20 14:13:16  f_limousin
+ * Change to virtual the functions equilibrium_spher() and kinematics().
+ *
  * Revision 1.11  2003/02/13 16:40:24  p_grandclement
  * Addition of various things for the Bin_ns_bh project, non of them being
  * completely tested
@@ -538,7 +541,7 @@ class Etoile {
 	 *	the enthalpy fields of two consecutive steps
 	 *	to stop the iterative procedure (default value: 1.e-14)
 	 */
-	void equilibrium_spher(double ent_c, double precis = 1.e-14) ; 
+	virtual void equilibrium_spher(double ent_c, double precis = 1.e-14) ; 
 
 	/** Computes a spherical static configuration. 
 	 *  The sources for Poisson equations are regularized
@@ -1242,7 +1245,7 @@ class Etoile_bin : public Etoile {
 	 *		  inertial observer
 	 *  @param x_axe  absolute X coordinate of the rotation axis
 	 */
-	void kinematics(double omega, double x_axe) ; 
+	virtual void kinematics(double omega, double x_axe) ; 
 	
 	/** Computes the gradient of the total velocity potential $\psi$. 
 	 * 
@@ -1378,8 +1381,7 @@ class Etoile_bin : public Etoile {
 	 */
 	void relaxation(const Etoile_bin& star_prev, double relax_ent, 
 			double relax_met, int mer, int fmer_met) ;
-
-
+	
 	friend class Bin_ns_bh ; /// Friend class Bin_ns_bh
 };
 
