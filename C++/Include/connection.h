@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/01 15:41:49  e_gourgoulhon
+ * Added mapping
+ *
  * Revision 1.1  2003/09/29 21:14:10  e_gourgoulhon
  * First version --- not ready yet.
  *
@@ -43,6 +46,7 @@
 #include "tensor.h"
 
 class Metric ; 
+class Connection_flat ; 
 
 
 /**
@@ -57,6 +61,9 @@ class Connection {
     // Data : 
     // -----
     protected:
+
+	const Map* const mp ;	/// Reference mapping
+
 	/// Triad with respect to which the tensor components are defined
 	const Base_vect* const triad ; 
 	
@@ -68,7 +75,7 @@ class Connection {
 	 * flat connection. 
 	 *
 	 */
-	Delta delta ; 
+	Tensor_delta delta ; 
 
 	/** Indicates whether the connection is associated with a metric
 	 *  (in which case the Ricci tensor is symmetric, i.e. the
@@ -76,9 +83,20 @@ class Connection {
 	 */
 	bool assoc_metric ;
 
+
+	private:
+
+	/** Flat connection with respect to which $\Delta^i_{\ jk}$ 
+	 *   (member {\tt delta}) is defined. 
+	 *
+	 */
+	const Connection_flat* const flat_conn ;
+
+
     // Derived data : 
     // ------------
     protected:
+
 	/// Pointer of the Ricci tensor associated with the connection 
 	mutable Tensor* p_ricci ;   
 
@@ -95,20 +113,21 @@ class Connection {
 	 * the connection coefficients ${\bar \Gamma}^i_{\ jk}$ of the
 	 * flat connection. 
 	 */
-	Connection(const Delta& delta_i) ;		
+	explicit Connection(const Tensor_delta& delta_i) ;		
 	
 	/** Standard constructor from a metric. 
 	 *
 	 * @param met  Metric to which the connection will be associated
 	 *
 	 */
-	Connection(const Metric& met) ;		
+	explicit Connection(const Metric& met) ;		
 	
 	Connection(const Connection& ) ;		/// Copy constructor
 	
 	protected:
+
 	/// Constructor for derived classes
-	Connection(const Base_vect& ) ; 		
+	Connection(const Map&, const Base_vect& ) ; 		
 
 	virtual ~Connection() ;			/// Destructor
  
@@ -116,6 +135,7 @@ class Connection {
     // Memory management
     // -----------------
     protected:	    
+
 	/// Deletes all the derived quantities
 	virtual void del_deriv() const ; 
 	
@@ -126,18 +146,32 @@ class Connection {
     // Mutators / assignment
     // ---------------------
     public:
+
 	/// Assignment to another Connection
 	void operator=(const Connection&) ;	
 	
     // Accessors
     // ---------
     public:
-	const Delta& get_delta() const {return delta; } ; 
+
+	const Map& get_mp() const {return *mp; } ;  /// Returns the mapping
+
+
+	/** Returns the tensor $\Delta^i_{\ jk}$ which defines
+	 *  the connection with respect to the flat one: $\Delta^i_{\ jk}$ 
+	 * is the difference between the connection coefficients 
+	 *  $\Gamma^i_{\ jk}$ and
+	 * the connection coefficients ${\bar \Gamma}^i_{\ jk}$ of the
+	 * flat connection. 
+	 *
+	 */
+	const Tensor_delta& get_delta() const {return delta; } ; 
 
 	// Computational methods
 	// ---------------------
 	
 	public: 
+
 	/// Covariant derivative of a tensor (with respect to the current connection)
 	virtual Tensor derive_cov(const Tensor&) const ; 
 
@@ -145,6 +179,7 @@ class Connection {
 	const Tensor& ricci() const ; 
 	
 	protected:
+
 	/// Computes the Ricci tensor when necessary
 	virtual void compute_ricci() const ; 
 
@@ -154,7 +189,7 @@ class Connection {
 /**
  * Class Connection\_flat.
  *
- * Abstract class for connections associated to a flat metric. 
+ * Abstract class for connections associated with a flat metric. 
  * 
  * @version #$Id$#
  */
@@ -164,28 +199,20 @@ class Connection_flat : public Connection {
   // -------------------------
  protected:
   
-  ///Contructor from a triad, has to be defined in the derived classes
-  Connection_flat(const Base_vect&) ; 
+  /// Contructor from a triad, has to be defined in the derived classes
+  Connection_flat(const Map&, const Base_vect&) ; 
 
  public:
 
-  virtual ~Connection_flat() ; ///destructor
+	Connection_flat(const Connection_flat & ) ;		/// Copy constructor
 
+  virtual ~Connection_flat() ; /// destructor
 
-  // Memory management
-  // -----------------
- protected:
-  
-  /// Deletes all the derived quantities
-  virtual void del_deriv() const ; 
-  
-  /// Sets to {\tt 0x0} all the pointers on derived quantities
-  virtual void set_der_0x0() const ; 
-  
 
   // Mutators / assignment
   // ---------------------
  public:
+
   /// Assignment to another Connection\_flat
   void operator=(const Connection_flat&) ;	
   
@@ -194,10 +221,12 @@ class Connection_flat : public Connection {
   // ---------------------
   
  public: 
+
   /// Covariant derivative of a tensor (with respect to the current connection)
   virtual Tensor derive_cov(const Tensor&) const = 0 ; 
 
  protected:
+
   /// Computes the Ricci tensor when necessary
   virtual void compute_ricci() const ; 
   
@@ -218,28 +247,21 @@ class Connection_fspher : public Connection_flat {
   // -------------------------
   
  public:
-  /// Contructor from a spherical flat-metric-orthonormal basis
-  Connection_fspher(const Base_vect_spher&) ; 
 
+  /// Contructor from a spherical flat-metric-orthonormal basis
+	Connection_fspher(const Map&, const Base_vect_spher&) ; 
+
+	Connection_fspher(const Connection_fspher& ) ;		/// Copy constructor
+	
  public:
 
   virtual ~Connection_fspher() ; ///destructor
 
 
-  // Memory management
-  // -----------------
- protected:
-  
-  /// Deletes all the derived quantities
-  virtual void del_deriv() const ; 
-  
-  /// Sets to {\tt 0x0} all the pointers on derived quantities
-  virtual void set_der_0x0() const ; 
-  
-
   // Mutators / assignment
   // ---------------------
  public:
+
   /// Assignment to another Connection\_fspher
   void operator=(const Connection_fspher&) ;	
   
