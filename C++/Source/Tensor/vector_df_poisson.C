@@ -30,6 +30,9 @@ char vector_df_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2005/02/09 16:53:11  j_novak
+ * Now V^r and eta are matched across domains, but not any of their derivatives.
+ *
  * Revision 1.11  2005/02/09 14:52:01  j_novak
  * Better solution in the shells.
  *
@@ -127,8 +130,8 @@ Vector_divfree Vector_divfree::poisson(Param& par ) const {
  * These methods are used only to get particular solutions.
  * 
  * Homogeneous solutions are known analitically: r^(l-1) and/or 1/r^(l+2)
- * Once the matching of eta is done, there is no choice left for V^r
- * because of the div-free condition.
+ * It is then only possible to match eta and V^r, but not their derivatives,
+ * due to the div-free condition.
  */
 Vector_divfree Vector_divfree::poisson() const {
 
@@ -484,6 +487,8 @@ Vector_divfree Vector_divfree::poisson() const {
   systeme.set_etat_qcq() ;
   int ligne ;  int colonne ;
   
+  // Loop on l and m
+  //----------------
   for (int k=0 ; k<np+1 ; k++)
       for (int j=0 ; j<nt ; j++) {
 	  base.give_quant_numbers(0, k, j, m_q, l_q, base_r) ;
@@ -498,21 +503,15 @@ Vector_divfree Vector_divfree::poisson() const {
 	      //Nucleus 
 	      nr = mg.get_nr(0) ;
 	      alpha = mpaff->get_alpha()[0] ;
-	      // value of x^(l-1) at 1 :
+	      // value of x^(l-1) at 1 ...
 	      systeme.set(ligne, colonne) = 1. ;
 	      for (int i=0 ; i<nr ; i++)
 		  sec_membre.set(ligne) -= sol_part_eta(0, k, j, i) ;
 	      ligne++ ;
-	      // derivative of x^(l-1) at 1 :
-	      systeme.set(ligne, colonne) = double(l_q-1)/alpha ; 
-	      if (base_r == R_CHEBP) 
-		  for (int i=0 ; i<nr ; i++)
-		      sec_membre.set(ligne) -= double(4*i*i)/alpha
-			  *sol_part_eta(0, k, j, i) ;
-	      else
-		  for (int i=0 ; i<nr ; i++)
-		      sec_membre.set(ligne) -= double((2*i+1)*(2*i+1))/alpha
-					    *sol_part_eta(0, k, j, i) ;
+	      // ... and of its couterpart for V^r
+	      systeme.set(ligne, colonne) = l_q;
+	      for (int i=0; i<nr; i++)
+		  sec_membre.set(ligne) -= sol_part_vr(0,k,j,i) ; 
 	      colonne++ ; 
       	      //shells
 	      for (int zone=1 ; zone<nzm1 ; zone++) {
@@ -520,27 +519,22 @@ Vector_divfree Vector_divfree::poisson() const {
 		  alpha = mpaff->get_alpha()[zone] ;
 		  double echelle = mpaff->get_beta()[zone]/alpha ;
 		  ligne -- ;
-		  //value of (x+echelle)^(l-1) at -1 :
+		  //value of (x+echelle)^(l-1) at -1 
 		  systeme.set(ligne, colonne) = -pow(echelle-1., double(l_q-1)) ;
-		  // value of 1/(x+echelle) ^(l+2) at -1 :
+		  // value of 1/(x+echelle) ^(l+2) at -1 
 		  systeme.set(ligne, colonne+1) = -1/pow(echelle-1., double(l_q+2)) ;
 		  for (int i=0 ; i<nr ; i++)
 		      if (i%2 == 0)
 			  sec_membre.set(ligne) += sol_part_eta(zone, k, j, i) ;
 		      else sec_membre.set(ligne) -= sol_part_eta(zone, k, j, i) ;
 		  ligne++ ;
-		  // derivative of (x+echelle)^(l-1) at -1 :
-		  systeme.set(ligne, colonne) = 
-		      -double(l_q-1)*pow(echelle-1, double(l_q-2))/alpha ;
-		  if (l_q == 1) systeme.set(ligne, colonne) = 0 ;
-		  // derivative of 1/(x+echelle)^(l+2) at -1 :
-		  systeme.set(ligne, colonne+1) = 
-		      double(l_q+2)/pow(echelle-1, double(l_q+3))/alpha ;
-		  for (int i=0 ; i<nr ; i++)
-		      if (i%2 == 0) sec_membre.set(ligne) -= 
-					i*i/alpha*sol_part_eta(zone, k, j, i) ;
-		      else  sec_membre.set(ligne) += 
-				i*i/alpha*sol_part_eta(zone, k, j, i) ;
+		  // ... and their couterparts for V^r
+		  systeme.set(ligne, colonne) = -l_q*pow(echelle-1., double(l_q-1)) ;
+		  systeme.set(ligne, colonne+1) = (l_q+1)/pow(echelle-1., double(l_q+2));
+ 		  for (int i=0 ; i<nr ; i++)
+		      if (i%2 == 0)
+			  sec_membre.set(ligne) += sol_part_vr(zone, k, j, i) ;
+		      else sec_membre.set(ligne) -= sol_part_vr(zone, k, j, i) ;
 		  ligne++ ;
 			
 		  //value of (x+echelle)^(l-1) at 1 :
@@ -550,37 +544,32 @@ Vector_divfree Vector_divfree::poisson() const {
 		  for (int i=0 ; i<nr ; i++)
 		      sec_membre.set(ligne) -= sol_part_eta(zone, k, j, i) ;
 		  ligne ++ ;
-		  //derivative of (x+echelle)^(l-1) at 1 :
-		  systeme.set(ligne, colonne) = 
-		      double(l_q-1)*pow(echelle+1., double(l_q-2))/alpha ;
-		  if (l_q == 1) systeme.set(ligne, colonne) = 0 ;
-		  //derivative of 1/(echelle+x)^(l+2) at 1 :
-		  systeme.set(ligne, colonne+1) = 
-		      -double(l_q+2)/pow(echelle+1., double(l_q+3))/alpha ;
+		  //... and their couterparts for V^r
+		  systeme.set(ligne, colonne) = l_q*pow(echelle+1., double(l_q-1)) ;
+		  systeme.set(ligne, colonne+1) = -double(l_q+1)
+		      / pow(echelle+1., double(l_q+2)) ;
 		  for (int i=0 ; i<nr ; i++)
-		      sec_membre.set(ligne) -= i*i/alpha*sol_part_eta(zone, k, j, i) ;
+		      sec_membre.set(ligne) -= sol_part_vr(zone, k, j, i); 
 		  colonne += 2 ;
 	      }		    
 	      //Compactified external domain
 	      nr = mg.get_nr(nzm1) ;
+
 	      alpha = mpaff->get_alpha()[nzm1] ;
 	      ligne -- ;
 	      //value of (x-1)^(l+2) at -1 :
 	      systeme.set(ligne, colonne) = -pow(-2, double(l_q+2)) ;
 	      for (int i=0 ; i<nr ; i++)
-		  if (i%2 == 0) sec_membre.set(ligne) += sol_part_eta(nz-1, k, j, i) ;
-		  else sec_membre.set(ligne) -= sol_part_eta(nz-1, k, j, i) ;
-	      //derivative of (x-1)^(l+2) at -1 :
-	      systeme.set(ligne+1, colonne) = 
-		  alpha*double(l_q+2)*pow(-2., double(l_q+3)) ;
+		  if (i%2 == 0) sec_membre.set(ligne) += sol_part_eta(nzm1, k, j, i) ;
+		  else sec_membre.set(ligne) -= sol_part_eta(nzm1, k, j, i) ;
+	      //... and of its couterpart for V^r
+	      systeme.set(ligne+1, colonne) = double(l_q+1)*pow(-2, double(l_q+2)) ;
 	      for (int i=0 ; i<nr ; i++)
-		  if (i%2 == 0) sec_membre.set(ligne+1) -= 
-			-4*alpha*i*i*sol_part_eta(nz-1, k, j, i) ;
-		  else sec_membre.set(ligne+1) += 
-			   -4*alpha*i*i*sol_part_eta(nz-1, k, j, i) ;
+		  if (i%2 == 0) sec_membre.set(ligne+1) += sol_part_vr(nzm1, k, j, i) ;
+		  else sec_membre.set(ligne+1) -= sol_part_vr(nzm1, k, j, i) ;
 			
 	      // Solution of the system giving the coefficients for the homogeneous 
-	      // solutions for eta
+	      // solutions
 	      //-------------------------------------------------------------------
 	      if (taille > 2) systeme.set_band(2,2) ;
 	      else systeme.set_band(1,1) ;
