@@ -28,6 +28,9 @@ char simple_wave_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/12/16 06:33:31  e_gourgoulhon
+ * Added call to method Scalar::visu_box.
+ *
  * Revision 1.3  2003/12/14 21:53:26  e_gourgoulhon
  * Added 3D visualization of vector field through Vector::visu_arrows.
  *
@@ -120,7 +123,10 @@ int main() {
     // ----------------------------
     
     double z0 = 0 ;     // section plane : z = z0
-    source.visu_section('z', z0, -2., 2., -1.5, 1.5, "Une belle legende") ;
+  
+    source.visu_section('z', z0, -2., 2., -1.5, 1.5, "Example of section vis.") ;
+
+    source.visu_box(-2., 2., -1.5, 1.5, -1., 1., "Example of volume rendering", 0x0) ;
     
     // Resolution of a Poisson equation 
     // --------------------------------
@@ -133,7 +139,7 @@ int main() {
                                      
     des_coupe_z( Cmp(pot), 0., 2, "Potential") ; 
     
-    pot.visu_section('z', z0, -2., 2., -1.5, 1.5, "Potential", "pot") ;
+//  pot.visu_section('z', z0, -2., 2., -1.5, 1.5, "Potential", "pot") ;
 
     // Construction of a flat metric
     // -----------------------------
