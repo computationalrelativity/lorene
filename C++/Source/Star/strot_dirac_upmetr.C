@@ -30,6 +30,9 @@ char strot_dirac_upmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/03/25 13:47:26  j_novak
+ * Added the update of log(Q).
+ *
  * Revision 1.2  2005/02/17 17:30:55  f_limousin
  * Change the name of some quantities to be consistent with other classes
  * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
@@ -59,6 +62,11 @@ void Star_rot_Dirac::update_metric(){
   nn.std_spectral_base() ; // set the bases for spectral expansions
 
 
+  // Quantity log(Q)
+  //----------------
+
+  lnq = log(qqq) ;
+  lnq.std_spectral_base() ;
 
   // Comformal factor $\Psi^4$
   // -------------------------
