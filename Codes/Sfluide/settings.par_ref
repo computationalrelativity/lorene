@@ -1,27 +1,45 @@
+# Equation of state Parameters
+------------------------------
+ident = 1	# EOS-type: 
+name = 	"2-fluid Star analytic EOS"   	
+m_1 = 	1.		
+m_2 = 	1.
+gamma1 = 2.
+gamma2 = 2.		
+gamma3 = 1.		
+gamma4 = 1.		
+gamma5 = 1.
+gamma6 = 1.	
+kappa1 = 0.04	 
+kappa2 = 0.24		
+kappa3 = 0.02
+beta   = 0.02
+
+slow_rot_style = 0	# use slow-rotation type EOS inversion
+
 # Stellar Parameters
 #----------------------------------------
-
 relat = 	1	# Relativity parameter: 1 = relativistic 0 = Newtonian
-ent1_c = 	0.2    # central enthalpy [c^2]
-ent2_c = 	0.2	# second central enthalpy [c^2]
-freq_si = 	800    	# rotation frequency [Hz]
-freq2_si = 	800   	# second rotation frequency [Hz]
+ent1_c = 	0.245556 # central enthalpy [c^2]
+ent2_c = 	0.245556 # second central enthalpy [c^2]
+freq_si = 	00    	# rotation frequency [Hz]
+freq2_si = 	00   	# second rotation frequency [Hz]
 
 # Iteration Parameters
 #----------------------------------------
-mer_max = 	200   	# maximum number of steps
+mer_max = 	500   	# maximum number of steps
 precis = 	1.e-6 	# threshold on the enthalpy relative change for ending the computation
 mer_rot = 	10	# step at which the rotation is switched on
 freq_ini_si = 	0    	# initial rotation frequency [Hz] (switched on at mer = mer_rot)
 freq2_ini_si = 	0 	# initial second rotation frequency [Hz] (switched on at mer = mer_rot)
 mer_change_omega = 10   # step at which f is changed to reach freq_si
 mer_fix_omega = 20      # step at which f must have reached freq_si
-relax = 	0.5	# relaxation factor in the main iteration 
+relax 	= 	0.5	# relaxation factor in the main iteration
 mermax_poisson = 6	# maximum number of steps in Map_et::poisson
 relax_poisson = 1.5	# relaxation factor in Map_et::poisson
-graph = 	1       # 1 = graphical outputs during the computation 
+graph = 	0       # 1 = graphical outputs during the computation
 
-# Multi-grid parameters 
+# Multi-grid parameters
 #----------------------------------------
 nz = 	3  		# total number of domains
 nzet = 	1		# number of domains inside the star
@@ -33,7 +51,7 @@ ent_limit0 = 	0.2 	# enthalpy defining boundary between domains 0 and 1
 #  Number of radial points <nr> and (initial) inner boundary <rmin> of each domain:
 #----------------------------------------
 nr0 = 	33
-rmin0 = 0.   
+rmin0 = 0.
 
 nr1 = 	17
 rmin1 = 1.
@@ -51,12 +69,17 @@ precis_adapt 	= 1.e-14   	# precision in Map_et::adapt
 # Parameters to search for Keplerian rotation rate [OPTIONAL]
 #------------------------------------------------------------
 kepler_fluid	= 0		# Kepler limit for which fluid? 0=none, 1,2; 3 = both
-kepler_wait_steps = 1		# how many steps after mer_fix_omega shall we start?
+kepler_wait_steps = 40		# how many steps after mer_fix_omega shall we start?
 kepler_factor	= 1.01 		# factor to increase omega in each step to approach Kepler (>1!)
 
 # Parameters to converge to a fixed baryon mass for the two fluids [OPTIONAL]
 --------------------------------------------------------------------------------
 mer_mass 	= -1		# step to start converging to given baryon masses (-1 means OFF)
-mbar1_wanted	= 1.26		# neutron baryon mass [Msol]
-mbar2_wanted	= 0.14		# proton baryon mass  [Msol]
+mbar1_wanted	= 1.26		# neutron baryon mass
+mbar2_wanted	= 0.14		# proton baryon mass
 aexp_mass 	= 0.5		# exponent for the increase factor of the central enthalpy
+
+
+# Directory to put results in
+------------------------------
+resdir		= Results
