@@ -43,6 +43,7 @@ char isolhor_C[] = "$Header$" ;
 #include <string.h>
 
 // Lorene headers
+#include "tenseur.h"
 #include "metric.h"
 #include "evolution.h"
 #include "param.h"
@@ -76,10 +77,11 @@ int main() {
     int symmetry_phi = SYM ; // no symmetry in phi
     bool compact = true ; // external domain is compactified
   
-    double radius, relax, seuil ;
+    double radius, relax, seuil, niter ;
     fpar >> radius; fpar.ignore(1000, '\n');
     fpar >> relax; fpar.ignore(1000, '\n');
     fpar >> seuil; fpar.ignore(1000, '\n');
+    fpar >> niter; fpar.ignore(1000, '\n');
     
 
     // Multi-domain grid construction:
@@ -109,6 +111,8 @@ int main() {
     const Coord& r = map.r ;        // r field 
     const Coord& cost = map.cost ;  // cos(theta) field
     const Coord& sint = map.sint ;  // sin(theta) field
+    const Coord& cosp = map.cosp ;  // cos(phi) field
+    const Coord& sinp = map.sinp ;  // sin(phi) field
 
  
     // Flat metric f
@@ -133,72 +137,75 @@ int main() {
     // Physical Parameters
     //--------------------
 
-    double mm = 1. ;
-     
-    // Key function
-    Mtbl mmr = mm / r ;
+     // Key function
+    Mtbl usr = 1 / r ;
 
-    Scalar msr(map) ;
-    msr = mmr ;
+    Scalar unsr(map) ;
+    unsr = usr ;
     
-    msr.set_domain(0) = 1. ; // scalar set to 1 in the nucleus  ("inside" the horizon)
-    msr.std_spectral_base() ;
+    unsr.set_domain(0) = 1 ; // scalar set to 1 in the nucleus  ("inside" the horizon)
+    unsr.std_spectral_base() ;
+
+     Mtbl expr = exp(-r) ;
+
+    Scalar expmr(map) ;
+    expmr = expr ;
 
     
     // Set up of field Psi 
     // -------------------
-    
+
     Scalar psi_init(map) ; 
     Scalar tmp(map) ; 
     
-    psi_init = 0.5*msr + 1. ;
+    psi_init =  pow(1+unsr, 1./4.) ;
      
     psi_init.std_spectral_base() ;    // sets standard spectral bases
 
     
-    // Set up of the metric tilde
-    // --------------------------
+    // Set up of the 3-metric tilde
+    // ----------------------------
     
-    Sym_tensor gammat_dd_init = ff.cov() ;
+    Sym_tensor gammat_dd_init(map, COV, map.get_bvect_spher()) ;
+    gammat_dd_init.set(1,1) = 1. ;
+    gammat_dd_init.set(2,2) = 1/(1+unsr) ;
+    gammat_dd_init.set(3,3) = 1/(1+unsr) ;
+    gammat_dd_init.set(2,1) = 0. ;
+    gammat_dd_init.set(3,1) = 0. ;
+    gammat_dd_init.set(3,2) = 0. ;
 
-    // Setup of the physical metric
+
+    // Set up of the 3-metric 
 
     Metric gamma_init(gammat_dd_init * psi_init* psi_init* psi_init* psi_init);
-    Sym_tensor gamma_dd_init (gamma_init.cov()) ;
-    
+    Sym_tensor gamma_dd_init = gamma_init.cov() ;
 
     // Set up of shift vector beta
     // ---------------------------    
 
     Vector beta_init(map, CON, otriad ) ; 
     beta_init.set_etat_zero() ; 
-/*
-    tmp_scal = dmsr/(1 + dmsr) ;
+
+    tmp_scal = unsr / (1+unsr) ;
     tmp_scal.std_spectral_base() ;
-    //    tmp_scal.div_r() ;
-    //    tmp_scal = sqrt(tmp_scal) ;
-    //    tmp_scal.std_spectral_base() ;
-    
     
     beta_init.set(1) = tmp_scal ;
     beta_init.set(2) = 0. ;
     beta_init.set(3) = 0. ;
-
-    beta_init.std_spectral_base() ;
-*/      
-     
+    beta_init.annule_domain(0) ;
     
-
+    beta_init.std_spectral_base() ;
+     
     // Set up of lapse function N
     // --------------------------
     
     Scalar nn_init(map) ; 
 
-    nn_init = - 0.5 * msr + 1. ;
+    nn_init = pow(1+unsr, -0.5) ;
 
     nn_init.std_spectral_base() ;    // sets standard spectral bases
 
-
+  
     // Set up of the conformal extrinsic curvature KK
     //-----------------------------------------------
    	
@@ -214,73 +221,120 @@ int main() {
 
     kk_init = kk_init/nn_init ;
 
-
-
     //-------------------------------------
     //     Construction of the space-time
     //-------------------------------------
      
+    Isol_hor isolhor_tmp(nn_init, beta_init, gamma_dd_init, kk_init, ff, 3) ;
+
+    Scalar trk = isolhor_tmp.trk() ;
+
+
+    beta_init.set(1) = 1 / (1 + 4*unsr) ;
+    beta_init.set(2) = 0. ;
+    beta_init.set(3) = 0. ;
+    beta_init.annule_domain(0) ;
+    
+    beta_init.std_spectral_base() ;
+
+/*
+    nn_init = pow(1+unsr, -0.5) ;
+
+    nn_init.std_spectral_base() ;    // sets standard spectral bases
+*/
+
+
     Isol_hor isolhor(nn_init, beta_init, gamma_dd_init, kk_init, ff, 3) ;
 
+
+
+/*
+    Vector source (map, CON, map.get_bvect_spher()) ;
+
+    Vector beta_j (map, CON, map.get_bvect_spher()) ;
+    beta_j = beta_init ;
+
+    Vector beta_old (map, CON, map.get_bvect_spher()) ;
+    beta_old = beta_init ;
+    
+    Vector bound (map, CON, map.get_bvect_spher()) ;
+    bound.set(1) = unsr ;
+    bound.set(2) = 0. ;
+    bound.set(3) = 0. ;
+    bound.std_spectral_base() ;
+    bound.change_triad(map.get_bvect_cart()) ;
+    
+    
+    Valeur boundary_x (map.get_mg()->get_angu() )  ;
+    Valeur boundary_y (map.get_mg()->get_angu() )  ;
+    Valeur boundary_z (map.get_mg()->get_angu() )  ;
+    
+    boundary_x = 1. ;
+    boundary_y = 1. ;
+    boundary_z = 1. ;
+
+    int nnp = map.get_mg()->get_np(1) ;
+    int nnt = map.get_mg()->get_nt(1) ;
+
+    for (int k=0 ; k<nnp ; k++)
+	for (int j=0 ; j<nnt ; j++){
+	    boundary_x.set(0, k, j, 0) = bound(1).val_grid_point(1, k, j, 0) ;
+	    boundary_y.set(0, k, j, 0) = bound(2).val_grid_point(1, k, j, 0) ;
+	    boundary_z.set(0, k, j, 0) = bound(3).val_grid_point(1, k, j, 0) ;
+	}
+    boundary_x.set_base(bound(1).get_spectral_va().get_base()) ; 
+    boundary_y.set_base(bound(2).get_spectral_va().get_base()) ; 
+    boundary_z.set_base(bound(3).get_spectral_va().get_base()) ; 
+
   
-    //---------------------------------------------
-    //         Conformal/ Physical param
-    //---------------------------------------------
+    for (int i=0; i<niter; i++) {
+   
+	beta_old = beta_j ;
+	des_profile(beta_j(1), 1.00001, 10, 0., 0., "beta (1)") ;
+	
+	double lambda = 0. ;
+	source = 0.66666666666666666 * (isolhor.trk()).derive_con(ff) ;
+	source += -(1./3.- lambda) * beta_j.divergence(ff).derive_con(ff) ;
+	Vector source2 = beta_init.derive_con(ff).divergence(ff) ;
+	cout << "source" << endl << norme(source(1)) << endl ;
+	cout << "source2" << endl << norme(source2(1)) << endl ;
+	cout << "source2 - source" << endl << norme(source2(1)-source(1)) << endl ;	
 
-    Scalar trk = isolhor.trk() ;
-    trk.dec_dzpuis(2) ;
+	source.inc_dzpuis() ;
+	
+	double precision = 1e-8 ;
+	poisson_vect_boundary(lambda, source, beta_j, boundary_x, boundary_y, 
+			     boundary_z, 0, precision, 20) ;
 
-    Scalar alpha = isolhor.nn() ;
 
-    Vector beta = isolhor.beta() ;
-    
-    Scalar psi = isolhor.psi() ;
+//	beta_j = relax * beta_j + (1 - relax) * beta_old ;
 
-    
-    //    des_profile (psi,  1., 10., 1.57, 0., "Psi", "radial distance") ;
+	source.dec_dzpuis() ;
+   	maxabs(beta_j.derive_con(ff).divergence(ff) 
+	       + lambda * beta_j.divergence(ff).derive_con(ff) - source,
+	     "Absolute error in the resolution of the equation for beta") ;  
+	cout << endl ;
+	source.inc_dzpuis() ;
+
+        double diff_beta = max( maxabs(beta_j - beta_old) ) ; 
+	cout << "  diff_beta = " << diff_beta << endl ;
+	if ( (diff_beta < seuil) )
+	break ; 
+   }
  
-    //---------------------------------------------
-    //                 Sources
-    //---------------------------------------------
- 
-    tmp_scal.set_etat_zero() ;
+    Scalar beta_ana = unsr ;
+    beta_ana = pow(beta_ana, 0.5) ;
+    beta_ana.set_spectral_va().set_base(isolhor.beta()(1).get_spectral_va().get_base()) ;
 
-    Scalar source_psi = isolhor.source_psi_hor() ;
+    Scalar diff_beta = beta_j(1) - beta_ana ;
 
-    Scalar source_nn = isolhor.source_nn_hor(tmp_scal) ;
-    
-    Vector source_beta = isolhor.source_beta_hor() ;
-    
-     
-    // Surface gravity
-    //----------------
+     des_profile(beta_j(1), 1., 10, 0., 0., "beta") ;
+     des_profile(beta_ana, 1., 10, 0., 0., "beta_ana") ;
+     des_profile(diff_beta, 1., 10, 0., 0., "diff_beta") ;
 
-    /*
+    abort() ;
+*/
 
-    Scalar kappa(map) ;
-    kappa = 0.5 / r ;
-    
-    kappa.set_domain(0) = 1. ;
-
-    // Test to WIH equation
-    //---------------------
-
-    Scalar wih(map) ;
-
-    wih = contract(radial, 0, alpha.derive_cov(gamma_init), 0) 
-		   - contract(radial, 0, contract(radial, 0, k_dd,0), 0) * alpha ;
-
-    wih.dec_dzpuis(2) ;
-    
-    wih = wih - kappa ;
-
-    
-       
-    des_profile (wih,  1.0000000000001, 10., 1.57, 0., "WIH", "radial distance") ;
- 
-
-    */
-    
     //-----------------------------------------
     //          "Physical Parameters"
     //-----------------------------------------
@@ -288,9 +342,26 @@ int main() {
     
     tmp_scal.set_etat_zero() ;
     tmp_sym.set_etat_zero() ;
+    tmp_scal.set_dzpuis(4) ;
 
-    isolhor.init_data_schwar(tmp_sym, tmp_scal,tmp_scal, seuil, relax) ;
+    isolhor.init_data_schwar(tmp_sym, trk, tmp_scal, seuil, relax, 
+			     niter) ;
 
+    isolhor.check_hamiltonian_constraint() ;
+    isolhor.check_momentum_constraint() ;
+ 
+
+    des_profile(isolhor.nn(), 1., 10, 0., 0., "nn") ;
+    des_profile(pow(1+unsr, -0.5), 1., 10, 0., 0., "nn ana") ;
+    des_profile(pow(1+unsr, -0.5)-isolhor.nn(), 1., 10, 0., 0., "diff nn") ;
+    des_profile(isolhor.psi(), 1., 10, 0., 0., "psi") ;
+    des_profile(isolhor.beta()(1), 1., 10, 0., 0., "beta") ;
+    des_profile(unsr/(1+unsr), 1., 10, 0., 0., "beta ana") ;
+    des_profile(unsr/(1+unsr) - isolhor.beta()(1), 1., 10, 0., 0., "diff beta") ;
+
+
+
+/*
     des_profile(isolhor.nn(), 1., 10, 0., 0., "nn") ;
     des_profile(isolhor.psi(), 1., 10, 0., 0., "psi") ;
 
@@ -312,7 +383,19 @@ int main() {
 
     des_profile(diff_nn, 1.00001, 10, 0., 0., "diff nn") ;
     des_profile(diff_psi, 1.00001, 10, 0., 0., "diff psi") ;
-   
+*/
+
+/*
+    Scalar beta_ana = unsr ;
+    beta_ana = pow(beta_ana, 0.5) ;
+    beta_ana.set_spectral_va().set_base(isolhor.beta()(1).get_spectral_va().get_base()) ;
+
+    Scalar diff_beta = isolhor.beta()(1) - beta_ana ;
+
+     des_profile(isolhor.beta()(1), 1., 10, 0., 0., "beta") ;
+     des_profile(beta_ana, 1., 10, 0., 0., "beta_ana") ;
+     des_profile(diff_beta, 1., 10, 0., 0., "diff_beta") ;
+*/
 
     
     double rr_hor =  isolhor.radius_hor() ;
@@ -336,7 +419,7 @@ int main() {
     //--------------------------------------
     //--------------------------------------
 
-    cout<<"Todo bien"<<endl ;
+    cout<<"Tout va bien !!!"<<endl ;
 
 
 
