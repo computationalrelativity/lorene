@@ -35,6 +35,9 @@ char sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/03 11:21:48  j_novak
+ * More methods for the class Metric
+ *
  * Revision 1.4  2003/10/02 15:45:51  j_novak
  * New class Metric
  *
@@ -204,11 +207,13 @@ void Sym_tensor::operator= (const Tensor& t) {
     }
 }
 
-Sym_tensor Sym_tensor::inverse() const {
+Sym_tensor* Sym_tensor::inverse() const {
 
   cout << "Sym_tensor::inverse : not ready yet! " << endl ;
 
   abort() ;
+
+  return 0x0 ;
 
 }
 

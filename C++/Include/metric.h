@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/03 11:21:45  j_novak
+ * More methods for the class Metric
+ *
  * Revision 1.1  2003/10/02 15:45:48  j_novak
  * New class Metric
  *
@@ -134,10 +137,14 @@ class Metric {
     // ---------
     public:
 	///Read-only access to the covariant representation
-	const Sym_tensor& cov() const ;
+	const Sym_tensor& cov() const {
+	  if (p_met_cov == 0x0) fait_cov() ;
+	  return *p_met_cov ; } ;
 
 	///Read-only access to the contravariant representation
-	const Sym_tensor& con() const ;
+	const Sym_tensor& con() const {
+	  if (p_met_con == 0x0) fait_con() ;
+	  return *p_met_con ; };
 
 	///Returns the mapping
 	const Map& get_mp() const {return *mp ; } ;
@@ -164,16 +171,16 @@ class Metric {
     // ------------------------------
     protected:
 	/**
-	 * Calculates, if needed, the contravariant representation.
-	 * The result is in {\tt *p\_met\_con}.
-	 */
-	virtual void fait_con() const ;
-
-	/**
 	 * Calculates, if needed, the covariant representation.
 	 * The result is in {\tt *p\_met\_cov}.
 	 */
 	virtual void fait_cov() const ;
+
+	/**
+	 * Calculates, if needed, the contravariant representation.
+	 * The result is in {\tt *p\_met\_con}.
+	 */
+	virtual void fait_con() const ;
 
 	/**
 	 * Calculates, when needed, the connection from this metric.

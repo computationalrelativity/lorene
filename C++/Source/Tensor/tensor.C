@@ -33,6 +33,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/10/03 11:21:48  j_novak
+ * More methods for the class Metric
+ *
  * Revision 1.7  2003/10/01 11:56:31  e_gourgoulhon
  * Corrected error: '=' replaced by '==' in two assert tests.
  *
@@ -63,8 +66,6 @@ char tensor_C[] = "$Header$" ;
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
-
-#include<typeinfo>
 
 // Headers Lorene
 #include "tensor.h"

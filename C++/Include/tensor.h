@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2003/10/03 11:21:45  j_novak
+ * More methods for the class Metric
+ *
  * Revision 1.12  2003/10/02 15:45:48  j_novak
  * New class Metric
  *
@@ -561,7 +564,7 @@ Tensor operator/ (const Tensor&, int) ;                 /// Tensor / int
 
 			//---------------------------------//
 			//        class Sym_tensor         //
-			//---------------------------------//
+			//---------------------------------/
 			
 /**
  * Class intended to describe valence-2 symmetric tensors.
@@ -677,9 +680,16 @@ class Sym_tensor : public Tensor {
 
     // Mathematical operators
     // ----------------------
+ protected:
+	/**
+	 * Returns a pointer on the inverse of the {\tt Sym\_tensor} 
+	 * (seen as a matrix).
+	 */
+	Sym_tensor* inverse() const ;
 
-	///Returns the inverse of the {\tt Sym\_tensor} (seen as a matrix).
-	Sym_tensor inverse() const ;
+    // Friend classes
+    //-----------------
+	friend class Metric ;
  
 } ;
 
