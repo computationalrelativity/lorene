@@ -32,6 +32,9 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2004/10/11 09:46:31  j_novak
+ * Speed improvements.
+ *
  * Revision 1.20  2004/05/09 20:55:05  e_gourgoulhon
  * Added method flux.
  *
@@ -425,10 +428,15 @@ void Vector::decompose_div(const Metric& metre) const {
     if (p_potential[ind] != 0x0) 
       delete p_potential[ind] ;
 
+    const Mg3d* mmg = mp->get_mg() ;
+    int nz = mmg->get_nzone() ;
+
     int dzp = cmp[0]->get_dzpuis() ;
     bool dz_zero = cmp[0]->check_dzpuis(0) ;
-
-    assert( dz_zero || (dzp == 4)) ;
+#ifndef NDEBUG
+    bool dz_four = cmp[0]->check_dzpuis(4) ;
+#endif
+    assert( dz_zero || dz_four) ;
     assert (cmp[1]->check_dzpuis(dzp)) ;
     assert (cmp[2]->check_dzpuis(dzp)) ;
 
@@ -437,14 +445,13 @@ void Vector::decompose_div(const Metric& metre) const {
     p_potential[ind] = new Scalar(dive.poisson()) ; //No matching of the solution at this point
 
     if (dzp == 4) {
+      assert (mmg->get_type_r(nz-1) == UNSURR) ;
       // Let's now do the matching ... in the case dzpuis = 4
       const Map_af* mapping = dynamic_cast<const Map_af*>(mp) ;
       assert (mapping != 0x0) ;
       Valeur& val = p_potential[ind]->set_spectral_va() ;
       val.ylm() ;
       Mtbl_cf& mtc = *val.c_cf ;
-      const Mg3d* mmg = val.get_mg() ;
-      int nz = mmg->get_nzone() ;
       if (nz > 1) {
 	int np = mmg->get_np(0) ;
 	int nt = mmg->get_nt(0) ;
@@ -454,38 +461,43 @@ void Vector::decompose_div(const Metric& metre) const {
 	  assert (mmg->get_nt(lz) == nt) ;
 	}
 #endif
-	
+	int lmax = 0 ;
+	for (int k=0; k<np+1; k++) 
+	  for (int j=0; j<nt; j++) 
+	    if ( nullite_plm(j, nt, k, np, val.base)) {
+	      int m_quant, l_quant, base_r ;
+	      donne_lm (nz, 0, j, k, val.base, m_quant, l_quant, base_r) ; 
+	      lmax = (l_quant > lmax ? l_quant : lmax) ;
+	    }
+	Scalar** ri = new Scalar*[lmax+1] ;
+	Scalar** rmi = new Scalar*[lmax+1] ;
+	Scalar erre(*mp) ;
+	erre = mp->r ;
+	for (int l=0; l<=lmax; l++) {
+	  ri[l] = new Scalar(*mp) ;
+	  rmi[l] = new Scalar(*mp) ;
+	  if (l == 0) *(ri[l]) = 1. ;
+	  else *(ri[l]) = pow(erre, l) ;
+	  ri[l]->annule_domain(nz - 1) ;
+	  ri[l]->std_spectral_base() ; //exact base in r will be set later
+	  if (l==2) *(rmi[l]) = 1 ;
+	  else *(rmi[l]) = pow(erre, 2-l) ;
+	  rmi[l]->annule(0,nz-2) ;
+	  Scalar tmp = pow(erre, -l-1) ;
+	  tmp.annule_domain(nz-1) ;
+	  tmp.annule_domain(0) ;
+	  *(rmi[l]) += tmp ;
+	  rmi[l]->set_dzpuis(3) ;
+	  rmi[l]->std_spectral_base() ;//exact base in r will be set later
+	}
+
 	for (int k=0; k<np+1; k++) {
 	  for (int j=0; j<nt; j++) {
 	    if ( nullite_plm(j, nt, k, np, val.base)) {
 	      int m_quant, l_quant, base_r, l, c ;
 	      donne_lm (nz, 0, j, k, val.base, m_quant, l_quant, base_r) ; 
-	      
 	      bool lzero = (l_quant == 0) || (l_quant == 1) ;
-	      
-	      int nb_hom_ced ; 
-	      Scalar rl(*mp), rmlm1(*mp) ;
-	      Scalar erre(*mp) ;
-	      erre = mp->r ;
-	      
-	      if (l_quant == 0) 
-		rl = 1 ;
-	      else
-		rl = pow(erre, l_quant) ;
-	      rl.std_spectral_base() ;
-		
-	      rmlm1 = pow(erre, -l_quant-1) ;
-	      rmlm1.annule(nz-1, nz-1) ;
-	      Scalar rmlm1_ced(*mp) ;
-	      if (l_quant == 2) 
-		rmlm1_ced = 1 ;
-	      else
-		rmlm1_ced = pow(erre, -l_quant+2);
-	      rmlm1_ced.set_dzpuis(3) ;
-	      rmlm1_ced.annule(0, nz-2) ;
-	      rmlm1 += rmlm1_ced ;
-	      rmlm1.std_spectral_base() ;
-	      nb_hom_ced = (l_quant < 2 ? 0 : 1) ;
+	      int nb_hom_ced  = (l_quant < 2 ? 0 : 1) ; 
 	      
 	      int taille = 2*(nz-1) - 1 + nb_hom_ced ;
 	      Tbl deuz(taille) ;
@@ -501,8 +513,7 @@ void Vector::decompose_div(const Metric& metre) const {
 	      //---------
 	      assert(mmg->get_type_r(0) == RARE) ;
 	      assert ((base_r == R_CHEBP)||(base_r == R_CHEBI)) ;
-	      rmlm1.annule_domain(0) ;
-	      rl.set_spectral_va().set_base_r(0, base_r) ;
+	      ri[l_quant]->set_spectral_va().set_base_r(0, base_r) ;
 	  
 	      double alpha = mapping->get_alpha()[0] ;
 	      int nr = mmg->get_nr(0) ;
@@ -584,7 +595,6 @@ void Vector::decompose_div(const Metric& metre) const {
 	      //  Compactified external domain
 	      //-------------------------------
 	      assert(mmg->get_type_r(nz-1) == UNSURR) ;
-	      rl.annule_domain(nz-1) ;
 	      nr = mmg->get_nr(nz-1) ;
 	      Tbl partc(nr) ;
 	      partc.set_etat_qcq() ;
@@ -625,24 +635,24 @@ void Vector::decompose_div(const Metric& metre) const {
 	      systeme.set_band(sup, inf) ;
 	      systeme.set_lu() ;
 	      Tbl facteur(systeme.inverse(deuz)) ;
-	      rl.set_spectral_va().coef() ;
-	      rmlm1.set_spectral_va().coef() ;
+	      ri[l_quant]->set_spectral_va().coef() ;
+	      rmi[l_quant]->set_spectral_va().coef() ;
 
 	      //Linear combination in the nucleus
 	      nr = mmg->get_nr(0) ;
 	      for (int i=0; i<nr; i++) 
 		mtc.set(0, k, j, i) += 
-		  facteur(0)*(*rl.get_spectral_va().c_cf)(0, 0, 0, i) ;
+		  facteur(0)*(*(ri[l_quant]->get_spectral_va().c_cf))(0, 0, 0, i) ;
 	    
 	      //Linear combination in the shells
 	      for (int lz=1; lz<nz-1; lz++) {
 		nr = mmg->get_nr(lz) ;
 		for (int i=0; i<nr; i++) 
 		  mtc.set(lz, k, j, i) += facteur(2*lz - 1)*
-		    (*rl.get_spectral_va().c_cf)(lz, 0, 0, i) ;
+		    (*(ri[l_quant]->get_spectral_va().c_cf))(lz, 0, 0, i) ;
 		for (int i=0; i<nr; i++) 
 		  mtc.set(lz, k, j, i) += facteur(2*lz)*
-		    (*rmlm1.get_spectral_va().c_cf)(lz, 0, 0, i) ;
+		    (*(rmi[l_quant]->get_spectral_va().c_cf))(lz, 0, 0, i) ;
 	      }
 
 	      //Linear combination in the CED
@@ -650,7 +660,7 @@ void Vector::decompose_div(const Metric& metre) const {
 	      if (!lzero) {
 		for (int i=0; i<nr; i++) 
 		  mtc.set(nz-1, k, j, i) += facteur(taille - 1)*
-		  (*rmlm1.get_spectral_va().c_cf)(nz-1, 0, 0, i) ;
+		  (*(rmi[l_quant]->get_spectral_va().c_cf))(nz-1, 0, 0, i) ;
 	      }
 	    } //End of nullite_plm ...
 
@@ -697,7 +707,7 @@ double Vector::flux(double radius, const Metric& met) const {
     }
     
     const Base_vect_cart* bcart = dynamic_cast<const Base_vect_cart*>(triad) ; 
-    Vector* vspher ; 
+    Vector* vspher = 0x0 ; 
     if (bcart != 0x0) { // switch to spherical components:
         vspher = new Vector(*this) ; 
         vspher->change_triad(mp->get_bvect_spher()) ;
