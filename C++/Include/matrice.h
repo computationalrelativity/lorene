@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2005/01/25 12:47:32  j_novak
+ * Added some member arithmetic and operator=(Tbl).
+ *
  * Revision 1.9  2004/12/29 12:27:35  j_novak
  * permute is now a Itbl* which array is sent directly to the LAPACK routines.
  * It is now possible to solve a general system (i.e. even if the Matrice
@@ -235,6 +238,7 @@ class Matrice {
 	void operator=(double x) ;
 
 	void operator=(const Matrice& ) ; ///< Assignement to another \c Matrice.
+	void operator=(const Tbl& ) ; ///< Assignement to a \c Tbl.
  
     //Impression
 	friend ostream& operator<<(ostream& , const Matrice& ) ; ///< Display
@@ -334,6 +338,19 @@ class Matrice {
 	 */
 	Matrice transpose() const ;
 	
+
+    // Member arithmetics
+    // ------------------
+    public:
+	/// Addition of a \c Matrice to \c this
+	void operator+=(const Matrice &) ; 
+	void operator+=(double) ; ///< Addition of a \c double to \c this
+        /// Subtraction of a \c Matrice to \c this
+	void operator-=(const Matrice &) ;  
+	void operator-=(double) ; ///< Subtraction of a \c double to \c this
+	void operator*=(double) ; ///< Multiplication of \c this by a \c double
+	void operator/=(double) ; ///< Division of \c this by a \c double
+
     // Operateurs amis
 	friend Matrice operator+ (const Matrice&, const Matrice& ) ;
 	friend Matrice operator- (const Matrice&, const Matrice& ) ;

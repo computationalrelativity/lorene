@@ -32,6 +32,9 @@ char matrice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2005/01/25 12:47:34  j_novak
+ * Added some member arithmetic and operator=(Tbl).
+ *
  * Revision 1.10  2004/12/29 12:27:36  j_novak
  * permute is now a Itbl* which array is sent directly to the LAPACK routines.
  * It is now possible to solve a general system (i.e. even if the Matrice
@@ -266,6 +269,28 @@ void Matrice::operator= (const Matrice &source) {
 		lu = new Tbl(*source.lu) ;
 		permute = new Itbl(*source.permute) ;
 	    }
+	    break ;
+	}
+}
+
+void Matrice::operator= (const Tbl &source) {
+    
+    assert (std->get_dim(0) == source.get_dim(0)) ;
+    assert (std->get_dim(1) == source.get_dim(1)) ;
+    
+    switch (source.etat) {
+	case ETATNONDEF :
+	    set_etat_nondef() ;
+	    break ;
+	case ETATZERO :
+	    set_etat_zero() ;
+	    break ;
+	case ETATQCQ :
+	    set_etat_qcq() ;
+	    del_t() ;
+	    
+	    assert (source.t != 0x0) ;
+	    std = new Tbl(source) ;
 	    break ;
 	}
 }
@@ -534,27 +559,59 @@ Matrice Matrice::transpose() const {
 
 
 // Operateurs d'arithmetique
+void Matrice::operator+=(const Matrice& a) {
+    assert((std != 0x0)&&(a.std != 0x0)) ;
+    std->operator+=(*a.std) ;
+}
+
+void Matrice::operator-=(const Matrice& a) {
+    assert((std != 0x0)&&(a.std != 0x0)) ;
+    std->operator-=(*a.std) ;
+}
+
+void Matrice::operator+=(double x) {
+    assert(std != 0x0);
+    std->operator+=(x) ;
+}
+
+void Matrice::operator-=(double x) {
+    assert(std != 0x0);
+    std->operator-=(x) ;
+}
+
+void Matrice::operator*=(double x) {
+    assert(std != 0x0);
+    std->operator*=(x) ;
+}
+
+void Matrice::operator/=(double x) {
+    assert(std != 0x0);
+    assert(x != 0) ;
+    std->operator/=(x) ;
+}
+
+// Operateurs d'arithmetique non membres
 Matrice operator+ (const Matrice& a, const Matrice& b) {
-    Tbl auxi (*a.std+*b.std) ;
-    Matrice res(auxi) ;
+    assert((a.std != 0x0) && (b.std != 0x0)) ;
+    Matrice res(*a.std+*b.std) ;
     return res ;
 }
 
 Matrice operator- (const Matrice& a, const Matrice& b) {
-    Tbl auxi (*a.std-*b.std) ;
-    Matrice res(auxi) ;
+    assert((a.std != 0x0) && (b.std != 0x0)) ;
+    Matrice res(*a.std-*b.std) ;
     return res ;
 }
 
 Matrice operator* (const Matrice& a, double x) {
-    Tbl auxi (*a.std*x) ;
-    Matrice res(auxi) ;
+    assert(a.std != 0x0) ;
+    Matrice res(*a.std*x);
     return res ;
 }
 
 Matrice operator* (double x, const Matrice& a) {
-    Tbl auxi (*a.std*x) ;
-    Matrice res(auxi) ;
+    assert(a.std != 0x0) ;
+    Matrice res(*a.std*x);
     return res ;
 }
 
@@ -595,7 +652,7 @@ Matrice operator* (const Matrice& aa, const Matrice& bb) {
 
 Matrice operator/ (const Matrice& a, double x) {
     assert (x != 0) ;
-    Tbl auxi = (*a.std / x ) ;
-    Matrice res(auxi) ;
+    assert(a.std != 0x0) ;
+    Matrice res(*a.std/x);
     return res ;
 }
