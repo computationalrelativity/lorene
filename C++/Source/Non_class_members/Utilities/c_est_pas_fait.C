@@ -31,8 +31,11 @@ char c_est_pas_fait_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2001/11/29 16:17:54  e_gourgoulhon
+ * minor modifs
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.0  1999/02/15  10:42:45  hyc
  * *** empty log message ***
@@ -53,16 +56,16 @@ char c_est_pas_fait_C[] = "$Header$" ;
 #include <stdlib.h>
 
 void c_est_pas_fait(char * fichier) {
-    char c ;
 
 #ifdef NDEBUG
     cout.flush() ;
-    cout << "Routine non faite dans " << fichier << endl ;
+    cout << "Routine not ready in " << fichier << " !" << endl ;
     abort() ;
 #else
     cout.flush() ;
-    cout << "Routine non faite dans " << fichier << endl ;
-    cout << "Suite = 'return',  abort = '0'" << endl ;
+    cout << "Routine not ready in " << fichier << " !" << endl ;
+    cout << "Next = 'return',  abort = '0'" << endl ;
+    char c ;
     cin.get(c) ;
     if (c == '0') {
 	abort() ;
