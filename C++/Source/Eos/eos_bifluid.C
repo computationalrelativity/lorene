@@ -31,6 +31,11 @@ char eos_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/12/04 14:17:26  r_prix
+ * new 2-fluid EOS subtype 'typeos=5': this is identical to typeos=0
+ * (analytic EOS), but we perform the EOS inversion "slow-rot-style",
+ * i.e. we don't switch to a 1-fluid EOS when one fluid vanishes.
+ *
  * Revision 1.9  2003/11/18 18:28:38  r_prix
  * moved particle-masses m_1, m_2 of the two fluids into class eos_bifluid (from eos_bf_poly)
  *
@@ -101,7 +106,7 @@ char eos_bifluid_C[] = "$Header$" ;
 // Standard constructor without name
 // ---------------------------------
 Eos_bifluid::Eos_bifluid() :
-  m_1(1), m_2(1) 
+  m_1(1), m_2(1)
 {
     set_name("") ; 
 }
@@ -119,9 +124,7 @@ Eos_bifluid::Eos_bifluid(const char* name_i, double mass1, double mass2) :
 Eos_bifluid::Eos_bifluid(const Eos_bifluid& eos_i) :
   m_1(eos_i.m_1), m_2(eos_i.m_2)
 {
-  
     set_name(eos_i.name) ; 
-
 }
 
 // Constructor from a binary file
@@ -277,6 +280,23 @@ void Eos_bifluid::calcule_tout(const Cmp& ent1, const Cmp& ent2,
     assert(mp->get_mg()->get_nt(l) == nt0) ; 
   }
 
+  //**********************************************************************
+  //RP: for comparison with slow-rotation, we might have to treat the 
+  // 1-fluid region somewhat differently...
+  bool slow_rot_style = false;  // off by default
+
+  if ( identify() == 2 )  // only applies if newtonian 2-fluid polytrope
+    {
+      const Eos_bf_poly_newt *this_eos = dynamic_cast<const Eos_bf_poly_newt*>(this);
+      if (this_eos -> get_typeos() == 5)
+	{
+	  slow_rot_style = true;
+	  cout << "DEBUG: using EOS-inversion slow-rot-style!! " << endl;
+	}
+    }
+
+  //**********************************************************************
+
   for (int k=0; k<np0; k++) {
     for (int j=0; j<nt0; j++) {
       bool inside = true ;
@@ -290,32 +310,41 @@ void Eos_bifluid::calcule_tout(const Cmp& ent1, const Cmp& ent2,
 	  xx = delta2(l,k,j,i) ;
 	  if (inside) {
 	    inside = (!nbar_ent_p(xx1, xx2, xx, n1, n2)) ; 
-	    inside1 = ((n1 > 0.)&&(xx1>0.)) ;
-	    inside2 = ((n2 > 0.)&&(xx2>0.)) ;
+	    //	    inside1 = ((n1 > 0.)&&(xx1>0.)) ;
+	    inside1 = (n1 > 0.) ;
+	    //	    inside2 = ((n2 > 0.)&&(xx2>0.)) ;
+	    inside2 = (n2 > 0.) ;
+
+	    // slowrot special treatment follows here.
+	    if (slow_rot_style)
+	      {
+		inside = true;  // no 1-fluid transition!
+		n1 = (n1 > 0) ? n1: 0;  // make sure only positive densities
+		n2 = (n2 > 0) ? n2: 0;
+	      }
 	  }
 	  if (inside) {
 	    nbar1.set(l,k,j,i) = n1 ;
 	    nbar2.set(l,k,j,i) = n2 ;
-	    ener.set(l,k,j,i) = ener_nbar_p(n1, n2, xx) ;
-	    press.set(l,k,j,i) = press_nbar_p(n1, n2, xx) ;
 	  }
 	  else {
 	    if (inside1) {
 	      n1 = nbar_ent_p1(xx1) ;
 	      inside1 = (n1 > 0.) ;
 	    }
-	    if (!inside1) n1 = 0. ;
 	    if (inside2) {
 	      n2 = nbar_ent_p2(xx2) ;
 	      inside2 = (n2 > 0.) ;
 	    }
+	    if (!inside1) n1 = 0. ;
 	    if (!inside2) n2 = 0. ;
 	    nbar1.set(l,k,j,i) = n1 ;
 	    nbar2.set(l,k,j,i) = n2 ;
-	    
-	    ener.set(l,k,j,i) = ener_nbar_p(n1, n2, 0.) ;
-	    press.set(l,k,j,i) = press_nbar_p(n1, n2, 0. ) ;
 	  }
+
+	  ener.set(l,k,j,i) = ener_nbar_p(n1, n2, xx) ;
+	  press.set(l,k,j,i) = press_nbar_p(n1, n2, xx) ;
+
 	}
       }
     }
