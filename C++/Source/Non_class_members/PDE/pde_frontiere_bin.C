@@ -25,6 +25,10 @@ char pde_frontiere_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/02/08 10:05:53  f_limousin
+ * Implementation of neumann_binaire(...) and dirichlet_binaire(...)
+ * with Scalars (instead of Cmps) in arguments.
+ *
  * Revision 1.2  2003/10/03 15:58:50  j_novak
  * Cleaning of some headers
  *
@@ -53,8 +57,10 @@ char pde_frontiere_bin_C[] = "$Header$" ;
 #include <math.h>
 
 // LORENE
+#include "tensor.h"
 #include "tenseur.h"
 #include "proto.h"
+#include "metric.h"
 
 // Version avec une fonction de theta, phi.
 
@@ -199,6 +205,135 @@ void dirichlet_binaire (const Cmp& source_un, const Cmp& source_deux,
     dirichlet_binaire (source_un, source_deux, boundary_un, boundary_deux, 
 			sol_un, sol_deux, num_front, precision) ;
 }
+
+
+// Version with Scalar :
+void dirichlet_binaire (const Scalar& source_un, const Scalar& source_deux, 
+			const Valeur& boundary_un, const Valeur& boundary_deux,
+ 			Scalar& sol_un, Scalar& sol_deux, int num_front, 
+				double precision) {
+    
+    // Les verifs sur le mapping :
+    assert (source_un.get_mp() == sol_un.get_mp()) ;
+    assert (source_deux.get_mp() == sol_deux.get_mp()) ;
+    
+    Valeur limite_un (boundary_un.get_mg()) ;
+    Valeur limite_deux (boundary_deux.get_mg()) ;
+    
+    Scalar sol_un_old (sol_un.get_mp()) ;
+    Scalar sol_deux_old (sol_deux.get_mp()) ;
+    
+    Mtbl xa_mtbl_un (source_un.get_mp().xa) ;
+    Mtbl ya_mtbl_un (source_un.get_mp().ya) ;
+    Mtbl za_mtbl_un (source_un.get_mp().za) ;
+    Mtbl xa_mtbl_deux (source_deux.get_mp().xa) ;
+    Mtbl ya_mtbl_deux (source_deux.get_mp().ya) ;
+    Mtbl za_mtbl_deux (source_deux.get_mp().za) ;
+    
+    double xabs, yabs, zabs ;
+    double air,  theta,  phi ;
+    double valeur ;
+    
+    int nbrep_un = boundary_un.get_mg()->get_np(num_front) ;
+    int nbret_un = boundary_un.get_mg()->get_nt(num_front) ;
+    int nbrep_deux = boundary_deux.get_mg()->get_np(num_front) ;
+    int nbret_deux = boundary_deux.get_mg()->get_nt(num_front) ;
+    
+    int nz_un = boundary_un.get_mg()->get_nzone() ;
+    int nz_deux = boundary_deux.get_mg()->get_nzone() ;
+    
+    // Initialisation valeur limite avant iteration !
+   limite_un = 1 ; //Pour initialiser les tableaux
+   for (int k=0 ; k<nbrep_un ; k++)
+    for (int j=0 ; j<nbret_un ; j++)
+	limite_un.set(num_front, k, j, 0) =
+		sol_un.get_spectral_va().val_point_jk(num_front+1, -1, j, k) ;
+    limite_un.set_base (boundary_un.base) ;
+
+    limite_deux = 1 ;
+    for (int k=0 ; k<nbrep_deux ; k++)
+	for (int j=0 ; j<nbret_deux ; j++)
+	  limite_deux.set(num_front, k, j, 0) =
+	    sol_deux.get_spectral_va().val_point_jk(num_front+1, -1, j, k) ;
+    limite_deux.set_base (boundary_deux.base) ;
+
+
+    int conte = 0 ;
+    int indic = 1 ;
+    
+    while (indic==1) {
+	
+	sol_un_old = sol_un ;
+	sol_deux_old = sol_deux ;
+	
+	sol_un = source_un.poisson_dirichlet(limite_un, num_front) ;
+	sol_deux = source_deux.poisson_dirichlet(limite_deux, num_front) ;
+	
+	xa_mtbl_deux = source_deux.get_mp().xa ;
+	ya_mtbl_deux = source_deux.get_mp().ya ;
+	za_mtbl_deux = source_deux.get_mp().za ;
+	
+	
+	for (int k=0 ; k<nbrep_deux ; k++)
+	    for (int j=0 ; j<nbret_deux ; j++) {
+		xabs = xa_mtbl_deux (num_front+1, k, j, 0) ;
+		yabs = ya_mtbl_deux (num_front+1, k, j, 0) ;
+		zabs = za_mtbl_deux (num_front+1, k, j, 0) ;
+		
+		source_un.get_mp().convert_absolute 
+				(xabs, yabs, zabs, air, theta, phi) ;
+		valeur = sol_un.val_point(air, theta, phi) ;
+		
+		limite_deux.set(num_front, k, j, 0) = 
+			boundary_deux(num_front, k, j, 0) - valeur ;
+	    }
+	   
+	xa_mtbl_un = source_un.get_mp().xa ;
+	ya_mtbl_un = source_un.get_mp().ya ;
+	za_mtbl_un = source_un.get_mp().za ;
+	
+	for (int k=0 ; k<nbrep_un ; k++)
+	    for (int j=0 ; j<nbret_un ; j++) {
+		xabs = xa_mtbl_un (num_front+1, k, j, 0) ;
+		yabs = ya_mtbl_un (num_front+1, k, j, 0) ;
+		zabs = za_mtbl_un (num_front+1, k, j, 0) ;
+		
+		source_deux.get_mp().convert_absolute 
+		    (xabs, yabs, zabs, air, theta, phi) ;
+		valeur = sol_deux.val_point(air, theta, phi) ;
+		
+		limite_un.set(num_front, k, j, 0) = 
+		    boundary_un(num_front, k, j, 0) - valeur ;
+	    }
+	
+	double erreur = 0 ;
+	Tbl diff_un (diffrelmax(sol_un, sol_un_old)) ;
+	for (int i=num_front+1 ; i<nz_un ; i++)
+	    if (diff_un(i) > erreur)
+		erreur = diff_un(i) ;
+	
+	Tbl diff_deux (diffrelmax(sol_deux, sol_deux_old)) ;
+	for (int i=num_front+1 ; i<nz_deux ; i++)
+	    if (diff_deux(i) > erreur)
+		erreur = diff_deux(i) ;
+	
+	cout << "Pas " << conte << " : Difference " << erreur << endl ;
+	
+	Scalar source1 (source_un) ;
+	Scalar solution1 (sol_un) ;
+
+//	maxabs(solution1.laplacian() - source1,
+//	       "Absolute error in the resolution of the equation for N") ;  
+	
+
+	conte ++ ;
+	if (erreur < precision)
+	    indic = -1 ;
+    }
+					
+}
+
+
 
 // Version avec une fonction de theta, phi.
 
@@ -346,7 +481,7 @@ cost_mtbl_un(num_front+1, k, j, 0)*grad_sol_deux(2).val_point(air, theta, phi);
 	
 	cout << "Pas " << conte << " : Difference " << erreur << endl ;
 	conte ++ ;
-	
+
 	if (erreur < precision)
 	    indic = -1 ;
     }					
@@ -375,3 +510,133 @@ void neumann_binaire (const Cmp& source_un, const Cmp& source_deux,
     neumann_binaire (source_un, source_deux, boundary_un, boundary_deux, 
 			sol_un, sol_deux, num_front, precision) ;
 }			
+void neumann_binaire (const Scalar& source_un, const Scalar& source_deux, 
+		      const Valeur& boundary_un, const Valeur& boundary_deux,
+		      Scalar& sol_un, Scalar& sol_deux, int num_front, 
+		      double precision) {
+    
+    // Les verifs sur le mapping :
+    assert (source_un.get_mp() == sol_un.get_mp()) ;
+    assert (source_deux.get_mp() == sol_deux.get_mp()) ;
+
+    Valeur limite_un (boundary_un.get_mg()) ;
+    Valeur limite_deux (boundary_deux.get_mg()) ;
+    
+    Scalar sol_un_old (sol_un.get_mp()) ;
+    Scalar sol_deux_old (sol_deux.get_mp()) ;
+    
+    Mtbl xa_mtbl_un (source_un.get_mp().xa) ;
+    Mtbl ya_mtbl_un (source_un.get_mp().ya) ;
+    Mtbl za_mtbl_un (source_un.get_mp().za) ;
+    
+    Mtbl xa_mtbl_deux (source_deux.get_mp().xa) ;
+    Mtbl ya_mtbl_deux (source_deux.get_mp().ya) ;
+    Mtbl za_mtbl_deux (source_deux.get_mp().za) ;
+        
+    double xabs, yabs, zabs ;
+    double air,  theta,  phi ;
+    double valeur ;
+     
+    const Metric_flat& ff_un (source_un.get_mp().flat_met_spher()) ;
+    const Metric_flat& ff_deux (source_deux.get_mp().flat_met_spher()) ;
+
+    int nbrep_un = boundary_un.get_mg()->get_np(num_front) ;
+    int nbret_un = boundary_un.get_mg()->get_nt(num_front) ;
+    int nbrep_deux = boundary_deux.get_mg()->get_np(num_front) ;
+    int nbret_deux = boundary_deux.get_mg()->get_nt(num_front) ;
+    
+    int nz_un = boundary_un.get_mg()->get_nzone() ;
+    int nz_deux = boundary_deux.get_mg()->get_nzone() ;
+    
+    // Initialisation des CL :
+    limite_un = 1 ;
+    limite_deux = 2 ;
+    Scalar der_un (sol_un.dsdr()) ;
+    Scalar der_deux (sol_deux.dsdr()) ;
+    
+    for (int k=0 ; k<nbrep_un ; k++)
+	for (int j=0 ; j<nbret_un ; j++)
+	    limite_un.set(num_front, k, j, 0) =
+		der_un.get_spectral_va().val_point_jk(num_front+1, -1, j, k) ;
+    limite_un.set_base (boundary_un.base) ;
+
+    for (int k=0 ; k<nbrep_deux ; k++)
+	for (int j=0 ; j<nbret_deux ; j++)
+	  limite_deux.set(num_front, k, j, 0) =
+	    der_deux.get_spectral_va().val_point_jk(num_front+1, -1, j, k) ;
+    limite_deux.set_base (boundary_deux.base) ;
+    
+    int conte = 0 ;
+    int indic = 1 ;
+    
+    while (indic==1) {
+
+	sol_un_old = sol_un ;
+	sol_deux_old = sol_deux ;
+	
+	sol_un = source_un.poisson_neumann(limite_un, num_front) ;
+	sol_deux = source_deux.poisson_neumann(limite_deux, num_front) ;
+	
+	// On veut les derivees de l'un sur l'autre :
+	Scalar copie_un (sol_un) ;
+	Vector grad_sol_un (copie_un.derive_cov(ff_un)) ;
+	grad_sol_un.dec_dzpuis(2) ;
+	
+	for (int k=0 ; k<nbrep_deux ; k++)
+	    for (int j=0 ; j<nbret_deux ; j++) {
+		xabs = xa_mtbl_deux (num_front+1, k, j, 0) ;
+		yabs = ya_mtbl_deux (num_front+1, k, j, 0) ;
+		zabs = za_mtbl_deux (num_front+1, k, j, 0) ;
+		
+		source_un.get_mp().convert_absolute 
+				(xabs, yabs, zabs, air, theta, phi) ;
+				
+		valeur = grad_sol_un(1).val_point(air, theta, phi) ;
+
+		limite_deux.set(num_front, k, j, 0) = 
+			boundary_deux(num_front, k, j, 0) - valeur ;
+	    }
+	
+	Scalar copie_deux (sol_deux) ;
+	Vector grad_sol_deux (copie_deux.derive_cov(ff_deux)) ;
+	grad_sol_deux.dec_dzpuis(2) ;
+	
+	for (int k=0 ; k<nbrep_un ; k++)
+	    for (int j=0 ; j<nbret_un ; j++) {
+		xabs = xa_mtbl_un (num_front+1, k, j, 0) ;
+		yabs = ya_mtbl_un (num_front+1, k, j, 0) ;
+		zabs = za_mtbl_un (num_front+1, k, j, 0) ;
+		
+		source_deux.get_mp().convert_absolute 
+				(xabs, yabs, zabs, air, theta, phi) ;
+				
+		valeur = grad_sol_deux(1).val_point(air, theta, phi) ;
+				
+		limite_un.set(num_front, k, j, 0) = 
+			boundary_un(num_front, k, j, 0) - valeur ;
+	    }
+		
+	double erreur = 0 ;
+	Tbl diff_un (diffrelmax(sol_un, sol_un_old)) ;
+	for (int i=num_front+1 ; i<nz_un ; i++)
+	    if (diff_un(i) > erreur)
+		erreur = diff_un(i) ;
+	
+	Tbl diff_deux (diffrelmax(sol_deux, sol_deux_old)) ;
+	for (int i=num_front+1 ; i<nz_deux ; i++)
+	    if (diff_deux(i) > erreur)
+		erreur = diff_deux(i) ;
+	
+	cout << "Pas " << conte << " : Difference " << erreur << endl ;
+	conte ++ ;
+	
+	Scalar source1 (source_un) ;
+	Scalar solution1 (sol_un) ;
+
+//	maxabs(solution1.laplacian() - source1,
+//	       "Absolute error in the resolution of the equation for psi") ;  
+
+	if (erreur < precision)
+	    indic = -1 ;
+    }					
+}
