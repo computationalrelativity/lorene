@@ -695,9 +695,9 @@ class Star_bin : public Star {
 	 * when the companion is another star.
 	 *
 	 *  The calculation is performed starting from the quantities
-	 *  {\tt logn\_auto},  {\tt beta\_auto}, {\tt shift\_auto},
-	 *  {\tt comp.logn\_auto},  {\tt comp.beta\_auto},
-	 *  {\tt comp.shift\_auto}
+	 *  {\tt logn\_auto},  {\tt qq\_auto}, {\tt shift\_auto}, 
+	 *  {\tt hij\_auto}, {\tt comp.logn\_auto},  {\tt comp.qq\_auto},
+	 *  {\tt comp.shift\_auto}, {\TT COMP.hij\_auto}
 	 *  which are supposed to be up to date.
 	 *  From these,  the following fields are updated:
 	 *  {\tt logn\_comp}, {\tt beta\_comp}, {\tt shift\_comp},
@@ -724,24 +724,13 @@ class Star_bin : public Star {
 	
 	/** Computes the derivative of metric functions related to the
 	 *  companion star.
-	 *
-	 *  The calculation is performed starting from the quantities
-	 *  {\tt comp.d\_logn\_auto},  {\tt comp.d\_beta\_auto},
-	 *  {\tt comp.tkij\_auto}
-	 *  which are supposed to be up to date.
-	 *  From these,  the following fields are updated:
-	 *  {\tt d\_logn\_comp}, {\tt d\_beta\_comp}, {\tt tkij\_comp},
-	 *  {\tt akcar\_comp}.
-	 *
-	 *  @param comp companion star.
-	 *
 	 */
 	 void update_metric_der_comp(const Star_bin& comp) ;
 
 	/** Computes the quantities {\tt bsn} and {\tt pot\_centri}.
 	 * 
 	 *  The calculation is performed starting from the quantities
-	 *  {\tt nnn}, {\tt shift},  {\tt a\_car},  
+	 *  {\tt nnn}, {\tt shift},  {\tt qq\_car},  
 	 *  which are supposed to be up to date.  
 	 * 
 	 *  @param omega  angular velocity with respect to an asymptotically 
@@ -754,16 +743,6 @@ class Star_bin : public Star {
 	 * 
 	 */
 	void fait_d_psi() ; 
-	
-	/** Computes {\tt shift\_auto} from {\tt w\_shift} and {\tt khi\_shift}
-	 *  according to Shibata's prescription 
-	 *  [Prog. Theor. Phys. {\bf 101}, 1199 (1999)] :
-	 * \begin{equation}
-	 *  N^i = {7\over 8} W^i - {1\over 8} 
-	 *			\left(\nabla^i\chi+\nabla^iW^kx_k\right)
-	 * \end{equation}
-	 */
-	void fait_shift_auto() ; 
 	
 	/** Computes {\tt tkij\_auto} and {\tt akcar\_auto} from 
 	 *  {\tt shift\_auto}, {\tt nnn} and {\tt a\_car}.
@@ -812,19 +791,6 @@ class Star_bin : public Star {
 			 const Tbl& fact, Tbl& diff) ;
 
 
-	/** Computes the non-translational part of the velocity scalar potential
-	 *  $\psi0$ by solving the continuity equation.
-	 *  
-	 *  @param mermax  [input] Maximum number of steps in the iteration
-	 *  @param precis  [input] Required precision: the iteration will
-	 *			   be stopped when the relative difference
-	 *			   on $\psi0$ between two successive steps
-	 *			   is lower than {\tt precis}.
-	 *  @param relax   [input] Relaxation factor.  
-	 *
-	 *  @return Relative error of the resolution obtained by comparing
-	 *	    the operator acting on the solution with the source.
-	 */
 //	double velocity_potential(int mermax, double precis, double relax) ;
 
 	/** Performs a relaxation on {\tt ent}, {\tt logn\_auto},
