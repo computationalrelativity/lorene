@@ -29,6 +29,10 @@ char lit_ih_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/03/09 10:35:28  f_limousin
+ * Drawing of K_{ij}s^is^j and new initialisation of A^{ij} thanks to
+ * the function update_aa().
+ *
  * Revision 1.2  2005/03/04 18:24:09  jl_jaramillo
  * Extrinsic curvature graphical output.
  *
@@ -77,6 +81,8 @@ int main(int argc, char** argv) {
     Isol_hor isolhor (mp, fich, true) ;
     fclose(fich) ;
     
+    isolhor.update_aa() ;
+
     // PLOTS 
     // -------
 
