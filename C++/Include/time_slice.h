@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/28 21:33:14  e_gourgoulhon
+ * Constructor  Time_slice::Time_slice(int depth_in) declared "explicit".
+ *
  * Revision 1.3  2004/03/28 21:27:57  e_gourgoulhon
  * Class Time_slice: - renamed the Evolution_std with suffix "_evol".
  *                   - added protected constructor for derived classes
@@ -171,7 +174,7 @@ class Time_slice {
     /** Special constructor for derived classes.
      *
      */
-    Time_slice(int depth_in) ; 
+    explicit Time_slice(int depth_in) ; 
 
     public:
     virtual ~Time_slice() ;			///< Destructor
