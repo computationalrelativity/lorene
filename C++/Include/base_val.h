@@ -34,6 +34,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/11/04 15:39:45  e_gourgoulhon
+ * Modif documentation: added description of bases without any symmetry
+ *  in theta.
+ *
  * Revision 1.11  2004/08/24 09:14:40  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -177,6 +181,10 @@ class Tbl ;
  *					    (\e r -sampling: \c RARE);
  *   \li \c R_CHEBI (0x00000003) : Odd Chebyshev polynomials 
  *						(\e r -sampling: \c RARE );
+ *   \li \c R_CHEBPI_P (0x00000004) : Even (resp. odd) Chebyshev
+ *	     polynomials for \e l (spherical harmonic index) even (resp. odd) (\e r -sampling: \c RARE );
+ *   \li \c R_CHEBPI_I (0x00000005) : Odd (resp. even) Chebyshev
+ *	     polynomials for \e l (spherical harmonic index) even (resp. odd) (\e r -sampling: \c RARE ) ;
  *   \li \c R_CHEBPIM_P (0x00000006) : Even (resp. odd) Chebyshev
  *	     polynomials for \e m even (resp. odd) (\e r -sampling: \c RARE );
  *   \li \c R_CHEBPIM_I (0x00000007) : Odd (resp. even) Chebyshev
@@ -187,6 +195,12 @@ class Tbl ;
  * The basis functions for expansion with respect to the co-latitude coordinate 
  * \f$\theta\f$ are coded as follows, \e m being the order of the Fourier expansion 
  * in \f$\phi\f$:  
+ *   \li \c T_COSSIN_C  (0x00000100) : \f$\cos(j \theta)\f$ for \e m even,
+ *					      \f$\sin(j \theta)\f$ for \e m odd
+ *						(\f$\theta\f$-sampling: \c SYM);
+ *   \li \c T_COSSIN_S  (0x00000200) : \f$\sin(j \theta)\f$ for \e m even,
+ *					      \f$\cos(j \theta)\f$ for \e m odd
+ *						(\f$\theta\f$-sampling: \c SYM);
  *   \li \c T_COS_P  (0x00000500) : \f$\cos(2j \theta)\f$
  *						(\f$\theta\f$-sampling: \c SYM);
  *   \li \c T_SIN_P  (0x00000600) : \f$\sin(2j \theta)\f$
@@ -231,6 +245,8 @@ class Tbl ;
  *					  \f$P_{2j}^m(\cos\theta)\f$, \e m being 
  *					   always odd
  *						(\f$\theta\f$-sampling: \c SYM);
+ *   \li \c T_LEG  (0x00001700) : Associated Legendre functions 
+ *                              \f$P_l^m(\cos\theta)\f$ of all types
  *
  * The basis functions for expansion with respect to the azimuthal coordinate 
  * \f$\phi\f$ are coded as follows
