@@ -31,6 +31,9 @@ char et_bin_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/12/16 14:36:39  k_taniguchi
+ * Introduce a new Cmp for the calculation of gravitational mass.
+ *
  * Revision 1.2  2002/12/10 15:45:25  k_taniguchi
  * Change the multiplication "*" to "%".
  *
@@ -106,8 +109,11 @@ double Etoile_bin::mass_g() const {
 
 	    Cmp sqrt_acar = sqrt(a_car()) ;
 	    sqrt_acar.std_base_scal() ;
-	    Cmp dens = a_car() % sqrt_acar % nnn() 
-				    % (ener_euler() + s_euler())  ;
+
+	    Cmp tmp_euler = ener_euler() + s_euler() ;
+	    tmp_euler.std_base_scal() ;
+
+	    Cmp dens = a_car() % sqrt_acar % nnn() % tmp_euler ;
 	    dens.std_base_scal() ; 
 
 	    p_mass_g = new double( dens.integrale() ) ;
