@@ -35,6 +35,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2003/10/15 16:03:38  j_novak
+ * Added the angular Laplace operator for Scalar.
+ *
  * Revision 1.14  2003/10/15 10:43:06  e_gourgoulhon
  * Added new members p_dsdt and p_stdsdp.
  *
@@ -197,6 +200,7 @@ void Scalar::del_deriv() const{
     if (p_dsdy != 0x0) delete p_dsdy ;
     if (p_dsdz != 0x0) delete p_dsdz ;
     if (p_lap != 0x0) delete p_lap ; 
+    if (p_lapang != 0x0) delete p_lapang ; 
     if (p_integ != 0x0) delete p_integ ; 
     set_der_0x0() ;
 
@@ -213,6 +217,7 @@ void Scalar::set_der_0x0() const {
     p_dsdy = 0x0 ;
     p_dsdz = 0x0 ;
     p_lap = 0x0 ; 
+    p_lapang = 0x0 ; 
     ind_lap = - 1 ; 
     p_integ = 0x0 ; 
 }
@@ -312,6 +317,7 @@ void Scalar::annule(int l_min, int l_max) {
 		if (p_dsdy != 0x0) p_dsdy->annule(l_min, l_max) ;
 		if (p_dsdz != 0x0) p_dsdz->annule(l_min, l_max) ;
 		if (p_lap != 0x0) p_lap->annule(l_min, l_max) ;
+		if (p_lapang != 0x0) p_lapang->annule(l_min, l_max) ;
 		if (p_integ != 0x0) delete p_integ ;
     }
     

@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2003/10/15 16:03:35  j_novak
+ * Added the angular Laplace operator for Scalar.
+ *
  * Revision 1.21  2003/10/15 10:29:05  e_gourgoulhon
  * Added new members p_dsdt and p_stdsdp.
  * Added new methods dsdt(), stdsdp() and div_tant().
@@ -187,6 +190,10 @@ class Scalar : public Tensor {
   /** Pointer on the Laplacian of {\tt *this} (0x0 if not up to date)
    */
   mutable Scalar* p_lap ;	
+  
+  /** Pointer on the Laplacian of {\tt *this} (0x0 if not up to date)
+   */
+  mutable Scalar* p_lapang ;	
   
   /** Power of {\it r} by which the last computed Laplacian has been 
    *  multiplied in the compactified external domain.  
@@ -485,6 +492,15 @@ class Scalar : public Tensor {
    *		    ced\_mult\_r = 4 (default) : $r^4 \, \Delta u$	
    */
   const Scalar& laplacien(int ced_mult_r = 4) const ; 
+  
+  /** Returns the angular Laplacian $\Delta_{\theta\varphi}$ of {\tt *this},
+   *  where $\Delta_{\theta\varphi} f = \frac{\partial^2 f}
+   *  {\partial \theta^2} + \frac{1}{\tan \theta} \frac{\partial f}
+   *  {\partial \theta} +\frac{1}{\sin^2 \theta}\frac{\partial^2 f}
+   *  {\partial \varphi^2}$
+   * 
+   */
+  const Scalar& lapang() const ; 
   
   void div_r() ;    /// Division by {\it r} everywhere.
  

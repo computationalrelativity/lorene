@@ -30,8 +30,11 @@ char map_et_lap_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/10/15 16:03:37  j_novak
+ * Added the angular Laplace operator for Scalar.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.4  2000/02/25  09:02:18  eric
  * Remplacement de (uu.get_dzpuis() == 0) par uu.check_dzpuis(0).
@@ -59,6 +62,7 @@ char map_et_lap_C[] = "$Header$" ;
 // Header Lorene
 #include "map.h"
 #include "cmp.h" 
+#include "tensor.h"
 #include "type_parite.h" 
 
 void Map_et::laplacien(const Cmp& uu, int zec_mult_r, Cmp& resu) const {
@@ -161,6 +165,13 @@ void Map_et::laplacien(const Cmp& uu, int zec_mult_r, Cmp& resu) const {
     if (zec == 1) {
 	resu.set_dzpuis(zec_mult_r) ; 
     }
+
+}
+
+void Map_et::lapang(const Scalar& , Scalar& ) const {
+ 
+  cout << "Map_et::lapang : not implemented yet!" << endl ;
+  abort() ;
 
 }
 

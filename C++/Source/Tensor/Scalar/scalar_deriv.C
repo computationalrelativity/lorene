@@ -34,6 +34,9 @@ char scalar_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/15 16:03:38  j_novak
+ * Added the angular Laplace operator for Scalar.
+ *
  * Revision 1.4  2003/10/15 10:43:58  e_gourgoulhon
  * Added new methods dsdt and stdsdp.
  *
@@ -358,6 +361,31 @@ const Scalar& Scalar::laplacien(int zec_mult_r) const {
     
 }
     
+			//-----------------------------//
+			//     Angular Laplacian       //
+			//-----------------------------//
+
+const Scalar& Scalar::lapang() const {
+
+    // Protection
+    assert(etat != ETATNONDEF) ;
+
+    // If the Laplacian has not been previously computed, the 
+    //  computation must be done by the appropriate routine of the mapping : 
+    if ( p_lapang == 0x0 ) {
+      if (etat == ETATUN) {
+	p_lapang = new Scalar(*mp) ;
+	p_lapang->set_etat_zero() ;
+      }
+      else {
+	p_lapang = new Scalar(*mp) ;
+	mp->lapang(*this, *p_lapang) ;
+      }
+    }
+    
+    return *p_lapang ;
+    
+}
    
     
     

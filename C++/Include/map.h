@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2003/10/15 16:03:35  j_novak
+ * Added the angular Laplace operator for Scalar.
+ *
  * Revision 1.9  2003/10/15 10:27:33  e_gourgoulhon
  * Classes Map, Map_af and Map_et: added new methods dsdt, stdsdp and div_tant.
  * Class Map_radial: added new Coord's : drdt and stdrdp.
@@ -781,6 +784,14 @@ class Map {
 	 */
 	virtual void laplacien(const Cmp& uu, int zec_mult_r, 
 			       Cmp& lap) const = 0 ; 
+	
+	/** Computes the angular Laplacian of a scalar field.
+	 *   @param uu	[input]  Scalar field {\it u} (represented as a {\tt Scalar})
+	 *			 the Laplacian $\Delta u$ of which is to be computed
+	 *   @param lap [output] Angular Laplacian of {\it u} (see documentation 
+	 *                       of {\tt Scalar}
+	 */
+	virtual void lapang(const Scalar& uu, Scalar& lap) const = 0 ; 
 	
 	 
     // Various linear operators
@@ -1706,6 +1717,16 @@ class Map_af : public Map_radial {
 	virtual void laplacien(const Cmp& uu, int zec_mult_r, Cmp& lap) const ; 
 	
 	
+	
+	/** Computes the angular Laplacian of a scalar field.
+	 *   @param uu	[input]  Scalar field {\it u} (represented as a {\tt Scalar})
+	 *			 the Laplacian $\Delta u$ of which is to be computed
+	 *   @param lap [output] Angular Laplacian of {\it u} (see documentation 
+	 *                       of {\tt Scalar}
+	 */
+	virtual void lapang(const Scalar& uu, Scalar& lap) const ; 
+	
+
 	/** Computes the integral over all space of a {\tt Cmp}.
 	 *  The computed quantity is 
 	 *    $\int u \, r^2 \sin\theta \,  dr\, d\theta \, d\phi$.
@@ -2326,6 +2347,15 @@ class Map_et : public Map_radial {
 	 *  @param lap [output] Laplacian of {\it u}
 	 */
 	virtual void laplacien(const Cmp& uu, int zec_mult_r, Cmp& lap) const ; 
+	
+	
+	/** Computes the angular Laplacian of a scalar field.
+	 *   @param uu	[input]  Scalar field {\it u} (represented as a {\tt Scalar})
+	 *			 the Laplacian $\Delta u$ of which is to be computed
+	 *   @param lap [output] Angular Laplacian of {\it u} (see documentation 
+	 *                       of {\tt Scalar}
+	 */
+	virtual void lapang(const Scalar& uu, Scalar& lap) const ; 
 	
 
 	/** Computes the integral over all space of a {\tt Cmp}.

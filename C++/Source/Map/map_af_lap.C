@@ -28,6 +28,9 @@ char map_af_lap_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/15 16:03:37  j_novak
+ * Added the angular Laplace operator for Scalar.
+ *
  * Revision 1.3  2003/10/03 15:58:48  j_novak
  * Cleaning of some headers
  *
@@ -104,6 +107,7 @@ char map_af_lap_C[] = "$Header$" ;
 #include <math.h>
 
 #include "cmp.h"
+#include "tensor.h"
 
 //******************************************************************************
 
@@ -336,6 +340,33 @@ void Map_af::laplacien(const Cmp& uu, int zec_mult_r, Cmp& resu) const {
     ff.base = base_entree ;
     resu = ff ;
     resu.set_dzpuis(zec_mult_r) ; 
+    
+}
+
+void Map_af::lapang(const Scalar& uu, Scalar& resu) const {
+ 
+    assert (uu.get_etat() != ETATNONDEF) ; 
+    assert (uu.get_mp().get_mg() == mg) ; 
+
+    // Particular case of null result:
+
+    if ( (uu.get_etat() == ETATZERO) || (uu.get_etat() == ETATUN) ) {
+      resu.set_etat_zero() ; 
+      return ; 
+    }
+
+    assert( uu.get_etat() == ETATQCQ ) ; 
+    resu.set_etat_qcq() ;    
+
+    Valeur ff = uu.get_spectral_va() ;
+
+    //... Passage en harmoniques spheriques
+    ff.ylm() ;		
+
+    //... Multiplication par -l*(l+1)  
+    resu = ff.lapang() ; 
+
+    resu.set_dzpuis(uu.get_dzpuis()) ; 
     
 }
 
