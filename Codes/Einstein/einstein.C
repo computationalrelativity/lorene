@@ -29,6 +29,9 @@ char einstein_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/03/05 15:11:18  e_gourgoulhon
+ * Use of new method Scalar::smooth_decay on khi_jp1.
+ *
  * Revision 1.7  2004/03/04 22:19:25  e_gourgoulhon
  * All sources completed (except for the time derivatives and
  * shift terms in the source for h).
@@ -123,7 +126,8 @@ int main() {
     // Parameter for the initial data 
     //-------------------------------
     
-    double relativistic_init = 0.05 ;     // 0 = flat space
+    double relativistic_init = 0. ;     // 0 = flat space
+    double ampli_h_init = 0.05 ;     // 0 = flat space
     
     
     // Set up of tensor h
@@ -145,29 +149,43 @@ int main() {
     // const Coord& sinp = map.sinp ; 
     
     Scalar khi_init(map) ; 
-    khi_init = 0. * (3*cost*cost-1) / 
+    khi_init = 0.* ampli_h_init * (3*cost*cost-1) / 
         ( (r*r + 1./(r*r)) * sqrt(1.+r*r) ) ; 
     khi_init.std_spectral_base() ; 
     
-    //khi_init.spectral_display("khi_init") ;   
-    //des_profile(khi_init, 0., 4., 0., 0, "khi_init") ;
-        
+    //##
+    // des_meridian(khi_init, 0., 3., "khi_init before", 1) ; 
+    // arrete() ; 
+    // khi_init.smooth_decay(3, 4) ; 
+    // khi_init.spectral_display("khi_init") ;   
+    // des_meridian(khi_init, 0., 3., "khi_init after", 2) ; 
+    // arrete() ; 
+    //## 
+                  
     Scalar mu_init(map) ; 
-    mu_init = relativistic_init / (1+r*r*r*r*r*r) ; 
+    mu_init = ampli_h_init / (1+r*r*r*r*r*r) ; 
     mu_init.std_spectral_base() ; 
     mu_init.mult_r() ; 
     mu_init.mult_r() ; 
     mu_init.mult_r() ; 
     mu_init.mult_cost() ; 
     
-    //mu_init.spectral_display("mu_init") ;   
-    //des_profile(mu_init, 0., 4., 0., 0, "mu_init") ;
+    //##
+    // des_meridian(mu_init, 0., 3., "mu_init before", 1) ; 
+    // arrete() ; 
+    // mu_init.smooth_decay(3, 4) ; 
+    // mu_init.spectral_display("mu_init") ;   
+    // des_meridian(mu_init, 0., 3., "mu_init after", 2) ; 
+    // arrete() ; 
+    //## 
+                  
 
     Sym_tensor_tt htt_init(map, otriad, ff) ;  // htt is the TT part of hh
         
     htt_init.set_khi_mu(khi_init, mu_init) ; 
     
     hh_init = htt_init ; 
+        
     
     maxabs( hh_init.divergence(ff), "Divergence of hh_init") ; 
     maxabs( hh_init.trace(ff), "Trace of hh_init") ; 
@@ -197,10 +215,7 @@ int main() {
     // ---------------------------    
 
     Vector beta_init(map, CON, otriad ) ; 
-    tmp =  sint * cosp / ( r + 1 / r ) ;   
-    tmp.std_spectral_base() ;    // sets standard spectral bases
-    beta_init = relativistic_init * tmp.derive_con(ff) ; 
-    beta_init.dec_dzpuis(2) ;   // dzpuis: 2 -> 0  
+    beta_init.set_etat_zero() ; 
 
     // Set up of lapse function N
     // --------------------------
@@ -534,15 +549,18 @@ int main() {
         
         const Scalar& mu_source = source_htt.mu() ; 
        
-        des_meridian(source_hh(1,1), 0., 2., "source_hh^rr", 4) ; 
+        des_meridian(source_hh(1,1), 0., 2., "source_hh^rr", 10) ; 
 
-        des_meridian(khi_source, 0., 2., "khi_source", 6) ; 
+        des_meridian(khi_source, 0., 2., "khi_source", 11) ; 
 
                      
         Scalar khi_jp1 = khi_time[jtime].avance_dalembert(par_khi,
                                          khi_time[jtime-1], khi_source) ;
+                                         
+        khi_jp1.smooth_decay(2,1) ; 
+        des_meridian(khi_jp1, 0., 3., "khi_jp1", 12) ; 
         
-        const Scalar* khides[] = {&(khi_time[jtime]), &khi_jp1} ; 
+        const Scalar* khides[] = {&khi_jp1, &(khi_time[jtime])} ; 
         double thetades[] = {0., 0.} ; 
         double phides[] = {0., 0.} ; 
         des_profile_mult(khides, 2, 0., 2., thetades, phides, 1, false, "khi") ;
@@ -588,22 +606,15 @@ int main() {
 void des_meridian(const Scalar& uu, double r_min, double r_max,
                   const char* nomy, int ngraph) {
 
-        const Scalar* des[] = {&uu, &uu, &uu} ; 
-        double phi1[] = {0., 0., 0.} ; 
-        double theta1[] = {0., 0.4*M_PI, 0.5*M_PI} ;
+        const Scalar* des[] = {&uu, &uu, &uu, &uu, &uu} ; 
+        double phi1[] = {0., 0., 0., 0.5*M_PI, 0.5*M_PI} ; 
+        double theta1[] = {0., 0.25*M_PI, 0.5*M_PI, 0., 0.25*M_PI} ;
          
-        des_profile_mult(des, 3, r_min, r_max, theta1, phi1, 1., false, 
+        des_profile_mult(des, 5, r_min, r_max, theta1, phi1, 1., false, 
             nomy, 
-            "Meridional plane phi=0: plot for theta=0, pi/4, pi/2",
+            "phi=0: th=0, pi/4, pi/2, phi=pi/2: th=0, pi/4",
             ngraph) ;
         
- //      double phi2[] = {0.5*M_PI, 0.5*M_PI, 0.5*M_PI} ; 
-    
- //       des_profile_mult(des, 3, r_min, r_max, theta1, phi2, 1., false, 
- //           nomy, 
- //           "Meridional plane phi=pi/2: plot for theta=0, pi/4, pi/2",
- //           ngraph+1) ;
-       
 }
 
 
