@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2003	Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2004 Eric Gourgoulhon & Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,11 @@ char connection_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/01/04 20:57:51  e_gourgoulhon
+ * -- Data member delta is now of type Tensor_sym (and no longer
+ *    Tensor_delta).
+ * -- Better handling of tensor symmetries in method p_derive_cov().
+ *
  * Revision 1.10  2004/01/01 11:24:04  e_gourgoulhon
  * Full reorganization of method p_derive_cov: the main loop is now
  * on the indices of the *output* tensor (to take into account
@@ -94,13 +99,20 @@ char connection_C[] = "$Header$" ;
 
 // Constructor ab initio
 
-Connection::Connection(const Tensor_delta& delta_i, 
+Connection::Connection(const Tensor_sym& delta_i, 
                        const Metric_flat& flat_met_i) 
                       : mp(&(delta_i.get_mp())),
 		        triad(delta_i.get_triad()),
 		        delta(delta_i), 
 		        assoc_metric(false),
 		        flat_met(&flat_met_i) {
+                        
+    assert( delta_i.get_valence() == 3 ) ; 
+    assert( delta_i.sym_index1() == 1 ) ; 
+    assert( delta_i.sym_index2() == 2 ) ;
+    assert( delta_i.get_index_type(0) == CON ) ; 
+    assert( delta_i.get_index_type(1) == COV ) ; 
+    assert( delta_i.get_index_type(2) == COV ) ; 
 		
     set_der_0x0() ; 
 }		
@@ -112,7 +124,7 @@ Connection::Connection(const Metric& met,
                        const Metric_flat& flat_met_i) 
                       : mp(&(met.get_mp())),
 		        triad(met.cov().get_triad()),
-		        delta(*mp, CON, COV, COV, *triad),
+		        delta(*mp, CON, COV, COV, *triad, 1, 2),
 		        assoc_metric(true),
 		        flat_met(&flat_met_i) {
 		
@@ -139,7 +151,7 @@ Connection::Connection(const Connection& conn_i) : mp(conn_i.mp),
 
 Connection::Connection(const Map& mpi, const Base_vect& bi) : mp(&mpi),
 		triad(&bi),
-		delta(mpi, CON, COV, COV, bi),
+		delta(mpi, CON, COV, COV, bi, 1, 2),
 		assoc_metric(false),
 		flat_met(0x0){
 		
@@ -193,12 +205,19 @@ void Connection::operator=(const Connection& ci) {
 
 }	
 
-void Connection::update(const Tensor_delta& delta_i) {
+void Connection::update(const Tensor_sym& delta_i) {
 
 	assert(assoc_metric == false) ;
 	
 	assert(flat_met != 0x0) ; // to guarantee we are not in a derived class
 	
+        assert( delta_i.get_valence() == 3 ) ; 
+        assert( delta_i.sym_index1() == 1 ) ; 
+        assert( delta_i.sym_index2() == 2 ) ;
+        assert( delta_i.get_index_type(0) == CON ) ; 
+        assert( delta_i.get_index_type(1) == COV ) ; 
+        assert( delta_i.get_index_type(2) == COV ) ; 
+		
 	delta = delta_i ; 
 	
 	del_deriv() ; 
@@ -248,7 +267,7 @@ Tensor* Connection::p_derive_cov(const Tensor& uu) const {
     // --------------------------------
     Tensor* resu ;
 
-    // If uu is a Scalar, the result is a vector
+    // If uu is a Scalar, the result is a Vector
     if (valence0 == 0) 
         resu = new Vector(*mp, COV, triad) ;
     else {
@@ -261,7 +280,16 @@ Tensor* Connection::p_derive_cov(const Tensor& uu) const {
         }
         tipe.set(valence1m1) = COV ;  // last index is the derivation index
 
-        resu = new Tensor(*mp, valence1, tipe, *triad) ;
+        // if uu is a Tensor_sym, the result is also a Tensor_sym:
+        const Tensor* puu = &uu ; 
+        const Tensor_sym* puus = dynamic_cast<const Tensor_sym*>(puu) ; 
+        if ( puus != 0x0 ) {    // the input tensor is symmetric
+            resu = new Tensor_sym(*mp, valence1, tipe, *triad,
+                                  puus->sym_index1(), puus->sym_index2()) ;
+        }
+        else {  
+            resu = new Tensor(*mp, valence1, tipe, *triad) ;  // no symmetry  
+        }
     }
 
     int ncomp1 = resu->get_n_comp() ; 
