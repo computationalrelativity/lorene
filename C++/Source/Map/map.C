@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2003 Eric Gourgoulhon
  *
  *   This file is part of LORENE.
  *
@@ -33,6 +33,10 @@ char map_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/10/15 10:30:46  e_gourgoulhon
+ * Map::set_ori: changed x,y,z to xo,yo,zo not to shadow Coord's x,y,z
+ * Map::set_rot_phi: changed phi to newphi not to shadow Coord phi.
+ *
  * Revision 1.5  2003/06/20 14:45:06  f_limousin
  * Add operator==
  *
@@ -214,19 +218,19 @@ ostream& operator<<(ostream& o, const Map & cv)  {
 			// Methodes diverses //
 			//-------------------//
 
-void Map::set_ori(double x, double y, double z) {
-    ori_x = x ;
-    ori_y = y ;
-    ori_z = z ;
+void Map::set_ori(double xo, double yo, double zo) {
+    ori_x = xo ;
+    ori_y = yo ;
+    ori_z = zo ;
 
     bvect_spher.set_ori(ori_x, ori_y, ori_z) ; 
     
     reset_coord() ;  // Mise a jour des Coords 
 }
 
-void Map::set_rot_phi(double phi) {
+void Map::set_rot_phi(double newphi) {
 
-    rot_phi = phi ;
+    rot_phi = newphi ;
 
     bvect_spher.set_rot_phi(rot_phi) ; 
     bvect_cart.set_rot_phi(rot_phi) ; 
