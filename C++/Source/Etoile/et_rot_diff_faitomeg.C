@@ -33,8 +33,11 @@ char et_rot_diff_faitomeg_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/05/14 20:07:00  e_gourgoulhon
+ * Suppressed the outputs (cout)
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.3  2001/10/25  09:43:18  eric
  * omega_min est determine dans l'etoile seulement (l<nzet).
@@ -103,7 +106,7 @@ void Et_rot_diff::fait_omega_field(double omeg_min, double omeg_max,
     
     omega_field.allocate_all() ;
 
-    cout << "Et_rot_diff::fait_omega_field: niter : " << endl ; 
+    // cout << "Et_rot_diff::fait_omega_field: niter : " << endl ; 
     for (l=0; l<nzet+1; l++) {
     	Tbl& tom = omega_field.set().set(l) ;
 	for (k=0; k<mg.get_np(l); k++) {
@@ -125,12 +128,12 @@ void Et_rot_diff::fait_omega_field(double omeg_min, double omeg_max,
 		    omeg = zerosec(et_rot_diff_fzero, par, omeg_min1,
 			 	   omeg_max1, precis, nitermax, niter) ;
 			
-		    cout << "  " << niter ; 
+		    // cout << "  " << niter ; 
 
 		}
 	    }
 	}
-	cout << endl ; 
+	// cout << endl ; 
     }
 
     // omega_field is set to 0 far from the star:
