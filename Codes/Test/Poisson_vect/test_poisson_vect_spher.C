@@ -28,6 +28,9 @@ char test_poisson_vect_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/01/23 13:27:16  e_gourgoulhon
+ * Scalar::set_val_inf --> Scalar::set_outer_boundary.
+ *
  * Revision 1.4  2003/12/19 15:17:45  j_novak
  * *** empty log message ***
  *
@@ -63,6 +66,7 @@ int main() {
 	int np = 12 ; 	// Number of collocation points in phi in each domain
 	int symmetry_theta = SYM ; // symmetry with respect to the equatorial plane
 	int symmetry_phi = NONSYM ; // no symmetry in phi
+    int nzm1 = nz - 1 ; 
 
 	int nbr[] = {nr, 2*nr - 1, 2*nr - 1};
 	int nbt[] = {nt, nt, nt} ;
@@ -107,7 +111,7 @@ int main() {
 	theo.set(1) = x*x / denom ;
 	theo.set(2) = 0 ;
 	theo.set(3) =  0 ;
-	theo.set(1).set_val_inf(0.) ;
+	theo.set(1).set_outer_boundary(nzm1, 0.) ;
 	theo.annule_domain(nz-1) ;
 	theo.std_spectral_base() ; 
 
@@ -115,13 +119,13 @@ int main() {
 	vvc.set(1) = 2*(1+lamda)/denom 
 	  - ((36+20*lamda)*r*r + 8*lamda*x*x)*x*x/denom2
 	  + (r*r+lamda*x*x)*32*r*r*r*r*x*x/denom3 ;
-	vvc.set(1).set_val_inf(0.) ;
+	vvc.set(1).set_outer_boundary(nzm1, 0.) ; ;
 	vvc.set(2) = lamda*(-8*x*y*(r*r + x*x)/denom2 
 			    + 32*r*r*r*r*x*x*x*y/denom3) ;
-	vvc.set(2).set_val_inf(0.) ;
+	vvc.set(2).set_outer_boundary(nzm1, 0.) ;
 	vvc.set(3) = lamda*(-8*x*z*(r*r + x*x)/denom2 
 			    + 32*r*r*r*r*x*x*x*z/denom3) ;
-	vvc.set(3).set_val_inf(0.) ;
+	vvc.set(3).set_outer_boundary(nzm1, 0.) ;
 	vvc.annule_domain(nz-1) ;
 	vvc.std_spectral_base() ;
 
