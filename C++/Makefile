@@ -13,6 +13,7 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Bin_ns_bh; $(MAKE)
 	cd Source/Bin_ns_ncp; $(MAKE)
 	cd Source/Binaire; $(MAKE)
+	cd Source/Binary; $(MAKE)
 	cd Source/Champ_cart; $(MAKE)
 	cd Source/Change_var; $(MAKE)
 	cd Source/Cmp; $(MAKE)
@@ -39,6 +40,7 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Param; $(MAKE)
 	cd Source/Param_elliptic; $(MAKE)
 	cd Source/QuadriD; $(MAKE)
+	cd Source/Star; $(MAKE)
 	cd Source/Tbl; $(MAKE)
 	cd Source/Tenseur; $(MAKE)
 	cd Source/Tensor; $(MAKE)
@@ -58,6 +60,7 @@ uninstall:
 	cd Source/Bin_ns_bh; $(MAKE) -i uninstall
 	cd Source/Bin_ns_ncp; $(MAKE) -i uninstall
 	cd Source/Binaire; $(MAKE) -i uninstall
+	cd Source/Binary; $(MAKE) -i uninstall
 	cd Source/Champ_cart; $(MAKE) -i uninstall
 	cd Source/Change_var; $(MAKE) -i uninstall
 	cd Source/Cmp; $(MAKE) -i uninstall
@@ -84,6 +87,7 @@ uninstall:
 	cd Source/Param; $(MAKE) -i uninstall
 	cd Source/Param_elliptic; $(MAKE) -i uninstall
 	cd Source/QuadriD; $(MAKE) -i uninstall
+	cd Source/Star; $(MAKE) -i uninstall
 	cd Source/Tbl; $(MAKE) -i uninstall
 	cd Source/Tenseur; $(MAKE) -i uninstall
 	cd Source/Tensor; $(MAKE)  -i uninstall

@@ -150,7 +150,9 @@
         //@Include:et_rot_diff.h_r
         //@Include:et_rot_mag.h_r
         //@Include:et_bin_ncp.h_r
+        //@Include:star.h_r
 	//@Include:binaire.h_r
+	//@Include:binary.h_r
 	//@Include:bhole.h_r
 	//@Include:bin_ns_bh.h_r
         //@Include:bin_ns_ncp.h_r
