@@ -32,6 +32,9 @@ char et_bin_kinema_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/01/17 13:35:48  f_limousin
+ * Add comments and replace A^2*flat_scalar_prod by sprod
+ *
  * Revision 1.2  2002/12/10 15:56:43  k_taniguchi
  * Change the multiplication "*" to "%".
  *
@@ -86,7 +89,8 @@ void Etoile_bin::kinematics(double omega, double x_axe) {
     bsn.set_triad(ref_triad) ; 
 
     //	2/ Addition of shift and division by lapse
-    
+    // See Eq (47) from Gourgoulhon et al. (2001)
+
     bsn = ( bsn + shift ) / nnn ; 
     
     bsn.annule(nzm1, nzm1) ;	// set to zero in the ZEC
@@ -99,7 +103,8 @@ void Etoile_bin::kinematics(double omega, double x_axe) {
     if (relativistic) {
 
 	// Lorentz factor between the co-orbiting observer and the Eulerian one
-	Tenseur gam0 = 1 / sqrt( 1-a_car%flat_scalar_prod_desal(bsn, bsn) ) ;
+      // See Eq (23) from Gourgoulhon et al. (2001)
+      Tenseur gam0 = 1 / sqrt( 1-sprod(bsn, bsn) ) ;
 	
 	pot_centri = - log( gam0 ) ;
 
@@ -108,6 +113,8 @@ void Etoile_bin::kinematics(double omega, double x_axe) {
 
 	pot_centri.set_etat_qcq() ; 
 	
+
+	// See Eq (40) from Gourgoulhon et al. (2001)
 	pot_centri.set() = - 0.5 * omega * omega * (
 			    (xa - x_axe) * (xa - x_axe) + ya * ya ) ; 
 
