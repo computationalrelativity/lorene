@@ -32,6 +32,10 @@ char map_log_pas_fait_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/11/23 12:54:45  f_limousin
+ * Function poisson_frontiere(...) has two new default arguments,
+ * to deal with the case of a Dirichlet + Neumann boundary condition.
+ *
  * Revision 1.1  2004/06/22 08:49:58  p_grandclement
  * Addition of everything needed for using the logarithmic mapping
  *
@@ -126,7 +130,7 @@ void pas_fait() {
   return 0x0 ;
 }
 
- void Map_log::poisson_frontiere (const Cmp&, const Valeur&, int, int, Cmp&) const {
+ void Map_log::poisson_frontiere (const Cmp&, const Valeur&, int, int, Cmp&, double, double) const {
   pas_fait() ;
 }
 
