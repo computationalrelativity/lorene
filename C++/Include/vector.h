@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.32  2004/05/25 14:54:01  f_limousin
+ * Change arguments of method poisson with parameters.
+ *
  * Revision 1.31  2004/05/09 20:54:22  e_gourgoulhon
  * Added method flux (to compute the flux accross a sphere).
  *
@@ -410,7 +413,7 @@ class Vector: public Tensor {
 	 *              boundary condition \e u =0 at spatial infinity. 
 	 */
 
-	void poisson(const double lambda, Param& par, Vector& uu , 
+	Vector poisson(const double lambda, Param& par,
 		     int method = 0) const ;
         
         /** Computes the flux of the vector accross a sphere \e r = const.
