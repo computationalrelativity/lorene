@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/12/05 15:05:53  r_prix
+ * added read_variable() for (C++-type) strings.
+ *
  * Revision 1.6  2003/12/04 12:33:21  r_prix
  * added prototypes and documentation for variable-reading functions
  * (read_variable, load_file, load_file_buffered)
@@ -77,6 +80,8 @@
  */
  
 #include "stdio.h"
+#include <string.h>
+#include <string>
 
 class Param ;
 class Tbl ;
@@ -318,7 +323,8 @@ int read_variable(char *fname, char *var_name, int &var);
 int read_variable(char *fname, char *var_name, bool &var);
 /// Read a double variable from file (cf {\tt read_variable(char *, char *, char *, void *)}).
 int read_variable(char *fname, char *var_name, double &var);
-
+/// Read a (c++) string variable from file.
+int read_variable (char *fname, char *var_name, string &str);
 
 /// 'Improved' malloc that sets memory to 0 and also auto-terminates on error.
 void *MyMalloc (long bytes);
