@@ -30,6 +30,9 @@ char tslice_conf_init_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/05/03 14:48:48  e_gourgoulhon
+ * Treatment of special cases nn_jp1.etat = ETATUN and psi_jp1.etat = ETATUN.
+ *
  * Revision 1.4  2004/04/29 17:10:36  e_gourgoulhon
  * Added argument pdt and update of depth slices at the end,
  * taking into account the known time derivatives.
@@ -197,6 +200,8 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& uu,
         
         Scalar psi_jp1 = source_psi.poisson() + 1. ; 
 
+        if (psi_jp1.get_etat() == ETATUN) psi_jp1.std_spectral_base() ; 
+
         // Test:
         maxabs(psi_jp1.laplacian() - source_psi,
                 "Absolute error in the resolution of the equation for Psi") ;  
@@ -208,11 +213,13 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& uu,
         
         Scalar nn_jp1 = source_nn.poisson() + 1. ; 
 
+        if (nn_jp1.get_etat() == ETATUN) nn_jp1.std_spectral_base() ; 
+
         // Test:
         maxabs(nn_jp1.laplacian() - source_nn,
                 "Absolute error in the resolution of the equation for N") ;  
 
-        des_meridian(nn_jp1, 0., 5., "N", 2) ; 
+        // des_meridian(nn_jp1, 0., 5., "N", 2) ; 
         
         // Resolution of the vector Poisson equation for the shift
         //---------------------------------------------------------
@@ -220,8 +227,8 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& uu,
         Vector beta_jp1 = source_beta.poisson(0.3333333333333333, 1) ; 
         
         des_meridian(beta_jp1(1), 0., 5., "\\gb\\ur\\d", 3) ; 
-        des_meridian(beta_jp1(2), 0., 5., "\\gb\\u\\gh\\d", 4) ; 
-        des_meridian(beta_jp1(3), 0., 5., "\\gb\\u\\gf\\d", 5) ; 
+        // des_meridian(beta_jp1(2), 0., 5., "\\gb\\u\\gh\\d", 4) ; 
+        // des_meridian(beta_jp1(3), 0., 5., "\\gb\\u\\gf\\d", 5) ; 
         
         // Test:
         Vector test_beta = (beta_jp1.derive_con(ff)).divergence(ff)
