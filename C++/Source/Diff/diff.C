@@ -30,6 +30,9 @@ char diff_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/02/09 09:53:24  j_novak
+ * Removed irrelevant asserts on number of points.
+ *
  * Revision 1.1  2005/01/10 16:34:52  j_novak
  * New class for 1D mono-domain differential operators.
  *
@@ -48,14 +51,12 @@ char diff_C[] = "$Header$" ;
 Diff::Diff(int base_r, int nr) : base(base_r >> TRA_R), npoints(nr) {
 
     assert (base < MAX_BASE) ;
-    assert (npoints < max_points) ;
 
 }
 
 Diff::Diff(const Diff& diff_in) : base(diff_in.base), 
 				  npoints(diff_in.npoints) {
     assert (base < MAX_BASE) ;
-    assert (npoints < max_points) ;
 
 }    
 
@@ -66,7 +67,6 @@ void Diff::operator=(const Diff& diff_in) {
     base = diff_in.base ;
     npoints = diff_in.npoints ;
     assert (base < MAX_BASE) ;
-    assert (npoints < max_points) ;
 
 }
 
