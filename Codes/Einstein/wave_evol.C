@@ -29,6 +29,10 @@ char wave_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/05/05 14:51:48  e_gourgoulhon
+ * Introduced parameters ampli_init_khi and ampli_init_mu.
+ * Added some checks regarding khi and mu.
+ *
  * Revision 1.6  2004/05/03 14:50:38  e_gourgoulhon
  * First full version (time evolution).
  *
@@ -77,11 +81,12 @@ int main() {
     //======================================================================
 
     double pdt = 0.01 ; 
-    int nb_time_steps = 100 ; 
-    int niter_elliptic = 1 ; 
+    int nb_time_steps = 1000 ; 
+    int niter_elliptic = 2 ; 
     double relax_elliptic = 1. ; 
 
-    double ampli_h_init = 0.001 ;     // 0 = flat space
+    double ampli_init_khi = 0.01 ;     
+    double ampli_init_mu = 0. ;     
         
 
     //======================================================================
@@ -110,7 +115,7 @@ int main() {
 
     // radial boundaries of each domain:
     double r_limits[] = {0., 1., 2., 4., __infinity} ; 
-    assert( nz == 4 ) ;  // since the above array described only 3 domains
+    assert( nz == 4 ) ;  // since the above array describes 4 domains
   
     Map_af map(mgrid, r_limits) ;   // Mapping construction
   	
@@ -146,21 +151,19 @@ int main() {
     
     Scalar khi_init(map) ; 
 
-    khi_init = ampli_h_init * exp( - r*r ) * x*y ;
+    khi_init = ampli_init_khi * exp( - r*r ) * x*y ;
     khi_init.set_outer_boundary(nz-1, 0.) ; 
     
-    //khi_init = ampli_h_init * (3*cost*cost-1) / 
-    //   ( (r*r + 1./(r*r)) * sqrt(1.+r*r) ) ; 
     khi_init.std_spectral_base() ; 
     
+    //## khi_init.smooth_decay(2, 1) ; 
+
     khi_init.spectral_display("khi_init") ;   
     //if (khi_init.get_etat() == ETATQCQ) 
     //    des_meridian(khi_init, 0., 5., "khi_init", 1) ; 
-
-    //## khi_init.smooth_decay(2, 1) ; 
     
     Scalar mu_init(map) ; 
-    mu_init = ampli_h_init * x*y* exp( - r*r ) ;
+    mu_init = ampli_init_mu * x*y* exp( - r*r ) ;
     mu_init.set_outer_boundary(nz-1, 0.) ; 
     mu_init.std_spectral_base() ; 
     mu_init.mult_r() ; 
@@ -193,10 +196,10 @@ int main() {
     Sym_tensor_trans uu_init(map, otriad, ff) ;  
     uu_init.set_etat_zero() ; 
     
-    //## uu_init = - 0.5 * ( sigmat.hh() 
+    // uu_init = 0.5 * ( sigmat.hh() 
     //    - 0.33333333333333333 * sigmat.hh().trace(sigmat.tgam())
     //        * sigmat.tgam().con() ) ;
-    // uu_init.inc_dzpuis(2) ;  
+    //  uu_init.inc_dzpuis(2) ;  
     
     // tr K = K
     Scalar tmp(map) ; 
@@ -204,7 +207,7 @@ int main() {
     
     sigmat.initial_data_cts(uu_init, tmp, tmp, pdt, 1.e-10) ;
         
-    sigmat.khi() ;  // forces updates
+    sigmat.khi() ;  // forces updates 
     sigmat.mu() ;   //
     sigmat.trh() ;  //   
         
@@ -240,21 +243,36 @@ int main() {
     
     maxabs(sigmat.gam().cov()(1,1) / sigmat.tgam().cov()(1,1) -
             sigmat.psi4(), "Difference between the conformal factor and psi4") ; 
+        
+    // Check of khi and mu
+
+    Sym_tensor_tt htest(map, otriad, ff) ;
+    htest.set_khi_mu(khi_init, mu_init) ; 
+
+    Sym_tensor_tt htest2 = sigmat.hh().transverse(ff).tt_part() ; 
+    htest2.dec_dzpuis(2) ; 
     
+    maxabs(htest - htest2, "difference htest - htest2") ; 
+    
+    maxabs(htest.khi() - khi_init, "htest.khi() - khi_init") ; 
+    maxabs(htest2.khi() - khi_init, "htest2.khi() - khi_init") ; 
+    
+    maxabs(htest.mu() - mu_init, "htest.mu() - mu_init") ; 
+    maxabs(htest2.mu() - mu_init, "htest2.mu() - mu_init") ; 
+    
+    // sigmat.set_hh(htest) ; 
+    
+    maxabs(sigmat.psi() - 1., "Psi - 1") ;   
+    
+    // Scalar psitest(map) ; 
+    // psitest = 1. ; 
+    // sigmat.set_psi_del_q(psitest) ; 
+
     arrete() ; 
 
-    Scalar nn_new = sigmat.solve_n() ; 
-    maxabs(nn_new - sigmat.nn(), "Difference between N and N_new") ;     
-    
-    Scalar qq_new = sigmat.solve_q() ; 
-    maxabs(qq_new - sigmat.qq(), "Difference between Q and Q_new") ;     
-    
-    Vector beta_new = sigmat.solve_beta() ; 
-    maxabs(beta_new - sigmat.beta(), "Difference between beta and beta_new") ;     
-    
     //======================================================================
     //          Time evolution 
-    //======================================================================
+    //======================================================================    
     
     sigmat.evolve(pdt, nb_time_steps, niter_elliptic, relax_elliptic) ; 
     
