@@ -30,6 +30,9 @@ char tslice_dirac_max_solve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/06/14 20:47:31  e_gourgoulhon
+ * Added argument method_poisson to method solve_hij.
+ *
  * Revision 1.9  2004/06/03 10:02:45  j_novak
  * Some filtering is done on source_khi and khi_new.
  *
@@ -265,6 +268,7 @@ Vector Tslice_dirac_max::solve_beta(const Vector* p_mom_dens, int method)
 
 void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
                                  Scalar& khi_new, Scalar& mu_new,
+                                 int method_poisson, 
                                  const char* graph_device, 
                                  const Sym_tensor* p_strain_tens) const 
 {
@@ -491,7 +495,7 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
     maxabs(source_hh, "Maxabs source_hh") ; 
 
     maxabs( source_hh.divergence(ff), "Divergence of source_hh") ; 
-    maxabs( source_hh.transverse(ff).divergence(ff), 
+    maxabs( source_hh.transverse(ff, 0x0, method_poisson).divergence(ff), 
                 "Divergence of source_hh_transverse") ;
     maxabs( source_hh.transverse(ff).trace(ff), 
                 "Trace of source_hh_transverse") ; 
@@ -501,7 +505,8 @@ void Tslice_dirac_max::solve_hij(Param& par_khi, Param& par_mu,
     // Resolution of wave equation for h
     //=============================================
     
-    const Sym_tensor_tt& source_htt = source_hh.transverse(ff).tt_part() ;
+    const Sym_tensor_tt& source_htt = source_hh.transverse(ff, 0x0, 
+                                                method_poisson).tt_part() ;
          
     maxabs( source_htt.divergence(ff), "Divergence of source_htt") ; 
     maxabs( source_htt.trace(ff), "Trace of source_hhtt") ; 
