@@ -30,6 +30,9 @@ char connection_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/01/13 21:33:33  e_gourgoulhon
+ * Corrected a bug in method p_derive_cov: inverted case CON and case COV.
+ *
  * Revision 1.11  2004/01/04 20:57:51  e_gourgoulhon
  * -- Data member delta is now of type Tensor_sym (and no longer
  *    Tensor_delta).
@@ -325,7 +328,7 @@ Tensor* Connection::p_derive_cov(const Tensor& uu) const {
                 
             switch( uu.get_index_type(id) ) {
                 
-                case COV : {
+                case CON : {
                     for (int l=1; l<=3; l++) {
                         ind.set(id) = l ; 
                         cresu += delta(ind0(id), k, l) * uu(ind) ;
@@ -333,7 +336,7 @@ Tensor* Connection::p_derive_cov(const Tensor& uu) const {
                     break ; 
                 }
                 
-                case CON : {
+                case COV : {
                     for (int l=1; l<=3; l++) {
                         ind.set(id) = l ; 
                         cresu -= delta(l, k, ind0(id)) * uu(ind) ;
