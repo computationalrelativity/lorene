@@ -31,6 +31,9 @@ char star_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/03/23 09:54:54  f_limousin
+ * Add comments
+ *
  * Revision 1.6  2004/02/27 09:50:57  f_limousin
  * Scalars ssjm1_logn, ssjm1_qq ... have been added for all metric
  * quantities for the resolution of Poisson equations.
@@ -103,6 +106,7 @@ Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i,
       ssjm1_phi(mpi),
       ssjm1_khi(mpi),
       ssjm1_mu(mpi),
+      ssjm1_wshift(mpi, CON, mpi.get_bvect_cart()),
       ssjm1_h11(mpi),
       ssjm1_h21(mpi),
       ssjm1_h31(mpi),
@@ -147,11 +151,12 @@ Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i,
     ssjm1_phi = 0 ;
     ssjm1_khi = 0 ;
     ssjm1_mu = 0 ;
+    ssjm1_wshift.set_etat_zero() ;
     ssjm1_h11 = 0 ;
     ssjm1_h21 = 0 ;
     ssjm1_h31 = 0 ;
     ssjm1_h22 = 0 ;
-    ssjm1_h31 = 0 ;
+    ssjm1_h32 = 0 ;
     ssjm1_h33 = 0 ;
 }
 
@@ -191,6 +196,7 @@ Star_bin::Star_bin(const Star_bin& star)
 			 ssjm1_phi(star.ssjm1_phi),
 			 ssjm1_khi(star.ssjm1_khi),
 			 ssjm1_mu(star.ssjm1_mu),
+			 ssjm1_wshift(star.ssjm1_wshift),
 			 ssjm1_h11(star.ssjm1_h11),
 			 ssjm1_h21(star.ssjm1_h21),
 			 ssjm1_h31(star.ssjm1_h31),
@@ -239,6 +245,7 @@ Star_bin::Star_bin(Map& mpi, const Eos& eos_i, FILE* fich)
 			 ssjm1_phi(mpi, *(mpi.get_mg()), fich),
 			 ssjm1_khi(mpi, *(mpi.get_mg()), fich),
 			 ssjm1_mu(mpi, *(mpi.get_mg()), fich),
+			 ssjm1_wshift(mpi, mpi.get_bvect_cart(), fich),
 			 ssjm1_h11(mpi, *(mpi.get_mg()), fich),
 			 ssjm1_h21(mpi, *(mpi.get_mg()), fich),
 			 ssjm1_h31(mpi, *(mpi.get_mg()), fich),
@@ -383,6 +390,7 @@ void Star_bin::operator=(const Star_bin& star) {
     ssjm1_phi = star.ssjm1_phi ;
     ssjm1_khi = star.ssjm1_khi ;
     ssjm1_mu = star.ssjm1_mu ;
+    ssjm1_wshift = star.ssjm1_wshift ;
     ssjm1_h11 = star.ssjm1_h11 ;
     ssjm1_h21 = star.ssjm1_h21 ;
     ssjm1_h31 = star.ssjm1_h31 ;
@@ -445,6 +453,7 @@ void Star_bin::sauve(FILE* fich) const {
     ssjm1_phi.sauve(fich) ;
     ssjm1_khi.sauve(fich) ;
     ssjm1_mu.sauve(fich) ;
+    ssjm1_wshift.sauve(fich) ;
     ssjm1_h11.sauve(fich) ;
     ssjm1_h21.sauve(fich) ;
     ssjm1_h31.sauve(fich) ;
@@ -501,28 +510,28 @@ ostream& Star_bin::operator>>(ostream& ost) const {
     ost << "Central value of gam_euler : " 
         << gam_euler.val_grid_point(0, 0, 0, 0)  << endl ; 
 
-    ost << "Central u_euler (U^X, U^Y, U^Z) [c] : " 
+    ost << "Central u_euler (U^r, U^t, U^p) [c] : " 
 	<< u_euler(1).val_grid_point(0, 0, 0, 0) << "  " 
 	<< u_euler(2).val_grid_point(0, 0, 0, 0) << "  " 
 	<< u_euler(3).val_grid_point(0, 0, 0, 0) << endl ; 
 
     if (irrotational) {
-    ost << "Central d_psi (X, Y, Z) [c] :         " 
+    ost << "Central d_psi (r, t, p) [c] :         " 
 	    << d_psi(1).val_grid_point(0, 0, 0, 0) << "  " 
 	    << d_psi(2).val_grid_point(0, 0, 0, 0) << "  " 
 	    << d_psi(3).val_grid_point(0, 0, 0, 0) << endl ; 
 
-	ost << "Central vel. / co-orb. (W^X, W^Y, W^Z) [c] : " 
+	ost << "Central vel. / co-orb. (W^r, W^t, W^p) [c] : " 
 	    << wit_w(1).val_grid_point(0, 0, 0, 0) << "  " 
 	    << wit_w(2).val_grid_point(0, 0, 0, 0) << "  " 
 	    << wit_w(3).val_grid_point(0, 0, 0, 0) << endl ; 
 
-	ost << "Max vel. / co-orb. (W^X, W^Y, W^Z) [c] : " 
+	ost << "Max vel. / co-orb. (W^r, W^t, W^p) [c] : " 
 	    << max(max(wit_w(1))) << "  " 
 	    << max(max(wit_w(2))) << "  " 
 	    << max(max(wit_w(3))) << endl ; 
 
-	ost << "Min vel. / co-orb. (W^X, W^Y, W^Z) [c] : " 
+	ost << "Min vel. / co-orb. (W^r, W^t, W^p) [c] : " 
 	    << min(min(wit_w(1))) << "  " 
 	    << min(min(wit_w(2))) << "  " 
 	    << min(min(wit_w(3))) << endl ; 
@@ -543,7 +552,7 @@ ostream& Star_bin::operator>>(ostream& ost) const {
 	<< logn_auto.val_grid_point(0, 0, 0, 0) << "  " 
 	<< logn_comp.val_grid_point(0, 0, 0, 0) << endl ; 
 
-    ost << "Central value of shift (N^X, N^Y, N^Z) [c] : " 
+    ost << "Central value of shift (N^r, N^t, N^p) [c] : " 
 	<< shift(1).val_grid_point(0, 0, 0, 0) << "  " 
 	<< shift(2).val_grid_point(0, 0, 0, 0) << "  " 
 	<< shift(3).val_grid_point(0, 0, 0, 0) << endl ; 
@@ -553,29 +562,29 @@ ostream& Star_bin::operator>>(ostream& ost) const {
 	<< shift_auto(2).val_grid_point(0, 0, 0, 0) << "  " 
 	<< shift_auto(3).val_grid_point(0, 0, 0, 0) << endl ; 
 
-    ost << endl << "Central value of (B^X, B^Y, B^Z)/N [c] : " 
+    ost << endl << "Central value of (B^r, B^t, B^p)/N [c] : " 
 	<< bsn(1).val_grid_point(0, 0, 0, 0) << "  " 
 	<< bsn(2).val_grid_point(0, 0, 0, 0) << "  " 
 	<< bsn(3).val_grid_point(0, 0, 0, 0) << endl ; 
 
 
     ost << endl << "Central A^2 K^{ij} [c/km] : " << endl ; 
-    ost << "  A^2 K^{xx} auto, comp : " 
+    ost << "  A^2 K^{rr} auto, comp : " 
 	<< tkij_auto(1, 1).val_grid_point(0, 0, 0, 0) * km  << "  "
 	<< tkij_comp(1, 1).val_grid_point(0, 0, 0, 0) * km << endl ; 
-    ost << "  A^2 K^{xy} auto, comp : " 
+    ost << "  A^2 K^{rt} auto, comp : " 
 	<< tkij_auto(1, 2).val_grid_point(0, 0, 0, 0) * km  << "  "
 	<< tkij_comp(1, 2).val_grid_point(0, 0, 0, 0) * km << endl ; 
-    ost << "  A^2 K^{xz} auto, comp : " 
+    ost << "  A^2 K^{rp} auto, comp : " 
 	<< tkij_auto(1, 3).val_grid_point(0, 0, 0, 0) * km  << "  "
 	<< tkij_comp(1, 3).val_grid_point(0, 0, 0, 0) * km << endl ; 
-    ost << "  A^2 K^{yy} auto, comp : " 
+    ost << "  A^2 K^{tt} auto, comp : " 
 	<< tkij_auto(2, 2).val_grid_point(0, 0, 0, 0) * km  << "  "
 	<< tkij_comp(2, 2).val_grid_point(0, 0, 0, 0) * km << endl ; 
-    ost << "  A^2 K^{yz} auto, comp : " 
+    ost << "  A^2 K^{tp} auto, comp : " 
 	<< tkij_auto(2, 3).val_grid_point(0, 0, 0, 0) * km  << "  "
 	<< tkij_comp(2, 3).val_grid_point(0, 0, 0, 0) * km << endl ; 
-    ost << "  A^2 K^{zz} auto, comp : " 
+    ost << "  A^2 K^{pp} auto, comp : " 
 	<< tkij_auto(3, 3).val_grid_point(0, 0, 0, 0) * km  << "  "
 	<< tkij_comp(3, 3).val_grid_point(0, 0, 0, 0) * km << endl ; 
 
