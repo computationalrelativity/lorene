@@ -30,12 +30,9 @@ char vector_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.14  2004/05/17 15:42:23  j_novak
- * The method 1 of vector Poisson eq. solves directly for F^r.
- * Some bugs were corrected in the operator poisson_vect.
- *
- * Revision 1.13  2004/05/07 15:33:22  j_novak
- * Treated the case where all components are null.
+ * Revision 1.15  2004/05/25 15:15:47  f_limousin
+ * Function Vector::poisson with parameters now returns a Vector (the
+ * result) instead of void.
  *
  * Revision 1.12  2004/03/26 17:05:24  j_novak
  * Added new method n.3 using Tenseur::poisson_vect_oohara
@@ -58,7 +55,7 @@ char vector_poisson_C[] = "$Header$" ;
  * Correction to cope with SGI compiler's warnings.
  *
  * Revision 1.6  2004/02/22 15:47:46  j_novak
- * Added 2 more methods to solve the vector poisson equation. Method 1 is not
+ * Added 2 more methods to solve the vector pôisson equation. Method 1 is not
  * tested yet.
  *
  * Revision 1.5  2004/02/20 10:53:41  j_novak
@@ -90,168 +87,118 @@ char vector_poisson_C[] = "$Header$" ;
 // Lorene headers
 #include "metric.h"
 #include "tenseur.h"
-#include "param_elliptic.h"
+#include "param.h"
 
 Vector Vector::poisson(double lambda, const Metric_flat& met_f, int method) 
   const {
  
-  bool nullite = true ;
-  for (int i=0; i<3; i++) {
+  for (int i=0; i<3; i++)
     assert(cmp[i]->check_dzpuis(4)) ;
-    if (cmp[i]->get_etat() != ETATZERO) nullite = false ;
-  }
   assert ((method>=0) && (method<4)) ;
 
   Vector resu(*mp, CON, triad) ;
-  if (nullite)
-    resu.set_etat_zero() ;
-  else {
 
-    switch (method) {
+  switch (method) {
     
-    case 0 : {
+  case 0 : {
 
-      Scalar poten(*mp) ;
-      if (fabs(lambda+1) < 1.e-8)
-	poten.set_etat_zero() ;
-      else {
-	poten = (potential(met_f) / (lambda + 1)).poisson() ;
-      }
-      
-      Vector grad = poten.derive_con(met_f) ;
-      grad.dec_dzpuis(2) ;
-      
-      return ( div_free(met_f).poisson() + grad) ;
-      break ;
+    Scalar poten(*mp) ;
+    if (fabs(lambda+1) < 1.e-8)
+      poten.set_etat_zero() ;
+    else {
+      poten = (potential(met_f) / (lambda + 1)).poisson() ;
     }
-      
-    case 1 : {
-      
-      Scalar divf(*mp) ;
-      if (fabs(lambda+1) < 1.e-8)
-	divf.set_etat_zero() ;
-      else {
-	divf = (potential(met_f) / (lambda + 1)) ;
-      }
-      
-      int nz = mp->get_mg()->get_nzone() ;
+    
+    Vector grad = poten.derive_con(met_f) ;
+    grad.dec_dzpuis(2) ;
+    
+    return ( div_free(met_f).poisson() + grad) ;
+    break ;
+  }
 
-      //-----------------------------------
-      // Removal of the l=0 part of div(F)
-      //-----------------------------------
-      Scalar div_lnot0 = divf ;
-      div_lnot0.div_r_dzpuis(4) ;
-      Scalar source_r(*mp) ;
-      Valeur& va_div = div_lnot0.set_spectral_va() ;
-      if (div_lnot0.get_etat() != ETATZERO) {
-	va_div.coef() ;
-	va_div.ylm() ;
-	for (int lz=0; lz<nz; lz++) {
-	  int np = mp->get_mg()->get_np(lz) ;
-	  int nt = mp->get_mg()->get_nt(lz) ;
-	  int nr = mp->get_mg()->get_nr(lz) ;
-	  if (va_div.c_cf->operator()(lz).get_etat() != ETATZERO)
-	    for (int k=0; k<np+1; k++) 
-	      for (int j=0; j<nt; j++) {
-		int l_q, m_q, base_r ;
-		if (nullite_plm(j, nt, k, np, va_div.base) == 1) {
-		  donne_lm(nz, lz, j, k, va_div.base, m_q, l_q, base_r) ;
-		  if (l_q == 0) 
-		    for (int i=0; i<nr; i++) 
-		      va_div.c_cf->set(lz, k, j, i) = 0. ;
-		}
-	      }
-	}
-	source_r.set_etat_qcq() ;
-	source_r.set_spectral_va() = 2*(*va_div.c_cf) ; //2*div(F)
-	source_r.set_spectral_va().ylm_i() ;
-	source_r.set_dzpuis(4) ;
-      }
-      else 
-	source_r.set_etat_zero() ;
-	   
-      //------------------------
-      // Other source terms ....
-      //------------------------
-      source_r += *(cmp[0]) - lambda*divf.dsdr() ;
-
-      //------------------------
-      // The elliptic operator
-      //------------------------
-      Param_elliptic param_fr(source_r) ;
-      for (int lz=0; lz<nz; lz++) 
-	param_fr.set_poisson_vect_r(lz) ;
-
-      Scalar f_r = source_r.sol_elliptic(param_fr) ;
-            
-      divf.dec_dzpuis(1) ;
-      Scalar source_eta = divf - f_r.dsdr() ;
-      source_eta.mult_r_dzpuis(0) ;
-      source_eta -= 2*f_r ;
-      Scalar eta = source_eta.poisson_angu() ;
-
-      Scalar mu = div_free(met_f).mu().poisson() ;
-
-      resu.set(1) = f_r ;
-      resu.set(2) = eta.dsdt() - mu.stdsdp() ;
-      resu.set(3) = eta.stdsdp() + mu.dsdt() ;
-      
-      break ;
-      
+  case 1 : {
+    
+    Scalar divf(*mp) ;
+    if (fabs(lambda+1) < 1.e-8)
+      divf.set_etat_zero() ;
+    else {
+      divf = (potential(met_f) / (lambda + 1)) ;
     }
+    
+    Scalar source_r = *(cmp[0]) - lambda*divf.dsdr(); 
+    source_r.mult_r_dzpuis(3) ;
+    source_r += 2*divf ;
+    Scalar khi = source_r.poisson() ; 
+    Scalar f_r = khi ;
+    f_r.div_r() ; 
+    
+    Scalar source_eta = divf ;
+    source_eta.mult_r_dzpuis(2) ;
+    source_eta -= khi.dsdr() ;
+    source_eta.dec_dzpuis(2) ;
+    source_eta -= f_r ;
+    Scalar eta = source_eta.poisson_angu() ;
 
-    case 2 : {
-      
-      Tenseur source_p(*mp, 1, CON, mp->get_bvect_spher() ) ;
-      source_p.set_etat_qcq() ;
-      for (int i=0; i<3; i++) {
-	source_p.set(i) = Cmp(*cmp[i]) ;
-      }
-      source_p.change_triad(mp->get_bvect_cart()) ;
-      Tenseur vect_auxi (*mp, 1, CON, mp->get_bvect_cart()) ;
-      vect_auxi.set_etat_qcq() ;
-      Tenseur scal_auxi (*mp) ;
-      scal_auxi.set_etat_qcq() ;
-      
-      Tenseur resu_p(source_p.poisson_vect(lambda, vect_auxi, scal_auxi)) ;
-      resu_p.change_triad(mp->get_bvect_spher() ) ;
-      
-      for (int i=1; i<=3; i++) 
-	resu.set(i) = resu_p(i-1) ;
-      
-      break ;
-    }
-      
-    case 3 : {
-      
-      Tenseur source_p(*mp, 1, CON, mp->get_bvect_spher() ) ;
-      source_p.set_etat_qcq() ;
-      for (int i=0; i<3; i++) {
-	source_p.set(i) = Cmp(*cmp[i]) ;
-      }
-      source_p.change_triad(mp->get_bvect_cart()) ;
-      Tenseur scal_auxi (*mp) ;
-      scal_auxi.set_etat_qcq() ;
-      
-      Tenseur resu_p(source_p.poisson_vect_oohara(lambda, scal_auxi)) ;
-      resu_p.change_triad(mp->get_bvect_spher() ) ;
-      
-      for (int i=1; i<=3; i++) 
-	resu.set(i) = resu_p(i-1) ;
-      
-      break ;
-    }
-      
-    default : {
-      cout << "Vector::poisson : unexpected type of method !" << endl 
-	   << "  method = " << method << endl ; 
-      abort() ;
-      break ; 
-    }
-      
-    } // End of switch  
+    Scalar mu = div_free(met_f).mu().poisson() ;
 
-  } // End of non-null case
+    resu.set(1) = f_r ;
+    resu.set(2) = eta.dsdt() - mu.stdsdp() ;
+    resu.set(3) = eta.stdsdp() + mu.dsdt() ;
+
+    break ;
+
+  }
+
+  case 2 : {
+
+    Tenseur source_p(*mp, 1, CON, mp->get_bvect_spher() ) ;
+    source_p.set_etat_qcq() ;
+    for (int i=0; i<3; i++) {
+      source_p.set(i) = Cmp(*cmp[i]) ;
+    }
+    source_p.change_triad(mp->get_bvect_cart()) ;
+    Tenseur vect_auxi (*mp, 1, CON, mp->get_bvect_cart()) ;
+    vect_auxi.set_etat_qcq() ;
+    Tenseur scal_auxi (*mp) ;
+    scal_auxi.set_etat_qcq() ;
+	
+    Tenseur resu_p(source_p.poisson_vect(lambda, vect_auxi, scal_auxi)) ;
+    resu_p.change_triad(mp->get_bvect_spher() ) ;
+
+     for (int i=1; i<=3; i++) 
+       resu.set(i) = resu_p(i-1) ;
+
+     break ;
+  }
+
+  case 3 : {
+
+    Tenseur source_p(*mp, 1, CON, mp->get_bvect_spher() ) ;
+    source_p.set_etat_qcq() ;
+    for (int i=0; i<3; i++) {
+      source_p.set(i) = Cmp(*cmp[i]) ;
+    }
+    source_p.change_triad(mp->get_bvect_cart()) ;
+    Tenseur scal_auxi (*mp) ;
+    scal_auxi.set_etat_qcq() ;
+	
+    Tenseur resu_p(source_p.poisson_vect_oohara(lambda, scal_auxi)) ;
+    resu_p.change_triad(mp->get_bvect_spher() ) ;
+
+     for (int i=1; i<=3; i++) 
+       resu.set(i) = resu_p(i-1) ;
+
+     break ;
+  }
+
+  default : {
+    cout << "Vector::poisson : unexpected type of method !" << endl 
+	 << "  method = " << method << endl ; 
+    abort() ;
+    break ; 
+  }
+
+  } // End of switch  
 
   return resu ;
 
@@ -282,65 +229,104 @@ Vector Vector::poisson(double lambda, int method) const {
 // Version with parameters
 // -----------------------
 
-void Vector::poisson(const double lambda, Param& par, Vector& shift,
-		     int method) const {
+Vector Vector::poisson(const double lambda, Param& par, int method) const {
 
     
-  bool nullite = true ;
-  for (int i=0; i<3; i++) {
-    assert(cmp[i]->check_dzpuis(4)) ;
-    if (cmp[i]->get_etat() != ETATZERO) nullite = false ;
-  }
-  
-  assert ((method==2)) ;
+    for (int i=0; i<3; i++)
+	assert(cmp[i]->check_dzpuis(4)) ;
 
-  if (nullite) shift.set_etat_zero() ;
+    assert ((method==0) || (method==2)) ;
 
-  else {
-  
+    Vector resu(*mp, CON, triad) ;
+
     switch (method) {
 	
-    case 2 : {
-	
-      Tenseur source_p(*mp, 1, CON, mp->get_bvect_spher() ) ;
-      source_p.set_etat_qcq() ;
-      for (int i=0; i<3; i++) {
-	source_p.set(i) = Cmp(*cmp[i]) ;
-      }
-      source_p.change_triad(mp->get_bvect_cart()) ;
+	case 0 : {
 
-      Tenseur vect_auxi (*mp, 1, CON, mp->get_bvect_cart()) ;
-      vect_auxi.set_etat_qcq() ;
-      for (int i=0; i<3 ;i++){
-	vect_auxi.set(i) = 0. ;
-      }
-      Tenseur scal_auxi (*mp) ;
-      scal_auxi.allocate_all() ;
-      scal_auxi.set_std_base() ;
+    Metric_flat met_local(*mp, *triad) ;
+    int nitermax = par.get_int(0) ; 
+    int& niter = par.get_int_mod(0) ; 
+    double  relax = par.get_double(0) ; 
+    double precis = par.get_double(1) ;     
+    Cmp& ss_phi = par.get_cmp_mod(0) ;
+    Cmp& ss_khi = par.get_cmp_mod(1) ;
+    Cmp& ss_mu = par.get_cmp_mod(2) ;
 
-      Tenseur resu_p(*mp, 1, CON, mp->get_bvect_cart() ) ;
-      resu_p.set_etat_qcq() ;
-      source_p.poisson_vect(lambda, par, resu_p, vect_auxi, scal_auxi) ;
-      resu_p.change_triad(mp->get_bvect_spher() ) ;
-
-      for (int i=1; i<=3; i++) 
-	shift.set(i) = resu_p(i-1) ;
-
-      break ;
+    Param par_phi ; 
+    par_phi.add_int(nitermax, 0) ;
+    par_phi.add_int_mod(niter, 0) ;
+    par_phi.add_double(relax, 0) ;
+    par_phi.add_double(precis, 1) ;
+    par_phi.add_cmp_mod(ss_phi, 0) ;
+    
+    Scalar poten(*mp) ;
+    if (fabs(lambda+1) < 1.e-8)
+	poten.set_etat_zero() ;
+    else {
+	Scalar tmp = potential(met_local) / (lambda + 1) ;
+	tmp.inc_dzpuis(2) ;
+	tmp.poisson(par_phi, poten) ;
     }
-
-    default : {
-      cout << "Vector::poisson : unexpected type of method !" << endl 
-	   << "  method = " << method << endl ; 
-      
-      
-      abort() ;
-      break ; 
-      
-      
-    } // End of switch  
-    }
+    
+    Vector grad = poten.derive_con(met_local) ;
+    grad.dec_dzpuis(2) ;
+    
+    Param par_free ;
+    par_free.add_int(nitermax, 0) ;
+    par_free.add_int_mod(niter, 0) ;
+    par_free.add_double(relax, 0) ;
+    par_free.add_double(precis, 1) ;
+    par_free.add_cmp_mod(ss_khi, 0) ;
+    par_free.add_cmp_mod(ss_mu, 1) ;
+   
+    return  div_free(met_local).poisson(par_free) + grad ;
+    break ;
   }
+
+
+
+	case 2 : {
+	
+    Tenseur source_p(*mp, 1, CON, mp->get_bvect_spher() ) ;
+    source_p.set_etat_qcq() ;
+    for (int i=0; i<3; i++) {
+      source_p.set(i) = Cmp(*cmp[i]) ;
+    }
+    source_p.change_triad(mp->get_bvect_cart()) ;
+
+    Tenseur vect_auxi (*mp, 1, CON, mp->get_bvect_cart()) ;
+    vect_auxi.set_etat_qcq() ;
+    for (int i=0; i<3 ;i++){
+	vect_auxi.set(i) = 0. ;
+    }
+    Tenseur scal_auxi (*mp) ;
+    scal_auxi.set_etat_qcq() ;
+    scal_auxi.set().annule_hard() ;
+    scal_auxi.set_std_base() ;
+
+    Tenseur resu_p(*mp, 1, CON, mp->get_bvect_cart() ) ;
+    resu_p.set_etat_qcq() ;
+    source_p.poisson_vect(lambda, par, resu_p, vect_auxi, scal_auxi) ;
+    resu_p.change_triad(mp->get_bvect_spher() ) ;
+
+     for (int i=1; i<=3; i++) 
+       resu.set(i) = resu_p(i-1) ;
+
+     break ;
+  }
+
+  default : {
+    cout << "Vector::poisson : unexpected type of method !" << endl 
+	 << "  method = " << method << endl ; 
+
+
+    abort() ;
+    break ; 
+  }
+
+    }// End of switch  
+  return resu ;
+
 }
 
 
