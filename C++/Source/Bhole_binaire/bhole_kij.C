@@ -25,6 +25,9 @@ char bhole_kij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/05/27 07:10:22  p_grandclement
+ * Correction of some shadowed variables
+ *
  * Revision 1.2  2002/10/16 14:36:33  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -83,10 +86,10 @@ void Bhole_binaire::fait_tkij () {
     hole1.taij_comp.set_etat_qcq() ;
     hole2.taij_comp.set_etat_qcq() ;
     
-    Tenseur copie_un (hole1.taij_auto) ;
-    copie_un.dec2_dzpuis() ;
-    Tenseur copie_deux (hole2.taij_auto) ;
-    copie_deux.dec2_dzpuis() ;
+    Tenseur sans_dz_un (hole1.taij_auto) ;
+    sans_dz_un.dec2_dzpuis() ;
+    Tenseur sans_dz_deux (hole2.taij_auto) ;
+    sans_dz_deux.dec2_dzpuis() ;
     
     // ON DOIT VERIFIER SI LES DEUX Aij sont alignes ou non !
     // Les bases des deux vecteurs doivent etre alignees ou non alignees :
@@ -100,23 +103,23 @@ void Bhole_binaire::fait_tkij () {
     if (hole2.taij_auto.get_etat() == ETATZERO)
 	hole1.taij_comp.set_etat_zero() ;
     else {
-	hole1.taij_comp.set(0, 0).import_asymy(copie_deux(0, 0)) ;
-	hole1.taij_comp.set(0, 1).import_symy(copie_deux(0, 1)) ;
-	hole1.taij_comp.set(0, 2).import_asymy(same_orient*copie_deux(0, 2)) ;
-	hole1.taij_comp.set(1, 1).import_asymy(copie_deux(1, 1)) ;
-	hole1.taij_comp.set(1, 2).import_symy(same_orient*copie_deux(1, 2)) ;
-	hole1.taij_comp.set(2, 2).import_asymy(copie_deux(2, 2)) ;
+	hole1.taij_comp.set(0, 0).import_asymy(sans_dz_deux(0, 0)) ;
+	hole1.taij_comp.set(0, 1).import_symy(sans_dz_deux(0, 1)) ;
+	hole1.taij_comp.set(0, 2).import_asymy(same_orient*sans_dz_deux(0, 2)) ;
+	hole1.taij_comp.set(1, 1).import_asymy(sans_dz_deux(1, 1)) ;
+	hole1.taij_comp.set(1, 2).import_symy(same_orient*sans_dz_deux(1, 2)) ;
+	hole1.taij_comp.set(2, 2).import_asymy(sans_dz_deux(2, 2)) ;
     }
     
      if (hole1.taij_auto.get_etat() == ETATZERO)
 	hole2.taij_comp.set_etat_zero() ;
     else {
-	hole2.taij_comp.set(0, 0).import_asymy(copie_un(0, 0)) ;
-	hole2.taij_comp.set(0, 1).import_symy(copie_un(0, 1)) ;
-	hole2.taij_comp.set(0, 2).import_asymy(same_orient*copie_un(0, 2)) ;
-	hole2.taij_comp.set(1, 1).import_asymy(copie_un(1, 1)) ;
-	hole2.taij_comp.set(1, 2).import_symy(same_orient*copie_un(1, 2)) ;
-	hole2.taij_comp.set(2, 2).import_asymy(copie_un(2, 2)) ;
+	hole2.taij_comp.set(0, 0).import_asymy(sans_dz_un(0, 0)) ;
+	hole2.taij_comp.set(0, 1).import_symy(sans_dz_un(0, 1)) ;
+	hole2.taij_comp.set(0, 2).import_asymy(same_orient*sans_dz_un(0, 2)) ;
+	hole2.taij_comp.set(1, 1).import_asymy(sans_dz_un(1, 1)) ;
+	hole2.taij_comp.set(1, 2).import_symy(same_orient*sans_dz_un(1, 2)) ;
+	hole2.taij_comp.set(2, 2).import_asymy(sans_dz_un(2, 2)) ;
     }
     
     hole1.taij_comp.set_std_base() ;
