@@ -29,6 +29,9 @@ char test_vpoisson_l_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/05/07 15:33:24  j_novak
+ * Treated the case where all components are null.
+ *
  * Revision 1.2  2004/03/26 17:05:24  j_novak
  * Added new method n.3 using Tenseur::poisson_vect_oohara
  *
@@ -110,7 +113,7 @@ int main() {
 	
 	maxabs(diff, "Divergence de sol_df") ;
 
-	double lambda = -1. ;
+	double lambda = 1. ;
 
 	Tensor grad = sol.derive_con(mets) ;
 	Scalar div = sol.divergence(mets) ;
