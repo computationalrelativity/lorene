@@ -30,6 +30,10 @@ char vector_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/03/10 16:38:38  e_gourgoulhon
+ * Modified the prototype of poisson with param. to let it
+ * agree with declaration in vector.h.
+ *
  * Revision 1.9  2004/03/03 09:07:03  j_novak
  * In Vector::poisson(double, int), the flat metric is taken from the mapping.
  *
@@ -193,7 +197,7 @@ Vector Vector::poisson(double lambda, int method) const {
 // Version with parameters
 // -----------------------
 
-void Vector::poisson(double, Param&, Scalar& ) const {
+void Vector::poisson(double, Param&, Vector&, int ) const {
 
   cout << "Vector::poisson with parameters not ready yet!" << endl ;
   abort() ;
