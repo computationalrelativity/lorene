@@ -33,6 +33,11 @@ char tenseur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/05/07 07:36:03  e_gourgoulhon
+ * Compatibilty with xlC compiler on IBM SP2:
+ *    suppressed the parentheses around argument of instruction new:
+ * 	e.g.   t = new (Tbl *[nzone])  -->   t = new Tbl*[nzone]
+ *
  * Revision 1.3  2002/05/02 15:16:22  j_novak
  * Added functions for more general bi-fluid EOS
  *
@@ -153,7 +158,7 @@ Tenseur::Tenseur (const Map& map) :
 		mp(&map), valence(0), triad(0x0),
 		type_indice(0), n_comp(1), etat(ETATNONDEF), met_depend(0x0) {
     
-    c = new (Cmp* [n_comp]) ;
+    c = new Cmp*[n_comp] ;
     c[0] = 0x0 ;
     set_der_0x0() ;
 }
@@ -169,7 +174,7 @@ Tenseur::Tenseur (const Cmp& ci) :
     
     assert(ci.get_etat() != ETATNONDEF) ; 
     
-    c = new (Cmp* [n_comp]) ;
+    c = new Cmp*[n_comp] ;
     set_der_0x0() ;
 
     if ( ci.get_etat() != ETATZERO ) {
@@ -196,7 +201,7 @@ Tenseur::Tenseur(const Map& map, int val, const Itbl& tipe,
     for (int i=0 ; i<valence ; i++)
 	assert ((tipe(i) == COV) || (tipe(i) == CON)) ;
     
-    c = new (Cmp* [n_comp]) ;
+    c = new Cmp*[n_comp] ;
     for (int i=0 ; i<n_comp ; i++)
 	c[i] = 0x0 ;
     set_der_0x0() ;
@@ -221,7 +226,7 @@ Tenseur::Tenseur(const Map& map, int val, const Itbl& tipe,
 	triad = 0x0 ; 
     }   
     
-    c = new (Cmp* [n_comp]) ;
+    c = new Cmp*[n_comp] ;
     for (int i=0 ; i<n_comp ; i++)
 	c[i] = 0x0 ;
     set_der_0x0() ;
@@ -243,7 +248,7 @@ Tenseur::Tenseur(const Map& map, int val, int tipe, const Base_vect& triad_i)
     type_indice.set_etat_qcq() ;
     type_indice = tipe ;
     
-    c = new (Cmp* [n_comp]) ;
+    c = new Cmp*[n_comp] ;
     for (int i=0 ; i<n_comp ; i++)
 	c[i] = 0x0 ;
     set_der_0x0() ;
@@ -257,7 +262,7 @@ Tenseur::Tenseur (const Tenseur& source) :
     
     n_comp = int(pow(3., valence)) ;
         
-    c = new (Cmp* [n_comp]) ;
+    c = new Cmp*[n_comp] ;
     for (int i=0 ; i<n_comp ; i++) {
 	int place_source = source.donne_place(donne_indices(i)) ;
 	if (source.c[place_source] == 0x0)
@@ -295,7 +300,7 @@ Tenseur::Tenseur (const Tenseur_sym& source) :
     
     n_comp = int(pow(3., valence)) ;
         
-    c = new (Cmp* [n_comp]) ;
+    c = new Cmp*[n_comp] ;
     for (int i=0 ; i<n_comp ; i++) {
 	int place_source = source.donne_place(donne_indices(i)) ;
 	if (source.c[place_source] == 0x0)
@@ -340,7 +345,7 @@ Tenseur::Tenseur(const Map& mapping, const Base_vect& triad_i, FILE* fd)
     fread_be(&n_comp, sizeof(int), 1, fd) ;
     fread_be(&etat, sizeof(int), 1, fd) ;
     
-    c = new (Cmp* [n_comp]) ;
+    c = new Cmp*[n_comp] ;
     for (int i=0 ; i<n_comp ; i++)
 	c[i] = 0x0 ;
     if (etat == ETATQCQ)
@@ -370,7 +375,7 @@ Tenseur::Tenseur (const Map& mapping, FILE* fd)
 
     fread_be(&etat, sizeof(int), 1, fd) ;
     
-    c = new (Cmp* [n_comp]) ;
+    c = new Cmp*[n_comp] ;
 
     if (etat == ETATQCQ) {
 	c[0] = new Cmp(*mp, *mp->get_mg(), fd) ;
@@ -402,7 +407,7 @@ Tenseur::Tenseur (const Map& map, int val, const Itbl& tipe, int compo,
     for (int i=0 ; i<valence ; i++)
 	assert ((tipe(i) == COV) || (tipe(i) == CON)) ;
     
-    c = new (Cmp* [n_comp]) ;
+    c = new Cmp*[n_comp] ;
     for (int i=0 ; i<n_comp ; i++)
 	c[i] = 0x0 ;
     set_der_0x0() ;
@@ -422,7 +427,7 @@ Tenseur::Tenseur (const Map& map, int val, int tipe, int compo,
     type_indice.set_etat_qcq() ;
     type_indice = tipe ;
     
-    c = new (Cmp* [n_comp]) ;
+    c = new Cmp*[n_comp] ;
     for (int i=0 ; i<n_comp ; i++)
 	c[i] = 0x0 ;
     set_der_0x0() ;

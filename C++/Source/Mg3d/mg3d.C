@@ -31,6 +31,11 @@ char mg3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/05/07 07:36:03  e_gourgoulhon
+ * Compatibilty with xlC compiler on IBM SP2:
+ *    suppressed the parentheses around argument of instruction new:
+ * 	e.g.   t = new (Tbl *[nzone])  -->   t = new Tbl*[nzone]
+ *
  * Revision 1.4  2001/12/12 09:23:46  e_gourgoulhon
  * Parameter compact added to the simplified constructor of class Mg3d
  *
@@ -128,7 +133,7 @@ Mg3d::Mg3d(int nz,
 
     // Les grilles
     // -----------
-    g = new (Grille3d* [nz]) ;
+    g = new Grille3d*[nz] ;
 
     for (int i=0; i<nz; i++) {
 
@@ -308,7 +313,7 @@ Mg3d::Mg3d(int nz, int nbr, int nbt, int nbp, int typt, int typp,
 
     // Les grilles
     // -----------
-    g = new (Grille3d* [nz]) ;
+    g = new Grille3d*[nz] ;
 
     for (int i=0; i<nz; i++) {
 
@@ -485,7 +490,7 @@ Mg3d::Mg3d(FILE* fd)
     // Les grilles
     // -----------
 
-    g = new (Grille3d* [nzone]) ;
+    g = new Grille3d*[nzone] ;
 
     for (int i=0; i<nzone; i++) {
 

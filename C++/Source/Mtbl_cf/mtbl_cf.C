@@ -33,6 +33,11 @@ char mtbl_cf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/05/07 07:36:03  e_gourgoulhon
+ * Compatibilty with xlC compiler on IBM SP2:
+ *    suppressed the parentheses around argument of instruction new:
+ * 	e.g.   t = new (Tbl *[nzone])  -->   t = new Tbl*[nzone]
+ *
  * Revision 1.2  2001/12/04 21:27:54  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -171,7 +176,7 @@ Mtbl_cf::Mtbl_cf(const Mg3d& g, FILE* fd) : mg(&g),
     // Le tableau
     t = 0x0 ;
     if (etat == ETATQCQ) {
-	t = new (Tbl *[nzone]) ;
+	t = new Tbl*[nzone] ;
 	for (int i=0 ; i<nzone ; i++) {
 	    t[i] = new Tbl(fd) ;
 	}
@@ -280,7 +285,7 @@ void Mtbl_cf::set_etat_nondef() {
 // ETATQCQ
 void Mtbl_cf::set_etat_qcq() {
     if (etat == ETATQCQ) return ;
-    t = new (Tbl *[nzone]) ;
+    t = new Tbl*[nzone] ;
     for (int i=0 ; i<nzone ; i++) {
 	int nbr = mg->get_nr(i) ;
 	int nbt = mg->get_nt(i) ;
@@ -292,7 +297,7 @@ void Mtbl_cf::set_etat_qcq() {
 // ZERO hard
 void Mtbl_cf::annule_hard() {
     if (t == 0x0) {
-	t = new (Tbl *[nzone]) ;
+	t = new Tbl*[nzone] ;
 	for (int i=0 ; i<nzone ; i++) {
 	    int nbr = mg->get_nr(i) ;
 	    int nbt = mg->get_nt(i) ;

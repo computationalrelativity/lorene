@@ -33,6 +33,11 @@ char mtbl_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/05/07 07:36:03  e_gourgoulhon
+ * Compatibilty with xlC compiler on IBM SP2:
+ *    suppressed the parentheses around argument of instruction new:
+ * 	e.g.   t = new (Tbl *[nzone])  -->   t = new Tbl*[nzone]
+ *
  * Revision 1.2  2001/12/04 21:27:54  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -175,7 +180,7 @@ Mtbl::Mtbl(const Mg3d & g, FILE* fd) : mg(&g) {
     // Le tableau
     t = 0x0 ;
     if (etat == ETATQCQ) {
-	t = new (Tbl *[nzone]) ;
+	t = new Tbl*[nzone] ;
 	for (int i=0 ; i<nzone ; i++) {
 	    t[i] = new Tbl(fd) ;
 	}
@@ -281,7 +286,7 @@ void Mtbl::set_etat_qcq() {
     // Protection
     assert( (etat == ETATZERO) || (etat == ETATNONDEF) ) ; // sinon...
     
-    t = new (Tbl *[nzone]) ;
+    t = new Tbl*[nzone] ;
     for (int i=0 ; i<nzone ; i++) {
 	t[i] = new Tbl( *(mg->get_grille3d(i)) ) ;
     }
