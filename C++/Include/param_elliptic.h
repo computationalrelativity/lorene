@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/12/23 16:30:14  j_novak
+ * New files and class for the solution of the rr component of the tensor Poisson
+ * equation.
+ *
  * Revision 1.12  2004/08/24 09:14:40  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -242,6 +246,14 @@ class Param_elliptic {
     * @param zone [input] : the domain.
     **/
   void set_poisson_vect_eta(int zone) ; 
+
+   /**
+    * Sets the operator to \f$\Delta + \frac{4}{r} \frac{\partial}{\partial r} 
+    * + \frac{6 - l(l+1)}{r^2} \f$ in all domains, for \f$l \geq 2\f$ only. 
+    *
+    * @param zone [input] : the domain.
+    **/
+  void set_poisson_tens_rr(int zone) ; 
 
   /**
    * Increases the quantum number \e l in the domain \c zone .

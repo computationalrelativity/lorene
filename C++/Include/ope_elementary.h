@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/12/23 16:30:14  j_novak
+ * New files and class for the solution of the rr component of the tensor Poisson
+ * equation.
+ *
  * Revision 1.8  2004/08/24 09:14:40  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -610,6 +614,52 @@ class Ope_pois_vect_r : public Ope_poisson {
   Ope_pois_vect_r (int nbr, int baser, double alf, double bet, int lq, int dz) ;
   Ope_pois_vect_r (const Ope_pois_vect_r&) ; ///< Constructor by copy
   virtual ~Ope_pois_vect_r() ; ///< Destructor
+
+ private:
+  /**
+   * Computes the matrix of the operator.
+   **/
+  virtual void do_ope_mat() const ;
+  /**
+   * Computes the banded-matrix of the operator.
+   **/
+  virtual void do_ope_cl() const ;
+  /**
+   * Computes the non-degenerated matrix of the operator.
+   **/
+  virtual void do_non_dege() const ;  
+  
+ public:
+  /**
+   * Computes the homogeneous solutions(s).
+   **/
+  virtual Tbl get_solh() const ;
+} ;
+
+/**
+ * Class for the operator of the \e rr component of the divergence-free
+ * tensor Poisson equation. The operator reads \f$\Delta + \frac{4}{r} 
+ *\frac{\partial}{\partial r} 
+ * + \frac{6}{r^2} \f$ in all domains, for \f$l \geq 2\f$.
+ *
+ * It is implemented in every type of domain.
+ **/
+class Ope_pois_tens_rr : public Ope_poisson {
+
+ public:
+  /**
+   * Standard constructor.
+   * 
+   * @param nbr [input] number of radial points.
+   * @param baser [input] radial basis of decomposition.
+   * @param alf [input] parameter \f$\alpha\f$ of the mapping.
+   * @param bet [input] parameter \f$\beta\f$ of the mapping.
+   * @param lq [input] quantum number \e l .
+   * @param dz [input] dzpuis of the source.
+   **/
+  Ope_pois_tens_rr (int nbr, int baser, double alf, double bet, int lq, int dz) ;
+  Ope_pois_tens_rr (const Ope_pois_tens_rr&) ; ///< Constructor by copy
+  virtual ~Ope_pois_tens_rr() ; ///< Destructor
 
  private:
   /**

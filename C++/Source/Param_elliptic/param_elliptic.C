@@ -23,6 +23,10 @@ char param_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2004/12/23 16:30:16  j_novak
+ * New files and class for the solution of the rr component of the tensor Poisson
+ * equation.
+ *
  * Revision 1.14  2004/08/24 09:14:49  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -518,6 +522,47 @@ void Param_elliptic::set_poisson_vect_eta(int zone) {
   }
 }
 
+void Param_elliptic::set_poisson_tens_rr(int zone) {
+ 
+    if (type_map != MAP_AFF) {
+	cout << "set_poisson_tens_rr only defined for an affine mapping..." 
+	     << endl ;
+	abort() ;
+    }
+    else {
+	
+	int nz = get_mp().get_mg()->get_nzone() ;
+	
+	int nr ;
+	
+	int conte = 0 ;
+	for (int l=0 ; l<nz ; l++) {
+	    
+	    nr = get_mp().get_mg()->get_nr(l) ;
+	    
+	    for (int k=0 ; k<get_mp().get_mg()->get_np(l)+1 ; k++)
+		for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
+		    if ((operateurs[conte] != 0x0) && (l==zone)) {
+			int old_base = operateurs[conte]->get_base_r() ;
+			Ope_poisson* op_pois = 
+			    dynamic_cast<Ope_poisson*>(operateurs[conte]) ;
+			assert (op_pois !=0x0) ;
+			int lq_old = op_pois->get_lquant() ;
+			int dzp = op_pois->get_dzpuis() ;
+			
+			delete operateurs[conte] ;
+			if (lq_old >= 2) {
+			    operateurs[conte] = new Ope_pois_tens_rr
+				(nr, old_base,get_alpha(l), get_beta(l), lq_old, dzp) ;
+			}
+			else
+			    operateurs[conte] = 0x0 ;
+		    }
+		    conte ++ ;
+		}
+	}
+    }
+}
 
 void Param_elliptic::set_sec_order_r2 (int zone, double a, double b, double c){
  
