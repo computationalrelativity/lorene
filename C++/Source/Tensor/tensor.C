@@ -34,6 +34,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.31  2004/02/05 15:03:47  e_gourgoulhon
+ * Corrected bug in method derive_con().
+ *
  * Revision 1.30  2004/01/27 13:05:11  j_novak
  * Removed the method Tensor::mult_r_ced()
  *
@@ -877,8 +880,8 @@ const Tensor& Tensor::derive_con(const Metric& metre) const {
   assert ((j>=0) && (j<N_MET_MAX)) ;
   if (p_derive_con[j] == 0x0) {
     p_derive_con[j] = 
-      new Tensor(::contract(metre.con(), 1, derive_cov(metre), valence)) ;
-            // valence if the number of the last index of derive_cov 
+      new Tensor( ::contract(derive_cov(metre), valence, metre.con(), 0) ) ;
+            // valence is the number of the last index of derive_cov 
             //  (the "derivation" index)
   }
   
