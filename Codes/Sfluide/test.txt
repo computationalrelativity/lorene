@@ -22,3 +22,4 @@ uninstall:
 	rm -f $(EXE)
 	rm -f *.d
 
+... syncmail seems to work ok now?!
