@@ -32,6 +32,9 @@ char et_bin_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/12/10 15:12:07  k_taniguchi
+ * Change the multiplication "*" to "%".
+ *
  * Revision 1.2  2001/12/14 15:15:30  k_taniguchi
  * Change of the method to calculate derivatives with respect to the companion star
  *
@@ -142,13 +145,13 @@ void Etoile_bin::update_metric_der_comp(const Etoile_bin& comp) {
 	for (int i=0; i<3; i++) {
 	    for (int j=0; j<3; j++) {
 	
-		akcar_comp.set() += tkij_auto(i, j) * tkij_comp(i, j) ; 
+		akcar_comp.set() += tkij_auto(i, j) % tkij_comp(i, j) ; 
 	
 	    }
 	}
     
 	akcar_comp.set_std_base() ;
-	akcar_comp = a_car * akcar_comp ;
+	akcar_comp = a_car % akcar_comp ;
 
     }
 
