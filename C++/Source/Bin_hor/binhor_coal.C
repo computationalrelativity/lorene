@@ -26,6 +26,10 @@ char binhor_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/02/24 17:24:26  f_limousin
+ * The boundary conditions for psi, N and beta are now parameters in
+ * par_init.d and par_coal.d.
+ *
  * Revision 1.3  2005/02/07 10:43:36  f_limousin
  * Add the printing of the regularisation of the shift in the case N=0
  * on the horizon.
@@ -49,7 +53,8 @@ char binhor_coal_C[] = "$Header$" ;
 #include "isol_hor.h"
 
 
-void Bin_hor::set_statiques (double precis, double relax) {
+void Bin_hor::set_statiques (double precis, double relax, int bound_nn,
+			     double lim_nn, int bound_psi) {
     
     int nz = hole1.mp.get_mg()->get_nzone() ;
     
@@ -67,8 +72,8 @@ void Bin_hor::set_statiques (double precis, double relax) {
     while (indic == 1) {
 	Scalar lapse_un_old (hole1.n_auto()) ;
 	
-	solve_psi (precis, relax) ;
-	solve_lapse (precis, relax) ;
+	solve_psi (precis, relax, bound_psi) ;
+	solve_lapse (precis, relax, bound_nn, lim_nn) ;
 	
 	double erreur = 0 ;
 	Tbl diff (diffrelmax (lapse_un_old, hole1.n_auto())) ;
@@ -85,7 +90,8 @@ void Bin_hor::set_statiques (double precis, double relax) {
 }
 
 double Bin_hor::coal (double angu_vel, double precis, double relax, 
-			double nb_ome, const int sortie) {
+		      double nb_ome, int bound_nn, double lim_nn, 
+		      int bound_psi, int bound_beta, const int sortie) {
     
     assert (omega == 0) ;
     int nz = hole1.mp.get_mg()->get_nzone() ;
@@ -120,11 +126,11 @@ double Bin_hor::coal (double angu_vel, double precis, double relax,
 	set_omega (homme) ;
 	Scalar beta_un_old (hole1.beta_auto()(1)) ;
 	
-	solve_shift (precis, relax) ;
+	solve_shift (precis, relax, bound_beta) ;
 	extrinsic_curvature() ;
 	
-	solve_psi (precis, relax) ;
-	solve_lapse (precis, relax) ;
+	solve_psi (precis, relax, bound_psi) ;
+	solve_lapse (precis, relax, bound_nn, lim_nn) ;
 	
 	double erreur = 0 ;
 	Tbl diff (diffrelmax (beta_un_old, hole1.beta_auto()(1))) ;
@@ -148,11 +154,11 @@ double Bin_hor::coal (double angu_vel, double precis, double relax,
     while (indic == 1) {
 	
 	Scalar beta_un_old (hole1.beta_auto()(1)) ;
-	solve_shift (precis, relax) ;
+	solve_shift (precis, relax, bound_beta) ;
 	extrinsic_curvature() ;
 	
-	solve_psi (precis, relax) ;
-	solve_lapse (precis, relax) ;
+	solve_psi (precis, relax, bound_psi) ;
+	solve_lapse (precis, relax, bound_nn, lim_nn) ;
 
 	erreur = 0 ;
 	Tbl diff (diffrelmax (beta_un_old, hole1.beta_auto()(1))) ;
