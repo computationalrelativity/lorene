@@ -31,6 +31,9 @@ char et_bin_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/12/30 17:24:42  f_limousin
+ * Remove #include "et_bin_ncp.h"
+ *
  * Revision 1.10  2004/12/30 17:22:25  f_limousin
  * Remove all functions belonging to the class Et_bin_ncp
  *
@@ -85,7 +88,6 @@ char et_bin_global_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "etoile.h"
-#include "et_bin_ncp.h"
 
 			//--------------------------//
 			//	Baryon mass	    //
