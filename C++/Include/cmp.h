@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/06/20 09:27:09  j_novak
+ * Modif commentaires.
+ *
  * Revision 1.5  2002/09/13 09:17:31  j_novak
  * Modif. commentaires
  *
@@ -1130,24 +1133,29 @@ class Cmp {
 	/** Performs one time-step integration (from $t=j \to j+1$) of the 
 	 *   scalar d'Alembert equation with {\tt *this} being the value of 
 	 *   the function {\it f} at time {\it j}.
-	 *   The value of {\it f(t=j-1)} is represented by {\tt fjm1}.
-	 *   The source $\sigma$ of the equation $\diamond f = \sigma$ is 
-	 *   represented by the {\tt Cmp} {\tt source}.
-	 *   {\tt sourcejm1} contains the value of $\sigma$ at {\it t=j-1)}.
-	 *   {\tt par} must contain at least the time-step (constant in time)
-	 *   as first {\tt double} parameter, and the type of BC as first
-	 *   {\tt int} parameter. If par.get\_int(0) == 0 the BC are 
-	 *   homogeneous
-	 *   (i.e. {\it f(t=j+1)(r=R) = 0}).If par.get\_int(0) == 1 then
-	 *   the returned {\tt Cmp} {\it f(t=j+1)} has the boundary conditions 
-	 *   of outgoing wave (l=0 only), known as Sommerfeld boundary
-	 *   condition. If par.get\_int(0) == 2 then the enhanced outgoing
-	 *   wave condition is used (lets out all spherical harmonics 
-	 *   up to l=2). 
-	 *   The int_mod(0) member of par contains a flag giving the number 
-	 *   of calls to the function. It should be set to 0 before first call
-	 *   and not modified after. \\
-	 *   There should be one Param for each solved wave equation. 
+	 *   @param par [input/output] possible parameters to control the
+	 *   resolution of the d'Alembert equation: \\
+	 *   {\tt par.get\_double(0)} : [input] the time step {\it dt},\\
+	 *   {\tt par.get\_int(0)} : [input] the type of boundary conditions
+	 *   set at the outer boundary (0 : reflexion, 1 : Sommerfeld 
+	 *   outgoing wave, valid only for {\it l=0} components, 2 : Bayliss 
+	 *   \& Turkel outgoing wave, valid for {\it l=0, 1, 2} components)\\
+	 *   {\tt par.get\_int\_mod(0)} : [input/output] set to 0 at first
+	 *   call, is used as a working flag after (must not be modified after
+	 *   first call)\\
+	 *   {\tt par.get\_Cmp\_mod(0)} : [input] (optional) if the wave 
+	 *   equation is on a curved space-time, this is the potential in front
+	 *   of the Laplace operator. It has to be updated at every time-step
+	 *   (for a potential depending on time).\\
+	 *   Note: there are many other working objects attached to this
+	 *   {\tt Param}, so one should not modify it.\\
+	 *   There should be one {\tt Param} for each wave equation to be 
+	 *   solved. 
+	 *   @param fJm1 [input] solution $f^{J-1}$ at time {\it J-1}
+	 *   @param source [input] source $\sigma$ of the d'Alembert equation 
+	 *	    $\diamond u = \sigma$.
+	 *   @return solution $f^{J+1}$ at time {\it J+1}
+	 *   with boundary conditions defined by {\tt par.get\_int(0)}.
 	 */
 	Cmp avance_dalembert(Param& par, const Cmp& fjm1, const Cmp& source) 
 	  const ;

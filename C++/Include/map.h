@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/06/20 09:27:09  j_novak
+ * Modif commentaires.
+ *
  * Revision 1.6  2002/10/16 14:36:29  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -1750,12 +1753,23 @@ class Map_af : public Map_radial {
 
 	/** Performs one time-step integration of the d'Alembert scalar equation
 	 *   @param par [input/output] possible parameters to control the
-	 *   resolution of the Poisson equation. See the actual implementation 
-	 *   in the derived class of {\tt Map} for documentation. Note that, 
-	 *   at least, param must contain the time step as first {\tt double} 
-	 *   parameter.
+	 *   resolution of the d'Alembert equation: \\
+	 *   {\tt par.get\_double(0)} : [input] the time step {\it dt},\\
+	 *   {\tt par.get\_int(0)} : [input] the type of boundary conditions
+	 *   set at the outer boundary (0 : reflexion, 1 : Sommerfeld 
+	 *   outgoing wave, valid only for {\it l=0} components, 2 : Bayliss 
+	 *   \& Turkel outgoing wave, valid for {\it l=0, 1, 2} components)\\
+	 *   {\tt par.get\_int\_mod(0)} : [input/output] set to 0 at first
+	 *   call, is used as a working flag after (must not be modified after
+	 *   first call)\\
+	 *   {\tt par.get\_Cmp\_mod(0)} : [input] (optional) if the wave 
+	 *   equation is on a curved space-time, this is the potential in front
+	 *   of the Laplace operator. It has to be updated at every time-step
+	 *   (for a potential depending on time).\\
+	 *   Note: there are many other working objects attached to this
+	 *   {\tt Param}, so one should not modify it.
 	 *   @param fJp1 [output] solution $f^{J+1}$ at time {\it J+1}
-	 *   with boundary conditions of outgoing radiation (not exact!)
+	 *   with boundary conditions defined by {\tt par.get\_int(0)}
 	 *   @param fJ [input] solution $f^J$ at time {\it J}
 	 *   @param fJm1 [input] solution $f^{J-1}$ at time {\it J-1}
 	 *   @param source [input] source $\sigma$ of the d'Alembert equation 

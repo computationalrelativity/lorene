@@ -25,6 +25,9 @@ char map_af_dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/06/20 09:27:10  j_novak
+ * Modif commentaires.
+ *
  * Revision 1.5  2003/06/19 16:16:38  j_novak
  * Parabolic approximation for a non flat dalembert operator
  *
@@ -130,9 +133,10 @@ void Map_af::dalembert(Param& par, Cmp& fjp1, const Cmp& fj, const Cmp& fjm1,
 	par.add_map(*tmap) ;
 	delete [] bornes ;
       }
-      else
+      else {
 	tmap = dynamic_cast<const Map_af*>(&par.get_map()) ;
-
+	assert (tmap != 0x0) ;
+      }
       metri.va.coef() ;
       metri.va.ylm() ;
 
