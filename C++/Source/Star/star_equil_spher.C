@@ -32,6 +32,9 @@ char star_equil_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/06/22 12:45:31  f_limousin
+ * Improve the convergence
+ *
  * Revision 1.8  2004/06/07 16:27:47  f_limousin
  * Add the computation of virial error.
  *
@@ -101,8 +104,8 @@ void Star::equilibrium_spher(double ent_c, double precis){
 
     Scalar a_car(mp) ;
     a_car = 1 ;	    
-    qq = 0 ;
-    qq.std_spectral_base() ;
+    beta = 0 ;
+    beta.std_spectral_base() ;
 
     // Auxiliary quantities
     // --------------------
@@ -123,7 +126,7 @@ void Star::equilibrium_spher(double ent_c, double precis){
     logn_quad = 0 ; 
 
     Scalar dlogn(mp) ; 
-    Scalar dqq(mp) ; 
+    Scalar dbeta(mp) ; 
     
     double diff_ent = 1 ;     
     int mermax = 200 ;	    // Max number of iterations
@@ -152,8 +155,6 @@ void Star::equilibrium_spher(double ent_c, double precis){
     	
 	source.set_dzpuis(4) ; 
 	
-	source.std_spectral_base() ;	    // Sets the standard spectral bases
- 	
 	Cmp source_logn_mat (source) ;
 	Cmp logn_mat_cmp (logn_mat) ;
 	logn_mat_cmp.set_etat_qcq() ;
@@ -167,10 +168,10 @@ void Star::equilibrium_spher(double ent_c, double precis){
 	// Quadratic part of ln(N)
 	// -----------------------
 
-	dlogn = logn.dsdr() ; 
-	dqq = qq.dsdr() ; 
+	mpaff.dsdr(logn, dlogn) ;
+	mpaff.dsdr(beta, dbeta) ;
 		
-	source = - dlogn * dqq ; 
+	source = - dlogn * dbeta ; 
 
 	Cmp source_logn_quad (source) ;
 	Cmp logn_quad_cmp (logn_quad) ;
@@ -221,36 +222,33 @@ void Star::equilibrium_spher(double ent_c, double precis){
 	equation_of_state() ; 
 	
 	//---------------------
-	// Equation for qq_auto
+	// Equation for beta_auto
 	//---------------------
 	
-	dlogn = logn.dsdr() ; 
-	dqq = qq.dsdr() ; 
+	mpaff.dsdr(logn, dlogn) ;
+	mpaff.dsdr(beta, dbeta) ;
 	
 	source = 3 * qpig * a_car * press ;
 	
-	source = source - 0.5 * ( dqq * dqq + dlogn * dlogn ) ;
+	source = source - 0.5 * ( dbeta * dbeta + dlogn * dlogn ) ;
 
-	source.std_spectral_base() ;	  // Sets the standard spectral bases. 
+	source.std_spectral_base() ;
+	Cmp source_beta (source) ;
+	Cmp beta_cmp (logn_quad) ;
+	beta_cmp.set_etat_qcq() ;
 
-	Cmp source_qq (source) ;
-	Cmp qq_cmp (logn_quad) ;
-	qq_cmp.set_etat_qcq() ;
-	    
-	mpaff.poisson(source_qq, par_nul, qq_cmp) ; 
+	mpaff.poisson(source_beta, par_nul, beta_cmp) ; 
 
-	qq = qq_cmp ;
-
-      	qq.std_spectral_base() ;
+	beta = beta_cmp ;
 
 	// Metric coefficient psi4 update
 	
 	nnn = exp( logn ) ; 
 
-	Scalar exp_qq = exp( qq ) ;
-	exp_qq.std_spectral_base() ;
+	Scalar exp_beta = exp( beta ) ;
+	exp_beta.std_spectral_base() ;
 
-	a_car = exp_qq * exp_qq / ( nnn * nnn ) ;
+	a_car = exp_beta * exp_beta / ( nnn * nnn ) ;
 	a_car.std_spectral_base() ;
 
     // Relative difference with enthalpy at the previous step
@@ -279,11 +277,10 @@ void Star::equilibrium_spher(double ent_c, double precis){
     
     nnn = exp( logn ) ; 
    
-    Scalar exp_qq = exp( qq ) ;
-    exp_qq.std_spectral_base() ;
+    Scalar exp_beta = exp( beta ) ;
+    exp_beta.std_spectral_base() ;
     
-    a_car = exp_qq * exp_qq / ( nnn * nnn ) ;
-    a_car.std_spectral_base() ;
+    a_car = exp_beta * exp_beta / ( nnn * nnn ) ;
    
     Sym_tensor gamma_cov(mp, COV, mp.get_bvect_spher()) ;
     gamma_cov.set_etat_zero() ;
@@ -322,9 +319,35 @@ void Star::equilibrium_spher(double ent_c, double precis){
     cout << "Gravitational mass M :  " << mass_g()/msol << " Mo" << endl ;
     cout << "Compacity parameter GM/(c^2 R) : " << compact << endl ;
      
+    //-----------------
+    // Virial theorem
+    //-----------------
+    
+    //... Pressure term
 
-    int nr = mp.get_mg()->get_nr(0) ;
-    int nt = mp.get_mg()->get_nt(0) ;
-    int np = mp.get_mg()->get_np(0) ;
+    source = qpig * a_car * sqrt(a_car) * s_euler ; 
+    source.std_spectral_base() ;	    
+    double vir_mat = source.integrale() ; 
+    
+    //... Gravitational term
 
+    Scalar tmp = beta - logn ; 
+
+    source =  - ( logn.dsdr() * logn.dsdr() 
+		      - 0.5 * tmp.dsdr() * tmp.dsdr() ) 
+		    * sqrt(a_car)  ; 
+
+    source.std_spectral_base() ;	    
+    double vir_grav = source.integrale() ; 
+
+    //... Relative error on the virial identity GRV3
+    
+    double grv3 = ( vir_mat + vir_grav ) / vir_mat ;
+
+    cout << "Virial theorem GRV3 : " << endl ; 
+    cout << "     3P term    : " << vir_mat << endl ; 
+    cout << "     grav. term : " << vir_grav << endl ; 
+    cout << "     relative error : " << grv3 << endl ; 
+    
+ 
 }
