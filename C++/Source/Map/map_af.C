@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2003 Eric Gourgoulhon
  *   Copyright (c) 1999-2001 Philippe Grandclement
  *
  *   This file is part of LORENE.
@@ -33,6 +33,9 @@ char map_af_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/15 10:33:11  e_gourgoulhon
+ * Added new Coord's : drdt, srdrdp.
+ *
  * Revision 1.3  2002/10/16 14:36:41  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -323,6 +326,8 @@ void Map_af::set_coord(){
     // ... Coord's introduced by the base class Map_radial : 
     xsr.set(this, map_af_fait_xsr) ;
     dxdr.set(this, map_af_fait_dxdr) ;
+    drdt.set(this, map_af_fait_drdt) ;
+    stdrdp.set(this, map_af_fait_stdrdp) ;
     srdrdt.set(this, map_af_fait_srdrdt) ;
     srstdrdp.set(this, map_af_fait_srstdrdp) ;
     sr2drdt.set(this, map_af_fait_sr2drdt) ;
@@ -485,9 +490,9 @@ void Map_af::homothetie_interne(double fact) {
     alpha[0] *= fact ;
 
     // Dans la premiere coquille :
-    double sauve  = alpha[1] ;
+    double asauve  = alpha[1] ;
     alpha[1] = (1-fact)/2.*beta[1] + (1+fact)/2. * alpha[1] ;
-    beta[1] = (1+fact)/2.*beta[1]+ (1-fact)/2. *sauve ;
+    beta[1] = (1+fact)/2.*beta[1]+ (1-fact)/2. * asauve ;
     
     reset_coord() ; 
 }
