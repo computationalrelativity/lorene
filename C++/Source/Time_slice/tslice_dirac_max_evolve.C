@@ -30,6 +30,10 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/05/11 20:15:10  e_gourgoulhon
+ * Added Evolution_full's for ADM mass and checks of the constraint,
+ * as well as the corresponding plots and write to files.
+ *
  * Revision 1.5  2004/05/10 09:19:27  e_gourgoulhon
  * Added a call to del_deriv() after set_khi_mu.
  *
@@ -87,12 +91,19 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
     int nz = map.get_mg()->get_nzone() ; 
     double ray_des = 1.25 * map.val_r(nz-2, 1., 0., 0.) ; // outermost radius
                                                           // for plots
-
     Scalar n_new(map) ; 
     Scalar q_new(map) ; 
     Vector beta_new(map, CON, triad) ; 
     Scalar khi_new(map) ; 
     Scalar mu_new(map) ; 
+    
+    // Successive values of global quantities:
+    Evolution_full<double> m_adm(adm_mass(), jtime, the_time[jtime]) ; 
+    Evolution_full<double> test_ham_constr ; 
+    Evolution_full<double> test_mom_constr_r ; 
+    Evolution_full<double> test_mom_constr_t ; 
+    Evolution_full<double> test_mom_constr_p ; 
+    
     
     // Evolution loop
     // --------------
@@ -107,7 +118,6 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
         << "==============================================================\n" ;
     
         cout << *this << endl ; 
-        cout << "ADM mass : " << adm_mass() << endl ; 
         
         // Resolution of hyperbolic equations
         // ----------------------------------
@@ -168,6 +178,64 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
         des_meridian(hh()(2,3), 0., ray_des, "h\\u\\gh\\gf\\d", 14) ; 
         des_meridian(hh()(3,3), 0., ray_des, "h\\u\\gf\\gf\\d", 15) ; 
         
+        cout << "ADM mass : " << adm_mass() << endl ; 
+        m_adm.update(adm_mass(), jtime, the_time[jtime]) ;
+        if (jt > 0) des_evol(m_adm, "ADM mass", "Variation of ADM mass", 80) ;          
+        
+        int check_mod = 2 ; 
+        if (jt%check_mod == 0) {
+
+            int jt_graph = jt / check_mod ; 
+            
+            Tbl tham = check_hamiltonian_constraint() ; 
+            double max_error = tham(0,0) ; 
+            for (int l=1; l<nz-1; l++) {    // all domains but the last one
+                double xx = fabs(tham(0,l)) ;  
+                if (xx > max_error) max_error = xx ; 
+            }
+            test_ham_constr.update(max_error, jt_graph, the_time[jtime]) ; 
+            if (jt > 0) des_evol(test_ham_constr, "Absolute error", 
+                "Check of Hamiltonian constraint", 81) ; 
+
+            Tbl tmom = check_momentum_constraint() ; 
+            max_error = tmom(0,0) ;
+            for (int l=1; l<nz-1; l++) {    // all domains but the last one
+                double xx = fabs(tmom(0,l)) ;  
+                if (xx > max_error) max_error = xx ; 
+            }
+            test_mom_constr_r.update(max_error, jt_graph, the_time[jtime]) ; 
+            if (jt > 0) des_evol(test_mom_constr_r, "Absolute error", 
+                "Check of momentum constraint (r comp.)", 82) ; 
+
+            max_error = tmom(1,0) ;
+            for (int l=1; l<nz-1; l++) {    // all domains but the last one
+                double xx = fabs(tmom(1,l)) ;  
+                if (xx > max_error) max_error = xx ; 
+            }
+            test_mom_constr_t.update(max_error, jt_graph, the_time[jtime]) ; 
+            if (jt > 0) des_evol(test_mom_constr_t, "Absolute error", 
+                "Check of momentum constraint (\\gh comp.)", 83) ; 
+
+            max_error = tmom(2,0) ;
+            for (int l=1; l<nz-1; l++) {    // all domains but the last one
+                double xx = fabs(tmom(2,l)) ;  
+                if (xx > max_error) max_error = xx ; 
+            }
+            test_mom_constr_p.update(max_error, jt_graph, the_time[jtime]) ; 
+            if (jt > 0) des_evol(test_mom_constr_p, "Absolute error", 
+                "Check of momentum constraint (\\gf comp.)", 84) ; 
+                
+        }
+
+        int save_mod = 10 ; 
+        if (jt%save_mod == 0) { 
+            m_adm.save("adm_mass.d") ; 
+            test_ham_constr.save("test_ham_constr.d") ; 
+            test_mom_constr_r.save("test_mom_constr_r.d") ; 
+            test_mom_constr_t.save("test_mom_constr_t.d") ; 
+            test_mom_constr_p.save("test_mom_constr_p.d") ; 
+        }
+
         // arrete() ; 
 
     }
