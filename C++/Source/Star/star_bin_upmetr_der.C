@@ -32,6 +32,10 @@ char star_bin_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/02/18 18:47:01  e_gourgoulhon
+ * divshift_comp now computed via Tensor::divergence, the
+ * method Tensor::scontract having disappeared.
+ *
  * Revision 1.3  2004/01/20 15:20:23  f_limousin
  * First version
  *
@@ -70,7 +74,7 @@ void Star_bin::update_metric_der_comp(const Star_bin& comp) {
     const Tensor& dshift_comp = shift_comp.derive_con(flat) ;
     
     // Trace of D~_j beta^i  :
-    Scalar divshift_comp = shift_comp.derive_cov(flat).scontract(0, 1) ;
+    Scalar divshift_comp = shift_comp.divergence(flat) ;
     
     // Computation of K^{ij}
     // -------------------------
