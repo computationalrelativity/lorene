@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/06/20 14:06:54  f_limousin
+ * Add a new argument conf_flat for the constructors and a new function fait_decouple().
+ *
  * Revision 1.4  2003/03/03 19:07:55  f_limousin
  * Suppress the member ref_triad.
  *
@@ -50,6 +53,7 @@
 
 // Lorene headers
 #include "et_bin_ncp.h"
+#include "binaire.h"
 
 /**
  * Extended description of the class for Doc++ documentation
@@ -82,7 +86,6 @@ class Bin_ns_ncp {
 	/** Absolute X coordinate of the rotation axis
 	 */
 	double x_axe ;
-	
 
 
     // Derived data : 
@@ -138,7 +141,7 @@ class Bin_ns_ncp {
 	 */
 	Bin_ns_ncp(Map& mp1, int nzet1, const Eos& eos1, int irrot1, 
 		   Map& mp2, int nzet2, const Eos& eos2, int irrot2,
-		   int relat, const Metrique& flat1, const Metrique& flat2,
+		   int relat, int conf_flat, const Metrique& flat1, const Metrique& flat2,
 		   const Tenseur_sym &source1, const Tenseur_sym &source2) ;			
 
 
@@ -334,6 +337,27 @@ class Bin_ns_ncp {
 	 */
 	void analytical_shift() ; 
 
+	/** Performs a comparison between quantities as the shift, lapse and
+	 *  tkij_auto for two two binaries stars. This method takes a fich as 
+	 *  argument to construct the etoile_bin.
+	 */
+
+	void compare(FILE*) ;
+
+	/** Performs a comparison between quantities as the shift, lapse and
+	 *  tkij_auto for two two binaries stars.
+	 */
+
+	void compare(const Binaire&) ;
+
+	/**
+	 * Calculates {tt decouple} which is used to obtain {\tt a_car\_auto} by the formula : 
+	 * {\tt a_car\_auto} = {\tt decouple} * {\tt a_car\_tot}.
+	 * (see the membre {tt Cmp decouple} for more precisions about its value).
+	 * 
+	 */
+	void fait_decouple () ;
+ 
 };
 ostream& operator<<(ostream& , const Bin_ns_ncp& ) ;	
 
