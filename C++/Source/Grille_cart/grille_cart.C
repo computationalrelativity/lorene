@@ -29,6 +29,10 @@ char grille_cart_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/03/15 13:14:56  n_chamel
+ * Introduced the private method init_grid_points, to be called by
+ * the constructors
+ *
  * Revision 1.1  2002/03/07 15:37:05  n_chamel
  * First version
  *
@@ -68,6 +72,73 @@ Grille_cart::Grille_cart(int nx_i, int ny_i, int nz_i, int type_x_i, int type_y_
         type_y(type_y_i),
         type_z(type_z_i)
         {
+
+        init_grid_points()   ;
+
+}
+
+// Copy constructor
+// ------------
+Grille_cart::Grille_cart(const Grille_cart& grid)  :
+        nx(grid.nx),
+        ny(grid.ny),
+        nz(grid.nz),
+        type_x(grid.type_x),
+        type_y(grid.type_y),
+        type_z(grid.type_z)
+{
+
+        x = new double [nx]  ;
+        y = new double [ny]  ;
+        z = new double [nz]  ;
+
+        for (int i=0; i<nx; i++) {
+                x[i] = grid.x[i] ;
+        }
+
+        for (int i=0; i<ny; i++) {
+                y[i] = grid.y[i] ;
+        }
+
+        for (int i=0; i<nz; i++) {
+                z[i] = grid.z[i] ;
+        }
+
+}
+
+
+// Constructor from a file
+// ----------------
+Grille_cart::Grille_cart(FILE* fich)  {
+
+                fread_be(&nx, sizeof(int), 1, fich) ;
+                fread_be(&ny, sizeof(int), 1, fich) ;
+                fread_be(&nz, sizeof(int), 1, fich) ;
+                fread_be(&type_x, sizeof(int), 1, fich) ;
+                fread_be(&type_y, sizeof(int), 1, fich) ;
+                fread_be(&type_z, sizeof(int), 1, fich) ;
+
+                init_grid_points()   ;
+}
+
+                                                         //--------------------//
+                                                        //             Destructor                //
+                                                       //--------------------//
+
+Grille_cart::~Grille_cart(){
+
+        delete [] x ;
+        delete [] y ;
+        delete [] z ;
+
+}
+
+                                                //---------------------------//
+                                                // Initialisation of the arrays x, y and z   //
+                                               //---------------------------//
+
+
+void Grille_cart::init_grid_points() {
 
         x = new double [nx] ;
         y = new double [ny] ;
@@ -203,61 +274,7 @@ Grille_cart::Grille_cart(int nx_i, int ny_i, int nz_i, int type_x_i, int type_y_
         }
 }
 
-// Copy constructor
-// ------------
-Grille_cart::Grille_cart(const Grille_cart& grid)  :
-        nx(grid.nx),
-        ny(grid.ny),
-        nz(grid.nz),
-        type_x(grid.type_x),
-        type_y(grid.type_y),
-        type_z(grid.type_z)
-{
 
-        x = new double [nx]  ;
-        y = new double [ny]  ;
-        z = new double [nz]  ;
-
-        for (int i=0; i<nx; i++) {
-                x[i] = grid.x[i] ;
-        }
-
-        for (int i=0; i<ny; i++) {
-                y[i] = grid.y[i] ;
-        }
-
-        for (int i=0; i<nz; i++) {
-                z[i] = grid.z[i] ;
-        }
-
-}
-
-
-// Constructor from a file
-// ----------------
-Grille_cart::Grille_cart(FILE* fich)  {
-
-                fread_be(&nx, sizeof(int), 1, fich) ;
-                fread_be(&ny, sizeof(int), 1, fich) ;
-                fread_be(&nz, sizeof(int), 1, fich) ;
-                fread_be(&type_x, sizeof(int), 1, fich) ;
-                fread_be(&type_y, sizeof(int), 1, fich) ;
-                fread_be(&type_z, sizeof(int), 1, fich) ;
-
-
-}
-
-                                                         //--------------------//
-                                                        //             Destructor                //
-                                                       //--------------------//
-
-Grille_cart::~Grille_cart(){
-
-        delete [] x ;
-        delete [] y ;
-        delete [] z ;
-
-}
                                                         //--------------------//
                                                         //              Outputs                   //
                                                        //--------------------//

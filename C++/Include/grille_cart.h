@@ -30,6 +30,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/03/15 13:14:56  n_chamel
+ * Introduced the private method init_grid_points, to be called by
+ * the constructors
+ *
  * Revision 1.1  2002/03/07 15:41:12  n_chamel
  * New class for dealing with Cartesian grids
  * Added the sampling type UNIFORM in type_parite.h
@@ -89,6 +93,12 @@ class Grille_cart {
 	Grille_cart(FILE* ) ;
 
 	virtual ~Grille_cart() ;			/// Destructor
+
+    // Private function invoked by the constructors
+    //--------------------------------
+    private:
+                /// Initialisation of the arrays {\tt x}, {\tt y } and {\tt z}
+                void init_grid_points() ; 
 
 
     // Accessors
