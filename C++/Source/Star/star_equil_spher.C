@@ -32,9 +32,8 @@ char star_equil_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.7  2004/05/25 14:24:12  f_limousin
- * Correction of an error : dqq and dlogn are now computed using mpaff
- * instead of mp.
+ * Revision 1.8  2004/06/07 16:27:47  f_limousin
+ * Add the computation of virial error.
  *
  * Revision 1.6  2004/04/08 16:33:42  f_limousin
  * The new variable is ln(Q) instead of Q=psi^2*N. It improves the
@@ -73,7 +72,7 @@ void Star::equilibrium_spher(double ent_c, double precis){
     
     // Fundamental constants and units
     // -------------------------------
-  using namespace Unites ;
+    using namespace Unites ;
     
     // Initializations
     // ---------------
@@ -168,8 +167,8 @@ void Star::equilibrium_spher(double ent_c, double precis){
 	// Quadratic part of ln(N)
 	// -----------------------
 
-	mpaff.dsdr(logn, dlogn) ;
-	mpaff.dsdr(qq, dqq) ;
+	dlogn = logn.dsdr() ; 
+	dqq = qq.dsdr() ; 
 		
 	source = - dlogn * dqq ; 
 
@@ -225,11 +224,11 @@ void Star::equilibrium_spher(double ent_c, double precis){
 	// Equation for qq_auto
 	//---------------------
 	
-	mpaff.dsdr(logn, dlogn) ;
-	mpaff.dsdr(qq, dqq) ;
-
+	dlogn = logn.dsdr() ; 
+	dqq = qq.dsdr() ; 
+	
 	source = 3 * qpig * a_car * press ;
-
+	
 	source = source - 0.5 * ( dqq * dqq + dlogn * dlogn ) ;
 
 	source.std_spectral_base() ;	  // Sets the standard spectral bases. 
@@ -248,26 +247,29 @@ void Star::equilibrium_spher(double ent_c, double precis){
 	
 	nnn = exp( logn ) ; 
 
-	a_car = exp(2*(qq - logn)) ;
+	Scalar exp_qq = exp( qq ) ;
+	exp_qq.std_spectral_base() ;
+
+	a_car = exp_qq * exp_qq / ( nnn * nnn ) ;
 	a_car.std_spectral_base() ;
 
-	// Relative difference with enthalpy at the previous step
-	// ------------------------------------------------------
-	
+    // Relative difference with enthalpy at the previous step
+    // ------------------------------------------------------
+    
 	diff_ent = norme( diffrel(ent, ent_jm1) ) / nzet ; 
-	
-	// Next step
-	// ---------
-	
-	ent_jm1 = ent ; 
-	
+
+    // Next step
+    // ---------
+    
+    ent_jm1 = ent ; 
+
 
     }  // End of iteration loop 
     
     //=========================================================================
     // 			End of iteration
     //=========================================================================
-
+    
     // The mapping is transfered to that of the star:
     // ----------------------------------------------
     mp = mpaff ; 
@@ -277,9 +279,12 @@ void Star::equilibrium_spher(double ent_c, double precis){
     
     nnn = exp( logn ) ; 
    
-    a_car = exp( 2 * (qq - logn) ) ;
+    Scalar exp_qq = exp( qq ) ;
+    exp_qq.std_spectral_base() ;
+    
+    a_car = exp_qq * exp_qq / ( nnn * nnn ) ;
     a_car.std_spectral_base() ;
- 
+   
     Sym_tensor gamma_cov(mp, COV, mp.get_bvect_spher()) ;
     gamma_cov.set_etat_zero() ;
 
@@ -317,35 +322,9 @@ void Star::equilibrium_spher(double ent_c, double precis){
     cout << "Gravitational mass M :  " << mass_g()/msol << " Mo" << endl ;
     cout << "Compacity parameter GM/(c^2 R) : " << compact << endl ;
      
-    
-    //-----------------
-    // Virial theorem
-    //-----------------
-    
-    //... Pressure term
 
-    Cmp source_p (qpig * a_car * sqrt(a_car) * s_euler) ; 
-    source_p.std_base_scal() ;	    
-    double vir_mat = source_p.integrale() ; 
-    
-    //... Gravitational term
+    int nr = mp.get_mg()->get_nr(0) ;
+    int nt = mp.get_mg()->get_nt(0) ;
+    int np = mp.get_mg()->get_np(0) ;
 
-    Scalar tmp = qq - logn ; 
-
-    Cmp source_g ( - ( logn.dsdr() * logn.dsdr() 
-		      - 0.5 * tmp.dsdr() * tmp.dsdr() ) 
-		    * sqrt(a_car) )  ; 
-
-    source_g.std_base_scal() ;	    
-    double vir_grav = source_g.integrale() ; 
-
-    //... Relative error on the virial identity GRV3
-    
-    double grv3 = ( vir_mat + vir_grav ) / vir_mat ;
-
-    cout << "Virial theorem GRV3 : " << endl ; 
-    cout << "     3P term    : " << vir_mat << endl ; 
-    cout << "     grav. term : " << vir_grav << endl ; 
-    cout << "     relative error : " << grv3 << endl ; 
-    
 }
