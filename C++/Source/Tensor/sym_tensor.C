@@ -35,6 +35,11 @@ char sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2003/10/28 12:34:08  e_gourgoulhon
+ * Corrected bug in the copy constructor and constructor from Tensor:
+ * the cmp have already been created by the (special) Tensor constructor called
+ * by these constructors.
+ *
  * Revision 1.11  2003/10/20 14:26:03  j_novak
  * New assignement operators.
  *
@@ -103,37 +108,39 @@ Sym_tensor::Sym_tensor(const Map& map, const Itbl& tipe,const Base_vect& triad_i
 Sym_tensor::Sym_tensor(const Map& map, int tipe, const Base_vect& triad_i)  
   : Tensor(map, 2, tipe, 6, triad_i){
 
-		set_der_0x0() ;
+	set_der_0x0() ;
 }
 
 // Copy constructor
 // ----------------
-Sym_tensor::Sym_tensor (const Sym_tensor& source) : 
+Sym_tensor::Sym_tensor(const Sym_tensor& source) : 
   Tensor (*source.mp, 2, source.type_indice, 6, *(source.triad)) {
     
     for (int i=0 ; i<n_comp ; i++) {
-	int place_source = source.position(indices(i)) ;
-	cmp[i] = new Scalar (*source.cmp[place_source]) ;
+		int posi = source.position(indices(i)) ;  // in case source belongs to
+												  // a derived class of 
+												  // Sym_tensor with a different
+												  // storage of components 
+		*(cmp[i]) = *(source.cmp[posi]) ;
     }
-		set_der_0x0() ;
+	set_der_0x0() ;
 }   
 
 
 // Constructor from a Tensor
 // --------------------------
-Sym_tensor::Sym_tensor (const Tensor& source) :
+Sym_tensor::Sym_tensor(const Tensor& source) :
   Tensor (*source.mp, 2, source.type_indice, 6, *(source.triad)) {
 	
-    assert (source.valence == 2) ;
+    assert(source.valence == 2) ;
 	assert(source.type_indice(0) == source.type_indice(1)) ; 
 	
-
     for (int i=0 ; i<n_comp ; i++) {
-	int place_source = source.position(indices(i)) ;
-	cmp[i] = new Scalar (*source.cmp[place_source]) ;
+		int posi = source.position(indices(i)) ;
+		*(cmp[i]) = *(source.cmp[posi]) ;
     }
 	    
-		set_der_0x0() ;
+	set_der_0x0() ;
 }   
 
 	

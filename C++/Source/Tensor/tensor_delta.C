@@ -32,6 +32,11 @@ char tensor_delta_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/10/28 12:34:08  e_gourgoulhon
+ * Corrected bug in the copy constructor and constructor from Tensor:
+ * the cmp have already been created by the (special) Tensor constructor called
+ * by these constructors.
+ *
  * Revision 1.4  2003/10/20 14:26:03  j_novak
  * New assignement operators.
  *
@@ -87,26 +92,29 @@ Tensor_delta::Tensor_delta(const Map& map, int tipe, const Base_vect& triad_i)
 
 // Copy constructor
 // ----------------
-Tensor_delta::Tensor_delta (const Tensor_delta& source) : 
+Tensor_delta::Tensor_delta(const Tensor_delta& source) : 
   Tensor (*source.mp, 3, source.type_indice, 18, *(source.triad)) {
     
     for (int i=0 ; i<n_comp ; i++) {
-	int place_source = source.position(indices(i)) ;
-	cmp[i] = new Scalar (*source.cmp[place_source]) ;
+		int posi = source.position(indices(i)) ;  // in case source belongs to
+												  // a derived class of 
+												  // Tensor_delta with a different
+												  // storage of components 
+		*(cmp[i]) = *(source.cmp[posi]) ;
     }
 }   
 
 
 // Constructor from a Tensor
 // --------------------------
-Tensor_delta::Tensor_delta (const Tensor& source) :
+Tensor_delta::Tensor_delta(const Tensor& source) :
   Tensor (*source.mp, 3, source.type_indice, 18, *(source.triad)) {
 	
     assert (source.valence == 3) ;
 
     for (int i=0 ; i<n_comp ; i++) {
-	int place_source = source.position(indices(i)) ;
-	cmp[i] = new Scalar (*source.cmp[place_source]) ;
+		int posi = source.position(indices(i)) ;
+		*(cmp[i]) = *(source.cmp[posi]) ;
     }
 	    
 }   
