@@ -30,9 +30,8 @@ char name_of_this_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.3  2003/10/19 19:59:59  e_gourgoulhon
+ * Revision 1.4  2003/10/19 20:01:10  e_gourgoulhon
  * Template file
- *
  *
  * *** Suppress all lines (including those of this comment) which are not
  * *** between two $ characters. The lines between two $ must not be
