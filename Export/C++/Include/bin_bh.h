@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/01/09 11:08:00  j_novak
+ * headcpp.h is now compliant with C++ norm.
+ * The include files have been ordered, as well as the local_settings_linux
+ *
  * Revision 1.5  2002/03/20 08:27:45  e_gourgoulhon
  * Added the derivatives of Psi.
  *
@@ -50,12 +54,20 @@
  *
  */
 
-// Headers C++
+// Headers C
+#include <stdio.h>
+
+#ifdef OBSOLETE_HEADERS
+
 #include <iostream.h>
 #include <fstream.h>
 
-// Headers C
-#include <stdio.h>
+#else
+
+#include <iostream>
+#include <fstream>
+using namespace std ;
+#endif
 
 /**
  * Binary black hole configuration on a Cartesian grid.

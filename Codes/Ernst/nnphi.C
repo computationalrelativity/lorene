@@ -28,6 +28,10 @@ char name_of_this_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/01/09 11:07:50  j_novak
+ * headcpp.h is now compliant with C++ norm.
+ * The include files have been ordered, as well as the local_settings_linux
+ *
  * Revision 1.3  2002/12/09 16:07:25  j_frauendiener
  * binary output added
  *
@@ -40,10 +44,6 @@ char name_of_this_file_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// C++ headers
-#include <iostream.h>
-#include <fstream.h>
 
 // C headers
 #include <stdlib.h>

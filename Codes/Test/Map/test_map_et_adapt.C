@@ -29,8 +29,12 @@ char test_map_et_adapt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:31  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/01/09 11:07:53  j_novak
+ * headcpp.h is now compliant with C++ norm.
+ * The include files have been ordered, as well as the local_settings_linux
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:31  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.3  2000/02/15  15:20:08  eric
  * *** empty log message ***
@@ -46,10 +50,6 @@ char test_map_et_adapt_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// headers C++
-#include <iostream.h>
-#include <fstream.h>
 
 // headers C
 #include <stdlib.h>

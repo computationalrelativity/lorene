@@ -28,8 +28,12 @@ char vect_inf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:31  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/01/09 11:07:56  j_novak
+ * headcpp.h is now compliant with C++ norm.
+ * The include files have been ordered, as well as the local_settings_linux
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:31  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.1  2000/02/15  14:57:18  phil
  * Initial revision
@@ -56,7 +60,6 @@ char vect_inf_C[] = "$Header$" ;
 #include "param.h"
 
 //standard
-#include <iostream.h>
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>

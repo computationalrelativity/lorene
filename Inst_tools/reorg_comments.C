@@ -5,11 +5,19 @@
  * has a suffix _r. 
  *
  */
-#include <iostream.h>
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
+#ifdef OBSOLETE_HEADERS
+
+#include <iostream.h>
+
+#else
+
+#include <iostream>
+using namespace std ;
+#endif 
 
 int main(int argc, char** argv)
 {

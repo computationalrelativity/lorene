@@ -29,6 +29,10 @@ char init_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/01/09 11:07:48  j_novak
+ * headcpp.h is now compliant with C++ norm.
+ * The include files have been ordered, as well as the local_settings_linux
+ *
  * Revision 1.2  2001/12/06 16:18:39  jl_zdunik
  * Return type of main changed from 'void' to 'int'.
  *
@@ -54,10 +58,6 @@ char init_bin_C[] = "$Header$" ;
  */
 
  
-// headers C++
-#include <iostream.h>
-#include <fstream.h>
-
 // headers C
 #include <stdlib.h>
 #include <math.h>

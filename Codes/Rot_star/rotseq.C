@@ -29,6 +29,10 @@ char rotseq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/01/09 11:07:50  j_novak
+ * headcpp.h is now compliant with C++ norm.
+ * The include files have been ordered, as well as the local_settings_linux
+ *
  * Revision 1.2  2002/03/27 22:00:23  e_gourgoulhon
  * Now can computes sequences of rigidly rotating stars (class Etoile_rot)
  * as well as differentially rotating stars (class Et_rot_diff)
@@ -44,11 +48,6 @@ char rotseq_C[] = "$Header$" ;
  *
  */
 
-
-// headers C++
-#include <iostream.h>
-#include <iomanip.h>
-#include <fstream.h>
 
 // headers C
 #include <stdlib.h>

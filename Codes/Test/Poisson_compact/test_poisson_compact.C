@@ -29,8 +29,12 @@ char test_poisson_compact_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:31  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/01/09 11:07:54  j_novak
+ * headcpp.h is now compliant with C++ norm.
+ * The include files have been ordered, as well as the local_settings_linux
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:31  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.4  2000/02/25  09:56:04  eric
  * Nouveau constructeur de Tenseur (triade passee en argument)
@@ -52,10 +56,6 @@ char test_poisson_compact_C[] = "$Header$" ;
 
 
 // version of 13.01.2000
-
-// headers C++
-#include <iostream.h>
-#include <fstream.h>
 
 // headers C
 #include <stdlib.h>

@@ -30,6 +30,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/01/09 11:08:00  j_novak
+ * headcpp.h is now compliant with C++ norm.
+ * The include files have been ordered, as well as the local_settings_linux
+ *
  * Revision 1.1  2002/01/11 17:03:02  e_gourgoulhon
  * Exportation of binary neutron stars configuration to a Cartesian grid
  *
@@ -38,12 +42,20 @@
  *
  */
 
-// Headers C++
+// Headers C
+#include <stdio.h>
+
+#ifdef OBSOLETE_HEADERS
+
 #include <iostream.h>
 #include <fstream.h>
 
-// Headers C
-#include <stdio.h>
+#else
+
+#include <iostream>
+#include <fstream>
+using namespace std ;
+#endif 
 
 /**
  * Binary neutron star configuration on a Cartesian grid.

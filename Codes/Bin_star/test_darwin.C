@@ -30,8 +30,12 @@ char test_darwin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:31  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/01/09 11:07:49  j_novak
+ * headcpp.h is now compliant with C++ norm.
+ * The include files have been ordered, as well as the local_settings_linux
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:31  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.3  1999/12/24  12:15:51  keisuke
  * Minor changes.
@@ -51,10 +55,6 @@ char test_darwin_C[] = "$Header$" ;
 // version of 16.12.1999
 // version of 22.12.1999
 // version of 23.12.1999
-
-// headers C++
-#include <iostream.h>
-#include <fstream.h>
 
 // headers C
 #include <stdlib.h>

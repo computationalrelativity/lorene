@@ -29,6 +29,10 @@ char read_bin_ns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/01/09 11:08:00  j_novak
+ * headcpp.h is now compliant with C++ norm.
+ * The include files have been ordered, as well as the local_settings_linux
+ *
  * Revision 1.2  2002/01/15 09:35:33  e_gourgoulhon
  * Added README file
  * Suppressed outputs/inputs in read_bin_ns.C
@@ -40,10 +44,6 @@ char read_bin_ns_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// C++ headers
-#include <iostream.h>
-#include <fstream.h>
 
 // C headers
 #include <stdlib.h>

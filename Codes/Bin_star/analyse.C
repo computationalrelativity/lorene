@@ -29,6 +29,10 @@ char analyse_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/01/09 11:07:48  j_novak
+ * headcpp.h is now compliant with C++ norm.
+ * The include files have been ordered, as well as the local_settings_linux
+ *
  * Revision 1.1  2002/06/18 14:07:26  f_limousin
  * Analysis of asymptotic behavior of binary NS and BH
  *
@@ -38,10 +42,6 @@ char analyse_C[] = "$Header$" ;
  *
  */
 
-// Headers standard du C++
-#include <iostream.h>
-#include <fstream.h>
- 
 // Headers standard du C
 //  (par exemple definit la macro EXIT_SUCCESS)
 #include <stdlib.h>

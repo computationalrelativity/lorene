@@ -8,7 +8,7 @@ SRC	= *.C
 
 install: $(SRC) Objects Objects_g
 	touch Dependencies
-	makedepend -f Dependencies $(INC) $(SRC)  # determines the dependencies
+	makedepend -f Dependencies $(INCDEP) $(INC) $(SRC)  # determines the dependencies
 	echo *C | $(BIN_TOOLS)/pointCpointo > List_obj     # list of *.o files
 	mv Objects_g/*.o .
 	mv _rien.o Objects_g

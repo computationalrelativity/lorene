@@ -29,6 +29,10 @@ char cheby_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/01/09 11:07:52  j_novak
+ * headcpp.h is now compliant with C++ norm.
+ * The include files have been ordered, as well as the local_settings_linux
+ *
  * Revision 1.3  2002/09/24 22:10:40  e_gourgoulhon
  *
  * Added computation of infinite norm of the error for each method
@@ -47,10 +51,6 @@ char cheby_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// C++ headers
-#include <iostream.h>
-#include <fstream.h>
 
 // C headers
 #include <stdlib.h>

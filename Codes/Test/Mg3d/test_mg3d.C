@@ -28,6 +28,10 @@ char test_mg3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/01/09 11:07:54  j_novak
+ * headcpp.h is now compliant with C++ norm.
+ * The include files have been ordered, as well as the local_settings_linux
+ *
  * Revision 1.3  2001/12/12 12:33:44  e_gourgoulhon
  * Installation instructions now in files INSTALL and INSTALL_linux
  *
@@ -43,13 +47,11 @@ char test_mg3d_C[] = "$Header$" ;
  *
  */
 
-// C++ headers
-#include <iostream.h>
-
 // C headers
 #include <stdlib.h>
 
 // Lorene headers
+#include "headcpp.h"
 #include "grilles.h"
 #include "type_parite.h"
 

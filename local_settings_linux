@@ -8,6 +8,14 @@
 ###############################################################
 
 #===============================#
+#           MAKEDEPEND	        #
+#===============================#
+
+# Path for makedepend commands:
+# WARNING: this path may be very system (and version)-dependent
+INCDEP	= -I/usr/include/c++/3.2 -I/usr/include/c++/3.2/i386-redhat-linux
+
+#===============================#
 #           COMPILERS		#
 #===============================#
 
@@ -21,13 +29,12 @@ CXXFLAGS = -Wall -Wconversion -Woverloaded-virtual -O2 -DNDEBUG
 
 # Options for the C++ compiler to produce the library for debugging:
 # -----------------------------------------------------------------
-CXXFLAGS_G = -Wall -Wconversion -Woverloaded-virtual -g
+CXXFLAGS_G = -Wall -Wconversion -Woverloaded-virtual -g 
 
 # Path for the include files:
 # --------------------------
-INC	= -I$(HOME_LORENE)/C++/Include -I/usr/include/g++ \
-          -I/usr/include/g++-3 -I/usr/local/include \
-	  -I$(HOME_LORENE)/C++/Include_extra
+INC	= -I$(HOME_LORENE)/C++/Include \
+          -I$(HOME_LORENE)/C++/Include_extra
 
 # Converting archives to random libraries (if required, otherwise just ls)
 # ------------------------------------------------------------------------

@@ -28,6 +28,10 @@ char test_qmetrique_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/01/09 11:07:59  j_novak
+ * headcpp.h is now compliant with C++ norm.
+ * The include files have been ordered, as well as the local_settings_linux
+ *
  * Revision 1.1  2002/09/19 11:41:29  j_novak
  * Added main program for testing the classes Qmetrique and Qtenseur
  *
@@ -38,7 +42,6 @@ char test_qmetrique_C[] = "$Header$" ;
 
 //standard
 #include <math.h>
-#include <fstream.h>
 
 // Headers Lorene :
 #include "qmetrique.h"

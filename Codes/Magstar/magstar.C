@@ -24,10 +24,6 @@
  *
  */
 
-// headers C++
-#include <iostream.h>
-#include <fstream.h>
-
 // headers C
 #include <stdlib.h>
 #include <math.h>

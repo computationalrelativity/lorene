@@ -29,6 +29,10 @@ char rotstar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/01/09 11:07:51  j_novak
+ * headcpp.h is now compliant with C++ norm.
+ * The include files have been ordered, as well as the local_settings_linux
+ *
  * Revision 1.2  2002/03/28 08:58:33  e_gourgoulhon
  * New Makefile, to produce any of the man codes
  * Updated README file
@@ -91,10 +95,6 @@ char rotstar_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// headers C++
-#include <iostream.h>
-#include <fstream.h>
 
 // headers C
 #include <stdlib.h>

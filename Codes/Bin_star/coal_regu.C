@@ -30,6 +30,10 @@ char coal_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/01/09 11:07:48  j_novak
+ * headcpp.h is now compliant with C++ norm.
+ * The include files have been ordered, as well as the local_settings_linux
+ *
  * Revision 1.2  2002/12/11 14:16:14  k_taniguchi
  * Return type of main changed from 'void' to 'int'.
  * Add "thres_adapt" to star 2
@@ -55,10 +59,6 @@ char coal_regu_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// headers C++
-#include <iostream.h>
-#include <fstream.h>
 
 // headers C
 #include <stdlib.h>

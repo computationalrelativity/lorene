@@ -29,8 +29,12 @@ char test_integ_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:31  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/01/09 11:07:52  j_novak
+ * headcpp.h is now compliant with C++ norm.
+ * The include files have been ordered, as well as the local_settings_linux
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:31  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.2  2000/02/25  13:04:40  eric
  * fact_echelle est desormais passe en double_mod dans le Param pour adapt.
@@ -42,9 +46,6 @@ char test_integ_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// headers C++
-#include <iostream.h>
 
 // headers C
 #include <stdlib.h>

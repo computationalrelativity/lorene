@@ -29,6 +29,10 @@ char test_tenseur_contract_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/01/09 11:07:59  j_novak
+ * headcpp.h is now compliant with C++ norm.
+ * The include files have been ordered, as well as the local_settings_linux
+ *
  * Revision 1.2  2002/08/08 15:10:45  j_novak
  * The flag "plat" has been added to the class Metrique to show flat metrics.
  *
@@ -42,10 +46,6 @@ char test_tenseur_contract_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-// headers C++
-#include <iostream.h>
-#include <fstream.h>
 
 // headers C
 #include <stdlib.h>

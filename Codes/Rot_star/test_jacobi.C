@@ -29,8 +29,12 @@ char test_jacobi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:31  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2003/01/09 11:07:51  j_novak
+ * headcpp.h is now compliant with C++ norm.
+ * The include files have been ordered, as well as the local_settings_linux
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:31  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.1  1999/12/24  13:32:14  keisuke
  * Initial revision
@@ -51,10 +55,6 @@ char test_jacobi_C[] = "$Header$" ;
 // version of 21.12.1999
 // version of 23.12.1999
 // version of 24.12.1999
-
-// headers C++
-#include <iostream.h>
-#include <fstream.h>
 
 // headers C
 #include <stdlib.h>

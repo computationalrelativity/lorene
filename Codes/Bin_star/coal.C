@@ -30,6 +30,10 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/01/09 11:07:48  j_novak
+ * headcpp.h is now compliant with C++ norm.
+ * The include files have been ordered, as well as the local_settings_linux
+ *
  * Revision 1.3  2002/12/11 13:53:01  k_taniguchi
  * Add "thres_adapt" to star 2,
  *   and modify the part of "resize".
@@ -113,11 +117,6 @@ char coal_C[] = "$Header$" ;
  * $Header$
  *
  */
-
-
-// headers C++
-#include <iostream.h>
-#include <fstream.h>
 
 // headers C
 #include <stdlib.h>
