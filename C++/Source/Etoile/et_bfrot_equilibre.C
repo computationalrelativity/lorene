@@ -32,6 +32,10 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/11/25 12:49:44  j_novak
+ * Modified headers to compile on IRIX. Changed Mapping to be Map_af (speed
+ * enhancement).
+ *
  * Revision 1.10  2003/11/20 14:01:25  r_prix
  * changed member names to better conform to Lorene coding standards:
  * J_euler -> j_euler, EpS_euler -> enerps_euler, Delta_car -> delta_car
@@ -652,60 +656,61 @@ void Et_rot_bifluid::equilibrium_bi
     source_nuf.set_std_base() ; 	
     source_nuq.set_std_base() ; 	
 
-    // Source for dzeta
-    // ----------------
-    source_dzf = 2 * qpig * a_car * sphph_euler;
-    source_dzf.set_std_base() ; 
-  
-    source_dzq = 1.5 * ak_car - flat_scalar_prod(logn.gradient_spher(),logn.gradient_spher() ) ;	    
-    source_dzq.set_std_base() ; 	
-	
-    // Source for tggg
-    // ---------------
-	
-    source_tggg = 2 * qpig * nnn * a_car * bbb * (s_euler - sphph_euler);
-    source_tggg.set_std_base() ; 
-	
-    (source_tggg.set()).mult_rsint() ; 
-	
-
-    // Source for shift
-    // ----------------
-	    
-    // Matter term 
-    source_shift = (-4*qpig) * nnn * a_car * j_euler;
-
-    // Quadratic terms:
-    Tenseur vtmp =  3 * beta.gradient_spher() - logn.gradient_spher() ;
-    vtmp.change_triad(mp.get_bvect_cart()) ; 
-
-    Tenseur squad  = 2 * nnn * flat_scalar_prod(tkij, vtmp) ;     
-
-    // The addition of matter terms and quadratic terms is performed
-    //  component by component because u_euler is contravariant,
-    //  while squad is covariant. 
-		
-    if (squad.get_etat() == ETATQCQ) {
-      for (int i=0; i<3; i++) {
-	source_shift.set(i) += squad(i) ; 
+    if (relativistic) {
+      // Source for dzeta
+      // ----------------
+      source_dzf = 2 * qpig * a_car * sphph_euler;
+      source_dzf.set_std_base() ; 
+      
+      source_dzq = 1.5 * ak_car - flat_scalar_prod(logn.gradient_spher(),logn.gradient_spher() ) ;	    
+      source_dzq.set_std_base() ; 	
+      
+      // Source for tggg
+      // ---------------
+      
+      source_tggg = 2 * qpig * nnn * a_car * bbb * (s_euler - sphph_euler);
+      source_tggg.set_std_base() ; 
+      
+      (source_tggg.set()).mult_rsint() ; 
+      
+      
+      // Source for shift
+      // ----------------
+      
+      // Matter term 
+      source_shift = (-4*qpig) * nnn * a_car * j_euler;
+      
+      // Quadratic terms:
+      Tenseur vtmp =  3 * beta.gradient_spher() - logn.gradient_spher() ;
+      vtmp.change_triad(mp.get_bvect_cart()) ; 
+      
+      Tenseur squad  = 2 * nnn * flat_scalar_prod(tkij, vtmp) ;     
+      
+      // The addition of matter terms and quadratic terms is performed
+      //  component by component because u_euler is contravariant,
+      //  while squad is covariant. 
+      
+      if (squad.get_etat() == ETATQCQ) {
+	for (int i=0; i<3; i++) {
+	  source_shift.set(i) += squad(i) ; 
+	}
       }
+      
+      source_shift.set_std_base() ; 	
     }
-
-    source_shift.set_std_base() ; 	
-
     //----------------------------------------------
     // Resolution of the Poisson equation for nuf 
     //----------------------------------------------
-
+    
     source_nuf().poisson(par_poisson_nuf, nuf.set()) ; 
-	
-//      cout << "Test of the Poisson equation for nuf :" << endl ; 
-//      Tbl err = source_nuf().test_poisson(nuf(), cout, true) ; 
-//      diff_nuf = err(0, 0) ; 
+    
+//     cout << "Test of the Poisson equation for nuf :" << endl ; 
+//     Tbl err = source_nuf().test_poisson(nuf(), cout, true) ; 
+//     diff_nuf = err(0, 0) ; 
     diff_nuf = 0 ;
-	
+    
     if (relativistic) {
-	    
+      
       //----------------------------------------------
       // Resolution of the Poisson equation for nuq 
       //----------------------------------------------
@@ -863,9 +868,9 @@ void Et_rot_bifluid::equilibrium_bi
       cout << "GRV2: " << err_grv2 << endl ; 
 	    
     }
-	else {
-		err_grv2 = grv2() ; 
-	}
+    else {
+      err_grv2 = grv2() ; 
+    }
 
 
     //---------------------------------------

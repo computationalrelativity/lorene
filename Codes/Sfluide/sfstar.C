@@ -2,9 +2,8 @@
  *   calculate stationary configuration of superfluid neutron star
  ***********************************************************************/
 
-// headers C
-#include <cstdlib>
-#include <cmath>
+// // headers C
+#include <math.h>
 #include <sstream>
 
 // headers Lorene
@@ -145,7 +144,7 @@ int main(){
     
     Mg3d mg(nz, nr, type_r, nt_tab, type_t, np_tab, type_p) ;
 
-    Map_et mp(mg, bornes) ;
+    Map_af mp(mg, bornes) ;
    
     // Cleaning
     // --------
@@ -351,8 +350,6 @@ int main(){
     
     fclose(fresu) ;
     
-    
-    
     // Drawings
     // --------
 
@@ -380,8 +377,8 @@ int main(){
       des_bi_coupe_y(star.get_nbar2()(), 0., nzdes, "Fluid 2 baryonic density", 
       	     &surf2, &surf2) ; 
       
-      des_bi_coupe_y(star.get_logn()(), 0., -1.40, 1.40, -1.00, 1.00, 
-		     "", &surf, &surf2) ; 
+      des_bi_coupe_y(star.get_logn()(), 0., nzdes, "Grav. potential", 
+		     &surf, &surf2) ; 
     }
 
     // now print out key-values of the configuration in such a "translated" way
