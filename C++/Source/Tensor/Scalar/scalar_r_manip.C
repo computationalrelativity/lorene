@@ -35,6 +35,10 @@ char scalar_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/11/03 10:25:05  e_gourgoulhon
+ * Scalar::dec_dzpuis(int dec)  : treated the case dec = 0
+ * Scalar::inc_dzpuis(int inc)  : treated the case inc = 0
+ *
  * Revision 1.10  2003/10/29 11:02:13  e_gourgoulhon
  * Functions dec_dzpuis and inc_dzpuis have now an integer argument to
  * specify by which amount dzpuis is to be increased.
@@ -260,13 +264,14 @@ void Scalar::div_tant() {
 
 void Scalar::dec_dzpuis(int dec) {
     
+	if (dec == 0) return ; 
+	
 	Cmp cuu(*this) ; 
 	
 	switch (dec) {
 	
-		case 1 : { 
-			mp->dec_dzpuis(cuu) ;   
-    		break ; 
+		case 0 : { 
+   			break ; 
 		}
 
 		case 2 : {
@@ -298,10 +303,16 @@ void Scalar::dec_dzpuis(int dec) {
 
 void Scalar::inc_dzpuis(int inc) {
     
+	if (inc == 0) return ; 
+
 	Cmp cuu(*this) ; 
 	
 	switch (inc) {
 	
+		case 0 : { 
+   			break ; 
+		}
+
 		case 1 : { 
 			mp->inc_dzpuis(cuu) ;   
     		break ; 
