@@ -38,6 +38,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.26  2003/10/19 19:46:33  e_gourgoulhon
+ * -- Method spectral_display now virtual (from Tensor), list of argument
+ *    changed.
+ *
  * Revision 1.25  2003/10/17 13:46:14  j_novak
  * The argument is now between 1 and 3 (instead of 0->2)
  *
@@ -639,18 +643,16 @@ class Scalar : public Tensor {
  public:
   virtual void sauve(FILE *) const ;	    /// Save in a file
     
-  /** Prints the spectral coefficients.
-   *  Prints only the spectral coefficients greater than a given threshold.
-   *   @param ostr [input] Output stream used for the printing
-   *   @param threshold [input] Value above which an array element is printed
-   *    (default: 1.e-7)
-   *   @param type [input] Type of display : 0 = prints only the
-   *     coefficients,  1 = prints only the values in configuration 
-   *     space, 2 = prints both
-   *   @param precision [input] Number of printed digits (default: 4)
-   */
-  void spectral_display(ostream& ostr, double threshold = 1.e-7,
-			int type = 0, int precision = 4) const ;
+	/** Displays the spectral coefficients and the associated
+	 *  basis functions. This function shows only the values greater than a 
+	 *  given threshold.
+	 *   @param threshold [input] Value above which a coefficient is printed
+	 *    (default: 1.e-7)
+	 *   @param precision [input] Number of printed digits (default: 4)
+	 *   @param ostr [input] Output stream used for the printing (default: cout)
+	 */
+	virtual void spectral_display(double threshold = 1.e-7, int precision = 4, 
+			   ostream& ostr = cout) const ;
 
   /// Display
   friend ostream& operator<<(ostream& , const Scalar & ) ;	
