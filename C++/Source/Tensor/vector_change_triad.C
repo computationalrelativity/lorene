@@ -29,6 +29,9 @@ char vector_change_triad_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2003/10/03 14:41:31  e_gourgoulhon
+ * Changed some assert.
+ *
  * Revision 1.1  2003/09/29 12:52:57  j_novak
  * Methods for changing the triad are implemented.
  *
@@ -116,7 +119,7 @@ void Vector::change_triad(const Base_vect& new_triad) {
       
       // The triads should be the same as that associated 
       // with the mapping :
-      assert( *triad == mp->get_bvect_cart() ) ; 
+      assert( *nbvc == mp->get_bvect_cart() ) ; 
       assert( *bvs == mp->get_bvect_spher() ) ; 
       Cmp vr(*cmp[0]) ; 
       Cmp vt(*cmp[1]) ; 
@@ -151,7 +154,7 @@ void Vector::change_triad(const Base_vect& new_triad) {
       
       // The triads should be the same as that associated 
       // with the mapping :
-      assert( *triad == mp->get_bvect_spher() ) ; 
+      assert( *nbvs == mp->get_bvect_spher() ) ; 
       assert( *bvc == mp->get_bvect_cart() ) ; 
       Cmp vx(*cmp[0]) ; 
       Cmp vy(*cmp[1]) ; 
