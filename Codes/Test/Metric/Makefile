@@ -7,7 +7,7 @@ LIBLOR = $(HOME_LORENE)/Lib/liblorene_g.a $(HOME_LORENE)/Lib/liblorenef77_g.a
 
 .SUFFIXES : .o .C
 
-SRC1 = test_schwarzschild.C base_val_manip.C
+SRC1 = test_schwarzschild.C
 OBJ1 = $(SRC1:.C=.o)
 EXE1 = $(SRC1:.C=)
 
