@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2004/05/27 15:22:28  e_gourgoulhon
+ * Added functions save and sauve, as well as constructors from file.
+ *
  * Revision 1.18  2004/05/20 20:30:37  e_gourgoulhon
  * Added arguments check_mod and save_mod to method Tsclice_dirac_max::evolve.
  *
@@ -237,6 +240,22 @@ class Time_slice {
      */
     Time_slice(const Map& mp, const Base_vect& triad, int depth_in = 3) ; 
     
+    /** Constructor from binary file.
+     *
+     *  The binary file must have been created by method \c save.
+     *
+     *  @param mp Mapping on which the various Lorene fields will be constructed
+     *  @param triad vector basis with respect to which the various tensor
+     *      components will be defined
+     *  @param fich file containing the saved \c Time_slice
+     *  @param partial_read indicates whether the full object must
+     *      be read in file or whether the final construction is
+     *      devoted to a constructor of a derived class
+     *  @param depth_in  number of stored time slices; the given value must
+     *      coincide with that stored in the file.
+     */
+    Time_slice(const Map& mp, const Base_vect& triad, FILE* fich, 
+               bool partial_read, int depth_in = 3) ; 
     
     Time_slice(const Time_slice& ) ;		///< Copy constructor
     
@@ -396,6 +415,25 @@ class Time_slice {
     /// Display
     friend ostream& operator<<(ostream& , const Time_slice& ) ;	
 
+    public:
+    /** Saves in a binary file.
+     *  The saved data is sufficient to restore the whole time slice
+     *  via the constructor from file. 
+     *  @param rootname root for the file name; the current time step index
+     *      will be appended to it. 
+     */
+    void save(const char* rootname) const ; 
+    
+    protected:
+    /** Total or partial saves in a binary file.
+     *  This protected method is to be called either from public method 
+     *  \c save or from method \c sauve of a derived class. 
+     *  
+     *  @param fich binary file 
+     *  @param partial_save indicates whether the whole object must be
+     *      saved.
+     */
+    virtual void sauve(FILE* fich, bool partial_save) const ; 
 
 };
 
@@ -541,6 +579,26 @@ class Time_slice_conf : public Time_slice {
     Time_slice_conf(const Map& mp, const Base_vect& triad, 
                     const Metric_flat& ff_in, int depth_in = 3) ; 
     
+    /** Constructor from binary file.
+     *
+     *  The binary file must have been created by method \c save.
+     *
+     *  @param mp Mapping on which the various Lorene fields will be constructed
+     *  @param triad vector basis with respect to which the various tensor
+     *      components will be defined
+     *  @param ff_in reference flat metric with respect to which the
+     *           conformal decomposition is performed
+     *  @param fich file containing the saved \c Time_slice_conf
+     *  @param partial_read indicates whether the full object must
+     *      be read in file or whether the final construction is
+     *      devoted to a constructor of a derived class
+     *  @param depth_in  number of stored time slices; the given must
+     *      coincide with that stored in the file.
+     */
+    Time_slice_conf(const Map& mp, const Base_vect& triad, 
+                    const Metric_flat& ff_in, FILE* fich, 
+                    bool partial_read, int depth_in = 3) ; 
+
     Time_slice_conf(const Time_slice_conf& ) ;	///< Copy constructor
 
     virtual ~Time_slice_conf() ;			///< Destructor
@@ -757,6 +815,16 @@ class Time_slice_conf : public Time_slice {
     /// Operator >> (virtual function called by the operator<<). 
     virtual ostream& operator>>(ostream& ) const ; 
 	
+    /** Total or partial saves in a binary file.
+     *  This protected method is to be called either from public method 
+     *  \c save or from method \c sauve of a derived class. 
+     *  
+     *  @param fich binary file 
+     *  @param partial_save indicates whether the whole object must be
+     *      saved.
+     */
+    virtual void sauve(FILE* fich, bool partial_save) const ; 
+
 } ;	
                     //----------------------------//
                     //   class Tslice_dirac_max   //
@@ -836,7 +904,26 @@ class Tslice_dirac_max : public Time_slice_conf {
     Tslice_dirac_max(const Map& mp, const Base_vect& triad, 
                      const Metric_flat& ff_in, int depth_in = 3) ; 
     
-    
+    /** Constructor from binary file.
+     *
+     *  The binary file must have been created by method \c save.
+     *
+     *  @param mp Mapping on which the various Lorene fields will be constructed
+     *  @param triad vector basis with respect to which the various tensor
+     *      components will be defined
+     *  @param ff_in reference flat metric with respect to which the
+     *           conformal decomposition is performed
+     *  @param fich file containing the saved \c Tslice_dirac_max
+     *  @param partial_read indicates whether the full object must
+     *      be read in file or whether the final construction is
+     *      devoted to a constructor of a derived class
+     *  @param depth_in  number of stored time slices; the given must
+     *      coincide with that stored in the file.
+     */
+    Tslice_dirac_max(const Map& mp, const Base_vect& triad, 
+                     const Metric_flat& ff_in, FILE* fich, 
+                     bool partial_read, int depth_in = 3) ; 
+
 	Tslice_dirac_max(const Tslice_dirac_max& ) ;   ///< Copy constructor
 
 	virtual ~Tslice_dirac_max() ;			///< Destructor
@@ -1081,8 +1168,16 @@ class Tslice_dirac_max : public Time_slice_conf {
     protected:
 	/// Operator >> (virtual function called by the operator<<). 
 	virtual ostream& operator>>(ostream& ) const ;	
-
-
+    
+    /** Total or partial saves in a binary file.
+     *  This protected method is to be called either from public method 
+     *  \c save or from method \c sauve of a derived class. 
+     *  
+     *  @param fich binary file 
+     *  @param partial_save indicates whether the whole object must be
+     *      saved.
+     */
+    virtual void sauve(FILE* fich, bool partial_save) const ; 
   
 };
 #endif
