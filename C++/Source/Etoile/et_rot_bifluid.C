@@ -32,6 +32,11 @@ char et_rot_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2003/12/04 14:28:26  r_prix
+ * allow for the case of "slow-rot-style" EOS inversion, in which we need to adapt
+ * the inner domain to n_outer=0 instead of mu_outer=0 ...
+ * (this should only be used for comparison to analytic slow-rot solution!)
+ *
  * Revision 1.10  2003/11/20 14:01:26  r_prix
  * changed member names to better conform to Lorene coding standards:
  * J_euler -> j_euler, EpS_euler -> enerps_euler, Delta_car -> delta_car
@@ -484,52 +489,50 @@ void Et_rot_bifluid::equation_of_state() {
   Cmp ent2_eos = ent2() ;
   Tenseur rel_vel(delta_car) ;
 
-  // Slight rescale of the enthalpy field in case of 2 domains inside the
-  //  star
+  if (nzet > 1) {
+    // Slight rescale of the enthalpy field in case of 2 domains inside the
+    //  star
+  
+    if (nzet > 2) {
+      cout << "Et_rot_bifluid::equation_of_state: not ready yet for nzet > 2 !" << endl ;    	
+    }
     
-  double epsilon = 1.e-12 ;
+    double epsilon = 1.e-12 ;
   
-  const Mg3d* mg = mp.get_mg() ;
-  int nz = mg->get_nzone() ;
-  
-  Mtbl xi(mg) ;
-  xi.set_etat_qcq() ;
-  for (int l=0; l<nz; l++) {
-    xi.t[l]->set_etat_qcq() ;
-    for (int k=0; k<mg->get_np(l); k++) {
-      for (int j=0; j<mg->get_nt(l); j++) {
-	for (int i=0; i<mg->get_nr(l); i++) {
-	  xi.set(l,k,j,i) =
-	    mg->get_grille3d(l)->x[i] ;
+    const Mg3d* mg = mp.get_mg() ;
+    int nz = mg->get_nzone() ;
+    
+    Mtbl xi(mg) ;
+    xi.set_etat_qcq() ;
+    for (int l=0; l<nz; l++) {
+      xi.t[l]->set_etat_qcq() ;
+      for (int k=0; k<mg->get_np(l); k++) {
+	for (int j=0; j<mg->get_nt(l); j++) {
+	  for (int i=0; i<mg->get_nr(l); i++) {
+	    xi.set(l,k,j,i) =
+	      mg->get_grille3d(l)->x[i] ;
+	  }
 	}
       }
-    }
-    
-  }
-  
-  Cmp fact_ent(mp) ;
-  fact_ent.allocate_all() ;
-  
-  fact_ent.set(0) = 1 + epsilon * xi(0) * xi(0) ;
-  fact_ent.set(1) = 1 - 0.25 * epsilon * (xi(1) - 1) * (xi(1) - 1) ;
-  
-  for (int l=nzet; l<nz; l++) {
-    fact_ent.set(l) = 1 ;
-  }
-  
-  if (nzet > 1) {
-
-    if (nzet > 2) {
       
-      cout << "Et_rot_bifluid::equation_of_state: not ready yet for nzet > 2 !"
-	   << endl ;    	
     }
+  
+    Cmp fact_ent(mp) ;
+    fact_ent.allocate_all() ;
     
+    fact_ent.set(0) = 1 + epsilon * xi(0) * xi(0) ;
+    fact_ent.set(1) = 1 - 0.25 * epsilon * (xi(1) - 1) * (xi(1) - 1) ;
+  
+    for (int l=nzet; l<nz; l++) {
+      fact_ent.set(l) = 1 ;
+    }
+
     ent_eos = fact_ent * ent_eos ;
     ent2_eos = fact_ent * ent2_eos ;
     ent_eos.std_base_scal() ;
     ent2_eos.std_base_scal() ;
-  }
+
+  } // if nzet > 1
   
   
   // Call to the EOS

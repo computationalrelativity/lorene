@@ -32,6 +32,11 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2003/12/04 14:28:26  r_prix
+ * allow for the case of "slow-rot-style" EOS inversion, in which we need to adapt
+ * the inner domain to n_outer=0 instead of mu_outer=0 ...
+ * (this should only be used for comparison to analytic slow-rot solution!)
+ *
  * Revision 1.11  2003/11/25 12:49:44  j_novak
  * Modified headers to compile on IRIX. Changed Mapping to be Map_af (speed
  * enhancement).
@@ -94,309 +99,6 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 //-------------------------------------------------------------------------
 //-------------------------------------------------------------------------
 
-//                   Spherical Equilibrium (Not tested yet!!!)
-
-//-------------------------------------------------------------------------
-//-------------------------------------------------------------------------
-
-void Et_rot_bifluid::equilibrium_spher_bi(double ent_c, double ent2_c, 
-				       double precis){
-    
-  // Fundamental constants and units
-  // -------------------------------
-#include "unites.h"	    
-  // To avoid some compilation warnings
-  if (ent_c < 0) {
-    cout << f_unit << msol << mevpfm3 << endl ; 
-  }    
-    
-  // Initializations
-  // ---------------
-    
-  const Mg3d* mg = mp.get_mg() ; 
-  int nz = mg->get_nzone() ;	    // total number of domains
-  uuu = 0 ;
-  uuu2 = 0 ; 
-  delta_car = 0 ;
-  gam_euler = 1 ;
-  gam_euler2 = 1 ;
-    
-  // Index of the point at phi=0, theta=pi/2 at the surface of the star:
-  int l_b = nzet - 1 ; 
-  int i_b = mg->get_nr(l_b) - 1 ; 
-  int j_b = mg->get_nt(l_b) - 1 ; 
-  int k_b = 0 ; 
-    
-  // Value of the enthalpy defining the surface of the star
-  double ent_b = 0 ; 
-    
-  // Initialization of the enthalpy field to the constant value ent_c :
-    
-  ent = ent_c ; 
-  ent.annule(nzet, nz-1) ; 
-
-  ent2 = ent2_c ;
-  ent2.annule(nzet, nz-1) ;
-
-    
-  // Corresponding profiles of baryon density, energy density and pressure
-    
-  equation_of_state() ; 
-    
-  // Initial metric 
-  a_car = 1 ;	     // this value will remain unchanged in the Newtonian case
-  beta_auto = 0 ;  // this value will remain unchanged in the Newtonian case
-    
-
-  // Auxiliary quantities
-  // --------------------
-    
-  // Affine mapping for solving the Poisson equations
-  Map_af mpaff(mp);	
-        
-  Param par_nul   ;	 // Param (null) for Map_af::poisson.
-
-  Tenseur ent_jm1(mp) ;	// Enthalpy at previous step
-  ent_jm1 = 0 ; 
-    
-  Tenseur ent2_jm1(mp) ;
-  ent2_jm1 = 0 ;
-
-  Tenseur source(mp) ; 
-  // Tenseur logn(mp) ; 
-  Tenseur logn_quad(mp) ; 
-  logn = 0 ; 
-  logn_quad = 0 ; 
-
-  Cmp dlogn(mp) ; 
-  Cmp dbeta(mp) ; 
-    
-  double diff_ent = 1 ; 
-  int mermax = 200 ;	    // Max number of iterations
-    
-  //=========================================================================
-  // 			Start of iteration
-  //=========================================================================
-
-  for(int mer=0 ; (diff_ent > precis) && (mer<mermax) ; mer++ ) {
-
-    double alpha_r = 1 ; 
-	
-    cout << "-----------------------------------------------" << endl ;
-    cout << "step: " << mer << endl ;
-    cout << "alpha_r: " << alpha_r << endl ;
-    cout << "diff_ent = " << diff_ent << endl ;    
-
-    //-----------------------------------------------------
-    // Resolution of Poisson equation for ln(N)
-    //-----------------------------------------------------
-
-    // Matter part of ln(N)
-    // --------------------
-    if (relativistic) {
-      source = a_car * (ener + 3*press) ;
-    }
-    else {
-      source = nbar + nbar2 ; 
-    }
-	
-    (source.set()).set_dzpuis(4) ; 
-	
-    source.set_std_base() ;	    // Sets the standard spectral bases. 
-	
-    logn_auto.set_etat_qcq() ; 
-
-    mpaff.poisson(source(), par_nul, logn_auto.set()) ; 
-
-    // NB: at this stage logn_auto is in machine units, not in c^2
-
-    // Quadratic part of ln(N)
-    // -----------------------
-
-    if (relativistic) {
-	    
-      mpaff.dsdr(logn(), dlogn) ; 
-      mpaff.dsdr(beta_auto(), dbeta) ; 
-	    
-      source = - dlogn * dbeta ; 
-		      
-      logn_quad.set_etat_qcq() ; 
-	    
-      mpaff.poisson(source(), par_nul, logn_quad.set()) ; 
-	    	    
-    }
-
-    //-----------------------------------------------------
-    // Computation of the new radial scale
-    //-----------------------------------------------------
-
-    // alpha_r (r = alpha_r r') is determined so that the enthalpy
-    // takes the requested value ent_b at the stellar surface
-	
-    double nu_mat0_b  = logn_auto()(l_b, k_b, j_b, i_b) ; 
-    double nu_mat0_c  = logn_auto()(0, 0, 0, 0) ; 
-
-    double nu_quad0_b  = logn_quad()(l_b, k_b, j_b, i_b) ; 
-    double nu_quad0_c  = logn_quad()(0, 0, 0, 0) ; 
-
-    double alpha_r2 = ( ent_c - ent_b - nu_quad0_b + nu_quad0_c )
-      / ( qpig*(nu_mat0_b - nu_mat0_c) ) ;
-    double alpha2_r2 = ( ent2_c - ent_b - nu_quad0_b + nu_quad0_c )
-      / ( qpig*(nu_mat0_b - nu_mat0_c) ) ;
-
-    alpha_r = sqrt(alpha_r2) ;
-    double alpha2_r = sqrt(alpha2_r2) ;
-    alpha_r = (alpha_r > alpha2_r ? alpha_r : alpha2_r) ;
-	
-    // New radial scale
-    mpaff.homothetie( alpha_r ) ; 
-
-    //--------------------
-    // First integral
-    //--------------------
-
-    // Gravitation potential in units c^2 :
-    logn_auto = alpha_r2*qpig * logn_auto ;
-    logn = logn_auto + logn_quad ;
-
-    // Enthalpy in all space
-    double logn_c = logn()(0, 0, 0, 0) ;
-    ent = ent_c - logn() + logn_c ;
-    //ent = 0.5*(ent + abs(ent)) let's keep negative values of ent
-
-    ent2 = ent2_c - logn() + logn_c ;
-    //ent2 = 0.5*(ent2 + abs(ent2)) ;
-
-    //---------------------
-    // Equation of state
-    //---------------------
-	
-    equation_of_state() ; 
-	
-    if (relativistic) {
-	    
-      //----------------------------
-      // Equation for beta = ln(AN)
-      //----------------------------
-	    
-      mpaff.dsdr(logn(), dlogn) ; 
-      mpaff.dsdr(beta_auto(), dbeta) ; 
-	    
-      source = 3 * qpig * a_car * press ;
-	    
-      source = source() 
-	- 0.5 * (  dlogn * dlogn + dbeta * dbeta ) ;
-	
-      source.set_std_base() ;	    // Sets the standard spectral bases. 
-
-      beta_auto.set_etat_qcq() ; 
-	         
-      mpaff.poisson(source(), par_nul, beta_auto.set()) ; 
-	    
-
-      // Metric coefficient A^2 update
-	    
-      a_car = exp(2*(beta_auto - logn)) ;
-   	    
-    }
-	
-    // Relative difference with enthalpy at the previous step
-    // ------------------------------------------------------
-	
-    double xx = norme( diffrel(ent2(), ent2_jm1()) ) / nzet ;
-    diff_ent = 0.5*(norme( diffrel(ent(), ent_jm1()) ) / nzet + xx) ; 
-	
-    // Next step
-    // ---------
-    
-    ent_jm1 = ent ; 
-    ent2_jm1 = ent2 ;
-
-
-  }  // End of iteration loop 
-    
-  //=========================================================================
-  // 			End of iteration
-  //=========================================================================
-
-
-  // The mapping is transfered to that of the star:
-  // ----------------------------------------------
-  mp = mpaff ; 
-    
-    
-  // Sets value to all the Tenseur's of the star
-  // -------------------------------------------
-    
-  // ... hydro 
-  ent.annule(nzet, nz-1) ;	// enthalpy set to zero at the exterior of 
-				// the star
-  ener_euler = ener ; 
-  s_euler = 3 * press ;
-  u_euler = 0 ; 
-    
-  // ... metric
-  nnn = exp( unsurc2 * logn ) ; 
-  shift = 0 ; 
-
-  // Info printing
-  // -------------
-    
-  cout << endl 
-       << "Characteristics of the star obtained by Et_rot_bifluid::equilibrium_spher : " 
-       << endl 
-       << "-----------------------------------------------------------------" 
-       << endl ; 
-
-  double ray = mp.val_r(l_b, 1., M_PI/2., 0) ; 
-  cout << "Coordinate radius  :       " << ray / km << " km" << endl ; 
-
-  double rcirc = ray * sqrt( a_car()(l_b, k_b, j_b, i_b) ) ; 
-	
-  double compact = qpig/(4.*M_PI) * mass_g() / rcirc ; 
-
-  cout << "Circumferential radius R : " << rcirc/km  << " km" << endl ;
-  cout << "Baryon mass :	     " << mass_b()/msol << " Mo" << endl ;
-  cout << "Gravitational mass M :  " << mass_g()/msol << " Mo" << endl ;
-  cout << "Compacity parameter GM/(c^2 R) : " << compact << endl ;
-
-
-  //-----------------
-  // Virial theorem
-  //-----------------
-    
-  //... Pressure term
-
-  source = qpig * a_car * sqrt(a_car) * s_euler ; 
-  source.set_std_base() ;	    
-  double vir_mat = source().integrale() ; 
-    
-  //... Gravitational term
-
-  Cmp tmp = beta_auto() - logn() ; 
-
-  source =  - ( logn().dsdr() * logn().dsdr() 
-		- 0.5 * tmp.dsdr() * tmp.dsdr() ) 
-    * sqrt(a_car())  ; 
-
-  source.set_std_base() ;	    
-  double vir_grav = source().integrale() ; 
-
-  //... Relative error on the virial identity GRV3
-    
-  double l_grv3 = ( vir_mat + vir_grav ) / vir_mat ;
-
-  cout << "Virial theorem GRV3 : " << endl ; 
-  cout << "     3P term    : " << vir_mat << endl ; 
-  cout << "     grav. term : " << vir_grav << endl ; 
-  cout << "     relative error : " << l_grv3 << endl ; 
-    
-    
-}
-
-//-------------------------------------------------------------------------
-//-------------------------------------------------------------------------
-
 //                        Axial Equilibrium
 
 //-------------------------------------------------------------------------
@@ -424,6 +126,10 @@ void Et_rot_bifluid::equilibrium_bi
   // ---------------
     
   const Mg3d* mg = mp.get_mg() ; 
+
+  // The following is required to initialize mp_prev as a Map_et:
+  Map_af& mp_et = dynamic_cast<Map_af&>(mp) ;  // reference
+  Map_af map_bak(mp_et);
     
     // Index of the point at phi=0, theta=pi/2 at the surface of the star:
   assert(mg->get_type_t() == SYM) ; 
@@ -433,10 +139,11 @@ void Et_rot_bifluid::equilibrium_bi
   int k_b = 0 ; 
     
   // Value of the enthalpies defining the surface of each fluid
-  double ent_b = ent_limit(nzet-1) ;
+  double ent1_b = ent_limit(nzet-1) ;
   double ent2_b = ent2_limit(nzet-1) ;
+
   // This value is chosen so that the grid contain both fluids
-  ent_b = (ent_b > ent2_b ? ent_b : ent2_b) ; 
+  //  double ent_b = (ent1_b > ent2_b ? ent1_b : ent2_b) ; 
     
   // Parameters to control the iteration
   // -----------------------------------
@@ -550,6 +257,7 @@ void Et_rot_bifluid::equilibrium_bi
   //  Eulerian observer
 
     // Quantities at the previous step : 	
+  //  Map_et mp_prev = mp_et;  
   Tenseur ent_prev = ent ;	
   Tenseur ent2_prev = ent2 ;
   Tenseur logn_prev = logn ;	    
@@ -726,7 +434,6 @@ void Et_rot_bifluid::equilibrium_bi
       // Resolution of the vector Poisson equation for the shift
       //---------------------------------------------------------
 
-
       if (source_shift.get_etat() != ETATZERO) {
 
 	for (int i=0; i<3; i++) {
@@ -790,47 +497,92 @@ void Et_rot_bifluid::equilibrium_bi
     // Central values of various potentials :
     double nuf_c = nuf()(0,0,0,0) ; 
     double nuq_c = nuq()(0,0,0,0) ; 
-    double mlngamma_c = 0 ;
-    double mlngamma2_c = 0 ;
 
     // Scale factor to ensure that the enthalpy is equal to ent_b at 
     //  the equator for the "outer" fluid
-    double alpha_r2 = 0 ;
+    double alpha_r2 = 0;
     
-    for (int j=0; j <= j_b; j++) {
-      // Boundary values of various potentials :
-      double nuf_b  = nuf()(l_b, k_b, j, i_b) ; 
-      double nuq_b  = nuq()(l_b, k_b, j, i_b) ; 
-      double mlngamma_b  = mlngamma()(l_b, k_b, j, i_b) ; 
-      double mlngamma2_b  = mlngamma2()(l_b, k_b, j, i_b) ; 
-	
-      double alpha1_r2 = ( ent_c - ent_b + mlngamma_c - mlngamma_b
-			   + nuq_c - nuq_b) / ( nuf_b - nuf_c  ) ;
-      double alpha2_r2 = ( ent2_c - ent_b + mlngamma2_c - mlngamma2_b
-			   + nuq_c - nuq_b) / ( nuf_b - nuf_c  ) ;
-      alpha_r2 = (alpha_r2 > alpha1_r2 ? alpha_r2 : alpha1_r2 ) ;
-      alpha_r2 = (alpha_r2 > alpha2_r2 ? alpha_r2 : alpha2_r2 ) ;
-    }
+    //RP: experiment: push domain boundary slightly outwards from star
+    //    ent_b = -0.01;
 
-    double alpha_r = sqrt(alpha_r2) ;
+    // do an inversion on that rescaled numerical grid
+    //    equation_of_state() ;
+    //    double Rn_eq = ray_eq();
+    //    double Rp_eq = ray_eq2();
+    //    double R_eq = (Rn_eq > Rp_eq) ? Rn_eq : Rp_eq;
+
+    // determine new enthalpy defining the _true_ equatorial radius:
+    //    ent_b = ent().val_point(R_eq, M_PI/2,0.0);
+
+
+    int j=j_b;
+    
+    // Boundary values of various potentials :
+    double nuf_b  = nuf()(l_b, k_b, j, i_b) ; 
+    double nuq_b  = nuq()(l_b, k_b, j, i_b) ; 
+    double mlngamma_b  = mlngamma()(l_b, k_b, j, i_b) ; 
+    double mlngamma2_b  = mlngamma2()(l_b, k_b, j, i_b) ; 
+
+
+    // RP: "hack": do adapt domain correctly if using "slow-rot-style" EOS inversion
+    // 
+    if ( eos.identify() == 2 ) // only applies to Eos_bf_poly_newt
+      {
+	const Eos_bf_poly_newt &eos0 = dynamic_cast<const Eos_bf_poly_newt&>(eos);
+	if (eos0.get_typeos() == 5)
+	  {
+	    double vn_b = uuu()(l_b, k_b, j, i_b);
+	    double vp_b = uuu2()(l_b, k_b, j, i_b);
+	    double D2_b = (vp_b - vn_b)*(vp_b - vn_b);
+	    double kdet = eos0.get_kap3() + eos0.get_beta()*D2_b;
+	    double kaps1 = kdet / ( eos0.get_kap2() - kdet );
+	    double kaps2 = kdet / ( eos0.get_kap1() - kdet );
+	    
+	    ent1_b = kaps1 * ( ent2_c - ent_c - mlngamma2_b + mlngamma_b );
+	    ent2_b = kaps2 * ( ent_c - ent2_c - mlngamma_b + mlngamma2_b );
+	    
+	    cout << "**********************************************************************\n";
+	    cout << "DEBUG: Adapting domain for slow-rot-style EOS inversion \n";
+	    cout << "DEBUG: ent1_b = " << ent1_b << "; ent2_b = " << ent2_b << endl;
+	    cout << "**********************************************************************\n";
+	  }
+      }
+    
+    double alpha1_r2 = ( ent_c - ent1_b - mlngamma_b + nuq_c - nuq_b) / ( nuf_b - nuf_c  ) ;
+    double alpha2_r2 = ( ent2_c - ent2_b  - mlngamma2_b + nuq_c - nuq_b) / ( nuf_b - nuf_c  ) ;
+    
+    cout << "DEBUG: j= "<< j<<" ; alpha1 = " << alpha1_r2 <<" ; alpha2 = " << alpha2_r2 << endl;
+      
+    alpha_r2 = (alpha1_r2 > alpha2_r2 ? alpha1_r2 : alpha2_r2 ) ;
+
+    double alpha_r = sqrt(alpha_r2);
+
     cout << "alpha_r = " << alpha_r << endl ; 
 
-    // Rescaling of the grid (no adaptation!)
-    //---------------------------------------
-    mp.homothetie(alpha_r) ;
-	
     // Readjustment of nu :
     // -------------------
 	
     logn = alpha_r2 * nuf + nuq ;
     double nu_c =  logn()(0,0,0,0) ;
+
 	
     // First integral	--> enthalpy in all space
     //-----------------
 	
-    ent = (ent_c + nu_c + mlngamma_c) - logn - mlngamma ;
-    ent2 = (ent2_c + nu_c + mlngamma2_c) - logn - mlngamma2 ;
-	
+    ent = (ent_c + nu_c) - logn - mlngamma ;
+    ent2 = (ent2_c + nu_c) - logn - mlngamma2 ;
+
+
+    // Rescaling of the grid (no adaptation! (yet))
+    //---------------------------------------
+
+    //    mp_prev = mp_et ; 
+
+    mp.homothetie(alpha_r) ;
+
+    //    mp.reevaluate(&mp_prev, nzet+1, ent.set());
+    //    mp.reevaluate(&mp_prev, nzet+1, ent2.set());
+
     //----------------------------------------------------
     // Equation of state  
     //----------------------------------------------------
