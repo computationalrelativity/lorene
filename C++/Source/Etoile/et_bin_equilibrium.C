@@ -33,8 +33,12 @@ char et_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/12/10 13:28:03  k_taniguchi
+ * Change the multiplication "*" to "%"
+ *   and flat_scalar_prod to flat_scalar_prod_desal.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.23  2001/08/07  09:43:02  keisuke
  * Change of the method to set the longest radius of a star
@@ -444,10 +448,20 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	// Readjustment of the external boundary of domain l=nzet
 	// to keep a fixed ratio with respect to star's surface
 	
-	double rr_in = mp.val_r(nzet,-1., M_PI/2, 0.) ; 
-	double rr_out = mp.val_r(nzet,1., M_PI/2, 0.) ; 
+	int n_resize ;
+	//      	if (nz > 4) {
+	//       	  n_resize = nz - 4 ;
+    	if (nz > 3) {
+      	  n_resize = nz - 3 ;
+	}
+	else {
+	  n_resize = nzet ;
+	}
 
-	mp.resize(nzet, rr_in/rr_out * fact_resize(0)) ; 
+	double rr_in = mp.val_r(nzet,-1., M_PI/2, 0.) ; 
+	double rr_out = mp.val_r(n_resize,1., M_PI/2, 0.) ; 
+
+	mp.resize(n_resize, rr_in/rr_out * fact_resize(0)) ; 
 
 //##
 //	des_coupe_z(ent(), 0., 1, "ent after adapt", &(ent()) ) ; 
@@ -502,9 +516,10 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	// ------
 	
 	if (relativistic) {
-	    source = qpig * a_car * (ener_euler + s_euler)
+	    source = qpig * a_car % (ener_euler + s_euler)
 		    + akcar_auto + akcar_comp 
-		    - flat_scalar_prod(d_logn_auto,  d_beta_auto + d_beta_comp) ;
+		    - flat_scalar_prod_desal(d_logn_auto,
+					     d_beta_auto + d_beta_comp) ;
 	}
 	else {
 	    source = qpig * nbar ; 
@@ -545,12 +560,12 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	    // Source 
 	    // ------
 	
-	    source = qpig * a_car * s_euler
+	    source = qpig * a_car % s_euler
 		    + .75 * ( akcar_auto + akcar_comp )
-		    - .5 * flat_scalar_prod(d_logn_auto,  
-					    d_logn_auto + d_logn_comp) 
-		    - .5 * flat_scalar_prod(d_beta_auto,  
-					    d_beta_auto + d_beta_comp) ;  
+		    - .5 * flat_scalar_prod_desal(d_logn_auto,  
+						  d_logn_auto + d_logn_comp)
+		    - .5 * flat_scalar_prod_desal(d_beta_auto,  
+						  d_beta_auto + d_beta_comp) ;
 
 	    source.set_std_base() ; 	
 	
@@ -580,12 +595,12 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	    // Source
 	    // ------
 	    
-	    Tenseur vtmp =  6 * ( d_beta_auto + d_beta_comp )
-			   -8 * ( d_logn_auto + d_logn_comp ) ;
+	    Tenseur vtmp =  6. * ( d_beta_auto + d_beta_comp )
+			   -8. * ( d_logn_auto + d_logn_comp ) ;
 	    
-	    source_shift = (-4*qpig) * nnn * a_car * (ener_euler + press)
-				* u_euler 
-			   + nnn * flat_scalar_prod(tkij_auto, vtmp) ;     
+	    source_shift = (-4.*qpig) * nnn % a_car % (ener_euler + press)
+				% u_euler
+			   + nnn % flat_scalar_prod_desal(tkij_auto, vtmp) ;
 	
 	
 	    source_shift.set_std_base() ; 	
