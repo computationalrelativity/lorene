@@ -30,6 +30,9 @@ char evolution_full_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/02/16 12:37:01  e_gourgoulhon
+ * Method update: initialization of extended part of arrays val and the_time.
+ *
  * Revision 1.1  2004/02/15 21:55:33  e_gourgoulhon
  * Introduced derived classes Evolution_full and Evolution_std.
  * Evolution is now an abstract base class.
@@ -110,14 +113,21 @@ void Evolution_full<TyT>::update(const TyT& new_value, double new_time) {
     if (jlast == size) {  // re-organization of arrays val and the_time is necessary
     
         int size_new = fact_resize * size ; 
+
         TyT** val_new = new TyT*[size_new] ; 
         for (int j=0; j<size; j++) {
             val_new[j] = val[j] ; 
+        }
+        for (int j=size; j<size_new; j++) {
+            val_new[j] = 0x0 ; 
         }
             
         double* the_time_new = new double[size_new] ;
         for (int j=0; j<size; j++) {
             the_time_new[j] = the_time[j] ; 
+        }
+        for (int j=size; j<size_new; j++) {
+            the_time_new[j] = -1e20 ; 
         }
             
         size = size_new ;
