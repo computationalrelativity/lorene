@@ -30,6 +30,9 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/12/22 18:15:16  f_limousin
+ * Many different changes.
+ *
  * Revision 1.10  2004/11/24 19:30:58  jl_jaramillo
  * Berlin boundary conditions  vv_bound_cart
  *
@@ -88,19 +91,16 @@ char bound_hor_C[] = "$Header$" ;
 
 Valeur Isol_hor::boundary_psi_Dir_evol(){
 
-  const Map& map = ff.get_mp() ; 
-
-
-  Scalar tmp = - 6 * contract(beta(), 0, psi().derive_cov(ff), 0) ;
+    Scalar tmp = - 6 * contract(beta(), 0, psi().derive_cov(ff), 0) ;
   tmp = tmp / (contract(beta().derive_cov(ff), 0, 1) - nn() * trk() ) - 1 ;
 
   // We have substracted 1, since we solve for zero condition at infinity 
   //and then we add 1 to the solution  
 
-  Valeur psi_bound (map.get_mg()->get_angu() )  ;
+  Valeur psi_bound (mp.get_mg()->get_angu() )  ;
   
-  int nnp = map.get_mg()->get_np(1) ;
-  int nnt = map.get_mg()->get_nt(1) ;
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
 			
   psi_bound = 1 ;
 			
@@ -121,8 +121,6 @@ Valeur Isol_hor::boundary_psi_Dir_evol(){
 
 Valeur Isol_hor::boundary_psi_Neu_evol(){
 
-  const Map& map = ff.get_mp() ; 
-  
   // Introduce 2-trace gamma tilde dot 
   Scalar tmp = - 1./ 6. * psi() * (beta().divergence(ff) - nn() * trk() ) 
     - beta()(2)* psi().derive_cov(ff)(2) - beta()(3)* psi().derive_cov(ff)(3) ;
@@ -131,10 +129,10 @@ Valeur Isol_hor::boundary_psi_Neu_evol(){
 
   // in this case you don't have to substract any value
  
-  Valeur psi_bound (map.get_mg()->get_angu() )  ;
+  Valeur psi_bound (mp.get_mg()->get_angu() )  ;
   
-  int nnp = map.get_mg()->get_np(1) ;
-  int nnt = map.get_mg()->get_nt(1) ;
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
 			
   psi_bound = 1 ;
 			
@@ -151,9 +149,7 @@ Valeur Isol_hor::boundary_psi_Neu_evol(){
 
 Valeur Isol_hor::boundary_psi_Dir_spat(){
 
-  const Map& map = ff.get_mp() ; 
-  
-  Scalar tmp = psi() * psi() * psi() * trk() 
+    Scalar tmp = psi() * psi() * psi() * trk() 
       - contract(k_dd(), 0, 1, tradial_vect_hor() * tradial_vect_hor(), 0, 1) 
       / psi()
       - 4.* contract(tradial_vect_hor(), 0, psi().derive_cov(ff), 0) ;
@@ -163,10 +159,10 @@ Valeur Isol_hor::boundary_psi_Dir_spat(){
   // We have substracted 1, since we solve for zero condition at infinity 
   //and then we add 1 to the solution  
  
-  Valeur psi_bound (map.get_mg()->get_angu() )  ;
+  Valeur psi_bound (mp.get_mg()->get_angu() )  ;
   
-  int nnp = map.get_mg()->get_np(1) ;
-  int nnt = map.get_mg()->get_nt(1) ;
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
 			
   psi_bound = 1 ;
 			
@@ -182,9 +178,7 @@ Valeur Isol_hor::boundary_psi_Dir_spat(){
 
 Valeur Isol_hor::boundary_psi_Neu_spat(){
 
-  const Map& map = ff.get_mp() ; 
-  
-  Scalar tmp = psi() * psi() * psi() * trk() 
+    Scalar tmp = psi() * psi() * psi() * trk() 
       - contract(k_dd(), 0, 1, tradial_vect_hor() * tradial_vect_hor(), 0, 1) 
       / psi()
       - psi() * tradial_vect_hor().divergence(ff) 
@@ -195,10 +189,10 @@ Valeur Isol_hor::boundary_psi_Neu_spat(){
 
   // in this case you don't have to substract any value
  
-  Valeur psi_bound (map.get_mg()->get_angu() )  ;
+  Valeur psi_bound (mp.get_mg()->get_angu() )  ;
   
-  int nnp = map.get_mg()->get_np(1) ;
-  int nnt = map.get_mg()->get_nt(1) ;
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
 			
   psi_bound = 1 ;
 			
@@ -219,14 +213,12 @@ Valeur Isol_hor::boundary_psi_Neu_spat(){
 //--------------------------------------------------------------------------
 Valeur Isol_hor::boundary_nn_Dir_kk(){
 
-  const Map& map = ff.get_mp() ;
-
-  Scalar tmp(map) ;
+  Scalar tmp(mp) ;
 
   Scalar kk_rr = contract( radial_vect_hor() * radial_vect_hor(), 0, 1
 			   , k_dd(), 0, 1 ) ;
 
-  Scalar k_kerr (map) ;
+  Scalar k_kerr (mp) ;
   k_kerr = kappa_hor() ;
   k_kerr.std_spectral_base() ;
   k_kerr.inc_dzpuis(2) ;
@@ -238,10 +230,10 @@ Valeur Isol_hor::boundary_nn_Dir_kk(){
   // We have substracted 1, since we solve for zero condition at infinity 
   //and then we add 1 to the solution  
 
-  int nnp = map.get_mg()->get_np(1) ;
-  int nnt = map.get_mg()->get_nt(1) ;
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
 
-  Valeur nn_bound (map.get_mg()->get_angu()) ;
+  Valeur nn_bound (mp.get_mg()->get_angu()) ;
     
   nn_bound = 1 ;   // Why is it necessary this and what it is actually doing?
   
@@ -263,14 +255,12 @@ Valeur Isol_hor::boundary_nn_Dir_kk(){
 //--------------------------------------------------------------------------
 Valeur Isol_hor::boundary_nn_Neu_kk() {
   
-  const Map& map = ff.get_mp() ;
-  
   const Vector& dnn= nn().derive_cov(ff) ;
 
   Scalar kk_rr = contract( radial_vect_hor() * radial_vect_hor(), 0, 1
 			   , k_dd(), 0, 1 ) ; 
 
-  Scalar k_kerr (map) ;
+  Scalar k_kerr (mp) ;
   k_kerr = kappa_hor() ;
   k_kerr.std_spectral_base() ;
   k_kerr.inc_dzpuis(2) ;
@@ -282,10 +272,10 @@ Valeur Isol_hor::boundary_nn_Neu_kk() {
 
   // in this case you don't have to substract any value
  
-  int nnp = map.get_mg()->get_np(1) ;
-  int nnt = map.get_mg()->get_nt(1) ;
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
 
-  Valeur nn_bound (map.get_mg()->get_angu()) ;
+  Valeur nn_bound (mp.get_mg()->get_angu()) ;
     
   nn_bound = 1 ;   // Why is it necessary this and what it is actually doing?
   
@@ -304,9 +294,7 @@ Valeur Isol_hor::boundary_nn_Neu_kk() {
 
 Valeur Isol_hor::boundary_nn_Dir_eff(double cc){
 
-  const Map& map = ff.get_mp() ;
-
-  Scalar tmp(map) ;
+  Scalar tmp(mp) ;
 
   tmp = - cc * nn().derive_cov(ff)(1) ;
   tmp.dec_dzpuis(2) ;
@@ -315,10 +303,10 @@ Valeur Isol_hor::boundary_nn_Dir_eff(double cc){
   // We have substracted 1, since we solve for zero condition at infinity 
   //and then we add 1 to the solution  
 
-  int nnp = map.get_mg()->get_np(1) ;
-  int nnt = map.get_mg()->get_nt(1) ;
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
 
-  Valeur nn_bound (map.get_mg()->get_angu()) ;
+  Valeur nn_bound (mp.get_mg()->get_angu()) ;
     
   nn_bound = 1 ;   // Why is it necessary this and what it is actually doing?
   
@@ -337,16 +325,14 @@ Valeur Isol_hor::boundary_nn_Dir_eff(double cc){
 
 Valeur Isol_hor::boundary_nn_Neu_eff(double cc) {
   
-  const Map& map = ff.get_mp() ;
-  
   Scalar tmp = - cc * nn() ;
 
   // in this case you don't have to substract any value
  
-  int nnp = map.get_mg()->get_np(1) ;
-  int nnt = map.get_mg()->get_nt(1) ;
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
 
-  Valeur nn_bound (map.get_mg()->get_angu()) ;
+  Valeur nn_bound (mp.get_mg()->get_angu()) ;
     
   nn_bound = 1 ;   // Why is it necessary this and what it is actually doing?
   
@@ -364,18 +350,16 @@ Valeur Isol_hor::boundary_nn_Neu_eff(double cc) {
 
 Valeur Isol_hor::boundary_nn_Dir(double cc){
 
-  const Map& map = ff.get_mp() ;
-
-  Scalar tmp(map) ;
+  Scalar tmp(mp) ;
   tmp = cc - 1 ;
   
   // We  have substracted 1, since we solve for zero condition at infinity 
   //and then we add 1 to the solution  
 
-  int nnp = map.get_mg()->get_np(1) ;
-  int nnt = map.get_mg()->get_nt(1) ;
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
 
-  Valeur nn_bound (map.get_mg()->get_angu()) ;
+  Valeur nn_bound (mp.get_mg()->get_angu()) ;
     
   nn_bound = 1 ;   // Why is it necessary this and what it is actually doing?
   
@@ -396,16 +380,14 @@ Valeur Isol_hor::boundary_nn_Dir(double cc){
 //--------------------------------------
 Valeur Isol_hor:: boundary_beta_r(){
 
-  const Map& map = ff.get_mp() ; 
-
-  Scalar tmp (map) ;
+  Scalar tmp (mp) ;
 
   tmp = nn() * radial_vect_hor()(1) ;
  
-  int nnp = map.get_mg()->get_np(1) ;
-  int nnt = map.get_mg()->get_nt(1) ;
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
 
-  Valeur bnd_beta_r (map.get_mg()->get_angu()) ;
+  Valeur bnd_beta_r (mp.get_mg()->get_angu()) ;
     
   bnd_beta_r = 1 ;   // Why is it necessary this and what it is actually doing?
   
@@ -426,16 +408,14 @@ Valeur Isol_hor:: boundary_beta_r(){
 //------------------------------------------
 Valeur Isol_hor::boundary_beta_theta(){
   
-  const Map& map = ff.get_mp() ; 
-
-  Scalar tmp(map) ;  
+  Scalar tmp(mp) ;  
   
   tmp = nn() * radial_vect_hor()(2) ;
 
-  int nnp = map.get_mg()->get_np(1) ;
-  int nnt = map.get_mg()->get_nt(1) ;
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
 
-  Valeur bnd_beta_theta (map.get_mg()->get_angu()) ;
+  Valeur bnd_beta_theta (mp.get_mg()->get_angu()) ;
     
   bnd_beta_theta = 1 ;   // Why is it necessary this and what it is actually doing?
   
@@ -454,21 +434,19 @@ Valeur Isol_hor::boundary_beta_theta(){
 //-------------------------------------------------------------------------------------
 Valeur Isol_hor::boundary_beta_phi(){
 
-  const Map& map = ff.get_mp() ; 
+  Scalar tmp (mp) ;
 
-  Scalar tmp (map) ;
-
-  Scalar vel_ang(map) ;
+  Scalar vel_ang(mp) ;
   vel_ang = omega_hor() ;
   vel_ang.std_spectral_base() ;
   vel_ang.mult_rsint() ;
 
   tmp = nn() * radial_vect_hor()(3)  -  vel_ang ;
 
-  int nnp = map.get_mg()->get_np(1) ;
-  int nnt = map.get_mg()->get_nt(1) ;
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
 
-  Valeur bnd_beta_phi (map.get_mg()->get_angu()) ;
+  Valeur bnd_beta_phi (mp.get_mg()->get_angu()) ;
     
   bnd_beta_phi = 1 ; // Why is it necessary this and what it is actually doing?
   
@@ -488,15 +466,13 @@ Valeur Isol_hor::boundary_beta_phi(){
 // Component x of boundary value of beta (using expression in terms of radial vector)
 //--------------------------------------
 Valeur Isol_hor:: boundary_beta_x(double velang){
-
-  const Map& map = ff.get_mp() ; 
   
-  int nnp = map.get_mg()->get_np(1) ;
-  int nnt = map.get_mg()->get_nt(1) ;
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
 
   //Isol_hor boundary conditions
   
-  Valeur lim_x (map.get_mg()->get_angu()) ;
+  Valeur lim_x (mp.get_mg()->get_angu()) ;
     
   lim_x = 1 ;   // Why is it necessary this and what it is actually doing?
   
@@ -517,15 +493,13 @@ Valeur Isol_hor:: boundary_beta_x(double velang){
 // Component y of boundary value of beta (using expression in terms of radial vector)
 //--------------------------------------
 Valeur Isol_hor:: boundary_beta_y(double velang){
-  
-  const Map& map = ff.get_mp() ;
- 
-  int nnp = map.get_mg()->get_np(1) ;
-  int nnt = map.get_mg()->get_nt(1) ;
+    
+    int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
 
   // Isol_hor boundary conditions
   
-  Valeur lim_y (map.get_mg()->get_angu()) ;
+  Valeur lim_y (mp.get_mg()->get_angu()) ;
     
   lim_y = 1 ;   // Why is it necessary this and what it is actually doing?
  
@@ -545,14 +519,12 @@ Valeur Isol_hor:: boundary_beta_y(double velang){
 //--------------------------------------
 Valeur Isol_hor:: boundary_beta_z(double velang){
 
-  const Map& map = ff.get_mp() ; 
-
-  int nnp = map.get_mg()->get_np(1) ;
-  int nnt = map.get_mg()->get_nt(1) ;
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
 
   // Isol_hor boundary conditions
  
-  Valeur lim_z (map.get_mg()->get_angu()) ;
+  Valeur lim_z (mp.get_mg()->get_angu()) ;
     
   lim_z = 1 ;   // Why is it necessary this and what it is actually doing?
   
@@ -570,19 +542,17 @@ Valeur Isol_hor:: boundary_beta_z(double velang){
 
 Vector Isol_hor::beta_bound_cart(double velang) {
 
-  const Map& map = ff.get_mp() ; 
-
   Vector tmp_vect = nn() * radial_vect_hor() ;
 
  
-  Scalar vel_ang (map) ;  
+  Scalar vel_ang (mp) ;  
   vel_ang = velang ;
   vel_ang.std_spectral_base() ;
   vel_ang.mult_rsint() ;
 
   tmp_vect.set(3) = tmp_vect(3) - vel_ang ;
 
-  tmp_vect.change_triad(map.get_bvect_cart() ) ;
+  tmp_vect.change_triad(mp.get_bvect_cart() ) ;
   
   return tmp_vect ;
 
@@ -594,8 +564,6 @@ Vector Isol_hor::beta_bound_cart(double velang) {
 // ONE HAS TO GUARANTEE THAT BETA IS NOT ZERO, BUT IT IS PROPORTIONAL TO THE RADIAL VECTOR
 
 Valeur Isol_hor::boundary_b_tilde_Neu(){
-
-  const Map& map = ff.get_mp() ; 
   
   // Introduce 2-trace gamma tilde dot
 
@@ -605,12 +573,12 @@ Valeur Isol_hor::boundary_b_tilde_Neu(){
 
   //des_profile(hh_tilde, 1.00001, 10, M_PI/2., 0., "H_tilde") ;
 
-  Scalar tmp (map) ;
+  Scalar tmp (mp) ;
 
   tmp = + b_tilde() * hh_tilde - 2 * ( s_tilde(2) * b_tilde().derive_cov(ff)(2)
 				     + s_tilde(3) * b_tilde().derive_cov(ff)(3) ) ;
   
-  Scalar constant (map) ;
+  Scalar constant (mp) ;
   constant = 0. ;
   constant.std_spectral_base() ;
   constant.inc_dzpuis(2) ;
@@ -624,10 +592,10 @@ Valeur Isol_hor::boundary_b_tilde_Neu(){
 
   // in this case you don't have to substract any value
  
-  Valeur b_tilde_bound (map.get_mg()->get_angu() )  ;
+  Valeur b_tilde_bound (mp.get_mg()->get_angu() )  ;
   
-  int nnp = map.get_mg()->get_np(1) ;
-  int nnt = map.get_mg()->get_nt(1) ;
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
 			
   b_tilde_bound = 1 ;
 			
@@ -644,16 +612,13 @@ Valeur Isol_hor::boundary_b_tilde_Neu(){
 
 Valeur Isol_hor::boundary_b_tilde_Dir(){
 
-  const Map& map = ff.get_mp() ; 
-
-
   Vector s_tilde = met_gamt.radial_vect() ;
 
   Scalar hh_tilde = contract(s_tilde.derive_cov(met_gamt), 0, 1) ;
 
   Scalar tmp = 2 * contract (s_tilde, 0, b_tilde().derive_cov(ff) , 0) ; 
 
-  Scalar constant (map) ;
+  Scalar constant (mp) ;
   constant = -1. ;
   constant.std_spectral_base() ;
   constant.inc_dzpuis(2) ;
@@ -672,10 +637,10 @@ Valeur Isol_hor::boundary_b_tilde_Dir(){
   // We have substracted 1, since we solve for zero condition at infinity 
   //and then we add 1 to the solution  
 
-  Valeur b_tilde_bound (map.get_mg()->get_angu() )  ;
+  Valeur b_tilde_bound (mp.get_mg()->get_angu() )  ;
   
-  int nnp = map.get_mg()->get_np(1) ;
-  int nnt = map.get_mg()->get_nt(1) ;
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
 			
   b_tilde_bound = 1 ;
 			
@@ -692,8 +657,6 @@ Valeur Isol_hor::boundary_b_tilde_Dir(){
 
 Vector Isol_hor::vv_bound_cart(double velang) {
 
-  const Map& map = ff.get_mp() ; 
-
   // Preliminaries
   //--------------
 
@@ -709,13 +672,13 @@ Vector Isol_hor::vv_bound_cart(double velang) {
   Vector tmp_vect = b_tilde() * s_tilde ;
   
 
-  Scalar vel_ang (map) ;  
+  Scalar vel_ang (mp) ;  
   vel_ang = velang ;
   vel_ang.std_spectral_base() ;
   vel_ang.mult_rsint() ;
 
   
-  Scalar bc_source (map) ;
+  Scalar bc_source (mp) ;
   bc_source = 0. ;
   bc_source.std_spectral_base() ;
   bc_source.inc_dzpuis(2) ;
@@ -726,7 +689,7 @@ Vector Isol_hor::vv_bound_cart(double velang) {
   Scalar beta_r_corr =  (rho - 1) * b_tilde() * hh_tilde;
   beta_r_corr.inc_dzpuis(2) ;
 
-  Scalar beta_r (map) ;
+  Scalar beta_r (mp) ;
   beta_r = 2 * contract(s_tilde, 0, b_tilde().derive_cov(ff), 0) + beta_r_corr - bc_source ;
   beta_r = beta_r / (hh_tilde * rho) ;
     
@@ -741,13 +704,13 @@ Vector Isol_hor::vv_bound_cart(double velang) {
   
   
  
-  //  Scalar beta_r (map) ;
+  //  Scalar beta_r (mp) ;
   // beta_r = 0.5 ; 
   beta_r.set_spectral_va().set_base(s_tilde(1).get_spectral_va().get_base()) ;
   
 
   //Vector tmp_vect = nn() * radial_vect_hor() ;
-  //  Vector tmp_vect (map, CON, map.get_bvect_spher() ) ;
+  //  Vector tmp_vect (mp, CON, mp.get_bvect_spher() ) ;
   //  tmp_vect.set_etat_zero() ; 
 
   tmp_vect.set(1) = beta_r ;
@@ -756,11 +719,11 @@ Vector Isol_hor::vv_bound_cart(double velang) {
 
   //  tmp_vect.std_spectral_base() ;
 
-  tmp_vect.change_triad(map.get_bvect_cart() ) ;
+  tmp_vect.change_triad(mp.get_bvect_cart() ) ;
   
 
   /*
-  Scalar tmp(map) ;
+  Scalar tmp(mp) ;
   
   tmp = tmp_vect(1) ;
   des_profile(tmp, 1.00001, 10, M_PI/2.,  M_PI/3. , "Source(1)") ;
@@ -781,15 +744,13 @@ return tmp_vect ;
 // Component x of boundary value of V^i 
 //-------------------------------------
 Valeur Isol_hor:: boundary_vv_x(double velang){
-
-  const Map& map = ff.get_mp() ; 
   
-  int nnp = map.get_mg()->get_np(1) ;
-  int nnt = map.get_mg()->get_nt(1) ;
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
 
   //Isol_hor boundary conditions
   
-  Valeur lim_x (map.get_mg()->get_angu()) ;
+  Valeur lim_x (mp.get_mg()->get_angu()) ;
     
   lim_x = 1 ;   // Why is it necessary this and what it is actually doing?
   
@@ -810,15 +771,13 @@ Valeur Isol_hor:: boundary_vv_x(double velang){
 // Component y of boundary value of V^i
 //--------------------------------------
 Valeur Isol_hor:: boundary_vv_y(double velang){
-  
-  const Map& map = ff.get_mp() ;
  
-  int nnp = map.get_mg()->get_np(1) ;
-  int nnt = map.get_mg()->get_nt(1) ;
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
 
   // Isol_hor boundary conditions
   
-  Valeur lim_y (map.get_mg()->get_angu()) ;
+  Valeur lim_y (mp.get_mg()->get_angu()) ;
     
   lim_y = 1 ;   // Why is it necessary this and what it is actually doing?
  
@@ -838,14 +797,12 @@ Valeur Isol_hor:: boundary_vv_y(double velang){
 //-------------------------------------
 Valeur Isol_hor:: boundary_vv_z(double velang){
 
-  const Map& map = ff.get_mp() ; 
-
-  int nnp = map.get_mg()->get_np(1) ;
-  int nnt = map.get_mg()->get_nt(1) ;
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
 
   // Isol_hor boundary conditions
  
-  Valeur lim_z (map.get_mg()->get_angu()) ;
+  Valeur lim_z (mp.get_mg()->get_angu()) ;
     
   lim_z = 1 ;   // Why is it necessary this and what it is actually doing?
   

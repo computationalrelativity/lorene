@@ -30,6 +30,9 @@ char source_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2004/12/22 18:16:43  f_limousin
+ * Many different changes.
+ *
  * Revision 1.6  2004/11/05 10:59:07  f_limousin
  * Delete ener_dens, mom_dens and trace stress in functions
  * source_nn, source_psi and source_beta.
@@ -75,14 +78,13 @@ Scalar Isol_hor::source_psi() {
     // Initialisations
     // ---------------
 
-    const Map& map = ff.get_mp() ; 
     const Base_vect& triad = *(ff.get_triad()) ;
     
-    Scalar tmp(map) ;
-    Scalar tmp_scal(map) ; 
-    Sym_tensor tmp_sym(map, CON, triad) ;
+    Scalar tmp(mp) ;
+    Scalar tmp_scal(mp) ; 
+    Sym_tensor tmp_sym(mp, CON, triad) ;
 
-    Scalar source(map) ; 
+    Scalar source(mp) ; 
        
     //===============================================
     //  Computations of the source for Psi 
@@ -118,14 +120,13 @@ Scalar Isol_hor::source_nn() {
     // Initialisations
     // ---------------
  
-    const Map& map = ff.get_mp() ; 
     const Base_vect& triad = *(ff.get_triad()) ;
     
-    Scalar tmp(map) ;
-    Scalar tmp_scal(map) ; 
-    Sym_tensor tmp_sym(map, CON, triad) ;
+    Scalar tmp(mp) ;
+    Scalar tmp_scal(mp) ; 
+    Sym_tensor tmp_sym(mp, CON, triad) ;
 
-    Scalar source(map) ; 
+    Scalar source(mp) ; 
        
     //===============================================
     //  Computations of the source for NN 
@@ -168,15 +169,14 @@ Vector Isol_hor::source_beta() {
     // Initialisations
     // ---------------
 
-    const Map& map = ff.get_mp() ; 
     const Base_vect& triad = *(ff.get_triad()) ;
     
-    Scalar tmp(map) ;
-    Scalar tmp_scal(map) ; 
-    Sym_tensor tmp_sym(map, CON, triad) ;
-    Vector tmp_vect(map, CON, triad) ;
+    Scalar tmp(mp) ;
+    Scalar tmp_scal(mp) ; 
+    Sym_tensor tmp_sym(mp, CON, triad) ;
+    Vector tmp_vect(mp, CON, triad) ;
 
-    Vector source(map, CON, triad) ; 
+    Vector source(mp, CON, triad) ; 
 
     //===============================================
     //  Computations of the source for beta 

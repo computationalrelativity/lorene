@@ -31,6 +31,9 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/12/22 18:15:43  f_limousin
+ * Many different changes.
+ *
  * Revision 1.1  2004/11/24 19:29:51  jl_jaramillo
  * construction of initial data with Berlin boundary conditions
  *
@@ -58,9 +61,11 @@ char init_data_C[] = "$Header$" ;
 // C++ headers
 #include "headcpp.h"
 
+
 // C headers
 #include <stdlib.h>
 #include <assert.h>
+
 
 // Lorene headers
 #include "time_slice.h"
@@ -82,12 +87,11 @@ void Isol_hor::init_data_b_neumann( double precis, double relax, int niter,
     // ---------------
     double ttime = the_time[jtime] ;    
 
-    const Map& map = nn().get_mp() ; 
     const Base_vect& triad = *(nn().get_triad()) ;
     
-    Scalar tmp(map) ;
-    Scalar tmp_scal(map) ; 
-    Sym_tensor tmp_sym(map, CON, triad) ;
+    Scalar tmp(mp) ;
+    Scalar tmp_scal(mp) ; 
+    Sym_tensor tmp_sym(mp, CON, triad) ;
 
     // Reset of quantities depending on K:
     k_dd_evol.downdate(jtime) ; 
@@ -140,7 +144,12 @@ void Isol_hor::init_data_b_neumann( double precis, double relax, int niter,
 	// Resolution of the Poisson equation for Psi
 	// ------------------------------------------
 	
-	Scalar psi_jp1 = source_psi().poisson_neumann(psi_bound, 0) + 1. ;
+	double fact_dir, fact_neu ;
+	fact_dir = 0. ;
+	fact_neu = 1. ;
+
+	Scalar psi_jp1 = source_psi().poisson_dir_neu(psi_bound, 0, fact_dir, 
+						      fact_neu) + 1. ;
 	
 	// Relaxation (relax=1 -> new ; relax=0 -> old )  
 	//-----------
@@ -222,9 +231,9 @@ void Isol_hor::init_data_b_neumann( double precis, double relax, int niter,
 	     (diff_beta < precis) )
 	    break ; 
 	
-	conv << mer << "  " //<< log(diff_nn) 
-	     << " " << log(diff_psi) 
-	     << " " << log(diff_beta) << endl ;
+	conv << mer << "  " //<< log10(diff_nn) 
+	     << " " << log10(diff_psi) 
+	     << " " << log10(diff_beta) << endl ;
 	
 	//=============================================
 	//      Updates for next step 
@@ -236,10 +245,10 @@ void Isol_hor::init_data_b_neumann( double precis, double relax, int niter,
 	
 	// New value of A^{ij}:
 	
-	Sym_tensor aa_jp1 (map, CON, map.get_bvect_spher()) ;
-	int nnr = map.get_mg()->get_nr(1) ;
-	int nnt = map.get_mg()->get_nt(1) ;
-	int nnp = map.get_mg()->get_np(1) ;
+	Sym_tensor aa_jp1 (mp, CON, mp.get_bvect_spher()) ;
+	int nnr = mp.get_mg()->get_nr(1) ;
+	int nnt = mp.get_mg()->get_nt(1) ;
+	int nnp = mp.get_mg()->get_np(1) ;
 	
 	int check ;
 	check = 0 ;
@@ -260,14 +269,14 @@ void Isol_hor::init_data_b_neumann( double precis, double relax, int niter,
 	    Sym_tensor aa_sxpun = beta().ope_killing_conf(tgam())
 		+ gamt_point ;
 
-	    const Coord& r = map.r ;        // r field
+	    const Coord& r = mp.r ;        // r field
 	    Mtbl r_mtbl = r ;
-	    Scalar rr (map) ;
+	    Scalar rr (mp) ;
 	    rr = r_mtbl ;
 
 	    double r1, r2 ;
-	    r1 = map.val_r(1, -1., 0., 0.) ;
-	    r2 = map.val_r(1, 1., 0., 0.) ;
+	    r1 = mp.val_r(1, -1., 0., 0.) ;
+	    r2 = mp.val_r(1, 1., 0., 0.) ;
 
 	    for(int k=0; k<nnp; k++)
 		for(int j=0; j<nnt; j++)

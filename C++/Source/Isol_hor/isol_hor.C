@@ -30,6 +30,9 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/12/22 18:16:02  f_limousin
+ * Many different changes.
+ *
  * Revision 1.7  2004/11/05 10:57:03  f_limousin
  * Delete argument partial_save in the function sauve.
  *
@@ -76,22 +79,43 @@ char isol_hor_C[] = "$Header$" ;
 			    //--------------//
 			    // Constructors //
 			    //--------------//
-
+// Standard constructor
+Isol_hor::Isol_hor(Map_af& mpi, const Base_vect& triad, 
+		   const Metric_flat& ff_in,
+		   const Metric& metgamt, const Sym_tensor& gamt_point_in, 
+		   const Scalar& trK_in, const Scalar& trK_point_in, 
+		   int depth_in) : 
+  Time_slice_conf(mpi, triad, ff_in),
+  mp(mpi), radius ((mpi.get_alpha())[0]), omega(0),
+  n_auto_evol(depth_in), n_comp_evol(depth_in), 
+  psi_auto_evol(depth_in), psi_comp_evol(depth_in),
+  dn_evol(depth_in), dpsi_evol(depth_in),
+  beta_auto_evol(depth_in), beta_comp_evol(depth_in),
+  aa_auto_evol(depth_in), aa_comp_evol(depth_in),
+  met_gamt(metgamt), gamt_point(gamt_point_in),
+  trK(trK_in), trK_point(trK_point_in), decouple(mpi){
+}		  
 
 // Constructor from conformal decomposition
 // ----------------------------------------
 
-Isol_hor::Isol_hor(const Scalar& lapse_in, const Vector& shift_in,
-		   const Scalar& psi_in, const Sym_tensor& aa_in, 
+Isol_hor::Isol_hor(Map_af& mpi,const Scalar& lapse_in, 
+		   const Scalar& psi_in, const Vector& shift_in,
+		   const Sym_tensor& aa_in, 
 		   const Metric& metgamt, const Sym_tensor& gamt_point_in, 
 		   const Scalar& trK_in, const Scalar& trK_point_in,
 		   const Metric_flat& ff_in, int depth_in) 	  
     : Time_slice_conf(lapse_in, shift_in, ff_in, psi_in, metgamt.con() -
 		      ff_in.con(), aa_in, trK_in, depth_in),
-      met_gamt(metgamt),
-      gamt_point(gamt_point_in),
-      trK(trK_in),
-      trK_point(trK_point_in){
+      mp(mpi), radius ((mpi.get_alpha())[0]), 
+      omega(0),
+      n_auto_evol(depth_in), n_comp_evol(depth_in), 
+      psi_auto_evol(depth_in), psi_comp_evol(depth_in),
+      dn_evol(depth_in), dpsi_evol(depth_in),
+      beta_auto_evol(depth_in), beta_comp_evol(depth_in),
+      aa_auto_evol(depth_in), aa_comp_evol(depth_in),
+      met_gamt(metgamt), gamt_point(gamt_point_in),
+      trK(trK_in), trK_point(trK_point_in), decouple(lapse_in.get_mp()){
 }
 
 
@@ -102,10 +126,24 @@ Isol_hor::Isol_hor(const Scalar& lapse_in, const Vector& shift_in,
 
 Isol_hor::Isol_hor(const Isol_hor& isolhor_in) 
     : Time_slice_conf(isolhor_in),
+      mp(isolhor_in.mp),
+      radius(isolhor_in.radius),
+      omega(isolhor_in.omega) ,
+      n_auto_evol(isolhor_in.n_auto_evol),
+      n_comp_evol(isolhor_in.n_comp_evol),
+      psi_auto_evol(isolhor_in.psi_auto_evol),
+      psi_comp_evol(isolhor_in.psi_comp_evol),
+      dn_evol(isolhor_in.dn_evol),
+      dpsi_evol(isolhor_in.dpsi_evol),
+      beta_auto_evol(isolhor_in.beta_auto_evol),
+      beta_comp_evol(isolhor_in.beta_comp_evol),
+      aa_auto_evol(isolhor_in.aa_auto_evol),
+      aa_comp_evol(isolhor_in.aa_comp_evol),
       met_gamt(isolhor_in.met_gamt),
       gamt_point(isolhor_in.gamt_point),
       trK(isolhor_in.trK),
-      trK_point(isolhor_in.trK_point){
+      trK_point(isolhor_in.trK_point),
+      decouple(isolhor_in.decouple){
 }
 
 // Constructor from a file
@@ -134,7 +172,26 @@ Isol_hor::~Isol_hor(){}
 
 void Isol_hor::operator=(const Isol_hor& isolhor_in) {
 
-    Time_slice_conf::operator=(isolhor_in) ; 
+    Time_slice_conf::operator=(isolhor_in) ;
+    mp = isolhor_in.mp ;
+    radius = isolhor_in.radius ;
+    omega = isolhor_in.omega ;
+    n_auto_evol = isolhor_in.n_auto_evol ;
+    n_comp_evol = isolhor_in.n_comp_evol ;
+    psi_auto_evol = isolhor_in.psi_auto_evol ;
+    psi_comp_evol = isolhor_in.psi_comp_evol ;
+    dn_evol = isolhor_in.dn_evol ;
+    dpsi_evol = isolhor_in.dpsi_evol ;
+    beta_auto_evol = isolhor_in.beta_auto_evol ;
+    beta_comp_evol = isolhor_in.beta_comp_evol ;
+    aa_auto_evol = isolhor_in.aa_auto_evol ;
+    aa_comp_evol = isolhor_in.aa_comp_evol ;
+    met_gamt = isolhor_in.met_gamt ;
+    gamt_point = isolhor_in.gamt_point ;
+    trK = isolhor_in.trK ;
+    trK_point = isolhor_in.trK_point ;
+    decouple = isolhor_in.decouple ;
+ 
 }
 
 
@@ -164,8 +221,8 @@ void Isol_hor::sauve(FILE* fich) const {
     
     Time_slice_conf::sauve(fich, true) ; 
     
-    // Writing of quantities common to all derived classes of Isol_hor
-    // ---------------------------------------------------------------
+    // Writing of quantities common to Isol_hor
+    // -----------------------------------------
 
     met_gamt.sauve(fich) ;
     gamt_point.sauve(fich) ;    
@@ -173,3 +230,223 @@ void Isol_hor::sauve(FILE* fich) const {
     trK_point.sauve(fich) ;
 
 }
+
+
+
+// Import the lapse from the companion (Bhole case)
+
+void Isol_hor::n_comp(const Isol_hor& comp) {
+
+    double ttime = the_time[jtime] ;    
+
+    Scalar temp (mp) ;
+    temp.import_symy(comp.n_auto()) ;
+    temp.std_spectral_base() ;
+    n_comp_evol.update(temp, jtime, ttime) ;
+    n_evol.update(temp + n_auto(), jtime, ttime) ;
+     
+    Vector dn_comp (mp, COV, mp.get_bvect_cart()) ;
+    dn_comp.set_etat_qcq() ;
+    Vector auxi (comp.n_auto().derive_cov(ff)) ;
+    auxi.dec_dzpuis(2) ;
+    auxi.change_triad(auxi.get_mp().get_bvect_cart()) ;
+    auxi.change_triad(mp.get_bvect_cart()) ;
+    assert ( *(auxi.get_triad()) == *(dn_comp.get_triad())) ;
+
+    dn_comp.set(1).import_symy(auxi(1)) ;
+    dn_comp.set(2).import_asymy(auxi(2)) ;
+    dn_comp.set(3).import_symy(auxi(3)) ;
+    dn_comp.std_spectral_base() ;
+    dn_comp.inc_dzpuis(2) ;
+    dn_comp.change_triad(mp.get_bvect_spher()) ;
+
+    dn_evol.update(n_auto().derive_cov(ff) + dn_comp, jtime, ttime) ;
+}
+
+// Import the conformal factor from the companion (Bhole case)
+
+void Isol_hor::psi_comp (const Isol_hor& comp) {
+  
+    double ttime = the_time[jtime] ;    
+    
+    Scalar temp (mp) ;
+    temp.import_symy(comp.psi_auto()) ;
+    temp.std_spectral_base() ;
+    psi_comp_evol.update(temp, jtime, ttime) ;
+    psi_evol.update(temp + psi_auto(), jtime, ttime) ;
+    
+    Vector dpsi_comp (mp, COV, mp.get_bvect_cart()) ;
+    dpsi_comp.set_etat_qcq() ;
+    Vector auxi (comp.psi_auto().derive_cov(ff)) ;
+    auxi.dec_dzpuis(2) ;
+    auxi.change_triad(auxi.get_mp().get_bvect_cart()) ;
+    auxi.change_triad(mp.get_bvect_cart()) ;
+    assert ( *(auxi.get_triad()) == *(dpsi_comp.get_triad())) ;
+
+    dpsi_comp.set(1).import_symy(auxi(1)) ;
+    dpsi_comp.set(2).import_asymy(auxi(2)) ;
+    dpsi_comp.set(3).import_symy(auxi(3)) ;
+    dpsi_comp.std_spectral_base() ;
+    dpsi_comp.inc_dzpuis(2) ;
+    dpsi_comp.change_triad(mp.get_bvect_spher()) ;
+    
+    dpsi_evol.update(psi_auto().derive_cov(ff) + dpsi_comp, jtime, ttime) ;
+}
+
+//Initialisation to Schwartzchild
+void Isol_hor::init_bhole () {
+    
+    double ttime = the_time[jtime] ;    
+    Scalar auxi(mp) ;
+    
+    auxi = 0.5 - radius/mp.r ;
+    auxi.annule(0, 0);
+    auxi.set_dzpuis(0) ;
+    
+    Scalar temp(mp) ;
+    temp = auxi;
+    temp.std_spectral_base() ;
+    temp.raccord(1) ;
+    n_auto_evol.update(temp, jtime, ttime) ;
+
+    temp = 0.5 ;
+    temp.std_spectral_base() ;
+    n_comp_evol.update(temp, jtime, ttime) ;
+    n_evol.update(n_auto() + n_comp(), jtime, ttime) ;
+  
+    auxi = 0.5 + radius/mp.r ;
+    auxi.annule(0, 0);
+    auxi.set_dzpuis(0) ;
+    temp = auxi;
+    temp.std_spectral_base() ;
+    temp.raccord(1) ;
+    psi_auto_evol.update(temp, jtime, ttime) ;
+
+    temp = 0.5 ;
+    temp.std_spectral_base() ;
+    psi_comp_evol.update(temp, jtime, ttime) ;
+    psi_evol.update(psi_auto() + psi_comp(), jtime, ttime) ;
+    
+    dn_evol.update(nn().derive_cov(ff), jtime, ttime) ;
+    dpsi_evol.update(psi().derive_cov(ff), jtime, ttime) ;
+    
+    Vector temp_vect(mp, CON, mp.get_bvect_spher()) ;
+    temp_vect.set_etat_zero() ;
+    beta_auto_evol.update(temp_vect, jtime, ttime) ;
+    beta_comp_evol.update(temp_vect, jtime, ttime) ;
+    beta_evol.update(temp_vect, jtime, ttime) ;    
+}
+
+void Isol_hor::init_bhole_seul () {
+    
+    double ttime = the_time[jtime] ;    
+    Scalar auxi(mp) ;
+    
+    auxi = (1-radius/mp.r)/(1+radius/mp.r) ;
+    auxi.annule(0, 0);
+    auxi.set_outer_boundary((*mp.get_mg()).get_nzone(), 1.) ;
+    auxi.set_dzpuis(0) ;
+
+    Scalar temp(mp) ;
+    temp = auxi;
+    temp.std_spectral_base() ;
+    temp.raccord(1) ;
+    n_auto_evol.update(temp, jtime, ttime) ;
+
+    temp.set_etat_zero() ;
+    n_comp_evol.update(temp, jtime, ttime) ;
+    n_evol.update(temp, jtime, ttime) ;
+ 
+    
+    auxi = 1 + radius/mp.r ;
+    auxi.annule(0, 0);
+    auxi.set_outer_boundary((*mp.get_mg()).get_nzone(), 1.) ;
+    auxi.set_dzpuis(0) ;
+  
+    temp = auxi;
+    temp.std_spectral_base() ;
+    temp.raccord(1) ;
+    psi_auto_evol.update(temp, jtime, ttime) ;
+    temp.set_etat_zero() ;
+    psi_comp_evol.update(temp, jtime, ttime) ;
+    psi_evol.update(temp, jtime, ttime) ;
+    
+    dn_evol.update(nn().derive_cov(ff), jtime, ttime) ;
+    dpsi_evol.update(psi().derive_cov(ff), jtime, ttime) ;
+
+    Vector temp_vect(mp, CON, mp.get_bvect_spher()) ;
+    temp_vect.set_etat_zero() ;
+    beta_auto_evol.update(temp_vect, jtime, ttime) ;
+    beta_comp_evol.update(temp_vect, jtime, ttime) ;
+    beta_evol.update(temp_vect, jtime, ttime) ;    		   
+}		   
+
+
+// Accessors
+// ---------
+
+const Scalar& Isol_hor::n_auto() const {
+
+    assert( n_auto_evol.is_known(jtime) ) ; 
+    return n_auto_evol[jtime] ;   
+} 
+
+const Scalar& Isol_hor::n_comp() const {
+
+    assert( n_comp_evol.is_known(jtime) ) ; 
+    return n_comp_evol[jtime] ;   
+} 
+
+const Scalar& Isol_hor::psi_auto() const {
+
+    assert( psi_auto_evol.is_known(jtime) ) ; 
+    return psi_auto_evol[jtime] ;   
+} 
+
+const Scalar& Isol_hor::psi_comp() const {
+
+    assert( psi_comp_evol.is_known(jtime) ) ; 
+    return psi_comp_evol[jtime] ;   
+} 
+
+const Vector& Isol_hor::dnn() const {
+
+    assert( dn_evol.is_known(jtime) ) ; 
+    return dn_evol[jtime] ;   
+} 
+
+const Vector& Isol_hor::dpsi() const {
+
+    assert( dpsi_evol.is_known(jtime) ) ; 
+    return dpsi_evol[jtime] ;   
+} 
+
+const Vector& Isol_hor::beta_auto() const {
+
+    assert( beta_auto_evol.is_known(jtime) ) ; 
+    return beta_auto_evol[jtime] ;   
+} 
+
+const Vector& Isol_hor::beta_comp() const {
+
+    assert( beta_comp_evol.is_known(jtime) ) ; 
+    return beta_comp_evol[jtime] ;   
+} 
+
+const Sym_tensor& Isol_hor::aa_auto() const {
+
+    assert( aa_auto_evol.is_known(jtime) ) ; 
+    return aa_auto_evol[jtime] ;   
+} 
+
+const Sym_tensor& Isol_hor::aa_comp() const {
+
+    assert( aa_comp_evol.is_known(jtime) ) ; 
+    return aa_comp_evol[jtime] ;   
+} 
+
+
+
+
+
+
