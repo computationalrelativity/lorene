@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2004 Eric Gourgoulhon & Jerome Novak
  *
  *   Copyright (c) 1999-2001 Philippe Grandclement (for preceding class Tenseur)
  *
@@ -34,6 +34,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.28  2004/01/04 20:55:23  e_gourgoulhon
+ * Method spectral_display(): added printing of type of class (through typeid).
+ *
  * Revision 1.27  2003/12/30 23:09:47  e_gourgoulhon
  * Change in methods derive_cov() and divergence() to take into account
  *  the change of name: Metric::get_connect() --> Metric::connect().
@@ -224,6 +227,11 @@ Tensor::Tensor (const Tensor& source) :
         
     cmp = new Scalar*[n_comp] ;
     for (int i=0 ; i<n_comp ; i++) {
+
+        // the following writing takes into account the case where
+        // source belongs to a derived class of Tensor with a different
+        // storage of components :
+
 	int place_source = source.position(indices(i)) ;
 	cmp[i] = new Scalar(*source.cmp[place_source]) ;
     }
@@ -670,7 +678,8 @@ void Tensor::mult_r_ced() {
 ostream& operator<<(ostream& flux, const Tensor &source ) {
 
   	flux << '\n' ;
-  	flux << typeid(source).name() << "           Valence : " << source.valence << '\n' ;
+  	flux << "Lorene class : " << typeid(source).name() 
+        << "           Valence : " << source.valence << '\n' ;
 
     if (source.get_triad() != 0x0) {
 		flux << "Vectorial basis (triad) on which the components are defined :" 
@@ -715,6 +724,9 @@ ostream& operator<<(ostream& flux, const Tensor &source ) {
 
 
 void Tensor::spectral_display(double thres, int precis, ostream& ost) const {
+
+  	ost << "Lorene class : " << typeid(*this).name() 
+            << "           Valence : " << valence << '\n' ;
 
 	for (int ic=0; ic<n_comp; ic++) {
 		
