@@ -29,6 +29,10 @@ char vector_change_triad_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/02/03 14:34:19  f_limousin
+ * Improvement of the case Cartesian --> Cartesian to be consistent
+ * with Tensor::change_triad(Base_vect&).
+ *
  * Revision 1.4  2003/10/28 21:27:54  e_gourgoulhon
  * -- Read-only access to the components performed by operator()(int) instead of
  *     set(int ).
@@ -94,8 +98,10 @@ void Vector::change_triad(const Base_vect& new_triad) {
       }
 	
       case - 1 : {    // the two bases are anti-aligned 
-	set(1) = - operator()(1) ;	 // V^x --> - V^x
-	set(2) = - operator()(2) ; 	 // V^y --> - V^y
+	  Vector copie (*this) ;
+	  
+	set(1) = - copie(1) ;	 // V^x --> - V^x
+	set(2) = - copie(2) ; 	 // V^y --> - V^y
 	                         // V^z unchanged
 	break ; 
       }
