@@ -32,6 +32,9 @@ char mtbl_cf_val_point_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/02/16 15:10:39  m_forot
+ * Correct the case T_COSSIN_C
+ *
  * Revision 1.4  2004/12/17 13:35:03  m_forot
  * Add the case T_LEG
  *
@@ -120,7 +123,7 @@ static int premier_appel = 1 ;
 	som_tet[T_COSSIN_CI >> TRA_T] = som_tet_cossin_ci ;
 	som_tet[T_COSSIN_SP >> TRA_T] = som_tet_cossin_sp ;
 	som_tet[T_COSSIN_SI >> TRA_T] = som_tet_cossin_si ;
-	som_tet[T_COSSIN_C >> TRA_T] = som_tet_cossin_s ;
+	som_tet[T_COSSIN_C >> TRA_T] = som_tet_cossin_c ;
 	som_tet[T_COSSIN_S >> TRA_T] = som_tet_cossin_s ;
 
 	som_phi[P_COSSIN >> TRA_P] = som_phi_cossin ;
