@@ -30,6 +30,9 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/12/31 15:36:43  f_limousin
+ * Add the constructor from a file and change the standard constructor.
+ *
  * Revision 1.9  2004/12/29 16:14:22  f_limousin
  * Add new function beta_comp(const Isol_hor& comp).
  *
@@ -68,6 +71,7 @@ char isol_hor_C[] = "$Header$" ;
 
 // Lorene headers
 
+#include "utilitaires.h"
 #include "time_slice.h"
 #include "isol_hor.h"
 #include "tensor.h"
@@ -144,17 +148,37 @@ Isol_hor::Isol_hor(const Isol_hor& isolhor_in)
 
 // Constructor from a file
 // -----------------------
-/*
-Isol_hor::Isol_hor(const Map& mp, const Base_vect& triad, 
-		   const Metric_flat& ff_in, FILE* fich, 
+
+Isol_hor::Isol_hor(Map_af& mpi, FILE* fich, 
 		   bool partial_read, int depth_in)
-    : Time_slice_conf(mp, triad, ff_in, fich, partial_read, depth_in),
-      met_gamt(mp, fich),
-      gamt_point(mp, triad, fich),
-      trK(mp, *(mp.get_mg()), fich),
-      trK_point(mp, *(mp.get_mg()), fich){
+    : Time_slice_conf(mpi, mpi.get_bvect_spher(), mpi.flat_met_spher(), 
+		      fich, partial_read, depth_in),
+      mp(mpi), radius ((mpi.get_alpha())[0]), omega(0),
+      n_auto_evol(depth_in), n_comp_evol(depth_in), 
+      psi_auto_evol(depth_in), psi_comp_evol(depth_in),
+      dn_evol(depth_in), dpsi_evol(depth_in),
+      beta_auto_evol(depth_in), beta_comp_evol(depth_in),
+      aa_auto_evol(depth_in), aa_comp_evol(depth_in),
+      met_gamt(mpi.flat_met_spher()), gamt_point(mpi, CON, mpi.get_bvect_spher()),
+      trK(mpi), trK_point(mpi), decouple(mpi){
+
+  fread_be(&omega, sizeof(double), 1, fich) ;
+  
+  
+  Sym_tensor met_file (mp, mp.get_bvect_spher(), fich) ;
+  met_gamt = met_file ;
+
+  Sym_tensor gamt_point_file (mp, mp.get_bvect_spher(), fich) ;
+  gamt_point = gamt_point_file ;
+  
+  Scalar trK_file (mp, *(mp.get_mg()), fich) ;
+  trK = trK_file ;
+  
+  Scalar trK_point_file (mp, *(mp.get_mg()), fich) ;
+  trK_point = trK_point_file ;
+
 }
-*/
+
 			    //--------------//
 			    //  Destructor  //
 			    //--------------//
@@ -209,18 +233,20 @@ ostream& Isol_hor::operator>>(ostream& flux) const {
                 //--------------------------//
 
 
-void Isol_hor::sauve(FILE* fich) const {
+void Isol_hor::sauve(FILE* fich, bool partial_save) const {
 
 
     // Writing of quantities common to all derived classes of Time_slice
     // -----------------------------------------------------------------
     
-    Time_slice_conf::sauve(fich, true) ; 
+    Time_slice_conf::sauve(fich, partial_save) ; 
+
+    fwrite_be (&omega, sizeof(double), 1, fich) ;
     
     // Writing of quantities common to Isol_hor
     // -----------------------------------------
 
-    met_gamt.sauve(fich) ;
+    met_gamt.con().sauve(fich) ;
     gamt_point.sauve(fich) ;    
     trK.sauve(fich) ;
     trK_point.sauve(fich) ;
@@ -243,7 +269,7 @@ void Isol_hor::n_comp(const Isol_hor& comp) {
      
     Vector dn_comp (mp, COV, mp.get_bvect_cart()) ;
     dn_comp.set_etat_qcq() ;
-    Vector auxi (comp.n_auto().derive_cov(ff)) ;
+    Vector auxi (comp.n_auto().derive_cov(comp.ff)) ;
     auxi.dec_dzpuis(2) ;
     auxi.change_triad(auxi.get_mp().get_bvect_cart()) ;
     auxi.change_triad(mp.get_bvect_cart()) ;
@@ -273,7 +299,7 @@ void Isol_hor::psi_comp (const Isol_hor& comp) {
     
     Vector dpsi_comp (mp, COV, mp.get_bvect_cart()) ;
     dpsi_comp.set_etat_qcq() ;
-    Vector auxi (comp.psi_auto().derive_cov(ff)) ;
+    Vector auxi (comp.psi_auto().derive_cov(comp.ff)) ;
     auxi.dec_dzpuis(2) ;
     auxi.change_triad(auxi.get_mp().get_bvect_cart()) ;
     auxi.change_triad(mp.get_bvect_cart()) ;
@@ -352,6 +378,18 @@ void Isol_hor::init_bhole () {
     beta_comp_evol.update(temp_vect, jtime, ttime) ;
     beta_evol.update(temp_vect, jtime, ttime) ;    
 }
+
+void Isol_hor::init_met_trK() {
+ 
+  Metric flat (mp.flat_met_spher()) ;
+  met_gamt = flat ;
+
+  gamt_point.set_etat_zero() ;
+  trK.set_etat_zero() ;
+  trK_point.set_etat_zero() ;
+ 
+}
+
 
 void Isol_hor::init_bhole_seul () {
     
