@@ -30,6 +30,9 @@ char metric_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2005/03/02 15:03:46  f_limousin
+ * p_radial_vect is added in del_deriv() and set_der_0x0.
+ *
  * Revision 1.10  2004/11/18 12:22:33  jl_jaramillo
  * Method to compute the unit radial vector field with respect
  * spherical surfaces
@@ -168,6 +171,7 @@ void Metric::del_deriv() const {
   if (p_connect != 0x0) delete p_connect ; 
   if (p_ricci_scal != 0x0) delete p_ricci_scal ;
   if (p_determinant != 0x0) delete p_determinant ;
+  if (p_radial_vect != 0x0) delete p_radial_vect ;
   
   set_der_0x0() ;
 
@@ -179,6 +183,7 @@ void Metric::set_der_0x0() const {
   p_connect = 0x0 ; 
   p_ricci_scal = 0x0 ;
   p_determinant = 0x0 ;
+  p_radial_vect = 0x0 ;
 
 }
 
