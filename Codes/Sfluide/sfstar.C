@@ -41,18 +41,16 @@ int main(){
     //------------------------------------------------------------------
     //	    Parameters of the computation 
     //------------------------------------------------------------------
-    ifstream fich;
-
     bool relat, graph;
     int mer_max, mer_rot, mer_change_omega, mer_fix_omega, 
 	mermax_poisson, nz, nzet, nt, np; 
     double ent1_c, ent2_c, freq_si, freq2_si, precis, freq_ini_si, 
       freq2_ini_si,relax, relax_poisson ;  
 
-
+    char *parrot = "settings.par"; // config-file
     int res = 0;
 
-    res |= read_variable ("settings.par", "relat", relat);
+    res |= read_variable (parrot, "relat", relat);
     res |= read_variable (NULL, "ent1_c", ent1_c);
     res |= read_variable (NULL, "ent2_c",ent2_c);
     res |= read_variable (NULL, "freq_si", freq_si);
@@ -114,7 +112,7 @@ int main(){
 
     if ( res != 0 )
       {
-	cerr << "An error ocurred in reading the parameter file 'settings.par'. Terminating...\n";
+	cerr << "An error ocurred in reading the parameter file " << parrot <<". Terminating...\n";
 	exit (-1);
       }
 
@@ -133,12 +131,8 @@ int main(){
     //-----------------------------------------------------------------------
     //		Equation of state
     //-----------------------------------------------------------------------
-    fich.open("par_eos.d") ;
-
-    Eos_bifluid* peos = Eos_bifluid::eos_from_file(fich) ;
+    Eos_bifluid* peos = Eos_bifluid::eos_from_file("eos.par") ;
     Eos_bifluid& eos = *peos ;
-
-    fich.close() ;
 
     //-----------------------------------------------------------------------
     //		Construction of the multi-grid and the mapping

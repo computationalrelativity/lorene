@@ -1,0 +1,16 @@
+ident = 2				# EOS-type
+name = 	"2-fluid Star analytic EOS"   	# EOS name
+m_1 = 	1.		
+m_2 = 	1.
+gamma1 =-2.
+gamma2 = 2.		
+gamma3 = 1.		
+gamma4 = 1.		
+gamma5 = 1.
+gamma6 = 1.	
+kappa1 = 0.02	 
+kappa2 = 0.12		
+kappa3 = 0.01		
+beta   = 0.01		
+
+
