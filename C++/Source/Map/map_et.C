@@ -29,6 +29,10 @@ char map_et_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/01/15 15:53:06  p_grandclement
+ * I have had a constructor fot map_et using the equation of the surface
+ * of the star.
+ *
  * Revision 1.2  2001/12/04 21:27:53  e_gourgoulhon
  *
  * All writing/reading to a binary file are now performed according to
@@ -85,6 +89,7 @@ char map_et_C[] = "$Header$" ;
 #include <math.h>
 
 // headers Lorene
+#include "proto.h"
 #include "map.h"
 #include "utilitaires.h"
 
@@ -169,7 +174,169 @@ Map_et::Map_et(const Mg3d& mgrille, const double* bornes)
 
 }
 
+Map_et::Map_et(const Mg3d& grille, const double* r_lim, const Tbl& S_0) : 
+                Map_radial(grille),
+	        aasx(grille.get_nr(0) ), 
+	        aasx2(grille.get_nr(0) ), 
+	        zaasx(grille.get_nr(grille.get_nzone()-1) ), 
+	        zaasx2(grille.get_nr(grille.get_nzone()-1) ), 
+	        bbsx(grille.get_nr(0) ), 
+	        bbsx2(grille.get_nr(0) ), 
+		ff(grille.get_angu()) , 
+		gg(grille.get_angu()) {
+  
+  assert (S_0.get_ndim() == 2) ;
+  assert (S_0.get_dim(0) == grille.get_np(0)) ;
+  assert (S_0.get_dim(1) == grille.get_nt(0)) ;
 
+  Map_et mapping (grille, r_lim) ;
+
+  int nz = grille.get_nzone() ;
+  assert (nz >2) ;
+
+  // Le noyau :
+  int np = grille.get_np(0) ;
+  int nt = grille.get_nt(0) ;
+  
+  double * cf = new double [nt*(np+2)] ;
+  for (int k=0 ; k<np ; k++)
+    for (int j=0 ; j<nt ; j++)
+      cf[k*nt+j] = S_0(k,j) - S_0(0,0) ;
+
+  int* deg = new int [3] ;
+  deg[0] = np ;
+  deg[1] = nt ;
+  deg[2] = 1 ;
+
+  int* dim = new int [3] ;
+  dim[0] = np+2 ;
+  dim[1] = nt ;
+  dim[2] = 1 ;
+  
+  Tbl ff_nucleus (np,nt) ;
+  ff_nucleus.set_etat_qcq() ;
+
+  Tbl gg_nucleus (np,nt) ;
+  gg_nucleus.set_etat_qcq() ;
+  
+  // On recupere la base en phi :
+  int base_p = grille.std_base_scal().get_base_p(0) ;
+  // Selon les cas (pas tres propre mais bon ...)
+  double * odd ; 
+  double * even ;
+  double * coloc_odd ;
+  double * coloc_even ;
+
+  switch (base_p) {
+  case P_COSSIN:
+     cfpcossin (deg,dim,cf) ;
+
+     // Separation des harmoniques paires et impaires :
+     odd = new double [nt*(np+2)] ;
+     even = new double [nt*(np+2)] ;
+
+     for (int k=0 ; k<np+2 ; k++)
+       if (k%4 == 0)
+	 for (int j=0 ; j<nt ; j++) {
+	   odd[k*nt+j] = 0 ;
+	   even[k*nt+j] = cf[k*nt+j] ;
+	 }
+       else
+	 if (k%4 == 2)
+	 for (int j=0 ; j<nt ; j++) {
+	   even[k*nt+j] = 0 ;
+	   odd[k*nt+j] = cf[k*nt+j] ;
+	 }
+
+        else
+	   for (int j=0 ; j<nt ; j++) {
+	   even[k*nt+j] = 0 ;
+	   odd[k*nt+j] = 0 ;
+	   }
+    
+    
+     coloc_odd = new double [nt*np] ;
+     coloc_even = new double [nt*np] ;
+
+     cipcossin (deg,dim,deg,odd,coloc_odd) ;
+     cipcossin (deg,dim,deg,even,coloc_even) ;
+     for (int k=0 ; k<np ; k++)
+       for (int j=0 ; j<nt ; j++) {
+	 gg_nucleus.set(k,j) = coloc_even[k*nt+j] ;
+	 ff_nucleus.set(k,j) = coloc_odd[k*nt+j] ;
+       }
+
+     delete [] even ;
+     delete [] odd ;
+     delete [] coloc_even ;
+     delete [] coloc_odd ;
+     delete[] dim ;
+     delete [] deg ;
+     delete [] cf ;
+     
+     break;
+  default:
+    cout << "Base_p != P_COSSIN not implemented in Map_et constructor" << 
+      endl ;
+    abort() ;
+  }
+
+  double mu_nucleus = - min(gg_nucleus) ;
+  double alpha_nucleus = S_0(0,0)-mu_nucleus ;
+
+  ff_nucleus /= alpha_nucleus ;
+  gg_nucleus += mu_nucleus ;
+  gg_nucleus /= alpha_nucleus ;
+  
+  // First shell : much simpler no ?
+  Tbl ff_shell (np,nt) ;
+  ff_shell.set_etat_qcq() ;
+  ff_shell = S_0 - S_0(0,0) ;
+  
+  double lambda_shell = -max(ff_shell) ;
+  
+  double R_ext = r_lim[2] ;
+
+  double beta_shell = (R_ext+S_0(0,0)-lambda_shell)/2. ;
+  double alpha_shell = (R_ext-S_0(0,0)+lambda_shell)/2. ;
+  
+  ff_shell += lambda_shell ;
+  ff_shell /= alpha_shell ;
+
+  ff.annule_hard() ;
+  gg.annule_hard() ;
+  
+  ff.set_etat_c_qcq() ;
+  gg.set_etat_c_qcq() ;
+
+  for (int k=0 ; k<np ; k++)
+    for (int j=0 ; j<nt ; j++) {
+      ff.set(0,k,j,0) = ff_nucleus(k,j) ;
+      gg.set(0,k,j,0) = gg_nucleus(k,j) ;
+      ff.set(1,k,j,0) = ff_shell(k,j) ;
+    }
+
+  gg.annule(1,nz-1) ;
+  ff.annule(2,nz-1) ;
+  
+  ff.std_base_scal() ;
+  gg.std_base_scal() ;
+  
+  alpha = new double[nz] ;
+  alpha[0] = alpha_nucleus ;
+  alpha[1] = alpha_shell ;
+  
+  beta = new double[nz] ;
+  beta[0] = 0 ;
+  beta[1] = beta_shell ;
+  for (int i=2 ; i<nz ; i++) {
+    alpha[i] = mapping.get_alpha()[i] ;
+    beta[i] = mapping.get_beta()[i] ;
+  }
+
+  fait_poly() ;
+  set_coord() ;
+}
 // ------------------
 // Copy constructor 
 // ------------------

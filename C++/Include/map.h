@@ -38,8 +38,12 @@
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/01/15 15:53:06  p_grandclement
+ * I have had a constructor fot map_et using the equation of the surface
+ * of the star.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.110  2001/10/29  15:31:55  novak
  * Ajout de Map_radial::div_r
@@ -1916,7 +1920,26 @@ class Map_et : public Map_radial {
 	 */
 	Map_et(const Mg3d& mgrille, const double* r_limits) ;	
 	
-	
+	/**
+	 * Constructor using the equation of the surface of the star.
+	 * @param mgrille [input] Multi-domain grid on which the mapping is defined
+	 * It must contains at least one shell.
+	 * @param r_limits [input] Array (size: number of domains + 1) of the
+	 *			   value of $r$ at the boundaries of the various 
+	 *			   domains : 
+	 *			   \begin{itemize}
+	 *			   \item {\tt r\_limits[l]}: inner boundary of the 
+	 *				 domain no. {\tt l}
+	 *			   \item {\tt r\_limits[l+1]}: outer boundary of the 
+	 *				 domain no. {\tt l}
+	 *			   \end{itemize}
+	 * The first value is not used.
+	 * @param tab [input] equation of the surface between the nucleus and the first
+	 * shell in the form : ${\rm tab}(k,j) = r(\phi_k,\theta_j)$, where
+	 * $\phi_k$ and $\theta_j$ are the values of the angular colocation points.
+	 */
+
+	Map_et(const Mg3d& mgrille, const double* r_limits,const Tbl& tab);	
 	Map_et(const Map_et& ) ;      /// Copy constructor
 	Map_et(const Mg3d&, FILE* ) ; /// Constructor from a file (see {\tt sauve(FILE* )})
 
