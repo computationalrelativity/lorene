@@ -32,6 +32,9 @@ char etoile_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/01/18 22:36:50  k_taniguchi
+ * Delete a pointer for ray_eq(int kk).
+ *
  * Revision 1.7  2005/01/18 20:35:05  k_taniguchi
  * Addition of ray_eq(int kk).
  *
@@ -374,7 +377,6 @@ void Etoile::del_deriv() const {
     if (p_ray_eq_pi != 0x0) delete p_ray_eq_pi ; 
     if (p_ray_eq_3pis2 != 0x0) delete p_ray_eq_3pis2 ; 
     if (p_ray_pole != 0x0) delete p_ray_pole ; 
-    if (p_ray_eq_kk != 0x0) delete p_ray_eq_kk ; 
     if (p_l_surf != 0x0) delete p_l_surf ; 
     if (p_xi_surf != 0x0) delete p_xi_surf ; 
 
@@ -393,7 +395,6 @@ void Etoile::set_der_0x0() const {
     p_ray_eq_pi = 0x0 ; 
     p_ray_eq_3pis2 = 0x0 ; 
     p_ray_pole = 0x0 ; 
-    p_ray_eq_kk = 0x0 ; 
     p_l_surf = 0x0 ; 
     p_xi_surf = 0x0 ; 
 
