@@ -28,6 +28,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/23 14:50:41  e_gourgoulhon
+ * Added methods is_updated, downdate, get_jlast, get_size,
+ * as well as constructors without any initial value.
+ * Formatted documentation for Doxygen.
+ *
  * Revision 1.3  2004/02/17 22:13:34  e_gourgoulhon
  * Suppressed declaration of global char[] evolution_C = ...
  *
@@ -62,6 +67,13 @@ template<typename TyT>
 Evolution_full<TyT>::Evolution_full(const TyT& initial_value, 
                             double initial_time, int fact_resize_i)
       : Evolution<TyT>(initial_value, initial_time, 100), 
+        fact_resize(fact_resize_i) 
+{ }    
+                       
+                                        
+template<typename TyT> 
+Evolution_full<TyT>::Evolution_full(int fact_resize_i)
+      : Evolution<TyT>(100), 
         fact_resize(fact_resize_i) 
 { }    
                                         
@@ -140,6 +152,7 @@ void Evolution_full<TyT>::update(const TyT& new_value, double new_time) {
     }
     else {
         assert( jlast < size ) ; 
+        assert( val[jlast] == 0x0 ) ; 
     }
     
     val[jlast] = new TyT( new_value ) ; 
@@ -147,6 +160,25 @@ void Evolution_full<TyT>::update(const TyT& new_value, double new_time) {
 
 }                   
                     
+
+template<typename TyT> 
+void Evolution_full<TyT>::downdate() {
+
+    if (jlast == -1) return ;  // a never updated Evolution_full cannot
+                               // be downdated
+    
+    assert( val[jlast] != 0x0) ; 
+
+    delete val[jlast] ; 
+    val[jlast] = 0x0 ; 
+    the_time[jlast] = -1e20 ; 
+
+    jlast-- ; 
+    
+}
+
+
+
                     
                     //-----------------------//
                     //      Accessors        //
@@ -159,12 +191,20 @@ const TyT& Evolution_full<TyT>::operator[](int j) const {
     assert(j >= 0) ;
     assert(j < size) ; 
     
+    if (j > jlast) {
+        cerr << 
+        "Evolution_full<TyT>::operator[] : required time step too far\n" 
+        << "  in the future !" << endl ; 
+        abort() ; 
+    }
+    
     TyT* pval = val[j] ; 
     assert(pval != 0x0) ; 
     
     return *pval ; 
 
 }                  
+                    
                     
 template<typename TyT> 
 double Evolution_full<TyT>::get_time(int j) const {
@@ -173,6 +213,15 @@ double Evolution_full<TyT>::get_time(int j) const {
     assert(j < size) ; 
         
     return the_time[j] ; 
+
+}                  
+                    
+template<typename TyT> 
+bool Evolution_full<TyT>::is_updated(int j) const {
+
+    if ((j < 0) || (j >= size)) return false ;
+    
+    return ( val[j] != 0x0 ) ; 
 
 }                  
                     

@@ -28,6 +28,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/23 14:50:41  e_gourgoulhon
+ * Added methods is_updated, downdate, get_jlast, get_size,
+ * as well as constructors without any initial value.
+ * Formatted documentation for Doxygen.
+ *
  * Revision 1.3  2004/02/17 22:13:34  e_gourgoulhon
  * Suppressed declaration of global char[] evolution_C = ...
  *
@@ -62,6 +67,13 @@ Evolution_std<TyT>::Evolution_std(const TyT& initial_value, double initial_time,
     int nstored) 
       : Evolution<TyT>(initial_value, initial_time, nstored), 
         pos_jlast(0)
+{ }                    
+                                        
+
+template<typename TyT> 
+Evolution_std<TyT>::Evolution_std(int nstored) 
+      : Evolution<TyT>(nstored), 
+        pos_jlast(-1)
 { }                    
                                         
 
@@ -131,6 +143,7 @@ void Evolution_std<TyT>::update(const TyT& new_value, double new_time) {
     }
     else {
         assert( pos_jlast < size ) ; 
+        assert( val[pos_jlast] == 0x0 ) ; 
     }
     
     val[pos_jlast] = new TyT( new_value ) ; 
@@ -138,6 +151,25 @@ void Evolution_std<TyT>::update(const TyT& new_value, double new_time) {
 
 }                   
                     
+
+template<typename TyT> 
+void Evolution_std<TyT>::downdate() {
+
+    if (pos_jlast == -1) return ;  // a never updated Evolution_std cannot
+                                   // be downdated
+    
+    assert( val[pos_jlast] != 0x0) ; 
+    
+    delete val[pos_jlast] ; 
+    val[pos_jlast] = 0x0 ; 
+    the_time[pos_jlast] = -1e20 ; 
+
+    jlast-- ; 
+    pos_jlast-- ; 
+    
+}
+
+
                     
                     //-----------------------//
                     //      Accessors        //
@@ -159,6 +191,7 @@ const TyT& Evolution_std<TyT>::operator[](int j) const {
 
 }                  
                     
+                    
 
 template<typename TyT> 
 double Evolution_std<TyT>::get_time(int j) const {
@@ -169,6 +202,17 @@ double Evolution_std<TyT>::get_time(int j) const {
     assert(pos < size) ; 
             
     return the_time[pos] ; 
+
+}                  
+                    
+template<typename TyT> 
+bool Evolution_std<TyT>::is_updated(int j) const {
+
+    int pos = j - jlast + pos_jlast ; 
+
+    if ((pos < 0) || (pos >= size)) return false ;
+    
+    return ( val[pos] != 0x0 ) ; 
 
 }                  
                     

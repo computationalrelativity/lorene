@@ -28,6 +28,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/23 14:50:41  e_gourgoulhon
+ * Added methods is_updated, downdate, get_jlast, get_size,
+ * as well as constructors without any initial value.
+ * Formatted documentation for Doxygen.
+ *
  * Revision 1.4  2004/03/06 21:13:15  e_gourgoulhon
  * Added time derivation (method time_derive).
  *
@@ -80,6 +85,27 @@ Evolution<TyT>::Evolution(const TyT& initial_value, double initial_time,
     the_time[0] = initial_time ; 
 
     for (int j=1; j<size; j++) {
+        the_time[j] = -1e20 ; 
+    }
+    
+    
+}                    
+
+                    
+template<typename TyT> 
+Evolution<TyT>::Evolution(int size_i)
+      : size(size_i),
+        jlast(-1) {
+
+    val = new TyT*[size] ; 
+    
+    for (int j=0; j<size; j++) {
+        val[j] = 0x0 ; 
+    }
+    
+    the_time = new double[size] ; 
+    
+    for (int j=0; j<size; j++) {
         the_time[j] = -1e20 ; 
     }
     
