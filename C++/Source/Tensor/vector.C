@@ -32,6 +32,9 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2004/05/09 20:55:05  e_gourgoulhon
+ * Added method flux.
+ *
  * Revision 1.19  2004/03/29 11:57:45  e_gourgoulhon
  * Added methods ope_killing and ope_killing_conf.
  *
@@ -105,10 +108,10 @@ char vector_C[] = "$Header$" ;
 #include <math.h>
 
 // Headers Lorene
-#include "param.h"
 #include "metric.h"
 #include "proto.h"
 #include "matrice.h"
+#include "nbr_spx.h"
 
 
 			//--------------//
@@ -670,4 +673,50 @@ void Vector::decompose_div(const Metric& metre) const {
   }
   
 }
+
+
+
+double Vector::flux(double radius, const Metric& met) const {
+
+    assert(type_indice(0) == CON) ; 
+    
+    const Map_af* mp_af = dynamic_cast<const Map_af*>(mp) ; 
+    if (mp_af == 0x0) {
+        cerr << 
+        "Vector::flux : the case of a mapping outside the class Map_af\n"
+            << " is not implemented yet !" << endl ; 
+        abort() ; 
+    } 
+    
+    const Metric_flat* ff = dynamic_cast<const Metric_flat*>(&met) ;
+    if (ff == 0x0) {
+        cerr << 
+        "Vector::flux : the case of a non flat metric is not implemented yet !"
+             << endl ; 
+        abort() ; 
+    }
+    
+    const Base_vect_cart* bcart = dynamic_cast<const Base_vect_cart*>(triad) ; 
+    Vector* vspher ; 
+    if (bcart != 0x0) { // switch to spherical components:
+        vspher = new Vector(*this) ; 
+        vspher->change_triad(mp->get_bvect_spher()) ;
+    }
+    else assert( dynamic_cast<const Base_vect_spher*>(triad) != 0x0 ) ; 
+
+    const Vector* vv = (bcart != 0x0) ? vspher : this ; 
+
+    const Scalar& vr = vv->operator()(1) ; 
+    
+    double resu ; 
+    if (radius == __infinity) {
+        resu = mp_af->integrale_surface_infini(vr) ; 
+    }
+    else {
+        resu = mp_af->integrale_surface(vr, radius) ;
+    }
+    
+    return resu ; 
+}
+
 
