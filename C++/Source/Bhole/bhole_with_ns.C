@@ -25,6 +25,9 @@ char bhole_with_ns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/11/25 07:11:09  k_taniguchi
+ * Change some arguments from the class Etolie_bin to Et_bin_nsbh.
+ *
  * Revision 1.3  2003/11/13 13:43:53  p_grandclement
  * Addition of things needed for Bhole::update_metric (const Etoile_bin&, double, double)
  *
@@ -51,7 +54,7 @@ char bhole_with_ns_C[] = "$Header$" ;
 #include "unites.h"
 #include "proto.h"
 #include "utilitaires.h"
-#include "etoile.h"
+#include "et_bin_nsbh.h"
 #include "graphique.h"
 
 //Resolution pour le lapse pour 1 seul trou
@@ -142,7 +145,7 @@ void Bhole::solve_psi_with_ns (double relax) {
 }
 
 // Le shift. Processus iteratif pour cause de CL.
-void Bhole::solve_shift_with_ns (const Etoile_bin& ns, 
+void Bhole::solve_shift_with_ns (const Et_bin_nsbh& ns, 
 				 double precision, double relax) {
     
     assert (precision > 0) ;
@@ -243,7 +246,7 @@ void Bhole::solve_shift_with_ns (const Etoile_bin& ns,
 }
 
 
-void Bhole::update_metric (const Etoile_bin& comp, 
+void Bhole::update_metric (const Et_bin_nsbh& comp, 
 			   double precision, double relax) {
 
   // Solve for the lapse :
