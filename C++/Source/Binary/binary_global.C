@@ -31,6 +31,9 @@ char binary_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/03/31 12:44:54  f_limousin
+ * Minor modifs.
+ *
  * Revision 1.5  2004/03/25 10:29:01  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -276,73 +279,3 @@ double Binary::virial() const {
     return *p_virial ; 
     
 }
-
-
-/*	     //----------------------------------------------//
-	     //	 Virial error by Gourgoulhon and Bonazzola   //
-	     //----------------------------------------------//
-
-double Bin_ns_ncp::virial_gb() const {
-    
-    if (p_virial_gb == 0x0) {	    // a new computation is requireed
-	
-	p_virial_gb = new double ; 
-	    
-	if (star1.is_relativistic()) {	// Relativistic case
-					// -----------------
-	  using namespace Unites ;
-
-	    assert( star2.is_relativistic() ) ; 
-	    
-	    *p_virial_gb = 0 ;
-
-	    double vir_pres = 0. ;
-	    double vir_extr = 0. ;
-	    double vir_grav = 0. ;
-
-	    for (int i=0; i<=1; i++) {  // loop on the stars
-
-	      const Cmp& a2 = (et[i]->get_a_car())() ;
-	      const Cmp& se = (et[i]->get_s_euler())() ;
-	      const Cmp& ak2_auto = (et[i]->get_akcar_auto())() ;
-	      const Cmp& ak2_comp = (et[i]->get_akcar_comp())() ;
-
-	      const Tenseur& dnu_auto = et[i]->get_d_logn_auto() ;
-	      const Tenseur& dnu_comp = et[i]->get_d_logn_comp() ;
-	      const Tenseur& dbe_auto = et[i]->get_d_beta_auto() ;
-	      const Tenseur& dbe_comp = et[i]->get_d_beta_comp() ;
-
-	      Cmp source = 2. * a2 * sqrt(a2) * se ;
-	      vir_pres += source.integrale() ;
-
-	      source = 1.5 * sqrt(a2) * (ak2_auto + ak2_comp) / qpig ;
-	      vir_extr += source.integrale() ;
-
-	      Tenseur sprod1 = flat_scalar_prod(dbe_auto, dbe_auto+dbe_comp) ;
-	      Tenseur sprod2 = flat_scalar_prod(dnu_auto, dnu_auto+dnu_comp) ;
-	      Tenseur sprod3 = flat_scalar_prod(dbe_auto, dnu_auto+dnu_comp) ;
-
-	      source = sqrt(a2) * ( sprod1() - sprod2() - 2.*sprod3() )/qpig ;
-	      vir_grav += source.integrale() ;
-
-	    }  // End of the loop on the stars
-
-
-	    *p_virial_gb = (vir_pres + vir_extr + vir_grav) / mass_adm() ;
-	    
-	}
-	else {		// Newtonian case 
-			// --------------
-			
-	    *p_virial_gb = virial() ; 
-	    
-		
-	}   // End of the Newtonian case 
-
-    }	// End of the case where a new computation was necessary
-    
-    return *p_virial_gb ; 
-    
-}
-
-*/
