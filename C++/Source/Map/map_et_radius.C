@@ -30,6 +30,9 @@ char map_et_radius_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/01/26 16:58:35  j_novak
+ * Added initialization to avoid compiler warning.
+ *
  * Revision 1.2  2003/12/19 16:21:43  j_novak
  * Shadow hunt
  *
@@ -437,7 +440,7 @@ void Map_et::val_lx_jk(double rr, int j, int k, const Param& par,
     // In which domain is located r ? 
     // ----------------------------
     lz = - 1 ;
-    double rmax  ; 
+    double rmax = 0 ; 
     double ftp = double(0) ; 
     double gtp = double(0) ; 
     for (int l=0; l<nz; l++) {
