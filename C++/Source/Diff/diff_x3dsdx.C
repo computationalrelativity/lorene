@@ -1,5 +1,5 @@
 /*
- *  Methods for the class Diff_xdsdx
+ *  Methods for the class Diff_x3dsdx
  *
  *    (see file diff.h for documentation).
  *
@@ -25,11 +25,14 @@
  *
  */
 
-char diff_xdsdx_C[] = "$Header$" ;
+char diff_x3dsdx_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/01/11 15:52:38  j_novak
+ * Corrected a mistake...
+ *
  * Revision 1.1  2005/01/11 15:16:10  j_novak
  * More Diff operators.
  *
@@ -55,17 +58,17 @@ namespace {
     int nr_done[Diff::max_points] ;
 }
 
-Diff_xdsdx::Diff_xdsdx(int base_r, int nr) : Diff(base_r, nr) {
+Diff_x3dsdx::Diff_x3dsdx(int base_r, int nr) : Diff(base_r, nr) {
     initialize() ;
 }
 
-Diff_xdsdx::Diff_xdsdx(const Diff_xdsdx& diff_in) : Diff(diff_in) {
+Diff_x3dsdx::Diff_x3dsdx(const Diff_x3dsdx& diff_in) : Diff(diff_in) {
     assert (nap != 0) ;
 } 
 
-Diff_xdsdx::~Diff_xdsdx() {}
+Diff_x3dsdx::~Diff_x3dsdx() {}
 
-void Diff_xdsdx::initialize() {
+void Diff_x3dsdx::initialize() {
     if (nap == 0) {
 	for (int i=0; i<max_points; i++) {
 	    nr_done[i] = -1 ;
@@ -77,13 +80,13 @@ void Diff_xdsdx::initialize() {
     return ;
 }
 
-void Diff_xdsdx::operator=(const Diff_xdsdx& diff_in) {
+void Diff_x3dsdx::operator=(const Diff_x3dsdx& diff_in) {
     assert (nap != 0) ;
     Diff::operator=(diff_in) ;
 
 }
 
-const Matrice& Diff_xdsdx::get_matrice() const {
+const Matrice& Diff_x3dsdx::get_matrice() const {
     
     bool done = false ;
     int indice ;
@@ -97,7 +100,7 @@ const Matrice& Diff_xdsdx::get_matrice() const {
     }
     if (!done) { //The computation must be done ...
 	if (indice == max_points) {
-	    cerr << "Diff_xdsdx::get_matrice() : no space left!!" << '\n'
+	    cerr << "Diff_x3dsdx::get_matrice() : no space left!!" << '\n'
 		 << "The value of Diff.max_points must be increased..." << endl ;
 	    abort() ;
 	}
@@ -133,7 +136,7 @@ const Matrice& Diff_xdsdx::get_matrice() const {
     return *tab[base*max_points + indice] ;
 }
 
-ostream& Diff_xdsdx::operator>>(ostream& ost) const {
+ostream& Diff_x3dsdx::operator>>(ostream& ost) const {
 
     ost << " xi^3 * d / dx " << endl ;
     return ost ;
