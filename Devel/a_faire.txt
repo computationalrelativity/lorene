@@ -13,3 +13,5 @@
 
  -- supprimer l'aspect virtuel des fonctions appeles dans les destructeurs
     (genre del_deriv() dans Etoile et Metrique...).
+   
+ -- creer un espace de noms pour remplacer type_parite.h?
