@@ -31,6 +31,11 @@ char scalar_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2004/02/19 10:55:11  e_gourgoulhon
+ * Treatment of case ETATUN in  double*Scalar, double/Scalar and
+ * Scalar/double: added the copy of the spectral bases from the
+ * input to the result.
+ *
  * Revision 1.5  2003/11/03 22:35:45  e_gourgoulhon
  * Changed output comment when dzpuis conflict.
  *
@@ -402,6 +407,7 @@ Scalar operator*(double a, const Scalar& c1) {
     Scalar r(c1.get_mp()) ;
     if (c1.get_etat() == ETATUN) {
       r = a ;
+      r.set_spectral_base(c1.get_spectral_va().get_base()) ; 
     }
     else {
       assert(c1.get_etat() == ETATQCQ) ;  // sinon...
@@ -512,6 +518,7 @@ Scalar operator/(const Scalar& c1, double x) {
 
     if (c1.get_etat() == ETATUN) {
 	r = double(1)/x ;
+        r.set_spectral_base(c1.get_spectral_va().get_base()) ; 
     }
     else {
       assert(c1.get_etat() == ETATQCQ) ;  // sinon...
@@ -540,6 +547,7 @@ Scalar operator/(double x, const Scalar& c2) {
     Scalar r(c2.get_mp()) ;     // Le resultat
     if (c2.get_etat() == ETATUN) {
       r = x ;
+      r.set_spectral_base(c2.get_spectral_va().get_base()) ; 
     }
     else {
       assert(c2.get_etat() == ETATQCQ) ;  // sinon...
