@@ -28,6 +28,10 @@ char test_kerr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/02/18 15:58:29  e_gourgoulhon
+ * Double contraction K_ij K^ij in Hamiltonian constraint now handled
+ * by the new function contract for contraction on two indices.
+ *
  * Revision 1.9  2004/02/04 15:47:07  e_gourgoulhon
  * Changed declaration of ricci and ricci_c from "const Tensor&" to
  *  "const Sym_tensor&".
@@ -74,7 +78,6 @@ char test_kerr_C[] = "$Header$" ;
 // Lorene headers
 #include "metric.h"
 #include "nbr_spx.h"
-#include "graphique.h"
 #include "utilitaires.h"
 #include "cmp.h"
 #include "proto.h"
@@ -393,9 +396,11 @@ int main() {
     maxabs(ricci_scal) ; 
 
     Tensor kk_uu = kk_du.up(0, gam) ; 
+           
+    tmp = trkk * trkk - contract(kk, 0, 1, kk_uu, 0, 1) ; 
     
-    tmp = trkk * trkk - contract( contract(kk, 1, kk_uu, 1), 0, 1) ; 
     tmp.dec_dzpuis() ; 
+
     Scalar ham_constr = ricci_scal + tmp ;
         
     cout << "Hamiltonian constraint : " << endl ; 
@@ -564,9 +569,11 @@ int main() {
     maxabs(ricci_scal_c) ; 
 
     Tensor kk_uu_c = kk_du_c.up(0, gam_c) ; 
+           
+    tmp = trkk_c * trkk_c - contract(kk_c, 0, 1, kk_uu_c, 0, 1) ; 
     
-    tmp = trkk_c * trkk_c - contract( contract(kk_c, 1, kk_uu_c, 1), 0, 1) ; 
     tmp.dec_dzpuis() ; 
+
     Scalar ham_constr_c = ricci_scal_c + tmp ;
         
     cout << "Hamiltonian constraint (Cart) : " << endl ; 
