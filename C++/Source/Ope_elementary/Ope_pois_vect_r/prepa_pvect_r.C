@@ -30,6 +30,10 @@ char prepa_pvect_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/05/17 15:42:21  j_novak
+ * The method 1 of vector Poisson eq. solves directly for F^r.
+ * Some bugs were corrected in the operator poisson_vect.
+ *
  * Revision 1.1  2004/05/10 15:28:22  j_novak
  * First version of functions for the solution of the r-component of the
  * vector Poisson equation.
@@ -262,7 +266,7 @@ Matrice _nondeg_pvect_r_chebi (const Matrice &lap, int l, double, int) {
     assert (div(l, 2).rem == 0) ;
   //  assert (l<=2*n-1) ;
     
-    if (l<=2) {
+    if (l<=2) { //### to be checked!!!
 	Matrice res(n-1, n-1) ;
 	res.set_etat_qcq() ;
 	for (int i=0 ; i<n-1 ; i++)
@@ -332,35 +336,21 @@ Matrice _nondeg_pvect_r_chebu (const Matrice &lap, int l, double, int puis) {
       exit (-1) ;
     }
        
-    	
     l_dejafait[nb_dejafait] = l ;
     nr_dejafait[nb_dejafait] = n ;
     
-    if (l==1) {
-      Matrice res(n-2, n-2) ;
-      res.set_etat_qcq() ;
-      for (int i=0 ; i<n-2 ; i++)
-	for (int j=0 ; j<n-2 ; j++)
-	  res.set(i, j) = lap(i, j+2) ;
-      res.set_band(3, 0) ;
-      res.set_lu() ;
-      tab[nb_dejafait] = new Matrice(res) ;
-      nb_dejafait ++ ;
-      return res ;
-    }
-    else {
-      Matrice res(n-3, n-3) ;
-      res.set_etat_qcq() ;
-      for (int i=0 ;i<n-3 ; i++)
-	for (int j=0 ; j<n-3 ; j++)
-	  res.set(i, j) = lap(i, j+3) ;
-	
-      res.set_band(2, 1) ;
-      res.set_lu() ;
-      tab[nb_dejafait] = new Matrice(res) ;
-      nb_dejafait ++ ;
-      return res ;
-    } 
+    Matrice res(n-3, n-3) ;
+    res.set_etat_qcq() ;
+    for (int i=0 ;i<n-3 ; i++)
+      for (int j=0 ; j<n-3 ; j++)
+	res.set(i, j) = lap(i, j+3) ;
+    
+    res.set_band(2, 1) ;
+    res.set_lu() ;
+    tab[nb_dejafait] = new Matrice(res) ;
+    nb_dejafait ++ ;
+    return res ;
+    
   }
   // Cas ou le calcul a deja ete effectue :
   else

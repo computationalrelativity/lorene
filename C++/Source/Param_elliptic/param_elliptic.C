@@ -23,6 +23,10 @@ char param_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/05/17 15:42:22  j_novak
+ * The method 1 of vector Poisson eq. solves directly for F^r.
+ * Some bugs were corrected in the operator poisson_vect.
+ *
  * Revision 1.8  2004/05/14 08:51:02  p_grandclement
  * *** empty log message ***
  *
@@ -256,8 +260,8 @@ void Param_elliptic::set_poisson_vect_r(int zone) {
 	  operateurs[conte] = new Ope_pois_vect_r(nr, old_base,alpha, 
 						  beta, lq_old, dzp) ;
 	}
+	conte ++ ;
       }
-    conte ++ ;
   }
 }
 

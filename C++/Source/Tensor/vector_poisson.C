@@ -30,6 +30,10 @@ char vector_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2004/05/17 15:42:23  j_novak
+ * The method 1 of vector Poisson eq. solves directly for F^r.
+ * Some bugs were corrected in the operator poisson_vect.
+ *
  * Revision 1.13  2004/05/07 15:33:22  j_novak
  * Treated the case where all components are null.
  *
@@ -86,6 +90,7 @@ char vector_poisson_C[] = "$Header$" ;
 // Lorene headers
 #include "metric.h"
 #include "tenseur.h"
+#include "param_elliptic.h"
 
 Vector Vector::poisson(double lambda, const Metric_flat& met_f, int method) 
   const {
@@ -129,22 +134,64 @@ Vector Vector::poisson(double lambda, const Metric_flat& met_f, int method)
 	divf = (potential(met_f) / (lambda + 1)) ;
       }
       
-      Scalar source_r = *(cmp[0]) - lambda*divf.dsdr(); 
-      source_r.mult_r_dzpuis(3) ;
-      source_r += 2*divf ;
-      Scalar khi = source_r.poisson() ; 
-      Scalar f_r = khi ;
-      f_r.div_r() ; 
-      
-      Scalar source_eta = divf ;
-      source_eta.mult_r_dzpuis(2) ;
-      source_eta -= khi.dsdr() ;
-      source_eta.dec_dzpuis(2) ;
-      source_eta -= f_r ;
+      int nz = mp->get_mg()->get_nzone() ;
+
+      //-----------------------------------
+      // Removal of the l=0 part of div(F)
+      //-----------------------------------
+      Scalar div_lnot0 = divf ;
+      div_lnot0.div_r_dzpuis(4) ;
+      Scalar source_r(*mp) ;
+      Valeur& va_div = div_lnot0.set_spectral_va() ;
+      if (div_lnot0.get_etat() != ETATZERO) {
+	va_div.coef() ;
+	va_div.ylm() ;
+	for (int lz=0; lz<nz; lz++) {
+	  int np = mp->get_mg()->get_np(lz) ;
+	  int nt = mp->get_mg()->get_nt(lz) ;
+	  int nr = mp->get_mg()->get_nr(lz) ;
+	  if (va_div.c_cf->operator()(lz).get_etat() != ETATZERO)
+	    for (int k=0; k<np+1; k++) 
+	      for (int j=0; j<nt; j++) {
+		int l_q, m_q, base_r ;
+		if (nullite_plm(j, nt, k, np, va_div.base) == 1) {
+		  donne_lm(nz, lz, j, k, va_div.base, m_q, l_q, base_r) ;
+		  if (l_q == 0) 
+		    for (int i=0; i<nr; i++) 
+		      va_div.c_cf->set(lz, k, j, i) = 0. ;
+		}
+	      }
+	}
+	source_r.set_etat_qcq() ;
+	source_r.set_spectral_va() = 2*(*va_div.c_cf) ; //2*div(F)
+	source_r.set_spectral_va().ylm_i() ;
+	source_r.set_dzpuis(4) ;
+      }
+      else 
+	source_r.set_etat_zero() ;
+	   
+      //------------------------
+      // Other source terms ....
+      //------------------------
+      source_r += *(cmp[0]) - lambda*divf.dsdr() ;
+
+      //------------------------
+      // The elliptic operator
+      //------------------------
+      Param_elliptic param_fr(source_r) ;
+      for (int lz=0; lz<nz; lz++) 
+	param_fr.set_poisson_vect_r(lz) ;
+
+      Scalar f_r = source_r.sol_elliptic(param_fr) ;
+            
+      divf.dec_dzpuis(1) ;
+      Scalar source_eta = divf - f_r.dsdr() ;
+      source_eta.mult_r_dzpuis(0) ;
+      source_eta -= 2*f_r ;
       Scalar eta = source_eta.poisson_angu() ;
-      
+
       Scalar mu = div_free(met_f).mu().poisson() ;
-      
+
       resu.set(1) = f_r ;
       resu.set(2) = eta.dsdt() - mu.stdsdp() ;
       resu.set(3) = eta.stdsdp() + mu.dsdt() ;
