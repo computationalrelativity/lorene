@@ -20,6 +20,7 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Eos; $(MAKE)
 	cd Source/Etoile; $(MAKE)
 	cd Source/Grille3d; $(MAKE)
+	cd Source/Isol_hor; $(MAKE)	
 	cd Source/Itbl; $(MAKE)
 	cd Source/Map; $(MAKE)
 	cd Source/Matrice; $(MAKE)
@@ -71,6 +72,7 @@ uninstall:
 	cd Source/Eos; $(MAKE) -i uninstall
 	cd Source/Etoile; $(MAKE) -i uninstall
 	cd Source/Grille3d; $(MAKE) -i uninstall
+	cd Source/Isol_hor; $(MAKE) -i uninstall
 	cd Source/Itbl; $(MAKE) -i uninstall
 	cd Source/Map; $(MAKE) -i uninstall
 	cd Source/Matrice; $(MAKE) -i uninstall
