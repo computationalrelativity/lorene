@@ -1,15 +1,15 @@
 /*
  * Function et_rot_mag::equilibrium_mag
  *
- * Computes rotating equilibrium with a magnetic field
+ * Computes rotating equilibirum with a magnetic field
  * (see file et_rot_mag.h for documentation)
  *
  */
 
 /*
- *   Copyright (c) 2002 Emmanuel Marcq 
- *   Copyright (c) 2002 Eric Gourgoulhon 
- *   Copyright (c) 2002 Jerome Novak
+ *   Copyright (c) 2002 Éric Gourgoulhon
+ *   Copyright (c) 2002 Emmanuel Marcq
+ *   Copyright (c) 2002 Jérôme Novak
  *
  *   This file is part of LORENE.
  *
@@ -34,6 +34,10 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/05/13 15:44:25  e_marcq
+ *
+ * Mise a jour du merging de la classe Et_rot_mag
+ *
  * Revision 1.1  2002/05/10 09:26:52  j_novak
  * Added new class Et_rot_mag for magnetized rotating neutron stars (under development)
  *
@@ -59,7 +63,7 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 
 void Et_rot_mag::equilibrium_mag(double ent_c, double omega0, double fact_omega, int nzadapt, const Tbl& ent_limit, const Itbl& icontrol, const Tbl& control, double mbar_wanted, double aexp_mass, Tbl& diff,
 
-const double Q, Cmp (*f_j)(const Cmp& x), Cmp (*M_j)(const Cmp& x)) {
+const double Q, const double a_j, Cmp (*f_j)(const Cmp& x, const double a_j), Cmp (*M_j)(const Cmp& x, const double a_j)) {
 			     
     // Fundamental constants and units
     // -------------------------------
@@ -148,7 +152,8 @@ const double Q, Cmp (*f_j)(const Cmp& x), Cmp (*M_j)(const Cmp& x)) {
 //    double& diff_ggg = diff.set(4) ; 
     double& diff_shift_x = diff.set(5) ; 
     double& diff_shift_y = diff.set(6) ; 
-    
+    double& vit_triax = diff.set(7) ; 
+
     // Parameters for the function Map_et::adapt
     // -----------------------------------------
     
@@ -279,8 +284,7 @@ const double Q, Cmp (*f_j)(const Cmp& x), Cmp (*M_j)(const Cmp& x)) {
     hydro_euler() ;	// update of the hydro quantities relative to the 
 			//  Eulerian observer
 
-    // TEMPORAIRE !
-    set_mag_zero() ;
+    MHD_comput() ; // update of EM contributions to stress-energy tensor
 
 
     // Quantities at the previous step : 	
@@ -376,11 +380,12 @@ const double Q, Cmp (*f_j)(const Cmp& x), Cmp (*M_j)(const Cmp& x)) {
 	beta.set_std_base() ; 
 
 	if (relativistic) {
-	  source_nuf =  qpig * a_car *( ener_euler + s_euler) ; 
-	  
-	  source_nuq = ak_car - flat_scalar_prod(logn.gradient_spher(), 
-		       logn.gradient_spher() + beta.gradient_spher()) 
-	               + qpig*a_car*Spp_em ;
+	    source_nuf =  qpig * a_car *( ener_euler + s_euler) ; 
+
+	    source_nuq = ak_car - flat_scalar_prod(logn.gradient_spher(), 
+			logn.gradient_spher() + beta.gradient_spher())
+	                 + qpig*a_car*Spp_em ;
+	    // Champ EM mis ici car à support non compact 
 	}
 	else {
 	    source_nuf = qpig * nbar ; 
@@ -395,8 +400,8 @@ const double Q, Cmp (*f_j)(const Cmp& x), Cmp (*M_j)(const Cmp& x)) {
 	source_dzf = 2 * qpig * a_car * (press + (ener_euler+press) * uuu*uuu ) ;
 	source_dzf.set_std_base() ; 
   
-	source_dzq = 2*qpig*a_car*Spp_em + 1.5 * ak_car - 
-	  flat_scalar_prod(logn.gradient_spher(), logn.gradient_spher() ) ;  
+	source_dzq = 2*qpig*a_car*Spp_em + 1.5 * ak_car 
+	  - flat_scalar_prod(logn.gradient_spher(),logn.gradient_spher() ) ;	    
 	source_dzq.set_std_base() ; 	
 	
 	// Source for tggg
@@ -622,11 +627,11 @@ const double Q, Cmp (*f_j)(const Cmp& x), Cmp (*M_j)(const Cmp& x)) {
 	    // -------------------------------------------
 
 
-	    magnet_comput(Q, f_j, par_poisson_At, par_poisson_Avect) ;
+	    magnet_comput(Q, a_j, f_j, par_poisson_At, par_poisson_Avect) ;
 
 	    // First integral	--> enthalpy in all space
 	    //-----------------
-	    Tenseur mag(M_j(A_phi)) ;
+	    Tenseur mag(M_j(A_phi,a_j)) ;
 	    ent = (ent_c + nu_c + mlngamma_c) - logn - mlngamma 
 
 	      + mag; // argument de M = Cmp ???
@@ -731,6 +736,9 @@ const double Q, Cmp (*f_j)(const Cmp& x), Cmp (*M_j)(const Cmp& x)) {
 
 	hydro_euler() ;		// computes new values for ener_euler (E), 
 				// s_euler (S) and u_euler (U^i)
+
+	MHD_comput() ; // computes EM contributions to T_{mu,nu}
+
 
 	if (relativistic) {
 
@@ -842,8 +850,6 @@ const double Q, Cmp (*f_j)(const Cmp& x), Cmp (*M_j)(const Cmp& x)) {
 	fichevol.flush() ; 
 
     } // End of main loop
-    cout << A_phi ;
-    cout << A_t ;
     
     //=========================================================================
     // 			End of iteration

@@ -32,6 +32,10 @@ char et_rot_mag_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/05/13 15:44:26  e_marcq
+ *
+ * Mise a jour du merging de la classe Et_rot_mag
+ *
  * Revision 1.1  2002/05/10 09:26:52  j_novak
  * Added new class Et_rot_mag for magnetized rotating neutron stars (under development)
  *
@@ -57,7 +61,7 @@ extern "C" {
 
 // Algo du papier de 1995
 
-void Et_rot_mag::magnet_comput(const double Q, Cmp (*f_j)(const Cmp& x), 
+void Et_rot_mag::magnet_comput(const double Q, const double a_j,Cmp (*f_j)(const Cmp& x,const double a_j), 
 	    Param& par_poisson_At, Param& par_poisson_Avect){
 
   double mu0=4*M_PI*.0000001 ; // a demenager dans <unites.h> Un Jour (tm)
@@ -101,7 +105,7 @@ void Et_rot_mag::magnet_comput(const double Q, Cmp (*f_j)(const Cmp& x),
 
   // Calcul du courant j_phi
 
-  j_phi = omega * j_t + (ener() + press())*f_j(A_phi) ;
+  j_phi = omega * j_t + (ener() + press())*f_j(A_phi,a_j) ;
   j_phi.std_base_scal() ;
 
   // Resolution de Maxwell Ampere (-> A_phi)

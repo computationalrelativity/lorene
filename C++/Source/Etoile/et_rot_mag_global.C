@@ -1,12 +1,13 @@
 /*
- * Methods for computing global quantities within the class Et_rot_mag
+ * Methods for computing global quantities within the class Etoile_rot
  *
- * (see file et_rot_mag.h for documentation)
+ * (see file etoile.h for documentation)
  */
 
 /*
+ *   Copyright (c) 2000-2001 Eric Gourgoulhon
  *   Copyright (c) 2002 Emmanuel Marcq
- *   Copyright (c) 2002 Jerome Novak
+ *   Copyright (c) 2002 Jérôme Novak
  *
  *   This file is part of LORENE.
  *
@@ -26,11 +27,16 @@
  *
  */
 
-char et_rot_mag_global_C[] = "$Header$" ;
+
+char et_rot_global_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/05/13 15:44:26  e_marcq
+ *
+ * Mise a jour du merging de la classe Et_rot_mag
+ *
  * Revision 1.1  2002/05/10 09:26:52  j_novak
  * Added new class Et_rot_mag for magnetized rotating neutron stars (under development)
  *
@@ -49,16 +55,38 @@ char et_rot_mag_global_C[] = "$Header$" ;
 // Definition des fonctions membres differentes ou nouvelles
 
 
-void Et_rot_mag::set_mag_zero() {
+void Et_rot_mag::MHD_comput() {
+  // Calcule les grandeurs du tenseur impulsion-energie EM a partir des champs
 
-  E_em.set_etat_zero() ;
-  Jp_em.set_etat_zero() ;
-  Srr_em.set_etat_zero() ;
-  Spp_em.set_etat_zero() ;
+  Tenseur APTENS(A_phi) ;
+  
+  Cmp grad5 ( flat_scalar_prod_desal(APTENS.gradient_spher(),APTENS.gradient_spher())() );
+  Cmp truc ( A_phi.dsdr()*A_phi.dsdr() - A_phi.srdsdt()*A_phi.srdsdt() );
+  truc.div_rsint() ;
+  truc.div_rsint() ;
+  Tenseur TRUC(truc) ;
+
+  // Attention aux versions APTENS et A_phi !!
+
+
+  Cmp d_grad5(grad5) ;
+  d_grad5.div_rsint() ;
+  Cmp dd_grad5(d_grad5) ;
+  dd_grad5.div_rsint() ;
+  Tenseur DD_grad5(dd_grad5) ;
+  Tenseur D_grad5(d_grad5);
+
+  E_em = (1+uuu*uuu)/(8*M_PI*a_car*b_car)*DD_grad5 ;
+  Jp_em = 1/(4*M_PI*a_car)*D_grad5; // a multiplier par u_euler ou uuu suivant les besoins. 
+  Srr_em = (1-uuu*uuu)/(8*M_PI*a_car*b_car)*TRUC ;
+  // Stt_em = -Srr_em
+  Spp_em = (1-uuu*uuu)/(8*M_PI*a_car*b_car)*DD_grad5 ;
 
 }
 
 Tenseur Et_rot_mag::Elec() const {
+  // Penser à redimensionner.
+
 
   Cmp E_r(A_t); Cmp E_t(A_t);
   E_r = 1/nnn()*(A_t.dsdr()+nphi()*A_phi.dsdr()) ;
@@ -66,6 +94,7 @@ Tenseur Et_rot_mag::Elec() const {
   E_t.mult_r() ; /// ??? homogeneite ?
 
   Tenseur E(mp, 1, CON, mp.get_bvect_spher()) ;
+  E.set_etat_qcq() ;
   E.set(0) = E_r ;
   E.set(1) = E_t ;
   E.set(2) = 0. ;
@@ -75,6 +104,7 @@ Tenseur Et_rot_mag::Elec() const {
 }
 
 Tenseur Et_rot_mag::Magn() const {
+  // À redimensionner.
   Cmp B_r(A_t); Cmp B_t(A_t);
   B_r = 1/bbb()*A_phi.srdsdt();
   B_r.div_rsint();
@@ -83,6 +113,7 @@ Tenseur Et_rot_mag::Magn() const {
   B_t.div_rsint();
 
   Tenseur B(mp, 1, CON, mp.get_bvect_spher()) ;
+  B.set_etat_qcq() ;
   B.set(0) = B_r ;
   B.set(1) = B_t ;
   B.set(2) = 0. ;
@@ -91,14 +122,34 @@ Tenseur Et_rot_mag::Magn() const {
 
 }
 
-//double Et_rot_mag::MagMom() const {
-  
-//  double mu0= 0.0000001 ;
-//  double MM = -4*M_PI/mu0*(A_phi.asymptot(2)[1])(Z-1,0,0,0) ;
+double Et_rot_mag::MagMom() const {
 
-//  return MM ;
+  // idem : redimensionner comme il faut.
 
-//} ;
+  double Z = mp.get_mg()->get_nzone();   
+  double mu0= 0.0000001 ;
+  double mm ;
+
+  // régler la base de A_phi ?
+  //  A_phi.std_base_scal() ;
+
+  if(A_phi.get_etat()==ETATZERO) {
+
+    mm = 0 ;
+  }else{
+
+  Valeur** asymp = A_phi.asymptot(1) ;
+  mm = -4*M_PI/mu0*(*asymp[1])(Z-1,0,mp.get_mg()->get_nt(0)-1,0) ;
+
+  delete asymp[0] ;
+  delete asymp[1] ;
+
+  delete [] asymp ;
+  }
+
+  return mm ;
+
+}
 
 
 
@@ -414,6 +465,12 @@ double Et_rot_mag::mom_quad() const {
     return *p_mom_quad ; 
 
 }
+
+
+
+
+
+
 
 
 

@@ -5,7 +5,7 @@
 
 /*
  *   Copyright (c) 2002 Emmanuel Marcq
- *   Copyright (c) 2002 Jerome Novak
+ *   Copyright (c) 2002 Jérôme Novak
  *
  *   This file is part of LORENE.
  *
@@ -26,12 +26,16 @@
  */
 
 
-#ifndef __ET_ROT_MAG_H_ 
-#define __ET_ROT_MAG_H_ 
+ #ifndef __ET_ROT_MAG_H_ 
+ #define __ET_ROT_MAG_H_ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/05/13 15:44:25  e_marcq
+ *
+ * Mise a jour du merging de la classe Et_rot_mag
+ *
  * Revision 1.1  2002/05/10 09:26:51  j_novak
  * Added new class Et_rot_mag for magnetized rotating neutron stars (under development)
  *
@@ -49,6 +53,7 @@
  * @version #$Id$#
  */
 
+
 // Headers Lorene
 
 #include "etoile.h"
@@ -62,22 +67,23 @@ class Et_rot_mag : public Etoile_rot {
   // -----
  protected:
 
-  Cmp A_t ; ///t-component of the electromagnetic potential 1-form
-  Cmp A_phi;///$\varphi$-component of the electromagnetic potential 1-form
+  Cmp A_t ; /// t-component of the elecctromagnetic potential 1-form
+  Cmp A_phi; /// $\varphi$-component of the electromagnetic potential 1-form
   Cmp j_t;
   Cmp j_phi;
-  
-  Tenseur E_em;
-  Tenseur Jp_em;
-  Tenseur Srr_em; // Stt_em = - Srr_em...
-  Tenseur Spp_em; 
+
+Tenseur E_em;
+Tenseur Jp_em;
+Tenseur Srr_em; // Stt_em = - Srr_em...
+Tenseur Spp_em; 
 
   
   // Constructors - Destructor
   // -------------------------
  public:
 
-  /// Standard constructor
+  /// Standard destructor
+
   Et_rot_mag(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i); 
 
 
@@ -113,10 +119,14 @@ class Et_rot_mag : public Etoile_rot {
   // ---------
  public:
 
-  // exemple a copier : Returns the equation of state
-  //  const Eos_bifluid& get_eos() const {return eos; } ;
   const Cmp& get_At() const {return A_t ; } ;
-
+  const Cmp& get_Aphi() const {return A_phi ;} ;
+  const Cmp& get_jt() const {return j_t ; } ;
+  const Cmp& get_jphi() const {return j_phi ;} ;
+  const Tenseur& get_Eem() const {return E_em ; } ;
+  const Tenseur& get_Jpem() const {return Jp_em ;} ;
+  const Tenseur& get_Srrem() const {return Srr_em ; } ;
+  const Tenseur& get_Sppem() const {return Spp_em ;} ;
 
   // Outputs
   // -------
@@ -139,11 +149,13 @@ class Et_rot_mag : public Etoile_rot {
 
   Tenseur Elec() const ; // computes E
   Tenseur Magn() const ; // computes B
-  void set_mag_zero() ; // sets all new quantities to zero
+  void MHD_comput() ; // computes T_{mu,nu}^{EM}
   virtual double mass_g() const ;	    /// Gravitational mass
   virtual double angu_mom() const ;  /// Angular momentum
   virtual double grv2() const ;	/// Error on the virial identity GRV2
   virtual double tsw() const ; // Ratio T/W
+  double MagMom() const ; // Magnetic Momentum
+
 
   /** Error on the virial identity GRV3.
    *  The error is computed as the integral defined
@@ -190,15 +202,16 @@ class Et_rot_mag : public Etoile_rot {
    * 
    */
 
-  virtual void magnet_comput(const double Q, Cmp (*f_j)(const Cmp& x), 
-			     Param& par_poisson_At, Param& par_poisson_Avect) ;
+  virtual void magnet_comput(const double Q, const double a_j, Cmp (*f_j)(const Cmp& x, const double a_j), 
+		      Param& par_poisson_At, Param& par_poisson_Avect) ;
 	
   void equilibrium_mag(double ent_c, double omega0, double fact_omega, 
-		       int nzadapt, const Tbl& ent_limit, const Itbl& icontrol, 
-		       const Tbl& control, double mbar_wanted, double aexp_mass, 
-		       Tbl& diff, const double Q, Cmp (*f_j)(const Cmp& x), 
-		       Cmp (*M_j)(const Cmp& x));
+		 int nzadapt, const Tbl& ent_limit, const Itbl& icontrol, 
+		 const Tbl& control, double mbar_wanted, double aexp_mass, 
+		 Tbl& diff, const double Q, const double a_j, Cmp (*f_j)(const Cmp& x, const double a_j), 
+		 Cmp (*M_j)(const Cmp& x,const double a_j));
 
 };
 
 #endif
+
