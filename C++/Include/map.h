@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.28  2004/06/14 15:23:53  e_gourgoulhon
+ * Added virtual function primr for computation of radial primitives.
+ *
  * Revision 1.27  2004/03/31 11:22:23  f_limousin
  * Methods Map_et::poisson_interne and Map_af::poisson_interne have been
  * implemented to solve the continuity equation for strange stars.
@@ -898,7 +901,17 @@ class Map {
 	 *                       of \c Scalar 
 	 */
 	virtual void lapang(const Scalar& uu, Scalar& lap) const = 0 ; 
-	
+
+
+	/** Computes the radial primitive which vanishes at r = 0, 
+     *  i.e. the function 
+     *      \f$ F(r,\theta,\varphi) = \int_0^r f(r',\theta,\varphi) \, dr' \f$
+     *
+     *      @param uu [input] function \e f
+     *      @param resu [input] function \e F
+     */ 
+    virtual void primr(const Scalar& uu, Scalar& resu) const = 0 ;  	    
+
 	 
     // Various linear operators
     // ------------------------
@@ -1937,6 +1950,16 @@ class Map_af : public Map_radial {
 	virtual void lapang(const Scalar& uu, Scalar& lap) const ; 
 	
 
+	/** Computes the radial primitive which vanishes at r = 0, 
+     *  i.e. the function 
+     *      \f$ F(r,\theta,\varphi) = \int_0^r f(r',\theta,\varphi) \, dr' \f$
+     *
+     *      @param uu [input] function \e f
+     *      @param resu [input] function \e F
+     */ 
+    virtual void primr(const Scalar& uu, Scalar& resu) const ;  	    
+
+	 
 	/** Computes the integral over all space of a \c Cmp.
 	 *  The computed quantity is 
 	 *    \f$\int u \, r^2 \sin\theta \,  dr\, d\theta \, d\phi\f$.
@@ -2694,6 +2717,16 @@ class Map_et : public Map_radial {
 	virtual void lapang(const Scalar& uu, Scalar& lap) const ; 
 	
 
+	/** Computes the radial primitive which vanishes at r = 0, 
+     *  i.e. the function 
+     *      \f$ F(r,\theta,\varphi) = \int_0^r f(r',\theta,\varphi) \, dr' \f$
+     *
+     *      @param uu [input] function \e f
+     *      @param resu [input] function \e F
+     */ 
+    virtual void primr(const Scalar& uu, Scalar& resu) const ;  	    
+
+	 
 	/** Computes the integral over all space of a \c Cmp.
 	 *  The computed quantity is 
 	 *    \f$\int u \, r^2 \sin\theta \,  dr\, d\theta \, d\phi\f$.
