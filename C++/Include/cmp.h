@@ -5,9 +5,9 @@
 
 /*
  *   Copyright (c) 1999-2000 Jean-Alain Marck
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2002 Eric Gourgoulhon
  *   Copyright (c) 1999-2001 Philippe Grandclement
- *   Copyright (c) 2000-2001 Jerome Novak
+ *   Copyright (c) 2000-2002 Jerome Novak
  *   Copyright (c) 2000-2001 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/05/17 12:08:46  e_gourgoulhon
+ * Corrected error in the comment about dzpuis: multiplied --> divided
+ *
  * Revision 1.2  2002/01/03 15:30:27  j_novak
  * Some comments modified.
  *
@@ -389,7 +392,7 @@ class Cmp {
 
 	/**
 	 * Power of $r$ by which the quantity represented by {\tt this} 
-	 * must be multiplied in the external compactified zone in order 
+	 * must be divided in the external compactified zone in order 
 	 * to get the correct physical values
 	 */
 	int dzpuis ;	
