@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2003/06/20 14:16:57  f_limousin
+ * Add the operator== to compare two Mg3d
+ *
  * Revision 1.7  2003/06/18 08:45:26  j_novak
  * In class Mg3d: added the member get_radial, returning only a radial grid
  * For dAlembert solver: the way the coefficients of the operator are defined has been changed.
@@ -584,6 +587,11 @@ class Mg3d {
 	 *  of points in each dimension (for desaliasing).
 	 */
 	const Mg3d* get_twice() const ;
+
+	/// Comparison operator (egality)
+	bool operator==(const Mg3d& ) const ;  
+
+
 	
     // Outputs
     // -------
