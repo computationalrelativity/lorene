@@ -32,6 +32,9 @@ char ARITHM_TBL_VAL_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2003/10/02 07:00:19  e_gourgoulhon
+ * Changed the = signs in some assert's to ==
+ *
  * Revision 1.3  2002/11/12 10:03:54  j_novak
  * The method "Tbl_val::get_gval" has been changed to "get_grid".
  *
@@ -570,7 +573,7 @@ Tbl_val operator/(int n, const Tbl_val& t1)
 void Tbl_val::operator+=(const Tbl_val & ti) {
 
   // Protection
-  assert(gval = ti.gval) ;
+  assert(gval == ti.gval) ;
   assert(etat != ETATNONDEF) ;
   assert(ti.get_etat() != ETATNONDEF) ;
     
@@ -676,7 +679,7 @@ void Tbl_val::operator+=(double x) {
 void Tbl_val::operator-=(const Tbl_val & ti) {
 
   // Protection
-  assert(gval = ti.gval) ;
+  assert(gval == ti.gval) ;
   assert(etat != ETATNONDEF) ;
   assert(ti.get_etat() != ETATNONDEF) ;
     
@@ -784,7 +787,7 @@ void Tbl_val::operator-=(double x) {
 void Tbl_val::operator*=(const Tbl_val & ti) {
 
   // Protection
-  assert(gval = ti.gval) ;
+  assert(gval == ti.gval) ;
   assert(etat != ETATNONDEF) ;
   assert(ti.get_etat() != ETATNONDEF) ;
     
@@ -848,7 +851,7 @@ void Tbl_val::operator*=(double x) {
 void Tbl_val::operator/=(const Tbl_val & ti) {
 
   // Protection
-  assert(gval = ti.gval) ;
+  assert(gval == ti.gval) ;
   assert(etat != ETATNONDEF) ;
   assert(ti.get_etat() != ETATNONDEF) ;
     
