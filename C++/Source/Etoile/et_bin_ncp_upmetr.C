@@ -174,9 +174,9 @@ void Et_bin_ncp::update_metric(const Et_bin_ncp& comp) {
     int nt = mp.get_mg()->get_nt(0);
     int np = mp.get_mg()->get_np(0);
       
-    double max_det[nzone] ;
-    double min_det[nzone] ;
-    double moy_det[nzone] ;
+    double* max_det = new double[nzone] ;
+    double* min_det = new double[nzone] ;
+    double* moy_det = new double[nzone] ;
       
     for (int i=0; i<nzone; i++){
       min_det[i] = 2 ;
