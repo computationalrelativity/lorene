@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.31  2004/05/09 20:54:22  e_gourgoulhon
+ * Added method flux (to compute the flux accross a sphere).
+ *
  * Revision 1.30  2004/03/29 11:57:13  e_gourgoulhon
  * Added methods ope_killing and ope_killing_conf.
  *
@@ -348,24 +351,22 @@ class Vector: public Tensor {
      *  derivative \f$ D_i \f$ is defined. 
      */
      Sym_tensor ope_killing_conf(const Metric& gam) const ; 
-     
-      
 
-	/**Solves the vector Poisson equation with \c *this  as a source.
-	 * 
-	 * The equation solved is \f$\Delta N^i +\lambda \nabla^i 
-	 * \nabla_k N^k = S^i\f$.
-	 * \c *this  must be given with \c dzpuis  = 4.
-	 * It uses the Helmholtz decomposition (see documentation of
-	 * \c p_potential ), with a flat metric, deduced from the triad.
-	 *
-	 * @param lambda [input] \f$\lambda\f$.
-	 * @param method [input] method used to solve the equation 
-	 * (see Vector::poisson(double, Metric_flat, int) for details).
-	 *
-	 * @return the solution \f$N^i\f$.
-	 */
-	Vector poisson(double lambda, int method = 0) const ;
+    /**Solves the vector Poisson equation with \c *this  as a source.
+     * 
+     * The equation solved is \f$\Delta N^i +\lambda \nabla^i 
+     * \nabla_k N^k = S^i\f$.
+     * \c *this  must be given with \c dzpuis  = 4.
+     * It uses the Helmholtz decomposition (see documentation of
+     * \c p_potential ), with a flat metric, deduced from the triad.
+     *
+     * @param lambda [input] \f$\lambda\f$.
+     * @param method [input] method used to solve the equation 
+     * (see Vector::poisson(double, Metric_flat, int) for details).
+     *
+     * @return the solution \f$N^i\f$.
+     */
+    Vector poisson(double lambda, int method = 0) const ;
      
 	/**Solves the vector Poisson equation with \c *this  as a source.
 	 * 
@@ -412,6 +413,21 @@ class Vector: public Tensor {
 	void poisson(const double lambda, Param& par, Vector& uu , 
 		     int method = 0) const ;
         
+        /** Computes the flux of the vector accross a sphere \e r = const.
+         *
+         *  @param radius radius of the sphere \e S on which the flux is
+         *      to be taken; the center of \e S is assumed to be the 
+         *      center of the mapping (member \c mp).
+         *      \c radius can take the value \c __infinity (to get the flux
+         *      at spatial infinity).
+         *  @param met metric \f$ \gamma \f$ giving the area element 
+         *      of the sphere
+         *  @return \f$ \oint_S V^i ds_i \f$, where \f$ V^i \f$ is the vector
+         *  represented by \c *this and \f$ ds_i \f$ is the area element 
+         *  induced on \e S by \f$ \gamma \f$.
+         */
+        double flux(double radius, const Metric& met) const ; 
+
         // Graphics
         // --------
 
