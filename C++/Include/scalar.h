@@ -4,7 +4,7 @@
  */
 
 /*
- *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2004 Eric Gourgoulhon & Jerome Novak
  *   
  *   Copyright (c) 1999-2000 Jean-Alain Marck (for previous class Cmp)
  *   Copyright (c) 1999-2002 Eric Gourgoulhon (for previous class Cmp)
@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.37  2004/01/22 16:10:09  e_gourgoulhon
+ * Added (provisory) method div_r_inc().
+ *
  * Revision 1.36  2003/12/16 06:32:20  e_gourgoulhon
  * Added method visu_box.
  *
@@ -570,13 +573,21 @@ class Scalar : public Tensor {
   void div_r() ;    /// Division by {\it r} everywhere.
  
   /** Division by {\it r} everywhere but with the flag {\tt dzpuis}
-   * increased by 2 units. This means that a multiplication by {\it r},
-   * instead of a division, is performed in the CED.
+   * increased by 1 unit. This means that the numerical values in the CED
+   * are leaved untouched. 
+   */
+  void div_r_inc1() ; 
+  
+  /** Division by {\it r} everywhere but with the flag {\tt dzpuis}
+   * increased by 2 units. This means that the numerical values in the CED
+   * are multiplied by {\it r}.
    */
   void div_r_inc2() ; 
   
-  /** Multiplication by  {\it r}.
+  /** Multiplication by {\it r}.
    * NB: in the CED, this method does not perform anything but {\tt dzpuis--}.
+   * Note that this behavior is analogous to that of {\tt div\_r\_inc1()}
+   * and not to that of {\tt div\_r()}.
    *
    */
   void mult_r() ;  
