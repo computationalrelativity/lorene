@@ -35,6 +35,10 @@ char scalar_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2003/11/04 23:02:21  e_gourgoulhon
+ * -- Method dec_dzpuis(int decrem) : the case decrem = 1 is now treated.
+ * -- Method div_tant() is now defined in file scalar_th_manip.C.
+ *
  * Revision 1.12  2003/11/03 22:36:37  e_gourgoulhon
  *  Method dec_dzpuis: changed the name of argument dec --> decrem
  *  (in order not to shadow some globally defined dec).
@@ -249,19 +253,6 @@ void Scalar::div_rsint_inc2() {
 }
 
 
-			//-------------------//
-			//	    div_tant     //
-			//-------------------//
-
-
-void Scalar::div_tant() {
-
-    mp->div_tant(*this) ;   // Call of the appropriate routine of the mapping 
-    
-    del_deriv() ;   // Delete the derived members
-
-}
-
 			//-----------------------//
 			//      dec_dzpuis       //
 			//-----------------------//
@@ -276,6 +267,11 @@ void Scalar::dec_dzpuis(int decrem) {
 	
 		case 0 : { 
    			break ; 
+		}
+
+		case 1 : { 
+			mp->dec_dzpuis(cuu) ;   
+    		break ; 
 		}
 
 		case 2 : {
