@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/09/19 10:11:17  j_novak
+ * Modif. commentaires
+ *
  * Revision 1.1  2002/09/19 09:52:42  j_novak
  * Added objects Qtenseur and Qmetrique for 4D tensor and metric handling.
  *
@@ -466,12 +469,12 @@ class Qtenseur {
 	 * The result is in {\tt *p\_gradient}
 	 *
 	 * @param para [input] parameters for calculating the time 
-	 * derivative:: \\
+	 * derivative: \\
 	 *  {\tt par.get\_double(0)} : [input] the time step, supposed
-	 *  to be constan.
+	 *  to be constant.\\
 	 *  {\tt par.get\_qtenseur\_mod(0)} : [input] the value of the
 	 *  field at previous time-step. If set to {\tt 0x0}, the
-	 *  method will suppose the field had the same value.
+	 *  method will suppose the field had the same value.\\
 	 *  {\tt par.get\_qtenseur\_mod(1)} : [input] the value of the
 	 *  field two time-steps before. If set to {\tt 0x0}, the
 	 *  method will use a first ordre scheme. It is supposed to be
@@ -486,12 +489,12 @@ class Qtenseur {
 	 * The result is in {\tt *p\_gradient\_spher}
 	 *
 	 * @param para [input] parameters for calculating the time 
-	 * derivative:: \\
+	 * derivative: \\
 	 *  {\tt par.get\_double(0)} : [input] the time step, supposed
-	 *  to be constan.
+	 *  to be constant.\\
 	 *  {\tt par.get\_qtenseur\_mod(0)} : [input] the value of the
 	 *  field at previous time-step. If set to {\tt 0x0}, the
-	 *  method will suppose the field had the same value.
+	 *  method will suppose the field had the same value.\\
 	 *  {\tt par.get\_qtenseur\_mod(1)} : [input] the value of the
 	 *  field two time-steps before. If set to {\tt 0x0}, the
 	 *  method will use a first ordre scheme. It is supposed to be
@@ -505,12 +508,12 @@ class Qtenseur {
 	 * with respect to {\tt met}.
 	 *
 	 * @param para [input] parameters for calculating the time 
-	 * derivative:: \\
+	 * derivative: \\
 	 *  {\tt par.get\_double(0)} : [input] the time step, supposed
-	 *  to be constan.
+	 *  to be constant.\\
 	 *  {\tt par.get\_qtenseur\_mod(0)} : [input] the value of the
 	 *  field at previous time-step. If set to {\tt 0x0}, the
-	 *  method will suppose the field had the same value.
+	 *  method will suppose the field had the same value.\\
 	 *  {\tt par.get\_qtenseur\_mod(1)} : [input] the value of the
 	 *  field two time-steps before. If set to {\tt 0x0}, the
 	 *  method will use a first ordre scheme. It is supposed to be
@@ -527,12 +530,12 @@ class Qtenseur {
 	 * The result is in {\tt *p\_derive\_con}
 	 *
 	 * @param para [input] parameters for calculating the time 
-	 * derivative:: \\
+	 * derivative: \\
 	 *  {\tt par.get\_double(0)} : [input] the time step, supposed
-	 *  to be constan.
+	 *  to be constant.\\
 	 *  {\tt par.get\_qtenseur\_mod(0)} : [input] the value of the
 	 *  field at previous time-step. If set to {\tt 0x0}, the
-	 *  method will suppose the field had the same value.
+	 *  method will suppose the field had the same value.\\
 	 *  {\tt par.get\_qtenseur\_mod(1)} : [input] the value of the
 	 *  field two time-steps before. If set to {\tt 0x0}, the
 	 *  method will use a first ordre scheme. It is supposed to be
@@ -567,12 +570,12 @@ class Qtenseur {
 	 * Returns the gradient of {\tt *this} (Cartesian coordinates)
 	 *
 	 * @param para [input] parameters for calculating the time 
-	 * derivative:: \\
+	 * derivative: \\
 	 *  {\tt par.get\_double(0)} : [input] the time step, supposed
-	 *  to be constan.
+	 *  to be constany.\\
 	 *  {\tt par.get\_qtenseur\_mod(0)} : [input] the value of the
 	 *  field at previous time-step. If set to {\tt 0x0}, the
-	 *  method will suppose the field had the same value.
+	 *  method will suppose the field had the same value.\\
 	 *  {\tt par.get\_qtenseur\_mod(1)} : [input] the value of the
 	 *  field two time-steps before. If set to {\tt 0x0}, the
 	 *  method will use a first ordre scheme. It is supposed to be
@@ -585,12 +588,12 @@ class Qtenseur {
 	 *	(scalar field only). 
 	 *
 	 * @param para [input] parameters for calculating the time 
-	 * derivative:: \\
+	 * derivative: \\
 	 *  {\tt par.get\_double(0)} : [input] the time step, supposed
-	 *  to be constan.
+	 *  to be constant.\\
 	 *  {\tt par.get\_qtenseur\_mod(0)} : [input] the value of the
 	 *  field at previous time-step. If set to {\tt 0x0}, the
-	 *  method will suppose the field had the same value.
+	 *  method will suppose the field had the same value.\\
 	 *  {\tt par.get\_qtenseur\_mod(1)} : [input] the value of the
 	 *  field two time-steps before. If set to {\tt 0x0}, the
 	 *  method will use a first ordre scheme. It is supposed to be
@@ -604,12 +607,12 @@ class Qtenseur {
 	 * {\tt met}.
 	 *
 	 * @param para [input] parameters for calculating the time 
-	 * derivative:: \\
+	 * derivative: \\
 	 *  {\tt par.get\_double(0)} : [input] the time step, supposed
-	 *  to be constan.
+	 *  to be constant.\\
 	 *  {\tt par.get\_qtenseur\_mod(0)} : [input] the value of the
 	 *  field at previous time-step. If set to {\tt 0x0}, the
-	 *  method will suppose the field had the same value.
+	 *  method will suppose the field had the same value.\\
 	 *  {\tt par.get\_qtenseur\_mod(1)} : [input] the value of the
 	 *  field two time-steps before. If set to {\tt 0x0}, the
 	 *  method will use a first ordre scheme. It is supposed to be
@@ -624,12 +627,12 @@ class Qtenseur {
 	 * {\tt met}.
 	 *
 	 * @param para [input] parameters for calculating the time 
-	 * derivative:: \\
+	 * derivative: \\
 	 *  {\tt par.get\_double(0)} : [input] the time step, supposed
-	 *  to be constan.
+	 *  to be constant.\\
 	 *  {\tt par.get\_qtenseur\_mod(0)} : [input] the value of the
 	 *  field at previous time-step. If set to {\tt 0x0}, the
-	 *  method will suppose the field had the same value.
+	 *  method will suppose the field had the same value.\\
 	 *  {\tt par.get\_qtenseur\_mod(1)} : [input] the value of the
 	 *  field two time-steps before. If set to {\tt 0x0}, the
 	 *  method will use a first ordre scheme. It is supposed to be
@@ -937,12 +940,12 @@ class Qtenseur_sym : public Qtenseur {
 	 * The result is in {\tt *p\_gradient}
 	 *
 	 * @param para [input] parameters for calculating the time 
-	 * derivative:: \\
+	 * derivative: \\
 	 *  {\tt par.get\_double(0)} : [input] the time step, supposed
-	 *  to be constan.
+	 *  to be constant.\\
 	 *  {\tt par.get\_qtenseur\_mod(0)} : [input] the value of the
 	 *  field at previous time-step. If set to {\tt 0x0}, the
-	 *  method will suppose the field had the same value.
+	 *  method will suppose the field had the same value.\\
 	 *  {\tt par.get\_qtenseur\_mod(1)} : [input] the value of the
 	 *  field two time-steps before. If set to {\tt 0x0}, the
 	 *  method will use a first ordre scheme. It is supposed to be
@@ -957,12 +960,12 @@ class Qtenseur_sym : public Qtenseur {
 	 * The result is in {\tt *p\_derive\_cov}
 	 *
 	 * @param para [input] parameters for calculating the time 
-	 * derivative:: \\
+	 * derivative: \\
 	 *  {\tt par.get\_double(0)} : [input] the time step, supposed
-	 *  to be constan.
+	 *  to be constant.\\
 	 *  {\tt par.get\_qtenseur\_mod(0)} : [input] the value of the
 	 *  field at previous time-step. If set to {\tt 0x0}, the
-	 *  method will suppose the field had the same value.
+	 *  method will suppose the field had the same value.\\
 	 *  {\tt par.get\_qtenseur\_mod(1)} : [input] the value of the
 	 *  field two time-steps before. If set to {\tt 0x0}, the
 	 *  method will use a first ordre scheme. It is supposed to be
@@ -978,12 +981,12 @@ class Qtenseur_sym : public Qtenseur {
 	 * The result is in {\tt *p\_derive\_con}
 	 *
 	 * @param para [input] parameters for calculating the time 
-	 * derivative:: \\
+	 * derivative: \\
 	 *  {\tt par.get\_double(0)} : [input] the time step, supposed
-	 *  to be constan.
+	 *  to be constant.\\
 	 *  {\tt par.get\_qtenseur\_mod(0)} : [input] the value of the
 	 *  field at previous time-step. If set to {\tt 0x0}, the
-	 *  method will suppose the field had the same value.
+	 *  method will suppose the field had the same value.\\
 	 *  {\tt par.get\_qtenseur\_mod(1)} : [input] the value of the
 	 *  field two time-steps before. If set to {\tt 0x0}, the
 	 *  method will use a first ordre scheme. It is supposed to be

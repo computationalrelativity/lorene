@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2002/09/19 10:11:17  j_novak
+ * Modif. commentaires
+ *
  * Revision 1.1  2002/09/19 09:52:42  j_novak
  * Added objects Qtenseur and Qmetrique for 4D tensor and metric handling.
  *
@@ -55,7 +58,7 @@
  * This class includes a dynamical calculation of the Christoffel symbols, 
  * the Ricci-curvature and the Ricci-scalar. Although this is 4D, it is 
  * based on a 3+1 decomposition of the metric in terms of lapse, shift 
- * and 3-metric. (see also the documentation for {\tt Qtenseur}.
+ * and 3-metric. (see also the documentation for {\tt Qtenseur}).
  * 
  * @version #$Id$#
  */
@@ -125,7 +128,7 @@ class Qmetrique {
 	
 	/**
 	 * Pointer on the dependancies, that means the array contains pointers
-	 * on all the {\tt Qtenseur} whom derivative members have been calculated
+	 * on all the {\tt Qtenseur} whose derivative members have been calculated
 	 * using {\tt *this}.
 	 */
 	const Qtenseur** dependances ;
