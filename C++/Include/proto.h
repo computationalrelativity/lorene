@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/05/11 12:39:08  e_gourgoulhon
+ * Added declaration of som_tet_cossin_si.
+ *
  * Revision 1.4  2002/05/05 16:24:48  e_gourgoulhon
  * Added som_tet_cossin_sp
  *
@@ -396,6 +399,8 @@ void som_tet_cossin_cp
 void som_tet_cossin_ci
     (double*, const int, const int, const double, double* ) ;
 void som_tet_cossin_sp
+    (double*, const int, const int, const double, double* ) ;
+void som_tet_cossin_si
     (double*, const int, const int, const double, double* ) ;
 void som_tet_cossin_cp_symy
     (double*, const int, const int, const double, double* ) ;
