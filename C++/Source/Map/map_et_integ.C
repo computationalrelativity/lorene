@@ -30,8 +30,11 @@ char map_et_integ_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2004/06/14 15:27:35  e_gourgoulhon
+ * Added method primr (not ready yet !).
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.2  2000/08/16  12:12:12  eric
  * Ajout de ciaff.set_dzpuis( ci.get_dzpuis() ) pour tenir compte de
@@ -90,4 +93,11 @@ Tbl* Map_et::integrale(const Cmp& ci) const {
     
     return mpaff.integrale(ciaff) ;
     
+}
+
+
+void Map_et::primr(const Scalar& , Scalar& ) const {
+
+    cout << "Map_et::primr : not ready yet !" << endl ; 
+    abort() ; 
 }
