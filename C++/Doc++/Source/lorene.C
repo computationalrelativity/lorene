@@ -81,8 +81,8 @@
 	//@Include:metrique.h_r
 	//@Include:metconf.h_r
         //@Include:qtenseur.h_r
-        //@Include:qmetrique.h_r
     //@}  
+
 
    /**@name New tensorial fields (***under develoment***)
      *
