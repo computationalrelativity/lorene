@@ -23,11 +23,14 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-char Binaire_ncp_C[] = "$Header$" ;
+char Bin_ns_ncp_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2003/06/20 13:49:53  f_limousin
+ * Add a new argument conf_flat in the constructors and a new function fait_decouple().
+ *
  * Revision 1.5  2003/03/03 19:32:06  f_limousin
  * Suppression of the member ref_triad.
  *
@@ -59,6 +62,8 @@ char Binaire_ncp_C[] = "$Header$" ;
 #include "bin_ns_ncp.h"
 #include "eos.h"
 #include "utilitaires.h"
+#include "graphique.h"
+#include "param.h"
 
 			    //--------------//
 			    // Constructors //
@@ -69,11 +74,11 @@ char Binaire_ncp_C[] = "$Header$" ;
 
 Bin_ns_ncp::Bin_ns_ncp(Map& mp1, int nzet1, const Eos& eos1, int irrot1, 
 		 Map& mp2, int nzet2, const Eos& eos2, int irrot2, int relat,
-		 const Metrique& flat1, const Metrique& flat2,
+		 int conf_flat, const Metrique& flat1, const Metrique& flat2,
 		       const Tenseur_sym &source1, const Tenseur_sym &source2) 
-                 : star1(mp1, nzet1, relat, eos1, irrot1, 
+                 : star1(mp1, nzet1, relat, eos1, irrot1, conf_flat,
 			 mp1.get_bvect_cart(), flat1, source1), 
-		   star2(mp2, nzet2, relat, eos2, irrot2, 
+		   star2(mp2, nzet2, relat, eos2, irrot2, conf_flat,
 			 mp2.get_bvect_cart(), flat2, source2)
 {
 
@@ -299,6 +304,212 @@ void Bin_ns_ncp::display_poly(ostream& ost) const {
 } 
 
 
+void Bin_ns_ncp::fait_decouple () {
+    
+    int nz_un = star1.mp.get_mg()->get_nzone() ;
+    int nz_deux = star2.mp.get_mg()->get_nzone() ;
+    
+    // On determine R_limite (pour le moment en tout cas...) :
+    double distance = fabs(star1.mp.get_ori_x() - star2.mp.get_ori_x()) ;
+    double lim_un = -1*distance/2. ;
+    double lim_deux = -1*distance/2. ;
+    double int_un = 0*distance/6. ;
+    double int_deux = 0*distance/6. ;
+    
+
+    /*
+    // Les fonctions de base
+    Cmp fonction_f_un (star1.mp) ;
+    //   fonction_f_un = (exp(-pow(star1.mp.r/lim_un, 2)) - exp(-1.)) / (1-exp(-1.))/2. + 0.5 ;
+    
+    fonction_f_un = 0.5*pow(
+      cos((star1.mp.r-int_un)*M_PI/2./(lim_un-int_un)), 2.)+0.5 ;
+    fonction_f_un.std_base_scal();
+
+    des_coupe_z(fonction_f_un, 0, 2) ;
+    des_profile(fonction_f_un, 0, 10, 0, 0) ;
+    des_coef_xi(fonction_f_un.va, 0, 0, 0) ;
+    des_coef_xi(fonction_f_un.va, 1, 0, 0) ;
+    des_coef_xi(fonction_f_un.va, 2, 0, 0) ;
+    
+    Cmp fonction_g_un (star1.mp) ;
+    //   fonction_g_un = (1 - exp(-pow(star1.mp.r/lim_un, 2))) /
+    //(1-exp(-1.))/2. ;
+
+    fonction_g_un = 0.5*pow
+      (sin((star1.mp.r-int_un)*M_PI/2./(lim_un-int_un)), 2.) ;
+    fonction_g_un.std_base_scal();
+    
+    Cmp fonction_f_deux (star2.mp) ;
+    fonction_f_deux = 0.5*pow(
+ cos((star2.mp.r-int_deux)*M_PI/2./(lim_deux-int_deux)), 2.)+0.5 ;
+    fonction_f_deux.std_base_scal();
+    
+    Cmp fonction_g_deux (star2.mp) ;
+    fonction_g_deux = 0.5*pow
+ (sin((star2.mp.r-int_deux)*M_PI/2./(lim_deux-int_deux)), 2.) ;
+    fonction_g_deux.std_base_scal();
+    */   
+
+
+     // Les fonctions totales :
+    Cmp decouple_un (star1.mp) ;
+    decouple_un.allocate_all() ;
+    Cmp decouple_deux (star2.mp) ;
+    decouple_deux.allocate_all() ;
+    
+    Mtbl xabs_un (star1.mp.xa) ;
+    Mtbl yabs_un (star1.mp.ya) ;
+    Mtbl zabs_un (star1.mp.za) ;
+	    
+    Mtbl xabs_deux (star2.mp.xa) ;
+    Mtbl yabs_deux (star2.mp.ya) ;
+    Mtbl zabs_deux (star2.mp.za) ;
+	    
+    double xabs, yabs, zabs, air_un, air_deux, theta, phi ;
+	    
+    // On boucle sur les autres zones :
+    for (int l=0 ; l<nz_un ; l++) {
+	int nr = star1.mp.get_mg()->get_nr (l) ;
+		
+	if (l==nz_un-1)
+	    nr -- ;
+		
+	int np = star1.mp.get_mg()->get_np (l) ;
+	int nt = star1.mp.get_mg()->get_nt (l) ;
+		
+	for (int k=0 ; k<np ; k++)
+	    for (int j=0 ; j<nt ; j++)
+		for (int i=0 ; i<nr ; i++) {
+			    
+		    xabs = xabs_un (l, k, j, i) ;
+		    yabs = yabs_un (l, k, j, i) ;
+		    zabs = zabs_un (l, k, j, i) ;
+			    
+		    // les coordonnees du point :
+		    star1.mp.convert_absolute 
+			(xabs, yabs, zabs, air_un, theta, phi) ;
+		    star2.mp.convert_absolute 
+			(xabs, yabs, zabs, air_deux, theta, phi) ;
+
+		    if (air_un <= lim_un)
+			if (air_un < int_un)
+			    decouple_un.set(l, k, j, i) = 1 ;
+			else
+			// pres de l'etoile une :
+			decouple_un.set(l, k, j, i) =  0.5*pow(
+      cos((air_un-int_un)*M_PI/2./(lim_un-int_un)), 2.)+0.5 ;
+
+		    else 
+			if (air_deux <= lim_deux)
+			    if (air_deux < int_deux)
+				decouple_un.set(l, k, j, i) = 0 ;
+			    else
+			// On est pres de l'etoile deux :
+			     decouple_un.set(l, k, j, i) = 0.5*pow
+      (sin((air_deux-int_deux)*M_PI/2./(lim_deux-int_deux)), 2.) ;
+						    
+			else
+			    // On est loin des deux etoiles :
+			    decouple_un.set(l, k, j, i) = 0.5 ;
+		}
+	
+    
+	        // Cas infini :
+		if (l==nz_un-1)
+		    for (int k=0 ; k<np ; k++)
+			for (int j=0 ; j<nt ; j++)
+			    decouple_un.set(nz_un-1, k, j, nr) = 0.5 ;
+    }
+
+
+    for (int l=0 ; l<nz_deux ; l++) {
+	int nr = star2.mp.get_mg()->get_nr (l) ;
+		
+	if (l==nz_deux-1)
+	    nr -- ;
+		
+	int np = star2.mp.get_mg()->get_np (l) ;
+	int nt = star2.mp.get_mg()->get_nt (l) ;
+		
+	for (int k=0 ; k<np ; k++)
+	    for (int j=0 ; j<nt ; j++)
+		for (int i=0 ; i<nr ; i++) {
+			    
+		    xabs = xabs_deux (l, k, j, i) ;
+		    yabs = yabs_deux (l, k, j, i) ;
+		    zabs = zabs_deux (l, k, j, i) ;
+			    
+		    // les coordonnees du point  :
+		    star1.mp.convert_absolute 
+			(xabs, yabs, zabs, air_un, theta, phi) ;
+		    star2.mp.convert_absolute 
+			(xabs, yabs, zabs, air_deux, theta, phi) ;
+		    
+		    if (air_deux <= lim_deux)
+			if (air_deux < int_deux)
+			    decouple_deux.set(l, k, j, i) = 1 ;
+			else
+			  // pres de l'etoile deux :
+			decouple_deux.set(l, k, j, i) =  0.5*pow(
+	       cos((air_deux-int_deux)*M_PI/2./(lim_deux-int_deux)), 2.)+0.5 ;
+			
+		    else 
+			if (air_un <= lim_un)
+			    if (air_un < int_un)
+				decouple_deux.set(l, k, j, i) = 0 ;
+			    else
+			// On est pres de l'etoile une :
+			     decouple_deux.set(l, k, j, i)=0.5*pow
+               (sin((air_un-int_un)*M_PI/2./(lim_un-int_un)), 2.) ;
+		   
+		
+			else
+			    // On est loin des deux etoiles :
+			    decouple_deux.set(l, k, j, i) = 0.5 ;
+		}
+			    
+		// Cas infini :
+		if (l==nz_deux-1)
+		    for (int k=0 ; k<np ; k++)
+			for (int j=0 ; j<nt ; j++)
+			    decouple_deux.set(nz_un-1, k, j, nr) = 0.5 ;
+   }
+   
+    double somme = 0 ;
+
+    int nr = star2.mp.get_mg()->get_nr (2) ;
+    int np = star2.mp.get_mg()->get_np (2) ;
+    int nt = star2.mp.get_mg()->get_nt (2) ;
+    for (int k=0 ; k<np ; k++)
+      for (int j=0 ; j<nt ; j++)
+	for (int i=0 ; i<nr ; i++) {
+	  somme += decouple_un(2,k,j,5) ;
+	}
+ 
+    cout << "decouple_un"  << endl << norme(decouple_un) << endl ;
+    cout << "decouple_deux"  << endl << norme(decouple_deux) << endl ;
+    /*
+    decouple_un.std_base_scal() ;
+
+    des_coef_xi(decouple_un.va, 0, 0, 0) ;
+    des_coef_xi(decouple_un.va, 1, 0, 0) ;
+    des_coef_xi(decouple_un.va, 2, 0, 0) ;
+
+    decouple_deux.std_base_scal() ;
+
+    des_coef_xi(decouple_deux.va, 0, 0, 0) ;
+    des_coef_xi(decouple_deux.va, 1, 0, 0) ;
+    des_coef_xi(decouple_deux.va, 2, 0, 0) ;
+    */
+    star1.decouple = decouple_un ;
+    star2.decouple = decouple_deux ;
+
+     
+}
+
+
+
    
 		    //-------------------------------//
 		    //		Miscellaneous	     //
@@ -306,9 +517,9 @@ void Bin_ns_ncp::display_poly(ostream& ost) const {
 
 double Bin_ns_ncp::separation() const {
     
-    double dx = star1.get_mp().get_ori_x() - star2.get_mp().get_ori_x() ; 
-    double dy = star1.get_mp().get_ori_y() - star2.get_mp().get_ori_y() ; 
-    double dz = star1.get_mp().get_ori_z() - star2.get_mp().get_ori_z() ; 
+    double dx = star1.mp.get_ori_x() - star2.mp.get_ori_x() ; 
+    double dy = star1.mp.get_ori_y() - star2.mp.get_ori_y() ; 
+    double dz = star1.mp.get_ori_z() - star2.mp.get_ori_z() ; 
     
     return sqrt( dx*dx + dy*dy + dz*dz ) ; 
     
