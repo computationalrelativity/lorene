@@ -31,6 +31,9 @@ char star_binupmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/02/27 10:54:27  f_limousin
+ * To avoid errors when merging versions of Lorene.
+ *
  * Revision 1.4  2004/02/27 09:56:42  f_limousin
  * Many minor changes.
  *
@@ -86,9 +89,11 @@ void Star_bin::update_metric(const Star_bin& comp) {
 
     assert ( *(shift_comp.get_triad()) == *(comp_shift.get_triad())) ;
 
-    (shift_comp.set(1)).import( comp_shift(1) ) ;  //
-    (shift_comp.set(2)).import( comp_shift(2) ) ;  //
-    (shift_comp.set(3)).import( comp_shift(3) ) ;  //
+    (shift_comp.set(1)).import( comp_shift(1) ) ;  
+    (shift_comp.set(2)).import( comp_shift(2) ) ;  
+    (shift_comp.set(3)).import( comp_shift(3) ) ;  
+
+
 
     shift_comp.std_spectral_base() ;   
     shift_comp.change_triad(mp.get_bvect_spher()) ;
@@ -263,6 +268,8 @@ void Star_bin::update_metric(const Star_bin& comp,
     (shift_comp.set(1)).import( comp_shift(1) ) ;  //
     (shift_comp.set(2)).import( comp_shift(2) ) ;  //
     (shift_comp.set(3)).import( comp_shift(3) ) ;  //
+
+
 
     shift_comp.std_spectral_base() ;   
     shift_comp.change_triad(mp.get_bvect_spher()) ;
