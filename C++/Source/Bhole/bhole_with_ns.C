@@ -25,6 +25,9 @@ char bhole_with_ns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/11/13 13:43:53  p_grandclement
+ * Addition of things needed for Bhole::update_metric (const Etoile_bin&, double, double)
+ *
  * Revision 1.2  2003/10/24 13:05:49  p_grandclement
  * correction of the equations for Bin_ns_bh...
  *
@@ -238,3 +241,21 @@ void Bhole::solve_shift_with_ns (const Etoile_bin& ns,
     shift_auto = relax*shift_auto + (1-relax)*shift_old ;
     regul = regle (shift_auto, ns.get_shift_auto(), omega) ;
 }
+
+
+void Bhole::update_metric (const Etoile_bin& comp, 
+			   double precision, double relax) {
+
+  // Solve for the lapse :
+  solve_lapse_with_ns (relax) ;
+  fait_n_comp (comp) ;
+
+  // Solve for the conformal factor :
+  solve_psi_with_ns (relax) ;
+  fait_psi_comp (comp) ;
+  
+  // Solve for the shift vector :
+  solve_shift_with_ns (comp, precision, relax) ;
+}
+
+  

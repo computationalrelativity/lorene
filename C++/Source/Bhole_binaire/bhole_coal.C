@@ -25,6 +25,9 @@ char bhole_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2003/11/13 13:43:54  p_grandclement
+ * Addition of things needed for Bhole::update_metric (const Etoile_bin&, double, double)
+ *
  * Revision 1.2  2002/10/16 14:36:32  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -133,9 +136,9 @@ double Bhole_binaire::coal (double angulaire, double precis, double relax,
     int indic = 1 ;
     int conte = 0 ;
     
-    char name_iteration[20] ;
-    char name_correction[20] ;
-    char name_viriel[20] ;
+    char name_iteration[40] ;
+    char name_correction[40] ;
+    char name_viriel[40] ;
      
     sprintf(name_iteration, "ite_%e.dat", angulaire) ;
     sprintf(name_correction, "cor_%e.dat", angulaire) ;

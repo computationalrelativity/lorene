@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/11/13 13:43:53  p_grandclement
+ * Addition of things needed for Bhole::update_metric (const Etoile_bin&, double, double)
+ *
  * Revision 1.6  2003/10/24 13:05:48  p_grandclement
  * correction of the equations for Bin_ns_bh...
  *
@@ -595,6 +598,14 @@ class Bhole {
 	void solve_shift_with_ns (const Etoile_bin& ns, 
 			       double precis, double relax) ;
 	
+	/**
+	 * Solve, once, the equations for the lapse, conformal factor and 
+	 * shift and updates all the companion quantities, except the 
+	 * ones associated with $K^{ij}$.
+	 **/
+	void update_metric (const Etoile_bin& ns, 
+			       double precis, double relax) ;
+
 	/**
 	 * Calculates the total $K^{ij}$. The regularisation of the shift must be done
 	 * before to ensure regularity.

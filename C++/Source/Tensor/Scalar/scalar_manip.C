@@ -27,6 +27,9 @@ char scalar_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/11/13 13:43:55  p_grandclement
+ * Addition of things needed for Bhole::update_metric (const Etoile_bin&, double, double)
+ *
  * Revision 1.4  2003/10/11 14:47:17  e_gourgoulhon
  * Lines 112 and 145 : replaced "0" by "double(0)" in the comparison
  * statement.
@@ -151,7 +154,7 @@ void Scalar::set_val_hor (double val, int zone) {
 	else
 	    annule_hard() ;
     
-    assert ((zone>0) && (zone < mp->get_mg()->get_nzone())) ;
+    assert ((zone>=0) && (zone < mp->get_mg()->get_nzone())) ;
     del_deriv() ;
     
     int nt = mp->get_mg()->get_nt(zone) ;
@@ -162,7 +165,7 @@ void Scalar::set_val_hor (double val, int zone) {
     
     for (int k=0 ; k<np ; k++)
 	for (int j=0 ; j<nt ; j++)
-	    va.set(1, k, j, 0) = val ;
+	    va.set(zone, k, j, 0) = val ;
 }
 
 /*

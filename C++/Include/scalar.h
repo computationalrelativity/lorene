@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.32  2003/11/13 13:43:53  p_grandclement
+ * Addition of things needed for Bhole::update_metric (const Etoile_bin&, double, double)
+ *
  * Revision 1.31  2003/11/06 14:43:37  e_gourgoulhon
  * Gave a name to const arguments in certain method prototypes (e.g.
  * constructors) to correct a bug of DOC++.
@@ -151,6 +154,7 @@
 
 // Headers Lorene 
 #include "valeur.h"
+#include "tensor.h"
 
 class Param ; 
 class Cmp ;
