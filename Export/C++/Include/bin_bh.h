@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/10/24 15:49:03  e_gourgoulhon
+ * Updated documentation.
+ *
  * Revision 1.6  2003/01/09 11:08:00  j_novak
  * headcpp.h is now compliant with C++ norm.
  * The include files have been ordered, as well as the local_settings_linux
@@ -80,7 +83,7 @@ using namespace std ;
  * scale defined by the coordinate radius $a$ of black hole 1 apparent horizon
  * (throat).
  *
- * Importation of Meudon data is performed by means of the constructor
+ * Importation of Lorene data is performed by means of the constructor
  * {\tt Bin\_BH::Bin\_BH(int, const double*, const double*, const double*, const char*)}.
  * This constructor takes general arrays for the location of the Cartesian coordinates
  * $(x, y, z)$, i.e. it does not assume that the grid is a uniform one. Note also
@@ -232,7 +235,7 @@ class Bin_BH {
     // Constructors - Destructor
     // -------------------------
     public:
-	/** Constructor from Meudon data.
+	/** Constructor from Lorene spectral data.
 	 *
 	 * This constructor takes general arrays {\tt xi, yi, zi}
 	 * for the location of the Cartesian coordinates

@@ -1,6 +1,6 @@
-/**@name Meudon initial data for binary neutron stars
+/**@name Lorene initial data for binary neutron stars
  *
- *  Meudon data represents quasistationary binary neutron stars configurations,
+ *  Lorene data represents quasistationary binary neutron stars configurations,
  *  obtained by
  *   \begin{itemize}
  *      \item E. Gourgoulhon, P. Grandcl\'ement, K. Taniguchi, J.-A. Marck,
@@ -8,7 +8,9 @@
  *       \item K. Taniguchi, E. Gourgoulhon, S. Bonazzola,
  *               Phys.  Rev. D  {\bf 64}, 064012 (2001)
  *       \item K. Taniguchi, E. Gourgoulhon, Phys. Rev. D {\bf 65}, 044027 (2002)
- *       \item K. Taniguchi, E. Gourgoulhon, in preparation
+ *		 \item K. Taniguchi, E. Gourgoulhon, Phys. Rev. D {\bf 66}, 104019 (2002)
+ *		 \item K. Taniguchi, E. Gourgoulhon, Phys. Rev. D, in press, 
+ *				gr-qc/0309045
  *    \end{itemize}
  *
  *  The exportation of this data, computed by means of
