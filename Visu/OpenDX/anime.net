@@ -1,5 +1,5 @@
 //
-// time: Thu Mar 11 13:06:22 2004
+// time: Wed Jun  2 23:38:17 2004
 //
 // version: 3.2.0 (format), 4.3.0 (DX)
 //
@@ -16,31 +16,96 @@
 // comment: 
 // comment: If you would like to modify or use this visual program in the future, choose Open Visual Program Editor from the Windows menu, and then Save As from the File menu of the VPE.
 // page assignment: scalar_viz	order=2, windowed=0, showing=1
-// workspace: width = 541, height = 642
+// workspace: width = 748, height = 642
 // layout: snap = 0, width = 50, height = 20, align = NN
 //
 macro main(
 ) -> (
 ) {
     // 
-    // node String[1]: x = 24, y = 15, inputs = 0, label = String
-    // output[1]: visible = 1, type = 32, value = "anim"
+    // node ImportSpreadsheet[1]: x = 444, y = 15, inputs = 10, label = ImportSpreadsheet
+    // input[1]: defaulting = 0, visible = 1, type = 32, value = "anime.dxcont"
+    // input[10]: defaulting = 0, visible = 0, type = 1, value = 1
     // page group: scalar_viz
     //
+main_ImportSpreadsheet_1_out_1,
+main_ImportSpreadsheet_1_out_2 = 
+    ImportSpreadsheet(
+    main_ImportSpreadsheet_1_in_1,
+    main_ImportSpreadsheet_1_in_2,
+    main_ImportSpreadsheet_1_in_3,
+    main_ImportSpreadsheet_1_in_4,
+    main_ImportSpreadsheet_1_in_5,
+    main_ImportSpreadsheet_1_in_6,
+    main_ImportSpreadsheet_1_in_7,
+    main_ImportSpreadsheet_1_in_8,
+    main_ImportSpreadsheet_1_in_9,
+    main_ImportSpreadsheet_1_in_10
+    ) [instance: 1, cache: 1];
     // 
-    // node Sequencer[1]: x = 20, y = 115, inputs = 7, label = Sequencer
+    // node Extract[3]: x = 408, y = 133, inputs = 2, label = Extract
+    // input[2]: defaulting = 0, visible = 1, type = 32, value = "fieldname"
+    // page group: scalar_viz
+    //
+main_Extract_3_out_1 = 
+    Extract(
+    main_ImportSpreadsheet_1_out_1,
+    main_Extract_3_in_2
+    ) [instance: 3, cache: 1];
+    // 
+    // node Extract[1]: x = 473, y = 134, inputs = 2, label = Extract
+    // input[2]: defaulting = 0, visible = 1, type = 32, value = "jmin"
+    // page group: scalar_viz
+    //
+main_Extract_1_out_1 = 
+    Extract(
+    main_ImportSpreadsheet_1_out_1,
+    main_Extract_1_in_2
+    ) [instance: 1, cache: 1];
+    // 
+    // node Extract[2]: x = 540, y = 133, inputs = 2, label = Extract
+    // input[2]: defaulting = 0, visible = 1, type = 32, value = "jmax"
+    // page group: scalar_viz
+    //
+main_Extract_2_out_1 = 
+    Extract(
+    main_ImportSpreadsheet_1_out_1,
+    main_Extract_2_in_2
+    ) [instance: 2, cache: 1];
+    // 
+    // node Extract[5]: x = 618, y = 133, inputs = 2, label = Extract
+    // input[2]: defaulting = 0, visible = 1, type = 32, value = "jstep"
+    // page group: scalar_viz
+    //
+main_Extract_5_out_1 = 
+    Extract(
+    main_ImportSpreadsheet_1_out_1,
+    main_Extract_5_in_2
+    ) [instance: 5, cache: 1];
+    // 
+    // node Sequencer[1]: x = 493, y = 237, inputs = 7, label = Sequencer
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Sequencer_1"
-    // input[4]: defaulting = 1, visible = 1, type = 1, value = 1
-    // input[5]: defaulting = 1, visible = 1, type = 1, value = 100
-    // input[6]: defaulting = 1, visible = 0, type = 1, value = 1
-    // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 1 100 1 1 100 1 }
+    // input[4]: defaulting = 1, visible = 1, type = 1, value = 2
+    // input[5]: defaulting = 1, visible = 1, type = 1, value = 6
+    // input[6]: defaulting = 1, visible = 1, type = 1, value = 2
+    // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 2 6 2 2 6 1 }
     // page group: scalar_viz
-    // vcr[1]: min = 1, max = 100, beg = 1, end = 100, cur = 1, inc = 1, loop = off, step = off, pal = off
-    // window: position = (0.0607,0.2400), size = 0.2000x0.0762
+    // vcr[1]: min = 2, max = 6, beg = 2, end = 6, cur = 2, inc = 2, loop = off, step = off, pal = off
+    // window: position = (0.0143,0.3695), size = 0.2000x0.0762
     //
-    main_Sequencer_1_out_1 = @frame;
+    main_Sequencer_1_in_3 = @frame;
+main_Sequencer_1_out_1[cache: 2] = 
+    Sequencer(
+    main_Sequencer_1_in_1,
+    main_Sequencer_1_in_2,
+    main_Sequencer_1_in_3,
+    main_Extract_1_out_1,
+    main_Extract_2_out_1,
+    main_Extract_5_out_1,
+    main_Sequencer_1_in_7
+    ) [instance: 1, cache: 1];
     // 
-    // node Format[1]: x = 112, y = 56, inputs = 4, label = Format
+    // node Format[1]: x = 216, y = 63, inputs = 4, label = Format
     // input[1]: defaulting = 0, visible = 1, type = 32, value = "%s%04d%s"
     // input[2]: defaulting = 1, visible = 1, type = 32, value = "hpp"
     // input[3]: defaulting = 1, visible = 1, type = 16777245, value = NULL
@@ -50,12 +115,12 @@ macro main(
 main_Format_1_out_1 = 
     Format(
     main_Format_1_in_1,
-    main_String_1_out_1,
+    main_Extract_3_out_1,
     main_Sequencer_1_out_1,
     main_Format_1_in_4
     ) [instance: 1, cache: 1];
     // 
-    // node Import[2]: x = 268, y = 47, inputs = 6, label = Import
+    // node Import[2]: x = 96, y = 82, inputs = 6, label = Import
     // input[1]: defaulting = 1, visible = 1, type = 32, value = "/usr/lpp/dx/samples/data/southeastern_topo.dx"
     // input[3]: defaulting = 0, visible = 1, type = 32, value = "general"
     // page group: scalar_viz
@@ -70,7 +135,7 @@ main_Import_2_out_1 =
     main_Import_2_in_6
     ) [instance: 2, cache: 1];
     // 
-    // node Attribute[1]: x = 456, y = 198, inputs = 2, label = Attribute
+    // node Attribute[1]: x = 293, y = 258, inputs = 2, label = Attribute
     // page group: scalar_viz
     //
 main_Attribute_1_out_1 = 
@@ -79,7 +144,7 @@ main_Attribute_1_out_1 =
     main_Attribute_1_in_2
     ) [instance: 1, cache: 1];
     // 
-    // node Caption[2]: x = 480, y = 449, inputs = 9, label = Caption
+    // node Caption[2]: x = 420, y = 454, inputs = 9, label = Caption
     // page group: scalar_viz
     //
 main_Caption_2_out_1 = 
@@ -95,18 +160,18 @@ main_Caption_2_out_1 =
     main_Caption_2_in_9
     ) [instance: 2, cache: 1];
     // 
-    // node Colormap[5]: x = 251, y = 161, inputs = 19, label = Colormap
+    // node Colormap[5]: x = 231, y = 163, inputs = 19, label = Colormap
     // input[1]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 0.666667] [1.0 0.0] }
     // input[2]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[3]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_5"
-    // input[7]: defaulting = 1, visible = 0, type = 5, value = -0.00049905799
-    // input[8]: defaulting = 1, visible = 0, type = 5, value = 0.00049905799
+    // input[7]: defaulting = 1, visible = 0, type = 5, value = -0.00066459802
+    // input[8]: defaulting = 1, visible = 0, type = 5, value = 0.00066459802
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { -0.00049905799 0.00049905799 }
-    // input[17]: defaulting = 0, visible = 0, type = 5, value = -0.00049905799
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 0.00049905799
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { -0.00066459802 0.00066459802 }
+    // input[17]: defaulting = 0, visible = 0, type = 5, value = -0.00066459802
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 0.00066459802
     // page group: scalar_viz
     // window: position = (0.4557,0.0324), size = 0.5364x0.3905
     //
@@ -146,19 +211,29 @@ main_Color_5_out_1 =
     main_Color_5_in_5
     ) [instance: 5, cache: 1];
     // 
+    // node Extract[4]: x = 694, y = 133, inputs = 2, label = Extract
+    // input[2]: defaulting = 0, visible = 1, type = 32, value = "ampli"
+    // page group: scalar_viz
+    //
+main_Extract_4_out_1 = 
+    Extract(
+    main_ImportSpreadsheet_1_out_1,
+    main_Extract_4_in_2
+    ) [instance: 4, cache: 1];
+    // 
     // node RubberSheet[1]: x = 149, y = 304, inputs = 4, label = RubberSheet
-    // input[2]: defaulting = 0, visible = 1, type = 5, value = 1.
+    // input[2]: defaulting = 1, visible = 1, type = 5, value = 1000.0
     // page group: scalar_viz
     //
 main_RubberSheet_1_out_1 = 
     RubberSheet(
     main_Color_5_out_1,
-    main_RubberSheet_1_in_2,
+    main_Extract_4_out_1,
     main_RubberSheet_1_in_3,
     main_RubberSheet_1_in_4
     ) [instance: 1, cache: 1];
     // 
-    // node Isosurface[1]: x = 291, y = 384, inputs = 6, label = Isosurface
+    // node Isosurface[1]: x = 267, y = 385, inputs = 6, label = Isosurface
     // input[3]: defaulting = 0, visible = 1, type = 1, value = 15
     // page group: scalar_viz
     //
@@ -172,7 +247,7 @@ main_Isosurface_1_out_1 =
     main_Isosurface_1_in_6
     ) [instance: 1, cache: 1];
     // 
-    // node Color[2]: x = 362, y = 457, inputs = 5, label = Color
+    // node Color[2]: x = 311, y = 454, inputs = 5, label = Color
     // input[2]: defaulting = 0, visible = 1, type = 32, value = "black"
     // page group: scalar_viz
     //
@@ -238,27 +313,32 @@ main_Collect_3_out_1 =
     // node Image[5]: x = 369, y = 580, inputs = 49, label = Image
     // input[1]: defaulting = 0, visible = 0, type = 67108863, value = "Image_5"
     // input[4]: defaulting = 0, visible = 0, type = 1, value = 1
-    // input[5]: defaulting = 0, visible = 0, type = 8, value = [1.79895 1.13303 -1.70164]
-    // input[6]: defaulting = 0, visible = 0, type = 8, value = [-0.747387 -10.6042 7.63458]
-    // input[7]: defaulting = 1, visible = 0, type = 5, value = 12.711
+    // input[5]: defaulting = 0, visible = 0, type = 8, value = [-15.2958 30.3937 -24.3263]
+    // input[6]: defaulting = 0, visible = 0, type = 8, value = [7.60013 -17.2322 13.4961]
+    // input[7]: defaulting = 1, visible = 0, type = 5, value = 34.8251
     // input[8]: defaulting = 0, visible = 0, type = 1, value = 909
     // input[9]: defaulting = 0, visible = 0, type = 5, value = 0.821232
-    // input[10]: defaulting = 0, visible = 0, type = 8, value = [0.11341 0.603313 0.789399]
-    // input[11]: defaulting = 0, visible = 0, type = 5, value = 45.3492
+    // input[10]: defaulting = 0, visible = 0, type = 8, value = [0.168546 0.661422 0.730831]
+    // input[11]: defaulting = 0, visible = 0, type = 5, value = 30.0
     // input[12]: defaulting = 0, visible = 0, type = 1, value = 1
     // input[14]: defaulting = 0, visible = 0, type = 1, value = 1
     // input[15]: defaulting = 1, visible = 0, type = 32, value = "none"
     // input[16]: defaulting = 1, visible = 0, type = 32, value = "none"
     // input[17]: defaulting = 0, visible = 0, type = 1, value = 1
     // input[18]: defaulting = 0, visible = 0, type = 1, value = 1
-    // input[19]: defaulting = 0, visible = 0, type = 1, value = 1
+    // input[19]: defaulting = 0, visible = 0, type = 3, value = 1
     // input[26]: defaulting = 0, visible = 0, type = 32, value = "miff"
     // input[29]: defaulting = 0, visible = 0, type = 3, value = 1
+    // input[30]: defaulting = 1, visible = 0, type = 16777248, value = {"x", "", ""}
+    // input[31]: defaulting = 0, visible = 0, type = 1, value = 15
     // input[32]: defaulting = 0, visible = 0, type = 16777224, value = {[-4 -4 -0.5] [4 4 0.5]}
+    // input[33]: defaulting = 0, visible = 0, type = 3, value = 1
+    // input[34]: defaulting = 0, visible = 0, type = 3, value = 1
+    // input[36]: defaulting = 0, visible = 0, type = 3, value = 0
     // input[41]: defaulting = 0, visible = 0, type = 32, value = "navigate"
     // page group: scalar_viz
     // depth: value = 16
-    // window: position = (0.4293,0.0295), size = 0.6593x0.7505
+    // window: position = (0.3157,0.0581), size = 0.6593x0.7505
     // internal caching: 1
     //
 main_Image_5_out_1,
@@ -318,20 +398,35 @@ main_Image_5_out_3 =
 // network: end of macro body
 CacheScene(main_Image_5_in_1, main_Image_5_out_1, main_Image_5_out_2);
 }
-main_String_1_out_1 = "anim";
+main_ImportSpreadsheet_1_in_1 = "anime.dxcont";
+main_ImportSpreadsheet_1_in_2 = NULL;
+main_ImportSpreadsheet_1_in_3 = NULL;
+main_ImportSpreadsheet_1_in_4 = NULL;
+main_ImportSpreadsheet_1_in_5 = NULL;
+main_ImportSpreadsheet_1_in_6 = NULL;
+main_ImportSpreadsheet_1_in_7 = NULL;
+main_ImportSpreadsheet_1_in_8 = NULL;
+main_ImportSpreadsheet_1_in_9 = NULL;
+main_ImportSpreadsheet_1_in_10 = 1;
+main_ImportSpreadsheet_1_out_1 = NULL;
+main_Extract_3_in_2 = "fieldname";
+main_Extract_3_out_1 = NULL;
+main_Extract_1_in_2 = "jmin";
+main_Extract_1_out_1 = NULL;
+main_Extract_2_in_2 = "jmax";
+main_Extract_2_out_1 = NULL;
+main_Extract_5_in_2 = "jstep";
+main_Extract_5_out_1 = NULL;
 main_Sequencer_1_in_1 = "Sequencer_1";
 main_Sequencer_1_in_2 = NULL;
 main_Sequencer_1_in_3 = NULL;
-main_Sequencer_1_in_4 = NULL;
-main_Sequencer_1_in_5 = NULL;
-main_Sequencer_1_in_6 = NULL;
-main_Sequencer_1_in_7 = { 1 100 1 1 100 1 };
+main_Sequencer_1_in_7 = { 2 6 2 2 6 1 };
 main_Sequencer_1_out_1 = NULL;
 
-@startframe = 1;
+@startframe = 2;
 @nextframe  = @startframe;
-@endframe   = 100;
-@deltaframe = 1;
+@endframe   = 6;
+@deltaframe = 2;
 main_Format_1_in_1 = "%s%04d%s";
 main_Format_1_in_4 = ".dxhead";
 main_Format_1_out_1 = NULL;
@@ -362,20 +457,21 @@ main_Colormap_5_in_8 = NULL;
 main_Colormap_5_in_9 = NULL;
 main_Colormap_5_in_10 = NULL;
 main_Colormap_5_in_11 = NULL;
-main_Colormap_5_in_12 = { -0.00049905799 0.00049905799 };
+main_Colormap_5_in_12 = { -0.00066459802 0.00066459802 };
 main_Colormap_5_in_13 = NULL;
 main_Colormap_5_in_14 = NULL;
 main_Colormap_5_in_15 = NULL;
 main_Colormap_5_in_16 = NULL;
-main_Colormap_5_in_17 = -0.00049905799;
-main_Colormap_5_in_18 = 0.00049905799;
+main_Colormap_5_in_17 = -0.00066459802;
+main_Colormap_5_in_18 = 0.00066459802;
 main_Colormap_5_in_19 = NULL;
 main_Colormap_5_out_1 = NULL;
 main_Color_5_in_3 = NULL;
 main_Color_5_in_4 = NULL;
 main_Color_5_in_5 = NULL;
 main_Color_5_out_1 = NULL;
-main_RubberSheet_1_in_2 = 1.;
+main_Extract_4_in_2 = "ampli";
+main_Extract_4_out_1 = NULL;
 main_RubberSheet_1_in_3 = NULL;
 main_RubberSheet_1_in_4 = NULL;
 main_RubberSheet_1_out_1 = NULL;
@@ -724,13 +820,13 @@ macro Image(
 main_Image_5_in_1 = "Image_5";
 main_Image_5_in_3 = "X16,,";
 main_Image_5_in_4 = 1;
-main_Image_5_in_5 = [1.79895 1.13303 -1.70164];
-main_Image_5_in_6 = [-0.747387 -10.6042 7.63458];
+main_Image_5_in_5 = [-15.2958 30.3937 -24.3263];
+main_Image_5_in_6 = [7.60013 -17.2322 13.4961];
 main_Image_5_in_7 = NULL;
 main_Image_5_in_8 = 909;
 main_Image_5_in_9 = 0.821232;
-main_Image_5_in_10 = [0.11341 0.603313 0.789399];
-main_Image_5_in_11 = 45.3492;
+main_Image_5_in_10 = [0.168546 0.661422 0.730831];
+main_Image_5_in_11 = 30.0;
 main_Image_5_in_12 = 1;
 main_Image_5_in_13 = NULL;
 main_Image_5_in_14 = 1;
@@ -749,12 +845,12 @@ main_Image_5_in_27 = NULL;
 main_Image_5_in_28 = NULL;
 main_Image_5_in_29 = 1;
 main_Image_5_in_30 = NULL;
-main_Image_5_in_31 = NULL;
+main_Image_5_in_31 = 15;
 main_Image_5_in_32 = {[-4 -4 -0.5] [4 4 0.5]};
-main_Image_5_in_33 = NULL;
-main_Image_5_in_34 = NULL;
+main_Image_5_in_33 = 1;
+main_Image_5_in_34 = 1;
 main_Image_5_in_35 = NULL;
-main_Image_5_in_36 = NULL;
+main_Image_5_in_36 = 0;
 main_Image_5_in_37 = NULL;
 main_Image_5_in_38 = NULL;
 main_Image_5_in_39 = NULL;
