@@ -75,14 +75,16 @@ double Bin_ns_ncp::mass_adm() const {
 	    
 	      Tenseur dgamma_1 (mapping, 1, COV, mapping.get_bvect_cart()) ; 
 	      dgamma_1.set_etat_qcq() ;
-	      dgamma_1 = contract(contract(contract(operator*(flat.con(), operator*(flat.con(), (gamma_auto.con()).derive_cov(flat))), 3, 6), 2, 3), 1, 2) ;
+	      dgamma_1 = contract(contract(contract(flat.con() * flat.con() 
+		   * (gamma_auto.con()).derive_cov(flat), 3, 6), 2, 3), 1, 2) ;
 	      dgamma_1.change_triad(mapping.get_bvect_spher()) ;	    
 	      Cmp integrant_1 (dgamma_1(0)) ;
 	    
 
 	      Tenseur dgamma_2 (mapping, 1, COV, mapping.get_bvect_cart()) ; 
 	      dgamma_2.set_etat_qcq() ;
-	      dgamma_2 = contract(contract(contract(operator*(flat.con(), operator*(flat.con(), (gamma_auto.con()).derive_cov(flat))), 3, 6), 2, 4), 1, 2) ;
+	      dgamma_2 = contract(contract(contract(flat.con() * flat.con() 
+		   * (gamma_auto.con()).derive_cov(flat), 3, 6), 2, 4), 1, 2) ;
 	      dgamma_2.change_triad(mapping.get_bvect_spher()) ;
 	      Cmp integrant_2 (dgamma_2(0)) ;
 
