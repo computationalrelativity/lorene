@@ -32,6 +32,9 @@ char mtbl_cf_val_point_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2002/05/11 12:37:31  e_gourgoulhon
+ * Added basis T_COSSIN_SI.
+ *
  * Revision 1.2  2002/05/05 16:22:33  e_gourgoulhon
  * Added the case of the theta basis T_COSSIN_SP.
  *
@@ -111,6 +114,7 @@ static int premier_appel = 1 ;
 	som_tet[T_COSSIN_CP >> TRA_T] = som_tet_cossin_cp ;
 	som_tet[T_COSSIN_CI >> TRA_T] = som_tet_cossin_ci ;
 	som_tet[T_COSSIN_SP >> TRA_T] = som_tet_cossin_sp ;
+	som_tet[T_COSSIN_SI >> TRA_T] = som_tet_cossin_si ;
 
 	som_phi[P_COSSIN >> TRA_P] = som_phi_cossin ;
 	som_phi[P_COSSIN_P >> TRA_P] = som_phi_cossin_p ;

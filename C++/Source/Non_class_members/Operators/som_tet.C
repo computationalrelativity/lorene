@@ -39,6 +39,9 @@ char som_tet_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/05/11 12:36:54  e_gourgoulhon
+ * Added basis T_COSSIN_SI.
+ *
  * Revision 1.3  2002/05/05 16:20:40  e_gourgoulhon
  * Error message (in unknwon basis case) in English
  * Added the basis T_COSSIN_SP
@@ -522,6 +525,58 @@ double* po = to ;	    // Pointeur courant sur la sortie
     for (j=0 ; j<2*nt ; j +=2) {
 	cossin[j] = sin(j * tet) ;
 	cossin[j+1] = cos((j+1) * tet) ;
+    }
+
+    // Sommation sur le premier phi -> cosinus, k=0
+    *po = 0 ;
+    for (j=0 ; j<nt ; j++) {
+	*po += (*pi) * cossin[2*j] ;
+	pi++ ;	// Theta suivant
+    }
+    po++ ;	// Phi suivant
+
+    if (np > 1) {	
+
+    // On saute le phi suivant (sin(0)), k=1
+    pi += nt ;
+    po++ ;
+
+    // Sommation sur le reste des phi (pour k=2,...,np), suivant parite de m
+    for (k=2 ; k<np+1 ; k++) {
+	int m = (k/2) % 2 ;	    // parite: 0 <-> 1
+	(*po) = 0 ;
+	for (j=0 ; j<nt ; j++) {
+	    *po += (*pi) * cossin[2*j + m] ;
+	    pi++ ;  // Theta suivant
+	}
+	po++ ;	    // Phi suivant
+    }
+    }	// fin du cas np > 1
+
+    // Menage
+    delete [] cossin ;
+
+}
+
+
+			//---------------------
+			//  Cas T_COSSIN_SI ---
+			//---------------------
+
+void som_tet_cossin_si
+    (double* ti, const int nt, const int np,
+    const double tet, double* to) {
+
+// Variables diverses
+int j, k ;
+double* pi = ti ;	    // Pointeur courant sur l'entree
+double* po = to ;	    // Pointeur courant sur la sortie
+
+    // Initialisation des tables trigo
+    double* cossin = new double [2*nt] ;
+    for (j=0 ; j<2*nt ; j +=2) {
+	cossin[j] = sin((j+1) * tet) ;
+	cossin[j+1] = cos(j * tet) ;
     }
 
     // Sommation sur le premier phi -> cosinus, k=0
