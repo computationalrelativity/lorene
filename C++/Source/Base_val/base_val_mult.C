@@ -27,8 +27,11 @@ char base_val_mult_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/02/07 14:55:07  e_gourgoulhon
+ * Add more cases in theta and phi
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.3  2001/08/29  09:31:00  keisuke
  * Addition of the cases T_COSSIN_SP * T_COSSIN_SP,
@@ -110,15 +113,38 @@ Base_val operator* (const Base_val& b1, const Base_val& b2) {
 			base = P_COSSIN_P ;
 			indic_p = 1 ;
 			break ;
-		    default :
+
+                    case P_COSSIN_I :
+			base = P_COSSIN_I ;
+			indic_p = 1 ;
+			break ;
+
+                    default :
 			break ;
 		}
 		break ;
-		
+
+	    case P_COSSIN_I :
+		switch (b2_p) {
+		    case P_COSSIN_P :
+			base = P_COSSIN_I ;
+			indic_p = 1 ;
+			break ;
+
+                    case P_COSSIN_I :
+			base = P_COSSIN_P ;
+			indic_p = 1 ;
+			break ;
+
+                    default :
+			break ;
+		}
+		break ;
+
 	    default :
 		break ;
 	}
-	
+
 	switch (b1_t) {
 	    
 	    case T_COSSIN_CP :
@@ -235,17 +261,27 @@ Base_val operator* (const Base_val& b1, const Base_val& b2) {
 			base = base | T_COS_P ;
 			indic_t = 1 ;
 			break ;
-		    
+
 		    case T_COS_I :
 			base = base | T_COS_I ;
 			indic_t = 1 ;
 			break ;
-			
-		    default :
+
+		    case T_SIN_I :
+			base = base | T_SIN_I ;
+			indic_t = 1 ;
+			break ;
+
+		    case T_SIN_P :
+			base = base | T_SIN_P ;
+			indic_t = 1 ;
+			break ;
+
+                    default :
 			break ;
 		}
 		break ;
-		
+
 	    case T_COS_I :
 		switch (b2_t) {
 		    case T_COS_P :
@@ -257,12 +293,66 @@ Base_val operator* (const Base_val& b1, const Base_val& b2) {
 			base = base | T_COS_P ;
 			indic_t = 1 ;
 			break ;
-			
+
+		    case T_SIN_P :
+			base = base | T_SIN_I ;
+			indic_t = 1 ;
+			break ;
+
 		    default :
 			break ;
 		}
 		break ;
 	    
+	    case T_SIN_P :
+		switch (b2_t) {
+		    case T_SIN_P :
+			base = base | T_COS_P ;
+			indic_t = 1 ;
+			break ;
+
+		    case T_COS_P :
+			base = base | T_SIN_P ;
+			indic_t = 1 ;
+			break ;
+
+		    case T_COS_I :
+			base = base | T_SIN_I ;
+			indic_t = 1 ;
+			break ;
+
+                    case T_SIN_I :
+			base = base | T_COS_I ;
+			indic_t = 1 ;
+			break ;
+
+		    default :
+			break ;
+		}
+		break ;
+
+	    case T_SIN_I :
+		switch (b2_t) {
+		    case T_SIN_I :
+			base = base | T_COS_P ;
+			indic_t = 1 ;
+			break ;
+
+		    case T_COS_P :
+			base = base | T_SIN_I ;
+			indic_t = 1 ;
+			break ;
+
+		    case T_SIN_P :
+			base = base | T_COS_I ;
+			indic_t = 1 ;
+			break ;
+
+		    default :
+			break ;
+		}
+		break ;
+
 	    case T_LEG_P :
 		switch (b2_t) {
 		    case T_LEG_P :
