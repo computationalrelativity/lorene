@@ -30,6 +30,10 @@ char star_bin_extr_curv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/23 09:57:57  f_limousin
+ * We now make the derivation with respect to the metric tilde
+ * instead of the flat metric for the computation of dshift.
+ *
  * Revision 1.3  2004/02/27 09:52:41  f_limousin
  * Correction of an error on the computation of kcar_auto.
  *
@@ -50,10 +54,10 @@ void Star_bin::extrinsic_curvature(){
     //           of the mapping)
     // D~_j beta^i 
     
-    const Tensor& dshift = shift_auto.derive_con(flat) ; 
+    const Tensor& dshift = shift_auto.derive_con(gtilde) ; 
     
      // Trace of D~_j beta^i : 
-    Scalar div_shift = shift_auto.divergence(flat) ; 
+    Scalar div_shift = shift_auto.divergence(gtilde) ; 
 
     // Computation of K^{ij}
     // See Eq (49) from Gourgoulhon et al. (2001)
