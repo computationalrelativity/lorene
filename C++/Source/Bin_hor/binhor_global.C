@@ -26,6 +26,9 @@ char binhor_glob_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/03/04 17:09:57  jl_jaramillo
+ * Change to avoid warnings
+ *
  * Revision 1.1  2005/03/03 13:48:56  f_limousin
  * First version
  *
@@ -55,10 +58,12 @@ double Bin_hor::adm_mass() const {
 
     Vector ww (0.125*(hole1.hdirac() - (hole1.hh().trace(hole1.ff)).
 		      derive_con(hole1.ff))) ;
+
+    double inf = hole1.mp.val_r(hole1.mp.get_mg()->get_nzone()-1, 1., 0., 0.) ;
     
-    double masse = dpsi_un.flux(__infinity, hole1.ff) + 
-	           dpsi_deux.flux(__infinity, hole2.ff) +
-	           ww.flux(__infinity, hole1.ff) ;
+    double masse = dpsi_un.flux(inf, hole1.ff) + 
+	           dpsi_deux.flux(inf, hole2.ff) +
+	           ww.flux(inf, hole1.ff) ;
     masse /= -2*M_PI ;
     return masse ;
 }
@@ -70,9 +75,11 @@ double Bin_hor::komar_mass() const {
     
     Vector ww (contract(hole1.hh(), 1, hole1.nn().derive_cov(hole1.ff), 0)) ;
 	       
-    double mass = dnn_un.flux(__infinity, hole1.ff) + 
-	dnn_deux.flux(__infinity, hole2.ff) + 
-	ww.flux(__infinity, hole1.ff) ;
+    double inf = hole1.mp.val_r(hole1.mp.get_mg()->get_nzone()-1, 1., 0., 0.) ;
+
+    double mass = dnn_un.flux(inf, hole1.ff) + 
+	dnn_deux.flux(inf, hole2.ff) + 
+	ww.flux(inf, hole1.ff) ;
     
     mass /= 4*M_PI ;
     return mass ;
@@ -94,10 +101,10 @@ double Bin_hor::ang_mom_adm() {
     return mom ;
     
   }
-
+/*
 double Bin_hor::proper_distance(const int nr) const {
     
-/*
+
     // On determine les rayons coordonnes des points limites de l'integrale :
     double x_un = hole1.mp.get_ori_x() - hole1.rayon ;
     double x_deux = hole2.mp.get_ori_x() + hole2.rayon ;
@@ -151,7 +158,6 @@ double Bin_hor::proper_distance(const int nr) const {
     delete [] som ;
    
     return res ;
-*/
-    return 0 ;
-}
 
+}
+*/
