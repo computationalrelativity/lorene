@@ -22,7 +22,7 @@ CXXFLAGS = -n32 -mips4 -O2 -OPT:Olimit=0 -LANG:ansi-for-init-scope=on \
 
 # Options for the C++ compiler to produce the library for debugging:
 # -----------------------------------------------------------------
-CXXFLAGS_G = -n32 -g -mips3 -LANG:ansi-for-init-scope=on -fullwarn -ptv 
+CXXFLAGS_G = -n32 -g -mips4 -LANG:ansi-for-init-scope=on -fullwarn -ptv 
 
 # Path for the include files:
 # --------------------------
@@ -43,7 +43,7 @@ F77FLAGS = -n32 -mips4 -O2 -OPT:Olimit=3500 -extend_source
 
 # Options for the Fortran 77 compiler to produce the library for debugging:
 # ------------------------------------------------------------------------
-F77FLAGS_G = -n32 -g -static -mips3 -O0 -extend_source
+F77FLAGS_G = -n32 -g -static -mips4 -O0 -extend_source
 
 
 #===============================#

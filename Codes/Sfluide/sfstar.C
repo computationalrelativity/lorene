@@ -325,7 +325,7 @@ int main(){
     fichfinal << 
     "================================================================" << endl ; 
     fichfinal.close() ; 
-    system("ident rotstar >> calcul.d") ; 
+    system("ident sfstar >> calcul.d") ; 
 
 
     // Saveguard of the whole configuration
@@ -344,7 +344,7 @@ int main(){
     
     // Drawings
     // --------
-    
+
     if (graph == 1) {
       
       char title[80] ;
@@ -353,12 +353,17 @@ int main(){
       
       // Cmp defining the surface of the star (via the density fields)
       // 
-      Cmp t1(enta) ;
-      Cmp t2(entb) ;
-      peos->nbar_ent(star.get_ent()(), star.get_ent2()(), star.get_xxx2()(),
-		     t1, t2, star.get_nzet(), 0, false) ;
-      Cmp surf(t1) ;
-      Cmp surf2(t2) ;
+      Cmp surf(mp) ;
+      surf = -0.2*star.get_nbar()()(0,0,0,0) ;
+      surf.annule(0, star.get_nzet()-1) ;
+      surf += star.get_nbar()() ; ;
+      surf = prolonge_c1(surf, star.get_nzet()) ;
+
+      Cmp surf2(mp) ;
+      surf2 = -0.2*star.get_nbar2()()(0,0,0,0) ;
+      surf2.annule(0, star.get_nzet()-1) ;
+      surf2 += star.get_nbar2()() ; ;
+      surf2 = prolonge_c1(surf2, star.get_nzet()) ;
 
       des_bi_coupe_y(star.get_nbar()(), 0., nzdes, "Fluid 1 baryonic density", 
 		     &surf, &surf) ; 

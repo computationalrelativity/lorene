@@ -25,6 +25,10 @@ char et_bfort_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/04/05 09:09:36  j_novak
+ * The inversion of the EOS for 2-fluids polytrope has been modified.
+ * Some errors in the determination of the surface were corrected.
+ *
  * Revision 1.3  2002/01/08 14:43:53  j_novak
  * better determination of surfaces for 2-fluid stars
  *
@@ -441,7 +445,11 @@ const Itbl& Et_rot_bifluid::l_surf() const {
 	      
     // Cmp defining the surface of the star (via the density fields)
     // 
-    Cmp surf(prolonge_c1(nbar(), nzet)) ;
+    Cmp surf(mp) ;
+    surf = -0.2*nbar()(0,0,0,0) ;
+    surf.annule(0, nzet-1) ;
+    surf += nbar() ; ;
+    surf = prolonge_c1(surf, nzet) ;
     
     (surf.va).equipot(nb0, nzet, precis, nitermax, niter, *p_l_surf, 
 			*p_xi_surf) ; 
@@ -470,7 +478,11 @@ const Itbl& Et_rot_bifluid::l_surf2() const {
 	
     // Cmp defining the surface of the star (via the density fields)
     // 
-    Cmp surf2(prolonge_c1(nbar2(), nzet) );
+    Cmp surf2(mp) ;
+    surf2 = -0.2*nbar2()(0,0,0,0) ;
+    surf2.annule(0, nzet-1) ;
+    surf2 += nbar2() ; ;
+    surf2 = prolonge_c1(surf2, nzet) ;
     
     (surf2.va).equipot(nb0, nzet, precis, nitermax, niter, *p_l_surf2, 
 			*p_xi_surf2) ; 
@@ -494,7 +506,6 @@ const Tbl& Et_rot_bifluid::xi_surf2() const {
   return *p_xi_surf2 ; 
     
 }
-
 
 //--------------------------//
 //	Coordinate radii    //

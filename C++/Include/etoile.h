@@ -34,6 +34,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/04/05 09:09:36  j_novak
+ * The inversion of the EOS for 2-fluids polytrope has been modified.
+ * Some errors in the determination of the surface were corrected.
+ *
  * Revision 1.3  2002/01/11 14:09:34  j_novak
  * Added newtonian version for 2-fluid stars
  *
@@ -632,7 +636,7 @@ class Etoile {
 	 *	The stellar surface is defined as the location where
 	 *	the enthalpy (member {\tt ent}) vanishes.
 	 */
-	const Itbl& l_surf() const ; 
+	virtual const Itbl& l_surf() const ; 
 	
 	/** Description of the stellar surface: returns a 2-D {\tt Tbl} 
 	 *	containing the values of the radial coordinate $\xi$ 
@@ -1659,6 +1663,15 @@ class Etoile_rot : public Etoile {
     // Global quantities
     // -----------------
     public:
+	
+	/** Description of the stellar surface: returns a 2-D {\tt Itbl} 
+	 *	containing the 
+	 *	values of the domain index $l$ on the surface at the 
+	 *	collocation points in $(\theta', \phi')$.
+	 *	The stellar surface is defined as the location where
+	 *	the enthalpy (member {\tt ent}) vanishes.
+	 */
+	virtual const Itbl& l_surf() const ; 
 	
 	virtual double mass_b() const ;	    /// Baryon mass
 	virtual double mass_g() const ;	    /// Gravitational mass

@@ -31,8 +31,12 @@ char et_rot_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2002/04/05 09:09:37  j_novak
+ * The inversion of the EOS for 2-fluids polytrope has been modified.
+ * Some errors in the determination of the surface were corrected.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.5  2000/11/19  18:52:09  eric
  * grv2() operationnelle.
@@ -60,6 +64,36 @@ char et_rot_global_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "etoile.h"
+
+			//--------------------------//
+			//	Stellar surface	    //
+			//--------------------------//
+
+const Itbl& Etoile_rot::l_surf() const {
+
+    if (p_l_surf == 0x0) {    // a new computation is required
+    
+	assert(p_xi_surf == 0x0) ;  // consistency check
+	
+	int np = mp.get_mg()->get_np(0) ;   
+	int nt = mp.get_mg()->get_nt(0) ;   
+	
+	p_l_surf = new Itbl(np, nt) ;
+	p_xi_surf = new Tbl(np, nt) ;
+	
+	double ent0 = 0 ;	// definition of the surface
+	double precis = 1.e-15 ; 
+	int nitermax = 100 ; 
+	int niter ; 
+	
+	(ent().va).equipot(ent0, nzet, precis, nitermax, niter, *p_l_surf, 
+		    *p_xi_surf) ; 
+    
+    }
+   
+    return *p_l_surf ; 
+    
+}
 
 			//--------------------------//
 			//	Baryon mass	    //

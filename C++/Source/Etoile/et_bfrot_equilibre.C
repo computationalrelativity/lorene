@@ -32,6 +32,10 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/04/05 09:09:36  j_novak
+ * The inversion of the EOS for 2-fluids polytrope has been modified.
+ * Some errors in the determination of the surface were corrected.
+ *
  * Revision 1.3  2002/01/16 15:03:28  j_novak
  * *** empty log message ***
  *
@@ -681,9 +685,10 @@ void Et_rot_bifluid::equilibrium_bi
 
     source_nuf().poisson(par_poisson_nuf, nuf.set()) ; 
 	
-    cout << "Test of the Poisson equation for nuf :" << endl ; 
-    Tbl err = source_nuf().test_poisson(nuf(), cout, true) ; 
-    diff_nuf = err(0, 0) ; 
+//      cout << "Test of the Poisson equation for nuf :" << endl ; 
+//      Tbl err = source_nuf().test_poisson(nuf(), cout, true) ; 
+//      diff_nuf = err(0, 0) ; 
+    diff_nuf = 0 ;
 	
     if (relativistic) {
 	    
@@ -693,9 +698,10 @@ void Et_rot_bifluid::equilibrium_bi
 
       source_nuq().poisson(par_poisson_nuq, nuq.set()) ; 
 	    
-      cout << "Test of the Poisson equation for nuq :" << endl ; 
-      err = source_nuq().test_poisson(nuq(), cout, true) ;
-      diff_nuq = err(0, 0) ; 
+//        cout << "Test of the Poisson equation for nuq :" << endl ; 
+//        err = source_nuq().test_poisson(nuq(), cout, true) ;
+//        diff_nuq = err(0, 0) ; 
+      diff_nuq = 0 ;
 	
       //---------------------------------------------------------
       // Resolution of the vector Poisson equation for the shift
@@ -724,13 +730,15 @@ void Et_rot_bifluid::equilibrium_bi
       source_shift.poisson_vect(lambda_shift, par_poisson_vect, 
 				shift, w_shift, khi_shift) ;      
 	    
-      cout << "Test of the Poisson equation for shift_x :" << endl ; 
-      err = source_shift(0).test_poisson(shift(0), cout, true) ;
-      diff_shift_x = err(0, 0) ; 
+//        cout << "Test of the Poisson equation for shift_x :" << endl ; 
+//        err = source_shift(0).test_poisson(shift(0), cout, true) ;
+//        diff_shift_x = err(0, 0) ; 
+      diff_shift_x = 0 ; 
 	
-      cout << "Test of the Poisson equation for shift_y :" << endl ; 
-      err = source_shift(1).test_poisson(shift(1), cout, true) ;
-      diff_shift_y = err(0, 0) ; 
+//        cout << "Test of the Poisson equation for shift_y :" << endl ; 
+//        err = source_shift(1).test_poisson(shift(1), cout, true) ;
+//        diff_shift_y = err(0, 0) ; 
+      diff_shift_y = 0 ;
 	    
       // Computation of tnphi and nphi from the Cartesian components
       //  of the shift
@@ -915,7 +923,7 @@ void Et_rot_bifluid::equilibrium_bi
     //  Informations display
     //-----------------------
 
-    partial_display(cout) ; 
+    //    partial_display(cout) ; 
     fichfreq << "  " << omega / (2*M_PI) * f_unit ; 
     fichfreq << "  " << omega2 / (2*M_PI) * f_unit ; 
     fichevol << "  " << ray_pole() / ray_eq() ; 

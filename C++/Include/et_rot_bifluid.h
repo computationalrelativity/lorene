@@ -31,6 +31,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2002/04/05 09:09:36  j_novak
+ * The inversion of the EOS for 2-fluids polytrope has been modified.
+ * Some errors in the determination of the surface were corrected.
+ *
  * Revision 1.4  2002/01/16 15:03:28  j_novak
  * *** empty log message ***
  *
@@ -259,7 +263,7 @@ class Et_rot_bifluid : public Etoile_rot {
    *	The stellar surface is defined as the location where
    *	the enthalpy 2 (member {\tt ent2}) vanishes.
    */
-  const Itbl& l_surf() const ; 
+  virtual const Itbl& l_surf() const ; 
 	
   /** Description of the surface of fluid 2: returns a 2-D {\tt Itbl} 
    *	containing the 

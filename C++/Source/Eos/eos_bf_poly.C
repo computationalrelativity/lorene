@@ -31,6 +31,10 @@ char eos_bf_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2002/04/05 09:09:36  j_novak
+ * The inversion of the EOS for 2-fluids polytrope has been modified.
+ * Some errors in the determination of the surface were corrected.
+ *
  * Revision 1.5  2002/01/16 15:03:28  j_novak
  * *** empty log message ***
  *
@@ -362,19 +366,16 @@ void  Eos_bf_poly::nbar_ent_p(const double ent1, const double ent2,
     nbar1 = (kap2*(exp(ent1) - m_1) - kpd*(exp(ent2) - m_2)) / determ ;
     nbar2 = (kap1*(exp(ent2) - m_2) - kpd*(exp(ent1) - m_1)) / determ ;
 
-    if (nbar1 < 0.) {
+    if ((nbar1 < 0.)||(nbar2 < 0.)) {
+      nbar1 = (exp(ent1) - m_1)/kap1 ;
       nbar2 = (exp(ent2) - m_2)/kap2 ;
       if (tronc) { 
-	nbar1 = 0. ;
+	nbar1 = nbar1 < 0. ? 0. : nbar1 ;
 	nbar2 = nbar2 < 0. ? 0. : nbar2 ;
       }
-      return ;
-    }
-    if (nbar2 < 0.) {
-      nbar1 = (exp(ent1) - m_1)/kap1 ;
-      if (tronc) {
-	nbar2 = 0. ;
-	nbar1 = nbar1 < 0. ? 0. : nbar1 ;
+      if ((nbar1 > 0.)&&(nbar2 > 0.)) {
+	if (nbar1>nbar2) nbar2 = 0. ;
+	if (nbar2>nbar1) nbar1 = 0. ;
       }
       return ;
     }
