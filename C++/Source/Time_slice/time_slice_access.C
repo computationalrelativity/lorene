@@ -30,6 +30,11 @@ char time_slice_access_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/03/28 21:29:45  e_gourgoulhon
+ * Evolution_std's renamed with suffix "_evol"
+ * Method gam() modified
+ * Added special constructor for derived classes.
+ *
  * Revision 1.1  2004/03/26 13:33:02  j_novak
  * New methods for accessing/updating members (nn(), beta(), gam_uu(), k_uu(), ...)
  *
@@ -52,31 +57,25 @@ char time_slice_access_C[] = "$Header$" ;
 
 const Scalar& Time_slice::nn() const {
 
-    assert( lapse.is_known(jtime) ) ; 
-    return lapse[jtime] ; 
+    assert( n_evol.is_known(jtime) ) ; 
+    return n_evol[jtime] ; 
 
 }
 
 
 const Vector& Time_slice::beta() const {
 
-    assert( shift.is_known(jtime) ) ; 
-    return shift[jtime] ; 
+    assert( beta_evol.is_known(jtime) ) ; 
+    return beta_evol[jtime] ; 
 
 
 }
 
-
 const Metric& Time_slice::gam() const {
 
     if (p_gamma == 0x0) {
-        if ( gamma_dd.is_known(jtime) ) {
-            p_gamma = new Metric( gamma_dd[jtime] ) ; 
-        }
-        else {
-            assert( gamma_uu.is_known(jtime) ) ; 
-            p_gamma = new Metric( gamma_uu[jtime] ) ; 
-        }    
+        gam_dd() ; // may force the computation of p_gamma
+        if (p_gamma == 0x0) p_gamma = new Metric( gam_dd() ) ; 
     }
     
     return *p_gamma ; 
@@ -86,23 +85,27 @@ const Metric& Time_slice::gam() const {
 
 const Sym_tensor& Time_slice::gam_dd() const {
 
-    if (!( gamma_dd.is_known(jtime)) ) {
-      assert( gamma_uu.is_known(jtime) ) ; 
-      gamma_dd.update(gam().cov(), jtime, the_time[jtime] ) ; 
+    if (!( gam_dd_evol.is_known(jtime)) ) {
+        assert( gam_uu_evol.is_known(jtime) ) ; 
+        if (p_gamma == 0x0) {
+            p_gamma = new Metric( gam_uu_evol[jtime] ) ; 
+        }
+        
+        gam_dd_evol.update(p_gamma->cov(), jtime, the_time[jtime] ) ; 
     }
 
-    return gamma_dd[jtime] ;
+    return gam_dd_evol[jtime] ;
 
 }
 
 const Sym_tensor& Time_slice::gam_uu() const {
 
-    if (!( gamma_uu.is_known(jtime)) ) {
-      assert( gamma_dd.is_known(jtime) ) ; 
-      gamma_uu.update(gam().con(), jtime, the_time[jtime] ) ; 
+    if (!( gam_uu_evol.is_known(jtime)) ) {
+      assert( gam_dd_evol.is_known(jtime) ) ; 
+      gam_uu_evol.update(gam().con(), jtime, the_time[jtime] ) ; 
     }
 
-    return gamma_uu[jtime] ;
+    return gam_uu_evol[jtime] ;
 
 }
 
@@ -110,46 +113,50 @@ const Sym_tensor& Time_slice::gam_uu() const {
 
 const Sym_tensor& Time_slice::k_dd() const {
 
-    if ( ! (kk_dd.is_known(jtime)) ) {
+    if ( ! (k_dd_evol.is_known(jtime)) ) {
        
-      gam_dd() ;
-      
       Vector beta_d = beta().down(0, gam()) ;
       const Tensor& dbeta_dd = beta_d.derive_cov(gam()) ;
 
-      Sym_tensor resu = - gamma_dd.time_derive(jtime, scheme_order) ;
+      gam_dd() ; // to make sure that gam_dd is up to date before taking its
+                 // time derivative
+      
+      Sym_tensor resu = - gam_dd_evol.time_derive(jtime, scheme_order) ;
+      
       for (int i=1; i<=3; i++) 
 	for (int j=i; j<=3; j++) 
 	  resu.set(i,j) += dbeta_dd(i,j) + dbeta_dd(j,i) ;
       
       resu = resu / (2*nn()) ;
-      kk_dd.update(resu, jtime, the_time[jtime]) ;
+      k_dd_evol.update(resu, jtime, the_time[jtime]) ;
         
     }
 
-    return kk_dd[jtime] ;
+    return k_dd_evol[jtime] ;
 
 }
 
 const Sym_tensor& Time_slice::k_uu() const {
 
-    if ( ! (kk_uu.is_known(jtime)) ) {
+    if ( ! (k_uu_evol.is_known(jtime)) ) {
        
-      gam_uu() ;
-      
       const Tensor& dbeta_uu = beta().derive_con(gam()) ;
 
-      Sym_tensor resu = gamma_uu.time_derive(jtime, scheme_order) ;
+      gam_uu() ; // to make sure that gam_uu is up to date before taking its
+                 // time derivative
+      
+      Sym_tensor resu = gam_uu_evol.time_derive(jtime, scheme_order) ;
+      
       for (int i=1; i<=3; i++) 
 	for (int j=i; j<=3; j++) 
 	  resu.set(i,j) += dbeta_uu(i,j) + dbeta_uu(j,i) ;
       
       resu = resu / (2*nn()) ;
-      kk_uu.update(resu, jtime, the_time[jtime]) ;
+      k_uu_evol.update(resu, jtime, the_time[jtime]) ;
         
     }
 
-    return kk_uu[jtime] ;
+    return k_uu_evol[jtime] ;
 
 }
 

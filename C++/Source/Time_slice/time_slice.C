@@ -30,6 +30,11 @@ char time_slice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/28 21:29:45  e_gourgoulhon
+ * Evolution_std's renamed with suffix "_evol"
+ * Method gam() modified
+ * Added special constructor for derived classes.
+ *
  * Revision 1.3  2004/03/26 13:33:02  j_novak
  * New methods for accessing/updating members (nn(), beta(), gam_uu(), k_uu(), ...)
  *
@@ -71,27 +76,27 @@ Time_slice::Time_slice(const Scalar& lapse_in, const Vector& shift_in,
 		 scheme_order(depth_in-1),
                  jtime(0),
                  the_time(0., depth_in),
-                 gamma_dd(depth_in),
-                 gamma_uu(depth_in),
-                 kk_dd(depth_in),
-                 kk_uu(depth_in),
-                 lapse(lapse_in, depth_in),
-                 shift(shift_in, depth_in) {
+                 gam_dd_evol(depth_in),
+                 gam_uu_evol(depth_in),
+                 k_dd_evol(depth_in),
+                 k_uu_evol(depth_in),
+                 n_evol(lapse_in, depth_in),
+                 beta_evol(shift_in, depth_in) {
                                   
     double time_init = the_time[jtime] ; 
 
     if (gamma_in.get_index_type(0) == COV) {
-        gamma_dd.update(gamma_in, jtime, time_init) ; 
+        gam_dd_evol.update(gamma_in, jtime, time_init) ; 
     }
     else {
-        gamma_uu.update(gamma_in, jtime, time_init) ; 
+        gam_uu_evol.update(gamma_in, jtime, time_init) ; 
     }
                  
     if (kk_in.get_index_type(0) == COV) {
-        kk_dd.update(kk_in, jtime, time_init) ; 
+        k_dd_evol.update(kk_in, jtime, time_init) ; 
     }
     else {
-        kk_uu.update(kk_in, jtime, time_init) ; 
+        k_uu_evol.update(kk_in, jtime, time_init) ; 
     }
                  
     set_der_0x0() ; 
@@ -107,12 +112,12 @@ Time_slice::Time_slice(const Scalar& lapse_in, const Vector& shift_in,
  		 scheme_order(gamma_in.get_size()-1),
 		 jtime(0),
                  the_time(0., gamma_in.get_size()),
-                 gamma_dd( gamma_in.get_size() ),
-                 gamma_uu( gamma_in.get_size() ),
-                 kk_dd( gamma_in.get_size() ),
-                 kk_uu( gamma_in.get_size() ),
-                 lapse(lapse_in, gamma_in.get_size() ),
-                 shift(shift_in, gamma_in.get_size() ) {
+                 gam_dd_evol( gamma_in.get_size() ),
+                 gam_uu_evol( gamma_in.get_size() ),
+                 k_dd_evol( gamma_in.get_size() ),
+                 k_uu_evol( gamma_in.get_size() ),
+                 n_evol(lapse_in, gamma_in.get_size() ),
+                 beta_evol(shift_in, gamma_in.get_size() ) {
 
     cerr << 
     "Time_slice constuctor from evolution of gamma not implemented yet !\n" ;
@@ -129,12 +134,12 @@ Time_slice::Time_slice(const Map& mp, const Base_vect& triad, int depth_in)
 		 scheme_order(depth_in-1),
                  jtime(0),
                  the_time(0., depth_in),
-                 gamma_dd(depth_in),
-                 gamma_uu(depth_in),
-                 kk_dd(depth_in),
-                 kk_uu(depth_in),
-                 lapse(depth_in),
-                 shift(depth_in) {
+                 gam_dd_evol(depth_in),
+                 gam_uu_evol(depth_in),
+                 k_dd_evol(depth_in),
+                 k_uu_evol(depth_in),
+                 n_evol(depth_in),
+                 beta_evol(depth_in) {
                  
     double time_init = the_time[jtime] ; 
     
@@ -143,28 +148,28 @@ Time_slice::Time_slice(const Map& mp, const Base_vect& triad, int depth_in)
     bool spher = (ptriad_s != 0x0) ; 
     
     if (spher) {
-        gamma_dd.update( mp.flat_met_spher().cov(), jtime, time_init) ;  
+        gam_dd_evol.update( mp.flat_met_spher().cov(), jtime, time_init) ;  
     }         
     else {
         assert( dynamic_cast<const Base_vect_cart*>(&triad) != 0x0) ; 
-        gamma_dd.update( mp.flat_met_cart().cov(), jtime, time_init) ;                           
+        gam_dd_evol.update( mp.flat_met_cart().cov(), jtime, time_init) ;                           
     }
 
 
     // K_ij identically zero:
     Sym_tensor ktmp(mp, COV, triad) ;
     ktmp.set_etat_zero() ; 
-    kk_dd.update(ktmp, jtime, time_init) ;  
+    k_dd_evol.update(ktmp, jtime, time_init) ;  
 
     // Lapse identically one:
     Scalar tmp(mp) ; 
     tmp.set_etat_one() ; 
-    lapse.update(tmp, jtime, time_init) ; 
+    n_evol.update(tmp, jtime, time_init) ; 
     
     // shift identically zero:
     Vector btmp(mp, CON, triad) ;
     btmp.set_etat_zero() ; 
-    shift.update(btmp, jtime, time_init) ;  
+    beta_evol.update(btmp, jtime, time_init) ;  
     
     set_der_0x0() ; 
 }
@@ -177,15 +182,35 @@ Time_slice::Time_slice(const Time_slice& tin)
 		 scheme_order(tin.scheme_order),
                  jtime(tin.jtime),
                  the_time(tin.the_time),
-                 gamma_dd(tin.gamma_dd),
-                 gamma_uu(tin.gamma_uu),
-                 kk_dd(tin.kk_dd),
-                 kk_uu(tin.kk_uu),
-                 lapse(tin.lapse),
-                 shift(tin.shift) {
+                 gam_dd_evol(tin.gam_dd_evol),
+                 gam_uu_evol(tin.gam_uu_evol),
+                 k_dd_evol(tin.k_dd_evol),
+                 k_uu_evol(tin.k_uu_evol),
+                 n_evol(tin.n_evol),
+                 beta_evol(tin.beta_evol) {
                  
     set_der_0x0() ; 
 }
+
+// Special constructor for derived classes
+//----------------------------------------               
+Time_slice::Time_slice(int depth_in)  
+               : depth(depth_in),
+		 scheme_order(depth_in-1),
+                 jtime(0),
+                 the_time(0., depth_in),
+                 gam_dd_evol(depth_in),
+                 gam_uu_evol(depth_in),
+                 k_dd_evol(depth_in),
+                 k_uu_evol(depth_in),
+                 n_evol(depth_in),
+                 beta_evol(depth_in) {
+                 
+    set_der_0x0() ; 
+}
+                 
+
+
 
 			    //--------------//
 			    //  Destructor  //
@@ -226,12 +251,12 @@ void Time_slice::operator=(const Time_slice& tin) {
     scheme_order = tin.scheme_order ;
     jtime = tin.jtime;
     the_time = tin.the_time;
-    gamma_dd = tin.gamma_dd;
-    gamma_uu = tin.gamma_uu;
-    kk_dd = tin.kk_dd;
-    kk_uu = tin.kk_uu;
-    lapse = tin.lapse;
-    shift = tin.shift; 
+    gam_dd_evol = tin.gam_dd_evol;
+    gam_uu_evol = tin.gam_uu_evol;
+    k_dd_evol = tin.k_dd_evol;
+    k_uu_evol = tin.k_uu_evol;
+    n_evol = tin.n_evol;
+    beta_evol = tin.beta_evol; 
     
     del_deriv() ; 
     
@@ -251,23 +276,23 @@ ostream& operator<<(ostream& flux, const Time_slice& sigma) {
     flux << "Index of time step j = " << jlast << '\n' ; 
     flux << "------------------------------------------------------------\n" 
         <<  "Max. of absolute values of the various fields in each domain: \n" ;
-    if (sigma.gamma_dd.is_known(jlast)) {
-        maxabs( sigma.gamma_dd[jlast], "gamma_dd", flux) ;
+    if (sigma.gam_dd_evol.is_known(jlast)) {
+        maxabs( sigma.gam_dd_evol[jlast], "gam_dd", flux) ;
     }
-    if (sigma.gamma_uu.is_known(jlast)) {
-        maxabs( sigma.gamma_uu[jlast], "gamma_uu", flux) ;
+    if (sigma.gam_uu_evol.is_known(jlast)) {
+        maxabs( sigma.gam_uu_evol[jlast], "gam_uu", flux) ;
     }
-    if (sigma.kk_dd.is_known(jlast)) {
-        maxabs( sigma.kk_dd[jlast], "kk_dd", flux) ;
+    if (sigma.k_dd_evol.is_known(jlast)) {
+        maxabs( sigma.k_dd_evol[jlast], "k_dd", flux) ;
     }
-    if (sigma.kk_uu.is_known(jlast)) {
-        maxabs( sigma.kk_uu[jlast], "kk_uu", flux) ;
+    if (sigma.k_uu_evol.is_known(jlast)) {
+        maxabs( sigma.k_uu_evol[jlast], "k_uu", flux) ;
     }
-    if (sigma.lapse.is_known(jlast)) {
-        maxabs( sigma.lapse[jlast], "lapse", flux) ;
+    if (sigma.n_evol.is_known(jlast)) {
+        maxabs( sigma.n_evol[jlast], "N", flux) ;
     }
-    if (sigma.shift.is_known(jlast)) {
-        maxabs( sigma.shift[jlast], "shift", flux) ;
+    if (sigma.beta_evol.is_known(jlast)) {
+        maxabs( sigma.beta_evol[jlast], "beta", flux) ;
     }
 
     if (sigma.p_gamma != 0x0) flux << *sigma.p_gamma << endl ; 
