@@ -44,32 +44,37 @@ int main(){
     bool relat, graph;
     int mer_max, mer_rot, mer_change_omega, mer_fix_omega, 
 	mermax_poisson, nz, nzet, nt, np; 
-    double ent1_c, ent2_c, freq_si, freq2_si, precis, freq_ini_si, 
-      freq2_ini_si,relax, relax_poisson ;  
+    double ent1_c, ent2_c, freq_si, freq2_si, precis, freq_ini_si;
+    double freq2_ini_si,relax, relax_poisson ;  
+
+    // adaptive-grid paramters + defaults
+    int nzadapt = 0;
+    double thres_adapt = 0.0;
+    double precis_adapt = 1.e-14;
 
     char *parrot = "settings.par"; // config-file
     int res = 0;
 
-    res |= read_variable (parrot, "relat", relat);
-    res |= read_variable (NULL, "ent1_c", ent1_c);
-    res |= read_variable (NULL, "ent2_c",ent2_c);
-    res |= read_variable (NULL, "freq_si", freq_si);
-    res |= read_variable (NULL, "freq2_si", freq2_si);
-    res |= read_variable (NULL, "mer_max", mer_max);
-    res |= read_variable (NULL, "precis", precis);
-    res |= read_variable (NULL, "mer_rot", mer_rot);
-    res |= read_variable (NULL, "freq_ini_si", freq_ini_si);
-    res |= read_variable (NULL, "freq2_ini_si", freq2_ini_si);
-    res |= read_variable (NULL, "mer_change_omega", mer_change_omega);
-    res |= read_variable (NULL, "mer_fix_omega", mer_fix_omega);
-    res |= read_variable (NULL, "relax", relax);
-    res |= read_variable (NULL, "mermax_poisson", mermax_poisson);
-    res |= read_variable (NULL, "relax_poisson", relax_poisson);
-    res |= read_variable (NULL, "graph", graph);
-    res |= read_variable (NULL, "nz", nz);
-    res |= read_variable (NULL, "nzet", nzet);
-    res |= read_variable (NULL, "nt", nt);
-    res |= read_variable (NULL, "np", np);
+    res += read_variable (parrot, "relat", relat);
+    res += read_variable (NULL, "ent1_c", ent1_c);
+    res += read_variable (NULL, "ent2_c",ent2_c);
+    res += read_variable (NULL, "freq_si", freq_si);
+    res += read_variable (NULL, "freq2_si", freq2_si);
+    res += read_variable (NULL, "mer_max", mer_max);
+    res += read_variable (NULL, "precis", precis);
+    res += read_variable (NULL, "mer_rot", mer_rot);
+    res += read_variable (NULL, "freq_ini_si", freq_ini_si);
+    res += read_variable (NULL, "freq2_ini_si", freq2_ini_si);
+    res += read_variable (NULL, "mer_change_omega", mer_change_omega);
+    res += read_variable (NULL, "mer_fix_omega", mer_fix_omega);
+    res += read_variable (NULL, "relax", relax);
+    res += read_variable (NULL, "mermax_poisson", mermax_poisson);
+    res += read_variable (NULL, "relax_poisson", relax_poisson);
+    res += read_variable (NULL, "graph", graph);
+    res += read_variable (NULL, "nz", nz);
+    res += read_variable (NULL, "nzet", nzet);
+    res += read_variable (NULL, "nt", nt);
+    res += read_variable (NULL, "np", np);
 
     if ( res != 0 )
       {
@@ -85,9 +90,9 @@ int main(){
     char cbuf[50]; // man, <ios> does not seem to exist here... 
     for (int l=0; l<nz; l++) {
       sprintf (cbuf, "nr%d", l);
-      res |= read_variable (NULL, cbuf, nr[l]);
+      res += read_variable (NULL, cbuf, nr[l]);
       sprintf (cbuf, "rmin%d", l);
-      res |= read_variable (NULL, cbuf, bornes[l]);
+      res += read_variable (NULL, cbuf, bornes[l]);
       np_tab[l] = np ; 
       nt_tab[l] = nt ; 
       //      cout << "DEBUG: l= "<<l<< ", read in nr[l] = " << nr[l] << "; rmin[l] = " << bornes[l] << endl;
@@ -105,7 +110,7 @@ int main(){
     double tmp;
     for (int l=0; l<nzet-1; l++) {
       sprintf (cbuf, "ent_limit%d", l);
-      res |= read_variable (NULL, cbuf, tmp);
+      res += read_variable (NULL, cbuf, tmp);
       ent_limit.set(l) = tmp;
       ent2_limit.set(l) = tmp;
     }
@@ -114,6 +119,17 @@ int main(){
       {
 	cerr << "An error ocurred in reading the parameter file " << parrot <<". Terminating...\n";
 	exit (-1);
+      }
+
+    // Read paramters specific to adaptive grid:
+    // ----------------------------------------
+    if ( (read_variable (NULL, "nzadapt", nzadapt) == 0) && (nzadapt > 0) )  // do we want adaptive grid?
+      {
+	res += read_variable (NULL, "thres_adapt", thres_adapt);
+	res += read_variable (NULL, "precis_adapt", precis_adapt);
+	
+	if (res != 0)
+	  cout << "WARNING: some adaptive-grid variables were not found! Using default ... \n";
       }
 
 
@@ -152,7 +168,7 @@ int main(){
     
     Mg3d mg(nz, nr, type_r, nt_tab, type_t, np_tab, type_p) ;
 
-    Map_af mp(mg, bornes) ;
+    Map_et mp(mg, bornes) ;
    
     // Cleaning
     // --------
@@ -252,21 +268,26 @@ int main(){
     double omega2 = 2 * M_PI * freq2_si / f_unit ; 
     double omega2_ini = 2 * M_PI * freq2_ini_si / f_unit ; 
 
-    Itbl icontrol(5) ;
+    Itbl icontrol(6) ;
     icontrol.set_etat_qcq() ; 
     icontrol.set(0) = mer_max ; 
     icontrol.set(1) = mer_rot ; 
     icontrol.set(2) = mer_change_omega ; 
     icontrol.set(3) = mer_fix_omega ; 
     icontrol.set(4) = mermax_poisson ; 
+    icontrol.set(5) = nzadapt;  // nb of domains for adaptive grid
+
     
-    Tbl control(5) ; 
+    Tbl control(7) ; 
     control.set_etat_qcq() ; 
     control.set(0) = precis ; 
     control.set(1) = omega_ini ;
     control.set(2) = omega2_ini ;
     control.set(3) = relax ; 
     control.set(4) = relax_poisson ; 
+    control.set(5) = thres_adapt;
+    control.set(6) = precis_adapt;
+
 
     Tbl diff(8) ;     
 
@@ -319,21 +340,21 @@ int main(){
     fichfinal << endl <<
     "================================================================" << endl ;
     fichfinal <<
-    "   PARAMETERS USED FOR THE COMPUTATION (file parrot.d) : " << endl ;
+    "   PARAMETERS USED FOR THE COMPUTATION (file settings.par) : " << endl ;
     fichfinal <<
     "================================================================" << endl ;
     fichfinal.close() ;
-    system("cat parrot.d >> calcul.d") ; 
+    system("cat settings.par >> calcul.d") ; 
 
     fichfinal.open("calcul.d", ios::app) ;
     fichfinal << endl <<
     "================================================================" << endl ;
     fichfinal <<
-    "	           EOS PARAMETERS (file par_eos.d) : " << endl ;
+    "	           EOS PARAMETERS (file eos.par) : " << endl ;
     fichfinal <<
     "================================================================" << endl ;
     fichfinal.close() ;
-    system("cat par_eos.d >> calcul.d") ;
+    system("cat eos.par >> calcul.d") ;
 
     // Identification du code et de ses sous-routines (no. de version RCS) :     	
     fichfinal.open("calcul.d", ios::app) ; 
@@ -436,9 +457,11 @@ compare_analytic (Et_rot_bifluid& star)
       cout << " compare_analytic() called on AnalyticEOS: now comparing... " << endl << endl;
     }
 
-
-  if (star.get_ent()()(0,0,0,0) != star.get_ent2()()(0,0,0,0) ) 
-    cout << "\n!! WARNING !!: central chemical potentials differ..!!\n";
+  double muc1 = star.get_ent()()(0,0,0,0);
+  double muc2 = star.get_ent2()()(0,0,0,0);
+  cout.precision (15);
+  if (muc1 != muc2)
+    cout << "\n!! WARNING !!: central chemical potentials differ..!!\n: mu1 = " << muc1 << "; mu2 = " << muc2 << endl;;
 
 
   if ( star.get_omega_c() == 0  && star.get_omega2() == 0 )

@@ -1,4 +1,4 @@
-#################### PHYSICAL PARAMETERS ######################################
+==================== Stellar Parameters ====================
 
 relat = 	0	# Relativity parameter: 1 = relativistic 0 = Newtonian
 ent1_c = 	0.20    # central enthalpy [c^2]
@@ -6,7 +6,7 @@ ent2_c = 	0.20	# second central enthalpy [c^2]
 freq_si = 	0    	# rotation frequency [Hz]
 freq2_si = 	0   	# second rotation frequency [Hz]
 
-//---------------------- PARAMETERS ------------------------------
+---------------------- Iteration Parameters ------------------------------
 
 mer_max = 	200   	# maximum number of steps
 precis = 	1.e-10 	# threshold on the enthalpy relative change for ending the computation
@@ -20,7 +20,7 @@ mermax_poisson = 6	# maximum number of steps in Map_et::poisson
 relax_poisson = 1.5	# relaxation factor in Map_et::poisson
 graph = 	0       # 1 = graphical outputs during the computation 
 
-#################### MULTI-GRID PARAMETERS ###################################
+-------------------- MULTI-GRID PARAMETERS --------------------
 
 nz = 	3  		# total number of domains
 nzet = 	1		# number of domains inside the star
@@ -29,7 +29,8 @@ np = 	1 		# number of points in phi   (the same in each domain)
 
 ent_limit0 = 	0.2 	# enthalpy defining boundary between domains 0 and 1
 
-####  Number of radial points <nr> and (initial) inner boundary <rmin> of each domain:
+#  Number of radial points <nr> and (initial) inner boundary <rmin> of each domain:
+#--------------------
 nr0 = 	33      
 rmin0 = 0.   
 
@@ -39,5 +40,10 @@ rmin1 = 1.
 nr2 = 	9 
 rmin2 = 2.
 
+# Adaptive-grid parameters
+#------------------------------
+nzadapt 	= 1		# Number of domains for adaptive grid
+thres_adapt 	= 0.3     	# threshold on (dH/dr_eq)/dH/dr_pole) for the mapping adaptation
+precis_adapt 	= 1.e-14   	# precision in Map_et::adapt
 
-NOTE: everything that's not recognized as a (known) variable-assignment is
+

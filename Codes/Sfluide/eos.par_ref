@@ -10,13 +10,13 @@ gamma3 = 1.
 gamma4 = 1.		
 gamma5 = 1.
 gamma6 = 1.	
-kappa1 = 0.02	 
-kappa2 = 0.12		
-kappa3 = 0.01		
-beta   = 0.01		
+kappa1 = 0.02	 	# units: [rho_nuc c^2 / n_nuc^gamma1]
+kappa2 = 0.12		# [rho_nuc c^2 / n_nuc^gamma2]
+kappa3 = 0.01		# [rho_nuc c^2 / n_nuc^(gamma3+gamma4)]
+beta   = 0.01		# [rho_nuc / n_nuc^(gamma5+gamma6)]
 
 # extra parameter for Newtonian analytic EOS: use slow-rot-style inversion?
-slow_rot_style = 0
+slow_rot_style = 0	# bool
 
 # some extra-parameter for numerical inversion of general 2-fluid polytrope (typeos=4)
 relax =  0.5
