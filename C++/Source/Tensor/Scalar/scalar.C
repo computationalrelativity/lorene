@@ -34,6 +34,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2003/10/06 16:16:03  j_novak
+ * New constructor from a Tensor.
+ *
  * Revision 1.8  2003/10/06 13:58:48  j_novak
  * The memory management has been improved.
  * Implementation of the covariant derivative with respect to the exact Tensor
@@ -93,6 +96,16 @@ Scalar::Scalar(const Map& mpi) : Tensor(mpi), etat(ETATNONDEF), dzpuis(0),
 
 }
 
+
+// Constructor from a Tensor
+// -------------------------
+Scalar::Scalar(const Tensor& ti) : Tensor(*(ti.mp)), etat(ETATNONDEF), 
+				   dzpuis(0), va(ti.cmp[0]->va) {
+
+  cmp[0] = this ; 
+  set_der_0x0() ;
+
+}
 
 
 // Copy constructor

@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2003/10/06 16:16:02  j_novak
+ * New constructor from a Tensor.
+ *
  * Revision 1.16  2003/10/06 13:58:45  j_novak
  * The memory management has been improved.
  * Implementation of the covariant derivative with respect to the exact Tensor
@@ -175,6 +178,9 @@ class Scalar : public Tensor {
   
   explicit Scalar(const Map& ) ;	/// Constructor from mapping
 
+  /// Constructor from a Tensor (must be of valence 0)
+  explicit Scalar(const Tensor& ) ;     
+
   Scalar(const Scalar& ) ;		/// Copy constructor
   
   explicit Scalar(const Cmp& ) ;	/// Constructor by conversion of a Cmp
@@ -225,7 +231,7 @@ class Scalar : public Tensor {
   
   
   // Assignment
-    // -----------
+  // -----------
  public: 
   /// Assignment to another {\tt Scalar} defined on the same mapping
   void operator=(const Scalar&) ;	
