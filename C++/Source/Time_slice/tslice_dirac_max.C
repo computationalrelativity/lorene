@@ -1,4 +1,4 @@
-/*
+ /*
  *  Methods of class Tslice_dirac_max
  *
  *    (see file time_slice.h for documentation).
@@ -30,6 +30,14 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2004/05/31 20:31:31  e_gourgoulhon
+ * -- Method hh_det_one takes now a time step as argument, to compute
+ *    h^{ij} from khi and mu at some arbitrary time step and not only at
+ *    the latest one.
+ * -- h^{ij} is no longer saved in binary files (method sauve);
+ *    accordingly, the constructor from file calls the new version of
+ *    hh_det_one to restore h^{ij}.
+ *
  * Revision 1.10  2004/05/31 09:08:18  e_gourgoulhon
  * Method sauve and constructor from binary file are now operational.
  *
@@ -168,21 +176,12 @@ Tslice_dirac_max::Tslice_dirac_max(const Map& mp, const Base_vect& triad,
         }
     }
 
-    // h^ij
+    // h^ij is computed from the values of khi and mu
+    // ----------------------------------------------
     for (int j=jmin; j<=jtime; j++) {
-        fread_be(&indicator, sizeof(int), 1, fich) ;	
-        if (indicator == 1) {
-            Sym_tensor hh_file(mp, triad, fich) ; 
-            hh_evol.update(hh_file, j, the_time[j]) ; 
-        }
+        if ( khi_evol.is_known(j) && mu_evol.is_known(j) ) hh_det_one(j) ;
     }
     
-    // h^ij at the current time step (jtime) is entirely re-computed
-    //  from the values of khi and mu
-    // -------------------------------------------------------------
-    
-    hh_det_one() ;
-      
 }
 
 
@@ -294,7 +293,7 @@ void Tslice_dirac_max::set_khi_mu(const Scalar& khi_in, const Scalar& mu_in) {
     
     // Computation of trace h and h^{ij} to ensure det tgam_{ij} = det f_{ij} :
 
-    hh_det_one() ;
+    hh_det_one(jtime) ;
     
     
 } 
@@ -328,19 +327,22 @@ void Tslice_dirac_max::set_trh(const Scalar& trh_in) {
 } 
 
 
-void Tslice_dirac_max::hh_det_one() const {
+void Tslice_dirac_max::hh_det_one(int j0) const {
 
-    assert (khi_evol.is_known(jtime)) ;   // The starting point
-    assert (mu_evol.is_known(jtime)) ;    // of the computation 
+    assert (khi_evol.is_known(j0)) ;   // The starting point
+    assert (mu_evol.is_known(j0)) ;    // of the computation 
+
+    const Scalar& khi0 = khi_evol[j0] ;     // khi
+    const Scalar& mu0 = mu_evol[j0] ;       // mu
 
     int it_max = 100 ;
     double precis = 1.e-14 ;
   
-    const Map& mp = khi().get_mp() ;
+    const Map& mp = khi0.get_mp() ;
     
     // The TT part of h^{ij}, which stays unchanged during the computation :
     Sym_tensor_tt hijtt(mp, *(ff.get_triad()), ff) ;
-    hijtt.set_khi_mu(khi(), mu(), 2) ;
+    hijtt.set_khi_mu(khi0, mu0, 2) ;
     
     // The representation of h^{ij} as an object of class Sym_tensor_trans :
     Sym_tensor_trans hij = hijtt ; 
@@ -352,8 +354,7 @@ void Tslice_dirac_max::hh_det_one() const {
     Scalar htrace_prev(mp) ;
     htrace_prev.set_etat_zero() ;   // initialisation to zero
     
-    int it ;
-    for (it=0; it<it_max; it++) {
+    for (int it=0; it<=it_max; it++) {
       
         // Trace h from the condition det(f^{ij} + h^{ij}) = det f^{ij} :
       
@@ -374,22 +375,22 @@ void Tslice_dirac_max::hh_det_one() const {
         hij.set_tt_trace(hijtt, htrace) ; 
 
         double diff = max(max(abs(htrace - htrace_prev))) ;
-        cout << "Tslide_dirac_max::hh_det_one() : " 
+        cout << "Tslide_dirac_max::hh_det_one : " 
 	     << "iteration : " << it << " convergence on trace(h): " << diff << endl ;
         if (diff < precis) break ;
         else htrace_prev = htrace ;
 
+        if (it == it_max) {
+            cout << "Tslide_dirac_max::hh_det_one : convergence not reached \n" ;
+            cout << "  for the required accuracy (" << precis << ") ! " << endl ;
+            abort() ;
+        }
     }
     
-    if (it == it_max) {
-        cerr << "Tslide_dirac_max::hh_det_one() : convergence not reached \n" ;
-        cerr << "  for the required accuracy (" << precis << ") ! " << endl ;
-        abort() ;
-    }
 
-    // Updates
-    // -------
-    trh_evol.update(htrace, jtime, the_time[jtime]) ;
+    // Result set to trh_evol and hh_evol
+    // ----------------------------------
+    trh_evol.update(htrace, j0, the_time[j0]) ;
     
     // The longitudinal part of h^{ij}, which is zero by virtue of Dirac gauge :
     Vector wzero(mp, CON,  *(ff.get_triad())) ; 
@@ -400,28 +401,38 @@ void Tslice_dirac_max::hh_det_one() const {
     
     hh_new.set_longit_trans(wzero, hij) ;
     
-    hh_evol.update(hh_new, jtime, the_time[jtime]) ;
+    hh_evol.update(hh_new, j0, the_time[j0]) ;
     
-    // Reset of quantities depending on h^{ij}:
-    if (p_tgamma != 0x0) {
-        delete p_tgamma ;
-        p_tgamma = 0x0 ; 
-    } 
-    if (p_hdirac != 0x0) {
-        delete p_hdirac ; 
-        p_hdirac = 0x0 ; 
+    if (j0 == jtime) {
+        // Reset of quantities depending on h^{ij}:
+        if (p_tgamma != 0x0) {
+            delete p_tgamma ;
+            p_tgamma = 0x0 ; 
+        } 
+        if (p_hdirac != 0x0) {
+            delete p_hdirac ; 
+            p_hdirac = 0x0 ; 
+        }
+        if (p_gamma != 0x0) {
+            delete p_gamma ; 
+            p_gamma = 0x0 ;
+        }
     }
-    if (p_gamma != 0x0) {
-        delete p_gamma ; 
-        p_gamma = 0x0 ;
-    }
-    gam_dd_evol.downdate(jtime) ; 
-    gam_uu_evol.downdate(jtime) ;
-    adm_mass_evol.downdate(jtime) ;  
+    gam_dd_evol.downdate(j0) ; 
+    gam_uu_evol.downdate(j0) ;
+    adm_mass_evol.downdate(j0) ;  
          
-    maxabs(tgam().determinant() - 1, 
-    "Max. of absolute value of deviation from det tgam = 1") ; 
-
+    // Test
+    if (j0 == jtime) {
+        maxabs(tgam().determinant() - 1, 
+        "Max. of absolute value of deviation from det tgam = 1") ; 
+    }
+    else {
+        Metric tgam_j0( ff.con() + hh_evol[j0] ) ; 
+        maxabs(tgam_j0.determinant() - 1, 
+        "Max. of absolute value of deviation from det tgam = 1") ; 
+    }
+    
 }
 
                 //----------------------------------------------------//
@@ -438,7 +449,7 @@ const Sym_tensor& Tslice_dirac_max::hh() const {
     
         // Computation of h^{ij} to ensure det tgam_{ij} = det f_{ij} :
 
-        hh_det_one() ;
+        hh_det_one(jtime) ;
     }
   
     return hh_evol[jtime] ; 
@@ -515,7 +526,7 @@ const Scalar& Tslice_dirac_max::trh() const {
     if( !(trh_evol.is_known(jtime)) ) {
     
         // Computation of tr(h) to ensure det tgam_{ij} = det f_{ij} :
-        hh_det_one() ;
+        hh_det_one(jtime) ;
         
     }
     
@@ -583,14 +594,6 @@ void Tslice_dirac_max::sauve(FILE* fich, bool partial_save) const {
         int indicator = (mu_evol.is_known(j)) ? 1 : 0 ; 
         fwrite_be(&indicator, sizeof(int), 1, fich) ;
         if (indicator == 1) mu_evol[j].sauve(fich) ; 
-    }
-
-    // h^ij
-    hh() ;     // forces the update at the current time step
-    for (int j=jmin; j<=jtime; j++) {
-        int indicator = (hh_evol.is_known(j)) ? 1 : 0 ; 
-        fwrite_be(&indicator, sizeof(int), 1, fich) ;
-        if (indicator == 1) hh_evol[j].sauve(fich) ; 
     }
     
 }
