@@ -35,6 +35,9 @@ char cmp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2003/10/16 21:39:02  e_gourgoulhon
+ * Treated the case ETATUN in the constructor from Scalar.
+ *
  * Revision 1.6  2003/10/01 15:49:33  e_gourgoulhon
  * Method Scalar::get_mp() now returns a reference onto a mapping.
  *
@@ -219,7 +222,12 @@ Cmp::Cmp(const Cmp& ci)  : mp(ci.mp), etat(ci.etat), dzpuis(ci.dzpuis),
 Cmp::Cmp(const Scalar& uu) : mp(&(uu.get_mp())), 
 							 etat(uu.get_etat()),
 							 dzpuis(uu.get_dzpuis()),
-							 va(uu.get_spectral_va()) {							 
+							 va(uu.get_spectral_va()) {	
+							 
+	if (uu.get_etat() == ETATUN) {
+		etat = ETATQCQ ; 
+	}
+							 
 	set_der_0x0() ; 
 }
 	
