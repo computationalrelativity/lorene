@@ -30,6 +30,11 @@ char strot_dirac_solvehij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/02/09 13:34:56  lm_lin
+ *
+ * Remove the Laplacian of hij from the term source_hh and fix an overall
+ * minus error.
+ *
  * Revision 1.1  2005/01/31 08:51:48  j_novak
  * New files for rotating stars in Dirac gauge (still under developement).
  *
@@ -184,9 +189,7 @@ void Star_rot_Dirac::solve_hij(Sym_tensor_trans& hij_new) const {
                  
   Sym_tensor lbh = hh.derive_lie(shift) ; 
 
-  Sym_tensor source_hh = (nnn*nnn/psi4 - 1.) 
-    * hh.derive_con(mets).divergence(mets) 
-    - lbh.derive_lie(shift) ;
+  Sym_tensor source_hh = - lbh.derive_lie(shift) ;
   source_hh.inc_dzpuis() ; 
         
   source_hh += 2.* nnn * ss ;
@@ -227,7 +230,12 @@ void Star_rot_Dirac::solve_hij(Sym_tensor_trans& hij_new) const {
   // ------------
   source_hh += 0.6666666666666666* div_beta * l_beta - sym_tmp ; 
 
+  source_hh = - ( psi4/nnn/nnn )*source_hh ;
+
+  cout << " Max( trace of source_hh ) " << endl ;
   cout << max(abs(source_hh.trace(mets))) ;
+
+  cout << " Max( divergence of source_hh ) " << endl ;
   for (int i=1; i<=3; i++) 
       cout << max(abs(source_hh.divergence(mets)(i))) ;
   for (int i=1; i<=3; i++)
