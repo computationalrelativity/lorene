@@ -31,6 +31,10 @@ char star_bin_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/02/27 09:54:24  f_limousin
+ * Generalisation of the formulas for mass_b and mass_g for non
+ * conformally flat metrics.
+ *
  * Revision 1.2  2004/01/20 15:18:17  f_limousin
  * First version
  *
@@ -43,6 +47,7 @@ char star_bin_global_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "star.h"
+#include "utilitaires.h"
 
 			//--------------------------//
 			//	Baryon mass	    //
@@ -51,12 +56,10 @@ char star_bin_global_C[] = "$Header$" ;
 double Star_bin::mass_b() const {
 
     if (p_mass_b == 0x0) {    // a new computation is required
+
+	Scalar det_gamma = gamma.determinant() ;
 	
-
-	// Works only if gamma is conformally flat
-	Scalar a_car(gamma.cov()(1,1)) ;
-
-	Scalar dens = pow(a_car, 3./2.) * gam_euler * nbar ;
+	Scalar dens = sqrt(det_gamma) * gam_euler * nbar ;
 	
 	dens.std_spectral_base() ; 
 	
@@ -78,10 +81,9 @@ double Star_bin::mass_g() const {
 
     if (p_mass_g == 0x0) {    // a new computation is required
 	
-	// Works only if gamma is conformally flat
-	Scalar a_car(gamma.cov()(1,1)) ;
+	Scalar det_gamma = gamma.determinant() ;
 
-	Scalar dens = pow(a_car, 3./2.) * nnn
+	Scalar dens = sqrt(det_gamma) * nnn
 	    * ( ener_euler + s_euler ) ;
 	
 	dens.std_spectral_base() ; 
@@ -108,11 +110,13 @@ double Star_bin::xa_barycenter() const {
 	xxa = mp.xa ;	// Absolute X coordinate
 	xxa.std_spectral_base() ;
 
-	// Works only if gamma is conformally flat
-	Scalar a_car(gamma.cov()(1,1)) ;
+	Scalar det_gamma = gamma.determinant() ;
 
-	Scalar dens = pow(a_car, 3./2.) * gam_euler * nbar * xxa ; 
+	Scalar dens = sqrt(det_gamma) * gam_euler * nbar * xxa ; 
 	
+	int nzone = mp.get_mg()->get_nzone() ;
+	dens.annule_domain(nzone - 1) ;
+
 	dens.std_spectral_base() ; 
 
 	p_xa_barycenter = new double( dens.integrale() / mass_b() ) ;
