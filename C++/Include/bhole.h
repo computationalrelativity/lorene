@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2004/03/25 12:35:34  j_novak
+ * now using namespace Unites
+ *
  * Revision 1.11  2004/03/25 09:14:06  j_novak
  * *** empty log message ***
  *
@@ -212,7 +215,7 @@ class Bhole_binaire ;
 class Et_bin_nsbh ;
 
 /**
- * Black hole. \ingroup(star)
+ * Black hole. \ingroup (star)
  * 
  * This class represents a black hole in a comformaly flat approximation. It is 
  * defined with an affine mapping with a nucleus, not used in calculations, and 

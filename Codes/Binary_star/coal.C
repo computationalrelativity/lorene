@@ -27,6 +27,14 @@
 char coal_C[] = "$Header$" ;
 
 /*
+ * $Id$
+ * $Log$
+ * Revision 1.3  2004/03/25 12:35:40  j_novak
+ * now using namespace Unites
+ *
+ * Revision 1.2  2004/01/22 10:15:20  f_limousin
+ * First version
+ *
  * $Header$
  *
  */
@@ -41,11 +49,14 @@ char coal_C[] = "$Header$" ;
 #include "eos.h"
 #include "utilitaires.h"
 #include "graphique.h"
+#include "unites.h"	    
 
 // Local prototype
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
 
 int main(){
+
+  using namespace Unites ;
 
     // Identification of all the subroutines called by the code : 
     
@@ -55,12 +66,6 @@ int main(){
     char display_bold[]="x[1m" ; display_bold[0] = 27 ;
     char display_normal[] = "x[0m" ; display_normal[0] = 27 ;
 
-#include "unites.h"	    
-    // To avoid some compilation warnings
-    if (display_bold == 0x0) {
-	cout << qpig << f_unit << mevpfm3 << endl ; 
-    }    
-    
     //------------------------------------------------------------------
     //	    Parameters of the computation 
     //------------------------------------------------------------------

@@ -30,6 +30,9 @@ char init_bin_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/25 12:35:36  j_novak
+ * now using namespace Unites
+ *
  * Revision 1.3  2003/09/06 14:06:51  e_gourgoulhon
  * "void main()" changed to "int main()".
  *
@@ -58,11 +61,13 @@ char init_bin_regu_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "graphique.h"
 #include "nbr_spx.h"
+#include "unites.h"	    
 
 //******************************************************************************
 
 int main(){
     
+  using namespace Unites ;
 
     // Identification of all the subroutines called by the code : 
     
@@ -230,12 +235,6 @@ int main(){
     //-----------------------------------------------------------------------
     //		Physical parameters imput
     //-----------------------------------------------------------------------
-
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (&gamma == 0x0) {
-	cout << qpig << msol << f_unit << mevpfm3 << endl ; 
-    }    
 
     fich.open("par_init.d") ;
     fich.getline(blabla, 80) ;

@@ -30,6 +30,9 @@ char lit_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/03/25 12:35:37  j_novak
+ * now using namespace Unites
+ *
  * Revision 1.8  2003/09/18 07:31:49  e_gourgoulhon
  * -- Test of good opening of files
  * -- Suppressed the call to des_explorer_symz
@@ -130,6 +133,7 @@ char lit_bin_C[] = "$Header$" ;
 #include "eos.h"
 #include "utilitaires.h"
 #include "graphique.h"
+#include "unites.h"	    
 
 // Local prototype
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
@@ -138,6 +142,7 @@ Cmp raccord_c1(const Cmp& uu, int l1) ;
 
 int main(int argc, char** argv){
 
+  using namespace Unites ;
     // Identification of all the subroutines called by the code : 
     
     // system("ident lit_bin") ; 
@@ -159,12 +164,6 @@ int main(int argc, char** argv){
     cin.get(rep) ;
     bool draw_bound = !(rep == 'n') ; 
         
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (nomresu == 0x0) {
-	cout << qpig << f_unit << mevpfm3 << endl ; 
-    }    
-    
     
     FILE* fich = fopen(nomresu, "r") ; 
     if (fich == 0x0) {

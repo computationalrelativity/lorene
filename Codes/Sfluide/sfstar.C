@@ -52,14 +52,11 @@ double nc, rhoc;  // central density
 
 int main(){
 
+  using namespace Unites ; 
+
     // For the display : 
     char display_bold[]="x[1m" ; display_bold[0] = 27 ;
 
-    // To avoid some compilation warnings
-    if (display_bold == 0x0) {
-      cout << qpig << f_unit << km << msol << mevpfm3 << endl ; 
-    }    
-    
     //------------------------------------------------------------------
     //	    Parameters of the computation 
     //------------------------------------------------------------------

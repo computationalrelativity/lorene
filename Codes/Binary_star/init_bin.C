@@ -29,6 +29,9 @@ char init_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/25 12:35:42  j_novak
+ * now using namespace Unites
+ *
  * Revision 1.2  2004/01/22 10:12:50  f_limousin
  * First version
  *
@@ -47,11 +50,13 @@ char init_bin_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "graphique.h"
 #include "nbr_spx.h"
+#include "unites.h"	    
 
 //******************************************************************************
 
 int  main(){
     
+  using namespace Unites ;
 
     // Identification of all the subroutines called by the code : 
     
@@ -219,12 +224,6 @@ int  main(){
     //-----------------------------------------------------------------------
     //		Physical parameters imput
     //-----------------------------------------------------------------------
-
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (&gamma == 0x0) {
-	cout << qpig << msol << f_unit << mevpfm3 << endl ; 
-    }    
 
     fich.open("par_init.d") ;
     fich.getline(blabla, 80) ;

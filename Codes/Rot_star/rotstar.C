@@ -29,6 +29,9 @@ char rotstar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/03/25 12:35:44  j_novak
+ * now using namespace Unites
+ *
  * Revision 1.4  2003/05/14 20:06:09  e_gourgoulhon
  * Suppressed the qualifier ios::nocreate in call to fstream::open
  * (not supported by gcc 3.2).
@@ -111,6 +114,7 @@ char rotstar_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "graphique.h"
 #include "nbr_spx.h"
+#include "unites.h"	    
 
 // Local prototype (for drawings only)
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
@@ -119,6 +123,8 @@ Cmp raccord_c1(const Cmp& uu, int l1) ;
 
 int main(){
 
+  using namespace Unites ; 
+
     // Identification of all the subroutines called by the code : 
     
     system("ident rotstar > identif.d") ; 
@@ -126,12 +132,6 @@ int main(){
     // For the display : 
     char display_bold[]="x[1m" ; display_bold[0] = 27 ;
 
-    #include "unites.h"	    
-    // To avoid some compilation warnings
-    if (display_bold == 0x0) {
-	cout << qpig << f_unit << km << mevpfm3 << endl ; 
-    }    
-    
     //------------------------------------------------------------------
     //	    Parameters of the computation 
     //------------------------------------------------------------------

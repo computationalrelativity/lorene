@@ -29,6 +29,9 @@ char rotseq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/03/25 12:35:44  j_novak
+ * now using namespace Unites
+ *
  * Revision 1.7  2003/09/16 13:06:24  e_gourgoulhon
  * Replaced the fich.getline(blabla, 120) by fich.ignore(1000, '\n')
  *
@@ -77,6 +80,7 @@ char rotseq_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "graphique.h"
 #include "nbr_spx.h"
+#include "unites.h"
 
 // Function defining the rotation profile
 double frotlin(double omega, const Tbl& par) ;
@@ -90,15 +94,11 @@ Cmp raccord_c1(const Cmp& uu, int l1) ;
 
 int main(){
 
+  using namespace Unites ;
+
     // For the display :
     char display_bold[]="x[1m" ; display_bold[0] = 27 ;
 
-    #include "unites.h"
-    // To avoid some compilation warnings
-    if (display_bold == 0x0) {
-	cout << qpig << f_unit << km << mevpfm3 << endl ;
-    }    
-    
     //------------------------------------------------------------------
     //	    Parameters of the computation 
     //------------------------------------------------------------------

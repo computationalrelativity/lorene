@@ -29,6 +29,9 @@ char coal_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/25 12:35:35  j_novak
+ * now using namespace Unites
+ *
  * Revision 1.3  2003/11/29 07:01:25  k_taniguchi
  * Large modification. However, the code has not worked yet.
  *
@@ -57,9 +60,11 @@ char coal_ns_bh_C[] = "$Header$" ;
 #include "nbr_spx.h"
 #include "eos.h"
 #include "utilitaires.h"
+#include "unites.h"
 
 int main(){
-
+  
+  using namespace Unites ;
 
     // Identification of all the subroutines called by the code :
 
@@ -68,12 +73,6 @@ int main(){
     // For the display :
     char display_bold[]="x[1m" ; display_bold[0] = 27 ;
     char display_normal[] = "x[0m" ; display_normal[0] = 27 ;
-
-    #include "unites.h"
-    // To avoid some compilation warnings
-    if (display_bold == 0x0) {
-	cout << qpig << f_unit << mevpfm3 << km << endl ;
-    }
 
     //------------------------------------------------------------------
     //	    Parameters of the computation

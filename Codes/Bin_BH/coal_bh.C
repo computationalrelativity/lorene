@@ -30,6 +30,9 @@ char coal_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/25 12:35:35  j_novak
+ * now using namespace Unites
+ *
  * Revision 1.3  2003/11/14 08:14:52  p_grandclement
  * Correction of the codes for binary black holes in circular orbit
  *
@@ -66,7 +69,6 @@ char coal_bh_C[] = "$Header$" ;
 #include "bhole.h"
 #include "utilitaires.h"
 #include "graphique.h"
-#include "unites.h"
 
 int main(int argc, char** argv) {
     

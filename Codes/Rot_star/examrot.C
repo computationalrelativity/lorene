@@ -24,6 +24,9 @@ char examrot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/25 12:35:43  j_novak
+ * now using namespace Unites
+ *
  * Revision 1.2  2003/01/09 11:07:50  j_novak
  * headcpp.h is now compliant with C++ norm.
  * The include files have been ordered, as well as the local_settings_linux
@@ -63,6 +66,8 @@ Cmp raccord_c1(const Cmp& uu, int l1) ;
 //******************************************************************************
 
 int main(int argc, char** argv){
+
+  using namespace Unites ;
 
     if (argc < 2) {
 	cout <<

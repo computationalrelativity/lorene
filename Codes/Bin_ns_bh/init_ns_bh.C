@@ -29,6 +29,9 @@ char init_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/25 12:35:35  j_novak
+ * now using namespace Unites
+ *
  * Revision 1.2  2002/12/19 14:57:15  e_gourgoulhon
  * New prototype for Bin_ns_bh::set_omega and set_x_axe.
  * The BH is now of the left (xa <0) and the NS on the right (xa>0).
@@ -54,10 +57,11 @@ char init_ns_bh_C[] = "$Header$" ;
 #include "bin_ns_bh.h"
 #include "nbr_spx.h"
 #include "eos.h"
+#include "unites.h"
 
 int  main(){
 
-
+  using namespace Unites ;
     // Identification of all the subroutines called by the code :
 
     // system("ident init_bin") ;
@@ -208,12 +212,6 @@ int  main(){
     //-----------------------------------------------------------------------
     //		Physical parameters imput
     //-----------------------------------------------------------------------
-
-    #include "unites.h"
-    // To avoid some compilation warnings
-    if (&gamma == 0x0) {
-	cout << qpig << msol << f_unit << mevpfm3 << endl ;
-    }
 
     fich.open("par_init.d") ;
     fich.getline(blabla, 80) ;

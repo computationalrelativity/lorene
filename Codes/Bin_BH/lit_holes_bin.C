@@ -28,6 +28,9 @@ char lit_holes_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2004/03/25 12:35:35  j_novak
+ * now using namespace Unites
+ *
  * Revision 1.3  2003/11/14 08:14:52  p_grandclement
  * Correction of the codes for binary black holes in circular orbit
  *
@@ -67,6 +70,8 @@ char lit_holes_bin_C[] = "$Header$" ;
 
 
 int main(int argc, char** argv) {
+
+  using namespace Unites ;
     if (argc <2) {
 	cout <<" Passer nom du ficher en arguments SVP !" << endl ;
 	abort() ;

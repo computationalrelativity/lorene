@@ -27,6 +27,9 @@ char asymptot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/25 12:35:36  j_novak
+ * now using namespace Unites
+ *
  * Revision 1.2  2003/01/09 11:07:48  j_novak
  * headcpp.h is now compliant with C++ norm.
  * The include files have been ordered, as well as the local_settings_linux
@@ -58,6 +61,8 @@ char asymptot_C[] = "$Header$" ;
 #include "unites.h"
 
 void asymptot(const Cmp& nn, const char* coment, bool graphics, ostream& fich) {
+
+  using namespace Unites ;
 
   // Multi-grid
   const Mg3d& mg =  *( nn.get_mp()->get_mg() ) ;

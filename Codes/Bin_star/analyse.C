@@ -29,6 +29,9 @@ char analyse_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/03/25 12:35:36  j_novak
+ * now using namespace Unites
+ *
  * Revision 1.2  2003/01/09 11:07:48  j_novak
  * headcpp.h is now compliant with C++ norm.
  * The include files have been ordered, as well as the local_settings_linux
@@ -56,6 +59,7 @@ char analyse_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "graphique.h"
 #include "nbr_spx.h"
+#include "unites.h"
 
 // Local prototype
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
@@ -64,11 +68,7 @@ void asymptot(const Cmp&,  const char*, bool, ostream& );
  
 int main() {
 
-#include "unites.h"
-
-  if (km < 0) { // to avoid any warning about unused variables at compilation 
-    cout << f_unit << qpig << mevpfm3 ;
-  }
+  using namespace Unites ;
 
   // Reads the parameters of the computation
   // ---------------------------------------
