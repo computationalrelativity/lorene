@@ -1,0 +1,260 @@
+/*
+ *  Definition of Lorene class Connection
+ *
+ */
+
+/*
+ *   Copyright (c) 2003	Eric Gourgoulhon & Jerome Novak
+ *
+ *   This file is part of LORENE.
+ *
+ *   LORENE is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License version 2
+ *   as published by the Free Software Foundation.
+ *
+ *   LORENE is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LORENE; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+#ifndef __CONNECTION_H_ 
+#define __CONNECTION_H_ 
+
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.1  2003/09/29 21:14:10  e_gourgoulhon
+ * First version --- not ready yet.
+ *
+ *
+ *
+ * $Header$
+ *
+ */
+
+
+// Lorene headers
+#include "tensor.h"
+
+class Metric ; 
+
+
+/**
+ * Class Connection.
+ *
+ * The class deals only with torsion-free connections. 
+ * 
+ * @version #$Id$#
+ */
+class Connection {
+
+    // Data : 
+    // -----
+    protected:
+	/// Triad with respect to which the tensor components are defined
+	const Base_vect* const triad ; 
+	
+	/** Tensor $\Delta^i_{\ jk}$ which defines
+	 *  the connection with respect to the flat one: $\Delta^i_{\ jk}$ 
+	 * is the difference between the connection coefficients 
+	 *  $\Gamma^i_{\ jk}$ and
+	 * the connection coefficients ${\bar \Gamma}^i_{\ jk}$ of the
+	 * flat connection. 
+	 *
+	 */
+	Delta delta ; 
+
+	/** Indicates whether the connection is associated with a metric
+	 *  (in which case the Ricci tensor is symmetric, i.e. the
+	 *	  actual type of {\tt p\_ricci} is a {\tt Sym\_tensor})
+	 */
+	bool assoc_metric ;
+
+    // Derived data : 
+    // ------------
+    protected:
+	/// Pointer of the Ricci tensor associated with the connection 
+	mutable Tensor* p_ricci ;   
+
+    // Constructors - Destructor
+    // -------------------------
+    public:
+	
+	/** Standard constructor ab initio.
+	 *
+	 * @param delta_i tensor $\Delta^i_{\ jk}$ which defines
+	 *  the connection with respect to the flat one: $\Delta^i_{\ jk}$ 
+	 * is the difference between the connection coefficients 
+	 *  $\Gamma^i_{\ jk}$ and
+	 * the connection coefficients ${\bar \Gamma}^i_{\ jk}$ of the
+	 * flat connection. 
+	 */
+	Connection(const Delta& delta_i) ;		
+	
+	/** Standard constructor from a metric. 
+	 *
+	 * @param met  Metric to which the connection will be associated
+	 *
+	 */
+	Connection(const Metric& met) ;		
+	
+	Connection(const Connection& ) ;		/// Copy constructor
+	
+	protected:
+	/// Constructor for derived classes
+	Connection(const Base_vect& ) ; 		
+
+	virtual ~Connection() ;			/// Destructor
+ 
+
+    // Memory management
+    // -----------------
+    protected:	    
+	/// Deletes all the derived quantities
+	virtual void del_deriv() const ; 
+	
+	/// Sets to {\tt 0x0} all the pointers on derived quantities
+	virtual void set_der_0x0() const ; 
+
+
+    // Mutators / assignment
+    // ---------------------
+    public:
+	/// Assignment to another Connection
+	void operator=(const Connection&) ;	
+	
+    // Accessors
+    // ---------
+    public:
+	const Delta& get_delta() const {return delta; } ; 
+
+	// Computational methods
+	// ---------------------
+	
+	public: 
+	/// Covariant derivative of a tensor (with respect to the current connection)
+	virtual Tensor derive_cov(const Tensor&) const ; 
+
+	/// Returns the Ricci tensor associated with the current connection
+	const Tensor& ricci() const ; 
+	
+	protected:
+	/// Computes the Ricci tensor when necessary
+	virtual void compute_ricci() const ; 
+
+
+};
+
+/**
+ * Class Connection\_flat.
+ *
+ * Abstract class for connections associated to a flat metric. 
+ * 
+ * @version #$Id$#
+ */
+class Connection_flat : public Connection {
+
+  // Constructors - Destructor
+  // -------------------------
+ protected:
+  
+  ///Contructor from a triad, has to be defined in the derived classes
+  Connection_flat(const Base_vect&) ; 
+
+ public:
+
+  virtual ~Connection_flat() ; ///destructor
+
+
+  // Memory management
+  // -----------------
+ protected:
+  
+  /// Deletes all the derived quantities
+  virtual void del_deriv() const ; 
+  
+  /// Sets to {\tt 0x0} all the pointers on derived quantities
+  virtual void set_der_0x0() const ; 
+  
+
+  // Mutators / assignment
+  // ---------------------
+ public:
+  /// Assignment to another Connection\_flat
+  void operator=(const Connection_flat&) ;	
+  
+
+  // Computational methods
+  // ---------------------
+  
+ public: 
+  /// Covariant derivative of a tensor (with respect to the current connection)
+  virtual Tensor derive_cov(const Tensor&) const = 0 ; 
+
+ protected:
+  /// Computes the Ricci tensor when necessary
+  virtual void compute_ricci() const ; 
+  
+};
+
+
+/**
+ * Class Connection\_fspher.
+ *
+ * Class for connections associated with a flat metric and given onto
+ * an orthonormal spherical triad. 
+ * 
+ * @version #$Id$#
+ */
+class Connection_fspher : public Connection_flat {
+
+  // Constructors - Destructor
+  // -------------------------
+  
+ public:
+  /// Contructor from a spherical flat-metric-orthonormal basis
+  Connection_fspher(const Base_vect_spher&) ; 
+
+ public:
+
+  virtual ~Connection_fspher() ; ///destructor
+
+
+  // Memory management
+  // -----------------
+ protected:
+  
+  /// Deletes all the derived quantities
+  virtual void del_deriv() const ; 
+  
+  /// Sets to {\tt 0x0} all the pointers on derived quantities
+  virtual void set_der_0x0() const ; 
+  
+
+  // Mutators / assignment
+  // ---------------------
+ public:
+  /// Assignment to another Connection\_fspher
+  void operator=(const Connection_fspher&) ;	
+  
+
+  // Computational methods
+  // ---------------------
+  
+ public: 
+  /// Covariant derivative of a tensor (with respect to the current connection)
+  virtual Tensor derive_cov(const Tensor&) const ; 
+
+  
+};
+
+
+
+
+#endif
