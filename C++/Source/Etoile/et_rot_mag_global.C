@@ -33,6 +33,10 @@ char et_rot_mag_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2002/05/27 14:36:25  e_marcq
+ *
+ * Isolant case implemented
+ *
  * Revision 1.12  2002/05/22 12:20:17  j_novak
  * *** empty log message ***
  *
@@ -192,6 +196,34 @@ double Et_rot_mag::Q_comput() const {
 
   return Q_c *(j_unit/v_unit*pow(r_unit,3)) ;}
   }
+
+double Et_rot_mag::Q_int() const {
+
+  double Qi = 0. ;
+
+	if (relativistic) {
+
+	    Cmp dens = a_car() * bbb() * nnn() * j_t ;
+	    
+	    dens.std_base_scal() ; 
+
+	    Qi = dens.integrale() ;
+
+
+	}
+	else{  // Newtonian case 
+	    assert(nbar.get_etat() == ETATQCQ) ; 
+
+	    Qi = ( j_t.integrale() ) ;
+
+	}
+
+    
+    
+    return Qi * (j_unit/v_unit*pow(r_unit,3)) ; 
+
+
+}
 
 double Et_rot_mag::GyroMag() const {
   return 2*MagMom()*mass_g()/(Q_comput()*angu_mom()*v_unit*r_unit); 

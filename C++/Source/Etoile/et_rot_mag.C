@@ -32,6 +32,10 @@ char et_rot_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2002/05/27 14:36:25  e_marcq
+ *
+ * Isolant case implemented
+ *
  * Revision 1.10  2002/05/22 12:20:17  j_novak
  * *** empty log message ***
  *
@@ -234,8 +238,9 @@ ostream& Et_rot_mag::operator>>(ostream& ost) const {
   Elec()(0).va.val_point(l_surf()(0,theta_eq),xi_surf()(0,theta_eq),M_PI_2,0.) 
       << endl;
   ost << "Computed charge : " << Q_comput() << endl ;
+  ost << "Interior charge : " << Q_int() << endl ;
   ost << "Gyromagnetic ratio : " << GyroMag() << endl ;
-
+  ost << "R^2 Omega M / J : " << omega*mass_g()/angu_mom() << endl ;
 
   return ost ;
 }

@@ -34,9 +34,9 @@ char et_rot_mag_equil_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.7  2002/05/20 15:44:55  e_marcq
+ * Revision 1.8  2002/05/27 14:36:25  e_marcq
  *
- * Dimension errors corrected, parmag.d input file created and read
+ * Isolant case implemented
  *
  * Revision 1.6  2002/05/17 15:08:01  e_marcq
  *
@@ -663,8 +663,13 @@ void Et_rot_mag::equilibrium_mag(double ent_c, double omega0,
 	    else {
 		mlngamma = - 0.5 * uuu*uuu ; 
 	    }
-	
-	    Tenseur mag(mu0*M_j(A_phi, a_j)) ;
+
+	    int conduc=0 ;
+	    Tenseur mag(mp) ;
+	    if (conduc==1) {
+	      mag = mu0*M_j(A_phi, a_j) ;}
+	    else{
+	      mag = mu0*M_j(omega*A_phi-A_t, a_j) ;}
 
 	    // Equatorial values of various potentials :
 	    double nuf_b  = nuf()(l_b, k_b, j_b, i_b) ; 
