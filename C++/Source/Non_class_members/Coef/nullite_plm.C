@@ -26,6 +26,9 @@ char nullite_plm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/02/16 15:19:55  m_forot
+ * Add the case T_LEG
+ *
  * Revision 1.3  2003/09/16 12:11:59  j_novak
  * Added the base T_LEG_II.
  *
@@ -82,6 +85,19 @@ char nullite_plm_C[] = "$Header$" ;
 // fonction testant la nullite des fonctions de developpements
 // j indice en theta -- nt nbre de points en theta
 // k indice en phi   -- np nbre de points en phi
+
+	 //-------------------------------------------------------
+	// Developpement en P_COSSIN pour phi et T_LEG en theta
+       //---------------------------------------------------------
+
+int nullite_plm_t_leg (int j, int nt, int k, int np) {
+
+    int m = (k%2 == 0) ? k/2 : (k-1)/2 ;
+    int borne_sup = nt-1 ;
+    int borne_inf = m ;
+    if ((j<borne_inf) || (j>borne_sup) || (k==1) || (k>np)) 
+    return 0 ; else return 1 ; 
+}
 
 
 	 //-------------------------------------------------------
@@ -211,6 +227,10 @@ int nullite_plm (int j, int nt, int k, int np, Base_val base) {
 		case T_LEG_I :
 		  result = nullite_plm_nonsym_anti (j, nt, k, np) ;
 		  break ;  
+
+		case T_LEG :
+		  result = nullite_plm_t_leg (j, nt, k, np) ;
+		  break ;  	  
 	    
 		default :
 		    cout << "nullite_plm : cas inconnu ..." << endl ;
