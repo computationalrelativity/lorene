@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2004/05/20 20:30:37  e_gourgoulhon
+ * Added arguments check_mod and save_mod to method Tsclice_dirac_max::evolve.
+ *
  * Revision 1.17  2004/05/17 19:52:16  e_gourgoulhon
  * -- Method initial_data_cts: added arguments graph_device and
  *    method_poisson_vect.
@@ -993,6 +996,11 @@ class Tslice_dirac_max : public Time_slice_conf {
      *      of elliptic equations
      *  @param relax_elliptic  relaxation factor for the elliptic
      *      equations
+     *  @param check_mod determines the frequency of check of the 
+     *      constraint equations: they are checked every \c check_mod time step
+     *  @param save_mod determines the frequency of writing to file
+     *      the monotoring quantities: they are written to file every
+     *      \c save_mod time step
      *  @param method method_poisson_vect to be used for solving 
      *      vector Poisson equation (for the shift), see 
      *      \c Vector::poisson(double, const Metric_flat&, int) const.  
@@ -1002,8 +1010,9 @@ class Tslice_dirac_max : public Time_slice_conf {
      *      "/xwin" in X-Window display and "/n" in no output.
      */
     void evolve(double pdt, int nb_time_steps, int niter_elliptic,
-                double relax_elliptic, int method_poisson_vect = 1, 
-                int nopause = 1, const char* graph_device = 0x0) ; 
+                double relax_elliptic, int check_mod, int save_mod,
+                int method_poisson_vect = 1, int nopause = 1, 
+                const char* graph_device = 0x0) ; 
         
     /** Returns the ADM mass at (geometrical units) the current step.
      * Moreover this method updates \c adm_mass_evol if
