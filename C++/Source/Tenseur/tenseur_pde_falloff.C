@@ -31,6 +31,9 @@ char tenseur_pde_falloff_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2004/12/22 18:25:59  k_taniguchi
+ * Cahnge an argument of poisson_vect_falloff.
+ *
  * Revision 1.1  2004/11/30 20:55:33  k_taniguchi
  * *** empty log message ***
  *
@@ -51,8 +54,9 @@ char tenseur_pde_falloff_C[] = "$Header$" ;
 
 // Version avec parametres
 // -----------------------
-void Tenseur::poisson_vect_falloff(double lambda, Param& para, Tenseur& shift
-			    , Tenseur& vecteur, Tenseur& scalaire, int k_falloff) const {
+void Tenseur::poisson_vect_falloff(double lambda, Param& para, Tenseur& shift,
+				   Tenseur& vecteur, Tenseur& scalaire,
+				   int* k_falloff) const {
     assert (lambda != -1) ;
     
     // Verifications d'usage ...
@@ -63,6 +67,10 @@ void Tenseur::poisson_vect_falloff(double lambda, Param& para, Tenseur& shift
     assert (vecteur.get_type_indice(0) == type_indice(0)) ;
     assert (scalaire.get_valence() == 0) ;
     assert (etat != ETATNONDEF) ;
+
+    // define int k_falloff[4] ;
+    // k_falloff[0,1,2] = falloff for vecteur_x,y,z
+    // k_falloff[3] = falloff for scalaire
 
     // Nothing to do if the source is zero
     if (etat == ETATZERO) {
@@ -84,7 +92,7 @@ void Tenseur::poisson_vect_falloff(double lambda, Param& para, Tenseur& shift
     for (int i=0 ; i<3 ; i++) {
 	Param* par = mp->donne_para_poisson_vect(para, i) ; 
 
-	(*this)(i).poisson_falloff(*par, vecteur.set(i),k_falloff) ;
+	(*this)(i).poisson_falloff(*par, vecteur.set(i),k_falloff[i]) ;
 
 	if (par != 0x0)
 	  delete par ; 
@@ -96,7 +104,7 @@ void Tenseur::poisson_vect_falloff(double lambda, Param& para, Tenseur& shift
       
     Param* par = mp->donne_para_poisson_vect(para, 3) ; 
 
-    source_scal().poisson_falloff(*par, scalaire.set(), k_falloff) ;
+    source_scal().poisson_falloff(*par, scalaire.set(), k_falloff[3]) ;
     
     if (par !=0x0)
       delete par ; 
@@ -127,7 +135,7 @@ void Tenseur::poisson_vect_falloff(double lambda, Param& para, Tenseur& shift
 // Version sans parametres
 // -----------------------
 Tenseur Tenseur::poisson_vect_falloff(double lambda, Tenseur& vecteur, 
-				    Tenseur& scalaire, int k_falloff) const {
+				    Tenseur& scalaire, int* k_falloff) const {
       
     Param bidon ;
     Tenseur resu(*mp, valence, type_indice, triad, metric, poids) ;
