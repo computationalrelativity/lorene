@@ -34,6 +34,9 @@ char base_val_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/11/13 15:05:59  j_novak
+ * Affichage de la base T_COS
+ *
  * Revision 1.3  2002/10/16 14:36:30  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -210,6 +213,7 @@ ostream& operator<<(ostream& o, const Base_val & bi) {
     nom_r[R_CHEBPIM_P >> TRA_R] = "R_CHEBPIM_P" ; 
     nom_r[R_CHEBPIM_I >> TRA_R] = "R_CHEBPIM_I" ; 
     
+    nom_t[T_COS >> TRA_T] =     "T_COS    " ; 
     nom_t[T_COS_P >> TRA_T] =     "T_COS_P    " ; 
     nom_t[T_COS_I >> TRA_T] =     "T_COS_I    " ; 
     nom_t[T_SIN_P >> TRA_T] =     "T_SIN_P    " ; 
