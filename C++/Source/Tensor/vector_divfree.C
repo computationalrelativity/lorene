@@ -32,6 +32,9 @@ char vector_divfree_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2003/11/03 22:32:36  e_gourgoulhon
+ * Parameters of methods set_vr_eta_mu and set_vr_mu are now all references.
+ *
  * Revision 1.4  2003/10/22 13:08:06  j_novak
  * Better handling of dzpuis flags
  *
@@ -164,14 +167,11 @@ void Vector_divfree::operator=(const Tensor& source) {
 }
 
 
-void Vector_divfree::set_vr_eta_mu(const Scalar& vr_i, const Scalar eta_i,
-		const Scalar mu_i) {
+void Vector_divfree::set_vr_eta_mu(const Scalar& vr_i, const Scalar& eta_i,
+		const Scalar& mu_i) {
 		
 		// All this has a meaning only for spherical components:
-		#ifndef NDEBUG 
-		const Base_vect_spher* bvs = dynamic_cast<const Base_vect_spher*>(triad) ;
-		assert(bvs != 0x0) ; 
-		#endif
+		assert( dynamic_cast<const Base_vect_spher*>(triad) != 0x0 ) ; 
 		
 		del_deriv() ; // delete previous p_eta and p_mu, as well as 
 					  //  derived quantities
@@ -188,13 +188,10 @@ void Vector_divfree::set_vr_eta_mu(const Scalar& vr_i, const Scalar eta_i,
 }
 
 
-void Vector_divfree::set_vr_mu(const Scalar& vr_i, const Scalar mu_i) {
+void Vector_divfree::set_vr_mu(const Scalar& vr_i, const Scalar& mu_i) {
 		
 		// All this has a meaning only for spherical components:
-		#ifndef NDEBUG 
-		const Base_vect_spher* bvs = dynamic_cast<const Base_vect_spher*>(triad) ;
-		assert(bvs != 0x0) ; 
-		#endif
+		assert( dynamic_cast<const Base_vect_spher*>(triad) != 0x0 ) ; 
 		
 		del_deriv() ; // delete previous p_eta and p_mu, as well as 
 					  //  derived quantities
