@@ -32,6 +32,10 @@ char sym_tensor_tt_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2004/05/25 15:08:44  f_limousin
+ * Add parameters in argument of the functions update, eta and mu for
+ * the case of a Map_et.
+ *
  * Revision 1.12  2004/05/24 13:45:29  e_gourgoulhon
  * Added parameter dzp to method Sym_tensor_tt::update.
  *
@@ -115,7 +119,7 @@ const Scalar& Sym_tensor_tt::khi() const {
 			//--------------//
 			
 			
-const Scalar& Sym_tensor_tt::eta() const {
+const Scalar& Sym_tensor_tt::eta(Param* par) const {
 
 
     if (p_eta == 0x0) {   // a new computation is necessary
@@ -146,7 +150,15 @@ const Scalar& Sym_tensor_tt::eta() const {
         
 	// Resolution of the angular Poisson equation for eta
 	// --------------------------------------------------
+	if (dynamic_cast<const Map_af*>(mp) != 0x0) {
 	p_eta = new Scalar( dhrr.poisson_angu() ) ; 
+	}
+	else {
+	    Scalar resu (*mp) ;
+	    resu = 0. ;
+	    mp->poisson_angu(dhrr, *par, resu) ;
+	    p_eta = new Scalar( resu ) ;  	    
+	}
 	
     }
 
@@ -154,13 +166,13 @@ const Scalar& Sym_tensor_tt::eta() const {
 
 }
 
-
+			
 			//--------------//
 			//     mu       //
 			//--------------//
 			
 
-const Scalar& Sym_tensor_tt::mu() const {
+const Scalar& Sym_tensor_tt::mu(Param* par) const {
 
 	if (p_mu == 0x0) {   // a new computation is necessary
 		
@@ -180,13 +192,20 @@ const Scalar& Sym_tensor_tt::mu() const {
 		
 		// Resolution of the angular Poisson equation for mu
 		// --------------------------------------------------
-		p_mu = new Scalar( tmp.poisson_angu() ) ;  
-
+		if (dynamic_cast<const Map_af*>(mp) != 0x0) {
+		    p_mu = new Scalar( tmp.poisson_angu() ) ;  
+		}
+		else {
+		    Scalar resu (*mp) ;
+		    resu = 0. ;
+		    mp->poisson_angu(tmp, *par, resu) ;
+		    p_mu = new Scalar( resu ) ;  	    
+		}
 	}
-
 	return *p_mu ; 
 
 }
+
 
 			//-------------------//
 			//  set_rr_eta_mu    //
@@ -267,7 +286,7 @@ void Sym_tensor_tt::set_khi_eta_mu(const Scalar& khi_i, const Scalar& eta_i,
 			
 
 void Sym_tensor_tt::set_khi_mu(const Scalar& khi_i, const Scalar& mu_i, 
-                               int dzp) {
+                              int dzp, Param* par1, Param* par2, Param* par3) {
 
   // All this has a meaning only for spherical components:
   assert( dynamic_cast<const Base_vect_spher*>(triad) != 0x0 ) ; 
@@ -290,14 +309,24 @@ void Sym_tensor_tt::set_khi_mu(const Scalar& khi_i, const Scalar& mu_i,
   p_khi = new Scalar ( khi_i ) ;  // khi
 
   p_mu = new Scalar( mu_i ) ; 	// mu 
-		
-  eta() ; // computes eta form the divergence-free condition
-          // dzp = 0 ==> eta.dzpuis = 0
-          // dzp = 2 ==> eta.dzpuis = 1
-    
-  update(dzp) ; // all h^{ij}, except for h^{rr}
-		
+
+  if (dynamic_cast<const Map_af*>(mp) != 0x0) {		
+      eta() ; // computes eta form the divergence-free condition
+      // dzp = 0 ==> eta.dzpuis = 0
+      // dzp = 2 ==> eta.dzpuis = 1
+      
+      update(dzp) ; // all h^{ij}, except for h^{rr}
+  }
+  else {
+      eta(par1) ; // computes eta form the divergence-free condition
+      // dzp = 0 ==> eta.dzpuis = 0
+      // dzp = 2 ==> eta.dzpuis = 1
+      
+      update(dzp, par2, par3) ; // all h^{ij}, except for h^{rr}
+  }
+
 }
+
 			
 
 			//-------------//
@@ -305,7 +334,8 @@ void Sym_tensor_tt::set_khi_mu(const Scalar& khi_i, const Scalar& mu_i,
 			//-------------//
 			
 
-void Sym_tensor_tt::update(int dzp) {
+
+void Sym_tensor_tt::update(int dzp, Param* par1, Param* par2) {
 
     // All this has a meaning only for spherical components:
     assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
@@ -395,9 +425,17 @@ void Sym_tensor_tt::update(int dzp) {
 	
 	// dT^th/dth + T^th / tan(th) + 1/sin(th) dT^ph/dph :
 	tmp = taut.dsdt() + tmp + taup.stdsdp() ;
-		
-	Scalar tmp2 = tmp.poisson_angu() ;  // F
-	
+
+	Scalar tmp2 (*mp) ;		
+	if (dynamic_cast<const Map_af*>(mp) != 0x0) {		
+	    tmp2 = tmp.poisson_angu() ;  // F
+	}
+	else {
+	    tmp2 = 0. ;
+	    mp->poisson_angu(tmp, *par1, tmp2) ; // F
+	}
+	    
+
 	tmp2.div_sint() ; 
 	tmp2.div_sint() ; // h^{ph ph}
 	
@@ -414,7 +452,13 @@ void Sym_tensor_tt::update(int dzp) {
 	// - 1/sin(th) dT^th/dph + dT^ph/dth + T^ph / tan(th) :
 	tmp = - taut.stdsdp() + taup.dsdt() + tmp ; 
 	
-	tmp2 = tmp.poisson_angu() ; 	// G
+	if (dynamic_cast<const Map_af*>(mp) != 0x0) {		
+	    tmp2 = tmp.poisson_angu() ;  // G
+	}
+	else {
+	    tmp2 = 0. ;
+	    mp->poisson_angu(tmp, *par2, tmp2) ;  // G
+	}
 	
 	tmp2.div_sint() ; 
 	tmp2.div_sint() ; // h^{th ph}
@@ -434,6 +478,9 @@ void Sym_tensor_tt::update(int dzp) {
 
 
 }			
+
+
+
 
 
 
