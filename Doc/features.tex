@@ -1,0 +1,122 @@
+\documentclass[12pt]{article}
+
+\begin{document}
+\begin{center}
+\bf \LARGE Some features of {\sc Lorene 2}
+\end{center}
+
+\vspace{1cm}
+
+\section{Encapsulation}
+
+(Most of) all data are encapsulated, i.e. one cannot have access to
+member data of an object (it is declared {\tt protected} or
+{\tt private} in the class definition).
+The access to data is performed by member functions {\tt get\_xxx()}
+for read-only of data or {\tt set\_xxx()} for modifying the data.
+Some read-only is also performed via the {\tt operator()}, e.g.
+{\tt a(2)} to read the element no. 2 of the {\tt Tbl a}.
+
+The advantage of encapsulation is a safe handling of the
+dependencies among the data. Indeed invoquing the function
+{\tt set\_xxx()} will not only modify the data {\tt xxx}, but will
+modify accordingly all the data or objects which depend on {\tt xxx}.
+
+
+\section{Const-correctness}
+
+{\sc Lorene} is const-correct, i.e. the constancy
+of objects is systematically specified, by mean of the C++ qualifier
+{\tt const}:
+\begin{itemize}
+\item {\tt A::f(const B\& b)} : the member function {\tt f} of class
+{\tt A} does not modify its argument {\tt b}.
+\item {\tt A::f() const} : the member function {\tt f} of class {\tt A}
+does not modify the object for which it is invoqued.
+\item {\tt const B\& A::get\_xxx() const} : the member function
+{\tt get\_xxx} of class {\tt A} returns a reference on a constant object
+of class {\tt B} (representing the data {\tt xxx}); this
+function thus cannot be used to modify the object {\tt A}, hence the
+second qualifier {\tt const}.
+\end{itemize}
+
+\section{Construction of objects}
+
+There are at least 3 ways to create a {\sc Lorene} object, corresponding
+to 3 types of C++ constructors:
+\begin{itemize}
+\item Constructor from scratch (in {\sc Lorene} terminology,
+{\em standard constructor}), i.e. using the basic informations
+to set up an object; for example: {\tt Tbl a(5) ;} (construction of a
+{\tt Tbl} of dimension 5).
+\item Constructor from copy of a pre-existing object of same class;
+for example: {\tt Tbl b = a ; } (construction of a {\tt Tbl b} which is
+identical to {\tt a}).
+\item Constructor from a file; for example: {\tt Tbl c(file) ;}
+(where {\tt file} is pointer (of C type {\tt FILE*}) towards a
+file where a {\tt Tbl} has been written before, via the function
+{\tt Tbl::sauve}).
+\end{itemize}
+In addition, there exists some constructors {by conversion} of
+a object from a different class, for example
+{\tt Mtbl::Mtbl(const Coord\& )}, but these are pretty rare and
+most of single argument constructors are protected against
+automatic type conversion from the compiler by the C++
+qualifier {\tt explicit}.
+
+
+\section{Object states}
+
+Most of {\sc Lorene} objects can exist under three states:
+
+\begin{itemize}
+\item {\bf undefined state} ({\tt ETATNONDEF}) :
+this states generally results from the creation of the object from
+scratch (via the so-called {\em standard constructor}).
+\item {\bf zero state} ({\tt ETATZERO}) : the object has the value zero.
+\item {\bf ordinary state} ({\tt ETATQCQ}) : the object has a well
+defined value, different from zero.
+\end{itemize}
+
+In the undefined and zero states, no memory allocation is performed for
+the object data. The switch to the ordinary state and the
+memory allocation is performed by the method {\tt set\_etat\_qcq()}.
+This method is automatically invoqued when necessary
+in all global manipulations, such as the the assignment to another
+object. However, for efficiency purpose, the function {\tt set\_etat\_qcq()}
+is not called by functions of the type {\tt set\_xxx()}.
+It should be thus call by hand prior to {\tt set\_xxx()}. For example:
+{\tt
+\begin{verbatim}
+Tbl a(5) ;            // creation of an array of size 5 :
+                      //    state = undefined
+a.set_etat_qcq() ;      // switches the state to ordinary and
+                        //    performs the memory allocation
+                        //    for the array elements
+a.set(0) = 1 ; 		// OK
+\end{verbatim}
+}
+
+
+\section{Input/output}
+
+Most of all {\sc Lorene} objects can be displayed on the
+screen, or in a formatted file, by means of the {\tt operator<<}.
+For example: {\tt cout << a << endl ;} where {\tt a} is some
+{\sc Lorene} object.
+
+
+Most of all {\sc Lorene} objects can by written in (binary) files
+by means of the member function {\tt sauve(FILE* )}.
+The reverse operation is possible, i.e. for most all classes
+there exists a constructor from a file.
+
+The graphical display is ensured by means of functions
+based on the PGPLOT library (2-D drawings) or
+formatting data for 3-D visualization via Iris Explorer (NAG).
+These functions are not member functions of any class
+to ensure full portability of the non-graphical part of
+{\sc Lorene}.
+
+
+\end{document}
