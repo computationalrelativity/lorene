@@ -30,6 +30,9 @@ char vector_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2004/02/24 17:00:25  j_novak
+ * Added a forgotten term.
+ *
  * Revision 1.7  2004/02/24 09:46:20  j_novak
  * Correction to cope with SGI compiler's warnings.
  *
@@ -102,7 +105,7 @@ Vector Vector::poisson(const double lambda, const Metric_flat& met_f, int method
       divf = (potential(met_f) / (lambda + 1)) ;
     }
     
-    Scalar source_r = *(cmp[0]) ; 
+    Scalar source_r = *(cmp[0]) - lambda*divf.dsdr(); 
     source_r.mult_r_dzpuis(3) ;
     source_r += 2*divf ;
     Scalar khi = source_r.poisson() ; 
