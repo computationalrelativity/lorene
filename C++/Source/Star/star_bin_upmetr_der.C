@@ -32,6 +32,9 @@ char star_bin_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2004/06/22 12:52:47  f_limousin
+ * Change qq, qq_auto and qq_comp to beta, beta_auto and beta_comp.
+ *
  * Revision 1.8  2004/06/07 16:25:14  f_limousin
  * Minor modif.
  *
@@ -72,7 +75,7 @@ void Star_bin::update_metric_der_comp(const Star_bin& comp) {
     dcov_logn = logn.derive_cov(flat) ;
     dcon_logn = logn.derive_con(flat) ;
 
-    Scalar lnpsi = 0.5 * (qq - logn) ;
+    Scalar lnpsi = 0.5 * (beta - logn) ;
     dcov_lnpsi = lnpsi.derive_cov(flat) ;
     dcon_lnpsi = lnpsi.derive_con(flat) ;
 
@@ -82,8 +85,6 @@ void Star_bin::update_metric_der_comp(const Star_bin& comp) {
 /*    
     hij_auto.set(3,3) = hij(3,3) * decouple ;
     hij_comp.set(3,3) = hij(3,3) * (1 - decouple) ;
-    hij_auto.std_spectral_base() ;
-    hij_comp.std_spectral_base() ;
 
     Sym_tensor gtilde_con(mp, CON, mp.get_bvect_spher()) ;
 
@@ -92,7 +93,6 @@ void Star_bin::update_metric_der_comp(const Star_bin& comp) {
 	    gtilde_con.set(i,j) = hij(i,j) + flat.con()(i,j) ;
 	}
     
-    gtilde_con.std_spectral_base() ;
     gtilde = gtilde_con ;
     Tensor tens_gamma(gtilde_con / psi4) ;
     gamma = tens_gamma ;
@@ -120,7 +120,6 @@ void Star_bin::update_metric_der_comp(const Star_bin& comp) {
 	}
       
       tkij_comp = 0.5 * tkij_comp / nnn ;
-      tkij_comp.std_spectral_base() ;
       
       // Computation of kcar_comp
       // ------------------------
@@ -128,8 +127,6 @@ void Star_bin::update_metric_der_comp(const Star_bin& comp) {
       Tensor tkij_auto_cov = tkij_auto.down(0, gtilde).down(1, gtilde) ;
 
       kcar_comp = contract(tkij_auto_cov, 0, 1, tkij_comp, 0, 1, true) ; 
-        
-      kcar_comp.std_spectral_base() ;
 
 }      
 

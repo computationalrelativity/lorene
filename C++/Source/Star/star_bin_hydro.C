@@ -31,6 +31,9 @@ char star_bin_hydro_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2004/06/22 12:50:43  f_limousin
+ * Change qq, qq_auto and qq_comp to beta, beta_auto and beta_comp.
+ *
  * Revision 1.4  2004/04/08 16:34:39  f_limousin
  * Changes for irrotationnal binaries.
  *
@@ -55,6 +58,11 @@ void Star_bin::hydro_euler(){
     int nz = mp.get_mg()->get_nzone() ; 
     int nzm1 = nz - 1 ; 
 
+    Sym_tensor gamma_cov (gamma.cov()) ;
+    Sym_tensor gamma_con (gamma.con()) ;
+    gamma_cov.change_triad(mp.get_bvect_cart()) ;
+    gamma_con.change_triad(mp.get_bvect_cart()) ;
+
     //----------------------------------
     // Specific relativistic enthalpy		    ---> hhh
     //----------------------------------
@@ -68,9 +76,9 @@ void Star_bin::hydro_euler(){
     // See Eq (23) and (24) from Gourgoulhon et al. (2001)
     //---------------------------------------------------
 
-    Scalar gam0 = 1 / sqrt( 1 - sprod(bsn,bsn) ) ;
+    Scalar gam0 = 1 / sqrt( 1 - contract(gamma_cov, 0, 1, bsn * bsn, 0, 1)) ;
     gam0.std_spectral_base() ;
-
+    
     //------------------------------------------
     // Lorentz factor and 3-velocity of the fluid 
     //  with respect to the Eulerian observer
@@ -81,15 +89,12 @@ void Star_bin::hydro_euler(){
         d_psi.std_spectral_base() ;
 
 	// See Eq (32) from Gourgoulhon et al. (2001)
-	gam_euler = sqrt( 1 + sprod(d_psi, d_psi) / (hhh%hhh) ) ; 
+	gam_euler = sqrt( 1 + contract(gamma_con, 0, 1, d_psi * d_psi, 0, 1) 
+			  / (hhh%hhh) ) ; 
 
 	gam_euler.std_spectral_base() ; 
 	
-	d_psi.change_triad(mp.get_bvect_spher()) ;
-	u_euler = contract(gamma.con(), 0, d_psi, 0)/( hhh % gam_euler ) ;
-	u_euler.change_triad(mp.get_bvect_cart()) ;
-	d_psi.change_triad(mp.get_bvect_cart()) ;
-
+	u_euler = contract(gamma_con, 0, d_psi, 0)/( hhh % gam_euler ) ;
 	u_euler.std_spectral_base() ; 
 
     }
@@ -116,10 +121,8 @@ void Star_bin::hydro_euler(){
     //------------------------------------
 
     s_euler = 3 * press  +  ( ener_euler + press ) %
-	sprod(u_euler, u_euler) ;
-    s_euler.std_spectral_base() ; 
-
-
+	contract(gamma_cov, 0, 1, u_euler * u_euler, 0 ,1) ;
+    
     //-------------------------------------------
     // Spatial part of the stress-energy tensor with respect
     // to the Eulerian observer. 
@@ -130,10 +133,9 @@ void Star_bin::hydro_euler(){
     for(int i=1; i<=3; i++){
 	for(int j=1; j<=3; j++){
 	    stress_euler.set(i,j) = (ener_euler + press )*u_euler(i)
-		*u_euler(j) + press*gtilde.con()(i,j) ;
+		*u_euler(j) + press*gamma.con()(i,j) ;
 	}
     }
-    stress_euler.std_spectral_base() ;
     stress_euler.change_triad(mp.get_bvect_spher()) ;
 
     
@@ -145,7 +147,7 @@ void Star_bin::hydro_euler(){
     
     if (irrotational) {	
 
-	Scalar tmp = ( 1 + sprod(bsn,u_euler) ) ;
+	Scalar tmp = ( 1 + contract(gamma_cov, 0, 1, bsn * u_euler, 0, 1) ) ;
 	tmp.std_spectral_base() ;
 	Scalar gam = gam0 % gam_euler % tmp ;
 	
@@ -193,24 +195,4 @@ void Star_bin::hydro_euler(){
     
     del_deriv() ;                
     
-/*    cout << " comparaison " << endl ;
-    cout << "a_car" << endl << norme(psi4) << endl ;
-    cout << "logn_auto" << endl << norme(logn_auto) << endl ;
-    
-    shift_auto.change_triad(mp.get_bvect_cart()) ;
-    cout << "shift_x" << endl << norme(shift_auto(1)) << endl ;
-    cout << "shift_y" << endl << norme(shift_auto(2)) << endl ;
-    cout << "shift_z" << endl << norme(shift_auto(3)) << endl ;
-    shift_auto.change_triad(mp.get_bvect_spher()) ;
-    
-    cout << "qq" << endl << norme(qq) << endl ;
-    cout << "hij" << endl << norme(hij(1,1)) << endl ;
-  
-    u_euler.change_triad(mp.get_bvect_cart()) ;
-    cout << "u_euler_x" << endl << norme(u_euler(1)) << endl ;
-    cout << "u_euler_y" << endl << norme(u_euler(2)) << endl ;
-    cout << "u_euler_z" << endl << norme(u_euler(3)) << endl ;
-    u_euler.change_triad(mp.get_bvect_spher()) ;
-*/
-
 }

@@ -34,6 +34,9 @@ char star_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/06/22 12:48:08  f_limousin
+ * Change qq, qq_auto and qq_comp to beta, beta_auto and beta_comp.
+ *
  * Revision 1.9  2004/06/07 16:21:35  f_limousin
  * Add outputs
  *
@@ -97,7 +100,7 @@ Star::Star(Map& mpi, int nzet_i, const Eos& eos_i)
 		   logn(mpi), 
 		   nnn(mpi), 
 		   shift(mpi, CON, mp.get_bvect_spher()),
-		   qq(mpi),
+		   beta(mpi),
 		   gamma(mp.flat_met_spher()){
     
  
@@ -149,7 +152,7 @@ Star::Star(Map& mpi, int nzet_i, const Eos& eos_i)
     nnn = 1. ; 
     nnn.std_spectral_base() ; 
     shift.set_etat_zero() ; 
-    qq = 0 ;
+    beta = 0 ;
 
 }
 
@@ -171,7 +174,7 @@ Star::Star(const Star& et)
 		   logn(et.logn), 
 		   nnn(et.nnn), 
 		   shift(et.shift),
-		   qq(et.qq),
+		   beta(et.beta),
 		   gamma(et.gamma){
 	       
     set_der_0x0() ;
@@ -195,7 +198,7 @@ Star::Star(Map& mpi, const Eos& eos_i, FILE* fich)
 		   logn(mpi, *(mpi.get_mg()), fich), 
 		   nnn(mpi), 
 		   shift(mpi, CON, mp.get_bvect_spher()),
-		   qq(mpi, *(mpi.get_mg()), fich),
+		   beta(mpi, *(mpi.get_mg()), fich),
 		   gamma(mpi.flat_met_spher()){
 
     // Star parameters
@@ -324,7 +327,7 @@ void Star::operator=(const Star& et) {
     logn = et.logn ;
     nnn = et.nnn ;
     shift = et.shift ;
-    qq = et.qq ;
+    beta = et.beta ;
     gamma = et.gamma ;
 
     del_deriv() ;  // Deletes all derived quantities
@@ -355,7 +358,7 @@ void Star::set_enthalpy(const Scalar& ent_i) {
 void Star::sauve(FILE* fich) const {
     
     logn.sauve(fich) ;
-    qq.sauve(fich) ;
+    beta.sauve(fich) ;
 
     int xx = nzet ;     
     fwrite_be(&xx, sizeof(int), 1, fich) ;			
@@ -393,7 +396,7 @@ ostream& Star::operator>>(ostream& ost) const {
     
     ost << endl ;
     ost << "Central lapse N :      " << nnn.val_grid_point(0,0,0,0) <<  endl ; 
-    ost << "Central value of qq : " << qq.val_grid_point(0,0,0,0) <<  endl ; 
+    ost << "Central value of beta : " << beta.val_grid_point(0,0,0,0) <<  endl ; 
   
     ost << endl 
 	<< "Coordinate equatorial radius (phi=0) a1 =    " 

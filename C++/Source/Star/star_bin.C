@@ -31,6 +31,9 @@ char star_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2004/06/22 12:48:52  f_limousin
+ * Change qq, qq_auto and qq_comp to beta, beta_auto and beta_comp.
+ *
  * Revision 1.9  2004/04/08 16:32:28  f_limousin
  * The new variable is ln(Q) instead of Q=psi^2*N. It improves the
  * convergence of the code.
@@ -93,8 +96,8 @@ Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i,
       logn_comp(mpi), 
       dcov_logn(mpi, COV, mpi.get_bvect_spher()),
       dcon_logn(mpi, CON, mpi.get_bvect_spher()),
-      qq_auto(mpi),
-      qq_comp(mpi),
+      beta_auto(mpi),
+      beta_comp(mpi),
       psi4(mpi),
       dcov_lnpsi(mpi, COV, mpi.get_bvect_spher()),
       dcon_lnpsi(mpi, CON, mpi.get_bvect_spher()),
@@ -110,7 +113,7 @@ Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i,
       kcar_auto(mpi), 
       kcar_comp(mpi), 
       ssjm1_logn(mpi),
-      ssjm1_qq(mpi),
+      ssjm1_beta(mpi),
       ssjm1_phi(mpi),
       ssjm1_khi(mpi),
       ssjm1_mu(mpi),
@@ -141,8 +144,8 @@ Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i,
     dcon_logn.set_etat_zero() ;
     shift_auto.set_etat_zero() ; 
     shift_comp.set_etat_zero() ; 
-    qq_auto = 0 ;
-    qq_comp = 0 ;
+    beta_auto = 0 ;
+    beta_comp = 0 ;
     psi4 = 1 ;
     dcov_lnpsi.set_etat_zero() ;
     dcon_lnpsi.set_etat_zero() ;
@@ -155,7 +158,7 @@ Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i,
     kcar_auto = 0 ;
     kcar_comp = 0 ; 
     ssjm1_logn = 0 ;
-    ssjm1_qq = 0 ;
+    ssjm1_beta = 0 ;
     ssjm1_phi = 0 ;
     ssjm1_khi = 0 ;
     ssjm1_mu = 0 ;
@@ -183,8 +186,8 @@ Star_bin::Star_bin(const Star_bin& star)
 			 logn_comp(star.logn_comp), 
 			 dcov_logn(star.dcov_logn),
 			 dcon_logn(star.dcon_logn),
-			 qq_auto(star.qq_auto),
-			 qq_comp(star.qq_comp),
+			 beta_auto(star.beta_auto),
+			 beta_comp(star.beta_comp),
 			 psi4(star.psi4),
 			 dcov_lnpsi(star.dcov_lnpsi),
 			 dcon_lnpsi(star.dcon_lnpsi),
@@ -200,7 +203,7 @@ Star_bin::Star_bin(const Star_bin& star)
 			 kcar_auto(star.kcar_auto), 
 			 kcar_comp(star.kcar_comp), 
 			 ssjm1_logn(star.ssjm1_logn),
-			 ssjm1_qq(star.ssjm1_qq),
+			 ssjm1_beta(star.ssjm1_beta),
 			 ssjm1_phi(star.ssjm1_phi),
 			 ssjm1_khi(star.ssjm1_khi),
 			 ssjm1_mu(star.ssjm1_mu),
@@ -232,8 +235,8 @@ Star_bin::Star_bin(Map& mpi, const Eos& eos_i, FILE* fich)
 			 logn_comp(mpi), 
 			 dcov_logn(mpi, COV, mpi.get_bvect_spher()),
 			 dcon_logn(mpi, CON, mpi.get_bvect_spher()),
-			 qq_auto(mpi, *(mpi.get_mg()), fich),
-			 qq_comp(mpi),
+			 beta_auto(mpi, *(mpi.get_mg()), fich),
+			 beta_comp(mpi),
 			 psi4(mpi),
 			 dcov_lnpsi(mpi, COV, mpi.get_bvect_spher()),
 			 dcon_lnpsi(mpi, CON, mpi.get_bvect_spher()),
@@ -249,7 +252,7 @@ Star_bin::Star_bin(Map& mpi, const Eos& eos_i, FILE* fich)
 			 kcar_auto(mpi), 
 			 kcar_comp(mpi), 
 			 ssjm1_logn(mpi, *(mpi.get_mg()), fich),
-			 ssjm1_qq(mpi, *(mpi.get_mg()), fich),
+			 ssjm1_beta(mpi, *(mpi.get_mg()), fich),
 			 ssjm1_phi(mpi, *(mpi.get_mg()), fich),
 			 ssjm1_khi(mpi, *(mpi.get_mg()), fich),
 			 ssjm1_mu(mpi, *(mpi.get_mg()), fich),
@@ -293,7 +296,7 @@ Star_bin::Star_bin(Map& mpi, const Eos& eos_i, FILE* fich)
     dcov_logn.set_etat_zero() ;
     dcon_logn.set_etat_zero() ;
     shift_comp.set_etat_zero() ; 
-    qq_comp = 0 ;
+    beta_comp = 0 ;
     psi4 = 1 ;
     dcov_lnpsi.set_etat_zero() ;
     dcon_lnpsi.set_etat_zero() ;
@@ -377,8 +380,8 @@ void Star_bin::operator=(const Star_bin& star) {
     logn_comp = star.logn_comp ;
     dcov_logn = star.dcov_logn ;
     dcon_logn = star.dcon_logn ;
-    qq_auto = star.qq_auto ;
-    qq_comp = star.qq_comp ;
+    beta_auto = star.beta_auto ;
+    beta_comp = star.beta_comp ;
     psi4 = star.psi4 ;
     dcov_lnpsi = star.dcov_lnpsi ;
     dcon_lnpsi = star.dcon_lnpsi ;
@@ -394,7 +397,7 @@ void Star_bin::operator=(const Star_bin& star) {
     kcar_auto = star.kcar_auto ;
     kcar_comp = star.kcar_comp ;
     ssjm1_logn = star.ssjm1_logn ;
-    ssjm1_qq = star.ssjm1_qq ;
+    ssjm1_beta = star.ssjm1_beta ;
     ssjm1_phi = star.ssjm1_phi ;
     ssjm1_khi = star.ssjm1_khi ;
     ssjm1_mu = star.ssjm1_mu ;
@@ -452,12 +455,12 @@ void Star_bin::sauve(FILE* fich) const {
     Star::sauve(fich) ; 
     
     logn_auto.sauve(fich) ;
-    qq_auto.sauve(fich) ;
+    beta_auto.sauve(fich) ;
     shift_auto.sauve(fich) ;
     hij_auto.sauve(fich) ;
 
     ssjm1_logn.sauve(fich) ;
-    ssjm1_qq.sauve(fich) ;
+    ssjm1_beta.sauve(fich) ;
     ssjm1_phi.sauve(fich) ;
     ssjm1_khi.sauve(fich) ;
     ssjm1_mu.sauve(fich) ;
@@ -630,7 +633,8 @@ Tensor Star_bin::sprod(const Tensor& t1, const Tensor& t2) const {
      if ( (t1.get_valence() != 0) && (t2.get_valence() != 0) ) {
 	    assert ( *(t1.get_triad()) == *(t2.get_triad()) ) ;
     }
-    
+     assert ( *(t1.get_triad()) == *((*p_tens_metr).get_triad()) ) ;
+
     int val_res = t1.get_valence() + t2.get_valence() - 2;
 
     Itbl tipe(val_res) ;
@@ -704,7 +708,7 @@ void Star_bin::fait_d_psi() {
     //  Computation of W^i = - h Gamma_n B^i/N
     //----------------------------------------------
 
-    Vector www = - hhh * gam_euler * bsn ; 
+    Vector www = - hhh * gam_euler * bsn * psi4 ; 
       
     // Constant value of W^i at the center of the star
     //-------------------------------------------------
@@ -756,7 +760,7 @@ void Star_bin::relaxation(const Star_bin& star_jm1, double relax_ent,
     if ( (mer != 0) && (mer % fmer_met == 0)) {
 
 	logn_auto = relax_met * logn_auto + relax_met_jm1 * star_jm1.logn_auto ;
-	qq_auto = relax_met * qq_auto + relax_met_jm1 * star_jm1.qq_auto ;
+	beta_auto = relax_met * beta_auto + relax_met_jm1 * star_jm1.beta_auto ;
 	
 	shift_auto = relax_met * shift_auto 
 				   + relax_met_jm1 * star_jm1.shift_auto ;

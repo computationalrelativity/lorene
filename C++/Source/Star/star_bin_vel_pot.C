@@ -28,12 +28,14 @@
  *
  */
 
-
 char star_bin_vel_pot_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2004/06/22 12:53:09  f_limousin
+ * Change qq, qq_auto and qq_comp to beta, beta_auto and beta_comp.
+ *
  * Revision 1.2  2004/06/07 16:26:01  f_limousin
  * Many modif...
  *
@@ -51,15 +53,17 @@ char star_bin_vel_pot_C[] = "$Header$" ;
 #include "param.h"
 #include "cmp.h"
 #include "tenseur.h"
+#include "graphique.h"
+#include "utilitaires.h"
 
 // Local prototype
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
 
 double Star_bin::velocity_potential(int mermax, double precis, double relax) {
   
-    int nzm1 = mp.get_mg()->get_nzone() - 1 ;    
+    int nzm1 = mp.get_mg()->get_nzone() - 1 ;
 
-    //----------------------------------
+     //----------------------------------
     // Specific relativistic enthalpy		    ---> hhh
     //----------------------------------
     
@@ -71,8 +75,8 @@ double Star_bin::velocity_potential(int mermax, double precis, double relax) {
     // See Eq (62) from Gourgoulhon et al. (2001)
     //----------------------------------------------
 
-    Vector www = - hhh * gam_euler * bsn ; 
-    
+    Vector www = - hhh * gam_euler * bsn * psi4 ;
+	
     www.change_triad( mp.get_bvect_cart() ) ;	// components on the mapping
 						// Cartesian basis
     
@@ -82,9 +86,9 @@ double Star_bin::velocity_potential(int mermax, double precis, double relax) {
     
     Vector v_orb(mp, CON, mp.get_bvect_cart()) ; 
     
-    v_orb.set_etat_qcq() ; 
+    v_orb.set_etat_qcq() ;
     for (int i=1; i<=3; i++) {
-	v_orb.set(i) = www(i).val_grid_point(0, 0, 0, 0) ; 
+	v_orb.set(i) = www(i).val_grid_point(0, 0, 0, 0) ;
     }
 
     v_orb.set_triad( *(www.get_triad()) ) ;  
@@ -105,39 +109,40 @@ double Star_bin::velocity_potential(int mermax, double precis, double relax) {
     Scalar zeta_h( ent / dndh_log ) ;
     zeta_h.std_spectral_base() ;
 
-    Vector bb = ent.derive_con(gamma) ;
-		  		    
-    Scalar entmnu = ent - logn ; 
+    Vector bb = (1 - zeta_h) * ent.derive_con(flat) + 
+	zeta_h * beta.derive_con(flat) ;
 
-    const Coord& xx = mp.x ; 
-    const Coord& yy = mp.y ; 
-    const Coord& zz = mp.z ; 
-
-    Vector rr (mp, COV, mp.get_bvect_cart()) ;
-    rr.set(1) = xx ;
-    rr.set(2) = yy ;
-    rr.set(3) = zz ;
-    
-    Scalar psi = psi0 + contract(www, 0, rr, 0) ;
-    psi.std_spectral_base() ;
-
-    Scalar laplacian_psi = - contract(psi.derive_con(gamma).derive_cov(gamma), 
-				      0, 1) ;
-
-    laplacian_psi.inc_dzpuis() ;
-    laplacian_psi += psi0.laplacian() ;
-
-//    Scalar dhdpsi = contract(contract(flat.con() - gamma.con(), 0, 
-//		       ent.derive_cov(flat), 0), 0, psi.derive_cov(flat), 0) ;
+    Scalar entmb = ent - beta ;  
 
     www.change_triad(mp.get_bvect_spher()) ;
     v_orb.change_triad(mp.get_bvect_spher()) ;
 
     // See Eq (63) from Gourgoulhon et al. (2001)
     Scalar source = contract(www - v_orb, 0, ent.derive_cov(flat), 0)
-	+ zeta_h * (contract(psi.derive_con(gamma),0,entmnu.derive_cov(flat),0)
-		 + contract(www, 0, gam_euler.derive_cov(flat), 0)/gam_euler ) 
-	+ zeta_h * laplacian_psi ; 
+	+ zeta_h * ( contract(v_orb, 0, entmb.derive_cov(flat), 0) +
+		     contract(www/gam_euler, 0, gam_euler.derive_cov(flat), 0)
+		     + contract(hij, 0, 1, (psi0.derive_cov(flat)  
+				+ v_orb.down(0, flat))*entmb.derive_cov(flat),
+				0, 1) )
+	- contract(hij, 0, 1, ent.derive_cov(flat) * (psi0.derive_cov(flat) 
+						      + v_orb.down(0, flat)), 
+						      0, 1) ;
+  
+/*
+    des_meridian(zeta_h,0., 4., "zeta_h", 10) ; 
+    arrete() ; 
+    des_meridian(bb(1),0., 4., "bb(1)", 10) ; 
+    arrete() ; 
+    des_meridian(bb(2),0., 4., "bb(2)", 10) ; 
+    arrete() ; 
+    des_meridian(bb(3),0., 4., "bb(3)", 10) ; 
+    arrete() ; 
+    des_meridian(psi0,0., 4., "psi0", 10) ; 
+    arrete() ; 
+    des_meridian(source,0., 4., "source", 10) ; 
+    arrete() ; 
+*/  
+
 
     www.change_triad(mp.get_bvect_cart()) ;
     v_orb.change_triad(mp.get_bvect_cart()) ;
@@ -211,11 +216,12 @@ double Star_bin::velocity_potential(int mermax, double precis, double relax) {
     //--------------------------------
     
     v_orb.change_triad(mp.get_bvect_spher()) ;
+    d_psi.change_triad(mp.get_bvect_spher()) ;
 
     for (int i=1; i<=3; i++) 
 	d_psi.set(i) = (psi0.derive_cov(flat))(i) + v_orb(i) ; 
-    v_orb.change_triad(mp.get_bvect_cart()) ;
-    
+
+    v_orb.change_triad(mp.get_bvect_cart()) ;    
     d_psi.change_triad(mp.get_bvect_cart()) ; 
    
     // C^1 continuation of d_psi outside the star
