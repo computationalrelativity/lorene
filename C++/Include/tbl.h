@@ -37,6 +37,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2002/09/24 08:33:35  e_gourgoulhon
+ *
+ * Added constructor from Matrice
+ *
  * Revision 1.3  2002/06/17 14:05:17  j_novak
  * friend functions are now also declared outside the class definition
  *
@@ -101,7 +105,8 @@
 #include "type_parite.h"
 #include "dim_tbl.h"
 
-class Grille3d ; 
+class Grille3d ;
+class Matrice ;
 
 /**
  * Basic array class.
@@ -176,6 +181,13 @@ class Tbl {
 	/// Constructor from a file (see {\tt sauve(FILE* )})
 	explicit Tbl(FILE* ) ;	
 	Tbl(const Tbl& ) ;		/// Copy constructor
+	
+	/** Constructor from a matrix.
+	 *  If the matrix has only one row or one column, the {\tt Tbl}
+	 *  is 1D, otherwise it is 2D.
+	 */
+	explicit Tbl(const Matrice& ) ;
+	
 
 	~Tbl() ;			/// Destructor
 
