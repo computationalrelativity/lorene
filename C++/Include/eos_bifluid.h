@@ -32,6 +32,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2003/12/05 15:08:38  r_prix
+ * - use read_variable() to read eos_bifluid from file
+ * - changed 'contructor from file' to take filename as an argument instead of ifstream
+ * - changed 'name' member of Eos_bifluid to C++-type string (for convenience&safety)
+ *
  * Revision 1.12  2003/12/04 14:13:32  r_prix
  * added method get_typeos {return typeos}; and fixed some comments.
  *
@@ -94,6 +99,7 @@
 
 // Standard C++
 #include "headcpp.h"
+#include <string>
 
 // Headers C
 #include <stdio.h>
@@ -141,7 +147,7 @@ class Eos_bifluid {
     // -----
 
     protected: 
-	char name[100] ;	    /// EOS name
+	string name;	    /// EOS name
 
 	/** Individual particle mass $m_1$  
 	 *  [unit: $m_B = 1.66\ 10^{-27} \ {\rm kg}$]. 
@@ -176,9 +182,14 @@ class Eos_bifluid {
 	/** Constructor from a formatted file.
 	 *  This constructor is protected because any EOS construction
 	 *  from a formatted file must be done via the function 
-	 *  {\tt Eos\_bifluid::eos\_from\_file(ifstream\&)}. 
+	 *  {\tt Eos\_bifluid::eos\_from\_file(char *fname)}. 
+	 *
+	 *  The following fields have to be present in the config-file:\\
+	 *  name: [string] name of the EOS
+	 *  m_1, m_2: [double] baryon masses of the 2-fluids
+	 *
 	 */
-	Eos_bifluid(ifstream& ) ; 
+	Eos_bifluid (char *fname ) ; 
 	
 	
     public:
@@ -193,10 +204,10 @@ class Eos_bifluid {
     // Name manipulation
     // -----------------
     public:
-	const char* get_name() const ;	/// Returns the EOS name
+	const string &get_name() const ;	/// Returns the EOS name
 
 	/// Sets the EOS name
-	void set_name(const char* name_i) ; 
+	void set_name(const string name_i) ; 
 
     // Miscellaneous
     // -------------
@@ -218,16 +229,16 @@ class Eos_bifluid {
 	 *  The file must have been created by the function 
 	 *  {\tt sauve(FILE* )}.
 	 */
-	static Eos_bifluid* eos_from_file(FILE* ) ; 
+	static Eos_bifluid* eos_from_file (FILE* ) ; 
 	
 	/** Construction of an EOS from a formatted file.
 	 * 
-	 *  The first line of the file must start by the EOS number, according 
-	 *  to the following conventions: \\
-	 *	1 = analytic EOS (class {\tt Eos\_bf\_poly}). \\
-	 *      Up to now (21.06.2001) only analytic EOS is implemented
+	 *  The following field has to be present:\\
+	 *  ident: [int] identifying the type of 2-fluid EOS
+	 *	1 = relativistic polytropic EOS (class {\tt Eos\_bf\_poly}). \\
+	 *      2 = Newtonian polytropic EOS (class {\tt Eos\_bf\_poly\_newt}).
 	 */
-	static Eos_bifluid* eos_from_file(ifstream& ) ; 
+	static Eos_bifluid* eos_from_file ( char *fname ) ; 
 	
 	/// Comparison operator (egality)
 	virtual bool operator==(const Eos_bifluid& ) const = 0 ; 
@@ -804,13 +815,14 @@ class Eos_bf_poly : public Eos_bifluid {
 	/** Constructor from a formatted file.
 	 *  This constructor is protected because any EOS construction
 	 *  from a formatted file must be done via the function 
-	 *  {\tt Eos\_bifluid::eos\_from\_file(ifstream\& )}. 
+	 *  {\tt Eos\_bifluid::eos\_from\_file(char *fname)}. 
+	 *
 	 */
-	Eos_bf_poly(ifstream& ) ; 
+	Eos_bf_poly (char *fname) ; 
 	
 	/// The construction functions from a file
 	friend Eos_bifluid* Eos_bifluid::eos_from_file(FILE* ) ; 
-	friend Eos_bifluid* Eos_bifluid::eos_from_file(ifstream& ) ; 
+	friend Eos_bifluid* Eos_bifluid::eos_from_file(char *fname ) ; 
 
         public:
 	virtual ~Eos_bf_poly() ;			/// Destructor
@@ -1164,13 +1176,13 @@ class Eos_bf_poly_newt : public Eos_bf_poly {
 	/** Constructor from a formatted file.
 	 *  This constructor is protected because any EOS construction
 	 *  from a formatted file must be done via the function 
-	 *  {\tt Eos\_bifluid::eos\_from\_file(ifstream\& )}. 
+	 *  {\tt Eos\_bifluid::eos\_from\_file(char *fname )}. 
 	 */
-	Eos_bf_poly_newt(ifstream& ) ; 
+	Eos_bf_poly_newt(char *fname ) ; 
 	
 	/// The construction functions from a file
 	friend Eos_bifluid* Eos_bifluid::eos_from_file(FILE* ) ; 
-	friend Eos_bifluid* Eos_bifluid::eos_from_file(ifstream& ) ; 
+	friend Eos_bifluid* Eos_bifluid::eos_from_file(char *fname) ; 
 
     public:
 	virtual ~Eos_bf_poly_newt() ;			/// Destructor
