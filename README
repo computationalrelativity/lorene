@@ -7,12 +7,16 @@
 	 $Id$
 
 LORENE is a free software under the GNU General Public License (see the
-file COPYING in this directory). 
+file COPYING in this directory).
 
 LORENE is developed by different persons (see the file AUTHORS in this
 directory). 
 
 Comments or questions should be addressed to Eric.Gourgoulhon@obspm.fr.
+
+The LORENE Web page is
+
+        http://www.lorene.obspm.fr/
 
 
 Installing Lorene on your computer
