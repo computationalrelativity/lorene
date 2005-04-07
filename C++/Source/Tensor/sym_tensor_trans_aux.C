@@ -30,6 +30,9 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/04/07 07:56:22  j_novak
+ * Better handling of dzpuis (first try).
+ *
  * Revision 1.2  2005/04/06 15:49:46  j_novak
  * Error corrected.
  *
@@ -78,21 +81,50 @@ void Sym_tensor_trans::T_from_det_one( const Scalar& hrr, const Scalar& eta_in,
     tmp.set_spectral_va().ylm_i() ;
     set(2,3) = 2*x_in.dsdt().dsdt() - tmp + 2*w_in.stdsdp().dsdt() ;
 
-    Scalar A = 0.25*(hrr + 1) ;
+    Scalar t_new(*mp) ;
 
-    Scalar B = -0.5*( operator()(1,2) * operator()(1,2)
-		      + operator()(1,3) * operator()(1,3) ) + hrr + 1. ;
+    if (dzp == 0) {
+	Scalar A = 0.25*(hrr + 1) ;
+	
+	Scalar B = -0.5*( operator()(1,2) * operator()(1,2)
+		   + operator()(1,3) * operator()(1,3) ) + hrr + 1. ;
+	
+	Scalar C = (hrr + 1)*(ppp*ppp + operator()(2,3)*operator()(2,3)) +
+	    (ppp + 1)*(operator()(1,3)*operator()(1,3)) +
+	    (1 - ppp)*(operator()(1,2)*operator()(1,2)) -
+	    2*operator()(1,2)*operator()(1,3)*operator()(2,3) + hrr ;
+	t_new = (-2*C)/(B + sqrt(B*B - 4*A*C))  ;
+    }
+    else { //trying to be careful with the dzpuis ...
+	Scalar hrr0 = hrr ;
+	hrr0.dec_dzpuis(dzp) ;
+	Scalar hrt0 = operator()(1,2) ;
+	hrt0.dec_dzpuis(dzp) ;
+	Scalar hrp0 = operator()(1,3) ;
+	hrp0.dec_dzpuis(dzp) ;
+	Scalar htp0 = operator()(2,3) ;
+	htp0.dec_dzpuis(dzp) ;
+	Scalar ppp0 = ppp ;
+	ppp0.dec_dzpuis(dzp) ;
+	Scalar A = 0.25*(hrr0 + 1) ;
+	
+	Scalar B = -0.5*( hrt0*hrt0 + hrp0*hrp0 ) + hrr0 + 1. ;
+	
+	Scalar C = (hrr0 + 1)*(ppp*ppp0 + operator()(2,3)*htp0) +
+	    (ppp0 + 1)*(operator()(1,3)*hrp0) +
+	    (1 - ppp0)*(operator()(1,2)*hrt0) -
+	    2*hrt0*hrp0*operator()(2,3) + hrr ;
+	Scalar C0 = (hrr0 + 1)*(ppp0*ppp0 + htp0*htp0) +
+	    (ppp0 + 1)*(hrp0*hrp0) + (1 - ppp0)*(hrt0*hrt0) -
+	    2*hrt0*hrp0*operator()(2,3) + hrr0 ;
+	t_new = (-2*C)/(B + sqrt(B*B - 4*A*C0))  ;
+    }
 
-    Scalar C = (hrr + 1)*(ppp*ppp + operator()(2,3)*operator()(2,3)) +
-	(ppp + 1)*(operator()(1,3)*operator()(1,3)) +
-	(1 - ppp)*(operator()(1,2)*operator()(1,2)) -
-	2*operator()(1,2)*operator()(1,3)*operator()(2,3) + hrr ;
-
-    Scalar t_new = (-2*C)/(B + sqrt(B*B - 4*A*C))  ;
+    assert(t_new.check_dzpuis(dzp)) ;
     t_new.std_spectral_base() ;
 
-    set(2,2) = 0.5*ttt() + ppp ;
-    set(3,3) = 0.5*ttt() - ppp ;
+    set(2,2) = 0.5*t_new + ppp ;
+    set(3,3) = 0.5*t_new - ppp ;
 
    // Deleting old derived quantities ...
     del_deriv() ; 
