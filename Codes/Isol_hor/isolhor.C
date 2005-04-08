@@ -29,6 +29,9 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.28  2005/04/08 12:14:42  f_limousin
+ * Dependance in phi.
+ *
  * Revision 1.27  2005/04/08 09:30:53  jl_jaramillo
  * Calculation of the expansion and its radial derivative
  *
@@ -302,10 +305,10 @@ int main() {
     // ----------------
 
     Scalar khi (mp) ;
-    khi = 0*0.05*unsr*unsr*sint*sint ;
+    khi = 0*0.05*unsr*unsr*sint*sint*sinp*cosp ;
     khi.std_spectral_base() ;
     khi.annule_domain(0) ;
-    
+
     Scalar mu (mp) ;
     mu = 0*0.05*unsr*unsr ;
     mu.std_spectral_base() ;
@@ -321,6 +324,11 @@ int main() {
     Sym_tensor gamt(mp, COV, mp.get_bvect_spher()) ;
 
     gamt = ff.cov() + hh_tmp.up_down(ff) ;
+    gamt.set(1,1) = gamt(1,1) * (1+0.01*sint*sint*cosp*cosp*(1/rr/rr - 1/rr/rr/rr)) ;
+//    gamt.set(2,2) = gamt(2,2) * (1+0.01*sint*sint*cosp*cosp*(1/rr/rr - 1/rr/rr/rr)) ;
+//    gamt.set(3,3) = gamt(3,3) * (1+0.01*sint*sint*cosp*cosp*(1/rr/rr - 1/rr/rr/rr)) ;
+    gamt.set(1,3) = 0.01*sint*sint*cosp*(1/rr/rr - 1/rr/rr/rr) ;
+    gamt.set(1,3).set_spectral_va().set_base_t(T_COSSIN_SI) ;
 
     // Determinant of gamma tilde is put to one 
     // ----------------------------------------
@@ -331,7 +339,14 @@ int main() {
      
     gamt = gamt*det_ust ;
     Metric met_gamt (gamt) ; 
-
+    /*
+    gamt(1,1).spectral_display("gamt(1,1)") ;
+    gamt(2,2).spectral_display("gamt(2,2)") ;
+    gamt(3,3).spectral_display("gamt(3,3)") ;
+    gamt(1,2).spectral_display("gamt(1,2)") ;
+    gamt(1,3).spectral_display("gamt(1,3)") ;
+    gamt(2,3).spectral_display("gamt(2,3)") ;
+    */
     // Gamma-tilde_point
     //------------------
 
@@ -353,7 +368,7 @@ int main() {
 
     double mm, aaa, hh ;
 
- 
+    
     //--------------------------------------------------
     // Construction of Kerr Metric 
     //--------------------------------------------------
@@ -365,12 +380,12 @@ int main() {
 
     // Parameters
     // -----------
-    mm = 103.588 ;
+    mm = 2.5 ;
     hh = 2. ;  // the radius is 1
     aaa = pow (mm*mm-hh*hh, 0.5) ;
 
     hh = 2. ;
-    double jj = 100 ;
+    double jj = 5 ;
     aaa = pow( 0.5*(pow(hh*hh*hh*hh+4.*jj*jj, 0.5) - hh*hh), 0.5) ;
     mm = pow(aaa*aaa + hh*hh, 0.5) ;
 
@@ -411,6 +426,14 @@ int main() {
     h_uu.set(1,1) = pow(b2/a2, 1./3.) - 1 ;
     h_uu.set(2,2) = pow(b2/a2, 1./3.) - 1 ;
     h_uu.set(3,3) = pow(a2/b2, 2./3.) - 1 ;
+
+    /*
+    // For a dependance in phi
+    h_uu.set(1,1)=h_uu(1,1)+0.02*sint*sint*cosp*cosp*(1/rr/rr - 1/rr/rr/rr) ;
+    h_uu.set(3,1)=h_uu(3,1)+0.2*sint*sint*cosp*(1/rr/rr - 1/rr/rr/rr) ;
+    h_uu.set(3,1).set_spectral_va().set_base_t(T_COSSIN_SI) ;
+    */
+
     h_uu.annule_domain(0) ;
     h_uu.std_spectral_base() ;
     
@@ -419,7 +442,28 @@ int main() {
     gamt = tgam.cov() ;
     met_gamt = gamt ;
 
+    // Determinant of gamma tilde is put to one 
+    // ----------------------------------------
+
+    met_gamt_tmp = met_gamt ;             
+    det_ust = pow(met_gamt_tmp.determinant(), -1./3.) ;
+    det_ust.std_spectral_base() ;
+     
+    gamt = gamt*det_ust ;
+    met_gamt = gamt ; 
+
     cout << "norme de gamt" << endl << norme(gamt(1,1)) << endl << norme(gamt(2,1)) << endl << norme(gamt(3,1)) << endl << norme(gamt(2,2)) << endl << norme(gamt(3,2)) << endl << norme(gamt(3,3)) << endl ;
+    /*
+    gamt(1,1).spectral_display("gamt(1,1)") ;
+    gamt(2,2).spectral_display("gamt(2,2)") ;
+    gamt(3,3).spectral_display("gamt(3,3)") ;
+    gamt(1,2).spectral_display("gamt(1,2)") ;
+    gamt(1,3).spectral_display("gamt(1,3)") ;
+    gamt(2,3).spectral_display("gamt(2,3)") ;
+    */
+
+    // Angular velocity
+    // ----------------
 
     ang_vel = 1.*aaa / (2*mm*(mm+pow(mm*mm-aaa*aaa, 0.5))) ;
     cout << "ang_vel = " << ang_vel << endl ;
@@ -477,7 +521,7 @@ int main() {
     psi_init = psi_kerr ;
     
     // End of the setup of Kerr metric
-       
+          
 
     // Set up of extrinsic curvature
     // -----------------------------
@@ -530,7 +574,7 @@ int main() {
     bidon = isolhor.k_uu() ;
     Sym_tensor bidon2 (isolhor.k_dd()) ;
     Scalar bidon3 (isolhor.aa_quad()) ;
-    
+       
     //-------------------------------------------------------
     // Test of the formula for A^{ij}A_{ij} in Sergio's paper
     //-------------------------------------------------------
@@ -541,14 +585,14 @@ int main() {
     // New initialisation of the metric quantities
     // --------------------------------------------
 
-    psi_init = 0.9*psi_kerr ;
+    psi_init = psi_kerr ;
     psi_init.std_spectral_base() ;
     isolhor.set_psi(psi_init) ;
     
 //    nn_init = 1. ;
 //    nn_init.std_spectral_base() ;
 
-
+    
     // Test of the constraints
     //------------------------
 
@@ -598,14 +642,13 @@ int main() {
     cout << "Radial derivative of the expansion at (1,Pi/4,0) = "<< der_expansion_1<<endl ;
     cout << "Radial derivative of the expansion at (1,Pi/2,0) = "<< der_expansion_2<<endl ;
     cout << "------------------------------------------------------"<<endl;
-    arrete() ;
-
-    expansion.dec_dzpuis(2) ;	    
+ 
+    /*
     des_meridian(expansion, 1, 1.2, "Expansion theta", 2) ;
     des_meridian(expansion, 1, 4., "Expansion theta", 1) ;
     des_meridian(expansion, 1, 10., "Expansion theta", 3) ;
     arrete() ;
-    //    des_profile(expansion, 1, 4., 0., 0., "Expansion theta") ;
+    */
 
     // Save in a file
     // --------------
