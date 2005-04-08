@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.30  2005/04/08 08:22:04  j_novak
+ * New methods set_hrr_mu_det_one() and set_WX_det_one(). Not tested yet...
+ *
  * Revision 1.29  2005/04/06 15:43:58  j_novak
  * New method Sym_tensor_trans::T_from_det_one(...).
  *
@@ -573,6 +576,40 @@ class Sym_tensor_trans: public Sym_tensor {
 	 * @param it_max maximal number of iterations.
 	 */
 	void trace_from_det_one(const Sym_tensor_tt& htt, 
+				double precis = 1.e-14, int it_max = 100) ;
+
+	/** Assigns the \e rr component and the derived member \f$\mu\f$.
+	 * Other derived members are deduced from the divergence-free 
+	 * condition. Finally, it computes \c T (\c Sym_tensor::p_ttt )  so that 
+	 * \c *this + the flat metric has a determinant equal to 1. It then
+	 * updates the components accordingly. This function makes an 
+	 * iteration until the relative difference in \c T between 
+	 * two steps is lower than \c precis . 
+	 *
+	 * @param hrr the \e rr component of the tensor,
+	 * @param mu_in the \f$\mu\f$ potential,
+	 * @param precis relative difference in the trace computation to end
+	 *               the iteration.
+	 * @param it_max maximal number of iterations.
+	 */
+	void set_hrr_mu_det_one(const Scalar& hrr, const Scalar& mu_in,
+				double precis = 1.e-14, int it_max = 100) ;
+
+	/** Assigns the derived members \c W and \c X .
+	 * Other derived members are deduced from the divergence-free 
+	 * condition. Finally, it computes \c T (\c Sym_tensor::p_ttt ) so that 
+	 * \c *this + the flat metric has a determinant equal to 1. It then
+	 * updates the components accordingly. This function makes an 
+	 * iteration until the relative difference in \c T between 
+	 * two steps is lower than \c precis . 
+	 *
+	 * @param htt the transverse traceless part; all components must have
+	 *            dzpuis = 2.
+	 * @param precis relative difference in the trace computation to end
+	 *               the iteration.
+	 * @param it_max maximal number of iterations.
+	 */
+	void set_WX_det_one(const Scalar& w_in, const Scalar& x_in,
 				double precis = 1.e-14, int it_max = 100) ;
 
 } ; 

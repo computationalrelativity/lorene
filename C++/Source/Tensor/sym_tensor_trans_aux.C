@@ -30,6 +30,9 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/04/08 08:22:04  j_novak
+ * New methods set_hrr_mu_det_one() and set_WX_det_one(). Not tested yet...
+ *
  * Revision 1.3  2005/04/07 07:56:22  j_novak
  * Better handling of dzpuis (first try).
  *
@@ -134,8 +137,131 @@ void Sym_tensor_trans::T_from_det_one( const Scalar& hrr, const Scalar& eta_in,
     p_mu = new Scalar(mu_in) ;
     p_www = new Scalar(w_in) ;
     p_xxx = new Scalar(x_in) ;
-    p_ttt = new Scalar(t_new) ;
-    
-    
+    p_ttt = new Scalar(t_new) ;   
+
+}
+
+void Sym_tensor_trans::set_hrr_mu_det_one(const Scalar& hrr, const Scalar& mu_in,
+					  double precis, int it_max ) {
+
+    // All this has a meaning only for spherical components:
+    assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
+    int dzp = hrr.get_dzpuis() ;
+    int dzeta = (dzp == 0 ? 0 : dzp - 1) ;
+    assert(mu_in.check_dzpuis(dzeta)) ;
+    assert(&mu_in != p_mu) ;
+    assert( (precis > 0.) && (it_max > 0) ) ;
+
+    //Computation of X from mu
+    //------------------------
+    Scalar source_x = (-2.)*mu_in ;
+    source_x.div_r_dzpuis(dzp) ;
+    Scalar tmp = mu_in.dsdr() ;
+    if (dzp == 0)
+	tmp.dec_dzpuis(2) ;
+    source_x -= tmp ;
+    Scalar x_new = source_x.poisson_angu(2) ;
+
+    // Preparation for the iteration
+    //------------------------------
+    Scalar T_old = - hrr ;
+    Scalar dhrr = hrr.dsdr() ;
+    dhrr.mult_r_dzpuis(dzp) ;
+    dhrr += 2*hrr ;
+    dhrr.mult_r_dzpuis(dzeta) ;
+
+    for (int it=0; it<=it_max; it++) {
+	
+	Scalar source_eta = T_old ;
+	source_eta.mult_r_dzpuis(dzeta) ;
+	source_eta -= dhrr ;
+	Scalar eta_new = source_eta.poisson_angu() ;
+
+	Scalar source_w = (-2.)*eta_new ;
+	source_w.div_r_dzpuis(dzp) ;
+	tmp = eta_new.dsdr() ;
+	if (dzp == 0)
+	    tmp.dec_dzpuis(2) ;
+	source_w -= tmp + 0.5*T_old ;
+	Scalar w_new = source_w.poisson_angu(2) ;
+
+	T_from_det_one(hrr, eta_new, mu_in, w_new, x_new) ;
+
+	double diff = max(max(abs(ttt() - T_old))) ;
+        cout << "Sym_tensor_trans::set_hrr_mu_det_one : " 
+	     << "iteration : " << it << " convergence on T: " << diff << endl ;
+        if (diff < precis) break ;
+        else T_old = ttt() ;
+
+        if (it == it_max) {
+            cout << "Sym_tensor_trans:::set_hrr_mu_det_one : convergence not reached \n" ;
+            cout << "  for the required accuracy (" << precis << ") ! " << endl ;
+            abort() ;
+	}
+    }
+
+
+}
+
+void Sym_tensor_trans::set_WX_det_one(const Scalar& w_in, const Scalar& x_in,
+					  double precis, int it_max ) {
+
+    // All this has a meaning only for spherical components:
+    assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
+    int dzp = w_in.get_dzpuis() ;
+    int dzeta = (dzp == 0 ? 0 : dzp - 1) ;
+    assert(x_in.check_dzpuis(dzp)) ;
+    assert(&w_in != p_www) ;
+    assert(&x_in != p_xxx) ;
+    assert( (precis > 0.) && (it_max > 0) ) ;
+
+    //Computation of mu from X
+    //------------------------
+    Scalar source_mu = 2*x_in + x_in.lapang() ;
+    int dz_tmp = (dzp <2 ? 1 : dzp - 1) ; 
+    source_mu.mult_r_dzpuis(dz_tmp) ;
+    source_mu.mult_r_dzpuis(2) ;
+    Scalar mu_new = source_mu.primr() ;
+    mu_new.div_r_dzpuis((dzeta+1)/2) ;
+    mu_new.div_r_dzpuis(dzeta) ;
+
+    // Preparation for the iteration
+    //------------------------------
+    Scalar T_old(*mp) ;
+    T_old.set_etat_zero() ;
+
+    for (int it=0; it<=it_max; it++) {
+	
+	Scalar source_eta = 0.5*T_old + 2*w_in + w_in.lapang() ;
+	dz_tmp = (dzp <2 ? 1 : dzp - 1) ; 
+	source_eta.mult_r_dzpuis(dz_tmp) ;
+	source_eta.mult_r_dzpuis(2) ;
+	Scalar eta_new = source_eta.primr() ;
+	eta_new.div_r_dzpuis((dzeta+1)/2) ;
+	eta_new.div_r_dzpuis(dzeta) ;
+
+	Scalar source_hrr = T_old ;
+	source_hrr.mult_r_dzpuis(dzeta) ;
+	source_hrr -= eta_new.lapang() ;
+	dzeta >2 ? source_hrr.dec_dzpuis(dzeta-2) : source_hrr.inc_dzpuis(2-dzeta) ;
+	Scalar hrr_new = source_hrr.primr() ;
+	hrr_new.div_r_dzpuis((dzp+1)/2) ;
+	hrr_new.div_r_dzpuis(dzp) ;
+
+	T_from_det_one(hrr_new, eta_new, mu_new, w_in, x_in) ;
+
+	double diff = max(max(abs(ttt() - T_old))) ;
+        cout << "Sym_tensor_trans::set_WX_det_one : " 
+	     << "iteration : " << it << " convergence on T: " << diff << endl ;
+        if (diff < precis) break ;
+        else T_old = ttt() ;
+
+        if (it == it_max) {
+            cout << "Sym_tensor_trans:::set_WX_det_one : convergence not reached \n" ;
+            cout << "  for the required accuracy (" << precis << ") ! " << endl ;
+            abort() ;
+	}
+    }
+
 
 }
