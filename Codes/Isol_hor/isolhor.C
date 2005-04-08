@@ -29,6 +29,9 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.27  2005/04/08 09:30:53  jl_jaramillo
+ * Calculation of the expansion and its radial derivative
+ *
  * Revision 1.26  2005/04/06 08:17:09  f_limousin
  * Writing of global quantities in resformat.d
  *
@@ -362,9 +365,15 @@ int main() {
 
     // Parameters
     // -----------
-    mm = 2.3 ;
+    mm = 103.588 ;
     hh = 2. ;  // the radius is 1
     aaa = pow (mm*mm-hh*hh, 0.5) ;
+
+    hh = 2. ;
+    double jj = 100 ;
+    aaa = pow( 0.5*(pow(hh*hh*hh*hh+4.*jj*jj, 0.5) - hh*hh), 0.5) ;
+    mm = pow(aaa*aaa + hh*hh, 0.5) ;
+
  
     a2 = 1. + 2.*mm/rr + (3.*mm*mm + aaa*aaa*cos2t)/(2.*rr*rr)
 	+ (hh*hh*mm)/(2.*pow(rr, 3.)) + pow(hh,4.)/(16.*pow(rr,4.)) ;
@@ -390,7 +399,8 @@ int main() {
     // ---------------------------------
 
     Sym_tensor h_uu(mp, CON, mp.get_bvect_spher()) ;
-    
+
+        
     for (int i=1; i<=3; i++)
 	for (int j=1; j<=i; j++){
 	    if(i != j){
@@ -403,8 +413,9 @@ int main() {
     h_uu.set(3,3) = pow(a2/b2, 2./3.) - 1 ;
     h_uu.annule_domain(0) ;
     h_uu.std_spectral_base() ;
-
+    
     Metric tgam (ff.con() + h_uu) ;
+    //    Metric tgam (ff.con()) ;       //For computing BY and DainLT
     gamt = tgam.cov() ;
     met_gamt = gamt ;
 
@@ -530,7 +541,7 @@ int main() {
     // New initialisation of the metric quantities
     // --------------------------------------------
 
-    psi_init = 1 ;//psi_kerr ;
+    psi_init = 0.9*psi_kerr ;
     psi_init.std_spectral_base() ;
     isolhor.set_psi(psi_init) ;
     
@@ -554,6 +565,7 @@ int main() {
 
     isolhor.set_omega(ang_vel) ;
     isolhor.set_boost_x(boost_x) ;
+
     isolhor.set_boost_z(boost_z) ;
 
     isolhor.init_data(bound_nn, lim_nn, bound_psi, bound_beta, solve_lapse,
@@ -569,6 +581,31 @@ int main() {
     des_meridian(isolhor.beta()(3) - beta_phi, 1.00000001, 4., "diff beta(3)", 17) ;
     arrete() ;
     */
+
+    // Expansion
+    //----------
+
+    Scalar expansion = contract(isolhor.gam().radial_vect().derive_cov(isolhor.gam()), 0,1) 
+      + contract(contract(isolhor.k_dd(), 0, isolhor.gam().radial_vect(), 0), 
+	       0, isolhor.gam().radial_vect(), 0) 
+      - isolhor.trk() ; 
+
+    double der_expansion_0 = expansion.derive_cov(isolhor.gam())(1).val_point(1.00000001, 0, 0.) ;
+    double der_expansion_1 = expansion.derive_cov(isolhor.gam())(1).val_point(1.00000001, M_PI/4, 0.) ;
+    double der_expansion_2 = expansion.derive_cov(isolhor.gam())(1).val_point(1.00000001, M_PI/2, 0.) ;
+
+    cout << "Radial derivative of the expansion at (1,0,0) = "<< der_expansion_0<<endl ;
+    cout << "Radial derivative of the expansion at (1,Pi/4,0) = "<< der_expansion_1<<endl ;
+    cout << "Radial derivative of the expansion at (1,Pi/2,0) = "<< der_expansion_2<<endl ;
+    cout << "------------------------------------------------------"<<endl;
+    arrete() ;
+
+    expansion.dec_dzpuis(2) ;	    
+    des_meridian(expansion, 1, 1.2, "Expansion theta", 2) ;
+    des_meridian(expansion, 1, 4., "Expansion theta", 1) ;
+    des_meridian(expansion, 1, 10., "Expansion theta", 3) ;
+    arrete() ;
+    //    des_profile(expansion, 1, 4., 0., 0., "Expansion theta") ;
 
     // Save in a file
     // --------------
@@ -674,7 +711,7 @@ int main() {
 
 //    cout << isolhor << endl ;
 
-    return EXIT_SUCCESS ; 
+     return EXIT_SUCCESS ; 
 }
 
 
