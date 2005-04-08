@@ -31,6 +31,9 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2005/04/08 12:16:52  f_limousin
+ * Function set_psi(). And dependance in phi.
+ *
  * Revision 1.23  2005/04/03 19:48:22  f_limousin
  * Implementation of set_psi(psi_in). And minor changes to avoid warnings.
  *
@@ -346,8 +349,7 @@ flux << "boost in z-direction   : " << boost_z << '\n' ;
     flux << "Mass of the horizon    : " << mass_hor() << '\n' ;
     flux << "ADM Mass               : " << adm_mass() << '\n' ;
    
-    return flux ; 
-    
+    return flux ;     
 }
 
 
@@ -405,7 +407,6 @@ void Isol_hor::sauve(FILE* fich, bool partial_save) const {
     gamt_point.sauve(fich) ;    
     trK.sauve(fich) ;
     trK_point.sauve(fich) ;
-
 }
 
 // Accessors
@@ -493,7 +494,30 @@ void Isol_hor::set_psi(const Scalar& psi_in) {
     k_dd_evol.downdate(jtime) ;
     k_uu_evol.downdate(jtime) ;
     adm_mass_evol.downdate(jtime) ;
+    
 }
+
+void Isol_hor::set_gamt(const Metric& gam_tilde) {
+
+    if (p_tgamma != 0x0) {
+        delete p_tgamma ;
+        p_tgamma = 0x0 ;
+    }
+    if (p_gamma != 0x0) {
+        delete p_gamma ;
+        p_gamma = 0x0 ;
+    }
+
+    met_gamt = gam_tilde ;
+ 
+    gam_dd_evol.downdate(jtime) ;
+    gam_uu_evol.downdate(jtime) ;
+    hh_evol.downdate(jtime) ;
+
+    hh_evol.update(gam_tilde.con() - ff.con(), jtime, the_time[jtime]) ;
+
+}
+
 
 
 // Import the lapse from the companion (Bhole case)
@@ -524,6 +548,7 @@ void Isol_hor::n_comp(const Isol_hor& comp) {
     dn_comp.change_triad(mp.get_bvect_spher()) ;
 
     dn_evol.update(n_auto().derive_cov(ff) + dn_comp, jtime, ttime) ;
+
 }
 
 // Import the conformal factor from the companion (Bhole case)
@@ -554,6 +579,7 @@ void Isol_hor::psi_comp (const Isol_hor& comp) {
     dpsi_comp.change_triad(mp.get_bvect_spher()) ;
     
     dpsi_evol.update(psi_auto().derive_cov(ff) + dpsi_comp, jtime, ttime) ;
+
 }
 
 void Isol_hor::beta_comp (const Isol_hor& comp) {
@@ -675,7 +701,8 @@ void Isol_hor::init_bhole_seul () {
     temp_vect.set_etat_zero() ;
     beta_auto_evol.update(temp_vect, jtime, ttime) ;
     beta_comp_evol.update(temp_vect, jtime, ttime) ;
-    beta_evol.update(temp_vect, jtime, ttime) ;    		   
+    beta_evol.update(temp_vect, jtime, ttime) ;    	
+
 }		   
 
 void Isol_hor::update_aa() {
@@ -717,9 +744,6 @@ void Isol_hor::update_aa() {
   Sym_tensor aa_dd (aa_new.up_down(met_gamt)) ;
   Scalar aquad (contract(aa_dd, 0, 1, aa_new, 0, 1)*psi4()*psi4()*psi4()) ;
   aa_quad_evol.update(aquad, jtime, the_time[jtime]) ;
-
-  return ;
-  
 }
 
 const Scalar& Isol_hor::aa_quad() const {
@@ -753,9 +777,8 @@ void Isol_hor::met_kerr_perturb() {
     cout << "determinant" << norme(met_gamt.determinant()) << endl ;
 
     hh_evol.update(met_gamt.con() - ff.con(), jtime, the_time[jtime]) ;
-
-    return ;  
 }
+
 
 void Isol_hor::aa_kerr_ww(double mm, double aaa) {
   
@@ -775,7 +798,7 @@ void Isol_hor::aa_kerr_ww(double mm, double aaa) {
 
   // ww perturbation
   Scalar ww_pert (mp) ;
-  ww_pert = - (mm*aaa*aaa*aaa*pow(sint, 4.)*cost) * sigma_inv ;
+  ww_pert = - 1*(mm*aaa*aaa*aaa*pow(sint, 4.)*cost) * sigma_inv ;
   ww_pert.set_spectral_va().set_base_r(0,R_CHEBPIM_P) ;
   for (int l=1; l<nz-1; l++)
     ww_pert.set_spectral_va().set_base_r(l,R_CHEB) ;
@@ -924,6 +947,4 @@ void Isol_hor::aa_kerr_ww(double mm, double aaa) {
     k_uu_evol.update(kij, jtime, the_time[jtime]) ;
     k_dd_evol.update(kij.up_down(gam()), jtime, the_time[jtime]) ;
 
-    return ;
-    
 }

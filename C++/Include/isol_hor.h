@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.32  2005/04/08 12:15:38  f_limousin
+ * Function set_psi(). And dependance in phi.
+ *
  * Revision 1.31  2005/04/03 19:48:38  f_limousin
  * Implementation of set_psi(psi_in).
  *
@@ -518,7 +521,8 @@ class Isol_hor : public Time_slice_conf {
 
   void set_psi(const Scalar& psi_in) ; 
   
-
+  /// Sets the conformal metric to gam_tilde.
+  void set_gamt(const Metric& gam_tilde) ;
 
   // Physical parameters
   //--------------------

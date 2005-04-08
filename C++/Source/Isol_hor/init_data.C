@@ -31,6 +31,9 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2005/04/08 12:16:52  f_limousin
+ * Function set_psi(). And dependance in phi.
+ *
  * Revision 1.15  2005/04/03 19:48:22  f_limousin
  * Implementation of set_psi(psi_in). And minor changes to avoid warnings.
  *
@@ -228,7 +231,6 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 		    
 	    } // End of switch  
 
-
 	    // Test:
 	    maxabs(psi_jp1.laplacian() - sou_psi,
 		   "Absolute error in the resolution of the equation for Psi") ;  
@@ -300,8 +302,7 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 		   .derive_con(ff) - source_vector,
 		   "Absolute error in the resolution of the equation for beta") ;  
 	    cout << endl ;
-	    
-	    
+		    
 	    // Boost
 	    // -----
 	    
@@ -363,9 +364,10 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	if (solve_lapse == 1)
 	    n_evol.update(nn_jp1, jtime, ttime) ; 
 	if (solve_shift == 1)
-	    beta_evol.update(beta_jp1, jtime, ttime) ;
-	
-//	update_aa() ;
+	    beta_evol.update(beta_jp1, jtime, ttime) ;	
+
+	if (solve_shift == 1)
+	    update_aa() ;
 
 	// Saving ok K_{ij}s^is^j
 	// -----------------------

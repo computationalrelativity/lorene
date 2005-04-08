@@ -30,6 +30,9 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2005/04/08 12:16:52  f_limousin
+ * Function set_psi(). And dependance in phi.
+ *
  * Revision 1.17  2005/04/02 15:49:21  f_limousin
  * New choice (Lichnerowicz) for aaquad. New member data nz.
  *
@@ -538,11 +541,24 @@ const Valeur Isol_hor:: boundary_beta_x(double om)const {
     Mtbl ya_mtbl (mp.get_mg()) ;
     ya_mtbl.set_etat_qcq() ;
     ya_mtbl = mp.ya ;
-    
+
+    Scalar cosp (mp) ;
+    cosp = mp.cosp ;
+    Scalar cost (mp) ;
+    cost = mp.cost ;
+    Scalar sinp (mp) ;
+    sinp = mp.sinp ;
+    Scalar sint (mp) ;
+    sint = mp.sint ;
+
+    Scalar dep_phi (mp) ;
+    dep_phi = 0.0*sint*cosp ;
+
     for (int k=0 ; k<nnp ; k++)
 	for (int j=0 ; j<nnt ; j++)
-	    lim_x.set(0, k, j, 0) = - aligne * om * ya_mtbl(1, k, j, 0) 
-		+ tmp_vect(1).val_grid_point(1, k, j, 0) ;
+	  lim_x.set(0, k, j, 0) = - aligne * om * ya_mtbl(1, k, j, 0) * (1 + 
+				         dep_phi.val_grid_point(1, k, j, 0))
+	    + tmp_vect(1).val_grid_point(1, k, j, 0) ;
     
   lim_x.set_base(*(mp.get_mg()->std_base_vect_cart()[0])) ;
 
@@ -575,11 +591,24 @@ const Valeur Isol_hor:: boundary_beta_y(double om)const {
     Mtbl xa_mtbl (mp.get_mg()) ;
     xa_mtbl.set_etat_qcq() ;
     xa_mtbl = mp.xa ;
+
+    Scalar cosp (mp) ;
+    cosp = mp.cosp ;
+    Scalar cost (mp) ;
+    cost = mp.cost ;
+    Scalar sinp (mp) ;
+    sinp = mp.sinp ;
+    Scalar sint (mp) ;
+    sint = mp.sint ;
+
+    Scalar dep_phi (mp) ;
+    dep_phi = 0.0*sint*cosp ;
     
     for (int k=0 ; k<nnp ; k++)
 	for (int j=0 ; j<nnt ; j++)
-	    lim_y.set(0, k, j, 0) = + aligne * om * xa_mtbl(1, k, j, 0) 
-		+ tmp_vect(2).val_grid_point(1, k, j, 0) ;
+	  lim_y.set(0, k, j, 0) = + aligne * om * xa_mtbl(1, k, j, 0) *(1 +
+					dep_phi.val_grid_point(1, k, j, 0))
+	    + tmp_vect(2).val_grid_point(1, k, j, 0) ;
     
   lim_y.set_base(*(mp.get_mg()->std_base_vect_cart()[1])) ;
 
