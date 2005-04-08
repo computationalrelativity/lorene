@@ -29,6 +29,9 @@ char star_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2005/04/08 12:36:44  f_limousin
+ * Just to avoid warnings...
+ *
  * Revision 1.19  2005/02/24 16:27:21  f_limousin
  * Add mermax_poisson and relax_poisson in the parameters of the function.
  *
@@ -583,7 +586,6 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	// scalar potential
 	//-----------------------------------------------------
 	
-	double precis_poisson = 1e-16 ;
 	if (irrotational) {
 	    diff_vel_pot = velocity_potential(mermax_potvit, precis_poisson, 
 					      relax_potvit) ; 

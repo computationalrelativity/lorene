@@ -31,6 +31,9 @@ char star_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2005/04/08 12:36:44  f_limousin
+ * Just to avoid warnings...
+ *
  * Revision 1.15  2005/02/24 16:03:01  f_limousin
  * Change the name of some variables (for instance dcov_logn --> dlogn).
  *
@@ -101,7 +104,7 @@ Cmp raccord_c1(const Cmp& uu, int l1) ;
 Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i, 
 		     bool irrot, bool conf_flat0)
     : Star(mpi, nzet_i, eos_i), 
-      mpaff(mpi),
+      mp_aff(mpi),
       irrotational(irrot), 
       psi0(mpi), 
       d_psi(mpi, COV, mpi.get_bvect_cart()), 
@@ -175,7 +178,7 @@ Star_bin::Star_bin(Map& mpi, int nzet_i, const Eos& eos_i,
 // ----------------
 Star_bin::Star_bin(const Star_bin& star)
 		       : Star(star), 
-			 mpaff(star.mpaff),
+			 mp_aff(star.mp_aff),
 			 irrotational(star.irrotational), 
 			 psi0(star.psi0), 
 			 d_psi(star.d_psi), 
@@ -217,7 +220,7 @@ Star_bin::Star_bin(const Star_bin& star)
 // -----------------------
 Star_bin::Star_bin(Map& mpi, const Eos& eos_i, FILE* fich)
 		       : Star(mpi, eos_i, fich), 
-			 mpaff(mpi),
+			 mp_aff(mpi),
 			 psi0(mpi), 
 			 d_psi(mpi, COV, mpi.get_bvect_cart()), 
 			 wit_w(mpi, CON, mpi.get_bvect_cart()), 
@@ -351,7 +354,7 @@ void Star_bin::operator=(const Star_bin& star) {
     Star::operator=(star) ;	    
 
     // Assignement of proper quantities of class Star_bin
-    mpaff = star.mpaff ;
+    mp_aff = star.mp_aff ;
     irrotational = star.irrotational ; 
     psi0 = star.psi0 ; 
     d_psi = star.d_psi ;

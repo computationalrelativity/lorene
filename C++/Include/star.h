@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2005/04/08 12:36:45  f_limousin
+ * Just to avoid warnings...
+ *
  * Revision 1.16  2005/02/24 16:09:29  f_limousin
  * Change the name of some variables (for instance dcov_logn --> dlogn).
  * Add also member dlnq but delete dlnpsi_auto and dlogn_auto.
@@ -429,7 +432,7 @@ class Star_bin : public Star {
 
 	/// Affine mapping for solving poisson's equations of 
 	/// metric quantities 
-	Map_af mpaff ;
+	Map_af mp_aff ;
 
 	/** \c true  for an irrotational star, \c false  for a
 	 *  corotating one

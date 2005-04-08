@@ -31,6 +31,9 @@ char binary_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2005/04/08 12:36:45  f_limousin
+ * Just to avoid warnings...
+ *
  * Revision 1.9  2005/02/17 17:35:00  f_limousin
  * Change the name of some quantities to be consistent with other classes
  * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
@@ -112,8 +115,8 @@ double Binary::mass_adm_vol() const {
 
   using namespace Unites ;
 
-  double mass_adm ;
-  mass_adm = 0. ;
+  double adm_mass ;
+  adm_mass = 0. ;
 
   for (int i=0; i<=1; i++) {	    // loop on the stars
 
@@ -159,11 +162,11 @@ double Binary::mass_adm_vol() const {
 
       source.std_spectral_base() ;
 
-      mass_adm += source.integrale() ;
+      adm_mass += source.integrale() ;
 	  
   }
 
-  return mass_adm ;
+  return adm_mass ;
 
 }
 

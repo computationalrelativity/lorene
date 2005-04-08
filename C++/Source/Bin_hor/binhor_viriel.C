@@ -26,6 +26,9 @@ char binhor_viriel_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/04/08 12:35:07  f_limousin
+ * Just to avoid warnings...
+ *
  * Revision 1.1  2005/02/11 18:22:06  f_limousin
  * First version
  *
@@ -42,13 +45,13 @@ char binhor_viriel_C[] = "$Header$" ;
 
 double Isol_hor::viriel_seul () const{
     
-    int nz = mp.get_mg()->get_nzone() ;
+    int nz1 = mp.get_mg()->get_nzone() ;
 	    
     Valeur** devel_psi (psi_auto().asymptot(1)) ;
     Valeur** devel_n (n_auto().asymptot(1)) ;
     
-    double erreur = (2*(*devel_psi[1])(nz-1, 0, 0, 0)
-	+ (*devel_n[1])(nz-1, 0, 0, 0))/fabs ((*devel_n[1])(nz-1, 0, 0, 0)) ;
+    double erreur = (2*(*devel_psi[1])(nz1-1, 0, 0, 0)
+	+ (*devel_n[1])(nz1-1, 0, 0, 0))/fabs ((*devel_n[1])(nz1-1, 0, 0, 0)) ;
     
    return erreur ;
 }
