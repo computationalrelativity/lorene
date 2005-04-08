@@ -33,6 +33,10 @@ char poisson_angu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/04/08 07:36:20  f_limousin
+ * Add #include <math.h> to avoid error in the compilation with gcc 3.3.1
+ * (problem with fabs).
+ *
  * Revision 1.4  2005/04/05 08:34:10  e_gourgoulhon
  * Treatment case l(l+1) = lambda.
  *
@@ -54,6 +58,7 @@ char poisson_angu_C[] = "$Header$" ;
 
 // Headers C
 #include <stdlib.h>
+#include <math.h>
 
 // Headers Lorene
 #include "mtbl_cf.h"
