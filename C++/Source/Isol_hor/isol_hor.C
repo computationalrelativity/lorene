@@ -31,6 +31,10 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.25  2005/04/15 09:34:16  jl_jaramillo
+ * Function "adapt_hor" for adapting the the excised surface to
+ * a given surface. The zero expansion surface is not properly implemented
+ *
  * Revision 1.24  2005/04/08 12:16:52  f_limousin
  * Function set_psi(). And dependance in phi.
  *
@@ -118,7 +122,7 @@ char isol_hor_C[] = "$Header$" ;
 #include <assert.h>
 
 // Lorene headers
-
+#include "param.h"
 #include "utilitaires.h"
 #include "time_slice.h"
 #include "isol_hor.h"
@@ -126,7 +130,6 @@ char isol_hor_C[] = "$Header$" ;
 #include "metric.h"
 #include "evolution.h"
 #include "graphique.h"
-
 
 //--------------//
 // Constructors //
@@ -497,6 +500,16 @@ void Isol_hor::set_psi(const Scalar& psi_in) {
     
 }
 
+void Isol_hor::set_nn(const Scalar& nn_in) {
+
+    n_evol.update(nn_in, jtime, the_time[jtime]) ;
+
+    aa_evol.downdate(jtime) ;
+    aa_quad_evol.downdate(jtime) ;
+    k_dd_evol.downdate(jtime) ;
+    k_uu_evol.downdate(jtime) ;
+}
+
 void Isol_hor::set_gamt(const Metric& gam_tilde) {
 
     if (p_tgamma != 0x0) {
@@ -798,7 +811,7 @@ void Isol_hor::aa_kerr_ww(double mm, double aaa) {
 
   // ww perturbation
   Scalar ww_pert (mp) ;
-  ww_pert = - 1*(mm*aaa*aaa*aaa*pow(sint, 4.)*cost) * sigma_inv ;
+  ww_pert = - 700*(mm*aaa*aaa*aaa*pow(sint, 4.)*cost) * sigma_inv ;
   ww_pert.set_spectral_va().set_base_r(0,R_CHEBPIM_P) ;
   for (int l=1; l<nz-1; l++)
     ww_pert.set_spectral_va().set_base_r(l,R_CHEB) ;
@@ -948,3 +961,247 @@ void Isol_hor::aa_kerr_ww(double mm, double aaa) {
     k_dd_evol.update(kij.up_down(gam()), jtime, the_time[jtime]) ;
 
 }
+
+double fonc_expansion(double rr, const Param& par_expansion) {
+
+  Scalar expa = par_expansion.get_scalar(0) ;
+  double theta = par_expansion.get_double(0) ;
+  double phi = par_expansion.get_double(1) ;
+ 
+  return expa.val_point(rr, theta, phi) ;
+    
+}
+void Isol_hor::adapt_hor(double c_min, double c_max) {
+
+  Scalar expa (expansion()) ;
+  Scalar app_hor(mp) ;
+  app_hor.annule_hard() ;
+  int nitmax = 200 ; 
+  int nit ; 
+
+  double precis = 1.e-13 ;
+
+  // Calculation of the radius of the apparent horizon for each (theta, phi)
+  // -----------------------------------------------------------------------
+
+  for (int nt=0; nt<mp.get_mg()->get_nt(1); nt++)
+    for (int np=0; np<mp.get_mg()->get_np(1); np++) {
+
+      double theta = mp.get_mg()->get_grille3d(1)->tet[nt] ;
+      double phi = mp.get_mg()->get_grille3d(1)->phi[np] ;
+
+      Param par_expansion ;
+      par_expansion.add_scalar(expa, 0) ;
+      par_expansion.add_double(theta, 0) ;
+      par_expansion.add_double(phi, 1) ;
+      double r_app_hor = zerosec_b(fonc_expansion, par_expansion, c_min, c_max, 
+				 precis, nitmax, nit) ;
+   
+      app_hor.set_grid_point(1, np, nt, 0) = r_app_hor ;
+    }
+  
+  // Transformation of the 3-metric and extrinsic curvature 
+  // ------------------------------------------------------
+  
+  Scalar rr (mp) ;
+  rr = mp.r ;
+  
+  Scalar trans_11 (mp) ;
+  Scalar r_new (mp) ;
+  r_new.annule_hard() ;
+  //  trans_11.annule_hard() ;
+  for (int l=1; l<nz; l++)
+    for (int nr=0; nr<mp.get_mg()->get_nr(1); nr++)
+      for (int nt=0; nt<mp.get_mg()->get_nt(1); nt++)
+	for (int np=0; np<mp.get_mg()->get_np(1); np++) {
+	  r_new.set_grid_point(l, np, nt, nr) = rr.val_grid_point(l, np, nt, nr) -
+	    app_hor.val_grid_point(1, np, nt, 0) + 1 ;
+	  //	  trans_11.set_grid_point(l, np, nt, nr) = 1. / 
+	  //  app_hor.val_grid_point(1, np, nt, 0) ;                 // !
+	}
+  r_new.std_spectral_base() ;
+      
+  Itbl comp(2) ;
+  comp.set(0) = CON ;
+  comp.set(1) = COV ;
+
+  Scalar trans_12 (r_new.dsdt()) ;
+  trans_12.div_r() ;
+  Scalar trans_13 (r_new.stdsdp()) ;
+  trans_13.div_r() ;                                        
+  for (int nr=0; nr<mp.get_mg()->get_nr(1); nr++)
+    for (int nt=0; nt<mp.get_mg()->get_nt(1); nt++)
+      for (int np=0; np<mp.get_mg()->get_np(1); np++) {
+	trans_12.set_grid_point(nz-1, np, nt, nr) = trans_12.val_grid_point(1, np, nt, nr) ;  
+	trans_13.set_grid_point(nz-1, np, nt, nr) = trans_13.val_grid_point(1, np, nt, nr) ;  
+      }
+      
+  // Transformation matrix
+  Tensor trans (mp, 2, comp, mp.get_bvect_spher()) ;
+  trans.set(1,1) = 1 ;
+  trans.set(1,2) = 0;//trans_12 ;
+  trans.set(1,3) = 0;//trans_13 ;
+  trans.set(2,2) = 1. ;  
+  trans.set(3,3) = 1. ;
+  trans.set(2,1) = 0. ;
+  trans.set(3,1) = 0. ;
+  trans.set(3,2) = 0. ;
+  trans.set(2,3) = 0. ;
+  trans.std_spectral_base() ;
+
+  cout << "trans(1,3)" << endl << norme(trans(1,3)) << endl ;
+
+  Sym_tensor gamma_uu (gam().con()) ;
+  Sym_tensor kk_uu (k_uu()) ;
+
+  gamma_uu = contract(gamma_uu, 0, 1, trans * trans, 1, 3) ;
+  kk_uu = contract(kk_uu, 0, 1, trans * trans, 1, 3) ;
+  
+  Sym_tensor copie_gamma (gamma_uu) ;
+  Sym_tensor copie_kk (kk_uu) ;
+
+  // dz_puis set to zero
+  kk_uu.dec_dzpuis(2) ;
+  for(int i=1; i<=3; i++)
+    for(int j=i; j<=3; j++){
+      kk_uu.set(i,j).annule_hard() ;
+      gamma_uu.set(i,j).annule_hard() ;
+    }
+
+  copie_kk.dec_dzpuis(2) ;
+
+  Scalar expa_trans(mp) ;
+  expa_trans.annule_hard() ;
+  expa.dec_dzpuis(2) ;
+  
+  /*
+  copie_gamma.set(2,2).div_r() ;
+  copie_gamma.set(2,2).div_r() ;
+  copie_gamma.set(3,3).div_rsint() ;
+  copie_gamma.set(3,3).div_rsint() ;
+  copie_gamma.set(1,2).div_r() ;
+  copie_gamma.set(1,3).div_rsint() ;
+  //  gamma_uu.set(2,3).div_r() ;           
+  //  gamma_uu.set(2,3).div_rsint() ;       
+  */  
+
+  //Importation
+  for(int i=1; i<=3; i++)
+    for(int j=i; j<=3; j++)
+      for (int l=1; l<nz; l++)
+	for (int nr=0; nr<mp.get_mg()->get_nr(1); nr++)
+	  for (int nt=0; nt<mp.get_mg()->get_nt(1); nt++)
+	    for (int np=0; np<mp.get_mg()->get_np(1); np++) {
+	      
+	      double theta = mp.get_mg()->get_grille3d(1)->tet[nt] ;
+	      double phi = mp.get_mg()->get_grille3d(1)->phi[np] ;
+	      double r_inv = rr.val_grid_point(l, np, nt, nr) +
+		app_hor.val_grid_point(1, np, nt, 0) - 1. ;
+	      	      
+	      gamma_uu.set(i,j).set_grid_point(l, np, nt, nr) = 
+		copie_gamma(i,j).val_point(r_inv, theta, phi) ;
+	      kk_uu.set(i,j).set_grid_point(l, np, nt, nr) = 
+		copie_kk(i,j).val_point(r_inv, theta, phi) ;
+
+	      expa_trans.set_grid_point(l, np, nt, nr) = expa.val_point(r_inv, theta, phi) ;
+	    }
+  kk_uu.std_spectral_base() ;                 // Save the base?
+  gamma_uu.std_spectral_base() ;
+  expa_trans.std_spectral_base() ;
+  
+  for (int l=1; l<nz; l++)
+    for (int nr=0; nr<mp.get_mg()->get_nr(1); nr++)
+      for (int nt=0; nt<mp.get_mg()->get_nt(1); nt++)
+	for (int np=0; np<mp.get_mg()->get_np(1); np++) {
+	  gamma_uu.set(1,2).set_grid_point(l,np,nt,nr) =  gamma_uu.set(1,2).val_grid_point(l,np,nt,nr) 
+	     / (1 +app_hor.val_grid_point(1, np, nt, 0)/ rr.val_grid_point(l, np, nt, nr) 
+		- 1 / rr.val_grid_point(l, np, nt, nr) ) ;
+	  gamma_uu.set(1,3).set_grid_point(l,np,nt,nr) =  gamma_uu.set(1,3).val_grid_point(l,np,nt,nr) 
+	     / (1 +app_hor.val_grid_point(1, np, nt, 0)/ rr.val_grid_point(l, np, nt, nr) 
+		- 1 / rr.val_grid_point(l, np, nt, nr) ) ;
+	  gamma_uu.set(2,2).set_grid_point(l,np,nt,nr) =  gamma_uu.set(2,2).val_grid_point(l,np,nt,nr) 
+	     / (1 +app_hor.val_grid_point(1, np, nt, 0)/ rr.val_grid_point(l, np, nt, nr) 
+		- 1 / rr.val_grid_point(l, np, nt, nr) ) 
+	      / (1 +app_hor.val_grid_point(1, np, nt, 0)/ rr.val_grid_point(l, np, nt, nr) 
+		 - 1 / rr.val_grid_point(l, np, nt, nr) ) ;
+	  gamma_uu.set(2,3).set_grid_point(l,np,nt,nr) =  gamma_uu.set(2,3).val_grid_point(l,np,nt,nr) 
+	     / (1 +app_hor.val_grid_point(1, np, nt, 0)/ rr.val_grid_point(l, np, nt, nr) 
+		- 1 / rr.val_grid_point(l, np, nt, nr) ) 
+	      / (1 +app_hor.val_grid_point(1, np, nt, 0)/ rr.val_grid_point(l, np, nt, nr) 
+		 - 1 / rr.val_grid_point(l, np, nt, nr) ) ;
+	  gamma_uu.set(3,3).set_grid_point(l,np,nt,nr) =  gamma_uu.set(3,3).val_grid_point(l,np,nt,nr) 
+	     / (1 +app_hor.val_grid_point(1, np, nt, 0)/ rr.val_grid_point(l, np, nt, nr) 
+		- 1 / rr.val_grid_point(l, np, nt, nr) ) 
+	      / (1 +app_hor.val_grid_point(1, np, nt, 0)/ rr.val_grid_point(l, np, nt, nr) 
+		 - 1 / rr.val_grid_point(l, np, nt, nr) ) ;
+	}
+	  
+  /*
+  gamma_uu.set(2,2).mult_r() ;
+  gamma_uu.set(2,2).mult_r() ;
+  gamma_uu.set(3,3).mult_rsint() ;
+  gamma_uu.set(3,3).mult_rsint() ;
+  gamma_uu.set(1,2).mult_r() ;
+  gamma_uu.set(1,3).mult_rsint() ;
+  //  gamma_uu.set(2,3).mult_r() ;                
+  //  gamma_uu.set(2,3).mult_rsint() ;            
+  */
+  
+
+
+  cout << "gamma_uu(1,1)" << endl << norme(gamma_uu(1,1)) << endl ;
+  cout << "gamma_uu(2,1)" << endl << norme(gamma_uu(2,1)) << endl ;
+  cout << "gamma_uu(3,1)" << endl << norme(gamma_uu(3,1)) << endl ;
+  cout << "gamma_uu(2,2)" << endl << norme(gamma_uu(2,2)) << endl ;
+  cout << "gamma_uu(3,2)" << endl << norme(gamma_uu(3,2)) << endl ;
+  cout << "gamma_uu(3,3)" << endl << norme(gamma_uu(3,3)) << endl ;
+
+  kk_uu.inc_dzpuis(2) ;
+  expa_trans.inc_dzpuis(2) ;
+
+  Metric gamm (gamma_uu) ;
+
+  // Updates
+  gam_uu_evol.update(gamma_uu, jtime, the_time[jtime]) ;
+  gam_dd_evol.update(gamm.cov(), jtime, the_time[jtime]) ;
+  k_uu_evol.update(kk_uu, jtime, the_time[jtime]) ;
+  
+    if (p_psi4 != 0x0) {
+        delete p_psi4 ;
+        p_psi4 = 0x0 ;
+    }
+    if (p_ln_psi != 0x0) {
+        delete p_ln_psi ;
+        p_ln_psi = 0x0 ;
+    }
+    if (p_gamma != 0x0) {
+        delete p_gamma ;
+        p_gamma = 0x0 ;
+    }
+    if (p_tgamma != 0x0) {
+        delete p_tgamma ;
+        p_tgamma = 0x0 ;
+    }
+    if (p_hdirac != 0x0) {
+      delete p_hdirac ;
+      p_hdirac = 0x0 ;
+    }
+
+  k_dd_evol.downdate(jtime) ;
+  psi_evol.downdate(jtime) ;
+  aa_evol.downdate(jtime) ;
+  aa_quad_evol.downdate(jtime) ;
+  beta_evol.downdate(jtime) ;
+  n_evol.downdate(jtime) ;
+  hh_evol.downdate(jtime) ;
+  
+
+  Scalar new_expa (expansion()) ;
+  des_meridian(expa_trans, 1., 6., "Expansion trans", 1) ;
+  des_meridian(new_expa, 1.000000001, 6., "Expansion new", 2) ;
+  des_meridian(expa_trans- new_expa, 1.000000001, 4., "diff Expansion trans", 3) ;
+  
+
+
+}
+
