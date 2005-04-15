@@ -30,6 +30,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.33  2005/04/15 11:20:39  jl_jaramillo
+ * Function adapt_hor(double c_min, double c_max)  for adapting a given surface
+ * to the excised surface
+ *
  * Revision 1.32  2005/04/08 12:15:38  f_limousin
  * Function set_psi(). And dependance in phi.
  *
@@ -520,6 +524,9 @@ class Isol_hor : public Time_slice_conf {
    */
 
   void set_psi(const Scalar& psi_in) ; 
+
+  /// Sets the lapse
+  void set_nn(const Scalar& nn_in) ; 
   
   /// Sets the conformal metric to gam_tilde.
   void set_gamt(const Metric& gam_tilde) ;
@@ -562,6 +569,8 @@ class Isol_hor : public Time_slice_conf {
   /// ADM angular Momentum    
   double ang_mom_adm() const ;
 
+  /// Expansion of the outgoing null normal (\f$ \bf n + \bf s \f$)
+  Scalar expansion() const ;
 
 
   //Computational methods
@@ -719,6 +728,12 @@ class Isol_hor : public Time_slice_conf {
    * @param aa rotation parameter of the Kerr black hole metric.
    */
   void aa_kerr_ww(double mm, double aa) ;
+
+  /*  Calculation of the outermost trapped surface and adaptation
+   *  of all necessary quantities
+   */
+  void adapt_hor(double c_min, double c_max) ;
+  
 
   // Outputs
   // -------
