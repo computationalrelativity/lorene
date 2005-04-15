@@ -30,6 +30,9 @@ char phys_param_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2005/04/15 11:54:21  jl_jaramillo
+ * function to compute the expansion of spherical surfaces
+ *
  * Revision 1.9  2005/03/22 13:25:36  f_limousin
  * Small changes. The angular velocity and A^{ij} are computed
  * with a differnet sign.
@@ -153,10 +156,7 @@ double Isol_hor::area_hor() const {
 
 double Isol_hor::radius_hor() const {
 
-  Map_af map_affine (ff.get_mp()) ; 
-
-  double resu =  map_affine.integrale_surface(darea_hor(), radius + 1e-15) 
-      / (4. * M_PI);
+  double resu =  area_hor() / (4. * M_PI);
 
   resu = pow(resu, 1./2.) ;
 
@@ -246,4 +246,15 @@ double Isol_hor::ang_mom_adm()const {
 
   return  tmp ;
 
+}
+
+// Expansion
+
+Scalar Isol_hor::expansion() const {
+
+  Scalar expa = contract(gam().radial_vect().derive_cov(gam()), 0,1) 
+    + contract(contract(k_dd(), 0, gam().radial_vect(), 0), 
+	       0, gam().radial_vect(), 0) - trk() ; 
+
+  return expa ;
 }
