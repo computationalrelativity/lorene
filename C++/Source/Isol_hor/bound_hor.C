@@ -30,6 +30,9 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2005/04/19 16:40:51  jl_jaramillo
+ * change of sign of ang_vel in vv_bound_cart. Convention of Phys. Rep.
+ *
  * Revision 1.18  2005/04/08 12:16:52  f_limousin
  * Function set_psi(). And dependance in phi.
  *
@@ -525,7 +528,7 @@ const Valeur Isol_hor:: boundary_beta_x(double om)const {
     double orientation = mp.get_rot_phi() ;
     assert ((orientation == 0) || (orientation == M_PI)) ;
     int aligne = (orientation == 0) ? 1 : -1 ;
-    
+   
     int nnp = mp.get_mg()->get_np(1) ;
     int nnt = mp.get_mg()->get_nt(1) ;
 
@@ -556,7 +559,7 @@ const Valeur Isol_hor:: boundary_beta_x(double om)const {
 
     for (int k=0 ; k<nnp ; k++)
 	for (int j=0 ; j<nnt ; j++)
-	  lim_x.set(0, k, j, 0) = - aligne * om * ya_mtbl(1, k, j, 0) * (1 + 
+	  lim_x.set(0, k, j, 0) =  - aligne * om * ya_mtbl(1, k, j, 0) * (1 + 
 				         dep_phi.val_grid_point(1, k, j, 0))
 	    + tmp_vect(1).val_grid_point(1, k, j, 0) ;
     
@@ -576,6 +579,7 @@ const Valeur Isol_hor:: boundary_beta_y(double om)const {
     assert ((orientation == 0) || (orientation == M_PI)) ;
     int aligne = (orientation == 0) ? 1 : -1 ;
     
+
     int nnp = mp.get_mg()->get_np(1) ;
     int nnt = mp.get_mg()->get_nt(1) ;
 
@@ -606,7 +610,7 @@ const Valeur Isol_hor:: boundary_beta_y(double om)const {
     
     for (int k=0 ; k<nnp ; k++)
 	for (int j=0 ; j<nnt ; j++)
-	  lim_y.set(0, k, j, 0) = + aligne * om * xa_mtbl(1, k, j, 0) *(1 +
+	  lim_y.set(0, k, j, 0) =  aligne * om * xa_mtbl(1, k, j, 0) *(1 +
 					dep_phi.val_grid_point(1, k, j, 0))
 	    + tmp_vect(2).val_grid_point(1, k, j, 0) ;
     
@@ -765,19 +769,33 @@ const Vector Isol_hor::vv_bound_cart(double om) const{
 
   Vector tmp_vect = b_tilde() * s_tilde ;  
 
+
+  Scalar cosp (mp) ;
+  cosp = mp.cosp ;
+  Scalar cost (mp) ;
+  cost = mp.cost ;
+  Scalar sinp (mp) ;
+  sinp = mp.sinp ;
+  Scalar sint (mp) ;
+  sint = mp.sint ;
+  
+  Scalar dep_phi (mp) ;
+  dep_phi = 0.0*sint*cosp ;
+
+
   Scalar ang_vel (mp) ;  
-  ang_vel = om ;
+  ang_vel = om * (1 + dep_phi) ;
   ang_vel.std_spectral_base() ;
   ang_vel.mult_rsint() ;
   
   Scalar bc_source (mp) ;
-  bc_source = 0.01 ;
+  bc_source = 0 ;
   bc_source.std_spectral_base() ;
   bc_source.inc_dzpuis(2) ;
 
   // beta^r component
   //-----------------
-  double rho = 10. ; // rho>1 ; rho=1 "pure Dirichlet" version
+  double rho = 5. ; // rho>1 ; rho=1 "pure Dirichlet" version
   Scalar beta_r_corr =  (rho - 1) * b_tilde() * hh_tilde;
   beta_r_corr.inc_dzpuis(2) ;
 
@@ -794,7 +812,8 @@ const Vector Isol_hor::vv_bound_cart(double om) const{
   beta_r.set_spectral_va().set_base(beta()(1).get_spectral_va().get_base()) ;
   
   tmp_vect.set(1) = beta_r ;
-  tmp_vect.set(3) += - ang_vel ;
+  tmp_vect.set(3) +=  ang_vel ;
+
 
   tmp_vect.change_triad(mp.get_bvect_cart() ) ;
 
