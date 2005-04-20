@@ -30,6 +30,9 @@ char strot_dirac_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/04/20 14:26:29  j_novak
+ * Removed some outputs.
+ *
  * Revision 1.5  2005/04/05 09:24:05  j_novak
  * minor modifs
  *
@@ -441,9 +444,6 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
  // Update of the metric quantities :
 
    update_metric() ;
-
-   maxabs(lnq, "ln(Q)") ;
-
 
  //---------------------------
  //  Informations display

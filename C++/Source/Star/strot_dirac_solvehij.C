@@ -30,6 +30,9 @@ char strot_dirac_solvehij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/04/20 14:26:29  j_novak
+ * Removed some outputs.
+ *
  * Revision 1.5  2005/04/05 09:24:05  j_novak
  * minor modifs
  *
@@ -192,7 +195,7 @@ void Star_rot_Dirac::solve_hij(Sym_tensor_trans& hij_new) const {
                                        - 0.3333333333333333 * s_euler * tgam_uu ) 
                     )   ; 
 
-  maxabs(ss, "ss tot") ; 
+//  maxabs(ss, "ss tot") ; 
   
   // Source for h^{ij} 
   // -----------------
