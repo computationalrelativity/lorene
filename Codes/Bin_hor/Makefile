@@ -18,6 +18,10 @@ SRC3 = init_bh.C
 OBJ3 = $(SRC3:.C=.o)
 EXE3 = $(SRC3:.C=)
 
+SRC4 = prepare_seq.C
+OBJ4 = $(SRC4:.C=.o)
+EXE4 = $(SRC4:.C=)
+
 
 $(EXE1): $(OBJ1)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
@@ -30,10 +34,13 @@ $(EXE2): $(OBJ2)
 $(EXE3): $(OBJ3)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ3) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
+$(EXE4): $(OBJ4)
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ4) $(LIB_G) $(LIB_LAPACK) \
+					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 .C.o:
 	$(CXX)  -c $(CXXFLAGS_G) $(INC) $<
 
 uninstall:
-	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5) $(OBJ6) $(OBJ7)
-	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5) $(EXE6) $(EXE7)
+	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) 
+	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4) 
 
