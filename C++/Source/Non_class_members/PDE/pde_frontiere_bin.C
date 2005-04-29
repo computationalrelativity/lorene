@@ -25,6 +25,9 @@ char pde_frontiere_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/04/29 14:06:18  f_limousin
+ * Improve the resolution for Neumann_binaire(Scalars).
+ *
  * Revision 1.3  2005/02/08 10:05:53  f_limousin
  * Implementation of neumann_binaire(...) and dirichlet_binaire(...)
  * with Scalars (instead of Cmps) in arguments.
@@ -519,6 +522,13 @@ void neumann_binaire (const Scalar& source_un, const Scalar& source_deux,
     assert (source_un.get_mp() == sol_un.get_mp()) ;
     assert (source_deux.get_mp() == sol_deux.get_mp()) ;
 
+    // Alignement
+    double orient_un = source_un.get_mp().get_rot_phi() ;
+    assert ((orient_un==0) || (orient_un==M_PI)) ;
+    double orient_deux = source_deux.get_mp().get_rot_phi() ;
+    assert ((orient_deux==0) || (orient_deux==M_PI)) ;
+    int same_orient = (orient_un==orient_deux) ? 1 : -1 ;
+
     Valeur limite_un (boundary_un.get_mg()) ;
     Valeur limite_deux (boundary_deux.get_mg()) ;
     
@@ -529,10 +539,20 @@ void neumann_binaire (const Scalar& source_un, const Scalar& source_deux,
     Mtbl ya_mtbl_un (source_un.get_mp().ya) ;
     Mtbl za_mtbl_un (source_un.get_mp().za) ;
     
+    Mtbl cost_mtbl_un (source_un.get_mp().cost) ;
+    Mtbl sint_mtbl_un (source_un.get_mp().sint) ;
+    Mtbl cosp_mtbl_un (source_un.get_mp().cosp) ;
+    Mtbl sinp_mtbl_un (source_un.get_mp().sinp) ;
+
     Mtbl xa_mtbl_deux (source_deux.get_mp().xa) ;
     Mtbl ya_mtbl_deux (source_deux.get_mp().ya) ;
     Mtbl za_mtbl_deux (source_deux.get_mp().za) ;
         
+    Mtbl cost_mtbl_deux (source_deux.get_mp().cost) ;
+    Mtbl sint_mtbl_deux (source_deux.get_mp().sint) ;
+    Mtbl cosp_mtbl_deux (source_deux.get_mp().cosp) ;
+    Mtbl sinp_mtbl_deux (source_deux.get_mp().sinp) ;
+
     double xabs, yabs, zabs ;
     double air,  theta,  phi ;
     double valeur ;
@@ -581,6 +601,9 @@ void neumann_binaire (const Scalar& source_un, const Scalar& source_deux,
 	Scalar copie_un (sol_un) ;
 	Vector grad_sol_un (copie_un.derive_cov(ff_un)) ;
 	grad_sol_un.dec_dzpuis(2) ;
+	grad_sol_un.set(1) = grad_sol_un(1)*same_orient ;
+	grad_sol_un.set(2) = grad_sol_un(2)*same_orient ;
+	
 	
 	for (int k=0 ; k<nbrep_deux ; k++)
 	    for (int j=0 ; j<nbret_deux ; j++) {
@@ -591,15 +614,20 @@ void neumann_binaire (const Scalar& source_un, const Scalar& source_deux,
 		source_un.get_mp().convert_absolute 
 				(xabs, yabs, zabs, air, theta, phi) ;
 				
-		valeur = grad_sol_un(1).val_point(air, theta, phi) ;
+		valeur = sint_mtbl_deux (num_front+1, k, j, 0) * (
+cosp_mtbl_deux(num_front+1, k, j, 0)*grad_sol_un(1).val_point(air, theta, phi)+
+sinp_mtbl_deux(num_front+1, k, j, 0)*grad_sol_un(2).val_point(air, theta, phi))+
+cost_mtbl_deux(num_front+1, k, j, 0)*grad_sol_un(3).val_point(air, theta, phi);
 
 		limite_deux.set(num_front, k, j, 0) = 
 			boundary_deux(num_front, k, j, 0) - valeur ;
 	    }
-	
+	 
 	Scalar copie_deux (sol_deux) ;
 	Vector grad_sol_deux (copie_deux.derive_cov(ff_deux)) ;
 	grad_sol_deux.dec_dzpuis(2) ;
+	grad_sol_deux.set(1) = grad_sol_deux(1)*same_orient ;
+	grad_sol_deux.set(2) = grad_sol_deux(2)*same_orient ;
 	
 	for (int k=0 ; k<nbrep_un ; k++)
 	    for (int j=0 ; j<nbret_un ; j++) {
@@ -610,7 +638,12 @@ void neumann_binaire (const Scalar& source_un, const Scalar& source_deux,
 		source_deux.get_mp().convert_absolute 
 				(xabs, yabs, zabs, air, theta, phi) ;
 				
-		valeur = grad_sol_deux(1).val_point(air, theta, phi) ;
+		valeur = sint_mtbl_un (num_front+1, k, j, 0) * (
+cosp_mtbl_un(num_front+1, k, j, 0)*grad_sol_deux(1).val_point(air, theta, phi)+
+sinp_mtbl_un(num_front+1, k, j, 0)*grad_sol_deux(2).val_point(air, theta, phi))+
+cost_mtbl_un(num_front+1, k, j, 0)*grad_sol_deux(3).val_point(air, theta, phi);
+
+
 				
 		limite_un.set(num_front, k, j, 0) = 
 			boundary_un(num_front, k, j, 0) - valeur ;
