@@ -7,6 +7,7 @@
 
 /*
  *   Copyright (c) 2004  Jose Luis Jaramillo
+ *                       Francois Limousin
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +31,9 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2005/04/29 14:04:17  f_limousin
+ * Implementation of boundary_vv_x (y,z) for binary black holes.
+ *
  * Revision 1.19  2005/04/19 16:40:51  jl_jaramillo
  * change of sign of ang_vel in vv_bound_cart. Convention of Phys. Rep.
  *
@@ -110,8 +114,6 @@ char bound_hor_C[] = "$Header$" ;
 
 // Dirichlet boundary condition for Psi 
 //-------------------------------------
-//(This is implemented as a Dirichlet condition. It could be better to implemented as a Dirichlet one or
-// as a mixed. It is analogous to the case for the lapse)
 // ONE HAS TO GUARANTEE THAT BETA IS NOT ZERO, BUT IT IS PROPORTIONAL TO THE RADIAL VECTOR
 
 const Valeur Isol_hor::boundary_psi_Dir_evol() const{
@@ -142,7 +144,6 @@ const Valeur Isol_hor::boundary_psi_Dir_evol() const{
 
 // Neumann boundary condition for Psi 
 //-------------------------------------
-// ONE HAS TO GUARANTEE THAT BETA IS NOT ZERO, BUT IT IS PROPORTIONAL TO THE RADIAL VECTOR
 
 const Valeur Isol_hor::boundary_psi_Neu_evol()const {
 
@@ -244,16 +245,16 @@ const Valeur Isol_hor::boundary_psi_app_hor()const {
 
     psi_bound = 1 ; // Juste pour affecter dans espace des configs ;
 
-    if (psi_comp_evol.is_known(jtime)) {
-    for (int k=0 ; k<nnp ; k++)
-	for (int j=0 ; j<nnt ; j++)
-	    psi_bound.set(0, k, j, 0) = - 0.5/radius*(psi_auto().val_grid_point(1, k, j, 0) + psi_comp().val_grid_point(1, k, j, 0)) ;
-    }
-    else {
+//    if (psi_comp_evol.is_known(jtime)) {
+//    for (int k=0 ; k<nnp ; k++)
+//	for (int j=0 ; j<nnt ; j++)
+//	    psi_bound.set(0, k, j, 0) = - 0.5/radius*(psi_auto().val_grid_point(1, k, j, 0) + psi_comp().val_grid_point(1, k, j, 0)) ;
+//    }
+//    else {
     for (int k=0 ; k<nnp ; k++)
 	for (int j=0 ; j<nnt ; j++)
 	    psi_bound.set(0, k, j, 0) = - 0.5/radius*psi().val_grid_point(1, k, j, 0) ;
-    }
+//    }
 
 
     psi_bound.std_base_scal() ;
@@ -261,8 +262,6 @@ const Valeur Isol_hor::boundary_psi_app_hor()const {
     return psi_bound ;
 
 }    
-
-
 
 
 // Dirichlet boundary condition on nn using the extrinsic curvature
@@ -306,10 +305,6 @@ const Valeur Isol_hor::boundary_nn_Dir_kk()const {
 }
 
 
-
-// Neumann boundary condition on nn using the extrinsic curvature
-// (No time evolutuon taken into account! Make this)
-//--------------------------------------------------------------------------
 const Valeur Isol_hor::boundary_nn_Neu_kk() const {
   
   const Vector& dnnn = nn().derive_cov(ff) ;
@@ -435,8 +430,10 @@ const Valeur Isol_hor::boundary_nn_Dir(double cc)const {
 
 
 
-// Component r of boundary value of beta (using expression in terms of radial vector)
-//--------------------------------------
+// Component r of boundary value of beta (using expression in terms 
+// of radial vector)
+// --------------------------------------
+
 const Valeur Isol_hor:: boundary_beta_r()const {
 
   Scalar tmp (mp) ;
@@ -462,9 +459,10 @@ const Valeur Isol_hor:: boundary_beta_r()const {
 }
 
 
+// Component theta of boundary value of beta (using expression in terms 
+// of radial vector)
+// ------------------------------------------
 
-// Component theta of boundary value of beta (using expression in terms of radial vector)
-//------------------------------------------
 const Valeur Isol_hor::boundary_beta_theta()const {
   
   Scalar tmp(mp) ;  
@@ -489,8 +487,10 @@ const Valeur Isol_hor::boundary_beta_theta()const {
 
 }
  
-// Component phi of boundary value of beta (using expression in terms of radial vector) 
-//-------------------------------------------------------------------------------------
+// Component phi of boundary value of beta (using expression in terms 
+// of radial vector) 
+// -----------------------------------------------------------
+
 const Valeur Isol_hor::boundary_beta_phi()const {
 
   Scalar tmp (mp) ;
@@ -667,13 +667,8 @@ const Valeur Isol_hor::beta_boost_z() const {
 }
       
 
-
-
-
-
 // Neumann boundary condition for b_tilde 
 //---------------------------------------
-// ONE HAS TO GUARANTEE THAT BETA IS NOT ZERO, BUT IT IS PROPORTIONAL TO THE RADIAL VECTOR
 
 const Valeur Isol_hor::boundary_b_tilde_Neu()const {
   
@@ -769,7 +764,6 @@ const Vector Isol_hor::vv_bound_cart(double om) const{
 
   Vector tmp_vect = b_tilde() * s_tilde ;  
 
-
   Scalar cosp (mp) ;
   cosp = mp.cosp ;
   Scalar cost (mp) ;
@@ -782,25 +776,51 @@ const Vector Isol_hor::vv_bound_cart(double om) const{
   Scalar dep_phi (mp) ;
   dep_phi = 0.0*sint*cosp ;
 
+  // Les alignemenents pour le signe des CL.
+  double orientation = mp.get_rot_phi() ;
+  assert ((orientation == 0) || (orientation == M_PI)) ;
+  int aligne = (orientation == 0) ? 1 : -1 ;
+  
+  Vector angular (mp, CON, mp.get_bvect_cart()) ;
+  Scalar yya (mp) ;
+  yya = mp.ya ;
+  Scalar xxa (mp) ;
+  xxa = mp.xa ;
+  
+  angular.set(1) = - aligne * om * yya * (1 + dep_phi) ;
+  angular.set(2) = aligne * om * xxa * (1 + dep_phi) ;
+  angular.set(3).annule_hard() ;
 
+  angular.set(1).set_spectral_va()
+      .set_base(*(mp.get_mg()->std_base_vect_cart()[0])) ;
+  angular.set(2).set_spectral_va()
+      .set_base(*(mp.get_mg()->std_base_vect_cart()[1])) ;
+  angular.set(3).set_spectral_va()
+      .set_base(*(mp.get_mg()->std_base_vect_cart()[2])) ;
+
+  angular.change_triad(mp.get_bvect_spher()) ;
+
+/*
   Scalar ang_vel (mp) ;  
   ang_vel = om * (1 + dep_phi) ;
   ang_vel.std_spectral_base() ;
   ang_vel.mult_rsint() ;
-  
+*/
+
   Scalar bc_source (mp) ;
-  bc_source = 0 ;
+  bc_source = 0. ;
   bc_source.std_spectral_base() ;
   bc_source.inc_dzpuis(2) ;
 
   // beta^r component
   //-----------------
   double rho = 5. ; // rho>1 ; rho=1 "pure Dirichlet" version
-  Scalar beta_r_corr =  (rho - 1) * b_tilde() * hh_tilde;
+  Scalar beta_r_corr = (rho - 1) * b_tilde() * hh_tilde;
   beta_r_corr.inc_dzpuis(2) ;
 
   Scalar beta_r (mp) ;
-  beta_r = 2 * contract(s_tilde, 0, b_tilde().derive_cov(ff), 0) + beta_r_corr - bc_source ;
+  beta_r = 2 * contract(s_tilde, 0, b_tilde().derive_cov(ff), 0) 
+      + beta_r_corr - bc_source ;
   beta_r = beta_r / (hh_tilde * rho) ;
     
   beta_r.dec_dzpuis(2) ;
@@ -812,32 +832,19 @@ const Vector Isol_hor::vv_bound_cart(double om) const{
   beta_r.set_spectral_va().set_base(beta()(1).get_spectral_va().get_base()) ;
   
   tmp_vect.set(1) = beta_r ;
-  tmp_vect.set(3) +=  ang_vel ;
+  tmp_vect.set(3) += angular(3) ; //ang_vel ;
 
 
   tmp_vect.change_triad(mp.get_bvect_cart() ) ;
-
-  /*
-  Scalar tmp(mp) ;
-  
-  tmp = tmp_vect(1) ;
-  des_profile(tmp, 1.00001, 10, M_PI/2.,  M_PI/3. , "Source(1)") ;
-  
-  tmp = tmp_vect(2) ;
-  des_profile(tmp, 1.00001, 10, M_PI/2.,  M_PI/3., "Source(2)") ;
-  
-  tmp = tmp_vect(3) ;
-  des_profile(tmp, 1.00001, 10, M_PI/2.,  M_PI/3., "Source(3)") ;
-  */  
 
   return tmp_vect ;
 
 }
 
 
-
 // Component x of boundary value of V^i 
 //-------------------------------------
+
 const Valeur Isol_hor:: boundary_vv_x(double om)const {
   
   int nnp = mp.get_mg()->get_np(1) ;
@@ -865,6 +872,7 @@ const Valeur Isol_hor:: boundary_vv_x(double om)const {
 
 // Component y of boundary value of V^i
 //--------------------------------------
+
 const Valeur Isol_hor:: boundary_vv_y(double om)const {
  
   int nnp = mp.get_mg()->get_np(1) ;
@@ -890,6 +898,7 @@ const Valeur Isol_hor:: boundary_vv_y(double om)const {
 
 // Component z of boundary value of V^i
 //-------------------------------------
+
 const Valeur Isol_hor:: boundary_vv_z(double om)const {
 
   int nnp = mp.get_mg()->get_np(1) ;
