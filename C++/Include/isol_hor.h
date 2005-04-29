@@ -30,6 +30,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.34  2005/04/29 14:05:03  f_limousin
+ * Important changes : manage the dependances between quantities (for
+ * instance psi and psi4). New function write_global(ost).
+ *
  * Revision 1.33  2005/04/15 11:20:39  jl_jaramillo
  * Function adapt_hor(double c_min, double c_max)  for adapting a given surface
  * to the excised surface
@@ -822,7 +826,12 @@ class Bin_hor {
 	   */
 	  void sauve(FILE* fich, bool partial_save) const ; 
       
-      /// Display
+	/** Write global quantities in a formatted file. 
+	 * This file can be read by an external program. 
+	 */
+	void write_global(ostream& ) const  ;
+
+     /// Display
       friend ostream& operator<<(ostream& , const Bin_hor& ) ;	
 
        public:
@@ -996,7 +1005,7 @@ class Bin_hor {
 	  /**
 	   * Calculates the angular momentum of the black hole.
 	   */
-	  double ang_mom_adm() ;
+	  double ang_mom_adm() const ;
 
 	  /**
 	   * Calculation of the proper distance between the 

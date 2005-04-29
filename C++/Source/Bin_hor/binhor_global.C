@@ -26,6 +26,10 @@ char binhor_glob_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/04/29 14:02:44  f_limousin
+ * Important changes : manage the dependances between quantities (for
+ * instance psi and psi4). New function write_global(ost).
+ *
  * Revision 1.2  2005/03/04 17:09:57  jl_jaramillo
  * Change to avoid warnings
  *
@@ -85,7 +89,7 @@ double Bin_hor::komar_mass() const {
     return mass ;
 }
     
-double Bin_hor::ang_mom_adm() {
+double Bin_hor::ang_mom_adm() const {
     
     Scalar integrand_un (hole1.aa_auto().up_down(hole1.met_gamt)(1,3) 
 			 - hole1.gam_dd()(1,3) * hole1.trK) ;

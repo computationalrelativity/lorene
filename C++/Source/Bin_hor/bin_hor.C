@@ -33,6 +33,10 @@ char bin_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/04/29 14:02:44  f_limousin
+ * Important changes : manage the dependances between quantities (for
+ * instance psi and psi4). New function write_global(ost).
+ *
  * Revision 1.2  2005/03/04 09:38:41  f_limousin
  * Implement the constructor from a file, operator>>, operator<<
  * and function sauve.
@@ -166,3 +170,31 @@ void Bin_hor::init_bin_hor() {
 }
 
 
+void Bin_hor::write_global(ostream& ost) const {
+
+  double beta = hole1.get_mp().get_ori_x() - hole2.get_mp().get_ori_x() ;
+  beta /= hole1.get_radius() ;
+  double mass_adm = adm_mass() ;
+  double mass_komar = komar_mass() ;
+  double mass_area = sqrt(hole1.area_hor()/16/M_PI) + 
+      sqrt(hole2.area_hor()/16/M_PI) ;
+  double J_adm = ang_mom_adm() ;
+  double J_hor = hole1.ang_mom_hor() + hole2.ang_mom_hor() ;
+ 
+  
+  ost.precision(8) ;
+  ost << "# beta  omega  Mass_ADM  Mass_K  M_area  J_ADM  J_hor" << endl ;
+  ost << beta << " " ;
+  ost << omega << " " ;
+  ost << mass_adm << " " ;
+  ost << mass_komar << " " ;
+  ost << mass_area << " " ;
+  ost << J_adm << " " ;
+  ost << J_hor << endl ;
+  ost << "# ADM_mass/M_area  J/M_area2  omega*M_area" << endl ;
+  ost << mass_adm / mass_area << " " ;
+  ost << J_adm /mass_area / mass_area << " " ;
+  ost << omega * mass_area << endl ;
+
+}
+      

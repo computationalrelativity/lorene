@@ -26,6 +26,10 @@ char binhor_kij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/04/29 14:02:44  f_limousin
+ * Important changes : manage the dependances between quantities (for
+ * instance psi and psi4). New function write_global(ost).
+ *
  * Revision 1.5  2005/03/10 17:21:52  f_limousin
  * Add the Berlin boundary condition for the shift.
  * Some changes to avoid warnings.
@@ -68,8 +72,7 @@ void Bin_hor::extrinsic_curvature () {
     Vector temp_vect (hole1.beta_auto()) ;
     temp_vect.change_triad(hole1.mp.get_bvect_cart()) ;
     cout << "beta_auto" << endl << norme(temp_vect(1)) << endl << norme(temp_vect(2)) << endl << norme(temp_vect(3)) << endl ;
-    cout << "lapse" << endl << norme(hole1.n_auto()+hole1.n_comp()) << endl ;
-
+    cout << "lapse tot" << endl << norme(hole1.n_auto()+hole1.n_comp()) << endl ;
     double ttime = hole1.the_time[hole1.jtime] ;
     int nnt = hole1.mp.get_mg()->get_nt(1) ;
     int nnp = hole1.mp.get_mg()->get_np(1) ;
@@ -235,13 +238,15 @@ void Bin_hor::extrinsic_curvature () {
        aa_tot_un = aa_auto_un + aa_comp_un ;
        aa_tot_deux = aa_auto_deux + aa_comp_deux ;
 
-       aa_tot_un.change_triad(hole1.mp.get_bvect_spher()) ;
-       aa_tot_deux.change_triad(hole2.mp.get_bvect_spher()) ;
-       hole1.aa_nn.update(aa_tot_un, hole1.jtime, ttime) ;
-       hole2.aa_nn.update(aa_tot_deux, hole2.jtime, ttime) ;
-       aa_tot_un.change_triad(hole1.mp.get_bvect_cart()) ;
-       aa_tot_deux.change_triad(hole2.mp.get_bvect_cart()) ;
- 
+       Sym_tensor temp_aa_tot1 (aa_tot_un) ;
+       Sym_tensor temp_aa_tot2 (aa_tot_deux) ;
+       
+       temp_aa_tot1.change_triad(hole1.mp.get_bvect_spher()) ;
+       temp_aa_tot2.change_triad(hole2.mp.get_bvect_spher()) ;
+       hole1.aa_nn.update(temp_aa_tot1, hole1.jtime, ttime) ;
+       hole2.aa_nn.update(temp_aa_tot2, hole2.jtime, ttime) ;
+
+
        // Regularisation
        // --------------
 
@@ -259,8 +264,7 @@ void Bin_hor::extrinsic_curvature () {
       ntot_deux = division_xpun (ntot_deux, 0) ;
       ntot_deux.raccord(1) ;
       
-      // ON DOIT VERIFIER SI LES DEUX Aij sont alignes ou non !
-      // Les bases des deux vecteurs doivent etre alignees ou non alignees :
+      // THE TWO Aij are aligned of not !
       double orientation_un = aa_auto_un.get_mp().get_rot_phi() ;
       assert ((orientation_un==0) || (orientation_un==M_PI)) ;
       double orientation_deux = aa_auto_deux.get_mp().get_rot_phi() ;
@@ -268,11 +272,11 @@ void Bin_hor::extrinsic_curvature () {
       int same_orient = (orientation_un == orientation_deux) ? 1 : -1 ;
 
 
-      // Boucle sur les composantes :
+      // Loop on the composants :
       for (int lig = 1 ; lig<=3 ; lig++)
 	  for (int col = lig ; col<=3 ; col++) {
 	      
-	      // Le sens d orientation
+	      // The orientation
 	      int ind = 1 ;
 	      if (lig !=3)
 		  ind *= -1 ;
@@ -281,7 +285,7 @@ void Bin_hor::extrinsic_curvature () {
 	      if (same_orient == 1)
 		  ind = 1 ;
 	    
-	    // Pres de H1 :
+	    // Close to hole one :
 	    Scalar auxi_un (aa_tot_un(lig, col)/2.) ;
 	    auxi_un.dec_dzpuis(2) ;
 	    auxi_un = division_xpun (auxi_un, 0) ;
@@ -289,7 +293,7 @@ void Bin_hor::extrinsic_curvature () {
 	    if (auxi_un.get_etat() != ETATZERO)
 		auxi_un.raccord(1) ;
 
-	    // Pres de H2 :
+	    // Close to hole two :
 	    Scalar auxi_deux (aa_tot_deux(lig, col)/2.) ;
 	    auxi_deux.dec_dzpuis(2) ;
 	    auxi_deux = division_xpun (auxi_deux, 0) ;
@@ -297,14 +301,13 @@ void Bin_hor::extrinsic_curvature () {
 	    if (auxi_deux.get_etat() != ETATZERO)
 		auxi_deux.raccord(1) ;
 	    
-	    // copie :
+	    // copy :
 	    Scalar copie_un (aa_tot_un(lig, col)) ;
 	    copie_un.dec_dzpuis(2) ;
 	    
 	    Scalar copie_deux (aa_tot_deux(lig, col)) ;
 	    copie_deux.dec_dzpuis(2) ;
 	    
-	    // Double les rayons limites :
 	    double lim_un = hole1.mp.get_alpha()[1] + hole1.mp.get_beta()[1] ;
 	    double lim_deux = hole2.mp.get_alpha()[1] + hole2.mp.get_beta()[1] ;
 	    
@@ -319,7 +322,7 @@ void Bin_hor::extrinsic_curvature () {
 	    double xabs, yabs, zabs, air, theta, phi ;
 
 	    if (auxi_un.get_etat() != ETATZERO){	    
-	    // On boucle sur les autres zones :
+	    // Loop on the other zones :
 	    for (int l=2 ; l<nz_un ; l++) {
 
 		int nr = hole1.mp.get_mg()->get_nr (l) ;
@@ -338,23 +341,23 @@ void Bin_hor::extrinsic_curvature () {
 			    yabs = yabs_un (l, k, j, i) ;
 			    zabs = zabs_un (l, k, j, i) ;
 
-			    // les coordonnees du point en 2 :
+			    // coordinates of the point in 2 :
 			    hole2.mp.convert_absolute 
 				(xabs, yabs, zabs, air, theta, phi) ;
 			
 			    if (air >= lim_deux)
-				// On est loin du trou 2 : pas de pb :
+				// Far from hole two : no pb :
 				auxi_un.set_grid_point(l, k, j, i) = 
 				    copie_un.val_grid_point(l, k, j, i) / 
 				    ntot_un.val_grid_point(l, k, j, i)/2. ;
 			    else 
-				// On est pres du trou deux :
+				// close to hole two :
 				auxi_un.set_grid_point(l, k, j, i) = 
 			    ind * auxi_deux.val_point (air, theta, phi) ;
 				
 			}
 			    
-		// Cas infini :
+		// Case infinity :
 		if (l==nz_un-1)
 		    for (int k=0 ; k<np ; k++)
 			for (int j=0 ; j<nt ; j++)
@@ -363,7 +366,7 @@ void Bin_hor::extrinsic_curvature () {
 	    }
 
 	    if (auxi_deux.get_etat() != ETATZERO){	    
-	    // Le second trou :
+	    // The second hole :
 	    for (int l=2 ; l<nz_deux ; l++) {
 		
 		int nr = hole2.mp.get_mg()->get_nr (l) ;
@@ -382,21 +385,21 @@ void Bin_hor::extrinsic_curvature () {
 			    yabs = yabs_deux (l, k, j, i) ;
 			    zabs = zabs_deux (l, k, j, i) ;
 			    
-			    // les coordonnees du point en 1 :
+			    // coordinates of the point in 2 :
 			    hole1.mp.convert_absolute 
 				(xabs, yabs, zabs, air, theta, phi) ;
 			
 			    if (air >= lim_un)
-				// On est loin du trou 1 : pas de pb :
+				// Far from hole one : no pb :
 				auxi_deux.set_grid_point(l, k, j, i) = 
 				    copie_deux.val_grid_point(l, k, j, i) / 
 				    ntot_deux.val_grid_point(l, k, j, i) /2.;
 			    else 
-			    // On est pres du trou deux :
+			    // close to hole one :
 				auxi_deux.set_grid_point(l, k, j, i) = 
 			      ind * auxi_un.val_point (air, theta, phi) ;
 			    }
-		// Cas infini :
+		// Case infinity :
 		if (l==nz_deux-1)
 		    for (int k=0 ; k<np ; k++)
 			for (int j=0 ; j<nt ; j++)
@@ -409,32 +412,32 @@ void Bin_hor::extrinsic_curvature () {
 	    
 	    aa_un.set(lig, col) = auxi_un ;
 	    aa_deux.set(lig, col) = auxi_deux ;
-	}
-
-//      cout << "aa_un" << endl << norme(aa_un(1,1)) << endl << norme(aa_un(2,1)) << endl << norme(aa_un(3,1)) << endl << norme(aa_un(2,2)) << endl << norme(aa_un(3,2)) << endl << norme(aa_un(3,3)) << endl ;
+	  }
 
       aa_un.change_triad(hole1.mp.get_bvect_spher()) ;
       aa_deux.change_triad(hole2.mp.get_bvect_spher()) ;
-      aa_auto_un.change_triad(hole1.mp.get_bvect_spher()) ;
-      aa_auto_deux.change_triad(hole2.mp.get_bvect_spher()) ;
 
       hole1.aa_evol.update(aa_un, hole1.jtime, ttime) ;
       hole2.aa_evol.update(aa_deux, hole2.jtime, ttime) ;
-    
+
+      aa_auto_un.change_triad(hole1.mp.get_bvect_spher()) ;
+      aa_auto_deux.change_triad(hole2.mp.get_bvect_spher()) ;
+
       for (int lig=1 ; lig<=3 ; lig++)
 	  for (int col=lig ; col<=3 ; col++) {
 	      aa_auto_un.set(lig, col) = aa_un(lig, col)*hole1.decouple ;
 	      aa_auto_deux.set(lig, col) = aa_deux(lig, col)*hole2.decouple ;
 	  }
 
-   hole1.aa_auto_evol.update(aa_auto_un, hole1.jtime, ttime) ;
-   hole2.aa_auto_evol.update(aa_auto_deux, hole2.jtime, ttime) ;
+      hole1.aa_auto_evol.update(aa_auto_un, hole1.jtime, ttime) ;
+      hole2.aa_auto_evol.update(aa_auto_deux, hole2.jtime, ttime) ;
+
    }
 
     Sym_tensor temp (hole1.aa()) ;
     temp.change_triad(hole1.mp.get_bvect_cart()) ;
 
-      cout << "aa_tot" << endl << norme(temp(1,1)) << endl << norme(temp(2,1)) << endl << norme(temp(3,1)) << endl << norme(temp(2,2)) << endl << norme(temp(3,2)) << endl << norme(temp(3,3)) << endl ;
+    cout << "aa_tot" << endl << norme(temp(1,1)) << endl << norme(temp(2,1)) << endl << norme(temp(3,1)) << endl << norme(temp(2,2)) << endl << norme(temp(3,2)) << endl << norme(temp(3,3)) << endl ;
 
 }   
 
@@ -528,7 +531,7 @@ void Bin_hor::decouple () {
 		fonction_g_deux.val_point (air_deux, theta, phi) ;
 		
 			else
-			    // Far from both holes :
+			    // Far from each holes :
 			    decouple_un.set_grid_point(l, k, j, i) = 0.5 ;
 		}
 			    
@@ -556,7 +559,7 @@ void Bin_hor::decouple () {
 		    yabs = yabs_deux (l, k, j, i) ;
 		    zabs = zabs_deux (l, k, j, i) ;
 			    
-		    // les coordonnees du point  :
+		    // coordinates of the point  :
 		    hole1.mp.convert_absolute 
 			(xabs, yabs, zabs, air_un, theta, phi) ;
 		    hole2.mp.convert_absolute 
@@ -566,7 +569,7 @@ void Bin_hor::decouple () {
 			if (air_deux < int_deux)
 			    decouple_deux.set_grid_point(l, k, j, i) = 1 ;
 			else
-			// pres du trou deux :
+			// close to hole two :
 			decouple_deux.set_grid_point(l, k, j, i) = 
 			    fonction_f_deux.val_grid_point(l, k, j, i) ;
 		    else 
@@ -574,16 +577,16 @@ void Bin_hor::decouple () {
 			    if (air_un < int_un)
 				decouple_deux.set_grid_point(l, k, j, i) = 0 ;
 			    else
-			// On est pres du trou un :
+			// close to hole one :
 				decouple_deux.set_grid_point(l, k, j, i) = 
 			 fonction_g_un.val_point (air_un, theta, phi) ;
 		
 			else
-			    // On est loin des deux trous :
+			    // Far from each hole :
 			    decouple_deux.set_grid_point(l, k, j, i) = 0.5 ;
 		}
 			    
-		// Cas infini :
+		// Case infinity :
 		if (l==nz_deux-1)
 		    for (int k=0 ; k<np ; k++)
 			for (int j=0 ; j<nt ; j++)

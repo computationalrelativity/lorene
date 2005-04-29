@@ -26,6 +26,10 @@ char binhor_equations_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/04/29 14:02:44  f_limousin
+ * Important changes : manage the dependances between quantities (for
+ * instance psi and psi4). New function write_global(ost).
+ *
  * Revision 1.7  2005/03/10 17:21:52  f_limousin
  * Add the Berlin boundary condition for the shift.
  * Some changes to avoid warnings.
@@ -101,7 +105,7 @@ void Bin_hor::solve_lapse (double precision, double relax, int bound_nn,
        -2.*contract(contract(hole1.hh(), 0, hole1.n_auto()
 	       .derive_cov(hole1.ff), 0), 0, hole1.dpsi(), 0)/hole1.psi()
 
-       -2.*contract(hole1.dnn(), 0, hole1.psi_auto()
+	-2.*contract(/*hole1.nn().derive_cov(hole1.ff)*/hole1.dnn(), 0, hole1.psi_auto()
 		    .derive_con(hole1.ff), 0)/hole1.psi()	;
 
     - contract(hole1.hdirac(), 0, hole1.n_auto().derive_cov(hole1.ff), 0) ; 
@@ -130,7 +134,7 @@ void Bin_hor::solve_lapse (double precision, double relax, int bound_nn,
 	-2.*contract(contract(hole2.hh(), 0, hole2.n_auto()
 	       .derive_cov(hole2.ff), 0), 0, hole2.dpsi(), 0)/hole2.psi()
 
-	-2.*contract(hole2.dnn(), 0, hole2.psi_auto()
+	-2.*contract(/*hole2.nn().derive_cov(hole2.ff)*/hole2.dnn(), 0, hole2.psi_auto()
 		     .derive_con(hole2.ff), 0)/hole2.psi();
 
      - contract(hole2.hdirac(), 0, hole2.n_auto().derive_cov(hole2.ff), 0) ; 
@@ -239,7 +243,7 @@ void Bin_hor::solve_lapse (double precision, double relax, int bound_nn,
     // -----------------------------------------------------
     
     int nz = hole1.mp.get_mg()->get_nzone() ;
-    cout << "lapse" << endl << norme (n_un_temp) << endl ;    
+    cout << "lapse auto" << endl << norme (n_un_temp) << endl ;    
     Tbl tdiff_nn = diffrel(n_un_temp.laplacian(), source_un) ;
     
     cout << 
@@ -411,7 +415,7 @@ void Bin_hor::solve_psi (double precision, double relax, int bound_psi) {
     // -----------------------------------------------------
     
     int nz = hole1.mp.get_mg()->get_nzone() ;
-    cout << "psi" << endl << norme (psi_un_temp) << endl ;    
+    cout << "psi auto" << endl << norme (psi_un_temp) << endl ;    
     Tbl tdiff_psi = diffrel(psi_un_temp.laplacian(), source_un) ;
     
     cout << 
@@ -434,6 +438,51 @@ void Bin_hor::solve_psi (double precision, double relax, int bound_psi) {
 
     hole1.psi_comp (hole2) ;
     hole2.psi_comp (hole1) ;
+
+    // Delete all derived quantities
+    // -----------------------------
+
+    // psi4
+    if (hole1.p_psi4 != 0x0) {
+        delete hole1.p_psi4 ;
+        hole1.p_psi4 = 0x0 ;
+    }
+    if (hole2.p_psi4 != 0x0) {
+        delete hole2.p_psi4 ;
+        hole2.p_psi4 = 0x0 ;
+    }
+
+    // ln(psi)
+    if (hole1.p_ln_psi != 0x0) {
+        delete hole1.p_ln_psi ;
+        hole1.p_ln_psi = 0x0 ;
+    }
+    if (hole2.p_ln_psi != 0x0) {
+        delete hole2.p_ln_psi ;
+        hole2.p_ln_psi = 0x0 ;
+    }
+
+    // gamma
+    if (hole1.p_gamma != 0x0) {
+        delete hole1.p_gamma ;
+        hole1.p_gamma = 0x0 ;
+    }
+    if (hole2.p_gamma != 0x0) {
+        delete hole2.p_gamma ;
+        hole2.p_gamma = 0x0 ;
+    }
+
+    // hdirac
+    if (hole1.p_hdirac != 0x0) {
+        delete hole1.p_hdirac ;
+        hole1.p_hdirac = 0x0 ;
+    }
+    if (hole2.p_hdirac != 0x0) {
+        delete hole2.p_hdirac ;
+        hole2.p_hdirac = 0x0 ;
+    }
+    
+
 }
 
 
@@ -458,10 +507,11 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta) {
     Vector tmp_vect_un (hole1.mp, CON, hole1.mp.get_bvect_spher()) ;
     
     source_un = 2.* contract(hole1.aa(), 1, 
-			     hole1.n_auto().derive_cov(hole1.ff), 0 )
+			     hole1.n_auto().derive_cov(hole1.ff), 0) 
 	  -6.*contract(hole1.aa_nn[hole1.jtime], 1, 
 		       hole1.psi_auto().derive_cov(hole1.ff)/hole1.psi(), 0) ;
-//			    - 6.*hole1.n_auto()*hole1.dpsi()/hole1.psi(), 0) ;
+//	- 6.*hole1.nn()*hole1.psi_auto().derive_cov(hole1.ff)/hole1.psi(), 0) ;
+
      
     tmp_vect_un = 0.66666666666666666* hole1.trK.derive_con(hole1.met_gamt)
 	* hole1.decouple ;
@@ -495,10 +545,9 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta) {
     
     source_deux = 2.* contract(hole2.aa(), 1, 
 			       hole2.n_auto().derive_cov(hole2.ff), 0) 
-	-6.*contract(hole2.aa_nn[hole2.jtime], 1, hole2.psi_auto().derive_cov(hole2.ff)/hole2.psi(), 0) ;
-
-
-//			    - 6.*hole2.n_auto()*hole2.dpsi()/hole2.psi(), 0) ;
+	-6.*contract(hole2.aa_nn[hole2.jtime], 1, 
+		     hole2.psi_auto().derive_cov(hole2.ff)/hole2.psi(), 0) ;
+//	- 6.*hole2.nn()*hole2.psi_auto().derive_cov(hole2.ff)/hole2.psi(), 0) ;
      
     tmp_vect_deux = 0.66666666666666666* hole2.trK.derive_con(hole2.met_gamt)
 	* hole2.decouple ;
@@ -602,15 +651,15 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta) {
     beta1.change_triad(hole1.mp.get_bvect_cart()) ;
     beta2.change_triad(hole2.mp.get_bvect_cart()) ;
 
-    cout << "shift_x" << endl << norme(beta1(1)) << endl ;
-    cout << "shift_y" << endl << norme(beta1(2)) << endl ;
-    cout << "shift_z" << endl << norme(beta1(3)) << endl ;
-
     for (int i=1 ; i<=3 ; i++) {
 	beta1.set(i).raccord(1) ;
 	beta2.set(i).raccord(1) ;
     }
     
+    cout << "shift_auto x" << endl << norme(beta1(1)) << endl ;
+    cout << "shift_auto y" << endl << norme(beta1(2)) << endl ;
+    cout << "shift_auto z" << endl << norme(beta1(3)) << endl ;
+
     beta1.change_triad(hole1.mp.get_bvect_spher()) ;
     beta2.change_triad(hole2.mp.get_bvect_spher()) ;
 
