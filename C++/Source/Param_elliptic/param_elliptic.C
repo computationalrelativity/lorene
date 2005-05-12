@@ -23,6 +23,10 @@ char param_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2005/05/12 09:49:44  j_novak
+ * Temptative treatment of the case where the source is null in the CED (putting
+ * dzpuis to 4). May be a bad idea...
+ *
  * Revision 1.16  2005/02/15 15:43:17  j_novak
  * First version of the block inversion for the vector Poisson equation (method 6).
  *
@@ -194,7 +198,7 @@ Param_elliptic::Param_elliptic(const Scalar& so) : var_F(so.get_mp()), var_G(so.
   auxi.set_spectral_va().ylm() ;
 
   Base_val base (auxi.get_spectral_va().base) ;
-  int dzpuis = auxi.get_dzpuis() ;
+  int dzpuis = (auxi.dz_nonzero() ? auxi.get_dzpuis() : 4) ; //## to be modified??
   
   // Right now, only applicable with affine mapping
   const Map_af* map_affine = dynamic_cast <const Map_af*> (&so.get_mp()) ;
