@@ -31,6 +31,9 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2005/05/12 14:48:07  f_limousin
+ * New boundary condition for the lapse : boundary_nn_lapl().
+ *
  * Revision 1.20  2005/04/29 14:04:17  f_limousin
  * Implementation of boundary_vv_x (y,z) for binary black holes.
  *
@@ -110,6 +113,7 @@ char bound_hor_C[] = "$Header$" ;
 #include "unites.h"
 #include "graphique.h"
 #include "utilitaires.h"
+#include "param.h"
 
 
 // Dirichlet boundary condition for Psi 
@@ -426,6 +430,87 @@ const Valeur Isol_hor::boundary_nn_Dir(double cc)const {
   
   return  nn_bound ;
 
+}
+
+
+const Valeur Isol_hor::boundary_nn_Dir_lapl() const {
+
+    Scalar det_q = gam_dd()(2,2) * gam_dd()(3,3) - 
+	                    gam_dd()(2,3) * gam_dd()(2,3) ;
+    Scalar square_q (pow(det_q, 0.5)) ;
+    square_q.std_spectral_base() ;
+
+    Sym_tensor qq_uu (mp, CON, mp.get_bvect_spher()) ;
+    for (int i=1 ; i<=3 ; i++)
+	for (int j=i ; j<=3 ; j++)
+	    qq_uu.set(i,j).annule_hard() ;
+    
+    qq_uu.set(2,2) = gam_dd()(2,2) / det_q ;
+    qq_uu.set(3,2) = - gam_dd()(3,2) / det_q ;
+    qq_uu.set(3,3) = gam_dd()(3,3) / det_q ;
+    qq_uu.std_spectral_base() ;
+
+    Metric met_q (qq_uu) ;
+
+    Sym_tensor hh_uu (mp, CON, mp.get_bvect_spher()) ;
+    hh_uu = qq_uu * square_q ;
+    hh_uu.set(2,2) = hh_uu(2,2) - 1. ;
+    hh_uu.set(3,3) = hh_uu(3,3) - 1. ;
+
+    Vector temp_vect (contract(hh_uu, 1, nn().derive_cov(ff) / nn(), 0)) ;
+    temp_vect.set(2).mult_sint() ; 
+    
+    Scalar temp_scal (mp) ;
+    temp_scal = temp_vect(2).dsdt() ;
+    temp_scal.div_sint() ;
+    temp_scal += temp_vect(3).stdsdp() ;
+    temp_scal.div_r() ;    
+
+
+    Vector temp_vect2 (mp, CON, mp.get_bvect_spher()) ;
+    temp_vect2 = contract(k_dd(), 1, gam().radial_vect(), 0).up(0, gam())  -
+	contract(k_dd(), 0, 1, gam().radial_vect()*gam().radial_vect(), 0, 1) *
+	gam().radial_vect() ;
+    temp_vect2.set(2).mult_sint() ;
+    temp_vect2 = temp_vect2 * square_q ;
+
+    Scalar temp_scal2 (mp) ;
+    temp_scal2 = temp_vect2(2).dsdt() ;
+    temp_scal2.div_sint() ;
+    temp_scal2 += temp_vect2(3).stdsdp() ;
+    temp_scal2.div_r() ;
+    
+    Scalar lew_pal (mp) ;
+    lew_pal = 0. ;
+    lew_pal *= square_q ;
+    
+    Scalar source (temp_scal2 - temp_scal + lew_pal) ;
+ 
+    Scalar logn (mp) ;
+    Param bidon ;
+    mp.poisson_angu(source, bidon, logn) ;
+
+    double cc = 1. ; // Integration constant
+    Scalar lapse (exp(logn)*cc) ;
+    lapse.std_spectral_base() ;
+    
+    lapse = lapse - 1. ;
+
+    int nnp = mp.get_mg()->get_np(1) ;
+    int nnt = mp.get_mg()->get_nt(1) ;
+    
+    Valeur nn_bound (mp.get_mg()->get_angu()) ;
+    
+    nn_bound = 1 ;  // Juste pour affecter dans espace des configs ;
+    
+    for (int k=0 ; k<nnp ; k++)
+	for (int j=0 ; j<nnt ; j++)
+	    nn_bound.set(0, k, j, 0) = lapse.val_grid_point(1, k, j, 0) ;
+    
+    nn_bound.std_base_scal() ;
+    
+    return  nn_bound ;
+ 
 }
 
 

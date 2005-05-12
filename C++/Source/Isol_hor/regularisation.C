@@ -26,6 +26,9 @@ char regularisation_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/05/12 14:48:07  f_limousin
+ * New boundary condition for the lapse : boundary_nn_lapl().
+ *
  * Revision 1.6  2005/04/03 19:48:22  f_limousin
  * Implementation of set_psi(psi_in). And minor changes to avoid warnings.
  *
@@ -111,7 +114,7 @@ double Isol_hor::regularisation (const Vector& shift_auto_temp,
 	derive_r.set(i) = tbi(i).dsdr() ;
 	
     
-    // We substract a function to make Kij regular
+    // We substract a function in order that Kij is regular
     
     Valeur val_hor (shift_auto.get_mp().get_mg()) ;
     Valeur fonction_radiale (shift_auto.get_mp().get_mg()) ;

@@ -31,6 +31,9 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2005/05/12 14:48:07  f_limousin
+ * New boundary condition for the lapse : boundary_nn_lapl().
+ *
  * Revision 1.16  2005/04/08 12:16:52  f_limousin
  * Function set_psi(). And dependance in phi.
  *
@@ -104,6 +107,7 @@ char init_data_C[] = "$Header$" ;
 #include "cmp.h"
 #include "tenseur.h"
 #include "utilitaires.h"
+#include "param.h"
 
 void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi, 
 			 int bound_beta, int solve_lapse, int solve_psi,
@@ -131,6 +135,8 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 
 	// Resolution of the Poisson equation for the lapse
 	// ------------------------------------------------
+
+
 
 	Scalar sou_nn (source_nn()) ;
 	Scalar nn_jp1 (mp) ;
@@ -161,6 +167,11 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 		}
 		case 4 : {
 		    nn_bound = boundary_nn_Dir_kk() ;
+		    nn_jp1 = sou_nn.poisson_dirichlet(nn_bound, 0) + 1. ;
+		    break ;
+		}
+		case 5 : {
+		    nn_bound = boundary_nn_Dir_lapl() ;
 		    nn_jp1 = sou_nn.poisson_dirichlet(nn_bound, 0) + 1. ;
 		    break ;
 		}
@@ -384,6 +395,7 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 
 	kss << mer << " " << max_kss << endl ;
     }
+    
     conv.close() ;   
     kss.close() ;
 

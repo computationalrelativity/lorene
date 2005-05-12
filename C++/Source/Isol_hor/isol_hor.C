@@ -31,6 +31,9 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.26  2005/05/12 14:48:07  f_limousin
+ * New boundary condition for the lapse : boundary_nn_lapl().
+ *
  * Revision 1.25  2005/04/15 09:34:16  jl_jaramillo
  * Function "adapt_hor" for adapting the the excised surface to
  * a given surface. The zero expansion surface is not properly implemented
@@ -811,7 +814,7 @@ void Isol_hor::aa_kerr_ww(double mm, double aaa) {
 
   // ww perturbation
   Scalar ww_pert (mp) ;
-  ww_pert = - 700*(mm*aaa*aaa*aaa*pow(sint, 4.)*cost) * sigma_inv ;
+  ww_pert = - 1*(mm*aaa*aaa*aaa*pow(sint, 4.)*cost) * sigma_inv ;
   ww_pert.set_spectral_va().set_base_r(0,R_CHEBPIM_P) ;
   for (int l=1; l<nz-1; l++)
     ww_pert.set_spectral_va().set_base_r(l,R_CHEB) ;

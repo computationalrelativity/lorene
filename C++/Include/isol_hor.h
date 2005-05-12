@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.35  2005/05/12 14:48:55  f_limousin
+ * New boundary condition for the lapse : boundary_nn_lapl().
+ *
  * Revision 1.34  2005/04/29 14:05:03  f_limousin
  * Important changes : manage the dependances between quantities (for
  * instance psi and psi4). New function write_global(ost).
@@ -642,6 +645,10 @@ class Isol_hor : public Time_slice_conf {
   /// \f$ \partial_r N + a N = 0 \f$ 
   const Valeur boundary_nn_Dir_eff(double aa) const ;
 
+  /// Dirichlet boundary condition for \c N fixing the divergence
+  /// of the connection form \f$ \omega \f$
+  const Valeur boundary_nn_Dir_lapl() const ;
+
   /// Neumann boundary condition on nn (effectif)
   ///  \f$ \partial_r N + a N = 0 \f$ 
   const Valeur boundary_nn_Neu_eff(double aa) const ;	
@@ -1002,6 +1009,12 @@ class Bin_hor {
 	   */
 	  double komar_mass() const ;
 	  
+	  /**
+	   * Calculates the angular momentum of the black hole using
+	   * the formula at the horizon.
+	   */
+	  double ang_mom_hor() const ;
+
 	  /**
 	   * Calculates the angular momentum of the black hole.
 	   */
