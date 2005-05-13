@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.27  2005/05/13 08:50:29  j_novak
+ * Added the function int1d_chebi.
+ *
  * Revision 1.26  2005/02/16 15:04:07  m_forot
  * Add int1D_cheb function
  *
@@ -334,6 +337,7 @@ void chb_sinp_legii(const int* , const double* , double* ) ;
 void chb_legii_sinp(const int* , const double* , double* ) ;
 
 double int1d_chebp(int, const double* ) ;
+double int1d_chebi(int, const double* ) ;
 double int1d_cheb(int, const double* ) ;
 
 // Routines calcul de coef inverse
