@@ -51,6 +51,9 @@ char int1d_chebi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/05/13 13:22:33  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.1  2005/05/13 08:51:02  j_novak
  * Added the function int1d_chebi.
  *
@@ -68,11 +71,11 @@ double int1d_chebi(int nr, const double* cf){
     const double* cc = cf ;
 
     for (int i=0; i<nr-2 ; i+=2) {
-	som += (*cc - *(cc++) ) / (2*i + 2) ; 
+	som += (*cc - *(++cc) ) / double(2*i + 2) ; 
 	cc++ ;
     }
     
-    if (nr%2 == 0) som += (*cc) / (2*nr - 2) ;
+    if (nr%2 == 0) som += (*cc) / double(2*nr - 2) ;
 
     return som ; 
     
