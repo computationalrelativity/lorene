@@ -28,6 +28,9 @@ char test_poisson_angu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/05/18 15:31:25  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.3  2005/04/04 21:36:31  e_gourgoulhon
  * Method Scalar::poisson_angu takes now a parameter
  * lambda, for the generalized angular Poisson equation
@@ -114,7 +117,7 @@ int main() {
 	uu.spectral_display() ; 
 	arrete() ; 
 	
-        double lambda = 1. ;
+        double lambda = 2. ;
 
 	Scalar lap = uu.lapang() ;
         
@@ -134,6 +137,8 @@ int main() {
 	arrete() ; 
 
 	Scalar diff = uu - uu1 ; 
+	diff.set_spectral_va().ylm() ;
+	diff.spectral_display("Diff en Ylm: ", 1.e-14) ;
 	
 	cout << "Norm of diff: " << norme(diff) << endl ; 	
 	

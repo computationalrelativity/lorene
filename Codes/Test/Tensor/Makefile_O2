@@ -27,6 +27,17 @@ SRC5 = test_sym_tensor_tt.C
 OBJ5 = $(SRC5:.C=.o)
 EXE5 = $(SRC5:.C=)
 
+SRC6 = test_tens_poisson.C
+OBJ6 = $(SRC6:.C=.o)
+EXE6 = $(SRC6:.C=)
+
+SRC7 = test_sym_tensor.C
+OBJ7 = $(SRC7:.C=.o)
+EXE7 = $(SRC7:.C=)
+
+SRC8 = test_sym_tensor_decomp.C
+OBJ8 = $(SRC8:.C=.o)
+EXE8 = $(SRC8:.C=)
 
 $(EXE1): $(OBJ1) $(LIBLOR) 
 	$(CXX) -o $@ $(CXXFLAGS) $(OBJ1) $(LIB) $(LIB_LAPACK) \
@@ -45,13 +56,25 @@ $(EXE5): $(OBJ5) $(LIBLOR)
 	$(CXX) -o $@ $(CXXFLAGS) $(OBJ5) $(LIB) $(LIB_LAPACK) \
 					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
-all: $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5)
+$(EXE6): $(OBJ6) $(LIBLOR) 
+	$(CXX) -o $@ $(CXXFLAGS) $(OBJ6) $(LIB_G) $(LIB_LAPACK) \
+					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
+
+$(EXE7): $(OBJ7) $(LIBLOR) 
+	$(CXX) -o $@ $(CXXFLAGS) $(OBJ7) $(LIB_G) $(LIB_LAPACK) \
+					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
+
+$(EXE8): $(OBJ8) $(LIBLOR) 
+	$(CXX) -o $@ $(CXXFLAGS) $(OBJ8) $(LIB_G) $(LIB_LAPACK) \
+					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
+
+all: $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5) $(EXE6) $(EXE7) $(EXE8)
 
 
 .C.o:
 	$(CXX)  -c $(CXXFLAGS) $(INC) $<
 
 uninstall:
-	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5) 
-	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5)
+	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5) $(OBJ6) $(OBJ7) $(OBJ8) 
+	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5) $(EXE6) $(EXE7) $(EXE8)
 
