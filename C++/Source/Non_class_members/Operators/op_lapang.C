@@ -39,6 +39,10 @@ char op_lapang_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/05/18 07:47:36  j_novak
+ * Corrected an error for the T_LEG_II base (ll was set to 2j+1 instead of 2j for
+ * sin(phi)).
+ *
  * Revision 1.4  2004/12/17 13:20:55  m_forot
  * Add T_LEG base
  *
@@ -489,7 +493,7 @@ void _lapang_t_leg_ii(Mtbl_cf* mt, int l)
     // k = 2 :	sin(phi)
     // ------
     for (j=0 ; j<nt-1 ; j++) {
-	int ll = 2*j+1 ;
+	int ll = 2*j ;
 	double xl = - ll*(ll+1) ;
 	for (i=0 ; i<nr ; i++) {
 	    tuu[i] *= xl ;
