@@ -34,6 +34,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.37  2005/05/18 11:45:44  j_novak
+ * Added del_deriv() calls at the end of inc/dec_dzpuis.
+ *
  * Revision 1.36  2004/07/08 12:21:53  j_novak
  * Replaced tensor::annule_extern_c2 with tensor::annule_extern_cn for a
  * more general transition.
@@ -787,12 +790,16 @@ void Tensor::dec_dzpuis(int decrem) {
     
   for (int i=0 ; i<n_comp ; i++)
     cmp[i]->dec_dzpuis(decrem) ;
+
+  del_deriv() ;
 }
 
 void Tensor::inc_dzpuis(int inc) {
 
     for (int i=0 ; i<n_comp ; i++)
       cmp[i]->inc_dzpuis(inc) ;
+
+    del_deriv() ;
 }
 
 

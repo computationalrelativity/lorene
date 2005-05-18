@@ -35,6 +35,9 @@ char scalar_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2005/05/18 11:45:46  j_novak
+ * Added del_deriv() calls at the end of inc/dec_dzpuis.
+ *
  * Revision 1.20  2004/10/11 15:09:04  j_novak
  * The radial manipulation functions take Scalar as arguments, instead of Cmp.
  * Added a conversion operator from Scalar to Cmp.
@@ -443,6 +446,7 @@ void Scalar::dec_dzpuis(int decrem) {
 			break ; 
 		}
 	}
+	del_deriv() ;
 	
 }
 
@@ -494,6 +498,7 @@ void Scalar::inc_dzpuis(int inc) {
 			break ; 
 		}
 	}
+	del_deriv() ;
 	
 }
 
