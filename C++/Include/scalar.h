@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.67  2005/05/20 14:42:30  j_novak
+ * Added the method Scalar::get_spectral_base().
+ *
  * Revision 1.66  2005/04/04 21:28:57  e_gourgoulhon
  * Added argument lambda to method poisson_angu
  * to deal with the generalized angular Poisson equation:
@@ -1048,6 +1051,9 @@ class Scalar : public Tensor {
   /** Sets the spectral bases of the \c Valeur \c va  
    */
   void set_spectral_base(const Base_val& ) ;	 
+
+  /// Returns the spectral bases of the \c Valeur \c va  
+  const Base_val& get_spectral_base( ) const {return va.base ;} ;	 
 
   /** Modifies the \c dzpuis  flag.
    *  NB: this method does not change the field values stored in
