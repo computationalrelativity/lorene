@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2005/05/22 20:49:12  k_taniguchi
+ * Introduction of a new class Eos_fit_AkmalPR.
+ *
  * Revision 1.13  2004/09/26 18:51:47  k_taniguchi
  * Introduction of new classes Eos_fitting, Eos_fit_SLy4, and Eos_fit_FPS
  *
@@ -237,6 +240,7 @@ class Eos {
 	 *     110 = Multi-polytropic EOS (class \c Eos_multi_poly ) \\
 	 *     120 = Fitted SLy4 (Shibata 2004) \\
 	 *     121 = Fitted FPS (Shibata 2004) \\
+	 *     122 = Fitted AkmalPR (Taniguchi 2005) \\
 	 *  The second line in the file must be the EOS name.
 	 *  The following lines should contain the EOS parameters (one
 	 *  parameter per line), in the same order than in the class declaration.

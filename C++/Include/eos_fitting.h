@@ -2,6 +2,7 @@
  *  Definition of Lorene class Eos_fitting
  *                             Eos_fit_SLy4
  *                             Eos_fit_FPS
+ *                             Eos_fit_AkmalPR
  *
  */
 
@@ -31,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/05/22 20:50:39  k_taniguchi
+ * Introduction of a new class Eos_fit_AkmalPR.
+ *
  * Revision 1.1  2004/09/26 18:50:00  k_taniguchi
  * Initial revision
  *
@@ -332,5 +336,72 @@ class Eos_fit_FPS : public Eos_fitting {
 
 };
 
+
+                    //-----------------------------------------//
+                    //          class Eos_fit_AkmalPR          //
+                    //-----------------------------------------//
+
+/**
+ * Fitted equation of state of AkmalPR. \ingroup(eos)
+ *
+ */
+class Eos_fit_AkmalPR : public Eos_fitting {
+
+    // Constructors - Destructor
+    // -------------------------
+    public:
+
+        /** Standard constructor
+	 *
+	 * @param path Path to the directory containing the EOS file
+	 */
+	Eos_fit_AkmalPR(const char* path) ;
+
+    protected:
+	/** Constructor from a binary file (created by the function 
+	 *  \c sauve(FILE*) ). 
+	 *  This constructor is protected because any EOS construction
+	 *  from a binary file must be done via the function 
+	 *  \c Eos::eos_from_file(FILE*) . 
+	 */
+	Eos_fit_AkmalPR(FILE* ) ;
+
+	/** Constructor from a formatted file.
+	 *  This constructor is protected because any EOS construction
+	 *  from a formatted file must be done via the function 
+	 *  \c Eos::eos_from_file(ifstream&) .
+	 *
+	 * @param ist input file stream containing a name as first line
+	 * @param data Name of the file containing the fitting data
+	 */
+	Eos_fit_AkmalPR(ifstream& ) ;
+
+	/// The construction functions from a file
+	friend Eos* Eos::eos_from_file(FILE* ) ;
+	friend Eos* Eos::eos_from_file(ifstream& ) ;
+
+    public:
+	virtual ~Eos_fit_AkmalPR() ;		///< Destructor
+ 
+    // Outputs
+    // -------
+    protected:
+	virtual ostream& operator>>(ostream &) const ;    ///< Operator >>
+
+    // Miscellaneous
+    // -------------
+    public :
+	/// Comparison operator (egality)
+	virtual bool operator==(const Eos& ) const ;
+
+	/// Comparison operator (difference)
+	virtual bool operator!=(const Eos& ) const ;
+
+	/** Returns a number to identify the sub-classe of \c  Eos  the
+	 *  object belongs to.
+	 */
+	virtual int identify() const ;
+
+};
 
 #endif
