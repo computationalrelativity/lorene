@@ -31,6 +31,9 @@ char eos_from_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/05/22 20:51:41  k_taniguchi
+ * Add a new Eos Eos_fit_AkmalPR.
+ *
  * Revision 1.7  2004/09/26 18:53:08  k_taniguchi
  * Introduction of new EOSs: Eos_fit_SLy4 and Eos_fit_FPS
  *
@@ -132,6 +135,8 @@ int Eos_fit_SLy4::identify() const      { return 120; }
 
 int Eos_fit_FPS::identify() const       { return 121; }
 
+int Eos_fit_AkmalPR::identify() const   { return 122; }
+
 		//---------------------------------------------//
 		//    EOS construction from a binary file      //
 		//---------------------------------------------//
@@ -228,6 +233,11 @@ Eos* Eos::eos_from_file(FILE* fich) {
 
 	case 121 : {
 	    p_eos = new Eos_fit_FPS(fich) ;
+	    break ;
+	}
+
+	case 122 : {
+	    p_eos = new Eos_fit_AkmalPR(fich) ;
 	    break ;
 	}
 
@@ -342,6 +352,11 @@ Eos* Eos::eos_from_file(ifstream& fich) {
 
 	case 121 : {
 	    p_eos = new Eos_fit_FPS(fich) ;
+	    break ;
+	}
+
+	case 122 : {
+	    p_eos = new Eos_fit_AkmalPR(fich) ;
 	    break ;
 	}
 
