@@ -30,6 +30,9 @@ char eos_fitting_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/05/23 14:14:00  k_taniguchi
+ * Minor modification.
+ *
  * Revision 1.2  2005/05/22 20:53:06  k_taniguchi
  * Modify the method to calculate baryon number density from enthalpy.
  *
@@ -167,7 +170,7 @@ double Eos_fitting::nbar_ent_p(double ent, const Param* ) const {
     if ( ent > double(0) ) {
 
         double aa = 0. ;
-	double xx = 0.1 ;
+	double xx = 0.01 ;
 	int m ;
 	double yy ;
 	double ent_value ;
