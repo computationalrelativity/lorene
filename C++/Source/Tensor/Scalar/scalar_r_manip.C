@@ -35,6 +35,9 @@ char scalar_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2005/05/25 16:11:05  j_novak
+ * Better handling of the case with no compactified domain.
+ *
  * Revision 1.21  2005/05/18 11:45:46  j_novak
  * Added del_deriv() calls at the end of inc/dec_dzpuis.
  *
@@ -150,22 +153,25 @@ void Scalar::div_r_dzpuis(int ced_mult_r) {
     set_etat_qcq() ;
 
     int nzm1 = mp->get_mg()->get_nzone() - 1 ; // index of the CED
+    bool ced = mp->get_mg()->get_type_r(nzm1) == UNSURR ;
 	
     // Copy of the CED part of *this into uu_ext 
-    Scalar uu_ext(*mp) ; 
-    uu_ext.allocate_all() ;
-    uu_ext.annule(0,nzm1-1) ; // zero in all domains but the CED
-    uu_ext.set_domain(nzm1) = domain(nzm1) ; 
-    uu_ext.set_spectral_base(va.get_base()) ; 
+    Scalar uu_ext(*mp) ;
+    if (ced) {
+	uu_ext.allocate_all() ;
+	uu_ext.annule(0,nzm1-1) ; // zero in all domains but the CED
+	uu_ext.set_domain(nzm1) = domain(nzm1) ; 
+	uu_ext.set_spectral_base(va.get_base()) ; 
 
-    // Division by r in all domains but the CED
-    annule(nzm1, nzm1) ; 	// zero in the CED
+	// Division by r in all domains but the CED
+	annule(nzm1, nzm1) ; 	// zero in the CED
+    }
     div_r() ; 
 	
-    // Add the CED part
-    set_domain(nzm1) = uu_ext.domain(nzm1) ; 
-	
-    dzpuis += 1 ; 
+    if (ced) { // Add the CED part
+	set_domain(nzm1) = uu_ext.domain(nzm1) ; 
+	dzpuis += 1 ; 
+    }
   }
 	
   int diff_dzpuis = ced_mult_r - dzpuis ;
@@ -221,22 +227,24 @@ void Scalar::mult_r_dzpuis(int ced_mult_r) {
     set_etat_qcq() ;
 	
     int nzm1 = mp->get_mg()->get_nzone() - 1 ; // index of the CED
-	
-    // Copy of the CED part of *this into uu_ext 
+    bool ced = mp->get_mg()->get_type_r(nzm1) == UNSURR ;
     Scalar uu_ext(*mp) ; 
-    uu_ext.allocate_all() ;
-    uu_ext.annule(0,nzm1-1) ; // zero in all domains but the CED
-    uu_ext.set_domain(nzm1) = domain(nzm1) ; 
-    uu_ext.set_spectral_base(va.get_base()) ; 
-
-    // Division by r in all domains but the CED
-    annule(nzm1, nzm1) ; 	// zero in the CED
+	
+    if (ced) {// Copy of the CED part of *this into uu_ext 
+	uu_ext.allocate_all() ;
+	uu_ext.annule(0,nzm1-1) ; // zero in all domains but the CED
+	uu_ext.set_domain(nzm1) = domain(nzm1) ; 
+	uu_ext.set_spectral_base(va.get_base()) ; 
+	
+	// Division by r in all domains but the CED
+	annule(nzm1, nzm1) ; 	// zero in the CED
+    }
     mult_r() ; 
 	
-    // Add the CED part
-    set_domain(nzm1) = uu_ext.domain(nzm1) ; 
-	
-    dzpuis -= 1 ; 
+    if (ced) {// Add the CED part
+	set_domain(nzm1) = uu_ext.domain(nzm1) ; 
+	dzpuis -= 1 ; 
+    }
   }
 	
   int diff_dzpuis = ced_mult_r - dzpuis ;
@@ -284,42 +292,42 @@ void Scalar::mult_rsint_dzpuis(int ced_mult_r) {
   assert (etat != ETATNONDEF) ;
 
   Base_val lbase = va.base ;
+  int nzm1 = mp->get_mg()->get_nzone() - 1 ; // index of the CED
+  bool ced = mp->get_mg()->get_type_r(nzm1) == UNSURR ;
 
   if (etat != ETATZERO) {
 
     assert((etat == ETATQCQ) || (etat == ETATUN)) ;
     
     set_etat_qcq() ;
-	
-    int nzm1 = mp->get_mg()->get_nzone() - 1 ; // index of the CED
-	
-    // Copy of the CED part of *this into uu_ext and multiplication by r
     Scalar uu_ext(*mp) ; 
-    uu_ext.allocate_all() ;
-    uu_ext.annule(0,nzm1-1) ; // zero in all domains but the CED
-    uu_ext.set_domain(nzm1) = domain(nzm1) ; 
-    uu_ext.set_spectral_base(va.get_base()) ; 
-    int dzpuis_ext = dzpuis - 1 ;
-    uu_ext.set_dzpuis(dzpuis_ext) ;
-    int diff_dzpuis = ced_mult_r - dzpuis_ext ;
-    (diff_dzpuis >= 0) ? uu_ext.inc_dzpuis(diff_dzpuis) 
-      : uu_ext.dec_dzpuis(-diff_dzpuis) ;
+		
+    if (ced) {// Copy of the CED part of *this into uu_ext and multiplication by r
+	uu_ext.allocate_all() ;
+	uu_ext.annule(0,nzm1-1) ; // zero in all domains but the CED
+	uu_ext.set_domain(nzm1) = domain(nzm1) ; 
+	uu_ext.set_spectral_base(va.get_base()) ; 
+	int dzpuis_ext = dzpuis - 1 ;
+	uu_ext.set_dzpuis(dzpuis_ext) ;
+	int diff_dzpuis = ced_mult_r - dzpuis_ext ;
+	(diff_dzpuis >= 0) ? uu_ext.inc_dzpuis(diff_dzpuis) 
+	    : uu_ext.dec_dzpuis(-diff_dzpuis) ;
 
-    // Multiplication by sin(theta) in the CED :
-    // what follows does not apply if the mapping is not radial:
-    assert( dynamic_cast<const Map_radial*>(mp) != 0x0 ) ; 
-    uu_ext.mult_sint() ;
-
-    // Multiplication by r sin(theta) in all domains but the CED
-    annule(nzm1, nzm1) ; 	// zero in the CED
+	// Multiplication by sin(theta) in the CED :
+	// what follows does not apply if the mapping is not radial:
+	assert( dynamic_cast<const Map_radial*>(mp) != 0x0 ) ; 
+	uu_ext.mult_sint() ;
+	
+	// Multiplication by r sin(theta) in all domains but the CED
+	annule(nzm1, nzm1) ; 	// zero in the CED
+    }
     mult_rsint() ; 
 	
-    // Add the CED part
-    set_domain(nzm1) = uu_ext.domain(nzm1) ; 
-	
+    if (ced) // Add the CED part
+	set_domain(nzm1) = uu_ext.domain(nzm1) ; 
   }
   
-  dzpuis = ced_mult_r ;
+  if (ced) dzpuis = ced_mult_r ;
  
   lbase.mult_x() ;
   lbase.mult_sint() ; 
@@ -352,42 +360,43 @@ void Scalar::div_rsint_dzpuis(int ced_mult_r) {
   assert (etat != ETATNONDEF) ;
 
   Base_val lbase = va.base ;
+  int nzm1 = mp->get_mg()->get_nzone() - 1 ; // index of the CED
+  bool ced = mp->get_mg()->get_type_r(nzm1) == UNSURR ;
 
   if (etat != ETATZERO) {
 
     assert((etat == ETATQCQ) || (etat == ETATUN)) ;
     
     set_etat_qcq() ;
-
-    int nzm1 = mp->get_mg()->get_nzone() - 1 ; // index of the CED
-	
-    // Copy of the CED part of *this into uu_ext and multiplication by r
     Scalar uu_ext(*mp) ; 
-    uu_ext.allocate_all() ;
-    uu_ext.annule(0,nzm1-1) ; // zero in all domains but the CED
-    uu_ext.set_domain(nzm1) = domain(nzm1) ; 
-    uu_ext.set_spectral_base(va.get_base()) ; 
-    int dzpuis_ext = dzpuis + 1 ;
-    uu_ext.set_dzpuis(dzpuis_ext) ;
-    int diff_dzpuis = ced_mult_r - dzpuis_ext ;
-    (diff_dzpuis >= 0) ? uu_ext.inc_dzpuis(diff_dzpuis) 
-      : uu_ext.dec_dzpuis(-diff_dzpuis) ;
+	
+    if (ced) {// Copy of the CED part of *this into uu_ext and multiplication by r
+	uu_ext.allocate_all() ;
+	uu_ext.annule(0,nzm1-1) ; // zero in all domains but the CED
+	uu_ext.set_domain(nzm1) = domain(nzm1) ; 
+	uu_ext.set_spectral_base(va.get_base()) ; 
+	int dzpuis_ext = dzpuis + 1 ;
+	uu_ext.set_dzpuis(dzpuis_ext) ;
+	int diff_dzpuis = ced_mult_r - dzpuis_ext ;
+	(diff_dzpuis >= 0) ? uu_ext.inc_dzpuis(diff_dzpuis) 
+	    : uu_ext.dec_dzpuis(-diff_dzpuis) ;
+	
+	// Division by sin(theta) in the CED :
+	// what follows does not apply if the mapping is not radial:
+	assert( dynamic_cast<const Map_radial*>(mp) != 0x0 ) ; 
+	uu_ext.div_sint() ;
 
-    // Division by sin(theta) in the CED :
-    // what follows does not apply if the mapping is not radial:
-    assert( dynamic_cast<const Map_radial*>(mp) != 0x0 ) ; 
-    uu_ext.div_sint() ;
-
-    // Division by r sin(theta) in all domains but the CED
-    annule(nzm1, nzm1) ; 	// zero in the CED
+	// Division by r sin(theta) in all domains but the CED
+	annule(nzm1, nzm1) ; 	// zero in the CED
+    }
     div_rsint() ; 
 	
-    // Add the CED part
-    set_domain(nzm1) = uu_ext.domain(nzm1) ; 
+    if (ced) // Add the CED part
+	set_domain(nzm1) = uu_ext.domain(nzm1) ; 
 	
   }
-  
-  dzpuis = ced_mult_r ;
+  if (ced) 
+      dzpuis = ced_mult_r ;
 	
   lbase.sx() ;
   lbase.ssint() ;

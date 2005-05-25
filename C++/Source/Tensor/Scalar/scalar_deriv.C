@@ -34,6 +34,9 @@ char scalar_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2005/05/25 16:11:05  j_novak
+ * Better handling of the case with no compactified domain.
+ *
  * Revision 1.14  2004/08/24 09:14:52  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -121,6 +124,8 @@ const Scalar& Scalar::dsdr() const {
     }
      
     int dzp = (dzpuis == 0) ? 2 : dzpuis+1 ;
+    if (mp->get_mg()->get_type_r(mp->get_mg()->get_nzone() - 1) != UNSURR)
+	dzp = 0 ;
     p_dsdr->set_dzpuis(dzp) ;
 
     return *p_dsdr ;
@@ -150,6 +155,8 @@ const Scalar& Scalar::srdsdt() const {
     }
 
     int dzp = (dzpuis == 0) ? 2 : dzpuis+1 ;
+    if (mp->get_mg()->get_type_r(mp->get_mg()->get_nzone() - 1) != UNSURR)
+	dzp = 0 ;
     p_srdsdt->set_dzpuis(dzp) ;
 
     return *p_srdsdt ;
@@ -180,6 +187,8 @@ const Scalar& Scalar::srstdsdp() const {
     }
 
     int dzp = (dzpuis == 0) ? 2 : dzpuis+1 ;
+    if (mp->get_mg()->get_type_r(mp->get_mg()->get_nzone() - 1) != UNSURR)
+	dzp = 0 ;
     p_srstdsdp->set_dzpuis(dzp) ;
 
     return *p_srstdsdp ;
@@ -270,6 +279,8 @@ const Scalar& Scalar::dsdx() const {
     }	
 
     int dzp = (dzpuis == 0) ? 2 : dzpuis+1 ;
+    if (mp->get_mg()->get_type_r(mp->get_mg()->get_nzone() - 1) != UNSURR)
+	dzp = 0 ;
     p_dsdx->set_dzpuis(dzp) ;
 
     return *p_dsdx ;
@@ -302,6 +313,8 @@ const Scalar& Scalar::dsdy() const {
     }
 
     int dzp = (dzpuis == 0) ? 2 : dzpuis+1 ;
+    if (mp->get_mg()->get_type_r(mp->get_mg()->get_nzone() - 1) != UNSURR)
+	dzp = 0 ;
     p_dsdy->set_dzpuis(dzp) ;
 
     return *p_dsdy ;
@@ -333,6 +346,8 @@ const Scalar& Scalar::dsdz() const {
     }
 
     int dzp = (dzpuis == 0) ? 2 : dzpuis+1 ;
+    if (mp->get_mg()->get_type_r(mp->get_mg()->get_nzone() - 1) != UNSURR)
+	dzp = 0 ;
     p_dsdz->set_dzpuis(dzp) ;
 
     return *p_dsdz ;
@@ -503,6 +518,8 @@ const Scalar& Scalar::dsdradial() const {
     }
 
     int dzp = (dzpuis == 0) ? 2 : dzpuis+1 ;
+    if (mp->get_mg()->get_type_r(mp->get_mg()->get_nzone() - 1) != UNSURR)
+	dzp = 0 ;
     p_dsdradial->set_dzpuis(dzp) ;
 
     return *p_dsdradial ;
@@ -540,6 +557,8 @@ const Scalar& Scalar::dsdrho() const {
     }
 
     int dzp = (dzpuis == 0) ? 2 : dzpuis+1 ;
+    if (mp->get_mg()->get_type_r(mp->get_mg()->get_nzone() - 1) != UNSURR)
+	dzp = 0 ;
     p_dsdrho->set_dzpuis(dzp) ;
 
     return *p_dsdrho ;

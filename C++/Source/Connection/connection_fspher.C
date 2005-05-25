@@ -30,6 +30,9 @@ char connection_fspher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2005/05/25 16:11:03  j_novak
+ * Better handling of the case with no compactified domain.
+ *
  * Revision 1.21  2004/01/29 15:21:21  e_gourgoulhon
  * Method p_divergence: changed treatment of dzpuis.
  * Methods p_derive_cov and p_divergence: add warning if all the input component
@@ -248,6 +251,8 @@ Tensor* Connection_fspher::p_derive_cov(const Tensor& uu) const {
 #endif
         
     int dz_resu = (dz_in == 0) ? 2 : dz_in + 1 ;
+    int nzm1 = mp->get_mg()->get_nzone() - 1 ;
+    if (mp->get_mg()->get_type_r(nzm1) != UNSURR) dz_resu = 0 ; 
 
     // Loop on all the components of the output tensor
     // -----------------------------------------------

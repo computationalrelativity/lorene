@@ -32,6 +32,9 @@ char map_radial_r_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2005/05/25 16:11:04  j_novak
+ * Better handling of the case with no compactified domain.
+ *
  * Revision 1.10  2004/10/11 15:09:03  j_novak
  * The radial manipulation functions take Scalar as arguments, instead of Cmp.
  * Added a conversion operator from Scalar to Cmp.
@@ -642,10 +645,13 @@ void Map_radial::dec_dzpuis(Scalar& ci) const {
     int nzm1 = nz-1 ;
 
     // Nothing to do if the Scalar is null or if there is no ZEC:
-    if ((ci.get_etat() == ETATZERO) || (mg->get_type_r(nzm1) != UNSURR)) {
+    if (ci.get_etat() == ETATZERO) {
       ci.set_dzpuis( ci.get_dzpuis() - 1 ) ; 
       return ; 
     }
+
+    if (mg->get_type_r(nzm1) != UNSURR)
+	return ;
 
     assert((ci.get_etat() == ETATQCQ)||(ci.get_etat() == ETATUN)) ;
     
@@ -692,10 +698,11 @@ void Map_radial::inc_dzpuis(Scalar& ci) const {
     int nzm1 = nz-1 ;
 
     // Nothing to do if the Scalar is null or if there is no ZEC:
-    if ((ci.get_etat() == ETATZERO) || (mg->get_type_r(nzm1) != UNSURR)) {
+    if (ci.get_etat() == ETATZERO)  {
       ci.set_dzpuis( ci.get_dzpuis() + 1 ) ; 
       return ; 
     }
+    if (mg->get_type_r(nzm1) != UNSURR) return ;
 
     assert((ci.get_etat() == ETATQCQ)||(ci.get_etat() == ETATUN)) ;
     
@@ -743,10 +750,11 @@ void Map_radial::dec2_dzpuis(Scalar& ci) const {
     int nzm1 = nz-1 ;
 
     // Nothing to do if the Scalar is null or if there is no ZEC:
-    if ((ci.get_etat() == ETATZERO) || (mg->get_type_r(nzm1) != UNSURR)) {
+    if (ci.get_etat() == ETATZERO) {
       ci.set_dzpuis( ci.get_dzpuis() - 2 ) ; 
       return ; 
     }
+    if  (mg->get_type_r(nzm1) != UNSURR) return ;
 
     assert((ci.get_etat() == ETATQCQ)||(ci.get_etat() == ETATUN)) ;
     
@@ -793,10 +801,11 @@ void Map_radial::inc2_dzpuis(Scalar& ci) const {
     int nzm1 = nz-1 ;
 
     // Nothing to do if the Scalar is null or if there is no ZEC:
-    if ((ci.get_etat() == ETATZERO) || (mg->get_type_r(nzm1) != UNSURR)) {
+    if (ci.get_etat() == ETATZERO) {
       ci.set_dzpuis( ci.get_dzpuis() + 2 ) ; 
       return ; 
     }
+    if  (mg->get_type_r(nzm1) != UNSURR) return ;
 
     assert((ci.get_etat() == ETATQCQ)||(ci.get_etat() == ETATUN)) ;
     
