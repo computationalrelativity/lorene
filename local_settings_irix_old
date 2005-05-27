@@ -54,7 +54,7 @@ F77FLAGS = -n32 -mips4 -O2 -OPT:Olimit=3500 -extend_source
 # ------------------------------------------------------------------------
 F77FLAGS_G = -n32 -g -static -mips4 -O0 -extend_source
 
-# Type of FFT used: FFT911 in Fortran coming with Lorene
+# Type of FFT used: FFT991 in Fortran coming with Lorene
 #		    FFTW3 library (must be installed separately)
 # -------------------------------------------------------------------
 FFT_DIR = FFT991

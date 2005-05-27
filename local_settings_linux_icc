@@ -56,7 +56,7 @@ F77FLAGS = -O2 -132
 # ------------------------------------------------------------------------
 F77FLAGS_G = -g -132
 
-# Type of FFT used: FFT911 in Fortran coming with Lorene
+# Type of FFT used: FFT991 in Fortran coming with Lorene
 #		    FFTW3 library (must be installed separately)
 # -------------------------------------------------------------------
 FFT_DIR = FFT991
