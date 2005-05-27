@@ -32,6 +32,9 @@ char mtbl_cf_val_point_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/05/27 14:55:00  j_novak
+ * Added new bases T_COSSIN_CI and T_COS_I
+ *
  * Revision 1.5  2005/02/16 15:10:39  m_forot
  * Correct the case T_COSSIN_C
  *
@@ -326,6 +329,7 @@ static int premier_appel = 1 ;
 
 	switch (base_t) {
 	    	    
+	    case T_COS_I : 
 	    case T_COS_P : {
 
 		for (int k=2 ; k<np+1 ; k++) {
@@ -339,6 +343,7 @@ static int premier_appel = 1 ;
 		break ;
 	    } 
 	    
+	    case T_COSSIN_CI : 
 	    case T_COSSIN_CP : {
 
 		for (int k=2 ; k<np+1 ; k++) {
