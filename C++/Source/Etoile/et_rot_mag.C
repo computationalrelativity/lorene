@@ -32,6 +32,9 @@ char et_rot_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2005/06/02 11:35:30  j_novak
+ * Added members for sving to a file and reading from it.
+ *
  * Revision 1.16  2004/03/25 10:29:06  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -126,6 +129,61 @@ Et_rot_mag::Et_rot_mag(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
 set_der_0x0() ;  
 }
 
+// Constructor from a file
+// -----------------------
+Et_rot_mag::Et_rot_mag(Map& mp_i, const Eos& eos_i, FILE* fich)
+    : Etoile_rot(mp_i, eos_i, fich), 
+      A_t(mp_i),
+      A_phi(mp_i),
+      j_t(mp_i),
+      j_phi(mp_i),
+      E_em(mp_i),
+      Jp_em(mp_i),
+      Srr_em(mp_i),
+      Spp_em(mp_i)
+
+{
+
+    // Etoile parameters
+    // -----------------
+
+    fread_be(&conduc, sizeof(int), 1, fich) ;		
+    fread_be(&Q, sizeof(double), 1, fich) ;		
+    fread_be(&a_j, sizeof(double), 1, fich) ;		
+   
+    // Read of the saved fields:
+    // ------------------------
+    
+    Cmp A_t_file(mp, *mp.get_mg(), fich) ;
+    A_t = A_t_file ;
+
+    Cmp A_phi_file(mp, *mp.get_mg(), fich) ;
+    A_phi = A_phi_file ;
+
+    Cmp j_t_file(mp, *mp.get_mg(), fich) ;
+    j_t = j_t_file ;
+
+    Cmp j_phi_file(mp, *mp.get_mg(), fich) ;
+    j_phi = j_phi_file ;
+
+    Tenseur E_em_file(mp, fich) ;
+    E_em = E_em_file ;
+
+    Tenseur Jp_em_file(mp, fich) ;
+    Jp_em = Jp_em_file ;
+
+    Tenseur Srr_em_file(mp, fich) ;
+    Srr_em = Srr_em_file ;
+
+    Tenseur Spp_em_file(mp, fich) ;
+    Spp_em = Spp_em_file ;
+
+    // Pointers of derived quantities initialized to zero 
+    // --------------------------------------------------
+    set_der_0x0() ;
+    
+}
+
 
 // Copy constructor
 // ----------------
@@ -210,6 +268,28 @@ void Et_rot_mag::operator=(const Et_rot_mag& et) {
 			    //--------------//
 			    //	  Outputs   //
 			    //--------------//
+
+// Save in a file
+// --------------
+void Et_rot_mag::sauve(FILE* fich) const {
+    
+    Etoile_rot::sauve(fich) ; 
+    
+    fwrite_be(&conduc, sizeof(int), 1, fich) ;
+    fwrite_be(&Q, sizeof(double), 1, fich) ;
+    fwrite_be(&a_j, sizeof(double), 1, fich) ;
+
+    A_t.sauve(fich) ;
+    A_phi.sauve(fich) ;
+    j_t.sauve(fich) ;
+    j_phi.sauve(fich) ;
+    E_em.sauve(fich) ;
+    Jp_em.sauve(fich) ;
+    Srr_em.sauve(fich) ;
+    Spp_em.sauve(fich) ;
+    
+}
+
 
 // Printing
 // --------

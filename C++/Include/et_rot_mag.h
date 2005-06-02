@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2005/06/02 11:35:27  j_novak
+ * Added members for sving to a file and reading from it.
+ *
  * Revision 1.14  2004/03/22 13:12:41  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -140,6 +143,16 @@ class Et_rot_mag : virtual public Etoile_rot {
 
   Et_rot_mag(const Et_rot_mag& ) ;       ///< Copy constructor
 
+
+  /** Constructor from a file (see \c sauve(FILE*) ). 
+   * 
+   * @param mp_i Mapping on which the star will be defined
+   * @param eos_i Equation of state of the stellar matter
+   * @param fich	input file (must have been created by the function
+   *	\c sauve )
+   */
+  Et_rot_mag(Map& mp_i, const Eos& eos_i, FILE* fich) ;    		
+
   virtual ~Et_rot_mag() ;			///< Destructor
  
 
@@ -209,7 +222,8 @@ class Et_rot_mag : virtual public Etoile_rot {
   // Outputs
   // -------
  public:
-    
+  virtual void sauve(FILE* ) const ;	    ///< Save in a file
+   
   /// Operator >> (virtual function called by the operator <<). 
   virtual ostream& operator>>(ostream& ) const ;    
 
