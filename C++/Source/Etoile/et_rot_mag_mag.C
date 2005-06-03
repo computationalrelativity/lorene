@@ -32,6 +32,9 @@ char et_rot_mag_mag_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2005/06/03 15:31:56  j_novak
+ * Better computation when more than one point in phi.
+ *
  * Revision 1.13  2003/10/03 15:58:47  j_novak
  * Cleaning of some headers
  *
@@ -249,67 +252,69 @@ void Et_rot_mag::magnet_comput(const int adapt_flag,
     Tbl leg(L,2*L) ;
     leg.set_etat_qcq() ;
 
-    // leg[k,l] : legendre_l(cos(theta_k))
-    // Construction par recurrence de degre 2
-    for(int k=0;k<L;k++){
-      for(int l=0;l<2*L;l++){
-
-	if(l==0) leg.set(k,l)=1. ;
-	if(l==1) leg.set(k,l)=cos((*theta)(l_surf()(0,k),0,k,0)) ;
-	if(l>=2) leg.set(k,l) = double(2*l-1)/double(l)  
-		   * cos((*theta)(l_surf()(0,k),0,k,0))
-		   * leg(k,l-1)-double(l-1)/double(l)*leg(k,l-2) ;
-      }
-    }
-  
-    for(int k=0;k<L;k++){
-
-      // Valeurs a la surface trouvees via va.val_point_jk(l,xisurf,k,0)
-
-      VEC.set(k) = A_0t.va.val_point_jk(l_surf()(0,k), xi_surf()(0,k), k, 0)
-	-A_1t.va.val_point_jk(l_surf()(0,k), xi_surf()(0,k), k, 0);
-  
-      for(int l=0;l<L;l++) MAT.set(l,k) = leg(k,2*l)/pow(Rsurf(k),2*l+1);
-    
-    }
-    // appel fortran : 
-
-    int* IPIV=new int[L] ;
-    int INFO ;
-
-    Tbl MAT_SAVE(MAT) ;
-    Tbl VEC2(L) ;
-    VEC2.set_etat_qcq() ;
-    int un = 1 ;
-
-    F77_dgesv(&L, &un, MAT.t, &L, IPIV, VEC.t, &L, &INFO) ; 
-
-    // coeffs a_l dans VEC
-
-    for(int k=0;k<L;k++) {VEC2.set(k)=1. ; }
-
-    F77_dgesv(&L, &un, MAT_SAVE.t, &L, IPIV, VEC2.t, &L, &INFO) ;
-
-    delete [] IPIV ;
-
     Cmp psi(mp);
     Cmp psi2(mp);
     psi.allocate_all() ;
     psi2.allocate_all() ;
 
-    for(int nz=0;nz < Z; nz++){
-      for(int i=0;i< mp.get_mg()->get_nr(nz);i++){
+    for (int p=0; p<mp.get_mg()->get_np(0); p++) {
+	// leg[k,l] : legendre_l(cos(theta_k))
+	// Construction par recurrence de degre 2
 	for(int k=0;k<L;k++){
-	  psi.set(nz,0,k,i) = 0. ;
-	  psi2.set(nz,0,k,i) = 0. ;
-	  for(int l=0;l<L;l++){
-	    psi.set(nz,0,k,i) += VEC(l)*leg(k,2*l) / 
-	      pow((*mp.r.c)(nz,0,k,i),2*l+1);
-	    psi2.set(nz,0,k,i) += VEC2(l)*leg(k,2*l)/
-	      pow((*mp.r.c)(nz, 0, k,i),2*l+1);
-	  }
+	    for(int l=0;l<2*L;l++){
+		
+		if(l==0) leg.set(k,l)=1. ;
+		if(l==1) leg.set(k,l)=cos((*theta)(l_surf()(p,k),p,k,0)) ;
+		if(l>=2) leg.set(k,l) = double(2*l-1)/double(l)  
+			     * cos((*theta)(l_surf()(p,k),p,k,0))
+			     * leg(k,l-1)-double(l-1)/double(l)*leg(k,l-2) ;
+	    }
 	}
-      }
+  
+	for(int k=0;k<L;k++){
+	    
+	    // Valeurs a la surface trouvees via va.val_point_jk(l,xisurf,k,p)
+	    
+	    VEC.set(k) = A_0t.va.val_point_jk(l_surf()(p,k), xi_surf()(p,k), k, p)
+		-A_1t.va.val_point_jk(l_surf()(p,k), xi_surf()(p,k), k, p);
+  
+	    for(int l=0;l<L;l++) MAT.set(l,k) = leg(k,2*l)/pow(Rsurf(k),2*l+1);
+    
+	}
+	// appel fortran : 
+
+	int* IPIV=new int[L] ;
+	int INFO ;
+	
+	Tbl MAT_SAVE(MAT) ;
+	Tbl VEC2(L) ;
+	VEC2.set_etat_qcq() ;
+	int un = 1 ;
+
+	F77_dgesv(&L, &un, MAT.t, &L, IPIV, VEC.t, &L, &INFO) ; 
+
+	// coeffs a_l dans VEC
+
+	for(int k=0;k<L;k++) {VEC2.set(k)=1. ; }
+
+	F77_dgesv(&L, &un, MAT_SAVE.t, &L, IPIV, VEC2.t, &L, &INFO) ;
+	
+	delete [] IPIV ;
+
+	for(int nz=0;nz < Z; nz++){
+	    for(int i=0;i< mp.get_mg()->get_nr(nz);i++){
+		for(int k=0;k<L;k++){
+		    psi.set(nz,p,k,i) = 0. ;
+		    psi2.set(nz,p,k,i) = 0. ;
+		    for(int l=0;l<L;l++){
+			psi.set(nz,p,k,i) += VEC(l)*leg(k,2*l) / 
+			    pow((*mp.r.c)(nz,p,k,i),2*l+1);
+			psi2.set(nz,p,k,i) += VEC2(l)*leg(k,2*l)/
+			    pow((*mp.r.c)(nz, p, k,i),2*l+1);
+		    }
+		}
+	    }
+	}
     }
     psi.std_base_scal() ;
     psi2.std_base_scal() ;
