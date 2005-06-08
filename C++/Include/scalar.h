@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.68  2005/06/08 12:35:18  j_novak
+ * New method for solving divergence-like ODEs.
+ *
  * Revision 1.67  2005/05/20 14:42:30  j_novak
  * Added the method Scalar::get_spectral_base().
  *
@@ -1341,6 +1344,18 @@ class Scalar : public Tensor {
   Scalar sol_elliptic_fixe_der_zero(double val, 
 				    Param_elliptic& params) const ;
   
+
+  /**
+   * Resolution of a divergence-like equation.
+   * The equation solved reads: \f$ \frac{\partial \phi}{\partial r} + \frac{n}{r} 
+   * \phi = \sigma\f$, with \f$\phi\f$ the unknown and \f$\sigma\f$ the source
+   * represented by \c this.
+   *
+   * @param n [input] the coefficient in front of the 1/r term.
+   *
+   * @return the solution to the equation.
+   */
+  Scalar sol_divergence(int n) const ;
 	
   // Import from other mapping 
   // -------------------------
