@@ -31,6 +31,11 @@ char source_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2005/06/09 08:05:32  f_limousin
+ * Implement a new function sol_elliptic_boundary() and
+ * Vector::poisson_boundary(...) which solve the vectorial poisson
+ * equation (method 6) with an inner boundary condition.
+ *
  * Revision 1.13  2005/04/02 15:49:21  f_limousin
  * New choice (Lichnerowicz) for aaquad. New member data nz.
  *
@@ -123,7 +128,7 @@ const Scalar Isol_hor::source_psi() const{
     tmp -= contract(hdirac(), 0, d_psi, 0) ;  
               
     source = tmp - 0.125* aa_quad() / psi4() / psi()/ psi()/ psi()
-     	   - psi()*psi4() * 8.33333333333333e-2* trK*trK  ;
+      + psi()*psi4() * 8.33333333333333e-2* trK*trK  ; //##
     source.annule_domain(0) ;
 
     return source ;
@@ -198,9 +203,9 @@ const Vector Isol_hor::source_beta() const {
     const Vector& dln_psi = ln_psi().derive_cov(ff) ; // D_i ln(Psi)
     const Vector& dnnn = nn().derive_cov(ff) ;         // D_i N
 
-    // Source for beta 
-    // ---------------
-    
+    // Source for beta (dzpuis = 4)
+    // ----------------------------
+       
     source = 2.* contract(aa(), 1, 
 			       dnnn - 6.*nn() * dln_psi, 0) ;
                 
@@ -224,6 +229,37 @@ const Vector Isol_hor::source_beta() const {
     source += 0.66666666666666666* beta().divergence(ff) * hdirac() ;
 
     source.annule_domain(0) ;
+    
+    /*
+    // Source for beta (dzpuis = 3)
+    // ----------------------------
+    
+    source = 2.* contract(aa(), 1, 
+			       dnnn - 6.*nn() * dln_psi, 0) ;
+    source.dec_dzpuis() ;
+            
+    tmp_vect = 0.66666666666666666* trK.derive_con(met_gamt) ;
+    Vector tmp_vect2 (- contract(met_gamt.connect().get_delta(), 1, 2, 
+				  aa(), 0, 1)) ;
+    tmp_vect2.dec_dzpuis() ;
+
+    source += 2.* nn() * ( tmp_vect + tmp_vect2 ) ;
+            
+    Vector vtmp = contract(hh(), 0, 1, 
+                           beta().derive_cov(ff).derive_cov(ff), 1, 2)
+      + 0.3333333333333333*
+      contract(hh(), 1, beta().divergence(ff).derive_cov(ff), 0) 
+      - hdirac().derive_lie(beta()) 
+	+ gamt_point.divergence(ff) ;      // zero in the Dirac gauge
+    
+    source -= vtmp ; 
+        
+    tmp_vect = 0.66666666666666666* beta().divergence(ff) * hdirac() ;
+    tmp_vect.dec_dzpuis() ;
+    source += tmp_vect ;
+
+    source.annule_domain(0) ;
+    */
 
     return source ;
 

@@ -31,6 +31,11 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2005/06/09 08:05:32  f_limousin
+ * Implement a new function sol_elliptic_boundary() and
+ * Vector::poisson_boundary(...) which solve the vectorial poisson
+ * equation (method 6) with an inner boundary condition.
+ *
  * Revision 1.17  2005/05/12 14:48:07  f_limousin
  * New boundary condition for the lapse : boundary_nn_lapl().
  *
@@ -123,7 +128,6 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
     ofstream conv("resconv.d") ; 
     ofstream kss("kss.d") ;
     conv << " # diff_nn   diff_psi   diff_beta " << endl ;
-
 
     // Iteration
     // ---------
@@ -250,10 +254,10 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	}
 	
 	// Resolution of the vector Poisson equation for the shift
-	//---------------------------------------------------------
-	
+	//---------------------------------------------------------	
+
 	// Source
-	
+
 	Vector beta_jp1(beta()) ;
 
 	if (solve_shift == 1) {
@@ -263,19 +267,23 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 		.derive_con(ff) ;
 	    source_reg.inc_dzpuis() ;
 	    source_vector = source_vector + source_reg ;
-	    
+
+/*	    
+	   // CARTESIAN CASE 
+	   // #################################
+
 	    // Boundary values
-	    
+	    	    
 	    Valeur boundary_x (mp.get_mg()-> get_angu()) ;
 	    Valeur boundary_y (mp.get_mg()-> get_angu()) ;
-	    Valeur boundary_z (mp.get_mg()-> get_angu()) ;
+	    Valeur boundary_z (mp.get_mg()-> get_angu()) ; 
 	    
 	    switch (bound_beta) {
 		
 		case 0 : {
-		    boundary_x = boundary_beta_x(omega) ;
-		    boundary_y = boundary_beta_y(omega) ;
-		    boundary_z = boundary_beta_z() ;
+		  boundary_x = boundary_beta_x(omega) ;
+		  boundary_y = boundary_beta_y(omega) ;
+		  boundary_z = boundary_beta_z() ;
 		    break ;
 		}
 		case 1 : {
@@ -291,9 +299,8 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 		    abort() ;
 		    break ; 
 		}
-		    
 	    } // End of switch  
-	    
+
 	    if (boost_x != 0.) 
 		boundary_x -= beta_boost_x() ;
 	    if (boost_z != 0.) 
@@ -306,12 +313,59 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	    poisson_vect_boundary(lambda, source_vector, beta_jp1, boundary_x, 
 				  boundary_y, boundary_z, 0, precision, 20) ;
 	    
+*/
+	    
+	    // SPHERICAL CASE 
+	    // #################################
+
+	    // Boundary values
+
+	    Valeur boundary_r (mp.get_mg()-> get_angu()) ;
+	    Valeur boundary_t (mp.get_mg()-> get_angu()) ;
+	    Valeur boundary_p (mp.get_mg()-> get_angu()) ; 
+	    
+	    switch (bound_beta) {
+		
+		case 0 : {
+		  boundary_r = boundary_beta_r() ;
+		  boundary_t = boundary_beta_theta() ;
+		  boundary_p = boundary_beta_phi(omega) ;
+		    break ;
+		}
+		case 1 : {
+		    boundary_r = boundary_vv_x(omega) ;
+		    boundary_t = boundary_vv_y(omega) ;
+		    boundary_p = boundary_vv_z(omega) ;
+		    break ;
+		}
+		default : {
+		    cout <<"Unexpected type of boundary conditions for psi!" 
+			 << endl 
+			 << "  bound_psi = " << bound_psi << endl ; 
+		    abort() ;
+		    break ; 
+		}
+	    } // End of switch  
+
+	    // Resolution
+	    //-----------
+	    
+	    beta_jp1 = source_vector.poisson_dirichlet(lambda, boundary_r,
+				  boundary_t, boundary_p, 0) ;
+	    
+
+	    des_meridian(beta_jp1(1), 1.0000001, 10., "beta_r", 0) ;
+	    des_meridian(beta_jp1(2), 1.0000001, 10., "beta_t", 1) ;
+	    des_meridian(beta_jp1(3), 1.0000001, 10., "beta_p", 2) ;
+	    arrete() ;
+
 	    // Test
 	    source_vector.dec_dzpuis() ;
 	    maxabs(beta_jp1.derive_con(ff).divergence(ff) 
 		   + lambda * beta_jp1.divergence(ff)
 		   .derive_con(ff) - source_vector,
 		   "Absolute error in the resolution of the equation for beta") ;  
+	    
 	    cout << endl ;
 		    
 	    // Boost
@@ -349,11 +403,11 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	diff_psi = 1.e-16 ;
 	diff_beta = 1.e-16 ;
 	if (solve_lapse == 1)
-	    diff_nn = max( diffrel(nn(), nn_jp1) ) ;   
+	  diff_nn = max( diffrel(nn(), nn_jp1) ) ;   
 	if (solve_psi == 1)
-	diff_psi = max( diffrel(psi(), psi_jp1) ) ; 
+	  diff_psi = max( diffrel(psi(), psi_jp1) ) ; 
 	if (solve_shift == 1)
-	diff_beta = max( maxabs(beta_jp1 - beta()) ) ; 
+	  diff_beta = max( maxabs(beta_jp1 - beta()) ) ; 
 	
 	cout << "step = " << mer << " :  diff_psi = " << diff_psi 
 	     << "  diff_nn = " << diff_nn 
@@ -378,7 +432,7 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	    beta_evol.update(beta_jp1, jtime, ttime) ;	
 
 	if (solve_shift == 1)
-	    update_aa() ;
+	  update_aa() ;
 
 	// Saving ok K_{ij}s^is^j
 	// -----------------------

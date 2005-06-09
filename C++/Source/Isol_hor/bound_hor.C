@@ -31,6 +31,11 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2005/06/09 08:05:32  f_limousin
+ * Implement a new function sol_elliptic_boundary() and
+ * Vector::poisson_boundary(...) which solve the vectorial poisson
+ * equation (method 6) with an inner boundary condition.
+ *
  * Revision 1.21  2005/05/12 14:48:07  f_limousin
  * New boundary condition for the lapse : boundary_nn_lapl().
  *
@@ -412,6 +417,31 @@ const Valeur Isol_hor::boundary_nn_Dir(double cc)const {
   Scalar tmp(mp) ;
   tmp = cc - 1 ;
   
+  /*
+  double mm = 0.55 ;
+  double aaa = pow(2.*mm - 1., 0.5) ;
+    
+  Scalar rr (mp) ;
+  rr = mp.r ;
+  Scalar cost(mp) ;
+  cost = mp.cost ;
+  
+  Scalar facteur (mp) ;
+  facteur = 2.*mm*rr / (rr*rr + aaa*aaa*cost*cost) ;
+  facteur.set_domain(0) = 1. ;
+  facteur.set_outer_boundary(nz-1, 0.) ;
+  facteur.std_spectral_base() ;
+  
+  // Lapse 
+  // --------
+  
+  Scalar lapse (mp) ;
+  lapse = pow(1.+facteur, -0.5) ;
+  lapse.std_spectral_base() ;
+
+  tmp = lapse - 1. ;
+  */
+
   // We  have substracted 1, since we solve for zero condition at infinity 
   //and then we add 1 to the solution  
 
@@ -524,19 +554,31 @@ const Valeur Isol_hor:: boundary_beta_r()const {
   Scalar tmp (mp) ;
 
   tmp = nn() * radial_vect_hor()(1) ;
- 
+
+  Base_val base_tmp (radial_vect_hor()(1).get_spectral_va().base) ;
+
   int nnp = mp.get_mg()->get_np(1) ;
   int nnt = mp.get_mg()->get_nt(1) ;
 
   Valeur bnd_beta_r (mp.get_mg()->get_angu()) ;
     
-  bnd_beta_r = 1 ;  // Juste pour affecter dans espace des configs ;
+  bnd_beta_r = 1. ;  // Juste pour affecter dans espace des configs ;
   
   for (int k=0 ; k<nnp ; k++)
     for (int j=0 ; j<nnt ; j++)
-      bnd_beta_r.set(0, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
-  
-  bnd_beta_r.std_base_scal() ;
+      bnd_beta_r.set(1, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
+
+  bnd_beta_r.set_base_r(0, base_tmp.get_base_r(0)) ;
+  for (int l=0 ; l<(*mp.get_mg()).get_nzone()-1 ; l++)
+      bnd_beta_r.set_base_r(l, base_tmp.get_base_r(l)) ;
+  bnd_beta_r.set_base_r((*mp.get_mg()).get_nzone()-1, base_tmp.get_base_r((*mp.get_mg()).get_nzone()-1)) ;
+  bnd_beta_r.set_base_t(tmp.get_spectral_va().get_base().get_base_t(1)) ;
+  bnd_beta_r.set_base_p(tmp.get_spectral_va().get_base().get_base_p(1)) ;
+
+//  bnd_beta_r.set_base(*(mp.get_mg()->std_base_vect_spher()[0])) ;
+
+  cout << "norme de lim_vr" << endl << norme(bnd_beta_r) << endl ;
+  cout << "bases" << endl << bnd_beta_r.base << endl ;
   
   return  bnd_beta_r ;
 
@@ -553,20 +595,32 @@ const Valeur Isol_hor::boundary_beta_theta()const {
   Scalar tmp(mp) ;  
   
   tmp = nn() * radial_vect_hor()(2) ;
+  Base_val base_tmp (radial_vect_hor()(2).get_spectral_va().base) ;
+
 
   int nnp = mp.get_mg()->get_np(1) ;
   int nnt = mp.get_mg()->get_nt(1) ;
 
   Valeur bnd_beta_theta (mp.get_mg()->get_angu()) ;
     
-  bnd_beta_theta = 1 ;   // Juste pour affecter dans espace des configs ;
+  bnd_beta_theta = 1. ;   // Juste pour affecter dans espace des configs ;
   
   for (int k=0 ; k<nnp ; k++)
     for (int j=0 ; j<nnt ; j++)
-      bnd_beta_theta.set(0, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
+      bnd_beta_theta.set(1, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
   
-  bnd_beta_theta.std_base_scal() ;
-  
+//  bnd_beta_theta.set_base(*(mp.get_mg()->std_base_vect_spher()[1])) ;
+
+  bnd_beta_theta.set_base_r(0, base_tmp.get_base_r(0)) ;
+  for (int l=0 ; l<(*mp.get_mg()).get_nzone()-1 ; l++)
+      bnd_beta_theta.set_base_r(l, base_tmp.get_base_r(l)) ;
+  bnd_beta_theta.set_base_r((*mp.get_mg()).get_nzone()-1, base_tmp.get_base_r((*mp.get_mg()).get_nzone()-1)) ;
+  bnd_beta_theta.set_base_t(base_tmp.get_base_t(1)) ;
+  bnd_beta_theta.set_base_p(base_tmp.get_base_p(1)) ;
+
+  cout << "bases" << endl << bnd_beta_theta.base << endl ;
+
+
   return  bnd_beta_theta ;
 
 
@@ -576,30 +630,42 @@ const Valeur Isol_hor::boundary_beta_theta()const {
 // of radial vector) 
 // -----------------------------------------------------------
 
-const Valeur Isol_hor::boundary_beta_phi()const {
+const Valeur Isol_hor::boundary_beta_phi(double om)const {
 
   Scalar tmp (mp) ;
 
   Scalar ang_vel(mp) ;
-  ang_vel = omega_hor() ;
+  ang_vel = om ;
   ang_vel.std_spectral_base() ;
   ang_vel.mult_rsint() ;
 
   tmp = nn() * radial_vect_hor()(3)  -  ang_vel ;
+  Base_val base_tmp (ang_vel.get_spectral_va().base) ;
 
   int nnp = mp.get_mg()->get_np(1) ;
   int nnt = mp.get_mg()->get_nt(1) ;
 
   Valeur bnd_beta_phi (mp.get_mg()->get_angu()) ;
     
-  bnd_beta_phi = 1 ; // Juste pour affecter dans espace des configs ;
+  bnd_beta_phi = 1. ; // Juste pour affecter dans espace des configs ;
   
   for (int k=0 ; k<nnp ; k++)
     for (int j=0 ; j<nnt ; j++)
-      bnd_beta_phi.set(0, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
-  
-  bnd_beta_phi.std_base_scal() ;
-  
+      bnd_beta_phi.set(1, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
+    
+  for (int l=0 ; l<(*mp.get_mg()).get_nzone()-1 ; l++)
+
+//  bnd_beta_phi.set_base(*(mp.get_mg()->std_base_vect_spher()[2])) ;
+
+  bnd_beta_phi.set_base_r(0, base_tmp.get_base_r(0)) ;
+  for (int l=0 ; l<(*mp.get_mg()).get_nzone()-1 ; l++)
+      bnd_beta_phi.set_base_r(l, base_tmp.get_base_r(l)) ;
+  bnd_beta_phi.set_base_r((*mp.get_mg()).get_nzone()-1, base_tmp.get_base_r((*mp.get_mg()).get_nzone()-1)) ;
+  bnd_beta_phi.set_base_t(base_tmp.get_base_t(1)) ;
+  bnd_beta_phi.set_base_p(base_tmp.get_base_p(1)) ;
+
+//  cout << "bound beta_phi" << endl << bnd_beta_phi << endl ;
+
   return  bnd_beta_phi ;
 
 }
@@ -608,7 +674,7 @@ const Valeur Isol_hor::boundary_beta_phi()const {
 //--------------------------------------
 
 const Valeur Isol_hor:: boundary_beta_x(double om)const {
-    
+
     // Les alignemenents pour le signe des CL.
     double orientation = mp.get_rot_phi() ;
     assert ((orientation == 0) || (orientation == M_PI)) ;
@@ -658,7 +724,7 @@ const Valeur Isol_hor:: boundary_beta_x(double om)const {
 //--------------------------------------
 
 const Valeur Isol_hor:: boundary_beta_y(double om)const {
-    
+
     // Les alignemenents pour le signe des CL.
     double orientation = mp.get_rot_phi() ;
     assert ((orientation == 0) || (orientation == M_PI)) ;
