@@ -36,6 +36,11 @@ char scalar_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2005/06/09 08:00:10  f_limousin
+ * Implement a new function sol_elliptic_boundary() and
+ * Vector::poisson_boundary(...) which solve the vectorial poisson
+ * equation (method 6) with an inner boundary condition.
+ *
  * Revision 1.13  2005/04/04 21:34:44  e_gourgoulhon
  * Added argument lambda to method poisson_angu
  * to deal with the generalized angular Poisson equation:
@@ -191,6 +196,31 @@ Scalar Scalar::sol_elliptic(Param_elliptic& ope_var) const {
     map_affine->sol_elliptic (ope_var, *this, res) ;
   else
     map_log->sol_elliptic (ope_var, *this, res) ;
+
+  return (res) ;
+}
+
+Scalar Scalar::sol_elliptic_boundary(Param_elliptic& ope_var, const Mtbl_cf& bound,
+double fact_dir, double fact_neu) const {
+
+  // Right now, only applicable with affine mapping or log one
+  const Map_af* map_affine = dynamic_cast <const Map_af*> (mp) ;
+  const Map_log* map_log = dynamic_cast <const Map_log*> (mp) ;
+
+  if ((map_affine == 0x0) && (map_log == 0x0))  {
+    cout << "sol_elliptic only defined for affine or log mapping" << endl ;
+    abort() ;
+  }
+  
+  Scalar res (*mp) ;
+  res.set_etat_qcq() ;
+  
+  if (map_affine != 0x0)
+    map_affine->sol_elliptic_boundary (ope_var, *this, res,  bound,
+fact_dir, fact_neu ) ;
+  else
+    map_log->sol_elliptic_boundary (ope_var, *this, res,  bound,
+fact_dir, fact_neu ) ;
 
   return (res) ;
 }

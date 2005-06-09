@@ -35,6 +35,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.28  2005/06/09 07:56:25  f_limousin
+ * Implement a new function sol_elliptic_boundary() and
+ * Vector::poisson_boundary(...) which solve the vectorial poisson
+ * equation (method 6) with an inner boundary condition.
+ *
  * Revision 1.27  2005/05/13 08:50:29  j_novak
  * Added the function int1d_chebi.
  *
@@ -686,6 +691,8 @@ void poisson_vect_binaire ( double lambda,
 
 // Elliptic solvers :
 Mtbl_cf elliptic_solver  (const Param_elliptic&, const Mtbl_cf&) ;
+
+Mtbl_cf elliptic_solver_boundary  (const Param_elliptic& ope_var, const Mtbl_cf& source, const Mtbl_cf& bound, double fact_dir, double fact_neu ) ;
 
 Mtbl_cf elliptic_solver_no_zec  (const Param_elliptic&, const Mtbl_cf&, 
 				 double val) ;

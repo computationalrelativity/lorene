@@ -29,6 +29,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2005/06/09 07:56:25  f_limousin
+ * Implement a new function sol_elliptic_boundary() and
+ * Vector::poisson_boundary(...) which solve the vectorial poisson
+ * equation (method 6) with an inner boundary condition.
+ *
  * Revision 1.14  2005/02/15 15:43:16  j_novak
  * First version of the block inversion for the vector Poisson equation (method 6).
  *
@@ -328,6 +333,7 @@ class Param_elliptic {
 
   // A lot of friend functions... Possiblement pas toutes utiles...
   friend Mtbl_cf elliptic_solver  (const Param_elliptic&, const Mtbl_cf&) ;
+  friend Mtbl_cf elliptic_solver_boundary (const Param_elliptic&, const Mtbl_cf&, const Mtbl_cf& bound, double fact_dir, double fact_neu   ) ;
   friend Mtbl_cf elliptic_solver_no_zec  
     (const Param_elliptic&, const Mtbl_cf&, double) ;
   friend Mtbl_cf elliptic_solver_only_zec  
@@ -338,6 +344,8 @@ class Param_elliptic {
     (double, const Param_elliptic&, const Mtbl_cf&) ;
 
   friend void Map_af::sol_elliptic(Param_elliptic&, const Scalar&, Scalar&) const ;
+  friend void Map_af::sol_elliptic_boundary(Param_elliptic&, const Scalar&, Scalar&, const Mtbl_cf& , 
+					    double , double ) const ;
   friend void Map_af::sol_elliptic_no_zec(Param_elliptic&, const Scalar&, Scalar&, double) const ;
   friend void Map_af::sol_elliptic_only_zec(Param_elliptic&, const Scalar&, Scalar&, double) const ;
   friend void Map_af::sol_elliptic_sin_zec(Param_elliptic&, const Scalar&, Scalar&, double, int, double&, double&) const ;
@@ -347,6 +355,8 @@ class Param_elliptic {
   friend void Map_af::sol_elliptic_pseudo_1d(Param_elliptic&, const Scalar&, Scalar&) const ;
 
   friend void Map_log::sol_elliptic(Param_elliptic&, const Scalar&, Scalar&) const ;
+  friend void Map_log::sol_elliptic_boundary(Param_elliptic&, const Scalar&, Scalar&, const Mtbl_cf&, 
+					     double, double) const ;
   friend void Map_log::sol_elliptic_no_zec(Param_elliptic&, const Scalar&, Scalar&, double) const ;
 } ;
 

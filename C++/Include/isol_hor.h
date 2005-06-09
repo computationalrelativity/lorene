@@ -30,6 +30,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.36  2005/06/09 07:56:24  f_limousin
+ * Implement a new function sol_elliptic_boundary() and
+ * Vector::poisson_boundary(...) which solve the vectorial poisson
+ * equation (method 6) with an inner boundary condition.
+ *
  * Revision 1.35  2005/05/12 14:48:55  f_limousin
  * New boundary condition for the lapse : boundary_nn_lapl().
  *
@@ -663,7 +668,7 @@ class Isol_hor : public Time_slice_conf {
   const Valeur boundary_beta_theta() const ;
   
   /// Component phi of boundary value of \f$ \beta \f$
-  const Valeur boundary_beta_phi() const ;
+  const Valeur boundary_beta_phi(double om) const ;
   
   /// Component x of boundary value of \f$ \beta \f$
   const Valeur boundary_beta_x(double om) const ;

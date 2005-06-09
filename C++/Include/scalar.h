@@ -38,6 +38,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.69  2005/06/09 07:56:25  f_limousin
+ * Implement a new function sol_elliptic_boundary() and
+ * Vector::poisson_boundary(...) which solve the vectorial poisson
+ * equation (method 6) with an inner boundary condition.
+ *
  * Revision 1.68  2005/06/08 12:35:18  j_novak
  * New method for solving divergence-like ODEs.
  *
@@ -1284,6 +1289,19 @@ class Scalar : public Tensor {
    **/
   Scalar sol_elliptic(Param_elliptic& params) const ;
  
+/**
+   * Resolution of a general elliptic equation, putting zero at infinity
+   * and with inner boundary conditions.
+   * @param params [input] the operators and variables to be used.
+   * @param bound [input] : the boundary condition
+   * @param fact_dir : 1 Dirchlet condition, 0 Neumann condition
+   * @param fact_neu : 0 Dirchlet condition, 1 Neumann condition
+
+   **/
+  Scalar sol_elliptic_boundary(Param_elliptic& params, const Mtbl_cf& bound,
+			       double fact_dir, double fact_neu) const ;
+ 
+
   /** Solves the scalar 2-dimensional elliptic equation 
    *   with \c *this  as a source.
    *   Note that \c dzpuis  must be equal to 2, 3 or 4, i.e. 

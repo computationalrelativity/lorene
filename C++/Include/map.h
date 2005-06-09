@@ -39,6 +39,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.40  2005/06/09 07:56:24  f_limousin
+ * Implement a new function sol_elliptic_boundary() and
+ * Vector::poisson_boundary(...) which solve the vectorial poisson
+ * equation (method 6) with an inner boundary condition.
+ *
  * Revision 1.39  2005/04/04 21:30:41  e_gourgoulhon
  *  Added argument lambda to method poisson_angu
  *  to treat the generalized angular Poisson equation:
@@ -2212,6 +2217,23 @@ class Map_af : public Map_radial {
 	void sol_elliptic (Param_elliptic& params, 
 			   const Scalar& so,  Scalar& uu) const ;
 
+
+	/**
+	 * General elliptic solver including inner boundary conditions. 
+	 * The field is zero at infinity.
+	 *
+	 * @param params [input] : the operators and variables to be uses.
+	 * @param so [input] : the source.
+	 * @param uu [output] : the solution.
+	 * @param bound [input] : the boundary condition
+	 * @param fact_dir : 1 Dirchlet condition, 0 Neumann condition
+	 * @param fact_neu : 0 Dirchlet condition, 1 Neumann condition
+	 **/
+	void sol_elliptic_boundary (Param_elliptic& params, 
+			   const Scalar& so,  Scalar& uu, const Mtbl_cf& bound, 
+			   double fact_dir, double fact_neu ) const ;
+
+
 	/**
 	 * General elliptic solver.
 	 * The equation is not solved in the compactified domain.
@@ -3265,6 +3287,23 @@ class Map_log : public Map_radial {
 	 **/
 	void sol_elliptic (Param_elliptic& params, 
 			   const Scalar& so,  Scalar& uu) const ;
+
+
+	/**
+	 * General elliptic solver including inner boundary conditions. 
+	 * The field is zero at infinity.
+	 *
+	 * @param params [input] : the operators and variables to be uses.
+	 * @param so [input] : the source.
+	 * @param uu [output] : the solution.
+	 * @param bound [input] : the boundary condition
+	 * @param fact_dir : 1 Dirchlet condition, 0 Neumann condition
+	 * @param fact_neu : 0 Dirchlet condition, 1 Neumann condition
+	 **/
+	void sol_elliptic_boundary (Param_elliptic& params, 
+			   const Scalar& so,  Scalar& uu, const Mtbl_cf& bound, 
+			   double fact_dir, double fact_neu ) const ;
+
 
 	/**
 	 * General elliptic solver.

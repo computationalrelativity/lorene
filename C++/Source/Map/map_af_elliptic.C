@@ -26,6 +26,11 @@ char map_af_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/06/09 07:57:31  f_limousin
+ * Implement a new function sol_elliptic_boundary() and
+ * Vector::poisson_boundary(...) which solve the vectorial poisson
+ * equation (method 6) with an inner boundary condition.
+ *
  * Revision 1.6  2004/08/24 09:14:42  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -121,6 +126,69 @@ void Map_af::sol_elliptic(Param_elliptic& ope_var, const Scalar& source,
   
   pot.set_dzpuis(0) ; 
 }
+
+
+ 
+            //-----------------------------------------------
+	   //		General elliptic solver with boundary
+	  //-------------------------------------------------
+
+
+void Map_af::sol_elliptic_boundary(Param_elliptic& ope_var, const Scalar& source, 
+				   Scalar& pot,  const Mtbl_cf& bound, 
+				   double fact_dir, double fact_neu ) const {
+    
+  assert(source.get_etat() != ETATNONDEF) ; 
+  assert(source.get_mp().get_mg() == mg) ; 
+  assert(pot.get_mp().get_mg() == mg) ; 
+  
+  assert(source.check_dzpuis(2) || source.check_dzpuis(3) || 
+	 source.check_dzpuis(4)) ; 
+  // Spherical harmonic expansion of the source
+  // ------------------------------------------
+  
+  const Valeur& sourva = source.get_spectral_va() ; 
+  
+  if (sourva.get_etat() == ETATZERO) {
+    pot.set_etat_zero() ;
+    return ;  
+    }
+  
+  // Spectral coefficients of the source
+  assert(sourva.get_etat() == ETATQCQ) ; 
+  
+  Valeur rho(sourva.get_mg()) ; 
+  sourva.coef() ; 
+  rho = *(sourva.c_cf) ;	// copy of the coefficients of the source
+  
+  rho.ylm() ;			// spherical harmonic transforms 
+  
+  // On met les bonnes bases dans le changement de variable 
+  // de ope_var :
+  ope_var.var_F.set_spectral_va().coef() ;
+  ope_var.var_F.set_spectral_va().ylm() ;
+  ope_var.var_G.set_spectral_va().coef() ;
+  ope_var.var_G.set_spectral_va().ylm() ;
+
+  // Call to the Mtbl_cf version
+  // ---------------------------
+  Mtbl_cf resu = elliptic_solver_boundary (ope_var, *(rho.c_cf),  bound, 
+					   fact_dir, fact_neu) ;
+  
+  // Final result returned as a Scalar
+  // ---------------------------------
+  
+  pot.set_etat_zero() ;  // to call Scalar::del_t().
+  
+  pot.set_etat_qcq() ; 
+  
+  pot.set_spectral_va() = resu ;
+  pot.set_spectral_va().ylm_i() ; // On repasse en base standard.	    
+  
+  pot.set_dzpuis(0) ; 
+}
+
+
 
             //----------------------------------------------
 	   //	   General elliptic solver with no ZEC

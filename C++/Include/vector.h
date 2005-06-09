@@ -29,6 +29,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.35  2005/06/09 07:56:25  f_limousin
+ * Implement a new function sol_elliptic_boundary() and
+ * Vector::poisson_boundary(...) which solve the vectorial poisson
+ * equation (method 6) with an inner boundary condition.
+ *
  * Revision 1.34  2005/02/16 15:00:05  m_forot
  * Add visu_streamlime function
  *
@@ -505,6 +510,71 @@ class Vector: public Tensor {
     Vector poisson(const double lambda, Param& par,
 		   int method = 0) const ;
     
+    /**Solves the vector Poisson equation with \c *this  as a source 
+     * with a boundary condition on the excised sphere.
+     * 
+     * The equation solved is \f$\Delta N^i +\lambda \nabla^i 
+     * \nabla_k N^k = S^i\f$.
+     * \c *this  must be given with \c dzpuis  = 4.
+     * It uses the Helmholtz decomposition (see documentation of
+     * \c p_potential )
+     *
+     * @param lambda [input] \f$\lambda\f$.
+     * @param resu [output] the solution \f$N^i\f$.
+     */
+    void poisson_boundary(double lambda, const Mtbl_cf& limit_vr, 
+			  const Mtbl_cf& limit_eta, const Mtbl_cf& limit_mu, 
+			  int num_front, double fact_dir, double fact_neu,
+			  Vector& resu) const ;
+  
+    /**Solves the vector Poisson equation with \c *this  as a source 
+     * with a boundary condition on the excised sphere.
+     * 
+     * The equation solved is \f$\Delta N^i +\lambda \nabla^i 
+     * \nabla_k N^k = S^i\f$.
+     * \c *this  must be given with \c dzpuis  = 4.
+     * It uses the Helmholtz decomposition (see documentation of
+     * \c p_potential )
+     *
+     * @param lambda [input] \f$\lambda\f$.
+     * @param resu [output] the solution \f$N^i\f$.
+     */
+    Vector poisson_dirichlet(double lambda, const Valeur& limit_vr, 
+			  const Valeur& limit_vt, const Valeur& limit_vp, 
+			  int num_front) const ;
+     /**Solves the vector Poisson equation with \c *this  as a source 
+     * with a boundary condition on the excised sphere.
+     * 
+     * The equation solved is \f$\Delta N^i +\lambda \nabla^i 
+     * \nabla_k N^k = S^i\f$.
+     * \c *this  must be given with \c dzpuis  = 4.
+     * It uses the Helmholtz decomposition (see documentation of
+     * \c p_potential )
+     *
+     * @param lambda [input] \f$\lambda\f$.
+     * @param resu [output] the solution \f$N^i\f$.
+     */
+    Vector poisson_neumann(double lambda, const Valeur& limit_vr, 
+			  const Valeur& limit_vt, const Valeur& limit_vp, 
+			  int num_front) const ;
+    /**Solves the vector Poisson equation with \c *this  as a source 
+     * with a boundary condition on the excised sphere.
+     * 
+     * The equation solved is \f$\Delta N^i +\lambda \nabla^i 
+     * \nabla_k N^k = S^i\f$.
+     * \c *this  must be given with \c dzpuis  = 4.
+     * It uses the Helmholtz decomposition (see documentation of
+     * \c p_potential )
+     *
+     * @param lambda [input] \f$\lambda\f$.
+     * @param resu [output] the solution \f$N^i\f$.
+     */
+    Vector poisson_robin(double lambda, const Valeur& limit_vr, 
+			 const Valeur& limit_vt, const Valeur& limit_vp, 
+			 double fact_dir, double fact_neu, 
+			 int num_front) const ;
+ 
+
     /** Computes the flux of the vector accross a sphere \e r = const.
      *
      *  @param radius radius of the sphere \e S on which the flux is
