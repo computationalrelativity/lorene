@@ -1,15 +1,15 @@
 ## Parameters for init_bh 
 #######################################################
-20	beta
+22	beta
 7	nz : total number of domains
-7	nt: number of points in theta (the same in each domain)
-8	np: number of points in phi   (the same in each domain)
-9       nr: number of points in r in the first domain
-9       nr: number of points in r in all the other domains
-0 1 2 4 8 16 32	boundaries of the domains
+13	nt: number of points in theta (the same in each domain)
+12	np: number of points in phi   (the same in each domain)
+17       nr: number of points in r in the first domain
+17       nr: number of points in r in all the other domains
+0 1 2 4 8 16 32 boundaries of the domains
 1e-6	Convergence treashold
 0.5	Relaxation
-0 0.	boundary condition for the lapse / value of the coefficient
+0 0.2	boundary condition for the lapse / value of the coefficient
 0	boundary condition for the psi
 
 ########################################################

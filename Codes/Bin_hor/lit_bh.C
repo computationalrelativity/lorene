@@ -29,6 +29,9 @@ char lit_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/06/09 16:17:21  f_limousin
+ * Many different changes.
+ *
  * Revision 1.2  2005/03/04 09:42:25  f_limousin
  * New construction of the object Bin_hor.
  *
@@ -90,7 +93,7 @@ int main(int argc, char** argv) {
     bin.set(2).psi_comp (bin(1)) ;
     bin.decouple() ;
     bin.extrinsic_curvature() ;
-    
+
     // Calculation of global quantities
     // --------------------------------
 
@@ -100,7 +103,8 @@ int main(int argc, char** argv) {
     double adm = bin.adm_mass() ;
     double komar = bin.komar_mass() ;
     double moment_inf = bin.ang_mom_adm() ;
-    double moment_hor = bin(1).ang_mom_hor() + bin(2).ang_mom_hor() ;
+    double moment_hor = bin.ang_mom_hor() ;
+//    double moment_hor =bin(1).ang_mom_hor() + bin(2).ang_mom_hor() ;
     //   double distance_propre = bin.distance_propre() ;
     double mass_area = sqrt(bin(1).area_hor()/16/M_PI) + 
 	sqrt(bin(2).area_hor()/16/M_PI) ;
@@ -168,11 +172,15 @@ int main(int argc, char** argv) {
     surface_deux.annule(grid.get_nzone()-1) ;
     surface_deux.std_base_scal() ;
     
-    
+    // ---------------------
     // Some drawings
-    // -------------
+    // ---------------------
 
-    double ta = 15 ;
+
+    // Filter
+    // -------
+
+    double ta = 18.5 ;
     Scalar filtre_un (map_un) ;
     int zex = grid.get_nzone()-1 ;
     filtre_un = 1. + 1e-15 ;
@@ -201,6 +209,8 @@ int main(int argc, char** argv) {
     filtre_deux.set_etat_qcq() ;
     filtre_deux.set_spectral_va() = filtre_un.get_spectral_va() ;
     
+    // Shift
+    // ------
 
     Vector shift_un (bin(1).beta_auto()) ;
     shift_un.change_triad(map_un.get_bvect_cart()) ;
@@ -257,7 +267,11 @@ int main(int argc, char** argv) {
     des_vect_bin_z (beta_un, beta_deux, 0, 200, 1, -ta, ta, -ta, ta, 
     "Shift vector (Z=0)", &surface_un, &surface_deux, false, 12, 12) ;
     
-    ta = 13.5 ;
+
+    // Lapse 
+    // -------
+
+    ta = 18.5 ;
     Cmp dessin_un (bin(1).nn()) ;
     dessin_un.annule(0) ;
     
@@ -268,6 +282,9 @@ int main(int argc, char** argv) {
 	-ta, ta, -ta, ta, "Lapse function (Z=0)", &surface_un, &surface_deux, 
 	false, 15, 300, 300) ;
     
+    // Psi
+    // -----
+
     dessin_un = bin(1).psi_auto() ;
     dessin_un.annule(0) ;
     
@@ -278,48 +295,106 @@ int main(int argc, char** argv) {
 	-ta, ta, -ta, ta, "Conformal factor (Z=0)", &surface_un, &surface_deux, 
 	false, 15, 300, 300) ;
 	
+
+    // Extrinsic curvature
+    // --------------------
+
+    Sym_tensor aa_auto_un (bin(1).aa_auto()) ;
+    Sym_tensor aa_auto_deux (bin(2).aa_auto()) ;
+
     ta = 18.5 ;
-    dessin_un = bin(1).aa_auto()(1, 1) ;
-    dessin_un.std_base_scal() ;
+    dessin_un = aa_auto_un(1, 1) ;
+//    dessin_un.std_base_scal() ;
     dessin_un.annule(0) ;
     dessin_un.dec2_dzpuis() ;
     
-    dessin_deux = bin(2).aa_auto()(1, 1) ;
-    dessin_deux.std_base_scal() ;
+    dessin_deux = aa_auto_deux(1, 1) ;
+//    dessin_deux.std_base_scal() ;
+    dessin_deux.annule(0) ;
+    dessin_deux.dec2_dzpuis() ;
+    
+    des_coupe_bin_z (dessin_un, dessin_deux, 0, 
+	-ta, ta, -ta, ta, "A\\urr\\d (Z=0)", &surface_un, &surface_deux, false
+	, 15, 300, 300) ;
+    
+    dessin_un = aa_auto_un(1, 3) ;
+//    dessin_un.std_base_scal() ;
+    dessin_un.annule(0) ;
+    dessin_un.dec2_dzpuis() ;
+    
+    dessin_deux = aa_auto_deux(1, 3) ;
+//    dessin_deux.std_base_scal() ;
+    dessin_deux.annule(0) ;
+    dessin_deux.dec2_dzpuis() ;
+    
+    des_coupe_bin_z (dessin_un, dessin_deux, 0, 
+	-ta, ta, -ta, ta, "A\\urp\\d (Z=0)", &surface_un, &surface_deux, false, 
+	15, 300, 300) ;
+    
+    dessin_un = aa_auto_un(2, 3) ;
+//    dessin_un.std_base_scal() ;
+    dessin_un.annule(0) ;
+    dessin_un.dec2_dzpuis() ;
+    
+    dessin_deux = aa_auto_deux(2, 3) ;
+//    dessin_deux.std_base_scal() ;
+    dessin_deux.annule(0) ;
+    dessin_deux.dec2_dzpuis() ;
+    
+    des_coupe_bin_z (dessin_un, dessin_deux, 0, 
+	-ta, ta, -ta, ta, "A\\utp\\d (Z=0)", &surface_un, &surface_deux, 
+	false, 15, 300, 300) ;
+    
+
+    // In cartesian ccordinates.
+
+    aa_auto_un.change_triad(bin(1).get_mp().get_bvect_cart()) ;
+    aa_auto_deux.change_triad(bin(2).get_mp().get_bvect_cart()) ;
+
+    dessin_un = aa_auto_un(1, 1) ;
+//    dessin_un.std_base_scal() ;
+    dessin_un.annule(0) ;
+    dessin_un.dec2_dzpuis() ;
+    
+    dessin_deux = aa_auto_deux(1, 1) ;
+//    dessin_deux.std_base_scal() ;
     dessin_deux.annule(0) ;
     dessin_deux.dec2_dzpuis() ;
     
     des_coupe_bin_z (dessin_un, dessin_deux, 0, 
 	-ta, ta, -ta, ta, "A\\uXX\\d (Z=0)", &surface_un, &surface_deux, false
 	, 15, 300, 300) ;
-    
-    dessin_un = bin(1).aa_auto()(2, 1) ;
-    dessin_un.std_base_scal() ;
+ 
+
+     dessin_un = aa_auto_un(2, 1) ;
+//    dessin_un.std_base_scal() ;
     dessin_un.annule(0) ;
     dessin_un.dec2_dzpuis() ;
     
-    dessin_deux = bin(2).aa_auto()(2, 1) ;
-    dessin_deux.std_base_scal() ;
+    dessin_deux = aa_auto_deux(2, 1) ;
+//    dessin_deux.std_base_scal() ;
     dessin_deux.annule(0) ;
     dessin_deux.dec2_dzpuis() ;
     
     des_coupe_bin_z (dessin_un, dessin_deux, 0, 
-	-ta, ta, -ta, ta, "A\\uXY\\d (Z=0)", &surface_un, &surface_deux, false, 
-	15, 300, 300) ;
-    
-    dessin_un = bin(1).aa_auto()(2, 2) ;
-    dessin_un.std_base_scal() ;
+	-ta, ta, -ta, ta, "A\\uXY\\d (Z=0)", &surface_un, &surface_deux, false
+	, 15, 300, 300) ;
+
+ 
+     dessin_un = aa_auto_un(2, 2) ;
+//    dessin_un.std_base_scal() ;
     dessin_un.annule(0) ;
     dessin_un.dec2_dzpuis() ;
     
-    dessin_deux = bin(2).aa_auto()(2, 2) ;
-    dessin_deux.std_base_scal() ;
+    dessin_deux = aa_auto_deux(2, 2) ;
+//    dessin_deux.std_base_scal() ;
     dessin_deux.annule(0) ;
     dessin_deux.dec2_dzpuis() ;
     
     des_coupe_bin_z (dessin_un, dessin_deux, 0, 
-	-ta, ta, -ta, ta, "A\\uYY\\d (Z=0)", &surface_un, &surface_deux, 
-	false, 15, 300, 300) ;
+	-ta, ta, -ta, ta, "A\\uXY\\d (Z=0)", &surface_un, &surface_deux, false
+	, 15, 300, 300) ;
+ 
     
 
     return 1; 

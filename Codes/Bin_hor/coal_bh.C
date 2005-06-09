@@ -31,8 +31,8 @@ char coal_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.5  2005/04/29 14:08:25  f_limousin
- * Function write_global(ost) to write all global quantities in a file.
+ * Revision 1.6  2005/06/09 16:17:21  f_limousin
+ * Many different changes.
  *
  * Revision 1.4  2005/03/10 16:57:02  f_limousin
  * Improve the convergence of the code coal_bh.
@@ -206,7 +206,7 @@ int main() {
     
     fiche_omega.close() ;
 
-    ofstream seqfich("resformat.d") ; 
+    ofstream seqfich("resformat.dat") ; 
     if ( !seqfich.good() ) {
 	cout << "coal_bh : problem with opening the file resformat.d !" 
 	     << endl ;

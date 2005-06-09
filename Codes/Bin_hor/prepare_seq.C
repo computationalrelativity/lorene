@@ -29,8 +29,8 @@ char prepare_seq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2005/04/29 14:08:46  f_limousin
- * First version
+ * Revision 1.2  2005/06/09 16:17:21  f_limousin
+ * Many different changes.
  *
  *
  * $Header$
