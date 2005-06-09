@@ -26,6 +26,9 @@ char binhor_equations_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2005/06/09 16:12:04  f_limousin
+ * Implementation of amg_mom_adm().
+ *
  * Revision 1.8  2005/04/29 14:02:44  f_limousin
  * Important changes : manage the dependances between quantities (for
  * instance psi and psi4). New function write_global(ost).
@@ -482,6 +485,20 @@ void Bin_hor::solve_psi (double precision, double relax, int bound_psi) {
         hole2.p_hdirac = 0x0 ;
     }
     
+    // gam_dd, gam_uu, k_dd and k_uu
+
+    hole1.gam_dd_evol.downdate(hole1.jtime) ;
+    hole1.gam_uu_evol.downdate(hole1.jtime) ;
+    hole1.k_dd_evol.downdate(hole1.jtime) ;
+    hole1.k_uu_evol.downdate(hole1.jtime) ;
+    hole1.adm_mass_evol.downdate(hole1.jtime) ;
+    
+    hole2.gam_dd_evol.downdate(hole2.jtime) ;
+    hole2.gam_uu_evol.downdate(hole2.jtime) ;
+    hole2.k_dd_evol.downdate(hole2.jtime) ;
+    hole2.k_uu_evol.downdate(hole2.jtime) ;
+    hole2.adm_mass_evol.downdate(hole2.jtime) ;
+
 
 }
 

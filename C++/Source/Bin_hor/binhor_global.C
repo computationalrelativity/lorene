@@ -26,6 +26,9 @@ char binhor_glob_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/06/09 16:12:04  f_limousin
+ * Implementation of amg_mom_adm().
+ *
  * Revision 1.3  2005/04/29 14:02:44  f_limousin
  * Important changes : manage the dependances between quantities (for
  * instance psi and psi4). New function write_global(ost).
@@ -89,22 +92,184 @@ double Bin_hor::komar_mass() const {
     return mass ;
 }
     
-double Bin_hor::ang_mom_adm() const {
+double Bin_hor::ang_mom_hor() const {
     
-    Scalar integrand_un (hole1.aa_auto().up_down(hole1.met_gamt)(1,3) 
-			 - hole1.gam_dd()(1,3) * hole1.trK) ;
-    Scalar integrand_deux (hole2.aa_auto().up_down(hole2.met_gamt)(1,3)) ;
+    if (omega == 0)
+	return 0 ;
+    else {
+	// Alignement
+	double orientation_un = hole1.mp.get_rot_phi() ;
+	assert ((orientation_un==0) || (orientation_un==M_PI)) ;
+	double orientation_deux = hole2.mp.get_rot_phi() ;
+	assert ((orientation_deux==0) || (orientation_deux==M_PI)) ;
+	int same_orient = (orientation_un == orientation_deux) ? 1 : -1 ;
+	
+	// Integral on the first horizon :
+	Scalar xa_un (hole1.mp) ;
+	xa_un = hole1.mp.xa ;
+	xa_un.std_spectral_base() ;
+	
+	Scalar ya_un (hole1.mp) ;
+	ya_un = hole1.mp.ya ;
+	ya_un.std_spectral_base() ;
+	
+	Sym_tensor tkij_un (hole1.k_dd()) ;
+	tkij_un.change_triad(hole1.mp.get_bvect_cart()) ;
+
+	Vector vecteur_un (hole1.mp, CON, hole1.mp.get_bvect_cart()) ;
+	for (int i=1 ; i<=3 ; i++)
+	    vecteur_un.set(i) = -ya_un*tkij_un(1, i)+
+		xa_un * tkij_un(2, i) ;
+	vecteur_un.std_spectral_base() ;
+	vecteur_un.annule_domain(hole1.mp.get_mg()->get_nzone()-1) ;
+	vecteur_un.change_triad (hole1.mp.get_bvect_spher()) ;
+	
+	Scalar integrant_un (pow(hole1.psi(), 2)*vecteur_un(1)) ;
+	integrant_un.std_spectral_base() ;
+	double moment_un = hole1.mp.integrale_surface
+	    (integrant_un, hole1.radius+1e-12)/8/M_PI ;
+	
+	//Integral on the second horizon :
+	Scalar xa_deux (hole2.mp) ;
+	xa_deux = hole2.mp.xa ;
+	xa_deux.std_spectral_base() ;
+	
+	Scalar ya_deux (hole2.mp) ;
+	ya_deux = hole2.mp.ya ;
+	ya_deux.std_spectral_base() ;
+	
+	Sym_tensor tkij_deux (hole2.k_dd()) ;
+	tkij_deux.change_triad(hole2.mp.get_bvect_cart()) ;
+
+	Vector vecteur_deux (hole2.mp, CON, hole2.mp.get_bvect_cart()) ;
+	for (int i=1 ; i<=3 ; i++)
+	    vecteur_deux.set(i) = -ya_deux*tkij_deux(1, i)+
+		xa_deux * tkij_deux(2, i) ;
+	vecteur_deux.std_spectral_base() ;
+	vecteur_deux.annule_domain(hole2.mp.get_mg()->get_nzone()-1) ;
+	vecteur_deux.change_triad (hole2.mp.get_bvect_spher()) ;
+	
+	Scalar integrant_deux (pow(hole2.psi(), 2)*vecteur_deux(1)) ;
+	integrant_deux.std_spectral_base() ;
+	double moment_deux = hole2.mp.integrale_surface
+	    (integrant_deux, hole2.radius+1e-12)/8/M_PI ;
+	
+	return moment_un+same_orient*moment_deux ;
+	}
+}
+
+
+
+double Bin_hor::ang_mom_adm() const {
+/*    
+    Scalar integrand_un (hole1.k_dd()(1,3) - hole1.gam_dd()(1,3) * hole1.trK) ;
     
     integrand_un.mult_rsint() ;  // in order to pass from the triad components
-    integrand_deux.mult_rsint() ; // to the coordinate basis
     
-    double mom = hole1.mp.integrale_surface_infini(integrand_un)
-	+ hole2.mp.integrale_surface_infini(integrand_deux) ;
-    
+    double mom = hole1.mp.integrale_surface_infini(integrand_un) ;    
     mom /= 8*M_PI ;
     return mom ;
-    
-  }
+*/
+
+    if (omega == 0)
+	return 0 ;
+    else {
+	// Alignement 
+	double orientation_un = hole1.mp.get_rot_phi() ;
+	assert ((orientation_un==0) || (orientation_un==M_PI)) ;
+	double orientation_deux = hole2.mp.get_rot_phi() ;
+	assert ((orientation_deux==0) || (orientation_deux==M_PI)) ;
+	int same_orient = (orientation_un == orientation_deux) ? 1 : -1 ;
+	
+	// Construction of an auxiliar grid and mapping
+	int nzones = hole1.mp.get_mg()->get_nzone() ;
+	double* bornes = new double [nzones+1] ;
+	double courant = (hole1.mp.get_ori_x()-hole2.mp.get_ori_x())+1 ;
+	for (int i=nzones-1 ; i>0 ; i--) {
+	bornes[i] = courant ;
+	courant /= 2. ;
+	}
+	bornes[0] = 0 ;
+	bornes[nzones] = __infinity ;
+	
+	Map_af mapping (*hole1.mp.get_mg(), bornes) ;
+	
+	delete [] bornes ; 
+	
+	// Construction of k_total
+	Sym_tensor k_total (mapping, CON, mapping.get_bvect_cart()) ;
+	
+	Vector shift_un (mapping, CON, mapping.get_bvect_cart()) ;
+	Vector shift_deux (mapping, CON, mapping.get_bvect_cart()) ;
+	
+	Vector beta_un (hole1.beta_auto()) ;
+	Vector beta_deux (hole2.beta_auto()) ;
+	beta_un.change_triad(hole1.mp.get_bvect_cart()) ;
+	beta_deux.change_triad(hole2.mp.get_bvect_cart()) ;
+	beta_un.std_spectral_base() ;
+	beta_deux.std_spectral_base() ;
+	
+	shift_un.set(1).import_asymy(beta_un(1)) ;
+	shift_un.set(2).import_symy(beta_un(2)) ;
+	shift_un.set(3).import_asymy(beta_un(3)) ;
+	
+	shift_deux.set(1).import_asymy(same_orient*beta_deux(1)) ;
+	shift_deux.set(2).import_symy(same_orient*beta_deux(2)) ;
+	shift_deux.set(3).import_asymy(beta_deux(3)) ;
+	
+	Vector shift_tot (shift_un+shift_deux) ;
+	shift_tot.std_spectral_base() ;
+	shift_tot.annule(0, nzones-2) ;
+
+	// Substract the residuals
+	shift_tot.inc_dzpuis(2) ;
+	shift_tot.dec_dzpuis(2) ;
+	
+
+	Sym_tensor temp_gamt (hole1.met_gamt.cov()) ;
+	temp_gamt.change_triad(hole1.mp.get_bvect_cart()) ;
+	Metric gamt_cart (temp_gamt) ;
+
+	k_total = shift_tot.ope_killing_conf(gamt_cart) / 2. - 
+	    gamt_cart.con() * hole1.trK;
+
+	for (int lig=1 ; lig<=3 ; lig++)
+	    for (int col=lig ; col<=3 ; col++)
+		k_total.set(lig, col).mult_r_ced() ;
+	
+	Vector vecteur_un (mapping, CON, mapping.get_bvect_cart()) ;
+	for (int i=1 ; i<=3 ; i++)
+	    vecteur_un.set(i) = k_total(1, i) ;
+	vecteur_un.change_triad (mapping.get_bvect_spher()) ;
+	Scalar integrant_un (vecteur_un(1)) ;
+	
+	Vector vecteur_deux (mapping, CON, mapping.get_bvect_cart()) ;
+	for (int i=1 ; i<=3 ; i++)
+	    vecteur_deux.set(i) = k_total(2, i) ;
+	vecteur_deux.change_triad (mapping.get_bvect_spher()) ;
+	Scalar integrant_deux (vecteur_deux(1)) ;
+	
+	// Multiplication by y and x :
+	integrant_un.set_spectral_va() = integrant_un.get_spectral_va()
+	    .mult_st() ;
+	integrant_un.set_spectral_va() = integrant_un.get_spectral_va()
+	    .mult_sp() ;
+	
+	integrant_deux.set_spectral_va() = integrant_deux.get_spectral_va()
+	    .mult_st() ;
+	integrant_deux.set_spectral_va() = integrant_deux.get_spectral_va()
+	    .mult_cp() ;
+	
+	double moment = mapping.integrale_surface_infini (-integrant_un
+							  +integrant_deux) ;
+	
+	moment /= 8*M_PI ;
+	
+	return moment ;
+    }
+}
+
+
 /*
 double Bin_hor::proper_distance(const int nr) const {
     

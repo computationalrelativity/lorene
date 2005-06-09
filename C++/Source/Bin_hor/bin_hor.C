@@ -33,6 +33,9 @@ char bin_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/06/09 16:12:04  f_limousin
+ * Implementation of amg_mom_adm().
+ *
  * Revision 1.3  2005/04/29 14:02:44  f_limousin
  * Important changes : manage the dependances between quantities (for
  * instance psi and psi4). New function write_global(ost).
@@ -179,9 +182,16 @@ void Bin_hor::write_global(ostream& ost) const {
   double mass_area = sqrt(hole1.area_hor()/16/M_PI) + 
       sqrt(hole2.area_hor()/16/M_PI) ;
   double J_adm = ang_mom_adm() ;
-  double J_hor = hole1.ang_mom_hor() + hole2.ang_mom_hor() ;
- 
-  
+  double J_hor = ang_mom_hor() ; //hole1.ang_mom_hor() + hole2.ang_mom_hor() ;
+  double j1 = hole1.ang_mom_hor() ;
+  double j2 = hole2.ang_mom_hor() ;
+  double mass_ih1 = hole1.mass_hor() ;
+  double mass_ih2 = hole2.mass_hor() ;
+  double mass_ih = mass_ih1 + mass_ih2 ;
+  double omega1 = hole1.omega_hor() ;
+  double omega2 = hole2.omega_hor() ;
+
+
   ost.precision(8) ;
   ost << "# beta  omega  Mass_ADM  Mass_K  M_area  J_ADM  J_hor" << endl ;
   ost << beta << " " ;
@@ -191,6 +201,14 @@ void Bin_hor::write_global(ostream& ost) const {
   ost << mass_area << " " ;
   ost << J_adm << " " ;
   ost << J_hor << endl ;
+  ost << "# mass_ih1  mass_ih2  mass_ih  j1  J2  omega1  omega2" << endl ;
+  ost << mass_ih1 << " " ;
+  ost << mass_ih2 << " " ;
+  ost << mass_ih << " " ;
+  ost << j1 << " " ;
+  ost << j2 << " " ;
+  ost << omega1 << " " ;
+  ost << omega2 << " " ;
   ost << "# ADM_mass/M_area  J/M_area2  omega*M_area" << endl ;
   ost << mass_adm / mass_area << " " ;
   ost << J_adm /mass_area / mass_area << " " ;
