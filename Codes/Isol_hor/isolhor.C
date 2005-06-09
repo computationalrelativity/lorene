@@ -29,6 +29,9 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.29  2005/06/09 08:09:10  f_limousin
+ * Implementation of the Kerr-Shild metric
+ *
  * Revision 1.28  2005/04/08 12:14:42  f_limousin
  * Dependance in phi.
  *
@@ -218,23 +221,18 @@ int main() {
  
     Scalar cos2t (mp) ;
     cos2t = cos(2.*theta) ;
-    cos2t.std_spectral_base() ;
     
     Scalar cost (mp) ;
     cost = costt ;
-    cost.std_spectral_base() ;
     
     Scalar cosp (mp) ;
     cosp = cospp ;
-    cosp.std_spectral_base() ;
   
     Scalar sint (mp) ;
     sint = sintt ;
-    sint.std_spectral_base() ;
  
     Scalar sinp (mp) ;
     sinp = sinpp ;
-    sinp.std_spectral_base() ;
  
     // Flat metric f
     // -------------
@@ -380,13 +378,10 @@ int main() {
 
     // Parameters
     // -----------
-    mm = 2.5 ;
-    hh = 2. ;  // the radius is 1
-    aaa = pow (mm*mm-hh*hh, 0.5) ;
-
+ 
     hh = 2. ;
-    double jj = 5 ;
-    aaa = pow( 0.5*(pow(hh*hh*hh*hh+4.*jj*jj, 0.5) - hh*hh), 0.5) ;
+    double jj = 3. ;
+    aaa = - pow( 0.5*(pow(hh*hh*hh*hh+4.*jj*jj, 0.5) - hh*hh), 0.5) ;
     mm = pow(aaa*aaa + hh*hh, 0.5) ;
 
  
@@ -427,18 +422,18 @@ int main() {
     h_uu.set(2,2) = pow(b2/a2, 1./3.) - 1 ;
     h_uu.set(3,3) = pow(a2/b2, 2./3.) - 1 ;
 
-    /*
+    
     // For a dependance in phi
-    h_uu.set(1,1)=h_uu(1,1)+0.02*sint*sint*cosp*cosp*(1/rr/rr - 1/rr/rr/rr) ;
-    h_uu.set(3,1)=h_uu(3,1)+0.2*sint*sint*cosp*(1/rr/rr - 1/rr/rr/rr) ;
-    h_uu.set(3,1).set_spectral_va().set_base_t(T_COSSIN_SI) ;
-    */
+//    h_uu.set(1,1)=h_uu(1,1)+0.02*sint*sint*cosp*cosp*(1/rr/rr - 1/rr/rr/rr) ;
+//    h_uu.set(3,1)=h_uu(3,1)+0.2*sint*sint*cosp*(1/rr/rr - 1/rr/rr/rr) ;
+//    h_uu.set(3,1).set_spectral_va().set_base_t(T_COSSIN_SI) ;
+    
 
     h_uu.annule_domain(0) ;
     h_uu.std_spectral_base() ;
     
-    Metric tgam (ff.con() + h_uu) ;
-    //    Metric tgam (ff.con()) ;       //For computing BY and DainLT
+    //   Metric tgam (ff.con() + h_uu) ;
+    Metric tgam (ff.con()) ;       //For computing BY and DainLT
     gamt = tgam.cov() ;
     met_gamt = gamt ;
 
@@ -453,14 +448,7 @@ int main() {
     met_gamt = gamt ; 
 
     cout << "norme de gamt" << endl << norme(gamt(1,1)) << endl << norme(gamt(2,1)) << endl << norme(gamt(3,1)) << endl << norme(gamt(2,2)) << endl << norme(gamt(3,2)) << endl << norme(gamt(3,3)) << endl ;
-    /*
-    gamt(1,1).spectral_display("gamt(1,1)") ;
-    gamt(2,2).spectral_display("gamt(2,2)") ;
-    gamt(3,3).spectral_display("gamt(3,3)") ;
-    gamt(1,2).spectral_display("gamt(1,2)") ;
-    gamt(1,3).spectral_display("gamt(1,3)") ;
-    gamt(2,3).spectral_display("gamt(2,3)") ;
-    */
+  
 
     // Angular velocity
     // ----------------
@@ -487,14 +475,20 @@ int main() {
 	    + pow(hh,6)*mm/16.*rr + pow(hh,8)/256.) ;
 			       
     nnn.std_spectral_base() ;
-    nnn = pow(nnn, 0.5) ;
+    if (bound_nn == 5 && solve_lapse == 1)
+      nnn = pow(nnn, 0.5) + 0.2*unsr*unsr ;
+    else 
+      nnn = pow(nnn, 0.5) + 0.2*unsr*unsr ;
     nnn.set_outer_boundary(nz-1 ,1.) ;
-    nnn.set_inner_boundary(1 ,0.) ;
+    if (bound_nn == 5 && solve_lapse == 1)
+      nnn.set_inner_boundary(1, 0.2) ;
+    else 
+      nnn.set_inner_boundary(1, 0.2) ;
     nnn.set_domain(0) = 1. ;
     nnn.std_spectral_base() ;
     
     nn_init = nnn ;
-
+    
     // Shift vector 
     // ------------
 
@@ -516,16 +510,143 @@ int main() {
     // ---------------------
 
     Scalar psi_kerr (pow(a2, 1./6.) * pow(b2,1./12.)) ;
+    psi_kerr = 1.0000000001 ;
     psi_kerr.std_spectral_base() ;
     psi_kerr.set_domain(0) = 1. ;
     psi_init = psi_kerr ;
-    
+ 
+   
+    // --------------------------------------
     // End of the setup of Kerr metric
+    // --------------------------------------
           
+
+    /*
+    //--------------------------------------------------
+    // Construction of Kerr-Shild Metric 
+    //--------------------------------------------------
+
+    // Parameters
+    // -----------
+    mm = 2.5 ;
+    hh = 2. ;  // the radius is 1
+    aaa = pow (mm*mm-hh*hh, 0.5) ;
+
+    mm = 0.55 ;
+    aaa = pow(2.*mm - 1., 0.5) ;
+    
+
+    // Angular velocity
+    // ----------------
+
+    ang_vel = 1.*aaa / (2*mm*(mm+pow(mm*mm-aaa*aaa, 0.5))) ;
+    cout << "ang_vel = " << ang_vel << endl ;
+
+  
+    Scalar facteur (mp) ;
+    facteur = 2.*mm*rr / (rr*rr + aaa*aaa*cost*cost) ;
+    facteur.set_domain(0) = 1. ;
+    facteur.set_outer_boundary(nz-1, 0.) ;
+    facteur.std_spectral_base() ;
+ 
+    
+    // Lapse 
+    // --------
+
+    Scalar lapse (mp) ;
+    lapse = pow(1.+facteur, -0.5) ;
+    lapse.std_spectral_base() ;
+    nn_init = lapse ;
+
+    //    des_meridian(nn_init, 1.0000001, 10, "lapse", 0) ;
+
+    // Shift
+    // ------
+
+    Scalar beta_r (mp) ;
+    beta_r = facteur/(1.+facteur) ;
+    Vector beta_kerr (mp, CON, mp.get_bvect_spher()) ;
+    beta_kerr.set(1) = beta_r ;
+    beta_kerr.set(1).set_domain(0) = 0. ;
+    beta_kerr.set(2) = 0. ;
+    beta_kerr.set(3) = 0. ;
+
+    beta_kerr.std_spectral_base() ;
+    beta_init = beta_kerr ;
+
+    //    des_meridian(beta_r, 1.0000001, 10, "beta_r", 1) ;
+   
+    // Metric gamma
+    // --------------
+
+    Scalar grr = 1. + facteur ;
+    Scalar grp = -(1.+facteur)*aaa*sint/rr ;
+    Scalar gtt = 1. + aaa*aaa*cost*cost/rr/rr ;
+    Scalar gpp = 1. + aaa*aaa/rr/rr + 2.*mm*aaa*aaa*sint*sint/rr/
+	                                     (rr*rr+aaa*aaa*cost*cost) ;
+    if (aaa != 0){
+        grp.set_domain(0) = 0. ;
+	gtt.set_domain(0) = 1. ;
+        gpp.set_domain(0) = 1. ;
+    }
+							  
+    Sym_tensor gamm (mp, COV, mp.get_bvect_spher()) ;
+    gamm.set(1,1) = grr ;
+    gamm.set(2,1) = 0. ;
+    gamm.set(3,1) = grp ;
+    gamm.set(2,2) = gtt ;
+    gamm.set(3,2) = 0. ;
+    gamm.set(3,3) = gpp ;
+    gamm.std_spectral_base() ;
+      
+    Metric gamma (gamm) ;
+
+    Metric tgam (gamm) ;
+    gamt = tgam.cov() ;
+    met_gamt = gamt ;
+
+    // Determinant of gamma tilde is put to one 
+    // ----------------------------------------
+
+    met_gamt_tmp = met_gamt ;             
+    det_ust = pow(met_gamt_tmp.determinant(), -1./3.) ;
+    det_ust.std_spectral_base() ;
+     
+    gamt = gamt*det_ust ;
+    met_gamt = gamt ; 
+    
+    // Conformal factor Psi
+    // ---------------------
+
+    Scalar psi_kerr (mp) ;
+    psi_kerr = pow(gamma.determinant(), 1./12.) ;
+    psi_kerr.set_domain(0) = 1. ;
+    psi_kerr.std_spectral_base() ;
+    psi_init = psi_kerr ;
+
+    //    des_meridian(psi_kerr, 1.0000001, 10, "psi_kerr", 6) ;
+    // arrete() ;
+
+    Sym_tensor kk_init (mp, CON, mp.get_bvect_spher()) ;
+    for (int i=1; i<=3; i++)
+      for (int j=i; j<=3; j++)
+	kk_init.set(i,j) = 1./(2.*nn_init)*(beta_init.derive_con(gamma)(i,j) +
+					    beta_init.derive_con(gamma)(j,i)) ;
+      
+    trK = kk_init.trace(gamma) ;
+
+    Sym_tensor aa_init (mp, CON, mp.get_bvect_spher()) ;
+    aa_init = psi_init*psi_init*psi_init*psi_init*kk_init 
+	- 1./3. * trK * met_gamt.con() ;  
+
+    // --------------------------------------
+    // End of the setup of Kerr Shild metric
+    // --------------------------------------
+    */
 
     // Set up of extrinsic curvature
     // -----------------------------
-
+    
     Metric met_gam(psi_init*psi_init*psi_init*psi_init*gamt) ;
     Sym_tensor kk_init (mp, CON, mp.get_bvect_spher()) ;
 
@@ -539,10 +660,10 @@ int main() {
 	    }
 	}
     if (check == 0)
-	kk_init = 0.5 * met_gam.con().derive_lie(beta_init) / nn_init ;
+	kk_init = - 0.5 * met_gam.con().derive_lie(beta_init) / nn_init ;
     else {
 	Sym_tensor kk_temp (mp,  CON, mp.get_bvect_spher()) ;
-	kk_temp = 0.5 * met_gam.con().derive_lie(beta_init) ;
+	kk_temp = - 0.5 * met_gam.con().derive_lie(beta_init) ;
 
 	Scalar nn_sxpun (division_xpun (Cmp(nn_init), 0)) ;
 	nn_sxpun.set_domain(0) = 1. ;
@@ -558,9 +679,9 @@ int main() {
     }
 
     Sym_tensor aa_init (mp, CON, mp.get_bvect_spher()) ;
-    aa_init =  - psi_init*psi_init*psi_init*psi_init*kk_init 
-	- 1./3. * trK * met_gamt.con() ;   // Voir le signe...
-
+    aa_init = psi_init*psi_init*psi_init*psi_init*kk_init 
+	- 1./3. * trK * met_gamt.con() ;  
+    
     
     //-------------------------------------
     //     Construction of the space-time
@@ -579,13 +700,13 @@ int main() {
     // Test of the formula for A^{ij}A_{ij} in Sergio's paper
     //-------------------------------------------------------
  
-    if (solve_shift != 1 && compte == 1)
-	isolhor.aa_kerr_ww(mm, aaa) ;
+    //    if (solve_shift != 1 && compte == 1)
+    //  isolhor.aa_kerr_ww(mm, aaa) ;
 
     // New initialisation of the metric quantities
     // --------------------------------------------
 
-    psi_init = psi_kerr ;
+    psi_init = 1.*psi_kerr ;
     psi_init.std_spectral_base() ;
     isolhor.set_psi(psi_init) ;
     
@@ -609,7 +730,6 @@ int main() {
 
     isolhor.set_omega(ang_vel) ;
     isolhor.set_boost_x(boost_x) ;
-
     isolhor.set_boost_z(boost_z) ;
 
     isolhor.init_data(bound_nn, lim_nn, bound_psi, bound_beta, solve_lapse,
@@ -661,9 +781,9 @@ int main() {
     
     // Test of the constraints
     //------------------------
-
+    
     if (solve_shift == 1 || compte == 0)
-	isolhor.update_aa() ;
+      isolhor.update_aa() ;
     else
 	isolhor.aa_kerr_ww(mm, aaa) ;
 
