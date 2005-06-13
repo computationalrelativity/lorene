@@ -33,6 +33,9 @@ char bin_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/06/13 15:47:29  jl_jaramillo
+ * Add some quatities in write_global()
+ *
  * Revision 1.4  2005/06/09 16:12:04  f_limousin
  * Implementation of amg_mom_adm().
  *
@@ -208,7 +211,7 @@ void Bin_hor::write_global(ostream& ost) const {
   ost << j1 << " " ;
   ost << j2 << " " ;
   ost << omega1 << " " ;
-  ost << omega2 << " " ;
+  ost << omega2 << endl ;
   ost << "# ADM_mass/M_area  J/M_area2  omega*M_area" << endl ;
   ost << mass_adm / mass_area << " " ;
   ost << J_adm /mass_area / mass_area << " " ;
