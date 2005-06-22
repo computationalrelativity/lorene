@@ -32,6 +32,10 @@ char TBL_VAL_INTER_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/06/22 09:11:17  lm_lin
+ *
+ * Grid wedding: convert from the old C++ object "Cmp" to "Scalar".
+ *
  * Revision 1.6  2003/12/19 15:05:15  j_novak
  * Trying to avoid shadowed variables
  *
@@ -67,12 +71,12 @@ char TBL_VAL_INTER_C[] = "$Header$" ;
 #include "tbl_val.h"
 
 
-Cmp Tbl_val::to_spectral(const Map& mp, const int lmax, const int lmin, 
+Scalar Tbl_val::to_spectral(const Map& mp, const int lmax, const int lmin, 
 			     int type_inter) const {
 
   assert(etat != ETATNONDEF) ;
   assert( gval->compatible(&mp, lmax, lmin) ) ;
-  Cmp resu(&mp) ;
+  Scalar resu(mp) ;
 
   if (etat == ETATZERO) {
     resu.annule(lmin, lmax-1) ;
@@ -149,7 +153,7 @@ Cmp Tbl_val::to_spectral(const Map& mp, const int lmax, const int lmin,
       inum = 0 ;
       for (int l=lmin; l<lmax; l++) {
 	for (int i=0; i<mgrid->get_nr(l); i++) {
-	  resu.set(l,0,0,i) = farr(inum) ;
+	  resu.set_grid_point(l,0,0,i) = farr(inum) ;
 	inum++ ;
 	}
 	inum--;
@@ -192,7 +196,7 @@ Cmp Tbl_val::to_spectral(const Map& mp, const int lmax, const int lmin,
 	for (int j=0; j<ntet[l-lmin]; j++) {
 	  int itet = (ntetmax-1)/(ntet[l-lmin]-1)*j ;
 	  for (int i=0; i<mgrid->get_nr(l); i++) {
-	    resu.set(l,0,j,i) = farr(itet,inum) ;
+	    resu.set_grid_point(l,0,j,i) = farr(itet,inum) ;
 	    inum++ ;
 	  }
 	  inum -= mgrid->get_nr(l) ;
@@ -255,7 +259,7 @@ Cmp Tbl_val::to_spectral(const Map& mp, const int lmax, const int lmin,
 	  for (int j=0; j<ntet[l-lmin]; j++) {
 	    int itet = (ntetmax-1)/(ntet[l-lmin]-1)*j ;
 	    for (int i=0; i<mgrid->get_nr(l); i++) {
-	      resu.set(l,k,j,i) = farr(iphi,itet,inum) ;
+	      resu.set_grid_point(l,k,j,i) = farr(iphi,itet,inum) ;
 	      inum++ ;
 	    }
 	    inum -= mgrid->get_nr(l) ;
@@ -279,11 +283,11 @@ Cmp Tbl_val::to_spectral(const Map& mp, const int lmax, const int lmin,
   }
 }
 
-void Tbl_val::from_spectral(const Cmp& meudon, int lmax, int lmin,
+void Tbl_val::from_spectral(const Scalar& meudon, int lmax, int lmin,
 			    bool interfr, bool interft)
 {
   assert(meudon.get_etat() != ETATNONDEF) ;
-  const Map* mp = meudon.get_mp() ;
+  const Map& mp = meudon.get_mp() ;
   assert( gval->contenue_dans(mp, lmax, lmin) ) ;
 
   if (meudon.get_etat() == ETATZERO) {
@@ -294,7 +298,7 @@ void Tbl_val::from_spectral(const Cmp& meudon, int lmax, int lmin,
     assert(meudon.get_etat() == ETATQCQ) ;
     set_etat_qcq() ;
     int dim_spec = 1 ;
-    const Mg3d* mgrid = mp->get_mg() ;
+    const Mg3d* mgrid = mp.get_mg() ;
     for (int i=lmin; i<lmax; i++) {
       if ((mgrid->get_nt(i) > 1)&&(dim_spec==1)) dim_spec = 2; 
       if (mgrid->get_np(i) > 1) dim_spec = 3;

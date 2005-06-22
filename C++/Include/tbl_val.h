@@ -31,6 +31,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/06/22 09:09:38  lm_lin
+ *
+ * Grid wedding: convert from the old C++ object "Cmp" to "Scalar".
+ *
  * Revision 1.6  2004/11/26 17:02:18  j_novak
  * Added a function giving a smooth transition to the atmosphere.
  *
@@ -61,7 +65,7 @@
 #include <stdlib.h>
 
 #include "grille_val.h"
-#include "tenseur.h"
+#include "tensor.h"
 
 class Grille_val ; 
 
@@ -523,7 +527,7 @@ class Tbl_val {
    * @return Cmp containing the value of the field at spectral collocation
    * points.
    */
-  Cmp to_spectral(const Map& map, const int lmax, const int lmin=0, 
+  Scalar to_spectral(const Map& map, const int lmax, const int lmin=0, 
 		      int type_inter = 2) const ;
   
   /**
@@ -533,7 +537,7 @@ class Tbl_val {
    * @param lmax [input] index of the outer zone \b +1
    * @param lmin [input] index of the inner zone 
    */
-  void from_spectral(const Cmp& meudon, int lmax, int lmin=0,
+  void from_spectral(const Scalar& meudon, int lmax, int lmin=0,
 		     bool interfr = false, bool interft = false) ;
 
 

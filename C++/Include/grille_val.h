@@ -31,6 +31,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/06/22 09:09:38  lm_lin
+ *
+ * Grid wedding: convert from the old C++ object "Cmp" to "Scalar".
+ *
  * Revision 1.6  2004/05/07 12:32:12  j_novak
  * New summation from spectral to FD grid. Much faster!
  *
@@ -60,7 +64,7 @@
 #include <assert.h>
 #include <math.h>
 #include "indent.h"
-#include "cmp.h"
+#include "tensor.h"
 
 /**
  * Base class for Godunov-type grids. \ingroup (mdm)
@@ -268,7 +272,7 @@ class Grille_val {
    * within the domains [lmin, lmax[, if the numbers of dimensions are 
    * the same (1,2 or 3D), and if the symmetries are compatible.
    **/
-  virtual bool contenue_dans(const Map* mp, const int lmax, const int lmin=0) 
+  virtual bool contenue_dans(const Map& mp, const int lmax, const int lmin=0) 
     const = 0 ;
 
  protected:
@@ -279,13 +283,13 @@ class Grille_val {
    * The result is an array of all the values of the function at \c this  
    * grid points.
    */
-  double* somme_spectrale1(const Cmp& meudon) const ;
+  double* somme_spectrale1(const Scalar& meudon) const ;
 
   /// Same as before but for the 2D case
-  virtual double* somme_spectrale2(const Cmp& meudon) const = 0 ;
+  virtual double* somme_spectrale2(const Scalar& meudon) const = 0 ;
 
   /// Same as before but for the 3D case
-  virtual double* somme_spectrale3(const Cmp& meudon) const = 0 ;
+  virtual double* somme_spectrale3(const Scalar& meudon) const = 0 ;
   
 };
 ostream& operator<<(ostream& , const Grille_val& ) ;	
@@ -527,7 +531,7 @@ class Gval_cart : public Grille_val {
    * within the domains [lmin, lmax[, if the numbers of dimensions are 
    * the same (1,2 or 3D), and if the symmetries are compatible.
    **/
-  virtual bool contenue_dans(const Map* mp, const int lmax, const int lmin=0) 
+  virtual bool contenue_dans(const Map& mp, const int lmax, const int lmin=0) 
     const ;
 
  protected:
@@ -538,10 +542,10 @@ class Gval_cart : public Grille_val {
    * The result is an array of all the values of the function at \c this  
    * grid points.
    */
-  virtual double* somme_spectrale2(const Cmp& meudon) const  ;
+  virtual double* somme_spectrale2(const Scalar& meudon) const  ;
 
   /// Same as before but for the 3D case
-  virtual double* somme_spectrale3(const Cmp& meudon) const  ;
+  virtual double* somme_spectrale3(const Scalar& meudon) const  ;
 };
 
 		    //------------------------------------//
@@ -732,7 +736,7 @@ class Gval_spher : public Grille_val {
    * within the domains [lmin, lmax[, if the numbers of dimensions are 
    * the same (1,2 or 3D), and if the symmetries are compatible.
    **/
- virtual bool contenue_dans(const Map* mp, const int lmax, const int lmin=0) 
+ virtual bool contenue_dans(const Map& mp, const int lmax, const int lmin=0) 
     const ;
 
  protected:
@@ -743,22 +747,22 @@ class Gval_spher : public Grille_val {
    * The result is an array of all the values of the function at \c this  
    * grid points.
    */
-  virtual double* somme_spectrale2(const Cmp& meudon) const  ;
+  virtual double* somme_spectrale2(const Scalar& meudon) const  ;
 
   /// Same as before but at radial grid interfaces
-  double* somme_spectrale2ri(const Cmp& meudon) const ;
+  double* somme_spectrale2ri(const Scalar& meudon) const ;
 
   /// Same as before but at angular grid interfaces
-  double* somme_spectrale2ti(const Cmp& meudon) const ;
+  double* somme_spectrale2ti(const Scalar& meudon) const ;
 
   /// Same as before but for the 3D case
-  virtual double* somme_spectrale3(const Cmp& meudon) const  ;
+  virtual double* somme_spectrale3(const Scalar& meudon) const  ;
 
-  void initialize_spectral_r(const Map* mp, const Base_val& base, int*& idom, 
+  void initialize_spectral_r(const Map& mp, const Base_val& base, int*& idom, 
 			     double*& chebnri) const ;
-  void initialize_spectral_theta(const Map* mp, const Base_val& base, 
+  void initialize_spectral_theta(const Map& mp, const Base_val& base, 
 				 double*& tetlj) const ;
-  void initialize_spectral_phi(const Map* mp, const Base_val& base,
+  void initialize_spectral_phi(const Map& mp, const Base_val& base,
 			       double*& expmk) const ;
 
  };

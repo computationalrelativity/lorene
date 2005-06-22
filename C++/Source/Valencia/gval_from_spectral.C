@@ -29,6 +29,10 @@ char gval_from_spectral_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/06/22 09:11:17  lm_lin
+ *
+ * Grid wedding: convert from the old C++ object "Cmp" to "Scalar".
+ *
  * Revision 1.3  2004/12/17 13:35:04  m_forot
  * Add the case T_LEG
  *
@@ -54,30 +58,30 @@ char gval_from_spectral_C[] = "$Header$" ;
                  // Sommation depuis une grille spectrale
                  //--------------------------------------
 
-double* Grille_val::somme_spectrale1(const Cmp& meudon) const {
+double* Grille_val::somme_spectrale1(const Scalar& meudon) const {
 
   int taille = dim.dim[0]+2*nfantome ;
   int nrv = dim.dim[0]+nfantome ;
-  const Map* mp = meudon.get_mp() ;
+  const Map& mp = meudon.get_mp() ;
   double* resu = new double[taille] ;
   int l ;
   double xi ;
   for (int i=0; i<nfantome; i++) resu[i] = 0 ;
   for (int i=nfantome; i<nrv; i++) {
-    mp->val_lx(zr->t[i],0.,0.,l,xi) ;
-    resu[i] = meudon.va.val_point_jk(l, xi, 0, 0) ;
+    mp.val_lx(zr->t[i],0.,0.,l,xi) ;
+    resu[i] = meudon.get_spectral_va().val_point_jk(l, xi, 0, 0) ;
   }
   for (int i=nrv; i<taille; i++) resu[i] = 0 ;
   return resu ;
 }
  
-double* Gval_cart::somme_spectrale2(const Cmp& meudon) const {
+double* Gval_cart::somme_spectrale2(const Scalar& meudon) const {
   int nzv = dim.dim[0] + nfantome ;
   int nxv = dim.dim[1] + nfantome ;
   int nzv2 = dim.dim[0] + 2*nfantome ;
   int nxv2 = dim.dim[1] + 2*nfantome ;
   int taille = nxv2*nzv2 ;
-  const Map* mp = meudon.get_mp() ;
+  const Map& mp = meudon.get_mp() ;
   double* resu = new double[taille] ;
   int l ;
   double xi0, rr, theta ;
@@ -98,8 +102,8 @@ double* Gval_cart::somme_spectrale2(const Cmp& meudon) const {
     for (int iz=nfantome; iz<nzv; iz++) {
       rr = sqrt((zr->t[iz])*(zr->t[iz]) + xx2) ;
       theta = acos((zr->t[iz])/rr) ;
-      mp->val_lx(rr, theta, phi, l, xi0) ;
-      resu[inum] = meudon.va.val_point(l, xi0, theta, phi) ;
+      mp.val_lx(rr, theta, phi, l, xi0) ;
+      resu[inum] = meudon.get_spectral_va().val_point(l, xi0, theta, phi) ;
       inum++ ;
     }
     for (int iz=nzv; iz<nzv2; iz++) {
@@ -116,7 +120,7 @@ double* Gval_cart::somme_spectrale2(const Cmp& meudon) const {
   return resu ;
 }
 
-double* Gval_cart::somme_spectrale3(const Cmp& meudon) const{
+double* Gval_cart::somme_spectrale3(const Scalar& meudon) const{
   int nzv = dim.dim[0] + nfantome ;
   int nxv = dim.dim[1] + nfantome ;
   int nyv = dim.dim[2] + nfantome ;
@@ -124,7 +128,7 @@ double* Gval_cart::somme_spectrale3(const Cmp& meudon) const{
   int nxv2 = dim.dim[1] + 2*nfantome ;
   int nyv2 = dim.dim[2] + 2*nfantome ;
   int taille = nyv2*nxv2*nzv2 ;
-  const Map* mp = meudon.get_mp() ;
+  const Map& mp = meudon.get_mp() ;
   double* resu = new double[taille] ;
   int l ;
   double xi0, rr, theta, phi ;
@@ -157,8 +161,8 @@ double* Gval_cart::somme_spectrale3(const Cmp& meudon) const{
 	rr = sqrt((zr->t[iz])*(zr->t[iz]) + xx2 + yy2) ;
 	theta = acos((zr->t[iz])/rr) ;
 	phi = atan2(yy, xx) ; // return value in [-M_PI,M_PI], should work
-	mp->val_lx(rr, theta, phi, l, xi0) ;
-	resu[inum] = meudon.va.val_point(l, xi0, theta, phi) ;
+	mp.val_lx(rr, theta, phi, l, xi0) ;
+	resu[inum] = meudon.get_spectral_va().val_point(l, xi0, theta, phi) ;
 	inum++ ;
       }
       for (int iz=nzv; iz<nzv2; iz++) {
@@ -184,13 +188,13 @@ double* Gval_cart::somme_spectrale3(const Cmp& meudon) const{
   return resu ;
 }
 
-double* Gval_spher::somme_spectrale2(const Cmp& meudon) const {
+double* Gval_spher::somme_spectrale2(const Scalar& meudon) const {
   int nrv = dim.dim[0] + nfantome ;
   int ntv = dim.dim[1] + nfantome ;
   int nrv2 = dim.dim[0] + 2*nfantome ;
   int ntv2 = dim.dim[1] + 2*nfantome ;
   int taille = ntv2*nrv2 ;
-  const Map* mp = meudon.get_mp() ;
+  const Map& mp = meudon.get_mp() ;
   double* resu = new double[taille] ;
   int l ;
   double xi, rr, theta ;
@@ -210,8 +214,8 @@ double* Gval_spher::somme_spectrale2(const Cmp& meudon) const {
     theta = tet->t[it] ;
     for (int ir=nfantome; ir<nrv; ir++) {
       rr = zr->t[ir] ;
-      mp->val_lx(rr, theta, phi0, l, xi) ;
-      resu[inum] = meudon.va.val_point(l, xi, theta, phi0) ;
+      mp.val_lx(rr, theta, phi0, l, xi) ;
+      resu[inum] = meudon.get_spectral_va().val_point(l, xi, theta, phi0) ;
       inum++ ;
     }
     for (int ir=nrv; ir<nrv2; ir++) {
@@ -228,13 +232,13 @@ double* Gval_spher::somme_spectrale2(const Cmp& meudon) const {
   return resu ;
 }
 
-double* Gval_spher::somme_spectrale2ri(const Cmp& meudon) const {
+double* Gval_spher::somme_spectrale2ri(const Scalar& meudon) const {
   int nrv = dim.dim[0] + 1 + nfantome ;
   int ntv = dim.dim[1] + nfantome ;
   int nrv2 = dim.dim[0] + 1 + 2*nfantome ;
   int ntv2 = dim.dim[1] + 2*nfantome ;
   int taille = ntv2*nrv2 ;
-  const Map* mp = meudon.get_mp() ;
+  const Map& mp = meudon.get_mp() ;
   double* resu = new double[taille] ;
   int l ;
   double xi, rr, theta ;
@@ -254,8 +258,8 @@ double* Gval_spher::somme_spectrale2ri(const Cmp& meudon) const {
     theta = tet->t[it] ;
     for (int ir=nfantome; ir<nrv; ir++) {
       rr = zri->t[ir] ;
-      mp->val_lx(rr, theta, phi0, l, xi) ;
-      resu[inum] = meudon.va.val_point(l, xi, theta, phi0) ;
+      mp.val_lx(rr, theta, phi0, l, xi) ;
+      resu[inum] = meudon.get_spectral_va().val_point(l, xi, theta, phi0) ;
       inum++ ;
     }
     for (int ir=nrv; ir<nrv2; ir++) {
@@ -272,13 +276,13 @@ double* Gval_spher::somme_spectrale2ri(const Cmp& meudon) const {
   return resu ;
 }
 
-double* Gval_spher::somme_spectrale2ti(const Cmp& meudon) const {
+double* Gval_spher::somme_spectrale2ti(const Scalar& meudon) const {
   int nrv = dim.dim[0] + nfantome ;
   int ntv = dim.dim[1] + 1 + nfantome ;
   int nrv2 = dim.dim[0] + 2*nfantome ;
   int ntv2 = dim.dim[1] + 1 + 2*nfantome ;
   int taille = ntv2*nrv2 ;
-  const Map* mp = meudon.get_mp() ;
+  const Map& mp = meudon.get_mp() ;
   double* resu = new double[taille] ;
   int l ;
   double xi, rr, theta ;
@@ -298,8 +302,8 @@ double* Gval_spher::somme_spectrale2ti(const Cmp& meudon) const {
     theta = teti->t[it] ;
     for (int ir=nfantome; ir<nrv; ir++) {
       rr = zr->t[ir] ;
-      mp->val_lx(rr, theta, phi0, l, xi) ;
-      resu[inum] = meudon.va.val_point(l, xi, theta, phi0) ;
+      mp.val_lx(rr, theta, phi0, l, xi) ;
+      resu[inum] = meudon.get_spectral_va().val_point(l, xi, theta, phi0) ;
       inum++ ;
     }
     for (int ir=nrv; ir<nrv2; ir++) {
@@ -316,10 +320,10 @@ double* Gval_spher::somme_spectrale2ti(const Cmp& meudon) const {
   return resu ;
 }
 
-double* Gval_spher::somme_spectrale3(const Cmp& meudon) const{
+double* Gval_spher::somme_spectrale3(const Scalar& meudon) const{
 
   assert(meudon.get_etat() == ETATQCQ) ;
-  meudon.va.coef() ;
+  meudon.get_spectral_va().coef() ;
 
   //Sizes of both grids
   //-------------------
@@ -332,12 +336,12 @@ double* Gval_spher::somme_spectrale3(const Cmp& meudon) const{
   int ntv2 = dim.dim[1] + 2*nfantome ;
   int npv2 = dim.dim[2] + 2*nfantome ;
   int taille = npv2*ntv2*nrv2 ;
-  const Map* mp = meudon.get_mp() ;
+  const Map& mp = meudon.get_mp() ;
 #ifndef NDEBUG
-  const Map_af* mpaff = dynamic_cast<const Map_af*>(mp) ;
+  const Map_af* mpaff = dynamic_cast<const Map_af*>(&mp) ;
   assert(mpaff != 0x0) ;
 #endif
-  const Mg3d* mg = mp->get_mg() ;
+  const Mg3d* mg = mp.get_mg() ;
   assert (mg->get_type_t() == SYM) ;
   int ntm = mg->get_nt(0) ;
   int npm = mg->get_np(0) ;
@@ -354,9 +358,9 @@ double* Gval_spher::somme_spectrale3(const Cmp& meudon) const{
   double* p_coef = alpha ;
   double* chebnri = 0x0 ; //size ~ nrv0 * (npm+2) * nr ...
   int* idom = 0x0 ;
-  initialize_spectral_r(mp, meudon.va.get_base(), idom, chebnri) ;
+  initialize_spectral_r(mp, meudon.get_spectral_va().get_base(), idom, chebnri) ;
   double* p_func = chebnri ;
-  Mtbl_cf& mtbcf = *meudon.va.c_cf ;
+  Mtbl_cf& mtbcf = *meudon.get_spectral_va().c_cf ;
 
   //First partial summation
   //-----------------------
@@ -385,7 +389,7 @@ double* Gval_spher::somme_spectrale3(const Cmp& meudon) const{
   double* beta = new double[ntv0*nrv0*(npm+2)] ;
   p_coef = beta ;
   double* tetlj = 0x0 ;
-  initialize_spectral_theta(mp, meudon.va.get_base(), tetlj) ;
+  initialize_spectral_theta(mp, meudon.get_spectral_va().get_base(), tetlj) ;
   p_func = tetlj ;
   double* p_interm = alpha ;
 
@@ -417,7 +421,7 @@ double* Gval_spher::somme_spectrale3(const Cmp& meudon) const{
   //----------------
   p_interm = beta ;
   double* expmk = 0x0 ;
-  initialize_spectral_phi(mp, meudon.va.get_base(), expmk) ;
+  initialize_spectral_phi(mp, meudon.get_spectral_va().get_base(), expmk) ;
   p_func = expmk ;
   double* resu = new double[taille] ;
   p_coef = resu ;
@@ -479,11 +483,11 @@ double* Gval_spher::somme_spectrale3(const Cmp& meudon) const{
 }
 
 
-void Gval_spher::initialize_spectral_r(const Map* mp, const Base_val& base,
+void Gval_spher::initialize_spectral_r(const Map& mp, const Base_val& base,
 				       int*& idom, double*& chebnri) const {
   
   int nrv0 = dim.dim[0] ;
-  const Mg3d* mg = mp->get_mg() ;
+  const Mg3d* mg = mp.get_mg() ;
   int npm = mg->get_np(0) ;
 
   assert (idom == 0x0) ;
@@ -492,7 +496,7 @@ void Gval_spher::initialize_spectral_r(const Map* mp, const Base_val& base,
   int nrmax = 0 ;
 
   for (int i=0; i<nrv0; i++) {
-    mp->val_lx(zr->t[i+nfantome], 0., 0., idom[i], xi[i]) ;
+    mp.val_lx(zr->t[i+nfantome], 0., 0., idom[i], xi[i]) ;
     nrmax += mg->get_nr(idom[i]) ;
   }
 
@@ -562,11 +566,11 @@ void Gval_spher::initialize_spectral_r(const Map* mp, const Base_val& base,
 
 }
 
-void Gval_spher::initialize_spectral_theta(const Map* mp, const Base_val& base,
+void Gval_spher::initialize_spectral_theta(const Map& mp, const Base_val& base,
 				       double*& tetlj) const {
  
   int ntv0 = dim.dim[1] ;
-  const Mg3d* mg = mp->get_mg() ;
+  const Mg3d* mg = mp.get_mg() ;
   int npm = mg->get_np(0) ;
   int ntm = mg->get_nt(0) ;
   int base_t = base.get_base_t(0) ;
@@ -648,11 +652,11 @@ void Gval_spher::initialize_spectral_theta(const Map* mp, const Base_val& base,
 }
 
 
-void Gval_spher::initialize_spectral_phi(const Map* mp, const Base_val& base,
+void Gval_spher::initialize_spectral_phi(const Map& mp, const Base_val& base,
 				       double*& expmk) const {
  
   int npv0 = dim.dim[2] ;
-  const Mg3d* mg = mp->get_mg() ;
+  const Mg3d* mg = mp.get_mg() ;
   int npm = mg->get_np(0) ;
   int base_p = base.get_base_p(0) ;
 

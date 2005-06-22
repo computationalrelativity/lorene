@@ -32,6 +32,10 @@ char grille_val_interp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2005/06/22 09:11:17  lm_lin
+ *
+ * Grid wedding: convert from the old C++ object "Cmp" to "Scalar".
+ *
  * Revision 1.9  2004/05/07 12:32:13  j_novak
  * New summation from spectral to FD grid. Much faster!
  *
@@ -194,12 +198,12 @@ bool Gval_spher::compatible(const Map* mp, const int lmax, const int lmin)
 
 // Teste si la grille valencienne cartesienne est contenue dans le mapping
 // de Meudon (pour le passage Meudon->Valence )
-bool Gval_cart::contenue_dans(const Map* mp, const int lmax, const int lmin)
+bool Gval_cart::contenue_dans(const Map& mp, const int lmax, const int lmin)
  const {
   //Seulement avec des mappings du genre affine
-  assert( dynamic_cast<const Map_af*>(mp) != 0x0) ; 
+  assert( dynamic_cast<const Map_af*>(&mp) != 0x0) ; 
 
-  const Mg3d* mgrid = mp->get_mg() ;
+  const Mg3d* mgrid = mp.get_mg() ;
   assert(lmin >= 0 && lmax <= mgrid->get_nzone()) ;
   int dim_spec = 1 ;
   for (int i=lmin; i<lmax; i++) {
@@ -223,7 +227,7 @@ bool Gval_cart::contenue_dans(const Map* mp, const int lmax, const int lmin)
   }
 
   bool dimension = true ;
-  const Coord& rr = mp->r ;
+  const Coord& rr = mp.r ;
 
   //For an affine mapping:
   double radius = (+rr)(lmax-1,0,0,mgrid->get_nr(lmax-1)-1) ;
@@ -254,14 +258,14 @@ bool Gval_cart::contenue_dans(const Map* mp, const int lmax, const int lmin)
 
 // Teste si la grille valencienne spherique est contenue dans le mapping
 // de Meudon  (pour le passage Meudon->Valence )
-bool Gval_spher::contenue_dans(const Map* mp, const int lmax, const int lmin)
+bool Gval_spher::contenue_dans(const Map& mp, const int lmax, const int lmin)
   const {
 
   //Seulement avec des mappings du genre affine.
-  assert( dynamic_cast<const Map_af*>(mp) != 0x0) ;
+  assert( dynamic_cast<const Map_af*>(&mp) != 0x0) ;
  
   int dim_spec = 1 ;
-  const Mg3d* mgrid = mp->get_mg() ;
+  const Mg3d* mgrid = mp.get_mg() ;
   for (int i=lmin; i<lmax; i++) {
     if ((mgrid->get_nt(i) > 1)&&(dim_spec==1)) dim_spec = 2; 
     if (mgrid->get_np(i) > 1) dim_spec = 3;
@@ -282,7 +286,7 @@ bool Gval_spher::contenue_dans(const Map* mp, const int lmax, const int lmin)
     abort() ;
   }
 
-  const Coord& rr = mp->r ;
+  const Coord& rr = mp.r ;
 
   int i_b = mgrid->get_nr(lmax-1) - 1 ;
 
