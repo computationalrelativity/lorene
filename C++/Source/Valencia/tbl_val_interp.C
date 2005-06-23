@@ -32,6 +32,10 @@ char TBL_VAL_INTER_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/06/23 13:40:08  j_novak
+ * The tests on the number of dimensions have been changed to handle better the
+ * axisymmetric case.
+ *
  * Revision 1.7  2005/06/22 09:11:17  lm_lin
  *
  * Grid wedding: convert from the old C++ object "Cmp" to "Scalar".
@@ -287,8 +291,14 @@ void Tbl_val::from_spectral(const Scalar& meudon, int lmax, int lmin,
 			    bool interfr, bool interft)
 {
   assert(meudon.get_etat() != ETATNONDEF) ;
+#ifndef NDEBUG
   const Map& mp = meudon.get_mp() ;
+#endif
   assert( gval->contenue_dans(mp, lmax, lmin) ) ;
+  if (lmin < 0) {
+      cout << "Tbl_val::from_spectral() : " << endl ;
+      cout << "lmin, lmax : " << lmin << ", " << lmax << endl ;
+  }
 
   if (meudon.get_etat() == ETATZERO) {
     set_etat_zero() ;
@@ -297,14 +307,8 @@ void Tbl_val::from_spectral(const Scalar& meudon, int lmax, int lmin,
   else {
     assert(meudon.get_etat() == ETATQCQ) ;
     set_etat_qcq() ;
-    int dim_spec = 1 ;
-    const Mg3d* mgrid = mp.get_mg() ;
-    for (int i=lmin; i<lmax; i++) {
-      if ((mgrid->get_nt(i) > 1)&&(dim_spec==1)) dim_spec = 2; 
-      if (mgrid->get_np(i) > 1) dim_spec = 3;
-    }
-    
-    switch (dim_spec) {
+
+    switch (gval->get_ndim()) {
       
     case 1: {
       delete [] t ;

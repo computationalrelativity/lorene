@@ -32,6 +32,10 @@ char grille_val_interp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2005/06/23 13:40:08  j_novak
+ * The tests on the number of dimensions have been changed to handle better the
+ * axisymmetric case.
+ *
  * Revision 1.10  2005/06/22 09:11:17  lm_lin
  *
  * Grid wedding: convert from the old C++ object "Cmp" to "Scalar".
@@ -161,14 +165,16 @@ bool Gval_spher::compatible(const Map* mp, const int lmax, const int lmin)
   assert( dynamic_cast<const Map_af*>(mp) != 0x0) ;
  
   int dim_spec = 1 ;
+
   const Mg3d* mgrid = mp->get_mg() ;
   for (int i=lmin; i<lmax; i++) {
     if ((mgrid->get_nt(i) > 1)&&(dim_spec==1)) dim_spec = 2; 
     if (mgrid->get_np(i) > 1) dim_spec = 3;
   }
-  if (dim_spec != dim.ndim) {
+  if (dim_spec > dim.ndim) {
     cout << "Grille_val::compatibilite: the number of dimensions" << endl ;
     cout << "of both grids do not coincide!" << endl;
+    cout << "Spectral : " << dim_spec << "D,   FD: " << dim.ndim << "D" << endl ;
     abort() ;
   }
   if (type_t != mgrid->get_type_t()) {
@@ -264,17 +270,8 @@ bool Gval_spher::contenue_dans(const Map& mp, const int lmax, const int lmin)
   //Seulement avec des mappings du genre affine.
   assert( dynamic_cast<const Map_af*>(&mp) != 0x0) ;
  
-  int dim_spec = 1 ;
   const Mg3d* mgrid = mp.get_mg() ;
-  for (int i=lmin; i<lmax; i++) {
-    if ((mgrid->get_nt(i) > 1)&&(dim_spec==1)) dim_spec = 2; 
-    if (mgrid->get_np(i) > 1) dim_spec = 3;
-  }
-  if (dim_spec != dim.ndim) {
-    cout << "Grille_val::contenue_dans: the number of dimensions" << endl ;
-    cout << "of both grids do not coincide!" << endl;
-    abort() ;
-  }
+  
   if (type_t != mgrid->get_type_t()) {
     cout << "Grille_val::contenue_dans: the symmetries in theta" << endl ;
     cout << "of both grids do not coincide!" << endl;

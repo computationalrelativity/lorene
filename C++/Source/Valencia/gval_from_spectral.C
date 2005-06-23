@@ -29,6 +29,10 @@ char gval_from_spectral_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/06/23 13:40:08  j_novak
+ * The tests on the number of dimensions have been changed to handle better the
+ * axisymmetric case.
+ *
  * Revision 1.4  2005/06/22 09:11:17  lm_lin
  *
  * Grid wedding: convert from the old C++ object "Cmp" to "Scalar".
@@ -189,11 +193,19 @@ double* Gval_cart::somme_spectrale3(const Scalar& meudon) const{
 }
 
 double* Gval_spher::somme_spectrale2(const Scalar& meudon) const {
+
+    assert (dim.ndim >=2) ;
   int nrv = dim.dim[0] + nfantome ;
   int ntv = dim.dim[1] + nfantome ;
   int nrv2 = dim.dim[0] + 2*nfantome ;
   int ntv2 = dim.dim[1] + 2*nfantome ;
-  int taille = ntv2*nrv2 ;
+//  int npv = 1 ;
+  int npv2 = 1 ;
+//   if (dim.ndim == 3) {
+//       npv = dim.dim[2] + nfantome ;
+//       npv2 = npv + nfantome ;
+//   }
+  int taille = ntv2*nrv2*npv2 ;
   const Map& mp = meudon.get_mp() ;
   double* resu = new double[taille] ;
   int l ;
@@ -216,6 +228,8 @@ double* Gval_spher::somme_spectrale2(const Scalar& meudon) const {
       rr = zr->t[ir] ;
       mp.val_lx(rr, theta, phi0, l, xi) ;
       resu[inum] = meudon.get_spectral_va().val_point(l, xi, theta, phi0) ;
+      cout << inum << ", " << l << ", " << xi << ", " << theta << endl ;
+      cout << resu[inum] << endl ;
       inum++ ;
     }
     for (int ir=nrv; ir<nrv2; ir++) {
