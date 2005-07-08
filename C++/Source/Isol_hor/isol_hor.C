@@ -31,6 +31,10 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.27  2005/07/08 13:15:23  f_limousin
+ * Improvements of boundary_vv_cart(), boundary_nn_lapl().
+ * Add a fonction to compute the departure of axisymmetry.
+ *
  * Revision 1.26  2005/05/12 14:48:07  f_limousin
  * New boundary condition for the lapse : boundary_nn_lapl().
  *
@@ -565,6 +569,51 @@ void Isol_hor::n_comp(const Isol_hor& comp) {
 
     dn_evol.update(n_auto().derive_cov(ff) + dn_comp, jtime, ttime) ;
 
+    Scalar tr_K (mp) ;
+ 
+    Mtbl mxabs (mp.xa) ;
+    Mtbl myabs (mp.ya) ;
+    Mtbl mzabs (mp.za) ;
+    Scalar comp_r (mp) ;
+    comp_r.annule_hard() ;
+    for (int l=1 ; l<mp.get_mg()->get_nzone() ; l++) {
+	int nr = mp.get_mg()->get_nr (l) ;
+	if (l==mp.get_mg()->get_nzone()-1)
+	    nr -- ;	
+	int np = mp.get_mg()->get_np (l) ;
+	int nt = mp.get_mg()->get_nt (l) ;
+	double xabs, yabs, zabs, air, theta, phi ;
+    
+    for (int k=0 ; k<np ; k++)
+	for (int j=0 ; j<nt ; j++)
+	    for (int i=0 ; i<nr ; i++) {
+		
+		xabs = mxabs (l, k, j, i) ;
+		yabs = myabs (l, k, j, i) ;
+		zabs = mzabs (l, k, j, i) ;
+
+		// coordinates of the point in 2 :
+		comp.mp.convert_absolute 
+		    (xabs, yabs, zabs, air, theta, phi) ;
+		comp_r.set_grid_point(l,k,j,i) = air ;
+	    }
+    }
+
+    double fact = 0.0000000000001 ;
+
+//    Scalar fact(mp) ;
+//    fact = 0.7*gam().radial_vect().divergence(gam()) ;
+//    fact.dec_dzpuis(2) ;
+
+    tr_K = 1/mp.r/mp.r ;
+    tr_K = tr_K * fact ;
+    tr_K += fact/comp_r/comp_r ;
+    tr_K.std_spectral_base() ;
+    tr_K.annule(0, 0) ;
+    tr_K.raccord(1) ;
+    tr_K.inc_dzpuis(2) ;
+    trk_evol.update(tr_K, jtime, the_time[jtime]) ;
+
 }
 
 // Import the conformal factor from the companion (Bhole case)
@@ -626,7 +675,7 @@ void Isol_hor::init_bhole () {
     
     // Initialisation of the lapse different of zero on the horizon
     // at the first step
-    auxi = 0.5 - radius/mp.r ;
+    auxi = 0.8 - radius/mp.r ;
     auxi.annule(0, 0);
     auxi.set_dzpuis(0) ;
     
@@ -657,11 +706,18 @@ void Isol_hor::init_bhole () {
     dn_evol.update(nn().derive_cov(ff), jtime, ttime) ;
     dpsi_evol.update(psi().derive_cov(ff), jtime, ttime) ;
     
-    Vector temp_vect(mp, CON, mp.get_bvect_spher()) ;
-    temp_vect.set_etat_zero() ;
-    beta_auto_evol.update(temp_vect, jtime, ttime) ;
-    beta_comp_evol.update(temp_vect, jtime, ttime) ;
-    beta_evol.update(temp_vect, jtime, ttime) ;    
+    Vector temp_vect1(mp, CON, mp.get_bvect_spher()) ;
+    temp_vect1.set(1) = 0.0/mp.r/mp.r ;
+    temp_vect1.set(2) = 0. ;
+    temp_vect1.set(3) = 0. ;
+    temp_vect1.std_spectral_base() ;
+
+    Vector temp_vect2(mp, CON, mp.get_bvect_spher()) ;
+    temp_vect2.set_etat_zero() ;    
+
+    beta_auto_evol.update(temp_vect1, jtime, ttime) ;
+    beta_comp_evol.update(temp_vect2, jtime, ttime) ;
+    beta_evol.update(temp_vect1, jtime, ttime) ;    
 }
 
 void Isol_hor::init_met_trK() {
@@ -962,6 +1018,35 @@ void Isol_hor::aa_kerr_ww(double mm, double aaa) {
     kij.std_spectral_base() ;
     k_uu_evol.update(kij, jtime, the_time[jtime]) ;
     k_dd_evol.update(kij.up_down(gam()), jtime, the_time[jtime]) ;
+
+}
+
+double Isol_hor::axi_break() const {
+
+    Vector phi (ff.get_mp(), CON, *(ff.get_triad()) ) ;
+
+    Scalar tmp (ff.get_mp() ) ;
+    tmp = 1 ;
+    tmp.std_spectral_base() ;
+    tmp.mult_rsint() ;
+
+    phi.set(1) = 0. ;
+    phi.set(2) = 0. ;
+    phi.set(3) = tmp ; 
+    
+    Sym_tensor q_uu ( gam_uu() - gam().radial_vect() * gam().radial_vect() ) ;
+    Sym_tensor q_dd ( q_uu.up_down(gam()) ) ;
+		          
+    Sym_tensor L_phi_q_dd ( q_dd.derive_lie( phi) ) ;
+    Sym_tensor L_phi_q_uu ( contract(contract(L_phi_q_dd, 0, q_uu, 0), 0,  q_uu,0) ) ;
+    
+ 
+    Scalar integrand ( contract(  L_phi_q_dd, 0, 1, L_phi_q_uu, 0, 1 ) * darea_hor()  ) ;
+    
+    double axi_break = mp.integrale_surface(integrand, 1.0000000001)/ 
+	(4 * M_PI * radius_hor()* radius_hor() ) ;
+    
+    return axi_break ;
 
 }
 

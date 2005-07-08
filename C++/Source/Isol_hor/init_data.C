@@ -31,6 +31,10 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2005/07/08 13:15:23  f_limousin
+ * Improvements of boundary_vv_cart(), boundary_nn_lapl().
+ * Add a fonction to compute the departure of axisymmetry.
+ *
  * Revision 1.18  2005/06/09 08:05:32  f_limousin
  * Implement a new function sol_elliptic_boundary() and
  * Vector::poisson_boundary(...) which solve the vectorial poisson
@@ -268,7 +272,7 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	    source_reg.inc_dzpuis() ;
 	    source_vector = source_vector + source_reg ;
 
-/*	    
+	    
 	   // CARTESIAN CASE 
 	   // #################################
 
@@ -313,8 +317,8 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	    poisson_vect_boundary(lambda, source_vector, beta_jp1, boundary_x, 
 				  boundary_y, boundary_z, 0, precision, 20) ;
 	    
-*/
-	    
+
+/*	    
 	    // SPHERICAL CASE 
 	    // #################################
 
@@ -358,7 +362,12 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	    des_meridian(beta_jp1(2), 1.0000001, 10., "beta_t", 1) ;
 	    des_meridian(beta_jp1(3), 1.0000001, 10., "beta_p", 2) ;
 	    arrete() ;
+	    // #########################
+	    // End of spherical case
+	    // #########################
 
+
+*/
 	    // Test
 	    source_vector.dec_dzpuis() ;
 	    maxabs(beta_jp1.derive_con(ff).divergence(ff) 
@@ -440,14 +449,17 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	Scalar kkss (contract(k_dd(), 0, 1, gam().radial_vect()*
 		     gam().radial_vect(), 0, 1)) ;
 	double max_kss = kkss.val_grid_point(1, 0, 0, 0) ;
+	double min_kss = kkss.val_grid_point(1, 0, 0, 0) ;
 	int nnp = mp.get_mg()->get_np(1) ;
 	int nnt = mp.get_mg()->get_nt(1) ;
 	for (int k=0 ; k<nnp ; k++)
-	    for (int j=0 ; j<nnt ; j++)
+	    for (int j=0 ; j<nnt ; j++){
 		if (kkss.val_grid_point(1, k, j, 0) > max_kss)
 		    max_kss = kkss.val_grid_point(1, k, j, 0) ;
-
-	kss << mer << " " << max_kss << endl ;
+		if (kkss.val_grid_point(1, k, j, 0) < min_kss)
+		    min_kss = kkss.val_grid_point(1, k, j, 0) ;
+	    }
+	kss << mer << " " << max_kss << " " << min_kss << endl ;
     }
     
     conv.close() ;   
