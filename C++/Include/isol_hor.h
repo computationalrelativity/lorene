@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.37  2005/07/11 08:19:54  f_limousin
+ * New function axi_break() to compute the departure to axisymmetry.
+ *
  * Revision 1.36  2005/06/09 07:56:24  f_limousin
  * Implement a new function sol_elliptic_boundary() and
  * Vector::poisson_boundary(...) which solve the vectorial poisson
@@ -744,10 +747,15 @@ class Isol_hor : public Time_slice_conf {
    * @param aa rotation parameter of the Kerr black hole metric.
    */
   void aa_kerr_ww(double mm, double aa) ;
+  
+  /// Breaking of the axial symmetry on the horizon
+    
+  double axi_break() const ;
 
   /*  Calculation of the outermost trapped surface and adaptation
    *  of all necessary quantities
    */
+
   void adapt_hor(double c_min, double c_max) ;
   
 
