@@ -26,6 +26,10 @@ char binhor_equations_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2005/07/11 08:21:57  f_limousin
+ * Implementation of a new boundary condition for the lapse in the binary
+ * case : boundary_nn_Dir_lapl().
+ *
  * Revision 1.9  2005/06/09 16:12:04  f_limousin
  * Implementation of amg_mom_adm().
  *
@@ -217,6 +221,19 @@ void Bin_hor::solve_lapse (double precision, double relax, int bound_nn,
 
 	    lim_un = hole1.boundary_nn_Dir_kk() ;
 	    lim_deux = hole2.boundary_nn_Dir_kk() ;
+
+	    n_un_temp = n_un_temp - 1./2. ;
+	    n_deux_temp = n_deux_temp - 1./2. ;
+ 
+	    dirichlet_binaire (source_un, source_deux, lim_un, lim_deux, 
+			       n_un_temp, n_deux_temp, 0, precision) ;
+ 	    break ;
+	}
+	    
+	case 5 : {
+
+	    lim_un = hole1.boundary_nn_Dir_lapl() ;
+	    lim_deux = hole2.boundary_nn_Dir_lapl() ;
 
 	    n_un_temp = n_un_temp - 1./2. ;
 	    n_deux_temp = n_deux_temp - 1./2. ;
@@ -729,6 +746,9 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta) {
     beta1_new.change_triad(hole1.mp.get_bvect_cart()) ;
     beta2_new.change_triad(hole2.mp.get_bvect_cart()) ;
 
+    hole1.beta_comp(hole2) ;
+    hole2.beta_comp(hole1) ;
+
     // Regularisation of the shifts if necessary
     // -----------------------------------------
 
@@ -739,7 +759,7 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta) {
     check = 0 ;
     for (int k=0; k<nnp; k++)
 	for (int j=0; j<nnt; j++){
-	    if ((hole1.n_auto()+hole1.n_comp()).val_grid_point(1, k, j , 0) < 1e-8){
+	    if (fabs((hole1.n_auto()+hole1.n_comp()).val_grid_point(1, k, j , 0)) < 1e-8){
 		check = 1 ;
 		break ;
 	    }

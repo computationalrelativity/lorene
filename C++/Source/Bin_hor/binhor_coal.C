@@ -26,6 +26,10 @@ char binhor_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/07/11 08:21:57  f_limousin
+ * Implementation of a new boundary condition for the lapse in the binary
+ * case : boundary_nn_Dir_lapl().
+ *
  * Revision 1.7  2005/03/10 17:21:52  f_limousin
  * Add the Berlin boundary condition for the shift.
  * Some changes to avoid warnings.
@@ -61,6 +65,7 @@ char binhor_coal_C[] = "$Header$" ;
 // Lorene
 #include "tensor.h"
 #include "isol_hor.h"
+#include "graphique.h"
 
 
 void Bin_hor::set_statiques (double precis, double relax, int bound_nn,
@@ -70,7 +75,6 @@ void Bin_hor::set_statiques (double precis, double relax, int bound_nn,
     
     set_omega(0) ;
     init_bin_hor() ;
-
     hole1.init_met_trK() ;
     hole2.init_met_trK() ;
     extrinsic_curvature() ;
@@ -81,10 +85,18 @@ void Bin_hor::set_statiques (double precis, double relax, int bound_nn,
     cout << "Static black holes : " << endl ;
     while (indic == 1) {
 	Scalar lapse_un_old (hole1.n_auto()) ;
-	
+/*
+	int bound_beta = 0 ;
+	solve_shift (precis, relax, bound_beta) ;
+	extrinsic_curvature() ;
+*/
 	solve_psi (precis, relax, bound_psi) ;
 	solve_lapse (precis, relax, bound_nn, lim_nn) ;
-	
+/*	
+	des_meridian(hole1.nn(), 1.000001, 10, "lapse", 0) ;
+	des_meridian(hole1.psi(), 1.000001, 10, "psi", 1) ;
+	des_meridian(hole1.psi()*hole1.psi()*hole1.b_tilde(), 1.000001, 10, "b_tilde", 2) ;
+*/
 	double erreur = 0 ;
 	Tbl diff (diffrelmax (lapse_un_old, hole1.n_auto())) ;
 	for (int i=1 ; i<nz ; i++)
@@ -124,7 +136,14 @@ double Bin_hor::coal (double angu_vel, double relax, int nb_ome,
 	
 	solve_psi (precis, relax, bound_psi) ;
 	solve_lapse (precis, relax, bound_nn, lim_nn) ;
-	
+/*	
+	des_meridian(hole1.nn(), 1.000001, 10, "lapse", 0) ;
+	des_meridian(hole1.psi(), 1.000001, 10, "psi", 1) ;
+	des_meridian(hole1.psi()*hole1.psi()*hole1.b_tilde(), 1.000001, 10, "b_tilde", 2) ;
+	des_meridian(hole1.beta()(1), 1.000001, 10, "shift_r", 3) ;
+	des_meridian(hole1.beta()(2), 1.000001, 10, "shift_t", 4) ;
+	des_meridian(hole1.beta()(3), 1.000001, 10, "shift_p", 5) ;
+*/
 	double erreur = 0 ;
 	Tbl diff (diffrelmax (beta_un_old, hole1.beta_auto()(1))) ;
 	for (int i=1 ; i<nz ; i++)
@@ -152,7 +171,14 @@ double Bin_hor::coal (double angu_vel, double relax, int nb_ome,
 	
 	solve_psi (precis, relax, bound_psi) ;
 	solve_lapse (precis, relax, bound_nn, lim_nn) ;
-
+/*
+	des_meridian(hole1.nn(), 1.000001, 10, "lapse", 0) ;
+	des_meridian(hole1.psi(), 1.000001, 10, "psi", 1) ;
+	des_meridian(hole1.psi()*hole1.psi()*hole1.b_tilde(), 1.000001, 10, "b_tilde", 2) ;
+	des_meridian(hole1.beta()(1), 1.000001, 10, "shift_r", 3) ;
+	des_meridian(hole1.beta()(2), 1.000001, 10, "shift_t", 4) ;
+	des_meridian(hole1.beta()(3), 1.000001, 10, "shift_p", 5) ;
+*/
 	erreur = 0 ;
 	Tbl diff (diffrelmax (beta_un_old, hole1.beta_auto()(1))) ;
 	for (int i=1 ; i<nz ; i++)
