@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2005/08/02 06:09:58  m_saijo
+ * Modified comment lines (div_r, multi_r, mult_rsint, div_rsint)
+ *
  * Revision 1.16  2004/12/29 16:20:20  k_taniguchi
  * Addition of the function poisson_ylm.
  *
@@ -988,17 +991,21 @@ class Cmp {
 	 */
 	const Cmp& laplacien(int zec_mult_r = 4) const ; 
 
-	void div_r() ;    /// Division by \e r  everywhere.
+        /// Division by \e r  everywhere.
+	void div_r() ;
 
-	void mult_r() ;   /// Multiplication by \e r  everywhere.
+        /// Multiplication by \e r  everywhere.
+	void mult_r() ;
 
 	/** Multiplication by \e r  in the external compactified domain (ZEC)
 	 */
 	void mult_r_zec() ;
-	
-	void mult_rsint() ;   /// Multiplication by \f$r\sin\theta\f$
 
-	void div_rsint() ;    /// Division by \f$r\sin\theta\f$
+	/// Multiplication by \f$r\sin\theta\f$
+	void mult_rsint() ;
+
+	/// Division by \f$r\sin\theta\f$
+	void div_rsint() ;
 
 	/** Decreases by 1 the value of \c dzpuis  and changes accordingly
 	 *  the values of the \c Cmp  in the external compactified domain (ZEC).
