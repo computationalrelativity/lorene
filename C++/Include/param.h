@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/08/13 16:03:36  m_saijo
+ * Added storage of a Star
+ *
  * Revision 1.5  2005/03/24 21:55:58  e_gourgoulhon
  * Added storage of a Scalar.
  *
@@ -99,6 +102,7 @@ class Qtenseur ;
 class Tensor ;
 class Scalar ; 
 class Etoile ;
+class Star ;
 
 /** Parameter storage.
  * 
@@ -197,6 +201,9 @@ class Param {
 	/// Array (size \c n_etoile ) of the \c Etoile 's addresses
 	const Etoile** p_etoile ;	
 
+	int n_star ;	///< Number of \c Etoile 's
+	/// Array (size \c n_etoile ) of the \c Etoile 's addresses
+	const Star** p_star ;	
 
     // Constructors - Destructor
     // -------------------------
@@ -747,7 +754,29 @@ class Param {
 	 */
 	const Etoile& get_etoile(int position = 0) const;
 	
+	///Returns the number of \c Star 's addresses in the list.
+	int get_n_star() const ;
 
+	/** Adds the address of a new \c Star  to the list.
+	 *
+	 *  @param mi [input] \c Star  the address of which is to be stored
+	 *  @param position [input] position of the \c Star  in the list
+	 *			    of stored \c Etoile  addresses (default
+	 *			    value = 0)
+	 *
+	 */
+	void add_star(const Star& eti, int position = 0) ;
+	
+	/** Returns the reference of a \c Star  stored in the list.
+	 *
+	 *  @param position [input] position of the \c Star  in the list
+	 *			    of stored \c Star  addresses (default
+	 *			    value = 0)
+	 *  @return Reference to the \c Star  the address of which is stored at
+	 *		    the location  \c position  in the list
+	 */
+	const Star& get_star(int position = 0) const;
+	
  };
 
 #endif
