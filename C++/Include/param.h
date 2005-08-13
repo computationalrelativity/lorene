@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/08/13 16:08:20  m_saijo
+ * Corrected the documents related to the Star
+ *
  * Revision 1.6  2005/08/13 16:03:36  m_saijo
  * Added storage of a Star
  *
@@ -201,8 +204,8 @@ class Param {
 	/// Array (size \c n_etoile ) of the \c Etoile 's addresses
 	const Etoile** p_etoile ;	
 
-	int n_star ;	///< Number of \c Etoile 's
-	/// Array (size \c n_etoile ) of the \c Etoile 's addresses
+	int n_star ;	///< Number of \c Star 's
+	/// Array (size \c n_star ) of the \c Star 's addresses
 	const Star** p_star ;	
 
     // Constructors - Destructor
