@@ -9,11 +9,15 @@
 1/ Description of the various codes
    ================================
 
-rotstar: code for rigidly rotating stars in GR (quasi-isotropic  gauge)
-rotdiff: code for differentially rotating stars in GR (quasi-isotropic  gauge)
-rotseq:  code for computing sequences of either rigidly or differentially
-	 rotating stars in GR (quasi-isotropic  gauge)
-rotstar_dirac: code for rigidly rotating stars in GR in the Dirac gauge.
+rotstar:            Code for rigidly rotating stars in GR 
+                    (quasi-isotropic gauge)
+rotdiff:            Code for differentially rotating stars in GR 
+                    (quasi-isotropic gauge)
+rotseq:             Code for computing sequences of either rigidly or 
+                    differentially rotating stars in GR (quasi-isotropic gauge)
+rotstar_dirac:      Code for rigidly rotating stars in GR in the Dirac gauge.
+rotstar_dirac_diff: Code for differentially rotating stars in GR 
+                    in the Dirac gauge.
 
 2/ Compilation
    ===========
@@ -22,9 +26,10 @@ Typing
 
 	make name_of_main_code
 
-where name_of_main_code = rotstar, rotdiff, rotseq or rotstar_dirac will
-produce the executable in a non-optimized version for debugging purposes. To
-get an optimized version for production purposes type instead
+where name_of_main_code = rotstar, rotdiff, rotseq or rotstar_dirac, 
+rotstar_dirac_diff will produce the executable in a non-optimized version 
+for debugging purposes.  To get an optimized version for production purposes 
+type instead
 
 	make -f Makefile_O2 name_of_main_code
 
@@ -36,7 +41,7 @@ You can clear everything by
 3/ Input parameters
    ================
 
-rotstar / rotstar_dirac:
+rotstar / rotstar_dirac / rotstar_dirac_diff:
 -----------------------
 
 The code rotstar needs two input files:
@@ -51,7 +56,15 @@ Keplerian limit, do
 	cp Parameters/Kepler_GR/parrot.d .
 	cp Parameters/Kepler_GR/par_eos.d .
 
-Note: rotstar_dirac runs only for relativistic models.
+Sample parameters (parrotdiff.d, par_eos.d) for rotstar_dirac_diff are
+stored under the directory of "Parameters/Rotstar_dirac_diff".  Since 
+rotdiff and rotstar_dirac_diff require the same parameters, the sample 
+parameters are useful to compare the numerical difference between two 
+codes.
+
+Note: rotstar_dirac and rotstar_dirac_diff runs only for relativistic models.
+
+
 
 rotseq:
 ------
@@ -93,11 +106,9 @@ The choice of the type of sequence is performed by setting
 
 Simply type
 
-	rotstar
+	rotstar / rotstar_dirac / rotstar_dirac_diff
 
 or
         rotseq
 
 The output files like convergence.d can be visualized via xmgrace.
-
-
