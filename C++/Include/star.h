@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2005/08/13 16:14:11  m_saijo
+ * Corrected the document of the total shift vector
+ *
  * Revision 1.17  2005/04/08 12:36:45  f_limousin
  * Just to avoid warnings...
  *
@@ -344,7 +347,7 @@ class Star {
 	/// Returns the total lapse function \e N 
 	const Scalar& get_nn() const {return nn;} ;
 
-	/// Returns the total shift vector \f$N^i\f$.
+	/// Returns the total shift vector \f$\beta^i\f$.
 	const Vector& get_beta() const {return beta;} ;
 
 	/// Returns the total scalar field Q.
