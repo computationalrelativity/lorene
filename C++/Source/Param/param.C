@@ -33,6 +33,9 @@ char param_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/08/13 16:11:44  m_saijo
+ * Added storage of a Star
+ *
  * Revision 1.5  2005/03/24 21:56:31  e_gourgoulhon
  * Added storage of a Scalar.
  *
@@ -117,7 +120,8 @@ Param::Param() : n_int(0),
 		 n_scalar_mod(0),
 		 n_tensor(0),
 		 n_tensor_mod(0),
-		 n_etoile(0)
+		 n_etoile(0),
+                 n_star(0)
 		 {}
 
 
@@ -148,7 +152,7 @@ Param::~Param(){
     if (n_tensor > 0) delete [] p_tensor ; 
     if (n_tensor_mod > 0) delete [] p_tensor_mod ; 
     if (n_etoile > 0)  delete [] p_etoile ; 
-
+    if (n_star > 0)  delete [] p_star ;
 }
  
 		    //------------------------------------//
@@ -1657,8 +1661,72 @@ const Etoile& Param::get_etoile(int index) const {
     assert(index < n_etoile) ; 
     
     return *(p_etoile[index]) ; 
+}
+		    //------------------------------------//
+		    //		Star storage		  //
+		    //------------------------------------//
 
-} 
-		    
+// Total number of stored addresses
+// --------------------------------
 
+int Param::get_n_star() const {
+    return n_star ; 
+}
+
+// Addition  
+// --------
 		    
+void Param::add_star(const Star& eti, int index){
+    
+	if (index >= n_star) {    // p_star must be rescaled
+	    	    
+	    int n_star_nouveau = index + 1 ; 
+	    const Star** p_star_nouveau = new const Star*[n_star_nouveau] ; 
+	    
+	   
+	    // Copy of the previous addresses  
+	    for (int i=0; i<n_star; i++) {
+		p_star_nouveau[i] = p_star[i] ; 
+	    }
+	    
+	    // The intermediate addresses are set to 0x0
+	    for (int i=n_star; i<index; i++) {
+		p_star_nouveau[i] = 0x0 ; 
+	    }
+	    
+	    // The new address 
+	    p_star_nouveau[index] = &eti ; 
+	    
+	    // Update 
+	    if (n_star > 0) delete [] p_star ; 
+	    p_star = p_star_nouveau ; 
+	    n_star = n_star_nouveau ; 
+	    
+	}
+	else {
+	
+	    if (p_star[index] != 0x0) {
+		cout << "Param::add_star : the position " << index 
+		     << " is already occupied !" << endl ; 
+		abort() ; 
+	    }
+	    else{
+		p_star[index] = &eti ; 
+	    }
+	    
+	}   
+    
+}
+
+// Extraction 
+// ----------
+		    
+const Star& Param::get_star(int index) const {
+
+    assert(index >= 0) ;
+    assert(index < n_star) ; 
+    
+    return *(p_star[index]) ; 
+
+
+}
