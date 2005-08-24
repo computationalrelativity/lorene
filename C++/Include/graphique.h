@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2005/08/24 09:02:23  j_novak
+ * Comments for new version of doxygen.
+ *
  * Revision 1.18  2005/03/25 19:55:41  e_gourgoulhon
  * Added the arguments nbound and xbound or draw_bound to the
  * functions des_profile and des_profile_mult
@@ -179,6 +182,8 @@
  *
  */
  
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 class Valeur ; 
 class Map ; 
 class Map_et ; 
@@ -191,6 +196,8 @@ class Etoile ;
 class Binaire ; 
 class Bin_ns_ncp ;
 template<typename TyT> class Evolution ; 
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */ 
 
 /**
  * \defgroup grafbasic  Low level graphical routines.
