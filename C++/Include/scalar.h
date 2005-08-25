@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.70  2005/08/25 12:14:07  p_grandclement
+ * Addition of a new method to solve the scalar Poisson equation, based on a multi-domain Tau-method
+ *
  * Revision 1.69  2005/06/09 07:56:25  f_limousin
  * Implement a new function sol_elliptic_boundary() and
  * Vector::poisson_boundary(...) which solve the vectorial poisson
@@ -1114,7 +1117,30 @@ class Scalar : public Tensor {
    *   \e u =0 at spatial infinity. 
    */
   void poisson(Param& par, Scalar& uu) const ;
-	
+	  
+  /** Solves the scalar Poisson equation with \c *this  as a source using a real Tau method
+   *   The source \f$\sigma\f$ of the equation \f$\Delta u = \sigma\f$ is 
+   *   represented by the \c Scalar \c *this . 
+   *   Note that \c dzpuis  must be equal to 2, 3 or 4, i.e. that the
+   *   quantity stored in \c *this  is in fact \f$r^2 \sigma\f$, \f$r^3 \sigma\f$ or
+   *   \f$r^4 \sigma\f$ in the compactified external domain. 
+   *   The solution \e u  with the boundary condition \e u =0 at spatial
+   *   infinity is the returned \c Scalar. 
+   */
+  Scalar poisson_tau() const ;
+   
+   /** Solves the scalar Poisson equation with \c *this  as a source using a real Tau method
+   * (version with parameters to control the resolution)
+   *   The source \f$\sigma\f$ of the equation \f$\Delta u = \sigma\f$ is 
+   *   represented by the \c Scalar \c *this . 
+   *   Note that \c dzpuis  must be equal to 2, 3 or 4, i.e. that the
+   *   quantity stored in \c *this  is in fact \f$r^2 \sigma\f$, \f$r^3 \sigma\f$ or
+   *   \f$r^4 \sigma\f$ in the compactified external domain. 
+   *   The solution \e u  with the boundary condition \e u =0 at spatial
+   *   infinity is the returned \c Scalar. 
+   */
+  void poisson_tau(Param& par, Scalar& uu) const ;
+
   /**
    * Is identicall to \c Scalar::poisson() . The regularity condition at the 
    * origin is replace by a boundary condition of the Dirichlet type.

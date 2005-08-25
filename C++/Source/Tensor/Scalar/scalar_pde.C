@@ -36,6 +36,9 @@ char scalar_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2005/08/25 12:14:10  p_grandclement
+ * Addition of a new method to solve the scalar Poisson equation, based on a multi-domain Tau-method
+ *
  * Revision 1.14  2005/06/09 08:00:10  f_limousin
  * Implement a new function sol_elliptic_boundary() and
  * Vector::poisson_boundary(...) which solve the vectorial poisson
@@ -134,6 +137,38 @@ void Scalar::poisson(Param& par, Scalar& uu) const {
     Cmp cuu(uu) ;     
 
     mp->poisson(csource, par, cuu) ;     
+    
+    uu = cuu ; 
+}
+
+   		    //-----------------------------------------------//
+		    //      Scalar Poisson equation (TAU method)     //
+		    //----------------------------------------------//
+		
+		// without parameters
+		// --------------------------
+
+Scalar Scalar::poisson_tau() const {
+    
+    Param bidon ;
+    Cmp csource(*this) ; 
+    Cmp cresu(mp) ;     
+    cresu = 0. ;
+
+    mp->poisson_tau(csource, bidon, cresu) ; 
+
+    Scalar resu(cresu) ; 
+    return resu ;          
+}
+	    
+		// Version with parameters
+		// -----------------------
+void Scalar::poisson_tau (Param& par, Scalar& uu) const {
+    
+    Cmp csource(*this) ; 
+    Cmp cuu(uu) ;     
+
+    mp->poisson_tau(csource, par, cuu) ;     
     
     uu = cuu ; 
 }

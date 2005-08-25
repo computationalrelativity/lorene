@@ -28,6 +28,9 @@ char lit_holes_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/08/25 12:14:11  p_grandclement
+ * Addition of a new method to solve the scalar Poisson equation, based on a multi-domain Tau-method
+ *
  * Revision 1.4  2004/03/25 12:35:35  j_novak
  * now using namespace Unites
  *
@@ -163,7 +166,7 @@ int main(int argc, char** argv) {
     cout << beta << " " << omega << " " << adm << " " << moment_inf << " " <<
     aire << endl ;
     
-    /*
+    
       // PLOTS //
     // Les Cmp pour annuler :
     Cmp surface_un (map_un) ;
@@ -306,7 +309,6 @@ int main(int argc, char** argv) {
     des_coupe_bin_z (dessin_un, dessin_deux, 0, 
 	-ta, ta, -ta, ta, "A\\uYY\\d (Z=0)", &surface_un, &surface_deux, 
 	false, 15, 300, 300) ;
-    */
 
     return 1; 
 }

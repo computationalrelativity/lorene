@@ -32,6 +32,9 @@ char map_log_pas_fait_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/08/25 12:14:09  p_grandclement
+ * Addition of a new method to solve the scalar Poisson equation, based on a multi-domain Tau-method
+ *
  * Revision 1.3  2005/04/04 21:31:31  e_gourgoulhon
  *  Added argument lambda to method poisson_angu
  *  to deal with the generalized angular Poisson equation:
@@ -118,6 +121,10 @@ void pas_fait() {
 }
 
  void Map_log::poisson (const Cmp&, Param&, Cmp&) const {
+  pas_fait() ;
+}
+
+void Map_log::poisson_tau (const Cmp&, Param&, Cmp&) const {
   pas_fait() ;
 }
 

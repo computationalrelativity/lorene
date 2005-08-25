@@ -31,6 +31,9 @@ char map_af_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/08/25 12:14:09  p_grandclement
+ * Addition of a new method to solve the scalar Poisson equation, based on a multi-domain Tau-method
+ *
  * Revision 1.4  2004/05/06 15:25:39  e_gourgoulhon
  * The case dzpuis=5 with null value in CED is well treated now.
  *
@@ -87,6 +90,7 @@ char map_af_poisson_C[] = "$Header$" ;
 #include "cmp.h"
 
 Mtbl_cf sol_poisson(const Map_af&, const Mtbl_cf&, int, bool match = true) ;
+Mtbl_cf sol_poisson_tau(const Map_af&, const Mtbl_cf&, int) ;
 //*****************************************************************************
 
 void Map_af::poisson(const Cmp& source, Param& , Cmp& pot) const {
@@ -148,4 +152,63 @@ void Map_af::poisson(const Cmp& source, Param& , Cmp& pot) const {
     
 }
 
+
+		//----------------------
+		// Tau version method
+		//---------------------
+
+
+void Map_af::poisson_tau(const Cmp& source, Param& , Cmp& pot) const {
+    
+    assert(source.get_etat() != ETATNONDEF) ; 
+    assert(source.get_mp()->get_mg() == mg) ; 
+    assert(pot.get_mp()->get_mg() == mg) ; 
+
+    assert( source.check_dzpuis(2) || source.check_dzpuis(4) 
+	    || source.check_dzpuis(3)) ; 
+
+    int dzpuis ; 
+    
+    if ( (source.dz_nonzero()) || (source.get_dzpuis() > 3)) { //##awkward??
+	dzpuis = source.get_dzpuis() ; 
+    }
+    else{
+	dzpuis = 4 ; 
+    }
+
+    // Spherical harmonic expansion of the source
+    // ------------------------------------------
+    
+    const Valeur& sourva = source.va ; 
+
+    if (sourva.get_etat() == ETATZERO) {
+	pot.set_etat_zero() ;
+	return ;  
+    }
+
+    // Spectral coefficients of the source
+    assert(sourva.get_etat() == ETATQCQ) ; 
+    
+    Valeur rho(sourva.get_mg()) ; 
+    sourva.coef() ; 
+    rho = *(sourva.c_cf) ;	// copy of the coefficients of the source
+    
+    rho.ylm() ;			// spherical harmonic transforms 
+        
+    // Call to the Mtbl_cf version
+    // ---------------------------
+    
+    Mtbl_cf resu = sol_poisson_tau(*this, *(rho.c_cf), dzpuis) ;
+    
+    // Final result returned as a Cmp
+    // ------------------------------
+    
+    pot.set_etat_zero() ;  // to call Cmp::del_t().
+
+    pot.set_etat_qcq() ; 
+    
+    pot.va = resu ;
+    (pot.va).ylm_i() ; // On repasse en base standard.	    
+    pot.set_dzpuis(0) ;
+}
 
