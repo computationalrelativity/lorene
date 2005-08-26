@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2005/08/26 14:02:38  p_grandclement
+ * Modification of the elliptic solver that matches with an oscillatory exterior solution
+ * small correction in Poisson tau also...
+ *
  * Revision 1.15  2005/06/09 07:56:25  f_limousin
  * Implement a new function sol_elliptic_boundary() and
  * Vector::poisson_boundary(...) which solve the vectorial poisson
@@ -339,7 +343,7 @@ class Param_elliptic {
   friend Mtbl_cf elliptic_solver_only_zec  
     (const Param_elliptic&, const Mtbl_cf&, double) ;
   friend Mtbl_cf elliptic_solver_sin_zec  
-    (const Param_elliptic&, const Mtbl_cf&, double, int, double&, double&) ;
+    (const Param_elliptic&, const Mtbl_cf&, double, double&) ;
   friend Mtbl_cf elliptic_solver_fixe_der_zero  
     (double, const Param_elliptic&, const Mtbl_cf&) ;
 
@@ -348,7 +352,7 @@ class Param_elliptic {
 					    double , double ) const ;
   friend void Map_af::sol_elliptic_no_zec(Param_elliptic&, const Scalar&, Scalar&, double) const ;
   friend void Map_af::sol_elliptic_only_zec(Param_elliptic&, const Scalar&, Scalar&, double) const ;
-  friend void Map_af::sol_elliptic_sin_zec(Param_elliptic&, const Scalar&, Scalar&, double, int, double&, double&) const ;
+  friend void Map_af::sol_elliptic_sin_zec(Param_elliptic&, const Scalar&, Scalar&, double, double&) const ;
   friend void Map_af::sol_elliptic_fixe_der_zero(double, Param_elliptic&, const Scalar&, Scalar&) const ;
 
   friend void Map_af::sol_elliptic_2d(Param_elliptic&, const Scalar&, Scalar&) const ;

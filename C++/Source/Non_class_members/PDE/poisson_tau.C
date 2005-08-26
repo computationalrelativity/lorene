@@ -25,6 +25,10 @@ char poisson_tau_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/08/26 14:02:41  p_grandclement
+ * Modification of the elliptic solver that matches with an oscillatory exterior solution
+ * small correction in Poisson tau also...
+ *
  * Revision 1.2  2005/08/25 12:16:01  p_grandclement
  * *** empty log message ***
  *
@@ -104,7 +108,8 @@ Mtbl_cf sol_poisson_tau(const Map_af& mapping, const Mtbl_cf& source, int dzpuis
     systeme.set_etat_qcq() ;
     Tbl sec_membre (size) ;
    
-
+    np = mapping.get_mg()->get_np(0) ;
+    nt = mapping.get_mg()->get_nt(0) ;
     Matrice* work ;
     
     // On bosse pour chaque l, m :

@@ -35,6 +35,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.29  2005/08/26 14:02:38  p_grandclement
+ * Modification of the elliptic solver that matches with an oscillatory exterior solution
+ * small correction in Poisson tau also...
+ *
  * Revision 1.28  2005/06/09 07:56:25  f_limousin
  * Implement a new function sol_elliptic_boundary() and
  * Vector::poisson_boundary(...) which solve the vectorial poisson
@@ -699,7 +703,7 @@ Mtbl_cf elliptic_solver_no_zec  (const Param_elliptic&, const Mtbl_cf&,
 Mtbl_cf elliptic_solver_only_zec  (const Param_elliptic&, const Mtbl_cf&, 
 				 double val) ;
 Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic&, const Mtbl_cf&, 
-				 double, int, double&, double&) ;
+				 double, double&) ;
 Mtbl_cf elliptic_solver_fixe_der_zero  (double, 
 					    const Param_elliptic&, 
 					    const Mtbl_cf&) ;

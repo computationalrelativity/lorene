@@ -26,6 +26,10 @@ char map_af_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/08/26 14:02:40  p_grandclement
+ * Modification of the elliptic solver that matches with an oscillatory exterior solution
+ * small correction in Poisson tau also...
+ *
  * Revision 1.7  2005/06/09 07:57:31  f_limousin
  * Implement a new function sol_elliptic_boundary() and
  * Vector::poisson_boundary(...) which solve the vectorial poisson
@@ -70,7 +74,8 @@ char map_af_elliptic_C[] = "$Header$" ;
 #include "mtbl_cf.h"
 #include "map.h"
 #include "param_elliptic.h"
-         
+#include "proto.h"         
+
             //----------------------------------------------
 	   //		General elliptic solver
 	  //----------------------------------------------
@@ -310,9 +315,7 @@ void Map_af::sol_elliptic_only_zec(Param_elliptic& ope_var,
 
 void Map_af::sol_elliptic_sin_zec(Param_elliptic& ope_var, 
 				  const Scalar& source, Scalar& pot, 
-				  double freq, 
-				  int nbr_phase, double& ampli_min, 
-				  double& phase_min) const {
+				  double freq, double& ampli_min) const {
     
   assert(source.get_etat() != ETATNONDEF) ; 
   assert(source.get_mp().get_mg() == mg) ; 
@@ -348,8 +351,8 @@ void Map_af::sol_elliptic_sin_zec(Param_elliptic& ope_var,
 
   // Call to the Mtbl_cf version
   // ---------------------------
-  Mtbl_cf resu = elliptic_solver_sin_zec (ope_var, *(rho.c_cf), freq, 
-					  nbr_phase, ampli_min, phase_min) ;
+  Mtbl_cf resu = elliptic_solver_sin_zec (ope_var, *(rho.c_cf), 
+  					freq, ampli_min) ;
   
   // Final result returned as a Scalar
   // ---------------------------------

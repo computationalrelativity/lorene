@@ -20,6 +20,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/08/26 14:02:41  p_grandclement
+ * Modification of the elliptic solver that matches with an oscillatory exterior solution
+ * small correction in Poisson tau also...
+ *
  * Revision 1.2  2004/08/24 09:14:44  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -53,9 +57,7 @@ char sol_elliptic_sin_zec_C[] = "$Header$" ;
 	  //----------------------------------------------
 
 Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic& ope_var, 
-				  const Mtbl_cf& source, double freq, 
-				  int nbr_phase, double& ampli_true, 
-				  double& phase_true) {
+				  const Mtbl_cf& source, double freq, double& ampli_true) {
 
   // Verifications d'usage sur les zones
   int nz = source.get_mg()->get_nzone() ;
@@ -126,6 +128,8 @@ Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic& ope_var,
 	conte ++ ;
       }
   }
+
+
   
   //-------------------------------------------------
   // ON EST PARTI POUR LE RACCORD (Be carefull ....)
@@ -225,59 +229,18 @@ Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic& ope_var,
 	
 	double rlim = -1./2./ope_var.operateurs[conte]->get_alpha() ;
 	// On joue avec la phase :
-	double phase = 0 ;
 	Tbl facteur (taille) ;
-	double phase_min = 0 ;
-	double minimum = -1 ;
-	int i_min = 0 ;
-	double error ;
-
-	for (int i=0 ; i<nbr_phase ; i++) {
-
-	  systeme.set(taille-2, taille-1) = 
-	    -ope_var.G_minus(nz-1) * 
-	    sin(freq*rlim+phase)/rlim ;
-
-	  systeme.set(taille-1, taille-1) = 
-	    -ope_var.dG_minus(nz-1)*
-	    sin(freq*rlim+phase)/rlim-  
-	    ope_var.G_minus(nz-1)* 
-	    (freq*cos(freq*rlim+phase)-sin(freq*rlim+phase)/rlim)/rlim ;
-	  
-	  // On resout le systeme ...
-	  if (taille > 2)
-	    systeme.set_band(2,2) ;
-	  else
-	    systeme.set_band(1,1) ;
-	
-	  systeme.set_lu() ;
-
-	  facteur = systeme.inverse(sec_membre) ;	 
-	  error = fabs(facteur(taille-1)) ;
-
-	  if (i==0)
-	    minimum = error ;
-	  else
-	    if (error < minimum) {
-	      minimum = error ;
-	      phase_min = phase ;
-	      i_min = i ;
-	    }
-	  phase += M_PI/(nbr_phase-1) ;
-	}
-
-	phase_true = phase_min ;
 	
 	// On fait le "Vrai" calcul :
 	systeme.set(taille-2, taille-1) = 
 	  -ope_var.G_minus(nz-1) * 
-	  sin(freq*rlim+phase_min)/rlim ;
+	  sin(freq*rlim+M_PI/2)/rlim ;
 	
 	systeme.set(taille-1, taille-1) = 
 	  -ope_var.dG_minus(nz-1)*
-	  sin(freq*rlim+phase_min)/rlim-  
+	  sin(freq*rlim+M_PI/2)/rlim-  
 	  ope_var.G_minus(nz-1)* 
-	  (freq*cos(freq*rlim+phase_min)-sin(freq*rlim+phase_min)/rlim)/rlim ;
+	  (freq*cos(freq*rlim+M_PI/2)-sin(freq*rlim+M_PI/2)/rlim)/rlim ;
 
 	// On resout le systeme ...
 	if (taille > 2)
@@ -308,7 +271,6 @@ Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic& ope_var,
       }
 	start ++ ;
     }
-
   return resultat;
 }
 

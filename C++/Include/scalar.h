@@ -38,6 +38,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.71  2005/08/26 14:02:38  p_grandclement
+ * Modification of the elliptic solver that matches with an oscillatory exterior solution
+ * small correction in Poisson tau also...
+ *
  * Revision 1.70  2005/08/25 12:14:07  p_grandclement
  * Addition of a new method to solve the scalar Poisson equation, based on a multi-domain Tau-method
  *
@@ -1363,19 +1367,15 @@ class Scalar : public Tensor {
    * General elliptic solver.
    * The equation is not solved in the compactified domain and the 
    * matching is done with a solution of the type 
-   * \f$\frac{\sin \left( f r + \phi \right)}{r}\f$ , minimizing the coefficient 
-   * with respect to \f$\phi\f$.
+   * \f$\frac{\sin \left( f r + \pi/2 \right)}{r}\f$
    * @param params [input] the operators and variables to be used.
    * @param freq [input] : the frequency \f$f\f$.
-   * @param nbr_phase [input] : number of points for the maximization 
-   * over \f$\phi\f$.
-   * @param error [output] : coefficient of the oscillatory solution 
+   * @param coef [output] : coefficient of the oscillatory solution 
    * in the external domain.
    * @param phase [output] : phase that minimizes \c coef .
    **/
   Scalar sol_elliptic_sin_zec(Param_elliptic& params, double freq,
-			      int nbr_phase, double& coef, 
-			      double& phase) const ;
+			      double& coef) const ;
 
    
   /**

@@ -36,6 +36,10 @@ char scalar_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2005/08/26 14:02:41  p_grandclement
+ * Modification of the elliptic solver that matches with an oscillatory exterior solution
+ * small correction in Poisson tau also...
+ *
  * Revision 1.15  2005/08/25 12:14:10  p_grandclement
  * Addition of a new method to solve the scalar Poisson equation, based on a multi-domain Tau-method
  *
@@ -316,8 +320,7 @@ Scalar Scalar::sol_elliptic_only_zec(Param_elliptic& ope_var, double val) const 
 		    //-----------------------------------//
 
 Scalar Scalar::sol_elliptic_sin_zec(Param_elliptic& ope_var, 
-				    double freq, int nbr_phase, 
-				    double& ampli_min ,double& phase_min) 
+				    double freq, double& ampli_min) 
   const {
 
   // Right now, only applicable with affine mapping
@@ -331,8 +334,7 @@ Scalar Scalar::sol_elliptic_sin_zec(Param_elliptic& ope_var,
   Scalar res (*mp) ;
   res.set_etat_qcq() ;
   
-  map_affine->sol_elliptic_sin_zec (ope_var, *this, res, freq, 
-				    nbr_phase, ampli_min, phase_min) ;
+  map_affine->sol_elliptic_sin_zec (ope_var, *this, res, freq, ampli_min) ;
 
   return (res) ;
 }
