@@ -25,6 +25,12 @@ char bhole_kij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/08/29 15:10:14  p_grandclement
+ * Addition of things needed :
+ *   1) For BBH with different masses
+ *   2) Provisory files for the mixted binaries (Bh and NS) : THIS IS NOT
+ *   WORKING YET !!!
+ *
  * Revision 1.3  2004/05/27 07:10:22  p_grandclement
  * Correction of some shadowed variables
  *
@@ -236,7 +242,7 @@ void Bhole_binaire::fait_tkij () {
 		if (l==nz_un-1)
 		    for (int k=0 ; k<np ; k++)
 			for (int j=0 ; j<nt ; j++)
-			    auxi_un.set(nz_un-1, k, j, nr) = 0 ;
+			    auxi_un.set(nz_un-1, k, j, nr-1) = 0 ;
 	    }
 	    
 	    // Le second trou :
@@ -275,7 +281,7 @@ void Bhole_binaire::fait_tkij () {
 		if (l==nz_deux-1)
 		    for (int k=0 ; k<np ; k++)
 			for (int j=0 ; j<nt ; j++)
-			    auxi_un.set(nz_deux-1, k, j, nr) = 0 ;
+			    auxi_deux.set(nz_deux-1, k, j, nr-1) = 0 ;
 		}
 	    
 	    auxi_un.inc2_dzpuis() ;
@@ -330,7 +336,7 @@ void Bhole_binaire::fait_decouple () {
     fonction_g_deux = 0.5*pow(
 	sin((hole2.mp.r-int_deux)*M_PI/2./(lim_un-int_deux)), 2.) ;
     fonction_g_deux.std_base_scal();
-    
+        
     // Les fonctions totales :
     Cmp decouple_un (hole1.mp) ;
     decouple_un.allocate_all() ;
@@ -398,8 +404,9 @@ void Bhole_binaire::fait_decouple () {
 			for (int j=0 ; j<nt ; j++)
 			    decouple_un.set(nz_un-1, k, j, nr) = 0.5 ;
 	    }
-    
+   
     for (int l=0 ; l<nz_deux ; l++) {
+	
 	int nr = hole2.mp.get_mg()->get_nr (l) ;
 		
 	if (l==nz_deux-1)
@@ -411,7 +418,7 @@ void Bhole_binaire::fait_decouple () {
 	for (int k=0 ; k<np ; k++)
 	    for (int j=0 ; j<nt ; j++)
 		for (int i=0 ; i<nr ; i++) {
-			    
+		
 		    xabs = xabs_deux (l, k, j, i) ;
 		    yabs = yabs_deux (l, k, j, i) ;
 		    zabs = zabs_deux (l, k, j, i) ;
@@ -447,9 +454,9 @@ void Bhole_binaire::fait_decouple () {
 		if (l==nz_deux-1)
 		    for (int k=0 ; k<np ; k++)
 			for (int j=0 ; j<nt ; j++)
-			    decouple_deux.set(nz_un-1, k, j, nr) = 0.5 ;
+			    decouple_deux.set(nz_deux-1, k, j, nr) = 0.5 ;
    }
-   
+    
    hole1.decouple = decouple_un ;
    hole2.decouple = decouple_deux ;
 }

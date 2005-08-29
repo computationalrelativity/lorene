@@ -29,6 +29,12 @@ char init_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/08/29 15:10:19  p_grandclement
+ * Addition of things needed :
+ *   1) For BBH with different masses
+ *   2) Provisory files for the mixted binaries (Bh and NS) : THIS IS NOT
+ *   WORKING YET !!!
+ *
  * Revision 1.3  2004/03/25 12:35:35  j_novak
  * now using namespace Unites
  *
@@ -58,6 +64,7 @@ char init_ns_bh_C[] = "$Header$" ;
 #include "nbr_spx.h"
 #include "eos.h"
 #include "unites.h"
+#include "graphique.h"
 
 int  main(){
 
@@ -65,7 +72,6 @@ int  main(){
     // Identification of all the subroutines called by the code :
 
     // system("ident init_bin") ;
-
 
     //-----------------------------------------------------------------------
     //		Input data for the multi-grid no. 1
@@ -173,8 +179,8 @@ int  main(){
 
     //-----------------------------------------------------------------------
     //		Construction of multi-grid  and mapping for the BH
-    //-----------------------------------------------------------------------
-
+    //----------------------------------------------------------------------- 
+    
     Mg3d mg_bh(nz, nr, type_r, nt_tab, type_t, np_tab, type_p) ;
 
     Map_af mp_bh(mg_bh, bornes) ;
@@ -242,7 +248,7 @@ int  main(){
     //		Computation of two static configurations
     //-----------------------------------------------------------------------
 
-    double precis = 1.e-12 ;
+    double precis = 1.e-7 ;
 
     cout << endl << "Computation of a static configuration for the star"
 	 << endl << "=================================================" << endl ;
@@ -252,7 +258,7 @@ int  main(){
     cout << endl << "Computation of a static configuration for the black hole"
 	 << endl << "=======================================================" << endl ;
 
-    (bibi.set_bh()).init_bhole() ;      // Initialization to some kind of Schwarzschild
+    (bibi.set_bh()).init_bhole_seul() ;      // Initialization to some kind of Schwarzschild
 
 
     //-----------------------------------------------------------------------
@@ -268,21 +274,17 @@ int  main(){
 
     cout << "NS mass : " << mass_ns / msol << " M_sol" << endl ;
     cout << "BH mass : " << mass_bh / msol << " M_sol" << endl ;
-
-    bibi.set_omega( sqrt( g_si/g_unit * total_mass / pow(separ, 3.) ) ) ;
-
     bibi.set_x_axe(0.) ;
-
 
     // Position of the two objects
     // ---------------------------
-
+    
     double xa_ns = mass_bh / total_mass * separ ;
     ((bibi.set_ns()).set_mp()).set_ori(xa_ns, 0., 0.) ;
 
     double xa_bh = - mass_ns /  total_mass * separ ;
     ((bibi.set_bh()).set_mp()).set_ori(xa_bh, 0., 0.) ;
-
+    
     // Orientation of the two stars
     // ----------------------------
 
@@ -292,22 +294,24 @@ int  main(){
     // BH anti-aligned with the absolute frame :
     ((bibi.set_bh()).set_mp()).set_rot_phi(0) ;
 
-
+    // On decouple  
+    
+    bibi.init_auto() ;   
+    int ite ;
+    bibi.pseudo_misner (ite, 200, 0.6, precis) ;
+ 
+  
     cout << endl
     << "=============================================================" << endl
     << "=============================================================" << endl ;
     cout << endl << "Final characteristics of the computed system : " << endl ;
     cout.precision(16) ;
     cout << bibi << endl ;
-
+   
     //-----------------------------------------------------------------------
     //		The result is written in a file
     //-----------------------------------------------------------------------
-
-    FILE* fresu = fopen("ini.d", "w") ;
-
-    int mer = 0 ;
-    fwrite(&mer, sizeof(int), 1, fresu) ;	// mer
+    FILE* fresu = fopen("statiques.dat", "w") ;
 
     mg_ns.sauve(fresu) ;
     mp_ns.sauve(fresu) ;

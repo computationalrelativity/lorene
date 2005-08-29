@@ -25,6 +25,12 @@ char bhole_glob_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/08/29 15:10:14  p_grandclement
+ * Addition of things needed :
+ *   1) For BBH with different masses
+ *   2) Provisory files for the mixted binaries (Bh and NS) : THIS IS NOT
+ *   WORKING YET !!!
+ *
  * Revision 1.2  2002/10/16 14:36:33  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -301,4 +307,87 @@ double Bhole_binaire::distance_propre(const int nr) const {
     delete [] som ;
     
     return res ;
+}
+
+Tbl Bhole_binaire::linear_momentum_systeme_inf() const {
+    
+	Tbl res (3) ;
+	res.set_etat_qcq() ;
+	
+	// Alignes ou non ?
+	double orientation_un = hole1.mp.get_rot_phi() ;
+	assert ((orientation_un==0) || (orientation_un==M_PI)) ;
+	double orientation_deux = hole2.mp.get_rot_phi() ;
+	assert ((orientation_deux==0) || (orientation_deux==M_PI)) ;
+	int same_orient = (orientation_un == orientation_deux) ? 1 : -1 ;
+
+	// On construit une grille et un mapping auxiliaire :
+	int nzones = hole1.mp.get_mg()->get_nzone() ;
+	double* bornes = new double [nzones+1] ;
+	double courant = (hole1.mp.get_ori_x()-hole2.mp.get_ori_x())+1 ;
+	for (int i=nzones-1 ; i>0 ; i--) {
+	    bornes[i] = courant ;
+	    courant /= 2. ;
+	    }
+	bornes[0] = 0 ;
+	bornes[nzones] = __infinity ;
+	
+	Map_af mapping (*hole1.mp.get_mg(), bornes) ;
+	
+	delete [] bornes ; 
+	
+	// On construit k_total dessus :
+	Tenseur_sym k_total (mapping, 2, CON, mapping.get_bvect_cart()) ;
+	k_total.set_etat_qcq() ;
+	
+	Tenseur shift_un (mapping, 1, CON, mapping.get_bvect_cart()) ;
+	shift_un.set_etat_qcq() ;
+	
+	Tenseur shift_deux (mapping, 1, CON, mapping.get_bvect_cart()) ;
+	shift_deux.set_etat_qcq() ;
+	
+	shift_un.set(0).import_asymy(hole1.shift_auto(0)) ;
+	shift_un.set(1).import_symy(hole1.shift_auto(1)) ;
+	shift_un.set(2).import_asymy(hole1.shift_auto(2)) ;
+	
+	shift_deux.set(0).import_asymy(same_orient*hole2.shift_auto(0)) ;
+	shift_deux.set(1).import_symy(same_orient*hole2.shift_auto(1)) ;
+	shift_deux.set(2).import_asymy(hole2.shift_auto(2)) ;
+	
+	Tenseur shift_tot (shift_un+shift_deux) ;
+	shift_tot.set_std_base() ;
+	shift_tot.annule(0, nzones-2) ;
+	
+	// On enleve les residus
+	Tenseur shift_old (shift_tot) ;
+	shift_tot.inc2_dzpuis() ;
+	shift_tot.dec2_dzpuis() ;
+	for (int i=0 ; i< 3 ; i++)
+	    cout << max(diffrelmax(shift_tot(i), shift_old(i))) << " " ;
+	cout << endl ;
+	
+	Tenseur grad (shift_tot.gradient()) ;
+	Tenseur trace (grad(0, 0)+grad(1, 1)+grad(2, 2)) ;
+	for (int i=0 ; i<3 ; i++) {
+	    k_total.set(i, i) = grad(i, i)-trace()/3. ;
+	    for (int j=i+1 ; j<3 ; j++)
+		k_total.set(i, j) = (grad(i, j)+grad(j, i))/2. ;
+	    }	
+
+		
+	for (int lig=0 ; lig<3 ; lig++)
+	   for (int col=lig ; col<3 ; col++)
+		k_total.set(lig, col).mult_r_zec() ;
+	
+	for (int comp=0 ; comp<3 ; comp++) {
+		Tenseur vecteur (mapping, 1, CON, mapping.get_bvect_cart()) ;
+		vecteur.set_etat_qcq() ;
+		for (int i=0 ; i<3 ; i++)
+	    		vecteur.set(i) = k_total(i, comp) ;
+		vecteur.change_triad (mapping.get_bvect_spher()) ;
+		Cmp integrant (vecteur(0)) ;
+		
+		res.set(comp) = mapping.integrale_surface_infini (integrant)/8/M_PI ;
+	}
+	return res ;
 }

@@ -25,6 +25,12 @@ char bhole_pseudo_viriel_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/08/29 15:10:14  p_grandclement
+ * Addition of things needed :
+ *   1) For BBH with different masses
+ *   2) Provisory files for the mixted binaries (Bh and NS) : THIS IS NOT
+ *   WORKING YET !!!
+ *
  * Revision 1.2  2003/10/03 15:58:44  j_novak
  * Cleaning of some headers
  *
@@ -83,7 +89,7 @@ double Bhole_binaire::viriel () const{
     int nz_deux = hole2.mp.get_mg()->get_nzone() ;
     
     Valeur** devel_psi_un (hole1.psi_auto().asymptot(1)) ;
-    Valeur** devel_psi_deux (hole1.psi_auto().asymptot(1)) ;
+    Valeur** devel_psi_deux (hole2.psi_auto().asymptot(1)) ;
     Valeur** devel_n_un (hole1.n_auto().asymptot(1)) ;
     Valeur** devel_n_deux (hole2.n_auto().asymptot(1)) ;
     

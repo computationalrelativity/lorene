@@ -32,6 +32,12 @@ char et_bin_kinema_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/08/29 15:10:16  p_grandclement
+ * Addition of things needed :
+ *   1) For BBH with different masses
+ *   2) Provisory files for the mixted binaries (Bh and NS) : THIS IS NOT
+ *   WORKING YET !!!
+ *
  * Revision 1.4  2003/03/03 19:18:12  f_limousin
  * Suppression of bsn.set_triad(ref_triad).
  *
@@ -66,6 +72,7 @@ char et_bin_kinema_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "etoile.h"
+#include "graphique.h"
 
 void Etoile_bin::kinematics(double omega, double x_axe) {
 
@@ -92,11 +99,11 @@ void Etoile_bin::kinematics(double omega, double x_axe) {
     //	2/ Addition of shift and division by lapse
     // See Eq (47) from Gourgoulhon et al. (2001)
 
-    bsn = ( bsn + shift ) / nnn ; 
+    bsn = ( bsn + shift ) / nnn ;
     
     bsn.annule(nzm1, nzm1) ;	// set to zero in the ZEC
     bsn.set_std_base() ;   // set the bases for spectral expansions
-        
+   
     //-------------------------
     // Centrifugal potentatial
     //-------------------------
@@ -106,7 +113,7 @@ void Etoile_bin::kinematics(double omega, double x_axe) {
 	// Lorentz factor between the co-orbiting observer and the Eulerian one
       // See Eq (23) from Gourgoulhon et al. (2001)
       Tenseur gam0 = 1 / sqrt( 1-sprod(bsn, bsn) ) ;
-	
+      
 	pot_centri = - log( gam0 ) ;
 
     }

@@ -30,6 +30,12 @@ char et_bin_nsbh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/08/29 15:10:16  p_grandclement
+ * Addition of things needed :
+ *   1) For BBH with different masses
+ *   2) Provisory files for the mixted binaries (Bh and NS) : THIS IS NOT
+ *   WORKING YET !!!
+ *
  * Revision 1.7  2004/06/09 06:39:35  k_taniguchi
  * Introduce set_n_auto() and set_confpsi_auto().
  *
@@ -85,9 +91,9 @@ Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
       confpsi_comp(mp_i),
       d_confpsi_auto(mp_i, 1, COV, ref_triad_i),
       d_confpsi_comp(mp_i, 1, COV, ref_triad_i),
-      taij_auto(mp_i, 2, CON, ref_triad_i),
+      taij_auto(mp_i, 2, CON, ref_triad_i) ,
       taij_comp(mp_i, 2, CON, ref_triad_i),
-      taij_tot(mp_i, 2, CON, ref_triad_i),
+      taij_tot(mp_i, 2, CON, ref_triad_i) ,
       tkij_auto(mp_i, 2, CON, ref_triad_i),
       tkij_tot(mp_i, 2, CON, ref_triad_i),
       ssjm1_lapse(mp_i),
@@ -99,7 +105,7 @@ Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
     // The metric is initialized to the flat one :
     n_auto = 0.5 ;
     n_auto.set_std_base() ;
-    n_comp = 0.0 ;
+    n_comp = 0.5 ;
     n_comp.set_std_base() ;
     d_n_auto = 0 ;
     d_n_comp = 0 ;
@@ -119,9 +125,9 @@ Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, int nzet_i, bool relat, const Eos& eos_i,
     tkij_tot.set_etat_zero() ;
 
     ssjm1_lapse.set_etat_qcq() ;
-    ssjm1_lapse = 0.5 ;
+    ssjm1_lapse = 0. ;
     ssjm1_confpsi.set_etat_qcq() ;
-    ssjm1_confpsi = 0.5 ;
+    ssjm1_confpsi = 0. ;
 
 }
 
@@ -147,7 +153,6 @@ Et_bin_nsbh::Et_bin_nsbh(const Et_bin_nsbh& et)
       ssjm1_confpsi(et.ssjm1_confpsi) {
 
     set_der_0x0() ;
-
 }
 
 // Constructor from a file
@@ -158,7 +163,7 @@ Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, const Eos& eos_i,
       n_auto(mp_i),
       n_comp(mp_i),
       d_n_auto(mp_i, 1, COV, ref_triad_i),
-      d_n_comp(mp_i, 1, COV, ref_triad_i),
+      d_n_comp(mp_i, 1, COV, ref_triad_i ),
       confpsi(mp_i),
       confpsi_auto(mp_i),
       confpsi_comp(mp_i),
@@ -173,10 +178,13 @@ Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, const Eos& eos_i,
       ssjm1_confpsi(mp_i) {
 
     // Construct from data in Etoile_bin
-    n_auto = exp(logn_auto) ;
-    n_auto.set_std_base() ;
-    confpsi_auto = exp(0.5*(beta_auto-logn_auto)) ;
-    confpsi_auto.set_std_base() ;
+    Cmp n_from_file (mp_i, *(mp_i.get_mg()), fich) ;
+    n_auto.set_etat_qcq() ;
+    n_auto.set() = n_from_file ;
+    
+    Cmp psi_from_file (mp_i, *(mp_i.get_mg()), fich) ;
+    confpsi_auto.set_etat_qcq() ;
+    confpsi_auto.set() = psi_from_file ;
 
     // All other fields are initialized to zero or some constants :
     // ----------------------------------------------------------
@@ -202,7 +210,7 @@ Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, const Eos& eos_i,
 
     Cmp ssjm1_confpsi_file(mp_i, *(mp_i.get_mg()), fich) ;
     ssjm1_confpsi = ssjm1_confpsi_file ;
-
+    
     // Pointers of derived quantities initialized to zero
     // --------------------------------------------------
     set_der_0x0() ;
@@ -288,6 +296,9 @@ void Et_bin_nsbh::sauve(FILE* fich) const {
 
     Etoile_bin::sauve(fich) ;
 
+    n_auto().sauve(fich) ;
+    confpsi_auto().sauve(fich) ;
+    
     ssjm1_lapse.sauve(fich) ;
     ssjm1_confpsi.sauve(fich) ;
 }

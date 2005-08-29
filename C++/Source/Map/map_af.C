@@ -33,6 +33,12 @@ char map_af_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/08/29 15:10:18  p_grandclement
+ * Addition of things needed :
+ *   1) For BBH with different masses
+ *   2) Provisory files for the mixted binaries (Bh and NS) : THIS IS NOT
+ *   WORKING YET !!!
+ *
  * Revision 1.7  2004/12/02 09:33:06  p_grandclement
  * *** empty log message ***
  *
@@ -618,4 +624,6 @@ void Map_af::adapt(const Cmp&, const Param&) {
     char* f = __FILE__ ;
     c_est_pas_fait(f) ;
 }
+
+
 

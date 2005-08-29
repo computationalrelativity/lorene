@@ -30,6 +30,12 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2005/08/29 15:10:12  p_grandclement
+ * Addition of things needed :
+ *   1) For BBH with different masses
+ *   2) Provisory files for the mixted binaries (Bh and NS) : THIS IS NOT
+ *   WORKING YET !!!
+ *
  * Revision 1.8  2004/06/09 06:23:50  k_taniguchi
  * Introduce analytical_omega() and analytical_shift().
  *
@@ -277,6 +283,20 @@ class Bin_ns_bh {
 	 */
 	void analytical_shift() ;
 
+	void init_auto () ;
+	void pseudo_misner (int&, int, double, double) ;
+	double adm_systeme() const ;
+	double adm_systeme_volume() const ;
+	double komar_systeme() const ;
+	double moment_systeme_inf() const ;
+	double moment_systeme_hor() const ; 
+	double smarr() const ;
+	Tbl linear_momentum_systeme_inf() const ;
+	double viriel() const ;
+	void coal (double, double, int, int, int,  double, double, double, const int) ;
+	double distance_propre_axe_bh (const int nr  = 65) const ;
+	double distance_propre_axe_ns (const int nr  = 65) const ;
+	
 };
 ostream& operator<<(ostream& , const Bin_ns_bh& ) ;
 

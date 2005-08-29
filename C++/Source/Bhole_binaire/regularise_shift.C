@@ -25,6 +25,12 @@ char regularise_shift_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/08/29 15:10:14  p_grandclement
+ * Addition of things needed :
+ *   1) For BBH with different masses
+ *   2) Provisory files for the mixted binaries (Bh and NS) : THIS IS NOT
+ *   WORKING YET !!!
+ *
  * Revision 1.3  2003/10/03 15:58:44  j_novak
  * Cleaning of some headers
  *
@@ -82,6 +88,10 @@ double regle (Tenseur& shift_auto, const Tenseur& shift_comp, double omega) {
     
     int alignes = (orientation == orientation_autre) ? 1 : -1 ;
     
+    // Cas triades identiques
+    if (*shift_comp.get_triad() == *shift_auto.get_triad())
+         alignes = 1 ;
+    
     int nz = shift_auto.get_mp()->get_mg()->get_nzone() ;
     int np = shift_auto.get_mp()->get_mg()->get_np(1) ;
     int nt = shift_auto.get_mp()->get_mg()->get_nt(1) ;
@@ -111,7 +121,7 @@ double regle (Tenseur& shift_auto, const Tenseur& shift_comp, double omega) {
 	tbi.set(0).annule(nz-1) ;
 	tbi.set(1).annule(nz-1) ;
     }
-      
+     
     Tenseur derive_r (*shift_auto.get_mp(), 1, CON, *shift_auto.get_triad()) ;
     derive_r.set_etat_qcq() ;
     for (int i=0 ; i<3 ; i++) {

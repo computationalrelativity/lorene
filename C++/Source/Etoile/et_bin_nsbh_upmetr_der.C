@@ -31,6 +31,12 @@ char et_bin_nsbh_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/08/29 15:10:17  p_grandclement
+ * Addition of things needed :
+ *   1) For BBH with different masses
+ *   2) Provisory files for the mixted binaries (Bh and NS) : THIS IS NOT
+ *   WORKING YET !!!
+ *
  * Revision 1.2  2004/06/07 11:08:31  k_taniguchi
  * A minor change.
  *
@@ -75,7 +81,8 @@ void Et_bin_nsbh::update_metric_der_comp(const Bhole& comp) {
 	(d_n_comp.set(2)).import_symy( dncomp(2) ) ;  // d/dz sym.
 
     }
-
+    d_n_comp.set_std_base() ;
+    d_n_comp.inc2_dzpuis() ;
     d_n_comp.set_triad( *(dncomp.get_triad()) ) ;
 
 
@@ -101,11 +108,11 @@ void Et_bin_nsbh::update_metric_der_comp(const Bhole& comp) {
 
     }
 
+    d_confpsi_comp.set_std_base() ;
+    d_confpsi_comp.inc2_dzpuis() ;
     d_confpsi_comp.set_triad( *(dpsicomp.get_triad()) ) ;
 
     // The derived quantities are obsolete
     // -----------------------------------
-
     del_deriv() ;
-
 }

@@ -32,6 +32,12 @@ char bhole_binaire_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/08/29 15:10:14  p_grandclement
+ * Addition of things needed :
+ *   1) For BBH with different masses
+ *   2) Provisory files for the mixted binaries (Bh and NS) : THIS IS NOT
+ *   WORKING YET !!!
+ *
  * Revision 1.2  2002/10/16 14:36:32  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -196,15 +202,15 @@ char bhole_binaire_C[] = "$Header$" ;
 
 // Constucteur standard
 Bhole_binaire::Bhole_binaire (Map_af& mp1, Map_af& mp2) :
-	hole1(mp1), hole2(mp2), omega(0){
+	hole1(mp1), hole2(mp2), pos_axe(mp1.get_ori_x()), omega(0){
 
     holes[0] = &hole1 ;
-    holes[1] = &hole2 ;
+    holes[1] = &hole2 ; 
 }
 
 // Copy
 Bhole_binaire::Bhole_binaire (const Bhole_binaire& source) :
-	    hole1(source.hole1), hole2(source.hole2), omega(source.omega) {
+	    hole1(source.hole1), hole2(source.hole2), pos_axe(source.pos_axe), omega(source.omega) {
     
     holes[0] = &hole1 ;
     holes[1] = &hole2 ;
@@ -218,6 +224,7 @@ void Bhole_binaire::operator= (const Bhole_binaire& source) {
     hole1 = source.hole1 ;
     hole2 = source.hole2 ;
     
+    pos_axe = source.pos_axe ;
     omega = source.omega ;
 }
 
@@ -236,4 +243,12 @@ void Bhole_binaire::init_bhole_binaire() {
     fait_decouple() ;
 }
 
+// Bouge axe :
+void Bhole_binaire::set_pos_axe (double new_pos) {
+
+	double distance_tot = hole1.mp.get_ori_x() - hole2.mp.get_ori_x() ;
+	pos_axe = new_pos ;
+	hole1.mp.set_ori(pos_axe, 0, 0) ;
+	hole2.mp.set_ori(pos_axe-distance_tot, 0, 0) ;
+}
 

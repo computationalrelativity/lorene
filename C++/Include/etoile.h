@@ -34,6 +34,12 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.26  2005/08/29 15:10:12  p_grandclement
+ * Addition of things needed :
+ *   1) For BBH with different masses
+ *   2) Provisory files for the mixted binaries (Bh and NS) : THIS IS NOT
+ *   WORKING YET !!!
+ *
  * Revision 1.25  2005/01/18 22:35:51  k_taniguchi
  * Delete a pointer for Etoile::ray_eq(int kk).
  *
@@ -1190,9 +1196,6 @@ class Etoile_bin : public Etoile {
     protected:
 	/// Operator >> (virtual function called by the operator <<). 
 	virtual ostream& operator>>(ostream& ) const ;    
-
-	/// Computes the auto part of \f$\left(L\beta\right)^{ij}\f$ (not stored)
-	Tenseur_sym fait_taij_auto() const ;
 
     // Global quantities
     // -----------------

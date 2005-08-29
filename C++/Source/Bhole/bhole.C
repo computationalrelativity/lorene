@@ -32,6 +32,12 @@ char bhole_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/08/29 15:10:13  p_grandclement
+ * Addition of things needed :
+ *   1) For BBH with different masses
+ *   2) Provisory files for the mixted binaries (Bh and NS) : THIS IS NOT
+ *   WORKING YET !!!
+ *
  * Revision 1.7  2003/12/16 05:27:07  k_taniguchi
  * Change some arguments.
  *
@@ -222,12 +228,6 @@ void Bhole::operator= (const Bhole& source) {
 // Importe le lapse du compagnon (Bhole case)
 
 void Bhole::fait_n_comp (const Bhole& comp) {
-     // Alignes ou non ?
-    double orientation = mp.get_rot_phi() ;
-    assert ((orientation==0) || (orientation==M_PI)) ;
-    double orientation_comp = comp.mp.get_rot_phi() ;
-    assert ((orientation_comp==0) || (orientation_comp==M_PI)) ;
-    int same_orient = (orientation == orientation_comp) ? 1 : -1 ;
     
     n_comp.set_etat_qcq() ;
     n_comp.set().import_symy(comp.n_auto()) ;
@@ -236,15 +236,18 @@ void Bhole::fait_n_comp (const Bhole& comp) {
     n_tot = n_comp + n_auto ;
     n_tot.set_std_base() ;
     
-    Tenseur grad_comp (mp, 1, COV, mp.get_bvect_cart()) ;
+ 
     Tenseur auxi (comp.n_auto.gradient()) ;
-    auxi.dec2_dzpuis() ;
+    auxi.dec2_dzpuis() ;   
+    
+    Tenseur grad_comp (mp, 1, COV, *auxi.get_triad()) ;
     grad_comp.set_etat_qcq() ;
-    grad_comp.set(0).import_symy(same_orient*auxi(0)) ;
-    grad_comp.set(1).import_asymy(same_orient*auxi(1)) ;
+    grad_comp.set(0).import_symy(auxi(0)) ;
+    grad_comp.set(1).import_asymy(auxi(1)) ;
     grad_comp.set(2).import_symy(auxi(2)) ;
     grad_comp.set_std_base() ;
     grad_comp.inc2_dzpuis() ;
+    grad_comp.change_triad(mp.get_bvect_cart()) ;
     
     grad_n_tot = n_auto.gradient() + grad_comp ;
 }
@@ -253,13 +256,6 @@ void Bhole::fait_n_comp (const Bhole& comp) {
 
 void Bhole::fait_psi_comp (const Bhole& comp) {
   
-    // Alignes ou non ?
-    double orientation = mp.get_rot_phi() ;
-    assert ((orientation==0) || (orientation==M_PI)) ;
-    double orientation_comp = comp.mp.get_rot_phi() ;
-    assert ((orientation_comp==0) || (orientation_comp==M_PI)) ;
-    int same_orient = (orientation == orientation_comp) ? 1 : -1 ;
-    
     psi_comp.set_etat_qcq() ;
     psi_comp.set().import_symy(comp.psi_auto()) ;
     psi_comp.set_std_base() ;
@@ -267,15 +263,18 @@ void Bhole::fait_psi_comp (const Bhole& comp) {
     psi_tot = psi_comp + psi_auto ;
     psi_tot.set_std_base() ;
     
-    Tenseur grad_comp (mp, 1, COV, mp.get_bvect_cart()) ;
+   
     Tenseur auxi (comp.psi_auto.gradient()) ;
-    auxi.dec2_dzpuis() ;
+    auxi.dec2_dzpuis() ; 
+    
+    Tenseur grad_comp (mp, 1, COV, *auxi.get_triad()) ;
     grad_comp.set_etat_qcq() ;
-    grad_comp.set(0).import_symy(same_orient*auxi(0)) ;
-    grad_comp.set(1).import_asymy(same_orient*auxi(1)) ;
+    grad_comp.set(0).import_symy(auxi(0)) ;
+    grad_comp.set(1).import_asymy(auxi(1)) ;
     grad_comp.set(2).import_symy(auxi(2)) ;
     grad_comp.set_std_base() ;
     grad_comp.inc2_dzpuis() ;
+    grad_comp.change_triad(mp.get_bvect_cart()) ;
     
     grad_psi_tot = psi_auto.gradient() + grad_comp ;
 }

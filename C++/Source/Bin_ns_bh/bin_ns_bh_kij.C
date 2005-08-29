@@ -29,6 +29,12 @@ char bin_ns_bh_kij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/08/29 15:10:15  p_grandclement
+ * Addition of things needed :
+ *   1) For BBH with different masses
+ *   2) Provisory files for the mixted binaries (Bh and NS) : THIS IS NOT
+ *   WORKING YET !!!
+ *
  * Revision 1.2  2004/05/27 12:41:00  p_grandclement
  * correction of some shadowed variables
  *
@@ -51,7 +57,36 @@ char bin_ns_bh_kij_C[] = "$Header$" ;
 #include "bin_ns_bh.h"
 #include "proto.h"
 #include "utilitaires.h"
+
 #include "graphique.h"
+/**
+ * Computes (LB)^{ij} auto.
+ * To be used only when computing the total extrinsic curvature tensor
+ * in the case of a Bin_ns_bh
+ **/
+
+void Et_bin_nsbh::fait_taij_auto() {
+
+  Tenseur copie_shift (shift_auto) ;
+  copie_shift.change_triad(mp.get_bvect_cart()) ;
+
+  if (shift_auto.get_etat() == ETATZERO)
+      taij_auto.set_etat_zero() ;
+  else {
+    Tenseur grad (copie_shift.gradient()) ;
+    Tenseur trace (contract (grad,0, 1)) ;
+    
+    taij_auto.set_triad(mp.get_bvect_cart()) ;
+    taij_auto.set_etat_qcq() ;
+    for (int i=0 ; i<3 ; i++)
+      for (int j=i ; j<3 ; j++)
+	taij_auto.set(i, j) = grad(i, j)+grad(j, i) ;
+      for (int i=0 ; i<3 ; i++)
+	  taij_auto.set(i, i) -= 2./3.*trace() ;
+    }
+
+  taij_auto.change_triad(ref_triad) ;
+}
 
 void Bin_ns_bh::fait_decouple () {
 
@@ -181,11 +216,11 @@ void Bin_ns_bh::fait_decouple () {
 	  decouple_bh.set(nz_bh-1, k, j, nr) = 0.5 ;
   }
   
-  star.decouple = decouple_ns ;
-  hole.decouple = decouple_bh ;
-
   decouple_ns.std_base_scal() ;
   decouple_bh.std_base_scal() ;
+  
+  star.decouple = decouple_ns ;
+  hole.decouple = decouple_bh ;
 }
 
 //********************************************************
@@ -200,20 +235,17 @@ void Bin_ns_bh::fait_tkij () {
     fait_decouple() ;
   }
   
-  bool zero_shift_star = true ;
-  if (star.get_shift_auto().get_etat() == ETATQCQ) {
-    for (int i=0 ; i<3 ; i++)
-      if (star.get_shift_auto()(i).get_etat() == ETATQCQ)
-	zero_shift_star = false ;
+  double norme_hole = 0 ;
+  double norme_star = 0 ;
+  
+  for (int i=0 ; i<3 ; i++) {
+      norme_hole += max(norme(hole.get_shift_auto()(i))) ;
+      norme_star += max(norme(star.get_shift_auto()(i))) ;
   }
   
-  bool zero_shift_hole = true ;
-  if (hole.get_shift_auto().get_etat() == ETATQCQ) {
-    for (int i=0 ; i<3 ; i++)
-      if (hole.get_shift_auto()(i).get_etat() == ETATQCQ)
-	zero_shift_hole = false ;
-  }
-  
+  bool zero_shift_hole = (norme_hole <1e-14) ? true : false ; 
+  bool zero_shift_star = (norme_star <1e-14) ? true : false ; 
+   
   assert (zero_shift_hole == zero_shift_star) ;
 
   if (zero_shift_star == true) {
@@ -232,14 +264,12 @@ void Bin_ns_bh::fait_tkij () {
   else {
     
     hole.tkij_tot.set_etat_qcq() ;
-    // pas de membre tot pour NS :
-    Tenseur_sym ns_tkij_tot (star.mp, 2, CON, ref_triad) ;
-    ns_tkij_tot.set_etat_qcq() ;
+    star.tkij_tot.set_etat_qcq() ;
     
     // On construit a_ij a partir du shift ...
     // taij tot doit etre nul sur l'horizon.
     hole.fait_taij_auto () ;  
-    Tenseur_sym ns_taij_auto (star.fait_taij_auto()) ;
+    star.fait_taij_auto() ;
    
     // On trouve les trucs du compagnon
     hole.taij_comp.set_etat_qcq() ;
@@ -247,18 +277,10 @@ void Bin_ns_bh::fait_tkij () {
     Tenseur_sym ns_taij_comp (star.mp, 2, CON, ref_triad) ;
     ns_taij_comp.set_etat_qcq() ;
     
-    Tenseur_sym copie_ns (ns_taij_auto) ;
+    Tenseur_sym copie_ns (star.taij_auto) ;
     copie_ns.dec2_dzpuis() ;
     Tenseur_sym copie_bh (hole.taij_auto) ;
     copie_bh.dec2_dzpuis() ;
-    
-    // ON DOIT VERIFIER SI LES DEUX Aij sont alignes ou non !
-    // Les bases des deux vecteurs doivent etre alignees ou non alignees :
-    double orientation_bh = hole.taij_auto.get_mp()->get_rot_phi() ;
-    assert ((orientation_bh==0) || (orientation_bh==M_PI)) ;
-    double orientation_ns = ns_taij_auto.get_mp()->get_rot_phi() ;
-    assert ((orientation_ns==0) || (orientation_ns==M_PI)) ;
-    int same_orient = (orientation_bh == orientation_ns) ? 1 : -1 ;
     
     // Les importations :
     if (hole.taij_auto.get_etat() == ETATZERO)
@@ -266,21 +288,25 @@ void Bin_ns_bh::fait_tkij () {
     else {
       ns_taij_comp.set(0, 0).import_asymy(copie_bh(0, 0)) ;
       ns_taij_comp.set(0, 1).import_symy(copie_bh(0, 1)) ;
-      ns_taij_comp.set(0, 2).import_asymy(same_orient*copie_bh(0, 2)) ;
+      ns_taij_comp.set(0, 2).import_asymy(copie_bh(0, 2)) ;
       ns_taij_comp.set(1, 1).import_asymy(copie_bh(1, 1)) ;
-      ns_taij_comp.set(1, 2).import_symy(same_orient*copie_bh(1, 2)) ;
+      ns_taij_comp.set(1, 2).import_symy(copie_bh(1, 2)) ;
       ns_taij_comp.set(2, 2).import_asymy(copie_bh(2, 2)) ;
+      ns_taij_comp.set_triad(*copie_bh.get_triad()) ;
+      ns_taij_comp.change_triad(star.ref_triad) ;
     }
     
-    if (ns_taij_auto.get_etat() == ETATZERO)
+    if (star.taij_auto.get_etat() == ETATZERO)
       hole.taij_comp.set_etat_zero() ;
     else {
       hole.taij_comp.set(0, 0).import_asymy(copie_ns(0, 0)) ;
       hole.taij_comp.set(0, 1).import_symy(copie_ns(0, 1)) ;
-      hole.taij_comp.set(0, 2).import_asymy(same_orient*copie_ns(0, 2)) ;
+      hole.taij_comp.set(0, 2).import_asymy(copie_ns(0, 2)) ;
       hole.taij_comp.set(1, 1).import_asymy(copie_ns(1, 1)) ;
-      hole.taij_comp.set(1, 2).import_symy(same_orient*copie_ns(1, 2)) ;
+      hole.taij_comp.set(1, 2).import_symy(copie_ns(1, 2)) ;
       hole.taij_comp.set(2, 2).import_asymy(copie_ns(2, 2)) ;
+      hole.taij_comp.set_triad(*copie_ns.get_triad()) ;
+      hole.taij_comp.change_triad (hole.mp.get_bvect_cart()) ;
     }
     
     hole.taij_comp.set_std_base() ;
@@ -290,37 +316,29 @@ void Bin_ns_bh::fait_tkij () {
        
     // Et enfin les trucs totaux...
     hole.taij_tot = hole.taij_auto + hole.taij_comp ;
-    Tenseur_sym ns_taij_tot (ns_taij_auto + ns_taij_comp) ;
+    Tenseur_sym ns_taij_tot (star.taij_auto + ns_taij_comp) ;
+    star.taij_tot = ns_taij_tot ;
     
     int nz_ns = star.mp.get_mg()->get_nzone() ;
     Cmp ntot_ns (star.get_nnn()()) ;
     
     Cmp ntot_bh (hole.n_tot()) ;
-    des_coupe_z (ntot_bh, 0, -5, 0, -2.5, 2.5, "N") ;
+    //des_coupe_z (ntot_bh, 0, -5, 0, -2.5, 2.5, "N") ;
     ntot_bh = division_xpun (ntot_bh, 0) ;
     ntot_bh.raccord(1) ;
 
-    des_coupe_z (ntot_bh, 0, -5, 0, -2.5, 2.5, "N/ (x+1)") ;
+    //des_coupe_z (ntot_bh, 0, -5, 0, -2.5, 2.5, "N/ (x+1)") ;
     
     // Boucle sur les composantes :
     for (int lig = 0 ; lig<3 ; lig++)
       for (int col = lig ; col<3 ; col++) {
-	
-	// Le sens d orientation
-	int ind = 1 ;
-	if (lig !=2)
-	  ind *= -1 ;
-	if (col != 2)
-	  ind *= -1 ;
-	if (same_orient == 1)
-	  ind = 1 ;
 	
 	// Dans la grille du BH (pas de pb sauf pres horizon :
 	Cmp auxi_bh (hole.taij_tot(lig, col)/2.) ;
 	auxi_bh.dec2_dzpuis() ;
 	auxi_bh = division_xpun (auxi_bh, 0) ;
 	
-	des_coupe_z (auxi_bh, 0, -10, 20, -7, 7, "Aij/ (x+1)") ;
+	//des_coupe_z (auxi_bh, 0, -10, 20, -7, 7, "Aij/ (x+1)") ;
 	auxi_bh = auxi_bh / ntot_bh ;
 	auxi_bh.raccord(1) ;
 
@@ -370,8 +388,7 @@ void Bin_ns_bh::fait_tkij () {
 		    copie_ns_bis(l, k, j, i) / ntot_ns (l, k, j, i)/2. ;
 		else 
 		  // On est pres du trou (faut pas tomber dedans !) :
-		  auxi_ns.set(l, k, j, i) = 
-		    ind * auxi_bh.val_point (air, theta, phi) ;
+		  auxi_ns.set(l, k, j, i) =  auxi_bh.val_point (air, theta, phi) ;
 	      }
 	  
 	  // Cas infini :
@@ -382,20 +399,20 @@ void Bin_ns_bh::fait_tkij () {
 	}
 	
 	
-	ns_tkij_tot.set(lig, col) = auxi_ns ;
+	star.tkij_tot.set(lig, col) = auxi_ns ;
 	hole.tkij_tot.set(lig, col) = auxi_bh ;
       }
    
-    ns_tkij_tot.set_std_base() ;
+    star.tkij_tot.set_std_base() ;
     hole.tkij_tot.set_std_base() ;
-    ns_tkij_tot.inc2_dzpuis() ;
+    star.tkij_tot.inc2_dzpuis() ;
 
     hole.tkij_tot.inc2_dzpuis() ;
      
-    Cmp dessin_un (hole.get_tkij_tot()(0,0)) ;
-    des_coupe_z (dessin_un, 0, -10, 20, -7, 7, "Kij tot BH") ;
-    Cmp dessin_deux (ns_tkij_tot(0,0)) ;
-    des_coupe_z (dessin_deux, 0, -10, 20, -7, 7, "Kij tot NS") ;
+    //Cmp dessin_un (hole.get_tkij_tot()(0,0)) ;
+    //des_coupe_z (dessin_un, 0, -10, 20, -7, 7, "Kij tot BH") ;
+    //Cmp dessin_deux (ns_tkij_tot(0,0)) ;
+    //des_coupe_z (dessin_deux, 0, -10, 20, -7, 7, "Kij tot NS") ;
     
     star.tkij_auto.set_etat_qcq() ;
     star.tkij_comp.set_etat_qcq() ;
@@ -403,9 +420,9 @@ void Bin_ns_bh::fait_tkij () {
     
     for (int lig=0 ; lig<3 ; lig++)
       for (int col=lig ; col<3 ; col++) {
-	star.tkij_auto.set(lig, col) = ns_tkij_tot(lig, col)*
+	star.tkij_auto.set(lig, col) = star.tkij_tot(lig, col)*
 	  star.decouple ;
-	star.tkij_comp.set(lig, col) = ns_tkij_tot(lig, col)*
+	star.tkij_comp.set(lig, col) = star.tkij_tot(lig, col)*
 	  (1-star.decouple) ;
 	hole.tkij_auto.set(lig, col) = hole.tkij_tot(lig, col)*
 	  hole.decouple ;

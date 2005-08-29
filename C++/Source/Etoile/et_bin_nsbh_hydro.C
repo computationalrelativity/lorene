@@ -6,6 +6,7 @@
 
 /*
  *   Copyright (c) 2000-2001 Eric Gourgoulhon
+ *                 2005 Philippe Grandclément
  *
  *   This file is part of LORENE.
  *
@@ -26,68 +27,16 @@
  */
 
 
-char et_bin_hydro_C[] = "$Header$" ;
+char et_bin_nsbh_hydro_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
- * Revision 1.5  2005/08/29 15:10:16  p_grandclement
+ * Revision 1.1  2005/08/29 15:10:17  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
  *   2) Provisory files for the mixted binaries (Bh and NS) : THIS IS NOT
  *   WORKING YET !!!
- *
- * Revision 1.4  2003/03/03 19:46:09  f_limousin
- * Set standard bases for s_euler.
- *
- * Revision 1.3  2003/01/17 13:34:56  f_limousin
- * Replace A^2*flat_scalar_prod by sprod
- *
- * Revision 1.2  2002/12/10 15:29:29  k_taniguchi
- * Change the multiplication "*" to "%"
- *   and flat_scalar_prod to flat_scalar_prod_desal.
- *
- * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
- * LORENE
- *
- * Revision 2.11  2000/12/22  13:10:32  eric
- * Modif des annulations en dehors de l'etoile.
- *
- * Revision 2.10  2000/03/29  11:47:53  eric
- * Suppression affichage.
- *
- * Revision 2.9  2000/03/01  16:12:09  eric
- * Appel de set_std_base sur u_euler dans le cas irrotationnel.
- *
- * Revision 2.8  2000/02/24  09:34:10  keisuke
- * Ajout de l'appel a set_std_base() sur wit_w.
- *
- * Revision 2.7  2000/02/21  13:59:09  eric
- * Appel de set_dzpuis(0) sur loggam.
- *
- * Revision 2.6  2000/02/21  08:43:17  keisuke
- * Ajout de l'appel a set_std_base() sur loggam.
- *
- * Revision 2.5  2000/02/17  14:42:45  eric
- * Ajout de l'appel a set_std_base() sur gam_euler.
- *
- * Revision 2.4  2000/02/14  11:06:15  eric
- * Suppression de l'appel a annule(nzet.nzm1) sur gam_euler dans le cas en
- *   corotation.
- * Ajout de l'appel a annule(nzet,nzm1) sur wit_w.
- *
- * Revision 2.3  2000/02/12  18:36:23  eric
- * Appel de set_std_base sur loggam.
- *
- * Revision 2.2  2000/02/08  19:29:03  eric
- * Calcul sur les tenseurs.
- * wit_w est calcule.
- *
- * Revision 2.1  2000/02/04  16:37:28  eric
- * Premiere version implementee (non testee !)/
- *
- * Revision 2.0  2000/01/31  15:57:30  eric
- * *** empty log message ***
  *
  *
  * $Header$
@@ -97,9 +46,9 @@ char et_bin_hydro_C[] = "$Header$" ;
 // Headers C
 
 // Headers Lorene
-#include "etoile.h"
+#include "et_bin_nsbh.h"
 
-void Etoile_bin::hydro_euler(){
+void Et_bin_nsbh::hydro_euler(){
 
     int nz = mp.get_mg()->get_nzone() ; 
     int nzm1 = nz - 1 ; 
@@ -168,7 +117,7 @@ void Etoile_bin::hydro_euler(){
 	gam_euler.set_std_base() ;  // sets the standard spectral bases for
 				    // a scalar field
 
-	u_euler = -bsn ; 
+	u_euler = bsn ; 
 
     }
     

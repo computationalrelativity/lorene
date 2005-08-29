@@ -32,6 +32,12 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2005/08/29 15:10:12  p_grandclement
+ * Addition of things needed :
+ *   1) For BBH with different masses
+ *   2) Provisory files for the mixted binaries (Bh and NS) : THIS IS NOT
+ *   WORKING YET !!!
+ *
  * Revision 1.13  2004/12/02 09:33:04  p_grandclement
  * *** empty log message ***
  *
@@ -424,6 +430,9 @@ class Bhole {
 	 * Returns the function used to construct \c tkij_auto  from \c tkij_tot .
 	 */
 	const Cmp get_decouple() const {return decouple ;}
+	
+	Cmp& set_n_auto() {return n_auto.set() ;}
+	Cmp& set_psi_auto() {return psi_auto.set() ;}
     public:
 	
 	/**
@@ -627,14 +636,10 @@ class Bhole {
 	void solve_shift_with_ns (const Et_bin_nsbh& ns, 
 			       double precis, double relax) ;
 	
-	/**
-	 * Solve, once, the equations for the lapse, conformal factor and 
-	 * shift and updates all the companion quantities, except the 
-	 * ones associated with \f$K^{ij}\f$.
-	 **/
-	void update_metric (const Et_bin_nsbh& ns, 
-			       double precis, double relax) ;
-
+	void equilibrium (const Et_bin_nsbh& ns, double precis, double relax) ;
+	void update_metric (const Et_bin_nsbh& ns) ;
+        
+	
 	/**
 	 * Calculates the total \f$K^{ij}\f$. The regularisation of the shift must be done
 	 * before to ensure regularity.
@@ -714,6 +719,7 @@ class Bhole_binaire {
 	// Tableau sur les deux trous.
 	Bhole* holes[2] ; ///< Array on the black holes
 	
+	double pos_axe ; /// Position of the axis of rotation
 	double omega ;	///< Angular velocity
 	
     public:
@@ -740,6 +746,8 @@ class Bhole_binaire {
 			     hole1.set_omega (ome) ;
 			     hole2.set_omega (ome) ;} ;
 	
+	void set_pos_axe (double) ;
+			     
     public:
 	// trucs pour lire :
 	/**
@@ -849,8 +857,6 @@ class Bhole_binaire {
 	 /**
 	  * Solves the equation for a particular angular velocity, the systeme being 
 	  * initialized to Misner-Lindquist solution.
-	  * @param angu [input] : angular velocity used for the boundary condition on 
-	  * \f$\vec{\beta}\f$.
 	  * @param precis [input] : precision for the convergence (on \f$\beta\f$).
 	  * @param relax [input] : relaxation parameter.
 	  * @param nbre_ome [input] : number of intermediates velocities to go from 0 to 
@@ -858,8 +864,9 @@ class Bhole_binaire {
 	  * @param sortie [input] : flag for the output on files (0 no output files).
 	  * @returns : the virial error.
 	  */
-	  double coal (double angu, double precis, double relax,
-	   	    double nbre_ome,const int sortie = 0) ;
+	  void coal (double precis, double relax, int nbre_ome, double search_ome, 
+	  		double m1, double m2, const int sortie = 0) ;  
+
 			    
 	/**
 	 *  Calculates the ADM mass of the system using :
@@ -895,6 +902,8 @@ class Bhole_binaire {
 	 * @param nr [input] : number of points used for the calculation.
 	 */
 	 double distance_propre(const int nr = 65) const ;
+	
+	Tbl linear_momentum_systeme_inf() const ;
 	
 	/**
 	 * Solve the equation for the logarithm of \f$\Psi\f$.

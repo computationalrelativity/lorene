@@ -29,6 +29,12 @@ char bin_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/08/29 15:10:15  p_grandclement
+ * Addition of things needed :
+ *   1) For BBH with different masses
+ *   2) Provisory files for the mixted binaries (Bh and NS) : THIS IS NOT
+ *   WORKING YET !!!
+ *
  * Revision 1.5  2004/03/25 10:28:58  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -59,9 +65,11 @@ char bin_ns_bh_C[] = "$Header$" ;
 #include <math.h>
 
 // Lorene headers
+#include "bhole.h"
 #include "bin_ns_bh.h"
 #include "utilitaires.h"
 #include "unites.h"
+#include "graphique.h"
 
   			    //--------------//
 			    // Constructors //
@@ -215,6 +223,67 @@ void Bin_ns_bh::sauve(FILE* fich) const {
 
 }
 
+
+void Bin_ns_bh::init_auto () {
+	
+	// On doit faire fonction pour assurer que tout va bien sur les trucs limites
+	Cmp filtre_ns(star.get_mp()) ;
+	Cmp radius_ns (star.get_mp()) ;
+	radius_ns = star.get_mp().r ;
+	double rlim_ns = star.get_mp().val_r (0, 1, 0, 0) ;
+	filtre_ns = 0.5 * (1 + exp(-radius_ns*radius_ns/rlim_ns/rlim_ns)) ;
+	filtre_ns.std_base_scal() ;
+	
+	Cmp filtre_bh(hole.get_mp()) ;
+	Cmp radius_bh (hole.get_mp()) ;
+	radius_bh = hole.get_mp().r ;
+	double rlim_bh = hole.get_mp().val_r (0, 1, 0, 0) ;
+	filtre_bh = 0.5 * (1 + exp(-radius_bh*radius_bh/rlim_bh/rlim_bh)) ;
+	filtre_bh.std_base_scal() ;
+	
+	// Facteur conforme : pas de soucis
+	star.set_confpsi_auto() = sqrt(exp(star.get_beta_auto()()-star.get_logn_auto()()))*filtre_ns ;
+	star.set_confpsi_auto().set_std_base() ;
+	hole.set_psi_auto() = hole.get_psi_auto()() * filtre_bh ;
+	hole.set_psi_auto().std_base_scal() ;
+	
+	// Le lapse
+	star.set_n_auto() = sqrt(exp(star.get_beta_auto()()-star.get_logn_auto()()))*filtre_ns ;
+	star.set_n_auto().set_std_base() ;
+		
+	hole.set_n_auto() = hole.get_n_auto()() * filtre_bh ;
+	hole.set_n_auto().std_base_scal() ;
+	
+	// On doit assurer que le lapse tot est bien zero sur l'horizon...
+	Cmp soustrait ((filtre_bh-0.5)*2*exp(1.)) ;
+	int nz = hole.get_mp().get_mg()->get_nzone() ;
+	Mtbl xa_hole (hole.get_mp().get_mg()) ;
+	xa_hole = hole.get_mp().xa ;
+	Mtbl ya_hole (hole.get_mp().get_mg()) ;
+	ya_hole = hole.get_mp().ya ;
+	Mtbl za_hole (hole.get_mp().get_mg()) ;
+	za_hole = hole.get_mp().za ;
+	double xa_abs, ya_abs, za_abs ;
+	double air, tet, phi ;
+
+	int np = hole.get_mp().get_mg()->get_np(0) ;
+	int nt = hole.get_mp().get_mg()->get_nt(0) ;
+	for (int k=0 ; k<np ; k++)
+	     for (int j=0 ; j<nt ; j++) {
+	          double val_hole = hole.n_auto()(1, k,j,0) ;
+		  xa_abs = xa_hole(1,k,j,0) ; 
+		  ya_abs = ya_hole(1,k,j,0) ;
+		  za_abs = za_hole(1,k,j,0) ;
+		  star.get_mp().convert_absolute (xa_abs, ya_abs, za_abs, air, tet, phi) ;
+		  double val_star  = star.get_n_auto()().val_point (air, tet, phi) ;
+        	  for (int l=1 ; l<nz ; l++)
+		      for (int i=0 ; i<hole.get_mp().get_mg()->get_nr(l) ; i++)
+			   hole.set_n_auto().set(l,k,j,i) -= (val_star+val_hole)*soustrait(l,k,j,i) ;
+	}
+	hole.set_n_auto().std_base_scal() ;
+	hole.set_n_auto().raccord(1) ;
+}
+
 // Printing
 // --------
 ostream& operator<<(ostream& ost, const Bin_ns_bh& bibi)  {
@@ -238,7 +307,6 @@ ostream& Bin_ns_bh::operator>>(ostream& ost) const {
     ost << endl << "Neutron star : " << endl ;
     ost <<         "============   " << endl ;
     ost << star << endl ;
-
 
     ost << "Black hole : " << endl ;
     ost << "==========   " << endl ;

@@ -25,6 +25,12 @@ char bhole_with_ns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/08/29 15:10:13  p_grandclement
+ * Addition of things needed :
+ *   1) For BBH with different masses
+ *   2) Provisory files for the mixted binaries (Bh and NS) : THIS IS NOT
+ *   WORKING YET !!!
+ *
  * Revision 1.5  2004/03/25 10:28:57  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -65,7 +71,7 @@ void Bhole::solve_lapse_with_ns (double relax) {
     assert ((relax>0) && (relax<=1)) ;
     
     cout << "Resolution LAPSE" << endl ;
-    
+        
     // Pour la relaxation ...
     Cmp lapse_old (n_auto()) ;
     Tenseur auxi (flat_scalar_prod(tkij_tot, tkij_auto)) ;
@@ -77,13 +83,13 @@ void Bhole::solve_lapse_with_ns (double relax) {
 	work.set() = auxi(i, i) ;
 	kk = kk + work ;
 	}
-    
+  
     // La source
     Cmp source 
     (-2*flat_scalar_prod(psi_auto.gradient(), grad_n_tot)()/psi_tot()
 	+pow(psi_tot(), 4.)*n_tot()*kk()) ;
-    source.std_base_scal() ;
-     
+    source.std_base_scal() ;    
+  
     // On resout pour N-1/2 :
    
     Valeur limite (mp.get_mg()->get_angu()) ;
@@ -92,15 +98,15 @@ void Bhole::solve_lapse_with_ns (double relax) {
     int nt = mp.get_mg()->get_nt(1) ;
     for (int k=0 ; k<np ; k++) 
       for (int j=0 ; j<nt ; j++)
-	limite.set(0,k,j,0) -= n_comp() (1, k, j, 0) ;
+	limite.set(0,k,j,0) -= n_comp() (1, k, j, 0) + (1-relax)*(n_auto()(1,k,j,0)-0.5) ;
 	
     limite.std_base_scal() ;
+    limite = limite/relax ;
     
     Cmp soluce (source.poisson_dirichlet(limite, 0)) ;
-    soluce = soluce + 0.5 ;   // Permet de trouver N
-    soluce.raccord(1) ;   
-
-    n_auto.set() = relax*soluce + (1-relax)*lapse_old ;
+      
+    n_auto.set() = relax*soluce + (1-relax)*(lapse_old-0.5) + 0.5 ; 
+    n_auto.set().raccord(1) ;
 }
 
 // Resolution sur Psi :
@@ -134,7 +140,7 @@ void Bhole::solve_psi_with_ns (double relax) {
 
     for (int k=0 ; k<np ; k++) 
       for (int j=0 ; j<nt ; j++)
-	limite.set(0, k, j, 0) = -0.5/rayon*psi_auto()(1, k, j, 0) -
+	limite.set(0, k, j, 0) = -0.5/rayon*psi_tot()(1, k, j, 0) -
 	  psi_comp().dsdr()(1, k, j, 0) ;
 
     limite.std_base_scal() ;
@@ -218,12 +224,12 @@ void Bhole::solve_shift_with_ns (const Et_bin_nsbh& ns,
 	
 	ns.get_mp().convert_absolute (xabs, yabs, zabs, air, theta, phi) ;
 	
-	lim_x.set(0, k, j, 0) = omega*y_mtbl(1, k, j, 0) - 
+	lim_x.set(0, k, j, 0) = omega*Yabs(1, k, j, 0) - 
 	  ns.get_shift_auto()(0).val_point(air, theta, phi) ;
 	lim_x.base = *bases[0] ;
 	
 	
-	lim_y.set(0, k, j, 0) = -omega*x_mtbl(1, k, j, 0)- 
+	lim_y.set(0, k, j, 0) = -omega*Xabs(1, k, j, 0)- 
 	  ns.get_shift_auto()(1).val_point(air, theta, phi) ;
 	
 	lim_z.set(0, k, j, 0) = - 
@@ -242,25 +248,32 @@ void Bhole::solve_shift_with_ns (const Et_bin_nsbh& ns,
     // On resout :
     poisson_vect_frontiere(1./3., source, shift_auto, lim_x, lim_y, 
 			   lim_z, 0, precision, 20) ;
-    
+   
     shift_auto = relax*shift_auto + (1-relax)*shift_old ;
     regul = regle (shift_auto, ns.get_shift_auto(), omega) ;
 }
 
 
-void Bhole::update_metric (const Et_bin_nsbh& comp, 
+void Bhole::equilibrium (const Et_bin_nsbh& comp, 
 			   double precision, double relax) {
 
   // Solve for the lapse :
   solve_lapse_with_ns (relax) ;
-  fait_n_comp (comp) ;
 
   // Solve for the conformal factor :
   solve_psi_with_ns (relax) ;
-  fait_psi_comp (comp) ;
-  
+
+  if (omega != 0) 
   // Solve for the shift vector :
-  solve_shift_with_ns (comp, precision, relax) ;
+  	solve_shift_with_ns (comp, precision, relax) ;
+}
+
+  
+
+
+void Bhole::update_metric (const Et_bin_nsbh& comp) {
+	fait_n_comp(comp) ;
+	fait_psi_comp(comp) ;
 }
 
   

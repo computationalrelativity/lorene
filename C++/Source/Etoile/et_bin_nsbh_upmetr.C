@@ -31,6 +31,12 @@ char et_bin_nsbh_upmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/08/29 15:10:17  p_grandclement
+ * Addition of things needed :
+ *   1) For BBH with different masses
+ *   2) Provisory files for the mixted binaries (Bh and NS) : THIS IS NOT
+ *   WORKING YET !!!
+ *
  * Revision 1.1  2003/10/24 12:28:39  k_taniguchi
  * Method of update metric for the BH companion
  *
@@ -74,7 +80,7 @@ void Et_bin_nsbh::update_metric(const Bhole& comp) {
 	confpsi_comp.set_std_base() ; // set the bases for spectral expansions
     }
 
-
+ 
     // Computes N^i_comp  ---> stored in shift_comp
     if ( (comp.get_shift_auto()).get_etat() == ETATZERO ) {
 	shift_comp.set_etat_zero() ;
@@ -88,7 +94,6 @@ void Et_bin_nsbh::update_metric(const Bhole& comp) {
 
 	shift_comp.set_std_base() ;   // set the bases for spectral expansions
     }
-    shift_comp.set_triad( *((comp.get_shift_auto()).get_triad()) ) ;
 
     // Lapse function N
     // ----------------
@@ -101,7 +106,13 @@ void Et_bin_nsbh::update_metric(const Bhole& comp) {
     confpsi = confpsi_auto + confpsi_comp ;
 
     confpsi.set_std_base() ;   // set the bases for spectral expansions
-
+    
+    // Conformal factor A^2
+    // ---------------------
+    
+    a_car =  pow(confpsi, 4.);
+    a_car.set_std_base() ;   // set the bases for spectral expansions
+    
     // Shift vector N^i
     // ----------------
 
@@ -122,6 +133,4 @@ void Et_bin_nsbh::update_metric(const Bhole& comp) {
     // -----------------------------------
 
     del_deriv() ;
-
-
 }

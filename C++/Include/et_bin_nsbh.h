@@ -29,6 +29,12 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/08/29 15:10:12  p_grandclement
+ * Addition of things needed :
+ *   1) For BBH with different masses
+ *   2) Provisory files for the mixted binaries (Bh and NS) : THIS IS NOT
+ *   WORKING YET !!!
+ *
  * Revision 1.3  2004/06/09 06:32:51  k_taniguchi
  * Introduce set_n_auto() and set_confpsi_auto().
  *
@@ -302,6 +308,8 @@ class Et_bin_nsbh : public Etoile_bin {
     // Computational routines
     // ----------------------
     public:
+    
+    void fait_taij_auto() ;
     /** Computes metric coefficients from known potentials,
      *  when the companion is a black hole.
      *
@@ -360,6 +368,35 @@ class Et_bin_nsbh : public Etoile_bin {
 				  double thres_adapt,
 				  const Tbl& fact, Tbl& diff) ;
 
+    void equilibrium_nsbh (bool, int&, int, int, double, int, double, Tbl&) ;
+    
+    /** Computes the quantities \c bsn  and \c pot_centri .
+	 * 
+	 *  The calculation is performed starting from the quantities
+	 *  \c nnn , \c shift ,  \c a_car ,  
+	 *  which are supposed to be up to date.  
+	 * 
+	 *  @param omega  angular velocity with respect to an asymptotically 
+	 *		  inertial observer
+	 *  @param x_axe  absolute X coordinate of the rotation axis
+	 */
+	virtual void kinematics(double omega, double x_axe) ; 
+	
+	/** Computes the hydrodynamical quantities relative to the Eulerian
+	 *  observer from those in the fluid frame.
+	 *
+	 *  The calculation is performed starting from the quantities
+	 *  \c ent , \c ener , \c press , and \c a_car ,  
+	 *  which are supposed to be up to date.  
+	 *  From these,  the following fields are updated:
+	 *  \c gam_euler , \c u_euler , \c ener_euler , \c s_euler . 
+	 * 
+	 */
+	virtual void hydro_euler() ; 
+	
+	double compute_angul() const ;
+	double compute_axe(double) const ;
+	
     friend class Bin_ns_bh ;
 
 };
