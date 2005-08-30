@@ -26,6 +26,9 @@ char tenseur_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/08/30 08:35:13  p_grandclement
+ * Addition of the Tau version of the vectorial Poisson equation for the Tensors
+ *
  * Revision 1.4  2003/10/03 15:58:51  j_novak
  * Cleaning of some headers
  *
@@ -281,6 +284,192 @@ Tenseur Tenseur::poisson_vect_oohara(double lambda, Tenseur& scalaire) const {
     Tenseur resu(*mp, valence, type_indice, triad, metric, poids) ;
     resu.set_etat_qcq() ;
     poisson_vect_oohara(lambda, bidon, resu, scalaire) ;
+    return resu ;
+}
+
+
+		    //---------------------------------------------//
+		    //      Vectorial Poisson equation	 TAU method//
+		    //---------------------------------------------//
+
+// Version avec parametres
+// -----------------------
+void Tenseur::poisson_vect_tau(double lambda, Param& para, Tenseur& shift
+			    , Tenseur& vecteur, Tenseur& scalaire) const {
+    assert (lambda != -1) ;
+    
+    // Verifications d'usage ...
+    assert (valence == 1) ;
+    assert (shift.get_valence() == 1) ;
+    assert (shift.get_type_indice(0) == type_indice(0)) ;
+    assert (vecteur.get_valence() == 1) ;
+    assert (vecteur.get_type_indice(0) == type_indice(0)) ;
+    assert (scalaire.get_valence() == 0) ;
+    assert (etat != ETATNONDEF) ;
+
+    // Nothing to do if the source is zero
+    if (etat == ETATZERO) {
+
+	shift.set_etat_zero() ; 
+
+	vecteur.set_etat_qcq() ;
+	for (int i=0; i<3; i++) {
+	    vecteur.set(i) = 0 ; 
+	}
+
+	scalaire.set_etat_qcq() ;
+	scalaire.set() = 0 ;  
+
+	return ; 
+    }
+
+    for (int i=0 ; i<3 ; i++)
+	assert ((*this)(i).check_dzpuis(4)) ;
+
+    // On construit le tableau contenant le terme P_i ...
+    for (int i=0 ; i<3 ; i++) {
+	Param* par = mp->donne_para_poisson_vect(para, i) ; 
+
+	(*this)(i).poisson_tau(*par, vecteur.set(i)) ;
+
+	if (par != 0x0)
+	  delete par ; 
+    }
+    vecteur.set_triad( *triad ) ; 
+    
+    // Equation de Poisson scalaire :
+    Tenseur source_scal (-skxk(*this)) ;
+      
+    assert (source_scal().check_dzpuis(3)) ; 
+
+    Param* par = mp->donne_para_poisson_vect(para, 3) ; 
+
+    source_scal().poisson_tau(*par, scalaire.set()) ;
+    
+    if (par !=0x0)
+      delete par ; 
+
+    // On construit le tableau contenant le terme d xsi / d x_i ...
+    Tenseur auxiliaire(scalaire) ;
+    Tenseur dxsi (auxiliaire.gradient()) ;
+    dxsi.dec2_dzpuis() ;
+ 
+    // On construit le tableau contenant le terme x_k d P_k / d x_i
+    Tenseur dp (skxk(vecteur.gradient())) ;
+    dp.dec_dzpuis() ;
+    
+    // Il ne reste plus qu'a tout ranger dans P :
+    // The final computation is done component by component because
+    // d_khi and x_d_w are covariant comp. whereas w_shift is
+    // contravariant
+
+    shift.set_etat_qcq() ; 
+
+    for (int i=0 ; i<3 ; i++)
+	shift.set(i) = (lambda+2)/2/(lambda+1) * vecteur(i) 
+			    - (lambda/2/(lambda+1)) * (dxsi(i) + dp(i)) ;   
+			    
+    shift.set_triad( *(vecteur.triad) ) ; 
+
+}
+
+
+// Version sans parametres
+// -----------------------
+Tenseur Tenseur::poisson_vect_tau(double lambda, Tenseur& vecteur, 
+				    Tenseur& scalaire) const {
+      
+    Param bidon ;
+    Tenseur resu(*mp, valence, type_indice, triad, metric, poids) ;
+    resu.set_etat_qcq() ;
+    poisson_vect_tau(lambda, bidon, resu, vecteur, scalaire) ;
+    return resu ;
+}
+
+
+		    //-----------------------------------//
+		    //      Vectorial Poisson equation	 //
+		    //      using Oohara scheme 	 //
+		    //-----------------------------------//
+		    
+// Version avec parametres
+// -----------------------
+void Tenseur::poisson_vect_oohara_tau(double lambda, Param& para, Tenseur& shift, 
+			    Tenseur& chi) const {
+    
+     // Ne marche pas pour lambda =-1
+    assert (lambda != -1) ;
+    
+    // Verifications d'usage ...
+    assert (valence == 1) ;
+    assert (shift.get_valence() == 1) ;
+    assert (shift.get_type_indice(0) == type_indice(0)) ;
+    assert (chi.get_valence() == 0) ;
+    assert (etat != ETATNONDEF) ;
+
+    // Nothing to do if the source is zero
+    if (etat == ETATZERO) {
+	shift.set_etat_zero() ; 
+	chi.set_etat_qcq() ;
+	chi.set() = 0 ; 
+	return ; 
+    }
+
+    for (int i=0 ; i<3 ; i++)
+	assert ((*this)(i).check_dzpuis(3) ||
+		(*this)(i).check_dzpuis(4)) ;
+    
+
+    Tenseur copie(*this) ;
+    copie.dec2_dzpuis() ;
+    if ((*this)(0).check_dzpuis(4))
+	copie.dec2_dzpuis() ;
+    else
+	copie.dec_dzpuis() ;
+    
+    Tenseur source_scal(contract(copie.gradient(), 0, 1)/(1.+lambda)) ;
+    source_scal.inc2_dzpuis() ;
+    
+    Param* par = mp->donne_para_poisson_vect(para, 3) ; 
+    
+    source_scal().poisson_tau(*par, chi.set());
+    
+    if (par !=0x0)
+      delete par ; 
+  
+    Tenseur source_vect(*this) ;
+    if ((*this)(0).check_dzpuis(4))
+	source_vect.dec_dzpuis() ;
+    
+    Tenseur chi_grad (chi.gradient()) ;
+    chi_grad.inc_dzpuis() ;
+    
+    for (int i=0 ; i<3 ; i++)
+	source_vect.set(i) -= lambda*chi_grad(i) ;
+	
+    assert( *(source_vect.triad) == *((chi.gradient()).get_triad()) ) ;
+    
+    for (int i=0 ; i<3 ; i++) {
+	par = mp->donne_para_poisson_vect(para, i) ;
+
+	source_vect(i).poisson_tau(*par, shift.set(i)) ;   
+
+	if (par !=0x0)
+	  delete par ; 
+    }
+    shift.set_triad( *(source_vect.triad) ) ; 
+
+}
+
+
+// Version sans parametres
+// -----------------------
+Tenseur Tenseur::poisson_vect_oohara_tau(double lambda, Tenseur& scalaire) const {
+      
+    Param bidon ;
+    Tenseur resu(*mp, valence, type_indice, triad, metric, poids) ;
+    resu.set_etat_qcq() ;
+    poisson_vect_oohara_tau(lambda, bidon, resu, scalaire) ;
     return resu ;
 }
 

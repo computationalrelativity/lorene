@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2005/08/30 08:35:10  p_grandclement
+ * Addition of the Tau version of the vectorial Poisson equation for the Tensors
+ *
  * Revision 1.15  2004/12/29 16:24:03  k_taniguchi
  * Addition of the method for vectorial Poisson equations with a multipole
  * falloff condition at the outer boundary.
@@ -856,6 +859,12 @@ class Tenseur {
     void poisson_vect(double lambda, Param& par, Tenseur& shift, Tenseur& vect
 			, Tenseur& scal) const ;
     
+	/*
+	* Same as poisson_vect with a Tau method
+	**/
+    void poisson_vect_tau(double lambda, Param& par, Tenseur& shift, Tenseur& vect
+			, Tenseur& scal) const ;
+			
     void poisson_vect_falloff(double lambda, Param& par, Tenseur& shift, 
 			      Tenseur& vect, Tenseur& scal, int* k_falloff) const ;
 
@@ -892,6 +901,11 @@ class Tenseur {
 
     Tenseur poisson_vect(double lambda, Tenseur& vect , Tenseur& scal ) const ;
     
+	/*
+	* Same as poisson_vect with a Tau method
+	**/
+    Tenseur poisson_vect_tau(double lambda, Tenseur& vect , Tenseur& scal ) const ;
+			
     Tenseur poisson_vect_falloff(double lambda, Tenseur& vect , 
 				 Tenseur& scal, int* k_falloff ) const ;
 
@@ -925,7 +939,13 @@ class Tenseur {
 
     void poisson_vect_oohara(double lambda, Param& par, Tenseur& shift, 
 				    Tenseur& scal) const ;
-    
+       
+	/*
+	* Same as poisson_vect_oohara with a Tau method
+	**/
+    void poisson_vect_oohara_tau(double lambda, Param& par, Tenseur& shift, 
+				    Tenseur& scal) const ;
+			
   /**
      * Solves the vectorial Poisson equation \f$\Delta N^i +\lambda \nabla^i
      * \nabla_k N^k = S^i\f$.
@@ -955,7 +975,11 @@ class Tenseur {
      */
 			    
     Tenseur poisson_vect_oohara(double lambda, Tenseur& scal) const ;
-   
+   /*
+	* Same as poisson_vect_oohara with a Tau method
+	**/
+    Tenseur poisson_vect_oohara_tau(double lambda, Tenseur& scal) const ;
+			
     /**
      * Solves the vectorial Poisson equation :
      * \f$\Delta N^i +\lambda \nabla^i \nabla_k N^k = S^i\f$.

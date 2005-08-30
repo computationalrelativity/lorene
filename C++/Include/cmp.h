@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2005/08/30 08:35:10  p_grandclement
+ * Addition of the Tau version of the vectorial Poisson equation for the Tensors
+ *
  * Revision 1.17  2005/08/02 06:09:58  m_saijo
  * Modified comment lines (div_r, multi_r, mult_rsint, div_rsint)
  *
@@ -1081,13 +1084,17 @@ class Cmp {
 	/** Solves the scalar Poisson equation with \c *this  as a source.
 	 *   The source \f$\sigma\f$ of the equation \f$\Delta u = \sigma\f$ is 
 	 *   represented by the \c Cmp  \c *this . 
-	 *   Note that \c dzpuis  must be equal to 2 or 4, i.e. that the
+	 *   Note that \c dzpuis  must be equal to 2, 3 or 4, i.e. that the
 	 *   quantity stored in \c *this  is in fact \f$r^2 \sigma\f$ or
 	 *   \f$r^4 \sigma\f$ in the external compactified domain. 
 	 *   The solution \e u  with the boundary condition \e u =0 at spatial
 	 *   infinity is the returned \c Cmp . 
 	 */
 	Cmp poisson() const ;
+	
+	/**  Same as Poisson with a Tau method
+	 */
+	Cmp poisson_tau() const ;
 
 	Cmp poisson_falloff(int k_falloff) const ;
 
@@ -1105,6 +1112,10 @@ class Cmp {
 	 *   \e u =0 at spatial infinity. 
 	 */
 	void poisson(Param& par, Cmp& uu) const ;
+	
+	/**  Same as Poisson with a Tau method
+	 */
+	void poisson_tau(Param& par, Cmp& uu) const ;
 	
 	void poisson_falloff(Param& par, Cmp& uu, int k_falloff) const ;
 

@@ -31,6 +31,9 @@ char cmp_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/08/30 08:35:12  p_grandclement
+ * Addition of the Tau version of the vectorial Poisson equation for the Tensors
+ *
  * Revision 1.3  2004/03/01 09:54:59  j_novak
  * Suppression of the Cmp version of avance_dalembert (now only with Scalar's)
  *
@@ -103,5 +106,29 @@ void Cmp::poisson(Param& par, Cmp& uu) const {
     
 }
 
+	              //--------------------------------------------------//
+		    //      Scalar Poisson equation with a Tau method	 //
+		    //--------------------------------------------------//
 
+// Version without parameters
+// --------------------------
+
+Cmp Cmp::poisson_tau() const {
+    
+    Param bidon ;
+    Cmp resu(*mp) ; 
+    
+    mp->poisson_tau(*this, bidon, resu) ; 
+
+    return resu ;          
+}
+
+// Version with parameters
+// -----------------------
+
+void Cmp::poisson_tau(Param& par, Cmp& uu) const {
+    
+    mp->poisson_tau(*this, par, uu) ;     
+    
+}
 
