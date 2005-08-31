@@ -25,6 +25,9 @@ char et_bin_nsbh_axe_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/08/31 09:13:45  p_grandclement
+ * add math.h
+ *
  * Revision 1.1  2005/08/29 15:10:16  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -36,6 +39,7 @@ char et_bin_nsbh_axe_C[] = "$Header$" ;
  *
  */
 
+ #include <math.h>
 // Headers Lorene
 #include "et_bin_nsbh.h"
 #include "graphique.h"
