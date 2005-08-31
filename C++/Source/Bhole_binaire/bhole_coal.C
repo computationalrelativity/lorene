@@ -25,6 +25,9 @@ char bhole_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/08/31 09:06:18  p_grandclement
+ * add math.h in bhole_coal.C
+ *
  * Revision 1.4  2005/08/29 15:10:14  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -96,6 +99,7 @@ char bhole_coal_C[] = "$Header$" ;
 
 //standard
 #include <stdlib.h>
+#include <math.h>
 
 // Lorene
 #include "tenseur.h"
