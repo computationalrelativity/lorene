@@ -25,6 +25,9 @@ char et_bin_nsbh_angul_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/08/31 09:53:19  m_saijo
+ * Delete unnecessary words around headers
+ *
  * Revision 1.2  2005/08/31 09:13:45  p_grandclement
  * add math.h
  *
@@ -39,8 +42,9 @@ char et_bin_nsbh_angul_C[] = "$Header$" ;
  *
  */
 
+// C Headers
 #include <math.h>
- 
+
 // Headers Lorene
 #include "et_bin_nsbh.h"
 #include "graphique.h"
