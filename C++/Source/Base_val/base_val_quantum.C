@@ -25,6 +25,10 @@ char base_val_quantum_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/09/07 13:09:50  j_novak
+ * New method for determining the highest multipole that can be described on a 3D
+ * grid.
+ *
  * Revision 1.3  2004/11/23 15:08:01  m_forot
  * Added the bases for the cases without any equatorial symmetry
  * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
@@ -51,9 +55,7 @@ char base_val_quantum_C[] = "$Header$" ;
 #include <stdlib.h>
 
 // Headers Lorene
-#include "type_parite.h"
-#include "headcpp.h"
-#include "indent.h"
+#include "grilles.h"
 #include "base_val.h"
 #include "utilitaires.h"
 
@@ -246,4 +248,129 @@ void Base_val::give_quant_numbers (int l, int k, int j,
     abort() ;
     break ;
   }
+}
+
+int Base_val::give_lmax(const Mg3d& mgrid, int lz) const {
+
+#ifndef NDEBUG
+    int nz = mgrid.get_nzone() ;
+    assert (lz < nz) ;
+#endif
+
+    int ntm1 = mgrid.get_nt(lz) - 1;
+    int base_t = get_base_t(lz) ;
+    bool m_odd = (mgrid.get_np(lz) > 2) ;
+
+    int l_max = 0 ;
+
+    switch (base_t) {
+	case T_COS_P :
+	    l_max = 2*ntm1 ;
+	    break;
+    
+	case T_SIN_P :
+	    l_max = 2*ntm1 ;
+	    break;
+
+	case T_COS_I :
+	    l_max = 2*ntm1+1 ;
+	    break;
+
+	case T_SIN_I :
+	    l_max = 2*ntm1+1 ;
+	    break;
+ 
+	case T_COSSIN_CP :
+	    if (!m_odd)
+		l_max = 2*ntm1 ;
+	    else
+		l_max = 2*ntm1+1 ;
+	    break ;
+    
+	case T_COSSIN_SP :
+	    if (!m_odd)
+		l_max = 2*ntm1 ;
+	    else
+		l_max = 2*ntm1+1 ;
+	    break ;
+	    
+	case T_COSSIN_CI :
+	    if (!m_odd)
+		l_max = 2*ntm1+1 ;
+	    else
+		l_max = 2*ntm1 ;
+	    break ;
+	    
+	case T_COSSIN_SI :
+	    if (!m_odd)
+		l_max = 2*ntm1+1 ;
+	    else
+		l_max = 2*ntm1 ;
+	    break ;
+	    
+	case T_COSSIN_C :
+	    l_max = ntm1 ;
+	    break ;
+	    
+	case T_COSSIN_S :
+	    l_max = ntm1 ;
+	    break ;   
+	    
+	case T_LEG_P :
+	    if (!m_odd)
+		l_max = 2*ntm1 ;
+	    else
+		l_max = 2*ntm1+1 ;
+	    break ;
+	    
+	case T_LEG_PP :
+	    l_max = 2*ntm1 ;
+	    break ;
+	    
+	case T_LEG_I :
+	    if (!m_odd)
+		l_max = 2*ntm1+1 ;
+	    else
+		l_max = 2*ntm1 ;
+	    break ;
+	    
+	case T_LEG_IP :
+	    l_max = 2*ntm1+1 ;
+	    break ;
+	    
+	case T_LEG_PI :
+	    l_max = 2*ntm1+1 ;
+	    break ; 
+	    
+	case T_LEG_II :
+	    l_max = 2*ntm1 ;
+	    break ; 
+	    
+	case T_LEG :
+	    l_max = ntm1 ;
+	    break ;
+	    
+	case T_CL_COS_P:
+	    l_max = 2*ntm1 ;
+	    break ;
+	    
+	case T_CL_SIN_P:
+	    l_max = 2*ntm1 ;
+	    break ;
+	    
+	case T_CL_COS_I:
+	    l_max = 2*ntm1+1 ;
+	    break ;
+	    
+	case T_CL_SIN_I:
+	    l_max = 2*ntm1+1 ;
+	    break ;
+	    
+	default:
+	    cout << "Unknown basis in theta in Base_val::get_lmax ..." 
+		 << endl ;
+	    abort() ;
+	    break ;
+    }
+    return l_max ;
 }

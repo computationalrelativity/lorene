@@ -34,6 +34,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2005/09/07 13:09:48  j_novak
+ * New method for determining the highest multipole that can be described on a 3D
+ * grid.
+ *
  * Revision 1.13  2004/11/23 15:03:14  m_forot
  * Corrected error in comments.
  *
@@ -159,6 +163,7 @@
 
 #include "type_parite.h"
 class Tbl ;
+class Mg3d ;
 
 /**
  * Bases of the spectral expansions. \ingroup (spec)
@@ -505,6 +510,15 @@ class Base_val {
 	 **/
 	void give_quant_numbers (int, int, int, 
 				 int&, int&, int&) const ;
+
+	/** 
+	 * Returns the highest multipole for a given grid.
+	 * @param mgrid : the \c Mg3d 
+	 * @param lz : the domain to consider
+	 * @return the highest multipolar momentum \e l that can be
+	 * described by \c this base on the grid.
+	 */
+	int give_lmax(const Mg3d& mgrid, int lz) const ;
 
    // Outputs
     // -------
