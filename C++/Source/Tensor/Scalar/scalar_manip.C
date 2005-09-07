@@ -27,6 +27,9 @@ char scalar_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2005/09/07 13:39:10  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.10  2005/09/07 13:10:48  j_novak
  * Added a filter setting to zero all mulitpoles in a given range.
  *
@@ -100,7 +103,7 @@ void Scalar::annule_l (int l_min, int l_max, bool ylm_output) {
 	    for (int j=0; j<mp->get_mg()->get_nt(lz); j++)
 		for (int i=0; i<mp->get_mg()->get_nr(lz); i++) {
 		    base.give_quant_numbers(lz, k, j, m_q, l_q, base_r) ;
-		    if (l_min <= l_q <= l_max)
+		    if ((l_min <= l_q) && (l_q<= l_max)) 
 			m_coef.set(lz, k, j, i) = 0 ;
 		}
     if (va.c != 0x0) {
