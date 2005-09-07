@@ -30,6 +30,13 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.31  2005/09/07 16:47:42  j_novak
+ * Removed method Sym_tensor_trans::T_from_det_one
+ * Modified Sym_tensor::set_auxiliary, so that it takes eta/r and mu/r as
+ * arguments.
+ * Modified Sym_tensor_trans::set_hrr_mu.
+ * Added new protected method Sym_tensor_trans::solve_hrr
+ *
  * Revision 1.30  2005/04/08 08:22:04  j_novak
  * New methods set_hrr_mu_det_one() and set_WX_det_one(). Not tested yet...
  *
@@ -343,12 +350,13 @@ class Sym_tensor : public Tensor_sym {
 	void set_longit_trans( const Vector& v, const Sym_tensor_trans& a) ;
 
 	/** 
-	 * Assigns the component \f$ T^{rr} \f$ and the derived members \c p_eta ,
-	 * \c p_mu , \c p_www, \c p_xxx and \c p_ttt . It updates the other 
-	 * components accordingly.
+	 * Assigns the component \f$ T^{rr} \f$ and the derived members 
+	 * \c p_eta , \c p_mu , \c p_www, \c p_xxx and \c p_ttt ,
+	 * fro, their values and \f$ \eta / r\f$, \f$\mu / r \f$.
+	 * It updates the other components accordingly.
 	 */
-	void set_auxiliary( const Scalar& trr, const Scalar& eta, const
-			    Scalar& mu, const Scalar& www, const Scalar&
+	void set_auxiliary( const Scalar& trr, const Scalar& eta_over_r, const
+			    Scalar& mu_over_r, const Scalar& www, const Scalar&
 			    xxx, const Scalar& ttt ) ;
 
     // Computation of derived members
@@ -545,21 +553,18 @@ class Sym_tensor_trans: public Sym_tensor {
 
  protected:
 	/**
-	 * Computes the partial trace \e T (see \c Sym_tensor::p_ttt )
-	 * from the other potentials ( \f$\eta\f$, \f$\mu\f$, \e W and \e X )
-	 * and the requirement that \c *this + the flat metric has a determinant 
-	 * equal to 1. It updates the components and the derived potentials
-	 * accordingly.
-	 *
-	 * @param hrr the \e rr components of the \c Sym_tensor_trans
-	 * @param eta \f$\eta\f$ potential (see \c Sym_tensor)
-	 * @param mu \f$\mu\f$ potential (see \c Sym_tensor)
-	 * @param www \c W potential (see \c Sym_tensor)
-	 * @param xxx \c X potential (see \c Sym_tensor)
+	 * Solves for  \f$ T^{rr} \f$ from the \c W potential and the trace.
+	 * It uses the two transverse conditions involving  \f$ T^{rr} \f$
+	 * and \f$\eta\f$ combined: \f$ r^2 \partial_r^2 T^{rr} 
+	 * + 7r \partial_r T^{rr}
+	 * + 9 T^{rr} + 0.5 \Delta_{\theta \varphi} T^{rr} = 
+	 * \Delta_{\theta \varphi} ( \Delta_{\theta \varphi} + 2) W +
+	 * r \partial_r h + 3 h + 0.5 \Delta_{\theta \varphi} h \f$
+	 * 
+	 * @param source the l.h.s. of the above equation
+	 * @param hrr_new the solution \f$ T^{rr} \f$
 	 */
-	void T_from_det_one(const Scalar& hrr, const Scalar& eta, const
-			    Scalar& mu, const Scalar& www, const Scalar&
-			    xxx) ;
+	void solve_hrr(const Scalar& source, Scalar& hrr_new) const;
 
  public:
 	/** Assigns the derived member \c p_tt and computes the trace so that 

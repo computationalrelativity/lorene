@@ -32,6 +32,13 @@ char sym_tensor__aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/09/07 16:47:43  j_novak
+ * Removed method Sym_tensor_trans::T_from_det_one
+ * Modified Sym_tensor::set_auxiliary, so that it takes eta/r and mu/r as
+ * arguments.
+ * Modified Sym_tensor_trans::set_hrr_mu.
+ * Added new protected method Sym_tensor_trans::solve_hrr
+ *
  * Revision 1.4  2005/04/05 15:38:08  j_novak
  * Changed the formulas for W and X. There was an error before...
  *
@@ -221,32 +228,30 @@ const Scalar& Sym_tensor::xxx() const {
 
 }
 
-void Sym_tensor::set_auxiliary(const Scalar& trr, const Scalar& eta_in, 
-			       const Scalar& mu_in, const Scalar& w_in, 
+void Sym_tensor::set_auxiliary(const Scalar& trr, const Scalar& eta_over_r, 
+			       const Scalar& mu_over_r, const Scalar& w_in, 
 			       const Scalar& x_in, const Scalar& t_in ) {
 
     // All this has a meaning only for spherical components:
     assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
     int dzp = trr.get_dzpuis() ;
-#ifndef NDEBUG
     int dzeta = (dzp == 0 ? 0 : dzp - 1) ;
-    assert(eta_in.check_dzpuis(dzeta)) ;
-    assert(mu_in.check_dzpuis(dzeta)) ;
+
+    assert(eta_over_r.check_dzpuis(dzp)) ;
+    assert(mu_over_r.check_dzpuis(dzp)) ;
     assert(w_in.check_dzpuis(dzp)) ;
     assert(x_in.check_dzpuis(dzp)) ;
     assert(t_in.check_dzpuis(dzp)) ;
-#endif
-    assert(&eta_in != p_eta) ;
-    assert(&mu_in != p_mu) ;
+
     assert(&w_in != p_www) ;
     assert(&x_in != p_xxx) ;
     assert(&t_in != p_ttt) ;
 
     set(1,1) = trr ;
-    set(1,2) = eta_in.dsdt() - mu_in.stdsdp() ;
-    set(1,2).div_r_dzpuis(dzp) ;
-    set(1,3) = eta_in.stdsdp() + mu_in.dsdt() ;
-    set(1,3).div_r_dzpuis(dzp) ;
+    set(1,2) = eta_over_r.dsdt() - mu_over_r.stdsdp() ;
+    //   set(1,2).div_r_dzpuis(dzp) ;
+    set(1,3) = eta_over_r.stdsdp() + mu_over_r.dsdt() ;
+    //    set(1,3).div_r_dzpuis(dzp) ;
     Scalar tmp = w_in.lapang() ;
     tmp.set_spectral_va().ylm_i() ;
     Scalar ppp = 2*w_in.dsdt().dsdt() -  tmp - 2*x_in.stdsdp().dsdt() ;
@@ -260,8 +265,8 @@ void Sym_tensor::set_auxiliary(const Scalar& trr, const Scalar& eta_in,
     del_deriv() ; 
 
     // .. and affecting new ones.
-    p_eta = new Scalar(eta_in) ;
-    p_mu = new Scalar(mu_in) ;
+    p_eta = new Scalar(eta_over_r) ; p_eta->mult_r_dzpuis(dzeta) ;
+    p_mu = new Scalar(mu_over_r) ; p_mu->mult_r_dzpuis(dzeta) ;
     p_www = new Scalar(w_in) ;
     p_xxx = new Scalar(x_in) ;
     p_ttt = new Scalar(t_in) ;
