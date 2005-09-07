@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.72  2005/09/07 13:10:47  j_novak
+ * Added a filter setting to zero all mulitpoles in a given range.
+ *
  * Revision 1.71  2005/08/26 14:02:38  p_grandclement
  * Modification of the elliptic solver that matches with an oscillatory exterior solution
  * small correction in Poisson tau also...
@@ -860,6 +863,15 @@ class Scalar : public Tensor {
    *  domains.
    */
   void filtre_r (int* nn) ;
+
+  /**
+   * Sets all the multipolar components between \c l_min and \c l_max
+   * to zero. This is done for [ \c l_min , \c l_max ] and all relevant 
+   * \c m in the spherical harmonics expansion basis. If \c ylm_output 
+   * is set to \c true , then the spectral expansion basis of \c this is 
+   * left to be that of spherical harmonics.
+   */
+  void annule_l (int l_min, int l_max, bool ylm_output= false ) ;
 
   /**
    * Sets the \c n  lasts coefficients in \f$\Phi\f$ to 0 in the 

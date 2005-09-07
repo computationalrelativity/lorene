@@ -27,6 +27,9 @@ char scalar_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2005/09/07 13:10:48  j_novak
+ * Added a filter setting to zero all mulitpoles in a given range.
+ *
  * Revision 1.9  2004/11/23 12:47:44  f_limousin
  * Add function filtre_tp(int nn, int nz1, int nz2).
  *
@@ -70,6 +73,46 @@ char scalar_manip_C[] = "$Header$" ;
 #include "tensor.h"
 #include "proto.h"
 #include "utilitaires.h"
+
+/*
+ * Annule tous les l entre l_min et l_max (compris)
+ */
+
+void Scalar::annule_l (int l_min, int l_max, bool ylm_output) {
+
+    assert (etat != ETATNONDEF) ;
+    assert (l_min <= l_max) ;
+    assert (l_min >= 0) ;
+    if (etat == ETATZERO )
+	return ;
+
+    if (etat == ETATUN) {
+	if (l_min == 0) set_etat_zero() ;
+	else return ;
+    }
+
+    va.ylm() ;
+    Mtbl_cf& m_coef = *va.c_cf ;
+    const Base_val& base = va.base ; 
+    int l_q, m_q, base_r ;
+    for (int lz=0; lz<mp->get_mg()->get_nzone(); lz++) 
+	for (int k=0; k<mp->get_mg()->get_np(lz)+1; k++)
+	    for (int j=0; j<mp->get_mg()->get_nt(lz); j++)
+		for (int i=0; i<mp->get_mg()->get_nr(lz); i++) {
+		    base.give_quant_numbers(lz, k, j, m_q, l_q, base_r) ;
+		    if (l_min <= l_q <= l_max)
+			m_coef.set(lz, k, j, i) = 0 ;
+		}
+    if (va.c != 0x0) {
+	delete va.c ;
+	va.c = 0x0 ;
+    }
+    if (!ylm_output)
+	va.ylm_i() ;
+    
+    return ;
+}
+
 /*
  * Annule les n derniers coefficients en r dans la derniere zone
  */
