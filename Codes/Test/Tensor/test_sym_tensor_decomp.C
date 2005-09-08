@@ -29,6 +29,9 @@ char test_sym_tensor_decomp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/09/08 07:40:56  j_novak
+ * Update of set_auxiliary arguments.
+ *
  * Revision 1.1  2005/05/18 15:31:25  j_novak
  * *** empty log message ***
  *
@@ -105,8 +108,8 @@ int main() {
 	Sym_tensor hhs = hhc ; 
 	hhs.change_triad( map.get_bvect_spher() ) ; 
     
-	Scalar eta = hhs.eta() ;
-	Scalar mu = hhs.mu() ;
+	Scalar eta = hhs.eta() ; eta.div_r_dzpuis(4) ;
+	Scalar mu = hhs.mu() ; mu.div_r_dzpuis(4) ;
 	Scalar ww = hhs.www() ;
 	Scalar xx = hhs.xxx() ;
 	Scalar tt = hhs.ttt() ;
