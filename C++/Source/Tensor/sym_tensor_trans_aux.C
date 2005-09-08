@@ -30,6 +30,9 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/09/08 16:00:23  j_novak
+ * Change of dzpuis for source for mu (temporary?).
+ *
  * Revision 1.5  2005/09/07 16:47:43  j_novak
  * Removed method Sym_tensor_trans::T_from_det_one
  * Modified Sym_tensor::set_auxiliary, so that it takes eta/r and mu/r as
@@ -98,7 +101,7 @@ void Sym_tensor_trans::set_WX_det_one(const Scalar& w_in, const Scalar& x_in,
     Scalar source_mu = - x_in.lapang() ;
     source_mu.set_spectral_va().ylm_i() ;
     source_mu -= 2*x_in ;
-    source_mu.div_r_dzpuis(1) ;
+    source_mu.div_r_dzpuis(2) ;
     Scalar mu_over_r = source_mu.sol_divergence(3) ;
     mu_over_r.annule_l(0,0) ;
     //    mu_over_r.mult_r() ;
