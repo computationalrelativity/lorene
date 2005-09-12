@@ -1,3 +1,4 @@
+
 /*
  *  Main code for Isolated Horizon in arbitrary gauge
  *
@@ -29,6 +30,10 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.30  2005/09/12 12:34:09  f_limousin
+ * Compilation Warning - Change of convention for the angular velocity
+ * Add Berlin boundary condition in the case of binary horizons.
+ *
  * Revision 1.29  2005/06/09 08:09:10  f_limousin
  * Implementation of the Kerr-Shild metric
  *
@@ -322,11 +327,12 @@ int main() {
     Sym_tensor gamt(mp, COV, mp.get_bvect_spher()) ;
 
     gamt = ff.cov() + hh_tmp.up_down(ff) ;
-    gamt.set(1,1) = gamt(1,1) * (1+0.01*sint*sint*cosp*cosp*(1/rr/rr - 1/rr/rr/rr)) ;
+//   gamt.set(1,1) = gamt(1,1) * (1+0.3*sint*sint*cosp*cosp*(1/rr/rr - 1/rr/rr/rr)) ;
 //    gamt.set(2,2) = gamt(2,2) * (1+0.01*sint*sint*cosp*cosp*(1/rr/rr - 1/rr/rr/rr)) ;
 //    gamt.set(3,3) = gamt(3,3) * (1+0.01*sint*sint*cosp*cosp*(1/rr/rr - 1/rr/rr/rr)) ;
-    gamt.set(1,3) = 0.01*sint*sint*cosp*(1/rr/rr - 1/rr/rr/rr) ;
-    gamt.set(1,3).set_spectral_va().set_base_t(T_COSSIN_SI) ;
+//    gamt.set(1,3) = 0.1*sint*sint*cosp*(1/rr/rr - 1/rr/rr/rr) ;
+//    gamt.set(1,3).set_spectral_va().set_base_t(T_COSSIN_SI) ;
+    gamt.std_spectral_base() ;
 
     // Determinant of gamma tilde is put to one 
     // ----------------------------------------
@@ -422,18 +428,11 @@ int main() {
     h_uu.set(2,2) = pow(b2/a2, 1./3.) - 1 ;
     h_uu.set(3,3) = pow(a2/b2, 2./3.) - 1 ;
 
-    
-    // For a dependance in phi
-//    h_uu.set(1,1)=h_uu(1,1)+0.02*sint*sint*cosp*cosp*(1/rr/rr - 1/rr/rr/rr) ;
-//    h_uu.set(3,1)=h_uu(3,1)+0.2*sint*sint*cosp*(1/rr/rr - 1/rr/rr/rr) ;
-//    h_uu.set(3,1).set_spectral_va().set_base_t(T_COSSIN_SI) ;
-    
-
     h_uu.annule_domain(0) ;
     h_uu.std_spectral_base() ;
     
-    //   Metric tgam (ff.con() + h_uu) ;
-    Metric tgam (ff.con()) ;       //For computing BY and DainLT
+    Metric tgam (ff.con() + h_uu) ;
+//    Metric tgam (ff.con()) ;       //For computing BY and DainLT
     gamt = tgam.cov() ;
     met_gamt = gamt ;
 
@@ -453,7 +452,7 @@ int main() {
     // Angular velocity
     // ----------------
 
-    ang_vel = 1.*aaa / (2*mm*(mm+pow(mm*mm-aaa*aaa, 0.5))) ;
+    ang_vel = -1.*aaa / (2*mm*(mm+pow(mm*mm-aaa*aaa, 0.5))) ;
     cout << "ang_vel = " << ang_vel << endl ;
     
     // Lapse function
@@ -510,7 +509,7 @@ int main() {
     // ---------------------
 
     Scalar psi_kerr (pow(a2, 1./6.) * pow(b2,1./12.)) ;
-    psi_kerr = 1.0000000001 ;
+//    psi_kerr = 1.0000000001 ;
     psi_kerr.std_spectral_base() ;
     psi_kerr.set_domain(0) = 1. ;
     psi_init = psi_kerr ;
@@ -706,7 +705,7 @@ int main() {
     // New initialisation of the metric quantities
     // --------------------------------------------
 
-    psi_init = 1.*psi_kerr ;
+    psi_init = 0.9*psi_kerr ;
     psi_init.std_spectral_base() ;
     isolhor.set_psi(psi_init) ;
     
@@ -869,6 +868,13 @@ int main() {
     //--------------------------------------
     //        Comparison
     //--------------------------------------
+
+
+    for(int j=0; j<isolhor.get_mp().get_mg()->get_nt(1); j++)
+	for(int k=0; k<isolhor.get_mp().get_mg()->get_np(1); k++){
+	    cout << (isolhor.b_tilde()*isolhor.psi()*isolhor.psi()).val_grid_point(1, k, j, 0) << " " << isolhor.nn().val_grid_point(1, k, j, 0) << " " << (isolhor.b_tilde()*isolhor.psi()*isolhor.psi() - isolhor.nn()).val_grid_point(1, k, j, 0)  << endl ;
+	}    
+
 
     cout<<"Tout va bien boudiou / Todo bien!!! (Viva Cai!)"<<endl ;
 

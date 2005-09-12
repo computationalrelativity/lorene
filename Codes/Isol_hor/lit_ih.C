@@ -29,6 +29,10 @@ char lit_ih_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/09/12 12:34:09  f_limousin
+ * Compilation Warning - Change of convention for the angular velocity
+ * Add Berlin boundary condition in the case of binary horizons.
+ *
  * Revision 1.3  2005/03/09 10:35:28  f_limousin
  * Drawing of K_{ij}s^is^j and new initialisation of A^{ij} thanks to
  * the function update_aa().
@@ -94,7 +98,8 @@ int main(int argc, char** argv) {
 			.down(0, isolhor.tgam()), 0)
 	       *isolhor.psi()*isolhor.psi()) ;
 
-    des_profile(isolhor.nn(), 1.00001, 10, 1., 1., "nn") ;    
+    des_meridian(isolhor.nn(), 1.00001, 10, "nn", 0) ; 
+    arrete() ;
     des_profile(isolhor.psi(), 1.00001, 10, 1., 1., "psi") ;
     des_profile(bb, 1.00001, 10, M_PI/2., 0., "b in Pi/2, 0") ;
     des_profile(bb, 1.00001, 10, M_PI/2., M_PI, "b in Pi/2, Pi") ;

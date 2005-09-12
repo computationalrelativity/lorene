@@ -31,6 +31,10 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2005/09/12 12:33:54  f_limousin
+ * Compilation Warning - Change of convention for the angular velocity
+ * Add Berlin boundary condition in the case of binary horizons.
+ *
  * Revision 1.23  2005/07/08 13:15:23  f_limousin
  * Improvements of boundary_vv_cart(), boundary_nn_lapl().
  * Add a fonction to compute the departure of axisymmetry.
@@ -283,13 +287,14 @@ const Valeur Isol_hor::boundary_psi_app_hor()const {
 const Valeur Isol_hor::boundary_nn_Dir_kk()const {
 
   Scalar tmp(mp) ;
-  double rho = 1. ;
+  double rho = 0. ;
 
-  Scalar kk_rr = contract( gam().radial_vect() * gam().radial_vect(), 0, 1
-			   , k_dd(), 0, 1 ) ;
+  Scalar kk_rr = 0.8*psi().derive_cov(mp.flat_met_spher())(1) / psi() ;
+//  Scalar kk_rr = contract( gam().radial_vect() * gam().radial_vect(), 0, 1
+//			   , k_dd(), 0, 1 ) ;
 
   Scalar k_kerr (mp) ;
-  k_kerr = kappa_hor() ;
+  k_kerr = 0. ;//1.*kappa_hor() ;
   k_kerr.std_spectral_base() ;
   k_kerr.inc_dzpuis(2) ;
 
@@ -331,13 +336,15 @@ const Valeur Isol_hor::boundary_nn_Dir_kk()const {
 const Valeur Isol_hor::boundary_nn_Neu_kk() const {
   
   const Vector& dnnn = nn().derive_cov(ff) ;
-  double rho = 0. ;
+  double rho = 5. ;
 
-  Scalar kk_rr = contract( gam().radial_vect() * gam().radial_vect(), 0, 1
-			   , k_dd(), 0, 1 ) ; 
-
+  Scalar kk_rr = 0.8*psi().derive_cov(mp.flat_met_spher())(1) / psi() ;  
+//  kk_rr.inc_dzpuis(2) ;
+//  Scalar kk_rr = contract( gam().radial_vect() * gam().radial_vect(), 0, 1
+//			   , k_dd(), 0, 1 ) ; 
+ 
   Scalar k_kerr (mp) ;
-  k_kerr = kappa_hor() ;
+  k_kerr = 0.17 ;//1.*kappa_hor() ; 
   k_kerr.std_spectral_base() ;
   k_kerr.inc_dzpuis(2) ;
 
@@ -412,8 +419,8 @@ const Valeur Isol_hor::boundary_nn_Dir_eff(double cc)const {
 
 const Valeur Isol_hor::boundary_nn_Neu_eff(double cc)const  {
   
-  Scalar tmp = - cc * nn() ;
-//Scalar tmp = - nn()/psi()*psi().dsdr() ;
+    //   Scalar tmp = - cc * nn() ;
+    Scalar tmp = - nn()/psi()*psi().dsdr() ;
   // in this case you don't have to substract any value
  
   int nnp = mp.get_mg()->get_np(1) ;
@@ -438,8 +445,9 @@ const Valeur Isol_hor::boundary_nn_Dir(double cc)const {
 
   Scalar tmp(mp) ;
   tmp = cc - 1 ;
-//  tmp = 1./(2*psi()) - 1 ;
+//  tmp = 1./(2.*psi()) - 1 ;
 //  tmp = - psi() * nn().dsdr() / (psi().dsdr()) -1 ;
+//  tmp = b_tilde() * psi() * psi() - 1. ;
 
 
   /*
@@ -545,7 +553,7 @@ const Valeur Isol_hor::boundary_nn_Dir_lapl() const {
     Param bidon ;
     mp.poisson_angu(source, bidon, logn) ;
 
-    double cc = 0.2 ; // Integration constant
+    double cc = 0.3 ; // Integration constant
     Scalar lapse (exp(logn)*cc) ;
     lapse.std_spectral_base() ;
 
@@ -707,7 +715,7 @@ const Valeur Isol_hor:: boundary_beta_x(double om)const {
     int nnp = mp.get_mg()->get_np(1) ;
     int nnt = mp.get_mg()->get_nt(1) ;
 
-    Vector tmp_vect = nn() * radial_vect_hor() ;
+    Vector tmp_vect = nn() * gam().radial_vect() ;
     tmp_vect.change_triad(mp.get_bvect_cart() ) ;
 
     //Isol_hor boundary conditions
@@ -734,7 +742,7 @@ const Valeur Isol_hor:: boundary_beta_x(double om)const {
 
     for (int k=0 ; k<nnp ; k++)
 	for (int j=0 ; j<nnt ; j++)
-	  lim_x.set(0, k, j, 0) =  - aligne * om * ya_mtbl(1, k, j, 0) * (1 + 
+	  lim_x.set(0, k, j, 0) =  aligne * om * ya_mtbl(1, k, j, 0) * (1 + 
 				         dep_phi.val_grid_point(1, k, j, 0))
 	    + tmp_vect(1).val_grid_point(1, k, j, 0) ;
     
@@ -758,7 +766,7 @@ const Valeur Isol_hor:: boundary_beta_y(double om)const {
     int nnp = mp.get_mg()->get_np(1) ;
     int nnt = mp.get_mg()->get_nt(1) ;
 
-    Vector tmp_vect = nn() * radial_vect_hor() ;
+    Vector tmp_vect = nn() * gam().radial_vect() ;
     tmp_vect.change_triad(mp.get_bvect_cart() ) ;
 
     //Isol_hor boundary conditions
@@ -785,7 +793,7 @@ const Valeur Isol_hor:: boundary_beta_y(double om)const {
     
     for (int k=0 ; k<nnp ; k++)
 	for (int j=0 ; j<nnt ; j++)
-	  lim_y.set(0, k, j, 0) =  aligne * om * xa_mtbl(1, k, j, 0) *(1 +
+	  lim_y.set(0, k, j, 0) =  - aligne * om * xa_mtbl(1, k, j, 0) *(1 +
 					dep_phi.val_grid_point(1, k, j, 0))
 	    + tmp_vect(2).val_grid_point(1, k, j, 0) ;
     
@@ -802,7 +810,7 @@ const Valeur Isol_hor:: boundary_beta_z()const {
     int nnp = mp.get_mg()->get_np(1) ;
     int nnt = mp.get_mg()->get_nt(1) ;
 
-    Vector tmp_vect = nn() * radial_vect_hor() ;
+    Vector tmp_vect = nn() * gam().radial_vect() ;
     tmp_vect.change_triad(mp.get_bvect_cart() ) ;
 
     //Isol_hor boundary conditions
@@ -927,69 +935,68 @@ const Valeur Isol_hor::boundary_b_tilde_Dir()const {
 
 }
 
-
 const Vector Isol_hor::vv_bound_cart(double om) const{
 
-  // Preliminaries
-  //--------------
+    // Preliminaries
+    //--------------
 
-  // HH_tilde
-  Vector s_tilde =  tradial_vect_hor() ;
+    // HH_tilde
+    Vector s_tilde =  met_gamt.radial_vect() ;
 
-  Scalar hh_tilde = contract(s_tilde.derive_cov(met_gamt), 0, 1) ;
-  hh_tilde.dec_dzpuis(2) ;
+    Scalar hh_tilde = contract(s_tilde.derive_cov(met_gamt), 0, 1) ;
+    hh_tilde.dec_dzpuis(2) ;
 
-  // Tangential part of the shift
-  Vector tmp_vect = b_tilde() * s_tilde ;
+    // Tangential part of the shift
+    Vector tmp_vect = b_tilde() * s_tilde ;
 
-  Vector VV =  b_tilde() * s_tilde - beta() ;
+    Vector VV =  b_tilde() * s_tilde - beta() ;
 
- // "Acceleration" term V^a \tilde{D}_a ln M
-  Scalar accel = 2 * contract( VV, 0, contract( s_tilde, 0, s_tilde.down(0,
-met_gamt).derive_cov(met_gamt), 1), 0) ;
-
-
-  // Divergence of V^a
-  Sym_tensor qq_spher = met_gamt.con() - s_tilde * s_tilde ;
-  Scalar div_VV = contract( qq_spher.down(0, met_gamt), 0, 1, VV.derive_cov(met_gamt), 0, 1) ;
+    // "Acceleration" term V^a \tilde{D}_a ln M
+    Scalar accel = 2 * contract( VV, 0, contract( s_tilde, 0, s_tilde.down(0,
+									   met_gamt).derive_cov(met_gamt), 1), 0) ;
 
 
-  Scalar cosp (mp) ;
-  cosp = mp.cosp ;
-  Scalar cost (mp) ;
-  cost = mp.cost ;
-  Scalar sinp (mp) ;
-  sinp = mp.sinp ;
-  Scalar sint (mp) ;
-  sint = mp.sint ;
-
-  Scalar dep_phi (mp) ;
-  dep_phi = 0.0*sint*cosp ;
-
-  // Les alignemenents pour le signe des CL.
-  double orientation = mp.get_rot_phi() ;
-  assert ((orientation == 0) || (orientation == M_PI)) ;
-  int aligne = (orientation == 0) ? 1 : -1 ;
-
-  Vector angular (mp, CON, mp.get_bvect_cart()) ;
-  Scalar yya (mp) ;
-  yya = mp.ya ;
-  Scalar xxa (mp) ;
-  xxa = mp.xa ;
-
-  angular.set(1) = - aligne * om * yya * (1 + dep_phi) ;
-  angular.set(2) = aligne * om * xxa * (1 + dep_phi) ;
-  angular.set(3).annule_hard() ;
+    // Divergence of V^a
+    Sym_tensor qq_spher = met_gamt.con() - s_tilde * s_tilde ;
+    Scalar div_VV = contract( qq_spher.down(0, met_gamt), 0, 1, VV.derive_cov(met_gamt), 0, 1) ;
 
 
-  angular.set(1).set_spectral_va()
-      .set_base(*(mp.get_mg()->std_base_vect_cart()[0])) ;
-  angular.set(2).set_spectral_va()
-      .set_base(*(mp.get_mg()->std_base_vect_cart()[1])) ;
-  angular.set(3).set_spectral_va()
-      .set_base(*(mp.get_mg()->std_base_vect_cart()[2])) ;
+    Scalar cosp (mp) ;
+    cosp = mp.cosp ;
+    Scalar cost (mp) ;
+    cost = mp.cost ;
+    Scalar sinp (mp) ;
+    sinp = mp.sinp ;
+    Scalar sint (mp) ;
+    sint = mp.sint ;
 
-  angular.change_triad(mp.get_bvect_spher()) ;
+    Scalar dep_phi (mp) ;
+    dep_phi = 0.0*sint*cosp ;
+
+    // Les alignemenents pour le signe des CL.
+    double orientation = mp.get_rot_phi() ;
+    assert ((orientation == 0) || (orientation == M_PI)) ;
+    int aligne = (orientation == 0) ? 1 : -1 ;
+
+    Vector angular (mp, CON, mp.get_bvect_cart()) ;
+    Scalar yya (mp) ;
+    yya = mp.ya ;
+    Scalar xxa (mp) ;
+    xxa = mp.xa ;
+
+    angular.set(1) = - aligne * om * yya * (1 + dep_phi) ;
+    angular.set(2) = aligne * om * xxa * (1 + dep_phi) ;
+    angular.set(3).annule_hard() ;
+
+
+    angular.set(1).set_spectral_va()
+	.set_base(*(mp.get_mg()->std_base_vect_cart()[0])) ;
+    angular.set(2).set_spectral_va()
+	.set_base(*(mp.get_mg()->std_base_vect_cart()[1])) ;
+    angular.set(3).set_spectral_va()
+	.set_base(*(mp.get_mg()->std_base_vect_cart()[2])) ;
+
+    angular.change_triad(mp.get_bvect_spher()) ;
 
 /*
   Scalar ang_vel (mp) ;
@@ -998,63 +1005,144 @@ met_gamt).derive_cov(met_gamt), 1), 0) ;
   ang_vel.mult_rsint() ;
 */
 
-  Scalar kss (mp) ;
-  kss =  -0.2 ;
-  kss.std_spectral_base() ;
-  kss.inc_dzpuis(2) ;
+    Scalar kss (mp) ;
+//    kss = - 0.2 ;
+    kss = (contract(gam().radial_vect(), 0, nn().derive_cov(ff), 0) - 
+	   1.*kappa_hor()) / nn() ;
 
-  // beta^r component
-  //-----------------
-  double rho = 5. ; // rho>1 ; rho=1 "pure Dirichlet" version
-  Scalar beta_r_corr = (rho - 1) * b_tilde() * hh_tilde;
-  beta_r_corr.inc_dzpuis(2) ;
-  Scalar nn_KK = nn() * trk() ;
-  nn_KK.inc_dzpuis(2) ;
+    kss.std_spectral_base() ;
+    kss.inc_dzpuis(2) ;
+    
+    cout << "kappa_hor = " << kappa_hor() << endl ;
 
-
-  /*
-  Scalar beta_r (mp) ;
-  beta_r = 2 * contract(s_tilde, 0, b_tilde().derive_cov(ff), 0)
-    + beta_r_corr
-    - 3 * nn() * kss + nn_KK + accel + div_VV  ;
-
-
-  beta_r = beta_r / (hh_tilde * rho) ;
-
-  beta_r.dec_dzpuis(2) ;
-
-  beta_r = beta_r - beta()(2)*s_tilde(2) -  beta()(3)*s_tilde(3) ;
-  Vector tmp = s_tilde.down(0, met_gamt) ;
-  beta_r = beta_r/tmp(1) ;
-
-  beta_r.set_spectral_va().set_base(beta()(1).get_spectral_va().get_base()) ;
-
-  tmp_vect.set(1) = beta_r ;
-  tmp_vect.set(3) += angular(3) ; //ang_vel ;
-  */
-
-
-
-  Scalar b_tilde_new (mp) ;
-  b_tilde_new = 2 * contract(s_tilde, 0, b_tilde().derive_cov(ff), 0)
-    + beta_r_corr
-    - 3 * nn() * kss + nn_KK + accel + div_VV  ;
-
-  b_tilde_new = b_tilde_new / (hh_tilde * rho) ;
-
-  b_tilde_new.dec_dzpuis(2) ;
-
-  tmp_vect.set(1) = b_tilde_new * s_tilde(1) ;
-  tmp_vect.set(2) = b_tilde_new * s_tilde(2) ;
-  tmp_vect.set(3) = b_tilde_new * s_tilde(3) + angular(3) ; //ang_vel
-
-
-  tmp_vect.change_triad(mp.get_bvect_cart() ) ;
-
-  return tmp_vect ;
-
+    // beta^r component
+    //-----------------
+    double rho = 5. ; // rho>1 ; rho=1 "pure Dirichlet" version
+    Scalar beta_r_corr = (rho - 1) * b_tilde() * hh_tilde;
+    beta_r_corr.inc_dzpuis(2) ;
+    Scalar nn_KK = nn() * trk() ;
+    nn_KK.inc_dzpuis(2) ;
+    
+    beta_r_corr.set_dzpuis(2) ;
+    nn_KK.set_dzpuis(2) ;
+    accel.set_dzpuis(2) ;
+    div_VV.set_dzpuis(2) ;
+    
+    Scalar b_tilde_new (mp) ;
+    b_tilde_new = 2 * contract(s_tilde, 0, b_tilde().derive_cov(ff), 0)
+	+ beta_r_corr
+	- 3 * nn() * kss + nn_KK + accel + div_VV  ;
+    
+    b_tilde_new = b_tilde_new / (hh_tilde * rho) ;
+    
+    b_tilde_new.dec_dzpuis(2) ;
+    
+    tmp_vect.set(1) = b_tilde_new * s_tilde(1) + angular(1) ;
+    tmp_vect.set(2) = b_tilde_new * s_tilde(2) + angular(2) ;
+    tmp_vect.set(3) = b_tilde_new * s_tilde(3) + angular(3) ;
+    
+    tmp_vect.change_triad(mp.get_bvect_cart() ) ;
+    
+    return tmp_vect ;    
 }
 
+
+
+const Vector Isol_hor::vv_bound_cart_bin(double om) const{
+
+  // Preliminaries
+  //--------------
+
+    Scalar cosp (mp) ;
+    cosp = mp.cosp ;
+    Scalar cost (mp) ;
+    cost = mp.cost ;
+    Scalar sinp (mp) ;
+    sinp = mp.sinp ;
+    Scalar sint (mp) ;
+    sint = mp.sint ;
+
+    Scalar dep_phi (mp) ;
+    dep_phi = 0.0*sint*cosp ;
+
+    // Les alignemenents pour le signe des CL.
+    double orientation = mp.get_rot_phi() ;
+    assert ((orientation == 0) || (orientation == M_PI)) ;
+    int aligne = (orientation == 0) ? 1 : -1 ;
+
+    Vector angular (mp, CON, mp.get_bvect_cart()) ;
+    Scalar yya (mp) ;
+    yya = mp.ya ;
+    Scalar xxa (mp) ;
+    xxa = mp.xa ;
+
+    angular.set(1) = aligne * om * yya * (1 + dep_phi) ;
+    angular.set(2) = - aligne * om * xxa * (1 + dep_phi) ;
+    angular.set(3).annule_hard() ;
+
+    angular.set(1).set_spectral_va()
+	.set_base(*(mp.get_mg()->std_base_vect_cart()[0])) ;
+    angular.set(2).set_spectral_va()
+	.set_base(*(mp.get_mg()->std_base_vect_cart()[1])) ;
+    angular.set(3).set_spectral_va()
+	.set_base(*(mp.get_mg()->std_base_vect_cart()[2])) ;
+
+    angular.change_triad(mp.get_bvect_spher()) ;
+
+    // HH_tilde
+    Vector s_tilde =  met_gamt.radial_vect() ;
+
+    Scalar hh_tilde = contract(s_tilde.derive_cov(met_gamt), 0, 1) ;
+    hh_tilde.dec_dzpuis(2) ;
+
+    Scalar btilde = b_tilde() + contract(angular, 0, s_tilde.up_down(met_gamt), 0) ;
+    
+    // Tangential part of the shift
+    Vector tmp_vect = btilde * s_tilde ;
+    
+    // Value of kss
+    // --------------
+    
+    Scalar kss (mp) ;
+//  kss = (contract(gam().radial_vect(), 0, nn().derive_cov(ff), 0) - 
+    // 1.*kappa_hor()) / nn() ;
+//	 0.17 ) / nn() ;
+//  kss = - psi() * abs(contract(gam().radial_vect(), 0, nn().derive_cov(ff), 0)) ;
+    kss = - 0.3 ;
+    
+    kss.std_spectral_base() ;
+    kss.inc_dzpuis(2) ;
+    
+    cout << "kappa_hor = " << kappa_hor() << endl ;
+    
+    // beta^r component
+    //-----------------
+    double rho = 5. ; // rho>1 ; rho=1 "pure Dirichlet" version
+    Scalar beta_r_corr = (rho - 1) * btilde * hh_tilde;
+    beta_r_corr.inc_dzpuis(2) ;
+    Scalar nn_KK = nn() * trk() ;
+    nn_KK.inc_dzpuis(2) ;
+    
+    beta_r_corr.set_dzpuis(2) ;
+    nn_KK.set_dzpuis(2) ;
+    
+    Scalar b_tilde_new (mp) ;
+    b_tilde_new = 2 * contract(s_tilde, 0, btilde.derive_cov(ff), 0)
+	+ beta_r_corr - 3 * nn() * kss + nn_KK ;
+
+    b_tilde_new = b_tilde_new / (hh_tilde * rho) ;
+    
+    b_tilde_new.dec_dzpuis(2) ;
+    
+    tmp_vect.set(1) = b_tilde_new * s_tilde(1) - angular(1) ;
+    tmp_vect.set(2) = b_tilde_new * s_tilde(2) - angular(2) ;
+    tmp_vect.set(3) = b_tilde_new * s_tilde(3) - angular(3) ; 
+    
+    tmp_vect.change_triad(mp.get_bvect_cart() ) ;
+    
+    return tmp_vect ;
+    
+}
 
 
 // Component x of boundary value of V^i 
@@ -1136,3 +1224,80 @@ const Valeur Isol_hor:: boundary_vv_z(double om)const {
   return  lim_z ;
 }
 
+// Component x of boundary value of V^i
+//-------------------------------------
+
+const Valeur Isol_hor:: boundary_vv_x_bin(double om)const {
+
+    int nnp = mp.get_mg()->get_np(1) ;
+    int nnt = mp.get_mg()->get_nt(1) ;
+
+    //Isol_hor boundary conditions
+
+    Valeur lim_x (mp.get_mg()->get_angu()) ;
+
+    lim_x = 1 ;  // Juste pour affecter dans espace des configs ;
+
+    Scalar vv_x = vv_bound_cart_bin(om)(1) ;
+
+    for (int k=0 ; k<nnp ; k++)
+	for (int j=0 ; j<nnt ; j++)
+	    lim_x.set(0, k, j, 0) = vv_x.val_grid_point(1, k, j, 0) ;
+
+    lim_x.set_base(*(mp.get_mg()->std_base_vect_cart()[0])) ;
+
+    return  lim_x ;
+
+
+}
+
+// Component y of boundary value of V^i
+//--------------------------------------
+
+const Valeur Isol_hor:: boundary_vv_y_bin(double om)const {
+
+    int nnp = mp.get_mg()->get_np(1) ;
+    int nnt = mp.get_mg()->get_nt(1) ;
+
+    // Isol_hor boundary conditions
+
+    Valeur lim_y (mp.get_mg()->get_angu()) ;
+
+    lim_y = 1 ;  // Juste pour affecter dans espace des configs ;
+
+    Scalar vv_y = vv_bound_cart_bin(om)(2) ;
+
+    for (int k=0 ; k<nnp ; k++)
+	for (int j=0 ; j<nnt ; j++)
+	    lim_y.set(0, k, j, 0) = vv_y.val_grid_point(1, k, j, 0) ;
+
+    lim_y.set_base(*(mp.get_mg()->std_base_vect_cart()[1])) ;
+
+    return  lim_y ;
+}
+
+
+// Component z of boundary value of V^i
+//-------------------------------------
+
+const Valeur Isol_hor:: boundary_vv_z_bin(double om)const {
+
+    int nnp = mp.get_mg()->get_np(1) ;
+    int nnt = mp.get_mg()->get_nt(1) ;
+
+    // Isol_hor boundary conditions
+
+    Valeur lim_z (mp.get_mg()->get_angu()) ;
+
+    lim_z = 1 ;   // Juste pour affecter dans espace des configs ;
+
+    Scalar vv_z = vv_bound_cart_bin(om)(3) ;
+
+    for (int k=0 ; k<nnp ; k++)
+	for (int j=0 ; j<nnt ; j++)
+	    lim_z.set(0, k, j, 0) = vv_z.val_grid_point(1, k, j, 0) ;
+
+    lim_z.set_base(*(mp.get_mg()->std_base_vect_cart()[2])) ;
+
+    return  lim_z ;
+}

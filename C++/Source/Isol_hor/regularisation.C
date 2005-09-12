@@ -26,6 +26,10 @@ char regularisation_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/09/12 12:33:54  f_limousin
+ * Compilation Warning - Change of convention for the angular velocity
+ * Add Berlin boundary condition in the case of binary horizons.
+ *
  * Revision 1.7  2005/05/12 14:48:07  f_limousin
  * New boundary condition for the lapse : boundary_nn_lapl().
  *
@@ -102,8 +106,8 @@ double Isol_hor::regularisation (const Vector& shift_auto_temp,
 	    tbi.set(i).set_spectral_va().set_etat_c_qcq() ;
 	    }
 	    
-	tbi.set(1) = *shift_tot(1).get_spectral_va().c + indic *om * shift_tot.get_mp().ya ;
-	tbi.set(2) = *shift_tot(2).get_spectral_va().c - indic *om * shift_tot.get_mp().xa ;
+	tbi.set(1) = *shift_tot(1).get_spectral_va().c - indic *om * shift_tot.get_mp().ya ;
+	tbi.set(2) = *shift_tot(2).get_spectral_va().c + indic *om * shift_tot.get_mp().xa ;
 	tbi.std_spectral_base() ;
 	tbi.set(1).annule_domain(nz-1) ;
 	tbi.set(2).annule_domain(nz-1) ;
@@ -176,8 +180,8 @@ double Isol_hor::regularise_one () {
     for (int i=1 ; i<=3 ; i++)
 	shift(i).get_spectral_va().coef_i() ;
 	
-    tbi.set(1) = *shift(1).get_spectral_va().c + omega*mp.y - boost_x ;
-    tbi.set(2) = *shift(2).get_spectral_va().c - omega*mp.x ;
+    tbi.set(1) = *shift(1).get_spectral_va().c - omega*mp.y - boost_x ;
+    tbi.set(2) = *shift(2).get_spectral_va().c + omega*mp.x ;
     if (shift(3).get_etat() !=  ETATZERO)
 	tbi.set(3) = *shift(3).get_spectral_va().c - boost_z ;
     else 

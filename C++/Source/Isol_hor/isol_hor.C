@@ -31,6 +31,10 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.28  2005/09/12 12:33:54  f_limousin
+ * Compilation Warning - Change of convention for the angular velocity
+ * Add Berlin boundary condition in the case of binary horizons.
+ *
  * Revision 1.27  2005/07/08 13:15:23  f_limousin
  * Improvements of boundary_vv_cart(), boundary_nn_lapl().
  * Add a fonction to compute the departure of axisymmetry.
@@ -599,7 +603,8 @@ void Isol_hor::n_comp(const Isol_hor& comp) {
 	    }
     }
 
-    double fact = 0.0000000000001 ;
+    Scalar fact(mp) ;
+    fact = 0.0000000000000001 ;
 
 //    Scalar fact(mp) ;
 //    fact = 0.7*gam().radial_vect().divergence(gam()) ;
@@ -657,9 +662,9 @@ void Isol_hor::beta_comp (const Isol_hor& comp) {
     shift_comp.change_triad(mp.get_bvect_cart()) ;
     assert (*(shift_comp.get_triad()) == *(tmp_vect.get_triad())) ;
 
-    tmp_vect.set(1).import_asymy(shift_comp(1)) ;
-    tmp_vect.set(2).import_symy(shift_comp(2)) ;
-    tmp_vect.set(3).import_asymy(shift_comp(3)) ;
+    tmp_vect.set(1).import(shift_comp(1)) ;
+    tmp_vect.set(2).import(shift_comp(2)) ;
+    tmp_vect.set(3).import(shift_comp(3)) ;
     tmp_vect.std_spectral_base() ;
     tmp_vect.change_triad(mp.get_bvect_spher()) ;
     
@@ -675,7 +680,7 @@ void Isol_hor::init_bhole () {
     
     // Initialisation of the lapse different of zero on the horizon
     // at the first step
-    auxi = 0.8 - radius/mp.r ;
+    auxi = 0.5 - 0.5/mp.r ;
     auxi.annule(0, 0);
     auxi.set_dzpuis(0) ;
     
@@ -1043,10 +1048,10 @@ double Isol_hor::axi_break() const {
  
     Scalar integrand ( contract(  L_phi_q_dd, 0, 1, L_phi_q_uu, 0, 1 ) * darea_hor()  ) ;
     
-    double axi_break = mp.integrale_surface(integrand, 1.0000000001)/ 
+    double axibreak = mp.integrale_surface(integrand, 1.0000000001)/ 
 	(4 * M_PI * radius_hor()* radius_hor() ) ;
     
-    return axi_break ;
+    return axibreak ;
 
 }
 

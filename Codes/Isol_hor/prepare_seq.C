@@ -29,6 +29,10 @@ char prepare_seq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/09/12 12:34:09  f_limousin
+ * Compilation Warning - Change of convention for the angular velocity
+ * Add Berlin boundary condition in the case of binary horizons.
+ *
  * Revision 1.1  2005/04/06 14:44:45  f_limousin
  * First version
  *
@@ -48,13 +52,13 @@ using namespace std ;
 
 int main() {
 
-    ifstream fichlist("list_prepare_seq.d") ; 
+    ifstream fichlist("list_prepare_seq.dat") ; 
     if ( !fichlist.good() ) {
 	cout << "Problem with opening the file list_prepare_seq.d ! " << endl ;
 	abort() ;
     }
     
-    ofstream outfich("sequence.d") ; 
+    ofstream outfich("sequence.dat") ; 
 
     outfich << "# M_ADM   J_ADM   J/M    J/M2   Eps_a   M_hor   J_hor  r_hor  omega_hor"  << endl ; 
 
