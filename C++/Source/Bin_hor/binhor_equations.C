@@ -26,6 +26,11 @@ char binhor_equations_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2005/09/13 18:33:15  f_limousin
+ * New function vv_bound_cart_bin(double) for computing binaries with
+ * berlin condition for the shift vector.
+ * Suppress all the symy and asymy in the importations.
+ *
  * Revision 1.10  2005/07/11 08:21:57  f_limousin
  * Implementation of a new boundary condition for the lapse in the binary
  * case : boundary_nn_Dir_lapl().
@@ -274,7 +279,6 @@ void Bin_hor::solve_lapse (double precision, double relax, int bound_nn,
     }
     cout << endl ;
 
-
     // Relaxation :
     // -------------
 
@@ -287,6 +291,7 @@ void Bin_hor::solve_lapse (double precision, double relax, int bound_nn,
 
     hole1.n_comp (hole2) ;
     hole2.n_comp (hole1) ;
+
 }
 
 
@@ -648,13 +653,13 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta) {
 	}
 	case 1 : {
 	    
-	    lim_x_un = hole1.boundary_vv_x(omega) ;
-	    lim_y_un = hole1.boundary_vv_y(omega) ;
-	    lim_z_un = hole1.boundary_vv_z(omega) ;
+	    lim_x_un = hole1.boundary_vv_x_bin(omega) ;
+	    lim_y_un = hole1.boundary_vv_y_bin(omega) ;
+	    lim_z_un = hole1.boundary_vv_z_bin(omega) ;
 	    
-	    lim_x_deux = hole2.boundary_vv_x(omega) ;
-	    lim_y_deux = hole2.boundary_vv_y(omega) ;
-	    lim_z_deux = hole2.boundary_vv_z(omega) ;
+	    lim_x_deux = hole2.boundary_vv_x_bin(omega) ;
+	    lim_y_deux = hole2.boundary_vv_y_bin(omega) ;
+	    lim_z_deux = hole2.boundary_vv_z_bin(omega) ;
 	    break ;
 	}
 
@@ -681,7 +686,8 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta) {
 	lim_x_un, lim_y_un, lim_z_un, 
 	lim_x_deux, lim_y_deux, lim_z_deux, 
 	beta1, beta2, 0, precision) ;
-    
+ 
+ 
     beta1.change_triad(hole1.mp.get_bvect_cart()) ;
     beta2.change_triad(hole2.mp.get_bvect_cart()) ;
 
@@ -689,7 +695,7 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta) {
 	beta1.set(i).raccord(1) ;
 	beta2.set(i).raccord(1) ;
     }
-    
+
     cout << "shift_auto x" << endl << norme(beta1(1)) << endl ;
     cout << "shift_auto y" << endl << norme(beta1(2)) << endl ;
     cout << "shift_auto z" << endl << norme(beta1(3)) << endl ;
@@ -748,6 +754,35 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta) {
 
     hole1.beta_comp(hole2) ;
     hole2.beta_comp(hole1) ;
+
+    
+    Scalar bb (hole1.get_mp()) ;
+    Vector shift (hole1.beta()) ;
+    shift.change_triad(hole1.get_mp().get_bvect_cart()) ;
+
+    Scalar xa (hole1.get_mp()) ;
+    xa = hole1.get_mp().xa ;
+    xa.annule_domain(hole1.get_mp().get_mg()->get_nzone()-1) ;
+    Scalar ya (hole1.get_mp()) ;
+    ya = hole1.get_mp().ya ;
+    ya.annule_domain(hole1.get_mp().get_mg()->get_nzone()-1) ;
+    
+    double orientation = hole1.get_mp().get_rot_phi() ;
+    assert ((orientation == 0) || (orientation == M_PI)) ;
+    int aligne = (orientation == 0) ? 1 : -1 ;
+
+    shift.set(1) = shift(1) - aligne * omega * ya ;
+    shift.set(2) = shift(2) + aligne * omega * xa ;
+    
+    Vector normal (hole1.gam().radial_vect()) ;
+    normal.change_triad(hole1.get_mp().get_bvect_cart()) ;
+    bb = contract(shift, 0, normal.up_down(hole1.gam()), 0) ;
+
+    for(int j=0; j<hole1.get_mp().get_mg()->get_nt(1); j++)
+	for(int k=0; k<hole1.get_mp().get_mg()->get_np(1); k++){
+	  //	  	  cout << bb.val_grid_point(1, k, j, 0) << " " << hole1.nn().val_grid_point(1, k, j, 0) << " " << (bb - hole1.nn()).val_grid_point(1, k, j, 0)  << endl ;
+	}
+    //arrete() ;
 
     // Regularisation of the shifts if necessary
     // -----------------------------------------

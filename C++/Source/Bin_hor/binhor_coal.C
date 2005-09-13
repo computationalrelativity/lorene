@@ -26,6 +26,11 @@ char binhor_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2005/09/13 18:33:15  f_limousin
+ * New function vv_bound_cart_bin(double) for computing binaries with
+ * berlin condition for the shift vector.
+ * Suppress all the symy and asymy in the importations.
+ *
  * Revision 1.8  2005/07/11 08:21:57  f_limousin
  * Implementation of a new boundary condition for the lapse in the binary
  * case : boundary_nn_Dir_lapl().
@@ -86,17 +91,17 @@ void Bin_hor::set_statiques (double precis, double relax, int bound_nn,
     while (indic == 1) {
 	Scalar lapse_un_old (hole1.n_auto()) ;
 /*
-	int bound_beta = 0 ;
+	int bound_beta = 1 ;
 	solve_shift (precis, relax, bound_beta) ;
 	extrinsic_curvature() ;
 */
 	solve_psi (precis, relax, bound_psi) ;
 	solve_lapse (precis, relax, bound_nn, lim_nn) ;
-/*	
+	/*
 	des_meridian(hole1.nn(), 1.000001, 10, "lapse", 0) ;
 	des_meridian(hole1.psi(), 1.000001, 10, "psi", 1) ;
 	des_meridian(hole1.psi()*hole1.psi()*hole1.b_tilde(), 1.000001, 10, "b_tilde", 2) ;
-*/
+	*/
 	double erreur = 0 ;
 	Tbl diff (diffrelmax (lapse_un_old, hole1.n_auto())) ;
 	for (int i=1 ; i<nz ; i++)
@@ -115,10 +120,11 @@ double Bin_hor::coal (double angu_vel, double relax, int nb_ome,
 		      int nb_it, int bound_nn, double lim_nn, 
 		      int bound_psi, int bound_beta,
 		      ostream& fich_iteration, ostream& fich_correction,
-		      ostream& fich_viriel, int step, const int sortie) {
+		      ostream& fich_viriel, ostream& fich_kss, 
+		      int step, const int sortie) {
     
   int nz = hole1.mp.get_mg()->get_nzone() ;
-    
+
   double precis = 1e-7 ;
     
     // LOOP INCREASING OMEGA  : 
@@ -146,13 +152,33 @@ double Bin_hor::coal (double angu_vel, double relax, int nb_ome,
 */
 	double erreur = 0 ;
 	Tbl diff (diffrelmax (beta_un_old, hole1.beta_auto()(1))) ;
-	for (int i=1 ; i<nz ; i++)
+		for (int i=1 ; i<nz ; i++)
 	    if (diff(i) > erreur)
 		erreur = diff(i) ;
+
+	// Saving ok K_{ij}s^is^j
+	// -----------------------
+	
+	Scalar kkss (contract(hole1.k_dd(), 0, 1, hole1.gam().radial_vect()*
+		     hole1.gam().radial_vect(), 0, 1)) ;
+	double max_kss = kkss.val_grid_point(1, 0, 0, 0) ;
+	double min_kss = kkss.val_grid_point(1, 0, 0, 0) ;
+	int nnp = hole1.mp.get_mg()->get_np(1) ;
+	int nnt = hole2.mp.get_mg()->get_nt(1) ;
+	for (int k=0 ; k<nnp ; k++)
+	    for (int j=0 ; j<nnt ; j++){
+		if (kkss.val_grid_point(1, k, j, 0) > max_kss)
+		    max_kss = kkss.val_grid_point(1, k, j, 0) ;
+		if (kkss.val_grid_point(1, k, j, 0) < min_kss)
+		    min_kss = kkss.val_grid_point(1, k, j, 0) ;
+	    }
+
 	if (sortie != 0) {
 	  fich_iteration << step << " " << log10(erreur) << " " << homme << endl ;
 	  fich_correction << step << " " << log10(hole1.regul) << " " << homme << endl ;
-	  fich_viriel << step << " " << log10(fabs(viriel())) << " " << homme << endl ;
+//	  fich_viriel << step << " " << log10(fabs(viriel())) << " " << homme << endl ;
+	  fich_viriel << step << " " << viriel() << " " << homme << endl ;
+	  fich_kss << step << " " << max_kss << " " << min_kss << endl ;
 	    }
 	    
 	cout << "STEP : " << step << " DIFFERENCE : " << erreur << endl ;
@@ -184,11 +210,31 @@ double Bin_hor::coal (double angu_vel, double relax, int nb_ome,
 	for (int i=1 ; i<nz ; i++)
 	    if (diff(i) > erreur)
 		erreur = diff(i) ;
+
+	// Saving ok K_{ij}s^is^j
+	// -----------------------
+	
+	Scalar kkss (contract(hole1.k_dd(), 0, 1, hole1.gam().radial_vect()*
+		     hole1.gam().radial_vect(), 0, 1)) ;
+	double max_kss = kkss.val_grid_point(1, 0, 0, 0) ;
+	double min_kss = kkss.val_grid_point(1, 0, 0, 0) ;
+	int nnp = hole1.mp.get_mg()->get_np(1) ;
+	int nnt = hole2.mp.get_mg()->get_nt(1) ;
+	for (int k=0 ; k<nnp ; k++)
+	    for (int j=0 ; j<nnt ; j++){
+		if (kkss.val_grid_point(1, k, j, 0) > max_kss)
+		    max_kss = kkss.val_grid_point(1, k, j, 0) ;
+		if (kkss.val_grid_point(1, k, j, 0) < min_kss)
+		    min_kss = kkss.val_grid_point(1, k, j, 0) ;
+	    }
+
 	
 	if (sortie != 0) {
 	  fich_iteration << step << " " << log10(erreur) << " " << homme << endl ;
 	  fich_correction << step << " " << log10(hole1.regul) << " " << homme << endl ;
-	  fich_viriel << step << " " << log10(fabs(viriel())) << " " << homme << endl ;
+//	  fich_viriel << step << " " << log10(fabs(viriel())) << " " << homme << endl ;
+	  fich_viriel << step << " " << viriel() << " " << homme << endl ;
+	  fich_kss << step << " " << max_kss << " " << min_kss << endl ;
     }
 
 	cout << "STEP : " << step << " DIFFERENCE : " << erreur << endl ;

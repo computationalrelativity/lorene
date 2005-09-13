@@ -26,6 +26,11 @@ char regularisation_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2005/09/13 18:33:17  f_limousin
+ * New function vv_bound_cart_bin(double) for computing binaries with
+ * berlin condition for the shift vector.
+ * Suppress all the symy and asymy in the importations.
+ *
  * Revision 1.8  2005/09/12 12:33:54  f_limousin
  * Compilation Warning - Change of convention for the angular velocity
  * Add Berlin boundary condition in the case of binary horizons.
@@ -91,9 +96,9 @@ double Isol_hor::regularisation (const Vector& shift_auto_temp,
     
     // Minimisation of the derivative of the shift on r
     Vector shift_tot (shift_auto.get_mp(), CON, *shift_auto.get_triad()) ;
-    shift_tot.set(1).import_asymy (alignes*shift_comp(1)) ;
-    shift_tot.set(2).import_symy (alignes*shift_comp(2)) ;
-    shift_tot.set(3).import_asymy (shift_comp(3)) ;
+    shift_tot.set(1).import(alignes*shift_comp(1)) ;
+    shift_tot.set(2).import(alignes*shift_comp(2)) ;
+    shift_tot.set(3).import(shift_comp(3)) ;
 
     shift_tot = shift_tot + shift_auto ;
  

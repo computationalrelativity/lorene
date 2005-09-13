@@ -26,6 +26,11 @@ char binhor_kij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/09/13 18:33:15  f_limousin
+ * New function vv_bound_cart_bin(double) for computing binaries with
+ * berlin condition for the shift vector.
+ * Suppress all the symy and asymy in the importations.
+ *
  * Revision 1.6  2005/04/29 14:02:44  f_limousin
  * Important changes : manage the dependances between quantities (for
  * instance psi and psi4). New function write_global(ost).
@@ -132,12 +137,12 @@ void Bin_hor::extrinsic_curvature () {
        aa_auto_deux.change_triad(hole1.mp.get_bvect_cart()) ;
        assert(*(aa_auto_deux.get_triad()) == *(aa_comp_un.get_triad())) ;
        // importations :
-       aa_comp_un.set(1, 1).import_asymy(aa_auto_deux(1, 1)) ;
-       aa_comp_un.set(1, 2).import_symy(aa_auto_deux(1, 2)) ;
-       aa_comp_un.set(1, 3).import_asymy(aa_auto_deux(1, 3)) ;
-       aa_comp_un.set(2, 2).import_asymy(aa_auto_deux(2, 2)) ;
-       aa_comp_un.set(2, 3).import_symy(aa_auto_deux(2, 3)) ;
-       aa_comp_un.set(3, 3).import_asymy(aa_auto_deux(3, 3)) ;
+       aa_comp_un.set(1, 1).import(aa_auto_deux(1, 1)) ;
+       aa_comp_un.set(1, 2).import(aa_auto_deux(1, 2)) ;
+       aa_comp_un.set(1, 3).import(aa_auto_deux(1, 3)) ;
+       aa_comp_un.set(2, 2).import(aa_auto_deux(2, 2)) ;
+       aa_comp_un.set(2, 3).import(aa_auto_deux(2, 3)) ;
+       aa_comp_un.set(3, 3).import(aa_auto_deux(3, 3)) ;
        
        aa_comp_un.std_spectral_base() ;
        aa_comp_un.inc_dzpuis(2) ;
@@ -147,12 +152,12 @@ void Bin_hor::extrinsic_curvature () {
        aa_auto_un.change_triad(hole2.mp.get_bvect_cart()) ;
        assert(*(aa_auto_un.get_triad()) == *(aa_comp_deux.get_triad())) ;
        // importations :
-       aa_comp_deux.set(1, 1).import_asymy(aa_auto_un(1, 1)) ;
-       aa_comp_deux.set(1, 2).import_symy(aa_auto_un(1, 2)) ;
-       aa_comp_deux.set(1, 3).import_asymy(aa_auto_un(1, 3)) ;
-       aa_comp_deux.set(2, 2).import_asymy(aa_auto_un(2, 2)) ;
-       aa_comp_deux.set(2, 3).import_symy(aa_auto_un(2, 3)) ;
-       aa_comp_deux.set(3, 3).import_asymy(aa_auto_un(3, 3)) ;
+       aa_comp_deux.set(1, 1).import(aa_auto_un(1, 1)) ;
+       aa_comp_deux.set(1, 2).import(aa_auto_un(1, 2)) ;
+       aa_comp_deux.set(1, 3).import(aa_auto_un(1, 3)) ;
+       aa_comp_deux.set(2, 2).import(aa_auto_un(2, 2)) ;
+       aa_comp_deux.set(2, 3).import(aa_auto_un(2, 3)) ;
+       aa_comp_deux.set(3, 3).import(aa_auto_un(3, 3)) ;
        
        aa_comp_deux.std_spectral_base() ;
        aa_comp_deux.inc_dzpuis(2) ;
@@ -209,12 +214,12 @@ void Bin_hor::extrinsic_curvature () {
        aa_auto_2.change_triad(hole1.mp.get_bvect_cart()) ;
        assert(*(aa_auto_2.get_triad()) == *(aa_comp_un.get_triad())) ;
        // importations :
-       aa_comp_un.set(1, 1).import_asymy(aa_auto_2(1, 1)) ;
-       aa_comp_un.set(1, 2).import_symy(aa_auto_2(1, 2)) ;
-       aa_comp_un.set(1, 3).import_asymy(aa_auto_2(1, 3)) ;
-       aa_comp_un.set(2, 2).import_asymy(aa_auto_2(2, 2)) ;
-       aa_comp_un.set(2, 3).import_symy(aa_auto_2(2, 3)) ;
-       aa_comp_un.set(3, 3).import_asymy(aa_auto_2(3, 3)) ;
+       aa_comp_un.set(1, 1).import(aa_auto_2(1, 1)) ;
+       aa_comp_un.set(1, 2).import(aa_auto_2(1, 2)) ;
+       aa_comp_un.set(1, 3).import(aa_auto_2(1, 3)) ;
+       aa_comp_un.set(2, 2).import(aa_auto_2(2, 2)) ;
+       aa_comp_un.set(2, 3).import(aa_auto_2(2, 3)) ;
+       aa_comp_un.set(3, 3).import(aa_auto_2(3, 3)) ;
        
        aa_comp_un.std_spectral_base() ;
        aa_comp_un.inc_dzpuis(2) ;
@@ -222,12 +227,12 @@ void Bin_hor::extrinsic_curvature () {
        aa_auto_1.change_triad(hole2.mp.get_bvect_cart()) ;
        assert(*(aa_auto_1.get_triad()) == *(aa_comp_deux.get_triad())) ;
        // importations :
-       aa_comp_deux.set(1, 1).import_asymy(aa_auto_1(1, 1)) ;
-       aa_comp_deux.set(1, 2).import_symy(aa_auto_1(1, 2)) ;
-       aa_comp_deux.set(1, 3).import_asymy(aa_auto_1(1, 3)) ;
-       aa_comp_deux.set(2, 2).import_asymy(aa_auto_1(2, 2)) ;
-       aa_comp_deux.set(2, 3).import_symy(aa_auto_1(2, 3)) ;
-       aa_comp_deux.set(3, 3).import_asymy(aa_auto_1(3, 3)) ;
+       aa_comp_deux.set(1, 1).import(aa_auto_1(1, 1)) ;
+       aa_comp_deux.set(1, 2).import(aa_auto_1(1, 2)) ;
+       aa_comp_deux.set(1, 3).import(aa_auto_1(1, 3)) ;
+       aa_comp_deux.set(2, 2).import(aa_auto_1(2, 2)) ;
+       aa_comp_deux.set(2, 3).import(aa_auto_1(2, 3)) ;
+       aa_comp_deux.set(3, 3).import(aa_auto_1(3, 3)) ;
        
        aa_comp_deux.std_spectral_base() ;
        aa_comp_deux.inc_dzpuis(2) ;

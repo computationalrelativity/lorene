@@ -31,6 +31,11 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.29  2005/09/13 18:33:17  f_limousin
+ * New function vv_bound_cart_bin(double) for computing binaries with
+ * berlin condition for the shift vector.
+ * Suppress all the symy and asymy in the importations.
+ *
  * Revision 1.28  2005/09/12 12:33:54  f_limousin
  * Compilation Warning - Change of convention for the angular velocity
  * Add Berlin boundary condition in the case of binary horizons.
@@ -551,7 +556,7 @@ void Isol_hor::n_comp(const Isol_hor& comp) {
     double ttime = the_time[jtime] ;    
 
     Scalar temp (mp) ;
-    temp.import_symy(comp.n_auto()) ;
+    temp.import(comp.n_auto()) ;
     temp.std_spectral_base() ;
     n_comp_evol.update(temp, jtime, ttime) ;
     n_evol.update(temp + n_auto(), jtime, ttime) ;
@@ -564,9 +569,9 @@ void Isol_hor::n_comp(const Isol_hor& comp) {
     auxi.change_triad(mp.get_bvect_cart()) ;
     assert ( *(auxi.get_triad()) == *(dn_comp.get_triad())) ;
 
-    dn_comp.set(1).import_symy(auxi(1)) ;
-    dn_comp.set(2).import_asymy(auxi(2)) ;
-    dn_comp.set(3).import_symy(auxi(3)) ;
+    dn_comp.set(1).import(auxi(1)) ;
+    dn_comp.set(2).import(auxi(2)) ;
+    dn_comp.set(3).import(auxi(3)) ;
     dn_comp.std_spectral_base() ;
     dn_comp.inc_dzpuis(2) ;
     dn_comp.change_triad(mp.get_bvect_spher()) ;
@@ -628,7 +633,7 @@ void Isol_hor::psi_comp (const Isol_hor& comp) {
     double ttime = the_time[jtime] ;    
     
     Scalar temp (mp) ;
-    temp.import_symy(comp.psi_auto()) ;
+    temp.import(comp.psi_auto()) ;
     temp.std_spectral_base() ;
     psi_comp_evol.update(temp, jtime, ttime) ;
     psi_evol.update(temp + psi_auto(), jtime, ttime) ;
@@ -641,9 +646,9 @@ void Isol_hor::psi_comp (const Isol_hor& comp) {
     auxi.change_triad(mp.get_bvect_cart()) ;
     assert ( *(auxi.get_triad()) == *(dpsi_comp.get_triad())) ;
 
-    dpsi_comp.set(1).import_symy(auxi(1)) ;
-    dpsi_comp.set(2).import_asymy(auxi(2)) ;
-    dpsi_comp.set(3).import_symy(auxi(3)) ;
+    dpsi_comp.set(1).import(auxi(1)) ;
+    dpsi_comp.set(2).import(auxi(2)) ;
+    dpsi_comp.set(3).import(auxi(3)) ;
     dpsi_comp.std_spectral_base() ;
     dpsi_comp.inc_dzpuis(2) ;
     dpsi_comp.change_triad(mp.get_bvect_spher()) ;

@@ -31,6 +31,11 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.25  2005/09/13 18:33:17  f_limousin
+ * New function vv_bound_cart_bin(double) for computing binaries with
+ * berlin condition for the shift vector.
+ * Suppress all the symy and asymy in the importations.
+ *
  * Revision 1.24  2005/09/12 12:33:54  f_limousin
  * Compilation Warning - Change of convention for the angular velocity
  * Add Berlin boundary condition in the case of binary horizons.
@@ -419,8 +424,8 @@ const Valeur Isol_hor::boundary_nn_Dir_eff(double cc)const {
 
 const Valeur Isol_hor::boundary_nn_Neu_eff(double cc)const  {
   
-    //   Scalar tmp = - cc * nn() ;
-    Scalar tmp = - nn()/psi()*psi().dsdr() ;
+  Scalar tmp = - cc * nn() ;
+  //  Scalar tmp = - nn()/psi()*psi().dsdr() ;
   // in this case you don't have to substract any value
  
   int nnp = mp.get_mg()->get_np(1) ;

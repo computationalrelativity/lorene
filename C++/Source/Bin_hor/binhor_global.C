@@ -26,6 +26,11 @@ char binhor_glob_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/09/13 18:33:15  f_limousin
+ * New function vv_bound_cart_bin(double) for computing binaries with
+ * berlin condition for the shift vector.
+ * Suppress all the symy and asymy in the importations.
+ *
  * Revision 1.4  2005/06/09 16:12:04  f_limousin
  * Implementation of amg_mom_adm().
  *
@@ -209,13 +214,13 @@ double Bin_hor::ang_mom_adm() const {
 	beta_un.std_spectral_base() ;
 	beta_deux.std_spectral_base() ;
 	
-	shift_un.set(1).import_asymy(beta_un(1)) ;
-	shift_un.set(2).import_symy(beta_un(2)) ;
-	shift_un.set(3).import_asymy(beta_un(3)) ;
+	shift_un.set(1).import(beta_un(1)) ;
+	shift_un.set(2).import(beta_un(2)) ;
+	shift_un.set(3).import(beta_un(3)) ;
 	
-	shift_deux.set(1).import_asymy(same_orient*beta_deux(1)) ;
-	shift_deux.set(2).import_symy(same_orient*beta_deux(2)) ;
-	shift_deux.set(3).import_asymy(beta_deux(3)) ;
+	shift_deux.set(1).import(same_orient*beta_deux(1)) ;
+	shift_deux.set(2).import(same_orient*beta_deux(2)) ;
+	shift_deux.set(3).import(beta_deux(3)) ;
 	
 	Vector shift_tot (shift_un+shift_deux) ;
 	shift_tot.std_spectral_base() ;
@@ -225,7 +230,6 @@ double Bin_hor::ang_mom_adm() const {
 	shift_tot.inc_dzpuis(2) ;
 	shift_tot.dec_dzpuis(2) ;
 	
-
 	Sym_tensor temp_gamt (hole1.met_gamt.cov()) ;
 	temp_gamt.change_triad(hole1.mp.get_bvect_cart()) ;
 	Metric gamt_cart (temp_gamt) ;

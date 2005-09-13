@@ -30,6 +30,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.38  2005/09/13 18:33:17  f_limousin
+ * New function vv_bound_cart_bin(double) for computing binaries with
+ * berlin condition for the shift vector.
+ * Suppress all the symy and asymy in the importations.
+ *
  * Revision 1.37  2005/07/11 08:19:54  f_limousin
  * New function axi_break() to compute the departure to axisymmetry.
  *
@@ -691,6 +696,10 @@ class Isol_hor : public Time_slice_conf {
   ///  Vector \f$  V^i \f$ for boundary conditions in cartesian  
   const Vector vv_bound_cart(double om) const ;
 
+  ///  Vector \f$  V^i \f$ for boundary conditions in cartesian for 
+  /// binary systems.
+  const Vector vv_bound_cart_bin(double om) const ;
+
   /// Component x of boundary value of \f$  V^i \f$
   const Valeur boundary_vv_x(double om) const ;
 
@@ -699,6 +708,15 @@ class Isol_hor : public Time_slice_conf {
   
   /// Component z of boundary value of \f$  V^i \f$
   const Valeur boundary_vv_z(double om) const ;
+
+  /// Component x of boundary value of \f$  V^i \f$
+  const Valeur boundary_vv_x_bin(double om) const ;
+
+  /// Component y of boundary value of \f$  V^i \f$
+  const Valeur boundary_vv_y_bin(double om) const ;
+
+  /// Component z of boundary value of \f$  V^i \f$
+  const Valeur boundary_vv_z_bin(double om) const ;
 
   /// Neumann boundary condition for \c b_tilde
   const Valeur boundary_b_tilde_Neu() const ;
@@ -962,7 +980,8 @@ class Bin_hor {
 		     int nb_it, int bound_nn, double lim_nn, 
 		     int bound_psi, int bound_beta, 
 		     ostream& fich_iteration, ostream& fich_correction,
-		     ostream& fich_viriel, int step, const int sortie = 0) ;
+		     ostream& fich_viriel, ostream& fich_kss, 
+		     int step, const int sortie = 0) ;
 
 	  
 	  /**
