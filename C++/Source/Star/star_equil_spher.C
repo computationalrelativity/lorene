@@ -32,6 +32,9 @@ char star_equil_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2005/09/13 19:38:31  f_limousin
+ * Reintroduction of the resolution of the equations in cartesian coordinates.
+ *
  * Revision 1.10  2005/02/17 17:32:35  f_limousin
  * Change the name of some quantities to be consistent with other classes
  * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
@@ -238,7 +241,7 @@ void Star::equilibrium_spher(double ent_c, double precis){
 
 	source.std_spectral_base() ;
 	Cmp source_lnq (source) ;
-	Cmp lnq_cmp (lnq) ;
+	Cmp lnq_cmp (logn_quad) ;
 	lnq_cmp.set_etat_qcq() ;
 
 	mpaff.poisson(source_lnq, par_nul, lnq_cmp) ; 
@@ -249,7 +252,7 @@ void Star::equilibrium_spher(double ent_c, double precis){
 	
 	nn = exp( logn ) ; 
 
-	Scalar exp_lnq = exp(lnq  ) ;
+	Scalar exp_lnq = exp( lnq ) ;
 	exp_lnq.std_spectral_base() ;
 
 	a_car = exp_lnq * exp_lnq / ( nn * nn ) ;
@@ -271,7 +274,10 @@ void Star::equilibrium_spher(double ent_c, double precis){
     //=========================================================================
     // 			End of iteration
     //=========================================================================
-    
+   
+    cout << "logn" << norme(logn) << endl ;
+    cout << "lnq" << norme(lnq) << endl ;
+ 
     // The mapping is transfered to that of the star:
     // ----------------------------------------------
     mp = mpaff ; 
@@ -286,7 +292,7 @@ void Star::equilibrium_spher(double ent_c, double precis){
     
     a_car = exp_lnq * exp_lnq / ( nn * nn ) ;
    
-    Sym_tensor gamma_cov(mp, COV, mp.get_bvect_spher()) ;
+    Sym_tensor gamma_cov(mp, COV, mp.get_bvect_cart()) ;
     gamma_cov.set_etat_zero() ;
 
     for (int i=1; i<=3; i++){
@@ -335,7 +341,7 @@ void Star::equilibrium_spher(double ent_c, double precis){
     
     //... Gravitational term
 
-    Scalar tmp = lnq- logn ; 
+    Scalar tmp = lnq - logn ; 
 
     source =  - ( logn.dsdr() * logn.dsdr() 
 		      - 0.5 * tmp.dsdr() * tmp.dsdr() ) 
@@ -353,5 +359,8 @@ void Star::equilibrium_spher(double ent_c, double precis){
     cout << "     grav. term : " << vir_grav << endl ; 
     cout << "     relative error : " << grv3 << endl ; 
     
+    // To be compatible with class Etoile :
+    logn = logn - logn_quad ;
+
  
 }

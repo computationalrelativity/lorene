@@ -32,6 +32,9 @@ char star_bin_kinema_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/09/13 19:38:31  f_limousin
+ * Reintroduction of the resolution of the equations in cartesian coordinates.
+ *
  * Revision 1.6  2005/02/17 17:33:54  f_limousin
  * Change the name of some quantities to be consistent with other classes
  * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
@@ -67,7 +70,7 @@ void Star_bin::kinematics(double omega, double x_axe) {
     // Computation of B^i/N
     // --------------------
     
-    //  1/ Computation of  - omega m^i
+    //  1/ Computation of omega m^i
 
     const Coord& xa = mp.xa ; 
     const Coord& ya = mp.ya ; 
@@ -75,13 +78,13 @@ void Star_bin::kinematics(double omega, double x_axe) {
     bsn.change_triad(mp.get_bvect_cart()) ;
 
     if (fabs(mp.get_rot_phi()) < 1e-10){ 
-      bsn.set(1) =  omega * ya ;
-      bsn.set(2) = - omega * (xa - x_axe) ;
+      bsn.set(1) = - omega * ya ;
+      bsn.set(2) = omega * (xa - x_axe) ;
       bsn.set(3) = 0 ;
     }
     else {
-      bsn.set(1) = - omega * ya ;
-      bsn.set(2) = omega * (xa - x_axe) ;
+      bsn.set(1) = omega * ya ;
+      bsn.set(2) = - omega * (xa - x_axe) ;
       bsn.set(3) = 0 ;
     }
 
@@ -89,12 +92,11 @@ void Star_bin::kinematics(double omega, double x_axe) {
  
     bsn.annule(nzm1, nzm1) ;	// set to zero in the ZEC
     
-    //	2/ Addition of shift and division by lapse
+    //	2/ Addition of beta and division by lapse
     // See Eq (47) from Gourgoulhon et al. (2001)
+    // New convention : l = Nn + B ==> B = \beta + \Omega d\phi
  
-    bsn.change_triad(mp.get_bvect_spher()) ;
-    bsn = ( bsn - beta ) / nn ; 
-    bsn.change_triad(mp.get_bvect_cart()) ;
+    bsn = ( bsn + beta ) / nn ; 
 
     bsn.annule(nzm1, nzm1) ;	// set to zero in the ZEC
         
@@ -111,7 +113,7 @@ void Star_bin::kinematics(double omega, double x_axe) {
     gamma_cov.change_triad(mp.get_bvect_cart()) ;
 
     //## For the convergence of the code, we introduce a flat scalar 
-    // product to compute gam_pot and so pot_centri. 
+    // product to compute gam_pot and  pot_centri. 
     Scalar gam_pot = 1 / sqrt( 1 - contract(flat_cov, 0, 1, bsn * bsn, 0, 1)) ;
 
     Scalar gam0 = 1 / sqrt(1 - contract(gamma_cov, 0, 1, bsn * bsn, 0, 1)) ;
@@ -124,8 +126,9 @@ void Star_bin::kinematics(double omega, double x_axe) {
     cout << "Relative difference between gam0 and gam_pot : " << endl ; 
     cout << diffrel(gam0, gam_pot) << endl ;
 
-    pot_centri = - log( gam_pot ) ;
-    
+    //    pot_centri = - log( gam_pot ) ;
+    pot_centri = - log( gam0 ) ;
+
     pot_centri.annule(nzm1, nzm1) ;	// set to zero in the external domain
     pot_centri.std_spectral_base() ;   // set the bases for spectral expansions
     

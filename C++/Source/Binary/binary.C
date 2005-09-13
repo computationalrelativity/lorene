@@ -28,6 +28,9 @@ char Binary_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2005/09/13 19:38:31  f_limousin
+ * Reintroduction of the resolution of the equations in cartesian coordinates.
+ *
  * Revision 1.12  2005/02/24 17:31:27  f_limousin
  * Update of the function decouple().
  *
@@ -281,10 +284,9 @@ void Binary::display_poly(ostream& ost) const {
 	     << ( star2.xa_barycenter() - star1.xa_barycenter() ) / r_poly 
 	     << endl ; 
 	ost << "  Omega	  : " << omega * t_poly << endl ; 
-	//	ost << "  J	  : " << angu_mom()(2) / j_poly << endl ; 
-	//      ost << "  M_ADM   : " << mass_adm() / m_poly << endl ;      
-	//      ost << "  M_Komar : " << mass_kom() / m_poly << endl ; 
-	//	ost << "  E	  : " << total_ener() / m_poly << endl ; 
+//	ost << "  J	  : " << angu_mom()(2) / j_poly << endl ; 
+	ost << "  M_ADM   : " << mass_adm() / m_poly << endl ;      
+	ost << "  M_Komar : " << mass_kom() / m_poly << endl ; 
 	ost << "  M_bar(star 1) : " << star1.mass_b() / m_poly << endl ; 
 	ost << "  M_bar(star 2) : " << star2.mass_b() / m_poly << endl ; 
 	ost << "  R_0(star 1)	: " << 
@@ -299,69 +301,63 @@ void Binary::display_poly(ostream& ost) const {
 
 
 void Binary::fait_decouple () {
+
+    int nz_un = star1.get_mp().get_mg()->get_nzone() ;
+    int nz_deux = star2.get_mp().get_mg()->get_nzone() ;
     
-    int nz_un = star1.mp.get_mg()->get_nzone() ;
-    int nz_deux = star2.mp.get_mg()->get_nzone() ;
-    
-    // On determine R_limite (pour le moment en tout cas...) :
-    double distance = fabs(star1.mp.get_ori_x() - star2.mp.get_ori_x()) ;
+    // We determine R_limite :
+    double distance = star2.get_mp().get_ori_x() - star1.get_mp().get_ori_x() ;
+    cout << "distance = " << distance << endl ;
     double lim_un = distance/2. ;
     double lim_deux = distance/2. ;
     double int_un = distance/6. ;
     double int_deux = distance/6. ;
-  
-
     
-    // Les fonctions de base
-    Cmp fonction_f_un (star1.mp) ;
-     
+    // The functions used.
+    Scalar fonction_f_un (star1.get_mp()) ;
     fonction_f_un = 0.5*pow(
-      cos((star1.mp.r-int_un)*M_PI/2./(lim_un-int_un)), 2.)+0.5 ;
-    fonction_f_un.std_base_scal();
-
-    Cmp fonction_g_un (star1.mp) ;
- 
+	cos((star1.get_mp().r-int_un)*M_PI/2./(lim_un-int_un)), 2.)+0.5 ;
+    fonction_f_un.std_spectral_base();
+    
+    Scalar fonction_g_un (star1.get_mp()) ;
     fonction_g_un = 0.5*pow
-      (sin((star1.mp.r-int_un)*M_PI/2./(lim_un-int_un)), 2.) ;
-    fonction_g_un.std_base_scal();
+	(sin((star1.get_mp().r-int_un)*M_PI/2./(lim_un-int_un)), 2.) ;
+    fonction_g_un.std_spectral_base();
     
-    Cmp fonction_f_deux (star2.mp) ;
+    Scalar fonction_f_deux (star2.get_mp()) ;
     fonction_f_deux = 0.5*pow(
- cos((star2.mp.r-int_deux)*M_PI/2./(lim_deux-int_deux)), 2.)+0.5 ;
-    fonction_f_deux.std_base_scal();
+	cos((star2.get_mp().r-int_deux)*M_PI/2./(lim_deux-int_deux)), 2.)+0.5 ;
+    fonction_f_deux.std_spectral_base();
     
-    Cmp fonction_g_deux (star2.mp) ;
-    fonction_g_deux = 0.5*pow
- (sin((star2.mp.r-int_deux)*M_PI/2./(lim_deux-int_deux)), 2.) ;
-    fonction_g_deux.std_base_scal();
-       
-
-
-     // Les fonctions totales :
-    Scalar decouple_un (star1.mp) ;
+    Scalar fonction_g_deux (star2.get_mp()) ;
+    fonction_g_deux = 0.5*pow(
+	sin((star2.get_mp().r-int_deux)*M_PI/2./(lim_un-int_deux)), 2.) ;
+    fonction_g_deux.std_spectral_base();
+    
+    // The functions total :
+    Scalar decouple_un (star1.get_mp()) ;
     decouple_un.allocate_all() ;
-    Scalar decouple_deux (star2.mp) ;
+    Scalar decouple_deux (star2.get_mp()) ;
     decouple_deux.allocate_all() ;
     
-    Mtbl xabs_un (star1.mp.xa) ;
-    Mtbl yabs_un (star1.mp.ya) ;
-    Mtbl zabs_un (star1.mp.za) ;
+    Mtbl xabs_un (star1.get_mp().xa) ;
+    Mtbl yabs_un (star1.get_mp().ya) ;
+    Mtbl zabs_un (star1.get_mp().za) ;
 	    
-    Mtbl xabs_deux (star2.mp.xa) ;
-    Mtbl yabs_deux (star2.mp.ya) ;
-    Mtbl zabs_deux (star2.mp.za) ;
+    Mtbl xabs_deux (star2.get_mp().xa) ;
+    Mtbl yabs_deux (star2.get_mp().ya) ;
+    Mtbl zabs_deux (star2.get_mp().za) ;
 	    
     double xabs, yabs, zabs, air_un, air_deux, theta, phi ;
 	    
-    // On boucle sur les autres zones :
     for (int l=0 ; l<nz_un ; l++) {
-	int nr = star1.mp.get_mg()->get_nr (l) ;
+	int nr = star1.get_mp().get_mg()->get_nr (l) ;
 		
 	if (l==nz_un-1)
 	    nr -- ;
 		
-	int np = star1.mp.get_mg()->get_np (l) ;
-	int nt = star1.mp.get_mg()->get_nt (l) ;
+	int np = star1.get_mp().get_mg()->get_np (l) ;
+	int nt = star1.get_mp().get_mg()->get_nt (l) ;
 		
 	for (int k=0 ; k<np ; k++)
 	    for (int j=0 ; j<nt ; j++)
@@ -371,51 +367,48 @@ void Binary::fait_decouple () {
 		    yabs = yabs_un (l, k, j, i) ;
 		    zabs = zabs_un (l, k, j, i) ;
 			    
-		    // les coordonnees du point :
-		    star1.mp.convert_absolute 
+		    // Coordinates of the point
+		    star1.get_mp().convert_absolute 
 			(xabs, yabs, zabs, air_un, theta, phi) ;
-		    star2.mp.convert_absolute 
+		    star2.get_mp().convert_absolute 
 			(xabs, yabs, zabs, air_deux, theta, phi) ;
-
+		
 		    if (air_un <= lim_un)
 			if (air_un < int_un)
 			    decouple_un.set_grid_point(l, k, j, i) = 1 ;
 			else
-			// pres de l'etoile une :
-			decouple_un.set_grid_point(l, k, j, i) =   
-			    fonction_f_un(l, k, j, i) ;
-
+			// Close to star 1 :
+			decouple_un.set_grid_point(l, k, j, i) = 
+			    fonction_f_un.val_grid_point(l, k, j, i) ;
 		    else 
 			if (air_deux <= lim_deux)
 			    if (air_deux < int_deux)
 				decouple_un.set_grid_point(l, k, j, i) = 0 ;
 			    else
-			// On est pres de l'etoile deux :
-			     decouple_un.set_grid_point(l, k, j, i) = 
-		       fonction_g_deux.val_point(air_deux, theta, phi) ;
-		    
+			// Close to star 2 :
+				decouple_un.set_grid_point(l, k, j, i) = 
+		fonction_g_deux.val_point (air_deux, theta, phi) ;
+		
 			else
-			    // On est loin des deux etoiles :
+			    // Far from each star :
 			    decouple_un.set_grid_point(l, k, j, i) = 0.5 ;
 		}
-	
-    
-	        // Cas infini :
+			    
+		// Case infinity :
 		if (l==nz_un-1)
 		    for (int k=0 ; k<np ; k++)
 			for (int j=0 ; j<nt ; j++)
-			    decouple_un.set_grid_point(nz_un-1, k, j, nr) = 0.5 ;
-    }
-
-
+			    decouple_un.set_grid_point(nz_un-1, k, j, nr)=0.5 ;
+	    }
+    
     for (int l=0 ; l<nz_deux ; l++) {
-	int nr = star2.mp.get_mg()->get_nr (l) ;
+	int nr = star2.get_mp().get_mg()->get_nr (l) ;
 		
 	if (l==nz_deux-1)
 	    nr -- ;
 		
-	int np = star2.mp.get_mg()->get_np (l) ;
-	int nt = star2.mp.get_mg()->get_nt (l) ;
+	int np = star2.get_mp().get_mg()->get_np (l) ;
+	int nt = star2.get_mp().get_mg()->get_nt (l) ;
 		
 	for (int k=0 ; k<np ; k++)
 	    for (int j=0 ; j<nt ; j++)
@@ -425,52 +418,52 @@ void Binary::fait_decouple () {
 		    yabs = yabs_deux (l, k, j, i) ;
 		    zabs = zabs_deux (l, k, j, i) ;
 			    
-		    // les coordonnees du point  :
-		    star1.mp.convert_absolute 
+		    // coordinates of the point  :
+		    star1.get_mp().convert_absolute 
 			(xabs, yabs, zabs, air_un, theta, phi) ;
-		    star2.mp.convert_absolute 
+		    star2.get_mp().convert_absolute 
 			(xabs, yabs, zabs, air_deux, theta, phi) ;
 		    
 		    if (air_deux <= lim_deux)
 			if (air_deux < int_deux)
 			    decouple_deux.set_grid_point(l, k, j, i) = 1 ;
 			else
-			  // pres de l'etoile deux :
-			decouple_deux.set_grid_point(l, k, j, i) =  						    fonction_f_deux (l, k, j, i) ;
-
+			// close to star two :
+			decouple_deux.set_grid_point(l, k, j, i) = 
+			    fonction_f_deux.val_grid_point(l, k, j, i) ;
 		    else 
 			if (air_un <= lim_un)
 			    if (air_un < int_un)
 				decouple_deux.set_grid_point(l, k, j, i) = 0 ;
 			    else
-			// On est pres de l'etoile une :
-			     decouple_deux.set_grid_point(l, k, j, i)=
-		   		fonction_g_un.val_point (air_un, theta, phi) ;
+			// close to star one :
+				decouple_deux.set_grid_point(l, k, j, i) = 
+			 fonction_g_un.val_point (air_un, theta, phi) ;
 		
 			else
-			    // On est loin des deux etoiles :
+			    // Far from each star :
 			    decouple_deux.set_grid_point(l, k, j, i) = 0.5 ;
 		}
 			    
-		// Cas infini :
+		// Case infinity :
 		if (l==nz_deux-1)
 		    for (int k=0 ; k<np ; k++)
 			for (int j=0 ; j<nt ; j++)
-			    decouple_deux.set_grid_point(nz_un-1, k, j, nr) = 0.5 ;
-    }
-      
-    int nr = star2.mp.get_mg()->get_nr(2) ;
-    int np = star2.mp.get_mg()->get_np(2) ;
-    int nt = star2.mp.get_mg()->get_nt(2) ;
-
-    cout << "decouple_un"  << endl << norme(decouple_un/(nr*nt*np)) << endl ;
-    cout << "decouple_deux"  << endl << norme(decouple_deux/(nr*nt*np)) << endl ;
+			 decouple_deux.set_grid_point(nz_un-1, k, j, nr)=0.5 ;
+   }
+   
     decouple_un.std_spectral_base() ;
     decouple_deux.std_spectral_base() ;
+
+    int nr = star1.get_mp().get_mg()->get_nr (1) ;
+    int nt = star1.get_mp().get_mg()->get_nt (1) ;
+    int np = star1.get_mp().get_mg()->get_np (1) ;
+    cout << "decouple_un"  << endl << norme(decouple_un/(nr*nt*np)) << endl ;
+    cout << "decouple_deux"  << endl << norme(decouple_deux/(nr*nt*np)) 
+	 << endl ;
+
     star1.decouple = decouple_un ;
     star2.decouple = decouple_deux ;
-
-     
 }
 
 void Binary::write_global(ostream& ost) const {
@@ -495,14 +488,16 @@ void Binary::write_global(ostream& ost) const {
   
   ost.setf(ios::scientific) ; 
   ost.width(14) ; 
-  ost << virial_cp() << endl ;
+  ost << virial() << endl ;
   
   ost << "#      d [km]         "  
       << "       d_G [km]       "
       << "     d/(a1 +a1')      "
       << "       f [Hz]         "
-      << "    M_ADM [M_sol]     "   
-      << "    M_ADM_vol M_sol]     "   
+      << "    M_ADM [M_sol]     "     
+      << "    M_ADM_vol [M_sol]     "     
+      << "    M_Komar [M_sol]     "     
+      << "    M_Komar_vol [M_sol]     "     
       << "   J [G M_sol^2/c]    "  << endl ;   
   
   ost.precision(14) ;
@@ -513,6 +508,8 @@ void Binary::write_global(ostream& ost) const {
   ost	<< omega / (2*M_PI)* f_unit ; ost.width(22) ;
   ost	<< mass_adm() / msol ; ost.width(22) ; 
   ost	<< mass_adm_vol() / msol ; ost.width(22) ; 
+  ost	<< mass_kom() / msol ; ost.width(22) ; 
+  ost	<< mass_kom_vol() / msol ; ost.width(22) ; 
   ost	<< angu_mom()(2)/ ( qpig / (4* M_PI) * msol*msol) << endl ; 
   
   ost << "#     H_c(1)[c^2]     "

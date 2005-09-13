@@ -32,6 +32,9 @@ char star_bin_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2005/09/13 19:38:31  f_limousin
+ * Reintroduction of the resolution of the equations in cartesian coordinates.
+ *
  * Revision 1.13  2005/02/24 16:26:46  f_limousin
  * Add the name of the variable for the companion which is now used
  * to compute dlogn_comp, dlnq_comp...
@@ -77,100 +80,174 @@ char star_bin_upmetr_der_C[] = "$Header$" ;
  *
  */
 
+// C headers
+#include <math.h>
+
 // Headers Lorene
 #include "star.h"
 #include "utilitaires.h"
 #include "graphique.h"
 
-void Star_bin::update_metric_der_comp(const Star_bin& comp) {
+void Star_bin::update_metric_der_comp(const Star_bin& comp, double om) {
   
-
   // Derivatives of metric coefficients
   // ----------------------------------
   
-    // dlogn
-    //--------
-    
-    Vector dlogn_comp (mp, COV, mp.get_bvect_cart()) ;
-    dlogn_comp.set_etat_qcq() ;
-    Vector auxi (comp.logn_auto.derive_cov(comp.flat)) ;
-    auxi.dec_dzpuis(2) ;
-    auxi.change_triad(auxi.get_mp().get_bvect_cart()) ;
-    auxi.change_triad(mp.get_bvect_cart()) ;
-    assert ( *(auxi.get_triad()) == *(dlogn_comp.get_triad())) ;
+    // dcov_logn 
+    Vector temp ((comp.logn_auto).derive_cov(comp.get_flat())) ;
+    temp.dec_dzpuis(2) ;
+    temp.change_triad(temp.get_mp().get_bvect_cart()) ;
+    temp.change_triad(mp.get_bvect_cart()) ;
+    Base_val sauve_base1 (temp(1).get_spectral_va().get_base()) ;
+    Base_val sauve_base2 (temp(2).get_spectral_va().get_base()) ;
+    Base_val sauve_base3 (temp(3).get_spectral_va().get_base()) ;
+    assert ( *(temp.get_triad()) == *(dcov_logn.get_triad())) ;
+	
+    dcov_logn.set(1).import(temp(1)) ;
+    dcov_logn.set(2).import(temp(2)) ;
+    dcov_logn.set(3).import(temp(3)) ;
 
-    dlogn_comp.set(1).import_symy(auxi(1)) ;
-    dlogn_comp.set(2).import_asymy(auxi(2)) ;
-    dlogn_comp.set(3).import_symy(auxi(3)) ;
-    dlogn_comp.std_spectral_base() ;
-    dlogn_comp.inc_dzpuis(2) ;
-    dlogn_comp.change_triad(mp.get_bvect_spher()) ;
+    dcov_logn.set(1).set_spectral_va().set_base(sauve_base1) ;
+    dcov_logn.set(2).set_spectral_va().set_base(sauve_base2) ;
+    dcov_logn.set(3).set_spectral_va().set_base(sauve_base3) ;
+    dcov_logn.inc_dzpuis(2) ;
+
+    dcov_logn = dcov_logn + logn_auto.derive_cov(flat) ;
+
+    // dcon_logn 
+    Vector temp_con((comp.logn_auto).derive_con(comp.get_flat())) ;
+    temp_con.dec_dzpuis(2) ;
+    temp_con.change_triad(temp_con.get_mp().get_bvect_cart()) ;
+    temp_con.change_triad(mp.get_bvect_cart()) ;
+    sauve_base1 = temp_con(1).get_spectral_va().get_base() ;
+    sauve_base2 = temp_con(2).get_spectral_va().get_base() ;
+    sauve_base3 = temp_con(3).get_spectral_va().get_base() ;
+    assert ( *(temp_con.get_triad()) == *(dcon_logn.get_triad())) ;
+	
+    dcon_logn.set(1).import(temp_con(1)) ;
+    dcon_logn.set(2).import(temp_con(2)) ;
+    dcon_logn.set(3).import(temp_con(3)) ;
+
+    dcon_logn.set(1).set_spectral_va().set_base(sauve_base1) ;
+    dcon_logn.set(2).set_spectral_va().set_base(sauve_base2) ;
+    dcon_logn.set(3).set_spectral_va().set_base(sauve_base3) ;
+    dcon_logn.inc_dzpuis(2) ;
+
+    dcon_logn = dcon_logn + logn_auto.derive_con(flat) ;
+
+    // dcov_phi 
+    temp = (0.5*(comp.lnq_auto-comp.logn_auto)).derive_cov(comp.get_flat()) ;
+    temp.dec_dzpuis(2) ;
+    temp.change_triad(temp.get_mp().get_bvect_cart()) ;
+    temp.change_triad(mp.get_bvect_cart()) ;
+    sauve_base1 = temp(1).get_spectral_va().get_base() ;
+    sauve_base2 = temp(2).get_spectral_va().get_base() ;
+    sauve_base3 = temp(3).get_spectral_va().get_base() ;
+    assert ( *(temp.get_triad()) == *(dcov_phi.get_triad())) ;
+	
+    dcov_phi.set(1).import(temp(1)) ;
+    dcov_phi.set(2).import(temp(2)) ;
+    dcov_phi.set(3).import(temp(3)) ;
+
+    dcov_phi.set(1).set_spectral_va().set_base(sauve_base1) ;
+    dcov_phi.set(2).set_spectral_va().set_base(sauve_base2) ;
+    dcov_phi.set(3).set_spectral_va().set_base(sauve_base3) ;
+    dcov_phi.inc_dzpuis(2) ;
+
+    dcov_phi = dcov_phi + 0.5*(lnq_auto - logn_auto).derive_cov(flat) ;
+
+    // dcon_phi 
+    temp_con = (0.5*(comp.lnq_auto-comp.logn_auto))
+	.derive_con(comp.get_flat()) ;
+    temp_con.dec_dzpuis(2) ;
+    temp_con.change_triad(temp_con.get_mp().get_bvect_cart()) ;
+    temp_con.change_triad(mp.get_bvect_cart()) ;
+    sauve_base1 = temp_con(1).get_spectral_va().get_base() ;
+    sauve_base2 = temp_con(2).get_spectral_va().get_base() ;
+    sauve_base3 = temp_con(3).get_spectral_va().get_base() ;
+    assert ( *(temp_con.get_triad()) == *(dcon_phi.get_triad())) ;
+	
+    dcon_phi.set(1).import(temp_con(1)) ;
+    dcon_phi.set(2).import(temp_con(2)) ;
+    dcon_phi.set(3).import(temp_con(3)) ;
+
+    dcon_phi.set(1).set_spectral_va().set_base(sauve_base1) ;
+    dcon_phi.set(2).set_spectral_va().set_base(sauve_base2) ;
+    dcon_phi.set(3).set_spectral_va().set_base(sauve_base3) ;
+    dcon_phi.inc_dzpuis(2) ;
+
+    dcon_phi = dcon_phi + 0.5*(lnq_auto - logn_auto).derive_con(flat) ;
+
+    
+  // Construction of Omega d/dphi
+  // ----------------------------
   
-    dlogn = logn_auto.derive_cov(flat) + dlogn_comp ;
-
-    // dlnpsi
-    //--------
-
-    Scalar lnpsi_auto  = 0.5 * (lnq_auto - logn_auto) ;
+  const Mg3d* mg = mp.get_mg() ; 
+  int nz = mg->get_nzone() ;	    // total number of domains
+  Vector omdsdp (mp, CON, mp.get_bvect_cart()) ;
+  Scalar yya (mp) ;
+  yya = mp.ya ;
+  Scalar xxa (mp) ;
+  xxa = mp.xa ;
+  
+  if (fabs(mp.get_rot_phi()) < 1e-10){ 
+    omdsdp.set(1) = - om * yya ;
+    omdsdp.set(2) = om * xxa ;
+    omdsdp.set(3).annule_hard() ;
+  }
+  else{
+    omdsdp.set(1) = om * yya ;
+    omdsdp.set(2) = - om * xxa ;
+    omdsdp.set(3).annule_hard() ;
+  }
+  
+  omdsdp.set(1).set_spectral_va()
+    .set_base(*(mp.get_mg()->std_base_vect_cart()[0])) ;
+  omdsdp.set(2).set_spectral_va()
+    .set_base(*(mp.get_mg()->std_base_vect_cart()[1])) ;
+  omdsdp.set(3).set_spectral_va()
+    .set_base(*(mp.get_mg()->std_base_vect_cart()[2])) ;
+  
+  omdsdp.annule_domain(nz-1) ;
+  
+  // Computation of tkij_comp
+  // ------------------------
+  
+  // Gradient tilde (partial derivatives with respect to
+  //           the cartesian coordinates of the mapping)
+  // D~^j beta^i
     
-    Vector dlnpsi_comp (mp, COV, mp.get_bvect_cart()) ;
-    dlnpsi_comp.set_etat_qcq() ;
-    auxi = 0.5*(comp.lnq_auto - comp.logn_auto).derive_cov(comp.flat) ;
-    auxi.dec_dzpuis(2) ;
-    auxi.change_triad(auxi.get_mp().get_bvect_cart()) ;
-    auxi.change_triad(mp.get_bvect_cart()) ;
-    assert ( *(auxi.get_triad()) == *(dlnpsi_comp.get_triad())) ;
-    
-    dlnpsi_comp.set(1).import_symy(auxi(1)) ;
-    dlnpsi_comp.set(2).import_asymy(auxi(2)) ;
-    dlnpsi_comp.set(3).import_symy(auxi(3)) ;
-    dlnpsi_comp.std_spectral_base() ;
-    dlnpsi_comp.inc_dzpuis(2) ;
-    dlnpsi_comp.change_triad(mp.get_bvect_spher()) ;
-    
-    dlnpsi = lnpsi_auto.derive_cov(flat) + dlnpsi_comp ;
-    
-    // dlnq
-    //-------
-
-    Vector dlnq_comp (mp, COV, mp.get_bvect_cart()) ;
-    dlnq_comp.set_etat_qcq() ;
-    auxi = comp.lnq_auto.derive_cov(comp.flat) ;
-    auxi.dec_dzpuis(2) ;
-    auxi.change_triad(auxi.get_mp().get_bvect_cart()) ;
-    auxi.change_triad(mp.get_bvect_cart()) ;
-    assert ( *(auxi.get_triad()) == *(dlnq_comp.get_triad())) ;
-    
-    dlnq_comp.set(1).import_symy(auxi(1)) ;
-    dlnq_comp.set(2).import_asymy(auxi(2)) ;
-    dlnq_comp.set(3).import_symy(auxi(3)) ;
-    dlnq_comp.std_spectral_base() ;
-    dlnq_comp.inc_dzpuis(2) ;
-    dlnq_comp.change_triad(mp.get_bvect_spher()) ;
-    
-    dlnq = lnq_auto.derive_cov(flat) + dlnq_comp ;
-
-    // New value of hh_auto and hh_comp
-    // ----------------------------------
-
-    // The old hij_auto and hij_comp are TT but hij is not.
-    hh_auto = hh_auto + (hh - hh_auto - hh_comp) * decouple ;
-    hh_comp = hh_comp + (hh - hh_auto - hh_comp) * (1-decouple) ;
-
-
-    // Computation of A^{ij}_comp
-    // --------------------------
-    
-    aa_comp = beta_comp.ope_killing_conf(gtilde) ;
+  const Tensor& dbeta_comp = beta_comp.derive_con(gtilde) ;
+                        
+  // Trace of D~_j beta^i  :
+  Scalar divbeta_comp = beta_comp.divergence(gtilde) ;
+		  
+  // Computation of K^{ij}
+  // -------------------------
+  
+  for (int i=1; i<=3; i++) 
+    for (int j=i; j<=3; j++) {
       
-    aa_comp = 0.5 * aa_comp / nn ;
-      
-    // Computation of aa_quad_comp
-    // ------------------------
+      tkij_comp.set(i, j) = dbeta_comp(i, j) + dbeta_comp(j, i) - 
+	double(2) /double(3) * divbeta_comp * (gtilde.con())(i,j) ; 
+    }
+  
+  // Addition (or not !) of u^{ij}
+  tkij_comp = tkij_comp - 0*hij_comp.derive_lie(omdsdp) ;
 
-    Tensor aa_auto_dd = aa_auto.down(0, gtilde).down(1, gtilde) ;
-
-    aa_quad_comp = contract(aa_auto_dd, 0, 1, aa_comp, 0, 1, true) ; 
-
+  tkij_comp = 0.5 * tkij_comp / nn ;
+  
+  // Computation of kcar_comp
+  // ------------------------
+  
+  Sym_tensor tkij_auto_cov = tkij_auto.up_down(gtilde) ;
+  
+  kcar_comp = contract(tkij_auto_cov, 0, 1, tkij_comp, 0, 1,true) ; 
+  
+  // The derived quantities are obsolete
+  // -----------------------------------
+  
+  del_deriv() ;
+  
 }      
 

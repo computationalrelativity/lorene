@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/09/13 19:38:32  f_limousin
+ * Reintroduction of the resolution of the equations in cartesian coordinates.
+ *
  * Revision 1.5  2004/07/21 11:45:20  f_limousin
  * Add function mass_adm_vol() to compute the ADM mass of the system
  * with a volume integral instead of a surface one.
@@ -232,6 +235,9 @@ class Binary {
 	/// Total Komar mass
     	double mass_kom() const ;
 	
+	/// Total Komar mass (computed by a volume integral)
+    	double mass_kom_vol() const ;
+
 	/** Total angular momentum.
 	 *
 	 *  @return 1-D {\tt Tbl} of size 3, according to \\
@@ -253,7 +259,7 @@ class Binary {
 
 	/** Estimates the relative error on the virial theorem
 	 */
-    	double virial_cp() const ;	
+    	double virial() const ;	
 
 	/** Estimates the relative error on the Hamiltonian constraint 
 	 */

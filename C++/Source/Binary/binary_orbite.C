@@ -33,6 +33,9 @@ char binary_orbite_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/09/13 19:38:31  f_limousin
+ * Reintroduction of the resolution of the equations in cartesian coordinates.
+ *
  * Revision 1.5  2005/02/17 17:35:35  f_limousin
  * Change the name of some quantities to be consistent with other classes
  * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
@@ -69,7 +72,7 @@ char binary_orbite_C[] = "$Header$" ;
 double  fonc_binary_axe(double , const Param& ) ;
 double  fonc_binary_orbit(double , const Param& ) ;
 
-//****************************************************************************
+//******************************************************************************
 
 void Binary::orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1, 
 		     double& xgg2) {
@@ -143,6 +146,10 @@ using namespace Unites ;
 	// ... gradient suivant X : 		
 	dnulg[i] = tmp.dsdx().val_grid_point(0, 0, 0, 0) ; 
 
+	cout.precision(8) ;
+	cout << "dnulg = " << dnulg[i] << endl ;
+
+
 	//----------------------------------
 	// Calcul de gij, lapse et shift au centre de l'etoile
 	//----------------------------------
@@ -170,7 +177,7 @@ using namespace Unites ;
 	dg11[i] = gg11.dsdx().val_grid_point(0,0,0,0) ;
 	dg21[i] = gg21.dsdx().val_grid_point(0,0,0,0) ;
 	dg22[i] = gg22.dsdx().val_grid_point(0,0,0,0) ;
-	
+
 	dbx[i] = bbx.dsdx().val_grid_point(0,0,0,0) ;
 	dby[i] = bby.dsdx().val_grid_point(0,0,0,0) ;
  	dbz[i] = bbz.dsdx().val_grid_point(0,0,0,0) ;
@@ -220,15 +227,16 @@ using namespace Unites ;
     xgg1 = xgg[0] ;
     xgg2 = xgg[1] ;
     
-//---------------------------------
-//  Position de l'axe de rotation   
-//---------------------------------
+   //---------------------------------
+   //  Position de l'axe de rotation   
+   //---------------------------------
 
     double ori_x1 = ori_x[0] ;
     double ori_x2 = ori_x[1] ;
 
     if ( et[0]->get_eos() == et[1]->get_eos() &&
-	 et[0]->get_ent().val_grid_point(0,0,0,0) == et[1]->get_ent().val_grid_point(0,0,0,0) ) {
+	 et[0]->get_ent().val_grid_point(0,0,0,0) == 
+	              et[1]->get_ent().val_grid_point(0,0,0,0) ) {
 
         x_axe = 0. ;
 
@@ -472,8 +480,7 @@ double  fonc_binary_axe(double x_rot, const Param& paraxe) {
 	+ 2*dg10_1*bx_1*bymxo_1 ;
     double delta2 = 2*g10_1*bymxo_1*dbx_1 + 2*g10_1*bx_1*dbymo_1 
 	+ 2*dg20_1*bx_1*bz_1 ;
-    double delta3 = 2*g20_1*bx_1*dbz_1 +2*g20_1*bz_1*dbx_1 
-	+ dg11_1*bymxo_1*bymxo_1 ;
+    double delta3 = 2*g20_1*bx_1*dbz_1 +2*g20_1*bz_1*dbx_1 + dg11_1*bymxo_1*bymxo_1 ;
     double delta4 = 2*g11_1*bymxo_1*dbymo_1 + 2*dg21_1*bz_1*bymxo_1;
     double delta5 = 2*g21_1*bymxo_1*dbz_1 +2*g21_1*bz_1*dbymo_1 
 	+ dg22_1*bz_1*bz_1 + 2*g22_1*bz_1*dbz_1 ;
@@ -512,7 +519,7 @@ double  fonc_binary_axe(double x_rot, const Param& paraxe) {
 
     om2_star2 = dnulg_2 / (beta_2/(omega*omega)*(dnulg_2*unsn2_2 + d1sn2_2/2.) 
 			   + unsn2_2*delta_2/(omega*omega)/2.) ;
-                                                                             
+                                                                            ; 
   
     return om2_star1 - om2_star2 ;
 
@@ -554,6 +561,8 @@ double fonc_binary_orbit(double om, const Param& parf) {
     
     double bymxo = by-xx*om ;  
 
+    //    bymxo = - bymxo ;
+    //dbymo = - dbymo ;
 
     double beta1 = g00*bx*bx + 2*g10*bx*bymxo + 2*g20*bx*bz ;
     double beta2 = g11*bymxo*bymxo + 2*g21*bz*bymxo+ g22*bz*bz ;
@@ -566,7 +575,7 @@ double fonc_binary_orbit(double om, const Param& parf) {
     double delta3 = 2*g20*bx*dbz +2*g20*bz*dbx + dg11*bymxo*bymxo ;
     double delta4 = 2*g11*bymxo*dbymo + 2*dg21*bz*bymxo;
     double delta5 = 2*g21*bymxo*dbz +2*g21*bz*dbymo + dg22*bz*bz 
-	+ 2*g22*bz*dbz ;
+	            + 2*g22*bz*dbz ;
 
     double delta = delta1 + delta2 + delta3 + delta4 + delta5 ;
 
@@ -574,8 +583,35 @@ double fonc_binary_orbit(double om, const Param& parf) {
     //centre de l'etoile 
     //-----------------------------------------------------------------------
 
-     double diff = dnulg + (1/(2.*alpha))*(-d1sn2*beta - unsn2*delta) ; 
+    double diff = dnulg + (1/(2.*alpha))*(-d1sn2*beta - unsn2*delta) ; 
  
+    /*
+    double bpb = om*om*xx*xx - 2*om*by*xx + by*by ;
+    double dphi_cent = (g00*unsn2*( om*(by+xx*dby) - om*om*xx - by*dby )
+			- 0.5*bpb*(dg00 + g00*d1sn2/unsn2)*unsn2 )
+      / (1 - g00*unsn2*bpb) ;
+    double diff = dnulg + dphi_cent ;
+
+    
+     cout.precision(8) ;
+     cout << "bpb = " << bpb << endl ;
+     cout << "om = " << om << endl ;
+     cout << "by = " << by << endl ;
+     cout << "xx = " << xx << endl ;
+     cout << "dby = " << dby << endl ;
+     cout << "part11 = " << g00*unsn2 << endl ;
+     cout << "part12 = " << om*(by+xx*dby) << endl ;
+     cout << "part13 = " <<- om*om*xx  << endl ;
+     cout << "part14 = " << - by*dby << endl ;
+     cout << "part1 = " << g00*unsn2*( om*(by+xx*dby) - om*om*xx - by*dby ) << endl ;
+     cout << "part2 = " << - 0.5*bpb*(dg00 + g00*d1sn2/unsn2)*unsn2 << endl ;     
+     cout << "part3 = " << (1 - g00*unsn2*bpb) << endl ;     
+     cout << "dnulg = " << dnulg << endl ;
+     cout << "dphi_cent = " << dphi_cent << endl ;
+     cout << "diff = " << diff << endl ;
+     cout << endl ;
+    */
+
      return diff ; 
 
 

@@ -31,6 +31,9 @@ char binary_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2005/09/13 19:38:31  f_limousin
+ * Reintroduction of the resolution of the equations in cartesian coordinates.
+ *
  * Revision 1.10  2005/04/08 12:36:45  f_limousin
  * Just to avoid warnings...
  *
@@ -65,10 +68,12 @@ char binary_global_C[] = "$Header$" ;
  *
  */
 
+
 // Headers C
 #include "math.h"
 
 // Headers Lorene
+#include "nbr_spx.h"
 #include "binary.h"
 #include "map.h"
 #include "unites.h"
@@ -87,6 +92,8 @@ double Binary::mass_adm() const {
 	    
     *p_mass_adm = 0 ; 
     
+    // First Method
+    /*
     const Metric& gamij = (et[0]->get_gamma()) ;
     const Metric& flat = (et[0]->get_flat()) ;
     const Map_af map0 (et[0]->get_mp()) ;
@@ -96,15 +103,35 @@ double Binary::mass_adm() const {
     
     Vector dgamma_1 =  contract( flat.con(), 1, contract(contract(flat.con()
        			   , 0, dcov_gamij, 2), 0, 2), 0) ;
+    dgamma_1.change_triad(map0.get_bvect_spher()) ;
     Scalar integrant_1 (dgamma_1(1)) ;
-    
+     
     Vector dgamma_2 =  contract( flat.con(), 1, contract(contract(flat.con()
 			   , 0, dcov_gamij, 0), 0, 1), 0) ;
+    dgamma_2.change_triad(map0.get_bvect_spher()) ;
     Scalar integrant_2 (dgamma_2(1)) ;
 
     *p_mass_adm = map0.integrale_surface_infini (integrant_1 - integrant_2)/(4*qpig) ;
+    */
+    // Second Method
+    
+    const Map_af map0 (et[0]->get_mp()) ;
+    const Metric& flat = (et[0]->get_flat()) ;
 
-		
+    Vector dpsi(0.5*(et[0]->get_lnq() - 
+    		     et[0]->get_logn()).derive_cov(flat)) ;
+  
+    Vector ww (0.125*(contract(et[0]->get_hij().derive_cov(flat), 1, 2) 
+    		      - (et[0]->get_hij().trace(flat)).derive_con(flat))) ;
+    
+    dpsi.change_triad(map0.get_bvect_spher()) ;
+    ww.change_triad(map0.get_bvect_spher()) ;
+
+    // ww = 0 in Dirac gauge (Eq 174 of BGGN)
+    Scalar integrand (dpsi(1) + 0*ww(1)) ;
+
+    *p_mass_adm = map0.integrale_surface_infini (integrand) / (-qpig/2.) ;
+    
     }	// End of the case where a new computation was necessary
     
     return *p_mass_adm ; 
@@ -115,58 +142,77 @@ double Binary::mass_adm_vol() const {
 
   using namespace Unites ;
 
-  double adm_mass ;
-  adm_mass = 0. ;
+  double massadm ;
+  massadm = 0. ;
 
   for (int i=0; i<=1; i++) {	    // loop on the stars
 
       const Scalar& psi4 = et[i]->get_psi4() ;
+      Scalar psi (pow(psi4, 0.25)) ;
+      psi.std_spectral_base() ;
       const Scalar& ener_euler = et[i]->get_ener_euler() ;
-      const Scalar& aa_quad_auto = et[i]->get_aaquad_auto() ;
-      const Scalar& aa_quad_comp = et[i]->get_aaquad_comp() ;
+      const Scalar& kcar_auto = et[i]->get_kcar_auto() ;
+      const Scalar& kcar_comp = et[i]->get_kcar_comp() ;
       const Metric& gtilde = et[i]->get_gtilde() ;
       const Metric& flat = et[i]->get_flat() ;
-      const Sym_tensor& hh_auto = et[i]->get_hh_auto() ;
-      const Scalar& lnq = et[i]->get_lnq_auto() + et[i]->get_lnq_comp() ;
-      const Scalar& logn = et[i]->get_logn_auto() + et[i]->get_logn_comp() ;
+      const Sym_tensor& hij = et[i]->get_hij() ;
+      const Sym_tensor& hij_auto = et[i]->get_hij_auto() ;
+      const Vector& dcov_logn = et[i]->get_dcov_logn() ;
+      const Vector& dcov_phi = et[i]->get_dcov_phi() ;
+      const Vector& dcov_lnq = 2*dcov_phi + dcov_logn ;
+      const Scalar& lnq_auto = et[i]->get_lnq_auto() ;
+      const Scalar& logn_auto = et[i]->get_logn_auto() ;
+      const Scalar& phi_auto = 0.5 * (lnq_auto - logn_auto) ;
 
-      const Sym_tensor& gtilde_cov = gtilde.cov() ;
-      const Sym_tensor& gtilde_con = gtilde.con() ;
-      const Scalar& lnpsi = 0.5 * (lnq - logn) ;
-      Scalar nn = exp(logn) ;
-      nn.std_spectral_base() ;
-      Scalar qq = exp(lnq) ;
-      qq.std_spectral_base() ;
-
-      const Tensor& dcov_hh_auto = hh_auto.derive_cov(flat) ;
-      const Tensor& dcov_gtilde = gtilde_cov.derive_cov(flat) ;
-      const Tensor& dcov_lnpsi = lnpsi.derive_cov(flat) ;
-      const Tensor& dcov_logn = logn.derive_cov(flat) ;
-      Tensor dcovdcov_qq = qq.derive_cov(flat).derive_cov(flat) ;
-      dcovdcov_qq.inc_dzpuis() ;
-      Tensor dcovdcov_nn = nn.derive_cov(flat).derive_cov(flat) ;
-      dcovdcov_nn.inc_dzpuis() ;
+      const Tensor& dcov_hij_auto = hij_auto.derive_cov(flat) ;
+      const Tensor& dcov_gtilde = gtilde.cov().derive_cov(flat) ;
+      const Tensor& dcov_phi_auto = phi_auto.derive_cov(flat) ;
+      const Tensor& dcov_logn_auto = logn_auto.derive_cov(flat) ;
+      const Tensor& dcov_lnq_auto = lnq_auto.derive_cov(flat) ;
+      Tensor dcovdcov_lnq_auto = lnq_auto.derive_cov(flat).derive_cov(flat) ;
+      dcovdcov_lnq_auto.inc_dzpuis() ;
+      Tensor dcovdcov_logn_auto = logn_auto.derive_cov(flat).derive_cov(flat) ;
+      dcovdcov_logn_auto.inc_dzpuis() ;
       
+      Scalar source = - psi4 % (qpig*ener_euler + (kcar_auto + kcar_comp)/4.) 
+	- 0*2*contract(contract(gtilde.con(), 0, dcov_phi, 0), 0, dcov_phi_auto, 0, true) ;
       
-      Scalar source = pow(psi4, 1.25) * (ener_euler + (aa_quad_auto 
-					      + aa_quad_comp)/ (4.*qpig)) ;
+      source += 4*contract(hij, 0, 1, dcov_logn * dcov_phi_auto, 0, 1) +
+	2*contract(hij, 0, 1, dcov_phi * dcov_phi_auto, 0, 1) +
+	0.0625 * contract(gtilde.con(), 0, 1, contract(
+			   dcov_hij_auto, 0, 1, dcov_gtilde, 0, 1), 0, 1) - 
+           0.125 * contract(gtilde.con(), 0, 1, contract(dcov_hij_auto, 
+			      0, 1, dcov_gtilde, 0, 2), 0, 1) -
+	 contract(hij,0,1,dcovdcov_lnq_auto + dcov_lnq_auto*dcov_lnq,0,1) +
+	 contract(hij,0,1,dcovdcov_logn_auto + dcov_logn_auto*dcov_logn,0,1) ;
 
-      source += - pow(psi4, 0.25) / (4.*qpig) * 
-	  (0.0625 * contract(gtilde_con, 0, 1, contract(
-			      dcov_hh_auto, 0, 1, dcov_gtilde, 0, 1), 0, 1) - 
-           0.125 * contract(gtilde_con, 0, 1, contract(dcov_hh_auto, 
-			      0, 1, dcov_gtilde, 0, 2), 0, 1) + 
-	   contract(hh_auto, 0, 1, 2*dcov_lnpsi * dcov_lnpsi +
-		    4*dcov_lnpsi * dcov_logn - dcovdcov_qq / qq +
-		    dcovdcov_nn / nn, 0, 1) ) ;
+      source = source * psi ;
 
       source.std_spectral_base() ;
 
-      adm_mass += source.integrale() ;
+      massadm += - source.integrale()/qpig ;
+
+/*
+      Scalar temp1 (contract(phi_auto.derive_con(flat), 0, dcov_phi, 0)) ;
+      Scalar temp3 (contract(dcon_phi, 0, dcov_phi, 0)) ;
+      Scalar temp4 (contract(dcon_logn, 0, dcov_phi_auto, 0)) ;
+      Scalar temp5 (contract(logn_auto.derive_con(flat), 0, dcov_phi, 0)) ;
+      Scalar temp6 (contract(hij, 0, 1, dcov_logn * dcov_phi_auto, 0, 1)) ;
+      Scalar temp7 (contract(hij, 0, 1, dcov_logn_auto * dcov_phi, 0, 1)) ;
+      Scalar temp8 (contract(hij_auto, 0, 1, dcov_logn * dcov_phi, 0, 1)) ;
 	  
+      cout << "temp1 = " << -temp1.integrale() << endl ;
+      cout << "temp3 = " << -temp3.integrale() << endl ;
+      cout << "temp4 = " << -temp4.integrale() << endl ;
+      cout << "temp5 = " << -temp5.integrale() << endl ;
+      cout << "temp6 = " << -temp6.integrale() << endl ;
+      cout << "temp7 = " << -temp7.integrale() << endl ;
+      cout << "temp8 = " << -temp8.integrale() << endl ;
+*/
+   
   }
 
-  return adm_mass ;
+  return massadm ;
 
 }
 
@@ -185,10 +231,13 @@ double Binary::mass_kom() const {
     *p_mass_kom = 0 ; 
     
     const Tensor& logn = et[0]->get_logn() ;
-    const Metric&  gamij = (et[0]->get_gamma()) ;
+    const Metric& flat = (et[0]->get_flat()) ;
+    const Sym_tensor&  hij = (et[0]->get_hij()) ;
     Map_af map0 (et[0]->get_mp()) ; 
     
-    Vector vect = logn.derive_con(gamij) ;
+    Vector vect = logn.derive_con(flat) + 
+                       contract(hij, 1, logn.derive_cov(flat), 0) ;
+    vect.change_triad(map0.get_bvect_spher()) ;
     Scalar integrant (vect(1)) ;
     
     *p_mass_kom = map0.integrale_surface_infini (integrant) / qpig ;
@@ -199,21 +248,69 @@ double Binary::mass_kom() const {
     
 }
 
+double Binary::mass_kom_vol() const {
+    
+  using namespace Unites ;
+
+  double masskom ;
+  masskom = 0. ;
+
+  for (int i=0; i<=1; i++) {	    // loop on the stars
+      const Scalar& psi4 = et[i]->get_psi4() ;
+      const Scalar& ener_euler = et[i]->get_ener_euler() ;
+      const Scalar& s_euler = et[i]->get_s_euler() ;
+      const Scalar& kcar_auto = et[i]->get_kcar_auto() ;
+      const Scalar& kcar_comp = et[i]->get_kcar_comp() ;
+      const Metric& gtilde = et[i]->get_gtilde() ;
+      const Metric& flat = et[i]->get_flat() ;
+      const Sym_tensor& hij = et[i]->get_hij() ;
+      const Scalar& logn = et[i]->get_logn_auto() + et[i]->get_logn_comp() ;
+      const Scalar& logn_auto = et[i]->get_logn_auto() ;
+      Scalar nn = exp(logn) ;
+      nn.std_spectral_base() ;
+      
+      const Tensor& dcov_logn_auto = logn_auto.derive_cov(flat) ;
+      const Vector& dcov_logn = et[i]->get_dcov_logn() ;
+      const Vector& dcon_logn = et[i]->get_dcon_logn() ;
+      const Vector& dcov_phi = et[i]->get_dcov_phi() ;
+      Tensor dcovdcov_logn_auto = (logn_auto.derive_cov(flat))
+	.derive_cov(flat) ;
+      dcovdcov_logn_auto.inc_dzpuis() ;
+
+      Scalar source = qpig * psi4 % (ener_euler + s_euler) ;
+      source += psi4 % (kcar_auto + kcar_comp) ;
+      source += - 0*contract(dcov_logn_auto, 0, dcon_logn, 0, true) 
+	  - 2. * contract(contract(gtilde.con(), 0, dcov_phi, 0), 0, dcov_logn_auto, 0, true) ;
+      source += - contract(hij, 0, 1, dcovdcov_logn_auto + 
+			   dcov_logn_auto*dcov_logn, 0, 1) ;
+
+      source = source / qpig * nn  ;
+  
+      source.std_spectral_base() ;
+
+      masskom += source.integrale() ;
+	  
+  }
+
+  return masskom ;
+
+}
+
 
 		    //---------------------------------//
 		    //	 Total angular momentum        //
 		    //---------------------------------//
 
 const Tbl& Binary::angu_mom() const {
-    
+  /*
     if (p_angu_mom == 0x0) {	    // a new computation is requireed
 	
       p_angu_mom = new Tbl(3) ; 
       
       p_angu_mom->annule_hard() ;	// fills the double array with zeros
-      
-      const Sym_tensor& kij_auto = et[0]->get_aa_auto() ;
-      const Sym_tensor& kij_comp = et[0]->get_aa_comp() ;
+  
+      const Sym_tensor& kij_auto = et[0]->get_tkij_auto() ;
+      const Sym_tensor& kij_comp = et[0]->get_tkij_comp() ;
       const Tensor& psi4 = et[0]->get_psi4() ;
       const Map_af map0 (kij_auto.get_mp()) ;
 
@@ -303,9 +400,110 @@ const Tbl& Binary::angu_mom() const {
       
       
     }	// End of the case where a new computation was necessary
+  */
+  
+
+  
+  if (p_angu_mom == 0x0) {	    // a new computation is requireed
+    p_angu_mom = new Tbl(3) ; 
+    p_angu_mom->annule_hard() ;	// fills the double array with zeros
+    p_angu_mom->set(0) = 0. ;
+    p_angu_mom->set(1) = 0. ;
+
+    // Alignement 
+    double orientation_un = et[0]->get_mp().get_rot_phi() ;
+    assert ((orientation_un==0) || (orientation_un==M_PI)) ;
+    double orientation_deux = et[1]->get_mp().get_rot_phi() ;
+    assert ((orientation_deux==0) || (orientation_deux==M_PI)) ;
+    int same_orient = (orientation_un == orientation_deux) ? 1 : -1 ;
     
-    return *p_angu_mom ; 
+    // Construction of an auxiliar grid and mapping
+    int nzones = et[0]->get_mp().get_mg()->get_nzone() ;
+    double* bornes = new double [nzones+1] ;
+    double courant = (et[0]->get_mp().get_ori_x()-et[0]->get_mp().get_ori_x())+1 ;
+    for (int i=nzones-1 ; i>0 ; i--) {
+      bornes[i] = courant ;
+      courant /= 2. ;
+    }
+    bornes[0] = 0 ;
+    bornes[nzones] = __infinity ;
     
+    Map_af mapping (*(et[0]->get_mp().get_mg()), bornes) ;
+    
+    delete [] bornes ; 
+    
+    // Construction of k_total
+    Sym_tensor k_total (mapping, CON, mapping.get_bvect_cart()) ;
+    
+    Vector shift_un (mapping, CON, mapping.get_bvect_cart()) ;
+    Vector shift_deux (mapping, CON, mapping.get_bvect_cart()) ;
+    
+    Vector beta_un (et[0]->get_beta_auto()) ;
+    Vector beta_deux (et[1]->get_beta_auto()) ;
+    beta_un.change_triad(et[0]->get_mp().get_bvect_cart()) ;
+    beta_deux.change_triad(et[1]->get_mp().get_bvect_cart()) ;
+    beta_un.std_spectral_base() ;
+    beta_deux.std_spectral_base() ;
+    
+    shift_un.set(1).import(beta_un(1)) ;
+    shift_un.set(2).import(beta_un(2)) ;
+    shift_un.set(3).import(beta_un(3)) ;
+ 
+    shift_deux.set(1).import(same_orient*beta_deux(1)) ;
+    shift_deux.set(2).import(same_orient*beta_deux(2)) ;
+    shift_deux.set(3).import(beta_deux(3)) ;
+    
+    Vector shift_tot (shift_un+shift_deux) ;
+    shift_tot.std_spectral_base() ;
+    shift_tot.annule(0, nzones-2) ;
+    
+    
+    // Substract the residuals
+    shift_tot.inc_dzpuis(2) ;
+    shift_tot.dec_dzpuis(2) ;
+    
+    
+    Sym_tensor temp_gamt (et[0]->get_gtilde().cov()) ;
+    temp_gamt.change_triad(mapping.get_bvect_cart()) ;
+    Metric gamt_cart (temp_gamt) ;
+    
+    k_total = shift_tot.ope_killing_conf(gamt_cart) / 2. ;
+    
+    for (int lig=1 ; lig<=3 ; lig++)
+    for (int col=lig ; col<=3 ; col++)
+      k_total.set(lig, col).mult_r_ced() ;
+    
+    Vector vecteur_un (mapping, CON, mapping.get_bvect_cart()) ;
+    for (int i=1 ; i<=3 ; i++)
+      vecteur_un.set(i) = k_total(1, i) ;
+    vecteur_un.change_triad (mapping.get_bvect_spher()) ;
+    Scalar integrant_un (vecteur_un(1)) ;
+    
+    Vector vecteur_deux (mapping, CON, mapping.get_bvect_cart()) ;
+    for (int i=1 ; i<=3 ; i++)
+      vecteur_deux.set(i) = k_total(2, i) ;
+    vecteur_deux.change_triad (mapping.get_bvect_spher()) ;
+    Scalar integrant_deux (vecteur_deux(1)) ;
+    
+    // Multiplication by y and x :
+    integrant_un.set_spectral_va() = integrant_un.get_spectral_va()
+      .mult_st() ;
+    integrant_un.set_spectral_va() = integrant_un.get_spectral_va()
+      .mult_sp() ;
+    
+    integrant_deux.set_spectral_va() = integrant_deux.get_spectral_va()
+      .mult_st() ;
+    integrant_deux.set_spectral_va() = integrant_deux.get_spectral_va()
+      .mult_cp() ;
+    
+    p_angu_mom->set(2) = mapping.integrale_surface_infini (-integrant_un
+					 +integrant_deux) / (8*M_PI ) ;
+
+  }
+
+
+  return *p_angu_mom ; 
+  
 }
 
 
@@ -334,13 +532,13 @@ double Binary::total_ener() const {
 		    //	 Error on the virial theorem   //
 		    //---------------------------------//
 
-double Binary::virial_cp() const {
+double Binary::virial() const {
     
     if (p_virial == 0x0) {	    // a new computation is requireed
 	
 	p_virial = new double ; 
 	    
-	    *p_virial = 1. - mass_kom() / mass_adm() ; 
+	    *p_virial = 1. - mass_kom_vol() / mass_adm_vol() ; 
 	    
 	}
     

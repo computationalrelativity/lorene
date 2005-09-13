@@ -30,6 +30,9 @@ char star_bin_extr_curv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/09/13 19:38:31  f_limousin
+ * Reintroduction of the resolution of the equations in cartesian coordinates.
+ *
  * Revision 1.7  2005/02/24 16:04:44  f_limousin
  * Change the name of some variables (for instance dcov_logn --> dlogn).
  *
@@ -56,23 +59,80 @@ char star_bin_extr_curv_C[] = "$Header$" ;
  *
  */
 
+// C headers
+#include <math.h>
+
 // Headers Lorene
 #include "star.h"
 
-void Star_bin::extrinsic_curvature(){
+void Star_bin::extrinsic_curvature(double om){
     
-    // Computation of K^{ij}
-    // --------------------
-
-    aa_auto = beta_auto.ope_killing_conf(gtilde) ;
-    
-    aa_auto = 0.5 * aa_auto / nn ;   
-     
-    // Computation of K_{ij} K^{ij}
-    // ----------------------------
-    
-    Tensor aa_auto_dd = aa_auto.up_down(gtilde) ;
+  // Construction of Omega d/dphi
+  // ----------------------------
   
-    aa_quad_auto = contract(aa_auto_dd, 0, 1, aa_auto, 0, 1, true) ; 
+  const Mg3d* mg = mp.get_mg() ; 
+  int nz = mg->get_nzone() ;	    // total number of domains
+  Vector omdsdp (mp, CON, mp.get_bvect_cart()) ;
+  Scalar yya (mp) ;
+  yya = mp.ya ;
+  Scalar xxa (mp) ;
+  xxa = mp.xa ;
+  
+  if (fabs(mp.get_rot_phi()) < 1e-10){ 
+    omdsdp.set(1) = - om * yya ;
+    omdsdp.set(2) = om * xxa ;
+    omdsdp.set(3).annule_hard() ;
+  }
+  else{
+    omdsdp.set(1) = om * yya ;
+    omdsdp.set(2) = - om * xxa ;
+    omdsdp.set(3).annule_hard() ;
+  }
+  
+  omdsdp.set(1).set_spectral_va()
+    .set_base(*(mp.get_mg()->std_base_vect_cart()[0])) ;
+  omdsdp.set(2).set_spectral_va()
+    .set_base(*(mp.get_mg()->std_base_vect_cart()[1])) ;
+  omdsdp.set(3).set_spectral_va()
+    .set_base(*(mp.get_mg()->std_base_vect_cart()[2])) ;
+  
+  omdsdp.annule_domain(nz-1) ;
+
+
+  // Gradient tilde (with respect to the cartesian coordinates
+  //           of the mapping)
+  // D~_j beta^i 
+  
+  const Tensor& dbeta = beta_auto.derive_con(gtilde) ;
+                           
+  // Trace of D~_j beta^i : 
+  Scalar div_beta = beta_auto.divergence(gtilde) ;
+
+  // Computation of K^{ij}
+  // See Eq (49) from Gourgoulhon et al. (2001)
+  // ------------------------------------------
+  
+  for (int i=1; i<=3; i++) 
+    for (int j=1; j<=i; j++) {
+      tkij_auto.set(i, j) = dbeta(i, j) + dbeta(j, i) - 
+	double(2) /double(3) * div_beta * (gtilde.con())(i,j) ; 
+    }
+  
+
+  // Addition (or not !) of u^{ij}
+  tkij_auto = tkij_auto - 0*hij_auto.derive_lie(omdsdp) ;
+
+  tkij_auto = 0.5 * tkij_auto / nn ;   
+  
+  // Computation of K_{ij} K^{ij}
+  // ----------------------------
+  
+  Sym_tensor tkij_auto_cov = tkij_auto.up_down(gtilde) ;
+  
+  kcar_auto = contract(tkij_auto_cov, 0, 1, tkij_auto, 0, 1,true) ; 
       
+  // The derived quantities are obsolete
+  // -----------------------------------
+  
+  del_deriv() ;
 }

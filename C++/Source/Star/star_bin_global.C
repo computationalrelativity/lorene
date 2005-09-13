@@ -31,6 +31,9 @@ char star_bin_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/09/13 19:38:31  f_limousin
+ * Reintroduction of the resolution of the equations in cartesian coordinates.
+ *
  * Revision 1.4  2005/02/17 17:33:25  f_limousin
  * Change the name of some quantities to be consistent with other classes
  * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
@@ -64,6 +67,8 @@ double Star_bin::mass_b() const {
 	Scalar det_gamma = gamma.determinant() ;
 	
 	Scalar dens = sqrt(det_gamma) * gam_euler * nbar ;
+
+//	Scalar dens = psi4 * sqrt(psi4) * gam_euler * nbar ;
 	
 	dens.std_spectral_base() ; 
 	

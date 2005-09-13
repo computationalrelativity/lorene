@@ -29,6 +29,9 @@ char star_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2005/09/13 19:38:31  f_limousin
+ * Reintroduction of the resolution of the equations in cartesian coordinates.
+ *
  * Revision 1.20  2005/04/08 12:36:44  f_limousin
  * Just to avoid warnings...
  *
@@ -114,8 +117,7 @@ char star_bin_equilibrium_C[] = "$Header$" ;
 void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit, 
 			   int mermax_poisson, double relax_poisson, 
 			   double relax_potvit, double thres_adapt,
-			   const Tbl& fact_resize, Tbl& diff, int,
-			   double omega) {
+			   const Tbl& fact_resize, Tbl& diff, double om) {
 
     // Fundamental constants and units
     // -------------------------------
@@ -126,9 +128,6 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
     
     const Mg3d* mg = mp.get_mg() ; 
     int nz = mg->get_nzone() ;	    // total number of domains
-    int nr = mp.get_mg()->get_nr(0) ;
-    int nt = mp.get_mg()->get_nt(0) ;
-    int np = mp.get_mg()->get_np(0) ;
     
     // The following is required to initialize mp_prev as a Map_et:
     Map_et& mp_et = dynamic_cast<Map_et&>(mp) ; 
@@ -138,7 +137,7 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
     int i_b = mg->get_nr(l_b) - 1 ; 
     int k_b ;
     int j_b ; 
- 
+    
     // Value of the enthalpy defining the surface of the star
     double ent_b = 0 ; 
     
@@ -149,9 +148,9 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
     double& diff_vel_pot = diff.set(1) ; 
     double& diff_logn = diff.set(2) ; 
     double& diff_lnq = diff.set(3) ; 
-    double& diff_beta_r = diff.set(4) ; 
-    double& diff_beta_t = diff.set(5) ; 
-    double& diff_beta_p = diff.set(6) ; 
+    double& diff_beta_x = diff.set(4) ; 
+    double& diff_beta_y = diff.set(5) ; 
+    double& diff_beta_z = diff.set(6) ; 
     double& diff_h11 = diff.set(7) ; 
     double& diff_h21 = diff.set(8) ; 
     double& diff_h31 = diff.set(9) ; 
@@ -161,7 +160,7 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 
 
 
-    // Parameters for the function Map_et::adapt
+    // Parameters for te function Map_et::adapt
     // -----------------------------------------
 
     Param par_adapt ;
@@ -212,15 +211,26 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
     par_adapt.add_tbl(ent_limit, 0) ;	// array of values of the field ent 
 				        // to define the isosurfaces. 
  
-        
+
     Cmp ssjm1logn (ssjm1_logn) ;
     Cmp ssjm1lnq (ssjm1_lnq) ;
-    Cmp ssjm1khi (ssjm1_khi) ;
-    Tenseur ssjm1wshift(mp, 1, CON, mp.get_bvect_cart()) ;
-    ssjm1wshift.set_etat_qcq() ;
-    for (int i=0; i<3; i++) {
-      ssjm1wshift.set(i) = Cmp(ssjm1_wshift(i+1)) ;
-    }
+    Cmp ssjm1h11 (ssjm1_h11) ;
+    Cmp ssjm1h21 (ssjm1_h21) ;
+    Cmp ssjm1h31 (ssjm1_h31) ;
+    Cmp ssjm1h22 (ssjm1_h22) ;
+    Cmp ssjm1h32 (ssjm1_h32) ;
+    Cmp ssjm1h33 (ssjm1_h33) ;
+ 
+
+    ssjm1logn.set_etat_qcq() ;
+    ssjm1lnq.set_etat_qcq() ;
+    ssjm1h11.set_etat_qcq() ;
+    ssjm1h21.set_etat_qcq() ;
+    ssjm1h31.set_etat_qcq() ;
+    ssjm1h22.set_etat_qcq() ;
+    ssjm1h32.set_etat_qcq() ;
+    ssjm1h33.set_etat_qcq() ;
+   
     
     double precis_poisson = 1.e-16 ;     
 
@@ -246,327 +256,108 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
     par_lnq.add_int_mod(niter, 0) ; // number of iterations actually used -
     par_lnq.add_cmp_mod( ssjm1lnq ) ; 
  
-    // Parameters for the function Vector::poisson for shift method 2 
+    // Parameters for the function Vector::poisson for beta method 2 
     // ---------------------------------------------------------------
     
-    Param par_beta ; 
+    Param par_beta2 ; 
     
-    par_beta.add_int(mermax_poisson,  0) ;  // maximum number of iterations
-    par_beta.add_double(relax_poisson,  0) ; // relaxation parameter
-    par_beta.add_double(precis_poisson, 1) ; // required precision
-    par_beta.add_int_mod(niter, 0) ; // number of iterations actually used 
-    par_beta.add_cmp_mod(ssjm1khi) ; 
-    par_beta.add_tenseur_mod(ssjm1wshift) ; 
+    par_beta2.add_int(mermax_poisson,  0) ;  // maximum number of iterations
+    par_beta2.add_double(relax_poisson,  0) ; // relaxation parameter
+    par_beta2.add_double(precis_poisson, 1) ; // required precision
+    par_beta2.add_int_mod(niter, 0) ; // number of iterations actually used 
   
-
-    // Computation of all derived quantities. It must be performed before
-    // the adaptation of the mapping to avoid discontinuities. 
-    // Derivatives of N and logN
-    //--------------------------
-    
-    Vector dlogn_auto = logn_auto.derive_cov(flat) ;
-    Vector dlogn_auto_u = logn_auto.derive_con(flat) ;
-    Vector dlogn_u = logn.derive_con(flat) ;
-    
-    const Vector& dnn = nn.derive_cov(flat) ;
-    const Tensor& dnn_dd = dnn.derive_cov(flat) ;
-    
-    // Derivatives of lnq, Q  and beta 
-    //----------------------------------
+    Cmp ssjm1khi (ssjm1_khi) ;
+    Tenseur ssjm1wbeta(mp, 1, CON, mp.get_bvect_cart()) ;
+    ssjm1wbeta.set_etat_qcq() ;
+    for (int i=0; i<3; i++) {
+      ssjm1wbeta.set(i) = Cmp(ssjm1_wbeta(i+1)) ;
+    }
     
-    Vector dlnpsi_auto = 0.5*(lnq_auto - logn_auto).derive_cov(flat) ;
-    Vector dlnpsi_auto_u = 0.5*(lnq_auto - logn_auto).derive_con(flat) ;
-    Vector dlnpsi_u = 0.5*(lnq - logn).derive_con(flat) ;
+    par_beta2.add_cmp_mod(ssjm1khi) ; 
+    par_beta2.add_tenseur_mod(ssjm1wbeta) ; 
     
-    const Vector& dlnq_u = lnq.derive_con(flat) ;    
-    const Vector& dlnq_auto_u = lnq_auto.derive_con(flat) ;
+    // Parameters for the function Scalar::poisson for h11_auto
+    // -------------------------------------------------------------
     
-    const Tensor& dbeta = beta.derive_cov(flat) ;
-    Tensor dbeta_dd = dbeta.derive_cov(flat) ;
-    dbeta_dd.inc_dzpuis() ;
-
-    Scalar psi2 (pow(psi4, 0.5)) ;
-    psi2.std_spectral_base() ;
+    Param par_h11 ; 
     
-    Scalar qq = exp(lnq) ;
-    qq.std_spectral_base() ;
+    par_h11.add_int(mermax_poisson,  0) ;  // maximum number of iterations
+    par_h11.add_double(relax_poisson,  0) ; // relaxation parameter
+    par_h11.add_double(precis_poisson, 1) ; // required precision
+    par_h11.add_int_mod(niter, 0) ; // number of iterations actually used 
+    par_h11.add_cmp_mod( ssjm1h11 ) ; 
     
-    const Vector& dqq = qq.derive_cov(flat) ;
-    Tensor dqq_dd = dqq.derive_cov(flat) ;
-    dqq_dd.inc_dzpuis() ;
-    Tensor dqq_ud = dqq.derive_con(flat) ;
-    dqq_ud.inc_dzpuis() ;
+    // Parameters for the function Scalar::poisson for h21_auto
+    // -------------------------------------------------------------
     
+    Param par_h21 ; 
     
-    // Derivatives of hh, gtilde... 
-    //------------------------------
+    par_h21.add_int(mermax_poisson,  0) ;  // maximum number of iterations
+    par_h21.add_double(relax_poisson,  0) ; // relaxation parameter
+    par_h21.add_double(precis_poisson, 1) ; // required precision
+    par_h21.add_int_mod(niter, 0) ; // number of iterations actually used 
+    par_h21.add_cmp_mod( ssjm1h21 ) ; 
     
-    const Tensor& dhh = hh.derive_cov(flat) ;
-    const Tensor& dhh_auto = hh_auto.derive_cov(flat) ;
-    const Tensor& dhh_auto_u = hh_auto.derive_con(flat) ;
+    // Parameters for the function Scalar::poisson for h31_auto
+    // -------------------------------------------------------------
     
-    Tensor dhh_dd = dhh.derive_cov(flat) ;
-    dhh_dd.inc_dzpuis() ;
+    Param par_h31 ; 
     
-    Sym_tensor gtilde_cov = gtilde.cov() ;
-    Sym_tensor gtilde_con = gtilde.con() ;
-    const Tensor& dgtilde = gtilde_cov.derive_cov(flat) ;
+    par_h31.add_int(mermax_poisson,  0) ;  // maximum number of iterations
+    par_h31.add_double(relax_poisson,  0) ; // relaxation parameter
+    par_h31.add_double(precis_poisson, 1) ; // required precision
+    par_h31.add_int_mod(niter, 0) ; // number of iterations actually used 
+    par_h31.add_cmp_mod( ssjm1h31 ) ; 
     
-    Connection gamijk (gtilde, flat) ;
-    const Tensor& deltaijk = gamijk.get_delta() ;
+    // Parameters for the function Scalar::poisson for h22_auto
+    // -------------------------------------------------------------
     
-    // Declaration of all sources 
-    //---------------------------
+    Param par_h22 ; 
     
-    Scalar source_Hij(mp) ;
-    Scalar source_Qij(mp) ;
-    Scalar source_Sij(mp) ;
-    Sym_tensor source_hh(mp, CON, mp.get_bvect_spher()) ;
+    par_h22.add_int(mermax_poisson,  0) ;  // maximum number of iterations
+    par_h22.add_double(relax_poisson,  0) ; // relaxation parameter
+    par_h22.add_double(precis_poisson, 1) ; // required precision
+    par_h22.add_int_mod(niter, 0) ; // number of iterations actually used 
+    par_h22.add_cmp_mod( ssjm1h22 ) ; 
     
+    // Parameters for the function Scalar::poisson for h32_auto
+    // -------------------------------------------------------------
     
-    Tensor source_1 (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source_2 (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source_3 (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source_4 (mp, 2, CON, mp.get_bvect_spher()) ;
+    Param par_h32 ; 
     
+    par_h32.add_int(mermax_poisson,  0) ;  // maximum number of iterations
+    par_h32.add_double(relax_poisson,  0) ; // relaxation parameter
+    par_h32.add_double(precis_poisson, 1) ; // required precision
+    par_h32.add_int_mod(niter, 0) ; // number of iterations actually used 
+    par_h32.add_cmp_mod( ssjm1h32 ) ; 
     
-    Tensor source1_Hij (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source2_Hij (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source3_Hij (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source4_Hij (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source5_Hij (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source6_Hij (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source7_Hij (mp, 2, CON, mp.get_bvect_spher()) ;
+    // Parameters for the function Scalar::poisson for h33_auto
+    // -------------------------------------------------------------
     
+    Param par_h33 ; 
     
-    Tensor source1_Qij (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source2_Qij (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source3_Qij (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source4_Qij (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source5_Qij (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source6_Qij (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source7_Qij (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source8_Qij (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source9_Qij (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source10_Qij (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source11_Qij (mp, 2, CON, mp.get_bvect_spher()) ;
+    par_h33.add_int(mermax_poisson,  0) ;  // maximum number of iterations
+    par_h33.add_double(relax_poisson,  0) ; // relaxation parameter
+    par_h33.add_double(precis_poisson, 1) ; // required precision
+    par_h33.add_int_mod(niter, 0) ; // number of iterations actually used 
+    par_h33.add_cmp_mod( ssjm1h33 ) ; 
     
-    
-    Tensor source1_Sij (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source2_Sij (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source3_Sij (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source4_Sij (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source5_Sij (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source6_Sij (mp, 2, CON, mp.get_bvect_spher()) ;
-    Tensor source7_Sij (mp, 2, CON, mp.get_bvect_spher()) ;
-	    
-	    
-    // Source for hh
-    //--------------
-    
-    source_1 = contract(dhh_auto_u, 1, dlogn + 2*dlnpsi, 0) ;
-    
-    source_2 = - contract(dhh_auto_u, 2, dlogn + 2*dlnpsi, 0) ;
-    
-    source_3 =  aa_auto.derive_lie(beta) ;
-    source_3.inc_dzpuis() ;
-    
-    source_4 = 0.666666666666667 * beta.divergence(flat) * aa_auto ;
-    
-    
-    // Source terms for Hij
-    //---------------------
-    
-    source1_Hij = 8.*nn*contract(hh_auto,1,dlnpsi,0)*dlnpsi_u ;
-    
-    source2_Hij = - contract(hh_auto, 1 , dqq_ud, 0) / psi2 ;
-    
-    source3_Hij = 4.*nn*contract(hh_auto,1,dlogn,0)*dlnpsi_u ; 
-    
-    source4_Hij = 4.*nn*contract(hh_auto,1,dlnpsi,0)*dlogn_u ;
-    
-    source5_Hij = ( contract(hh_auto, 0, 1, dqq_dd, 0, 1)/psi2
-		    - 8. * nn * contract(contract(hh_auto,0
-						  , dlnpsi, 0), 0, dlogn, 0)
-		    - 8. * nn * contract(contract(hh_auto,0
-						  , dlnpsi, 0), 0, dlnpsi, 0))
-	* flat.con() * 0.3333333333333333 ; 
-    
-    source6_Hij = ( qq.laplacian() / psi2 
-		    - 8. * nn * contract(dlnpsi, 0, dlogn_u, 0)
-		    - 8. * nn * contract(dlnpsi, 0, dlnpsi_u, 0))
-	* hh_auto * 0.3333333333333333 ;
-    
-    source7_Hij = 0.6666666666666667 * qpig * nn * s_euler * hh ;
-    
-    
-    // Source_terms for Qij
-    //---------------------
-    
-    
-    source1_Qij = 0.5*nn*contract(hh_auto, 0, 1,dhh_dd, 2, 3) ;
-    
-    
-    source2_Qij = 0.5 * nn * ( - contract(contract(dhh_auto, 1,  
-						   dhh, 2), 1, 3)
-		       - contract(contract(contract(gtilde_con, 0, 
-		      	    dhh_auto, 2), 0, dhh, 2), 1, 3, gtilde_cov, 0, 1)
-		       + contract(contract(contract(contract(gtilde_con, 1, 
-		       	     dhh_auto, 2), 2, dhh, 2), 1, gtilde_cov, 0), 2, 3)
-		       + contract(contract(dgtilde, 0, 1, dhh_auto, 0, 1), 
-		       	  0, 1, gtilde_con * gtilde_con, 1, 3)*0.5 ) ;
-	      
-    source3_Qij = 0.5 * nn * contract(contract(contract(
-			      contract(gtilde_con, 1, dhh_auto, 2), 1,
-				   dhh, 2), 1, gtilde_cov, 1), 2, 3) ;
-    
-    source4_Qij = nn * 8. * contract(contract(hh_auto, 1, 
-				    dlnpsi, 0)*hh, 2, dlnpsi, 0) ;
-	    
-    source5_Qij = - contract(contract(hh_auto, 1, 
-				      dqq_dd, 1), 1, hh, 1) / psi2 ;
-    
-    source6_Qij = - 0.5 * contract(contract(hh_auto, 1, dhh, 2)
-				   , 2, dqq, 0) / psi2 ;
-    
-    
-    source7_Qij = 0.5 * contract(contract(hh_auto, 1, dhh, 2), 
-				 0, dqq, 0) /psi2 ;
-    
-    
-    source8_Qij = 4. * nn * contract(contract(hh_auto, 1, 
-					      dlnpsi, 0)*hh, 2, dlogn, 0)
-	
-	+ 4. * nn * contract(contract(hh_auto, 1, 
-				      dlogn, 0)*hh, 2, dlnpsi, 0) ;
-    
-    source9_Qij = nn * (contract(contract(dhh_auto, 0, 1, 
-			      dgtilde, 0, 2), 0, 1, gtilde_con, 0, 1)
-		     -  contract(contract(dhh_auto, 0, 1, 
-			 dgtilde, 0, 1), 0, 1, gtilde_con, 0, 1) * 0.5 )
-	                 * 0.1666666666666667 * gtilde_con ;
-
-	    
-    source10_Qij = - 2.666666666666667*nn*( contract(contract(hh, 0, 
-			         dlnpsi, 0), 0, dlnpsi, 0) * hh_auto 
-	        	    + contract(contract(hh, 0, 
-	      	       	dlnpsi, 0), 0, dlogn, 0) * hh_auto ) ;
-
-    
-    source11_Qij = contract(hh, 0, 1, dqq_dd, 0, 1) / psi2
-	* hh_auto * 0.3333333333333333 ;
-    
-    
-    // Source terms for Sij
-    //---------------------
-    
-    
-    source1_Sij = 8. * nn * dlnpsi_auto_u * dlnpsi_u  ;
-    
-    source2_Sij = - qq.derive_con(flat).derive_con(flat) / psi2 * 0.5 ;
-    source2_Sij.inc_dzpuis(1) ;
-    
-    source3_Sij = 4. * nn * dlnpsi_u * dlogn_auto_u ;
-    
-    source4_Sij = 0.1666666666666667 * qq.laplacian()/psi2*flat.con() ;
-    
-    source5_Sij = - ( nn * contract(dlnpsi, 0, 
-				    dlogn_auto_u , 0)
-		      + nn * contract(dlnpsi_auto, 0, dlnpsi_u, 0))
-	* 2.666666666666667 * flat.con() ;
-    
-    source6_Sij = 2. * nn * contract(contract(gtilde_cov, 0, 
-			         aa_auto + aa_comp, 1), 0, aa_auto, 1) ;
-    
-    
-    source7_Sij = - 2. * qpig * nn * ( psi4 * stress_euler 
-			  - 0.33333333333333333 * s_euler * flat.con() ) ; 
-    
-    
-	    Coord& sin_theta = mp.sint ;
-	    Scalar sint (mp) ;
-	    sint = sin_theta ;
-	    sint.std_spectral_base() ;
-
-	    Sym_tensor source_dirac (mp, CON, mp.get_bvect_spher()) ;
-	    // killing vector / rr
-	    Vector killing (mp, CON, mp.get_bvect_spher()) ;
-	    killing.set(1) = 0. ;
-	    killing.set(2) = 0. ;
-	    killing.set(3) = omega*sint ;
-	    killing.std_spectral_base() ;
-	    source_dirac =  - aa_auto.derive_lie(killing) ;
-	    for(int i=1; i<=3; i++) 
-		for(int j=1; j<=i; j++) 
-		    source_dirac.set(i,j).mult_r() ;
-	    source_dirac.inc_dzpuis() ;
-
-	    for(int i=1; i<=3; i++) 
-		for(int j=1; j<=i; j++) {
-
-		    source_Hij = ( source1_Hij(i,j) + source1_Hij(j,i) +
-			           source2_Hij(j,i) + source2_Hij(i,j) +
-				   source3_Hij(j,i) + source3_Hij(i,j) +
-				   source4_Hij(j,i) + source4_Hij(i,j) +
-				   source5_Hij(i,j) + source6_Hij(i,j)) / psi4
-			+ source7_Hij(i,j) ;
-
-
-		    source_Qij = ( source1_Qij(i,j) + source2_Qij(i,j) +
-				   source3_Qij(j,i) + source4_Qij(i,j) +
-				   source5_Qij(i,j) + source6_Qij(i,j) +
-				   source6_Qij(j,i) + source7_Qij(i,j) +
-				   source8_Qij(i,j) + source9_Qij(i,j) +
-				   source10_Qij(i,j) + source11_Qij(i,j)) 
-			/ psi4 ;
-		   
-
-		    source_Sij = ( 0*source1_Sij(i,j) + 0*source2_Sij(i,j) +
-				   0*source3_Sij(i,j) + 0*source3_Sij(j,i) +
-				   0*source4_Sij(i,j) + 0*source5_Sij(i,j)) / psi4
-			+ 0*source6_Sij(i,j) + source7_Sij(i,j) ;
-			    
-
-		    source_hh.set(i,j) = 0*source_1(i,j) + 0*source_1(j,i) 
-			+ 0*source_2(i,j) - 2 * psi4 / nn * (
-			    0*source_3(i,j) + 0*source_4(i,j) +
-			    0*source_Hij + 0*source_Qij + source_Sij ) 
-			+0 * source_dirac(i,j) ;
-		    
-
-		    cout << "i = " << i << ", j = " << j << endl ;
-		    cout << "----------------------------" << endl ;
-		    
-		    cout << "source1" << endl << norme(source_1(i,j)/(nr*nt*np)) << endl ;
-		    cout << "source2" << endl << norme(source_2(i,j)/(nr*nt*np)) << endl ;
-		    cout << "source3" << endl << norme(source_3(i,j)/(nr*nt*np)) << endl ;
-		    cout << "source4" << endl << norme(source_4(i,j)/(nr*nt*np)) << endl ;
-		    cout << "source H" << endl << norme(source_Hij/(nr*nt*np)) << endl ;
-		    cout << "source Q" << endl << norme(source_Qij/(nr*nt*np)) << endl ;
-		    cout << "source S" << endl << norme(source_Sij/(nr*nt*np)) << endl ;
-		    cout << "source dirac" << endl << norme(source_dirac(i,j)/(nr*nt*np)) << endl ;
-		    cout << "source tot" << endl << norme(source_hh(i,j)/(nr*nt*np)) << endl ;
-		    
-		} 
-  
-  	    Sym_tensor source_ana (mp, CON, mp.get_bvect_spher()) ;
-	    source_ana = dlogn_auto_u * dlnq_u - 0.3333333333333333 *
-		contract(dlogn_auto, 0, dlnq_u, 0) * flat.con() ;
-
-//		    des_meridian(source_hh, 0., 4., "source_hh", 20) ;
 
     // External potential
     // See Eq (99) from Gourgoulhon et al. (2001)
     // ------------------
     
+    cout << "logn_comp" << norme(logn_comp) << endl ;
+    cout << "pot_centri" << norme(pot_centri) << endl ;
+    cout << "loggam" << norme(loggam) << endl ;
     Scalar pot_ext = logn_comp + pot_centri + loggam ;
     
     Scalar ent_jm1 = ent ;	// Enthalpy at previous step
     
-    Scalar source(mp) ; // source term in the equation for hh_auto, 
-                            // logn_auto and lnq_auto
+    Scalar source_tot(mp) ; // source term in the equation for hij_auto, 
+                            // logn_auto and beta_auto
 			    
-    Vector source_beta(mp, CON, mp.get_bvect_spher()) ;  // source term 
+    Vector source_beta(mp, CON, mp.get_bvect_cart()) ;  // source term 
     // in the equation for beta_auto
 
 
@@ -585,7 +376,7 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	// Resolution of the elliptic equation for the velocity
 	// scalar potential
 	//-----------------------------------------------------
-	
+
 	if (irrotational) {
 	    diff_vel_pot = velocity_potential(mermax_potvit, precis_poisson, 
 					      relax_potvit) ; 
@@ -653,13 +444,15 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	//-------------------------------------------
 
 	ent = (ent_c + logn_auto_c + pot_ext_c) - logn_auto - pot_ext ;
+	cout.precision(8) ;
+	cout << "pot" << norme(pot_ext) << endl ;
 
 	(ent.set_spectral_va()).smooth(nzet, ent.set_spectral_va()) ;
 
 	//----------------------------------------------------
 	// Adaptation of the mapping to the new enthalpy field
 	//----------------------------------------------------
-	
+    
 	// Shall the adaptation be performed (cusp) ?
 	// ------------------------------------------
 	
@@ -689,6 +482,55 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	mp.adapt(ent_cmp, par_adapt) ; 
 	ent = ent_cmp ;
 
+	// Readjustment of the external boundary of domain l=nzet
+	// to keep a fixed ratio with respect to star's surface
+		
+    	if (nz == 4 && nzet == 1) {
+	double rr_in_1 = mp.val_r(1,-1., M_PI/2, 0.) ; 
+	double rr_out_1 = mp.val_r(1, 1., M_PI/2, 0.) ; 
+	double rr_out_2 = mp.val_r(2, 1., M_PI/2, 0.) ; 
+
+	mp.resize(1, rr_in_1/rr_out_1 * fact_resize(0)) ; 
+	mp.resize(2, rr_in_1/rr_out_2 * fact_resize(1)) ; 
+	}
+	else{
+
+	    if (nz > 4 && nzet == 1) {
+		double rr_in_1 = mp.val_r(1,-1., M_PI/2, 0.) ; 
+		double rr_out_1 = mp.val_r(1, 1., M_PI/2, 0.) ; 
+		double rr_out_2 = mp.val_r(2, 1., M_PI/2, 0.) ; 
+		
+		double fact_resize_0 ;
+		if (fact_resize(0) > 2.4) fact_resize_0 = fact_resize(0)/2. ;
+		else fact_resize_0 = fact_resize(0)/2. + 0.5 ;
+
+
+		mp.resize(1, rr_in_1/rr_out_1 * fact_resize_0) ; 
+		mp.resize(2, rr_in_1/rr_out_2 * fact_resize(0)) ; 
+		for (int nnn=0; nnn<nz-4; nnn++){
+		  double rr_out_nn = mp.val_r(3+nnn, 1., M_PI/2, 0.) ; 
+		  mp.resize(3+nnn, (rr_in_1/rr_out_nn * fact_resize(1))
+			    *pow(1.6,nnn)) ; 
+		}
+	    }
+	    else{		
+		int n_resize ;
+		//      	if (nz > 4) {
+		//       	  n_resize = nz - 4 ;
+		if (nz > 4) {
+		    n_resize = nz - 3 ;
+		}
+		else {
+		    n_resize = nzet ;
+		}
+		
+		double rr_in = mp.val_r(nzet,-1., M_PI/2, 0.) ; 
+		double rr_out = mp.val_r(n_resize,1., M_PI/2, 0.) ; 
+		
+		mp.resize(n_resize, rr_in/rr_out * fact_resize(0)) ; 
+	    }
+	}
+
 	//----------------------------------------------------
 	// Computation of the enthalpy at the new grid points
 	//----------------------------------------------------
@@ -716,55 +558,6 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	     << " and nzet : " << endl ; 
 	cout << "   " << ent_s_max << " reached for k = " << k_s_max <<
 	    " and j = " << j_s_max << endl ; 
-	
-
-	// Readjustment of the external boundary of domain l=nzet
-	// to keep a fixed ratio with respect to star's surface
-
-	
-    	if (nz == 4 && nzet == 1) {
-	    double rr_in_1 = mp.val_r(1,-1., M_PI/2, 0.) ; 
-	    double rr_out_1 = mp.val_r(1, 1., M_PI/2, 0.) ; 
-	    double rr_out_2 = mp.val_r(2, 1., M_PI/2, 0.) ; 
-
-	    mp.resize(1, rr_in_1/rr_out_1 * fact_resize(0)) ; 
-	    mp.resize(2, rr_in_1/rr_out_2 * fact_resize(1)) ; 
-	}
-	else{
-
-	    if (nz == 5 && nzet == 1) {
-		double rr_in_1 = mp.val_r(1,-1., M_PI/2, 0.) ; 
-		double rr_out_1 = mp.val_r(1, 1., M_PI/2, 0.) ; 
-		double rr_out_2 = mp.val_r(2, 1., M_PI/2, 0.) ; 
-		double rr_out_3 = mp.val_r(3, 1., M_PI/2, 0.) ; 
-		
-		double fact_resize_0 ;
-		if (fact_resize(0) > 2.4) fact_resize_0 = fact_resize(0)/2. ;
-		else fact_resize_0 = fact_resize(0)/2. + 0.5 ;
-
-
-		mp.resize(1, rr_in_1/rr_out_1 * fact_resize_0) ; 
-		mp.resize(2, rr_in_1/rr_out_2 * fact_resize(0)) ; 
-		mp.resize(3, rr_in_1/rr_out_3 * fact_resize(1)) ; 
-	    }
-	    else{		
-		int n_resize ;
-		//      	if (nz > 4) {
-		//       	  n_resize = nz - 4 ;
-		if (nz > 4) {
-		    n_resize = nz - 3 ;
-		}
-		else {
-		    n_resize = nzet ;
-		}
-		
-		double rr_in = mp.val_r(nzet,-1., M_PI/2, 0.) ; 
-		double rr_out = mp.val_r(n_resize,1., M_PI/2, 0.) ; 
-		
-		mp.resize(n_resize, rr_in/rr_out * fact_resize(0)) ; 
-	    }
-	}
-	
 
 	//----------------------------------------------------
 	// Equation of state  
@@ -781,35 +574,163 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 				// s_euler (S) and u_euler (U^i)
 
 	
+	// -------------------------------
+	// AUXILIARY QUANTITIES
+	// -------------------------------
+
+	// Construction of Omega d/dphi
+	// ----------------------------
+	
+	Vector omdsdp (mp, CON, mp.get_bvect_cart()) ;
+	Scalar yya (mp) ;
+	yya = mp.ya ;
+	Scalar xxa (mp) ;
+	xxa = mp.xa ;
+	
+	if (fabs(mp.get_rot_phi()) < 1e-10){ 
+	  omdsdp.set(1) = - om * yya ;
+	  omdsdp.set(2) = om * xxa ;
+	  omdsdp.set(3).annule_hard() ;
+	}
+	else{
+	  omdsdp.set(1) = om * yya ;
+	  omdsdp.set(2) = - om * xxa ;
+	  omdsdp.set(3).annule_hard() ;
+	}
+
+	omdsdp.set(1).set_spectral_va()
+	  .set_base(*(mp.get_mg()->std_base_vect_cart()[0])) ;
+	omdsdp.set(2).set_spectral_va()
+	  .set_base(*(mp.get_mg()->std_base_vect_cart()[1])) ;
+	omdsdp.set(3).set_spectral_va()
+	  .set_base(*(mp.get_mg()->std_base_vect_cart()[2])) ;
+	
+	omdsdp.annule_domain(nz-1) ;
+
+	// Derivatives of N and logN
+	//--------------------------
+
+	const Vector dcov_logn_auto = logn_auto.derive_cov(flat) ;
+	const Vector dcon_logn_auto = logn_auto.derive_con(flat) ;
+	
+	Tensor dcovdcov_logn_auto = (logn_auto.derive_cov(flat))
+	                                  .derive_cov(flat) ;
+	dcovdcov_logn_auto.inc_dzpuis() ;
+
+	// Derivatives of lnq, phi and Q
+	//-------------------------------
+
+	const Scalar phi (0.5 * (lnq - logn)) ;
+	const Scalar phi_auto (0.5 * (lnq_auto - logn_auto)) ;
+
+	const Vector dcov_phi_auto = phi_auto.derive_cov(flat) ;
+	
+	const Vector& dcov_lnq = 2*dcov_phi + dcov_logn ;
+	const Vector& dcon_lnq = 2*dcon_phi + dcon_logn ;
+	const Vector dcov_lnq_auto = lnq_auto.derive_cov(flat) ;
+     	Tensor dcovdcov_lnq_auto = dcov_lnq_auto.derive_cov(flat) ;
+	dcovdcov_lnq_auto.inc_dzpuis() ;
+
+	Scalar qq = exp(lnq) ;
+	qq.std_spectral_base() ;
+	const Vector& dcov_qq = qq.derive_cov(flat) ;
+
+	const Scalar divbeta_auto = beta_auto.divergence(flat) ;
+	const Tensor dcov_beta_auto = beta_auto.derive_cov(flat) ;
+	Tensor dcovdcov_beta_auto = beta_auto.derive_cov(flat)
+	  .derive_cov(flat) ;
+	dcovdcov_beta_auto.inc_dzpuis() ;
+
+
+	// Derivatives of hij, gtilde... 
+	//------------------------------
+
+	Scalar psi2 (pow(psi4, 0.5)) ;
+	psi2.std_spectral_base() ;
+
+	const Tensor& dcov_hij = hij.derive_cov(flat) ;
+	const Tensor& dcon_hij = hij.derive_con(flat) ;
+	const Tensor dcov_hij_auto = hij_auto.derive_cov(flat) ;
+
+	Tensor dcovdcov_hij_auto = dcov_hij_auto.derive_cov(flat) ;
+	dcovdcov_hij_auto.inc_dzpuis() ;
+
+	const Sym_tensor& gtilde_cov = gtilde.cov() ;
+	const Sym_tensor& gtilde_con = gtilde.con() ;
+	const Tensor& dcov_gtilde = gtilde_cov.derive_cov(flat) ;
+
+	Connection gamijk (gtilde, flat) ;
+	const Tensor& deltaijk = gamijk.get_delta() ;
+
+	// H^i and its derivatives ( = O in Dirac gauge)
+	// ---------------------------------------------
+
+	double lambda_dirac = 0. ;
+
+	const Vector hdirac = lambda_dirac * hij.divergence(flat) ;
+	const Vector hdirac_auto = lambda_dirac * hij_auto.divergence(flat) ;
+
+	Tensor dcov_hdirac = lambda_dirac * hdirac.derive_cov(flat) ;
+	dcov_hdirac.inc_dzpuis() ;
+	Tensor dcov_hdirac_auto = lambda_dirac * hdirac_auto.derive_cov(flat) ;
+	dcov_hdirac_auto.inc_dzpuis() ;
+	Tensor dcon_hdirac_auto = lambda_dirac * hdirac_auto.derive_con(flat) ;
+	dcon_hdirac_auto.inc_dzpuis() ;
+
+
 	//--------------------------------------------------------
 	// Poisson equation for logn_auto (nu_auto)
 	//--------------------------------------------------------
   
 	// Source 
 	//--------
+
+	int nr = mp.get_mg()->get_nr(0) ;
+	int nt = mp.get_mg()->get_nt(0) ;
+	int np = mp.get_mg()->get_np(0) ;
     
-	source = qpig * psi4 % (ener_euler + s_euler) 
-	    + psi4 % (aa_quad_auto + aa_quad_comp) ;
+	Scalar source1(mp) ;
+	Scalar source2(mp) ;
+	Scalar source3(mp) ;
+	Scalar source4(mp) ;
+	Scalar source5(mp) ;
+	Scalar source6(mp) ;
+	Scalar source7(mp) ;
+	Scalar source8(mp) ;
+	 
+	source1 = qpig * psi4 % (ener_euler + s_euler) ; 
 
-	source -= contract(dlogn_auto_u, 0, dlogn, 0, true) 
-	    + 2. * contract(dlogn_auto_u, 0, dlnpsi, 0, true) ;
+	source2 = psi4 % (kcar_auto + kcar_comp) ;
+
+	source3 = - contract(dcov_logn_auto, 0, dcon_logn, 0, true) 
+	    - 2. * contract(contract(gtilde_con, 0, dcov_phi, 0), 
+			    0, dcov_logn_auto, 0, true) ;
 		    
-	Scalar temp = - contract(hh_auto, 0, 1, dnn_dd/nn, 0, 1) ;
-	temp.inc_dzpuis(1) ;
-	temp.annule_domain(nz-1) ;
+	source4 = - contract(hij, 0, 1, dcovdcov_logn_auto + 
+			     dcov_logn_auto*dcov_logn, 0, 1) ;
 
-	source += temp - 2. * contract(hh_auto, 0, 1, dlnpsi 
-				  * dlogn, 0, 1) ;
+	source5 = - contract(hdirac, 0, dcov_logn_auto, 0) ;
 
+	source_tot = source1 + source2 + source3 + source4 + source5 ;
+      
+ 
+	cout << "moyenne de la source 1 pour logn_auto" << endl ;
+	cout <<  norme(source1/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 2 pour logn_auto" << endl ;
+	cout <<  norme(source2/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 3 pour logn_auto" << endl ;
+	cout <<  norme(source3/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 4 pour logn_auto" << endl ;
+	cout <<  norme(source4/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 5 pour logn_auto" << endl ;
+	cout <<  norme(source5/(nr*nt*np)) << endl ;
 	cout << "moyenne de la source pour logn_auto" << endl ;
-	cout <<  norme(source/(nr*nt*np)) << endl ;
-
-//	source_tot.filtre(4) ;
+	cout <<  norme(source_tot/(nr*nt*np)) << endl ;
 
 	// Resolution of the Poisson equation 
 	// ----------------------------------
 
-	source.poisson(par_logn, logn_auto) ; 
+	source_tot.poisson(par_logn, logn_auto) ; 
 	ssjm1_logn = ssjm1logn ;
 
 	cout << "logn_auto" << endl << norme(logn_auto/(nr*nt*np)) << endl ;
@@ -817,8 +738,7 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	// Check: has the Poisson equation been correctly solved ?
 	// -----------------------------------------------------
 
-	Tbl tdiff_logn = diffrel(logn_auto.laplacian(), source) ;
-
+	Tbl tdiff_logn = diffrel(logn_auto.laplacian(), source_tot) ;
 	cout << 
 	    "Relative error in the resolution of the equation for logn_auto : "
 	     << endl ; 
@@ -828,7 +748,6 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	cout << endl ;
 	diff_logn = max(abs(tdiff_logn)) ; 
 
-
 	//--------------------------------------------------------
 	// Poisson equation for lnq_auto
 	//--------------------------------------------------------
@@ -836,35 +755,55 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	// Source
 	//--------
 
-	source = qpig * psi4 % s_euler 
-	    + 0.75 * psi4 % (aa_quad_auto + aa_quad_comp) ;
+	source1 = qpig * psi4 % s_euler ;
+
+	source2 = 0.75 * psi4 % (kcar_auto + kcar_comp) ;
+
+	source3 = - contract(dcon_lnq, 0, dcov_lnq_auto, 0, true) ;
+
+	source4 = 2. * contract(contract(gtilde_con, 0, dcov_phi, 0), 0, 
+				dcov_phi_auto + dcov_logn_auto, 0, true) ;
+
+	source5 = 0.0625 * contract(gtilde_con, 0, 1, contract(
+		 dcov_hij_auto, 0, 1, dcov_gtilde, 0, 1), 0, 1) ;
+		
+	source6 = - 0.125 * contract(gtilde_con, 0, 1, contract(
+		       dcov_hij_auto, 0, 1, dcov_gtilde, 0, 2), 0, 1) ;
+
+	source7 = - contract(hij, 0, 1, dcovdcov_lnq_auto + dcov_lnq_auto *
+			     dcov_lnq, 0, 1) ;
+
+	source8 = - 0.25 * contract(dcov_hdirac_auto, 0, 1) 
+	  - contract(hdirac, 0, dcov_lnq_auto, 0) ;
 	
-	source -= 0.5 * contract(dlogn_auto_u, 0, dlogn, 0, true) 
-	    + 0.5 * contract(dlnq_auto_u, 0, dlnq, 0, true) ;
+	source_tot = source1 + source2 + source3 + source4 + source5 + 
+	             source6 + source7 + source8 ;
 
-	source += 0.0625 * contract(gtilde_con, 0, 1, contract(
-					dhh_auto, 0, 1, dgtilde, 0, 1), 0, 1) 
-			   
-	    - 0.125 * contract(gtilde_con, 0, 1, contract(dhh_auto, 
-					0, 1, dgtilde, 0, 2), 0, 1) 
-
-	    + 2. * contract(hh_auto, 0, 1, dlnpsi * dlnpsi, 
-			    0, 1) 
-
-	    + 2 * contract(hh_auto, 0, 1, dlnpsi * dlogn, 0, 1) 
-	
-	    - contract(hh_auto, 0, 1, dqq_dd, 0, 1) / qq ;
-
-
+  	
+	cout << "moyenne de la source 1 pour lnq_auto" << endl ;
+	cout <<  norme(source1/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 2 pour lnq_auto" << endl ;
+	cout <<  norme(source2/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 3 pour lnq_auto" << endl ;
+	cout <<  norme(source3/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 4 pour lnq_auto" << endl ;
+	cout <<  norme(source4/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 5 pour lnq_auto" << endl ;
+	cout <<  norme(source5/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 6 pour lnq_auto" << endl ;
+	cout <<  norme(source6/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 7 pour lnq_auto" << endl ;
+	cout <<  norme(source7/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 8 pour lnq_auto" << endl ;
+	cout <<  norme(source8/(nr*nt*np)) << endl ;
 	cout << "moyenne de la source pour lnq_auto" << endl ;
-	cout <<  norme(source/(nr*nt*np)) << endl ;
+	cout <<  norme(source_tot/(nr*nt*np)) << endl ;
 	
-//	source_tot.filtre(4) ;
 
 	// Resolution of the Poisson equation 
 	// ----------------------------------
 
-	source.poisson(par_lnq, lnq_auto) ; 
+	source_tot.poisson(par_lnq, lnq_auto) ; 
 	ssjm1_lnq = ssjm1lnq ;
 
 	cout << "lnq_auto" << endl << norme(lnq_auto/(nr*nt*np)) << endl ;
@@ -872,8 +811,7 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	// Check: has the Poisson equation been correctly solved 
 	// -----------------------------------------------------
     
-	Tbl tdiff_lnq = diffrel(lnq_auto.laplacian(), source) ;
-
+	Tbl tdiff_lnq = diffrel(lnq_auto.laplacian(), source_tot) ;
 	cout << 
 	    "Relative error in the resolution of the equation for lnq : "
 	     << endl ; 
@@ -888,49 +826,129 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	//--------------------------------------------------------
 
 	// Source
-	//-------
+	//--------
 
-	u_euler.change_triad(mp.get_bvect_spher()) ;
+	Vector source1_beta(mp, CON, mp.get_bvect_cart()) ;
+	Vector source2_beta(mp, CON, mp.get_bvect_cart()) ;
+	Vector source3_beta(mp, CON, mp.get_bvect_cart()) ;
+	Vector source4_beta(mp, CON, mp.get_bvect_cart()) ;
+	Vector source5_beta(mp, CON, mp.get_bvect_cart()) ;
+	Vector source6_beta(mp, CON, mp.get_bvect_cart()) ;
+	Vector source7_beta(mp, CON, mp.get_bvect_cart()) ;
 
-	source_beta = (4.*qpig) * nn % psi4 % (ener_euler + press) * u_euler 
+	source1_beta = (4.*qpig) * nn % psi4
+	                   %(ener_euler + press) * u_euler ;
+
+	source2_beta = 2. * nn * contract(tkij_auto, 1, 
+					    dcov_logn - 6 * dcov_phi, 0)  ;
+
+	source3_beta = - 2. * nn * contract(tkij_auto, 0, 1, deltaijk, 
+    				      1, 2) ;
+
+	source4_beta = - contract(hij, 0, 1, dcovdcov_beta_auto, 1, 2) ;
 	
-	    + 2. * nn * contract(aa_auto, 1, dlogn - 6 * dlnpsi, 0)  ;
-
-
-	source_beta -= 2. * nn * contract(aa_auto, 0, 1, deltaijk, 1, 2) 
-
-	    + contract(hh_auto, 0, 1, dbeta_dd, 1, 2) 
-
-	    + 0.3333333333333333 * contract(contract(hh_auto, 1, 
-						     dbeta_dd, 2), 1, 2) ;
+	source5_beta = - 0.3333333333333333 * contract(hij, 1, contract( 
+					      dcovdcov_beta_auto, 0, 1), 0) ;
 	
+	source6_beta = hdirac_auto.derive_lie(omdsdp) ;
+	source6_beta.inc_dzpuis() ;
+
+	source7_beta = contract(beta, 0, dcov_hdirac_auto, 1) ;
+	       + 2./3. * hdirac * divbeta_auto 
+	       - contract(hdirac, 0, dcov_beta_auto, 1) ;
+
+	source_beta = source1_beta + source2_beta + source3_beta 
+	  + source4_beta + source5_beta + source6_beta + source7_beta ; 
+	
+
+	cout << "moyenne de la source 1 pour beta_auto" << endl ;
+	cout <<  norme(source1_beta(1)/(nr*nt*np)) << endl ;
+	cout <<  norme(source1_beta(2)/(nr*nt*np)) << endl ;
+	cout <<  norme(source1_beta(3)/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 2 pour beta_auto" << endl ;
+	cout <<  norme(source2_beta(1)/(nr*nt*np)) << endl ;
+	cout <<  norme(source2_beta(2)/(nr*nt*np)) << endl ;
+	cout <<  norme(source2_beta(3)/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 3 pour beta_auto" << endl ;
+	cout <<  norme(source3_beta(1)/(nr*nt*np)) << endl ;
+	cout <<  norme(source3_beta(2)/(nr*nt*np)) << endl ;
+	cout <<  norme(source3_beta(3)/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 4 pour beta_auto" << endl ;
+	cout <<  norme(source4_beta(1)/(nr*nt*np)) << endl ;
+	cout <<  norme(source4_beta(2)/(nr*nt*np)) << endl ;
+	cout <<  norme(source4_beta(3)/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 5 pour beta_auto" << endl ;
+	cout <<  norme(source5_beta(1)/(nr*nt*np)) << endl ;
+	cout <<  norme(source5_beta(2)/(nr*nt*np)) << endl ;
+	cout <<  norme(source5_beta(3)/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 6 pour beta_auto" << endl ;
+	cout <<  norme(source6_beta(1)/(nr*nt*np)) << endl ;
+	cout <<  norme(source6_beta(2)/(nr*nt*np)) << endl ;
+	cout <<  norme(source6_beta(3)/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source 7 pour beta_auto" << endl ;
+	cout <<  norme(source7_beta(1)/(nr*nt*np)) << endl ;
+	cout <<  norme(source7_beta(2)/(nr*nt*np)) << endl ;
+	cout <<  norme(source7_beta(3)/(nr*nt*np)) << endl ;
+	cout << "moyenne de la source pour beta_auto" << endl ;
+	cout <<  norme(source_beta(1)/(nr*nt*np)) << endl ;
+	cout <<  norme(source_beta(2)/(nr*nt*np)) << endl ;
+	cout <<  norme(source_beta(3)/(nr*nt*np)) << endl ;
 
 	// Resolution of the Poisson equation 
 	// ----------------------------------
 
+	// Filter for the source of beta vector
+	
 	for (int i=1; i<=3; i++) {
-	    if(source_beta(i).dz_nonzero()) {
-		assert( source_beta(i).get_dzpuis() == 4 ) ; 
-	    }
-	    else{
-		(source_beta.set(i)).set_dzpuis(4) ; 
-	    }
+	  if (source_beta(i).get_etat() != ETATZERO)
+	    source_beta.set(i).filtre(4) ;
 	}
-
+	
+	for (int i=1; i<=3; i++) {
+	  if(source_beta(i).dz_nonzero()) {
+	    assert( source_beta(i).get_dzpuis() == 4 ) ; 
+	  }
+	  else{
+	    (source_beta.set(i)).set_dzpuis(4) ; 
+	  }
+	}
+	
 	double lambda = double(1) / double(3) ; 
 
-	beta_auto = source_beta.poisson(lambda, par_beta, 2) ; 
+	Tenseur source_p(mp, 1, CON, mp.get_bvect_cart() ) ;
+	source_p.set_etat_qcq() ;
+	for (int i=0; i<3; i++) {
+	  source_p.set(i) = Cmp(source_beta(i+1)) ;
+	}
+	
+	Tenseur vect_auxi (mp, 1, CON, mp.get_bvect_cart()) ;
+	vect_auxi.set_etat_qcq() ;
+	for (int i=0; i<3 ;i++){
+	  vect_auxi.set(i) = 0. ;
+	}
+	Tenseur scal_auxi (mp) ;
+	scal_auxi.set_etat_qcq() ;
+	scal_auxi.set().annule_hard() ;
+	scal_auxi.set_std_base() ;
+	
+	Tenseur resu_p(mp, 1, CON, mp.get_bvect_cart() ) ;
+	resu_p.set_etat_qcq() ;
+	source_p.poisson_vect(lambda, par_beta2, resu_p, vect_auxi, 
+			      scal_auxi) ;
+	
+	for (int i=1; i<=3; i++) 
+	  beta_auto.set(i) = resu_p(i-1) ;
+
 	ssjm1_khi = ssjm1khi ;
 	for (int i=0; i<3; i++){
-	    ssjm1_wshift.set(i+1) = ssjm1wshift(i) ;
+	    ssjm1_wbeta.set(i+1) = ssjm1wbeta(i) ;
 	}
-
-
-	cout << "beta_auto(r)" << endl << norme(beta_auto(1)/(nr*nt*np)) 
+	
+	cout << "beta_auto_x" << endl << norme(beta_auto(1)/(nr*nt*np)) 
 	     << endl ;
-	cout << "beta_auto(t)" << endl << norme(beta_auto(2)/(nr*nt*np)) 
+	cout << "beta_auto_y" << endl << norme(beta_auto(2)/(nr*nt*np)) 
 	     << endl ;
-	cout << "beta_auto(p)" << endl << norme(beta_auto(3)/(nr*nt*np)) 
+	cout << "beta_auto_z" << endl << norme(beta_auto(3)/(nr*nt*np)) 
 	     << endl ;
   
 
@@ -941,250 +959,360 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	    + lambda* beta_auto.divergence(flat).derive_con(flat) ;
 	
 	source_beta.dec_dzpuis() ;
-	Tbl tdiff_beta_r = diffrel(lap_beta(1), source_beta(1)) ; 
-	Tbl tdiff_beta_t = diffrel(lap_beta(2), source_beta(2)) ; 
-	Tbl tdiff_beta_p = diffrel(lap_beta(3), source_beta(3)) ; 
+	Tbl tdiff_beta_x = diffrel(lap_beta(1), source_beta(1)) ; 
+	Tbl tdiff_beta_y = diffrel(lap_beta(2), source_beta(2)) ; 
+	Tbl tdiff_beta_z = diffrel(lap_beta(3), source_beta(3)) ; 
 
 	cout << 
 	    "Relative error in the resolution of the equation for beta_auto : "
 	     << endl ; 
-	cout << "r component : " ;
+	cout << "x component : " ;
 	for (int l=0; l<nz; l++) {
-	    cout << tdiff_beta_r(l) << "  " ; 
+	    cout << tdiff_beta_x(l) << "  " ; 
 	}
 	cout << endl ;
-	cout << "t component : " ;
+	cout << "y component : " ;
 	for (int l=0; l<nz; l++) {
-	    cout << tdiff_beta_t(l) << "  " ; 
+	    cout << tdiff_beta_y(l) << "  " ; 
 	}
 	cout << endl ;
-	cout << "p component : " ;
+	cout << "z component : " ;
 	for (int l=0; l<nz; l++) {
-	    cout << tdiff_beta_p(l) << "  " ; 
+	    cout << tdiff_beta_z(l) << "  " ; 
 	}
 	cout << endl ;
 	
-	diff_beta_r = max(abs(tdiff_beta_r)) ; 
-	diff_beta_t = max(abs(tdiff_beta_t)) ; 
-	diff_beta_p = max(abs(tdiff_beta_p)) ; 
+	diff_beta_x = max(abs(tdiff_beta_x)) ; 
+	diff_beta_y = max(abs(tdiff_beta_y)) ; 
+	diff_beta_z = max(abs(tdiff_beta_z)) ; 
 
 
 	if (!conf_flat) {
 	   
 	    //--------------------------------------------------------
-	    // Poisson equation for hh
+	    // Poisson equation for hij
 	    //--------------------------------------------------------
 	 
+	 
+	    // Declaration of all sources 
+	    //---------------------------
+
+	    Scalar source_tot_hij(mp) ;
+	    Scalar source_Sij(mp) ;
+	    Scalar source_Rij(mp) ;
+
+	    Tensor source_1 (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source_2 (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source_3 (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source_4 (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source_5 (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source_6 (mp, 2, CON, mp.get_bvect_cart()) ;
+
+	    Tensor source1_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source2_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source3_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source4_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source5_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source6_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source7_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source8_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source9_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source10_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source11_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source12_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source13_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
+
+	    Tensor source1_Rij (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source2_Rij (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source3_Rij (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source4_Rij (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source5_Rij (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source6_Rij (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source7_Rij (mp, 2, CON, mp.get_bvect_cart()) ;
+
+
+	    // Source
+	    //--------
+
+	    source_1 = contract(dcon_hij, 1, dcov_lnq_auto, 0) ;
+
+	    source_2 = - contract(dcon_hij, 2, dcov_lnq_auto, 0) 
+	      - 2./3. * contract(hdirac, 0, dcov_lnq_auto, 0) * flat.con() ;
+	    
+	    source_3 = - tkij_auto.derive_lie(omdsdp) ;
+	    source_3.inc_dzpuis() ;
+
+	    source_4 = - tkij_auto.derive_lie(beta) ;
+	    source_4.inc_dzpuis() ;
+	    source_4 += - 2./3. * beta.divergence(flat) * tkij_auto ;
+
+	    source_5 = dcon_hdirac_auto ;
+ 	    
+	    source_6 = - 2./3. * hdirac_auto.divergence(flat) * flat.con() ;
+	    source_6.inc_dzpuis() ;
+
+	    // Source terms for Sij
+	    //---------------------
+	    
+	    source1_Sij = 8. * nn / psi4 * phi_auto.derive_con(gtilde) * 
+	      contract(gtilde_con, 0, dcov_phi, 0) ;
+
+	    source2_Sij = 4. / psi4 * phi_auto.derive_con(gtilde) * 
+	      nn * contract(gtilde_con, 0, dcov_logn, 0) ;
+
+	    source3_Sij = - nn / (3.*psi4) * gtilde_con * 
+	      ( 0.25 * contract(gtilde_con, 0, 1, contract(dcov_hij_auto, 0, 1,
+					dcov_gtilde, 0, 1), 0, 1)
+	       - 0.5 * contract(gtilde_con, 0, 1, contract(dcov_hij_auto, 0, 1,
+					dcov_gtilde, 0, 2), 0, 1)) ;
+
+	    source4_Sij = - 8.*nn / (3.*psi4) * gtilde_con * 
+	 contract(dcov_phi_auto, 0, contract(gtilde_con, 0, dcov_phi, 0), 0) ;
+
+	    source5_Sij = nn / (3.*psi4) * hdirac.divergence(flat)*hij_auto ;
+	    source5_Sij.inc_dzpuis() ;
+
+	    source6_Sij = - 8./(3.*psi4) * contract(dcov_phi_auto, 0,
+		nn*contract(gtilde_con, 0, dcov_logn, 0), 0) * gtilde_con ;
+
+	    source7_Sij = 2.*nn* contract(gtilde_cov, 0, 1, tkij_auto *
+					   (tkij_auto+tkij_comp), 1, 3) ;
+
+	    source8_Sij = - 2. * qpig * nn * ( psi4 * stress_euler 
+			      - 0.33333333333333333 * s_euler * gtilde_con ) ; 
+	    
+	    source9_Sij = - 1./(psi4*psi2) * contract(gtilde_con, 1, 
+			  contract(gtilde_con, 1, qq*dcovdcov_lnq_auto + 
+				   qq*dcov_lnq_auto*dcov_lnq, 0), 1) ;
+
+	    source10_Sij = - 0.5/(psi4*psi2) * contract(contract(hij, 1,
+					dcov_hij_auto, 2), 1, dcov_qq, 0) ;
+					
+	    source11_Sij = 0.5/(psi4*psi2) * contract(contract(hij, 0,
+					dcov_hij_auto, 2), 0, dcov_qq, 0) ;
+
+	    source12_Sij = 1./(3.*psi4*psi2)*contract(gtilde_con, 0, 1,
+                    qq*dcovdcov_lnq_auto + qq*dcov_lnq_auto*dcov_lnq, 0, 1)
+	                          *gtilde_con ;
+
+	    source13_Sij = 1./(3.*psi4*psi2) * contract(hdirac, 0, 
+							dcov_qq, 0)*hij_auto ;
+
+	    // Source terms for Rij
+	    //---------------------
+
+	    source1_Rij = contract(hij, 0, 1, dcovdcov_hij_auto, 2, 3) ;
+
+	    source2_Rij = - contract(hij_auto, 1, dcov_hdirac, 1) ;
+	    
+	    source3_Rij = contract(hdirac, 0, dcov_hij_auto, 2) ;
+
+	    source4_Rij = - contract(contract(dcov_hij_auto, 1, dcov_hij, 2),
+				     1, 3) ;
+
+	    source5_Rij = - contract(gtilde_cov, 0, 1, contract(contract(
+		    gtilde_con, 0, dcov_hij_auto, 2), 0, dcov_hij, 2), 1, 3) ;
+
+	    source6_Rij = contract(contract(contract(contract(gtilde_cov, 0, 
+		 dcov_hij_auto, 1), 2, gtilde_con, 1), 0, dcov_hij, 1), 0, 3) ;
+
+	    source7_Rij = 0.5 * contract(gtilde_con*gtilde_con, 1, 3, 
+		   contract(dcov_hij_auto, 0, 1, dcov_gtilde, 0, 1), 0, 1) ;
+
+
+	    for(int i=1; i<=3; i++) 
+		for(int j=1; j<=i; j++) {
+
+		    source_Sij = source1_Sij(i,j) + source2_Sij(i,j) +
+		      source2_Sij(j,i) + source3_Sij(i,j) +
+		      source4_Sij(i,j) + source5_Sij(i,j) +
+		      source6_Sij(i,j) + source7_Sij(i,j) +
+		      source8_Sij(i,j) + source9_Sij(i,j) +
+		      source10_Sij(i,j) + source10_Sij(j,i) +
+		      source11_Sij(i,j) + source12_Sij(i,j) +
+		      source13_Sij(i,j) ;
+
+		    source_Rij = 0.5*(source1_Rij(i,j) + source2_Rij(i,j) +
+				      source2_Rij(j,i) + source3_Rij(i,j) +
+				      source4_Rij(i,j) + source5_Rij(i,j) +
+				      source6_Rij(i,j) + source6_Rij(j,i) +
+				      source7_Rij(i,j)) ;
+
+		    source_tot_hij = source_1(i,j) + source_1(j,i) 
+			+ source_2(i,j) + 2.*psi4/nn * (source_3(i,j) + 
+			    source_4(i,j) - source_Sij) - 2.* source_Rij +
+		      source_5(i,j) + source_5(j,i) + source_6(i,j) ;
+			
 		    
-	    // Construction of the affine mapping
-	    // ----------------------------------
+		    cout << "source1 de Sij" << endl 
+			 << norme(source1_Sij(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source2 de Sij" << endl 
+			 << norme(source2_Sij(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source3 de Sij" << endl 
+			 << norme(source3_Sij(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source4 de Sij" << endl 
+			 << norme(source4_Sij(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source5 de Sij" << endl 
+			 << norme(source5_Sij(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source6 de Sij" << endl 
+			 << norme(source6_Sij(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source7 de Sij" << endl 
+			 << norme(source7_Sij(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source8 de Sij" << endl 
+			 << norme(source8_Sij(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source9 de Sij" << endl 
+			 << norme(source9_Sij(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source10 de Sij" << endl 
+			 << norme(source10_Sij(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source11 de Sij" << endl 
+			 << norme(source11_Sij(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source12 de Sij" << endl 
+			 << norme(source12_Sij(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source13 de Sij" << endl 
+			 << norme(source13_Sij(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source1" << endl 
+			 << norme(source_1(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source2" << endl 
+			 << norme(source_2(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source3" << endl 
+			 << norme(source_3(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source4" << endl 
+			 << norme(source_4(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source5" << endl 
+			 << norme(source_5(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source6" << endl 
+			 << norme(source_6(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source_Rij" << endl 
+			 << norme(source_Rij/(nr*nt*np)) << endl ;
+		    cout << "source_Sij" << endl 
+			 << norme(source_Sij/(nr*nt*np)) << endl ;
+		    cout << "source_tot" << endl 
+			 << norme(source_tot_hij/(nr*nt*np)) << endl ;
+		    	
+		    // Resolution of the Poisson equations and
+		    // Check: has the Poisson equation been correctly solved ?
+		    // -----------------------------------------------------
+
+		    if(i==1 && j==1) {
+		 
+			source_tot_hij.poisson(par_h11, hij_auto.set(1,1)) ; 
+
+			Tbl tdiff_h11 = diffrel(hij_auto(1,1).laplacian(), 
+						source_tot_hij) ;  
+			cout << "Relative error in the resolution of the equation for "
+			     << "h11_auto : " << endl ; 
+			for (int l=0; l<nz; l++) {
+			    cout << tdiff_h11(l) << "  " ; 
+			}
+			cout << endl ;
+			diff_h11 = max(abs(tdiff_h11)) ; 
+		    }
+	       	       
+		    if(i==2 && j==1) {
+
+			source_tot_hij.poisson(par_h21, hij_auto.set(2,1)) ; 
 	    
-	    double* bornes = new double[nz+1];
-	    bornes[0] = 0. ; 
-	    for (int l=1; l<nz; l++) 
-		bornes[l] = mp.val_r(l, -1., M_PI/2., 0.) ;
-	    bornes[nz] = __infinity ; 
-	    Map_af mpaff (*mp.get_mg(), bornes) ;
-	    mpaff.set_ori(mp.get_ori_x(), mp.get_ori_y(), mp.get_ori_z()) ; 
-	    mpaff.set_rot_phi(mp.get_rot_phi()) ;
+			Tbl tdiff_h21 = diffrel(hij_auto(2,1).laplacian(), 
+						source_tot_hij) ;
+			cout << 
+			    "Relative error in the resolution of the equation for " 
+			     << "h21_auto : "  << endl ; 
+			for (int l=0; l<nz; l++) {
+			    cout << tdiff_h21(l) << "  " ; 
+			}
+			cout << endl ;
+			diff_h21 = max(abs(tdiff_h21)) ; 
+		    }
+	       
+		    if(i==3 && j==1) {
+		 
+			source_tot_hij.poisson(par_h31, hij_auto.set(3,1)) ; 
 
-	    Metric_flat flat_aff (mpaff.flat_met_spher()) ;
+			Tbl tdiff_h31 = diffrel(hij_auto(3,1).laplacian(), 
+						source_tot_hij) ;
+			cout << 
+			    "Relative error in the resolution of the equation for "
+			     << "h31_auto : " << endl ; 
+			for (int l=0; l<nz; l++) {
+			    cout << tdiff_h31(l) << "  " ; 
+			}
+			cout << endl ;
+			diff_h31 = max(abs(tdiff_h31)) ; 
+		    }
+	     
+		    if(i==2 && j==2) {
+		 
+			source_tot_hij.poisson(par_h22, hij_auto.set(2,2)) ; 
 
+			Tbl tdiff_h22 = diffrel(hij_auto(2,2).laplacian(), 
+						source_tot_hij) ;
+			cout << 
+			    "Relative error in the resolution of the equation for "
+			     << "h22_auto : " << endl ; 
+			for (int l=0; l<nz; l++) {
+			    cout << tdiff_h22(l) << "  " ; 
+			}
+			cout << endl ;
+			diff_h22 = max(abs(tdiff_h22)) ; 
+		    }
+	       
+		    if(i==3 && j==2) {
+		 
+			source_tot_hij.poisson(par_h32, hij_auto.set(3,2)) ; 
+	
+			Tbl tdiff_h32 = diffrel(hij_auto(3,2).laplacian(), 
+						source_tot_hij) ;
+			cout << 
+			    "Relative error in the resolution of the equation for "
+			     << "h32_auto : " << endl ; 
+			for (int l=0; l<nz; l++) {
+			    cout << tdiff_h32(l) << "  " ; 
+			}
+			cout << endl ;
+			diff_h32 = max(abs(tdiff_h32)) ; 
+		    }
+	     
+		    if(i==3 && j==3) {
+		 
+			source_tot_hij.poisson(par_h33, hij_auto.set(3,3)) ; 
 
-	    // Construction of the source on the previous mapping
-	    // --------------------------------------------------
+			Tbl tdiff_h33 = diffrel(hij_auto(3,3).laplacian(), 
+						source_tot_hij) ;
+			cout << 
+			    "Relative error in the resolution of the equation for "
+			     << "h33_auto : " << endl ;
+			for (int l=0; l<nz; l++) {
+			    cout << tdiff_h33(l) << "  " ;
+			}
+			cout << endl ;
+			diff_h33 = max(abs(tdiff_h33)) ;
+		    }
 
-	    Sym_tensor source_old_map(mp_et,CON, mp_et.get_bvect_spher()) ;
-	    
-	    for(int i=1; i<=3; i++)
-		for(int j=i; j<=3; j++){
-		    source_old_map.set(i,j).set_etat_qcq() ;
-		    source_old_map.set(i,j).set_spectral_va() = source_hh(i,j)
-			.get_spectral_va() ;
 		}
-	    
-//	    des_meridian(source_old_map, 0., 4., "source_old_map", 0) ;
-
-	    // Construction of the source on the affine mapping
-	    // ------------------------------------------------
-
-	    Sym_tensor copie_souhh (source_old_map) ;
-	    for(int i=1; i<=3; i++)
-		for(int j=i; j<=3; j++)
-		    copie_souhh.set(i,j).set_dzpuis(0) ;
-	    copie_souhh.std_spectral_base() ;
-	    copie_souhh.change_triad(mp.get_bvect_cart()) ;
-
-	    Sym_tensor source_hh_aff (mpaff, CON, mp.get_bvect_cart()) ;
-	    for(int i=1; i<=3; i++)
-		for(int j=i; j<=3; j++)
-		    source_hh_aff.set(i,j).import(copie_souhh(i,j)) ;
-	    source_hh_aff.std_spectral_base() ;
-	    source_hh_aff.change_triad(mpaff.get_bvect_spher()) ;
-	    for(int i=1; i<=3; i++)
-		for(int j=i; j<=3; j++)
-		    source_hh_aff.set(i,j).set_dzpuis(4) ;
-	    
-//	    des_meridian(source_hh_aff, 0., 4., "source_hh_aff", 6) ;
-	    
-
-	    cout << "Divergence de source_hh_aff" << endl ;
-	    for (int i=1; i<=3; i++){
-		cout << "  Comp. " << i << " :  " ;
-		for (int l=0; l<nz; l++){
-		    cout << norme(source_hh_aff.divergence(flat_aff)(i)/(nr*nt*np))(l) << " " ;
-		}
-		cout << endl ;
-	    }
-	    cout << endl ;
-	    
-	    cout << "Trace de la source_hh_aff" << endl ;
-	    for (int l=0; l<nz; l++){
-		cout << norme(source_hh_aff.trace(flat_aff)/(nr*nt*np))(l) 
-		     << " " ;
-	    }
-	    cout << endl << endl ;
-
-
-	    // Resolution of the tensorial poisson equation
-	    // --------------------------------------------
-
-	    Sym_tensor_trans source_hht(mpaff, mpaff.get_bvect_spher(), flat_aff) ;
-	    source_hht = source_hh_aff ;
-	    const Sym_tensor_tt& source_htt_temp = source_hht.tt_part() ;
-	    
-//	    cout << mpaff << endl ;
-
-	    Sym_tensor hh_aff (mpaff, CON, mpaff.get_bvect_spher()) ;
-
-	    des_meridian(source_htt_temp, 1.2, 1.7, "source_htt", 12) ;
-	    
-	    Sym_tensor_tt source_htt (source_htt_temp) ;
-	    source_htt.annule_domain(1) ;
-	    for(int i=1; i<=3; i++)
-		for(int j=i; j<=3; j++)
-		    source_htt.set(i,j).raccord(2) ;
-
-	    hh_aff = source_htt.poisson(0) ;
-	
-	    des_meridian(hh_aff, 1.2, 1.7, "hh_aff", 24) ;
-
-	    hh_auto.change_triad(mp.get_bvect_cart()) ;
-	    hh_aff.change_triad(mpaff.get_bvect_cart()) ;
-	    for(int i=1; i<=3; i++)
-		for(int j=i; j<=3; j++)
-		    hh_auto.set(i,j).import(hh_aff(i,j)) ;
-	    hh_auto.std_spectral_base() ;
-	    hh_auto.change_triad(mp.get_bvect_spher()) ;
-	    hh_aff.change_triad(mpaff.get_bvect_spher()) ;
-
-
-//	des_meridian(hh_auto, 0., 5., "hh_auto", 5) ;
-	
-
-	    Sym_tensor_tt lap_hh(mpaff, mpaff.get_bvect_spher(), flat_aff) ; 
-	    lap_hh = hh_aff.derive_con(flat_aff).divergence(flat_aff) ;
-	    lap_hh.inc_dzpuis() ;
-
-//	des_meridian(lap_hh, 0., 5., "lap_hh", 6) ;
-	
-
-	    cout << "hh_TT_auto :" << endl ;
+      
+	    cout << "Tenseur hij auto in cartesian coordinates" << endl ;
 	    for (int i=1; i<=3; i++)
 		for (int j=1; j<=i; j++) {
 		    cout << "  Comp. " << i << " " << j << " :  " ;
 		    for (int l=0; l<nz; l++){
-			cout << norme(hh_auto(i,j)/(nr*nt*np))(l) << " " ;
+			cout << norme(hij_auto(i,j)/(nr*nt*np))(l) << " " ;
 		    }
 		    cout << endl ;
 		}
 	    cout << endl ;
 
-	    cout << "lap_hh :" << endl ;
-	    for (int i=1; i<=3; i++)
-		for (int j=1; j<=i; j++) {
-		    cout << "  Comp. " << i << " " << j << " :  " ;
-		    for (int l=0; l<nz; l++){
-			cout << norme(lap_hh(i,j)/(nr*nt*np))(l) << " " ;
-		    }
-		    cout << endl ;
-		}
-	    cout << endl ;
-	
-	    cout << "source_tt :" << endl ;
-	    for (int i=1; i<=3; i++)
-		for (int j=1; j<=i; j++) {
-		    cout << "  Comp. " << i << " " << j << " :  " ;
-		    for (int l=0; l<nz; l++){
-			cout << norme(source_htt(i,j)/(nr*nt*np))(l) << " " ;
-		    }
-		    cout << endl ;
-		}
-	    cout << endl ;
-	
-	    // Check: has the Poisson equation been correctly solved ?
-	    // -----------------------------------------------------
-	
-	    cout << "Relative error in the resolution of the equation for hh"
-		 << endl ;	
-	
-	    Tbl tdiff_h11 = diffrel(lap_hh(1,1), source_htt(1,1)) ;
-	    cout << " Comp 1 1 :  " ; 
-	    for (int l=0; l<nz; l++) {
-		cout << tdiff_h11(l) << "  " ; 
-	    }
-	    cout << endl ;
-	    diff_h11 = max(abs(tdiff_h11)) ; 
-	
-	
-	    Tbl tdiff_h21 = diffrel(lap_hh(2,1), source_htt(2,1)) ;
-	    cout << " Comp 2 1 :  "  ; 
-	    for (int l=0; l<nz; l++) {
-		cout << tdiff_h21(l) << "  " ; 
-	    }
-	    cout << endl ;
-	    diff_h21 = max(abs(tdiff_h21)) ; 
-	    
-	    
-	    Tbl tdiff_h31 = diffrel(lap_hh(3,1), source_htt(3,1)) ;
-	    cout << " Comp 3 1 :  " ; 
-	    for (int l=0; l<nz; l++) {
-		cout << tdiff_h31(l) << "  " ; 
-	    }
-	    cout << endl ;
-	    diff_h31 = max(abs(tdiff_h31)) ; 
-	
-	    Tbl tdiff_h22 = diffrel(lap_hh(2,2), source_htt(2,2)) ;
-	    cout << " Comp 2 2 :  " ; 
-	    for (int l=0; l<nz; l++) {
-		cout << tdiff_h22(l) << "  " ; 
-	    }
-	    cout << endl ;
-	    diff_h22 = max(abs(tdiff_h22)) ; 
-	
-	
-	    Tbl tdiff_h32 = diffrel(lap_hh(3,2) ,source_htt(3,2)) ;
-	    cout << " Comp 3 2 :  " ; 
-	    for (int l=0; l<nz; l++) {
-		cout << tdiff_h32(l) << "  " ; 
-	    }
-	    cout << endl ;
-	    diff_h32 = max(abs(tdiff_h32)) ; 
-	
-	
-	    Tbl tdiff_h33 = diffrel(lap_hh(3,3),source_htt(3,3)) ;
-	    cout << " Comp 3 3 :  " ; 
-	    for (int l=0; l<nz; l++) {
-		cout << tdiff_h33(l) << "  " ;
-	    }
-	    cout << endl ;
-	    diff_h33 = max(abs(tdiff_h33)) ; 
-	    
+	    ssjm1_h11 = ssjm1h11 ;
+	    ssjm1_h21 = ssjm1h21 ;
+	    ssjm1_h31 = ssjm1h31 ;
+	    ssjm1_h22 = ssjm1h22 ;
+	    ssjm1_h32 = ssjm1h32 ;
+	    ssjm1_h33 = ssjm1h33 ;
+
 	}
 
 	// End of relativistic equations	
 	   
-	   
+      	   
 	//-------------------------------------------------
 	//  Relative change in enthalpy
 	//-------------------------------------------------
@@ -1200,7 +1328,7 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	ent_jm1 = ent ; 
 
 
-    } // End of main loop
+        } // End of main loop
     
     //=========================================================================
     // 			End of iteration

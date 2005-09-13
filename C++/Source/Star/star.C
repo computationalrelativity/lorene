@@ -34,6 +34,9 @@ char star_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2005/09/13 19:38:31  f_limousin
+ * Reintroduction of the resolution of the equations in cartesian coordinates.
+ *
  * Revision 1.13  2005/02/17 17:29:04  f_limousin
  * Change the name of some quantities to be consistent with other classes
  * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
@@ -155,9 +158,9 @@ Star::Star(Map& mpi, int nzet_i, const Eos& eos_i)
     stress_euler.set_etat_zero() ;
 
     // The metric is initialized to the flat one : 
-    //## Metric_flat flat(mp.flat_met_spher()) ;
-    //##    flat.cov() ;
-    //## gamma = flat ;
+    Metric_flat flat(mp.flat_met_cart()) ;
+    flat.cov() ;
+    gamma = flat ;
 
     logn = 0 ; 
     nn = 1. ; 
@@ -206,10 +209,10 @@ Star::Star(Map& mpi, const Eos& eos_i, FILE* fich)
 		   gam_euler(mpi), 
 		   u_euler(mpi, CON, mp.get_bvect_spher()), 
 		   stress_euler(mpi, 2, CON, mp.get_bvect_spher()), 
-		   logn(mpi, *(mpi.get_mg()), fich), 
+		   logn(mpi), 
 		   nn(mpi), 
 		   beta(mpi, CON, mp.get_bvect_spher()),
-		   lnq(mpi, *(mpi.get_mg()), fich),
+		   lnq(mpi),
 		   gamma(mpi.flat_met_spher()){
 
     // Star parameters
@@ -260,7 +263,7 @@ Star::Star(Map& mpi, const Eos& eos_i, FILE* fich)
 
 Star::~Star(){
 
-    Star::del_deriv() ; 
+    del_deriv() ; 
 
 }
 
@@ -280,7 +283,7 @@ void Star::del_deriv() const {
     if (p_l_surf != 0x0) delete p_l_surf ; 
     if (p_xi_surf != 0x0) delete p_xi_surf ; 
 
-    set_der_0x0() ; 
+    Star::set_der_0x0() ; 
 }			    
 
 
@@ -307,7 +310,7 @@ void Star::del_hydro_euler() {
     u_euler.set_etat_nondef() ; 
     stress_euler.set_etat_nondef() ;
 
-    Star::del_deriv() ; 
+    del_deriv() ; 
 
 }			    
 
@@ -367,9 +370,6 @@ void Star::set_enthalpy(const Scalar& ent_i) {
 // Save in a file
 // --------------
 void Star::sauve(FILE* fich) const {
-    
-    logn.sauve(fich) ;
-    lnq.sauve(fich) ;
 
     int xx = nzet ;     
     fwrite_be(&xx, sizeof(int), 1, fich) ;			
@@ -407,7 +407,7 @@ ostream& Star::operator>>(ostream& ost) const {
     
     ost << endl ;
     ost << "Central lapse N :      " << nn.val_grid_point(0,0,0,0) <<  endl ; 
-    ost << "Central value of beta : " << lnq.val_grid_point(0,0,0,0) <<  endl ; 
+    ost << "Central value of lnq : " << lnq.val_grid_point(0,0,0,0) <<  endl ; 
   
     ost << endl 
 	<< "Coordinate equatorial radius (phi=0) a1 =    " 

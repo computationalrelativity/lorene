@@ -33,6 +33,9 @@ char star_bin_vel_pot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/09/13 19:38:31  f_limousin
+ * Reintroduction of the resolution of the equations in cartesian coordinates.
+ *
  * Revision 1.5  2005/02/24 16:07:57  f_limousin
  * Change the name of some variables (for instance dcov_logn --> dlogn).
  *
@@ -82,7 +85,7 @@ double Star_bin::velocity_potential(int mermax, double precis, double relax) {
     // See Eq (62) from Gourgoulhon et al. (2001)
     //----------------------------------------------
 
-    Vector www = - hhh * gam_euler * bsn * psi4 ;
+    Vector www = hhh * gam_euler * bsn * psi4 ;
 	
     www.change_triad( mp.get_bvect_cart() ) ;	// components on the mapping
 						// Cartesian basis
@@ -116,26 +119,27 @@ double Star_bin::velocity_potential(int mermax, double precis, double relax) {
     Scalar zeta_h( ent / dndh_log ) ;
     zeta_h.std_spectral_base() ;
 
-    Vector bb = (1 - zeta_h) * ent.derive_con(flat) + 
-	zeta_h * lnq.derive_con(flat) ;
+    Metric_flat flat_spher (mp.flat_met_spher()) ;
+    Vector bb = (1 - zeta_h) * ent.derive_con(flat_spher) + 
+	zeta_h * lnq.derive_con(flat_spher) ;
 
     Scalar entmb = ent - lnq ;  
 
-    www.change_triad(mp.get_bvect_spher()) ;
-    v_orb.change_triad(mp.get_bvect_spher()) ;
+    www.change_triad(mp.get_bvect_cart()) ;
+    v_orb.change_triad(mp.get_bvect_cart()) ;
 
-    Tensor dpsi0_dd = psi0.derive_cov(flat).derive_cov(flat) ;
-    dpsi0_dd.inc_dzpuis() ;
+    Tensor dcovdcov_psi0 = psi0.derive_cov(flat).derive_cov(flat) ;
+    dcovdcov_psi0.inc_dzpuis() ;
 
     // See Eq (63) from Gourgoulhon et al. (2001)
     Scalar source = contract(www - v_orb, 0, ent.derive_cov(flat), 0)
 	+ zeta_h * ( contract(v_orb, 0, entmb.derive_cov(flat), 0) +
 		     contract(www/gam_euler, 0, gam_euler.derive_cov(flat), 0)
-		     + contract(hh, 0, 1, (psi0.derive_cov(flat)  
+		     + contract(hij, 0, 1, (psi0.derive_cov(flat)  
 				+ v_orb.down(0, flat))*entmb.derive_cov(flat),
 				0, 1) 
-		     - contract(hh, 0, 1, dpsi0_dd, 0, 1))
-	- contract(hh, 0, 1, ent.derive_cov(flat) * (psi0.derive_cov(flat) 
+		     - contract(hij, 0, 1, dcovdcov_psi0, 0, 1))
+	- contract(hij, 0, 1, ent.derive_cov(flat) * (psi0.derive_cov(flat) 
 						      + v_orb.down(0, flat)), 
 						      0, 1) ;
   
@@ -188,7 +192,7 @@ double Star_bin::velocity_potential(int mermax, double precis, double relax) {
     bb_cmp.set(0) = bb_cmp1 ;
     bb_cmp.set(1) = bb_cmp2 ;
     bb_cmp.set(2) = bb_cmp3 ;
-
+ 
     source_cmp.va.ylm() ;
 
     cout << "source" << endl << norme(source_cmp)<< endl ;
@@ -208,7 +212,7 @@ double Star_bin::velocity_potential(int mermax, double precis, double relax) {
     // Check of the solution  
     //---------------------------------------------------
     
-    Scalar bb_dpsi0 = contract(bb, 0, psi0.derive_cov(flat), 0) ;
+    Scalar bb_dpsi0 = contract(bb, 0, psi0.derive_cov(flat_spher), 0) ;
     
     Scalar oper = zeta_h * psi0.laplacian() + bb_dpsi0 ; 
     
@@ -226,8 +230,8 @@ double Star_bin::velocity_potential(int mermax, double precis, double relax) {
     // Computation of grad(psi)
     //--------------------------------
     
-    v_orb.change_triad(mp.get_bvect_spher()) ;
-    d_psi.change_triad(mp.get_bvect_spher()) ;
+    v_orb.change_triad(mp.get_bvect_cart()) ;
+    d_psi.change_triad(mp.get_bvect_cart()) ;
 
     for (int i=1; i<=3; i++) 
 	d_psi.set(i) = (psi0.derive_cov(flat))(i) + v_orb(i) ; 
@@ -241,7 +245,6 @@ double Star_bin::velocity_potential(int mermax, double precis, double relax) {
     
     d_psi.annule(nzet, nzm1) ;	  
  
-   
     for (int i=1; i<=3; i++) {
 	Cmp d_psi_i (d_psi(i)) ;
 	d_psi_i = raccord_c1(d_psi_i, nzet) ; 

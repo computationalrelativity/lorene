@@ -31,6 +31,9 @@ char binary_anashift_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/09/13 19:38:31  f_limousin
+ * Reintroduction of the resolution of the equations in cartesian coordinates.
+ *
  * Revision 1.7  2005/02/17 17:34:50  f_limousin
  * Change the name of some quantities to be consistent with other classes
  * (for instance nnn is changed to nn, shift to beta, beta to lnq...)
@@ -58,6 +61,7 @@ char binary_anashift_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "binary.h"
+#include "tenseur.h"
 #include "unites.h"
 
 void Binary::analytical_shift(){
@@ -82,15 +86,15 @@ void Binary::analytical_shift(){
 	int nzet = et[i]->get_nzet() ; 
 	int nzm1 = mp.get_mg()->get_nzone() - 1 ; 
     
-	Vector w_shift (mp, CON, mp.get_bvect_cart()) ;
-	Scalar khi_shift (mp) ;
+	Vector w_beta (mp, CON, mp.get_bvect_cart()) ;
+	Scalar khi_beta (mp) ;
 
-	// Computation of w_shift 
+	// Computation of w_beta 
 	// ----------------------
 	// X component
 	// -----------
 
-	w_shift.set(1) = 0 ; 
+	w_beta.set(1) = 0 ; 
 
 	// Y component
 	// -----------
@@ -102,43 +106,15 @@ void Binary::analytical_shift(){
 	tmp_ext = - 4 * www / mp.r ;
 	tmp_ext.annule(0, nzet-1) ; 
     
-	w_shift.set(2) = tmp + tmp_ext ; 
+	w_beta.set(2) = tmp + tmp_ext ; 
 
 	// Z component
 	// -----------
-	w_shift.set(3) = 0 ; 
+	w_beta.set(3) = 0 ; 
 
-	w_shift.std_spectral_base() ; 
+	w_beta.std_spectral_base() ; 
 	    
-	Scalar mp_x (mp) ;
-	Scalar mp_y (mp) ;
-	Scalar mp_z (mp) ;
-	mp_x = mp.x ;
-	mp_y = mp.y ;
-	mp_z = mp.z ;
-
-	Scalar Wjxj = w_shift(1) * mp_x + w_shift(2) * mp_y + 
-	             w_shift(3) * mp_z ;
-
-	int nzone = mp.get_mg()->get_nzone() ;
-	int nr = mp.get_mg()->get_nr(0);
-	int nt = mp.get_mg()->get_nt(0);
-	int np = mp.get_mg()->get_np(0);
-	
-	// In the last domain, Wjwj does not depend on r but it 
-	// has a value nan at infinity : we put at infinity his value for 
-	// another r.
-
-	for (int k=0; k<=np-1; k++)
-	    for (int j=0; j<=nt-1; j++){
-		Wjxj.set_grid_point(nzone-1, k, j, nr-1) = 
-		                  Wjxj.val_grid_point(nzone-1, k, j, nr-2) ; 
-	    }
-	
-
-	Wjxj.std_spectral_base() ;
-
-	// Computation of khi_shift
+	// Computation of khi_beta
 	// ------------------------
 
 	tmp = 2 * www / a0 * (mp.y) * ( 1 - 3 * (mp.r)*(mp.r) / (5*a0*a0) ) ;
@@ -147,28 +123,40 @@ void Binary::analytical_shift(){
 					    / (mp.r * mp.r) ;   
 	tmp_ext.annule(0, nzet-1) ; 
 
-	khi_shift = tmp + tmp_ext ; 
+	khi_beta = tmp + tmp_ext ; 
 
 	// Sets the standard spectral bases for a scalar field
-	khi_shift.std_spectral_base() ; 	    
+	khi_beta.std_spectral_base() ; 	    
     
 
-	// Computation of shift auto.
+	// Computation of beta auto.
 	// --------------------------
 	
-	const Metric_flat& flat (mp.flat_met_cart()) ;
-	Vector temp(mp, CON, mp.get_bvect_cart()) ;
- 
-	temp = khi_shift.derive_con(flat) + Wjxj.derive_con(flat) ;
-	temp.dec_dzpuis(2) ;
+	Tensor xdw_temp (w_beta.derive_con(et[i]->get_flat())) ;
+
+	Tenseur x_d_w_temp (et[i]->get_mp(),2,CON,et[i]->get_mp().get_bvect_cart()) ;
+	x_d_w_temp.set_etat_qcq() ;
+	for (int j=0; j<3; j++) 
+	  for (int k=0; k<3; k++) 
+	    x_d_w_temp.set(j,k) = xdw_temp(k+1, j+1) ;
+
+	Tenseur x_d_w = skxk (x_d_w_temp) ;
+	x_d_w.dec_dzpuis() ;
+
+	Vector xdw (et[i]->get_mp(), CON, et[i]->get_mp().get_bvect_cart()) ;
+	for (int j=0; j<3; j++) 
+	  xdw.set(j+1) = x_d_w(j) ;
 
 	// See Eq (92) from Gourgoulhon et al.(2001) and with the new 
 	// convention for shift = - N^i
 	
-	et[i]->set_beta_auto() = - 7./8. * w_shift + 1./8. * temp ;
-	 
+	Vector d_khi = khi_beta.derive_con(et[i]->get_flat()) ;
+	d_khi.dec_dzpuis(2) ;
+	
+	et[i]->set_beta_auto() = - 7./8. * w_beta + 1./8. * 
+	  (d_khi + xdw)  ;
+
 	et[i]->set_beta_auto().std_spectral_base() ;
-	et[i]->set_beta_auto().change_triad(mp.get_bvect_spher()) ;
 
     }
 
