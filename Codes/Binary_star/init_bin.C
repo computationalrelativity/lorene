@@ -29,6 +29,9 @@ char init_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/09/13 19:47:28  f_limousin
+ * Reintroduction of the resolution of the equations in cartesian coordinates.
+ *
  * Revision 1.4  2004/09/16 12:14:30  f_limousin
  * *** empty log message ***
  *
@@ -38,6 +41,7 @@ char init_bin_C[] = "$Header$" ;
  * $Header$
  *
  */
+
 
  
 // headers C
@@ -269,11 +273,17 @@ int  main(){
 	 << endl << "================================================" << endl ;
     (star.set(1)).equilibrium_spher(ent_c1, precis) ; 
 
+    (star.set(1)).set_logn_auto (star(1).get_logn()) ;
+    (star.set(1)).set_lnq_auto (star(1).get_lnq()) ;
+
+
     cout << endl << "Computation of a static configuration for star 2"
 	 << endl << "================================================" << endl ; 
 
     (star.set(2)).equilibrium_spher(ent_c2, precis) ; 
 
+    (star.set(2)).set_logn_auto (star(2).get_logn()) ;
+    (star.set(2)).set_lnq_auto (star(2).get_lnq()) ;
 
     //-----------------------------------------------------------------------
     //		Sets the stars at Newtonian (Keplerian) position 

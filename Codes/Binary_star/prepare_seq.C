@@ -28,6 +28,9 @@ char prepare_seq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/09/13 19:47:28  f_limousin
+ * Reintroduction of the resolution of the equations in cartesian coordinates.
+ *
  * Revision 1.1  2004/09/16 12:15:01  f_limousin
  * *** empty log message ***
  *
@@ -47,12 +50,15 @@ using namespace std ;
 
 // C headers
 #include <math.h>
+#include "unites.h"
+
 
 #define maxval(a,b) a < b ? b : a
 #define minval(a,b) a > b ? b : a
 
 int main() {
 
+    using namespace Unites ;
 
     // For the display :
     char display_bold[]="x[1m" ; display_bold[0] = 27 ;
@@ -76,7 +82,7 @@ int main() {
 	cin >> m0_half ; 
 	double m0 = 2 * m0_half ;
 	
-	outfich << "# d [km] f_GW [Hz]   M_ADM_vol [Msol]   Omega  M_B [Msol]   v_m   a2/a1    a3/a1    j/m0^2"  << endl ; 
+	outfich << "# d [km]  f_GW [Hz]   M_ADM [Msol]   Omega*M_inf  M_B [Msol]   v_m   a2/a1    a3/a1    j/m0^2"  << endl ; 
 	
 	//-----------------------------------------------------
 	//  ***** End of 1st modifiable part ******
@@ -101,7 +107,8 @@ int main() {
 			}
 	
 			double ve_m ;
-			double d_km, d_g_km, d_rel, f_hz, m_adm, m_adm_vol, jj ; 
+			double d_km, d_g_km, d_rel, f_hz, m_adm, m_adm_vol ;
+			double m_kom, m_kom_vol, jj ; 
 			double entc1, enerc1, m_b1, r_eq1, a2sa11, a3sa11 ; 
 			double entc2, enerc2, m_b2, r_eq2, a2sa12, a3sa12 ; 
 	
@@ -116,6 +123,8 @@ int main() {
 			infich >>  f_hz ;
 			infich >>  m_adm ;
 			infich >>  m_adm_vol ;
+			infich >>  m_kom ;
+			infich >>  m_kom_vol ;
 			infich >>  jj ;
 			infich.ignore(1000,'\n') ;
 			infich.ignore(1000,'\n') ;
@@ -143,7 +152,7 @@ int main() {
 			    cout.precision(8);
 			cout << "d = " << d_km << display_bold 
                              << " f_gw = " << 2*f_hz
-                             << " m_adm = " << m_adm_vol  
+                             << " m_adm = " << m_adm
                              << " m_b1 = " << m_b1 
                              << display_normal << " j = " << jj ; 
 			    cout.precision(8) ;             
@@ -173,17 +182,17 @@ int main() {
 //                      dM=m_adm-Mg(f=0)+4.056e-4*x^(2/3)
 			outfich.setf(ios::scientific) ; 
                         outfich.precision(4) ; 
-			outfich << d_km / 16.413 << " ";
+			outfich << d_km  << " ";
 			outfich.precision(12) ;  
-                        outfich << f_hz / 18265 * m0 / 11.114 << " "; 
-                        outfich << (m_adm_vol - m0) / 11.114  << " "; 
-			outfich << om1 / 18265 * m0 / 11.114 << " "; 
-			outfich << m_b1 / 11.114 << " ";
+                        outfich << f_hz  << " "; 
+                        outfich << (m_adm_vol - m0)  << " "; 
+			outfich << om1/f_unit*m0*msol*ggrav  << " "; 
+			outfich << m_b1  << " ";
                         outfich.precision(5) ;  
 			outfich << ve_m << " "; 
 			outfich << a2sa11 << " "; 
 			outfich << a3sa11 << " "; 
-			outfich << jj1 / 123.537 << endl ; 
+			outfich << jj1  << endl ; 
 
 			//-----------------------------------------------------
 			//  ***** End of 2nd modifiable part ***** 

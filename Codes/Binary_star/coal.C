@@ -29,6 +29,9 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/09/13 19:47:28  f_limousin
+ * Reintroduction of the resolution of the equations in cartesian coordinates.
+ *
  * Revision 1.4  2004/09/16 12:14:23  f_limousin
  * *** empty log message ***
  *
@@ -192,6 +195,8 @@ int main(){
     
     arrete(prompt) ; 
     
+    double distance = 100. * fact_separ ;
+
     //------------------------------------------------------------------
     //	    Read of the initial conditions 
     //------------------------------------------------------------------
@@ -217,7 +222,7 @@ int main(){
     Binary star(mp1, *peos1, mp2, *peos2, fich) ; 
 
     fclose(fich) ; 
-
+    
     //------------------------------------------------------------------
     //	    Modification of the separation between the two stars
     //------------------------------------------------------------------
@@ -237,28 +242,16 @@ int main(){
     // ---------------------------------
 
     star.fait_decouple() ;
+ 
     for (int i=1; i<=2; i++) {
-	(star.set(i)).update_metric_init1() ; 
-    }
-
-    for (int i=1; i<=2; i++) {
-	(star.set(i)).update_metric_init2(star(3-i)) ; 
-    }
-     for (int i=1; i<=2; i++) {
-	(star.set(i)).update_decouple(star(3-i)) ; 
-    }
-
-
-
-    for (int i=1; i<=2; i++) {
-	(star.set(i)).update_metric(star(3-i)) ; 
+	(star.set(i)).update_metric(star(3-i), star.get_omega()) ; 
     }
 
     // Initialisation of gradients of companion potentials
     // ---------------------------------------------------
 
     for (int i=1; i<=2; i++) {
-	(star.set(i)).update_metric_der_comp(star(3-i)) ; 
+	(star.set(i)).update_metric_der_comp(star(3-i), star.get_omega()) ; 
     }
 
     // Initialisation of hydro quantities
@@ -270,7 +263,29 @@ int main(){
 	(star.set(i)).fait_d_psi() ; 
 	(star.set(i)).hydro_euler() ; 
     }
-
+    /*
+    cout.precision(8) ;
+    cout << "Comparaison 1" << endl ;
+    cout << "ener" << norme(star(1).get_ener()) << endl ;
+    cout << "press" << norme(star(1).get_press()) << endl ;
+    cout << "ent" << norme(star(1).get_ent()) << endl ;
+    //    cout << "psi0" << norme(star(1).get_psi0()) << endl ;
+    //    cout << "pot_centri" << norme(star(1).get_pot_centri()) << endl ;
+    cout << "logn_auto" << endl << norme(star(1).get_logn_auto()) << endl ;
+    cout << "logn" << endl << norme(star(1).get_logn()) << endl ;
+    cout << "nn" << endl << norme(star(1).get_nn()) << endl ;
+    cout << "lnq_auto" << endl << norme(star(1).get_lnq_auto()) << endl ;
+    cout << "lnq" << endl << norme(star(1).get_lnq()) << endl ;
+    cout << "psi4" << endl << norme(star(1).get_psi4()) << endl ;
+    cout << "beta_auto(1)" << endl << norme(star(1).get_beta_auto()(1)) << endl ;
+    cout << "beta_auto(2)" << endl << norme(star(1).get_beta_auto()(2)) << endl ;
+    cout << "beta_auto(3)" << endl << norme(star(1).get_beta_auto()(3)) << endl ;
+    cout << "beta(1)" << endl << norme(star(1).get_beta()(1)) << endl ;
+    cout << "beta(2)" << endl << norme(star(1).get_beta()(2)) << endl ;
+    cout << "beta(3)" << endl << norme(star(1).get_beta()(3)) << endl ;
+    cout << "kcar_auto" << endl << norme(star(1).get_kcar_auto()*star(1).get_psi4()) << endl ;
+    cout << "kcar_comp" << endl << norme(star(1).get_kcar_comp()*star(1).get_psi4()) << endl ;
+    */    
  
     // New initial of value Omega (taking into account the fact
     //  that the separation has changed)
@@ -283,21 +298,21 @@ int main(){
     
     star.analytical_shift() ;
     for (int i=1; i<=2; i++) {
-	star.set(i).set_shift_auto() = reduce_shift*star(i).get_shift_auto() ; 
+	star.set(i).set_beta_auto() = reduce_shift*star(i).get_beta_auto() ; 
     }
 
     cout << reduce_shift << endl ;
-    
+
     // A second call to update_metric must be performed to update
-    //  shift_comp, tkij_auto and akcar_auto. 
+    //  beta_comp, tkij_auto and akcar_auto. 
     for (int i=1; i<=2; i++) {
-	(star.set(i)).update_metric(star(3-i)) ; 
+	(star.set(i)).update_metric(star(3-i), star.get_omega()) ; 
     }
     
     // Second update of gradients of companion potentials
 
     for (int i=1; i<=2; i++) {
-	(star.set(i)).update_metric_der_comp(star(3-i)) ; 
+	(star.set(i)).update_metric_der_comp(star(3-i), star.get_omega()) ; 
     }
 
     // Second update of hydro quantities
@@ -313,7 +328,9 @@ int main(){
 
 
 //##
-    FILE* fresu = fopen("resu.d", "w") ; 
+    char name[40] ;
+    sprintf(name, "resu_%e.d", distance) ;
+    FILE* fresu = fopen(name, "w") ; 
     
     int mer1 = 0 ;
     fwrite(&mer1, sizeof(int), 1, fresu) ;	// mer
@@ -339,7 +356,7 @@ int main(){
     cout << star << endl ; 
 
     arrete(prompt) ; 
-    
+   
 
 //----------------------------------------------------------------
 //			Auxiliary quantities
@@ -350,7 +367,7 @@ int main(){
 
 // Resizing factor of the first shell
 // Computation is shown just befor "equilibrium"
-    Tbl fact_resize[] = {Tbl(1), Tbl(1)} ;
+    Tbl fact_resize[] = {Tbl(2), Tbl(2)} ;
     fact_resize[0].set_etat_qcq() ; 
     fact_resize[1].set_etat_qcq() ; 
 
@@ -364,10 +381,10 @@ int main(){
 	differ[i-1].set(0) = 1 ;	    // diff_ent = 1
 	differ[i-1].set(1) = 1 ;	    // err_psi = 1
 	differ[i-1].set(2) = 1 ;	    // err_logn = 1
-	differ[i-1].set(3) = 1 ;	    // err_beta = 1
-	differ[i-1].set(4) = 1 ;	    // err_shift_x = 1
-	differ[i-1].set(5) = 1 ;	    // err_shift_y = 1
-	differ[i-1].set(6) = 1 ;	    // err_shift_z = 1
+	differ[i-1].set(3) = 1 ;	    // err_lnq = 1
+	differ[i-1].set(4) = 1 ;	    // err_beta_x = 1
+	differ[i-1].set(5) = 1 ;	    // err_beta_y = 1
+	differ[i-1].set(6) = 1 ;	    // err_beta_z = 1
 	differ[i-1].set(7) = 1 ;	    // err_h11 = 1
 	differ[i-1].set(8) = 1 ;	    // err_h21 = 1
 	differ[i-1].set(9) = 1 ;	    // err_h31 = 1
@@ -395,30 +412,36 @@ int main(){
 	star_jm1.set(i).set_pot_centri() = 0 ; 
     }
     
-
 //----------------------------------------------------------------
 //	 Openning of log files
 //----------------------------------------------------------------
 
-    ofstream fichresu("resglob.d") ;
+    sprintf(name, "resglob_%e.d", distance) ;
+    ofstream fichresu(name) ;
     fichresu.precision(16) ; 
 
-    ofstream fichrota("resrota.d") ; 
+    sprintf(name, "resrota_%e.d", distance) ;
+    ofstream fichrota(name) ; 
     fichrota.precision(16) ; 
 
+    sprintf(name, "resdiffm_%e.d", distance) ;
     ofstream fichvir("resdiffm.d") ;
     fichvir.precision(16) ; 
 
     ofstream fichconv[2] ;
-    fichconv[0].open("resconv1.d") ; 
+    sprintf(name, "resconv1_%e.d", distance) ;
+    fichconv[0].open(name) ; 
     fichconv[0].precision(16) ; 
-    fichconv[1].open("resconv2.d") ; 
+    sprintf(name, "resconv2_%e.d", distance) ;
+    fichconv[1].open(name) ; 
     fichconv[1].precision(16) ; 
 
     ofstream fichet[2] ;
-    fichet[0].open("resstar1.d") ; 
+    sprintf(name, "resstar1_%e.d", distance) ;
+    fichet[0].open(name) ; 
     fichet[0].precision(16) ; 
-    fichet[1].open("resstar2.d") ;
+    sprintf(name, "resstar2_%e.d", distance) ;
+    fichet[1].open(name) ;
     fichet[1].precision(16) ; 
  
     fichrota << 
@@ -431,7 +454,7 @@ int main(){
 
     for (int i=1; i<=2; i++) {
 	fichconv[i-1] << 
-	    "#     diff_ent           err_psi         err_logn          err_beta        err_shift_x         err_shift_y         err_shift_z"
+	    "#     diff_ent           err_psi         err_logn          err_lnq        err_beta_x         err_beta_y         err_beta_z"
 		      << endl ; 
 
 	fichet[i-1] << 
@@ -441,7 +464,8 @@ int main(){
 
     double omega_kep, diff_mass ; 
     int mer ;
-    
+
+
 //============================================================================
 //		Start of iteration 
 //============================================================================
@@ -468,7 +492,6 @@ int main(){
 	fichet[0] << mer ; 
 	fichet[1] << mer ; 
 
-
 	//------------------------------------------------------------------
 	//	    Computation of the metric coefficients
 	//------------------------------------------------------------------
@@ -476,15 +499,16 @@ int main(){
 	if ( (mer % fmer_upd_met) == 0 ) {
     
 	    for (int i=1; i<=2; i++) {
-		(star.set(i)).update_metric(star(3-i), star_jm1(i), relax_met) ; 
+	      (star.set(i)).update_metric(star(3-i), star_jm1(i), relax_met,
+					    star.get_omega()) ; 
 	    }
 
 	    for (int i=1; i<=2; i++) {
-		(star.set(i)).update_metric_der_comp(star(3-i)) ; 
+		(star.set(i)).update_metric_der_comp(star(3-i), 
+						     star.get_omega()) ; 
 	    }
 
 	}
-
 
 	//------------------------------------------------------------------
 	//	    Computation of the orbital angular velocity Omega
@@ -595,7 +619,6 @@ int main(){
 	
 	}
 
-    
 	//------------------------------------------------------------------
 	//	  Computation of the stellar equilibrium configurations
 	//------------------------------------------------------------------
@@ -603,27 +626,29 @@ int main(){
 	for (int i=1; i<=2; i++) {
 
 	    // Computation of the resizing factor
-	    double ray_eq_auto = star(i).ray_eq() ;
-	    double ray_eq_comp = star(3-i).ray_eq() ;
+	double ray_eq_auto = star(i).ray_eq() ;
+	double ray_eq_comp = star(3-i).ray_eq() ;
+	double ray_eq_pi_comp = star(3-i).ray_eq_pi() ;
 
-	    int num_resize ;
+	int num_resize ;
 
-	    if (mg1.get_nzone() > 3) {
-		assert( mg2.get_nzone() == mg1.get_nzone() ) ;
-		num_resize = mg1.get_nzone() - 3 ;
-	    }
-	    else {
-		num_resize = star(i).get_nzet() ;
-	    }
-
-	    double lambda_resize = 0.95 *
-		(star.separation() - ray_eq_comp)/ray_eq_auto ;
-	    fact_resize[i-1].set(0) =
-		(lambda_resize < 2.*num_resize) ? lambda_resize : 2.*num_resize ;
+      	if (mg1.get_nzone() > 3) {
+	  assert( mg2.get_nzone() == mg1.get_nzone() ) ;
+	  num_resize = mg1.get_nzone() - 3 ;
+	}
+	else {
+	  num_resize = star(i).get_nzet() ;
 	}
 
+	double lambda_resize = 0.95 *
+	  (star.separation() - ray_eq_comp)/ray_eq_auto ;
+	fact_resize[i-1].set(0) =
+	  (lambda_resize < 2.*num_resize) ? lambda_resize : 2.*num_resize ;
 
-	cout << "ok" << endl ;
+	fact_resize[i-1].set(1) = 1.05 *
+	  (star.separation() + ray_eq_pi_comp)/ray_eq_auto ;
+	
+    }
 
 	for (int i=1; i<=2; i++) {
 
@@ -640,16 +665,16 @@ int main(){
 	    star.set(i).set_pot_centri() = relax * star(i).get_pot_centri()
 		+ relax_jm1 * star_jm1(i).get_pot_centri() ; 
 
-
 	    // Call to Star_bin::equilibrium
 	    // --------------------------------
 	
 	    (star.set(i)).equilibrium(ent_c[i-1], mermax_eqb, mermax_potvit, 
 				      mermax_poisson, relax_poisson,
 				      relax_potvit, thres_adapt[i-1],
-				      fact_resize[i-1], differ[i-1], mer) ;
-	}
+				      fact_resize[i-1], differ[i-1], 
+				      star.get_omega()) ;
 
+	}
 
 	//------------------------------------------------------------------
 	//	  Relaxations
@@ -699,28 +724,30 @@ int main(){
 	cout << star << endl ; 
 
 
-	//-----------------------------------------------------------------------
+	//---------------------------------------------------------------------
 	//		The whole configuration is saved in a file
-	//-----------------------------------------------------------------------
+	//---------------------------------------------------------------------
  
 	if ( (mer % fmer_save) == 0 ) {
 
-	    FILE* fresu = fopen("resu.d", "w") ; 
+	  sprintf(name, "resu_%e.d", distance) ;
+	    FILE* fresu2 = fopen(name, "w") ; 
     
-	    fwrite(&mer, sizeof(int), 1, fresu) ;	// mer
+	    fwrite(&mer, sizeof(int), 1, fresu2) ;	// mer
 
-	    star(1).get_mp().get_mg()->sauve(fresu) ; 
-	    star(1).get_mp().sauve(fresu) ; 
-	    star(1).get_eos().sauve(fresu) ; 
+	    star(1).get_mp().get_mg()->sauve(fresu2) ; 
+	    star(1).get_mp().sauve(fresu2) ; 
+	    star(1).get_eos().sauve(fresu2) ; 
 
-	    star(2).get_mp().get_mg()->sauve(fresu) ; 
-	    star(2).get_mp().sauve(fresu) ; 
-	    star(2).get_eos().sauve(fresu) ; 
+	    star(2).get_mp().get_mg()->sauve(fresu2) ; 
+	    star(2).get_mp().sauve(fresu2) ; 
+	    star(2).get_eos().sauve(fresu2) ; 
 
-	    star.sauve(fresu) ;     
+	    star.sauve(fresu2) ;     
 	
-	    fclose(fresu) ;     
+	    fclose(fresu2) ;     
 	}
+
 
 	//--------------------------------------------
 	//  Writing of global quantities in log files
@@ -782,6 +809,7 @@ int main(){
 	fichet[0].flush() ; 
 	fichet[1] << "  " << endl ; 
 	fichet[1].flush() ; 
+
 
     }	// End of the main loop (mer)
 
@@ -884,9 +912,8 @@ int main(){
     fichfinal << "dH/dx at r = 0 :  star 1 : " << dentdx[0] 
 	      << "   star 2 : " << dentdx[1] << endl ; 
 
-
-//    fichfinal << "Relative error on the virial theorem : " << endl ; 
-//    fichfinal << "   VE(M)= " << star.virial() ;
+    fichfinal << "Relative error on the virial theorem : " << endl ; 
+    fichfinal << "   VE(M)= " << star.virial() ;
       
     fichfinal << endl <<
 	"================================================================" << endl ; 
@@ -923,7 +950,8 @@ int main(){
 //  14 digits for further reading by a code
 //-----------------------------------------------
 
-    ofstream seqfich("resformat.d") ; 
+    sprintf(name, "resformat_%e.d", distance) ;
+    ofstream seqfich(name) ; 
     if ( !seqfich.good() ) {
 	cout << "coal : problem with opening the file resformat.d !" << endl ;
 	abort() ;

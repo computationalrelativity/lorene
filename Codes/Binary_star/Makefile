@@ -22,6 +22,18 @@ SRC4 = prepare_seq.C
 OBJ4 = $(SRC4:.C=.o)
 EXE4 = $(SRC4:.C=)
 
+SRC5 = coal_seq.C
+OBJ5 = $(SRC5:.C=.o)
+EXE5 = $(SRC5:.C=)
+
+SRC6 = coal_rep.C
+OBJ6 = $(SRC6:.C=.o)
+EXE6 = $(SRC6:.C=)
+
+SRC7 = luc.C
+OBJ7 = $(SRC7:.C=.o)
+EXE7 = $(SRC7:.C=)
+
 $(EXE1): $(OBJ1)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_PGPLOT) $(LIB_CXX) $(LIB_GSL)
@@ -38,10 +50,20 @@ $(EXE4): $(OBJ4)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ4) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_PGPLOT) $(LIB_CXX) $(LIB_GSL)
 
+$(EXE5): $(OBJ5)
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ5) $(LIB_G) $(LIB_LAPACK) \
+					$(LIB_PGPLOT) $(LIB_CXX) $(LIB_GSL)
+$(EXE6): $(OBJ6)
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ6) $(LIB_G) $(LIB_LAPACK) \
+					$(LIB_PGPLOT) $(LIB_CXX) $(LIB_GSL)
+$(EXE7): $(OBJ7)
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ7) $(LIB_G) $(LIB_LAPACK) \
+					$(LIB_PGPLOT) $(LIB_CXX) $(LIB_GSL)
+
 .C.o:
 	$(CXX)  -c $(CXXFLAGS_G) $(INC) $<
 
 uninstall:
-	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4)
-	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4)
+	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5) $(OBJ6) $(OBJ7)
+	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5) $(EXE6) $(EXE7)
 

@@ -30,6 +30,9 @@ char lit_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/09/13 19:47:28  f_limousin
+ * Reintroduction of the resolution of the equations in cartesian coordinates.
+ *
  * Revision 1.1  2004/09/16 12:14:47  f_limousin
  * *** empty log message ***
  *
@@ -58,9 +61,9 @@ Cmp raccord_c1(const Cmp& uu, int l1) ;
 
 int main(int argc, char** argv){
 
-    // Identification of all the subroutines called by the code : 
+  //    Identification of all the subroutines called by the code : 
     
-    // system("ident lit_bin") ; 
+  //     system("ident lit_bin") ; 
     
     if (argc < 2) {
 		cout << 
@@ -70,6 +73,9 @@ int main(int argc, char** argv){
     }
     
     char* nomresu = argv[1] ; 
+  
+
+    //    char* nomresu = "resu.d" ;
     cout << "Name of the file to be read : " << nomresu << endl ; 
 
     cout << endl << 
@@ -118,20 +124,18 @@ int main(int argc, char** argv){
     cout << "================================== " << endl ; 
     cout << star(1).get_mp() << endl ; 
 
-
-//    des_map_et(mp1, 0) ; 
-//   des_map_et(mp1, 1) ; 
-
     cout << endl << "Mapping on which star 2 is defined : " << endl ; 
     cout << "================================== " << endl ; 
     cout << star(2).get_mp() << endl ; 
 
+    star.fait_decouple() ;
+
     for (int i=1; i<=2; i++) {
-	(star.set(i)).update_metric(star(3-i)) ; 
+	(star.set(i)).update_metric(star(3-i), star.get_omega()) ; 
     }
 
     for (int i=1; i<=2; i++) {
-	(star.set(i)).update_metric_der_comp(star(3-i)) ; 
+	(star.set(i)).update_metric_der_comp(star(3-i), star.get_omega()) ; 
     }
 
     for (int i=1; i<=2; i++) {
@@ -140,6 +144,32 @@ int main(int argc, char** argv){
 	(star.set(i)).fait_d_psi() ; 
 	(star.set(i)).hydro_euler() ; 
     }
+
+    
+    ofstream seqfich("resformat.d") ; 
+    if ( !seqfich.good() ) {
+	cout << "coal : problem with opening the file resformat.d !" << endl ;
+	abort() ;
+    }
+    star.write_global(seqfich) ; 
+    seqfich.close() ; 
+    
+    cout.precision(6) ;
+    cout << "mass_bar = " << star(1).mass_b()/msol  << endl ;
+    cout << "mass_vol = " << star.mass_adm_vol()/msol  << endl ;
+    cout << "mass_adm = " << star.mass_adm()/msol << endl ;
+    cout << "d = " << star.separation() << endl ;
+    cout << "ray_eq = " << star(1).ray_eq() << endl ;
+    cout << "ray_eq_pi = " << star(1).ray_eq_pi() << endl ;
+    cout << "R = " << (star(1).ray_eq() + star(1).ray_eq_pi())/2. << endl ;
+    cout << "d_milieu = " << star.separation()/2. + (star(1).ray_eq_pi()
+						     - star(1).ray_eq())/2. 
+	 << endl ;
+    cout << "d/R = " << (star.separation() + (star(1).ray_eq_pi()
+	 - star(1).ray_eq()))/(star(1).ray_eq() + star(1).ray_eq_pi())
+	 << endl ;
+    abort() ;
+    
 
     cout << "Binary system read in file : " << endl ;
     cout << star << endl ; 
@@ -162,27 +192,32 @@ int main(int argc, char** argv){
 
 */
 
-    Vector shift (star(1).get_shift()) ;
-    shift.change_triad(star(1).get_mp().get_bvect_cart()) ;
+    Vector beta (star(1).get_beta()) ;
+    beta.change_triad(star(1).get_mp().get_bvect_cart()) ;
 
-    Cmp shift_y (shift(2)) ;
-
-//    Sym_tensor hij (star(1).get_hij()) ;
-//    hij.change_triad(star(1).get_mp().get_bvect_cart()) ;
+    Cmp beta_y (beta(2)) ;
 
     Sym_tensor gtilde (star(1).get_gtilde().cov()) ;
+    //   Sym_tensor gtilde
     Sym_tensor flat (star(1).get_flat().cov()) ;
-    Sym_tensor hij (gtilde - flat) ;
+    Sym_tensor hij (gtilde-flat) ;
     hij.change_triad(star(1).get_mp().get_bvect_cart()) ;
-
-
-
+    /*
     Sym_tensor hij1 (star(1).get_hij_auto()) ;
     hij1.change_triad(star(1).get_mp().get_bvect_cart()) ;
 
     Sym_tensor hij2 (star(2).get_hij_auto()) ;
     hij2.change_triad(star(2).get_mp().get_bvect_cart()) ;
     hij2.change_triad(star(1).get_mp().get_bvect_cart()) ;
+    
+    */
+    Sym_tensor hij1(hij) ;
+    Sym_tensor gtilde2 (star(2).get_gtilde().cov()) ;
+    Sym_tensor flat2 (star(2).get_flat().cov()) ;
+    Sym_tensor hij2 (gtilde2-flat2) ;
+    hij2.change_triad(star(2).get_mp().get_bvect_cart()) ;
+    //    hij2 = hij2 * star(2).get_decouple() ;
+    
 
     Cmp hxx (hij(1,1)) ;
     Cmp hxy (hij(2,1)) ;
@@ -221,27 +256,27 @@ int main(int argc, char** argv){
     ori = star(1).get_mp().get_ori_x() ;
       
     double ii ;
-    fichmetric << "# x/lambda   beta^y   hxx    hyy    hzz   logn   psi4-1" << endl ;
-    for (int i=0; i<n1; i++){
+    fichmetric << "# x/lambda   beta^y   hxx    hyy    hzz " << endl ;
+    for (int i=1; i<n1; i++){
 	ii = i ;
 	fichmetric << (- ii/n1 * ori)*10000. * fact  << " " 
-		   << shift_y.val_point(- ori + ii/n1 * ori, M_PI/2, 0.)<<" "
+		   << beta_y.val_point(- ori + ii/n1 * ori, M_PI/2, 0.)<<" "
  		   << hxx.val_point(- ori + ii /n1 * ori, M_PI/2, 0.) << " " 
 		   << hyy.val_point(- ori + ii /n1 * ori, M_PI/2, 0.) << " " 
-		   << hzz.val_point(- ori + ii /n1 * ori, M_PI/2, 0.) << " " 
-		   << logn.val_point(- ori + ii /n1 * ori, M_PI/2, 0.) << " " 
-		   << psi4.val_point(- ori + ii /n1 * ori, M_PI/2, 0.) - 1. << endl ;
+		   << hzz.val_point(- ori + ii /n1 * ori, M_PI/2, 0.) << endl ; 
+	  //		   << logn.val_point(- ori + ii /n1 * ori, M_PI/2, 0.) << " " 
+	  //	   << psi4.val_point(- ori + ii /n1 * ori, M_PI/2, 0.) - 1. << endl ;
     }
 
     for (int i=0; i<=n2; i++){
 	ii = i ;
 	fichmetric << (-100.* ii/n2*ori - ori)*10000. * fact  << " " 
-		   << shift_y.val_point(-100.*ii/n2*ori, M_PI/2, M_PI)<<" "
+		   << beta_y.val_point(-100.*ii/n2*ori, M_PI/2, M_PI)<<" "
  		   << hxx.val_point(-100.*ii/n2*ori, M_PI/2, M_PI) << " " 
 		   << hyy.val_point(-100.*ii/n2*ori, M_PI/2, M_PI) << " " 
-		   << hzz.val_point(-100.*ii/n2*ori, M_PI/2, M_PI) << " " 
-		   << logn.val_point(-100.*ii/n2*ori, M_PI/2, M_PI) << " " 
-		   << psi4.val_point(-100.*ii/n2*ori, M_PI/2, M_PI) - 1. << endl ;
+		   << hzz.val_point(-100.*ii/n2*ori, M_PI/2, M_PI) << endl ;
+	  //		   << logn.val_point(-100.*ii/n2*ori, M_PI/2, M_PI) << " " 
+	  //	   << psi4.val_point(-100.*ii/n2*ori, M_PI/2, M_PI) - 1. << endl ;
     }
     
     fichmetric.close() ; 
@@ -380,47 +415,47 @@ int main(int argc, char** argv){
     //--------------
 
     double dmax ;
-    dmax = 10. * star(1).ray_eq() ;
+    dmax = 8. * star(1).ray_eq() ;
     
-    Vector shift1 (star(1).get_shift_auto()) ;
-    Vector shift2 (star(2).get_shift_auto()) ;
+    Vector beta1 (star(1).get_beta_auto()) ;
+    Vector beta2 (star(2).get_beta_auto()) ;
     
-    shift1.change_triad(star(1).get_mp().get_bvect_cart()) ;
-    shift2.change_triad(star(2).get_mp().get_bvect_cart()) ;
-    shift2.change_triad(star(1).get_mp().get_bvect_cart()) ;
+    beta1.change_triad(star(1).get_mp().get_bvect_cart()) ;
+    beta2.change_triad(star(2).get_mp().get_bvect_cart()) ;
+    beta2.change_triad(star(1).get_mp().get_bvect_cart()) ;
     
-    Tenseur tmp_shift1 (star(1).get_mp(), 1, CON, star(1).get_mp().get_bvect_cart()) ;
-    tmp_shift1.set_etat_qcq() ;
-    Cmp tmp_shift11 (shift1(1)) ;
-    Cmp tmp_shift12 (shift1(2)) ;
-    Cmp tmp_shift13 (shift1(3)) ;
-    tmp_shift1.set(0) = tmp_shift11 ;
-    tmp_shift1.set(1) = tmp_shift12 ;
-    tmp_shift1.set(2) = tmp_shift13 ;
+    Tenseur tmp_beta1 (star(1).get_mp(), 1, CON, star(1).get_mp().get_bvect_cart()) ;
+    tmp_beta1.set_etat_qcq() ;
+    Cmp tmp_beta11 (beta1(1)) ;
+    Cmp tmp_beta12 (beta1(2)) ;
+    Cmp tmp_beta13 (beta1(3)) ;
+    tmp_beta1.set(0) = tmp_beta11 ;
+    tmp_beta1.set(1) = tmp_beta12 ;
+    tmp_beta1.set(2) = tmp_beta13 ;
 
-    Tenseur tmp_shift2 (star(2).get_mp(), 1, CON, star(1).get_mp().get_bvect_cart()) ;
-    tmp_shift2.set_etat_qcq() ;
-    Cmp tmp_shift21 (shift2(1)) ;
-    Cmp tmp_shift22 (shift2(2)) ;
-    Cmp tmp_shift23 (shift2(3)) ;
-    tmp_shift2.set(0) = tmp_shift21 ;
-    tmp_shift2.set(1) = tmp_shift22 ;
-    tmp_shift2.set(2) = tmp_shift23 ;
-
+    Tenseur tmp_beta2 (star(2).get_mp(), 1, CON, star(1).get_mp().get_bvect_cart()) ;
+    tmp_beta2.set_etat_qcq() ;
+    Cmp tmp_beta21 (beta2(1)) ;
+    Cmp tmp_beta22 (beta2(2)) ;
+    Cmp tmp_beta23 (beta2(3)) ;
+    tmp_beta2.set(0) = tmp_beta21 ;
+    tmp_beta2.set(1) = tmp_beta22 ;
+    tmp_beta2.set(2) = tmp_beta23 ;
+    
     cout << "shift_x xy plane" << endl ;
-    des_coupe_bin_z(tmp_shift11, tmp_shift21, 0., -dmax, dmax, -dmax, dmax,
+    des_coupe_bin_z(tmp_beta11, tmp_beta21, 0., -dmax, dmax, -dmax, dmax,
 		    "shift_x (z=0)" , &surf1, &surf2, draw_bound) ;
     cout << "shift_y xy plane" << endl ;
-    des_coupe_bin_z(tmp_shift12, tmp_shift22, 0., -dmax, dmax, -dmax, dmax,
+    des_coupe_bin_z(tmp_beta12, tmp_beta22, 0., -dmax, dmax, -dmax, dmax,
 		    "shift_y (z=0)" , &surf1, &surf2, draw_bound) ;
     cout << "shift_y xz plane" << endl ;
-    des_coupe_bin_y(tmp_shift12, tmp_shift22, 0., -dmax, dmax, -dmax, dmax,
+    des_coupe_bin_y(tmp_beta12, tmp_beta22, 0., -dmax, dmax, -dmax, dmax,
 		    "shift_y (y=0)" , &surf1, &surf2, draw_bound) ;
 
 
     cout << "shift xy plane" << endl ;
 
-    des_vect_bin_z(tmp_shift1, tmp_shift2, 0., 
+    des_vect_bin_z(tmp_beta1, tmp_beta2, 0., 
 		   -2., 0.5, xdes_min, xdes_max, ydes_min, ydes_max,
 		   "Shift vector  (z=0)", 
 		   &surf1, &surf2, draw_bound ) ; 
@@ -429,12 +464,12 @@ int main(int argc, char** argv){
     //---------------------------
     // Conformal factor psi4
     //---------------------------
+    /*
+     Cmp lnq1 (star(1).get_lnq_auto()) ;
+     Cmp lnq2 (star(2).get_lnq_auto()) ;
     
-     Cmp beta1 (star(1).get_beta_auto()) ;
-     Cmp beta2 (star(2).get_beta_auto()) ;
-    
-     Cmp log_psi1 = beta1 - logn1 ;
-     Cmp log_psi2 = beta2 - logn2 ;
+     Cmp log_psi1 = 0.5*(lnq1 - logn1) ;
+     Cmp log_psi2 = 0.5*(lnq2 - logn2) ;
 
      cout << "log_psi xz plane" << endl ;
      des_coupe_bin_y(log_psi1, log_psi2, 0, 
@@ -445,7 +480,7 @@ int main(int argc, char** argv){
      des_coupe_bin_z(log_psi1, log_psi2, 0, 
 		     xdes_min, xdes_max, zdes_min, zdes_max, 
 		     "log_psi (z=0)",  &surf1, &surf2, draw_bound ) ; 
-
+    */
 
 
     //---------------------------
@@ -454,45 +489,45 @@ int main(int argc, char** argv){
 
     cout << "hxx-hyy xy plane" << endl ;
     des_coupe_bin_z(hxx1- hyy1, hxx2-hyy2, 0., -dmax, dmax, -dmax, dmax,
-		    "hxx-hyy (z=0)" , &surf1, &surf2, draw_bound) ;
+		    "hxx-hyy (z=0)" , &surf1, &surf2, draw_bound, 20) ;
     cout << "hxx-hyy xz plane" << endl ;
     des_coupe_bin_y(hxx1- hyy1, hxx2-hyy2, 0., -dmax, dmax, -dmax, dmax,
-		    "hxx-hyy (y=0)" , &surf1, &surf2, draw_bound) ;
+		    "hxx-hyy (y=0)" , &surf1, &surf2, draw_bound, 20) ;
     cout << "hxx-hzz xy plane" << endl ;
     des_coupe_bin_z(hxx1- hzz1, hxx2-hzz2, 0., -dmax, dmax, -dmax, dmax,
-		    "hxx-hzz (z=0)" , &surf1, &surf2, draw_bound) ;
+		    "hxx-hzz (z=0)" , &surf1, &surf2, draw_bound, 20) ;
     cout << "hxx-hzz xz plane" << endl ;
     des_coupe_bin_y(hxx1- hzz1, hxx2-hzz2, 0., -dmax, dmax, -dmax, dmax,
-		    "hxx-hzz (y=0)" , &surf1, &surf2, draw_bound) ;
+		    "hxx-hzz (y=0)" , &surf1, &surf2, draw_bound, 20) ;
 
 
 
 
     cout << "hxx xy plane" << endl ;
     des_coupe_bin_z(hxx1, hxx2, 0., -dmax, dmax, -dmax, dmax,
-		    "hxx (z=0)" , &surf1, &surf2, draw_bound) ;
+		    "hxx (z=0)" , &surf1, &surf2, draw_bound, 20) ;
     cout << "hxy xy plane" << endl ;
     des_coupe_bin_z(hxy1, hxy2, 0., -dmax, dmax, -dmax, dmax,
-		"hxy (z=0)", &surf1, &surf2, draw_bound) ;
+		"hxy (z=0)", &surf1, &surf2, draw_bound, 20) ;
     cout << "hyy xy plane" << endl ;
     des_coupe_bin_z(hyy1, hyy2, 0., -dmax, dmax, -dmax, dmax,
-		"hyy (z=0)", &surf1, &surf2, draw_bound) ;
+		"hyy (z=0)", &surf1, &surf2, draw_bound, 20) ;
     cout << "hzz xy plane" << endl ;
     des_coupe_bin_z(hzz1, hzz2, 0., -dmax, dmax, -dmax, dmax,
-		"hzz (z=0)", &surf1, &surf2, draw_bound) ;
+		"hzz (z=0)", &surf1, &surf2, draw_bound, 20) ;
  
     cout << "hxx xz plane" << endl ;
     des_coupe_bin_y(hxx1, hxx2, 0., -dmax, dmax, -dmax, dmax,
-		"hxx (y=0)", &surf1, &surf2, draw_bound) ;
+		"hxx (y=0)", &surf1, &surf2, draw_bound, 20) ;
     cout << "hxz xz plane" << endl ;
     des_coupe_bin_y(hxz1, hxz2, 0., -dmax, dmax, -dmax, dmax,
-		"hxz (y=0)", &surf1, &surf2, draw_bound) ;
+		"hxz (y=0)", &surf1, &surf2, draw_bound, 20) ;
     cout << "hyy xz plane" << endl ;
     des_coupe_bin_y(hyy1, hyy2, 0., -dmax, dmax, -dmax, dmax,
-		"hyy (y=0)", &surf1, &surf2, draw_bound) ;
+		"hyy (y=0)", &surf1, &surf2, draw_bound, 20) ;
     cout << "hzz xz plane" << endl ;
     des_coupe_bin_y(hzz1, hzz2, 0., -dmax, dmax, -dmax, dmax,
-		"hzz (y=0)", &surf1, &surf2, draw_bound) ;
+		"hzz (y=0)", &surf1, &surf2, draw_bound, 20) ;
  
     
     /*
@@ -558,7 +593,7 @@ int main(int argc, char** argv){
     Cmp tmp13 (tkij1(1, 3)) ;
     Cmp tmp23 (tkij2(1, 3)) ;
 
-    des_coupe_bin_y(tmp13, tmp23, 0, 
+    des_coupe_bin_x(tmp13, tmp23, 0, 
 		    xdes_min, xdes_max, ydes_min, ydes_max, 
 		    title,  &surf1, &surf2, draw_bound ) ; 
     
