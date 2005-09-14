@@ -34,6 +34,9 @@ char star_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2005/09/14 12:30:52  f_limousin
+ * Saving of fields lnq and logn in class Star.
+ *
  * Revision 1.14  2005/09/13 19:38:31  f_limousin
  * Reintroduction of the resolution of the equations in cartesian coordinates.
  *
@@ -158,7 +161,7 @@ Star::Star(Map& mpi, int nzet_i, const Eos& eos_i)
     stress_euler.set_etat_zero() ;
 
     // The metric is initialized to the flat one : 
-    Metric_flat flat(mp.flat_met_cart()) ;
+    Metric flat(mp.flat_met_spher()) ;
     flat.cov() ;
     gamma = flat ;
 
@@ -209,10 +212,10 @@ Star::Star(Map& mpi, const Eos& eos_i, FILE* fich)
 		   gam_euler(mpi), 
 		   u_euler(mpi, CON, mp.get_bvect_spher()), 
 		   stress_euler(mpi, 2, CON, mp.get_bvect_spher()), 
-		   logn(mpi), 
+		   logn(mpi, *(mpi.get_mg()), fich), 
 		   nn(mpi), 
 		   beta(mpi, CON, mp.get_bvect_spher()),
-		   lnq(mpi),
+		   lnq(mpi, *(mpi.get_mg()), fich),
 		   gamma(mpi.flat_met_spher()){
 
     // Star parameters
@@ -371,9 +374,12 @@ void Star::set_enthalpy(const Scalar& ent_i) {
 // --------------
 void Star::sauve(FILE* fich) const {
 
+    logn.sauve(fich) ;
+    lnq.sauve(fich) ;
+  
     int xx = nzet ;     
     fwrite_be(&xx, sizeof(int), 1, fich) ;			
-
+  
     eos.sauve(fich) ; 
     ent.sauve(fich) ;     
 }

@@ -29,6 +29,9 @@ char star_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2005/09/14 12:30:52  f_limousin
+ * Saving of fields lnq and logn in class Star.
+ *
  * Revision 1.21  2005/09/13 19:38:31  f_limousin
  * Reintroduction of the resolution of the equations in cartesian coordinates.
  *
@@ -578,6 +581,25 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	// AUXILIARY QUANTITIES
 	// -------------------------------
 
+	// Function exp(-(r-r_0)^2/sigma^2)
+	// --------------------------------
+	
+	double r0 = mp.val_r(nz-2, 1, 0, 0) ;
+	double sigma = r0 ;
+	  
+	Scalar rr (mp) ;
+	rr = mp.r ;
+
+	Scalar ff (mp) ;
+	ff = exp( -(rr - r0)*(rr - r0)/sigma/sigma ) ;
+	for (int ii=0; ii<nz-1; ii++)
+	  ff.set_domain(ii) = 1. ;
+	ff.set_outer_boundary(nz-1, 0) ;
+	ff.std_spectral_base() ;
+	
+	//	ff.annule_domain(nz-1) ;
+	des_profile(ff, 0, 20, 0, 0) ;
+
 	// Construction of Omega d/dphi
 	// ----------------------------
 	
@@ -588,15 +610,18 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	xxa = mp.xa ;
 	
 	if (fabs(mp.get_rot_phi()) < 1e-10){ 
-	  omdsdp.set(1) = - om * yya ;
-	  omdsdp.set(2) = om * xxa ;
+	  omdsdp.set(1) = - om * yya * ff ;
+	  omdsdp.set(2) = om * xxa *ff ;
 	  omdsdp.set(3).annule_hard() ;
 	}
 	else{
-	  omdsdp.set(1) = om * yya ;
-	  omdsdp.set(2) = - om * xxa ;
+	  omdsdp.set(1) = om * yya * ff ;
+	  omdsdp.set(2) = - om * xxa * ff ;
 	  omdsdp.set(3).annule_hard() ;
 	}
+
+	omdsdp.set(1).set_outer_boundary(nz-1, 0) ;
+	omdsdp.set(2).set_outer_boundary(nz-1, 0) ;
 
 	omdsdp.set(1).set_spectral_va()
 	  .set_base(*(mp.get_mg()->std_base_vect_cart()[0])) ;
@@ -606,6 +631,10 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	  .set_base(*(mp.get_mg()->std_base_vect_cart()[2])) ;
 	
 	omdsdp.annule_domain(nz-1) ;
+
+	//des_profile(omdsdp(1), 0, 20, 1, 1) ;
+	//des_profile(omdsdp(2), 0, 20, 1, 1) ;
+	
 
 	// Derivatives of N and logN
 	//--------------------------

@@ -32,6 +32,9 @@ char star_equil_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2005/09/14 12:30:52  f_limousin
+ * Saving of fields lnq and logn in class Star.
+ *
  * Revision 1.11  2005/09/13 19:38:31  f_limousin
  * Reintroduction of the resolution of the equations in cartesian coordinates.
  *
@@ -252,10 +255,10 @@ void Star::equilibrium_spher(double ent_c, double precis){
 	
 	nn = exp( logn ) ; 
 
-	Scalar exp_lnq = exp( lnq ) ;
-	exp_lnq.std_spectral_base() ;
+	Scalar qq = exp( lnq ) ;
+	qq.std_spectral_base() ;
 
-	a_car = exp_lnq * exp_lnq / ( nn * nn ) ;
+	a_car = qq * qq / ( nn * nn ) ;
 	a_car.std_spectral_base() ;
 
     // Relative difference with enthalpy at the previous step
@@ -274,9 +277,6 @@ void Star::equilibrium_spher(double ent_c, double precis){
     //=========================================================================
     // 			End of iteration
     //=========================================================================
-   
-    cout << "logn" << norme(logn) << endl ;
-    cout << "lnq" << norme(lnq) << endl ;
  
     // The mapping is transfered to that of the star:
     // ----------------------------------------------
@@ -287,10 +287,10 @@ void Star::equilibrium_spher(double ent_c, double precis){
     
     nn = exp( logn ) ; 
    
-    Scalar exp_lnq = exp( lnq ) ;
-    exp_lnq.std_spectral_base() ;
+    Scalar qq = exp( lnq ) ;
+    qq.std_spectral_base() ;
     
-    a_car = exp_lnq * exp_lnq / ( nn * nn ) ;
+    a_car = qq * qq / ( nn * nn ) ;
    
     Sym_tensor gamma_cov(mp, COV, mp.get_bvect_cart()) ;
     gamma_cov.set_etat_zero() ;
@@ -360,7 +360,7 @@ void Star::equilibrium_spher(double ent_c, double precis){
     cout << "     relative error : " << grv3 << endl ; 
     
     // To be compatible with class Etoile :
-    logn = logn - logn_quad ;
+    //logn = logn - logn_quad ;
 
  
 }
