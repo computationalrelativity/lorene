@@ -30,6 +30,9 @@ char lit_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/09/14 17:13:28  f_limousin
+ * Plot of fields along X, Y and Z_axis
+ *
  * Revision 1.2  2005/09/13 19:47:28  f_limousin
  * Reintroduction of the resolution of the equations in cartesian coordinates.
  *
@@ -53,6 +56,7 @@ char lit_bin_C[] = "$Header$" ;
 #include "graphique.h"
 #include "cmp.h"
 #include "tenseur.h" 
+#include "nbr_spx.h"
 
 // Local prototype
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
@@ -64,18 +68,17 @@ int main(int argc, char** argv){
   //    Identification of all the subroutines called by the code : 
     
   //     system("ident lit_bin") ; 
-    
+  
     if (argc < 2) {
-		cout << 
-		"lit_bin : the name of a file containing a binary configuration"
-		<< endl << " must be given in argument !" << endl ; 
-		abort() ; 
+      cout << 
+	"lit_bin : the name of a file containing a binary configuration"
+	   << endl << " must be given in argument !" << endl ; 
+      abort() ; 
     }
     
     char* nomresu = argv[1] ; 
   
-
-    //    char* nomresu = "resu.d" ;
+    //char* nomresu = "resu.d" ;
     cout << "Name of the file to be read : " << nomresu << endl ; 
 
     cout << endl << 
@@ -146,6 +149,7 @@ int main(int argc, char** argv){
     }
 
     
+    // Writing of resformat.d
     ofstream seqfich("resformat.d") ; 
     if ( !seqfich.good() ) {
 	cout << "coal : problem with opening the file resformat.d !" << endl ;
@@ -153,7 +157,8 @@ int main(int argc, char** argv){
     }
     star.write_global(seqfich) ; 
     seqfich.close() ; 
-    
+
+    // Some printings
     cout.precision(6) ;
     cout << "mass_bar = " << star(1).mass_b()/msol  << endl ;
     cout << "mass_vol = " << star.mass_adm_vol()/msol  << endl ;
@@ -168,7 +173,7 @@ int main(int argc, char** argv){
     cout << "d/R = " << (star.separation() + (star(1).ray_eq_pi()
 	 - star(1).ray_eq()))/(star(1).ray_eq() + star(1).ray_eq_pi())
 	 << endl ;
-    abort() ;
+    //    abort() ;
     
 
     cout << "Binary system read in file : " << endl ;
@@ -176,55 +181,37 @@ int main(int argc, char** argv){
     star.display_poly(cout) ; //  Reduced quantities for polytropic EOS
 
     cout << "ADM mass [M_sol] : " << star.mass_adm() / msol  << endl ; 
-/*    cout << "Total energy [M_sol c^2] : " 
-	 << star.total_ener() / msol << endl ; 
-    cout << "Total angular momentum [M_sol c km] : " 
-	 << (star.angu_mom())(2) / msol / km << endl ; 
 
-    
-    cout << "Relative error in the Hamiltonian constraint : " << endl ; 
-    cout << star.ham_constr() << endl ; 
-	 
-    cout << "Relative error in the momentum constraint : " << endl ; 
-    cout << " X component : " << star.mom_constr()(0) << endl ; 
-    cout << " Y component : " << star.mom_constr()(1) << endl ; 
-    cout << " Z component : " << star.mom_constr()(2) << endl ; 
-
-*/
+    //////////////////////////////////////////////////////////
+    //    Plot of different fields along X, Y and Z axis    //
+    //////////////////////////////////////////////////////////
 
     Vector beta (star(1).get_beta()) ;
     beta.change_triad(star(1).get_mp().get_bvect_cart()) ;
+    Scalar beta_y_aux (beta(2)) ;
 
-    Cmp beta_y (beta(2)) ;
+    Scalar logn_aux (star(1).get_logn()) ;
+    Scalar psi_aux (pow(star(1).get_psi4(), 0.25)) ;
+    psi_aux.std_spectral_base() ;
 
     Sym_tensor gtilde (star(1).get_gtilde().cov()) ;
-    //   Sym_tensor gtilde
     Sym_tensor flat (star(1).get_flat().cov()) ;
-    Sym_tensor hij (gtilde-flat) ;
-    hij.change_triad(star(1).get_mp().get_bvect_cart()) ;
-    /*
-    Sym_tensor hij1 (star(1).get_hij_auto()) ;
-    hij1.change_triad(star(1).get_mp().get_bvect_cart()) ;
+    Sym_tensor hij_aux (gtilde-flat) ;
+    hij_aux.change_triad(star(1).get_mp().get_bvect_cart()) ;
 
-    Sym_tensor hij2 (star(2).get_hij_auto()) ;
-    hij2.change_triad(star(2).get_mp().get_bvect_cart()) ;
-    hij2.change_triad(star(1).get_mp().get_bvect_cart()) ;
-    
-    */
-    Sym_tensor hij1(hij) ;
+    Sym_tensor hij1(hij_aux) ;
     Sym_tensor gtilde2 (star(2).get_gtilde().cov()) ;
     Sym_tensor flat2 (star(2).get_flat().cov()) ;
     Sym_tensor hij2 (gtilde2-flat2) ;
     hij2.change_triad(star(2).get_mp().get_bvect_cart()) ;
-    //    hij2 = hij2 * star(2).get_decouple() ;
     
 
-    Cmp hxx (hij(1,1)) ;
-    Cmp hxy (hij(2,1)) ;
-    Cmp hxz (hij(3,1)) ;
-    Cmp hyy (hij(2,2)) ;
-    Cmp hyz (hij(3,2)) ;
-    Cmp hzz (hij(3,3)) ;
+    Cmp hxx (hij_aux(1,1)) ;
+    Cmp hxy (hij_aux(2,1)) ;
+    Cmp hxz (hij_aux(3,1)) ;
+    Cmp hyy (hij_aux(2,2)) ;
+    Cmp hyz (hij_aux(3,2)) ;
+    Cmp hzz (hij_aux(3,3)) ;
 
     Cmp hxx1 (hij1(1,1)) ;
     Cmp hxy1 (hij1(2,1)) ;
@@ -239,47 +226,193 @@ int main(int argc, char** argv){
     Cmp hyz2 (hij2(3,2)) ;
     Cmp hzz2 (hij2(3,3)) ;
    
-    Cmp logn (star(1).get_logn()) ;
-    Cmp psi4 (star(1).get_psi4()) ;
+    ofstream fich_xaxis("metric_xaxis.d") ;    
+    fich_xaxis.precision(6) ; 
+    ofstream fich_yaxis("metric_yaxis.d") ;    
+    fich_yaxis.precision(6) ; 
+    ofstream fich_zaxis("metric_zaxis.d") ;    
+    fich_zaxis.precision(6) ; 
+    ofstream fich_xaxis_all("metric_xaxis_all.d") ;    
+    fich_xaxis_all.precision(6) ; 
+    ofstream fich_yaxis_all("metric_yaxis_all.d") ;    
+    fich_yaxis_all.precision(6) ; 
+    ofstream fich_zaxis_all("metric_zaxis_all.d") ;    
+    fich_zaxis_all.precision(6) ; 
 
 
-    ofstream fichmetric("metric.d") ;    
-    fichmetric.precision(6) ; 
+    // Construction of an auxiliar grid and mapping
+    int nz = star(1).get_mp().get_mg()->get_nzone() ;
+    assert (nz >= 4);
+    double* bornes = new double [nz+1] ;
+    double r_in = 0.95 * (-star(1).get_mp().get_ori_x()-star(1).ray_eq()) ;
+    double r_ext = 1.05 * (-star(1).get_mp().get_ori_x()+star(1).ray_eq_pi()) ;
 
-    int n1, n2 ;
-    n1 = 100 ;
-    n2 = 10000 ;
-
-    double ori ;
-    double fact ;
-    fact = star.get_omega() * f_unit / M_PI / c_si ;
-    ori = star(1).get_mp().get_ori_x() ;
-      
-    double ii ;
-    fichmetric << "# x/lambda   beta^y   hxx    hyy    hzz " << endl ;
-    for (int i=1; i<n1; i++){
-	ii = i ;
-	fichmetric << (- ii/n1 * ori)*10000. * fact  << " " 
-		   << beta_y.val_point(- ori + ii/n1 * ori, M_PI/2, 0.)<<" "
- 		   << hxx.val_point(- ori + ii /n1 * ori, M_PI/2, 0.) << " " 
-		   << hyy.val_point(- ori + ii /n1 * ori, M_PI/2, 0.) << " " 
-		   << hzz.val_point(- ori + ii /n1 * ori, M_PI/2, 0.) << endl ; 
-	  //		   << logn.val_point(- ori + ii /n1 * ori, M_PI/2, 0.) << " " 
-	  //	   << psi4.val_point(- ori + ii /n1 * ori, M_PI/2, 0.) - 1. << endl ;
-    }
-
-    for (int i=0; i<=n2; i++){
-	ii = i ;
-	fichmetric << (-100.* ii/n2*ori - ori)*10000. * fact  << " " 
-		   << beta_y.val_point(-100.*ii/n2*ori, M_PI/2, M_PI)<<" "
- 		   << hxx.val_point(-100.*ii/n2*ori, M_PI/2, M_PI) << " " 
-		   << hyy.val_point(-100.*ii/n2*ori, M_PI/2, M_PI) << " " 
-		   << hzz.val_point(-100.*ii/n2*ori, M_PI/2, M_PI) << endl ;
-	  //		   << logn.val_point(-100.*ii/n2*ori, M_PI/2, M_PI) << " " 
-	  //	   << psi4.val_point(-100.*ii/n2*ori, M_PI/2, M_PI) - 1. << endl ;
-    }
+    bornes[0] = 0 ;
+    bornes[1] = r_in ;
+    bornes[2] = r_ext ;    
+    for (int l=3; l<nz; l++)
+      bornes[l] = r_ext * pow(2., l-2) ;    
+    bornes[nz] = __infinity ;
     
-    fichmetric.close() ; 
+    Map_af mapping (*(star(1).get_mp().get_mg()), bornes) ;
+    delete [] bornes ; 
+    
+    // Importation of fields 
+    // ----------------------
+    
+    assert (star(1).get_mp().get_rot_phi() == 0) ;
+    
+    Scalar logn (mapping) ;
+    logn.import(logn_aux) ;
+    logn.std_spectral_base() ;
+
+    Scalar psi (mapping) ;
+    psi.import(psi_aux) ;
+    psi.std_spectral_base() ;
+
+    Scalar beta_y (mapping) ;
+    beta_y.import(beta_y_aux) ;
+    beta_y.std_spectral_base() ;
+    
+    Sym_tensor hij(mapping, COV, mapping.get_bvect_cart()) ;
+    hij_aux.change_triad(star(1).get_mp().get_bvect_cart()) ;
+    
+    hij.set(1,1).import(hij_aux(1,1)) ;
+    hij.set(2,1).import(hij_aux(2,1)) ;
+    hij.set(3,1).import(hij_aux(3,1)) ;
+    hij.set(2,2).import(hij_aux(2,2)) ;
+    hij.set(3,2).import(hij_aux(3,2)) ;
+    hij.set(3,3).import(hij_aux(3,3)) ;
+    hij.std_spectral_base() ;
+
+    // h_{ij} along X_axis
+    // ---------------------
+
+    double fact = star.get_omega() * f_unit / M_PI / c_si * 10000 ;
+    double n1 = 5000. ;
+  
+    double ii ;
+    fich_xaxis << "# x/lambda   hxx    hyy    hzz " << endl ;
+    for (int i=1; i<n1; i++){
+      ii = 7.*i/n1 ;
+      fich_xaxis << pow(10, ii - 2)* r_ext * fact  << " " 
+		 << hij(1,1).val_point(pow(10, ii - 2)* r_ext, M_PI/2, M_PI) 
+		 << " " 
+		 << hij(2,2).val_point(pow(10, ii - 2)* r_ext, M_PI/2, M_PI) 
+		 << " " 
+		 << hij(3,3).val_point(pow(10, ii - 2)* r_ext, M_PI/2, M_PI) 
+		 << " " << 0 << endl ;
+    }
+
+    // h_{ij} along Y_axis
+    // ---------------------
+
+    n1 = 5000. ;
+ 
+    fich_yaxis << "# x/lambda   hxx    hyy    hzz " << endl ;
+    for (int i=1; i<n1; i++){
+      ii = 7.*i/n1 ;
+      fich_yaxis << pow(10, ii - 2)* r_ext * fact  << " " 
+		 << hij(1,1).val_point(pow(10, ii - 2)* r_ext, M_PI/2, M_PI/2) 
+		 << " " 
+		 << hij(2,2).val_point(pow(10, ii - 2)* r_ext, M_PI/2, M_PI/2) 
+		 << " " 
+		 << hij(3,3).val_point(pow(10, ii - 2)* r_ext, M_PI/2, M_PI/2) 
+		 << " "  << 0 << endl ;
+    }
+
+    // h_{ij} along Z_axis
+    // ---------------------
+
+    n1 = 5000. ;
+ 
+    fich_zaxis << "# x/lambda   hxx    hyy    hzz " << endl ;
+    for (int i=1; i<n1; i++){
+      ii = 7.*i/n1 ;
+      fich_zaxis << pow(10, ii - 2)* r_ext * fact  << " " 
+		 << hij(1,1).val_point(pow(10, ii - 2)* r_ext, 0., 0.) 
+		 << " " 
+		 << hij(2,2).val_point(pow(10, ii - 2)* r_ext, 0., 0.) 
+		 << " " 
+		 << hij(3,3).val_point(pow(10, ii - 2)* r_ext, 0., 0.) 
+		 << " "  << 0 << endl ;
+    }
+
+
+    // All fields along X_axis
+    // ---------------------
+
+    n1 = 5000. ;
+  
+    fich_xaxis_all << "# x/lambda  psi-1   beta_y    hxx    hyy    hzz " 
+		   << endl ;
+    for (int i=1; i<n1; i++){
+      ii = 7.*i/n1 ;
+      fich_xaxis_all << pow(10, ii - 2)* r_ext * fact  << " " 
+		 << psi.val_point(pow(10, ii - 2)* r_ext, M_PI/2, M_PI) - 1
+		 << " " 
+		 << beta_y.val_point(pow(10, ii - 2)* r_ext, M_PI/2, M_PI) 
+		 << " " 
+		 << hij(1,1).val_point(pow(10, ii - 2)* r_ext, M_PI/2, M_PI) 
+		 << " " 
+		 << hij(2,2).val_point(pow(10, ii - 2)* r_ext, M_PI/2, M_PI) 
+		 << " " 
+		 << hij(3,3).val_point(pow(10, ii - 2)* r_ext, M_PI/2, M_PI) 
+		 << " " << 0 << endl ;
+    }
+
+    // All fields along Y_axis
+    // ---------------------
+
+    n1 = 5000. ;
+  
+    fich_yaxis_all << "# x/lambda  psi-1   beta_y    hxx    hyy    hzz " 
+		   << endl ;
+    for (int i=1; i<n1; i++){
+      ii = 7.*i/n1 ;
+      fich_yaxis_all << pow(10, ii - 2)* r_ext * fact  << " " 
+		 << psi.val_point(pow(10, ii - 2)* r_ext, M_PI/2, M_PI/2) - 1
+		 << " " 
+		 << beta_y.val_point(pow(10, ii - 2)* r_ext, M_PI/2, M_PI/2) 
+		 << " " 
+		 << hij(1,1).val_point(pow(10, ii - 2)* r_ext, M_PI/2, M_PI/2) 
+		 << " " 
+		 << hij(2,2).val_point(pow(10, ii - 2)* r_ext, M_PI/2, M_PI/2) 
+		 << " " 
+		 << hij(3,3).val_point(pow(10, ii - 2)* r_ext, M_PI/2, M_PI/2) 
+		 << " " << 0 << endl ;
+    }
+
+    // All fields along Z_axis
+    // ---------------------
+
+    n1 = 5000. ;
+  
+    fich_zaxis_all << "# x/lambda  psi-1   beta_y    hxx    hyy    hzz " 
+		   << endl ;
+    for (int i=1; i<n1; i++){
+      ii = 7.*i/n1 ;
+      fich_zaxis_all << pow(10, ii - 2)* r_ext * fact  << " " 
+		 << psi.val_point(pow(10, ii - 2)* r_ext, 0., 0.) - 1
+		 << " " 
+		 << beta_y.val_point(pow(10, ii - 2)* r_ext, 0., 0.) 
+		 << " " 
+		 << hij(1,1).val_point(pow(10, ii - 2)* r_ext, 0., 0.) 
+		 << " " 
+		 << hij(2,2).val_point(pow(10, ii - 2)* r_ext, 0., 0.) 
+		 << " " 
+		 << hij(3,3).val_point(pow(10, ii - 2)* r_ext, 0., 0.) 
+		 << " " << 0 << endl ;
+    }
+
+
+ 
+    fich_xaxis.close() ; 
+    fich_yaxis.close() ; 
+    fich_zaxis.close() ; 
+    fich_xaxis_all.close() ; 
+    fich_yaxis_all.close() ; 
+    fich_zaxis_all.close() ; 
     
      arrete() ;
 
@@ -345,8 +478,7 @@ int main(int argc, char** argv){
     for (int k=0; k<mg1.get_np(lzet); k++) {
 	fent << "k = " << k << " : " ; 
 	for (int j=0; j<mg1.get_nt(lzet); j++) {
-	    fent 
-		<< "  " << star(1).get_ent().val_grid_point(lzet, k, j, mg1.get_nr(lzet)-1) ;
+	  fent << "  " << star(1).get_ent().val_grid_point(lzet, k, j, mg1.get_nr(lzet)-1) ;
 	}
 	fent << endl ; 
     }
@@ -501,8 +633,6 @@ int main(int argc, char** argv){
 		    "hxx-hzz (y=0)" , &surf1, &surf2, draw_bound, 20) ;
 
 
-
-
     cout << "hxx xy plane" << endl ;
     des_coupe_bin_z(hxx1, hxx2, 0., -dmax, dmax, -dmax, dmax,
 		    "hxx (z=0)" , &surf1, &surf2, draw_bound, 20) ;
@@ -530,16 +660,6 @@ int main(int argc, char** argv){
 		"hzz (y=0)", &surf1, &surf2, draw_bound, 20) ;
  
     
-    /*
-    des_profile (hxx, 0, 10, M_PI/2., 0, "Ampli", "hxx on x_axis") ;
-    des_profile (hxy, 0, 10, M_PI/2., 0, "Ampli", "hxy on x_axis") ;
-    des_profile (hxz, 0, 10, M_PI/2., 0, "Ampli", "hxz on x_axis") ;
-    des_profile (hyy, 0, 10, M_PI/2., 0, "Ampli", "hyy on x_axis") ;
-    des_profile (hyz, 0, 10, M_PI/2., 0, "Ampli", "hyz on x_axis") ;
-    des_profile (hzz, 0, 10, M_PI/2., 0, "Ampli", "hzz on x_axis") ;
-    */
-
-
     //----------------------------
     // Extrinsic curvature tensor
     //----------------------------
