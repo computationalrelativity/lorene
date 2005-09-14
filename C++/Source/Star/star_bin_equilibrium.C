@@ -29,6 +29,9 @@ char star_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2005/09/14 12:48:02  f_limousin
+ * Comment graphical outputs.
+ *
  * Revision 1.22  2005/09/14 12:30:52  f_limousin
  * Saving of fields lnq and logn in class Star.
  *
@@ -598,7 +601,7 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	ff.std_spectral_base() ;
 	
 	//	ff.annule_domain(nz-1) ;
-	des_profile(ff, 0, 20, 0, 0) ;
+	//des_profile(ff, 0, 20, 0, 0) ;
 
 	// Construction of Omega d/dphi
 	// ----------------------------
