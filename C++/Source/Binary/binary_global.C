@@ -31,6 +31,9 @@ char binary_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2005/09/15 14:41:04  e_gourgoulhon
+ * The total angular momentum is now computed via a volume integral.
+ *
  * Revision 1.11  2005/09/13 19:38:31  f_limousin
  * Reintroduction of the resolution of the equations in cartesian coordinates.
  *
@@ -75,9 +78,7 @@ char binary_global_C[] = "$Header$" ;
 // Headers Lorene
 #include "nbr_spx.h"
 #include "binary.h"
-#include "map.h"
 #include "unites.h"
-#include "coord.h"
 
 		    //---------------------------------//
 		    //		ADM mass	       //
@@ -302,6 +303,9 @@ double Binary::mass_kom_vol() const {
 		    //---------------------------------//
 
 const Tbl& Binary::angu_mom() const {
+
+  using namespace Unites ;
+
   /*
     if (p_angu_mom == 0x0) {	    // a new computation is requireed
 	
@@ -403,7 +407,7 @@ const Tbl& Binary::angu_mom() const {
   */
   
 
-  
+	/*  
   if (p_angu_mom == 0x0) {	    // a new computation is requireed
     p_angu_mom = new Tbl(3) ; 
     p_angu_mom->annule_hard() ;	// fills the double array with zeros
@@ -497,12 +501,72 @@ const Tbl& Binary::angu_mom() const {
       .mult_cp() ;
     
     p_angu_mom->set(2) = mapping.integrale_surface_infini (-integrant_un
-					 +integrant_deux) / (8*M_PI ) ;
+					 +integrant_deux) / (2*qpig) ;
 
   }
 
+	*/
+	
+	if (p_angu_mom == 0x0) {	    // a new computation is requireed
+    
+	p_angu_mom = new Tbl(3) ; 
+    p_angu_mom->annule_hard() ;	// fills the double array with zeros
 
-  return *p_angu_mom ; 
+	// Reference Cartesian vector basis of the Absolute frame
+	Base_vect_cart bvect_ref(0.) ; 	// 0. = parallel to the Absolute frame
+	
+	for (int i=0; i<=1; i++) {	    // loop on the stars
+
+		const Map& mp = et[i]->get_mp() ; 
+		int nzm1 = mp.get_mg()->get_nzone() - 1 ; 
+		
+		// Azimuthal vector d/dphi 
+		Vector vphi(mp, CON, bvect_ref) ; 		
+		vphi.set(1) = - mp.ya ; 	// phi^X
+		vphi.set(2) = mp.xa ; 
+		vphi.set(3) = 0 ;  
+		vphi.annule_domain(nzm1) ; 	//##  phi set to zero in the CED	
+		vphi.std_spectral_base() ; 
+	    vphi.change_triad(mp.get_bvect_cart()) ; 
+		
+		// Matter part
+		// -----------
+		const Scalar& ee = et[i]->get_ener_euler() ;  // E
+		const Scalar& pp = et[i]->get_press() ;	// p
+		const Scalar& psi4 = et[i]->get_psi4() ; // Psi^4
+		Scalar rho = pow(psi4, double(2.5)) * (ee+pp) ; 
+		rho.std_spectral_base() ;
+
+		Vector jmom = rho * (et[i]->get_u_euler()) ; 
+				
+		const Metric& gtilde = et[i]->get_gtilde() ; 
+		
+		Vector vphi_cov = vphi.up_down(gtilde) ;
+		
+		Scalar integrand = contract(jmom, 0, vphi_cov, 0) ; 
+		      
+		p_angu_mom->set(2) += integrand.integrale() ;
+
+		// Extrinsic curvature part (0 if IWM)
+		// -----------------------------------
+		
+		const Sym_tensor& aij = et[i]->get_tkij_auto() ;
+		
+		Sym_tensor kill_phi = vphi_cov.ope_killing(gtilde) ; 
+		
+		rho = pow(psi4, double(1.5)) ;   //## check the power !
+		rho.std_spectral_base() ;
+		
+		integrand = rho * contract(aij, 0, 1, kill_phi, 0, 1) ; 
+		
+		p_angu_mom->set(2) += integrand.integrale() / (4*qpig) ;
+		
+		
+	}  // End of the loop on the stars
+
+    }	// End of the case where a new computation was necessary
+  
+  	return *p_angu_mom ; 
   
 }
 
