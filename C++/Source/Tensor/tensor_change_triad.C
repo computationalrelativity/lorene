@@ -29,6 +29,10 @@ char tensor_change_triad_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/09/15 15:51:26  j_novak
+ * The "rotation" (change of triad) methods take now Scalars as default
+ * arguments.
+ *
  * Revision 1.6  2005/02/03 14:31:37  f_limousin
  * Correction of an error in the case Cartesian --> Cartesian for
  * a Sym_tensor. Now the components of the tensor are modified
@@ -61,7 +65,6 @@ char tensor_change_triad_C[] = "$Header$" ;
 #include <assert.h>
 
 // Lorene headers
-#include "cmp.h"
 #include "tensor.h"
 
 void Tensor::change_triad(const Base_vect& new_triad) {
@@ -150,37 +153,29 @@ void Tensor::change_triad(const Base_vect& new_triad) {
       assert( *bvs == mp->get_bvect_spher() ) ; 
 
       // Only for double-covariant tensors or double-contravariant tensors
-		assert( ( (type_indice(0)==COV) && (type_indice(1)==COV) ) ||
-		        ( (type_indice(0)==CON) && (type_indice(1)==CON) ) ) ;  
-      
+      assert( ( (type_indice(0)==COV) && (type_indice(1)==COV) ) ||
+	      ( (type_indice(0)==CON) && (type_indice(1)==CON) ) ) ;  
+#ifndef NDEBUG
+      int nz = mp->get_mg()->get_nzone() ;
+      for (int i=0; i<nz; i++) {
+	  assert( mp->get_mg()->get_np(i) >= 4) ;
+	  assert( mp->get_mg()->get_nt(i) >= 5) ;
+      }
+#endif
       // Temporary storage of the components
       // the Base_vect *this is not valid...
       Tensor tmp(*mp, 2, COV, *triad) ;
-      Cmp res1(*mp) ;
-      Cmp res2(*mp) ;
-      Cmp res3(*mp) ;
-      for (int i=1; i<=3; i++) { //## Pb: les comp_?_from... utilisent des Cmp!
-	Cmp cp1(operator()(1,i)) ;
-	Cmp cp2(operator()(2,i)) ;
-	Cmp cp3(operator()(3,i)) ;
-	mp->comp_x_from_spherical(cp1, cp2, cp3, res1) ; 
-	mp->comp_y_from_spherical(cp1, cp2, cp3, res2) ; 
-	mp->comp_z_from_spherical(cp1, cp2, res3 ) ;
-	tmp.set(1,i) = res1 ;
-	tmp.set(2,i) = res2 ;
-	tmp.set(3,i) = res3 ;
+      for (int i=1; i<=3; i++) { 
+	mp->comp_x_from_spherical(operator()(1,i), operator()(2,i), 
+				  operator()(3,i), tmp.set(1,i)) ; 
+	mp->comp_y_from_spherical(operator()(1,i), operator()(2,i), 
+				  operator()(3,i), tmp.set(2,i)) ; 
+	mp->comp_z_from_spherical(operator()(1,i), operator()(2,i), tmp.set(3,i) ) ;
       }
       for (int i=1; i<=3; i++) {
-	Cmp cp1(tmp(i,1)) ;
-	Cmp cp2(tmp(i,2)) ;
-	Cmp cp3(tmp(i,3)) ;
-	mp->comp_x_from_spherical(cp1, cp2, cp3, res1) ;
-	mp->comp_y_from_spherical(cp1, cp2, cp3, res2) ;
-	mp->comp_z_from_spherical(cp1, cp2, res3) ;
-	
-	set(i,1) = res1 ;
-	set(i,2) = res2 ;
-	set(i,3) = res3 ;
+	mp->comp_x_from_spherical(tmp(i,1), tmp(i,2), tmp(i,3), set(i,1)) ;
+	mp->comp_y_from_spherical(tmp(i,1), tmp(i,2), tmp(i,3), set(i,2)) ;
+	mp->comp_z_from_spherical(tmp(i,1), tmp(i,2), set(i,3)) ;
       }	
       
     }// End of the spher -> cart case
@@ -205,36 +200,29 @@ void Tensor::change_triad(const Base_vect& new_triad) {
       assert( *bvc == mp->get_bvect_cart() ) ; 
 
       // Only for double-covariant tensors or double-contravariant tensors
-		assert( ( (type_indice(0)==COV) && (type_indice(1)==COV) ) ||
-		        ( (type_indice(0)==CON) && (type_indice(1)==CON) ) ) ;  
+      assert( ( (type_indice(0)==COV) && (type_indice(1)==COV) ) ||
+	      ( (type_indice(0)==CON) && (type_indice(1)==CON) ) ) ;  
+#ifndef NDEBUG
+      int nz = mp->get_mg()->get_nzone() ;
+      for (int i=0; i<nz; i++) {
+	  assert( mp->get_mg()->get_np(i) >= 4) ;
+	  assert( mp->get_mg()->get_nt(i) >= 5) ;
+      }
+#endif
       
       // Temporary storage of the components
       Tensor tmp(*mp, 2, COV, *triad) ;
-      Cmp res1(*mp) ;
-      Cmp res2(*mp) ;
-      Cmp res3(*mp) ;
       for (int i=1; i<=3; i++) {
-	Cmp cp1(operator()(1,i)) ;
-	Cmp cp2(operator()(2,i)) ;
-	Cmp cp3(operator()(3,i)) ;
-	mp->comp_r_from_cartesian(cp1, cp2, cp3, res1) ; 
-	mp->comp_t_from_cartesian(cp1, cp2, cp3, res2) ; 
-	mp->comp_p_from_cartesian(cp1, cp2, res3) ;
-	tmp.set(1,i) = res1 ;
-	tmp.set(2,i) = res2 ;
-	tmp.set(3,i) = res3 ;
+	mp->comp_r_from_cartesian(operator()(1,i), operator()(2,i), 
+				  operator()(3,i), tmp.set(1,i)) ; 
+	mp->comp_t_from_cartesian(operator()(1,i), operator()(2,i), 
+				  operator()(3,i), tmp.set(2,i)) ; 
+	mp->comp_p_from_cartesian(operator()(1,i), operator()(2,i), tmp.set(3,i)) ;
       }
       for (int i=1; i<=3; i++) {
-	Cmp cp1(tmp(i,1)) ;
-	Cmp cp2(tmp(i,2)) ;
-	Cmp cp3(tmp(i,3)) ;
-	mp->comp_r_from_cartesian(cp1, cp2, cp3, res1) ; 
-	mp->comp_t_from_cartesian(cp1, cp2, cp3, res2) ; 
-	mp->comp_p_from_cartesian(cp1, cp2, res3) ;
-
- 	set(i,1) = res1 ;
-	set(i,2) = res2 ;
-	set(i,3) = res3 ;
+	mp->comp_r_from_cartesian(tmp(i,1), tmp(i,2), tmp(i,3), set(i,1)) ; 
+	mp->comp_t_from_cartesian(tmp(i,1), tmp(i,2), tmp(i,3), set(i,2)) ; 
+	mp->comp_p_from_cartesian(tmp(i,1), tmp(i,2), set(i,3)) ;
       }
     }	// end of the  case cart -> spher
 

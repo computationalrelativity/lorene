@@ -25,6 +25,10 @@ char map_radial_comp_rtp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/09/15 15:51:25  j_novak
+ * The "rotation" (change of triad) methods take now Scalars as default
+ * arguments.
+ *
  * Revision 1.2  2003/06/20 14:46:17  f_limousin
  * Les assert sur le mapping sont realise a partir du mapping meme et non a partir du pointeur sur ce mapping
  *
@@ -44,16 +48,22 @@ char map_radial_comp_rtp_C[] = "$Header$" ;
 #include <assert.h>
 
 // Headers Lorene
-#include "map.h"
+#include "tensor.h"
 #include "cmp.h"
 
 
 		    //------------------------------------//
 		    //		r  component		  //
 		    //------------------------------------//
-
 void Map_radial::comp_r_from_cartesian(const Cmp& v_x, const Cmp& v_y, 
 				       const Cmp& v_z, Cmp& v_r) const {
+    Scalar resu = v_r ;
+    comp_r_from_cartesian(Scalar(v_x), Scalar(v_y), Scalar(v_z), resu) ;
+    v_r = resu ;				       
+}
+
+void Map_radial::comp_r_from_cartesian(const Scalar& v_x, const Scalar& v_y, 
+				       const Scalar& v_z, Scalar& v_r) const {
 				       
 
     // Protections
@@ -62,9 +72,9 @@ void Map_radial::comp_r_from_cartesian(const Cmp& v_x, const Cmp& v_y,
     assert(v_y.get_etat() != ETATNONDEF) ; 
     assert(v_z.get_etat() != ETATNONDEF) ; 
 
-    assert(*(v_x.get_mp()) == *this) ; 
-    assert(*(v_y.get_mp()) == *this) ; 
-    assert(*(v_z.get_mp()) == *this) ; 
+    assert(v_x.get_mp() == *this) ; 
+    assert(v_y.get_mp() == *this) ; 
+    assert(v_z.get_mp() == *this) ; 
     
     int dzp ;
     if ( v_x.dz_nonzero() ) {
@@ -85,9 +95,9 @@ void Map_radial::comp_r_from_cartesian(const Cmp& v_x, const Cmp& v_y,
     
     // Computation
     // -----------
-    const Valeur& w_x = v_x.va ; 
-    const Valeur& w_y = v_y.va ; 
-    const Valeur& w_z = v_z.va ; 
+    const Valeur& w_x = v_x.get_spectral_va() ; 
+    const Valeur& w_y = v_y.get_spectral_va() ; 
+    const Valeur& w_z = v_z.get_spectral_va() ; 
     
     Valeur tmp = w_x.mult_cp() + w_y.mult_sp() ;
 
@@ -101,9 +111,15 @@ void Map_radial::comp_r_from_cartesian(const Cmp& v_x, const Cmp& v_y,
 		    //------------------------------------//
 		    //		Theta  component	  //
 		    //------------------------------------//
-
 void Map_radial::comp_t_from_cartesian(const Cmp& v_x, const Cmp& v_y, 
 				       const Cmp& v_z, Cmp& v_t) const {
+    Scalar resu = v_t ;
+    comp_t_from_cartesian( Scalar(v_x), Scalar(v_y), Scalar(v_z), resu ) ;
+    v_t = resu ;
+}
+
+void Map_radial::comp_t_from_cartesian(const Scalar& v_x, const Scalar& v_y, 
+				       const Scalar& v_z, Scalar& v_t) const {
 				       
 
     // Protections
@@ -112,9 +128,9 @@ void Map_radial::comp_t_from_cartesian(const Cmp& v_x, const Cmp& v_y,
     assert(v_y.get_etat() != ETATNONDEF) ; 
     assert(v_z.get_etat() != ETATNONDEF) ; 
 
-    assert(*(v_x.get_mp()) == *this) ; 
-    assert(*(v_y.get_mp()) == *this) ; 
-    assert(*(v_z.get_mp()) == *this) ; 
+    assert(v_x.get_mp() == *this) ; 
+    assert(v_y.get_mp() == *this) ; 
+    assert(v_z.get_mp() == *this) ; 
     
     int dzp ;
     if ( v_x.dz_nonzero() ) {
@@ -135,9 +151,9 @@ void Map_radial::comp_t_from_cartesian(const Cmp& v_x, const Cmp& v_y,
     
     // Computation
     // -----------
-    const Valeur& w_x = v_x.va ; 
-    const Valeur& w_y = v_y.va ; 
-    const Valeur& w_z = v_z.va ; 
+    const Valeur& w_x = v_x.get_spectral_va() ; 
+    const Valeur& w_y = v_y.get_spectral_va() ; 
+    const Valeur& w_z = v_z.get_spectral_va() ; 
     
     Valeur tmp = w_x.mult_cp() + w_y.mult_sp() ;
 
@@ -150,9 +166,15 @@ void Map_radial::comp_t_from_cartesian(const Cmp& v_x, const Cmp& v_y,
 		    //------------------------------------//
 		    //		Phi  component		  //
 		    //------------------------------------//
-
 void Map_radial::comp_p_from_cartesian(const Cmp& v_x, const Cmp& v_y, 
 				       Cmp& v_p) const {
+    Scalar resu = v_p ;
+    comp_p_from_cartesian(Scalar(v_x), Scalar(v_y), resu) ;
+    v_p = resu ;
+}
+
+void Map_radial::comp_p_from_cartesian(const Scalar& v_x, const Scalar& v_y, 
+				       Scalar& v_p) const {
 				       
 
     // Protections
@@ -160,8 +182,8 @@ void Map_radial::comp_p_from_cartesian(const Cmp& v_x, const Cmp& v_y,
     assert(v_x.get_etat() != ETATNONDEF) ; 
     assert(v_y.get_etat() != ETATNONDEF) ; 
 
-    assert(*(v_x.get_mp()) == *this) ; 
-    assert(*(v_y.get_mp()) == *this) ; 
+    assert(v_x.get_mp() == *this) ; 
+    assert(v_y.get_mp() == *this) ; 
     
     int dzp ;
     if ( v_x.dz_nonzero() ) {
@@ -176,8 +198,8 @@ void Map_radial::comp_p_from_cartesian(const Cmp& v_x, const Cmp& v_y,
     
     // Computation
     // -----------
-    const Valeur& w_x = v_x.va ; 
-    const Valeur& w_y = v_y.va ; 
+    const Valeur& w_x = v_x.get_spectral_va() ; 
+    const Valeur& w_y = v_y.get_spectral_va() ; 
     
     v_p = - w_x.mult_sp() + w_y.mult_cp() ; 
     

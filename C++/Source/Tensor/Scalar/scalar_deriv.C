@@ -34,6 +34,10 @@ char scalar_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2005/09/15 15:51:27  j_novak
+ * The "rotation" (change of triad) methods take now Scalars as default
+ * arguments.
+ *
  * Revision 1.15  2005/05/25 16:11:05  j_novak
  * Better handling of the case with no compactified domain.
  *
@@ -271,10 +275,7 @@ const Scalar& Scalar::dsdx() const {
 	p_dsdx->set_etat_zero() ;
       }
       else {
-	Cmp result(mp) ;
-	mp->comp_x_from_spherical(Cmp(dsdr()), Cmp(srdsdt()), 
-				  Cmp(srstdsdp()), result) ;
-	*p_dsdx = result ;
+	mp->comp_x_from_spherical(dsdr(), srdsdt(), srstdsdp(), *p_dsdx) ;
       }
     }	
 
@@ -305,10 +306,7 @@ const Scalar& Scalar::dsdy() const {
 	p_dsdy->set_etat_zero() ;
       }
       else {
-	Cmp result(mp) ;
-	mp->comp_y_from_spherical(Cmp(dsdr()), Cmp(srdsdt()), 
-				  Cmp(srstdsdp()), result) ;
-      *p_dsdy = result ;
+	mp->comp_y_from_spherical(dsdr(), srdsdt(), srstdsdp(), *p_dsdy) ;
       }
     }
 
@@ -339,9 +337,7 @@ const Scalar& Scalar::dsdz() const {
 	p_dsdz->set_etat_zero() ;
       }
       else {
-	Cmp result(mp) ;
-	mp->comp_z_from_spherical(Cmp(dsdr()), Cmp(srdsdt()), result) ;
-	*p_dsdz = result ;
+	mp->comp_z_from_spherical(dsdr(), srdsdt(), *p_dsdz) ;
       }
     }
 

@@ -29,6 +29,10 @@ char vector_change_triad_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/09/15 15:51:26  j_novak
+ * The "rotation" (change of triad) methods take now Scalars as default
+ * arguments.
+ *
  * Revision 1.5  2005/02/03 14:34:19  f_limousin
  * Improvement of the case Cartesian --> Cartesian to be consistent
  * with Tensor::change_triad(Base_vect&).
@@ -56,7 +60,6 @@ char vector_change_triad_C[] = "$Header$" ;
 #include <assert.h>
 
 // Lorene headers
-#include "cmp.h"
 #include "tensor.h"
 
 void Vector::change_triad(const Base_vect& new_triad) {
@@ -138,20 +141,22 @@ void Vector::change_triad(const Base_vect& new_triad) {
       // with the mapping :
       assert( *nbvc == mp->get_bvect_cart() ) ; 
       assert( *bvs == mp->get_bvect_spher() ) ; 
-      Cmp vr(*cmp[0]) ; 
-      Cmp vt(*cmp[1]) ; 
-      Cmp vp(*cmp[2]) ; 
-      Cmp res1(*mp) ;
-      Cmp res2(*mp) ;
-      Cmp res3(*mp) ;
+#ifndef NDEBUG
+      int nz = mp->get_mg()->get_nzone() ;
+      for (int i=0; i<nz; i++) {
+	  assert( mp->get_mg()->get_np(i) >= 4) ;
+	  assert( mp->get_mg()->get_nt(i) >= 5) ;
+      }
+#endif
+      Scalar res1(*mp) ;
+      Scalar res2(*mp) ;
 	    
-      mp->comp_x_from_spherical(vr, vt, vp, res1) ; 
-      mp->comp_y_from_spherical(vr, vt, vp, res2) ; 
-      mp->comp_z_from_spherical(vr, vt, res3) ; 
+      mp->comp_x_from_spherical(*cmp[0], *cmp[1], *cmp[2], res1) ; 
+      mp->comp_y_from_spherical(*cmp[0], *cmp[1], *cmp[2], res2) ; 
+      mp->comp_z_from_spherical(*cmp[0], *cmp[1], set(3)) ; 
 	
       set(1) = res1 ;
       set(2) = res2 ;
-      set(3) = res3 ;
       
     }// End of the spher -> cart case
   } // End of the case of cartesian new triad
@@ -173,20 +178,22 @@ void Vector::change_triad(const Base_vect& new_triad) {
       // with the mapping :
       assert( *nbvs == mp->get_bvect_spher() ) ; 
       assert( *bvc == mp->get_bvect_cart() ) ; 
-      Cmp vx(*cmp[0]) ; 
-      Cmp vy(*cmp[1]) ; 
-      Cmp vz(*cmp[2]) ; 
-      Cmp res1(*mp) ;
-      Cmp res2(*mp) ;
-      Cmp res3(*mp) ;
+#ifndef NDEBUG
+      int nz = mp->get_mg()->get_nzone() ;
+      for (int i=0; i<nz; i++) {
+	  assert( mp->get_mg()->get_np(i) >= 4) ;
+	  assert( mp->get_mg()->get_nt(i) >= 5) ;
+      }
+#endif
+      Scalar res1(*mp) ;
+      Scalar res2(*mp) ;
 	    
-      mp->comp_r_from_cartesian(vx, vy, vz, res1) ; 
-      mp->comp_t_from_cartesian(vx, vy, vz, res2) ; 
-      mp->comp_p_from_cartesian(vx, vy, res3) ; 
+      mp->comp_r_from_cartesian(*cmp[0], *cmp[1], *cmp[2], res1) ; 
+      mp->comp_t_from_cartesian(*cmp[0], *cmp[1], *cmp[2], res2) ; 
+      mp->comp_p_from_cartesian(*cmp[0], *cmp[1], set(3)) ; 
 
       set(1) = res1 ;
       set(2) = res2 ;
-      set(3) = res3 ;
     }	// end of the  case cart -> spher
 
     

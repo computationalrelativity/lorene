@@ -39,6 +39,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.43  2005/09/15 15:51:25  j_novak
+ * The "rotation" (change of triad) methods take now Scalars as default
+ * arguments.
+ *
  * Revision 1.42  2005/08/26 14:02:38  p_grandclement
  * Modification of the elliptic solver that matches with an oscillatory exterior solution
  * small correction in Poisson tau also...
@@ -1050,9 +1054,12 @@ class Map {
 	 *  @param v_phi [input] \f$\phi\f$-component of the vector 
 	 *  @param v_x [output] x-component of the vector 
 	 */
+	virtual void comp_x_from_spherical(const Scalar& v_r, const Scalar& v_theta, 
+					   const Scalar& v_phi, Scalar& v_x) const = 0 ; 
+	/// \c Cmp version
 	virtual void comp_x_from_spherical(const Cmp& v_r, const Cmp& v_theta, 
 					   const Cmp& v_phi, Cmp& v_x) const = 0 ; 
-	
+
 	/** Computes the Cartesian y component (with respect to 
 	 *  \c bvect_cart ) of a vector given
 	 *  by its spherical components with respect to \c bvect_spher .
@@ -1062,6 +1069,10 @@ class Map {
 	 *  @param v_phi [input] \f$\phi\f$-component of the vector 
 	 *  @param v_y [output] y-component of the vector 
 	 */
+	virtual void comp_y_from_spherical(const Scalar& v_r, const Scalar& v_theta, 
+					   const Scalar& v_phi, Scalar& v_y) const = 0 ; 
+	
+	/// \c Cmp version
 	virtual void comp_y_from_spherical(const Cmp& v_r, const Cmp& v_theta, 
 					   const Cmp& v_phi, Cmp& v_y) const = 0 ; 
 	
@@ -1073,6 +1084,10 @@ class Map {
 	 *  @param v_theta [input] \f$\theta\f$-component of the vector 
 	 *  @param v_z [output] z-component of the vector 
 	 */
+	virtual void comp_z_from_spherical(const Scalar& v_r, const Scalar& v_theta, 
+					   Scalar& v_z) const = 0 ; 
+	
+	/// \c Cmp version
 	virtual void comp_z_from_spherical(const Cmp& v_r, const Cmp& v_theta, 
 					   Cmp& v_z) const = 0 ; 
 	
@@ -1085,6 +1100,9 @@ class Map {
 	 *  @param v_z [input] z-component of the vector 
 	 *  @param v_r [output] \e r -component of the vector 
 	 */
+	virtual void comp_r_from_cartesian(const Scalar& v_x, const Scalar& v_y, 
+					   const Scalar& v_z, Scalar& v_r) const = 0 ; 
+	/// \c Cmp version	
 	virtual void comp_r_from_cartesian(const Cmp& v_x, const Cmp& v_y, 
 					   const Cmp& v_z, Cmp& v_r) const = 0 ; 
 	
@@ -1097,6 +1115,10 @@ class Map {
 	 *  @param v_z [input] z-component of the vector 
 	 *  @param v_t [output] \f$\theta\f$-component of the vector 
 	 */
+	virtual void comp_t_from_cartesian(const Scalar& v_x, const Scalar& v_y, 
+					   const Scalar& v_z, Scalar& v_t) const = 0 ; 
+	
+	/// \c Cmp version
 	virtual void comp_t_from_cartesian(const Cmp& v_x, const Cmp& v_y, 
 					   const Cmp& v_z, Cmp& v_t) const = 0 ; 
 	
@@ -1108,6 +1130,10 @@ class Map {
 	 *  @param v_y [input] y-component of the vector 
 	 *  @param v_p [output] \f$\phi\f$-component of the vector 
 	 */
+	virtual void comp_p_from_cartesian(const Scalar& v_x, const Scalar& v_y, 
+					   Scalar& v_p) const = 0 ; 
+	
+	/// \c Cmp version
 	virtual void comp_p_from_cartesian(const Cmp& v_x, const Cmp& v_y, 
 					   Cmp& v_p) const = 0 ; 
 	
@@ -1650,6 +1676,10 @@ class Map_radial : public Map {
 	 *  @param v_phi [input] \f$\phi\f$-component of the vector 
 	 *  @param v_x [output] x-component of the vector 
 	 */
+	virtual void comp_x_from_spherical(const Scalar& v_r, const Scalar& v_theta, 
+					   const Scalar& v_phi, Scalar& v_x) const ; 
+	
+	/// \c Cmp version
 	virtual void comp_x_from_spherical(const Cmp& v_r, const Cmp& v_theta, 
 					   const Cmp& v_phi, Cmp& v_x) const ; 
 	
@@ -1662,6 +1692,10 @@ class Map_radial : public Map {
 	 *  @param v_phi [input] \f$\phi\f$-component of the vector 
 	 *  @param v_y [output] y-component of the vector 
 	 */
+	virtual void comp_y_from_spherical(const Scalar& v_r, const Scalar& v_theta, 
+					   const Scalar& v_phi, Scalar& v_y) const ; 
+	
+	/// \c Cmp version
 	virtual void comp_y_from_spherical(const Cmp& v_r, const Cmp& v_theta, 
 					   const Cmp& v_phi, Cmp& v_y) const ; 
 	
@@ -1673,6 +1707,10 @@ class Map_radial : public Map {
 	 *  @param v_theta [input] \f$\theta\f$-component of the vector 
 	 *  @param v_z [output] z-component of the vector 
 	 */
+	virtual void comp_z_from_spherical(const Scalar& v_r, const Scalar& v_theta, 
+					   Scalar& v_z) const ; 
+	
+	/// \c Cmp version
 	virtual void comp_z_from_spherical(const Cmp& v_r, const Cmp& v_theta, 
 					   Cmp& v_z) const ; 
 	
@@ -1685,6 +1723,10 @@ class Map_radial : public Map {
 	 *  @param v_z [input] z-component of the vector 
 	 *  @param v_r [output] \e r -component of the vector 
 	 */
+	virtual void comp_r_from_cartesian(const Scalar& v_x, const Scalar& v_y, 
+					   const Scalar& v_z, Scalar& v_r) const ; 
+	
+	/// \c Cmp version
 	virtual void comp_r_from_cartesian(const Cmp& v_x, const Cmp& v_y, 
 					   const Cmp& v_z, Cmp& v_r) const ; 
 	
@@ -1697,6 +1739,10 @@ class Map_radial : public Map {
 	 *  @param v_z [input] z-component of the vector 
 	 *  @param v_t [output] \f$\theta\f$-component of the vector 
 	 */
+	virtual void comp_t_from_cartesian(const Scalar& v_x, const Scalar& v_y, 
+					   const Scalar& v_z, Scalar& v_t) const ; 
+	
+	/// \c Cmp version
 	virtual void comp_t_from_cartesian(const Cmp& v_x, const Cmp& v_y, 
 					   const Cmp& v_z, Cmp& v_t) const ; 
 	
@@ -1708,6 +1754,10 @@ class Map_radial : public Map {
 	 *  @param v_y [input] y-component of the vector 
 	 *  @param v_p [output] \f$\phi\f$-component of the vector 
 	 */
+	virtual void comp_p_from_cartesian(const Scalar& v_x, const Scalar& v_y, 
+					   Scalar& v_p) const ; 
+	
+	/// \c Cmp version
 	virtual void comp_p_from_cartesian(const Cmp& v_x, const Cmp& v_y, 
 					   Cmp& v_p) const ; 
 	
