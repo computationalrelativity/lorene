@@ -28,6 +28,9 @@ char Binary_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2005/09/15 14:39:14  e_gourgoulhon
+ * Added printing of angular momentum in display_poly.
+ *
  * Revision 1.13  2005/09/13 19:38:31  f_limousin
  * Reintroduction of the resolution of the equations in cartesian coordinates.
  *
@@ -69,7 +72,6 @@ char Binary_C[] = "$Header$" ;
 #include <math.h>
 
 // Headers Lorene
-#include "cmp.h"
 #include "binary.h"
 #include "eos.h"
 #include "utilitaires.h"
@@ -273,7 +275,7 @@ void Binary::display_poly(ostream& ost) const {
 	double m_poly = r_poly / ggrav ; 
     
 	// Polytropic unit of angular momentum in terms of j_unit :
-	//	double j_poly = r_poly * r_poly / ggrav ; 
+	double j_poly = r_poly * r_poly / ggrav ; 
     
 	ost.precision(10) ; 
 	ost << endl << "Quantities in polytropic units : " << endl ; 
@@ -284,7 +286,7 @@ void Binary::display_poly(ostream& ost) const {
 	     << ( star2.xa_barycenter() - star1.xa_barycenter() ) / r_poly 
 	     << endl ; 
 	ost << "  Omega	  : " << omega * t_poly << endl ; 
-//	ost << "  J	  : " << angu_mom()(2) / j_poly << endl ; 
+	ost << "  J	  : " << angu_mom()(2) / j_poly << endl ; 
 	ost << "  M_ADM   : " << mass_adm() / m_poly << endl ;      
 	ost << "  M_Komar : " << mass_kom() / m_poly << endl ; 
 	ost << "  M_bar(star 1) : " << star1.mass_b() / m_poly << endl ; 
