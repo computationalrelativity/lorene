@@ -30,6 +30,9 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/09/16 13:34:44  j_novak
+ * Back to dzpuis 1 for the source for mu. eta is computed the same way as hrr.
+ *
  * Revision 1.6  2005/09/08 16:00:23  j_novak
  * Change of dzpuis for source for mu (temporary?).
  *
@@ -101,10 +104,9 @@ void Sym_tensor_trans::set_WX_det_one(const Scalar& w_in, const Scalar& x_in,
     Scalar source_mu = - x_in.lapang() ;
     source_mu.set_spectral_va().ylm_i() ;
     source_mu -= 2*x_in ;
-    source_mu.div_r_dzpuis(2) ;
+    source_mu.div_r_dzpuis(1) ;
     Scalar mu_over_r = source_mu.sol_divergence(3) ;
     mu_over_r.annule_l(0,0) ;
-    //    mu_over_r.mult_r() ;
 
     // Preparation for the iteration
     //------------------------------
@@ -128,25 +130,26 @@ void Sym_tensor_trans::set_WX_det_one(const Scalar& w_in, const Scalar& x_in,
 
 	Scalar hrr_new(*mp) ;
 	solve_hrr(sou_hrr, hrr_new) ;
+
 	Scalar t_new = h_old - hrr_new ;
 
-//## 	tmp = -2*w_in - 0.5*h_old ;
-// 	tmp.set_spectral_va().ylm() ;
-// 	tmp -= w_lapang ;
-// 	Scalar sou_eta = tmp.dsdr() ;
-// 	sou_eta.mult_r_dzpuis(0) ;
-// 	sou_eta -= 3*w_lapang + 6*w_ylm  ;
-// 	tmp = h_old ;
-// 	tmp.set_spectral_va().ylm() ;
-// 	sou_eta -= tmp ;
-// 	sou_eta.annule_l(0,0, true) ;
-// 	Scalar eta_new(*mp) ;
-//## 	solve_hrr(sou_eta, eta_new) ;
+ 	tmp = -2*w_in - 0.5*h_old ;
+ 	tmp.set_spectral_va().ylm() ;
+ 	tmp -= w_lapang ;
+ 	Scalar sou_eta = tmp.dsdr() ;
+ 	sou_eta.mult_r_dzpuis(0) ;
+ 	sou_eta -= 3*w_lapang + 6*w_ylm  ;
+ 	tmp = h_old ;
+ 	tmp.set_spectral_va().ylm() ;
+ 	sou_eta -= tmp ;
+ 	sou_eta.annule_l(0,0, true) ;
+ 	Scalar eta_new(*mp) ;
+ 	solve_hrr(sou_eta, eta_new) ;
 
-    	Scalar sou_eta = -hrr_new.dsdr() ;
-    	sou_eta.mult_r_dzpuis(0) ;
-    	sou_eta -= 2*hrr_new - t_new;
-    	Scalar eta_new = sou_eta.poisson_angu() ;
+//     	Scalar sou_eta = -hrr_new.dsdr() ; //#alternative version ...
+//     	sou_eta.mult_r_dzpuis(0) ;
+//     	sou_eta -= 2*hrr_new - t_new;
+//     	Scalar eta_new = sou_eta.poisson_angu() ;
 
 	set_auxiliary(hrr_new, eta_new, mu_over_r, w_in, x_in, t_new) ;
 
