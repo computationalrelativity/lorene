@@ -30,6 +30,10 @@ char strot_dirac_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/09/16 14:04:49  j_novak
+ * The equation for hij is now solved only for mer >  mer_fix_omega. It uses the
+ * Poisson solver of the class Sym_tensor_trans.
+ *
  * Revision 1.6  2005/04/20 14:26:29  j_novak
  * Removed some outputs.
  *
@@ -415,7 +419,10 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
 
  Sym_tensor_trans hij_new(mp, mp.get_bvect_spher(), flat) ;
 
- solve_hij( hij_new ) ;
+ if (mer > mer_fix_omega )
+   solve_hij( hij_new ) ;
+ else
+   hij_new.set_etat_zero() ;
 
  hh = hij_new ; 
  qqq = q_new ;

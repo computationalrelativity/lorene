@@ -30,6 +30,10 @@ char strot_dirac_solvehij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/09/16 14:04:49  j_novak
+ * The equation for hij is now solved only for mer >  mer_fix_omega. It uses the
+ * Poisson solver of the class Sym_tensor_trans.
+ *
  * Revision 1.6  2005/04/20 14:26:29  j_novak
  * Removed some outputs.
  *
@@ -252,20 +256,13 @@ void Star_rot_Dirac::solve_hij(Sym_tensor_trans& hij_new) const {
       for (int j=i; j<=3; j++) {
 	  source_hh.set(i,j).set_dzpuis(4) ;
       }
-  
-    Sym_tensor_trans source_hht(mp, bspher, mets) ;
-    source_hht = source_hh ;
- //  const Sym_tensor_tt& source_htt = source_hh.transverse(mets, 0x0, 4).tt_part() ;
-    const Sym_tensor_tt& source_htt = source_hht.tt_part() ;
 
-  maxabs(source_htt, "source_htt tot") ; 
-  
-  cout << " Max( divergence of source_hh ) " << endl ;
-  for (int i=1; i<=3; i++) 
-      cout << max(abs(source_htt.divergence(mets)(i))) ;
+  Sym_tensor_trans source_hht(mp, bspher, mets) ;
+  source_hht = source_hh ;
+//   cout << " Max( divergence of source_hh ) " << endl ;
+//   for (int i=1; i<=3; i++) 
+//       cout << max(abs(source_htt.divergence(mets)(i))) ;
 
-
-  hij_new.trace_from_det_one(source_htt.poisson()) ;
-  hij_new.dec_dzpuis(2) ;
+  hij_new = source_hht.poisson() ;
 
 }
