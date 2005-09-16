@@ -30,6 +30,9 @@ char scalar_sol_div_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/09/16 14:33:00  j_novak
+ * Added #include <math.h>.
+ *
  * Revision 1.2  2005/09/16 12:49:52  j_novak
  * The case with dzpuis=1 is added.
  *
@@ -43,6 +46,7 @@ char scalar_sol_div_C[] = "$Header$" ;
 
 // C headers
 #include<assert.h>
+#include<math.h>
 
 //Lorene headers
 #include "tensor.h"
