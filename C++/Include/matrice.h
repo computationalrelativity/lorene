@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2005/09/16 12:28:16  j_novak
+ * New method del_deriv() and shorter version for set(i,j).
+ *
  * Revision 1.10  2005/01/25 12:47:32  j_novak
  * Added some member arithmetic and operator=(Tbl).
  *
@@ -192,6 +195,7 @@ class Matrice {
 	 */
     private:
 	void del_t() ;
+	void del_deriv() ; ///< Deletes the (mutable) derived members: band, lu, permute
 
     // manipulation des etats
     public:
@@ -257,17 +261,7 @@ class Matrice {
 	  assert (etat == ETATQCQ) ;
 	  assert ((i>=0) && (i<std->dim.dim[0])) ;
 	  assert( (j>=0) && (j<std->dim.dim[1]) ) ;
-	  if (band != 0x0) {
-	    delete band ;
-	    band = 0x0 ;
-	  }
-	  
-	  if (lu != 0x0) {
-	    delete lu ;
-	    delete permute ;
-	    lu = 0x0 ;
-	    permute = 0x0 ;
-	  }
+	  if ( (band != 0x0) || (lu != 0x0) ) del_deriv() ;
 	  return std->t[std->dim.dim[0] * j + i] ;
 	} ;
 	
