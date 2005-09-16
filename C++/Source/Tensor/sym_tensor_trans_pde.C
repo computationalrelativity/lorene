@@ -1,5 +1,5 @@
 /*
- *  Solution of the 2nd-order PDE for hrr (2 transverse conditions)
+ *  Solution of the Poisson the 2nd-order PDE for hrr/eta (2 transverse conditions)
  *
  *    (see file sym_tensor.h for documentation).
  *
@@ -25,20 +25,16 @@
  *
  */
 
-char sym_tensor_trans_solhrr_C[] = "$Header$" ;
+char sym_tensor_trans_pde_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2005/09/07 16:47:43  j_novak
- * Removed method Sym_tensor_trans::T_from_det_one
- * Modified Sym_tensor::set_auxiliary, so that it takes eta/r and mu/r as
- * arguments.
- * Modified Sym_tensor_trans::set_hrr_mu.
- * Added new protected method Sym_tensor_trans::solve_hrr
+ * Revision 1.1  2005/09/16 13:58:11  j_novak
+ * New Poisson solver for a Sym_tensor_trans.
  *
  *
- * $Header$
+ * $Heade$
  *
  */
 
@@ -50,6 +46,35 @@ char sym_tensor_trans_solhrr_C[] = "$Header$" ;
 #include "diff.h"
 #include "proto.h"
 #include "graphique.h"
+
+Sym_tensor_trans Sym_tensor_trans::poisson() const {
+
+    // All this has a meaning only for spherical components...
+    assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
+    //## ... and affine mapping, for the moment!
+    assert(dynamic_cast<const Map_af*>(mp) != 0x0) ;
+    Sym_tensor_trans resu(*mp, *triad, *met_div) ; 
+
+    Sym_tensor_trans sou_cart = *this ;
+    sou_cart.change_triad(mp->get_bvect_cart()) ;
+
+    Sym_tensor res_cart(*mp, CON, mp->get_bvect_cart()) ;
+    for (int i=1; i<=3; i++)
+      for(int j=i; j<=3; j++) 
+	res_cart.set(i,j) = sou_cart(i,j).poisson() ;
+
+    res_cart.change_triad(*triad) ;
+
+    resu.set_WX_det_one(res_cart.www(), res_cart.xxx()) ;
+
+    Vector dive = resu.divergence(*met_div) ;
+    dive.dec_dzpuis(2) ;
+
+    maxabs(dive, "Sym_tensor_trans::poisson : divergence of the solution") ;
+    
+    return resu ;   
+}
+
 
 void Sym_tensor_trans::solve_hrr(const Scalar& sou_hrr, Scalar& hrr_new) const {
 

@@ -25,11 +25,14 @@
  */
 
 #ifndef __SYM_TENSOR_H_ 
-#define __SYM_TEBSOR_H_ 
+#define __SYM_TENSOR_H_ 
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.32  2005/09/16 13:58:10  j_novak
+ * New Poisson solver for a Sym_tensor_trans.
+ *
  * Revision 1.31  2005/09/07 16:47:42  j_novak
  * Removed method Sym_tensor_trans::T_from_det_one
  * Modified Sym_tensor::set_auxiliary, so that it takes eta/r and mu/r as
@@ -617,6 +620,16 @@ class Sym_tensor_trans: public Sym_tensor {
 	void set_WX_det_one(const Scalar& w_in, const Scalar& x_in,
 				double precis = 1.e-14, int it_max = 100) ;
 
+	/** Computes the solution of a tensorial transverse Poisson equation
+	 *  with \c *this  \f$= S^{ij}\f$ as a source:
+	 * \f[
+	 *    \Delta h^{ij} = S^{ij}
+	 *\f] 
+	 * 
+	 * @return solution \f$h^{ij}\f$ of the above equation with the boundary
+	 *	condition \f$h^{ij}=0\f$ at spatial infinity.
+	 */
+	Sym_tensor_trans poisson() const ; 
 } ; 
 	
 
