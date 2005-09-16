@@ -32,6 +32,9 @@ char matrice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2005/09/16 12:29:02  j_novak
+ * New method del_deriv() and reorganization of band, lu, permute handling.
+ *
  * Revision 1.11  2005/01/25 12:47:34  j_novak
  * Added some member arithmetic and operator=(Tbl).
  *
@@ -128,43 +131,38 @@ char matrice_C[] = "$Header$" ;
 
 void Matrice::del_t() {
     if (std != 0x0) delete std ;
+    std = 0x0 ; 
+    del_deriv() ;
+}
+
+//Destructeur des quantites derivees
+
+void Matrice::del_deriv() {
     if (band != 0x0) delete band ;
     if (lu != 0x0) delete lu ;
     if (permute != 0x0) delete permute ;
+    band = 0x0 ;
+    lu = 0x0 ;
+    permute = 0x0 ;
 }
 
 //Manipulation des etats
 
 void Matrice::set_etat_qcq() {
     std->set_etat_qcq() ;
-    if (band != 0x0) band->set_etat_nondef() ;
-    if (lu != 0x0) lu->set_etat_nondef() ;
-    if (permute != 0x0) permute->set_etat_nondef() ;
-    band = 0x0 ;
-    lu = 0x0 ;
-    permute = 0x0 ;
+    del_deriv() ;
     etat = ETATQCQ ;
 }
 
 void Matrice::set_etat_zero() {
     std->set_etat_zero() ;
-    if (band != 0x0) band->set_etat_nondef() ;
-    if (lu != 0x0) lu->set_etat_nondef() ;
-    if (permute != 0x0) permute->set_etat_nondef() ;
-    band = 0x0 ;
-    lu = 0x0 ;
-    permute = 0x0 ;
+    del_deriv() ;
     etat = ETATZERO ;
 }
 
 void Matrice::set_etat_nondef() {
     if (std != 0x0) std->set_etat_nondef() ;
-    if (band != 0x0) band->set_etat_nondef() ;
-    if (lu != 0x0) lu->set_etat_nondef() ;
-    if (permute != 0x0) permute->set_etat_nondef() ;
-    band = 0x0 ;
-    lu = 0x0 ;
-    permute = 0x0 ; 
+    del_deriv() ;
     etat = ETATNONDEF ;
 }
 
@@ -235,8 +233,8 @@ int Matrice::get_dim(int i) const {
 void Matrice::operator= (double x) {
     if (x == 0 ) set_etat_zero() ;
     else {
-    *std = x ;
     set_etat_qcq() ;
+    *std = x ;
     }
 }
 
@@ -332,52 +330,61 @@ return flux ;
 
 // Passage matrice a bande : stockage LAPACK
 void Matrice::set_band (int u, int l) const {
-    int n = std->get_dim(0) ;
-    assert (n == std->get_dim(1)) ;
-    
-    ku = u ; kl = l ;
-    int ldab = 2*l+u+1 ;
-    band = new Tbl(ldab*n) ;
-    
-    band->set_etat_qcq() ;
-    
-    for (int i=0 ; i<u ; i++)
-	for (int j=u-i ; j<n ; j++)
-	    band->set(j*ldab+i+l) = (*this)(j-u+i, j) ;
- 
-    for (int j=0 ; j<n ; j++)
-	band->set(j*ldab+u+l) = (*this)(j, j) ;
-
-    for (int i=u+1 ; i<u+l+1 ; i++)
-	for (int j=0 ; j<n-i+u ; j++)
-	    band->set(j*ldab+i+l) = (*this) (i+j-u, j) ;
-
+    if (band != 0x0) return ;
+    else {
+	int n = std->get_dim(0) ;
+	assert (n == std->get_dim(1)) ;
+	
+	ku = u ; kl = l ;
+	int ldab = 2*l+u+1 ;
+	band = new Tbl(ldab*n) ;
+	
+	band->set_etat_qcq() ;
+	
+	for (int i=0 ; i<u ; i++)
+	    for (int j=u-i ; j<n ; j++)
+		band->set(j*ldab+i+l) = (*this)(j-u+i, j) ;
+	
+	for (int j=0 ; j<n ; j++)
+	    band->set(j*ldab+u+l) = (*this)(j, j) ;
+	
+	for (int i=u+1 ; i<u+l+1 ; i++)
+	    for (int j=0 ; j<n-i+u ; j++)
+		band->set(j*ldab+i+l) = (*this) (i+j-u, j) ;
+    }
+    return ; 
 }
 
 //Decomposition UL : stockage LAPACK
 void Matrice::set_lu() const {
-    
-    // Decomposition LU
-    int n = std->get_dim(0) ;
-    int ldab, info ;
-    permute = new Itbl(n) ;
-    permute->set_etat_qcq() ;
+    if (lu != 0x0) {
+	assert (permute != 0x0) ;
+	return ;
+    }
+    else {
+	// Decomposition LU
+	int n = std->get_dim(0) ;
+	int ldab, info ;
+	permute = new Itbl(n) ;
+	permute->set_etat_qcq() ;
 
-    // Cas d'une matrice a bandes
-    if (band != 0x0) {
-	assert (band->get_etat() == ETATQCQ) ;
-	ldab = 2*kl+ku+1 ;
-	lu = new Tbl(*band) ;
-    
-	F77_dgbtrf(&n, &n, &kl, &ku, lu->t, &ldab, permute->t, &info) ;
+	// Cas d'une matrice a bandes
+	if (band != 0x0) {
+	    assert (band->get_etat() == ETATQCQ) ;
+	    ldab = 2*kl+ku+1 ;
+	    lu = new Tbl(*band) ;
+	    
+	    F77_dgbtrf(&n, &n, &kl, &ku, lu->t, &ldab, permute->t, &info) ;
+	}
+	else { // matrice generale
+	    assert (std->get_etat() == ETATQCQ) ;
+	    ldab = n ;
+	    lu = new Tbl(*std) ;
+	    
+	    F77_dgetrf(&n, &n, lu->t, &ldab, permute->t, &info) ;
+	}
     }
-    else { // matrice generale
-	assert (std->get_etat() == ETATQCQ) ;
-	ldab = n ;
-	lu = new Tbl(*std) ;
-	
-	F77_dgetrf(&n, &n, lu->t, &ldab, permute->t, &info) ;
-    }
+    return ;
 }
 
 // Solution de Ax = B : utilisation de LAPACK et decomposition lu.
