@@ -30,6 +30,9 @@ char scalar_sol_div_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/09/16 12:49:52  j_novak
+ * The case with dzpuis=1 is added.
+ *
  * Revision 1.1  2005/06/08 12:35:22  j_novak
  * New method for solving divergence-like ODEs.
  *
@@ -74,7 +77,7 @@ Scalar Scalar::sol_divergence(int n_factor) const {
 	// Checks on the type of domains
 	int nz = mg->get_nzone() ;
 	bool ced = (mg->get_type_r(nz-1) == UNSURR ) ;
-	assert ( (!ced) || (check_dzpuis(2)) ) ;
+	assert ( (!ced) || (check_dzpuis(2)) || (check_dzpuis(1)) ) ;
 	assert (mg->get_type_r(0) == RARE) ;
 	int nt = mg->get_nt(0) ;
 	int np = mg->get_np(0) ;
@@ -184,7 +187,7 @@ Scalar Scalar::sol_divergence(int n_factor) const {
 	    Matrice operateur = mxd + ech*mdx + n_factor*mid ;
 	    operateur.set_lu() ;
 	    // homogeneous solution
-	    s_hom = new Tbl(solh(nr, 1, ech, R_CHEB)) ;
+	    s_hom = new Tbl(solh(nr, n_factor-1, ech, R_CHEB)) ;
 	    
 	    for (int k=0 ; k<np+1 ; k++)
 		for (int j=0 ; j<nt ; j++) {
@@ -220,23 +223,33 @@ Scalar Scalar::sol_divergence(int n_factor) const {
 	//---------------
 	//--  CED   -----
 	//---------------
-		 
+	    int dzp = ( check_dzpuis(2) ? 2 : 1) ;
 	    nr = source.get_mg()->get_nr(nz-1) ;
 	    alpha = mpaff->get_alpha()[nz-1] ;
 	    beta = mpaff->get_beta()[nz-1] ;
-	    dege = 2 ;
+	    dege = dzp  ;
 	    nr0 = nr - dege ;
 	    Diff_dsdx dx(R_CHEBU, nr) ; const Matrice& mdx = dx.get_matrice() ;
 	    Diff_sx sx(R_CHEBU, nr) ; const Matrice& msx = sx.get_matrice() ;
+	    Diff_xdsdx xdx(R_CHEBU, nr) ; const Matrice& mxdx = xdx.get_matrice() ;
+	    Diff_id id(R_CHEBU, nr) ; const Matrice& mid = id.get_matrice() ;
 	    Matrice operateur(nr0, nr0) ;
 	    operateur.set_etat_qcq() ;
-	    for (int lin=0; lin<nr0; lin++) 
-		for (int col=dege; col<nr; col++)
-		    operateur.set(lin,col-dege) = (-mdx(lin,col) 
-			+ n_factor*msx(lin, col)) / alpha ;
+	    if (dzp == 2)
+		for (int lin=0; lin<nr0; lin++) 
+		    for (int col=dege; col<nr; col++)
+			operateur.set(lin,col-dege) = (-mdx(lin,col) 
+					+ n_factor*msx(lin, col)) / alpha ;
+	    else {
+ 		for (int lin=0; lin<nr0; lin++) {
+ 		    for (int col=dege; col<nr; col++)
+ 			operateur.set(lin,col-dege) = (-mxdx(lin,col) 
+ 					+ n_factor*mid(lin, col)) ;
+		}
+	    }
 	    operateur.set_lu() ;
 	    // homogeneous solution
-	    s_hom = new Tbl(solh(nr, 1, 0., R_CHEBU)) ;
+	    s_hom = new Tbl(solh(nr, n_factor-1, 0., R_CHEBU)) ;
 	    for (int k=0 ; k<np+1 ; k++)
 		for (int j=0 ; j<nt ; j++) {
 		    base_resu.give_quant_numbers(lz, k, j, m_quant, l_quant, base_r) ;
@@ -258,7 +271,7 @@ Scalar Scalar::sol_divergence(int n_factor) const {
 		    }
 		    for (int i=nr0; i<nr; i++)
 			sol_hom.set(nz-1, k, j, i) = (*s_hom)(i) ;
-                    //result must vanish at infinity
+		    //result must vanish at infinity
 		    sol_part.set(nz-1, k, j, 0) = -somme ; 
 		    delete so ;
 		    delete s_part ;
@@ -273,9 +286,10 @@ Scalar Scalar::sol_divergence(int n_factor) const {
 	    Tbl echelles(nz-1) ;
 	    echelles.set_etat_qcq() ;
 	    for (lz=1; lz<nz; lz++) 
-		echelles.set(lz-1) = (mpaff->get_beta()[lz]/mpaff->get_alpha()[lz] -1) * 
-		    (mpaff->get_beta()[lz]/mpaff->get_alpha()[lz] -1) ;
-	    if (ced) echelles.set(nz-2) = 0.25;
+		echelles.set(lz-1) 
+		    = pow ( (mpaff->get_beta()[lz]/mpaff->get_alpha()[lz] -1), 
+			    n_factor) ;
+	    if (ced) echelles.set(nz-2) = 1./pow(-2., n_factor) ;
 	    
 	    for (int k=0 ; k<np+1 ; k++)
 		for (int j=0 ; j<nt ; j++) {
