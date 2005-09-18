@@ -31,6 +31,10 @@ char binary_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2005/09/18 13:13:41  f_limousin
+ * Extension of vphi in the compactified domain for the computation
+ * of J_ADM by a volume integral.
+ *
  * Revision 1.12  2005/09/15 14:41:04  e_gourgoulhon
  * The total angular momentum is now computed via a volume integral.
  *
@@ -79,6 +83,7 @@ char binary_global_C[] = "$Header$" ;
 #include "nbr_spx.h"
 #include "binary.h"
 #include "unites.h"
+#include "metric.h"
 
 		    //---------------------------------//
 		    //		ADM mass	       //
@@ -92,29 +97,6 @@ double Binary::mass_adm() const {
     p_mass_adm = new double ; 
 	    
     *p_mass_adm = 0 ; 
-    
-    // First Method
-    /*
-    const Metric& gamij = (et[0]->get_gamma()) ;
-    const Metric& flat = (et[0]->get_flat()) ;
-    const Map_af map0 (et[0]->get_mp()) ;
-    
-    Sym_tensor gamij_cov = gamij.cov() ;
-    const Tensor& dcov_gamij = gamij_cov.derive_cov(flat) ;
-    
-    Vector dgamma_1 =  contract( flat.con(), 1, contract(contract(flat.con()
-       			   , 0, dcov_gamij, 2), 0, 2), 0) ;
-    dgamma_1.change_triad(map0.get_bvect_spher()) ;
-    Scalar integrant_1 (dgamma_1(1)) ;
-     
-    Vector dgamma_2 =  contract( flat.con(), 1, contract(contract(flat.con()
-			   , 0, dcov_gamij, 0), 0, 1), 0) ;
-    dgamma_2.change_triad(map0.get_bvect_spher()) ;
-    Scalar integrant_2 (dgamma_2(1)) ;
-
-    *p_mass_adm = map0.integrale_surface_infini (integrant_1 - integrant_2)/(4*qpig) ;
-    */
-    // Second Method
     
     const Map_af map0 (et[0]->get_mp()) ;
     const Metric& flat = (et[0]->get_flat()) ;
@@ -148,6 +130,7 @@ double Binary::mass_adm_vol() const {
 
   for (int i=0; i<=1; i++) {	    // loop on the stars
 
+    // Declaration of all fields
       const Scalar& psi4 = et[i]->get_psi4() ;
       Scalar psi (pow(psi4, 0.25)) ;
       psi.std_spectral_base() ;
@@ -174,10 +157,13 @@ double Binary::mass_adm_vol() const {
       dcovdcov_lnq_auto.inc_dzpuis() ;
       Tensor dcovdcov_logn_auto = logn_auto.derive_cov(flat).derive_cov(flat) ;
       dcovdcov_logn_auto.inc_dzpuis() ;
-      
+ 
+      // Source in IWM approximation 
       Scalar source = - psi4 % (qpig*ener_euler + (kcar_auto + kcar_comp)/4.) 
-	- 0*2*contract(contract(gtilde.con(), 0, dcov_phi, 0), 0, dcov_phi_auto, 0, true) ;
+	- 0*2*contract(contract(gtilde.con(), 0, dcov_phi, 0), 
+		       0, dcov_phi_auto, 0, true) ;
       
+      // Source = 0 in IWM 
       source += 4*contract(hij, 0, 1, dcov_logn * dcov_phi_auto, 0, 1) +
 	2*contract(hij, 0, 1, dcov_phi * dcov_phi_auto, 0, 1) +
 	0.0625 * contract(gtilde.con(), 0, 1, contract(
@@ -192,29 +178,9 @@ double Binary::mass_adm_vol() const {
       source.std_spectral_base() ;
 
       massadm += - source.integrale()/qpig ;
-
-/*
-      Scalar temp1 (contract(phi_auto.derive_con(flat), 0, dcov_phi, 0)) ;
-      Scalar temp3 (contract(dcon_phi, 0, dcov_phi, 0)) ;
-      Scalar temp4 (contract(dcon_logn, 0, dcov_phi_auto, 0)) ;
-      Scalar temp5 (contract(logn_auto.derive_con(flat), 0, dcov_phi, 0)) ;
-      Scalar temp6 (contract(hij, 0, 1, dcov_logn * dcov_phi_auto, 0, 1)) ;
-      Scalar temp7 (contract(hij, 0, 1, dcov_logn_auto * dcov_phi, 0, 1)) ;
-      Scalar temp8 (contract(hij_auto, 0, 1, dcov_logn * dcov_phi, 0, 1)) ;
-	  
-      cout << "temp1 = " << -temp1.integrale() << endl ;
-      cout << "temp3 = " << -temp3.integrale() << endl ;
-      cout << "temp4 = " << -temp4.integrale() << endl ;
-      cout << "temp5 = " << -temp5.integrale() << endl ;
-      cout << "temp6 = " << -temp6.integrale() << endl ;
-      cout << "temp7 = " << -temp7.integrale() << endl ;
-      cout << "temp8 = " << -temp8.integrale() << endl ;
-*/
-   
   }
 
   return massadm ;
-
 }
 
 		    //---------------------------------//
@@ -257,6 +223,8 @@ double Binary::mass_kom_vol() const {
   masskom = 0. ;
 
   for (int i=0; i<=1; i++) {	    // loop on the stars
+
+     // Declaration of all fields
       const Scalar& psi4 = et[i]->get_psi4() ;
       const Scalar& ener_euler = et[i]->get_ener_euler() ;
       const Scalar& s_euler = et[i]->get_s_euler() ;
@@ -281,7 +249,8 @@ double Binary::mass_kom_vol() const {
       Scalar source = qpig * psi4 % (ener_euler + s_euler) ;
       source += psi4 % (kcar_auto + kcar_comp) ;
       source += - 0*contract(dcov_logn_auto, 0, dcon_logn, 0, true) 
-	  - 2. * contract(contract(gtilde.con(), 0, dcov_phi, 0), 0, dcov_logn_auto, 0, true) ;
+	  - 2. * contract(contract(gtilde.con(), 0, dcov_phi, 0), 0, 
+			  dcov_logn_auto, 0, true) ;
       source += - contract(hij, 0, 1, dcovdcov_logn_auto + 
 			   dcov_logn_auto*dcov_logn, 0, 1) ;
 
@@ -510,7 +479,7 @@ const Tbl& Binary::angu_mom() const {
 	if (p_angu_mom == 0x0) {	    // a new computation is requireed
     
 	p_angu_mom = new Tbl(3) ; 
-    p_angu_mom->annule_hard() ;	// fills the double array with zeros
+	p_angu_mom->annule_hard() ;	// fills the double array with zeros
 
 	// Reference Cartesian vector basis of the Absolute frame
 	Base_vect_cart bvect_ref(0.) ; 	// 0. = parallel to the Absolute frame
@@ -520,14 +489,37 @@ const Tbl& Binary::angu_mom() const {
 		const Map& mp = et[i]->get_mp() ; 
 		int nzm1 = mp.get_mg()->get_nzone() - 1 ; 
 		
+		// Function exp(-(r-r_0)^2/sigma^2)
+		// --------------------------------
+		
+		double r0 = mp.val_r(nzm1-1, 1, 0, 0) ;
+		double sigma = 3.*r0 ;
+		
+		Scalar rr (mp) ;
+		rr = mp.r ;
+		
+		Scalar ff (mp) ;
+		ff = exp( -(rr - r0)*(rr - r0)/sigma/sigma ) ;
+		for (int ii=0; ii<nzm1; ii++)
+		  ff.set_domain(ii) = 1. ;
+		ff.set_outer_boundary(nzm1, 0) ;
+		ff.std_spectral_base() ;
+
 		// Azimuthal vector d/dphi 
 		Vector vphi(mp, CON, bvect_ref) ; 		
-		vphi.set(1) = - mp.ya ; 	// phi^X
-		vphi.set(2) = mp.xa ; 
+		Scalar yya (mp) ;
+		yya = mp.ya ;
+		Scalar xxa (mp) ;
+		xxa = mp.xa ;
+		vphi.set(1) = - yya * ff ; 	// phi^X
+		vphi.set(2) = xxa * ff ; 
 		vphi.set(3) = 0 ;  
-		vphi.annule_domain(nzm1) ; 	//##  phi set to zero in the CED	
+
+		vphi.set(1).set_outer_boundary(nzm1, 0) ;
+		vphi.set(2).set_outer_boundary(nzm1, 0) ;
+	
 		vphi.std_spectral_base() ; 
-	    vphi.change_triad(mp.get_bvect_cart()) ; 
+		vphi.change_triad(mp.get_bvect_cart()) ; 
 		
 		// Matter part
 		// -----------
@@ -540,6 +532,7 @@ const Tbl& Binary::angu_mom() const {
 		Vector jmom = rho * (et[i]->get_u_euler()) ; 
 				
 		const Metric& gtilde = et[i]->get_gtilde() ; 
+		const Metric_flat flat (mp.flat_met_cart()) ; 
 		
 		Vector vphi_cov = vphi.up_down(gtilde) ;
 		
@@ -551,12 +544,36 @@ const Tbl& Binary::angu_mom() const {
 		// -----------------------------------
 		
 		const Sym_tensor& aij = et[i]->get_tkij_auto() ;
-		
-		Sym_tensor kill_phi = vphi_cov.ope_killing(gtilde) ; 
-		
-		rho = pow(psi4, double(1.5)) ;   //## check the power !
+		rho = pow(psi4, double(1.5)) ;  
 		rho.std_spectral_base() ;
 		
+		// Construction of D_k \Phi^i
+		Itbl type (2) ;
+		type.set(0) = CON ;
+		type.set(1) = COV ;
+		
+		Tensor dcov_vphi (mp, 2, type, mp.get_bvect_cart()) ;
+		dcov_vphi.set(1,1) = 0. ;
+		dcov_vphi.set(2,1) = ff ;
+		dcov_vphi.set(3,1) = 0. ;
+		dcov_vphi.set(2,2) = 0. ;
+		dcov_vphi.set(3,2) = 0. ;
+		dcov_vphi.set(3,3) = 0. ;
+		dcov_vphi.set(1,2) = -ff ;
+		dcov_vphi.set(1,3) = 0. ;
+		dcov_vphi.set(2,3) = 0. ;
+		dcov_vphi.inc_dzpuis(2) ;
+		
+		Connection gamijk (gtilde, flat) ;
+		const Tensor& deltaijk = gamijk.get_delta() ;
+		
+		// Computation of \tilde D_i \tilde \Phi_j
+		Sym_tensor kill_phi (mp, COV, mp.get_bvect_cart()) ;
+		kill_phi = contract(gtilde.cov(), 1, dcov_vphi +
+				    contract(deltaijk, 2, vphi, 0), 0) +
+		  contract(dcov_vphi + contract(deltaijk, 2, vphi, 0), 0,
+			   gtilde.cov(), 1) ; 
+
 		integrand = rho * contract(aij, 0, 1, kill_phi, 0, 1) ; 
 		
 		p_angu_mom->set(2) += integrand.integrale() / (4*qpig) ;
