@@ -26,6 +26,9 @@ char binhor_glob_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/09/24 08:31:38  f_limousin
+ * Improve the computation of moment_adm() and moment_hor().
+ *
  * Revision 1.5  2005/09/13 18:33:15  f_limousin
  * New function vv_bound_cart_bin(double) for computing binaries with
  * berlin condition for the shift vector.
@@ -118,7 +121,7 @@ double Bin_hor::ang_mom_hor() const {
 	ya_un = hole1.mp.ya ;
 	ya_un.std_spectral_base() ;
 	
-	Sym_tensor tkij_un (hole1.k_dd()) ;
+	Sym_tensor tkij_un (hole1.aa()) ;
 	tkij_un.change_triad(hole1.mp.get_bvect_cart()) ;
 
 	Vector vecteur_un (hole1.mp, CON, hole1.mp.get_bvect_cart()) ;
@@ -129,7 +132,7 @@ double Bin_hor::ang_mom_hor() const {
 	vecteur_un.annule_domain(hole1.mp.get_mg()->get_nzone()-1) ;
 	vecteur_un.change_triad (hole1.mp.get_bvect_spher()) ;
 	
-	Scalar integrant_un (pow(hole1.psi(), 2)*vecteur_un(1)) ;
+	Scalar integrant_un (pow(hole1.psi(), 6)*vecteur_un(1)) ;
 	integrant_un.std_spectral_base() ;
 	double moment_un = hole1.mp.integrale_surface
 	    (integrant_un, hole1.radius+1e-12)/8/M_PI ;
@@ -143,7 +146,7 @@ double Bin_hor::ang_mom_hor() const {
 	ya_deux = hole2.mp.ya ;
 	ya_deux.std_spectral_base() ;
 	
-	Sym_tensor tkij_deux (hole2.k_dd()) ;
+	Sym_tensor tkij_deux (hole2.aa()) ;
 	tkij_deux.change_triad(hole2.mp.get_bvect_cart()) ;
 
 	Vector vecteur_deux (hole2.mp, CON, hole2.mp.get_bvect_cart()) ;
@@ -154,7 +157,7 @@ double Bin_hor::ang_mom_hor() const {
 	vecteur_deux.annule_domain(hole2.mp.get_mg()->get_nzone()-1) ;
 	vecteur_deux.change_triad (hole2.mp.get_bvect_spher()) ;
 	
-	Scalar integrant_deux (pow(hole2.psi(), 2)*vecteur_deux(1)) ;
+	Scalar integrant_deux (pow(hole2.psi(), 6)*vecteur_deux(1)) ;
 	integrant_deux.std_spectral_base() ;
 	double moment_deux = hole2.mp.integrale_surface
 	    (integrant_deux, hole2.radius+1e-12)/8/M_PI ;
@@ -230,12 +233,10 @@ double Bin_hor::ang_mom_adm() const {
 	shift_tot.inc_dzpuis(2) ;
 	shift_tot.dec_dzpuis(2) ;
 	
-	Sym_tensor temp_gamt (hole1.met_gamt.cov()) ;
-	temp_gamt.change_triad(hole1.mp.get_bvect_cart()) ;
-	Metric gamt_cart (temp_gamt) ;
+	const Metric_flat& flat0 (mapping.flat_met_cart()) ;
 
-	k_total = shift_tot.ope_killing_conf(gamt_cart) / 2. - 
-	    gamt_cart.con() * hole1.trK;
+	k_total = shift_tot.ope_killing_conf(flat0) / 2. ;
+	//- flat0.con() * hole1.trK;
 
 	for (int lig=1 ; lig<=3 ; lig++)
 	    for (int col=lig ; col<=3 ; col++)
