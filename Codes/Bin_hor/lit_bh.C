@@ -29,6 +29,9 @@ char lit_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/09/24 08:28:31  f_limousin
+ * Implementation of Smarr formula. Computation of dt_psi/psi.
+ *
  * Revision 1.3  2005/06/09 16:17:21  f_limousin
  * Many different changes.
  *
@@ -57,6 +60,7 @@ char lit_bh_C[] = "$Header$" ;
 #include "cmp.h"
 #include "tensor.h"
 #include "tenseur.h"
+#include "metric.h"
 #include "isol_hor.h"
 #include "graphique.h"
 #include "utilitaires.h"
@@ -66,12 +70,16 @@ char lit_bh_C[] = "$Header$" ;
 int main(int argc, char** argv) {
 
   using namespace Unites ;
+  
     if (argc <2) {
 	cout <<" Passer nom du ficher en arguments SVP !" << endl ;
 	abort() ;
     }
     
     char* name_fich = argv[1] ;
+  
+    //char* name_fich = "new_11_17/bin.dat" ;
+
 
     // Construction of the binary
     // --------------------------
@@ -94,6 +102,9 @@ int main(int argc, char** argv) {
     bin.decouple() ;
     bin.extrinsic_curvature() ;
 
+    cout << "axi_break = " << bin(1).axi_break() << endl ;
+//    abort() ;
+
     // Calculation of global quantities
     // --------------------------------
 
@@ -104,8 +115,6 @@ int main(int argc, char** argv) {
     double komar = bin.komar_mass() ;
     double moment_inf = bin.ang_mom_adm() ;
     double moment_hor = bin.ang_mom_hor() ;
-//    double moment_hor =bin(1).ang_mom_hor() + bin(2).ang_mom_hor() ;
-    //   double distance_propre = bin.distance_propre() ;
     double mass_area = sqrt(bin(1).area_hor()/16/M_PI) + 
 	sqrt(bin(2).area_hor()/16/M_PI) ;
         
@@ -116,27 +125,76 @@ int main(int argc, char** argv) {
     cout << "Mass area         : " << mass_area << endl ;
     cout << "ADM ang. mom.     : " << moment_inf << endl ;
     cout << "horizon ang.mom.  : " << moment_hor << endl ;
-//    cout << "Distance propre : " << distance_propre << endl ;
     
+    // Verification of \partial_t \Psi << Omega
+    // -----------------------------------------
+    
+    const Metric& flat1 (map_un.flat_met_spher()) ;
+    const Metric& flat2 (map_deux.flat_met_spher()) ;
+    
+    Vector omdsdp (map_un, CON, map_un.get_bvect_cart()) ;
+    Scalar yya (map_un) ;
+    yya = map_un.ya ;
+    Scalar xxa (map_un) ;
+    xxa = map_un.xa ;
+    
+    double om = bin.get_omega() ;
+
+    if (fabs(map_un.get_rot_phi()) < 1e-10){ 
+	omdsdp.set(1) = - om * yya ;
+	omdsdp.set(2) = om * xxa ;
+	omdsdp.set(3).annule_hard() ;
+    }
+    else{
+	omdsdp.set(1) = om * yya ;
+	omdsdp.set(2) = - om * xxa ;
+	omdsdp.set(3).annule_hard() ;
+    }
+    omdsdp.annule_domain(map_un.get_mg()->get_nzone()-1) ;
+
+    omdsdp.set(1).set_spectral_va()
+	.set_base(*(map_un.get_mg()->std_base_vect_cart()[0])) ;
+    omdsdp.set(2).set_spectral_va()
+	.set_base(*(map_un.get_mg()->std_base_vect_cart()[1])) ;
+    omdsdp.set(3).set_spectral_va()
+	.set_base(*(map_un.get_mg()->std_base_vect_cart()[2])) ;
+    omdsdp.change_triad(map_un.get_bvect_spher()) ;
+
+    Vector shift (bin(1).beta() + omdsdp) ;
+
+    Scalar dt_psi (contract(shift, 0, bin(1).psi().derive_cov(flat1), 0) + 
+		   bin(1).psi()*bin(1).beta().divergence(flat1)/6.) ;
+		       
+    cout << "Max(dt_psi/psi) : " << endl << max(dt_psi/bin(1).psi()) << endl ;
+    cout << "Norme(dt_psi/psi) : " << endl << norme(dt_psi/bin(1).psi())/
+      (map_un.get_mg()->get_nr(1)*map_un.get_mg()->get_nt(1)*
+       map_un.get_mg()->get_np(1)) << endl ;
+    cout << " omega = " << bin(1).get_omega() << endl ;
+ 
     // Verification of Smarr :
     // -----------------------
-
-    Scalar integrand_un (bin(1).nn().dsdr()*
-	pow(bin(1).psi(), 2)) ;
+        
+    Vector integrand_un (map_un, COV, map_un.get_bvect_spher()) ;
+    integrand_un = bin(1).nn().derive_cov(flat1)*pow(bin(1).psi(), 2) 
+			 - bin(1).nn()*contract(bin(1).k_dd(), 1, 
+			 bin(1).gam().radial_vect(), 0)*pow(bin(1).psi(), 2) ;
     integrand_un.std_spectral_base() ;
-    integrand_un.raccord(1) ;
-    Scalar integrand_deux (bin(2).nn().dsdr()*
-	pow(bin(2).psi(), 2)) ;
+    //    integrand_un.change_triad(map_un.get_bvect_spher()) ;
+
+    Vector integrand_deux (map_deux, COV, map_deux.get_bvect_spher()) ;
+    integrand_deux = bin(2).nn().derive_cov(flat2)*pow(bin(2).psi(), 2) 
+			   - bin(2).nn()*contract(bin(2).k_dd(), 1, 
+			 bin(2).gam().radial_vect(), 0)*pow(bin(2).psi(), 2) ;
     integrand_deux.std_spectral_base() ;
-    integrand_deux.raccord(1) ;
-    
-    double horizon = map_un.integrale_surface(integrand_un, 
+    //integrand_deux.change_triad(map_deux.get_bvect_spher()) ;
+
+    double horizon = map_un.integrale_surface(integrand_un(1), 
 					      bin(1).get_radius())+
-	map_deux.integrale_surface(integrand_deux, bin(2).get_radius()) ;
+	map_deux.integrale_surface(integrand_deux(1), bin(2).get_radius()) ;
 	
     horizon /= 4*M_PI ;
 
-    double j_test = (komar - horizon) / 2 / bin.get_omega() ;
+    double j_test = (komar - horizon) / 2. / bin.get_omega() ;
     
     cout.precision(10) ;
     cout << "------------------------------------------" << endl ;
@@ -145,7 +203,7 @@ int main(int argc, char** argv) {
     cout << "Difference between ADM and Smarr  : " 
 	 << fabs(moment_inf - j_test) / moment_inf << endl ;
     cout << "Difference between horizon and Smarr : " 
-	 << fabs(moment_hor - j_test) / moment_inf << endl ;
+	 << fabs(moment_hor - j_test) / moment_hor << endl ;
 
     cout << "------------------------------------------" << endl ;
     cout << "Difference Komar-ADM : " << fabs(komar-adm)/fabs(adm) << endl ;
@@ -272,10 +330,10 @@ int main(int argc, char** argv) {
     // -------
 
     ta = 18.5 ;
-    Cmp dessin_un (bin(1).nn()) ;
+    Cmp dessin_un (bin(1).n_auto()) ;
     dessin_un.annule(0) ;
     
-    Cmp dessin_deux (bin(2).nn()) ;
+    Cmp dessin_deux (bin(2).n_auto()) ;
     dessin_deux.annule(0) ;
     
     des_coupe_bin_z (dessin_un, dessin_deux, 0, 
@@ -304,26 +362,22 @@ int main(int argc, char** argv) {
 
     ta = 18.5 ;
     dessin_un = aa_auto_un(1, 1) ;
-//    dessin_un.std_base_scal() ;
     dessin_un.annule(0) ;
     dessin_un.dec2_dzpuis() ;
     
     dessin_deux = aa_auto_deux(1, 1) ;
-//    dessin_deux.std_base_scal() ;
     dessin_deux.annule(0) ;
     dessin_deux.dec2_dzpuis() ;
-    
+ 
     des_coupe_bin_z (dessin_un, dessin_deux, 0, 
 	-ta, ta, -ta, ta, "A\\urr\\d (Z=0)", &surface_un, &surface_deux, false
 	, 15, 300, 300) ;
     
     dessin_un = aa_auto_un(1, 3) ;
-//    dessin_un.std_base_scal() ;
     dessin_un.annule(0) ;
     dessin_un.dec2_dzpuis() ;
     
     dessin_deux = aa_auto_deux(1, 3) ;
-//    dessin_deux.std_base_scal() ;
     dessin_deux.annule(0) ;
     dessin_deux.dec2_dzpuis() ;
     
@@ -332,12 +386,10 @@ int main(int argc, char** argv) {
 	15, 300, 300) ;
     
     dessin_un = aa_auto_un(2, 3) ;
-//    dessin_un.std_base_scal() ;
     dessin_un.annule(0) ;
     dessin_un.dec2_dzpuis() ;
     
     dessin_deux = aa_auto_deux(2, 3) ;
-//    dessin_deux.std_base_scal() ;
     dessin_deux.annule(0) ;
     dessin_deux.dec2_dzpuis() ;
     
@@ -352,12 +404,10 @@ int main(int argc, char** argv) {
     aa_auto_deux.change_triad(bin(2).get_mp().get_bvect_cart()) ;
 
     dessin_un = aa_auto_un(1, 1) ;
-//    dessin_un.std_base_scal() ;
     dessin_un.annule(0) ;
     dessin_un.dec2_dzpuis() ;
     
     dessin_deux = aa_auto_deux(1, 1) ;
-//    dessin_deux.std_base_scal() ;
     dessin_deux.annule(0) ;
     dessin_deux.dec2_dzpuis() ;
     
@@ -366,13 +416,11 @@ int main(int argc, char** argv) {
 	, 15, 300, 300) ;
  
 
-     dessin_un = aa_auto_un(2, 1) ;
-//    dessin_un.std_base_scal() ;
+    dessin_un = aa_auto_un(2, 1) ;
     dessin_un.annule(0) ;
     dessin_un.dec2_dzpuis() ;
     
     dessin_deux = aa_auto_deux(2, 1) ;
-//    dessin_deux.std_base_scal() ;
     dessin_deux.annule(0) ;
     dessin_deux.dec2_dzpuis() ;
     
@@ -381,21 +429,17 @@ int main(int argc, char** argv) {
 	, 15, 300, 300) ;
 
  
-     dessin_un = aa_auto_un(2, 2) ;
-//    dessin_un.std_base_scal() ;
+    dessin_un = aa_auto_un(2, 2) ;
     dessin_un.annule(0) ;
     dessin_un.dec2_dzpuis() ;
     
     dessin_deux = aa_auto_deux(2, 2) ;
-//    dessin_deux.std_base_scal() ;
     dessin_deux.annule(0) ;
     dessin_deux.dec2_dzpuis() ;
     
     des_coupe_bin_z (dessin_un, dessin_deux, 0, 
 	-ta, ta, -ta, ta, "A\\uXY\\d (Z=0)", &surface_un, &surface_deux, false
-	, 15, 300, 300) ;
- 
-    
+	, 15, 300, 300) ;    
 
     return 1; 
 }
