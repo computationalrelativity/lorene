@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/10/05 15:14:47  j_novak
+ * Added a Param* as parameter of Etoile_rot::equilibrium
+ *
  * Revision 1.3  2004/03/22 13:12:41  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -333,7 +336,7 @@ class Et_rot_diff : public Etoile_rot {
 			 int nzadapt, const Tbl& ent_limit,
 			 const Itbl& icontrol, const Tbl& control,
 			 double mbar_wanted, double aexp_mass, 
-			 Tbl& diff) ;
+			 Tbl& diff, Param* = 0x0) ;
 	
  };
 

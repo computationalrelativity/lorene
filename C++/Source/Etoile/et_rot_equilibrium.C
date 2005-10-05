@@ -32,6 +32,9 @@ char et_rot_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/10/05 15:15:31  j_novak
+ * Added a Param* as parameter of Etoile_rot::equilibrium
+ *
  * Revision 1.5  2004/03/25 10:29:06  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -137,7 +140,7 @@ char et_rot_equilibrium_C[] = "$Header$" ;
 void Etoile_rot::equilibrium(double ent_c, double omega0, double fact_omega, 
 			     int nzadapt, const Tbl& ent_limit, const Itbl& icontrol,
 			     const Tbl& control, double mbar_wanted, 
-			     double aexp_mass, Tbl& diff) {
+			     double aexp_mass, Tbl& diff, Param*) {
 			     
     // Fundamental constants and units
     // -------------------------------

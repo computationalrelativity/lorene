@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.27  2005/10/05 15:14:47  j_novak
+ * Added a Param* as parameter of Etoile_rot::equilibrium
+ *
  * Revision 1.26  2005/08/29 15:10:12  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -2019,7 +2022,7 @@ class Etoile_rot : public Etoile {
 			 int nzadapt, const Tbl& ent_limit,
 			 const Itbl& icontrol, const Tbl& control,
 			 double mbar_wanted, double aexp_mass, 
-			 Tbl& diff) ;
+			 Tbl& diff, Param* = 0x0) ;
 	
 
 };
