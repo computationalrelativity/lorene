@@ -31,6 +31,10 @@ char mg3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2005/10/07 08:47:21  j_novak
+ * Addition of the pointer g_non_axi on a grid, with at least 5 points in the
+ * theta direction and 4 in the phi one (for tensor rotations).
+ *
  * Revision 1.10  2004/07/06 13:36:29  j_novak
  * Added methods for desaliased product (operator |) only in r direction.
  *
@@ -739,6 +743,7 @@ void Mg3d::del_deriv() const {
     if (g_radial != 0x0) delete g_radial ;
     if (g_twice != 0x0) delete g_twice ;
     if (g_plus_half != 0x0) delete g_plus_half ;
+    if (g_non_axi != 0x0) delete g_non_axi ;
 
     set_deriv_0x0() ;
 
@@ -750,6 +755,7 @@ void Mg3d::set_deriv_0x0() const {
     g_radial = 0x0 ;
     g_twice = 0x0 ;
     g_plus_half = 0x0 ;
+    g_non_axi = 0x0 ;
 }
 
 
@@ -867,6 +873,40 @@ const Mg3d* Mg3d::plus_half() const {
   }
 
   return g_plus_half ;
+
+}
+	
+		  //----------------------------------------------//
+		  // Grid for rotations (5/4 points in theta/phi) //
+		  //----------------------------------------------//
+
+const Mg3d* Mg3d::get_non_axi() const {
+
+  if (g_non_axi == 0x0) {	  // The construction is required
+
+    int* nbt = new int[nzone] ;
+    int* nbp = new int[nzone] ;
+    
+    for (int l=0; l<nzone; l++) {
+      if (nt[l] < 5)   
+	  nbt[l] = 5 ;
+      else
+	  nbt[l] = nt[l] ;
+      if (np[l] < 4)
+	  nbp[l] = 4 ;
+      else
+	  nbp[l] = np[l] ;
+    }
+    
+    g_non_axi = new Mg3d(nzone, nr, type_r, nbt, type_t, nbp, type_p) ;
+
+    delete [] nbt ;
+    delete [] nbp ;
+
+
+  }
+
+  return g_non_axi ;
 
 }
 	

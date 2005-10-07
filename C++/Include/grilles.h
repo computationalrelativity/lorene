@@ -34,6 +34,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2005/10/07 08:47:20  j_novak
+ * Addition of the pointer g_non_axi on a grid, with at least 5 points in the
+ * theta direction and 4 in the phi one (for tensor rotations).
+ *
  * Revision 1.12  2005/03/25 14:54:04  e_gourgoulhon
  * Corrected documentation.
  *
@@ -480,6 +484,12 @@ class Mg3d {
 	 */
 	mutable Mg3d* g_plus_half ; 
 
+	/** Pointer on the grid which has at least 4 points in
+	 *  the \f$\phi\f$ direction and at least 5 in the \f$\theta\f$ 
+	 *  direction (for tensor rotations).
+	 */
+	mutable Mg3d* g_non_axi ; 
+
     // Constructors - Destructor
     // -------------------------
 	
@@ -637,6 +647,12 @@ class Mg3d {
 	 *  \e r dimension (for desaliasing).
 	 */
 	const Mg3d* plus_half() const ;
+
+	/** Returns the pointer on the grid which has at least 4 points in
+	 *  the \f$\phi\f$ direction and at least 5 in the \f$\theta\f$ 
+	 *  direction (for tensor rotations).
+	 */
+	const Mg3d* get_non_axi() const ;
 
 	/// Comparison operator (egality)
 	bool operator==(const Mg3d& ) const ;  
