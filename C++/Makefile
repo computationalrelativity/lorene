@@ -6,6 +6,7 @@ BIN_TOOLS = $(HOME_LORENE)/bin
 LIB	  = $(HOME_LORENE)/Lib
 
 install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
+	cd Source/App_hor; $(MAKE)
 	cd Source/Base_val; $(MAKE)
 	cd Source/Base_vect; $(MAKE)
 	cd Source/Bhole; $(MAKE)
@@ -62,6 +63,7 @@ uninstall:
 	rm -fr $(LIB)/liblorene.a
 	rm -fr $(LIB)/liblorene_g.a
 	rm -f $(BIN_TOOLS)/pointCpointo
+	cd Source/App_hor; $(MAKE) -i uninstall
 	cd Source/Base_val; $(MAKE) -i uninstall
 	cd Source/Base_vect; $(MAKE) -i uninstall
 	cd Source/Bhole; $(MAKE) -i uninstall
