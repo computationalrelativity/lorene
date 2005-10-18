@@ -28,6 +28,9 @@ char lit_bin_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/10/18 13:33:43  p_grandclement
+ * small correction
+ *
  * Revision 1.2  2005/10/18 13:12:34  p_grandclement
  * update of the mixted binary codes
  *
@@ -139,10 +142,6 @@ int main(int argc, char** argv) {
     cout << "Coord bh         : " << fabs(x_bh) << endl ;
     cout << "Coord ns         : " << fabs(x_ns) << endl ;
     cout << "Regularisation   : " << regul << endl ;
-    
-    cout << "Mns = " <<  Mb_ns/rpoly*ggrav << endl ;
-    cout << "Xns = " << (fabs(x_bh) +  fabs(x_ns)) / M_bh<< endl ;
-    cout << "ome = " << omega*M_bh << endl ;
     
     double centre = 0 ;
     double taille = fabs (x_bh) + fabs(x_ns) ;
