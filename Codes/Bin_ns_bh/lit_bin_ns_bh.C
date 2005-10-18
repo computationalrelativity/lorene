@@ -28,6 +28,9 @@ char lit_bin_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/10/18 13:12:34  p_grandclement
+ * update of the mixted binary codes
+ *
  * Revision 1.1  2005/08/29 15:10:19  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -129,17 +132,10 @@ int main(int argc, char** argv) {
     cout << "NS grav. mass   : " << Mg_ns/msol << " solar mass" << endl ;
     cout << "Distance BH     : " << d_bh << endl ;
     cout << "Distance NS     : " << d_ns << endl ;
-        
-    //cout << bibi.get_ns().compute_angul() << endl ;
     
     double x_bh = bibi.get_bh().get_mp().get_ori_x() ;
     double x_ns = bibi.get_ns().get_mp().get_ori_x() ;
     double regul = bibi.get_bh().get_regul() ;
-    
-    double kappa = 0.1 ;
-    double gamma = 2 ;
-    double rpoly = pow(kappa/ggrav, (gamma-1.)/2.) ;
-    
     cout << "Coord bh         : " << fabs(x_bh) << endl ;
     cout << "Coord ns         : " << fabs(x_ns) << endl ;
     cout << "Regularisation   : " << regul << endl ;

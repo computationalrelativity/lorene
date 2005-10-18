@@ -31,6 +31,9 @@ char et_bin_nsbh_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/10/18 13:12:33  p_grandclement
+ * update of the mixted binary codes
+ *
  * Revision 1.5  2005/08/29 15:10:17  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -69,7 +72,7 @@ char et_bin_nsbh_equilibrium_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "unites.h"
 
-void Et_bin_nsbh::equilibrium_nsbh(bool adapt, int& niter, int mermax,
+void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mermax,
 				   int mermax_poisson, double relax_poisson,
 				   int mermax_potvit, double relax_potvit, 
 				   Tbl& diff) {
@@ -135,7 +138,7 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, int& niter, int mermax,
     Param par_adapt ; 
     int nitermax = 100 ;  
     int niter_adapt ; 
-    int adapt_flag = 1 ;  
+    int adapt_flag = (adapt) ? 1 : 0 ;  
     int nz_search = nzet + 1 ;
     double precis_secant = 1.e-14 ; 
     double alpha_r ; 
@@ -187,7 +190,7 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, int& niter, int mermax,
 	}
 	
 	// Equation de la surface
-	if (adapt) {
+	//if (adapt) {
 	
 	   // Rescaling of the radius : (Be carefull !)
 	   int nt = mg->get_nt(nzet-1) ;
@@ -195,14 +198,14 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, int& niter, int mermax,
 	   int nr = mg->get_nr(nzet-1) ;
 	  
 	   // valeurs au centre
-	   double hc = exp(ent())(0,0,0,0) ;
+	   double hc = exp(ent_c) ;
 	   double gamma_c = exp(loggam())(0,0,0,0) ;
 	   double gamma_0_c = exp(-pot_centri())(0,0,0,0) ;
 	   double n_auto_c = n_auto()(0,0,0,0) ;
 	   double n_comp_c = n_comp()(0,0,0,0) ;   
 	   
 	   double alpha_square = 0 ;
-	   double constante ;
+	   double constante = 0;
 	   for (int k=0; k<np; k++) {
 	    for (int j=0; j<nt; j++) {
 		
@@ -211,11 +214,11 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, int& niter, int mermax,
 	          double gamma_0_b = exp(-pot_centri())(nzet-1,k,j,nr-1) ;
 	          double n_auto_b = n_auto()(nzet-1,k,j,nr-1) ;
 	          double n_comp_b = n_comp()(nzet-1,k,j,nr-1) ;
-	   
+		  
 	   // Les solutions :
 	   double alpha_square_courant = (gamma_0_c*gamma_b*n_comp_b - hc*gamma_c*gamma_0_b*n_comp_c) /
 	                         (hc*gamma_c*gamma_0_b*n_auto_c-gamma_0_c*gamma_b*n_auto_b) ;
-	   double constante_courant = gamma_b*(n_comp_b+alpha_square*n_auto_b)/gamma_0_b ;	  
+	   double constante_courant = gamma_b*(n_comp_b+alpha_square_courant*n_auto_b)/gamma_0_b ;	  
 		if (alpha_square_courant > alpha_square) {
 		    alpha_square = alpha_square_courant ; 
 		    k_b = k ; 
@@ -228,15 +231,15 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, int& niter, int mermax,
 	  alpha_r = sqrt(alpha_square) ;
 	   cout << k_b << " " << j_b << " " << alpha_r << endl ;
 	  
-	 
 	   // Le potentiel : 
-	   n_auto = n_auto*alpha_square ;
-	   nnn = n_comp + n_auto ;
-	   Tenseur potentiel (constante*(exp(-loggam-pot_centri)/nnn)) ;
+	   //n_auto = n_auto*alpha_square ;
+	   //nnn = n_comp + n_auto ;
+	   Tenseur potentiel (constante*(exp(-loggam-pot_centri)/(n_auto*alpha_square+n_comp))) ;
+	   //Tenseur potentiel (constante*(exp(-loggam-pot_centri)/(nnn))) ;
 	   potentiel.set_std_base() ;
-	   for (int l=nzet ; l<nz ; l++)
+	   for (int l=nzet+1 ; l<nz ; l++)
 	    	potentiel.set().va.set(l) = 1 ;
-		
+	
 	   Map_et mp_prev = mp_et ; 
 	   ent = log(potentiel) ;
 	   ent.set_std_base() ;
@@ -254,8 +257,20 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, int& niter, int mermax,
 	   mp_prev.homothetie(alpha_r) ;
 	   mp.reevaluate_symy (&mp_prev, nzet, ent.set()) ;
 	   
-	   //des_coupe_z (ent(), 0, mp.get_ori_x()-7, mp.get_ori_x()+7, -7, 7) ;
+	   //des_coupe_z (ent(), 0, mp.get_ori_x()-10, mp.get_ori_x()+10, -10, 10) ;
+	//}
+	/*
+	else {  
+	Tenseur potentiel (exp(-loggam-pot_centri)/nnn) ;
+	potentiel = potentiel/potentiel()(0,0,0,0)*exp(ent()(0,0,0,0)) ;
+	potentiel.set_std_base() ;
+	   for (int l=nzet ; l<nz ; l++)
+	    	potentiel.set().va.set(l) = 1 ;
+		 
+	 ent = log(potentiel) ;
+	 ent.set_std_base() ;
 	}
+	*/
 	
 	// Equation of state
 	//----------------------------------------------------

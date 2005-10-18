@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2005/10/18 13:12:31  p_grandclement
+ * update of the mixted binary codes
+ *
  * Revision 1.9  2005/08/29 15:10:12  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -293,7 +296,7 @@ class Bin_ns_bh {
 	double smarr() const ;
 	Tbl linear_momentum_systeme_inf() const ;
 	double viriel() const ;
-	void coal (double, double, int, int, int,  double, double, double, const int) ;
+	void coal (double, double, int, int,  double, double, double, double, const int) ;
 	double distance_propre_axe_bh (const int nr  = 65) const ;
 	double distance_propre_axe_ns (const int nr  = 65) const ;
 	

@@ -33,6 +33,9 @@ char et_bin_vel_pot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2005/10/18 13:12:33  p_grandclement
+ * update of the mixted binary codes
+ *
  * Revision 1.11  2004/05/25 15:38:38  f_limousin
  * Minor modifs.
  *
@@ -118,11 +121,16 @@ char et_bin_vel_pot_C[] = "$Header$" ;
 #include "etoile.h"
 #include "eos.h"
 #include "param.h"
+#include "et_bin_nsbh.h"
 
 // Local prototype
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
 
 double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
+  
+  // Which star is that ?
+  const Et_bin_nsbh* pnsbh = dynamic_cast<const Et_bin_nsbh*>(this) ;
+  
   if (eos.identify() == 5 || eos.identify() == 4 || 
       eos.identify() == 3) {
     
@@ -193,10 +201,11 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
 
     
 
-    Tenseur beta(mp) ; 
-
-    if (beta_auto.get_etat() == ETATNONDEF) {
+    Tenseur beta(mp) ;
+    
+    if (pnsbh!=0x0) {
 	beta = log( sqrt(a_car) * nnn ) ; 
+	beta.set_std_base() ;
     }
     else {
 	beta = beta_auto + beta_comp ; 
@@ -431,8 +440,9 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
     
     Tenseur beta(mp) ; 
     
-    if (beta_auto.get_etat() == ETATNONDEF) {
-	beta = log( sqrt(a_car) * nnn ) ; 
+    if (pnsbh!=0x0) {
+	beta = log( sqrt(a_car) * nnn ) ;
+	beta.set_std_base() ;
     }
     else {
 	beta = beta_auto + beta_comp ; 

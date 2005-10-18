@@ -31,6 +31,9 @@ char et_bin_nsbh_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/10/18 13:12:33  p_grandclement
+ * update of the mixted binary codes
+ *
  * Revision 1.3  2005/08/29 15:10:17  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -84,7 +87,8 @@ void Et_bin_nsbh::update_metric_der_comp(const Bhole& comp) {
     d_n_comp.set_std_base() ;
     d_n_comp.inc2_dzpuis() ;
     d_n_comp.set_triad( *(dncomp.get_triad()) ) ;
-
+    d_n_comp.change_triad(ref_triad) ;
+    
 
     // Computation of Grad(Psi) ---> stored in d_confpsi_comp
     // ------------------------------------------------------
@@ -111,6 +115,7 @@ void Et_bin_nsbh::update_metric_der_comp(const Bhole& comp) {
     d_confpsi_comp.set_std_base() ;
     d_confpsi_comp.inc2_dzpuis() ;
     d_confpsi_comp.set_triad( *(dpsicomp.get_triad()) ) ;
+    d_confpsi_comp.change_triad(ref_triad) ;
 
     // The derived quantities are obsolete
     // -----------------------------------

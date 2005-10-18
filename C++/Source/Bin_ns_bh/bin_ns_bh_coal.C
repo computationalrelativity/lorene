@@ -25,6 +25,9 @@ char bin_ns_bh_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/10/18 13:12:32  p_grandclement
+ * update of the mixted binary codes
+ *
  * Revision 1.1  2005/08/29 15:10:15  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -45,26 +48,24 @@ char bin_ns_bh_coal_C[] = "$Header$" ;
 #include "unites.h"
 #include "graphique.h"
 
-void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_mp_et, int nbr_ome, double seuil_adapt, double m1, double m2, const int sortie) {
+void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_mp_et, double ent_c_init, double seuil_m, double m1, double m2, const int sortie) {
     
     using namespace Unites ;
-    
-    assert (omega == 0) ;
      
     int nz_bh = hole.mp.get_mg()->get_nzone() ;
     int nz_ns = star.mp.get_mg()->get_nzone() ;
     
-    // Distance initiale
-    
+    // Distance initiale 
     double distance = fabs(hole.mp.get_ori_x()-star.mp.get_ori_x()) ;
     double mass_ns =  star.mass_g() * ggrav;
     double mass_bh =  hole.masse_adm_seul() ;
     double axe_pos = distance*(mass_bh/(mass_bh+mass_ns)) ;
     double angulaire = sqrt((mass_bh+mass_ns)/distance/distance/distance) ;
     double scale_linear = (mass_ns+mass_bh)/2.*distance*angulaire ;
-    star.set_mp().set_ori (axe_pos, 0, 0) ;
-    hole.set_mp().set_ori (-distance + axe_pos, 0, 0) ;
-    
+    star.set_mp().set_ori (axe_pos, 0., 0.) ;
+    hole.set_mp().set_ori (-distance + axe_pos, 0., 0.) ;
+
+    set_omega(angulaire) ;
     int conte = 0 ;
   
     char name_iteration[40] ;
@@ -82,8 +83,8 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
     sprintf(name_ome, "ome.dat") ;
     sprintf(name_linear, "linear.dat") ;
     sprintf(name_axe, "axe.dat") ;
-    sprintf(name_error_m1, "error_m1.dat") ;
-    sprintf(name_error_m2, "error_m2.dat") ;
+    sprintf(name_error_m1, "error_m_bh.dat") ;
+    sprintf(name_error_m2, "error_m_ns.dat") ;
     
     ofstream fiche_iteration(name_iteration) ;
     fiche_iteration.precision(8) ; 
@@ -112,20 +113,16 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
     
     // BOUCLE AVEC BLOQUE :
     bool loop = true ;     
-    bool scale = false ;
-    bool axe_search = false ;
-    bool adapt = false ;
+    bool search_m = false ;
+    double ent_c = ent_c_init ;
     
     Cmp shift_bh_old (hole.mp) ;
     Cmp shift_ns_old (star.mp) ;
 	
     double erreur ;
-        
+    
     while (loop) {
-	
-	if (conte <nbr_ome)
-            set_omega (omega + angulaire / nbr_ome) ;
-       
+    
 	if (hole.get_shift_auto().get_etat() != ETATZERO)
 	    shift_bh_old = hole.get_shift_auto()(0) ;
 	else
@@ -135,33 +132,29 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
 	    shift_ns_old = star.get_shift_auto()(0) ;
 	else
 	    shift_ns_old = 0 ;
-	
+		
 	star.kinematics(omega, x_axe) ;
         star.fait_d_psi() ;
         star.hydro_euler() ;
+	
+        Tbl diff (7) ;
+	diff.set_etat_qcq() ;
+	int ite ;
+	  
+	star.equilibrium_nsbh (true, ent_c, ite, itemax_equil, itemax_mp_et, relax, itemax_mp_et, relax, diff) ;
 
-	 Tbl diff (7) ;
-	 diff.set_etat_qcq() ;
-	 int ite ;
-	 
-	 if (adapt) {
-	     cout << "On adapte" << endl ;
-	     star.equilibrium_nsbh (true, ite, itemax_equil, itemax_mp_et, relax, itemax_mp_et, relax, diff) ;
-	     //star.equilibrium_nsbh (false, ite, itemax_equil, itemax_mp_et, relax, itemax_mp_et, relax, diff) ;
-	     }
-	else
-	     star.equilibrium_nsbh (false, ite, itemax_equil, itemax_mp_et, relax, itemax_mp_et, relax, diff) ;
-	      
-	     hole.update_metric(star) ;
-	     hole.equilibrium (star, precis, relax) ;
-             cout << "Apres equilibrium" << endl ;   
-	    star.update_metric(hole) ;
-	    cout << "Apres star::update_metric" << endl ;
-            star.update_metric_der_comp(hole) ;
-	    cout << "Apres star::update_metric_der_comp" << endl ;
-            fait_tkij() ;
-	    cout << "Apres Bin_ns_bh::fait_tkij" << endl ;     
-	 
+	hole.update_metric(star) ;    
+	hole.equilibrium (star, precis, relax) ;
+        cout << "Apres equilibrium" << endl ;   
+	
+        star.update_metric(hole) ;
+	cout << "Apres star::update_metric" << endl ;
+	
+	star.update_metric_der_comp(hole) ;
+	cout << "Apres star::update_metric_der_comp" << endl ;	
+	fait_tkij() ;
+	cout << "Apres Bin_ns_bh::fait_tkij" << endl ;     
+	
 	erreur = 0 ;
 	Tbl diff_bh (diffrelmax (shift_bh_old, hole.get_shift_auto()(0))) ;
 	for (int i=1 ; i<nz_bh ; i++)
@@ -173,6 +166,9 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
 	    if (diff_ns(i) > erreur)
 		erreur = diff_ns(i) ;
 	
+	if (erreur<seuil_m)
+	    search_m = true ;
+		
 	cout << "Avant viriel" << endl ;
         double error_viriel = viriel() ;
 	cout << "Apres viriel" << endl ;
@@ -188,28 +184,36 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
 	    fiche_correction << conte << " " << hole.regul << endl ;
 	    fiche_viriel << conte << " " << error_viriel << endl ;
 	    fiche_linear << conte << " " << error_linear << endl ;
-	    fiche_error_m1 << conte << " " << error_m1 << endl ;
-	    fiche_error_m2 << conte << " " << error_m2 << endl ; 
+	    fiche_error_m1 << conte << " " << error_m1 << " " << sqrt(hole.area()/16./M_PI) << " " << m1 << endl ;
+	    fiche_error_m2 << conte << " " << error_m2 << " " << star.mass_b() << " " << m2 << endl ; 
 	    }
 	
-	         
-	// On modifie omega, position de l'axe et les masses !
-	if (erreur<seuil_adapt)
-	      adapt = true ;
+	// The axis position
+	double scaling_axe = pow((2+error_linear)/(2+2*error_linear), 0.25) ;
+	axe_pos *= scaling_axe ;
+	star.set_mp().set_ori (axe_pos, 0, 0) ;
+        hole.set_mp().set_ori (-distance + axe_pos, 0, 0) ;
+
+	// Value of omega
+	double new_ome = star.compute_angul() ;
+       if (new_ome !=0)
+		 set_omega(relax*new_ome + (1-relax)*omega) ;
 	
-	if (conte >= nbr_ome){
-	    double scaling_axe = pow((2+error_linear)/(2+2*error_linear), 0.25) ;
-	    axe_pos *= scaling_axe ;
-	    star.set_mp().set_ori (axe_pos, 0, 0) ;
-            hole.set_mp().set_ori (-distance + axe_pos, 0, 0) ;
+	// Converge to the right masses :
+	
+	if (search_m) {
+	
+	    double scaling_r = pow((2-error_m1)/(2-2*error_m1), 0.2) ;
+	    hole.mp.homothetie_interne(scaling_r) ;
+	    hole.set_rayon(hole.get_rayon()*scaling_r) ;
 	    
-	    double scaling_omega = pow((2-error_viriel)/(2-2*error_viriel), 1) ;
-	    set_omega(scaling_omega*omega) ;
+	    double scaling_ent = pow((2-error_m2)/(2-2*error_m2), 0.2) ;
+	    ent_c *= scaling_ent ;
 	    }
 	
-	fiche_ome << conte << " " << omega << endl ;
-	fiche_axe << conte << " " << axe_pos << endl ; 
-	 
+	fiche_ome << conte << " " << omega << " " << star.compute_angul() << endl ;
+	fiche_axe << conte << " " << axe_pos << endl ;
+	
 	cout << "PAS TOTAL : " << conte << " DIFFERENCE : " << erreur << endl ;
 	if (erreur < precis)
 	    loop = false ;

@@ -25,6 +25,9 @@ char et_bin_kinema_nsbhC[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/10/18 13:12:33  p_grandclement
+ * update of the mixted binary codes
+ *
  * Revision 1.1  2005/08/31 09:32:50  p_grandclement
  * Forgot this file
  *
@@ -53,7 +56,7 @@ void Et_bin_nsbh::kinematics(double omega, double x_axe) {
 
     bsn.set_etat_qcq() ; 
     
-    bsn.set(0) = - omega * ya ;
+    bsn.set(0) = -omega * ya ;
     bsn.set(1) = omega * xa ;
     bsn.set(2) = 0 ;
     
@@ -62,7 +65,7 @@ void Et_bin_nsbh::kinematics(double omega, double x_axe) {
     //	2/ Addition of shift and division by lapse
     // See Eq (47) from Gourgoulhon et al. (2001)
 
-    bsn = ( bsn + shift ) / nnn ;
+    bsn = -( bsn + shift ) / nnn ;
     
     bsn.annule(nzm1, nzm1) ;	// set to zero in the ZEC
     bsn.set_std_base() ;   // set the bases for spectral expansions

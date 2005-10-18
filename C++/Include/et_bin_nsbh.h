@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/10/18 13:12:31  p_grandclement
+ * update of the mixted binary codes
+ *
  * Revision 1.4  2005/08/29 15:10:12  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -308,7 +311,7 @@ class Et_bin_nsbh : public Etoile_bin {
     // Computational routines
     // ----------------------
     public:
-    
+        
     void fait_taij_auto() ;
     /** Computes metric coefficients from known potentials,
      *  when the companion is a black hole.
@@ -368,7 +371,7 @@ class Et_bin_nsbh : public Etoile_bin {
 				  double thres_adapt,
 				  const Tbl& fact, Tbl& diff) ;
 
-    void equilibrium_nsbh (bool, int&, int, int, double, int, double, Tbl&) ;
+    void equilibrium_nsbh (bool, double, int&, int, int, double, int, double, Tbl&) ;
     
     /** Computes the quantities \c bsn  and \c pot_centri .
 	 * 
@@ -381,18 +384,6 @@ class Et_bin_nsbh : public Etoile_bin {
 	 *  @param x_axe  absolute X coordinate of the rotation axis
 	 */
 	virtual void kinematics(double omega, double x_axe) ; 
-	
-	/** Computes the hydrodynamical quantities relative to the Eulerian
-	 *  observer from those in the fluid frame.
-	 *
-	 *  The calculation is performed starting from the quantities
-	 *  \c ent , \c ener , \c press , and \c a_car ,  
-	 *  which are supposed to be up to date.  
-	 *  From these,  the following fields are updated:
-	 *  \c gam_euler , \c u_euler , \c ener_euler , \c s_euler . 
-	 * 
-	 */
-	virtual void hydro_euler() ; 
 	
 	double compute_angul() const ;
 	double compute_axe(double) const ;

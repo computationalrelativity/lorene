@@ -29,11 +29,8 @@ char coal_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.5  2005/08/29 15:10:19  p_grandclement
- * Addition of things needed :
- *   1) For BBH with different masses
- *   2) Provisory files for the mixted binaries (Bh and NS) : THIS IS NOT
- *   WORKING YET !!!
+ * Revision 1.6  2005/10/18 13:12:34  p_grandclement
+ * update of the mixted binary codes
  *
  * Revision 1.4  2004/03/25 12:35:35  j_novak
  * now using namespace Unites
@@ -84,17 +81,16 @@ int main(int argc, char** argv) {
      //------------------------------------------------------------------
 
     char blabla[120] ;
-    double precis, relax, search_ome, m1, m2 ;
-    int nbr_ome, itemax_equil, itemax_mp_et ;
+    double precis, relax, search_m, m1, m2 ;
+    int itemax_equil, itemax_mp_et ;
 
     char* name_fich = argv[1] ;
     //char* name_fich = "par_coal.d" ;
     ifstream fpar(name_fich) ;
     fpar >> m1 ; fpar >> m2 ; fpar.getline(blabla, 120) ;
-    fpar >> search_ome ; fpar.getline(blabla, 120) ;
+    fpar >> search_m ; fpar.getline(blabla, 120) ;
     fpar >> precis ; fpar.getline(blabla, 120) ;
     fpar >> relax ; fpar.getline(blabla, 120) ;
-    fpar >> nbr_ome ; fpar.getline(blabla, 120) ;
     fpar >> itemax_equil ; fpar.getline(blabla, 120) ;
     fpar >> itemax_mp_et ; fpar.getline(blabla, 120) ;
     fpar.close() ;
@@ -138,7 +134,12 @@ int main(int argc, char** argv) {
     bin.set_ns().fait_d_psi() ;
     bin.set_ns().hydro_euler() ;
     
-    bin.coal (precis, relax, itemax_equil, itemax_mp_et, nbr_ome, search_ome, m1, m2, 1) ;
+    // Masses in good units :
+    m1 *= ggrav*msol ;
+    m2 *= msol ;
+    
+    double ent_c_init = bin.get_ns().get_ent()()(0,0,0,0) ;
+    bin.coal (precis, relax, itemax_equil, itemax_mp_et, ent_c_init, search_m, m1, m2, 1) ;
 
     // On sauve
     char name[20] ;
