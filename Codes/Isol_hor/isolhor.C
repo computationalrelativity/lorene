@@ -30,6 +30,9 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.31  2005/10/21 16:20:18  jl_jaramillo
+ * Version for the paper JaramL05
+ *
  * Revision 1.30  2005/09/12 12:34:09  f_limousin
  * Compilation Warning - Change of convention for the angular velocity
  * Add Berlin boundary condition in the case of binary horizons.
@@ -264,6 +267,9 @@ int main() {
     expmrr.std_spectral_base() ;
  
 
+    // =================================================================
+    // =================================================================
+
     // Physical Parameters
     //--------------------
     
@@ -327,13 +333,18 @@ int main() {
     Sym_tensor gamt(mp, COV, mp.get_bvect_spher()) ;
 
     gamt = ff.cov() + hh_tmp.up_down(ff) ;
-//   gamt.set(1,1) = gamt(1,1) * (1+0.3*sint*sint*cosp*cosp*(1/rr/rr - 1/rr/rr/rr)) ;
-//    gamt.set(2,2) = gamt(2,2) * (1+0.01*sint*sint*cosp*cosp*(1/rr/rr - 1/rr/rr/rr)) ;
-//    gamt.set(3,3) = gamt(3,3) * (1+0.01*sint*sint*cosp*cosp*(1/rr/rr - 1/rr/rr/rr)) ;
-//    gamt.set(1,3) = 0.1*sint*sint*cosp*(1/rr/rr - 1/rr/rr/rr) ;
-//    gamt.set(1,3).set_spectral_va().set_base_t(T_COSSIN_SI) ;
+    /*
+    gamt.set(1,1) = gamt(1,1) * (1+0.3*sint*sint*cosp*cosp*
+				(1/rr/rr - 1/rr/rr/rr)) ;
+    gamt.set(2,2) = gamt(2,2) * (1+0.01*sint*sint*cosp*cosp*
+				 (1/rr/rr - 1/rr/rr/rr)) ;
+    gamt.set(3,3) = gamt(3,3) * (1+0.01*sint*sint*cosp*cosp*
+				 (1/rr/rr - 1/rr/rr/rr)) ;
+    gamt.set(1,3) = 0.1*sint*sint*cosp*(1/rr/rr - 1/rr/rr/rr) ;
+    gamt.set(1,3).set_spectral_va().set_base_t(T_COSSIN_SI) ;
+    */
     gamt.std_spectral_base() ;
-
+    
     // Determinant of gamma tilde is put to one 
     // ----------------------------------------
 
@@ -343,14 +354,7 @@ int main() {
      
     gamt = gamt*det_ust ;
     Metric met_gamt (gamt) ; 
-    /*
-    gamt(1,1).spectral_display("gamt(1,1)") ;
-    gamt(2,2).spectral_display("gamt(2,2)") ;
-    gamt(3,3).spectral_display("gamt(3,3)") ;
-    gamt(1,2).spectral_display("gamt(1,2)") ;
-    gamt(1,3).spectral_display("gamt(1,3)") ;
-    gamt(2,3).spectral_display("gamt(2,3)") ;
-    */
+
     // Gamma-tilde_point
     //------------------
 
@@ -366,18 +370,16 @@ int main() {
     gamt_point = hh_tmp ;
     gamt_point.inc_dzpuis(2) ;
 
-    // Just to know if we use Kerr metric or not...
-    int compte ;
-    compte = 0 ;
 
+    // =================================================================
+    // =================================================================
+    
     double mm, aaa, hh ;
-
+    
     
     //--------------------------------------------------
     // Construction of Kerr Metric 
     //--------------------------------------------------
-
-    compte++ ;
 
     Scalar a2(mp) ;
     Scalar b2(mp) ;
@@ -432,7 +434,7 @@ int main() {
     h_uu.std_spectral_base() ;
     
     Metric tgam (ff.con() + h_uu) ;
-//    Metric tgam (ff.con()) ;       //For computing BY and DainLT
+    //Metric tgam (ff.con()) ;       //For computing BY and DainLT
     gamt = tgam.cov() ;
     met_gamt = gamt ;
 
@@ -446,7 +448,10 @@ int main() {
     gamt = gamt*det_ust ;
     met_gamt = gamt ; 
 
-    cout << "norme de gamt" << endl << norme(gamt(1,1)) << endl << norme(gamt(2,1)) << endl << norme(gamt(3,1)) << endl << norme(gamt(2,2)) << endl << norme(gamt(3,2)) << endl << norme(gamt(3,3)) << endl ;
+    cout << "norme de gamt" << endl << norme(gamt(1,1)) << endl 
+	 << norme(gamt(2,1)) << endl << norme(gamt(3,1)) << endl 
+	 << norme(gamt(2,2)) << endl << norme(gamt(3,2)) << endl 
+	 << norme(gamt(3,3)) << endl ;
   
 
     // Angular velocity
@@ -509,140 +514,15 @@ int main() {
     // ---------------------
 
     Scalar psi_kerr (pow(a2, 1./6.) * pow(b2,1./12.)) ;
-//    psi_kerr = 1.0000000001 ;
     psi_kerr.std_spectral_base() ;
     psi_kerr.set_domain(0) = 1. ;
     psi_init = psi_kerr ;
- 
+     
    
     // --------------------------------------
     // End of the setup of Kerr metric
     // --------------------------------------
-          
-
-    /*
-    //--------------------------------------------------
-    // Construction of Kerr-Shild Metric 
-    //--------------------------------------------------
-
-    // Parameters
-    // -----------
-    mm = 2.5 ;
-    hh = 2. ;  // the radius is 1
-    aaa = pow (mm*mm-hh*hh, 0.5) ;
-
-    mm = 0.55 ;
-    aaa = pow(2.*mm - 1., 0.5) ;
-    
-
-    // Angular velocity
-    // ----------------
-
-    ang_vel = 1.*aaa / (2*mm*(mm+pow(mm*mm-aaa*aaa, 0.5))) ;
-    cout << "ang_vel = " << ang_vel << endl ;
-
-  
-    Scalar facteur (mp) ;
-    facteur = 2.*mm*rr / (rr*rr + aaa*aaa*cost*cost) ;
-    facteur.set_domain(0) = 1. ;
-    facteur.set_outer_boundary(nz-1, 0.) ;
-    facteur.std_spectral_base() ;
- 
-    
-    // Lapse 
-    // --------
-
-    Scalar lapse (mp) ;
-    lapse = pow(1.+facteur, -0.5) ;
-    lapse.std_spectral_base() ;
-    nn_init = lapse ;
-
-    //    des_meridian(nn_init, 1.0000001, 10, "lapse", 0) ;
-
-    // Shift
-    // ------
-
-    Scalar beta_r (mp) ;
-    beta_r = facteur/(1.+facteur) ;
-    Vector beta_kerr (mp, CON, mp.get_bvect_spher()) ;
-    beta_kerr.set(1) = beta_r ;
-    beta_kerr.set(1).set_domain(0) = 0. ;
-    beta_kerr.set(2) = 0. ;
-    beta_kerr.set(3) = 0. ;
-
-    beta_kerr.std_spectral_base() ;
-    beta_init = beta_kerr ;
-
-    //    des_meridian(beta_r, 1.0000001, 10, "beta_r", 1) ;
-   
-    // Metric gamma
-    // --------------
-
-    Scalar grr = 1. + facteur ;
-    Scalar grp = -(1.+facteur)*aaa*sint/rr ;
-    Scalar gtt = 1. + aaa*aaa*cost*cost/rr/rr ;
-    Scalar gpp = 1. + aaa*aaa/rr/rr + 2.*mm*aaa*aaa*sint*sint/rr/
-	                                     (rr*rr+aaa*aaa*cost*cost) ;
-    if (aaa != 0){
-        grp.set_domain(0) = 0. ;
-	gtt.set_domain(0) = 1. ;
-        gpp.set_domain(0) = 1. ;
-    }
-							  
-    Sym_tensor gamm (mp, COV, mp.get_bvect_spher()) ;
-    gamm.set(1,1) = grr ;
-    gamm.set(2,1) = 0. ;
-    gamm.set(3,1) = grp ;
-    gamm.set(2,2) = gtt ;
-    gamm.set(3,2) = 0. ;
-    gamm.set(3,3) = gpp ;
-    gamm.std_spectral_base() ;
-      
-    Metric gamma (gamm) ;
-
-    Metric tgam (gamm) ;
-    gamt = tgam.cov() ;
-    met_gamt = gamt ;
-
-    // Determinant of gamma tilde is put to one 
-    // ----------------------------------------
-
-    met_gamt_tmp = met_gamt ;             
-    det_ust = pow(met_gamt_tmp.determinant(), -1./3.) ;
-    det_ust.std_spectral_base() ;
-     
-    gamt = gamt*det_ust ;
-    met_gamt = gamt ; 
-    
-    // Conformal factor Psi
-    // ---------------------
-
-    Scalar psi_kerr (mp) ;
-    psi_kerr = pow(gamma.determinant(), 1./12.) ;
-    psi_kerr.set_domain(0) = 1. ;
-    psi_kerr.std_spectral_base() ;
-    psi_init = psi_kerr ;
-
-    //    des_meridian(psi_kerr, 1.0000001, 10, "psi_kerr", 6) ;
-    // arrete() ;
-
-    Sym_tensor kk_init (mp, CON, mp.get_bvect_spher()) ;
-    for (int i=1; i<=3; i++)
-      for (int j=i; j<=3; j++)
-	kk_init.set(i,j) = 1./(2.*nn_init)*(beta_init.derive_con(gamma)(i,j) +
-					    beta_init.derive_con(gamma)(j,i)) ;
-      
-    trK = kk_init.trace(gamma) ;
-
-    Sym_tensor aa_init (mp, CON, mp.get_bvect_spher()) ;
-    aa_init = psi_init*psi_init*psi_init*psi_init*kk_init 
-	- 1./3. * trK * met_gamt.con() ;  
-
-    // --------------------------------------
-    // End of the setup of Kerr Shild metric
-    // --------------------------------------
-    */
-
+       
     // Set up of extrinsic curvature
     // -----------------------------
     
@@ -699,12 +579,11 @@ int main() {
     // Test of the formula for A^{ij}A_{ij} in Sergio's paper
     //-------------------------------------------------------
  
-    //    if (solve_shift != 1 && compte == 1)
-    //  isolhor.aa_kerr_ww(mm, aaa) ;
+    //isolhor.aa_kerr_ww(mm, aaa) ;
 
     // New initialisation of the metric quantities
     // --------------------------------------------
-
+    
     psi_init = 0.9*psi_kerr ;
     psi_init.std_spectral_base() ;
     isolhor.set_psi(psi_init) ;
@@ -735,16 +614,6 @@ int main() {
 		      solve_psi, solve_shift, seuil, relax, niter) ;
 
 
-    /*
-    des_meridian(psi_kerr, 1.00000001, 4., "psi kerr", 12) ;
-    des_meridian(isolhor.psi(), 1.00000001, 4., "psi", 13) ;
-    des_meridian(isolhor.psi()-psi_kerr, 1.00000001, 4., "diff psi", 14) ;
-    des_meridian(beta_phi, 1.00000001, 4., "beta(3) kerr", 15) ;
-    des_meridian(isolhor.beta()(3), 1.00000001, 4., "beta(3)", 16) ;
-    des_meridian(isolhor.beta()(3) - beta_phi, 1.00000001, 4., "diff beta(3)", 17) ;
-    arrete() ;
-    */
-
     // Expansion
     //----------
 
@@ -753,13 +622,19 @@ int main() {
 	       0, isolhor.gam().radial_vect(), 0) 
       - isolhor.trk() ; 
 
-    double der_expansion_0 = expansion.derive_cov(isolhor.gam())(1).val_point(1.00000001, 0, 0.) ;
-    double der_expansion_1 = expansion.derive_cov(isolhor.gam())(1).val_point(1.00000001, M_PI/4, 0.) ;
-    double der_expansion_2 = expansion.derive_cov(isolhor.gam())(1).val_point(1.00000001, M_PI/2, 0.) ;
+    double der_expansion_0 = expansion.derive_cov(isolhor.gam())(1)
+      .val_point(1.00000001, 0, 0.) ;
+    double der_expansion_1 = expansion.derive_cov(isolhor.gam())(1)
+      .val_point(1.00000001, M_PI/4, 0.) ;
+    double der_expansion_2 = expansion.derive_cov(isolhor.gam())(1)
+      .val_point(1.00000001, M_PI/2, 0.) ;
 
-    cout << "Radial derivative of the expansion at (1,0,0) = "<< der_expansion_0<<endl ;
-    cout << "Radial derivative of the expansion at (1,Pi/4,0) = "<< der_expansion_1<<endl ;
-    cout << "Radial derivative of the expansion at (1,Pi/2,0) = "<< der_expansion_2<<endl ;
+    cout << "Radial derivative of the expansion at (1,0,0) = "
+	 << der_expansion_0<<endl ;
+    cout << "Radial derivative of the expansion at (1,Pi/4,0) = "
+	 << der_expansion_1<<endl ;
+    cout << "Radial derivative of the expansion at (1,Pi/2,0) = "
+	 << der_expansion_2<<endl ;
     cout << "------------------------------------------------------"<<endl;
  
     /*
@@ -781,7 +656,7 @@ int main() {
     // Test of the constraints
     //------------------------
     
-    if (solve_shift == 1 || compte == 0)
+    if (solve_shift == 1)
       isolhor.update_aa() ;
     else
 	isolhor.aa_kerr_ww(mm, aaa) ;
@@ -869,18 +744,9 @@ int main() {
     //        Comparison
     //--------------------------------------
 
-
-    for(int j=0; j<isolhor.get_mp().get_mg()->get_nt(1); j++)
-	for(int k=0; k<isolhor.get_mp().get_mg()->get_np(1); k++){
-	    cout << (isolhor.b_tilde()*isolhor.psi()*isolhor.psi()).val_grid_point(1, k, j, 0) << " " << isolhor.nn().val_grid_point(1, k, j, 0) << " " << (isolhor.b_tilde()*isolhor.psi()*isolhor.psi() - isolhor.nn()).val_grid_point(1, k, j, 0)  << endl ;
-	}    
-
-
     cout<<"Tout va bien boudiou / Todo bien!!! (Viva Cai!)"<<endl ;
 
-//    cout << isolhor << endl ;
-
-     return EXIT_SUCCESS ; 
+    return EXIT_SUCCESS ; 
 }
 
 

@@ -31,6 +31,9 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.30  2005/10/21 16:20:55  jl_jaramillo
+ * Version for the paper JaramL05
+ *
  * Revision 1.29  2005/09/13 18:33:17  f_limousin
  * New function vv_bound_cart_bin(double) for computing binaries with
  * berlin condition for the shift vector.
@@ -232,9 +235,9 @@ Isol_hor::Isol_hor(const Isol_hor& isolhor_in)
 Isol_hor::Isol_hor(Map_af& mpi, FILE* fich, 
 		   bool partial_read, int depth_in)
     : Time_slice_conf(mpi, mpi.get_bvect_spher(), mpi.flat_met_spher(), 
-	fich, partial_read, depth_in),
+		      fich, partial_read, depth_in),
       mp(mpi), nz(mpi.get_mg()->get_nzone()), radius ((mpi.get_alpha())[0]), 
-omega(0), boost_x(0), boost_z(0), regul(0),
+      omega(0), boost_x(0), boost_z(0), regul(0),
       n_auto_evol(depth_in), n_comp_evol(depth_in), 
       psi_auto_evol(depth_in), psi_comp_evol(depth_in),
       dn_evol(depth_in), dpsi_evol(depth_in),
@@ -322,30 +325,30 @@ Isol_hor::~Isol_hor(){}
 void Isol_hor::operator=(const Isol_hor& isolhor_in) {
 
 Time_slice_conf::operator=(isolhor_in) ;
-mp = isolhor_in.mp ;
-nz = isolhor_in.nz ;
-    radius = isolhor_in.radius ;
-    omega = isolhor_in.omega ;
-    boost_x = isolhor_in.boost_x ;
-    boost_z = isolhor_in.boost_z ;
-    regul = isolhor_in.regul ;
-    n_auto_evol = isolhor_in.n_auto_evol ;
-    n_comp_evol = isolhor_in.n_comp_evol ;
-    psi_auto_evol = isolhor_in.psi_auto_evol ;
-    psi_comp_evol = isolhor_in.psi_comp_evol ;
-    dn_evol = isolhor_in.dn_evol ;
-    dpsi_evol = isolhor_in.dpsi_evol ;
-    beta_auto_evol = isolhor_in.beta_auto_evol ;
-    beta_comp_evol = isolhor_in.beta_comp_evol ;
-    aa_auto_evol = isolhor_in.aa_auto_evol ;
-    aa_comp_evol = isolhor_in.aa_comp_evol ;
-    aa_nn = isolhor_in.aa_nn ;
-    aa_quad_evol = isolhor_in.aa_quad_evol ;
-    met_gamt = isolhor_in.met_gamt ;
-    gamt_point = isolhor_in.gamt_point ;
-    trK = isolhor_in.trK ;
-    trK_point = isolhor_in.trK_point ;
-    decouple = isolhor_in.decouple ;
+ mp = isolhor_in.mp ;
+ nz = isolhor_in.nz ;
+ radius = isolhor_in.radius ;
+ omega = isolhor_in.omega ;
+ boost_x = isolhor_in.boost_x ;
+ boost_z = isolhor_in.boost_z ;
+ regul = isolhor_in.regul ;
+ n_auto_evol = isolhor_in.n_auto_evol ;
+ n_comp_evol = isolhor_in.n_comp_evol ;
+ psi_auto_evol = isolhor_in.psi_auto_evol ;
+ psi_comp_evol = isolhor_in.psi_comp_evol ;
+ dn_evol = isolhor_in.dn_evol ;
+ dpsi_evol = isolhor_in.dpsi_evol ;
+ beta_auto_evol = isolhor_in.beta_auto_evol ;
+ beta_comp_evol = isolhor_in.beta_comp_evol ;
+ aa_auto_evol = isolhor_in.aa_auto_evol ;
+ aa_comp_evol = isolhor_in.aa_comp_evol ;
+ aa_nn = isolhor_in.aa_nn ;
+ aa_quad_evol = isolhor_in.aa_quad_evol ;
+ met_gamt = isolhor_in.met_gamt ;
+ gamt_point = isolhor_in.gamt_point ;
+ trK = isolhor_in.trK ;
+ trK_point = isolhor_in.trK_point ;
+ decouple = isolhor_in.decouple ;
 }
 
 
@@ -360,7 +363,7 @@ ostream& Isol_hor::operator>>(ostream& flux) const {
     
     flux << '\n' << "radius of the horizon  : " << radius << '\n' ;
     flux << "boost in x-direction   : " << boost_x << '\n' ;
-flux << "boost in z-direction   : " << boost_z << '\n' ;
+    flux << "boost in z-direction   : " << boost_z << '\n' ;
     flux << "angular velocity omega : " << omega_hor() << '\n' ;
     flux << "area of the horizon    : " << area_hor() << '\n' ;
     flux << "ang. mom. of horizon   : " << ang_mom_hor() << '\n' ;

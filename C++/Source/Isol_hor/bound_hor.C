@@ -31,6 +31,9 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.26  2005/10/21 16:20:55  jl_jaramillo
+ * Version for the paper JaramL05
+ *
  * Revision 1.25  2005/09/13 18:33:17  f_limousin
  * New function vv_bound_cart_bin(double) for computing binaries with
  * berlin condition for the shift vector.
@@ -208,6 +211,9 @@ const Valeur Isol_hor::boundary_psi_Dir_spat()const {
 
     tmp = tmp / (rho * tradial_vect_hor().divergence(ff)) - 1. ;
 
+    tmp.std_spectral_base() ;
+    tmp.inc_dzpuis(2) ;
+
   // We have substracted 1, since we solve for zero condition at infinity 
   //and then we add 1 to the solution  
  
@@ -283,8 +289,29 @@ const Valeur Isol_hor::boundary_psi_app_hor()const {
 
     return psi_bound ;
 
-}    
+}
 
+const Valeur Isol_hor::boundary_psi_Dir()const {
+
+  Scalar tmp(mp) ;
+  tmp = 1.8 - 1 ;
+
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
+
+  Valeur psi_bound (mp.get_mg()->get_angu()) ;
+    
+  psi_bound = 1 ;  // Juste pour affecter dans espace des configs ;
+  
+  for (int k=0 ; k<nnp ; k++)
+    for (int j=0 ; j<nnt ; j++)
+      psi_bound.set(0, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
+  
+  psi_bound.std_base_scal() ;
+  
+  return  psi_bound ;
+
+}
 
 // Dirichlet boundary condition on nn using the extrinsic curvature
 // (No time evolution taken into account! Make this)
@@ -426,6 +453,7 @@ const Valeur Isol_hor::boundary_nn_Neu_eff(double cc)const  {
   
   Scalar tmp = - cc * nn() ;
   //  Scalar tmp = - nn()/psi()*psi().dsdr() ;
+
   // in this case you don't have to substract any value
  
   int nnp = mp.get_mg()->get_np(1) ;
@@ -450,10 +478,9 @@ const Valeur Isol_hor::boundary_nn_Dir(double cc)const {
 
   Scalar tmp(mp) ;
   tmp = cc - 1 ;
-//  tmp = 1./(2.*psi()) - 1 ;
-//  tmp = - psi() * nn().dsdr() / (psi().dsdr()) -1 ;
-//  tmp = b_tilde() * psi() * psi() - 1. ;
-
+  //  tmp =   b_tilde() *psi()*psi() - 1 ;
+  //  tmp = 1./(2*psi()) - 1 ;
+  //  tmp = - psi() * nn().dsdr() / (psi().dsdr()) -1 ;
 
   /*
   double mm = 0.55 ;
@@ -547,18 +574,35 @@ const Valeur Isol_hor::boundary_nn_Dir_lapl() const {
     temp_scal2.div_sint() ;
     temp_scal2 += temp_vect2(3).stdsdp() ;
     temp_scal2.div_r() ;
-
+    
     Scalar lew_pal (mp) ;
-    lew_pal = 0. ;
+    
+    /*    
+    Scalar re = (*this).Re_Coul_eigen() ;
+    Scalar im = Im_Coul_eigen() ;
+    lew_pal = -log(sqrt(re*re + im*im))/3 ;
+    lew_pal.std_spectral_base() ;
+    lew_pal.lapang() ;
+    */
+
+
+    lew_pal = 0.01*log(1/(2*psi())) ;
+    lew_pal.std_spectral_base() ;
     lew_pal *= square_q ;
+
+    temp_scal2.set_dzpuis(2) ; 
+    temp_scal.set_dzpuis(2) ; 
+    lew_pal.set_dzpuis(2) ; 
+
 
     Scalar source (temp_scal2 - temp_scal + lew_pal) ;
 
     Scalar logn (mp) ;
     Param bidon ;
     mp.poisson_angu(source, bidon, logn) ;
+    
+    double cc = 0.2 ; // Integration constant
 
-    double cc = 0.3 ; // Integration constant
     Scalar lapse (exp(logn)*cc) ;
     lapse.std_spectral_base() ;
 
@@ -747,8 +791,8 @@ const Valeur Isol_hor:: boundary_beta_x(double om)const {
 
     for (int k=0 ; k<nnp ; k++)
 	for (int j=0 ; j<nnt ; j++)
-	  lim_x.set(0, k, j, 0) =  aligne * om * ya_mtbl(1, k, j, 0) * (1 + 
-				         dep_phi.val_grid_point(1, k, j, 0))
+	  lim_x.set(0, k, j, 0) = aligne * om * ya_mtbl(1, k, j, 0) * (1 + 
+				  dep_phi.val_grid_point(1, k, j, 0))
 	    + tmp_vect(1).val_grid_point(1, k, j, 0) ;
     
   lim_x.set_base(*(mp.get_mg()->std_base_vect_cart()[0])) ;
@@ -798,7 +842,7 @@ const Valeur Isol_hor:: boundary_beta_y(double om)const {
     
     for (int k=0 ; k<nnp ; k++)
 	for (int j=0 ; j<nnt ; j++)
-	  lim_y.set(0, k, j, 0) =  - aligne * om * xa_mtbl(1, k, j, 0) *(1 +
+	  lim_y.set(0, k, j, 0) = - aligne * om * xa_mtbl(1, k, j, 0) *(1 +
 					dep_phi.val_grid_point(1, k, j, 0))
 	    + tmp_vect(2).val_grid_point(1, k, j, 0) ;
     
@@ -1020,6 +1064,17 @@ const Vector Isol_hor::vv_bound_cart(double om) const{
     
     cout << "kappa_hor = " << kappa_hor() << endl ;
 
+    // Apparent horizon condition
+    //---------------------------
+    kss = trk() ;
+    kss.inc_dzpuis(2) ;
+    kss -= (4* contract(psi().derive_cov(met_gamt), 0, met_gamt.radial_vect(), 
+			0)/psi() +
+	    contract(met_gamt.radial_vect().derive_cov(met_gamt), 0, 1)) /
+      (psi() * psi()) ;
+    //  kss.std_spectral_base() ;
+  //  kss.inc_dzpuis(2) ;
+
     // beta^r component
     //-----------------
     double rho = 5. ; // rho>1 ; rho=1 "pure Dirichlet" version
@@ -1050,7 +1105,6 @@ const Vector Isol_hor::vv_bound_cart(double om) const{
     
     return tmp_vect ;    
 }
-
 
 
 const Vector Isol_hor::vv_bound_cart_bin(double om) const{

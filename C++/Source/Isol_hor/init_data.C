@@ -31,6 +31,9 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2005/10/21 16:20:55  jl_jaramillo
+ * Version for the paper JaramL05
+ *
  * Revision 1.19  2005/07/08 13:15:23  f_limousin
  * Improvements of boundary_vv_cart(), boundary_nn_lapl().
  * Add a fonction to compute the departure of axisymmetry.
@@ -225,7 +228,7 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 		    psi_jp1 = sou_psi.poisson_neumann(psi_bound, 0) + 1. ;
 		    break ;
 		}
-		case 2 : {
+		case 2 : { 
 		    psi_bound = boundary_psi_Dir_spat() ;
 		    psi_jp1 = sou_psi.poisson_dirichlet(psi_bound, 0) + 1. ;
 		    break ;
@@ -237,6 +240,11 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 		}
 		case 4 : {
 		    psi_bound = boundary_psi_Dir_evol() ;
+		    psi_jp1 = sou_psi.poisson_dirichlet(psi_bound, 0) + 1. ;
+		    break ;
+		}
+		case 5 : {
+		    psi_bound = boundary_psi_Dir() ;
 		    psi_jp1 = sou_psi.poisson_dirichlet(psi_bound, 0) + 1. ;
 		    break ;
 		}
@@ -425,8 +433,8 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	if ((diff_psi<precis) && (diff_nn<precis) && (diff_beta<precis))
 	    break ; 
 	
-	conv << mer << "  " << log10(diff_nn) << " " << log10(diff_psi) 
-	     << " " << log10(diff_beta) << endl ;
+	if (mer>0) {conv << mer << "  " << log10(diff_nn) << " " << log10(diff_psi) 
+			 << " " << log10(diff_beta) << endl ; } ;
     
 	//=============================================
 	//      Updates for next step 
