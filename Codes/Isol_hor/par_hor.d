@@ -11,7 +11,7 @@
 5000	maximum of iterations
 0.1	angular velocity
 0. 0.	boost velocity in x direction / z direction
-0 0.	boundary condition for the lapse / value of the coefficient
+0 0.2	boundary condition for the lapse / value of the coefficient
 1	boundary condition for psi
 0	boundary condition for the shift
 1	1 = solve for the lapse / 0 : not 
@@ -32,6 +32,7 @@ For Psi :
    2	boundary_psi_Dir_spat()
    3	boundary_psi_Neu_evol()
    4	boundary_psi_Dir_evol()
+   5	boundary_psi_Dir()
 
 For the shift
    0	boundary_beta_x y,z (coordonnees horizon fixe)

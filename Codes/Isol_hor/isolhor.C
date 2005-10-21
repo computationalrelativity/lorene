@@ -30,6 +30,9 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.32  2005/10/21 16:38:02  jl_jaramillo
+ * Control of the expansion
+ *
  * Revision 1.31  2005/10/21 16:20:18  jl_jaramillo
  * Version for the paper JaramL05
  *
@@ -637,12 +640,27 @@ int main() {
 	 << der_expansion_2<<endl ;
     cout << "------------------------------------------------------"<<endl;
  
-    /*
+    /*    
     des_meridian(expansion, 1, 1.2, "Expansion theta", 2) ;
     des_meridian(expansion, 1, 4., "Expansion theta", 1) ;
     des_meridian(expansion, 1, 10., "Expansion theta", 3) ;
     arrete() ;
     */
+
+    double max_exp = expansion.val_grid_point(1, 0, 0, 0) ;
+    double min_exp = expansion.val_grid_point(1, 0, 0, 0) ;
+    int nnp = mp.get_mg()->get_np(1) ;
+    int nnt = mp.get_mg()->get_nt(1) ;
+    for (int k=0 ; k<nnp ; k++)
+      for (int j=0 ; j<nnt ; j++){
+	if (expansion.val_grid_point(1, k, j, 0) > max_exp)
+	  max_exp = expansion.val_grid_point(1, k, j, 0) ;
+	if (expansion.val_grid_point(1, k, j, 0) < min_exp)
+	  min_exp = expansion.val_grid_point(1, k, j, 0) ;
+      }
+    cout << "max_exp = " << max_exp << endl 
+	 << "min_kss = " << min_exp << endl ;
+
 
     // Save in a file
     // --------------
