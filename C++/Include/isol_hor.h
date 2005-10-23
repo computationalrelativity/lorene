@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.39  2005/10/23 12:32:00  f_limousin
+ * Pure Dirichlet boundary condition for Psi.
+ *
  * Revision 1.38  2005/09/13 18:33:17  f_limousin
  * New function vv_bound_cart_bin(double) for computing binaries with
  * berlin condition for the shift vector.
@@ -647,6 +650,9 @@ class Isol_hor : public Time_slice_conf {
 
   /// Neumann boundary condition for  \f$ \Psi \f$ (spatial)  
   const Valeur boundary_psi_app_hor() const ;
+
+  /// Dirichlet boundary condition for  \f$ \Psi \f$ (spatial)  
+  const Valeur boundary_psi_Dir() const ;
 
   /// Dirichlet boundary condition for \c N using the extrinsic curvature
   const Valeur boundary_nn_Dir_kk() const ;
