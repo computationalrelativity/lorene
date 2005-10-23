@@ -26,6 +26,10 @@ char binhor_equations_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2005/10/23 16:39:43  f_limousin
+ * Simplification of the equation in the case of a conformally
+ * flat metric and maximal slicing
+ *
  * Revision 1.11  2005/09/13 18:33:15  f_limousin
  * New function vv_bound_cart_bin(double) for computing binaries with
  * berlin condition for the shift vector.
@@ -109,7 +113,13 @@ void Bin_hor::solve_lapse (double precision, double relax, int bound_nn,
     // --------
  
     Scalar source_un (hole1.mp) ;
-
+    
+    // Conformally flat
+    source_un = hole1.psi4()*hole1.nn()*aa_quad_un
+      -2.*contract(hole1.dnn(), 0, hole1.psi_auto()
+		    .derive_con(hole1.ff), 0)/hole1.psi() ;
+    
+    /*
     source_un = hole1.psi4()*( hole1.nn()*( aa_quad_un + 0.3333333333333333 * 
 					    hole1.trK*hole1.trK*hole1.decouple)
 			       - hole1.trK_point*hole1.decouple )     
@@ -117,8 +127,8 @@ void Bin_hor::solve_lapse (double precision, double relax, int bound_nn,
        -2.*contract(contract(hole1.hh(), 0, hole1.n_auto()
 	       .derive_cov(hole1.ff), 0), 0, hole1.dpsi(), 0)/hole1.psi()
 
-	-2.*contract(/*hole1.nn().derive_cov(hole1.ff)*/hole1.dnn(), 0, hole1.psi_auto()
-		    .derive_con(hole1.ff), 0)/hole1.psi()	;
+	-2.*contract(hole1.dnn(), 0, hole1.psi_auto()
+		    .derive_con(hole1.ff), 0)/hole1.psi() ;
 
     - contract(hole1.hdirac(), 0, hole1.n_auto().derive_cov(hole1.ff), 0) ; 
 
@@ -133,12 +143,19 @@ void Bin_hor::solve_lapse (double precision, double relax, int bound_nn,
   	   
     source_un += tmp_un ;
     source_un.std_spectral_base() ;
+    */
 
     // Source 2
     // ---------
 
     Scalar source_deux (hole2.mp) ;
 
+    // Conformally flat
+    source_deux = hole2.psi4()*hole2.nn()*aa_quad_deux
+      -2.*contract(hole2.dnn(), 0, hole2.psi_auto()
+		    .derive_con(hole2.ff), 0)/hole2.psi() ;
+
+    /*
     source_deux = hole2.psi4()*( hole2.nn()*( aa_quad_deux + 0.3333333333333333
 					  * hole2.trK*hole2.trK*hole2.decouple)
 			       - hole2.trK_point*hole2.decouple ) 
@@ -146,8 +163,8 @@ void Bin_hor::solve_lapse (double precision, double relax, int bound_nn,
 	-2.*contract(contract(hole2.hh(), 0, hole2.n_auto()
 	       .derive_cov(hole2.ff), 0), 0, hole2.dpsi(), 0)/hole2.psi()
 
-	-2.*contract(/*hole2.nn().derive_cov(hole2.ff)*/hole2.dnn(), 0, hole2.psi_auto()
-		     .derive_con(hole2.ff), 0)/hole2.psi();
+	-2.*contract(hole2.dnn(), 0, hole2.psi_auto()
+		     .derive_con(hole2.ff), 0)/hole2.psi() ;
 
      - contract(hole2.hdirac(), 0, hole2.n_auto().derive_cov(hole2.ff), 0) ; 
 
@@ -162,7 +179,7 @@ void Bin_hor::solve_lapse (double precision, double relax, int bound_nn,
   	   
     source_deux += tmp_deux ;
     source_deux.std_spectral_base() ;
-
+    */
     cout << "source lapse" << endl << norme(source_un) << endl ;
 
     // Boundary conditions and resolution
@@ -318,6 +335,13 @@ void Bin_hor::solve_psi (double precision, double relax, int bound_psi) {
     // ---------
        
     Scalar source_un (hole1.mp) ;
+    source_un.allocate_all() ;
+    source_un = 1.e-15/hole1.mp.r/hole1.mp.r/hole1.mp.r/hole1.mp.r ;
+    source_un.set_dzpuis(4) ;
+    source_un += - hole1.psi()*hole1.psi4()* 0.125* aa_quad_un ;
+    source_un.std_spectral_base() ;
+    
+    /*
     Scalar tmp_un (hole1.mp) ;
 
     tmp_un = 0.125* hole1.psi_auto() * (hole1.met_gamt).ricci_scal() 
@@ -331,11 +355,20 @@ void Bin_hor::solve_psi (double precision, double relax, int bound_psi) {
     source_un = tmp_un - hole1.psi()*hole1.psi4()* ( 0.125* aa_quad_un 
        	   - 8.33333333333333e-2* hole1.trK*hole1.trK*hole1.decouple ) ;
     source_un.std_spectral_base() ;
+    */
+
 
     // Source 2
     // ---------
        
     Scalar source_deux (hole2.mp) ;
+    source_deux.allocate_all() ;
+    source_deux = 1.e-15/hole2.mp.r/hole2.mp.r/hole2.mp.r/hole2.mp.r ;
+    source_deux.set_dzpuis(4) ;
+    source_deux += - hole2.psi()*hole2.psi4()* 0.125* aa_quad_deux ;
+    source_deux.std_spectral_base() ;
+
+    /*
     Scalar tmp_deux (hole2.mp) ;
 
     tmp_deux = 0.125* hole2.psi_auto() * (hole2.met_gamt).ricci_scal() 
@@ -349,7 +382,7 @@ void Bin_hor::solve_psi (double precision, double relax, int bound_psi) {
     source_deux = tmp_deux - hole2.psi()*hole2.psi4()* ( 0.125* aa_quad_deux 
        	   - 8.33333333333333e-2* hole2.trK*hole2.trK*hole2.decouple ) ;
     source_deux.std_spectral_base() ;
-
+    */
 
     cout << "source psi" << endl << norme(source_un) << endl ;
 
@@ -507,18 +540,24 @@ void Bin_hor::solve_psi (double precision, double relax, int bound_psi) {
         hole2.p_hdirac = 0x0 ;
     }
     
-    // gam_dd, gam_uu, k_dd and k_uu
+    // gam_dd, gam_uu, k_dd and k_uu, aa_auto, aa_comp, aa
 
     hole1.gam_dd_evol.downdate(hole1.jtime) ;
     hole1.gam_uu_evol.downdate(hole1.jtime) ;
     hole1.k_dd_evol.downdate(hole1.jtime) ;
     hole1.k_uu_evol.downdate(hole1.jtime) ;
+    //   hole1.aa_auto_evol.downdate(hole1.jtime) ;
+    //hole1.aa_comp_evol.downdate(hole1.jtime) ;
+    //hole1.aa_evol.downdate(hole1.jtime) ;
     hole1.adm_mass_evol.downdate(hole1.jtime) ;
     
     hole2.gam_dd_evol.downdate(hole2.jtime) ;
     hole2.gam_uu_evol.downdate(hole2.jtime) ;
     hole2.k_dd_evol.downdate(hole2.jtime) ;
     hole2.k_uu_evol.downdate(hole2.jtime) ;
+    //hole2.aa_auto_evol.downdate(hole2.jtime) ;
+    //hole2.aa_comp_evol.downdate(hole2.jtime) ;
+    //hole2.aa_evol.downdate(hole2.jtime) ;
     hole2.adm_mass_evol.downdate(hole2.jtime) ;
 
 
@@ -543,6 +582,13 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta) {
     // ---------
 
     Vector source_un (hole1.mp, CON, hole1.mp.get_bvect_spher()) ;
+    
+    source_un = 2.* contract(hole1.aa(), 1, 
+			     hole1.n_auto().derive_cov(hole1.ff), 0) 
+	  -6.*contract(hole1.aa_nn[hole1.jtime], 1, 
+		       hole1.psi_auto().derive_cov(hole1.ff)/hole1.psi(), 0) ;
+
+    /*
     Vector tmp_vect_un (hole1.mp, CON, hole1.mp.get_bvect_spher()) ;
     
     source_un = 2.* contract(hole1.aa(), 1, 
@@ -575,11 +621,19 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta) {
 	* hole1.hdirac() ;
 
     source_un.std_spectral_base() ;
+    */
 
     // Source 2
     // ---------
 
     Vector source_deux (hole2.mp, CON, hole2.mp.get_bvect_spher()) ;
+
+    source_deux = 2.* contract(hole2.aa(), 1, 
+			       hole2.n_auto().derive_cov(hole2.ff), 0) 
+	-6.*contract(hole2.aa_nn[hole2.jtime], 1, 
+		     hole2.psi_auto().derive_cov(hole2.ff)/hole2.psi(), 0) ;
+
+    /*
     Vector tmp_vect_deux (hole2.mp, CON, hole2.mp.get_bvect_spher()) ;
     
     source_deux = 2.* contract(hole2.aa(), 1, 
@@ -611,7 +665,9 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta) {
 	* hole2.hdirac() ;
 
     source_deux.std_spectral_base() ;
-    
+    */    
+
+
     Vector source_1 (source_un) ;
     Vector source_2 (source_deux) ;
     source_1.change_triad(hole1.mp.get_bvect_cart()) ;
@@ -755,7 +811,8 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta) {
     hole1.beta_comp(hole2) ;
     hole2.beta_comp(hole1) ;
 
-    
+    /*
+    // Verification of the boundary condition
     Scalar bb (hole1.get_mp()) ;
     Vector shift (hole1.beta()) ;
     shift.change_triad(hole1.get_mp().get_bvect_cart()) ;
@@ -780,9 +837,10 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta) {
 
     for(int j=0; j<hole1.get_mp().get_mg()->get_nt(1); j++)
 	for(int k=0; k<hole1.get_mp().get_mg()->get_np(1); k++){
-	  //	  	  cout << bb.val_grid_point(1, k, j, 0) << " " << hole1.nn().val_grid_point(1, k, j, 0) << " " << (bb - hole1.nn()).val_grid_point(1, k, j, 0)  << endl ;
+	  cout << bb.val_grid_point(1, k, j, 0) << " " << hole1.nn().val_grid_point(1, k, j, 0) << " " << (bb - hole1.nn()).val_grid_point(1, k, j, 0)  << endl ;
 	}
     //arrete() ;
+    */
 
     // Regularisation of the shifts if necessary
     // -----------------------------------------
