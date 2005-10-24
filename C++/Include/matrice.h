@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2005/10/24 09:22:21  p_grandclement
+ * addition of annule_hard for matrices
+ *
  * Revision 1.11  2005/09/16 12:28:16  j_novak
  * New method del_deriv() and shorter version for set(i,j).
  *
@@ -221,6 +224,13 @@ class Matrice {
 	 * The state of of all the representations is now \c ETATNONDEF.
 	 */
 	 void set_etat_nondef() ;
+	 
+	 /**
+	 * Sets the logical state to \c ETATQCQ (undefined state).
+	 * And sets all the components to zero 
+	 */
+	 void annule_hard() ;
+
 
     public:
 	/**

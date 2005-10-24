@@ -32,6 +32,9 @@ char matrice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2005/10/24 09:22:24  p_grandclement
+ * addition of annule_hard for matrices
+ *
  * Revision 1.12  2005/09/16 12:29:02  j_novak
  * New method del_deriv() and reorganization of band, lu, permute handling.
  *
@@ -166,7 +169,16 @@ void Matrice::set_etat_nondef() {
     etat = ETATNONDEF ;
 }
 
+void Matrice::annule_hard() {
+    std->set_etat_qcq() ;
+    del_deriv() ;
+    etat = ETATQCQ ;
 
+    for (int i=0 ; i<std->get_dim(0) ; i++)
+    	 for (int j=0 ; j<std->get_dim(1) ; j++)
+    		std->set(i,j) = 0 ;
+}
+	 
 // Constructeurs
 Matrice::Matrice (int i, int j) {
     etat = ETATNONDEF ;
