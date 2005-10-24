@@ -1,17 +1,17 @@
-# Parameters for the computation
+s # Parameters for the computation
 ###############################
 4	nz: total number of domains
-9	nt: number of points in theta (the same in each domain)
+13	nt: number of points in theta (the same in each domain)
 4	np: number of points in phi   (the same in each domain)
 17	nr: number of points in r in the first domain
 17	nr: number of points in r in all the other domains
 1.	coordinate radius
-0.5	relaxation (1 -> no relaxation)
-1e-7	threshold
+0.3	relaxation (1 -> no relaxation)
+1e-11	threshold
 5000	maximum of iterations
-0.1	angular velocity
+0.	angular velocity
 0. 0.	boost velocity in x direction / z direction
-0 0.2	boundary condition for the lapse / value of the coefficient
+6 0.2	boundary condition for the lapse / value of the coefficient
 1	boundary condition for psi
 0	boundary condition for the shift
 1	1 = solve for the lapse / 0 : not 
@@ -25,7 +25,9 @@ For the lapse :
    2	boundary_nn_Dir_eff(double)   
    3	boundary_nn_Neu_kk()   
    4	boundary_nn_Dir_kk()
-   
+   5    boundary_nn_Dir_lapl()
+   6    boundary_nn_Neu_Cook()
+
 For Psi :
    0	boundary_psi_app_hor()
    1	boundary_psi_Neu_spat()

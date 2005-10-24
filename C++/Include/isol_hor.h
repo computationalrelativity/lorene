@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.40  2005/10/24 16:45:16  jl_jaramillo
+ * Cook boundary condition
+ *
  * Revision 1.39  2005/10/23 12:32:00  f_limousin
  * Pure Dirichlet boundary condition for Psi.
  *
@@ -659,6 +662,9 @@ class Isol_hor : public Time_slice_conf {
 
   /// Neumann boundary condition for \c N using the extrinsic curvature
   const Valeur boundary_nn_Neu_kk() const ;	
+
+  /// Neumann boundary condition for \c N using Cook's boundary condition
+  const Valeur boundary_nn_Neu_Cook() const ;	
 
   /// Dirichlet boundary condition for \c N (effectif)
   /// \f$ \partial_r N + a N = 0 \f$ 
