@@ -31,6 +31,9 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2005/10/24 16:44:40  jl_jaramillo
+ * Cook boundary condition ans minot bound of kss
+ *
  * Revision 1.20  2005/10/21 16:20:55  jl_jaramillo
  * Version for the paper JaramL05
  *
@@ -186,6 +189,15 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 		    nn_jp1 = sou_nn.poisson_dirichlet(nn_bound, 0) + 1. ;
 		    break ;
 		}
+		case 6 : {
+		    nn_bound = boundary_nn_Neu_Cook() ;
+		    nn_jp1 = sou_nn.poisson_neumann(nn_bound, 0) + 1. ;
+		    break ;
+		}
+		  
+
+
+
 		default : {
 		    cout <<"Unexpected type of boundary conditions for the lapse!" 
 			 << endl 
@@ -455,19 +467,43 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 	// -----------------------
 	
 	Scalar kkss (contract(k_dd(), 0, 1, gam().radial_vect()*
-		     gam().radial_vect(), 0, 1)) ;
+			      gam().radial_vect(), 0, 1)) ;
 	double max_kss = kkss.val_grid_point(1, 0, 0, 0) ;
 	double min_kss = kkss.val_grid_point(1, 0, 0, 0) ;
+	
+	Scalar aaLss (pow(psi(), 6) * kkss) ;
+	double max_aaLss = aaLss.val_grid_point(1, 0, 0, 0) ;
+	double min_aaLss = aaLss.val_grid_point(1, 0, 0, 0) ;
+	
+	Scalar hh_tilde (contract(met_gamt.radial_vect().derive_cov(met_gamt), 0, 1)) ;
+	double max_hh_tilde = hh_tilde.val_grid_point(1, 0, 0, 0) ;
+	double min_hh_tilde = hh_tilde.val_grid_point(1, 0, 0, 0) ;
+	
+	
 	int nnp = mp.get_mg()->get_np(1) ;
 	int nnt = mp.get_mg()->get_nt(1) ;
 	for (int k=0 ; k<nnp ; k++)
-	    for (int j=0 ; j<nnt ; j++){
-		if (kkss.val_grid_point(1, k, j, 0) > max_kss)
-		    max_kss = kkss.val_grid_point(1, k, j, 0) ;
-		if (kkss.val_grid_point(1, k, j, 0) < min_kss)
-		    min_kss = kkss.val_grid_point(1, k, j, 0) ;
-	    }
-	kss << mer << " " << max_kss << " " << min_kss << endl ;
+	  for (int j=0 ; j<nnt ; j++){
+	    if (kkss.val_grid_point(1, k, j, 0) > max_kss)
+	      max_kss = kkss.val_grid_point(1, k, j, 0) ;
+	    if (kkss.val_grid_point(1, k, j, 0) < min_kss)
+	      min_kss = kkss.val_grid_point(1, k, j, 0) ;
+
+	    if (aaLss.val_grid_point(1, k, j, 0) > max_aaLss)
+	      max_aaLss = aaLss.val_grid_point(1, k, j, 0) ;
+	    if (aaLss.val_grid_point(1, k, j, 0) < min_aaLss)
+	      min_aaLss = aaLss.val_grid_point(1, k, j, 0) ;
+	    
+	    if (hh_tilde.val_grid_point(1, k, j, 0) > max_hh_tilde)
+	      max_hh_tilde = hh_tilde.val_grid_point(1, k, j, 0) ;
+	    if (hh_tilde.val_grid_point(1, k, j, 0) < min_hh_tilde)
+	      min_hh_tilde = hh_tilde.val_grid_point(1, k, j, 0) ;
+	    
+	  }
+	
+	
+	kss << mer << " " << max_kss << " " << min_kss << " " << max_aaLss << " " << min_aaLss
+	    << " " <<  -1 * max_hh_tilde << " "  << -1 * min_hh_tilde << endl ;
     }
     
     conv.close() ;   

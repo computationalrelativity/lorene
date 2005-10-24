@@ -31,6 +31,9 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.27  2005/10/24 16:44:40  jl_jaramillo
+ * Cook boundary condition ans minot bound of kss
+ *
  * Revision 1.26  2005/10/21 16:20:55  jl_jaramillo
  * Version for the paper JaramL05
  *
@@ -294,7 +297,9 @@ const Valeur Isol_hor::boundary_psi_app_hor()const {
 const Valeur Isol_hor::boundary_psi_Dir()const {
 
   Scalar tmp(mp) ;
-  tmp = 1.8 - 1 ;
+  //  tmp = nn()+1. - 1 ;
+  tmp = pow(nn()/b_tilde(), 0.5) ;
+  tmp.std_spectral_base() ;
 
   int nnp = mp.get_mg()->get_np(1) ;
   int nnt = mp.get_mg()->get_nt(1) ;
@@ -370,20 +375,18 @@ const Valeur Isol_hor::boundary_nn_Neu_kk() const {
   const Vector& dnnn = nn().derive_cov(ff) ;
   double rho = 5. ;
 
-  Scalar kk_rr = 0.8*psi().derive_cov(mp.flat_met_spher())(1) / psi() ;  
-//  kk_rr.inc_dzpuis(2) ;
-//  Scalar kk_rr = contract( gam().radial_vect() * gam().radial_vect(), 0, 1
-//			   , k_dd(), 0, 1 ) ; 
+  Scalar kk_rr = contract( gam().radial_vect() * gam().radial_vect(), 0, 1
+			   , k_dd(), 0, 1 ) ; 
  
   Scalar k_kerr (mp) ;
-  k_kerr = 0.17 ;//1.*kappa_hor() ; 
+  k_kerr = kappa_hor() ; 
   k_kerr.std_spectral_base() ;
   k_kerr.inc_dzpuis(2) ;
-
+  
   Scalar tmp = ( k_kerr + nn() * kk_rr + rho * contract(gam().radial_vect(), 0,
-		nn().derive_cov(gam()), 0))/(1+rho) 
-      - gam().radial_vect()(2) * dnnn(2) - gam().radial_vect()(3) * dnnn(3)  ;
-
+							nn().derive_cov(gam()), 0))/(1+rho) 
+    - gam().radial_vect()(2) * dnnn(2) - gam().radial_vect()(3) * dnnn(3)  ;
+  
   tmp = tmp / gam().radial_vect()(1) ;
 
   Scalar diN (contract(gam().radial_vect(), 0, nn().derive_cov(ff), 0)) ;
@@ -396,9 +399,9 @@ const Valeur Isol_hor::boundary_nn_Neu_kk() const {
  
   int nnp = mp.get_mg()->get_np(1) ;
   int nnt = mp.get_mg()->get_nt(1) ;
-
+  
   Valeur nn_bound (mp.get_mg()->get_angu()) ;
-    
+  
   nn_bound = 1 ;  // Juste pour affecter dans espace des configs ; 
   
   for (int k=0 ; k<nnp ; k++)
@@ -408,7 +411,97 @@ const Valeur Isol_hor::boundary_nn_Neu_kk() const {
   nn_bound.std_base_scal() ;
   
   return  nn_bound ;
+  
+}
 
+const Valeur Isol_hor::boundary_nn_Neu_Cook() const {
+  
+  const Vector& dnnn = nn().derive_cov(ff) ;
+  double rho = 1. ;
+
+
+  Scalar kk_rr = contract( gam().radial_vect() * gam().radial_vect(), 0, 1
+			   , k_dd(), 0, 1 ) ; 
+
+  Sym_tensor qq_uu = gam_uu() - gam().radial_vect() * gam().radial_vect() ;
+
+  // Free function L_theta = h
+  //--------------------------
+  Scalar L_theta (mp) ;
+  L_theta = 0;
+  L_theta.std_spectral_base() ;
+  L_theta.inc_dzpuis(4) ;
+
+  //Divergence of Omega
+  //-------------------
+  Vector hom = 1.*nn().derive_cov(met_gamt) - 1*contract( k_dd(), 1, gam().radial_vect() , 0) ;
+  hom = contract(qq_uu.down(1, gam()), 0, hom, 0) ;
+
+  Scalar div_omega = 1.*contract( qq_uu, 0, 1,  hom.derive_cov(gam()), 0, 1) ;
+  div_omega.inc_dzpuis() ;
+
+  //---------------------
+
+  
+  // Two-dimensional Ricci scalar
+  //-----------------------------
+
+  Scalar rr (mp) ;
+  rr = mp.r ;
+
+  Scalar Ricci_conf(mp) ;
+  Ricci_conf = 2 / rr / rr ;
+  Ricci_conf.std_spectral_base() ;
+
+  Scalar Ricci(mp) ;
+  Scalar log_psi (log(psi())) ;
+  log_psi.std_spectral_base() ;
+  Ricci = pow(psi(), -4) * (Ricci_conf - 4*log_psi.lapang())/rr /rr ;
+  Ricci.std_spectral_base() ;
+  Ricci.inc_dzpuis(4) ;
+  //-------------------------------
+
+ Scalar theta_k = -1/(2*nn()) * (gam().radial_vect().divergence(gam()) -
+				  kk_rr + trk() ) ;
+  
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
+  /*  
+  for (int k=0 ; k<nnp ; k++)
+    for (int j=0 ; j<nnt ; j++){
+       cout << theta_k.val_grid_point(1, k, j, 0) << endl ;
+       cout << nn().val_grid_point(1, k, j, 0) << endl ;
+    }
+  */
+
+
+
+  //Source
+  //------
+  Scalar  source = div_omega + contract( qq_uu, 0, 1,  hom * hom , 0, 1) - 0.5 * Ricci - L_theta;
+  source = source / theta_k ;
+
+  Scalar tmp = ( source + nn() * kk_rr + rho * contract(gam().radial_vect(), 0,
+							nn().derive_cov(gam()), 0))/(1+rho) 
+    - gam().radial_vect()(2) * dnnn(2) - gam().radial_vect()(3) * dnnn(3)  ;
+  
+  tmp = tmp / gam().radial_vect()(1) ;
+
+  // in this case you don't have to substract any value
+ 
+  Valeur nn_bound (mp.get_mg()->get_angu()) ;
+  
+  nn_bound = 1 ;  // Juste pour affecter dans espace des configs ; 
+  
+  
+  for (int k=0 ; k<nnp ; k++)
+    for (int j=0 ; j<nnt ; j++)
+      nn_bound.set(0, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
+
+  nn_bound.std_base_scal() ;
+  
+  return  nn_bound ;
+  
 }
 
 
@@ -478,7 +571,7 @@ const Valeur Isol_hor::boundary_nn_Dir(double cc)const {
 
   Scalar tmp(mp) ;
   tmp = cc - 1 ;
-  //  tmp =   b_tilde() *psi()*psi() - 1 ;
+  //tmp =   b_tilde() *psi()*psi() - 1  ;
   //  tmp = 1./(2*psi()) - 1 ;
   //  tmp = - psi() * nn().dsdr() / (psi().dsdr()) -1 ;
 
@@ -586,16 +679,56 @@ const Valeur Isol_hor::boundary_nn_Dir_lapl() const {
     */
 
 
-    lew_pal = 0.01*log(1/(2*psi())) ;
+    lew_pal = 0*0.01*log(1/(2*psi())) ;
     lew_pal.std_spectral_base() ;
     lew_pal *= square_q ;
+
+    //Source from (L_l\theta_k=0)
+    //---------------------------
+
+    Scalar L_theta (mp) ;
+    L_theta = 0. ;
+    L_theta.std_spectral_base() ;
+
+    Scalar kk_rr = contract( gam().radial_vect() * gam().radial_vect(), 0, 1
+			   , k_dd(), 0, 1 ) ; 
+    Scalar kappa (mp) ;
+    kappa = kappa_hor() ;
+    kappa = contract(gam().radial_vect(), 0, nn().derive_cov(gam()), 0) - nn() * kk_rr ;
+    
+    
+    Scalar theta_k = -1/(2*nn()) * (gam().radial_vect().divergence(gam()) -
+				    kk_rr  + trk() ) ;
+
+    Sym_tensor qqq = gam_uu() - gam().radial_vect() * gam().radial_vect() ;
+    
+    Vector hom = nn().derive_cov(met_gamt) - contract( k_dd(), 1, gam().radial_vect() , 0) ;
+    hom = contract(qqq.down(1, gam()), 0, hom, 0) ;
+        
+    Scalar rr(mp) ;
+    rr = mp.r ;
+
+    Scalar Ricci_conf = 2 / rr /rr ;
+    Ricci_conf.std_spectral_base() ;
+    
+    Scalar Ricci = pow(psi(), -4) * (Ricci_conf - 4* log(psi()).lapang())/rr /rr ;
+    Ricci.std_spectral_base() ;
+    Ricci.inc_dzpuis(4) ;
+    
+    Scalar div_Omega =  L_theta - contract(qqq, 0, 1, hom * hom, 0, 1) + 0.5 * Ricci
+      + theta_k * kappa ;
+
+    //End of Source from (L_l\theta_k=0)
+    //----------------------------------
 
     temp_scal2.set_dzpuis(2) ; 
     temp_scal.set_dzpuis(2) ; 
     lew_pal.set_dzpuis(2) ; 
+    div_Omega.set_dzpuis(2) ; 
 
 
-    Scalar source (temp_scal2 - temp_scal + lew_pal) ;
+    Scalar source (temp_scal2 - temp_scal + div_Omega) ;
+    //    Scalar source (temp_scal2 - temp_scal + lew_pal) ;
 
     Scalar logn (mp) ;
     Param bidon ;
@@ -1055,25 +1188,31 @@ const Vector Isol_hor::vv_bound_cart(double om) const{
 */
 
     Scalar kss (mp) ;
-//    kss = - 0.2 ;
-    kss = (contract(gam().radial_vect(), 0, nn().derive_cov(ff), 0) - 
-	   1.*kappa_hor()) / nn() ;
+    kss = - 0.2 ;
+    // kss from L_l N = 0
+
+    //kss from from L_lN=0 condition
+    //------------------------------
+    //    kss = - 1.*kappa_hor() / nn() ;
+    //    kss.inc_dzpuis(2) ;
+    //    kss += contract(gam().radial_vect(), 0, nn().derive_cov(ff), 0) / nn() ;
 
     kss.std_spectral_base() ;
     kss.inc_dzpuis(2) ;
     
     cout << "kappa_hor = " << kappa_hor() << endl ;
 
+    /*
     // Apparent horizon condition
     //---------------------------
     kss = trk() ;
-    kss.inc_dzpuis(2) ;
     kss -= (4* contract(psi().derive_cov(met_gamt), 0, met_gamt.radial_vect(), 
 			0)/psi() +
 	    contract(met_gamt.radial_vect().derive_cov(met_gamt), 0, 1)) /
       (psi() * psi()) ;
     //  kss.std_spectral_base() ;
   //  kss.inc_dzpuis(2) ;
+  */
 
     // beta^r component
     //-----------------
