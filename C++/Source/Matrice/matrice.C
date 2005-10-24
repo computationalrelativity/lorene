@@ -32,6 +32,9 @@ char matrice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2005/10/24 12:42:32  p_grandclement
+ * correction of annule_hard
+ *
  * Revision 1.13  2005/10/24 09:22:24  p_grandclement
  * addition of annule_hard for matrices
  *
@@ -176,7 +179,7 @@ void Matrice::annule_hard() {
 
     for (int i=0 ; i<std->get_dim(0) ; i++)
     	 for (int j=0 ; j<std->get_dim(1) ; j++)
-    		std->set(i,j) = 0 ;
+    		std->set(j,i) = 0 ;
 }
 	 
 // Constructeurs
