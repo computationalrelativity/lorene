@@ -34,6 +34,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.38  2005/10/25 08:56:38  p_grandclement
+ * addition of std_spectral_base in the case of odd functions near the origin
+ *
  * Revision 1.37  2005/05/18 11:45:44  j_novak
  * Added del_deriv() calls at the end of inc/dec_dzpuis.
  *
@@ -952,6 +955,27 @@ void Tensor::std_spectral_base() {
 	    default : {
 
 			cout << "Tensor::std_spectral_base: the case valence = " << valence
+		 	<< " is not treated yet !" << endl ;
+			abort() ;
+			break ;
+		}
+	}
+}
+
+// Sets the standard spectal bases of decomposition for each component (odd in the nucleus)
+
+void Tensor::std_spectral_base_odd() {
+
+	switch (valence) {
+
+		case 0 : {
+			cmp[0]->std_spectral_base_odd() ; 
+			break ; 
+		}	
+		
+	    default : {
+
+			cout << "Tensor::std_spectral_base_odd: the case valence = " << valence
 		 	<< " is not treated yet !" << endl ;
 			abort() ;
 			break ;

@@ -35,6 +35,9 @@ char scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.31  2005/10/25 08:56:39  p_grandclement
+ * addition of std_spectral_base in the case of odd functions near the origin
+ *
  * Revision 1.30  2005/03/11 13:16:37  j_novak
  * Corrected an error in multipole_spectrum().
  *
@@ -749,6 +752,13 @@ void Scalar::spectral_display(const char* comment,
 void Scalar::std_spectral_base() {
       
     va.std_base_scal() ;  
+                   
+}    
+
+		    
+void Scalar::std_spectral_base_odd() {
+      
+    va.std_base_scal_odd() ;  
                    
 }    
 

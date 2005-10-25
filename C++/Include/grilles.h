@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2005/10/25 08:56:34  p_grandclement
+ * addition of std_spectral_base in the case of odd functions near the origin
+ *
  * Revision 1.13  2005/10/07 08:47:20  j_novak
  * Addition of the pointer g_non_axi on a grid, with at least 5 points in the
  * theta direction and 4 in the phi one (for tensor rotations).
@@ -687,7 +690,10 @@ class Mg3d {
 
 	/// Returns the standard spectral bases for a scalar
 	Base_val std_base_scal() const ; 	
-
+	
+	/// Returns the standard odd spectral bases for a scalar
+	Base_val std_base_scal_odd() const ; 	
+	
 	/** Returns the standard spectral bases for the Cartesian components 
 	 *  of a vector
 	 */ 

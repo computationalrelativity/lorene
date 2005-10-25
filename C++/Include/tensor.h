@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.55  2005/10/25 08:56:34  p_grandclement
+ * addition of std_spectral_base in the case of odd functions near the origin
+ *
  * Revision 1.54  2004/07/08 12:21:51  j_novak
  * Replaced tensor::annule_extern_c2 with tensor::annule_extern_cn for a
  * more general transition.
@@ -625,6 +628,12 @@ class Tensor {
 	 * To be used only with \c valence  lower than or equal 2.
 	 */
 	virtual void std_spectral_base() ; 
+	
+	/**
+	 * Sets the standard odd spectal bases of decomposition for each component.
+	 * Currently only implemented for a scalar.
+	 */
+	virtual void std_spectral_base_odd() ; 
 	
 	/** Decreases by \c dec  units the value of \c dzpuis  and 
 	 *  changes accordingly the values in the 

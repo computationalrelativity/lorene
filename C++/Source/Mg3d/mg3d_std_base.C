@@ -30,6 +30,9 @@ char mg3d_std_base_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/10/25 08:56:37  p_grandclement
+ * addition of std_spectral_base in the case of odd functions near the origin
+ *
  * Revision 1.5  2005/02/16 15:09:16  m_forot
  * Add R_CHEBPI_I and R_CHEBPI_P cases
  *
@@ -68,6 +71,7 @@ char mg3d_std_base_C[] = "$Header$" ;
 #include "type_parite.h"
 
 int std_base_scal_1z(int type_r, int type_t, int type_p) ; 
+int std_base_scal_odd_1z(int type_r, int type_t, int type_p) ; 
 
 		    //-----------------------------//
 		    //	Bases for a scalar field   //
@@ -80,6 +84,18 @@ Base_val Mg3d::std_base_scal() const {
      
     for (int l=0; l<nzone; l++) {
 	base.b[l] = std_base_scal_1z(type_r[l], type_t, type_p) ;
+    }
+    
+    return base ; 
+     
+}    
+
+Base_val Mg3d::std_base_scal_odd() const {
+          
+    Base_val base(nzone) ;  
+     
+    for (int l=0; l<nzone; l++) {
+	base.b[l] = std_base_scal_odd_1z(type_r[l], type_t, type_p) ;
     }
     
     return base ; 

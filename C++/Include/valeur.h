@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2005/10/25 08:56:34  p_grandclement
+ * addition of std_spectral_base in the case of odd functions near the origin
+ *
  * Revision 1.12  2004/11/23 12:46:04  f_limousin
  * Add functiun filtre_tp(int nn, int nz1, int nz2).
  *
@@ -460,7 +463,12 @@ class Valeur {
 	 *  to the standard ones for a scalar
 	 */
 	void std_base_scal() ;	 
-
+	
+	/** Sets the bases for spectral expansions (member \c base ) 
+	 *  to the standard odd ones for a scalar
+	 */
+	void std_base_scal_odd() ;	 
+	
 	/** Sets the expansion basis for \e r  (\f$\xi\f$) functions in a 
 	 *  given domain.
 	 *  

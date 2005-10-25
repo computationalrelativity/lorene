@@ -34,6 +34,9 @@ char valeur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/10/25 08:56:40  p_grandclement
+ * addition of std_spectral_base in the case of odd functions near the origin
+ *
  * Revision 1.5  2004/11/23 12:45:00  f_limousin
  * Add function filtre_tp(int nn, int nz1, int nz2).
  *
@@ -814,6 +817,12 @@ void Valeur::set_base(const Base_val& base_i) {
 void Valeur::std_base_scal() {
       
     set_base( mg->std_base_scal() ) ;  
+                   
+}    
+
+void Valeur::std_base_scal_odd() {
+      
+    set_base( mg->std_base_scal_odd() ) ;  
                    
 }    
 

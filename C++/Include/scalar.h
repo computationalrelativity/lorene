@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.73  2005/10/25 08:56:34  p_grandclement
+ * addition of std_spectral_base in the case of odd functions near the origin
+ *
  * Revision 1.72  2005/09/07 13:10:47  j_novak
  * Added a filter setting to zero all mulitpoles in a given range.
  *
@@ -1074,7 +1077,12 @@ class Scalar : public Tensor {
    *  for a scalar field
    */
   virtual void std_spectral_base() ;	 
-
+  
+ /** Sets the spectral bases of the \c Valeur \c va  to the standard odd ones 
+   *  for a scalar field
+   */
+  virtual void std_spectral_base_odd() ;	 
+  
   /** Sets the spectral bases of the \c Valeur \c va  
    */
   void set_spectral_base(const Base_val& ) ;	 
