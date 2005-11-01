@@ -31,6 +31,9 @@ char coal_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/11/01 13:59:31  f_limousin
+ * New parameter for the funtion coal.
+ *
  * Revision 1.6  2005/06/09 16:17:21  f_limousin
  * Many different changes.
  *
@@ -132,9 +135,13 @@ int main() {
     ofstream fich_viriel("viriel.dat") ;
     fich_viriel.precision(8) ; 
 
+    ofstream fich_kss("kss.dat") ;
+    fich_kss.precision(8) ; 
+
     fich_iteration << "# step  precision  omega"  << endl ;
     fich_correction << "# step  regularisation  omega"  << endl ;
     fich_viriel << "# step  viriel  omega"  << endl ;
+    fich_viriel << "# step  kss  omega"  << endl ;
 
     int step = 0 ;
     double omega_jp1, erreur_jp1 ;
@@ -144,7 +151,7 @@ int main() {
     double erreur_j = bin.coal(omega_j, relax, nb_om, nb_it, bound_nn,
 			       lim_nn, bound_psi, bound_beta, 
 			       fich_iteration, fich_correction,
-			       fich_viriel, step, 1) ;
+			       fich_viriel, fich_kss, step, 1) ;
     step += nb_om + nb_it ;
  
     fiche_omega << omega_j << " " << erreur_j << endl ;
@@ -155,7 +162,7 @@ int main() {
       erreur_jp1 = bin.coal(omega_jp1, relax, nb_om, nb_it, bound_nn,
 			    lim_nn, bound_psi, bound_beta, 
 			    fich_iteration, fich_correction,
-			    fich_viriel, step, 1) ;
+			    fich_viriel, fich_kss, step, 1) ;
       fiche_omega << omega_jp1 << " " << erreur_jp1 << endl ;
     }
     else {
@@ -163,7 +170,7 @@ int main() {
       erreur_jp1 = bin.coal(omega_jp1, relax, nb_om, nb_it, bound_nn,
 			    lim_nn, bound_psi, bound_beta, 
 			    fich_iteration, fich_correction,
-			    fich_viriel, step, 1) ;
+			    fich_viriel, fich_kss, step, 1) ;
       fiche_omega << omega_jp1 << " " << erreur_jp1 << endl ;
     }
     step += nb_om + nb_it ;
@@ -178,7 +185,7 @@ int main() {
       erreur = bin.coal (omega, relax, nb_om, nb_it, bound_nn,
 			 lim_nn, bound_psi, bound_beta, 
 			 fich_iteration, fich_correction,
-			 fich_viriel, step, 1) ;
+			 fich_viriel, fich_kss, step, 1) ;
      step += nb_om + nb_it ;
      
       fiche_omega << omega << " " << erreur << endl ;
@@ -196,6 +203,7 @@ int main() {
     fich_iteration.close() ;
     fich_correction.close() ;
     fich_viriel.close() ;
+    fich_kss.close() ;
 
     FILE* fich_sortie = fopen("bin.dat", "w") ;
     grid.sauve(fich_sortie) ;
