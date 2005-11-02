@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.41  2005/11/02 16:10:38  jl_jaramillo
+ * change in boundary_nn_Dir_lapl
+ *
  * Revision 1.40  2005/10/24 16:45:16  jl_jaramillo
  * Cook boundary condition
  *
@@ -672,7 +675,7 @@ class Isol_hor : public Time_slice_conf {
 
   /// Dirichlet boundary condition for \c N fixing the divergence
   /// of the connection form \f$ \omega \f$
-  const Valeur boundary_nn_Dir_lapl() const ;
+  const Valeur boundary_nn_Dir_lapl(int mer = 1) const ;
 
   /// Neumann boundary condition on nn (effectif)
   ///  \f$ \partial_r N + a N = 0 \f$ 
