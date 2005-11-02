@@ -51,6 +51,9 @@ char int1d_chebi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/11/02 15:08:18  j_novak
+ * Minor change to prevent warning message.
+ *
  * Revision 1.2  2005/05/13 13:22:33  j_novak
  * *** empty log message ***
  *
@@ -71,8 +74,8 @@ double int1d_chebi(int nr, const double* cf){
     const double* cc = cf ;
 
     for (int i=0; i<nr-2 ; i+=2) {
-	som += (*cc - *(++cc) ) / double(2*i + 2) ; 
-	cc++ ;
+	som += (cc[0] - cc[1] ) / double(2*i + 2) ; 
+	cc += 2 ;
     }
     
     if (nr%2 == 0) som += (*cc) / double(2*nr - 2) ;
