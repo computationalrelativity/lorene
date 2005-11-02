@@ -26,6 +26,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/11/02 13:04:28  p_grandclement
+ * small change in test_fft.C
+ *
  * Revision 1.3  2003/09/09 08:24:43  j_novak
  * *** empty log message ***
  *
@@ -51,8 +54,10 @@ int main(){
   // Nombre de points
   // ----------------
   int np ; 
-  cout << "Nombre de points ? " << endl ; 
+  cout << "Nombre de points ? " ; 
   cin >> np ; 
+  cout << endl ;
+  while ( cin.get()!='\n' ) ;
 
 
   // Construction de la grille
