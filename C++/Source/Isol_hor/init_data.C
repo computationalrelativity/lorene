@@ -31,6 +31,9 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2005/11/02 16:09:44  jl_jaramillo
+ * changes in boundary_nn_Dir_lapl
+ *
  * Revision 1.21  2005/10/24 16:44:40  jl_jaramillo
  * Cook boundary condition ans minot bound of kss
  *
@@ -185,7 +188,7 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 		    break ;
 		}
 		case 5 : {
-		    nn_bound = boundary_nn_Dir_lapl() ;
+		    nn_bound = boundary_nn_Dir_lapl(mer) ;
 		    nn_jp1 = sou_nn.poisson_dirichlet(nn_bound, 0) + 1. ;
 		    break ;
 		}

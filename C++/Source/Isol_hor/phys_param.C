@@ -30,6 +30,9 @@ char phys_param_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2005/11/02 16:09:44  jl_jaramillo
+ * changes in boundary_nn_Dir_lapl
+ *
  * Revision 1.10  2005/04/15 11:54:21  jl_jaramillo
  * function to compute the expansion of spherical surfaces
  *
@@ -185,7 +188,7 @@ double Isol_hor::ang_mom_hor()const {
   Scalar integrand = k_rphi * darea_hor() ;   // we correct with the curved 
                                               // element of area 
 
-  double ang_mom = mp.integrale_surface(integrand, 1.0000000001) ;
+  double ang_mom = mp.integrale_surface(integrand, radius + 1e-15) ;
 
   return ang_mom ;
 

@@ -31,6 +31,9 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.28  2005/11/02 16:09:44  jl_jaramillo
+ * changes in boundary_nn_Dir_lapl
+ *
  * Revision 1.27  2005/10/24 16:44:40  jl_jaramillo
  * Cook boundary condition ans minot bound of kss
  *
@@ -428,16 +431,21 @@ const Valeur Isol_hor::boundary_nn_Neu_Cook() const {
   // Free function L_theta = h
   //--------------------------
   Scalar L_theta (mp) ;
-  L_theta = 0;
+  L_theta = .0;
   L_theta.std_spectral_base() ;
   L_theta.inc_dzpuis(4) ;
 
   //Divergence of Omega
   //-------------------
-  Vector hom = 1.*nn().derive_cov(met_gamt) - 1*contract( k_dd(), 1, gam().radial_vect() , 0) ;
-  hom = contract(qq_uu.down(1, gam()), 0, hom, 0) ;
+  Vector hom1 = nn().derive_cov(met_gamt)/nn()  ;
+  hom1 = contract(qq_uu.down(1, gam()), 0, hom1, 0) ;
 
-  Scalar div_omega = 1.*contract( qq_uu, 0, 1,  hom.derive_cov(gam()), 0, 1) ;
+  Vector hom2 = -contract( k_dd(), 1, gam().radial_vect() , 0) ;
+  hom2 = contract(qq_uu.down(1, gam()), 0, hom2, 0) ;
+
+  Vector hom = hom1 + hom2 ;
+  
+  Scalar div_omega = 1.*contract( qq_uu, 0, 1,  (1.*hom1 + 2.*hom2).derive_cov(gam()), 0, 1) ;
   div_omega.inc_dzpuis() ;
 
   //---------------------
@@ -620,140 +628,201 @@ const Valeur Isol_hor::boundary_nn_Dir(double cc)const {
 
 }
 
-const Valeur Isol_hor::boundary_nn_Dir_lapl() const {
+const Valeur Isol_hor::boundary_nn_Dir_lapl(int mer) const {
 
-    Scalar det_q = gam_dd()(2,2) * gam_dd()(3,3) -
-                            gam_dd()(2,3) * gam_dd()(2,3) ;
-    Scalar square_q (pow(det_q, 0.5)) ;
-    square_q.std_spectral_base() ;
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
+   
 
-    Sym_tensor qq_uu (mp, CON, mp.get_bvect_spher()) ;
-    for (int i=1 ; i<=3 ; i++)
-        for (int j=i ; j<=3 ; j++)
-            qq_uu.set(i,j).annule_hard() ;
+  //Preliminaries
+  //-------------
+  
+  //Metrics on S^2
+  //--------------
 
-    qq_uu.set(2,2) = gam_dd()(3,3) / det_q ;
-    qq_uu.set(3,2) = - gam_dd()(3,2) / det_q ;
-    qq_uu.set(3,3) = gam_dd()(2,2) / det_q ;
-    qq_uu.std_spectral_base() ;
+  Sym_tensor q_uu = gam_uu() - gam().radial_vect() * gam().radial_vect() ;
+  Sym_tensor q_dd = q_uu.up_down(gam()) ;
 
-    //    Metric met_q (qq_uu) ;
+  Scalar det_q = q_dd(2,2) * q_dd(3,3) - q_dd(2,3) * q_dd(3,2) ;
+  Scalar square_q (pow(det_q, 0.5)) ;
+  square_q.std_spectral_base() ;
 
-    Sym_tensor hh_uu (mp, CON, mp.get_bvect_spher()) ;
-    hh_uu = qq_uu * square_q ;
-    hh_uu.set(2,2) = hh_uu(2,2) - 1. ;
-    hh_uu.set(3,3) = hh_uu(3,3) - 1. ;
+  Sym_tensor qhat_uu = square_q * q_uu ;
 
+  Sym_tensor ffr_uu = ff.con() - ff.radial_vect() * ff.radial_vect() ;
+  Sym_tensor ffr_dd = ff.cov() - ff.radial_vect().down(0, ff) * ff.radial_vect().down(0,ff) ;
 
-    Vector temp_vect (contract(hh_uu, 1, nn().derive_cov(ff) / nn(), 0)) ;
-    temp_vect.set(2).mult_sint() ;
+  Sym_tensor h_uu = qhat_uu - ffr_uu ;
 
-    Scalar temp_scal (mp) ;
-    temp_scal = temp_vect(2).dsdt() ;
-    temp_scal.div_sint() ;
-    temp_scal += temp_vect(3).stdsdp() ;
-    temp_scal.div_r() ;
+  //------------------
 
 
-    Vector temp_vect2 (mp, CON, mp.get_bvect_spher()) ;
-    temp_vect2 = contract(k_dd(), 1, gam().radial_vect(), 0).up(0, gam())  -
-        contract(k_dd(), 0, 1, gam().radial_vect()*gam().radial_vect(), 0, 1) *
-        gam().radial_vect() ;
-    temp_vect2.set(2).mult_sint() ;
-    temp_vect2 = temp_vect2 * square_q ;
+  // Source of the "round" laplacian: 
+  //---------------------------------
 
-    Scalar temp_scal2 (mp) ;
-    temp_scal2 = temp_vect2(2).dsdt() ;
-    temp_scal2.div_sint() ;
-    temp_scal2 += temp_vect2(3).stdsdp() ;
-    temp_scal2.div_r() ;
+  //Source 1: "Divergence" term
+  //---------------------------
+  Vector kqs = contract(k_dd(), 1, gam().radial_vect(), 0 ) ;
+  kqs = contract( q_uu.down(0, gam()), 1, kqs, 0) ;
+  Scalar div_kqs = contract( q_uu, 0, 1, kqs.derive_cov(gam()), 0, 1) ;
+
+  Scalar source1 = div_kqs ;
+  source1 *= square_q ;
+
+
+  // Source 2: correction term
+  //--------------------------
     
-    Scalar lew_pal (mp) ;
-    
-    /*    
-    Scalar re = (*this).Re_Coul_eigen() ;
-    Scalar im = Im_Coul_eigen() ;
-    lew_pal = -log(sqrt(re*re + im*im))/3 ;
-    lew_pal.std_spectral_base() ;
-    lew_pal.lapang() ;
-    */
+  Vector corr = - contract(h_uu, 1, nn().derive_cov(ff), 0) / nn() ;
+  Scalar source2 = contract( ffr_dd, 0, 1, corr.derive_con(ff), 0, 1 ) ;
 
 
-    lew_pal = 0*0.01*log(1/(2*psi())) ;
-    lew_pal.std_spectral_base() ;
-    lew_pal *= square_q ;
+  // Source 3: (physical) divergence of Omega
+  //-----------------------------------------
 
-    //Source from (L_l\theta_k=0)
-    //---------------------------
-
-    Scalar L_theta (mp) ;
-    L_theta = 0. ;
-    L_theta.std_spectral_base() ;
-
-    Scalar kk_rr = contract( gam().radial_vect() * gam().radial_vect(), 0, 1
+  Scalar div_omega(mp) ;
+  
+  //Source from (L_l\theta_k=0)
+  
+  Scalar L_theta (mp) ;
+  L_theta = 0. ;
+  L_theta.std_spectral_base() ;
+  
+  Scalar kk_rr = contract( gam().radial_vect() * gam().radial_vect(), 0, 1
 			   , k_dd(), 0, 1 ) ; 
-    Scalar kappa (mp) ;
-    kappa = kappa_hor() ;
-    kappa = contract(gam().radial_vect(), 0, nn().derive_cov(gam()), 0) - nn() * kk_rr ;
+     
+ //   Scalar kappa (mp) ;
+ //   kappa = kappa_hor() ;
+ //   kappa.std_spectral_base() ;
+ //   kappa.set_dzpuis(2) ;
+  
+ 
+  Scalar kappa = contract(gam().radial_vect(), 0, nn().derive_cov(gam()), 0) - nn() * kk_rr ;
+  Scalar theta_k = -1/(2*nn()) * (gam().radial_vect().divergence(gam()) -
+				  kk_rr  + trk() ) ;
+  
+  Sym_tensor qqq = gam_uu() - gam().radial_vect() * gam().radial_vect() ;
+  
+  Vector hom = nn().derive_cov(met_gamt) - contract( k_dd(), 1, gam().radial_vect() , 0) ;
+  hom = contract(qqq.down(1, gam()), 0, hom, 0) ;
+  
+  Scalar rr(mp) ;
+  rr = mp.r ;
+  
+  Scalar Ricci_conf = 2 / rr /rr ;
+  Ricci_conf.std_spectral_base() ;
+  
+  Scalar log_psi (log(psi())) ;
+  log_psi.std_spectral_base() ;
+  Scalar Ricci = pow(psi(), -4) * (Ricci_conf - 4*log_psi.lapang())/rr /rr ;
+  Ricci.std_spectral_base() ;
+  Ricci.inc_dzpuis(4) ;
+  
+  
+  div_omega =  L_theta - contract(qqq, 0, 1, hom * hom, 0, 1) + 0.5 * Ricci
+    + theta_k * kappa ;
+  div_omega.dec_dzpuis() ;
     
-    
-    Scalar theta_k = -1/(2*nn()) * (gam().radial_vect().divergence(gam()) -
-				    kk_rr  + trk() ) ;
+  //End of Source from (L_l\theta_k=0)
+  //----------------------------------
 
-    Sym_tensor qqq = gam_uu() - gam().radial_vect() * gam().radial_vect() ;
-    
-    Vector hom = nn().derive_cov(met_gamt) - contract( k_dd(), 1, gam().radial_vect() , 0) ;
-    hom = contract(qqq.down(1, gam()), 0, hom, 0) ;
-        
-    Scalar rr(mp) ;
-    rr = mp.r ;
+  div_omega = 0. ;
+  //  div_omega = 0.01*log(1/(2*psi())) ;
+  div_omega.std_spectral_base() ;
+  div_omega.inc_dzpuis(3) ;
 
-    Scalar Ricci_conf = 2 / rr /rr ;
-    Ricci_conf.std_spectral_base() ;
-    
-    Scalar Ricci = pow(psi(), -4) * (Ricci_conf - 4* log(psi()).lapang())/rr /rr ;
-    Ricci.std_spectral_base() ;
-    Ricci.inc_dzpuis(4) ;
-    
-    Scalar div_Omega =  L_theta - contract(qqq, 0, 1, hom * hom, 0, 1) + 0.5 * Ricci
-      + theta_k * kappa ;
-
-    //End of Source from (L_l\theta_k=0)
-    //----------------------------------
-
-    temp_scal2.set_dzpuis(2) ; 
-    temp_scal.set_dzpuis(2) ; 
-    lew_pal.set_dzpuis(2) ; 
-    div_Omega.set_dzpuis(2) ; 
+ 
+  //Construction of source3 (correction of div_omega by the square root of the determinant)
+  Scalar source3 =  div_omega ;
+  source3 *= square_q ;
 
 
-    Scalar source (temp_scal2 - temp_scal + div_Omega) ;
-    //    Scalar source (temp_scal2 - temp_scal + lew_pal) ;
+  //"Correction" to the div_omega term (no Y_00 component must be present)
+  
+  double corr_const = mp.integrale_surface(source3, radius  + 1e-15)/(4. * M_PI) ;
+  cout << "Constant part of div_omega = " << corr_const <<endl ;
 
-    Scalar logn (mp) ;
-    Param bidon ;
-    mp.poisson_angu(source, bidon, logn) ;
-    
-    double cc = 0.2 ; // Integration constant
+  Scalar corr_div_omega (mp) ;
+  corr_div_omega = corr_const ;
+  corr_div_omega.std_spectral_base() ;
+  corr_div_omega.set_dzpuis(3) ;
 
-    Scalar lapse (exp(logn)*cc) ;
-    lapse.std_spectral_base() ;
+  source3 -=  corr_div_omega ;
 
-    lapse = lapse - 1. ;
+ 
 
-    int nnp = mp.get_mg()->get_np(1) ;
-    int nnt = mp.get_mg()->get_nt(1) ;
+  //Source
+  //------
+  
+  Scalar source =  source1 + source2 + source3 ;
 
-    Valeur nn_bound (mp.get_mg()->get_angu()) ;
 
-    nn_bound = 1 ;  // Juste pour affecter dans espace des configs ;
 
-    for (int k=0 ; k<nnp ; k++)
-        for (int j=0 ; j<nnt ; j++)
-            nn_bound.set(0, k, j, 0) = lapse.val_grid_point(1, k, j, 0) ;
+  //Resolution of round angular laplacian
+  //-------------------------------------
+  
+  Scalar source_tmp = source ;
 
-    nn_bound.std_base_scal() ;
+  Scalar logn (mp) ;
+  logn = source.poisson_angu() ;
 
+  double cc = 1. ; // Integration constant
+
+  Scalar lapse (mp) ;
+  lapse = (exp(logn)*cc) ;
+  lapse.std_spectral_base() ;
+  
+
+  //Test of Divergence of Omega
+  //---------------------------
+  
+  ofstream err ;
+  err.open ("err_laplBC.d", ofstream::app ) ;
+  
+  hom = nn().derive_cov(gam())/nn() 
+    - contract( k_dd(), 1, gam().radial_vect() , 0) ;
+  hom = contract(q_uu.down(1, gam()), 0, hom, 0) ;
+  
+  Scalar div_omega_test = contract( q_uu, 0, 1,  hom.derive_cov(gam()), 0, 1) ;
+  
+  
+  Scalar err_lapl = div_omega_test - div_omega ;
+  
+  double max_err = err_lapl.val_grid_point(1, 0, 0, 0) ;
+  double min_err = err_lapl.val_grid_point(1, 0, 0, 0) ;
+  
+  for (int k=0 ; k<nnp ; k++)
+    for (int j=0 ; j<nnt ; j++){
+      if (err_lapl.val_grid_point(1, k, j, 0) > max_err)
+	max_err = err_lapl.val_grid_point(1, k, j, 0) ;
+      if (err_lapl.val_grid_point(1, k, j, 0) < min_err)
+	min_err = err_lapl.val_grid_point(1, k, j, 0) ;
+    }
+  
+   err << mer << " " << max_err << " " << min_err << endl ;
+
+   err.close() ;
+
+
+
+  //Construction of the Valeur
+  //--------------------------
+
+  lapse = lapse - 1. ;
+
+  //  int nnp = mp.get_mg()->get_np(1) ;
+  //  int nnt = mp.get_mg()->get_nt(1) ;
+  
+  Valeur nn_bound (mp.get_mg()->get_angu()) ;
+  
+  nn_bound = 1 ;  // Juste pour affecter dans espace des configs ;
+  
+  for (int k=0 ; k<nnp ; k++)
+    for (int j=0 ; j<nnt ; j++)
+      nn_bound.set(0, k, j, 0) = lapse.val_grid_point(1, k, j, 0) ;
+  
+  nn_bound.std_base_scal() ;
+  
     return  nn_bound ;
 
 }
