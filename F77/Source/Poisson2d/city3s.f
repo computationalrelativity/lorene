@@ -100,8 +100,13 @@ c
 C
 C $Id$
 C $Log$
-C Revision 1.1  2001/11/20 15:19:30  e_gourgoulhon
-C Initial revision
+C Revision 1.2  2005/11/02 08:59:33  m_bejger
+C Commented out multiple initializations of data variables, line 129,130
+C (issue known to produce internal compiler error with
+C gcc-gfortran 4.0.0, 4.0.1)
+C
+C Revision 1.1.1.1  2001/11/20 15:19:30  e_gourgoulhon
+C LORENE
 C
 c Revision 1.2  1997/05/23  11:31:15  hyc
 c *** empty log message ***
@@ -126,8 +131,8 @@ C
 c
 	real*8 cc,c64,den,cs
 c
-	data ndy,ndr,ndz/0,0,0/
-	data neq/0/
+c	data ndy,ndr,ndz/0,0,0/
+c	data neq/0/
 c
 	dimension ide1(257),den(ndimr,ndimy,*),c64(*),cc(*),cs(*),ndeg(3)
 	dimension ide2(257)
