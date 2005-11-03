@@ -29,6 +29,9 @@ char star_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2005/11/03 13:27:09  f_limousin
+ * Final version for the letter.
+ *
  * Revision 1.23  2005/09/14 12:48:02  f_limousin
  * Comment graphical outputs.
  *
@@ -499,7 +502,35 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	mp.resize(1, rr_in_1/rr_out_1 * fact_resize(0)) ; 
 	mp.resize(2, rr_in_1/rr_out_2 * fact_resize(1)) ; 
 	}
+	
 	else{
+	  /*
+	    if (nz > 4 && nzet == 1) {
+		double rr_in_1 = mp.val_r(1,-1., M_PI/2, 0.) ; 
+		double rr_out_1 = mp.val_r(1, 1., M_PI/2, 0.) ; 
+		double rr_out_2 = mp.val_r(2, 1., M_PI/2, 0.) ; 
+		
+		double fact_resize_0 ;
+		if (fact_resize(0) > 2.4) fact_resize_0 = fact_resize(0)/2. ;
+		else fact_resize_0 = fact_resize(0)/2. + 0.5 ;
+
+		double dist_out = 2.* fabs(mp.get_ori_x()) + ray_eq_pi() ;
+		dist_out *= 1.05 ;
+
+		mp.resize(1, rr_in_1/rr_out_1 * fact_resize_0) ; 
+		mp.resize(2, rr_in_1/rr_out_2 * fact_resize(0)) ; 
+		for (int nnn=0; nnn<nz-6; nnn++){
+		  double rr_out_nn = mp.val_r(3+nnn, 1., M_PI/2, 0.) ; 
+		  mp.resize(3+nnn, (rr_in_1/rr_out_nn * fact_resize(1))
+			    *pow(1.6,nnn)) ; 
+		}
+                // 7 domains ...
+                double rr_out_nzm3 =  mp.val_r(nz-3, 1., M_PI/2, 0.) ;
+                mp.resize(nz-3, 2.* dist_out / rr_out_nzm3) ;
+                double rr_out_nzm2 =  mp.val_r(nz-2, 1., M_PI/2, 0.) ;
+                mp.resize(nz-2, 4.* dist_out / rr_out_nzm2) ;
+	    }
+*/
 
 	    if (nz > 4 && nzet == 1) {
 		double rr_in_1 = mp.val_r(1,-1., M_PI/2, 0.) ; 
@@ -510,7 +541,6 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 		if (fact_resize(0) > 2.4) fact_resize_0 = fact_resize(0)/2. ;
 		else fact_resize_0 = fact_resize(0)/2. + 0.5 ;
 
-
 		mp.resize(1, rr_in_1/rr_out_1 * fact_resize_0) ; 
 		mp.resize(2, rr_in_1/rr_out_2 * fact_resize(0)) ; 
 		for (int nnn=0; nnn<nz-4; nnn++){
@@ -519,6 +549,7 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 			    *pow(1.6,nnn)) ; 
 		}
 	    }
+
 	    else{		
 		int n_resize ;
 		//      	if (nz > 4) {
@@ -536,6 +567,44 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 		mp.resize(n_resize, rr_in/rr_out * fact_resize(0)) ; 
 	    }
 	}
+	
+/*
+	//des_profile(logn, 0, 18, M_PI/2, 0) ;
+
+	if (nz == 5 && nzet == 1) {
+	    double dist_in = 2.* fabs(mp.get_ori_x()) - ray_eq() ;
+	    dist_in *= 0.95 ;
+	    double dist_out = 2.* fabs(mp.get_ori_x()) + ray_eq_pi() ;
+	    dist_out *= 1.05 ;
+
+	    double rr_out_1 = mp.val_r(1, 1., M_PI/2, 0.) ; 
+	    double rr_out_2 = mp.val_r(2, 1., M_PI/2, 0.) ; 
+	    double rr_out_3 = mp.val_r(3, 1., M_PI/2, 0.) ; 
+	    
+	    mp.resize(1, dist_in / rr_out_1) ;
+	    mp.resize(2, dist_out / rr_out_2) ;
+	    mp.resize(3, 1.7* dist_out / rr_out_3) ;
+	}
+	
+	//des_profile(logn, 0, 18, M_PI/2, 0) ;
+
+	if (nz == 6 && nzet == 1) {
+	    double dist_in = 2.* fabs(mp.get_ori_x()) - ray_eq() ;
+	    dist_in *= 0.95 ;
+	    double dist_out = 2.* fabs(mp.get_ori_x()) + ray_eq_pi() ;
+	    dist_out *= 1.05 ;
+
+	    double rr_out_1 = mp.val_r(1, 1., M_PI/2, 0.) ; 
+	    double rr_out_2 = mp.val_r(2, 1., M_PI/2, 0.) ; 
+	    double rr_out_3 = mp.val_r(3, 1., M_PI/2, 0.) ; 
+	    double rr_out_4 = mp.val_r(3, 1., M_PI/2, 0.) ; 
+	    
+	    mp.resize(1, dist_in / rr_out_1) ;
+	    mp.resize(2, dist_out / rr_out_2) ;
+	    mp.resize(3, 1.7* dist_out / rr_out_3) ;
+	    mp.resize(4, 1.7*1.7* dist_out / rr_out_4) ;
+	}
+*/
 
 	//----------------------------------------------------
 	// Computation of the enthalpy at the new grid points
@@ -584,66 +653,10 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	// AUXILIARY QUANTITIES
 	// -------------------------------
 
-	// Function exp(-(r-r_0)^2/sigma^2)
-	// --------------------------------
-	
-	double r0 = mp.val_r(nz-2, 1, 0, 0) ;
-	double sigma = r0 ;
-	  
-	Scalar rr (mp) ;
-	rr = mp.r ;
-
-	Scalar ff (mp) ;
-	ff = exp( -(rr - r0)*(rr - r0)/sigma/sigma ) ;
-	for (int ii=0; ii<nz-1; ii++)
-	  ff.set_domain(ii) = 1. ;
-	ff.set_outer_boundary(nz-1, 0) ;
-	ff.std_spectral_base() ;
-	
-	//	ff.annule_domain(nz-1) ;
-	//des_profile(ff, 0, 20, 0, 0) ;
-
-	// Construction of Omega d/dphi
-	// ----------------------------
-	
-	Vector omdsdp (mp, CON, mp.get_bvect_cart()) ;
-	Scalar yya (mp) ;
-	yya = mp.ya ;
-	Scalar xxa (mp) ;
-	xxa = mp.xa ;
-	
-	if (fabs(mp.get_rot_phi()) < 1e-10){ 
-	  omdsdp.set(1) = - om * yya * ff ;
-	  omdsdp.set(2) = om * xxa *ff ;
-	  omdsdp.set(3).annule_hard() ;
-	}
-	else{
-	  omdsdp.set(1) = om * yya * ff ;
-	  omdsdp.set(2) = - om * xxa * ff ;
-	  omdsdp.set(3).annule_hard() ;
-	}
-
-	omdsdp.set(1).set_outer_boundary(nz-1, 0) ;
-	omdsdp.set(2).set_outer_boundary(nz-1, 0) ;
-
-	omdsdp.set(1).set_spectral_va()
-	  .set_base(*(mp.get_mg()->std_base_vect_cart()[0])) ;
-	omdsdp.set(2).set_spectral_va()
-	  .set_base(*(mp.get_mg()->std_base_vect_cart()[1])) ;
-	omdsdp.set(3).set_spectral_va()
-	  .set_base(*(mp.get_mg()->std_base_vect_cart()[2])) ;
-	
-	omdsdp.annule_domain(nz-1) ;
-
-	//des_profile(omdsdp(1), 0, 20, 1, 1) ;
-	//des_profile(omdsdp(2), 0, 20, 1, 1) ;
-	
-
 	// Derivatives of N and logN
 	//--------------------------
 
 	const Vector dcov_logn_auto = logn_auto.derive_cov(flat) ;
-	const Vector dcon_logn_auto = logn_auto.derive_con(flat) ;
 	
 	Tensor dcovdcov_logn_auto = (logn_auto.derive_cov(flat))
 	                                  .derive_cov(flat) ;
@@ -657,8 +670,8 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 
 	const Vector dcov_phi_auto = phi_auto.derive_cov(flat) ;
 	
-	const Vector& dcov_lnq = 2*dcov_phi + dcov_logn ;
-	const Vector& dcon_lnq = 2*dcon_phi + dcon_logn ;
+	const Vector dcov_lnq = 2*dcov_phi + dcov_logn ;
+	const Vector dcon_lnq = 2*dcon_phi + dcon_logn ;
 	const Vector dcov_lnq_auto = lnq_auto.derive_cov(flat) ;
      	Tensor dcovdcov_lnq_auto = dcov_lnq_auto.derive_cov(flat) ;
 	dcovdcov_lnq_auto.inc_dzpuis() ;
@@ -667,8 +680,8 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	qq.std_spectral_base() ;
 	const Vector& dcov_qq = qq.derive_cov(flat) ;
 
-	const Scalar divbeta_auto = beta_auto.divergence(flat) ;
-	const Tensor dcov_beta_auto = beta_auto.derive_cov(flat) ;
+	const Scalar& divbeta_auto = beta_auto.divergence(flat) ;
+	const Tensor& dcov_beta_auto = beta_auto.derive_cov(flat) ;
 	Tensor dcovdcov_beta_auto = beta_auto.derive_cov(flat)
 	  .derive_cov(flat) ;
 	dcovdcov_beta_auto.inc_dzpuis() ;
@@ -682,10 +695,7 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 
 	const Tensor& dcov_hij = hij.derive_cov(flat) ;
 	const Tensor& dcon_hij = hij.derive_con(flat) ;
-	const Tensor dcov_hij_auto = hij_auto.derive_cov(flat) ;
-
-	Tensor dcovdcov_hij_auto = dcov_hij_auto.derive_cov(flat) ;
-	dcovdcov_hij_auto.inc_dzpuis() ;
+	const Tensor& dcov_hij_auto = hij_auto.derive_cov(flat) ;
 
 	const Sym_tensor& gtilde_cov = gtilde.cov() ;
 	const Sym_tensor& gtilde_con = gtilde.con() ;
@@ -882,7 +892,7 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	source5_beta = - 0.3333333333333333 * contract(hij, 1, contract( 
 					      dcovdcov_beta_auto, 0, 1), 0) ;
 	
-	source6_beta = hdirac_auto.derive_lie(omdsdp) ;
+	source6_beta.set_etat_zero() ; //hdirac_auto.derive_lie(omdsdp) ;
 	source6_beta.inc_dzpuis() ;
 
 	source7_beta = contract(beta, 0, dcov_hdirac_auto, 1) ;
@@ -1030,49 +1040,124 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	    //---------------------------
 
 	    Scalar source_tot_hij(mp) ;
-	    Scalar source_Sij(mp) ;
-	    Scalar source_Rij(mp) ;
+	    Tensor source_Sij(mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source_Rij(mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor tens_temp(mp, 2, CON, mp.get_bvect_cart()) ;
 
 	    Tensor source_1 (mp, 2, CON, mp.get_bvect_cart()) ;
 	    Tensor source_2 (mp, 2, CON, mp.get_bvect_cart()) ;
-	    Tensor source_3 (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source_3a (mp, 2, CON, mp.get_bvect_cart()) ;
+	    Tensor source_3b (mp, 2, CON, mp.get_bvect_cart()) ;
 	    Tensor source_4 (mp, 2, CON, mp.get_bvect_cart()) ;
 	    Tensor source_5 (mp, 2, CON, mp.get_bvect_cart()) ;
 	    Tensor source_6 (mp, 2, CON, mp.get_bvect_cart()) ;
 
-	    Tensor source1_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
-	    Tensor source2_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
-	    Tensor source3_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
-	    Tensor source4_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
-	    Tensor source5_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
-	    Tensor source6_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
-	    Tensor source7_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
-	    Tensor source8_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
-	    Tensor source9_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
-	    Tensor source10_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
-	    Tensor source11_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
-	    Tensor source12_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
-	    Tensor source13_Sij (mp, 2, CON, mp.get_bvect_cart()) ;
-
-	    Tensor source1_Rij (mp, 2, CON, mp.get_bvect_cart()) ;
-	    Tensor source2_Rij (mp, 2, CON, mp.get_bvect_cart()) ;
-	    Tensor source3_Rij (mp, 2, CON, mp.get_bvect_cart()) ;
-	    Tensor source4_Rij (mp, 2, CON, mp.get_bvect_cart()) ;
-	    Tensor source5_Rij (mp, 2, CON, mp.get_bvect_cart()) ;
-	    Tensor source6_Rij (mp, 2, CON, mp.get_bvect_cart()) ;
-	    Tensor source7_Rij (mp, 2, CON, mp.get_bvect_cart()) ;
-
-
-	    // Source
-	    //--------
+	    // Sources
+	    //-----------
 
 	    source_1 = contract(dcon_hij, 1, dcov_lnq_auto, 0) ;
 
 	    source_2 = - contract(dcon_hij, 2, dcov_lnq_auto, 0) 
 	      - 2./3. * contract(hdirac, 0, dcov_lnq_auto, 0) * flat.con() ;
 	    
-	    source_3 = - tkij_auto.derive_lie(omdsdp) ;
-	    source_3.inc_dzpuis() ;
+	    // Lie derivative of A^{ij}
+	    // --------------------------
+
+	    // Function exp(-(r-r_0)^2/sigma^2)
+	    // --------------------------------
+	    
+	    double r0 = mp.val_r(nz-2, 1, 0, 0) ;
+	    double sigma = 3.*r0 ;
+	    
+	    Scalar rr (mp) ;
+	    rr = mp.r ;
+
+	    Scalar ff (mp) ;
+	    ff = exp( -(rr - r0)*(rr - r0)/sigma/sigma ) ;
+	    for (int ii=0; ii<nz-1; ii++)
+		ff.set_domain(ii) = 1. ;
+	    ff.set_outer_boundary(nz-1, 0) ;
+	    ff.std_spectral_base() ;
+	    
+	    //	ff.annule_domain(nz-1) ;
+	    //des_profile(ff, 0, 20, 0, 0) ;
+
+	    // Construction of Omega d/dphi
+	    // ----------------------------
+	    
+	    Vector omdsdp (mp, CON, mp.get_bvect_cart()) ;
+	    Scalar yya (mp) ;
+	    yya = mp.ya ;
+	    Scalar xxa (mp) ;
+	    xxa = mp.xa ;
+	    
+	    if (fabs(mp.get_rot_phi()) < 1e-10){ 
+		omdsdp.set(1) = - om * yya * ff ;
+		omdsdp.set(2) = om * xxa *ff ;
+		omdsdp.set(3).annule_hard() ;
+	    }
+	    else{
+		omdsdp.set(1) = om * yya * ff ;
+		omdsdp.set(2) = - om * xxa * ff ;
+		omdsdp.set(3).annule_hard() ;
+	    }
+	    
+	    omdsdp.set(1).set_outer_boundary(nz-1, 0) ;
+	    omdsdp.set(2).set_outer_boundary(nz-1, 0) ;
+	    
+	    omdsdp.set(1).set_spectral_va()
+		.set_base(*(mp.get_mg()->std_base_vect_cart()[0])) ;
+	    omdsdp.set(2).set_spectral_va()
+		.set_base(*(mp.get_mg()->std_base_vect_cart()[1])) ;
+	    omdsdp.set(3).set_spectral_va()
+		.set_base(*(mp.get_mg()->std_base_vect_cart()[2])) ;
+	
+	    //omdsdp.annule_domain(nz-1) ;
+	    //omdsdp.annule_domain(nz-2) ;
+	    
+	    //des_profile(omdsdp(1), 0, 20, 1, 1) ;
+	    //des_profile(omdsdp(2), 0, 20, 1, 1) ;
+
+	    // Construction of D_k \Phi^i
+	    Itbl type (2) ;
+	    type.set(0) = CON ;
+	    type.set(1) = COV ;
+
+	    Tensor dcov_omdsdphi (mp, 2, type, mp.get_bvect_cart()) ;
+	    dcov_omdsdphi.set(1,1) = 0. ;
+	    dcov_omdsdphi.set(2,1) = om*ff ;
+	    //dcov_omdsdphi.set(2,1).annule_domain(nz-1) ;
+	    //dcov_omdsdphi.set(2,1).annule_domain(nz-2) ;
+	    dcov_omdsdphi.set(3,1) = 0. ;
+	    dcov_omdsdphi.set(2,2) = 0. ;
+	    dcov_omdsdphi.set(3,2) = 0. ;
+	    dcov_omdsdphi.set(3,3) = 0. ;
+	    dcov_omdsdphi.set(1,2) = -om*ff ;
+	    //dcov_omdsdphi.set(1,2).annule_domain(nz-1) ;
+	    //dcov_omdsdphi.set(1,2).annule_domain(nz-2) ;
+	    dcov_omdsdphi.set(1,3) = 0. ;
+	    dcov_omdsdphi.set(2,3) = 0. ;
+	    
+	    source_3a = contract(tkij_auto, 0, dcov_omdsdphi, 1) ;
+	    source_3a.inc_dzpuis(2) ;
+
+	    source_3b = - contract(omdsdp, 0, tkij_auto.derive_cov(flat), 2) ;
+	    source_3b.inc_dzpuis() ;
+	    
+            /*
+	    des_profile(source_3a(1,1), 0, 200, 0, 0) ;
+	    des_profile(source_3a(1,2), 0, 200, 0, 0) ;
+	    des_profile(source_3a(1,3), 0, 200, 0, 0) ;
+	    des_profile(source_3a(2,3), 0, 200, 0, 0) ;
+	    des_profile(source_3a(2,2), 0, 200, 0, 0) ;
+	    des_profile(source_3a(3,3), 0, 200, 0, 0) ;
+	    des_profile(source_3b(1,1), 0, 200, 0, 0) ;
+	    des_profile(source_3b(2,2), 0, 200, 0, 0) ;
+	    des_profile(source_3b(3,3), 0, 200, 0, 0) ;
+	    des_profile(source_3b(1,2), 0, 200, 0, 0) ;
+	    des_profile(source_3b(1,3), 0, 200, 0, 0) ;
+	    des_profile(source_3b(2,3), 0, 200, 0, 0) ;
+	    */
 
 	    source_4 = - tkij_auto.derive_lie(beta) ;
 	    source_4.inc_dzpuis() ;
@@ -1086,140 +1171,142 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	    // Source terms for Sij
 	    //---------------------
 	    
-	    source1_Sij = 8. * nn / psi4 * phi_auto.derive_con(gtilde) * 
+	    source_Sij = 8. * nn / psi4 * phi_auto.derive_con(gtilde) * 
 	      contract(gtilde_con, 0, dcov_phi, 0) ;
 
-	    source2_Sij = 4. / psi4 * phi_auto.derive_con(gtilde) * 
-	      nn * contract(gtilde_con, 0, dcov_logn, 0) ;
+	    source_Sij += 4. / psi4 * phi_auto.derive_con(gtilde) * 
+	      nn * contract(gtilde_con, 0, dcov_logn, 0) +
+	      4. / psi4 * nn * contract(gtilde_con, 0, dcov_logn, 0) *
+	      phi_auto.derive_con(gtilde) ;
 
-	    source3_Sij = - nn / (3.*psi4) * gtilde_con * 
+	    source_Sij += - nn / (3.*psi4) * gtilde_con * 
 	      ( 0.25 * contract(gtilde_con, 0, 1, contract(dcov_hij_auto, 0, 1,
 					dcov_gtilde, 0, 1), 0, 1)
 	       - 0.5 * contract(gtilde_con, 0, 1, contract(dcov_hij_auto, 0, 1,
 					dcov_gtilde, 0, 2), 0, 1)) ;
 
-	    source4_Sij = - 8.*nn / (3.*psi4) * gtilde_con * 
+	    source_Sij += - 8.*nn / (3.*psi4) * gtilde_con * 
 	 contract(dcov_phi_auto, 0, contract(gtilde_con, 0, dcov_phi, 0), 0) ;
 
-	    source5_Sij = nn / (3.*psi4) * hdirac.divergence(flat)*hij_auto ;
-	    source5_Sij.inc_dzpuis() ;
+	    tens_temp = nn / (3.*psi4) * hdirac.divergence(flat)*hij_auto ;
+	    tens_temp.inc_dzpuis() ;
 
-	    source6_Sij = - 8./(3.*psi4) * contract(dcov_phi_auto, 0,
+	    source_Sij += tens_temp ;
+	   
+	    source_Sij += - 8./(3.*psi4) * contract(dcov_phi_auto, 0,
 		nn*contract(gtilde_con, 0, dcov_logn, 0), 0) * gtilde_con ;
 
-	    source7_Sij = 2.*nn* contract(gtilde_cov, 0, 1, tkij_auto *
+	    source_Sij += 2.*nn* contract(gtilde_cov, 0, 1, tkij_auto *
 					   (tkij_auto+tkij_comp), 1, 3) ;
 
-	    source8_Sij = - 2. * qpig * nn * ( psi4 * stress_euler 
+	    source_Sij += - 2. * qpig * nn * ( psi4 * stress_euler 
 			      - 0.33333333333333333 * s_euler * gtilde_con ) ; 
 	    
-	    source9_Sij = - 1./(psi4*psi2) * contract(gtilde_con, 1, 
+	    source_Sij += - 1./(psi4*psi2) * contract(gtilde_con, 1, 
 			  contract(gtilde_con, 1, qq*dcovdcov_lnq_auto + 
 				   qq*dcov_lnq_auto*dcov_lnq, 0), 1) ;
 
-	    source10_Sij = - 0.5/(psi4*psi2) * contract(contract(hij, 1,
-					dcov_hij_auto, 2), 1, dcov_qq, 0) ;
+	    source_Sij += - 0.5/(psi4*psi2) * contract(contract(hij, 1,
+					dcov_hij_auto, 2), 1, dcov_qq, 0) -
+	      0.5/(psi4*psi2) * contract(contract(dcov_hij_auto, 2,
+						  hij, 1), 1, dcov_qq, 0) ;
 					
-	    source11_Sij = 0.5/(psi4*psi2) * contract(contract(hij, 0,
+	    source_Sij += 0.5/(psi4*psi2) * contract(contract(hij, 0,
 					dcov_hij_auto, 2), 0, dcov_qq, 0) ;
 
-	    source12_Sij = 1./(3.*psi4*psi2)*contract(gtilde_con, 0, 1,
+	    source_Sij += 1./(3.*psi4*psi2)*contract(gtilde_con, 0, 1,
                     qq*dcovdcov_lnq_auto + qq*dcov_lnq_auto*dcov_lnq, 0, 1)
 	                          *gtilde_con ;
 
-	    source13_Sij = 1./(3.*psi4*psi2) * contract(hdirac, 0, 
+	    source_Sij += 1./(3.*psi4*psi2) * contract(hdirac, 0, 
 							dcov_qq, 0)*hij_auto ;
 
 	    // Source terms for Rij
 	    //---------------------
 
-	    source1_Rij = contract(hij, 0, 1, dcovdcov_hij_auto, 2, 3) ;
+	    source_Rij = contract(hij, 0, 1, dcov_hij_auto.derive_cov(flat), 
+				  2, 3) ;
+	    source_Rij.inc_dzpuis() ;
 
-	    source2_Rij = - contract(hij_auto, 1, dcov_hdirac, 1) ;
+
+	    source_Rij += - contract(hij_auto, 1, dcov_hdirac, 1) -
+	      contract(dcov_hdirac, 1, hij_auto, 1) ;
 	    
-	    source3_Rij = contract(hdirac, 0, dcov_hij_auto, 2) ;
+	    source_Rij += contract(hdirac, 0, dcov_hij_auto, 2) ;
 
-	    source4_Rij = - contract(contract(dcov_hij_auto, 1, dcov_hij, 2),
+	    source_Rij += - contract(contract(dcov_hij_auto, 1, dcov_hij, 2),
 				     1, 3) ;
 
-	    source5_Rij = - contract(gtilde_cov, 0, 1, contract(contract(
+	    source_Rij += - contract(gtilde_cov, 0, 1, contract(contract(
 		    gtilde_con, 0, dcov_hij_auto, 2), 0, dcov_hij, 2), 1, 3) ;
 
-	    source6_Rij = contract(contract(contract(contract(gtilde_cov, 0, 
-		 dcov_hij_auto, 1), 2, gtilde_con, 1), 0, dcov_hij, 1), 0, 3) ;
+	    source_Rij += contract(contract(contract(contract(gtilde_cov, 0, 
+		 dcov_hij_auto, 1), 2, gtilde_con, 1), 0, dcov_hij, 1), 0, 3) +
+	      contract(contract(contract(contract(gtilde_cov, 0, 
+		 dcov_hij_auto, 1), 0, dcov_hij, 1), 0, 3), 0, gtilde_con, 1) ;
 
-	    source7_Rij = 0.5 * contract(gtilde_con*gtilde_con, 1, 3, 
+	    source_Rij += 0.5 * contract(gtilde_con*gtilde_con, 1, 3, 
 		   contract(dcov_hij_auto, 0, 1, dcov_gtilde, 0, 1), 0, 1) ;
 
+	    source_Rij = source_Rij * 0.5 ;
 
 	    for(int i=1; i<=3; i++) 
 		for(int j=1; j<=i; j++) {
 
-		    source_Sij = source1_Sij(i,j) + source2_Sij(i,j) +
-		      source2_Sij(j,i) + source3_Sij(i,j) +
-		      source4_Sij(i,j) + source5_Sij(i,j) +
-		      source6_Sij(i,j) + source7_Sij(i,j) +
-		      source8_Sij(i,j) + source9_Sij(i,j) +
-		      source10_Sij(i,j) + source10_Sij(j,i) +
-		      source11_Sij(i,j) + source12_Sij(i,j) +
-		      source13_Sij(i,j) ;
-
-		    source_Rij = 0.5*(source1_Rij(i,j) + source2_Rij(i,j) +
-				      source2_Rij(j,i) + source3_Rij(i,j) +
-				      source4_Rij(i,j) + source5_Rij(i,j) +
-				      source6_Rij(i,j) + source6_Rij(j,i) +
-				      source7_Rij(i,j)) ;
-
 		    source_tot_hij = source_1(i,j) + source_1(j,i) 
-			+ source_2(i,j) + 2.*psi4/nn * (source_3(i,j) + 
-			    source_4(i,j) - source_Sij) - 2.* source_Rij +
+			+ source_2(i,j) + 2.*psi4/nn * (source_3a(i,j) + 
+			source_3a(j,i) + source_3b(i,j) +
+			    source_4(i,j) - source_Sij(i,j)) 
+		      - 2.* source_Rij(i,j) +
 		      source_5(i,j) + source_5(j,i) + source_6(i,j) ;
 			
 		    
-		    cout << "source1 de Sij" << endl 
-			 << norme(source1_Sij(i,j)/(nr*nt*np)) << endl ;
-		    cout << "source2 de Sij" << endl 
-			 << norme(source2_Sij(i,j)/(nr*nt*np)) << endl ;
-		    cout << "source3 de Sij" << endl 
-			 << norme(source3_Sij(i,j)/(nr*nt*np)) << endl ;
-		    cout << "source4 de Sij" << endl 
-			 << norme(source4_Sij(i,j)/(nr*nt*np)) << endl ;
-		    cout << "source5 de Sij" << endl 
-			 << norme(source5_Sij(i,j)/(nr*nt*np)) << endl ;
-		    cout << "source6 de Sij" << endl 
-			 << norme(source6_Sij(i,j)/(nr*nt*np)) << endl ;
-		    cout << "source7 de Sij" << endl 
-			 << norme(source7_Sij(i,j)/(nr*nt*np)) << endl ;
-		    cout << "source8 de Sij" << endl 
-			 << norme(source8_Sij(i,j)/(nr*nt*np)) << endl ;
-		    cout << "source9 de Sij" << endl 
-			 << norme(source9_Sij(i,j)/(nr*nt*np)) << endl ;
-		    cout << "source10 de Sij" << endl 
-			 << norme(source10_Sij(i,j)/(nr*nt*np)) << endl ;
-		    cout << "source11 de Sij" << endl 
-			 << norme(source11_Sij(i,j)/(nr*nt*np)) << endl ;
-		    cout << "source12 de Sij" << endl 
-			 << norme(source12_Sij(i,j)/(nr*nt*np)) << endl ;
-		    cout << "source13 de Sij" << endl 
-			 << norme(source13_Sij(i,j)/(nr*nt*np)) << endl ;
+		    cout << "source_mat" << endl 
+			 << norme((- 2. * qpig * nn * ( psi4 * stress_euler 
+			       - 0.33333333333333333 * s_euler * gtilde_con ))
+				  (i,j))/(nr*nt*np) << endl ;
+		    cout << "max source_mat" << endl 
+			 << max((- 2. * qpig * nn * ( psi4 * stress_euler 
+			       - 0.33333333333333333 * s_euler * gtilde_con ))
+				  (i,j)) << endl ;
+
+	    
 		    cout << "source1" << endl 
 			 << norme(source_1(i,j)/(nr*nt*np)) << endl ;
+		    cout << "max source1" << endl 
+			 << max(source_1(i,j)) << endl ;
 		    cout << "source2" << endl 
 			 << norme(source_2(i,j)/(nr*nt*np)) << endl ;
+		    cout << "max source2" << endl 
+			 << max(source_2(i,j)) << endl ;
 		    cout << "source3" << endl 
-			 << norme(source_3(i,j)/(nr*nt*np)) << endl ;
+			 << norme(source_3a(i,j)/(nr*nt*np)) << endl ;
+		    cout << "max source3" << endl 
+			 << max(source_3a(i,j)) << endl ;
 		    cout << "source4" << endl 
 			 << norme(source_4(i,j)/(nr*nt*np)) << endl ;
+		    cout << "max source4" << endl 
+			 << max(source_4(i,j)) << endl ;
 		    cout << "source5" << endl 
 			 << norme(source_5(i,j)/(nr*nt*np)) << endl ;
+		    cout << "max source5" << endl 
+			 << max(source_5(i,j)) << endl ;
 		    cout << "source6" << endl 
 			 << norme(source_6(i,j)/(nr*nt*np)) << endl ;
+		    cout << "max source6" << endl 
+			 << max(source_6(i,j)) << endl ;
 		    cout << "source_Rij" << endl 
-			 << norme(source_Rij/(nr*nt*np)) << endl ;
+			 << norme(source_Rij(i,j)/(nr*nt*np)) << endl ;
+		    cout << "max source_Rij" << endl 
+			 << max(source_Rij(i,j)) << endl ;
 		    cout << "source_Sij" << endl 
-			 << norme(source_Sij/(nr*nt*np)) << endl ;
+			 << norme(source_Sij(i,j)/(nr*nt*np)) << endl ;
+		    cout << "max source_Sij" << endl 
+			 << max(source_Sij(i,j)) << endl ;
 		    cout << "source_tot" << endl 
 			 << norme(source_tot_hij/(nr*nt*np)) << endl ;
+		    cout << "max source_tot" << endl 
+			 << max(source_tot_hij) << endl ;
 		    	
 		    // Resolution of the Poisson equations and
 		    // Check: has the Poisson equation been correctly solved ?
