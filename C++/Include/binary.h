@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/11/08 20:17:55  f_limousin
+ * Add function dirac_gauge() used to impose Dirac gauge during an iteration.
+ *
  * Revision 1.7  2005/09/15 15:56:28  e_gourgoulhon
  * Made the documentation compliant with Doxygen.
  *
@@ -321,6 +324,10 @@ class Binary {
 	 * 
 	 */
 	void fait_decouple () ;
+
+	/// Function used to impose Dirac gauge during an iteration
+	void dirac_gauge() ;
+
  
 };
 ostream& operator<<(ostream& , const Binary& ) ;	
