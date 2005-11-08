@@ -1,14 +1,15 @@
 # Parameters for the computation of Kerr black hole in dirac gauge
 #######################
-3	nz: total number of domains
-7	nt: number of points in theta (the same in each domain)
-8	np: number of points in phi   (the same in each domain)
-# Number of points in r and (initial) inner boundary of each domain:
-9	0.	<-   nr	  &   min(r)  in domain 0  (nucleus)
-9	1.	<-   nr	  &   min(r)  in domain 1
-9	2.	<-   nr	  &   min(r)  in domain 1
-0.99	parametre hh
+5	nz: total number of domains
+9	nt: number of points in theta (the same in each domain)
+4	np: number of points in phi   (the same in each domain)
+25	nr: number of points in r in the first domain
+25	nr: number of points in r in all the other domains
+1.	relaxation (1 -> no relaxation)
+1e-8	seuil : Threshold on xsi relative change for ending the computation
+100	maximum of iterations
+0.95	parametre hh
 1.	masse M
-1.e-6 	seuil : Threshold on xsi relative change for ending the computation
+
 
 

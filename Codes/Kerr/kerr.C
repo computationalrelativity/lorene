@@ -24,9 +24,15 @@
  */ 
 
 
-char Kerr_C[] = "$Header$" ;
+char kerr_C[] = "$Header$" ;
 
 /*
+ * $Id$
+ * $Log$
+ * Revision 1.2  2005/11/08 14:18:57  f_limousin
+ * First version
+ *
+ *
  * $Header$
  *
  */
@@ -39,15 +45,13 @@ char Kerr_C[] = "$Header$" ;
 #include <math.h>
 
 // headers Lorene
-#include "cmp.h"
 #include "tenseur.h" 
 #include "tensor.h"
-#include "scalar.h"
-#include "utilitaires.h"
 #include "graphique.h"
 #include "nbr_spx.h"
 #include "metric.h"
 #include "proto.h"
+#include "utilitaires.h"
 
 int main(){  
     
@@ -55,8 +59,8 @@ int main(){
     //	    Parameters of the computation 
     //------------------------------------------------------------------
 
-    int nt, np, nz ;
-    double aa, hh, mm, seuil ;
+    int nt, np, nz, nr1, nrp1 ;
+    double aa, hh, mm ;
 
     ifstream fpar("parkerr.d") ;
     fpar.ignore(1000, '\n') ;
@@ -64,24 +68,36 @@ int main(){
     fpar >> nz; fpar.ignore(1000, '\n');
     fpar >> nt; fpar.ignore(1000, '\n');
     fpar >> np; fpar.ignore(1000, '\n');
+    fpar >> nr1; fpar.ignore(1000, '\n');
+    fpar >> nrp1; fpar.ignore(1000, '\n');
+
+     // Type of sampling in theta and phi :
+    int type_t = SYM ; 
+    int type_p = NONSYM ; 
 
     cout << "total number of domains :   nz = " << nz << endl ;
     cout << "number of points in phi :   np = " << np << endl ;
     cout << "number of points in theta : nt = " << nt << endl ;
 
-    int* nr = new int[nz];
+    double relax, seuil ;
+    int niter ;
+    fpar >> relax; fpar.ignore(1000, '\n');
+    fpar >> seuil; fpar.ignore(1000, '\n');
+    fpar >> niter; fpar.ignore(1000, '\n');
+
+    int* nr_tab = new int[nz];
     int* nt_tab = new int[nz];
     int* np_tab = new int[nz];
     double* bornes = new double[nz+1];
 
-    fpar.ignore(1000, '\n');
     for (int l=0; l<nz; l++) {
-	fpar >> nr[l]; 
-	fpar >> bornes[l];     fpar.ignore(1000, '\n');
-	np_tab[l] = np ; 
-	nt_tab[l] = nt ; 
+      if (l==1) nr_tab[1] = nr1 ;
+      else nr_tab[l] = nrp1 ;
+      np_tab[l] = np ; 
+      nt_tab[l] = nt ; 
+      bornes[l] = pow(2., l-1) ;
     }
-    cout << "number of points in r in domain 0 :  nr = " << nr[0] << endl ;
+    bornes[0] = 0. ;
     bornes[nz] = __infinity ; 
     
     fpar >> hh ; fpar.ignore(1000, '\n') ;  
@@ -89,8 +105,8 @@ int main(){
     fpar >> seuil ; fpar.ignore(1000, '\n') ;  
 
     for (int l=0; l<nz; l++) 
-	bornes[l] = bornes[l] * hh * 0.5 ;
-
+	{ bornes[l] = bornes[l] * hh * 0.5 ;
+	}
     cout << "h = " << hh << endl ;
     cout << "M = " << mm << endl ;
     cout << "seuil = " << seuil << endl ;
@@ -106,15 +122,12 @@ int main(){
     }
     type_r[nz-1] = UNSURR ; 
     
-    // Type of sampling in theta and phi :
-    int type_t = SYM ; 
-    int type_p = SYM ; 
  
     //-----------------------------------------------------------------------
     //		Construction of multi-grid and mapping 
     //-----------------------------------------------------------------------
    
-    Mg3d mg(nz, nr, type_r, nt_tab, type_t, np_tab, type_p) ;
+    Mg3d mg(nz, nr_tab, type_r, nt_tab, type_t, np_tab, type_p) ;
 
     Map_af mp(mg, bornes) ;
 
@@ -134,16 +147,19 @@ int main(){
     a2 = 1. + 2.*mm/rr + (3.*mm*mm + aa*aa*cos(2.*theta))/(2.*rr*rr)
 	+ (hh*hh*mm)/(2.*pow(rr, 3.)) + pow(hh,4.)/(16.*pow(rr,4.)) ;
 
-    b2 = ( pow(rr,8.) + 4*mm*pow(rr,7.) + (7.*mm*mm + 
+    b2 = ( pow(rr,8.) + 4.*mm*pow(rr,7.) + (7.*mm*mm + 
 	   aa*aa*cos(theta)*cos(theta))*pow(rr,6.) + mm*(7.*mm*mm+aa*aa)
 	   *pow(rr,5.) + (4.*pow(mm,4.) + hh*hh*(3.*hh*hh/4.+aa*aa*sin(theta)
 	   *sin(theta))/2.)*pow(rr,4.) + hh*hh*mm*(2.*mm*mm-hh*hh/4.)
-	   *pow(rr,3.) + pow(hh,4.)/16.*(7*mm*mm + aa*aa*cos(theta)
-	   *cos(theta))*rr*rr + pow(hh,6.)*mm/16.*rr + pow(hh,8.)/256 ) 
-	   / ( pow(rr,8.) + 2*mm*pow(rr,7.) + (3*mm*mm + aa*aa
-           *cos(2*theta))/2.*pow(rr,6.) + hh*hh*mm/2.*pow(rr,5.) 
-	   + pow(hh,4)/16.*pow(rr,4)) ;
+	   *pow(rr,3.) + pow(hh,4.)/16.*(7.*mm*mm + aa*aa*cos(theta)
+	   *cos(theta))*rr*rr + pow(hh,6.)*mm/16.*rr + pow(hh,8.)/256. ) 
+	   / ( pow(rr,8.) + 2.*mm*pow(rr,7.) + (3.*mm*mm + aa*aa
+           *cos(2.*theta))/2.*pow(rr,6.) + hh*hh*mm/2.*pow(rr,5.) 
+	   + pow(hh,4.)/16.*pow(rr,4.)) ;
 
+    b2.set_outer_boundary(nz-1 ,1.) ;
+    b2.std_spectral_base() ;
+    b2.set_domain(0) = 1. ;
 
     Sym_tensor h_uu(mp, CON, mp.get_bvect_spher()) ;
     
@@ -158,14 +174,9 @@ int main(){
     h_uu.set(2,2) = pow(b2/a2, 1./3.) - 1 ;
     h_uu.set(3,3) = pow(a2/b2, 2./3.) - 1 ;
     h_uu.annule_domain(0) ;
+    h_uu.std_spectral_base() ;
 
-    for (int i=1; i<=3; i++)
-	for (int j=1; j<=i; j++){
-	    h_uu.set(i,j).set_outer_boundary(nz-1 ,0.) ;
-	}
-
-    Metric_flat flat(mp, mp.get_bvect_spher()) ;
-
+    Metric_flat flat(mp.flat_met_spher()) ;
  
     Sym_tensor g_uu(mp, CON, mp.get_bvect_spher()) ;
     
@@ -179,29 +190,29 @@ int main(){
     g_uu.set(1,1) = 1 / a2 ;
     g_uu.set(2,2) = 1 / a2 ;
     g_uu.set(3,3) = 1 / b2 ;
-    g_uu.annule_domain(0) ;
-
+    g_uu.set(1,2) = 1e-16 ;
+    g_uu.set(1,3) = 1e-16 ;
+    g_uu.set(2,3) = 1e-16 ;
     for (int i=1; i<=3; i++)
-	for (int j=1; j<=i; j++){
-	    if(i == j){
-		g_uu.set(i,j).set_outer_boundary(nz-1 , 1.) ;
-	    }   
-	}
+	for (int j=1; j<=i; j++)
+	  g_uu.set(i,j).set_domain(0) = 1. ;
     g_uu.std_spectral_base() ;
+
+    Metric gamma (g_uu) ;
 
     Sym_tensor gt_uu(mp, CON, mp.get_bvect_spher()) ;
     for(int i=1; i<=3; i++)
 	for(int j=1; j<=i; j++){
 	    gt_uu.set(i,j) = flat.con()(i,j) + h_uu(i,j) ;
 	}
+    gt_uu.std_spectral_base() ;
 
 
     Vector xsi(mp, CON, mp.get_bvect_spher()) ;
-    xsi.set(1) = 0*0.001/(rr) ;
+    xsi.set(1) = 0*0.1/(rr) ;
     xsi.set(2) = 0*0.001/(rr) ;
     xsi.set(3) = 0*0.001/(rr) ;
     xsi.std_spectral_base() ;
-    h_uu.std_spectral_base() ;
 
     //----------------------------------------------
     // Vector Poisson equation for xsi
@@ -220,19 +231,17 @@ int main(){
     Vector source6(mp, CON, mp.get_bvect_spher()) ;
     Vector source7(mp, CON, mp.get_bvect_spher()) ;
     Vector source8(mp, CON, mp.get_bvect_spher()) ;
-    Vector source9(mp, CON, mp.get_bvect_spher()) ;
-
+  
     const Tensor& dcov_huu = h_uu.derive_cov(flat) ;
     Tensor dcovdcov_huu = dcov_huu.derive_cov(flat) ;
     dcovdcov_huu.inc_dzpuis() ;
 
-    int mer_max = 200 ;
     Vector xsi_jm1(mp, CON, mp.get_bvect_spher()) ;
     for(int i=1; i<=3; i++) xsi_jm1.set(i) = 0. ;
     double diff_xsi ;
     diff_xsi = 1 ;
 
-    for(int mer=0; mer<mer_max; mer++){
+    for(int mer=0; mer<niter; mer++){
 
 	cout << 
    "========================================================================"
@@ -249,7 +258,7 @@ int main(){
 	Tensor dcovdcov_xsi = dcov_xsi.derive_cov(flat) ;
 	dcovdcov_xsi.inc_dzpuis() ;
 
-	source1 = - contract(dcov_huu, 1, 2) ;
+	source1 = contract(dcov_huu, 1, 2) ;
 	source1.inc_dzpuis(2) ;
     
 	source2 = contract(contract(dcov_xsi, 0, dcov_huu, 2), 0, 2) ;
@@ -259,33 +268,24 @@ int main(){
 	source4 = - contract(contract(dcov_huu, 1, 2)*dcov_xsi, 0, 2) ;
     
 	source5 = - contract(h_uu, 0, 1, dcovdcov_xsi, 1, 2) ;
-	source5.annule_domain(nz-1) ;
 
 	source6 = - contract(contract(dcov_huu, 1, dcov_xsi, 1), 1, 2) ;
     
-	source7 = - contract(h_uu *contract(dcovdcov_xsi, 0, 2), 1, 2) ;
-	source7.annule_domain(nz-1) ;
+	source7 = - contract(h_uu *contract(dcovdcov_xsi, 0, 1), 1, 2) / 3. ;
 
-	source8 = - 0.333333333333333 * xsi.divergence(flat)
-	    .derive_con(flat) ;
-	source8.inc_dzpuis() ;
-/*	
-	des_meridian(source8_xsi(1), 0., 4., "source8_xsi", 10) ; 
-	des_meridian(source8_xsi(2), 0., 4., "source8_xsi", 10) ; 
-	arrete() ;
-*/
-
-	source9 = 0.666666666666666 * contract(dcov_huu, 1, 2) *
+	source8 = 0.666666666666666 * contract(dcov_huu, 1, 2) *
 	    xsi.divergence(flat) ;
 
 	for (int i=1; i<=3; i++) {
-	    source.set(i) = source1(i) + source2(i) 
-		+ source3(i) + source4(i) + source5(i)  
-		+ source6(i) + source7(i) + source8(i) + source9(i) ;
+	    source.set(i) = source1(i) + 0*source2(i) 
+		+ 0*source3(i) + 0*source4(i) + 0*source5(i)  
+		+ 0*source6(i) + 0*source7(i) + 0*source8(i) ;
 	} 
 
 	source.annule_domain(0) ;
-
+	for (int i=1; i<=3; i++) 
+	  source.set(i).set_domain(nz-1) = 1.e-15 ;
+	
 	
 	// Printing
 	//-----------
@@ -294,15 +294,16 @@ int main(){
 	for (int i=1; i<=3; i++){
 	    cout << "  Comp. " << i << " :  " ;
 	    for (int l=0; l<nz; l++){
-		cout << norme(source1(i)/(nr[0]*nt*np))(l) << " " ;
+		cout << norme(source1(i)/(nr_tab[0]*nt*np))(l) << " " ;
 	    }
 	    cout << endl ;
 	}
+	/*
 	cout << "moyenne de la source 2 pour xsi :" << endl ;
 	for (int i=1; i<=3; i++){
 	    cout << "  Comp. " << i << " :  " ;
 	    for (int l=0; l<nz; l++){
-		cout << norme(source2(i)/(nr[0]*nt*np))(l) << " " ;
+		cout << norme(source2(i)/(nr_tab[0]*nt*np))(l) << " " ;
 	    }
 	    cout << endl ;
 	}
@@ -310,7 +311,7 @@ int main(){
 	for (int i=1; i<=3; i++){
 	    cout << "  Comp. " << i << " :  " ;
 	    for (int l=0; l<nz; l++){
-		cout << norme(source3(i)/(nr[0]*nt*np))(l) << " " ;
+		cout << norme(source3(i)/(nr_tab[0]*nt*np))(l) << " " ;
 	    }
 	    cout << endl ;
 	}
@@ -318,7 +319,7 @@ int main(){
 	for (int i=1; i<=3; i++){
 	    cout << "  Comp. " << i << " :  " ;
 	    for (int l=0; l<nz; l++){
-		cout << norme(source4(i)/(nr[0]*nt*np))(l) << " " ;
+		cout << norme(source4(i)/(nr_tab[0]*nt*np))(l) << " " ;
 	    }
 	    cout << endl ;
 	}
@@ -326,7 +327,7 @@ int main(){
 	for (int i=1; i<=3; i++){
 	    cout << "  Comp. " << i << " :  " ;
 	    for (int l=0; l<nz; l++){
-		cout << norme(source5(i)/(nr[0]*nt*np))(l) << " " ;
+		cout << norme(source5(i)/(nr_tab[0]*nt*np))(l) << " " ;
 	    }
 	    cout << endl ;
 	}
@@ -334,7 +335,7 @@ int main(){
 	for (int i=1; i<=3; i++){
 	    cout << "  Comp. " << i << " :  " ;
 	    for (int l=0; l<nz; l++){
-		cout << norme(source6(i)/(nr[0]*nt*np))(l) << " " ;
+		cout << norme(source6(i)/(nr_tab[0]*nt*np))(l) << " " ;
 	    }
 	    cout << endl ;
 	}
@@ -342,7 +343,7 @@ int main(){
 	for (int i=1; i<=3; i++){
 	    cout << "  Comp. " << i << " :  " ;
 	    for (int l=0; l<nz; l++){
-		cout << norme(source7(i)/(nr[0]*nt*np))(l) << " " ;
+		cout << norme(source7(i)/(nr_tab[0]*nt*np))(l) << " " ;
 	    }
 	    cout << endl ;
 	}
@@ -350,15 +351,7 @@ int main(){
 	for (int i=1; i<=3; i++){
 	    cout << "  Comp. " << i << " :  " ;
 	    for (int l=0; l<nz; l++){
-		cout << norme(source8(i)/(nr[0]*nt*np))(l) << " " ;
-	    }
-	    cout << endl ;
-	}
-	cout << "moyenne de la source 9 pour xsi :" << endl ;
-	for (int i=1; i<=3; i++){
-	    cout << "  Comp. " << i << " :  " ;
-	    for (int l=0; l<nz; l++){
-		cout << norme(source9(i)/(nr[0]*nt*np))(l) << " " ;
+		cout << norme(source8(i)/(nr_tab[0]*nt*np))(l) << " " ;
 	    }
 	    cout << endl ;
 	}
@@ -366,142 +359,70 @@ int main(){
 	for (int i=1; i<=3; i++){
 	    cout << "  Comp. " << i << " :  " ;
 	    for (int l=0; l<nz; l++){
-		cout << norme(source(i)/(nr[0]*nt*np))(l) << " " ;
+		cout << norme(source(i)/(nr_tab[0]*nt*np))(l) << " " ;
 	    }
 	    cout << endl ;
 	}
-
-    
- 
+	*/
+   
 	// Resolution of the Poisson equation 
 	// ----------------------------------
 
 	double lambda = 0. ;
-	double precision = 1.e-10 ;
+	Vector source_reg = - (1./3. - lambda) * xsi.divergence(flat)
+	    .derive_con(flat) ;
+	source_reg.inc_dzpuis() ;
+	source += source_reg ;
+
+	double precision = 1.e-8 ;
 	int num_front = 0 ; // index of the intern boundary
 	int itermax = 20 ;
 
-	Tenseur source_vect (mp, 1, CON, mp.get_bvect_cart()) ;
-	source.change_triad(mp.get_bvect_cart()) ;
-	Cmp source_1 (source(1)) ;
-	Cmp source_2 (source(2)) ;
-	Cmp source_3 (source(3)) ;
-	source_vect.set_etat_qcq() ;
-	source_vect.set(0) = source_1 ;
-	source_vect.set(1) = source_2 ;
-	source_vect.set(2) = source_3 ;
-	source.change_triad(mp.get_bvect_spher()) ;
-
-	Tenseur xsi_vect (mp, 1, CON, mp.get_bvect_cart()) ;
-	xsi.change_triad(mp.get_bvect_cart()) ;
-	Cmp xsi_vect1 (xsi(1)) ;
-	Cmp xsi_vect2 (xsi(2)) ;
-	Cmp xsi_vect3 (xsi(3)) ;
-	xsi_vect.set_etat_qcq() ;
-	xsi_vect.set(0) = xsi_vect1 ;
-	xsi_vect.set(1) = xsi_vect2 ;
-	xsi_vect.set(2) = xsi_vect3 ;
-	xsi.change_triad(mp.get_bvect_spher()) ;
-
+	Vector limite (mp, CON, mp.get_bvect_cart()) ;
+	limite.std_spectral_base() ;
 	Valeur lim_x (mg) ;
 	Valeur lim_y (mg) ;
 	Valeur lim_z (mg) ;
-	lim_x = aa*aa ;
-	lim_y = aa*aa ;
-	lim_z = aa*aa ;
-	lim_x.std_base_scal() ;
-	lim_y.std_base_scal() ;
-	lim_z.std_base_scal() ;
+	lim_x = 0. ;
+	lim_y = 0. ;
+	lim_z = 0. ;
+	lim_x.set_base(limite(1).get_spectral_va().get_base()) ;
+	lim_y.set_base(limite(2).get_spectral_va().get_base()) ;
+	lim_z.set_base(limite(3).get_spectral_va().get_base()) ;
+
+
 	
 	cout << "Resolution of equation for xsi : poisson_vect_frontiere "  
 	     << endl << "----------------------------------------------------"
 	     << endl ;
-
-
-	if (mer>=200) {
-	    des_profile(source_vect(1), 0, 20, 0, 0) ;
-	    des_coef_xi(source_vect(1).va, 1, 0, 0) ;
-	    des_coef_xi(source_vect(1).va, 2, 0, 0) ;
-	}
-
-	poisson_vect_frontiere(lambda, source_vect, xsi_vect, lim_x,
+	
+	poisson_vect_boundary(lambda, source, xsi, lim_x,
 			       lim_y, lim_z, num_front, precision, itermax) ;
 
 	
 	if (mer>=200) {
-	    des_profile(xsi_vect(1), 0, 20, 0, 0) ;
-	    des_coef_xi(xsi_vect(1).va, 1, 0, 0) ;
-	    des_coef_xi(xsi_vect(1).va, 2, 0, 0) ;
+	    des_profile(xsi(1), 0, 20, 0, 0) ;
 	}
 
-	source_vect.change_triad(mp.get_bvect_spher()) ;
-	xsi_vect.change_triad(mp.get_bvect_spher()) ;
-	
-	xsi.set(1) = xsi_vect(0) ;
-	xsi.set(2) = xsi_vect(1) ;
-	xsi.set(3) = xsi_vect(2) ;
+	// Test
+	source.dec_dzpuis() ;
+	maxabs(xsi.derive_con(flat).divergence(flat) 
+	       + lambda * xsi.divergence(flat)
+	       .derive_con(flat) - source ,
+	       "Absolute error in the resolution of the equation for beta") ;  
+	cout << endl ;
 
 	cout << "xsi :" << endl ;
 	for (int i=1; i<=3; i++){
 	    cout << "  Comp. " << i << " :  " ;
 	    for (int l=0; l<nz; l++){
-		cout << norme(xsi(i)/(nr[0]*nt*np))(l) << " " ;
+		cout << norme(xsi(i)/(nr_tab[0]*nt*np))(l) << " " ;
 	    }
 	    cout << endl ;
 	}
 	cout << endl ;
 
-	// Check: has the equation for xsi been correctly solved ?
-	// --------------------------------------------------------------
-
-	Vector lap_xsi = (xsi.derive_con(flat)).divergence(flat) 
-	    + lambda * xsi.divergence(flat).derive_con(flat) ;
-	lap_xsi.inc_dzpuis() ;
-
-	cout << "moyenne de la source pour xsi :" << endl ;
-	for (int i=1; i<=3; i++){
-	    cout << "  Comp. " << i << " :  " ;
-	    for (int l=0; l<nz; l++){
-		cout << norme(source(i)/(nr[0]*nt*np))(l) << " " ;
-	    }
-	    cout << endl ;
-	}
-	cout << endl ;
-
-  	cout << "lap_xsi :" << endl ;
-	for (int i=1; i<=3; i++){
-	    cout << "  Comp. " << i << " :  " ;
-	    for (int l=0; l<nz; l++){
-		cout << norme(lap_xsi(i)/(nr[0]*nt*np))(l) << " " ;
-	    }
-	    cout << endl ;
-	}
-	cout << endl ;
-
-	Tbl tdiff_xsi_r = diffrel(lap_xsi(1), source(1)) ; 
-	Tbl tdiff_xsi_t = diffrel(lap_xsi(2), source(2)) ; 
-	Tbl tdiff_xsi_p = diffrel(lap_xsi(3), source(3)) ; 
-
-	cout << 
-	    "Relative error in the resolution of the equation for xsi : "
-	     << endl ; 
-	cout << "r component : " ;
-	for (int l=0; l<nz; l++) {
-	    cout << tdiff_xsi_r(l) << "  " ; 
-	}
-	cout << endl ;
-	cout << "t component : " ;
-	for (int l=0; l<nz; l++) {
-	    cout << tdiff_xsi_t(l) << "  " ; 
-      }
-	cout << endl ;
-	cout << "p component : " ;
-	for (int l=0; l<nz; l++) {
-	    cout << tdiff_xsi_p(l) << "  " ; 
-	}
-	cout << endl ;
-	
-
+	// End of the computation ?
 	int cont ;
 	cont = 0 ;
 	
@@ -509,7 +430,7 @@ int main(){
 	    for(int l=1; l<=nz-1; l++)
 		for(int k=0; k<=np-1; k++)
 		    for(int j=0; j<=nt-1; j++)
-			for(int i=0; i<=nr[l]-1; i++){
+			for(int i=0; i<=nr_tab[l]-1; i++){
 			    if (fabs(xsi(nn).val_grid_point(l,k,j,i)) > 1.e-10){
 			    if (fabs(xsi(nn).val_grid_point(l,k,j,i)) 
 				> fabs(xsi_jm1(nn).val_grid_point(l,k,j,i))) {
@@ -537,9 +458,10 @@ int main(){
 	cout << 
    "========================================================================" 
 	     << endl ; 
-	    mer = mer_max ;
+	    mer = niter ;
 	}
-
+	
+	xsi = relax * xsi + (1-relax) * xsi_jm1 ;
 	for (int i=1; i<=3; i++) {
 	    xsi_jm1.set(i) = xsi(i) ;
 	}
@@ -582,7 +504,7 @@ int main(){
 	    for (int j=1; j<=i; j++) {
 		cout << "  Comp. " << i << " " << j << " :  " ;
 		for (int l=0; l<nz; l++){
-		    cout << norme(guu_dirac(i,j)/(nr[0]*nt*np))(l) << " " ;
+		    cout << norme(guu_dirac(i,j)/(nr_tab[0]*nt*np))(l) << " " ;
 		}
 		cout << endl ;
 	    }
@@ -592,32 +514,89 @@ int main(){
 	// ------------------------
 
 	for (int i=1; i<=3; i++)
-	    for (int j=1; j<=i; j++){
-		guu_dirac.set(i,j) = guu_dirac(i,j) - 1. ;
-		guu_dirac.set(i,j).annule_domain(0) ;
-		guu_dirac.set(i,j) = guu_dirac(i,j) + 1. ;
-	    }
+	    for (int j=1; j<=i; j++)
+	      guu_dirac.set(i,j).set_domain(0) = 1. ;
 
 	Metric g_dirac (guu_dirac) ;
 	Sym_tensor gtuu_dirac (mp, CON, mp.get_bvect_spher()) ;
 	gtuu_dirac = pow(g_dirac.determinant(), 1./3.) * guu_dirac ;
 	gtuu_dirac.std_spectral_base() ;
 
-	Vector& d_gtuu_dirac (gtuu_dirac.divergence(flat)) ;
+ 	cout << "norme de gt_uu en jauge de dirac :" << endl ;
+	for (int i=1; i<=3; i++)
+	    for (int j=1; j<=i; j++) {
+		cout << "  Comp. " << i << " " << j << " :  " ;
+		for (int l=0; l<nz; l++){
+		    cout << norme(gtuu_dirac(i,j)/(nr_tab[0]*nt*np))(l) <<" " ;
+		}
+		cout << endl ;
+	    }
+	cout << endl ;
 
-	cout << "Is Dirac gauge really satisfied ??!" << endl ;
+
+	Vector d_gtuu_dirac (gtuu_dirac.divergence(flat)) ;
+	d_gtuu_dirac.dec_dzpuis(2) ;
+
+	cout << "Is Dirac gauge really satisfied ?" << endl ;
 	cout << "Vector H^i" << endl ;
 	for (int i=1; i<=3; i++){
 	    cout << "  Comp. " << i << " : " << norme(d_gtuu_dirac(i)
-					     /(nr[0]*nt*np)) << endl ;
+					     /(nr_tab[0]*nt*np)) << endl ;
 	}	
 
 	cout << "For comparaison value norme(h^11_dirac)/dist = " << endl 
-	     << norme(gtuu_dirac(1,1)-1)/(nr[0]*nt*np) * 2 / hh ; 
+	     << norme(gtuu_dirac(1,1)-1)/(nr_tab[0]*nt*np) * 2 / hh ; 
+
+	Vector hh_dirac (contract(dcov_huu, 1, 2)) ;
+	cout << "For comparaison H^i before computation = " << endl 
+	     << norme(hh_dirac(1))/(nr_tab[0]*nt*np) 
+	     << endl 
+	     << norme(hh_dirac(2))/(nr_tab[0]*nt*np) 
+	     << endl 
+	     << norme(hh_dirac(3))/(nr_tab[0]*nt*np) 
+	     << endl ; 
+	
+	// Another calculation
+		
+	Sym_tensor gtuu_dirac2 (mp, CON, mp.get_bvect_spher()) ;
+	Scalar psi4 = pow(a2, 2./3.) * pow(b2, 1./3.) ;
+	psi4.std_spectral_base() ;
+	gtuu_dirac2 = g_uu.derive_lie(xsi) * psi4 + 0.666666666666666 * 
+	  xsi.divergence(gamma) * gt_uu ;
+	gtuu_dirac2.dec_dzpuis(2) ;
+	gtuu_dirac2 += gt_uu ;
+	
+	d_gtuu_dirac = gtuu_dirac2.divergence(flat) ;
+	d_gtuu_dirac.dec_dzpuis(2) ;
+	cout << "second computation" << endl ;
+	cout << "Vector H^i" << endl ;
+	for (int i=1; i<=3; i++){
+	    cout << "  Comp. " << i << " : " << norme(d_gtuu_dirac(i)
+					     /(nr_tab[0]*nt*np)) << endl ;
+	}	
+
+	cout << "Relative difference between the two computation of h_uu dirac"
+	 << endl ;
+	cout << " Comp 1 1 :  " ; 
+	for (int l=0; l<nz; l++) {
+	    cout << diffrel(gtuu_dirac(1,1)-1, gtuu_dirac2(1,1)-1)(l) <<"  " ; 
+	}
+	cout << endl ;
+	cout << " Comp 2 2 :  " ; 
+	for (int l=0; l<nz; l++) {
+	    cout << diffrel(gtuu_dirac(2,2)-1, gtuu_dirac2(2,2)-1)(l) <<"  " ; 
+	}
+	cout << endl ;
+	cout << " Comp 3 3 :  " ; 
+	for (int l=0; l<nz; l++) {
+	    cout << diffrel(gtuu_dirac(3,3)-1, gtuu_dirac2(3,3)-1)(l) <<"  " ; 
+	}
+	cout << endl ;
 	
 
+
 	    
-    delete [] nr ; 
+    delete [] nr_tab ; 
     delete [] nt_tab ; 
     delete [] np_tab ;
     delete [] type_r ; 
