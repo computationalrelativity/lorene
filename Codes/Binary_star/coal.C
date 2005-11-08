@@ -29,6 +29,9 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/11/08 20:19:32  f_limousin
+ * Add a call to Binary::dirac_gauge().
+ *
  * Revision 1.5  2005/09/13 19:47:28  f_limousin
  * Reintroduction of the resolution of the equations in cartesian coordinates.
  *
@@ -509,6 +512,14 @@ int main(){
 	    }
 
 	}
+
+	// -------------------------
+	// Impose Dirac gauge
+	// -------------------------
+
+	if ( (mer % fmer_upd_met) == 0 ) 
+	  star.dirac_gauge() ;
+
 
 	//------------------------------------------------------------------
 	//	    Computation of the orbital angular velocity Omega
