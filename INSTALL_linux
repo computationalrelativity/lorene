@@ -2,6 +2,43 @@
 This file covers only features specific to some Linux distributions.
 See the file INSTALL for the main installation instructions.
 
+MANDRIVA 2006	
+=============
+
+You must have the following packages installed on your system:
+
+gcc
+gcc-c++
+gcc-gfortran
+libgfortran
+liblapack3
+liblapack3-devel
+libgsl0
+libgsl0-devel
+libxorg-x11-devel (provides makedepend)
+libfftw3
+libfftw3-devel
+OpenDX
+doxygen
+
+
+SuSE 9.2
+========
+
+You must have the following packages installed on your system:
+
+gcc
+gcc-c++
+gcc-g77
+lapack
+gsl
+xorg-x11-devel (provides makedepend)
+fftw3
+fftw3-devel
+doxygen
+
+
+
 MANDRAKE 8.0	
 ============
 

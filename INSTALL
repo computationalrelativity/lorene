@@ -1,8 +1,8 @@
 
-                //----------------------------------------------//
-		//  Langage Objet pour la RElativite NumeriquE  //
-		//		   (LORENE)			//
-		//----------------------------------------------//
+        //----------------------------------------------//
+        //  Langage Objet pour la RElativite NumeriquE  //
+        //                  (LORENE)                    //
+        //----------------------------------------------//
 
 			*******************************
 			*  INSTALLATION INSTRUCTIONS  * 
@@ -10,45 +10,70 @@
 
 	 $Id$
 
-Comments or questions should be addressed to Eric.Gourgoulhon@obspm.fr.
+Comments or questions should be addressed to 
+eric.gourgoulhon@obspm.fr, philippe.grandclement@obspm.fr, jerome.novak@obspm.fr.
 
 See also the file INSTALL_linux for some features specific to Linux.
 				
 
-0/ Requisites
-   ==========
+0/ Prerequisites
+   =============
 
   0.1/ Softwares absolutely required by LORENE:
        ----------------------------------------
 
 a C++ compiler: any compiler compliant to the ISO norm of C++ should be able
-	to compile LORENE
+    to compile LORENE
 
 a Fortran 77 compiler: a small part of LORENE is written in Fortran 77, namely
-	the Fast Fourier Transform used by the spectral method and the solver
-	of Poisson equation in 2-dimensional space. In future releases of LORENE,
-	these parts should be rewritten in C++, so that a Fortran 77 compiler
-	will no longer be necessary to compile LORENE.
+    the Fast Fourier Transform used by the spectral method and the solver
+    of Poisson equation in 2-dimensional space. In future releases of LORENE,
+    these parts should be rewritten in C++, so that a Fortran 77 compiler
+    will no longer be necessary to compile LORENE.  
+    Note: the Fortran 95 compiler of the GCC 4.0 suite, namely gfortran, 
+    works well (no need to downgrade to the old g77
 
-CVS: 	The internet access to Lorene sources is performed via a CVS server.
-	CVS (Concurrent Versions System) is powerfull tool to
-	manage versions and develop over the network. CVS is a free software
-        under the GNU General Public License. It comes in standard with
-        many Linux distributions. If you don't have it on your system, you
+CVS: The internet access to Lorene sources is performed via a CVS server.
+    CVS (Concurrent Versions System) is powerfull tool to
+    manage versions and develop over the network. CVS is a free software
+    under the GNU General Public License. It comes in standard with
+    many Linux distributions. If you don't have it on your system, you
 	can download it from the web site
 
-		http://www.cvshome.org/
+		http://www.nongnu.org/cvs/
 		
 LAPACK: Lorene uses the LAPACK (Linear Algebra PACKage) library to perform
-        linear algebra operations. LAPACK must therefore be installed on
-	your system. LAPACK is a public domain software and can be downloaded
-	from 
+    linear algebra operations. LAPACK must therefore be installed on
+	your system (including the development packages). LAPACK is a public 
+    domain software and can be downloaded from 
 		http://www.netlib.org/lapack/
+    If you are using Linux, note that LAPACK comes along with many Linux 
+    distributions.
 
-	If you are using Linux, see the companion file INSTALL_linux. 
+GSL  (GNU Scientific Library): LORENE uses the GSL library to compute Bessel
+    functions involved in some elliptic operators. GSL must therefore be 
+    installed on your system. GSL is a free software and can be 
+    downloaded from the GSL web site:
+        http://www.gnu.org/software/gsl/
+    If you are using Linux, note that GSL comes along with many Linux
+    distributions.
 
+makedepend: to create dependencies in makefiles. On Linux systems, makedepend 
+    comes along with X11 development packages (for instance libxorg-x11-devel 
+    in Mandriva 2006 or xorg-x11-devel in SuSE 9.2)
 	
-   0.2/ Software required only to produce graphical outputs:
+    
+   0.2/ Optional FFT library for LORENE:
+        -------------------------------
+FFTW3 (Fastest Fourier Transform in the West):  By default, LORENE uses a
+    FORTRAN Fourier Transform. It is possible to use a faster library written
+    in C, namely FFTW, version 3 (older versions are incompatible!) that can be
+    downloaded from the FFTW Web site. If you are using Linux, note that FFTW3
+    comes along with most of distributions. To use it, you will have to set the
+    appropriate variable FFT_DIR to FFTW3 in the local_settings file
+
+
+   0.3/ Software required only to produce graphical outputs:
         ---------------------------------------------------
 
 PGPLOT: Lorene uses the PGPLOT library for producing 2-D graphical outputs.
@@ -60,34 +85,34 @@ PGPLOT: Lorene uses the PGPLOT library for producing 2-D graphical outputs.
 		http://www.astro.caltech.edu/~tjp/pgplot/
 
 	If you are using Linux, see the companion file INSTALL_linux. 
+    See in particular the instructions for a quick installation of PGPLOT 
+    Note that a small correction must be applied to the makefile if you are 
+    using gcc 4.0 (or above) (remplacement of g77 by gfortran)
+
+
+OpenDX: this powerful software is used to produce 3-D visualization of 
+    various Lorene objects. The corresponding OpenDX scripts are located 
+    in the directory  Lorene/Visu/OpenDX.
+    OpenDX can be freely downloaded from the web page http://www.opendx.org/.
+
 
 
   0.3/ Softwares required to generate LORENE HTML documentation:
        --------------------------------------------------------
-	
-DOC++: Lorene uses the DOC++ software to produce its LaTeX and HTML 
-       documentation. You can of course compile and run Lorene codes 
-       without DOC++ being installed on your system. But to write any
-       piece of code, it is necessary to have Lorene documentation. 
-       Therefore, it is strongly recommended to install DOC++ on your system, 
-       if you do not already have it. DOC++ is a free software under the
-       GNU General Public License. You can download it from the web site
-
-		http://docpp.sourceforge.net/
-
-   	Lorene requires version 3.4.8 or higher of DOC++.
-	If you are using Linux, see the companion file INSTALL_linux. 
+Doxygen: LORENE uses the software Doxygen to produce LaTeX and HTML
+    documentation from the source files themselves (class declarations in
+    Lorene/C++/Include/*.h). You can of course compile and run LORENE codes 
+    without Doxygen being installed on your system. But to write any piece of 
+    code, it is necessary to have LORENE documentation. Therefore, it is 
+    strongly recommended to install Doxygen on your system, if you do not 
+    already have it (Doxygen comes along with many Linux distributions). 
+    Doxygen is a free software under the GNU General Public License. 
+    You can download it from the Doxygen web site:  
+        http://www.stack.nl/~dimitri/doxygen/
 
 LaTeX: the text formatting system TeX/LaTeX is required by DOC++ to generate
 	the PostScript documentation, as well as to treat the mathematical
 	formulae in the HTML documentation.
-
-Netpbm: DOC++ uses the Netpbm toolkit (especially ppmtogif) to generate the
-	gif images displaying the mathematical formulae in the HTML documentation.
-	If you are using Linux, note that Netpbm comes in standard with many
-	Linux distributions. Otherwise, you can download it from the Netpbm web site:
-	
-		http://download.sourceforge.net/netpbm/
 
 
 
@@ -100,7 +125,7 @@ Connect to the CVS repository in Meudon:
 
  	password: anonymous
 
-   Download Lorene by typying
+   Download Lorene by typing
 
 	cvs -d :pserver:anonymous@octane.obspm.fr:/cvsroot checkout Lorene
 
@@ -158,7 +183,8 @@ copy one of this file into local_settings by typing, e.g. under Linux
 	cp local_settings_linux local_settings
 
 You may then edit local_settings to adapt it to some special features of
-your system implementation.
+your system implementation, e.g. to use FFTW3 instead of the standard 
+FORTRAN FFT, changing the FFT_DIR variable from FFT991 to FFTW3.
 
 
 4/ Compiling
@@ -170,9 +196,12 @@ directory)
    	make
 
 This will first create the Lorene documentation, including the HTML
-reference guide, provided DOC++ is
-installed on your system (see the Requisites section above).
+reference guide, provided Doxygen is installed on your system (see the 
+prerequisites section above).
 Then the C++ part is compiled and the Fortran 77 one.
+
+To read Lorene's reference manual, open the file 
+$HOME_LORENE/Doc/refguide/index.html in a web browser
 
 If you run into trouble during the compilation, you can clean the C++ directory,
 leaving only the sources as downloaded by the CVS checkout command, by
@@ -183,9 +212,6 @@ leaving only the sources as downloaded by the CVS checkout command, by
 Then, you can fix the problem (e.g. add a path for include file in
 local_settings), and perform the make command again.
 
-To read Lorene's reference manual, type
-
-	netscape $HOME_LORENE/Doc/refguide/index.html
 
 
 5/ Testing the installation
