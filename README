@@ -1,8 +1,8 @@
 
-                //----------------------------------------------//
-		//  Langage Objet pour la RElativite NumeriquE  //
-		//		   (LORENE)			//
-		//----------------------------------------------//
+        //----------------------------------------------//
+        //  Langage Objet pour la RElativite NumeriquE  //
+        //                  (LORENE)                    //
+        //----------------------------------------------//
 
 	 $Id$
 
@@ -12,8 +12,8 @@ file COPYING in this directory).
 LORENE is developed by different persons (see the file AUTHORS in this
 directory). 
 
-Comments or questions should be addressed to Eric.Gourgoulhon@obspm.fr
-or Jerome.Novak@obspm.fr. 
+Comments or questions should be addressed to 
+eric.gourgoulhon@obspm.fr, philippe.grandclement@obspm.fr, jerome.novak@obspm.fr.
 
 The LORENE Web page is
 
@@ -31,10 +31,8 @@ Documentation
 
 Documentations about various aspects of LORENE, as well as CVS usage,
 are in the directory Lorene/Doc.
-In particular the HTML reference manual of LORENE can be read through 
-the command
-
-	netscape $HOME_LORENE/Doc/refguide/index.html &
+In particular the HTML reference manual of LORENE can be read 
+by browsing $HOME_LORENE/Doc/refguide/index.html 
 
 where $HOME_LORENE stands for the path of directory Lorene (see file INSTALL). 
 The LaTeX version of this manual can be produced as follows:
