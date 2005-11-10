@@ -5,10 +5,10 @@
 4	np: number of points in phi   (the same in each domain)
 25	nr: number of points in r in the first domain
 25	nr: number of points in r in all the other domains
-1.	relaxation (1 -> no relaxation)
+0.5	relaxation (1 -> no relaxation)
 1e-8	seuil : Threshold on xsi relative change for ending the computation
-100	maximum of iterations
-0.95	parametre hh
+200	maximum of iterations
+0.9	parametre hh
 1.	masse M
 
 
