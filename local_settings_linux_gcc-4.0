@@ -82,9 +82,9 @@ endif
 # ---------------------------------------
 LIB_LAPACK = -llapack -lblas
 
-# Graphical libraries: PGPLOT and X11
-# -----------------------------------
-LIB_PGPLOT = -L/usr/X11R6/lib -lcpgplot -lpgplot -lX11
+# Graphical libraries: PGPLOT, PNG and X11
+# ----------------------------------------
+LIB_PGPLOT = -L/usr/X11R6/lib -lcpgplot -lpgplot -lpng -lX11
 
 # GNU scientific library
 # -----------------------------------
