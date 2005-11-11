@@ -15,7 +15,8 @@ liblapack3
 liblapack3-devel
 libgsl0
 libgsl0-devel
-libxorg-x11-devel (provides makedepend)
+libxorg-x11-devel (provides makedepend and is required for the X11 output of PGPLOT)
+libpng3-devel (required for the PNG output of PGPLOT)
 libfftw3
 libfftw3-devel
 OpenDX
@@ -37,6 +38,24 @@ fftw3
 fftw3-devel
 doxygen
 
+
+DEBIAN 3.1 "Sarge"
+=================
+
+You must have the following packages installed on your system:
+
+blas
+blas-dev
+lapack3
+lapack3-dev
+fftw3
+fftw3-dev
+libgsl0
+libgsl0-dev
+pgplot5
+libx11-dev
+libpng2-dev
+doxygen
 
 
 MANDRAKE 8.0	
