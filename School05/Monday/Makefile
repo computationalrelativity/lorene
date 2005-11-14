@@ -44,7 +44,10 @@ CXXFLAGS_G = -g -pedantic -Wall -W -Wundef -Wshadow -Wcast-qual \
 
 # Graphical libraries: PGPLOT and X11
 # -----------------------------------
-LIB_GRAPH = -L/usr/X11R6/lib -lcpgplot -lpgplot -lgfortran -lpng -lX11
+#
+# NB: change -lg2c to -lgfortran if you are using gcc >= 4.0
+#
+LIB_GRAPH = -L/usr/X11R6/lib -lcpgplot -lpgplot -lg2c -lpng -lX11
 
 # C, C++ libarary, mathematical library
 # -------------------------------------
