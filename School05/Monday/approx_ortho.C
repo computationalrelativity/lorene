@@ -27,6 +27,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/11/14 14:12:09  e_gourgoulhon
+ * Added include <assert.h>
+ *
  * Revision 1.1  2005/11/14 01:56:58  e_gourgoulhon
  * First version
  *
@@ -122,7 +125,7 @@ int main() {
         }
         plot_point_set(nn+1, xc, yc, 3, nfig) ; 
         
-        plot_close(nfig) ; // closing required if EPS figure 
+        // plot_close(nfig) ; // closing required if EPS figure 
 
         // Aliasing error
 

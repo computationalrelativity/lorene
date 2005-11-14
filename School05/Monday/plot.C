@@ -26,6 +26,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/11/14 14:12:10  e_gourgoulhon
+ * Added include <assert.h>
+ *
  * Revision 1.1  2005/11/14 01:57:00  e_gourgoulhon
  * First version
  *
@@ -39,6 +42,7 @@
 using namespace std ;
 
 #include <stdlib.h>
+#include <assert.h>
 
 #include <cpgplot.h>
 
