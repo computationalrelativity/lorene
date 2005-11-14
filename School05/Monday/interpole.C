@@ -27,6 +27,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/11/14 14:11:22  e_gourgoulhon
+ * log(int ) -> log(double)
+ * + suppressed plot_close.
+ *
  * Revision 1.1  2005/11/14 01:56:59  e_gourgoulhon
  * First version
  *
@@ -84,8 +88,8 @@ int main() {
         cout << "   Legendre GL grid : " << x_leg.lebesgue_constant() << endl ; 
         cout << "   Chebyshev Gauss grid : " << x_cheb.lebesgue_constant() 
             << " <-> theor. lower / upper bound: " 
-            << 2./M_PI * log(nn+1) + 0.9625 << " / " 
-            << 2./M_PI * log(nn+1) + 1 << endl ; 
+            << 2./M_PI * log(double(nn+1)) + 0.9625 << " / " 
+            << 2./M_PI * log(double(nn+1)) + 1 << endl ; 
         
         // Interpolation through the uniform grid :
         
@@ -110,7 +114,7 @@ int main() {
         }
         plot_point_set(nn+1, xc, yc, 3, nfig) ; 
         
-        plot_close(nfig) ; // closing required if EPS figure 
+        // plot_close(nfig) ; // closing required if EPS figure 
         
         // Interpolation through the Legendre GL grid :
         
@@ -135,7 +139,7 @@ int main() {
         }
         plot_point_set(nn+1, xc, yc, 3, nfig) ; 
         
-        plot_close(nfig) ; // closing required if EPS figure 
+        // plot_close(nfig) ; // closing required if EPS figure 
 
         // Interpolation through the Chebyshev Gauss grid :
         
@@ -160,7 +164,7 @@ int main() {
         }
         plot_point_set(nn+1, xc, yc, 3, nfig) ; 
         
-        plot_close(nfig) ; // closing required if EPS figure 
+        // plot_close(nfig) ; // closing required if EPS figure 
 
         delete [] xc ; 
         delete [] yc ; 
