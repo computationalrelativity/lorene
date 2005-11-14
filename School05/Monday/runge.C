@@ -27,6 +27,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/11/14 14:17:02  e_gourgoulhon
+ * Added #include <stdio.h>
+ *
  * Revision 1.1  2005/11/14 01:57:00  e_gourgoulhon
  * First version
  *
@@ -40,6 +43,7 @@
 using namespace std ;
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <math.h>
 
