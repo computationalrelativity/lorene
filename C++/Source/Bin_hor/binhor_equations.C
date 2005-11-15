@@ -26,6 +26,9 @@ char binhor_equations_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2005/11/15 14:04:00  f_limousin
+ * Minor change to control the resolution of the equation for psi.
+ *
  * Revision 1.12  2005/10/23 16:39:43  f_limousin
  * Simplification of the equation in the case of a conformally
  * flat metric and maximal slicing
@@ -333,10 +336,9 @@ void Bin_hor::solve_psi (double precision, double relax, int bound_psi) {
     
     // Source 1
     // ---------
-       
+    
     Scalar source_un (hole1.mp) ;
-    source_un.allocate_all() ;
-    source_un = 1.e-15/hole1.mp.r/hole1.mp.r/hole1.mp.r/hole1.mp.r ;
+    source_un.annule_hard() ;
     source_un.set_dzpuis(4) ;
     source_un += - hole1.psi()*hole1.psi4()* 0.125* aa_quad_un ;
     source_un.std_spectral_base() ;
@@ -360,14 +362,13 @@ void Bin_hor::solve_psi (double precision, double relax, int bound_psi) {
 
     // Source 2
     // ---------
-       
+   
     Scalar source_deux (hole2.mp) ;
-    source_deux.allocate_all() ;
-    source_deux = 1.e-15/hole2.mp.r/hole2.mp.r/hole2.mp.r/hole2.mp.r ;
+    source_deux.annule_hard() ;
     source_deux.set_dzpuis(4) ;
     source_deux += - hole2.psi()*hole2.psi4()* 0.125* aa_quad_deux ;
     source_deux.std_spectral_base() ;
-
+    
     /*
     Scalar tmp_deux (hole2.mp) ;
 
