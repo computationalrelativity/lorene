@@ -42,10 +42,15 @@ CXXFLAGS_G = -g -pedantic -Wall -W -Wundef -Wshadow -Wcast-qual \
   -Wcast-align -Wconversion -Winline \
   -Wabi -Wold-style-cast -Woverloaded-virtual 
 
+# Path for the include files (e.g. for PGPLOT):
+# --------------------------------------------
+INC	= -I/usr/local/include
+
 # Graphical libraries: PGPLOT and X11
 # -----------------------------------
 #
-# NB: change -lg2c to -lgfortran if you are using gcc >= 4.0
+# NB1: change -lg2c to -lgfortran if you are using gcc >= 4.0
+# NB2: add -lpng if your version of PGPLOT requires PNG support
 #
 LIB_GRAPH = -L/usr/X11R6/lib -lcpgplot -lpgplot -lg2c -lX11
 
