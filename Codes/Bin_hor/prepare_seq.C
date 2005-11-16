@@ -29,6 +29,9 @@ char prepare_seq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/11/16 14:14:55  f_limousin
+ * Add new quantities in fich resformat.dat
+ *
  * Revision 1.2  2005/06/09 16:17:21  f_limousin
  * Many different changes.
  *
@@ -56,7 +59,7 @@ int main() {
     
     ofstream outfich("sequence.dat") ; 
 
-    outfich << "# Beta  omega  M_ADM  M_Komar  M_area  J_ADM  J_hor  M_ADM/M_area  J_ADM/M_area2  omega * M_area"  << endl ; 
+    outfich << "# Beta  omega  M_ADM  M_Komar  M_area  J_ADM  J_hor  M_ADM/M_area  J_ADM/M_area2  omega * M_area  M_ADM/M_ih  J_ADM/M_ih2  omega * M_ih  "  << endl ; 
 
     //-------------------------------------------------------
     //  Loop of the files seq.d
@@ -79,6 +82,7 @@ int main() {
 	    
 	    double beta, omega, mass_adm, mass_area, mass_komar ; 
 	    double j_adm, j_hor, madm_area, jadm_area2, omega_marea ;
+	    double mass_ih1, mass_ih2, mass_ih, j1, j2, omega1, omega2 ;
 
 	    infich.ignore(1000,'\n') ; // skip first line
 	    infich >> beta ;
@@ -88,6 +92,15 @@ int main() {
 	    infich >> mass_area ;
 	    infich >> j_adm ;
 	    infich >> j_hor ;
+	    infich.ignore(1000,'\n') ; 
+	    infich.ignore(1000,'\n') ; 
+	    infich >> mass_ih1 ;
+	    infich >> mass_ih2 ;
+	    infich >> mass_ih ;
+	    infich >> j1 ;
+	    infich >> j2 ;
+	    infich >> omega1 ;
+	    infich >> omega2 ;
 	    infich.ignore(1000,'\n') ; 
 	    infich.ignore(1000,'\n') ; 
 	    infich >> madm_area ;
@@ -122,7 +135,10 @@ int main() {
 	    outfich << j_hor << " " ;
 	    outfich << madm_area << " " ;
 	    outfich << jadm_area2 << " " ;
-	    outfich << omega_marea << endl ;
+	    outfich << omega_marea << " "  ;
+	    outfich << mass_adm/mass_ih << " " ;
+	    outfich << j_adm/mass_ih/mass_ih << " " ;
+	    outfich << omega*mass_ih << endl ;
 
 	    //-----------------------------------------------------
 	    //  ***** End of modifiable part ***** 
