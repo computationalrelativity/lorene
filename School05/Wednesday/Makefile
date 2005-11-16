@@ -15,7 +15,12 @@ EXE2 = $(SRC2:.C=)
 SRC2 = kerr_test.C
 OBJ2 = $(SRC2:.C=.o)
 
-all: $(EXE1) $(EXE2)
+EXE3 = $(SRC3:.C=)
+SRC3 = demo_tensor.C
+OBJ3 = $(SRC3:.C=.o)
+
+
+all: $(EXE1) $(EXE2) $(EXE3)
 
 $(EXE1): $(OBJ1)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
@@ -25,11 +30,17 @@ $(EXE2): $(OBJ2)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ2) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
+$(EXE3): $(OBJ3)
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ3) $(LIB_G) $(LIB_LAPACK) \
+	$(LIB_PGPLOT) $(LIB_GSL) $(LIB_CXX) 
+	cp $(HOME_LORENE)/Visu/OpenDX/visu_section.net .
+
+
 .C.o:
 	$(CXX)  -c $(CXXFLAGS_G) $(INC) $<
 
 clean:
-	rm -f $(OBJ1) $(OBJ2)
-	rm -f $(EXE1) $(EXE2)
+	rm -f $(OBJ1) $(OBJ2) $(OBJ3)
+	rm -f $(EXE1) $(EXE2) $(EXE3)
 
 
