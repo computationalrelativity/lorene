@@ -29,6 +29,9 @@ char lit_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/11/16 15:33:39  f_limousin
+ * Adaptation of the code for spherical components
+ *
  * Revision 1.5  2005/11/16 14:27:20  f_limousin
  * Output of boundary conditions
  *
@@ -111,7 +114,7 @@ int main(int argc, char** argv) {
     // Verification of boundary conditions
     // -----------------------------------
 
-    Metric_flat fff (bin(1).get_mp().flat_met_cart()) ;
+    Metric_flat fff (bin(1).get_mp().flat_met_spher()) ;
 
     // lapse
     cout << "Lapse boundary condition" << endl ;
@@ -193,8 +196,8 @@ int main(int argc, char** argv) {
     // Verification of \partial_t \Psi << Omega
     // -----------------------------------------
     
-    const Metric& flat1 (map_un.flat_met_cart()) ;
-    const Metric& flat2 (map_deux.flat_met_cart()) ;
+    const Metric& flat1 (map_un.flat_met_spher()) ;
+    const Metric& flat2 (map_deux.flat_met_spher()) ;
     
     Vector omdsdp (map_un, CON, map_un.get_bvect_cart()) ;
     Scalar yya (map_un) ;
@@ -223,6 +226,7 @@ int main(int argc, char** argv) {
     omdsdp.set(3).set_spectral_va()
 	.set_base(*(map_un.get_mg()->std_base_vect_cart()[2])) ;
  
+    omdsdp.change_triad(map_un.get_bvect_spher()) ;
     Vector shift (bin(1).beta() + omdsdp) ;
 
     Scalar dt_psi (contract(shift, 0, bin(1).psi().derive_cov(flat1), 0) + 
@@ -237,25 +241,19 @@ int main(int argc, char** argv) {
     // Verification of Smarr :
     // -----------------------
         
-    Vector integrand_un (map_un, COV, map_un.get_bvect_cart()) ;
-    Vector temp_vect1 (contract(bin(1).k_dd(), 1, 
-				bin(1).radial_vect_hor(), 0)) ;
-    temp_vect1.change_triad(map_un.get_bvect_spher()) ;
-    temp_vect1 = bin(1).nn() * temp_vect1 * pow(bin(1).psi(), 2) ;
-    integrand_un = bin(1).nn().derive_cov(flat1)*pow(bin(1).psi(), 2) ;
+    Vector integrand_un (map_un, COV, map_un.get_bvect_spher()) ;
+    integrand_un = bin(1).nn().derive_cov(flat1)*pow(bin(1).psi(), 2)
+	- bin(1).nn()*contract(bin(1).k_dd(), 1,
+		 bin(1).gam().radial_vect(), 0)*pow(bin(1).psi(), 2) ;
     integrand_un.std_spectral_base() ;
-    integrand_un.change_triad(map_un.get_bvect_spher()) ;
-    integrand_un -= temp_vect1 ;
+    //integrand_un.change_triad(map_un.get_bvect_spher()) ;
 
-    Vector integrand_deux (map_deux, COV, map_deux.get_bvect_cart()) ;
-    Vector temp_vect2 (contract(bin(2).k_dd(), 1, 
-				bin(2).radial_vect_hor(), 0)) ;
-    temp_vect2.change_triad(map_deux.get_bvect_spher()) ;
-    temp_vect2 = bin(2).nn() * temp_vect2 * pow(bin(2).psi(), 2) ;
-    integrand_deux = bin(2).nn().derive_cov(flat2)*pow(bin(2).psi(), 2) ;
+    Vector integrand_deux (map_deux, COV, map_deux.get_bvect_spher()) ;
+    integrand_deux = bin(2).nn().derive_cov(flat2)*pow(bin(2).psi(), 2)
+	- bin(2).nn()*contract(bin(2).k_dd(), 1,
+		      bin(2).gam().radial_vect(), 0)*pow(bin(2).psi(), 2) ;
     integrand_deux.std_spectral_base() ;
-    integrand_deux.change_triad(map_deux.get_bvect_spher()) ;
-    integrand_deux -= temp_vect2 ;
+    //integrand_deux.change_triad(map_deux.get_bvect_spher()) ;
 
     double horizon = map_un.integrale_surface(integrand_un(1), 
 					      bin(1).get_radius())+
