@@ -29,6 +29,9 @@ char lit_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/11/16 14:27:20  f_limousin
+ * Output of boundary conditions
+ *
  * Revision 1.4  2005/09/24 08:28:31  f_limousin
  * Implementation of Smarr formula. Computation of dt_psi/psi.
  *
@@ -78,7 +81,7 @@ int main(int argc, char** argv) {
     
     char* name_fich = argv[1] ;
   
-    //char* name_fich = "new_11_17/bin.dat" ;
+//    char* name_fich = "bin.dat" ;
 
 
     // Construction of the binary
@@ -105,6 +108,67 @@ int main(int argc, char** argv) {
     cout << "axi_break = " << bin(1).axi_break() << endl ;
 //    abort() ;
 
+    // Verification of boundary conditions
+    // -----------------------------------
+
+    Metric_flat fff (bin(1).get_mp().flat_met_cart()) ;
+
+    // lapse
+    cout << "Lapse boundary condition" << endl ;
+    for(int j=0; j<bin(1).get_mp().get_mg()->get_nt(1); j++)
+	for(int k=0; k<bin(1).get_mp().get_mg()->get_np(1); k++){
+	    cout << bin(1).nn().val_grid_point(1, k, j, 0) << " " 
+		 << (0.3 - bin(1).nn()).val_grid_point(1, k, j, 0)  << endl ;
+	}
+     arrete() ;
+
+    // Psi
+    cout << "Psi boundary condition" << endl ;
+    Scalar bound_temp1 (contract(bin(1).k_dd(), 0, 1, bin(1).tradial_vect_hor()
+ 		   * bin(1).tradial_vect_hor(), 0, 1) / bin(1).psi()) ;
+    Scalar bound_temp2 ( contract(bin(1).k_dd(), 0, 1, bin(1).tradial_vect_hor() * bin(1).tradial_vect_hor(), 0, 1) / bin(1).psi() + bin(1).psi() * bin(1).tradial_vect_hor().divergence(fff) + 4 * contract(bin(1).tradial_vect_hor() * bin(1).psi().derive_cov(fff), 0, 1) ) ;
+    
+    for(int j=0; j<bin(1).get_mp().get_mg()->get_nt(1); j++)
+	for(int k=0; k<bin(1).get_mp().get_mg()->get_np(1); k++){
+	    cout << bound_temp1.val_grid_point(1, k, j, 0) 
+		 << " " << bound_temp2.val_grid_point(1, k, j, 0) 
+		 << endl ;  
+	}
+     arrete() ;
+
+    // Shift 
+    
+    Scalar bb (bin(1).get_mp()) ;
+    Vector shiftt (bin(1).beta()) ;
+    shiftt.change_triad(bin(1).get_mp().get_bvect_cart()) ;
+
+    Scalar xa (bin(1).get_mp()) ;
+    xa = bin(1).get_mp().xa ;
+    xa.annule_domain(bin(1).get_mp().get_mg()->get_nzone()-1) ;
+    Scalar ya (bin(1).get_mp()) ;
+    ya = bin(1).get_mp().ya ;
+    ya.annule_domain(bin(1).get_mp().get_mg()->get_nzone()-1) ;
+    
+    double orientation = bin(1).get_mp().get_rot_phi() ;
+    assert ((orientation == 0) || (orientation == M_PI)) ;
+    int aligne = (orientation == 0) ? 1 : -1 ;
+
+    shiftt.set(1) = shiftt(1) - aligne * bin(1).get_omega() * ya ;
+    shiftt.set(2) = shiftt(2) + aligne * bin(1).get_omega() * xa ;
+    
+    Vector normal (bin(1).radial_vect_hor()) ;
+    normal.change_triad(bin(1).get_mp().get_bvect_cart()) ;
+    bb = contract(shiftt, 0, normal.up_down(bin(1).gam()), 0) ;
+    
+
+    cout << "Shift boundary condition" << endl ;
+    for(int j=0; j<bin(1).get_mp().get_mg()->get_nt(1); j++)
+	for(int k=0; k<bin(1).get_mp().get_mg()->get_np(1); k++){
+	  cout << bb.val_grid_point(1, k, j, 0) << " " << bin(1).nn().val_grid_point(1, k, j, 0) << " " << (bb - bin(1).nn()).val_grid_point(1, k, j, 0)  << endl ;
+	}
+     arrete() ;
+	    
+
     // Calculation of global quantities
     // --------------------------------
 
@@ -129,8 +193,8 @@ int main(int argc, char** argv) {
     // Verification of \partial_t \Psi << Omega
     // -----------------------------------------
     
-    const Metric& flat1 (map_un.flat_met_spher()) ;
-    const Metric& flat2 (map_deux.flat_met_spher()) ;
+    const Metric& flat1 (map_un.flat_met_cart()) ;
+    const Metric& flat2 (map_deux.flat_met_cart()) ;
     
     Vector omdsdp (map_un, CON, map_un.get_bvect_cart()) ;
     Scalar yya (map_un) ;
@@ -158,8 +222,7 @@ int main(int argc, char** argv) {
 	.set_base(*(map_un.get_mg()->std_base_vect_cart()[1])) ;
     omdsdp.set(3).set_spectral_va()
 	.set_base(*(map_un.get_mg()->std_base_vect_cart()[2])) ;
-    omdsdp.change_triad(map_un.get_bvect_spher()) ;
-
+ 
     Vector shift (bin(1).beta() + omdsdp) ;
 
     Scalar dt_psi (contract(shift, 0, bin(1).psi().derive_cov(flat1), 0) + 
@@ -174,19 +237,25 @@ int main(int argc, char** argv) {
     // Verification of Smarr :
     // -----------------------
         
-    Vector integrand_un (map_un, COV, map_un.get_bvect_spher()) ;
-    integrand_un = bin(1).nn().derive_cov(flat1)*pow(bin(1).psi(), 2) 
-			 - bin(1).nn()*contract(bin(1).k_dd(), 1, 
-			 bin(1).gam().radial_vect(), 0)*pow(bin(1).psi(), 2) ;
+    Vector integrand_un (map_un, COV, map_un.get_bvect_cart()) ;
+    Vector temp_vect1 (contract(bin(1).k_dd(), 1, 
+				bin(1).radial_vect_hor(), 0)) ;
+    temp_vect1.change_triad(map_un.get_bvect_spher()) ;
+    temp_vect1 = bin(1).nn() * temp_vect1 * pow(bin(1).psi(), 2) ;
+    integrand_un = bin(1).nn().derive_cov(flat1)*pow(bin(1).psi(), 2) ;
     integrand_un.std_spectral_base() ;
-    //    integrand_un.change_triad(map_un.get_bvect_spher()) ;
+    integrand_un.change_triad(map_un.get_bvect_spher()) ;
+    integrand_un -= temp_vect1 ;
 
-    Vector integrand_deux (map_deux, COV, map_deux.get_bvect_spher()) ;
-    integrand_deux = bin(2).nn().derive_cov(flat2)*pow(bin(2).psi(), 2) 
-			   - bin(2).nn()*contract(bin(2).k_dd(), 1, 
-			 bin(2).gam().radial_vect(), 0)*pow(bin(2).psi(), 2) ;
+    Vector integrand_deux (map_deux, COV, map_deux.get_bvect_cart()) ;
+    Vector temp_vect2 (contract(bin(2).k_dd(), 1, 
+				bin(2).radial_vect_hor(), 0)) ;
+    temp_vect2.change_triad(map_deux.get_bvect_spher()) ;
+    temp_vect2 = bin(2).nn() * temp_vect2 * pow(bin(2).psi(), 2) ;
+    integrand_deux = bin(2).nn().derive_cov(flat2)*pow(bin(2).psi(), 2) ;
     integrand_deux.std_spectral_base() ;
-    //integrand_deux.change_triad(map_deux.get_bvect_spher()) ;
+    integrand_deux.change_triad(map_deux.get_bvect_spher()) ;
+    integrand_deux -= temp_vect2 ;
 
     double horizon = map_un.integrale_surface(integrand_un(1), 
 					      bin(1).get_radius())+
@@ -339,7 +408,7 @@ int main(int argc, char** argv) {
     des_coupe_bin_z (dessin_un, dessin_deux, 0, 
 	-ta, ta, -ta, ta, "Lapse function (Z=0)", &surface_un, &surface_deux, 
 	false, 15, 300, 300) ;
-    
+     
     // Psi
     // -----
 
@@ -352,7 +421,7 @@ int main(int argc, char** argv) {
     des_coupe_bin_z (dessin_un, dessin_deux, 0, 
 	-ta, ta, -ta, ta, "Conformal factor (Z=0)", &surface_un, &surface_deux, 
 	false, 15, 300, 300) ;
-	
+    
 
     // Extrinsic curvature
     // --------------------
@@ -371,7 +440,7 @@ int main(int argc, char** argv) {
  
     des_coupe_bin_z (dessin_un, dessin_deux, 0, 
 	-ta, ta, -ta, ta, "A\\urr\\d (Z=0)", &surface_un, &surface_deux, false
-	, 15, 300, 300) ;
+	, 20, 300, 300) ;
     
     dessin_un = aa_auto_un(1, 3) ;
     dessin_un.annule(0) ;
@@ -383,21 +452,8 @@ int main(int argc, char** argv) {
     
     des_coupe_bin_z (dessin_un, dessin_deux, 0, 
 	-ta, ta, -ta, ta, "A\\urp\\d (Z=0)", &surface_un, &surface_deux, false, 
-	15, 300, 300) ;
+	20, 300, 300) ;
     
-    dessin_un = aa_auto_un(2, 3) ;
-    dessin_un.annule(0) ;
-    dessin_un.dec2_dzpuis() ;
-    
-    dessin_deux = aa_auto_deux(2, 3) ;
-    dessin_deux.annule(0) ;
-    dessin_deux.dec2_dzpuis() ;
-    
-    des_coupe_bin_z (dessin_un, dessin_deux, 0, 
-	-ta, ta, -ta, ta, "A\\utp\\d (Z=0)", &surface_un, &surface_deux, 
-	false, 15, 300, 300) ;
-    
-
     // In cartesian ccordinates.
 
     aa_auto_un.change_triad(bin(1).get_mp().get_bvect_cart()) ;
@@ -413,7 +469,7 @@ int main(int argc, char** argv) {
     
     des_coupe_bin_z (dessin_un, dessin_deux, 0, 
 	-ta, ta, -ta, ta, "A\\uXX\\d (Z=0)", &surface_un, &surface_deux, false
-	, 15, 300, 300) ;
+	, 20, 300, 300) ;
  
 
     dessin_un = aa_auto_un(2, 1) ;
@@ -426,7 +482,7 @@ int main(int argc, char** argv) {
     
     des_coupe_bin_z (dessin_un, dessin_deux, 0, 
 	-ta, ta, -ta, ta, "A\\uXY\\d (Z=0)", &surface_un, &surface_deux, false
-	, 15, 300, 300) ;
+	, 20, 300, 300) ;
 
  
     dessin_un = aa_auto_un(2, 2) ;
@@ -438,8 +494,21 @@ int main(int argc, char** argv) {
     dessin_deux.dec2_dzpuis() ;
     
     des_coupe_bin_z (dessin_un, dessin_deux, 0, 
-	-ta, ta, -ta, ta, "A\\uXY\\d (Z=0)", &surface_un, &surface_deux, false
-	, 15, 300, 300) ;    
+	-ta, ta, -ta, ta, "A\\uYY\\d (Z=0)", &surface_un, &surface_deux, false
+	, 20, 300, 300) ;    
+
+
+    dessin_un = aa_auto_un(3, 3) ;
+    dessin_un.annule(0) ;
+    dessin_un.dec2_dzpuis() ;
+    
+    dessin_deux = aa_auto_deux(3, 3) ;
+    dessin_deux.annule(0) ;
+    dessin_deux.dec2_dzpuis() ;
+    
+    des_coupe_bin_z (dessin_un, dessin_deux, 0, 
+	-ta, ta, -ta, ta, "A\\uZZ\\d (Z=0)", &surface_un, &surface_deux, false
+	, 20, 300, 300) ;    
 
     return 1; 
 }
