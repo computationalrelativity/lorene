@@ -26,6 +26,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/11/16 17:11:59  e_gourgoulhon
+ * Added fij.std_spectral_base() (although not necessary in the
+ *  present case)
+ * Modified some comments.
+ *
  * Revision 1.1  2005/11/16 09:46:30  e_gourgoulhon
  * Added demo_tensor.C
  *
@@ -124,6 +129,10 @@ int main() {
     fij.set(2,2) = 1 ; 
     fij.set(2,3) = 0 ; 
     fij.set(3,3) = 1 ; 
+
+    fij.std_spectral_base() ;  // Standar polynomial bases will be used 
+                                // to perform the spectral expansions
+
      
     // Components of the physical metric in an orthonormal
     // spherical frame
@@ -156,12 +165,10 @@ int main() {
     Sym_tensor tens1 = gam.ricci() ; 
 
     const Sym_tensor& tens2 = gam.ricci() ; // same as before except that 
-                                            // 1) no memory is allocated for a
+                                            // no memory is allocated for a
                                             //    new tensor: tens2 is merely 
                                             //    a non-modifiable reference to
                                             //    the Ricci tensor of gam
-                                            // 2) tens2 will be automatically
-                                            //    updated if gam is changed
                                             
     // Plot of tens1
     
@@ -175,9 +182,8 @@ int main() {
     const Tensor& tens4 = vv.derive_cov(gam) ; 
     
     // the reference tens4 is preferable over the new object tens3 if you do
-    // not intend to modify tens4, because it does not perform any
-    // memory allocation for a tensor. Moreover, tens4 will be automatically
-    // update if vv is changed
+    // not intend to modify tens4 or vv, because it does not perform any
+    // memory allocation for a tensor. 
 
     // Raising an index with the metric gam :
     
