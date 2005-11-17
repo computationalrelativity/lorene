@@ -30,6 +30,10 @@ char kerrschild_ah_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/11/17 14:27:51  lm_lin
+ *
+ * Modified according to the latest changes in the AH finder.
+ *
  * Revision 1.1  2005/10/13 08:53:22  j_novak
  * Main program to test the apparent horizon finder.
  *
@@ -51,8 +55,8 @@ char kerrschild_ah_C[] = "$Header$" ;
 int main() {
 
   const int nz = 3 ; // Number of domains
-  int nr = 33 ; // Number of collocation points in r in each domain
-  int nt = 33 ; // Number of collocation points in theta in each domain
+  int nr = 17 ; // Number of collocation points in r in each domain
+  int nt = 17 ; // Number of collocation points in theta in each domain
   int np = 4 ; // 4 points in phi for rotation to/from cartesian components
       
   int symmetry_theta = SYM ; // symmetry w.r.t. the equatoial plane
@@ -122,7 +126,8 @@ int main() {
   
   //Parameters to control the iteration
 
-  double tol = 1.e-12 ;
+  double tol = 1.e-10 ;
+  double tol_exp = 1.e-8 ;
   int it_max  = 100 ;  
   int it_relax = 100 ;
   double relax_fac = 1. ;
@@ -227,8 +232,7 @@ int main() {
     g_tmp.change_triad(bspher) ; 
     beta.change_triad(bspher) ;
 
-    gam_dd_in = g_tmp ;      // gam_2 is used in the iteration loop to define the 3-metric
-
+    gam_dd_in = g_tmp ;    
 
     const Metric gam_met(g_tmp) ;
 
@@ -328,12 +332,11 @@ int main() {
       Valeur h(g_angu) ;  // 2-surface of the apparent horizon
       h.annule_hard() ;
       Scalar exp_fcn(map_2) ; // expansion function
-      
-//      ah_finder(gamma, k_dd, h, exp_fcn, flag, aa, bb, cc) ;
+
 
       cout << " AH flag = " 
-	   << ah_finder(gamma, k_dd, h, exp_fcn, aa, bb, cc, tol, it_max, 
-			it_relax, relax_fac) << endl ;
+	   << ah_finder(gamma, k_dd, h, exp_fcn, aa, bb, cc, tol, tol_exp,
+			it_max, it_relax, relax_fac) << endl ;
 
 
       // Test and analysis.....
