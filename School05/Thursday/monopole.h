@@ -46,7 +46,7 @@ class Monopole {
   Scalar get_small_h() const {return small_h ;} ; /// Return the field h
     
   // The numerical methods (at last) :
- private:
+ public:
   void init_big_W() ; /// Initialize big W to an initial guess
   
   void init_big_H() ; /// Initialize big H to an initial guess
