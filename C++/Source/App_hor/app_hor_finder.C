@@ -30,6 +30,11 @@ char app_hor_finder_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/11/17 14:20:43  lm_lin
+ *
+ * Check the expansion function evaluated on the apparent horizon after the
+ * iteration of the 2-surface converges.
+ *
  * Revision 1.1  2005/10/13 08:51:15  j_novak
  * New stuff for apparent horizon finder. For the moment, there is only an
  * external function. A class should come soon...
@@ -50,8 +55,8 @@ char app_hor_finder_C[] = "$Header$" ;
 
 
 bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& ex_fcn,
-	       double a_axis, double b_axis, double c_axis, double tol, int it_max, 
-	       int it_relax, double relax_fac)
+	       double a_axis, double b_axis, double c_axis, double tol, double tol_exp,
+	       int it_max, int it_relax, double relax_fac)
 {
 
     bool ah_flag = false ;
@@ -143,6 +148,10 @@ bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& e
   Scalar ex_fcn_old(map) ;
   ex_fcn_old.set_etat_zero() ;
 
+  // The expansion function evaulated on the 2 surface h
+  Valeur ex_AH(g_angu) ;
+  ex_AH.annule_hard() ;
+
   // Normal unit vector of the level set surface F = r - h(\theta,phi)
   Vector s_unit(map, CON, bspher) ; 
 
@@ -150,6 +159,7 @@ bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& e
   //------------------------------------
 
   double precis = tol ;     // precision to quit the iteration
+  double precis_exp = tol_exp ;  // maximum error of the expansion on the AH
   int step_max = it_max ;   // maximum number of iteration
   int step_relax = it_relax ;  // number of iteration starting from which 
                                // to do relaxation
@@ -304,6 +314,7 @@ bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& e
 
     cout << "Difference in h : " << diff_h << endl ;
 
+
     if ( (step == step_max-1) && (max(diff_h) > precis) ) {
 
       cout << "###############################################" << endl ;
@@ -317,18 +328,55 @@ bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& e
   } // End of iteration
 
   //Done with the AH finder
-  if ( max(diff_h) < precis ) {
+
+
+
+  //Check: Evaluate the expansion function on the 2-surface
+
+    for (int l=0; l<nz; l++) {
+
+      int jmax = mg->get_nt(l) ;
+      int kmax = mg->get_np(l) ;
+
+      for (int k=0; k<kmax; k++) {
+	for (int j=0; j<jmax; j++) {
+
+	  ex_AH.set(l,k,j,0) = ex_fcn.val_point(h(l,k,j,0),(+theta)(l,k,j,0)
+						     ,(+phi)(l,k,j,0))  ;  
+	}
+      }
+    }
+
+
+
+  if ( (max(diff_h) < precis) && (max(ex_AH(0)) < precis_exp) ) {
 
       ah_flag = true ; 
 
     cout << "  " << endl ;
     cout << "################################################" << endl ;
-    cout << "      AH finder: Apparent horizon found!!!      " << endl ;
+    cout << " AH finder: Apparent horizon found!!!      " << endl ;
+    cout << " Max error of the expansion function on h: " << endl ;
+    cout << " max( expansion function on AH ) = " << max(ex_AH(0)) << endl ; 
     cout << "################################################" << endl ;
     cout << " " << endl ;
 
+
   }
 
+  if ( (max(diff_h) < precis) && (max(ex_AH(0)) > precis_exp) ) {
+
+
+    cout << " " << endl ;
+    cout << "#############################################" << endl ;
+    cout << " AH finder: convergence in the 2 surface h.   " << endl ;
+    cout << " But max error of the expansion function evaulated on h > precis_exp"  << endl ;
+    cout << "   max( expansion function on AH ) =  " << max(ex_AH(0)) << endl ;
+    cout << " Probably not an apparent horizon! " << endl ;
+    cout << "#############################################" << endl ;
+    cout << "   " << endl ;
+
+  }
 
   return ah_flag ;
   

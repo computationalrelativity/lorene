@@ -30,6 +30,11 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/11/17 14:19:49  lm_lin
+ *
+ * Check the expansion function evaluated on the apparent horizon after the
+ * iteration of the 2-surface converges.
+ *
  * Revision 1.1  2005/10/13 08:51:14  j_novak
  * New stuff for apparent horizon finder. For the moment, there is only an
  * external function. A class should come soon...
@@ -87,6 +92,9 @@
 	 * @param precis : [input] threshold in the relative difference between 
 	 * the 2-surface \f$h\f$ of two consecutive steps to stop
 	 * the iterative procedure (default value: 1.e-8)
+	 * @param precis_exp : [input] maximum error of the expansion function evaluated on 
+	 * the 2-surface \f$h\f$ (should be zero by definition) after the iteration
+	 * is stopped (default value: 1.e-6)
 	 * @param it_max : [input] maximum number of steps (default value: 200)
 	 * @param it_relax : [input] step at which relaxation is switched on 
 	 *                   (default value: 200)
@@ -95,7 +103,8 @@
 	 * @return bool ah_flag : a flag to indicate whether an apparent horizon is found
 	 */
 bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd_in, Valeur& h, Scalar& ex_fcn,
-	       double a_axis, double b_axis, double c_axis, double precis = 1.e-8,  
+	       double a_axis, double b_axis, double c_axis, double precis = 1.e-8, 
+	       double precis_exp = 1.e-6,  
 	       int it_max = 200, int it_relax = 200, double relax_fac = 1.) ;
 		
 #endif
