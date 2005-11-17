@@ -26,6 +26,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/11/17 16:32:35  e_gourgoulhon
+ * Added test of ETATZERO and ETATUN cases.
+ *
  * Revision 1.1  2005/11/17 15:31:53  e_gourgoulhon
  * Code for testing Scalar / Mtbl (or Coord) new arithmetics.
  *
@@ -105,8 +108,8 @@ int main() {
     //bb.spectral_display() ; 
     
     Scalar bb0(map) ; 
-    bb0 = (1+y*y) * x ; 
 
+    bb0 = (1+y*y) * x ; 
     cout << "test Scalar * Coord : " << max(abs(bb-bb0)) << endl ;   
     
     bb = x * aa ; 
@@ -137,6 +140,150 @@ int main() {
     bb0 = (1+y*y) - x ; 
     cout << "test Scalar - Coord : " << max(abs(bb-bb0)) << endl ;   
     
+    
+    arrete() ; 
+    
+    // Special case ETATUN
+
+    cout << endl << "Special case ETATUN : " << endl ; 
+    aa.set_etat_one() ; 
+    bb = aa * x ; 
+    bb0 = x ; 
+    cout << "test Scalar(1) * Coord : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = x * aa ; 
+    bb0 = x ; 
+    cout << "test Coord * Scalar(1) : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = aa / (1+x*x) ; 
+    bb0 = 1 / (1+x*x) ; 
+    cout << "test Scalar(1) / Mtbl : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = x / aa ; 
+    bb0 = x  ; 
+    cout << "test Coord / Scalar(1) : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = x + aa ; 
+    bb0 = x + 1 ; 
+    cout << "test Coord + Scalar(1) : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = aa + x ; 
+    bb0 = x + 1 ; 
+    cout << "test Scalar(1) + Coord : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = x - aa ; 
+    bb0 = x - 1 ; 
+    cout << "test Coord - Scalar(1) : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = aa - x ; 
+    bb0 = 1 - x ; 
+    cout << "test Scalar(1) - Coord : " << max(abs(bb-bb0)) << endl ;   
+    
+
+    // Special case ETATZERO
+
+    cout << endl << "Special case ETATZERO : " << endl ; 
+    aa.set_etat_zero() ; 
+    bb = aa * x ; 
+    bb0 = 0 ; 
+    cout << "test Scalar(0) * Coord : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = x * aa ; 
+    bb0 = 0 ; 
+    cout << "test Coord * Scalar(0) : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = aa / (1+x*x) ; 
+    bb0 = 0 ; 
+    cout << "test Scalar(0) / Mtbl : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = x + aa ; 
+    bb0 = x  ; 
+    cout << "test Coord + Scalar(0) : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = aa + x ; 
+    bb0 = x  ; 
+    cout << "test Scalar(0) + Coord : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = x - aa ; 
+    bb0 = x  ; 
+    cout << "test Coord - Scalar(0) : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = aa - x ; 
+    bb0 =  - x ; 
+    cout << "test Scalar(0) - Coord : " << max(abs(bb-bb0)) << endl ;   
+    
+    arrete() ; 
+    
+    Mtbl mc(mgrid) ; 
+    mc.set_etat_zero() ; 
+
+    aa = 1 + y*y ;
+
+    bb = aa * mc ; 
+    bb0 = 0 ; 
+    cout << "test Scalar * Mtbl(0) : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = mc * aa ; 
+    bb0 = 0 ; 
+    cout << "test Mtbl(0) * Scalar : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = mc / aa ; 
+    bb0 = 0 ; 
+    cout << "test Mtbl(0) / Scalar : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = mc + aa ; 
+    bb0 = (1+y*y) ; 
+    cout << "test Mtbl(0) + Scalar : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = aa + mc ; 
+    bb0 =  (1+y*y) ; 
+    cout << "test Scalar + Mtbl(0) : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = mc - aa ; 
+    bb0 = - (1+y*y) ; 
+    cout << "test Mtbl(0) - Scalar : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = aa - mc ; 
+    bb0 = (1+y*y) ; 
+    cout << "test Scalar - Mtbl(0) : " << max(abs(bb-bb0)) << endl ;   
+
+    arrete() ;
+    
+    // Special case ETATUN
+
+    cout << endl << "Special case Scalar = ETATUN  and Mtbl = ETATZERO: " << endl ; 
+    aa.set_etat_one() ; 
+
+    bb = aa * mc ; 
+    bb0 = 0 ; 
+    cout << "test Scalar(1) * Mtbl(0) : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = mc * aa ; 
+    bb0 = 0 ; 
+    cout << "test Mtbl(0) * Scalar(1) : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = mc / aa ; 
+    bb0 = 0 ; 
+    cout << "test Mtbl(0) / Scalar(1) : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = mc + aa ; 
+    bb0 = 1 ; 
+    cout << "test Mtbl(0) + Scalar(1) : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = aa + mc ; 
+    bb0 =  1 ; 
+    cout << "test Scalar(1) + Mtbl(0) : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = mc - aa ; 
+    bb0 = - 1 ; 
+    cout << "test Mtbl(0) - Scalar(1) : " << max(abs(bb-bb0)) << endl ;   
+    
+    bb = aa - mc ; 
+    bb0 = 1 ; 
+    cout << "test Scalar(1) - Mtbl(0) : " << max(abs(bb-bb0)) << endl ;   
+
+
+
     return EXIT_SUCCESS ; 
 
 }
