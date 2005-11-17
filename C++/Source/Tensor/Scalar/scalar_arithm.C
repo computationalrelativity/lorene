@@ -4,7 +4,7 @@
  */
 
 /*
- *   Copyright (c) 2003 Eric Gourgoulhon & Jerome Novak
+ *   Copyright (c) 2003-2005 Eric Gourgoulhon & Jerome Novak
  *   Copyright (c) 1999-2001 Philippe Grandclement
  *
  *   This file is part of LORENE.
@@ -31,6 +31,9 @@ char scalar_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/11/17 15:30:11  e_gourgoulhon
+ * Added arithmetics with Mtbl.
+ *
  * Revision 1.7  2004/07/06 13:36:29  j_novak
  * Added methods for desaliased product (operator |) only in r direction.
  *
@@ -148,6 +151,50 @@ Scalar operator+(const Scalar & c1, const Scalar & c2) {
     return r ;
 }
 
+// Scalar + Mtbl
+// -------------
+Scalar operator+(const Scalar& c1, const Mtbl& mi) {
+    
+    if ((c1.get_etat() == ETATNONDEF) || (mi.get_etat() == ETATNONDEF)) {
+        cerr << "Undifined state in Scalar + Mtbl !" << endl ;
+        abort() ; 
+    }
+
+    // Cas particuliers
+
+    if (mi.get_etat() == ETATZERO) {
+	return c1 ;
+    }
+
+    assert( c1.check_dzpuis(0) ) ; 
+    
+    Scalar resu(c1) ;
+    
+    if (c1.get_etat() == ETATZERO) {
+	resu = mi ; 
+    }
+    else {
+      if (c1.get_etat() == ETATUN) {
+	resu = double(1) + mi ; 
+      }
+      else{ 
+	assert(resu.get_etat() == ETATQCQ) ; // sinon ...
+	resu.va = resu.va + mi ;
+      }
+    }
+     
+    resu.set_dzpuis(0) ; 
+       
+    return resu ;
+}
+
+// Mtbl + Scalar
+// -------------
+Scalar operator+(const Mtbl& mi, const Scalar& c1) {
+
+    return c1 + mi ; 
+}
+
 // Scalar + double
 // ------------
 Scalar operator+(const Scalar& t1, double x)	   
@@ -259,6 +306,46 @@ Scalar operator-(const Scalar & c1, const Scalar & c2) {
         
     // Termine
     return r ;
+}
+
+// Scalar - Mtbl
+// -------------
+Scalar operator-(const Scalar& t1, const Mtbl& mi) {
+
+    // Protections
+    assert(t1.get_etat() != ETATNONDEF) ;
+    
+    // Cas particuliers
+    if (mi.get_etat() == ETATZERO) {
+	return t1 ;
+    }
+
+    assert( t1.check_dzpuis(0) ) ; 
+    
+    Scalar resu(t1) ;
+    
+    if (t1.get_etat() == ETATZERO) {
+      resu = - mi ; 
+    }
+    else{
+      if (t1.get_etat() == ETATUN) {
+	resu = double(1) - mi ; 
+      }
+      else{ 
+	assert(resu.get_etat() == ETATQCQ) ; // sinon ...
+	resu.va = resu.va - mi ;
+      }
+    } 
+    resu.set_dzpuis(0) ; 
+
+    return resu ;
+}
+
+// Mtbl - Scalar  
+// -------------
+Scalar operator-(const Mtbl& mi, const Scalar& t1) {
+
+    return - (t1 - mi) ; 
 }
 
 // Scalar - double
@@ -427,8 +514,47 @@ Scalar operator|(const Scalar& c1, const Scalar& c2) {
 }
 
 
+// Mtbl * Scalar
+// -------------
 
+Scalar operator*(const Mtbl& mi, const Scalar& c1) {
 
+    // Particular cases 
+    if ((c1.get_etat() == ETATZERO) || (c1.get_etat() == ETATNONDEF)) {
+	return c1 ;
+    }
+
+    Scalar r(c1.get_mp()) ;
+    if (c1.get_etat() == ETATUN) {
+      r = mi ;
+    }
+    else {
+      assert(c1.get_etat() == ETATQCQ) ;  // sinon...
+      
+      // Cas general
+      r.set_dzpuis( c1.get_dzpuis() ) ;
+      
+      if ( mi.get_etat() == ETATZERO) {
+	r.set_etat_zero() ;
+      }
+      else {
+	r.set_etat_qcq() ;
+	r.va = mi * c1.va ;
+      }
+    }
+
+    // Termine
+    return r ;
+   
+}
+
+// Scalar * Mtbl
+// -------------
+
+Scalar operator*(const Scalar& c1, const Mtbl& mi) {
+
+    return mi * c1 ; 
+}
 
 // double * Scalar
 // ------------
@@ -536,6 +662,72 @@ Scalar operator/(const Scalar& c1, const Scalar& c2) {
     // Termine
     return r ;
 }
+
+// Scalar / Mtbl
+// -------------
+Scalar operator/(const Scalar& c1, const Mtbl& mi) {
+  
+    if (c1.get_etat() == ETATNONDEF) return c1 ;
+	
+    // Cas particuliers
+    if ( mi.get_etat() == ETATZERO ) {
+	cout << "Division by 0 in Scalar / Mtbl !" << endl ;
+	abort() ;
+    }
+    if (c1.get_etat() == ETATZERO) {
+	return c1 ;
+    }
+    Scalar r(c1.get_mp()) ;     // Le resultat
+
+    if (c1.get_etat() == ETATUN) {
+	r = double(1) / mi ;
+    }
+    else {
+      assert(c1.get_etat() == ETATQCQ) ;  // sinon...
+
+      r.set_etat_qcq() ;
+      r.va = c1.va / mi ;
+
+      r.set_dzpuis( c1.get_dzpuis() ) ;
+    }
+    // Termine
+    return r ;
+}
+
+
+// Mtbl / Scalar
+// -------------
+Scalar operator/(const Mtbl& mi, const Scalar& c2) {
+    
+    if (c2.get_etat() == ETATNONDEF) 
+	return c2 ;
+	
+    if (c2.get_etat() == ETATZERO) {
+	cout << "Division by 0 in Mtbl / Scalar !" << endl ;
+	abort() ; 
+    }
+    Scalar r(c2.get_mp()) ;     // Le resultat
+    if (c2.get_etat() == ETATUN) {
+      r = mi ;
+    }
+    else {
+      assert(c2.get_etat() == ETATQCQ) ;  // sinon...
+      
+      r.set_dzpuis( - c2.get_dzpuis() ) ;
+      
+      if ( mi.get_etat() == ETATZERO ) {
+	r.set_etat_zero() ;
+      }
+      else {
+	r.set_etat_qcq() ;
+	r.va = mi / c2.va ;
+      }
+    }
+
+    // Termine
+    return r ;
+}
+
 
 // Scalar / double
 // -------------

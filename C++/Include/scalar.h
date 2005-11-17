@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.74  2005/11/17 15:29:46  e_gourgoulhon
+ * Added arithmetics with Mtbl.
+ *
  * Revision 1.73  2005/10/25 08:56:34  p_grandclement
  * addition of std_spectral_base in the case of odd functions near the origin
  *
@@ -669,7 +672,10 @@ class Scalar : public Tensor {
    */
   const Scalar& dsdt() const ; 
   
-  /** Returns \f$\partial / \partial radial\f$ of \c *this .
+  /** Returns \f$\partial / \partial r\f$ of \c *this if the mapping is
+   * affine (class \c Map_af) and \f$\partial / \partial \ln r\f$ 
+   *  of \c *this if the mapping
+   * is logarithmic (class \c Map_log).
    *  If \c dzpuis  is zero, then the returned \c Scalar has 
    *  \c dzpuis  = 2. It is increased by 1 otherwise.
    */
@@ -1608,14 +1614,19 @@ class Scalar : public Tensor {
 
   friend Scalar operator-(const Scalar& ) ;			
   friend Scalar operator+(const Scalar&, const Scalar &) ;	
+  friend Scalar operator+(const Scalar&, const Mtbl&) ;	
   friend Scalar operator+(const Scalar&, double ) ;		
   friend Scalar operator-(const Scalar &, const Scalar &) ;
+  friend Scalar operator-(const Scalar&, const Mtbl&) ;	
   friend Scalar operator-(const Scalar&, double ) ;		
   friend Scalar operator*(const Scalar &, const Scalar &) ;
   friend Scalar operator%(const Scalar &, const Scalar &) ;
   friend Scalar operator|(const Scalar &, const Scalar &) ;
+  friend Scalar operator*(const Mtbl&, const Scalar &) ;		
   friend Scalar operator*(double, const Scalar &) ;		
   friend Scalar operator/(const Scalar &, const Scalar &) ;
+  friend Scalar operator/(const Scalar &, const Mtbl &) ;
+  friend Scalar operator/(const Mtbl &, const Scalar &) ;
   friend Scalar operator/(const Scalar&, double ) ;	       
   friend Scalar operator/(double, const Scalar &) ;
 
@@ -1654,11 +1665,15 @@ ostream& operator<<(ostream& , const Scalar & ) ;
 Scalar operator+(const Scalar& ) ;			///< + Scalar
 Scalar operator-(const Scalar& ) ;			///< \c - Scalar
 Scalar operator+(const Scalar&, const Scalar &) ;	///< Scalar + Scalar
+Scalar operator+(const Scalar&, const Mtbl&) ;	///< Scalar + Mbtl
+Scalar operator+(const Mtbl&, const Scalar&) ;	///< Mtbl + Scalar
 Scalar operator+(const Scalar&, double ) ;		///< Scalar + double
 Scalar operator+(double, const Scalar& ) ;		///< double + Scalar 
 Scalar operator+(const Scalar&, int ) ;		///< Scalar + int
 Scalar operator+(int, const Scalar& ) ;		///< int + Scalar 
 Scalar operator-(const Scalar &, const Scalar &) ;	///< Scalar - Scalar
+Scalar operator-(const Scalar&, const Mtbl&) ;	///< Scalar - Mbtl
+Scalar operator-(const Mtbl&, const Scalar&) ;	///< Mtbl - Scalar
 Scalar operator-(const Scalar&, double ) ;		///< Scalar - double
 Scalar operator-(double, const Scalar& ) ;		///< double - Scalar 
 Scalar operator-(const Scalar&, int ) ;		///< Scalar - int
@@ -1670,6 +1685,9 @@ Scalar operator%(const Scalar &, const Scalar &) ;
 
 /// Scalar * Scalar with desaliasing only in \e r
 Scalar operator|(const Scalar &, const Scalar &) ;
+
+Scalar operator*(const Mtbl&, const Scalar&) ; ///< Mtbl * Scalar
+Scalar operator*(const Scalar&, const Mtbl&) ; ///< Scalar * Mtbl
 	
 Scalar operator*(const Scalar&, double ) ;		///< Scalar * double
 Scalar operator*(double, const Scalar &) ;		///< double * Scalar
@@ -1680,6 +1698,9 @@ Scalar operator/(const Scalar&, double ) ;		///< Scalar / double
 Scalar operator/(double, const Scalar &) ;		///< double / Scalar
 Scalar operator/(const Scalar&, int ) ;		///< Scalar / int
 Scalar operator/(int, const Scalar &) ;		///< int / Scalar
+Scalar operator/(const Scalar &, const Mtbl&) ; ///< Scalar / Mtbl  
+Scalar operator/(const Mtbl&, const Scalar &) ; ///< Mtbl / Scalar
+	
 
 Scalar sin(const Scalar& ) ;		///< Sine
 Scalar cos(const Scalar& ) ;		///< Cosine
