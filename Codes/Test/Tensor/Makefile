@@ -39,6 +39,10 @@ SRC8 = test_sym_tensor_decomp.C
 OBJ8 = $(SRC8:.C=.o)
 EXE8 = $(SRC8:.C=)
 
+SRC9 = test_scalar_mtbl.C
+OBJ9 = $(SRC9:.C=.o)
+EXE9 = $(SRC9:.C=)
+
 
 $(EXE1): $(OBJ1) $(LIBLOR) 
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
@@ -69,13 +73,17 @@ $(EXE8): $(OBJ8) $(LIBLOR)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ8) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
-all: $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5) $(EXE6) $(EXE7) $(EXE8)
+$(EXE9): $(OBJ9) $(LIBLOR) 
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ9) $(LIB_G) $(LIB_LAPACK) \
+					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
+
+all: $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5) $(EXE6) $(EXE7) $(EXE8) $(EXE9)
 
 
 .C.o:
 	$(CXX)  -c $(CXXFLAGS_G) $(INC) $<
 
 uninstall:
-	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5) $(OBJ6) $(OBJ7) $(OBJ8)
-	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5) $(EXE6) $(EXE7) $(EXE8)
+	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5) $(OBJ6) $(OBJ7) $(OBJ8) $(OBJ9)
+	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5) $(EXE6) $(EXE7) $(EXE8) $(EXE9)
 
