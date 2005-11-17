@@ -30,6 +30,10 @@ char app_hor_finder_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/11/17 15:53:28  lm_lin
+ *
+ * A tiny fix.
+ *
  * Revision 1.2  2005/11/17 14:20:43  lm_lin
  *
  * Check the expansion function evaluated on the apparent horizon after the
@@ -349,7 +353,7 @@ bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& e
 
 
 
-  if ( (max(diff_h) < precis) && (max(ex_AH(0)) < precis_exp) ) {
+  if ( (max(diff_h) < precis) && (max(abs(ex_AH(0))) < precis_exp) ) {
 
       ah_flag = true ; 
 
@@ -357,21 +361,21 @@ bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& e
     cout << "################################################" << endl ;
     cout << " AH finder: Apparent horizon found!!!      " << endl ;
     cout << " Max error of the expansion function on h: " << endl ;
-    cout << " max( expansion function on AH ) = " << max(ex_AH(0)) << endl ; 
+    cout << " max( expansion function on AH ) = " << max(abs(ex_AH(0))) << endl ; 
     cout << "################################################" << endl ;
     cout << " " << endl ;
 
 
   }
 
-  if ( (max(diff_h) < precis) && (max(ex_AH(0)) > precis_exp) ) {
+  if ( (max(diff_h) < precis) && (max(abs(ex_AH(0))) > precis_exp) ) {
 
 
     cout << " " << endl ;
     cout << "#############################################" << endl ;
     cout << " AH finder: convergence in the 2 surface h.   " << endl ;
     cout << " But max error of the expansion function evaulated on h > precis_exp"  << endl ;
-    cout << "   max( expansion function on AH ) =  " << max(ex_AH(0)) << endl ;
+    cout << "   max( expansion function on AH ) =  " << max(abs(ex_AH(0))) << endl ;
     cout << " Probably not an apparent horizon! " << endl ;
     cout << "#############################################" << endl ;
     cout << "   " << endl ;
