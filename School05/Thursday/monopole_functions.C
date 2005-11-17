@@ -9,9 +9,9 @@ void Monopole::init_big_W() {
   double rlim = mp.val_r (0,1,0,0) ;
  
   big_W.allocate_all() ;
-  for (int i=0 ; i<nz-1 ; i++)
-       big_W.set_domain(i) =  (1-0.5*radius*radius/rlim/rlim).domain(i) ;
-  big_W.set_domain(nz-1) = (0.5*exp(-(radius-rlim)/rlim)).domain(nz-1) ;
+  //for (int i=0 ; i<nz-1 ; i++)
+       big_W.set_domain(0) =  (1-0.5*radius*radius/rlim/rlim).domain(0) ;
+  for (int i=1 ; i<nz ; i++) big_W.set_domain(i) = (0.5*exp(-(radius-rlim)/rlim)).domain(i) ;
   
   big_W.std_spectral_base() ;
 }
