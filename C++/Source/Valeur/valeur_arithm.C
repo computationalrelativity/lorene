@@ -5,8 +5,9 @@
 
 /*
  *   Copyright (c) 1999-2000 Jean-Alain Marck
- *   Copyright (c) 1999-2001 Eric Gourgoulhon
+ *   Copyright (c) 1999-2005 Eric Gourgoulhon
  *   Copyright (c) 1999-2001 Philippe Grandclement
+ *   Copyright (c) 2004 Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -32,6 +33,9 @@ char valeur_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/11/17 15:19:23  e_gourgoulhon
+ * Added Valeur + Mtbl and Valeur - Mtbl.
+ *
  * Revision 1.3  2004/07/06 13:36:30  j_novak
  * Added methods for desaliased product (operator |) only in r direction.
  *
@@ -225,6 +229,42 @@ Valeur operator+(const Valeur& t1, const Valeur& t2)
     return resu ;
 }
 
+// Valeur + Mtbl
+// -------------
+Valeur operator+(const Valeur& t1, const Mtbl& mi)	   
+{
+    // Protections
+    assert(t1.get_etat() != ETATNONDEF) ;
+    assert(mi.get_etat() != ETATNONDEF) ;
+    
+    // Cas particuliers
+    if (mi.get_etat() == ETATZERO) {
+	return t1 ;
+    }
+
+    Valeur resu(t1) ;
+    
+    if (t1.get_etat() == ETATZERO) {
+	resu.set_etat_c_qcq() ;
+	*(resu.c) = mi ; 
+    }
+    else{ 
+	assert(resu.get_etat() == ETATQCQ) ; // sinon ...
+	resu.coef_i() ;	// l'addition se fait dans l'espace des configurations
+	resu.set_etat_c_qcq() ;
+	*(resu.c) += mi ;
+    }
+        
+    return resu ;
+}
+
+// Mtbl + Valeur 
+// -------------
+Valeur operator+(const Mtbl& mi, const Valeur& t1) {
+    return t1 + mi ; 
+}
+
+
 // Valeur + double
 // ---------------
 Valeur operator+(const Valeur& t1, double x)	   
@@ -334,6 +374,42 @@ Valeur operator-(const Valeur& t1, const Valeur& t2)
     }
 
     return resu ;
+}
+
+
+// Valeur - Mtbl
+// -------------
+Valeur operator-(const Valeur& t1, const Mtbl& mi)	   
+{
+    // Protections
+    assert(t1.get_etat() != ETATNONDEF) ;
+    assert(mi.get_etat() != ETATNONDEF) ;
+    
+    // Cas particuliers
+    if (mi.get_etat() == ETATZERO) {
+	return t1 ;
+    }
+
+    Valeur resu(t1) ;
+    
+    if (t1.get_etat() == ETATZERO) {
+	resu.set_etat_c_qcq() ;
+	*(resu.c) = - mi ; 
+    }
+    else{ 
+	assert(resu.get_etat() == ETATQCQ) ; // sinon ...
+	resu.coef_i() ;	// substraction in configuration space
+	resu.set_etat_c_qcq() ;
+	*(resu.c) -= mi ;
+    }
+        
+    return resu ;
+}
+
+// Mtbl - Valeur
+// -------------
+Valeur operator-(const Mtbl& mi, const Valeur& t1) {
+    return - (t1 - mi) ; 
 }
 
 // Valeur - double

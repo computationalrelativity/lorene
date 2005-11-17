@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2005/11/17 15:18:46  e_gourgoulhon
+ * Added Valeur + Mtbl and Valeur - Mtbl.
+ *
  * Revision 1.13  2005/10/25 08:56:34  p_grandclement
  * addition of std_spectral_base in the case of odd functions near the origin
  *
@@ -808,11 +811,15 @@ ostream& operator<<(ostream& , const Valeur& ) ;
 Valeur operator+(const Valeur& ) ;	///< + Valeur
 Valeur operator-(const Valeur& ) ;	///< \c - Valeur
 Valeur operator+(const Valeur&, const Valeur& ) ; ///< Valeur + Valeur
+Valeur operator+(const Valeur&, const Mtbl& ) ; ///< Valeur + Mtbl
+Valeur operator+(const Mtbl&, const Valeur& ) ; ///< Mtbl + Valeur
 Valeur operator+(const Valeur&, double ) ;	  ///< Valeur + double
 Valeur operator+(double, const Valeur& ) ;	  ///< double + Valeur 
 Valeur operator+(const Valeur&, int ) ;		  ///< Valeur + int
 Valeur operator+(int, const Valeur& ) ;		  ///< int + Valeur 
 Valeur operator-(const Valeur&, const Valeur& ) ; ///< Valeur - Valeur
+Valeur operator-(const Valeur&, const Mtbl& ) ; ///< Valeur - Mtbl
+Valeur operator-(const Mtbl&, const Valeur& ) ; ///< Mtbl - Valeur
 Valeur operator-(const Valeur&, double ) ;	  ///< Valeur - double
 Valeur operator-(double, const Valeur& ) ;	  ///< double - Valeur 
 Valeur operator-(const Valeur&, int ) ;		  ///< Valeur - int
@@ -832,7 +839,7 @@ Valeur operator*(int, const Valeur& ) ;		  ///< int * Valeur
 Valeur operator*(const Valeur& a, const Mtbl& b) ;	  ///< Valeur * Mtbl
 Valeur operator*(const Mtbl& b, const Valeur& a) ;	  ///< Mtbl * Valeur
 Valeur operator*(const Valeur& a, const Coord& c) ;  ///< Valeur * Coord
-Valeur operator*(const Coord& c, const Valeur& a) ;  ///< Coord * Coord
+Valeur operator*(const Coord& c, const Valeur& a) ;  ///< Coord * Valeur
 Valeur operator/(const Valeur& a, const Valeur& b) ; ///< Valeur / Valeur
 Valeur operator/(const Valeur&, double ) ;	  ///< Valeur / double
 Valeur operator/(double, const Valeur& ) ;	  ///< double / Valeur 
