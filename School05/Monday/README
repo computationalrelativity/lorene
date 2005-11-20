@@ -1,0 +1,28 @@
+ * This directory contains simple C++ classes, which are not part of
+ * the main LORENE library.
+ *
+ * These classes are intended to illustrate polynomial 
+ * approximation to functions (mainly interpolation on various
+ * grids). There are two families of classes:
+ *  -- Grid : grids as sampling of [-1,1], declared in the file grid.h
+ *  -- Ortho_poly : orthogonal polynomials, declared in the file 
+ *          ortho_poly.h 
+ *
+ * There are also some simple graphical routines (declared in the file
+ *  plot.h), which provides provides an interface to PGPLOT, in order
+ * to perform easily some drawings (X11, EPS or PNG). 
+ *
+ * The main codes are
+ *  -- es.C : test code for class Grid
+ *  -- runge.C : exhibition of Runge's phenomenon
+ *  -- cheby.C : Chebyshev expansions
+ *  -- legendre.C : Legendre expansions
+ *  -- interpole.C : comparison of various interpolations of a function
+ *  -- approx_ortho.C : approximation of a function by orthogonal 
+ *                          polynomials
+ * 
+ 
+To generate the HTML documentation, simply type
+    make doc
+(this assumes that doxygen is installed on your system).
+Then open the file Doc/html/index.html in a web browser. 
