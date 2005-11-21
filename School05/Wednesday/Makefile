@@ -19,8 +19,17 @@ EXE3 = $(SRC3:.C=)
 SRC3 = demo_tensor.C
 OBJ3 = $(SRC3:.C=.o)
 
+EXE4 = $(SRC4:.C=)
+SRC4 = sol_fields.C
+OBJ4 = $(SRC4:.C=.o)
 
-all: $(EXE1) $(EXE2) $(EXE3)
+EXE5 = $(SRC5:.C=)
+SRC5 = sol_kerr.C
+OBJ5 = $(SRC5:.C=.o)
+
+exo: $(EXE1) $(EXE2) $(EXE3)
+sol: $(EXE4) $(EXE5)
+all: exo sol
 
 $(EXE1): $(OBJ1)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
@@ -35,12 +44,19 @@ $(EXE3): $(OBJ3)
 	$(LIB_PGPLOT) $(LIB_GSL) $(LIB_CXX) 
 	cp $(HOME_LORENE)/Visu/OpenDX/visu_section.net .
 
+$(EXE4): $(OBJ4)
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ4) $(LIB_G) $(LIB_LAPACK) \
+					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
+
+$(EXE5): $(OBJ5)
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ5) $(LIB_G) $(LIB_LAPACK) \
+					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
 .C.o:
 	$(CXX)  -c $(CXXFLAGS_G) $(INC) $<
 
 clean:
-	rm -f $(OBJ1) $(OBJ2) $(OBJ3)
-	rm -f $(EXE1) $(EXE2) $(EXE3)
+	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5)
+	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5)
 
 
