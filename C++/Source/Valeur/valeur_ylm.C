@@ -34,6 +34,9 @@ char valeur_ylm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/11/22 10:13:44  p_grandclement
+ * Correction of the normalization in the case nt=1
+ *
  * Revision 1.7  2005/02/16 15:33:38  m_forot
  * Correct the case T_LEG
  *
@@ -109,6 +112,7 @@ char valeur_ylm_C[] = "$Header$" ;
 // headers du C
 #include <assert.h>
 #include <stdlib.h>
+#include <math.h>
 
 // headers Lorene
 #include "type_parite.h"
@@ -205,8 +209,11 @@ void Valeur::ylm() {
 
 // Nouvelle base : 
 		base.b[l] = ( vbase_p | nouv_base_t[vbase_t_tra] ) | vbase_r ;
-		if (get_mg()->get_nt(l)==1)
-		    continue ;
+		if (get_mg()->get_nt(l)==1) {
+		      *c_cf->t[l] *=sqrt(2.) ;
+		      continue ;
+		      }
+		 
 //... tbl contenant les coefficients dans la zone l : 
 		Tbl* cf =  c_cf->t[l]  ;
 
