@@ -4,6 +4,8 @@
 
 ******************************************************************************/
 
+#include <math.h>
+
 // Lorene headers
 #include "tensor.h"
 #include "utilitaires.h"

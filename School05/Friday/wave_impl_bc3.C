@@ -1,3 +1,5 @@
+#include <math.h>
+
 // Lorene headers
 #include "metric.h"
 #include "proto.h"
