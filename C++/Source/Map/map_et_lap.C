@@ -30,6 +30,9 @@ char map_et_lap_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/11/24 09:25:07  j_novak
+ * Added the Scalar version for the Laplacian
+ *
  * Revision 1.2  2003/10/15 16:03:37  j_novak
  * Added the angular Laplace operator for Scalar.
  *
@@ -60,11 +63,116 @@ char map_et_lap_C[] = "$Header$" ;
  */
 
 // Header Lorene
-#include "map.h"
 #include "cmp.h" 
 #include "tensor.h"
-#include "type_parite.h" 
 
+
+// Laplacian: Scalar version
+void Map_et::laplacien(const Scalar& uu, int zec_mult_r, Scalar& resu) const {
+ 
+    assert (uu.get_etat() != ETATNONDEF) ; 
+    assert (uu.get_mp().get_mg() == mg) ; 
+
+    // Particular case of null value:
+
+    if ((uu.get_etat() == ETATZERO) || (uu.get_etat() == ETATUN)) {
+	resu.set_etat_zero() ; 
+	return ; 
+    }
+
+    assert( uu.get_etat() == ETATQCQ ) ; 
+    assert( uu.check_dzpuis(0) ) ; 
+    
+    int nz = get_mg()->get_nzone() ; 
+    int nzm1 = nz - 1 ;        
+
+    // Indicator of existence of a compactified external domain
+    bool zec = false ; 		
+    if (mg->get_type_r(nzm1) == UNSURR) {
+	zec = true ;
+    }
+     
+    if ( zec && (zec_mult_r != 4) ) {
+	cout << "Map_et::laplacien : the case zec_mult_r = " << 
+		zec_mult_r << " is not implemented !" << endl ; 
+	abort() ; 
+    }
+ 
+    //--------------------
+    // First operations
+    //--------------------
+    
+    Valeur duudx = uu.get_spectral_va().dsdx() ;	    // d/dx 
+    Valeur d2uudx2 = uu.get_spectral_va().d2sdx2() ;	    // d^2/dx^2
+
+    const Valeur& d2uudtdx = duudx.dsdt() ;	    // d^2/dxdtheta
+
+    const Valeur& std2uudpdx = duudx.stdsdp() ;    // 1/sin(theta) d^2/dxdphi   
+
+    //------------------
+    // Angular Laplacian 
+    //------------------
+    
+    Valeur sxlapang = uu.get_spectral_va() ; 
+
+    sxlapang.ylm() ; 
+    
+    sxlapang = sxlapang.lapang() ;    
+    
+    sxlapang = sxlapang.sx() ;	  // 1/x    in the nucleus
+				  // Id	    in the shells
+				  // 1/(x-1) in the ZEC
+    
+    //------------------------------------
+    // (2 dx/dR d/dx + x/R 1/x Lap_ang)/x
+    //------------------------------------
+
+    Valeur varduudx = duudx ; 
+
+    if (zec) {
+	varduudx.annule(nzm1) ;	    // term in d/dx set to zero in the ZEC
+    }
+
+    resu.set_etat_qcq() ; 
+    
+    Valeur& vresu = resu.set_spectral_va() ; 
+
+    Base_val sauve_base = varduudx.base ; 
+    
+    vresu = double(2) * dxdr * varduudx + xsr * sxlapang ; 
+
+    vresu.set_base(sauve_base) ; 
+
+    vresu = vresu.sx() ; 
+
+    //--------------
+    // Final result
+    //--------------
+
+    Mtbl unjj = double(1) + srdrdt*srdrdt + srstdrdp*srstdrdp ;
+
+    sauve_base = d2uudx2.base ; 
+//    assert(sauve_base == vresu.base) ;  // this is not necessary true
+    
+    vresu = dxdr*dxdr * unjj * d2uudx2 + xsr * vresu 
+		- double(2) * dxdr * (	sr2drdt * d2uudtdx 
+			      + sr2stdrdp * std2uudpdx ) ;
+
+    vresu += - dxdr * ( lapr_tp + dxdr * ( 
+		dxdr* unjj * d2rdx2 
+		- double(2) * ( sr2drdt * d2rdtdx  + sr2stdrdp * sstd2rdpdx ) ) 
+				 ) * duudx ;		    
+
+    vresu.set_base(sauve_base) ; 
+
+    if (zec == 1) {
+	resu.set_dzpuis(zec_mult_r) ; 
+    }
+
+}
+
+
+// Laplacian: Cmp version
 void Map_et::laplacien(const Cmp& uu, int zec_mult_r, Cmp& resu) const {
  
     assert (uu.get_etat() != ETATNONDEF) ; 

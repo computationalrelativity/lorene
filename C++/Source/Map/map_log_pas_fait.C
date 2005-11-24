@@ -32,6 +32,9 @@ char map_log_pas_fait_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/11/24 09:25:07  j_novak
+ * Added the Scalar version for the Laplacian
+ *
  * Revision 1.4  2005/08/25 12:14:09  p_grandclement
  * Addition of a new method to solve the scalar Poisson equation, based on a multi-domain Tau-method
  *
@@ -108,6 +111,10 @@ void pas_fait() {
 }
 
  void Map_log::laplacien (const Cmp&, int, Cmp&) const {
+  pas_fait() ;
+}
+
+ void Map_log::laplacien (const Scalar&, int, Scalar&) const {
   pas_fait() ;
 }
 

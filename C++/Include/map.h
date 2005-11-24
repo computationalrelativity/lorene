@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.44  2005/11/24 09:25:06  j_novak
+ * Added the Scalar version for the Laplacian
+ *
  * Revision 1.43  2005/09/15 15:51:25  j_novak
  * The "rotation" (change of triad) methods take now Scalars as default
  * arguments.
@@ -959,7 +962,7 @@ class Map {
 	virtual void stdsdp(const Scalar& uu, Scalar& resu) const = 0 ;  	    
 
 	/** Computes the Laplacian of a scalar field.
-	 *   @param uu	[input]  Scalar field \e u  (represented as a \c Cmp )
+	 *   @param uu	[input]  Scalar field \e u  (represented as a \c Scalar )
 	 *			 the Laplacian \f$\Delta u\f$ of which is to be computed
 	 *   @param zec_mult_r [input] Determines the quantity computed in
 	 *			 the  compactified external domain (CED) :  \\
@@ -968,6 +971,10 @@ class Map {
 	 *		    zec_mult_r = 4 (default) : \f$r^4 \, \Delta u\f$	
 	 *   @param lap [output] Laplacian of \e u 
 	 */
+	virtual void laplacien(const Scalar& uu, int zec_mult_r, 
+			       Scalar& lap) const = 0 ; 
+	
+	/// Computes the Laplacian of a scalar field (\c Cmp version).
 	virtual void laplacien(const Cmp& uu, int zec_mult_r, 
 			       Cmp& lap) const = 0 ; 
 	
@@ -2102,18 +2109,21 @@ class Map_af : public Map_radial {
 	virtual void stdsdp(const Scalar& uu, Scalar& resu) const ;  	    
 
 	/** Computes the Laplacian of a scalar field.
-	 *   @param uu	[input]  Scalar field \e u  (represented as a \c Cmp)
+	 *   @param uu	[input]  Scalar field \e u  (represented as a \c Scalar )
 	 *			 the Laplacian \f$\Delta u\f$ of which is to be computed
 	 *   @param zec_mult_r [input] Determines the quantity computed in
 	 *			 the  compactified external domain (CED) :  \\
 	 *		    zec_mult_r = 0 : \f$\Delta u\f$	\\
 	 *		    zec_mult_r = 2 : \f$r^2 \,  \Delta u\f$	\\
 	 *		    zec_mult_r = 4 (default) : \f$r^4 \, \Delta u\f$	
-	 *  @param lap [output] Laplacian of \e u 
+	 *   @param lap [output] Laplacian of \e u 
 	 */
-	virtual void laplacien(const Cmp& uu, int zec_mult_r, Cmp& lap) const ; 
+	virtual void laplacien(const Scalar& uu, int zec_mult_r, 
+			       Scalar& lap) const ; 
 	
-	
+	/// Computes the Laplacian of a scalar field (\c Cmp version).
+	virtual void laplacien(const Cmp& uu, int zec_mult_r, 
+			       Cmp& lap) const  ; 
 	
 	/** Computes the angular Laplacian of a scalar field.
 	 *   @param uu	[input]  Scalar field \e u  (represented as a \c Scalar)
@@ -2954,17 +2964,21 @@ class Map_et : public Map_radial {
 	virtual void stdsdp(const Scalar& uu, Scalar& resu) const ;  	    
 
 	/** Computes the Laplacian of a scalar field.
-	 *   @param uu	[input]  Scalar field \e u  (represented as a \c Cmp)
+	 *   @param uu	[input]  Scalar field \e u  (represented as a \c Scalar )
 	 *			 the Laplacian \f$\Delta u\f$ of which is to be computed
 	 *   @param zec_mult_r [input] Determines the quantity computed in
 	 *			 the  compactified external domain (CED) :  \\
 	 *		    zec_mult_r = 0 : \f$\Delta u\f$	\\
 	 *		    zec_mult_r = 2 : \f$r^2 \,  \Delta u\f$	\\
 	 *		    zec_mult_r = 4 (default) : \f$r^4 \, \Delta u\f$	
-	 *  @param lap [output] Laplacian of \e u 
+	 *   @param lap [output] Laplacian of \e u 
 	 */
-	virtual void laplacien(const Cmp& uu, int zec_mult_r, Cmp& lap) const ; 
+	virtual void laplacien(const Scalar& uu, int zec_mult_r, 
+			       Scalar& lap) const ; 
 	
+	/// Computes the Laplacian of a scalar field (\c Cmp version).
+	virtual void laplacien(const Cmp& uu, int zec_mult_r, 
+			       Cmp& lap) const  ; 
 	
 	/** Computes the angular Laplacian of a scalar field.
 	 *   @param uu	[input]  Scalar field \e u  (represented as a \c Scalar)
@@ -3525,6 +3539,7 @@ class Map_log : public Map_radial {
 	virtual void srstdsdp (const Scalar&, Scalar&) const ;/// < Not implemented
 	virtual void dsdt (const Scalar&, Scalar&) const ;/// < Not implemented
 	virtual void stdsdp (const Scalar&, Scalar&) const ;/// < Not implemented
+	virtual void laplacien (const Scalar&, int, Scalar&) const ;/// < Not implemented
 	virtual void laplacien (const Cmp&, int, Cmp&) const ;/// < Not implemented
 	virtual void lapang (const Scalar&, Scalar&) const ;/// < Not implemented
 	virtual Tbl* integrale (const Cmp&) const ;/// < Not implemented

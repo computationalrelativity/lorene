@@ -34,6 +34,9 @@ char scalar_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2005/11/24 09:25:08  j_novak
+ * Added the Scalar version for the Laplacian
+ *
  * Revision 1.16  2005/09/15 15:51:27  j_novak
  * The "rotation" (change of triad) methods take now Scalars as default
  * arguments.
@@ -443,18 +446,9 @@ const Scalar& Scalar::laplacian(int zec_mult_r) const {
 	    delete p_lap ;  // the Laplacian had been computed but with
 			    //  a different value of zec_mult_r
 	}
-	if (etat == ETATUN) {
-	  p_lap = new Scalar(*mp) ;
-	  p_lap->set_etat_zero() ;
-	  ind_lap = zec_mult_r ;
-	}
-	else {
-	  Cmp orig(*this) ;
-	  Cmp laplace(mp) ;
-	  mp->laplacien(orig, zec_mult_r, laplace) ;
-	  p_lap = new Scalar(laplace) ;
-	  ind_lap = zec_mult_r ;
-	}
+	p_lap = new Scalar(*mp) ;
+	mp->laplacien(*this, zec_mult_r, *p_lap) ;
+	ind_lap = zec_mult_r ;
     }
     
     return *p_lap ;

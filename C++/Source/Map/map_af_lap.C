@@ -28,6 +28,9 @@ char map_af_lap_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/11/24 09:25:06  j_novak
+ * Added the Scalar version for the Laplacian
+ *
  * Revision 1.4  2003/10/15 16:03:37  j_novak
  * Added the angular Laplace operator for Scalar.
  *
@@ -113,7 +116,7 @@ char map_af_lap_C[] = "$Header$" ;
 
 
 /*
- *  Calcul du laplacien d'un Cmp f dans le cas ou le mapping
+ *  Calcul du laplacien d'un Scalar ou Cmp f dans le cas ou le mapping
  *  (coordonnees-grille) --> (coordonnees physiques) est affine. 
  *  Le Laplacien est calcule suivant l'equation:
  * 
@@ -148,7 +151,7 @@ char map_af_lap_C[] = "$Header$" ;
  *
  * Entree:
  * ------
- *  const Cmp& uu :	    champ f dont on veut calculer le laplacien
+ *  const Scalar& / Cmp& uu :	    champ f dont on veut calculer le laplacien
  *			    
  *
  *  int zec_mult_r :	    drapeau indiquant la quantite calculee dans la ZEC:
@@ -157,9 +160,201 @@ char map_af_lap_C[] = "$Header$" ;
  *			     zec_mult_r = 4  : lapff = r^4 Lap(f)
  * Sortie:
  * ------
- *   Cmp& resu :	 Lap(f)
+ *   Scalar& / Cmp& resu :	 Lap(f)
  *
  */
+
+               //**********************
+               //    Scalar version
+               //**********************
+
+void Map_af::laplacien(const Scalar& uu, int zec_mult_r, Scalar& resu) const {
+ 
+    assert (uu.get_etat() != ETATNONDEF) ; 
+    assert (uu.get_mp().get_mg() == mg) ; 
+
+    // Particular case of null value:
+
+    if ((uu.get_etat() == ETATZERO) || (uu.get_etat() == ETATUN) ) {
+	resu.set_etat_zero() ; 
+	return ; 
+    }
+
+    assert( uu.get_etat() == ETATQCQ ) ; 
+    assert( uu.check_dzpuis(0) ) ; 
+    resu.set_etat_qcq() ;    
+
+    int nz = get_mg()->get_nzone() ; 
+    int nzm1 = nz - 1 ;        
+
+    // On recupere les bases d'entree : 
+    Base_val base_entree =  uu.get_spectral_base()  ;
+    
+    // Separation zones internes / ZEC :
+    Scalar uuext(uu) ; 
+    
+    Valeur ff = uu.get_spectral_va() ;
+
+    if (get_mg()->get_type_r(nzm1) == UNSURR) {  // il existe une ZEC
+	uuext.annule(0, nzm1-1) ;
+	ff.annule(nzm1) ;
+    }
+    else {
+	uuext.set_etat_zero() ;		// pas de ZEC
+    }
+
+
+    //=========================================================================
+    // Calcul dans les zones internes (noyau + coquilles)
+    //=========================================================================
+
+	//----------------------------
+	// Derivations par rapport a x  
+	//----------------------------
+
+	Valeur d2ff = ff.d2sdx2() ;		    // d^2/dx^2  partout 
+	
+	Valeur dff = ff.dsdx() ;		    // d/dx partout
+
+	//---------------------------
+	// Calcul de 1/x Lap_ang(f) ---> resultat dans ff
+	//---------------------------
+
+	//... Passage en harmoniques spheriques
+	ff.coef() ;     
+	ff.ylm() ;		
+
+	//... Multiplication par -l*(l+1)  
+	ff = ff.lapang() ; 
+
+	//... Division par x:    
+	ff = ff.sx() ;		// 1/x	     ds. le noyau
+				// Id	     ds. les coquilles
+    
+	//----------------------------------------------
+	// On repasse dans l'espace des configurations 
+	//  pour effectuer les multiplications par 
+	//  les derivees du chgmt. de var. 
+	//----------------------------------------------
+
+	d2ff.coef_i() ;
+	dff.coef_i() ;
+	ff.coef_i() ;
+	
+	
+	//-----------------------------------------------
+	//  Calcul de 1/x ( 2 df/dr + 1/r Lap_ang(f) ) 
+	//  Le resultat est mis dans ff
+	//-----------------------------------------------
+
+	Base_val sauve_base = dff.base ;
+	ff = double(2) * ( dxdr * dff)  + xsr * ff ; 
+	ff.base = sauve_base ;
+				
+	ff = ff.sx() ;	    // 1/x	     ds. le noyau
+			    // Id	     ds. les coquilles
+	ff.coef_i() ;
+
+	//---------------------------------------------
+	// Calcul de Lap(f) suivant l'Eq. (1)
+	//  Le resultat est mis dans ff
+	//-----------------------------------------------
+	
+	sauve_base = d2ff.base ;
+	ff = dxdr * dxdr * d2ff + xsr * ff ;
+	ff.base = sauve_base ;
+	
+
+    if (get_mg()->get_type_r(nzm1) == UNSURR) {  // il existe une ZEC
+
+    //=========================================================================
+    // Calcul dans la ZEC
+    //=========================================================================
+ 
+	    Valeur& ffext = uuext.set_spectral_va() ;
+ 
+	    //----------------------------
+	    // Derivation par rapport a x  
+	    //----------------------------
+	    
+	    d2ff = ffext.d2sdx2() ;	    // d^2/dx^2  partout 
+	    
+	    //---------------------------
+	    // Calcul de Lap_ang(f) ---> resultat dans ffext
+	    //---------------------------
+
+	    //... Passage en harmoniques spheriques    
+	    ffext.coef() ; 
+	    ffext.ylm() ;		
+
+	    //... Multiplication par -l*(l+1)  
+	    
+	    ffext = ffext.lapang() ; 
+	    
+	    switch (zec_mult_r) {
+		
+		case 0 : {	// calcul de Lap(f) suivant l'Eq. (4)
+		    
+		    d2ff.mult2_xm1_zec() ;	// multiplication de d^2f/dx^2 
+						//  par (x-1)^2
+		    
+		    sauve_base = ffext.base ;
+		    ffext = dxdr * dxdr / (xsr*xsr) * d2ff + ffext ; 
+		    ffext.base = sauve_base ;
+		    
+		    ffext.mult2_xm1_zec() ;	// multiplication par (x-1)^2
+		    ffext.coef_i() ; 
+		    sauve_base = ffext.base ;
+		    ffext = ffext / (xsr*xsr) ; 		    
+		    ffext.base = sauve_base ;
+		    break ; 
+		}
+		
+		case 2 : {	// calcul de r^2 Lap(f) suivant l'Eq. (5)
+		    
+		    d2ff.mult2_xm1_zec() ;	// multiplication de d^2f/dx^2 
+						//  par (x-1)^2		    
+		    sauve_base = ffext.base ;
+		    ffext = dxdr*dxdr / (xsr*xsr) * d2ff + ffext ;
+		    ffext.base = sauve_base ; 
+		    break ; 
+		}
+		
+		case 4 : {	// calcul de r^4 Lap(f) suivant l'Eq. (6)
+		    
+		    ffext = ffext.sx2() ; // division de Lap_ang(f) par (x-1)^2
+
+		    sauve_base = ffext.base ;
+		    ffext = dxdr*dxdr * d2ff + xsr*xsr * ffext ;
+		    ffext.base = sauve_base ;
+		    break ; 
+		}
+		
+		default : {
+		    cout << "Map_af::laplacien : unknown value of zec_mult_r !"
+			 << endl << " zec_mult_r = " << zec_mult_r << endl ; 
+		    abort() ; 
+		}
+	    }	// fin des differents cas pour zec_mult_r
+
+	// Resultat final
+
+	ff = ff + ffext ; 
+
+    } // fin du cas ou il existe une ZEC 
+    
+    // Les bases de sorties sont egales aux bases d'entree:
+    ff.base = base_entree ;
+    resu = ff ;
+    resu.set_dzpuis(zec_mult_r) ; 
+    
+}
+
+
+               //**********************
+               //     Cmp version
+               //**********************
+
 
 void Map_af::laplacien(const Cmp& uu, int zec_mult_r, Cmp& resu) const {
  
