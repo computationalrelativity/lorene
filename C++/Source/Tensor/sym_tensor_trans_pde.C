@@ -30,6 +30,9 @@ char sym_tensor_trans_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/11/24 14:07:54  j_novak
+ * Use of Matrice::annule_hard()
+ *
  * Revision 1.2  2005/11/24 09:24:25  j_novak
  * Corrected some missing references.
  *
@@ -121,16 +124,13 @@ void Sym_tensor_trans::solve_hrr(const Scalar& sou_hrr, Scalar& hrr_new) const {
     }
 
     Matrice ope(taille_ope, taille_ope) ;
-    ope.set_etat_qcq() ;
     int l_q, m_q, base_r ;
 
     for (int k=0; k<np; k++)
 	for (int j=0; j<nt; j++) 
 	    if (nullite_plm(j, nt, k, np, base) == 1) {
 	    base.give_quant_numbers(0, k, j, m_q, l_q, base_r) ;
-	    for (int lin=0; lin<taille_ope; lin++)
-		for (int col=0; col<taille_ope; col++)
-		    ope.set(lin,col) = 0 ;
+	    ope.annule_hard() ;
 
 	    Tbl ty(taille_ope) ;
 	    ty.set_etat_qcq() ;

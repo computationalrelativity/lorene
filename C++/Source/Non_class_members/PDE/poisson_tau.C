@@ -25,6 +25,9 @@ char poisson_tau_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/11/24 14:07:54  j_novak
+ * Use of Matrice::annule_hard()
+ *
  * Revision 1.3  2005/08/26 14:02:41  p_grandclement
  * Modification of the elliptic solver that matches with an oscillatory exterior solution
  * small correction in Poisson tau also...
@@ -117,9 +120,10 @@ Mtbl_cf sol_poisson_tau(const Map_af& mapping, const Mtbl_cf& source, int dzpuis
       for (int j=0 ; j<nt ; j++)
       	if (nullite_plm(j, nt, k, np, base) == 1) {
 	
-	for (int lig=0 ; lig<size ; lig++)
-            for (int col=0 ; col< size ; col++)
-	    systeme.set(lig,col) = 0 ;
+// 	for (int lig=0 ; lig<size ; lig++)
+//             for (int col=0 ; col< size ; col++)
+// 	    systeme.set(lig,col) = 0 ;
+	systeme.annule_hard() ;
 	sec_membre.annule_hard() ;
 	     
 	int column_courant = 0 ;
