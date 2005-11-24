@@ -30,6 +30,9 @@ char sym_tensor_trans_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/11/24 09:24:25  j_novak
+ * Corrected some missing references.
+ *
  * Revision 1.1  2005/09/16 13:58:11  j_novak
  * New Poisson solver for a Sym_tensor_trans.
  *
@@ -140,7 +143,7 @@ void Sym_tensor_trans::solve_hrr(const Scalar& sou_hrr, Scalar& hrr_new) const {
 	int nr = mp_aff->get_mg()->get_nr(0) ;
 	Diff_xdsdx dx(parite, nr) ; const Matrice& mdx = dx.get_matrice() ;
 	Diff_x2dsdx2 dx2(parite, nr) ; const Matrice& md2 = dx2.get_matrice() ;
-	Diff_id sx2(parite, nr) ; const Matrice ms2 = sx2.get_matrice() ;
+	Diff_id sx2(parite, nr) ; const Matrice& ms2 = sx2.get_matrice() ;
 	int nr_nuc = ( big_l ? nr - 1 : nr ) ;
 	
 	for (int lin=0; lin<nr_nuc; lin++) {
@@ -186,7 +189,7 @@ void Sym_tensor_trans::solve_hrr(const Scalar& sou_hrr, Scalar& hrr_new) const {
 	Diff_dsdx2 x02(R_CHEB, nr) ; const Matrice& m02 = x02.get_matrice() ;
 	Diff_xdsdx x11(R_CHEB, nr) ; const Matrice& m11 = x11.get_matrice() ;
 	Diff_dsdx x01(R_CHEB, nr) ; const Matrice& m01 = x01.get_matrice() ;
-	Diff_id xid(R_CHEB, nr) ; const Matrice mid = xid.get_matrice() ;
+	Diff_id xid(R_CHEB, nr) ; const Matrice& mid = xid.get_matrice() ;
 
 	for (int lin=0; lin<nr-2; lin++) {
 	    for (int col=0; col<nr; col++) { 
@@ -227,7 +230,7 @@ void Sym_tensor_trans::solve_hrr(const Scalar& sou_hrr, Scalar& hrr_new) const {
 
 	Diff_x2dsdx2 x22(R_CHEBU, nr) ; const Matrice& m22 = x22.get_matrice();
 	Diff_xdsdx x11(R_CHEBU, nr) ; const Matrice& m11 = x11.get_matrice() ;
-	Diff_id xid(R_CHEBU, nr) ; const Matrice mid = xid.get_matrice() ;
+	Diff_id xid(R_CHEBU, nr) ; const Matrice& mid = xid.get_matrice() ;
    
 	for (int lin=0; lin<nr-n_hom; lin++) {
 	    for (int col=0; col<nr; col++) 
