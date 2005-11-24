@@ -32,6 +32,9 @@ char matrice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2005/11/24 14:07:29  j_novak
+ * Minor speed enhancement for annule_hard().
+ *
  * Revision 1.14  2005/10/24 12:42:32  p_grandclement
  * correction of annule_hard
  *
@@ -177,9 +180,8 @@ void Matrice::annule_hard() {
     del_deriv() ;
     etat = ETATQCQ ;
 
-    for (int i=0 ; i<std->get_dim(0) ; i++)
-    	 for (int j=0 ; j<std->get_dim(1) ; j++)
-    		std->set(j,i) = 0 ;
+    for (int i=0 ; i<std->get_taille() ; i++)
+	std->t[i] = 0 ;
 }
 	 
 // Constructeurs
