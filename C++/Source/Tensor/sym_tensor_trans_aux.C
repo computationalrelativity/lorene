@@ -30,6 +30,10 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/11/28 14:45:17  j_novak
+ * Improved solution of the Poisson tensor equation in the case of a transverse
+ * tensor.
+ *
  * Revision 1.7  2005/09/16 13:34:44  j_novak
  * Back to dzpuis 1 for the source for mu. eta is computed the same way as hrr.
  *
@@ -65,8 +69,6 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 
 // Lorene headers
 #include "tensor.h"
-#include "graphique.h"
-
 
 void Sym_tensor_trans::set_hrr_mu_det_one(const Scalar& hrr, const Scalar& mu_in,
 					  double precis, int it_max ) {
@@ -89,7 +91,7 @@ void Sym_tensor_trans::set_hrr_mu_det_one(const Scalar& hrr, const Scalar& mu_in
 }
 
 void Sym_tensor_trans::set_WX_det_one(const Scalar& w_in, const Scalar& x_in,
-					  double precis, int it_max ) {
+				      const Scalar* h_prev, double precis, int it_max ) {
 
     // All this has a meaning only for spherical components:
     assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
@@ -111,7 +113,10 @@ void Sym_tensor_trans::set_WX_det_one(const Scalar& w_in, const Scalar& x_in,
     // Preparation for the iteration
     //------------------------------
     Scalar h_old(*mp) ;
-    h_old.set_etat_zero() ;
+    if (h_prev != 0x0) 
+	h_old = *h_prev ;
+    else
+	h_old.set_etat_zero() ;
     double lambda = 1. ;
     Scalar w_lapang =  w_in.lapang() ;
     Scalar w_ylm = w_in ;
@@ -145,11 +150,6 @@ void Sym_tensor_trans::set_WX_det_one(const Scalar& w_in, const Scalar& x_in,
  	sou_eta.annule_l(0,0, true) ;
  	Scalar eta_new(*mp) ;
  	solve_hrr(sou_eta, eta_new) ;
-
-//     	Scalar sou_eta = -hrr_new.dsdr() ; //#alternative version ...
-//     	sou_eta.mult_r_dzpuis(0) ;
-//     	sou_eta -= 2*hrr_new - t_new;
-//     	Scalar eta_new = sou_eta.poisson_angu() ;
 
 	set_auxiliary(hrr_new, eta_new, mu_over_r, w_in, x_in, t_new) ;
 

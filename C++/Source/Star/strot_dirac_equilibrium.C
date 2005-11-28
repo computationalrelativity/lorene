@@ -30,6 +30,10 @@ char strot_dirac_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/11/28 14:45:16  j_novak
+ * Improved solution of the Poisson tensor equation in the case of a transverse
+ * tensor.
+ *
  * Revision 1.7  2005/09/16 14:04:49  j_novak
  * The equation for hij is now solved only for mer >  mer_fix_omega. It uses the
  * Poisson solver of the class Sym_tensor_trans.
@@ -137,7 +141,7 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
   // Error indicators
   // ----------------
 
-  diff.set_etat_qcq() ;
+  diff.annule_hard() ;
   double& diff_ent = diff.set(0) ; 
 
   double alpha_r = 1 ;

@@ -30,6 +30,10 @@ char strot_dirac_solvehij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2005/11/28 14:45:16  j_novak
+ * Improved solution of the Poisson tensor equation in the case of a transverse
+ * tensor.
+ *
  * Revision 1.7  2005/09/16 14:04:49  j_novak
  * The equation for hij is now solved only for mer >  mer_fix_omega. It uses the
  * Poisson solver of the class Sym_tensor_trans.
@@ -263,6 +267,12 @@ void Star_rot_Dirac::solve_hij(Sym_tensor_trans& hij_new) const {
 //   for (int i=1; i<=3; i++) 
 //       cout << max(abs(source_htt.divergence(mets)(i))) ;
 
-  hij_new = source_hht.poisson() ;
+  Scalar h_prev = hh.trace(mets) ;
+  hij_new = source_hht.poisson(&h_prev) ;
 
+  if (mp.get_mg()->get_np(0) == 1) { //Axial symmetry
+      hij_new.set(1,3).set_etat_zero() ;
+      hij_new.set(2,3).set_etat_zero() ;
+  }
+      
 }

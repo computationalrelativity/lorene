@@ -30,6 +30,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.33  2005/11/28 14:45:14  j_novak
+ * Improved solution of the Poisson tensor equation in the case of a transverse
+ * tensor.
+ *
  * Revision 1.32  2005/09/16 13:58:10  j_novak
  * New Poisson solver for a Sym_tensor_trans.
  *
@@ -605,31 +609,38 @@ class Sym_tensor_trans: public Sym_tensor {
 
 	/** Assigns the derived members \c W and \c X .
 	 * Other derived members are deduced from the divergence-free 
-	 * condition. Finally, it computes \c T (\c Sym_tensor::p_ttt ) so that 
+	 * condition. Finally, it computes the trace so that 
 	 * \c *this + the flat metric has a determinant equal to 1. It then
 	 * updates the components accordingly. This function makes an 
-	 * iteration until the relative difference in \c T between 
+	 * iteration until the relative difference in the trace between 
 	 * two steps is lower than \c precis . 
 	 *
 	 * @param htt the transverse traceless part; all components must have
 	 *            dzpuis = 2.
+	 * @param h_prev a pointer on a guess for the trace of \c *this; if
+	 *               null, then the iteration starts from 0.
 	 * @param precis relative difference in the trace computation to end
 	 *               the iteration.
 	 * @param it_max maximal number of iterations.
 	 */
-	void set_WX_det_one(const Scalar& w_in, const Scalar& x_in,
-				double precis = 1.e-14, int it_max = 100) ;
+	void set_WX_det_one(const Scalar& w_in, const Scalar& x_in, 
+			    const Scalar* h_prev = 0x0, double precis = 1.e-14, 
+			    int it_max = 100) ;
 
 	/** Computes the solution of a tensorial transverse Poisson equation
 	 *  with \c *this  \f$= S^{ij}\f$ as a source:
 	 * \f[
-	 *    \Delta h^{ij} = S^{ij}
+	 *    \Delta h^{ij} = S^{ij}.
 	 *\f] 
+	 * In particular, it makes an iteration on the trace of the result, using
+	 * \c Sym_tensor::set_WX_det_one.
 	 * 
+	 * @param h_guess a pointer on a guess for the trace of the result; it is
+	 *                passed to \c Sym_tensor::set_WX_det_one.
 	 * @return solution \f$h^{ij}\f$ of the above equation with the boundary
 	 *	condition \f$h^{ij}=0\f$ at spatial infinity.
 	 */
-	Sym_tensor_trans poisson() const ; 
+	Sym_tensor_trans poisson(const Scalar* h_guess = 0x0) const ; 
 } ; 
 	
 
