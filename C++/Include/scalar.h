@@ -38,6 +38,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.76  2005/11/30 13:48:06  e_gourgoulhon
+ * Replaced M_PI/2 by 1.57... in argument list of sol_elliptic_sin_zec
+ * (in order not to require the definition of M_PI).
+ *
  * Revision 1.75  2005/11/30 11:09:03  p_grandclement
  * Changes for the Bin_ns_bh project
  *
@@ -1403,8 +1407,8 @@ class Scalar : public Tensor {
    * in the external domain.
    * @param phase [output] : phase that minimizes \c coef .
    **/
-  Scalar sol_elliptic_sin_zec(Param_elliptic& params, double freq,
-			      double& coef, double phase = M_PI/2.) const ;
+  Scalar sol_elliptic_sin_zec(Param_elliptic& params, double freq, double& coef, 
+				double phase = 1.5707963267948966) const ;
 
    
   /**
