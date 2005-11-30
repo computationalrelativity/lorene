@@ -31,6 +31,9 @@ char bin_ns_bh_anashift_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/11/30 11:09:06  p_grandclement
+ * Changes for the Bin_ns_bh project
+ *
  * Revision 1.1  2004/06/09 06:28:21  k_taniguchi
  * First revision.
  *
@@ -96,7 +99,7 @@ void Bin_ns_bh::analytical_shift() {
     tmp_ext = -4. * www / mp.r ;
     tmp_ext.annule(0, nzet-1) ;
 
-    star.set_w_shift().set(1) = tmp + tmp_ext ;
+    star.set_w_shift().set(1) = - tmp - tmp_ext ;
 
     // Z component
     // -----------
@@ -113,7 +116,7 @@ void Bin_ns_bh::analytical_shift() {
     tmp_ext = 0.8 * www * a0 * a0 * (mp.sint) * (mp.sinp) / ((mp.r)*(mp.r)) ;
     tmp_ext.annule(0, nzet-1) ;
 
-    star.set_khi_shift() = tmp + tmp_ext ;
+    star.set_khi_shift() = - tmp - tmp_ext ;
 
     // Sets the standard spectral bases for a scalar field
     star.set_khi_shift().set_std_base() ;

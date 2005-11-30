@@ -25,6 +25,9 @@ char bin_ns_bh_glob_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/11/30 11:09:06  p_grandclement
+ * Changes for the Bin_ns_bh project
+ *
  * Revision 1.1  2005/08/29 15:10:15  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -117,6 +120,10 @@ double Bin_ns_bh::adm_systeme_volume() const {
     	hole.mp.integrale_surface(integ_hor, hole.rayon)/hole.rayon/4/M_PI 
 	+ integ_matter.integrale()*ggrav ;
 	    
+    cout << integ_bh.integrale()/16/M_PI  << " " << integ_ns.integrale()/16/M_PI << " " << 
+    	hole.mp.integrale_surface(integ_hor, hole.rayon)/hole.rayon/4/M_PI 
+	<< " " <<  integ_matter.integrale()*ggrav << endl ;
+	
     return masse ;
 }
 

@@ -26,6 +26,9 @@ char map_af_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2005/11/30 11:09:07  p_grandclement
+ * Changes for the Bin_ns_bh project
+ *
  * Revision 1.8  2005/08/26 14:02:40  p_grandclement
  * Modification of the elliptic solver that matches with an oscillatory exterior solution
  * small correction in Poisson tau also...
@@ -315,7 +318,7 @@ void Map_af::sol_elliptic_only_zec(Param_elliptic& ope_var,
 
 void Map_af::sol_elliptic_sin_zec(Param_elliptic& ope_var, 
 				  const Scalar& source, Scalar& pot, 
-				  double freq, double& ampli_min) const {
+				  double freq, double& ampli, double phase) const {
     
   assert(source.get_etat() != ETATNONDEF) ; 
   assert(source.get_mp().get_mg() == mg) ; 
@@ -352,7 +355,7 @@ void Map_af::sol_elliptic_sin_zec(Param_elliptic& ope_var,
   // Call to the Mtbl_cf version
   // ---------------------------
   Mtbl_cf resu = elliptic_solver_sin_zec (ope_var, *(rho.c_cf), 
-  					freq, ampli_min) ;
+  					freq, ampli, phase) ;
   
   // Final result returned as a Scalar
   // ---------------------------------

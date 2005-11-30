@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.30  2005/11/30 11:09:03  p_grandclement
+ * Changes for the Bin_ns_bh project
+ *
  * Revision 1.29  2005/08/26 14:02:38  p_grandclement
  * Modification of the elliptic solver that matches with an oscillatory exterior solution
  * small correction in Poisson tau also...
@@ -703,7 +706,7 @@ Mtbl_cf elliptic_solver_no_zec  (const Param_elliptic&, const Mtbl_cf&,
 Mtbl_cf elliptic_solver_only_zec  (const Param_elliptic&, const Mtbl_cf&, 
 				 double val) ;
 Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic&, const Mtbl_cf&, 
-				 double, double&) ;
+				 double, double&, double) ;
 Mtbl_cf elliptic_solver_fixe_der_zero  (double, 
 					    const Param_elliptic&, 
 					    const Mtbl_cf&) ;

@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2005/11/30 11:09:03  p_grandclement
+ * Changes for the Bin_ns_bh project
+ *
  * Revision 1.10  2005/10/18 13:12:31  p_grandclement
  * update of the mixted binary codes
  *
@@ -226,8 +229,7 @@ class Bin_ns_bh {
 	    { return x_axe ;} ;
 
 	/// Return the separation
-	double separation() const 
-	  {return star.mp.get_ori_x()-hole.mp.get_ori_x() ;} 
+	double separation() const  ;
 
     // Outputs
     // -------
@@ -287,6 +289,7 @@ class Bin_ns_bh {
 	void analytical_shift() ;
 
 	void init_auto () ;
+	void affecte (const Bin_ns_bh&) ;
 	void pseudo_misner (int&, int, double, double) ;
 	double adm_systeme() const ;
 	double adm_systeme_volume() const ;

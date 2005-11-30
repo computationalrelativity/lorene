@@ -30,6 +30,9 @@ char bin_ns_bh_omegaana_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2005/11/30 11:09:06  p_grandclement
+ * Changes for the Bin_ns_bh project
+ *
  * Revision 1.1  2004/06/09 06:27:40  k_taniguchi
  * First revision.
  *
@@ -89,8 +92,8 @@ void Bin_ns_bh::analytical_omega() {
 
     }
 
-    omega = sqrt( omega2 ) ;
-
+    set_omega (sqrt( omega2 )) ;
+    
     // The derived quantities are obsolete:
     del_deriv() ;
 

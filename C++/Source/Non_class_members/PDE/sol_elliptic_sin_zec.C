@@ -20,6 +20,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/11/30 11:09:08  p_grandclement
+ * Changes for the Bin_ns_bh project
+ *
  * Revision 1.3  2005/08/26 14:02:41  p_grandclement
  * Modification of the elliptic solver that matches with an oscillatory exterior solution
  * small correction in Poisson tau also...
@@ -57,7 +60,7 @@ char sol_elliptic_sin_zec_C[] = "$Header$" ;
 	  //----------------------------------------------
 
 Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic& ope_var, 
-				  const Mtbl_cf& source, double freq, double& ampli_true) {
+				  const Mtbl_cf& source, double freq, double& ampli, double phase) {
 
   // Verifications d'usage sur les zones
   int nz = source.get_mg()->get_nzone() ;
@@ -228,19 +231,16 @@ Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic& ope_var,
 	conte += (np_prec+1)*nt_prec ;
 	
 	double rlim = -1./2./ope_var.operateurs[conte]->get_alpha() ;
-	// On joue avec la phase :
-	Tbl facteur (taille) ;
 	
-	// On fait le "Vrai" calcul :
 	systeme.set(taille-2, taille-1) = 
 	  -ope_var.G_minus(nz-1) * 
-	  sin(freq*rlim+M_PI/2)/rlim ;
+	  sin(freq*rlim+phase)/rlim ;
 	
 	systeme.set(taille-1, taille-1) = 
 	  -ope_var.dG_minus(nz-1)*
-	  sin(freq*rlim+M_PI/2)/rlim-  
+	  sin(freq*rlim+phase)/rlim-  
 	  ope_var.G_minus(nz-1)* 
-	  (freq*cos(freq*rlim+M_PI/2)-sin(freq*rlim+M_PI/2)/rlim)/rlim ;
+	  (freq*cos(freq*rlim+phase)-sin(freq*rlim+phase)/rlim)/rlim ;
 
 	// On resout le systeme ...
 	if (taille > 2)
@@ -249,9 +249,9 @@ Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic& ope_var,
 	  systeme.set_band(1,1) ;
 	
 	systeme.set_lu() ;
-	facteur = systeme.inverse(sec_membre) ;
+	Tbl facteur (systeme.inverse(sec_membre)) ;
 
-	ampli_true = facteur(taille-1) ;
+	ampli = facteur(taille-1) ;
 
 	// On range tout ca :
 	// Noyau 

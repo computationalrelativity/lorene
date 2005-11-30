@@ -29,6 +29,9 @@ char map_et_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2005/11/30 11:09:07  p_grandclement
+ * Changes for the Bin_ns_bh project
+ *
  * Revision 1.10  2004/03/25 10:29:23  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -396,6 +399,31 @@ Map_et::Map_et(const Map_et& mpi) : Map_radial(mpi) ,
     fait_poly() ; 
 
 } 
+			//------------------------------------------//
+			//  Modification of the mapping parameters  //
+			//------------------------------------------//
+
+void Map_et::set_alpha(double alpha0, int l) {
+    
+    assert(l>=0) ; 
+    assert(l<mg->get_nzone()) ; 
+    
+    alpha[l] = alpha0 ; 
+    
+    reset_coord() ; 
+    
+}
+
+void Map_et::set_beta(double beta0, int l) {
+    
+    assert(l>=0) ; 
+    assert(l<mg->get_nzone()) ; 
+    
+    beta[l] = beta0 ; 
+    
+    reset_coord() ; 
+    
+}
 
 // ---------------------
 // Constructor from file

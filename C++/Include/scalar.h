@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.75  2005/11/30 11:09:03  p_grandclement
+ * Changes for the Bin_ns_bh project
+ *
  * Revision 1.74  2005/11/17 15:29:46  e_gourgoulhon
  * Added arithmetics with Mtbl.
  *
@@ -1401,7 +1404,7 @@ class Scalar : public Tensor {
    * @param phase [output] : phase that minimizes \c coef .
    **/
   Scalar sol_elliptic_sin_zec(Param_elliptic& params, double freq,
-			      double& coef) const ;
+			      double& coef, double phase = M_PI/2.) const ;
 
    
   /**

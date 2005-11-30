@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.45  2005/11/30 11:09:03  p_grandclement
+ * Changes for the Bin_ns_bh project
+ *
  * Revision 1.44  2005/11/24 09:25:06  j_novak
  * Added the Scalar version for the Laplacian
  *
@@ -1621,7 +1624,6 @@ class Map_radial : public Map {
 	virtual void reevaluate_symy(const Map* mp_prev, int nzet, Cmp& uu) 
 				    const ; 
 
-    
     // Various linear operators
     // ------------------------
     public: 
@@ -2362,7 +2364,7 @@ class Map_af : public Map_radial {
 	 **/
 	void sol_elliptic_sin_zec (Param_elliptic& params, 
 				  const Scalar& so, Scalar& uu, double freq, 
-				    double& coef) const ;
+				    double& coef, double) const ;
 	/**
 	 * General elliptic solver fixing the derivative at the origin 
 	 * and relaxing the continuity of the first derivative at the 
@@ -2837,6 +2839,12 @@ class Map_et : public Map_radial {
 	 *                        of the outermost domain is to be multiplied.
 	 */
 	void resize_extr(double lambda) ;
+
+	/// Modifies the value of \f$\alpha\f$ in domain no. \e l 
+	void set_alpha(double alpha0, int l) ;
+
+	/// Modifies the value of \f$\beta\f$ in domain no. \e l 
+	void set_beta(double beta0, int l) ;  
 
     // Modification of the mapping
     // ---------------------------

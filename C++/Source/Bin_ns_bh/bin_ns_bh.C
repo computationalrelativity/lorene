@@ -29,6 +29,9 @@ char bin_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2005/11/30 11:09:06  p_grandclement
+ * Changes for the Bin_ns_bh project
+ *
  * Revision 1.6  2005/08/29 15:10:15  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -65,6 +68,7 @@ char bin_ns_bh_C[] = "$Header$" ;
 #include <math.h>
 
 // Lorene headers
+#include "map.h"
 #include "bhole.h"
 #include "bin_ns_bh.h"
 #include "utilitaires.h"
@@ -205,6 +209,9 @@ void Bin_ns_bh::set_x_axe(double x_axe_i) {
 
 }
 
+double Bin_ns_bh::separation() const {
+    return star.mp.get_ori_x() - hole.mp.get_ori_x() ;
+}
 
 
 			    //--------------//
@@ -283,6 +290,90 @@ void Bin_ns_bh::init_auto () {
 	hole.set_n_auto().std_base_scal() ;
 	hole.set_n_auto().raccord(1) ;
 }
+
+	// *********************************
+	// Affectation to another Bin_ns_bh
+	//**********************************
+
+void Bin_ns_bh::affecte(const Bin_ns_bh& so) {
+        
+	// Kinematic quantities :
+	star.nzet = so.star.nzet ;
+	set_omega(so.omega) ;
+	x_axe = so.x_axe ;
+	star.set_mp().set_ori (so.star.mp.get_ori_x(), 0., 0.) ;
+        hole.set_mp().set_ori (so.hole.mp.get_ori_x(), 0., 0.) ;
+   	// Faut gêrer le map_et :
+	Map_et* map_et = dynamic_cast<Map_et*>(&star.mp) ;
+	Map_et* map_et_so = dynamic_cast<Map_et*>(&so.star.mp) ;
+	map_et->set_ff(map_et_so->get_ff()) ;
+	map_et->set_gg(map_et_so->get_gg()) ;
+	int l_min = (map_et->get_mg()->get_nzone() > map_et_so->get_mg()->get_nzone()) ?
+	 	map_et->get_mg()->get_nzone() : map_et->get_mg()->get_nzone() ;
+	for (int l=0 ; l<l_min+1 ; l++) {
+	     map_et->set_alpha(map_et_so->get_alpha()[l], l) ;
+	     map_et->set_beta(map_et_so->get_beta()[l],l) ;
+        }
+	
+	cout << star.mp << endl ;
+	cout << so.star.mp << endl ;
+	abort() ;
+	
+	// The BH part :
+	// Lapse :
+	hole.n_auto.allocate_all() ;
+	hole.n_auto.set().import(so.hole.n_auto()) ;
+	hole.n_auto.set().std_base_scal() ;
+	// Psi :
+	hole.psi_auto.allocate_all() ;
+	hole.psi_auto.set().import(so.hole.psi_auto()) ;
+	hole.psi_auto.set().std_base_scal() ;
+	// Shift :
+	hole.shift_auto.allocate_all() ;
+	for (int i=0 ; i<3 ; i++)
+		hole.shift_auto.set(i).import (so.hole.shift_auto(i)) ;
+	hole.shift_auto.set_std_base() ;
+	
+	// The NS part :
+	star.n_auto.allocate_all() ;
+	star.n_auto.set().import(so.star.n_auto()) ;
+	star.n_auto.set().std_base_scal() ;
+	// Psi :
+	star.confpsi_auto.allocate_all() ;
+	star.confpsi_auto.set().import(so.star.confpsi_auto()) ;
+	star.confpsi_auto.set().std_base_scal() ;
+	// Shift :
+	star.shift.allocate_all() ;
+	for (int i=0 ; i<3 ; i++)
+		star.shift.set(i).import (so.star.shift(i)) ;
+	star.shift_auto.set_std_base() ;
+	
+	// The matter : 
+	star.ent.allocate_all() ;
+	star.ent.set().import(star.nzet, so.star.ent()) ;
+	star.ent.set_std_base() ;
+	
+	des_profile (star.ent(), 0, 3, 0, 0) ;
+	des_profile (so.star.ent(), 0, 3, 0, 0) ;
+	
+	if (so.star.is_irrotational()) {
+		star.d_psi.allocate_all() ;
+		for (int i=0 ; i< 3 ; i++)
+	        star.d_psi.set(i).import(star.nzet, so.star.d_psi(i)) ;
+		star.d_psi.set_std_base() ;
+	}
+	
+	star.kinematics(omega, x_axe) ;
+        star.fait_d_psi() ;
+        star.hydro_euler() ;
+
+	// Reconstruction of the fields :
+	hole.update_metric(star) ;    
+        star.update_metric(hole) ;
+	star.update_metric_der_comp(hole) ;
+	fait_tkij() ;
+}
+	
 
 // Printing
 // --------
