@@ -29,6 +29,9 @@ char bin_ns_bh_kij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/12/01 12:59:10  p_grandclement
+ * Files for bin_ns_bh project
+ *
  * Revision 1.3  2005/08/29 15:10:15  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -228,12 +231,7 @@ void Bin_ns_bh::fait_decouple () {
 //********************************************************
 void Bin_ns_bh::fait_tkij () {
     
-  static double distance_old = 0 ;
-  double distance = star.mp.get_ori_x() - hole.mp.get_ori_x() ;
-  if (distance != distance_old) {
-    distance_old = distance ;
-    fait_decouple() ;
-  }
+  fait_decouple() ;
   
   double norme_hole = 0 ;
   double norme_star = 0 ;

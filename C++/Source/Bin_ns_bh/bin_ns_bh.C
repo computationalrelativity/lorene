@@ -29,8 +29,8 @@ char bin_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.7  2005/11/30 11:09:06  p_grandclement
- * Changes for the Bin_ns_bh project
+ * Revision 1.8  2005/12/01 12:59:10  p_grandclement
+ * Files for bin_ns_bh project
  *
  * Revision 1.6  2005/08/29 15:10:15  p_grandclement
  * Addition of things needed :
@@ -74,6 +74,7 @@ char bin_ns_bh_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "unites.h"
 #include "graphique.h"
+#include "param.h"
 
   			    //--------------//
 			    // Constructors //
@@ -303,75 +304,141 @@ void Bin_ns_bh::affecte(const Bin_ns_bh& so) {
 	x_axe = so.x_axe ;
 	star.set_mp().set_ori (so.star.mp.get_ori_x(), 0., 0.) ;
         hole.set_mp().set_ori (so.hole.mp.get_ori_x(), 0., 0.) ;
+	star.set_mp().set_rot_phi (so.star.mp.get_rot_phi()) ;
+	hole.set_mp().set_rot_phi (so.hole.mp.get_rot_phi()) ;
+	
    	// Faut gêrer le map_et :
 	Map_et* map_et = dynamic_cast<Map_et*>(&star.mp) ;
 	Map_et* map_et_so = dynamic_cast<Map_et*>(&so.star.mp) ;
-	map_et->set_ff(map_et_so->get_ff()) ;
-	map_et->set_gg(map_et_so->get_gg()) ;
-	int l_min = (map_et->get_mg()->get_nzone() > map_et_so->get_mg()->get_nzone()) ?
-	 	map_et->get_mg()->get_nzone() : map_et->get_mg()->get_nzone() ;
-	for (int l=0 ; l<l_min+1 ; l++) {
-	     map_et->set_alpha(map_et_so->get_alpha()[l], l) ;
-	     map_et->set_beta(map_et_so->get_beta()[l],l) ;
-        }
+
+        int kmax = -1 ;
+	int jmax = -1 ;
+	int np = map_et->get_mg()->get_np(star.nzet-1) ;
+	int nt = map_et->get_mg()->get_nt(star.nzet-1) ;
+	Mtbl phi (map_et->get_mg()) ;
+	phi = map_et->phi ;
+	Mtbl tet (map_et->get_mg()) ;
+	tet = map_et->tet ;
+	double rmax = 0 ;
+	for (int k=0 ; k<np ; k++)
+	    for (int j=0 ; j<nt ; j++) {
+	        double rcourant = map_et_so->val_r(star.nzet-1, 1, tet(0,k,j,0), phi(0,k,j,0)) ;
+		if (rcourant > rmax) {
+		    rmax = rcourant ;
+		    kmax = k ;
+		    jmax = j ;
+		   }
+	}
 	
-	cout << star.mp << endl ;
-	cout << so.star.mp << endl ;
-	abort() ;
+	double old_r = map_et->val_r(star.nzet-1, 1, tet(0,kmax,jmax,0), phi(0,kmax,jmax,0)) ;
+	map_et->homothetie (rmax/old_r) ;
 	
-	// The BH part :
-	// Lapse :
-	hole.n_auto.allocate_all() ;
-	hole.n_auto.set().import(so.hole.n_auto()) ;
-	hole.n_auto.set().std_base_scal() ;
-	// Psi :
-	hole.psi_auto.allocate_all() ;
-	hole.psi_auto.set().import(so.hole.psi_auto()) ;
-	hole.psi_auto.set().std_base_scal() ;
-	// Shift :
-	hole.shift_auto.allocate_all() ;
-	for (int i=0 ; i<3 ; i++)
-		hole.shift_auto.set(i).import (so.hole.shift_auto(i)) ;
-	hole.shift_auto.set_std_base() ;
-	
-	// The NS part :
-	star.n_auto.allocate_all() ;
-	star.n_auto.set().import(so.star.n_auto()) ;
-	star.n_auto.set().std_base_scal() ;
-	// Psi :
-	star.confpsi_auto.allocate_all() ;
-	star.confpsi_auto.set().import(so.star.confpsi_auto()) ;
-	star.confpsi_auto.set().std_base_scal() ;
-	// Shift :
-	star.shift.allocate_all() ;
-	for (int i=0 ; i<3 ; i++)
-		star.shift.set(i).import (so.star.shift(i)) ;
-	star.shift_auto.set_std_base() ;
-	
-	// The matter : 
 	star.ent.allocate_all() ;
 	star.ent.set().import(star.nzet, so.star.ent()) ;
 	star.ent.set_std_base() ;
 	
-	des_profile (star.ent(), 0, 3, 0, 0) ;
-	des_profile (so.star.ent(), 0, 3, 0, 0) ;
+	// Adaptation :
+    Param par_adapt ; 
+    int nitermax = 100 ;  
+    int niter_adapt ; 
+    int adapt_flag = 1 ;  
+    int nz_search = star.nzet + 1 ;
+    double precis_secant = 1.e-14 ; 
+    double alpha_r = 1; 
+    double reg_map = 1. ;   
+    Tbl ent_limit(star.nzet) ; 
+    
+    par_adapt.add_int(nitermax, 0) ; 
+    par_adapt.add_int(star.nzet, 1) ;
+    par_adapt.add_int(nz_search, 2) ;	
+    par_adapt.add_int(adapt_flag, 3) ;
+    par_adapt.add_int(jmax, 4) ;
+    par_adapt.add_int(kmax, 5) ; 
+    par_adapt.add_int_mod(niter_adapt, 0) ; 
+    par_adapt.add_double(precis_secant, 0) ; 
+    par_adapt.add_double(reg_map, 1)	; 
+    par_adapt.add_double(alpha_r, 2) ;
+    par_adapt.add_tbl(ent_limit, 0) ;
+        
+    Map_et mp_prev = *map_et ;
+    ent_limit.set_etat_qcq() ; 
+    for (int l=0; l<star.nzet-1; l++) {
+        int nr = map_et->get_mg()->get_nr(l) ;
+	ent_limit.set(l) = star.ent()(l, kmax, jmax, nr-1) ; 
+	}
+    ent_limit.set(star.nzet-1) = 0  ; 
+	   
+    // On adapte :
+    map_et->adapt(star.ent(), par_adapt) ;
+    mp_prev.homothetie(alpha_r) ;
+    map_et->reevaluate_symy (&mp_prev, star.nzet, star.ent.set()) ;
 	
+     // The BH part :
+	// Lapse :
+	hole.n_auto.allocate_all() ;
+	Cmp auxi_n (so.hole.n_auto()) ;
+	auxi_n.raccord(1) ;
+	hole.n_auto.set().import_symy(auxi_n) ;
+	hole.n_auto.set().std_base_scal() ;
+	hole.n_auto.set().raccord(1) ;
+	
+	// Psi :
+	hole.psi_auto.allocate_all() ;
+	Cmp auxi_psi (so.hole.psi_auto()) ;
+	auxi_psi.raccord(1) ;
+	hole.psi_auto.set().import_symy(auxi_psi) ;
+	hole.psi_auto.set().std_base_scal() ;
+	hole.psi_auto.set().raccord(1) ;
+	
+	// Shift :
+	hole.shift_auto.allocate_all() ;
+	Tenseur auxi_shift (so.hole.shift_auto) ;
+	for (int i=0 ; i<3 ; i++)
+	    auxi_shift.set(i).raccord(1) ;
+	hole.shift_auto.set(0).import_asymy (auxi_shift(0)) ;
+	hole.shift_auto.set(1).import_symy (auxi_shift(1)) ;
+	hole.shift_auto.set(2).import_asymy (auxi_shift(2)) ;
+	hole.shift_auto.set_std_base() ;
+	
+	// The NS part :
+	star.n_auto.allocate_all() ;
+	star.n_auto.set().import_symy(so.star.n_auto()) ;
+	star.n_auto.set().std_base_scal() ;
+	
+	// Psi :
+	star.confpsi_auto.allocate_all() ;
+	star.confpsi_auto.set().import_symy(so.star.confpsi_auto()) ;
+	star.confpsi_auto.set().std_base_scal() ;
+	// Shift :
+	star.w_shift.allocate_all() ;
+	star.w_shift.set(0).import_asymy (so.star.w_shift(0)) ;
+	star.w_shift.set(1).import_symy (so.star.w_shift(1)) ;
+	star.w_shift.set(2).import_asymy (so.star.w_shift(2)) ;
+	star.w_shift.set_std_base() ;
+	star.khi_shift.allocate_all() ;
+	star.khi_shift.set().import(so.star.khi_shift()) ;
+ 	star.khi_shift.set().std_base_scal() ;
+	star.fait_shift_auto() ;
+	
+	Tenseur copie_dpsi (so.star.d_psi) ;
+	copie_dpsi.set(2).dec2_dzpuis() ;
 	if (so.star.is_irrotational()) {
 		star.d_psi.allocate_all() ;
-		for (int i=0 ; i< 3 ; i++)
-	        star.d_psi.set(i).import(star.nzet, so.star.d_psi(i)) ;
+	        star.d_psi.set(0).import_asymy(star.nzet, copie_dpsi(0)) ;
+		star.d_psi.set(1).import_symy(star.nzet, copie_dpsi(1)) ;
+		star.d_psi.set(2).import_asymy(star.nzet, copie_dpsi(2)) ;
 		star.d_psi.set_std_base() ;
 	}
 	
-	star.kinematics(omega, x_axe) ;
-        star.fait_d_psi() ;
-        star.hydro_euler() ;
-
 	// Reconstruction of the fields :
 	hole.update_metric(star) ;    
         star.update_metric(hole) ;
 	star.update_metric_der_comp(hole) ;
 	fait_tkij() ;
+	
+	star.kinematics(omega, x_axe) ;
+	star.equation_of_state() ;
+        star.hydro_euler() ;
 }
 	
 

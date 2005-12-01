@@ -25,6 +25,9 @@ char bin_ns_bh_glob_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/12/01 12:59:10  p_grandclement
+ * Files for bin_ns_bh project
+ *
  * Revision 1.2  2005/11/30 11:09:06  p_grandclement
  * Changes for the Bin_ns_bh project
  *
@@ -119,10 +122,6 @@ double Bin_ns_bh::adm_systeme_volume() const {
     double masse = (integ_bh.integrale()+integ_ns.integrale())/16/M_PI  + 
     	hole.mp.integrale_surface(integ_hor, hole.rayon)/hole.rayon/4/M_PI 
 	+ integ_matter.integrale()*ggrav ;
-	    
-    cout << integ_bh.integrale()/16/M_PI  << " " << integ_ns.integrale()/16/M_PI << " " << 
-    	hole.mp.integrale_surface(integ_hor, hole.rayon)/hole.rayon/4/M_PI 
-	<< " " <<  integ_matter.integrale()*ggrav << endl ;
 	
     return masse ;
 }
