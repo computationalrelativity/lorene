@@ -104,7 +104,7 @@ void Monopole::do_small_h() {
   small_h.std_spectral_base_odd() ;
 
   Scalar auxi_on_W (big_H_on_W-1) ;
-  auxi.annule(0, nz_W-2) ;
+  auxi_on_W.annule(0, nz_W-2) ;
 
   small_h_on_W = big_H_on_W ;
   small_h_on_W.annule_domain(nz_W-1) ;
