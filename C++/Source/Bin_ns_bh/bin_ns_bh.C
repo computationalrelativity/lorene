@@ -29,6 +29,9 @@ char bin_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2005/12/06 07:01:58  p_grandclement
+ * addition of Bhole::mp scaling in affecte()
+ *
  * Revision 1.8  2005/12/01 12:59:10  p_grandclement
  * Files for bin_ns_bh project
  *
@@ -306,6 +309,8 @@ void Bin_ns_bh::affecte(const Bin_ns_bh& so) {
         hole.set_mp().set_ori (so.hole.mp.get_ori_x(), 0., 0.) ;
 	star.set_mp().set_rot_phi (so.star.mp.get_rot_phi()) ;
 	hole.set_mp().set_rot_phi (so.hole.mp.get_rot_phi()) ;
+	
+	hole.set_mp().homothetie (so.hole.get_rayon()/hole.rayon) ;
 	
    	// Faut gêrer le map_et :
 	Map_et* map_et = dynamic_cast<Map_et*>(&star.mp) ;
