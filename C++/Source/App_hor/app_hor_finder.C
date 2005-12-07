@@ -30,6 +30,11 @@ char app_hor_finder_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2005/12/07 14:16:36  lm_lin
+ *
+ * Add option to turn off screen output if no horizon is found
+ * (for performance reason in hydrodynamics simulation).
+ *
  * Revision 1.4  2005/12/07 11:11:09  lm_lin
  *
  * Add option to turn off screen output during iterations.
@@ -381,15 +386,16 @@ bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& e
 
   if ( (max(diff_h) < precis) && (max(abs(ex_AH(0))) > precis_exp) ) {
 
-
-    cout << " " << endl ;
-    cout << "#############################################" << endl ;
-    cout << " AH finder: convergence in the 2 surface h.   " << endl ;
-    cout << " But max error of the expansion function evaulated on h > precis_exp"  << endl ;
-    cout << "   max( expansion function on AH ) =  " << max(abs(ex_AH(0))) << endl ;
-    cout << " Probably not an apparent horizon! " << endl ;
-    cout << "#############################################" << endl ;
-    cout << "   " << endl ;
+    if (print) {
+      cout << " " << endl ;
+      cout << "#############################################" << endl ;
+      cout << " AH finder: convergence in the 2 surface h.   " << endl ;
+      cout << " But max error of the expansion function evaulated on h > precis_exp"  << endl ;
+      cout << "   max( expansion function on AH ) =  " << max(abs(ex_AH(0))) << endl ;
+      cout << " Probably not an apparent horizon! " << endl ;
+      cout << "#############################################" << endl ;
+      cout << "   " << endl ;
+    }
 
   }
 
