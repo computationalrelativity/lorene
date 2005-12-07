@@ -30,6 +30,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/12/07 11:11:30  lm_lin
+ *
+ * Add option to turn off screen output during iterations.
+ *
  * Revision 1.2  2005/11/17 14:19:49  lm_lin
  *
  * Check the expansion function evaluated on the apparent horizon after the
@@ -89,6 +93,7 @@
 	 * the Cartesian grid
 	 * @param b_axis : [input] axis along the y-axis (cf a_axis)
 	 * @param c_axis : [input] axis along the z-axis (cf a_axis)
+	 * @param bool print : [input] screen printout during iterations? (default: false)
 	 * @param precis : [input] threshold in the relative difference between 
 	 * the 2-surface \f$h\f$ of two consecutive steps to stop
 	 * the iterative procedure (default value: 1.e-8)
@@ -103,8 +108,8 @@
 	 * @return bool ah_flag : a flag to indicate whether an apparent horizon is found
 	 */
 bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd_in, Valeur& h, Scalar& ex_fcn,
-	       double a_axis, double b_axis, double c_axis, double precis = 1.e-8, 
-	       double precis_exp = 1.e-6,  
+	       double a_axis, double b_axis, double c_axis, bool print = false,
+	       double precis = 1.e-8, double precis_exp = 1.e-6,  
 	       int it_max = 200, int it_relax = 200, double relax_fac = 1.) ;
 		
 #endif

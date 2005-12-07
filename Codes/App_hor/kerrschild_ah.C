@@ -30,6 +30,10 @@ char kerrschild_ah_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/12/07 11:11:46  lm_lin
+ *
+ * Add option to turn off screen output during iterations.
+ *
  * Revision 1.2  2005/11/17 14:27:51  lm_lin
  *
  * Modified according to the latest changes in the AH finder.
@@ -126,6 +130,7 @@ int main() {
   
   //Parameters to control the iteration
 
+  bool print = true ;
   double tol = 1.e-10 ;
   double tol_exp = 1.e-8 ;
   int it_max  = 100 ;  
@@ -335,7 +340,7 @@ int main() {
 
 
       cout << " AH flag = " 
-	   << ah_finder(gamma, k_dd, h, exp_fcn, aa, bb, cc, tol, tol_exp,
+	   << ah_finder(gamma, k_dd, h, exp_fcn, aa, bb, cc, print, tol, tol_exp,
 			it_max, it_relax, relax_fac) << endl ;
 
 

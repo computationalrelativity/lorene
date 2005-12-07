@@ -30,6 +30,10 @@ char app_hor_finder_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/12/07 11:11:09  lm_lin
+ *
+ * Add option to turn off screen output during iterations.
+ *
  * Revision 1.3  2005/11/17 15:53:28  lm_lin
  *
  * A tiny fix.
@@ -59,8 +63,8 @@ char app_hor_finder_C[] = "$Header$" ;
 
 
 bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& ex_fcn,
-	       double a_axis, double b_axis, double c_axis, double tol, double tol_exp,
-	       int it_max, int it_relax, double relax_fac)
+	       double a_axis, double b_axis, double c_axis, bool printout, 
+	       double tol, double tol_exp, int it_max, int it_relax, double relax_fac)
 {
 
     bool ah_flag = false ;
@@ -162,6 +166,7 @@ bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& e
   // Parameters to control the iteration
   //------------------------------------
 
+  bool print = printout ;   // Do screen printout during iterations? 
   double precis = tol ;     // precision to quit the iteration
   double precis_exp = tol_exp ;  // maximum error of the expansion on the AH
   int step_max = it_max ;   // maximum number of iteration
@@ -181,8 +186,6 @@ bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& e
 
   for (int step=0 ; (max(diff_h) > precis) && (step < step_max) ; step++) {
 
-    cout << "-------------------------------------" << endl ;
-    cout << "App_hor iteration step: " << step << endl ;
 
     // ***To be fixed: the function "set_grid_point" does not delete the derived 
     //                 quantities of F.
@@ -225,18 +228,6 @@ bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& e
     ex_fcn = s_unit.divergence(gamma) - k_dd.trace(gamma) + 
       contract( s_unit, 0, contract(s_unit, 0, k_dd, 1), 0) ; 
 
-    // Check: calculate the difference between ex_fcn and ex_fcn_old
-    Tbl diff_exfcn_tbl = diffrel( ex_fcn, ex_fcn_old ) ;
-    diff_exfcn = diff_exfcn_tbl(0) ;
-    for (int l=1; l<nz; l++) {
-	diff_exfcn += diff_exfcn_tbl(l) ;
-    }
-    diff_exfcn /= nz ;
-    cout << "diff_exfcn : " << diff_exfcn << endl ;
-
-    ex_fcn_old = ex_fcn ; // recycling 
-    // End check
-    
 
     // Construct the source term for the angular Laplace equation
     //---------------------------------------------------------
@@ -312,12 +303,32 @@ bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& e
       h_new = relax * h_new + relax_prev * h ;
     }
     
-
     // Recycling for the next step
     h = h_new ;
 
-    cout << "Difference in h : " << diff_h << endl ;
 
+    if (print) 
+      {
+
+	cout << "-------------------------------------" << endl ;
+	cout << "App_hor iteration step: " << step << endl ;
+	cout << "    " << endl ;
+
+	cout << "Difference in h : " << diff_h << endl ;
+
+	// Check: calculate the difference between ex_fcn and ex_fcn_old
+	Tbl diff_exfcn_tbl = diffrel( ex_fcn, ex_fcn_old ) ;
+	diff_exfcn = diff_exfcn_tbl(0) ;
+	for (int l=1; l<nz; l++) {
+	  diff_exfcn += diff_exfcn_tbl(l) ;
+	}
+	diff_exfcn /= nz ;
+	cout << "diff_exfcn : " << diff_exfcn << endl ;
+	
+	ex_fcn_old = ex_fcn ; // recycling 
+	// End check
+    
+      }
 
     if ( (step == step_max-1) && (max(diff_h) > precis) ) {
 
