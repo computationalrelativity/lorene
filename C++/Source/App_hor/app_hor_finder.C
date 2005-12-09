@@ -30,6 +30,10 @@ char app_hor_finder_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2005/12/09 09:35:06  lm_lin
+ *
+ * Add more information to screen output if no convergence.
+ *
  * Revision 1.5  2005/12/07 14:16:36  lm_lin
  *
  * Add option to turn off screen output if no horizon is found
@@ -337,11 +341,36 @@ bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& e
 
     if ( (step == step_max-1) && (max(diff_h) > precis) ) {
 
+
+      //Check: Evaluate the expansion function on the 2-surface
+      
+      for (int l=0; l<nz; l++) {
+
+	int jmax = mg->get_nt(l) ;
+	int kmax = mg->get_np(l) ;
+
+	for (int k=0; k<kmax; k++) {
+	  for (int j=0; j<jmax; j++) {
+
+	    ex_AH.set(l,k,j,0) = ex_fcn.val_point(h(l,k,j,0),(+theta)(l,k,j,0)
+						     ,(+phi)(l,k,j,0))  ;  
+	  }
+	}
+      }
+
+
+      cout << " " << endl ;
       cout << "###############################################" << endl ;
       cout << "AH finder: maximum number of iteration reached!" << endl ;
       cout << "      No convergence in the 2-surface h!      " << endl ;
+      cout << " max( difference in h ) > prescribed tolerance " << endl ;
+      cout << " " << endl ;
+      cout << " prescribed tolerance = " << precis << endl ;
+      cout << " max( difference in h ) = " << max(diff_h) << endl ;
+      cout << " max( expansion function on h ) = " << max(abs(ex_AH(0))) << endl ; 
       cout << "###############################################" << endl ;
-      cout << "    " << endl ;
+      cout << " " << endl ;
+
     }
 
 
