@@ -30,6 +30,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2005/12/09 09:35:59  lm_lin
+ *
+ * Minor fix in the documentation.
+ *
  * Revision 1.3  2005/12/07 11:11:30  lm_lin
  *
  * Add option to turn off screen output during iterations.
@@ -78,7 +82,7 @@
 	 * \f$\Psi\f$ is the conformal factor, and 
 	 * \f$|DF|:= (\gamma^{ij}D_iFD_jF)^{1/2} \f$ (where \f$F\f$ is the 
 	 * level set function \f$ F:=r-h(\theta,\phi) \f$ and \f$D_i\f$ is the 
-	 * covariant derivative w.r.t. \f$\gamma_{ij}\f$.	 
+	 * covariant derivative w.r.t. \f$\gamma_{ij}\f$).	 
        	 * We solve the above equation iteratively with the right hand side 
          * of the equation as a source term. 
 	 * 
