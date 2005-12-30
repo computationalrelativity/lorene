@@ -30,6 +30,10 @@ char vector_poisson_block_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2005/12/30 13:39:38  j_novak
+ * Changed the Galerkin base in the nucleus to (hopefully) stabilise the solver
+ * when used in an iteration. Similar changes in the CED too.
+ *
  * Revision 1.2  2005/02/15 15:43:18  j_novak
  * First version of the block inversion for the vector Poisson equation (method 6).
  *
@@ -104,10 +108,9 @@ void Vector::poisson_block(double lam, Vector& resu) const {
   int nr = mg.get_nr(0) ;
   int nt = mg.get_nt(0) ;
   int np = mg.get_np(0) ;
-  double alpha = mpaff->get_alpha()[0] ;
+  double alpha = mpaff->get_alpha()[0] ; double alp2 = alpha*alpha ;
   double beta = mpaff->get_beta()[0] ;
   int l_q = 0 ; int m_q = 0; int base_r = 0 ;
-  int nr0 = nr - 1 ; //one degree of freedom less because of division by r^2
 
   // Loop on l and m
   //----------------
@@ -115,76 +118,119 @@ void Vector::poisson_block(double lam, Vector& resu) const {
       for (int j=0 ; j<nt ; j++) { 
 	  base.give_quant_numbers(0, k, j, m_q, l_q, base_r) ;
 	  if ( (nullite_plm(j, nt, k, np, base) == 1) && (l_q != 0) ) {
-	      int dege1 = 1 ; //degeneracy of eq.1
-	      int dege2 = 0 ; //degeneracy of eq.2
-	      int nr_eq1 = nr0 - dege1 ; //Eq.1 is for h (eta/r^2)
-	      int nr_eq2 = nr0 - dege2 ; //Eq.2 is for v (V^r / r^2)
-	      int nrtot = nr_eq1 + nr_eq2 ;
-	      Matrice oper(nrtot, nrtot) ; oper.set_etat_qcq() ;
+	      int aa = 0 ; int bb = 0 ;  int nr0 = 0 ;
+	      if (base_r == R_CHEBP) {
+		  nr0 = nr-1 ;
+		  aa = 0 ; bb = 1 ;
+	      }
+	      else {
+		  assert (base_r == R_CHEBI) ;
+		  nr0 = nr - 2 ;
+		  aa = 2 ; bb = 1 ;
+	      }
+	      int d0 = nr - nr0 ;
+	      int nrtot = 2*nr0 ;
+	      Matrice oper(2*nr, 2*nr) ; oper.set_etat_qcq() ;
 	      Tbl sec_membre(nrtot) ; sec_membre.set_etat_qcq() ;
-	      Diff_x2dsdx2 d2(base_r, nr) ; const Matrice& md2 = d2.get_matrice() ;
-	      Diff_xdsdx xd(base_r, nr) ; const Matrice& mxd = xd.get_matrice() ;
-	      Diff_id id(base_r, nr) ; const Matrice& mid = id.get_matrice() ;
+	      Diff_dsdx2 d2(base_r, nr) ; const Matrice& md2 = d2.get_matrice() ;
+	      Diff_sxdsdx xd(base_r, nr) ; const Matrice& mxd = xd.get_matrice() ;
+	      Diff_sx2 s2(base_r, nr) ; const Matrice& ms2 = s2.get_matrice() ;
 
 	      // Building the operator
 	      //----------------------
-	      for (int lin=0; lin<nr_eq1; lin++) { //eq.1 
-		  for (int col=dege1; col<nr0; col++) 
-		      oper.set(lin,col-dege1) 
-			  = md2(lin,col) + 6*mxd(lin,col) 
-			  + (6-(lam+1)*l_q*(l_q+1))*mid(lin,col) ;
-		  for (int col=dege2; col<nr0; col++) 
-		      oper.set(lin,col-dege2+nr_eq1) = lam*mxd(lin,col) 
-			  + 2*(1+2*lam)*mid(lin,col) ;
+	      for (int lin=0; lin<nr; lin++) { //eq.1 
+		  for (int col=0; col<nr; col++) 
+		      oper.set(lin,col) = 
+			  (md2(lin,col) + 2*mxd(lin,col) 
+			   -(lam+1)*l_q*(l_q+1)*ms2(lin,col)) / alp2 ;
+		  for (int col=0; col<nr; col++) 
+		      oper.set(lin,col+nr) = 
+			  (lam*mxd(lin,col) + 2*(1+lam)*ms2(lin,col)) / alp2 ;
 	      }
-	      for (int lin=0; lin<nr_eq2; lin++) { //eq.2
-		  for (int col=dege1; col<nr0; col++)
-		      oper.set(lin+nr_eq1,col-dege1) = -lam*l_q*(l_q+1)*mxd(lin,col) 
-			  -(lam-2)*l_q*(l_q+1)*mid(lin,col) ;
-		  for (int col=dege2; col<nr0; col++)
-		      oper.set(lin+nr_eq1, col-dege2+nr_eq1) = 
-			  (lam+1)*(md2(lin,col) + 6*mxd(lin,col)) 
-			  + (4*(lam+1) - l_q*(l_q+1))*mid(lin,col) ;
+	      for (int lin=0; lin<nr; lin++) { //eq.2
+		  for (int col=0; col<nr; col++)
+		      oper.set(lin+nr,col) = 
+			  (-lam*l_q*(l_q+1)*mxd(lin,col) 
+			   +(lam+2)*l_q*(l_q+1)*ms2(lin,col)) / alp2 ;
+		  for (int col=0; col<nr; col++)
+		      oper.set(lin+nr, col+nr) = 
+			  ((lam+1)*(md2(lin,col) + 2*mxd(lin,col)) 
+			   - (2*(lam+1) + l_q*(l_q+1))*ms2(lin,col)) / alp2 ;
 	      }
-	      oper.set_lu() ;
+	      bool pb_eta = ( ( fabs( lam*double(l_q+3) + 2 ) < 0.01) && (l_q <=2) ) ;
+	      if (!pb_eta) {
+		  for (int col=0; col<nr; col++) 
+		      oper.set(nr0-1, col) = 1 ;
+		  for (int col=0; col<nr; col++) 
+		      oper.set(nr0-1,nr+col) = 0 ;		  
+	      }
+	      if ((l_q > 2)||pb_eta) {
+		  for (int col=0; col<nr; col++) 
+		      oper.set(nr+nr0-1, col) = 0 ;
+		  for (int col=0; col<nr; col++) 
+		      oper.set(nr+nr0-1,nr+col) = 1 ;		  
+	      }
+
+	      Matrice op2(nrtot, nrtot) ;
+	      op2.set_etat_qcq() ;
+	      for (int i=0; i<nr0; i++) {
+		  for (int col=0; col<nr0;col++) 
+		      op2.set(i,col) = (aa*col+bb)*oper(i,col+1) 
+			  + (aa*(col+1)+bb)*oper(i,col) ;
+		  for (int col=0; col<nr0;col++) 
+		      op2.set(i,col+nr0) = (aa*col+bb)*oper(i,col+nr+1)
+			  + (aa*(col+1)+bb)*oper(i,col+nr) ;
+	      }
+
+	      for (int i=nr0; i<nrtot; i++) {
+		  for (int col=0; col<nr0;col++) 
+		      op2.set(i,col) = (aa*col+bb)*oper(i+d0,col+1) 
+			  + (aa*(col+1)+bb)*oper(i+d0,col) ;
+		  for (int col=0; col<nr0;col++) 
+		      op2.set(i,col+nr0) = (aa*col+bb)*oper(i+d0,col+nr+1)
+			  + (aa*(col+1)+bb)*oper(i+d0,col+nr) ;
+	      }
+ 	      op2.set_lu() ;
 
 	      // Filling the r.h.s
 	      //------------------
-	      for (int i=0; i<nr_eq1; i++)  //eq.1
+	      for (int i=0; i<nr0; i++)  //eq.1
 		  sec_membre.set(i) = (*S_eta.get_spectral_va().c_cf)(0, k, j, i) ;
-	      for (int i=0; i<nr_eq2; i++) //eq.2
-		  sec_membre.set(i+nr_eq1) = (*S_r.get_spectral_va().c_cf)(0, k, j, i) ;
+	      if (!pb_eta) sec_membre.set(nr0-1) = 0 ;
+	      for (int i=0; i<nr0; i++) //eq.2
+		  sec_membre.set(i+nr0) 
+		      = (*S_r.get_spectral_va().c_cf)(0, k, j, i) ;
+	      if ((l_q > 2)||pb_eta) sec_membre.set(nrtot-1) = 0 ;
 
 	      // Inversion of the "big" operator
 	      //--------------------------------
-	      Tbl big_res = oper.inverse(sec_membre) ;
+	      Tbl big_res = op2.inverse(sec_membre) ;
 	      Tbl res_eta(nr) ;	 res_eta.set_etat_qcq() ;
 	      Tbl res_vr(nr) ;  res_vr.set_etat_qcq() ;
 	      
-	      // Putting coefficients of h and v to individual arrays
-	      //-----------------------------------------------------
-	      for (int i=0; i<dege1; i++)
-		  res_eta.set(i) = 0 ;
-	      for (int i=dege1; i<nr0; i++)
-		  res_eta.set(i) = big_res(i-dege1) ;
-	      res_eta.set(nr0) = 0 ;
-	      for (int i=0; i<dege2; i++)
-		  res_vr.set(i) = 0 ;
-	      for (int i=dege2; i<nr0; i++)
-		  res_vr.set(i) = big_res(i-dege2+nr_eq1) ;
-	      res_vr.set(nr0) = 0 ;
-
-	      // Multiplication by xi^2 (the alpha^2 factor comes soon)
-	      //-------------------------------------------------------
-	      multx2_1d(nr, &res_eta.t, base_r) ;
-	      multx2_1d(nr, &res_vr.t, base_r) ;
+	      // Putting coefficients of eta and Vr to individual arrays
+	      //--------------------------------------------------------
+	      res_eta.set(0) = (aa+bb)*big_res(0) ;
+	      for (int i=1; i<nr0; i++)
+		  res_eta.set(i) = (aa*(i-1)+bb)*big_res(i-1) 
+		      + (aa*(i+1)+bb)*big_res(i);
+	      res_eta.set(nr0) = big_res(nr0-1)*(aa*(nr0-1) + bb) ;
+	      res_vr.set(0) = (aa+bb)*big_res(nr0) ;
+	      for (int i=1; i<nr0; i++)
+		  res_vr.set(i) = (aa*(i-1)+bb)*big_res(nr0+i-1) 
+		      + (aa*(i+1)+bb)*big_res(nr0+i);
+	      res_vr.set(nr0) = big_res(nrtot-1)*(aa*(nr0-1)+bb) ;
+	      if (base_r == R_CHEBI) {
+		  res_eta.set(nr-1) = 0 ;
+		  res_vr.set(nr-1) = 0 ;
+	      }
 
 	      // Homogeneous solution (only r^(l-1) and r^(l+1) in the nucleus)
 	      Tbl sol_hom1 = solh(nr, l_q-1, 0., base_r) ;
 	      Tbl sol_hom2 = solh(nr, l_q+1, 0., base_r) ;
 	      for (int i=0 ; i<nr ; i++) {
-		  sol_part_eta.set(0, k, j, i) = alpha*alpha*res_eta(i) ;
-		  sol_part_vr.set(0, k, j, i) = alpha*alpha*res_vr(i) ;
+		  sol_part_eta.set(0, k, j, i) = res_eta(i) ;
+		  sol_part_vr.set(0, k, j, i) = res_vr(i) ;
 		  solution_hom_un.set(0, k, j, i) = sol_hom1(i) ;
 		  solution_hom_deux.set(0, k, j, i) = 0. ; 
 		  solution_hom_trois.set(0, k, j, i) = sol_hom2(i) ; 
@@ -310,9 +356,8 @@ void Vector::poisson_block(double lam, Vector& resu) const {
   nr = mg.get_nr(nzm1) ;
   assert(nt == mg.get_nt(nzm1)) ;
   assert(np == mg.get_np(nzm1)) ;
-  alpha = mpaff->get_alpha()[nzm1] ;
+  alpha = mpaff->get_alpha()[nzm1] ; alp2 = alpha*alpha ;
   assert (nr > 4) ;
-  nr0 = nr - 2 ;  //two degrees of freedom less because of division by u^2
 
   // Loop on l and m
   //----------------
@@ -320,39 +365,43 @@ void Vector::poisson_block(double lam, Vector& resu) const {
       for (int j=0 ; j<nt ; j++) { 
 	  base.give_quant_numbers(nzm1, k, j, m_q, l_q, base_r) ;
 	  if ( (nullite_plm(j, nt, k, np, base) == 1) && (l_q != 0) ) {
-	      int dege1 = 1; //degeneracy of eq.1
-	      int dege2 = 0; //degeneracy of eq.2
-	      int nr_eq1 = nr0 - dege1 ; //Eq.1 is for eta
-	      int nr_eq2 = nr0 - dege2 ; //Eq.2 is the div-free condition
+	      int dege1 = 3; //degeneracy of eq.1
+	      int dege2 = (l_q == 1 ? 2 : 3); //degeneracy of eq.2
+	      if ( fabs( lam*double(l_q+3) + 2 ) < 0.01) {
+		  dege1 = dege2 ;
+		  dege2 = 3 ;
+	      }
+	      int nr_eq1 = nr - dege1 ; //Eq.1 is for eta
+	      int nr_eq2 = nr - dege2 ; //Eq.2 is the div-free condition
 	      int nrtot = nr_eq1 + nr_eq2 ;
 	      Matrice oper(nrtot, nrtot) ; oper.set_etat_qcq() ;
 	      Tbl sec_membre(nrtot) ; sec_membre.set_etat_qcq() ;
-	      Diff_x2dsdx2 x2d2(base_r, nr) ; const Matrice& m2d2 = x2d2.get_matrice() ;
-	      Diff_xdsdx xd(base_r, nr) ; const Matrice& mxd = xd.get_matrice() ;
-	      Diff_id id(base_r, nr) ; const Matrice& mid = id.get_matrice() ;
+	      Diff_dsdx2 d2(base_r, nr) ; const Matrice& md2 = d2.get_matrice() ;
+	      Diff_sxdsdx sxd(base_r, nr) ; const Matrice& mxd = sxd.get_matrice() ;
+	      Diff_sx2 sx2(base_r, nr) ; const Matrice& ms2 = sx2.get_matrice() ;
 
 	      // Building the operator
 	      //----------------------
 	      for (int lin=0; lin<nr_eq1; lin++) { 
-		  for (int col=dege1; col<nr0; col++) 
+		  for (int col=dege1; col<nr; col++) 
 		      oper.set(lin,col-dege1) 
-			  = m2d2(lin,col) + 4*mxd(lin,col) 
-			  + (2-(lam+1)*l_q*(l_q+1))*mid(lin,col) ;
-			  for (int col=dege2; col<nr0; col++) 
+			  = (md2(lin,col) - (lam+1)*l_q*(l_q+1)*ms2(lin,col))/alp2 ;
+			  for (int col=dege2; col<nr; col++) 
 			      oper.set(lin,col-dege2+nr_eq1) = 
-				  -lam*mxd(lin,col) + 2*mid(lin,col) ;
+				  (-lam*mxd(lin,col) + 2*(1+lam)*ms2(lin,col)) / alp2 ;
 	      }
 	      for (int lin=0; lin<nr_eq2; lin++) {
-		  for (int col=dege1; col<nr0; col++)
+		  for (int col=dege1; col<nr; col++)
 		      oper.set(lin+nr_eq1,col-dege1) 
-			  = l_q*(l_q+1)*(lam*mxd(lin,col) + (3*lam+2)*mid(lin,col)) ;
-		  for (int col=dege2; col<nr0; col++)
+			  = (l_q*(l_q+1)*(lam*mxd(lin,col) 
+					  + (lam+2)*ms2(lin,col))) / alp2 ;
+		  for (int col=dege2; col<nr; col++)
 		      oper.set(lin+nr_eq1, col-dege2+nr_eq1) 
-			  = (lam+1)*(m2d2(lin,col) + 4*mxd(lin,col)) 
-			  - l_q*(l_q+1)*mid(lin,col) ;
+			  = ((lam+1)*md2(lin,col) 
+			     - (2*(lam+1) + l_q*(l_q+1))*ms2(lin,col)) / alp2 ;
 	      }
 	      oper.set_lu() ;
-	      
+
 	      // Filling the r.h.s
 	      //------------------
 	      for (int i=0; i<nr_eq1; i++) 
@@ -360,37 +409,43 @@ void Vector::poisson_block(double lam, Vector& resu) const {
 	      for (int i=0; i<nr_eq2; i++)
 		  sec_membre.set(i+nr_eq1) =(*S_r.get_spectral_va().c_cf)(nzm1, k, j, i);
 	      Tbl big_res = oper.inverse(sec_membre) ;
-	      Tbl res_eta(nr) ;	 res_eta.set_etat_qcq() ;
-	      Tbl res_vr(nr) ;  res_vr.set_etat_qcq() ;
+ 	      Tbl res_eta(nr) ;	 res_eta.set_etat_qcq() ;
+ 	      Tbl res_vr(nr) ;  res_vr.set_etat_qcq() ;
 		  
 	      // Putting coefficients of h and v to individual arrays
 	      //-----------------------------------------------------
 	      for (int i=0; i<dege1; i++)
 		  res_eta.set(i) = 0 ;
-	      for (int i=dege1; i<nr0; i++)
+	      for (int i=dege1; i<nr; i++)
 		  res_eta.set(i) = big_res(i-dege1) ;
-	      res_eta.set(nr0) = 0 ;
-	      res_eta.set(nr0+1) = 0 ;
 	      for (int i=0; i<dege2; i++)
 		  res_vr.set(i) = 0 ;
-	      for (int i=dege2; i<nr0; i++)
+	      for (int i=dege2; i<nr; i++)
 		  res_vr.set(i) = big_res(i-dege2+nr_eq1) ;
-	      res_vr.set(nr0) = 0 ;
-	      res_vr.set(nr0+1) = 0 ;
+	      double somme = 0 ;
+	      for (int i=0 ; i<nr ; i++)
+		  somme += i*i*res_eta(i) ;
+	      double somme_deux = somme ;
+	      for (int i=0 ; i<nr ; i++)
+		  somme_deux -= res_eta(i) ;
+	      res_eta.set(1) = -somme ;
+	      res_eta.set(0) = somme_deux ;
+	      somme = 0 ;
+	      for (int i=0 ; i<nr ; i++)
+		  somme += i*i*res_vr(i) ;
+	      somme_deux = somme ;
+	      for (int i=0 ; i<nr ; i++)
+		  somme_deux -= res_vr(i) ;
+	      res_vr.set(1) = -somme ;
+	      res_vr.set(0) = somme_deux ;
 
-	      // Multiplication by u^2 
-	      //-----------------------
-	      Tbl res_v2(nr) ;  res_v2.set_etat_qcq() ;
-	      Tbl res_e2(nr) ; res_e2.set_etat_qcq() ;
-	      mult2_xm1_1d_cheb(nr, res_eta.t, res_e2.t) ; 
-	      mult2_xm1_1d_cheb(nr, res_vr.t, res_v2.t) ; 
 
 	      // Homogeneous solution (only 1/r^(l+2) and 1/r^l in the CED)
 	      Tbl sol_hom1 = solh(nr, l_q-1, 0., base_r) ;
 	      Tbl sol_hom2 = solh(nr, l_q+1, 0., base_r) ;
 	      for (int i=0 ; i<nr ; i++) {
-		  sol_part_eta.set(nzm1, k, j, i) = alpha*alpha*res_e2(i) ;
-		  sol_part_vr.set(nzm1, k, j, i) = alpha*alpha*res_v2(i) ;
+		  sol_part_eta.set(nzm1, k, j, i) = res_eta(i) ;
+		  sol_part_vr.set(nzm1, k, j, i) = res_vr(i) ;
 		  solution_hom_un.set(nzm1, k, j, i) = 0. ;
 		  solution_hom_deux.set(nzm1, k, j, i) = sol_hom2(i) ;
 		  solution_hom_trois.set(nzm1, k, j, i) = 0. ;
@@ -427,12 +482,10 @@ void Vector::poisson_block(double lam, Vector& resu) const {
 	  base.give_quant_numbers(0, k, j, m_q, l_q, base_r) ;
 	  if ((nullite_plm(j, nt, k, np, base) == 1)&&(l_q != 0)) {
 		
-	      double f3_eta = lam*l_q + 3*lam + 2 ;
-	      double f4_eta = 2 + 2*lam - lam*l_q ;
-	      double f3_vr = (l_q+1)*(lam*l_q - 2) ;
-	      double f4_vr = l_q*(lam*l_q + lam + 2) ;
-// 	      cout << f3_eta << ", " << f4_eta << endl ;
-// 	      cout << f3_vr << ", " << f4_vr << endl ;	      
+	      double f3_eta = lam*double(l_q) + 3.*lam + 2. ;
+	      double f4_eta = 2. + 2.*lam - lam*double(l_q) ;
+	      double f3_vr = double(l_q+1)*(lam*double(l_q) - 2.) ;
+	      double f4_vr = double(l_q)*(lam*double(l_q) + lam + 2.) ;
 	      ligne = 0 ;
 	      colonne = 0 ;
 	      sec_membre.annule_hard() ;
@@ -636,8 +689,6 @@ void Vector::poisson_block(double lam, Vector& resu) const {
 	      // Solution of the system giving the coefficients for the homogeneous 
 	      // solutions
 	      //-------------------------------------------------------------------
-	      if (taille > 2) systeme.set_band(5,5) ;
-	      else systeme.set_band(1,1) ;
 	      systeme.set_lu() ;
 	      Tbl facteurs(systeme.inverse(sec_membre)) ;
 	      int conte = 0 ;
