@@ -18,6 +18,11 @@ SRC3 = prepare_seq.C
 OBJ3 = $(SRC3:.C=.o)
 EXE3 = $(SRC3:.C=)
 
+SRC4 = isolhor_spher.C
+OBJ4 = $(SRC4:.C=.o)
+EXE4 = $(SRC4:.C=)
+
+
 $(EXE1): $(OBJ1)
 	$(CXX) -o $@ $(CXXFLAGS) $(OBJ1) $(LIB) $(LIB_LAPACK) \
 			$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX) $(LIB_GSL)
@@ -27,10 +32,14 @@ $(EXE2): $(OBJ2)
 $(EXE3): $(OBJ3)
 	$(CXX) -o $@ $(CXXFLAGS) $(OBJ3) $(LIB) $(LIB_LAPACK) \
 			$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX) $(LIB_GSL)
+$(EXE4): $(OBJ4)
+	$(CXX) -o $@ $(CXXFLAGS) $(OBJ4) $(LIB) $(LIB_LAPACK) \
+			$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX) $(LIB_GSL)
+
 
 .C.o:
 	$(CXX)  -c $(CXXFLAGS) $(INC) $<
 
 uninstall:
-	rm -f $(OBJ1) $(OBJ2) $(OBJ3) 
-	rm -f $(EXE1) $(EXE2) $(EXE3)
+	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) 
+	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4)

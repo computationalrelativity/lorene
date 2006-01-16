@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.42  2006/01/16 17:15:34  jl_jaramillo
+ * function for solving the spherical case
+ *
  * Revision 1.41  2005/11/02 16:10:38  jl_jaramillo
  * change in boundary_nn_Dir_lapl
  *
@@ -619,6 +622,13 @@ class Isol_hor : public Time_slice_conf {
   void init_data(int bound_nn, double lim_nn, int bound_psi, int bound_beta,
 		 int solve_lapse, int solve_psi, int solve_shift, 
 		 double precis = 1.e-12, double relax = 1., int niter = 100) ; 
+
+  void init_data_spher(int bound_nn, double lim_nn, int bound_psi, 
+		       int bound_beta, int solve_lapse, int solve_psi, 
+		       int solve_shift, double precis = 1.e-12, 
+		       double relax = 1., int niter = 100) ; 
+
+
 
   //Sources
   //-------
