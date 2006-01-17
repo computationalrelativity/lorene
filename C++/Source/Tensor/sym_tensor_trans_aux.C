@@ -30,6 +30,9 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2006/01/17 15:50:53  j_novak
+ * Slight re-arrangment of the det=1 formula.
+ *
  * Revision 1.8  2005/11/28 14:45:17  j_novak
  * Improved solution of the Poisson tensor equation in the case of a transverse
  * tensor.
@@ -154,13 +157,10 @@ void Sym_tensor_trans::set_WX_det_one(const Scalar& w_in, const Scalar& x_in,
 	set_auxiliary(hrr_new, eta_new, mu_over_r, w_in, x_in, t_new) ;
 
 	const Sym_tensor_trans& hij = *this ;
-	Scalar h_new = hij(1,1) * hij(2,3) * hij(2,3) 
-	    + hij(2,2) * hij(1,3) * hij(1,3) + hij(3,3) * hij(1,2) * hij(1,2)
-	    - 2.* hij(1,2) * hij(1,3) * hij(2,3) 
-            - hij(1,1) * hij(2,2) * hij(3,3)
-	    + hij(1,2) * hij(1,2) + hij(1,3) * hij(1,3) 
-	    + hij(2,3) * hij(2,3) - hij(1,1) * hij(2,2) 
-	    - hij(1,1) * hij(3,3) - hij(2,2) * hij(3,3) ;
+	Scalar h_new = (1 + hij(1,1))*( hij(2,3)*hij(2,3) - hij(2,2)*hij(3,3) )
+	    + hij(1,2)*hij(1,2)*(1 + hij(3,3)) 
+	    + hij(1,3)*hij(1,3)*(1 + hij(2,2)) 
+	    - hij(1,1)*(hij(2,2) + hij(3,3)) - 2*hij(1,2)*hij(1,3)*hij(2,3) ;
 	h_new.set_spectral_base(hrr_new.get_spectral_base()) ;
 
 	Tbl tdif = max(abs(h_new - h_old)) ;
