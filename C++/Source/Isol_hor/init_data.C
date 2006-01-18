@@ -31,6 +31,9 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.25  2006/01/18 12:28:35  jl_jaramillo
+ * new method (chi, Theta) for the spherical symmetric case
+ *
  * Revision 1.24  2006/01/18 09:04:27  f_limousin
  * Minor modifs (warnings and errors at the compilation with gcc-3.4)
  *
@@ -522,6 +525,8 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 
 
 
+
+
 void Isol_hor::init_data_spher(int bound_nn, double lim_nn, int bound_psi, 
 			 int bound_beta, int solve_lapse, int solve_psi,
 			 int solve_shift, double precis, 
@@ -635,7 +640,7 @@ void Isol_hor::init_data_spher(int bound_nn, double lim_nn, int bound_psi,
        Scalar diff_sou_btilde ( source_btilde_trun - source_btilde) ;
        diff_sou_btilde.dec_dzpuis(4) ;
        
-
+       /*
        cout << "dzpuis mag_btilde =" << mag_sou_btilde.get_dzpuis()<<endl  ;
        des_meridian(diff_sou_psi, 1, 10., "diff_psi", 0) ;
        des_meridian(diff_sou_nn, 1, 10., "diff_nn", 1) ;
@@ -646,7 +651,8 @@ void Isol_hor::init_data_spher(int bound_nn, double lim_nn, int bound_psi,
        //       des_meridian(diff_dbeta, 1, 10., "diff_dbeta", 6) ;
        
        arrete() ;
-      
+       */
+
       
        //====================
        // Boundary conditions
@@ -786,6 +792,353 @@ void Isol_hor::init_data_spher(int bound_nn, double lim_nn, int bound_psi,
 	   cout <<  tgam().radial_vect() << endl ;
 	   beta_evol.update(beta_jp1, jtime, ttime) ;	
 	 }
+	if (solve_shift == 1 || solve_lapse == 1)
+	  {
+	    update_aa() ;
+	  }
+
+	// Saving ok K_{ij}s^is^j
+	// -----------------------
+	
+	Scalar kkss (contract(k_dd(), 0, 1, gam().radial_vect()*
+			      gam().radial_vect(), 0, 1)) ;
+	double max_kss = kkss.val_grid_point(1, 0, 0, 0) ;
+	double min_kss = kkss.val_grid_point(1, 0, 0, 0) ;
+	
+	Scalar aaLss (pow(psi(), 6) * kkss) ;
+	double max_aaLss = aaLss.val_grid_point(1, 0, 0, 0) ;
+	double min_aaLss = aaLss.val_grid_point(1, 0, 0, 0) ;
+	
+	Scalar hh_tilde (contract(met_gamt.radial_vect().derive_cov(met_gamt), 0, 1)) ;
+	double max_hh_tilde = hh_tilde.val_grid_point(1, 0, 0, 0) ;
+	double min_hh_tilde = hh_tilde.val_grid_point(1, 0, 0, 0) ;
+	
+	
+
+	for (int k=0 ; k<nnp ; k++)
+	  for (int j=0 ; j<nnt ; j++){
+	    if (kkss.val_grid_point(1, k, j, 0) > max_kss)
+	      max_kss = kkss.val_grid_point(1, k, j, 0) ;
+	    if (kkss.val_grid_point(1, k, j, 0) < min_kss)
+	      min_kss = kkss.val_grid_point(1, k, j, 0) ;
+
+	    if (aaLss.val_grid_point(1, k, j, 0) > max_aaLss)
+	      max_aaLss = aaLss.val_grid_point(1, k, j, 0) ;
+	    if (aaLss.val_grid_point(1, k, j, 0) < min_aaLss)
+	      min_aaLss = aaLss.val_grid_point(1, k, j, 0) ;
+	    
+	    if (hh_tilde.val_grid_point(1, k, j, 0) > max_hh_tilde)
+	      max_hh_tilde = hh_tilde.val_grid_point(1, k, j, 0) ;
+	    if (hh_tilde.val_grid_point(1, k, j, 0) < min_hh_tilde)
+	      min_hh_tilde = hh_tilde.val_grid_point(1, k, j, 0) ;
+	    
+	  }
+	
+	
+	kss << mer << " " << max_kss << " " << min_kss << " " << max_aaLss << " " << min_aaLss
+	    << " " <<  -1 * max_hh_tilde << " "  << -1 * min_hh_tilde << endl ;
+    }
+    
+    conv.close() ;   
+    kss.close() ;
+
+} 
+
+
+
+void Isol_hor::init_data_alt(int bound_nn, double lim_nn, int bound_psi, 
+			 int bound_beta, int solve_lapse, int solve_psi,
+			 int solve_shift, double precis, 
+			 double relax, int niter) {
+
+    using namespace Unites ;
+   
+    // Initialisations
+    // ---------------
+    double ttime = the_time[jtime] ;    
+
+    ofstream conv("resconv.d") ; 
+    ofstream kss("kss.d") ;
+    conv << " # diff_nn   diff_psi   diff_beta " << endl ;
+
+    Scalar psi_j (psi()) ;
+    Scalar nn_j (nn()) ;
+    Scalar btilde_j (b_tilde()) ;    
+    Scalar diffb (  btilde_j - b_tilde() ) ;
+    Scalar theta_j (beta().divergence(ff)) ;
+    theta_j.dec_dzpuis(2) ;
+    Scalar chi_j (b_tilde()) ;
+    chi_j.mult_r() ;
+
+   
+    // Iteration
+    // ---------
+
+    for (int mer=0; mer<niter; mer++) {
+
+      
+      des_meridian(psi_j, 1, 10., "psi", 0) ;
+      des_meridian(nn_j, 1, 10., "nn", 1) ;
+      des_meridian(theta_j, 1, 10., "Theta", 2) ;
+      des_meridian(chi_j, 1, 10., "chi", 3) ;
+      arrete() ;
+
+
+      //========
+      // Sources
+      //========
+
+      // Useful functions
+      // ----------------
+       Vector tem_vect (beta() ) ;
+       //       Scalar dif_b = btilde_j - tem_vect.set(1) ;
+       //       cout << "dif_b = " << dif_b << endl ;	
+       //       arrete() ;
+       
+       Scalar dbdr ( btilde_j.dsdr() ) ;
+
+       Scalar bsr (btilde_j) ;
+       bsr.div_r() ;
+       bsr.inc_dzpuis(2) ;
+
+       Scalar bsr2 ( bsr) ;
+       bsr2.div_r() ;
+       bsr2.inc_dzpuis(2)  ;
+      
+       Scalar psisr (psi_j) ;
+       psisr.div_r() ;
+       psisr.inc_dzpuis(2) ;
+
+       Scalar dchidr ( chi_j.dsdr() ) ;
+       
+       Scalar chisr (chi_j) ;
+       chisr.div_r() ;
+       chisr.inc_dzpuis(2) ;
+      
+       Scalar rdthetadr (theta_j.dsdr() ) ;
+       rdthetadr.mult_r() ;
+       rdthetadr.inc_dzpuis(2) ;
+
+       Scalar theta_dz4 (theta_j) ;
+       theta_dz4.inc_dzpuis(4) ; 
+
+       Scalar dbmb (dchidr - 2 * chisr) ;
+       dbmb.div_r() ;
+     
+
+       // Source Psi
+       // ----------
+       Scalar source_psi_spher(mp) ;
+
+       source_psi_spher = -1./12. * psi_j*psi_j*psi_j*psi_j*psi_j/(nn_j * nn_j) 
+       	 * dbmb *dbmb ; 
+
+       
+       // Source N
+       //---------
+       Scalar source_nn_spher(mp) ;
+       source_nn_spher = 2./3. * psi_j*psi_j*psi_j*psi_j/nn_j * dbmb *dbmb
+	 - 2 * psi_j.dsdr()/psi_j * nn_j.dsdr() ;
+
+
+
+       // Source_theta
+       //-------------
+       Scalar source_theta_spher(mp) ;
+       
+       source_theta_spher =  (dbmb * (nn_j.dsdr()/nn_j - 6 * psi_j.dsdr()/psi_j)).dsdr() ; 
+       source_theta_spher.dec_dzpuis() ;
+       
+       
+       
+       // Source chi
+       //-----------
+       Scalar source_chi_spher(mp) ;
+       
+       source_chi_spher = 4./3. * (dchidr - 2 * chisr) * ( nn_j.dsdr()/nn_j  - 6 * psi_j.dsdr()/psi_j ) 
+                      	  - 1./3. * rdthetadr + 2 * theta_dz4 ;
+			  
+
+      
+       //====================
+       // Boundary conditions
+       //====================
+       double kappa_0 = 0.2 - 1. ;
+       
+       Scalar kappa (mp) ;
+       kappa = kappa_0 ;
+       kappa.std_spectral_base() ;
+       kappa.inc_dzpuis(2) ;
+       
+       
+       int nnp = mp.get_mg()->get_np(1) ;
+       int nnt = mp.get_mg()->get_nt(1) ;
+       
+       
+       Valeur psi_bound (mp.get_mg()-> get_angu()) ;
+       Valeur nn_bound (mp.get_mg()-> get_angu()) ;
+       Valeur theta_bound (mp.get_mg()-> get_angu()) ;
+       Valeur chi_bound (mp.get_mg()-> get_angu()) ;
+
+       psi_bound = 1. ; // Juste pour affecter dans espace des configs ;
+       nn_bound = 1. ; // Juste pour affecter dans espace des configs ;
+       theta_bound = 1. ; // Juste pour affecter dans espace des configs ;
+       chi_bound = 1. ; // Juste pour affecter dans espace des configs ;
+
+       //psi
+
+       Scalar tmp_psi = -1./4. * (2 * psisr +  
+				  2./3. * psi_j*psi_j*psi_j/ nn_j * dbmb ) ;
+
+       //       tmp_psi = 2./3. * psi_j*psi_j*psi_j/ nn_j * (dchidr - 2 * chisr) ;
+       //       tmp_psi.div_r() ; 
+       //       tmp_psi =  -1./4. * (2 * psisr + tmp_psi) ;
+       
+       //nn
+       Scalar tmp_nn = kappa ; //+ 2./3. * psi_j*psi_j * dbmb ;
+      
+
+       //theta
+       Scalar tmp_theta = dchidr ;
+       tmp_theta.dec_dzpuis(2) ;
+       tmp_theta += nn_j/(psi_j*psi_j)  ;
+       tmp_theta.div_r() ;
+      
+
+       //chi
+       Scalar tmp_chi = nn_j/(psi_j*psi_j) ;
+       tmp_chi.mult_r() ;
+      
+
+       for (int k=0 ; k<nnp ; k++)
+	 for (int j=0 ; j<nnt ; j++){
+	   psi_bound.set(0, k, j, 0) = tmp_psi.val_grid_point(1, k, j, 0) ;       // BC Psi
+	   nn_bound.set(0, k, j, 0) = tmp_nn.val_grid_point(1, k, j, 0) ;         // BC N
+	   theta_bound.set(0, k, j, 0) = tmp_theta.val_grid_point(1, k, j, 0) ;       // BC Theta
+	   chi_bound.set(0, k, j, 0) = tmp_chi.val_grid_point(1, k, j, 0) ;       // BC chi	   
+	 }
+       
+       psi_bound.std_base_scal() ;
+       nn_bound.std_base_scal() ;
+       theta_bound.std_base_scal() ;
+       chi_bound.std_base_scal() ;       
+
+
+       
+       //=================================
+       // Resolution of elliptic equations
+       //=================================
+       
+       // Resolution of the Poisson equation for Psi
+       // ------------------------------------------
+       Scalar psi_jp1 (mp) ;
+       if (solve_psi == 1) {
+	 
+	psi_jp1 = source_psi_spher.poisson_neumann(psi_bound, 0) + 1. ;
+	
+	// Test:
+	maxabs(psi_jp1.laplacian() -  source_psi_spher,
+	       "Absolute error in the resolution of the equation for Psi") ;  
+	// Relaxation (relax=1 -> new ; relax=0 -> old )  
+	psi_jp1 = relax * psi_jp1 + (1 - relax) * psi_j ;
+       }
+       
+      // Resolution of the Poisson equation for the lapse
+      // ------------------------------------------------
+       Scalar nn_jp1 (mp) ;
+       if (solve_lapse == 1) {
+	 
+	 nn_jp1 = source_nn_spher.poisson_dirichlet(nn_bound, 0) + 1. ;
+	
+	 // Test:
+	 maxabs(nn_jp1.laplacian() - source_nn_spher,
+		"Absolute error in the resolution of the equation for N") ;
+	 
+	 // Relaxation (relax=1 -> new ; relax=0 -> old )  
+	 if (mer==0)
+	  n_evol.update(nn_jp1, jtime, ttime) ; 
+	 else
+	   nn_jp1 = relax * nn_jp1 + (1 - relax) * nn_j ;
+	 
+       }
+
+
+       // Resolution for chi and Theta
+       // ----------------------------
+       Scalar theta_jp1 (mp) ;
+       Scalar chi_jp1 (mp) ;
+
+       if (solve_shift == 1) {
+			  
+	 theta_jp1 = source_theta_spher.poisson_dirichlet(theta_bound, 0)  ;
+	 chi_jp1 = source_chi_spher.poisson_dirichlet(chi_bound, 0)  ;
+	 
+	 // Test:
+	 maxabs(theta_jp1.laplacian() - source_theta_spher,
+		"Absolute error in the resolution of the equation for Theta") ;  
+	 maxabs(chi_jp1.laplacian() - source_chi_spher,
+		"Absolute error in the resolution of the equation for chi") ;
+	 
+	 // Relaxation (relax=1 -> new ; relax=0 -> old )  
+       theta_jp1 = relax * theta_jp1 + (1 - relax) * theta_j ;
+       chi_jp1 = relax * chi_jp1 + (1 - relax) * chi_j ;
+       
+       }
+    
+
+	    
+       //===========================================
+       //      Convergence control
+       //===========================================
+       
+       double diff_nn, diff_psi, diff_btilde, diff_theta, diff_chi ;
+       diff_nn = 1.e-16 ;
+       diff_psi = 1.e-16 ;
+       diff_btilde = 1.e-16 ;
+       diff_theta = 1.e-16 ;
+       diff_chi = 1.e-16 ;
+
+	if (solve_lapse == 1)
+	  diff_nn = max( diffrel(nn_j, nn_jp1) ) ;   
+	if (solve_psi == 1)
+	  diff_psi = max( diffrel(psi_j, psi_jp1) ) ; 
+	if (solve_shift == 1)
+	  diff_theta = max( diffrel(theta_jp1, theta_j) ) ; 
+	if (solve_shift == 1)
+	  diff_chi = max( diffrel(chi_jp1, chi_j) ) ; 
+
+	
+	cout << "step = " << mer << " :  diff_psi = " << diff_psi 
+	     << "  diff_nn = " << diff_nn 
+	     << "  diff_theta = " << diff_theta  
+	     << "  diff_chi = " << diff_chi <<  endl ;
+	cout << "----------------------------------------------" << endl ;
+	if ((diff_psi<precis) && (diff_nn<precis) && (diff_theta<precis) &&  (diff_chi<precis))
+	  break ; 
+	
+	if (mer>0) {conv << mer << "  " << log10(diff_nn) << " " << log10(diff_psi) 
+			 << " " << log10(diff_theta) 
+		         << " " << log10(diff_chi) << endl ;  } ;
+	
+	//=============================================
+	//      Updates for next step 
+	//=============================================
+	
+	
+	if (solve_psi == 1)
+	  set_psi(psi_jp1) ; 
+	  psi_j = psi_jp1 ; 
+	if (solve_lapse == 1)
+	  n_evol.update(nn_jp1, jtime, ttime) ; 
+	  nn_j = nn_jp1 ;
+	if (solve_shift == 1)
+	  {
+	    theta_j = theta_jp1 ;
+	    chi_j = chi_jp1 ;
+	    chi_jp1.mult_r() ;
+	    Vector beta_jp1 (chi_jp1 * tgam().radial_vect()) ;
+	  }
+
 	if (solve_shift == 1 || solve_lapse == 1)
 	  {
 	    update_aa() ;
