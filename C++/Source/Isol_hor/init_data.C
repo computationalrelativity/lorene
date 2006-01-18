@@ -31,6 +31,9 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2006/01/18 09:04:27  f_limousin
+ * Minor modifs (warnings and errors at the compilation with gcc-3.4)
+ *
  * Revision 1.23  2006/01/16 17:13:40  jl_jaramillo
  * function for solving the spherical case
  *
@@ -607,14 +610,14 @@ void Isol_hor::init_data_spher(int bound_nn, double lim_nn, int bound_psi,
        // Parallel calculation
        //---------------------
        
-       Scalar source_psi (source_psi()) ;
-       Scalar source_nn (source_nn()) ;
+       Scalar sourcepsi (source_psi()) ;
+       Scalar sourcenn (source_nn()) ;
        
-       Vector source_beta (source_beta()) ;
+       Vector sourcebeta (source_beta()) ;
        Vector source_reg =  1./3. * beta().divergence(ff).derive_con(ff) ;
        source_reg.inc_dzpuis() ;
-       source_beta -=  source_reg ;
-       Scalar source_btilde (source_beta(1) ) ;
+       sourcebeta -=  source_reg ;
+       Scalar source_btilde (sourcebeta(1) ) ;
        
        //       Scalar diff_div =  source_reg(1) + tmp ;   ;
        
@@ -625,9 +628,9 @@ void Isol_hor::init_data_spher(int bound_nn, double lim_nn, int bound_psi,
        Scalar mag_sou_btilde ( source_btilde_trun ) ;
        mag_sou_btilde.dec_dzpuis(4) ;
     
-       Scalar diff_sou_psi ( source_psi_spher - source_psi) ;
+       Scalar diff_sou_psi ( source_psi_spher - sourcepsi) ;
        diff_sou_psi.dec_dzpuis(4) ;
-       Scalar diff_sou_nn ( source_nn_spher - source_nn) ;
+       Scalar diff_sou_nn ( source_nn_spher - sourcenn) ;
        diff_sou_nn.dec_dzpuis(4) ;
        Scalar diff_sou_btilde ( source_btilde_trun - source_btilde) ;
        diff_sou_btilde.dec_dzpuis(4) ;
@@ -648,6 +651,10 @@ void Isol_hor::init_data_spher(int bound_nn, double lim_nn, int bound_psi,
        //====================
        // Boundary conditions
        //====================
+       
+       // To avoid warnings;
+       bound_nn = 1 ; lim_nn = 1. ; bound_psi = 1 ; bound_beta = 1 ;
+
        double kappa_0 = 0.2 - 1. ;
        
        Scalar kappa (mp) ;
