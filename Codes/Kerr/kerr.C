@@ -29,6 +29,9 @@ char kerr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2006/01/24 16:01:33  f_limousin
+ * Version ok for lambda = 0 and lambda = 1/3
+ *
  * Revision 1.3  2005/11/10 16:35:30  f_limousin
  * Improve the convergence and the accuracy of the solution
  *
@@ -108,8 +111,8 @@ int main(){
     fpar >> seuil ; fpar.ignore(1000, '\n') ;  
 
     for (int l=0; l<nz; l++) 
-	{ bornes[l] = bornes[l] * hh * 0.5 ;
-	}
+	bornes[l] = bornes[l] * hh * 0.5 ;
+	
     cout << "h = " << hh << endl ;
     cout << "M = " << mm << endl ;
     cout << "seuil = " << seuil << endl ;
@@ -164,7 +167,7 @@ int main(){
     b2.std_spectral_base() ;
     b2.set_domain(0) = 1. ;
 
-    Sym_tensor h_uu(mp, CON, mp.get_bvect_spher()) ;
+    Sym_tensor h_uu(mp, CON, mp.get_bvect_cart()) ;
     h_uu.set(1,1) = pow(b2/a2, 1./3.) - 1 ;
     h_uu.set(2,2) = pow(b2/a2, 1./3.) - 1 ;
     h_uu.set(3,3) = pow(a2/b2, 2./3.) - 1 ;
@@ -174,22 +177,22 @@ int main(){
     h_uu.annule_domain(0) ;
     h_uu.std_spectral_base() ;
      
-    Sym_tensor g_uu(mp, CON, mp.get_bvect_spher()) ;
+    Sym_tensor g_uu(mp, CON, mp.get_bvect_cart()) ;
     g_uu.set(1,1) = 1 / a2 ;
     g_uu.set(2,2) = 1 / a2 ;
     g_uu.set(3,3) = 1 / b2 ;
-    g_uu.set(1,2) = 1e-16 ;
-    g_uu.set(1,3) = 1e-16 ;
-    g_uu.set(2,3) = 1e-16 ;
+    g_uu.set(1,2).annule_hard() ;
+    g_uu.set(1,3).annule_hard() ;
+    g_uu.set(2,3).annule_hard() ;
 
     for (int i=1; i<=3; i++)
 	for (int j=1; j<=i; j++)
 	  g_uu.set(i,j).set_domain(0) = 1. ;
     g_uu.std_spectral_base() ;
 
-    Metric_flat flat(mp.flat_met_spher()) ;
+    Metric_flat flat(mp.flat_met_cart()) ;
     Metric gamma (g_uu) ;
-    Sym_tensor gt_uu(mp, CON, mp.get_bvect_spher()) ;
+    Sym_tensor gt_uu(mp, CON, mp.get_bvect_cart()) ;
     for(int i=1; i<=3; i++)
 	for(int j=1; j<=i; j++){
 	    gt_uu.set(i,j) = flat.con()(i,j) + h_uu(i,j) ;
@@ -200,22 +203,24 @@ int main(){
     Sym_tensor huu_save (h_uu) ;
     Sym_tensor guu_save (g_uu) ;
 
-    Vector xi(mp, CON, mp.get_bvect_spher()) ;
-    xi.set(1) = 0*0.1/(rr) ;
-    xi.set(2) = 0*0.001/(rr) ;
-    xi.set(3) = 0*0.001/(rr) ;
+    Vector xi(mp, CON, mp.get_bvect_cart()) ;
+    xi.set(1) = 0. ;
+    xi.set(2) = 0. ;
+    xi.set(3) = 0. ;
     xi.std_spectral_base() ;
 
     //----------------------------------------------------
     // Resolution of the vectorial Poisson equation for xi
     //----------------------------------------------------
 
-    Vector source(mp, CON, mp.get_bvect_spher()) ;
+    Vector source(mp, CON, mp.get_bvect_cart()) ;
    
-    Vector xi_jm1(mp, CON, mp.get_bvect_spher()) ;
+    Vector xi_jm1(mp, CON, mp.get_bvect_cart()) ;
     for(int i=1; i<=3; i++) 
 	xi_jm1.set(i) = 0. ;
     double diff_xi = 1. ;
+
+
 
     for(int mer=0; mer<niter; mer++){
 
@@ -227,14 +232,29 @@ int main(){
    "========================================================================" 
 	     << endl ;
 
+	// Function exp(-(r-r_0)^2/sigma^2)
+	// --------------------------------
+	
+	double r0 = mp.val_r(nz-2, 1, 0, 0) ;
+	double sigma = 1.*r0 ;
+	
+	Scalar rrr (mp) ;
+	rrr = mp.r ;
+	
+	Scalar ff (mp) ;
+	ff = exp( -(rrr - r0)*(rrr - r0)/sigma/sigma ) ;
+	for (int ii=0; ii<nz-1; ii++)
+	    ff.set_domain(ii) = 1. ;
+	ff.set_outer_boundary(nz-1, 0) ;
+	ff.std_spectral_base() ;
+
 
 	// Source 
 	source = h_uu.divergence(flat) ;
+	source = source * ff ;
 	source.inc_dzpuis(2) ;
  
 	source.annule_domain(0) ;
-	for (int i=1; i<=3; i++) 
-	  source.set(i).set_domain(nz-1) = 1.e-15 ;
 		
 	// Printing
 	//-----------
@@ -247,15 +267,32 @@ int main(){
 	    }
 	    cout << endl ;
 	}
-   
+/*   
+	des_meridian(source(1), 0, 20, "source", 0) ;
+	des_meridian(source(2), 0, 20, "source", 1) ;
+	des_meridian(source(3), 0, 20, "source", 2) ;
+	arrete() ;
+*/
 	// Resolution of the Poisson equation 
 	// ----------------------------------
 
-	double lambda = 0. ;
-	Vector source_reg = - (1./3. - lambda) * xi.divergence(flat)
-	    .derive_con(flat) ;
+	double lambda = 1./3. ;
+	Vector source_reg = - (1./3. - lambda) * 
+	    xi.divergence(flat).derive_con(flat) ;
+	source_reg = source_reg * ff ;
 	source_reg.inc_dzpuis() ;
 	source += source_reg ;
+
+/*
+	des_profile(ff, 0, 20, 0, 0) ;
+	des_meridian(source(1), 0, 20, "source", 3) ;
+	des_meridian(source(2), 0, 20, "source", 4) ;
+	des_meridian(source(3), 0, 20, "source", 5) ;
+	arrete() ;
+*/
+
+	for (int i=1; i<=3; i++) 
+	  source.set(i).set_domain(nz-1) = 1.e-15 ; // Because of the dzpuis
 
 	double precision = 1.e-12 ;
 	int num_front = 0 ; // index of the intern boundary
@@ -263,9 +300,9 @@ int main(){
 
 	Vector limite (mp, CON, mp.get_bvect_cart()) ;
 	limite.std_spectral_base() ;
-	Valeur lim_x (mg) ;
-	Valeur lim_y (mg) ;
-	Valeur lim_z (mg) ;
+	Valeur lim_x (mg.get_angu()) ;
+	Valeur lim_y (mg.get_angu()) ;
+	Valeur lim_z (mg.get_angu()) ;
 	lim_x = 0. ;
 	lim_y = 0. ;
 	lim_z = 0. ;
@@ -279,13 +316,10 @@ int main(){
 	     << endl ;
 	
 	
-	source.change_triad(mp.get_bvect_cart()) ;
 	Tenseur source_p(mp, 1, CON, mp.get_bvect_cart() ) ;
 	source_p.set_etat_qcq() ;
 	for (int i=0; i<3; i++) 
 	  source_p.set(i) = Cmp(source(i+1)) ;
-	source.change_triad(mp.get_bvect_spher()) ;
-	
 	
 	Tenseur resu_p(mp, 1, CON, mp.get_bvect_cart() ) ;
 	resu_p.set_etat_qcq() ;
@@ -294,32 +328,58 @@ int main(){
 	resu_p.set_std_base() ;
 
 	poisson_vect_frontiere(lambda, source_p, resu_p, lim_x,
-			       lim_y, lim_z, num_front, precision, itermax) ;
+	
+		       lim_y, lim_z, num_front, precision, itermax) ;
 
-	xi.change_triad(mp.get_bvect_cart()) ;
 	for (int i=1; i<=3; i++) 
 	  xi.set(i) = resu_p(i-1) ;
-	xi.change_triad(mp.get_bvect_spher()) ;
 	
 	// Test
+	// ---------
+
 	source.dec_dzpuis() ;
-	maxabs(xi.derive_con(flat).divergence(flat) 
-	       + lambda * xi.divergence(flat)
-	       .derive_con(flat) - source ,
+	Vector lap_xi = (xi.derive_con(flat)).divergence(flat) 
+	    + lambda* xi.divergence(flat).derive_con(flat) ;
+	
+	maxabs(lap_xi - source,
 	       "Absolute error in the resolution of the equation for beta") ;  
 	cout << endl ;
+  
+       Tbl tdiff_xi_x = diffrel(lap_xi(1), source(1)) ; 
+       Tbl tdiff_xi_y = diffrel(lap_xi(2), source(2)) ; 
+       Tbl tdiff_xi_z = diffrel(lap_xi(3), source(3)) ; 
 
-	cout << "xi :" << endl ;
-	for (int i=1; i<=3; i++){
-	    cout << "  Comp. " << i << " :  " ;
-	    for (int l=0; l<nz; l++){
-		cout << norme(xi(i)/(nr_tab[0]*nt*np))(l) << " " ;
-	    }
-	    cout << endl ;
+       cout << 
+	 "Relative error in the resolution of the equation for xi1 : "
+	    << endl ; 
+       cout << "x component : " ;
+       for (int l=0; l<nz; l++) {
+	 cout << tdiff_xi_x(l) << "  " ; 
 	}
-	cout << endl ;
+       cout << endl ;
+       cout << "y component : " ;
+       for (int l=0; l<nz; l++) {
+	 cout << tdiff_xi_y(l) << "  " ; 
+       }
+       cout << endl ;
+       cout << "z component : " ;
+       for (int l=0; l<nz; l++) {
+	 cout << tdiff_xi_z(l) << "  " ; 
+       }
+       cout << endl ;
 
-
+       // Xi
+       cout << "xi :" << endl ;
+       for (int i=1; i<=3; i++){
+	 cout << "  Comp. " << i << " :  " ;
+	 for (int l=0; l<nz; l++){
+	   cout << norme(xi(i)/(nr_tab[0]*nt*np))(l) << " " ;
+	 }
+	 cout << endl ;
+       }
+       cout << endl ;
+       
+       
 	// Construction of the new metric quantities :
 	//--------------------------------------------
 	
@@ -375,7 +435,7 @@ int main(){
     // Compute h_uu in dirac gauge :
     //-----------------------------
 
-    Sym_tensor guu_dirac (mp, CON, mp.get_bvect_spher()) ;
+    Sym_tensor guu_dirac (mp, CON, mp.get_bvect_cart()) ;
 
     guu_dirac = g_uu.derive_lie(xi) ;
     guu_dirac.dec_dzpuis(2) ;
@@ -421,7 +481,7 @@ int main(){
 	      guu_dirac.set(i,j).set_domain(0) = 1. ;
 
 	Metric g_dirac (guu_dirac) ;
-	Sym_tensor gtuu_dirac (mp, CON, mp.get_bvect_spher()) ;
+	Sym_tensor gtuu_dirac (mp, CON, mp.get_bvect_cart()) ;
 	gtuu_dirac = pow(g_dirac.determinant(), 1./3.) * guu_dirac ;
 	gtuu_dirac.std_spectral_base() ;
 
@@ -462,11 +522,11 @@ int main(){
 	// Another computation (test)
 	// --------------------------
 		
-	Sym_tensor gtuu_dirac2 (mp, CON, mp.get_bvect_spher()) ;
+	Sym_tensor gtuu_dirac2 (mp, CON, mp.get_bvect_cart()) ;
 	Scalar psi4 = pow(a2, 2./3.) * pow(b2, 1./3.) ;
 	psi4.std_spectral_base() ;
 	gtuu_dirac2 = g_uu.derive_lie(xi) * psi4 + 0.666666666666666 * 
-	  xi.divergence(gamma) * gt_uu ;
+	  xi.divergence(gamma) * gt_uu ; // xi = 0 donc... pas si top !
 	gtuu_dirac2.dec_dzpuis(2) ;
 	gtuu_dirac2 += gt_uu ;
 	
