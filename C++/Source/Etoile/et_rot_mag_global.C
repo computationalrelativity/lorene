@@ -33,6 +33,11 @@ char et_rot_mag_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2006/01/31 15:54:57  j_novak
+ * Corrected a missing '-' sign for the theta component of the magnetic field in
+ * Et_rot_mag::Magn(). This had no influence in the calculations, only in the
+ * display of B values.
+ *
  * Revision 1.17  2004/03/25 10:29:06  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -169,7 +174,7 @@ Tenseur Et_rot_mag::Magn() const {
   Tenseur Bmag(mp, 1, CON, mp.get_bvect_spher()) ;
   Bmag.set_etat_qcq() ;
   Bmag.set(0) = B_r ;
-  Bmag.set(1) = B_t ;
+  Bmag.set(1) = -B_t ;
   Bmag.set(2) = 0. ;
 
     return Bmag*mag_unit ;
