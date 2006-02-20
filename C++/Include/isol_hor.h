@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.44  2006/02/20 15:01:37  jl_jaramillo
+ * function for computing generalised Conformal THin Sandwich eqautions
+ *
  * Revision 1.43  2006/01/18 12:29:18  jl_jaramillo
  * new method (chi,theta) for the spherically symmetric case
  *
@@ -624,7 +627,19 @@ class Isol_hor : public Time_slice_conf {
    */
   void init_data(int bound_nn, double lim_nn, int bound_psi, int bound_beta,
 		 int solve_lapse, int solve_psi, int solve_shift, 
-		 double precis = 1.e-12, double relax = 1., int niter = 100) ; 
+		 double precis = 1.e-12, double relax_nn = 1.,
+		 double relax_psi = 1., double relax_beta = 1., 
+		 int niter = 100) ; 
+
+  void init_data_loop(int bound_nn, double lim_nn, int bound_psi, 
+		      int bound_beta, int solve_lapse, int solve_psi,
+		      int solve_shift, double precis= 1.e-12, 
+		      double precis_loop= 1.e-12,
+		      double relax_nn = 1., double relax_psi= 1.,  
+		      double relax_beta = 1., double relax_loop = 1., 
+		      int niter = 100) ;
+
+
 
   void init_data_spher(int bound_nn, double lim_nn, int bound_psi, 
 		       int bound_beta, int solve_lapse, int solve_psi, 
@@ -635,6 +650,12 @@ class Isol_hor : public Time_slice_conf {
 		       int bound_beta, int solve_lapse, int solve_psi, 
 		       int solve_shift, double precis = 1.e-12, 
 		       double relax = 1., int niter = 100) ; 
+
+  void init_data_CTS_gen(int bound_nn, double lim_nn, int bound_psi, int bound_beta,
+		 int solve_lapse, int solve_psi, int solve_shift, 
+		 double precis = 1.e-12, double relax_nn = 1.,
+		 double relax_psi = 1., double relax_beta = 1., 
+		 int niter = 100, double a = 1., double zeta = 4.) ; 
 
 
 
@@ -683,7 +704,7 @@ class Isol_hor : public Time_slice_conf {
   const Valeur boundary_nn_Dir_kk() const ;
 
   /// Neumann boundary condition for \c N using the extrinsic curvature
-  const Valeur boundary_nn_Neu_kk() const ;	
+  const Valeur boundary_nn_Neu_kk(int step) const ;	
 
   /// Neumann boundary condition for \c N using Cook's boundary condition
   const Valeur boundary_nn_Neu_Cook() const ;	
