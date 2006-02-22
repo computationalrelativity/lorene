@@ -31,6 +31,9 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.27  2006/02/22 17:02:04  f_limousin
+ * Removal of warnings
+ *
  * Revision 1.26  2006/02/22 16:29:55  jl_jaramillo
  * corrections on the relaxation and boundary conditions
  *
@@ -153,9 +156,9 @@ void Isol_hor::init_data(int bound_nn, double lim_nn, int bound_psi,
 
     // Iteration
     // ---------
-    double relax_nn_fin = relax_nn ;
-    double relax_psi_fin = relax_psi ;
-    double relax_beta_fin = relax_beta ;
+//    double relax_nn_fin = relax_nn ;
+//    double relax_psi_fin = relax_psi ;
+//    double relax_beta_fin = relax_beta ;
     
 
     for (int mer=0; mer<niter; mer++) {
@@ -1495,7 +1498,7 @@ void Isol_hor::init_data_alt(int bound_nn, double lim_nn, int bound_psi,
        //      Convergence control
        //===========================================
        
-       double diff_nn, diff_psi, diff_btilde, diff_theta, diff_chi ;
+       double diff_nn, diff_psi, diff_theta, diff_chi ;
        diff_nn = 1.e-16 ;
        diff_psi = 1.e-16 ;
        diff_theta = 1.e-16 ;

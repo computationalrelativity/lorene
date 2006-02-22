@@ -72,11 +72,6 @@ void Isol_hor::init_data_CTS_gen(int bound_nn, double lim_nn, int bound_psi, int
      ofstream kss_out("kss.d") ;
      conv << " # diff_nn   diff_psi   diff_beta " << endl ;
 
-     // Dynamical relaxation
-     double relax_nn_fin = relax_nn ;
-     double relax_psi_fin = relax_psi ;
-     double relax_beta_fin = relax_beta ;
-
      // Initial values of the unknowns
      Scalar nntilde_j = nn() * pow(psi(), a) ;
      nntilde_j.std_spectral_base() ;
@@ -452,14 +447,10 @@ void Isol_hor::init_data_CTS_gen(int bound_nn, double lim_nn, int bound_psi, int
        area_int.raccord(1) ;
        double area = mp.integrale_surface(area_int, radius + 1e-15) ;
        
-       double diff_area = area - area_hor() ;
- 	
        //Radius
        double radius =  area / (4. * M_PI);
        radius = pow(radius, 1./2.) ;
        
-       double diff_radius = radius - radius_hor() ;
- 
        // Angular momentum
        Vector phi (mp, CON, *(ff.get_triad()) ) ;
        tmp = 1 ;
@@ -479,14 +470,11 @@ void Isol_hor::init_data_CTS_gen(int bound_nn, double lim_nn, int bound_psi, int
                                               // element of area 
        double ang_mom = mp.integrale_surface(kkspsi_int, radius + 1e-15) ;
 
-       double diff_ang_mom = ang_mom - ang_mom_hor() ;
-      
        // Surface gravity
        double kappa_kerr = (pow( radius, 4) - 4 * pow( ang_mom, 2)) / ( 2 * pow( radius, 3) 
 			 *  sqrt( pow( radius, 4) + 4 * pow( ang_mom, 2) ) ) ;
   
-       double diff_kappa = kappa_kerr - kappa_hor() ;
-  
+         
        // BC condition itself
        rho = 5. ;
        

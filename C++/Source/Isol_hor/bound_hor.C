@@ -31,6 +31,9 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.30  2006/02/22 17:02:04  f_limousin
+ * Removal of warnings
+ *
  * Revision 1.29  2006/02/22 16:29:55  jl_jaramillo
  * corrections on the relaxation and boundary conditions
  *
@@ -428,7 +431,6 @@ const Valeur Isol_hor::boundary_nn_Neu_kk(int step) const {
   //  double step_d = step ; 
   //  double corr =   0. * ( 1 - exp (- 0.01 * step)) ; 
 
-  double relax_speed = 0.00001 ;
 
   //  Scalar psi2_corr = psi() * psi()  - ( psi() * psi()  - 1 ) * exp (- relax_speed *  step) ;
 
