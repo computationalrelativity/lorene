@@ -30,6 +30,9 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.33  2006/02/22 16:32:14  jl_jaramillo
+ * dynamical relaxation
+ *
  * Revision 1.32  2005/10/21 16:38:02  jl_jaramillo
  * Control of the expansion
  *
@@ -171,9 +174,11 @@ int main() {
 
     int niter, bound_nn, bound_psi, bound_beta, solve_lapse, solve_psi ;
     int solve_shift ;
-    double radius, relax, seuil, ang_vel, boost_x, boost_z, lim_nn ;
+    double radius, relax_nn, relax_psi, relax_beta, seuil, ang_vel, boost_x, boost_z, lim_nn ;
     fpar >> radius; fpar.ignore(1000, '\n');
-    fpar >> relax; fpar.ignore(1000, '\n');
+    fpar >> relax_nn; fpar.ignore(1000, '\n');
+    fpar >> relax_psi; fpar.ignore(1000, '\n');
+    fpar >> relax_beta; fpar.ignore(1000, '\n');    
     fpar >> seuil; fpar.ignore(1000, '\n');
     fpar >> niter; fpar.ignore(1000, '\n');
     fpar >> ang_vel; fpar.ignore(1000, '\n');
@@ -280,6 +285,7 @@ int main() {
     // --------------------------
     
     Scalar nn_init(mp) ; 
+
     nn_init = 1. - 0.5*unsr ;
     nn_init.std_spectral_base() ;    // sets standard spectral bases
 
@@ -287,14 +293,14 @@ int main() {
     // -------------------
 
     Scalar psi_init(mp) ; 
-    psi_init =  1. + unsr ;
+    psi_init =  1. ;
     psi_init.std_spectral_base() ;    // sets standard spectral bases
 
     // Set up of shift vector beta
     // ---------------------------    
 
     Vector beta_init(mp, CON, mp.get_bvect_spher()) ; 
-    beta_init.set(1) = 0.001*unsr*unsr ;
+    beta_init.set(1) = 0.2*unsr*unsr ;
     beta_init.set(2) = 0. ;
     beta_init.set(3) = 0. ;
     beta_init.annule_domain(0) ;
@@ -304,7 +310,7 @@ int main() {
     // --------------
 
     Scalar trK (mp) ;
-    trK = 0. ;//0.01*unsr*unsr ;
+    trK = 0.*unsr*unsr*unsr*unsr ;
     trK.std_spectral_base() ;
     trK.inc_dzpuis(2) ;
 
@@ -317,13 +323,25 @@ int main() {
     // ----------------
 
     Scalar khi (mp) ;
-    khi = 0*0.05*unsr*unsr*sint*sint*sinp*cosp ;
+    khi = 0.0 *unsr*unsr*sint*sint*sinp*cosp ;
     khi.std_spectral_base() ;
     khi.annule_domain(0) ;
 
+    //    cout << "khi : " << endl ;
+    //    cout <<  khi << endl ;
+
     Scalar mu (mp) ;
-    mu = 0*0.05*unsr*unsr ;
-    mu.std_spectral_base() ;
+    mu = 0.0*unsr*unsr*cost ;
+
+    mu.set_spectral_va().set_base_r(0,R_CHEBPIM_P) ;
+    for (int i=1 ; i<nz-1 ; i++){
+      mu.set_spectral_va().set_base_r(i,R_CHEB) ;
+    }
+    mu.set_spectral_va().set_base_r(nz-1,R_CHEBU) ;
+
+    mu.set_spectral_va().set_base_t(T_COSSIN_CI) ;
+    mu.set_spectral_va().set_base_p(P_COSSIN) ;
+       
     mu.annule_domain(0) ;
     
     Sym_tensor_tt hh_tmp (mp, otriad, ff) ;
@@ -336,6 +354,11 @@ int main() {
     Sym_tensor gamt(mp, COV, mp.get_bvect_spher()) ;
 
     gamt = ff.cov() + hh_tmp.up_down(ff) ;
+    
+    cout <<    gamt  << endl ;
+
+
+
     /*
     gamt.set(1,1) = gamt(1,1) * (1+0.3*sint*sint*cosp*cosp*
 				(1/rr/rr - 1/rr/rr/rr)) ;
@@ -347,6 +370,7 @@ int main() {
     gamt.set(1,3).set_spectral_va().set_base_t(T_COSSIN_SI) ;
     */
     gamt.std_spectral_base() ;
+
     
     // Determinant of gamma tilde is put to one 
     // ----------------------------------------
@@ -379,7 +403,7 @@ int main() {
     
     double mm, aaa, hh ;
     
-    
+       /*
     //--------------------------------------------------
     // Construction of Kerr Metric 
     //--------------------------------------------------
@@ -391,7 +415,7 @@ int main() {
     // -----------
  
     hh = 2. ;
-    double jj = 3. ;
+    double jj = 0. ;
     aaa = - pow( 0.5*(pow(hh*hh*hh*hh+4.*jj*jj, 0.5) - hh*hh), 0.5) ;
     mm = pow(aaa*aaa + hh*hh, 0.5) ;
 
@@ -436,8 +460,8 @@ int main() {
     h_uu.annule_domain(0) ;
     h_uu.std_spectral_base() ;
     
-    Metric tgam (ff.con() + h_uu) ;
-    //Metric tgam (ff.con()) ;       //For computing BY and DainLT
+    //    Metric tgam (ff.con() + h_uu) ;
+    Metric tgam (ff.con()) ;       //For computing BY and DainLT
     gamt = tgam.cov() ;
     met_gamt = gamt ;
 
@@ -506,7 +530,7 @@ int main() {
     beta_phi.set_domain(0) = 0. ;
 
     Vector beta_kerr (mp, CON, mp.get_bvect_spher()) ;
-    beta_kerr.set(1) = 0. ;
+    beta_kerr.set(1) = 0.0*unsr*unsr ;
     beta_kerr.set(2) = 0. ;
     beta_kerr.set(3) = beta_phi ;
 
@@ -525,7 +549,7 @@ int main() {
     // --------------------------------------
     // End of the setup of Kerr metric
     // --------------------------------------
-       
+        */       
     // Set up of extrinsic curvature
     // -----------------------------
     
@@ -569,6 +593,9 @@ int main() {
     //     Construction of the space-time
     //-------------------------------------
 
+    cout << met_gamt << endl ;
+
+
     Isol_hor isolhor(mp, nn_init, psi_init, beta_init, aa_init, met_gamt,
 		     gamt_point, trK, trK_point, ff, 3) ;
 
@@ -582,14 +609,15 @@ int main() {
     // Test of the formula for A^{ij}A_{ij} in Sergio's paper
     //-------------------------------------------------------
  
+
     //isolhor.aa_kerr_ww(mm, aaa) ;
 
     // New initialisation of the metric quantities
     // --------------------------------------------
     
-    psi_init = 0.9*psi_kerr ;
-    psi_init.std_spectral_base() ;
-    isolhor.set_psi(psi_init) ;
+    //psi_init = 0.9*psi_kerr ;
+    //    psi_init.std_spectral_base() ;
+    //    isolhor.set_psi(psi_init) ;
     
 //    nn_init = 1. ;
 //    nn_init.std_spectral_base() ;
@@ -613,9 +641,13 @@ int main() {
     isolhor.set_boost_x(boost_x) ;
     isolhor.set_boost_z(boost_z) ;
 
-    isolhor.init_data(bound_nn, lim_nn, bound_psi, bound_beta, solve_lapse,
-		      solve_psi, solve_shift, seuil, relax, niter) ;
+    //   isolhor.init_data(bound_nn, lim_nn, bound_psi, bound_beta, solve_lapse,
+    //	      solve_psi, solve_shift, seuil, relax_nn, relax_psi, relax_beta, niter) ;
 
+    isolhor.init_data_CTS_gen(bound_nn, lim_nn, bound_psi, bound_beta, solve_lapse,
+     		      solve_psi, solve_shift, seuil, relax_nn, relax_psi, relax_beta, niter, -1., 4.) ;
+
+   
 
     // Expansion
     //----------
@@ -659,7 +691,7 @@ int main() {
 	  min_exp = expansion.val_grid_point(1, k, j, 0) ;
       }
     cout << "max_exp = " << max_exp << endl 
-	 << "min_kss = " << min_exp << endl ;
+	 << "min_exp = " << min_exp << endl ;
 
 
     // Save in a file
