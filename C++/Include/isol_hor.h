@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.47  2006/02/22 16:55:42  f_limousin
+ * boundary_nn_Neu_kk(int nn = 1)
+ *
  * Revision 1.46  2006/02/22 16:20:54  jl_jaramillo
  * 2nc correction Valeur boundary_nn_Neu_kk(int nn)
  *
@@ -710,7 +713,7 @@ class Isol_hor : public Time_slice_conf {
   const Valeur boundary_nn_Dir_kk() const ;
 
   /// Neumann boundary condition for \c N using the extrinsic curvature
-  const Valeur boundary_nn_Neu_kk(int nn) const ;	
+  const Valeur boundary_nn_Neu_kk(int nn = 1) const ;	
 
   /// Neumann boundary condition for \c N using Cook's boundary condition
   const Valeur boundary_nn_Neu_Cook() const ;	
