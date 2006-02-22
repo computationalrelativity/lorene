@@ -31,8 +31,8 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.28  2005/11/02 16:09:44  jl_jaramillo
- * changes in boundary_nn_Dir_lapl
+ * Revision 1.29  2006/02/22 16:29:55  jl_jaramillo
+ * corrections on the relaxation and boundary conditions
  *
  * Revision 1.27  2005/10/24 16:44:40  jl_jaramillo
  * Cook boundary condition ans minot bound of kss
@@ -299,17 +299,37 @@ const Valeur Isol_hor::boundary_psi_app_hor()const {
 
 const Valeur Isol_hor::boundary_psi_Dir()const {
 
+  Scalar rho (mp) ;
+  rho = 5. ;
+  rho.std_spectral_base() ;
+
+
   Scalar tmp(mp) ;
   //  tmp = nn()+1. - 1 ;
-  tmp = pow(nn()/b_tilde(), 0.5) ;
+
+  
+  //Scalar b_tilde_tmp = b_tilde() ;
+  //b_tilde_tmp.set_domain(0) = 1. ;
+  //tmp = pow(nn()/b_tilde_tmp, 0.5) ;
+  
+
+  tmp = 1.5 ;
   tmp.std_spectral_base() ;
 
-  int nnp = mp.get_mg()->get_np(1) ;
-  int nnt = mp.get_mg()->get_nt(1) ;
+  //tmp = 1/ (2* nn()) ;
+
+  tmp = (tmp + rho * psi())/(1 + rho) ; 
+
+  tmp = tmp - 1. ;
+
+
 
   Valeur psi_bound (mp.get_mg()->get_angu()) ;
     
   psi_bound = 1 ;  // Juste pour affecter dans espace des configs ;
+
+  int nnp = mp.get_mg()->get_np(1) ;
+  int nnt = mp.get_mg()->get_nt(1) ;
   
   for (int k=0 ; k<nnp ; k++)
     for (int j=0 ; j<nnt ; j++)
@@ -329,12 +349,12 @@ const Valeur Isol_hor::boundary_nn_Dir_kk()const {
   Scalar tmp(mp) ;
   double rho = 0. ;
 
-  Scalar kk_rr = 0.8*psi().derive_cov(mp.flat_met_spher())(1) / psi() ;
-//  Scalar kk_rr = contract( gam().radial_vect() * gam().radial_vect(), 0, 1
-//			   , k_dd(), 0, 1 ) ;
+  //  Scalar kk_rr = 0.8*psi().derive_cov(mp.flat_met_spher())(1) / psi() ;
+  Scalar kk_rr = contract( gam().radial_vect() * gam().radial_vect(), 0, 1
+			   , k_dd(), 0, 1 ) ;
 
   Scalar k_kerr (mp) ;
-  k_kerr = 0. ;//1.*kappa_hor() ;
+  k_kerr = 0.1 ;//1.*kappa_hor() ;
   k_kerr.std_spectral_base() ;
   k_kerr.inc_dzpuis(2) ;
 
@@ -373,7 +393,7 @@ const Valeur Isol_hor::boundary_nn_Dir_kk()const {
 }
 
 
-const Valeur Isol_hor::boundary_nn_Neu_kk() const {
+const Valeur Isol_hor::boundary_nn_Neu_kk(int step) const {
   
   const Vector& dnnn = nn().derive_cov(ff) ;
   double rho = 5. ;
@@ -382,20 +402,56 @@ const Valeur Isol_hor::boundary_nn_Neu_kk() const {
 			   , k_dd(), 0, 1 ) ; 
  
   Scalar k_kerr (mp) ;
-  k_kerr = kappa_hor() ; 
+  //  k_kerr = kappa_hor() ; 
+  k_kerr = 0.15 ;
   k_kerr.std_spectral_base() ;
   k_kerr.inc_dzpuis(2) ;
   
-  Scalar tmp = ( k_kerr + nn() * kk_rr + rho * contract(gam().radial_vect(), 0,
+  Scalar k_hor (mp) ;
+  k_hor =  kappa_hor() ; 
+  k_hor.std_spectral_base() ;
+
+  Vector beta_tilde_d (beta().down(0, met_gamt)) ;
+  Scalar naass = 1./2. * contract( met_gamt.radial_vect() * met_gamt.radial_vect(), 0, 1
+			   , beta_tilde_d.ope_killing_conf(met_gamt) , 0, 1 ) ;
+  Scalar traceK = 1./3. * nn() * trk() * 
+                 contract( met_gamt.radial_vect() * met_gamt.radial_vect(), 0, 1
+			   , met_gamt.cov() , 0, 1 ) ;
+  /*
+  Scalar tmp = ( k_kerr + naass + rho * contract(gam().radial_vect(), 0,
 							nn().derive_cov(gam()), 0))/(1+rho) 
     - gam().radial_vect()(2) * dnnn(2) - gam().radial_vect()(3) * dnnn(3)  ;
-  
   tmp = tmp / gam().radial_vect()(1) ;
+  */
+  Scalar sdN (contract(gam().radial_vect(), 0, nn().derive_cov(ff), 0)) ;
 
-  Scalar diN (contract(gam().radial_vect(), 0, nn().derive_cov(ff), 0)) ;
-  cout << "k_kerr = " << k_kerr.val_grid_point(1, 0, 0, 0) << endl ;
-  cout << "D^i N  = " << diN.val_grid_point(1, 0, 0, 0) << endl ;
+  //  double step_d = step ; 
+  //  double corr =   0. * ( 1 - exp (- 0.01 * step)) ; 
+
+  double relax_speed = 0.00001 ;
+
+  //  Scalar psi2_corr = psi() * psi()  - ( psi() * psi()  - 1 ) * exp (- relax_speed *  step) ;
+
+  Scalar tmp =  psi() * psi() * ( k_kerr +  naass + 1.* traceK) 
+    -  met_gamt.radial_vect()(2) * dnnn(2) 
+    - met_gamt.radial_vect()(3) * dnnn(3) 
+    + ( rho - 1 ) * met_gamt.radial_vect()(1)  * dnnn(1)  ;
+
+
+  tmp = tmp / (rho * met_gamt.radial_vect()(1))  ;
+
+
+
+  //  Scalar sdN (contract(gam().radial_vect(), 0, nn().derive_cov(ff), 0)) ;
+  Scalar rhs ( sdN - nn() * kk_rr) ;
+  cout << "kappa_pres = " << k_kerr.val_grid_point(1, 0, 0, 0) << endl ;
+  cout << "kappa_hor = " << k_hor.val_grid_point(1, 0, 0, 0) << endl ;
+  cout << "sDN  = " << sdN.val_grid_point(1, 0, 0, 0) << endl ;
+  //  cout << "corr  = " << corr.val_grid_point(1, 0, 0, 0) << endl ;
+  //  cout << "corr = " << corr << endl ;
+  cout << "N = " << nn().val_grid_point(1, 0, 0, 0) << endl ;
   cout << "kss = " << kk_rr.val_grid_point(1, 0, 0, 0) << endl ;
+  cout << "sdN - n kss = " << rhs.val_grid_point(1, 0, 0, 0) << endl ;  
   cout << "trK = " << trk().val_grid_point(1, 0, 0, 0) << endl ;
 
   // in this case you don't have to substract any value
@@ -445,7 +501,7 @@ const Valeur Isol_hor::boundary_nn_Neu_Cook() const {
 
   Vector hom = hom1 + hom2 ;
   
-  Scalar div_omega = 1.*contract( qq_uu, 0, 1,  (1.*hom1 + 2.*hom2).derive_cov(gam()), 0, 1) ;
+  Scalar div_omega = 1.*contract( qq_uu, 0, 1,  (1.*hom1 + 1.*hom2).derive_cov(gam()), 0, 1) ;
   div_omega.inc_dzpuis() ;
 
   //---------------------
@@ -577,11 +633,19 @@ const Valeur Isol_hor::boundary_nn_Neu_eff(double cc)const  {
 
 const Valeur Isol_hor::boundary_nn_Dir(double cc)const {
 
+  Scalar rho(mp);
+  rho = 5. ;
+
+  double a_pow = 2. ;
+
+  Scalar tmp_psia = pow( psi(), a_pow) ;
+  tmp_psia.std_spectral_base() ;
+
   Scalar tmp(mp) ;
-  tmp = cc - 1 ;
-  //tmp =   b_tilde() *psi()*psi() - 1  ;
-  //  tmp = 1./(2*psi()) - 1 ;
-  //  tmp = - psi() * nn().dsdr() / (psi().dsdr()) -1 ;
+  tmp = cc ; // * tmp_psia ;
+  //  tmp =   b_tilde()*psi()*psi()  ;
+  //  tmp = 1./(2*psi()) ;
+  //  tmp = - psi() * nn().dsdr() / (psi().dsdr())  ;
 
   /*
   double mm = 0.55 ;
@@ -605,11 +669,44 @@ const Valeur Isol_hor::boundary_nn_Dir(double cc)const {
   lapse = pow(1.+facteur, -0.5) ;
   lapse.std_spectral_base() ;
 
-  tmp = lapse - 1. ;
+  tmp = lapse  ;
   */
 
   // We  have substracted 1, since we solve for zero condition at infinity 
   //and then we add 1 to the solution  
+
+  Scalar kk_rr = contract( gam().radial_vect() * gam().radial_vect(), 0, 1
+			   , k_dd(), 0, 1 ) ; 
+ 
+  Scalar k_kerr (mp) ;
+  //  k_kerr = kappa_hor() ; 
+  k_kerr = 0.15 ;
+  k_kerr.std_spectral_base() ;
+  k_kerr.inc_dzpuis(2) ;
+  
+  Scalar k_hor (mp) ;
+  k_hor =  kappa_hor() ; 
+  k_hor.std_spectral_base() ;
+
+
+
+
+  Scalar sdN (contract(gam().radial_vect(), 0, nn().derive_cov(ff), 0)) ;
+  Scalar rhs ( sdN - nn() * kk_rr) ;
+  cout << "hola " << endl ;
+  cout << "kappa_pres = " << k_kerr.val_grid_point(1, 0, 0, 0) << endl ;
+  cout << "kappa_hor = " << k_hor.val_grid_point(1, 0, 0, 0) << endl ;
+  cout << "sDN  = " << sdN.val_grid_point(1, 0, 0, 0) << endl ;
+  cout << "N = " << nn().val_grid_point(1, 0, 0, 0) << endl ;
+  cout << "kss = " << kk_rr.val_grid_point(1, 0, 0, 0) << endl ;
+  cout << "sdN - n kss = " << rhs.val_grid_point(1, 0, 0, 0) << endl ;  
+  cout << "trK = " << trk().val_grid_point(1, 0, 0, 0) << endl ;
+
+
+
+  tmp = (tmp + rho * nn())/(1 + rho) ;
+
+  tmp = tmp - 1 ;
 
   int nnp = mp.get_mg()->get_np(1) ;
   int nnt = mp.get_mg()->get_nt(1) ;
@@ -766,7 +863,7 @@ const Valeur Isol_hor::boundary_nn_Dir_lapl(int mer) const {
   Scalar logn (mp) ;
   logn = source.poisson_angu() ;
 
-  double cc = 1. ; // Integration constant
+  double cc = 0.2 ; // Integration constant
 
   Scalar lapse (mp) ;
   lapse = (exp(logn)*cc) ;
@@ -1258,17 +1355,17 @@ const Vector Isol_hor::vv_bound_cart(double om) const{
 
     Scalar kss (mp) ;
     kss = - 0.2 ;
-    // kss from L_l N = 0
-
+    //    kss.std_spectral_base() ;
+    //    kss.inc_dzpuis(2) ;
+  
+    
     //kss from from L_lN=0 condition
     //------------------------------
-    //    kss = - 1.*kappa_hor() / nn() ;
-    //    kss.inc_dzpuis(2) ;
-    //    kss += contract(gam().radial_vect(), 0, nn().derive_cov(ff), 0) / nn() ;
-
-    kss.std_spectral_base() ;
+    kss = - 0.15 / nn() ;
     kss.inc_dzpuis(2) ;
+    kss += contract(gam().radial_vect(), 0, nn().derive_cov(ff), 0) / nn() ;
     
+
     cout << "kappa_hor = " << kappa_hor() << endl ;
 
     /*
@@ -1279,9 +1376,8 @@ const Vector Isol_hor::vv_bound_cart(double om) const{
 			0)/psi() +
 	    contract(met_gamt.radial_vect().derive_cov(met_gamt), 0, 1)) /
       (psi() * psi()) ;
-    //  kss.std_spectral_base() ;
-  //  kss.inc_dzpuis(2) ;
-  */
+    */
+  
 
     // beta^r component
     //-----------------
