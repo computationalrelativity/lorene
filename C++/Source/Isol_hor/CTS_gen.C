@@ -69,7 +69,7 @@ void Isol_hor::init_data_CTS_gen(int bound_nn, double lim_nn, int bound_psi, int
 
      // Output file
      ofstream conv("resconv.d") ; 
-     ofstream kss("kss.d") ;
+     ofstream kss_out("kss.d") ;
      conv << " # diff_nn   diff_psi   diff_beta " << endl ;
 
      // Dynamical relaxation
@@ -151,17 +151,6 @@ void Isol_hor::init_data_CTS_gen(int bound_nn, double lim_nn, int bound_psi, int
 
        sour_psi.annule_domain(0) ;
 
-
-
-       /*
-       cout << " dzpuis temp_scal_2 =" << temp_scal_2.get_dzpuis() << endl;
-       cout << " dzpuis temp_scal_3 =" << temp_scal_3.get_dzpuis() << endl;
-       cout << " dzpuis temp_scal_4 =" << temp_scal_4.get_dzpuis() << endl;
-       */
-       
-      
-
-
        // Source for nntilde
        //--------------------
 
@@ -194,7 +183,6 @@ void Isol_hor::init_data_CTS_gen(int bound_nn, double lim_nn, int bound_psi, int
        sour_nntilde +=  temp_scal_3 + temp_scal_4 ;
        sour_nntilde.annule_domain(0) ;
 
-
        // Source for beta
        //----------------
 
@@ -224,9 +212,6 @@ void Isol_hor::init_data_CTS_gen(int bound_nn, double lim_nn, int bound_psi, int
  
        sour_beta += temp_vect_3 + temp_vect_4 ;
 
-
-       cout << " dzpuis sour_beta =" << sour_beta(1).get_dzpuis() << endl;
-
        //====================
        // Boundary conditions
        //====================
@@ -236,9 +221,13 @@ void Isol_hor::init_data_CTS_gen(int bound_nn, double lim_nn, int bound_psi, int
        //-------
        Scalar tmp = psi_j * psi_j * psi_j * trK
 	 - psi_j * met_gamt.radial_vect().divergence(met_gamt) 
-         - psi_j_ma/(2. * nntilde_j * psi_j) * contract( beta_j_d.ope_killing_conf(met_gamt), 0, 1,  met_gamt.radial_vect()* met_gamt.radial_vect(), 0, 1)
-	 - 1./3. * trK/psi_j * contract( met_gamt.cov(), 0, 1,  met_gamt.radial_vect()* met_gamt.radial_vect(), 0, 1) 
-	 - 4 * ( met_gamt.radial_vect()(2) * psi_j.derive_cov(ff)(2)  + met_gamt.radial_vect()(3) * psi_j.derive_cov(ff)(3) ) ;
+         - psi_j*psi_j*psi_j*psi_j_ma/(2. * nntilde_j) 
+          * contract( beta_j_d.ope_killing_conf(met_gamt), 0, 1,  met_gamt.radial_vect()
+          * met_gamt.radial_vect(), 0, 1)
+	 - 1./3. * psi_j*psi_j*psi_j * trK * contract( met_gamt.cov(), 0, 1,  met_gamt.radial_vect()
+                 * met_gamt.radial_vect(), 0, 1) 
+	 - 4 * ( met_gamt.radial_vect()(2) * psi_j.derive_cov(ff)(2)  
+         + met_gamt.radial_vect()(3) * psi_j.derive_cov(ff)(3) ) ;
        
        tmp = tmp / (4 *  met_gamt.radial_vect()(1)) ;
 
@@ -312,41 +301,267 @@ void Isol_hor::init_data_CTS_gen(int bound_nn, double lim_nn, int bound_psi, int
 	  lim_z.set(0, k, j, 0) = tmp_vect(3).val_grid_point(1, k, j, 0) ;
        
        lim_z.set_base(*(mp.get_mg()->std_base_vect_cart()[2])) ;
+
+
+       //       START  of AEI
+       //============================
+
+
+       // BC AEI
+
+       Vector stilde_j = met_gamt.radial_vect() ;
+       Scalar btilde_j = contract (beta_j_d, 0, stilde_j, 0)   ;
+       
+
+       // HH_tilde
+       Scalar hh_tilde = contract(stilde_j.derive_cov(met_gamt), 0, 1) ;
+       hh_tilde.dec_dzpuis(2) ;
+
+       // Tangential part of the shift
+       tmp_vect = btilde_j * stilde_j ;
+       Vector VV_j =  btilde_j * stilde_j - beta_j ;
+       
+       // "Acceleration" term V^a \tilde{D}_a ln M
+       Scalar accel = 2 * contract( VV_j, 0, contract( stilde_j, 0, stilde_j.down(0,
+									   met_gamt).derive_cov(met_gamt), 1), 0) ;
+
+
+       // Divergence of V^a
+       Sym_tensor qq_spher = met_gamt.con() - stilde_j * stilde_j ;
+       Scalar div_VV = contract( qq_spher.down(0, met_gamt), 0, 1, VV_j.derive_cov(met_gamt), 0, 1) ;
+    
+       Vector angular (mp, CON, mp.get_bvect_cart()) ;
+       Scalar yya (mp) ;
+       yya = mp.ya ;
+       Scalar xxa (mp) ;
+       xxa = mp.xa ;
+
+       angular.set(1) = -  omega * yya  ;
+       angular.set(2) = omega * xxa ;
+       angular.set(3).annule_hard() ;
+
+
+       angular.set(1).set_spectral_va()
+	 .set_base(*(mp.get_mg()->std_base_vect_cart()[0])) ;
+       angular.set(2).set_spectral_va()
+	 .set_base(*(mp.get_mg()->std_base_vect_cart()[1])) ;
+       angular.set(3).set_spectral_va()
+	 .set_base(*(mp.get_mg()->std_base_vect_cart()[2])) ;
+       
+       angular.change_triad(mp.get_bvect_spher()) ;
+    
+       //kss from from L_lN=0 condition
+       //------------------------------
+       Scalar corr_nn_kappa (mp) ;
+       corr_nn_kappa = nntilde_j * psi_j_a - psi_j*psi_j*contract (beta_j_d, 0, met_gamt.radial_vect(), 0) ;
+       //       corr_nn_kappa.inc_dzpuis(2) ;
+       corr_nn_kappa = sqrt(sqrt (corr_nn_kappa*corr_nn_kappa)) ;
+       corr_nn_kappa.std_spectral_base() ;
+       //       corr_nn_kappa.inc_dzpuis(2) ;
+
+       Scalar kss = - kappa_hor() * psi_j_ma / nntilde_j ;
+       kss.inc_dzpuis(2) ;
+       kss += contract(stilde_j, 0, nntilde_j.derive_cov(ff), 0)/ (psi_j*psi_j*nntilde_j) 
+              + a * contract(stilde_j, 0, psi_j.derive_cov(ff), 0) / (psi_j*psi_j*psi_j) 
+	  + 0.1 * contract (nntilde_j.derive_cov(ff), 0,  met_gamt.radial_vect(), 0)  * corr_nn_kappa ;
+       
+       
+
+       // beta^r component
+       //-----------------
+       double rho = 5. ; // rho>1 ; rho=1 "pure Dirichlet" version
+       Scalar beta_r_corr = (rho - 1) * btilde_j * hh_tilde;
+       beta_r_corr.inc_dzpuis(2) ;
+       Scalar nn_KK = nntilde_j * psi_j_a * trK ;
+       nn_KK.inc_dzpuis(2) ;
+    
+       beta_r_corr.set_dzpuis(2) ;
+       nn_KK.set_dzpuis(2) ;
+       accel.set_dzpuis(2) ;
+       div_VV.set_dzpuis(2) ;
+    
+       Scalar b_tilde_new (mp) ;
+       b_tilde_new = 2 * contract(stilde_j, 0, btilde_j.derive_cov(ff), 0)
+	 + beta_r_corr
+	 - 3 * nntilde_j * psi_j_a * kss + nn_KK + accel + div_VV  ;
+       
+       b_tilde_new = b_tilde_new / (hh_tilde * rho) ;
+    
+       b_tilde_new.dec_dzpuis(2) ;
+    
+       tmp_vect.set(1) = b_tilde_new * stilde_j(1) + angular(1) ;
+       tmp_vect.set(2) = b_tilde_new * stilde_j(2) + angular(2) ;
+       tmp_vect.set(3) = b_tilde_new * stilde_j(3) + angular(3) ;
+       
+       tmp_vect.change_triad(mp.get_bvect_cart() ) ;
+    
+      // Beta-x
+       Valeur lim_x_AEI (mp.get_mg()->get_angu()) ;       
+     
+       lim_x_AEI = 1 ;  // Juste pour affecter dans espace des configs ;
+       
+       for (int k=0 ; k<nnp ; k++)
+	 for (int j=0 ; j<nnt ; j++)
+	  lim_x_AEI.set(0, k, j, 0) =  tmp_vect(1).val_grid_point(1, k, j, 0) ;
+       
+       lim_x_AEI.set_base(*(mp.get_mg()->std_base_vect_cart()[0])) ;
+       
+       
+      // Beta-y
+       Valeur lim_y_AEI (mp.get_mg()->get_angu()) ;
+
+       lim_y_AEI = 1 ;  // Juste pour affecter dans espace des configs ;
+       
+       for (int k=0 ; k<nnp ; k++)
+	 for (int j=0 ; j<nnt ; j++)
+	  lim_y_AEI.set(0, k, j, 0) =   tmp_vect(2).val_grid_point(1, k, j, 0) ;
+       
+       lim_y_AEI.set_base(*(mp.get_mg()->std_base_vect_cart()[1])) ;
+       
+     // Beta-z
+       Valeur lim_z_AEI (mp.get_mg()->get_angu()) ;
+
+       lim_z_AEI = 1 ;  // Juste pour affecter dans espace des configs ;
+       
+       for (int k=0 ; k<nnp ; k++)
+	 for (int j=0 ; j<nnt ; j++)
+	  lim_z_AEI.set(0, k, j, 0) = tmp_vect(3).val_grid_point(1, k, j, 0) ;
+       
+       lim_z_AEI.set_base(*(mp.get_mg()->std_base_vect_cart()[2])) ;
+
+
+       //       End  of AEI
+       //============================
+
+
+
      
        // BC nn_tilde
        //------------
        
        // BC kappa=const
+
+       //Area
+       Scalar darea = psi_j* psi_j* psi_j* psi_j 
+	 * sqrt( met_gamt.cov()(2,2) * met_gamt.cov()(3,3) - 
+		 met_gamt.cov()(2,3) * met_gamt.cov()(2,3) ) ;
+       
+       darea.std_spectral_base() ;
+       
+       Scalar area_int  (darea) ;
+       area_int.raccord(1) ;
+       double area = mp.integrale_surface(area_int, radius + 1e-15) ;
+       
+       double diff_area = area - area_hor() ;
+ 	
+       //Radius
+       double radius =  area / (4. * M_PI);
+       radius = pow(radius, 1./2.) ;
+       
+       double diff_radius = radius - radius_hor() ;
+ 
+       // Angular momentum
+       Vector phi (mp, CON, *(ff.get_triad()) ) ;
+       tmp = 1 ;
+       tmp.std_spectral_base() ;
+       tmp.mult_rsint() ;
+       phi.set(1) = 0. ;
+       phi.set(2) = 0. ;
+       phi.set(3) = tmp ; 
+  
+       Scalar kksphi = psi_j*psi_j*psi_j_ma/(2.*nntilde_j) * 
+	 contract( beta_j_d.ope_killing_conf(met_gamt), 0, 1,  met_gamt.radial_vect()* phi, 0, 1) +
+	 1./3. * trK * psi_j*psi_j *  
+	 contract( met_gamt.cov(), 0, 1,  met_gamt.radial_vect()* phi, 0, 1) ;
+
+       kksphi = kksphi / (8. * M_PI) ;
+       Scalar kkspsi_int = kksphi * darea ;   // we correct with the curved 
+                                              // element of area 
+       double ang_mom = mp.integrale_surface(kkspsi_int, radius + 1e-15) ;
+
+       double diff_ang_mom = ang_mom - ang_mom_hor() ;
+      
+       // Surface gravity
+       double kappa_kerr = (pow( radius, 4) - 4 * pow( ang_mom, 2)) / ( 2 * pow( radius, 3) 
+			 *  sqrt( pow( radius, 4) + 4 * pow( ang_mom, 2) ) ) ;
+  
+       double diff_kappa = kappa_kerr - kappa_hor() ;
+  
+       // BC condition itself
+       rho = 5. ;
        
        Scalar  kappa (mp) ;
-       kappa = 0.15 ;
+       if (mer < 0)
+	   kappa = kappa_kerr ;
+       else
+	 kappa = 0.15 ;
        kappa.std_spectral_base() ;
        kappa.inc_dzpuis(2) ;
 
-       tmp = - a / psi_j * nntilde_j *contract(met_gamt.radial_vect(), 0, psi_j.derive_cov(met_gamt), 0) 
-	     + 1./2. * psi_j * psi_j * psi_j_ma * contract( beta_j_d.ope_killing_conf(met_gamt), 0, 1,  met_gamt.radial_vect()* met_gamt.radial_vect(), 0, 1)
-	     - 1./3. * nntilde_j * psi_j * psi_j * trK * contract( met_gamt.cov(), 0, 1,  met_gamt.radial_vect()* met_gamt.radial_vect(), 0, 1) 
-             + psi_j * psi_j * psi_j_ma * kappa 
-  	     - met_gamt.radial_vect()(2) * nntilde_j.derive_cov(ff)(2)  - met_gamt.radial_vect()(3) * nntilde_j.derive_cov(ff)(3)  ;
-       
-       tmp = tmp / met_gamt.radial_vect()(1) ;
+     
+
+       tmp = - a / psi_j * nntilde_j 
+	     * contract(met_gamt.radial_vect(), 0, psi_j.derive_cov(met_gamt), 0) 
+	     + 1./2. * psi_j * psi_j * psi_j_ma 
+	       * contract( beta_j_d.ope_killing_conf(met_gamt), 0, 1,  met_gamt.radial_vect()
+			   * met_gamt.radial_vect(), 0, 1)
+	     + 1./3. * nntilde_j * psi_j * psi_j * trK 
+	       * contract( met_gamt.cov(), 0, 1,  met_gamt.radial_vect()* met_gamt.radial_vect(), 0, 1) 
+	     + psi_j * psi_j * psi_j_ma * kappa 
+  	     - met_gamt.radial_vect()(2) * nntilde_j.derive_cov(ff)(2)  
+	     - met_gamt.radial_vect()(3) * nntilde_j.derive_cov(ff)(3)  
+             + ( rho - 1 ) * met_gamt.radial_vect()(1)  * nntilde_j.derive_cov(ff)(1) 
+	     + 0. * contract (nntilde_j.derive_cov(ff), 0,  met_gamt.radial_vect(), 0)  * corr_nn_kappa ;
+  
+       tmp = tmp / (rho * met_gamt.radial_vect()(1)) ;
 
        // in this case you don't have to substract any value
        Valeur nn_bound_kappa (mp.get_mg()->get_angu() )  ;
        
        nn_bound_kappa = 1 ;
-			
+       
        for (int k=0 ; k<nnp ; k++)
 	 for (int j=0 ; j<nnt ; j++)
 	   nn_bound_kappa.set(0, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
        
        nn_bound_kappa.std_base_scal() ;
+  
+
+       /*
+       // BC kappa const Dir
        
 
+       rho = 10. ;
+       tmp = 1./(a * contract(met_gamt.radial_vect(), 0, psi_j.derive_cov(met_gamt), 0)) * 
+		 (psi_j* psi_j*psi_j * psi_j_ma* kappa 
+		  - psi_j * contract(met_gamt.radial_vect(), 0, nntilde_j.derive_cov(met_gamt), 0) 
+	          +  psi_j* psi_j*psi_j * psi_j_ma/2. * 
+                     contract(beta_j_d.ope_killing_conf(met_gamt), 0, 1,  met_gamt.radial_vect()
+		     * met_gamt.radial_vect(), 0, 1)
+		  +  1./3. * nntilde_j * psi_j * psi_j *psi_j * trK 
+		  * contract( met_gamt.cov(), 0, 1,  met_gamt.radial_vect()* met_gamt.radial_vect(), 0, 1)) ;
        
+       tmp = (tmp + rho * nn())/(1 + rho) ;
+       tmp = tmp - 1 ;
+
+       // in this case you don't have to substract any value
+       Valeur nn_bound_kappa_Dir (mp.get_mg()->get_angu() )  ;
+       
+       nn_bound_kappa_Dir = 1 ;
+			
+       for (int k=0 ; k<nnp ; k++)
+	 for (int j=0 ; j<nnt ; j++)
+	   nn_bound_kappa_Dir.set(0, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
+       
+       nn_bound_kappa_Dir.std_base_scal() ;
+       */
+     
        // BC nn = const
        
-       tmp = 0.2 * psi_j_ma - 1;
+       rho = 0. ;
+       tmp = 0.2 * psi_j_ma  ;
+       tmp = (tmp + rho * nntilde_j)/(1 + rho) ;
+       tmp = tmp - 1 ;
 
        // in this case you don't have to substract any value
        Valeur nn_bound_const (mp.get_mg()->get_angu() )  ;
@@ -359,8 +574,28 @@ void Isol_hor::init_data_CTS_gen(int bound_nn, double lim_nn, int bound_psi, int
        
        nn_bound_const.std_base_scal() ;
        
+       boundary_nn_Neu_kk(0) ;
 
+       // BC nn AEI
+       
+       rho = 5. ;
+       tmp = btilde_j * psi_j*psi_j*psi_j_ma  ;
+       tmp = (tmp + rho * nntilde_j)/(1 + rho) ;
+       tmp = tmp - 1 ;
 
+       // in this case you don't have to substract any value
+       Valeur nn_bound_AEI (mp.get_mg()->get_angu() )  ;
+       
+       nn_bound_AEI = 1 ;
+			
+       for (int k=0 ; k<nnp ; k++)
+	 for (int j=0 ; j<nnt ; j++)
+	   nn_bound_AEI.set(0, k, j, 0) = tmp.val_grid_point(1, k, j, 0) ;
+       
+       nn_bound_AEI.std_base_scal() ;
+       
+
+       
        //============================
        // Resolution of the equations
        //============================
@@ -382,9 +617,11 @@ void Isol_hor::init_data_CTS_gen(int bound_nn, double lim_nn, int bound_psi, int
        
 
        if (solve_lapse == 1) {
-	 //nntilde_jp1 = sour_nntilde.poisson_neumann(nn_bound_kappa, 0) + 1. ;
-	  nntilde_jp1 = sour_nntilde.poisson_dirichlet(nn_bound_const, 0) + 1. ;
-       
+	 //	 nntilde_jp1 = sour_nntilde.poisson_neumann(nn_bound_kappa, 0) + 1. ;
+	 //      nntilde_jp1 = sour_nntilde.poisson_dirichlet(nn_bound_const, 0) + 1. ;
+	 //	 nntilde_jp1 = sour_nntilde.poisson_dirichlet(nn_bound_kappa_Dir, 0) + 1. ;
+	 nntilde_jp1 = sour_nntilde.poisson_dirichlet(nn_bound_AEI, 0) + 1. ;
+	 
        // Test:
 	  maxabs(nntilde_jp1.laplacian() - sour_nntilde,
 		 "Absolute error in the resolution of the equation for nntilde") ;  
@@ -394,8 +631,11 @@ void Isol_hor::init_data_CTS_gen(int bound_nn, double lim_nn, int bound_psi, int
 
        if (solve_shift == 1) {
         double precision = 1e-8 ;
-	poisson_vect_boundary(lambda, sour_beta, beta_jp1, lim_x, 
-				  lim_y, lim_z, 0, precision, 20) ;
+	//	poisson_vect_boundary(lambda, sour_beta, beta_jp1, lim_x, 
+	//			  lim_y, lim_z, 0, precision, 20) ;		
+	poisson_vect_boundary(lambda, sour_beta, beta_jp1, lim_x_AEI, 
+			      lim_y_AEI, lim_z_AEI, 0, precision, 20) ;
+
 	    
 	// Test
 	sour_beta.dec_dzpuis() ;
@@ -453,13 +693,16 @@ void Isol_hor::init_data_CTS_gen(int bound_nn, double lim_nn, int bound_psi, int
        //========================
 
        
-	Scalar kkss (   psi_j_ma/(2. * nntilde_j ) * contract( beta_j_d.ope_killing_conf(met_gamt), 0, 1,  met_gamt.radial_vect()* met_gamt.radial_vect(), 0, 1)
-			+ 1./3. * trK * contract( met_gamt.cov(), 0, 1,  met_gamt.radial_vect()* met_gamt.radial_vect(), 0, 1) ) ; 
+	Scalar kkss (   psi_j_ma/(2. * nntilde_j ) 
+                 * contract( beta_j_d.ope_killing_conf(met_gamt), 0, 1,  met_gamt.radial_vect()
+                 * met_gamt.radial_vect(), 0, 1)
+		 + 1./3. * trK * contract( met_gamt.cov(), 0, 1,  met_gamt.radial_vect()
+                  * met_gamt.radial_vect(), 0, 1) ) ; 
 
 	double max_kss = kkss.val_grid_point(1, 0, 0, 0) ;
 	double min_kss = kkss.val_grid_point(1, 0, 0, 0) ;
 	
-	Scalar hh_tilde (contract(met_gamt.radial_vect().derive_cov(met_gamt), 0, 1)) ;
+	hh_tilde = contract(met_gamt.radial_vect().derive_cov(met_gamt), 0, 1) ;
 	double max_hh_tilde = hh_tilde.val_grid_point(1, 0, 0, 0) ;
 	double min_hh_tilde = hh_tilde.val_grid_point(1, 0, 0, 0) ;
 	
@@ -476,12 +719,23 @@ void Isol_hor::init_data_CTS_gen(int bound_nn, double lim_nn, int bound_psi, int
 	    if (hh_tilde.val_grid_point(1, k, j, 0) < min_hh_tilde)
 	      min_hh_tilde = hh_tilde.val_grid_point(1, k, j, 0) ;
 	  }
+	kss_out << mer << " " << max_kss << " " << min_kss 
+	    << " " <<  -1 * max_hh_tilde << " "  << -1 * min_hh_tilde << endl ;
+
+	//Intermediate updates for tests
+	if (solve_psi == 1)
+	  set_psi(psi_j) ; 
+	if (solve_lapse == 1)
+	  n_evol.update(nntilde_j * psi_j_a, jtime, ttime) ; 
+	if (solve_shift == 1)
+	  beta_evol.update(beta_j, jtime, ttime) ;	
+	
+	if (solve_shift == 1)
+	  update_aa() ;
+	
      }
 	       
-     
-
-
-     // Global updates
+         // Global updates
      //--------------
      Scalar psi_j_a = pow(psi_j, a) ;
      psi_j_a.std_spectral_base() ;
@@ -496,21 +750,36 @@ void Isol_hor::init_data_CTS_gen(int bound_nn, double lim_nn, int bound_psi, int
 
      if (solve_shift == 1)
        update_aa() ;
-   
+
+/*   
      Vector beta_j_d = beta().down(0, met_gamt) ;
-     Scalar check ( psi() * psi() * psi() * trK
-		    - psi() * met_gamt.radial_vect().divergence(met_gamt) 
-		    - pow(psi(), -a)/(2. * nntilde_j * psi()) 
-		    * contract( beta_j_d.ope_killing_conf(met_gamt), 0, 1,  met_gamt.radial_vect()* met_gamt.radial_vect(), 0, 1)
-		    - 1./3. * trK/psi() * contract( met_gamt.cov(), 0, 1,  met_gamt.radial_vect()* met_gamt.radial_vect(), 0, 1) 
-		    - 4 *contract (met_gamt.radial_vect(), 0, psi().derive_cov(met_gamt),0)) ;
+     Scalar check ( -psi() * psi() * psi() * trK
+		    + psi() * met_gamt.radial_vect().divergence(met_gamt) 
+		    + psi() * psi() * psi() * pow(psi(), -a)/(2. * nntilde_j) 
+		    * contract( beta_j_d.ope_killing_conf(met_gamt), 0, 1,  met_gamt.radial_vect()
+                    * met_gamt.radial_vect(), 0, 1)
+		    + 1./3. * psi() * psi() * psi() * trK 
+		    * contract( met_gamt.cov(), 0, 1,  met_gamt.radial_vect()
+                    * met_gamt.radial_vect(), 0, 1) 
+		    + 4 * contract (met_gamt.radial_vect(), 0, psi().derive_cov(met_gamt),0) ) ;
      
      
        des_meridian(check, 1, 4., "CHECK", 1) ;
        arrete() ;
 
+       Scalar exp = contract(gam().radial_vect().derive_cov(gam()), 0,1) 
+      + contract(contract(k_dd(), 0, gam().radial_vect(), 0), 
+	       0, gam().radial_vect(), 0) 
+      - trk() ; 
+
+       des_meridian(exp, 1, 4., "Expansion", 1) ;
+       arrete() ;
+*/
      conv.close() ;   
-     kss.close() ;
+     kss_out.close() ;
+
+
+
 
 }
 
