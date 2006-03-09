@@ -7,12 +7,12 @@
 1	Conductivity (0: isolator, 1: perfect conductor)
 #################### MAGNETIC PARAMETERS ######################################
 0.	Requested total charge(conduc=1), charge/baryon (conduc=0)[Lorene unit]
-28050.	Requested CFA (current function amplitude) [Lorene unit]
+2000.	Requested CFA (current function amplitude) [Lorene unit]
 0.	Initial charge (mer =< mer_mag) [Lorene unit]
-10000.	Initial CFA    (mer =< mer_mag) [Lorene unit]
+1000.	Initial CFA    (mer =< mer_mag) [Lorene unit]
 5	mer_mag : step at which magnetic quantites are plugged.
 10	mer_change_mag : step at which they are increased.
-50	mer_fix_mag : step at which they reach their final values.
+20	mer_fix_mag : step at which they reach their final values.
 #################### COMPUTATIONAL PARAMETERS #################################
 300      mer_max : maximum number of steps
 1.e-12   precis : threshold on the enthalpy relative change for ending the computation
@@ -25,7 +25,7 @@
 2000    mer_mass : step from which the baryon mass is forced to converge (if negative, variation of Omega)
 0.5     aexp_mass : exponent for the increase factor of the central enthalpy
 0.5     relax : relaxation factor in the main iteration 
-10       mermax_poisson : maximum number of steps in Map_et::poisson
+4       mermax_poisson : maximum number of steps in Map_et::poisson
 1.5     relax_poisson :  relaxation factor in Map_et::poisson
 1.e-15  precis_adapt : precision in Map_et::adapt
 1       graph : 1 = graphical outputs during the computation 
@@ -33,11 +33,11 @@
 3	nz : total number of domains
 1	nzet : number of domains inside the star
 1	nzadapt : number of domains of where the mapping adaptation will be done.
-33	nt: number of points in theta (the same in each domain)
+9	nt: number of points in theta (the same in each domain)
 1	np: number of points in phi   (the same in each domain)
 # Number of points in r and (initial) inner boundary of each domain:
-65	0.	<-   nr	  &   min(r)  in domain 0  (nucleus)  	
-33	1.	<-   nr	  &   min(r)  in domain 1
-33	2.	<-   nr   &   min(r)  in domain 2
+33	0.	<-   nr	  &   min(r)  in domain 0  (nucleus)  	
+17	1.	<-   nr	  &   min(r)  in domain 1
+17	2.	<-   nr   &   min(r)  in domain 2
 9	3.	<-   nr   &   min(r)  in domain 2
 0.1	enthalpy defining boundary between domains 0 and 1
