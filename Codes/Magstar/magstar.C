@@ -27,6 +27,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2006/03/09 08:11:59  j_novak
+ * Output of the divergence of B at the end of the iteration.
+ *
  * Revision 1.9  2004/03/25 12:35:42  j_novak
  * now using namespace Unites
  *
@@ -50,7 +53,8 @@
 #include "utilitaires.h"
 #include "graphique.h"
 #include "nbr_spx.h"
-#include "unites.h"	    
+#include "unites.h"
+#include "metric.h"	    
 
 // Local prototype (for drawings only)
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
@@ -371,7 +375,27 @@ int main(){
 
     cout.precision(10) ; 
     cout << star << endl ; 
+    
+    const Base_vect_spher& bspher = mp.get_bvect_spher() ;
+    Sym_tensor gij(mp, COV, bspher) ;
+    gij.set_etat_zero() ;
+    gij.set(1,1) = star.get_a_car()() ;
+    gij.set(2,2) = star.get_a_car()() ;
+    gij.set(3,3) = star.get_b_car()() ;
+    Metric gam(gij) ;
 
+    Scalar fac = sqrt(star.get_a_car()()) ;
+    fac.std_spectral_base() ;
+    Vector Bmag(mp, CON, bspher) ;
+    Bmag.set(1) = Scalar(star.Magn()(0)) / fac ;
+    Bmag.set(1).dec_dzpuis(2) ;
+    Bmag.set(2) = Scalar(star.Magn()(1)) / fac ;
+    Bmag.set(2).dec_dzpuis(2) ;
+    Bmag.set(3) = 0 ;
+    Tbl maxB = 0.5*(max(abs(Bmag(1))) + max(abs(Bmag(2)))) ;
+    cout << maxB ;
+    cout << "div(B) / max(B) in each domain :  " << max(abs(Bmag.divergence(gam))) / maxB ; 
+    
     //-----------------------------------------------
     //  General features of the final configuration
     //  saved in a file
