@@ -423,8 +423,8 @@ int main(){
 	      << star.grv3() << endl ;   
 
     // total central densities
-    double m1 = eos.get_m1();
-    double m2 = eos.get_m2();
+    m1 = eos.get_m1();
+    m2 = eos.get_m2();
     double rhon_c = m1 * star.get_nbar()()(0,0,0,0);
     double rhop_c = m2 * star.get_nbar2()()(0,0,0,0);
 
@@ -647,18 +647,18 @@ compare_analytic (Et_rot_bifluid& star, int adapt, const char *resdir)
   fname = path + get_file_base (star.is_relativistic(), xp, sigma, eps, om_n, om_p, eos.get_typeos(), star.get_nzet(), adapt);
 
 
-  Map_et &map = (Map_et&)(star.get_mp());
-  const Mg3d* mg = map.get_mg() ;	// Multi-grid
+  const Map_radial *map = dynamic_cast<const Map_radial*>(&star.get_mp());
+  const Mg3d* mg = map->get_mg() ;	// Multi-grid
 
   //----------------------------------------------------------------------
   // get radii at intermediate angle, ~pi/4
 
-  const Coord& theta = map.tet ;
+  const Coord& theta = map->tet ;
   int g = mg->get_nt(0)/2;   // theta close to pi/4
 
   double thetaI = (+theta)(0,0,g,0);
-  double RnI = map.val_r_jk(star.l_surf()(0,g), star.xi_surf()(0,g), g, 0);
-  double RpI = map.val_r_jk(star.l_surf2()(0,g), star.xi_surf2()(0,g), g, 0);
+  double RnI = map->val_r_jk(star.l_surf()(0,g), star.xi_surf()(0,g), g, 0);
+  double RpI = map->val_r_jk(star.l_surf2()(0,g), star.xi_surf2()(0,g), g, 0);
 
   cout << "theta = " << thetaI << "; RnI = " << RnI << "; RpI = " << RpI << endl;
 
@@ -811,7 +811,7 @@ compare_analytic (Et_rot_bifluid& star, int adapt, const char *resdir)
 double AofR (double r, void *params)
 {
   double res;
-  AofR_params *myparams = (AofR_params*)params;
+  AofR_params *myparams = reinterpret_cast<AofR_params*>(params);
 
   res = myparams->AofR->val_point( r, myparams->theta, myparams->phi);
 

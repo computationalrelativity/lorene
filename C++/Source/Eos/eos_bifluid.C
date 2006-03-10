@@ -31,6 +31,9 @@ char eos_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2006/03/10 08:38:55  j_novak
+ * Use of C++-style casts.
+ *
  * Revision 1.14  2004/09/01 16:12:30  r_prix
  * (hopefully) fixed seg-fault bug with my inconsistent treatment of eos-bifluid 'name'
  * (was char-array, now char*)
@@ -150,7 +153,7 @@ Eos_bifluid::Eos_bifluid(FILE* fich)
 {
   char dummy [MAX_EOSNAME];
   fread(dummy, sizeof(char),MAX_EOSNAME, fich) ;
-  name = (char*)MyMalloc(strlen(dummy)+1);
+  name = reinterpret_cast<char*>(MyMalloc(strlen(dummy)+1));
   strcpy (name, dummy);
   fread_be(&m_1, sizeof(double), 1, fich) ;		
   fread_be(&m_2, sizeof(double), 1, fich) ;	
@@ -212,7 +215,7 @@ void Eos_bifluid::set_name(const char* name_i)
   if (name)
     free (name);
 
-  name = (char*)MyMalloc (strlen(name_i) +1);
+  name = reinterpret_cast<char*>(MyMalloc (strlen(name_i) +1));
   strcpy(name, name_i);
     
 }
