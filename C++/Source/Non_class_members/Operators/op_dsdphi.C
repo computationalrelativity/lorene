@@ -36,6 +36,9 @@ char op_dsdphi_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2006/03/10 12:45:38  j_novak
+ * Use of C++-style cast.
+ *
  * Revision 1.3  2003/12/19 16:21:48  j_novak
  * Shadow hunt
  *
@@ -122,7 +125,7 @@ void _dsdphi_p_cossin(Tbl* tb, int & )
     {
     if (np > np_pre) {
 	np_pre = np ;
-	cx = (double*)(realloc(cx, (np+2) * sizeof(double))) ;
+	cx = reinterpret_cast<double*>(realloc(cx, (np+2) * sizeof(double))) ;
 	for (int i=0 ; i<np+2 ; i += 2) {
 	    cx[i] = - (i/2) ;
 	    cx[i+1] = (i/2) ;
@@ -226,7 +229,7 @@ void _dsdphi_p_cossin_p(Tbl* tb, int & )
     {
     if (np > np_pre) {
 	np_pre = np ;
-	cx = (double*)(realloc(cx, (np+2) * sizeof(double))) ;
+	cx = reinterpret_cast<double*>(realloc(cx, (np+2) * sizeof(double))) ;
 	int i ;
 	for (i=0 ; i<np+2 ; i += 2) {
 	    cx[i] = - (i/2) ;

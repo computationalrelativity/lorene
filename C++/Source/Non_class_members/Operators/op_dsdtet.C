@@ -36,6 +36,9 @@ char op_dsdtet_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2006/03/10 12:45:38  j_novak
+ * Use of C++-style cast.
+ *
  * Revision 1.3  2004/11/23 15:16:01  m_forot
  *
  * Added the bases for the cases without any equatorial symmetry
@@ -116,7 +119,7 @@ void _dsdtet_t_cos_p(Tbl* tb, int & b)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
-	cx = (double*)(realloc(cx, nt * sizeof(double))) ;
+	cx = reinterpret_cast<double*>(realloc(cx, nt * sizeof(double))) ;
 	for (int i=0 ; i<nt ; i++) {
 	    cx[i] = - (2*i) ;
 	    }
@@ -200,7 +203,7 @@ void _dsdtet_t_sin_p(Tbl* tb, int & b)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
-	cx = (double*)(realloc(cx, nt * sizeof(double))) ;
+	cx = reinterpret_cast<double*>(realloc(cx, nt * sizeof(double))) ;
 	for (int i=0 ; i<nt ; i++) {
 	    cx[i] = (2*i) ;
 	    }
@@ -285,7 +288,7 @@ void _dsdtet_t_sin_i(Tbl* tb, int & b)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
-	cx = (double*)(realloc(cx, nt * sizeof(double))) ;
+	cx = reinterpret_cast<double*>(realloc(cx, nt * sizeof(double))) ;
 	for (int i=0 ; i<nt ; i++) {
 	    cx[i] = (2*i+1) ;
 	    }
@@ -370,7 +373,7 @@ void _dsdtet_t_cos_i(Tbl* tb, int & b)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
-	cx = (double*)(realloc(cx, nt * sizeof(double))) ;
+	cx = reinterpret_cast<double*>(realloc(cx, nt * sizeof(double))) ;
 	for (int i=0 ; i<nt ; i++) {
 	    cx[i] = - (2*i+1) ;
 	    }
@@ -456,8 +459,8 @@ void _dsdtet_t_cossin_cp(Tbl* tb, int & b)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
-	cxp = (double*)(realloc(cxp, nt * sizeof(double))) ;
-	cxi = (double*)(realloc(cxi, nt * sizeof(double))) ;
+	cxp = reinterpret_cast<double*>(realloc(cxp, nt * sizeof(double))) ;
+	cxi = reinterpret_cast<double*>(realloc(cxi, nt * sizeof(double))) ;
 	for (int i=0 ; i<nt ; i++) {
 	    cxp[i] = - (2*i) ;
 	    cxi[i] = (2*i+1) ;
@@ -554,8 +557,8 @@ void _dsdtet_t_cossin_sp(Tbl* tb, int & b)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
-	cxp = (double*)(realloc(cxp, nt * sizeof(double))) ;
-	cxi = (double*)(realloc(cxi, nt * sizeof(double))) ;
+	cxp = reinterpret_cast<double*>(realloc(cxp, nt * sizeof(double))) ;
+	cxi = reinterpret_cast<double*>(realloc(cxi, nt * sizeof(double))) ;
 	for (int i=0 ; i<nt ; i++) {
 	    cxp[i] = (2*i) ;
 	    cxi[i] = - (2*i+1) ;
@@ -652,8 +655,8 @@ void _dsdtet_t_cossin_ci(Tbl* tb, int & b)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
-	cxp = (double*)(realloc(cxp, nt * sizeof(double))) ;
-	cxi = (double*)(realloc(cxi, nt * sizeof(double))) ;
+	cxp = reinterpret_cast<double*>(realloc(cxp, nt * sizeof(double))) ;
+	cxi = reinterpret_cast<double*>(realloc(cxi, nt * sizeof(double))) ;
 	for (int i=0 ; i<nt ; i++) {
 	    cxp[i] = (2*i) ;
 	    cxi[i] = - (2*i+1) ;
@@ -750,8 +753,8 @@ void _dsdtet_t_cossin_si(Tbl* tb, int & b)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
-	cxp = (double*)(realloc(cxp, nt * sizeof(double))) ;
-	cxi = (double*)(realloc(cxi, nt * sizeof(double))) ;
+	cxp = reinterpret_cast<double*>(realloc(cxp, nt * sizeof(double))) ;
+	cxi = reinterpret_cast<double*>(realloc(cxi, nt * sizeof(double))) ;
 	for (int i=0 ; i<nt ; i++) {
 	    cxp[i] = - (2*i) ;
 	    cxi[i] = (2*i+1) ;
@@ -848,8 +851,8 @@ void _dsdtet_t_cossin_c(Tbl* tb, int & b)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
-	cxp = (double*)(realloc(cxp, nt * sizeof(double))) ;
-	cxi = (double*)(realloc(cxi, nt * sizeof(double))) ;
+	cxp = reinterpret_cast<double*>(realloc(cxp, nt * sizeof(double))) ;
+	cxi = reinterpret_cast<double*>(realloc(cxi, nt * sizeof(double))) ;
 	for (int i=0 ; i<nt ; i++) {
 	    cxp[i] = - i ;
 	    cxi[i] = i ;
@@ -946,8 +949,8 @@ void _dsdtet_t_cossin_s(Tbl* tb, int & b)
     {
     if (nt > nt_pre) {
 	nt_pre = nt ;
-	cxp = (double*)(realloc(cxp, nt * sizeof(double))) ;
-	cxi = (double*)(realloc(cxi, nt * sizeof(double))) ;
+	cxp = reinterpret_cast<double*>(realloc(cxp, nt * sizeof(double))) ;
+	cxi = reinterpret_cast<double*>(realloc(cxi, nt * sizeof(double))) ;
 	for (int i=0 ; i<nt ; i++) {
 	    cxp[i] = i ;
 	    cxi[i] = - i ;

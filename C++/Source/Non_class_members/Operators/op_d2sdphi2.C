@@ -36,8 +36,11 @@ char op_d2sdphi2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2006/03/10 12:45:38  j_novak
+ * Use of C++-style cast.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.4  2000/10/04  10:14:52  eric
  * Ajout d' abort() dans le cas non prevu.
@@ -98,7 +101,7 @@ void _d2sdphi2_p_cossin(Tbl* tb, int & )
     // Test sur np pour initialisation eventuelle
     if (np > np_pre) {
 	np_pre = np ;
-	cx = (double*)(realloc(cx, (np+2) * sizeof(double))) ;
+	cx = reinterpret_cast<double*>(realloc(cx, (np+2) * sizeof(double))) ;
 	for (int i=0 ; i<np+2 ; i++) {
 	    cx[i] = - (i/2) * (i/2) ;
 	}
