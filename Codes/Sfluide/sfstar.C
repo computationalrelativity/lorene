@@ -34,7 +34,6 @@
 #include <sys/stat.h>
 // headers Lorene
 #include "et_rot_bifluid.h"
-#include "eos_bifluid.h"
 #include "utilitaires.h"
 #include "graphique.h"
 #include "nbr_spx.h"
@@ -182,9 +181,23 @@ int main(){
 	res += read_variable (NULL, "kepler_factor", kepler_factor);
 	
 	if (res != 0)
-	  cout << "WARNING: some Kepler-limit paramters were not found in settings.par! Using default ... \n";
+	  cout << "WARNING: some Kepler-limit parameters were not found in settings.par! Using default ... \n";
       }
 
+
+    // Read parameters specific to triaxial perturbation (optional)
+    // ------------------------------------------------------------
+    // Default values: 
+    int mer_triax = 2000 ;       //step at which the 3-D perturbation is switched on
+    double ampli_triax = 1.e-3 ; // relative amplitude of the 3-D perturbation
+
+    res = 0;
+    if( (read_variable (NULL, "mer_triax", mer_triax) == 0) && (mer_triax < mer_max) )
+      {
+	  res += read_variable (NULL, "ampli_triax", ampli_triax) ;
+	  if (res != 0)
+	  cout << "WARNING: some 3D perturbation parameters were not found in settings.par! Using default ... \n";
+      }
 
     // read parameters related to mass-convergence (optional)
     // -------------------------------------------------------
@@ -350,7 +363,7 @@ int main(){
     double omega2 = 2 * M_PI * freq2_si / f_unit ; 
     double omega2_ini = 2 * M_PI * freq2_ini_si / f_unit ; 
 
-    Itbl icontrol(8) ;
+    Itbl icontrol(9) ;
     icontrol.set_etat_qcq() ; 
     icontrol.set(0) = mer_max ; 
     icontrol.set(1) = mer_rot ; 
@@ -360,8 +373,9 @@ int main(){
     icontrol.set(5) = nzadapt;  	// nb of domains for adaptive grid
     icontrol.set(6) = kepler_fluid;  	// index of fluid for Kepler-search (0=none)
     icontrol.set(7) = kepler_wait_steps;
+    icontrol.set(8) = mer_triax ; // starting of triaxial perturbations
 
-    Tbl control(8) ; 
+    Tbl control(9) ; 
     control.set_etat_qcq() ; 
     control.set(0) = precis ; 
     control.set(1) = omega_ini ;
@@ -371,9 +385,9 @@ int main(){
     control.set(5) = thres_adapt;
     control.set(6) = precis_adapt;
     control.set(7) = kepler_factor;
+    control.set(8) = ampli_triax ;
 
-
-    Tbl diff(8) ;     
+    Tbl diff(9) ;     
 
     star.equilibrium_bi(ent1_c, ent2_c, omega, omega2, ent_limit, 
 			ent2_limit, icontrol, control, diff, 
@@ -385,6 +399,10 @@ int main(){
 
     cout.precision(10) ; 
     cout << star << endl ; 
+
+    double vit_triax = diff(8) ;
+    cout << "Growing rate of triaxial perturbation: " << vit_triax 
+	      << endl ; 
 
     //-----------------------------------------------
     //  General features of the final configuration
@@ -413,6 +431,8 @@ int main(){
     fichfinal << endl << "Physical characteristics : " << endl ; 
     fichfinal	  << "-------------------------" << endl ; 
     fichfinal << star << endl ;
+    fichfinal << "Growing rate of triaxial perturbation: " << vit_triax 
+	      << endl ; 
     fichfinal << endl <<
     "===================================================================" 
     << endl ; 

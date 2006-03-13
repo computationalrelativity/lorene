@@ -72,6 +72,11 @@ kepler_fluid	= 0		# Kepler limit for which fluid? 0=none, 1,2; 3 = both
 kepler_wait_steps = 40		# how many steps after mer_fix_omega shall we start?
 kepler_factor	= 1.01 		# factor to increase omega in each step to approach Kepler (>1!)
 
+# Parameters for triaxial perturbation [OPTIONAL]
+#------------------------------------------------
+mer_triax	= 2000		# step at which the 3-D perturbation is switched on
+ampli_triax	 = 1.e-3	# relative amplitude of the 3-D perturbation
+
 # Parameters to converge to a fixed baryon mass for the two fluids [OPTIONAL]
 --------------------------------------------------------------------------------
 mer_mass 	= -1		# step to start converging to given baryon masses (-1 means OFF)
