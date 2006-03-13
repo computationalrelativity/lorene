@@ -32,6 +32,9 @@ char et_bfrot_equilibre_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2006/03/13 10:02:27  j_novak
+ * Added things for triaxial perturbations.
+ *
  * Revision 1.16  2004/09/01 10:56:05  r_prix
  * added option of converging baryon-mass to equilibrium_bi()
  *
@@ -137,6 +140,7 @@ void Et_rot_bifluid::equilibrium_bi
   // ---------------
     
   const Mg3d* mg = mp.get_mg() ; 
+  int nz = mg->get_nzone() ;	    // total number of domains
 
   // The following is required to initialize mp_prev as a Map_af
   Map_et& mp_et = dynamic_cast<Map_et&>(mp) ;  // reference
@@ -166,6 +170,7 @@ void Et_rot_bifluid::equilibrium_bi
   int nzadapt = icontrol(5);		// number of domains for adaptive grid
   int kepler_fluid = icontrol(6); 	// fluid-index for kepler-limit (0=none,3=both)
   int kepler_wait_steps = icontrol(7);
+  int mer_triax = icontrol(8) ;
   
   int niter ;
 
@@ -199,7 +204,7 @@ void Et_rot_bifluid::equilibrium_bi
       cout << "ERROR: Kepler factor has to be greater than 1!!\n";
       abort();
     }
-
+  double ampli_triax = control(8) ;
 
   // Error indicators
   // ----------------
@@ -214,7 +219,7 @@ void Et_rot_bifluid::equilibrium_bi
   //    double& diff_ggg = diff.set(5) ; 
   double& diff_shift_x = diff.set(6) ; 
   double& diff_shift_y = diff.set(7) ; 
-    
+  double& vit_triax = diff.set(8) ;  
 
   // Parameters for the function Map_et::adapt
   // -----------------------------------------
@@ -370,7 +375,7 @@ void Et_rot_bifluid::equilibrium_bi
   }
 		    
   ofstream fichconv("convergence.d") ;    // Output file for diff_ent
-  fichconv << "#     diff_ent     GRV2      " << endl ; 
+  fichconv << "#     diff_ent     GRV2        max_triax      vit_triax" << endl ; 
     
   ofstream fichfreq("frequency.d") ;    // Output file for  omega
   fichfreq << "#       f1 [Hz]     f2 [Hz]" << endl ; 
@@ -380,6 +385,7 @@ void Et_rot_bifluid::equilibrium_bi
     
   diff_ent = 1 ; 
   double err_grv2 = 1 ; 
+  double max_triax_prev = 0 ;	    // Triaxial amplitude at previous step
     
     //=========================================================================
     // 			Start of iteration
@@ -486,6 +492,59 @@ void Et_rot_bifluid::equilibrium_bi
 //     diff_nuf = err(0, 0) ; 
     diff_nuf = 0 ;
     
+	//---------------------------------------
+	// Triaxial perturbation of nuf
+	//---------------------------------------
+	
+    if (mer == mer_triax) {
+	
+	if ( mg->get_np(0) == 1 ) {
+	    cout << 
+		"Et_rot_bifluid::equilibrium: np must be stricly greater than 1"
+		 << endl << " to set a triaxial perturbation !" << endl ; 
+	    abort() ; 
+	}
+	
+	const Coord& phi = mp.phi ; 
+	const Coord& sint = mp.sint ; 
+	Cmp perturb(mp) ; 
+	perturb = 1 + ampli_triax * sint*sint * cos(2*phi) ;
+	nuf.set() = nuf() * perturb ;  
+	    
+	nuf.set_std_base() ;    // set the bases for spectral expansions
+	                        //  to be the standard ones for a 
+	                        //  scalar field
+
+    }
+	
+    // Monitoring of the triaxial perturbation
+    // ---------------------------------------
+	
+    Valeur& va_nuf = nuf.set().va ; 
+    va_nuf.coef() ;		// Computes the spectral coefficients
+    double max_triax = 0 ; 
+
+    if ( mg->get_np(0) > 1 ) {
+
+	for (int l=0; l<nz; l++) {	// loop on the domains
+	    for (int j=0; j<mg->get_nt(l); j++) {
+		for (int i=0; i<mg->get_nr(l); i++) {
+		
+		    // Coefficient of cos(2 phi) : 
+		    double xcos2p = (*(va_nuf.c_cf))(l, 2, j, i) ; 
+
+		    // Coefficient of sin(2 phi) : 
+		    double xsin2p = (*(va_nuf.c_cf))(l, 3, j, i) ; 
+		    
+		    double xx = sqrt( xcos2p*xcos2p + xsin2p*xsin2p ) ; 
+		    
+		    max_triax = ( xx > max_triax ) ? xx : max_triax ; 		    
+		}
+	    } 
+	}
+    }
+    cout << "Triaxial part of nuf : " << max_triax << endl ; 
+
     if (relativistic) {
       
       //----------------------------------------------
@@ -852,7 +911,15 @@ void Et_rot_bifluid::equilibrium_bi
 	
     fichconv << "  " << log10( fabs(diff_ent) + 1.e-16 ) ;
     fichconv << "  " << log10( fabs(err_grv2) + 1.e-16 ) ;
+    fichconv << "  " << log10( fabs(max_triax) + 1.e-16 ) ;
 
+    vit_triax = 0 ;
+    if ( (mer > mer_triax+1) && (max_triax_prev > 1e-13) ) {
+	vit_triax = (max_triax - max_triax_prev) / max_triax_prev ; 
+    }
+    
+    fichconv << "  " << vit_triax ;
+	
     //------------------------------
     //  Recycling for the next step
     //------------------------------
@@ -861,6 +928,7 @@ void Et_rot_bifluid::equilibrium_bi
     ent2_prev = ent2 ; 
     logn_prev = logn ; 
     dzeta_prev = dzeta ; 
+    max_triax_prev = max_triax ; 
 	
     fichconv << endl ;
     fichfreq << endl ;
