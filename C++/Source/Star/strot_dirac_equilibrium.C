@@ -30,6 +30,10 @@ char strot_dirac_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2006/03/14 15:18:21  lm_lin
+ *
+ * Add convergence to a given baryon mass.
+ *
  * Revision 1.8  2005/11/28 14:45:16  j_novak
  * Improved solution of the Poisson tensor equation in the case of a transverse
  * tensor.
@@ -77,7 +81,7 @@ char strot_dirac_equilibrium_C[] = "$Header$" ;
 void Star_rot_Dirac::equilibrium(double ent_c, double omega0, 
 	         double fact_omega, int , const Tbl& ent_limit,
 		 const Itbl& icontrol, const Tbl& control,
-		 double, double, Tbl& diff){	
+		 double mbar_wanted, double aexp_mass, Tbl& diff){	
 	
 
   // Fundamental constants and units
@@ -114,7 +118,7 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
   int mer_rot = icontrol(1) ;
   int mer_change_omega = icontrol(2) ; 
   int mer_fix_omega = icontrol(3) ; 
-  //int mer_mass = icontrol(4) ; 
+  int mer_mass = icontrol(4) ; 
   int delta_mer_kep = icontrol(5) ; 
   
   // Protections:
@@ -132,6 +136,15 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
     cout << " mer_change_omega = " << mer_change_omega << endl ; 
     abort() ; 
   }
+
+  // In order to converge to a given baryon mass, shall the central
+  // enthalpy be varied or Omega ?
+  bool change_ent = true ; 
+  if (mer_mass < 0) {
+    change_ent = false ; 
+    mer_mass = abs(mer_mass) ;
+  }
+  
 
   double precis = control(0) ; 
   double omega_ini = control(1) ; 
@@ -464,6 +477,41 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
  // partial_display(cout) ;    // What is partial_display(cout) ? 
  fichfreq << "  " << omega / (2*M_PI) * f_unit ; 
  fichevol << "  " << ent_c ; 
+
+ 
+ //-----------------------------------------
+ // Convergence towards a given baryon mass 
+ //-----------------------------------------
+
+ if (mer > mer_mass) {
+	    
+   double xx ; 
+   if (mbar_wanted > 0.) {
+     xx = mass_b() / mbar_wanted - 1. ;
+     cout << "Discrep. baryon mass <-> wanted bar. mass : " << xx 
+	  << endl ; 
+   }
+   else{
+     xx = mass_g() / fabs(mbar_wanted) - 1. ;
+     cout << "Discrep. grav. mass <-> wanted grav. mass : " << xx 
+	  << endl ; 
+   }
+   double xprog = ( mer > 2*mer_mass) ? 1. : 
+     double(mer-mer_mass)/double(mer_mass) ; 
+   xx *= xprog ; 
+   double ax = .5 * ( 2. + xx ) / (1. + xx ) ; 
+   double fact = pow(ax, aexp_mass) ; 
+   cout << "  xprog, xx, ax, fact : " << xprog << "  " <<
+     xx << "  " << ax << "  " << fact << endl ; 
+   
+   if ( change_ent ) {
+     ent_c *= fact ; 
+   }
+   else {
+     if (mer%4 == 0) omega *= fact ; 
+   }
+ }
+	
 
  //-----------------------------------------------------------
  // Relative change in enthalpy with respect to previous step
