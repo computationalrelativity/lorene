@@ -29,6 +29,9 @@ char bin_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2006/03/30 07:33:45  p_grandclement
+ * *** empty log message ***
+ *
  * Revision 1.9  2005/12/06 07:01:58  p_grandclement
  * addition of Bhole::mp scaling in affecte()
  *
@@ -310,7 +313,8 @@ void Bin_ns_bh::affecte(const Bin_ns_bh& so) {
 	star.set_mp().set_rot_phi (so.star.mp.get_rot_phi()) ;
 	hole.set_mp().set_rot_phi (so.hole.mp.get_rot_phi()) ;
 	
-	hole.set_mp().homothetie (so.hole.get_rayon()/hole.rayon) ;
+	hole.set_mp().homothetie_interne (so.hole.get_rayon()/hole.rayon) ;
+	hole.set_rayon(so.hole.get_rayon()) ;
 	
    	// Faut gêrer le map_et :
 	Map_et* map_et = dynamic_cast<Map_et*>(&star.mp) ;
@@ -339,17 +343,16 @@ void Bin_ns_bh::affecte(const Bin_ns_bh& so) {
 	map_et->homothetie (rmax/old_r) ;
 	
 	star.ent.allocate_all() ;
-	star.ent.set().import(star.nzet, so.star.ent()) ;
+	star.ent.set().import_symy(star.nzet, so.star.ent()) ;
 	star.ent.set_std_base() ;
 	
-	// Adaptation :
     Param par_adapt ; 
     int nitermax = 100 ;  
     int niter_adapt ; 
     int adapt_flag = 1 ;  
     int nz_search = star.nzet + 1 ;
     double precis_secant = 1.e-14 ; 
-    double alpha_r = 1; 
+    double alpha_r = 1. ; 
     double reg_map = 1. ;   
     Tbl ent_limit(star.nzet) ; 
     
@@ -377,7 +380,9 @@ void Bin_ns_bh::affecte(const Bin_ns_bh& so) {
     map_et->adapt(star.ent(), par_adapt) ;
     mp_prev.homothetie(alpha_r) ;
     map_et->reevaluate_symy (&mp_prev, star.nzet, star.ent.set()) ;
-	
+        
+    star.ent.set().import_symy(star.nzet, so.star.ent()) ;
+    
      // The BH part :
 	// Lapse :
 	hole.n_auto.allocate_all() ;
@@ -421,7 +426,7 @@ void Bin_ns_bh::affecte(const Bin_ns_bh& so) {
 	star.w_shift.set(2).import_asymy (so.star.w_shift(2)) ;
 	star.w_shift.set_std_base() ;
 	star.khi_shift.allocate_all() ;
-	star.khi_shift.set().import(so.star.khi_shift()) ;
+	star.khi_shift.set().import_asymy(so.star.khi_shift()) ;
  	star.khi_shift.set().std_base_scal() ;
 	star.fait_shift_auto() ;
 	
@@ -434,6 +439,8 @@ void Bin_ns_bh::affecte(const Bin_ns_bh& so) {
 		star.d_psi.set(2).import_asymy(star.nzet, copie_dpsi(2)) ;
 		star.d_psi.set_std_base() ;
 	}
+	
+	
 	
 	// Reconstruction of the fields :
 	hole.update_metric(star) ;    

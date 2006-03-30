@@ -31,6 +31,9 @@ char et_bin_nsbh_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2006/03/30 07:33:47  p_grandclement
+ * *** empty log message ***
+ *
  * Revision 1.6  2005/10/18 13:12:33  p_grandclement
  * update of the mixted binary codes
  *
@@ -232,10 +235,11 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 	   cout << k_b << " " << j_b << " " << alpha_r << endl ;
 	  
 	   // Le potentiel : 
-	   //n_auto = n_auto*alpha_square ;
-	   //nnn = n_comp + n_auto ;
-	   Tenseur potentiel (constante*(exp(-loggam-pot_centri)/(n_auto*alpha_square+n_comp))) ;
-	   //Tenseur potentiel (constante*(exp(-loggam-pot_centri)/(nnn))) ;
+	   n_auto = n_auto*alpha_square ;
+	   nnn = n_comp + n_auto ;
+	   //Tenseur potentiel (constante*(exp(-loggam-pot_centri)/(n_auto*alpha_square+n_comp))) ;
+	   //n_auto.set() = n_auto()*alpha_square ;
+	   Tenseur potentiel (constante*(exp(-loggam-pot_centri)/(nnn))) ;
 	   potentiel.set_std_base() ;
 	   for (int l=nzet+1 ; l<nz ; l++)
 	    	potentiel.set().va.set(l) = 1 ;
@@ -243,8 +247,6 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 	   Map_et mp_prev = mp_et ; 
 	   ent = log(potentiel) ;
 	   ent.set_std_base() ;
-	
-	//   des_coupe_z (ent(), 0, mp.get_ori_x()-7, mp.get_ori_x()+7, -7, 7) ;
 	
 	   ent_limit.set_etat_qcq() ; 
 	   for (int l=0; l<nzet-1; l++) {	// loop on domains inside the star
@@ -254,10 +256,11 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 	   
 	   // On adapte :
 	   mp.adapt(ent(), par_adapt) ;
-	   mp_prev.homothetie(alpha_r) ;
-	   mp.reevaluate_symy (&mp_prev, nzet, ent.set()) ;
+	   mp_prev.homothetie(alpha_r) ; 
 	   
-	   //des_coupe_z (ent(), 0, mp.get_ori_x()-10, mp.get_ori_x()+10, -10, 10) ;
+	   mp.reevaluate_symy (&mp_prev, nzet, ent.set()) ;
+	  for (int l=nzet ; l<nz-1 ; l++)
+	      mp.resize(l, 1./alpha_r) ;
 	//}
 	/*
 	else {  
@@ -308,7 +311,7 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 
 	Tenseur confpsi_q = pow(confpsi, 4.) ;
 	Tenseur confpsi_c = pow(confpsi, 5.) ;
-
+	
 	if (relativistic) {
 	    Tenseur tmp = flat_scalar_prod(tkij_tot, tkij_auto) ;
 	    Tenseur kk (mp) ;
@@ -322,7 +325,7 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 	    
 	    source = qpig * nnn * confpsi_q * (ener_euler + s_euler)
 		+ nnn * confpsi_q * kk
-		- 2.*flat_scalar_prod((d_confpsi_auto+d_confpsi_comp), d_n_auto) /
+		- 2.*flat_scalar_prod(d_confpsi_auto+d_confpsi_comp, d_n_auto) /
 		confpsi ;
 	}
 	else {
@@ -378,7 +381,7 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 		- 0.125 * confpsi_c * kk ;
 
 	    source.set_std_base() ; 	
-	
+	    
 	    // Resolution of the Poisson equation 
 	    // ----------------------------------
 	    Cmp psi_old (confpsi_auto()) ;
@@ -415,7 +418,6 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 	    
 	    // Resolution of the Poisson equation 
 	    // ----------------------------------
-
 	    // Filter for the source of shift vector    
 	    for (int i=0; i<3; i++)
 	      if ((source_shift(i).get_etat() != ETATZERO) && (source_shift(i).va.c->t[nz-1]->get_etat() != ETATZERO))
@@ -429,7 +431,6 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 		    (source_shift.set(i)).set_dzpuis(4) ;
 		}
 	    }
-
 	    //##
 	    // source_shift.dec2_dzpuis() ;    // dzpuis 4 -> 2
 
@@ -439,8 +440,8 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 	    source_shift.change_triad(mp.get_bvect_cart()) ;
 	    Tenseur shift_old (shift_auto) ;
 	    source_shift.poisson_vect(lambda_shift, par_poisson_vect,
-				      shift_auto, w_shift, khi_shift) ;	           
-		
+				      shift_auto, w_shift, khi_shift) ;
+
 	   shift_auto.change_triad(ref_triad) ;
 	   
 	    // Check: has the equation for shift_auto been correctly solved ?

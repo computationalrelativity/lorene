@@ -127,7 +127,9 @@ class Monopole {
 
   double give_a () const ;
   double give_b() const ;
- 
+  Scalar density_on_W() const ;
+  Scalar density_on_H() const ;
+  double energy () const ;
 } ;
 
 #endif

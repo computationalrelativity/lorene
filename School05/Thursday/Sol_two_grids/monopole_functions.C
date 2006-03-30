@@ -207,3 +207,84 @@ double Monopole::give_b() const {
   double res = auxi.dsdr().val_grid_point(0,0,0,0)/2. ;
   return -res ;
 }
+
+Scalar Monopole::density_on_W() const {
+
+	double par_b = give_b() ;
+
+	// Part W' :
+	Scalar part_w_prime (big_W.dsdr()*big_W.dsdr()) ;
+	part_w_prime.div_r() ;
+	part_w_prime.div_r() ;
+	part_w_prime.annule_domain(nz_W-1) ;
+	
+	Scalar part_zec (big_W.dsdr()) ;
+	part_zec.dec_dzpuis(2) ;
+	part_zec.set_dzpuis(2) ;
+	part_zec = part_zec*big_W.dsdr() ;
+	part_zec.annule (0, nz_W-2) ;
+	part_w_prime = part_w_prime + part_zec ;
+	
+	// Part W2-1
+	Scalar part_w2 ((big_W*big_W-1)*(big_W*big_W-1)/2)  ;
+	for (int i=0 ; i<4 ; i++)
+	    part_w2.div_r() ;
+	part_w2.annule_domain(nz_W-1) ;
+	
+	part_zec = (big_W*big_W-1)*(big_W*big_W-1)/2 ;
+	part_zec.set_dzpuis(4) ;
+	part_zec.annule (0, nz_W-2) ;
+	part_w2 = part_w2 + part_zec ;
+	
+	Scalar res (part_w_prime+part_w2) ;
+	res.std_spectral_base() ;
+	res = res/4./M_PI ;
+	
+	return res ;	
+}
+
+Scalar Monopole::density_on_H() const {
+
+	// Part en Hprime :
+	Scalar part_h_prime (big_H.dsdr()*big_H.dsdr()/2) ;
+	part_h_prime.annule_domain(nz_H-1) ;
+	
+	Scalar part_zec (big_H.dsdr()*big_H.dsdr()/2) ;
+	part_zec.annule (0, nz_H-2) ;
+	part_h_prime = part_h_prime + part_zec ;
+	
+	
+	//Part en h2
+	Scalar part_h2 ((big_H*big_H-1)*(big_H*big_H-1)*beta*beta/8) ;
+	part_h2.inc_dzpuis(4) ; 
+	
+	// Part WH :
+	Scalar part_wh (big_W_on_H*big_W_on_H*big_H*big_H) ;
+	part_wh.div_r() ;
+	part_wh.div_r() ;
+	part_wh.annule_domain(nz_H-1) ;
+	
+	part_zec = big_W_on_H*big_W_on_H*big_H*big_H ;
+	part_zec.set_dzpuis(2) ;
+	part_zec.inc_dzpuis(2) ;
+	part_zec.annule (0, nz_H-2) ;
+	part_wh = part_wh + part_zec ;
+	
+	
+	Scalar res (part_h_prime+part_h2+part_wh) ;
+	res.std_spectral_base() ;
+	res = res/4./M_PI ;
+	
+	return res ;	
+}
+
+double Monopole::energy() const {
+
+    Scalar part_W (density_on_W()) ;
+    Scalar part_H (density_on_H()) ;
+    
+    return part_W.integrale() + part_H.integrale() ;
+}
+
+
+  

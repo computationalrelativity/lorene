@@ -25,6 +25,9 @@ char bin_ns_bh_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2006/03/30 07:33:45  p_grandclement
+ * *** empty log message ***
+ *
  * Revision 1.3  2005/12/01 12:59:10  p_grandclement
  * Files for bin_ns_bh project
  *
@@ -62,16 +65,9 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
     double distance = fabs(hole.mp.get_ori_x()-star.mp.get_ori_x()) ;
     double mass_ns =  star.mass_g() * ggrav;
     double mass_bh =  hole.masse_adm_seul() ;
-    //double axe_pos = distance*(mass_bh/(mass_bh+mass_ns)) ;
     double axe_pos = star.mp.get_ori_x() ;
-    //double angulaire = sqrt((mass_bh+mass_ns)/distance/distance/distance) ;
-    double angulaire = omega ;
-    double scale_linear = (mass_ns+mass_bh)/2.*distance*angulaire ;
-    //star.set_mp().set_ori (axe_pos, 0., 0.) ;
-    //hole.set_mp().set_ori (-distance + axe_pos, 0., 0.) ;
-    
-    int conte = 0 ;
-  
+    double scale_linear = (mass_ns+mass_bh)/2.*distance*omega ;
+ 
     char name_iteration[40] ;
     char name_correction[40] ;
     char name_viriel[40] ;
@@ -79,7 +75,10 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
     char name_linear[40] ;
     char name_axe[40] ;
     char name_error_m1[40] ;
-    char name_error_m2[40] ;
+    char name_error_m2[40] ; 
+    char name_hor[40] ;
+    char name_entc[40] ;
+    char name_dist[40] ;
     
     sprintf(name_iteration, "ite.dat") ;
     sprintf(name_correction, "cor.dat") ;
@@ -89,6 +88,9 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
     sprintf(name_axe, "axe.dat") ;
     sprintf(name_error_m1, "error_m_bh.dat") ;
     sprintf(name_error_m2, "error_m_ns.dat") ;
+    sprintf(name_hor, "hor.dat") ;
+    sprintf(name_entc, "entc.dat") ;
+    sprintf(name_dist, "distance.dat") ;
     
     ofstream fiche_iteration(name_iteration) ;
     fiche_iteration.precision(8) ; 
@@ -114,6 +116,14 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
     ofstream fiche_error_m2 (name_error_m2) ;
     fiche_error_m2.precision(8) ;
     
+    ofstream fiche_hor (name_hor) ;
+    fiche_hor.precision(8) ;
+      
+    ofstream fiche_entc (name_entc) ;
+    fiche_entc.precision(8) ; 
+    
+    ofstream fiche_dist (name_dist) ;
+    fiche_dist.precision(8) ;
     
     // BOUCLE AVEC BLOQUE :
     bool loop = true ;     
@@ -123,9 +133,16 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
     Cmp shift_bh_old (hole.mp) ;
     Cmp shift_ns_old (star.mp) ;
 	
-    double erreur ;
+    double erreur = 1 ;
+    
+    int conte = 0 ;
+    
+    double old_mass_ns ;
+    mass_ns = star.mass_b() ;
     
     while (loop) {
+    
+        old_mass_ns = mass_ns ;
     
 	if (hole.get_shift_auto().get_etat() != ETATZERO)
 	    shift_bh_old = hole.get_shift_auto()(0) ;
@@ -144,9 +161,10 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
         Tbl diff (7) ;
 	diff.set_etat_qcq() ;
 	int ite ;
-	  
-	star.equilibrium_nsbh (true, ent_c, ite, itemax_equil, itemax_mp_et, relax, itemax_mp_et, relax, diff) ;
-	
+
+	bool adapt = true ;
+ 	star.equilibrium_nsbh (adapt, ent_c, ite, itemax_equil, itemax_mp_et, relax, itemax_mp_et, relax, diff) ;
+
 	hole.update_metric(star) ;    
 	
 	hole.equilibrium (star, precis, relax) ;
@@ -165,15 +183,17 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
 	for (int i=1 ; i<nz_bh ; i++)
 	    if (diff_bh(i) > erreur)
 		erreur = diff_bh(i) ;
-	
 	Tbl diff_ns (diffrelmax (shift_ns_old, star.get_shift_auto()(0))) ;
 	for (int i=0 ; i<nz_ns ; i++)
 	    if (diff_ns(i) > erreur)
 		erreur = diff_ns(i) ;
 	
+	cout << "Verif error" << erreur << " " << seuil_dist << endl ;
 	if (erreur<seuil_dist)
 	    search_dist = true ;
 		
+	mass_ns = star.mass_b() ;
+	    
 	cout << "Avant viriel" << endl ;
         double error_viriel = viriel() ;
 	cout << "Apres viriel" << endl ;
@@ -181,7 +201,7 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
 	cout << "Apres linear" << endl ;
 	double error_m1 = 1.-sqrt(hole.area()/16./M_PI)/m1 ;
 	cout << "Apres Mbh" << endl ;
-	double error_m2 = 1 - star.mass_b()/m2 ;
+	double error_m2 = 1 - mass_ns/m2 ;
 	cout << "Apres Mns" << endl ;
 	
 	if (sortie != 0) {
@@ -189,8 +209,13 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
 	    fiche_correction << conte << " " << hole.regul << endl ;
 	    fiche_viriel << conte << " " << error_viriel << endl ;
 	    fiche_linear << conte << " " << error_linear << endl ;
-	    fiche_error_m1 << conte << " " << error_m1 << " " << sqrt(hole.area()/16./M_PI) << " " << m1 << endl ;
-	    fiche_error_m2 << conte << " " << error_m2 << " " << star.mass_b() << " " << m2 << endl ; 
+	    fiche_error_m1 << conte << " " << error_m1 << endl ;
+	    fiche_error_m2 << conte << " " << error_m2 << endl ; 
+	    fiche_hor << conte << " " << hole.mp.val_r(0, 1, 0,0) << endl ;
+	    fiche_entc << conte << " " << ent_c << endl ;
+	    fiche_dist << conte << " " << distance << endl ;	
+	    fiche_ome << conte << " " << omega  << endl ;
+	    fiche_axe << conte << " " << axe_pos << endl ;
 	    }
 	
 	// The axis position
@@ -202,28 +227,29 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
 	// Value of omega
 	double new_ome = star.compute_angul() ;
         if (new_ome !=0)
-		set_omega(relax*new_ome + (1-relax)*omega) ;
-		//set_omega(new_ome) ;
+		set_omega(new_ome) ;
 		
 	// Converge to the right masses :
 	if (search_dist) {
 	        double error_dist = (distance-dist)/dist ;
 		double scale_d = pow((2+error_dist)/(2+2*error_dist), 0.2) ;
 		distance *= scale_d ;
-		cout << "Distance = " << distance << endl ;
-		star.mp.homothetie(scale_d) ;
-		hole.mp.homothetie(scale_d) ;
-	/*
-	    double scaling_r = pow((2-error_m1)/(2-2*error_m1), 0.2) ;
+		
+	    double scaling_r = pow((2-error_m1)/(2-2*error_m1), 0.25) ;
 	    hole.mp.homothetie_interne(scaling_r) ;
 	    hole.set_rayon(hole.get_rayon()*scaling_r) ;
-	    
-	    double scaling_ent = pow((2-error_m2)/(2-2*error_m2), 0.2) ;
-	    ent_c *= scaling_ent ;
-	    */
-	    }
-	fiche_ome << conte << " " << omega << " " << star.compute_angul() << endl ;
-	fiche_axe << conte << " " << axe_pos << endl ;
+	}
+	
+	// The case of the NS :
+	double convergence = fabs(mass_ns - old_mass_ns)/mass_ns ;
+	double rel_diff = fabs(error_m2) ;
+	if ((search_dist) && (convergence*2 < rel_diff)) {
+	      double scaling_ent = pow((2-error_m2)/(2-2*error_m2), 2) ;
+	      ent_c *= scaling_ent ;
+	}
+	
+	//if (conte==40)
+    //des_coupe_bin_z (star.get_n_auto()(), hole.get_n_auto()(), 0, -distance, distance, -distance, distance, "Lapse") ;
 	
 	cout << "PAS TOTAL : " << conte << " DIFFERENCE : " << erreur << endl ;
 	if (erreur < precis)
@@ -240,5 +266,7 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
     fiche_axe.close() ;
     fiche_error_m1.close() ;
     fiche_error_m2.close() ;
-    
+    fiche_hor.close() ;
+    fiche_entc.close() ;
+    fiche_dist.close() ;
 }

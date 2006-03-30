@@ -9,7 +9,7 @@
 int main() {
 
   // THE GRID
-  int nz_W = 4 ;
+  int nz_W = 6 ;
   int nz_H = 5 ;
   int nt = 5 ;
   int np = 4 ;
@@ -26,7 +26,7 @@ int main() {
   cin >> beta ;
   
   // THE MAPPING AFFINE
-  double r_lim = 1. ;
+  double r_lim = 0.1 ;
   double* bounds = new double[nz_W+1] ;
   
   bounds[0] = 0 ;
@@ -54,17 +54,19 @@ int main() {
   // The Monopole :
   double precis = 1e-10 ;
   int itemax = 1000 ;
-  double relax = 0.5 ;
+  double relax = 0.2 ;
 
   Monopole champs(mp_W, mp_H, beta) ; 
   champs.solve_config(precis, itemax, relax) ;
 
+  cout.precision (14) ;
   cout << "Parameter a = " << champs.give_a() << endl ;
   cout << "Parameter b = " << champs.give_b() << endl ;
+  cout << "Energy      = " << champs.energy() << endl ;
   
   // Some plots
-  des_profile (champs.get_big_W(), 0, 1.1*mp_W.val_r (nz_W-1,-1, 0,0), 0, 0, "W") ;
-  des_profile (champs.get_big_H(), 0, 1.1*mp_H.val_r (nz_H-1,-1, 0,0) , 0, 0, "H") ;
+  //des_profile (champs.get_big_W(), 0, 1.1*mp_W.val_r (nz_W-1,-1, 0,0), 0, 0, "W") ;
+  //des_profile (champs.get_big_H(), 0, 1.1*mp_H.val_r (nz_H-1,-1, 0,0) , 0, 0, "H") ;
 
   return 0 ;
 }
