@@ -35,6 +35,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.31  2006/04/10 15:19:18  j_novak
+ * New definition of 1D operators dsdx and sx in the nucleus (bases R_CHEBP and
+ * R_CHEBI).
+ *
  * Revision 1.30  2005/11/30 11:09:03  p_grandclement
  * Changes for the Bin_ns_bh project
  *
@@ -480,11 +484,18 @@ void d2sdx2_1d(int, double** , int) ;
 
 void _dsdx_1d_pas_prevu(int, double*, double* ) ;
 void _dsdx_1d_r_chebu(int, double*, double* ) ;
+void _dsdx_1d_r_chebp(int, double*, double* ) ;
+void _dsdx_1d_r_chebi(int, double*, double* ) ;
 void dsdx_1d(int, double** , int) ;
 
 void _multx_1d_pas_prevu(int, double*, double* ) ;
 void _multx_1d_r_cheb(int, double*, double* ) ;
 void multx_1d(int, double **, int) ;
+
+void _sx_1d_pas_prevu(int, double*, double* ) ;
+void _sx_1d_r_chebi(int, double*, double* ) ;
+void _sx_1d_r_chebp(int, double*, double* ) ;
+void sx_1d(int, double **, int) ;
 
 void _sx2_1d_pas_prevu(int, double*, double*) ;
 void _sx2_1d_identite(int, double*, double*) ;

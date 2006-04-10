@@ -25,6 +25,10 @@ char dsdx_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2006/04/10 15:19:20  j_novak
+ * New definition of 1D operators dsdx and sx in the nucleus (bases R_CHEBP and
+ * R_CHEBI).
+ *
  * Revision 1.2  2005/01/10 16:34:53  j_novak
  * New class for 1D mono-domain differential operators.
  *
@@ -89,6 +93,43 @@ void _dsdx_1d_r_chebu(int nr,  double* tb, double *xo)
 
 }
 
+			//----------------
+			// cas R_CHEBI ---
+			//----------------
+
+void _dsdx_1d_r_chebi(int nr,  double* tb, double *xo)
+{
+
+    double som ;
+	    
+    xo[nr-1] = 0 ;
+    som = 2*(2*nr-3) * tb[nr-2] ;
+    xo[nr-2] = som ;
+    for (int i = nr-3 ; i >= 0 ; i -- ) {
+      som += 2*(2*i+1) * tb[i] ;
+      xo[i] = som ;
+    }	
+    xo[0] *= .5 ;
+}
+
+			//----------------
+			// cas R_CHEBP ---
+			//----------------
+
+void _dsdx_1d_r_chebp(int nr,  double* tb, double *xo)
+{
+
+    double som ;
+	    
+    xo[nr-1] = 0 ;
+    som = 4*(nr-1) * tb[nr-1] ;
+    xo[nr-2] = som ;
+    for (int i = nr-3 ; i >= 0 ; i --) {
+      som += 4*(i+1) * tb[i+1] ;
+      xo[i] = som ;
+    }	
+}
+
 		// ---------------------
 		// La routine a appeler
 		//----------------------
@@ -109,6 +150,8 @@ void dsdx_1d(int nr, double** tb, int base_r)
 	}
 		// Les routines existantes
 	dsdx_1d[R_CHEBU >> TRA_R] = _dsdx_1d_r_chebu ;
+	dsdx_1d[R_CHEBP >> TRA_R] = _dsdx_1d_r_chebp ;
+	dsdx_1d[R_CHEBI >> TRA_R] = _dsdx_1d_r_chebi ;
 	dsdx_1d[R_CHEB >> TRA_R] = _dsdx_1d_r_cheb ;
 
     }
