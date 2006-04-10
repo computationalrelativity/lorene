@@ -30,6 +30,9 @@ char diff_sx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2006/04/10 15:20:52  j_novak
+ * Operators dsdx and sx can now be used in the nucleus.
+ *
  * Revision 1.1  2005/01/10 16:34:52  j_novak
  * New class for 1D mono-domain differential operators.
  *
@@ -54,12 +57,12 @@ namespace {
 
 Diff_sx::Diff_sx(int base_r, int nr) : Diff(base_r, nr) {
     initialize() ;
-    assert(base == R_CHEBU) ;
+    assert(base != R_CHEB) ;
 }
 
 Diff_sx::Diff_sx(const Diff_sx& diff_in) : Diff(diff_in) {
     assert (nap != 0) ;
-    assert(base == R_CHEBU) ;
+    assert(base != R_CHEB) ;
 } 
 
 Diff_sx::~Diff_sx() {}
@@ -110,7 +113,7 @@ const Matrice& Diff_sx::get_matrice() const {
 	    for (int j=0; j<npoints; j++)
 		vect[j] = 0. ;
 	    vect[i] = 1. ;
-	    sxm1_1d_cheb(npoints, vect) ;
+	    sx_1d(npoints, &vect, base << TRA_R) ;
 	    for (int j=0; j<npoints; j++)
 		resu.set(j,i) = vect[j] ;
 	}

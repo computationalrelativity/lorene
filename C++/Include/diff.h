@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2006/04/10 15:20:51  j_novak
+ * Operators dsdx and sx can now be used in the nucleus.
+ *
  * Revision 1.2  2005/01/11 15:16:58  j_novak
  * More Diff operators.
  *
@@ -52,8 +55,7 @@
  * differential operators in term of \f$\xi\f$, in a given domain. 
  * Their main purpose is to compute the matrix of the elementary operator,
  * for the given spectral base and number of coefficients. Some of the
- * operators are not defined in the nucleus (not respecting parity) other
- * are not defined in the shells (division by \f$\xi\f$).
+ * operators are not defined in the shells (division by \f$\xi\f$).
  * 
  */
 class Diff {
@@ -117,7 +119,6 @@ class Diff {
 /**
  * Class for the elementary differential operator 
  * \f$ \frac{\partial}{\partial \xi} \f$ (see the base class \c Diff ).
- * This operator is not defined in the nucleus.
  * \ingroup (ellip)
  * 
  */
@@ -126,7 +127,11 @@ class Diff_dsdx : public Diff {
     // Constructors - Destructor
     // -------------------------
  public:
-    Diff_dsdx(int base_r, int nr) ;	 ///< Standard constructor
+    /** Standard constructor, the base is that of the functions 
+     * the operator is acting on (starting base).
+     */
+    Diff_dsdx(int base_r, int nr) ;	 
+
     Diff_dsdx(const Diff_dsdx& ) ;	 ///< Copy constructor
 
     virtual ~Diff_dsdx() ;			///< Destructor
@@ -313,7 +318,7 @@ class Diff_mx2 : public Diff {
  * Class for the elementary differential operator division by
  * \f$ \xi - 1\f$ (see the base class \c Diff ). It is only defined 
  * in the compactified external domain.
- * It is not defined in the nucleus and shells.
+ * It is not defined in the shells.
  * \ingroup (ellip)
  * 
  */

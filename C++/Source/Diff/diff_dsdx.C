@@ -30,6 +30,9 @@ char diff_dsdx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2006/04/10 15:20:52  j_novak
+ * Operators dsdx and sx can now be used in the nucleus.
+ *
  * Revision 1.1  2005/01/10 16:34:52  j_novak
  * New class for 1D mono-domain differential operators.
  *
@@ -54,12 +57,10 @@ namespace {
 
 Diff_dsdx::Diff_dsdx(int base_r, int nr) : Diff(base_r, nr) {
     initialize() ;
-    assert ((base != R_CHEBP)&&(base != R_CHEBI)) ;
 }
 
 Diff_dsdx::Diff_dsdx(const Diff_dsdx& diff_in) : Diff(diff_in) {
     assert (nap != 0) ;
-    assert ((base != R_CHEBP)&&(base != R_CHEBI)) ;
 } 
 
 Diff_dsdx::~Diff_dsdx() {}
