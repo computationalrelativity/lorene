@@ -31,6 +31,10 @@ char star_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2006/04/11 14:24:44  f_limousin
+ * New version of the code : improvement of the computation of some
+ * critical sources, estimation of the dirac gauge, helical symmetry...
+ *
  * Revision 1.17  2005/09/13 19:38:31  f_limousin
  * Reintroduction of the resolution of the equations in cartesian coordinates.
  *
@@ -722,19 +726,6 @@ void Star_bin::test_K_Hi() const {
     int nt = mp.get_mg()->get_nt(0) ;
     int np = mp.get_mg()->get_np(0) ;
     
-    Sym_tensor tkij = tkij_auto + tkij_comp ;
-    
-    cout << "Le maximal slicing est il bien satisfait ??" 
-	 << endl ;
-    cout << "Tensor Kij" << endl ;
-    for (int i=1; i<=3; i++)
-	cout << "  Comp. 1 1 : " << norme(tkij.down(1, gamma)(i,i)
-					  /(nr*nt*np)) << endl ;
-
-    cout << endl << "Trace of Kij : "<< norme(tkij.down(1, gamma).trace()
-					      /(nr*nt*np))<< endl ;
-     
-
     cout << "La jauge de Dirac est elle bien satisfaite ??" << endl ;
     cout << "Vector Hi" << endl ;
     for (int i=1; i<=3; i++)

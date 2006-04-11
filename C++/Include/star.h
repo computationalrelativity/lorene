@@ -34,6 +34,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2006/04/11 14:26:12  f_limousin
+ * New version of the code : improvement of the computation of some
+ * critical sources, estimation of the dirac gauge, helical symmetry...
+ *
  * Revision 1.20  2005/09/15 15:56:28  e_gourgoulhon
  * Made the documentation compliant with Doxygen.
  *
@@ -982,7 +986,8 @@ class Star_bin : public Star {
 	void equilibrium(double ent_c, int mermax, int mermax_potvit, 
 			 int mermax_poisson, double relax_poisson, 
 			 double relax_potvit, double thres_adapt, 
-			 const Tbl& fact, Tbl& diff, double omega) ;
+			 const Tbl& fact, Tbl& diff, double omega,
+			 Scalar ff_c) ;
 
 
 	/** Computes the non-translational part of the velocity scalar potential

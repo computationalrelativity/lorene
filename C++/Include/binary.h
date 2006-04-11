@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2006/04/11 14:26:12  f_limousin
+ * New version of the code : improvement of the computation of some
+ * critical sources, estimation of the dirac gauge, helical symmetry...
+ *
  * Revision 1.8  2005/11/08 20:17:55  f_limousin
  * Add function dirac_gauge() used to impose Dirac gauge during an iteration.
  *
@@ -327,6 +331,9 @@ class Binary {
 
 	/// Function used to impose Dirac gauge during an iteration
 	void dirac_gauge() ;
+
+	/// Function testing the helical symmetry
+	void helical() ;
 
  
 };

@@ -32,6 +32,10 @@ char star_bin_kinema_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2006/04/11 14:24:44  f_limousin
+ * New version of the code : improvement of the computation of some
+ * critical sources, estimation of the dirac gauge, helical symmetry...
+ *
  * Revision 1.7  2005/09/13 19:38:31  f_limousin
  * Reintroduction of the resolution of the equations in cartesian coordinates.
  *
@@ -107,26 +111,10 @@ void Star_bin::kinematics(double omega, double x_axe) {
     // Lorentz factor between the co-orbiting observer and the Eulerian one
     // See Eq (23) from Gourgoulhon et al. (2001)
 
-    Sym_tensor flat_cov = flat.cov() * psi4 ;
-    flat_cov.change_triad(mp.get_bvect_cart()) ;
     Sym_tensor gamma_cov (gamma.cov()) ;
     gamma_cov.change_triad(mp.get_bvect_cart()) ;
 
-    //## For the convergence of the code, we introduce a flat scalar 
-    // product to compute gam_pot and  pot_centri. 
-    Scalar gam_pot = 1 / sqrt( 1 - contract(flat_cov, 0, 1, bsn * bsn, 0, 1)) ;
-
     Scalar gam0 = 1 / sqrt(1 - contract(gamma_cov, 0, 1, bsn * bsn, 0, 1)) ;
-    
-    // Relative error make when we take gam_pot instead of gam0 for 
-    // the computation of pot_centri. 
-
-    cout << "gam_pot" << endl << norme(gam_pot) << endl ;
-    cout << "gam0" << endl << norme(gam0) << endl ;
-    cout << "Relative difference between gam0 and gam_pot : " << endl ; 
-    cout << diffrel(gam0, gam_pot) << endl ;
-
-    //    pot_centri = - log( gam_pot ) ;
     pot_centri = - log( gam0 ) ;
 
     pot_centri.annule(nzm1, nzm1) ;	// set to zero in the external domain

@@ -31,6 +31,10 @@ char binary_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2006/04/11 14:25:15  f_limousin
+ * New version of the code : improvement of the computation of some
+ * critical sources, estimation of the dirac gauge, helical symmetry...
+ *
  * Revision 1.1  2005/11/08 20:17:01  f_limousin
  * Function used to impose Dirac gauge during an iteration.
  *
@@ -107,7 +111,11 @@ void Binary::dirac_gauge() {
      // Star 1
      // ----------
 
-     int mermax = 20 ;
+     int mermax = 50 ;
+     double precis = 1e-5 ;
+     double precis_poisson = 1e-14 ;
+     double relax_poisson = 1.5 ;
+     int mer_poisson = 4 ;
 
      Scalar rr1 (star1.mp) ;     
      rr1 = star1.mp.r ;
@@ -121,75 +129,82 @@ void Binary::dirac_gauge() {
      xi1.std_spectral_base() ;
      Vector xi1_old(xi1) ;
      
+     Scalar ssjm1_xi11 (xi1(1)) ;
+     Scalar ssjm1_xi12 (xi1(2)) ;
+     Scalar ssjm1_xi13 (xi1(3)) ;
+
+
      for(int mer=0; mer<mermax; mer++){
 
        xi1_old = xi1 ;
 
+       // Function exp(-(r-r_0)^2/sigma^2)
+       // --------------------------------
+       
+       double r0_1 = star1.mp.val_r(nz-2, 1, 0, 0) ;
+       double sigma = 3.*r0_1 ;
+         
+       Scalar ff1 (star1.mp) ;
+       ff1 = exp( -(rr1 - r0_1)*(rr1 - r0_1)/sigma/sigma ) ;
+       for (int ii=0; ii<nz-1; ii++)
+	   ff1.set_domain(ii) = 1. ;
+       ff1.set_outer_boundary(nz-1, 0) ;
+       ff1.std_spectral_base() ;
+       
+       // Source 
+       
        Vector source_xi1 (star1.hij.divergence(star1.flat)) ;
-       source_xi1.inc_dzpuis(2) ;
+       source_xi1.inc_dzpuis() ;    // dzpuis = 3
      
        double lambda = 0. ;
        Vector source_reg1 = - (1./3. - lambda) * xi1.divergence(star1.flat)
 	 .derive_con(star1.flat)  ;
-       source_reg1.inc_dzpuis() ;
-       source_xi1 += source_reg1 ;
-       Scalar bidon1 (1e-15/rr1/rr1/rr1/rr1) ;
-       bidon1.set_domain(0) = 1.e-15 ;
-       bidon1.std_spectral_base() ;
-       bidon1.inc_dzpuis(4) ;
-       for (int i=1; i<=3 ;i++)
-	 source_xi1.set(i) = source_xi1(i) + bidon1 ;
-
-       Tenseur source1(star1.mp, 1, CON, star1.mp.get_bvect_cart() ) ;
-       source1.set_etat_qcq() ;
-       for (int i=0; i<3; i++) 
-	 source1.set(i) = Cmp(source_xi1(i+1)) ;
-       source1.set_std_base() ;
-
-       Tenseur vect_auxi1 (star1.mp, 1, CON, star1.mp.get_bvect_cart()) ;
-       vect_auxi1.set_etat_qcq() ;
-       for (int i=0; i<3 ;i++){
-	 vect_auxi1.set(i) = 0. ;
-       }
-       vect_auxi1.set_std_base() ;
-       Tenseur scal_auxi1 (star1.mp) ;
-       scal_auxi1.set_etat_qcq() ;
-       scal_auxi1.set().annule_hard() ;
-       scal_auxi1.set_std_base() ;
-     
-       Param par_xi1 ;
-       int niter ;
-       par_xi1.add_int(10,  0) ;  // maximum number of iterations
-       par_xi1.add_double(1.5,  0) ; // relaxation parameter
-       par_xi1.add_double(1.e-16, 1) ; // required precision
-       par_xi1.add_int_mod(niter, 0) ; // number of iterations actually used 
+       source_xi1 += source_reg1 ; 
+   
+       // Resolution of the Poisson equations
   
-       Cmp ssjm1khi1 (star1.mp) ;
-       ssjm1khi1 = 0 ;
-       ssjm1khi1.std_base_scal() ;
-       Tenseur ssjm1wbeta1(star1.mp, 1, CON, star1.mp.get_bvect_cart()) ;
-       ssjm1wbeta1.set_etat_qcq() ;
-       for (int i=0; i<3; i++) 
-	 ssjm1wbeta1.set(i) = 0 ;
-       ssjm1wbeta1.set_std_base() ;
+       Cmp ssjm1xi11 (ssjm1_xi11) ;
+       Cmp ssjm1xi12 (ssjm1_xi12) ;
+       Cmp ssjm1xi13 (ssjm1_xi13) ;
+       ssjm1xi11.set_etat_qcq() ;
+       ssjm1xi12.set_etat_qcq() ;
+       ssjm1xi13.set_etat_qcq() ;
 
-       par_xi1.add_cmp_mod(ssjm1khi1) ; 
-       par_xi1.add_tenseur_mod(ssjm1wbeta1) ; 
+       Param par_xi11 ;
+       int niter ;
+       par_xi11.add_int(mer_poisson,  0) ;  // maximum number of iterations
+       par_xi11.add_double(relax_poisson,  0) ; // relaxation parameter
+       par_xi11.add_double(precis_poisson, 1) ; // required precision
+       par_xi11.add_int_mod(niter, 0) ; // number of iterations actually used 
+       par_xi11.add_cmp_mod(ssjm1xi11) ; 
+ 
+       Param par_xi12 ;
+       par_xi12.add_int(mer_poisson,  0) ;  // maximum number of iterations
+       par_xi12.add_double(relax_poisson,  0) ; // relaxation parameter
+       par_xi12.add_double(precis_poisson, 1) ; // required precision
+       par_xi12.add_int_mod(niter, 0) ; // number of iterations actually used 
+       par_xi12.add_cmp_mod(ssjm1xi12) ; 
 
-       Tenseur resu1(star1.mp, 1, CON, star1.mp.get_bvect_cart() ) ;
-       resu1.set_etat_qcq() ;
-       resu1.set_std_base() ;
-       source1.poisson_vect(lambda, par_xi1, resu1, vect_auxi1, scal_auxi1) ;
+       Param par_xi13 ;
+       par_xi13.add_int(mer_poisson,  0) ;  // maximum number of iterations
+       par_xi13.add_double(relax_poisson,  0) ; // relaxation parameter
+       par_xi13.add_double(precis_poisson, 1) ; // required precision
+       par_xi13.add_int_mod(niter, 0) ; // number of iterations actually used 
+       par_xi13.add_cmp_mod(ssjm1xi13) ; 
+  
+       source_xi1(1).poisson(par_xi11, xi1.set(1)) ;
+       source_xi1(2).poisson(par_xi12, xi1.set(2)) ;
+       source_xi1(3).poisson(par_xi13, xi1.set(3)) ;
 
-       for (int i=1; i<=3; i++) 
-	 xi1.set(i) = resu1(i-1) ;
+       ssjm1_xi11 = ssjm1xi11 ;
+       ssjm1_xi12 = ssjm1xi12 ;
+       ssjm1_xi13 = ssjm1xi13 ;
 
        // Check: has the equation for xi been correctly solved ?
        // --------------------------------------------------------------
 
        Vector lap_xi1 = (xi1.derive_con(star1.flat)).divergence(star1.flat) 
 	 + lambda* xi1.divergence(star1.flat).derive_con(star1.flat) ;
-       lap_xi1.inc_dzpuis() ;
 
        Tbl tdiff_xi1_x = diffrel(lap_xi1(1), source_xi1(1)) ; 
        Tbl tdiff_xi1_y = diffrel(lap_xi1(2), source_xi1(2)) ; 
@@ -223,7 +238,6 @@ void Binary::dirac_gauge() {
        
        cout << "Step : " << mer << " Difference : " << erreur << endl ;
        cout << "-------------------------------------" << endl ;
-       double precis = 1e-5 ;
        if (erreur < precis)
 	 mer = mermax ;
 
@@ -239,74 +253,82 @@ void Binary::dirac_gauge() {
      xi2.std_spectral_base() ;
      Vector xi2_old(xi2) ;
      
+     Scalar ssjm1_xi21 (xi2(1)) ;
+     Scalar ssjm1_xi22 (xi2(2)) ;
+     Scalar ssjm1_xi23 (xi2(3)) ;
+
+
      for(int mer=0; mer<mermax; mer++){
 
        xi2_old = xi2 ;
 
+       // Function exp(-(r-r_0)^2/sigma^2)
+       // --------------------------------
+       
+       double r0_2 = star2.mp.val_r(nz-2, 1, 0, 0) ;
+       double sigma = 3.*r0_2 ;
+         
+       Scalar ff2 (star2.mp) ;
+       ff2 = exp( -(rr2 - r0_2)*(rr2 - r0_2)/sigma/sigma ) ;
+       for (int ii=0; ii<nz-1; ii++)
+	   ff2.set_domain(ii) = 1. ;
+       ff2.set_outer_boundary(nz-1, 0) ;
+       ff2.std_spectral_base() ;
+    
+       // Source
+
        Vector source_xi2 (star2.hij.divergence(star2.flat)) ;
-       source_xi2.inc_dzpuis(2) ;
+       source_xi2.inc_dzpuis() ;    // dzpuis = 3
      
        double lambda = 0. ;
        Vector source_reg2 = - (1./3. - lambda) * xi2.divergence(star2.flat)
-	 .derive_con(star2.flat) ;
-       source_reg2.inc_dzpuis() ;
+	 .derive_con(star2.flat)  ;
        source_xi2 += source_reg2 ;
-       Scalar bidon2 (1e-15/rr2/rr2/rr2/rr2) ;
-       bidon2.set_domain(0) = 1.e-15 ;
-       bidon2.std_spectral_base() ;
-       bidon2.inc_dzpuis(4) ;
-       for (int i=1; i<=3 ;i++)
-	 source_xi2.set(i) = source_xi2(i) + bidon2 ;
 
-       Tenseur source2(star2.mp, 1, CON, star2.mp.get_bvect_cart() ) ;
-       source2.set_etat_qcq() ;
-       for (int i=0; i<3; i++) 
-	 source2.set(i) = Cmp(source_xi2(i+1)) ;
-       source2.set_std_base() ;
+       // Resolution of the Poisson equations
 
-       Tenseur vect_auxi2 (star2.mp, 1, CON, star2.mp.get_bvect_cart()) ;
-       vect_auxi2.set_etat_qcq() ;
-       for (int i=0; i<3 ;i++){
-	 vect_auxi2.set(i) = 0. ;
-       }
-       vect_auxi2.set_std_base() ;
-       Tenseur scal_auxi2 (star2.mp) ;
-       scal_auxi2.set_etat_qcq() ;
-       scal_auxi2.set().annule_hard() ;
-       scal_auxi2.set_std_base() ;
-     
-       Param par_xi2 ;
+       Cmp ssjm1xi21 (ssjm1_xi21) ;
+       Cmp ssjm1xi22 (ssjm1_xi22) ;
+       Cmp ssjm1xi23 (ssjm1_xi23) ;
+       ssjm1xi21.set_etat_qcq() ;
+       ssjm1xi22.set_etat_qcq() ;
+       ssjm1xi23.set_etat_qcq() ;
+
+       Param par_xi21 ;
        int niter ;
-       par_xi2.add_int(10,  0) ;  // maximum number of iterations
-       par_xi2.add_double(1.5,  0) ; // relaxation parameter
-       par_xi2.add_double(1.e-16, 1) ; // required precision
-       par_xi2.add_int_mod(niter, 0) ; // number of iterations actually used 
+       par_xi21.add_int(mer_poisson,  0) ;  // maximum number of iterations
+       par_xi21.add_double(relax_poisson,  0) ; // relaxation parameter
+       par_xi21.add_double(precis_poisson, 1) ; // required precision
+       par_xi21.add_int_mod(niter, 0) ; // number of iterations actually used 
+       par_xi21.add_cmp_mod(ssjm1xi21) ; 
+ 
+       Param par_xi22 ;
+       par_xi22.add_int(mer_poisson,  0) ;  // maximum number of iterations
+       par_xi22.add_double(relax_poisson,  0) ; // relaxation parameter
+       par_xi22.add_double(precis_poisson, 1) ; // required precision
+       par_xi22.add_int_mod(niter, 0) ; // number of iterations actually used 
+       par_xi22.add_cmp_mod(ssjm1xi22) ; 
+
+       Param par_xi23 ;
+       par_xi23.add_int(mer_poisson,  0) ;  // maximum number of iterations
+       par_xi23.add_double(relax_poisson,  0) ; // relaxation parameter
+       par_xi23.add_double(precis_poisson, 1) ; // required precision
+       par_xi23.add_int_mod(niter, 0) ; // number of iterations actually used 
+       par_xi23.add_cmp_mod(ssjm1xi23) ; 
   
-       Cmp ssjm1khi2 (star2.mp) ;
-       ssjm1khi2 = 0 ;
-       ssjm1khi2.std_base_scal() ;
-       Tenseur ssjm1wbeta2(star2.mp, 1, CON, star2.mp.get_bvect_cart()) ;
-       ssjm1wbeta2.set_etat_qcq() ;
-       for (int i=0; i<3; i++) 
-	 ssjm1wbeta2.set(i) = 0 ;
-       ssjm1wbeta2.set_std_base() ;
+       source_xi2(1).poisson(par_xi21, xi2.set(1)) ;
+       source_xi2(2).poisson(par_xi22, xi2.set(2)) ;
+       source_xi2(3).poisson(par_xi23, xi2.set(3)) ;
 
-       par_xi2.add_cmp_mod(ssjm1khi2) ; 
-       par_xi2.add_tenseur_mod(ssjm1wbeta2) ; 
-
-       Tenseur resu2(star2.mp, 1, CON, star2.mp.get_bvect_cart() ) ;
-       resu2.set_etat_qcq() ;
-       source2.poisson_vect(lambda, par_xi2, resu2, vect_auxi2, scal_auxi2) ;
-
-       for (int i=1; i<=3; i++) 
-	 xi2.set(i) = resu2(i-1) ;
+       ssjm1_xi21 = ssjm1xi21 ;
+       ssjm1_xi22 = ssjm1xi22 ;
+       ssjm1_xi23 = ssjm1xi23 ;
 
        // Check: has the equation for xi been correctly solved ?
        // --------------------------------------------------------------
 
        Vector lap_xi2 = (xi2.derive_con(star2.flat)).divergence(star2.flat) 
 	 + lambda* xi2.divergence(star2.flat).derive_con(star2.flat) ;
-       lap_xi2.inc_dzpuis() ;
       
        Tbl tdiff_xi2_x = diffrel(lap_xi2(1), source_xi2(1)) ; 
        Tbl tdiff_xi2_y = diffrel(lap_xi2(2), source_xi2(2)) ; 
@@ -340,7 +362,6 @@ void Binary::dirac_gauge() {
        
        cout << "Step : " << mer << " Difference : " << erreur << endl ;
        cout << "-------------------------------------" << endl ;
-       double precis = 1e-5 ;
        if (erreur < precis)
 	 mer = mermax ;
 
@@ -367,6 +388,34 @@ void Binary::dirac_gauge() {
      for(int i=1; i<=3; i++) 
        for(int j=i; j<=3; j++)
 	   hij_dirac1.set(i,j) = gtilde_con1(i,j) - star1.flat.con()(i,j) ;
+
+     
+     star1.gtilde = gtilde_con1 ;
+     star1.psi4 = pow(star1.gamma.determinant(), 1./3.) ;
+     star1.psi4.std_spectral_base() ;
+     
+     cout << "norme de h_uu avant :" << endl ;
+     for (int i=1; i<=3; i++)
+	 for (int j=1; j<=i; j++) {
+	     cout << "  Comp. " << i << " " << j << " :  " ;
+	     for (int l=0; l<nz; l++){
+		 cout << norme(star1.hij(i,j)/(nr*nt*np))(l) << " " ;
+	     }
+	     cout << endl ;
+	 }
+     cout << endl ;
+
+     cout << "norme de h_uu en jauge de dirac :" << endl ;
+     for (int i=1; i<=3; i++)
+	 for (int j=1; j<=i; j++) {
+	     cout << "  Comp. " << i << " " << j << " :  " ;
+	     for (int l=0; l<nz; l++){
+		 cout << norme(hij_dirac1(i,j)/(nr*nt*np))(l) << " " ;
+	     }
+	     cout << endl ;
+	 }
+     cout << endl ;
+     
 
      // Check of the Dirac gauge
      // ------------------------
@@ -411,6 +460,12 @@ void Binary::dirac_gauge() {
      for(int i=1; i<=3; i++) 
        for(int j=i; j<=3; j++)
 	   hij_dirac2.set(i,j) = gtilde_con2(i,j) - star2.flat.con()(i,j) ;
+
+     
+     star2.gtilde = gtilde_con2 ;
+     star2.psi4 = pow(star2.gamma.determinant(), 1./3.) ;
+     star2.psi4.std_spectral_base() ;
+     
 
      star2.hij_auto = star2.hij_auto + (hij_dirac2 - star2.hij) * 
        star2.decouple ;

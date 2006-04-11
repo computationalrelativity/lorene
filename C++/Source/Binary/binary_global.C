@@ -31,6 +31,10 @@ char binary_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2006/04/11 14:25:15  f_limousin
+ * New version of the code : improvement of the computation of some
+ * critical sources, estimation of the dirac gauge, helical symmetry...
+ *
  * Revision 1.13  2005/09/18 13:13:41  f_limousin
  * Extension of vphi in the compactified domain for the computation
  * of J_ADM by a volume integral.
@@ -619,7 +623,7 @@ double Binary::virial() const {
 	
 	p_virial = new double ; 
 	    
-	    *p_virial = 1. - mass_kom_vol() / mass_adm_vol() ; 
+	    *p_virial = 1. - mass_kom() / mass_adm() ; 
 	    
 	}
     

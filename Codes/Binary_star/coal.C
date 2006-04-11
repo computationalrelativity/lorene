@@ -29,6 +29,10 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2006/04/11 14:26:30  f_limousin
+ * New version of the code : improvement of the computation of some
+ * critical sources, estimation of the dirac gauge, helical symmetry...
+ *
  * Revision 1.6  2005/11/08 20:19:32  f_limousin
  * Add a call to Binary::dirac_gauge().
  *
@@ -59,6 +63,8 @@ char coal_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "graphique.h"
 #include "param.h"
+#include "nbr_spx.h"
+
 
 // Local prototype
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
@@ -266,30 +272,7 @@ int main(){
 	(star.set(i)).fait_d_psi() ; 
 	(star.set(i)).hydro_euler() ; 
     }
-    /*
-    cout.precision(8) ;
-    cout << "Comparaison 1" << endl ;
-    cout << "ener" << norme(star(1).get_ener()) << endl ;
-    cout << "press" << norme(star(1).get_press()) << endl ;
-    cout << "ent" << norme(star(1).get_ent()) << endl ;
-    //    cout << "psi0" << norme(star(1).get_psi0()) << endl ;
-    //    cout << "pot_centri" << norme(star(1).get_pot_centri()) << endl ;
-    cout << "logn_auto" << endl << norme(star(1).get_logn_auto()) << endl ;
-    cout << "logn" << endl << norme(star(1).get_logn()) << endl ;
-    cout << "nn" << endl << norme(star(1).get_nn()) << endl ;
-    cout << "lnq_auto" << endl << norme(star(1).get_lnq_auto()) << endl ;
-    cout << "lnq" << endl << norme(star(1).get_lnq()) << endl ;
-    cout << "psi4" << endl << norme(star(1).get_psi4()) << endl ;
-    cout << "beta_auto(1)" << endl << norme(star(1).get_beta_auto()(1)) << endl ;
-    cout << "beta_auto(2)" << endl << norme(star(1).get_beta_auto()(2)) << endl ;
-    cout << "beta_auto(3)" << endl << norme(star(1).get_beta_auto()(3)) << endl ;
-    cout << "beta(1)" << endl << norme(star(1).get_beta()(1)) << endl ;
-    cout << "beta(2)" << endl << norme(star(1).get_beta()(2)) << endl ;
-    cout << "beta(3)" << endl << norme(star(1).get_beta()(3)) << endl ;
-    cout << "kcar_auto" << endl << norme(star(1).get_kcar_auto()*star(1).get_psi4()) << endl ;
-    cout << "kcar_comp" << endl << norme(star(1).get_kcar_comp()*star(1).get_psi4()) << endl ;
-    */    
- 
+  
     // New initial of value Omega (taking into account the fact
     //  that the separation has changed)
     
@@ -468,6 +451,9 @@ int main(){
     double omega_kep, diff_mass ; 
     int mer ;
 
+    Scalar ff_1 (star(1).get_mp()) ;
+    Scalar ff_2 (star(2).get_mp()) ;
+
 
 //============================================================================
 //		Start of iteration 
@@ -499,7 +485,7 @@ int main(){
 	//	    Computation of the metric coefficients
 	//------------------------------------------------------------------
 
-	if ( (mer % fmer_upd_met) == 0 ) {
+	if ( (mer % fmer_upd_met) == 0 || mer == 1) {
     
 	    for (int i=1; i<=2; i++) {
 	      (star.set(i)).update_metric(star(3-i), star_jm1(i), relax_met,
@@ -511,14 +497,63 @@ int main(){
 						     star.get_omega()) ; 
 	    }
 
+
+	    // Construction of the function ff on a mapping defined in the 
+	    // center of mass of the system
+	    
+	    // Construction of an auxiliar grid and mapping
+	    int nzones = star(1).get_mp().get_mg()->get_nzone() ;
+	    double* bornes = new double [nzones+1] ;
+	    double r_zec = 2.*(-star(1).get_mp().get_ori_x() +
+			    star(2).get_mp().get_ori_x()) ;
+	    for (int i=nzones-1 ; i>0 ; i--) {
+		bornes[i] = r_zec ;
+		r_zec /= 2. ;
+	    }
+	    bornes[0] = 0 ;
+	    bornes[nzones] = __infinity ;
+	    
+	    Map_af mapping (*(star(1).get_mp().get_mg()), bornes) ;
+	    delete [] bornes ; 
+	    
+	    double r0 = mapping.val_r(nzones-2, 1, 0, 0) ;
+	    double sigma = 0.5*r0 ;
+
+	    Scalar rr (mapping) ;
+	    rr = mapping.r ;
+
+	    Scalar ff (mapping) ;
+	    ff = exp( -(rr - r0)*(rr - r0)/sigma/sigma ) ;
+	    for (int ii=0; ii<nzones-1; ii++)
+		ff.set_domain(ii) = 1. ;
+	    ff.set_outer_boundary(nzones-1, 0) ;
+	    ff.std_spectral_base() ;
+	    
+/*
+	    Scalar test(ff) ;
+	    des_meridian (test, 0, 30, "ff", 0) ;
+	    des_meridian (test, 0, 60, "ff", 1) ;
+	    test.inc_dzpuis() ;
+	    des_meridian (test, 0, 30, "ff", 2) ;
+	    des_meridian (test, 0, 60, "ff", 3) ;
+	    test.inc_dzpuis() ;
+	    des_meridian (test, 0, 30, "ff", 4) ;
+	    des_meridian (test, 0, 60, "ff", 5) ;
+*/
+	    
+	    ff_1.import(ff) ;
+	    ff_2.import(ff) ;	    
+	    ff_1.std_spectral_base() ;
+	    ff_2.std_spectral_base() ;
+
 	}
 
 	// -------------------------
 	// Impose Dirac gauge
 	// -------------------------
 
-	if ( (mer % fmer_upd_met) == 0 ) 
-	  star.dirac_gauge() ;
+//	if ( (mer % fmer_upd_met) == 0 ) 
+//	  star.dirac_gauge() ;
 
 
 	//------------------------------------------------------------------
@@ -676,17 +711,20 @@ int main(){
 	    star.set(i).set_pot_centri() = relax * star(i).get_pot_centri()
 		+ relax_jm1 * star_jm1(i).get_pot_centri() ; 
 
-	    // Call to Star_bin::equilibrium
-	    // --------------------------------
-	
-	    (star.set(i)).equilibrium(ent_c[i-1], mermax_eqb, mermax_potvit, 
-				      mermax_poisson, relax_poisson,
-				      relax_potvit, thres_adapt[i-1],
-				      fact_resize[i-1], differ[i-1], 
-				      star.get_omega()) ;
-
 	}
 
+	(star.set(1)).equilibrium(ent_c[1-1], mermax_eqb, mermax_potvit, 
+				      mermax_poisson, relax_poisson,
+				      relax_potvit, thres_adapt[1-1],
+				      fact_resize[1-1], differ[1-1], 
+				      star.get_omega(), ff_1) ;
+	
+	(star.set(2)).equilibrium(ent_c[2-1], mermax_eqb, mermax_potvit, 
+				      mermax_poisson, relax_poisson,
+				      relax_potvit, thres_adapt[2-1],
+				      fact_resize[2-1], differ[2-1], 
+				      star.get_omega(), ff_2) ;
+	
 	//------------------------------------------------------------------
 	//	  Relaxations
 	//------------------------------------------------------------------
