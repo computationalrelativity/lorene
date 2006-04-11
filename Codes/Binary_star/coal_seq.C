@@ -24,11 +24,14 @@
  *
  */
 
-char coal_seq.C[] = "$Header$" ;
+char coal_seq_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2006/04/11 14:45:33  f_limousin
+ * Correction of the char "coal_seq_C".
+ *
  * Revision 1.1  2006/04/11 14:39:16  f_limousin
  * First version
  *
