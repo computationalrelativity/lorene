@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.46  2006/04/25 07:21:54  p_grandclement
+ * Various changes for the NS_BH project
+ *
  * Revision 1.45  2005/11/30 11:09:03  p_grandclement
  * Changes for the Bin_ns_bh project
  *
@@ -849,7 +852,7 @@ class Map {
 	 *  in the derived classes for the meaning of the various 
 	 *  parameters.
 	 */
-	virtual void adapt(const Cmp& ent, const Param& par) = 0 ; 
+	virtual void adapt(const Cmp& ent, const Param& par, int nbr=0) = 0 ; 
 
     // Values of a Cmp at the new grid points
     // --------------------------------------
@@ -2026,7 +2029,7 @@ class Map_af : public Map_radial {
 	
 	/** Adaptation of the mapping to a given scalar field.
 	 */
-	virtual void adapt(const Cmp& ent, const Param& par) ; 
+	virtual void adapt(const Cmp& ent, const Param& par, int nbr=0) ; 
 
 	/// Modifies the value of \f$\alpha\f$ in domain no. \e l 
 	void set_alpha(double alpha0, int l) ;
@@ -2890,9 +2893,9 @@ class Map_et : public Map_radial {
 	 *				will be multiplied \\
 	 *   \c par.get_tbl(0)  : array of values of the field \c ent  to
 	 *			     define the isosurfaces. 
-	 *  
+	 *  @param par [input] Number of the last coefficients in \f$\theta\f$ set to zero.
 	 */
-	virtual void adapt(const Cmp& ent, const Param& par)  ; 
+	virtual void adapt(const Cmp& ent, const Param& par, int nbr_filtre = 0)  ; 
 
     // Differential operators:
     // ----------------------
@@ -3539,7 +3542,7 @@ class Map_log : public Map_radial {
 
 	virtual void homothetie (double) ; /// < Not implemented
 	virtual void resize (int, double) ;/// < Not implemented
-	virtual void adapt (const Cmp&, const Param&) ;/// < Not implemented
+	virtual void adapt (const Cmp&, const Param&, int) ;/// < Not implemented
 	virtual void dsdr (const Cmp&, Cmp&) const ;/// < Not implemented
 	virtual void srdsdt (const Cmp&, Cmp&) const ;/// < Not implemented
 	virtual void srstdsdp (const Cmp&, Cmp&) const ;/// < Not implemented

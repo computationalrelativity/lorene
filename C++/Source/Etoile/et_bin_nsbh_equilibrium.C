@@ -1,4 +1,4 @@
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                     /*
+/*
  *  Method of class Etoile to compute a static spherical configuration
  *   of a neutron star in a NS-BH binary system.
  *
@@ -31,6 +31,9 @@ char et_bin_nsbh_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2006/04/25 07:21:58  p_grandclement
+ * Various changes for the NS_BH project
+ *
  * Revision 1.7  2006/03/30 07:33:47  p_grandclement
  * *** empty log message ***
  *
@@ -77,7 +80,7 @@ char et_bin_nsbh_equilibrium_C[] = "$Header$" ;
 
 void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mermax,
 				   int mermax_poisson, double relax_poisson,
-				   int mermax_potvit, double relax_potvit, 
+				   int mermax_potvit, double relax_potvit, int nbr_filtre,
 				   Tbl& diff) {
 				   
     // Fundamental constants and units
@@ -182,7 +185,7 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 	cout << "-----------------------------------------------" << endl ;
 	cout << "step: " << mer << endl ;
 	cout << "diff_ent = " << diff_ent << endl ;
-//-----------------------------------------------------
+	//-----------------------------------------------------
 	// Resolution of the elliptic equation for the velocity
 	// scalar potential
 	//-----------------------------------------------------
@@ -230,51 +233,37 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 		}
 	    }
 	}
-	 
-	  alpha_r = sqrt(alpha_square) ;
-	   cout << k_b << " " << j_b << " " << alpha_r << endl ;
-	  
+	
+	
+		   
+	   alpha_r = sqrt(alpha_square) ;
+	   cout << "Adaptation : " << k_b << " " << j_b << " " << alpha_r << endl ;
+	    
 	   // Le potentiel : 
-	   n_auto = n_auto*alpha_square ;
-	   nnn = n_comp + n_auto ;
-	   //Tenseur potentiel (constante*(exp(-loggam-pot_centri)/(n_auto*alpha_square+n_comp))) ;
-	   //n_auto.set() = n_auto()*alpha_square ;
-	   Tenseur potentiel (constante*(exp(-loggam-pot_centri)/(nnn))) ;
+	   Tenseur potentiel (constante*exp(-loggam-pot_centri)/(n_auto*alpha_square+n_comp)) ;
 	   potentiel.set_std_base() ;
 	   for (int l=nzet+1 ; l<nz ; l++)
 	    	potentiel.set().va.set(l) = 1 ;
-	
+
 	   Map_et mp_prev = mp_et ; 
 	   ent = log(potentiel) ;
 	   ent.set_std_base() ;
+           ent().va.smooth(nzet, (ent.set().va)) ;
 	
 	   ent_limit.set_etat_qcq() ; 
-	   for (int l=0; l<nzet-1; l++) {	// loop on domains inside the star
+	   for (int l=0; l<nzet; l++) {	// loop on domains inside the star
 	       ent_limit.set(l) = ent()(l, k_b, j_b, nr-1) ; 
-	   }
-	   ent_limit.set(nzet-1) = 0  ; 
+	   } 
 	   
-	   // On adapte :
-	   mp.adapt(ent(), par_adapt) ;
-	   mp_prev.homothetie(alpha_r) ; 
-	   
+	   // On adapte :  
+	   mp.adapt(ent(), par_adapt, nbr_filtre) ;
+	   mp_prev.homothetie(alpha_r) ;
+
+	   for (int l=nzet ; l<nz-1 ; l++)
+	     mp.resize(l, 1./alpha_r) ;
 	   mp.reevaluate_symy (&mp_prev, nzet, ent.set()) ;
-	  for (int l=nzet ; l<nz-1 ; l++)
-	      mp.resize(l, 1./alpha_r) ;
-	//}
-	/*
-	else {  
-	Tenseur potentiel (exp(-loggam-pot_centri)/nnn) ;
-	potentiel = potentiel/potentiel()(0,0,0,0)*exp(ent()(0,0,0,0)) ;
-	potentiel.set_std_base() ;
-	   for (int l=nzet ; l<nz ; l++)
-	    	potentiel.set().va.set(l) = 1 ;
-		 
-	 ent = log(potentiel) ;
-	 ent.set_std_base() ;
-	}
-	*/
-	
+	   
+
 	// Equation of state
 	//----------------------------------------------------
 	equation_of_state() ; 	// computes new values for nbar (n), ener (e)
@@ -409,20 +398,21 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 	    // Source
 	    // See Eq (52) from Gourgoulhon et al. (2001)
 	    // ------
-
+       
 	    Tenseur vtmp = d_n_auto -6. * nnn * d_confpsi_auto / confpsi ;
 	    source_shift = 4.*qpig * nnn * confpsi_q * (ener_euler + press)
 		* u_euler
 		+ 2.* flat_scalar_prod(tkij_tot, vtmp) ;
 	    source_shift.set_std_base() ;
 	    
+
 	    // Resolution of the Poisson equation 
 	    // ----------------------------------
 	    // Filter for the source of shift vector    
-	    for (int i=0; i<3; i++)
+	   for (int i=0; i<3; i++)
 	      if ((source_shift(i).get_etat() != ETATZERO) && (source_shift(i).va.c->t[nz-1]->get_etat() != ETATZERO))
 		source_shift.set(i).filtre(4) ;
-		
+
 	    for (int i=0; i<3; i++) {
 		if(source_shift(i).dz_nonzero()) {
 		    assert( source_shift(i).get_dzpuis() == 4 ) ;
@@ -438,12 +428,12 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 
 	    // ON DOIT CHANGER DE TRIADE
 	    source_shift.change_triad(mp.get_bvect_cart()) ;
-	    Tenseur shift_old (shift_auto) ;
+	    Tenseur shift_old (shift_auto) ;    
 	    source_shift.poisson_vect(lambda_shift, par_poisson_vect,
 				      shift_auto, w_shift, khi_shift) ;
 
 	   shift_auto.change_triad(ref_triad) ;
-	   
+
 	    // Check: has the equation for shift_auto been correctly solved ?
 	    // --------------------------------------------------------------
 

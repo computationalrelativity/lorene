@@ -32,6 +32,9 @@ char map_et_adapt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2006/04/25 07:21:59  p_grandclement
+ * Various changes for the NS_BH project
+ *
  * Revision 1.2  2003/10/03 15:58:48  j_novak
  * Cleaning of some headers
  *
@@ -76,7 +79,7 @@ char map_et_adapt_C[] = "$Header$" ;
 #include "param.h"
 #include "proto.h"
 
-void Map_et::adapt(const Cmp& ent, const Param& par) {
+void Map_et::adapt(const Cmp& ent, const Param& par, int nbr_filtre) {
     
     // Parameters of the computation
     // -----------------------------
@@ -514,6 +517,22 @@ void Map_et::adapt(const Cmp& ent, const Param& par) {
     ff.std_base_scal() ;    // Standard spectral bases for F 
     gg.std_base_scal() ;    // Standard spectral bases for G
         
+
+
+    ff.coef() ;
+    gg.coef() ;
+    ff.set_etat_cf_qcq() ;
+    gg.set_etat_cf_qcq() ;
+    for (int l=0 ; l<nzadapt+1 ; l++)
+      for (int k=0 ; k<np ; k++) 
+	for (int j=nt-nbr_filtre-1 ; j<nt ; j++) {
+	  if (ff.c_cf->t[l]->get_etat() != ETATZERO)
+	    ff.c_cf->set(l, k,j,0) = 0 ;
+	  
+	  if  (gg.c_cf->t[l]->get_etat() != ETATZERO)
+	    gg.c_cf->set(l,k,j,0) = 0 ;
+	}
+    
 
     // The derived quantities must be reset
     // ------------------------------------

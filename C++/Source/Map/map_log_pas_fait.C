@@ -32,6 +32,9 @@ char map_log_pas_fait_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2006/04/25 07:21:59  p_grandclement
+ * Various changes for the NS_BH project
+ *
  * Revision 1.5  2005/11/24 09:25:07  j_novak
  * Added the Scalar version for the Laplacian
  *
@@ -78,7 +81,7 @@ void pas_fait() {
   pas_fait() ;
 }
 
- void Map_log::adapt (const Cmp&, const Param&) {
+ void Map_log::adapt (const Cmp&, const Param&, int) {
   pas_fait(); 
 }
 	

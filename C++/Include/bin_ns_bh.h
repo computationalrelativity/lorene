@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2006/04/25 07:21:54  p_grandclement
+ * Various changes for the NS_BH project
+ *
  * Revision 1.12  2005/12/01 12:59:08  p_grandclement
  * Files for bin_ns_bh project
  *
@@ -302,7 +305,7 @@ class Bin_ns_bh {
 	double smarr() const ;
 	Tbl linear_momentum_systeme_inf() const ;
 	double viriel() const ;
-	void coal (double, double, int, int,  double, double, double, double, double, const int) ;
+	void coal (double, double, int, int,  double, double, double, double, double, int, const int) ;
 	double distance_propre_axe_bh (const int nr  = 65) const ;
 	double distance_propre_axe_ns (const int nr  = 65) const ;
 	

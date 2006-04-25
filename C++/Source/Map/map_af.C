@@ -33,6 +33,9 @@ char map_af_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2006/04/25 07:21:59  p_grandclement
+ * Various changes for the NS_BH project
+ *
  * Revision 1.8  2005/08/29 15:10:18  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -620,7 +623,7 @@ void Map_af::set_beta(double beta0, int l) {
 // To be done
 //-----------
 
-void Map_af::adapt(const Cmp&, const Param&) {
+void Map_af::adapt(const Cmp&, const Param&, int) {
     char* f = __FILE__ ;
     c_est_pas_fait(f) ;
 }

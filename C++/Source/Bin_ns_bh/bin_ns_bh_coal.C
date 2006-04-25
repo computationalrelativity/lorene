@@ -25,6 +25,9 @@ char bin_ns_bh_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2006/04/25 07:21:57  p_grandclement
+ * Various changes for the NS_BH project
+ *
  * Revision 1.4  2006/03/30 07:33:45  p_grandclement
  * *** empty log message ***
  *
@@ -54,7 +57,7 @@ char bin_ns_bh_coal_C[] = "$Header$" ;
 #include "unites.h"
 #include "graphique.h"
 
-void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_mp_et, double ent_c_init, double seuil_dist, double dist, double m1, double m2, const int sortie) {
+void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_mp_et, double ent_c_init, double seuil_masses, double dist, double m1, double m2, int nbr_filtre, const int sortie) {
     
     using namespace Unites ;
      
@@ -127,7 +130,7 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
     
     // BOUCLE AVEC BLOQUE :
     bool loop = true ;     
-    bool search_dist = false ;
+    bool search_masses = false ;
     double ent_c = ent_c_init ;
     
     Cmp shift_bh_old (hole.mp) ;
@@ -163,7 +166,7 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
 	int ite ;
 
 	bool adapt = true ;
- 	star.equilibrium_nsbh (adapt, ent_c, ite, itemax_equil, itemax_mp_et, relax, itemax_mp_et, relax, diff) ;
+ 	star.equilibrium_nsbh (adapt, ent_c, ite, itemax_equil, itemax_mp_et, relax, itemax_mp_et, relax, nbr_filtre,  diff) ;
 
 	hole.update_metric(star) ;    
 	
@@ -188,9 +191,8 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
 	    if (diff_ns(i) > erreur)
 		erreur = diff_ns(i) ;
 	
-	cout << "Verif error" << erreur << " " << seuil_dist << endl ;
-	if (erreur<seuil_dist)
-	    search_dist = true ;
+	if (erreur<seuil_masses)
+	    search_masses = true ;
 		
 	mass_ns = star.mass_b() ;
 	    
@@ -228,13 +230,15 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
 	double new_ome = star.compute_angul() ;
         if (new_ome !=0)
 		set_omega(new_ome) ;
+
+	// The right distance
+	double error_dist = (distance-dist)/dist ;
+	double scale_d = pow((2+error_dist)/(2+2*error_dist), 0.2) ;
+	distance *= scale_d ;
 		
 	// Converge to the right masses :
-	if (search_dist) {
-	        double error_dist = (distance-dist)/dist ;
-		double scale_d = pow((2+error_dist)/(2+2*error_dist), 0.2) ;
-		distance *= scale_d ;
-		
+	if (search_masses) {
+	    
 	    double scaling_r = pow((2-error_m1)/(2-2*error_m1), 0.25) ;
 	    hole.mp.homothetie_interne(scaling_r) ;
 	    hole.set_rayon(hole.get_rayon()*scaling_r) ;
@@ -243,13 +247,11 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
 	// The case of the NS :
 	double convergence = fabs(mass_ns - old_mass_ns)/mass_ns ;
 	double rel_diff = fabs(error_m2) ;
-	if ((search_dist) && (convergence*2 < rel_diff)) {
+	if ((search_masses) && (convergence*2 < rel_diff)) {
 	      double scaling_ent = pow((2-error_m2)/(2-2*error_m2), 2) ;
 	      ent_c *= scaling_ent ;
 	}
-	
-	//if (conte==40)
-    //des_coupe_bin_z (star.get_n_auto()(), hole.get_n_auto()(), 0, -distance, distance, -distance, distance, "Lapse") ;
+
 	
 	cout << "PAS TOTAL : " << conte << " DIFFERENCE : " << erreur << endl ;
 	if (erreur < precis)

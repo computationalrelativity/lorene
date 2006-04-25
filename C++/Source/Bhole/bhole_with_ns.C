@@ -25,6 +25,9 @@ char bhole_with_ns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2006/04/25 07:21:57  p_grandclement
+ * Various changes for the NS_BH project
+ *
  * Revision 1.6  2005/08/29 15:10:13  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -85,9 +88,11 @@ void Bhole::solve_lapse_with_ns (double relax) {
 	}
   
     // La source
+    Cmp psiq (pow(psi_tot(), 4.)) ;
+    psiq.std_base_scal() ;
     Cmp source 
     (-2*flat_scalar_prod(psi_auto.gradient(), grad_n_tot)()/psi_tot()
-	+pow(psi_tot(), 4.)*n_tot()*kk()) ;
+	+psiq*n_tot()*kk()) ;
     source.std_base_scal() ;    
   
     // On resout pour N-1/2 :
@@ -126,9 +131,11 @@ void Bhole::solve_psi_with_ns (double relax) {
 	work.set() = auxi(i, i) ;
 	kk = kk + work ;
 	}
-    
+    Cmp psic (pow(psi_tot(), 5.)) ;
+    psic.std_base_scal() ;
+
     // La source :
-    Cmp source (-pow(psi_tot(), 5.)*kk()/8.) ;
+    Cmp source (-psic*kk()/8.) ;
     source.std_base_scal() ;
     
     // Condition limite :

@@ -29,6 +29,9 @@ char init_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2006/04/25 07:22:00  p_grandclement
+ * Various changes for the NS_BH project
+ *
  * Revision 1.4  2005/08/29 15:10:19  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -298,7 +301,7 @@ int  main(){
     
     bibi.init_auto() ;   
     int ite ;
-    bibi.pseudo_misner (ite, 200, 0.6, precis) ;
+    bibi.pseudo_misner (ite, 200, 0.5, precis) ;
  
   
     cout << endl

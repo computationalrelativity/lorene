@@ -28,8 +28,8 @@ char lit_bin_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.3  2005/10/18 13:33:43  p_grandclement
- * small correction
+ * Revision 1.4  2006/04/25 07:22:00  p_grandclement
+ * Various changes for the NS_BH project
  *
  * Revision 1.2  2005/10/18 13:12:34  p_grandclement
  * update of the mixted binary codes
@@ -121,7 +121,7 @@ int main(int argc, char** argv) {
     double d_bh = bibi.distance_propre_axe_bh() ;
     double d_ns = bibi.distance_propre_axe_ns() ;
     
-    cout << "Omega           : " << omega << endl ;
+    cout << "Omega           : " << omega << endl ;  
     cout << "Masse ADM       : " << adm/ggrav/msol << " solar mass" << endl ;
     cout << "Masse ADM vol.  : " << adm_vol/ggrav/msol << " solar mass" << endl ;
     cout << "Masse Komar     : " << komar/ggrav/msol << " solar mass" << endl ;   
@@ -143,9 +143,17 @@ int main(int argc, char** argv) {
     cout << "Coord ns         : " << fabs(x_ns) << endl ;
     cout << "Regularisation   : " << regul << endl ;
     
+    double mtot =  M_bh + Mb_ns*ggrav ; 
+    cout << omega*mtot << " " << (adm - mtot)/mtot << endl ;
+    
     double centre = 0 ;
     double taille = fabs (x_bh) + fabs(x_ns) ;
-    
+    cout << mg_ns << endl ;
+    cout << mg_bh << endl ; 
+ 
+    des_map_et (mp_ns, 0) ;
+    des_map_et (mp_ns, 1) ;
+
     des_coupe_bin_z (bibi.get_ns().get_n_auto()(), bibi.get_bh().get_n_auto()(), 0, centre-taille, centre+taille, -taille, taille, "Lapse") ;
     des_coupe_bin_z (bibi.get_ns().get_confpsi_auto()(), bibi.get_bh().get_psi_auto()(), 0, centre-taille, centre+taille, -taille, taille, "Psi") ;
     Tenseur u_euler (bibi.get_ns().get_u_euler()) ;
@@ -153,9 +161,8 @@ int main(int argc, char** argv) {
     des_coupe_vect_z (u_euler, 0, -1, 0.5, 1, "U euler") ; 
  
     des_coupe_z (bibi.get_ns().get_ent()(), 0, x_ns-4, x_ns+4, -4, 4, "Enthalpie") ;
-    
-    des_vect_bin_z (bibi.get_ns().get_shift(), bibi.get_bh().get_shift_auto(), 0, 1000, 0.5, centre-taille, centre+taille, 
+    des_vect_bin_z (bibi.get_ns().get_shift_auto(),bibi.get_bh().get_shift_auto(), 0, 1000, 0.5, centre-taille, centre+taille, 
                               -taille, taille, "Shift") ;
-    
-    return 0; 
+			      
+    return EXIT_SUCCESS; 
 }

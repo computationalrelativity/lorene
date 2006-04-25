@@ -29,6 +29,9 @@ char coal_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2006/04/25 07:22:00  p_grandclement
+ * Various changes for the NS_BH project
+ *
  * Revision 1.6  2005/10/18 13:12:34  p_grandclement
  * update of the mixted binary codes
  *
@@ -67,6 +70,7 @@ char coal_ns_bh_C[] = "$Header$" ;
 #include "unites.h"
 #include "graphique.h"
 
+
 int main(int argc, char** argv) {
 
      using namespace Unites ;
@@ -74,32 +78,30 @@ int main(int argc, char** argv) {
     //Lecture du fichier de parametres :
      if (argc <3) {
 	cout <<" Passer nom des fichiers en arguments SVP !" << endl ;
-	abort() ;    }
-    
+	abort() ;    } 
      //------------------------------------------------------------------
      //	    Parameters of the computation
      //------------------------------------------------------------------
-
     char blabla[120] ;
-    double precis, relax, search_m, m1, m2 ;
-    int itemax_equil, itemax_mp_et ;
+    double distance, precis, relax, search, m1, m2 ;
+    int itemax_equil, itemax_mp_et, nbr_filtre ;
 
     char* name_fich = argv[1] ;
-    //char* name_fich = "par_coal.d" ;
     ifstream fpar(name_fich) ;
+    fpar >> distance ; fpar.getline(blabla, 120) ;
     fpar >> m1 ; fpar >> m2 ; fpar.getline(blabla, 120) ;
-    fpar >> search_m ; fpar.getline(blabla, 120) ;
+    fpar >> search ; fpar.getline(blabla, 120) ;
     fpar >> precis ; fpar.getline(blabla, 120) ;
     fpar >> relax ; fpar.getline(blabla, 120) ;
     fpar >> itemax_equil ; fpar.getline(blabla, 120) ;
     fpar >> itemax_mp_et ; fpar.getline(blabla, 120) ;
+    fpar >> nbr_filtre ; fpar.getline(blabla, 120) ;
     fpar.close() ;
     
     //------------------------------------------------------------------
     //	    Read of the initial conditions
     //------------------------------------------------------------------
     name_fich = argv[2] ;
-    //name_fich = "statiques.dat" ;
     FILE* fich = fopen(name_fich, "r") ;
     Mg3d mg_ns(fich) ;
     Map_et mp_ns(mg_ns, fich) ;
@@ -130,16 +132,17 @@ int main(int argc, char** argv) {
     // Initialisation of hydro quantities for NS
     // -----------------------------------------
     bin.set_ns().equation_of_state() ;
+    bin.set_ns().hydro_euler() ;
+    bin.analytical_omega() ;
     bin.set_ns().kinematics (bin.get_omega(), bin.get_x_axe()) ;
     bin.set_ns().fait_d_psi() ;
-    bin.set_ns().hydro_euler() ;
     
     // Masses in good units :
     m1 *= ggrav*msol ;
     m2 *= msol ;
-    
+
     double ent_c_init = bin.get_ns().get_ent()()(0,0,0,0) ;
-    bin.coal (precis, relax, itemax_equil, itemax_mp_et, ent_c_init, search_m, m1, m2, 1) ;
+    bin.coal (precis, relax, itemax_equil, itemax_mp_et, ent_c_init, search, distance, m1, m2, nbr_filtre, 1) ;
 
     // On sauve
     char name[20] ;
