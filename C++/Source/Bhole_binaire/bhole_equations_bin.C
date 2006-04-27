@@ -25,6 +25,9 @@ char bhole_equations_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2006/04/27 09:12:32  p_grandclement
+ * First try at irrotational black holes
+ *
  * Revision 1.2  2002/10/16 14:36:33  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -253,7 +256,15 @@ void Bhole_binaire::solve_shift (double precision, double relax) {
     
     xa_mtbl_un = source_un.get_mp()->xa ;
     ya_mtbl_un = source_un.get_mp()->ya ;
-     
+      
+    Mtbl x_mtbl_un (source_un.get_mp()->get_mg()) ;
+    x_mtbl_un.set_etat_qcq() ;
+    Mtbl y_mtbl_un (source_un.get_mp()->get_mg()) ;
+    y_mtbl_un.set_etat_qcq() ;
+    
+    x_mtbl_un = source_un.get_mp()->x ;
+    y_mtbl_un = source_un.get_mp()->y ;
+    
     // Les bases
     Base_val** bases_un = hole1.mp.get_mg()->std_base_vect_cart() ;
     Base_val** bases_deux = hole2.mp.get_mg()->std_base_vect_cart() ;
@@ -263,7 +274,7 @@ void Bhole_binaire::solve_shift (double precision, double relax) {
     lim_x_un.set_etat_c_qcq() ;
     for (int k=0 ; k<np_un ; k++)
 	for (int j=0 ; j<nt_un ; j++)
-	    lim_x_un.set(0, k, j, 0) = aligne_un*omega*ya_mtbl_un(1, k, j, 0) ;
+	    lim_x_un.set(0, k, j, 0) = aligne_un*omega*ya_mtbl_un(0, 0, 0, 0) + aligne_un*hole1.omega_local*y_mtbl_un(1,k,j,0) ;
     lim_x_un.base = *bases_un[0] ;
     
     Valeur lim_y_un (*hole1.mp.get_mg()->get_angu()) ;
@@ -271,7 +282,7 @@ void Bhole_binaire::solve_shift (double precision, double relax) {
     lim_y_un.set_etat_c_qcq() ;
     for (int k=0 ; k<np_un ; k++)
 	for (int j=0 ; j<nt_un ; j++)
-	    lim_y_un.set(0, k, j, 0) = -aligne_un*omega*xa_mtbl_un(1, k, j, 0) ;
+	    lim_y_un.set(0, k, j, 0) = -aligne_un*omega*xa_mtbl_un(0, 0, 0, 0) - aligne_un*hole1.omega_local*x_mtbl_un(1,k,j,0) ;;
     lim_y_un.base = *bases_un[1] ;
     
     Valeur lim_z_un (*hole1.mp.get_mg()->get_angu()) ;
@@ -293,12 +304,20 @@ void Bhole_binaire::solve_shift (double precision, double relax) {
     xa_mtbl_deux = source_deux.get_mp()->xa ;
     ya_mtbl_deux = source_deux.get_mp()->ya ;
 
+    Mtbl x_mtbl_deux (source_deux.get_mp()->get_mg()) ;
+    x_mtbl_deux.set_etat_qcq() ;
+    Mtbl y_mtbl_deux (source_deux.get_mp()->get_mg()) ;
+    y_mtbl_deux.set_etat_qcq() ;
+    
+    x_mtbl_deux = source_deux.get_mp()->x ;
+    y_mtbl_deux = source_deux.get_mp()->y ;
+    
     Valeur lim_x_deux (*hole2.mp.get_mg()->get_angu()) ;
     lim_x_deux = 1 ; // Juste pour affecter dans espace des configs ;
     lim_x_deux.set_etat_c_qcq() ;
     for (int k=0 ; k<np_deux ; k++)
 	for (int j=0 ; j<nt_deux ; j++)
-	    lim_x_deux.set(0, k, j, 0) = aligne_deux*omega*ya_mtbl_deux(1, k, j, 0) ;
+	    lim_x_deux.set(0, k, j, 0) = aligne_deux*omega*ya_mtbl_deux(0, 0, 0, 0) + aligne_deux*hole2.omega_local*y_mtbl_deux(1,k,j,0) ;
     lim_x_deux.base = *bases_deux[0] ;
     
     Valeur lim_y_deux (*hole2.mp.get_mg()->get_angu()) ;
@@ -306,7 +325,7 @@ void Bhole_binaire::solve_shift (double precision, double relax) {
     lim_y_deux.set_etat_c_qcq() ;
     for (int k=0 ; k<np_deux ; k++)
 	for (int j=0 ; j<nt_deux ; j++)
-	   lim_y_deux.set(0, k, j, 0) = -aligne_deux*omega*xa_mtbl_deux(1, k, j, 0) ;
+	   lim_y_deux.set(0, k, j, 0) = -aligne_deux*omega*xa_mtbl_deux(0, 0, 0, 0) - aligne_deux*hole2.omega_local*x_mtbl_deux(1,k,j,0) ;
     lim_y_deux.base = *bases_deux[1] ;
     
     Valeur lim_z_deux (*hole2.mp.get_mg()->get_angu()) ;
@@ -343,8 +362,8 @@ void Bhole_binaire::solve_shift (double precision, double relax) {
     hole2.shift_auto = relax*hole2.shift_auto +
 	(1-relax)*shift_deux_old ;
     
-    double diff_un = regle (hole1.shift_auto, hole2.shift_auto, omega) ;
-    double diff_deux = regle (hole2.shift_auto, hole1.shift_auto, omega) ;
+    double diff_un = regle (hole1.shift_auto, hole2.shift_auto, omega, hole1.omega_local) ;
+    double diff_deux = regle (hole2.shift_auto, hole1.shift_auto, omega, hole2.omega_local) ;
     hole1.regul = diff_un ;
     hole2.regul = diff_deux ;
     

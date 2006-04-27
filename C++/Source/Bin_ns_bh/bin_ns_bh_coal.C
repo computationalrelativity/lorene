@@ -25,6 +25,9 @@ char bin_ns_bh_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2006/04/27 09:12:33  p_grandclement
+ * First try at irrotational black holes
+ *
  * Revision 1.5  2006/04/25 07:21:57  p_grandclement
  * Various changes for the NS_BH project
  *
@@ -60,7 +63,10 @@ char bin_ns_bh_coal_C[] = "$Header$" ;
 void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_mp_et, double ent_c_init, double seuil_masses, double dist, double m1, double m2, int nbr_filtre, const int sortie) {
     
     using namespace Unites ;
-     
+    
+    if (hole.get_rot_state()==IRROT)
+    	hole.set_omega_local(0) ;
+    
     int nz_bh = hole.mp.get_mg()->get_nzone() ;
     int nz_ns = star.mp.get_mg()->get_nzone() ;
     
@@ -82,6 +88,8 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
     char name_hor[40] ;
     char name_entc[40] ;
     char name_dist[40] ;
+    char name_spin[40] ;
+    char name_ome_local[40] ;
     
     sprintf(name_iteration, "ite.dat") ;
     sprintf(name_correction, "cor.dat") ;
@@ -94,6 +102,8 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
     sprintf(name_hor, "hor.dat") ;
     sprintf(name_entc, "entc.dat") ;
     sprintf(name_dist, "distance.dat") ;
+    sprintf(name_spin, "spin.dat") ;
+    sprintf(name_ome_local, "ome_local.dat") ;
     
     ofstream fiche_iteration(name_iteration) ;
     fiche_iteration.precision(8) ; 
@@ -128,6 +138,12 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
     ofstream fiche_dist (name_dist) ;
     fiche_dist.precision(8) ;
     
+    ofstream fiche_spin (name_spin) ;
+    fiche_spin.precision(8) ;
+    
+    ofstream fiche_ome_local (name_ome_local) ;
+    fiche_ome_local.precision(8) ;
+    
     // BOUCLE AVEC BLOQUE :
     bool loop = true ;     
     bool search_masses = false ;
@@ -145,7 +161,13 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
     
     while (loop) {
     
-        old_mass_ns = mass_ns ;
+    	double spin = hole.local_momentum() ;
+    	if (sortie !=0) {
+    		fiche_ome_local << conte << " " << hole.omega_local << endl ;	
+		fiche_spin << conte << " " << spin << endl ;
+    	}
+        
+	old_mass_ns = mass_ns ;
     
 	if (hole.get_shift_auto().get_etat() != ETATZERO)
 	    shift_bh_old = hole.get_shift_auto()(0) ;
@@ -228,14 +250,24 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
 
 	// Value of omega
 	double new_ome = star.compute_angul() ;
-        if (new_ome !=0)
+        if (new_ome !=0) {
 		set_omega(new_ome) ;
-
+		if (hole.get_rot_state() == COROT)
+			hole.set_omega_local(new_ome) ;
+	}
+		
 	// The right distance
 	double error_dist = (distance-dist)/dist ;
 	double scale_d = pow((2+error_dist)/(2+2*error_dist), 0.2) ;
 	distance *= scale_d ;
 		
+	// Set the Bh to irrotational ?
+	if ((search_masses) && (hole.get_rot_state() == IRROT)) {
+		double error_spin = spin/4/hole.rayon/hole.rayon ;
+		double increment = 0.1*log((2+error_spin)/(2+2*error_spin)) ;
+		hole.set_omega_local(hole.omega_local+increment) ;
+	}
+	
 	// Converge to the right masses :
 	if (search_masses) {
 	    
@@ -271,4 +303,6 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
     fiche_hor.close() ;
     fiche_entc.close() ;
     fiche_dist.close() ;
+    fiche_spin.close() ;
+    fiche_ome_local.close() ;
 }

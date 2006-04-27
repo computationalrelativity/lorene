@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.32  2006/04/27 09:12:29  p_grandclement
+ * First try at irrotational black holes
+ *
  * Revision 1.31  2006/04/10 15:19:18  j_novak
  * New definition of 1D operators dsdx and sx in the nucleus (bases R_CHEBP and
  * R_CHEBI).
@@ -724,7 +727,7 @@ Mtbl_cf elliptic_solver_fixe_der_zero  (double,
 
 
 // Regularisation du shift :
-double regle (Tenseur& shift_auto, const Tenseur& shift_comp, double omega) ;
+double regle (Tenseur& shift_auto, const Tenseur& shift_comp, double omega, double) ;
 
 // Trucs pour la solution de Misner-Lindquist
 double serie_lindquist_plus (double rayon, double distance, double xa, double ya, 

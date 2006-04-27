@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2006/04/27 09:12:29  p_grandclement
+ * First try at irrotational black holes
+ *
  * Revision 1.14  2005/08/29 15:10:12  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -225,6 +228,9 @@ class Et_bin_nsbh ;
 
 #include "tenseur.h"
 
+#define COROT 0
+#define IRROT 1
+
 /**
  * Black hole. \ingroup (star)
  * 
@@ -256,6 +262,9 @@ class Bhole {
 	Map_af& mp ;  ///< Affine mapping.
 	double rayon ; ///< Radius of the horizon in LORENE's units.
 	double omega ; ///< Angular velocity in LORENE's units.
+	double omega_local ; ///< local angular velocity
+	int rot_state ; ///< State of rotation
+	
 	/**
 	 * Cartesian components of the boost in the reference frame.
 	 */
@@ -304,7 +313,7 @@ class Bhole {
 	 */
 	Bhole (Map_af& mapping) ;
 	Bhole (const Bhole&) ;	///< Constructor by copy
-	Bhole (Map_af&, FILE*) ; ///< Constructor from a \c Map_af  and a file
+	Bhole (Map_af&, FILE*, bool old=false) ; ///< Constructor from a \c Map_af  and a file
 	~Bhole() ; ///< Destructor
 	
     public:
@@ -338,7 +347,22 @@ class Bhole {
 	 * Sets the angular velocity to \c ome .
 	 */
 	void set_omega(double ome) {omega = ome ;} ;
-
+	/**
+	 * Returns the local angular velocity.
+	 */
+	double get_omega_local() const {return omega_local;} ;
+	/**
+	 * Sets the local angular velocity to \c ome .
+	 */
+	void set_omega_local(double ome) {omega_local = ome ;} ;
+	/**
+	 * Returns the state of rotation.
+	 */
+	double get_rot_state() const {return rot_state;} ;
+	/**
+	 * Returns the state of rotation.
+	 */
+	void set_rot_state(int rotation) {rot_state = rotation;} ;
 	/**
 	 * Returns the cartesian components of the boost with respect to the 
 	 * reference frame.
@@ -685,6 +709,11 @@ class Bhole {
 	 */
 	double moment_seul_hor() const ;
 	
+	/*
+	* local angular momentum
+	*/
+	double local_momentum() const ;
+	
 	/**
 	 * Initiates the black hole for a resolution with \f$\Phi = \log \Psi\f$.
 	 */
@@ -902,7 +931,7 @@ class Bhole_binaire {
 	 * @param nr [input] : number of points used for the calculation.
 	 */
 	 double distance_propre(const int nr = 65) const ;
-	
+	 
 	Tbl linear_momentum_systeme_inf() const ;
 	
 	/**

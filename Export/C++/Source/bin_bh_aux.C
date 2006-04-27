@@ -30,6 +30,9 @@ char bin_bh_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2006/04/27 09:12:35  p_grandclement
+ * First try at irrotational black holes
+ *
  * Revision 1.3  2002/03/20 08:24:56  e_gourgoulhon
  * Added the derivatives of Psi.
  *
@@ -72,8 +75,8 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
     Mg3d grille (fich) ;
     Map_af map_un (grille, fich) ;
     Map_af map_deux (grille, fich) ;
-    Bhole hole_un (map_un, fich) ;
-    Bhole hole_deux (map_deux, fich) ;
+    Bhole hole_un (map_un, fich, true) ;
+    Bhole hole_deux (map_deux, fich, true) ;
     fclose(fich) ;
 
     assert (hole_un.get_omega() == hole_deux.get_omega()) ;

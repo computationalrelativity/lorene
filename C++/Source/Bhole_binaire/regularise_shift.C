@@ -25,6 +25,9 @@ char regularise_shift_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2006/04/27 09:12:32  p_grandclement
+ * First try at irrotational black holes
+ *
  * Revision 1.4  2005/08/29 15:10:14  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -77,7 +80,7 @@ char regularise_shift_C[] = "$Header$" ;
 #include "nbr_spx.h"
 #include "tenseur.h"
 
-double regle (Tenseur& shift_auto, const Tenseur& shift_comp, double omega) {
+double regle (Tenseur& shift_auto, const Tenseur& shift_comp, double omega, double omega_local) {
     
     Tenseur shift_old (shift_auto) ;
     
@@ -108,6 +111,11 @@ double regle (Tenseur& shift_auto, const Tenseur& shift_comp, double omega) {
  
     double indic = (orientation == 0) ? 1 : -1 ;
     
+    Mtbl xa_mtbl (shift_tot.get_mp()->get_mg()) ;
+    xa_mtbl = shift_tot.get_mp()->xa ;
+    Mtbl ya_mtbl (shift_tot.get_mp()->get_mg()) ;
+    ya_mtbl = shift_tot.get_mp()->ya ;
+    
     Tenseur tbi (shift_tot) ;
     if (omega != 0) {
 	for (int i=0 ; i<3 ; i++) {
@@ -115,8 +123,8 @@ double regle (Tenseur& shift_auto, const Tenseur& shift_comp, double omega) {
 	    tbi.set(i).va.set_etat_c_qcq() ;
 	    }
 	    
-	tbi.set(0) = *shift_tot(0).va.c - indic *omega * shift_tot.get_mp()->ya ;
-	tbi.set(1) = *shift_tot(1).va.c + indic *omega * shift_tot.get_mp()->xa ;
+	tbi.set(0) = *shift_tot(0).va.c - indic *omega * ya_mtbl(0,0,0,0) - indic*omega_local* shift_tot.get_mp()->y ;
+	tbi.set(1) = *shift_tot(1).va.c + indic *omega * xa_mtbl(0,0,0,0) + indic*omega_local* shift_tot.get_mp()->x ;
 	tbi.set_std_base() ;
 	tbi.set(0).annule(nz-1) ;
 	tbi.set(1).annule(nz-1) ;

@@ -25,6 +25,9 @@ char bhole_with_ns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2006/04/27 09:12:31  p_grandclement
+ * First try at irrotational black holes
+ *
  * Revision 1.7  2006/04/25 07:21:57  p_grandclement
  * Various changes for the NS_BH project
  *
@@ -231,12 +234,12 @@ void Bhole::solve_shift_with_ns (const Et_bin_nsbh& ns,
 	
 	ns.get_mp().convert_absolute (xabs, yabs, zabs, air, theta, phi) ;
 	
-	lim_x.set(0, k, j, 0) = omega*Yabs(1, k, j, 0) - 
+	lim_x.set(0, k, j, 0) = omega*Yabs(0, 0, 0, 0) + omega_local*y_mtbl(1,k,j,0) - 
 	  ns.get_shift_auto()(0).val_point(air, theta, phi) ;
 	lim_x.base = *bases[0] ;
 	
 	
-	lim_y.set(0, k, j, 0) = -omega*Xabs(1, k, j, 0)- 
+	lim_y.set(0, k, j, 0) = -omega*Xabs(0, 0, 0, 0) - omega_local*x_mtbl(1,k,j,0) - 
 	  ns.get_shift_auto()(1).val_point(air, theta, phi) ;
 	
 	lim_z.set(0, k, j, 0) = - 
@@ -257,7 +260,7 @@ void Bhole::solve_shift_with_ns (const Et_bin_nsbh& ns,
 			   lim_z, 0, precision, 20) ;
    
     shift_auto = relax*shift_auto + (1-relax)*shift_old ;
-    regul = regle (shift_auto, ns.get_shift_auto(), omega) ;
+    regul = regle (shift_auto, ns.get_shift_auto(), omega, omega_local) ;
 }
 
 

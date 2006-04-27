@@ -32,6 +32,9 @@ char bhole_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2006/04/27 09:12:31  p_grandclement
+ * First try at irrotational black holes
+ *
  * Revision 1.8  2005/08/29 15:10:13  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -154,7 +157,7 @@ char bhole_C[] = "$Header$" ;
 // Constructeur standard
 Bhole::Bhole (Map_af& mpi) : mp(mpi),
 			rayon ((mp.get_alpha())[0]), 
-			omega(0), boost (new double[3]), regul(0), 
+			omega(0), omega_local(0), rot_state(COROT), boost (new double[3]), regul(0), 
 			n_auto(mpi), n_comp(mpi), n_tot(mpi), 
 			psi_auto(mpi), psi_comp(mpi), psi_tot(mpi),  
 			grad_n_tot (mpi, 1, COV, mpi.get_bvect_cart()),
@@ -173,7 +176,7 @@ Bhole::Bhole (Map_af& mpi) : mp(mpi),
 
 // Constructeur par recopie
 Bhole::Bhole (const Bhole& source) :
-    mp(source.mp), rayon(source.rayon), omega (source.omega), 
+    mp(source.mp), rayon(source.rayon), omega (source.omega), omega_local(source.omega_local), rot_state(source.rot_state),
     boost (new double [3]), regul(source.regul), n_auto(source.n_auto),
     n_comp(source.n_comp), n_tot(source.n_tot), psi_auto(source.psi_auto), 
     psi_comp(source.psi_comp), psi_tot(source.psi_tot),
@@ -199,6 +202,8 @@ void Bhole::operator= (const Bhole& source) {
     
     rayon = source.rayon ;
     omega = source.omega ;
+    omega_local = source.omega_local ;
+    rot_state = source.rot_state ;
     for (int i=0 ; i<3 ; i++)
 	boost[i] = source.boost[i] ;
     regul = regul ;
@@ -235,7 +240,6 @@ void Bhole::fait_n_comp (const Bhole& comp) {
     
     n_tot = n_comp + n_auto ;
     n_tot.set_std_base() ;
-    
  
     Tenseur auxi (comp.n_auto.gradient()) ;
     auxi.dec2_dzpuis() ;   
@@ -366,7 +370,7 @@ void Bhole::fait_taij_auto () {
 
 // Regularise le shift, untilisant le compagnon.
 void Bhole::regularise_shift (const Tenseur& shift_comp) {
-    regul = regle (shift_auto, shift_comp, omega) ;
+    regul = regle (shift_auto, shift_comp, omega, omega_local) ;
 }
 
 //Initialise a Schwartz
@@ -446,7 +450,9 @@ void Bhole::init_bhole_seul () {
 // Sauvegarde dans fichier
 void Bhole::sauve (FILE* fich) const {
     
-    fwrite_be (&omega, sizeof(double), 1, fich) ;
+    fwrite_be (&omega, sizeof(double), 1, fich) ; 
+    fwrite_be (&omega_local, sizeof(double), 1, fich) ;
+    fwrite_be (&rot_state, sizeof(int), 1, fich) ;
     fwrite_be (boost, sizeof(double), 3, fich) ;
     fwrite_be (&regul, sizeof(double), 1, fich) ;
     
@@ -456,7 +462,7 @@ void Bhole::sauve (FILE* fich) const {
 }
 
 //Constructeur par fichier
-Bhole::Bhole(Map_af& mpi, FILE* fich) :
+Bhole::Bhole(Map_af& mpi, FILE* fich, bool old) :
 	    mp(mpi), rayon ((mp.get_alpha())[0]), 
 	    boost (new double[3]), n_auto(mpi), n_comp(mpi), n_tot(mpi), 
 			psi_auto(mpi), psi_comp(mpi), psi_tot(mpi), 
@@ -471,6 +477,10 @@ Bhole::Bhole(Map_af& mpi, FILE* fich) :
 			decouple (mpi) {
 
 	fread_be(&omega, sizeof(double), 1, fich) ;
+	if (!old) {
+		fread_be(&omega_local, sizeof(double), 1, fich) ;
+		fread_be(&rot_state, sizeof(int), 1, fich) ;
+	}
 	fread_be(boost, sizeof(double), 3, fich) ;
 	fread_be(&regul, sizeof(double), 1, fich) ;
 	
@@ -511,4 +521,32 @@ double Bhole::area() const {
     
 }
 
+		    //---------------------------------//
+		    //	   Moment local                //
+		    //---------------------------------//
+
+double Bhole::local_momentum() const {
+
+   	Cmp xx (mp) ;
+	xx = mp.x ;
+	xx.std_base_scal() ;
+	
+	Cmp yy (mp) ;
+	yy = mp.y ;
+	yy.std_base_scal() ;
+	
+	Tenseur vecteur (mp, 1, CON, mp.get_bvect_cart()) ;
+	vecteur.set_etat_qcq() ;
+	for (int i=0 ; i<3 ; i++)
+	    vecteur.set(i) = (-yy*tkij_tot(0, i)+xx*tkij_tot(1, i)) ;
+	vecteur.set_std_base() ;
+	vecteur.annule(mp.get_mg()->get_nzone()-1) ;
+	vecteur.change_triad (mp.get_bvect_spher()) ;
+	
+	Cmp integrant (pow(psi_tot(), 4)*vecteur(0)) ;
+	integrant.std_base_scal() ;
+	double moment = mp.integrale_surface(integrant, rayon)/8/M_PI ;
+  
+    return moment ;
+}
 		    

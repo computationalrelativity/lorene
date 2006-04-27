@@ -29,6 +29,9 @@ char init_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2006/04/27 09:12:34  p_grandclement
+ * First try at irrotational black holes
+ *
  * Revision 1.5  2006/04/25 07:22:00  p_grandclement
  * Various changes for the NS_BH project
  *
@@ -231,9 +234,11 @@ int  main(){
     separ *= km ;	// translation in Lorene units
 
     int irrot_i ;
+    int state_rot_bh ;
     double ent_c ;
     fich >> ent_c ; fich.getline(blabla, 80) ;
     fich >> irrot_i ; fich.getline(blabla, 80) ;
+    fich >> state_rot_bh ; fich.getline(blabla, 80) ;
     bool irrot_ns = (irrot_i == 1) ;
 
     fich.close() ;
@@ -246,7 +251,8 @@ int  main(){
     //-----------------------------------------------------------------------
 
     Bin_ns_bh bibi(mp_ns, nzet, eos, irrot_ns, mp_bh) ;
-
+    bibi.set_bh().set_rot_state(state_rot_bh) ;
+    
     //-----------------------------------------------------------------------
     //		Computation of two static configurations
     //-----------------------------------------------------------------------
