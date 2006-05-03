@@ -32,6 +32,9 @@ char map_et_adapt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2006/05/03 07:07:52  p_grandclement
+ * Petite correction
+ *
  * Revision 1.3  2006/04/25 07:21:59  p_grandclement
  * Various changes for the NS_BH project
  *
@@ -518,21 +521,21 @@ void Map_et::adapt(const Cmp& ent, const Param& par, int nbr_filtre) {
     gg.std_base_scal() ;    // Standard spectral bases for G
         
 
-
-    ff.coef() ;
-    gg.coef() ;
-    ff.set_etat_cf_qcq() ;
-    gg.set_etat_cf_qcq() ;
-    for (int l=0 ; l<nzadapt+1 ; l++)
-      for (int k=0 ; k<np ; k++) 
-	for (int j=nt-nbr_filtre-1 ; j<nt ; j++) {
-	  if (ff.c_cf->t[l]->get_etat() != ETATZERO)
-	    ff.c_cf->set(l, k,j,0) = 0 ;
+    if (nbr_filtre !=0) {
+      ff.coef() ;
+      gg.coef() ;
+      ff.set_etat_cf_qcq() ;
+      gg.set_etat_cf_qcq() ;
+      for (int l=0 ; l<nzadapt+1 ; l++)
+	for (int k=0 ; k<np ; k++) 
+	  for (int j=nt-nbr_filtre-1 ; j<nt ; j++) {
+	    if (ff.c_cf->t[l]->get_etat() != ETATZERO)
+	      ff.c_cf->set(l, k,j,0) = 0 ;
 	  
-	  if  (gg.c_cf->t[l]->get_etat() != ETATZERO)
-	    gg.c_cf->set(l,k,j,0) = 0 ;
-	}
-    
+	    if  (gg.c_cf->t[l]->get_etat() != ETATZERO)
+	      gg.c_cf->set(l,k,j,0) = 0 ;
+	  }
+    }
 
     // The derived quantities must be reset
     // ------------------------------------
