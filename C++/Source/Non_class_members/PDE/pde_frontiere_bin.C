@@ -25,6 +25,9 @@ char pde_frontiere_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2006/05/11 14:16:37  f_limousin
+ * Minor modifs.
+ *
  * Revision 1.4  2005/04/29 14:06:18  f_limousin
  * Improve the resolution for Neumann_binaire(Scalars).
  *
@@ -306,9 +309,10 @@ void dirichlet_binaire (const Scalar& source_un, const Scalar& source_deux,
 		valeur = sol_deux.val_point(air, theta, phi) ;
 		
 		limite_un.set(num_front, k, j, 0) = 
-		    boundary_un(num_front, k, j, 0) - valeur ;
+		    boundary_un(num_front, k, j, 0) - valeur ;	   
+//	    cout << 0.3  << " " << valeur+(sol_un+1.).val_grid_point(1, k, j, 0) << " " << (0.3 - (sol_un+1.)).val_grid_point(1, k, j, 0)-valeur  << endl ;
 	    }
-	
+
 	double erreur = 0 ;
 	Tbl diff_un (diffrelmax(sol_un, sol_un_old)) ;
 	for (int i=num_front+1 ; i<nz_un ; i++)
@@ -322,18 +326,11 @@ void dirichlet_binaire (const Scalar& source_un, const Scalar& source_deux,
 	
 	cout << "Pas " << conte << " : Difference " << erreur << endl ;
 	
-	Scalar source1 (source_un) ;
-	Scalar solution1 (sol_un) ;
-
-//	maxabs(solution1.laplacian() - source1,
-//	       "Absolute error in the resolution of the equation for N") ;  
-	
-
 	conte ++ ;
 	if (erreur < precision)
 	    indic = -1 ;
     }
-					
+
 }
 
 
@@ -341,9 +338,9 @@ void dirichlet_binaire (const Scalar& source_un, const Scalar& source_deux,
 // Version avec une fonction de theta, phi.
 
 void neumann_binaire (const Cmp& source_un, const Cmp& source_deux, 
-			const Valeur& boundary_un, const Valeur& boundary_deux, 
-				Cmp& sol_un, Cmp& sol_deux, int num_front, 
-				double precision) {
+		      const Valeur& boundary_un, const Valeur& boundary_deux,
+		      Cmp& sol_un, Cmp& sol_deux, int num_front, 
+		      double precision) {
     
     // Les verifs sur le mapping :
     assert (source_un.get_mp() == sol_un.get_mp()) ;
@@ -557,8 +554,8 @@ void neumann_binaire (const Scalar& source_un, const Scalar& source_deux,
     double air,  theta,  phi ;
     double valeur ;
      
-    const Metric_flat& ff_un (source_un.get_mp().flat_met_spher()) ;
-    const Metric_flat& ff_deux (source_deux.get_mp().flat_met_spher()) ;
+    const Metric_flat& ff_un (source_un.get_mp().flat_met_cart()) ;
+    const Metric_flat& ff_deux (source_deux.get_mp().flat_met_cart()) ;
 
     int nbrep_un = boundary_un.get_mg()->get_np(num_front) ;
     int nbret_un = boundary_un.get_mg()->get_nt(num_front) ;
