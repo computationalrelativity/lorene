@@ -32,6 +32,9 @@ char map_et_adapt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2006/05/17 13:27:12  j_novak
+ * Removed strange character on line 534.
+ *
  * Revision 1.5  2006/05/03 11:15:25  p_grandclement
  * modif filtering
  *
@@ -531,7 +534,7 @@ void Map_et::adapt(const Cmp& ent, const Param& par, int nbr_filtre) {
       gg.set_etat_cf_qcq() ;
       for (int l=0 ; l<nzadapt+1 ; l++)
 	for (int k=0 ; k<np ; k++) 
-	  for (int j=nt-nbr_filtre  ; j<nt ; j++) {
+	  for (int j=nt-nbr_filtre ; j<nt ; j++) {
 	    if (ff.c_cf->t[l]->get_etat() != ETATZERO)
 	      ff.c_cf->set(l, k,j,0) = 0 ;
 	  
