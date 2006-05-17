@@ -29,6 +29,9 @@ char op_primr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2006/05/17 15:01:16  j_novak
+ * Treatment of the case nr = 1 and R_CHEB
+ *
  * Revision 1.4  2004/11/23 15:16:01  m_forot
  *
  * Added the bases for the cases without any equatorial symmetry
@@ -81,9 +84,9 @@ void _primr_r_cheb(const Tbl& tin, int bin, const Tbl& valm1, Tbl& tout,
     int borne_phi = np + 1 ; 
     if (np == 1) borne_phi = 1 ; 
     
-    // Case of a zero input
-    // --------------------
-    if (tin.get_etat() == ETATZERO) {
+    // Case of a zero input or pure angular grid
+    // -----------------------------------------
+    if ((tin.get_etat() == ETATZERO)||(nr == 1)) {
         if (valm1.get_etat() == ETATZERO) {
             tout.set_etat_zero() ; 
             valp1.set_etat_zero() ;
