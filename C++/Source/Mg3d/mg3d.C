@@ -31,6 +31,10 @@ char mg3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2006/05/17 13:17:03  j_novak
+ * New member g_angu_1dom, the one-domain angular grid associated with the
+ * current grid.
+ *
  * Revision 1.11  2005/10/07 08:47:21  j_novak
  * Addition of the pointer g_non_axi on a grid, with at least 5 points in the
  * theta direction and 4 in the phi one (for tensor rotations).
@@ -740,6 +744,7 @@ bool Mg3d::operator!=(const Mg3d & titi) const {
 void Mg3d::del_deriv() const {
 
     if (g_angu != 0x0) delete g_angu ;
+    if (g_angu_1dom != 0x0) delete g_angu_1dom ;
     if (g_radial != 0x0) delete g_radial ;
     if (g_twice != 0x0) delete g_twice ;
     if (g_plus_half != 0x0) delete g_plus_half ;
@@ -752,6 +757,7 @@ void Mg3d::del_deriv() const {
 void Mg3d::set_deriv_0x0() const {
 
     g_angu = 0x0 ;
+    g_angu_1dom = 0x0 ;
     g_radial = 0x0 ;
     g_twice = 0x0 ;
     g_plus_half = 0x0 ;
@@ -776,6 +782,30 @@ const Mg3d* Mg3d::get_angu() const {
     }
 
     return g_angu ;
+
+}
+	
+			    //-----------------------------//
+			    // Angular grid for one domain //
+			    //-----------------------------//
+
+const Mg3d* Mg3d::get_angu_1dom() const {
+
+    if (g_angu_1dom == 0x0) {	  // The construction is required
+	int* nbr_angu = new int(1) ;
+	int* nbt_angu = new int(nt[0]) ;
+	int* nbp_angu = new int(np[0]) ;
+	int* type_r_angu = new int(FIN) ;
+	
+	g_angu_1dom = new Mg3d(1, nbr_angu, type_r_angu, nbt_angu, type_t, 
+			       nbp_angu, type_p) ;
+	delete nbr_angu ;
+	delete nbt_angu ;
+	delete nbp_angu ;
+	delete type_r_angu ;
+    }
+
+    return g_angu_1dom ;
 
 }
 	

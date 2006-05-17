@@ -34,6 +34,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2006/05/17 13:17:02  j_novak
+ * New member g_angu_1dom, the one-domain angular grid associated with the
+ * current grid.
+ *
  * Revision 1.14  2005/10/25 08:56:34  p_grandclement
  * addition of std_spectral_base in the case of odd functions near the origin
  *
@@ -475,6 +479,8 @@ class Mg3d {
 	Grille3d** g ;	
 
 	mutable Mg3d* g_angu ;	///< Pointer on the associated angular grid
+	///Pointer on the associated angular grid with only one domain
+	mutable Mg3d* g_angu_1dom ; 
 	mutable Mg3d* g_radial ; ///< Pointer on the associated radial grid
 	
 	/** Pointer on the grid which has twice the number of points in
@@ -638,6 +644,11 @@ class Mg3d {
 	/// Returns the pointer on the associated angular grid
 	const Mg3d* get_angu() const ;
 	
+	/** Returns the pointer on the associated mono-domain angular grid.
+	 * This angular grid corresponds to the first domain (index 0).
+	 */
+	const Mg3d* get_angu_1dom() const ;
+	
 	/// Returns the pointer on the associated radial grid
 	const Mg3d* get_radial() const ;
 	
@@ -673,12 +684,12 @@ class Mg3d {
     // --------------------------------
     protected:
 	/** Deletes all the derived quantities 
-	 *   (\c g_radial , \c g_angu  and \c g_twice )
+	 *   (\c g_radial , \c g_angu, \c g_twice, ...)
 	 */
 	void del_deriv() const ; 
 	
 	/** Sets to \c 0x0  all the pointers on derived quantities
-	 *   (\c g_radial , \c g_angu  and \c g_twice )
+	 *   (\c g_radial , \c g_angu, \c g_twice, ... )
 	 */
 	void set_deriv_0x0() const ; 
 
