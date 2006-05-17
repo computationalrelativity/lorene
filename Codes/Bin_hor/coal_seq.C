@@ -1,0 +1,327 @@
+/*
+ * Main code for computing initial configuration
+ *
+ */
+
+/*
+ *   Copyright (c) 2004-2005 Francois Limousin
+ *                           Jose Luis Jaramillo
+ *
+ *   This file is part of LORENE.
+ *
+ *   LORENE is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License version 2
+ *   as published by the Free Software Foundation.
+ *
+ *   LORENE is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LORENE; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+char coal_seq_C[] = "$Header$" ;
+
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.1  2006/05/17 17:33:50  f_limousin
+ * New main functions init_coal.C and coal_seq.C
+ *
+ *
+ * $Header$
+ *
+ */
+
+//standard
+#include <stdlib.h>
+#include <math.h>
+
+// LORENE
+#include "type_parite.h"
+#include "nbr_spx.h"
+#include "proto.h"
+#include "coord.h"
+#include "tenseur.h"
+#include "tensor.h"
+#include "isol_hor.h"
+#include "utilitaires.h"
+#include "graphique.h"
+
+
+int main() {
+
+    char blabla [120] ;
+    ifstream param_seq("par_seq.d") ;
+    
+    double  precis, relax, radius, beta, lim_nn ;
+    int nz, nt, np, nr1, nrp1, bound_nn, bound_psi ;
+    double omega_init, precis_viriel, beta_min, beta_max ;
+    int nb_om, nb_it, bound_beta, nb_conf ;
+    
+    param_seq.getline(blabla, 120) ;
+    param_seq.getline(blabla, 120) ;
+    param_seq >> nt; param_seq.ignore(1000, '\n');
+    param_seq >> np; param_seq.ignore(1000, '\n');
+    param_seq >> nr1; param_seq.ignore(1000, '\n');
+    param_seq >> nrp1; param_seq.ignore(1000, '\n');
+    param_seq >> precis ; param_seq.getline(blabla, 120) ;
+    param_seq >> relax ; param_seq.getline(blabla, 120) ;
+    param_seq >> bound_nn ;
+    param_seq >> lim_nn ;  param_seq.ignore(1000, '\n');
+    param_seq >> bound_psi ;  param_seq.ignore(1000, '\n');
+    param_seq >> omega_init ; param_seq.getline(blabla, 120) ;
+    param_seq >> precis_viriel ;  param_seq.getline(blabla, 120) ;
+    param_seq >> nb_om ; param_seq.getline(blabla, 120) ;
+    param_seq >> nb_it ; param_seq.getline(blabla, 120) ;
+    param_seq >> bound_beta ; param_seq.getline(blabla, 120) ;
+    param_seq >> nb_conf ; param_seq.getline(blabla, 120) ;
+    param_seq >> beta_min ; param_seq.getline(blabla, 120) ;
+    param_seq >> beta_max ; param_seq.getline(blabla, 120) ;
+    
+    if (nb_conf <=1) {
+      cout << "too small value of nb_conf" << endl ;
+      abort() ;
+    }
+
+    param_seq.close() ;
+
+    for (int conf=0; conf<nb_conf; conf++){
+      beta = beta_min + conf * (beta_max-beta_min)/(nb_conf-1) ;
+
+
+      if (beta <= 7){ 
+	cout << "too small value of beta" << endl ;
+	abort() ;
+      }
+      
+      if (beta > 30){
+        cout << "too large value of beta" << endl ;
+        abort() ;
+      }
+      
+      if (beta <= 16) nz = 6 ;
+      else nz = 7 ;
+      
+      
+      double* bornes = new double[nz+1] ;
+      int* nr_tab = new int[nz];
+      int* nt_tab = new int[nz];
+      int* np_tab = new int[nz];
+      
+      for (int l=0 ; l<nz ; l++){
+	if (l==1) nr_tab[1] = nr1 ;
+	else nr_tab[l] = nrp1 ;
+	np_tab[l] = np ; 
+	nt_tab[l] = nt ; 
+      }
+      bornes[0] = 0 ;
+      bornes[1] = 1 ;
+      bornes[2] = 2 ;
+      bornes[3] = 4 ;
+      if (beta >=10) bornes[4] = 8 ;
+      else{ 
+	bornes[4] = 6 ;
+	bornes[5] = 12 ;
+      }
+      if (beta >=10 && beta <=14) bornes[5] = 16 ;
+      if (beta > 14 && beta <=16) bornes[5] = 18 ;
+      if (beta > 16 && beta <= 18){
+	bornes[5] = 14 ;
+	bornes[6] = 28 ;
+      }
+      if (beta > 18){
+	bornes[5] = 16 ;
+	bornes[6] = 32 ;
+      }
+      bornes[nz] = __infinity ; 
+      
+      radius = 1. ;
+      double distance = radius*beta ;
+      
+      // Type of sampling in theta and phi :
+      int type_t = SYM ; 
+      int type_p = NONSYM ; 
+      
+      int* type_r = new int[nz] ;
+      type_r[0] = RARE ;
+      for (int l=1 ; l<nz-1 ; l++)
+	type_r[l] = FIN ;
+      type_r[nz-1] = UNSURR ;
+      
+      Mg3d grid (nz, nr_tab, type_r, nt_tab, type_t, np_tab, type_p) ;
+      
+      Map_af map_un (grid, bornes) ;
+      Map_af map_deux (grid, bornes) ;
+      
+      map_un.set_ori (distance/2.,0, 0) ;
+      map_deux.set_ori (-distance/2., 0, 0) ;
+      map_deux.set_rot_phi (M_PI) ;
+
+      cout << map_un << endl ;
+      
+      int depth = 3 ;
+      Bin_hor bin (map_un, map_deux, depth) ;
+      bin.set_statiques(precis, relax, bound_nn, lim_nn, bound_psi) ;
+      
+      char name[40] ;
+      sprintf(name, "static_%e.d", beta) ;
+ 
+      FILE* fich = fopen(name, "w") ;
+      grid.sauve(fich) ;
+      map_un.sauve(fich) ;
+      map_deux.sauve(fich) ;
+      bin.sauve(fich, true) ;
+      fwrite_be(&bound_nn, sizeof(int), 1, fich) ;
+      fwrite_be (&lim_nn, sizeof(double), 1, fich) ;
+      fwrite_be(&bound_psi, sizeof(int), 1, fich) ;
+      fclose(fich) ;
+      
+      // Drawings
+      const Coord& r = bin(1).get_mp().r ;        // r field 
+      Mtbl usr = 1 / r ;
+      Scalar unsr(bin(1).get_mp()) ;
+      unsr = usr ;
+      
+      Scalar temp = 1. + unsr ;
+      temp.std_spectral_base() ;
+      
+      // Part of coal
+      // ------------
+      
+      // Le fichier sortie pour la recherche de omega :
+      char name_omega[20] ;
+      sprintf(name_omega, "omega_%e.dat", beta) ;
+      ofstream fiche_omega(name_omega) ;
+      fiche_omega.precision(8) ;
+      
+      bin.set_omega(0) ;
+      bin.set(1).n_comp (bin(2)) ;
+      bin.set(1).psi_comp (bin(2)) ;
+      bin.set(1).beta_comp (bin(2)) ;
+      bin.set(2).n_comp (bin(1)) ;
+      bin.set(2).psi_comp (bin(1)) ;
+      bin.set(2).beta_comp (bin(1)) ;
+      bin.decouple() ;
+      bin.extrinsic_curvature() ;
+      
+      cout << "CALCUL AVEC BETA = " << beta << endl ;
+      
+      sprintf(name, "iteration_%e.dat", beta) ;
+      ofstream fich_iteration(name) ;
+      fich_iteration.precision(8) ;
+
+      sprintf(name, "correction_%e.dat", beta) ;
+      ofstream fich_correction(name) ;
+      fich_correction.precision(8) ;
+      
+      sprintf(name, "viriel_%e.dat", beta) ;
+      ofstream fich_viriel(name) ;
+      fich_viriel.precision(8) ;
+      
+
+      sprintf(name, "kss_%e.dat", beta) ;
+      ofstream fich_kss(name) ;
+      fich_kss.precision(8) ;
+      
+      fich_iteration << "# step  precision  omega"  << endl ;
+      fich_correction << "# step  regularisation  omega"  << endl ;
+      fich_viriel << "# step  viriel  omega"  << endl ;
+      fich_viriel << "# step  kss  omega"  << endl ;
+      
+      int step = 0 ;
+      double omega_jp1, erreur_jp1 ;
+      double omega_j = omega_init ;
+      
+      cout << "step = " << step << endl ;
+      double erreur_j = bin.coal(omega_j, relax, nb_om, nb_it, bound_nn,
+				 lim_nn, bound_psi, bound_beta,
+				 fich_iteration, fich_correction,
+				 fich_viriel, fich_kss, step, 1) ;
+      step += nb_om + nb_it ;
+      
+      fiche_omega << omega_j << " " << erreur_j << endl ;
+      
+      //    nb_om = (nb_om + nb_om%2) / 2 ;
+      if (erreur_j < 0) {
+	omega_jp1 = 0.8 * omega_j ;
+	erreur_jp1 = bin.coal(omega_jp1, relax, nb_om, nb_it, bound_nn,
+			      lim_nn, bound_psi, bound_beta,
+			      fich_iteration, fich_correction,
+			      fich_viriel, fich_kss, step, 1) ;
+	fiche_omega << omega_jp1 << " " << erreur_jp1 << endl ;
+      }
+      else {
+	omega_jp1 = 1.25 * omega_j ;
+	erreur_jp1 = bin.coal(omega_jp1, relax, nb_om, nb_it, bound_nn,
+			      lim_nn, bound_psi, bound_beta,
+			      fich_iteration, fich_correction,
+			      fich_viriel, fich_kss, step, 1) ;
+	fiche_omega << omega_jp1 << " " << erreur_jp1 << endl ;
+      }
+      step += nb_om + nb_it ;
+      
+      bool boucle = true ;
+      double erreur, omega ;
+      
+      while (boucle) {
+	
+	omega = omega_j - erreur_j * (omega_jp1-omega_j)
+	  /(erreur_jp1-erreur_j) ;
+	erreur = bin.coal (omega, relax, nb_om, nb_it, bound_nn,
+			   lim_nn, bound_psi, bound_beta,
+			   fich_iteration, fich_correction,
+			   fich_viriel, fich_kss, step, 1) ;
+	step += nb_om + nb_it ;
+	
+	fiche_omega << omega << " " << erreur << endl ;
+	
+	if (fabs(erreur) < precis_viriel)
+	  boucle = false ;
+	
+	
+	omega_j = omega_jp1 ;
+	erreur_j = erreur_jp1 ;
+	omega_jp1 = omega ;
+	erreur_jp1 = erreur ;
+      }
+      
+      
+      fich_iteration.close() ;
+      fich_correction.close() ;
+      fich_viriel.close() ;
+      fich_kss.close() ;
+      
+      sprintf(name, "bin_%e.dat", beta) ;
+      FILE* fich_sortie = fopen(name, "w") ;
+      grid.sauve(fich_sortie) ;
+      map_un.sauve(fich_sortie) ;
+      map_deux.sauve(fich_sortie) ;
+      bin.sauve(fich_sortie, true) ;
+      fclose(fich_sortie) ;
+      
+      fiche_omega.close() ;
+
+      sprintf(name, "resformat_%e.dat", beta) ;
+      ofstream seqfich(name) ;
+      if ( !seqfich.good() ) {
+	cout << "coal_bh : problem with opening the file resformat.d !"
+	     << endl ;
+	abort() ;
+      }
+      bin.write_global(seqfich) ;
+      seqfich.close() ;
+      
+      delete [] nr_tab ;
+      delete [] nt_tab ;
+      delete [] np_tab ;
+      delete [] type_r ;
+      delete [] bornes ;
+    }
+    
+    return 1 ;
+}
