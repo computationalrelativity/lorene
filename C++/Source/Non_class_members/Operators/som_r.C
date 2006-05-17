@@ -41,6 +41,9 @@ char som_r_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2006/05/17 13:15:19  j_novak
+ * Added a test for the pure angular grid case (nr=1), in the shell.
+ *
  * Revision 1.5  2005/02/18 13:14:17  j_novak
  * Changing of malloc/free to new/delete + suppression of some unused variables
  * (trying to avoid compilation warnings).
@@ -114,7 +117,7 @@ double* po = trtp ;	    // pointeur courant sur la sortie
     // Valeurs des polynomes de Chebyshev au point x demande
     double* cheb = new double [nr] ;
     cheb[0] = 1. ;
-    cheb[1] = x ;
+    if (nr > 1) cheb[1] = x ;
     for (i=2; i<nr; i++) {
 	cheb[i] = 2*x* cheb[i-1] - cheb[i-2] ;	    
     }

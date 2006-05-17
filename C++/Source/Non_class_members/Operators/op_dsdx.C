@@ -37,6 +37,9 @@ char op_dsdx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2006/05/17 13:15:18  j_novak
+ * Added a test for the pure angular grid case (nr=1), in the shell.
+ *
  * Revision 1.2  2004/11/23 15:16:01  m_forot
  *
  * Added the bases for the cases without any equatorial symmetry
@@ -105,46 +108,46 @@ void _dsdx_r_cheb(Tbl *tb, int & )
     for (int i=0; i<(tb->dim).taille; i++) {
 	xo[i] = 0 ; 
     }
-    
-    // On y va...
-    double* xi = tb->t ;
-    double* xci = xi ;	// Pointeurs
-    double* xco = xo ;	//  courants
-    
-    int borne_phi = np + 1 ; 
-    if (np == 1) borne_phi = 1 ; 
-    
-    for (int k=0 ; k< borne_phi ; k++)
-	// On evite le coefficient de sin(0*phi)
-	if (k==1) {
-	    xci += nr*nt ;
-	    xco += nr*nt ;
-	}
-	else {
-	for (int j=0 ; j<nt ; j++) {
-
-	    double som ;
-	    
-	    xco[nr-1] = 0 ;
-	    som = 2*(nr-1) * xci[nr-1] ;
-	    xco[nr-2] = som ;
-	    for (int i = nr-4 ; i >= 0 ; i -= 2 ) {
-		som += 2*(i+1) * xci[i+1] ;
-		xco[i] = som ;
-	    }	// Fin de la premiere boucle sur r
-	    som = 2*(nr-2) * xci[nr-2] ;
-	    xco[nr-3] = som ;
-	    for (int i = nr-5 ; i >= 0 ; i -= 2 ) {
-		som += 2*(i+1) * xci[i+1] ;
-		xco[i] = som ;
-	    }	// Fin de la deuxieme boucle sur r
-	    xco[0] *= .5 ;
-	    
-	    xci += nr ;
-	    xco += nr ;
-	}   // Fin de la boucle sur theta
-    }	// Fin de la boucle sur phi
-    
+    if (nr > 2) { // If not an angular grid...
+	// On y va...
+	double* xi = tb->t ;
+	double* xci = xi ;	// Pointeurs
+	double* xco = xo ;	//  courants
+	
+	int borne_phi = np + 1 ; 
+	if (np == 1) borne_phi = 1 ; 
+	
+	for (int k=0 ; k< borne_phi ; k++)
+	    // On evite le coefficient de sin(0*phi)
+	    if (k==1) {
+		xci += nr*nt ;
+		xco += nr*nt ;
+	    }
+	    else {
+		for (int j=0 ; j<nt ; j++) {
+		    
+		    double som ;
+		    
+		    xco[nr-1] = 0 ;
+		    som = 2*(nr-1) * xci[nr-1] ;
+		    xco[nr-2] = som ;
+		    for (int i = nr-4 ; i >= 0 ; i -= 2 ) {
+			som += 2*(i+1) * xci[i+1] ;
+			xco[i] = som ;
+		    }	// Fin de la premiere boucle sur r
+		    som = 2*(nr-2) * xci[nr-2] ;
+		    xco[nr-3] = som ;
+		    for (int i = nr-5 ; i >= 0 ; i -= 2 ) {
+			som += 2*(i+1) * xci[i+1] ;
+			xco[i] = som ;
+		    }	// Fin de la deuxieme boucle sur r
+		    xco[0] *= .5 ;
+		    
+		    xci += nr ;
+		    xco += nr ;
+		}   // Fin de la boucle sur theta
+	    }	// Fin de la boucle sur phi
+    }
     // On remet les choses la ou il faut
     delete [] tb->t ;
     tb->t = xo ;
