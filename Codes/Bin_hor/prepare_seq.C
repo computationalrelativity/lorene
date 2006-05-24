@@ -29,8 +29,8 @@ char prepare_seq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.3  2005/11/16 14:14:55  f_limousin
- * Add new quantities in fich resformat.dat
+ * Revision 1.4  2006/05/24 16:59:08  f_limousin
+ * New version
  *
  * Revision 1.2  2005/06/09 16:17:21  f_limousin
  * Many different changes.
@@ -59,7 +59,7 @@ int main() {
     
     ofstream outfich("sequence.dat") ; 
 
-    outfich << "# Beta  omega  M_ADM  M_Komar  M_area  J_ADM  J_hor  M_ADM/M_area  J_ADM/M_area2  omega * M_area  M_ADM/M_ih  J_ADM/M_ih2  omega * M_ih  "  << endl ; 
+    outfich << "# Beta  omega  M_ADM  M_Komar  M_area  J_ADM  J_hor  M_ADM/M_area  J_ADM/M_area2  omega * M_area  M_ADM/M_ih  J_ADM/M_ih2  omega * M_ih  hor-adm   adm-smarr   hor-smarr "  << endl ; 
 
     //-------------------------------------------------------
     //  Loop of the files seq.d
@@ -83,6 +83,7 @@ int main() {
 	    double beta, omega, mass_adm, mass_area, mass_komar ; 
 	    double j_adm, j_hor, madm_area, jadm_area2, omega_marea ;
 	    double mass_ih1, mass_ih2, mass_ih, j1, j2, omega1, omega2 ;
+	    double hor_adm, adm_smarr, hor_smarr ;
 
 	    infich.ignore(1000,'\n') ; // skip first line
 	    infich >> beta ;
@@ -106,7 +107,12 @@ int main() {
 	    infich >> madm_area ;
 	    infich >> jadm_area2 ;
 	    infich >> omega_marea ;
-	    
+	    infich.ignore(1000,'\n') ;
+            infich.ignore(1000,'\n') ;
+	    infich >> hor_adm ;
+            infich >> adm_smarr ;
+            infich >> hor_smarr ;
+
 	    infich.close() ; 
 
 	    // ---------------------------------------------------
@@ -138,7 +144,10 @@ int main() {
 	    outfich << omega_marea << " "  ;
 	    outfich << mass_adm/mass_ih << " " ;
 	    outfich << j_adm/mass_ih/mass_ih << " " ;
-	    outfich << omega*mass_ih << endl ;
+	    outfich << omega*mass_ih << " " ;
+	    outfich << hor_adm << " " ;
+            outfich << adm_smarr << " " ;
+            outfich << hor_smarr << endl ;
 
 	    //-----------------------------------------------------
 	    //  ***** End of modifiable part ***** 

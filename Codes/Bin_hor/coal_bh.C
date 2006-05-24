@@ -31,8 +31,8 @@ char coal_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.7  2005/11/01 13:59:31  f_limousin
- * New parameter for the funtion coal.
+ * Revision 1.8  2006/05/24 16:59:08  f_limousin
+ * New version
  *
  * Revision 1.6  2005/06/09 16:17:21  f_limousin
  * Many different changes.
@@ -116,8 +116,10 @@ int main() {
     bin.set_omega(0) ;
     bin.set(1).n_comp (bin(2)) ;
     bin.set(1).psi_comp (bin(2)) ;
+    bin.set(1).beta_comp (bin(2)) ;
     bin.set(2).n_comp (bin(1)) ;
     bin.set(2).psi_comp (bin(1)) ;
+    bin.set(2).beta_comp (bin(1)) ;
     bin.decouple() ;
     bin.extrinsic_curvature() ;
     
@@ -141,62 +143,40 @@ int main() {
     fich_iteration << "# step  precision  omega"  << endl ;
     fich_correction << "# step  regularisation  omega"  << endl ;
     fich_viriel << "# step  viriel  omega"  << endl ;
-    fich_viriel << "# step  kss  omega"  << endl ;
+    fich_kss << "# step  kss  omega"  << endl ;
 
     int step = 0 ;
-    double omega_jp1, erreur_jp1 ;
-    double omega_j = omega_init ;
-    
+     
     cout << "step = " << step << endl ;
-    double erreur_j = bin.coal(omega_j, relax, nb_om, nb_it, bound_nn,
+    double erreur = bin.coal(omega_init, relax, nb_om, nb_it, bound_nn,
 			       lim_nn, bound_psi, bound_beta, 
 			       fich_iteration, fich_correction,
 			       fich_viriel, fich_kss, step, 1) ;
     step += nb_om + nb_it ;
  
-    fiche_omega << omega_j << " " << erreur_j << endl ;
+    fiche_omega << omega_init << " " << erreur << endl ;
     
-    //    nb_om = (nb_om + nb_om%2) / 2 ;
-    if (erreur_j < 0) {
-      omega_jp1 = 0.8 * omega_j ;
-      erreur_jp1 = bin.coal(omega_jp1, relax, nb_om, nb_it, bound_nn,
-			    lim_nn, bound_psi, bound_beta, 
-			    fich_iteration, fich_correction,
-			    fich_viriel, fich_kss, step, 1) ;
-      fiche_omega << omega_jp1 << " " << erreur_jp1 << endl ;
-    }
-    else {
-      omega_jp1 = 1.25 * omega_j ;
-      erreur_jp1 = bin.coal(omega_jp1, relax, nb_om, nb_it, bound_nn,
-			    lim_nn, bound_psi, bound_beta, 
-			    fich_iteration, fich_correction,
-			    fich_viriel, fich_kss, step, 1) ;
-      fiche_omega << omega_jp1 << " " << erreur_jp1 << endl ;
-    }
-    step += nb_om + nb_it ;
+    // Convergence to the true Omega
+    // ------------------------------
 
     bool boucle = true ;
-    double erreur, omega ;
+    double omega = omega_init ;
 
     while (boucle) {
       
-      omega = omega_j - erreur_j * (omega_jp1-omega_j)
-	  /(erreur_jp1-erreur_j) ;
-      erreur = bin.coal (omega, relax, nb_om, nb_it, bound_nn,
+      omega = omega * pow((2-erreur)/(2-2*erreur), 1.) ;
+      erreur = bin.coal (omega, relax, 1, 0, bound_nn,
 			 lim_nn, bound_psi, bound_beta, 
 			 fich_iteration, fich_correction,
 			 fich_viriel, fich_kss, step, 1) ;
-     step += nb_om + nb_it ;
-     
+         
       fiche_omega << omega << " " << erreur << endl ;
       
       if (fabs(erreur) < precis_viriel)
 	boucle = false ;
 
-      omega_j = omega_jp1 ;
-      erreur_j = erreur_jp1 ;
-      omega_jp1 = omega ;
-      erreur_jp1 = erreur ;
+      step += 1 ;
+
     }
 
 

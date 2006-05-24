@@ -30,6 +30,9 @@ SRC6 = coal_seq.C
 OBJ6 = $(SRC6:.C=.o)
 EXE6 = $(SRC6:.C=)
 
+SRC7 = coal_highres.C
+OBJ7 = $(SRC7:.C=.o)
+EXE7 = $(SRC7:.C=)
 
 $(EXE1): $(OBJ1)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
@@ -51,11 +54,14 @@ $(EXE5): $(OBJ5)
 $(EXE6): $(OBJ6)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ6) $(LIB_G) $(LIB_LAPACK) \
                                         $(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
+$(EXE7): $(OBJ7)
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ7) $(LIB_G) $(LIB_LAPACK) \
+                                        $(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
 .C.o:
 	$(CXX)  -c $(CXXFLAGS_G) $(INC) $<
 
 uninstall:
-	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5) $(OBJ6)
-	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5) $(EXE6)
+	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5) $(OBJ6) $(OBJ7)
+	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5) $(EXE6) $(EXE7)
 
