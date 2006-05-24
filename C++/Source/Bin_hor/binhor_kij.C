@@ -26,6 +26,9 @@ char binhor_kij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2006/05/24 16:56:37  f_limousin
+ * Many small modifs.
+ *
  * Revision 1.7  2005/09/13 18:33:15  f_limousin
  * New function vv_bound_cart_bin(double) for computing binaries with
  * berlin condition for the shift vector.
@@ -69,15 +72,11 @@ char binhor_kij_C[] = "$Header$" ;
 #include "isol_hor.h"
 #include "proto.h"
 #include "utilitaires.h"
-#include "graphique.h"
+//#include "graphique.h"
 
 void Bin_hor::extrinsic_curvature () {
     
 
-    Vector temp_vect (hole1.beta_auto()) ;
-    temp_vect.change_triad(hole1.mp.get_bvect_cart()) ;
-    cout << "beta_auto" << endl << norme(temp_vect(1)) << endl << norme(temp_vect(2)) << endl << norme(temp_vect(3)) << endl ;
-    cout << "lapse tot" << endl << norme(hole1.n_auto()+hole1.n_comp()) << endl ;
     double ttime = hole1.the_time[hole1.jtime] ;
     int nnt = hole1.mp.get_mg()->get_nt(1) ;
     int nnp = hole1.mp.get_mg()->get_np(1) ;
@@ -91,78 +90,108 @@ void Bin_hor::extrinsic_curvature () {
 		break ;
 	    }
 	}
- 
+    
     Sym_tensor aa_auto_un (hole1.mp, CON, hole1.mp.get_bvect_spher()) ;
     Sym_tensor aa_auto_deux (hole2.mp, CON, hole2.mp.get_bvect_spher()) ;
        
     if (check == 0){
-
-	// Computation of A^{ij}_auto
-
-	aa_auto_un = ( hole1.beta_auto().ope_killing_conf(hole1.met_gamt) + 
+      
+      // Computation of A^{ij}_auto
+      
+      aa_auto_un = ( hole1.beta_auto().ope_killing_conf(hole1.met_gamt) + 
 		      hole1.gamt_point*hole1.decouple ) / (2.* hole1.nn()) ; 
-           
-	aa_auto_deux = ( hole2.beta_auto().ope_killing_conf(hole2.met_gamt) + 
-	     	hole2.gamt_point*hole2.decouple ) / (2.* hole2.nn()) ;      
-
-
-       aa_auto_un.change_triad(hole1.mp.get_bvect_cart()) ;
-       aa_auto_deux.change_triad(hole2.mp.get_bvect_cart()) ;
-
-	for (int i=1 ; i<=3 ; i++)
-	    for (int j=i ; j<=3 ; j++) {
-		if (aa_auto_un(i,j).get_etat() != ETATZERO)
-		    aa_auto_un.set(i, j).raccord(1) ;
-		if (aa_auto_deux(i,j).get_etat() != ETATZERO)
-		    aa_auto_deux.set(i, j).raccord(1) ;
-	    }
-
-       aa_auto_un.change_triad(hole1.mp.get_bvect_spher()) ;
-       aa_auto_deux.change_triad(hole2.mp.get_bvect_spher()) ;
-	
-       hole1.aa_auto_evol.update(aa_auto_un, hole1.jtime, ttime) ;
-       hole2.aa_auto_evol.update(aa_auto_deux, hole2.jtime, ttime) ;
-       
-       // Computation of A^{ij}_comp
-       
-       aa_auto_un.dec_dzpuis(2) ;
-       aa_auto_deux.dec_dzpuis(2) ;
-       
-       Sym_tensor aa_comp_un (hole1.mp, CON, hole1.mp.get_bvect_cart()) ;
-       aa_comp_un.set_etat_qcq() ;
-       Sym_tensor aa_comp_deux (hole2.mp, CON, hole2.mp.get_bvect_cart()) ;
-       aa_comp_deux.set_etat_qcq() ;
-       
-       aa_auto_deux.change_triad(hole2.mp.get_bvect_cart()) ;
-       aa_auto_deux.change_triad(hole1.mp.get_bvect_cart()) ;
-       assert(*(aa_auto_deux.get_triad()) == *(aa_comp_un.get_triad())) ;
-       // importations :
-       aa_comp_un.set(1, 1).import(aa_auto_deux(1, 1)) ;
-       aa_comp_un.set(1, 2).import(aa_auto_deux(1, 2)) ;
-       aa_comp_un.set(1, 3).import(aa_auto_deux(1, 3)) ;
-       aa_comp_un.set(2, 2).import(aa_auto_deux(2, 2)) ;
-       aa_comp_un.set(2, 3).import(aa_auto_deux(2, 3)) ;
-       aa_comp_un.set(3, 3).import(aa_auto_deux(3, 3)) ;
-       
-       aa_comp_un.std_spectral_base() ;
-       aa_comp_un.inc_dzpuis(2) ;
-       aa_comp_un.change_triad(hole1.mp.get_bvect_spher()) ;
-       
-       aa_auto_un.change_triad(hole1.mp.get_bvect_cart()) ;
+      
+      aa_auto_deux = ( hole2.beta_auto().ope_killing_conf(hole2.met_gamt) + 
+		       hole2.gamt_point*hole2.decouple ) / (2.* hole2.nn()) ;      
+      
+      
+      aa_auto_un.change_triad(hole1.mp.get_bvect_cart()) ;
+      aa_auto_deux.change_triad(hole2.mp.get_bvect_cart()) ;
+      
+      for (int i=1 ; i<=3 ; i++)
+	for (int j=i ; j<=3 ; j++) {
+	  if (aa_auto_un(i,j).get_etat() != ETATZERO)
+	    aa_auto_un.set(i, j).raccord(3) ;
+	  if (aa_auto_deux(i,j).get_etat() != ETATZERO)
+	    aa_auto_deux.set(i, j).raccord(3) ;
+	}
+      
+      aa_auto_un.change_triad(hole1.mp.get_bvect_spher()) ;
+      aa_auto_deux.change_triad(hole2.mp.get_bvect_spher()) ;
+      
+      hole1.aa_auto_evol.update(aa_auto_un, hole1.jtime, ttime) ;
+      hole2.aa_auto_evol.update(aa_auto_deux, hole2.jtime, ttime) ;
+      
+      
+      
+      // Computation of A^{ij}_comp
+      
+      aa_auto_un.dec_dzpuis(2) ;
+      aa_auto_deux.dec_dzpuis(2) ;
+      
+      Sym_tensor aa_comp_un (hole1.mp, CON, hole1.mp.get_bvect_cart()) ;
+      aa_comp_un.set_etat_qcq() ;
+      Sym_tensor aa_comp_deux (hole2.mp, CON, hole2.mp.get_bvect_cart()) ;
+      aa_comp_deux.set_etat_qcq() ;
+      
+      aa_auto_deux.change_triad(hole2.mp.get_bvect_cart()) ;
+      aa_auto_deux.change_triad(hole1.mp.get_bvect_cart()) ;
+      assert(*(aa_auto_deux.get_triad()) == *(aa_comp_un.get_triad())) ;
+      
+      // importations :
+      for (int i=1 ; i<=3 ; i++)
+	for (int j=i ; j<=3 ; j++) {
+	  aa_comp_un.set(i, j).import(aa_auto_deux(i, j)) ;
+	  aa_comp_un.set(i, j).set_spectral_va().set_base(aa_auto_deux(i, j).
+	     					  get_spectral_va().get_base()) ;
+	}
+      
+      aa_comp_un.inc_dzpuis(2) ;
+      aa_comp_un.change_triad(hole1.mp.get_bvect_spher()) ;
+      
+      aa_auto_un.change_triad(hole1.mp.get_bvect_cart()) ;
        aa_auto_un.change_triad(hole2.mp.get_bvect_cart()) ;
        assert(*(aa_auto_un.get_triad()) == *(aa_comp_deux.get_triad())) ;
        // importations :
-       aa_comp_deux.set(1, 1).import(aa_auto_un(1, 1)) ;
-       aa_comp_deux.set(1, 2).import(aa_auto_un(1, 2)) ;
-       aa_comp_deux.set(1, 3).import(aa_auto_un(1, 3)) ;
-       aa_comp_deux.set(2, 2).import(aa_auto_un(2, 2)) ;
-       aa_comp_deux.set(2, 3).import(aa_auto_un(2, 3)) ;
-       aa_comp_deux.set(3, 3).import(aa_auto_un(3, 3)) ;
-       
-       aa_comp_deux.std_spectral_base() ;
+       for (int i=1 ; i<=3 ; i++)
+         for (int j=i ; j<=3 ; j++) {
+           aa_comp_deux.set(i, j).import(aa_auto_un(i, j)) ;
+           aa_comp_deux.set(i, j).set_spectral_va().set_base(aa_auto_un(i, j).
+				   get_spectral_va().get_base()) ;
+         }
+
        aa_comp_deux.inc_dzpuis(2) ;
        aa_comp_deux.change_triad(hole2.mp.get_bvect_spher()) ;
        
+       /*              
+       // Computation of A^{ij}_comp in the last domains
+       // -----------------------------------------------
+       
+       int nz = hole1.mp.get_mg()->get_nzone() ;
+
+       Sym_tensor aa_comp_un_zec (hole1.mp, CON, hole1.mp.get_bvect_spher()) ;
+       aa_comp_un_zec.set_etat_qcq() ;
+       Sym_tensor aa_comp_deux_zec (hole2.mp, CON, hole2.mp.get_bvect_spher()) ;
+       aa_comp_deux_zec.set_etat_qcq() ;
+
+       aa_comp_un_zec = ( hole1.beta_comp().ope_killing_conf(hole1.met_gamt) +
+		  hole1.gamt_point*(1.-hole1.decouple) ) / (2.* hole1.nn()) ;
+
+       aa_comp_deux_zec =( hole2.beta_comp().ope_killing_conf(hole2.met_gamt) +
+		hole2.gamt_point*(1.-hole2.decouple) ) / (2.* hole2.nn()) ;
+
+       for (int i=1 ; i<=3 ; i++)
+         for (int j=i ; j<=3 ; j++)          
+	   for (int l=nz-1 ; l<=nz-1 ; l++) {
+	     if (aa_comp_un.set(i,j).get_etat() == ETATQCQ)
+	       aa_comp_un.set(i,j).set_domain(l) = 
+		                   aa_comp_un_zec(i,j).domain(l) ;
+	     if (aa_comp_deux.set(i,j).get_etat() == ETATQCQ)
+	       aa_comp_deux.set(i,j).set_domain(l)=
+	                           aa_comp_deux_zec(i,j).domain(l) ;
+	   }
+       */      
+
        hole1.aa_comp_evol.update(aa_comp_un, hole1.jtime, ttime) ;
        hole2.aa_comp_evol.update(aa_comp_deux, hole2.jtime, ttime) ;
        
@@ -193,9 +222,9 @@ void Bin_hor::extrinsic_curvature () {
        for (int i=1 ; i<=3 ; i++)
 	   for (int j=1 ; j<=3 ; j++) {
 	       if (aa_auto_un(i,j).get_etat() != ETATZERO)
-		   aa_auto_un.set(i, j).raccord(1) ;
+		   aa_auto_un.set(i, j).raccord(3) ;
 	       if (aa_auto_deux(i,j).get_etat() != ETATZERO)
-		   aa_auto_deux.set(i, j).raccord(1) ;
+		   aa_auto_deux.set(i, j).raccord(3) ;
 	   }
 
        // Computation of A^{ij}_comp
@@ -441,8 +470,6 @@ void Bin_hor::extrinsic_curvature () {
 
     Sym_tensor temp (hole1.aa()) ;
     temp.change_triad(hole1.mp.get_bvect_cart()) ;
-
-    cout << "aa_tot" << endl << norme(temp(1,1)) << endl << norme(temp(2,1)) << endl << norme(temp(3,1)) << endl << norme(temp(2,2)) << endl << norme(temp(3,2)) << endl << norme(temp(3,3)) << endl ;
 
 }   
 

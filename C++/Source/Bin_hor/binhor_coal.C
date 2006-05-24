@@ -26,6 +26,9 @@ char binhor_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2006/05/24 16:56:37  f_limousin
+ * Many small modifs.
+ *
  * Revision 1.9  2005/09/13 18:33:15  f_limousin
  * New function vv_bound_cart_bin(double) for computing binaries with
  * berlin condition for the shift vector.
@@ -70,7 +73,7 @@ char binhor_coal_C[] = "$Header$" ;
 // Lorene
 #include "tensor.h"
 #include "isol_hor.h"
-#include "graphique.h"
+//#include "graphique.h"
 
 
 void Bin_hor::set_statiques (double precis, double relax, int bound_nn,
@@ -90,11 +93,7 @@ void Bin_hor::set_statiques (double precis, double relax, int bound_nn,
     cout << "Static black holes : " << endl ;
     while (indic == 1) {
 	Scalar lapse_un_old (hole1.n_auto()) ;
-/*
-	int bound_beta = 1 ;
-	solve_shift (precis, relax, bound_beta) ;
-	extrinsic_curvature() ;
-*/
+
 	solve_psi (precis, relax, bound_psi) ;
 	solve_lapse (precis, relax, bound_nn, lim_nn) ;
 	/*
@@ -137,11 +136,14 @@ double Bin_hor::coal (double angu_vel, double relax, int nb_ome,
 	set_omega (homme) ;
 	Scalar beta_un_old (hole1.beta_auto()(1)) ;
 	
-	solve_shift (precis, relax, bound_beta) ;
-	extrinsic_curvature() ;
-	
+        solve_shift (precis, relax, bound_beta) ;
+        extrinsic_curvature() ;
+
 	solve_psi (precis, relax, bound_psi) ;
-	solve_lapse (precis, relax, bound_nn, lim_nn) ;
+        solve_lapse (precis, relax, bound_nn, lim_nn) ;
+	
+	cout << "Angular momentum computed at the horizon : " << ang_mom_hor()
+	     << endl ;
 /*	
 	des_meridian(hole1.nn(), 1.000001, 10, "lapse", 0) ;
 	des_meridian(hole1.psi(), 1.000001, 10, "psi", 1) ;
@@ -186,17 +188,24 @@ double Bin_hor::coal (double angu_vel, double relax, int nb_ome,
     }
     
     // LOOP WITH FIXED OMEGA :
-    cout << "OMEGA FIXED" << endl ;
+
+    if (nb_it !=0)
+      cout << "OMEGA FIXED" << endl ;
     double erreur ;
 
     for (int pas = 0 ; pas <nb_it ; pas ++) {
 	
 	Scalar beta_un_old (hole1.beta_auto()(1)) ;
-	solve_shift (precis, relax, bound_beta) ;
-	extrinsic_curvature() ;
-	
-	solve_psi (precis, relax, bound_psi) ;
-	solve_lapse (precis, relax, bound_nn, lim_nn) ;
+
+        solve_shift (precis, relax, bound_beta) ;
+        extrinsic_curvature() ;
+
+        solve_psi (precis, relax, bound_psi) ;
+        solve_lapse (precis, relax, bound_nn, lim_nn) ;
+
+        cout << "Angular momentum computed at the horizon : " << ang_mom_hor()
+             << endl ;
+
 /*
 	des_meridian(hole1.nn(), 1.000001, 10, "lapse", 0) ;
 	des_meridian(hole1.psi(), 1.000001, 10, "psi", 1) ;
@@ -241,9 +250,11 @@ double Bin_hor::coal (double angu_vel, double relax, int nb_ome,
  	step ++ ;
    }
 
-    fich_iteration << "#----------------------------"  << endl ;
-    fich_correction << "#-----------------------------" << endl ;
-    fich_viriel << "#------------------------------"  << endl ;
+    if (nb_it != 0){
+      fich_iteration << "#----------------------------"  << endl ;
+      fich_correction << "#-----------------------------" << endl ;
+      fich_viriel << "#------------------------------"  << endl ;
+    }
 
     return viriel() ;
 }

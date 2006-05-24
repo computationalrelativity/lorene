@@ -26,6 +26,9 @@ char binhor_glob_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2006/05/24 16:56:37  f_limousin
+ * Many small modifs.
+ *
  * Revision 1.6  2005/09/24 08:31:38  f_limousin
  * Improve the computation of moment_adm() and moment_hor().
  *
@@ -64,7 +67,7 @@ char binhor_glob_C[] = "$Header$" ;
 #include "isol_hor.h"
 #include "proto.h"
 #include "utilitaires.h"
-#include "graphique.h"
+//#include "graphique.h"
 
 double Bin_hor::adm_mass() const {
  
@@ -128,12 +131,11 @@ double Bin_hor::ang_mom_hor() const {
 	for (int i=1 ; i<=3 ; i++)
 	    vecteur_un.set(i) = -ya_un*tkij_un(1, i)+
 		xa_un * tkij_un(2, i) ;
-	vecteur_un.std_spectral_base() ;
 	vecteur_un.annule_domain(hole1.mp.get_mg()->get_nzone()-1) ;
 	vecteur_un.change_triad (hole1.mp.get_bvect_spher()) ;
 	
-	Scalar integrant_un (pow(hole1.psi(), 6)*vecteur_un(1)) ;
-	integrant_un.std_spectral_base() ;
+	Scalar integrant_un (hole1.psi4()*hole1.psi()*hole1.psi()
+			     *vecteur_un(1)) ;
 	double moment_un = hole1.mp.integrale_surface
 	    (integrant_un, hole1.radius+1e-12)/8/M_PI ;
 	
@@ -153,12 +155,11 @@ double Bin_hor::ang_mom_hor() const {
 	for (int i=1 ; i<=3 ; i++)
 	    vecteur_deux.set(i) = -ya_deux*tkij_deux(1, i)+
 		xa_deux * tkij_deux(2, i) ;
-	vecteur_deux.std_spectral_base() ;
 	vecteur_deux.annule_domain(hole2.mp.get_mg()->get_nzone()-1) ;
 	vecteur_deux.change_triad (hole2.mp.get_bvect_spher()) ;
 	
-	Scalar integrant_deux (pow(hole2.psi(), 6)*vecteur_deux(1)) ;
-	integrant_deux.std_spectral_base() ;
+	Scalar integrant_deux (hole2.psi4()*hole2.psi()*hole2.psi()
+			       *vecteur_deux(1)) ;
 	double moment_deux = hole2.mp.integrale_surface
 	    (integrant_deux, hole2.radius+1e-12)/8/M_PI ;
 	
@@ -214,8 +215,6 @@ double Bin_hor::ang_mom_adm() const {
 	Vector beta_deux (hole2.beta_auto()) ;
 	beta_un.change_triad(hole1.mp.get_bvect_cart()) ;
 	beta_deux.change_triad(hole2.mp.get_bvect_cart()) ;
-	beta_un.std_spectral_base() ;
-	beta_deux.std_spectral_base() ;
 	
 	shift_un.set(1).import(beta_un(1)) ;
 	shift_un.set(2).import(beta_un(2)) ;

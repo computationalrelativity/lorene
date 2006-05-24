@@ -33,6 +33,9 @@ char bin_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2006/05/24 16:56:37  f_limousin
+ * Many small modifs.
+ *
  * Revision 1.5  2005/06/13 15:47:29  jl_jaramillo
  * Add some quatities in write_global()
  *
@@ -66,7 +69,7 @@ char bin_hor_C[] = "$Header$" ;
 #include "isol_hor.h"
 #include "proto.h"
 #include "utilitaires.h"
-#include "graphique.h"
+//#include "graphique.h"
 
 // Standard constructor
 // --------------------
@@ -194,6 +197,28 @@ void Bin_hor::write_global(ostream& ost) const {
   double omega1 = hole1.omega_hor() ;
   double omega2 = hole2.omega_hor() ;
 
+  // Verification of Smarr :
+  // -----------------------
+
+  Vector integrand_un (hole1.mp, COV, hole1.mp.get_bvect_spher()) ;
+  integrand_un = hole1.nn().derive_cov(hole1.ff)*pow(hole1.psi(), 2)
+    - hole1.nn()*contract(hole1.k_dd(), 1,
+			   hole1.gam().radial_vect(), 0)*pow(hole1.psi(), 2) ;
+  integrand_un.std_spectral_base() ;
+ 
+  Vector integrand_deux (hole2.mp, COV, hole2.mp.get_bvect_spher()) ;
+  integrand_deux = hole2.nn().derive_cov(hole2.ff)*pow(hole2.psi(), 2)
+    - hole2.nn()*contract(hole2.k_dd(), 1,
+			   hole2.gam().radial_vect(), 0)*pow(hole2.psi(), 2) ;
+  integrand_deux.std_spectral_base() ;
+ 
+  double horizon = hole1.mp.integrale_surface(integrand_un(1),
+					    hole1.get_radius())+
+    hole2.mp.integrale_surface(integrand_deux(1), hole2.get_radius()) ;
+
+  horizon /= 4*M_PI ;
+
+  double J_smarr = (mass_komar - horizon) / 2. / omega ;
 
   ost.precision(8) ;
   ost << "# beta  omega  Mass_ADM  Mass_K  M_area  J_ADM  J_hor" << endl ;
@@ -216,6 +241,11 @@ void Bin_hor::write_global(ostream& ost) const {
   ost << mass_adm / mass_area << " " ;
   ost << J_adm /mass_area / mass_area << " " ;
   ost << omega * mass_area << endl ;
+  ost << "# Diff J_hor/J_ADM    Diff J_ADM/J_Smarr   Diff J_hor/J_smarr" 
+      << endl ;
+  ost << fabs(J_adm - J_hor) / J_adm << " " <<  fabs(J_adm - J_smarr) / J_adm 
+      << " " << fabs(J_hor - J_smarr) / J_hor << endl ;
+
 
 }
       
