@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.48  2006/05/24 16:53:51  f_limousin
+ * Funtion import(Bin_hor&)
+ *
  * Revision 1.47  2006/02/22 16:55:42  f_limousin
  * boundary_nn_Neu_kk(int nn = 1)
  *
@@ -1094,6 +1097,12 @@ class Bin_hor {
 	   */
 	  void solve_shift (double precis, double relax, int bound_beta) ;
 	
+	  /**
+	   * Function to initialize a Bin_hor from a solution 
+	   * computed with a smaller number of colocation points
+	   */
+	  void import_bh (const Bin_hor& bin) ;
+
 	  /**
 	   *  Calculates the ADM mass of the system.
 	   */
