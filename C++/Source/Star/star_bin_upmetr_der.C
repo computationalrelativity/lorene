@@ -32,6 +32,9 @@ char star_bin_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2006/05/24 16:52:50  f_limousin
+ * New computation of tkij_comp
+ *
  * Revision 1.14  2005/09/13 19:38:31  f_limousin
  * Reintroduction of the resolution of the equations in cartesian coordinates.
  *
@@ -237,6 +240,31 @@ void Star_bin::update_metric_der_comp(const Star_bin& comp, double om) {
 
   tkij_comp = 0.5 * tkij_comp / nn ;
   
+  /*
+  Sym_tensor aa_comp (mp, CON, mp.get_bvect_cart()) ;
+  aa_comp.set_etat_qcq() ;
+  Sym_tensor comp_aa (comp.get_tkij_auto()) ; 
+  comp_aa.dec_dzpuis(2) ;
+  comp_aa.change_triad(mp.get_bvect_cart()) ;
+ 
+  
+  assert(*(aa_comp.get_triad()) == *(comp_aa.get_triad())) ;
+  // importations :
+  for (int i=1 ; i<=3 ; i++)
+    for (int j=i ; j<=3 ; j++) {
+      aa_comp.set(i, j).import(comp_aa(i, j)) ;
+      aa_comp.set(i, j).set_spectral_va().set_base(comp_aa(i, j).
+					  get_spectral_va().get_base()) ;
+    }
+  aa_comp.inc_dzpuis(2) ;
+
+  for (int i=1 ; i<=3 ; i++)
+    for (int j=i ; j<=3 ; j++)
+      for (int l=0 ; l<=nz-2 ; l++) 
+	tkij_comp.set(i,j).set_domain(l) = aa_comp(i,j).domain(l) ;
+  */
+
+
   // Computation of kcar_comp
   // ------------------------
   
