@@ -31,6 +31,9 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.31  2006/05/24 16:55:31  f_limousin
+ * Improvement of dn_comp() and dpsi_comp()
+ *
  * Revision 1.30  2005/10/21 16:20:55  jl_jaramillo
  * Version for the paper JaramL05
  *
@@ -148,7 +151,7 @@ char isol_hor_C[] = "$Header$" ;
 #include "tensor.h"
 #include "metric.h"
 #include "evolution.h"
-#include "graphique.h"
+//#include "graphique.h"
 
 //--------------//
 // Constructors //
@@ -544,6 +547,8 @@ void Isol_hor::set_gamt(const Metric& gam_tilde) {
  
     gam_dd_evol.downdate(jtime) ;
     gam_uu_evol.downdate(jtime) ;
+    k_dd_evol.downdate(jtime) ;
+    k_uu_evol.downdate(jtime) ;
     hh_evol.downdate(jtime) ;
 
     hh_evol.update(gam_tilde.con() - ff.con(), jtime, the_time[jtime]) ;
@@ -569,18 +574,33 @@ void Isol_hor::n_comp(const Isol_hor& comp) {
     Vector auxi (comp.n_auto().derive_cov(comp.ff)) ;
     auxi.dec_dzpuis(2) ;
     auxi.change_triad(auxi.get_mp().get_bvect_cart()) ;
+    for (int i=1 ; i<=3 ; i++){
+      if (auxi(i).get_etat() != ETATZERO)
+    	auxi.set(i).raccord(3) ;
+    }
+
     auxi.change_triad(mp.get_bvect_cart()) ;
     assert ( *(auxi.get_triad()) == *(dn_comp.get_triad())) ;
 
-    dn_comp.set(1).import(auxi(1)) ;
-    dn_comp.set(2).import(auxi(2)) ;
-    dn_comp.set(3).import(auxi(3)) ;
-    dn_comp.std_spectral_base() ;
+    for (int i=1 ; i<=3 ; i++){
+    dn_comp.set(i).import(auxi(i)) ;
+    dn_comp.set(i).set_spectral_va().set_base(auxi(i).get_spectral_va().
+					      get_base()) ;
+    }
     dn_comp.inc_dzpuis(2) ;
     dn_comp.change_triad(mp.get_bvect_spher()) ;
-
+    /*    
+    Vector dn_comp_zec (n_comp().derive_cov(ff)) ;
+    for (int i=1 ; i<=3 ; i++)
+      for (int l=nz-1 ; l<=nz-1 ; l++) {
+	  if (dn_comp.set(i).get_etat() == ETATQCQ)
+	    dn_comp.set(i).set_domain(l) = dn_comp_zec(i).domain(l) ;
+      }
+    */
     dn_evol.update(n_auto().derive_cov(ff) + dn_comp, jtime, ttime) ;
 
+
+    /*
     Scalar tr_K (mp) ;
  
     Mtbl mxabs (mp.xa) ;
@@ -626,7 +646,7 @@ void Isol_hor::n_comp(const Isol_hor& comp) {
     tr_K.raccord(1) ;
     tr_K.inc_dzpuis(2) ;
     trk_evol.update(tr_K, jtime, the_time[jtime]) ;
-
+*/
 }
 
 // Import the conformal factor from the companion (Bhole case)
@@ -646,15 +666,29 @@ void Isol_hor::psi_comp (const Isol_hor& comp) {
     Vector auxi (comp.psi_auto().derive_cov(comp.ff)) ;
     auxi.dec_dzpuis(2) ;
     auxi.change_triad(auxi.get_mp().get_bvect_cart()) ;
+    for (int i=1 ; i<=3 ; i++){
+      if (auxi(i).get_etat() != ETATZERO)
+        auxi.set(i).raccord(3) ;
+    }
+
     auxi.change_triad(mp.get_bvect_cart()) ;
     assert ( *(auxi.get_triad()) == *(dpsi_comp.get_triad())) ;
 
-    dpsi_comp.set(1).import(auxi(1)) ;
-    dpsi_comp.set(2).import(auxi(2)) ;
-    dpsi_comp.set(3).import(auxi(3)) ;
-    dpsi_comp.std_spectral_base() ;
+    for (int i=1 ; i<=3 ; i++){
+      dpsi_comp.set(i).import(auxi(i)) ;
+      dpsi_comp.set(i).set_spectral_va().set_base(auxi(i).get_spectral_va().
+						  get_base()) ;
+    }
     dpsi_comp.inc_dzpuis(2) ;
     dpsi_comp.change_triad(mp.get_bvect_spher()) ;
+    /*    
+    Vector dpsi_comp_zec (psi_comp().derive_cov(ff)) ;
+    for (int i=1 ; i<=3 ; i++)
+      for (int l=nz-1 ; l<=nz-1 ; l++) {
+	if (dpsi_comp.set(i).get_etat() == ETATQCQ)
+	  dpsi_comp.set(i).set_domain(l) = dpsi_comp_zec(i).domain(l) ;
+      }
+    */
     
     dpsi_evol.update(psi_auto().derive_cov(ff) + dpsi_comp, jtime, ttime) ;
 
@@ -1298,9 +1332,9 @@ void Isol_hor::adapt_hor(double c_min, double c_max) {
   
 
   Scalar new_expa (expansion()) ;
-  des_meridian(expa_trans, 1., 6., "Expansion trans", 1) ;
-  des_meridian(new_expa, 1.000000001, 6., "Expansion new", 2) ;
-  des_meridian(expa_trans- new_expa, 1.000000001, 4., "diff Expansion trans", 3) ;
+  //des_meridian(expa_trans, 1., 6., "Expansion trans", 1) ;
+  //des_meridian(new_expa, 1.000000001, 6., "Expansion new", 2) ;
+  //des_meridian(expa_trans- new_expa, 1.000000001, 4., "diff Expansion trans", 3) ;
   
 
 
