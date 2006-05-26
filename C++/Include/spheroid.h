@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2006/05/26 13:25:42  j_novak
+ * Removed a 'const'
+ *
  * Revision 1.1  2006/05/26 13:20:42  j_novak
  * New class spheroid.
  *
@@ -217,7 +220,7 @@ class Spheroid {
 	 * {\rm d}\varphi \f]
 	 * @param  phi : the divergence-free vector field \f$ \phi \f$
 	 */
-	const double angu_mom(const Vector& phi) const ;
+	double angu_mom(const Vector& phi) const ;
 
 	/// Computes the outgoing null expansion \f$ \theta_+ \f$.
         const Scalar& theta_plus() const ;
