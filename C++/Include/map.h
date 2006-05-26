@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.47  2006/05/26 09:00:09  j_novak
+ * New members for multiplication or division by cos(theta).
+ *
  * Revision 1.46  2006/04/25 07:21:54  p_grandclement
  * Various changes for the NS_BH project
  *
@@ -1046,6 +1049,10 @@ class Map {
 	 */
 	virtual void mult_cost(Scalar& ) const = 0 ; 
 
+	/** Division by \f$\cos\theta\f$ of a \c Scalar 
+	 */
+	virtual void div_cost(Scalar& ) const = 0 ; 
+
 	/** Multiplication by \f$\sin\theta\f$ of a \c Scalar 
 	 */
 	virtual void mult_sint(Scalar& ) const = 0 ; 
@@ -1666,6 +1673,10 @@ class Map_radial : public Map {
 	/** Multiplication by \f$\cos\theta\f$ of a \c Scalar
 	 */
 	virtual void mult_cost(Scalar& ) const ; 
+
+	/** Division by \f$\cos\theta\f$ of a \c Scalar
+	 */
+	virtual void div_cost(Scalar& ) const  ; 
 
 	/** Multiplication by \f$\sin\theta\f$ of a \c Scalar
 	 */

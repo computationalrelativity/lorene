@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.77  2006/05/26 09:00:09  j_novak
+ * New members for multiplication or division by cos(theta).
+ *
  * Revision 1.76  2005/11/30 13:48:06  e_gourgoulhon
  * Replaced M_PI/2 by 1.57... in argument list of sol_elliptic_sin_zec
  * (in order not to require the definition of M_PI).
@@ -811,6 +814,8 @@ class Scalar : public Tensor {
   void div_rsint_dzpuis(int ced_mult_r) ; 
   
   void mult_cost() ;   ///< Multiplication by \f$\cos\theta\f$
+
+  void div_cost() ;    ///< Division by \f$\cos\theta\f$
 
   void mult_sint() ;   ///< Multiplication by \f$\sin\theta\f$
 

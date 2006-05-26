@@ -31,6 +31,9 @@ char scalar_th_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2006/05/26 09:00:12  j_novak
+ * New members for multiplication or division by cos(theta).
+ *
  * Revision 1.1  2003/11/04 23:00:59  e_gourgoulhon
  * First version.
  *
@@ -55,6 +58,19 @@ void Scalar::mult_cost() {
     del_deriv() ;   // Delete the derived members
 
 }
+			//-------------------//
+			//	    div_cost     //
+			//-------------------//
+
+
+void Scalar::div_cost() {
+
+    mp->div_cost(*this) ;   // Call of the appropriate routine of the mapping 
+    
+    del_deriv() ;   // Delete the derived members
+
+}
+
 
 			//-------------------//
 			//	    mult_sint    //

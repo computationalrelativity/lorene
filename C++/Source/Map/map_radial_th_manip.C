@@ -28,6 +28,9 @@ char map_radial_th_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2006/05/26 09:00:11  j_novak
+ * New members for multiplication or division by cos(theta).
+ *
  * Revision 1.2  2003/11/05 15:27:52  e_gourgoulhon
  * Treatment of case ETATUN now possible by a simple call
  *  to set_etat_qcq(), thanks to a modification of the latter.
@@ -70,6 +73,30 @@ void Map_radial::mult_cost(Scalar& ci) const {
 	ci.set_etat_qcq() ; 
 	
 }
+
+			//---------------------------//
+			//          div_cost         //
+			//---------------------------//
+
+void Map_radial::div_cost(Scalar& ci) const {
+    
+    assert(ci.get_etat() != ETATNONDEF) ;
+    
+    if (ci.get_etat() == ETATZERO) {
+		return ;			 // Nothing to do if the Scalar is null 
+    }
+
+    assert((ci.get_etat() == ETATQCQ) || (ci.get_etat() == ETATUN)) ;
+            
+    Valeur& val = ci.set_spectral_va() ; 
+
+    assert(val.get_mg() == mg) ; 
+         
+    val = val.scost() ;		// Division by cos(theta)
+
+	ci.set_etat_qcq() ; 
+}
+
             
 			//---------------------------//
 			//          mult_sint        //
