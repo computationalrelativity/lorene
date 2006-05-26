@@ -28,6 +28,9 @@ char spheroid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2006/05/26 13:49:10  j_novak
+ * Method for computing the Ricci tensor on the Spheroid.
+ *
  * Revision 1.1  2006/05/26 13:20:43  j_novak
  * New class spheroid.
  *
@@ -342,6 +345,7 @@ void Spheroid::del_deriv() const {
     if (p_theta_plus != 0x0) delete p_theta_plus ;
     if (p_theta_minus != 0x0) delete p_theta_minus ;
     if (p_shear != 0x0) delete p_shear ;
+    if (p_ricci != 0x0) delete p_ricci ;
 
     set_der_0x0() ;
 }
@@ -353,6 +357,7 @@ void Spheroid::set_der_0x0() const {
     p_theta_plus = 0x0 ;
     p_theta_minus = 0x0 ;
     p_shear = 0x0 ;
+    p_ricci = 0x0 ;
 } 
 
 
@@ -417,14 +422,6 @@ const Sym_tensor& Spheroid::shear() const {
  
 }
 
-// Ricci tensor of the 2-surface 
- 
-const Sym_tensor& Spheroid::ricci() const {
- 
-    cout << "ricci: pas encore..." << endl; 
-    return hh ;
-}
- 
  
 void Spheroid::sauve(FILE* ) const {
 
