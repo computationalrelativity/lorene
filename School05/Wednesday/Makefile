@@ -27,7 +27,6 @@ EXE5 = $(SRC5:.C=)
 SRC5 = sol_kerr.C
 OBJ5 = $(SRC5:.C=.o)
 
-
 exo: $(EXE1) $(EXE2) $(EXE3)
 sol: $(EXE4) $(EXE5)
 all: exo sol
@@ -52,7 +51,6 @@ $(EXE4): $(OBJ4)
 $(EXE5): $(OBJ5)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ5) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
-
 
 .C.o:
 	$(CXX)  -c $(CXXFLAGS_G) $(INC) $<

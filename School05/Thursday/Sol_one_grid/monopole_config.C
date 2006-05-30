@@ -30,7 +30,7 @@ int Monopole::solve_config(double precis, int itemax, double relax) {
   Scalar G_W (mp) ;
   G_W = 1 ;
   G_W.std_spectral_base() ;
-  Scalar copie(G_W) ;  
+  Scalar copie(G_W) ;
   G_W.mult_r() ;
   G_W.annule(1, nz-1) ;
   copie.annule_domain(0) ;
