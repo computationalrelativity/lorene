@@ -33,6 +33,9 @@ char base_val_theta_funct_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2006/05/30 08:30:12  n_vasset
+ * Implementation of sine-like bases (T_SIN_P, T_SIN_I, T_COSSIN_SI, etc...).
+ *
  * Revision 1.4  2005/05/27 14:54:59  j_novak
  * Added new bases T_COSSIN_CI and T_COS_I
  *
@@ -75,8 +78,12 @@ char base_val_theta_funct_C[] = "$Header$" ;
 void theta_funct_pas_prevu(int, double*) ;
 void theta_funct_cos_p(int, double*) ;
 void theta_funct_cos_i(int, double*) ;
+void theta_funct_sin_p(int, double*) ;
+void theta_funct_sin_i(int, double*) ;
 void theta_funct_cossin_cp(int, double*) ;
 void theta_funct_cossin_ci(int, double*) ;
+void theta_funct_cossin_sp(int, double*) ;
+void theta_funct_cossin_si(int, double*) ;
 void theta_funct_cossin_c(int, double*) ;
 void theta_funct_cossin_s(int, double*) ;
 
@@ -110,15 +117,23 @@ const Tbl& Base_val::theta_functions(int l, int nt) const {
 
 	vbasecol[T_COS_P >> TRA_T] = theta_funct_cos_p ;
 	vbasecol[T_COS_I >> TRA_T] = theta_funct_cos_i ;
+	vbasecol[T_SIN_I >> TRA_T] = theta_funct_sin_i ;
+	vbasecol[T_SIN_P >> TRA_T] = theta_funct_sin_p ;
 	vbasecol[T_COSSIN_CP >> TRA_T] = theta_funct_cossin_cp ;
 	vbasecol[T_COSSIN_CI >> TRA_T] = theta_funct_cossin_ci ;
+	vbasecol[T_COSSIN_SP >> TRA_T] = theta_funct_cossin_sp ;
+	vbasecol[T_COSSIN_SI >> TRA_T] = theta_funct_cossin_si ;
 	vbasecol[T_COSSIN_C >> TRA_T] = theta_funct_cossin_c ;
 	vbasecol[T_COSSIN_S >> TRA_T] = theta_funct_cossin_s ;
 
 	dim2[T_COS_P >> TRA_T] = 1 ;
 	dim2[T_COS_I >> TRA_T] = 1 ;
+	dim2[T_SIN_P >> TRA_T] = 1 ;
+	dim2[T_SIN_I >> TRA_T] = 1 ;
 	dim2[T_COSSIN_CP >> TRA_T] = 2 ;
 	dim2[T_COSSIN_CI >> TRA_T] = 2 ;
+	dim2[T_COSSIN_SP >> TRA_T] = 2 ;
+	dim2[T_COSSIN_SI >> TRA_T] = 2 ;
 
     }
 
@@ -197,7 +212,7 @@ void theta_funct_cos_p(int nt, double* ff) {
 }
 
 //==============================================
-//  Basis cos(2*j* theta)  T_COS_I
+//  Basis cos((2*j+1)* theta)  T_COS_I
 //==============================================
 
 void theta_funct_cos_i(int nt, double* ff) {
@@ -208,6 +223,40 @@ void theta_funct_cos_i(int nt, double* ff) {
 	for (int j = 0; j < nt ; j++ ) {
 	    double theta = xx*j ;
 	    ff[nt*i+ j] = cos((2*i+1) * theta);	
+	}
+    }
+
+}
+
+//==============================================
+//  Basis sin(2*j* theta)  T_SIN_P
+//==============================================
+
+void theta_funct_sin_p(int nt, double* ff) {
+
+    double xx = ( nt > 1 ? M_PI / double(2*(nt-1)) : 0.) ;
+
+    for (int i = 0; i < nt ; i++ ) {
+	for (int j = 0; j < nt ; j++ ) {
+	    double theta = xx*j ;
+	    ff[nt*i+ j] = sin(2*i * theta);	
+	}
+    }
+
+}
+
+//==============================================
+//  Basis sin((2*j+1)* theta)  T_SIN_I
+//==============================================
+
+void theta_funct_sin_i(int nt, double* ff) {
+
+    double xx = ( nt > 1 ? M_PI / double(2*(nt-1)) : 0.) ;
+
+    for (int i = 0; i < nt ; i++ ) {
+	for (int j = 0; j < nt ; j++ ) {
+	    double theta = xx*j ;
+	    ff[nt*i+ j] = sin((2*i+1) * theta);	
 	}
     }
 
@@ -275,6 +324,79 @@ void theta_funct_cossin_ci(int nt, double* ff) {
 	for (int j = 0; j < nt ; j++ ) {
 	    double theta = xx*j ;
 	    ff[nt2+nt*i+ j] = sin(2*i * theta);	
+	}
+    }
+    
+    for (int j = 0; j < nt ; j++ ) {
+	ff[nt2+nt*(nt-1) + j] = 0 ;	
+    }
+    
+    
+}
+
+
+//===========================================================
+//  Basis sin(2*j* theta)/cos((2*j+1) theta)   T_COSSIN_SP
+//===========================================================
+
+void theta_funct_cossin_sp(int nt, double* ff) {
+    
+    int nt2 = nt*nt ;
+
+    double xx = ( nt > 1 ? M_PI / double(2*(nt-1)) : 0.) ;
+
+    // sin(2i theta_j)
+    // ---------------
+    for (int i = 0; i < nt ; i++ ) {
+	for (int j = 0; j < nt ; j++ ) {
+	    double theta = xx*j ;
+	    ff[nt*i+ j] = sin(2*i * theta);	
+	}
+    }
+    
+    // cos((2i+1) theta_j)
+    // -------------------
+
+    for (int i = 0; i < nt-1 ; i++ ) {
+	for (int j = 0; j < nt ; j++ ) {
+	    double theta = xx*j ;
+	    ff[nt2+nt*i+ j] = cos((2*i+1) * theta);	
+	}
+    }
+    
+    for (int j = 0; j < nt ; j++ ) {
+	ff[nt2+nt*(nt-1) + j] = 0 ;	
+    }
+    
+    
+}
+
+//===========================================================
+//  Basis sin((2*j+1)* theta)/cos(2*j*theta)   T_COSSIN_SI
+//===========================================================
+
+void theta_funct_cossin_si(int nt, double* ff) {
+    
+    int nt2 = nt*nt ;
+
+    double xx = ( nt > 1 ? M_PI / double(2*(nt-1)) : 0.) ;
+
+    // sin((2i+1) theta_j)
+    // ---------------
+    for (int i = 0; i < nt ; i++ ) {
+	for (int j = 0; j < nt ; j++ ) {
+	    double theta = xx*j ;
+	    ff[nt*i+ j] = sin((2*i+1) * theta);	
+	}
+    }
+    
+    // cos(2i theta_j)
+    // -------------------
+
+    for (int i = 0; i < nt-1 ; i++ ) {
+	for (int j = 0; j < nt ; j++ ) {
+	    double theta = xx*j ;
+	    ff[nt2+nt*i+ j] = cos(2*i * theta);	
 	}
     }
     

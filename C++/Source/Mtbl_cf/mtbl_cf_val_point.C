@@ -32,6 +32,9 @@ char mtbl_cf_val_point_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2006/05/30 08:30:15  n_vasset
+ * Implementation of sine-like bases (T_SIN_P, T_SIN_I, T_COSSIN_SI, etc...).
+ *
  * Revision 1.6  2005/05/27 14:55:00  j_novak
  * Added new bases T_COSSIN_CI and T_COS_I
  *
@@ -329,6 +332,8 @@ static int premier_appel = 1 ;
 
 	switch (base_t) {
 	    	    
+	    case T_SIN_P :
+	    case T_SIN_I :
 	    case T_COS_I : 
 	    case T_COS_P : {
 
@@ -343,6 +348,8 @@ static int premier_appel = 1 ;
 		break ;
 	    } 
 	    
+	    case T_COSSIN_SP : 
+	    case T_COSSIN_SI : 
 	    case T_COSSIN_CI : 
 	    case T_COSSIN_CP : {
 
