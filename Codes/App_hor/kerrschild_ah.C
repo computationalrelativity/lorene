@@ -30,6 +30,9 @@ char kerrschild_ah_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2006/05/30 13:06:13  n_vasset
+ *   Implemented function P_COSSIN_I in base_val_phi_funct.C
+ *
  * Revision 1.3  2005/12/07 11:11:46  lm_lin
  *
  * Add option to turn off screen output during iterations.
@@ -87,7 +90,7 @@ int main() {
   // Construct angular grid for h(theta,phi) 
   const Mg3d& g_angu = *mgrid_2.get_angu() ;
 
-  // orig_lim_1(2) is used to cut out the signular region....
+  // orig_lim_1(2) is used to cut out the singular region....
   // note: For the purpose of interpolating the metric defined on the 1st mapping to 
   //       that on the 2nd one, you must choose orig_lim_2 >= orig_lim_1
   double orig_lim_1 = 0.55 ;
@@ -360,7 +363,7 @@ int main() {
 
       exp_fcn.std_spectral_base() ;
 
-      Valeur exp_AH(g_angu) ;   // expansion function evaulated on the apparent 
+      Valeur exp_AH(g_angu) ;   // expansion function evaluated on the apparent 
                                  // horizon (which should be zero)
       exp_AH.annule_hard() ;
 

@@ -26,6 +26,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2006/05/30 13:06:18  n_vasset
+ *   Implemented function P_COSSIN_I in base_val_phi_funct.C
+ *
  * Revision 1.2  2005/11/16 17:11:59  e_gourgoulhon
  * Added fij.std_spectral_base() (although not necessary in the
  *  present case)
@@ -75,7 +78,7 @@ int main() {
     // --------------------------------------------------------------------------
 
     // radial boundaries of each domain:
-    double r_limits[] = {0., 1., 2., __infinity} ; 
+    double r_limits[] = {0., 1., 2., __infinity} ; // ?? que veut dire le []??-> collection de valeurs...//
     assert( nz == 3 ) ;  // since the above array describes only 3 domains
   
     Map_af map(mgrid, r_limits) ;   // Mapping construction

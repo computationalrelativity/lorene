@@ -31,6 +31,9 @@ char base_val_phi_funct_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2006/05/30 13:06:12  n_vasset
+ *   Implemented function P_COSSIN_I in base_val_phi_funct.C
+ *
  * Revision 1.2  2002/10/16 14:36:30  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -64,6 +67,7 @@ char base_val_phi_funct_C[] = "$Header$" ;
 void phi_funct_pas_prevu(int, double*) ;
 void phi_funct_cossin(int, double*) ;
 void phi_funct_cossin_p(int, double*) ;
+void phi_funct_cossin_i(int, double*) ;
 
 //************************************************************************
 //  user interface : method Base_val::phi_functions
@@ -93,6 +97,7 @@ const Tbl& Base_val::phi_functions(int l, int np) const {
 
 	vbasecol[P_COSSIN >> TRA_P] = phi_funct_cossin ;
 	vbasecol[P_COSSIN_P >> TRA_P] = phi_funct_cossin_p ;
+        vbasecol[P_COSSIN_I >> TRA_P] = phi_funct_cossin_p ;
 
     }
 
@@ -196,6 +201,31 @@ void phi_funct_cossin_p(int np, double* ff) {
 	for (int k = 0; k < np ; k++ ) {
 	    double phi = xx*k ;
 	    ff[np*i+ k] = sin((i-1) * phi);	
+	}
+    }
+
+    
+}
+
+//==============================================
+//  Basis P_COSSIN_I
+//==============================================
+
+void phi_funct_cossin_i(int np, double* ff) {
+    
+    double xx = M_PI/double(np) ;
+    
+    for (int i = 0; i < np+1 ; i+=2 ) {
+	for (int k = 0; k < np ; k++ ) {
+	    double phi = xx*k ;
+	    ff[np*i+ k] = sin(i * phi);	
+	}
+    }
+
+    for (int i = 1; i < np ; i+=2 ) {
+	for (int k = 0; k < np ; k++ ) {
+	    double phi = xx*k ;
+	    ff[np*i+ k] = cos((i-1) * phi);	
 	}
     }
 

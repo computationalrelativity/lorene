@@ -80,13 +80,14 @@ int main() {
  		       - phim1.val_grid_point(nz-1, 0, 0, nr-1) ) /(2*dt) ;
  	    double lambda = (c_bound - a_bound*phip1.val_grid_point(nz-1, 0, 0, nr-1) 
  		- b_bound*phip1.dsdr().val_grid_point(nz-1, 0, 0, nr-1)) /
- 		( a_bound + b_bound*d_hom) ;
+ 		( a_bound + b_bound*d_hom) ; //(!!! erreur? abound*phi_h!)
  	    phip1 += lambda*phi_hom ;
 
 	    // Drawing
 	    //--------
-	    if (iter%ndes == 0) 
+	    if (iter%ndes == 0){ 
 		des_meridian(phip1, 0., Rlim, "\\gf", 1) ;
+		} // rajouté pour éviter un sweep on  de PG plot ?
 	    
 	    // Preparation for next step
 	    //--------------------------

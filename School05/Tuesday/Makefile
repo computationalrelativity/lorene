@@ -14,7 +14,7 @@ SRC1 = solver.C
 OBJ1 = $(SRC1:.C=.o)
 EXE1 = $(SRC1:.C=)
 
-SRC2 = sol_tau.C
+SRC2 = solver_multi_tau.C
 OBJ2 = $(SRC2:.C=.o)
 EXE2 = $(SRC2:.C=)
 
@@ -45,7 +45,7 @@ $(EXE1): $(OBJ1) $(OBJ)
 $(EXE2): $(OBJ2) $(OBJ)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ2) $(OBJ) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
-					
+
 $(EXE3): $(OBJ3) $(OBJ)
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ3) $(OBJ) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)

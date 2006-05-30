@@ -37,6 +37,7 @@ int main() {
   cin >> beta ;
   while (cin.get() != '\n') ;
 
+   
   // The Monopole :
   Monopole champs(mp, beta) ; 
   
