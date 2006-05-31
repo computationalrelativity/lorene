@@ -29,6 +29,9 @@ char star_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.26  2006/05/31 09:26:04  f_limousin
+ * Modif. of the size of the different domains
+ *
  * Revision 1.25  2006/04/11 14:24:44  f_limousin
  * New version of the code : improvement of the computation of some
  * critical sources, estimation of the dirac gauge, helical symmetry...
@@ -130,8 +133,7 @@ char star_bin_equilibrium_C[] = "$Header$" ;
 void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit, 
 			   int mermax_poisson, double relax_poisson, 
 			   double relax_potvit, double thres_adapt,
-			   const Tbl& fact_resize, Tbl& diff, double om,
-			   Scalar ff_c) {
+			   Tbl& diff, double om) {
 
     // Fundamental constants and units
     // -------------------------------
@@ -498,51 +500,31 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 
 	// Readjustment of the external boundary of domain l=nzet
 	// to keep a fixed ratio with respect to star's surface
-		
-    	if (nz == 4 && nzet == 1) {
-	double rr_in_1 = mp.val_r(1,-1., M_PI/2, 0.) ; 
-	double rr_out_1 = mp.val_r(1, 1., M_PI/2, 0.) ; 
-	double rr_out_2 = mp.val_r(2, 1., M_PI/2, 0.) ; 
+	
+	if (nz>= 5) {
+	  double separation = 2. * fabs(mp.get_ori_x()) ;
+	  double ray_eqq = ray_eq() ;
+	  double ray_eqq_pi = ray_eq_pi() ;
+	  double new_rr_out_2 = (separation - ray_eqq) * 0.95 ; 
+	  double new_rr_out_3 = (separation + ray_eqq_pi) * 1.05 ; 
+	  
+	  double rr_in_1 = mp.val_r(1,-1., M_PI/2, 0.) ; 
+	  double rr_out_1 = mp.val_r(1, 1., M_PI/2, 0.) ; 
+	  double rr_out_2 = mp.val_r(2, 1., M_PI/2, 0.) ; 
+	  double rr_out_3 = mp.val_r(3, 1., M_PI/2, 0.) ; 
+	  
+	  mp.resize(1, 0.5*(new_rr_out_2 + rr_in_1) / rr_out_1) ; 
+	  mp.resize(2, new_rr_out_2 / rr_out_2) ; 
+	  mp.resize(3, new_rr_out_3 / rr_out_3) ;
 
-	mp.resize(1, rr_in_1/rr_out_1 * fact_resize(0)) ; 
-	mp.resize(2, rr_in_1/rr_out_2 * fact_resize(1)) ; 
+	  for (int dd=4; dd<=nz-2; dd++) {
+	    mp.resize(dd, new_rr_out_3 * pow(4., dd-3) / 
+		      mp.val_r(dd, 1., M_PI/2, 0.)) ;
+	  }
+
 	}
-
-	else{
-	    if (nz > 4 && nzet == 1) {
-		double rr_in_1 = mp.val_r(1,-1., M_PI/2, 0.) ; 
-		double rr_out_1 = mp.val_r(1, 1., M_PI/2, 0.) ; 
-		double rr_out_2 = mp.val_r(2, 1., M_PI/2, 0.) ; 
-		
-		double fact_resize_0 ;
-		if (fact_resize(0) > 2.4) fact_resize_0 = fact_resize(0)/2. ;
-		else fact_resize_0 = fact_resize(0)/2. + 0.5 ;
-
-		mp.resize(1, rr_in_1/rr_out_1 * fact_resize_0) ; 
-		mp.resize(2, rr_in_1/rr_out_2 * fact_resize(0)) ; 
-		for (int nnn=0; nnn<nz-4; nnn++){
-		  double rr_out_nn = mp.val_r(3+nnn, 1., M_PI/2, 0.) ; 
-		  mp.resize(3+nnn, (rr_in_1/rr_out_nn * fact_resize(1))
-			    *pow(1.6,nnn)) ; 
-		}
-	    }
-
-	    else{		
-		int n_resize ;
-		//      	if (nz > 4) {
-		//       	  n_resize = nz - 4 ;
-		if (nz > 4) {
-		    n_resize = nz - 3 ;
-		}
-		else {
-		    n_resize = nzet ;
-		}
-		
-		double rr_in = mp.val_r(nzet,-1., M_PI/2, 0.) ; 
-		double rr_out = mp.val_r(n_resize,1., M_PI/2, 0.) ; 
-		
-		mp.resize(n_resize, rr_in/rr_out * fact_resize(0)) ; 
-	    }
+	else {
+	  cout << "too small number of domains" << endl ;
 	}
 	
 	//----------------------------------------------------
@@ -914,9 +896,15 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	
 	Tenseur resu_p(mp, 1, CON, mp.get_bvect_cart() ) ;
 	resu_p.set_etat_qcq() ;
-	source_p.poisson_vect(lambda, par_beta2, resu_p, vect_auxi, 
-			      scal_auxi) ;
+	for (int i=0; i<3 ;i++)
+	  resu_p.set(i).annule_hard() ;
+	resu_p.set_std_base() ;
+
+	//source_p.poisson_vect(lambda, par_beta2, resu_p, vect_auxi, 
+	//		      scal_auxi) ;
 	
+	source_p.poisson_vect_oohara(lambda, par_beta2, resu_p, scal_auxi) ;
+
 	for (int i=1; i<=3; i++) 
 	  beta_auto.set(i) = resu_p(i-1) ;
 
@@ -1003,15 +991,12 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	    // --------------------------
 
 	    Scalar decouple_logn = (logn_auto - 1.e-8)/(logn - 2.e-8) ;
-	    Scalar decouple_lnpsi = ((lnq_auto - logn_auto)/2. 
-				     - 1.e-8)/((lnq-logn)/2. - 2.e-8) ;
-
 
 	    // Function exp(-(r-r_0)^2/sigma^2)
 	    // --------------------------------
 	    
 	    double r0 = mp.val_r(nz-2, 1, 0, 0) ;
-	    double sigma = 6.*r0 ;
+	    double sigma = 1.*r0 ;
 	    
 	    Scalar rr (mp) ;
 	    rr = mp.r ;
@@ -1036,26 +1021,23 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 
 	    Tensor dcov_omdsdphi (mp, 2, type, mp.get_bvect_cart()) ;
 	    dcov_omdsdphi.set(1,1) = 0. ;
-	    dcov_omdsdphi.set(2,1) = om ;
+	    dcov_omdsdphi.set(2,1) = om * ff ; 
 	    dcov_omdsdphi.set(3,1) = 0. ;
 	    dcov_omdsdphi.set(2,2) = 0. ;
 	    dcov_omdsdphi.set(3,2) = 0. ;
 	    dcov_omdsdphi.set(3,3) = 0. ;
-	    dcov_omdsdphi.set(1,2) = -om ;
-
+	    dcov_omdsdphi.set(1,2) = -om * ff ;
 	    dcov_omdsdphi.set(1,3) = 0. ;
 	    dcov_omdsdphi.set(2,3) = 0. ;
 	    dcov_omdsdphi.std_spectral_base() ;
 
-	    source_3a = contract(tkij_auto, 0, dcov_omdsdphi, 1) * ff_c
-	    + contract(tkij_auto+tkij_comp, 0, dcov_omdsdphi, 1) * 
-		decouple_logn * (1.-ff_c) ;
+	    source_3a = contract(tkij_auto, 0, dcov_omdsdphi, 1) ;
+	    source_3a.inc_dzpuis() ;
 
 	    // Source 3b
 	    // ------------
 
 	    Vector omdsdp (mp, CON, mp.get_bvect_cart()) ;
-	    Vector omdsdp_zec (mp, CON, mp.get_bvect_cart()) ;
 	    Scalar yya (mp) ;
 	    yya = mp.ya ;
 	    Scalar xxa (mp) ;
@@ -1064,49 +1046,21 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 	    zza = mp.za ;
 
 	    if (fabs(mp.get_rot_phi()) < 1e-10){ 
-		omdsdp.set(1) = - om * yya ;
-		omdsdp.set(2) = om * xxa ;
+		omdsdp.set(1) = - om * yya * ff ;
+		omdsdp.set(2) = om * xxa * ff ;
 		omdsdp.set(3).annule_hard() ;
 	    }
 	    else{
-		omdsdp.set(1) = om * yya  ;
-		omdsdp.set(2) = - om * xxa ;
+		omdsdp.set(1) = om * yya * ff ;
+		omdsdp.set(2) = - om * xxa * ff ;
 		omdsdp.set(3).annule_hard() ;
 	    }
 
-	    if (fabs(mp.get_rot_phi()) < 1e-10){ 
-		omdsdp_zec.set(1) = - om * yya / rr / rr ;
-		omdsdp_zec.set(2) = om * xxa / rr / rr ;
-		omdsdp_zec.set(3).annule_hard() ;
-	    }
-	    else{
-		omdsdp_zec.set(1) = om * yya / rr / rr ;
-		omdsdp_zec.set(2) = - om * xxa /rr / rr ;
-		omdsdp_zec.set(3).annule_hard() ;
-	    }
-	    
-	    omdsdp_zec.set(1).set_outer_boundary(nz-1, 0) ;
-	    omdsdp_zec.set(2).set_outer_boundary(nz-1, 0) ;
-	    
-	    omdsdp.set(1).set_domain(nz-1) = omdsdp_zec(1).domain(nz-1) ;
-	    omdsdp.set(2).set_domain(nz-1) = omdsdp_zec(2).domain(nz-1) ;
-	    omdsdp.set(3).set_domain(nz-1) = omdsdp_zec(3).domain(nz-1) ;
-	    
+	    omdsdp.set(1).set_outer_boundary(nz-1, 0) ;
+	    omdsdp.set(2).set_outer_boundary(nz-1, 0) ;
 	    omdsdp.std_spectral_base() ;
 
-	    Tensor dcov_tkij ((tkij_auto+tkij_comp).derive_cov(flat)) ;
-	    Tensor dcov_tkij_auto (tkij_auto.derive_cov(flat)) ;
-	    
-	    for (int ii=1; ii<=3; ii++)
-		for (int jj=1; jj<=3; jj++)
-		    for (int kk=1; kk<=3; kk++) {  
-			dcov_tkij.set(ii, jj, kk).set_dzpuis(1) ;  
-			dcov_tkij_auto.set(ii, jj, kk).set_dzpuis(1) ;  
-		    }	    	    
-
-	    source_3b = - contract(omdsdp, 0, dcov_tkij_auto, 2) * ff_c
-	      - contract(omdsdp, 0, dcov_tkij, 2) * decouple_logn * (1.-ff_c) ;
-	    source_3b.inc_dzpuis() ;
+	    source_3b = - contract(omdsdp, 0, tkij_auto.derive_cov(flat), 2) ;
 
 	    // Source 4
 	    // ---------
@@ -1214,10 +1168,10 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 		    
 		    source3 = 2.*psi4/nn * (source_3a(i,j) + source_3a(j,i) + 
 					    source_3b(i,j)) ; 
-                    source3.inc_dzpuis() ;
-
+    
 		    source_tot_hij = source_tot_hij + source3 ;
 
+		    //source_tot_hij.inc_dzpuis() ;
 
 		    cout << "source_mat" << endl 
 			 << norme((- 2. * qpig * nn * ( psi4 * stress_euler 
@@ -1276,7 +1230,7 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 		    if(i==1 && j==1) {
 		 
 			source_tot_hij.poisson(par_h11, hij_auto.set(1,1)) ; 
-
+			
 			Scalar laplac (hij_auto(1,1).laplacian()) ;
 			laplac.dec_dzpuis() ;
 			Tbl tdiff_h11 = diffrel(laplac, source_tot_hij) ;  

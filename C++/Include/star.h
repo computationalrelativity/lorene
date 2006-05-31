@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2006/05/31 09:25:47  f_limousin
+ * Modif. of the size of the different domains
+ *
  * Revision 1.21  2006/04/11 14:26:12  f_limousin
  * New version of the code : improvement of the computation of some
  * critical sources, estimation of the dirac gauge, helical symmetry...
@@ -977,17 +980,13 @@ class Star_bin : public Star {
 	 *				  Map_radial::poisson_compact
 	 *  @param thres_adapt  [input]   Threshold on dH/dr for the adaptation 
 	 *				  of the mapping
-	 *  @param fact [input]    1-D \c Tbl for the input
-	 *                          of some factors :
-	 *         \li  \c fact(0) : A resizing factor for the first shell
 	 *  @param diff [output]   1-D \c Tbl for the storage of some
 	 *			    error indicators 
 	 */
 	void equilibrium(double ent_c, int mermax, int mermax_potvit, 
 			 int mermax_poisson, double relax_poisson, 
-			 double relax_potvit, double thres_adapt, 
-			 const Tbl& fact, Tbl& diff, double omega,
-			 Scalar ff_c) ;
+			 double relax_potvit, double thres_adapt, Tbl& diff,
+			 double om) ;
 
 
 	/** Computes the non-translational part of the velocity scalar potential
@@ -1022,6 +1021,9 @@ class Star_bin : public Star {
 
 	/// Test if the gauge conditions we impose are well satisfied
 	void test_K_Hi() const ;
+
+	/// Test of the helical symmetry
+	void helical(double omega) const ;
 
 	friend class Binary ;
 

@@ -29,6 +29,9 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2006/05/31 09:26:33  f_limousin
+ * Modif. of the size of the different domains
+ *
  * Revision 1.7  2006/04/11 14:26:30  f_limousin
  * New version of the code : improvement of the computation of some
  * critical sources, estimation of the dirac gauge, helical symmetry...
@@ -310,8 +313,6 @@ int main(){
 	(star.set(i)).hydro_euler() ; 
     }
 	
-    //   abort() ;
-
 
 //##
     char name[40] ;
@@ -350,12 +351,6 @@ int main(){
 
     double ent_c[2] ;	    // Central enthalpy in each star
     double dentdx[2] ;	    // Central d/dx(enthalpy) in each star
-
-// Resizing factor of the first shell
-// Computation is shown just befor "equilibrium"
-    Tbl fact_resize[] = {Tbl(2), Tbl(2)} ;
-    fact_resize[0].set_etat_qcq() ; 
-    fact_resize[1].set_etat_qcq() ; 
 
 // Error indicators in each star
     Tbl differ[] = {Tbl(13), Tbl(13)} ;
@@ -496,56 +491,6 @@ int main(){
 		(star.set(i)).update_metric_der_comp(star(3-i), 
 						     star.get_omega()) ; 
 	    }
-
-
-	    // Construction of the function ff on a mapping defined in the 
-	    // center of mass of the system
-	    
-	    // Construction of an auxiliar grid and mapping
-	    int nzones = star(1).get_mp().get_mg()->get_nzone() ;
-	    double* bornes = new double [nzones+1] ;
-	    double r_zec = 2.*(-star(1).get_mp().get_ori_x() +
-			    star(2).get_mp().get_ori_x()) ;
-	    for (int i=nzones-1 ; i>0 ; i--) {
-		bornes[i] = r_zec ;
-		r_zec /= 2. ;
-	    }
-	    bornes[0] = 0 ;
-	    bornes[nzones] = __infinity ;
-	    
-	    Map_af mapping (*(star(1).get_mp().get_mg()), bornes) ;
-	    delete [] bornes ; 
-	    
-	    double r0 = mapping.val_r(nzones-2, 1, 0, 0) ;
-	    double sigma = 0.5*r0 ;
-
-	    Scalar rr (mapping) ;
-	    rr = mapping.r ;
-
-	    Scalar ff (mapping) ;
-	    ff = exp( -(rr - r0)*(rr - r0)/sigma/sigma ) ;
-	    for (int ii=0; ii<nzones-1; ii++)
-		ff.set_domain(ii) = 1. ;
-	    ff.set_outer_boundary(nzones-1, 0) ;
-	    ff.std_spectral_base() ;
-	    
-/*
-	    Scalar test(ff) ;
-	    des_meridian (test, 0, 30, "ff", 0) ;
-	    des_meridian (test, 0, 60, "ff", 1) ;
-	    test.inc_dzpuis() ;
-	    des_meridian (test, 0, 30, "ff", 2) ;
-	    des_meridian (test, 0, 60, "ff", 3) ;
-	    test.inc_dzpuis() ;
-	    des_meridian (test, 0, 30, "ff", 4) ;
-	    des_meridian (test, 0, 60, "ff", 5) ;
-*/
-	    
-	    ff_1.import(ff) ;
-	    ff_2.import(ff) ;	    
-	    ff_1.std_spectral_base() ;
-	    ff_2.std_spectral_base() ;
-
 	}
 
 	// -------------------------
@@ -671,33 +616,6 @@ int main(){
 
 	for (int i=1; i<=2; i++) {
 
-	    // Computation of the resizing factor
-	double ray_eq_auto = star(i).ray_eq() ;
-	double ray_eq_comp = star(3-i).ray_eq() ;
-	double ray_eq_pi_comp = star(3-i).ray_eq_pi() ;
-
-	int num_resize ;
-
-      	if (mg1.get_nzone() > 3) {
-	  assert( mg2.get_nzone() == mg1.get_nzone() ) ;
-	  num_resize = mg1.get_nzone() - 3 ;
-	}
-	else {
-	  num_resize = star(i).get_nzet() ;
-	}
-
-	double lambda_resize = 0.95 *
-	  (star.separation() - ray_eq_comp)/ray_eq_auto ;
-	fact_resize[i-1].set(0) =
-	  (lambda_resize < 2.*num_resize) ? lambda_resize : 2.*num_resize ;
-
-	fact_resize[i-1].set(1) = 1.05 *
-	  (star.separation() + ray_eq_pi_comp)/ray_eq_auto ;
-	
-    }
-
-	for (int i=1; i<=2; i++) {
-
 	    // Relaxation on logn_comp (only if it has not been done by
 	    //			    update_metric)
 	    // --------------------------------------------------------
@@ -711,19 +629,13 @@ int main(){
 	    star.set(i).set_pot_centri() = relax * star(i).get_pot_centri()
 		+ relax_jm1 * star_jm1(i).get_pot_centri() ; 
 
-	}
-
-	(star.set(1)).equilibrium(ent_c[1-1], mermax_eqb, mermax_potvit, 
-				      mermax_poisson, relax_poisson,
-				      relax_potvit, thres_adapt[1-1],
-				      fact_resize[1-1], differ[1-1], 
-				      star.get_omega(), ff_1) ;
 	
-	(star.set(2)).equilibrium(ent_c[2-1], mermax_eqb, mermax_potvit, 
+
+	(star.set(i)).equilibrium(ent_c[i-1], mermax_eqb, mermax_potvit, 
 				      mermax_poisson, relax_poisson,
-				      relax_potvit, thres_adapt[2-1],
-				      fact_resize[2-1], differ[2-1], 
-				      star.get_omega(), ff_2) ;
+				      relax_potvit, thres_adapt[i-1],
+				      differ[i-1], star.get_omega()) ;
+	}	
 	
 	//------------------------------------------------------------------
 	//	  Relaxations
