@@ -32,6 +32,9 @@ char bhole_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2006/06/01 12:47:51  p_grandclement
+ * update of the Bin_ns_bh project
+ *
  * Revision 1.9  2006/04/27 09:12:31  p_grandclement
  * First try at irrotational black holes
  *
@@ -543,7 +546,7 @@ double Bhole::local_momentum() const {
 	vecteur.annule(mp.get_mg()->get_nzone()-1) ;
 	vecteur.change_triad (mp.get_bvect_spher()) ;
 	
-	Cmp integrant (pow(psi_tot(), 4)*vecteur(0)) ;
+	Cmp integrant (pow(psi_tot(), 6)*vecteur(0)) ;
 	integrant.std_base_scal() ;
 	double moment = mp.integrale_surface(integrant, rayon)/8/M_PI ;
   

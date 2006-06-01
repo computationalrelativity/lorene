@@ -25,6 +25,9 @@ char bin_ns_bh_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2006/06/01 12:47:52  p_grandclement
+ * update of the Bin_ns_bh project
+ *
  * Revision 1.6  2006/04/27 09:12:33  p_grandclement
  * First try at irrotational black holes
  *
@@ -60,12 +63,9 @@ char bin_ns_bh_coal_C[] = "$Header$" ;
 #include "unites.h"
 #include "graphique.h"
 
-void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_mp_et, double ent_c_init, double seuil_masses, double dist, double m1, double m2, int nbr_filtre, const int sortie) {
+void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_mp_et, double ent_c_init, double seuil_masses, double dist, double m1, double m2, double scale_ome_local, const int sortie) {
     
     using namespace Unites ;
-    
-    if (hole.get_rot_state()==IRROT)
-    	hole.set_omega_local(0) ;
     
     int nz_bh = hole.mp.get_mg()->get_nzone() ;
     int nz_ns = star.mp.get_mg()->get_nzone() ;
@@ -76,7 +76,8 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
     double mass_bh =  hole.masse_adm_seul() ;
     double axe_pos = star.mp.get_ori_x() ;
     double scale_linear = (mass_ns+mass_bh)/2.*distance*omega ;
- 
+
+
     char name_iteration[40] ;
     char name_correction[40] ;
     char name_viriel[40] ;
@@ -144,7 +145,6 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
     ofstream fiche_ome_local (name_ome_local) ;
     fiche_ome_local.precision(8) ;
     
-    // BOUCLE AVEC BLOQUE :
     bool loop = true ;     
     bool search_masses = false ;
     double ent_c = ent_c_init ;
@@ -158,15 +158,26 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
     
     double old_mass_ns ;
     mass_ns = star.mass_b() ;
-    
+    double spin_old ;
+    double spin = 1;
+
     while (loop) {
-    
-    	double spin = hole.local_momentum() ;
+      
+      spin_old = spin ;
+    	spin = hole.local_momentum() ;
     	if (sortie !=0) {
     		fiche_ome_local << conte << " " << hole.omega_local << endl ;	
 		fiche_spin << conte << " " << spin << endl ;
     	}
         
+	double conv_spin = fabs(spin-spin_old) ;
+        double error_spin = spin ;
+	double rel_diff_spin = fabs(error_spin) ;
+	if  ((conv_spin*2<rel_diff_spin) && (search_masses)) {
+	    double func = scale_ome_local*log((2+error_spin)/(2+2*error_spin)) ;
+	    hole.set_omega_local(hole.omega_local+func) ;
+	}
+
 	old_mass_ns = mass_ns ;
     
 	if (hole.get_shift_auto().get_etat() != ETATZERO)
@@ -187,8 +198,8 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
 	diff.set_etat_qcq() ;
 	int ite ;
 
-	bool adapt = true ;
- 	star.equilibrium_nsbh (adapt, ent_c, ite, itemax_equil, itemax_mp_et, relax, itemax_mp_et, relax, nbr_filtre,  diff) ;
+	bool adapt = true  ;
+ 	star.equilibrium_nsbh (adapt, ent_c, ite, itemax_equil, itemax_mp_et, relax, itemax_mp_et, relax,  diff) ;
 
 	hole.update_metric(star) ;    
 	
@@ -253,20 +264,14 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
         if (new_ome !=0) {
 		set_omega(new_ome) ;
 		if (hole.get_rot_state() == COROT)
-			hole.set_omega_local(new_ome) ;
+		  hole.set_omega_local(new_ome) ;
 	}
 		
 	// The right distance
 	double error_dist = (distance-dist)/dist ;
 	double scale_d = pow((2+error_dist)/(2+2*error_dist), 0.2) ;
 	distance *= scale_d ;
-		
-	// Set the Bh to irrotational ?
-	if ((search_masses) && (hole.get_rot_state() == IRROT)) {
-		double error_spin = spin/4/hole.rayon/hole.rayon ;
-		double increment = 0.1*log((2+error_spin)/(2+2*error_spin)) ;
-		hole.set_omega_local(hole.omega_local+increment) ;
-	}
+
 	
 	// Converge to the right masses :
 	if (search_masses) {
@@ -281,8 +286,10 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
 	double rel_diff = fabs(error_m2) ;
 	if ((search_masses) && (convergence*2 < rel_diff)) {
 	      double scaling_ent = pow((2-error_m2)/(2-2*error_m2), 2) ;
-	      ent_c *= scaling_ent ;
+	      ent_c *= scaling_ent ;	
+	    
 	}
+
 
 	
 	cout << "PAS TOTAL : " << conte << " DIFFERENCE : " << erreur << endl ;

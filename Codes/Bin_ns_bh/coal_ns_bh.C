@@ -29,6 +29,9 @@ char coal_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2006/06/01 12:47:54  p_grandclement
+ * update of the Bin_ns_bh project
+ *
  * Revision 1.7  2006/04/25 07:22:00  p_grandclement
  * Various changes for the NS_BH project
  *
@@ -83,8 +86,8 @@ int main(int argc, char** argv) {
      //	    Parameters of the computation
      //------------------------------------------------------------------
     char blabla[120] ;
-    double distance, precis, relax, search, m1, m2 ;
-    int itemax_equil, itemax_mp_et, nbr_filtre ;
+    double distance, precis, relax, search, m1, m2, scale_ome_local ;
+    int itemax_equil, itemax_mp_et ;
 
     char* name_fich = argv[1] ;
     ifstream fpar(name_fich) ;
@@ -95,7 +98,7 @@ int main(int argc, char** argv) {
     fpar >> relax ; fpar.getline(blabla, 120) ;
     fpar >> itemax_equil ; fpar.getline(blabla, 120) ;
     fpar >> itemax_mp_et ; fpar.getline(blabla, 120) ;
-    fpar >> nbr_filtre ; fpar.getline(blabla, 120) ;
+    fpar >> scale_ome_local ; fpar.getline(blabla, 120) ;
     fpar.close() ;
     
     //------------------------------------------------------------------
@@ -142,7 +145,7 @@ int main(int argc, char** argv) {
     m2 *= msol ;
 
     double ent_c_init = bin.get_ns().get_ent()()(0,0,0,0) ;
-    bin.coal (precis, relax, itemax_equil, itemax_mp_et, ent_c_init, search, distance, m1, m2, nbr_filtre, 1) ;
+    bin.coal (precis, relax, itemax_equil, itemax_mp_et, ent_c_init, search, distance, m1, m2, scale_ome_local, 1) ;
 
     // On sauve
     char name[20] ;

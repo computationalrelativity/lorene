@@ -26,6 +26,9 @@ char tenseur_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2006/06/01 12:47:54  p_grandclement
+ * update of the Bin_ns_bh project
+ *
  * Revision 1.5  2005/08/30 08:35:13  p_grandclement
  * Addition of the Tau version of the vectorial Poisson equation for the Tensors
  *
@@ -247,26 +250,28 @@ void Tenseur::poisson_vect_oohara(double lambda, Param& para, Tenseur& shift,
     Param* par = mp->donne_para_poisson_vect(para, 3) ; 
     
     source_scal().poisson(*par, chi.set());
-    
     if (par !=0x0)
       delete par ; 
   
     Tenseur source_vect(*this) ;
     if ((*this)(0).check_dzpuis(4))
 	source_vect.dec_dzpuis() ;
-    
     Tenseur chi_grad (chi.gradient()) ;
     chi_grad.inc_dzpuis() ;
     
     for (int i=0 ; i<3 ; i++)
 	source_vect.set(i) -= lambda*chi_grad(i) ;
-	
     assert( *(source_vect.triad) == *((chi.gradient()).get_triad()) ) ;
     
+    if (shift.get_etat() == ETATZERO) {
+        shift.set_etat_qcq() ;
+        for (int i=0 ; i<3 ; i++) 
+             shift.set(i) = 0 ;
+    }
+
     for (int i=0 ; i<3 ; i++) {
 	par = mp->donne_para_poisson_vect(para, i) ;
-
-	source_vect(i).poisson(*par, shift.set(i)) ;   
+        source_vect(i).poisson(*par, shift.set(i)) ;   
 
 	if (par !=0x0)
 	  delete par ; 

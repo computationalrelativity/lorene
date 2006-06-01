@@ -25,6 +25,9 @@ char bin_ns_bh_glob_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2006/06/01 12:47:52  p_grandclement
+ * update of the Bin_ns_bh project
+ *
  * Revision 1.3  2005/12/01 12:59:10  p_grandclement
  * Files for bin_ns_bh project
  *
@@ -62,26 +65,13 @@ char bin_ns_bh_glob_C[] = "$Header$" ;
 double Bin_ns_bh::adm_systeme() const {
     Cmp der_un (hole.psi_auto().dsdr()) ;
     
-    int nz = star.get_mp().get_mg()->get_nzone() ;
-    double* rlim = new double[nz+1] ;
-    rlim[0] = 0 ;
-    rlim[nz] = __infinity ;
-    for (int l=1 ; l<nz ; l++)
-        rlim[l] = star.get_mp().val_r(l, -1, 0, 0) ;
-    
-    Map_af auxi_mp (*star.get_mp().get_mg(), rlim) ;
-    Cmp auxi (star.confpsi_auto().dsdr()) ;
-    auxi.dec2_dzpuis() ;
-    Cmp der_deux (auxi_mp) ;
-    der_deux.import_symy (auxi) ;
-    der_deux.std_base_scal() ;
-    der_deux.inc2_dzpuis() ;
+    Map_af auxi_mp (star.get_mp()) ;
+    Cmp der_deux (star.confpsi_auto().dsdr()) ;
     
     double masse = hole.mp.integrale_surface_infini(der_un) + 
 	auxi_mp.integrale_surface_infini(der_deux) ;
     
     masse /= -2*M_PI ;
-    delete [] rlim ;
     return masse ;
 }
 
@@ -129,28 +119,14 @@ double Bin_ns_bh::adm_systeme_volume() const {
 double Bin_ns_bh::komar_systeme() const {
     Cmp der_un (hole.n_auto().dsdr()) ;
     
-    int nz = star.get_mp().get_mg()->get_nzone() ;
-    double* rlim = new double[nz+1] ;
-    rlim[0] = 0 ;
-    rlim[nz] = __infinity ;
-    for (int l=1 ; l<nz ; l++)
-        rlim[l] = star.get_mp().val_r(l, -1, 0, 0) ;
-    
-    Map_af auxi_mp (*star.get_mp().get_mg(), rlim) ;
-   
-    Cmp auxi (star.n_auto().dsdr()) ;
-    auxi.dec2_dzpuis() ;
-    Cmp der_deux (auxi_mp) ;
-    der_deux.import_symy (auxi) ;
-    der_deux.std_base_scal() ;
-    der_deux.inc2_dzpuis() ;
-    
+    Map_af auxi_mp (star.get_mp()) ;
+    Cmp der_deux (star.n_auto().dsdr()) ;
+
     double masse = hole.mp.integrale_surface_infini(der_un) + 
 	auxi_mp.integrale_surface_infini(der_deux) ;
-    
+
     masse /= 4*M_PI ;
     
-    delete[] rlim ;
     return masse ;
 }
 
@@ -359,11 +335,6 @@ Tbl Bin_ns_bh::linear_momentum_systeme_inf() const {
 	for (int k=0 ; k<np ; k++)
 	    for (int j=0 ; j<nt ; j++)
 	        val_inf.set(k*nt + j) = fabs(compy (nzones-1, k, j, nr-1)) ;
-	
-	double val = max(val_inf) ;
-	
-	cout << "Le shift = " << val << endl ;
-	// On n'enleve PAS les residus
 	
 	Tenseur grad (shift_tot.gradient()) ;
 	Tenseur trace (grad(0, 0)+grad(1, 1)+grad(2, 2)) ;

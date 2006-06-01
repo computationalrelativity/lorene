@@ -28,6 +28,9 @@ char lit_bin_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2006/06/01 12:47:55  p_grandclement
+ * update of the Bin_ns_bh project
+ *
  * Revision 1.4  2006/04/25 07:22:00  p_grandclement
  * Various changes for the NS_BH project
  *
@@ -86,11 +89,8 @@ int main(int argc, char** argv) {
 
     Bin_ns_bh bibi(mp_ns, *peos, mp_bh, fich) ;    
     fclose(fich) ;
-        
-    // On initialise les grandeurs derivees 
     
-    
-    
+   // On initialise les grandeurs derivees 
     bibi.set_ns().update_metric( bibi.get_bh() ) ;
     bibi.set_bh().fait_n_comp( bibi.get_ns() ) ;
     bibi.set_bh().fait_psi_comp( bibi.get_ns() ) ;
@@ -121,6 +121,14 @@ int main(int argc, char** argv) {
     double d_bh = bibi.distance_propre_axe_bh() ;
     double d_ns = bibi.distance_propre_axe_ns() ;
     
+    // Calcul de Ki 
+    int nzet = bibi.get_ns().get_nzet() ;
+    Cmp dent (bibi.get_ns().get_ent()().dsdr()) ;
+    int nr = mg_ns.get_nr(nzet-1) ;
+    int nt = mg_ns.get_nt(nzet-1) ;
+    int np = mg_ns.get_np(nzet-1) ;
+    double ki = dent(nzet-1, 0, nt-1, nr-1) / dent(nzet-1, 0,0, nr-1) ;
+
     cout << "Omega           : " << omega << endl ;  
     cout << "Masse ADM       : " << adm/ggrav/msol << " solar mass" << endl ;
     cout << "Masse ADM vol.  : " << adm_vol/ggrav/msol << " solar mass" << endl ;
@@ -135,24 +143,17 @@ int main(int argc, char** argv) {
     cout << "NS grav. mass   : " << Mg_ns/msol << " solar mass" << endl ;
     cout << "Distance BH     : " << d_bh << endl ;
     cout << "Distance NS     : " << d_ns << endl ;
-    
+
     double x_bh = bibi.get_bh().get_mp().get_ori_x() ;
     double x_ns = bibi.get_ns().get_mp().get_ori_x() ;
     double regul = bibi.get_bh().get_regul() ;
     cout << "Coord bh         : " << fabs(x_bh) << endl ;
     cout << "Coord ns         : " << fabs(x_ns) << endl ;
+    cout << "Distance         : " << (fabs(x_bh)+fabs(x_ns))/M_bh << endl ;
     cout << "Regularisation   : " << regul << endl ;
-    
-    double mtot =  M_bh + Mb_ns*ggrav ; 
-    cout << omega*mtot << " " << (adm - mtot)/mtot << endl ;
-    
-    double centre = 0 ;
-    double taille = fabs (x_bh) + fabs(x_ns) ;
-    cout << mg_ns << endl ;
-    cout << mg_bh << endl ; 
- 
-    des_map_et (mp_ns, 0) ;
-    des_map_et (mp_ns, 1) ;
+
+    double centre = (x_ns+x_bh)/2 ;
+    double taille = 1.3*(fabs (x_bh) + fabs(x_ns)) ; 
 
     des_coupe_bin_z (bibi.get_ns().get_n_auto()(), bibi.get_bh().get_n_auto()(), 0, centre-taille, centre+taille, -taille, taille, "Lapse") ;
     des_coupe_bin_z (bibi.get_ns().get_confpsi_auto()(), bibi.get_bh().get_psi_auto()(), 0, centre-taille, centre+taille, -taille, taille, "Psi") ;
@@ -160,9 +161,19 @@ int main(int argc, char** argv) {
     u_euler.annule(1, bibi.get_ns().get_mp().get_mg()->get_nzone()-1) ;
     des_coupe_vect_z (u_euler, 0, -1, 0.5, 1, "U euler") ; 
  
-    des_coupe_z (bibi.get_ns().get_ent()(), 0, x_ns-4, x_ns+4, -4, 4, "Enthalpie") ;
-    des_vect_bin_z (bibi.get_ns().get_shift_auto(),bibi.get_bh().get_shift_auto(), 0, 1000, 0.5, centre-taille, centre+taille, 
+    des_coupe_z (bibi.get_ns().get_ent()(), 0, x_ns-4, x_ns+4, -4, 4, "Enthalpie") ; 
+    des_coupe_y (bibi.get_ns().get_ent()(), 0, x_ns-4, x_ns+4, -4, 4, "Enthalpie") ;
+    des_vect_bin_z (bibi.get_ns().get_shift_auto(),bibi.get_bh().get_shift_auto(), 0, 500, 0.5, centre-taille, centre+taille, 
                               -taille, taille, "Shift") ;
 			      
+    for (int i=0 ; i<2 ; i++)
+      for (int j=0 ; j<2 ; j++) {
+	Cmp p1 (bibi.get_ns().get_taij_auto()(i,j)) ;
+        p1.dec2_dzpuis() ;
+        Cmp p2 (bibi.get_bh().get_taij_auto()(i,j)) ;
+        p2.dec2_dzpuis() ;
+	des_coupe_bin_z (p1, p2, 0, centre-taille, centre+taille, -taille, taille, "A_ij") ;
+      }
+   
     return EXIT_SUCCESS; 
 }

@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2006/06/01 12:47:50  p_grandclement
+ * update of the Bin_ns_bh project
+ *
  * Revision 1.6  2006/04/25 07:21:54  p_grandclement
  * Various changes for the NS_BH project
  *
@@ -374,7 +377,7 @@ class Et_bin_nsbh : public Etoile_bin {
 				  double thres_adapt,
 				  const Tbl& fact, Tbl& diff) ;
 
-    void equilibrium_nsbh (bool, double, int&, int, int, double, int, double, int, Tbl&) ;
+    void equilibrium_nsbh (bool, double, int&, int, int, double, int, double, Tbl&) ;
     
     /** Computes the quantities \c bsn  and \c pot_centri .
 	 * 

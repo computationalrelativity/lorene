@@ -30,6 +30,9 @@ char et_bin_nsbh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2006/06/01 12:47:53  p_grandclement
+ * update of the Bin_ns_bh project
+ *
  * Revision 1.8  2005/08/29 15:10:16  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -186,6 +189,9 @@ Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, const Eos& eos_i,
     confpsi_auto.set_etat_qcq() ;
     confpsi_auto.set() = psi_from_file ;
 
+    Tenseur shift_auto_file (mp, ref_triad_i, fich) ;
+    shift_auto = shift_auto_file ;
+	
     // All other fields are initialized to zero or some constants :
     // ----------------------------------------------------------
     n_comp = 0.5 ;
@@ -298,6 +304,7 @@ void Et_bin_nsbh::sauve(FILE* fich) const {
 
     n_auto().sauve(fich) ;
     confpsi_auto().sauve(fich) ;
+    shift_auto.sauve(fich) ;
     
     ssjm1_lapse.sauve(fich) ;
     ssjm1_confpsi.sauve(fich) ;

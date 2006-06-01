@@ -31,6 +31,9 @@ char et_bin_nsbh_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2006/06/01 12:47:53  p_grandclement
+ * update of the Bin_ns_bh project
+ *
  * Revision 1.8  2006/04/25 07:21:58  p_grandclement
  * Various changes for the NS_BH project
  *
@@ -80,7 +83,7 @@ char et_bin_nsbh_equilibrium_C[] = "$Header$" ;
 
 void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mermax,
 				   int mermax_poisson, double relax_poisson,
-				   int mermax_potvit, double relax_potvit, int nbr_filtre,
+				   int mermax_potvit, double relax_potvit,
 				   Tbl& diff) {
 				   
     // Fundamental constants and units
@@ -256,7 +259,7 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 	   } 
 	   
 	   // On adapte :  
-	   mp.adapt(ent(), par_adapt, nbr_filtre) ;
+	   mp.adapt(ent(), par_adapt) ;
 	   mp_prev.homothetie(alpha_r) ;
 
 	   for (int l=nzet ; l<nz-1 ; l++)
@@ -302,7 +305,7 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 	Tenseur confpsi_c = pow(confpsi, 5.) ;
 	
 	if (relativistic) {
-	    Tenseur tmp = flat_scalar_prod(tkij_tot, tkij_auto) ;
+	    Tenseur tmp = flat_scalar_prod_desal(tkij_tot, tkij_auto) ;
 	    Tenseur kk (mp) ;
 	    kk = 0 ;
 	    Tenseur tmp2(mp) ;
@@ -312,9 +315,9 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 		kk = kk + tmp2 ;
 	    }
 	    
-	    source = qpig * nnn * confpsi_q * (ener_euler + s_euler)
-		+ nnn * confpsi_q * kk
-		- 2.*flat_scalar_prod(d_confpsi_auto+d_confpsi_comp, d_n_auto) /
+	    source = qpig * nnn % confpsi_q % (ener_euler + s_euler)
+		+ nnn % confpsi_q % kk
+		- 2.*flat_scalar_prod_desal(d_confpsi_auto+d_confpsi_comp, d_n_auto) /
 		confpsi ;
 	}
 	else {
@@ -356,7 +359,7 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 	    // See Eq (51) from Gourgoulhon et al. (2001)
 	    // ------------------------------------------
 
-	    Tenseur tmp = flat_scalar_prod(tkij_tot, tkij_auto) ;
+	    Tenseur tmp = flat_scalar_prod_desal(tkij_tot, tkij_auto) ;
 	    Tenseur kk (mp) ;
 	    kk = 0 ;
 	    Tenseur tmp2(mp) ;
@@ -366,8 +369,8 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 		kk = kk + tmp2 ;
 	    }
 
-	    source = -0.5 * qpig * confpsi_c * ener_euler
-		- 0.125 * confpsi_c * kk ;
+	    source = -0.5 * qpig * confpsi_c % ener_euler
+		- 0.125 * confpsi_c % kk ;
 
 	    source.set_std_base() ; 	
 	    
@@ -398,21 +401,22 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 	    // Source
 	    // See Eq (52) from Gourgoulhon et al. (2001)
 	    // ------
-       
-	    Tenseur vtmp = d_n_auto -6. * nnn * d_confpsi_auto / confpsi ;
-	    source_shift = 4.*qpig * nnn * confpsi_q * (ener_euler + press)
-		* u_euler
-		+ 2.* flat_scalar_prod(tkij_tot, vtmp) ;
+	 Tenseur vtmp = d_n_auto -6. * nnn % d_confpsi_auto / confpsi ;
+	    source_shift = 4.*qpig * nnn % confpsi_q % (ener_euler + press)
+	       % u_euler ;
+        if (tkij_tot.get_etat() != ETATZERO)	    
+	source_shift = source_shift + 2.* flat_scalar_prod_desal(tkij_tot, vtmp) ;
 	    source_shift.set_std_base() ;
-	    
-
 	    // Resolution of the Poisson equation 
 	    // ----------------------------------
-	    // Filter for the source of shift vector    
-	   for (int i=0; i<3; i++)
-	      if ((source_shift(i).get_etat() != ETATZERO) && (source_shift(i).va.c->t[nz-1]->get_etat() != ETATZERO))
-		source_shift.set(i).filtre(4) ;
+	    // Filter for the source of shift vector 
+	for (int i=0 ; i<3 ; i++)
+         if (source_shift(i).get_etat() !=  ETATZERO)
+           source_shift.set(i).va.coef_i() ;	   
 
+for (int i=0; i<3; i++)
+	      if ((source_shift(i).get_etat() != ETATZERO) && (source_shift(i).va.c->t[nz-1]->get_etat() != ETATZERO)) 
+		source_shift.set(i).filtre(4) ;
 	    for (int i=0; i<3; i++) {
 		if(source_shift(i).dz_nonzero()) {
 		    assert( source_shift(i).get_dzpuis() == 4 ) ;
@@ -425,13 +429,11 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 	    // source_shift.dec2_dzpuis() ;    // dzpuis 4 -> 2
 
 	    double lambda_shift = double(1) / double(3) ;
-
 	    // ON DOIT CHANGER DE TRIADE
 	    source_shift.change_triad(mp.get_bvect_cart()) ;
-	    Tenseur shift_old (shift_auto) ;    
-	    source_shift.poisson_vect(lambda_shift, par_poisson_vect,
-				      shift_auto, w_shift, khi_shift) ;
-
+	    Tenseur shift_old (shift_auto) ;  
+	    source_shift.poisson_vect_oohara(lambda_shift, par_poisson_vect,
+				      shift_auto, khi_shift) ;
 	   shift_auto.change_triad(ref_triad) ;
 
 	    // Check: has the equation for shift_auto been correctly solved ?
