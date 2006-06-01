@@ -28,6 +28,9 @@ char spheroid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2006/06/01 11:47:50  j_novak
+ * Memory error hunt.
+ *
  * Revision 1.3  2006/06/01 08:18:16  n_vasset
  * Further implementation of Spheroid class definitions
  *
@@ -109,20 +112,21 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
     int nr3 = gri3d.get_nr(0) ;
     int nt3 = gri3d.get_nt(0) ;    
     int np3 = gri3d.get_np(0) ;
-    int lz = gri3d.get_nzone() ;
+    int nz = gri3d.get_nzone() ;
     assert( nt == nt3 ) ; 
     assert ( np == np3 ); 
     assert ( nr3 != 1 );  
  
 
     Param pipo ;
-    double xi = 0. ; 
+    double xi = 0. ;
+    int lz = 0 ;
     // Copy of the 2-dimensional h_surf to a 3_d h_surf (calculus commodity, in order to match grids)
     Scalar h_surf3 (map3); 
  
     h_surf3.allocate_all();
     h_surf3.std_spectral_base();
-    for (int f= 0; f< lz; f++)
+    for (int f= 0; f< nz; f++)
         for (int k=0; k<np3; k++)
 	for (int j=0; j<nt3; j++) {
 	    for (int l=0; l<nr3; l++) {
@@ -154,7 +158,7 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
 	Tensor tempjac (Kij.get_mp(), 2, COV, Kij.get_mp().get_bvect_spher());
 	tempjac.std_spectral_base();
         tempjac.allocate_all(); 
-	for (int f=0; f<lz; f++)          
+	for (int f=0; f<nz; f++)          
        for (int k=0; k<np3; k++)
 	for (int j=0; j<nt3; j++) {
 	    for (int l=0; l<nr3; l++) {
@@ -260,9 +264,8 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
 				   lz, xi) ;
 	    qab2.set(l,m).set_grid_point(0, k, j, 0) = 
 		qq3d(l,m).get_spectral_va().val_point_jk(lz, xi, j, k) ;
-	
-            qab= qab2;
 	}
+            qab= qab2;
 
 	 // Computation of the trace of the extrinsic curvature of 3-slice
     Scalar trk3d = Kij.trace(gamij) ;
@@ -318,25 +321,26 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
     //perform following contraction. (new variable temp2q)
 
     Tensor temp2q(Kij.get_mp(),2, COV, Kij.get_mp().get_bvect_spher());
-    temp2q.std_spectral_base();
     temp2q.allocate_all();
-    for (int f=0; f< lz; f++)
-        for (int k=0; k<np3; k++)
-	for (int j=0; j<nt3; j++) {
-	    for (int l=0; l<nr3; l++) {
-                for( int m=1; m<4; m++)
-		    for( int n=1; n<4; n++){
-		      temp2q.set (m,n).set_grid_point(f,k,j,l) =tempq(m,n).val_grid_point(0,k,j,0);
+    for( int m=1; m<4; m++)
+	for( int n=1; n<4; n++){
+	    temp2q.set(m,n) = -1.111 ;
+	    for (int f=0; f< nz; f++)
+		for (int k=0; k<np3; k++)
+		    for (int j=0; j<nt3; j++) {
+			for (int l=0; l<nr3; l++) {
+			    temp2q.set(m,n).set_grid_point(f,k,j,l) =
+				tempq(m,n).val_grid_point(0,k,j,0);
+			}
 		    }
-	    }
 	}
-
-
-        Tensor sxss3 = ss3d * ss3d;
-        sxss3.std_spectral_base();
+    temp2q.std_spectral_base();
+    
+    Tensor sxss3 = ss3d * ss3d;
+    sxss3.std_spectral_base();
  
 
-	     Tensor temp = ss3d.up(0, gamij) * (temp2q.up(0, gamij)) ;
+	Tensor temp = ss3d.up(0, gamij) * (temp2q.up(0, gamij)) ;
 	Vector ll3d = contract(contract(Kij, 1, temp ,1), 0, 1); 
 
 	/* Computation of the 3-d l vector on the "round" coordinates
