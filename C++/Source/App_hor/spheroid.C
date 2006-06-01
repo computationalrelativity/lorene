@@ -28,11 +28,8 @@ char spheroid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.2  2006/05/26 13:49:10  j_novak
- * Method for computing the Ricci tensor on the Spheroid.
- *
- * Revision 1.1  2006/05/26 13:20:43  j_novak
- * New class spheroid.
+ * Revision 1.3  2006/06/01 08:18:16  n_vasset
+ * Further implementation of Spheroid class definitions
  *
  * $Header$
  *
@@ -42,10 +39,12 @@ char spheroid_C[] = "$Header$" ;
 #include <math.h>
 
 // Lorene headers
+#include "metric.h"
 #include "spheroid.h"
 #include "utilitaires.h"
 #include "param.h"
-
+#include "itbl.h"
+#include "map.h"
                      //---------------//
                      //  Constructors //
                      //--------------// 
@@ -93,92 +92,179 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
 
 {
     const Map& map = h_in.get_mp() ;
+    const Map& map3 = Kij.get_mp();
     const Mg3d& gri2d = *map.get_mg() ;
 
     const Map_radial* mp_rad = dynamic_cast<const Map_radial*>(&Kij.get_mp()) ;
-    assert(mp_rad != 0x0) ;
+    assert(mp_rad != 0x0) ; 
     
+    const Mg3d& gri3d = *map3.get_mg();
     assert(&gri2d == Kij.get_mp().get_mg()->get_angu_1dom()) ;
+
 
     int np = gri2d.get_np(0) ;
     int nt = gri2d.get_nt(0) ;
-    Param pipo ;
-    int lz = 0 ;
-    double xi = 0. ; 
-  
-  // Scalar field which annulation characterizes the 2-surface
-    Scalar carac = h_surf-map.r ; 
-    // Computation of the normal vector (covariant form) 
-    Vector ss (h_in.get_mp(), COV, h_in.get_mp().get_bvect_spher()) ;
-    Vector ss3d= carac.derive_con(gamij) ;
-    ss.allocate_all() ; 
-        for (int k=0; k<np; k++)
-	for (int j=0; j<nt; j++)
-        for (int l=1; l<4; l++) {
-	    mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0), j, k, pipo,
-				   lz, xi) ;
-	    Scalar temp= ss(l);
-	    temp.set_grid_point(0, k, j, 0) = 
-		ss3d(l).get_spectral_va().val_point_jk(lz, xi, j, k) ;
-	    ss.set(l)=temp;
-	}
-  
-	Sym_tensor sxss = ss*ss ; 
-	/* Computation of the metric linked to the 2-surface. 
-           It will be designed as a block-diagonal 3-metric, with 1 for 
-           the first coordinate and the concerned 2-d  metric as a 
-	   second block */
+    //  int nr = gri2d.get_nr(0) ;
 
-	Sym_tensor qq3d (h_in.get_mp(), COV, h_in.get_mp().get_bvect_spher());
-        Sym_tensor qab2 (h_in.get_mp(), COV, h_in.get_mp().get_bvect_spher());
-	qq3d.set_etat_zero();
-  
-        qq3d.set(1,1) = 1;
-        qq3d.set(2,2)= gamij.cov()(1,1) * (h_surf.srdsdt())* (h_surf.srdsdt()) + 2*  gamij.cov()(1,2)* (h_surf.srdsdt()) +  gamij.cov()(2,2);
-        qq3d.set(3,3)= gamij.cov()(1,1)* (h_surf.srstdsdp())*(h_surf.srstdsdp())+2*gamij.cov()(1,3)* (h_surf.srstdsdp()) +gamij.cov()(3,3);
-        qq3d.set(2,3)= gamij.cov()(1,1)* (h_surf.srdsdt())* (h_surf.srstdsdp())+
-	    gamij.cov()(1,2)* (h_surf.srstdsdp())+gamij.cov()(1,3)* (h_surf.srdsdt()) + gamij.cov()(2,3) ; 
-        qq3d.set(3,2)= gamij.cov()(1,1)* (h_surf.srdsdt())* (h_surf.srstdsdp())+
-	    gamij.cov()(1,2)* (h_surf.srstdsdp())+gamij.cov()(1,3)* (h_surf.srdsdt()) + gamij.cov()(2,3) ; 
-  
-         qab2.allocate_all() ; 
-        for (int k=0; k<np; k++)
+    int nr3 = gri3d.get_nr(0) ;
+    int nt3 = gri3d.get_nt(0) ;    
+    int np3 = gri3d.get_np(0) ;
+    int lz = gri3d.get_nzone() ;
+    assert( nt == nt3 ) ; 
+    assert ( np == np3 ); 
+    assert ( nr3 != 1 );  
+ 
+
+    Param pipo ;
+    double xi = 0. ; 
+    // Copy of the 2-dimensional h_surf to a 3_d h_surf (calculus commodity, in order to match grids)
+    Scalar h_surf3 (map3); 
+ 
+    h_surf3.allocate_all();
+    h_surf3.std_spectral_base();
+    for (int f= 0; f< lz; f++)
+        for (int k=0; k<np3; k++)
+	for (int j=0; j<nt3; j++) {
+	    for (int l=0; l<nr3; l++) {
+ 
+		h_surf3.set_grid_point(f,k,j,l) = h_surf.val_grid_point(0,k,j,0);
+	}
+	}
+
+	/* Computation of the jacobian matrix linked to the mapping from the
+            spheroid to a coordinate sphere. All quantities will then be calculated
+             as from a real coordinate sphere 
+	*/
+
+	Tensor jac (h_in.get_mp(), 2,COV, h_in.get_mp().get_bvect_spher());
+ 
+	jac.set_etat_zero(); 
+        jac.std_spectral_base();
+	jac.set(1,1) = 1. ;
+        jac.set(2,2)= 1. ;
+        jac.set(3,3) = 1. ; 
+        jac.set(1,2) = h_surf.srdsdt() ; 
+        jac.set(1,3) = h_surf.srstdsdp() ;
+
+        jac.std_spectral_base() ;
+
+	/* Computation of the jacobian projector, on the 3-D grid*/
+
+
+	Tensor tempjac (Kij.get_mp(), 2, COV, Kij.get_mp().get_bvect_spher());
+	tempjac.std_spectral_base();
+        tempjac.allocate_all(); 
+	for (int f=0; f<lz; f++)          
+       for (int k=0; k<np3; k++)
+	for (int j=0; j<nt3; j++) {
+	    for (int l=0; l<nr3; l++) {
+                for( int m=1; m<4; m++)
+		    for( int n=1; n<4; n++){
+		      tempjac.set (m,n).set_grid_point(f,k,j,l) =jac(m,n).val_grid_point(0,k,j,0);
+		    }
+	    }
+	}
+
+
+
+		Tensor jac3d = tempjac.up(0, gamij);
+
+		/* Computation of the jacobian projector on the 2-D grid*/
+		Itbl type (2);
+                type.set(0)= CON;
+		type.set(1)= COV;
+             
+		Tensor jacproj (h_in.get_mp(), 2, type, h_in.get_mp().get_bvect_spher()); 
+                jacproj.allocate_all();
+                jacproj.std_spectral_base();
+                jacproj.set_etat_qcq();
+    for (int k=0; k<np; k++)
 	for (int j=0; j<nt; j++)
         for (int l=1; l<4; l++)
         for (int m=1; m<4; m++) {
 	    mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0), j, k, pipo,
 				   lz, xi) ;
-	    Scalar temp3= qab2(l,m);
-	    temp3.set_grid_point(0, k, j, 0) = 
-		qq3d(l,m).get_spectral_va().val_point_jk(lz, xi, j, k) ;
-	    qab2.set(l,m)=temp3;
-	
-            qab= qq3d;
-	}
-	    // Computation of the trivial projector on the two last components
+	    jacproj.set(l,m).set_grid_point(0, k, j, 0) = 
+		jac3d(l,m).get_spectral_va().val_point_jk(lz, xi, j, k) ;
+       
+	}   
+
+		    // Computation of the trivial projector on the two last components
    
-	    Sym_tensor proj3d(h_in.get_mp(), COV, h_in.get_mp().get_bvect_spher());
- 
+	    Tensor proj3d(Kij.get_mp(),2,  type, Kij.get_mp().get_bvect_spher());
+	proj3d.allocate_all();
         proj3d.set_etat_zero() ;
        	proj3d.set(3,3)= 1. ;
         proj3d.set(2,2)= 1. ;    
         
+        proj3d.std_spectral_base();
 	proj.allocate_all() ; 
+
          for (int k=0; k<np; k++)
 	for (int j=0; j<nt; j++)
         for (int l=1; l<4; l++)
         for (int m=1; m<4; m++) {
 	    mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0), j, k, pipo,
 				   lz, xi) ;
-	    Scalar temp4= proj(l,m);
-	    temp4.set_grid_point(0, k, j, 0) = 
+	    proj.set(l,m).set_grid_point(0, k, j, 0) = 
 		proj3d(l,m).get_spectral_va().val_point_jk(lz, xi, j, k) ;
-	    proj.set(l,m)=temp4;
        
+      
 	}   
 
 
-    // Computation of the trace of the extrinsic curvature of 3-slice
+  // Scalar field which annulation characterizes the 2-surface
+    Scalar carac = h_surf3-Kij.get_mp().r ; 
+    // Computation of the normal vector (covariant form) 
+    Vector ss (h_in.get_mp(), COV, h_in.get_mp().get_bvect_spher()) ;
+    Vector ss3d= carac.derive_cov(gamij) ;
+
+    ss3d = contract( proj3d, 0, contract(jac3d, 0, ss3d, 0), 0); 
+    ss.allocate_all() ; 
+    ss.std_spectral_base();
+
+        for (int k=0; k<np; k++)
+	for (int j=0; j<nt; j++)
+        for (int l=1; l<4; l++) {
+	    mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0), j, k, pipo,
+				   lz, xi) ;
+	    ss.set(l).set_grid_point(0, k, j, 0) = 
+		ss3d(l).get_spectral_va().val_point_jk(lz, xi, j, k) ;
+	}
+	Sym_tensor sxss = ss*ss ; 
+
+
+	/* Computation of the metric linked to the 2-surface. 
+           It will be designed as a block-diagonal 3-metric, with 1 for 
+           the first coordinate and the concerned 2-d  metric as a 
+	   second block */
+
+	Sym_tensor qq3d (Kij.get_mp(), COV, Kij.get_mp().get_bvect_spher());
+        Sym_tensor qab2 (h_in.get_mp(), COV, h_in.get_mp().get_bvect_spher());
+	qq3d.set_etat_zero();
+        qq3d.set(1,1) = 1;
+        qq3d.set(2,2)= gamij.cov()(1,1) * (h_surf3.srdsdt())* (h_surf3.srdsdt()) + 2*  gamij.cov()(1,2)* (h_surf3.srdsdt()) +  gamij.cov()(2,2);
+        qq3d.set(3,3)= gamij.cov()(1,1)* (h_surf3.srstdsdp())*(h_surf3.srstdsdp())+2*gamij.cov()(1,3)* (h_surf3.srstdsdp()) +gamij.cov()(3,3);
+        qq3d.set(2,3)= gamij.cov()(1,1)* (h_surf3.srdsdt())* (h_surf3.srstdsdp())+
+	    gamij.cov()(1,2)* (h_surf3.srstdsdp())+gamij.cov()(1,3)* (h_surf3.srdsdt()) + gamij.cov()(2,3) ; 
+        qq3d.set(3,2)= gamij.cov()(1,1)* (h_surf3.srdsdt())* (h_surf3.srstdsdp())+
+	    gamij.cov()(1,2)* (h_surf3.srstdsdp())+gamij.cov()(1,3)* (h_surf3.srdsdt()) + gamij.cov()(2,3) ; 
+         qq3d.std_spectral_base();
+         qab2.allocate_all() ;
+         qab2.std_spectral_base(); 
+        for (int k=0; k<np; k++)
+	for (int j=0; j<nt; j++)
+        for (int l=1; l<4; l++)
+        for (int m=1; m<4; m++) {
+	    mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0), j, k, pipo,
+				   lz, xi) ;
+	    qab2.set(l,m).set_grid_point(0, k, j, 0) = 
+		qq3d(l,m).get_spectral_va().val_point_jk(lz, xi, j, k) ;
+	
+            qab= qab2;
+	}
+
+	 // Computation of the trace of the extrinsic curvature of 3-slice
     Scalar trk3d = Kij.trace(gamij) ;
     trk.allocate_all() ; 
     for (int k=0; k<np; k++)
@@ -188,13 +274,13 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
 	    trk.set_grid_point(0, k, j, 0) = 
 		trk3d.get_spectral_va().val_point_jk(lz, xi, j, k) ;
 	}
-   
+	 	 
     // Computation of the normalization factor of the outgoing null vector.
 
-    Scalar fff3d (map);
+    Scalar fff3d (map3);
     fff3d = 1. ; 
     fff.allocate_all() ; 
-  
+    fff3d.std_spectral_base();
         for (int k=0; k<np; k++)
 	for (int j=0; j<nt; j++) {
 	    mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0), j, k, pipo,
@@ -206,10 +292,10 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
 
     // Computation of the normalization factor of the ingoing null vector.
 
-    Scalar ggg3d (map);
+    Scalar ggg3d (map3);
     ggg3d = 1. ; 
     ggg.allocate_all() ; 
-  
+    ggg3d.std_spectral_base();
         for (int k=0; k<np; k++)
 	for (int j=0; j<nt; j++) {
 	    mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0), j, k, pipo,
@@ -218,44 +304,58 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
 		ggg3d.get_spectral_va().val_point_jk(lz, xi, j, k) ;
 	}
 
-	/* Computation of the jacobian matrix linked to the mapping from the
-            spheroid to a coordinate sphere. All quantities will then be calculated
-             as from a real coordinate sphere 
-	*/
 
-	Tensor jac (h_in.get_mp(), 2,COV, h_in.get_mp().get_bvect_spher());
- 
-	jac.set_etat_zero(); 
-
-	jac.set(1,1) = 1. ;
-        jac.set(2,2)= 1. ;
-        jac.set(3,3) = 1. ; 
-        jac.set(1,2) = h_surf.srdsdt() ; 
-        jac.set(1,3) = h_surf.srstdsdp() ;
-
-        jac.std_spectral_base() ;
-
+	
+     
     /* Computation of the tangent part of the extrinsic curvature of
      * the 2 surface embedded in the 3 slice. The reference vector
      used is the vector field s */
    
-    Tensor temp = ss * qab.cov() ; 
-    Vector ll3d = contract( Kij, 1, temp, 1);
-    Vector ll2 (h_in.get_mp(), COV, h_in.get_mp().get_bvect_spher());
-    ll2.set_etat_zero();
-            ll.allocate_all() ; 
+    Tensor tempq= qab.cov() ;
+    
+  
+    // now we need to convert this tensor in the 3d grid in order to 
+    //perform following contraction. (new variable temp2q)
+
+    Tensor temp2q(Kij.get_mp(),2, COV, Kij.get_mp().get_bvect_spher());
+    temp2q.std_spectral_base();
+    temp2q.allocate_all();
+    for (int f=0; f< lz; f++)
+        for (int k=0; k<np3; k++)
+	for (int j=0; j<nt3; j++) {
+	    for (int l=0; l<nr3; l++) {
+                for( int m=1; m<4; m++)
+		    for( int n=1; n<4; n++){
+		      temp2q.set (m,n).set_grid_point(f,k,j,l) =tempq(m,n).val_grid_point(0,k,j,0);
+		    }
+	    }
+	}
+
+
+        Tensor sxss3 = ss3d * ss3d;
+        sxss3.std_spectral_base();
+ 
+
+	     Tensor temp = ss3d.up(0, gamij) * (temp2q.up(0, gamij)) ;
+	Vector ll3d = contract(contract(Kij, 1, temp ,1), 0, 1); 
+
+	/* Computation of the 3-d l vector on the "round" coordinates
+	 * using jacobian
+         * NB: only for intermediate calculus purpose */
+      Vector ll3 = contract(proj3d,0, (contract(jac3d,0, ll3d,0)),0);
+            ll.allocate_all() ;
+            ll.std_spectral_base(); 
         for (int k=0; k<np; k++)
 	for (int j=0; j<nt; j++)
         for (int l=1; l<4; l++) {
 	    mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0), j, k, pipo,
 				   lz, xi) ;
-	    Scalar temp1= ll2(l);
-	    temp1.set_grid_point(0, k, j, 0) = 
-		ll3d(l).get_spectral_va().val_point_jk(lz, xi, j, k) ;
-            ll2.set(l)=temp1;
+	    ll.set(l).set_grid_point(0, k, j, 0) = 
+		ll3(l).get_spectral_va().val_point_jk(lz, xi, j, k) ;
 
-	    ll = (contract(jac.up(0, gamij),0, ll,0));
 	} 
+ 
+	// note: check whether projection method is correct here or not
     
 	/* computation of the tangent components of the extrinsic curvature 
          *of the 3-slice 
@@ -263,42 +363,38 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
          * Note: this is not the actual 2d_ extrinsic curvature, but the 
          *tangent part of the time-slice extrinsic curvature (nuance)*/
  
-    Tensor jj3d= Kij + ss*ll + ll*ss + contract(Kij, 0,1,sxss, 0, 1);
-    Tensor jj2  (h_in.get_mp(), 2,COV, h_in.get_mp().get_bvect_spher());
-    jj2.set_etat_zero();
+    Tensor jj3d= Kij + ss3d*ll3d + ll3d*ss3d + contract((Kij.up(0, gamij)).up(1,gamij), 0,1,sxss3, 0, 1)* sxss3;
+    Tensor jj3 =contract(proj3d,0,( contract(proj3d,0,contract(jac3d,0,(contract(jac3d,0, jj3d,1)),0),1)),0);
                      jj.allocate_all() ; 
+		     jj.std_spectral_base();
         for (int k=0; k<np; k++)
 	for (int j=0; j<nt; j++)
         for (int l=1; l<4; l++)
         for (int m=1; m<4; m++) {
 	    mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0), j, k, pipo,
 				   lz, xi) ;
-	    Scalar temp2= jj2(l,m);
-	    temp2.set_grid_point(0, k, j, 0) = 
-		jj3d(l,m).get_spectral_va().val_point_jk(lz, xi, j, k) ;
-            jj2.set(l,m)=temp2;
+	    jj.set(l,m).set_grid_point(0, k, j, 0) = 
+		jj3(l,m).get_spectral_va().val_point_jk(lz, xi, j, k) ;
  
-	    jj = contract(jac.up(0, gamij),0,(contract(jac.up(0, gamij),0, jj,1)),0);
 	} 
 
 	// COmputation of 2d extrinsic curvature in the 3-slice
     
-	Tensor hh3d = qab.cov().up(1, gamij)*ss.derive_con(gamij) ;
-        Tensor hh2  (h_in.get_mp(), 2,COV, h_in.get_mp().get_bvect_spher());
-	hh2.set_etat_zero();
+	Tensor hh3d = contract(qq3d.up(0, gamij), 0,ss3d.derive_cov(gamij),1) ;
+
+        Tensor hh3 =contract(proj3d,0,( contract(proj3d,0,contract(jac3d,0,(contract(jac3d,0, hh3d,1)),0),1)),0);
+
                      hh.allocate_all() ; 
+                     hh.std_spectral_base();
         for (int k=0; k<np; k++)
 	for (int j=0; j<nt; j++)
         for (int l=1; l<4; l++)
         for (int m=1; m<4; m++) {
 	    mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0), j, k, pipo,
 				   lz, xi) ;
-	    Scalar temp3= hh2(l,m);
-	    temp3.set_grid_point(0, k, j, 0) = 
-		hh3d(l,m).get_spectral_va().val_point_jk(lz, xi, j, k) ;
-	    hh2.set(l,m)=temp3;
+	    hh.set(l,m).set_grid_point(0, k, j, 0) = 
+		hh3(l,m).get_spectral_va().val_point_jk(lz, xi, j, k) ;
 
-	    hh= contract(jac.up(0, gamij),0,(contract(jac.up(0, gamij),0, hh,1)),0); 
 	}
        
 
@@ -345,7 +441,6 @@ void Spheroid::del_deriv() const {
     if (p_theta_plus != 0x0) delete p_theta_plus ;
     if (p_theta_minus != 0x0) delete p_theta_minus ;
     if (p_shear != 0x0) delete p_shear ;
-    if (p_ricci != 0x0) delete p_ricci ;
 
     set_der_0x0() ;
 }
@@ -357,7 +452,6 @@ void Spheroid::set_der_0x0() const {
     p_theta_plus = 0x0 ;
     p_theta_minus = 0x0 ;
     p_shear = 0x0 ;
-    p_ricci = 0x0 ;
 } 
 
 
@@ -377,14 +471,25 @@ void Spheroid::set_der_0x0() const {
 
 // Computation of the 2-dimensional area of the surface
 
+  
    double  Spheroid::area() const {
       if (p_area == 0x0) {
-   
-      p_area = new double ((sqrt_q()*h_surf*h_surf).integrale()) ;
+   const Map_af& mp_ang = dynamic_cast<const Map_af&>(h_surf.get_mp()) ;
+      p_area = new double (mp_ang.integrale_surface((sqrt_q()) * h_surf *h_surf, 1)) ;
   } 
      return *p_area;
 } 
 
+// Computation of the angular momentum of the surface (G is set to be identically one)
+
+   double Spheroid::angu_mom(const Vector& phi) const {
+    if (p_angu_mom == 0x0) { 
+   
+	Scalar temp = contract(ll.up(0, qab),0, phi,0);
+	p_angu_mom = new double ((sqrt_q()*h_surf*h_surf*temp).integrale()) ;
+    }
+    return *p_angu_mom;
+}
 // Outgoing null expansion of 2-surface
 
 const Scalar &Spheroid::theta_plus() const {
@@ -422,7 +527,55 @@ const Sym_tensor& Spheroid::shear() const {
  
 }
 
+// Ricci tensor of the 2-surface 
  
+const Sym_tensor& Spheroid::ricci() const {
+    if (p_ricci == 0x0) {
+   	Tensor riccia(h_surf.get_mp(), 2, COV, h_surf.get_mp().get_bvect_spher()) ;
+        riccia.set_etat_zero();
+	for (int i=1; i<=3; i++)
+	    riccia.set(1,i) = 0 ;
+	Vector ei(h_surf.get_mp(), CON, h_surf.get_mp().get_bvect_spher()) ;
+	ei.set_etat_zero() ;
+	ei.set(2) = 1 ;
+	ei.set(2).std_spectral_base() ;
+	ei.set(2).mult_cost() ;
+	ei.set(2).mult_sint() ;
+
+	Tensor dei = ei.derive_cov(qab) ;
+	dei = contract(proj, 1, contract(proj, 0, dei, 1), 1) ;
+	Tensor d2ei = dei.derive_cov(qab) ;
+	d2ei = contract(proj, 1, contract(proj, 0, contract(proj, 0, d2ei, 2), 2), 2) ;
+	Vector r1 = d2ei.trace(0,2) - d2ei.trace(0,1) ;
+	for (int i=1; i<=3; i++) {
+	    r1.set(i).div_sint() ;
+	    r1.set(i).div_cost() ;
+	}
+	for (int j=1; j<=3; j++){
+	    riccia.set(j,2)= r1(j);
+	}
+	
+	ei.set_etat_zero() ;
+	ei.set(3) = 1 ;
+	ei.set(3).std_spectral_base() ;
+	ei.set(3).mult_sint() ;
+
+	dei = ei.derive_cov(qab) ;
+	dei = contract(proj, 1, contract(proj, 0, dei, 1), 1) ;
+	d2ei = dei.derive_cov(qab) ;
+	d2ei = contract(proj, 1, contract(proj, 0, contract(proj, 0, d2ei, 2), 2), 2) ;
+	Vector r2 = d2ei.trace(0,2) - d2ei.trace(0,1) ;
+	for (int i=1; i<=3; i++) {
+	    r2.set(i).div_sint() ;
+	}
+	for (int j=1; j<=3; j++) {
+	    riccia.set(j,3) = r2(j) ;
+	}
+	p_ricci = new Sym_tensor(riccia);
+}
+    return * p_ricci;
+}
+
 void Spheroid::sauve(FILE* ) const {
 
     cout << "c'est pas fait!" << endl ;
