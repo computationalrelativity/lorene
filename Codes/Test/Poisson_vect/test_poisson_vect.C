@@ -29,6 +29,9 @@ char test_poisson_vect_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2006/06/05 09:48:33  j_novak
+ * Using version 6 of the vector Poisson solver
+ *
  * Revision 1.1  2004/02/22 15:48:49  j_novak
  * New code for testing vector Poisson equation.
  *
@@ -168,7 +171,7 @@ int main() {
 	    theo_p.set(i) = Cmp(theo(i+1)) ;
 	  }
 
-	  Vector resus = source_s.poisson(lamda, mets) ;
+	  Vector resus = source_s.poisson(lamda, mets,6) ;
 	  Vector resu = resus ;
 	  resu.change_triad(map.get_bvect_cart() ) ;
 
