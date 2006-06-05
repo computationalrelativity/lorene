@@ -31,6 +31,9 @@ char binary_helical_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2006/06/05 17:05:57  f_limousin
+ * *** empty log message ***
+ *
  * Revision 1.1  2006/04/11 14:25:15  f_limousin
  * New version of the code : improvement of the computation of some
  * critical sources, estimation of the dirac gauge, helical symmetry...
@@ -66,7 +69,9 @@ void Binary::helical(){
     Sym_tensor lie_aij_1 (star1.mp, CON, star1.mp.get_bvect_cart()) ;
     Sym_tensor lie_aij_2 (star2.mp, CON, star2.mp.get_bvect_cart()) ;
 
- 
+    Scalar lie_K_1 (star1.mp) ;
+    Scalar lie_K_2 (star2.mp) ;
+
     for (int ll=1; ll<=2; ll++) {
 	
 	Star_bin star_i (*et[ll-1]) ;
@@ -151,7 +156,7 @@ void Binary::helical(){
 	// --------------------------------
 	
 	double r0 = mp.val_r(nz-2, 1, 0, 0) ;
-	double sigma = 6.*r0 ;
+	double sigma = 1.*r0 ;
 	double om = omega ;
 	
 	Scalar rr (mp) ;
@@ -169,7 +174,6 @@ void Binary::helical(){
 	// ---------------------------------
 
 	Vector omdsdp (mp, CON, mp.get_bvect_cart()) ;
-	Vector omdsdp_zec (mp, CON, mp.get_bvect_cart()) ;
 	Scalar yya (mp) ;
 	yya = mp.ya ;
 	Scalar xxa (mp) ;
@@ -178,40 +182,18 @@ void Binary::helical(){
 	zza = mp.za ;
 
 	if (fabs(mp.get_rot_phi()) < 1e-10){ 
-	    omdsdp.set(1) = - om * yya ;
-	    omdsdp.set(2) = om * xxa ;
+	    omdsdp.set(1) = - om * yya * ff ;
+	    omdsdp.set(2) = om * xxa * ff ;
 	    omdsdp.set(3).annule_hard() ;
 	}
 	else{
-	    omdsdp.set(1) = om * yya  ;
-	    omdsdp.set(2) = - om * xxa ;
+	    omdsdp.set(1) = om * yya * ff ;
+	    omdsdp.set(2) = - om * xxa * ff ;
 	    omdsdp.set(3).annule_hard() ;
 	}
-
-	Vector omdsdp_ff (omdsdp*ff) ;
-	omdsdp_ff.set(1).set_outer_boundary(nz-1, 0) ;
-	omdsdp_ff.set(2).set_outer_boundary(nz-1, 0) ;
-	omdsdp_ff.std_spectral_base() ;
-	
-
-	if (fabs(mp.get_rot_phi()) < 1e-10){ 
-	    omdsdp_zec.set(1) = - om * yya / rr / rr ;
-	    omdsdp_zec.set(2) = om * xxa / rr / rr ;
-	    omdsdp_zec.set(3).annule_hard() ;
-	}
-	else{
-	    omdsdp_zec.set(1) = om * yya / rr / rr ;
-	    omdsdp_zec.set(2) = - om * xxa /rr / rr ;
-	    omdsdp_zec.set(3).annule_hard() ;
-	}
-
-	omdsdp_zec.set(1).set_outer_boundary(nz-1, 0) ;
-	omdsdp_zec.set(2).set_outer_boundary(nz-1, 0) ;
-	    
-	omdsdp.set(1).set_domain(nz-1) = omdsdp_zec(1).domain(nz-1) ;
-	omdsdp.set(2).set_domain(nz-1) = omdsdp_zec(2).domain(nz-1) ;
-	omdsdp.set(3).set_domain(nz-1) = omdsdp_zec(3).domain(nz-1) ;
-	    
+ 
+	omdsdp.set(1).set_outer_boundary(nz-1, 0) ;
+	omdsdp.set(2).set_outer_boundary(nz-1, 0) ;	    
 	omdsdp.std_spectral_base() ;
 
 
@@ -228,8 +210,12 @@ void Binary::helical(){
 		    double(2) /double(3) * div_beta * (gtilde.con())(i,j) ; 
 	    }
 	
-	tkij_a = tkij_a - star_i.hij_auto.derive_lie(omdsdp_ff) ;	
+	tkij_a = tkij_a - star_i.hij_auto.derive_lie(omdsdp) ;	
 	tkij_a = 0.5 * tkij_a / nn ;   
+
+	Sym_tensor tkij_auto_cov = tkij_a.up_down(gtilde) ;
+	
+	Scalar a2_auto = contract(tkij_auto_cov, 0, 1, tkij_a, 0, 1,true) ; 
 
 	// COMP 
 	const Tensor& dbeta_comp = star_i.beta_comp.derive_con(gtilde) ;
@@ -242,16 +228,51 @@ void Binary::helical(){
 		    double(2) /double(3) * divbeta_comp * (gtilde.con())(i,j) ; 
 	    }
 	
-	tkij_c = tkij_c - star_i.hij_comp.derive_lie(omdsdp_ff) ;	
+	tkij_c = tkij_c - star_i.hij_comp.derive_lie(omdsdp) ;	
 	tkij_c = 0.5 * tkij_c / nn ;
 	
+  	Scalar a2_comp = contract(tkij_auto_cov, 0, 1, tkij_c, 0, 1,true) ; 
 
 
 //	tkij_a = star_i.tkij_auto ;
 //	tkij_c = star_i.tkij_comp ;
 
 
-	// Sources 
+	// Sources for N
+	// ---------------
+
+	Scalar source1(mp) ;
+	Scalar source2(mp) ;
+	Scalar source3(mp) ;
+	Scalar source4(mp) ;
+	Scalar source_tot(mp) ;
+
+	source1 = qpig * star_i.psi4 % (star_i.ener_euler + star_i.s_euler) ; 
+
+	source2 = star_i.psi4 % (a2_auto + a2_comp) ;
+
+	source3 = - contract(dcov_logn_auto, 0, star_i.dcon_logn, 0, true) 
+	    - 2. * contract(contract(gtilde_con, 0, star_i.dcov_phi, 0), 
+			    0, dcov_logn_auto, 0, true) ;
+		    
+	source4 = - contract(star_i.hij, 0, 1, dcovdcov_logn_auto + 
+			     dcov_logn_auto*star_i.dcov_logn, 0, 1) ;
+
+	source_tot = source1 + source2 + source3 + source4 ;
+	
+	if (ll == 1) {
+	lie_K_1 = nn / star_i.psi4 * (source_tot - star_i.logn_auto
+					   .laplacian()) ;
+	lie_K_1.dec_dzpuis(4) ;
+	}
+	if (ll == 2) {
+	lie_K_2 = nn / star_i.psi4 * (source_tot - star_i.logn_auto
+					   .laplacian()) ;
+	lie_K_2.dec_dzpuis(4) ;
+	}
+
+
+	// Sources for hij
 	// --------------
 
 	Scalar source_tot_hij(mp) ;
@@ -289,37 +310,23 @@ void Binary::helical(){
 
 	Tensor dcov_omdsdphi (mp, 2, type, mp.get_bvect_cart()) ;
 	dcov_omdsdphi.set(1,1) = 0. ;
-	dcov_omdsdphi.set(2,1) = om ;
+	dcov_omdsdphi.set(2,1) = om * ff ;
 	dcov_omdsdphi.set(3,1) = 0. ;
 	dcov_omdsdphi.set(2,2) = 0. ;
 	dcov_omdsdphi.set(3,2) = 0. ;
 	dcov_omdsdphi.set(3,3) = 0. ;
-	dcov_omdsdphi.set(1,2) = -om ;
-
+	dcov_omdsdphi.set(1,2) = -om *ff ;
 	dcov_omdsdphi.set(1,3) = 0. ;
 	dcov_omdsdphi.set(2,3) = 0. ;
 	dcov_omdsdphi.std_spectral_base() ;
 
-	source_3a = contract(tkij_a, 0, dcov_omdsdphi, 1) * ff
-	    + contract(tkij_a+tkij_c, 0, dcov_omdsdphi, 1)*
- 	    decouple_logn * (1.-ff) ;
+	source_3a = contract(tkij_a, 0, dcov_omdsdphi, 1) ;
+	source_3a.inc_dzpuis() ;
 
 	// Source 3b
 	// ------------
 
-	Tensor dcov_tkij ((tkij_a+tkij_c).derive_cov(flat)) ;
-	Tensor dcov_tkij_auto (tkij_a.derive_cov(flat)) ;
-	    
-	for (int ii=1; ii<=3; ii++)
-	    for (int jj=1; jj<=3; jj++)
-		for (int kk=1; kk<=3; kk++) {  
-		    dcov_tkij.set(ii, jj, kk).set_dzpuis(1) ;  
-		    dcov_tkij_auto.set(ii, jj, kk).set_dzpuis(1) ;  
-		}	    	    
-
-	source_3b = - contract(omdsdp, 0, dcov_tkij_auto, 2) * ff
-	    - contract(omdsdp, 0, dcov_tkij, 2) * decouple_logn * (1.-ff) ;
-	source_3b.inc_dzpuis() ;
+	source_3b = - contract(omdsdp, 0, tkij_a.derive_cov(flat), 2) ; 
 
  
 	// Source 4
@@ -427,8 +434,7 @@ void Binary::helical(){
 		source_tot_hij.dec_dzpuis() ;
 		    
 		Scalar source3 (2.*psi4/nn * (source_3a(i,j) + source_3a(j,i)  
-				 + source_3b(i,j))) ; //* decouple_logn ;
-		source3.inc_dzpuis() ;
+				 + source_3b(i,j))) ; 
 
 		source_tot_hij = source_tot_hij + source3 ;
 
@@ -539,9 +545,17 @@ void Binary::helical(){
     Sym_tensor lie_aij_tot_1 (star1.mp, CON, star1.mp.get_bvect_cart()) ;
     Sym_tensor lie_aij_tot (mapping, CON, mapping.get_bvect_cart()) ;
 
-    
+    Scalar lie_K2_1 (star1.mp) ;
+    lie_K2_1.set_etat_qcq() ;
+    Scalar lie_K_tot_1 (star1.mp) ;
+
+
     // Importation on the mapping 1
     // -------------------------------
+
+    lie_K2_1.import(lie_K_2) ;
+    lie_K_tot_1 = lie_K_1 + lie_K2_1 ;
+    lie_K_tot_1.inc_dzpuis(2) ;
 
     lie_aij_2.change_triad(star1.mp.get_bvect_cart()) ;    
     for(int i=1; i<=3; i++) 
@@ -554,13 +568,19 @@ void Binary::helical(){
     lie_aij_tot_1 = lie_aij_1 + lie_aij2_1 ;
     lie_aij_tot_1.inc_dzpuis(2) ;
 
+    
+    Sym_tensor lie_kij_tot (star1.mp, CON, star1.mp.get_bvect_cart()) ;
+    lie_kij_tot = lie_aij_tot_1/star1.psi4 + 1./3.*star1.gamma.con()*
+	lie_K_tot_1 ;
+
+
     cout << " IN THE CENTER OF STAR 1 " << endl 
 	 << " ----------------------- " << endl ;
-    
+    /*
     cout << " components xx, xy, yy, xz, yz, zz" << endl ;
     for(int i=1; i<=3; i++) 
 	for(int j=1; j<=i; j++) {
-	    Scalar resu(lie_aij_tot_1(i,j)*lie_aij_tot_1(i,j)) ;
+	    Scalar resu(lie_kij_tot(i,j)*lie_kij_tot(i,j)) ;
 	    cout << "i = " << i << ", j = " << j << endl ; 
 	    cout << "norme de la diff " << endl 
 		 << norme(resu)/(nr*nt*np) << endl ;
@@ -577,21 +597,30 @@ void Binary::helical(){
 	    cout << sqrt(integral) / sqrt(omega) << endl ;  // To get 
 	    // dimensionless quantity
 	}
+    */
 
     cout << "L2 norm of L_k K^{ab} " << endl ;
-    Scalar resu(contract(lie_aij_tot_1, 0, 1, 
-			 lie_aij_tot_1.up_down(star1.gtilde), 0, 1)) ;
+    Scalar determinant (pow(star1.get_gamma().determinant(), 0.5)) ;
+    determinant.std_spectral_base() ;
+    Scalar resu(contract(lie_kij_tot, 0, 1, 
+			 lie_kij_tot.up_down(star1.gamma), 0, 1)
+		*determinant) ;
     Tbl integral (nz) ;
-    integral.annule_hard()  ;
+    integral.annule_hard() ;
     Tbl integ (resu.integrale_domains()) ;
     for (int mm=0; mm<nz; mm++) 
 	for (int pp=0; pp<=mm; pp++) 
 	    integral.set(mm) += integ(pp) ; 
+    cout << sqrt(integral) * sqrt(mass_adm()*ggrav) << endl ;  
     cout << sqrt(integral) / sqrt(omega) << endl ;  // To get 
     // dimensionless quantity
 
+    
+    cout << "omega = " << omega << endl ;
+    cout << "mass_adm = " << mass_adm() << endl ;
+    
 
-    lie_aij_tot_1.dec_dzpuis(2) ;
+    lie_kij_tot.dec_dzpuis(2) ;
     
     cout << "Position du centre de l'etoile x/lambda = "
 	 << -star1.get_mp().get_ori_x() * omega / M_PI << " in Lorene units"
