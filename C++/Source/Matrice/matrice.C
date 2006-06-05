@@ -32,6 +32,10 @@ char matrice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2006/06/05 09:47:42  j_novak
+ * Initialisation of the member band to zero, in order not to have messages from
+ * the memory debugger.
+ *
  * Revision 1.15  2005/11/24 14:07:29  j_novak
  * Minor speed enhancement for annule_hard().
  *
@@ -356,7 +360,7 @@ void Matrice::set_band (int u, int l) const {
 	int ldab = 2*l+u+1 ;
 	band = new Tbl(ldab*n) ;
 	
-	band->set_etat_qcq() ;
+	band->annule_hard() ; 
 	
 	for (int i=0 ; i<u ; i++)
 	    for (int j=u-i ; j<n ; j++)
@@ -368,6 +372,7 @@ void Matrice::set_band (int u, int l) const {
 	for (int i=u+1 ; i<u+l+1 ; i++)
 	    for (int j=0 ; j<n-i+u ; j++)
 		band->set(j*ldab+i+l) = (*this) (i+j-u, j) ;
+
     }
     return ; 
 }
