@@ -32,6 +32,9 @@ char mtbl_cf_val_point_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2006/06/06 14:57:01  j_novak
+ * Summation functions for angular coefficients at xi=+/-1.
+ *
  * Revision 1.7  2006/05/30 08:30:15  n_vasset
  * Implementation of sine-like bases (T_SIN_P, T_SIN_I, T_COSSIN_SI, etc...).
  *
@@ -383,4 +386,52 @@ static int premier_appel = 1 ;
  
 }
  
+
+    //-------------------------------------------------------------//
+    //	    version for xi = 1	                          	   //
+    //		and collocation point in (theta',phi')		   //
+    //-------------------------------------------------------------//
+
+double Mtbl_cf::val_out_bound_jk(int l, int j0, int k0) const {
+
+#ifndef NDEBUG
+// Bases de developpement : 
+    int base_r = (base.b[l] & MSQ_R) >> TRA_R ;
+    assert((base_r == R_CHEB) || (base_r == R_CHEBU) || (base_r == R_CHEBP)
+	   || (base_r == R_CHEBI) || (base_r == R_CHEBPIM_P) || (base_r == R_CHEBPIM_I)
+	   || (base_r == R_CHEBPI_P) || (base_r == R_CHEBPI_I)) ;
+#endif
+
+    int nr = mg->get_nr(l) ;
+    double resu = 0 ;
+    for (int i=0; i<nr; i++)
+	resu += operator()(l, k0, j0, i) ;
+
+    return resu ;
+}
+
+
+    //-------------------------------------------------------------//
+    //	    version for xi = -1	                          	   //
+    //		and collocation point in (theta',phi')		   //
+    //-------------------------------------------------------------//
+
+double Mtbl_cf::val_in_bound_jk(int l, int j0, int k0) const {
+
+#ifndef NDEBUG
+// Bases de developpement : 
+    int base_r = (base.b[l] & MSQ_R) >> TRA_R ;
+    assert((base_r == R_CHEB) || (base_r == R_CHEBU)) ;
+#endif
+
+    int nr = mg->get_nr(l) ;
+    double resu = 0 ;
+    int pari = 1 ;
+    for (int i=0; i<nr; i++) {
+	resu += pari*operator()(l, k0, j0, i) ;
+	pari = - pari ;
+    }
+
+    return resu ;
+}
 

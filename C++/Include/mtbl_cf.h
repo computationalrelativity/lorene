@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2006/06/06 14:56:59  j_novak
+ * Summation functions for angular coefficients at xi=+/-1.
+ *
  * Revision 1.8  2005/04/04 21:30:42  e_gourgoulhon
  *  Added argument lambda to method poisson_angu
  *  to treat the generalized angular Poisson equation:
@@ -413,6 +416,30 @@ class Mtbl_cf {
 	*	    are stored in \c *this . 
 	*/
 	double val_point_jk_asymy(int l, double x, int j, int k) const ; 
+
+	/** Computes the angular coefficient of index \c j,k of the field 
+	 * represented by \c *this at \f$\xi = 1 \f$ by means of the spectral expansion.
+	 *	 @param l [input] index of the domain
+	 *	 @param j [input] index in \f$\theta\f$-direction
+	 *	 @param k [input] index in \f$\phi\f$-direction
+	 *	 @return coefficient at the boundary \f$\xi = 1\f$
+	 *	    in the domain no. \e l  of the field whose spectral coefficients
+	 *	    are stored in \c *this . 
+	 */
+	double val_out_bound_jk(int l, int j, int k) const ; 
+
+	/** Computes the angular coefficient of index \c j,k of the field 
+	 *  represented by \c *this at \f$\xi = -1 \f$ by means of the 
+	 *  spectral expansion. Not defined in the nucleus.
+	 *	 @param l [input] index of the domain
+	 *	 @param j [input] index in \f$\theta\f$-direction
+	 *	 @param k [input] index in \f$\phi\f$-direction
+	 *	 @return coefficient at the boundary \f$\xi = -1\f$
+	 *	    in the domain no. \e l  of the field whose spectral coefficients
+	 *	    are stored in \c *this . 
+	 */
+	double val_in_bound_jk(int l, int j, int k) const ; 
+
 
 
     // Extraction of information
