@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.56  2006/06/07 14:08:58  j_novak
+ * New methods set_index_type( / int).
+ *
  * Revision 1.55  2005/10/25 08:56:34  p_grandclement
  * addition of std_spectral_base in the case of odd functions near the origin
  *
@@ -862,6 +865,28 @@ class Tensor {
 	 *  for a contravariant one.
 	 */
 	Itbl get_index_type() const {return type_indice ; } ;
+
+	/**
+	 *  Sets the type of the index number \c i . \c i  must be
+	 *  strictly lower than \c valence  and obey the following
+	 *		      convention: 
+	 *			\li \c i  = 0 : first index 
+	 *			\li \c i  = 1 : second index 
+	 *			\li and so on... 
+	 * 
+	 *  @return reference on the type that can be modified 
+	 *  (\c COV for a covariant index, \c CON for a contravariant one)
+	 */
+	int& set_index_type(int i) {return type_indice.set(i) ;};
+
+	/**
+	 * Sets the types of all the indices.
+	 * 
+	 *  @return a reference on the 1-D array of integers (class \c Itbl ) 
+	 *  of size \c valence that can be modified
+	 *  (\c COV  for a covariant one and \c CON  for a contravariant one)
+	 */
+	Itbl& set_index_type() {return type_indice ; } ;
 
 	
 	/** Returns the value of a component (read-only version).
