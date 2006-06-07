@@ -28,6 +28,9 @@ char spheroid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2006/06/07 14:31:00  n_vasset
+ * Modified constructor of 3d projector.
+ *
  * Revision 1.4  2006/06/01 11:47:50  j_novak
  * Memory error hunt.
  *
@@ -54,7 +57,7 @@ char spheroid_C[] = "$Header$" ;
  
 Spheroid::Spheroid(const Map_af& map, double radius):
     h_surf(map), 
-    proj (map, COV, map.get_bvect_spher()),
+    proj (map, 2, COV, map.get_bvect_spher()),
     qab(map.flat_met_spher()), 
     hh(map, COV, map.get_bvect_spher()),
     trk(map),
@@ -84,7 +87,7 @@ Spheroid::Spheroid(const Map_af& map, double radius):
 
 Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Kij):
     h_surf(h_in),
-    proj(h_in.get_mp(), COV, h_in.get_mp().get_bvect_spher()),
+    proj(h_in.get_mp(),2, COV, h_in.get_mp().get_bvect_spher()),
     qab(h_in.get_mp().flat_met_spher()),
      hh(h_in.get_mp(), COV, h_in.get_mp().get_bvect_spher()),
     trk(h_in.get_mp()), 
