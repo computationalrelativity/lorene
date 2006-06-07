@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2006/06/07 14:32:24  n_vasset
+ * modified constructor for 3d projector (Sym_tensor to Tensor)
+ *
  * Revision 1.2  2006/05/26 13:25:42  j_novak
  * Removed a 'const'
  *
@@ -48,16 +51,16 @@
  */
 class Spheroid {
 
+
     // Data : 
     // -----
     protected:
         ///The location of the 2-surface as \e r = \c h_surf\f$(\theta, \varphi)\f$
         Scalar h_surf ; 
 
-	/** The trivial 3-d projector on the 2 last components of the triad.
+ 	/** The trivial 3-d projector on the 2 last components of the triad.
 	 */
-    
-	Sym_tensor proj ;
+    	Tensor proj ;
 
 	Metric qab ;  ///< Induced metric on the 2-surface \f$ q_{ab} \f$
         /** Extrinsic curvature of the 2-surface in the 3-slice.
@@ -201,6 +204,7 @@ class Spheroid {
     // Computational functions
     // -----------------------
     public:
+
 	/// Computes the normal vector field to the 2-surface
 //	Vector compute_normal(const Metric& gamij) ;
 
