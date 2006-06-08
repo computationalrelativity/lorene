@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2006/06/08 09:50:49  n_vasset
+ * corrected version for coordinates transformation
+ *
  * Revision 1.3  2006/06/07 14:32:24  n_vasset
  * modified constructor for 3d projector (Sym_tensor to Tensor)
  *
@@ -58,9 +61,17 @@ class Spheroid {
         ///The location of the 2-surface as \e r = \c h_surf\f$(\theta, \varphi)\f$
         Scalar h_surf ; 
 
+        /// The jacobian of the adaptation of the coordinates
+
+	Tensor jac2d ;
+
  	/** The trivial 3-d projector on the 2 last components of the triad.
 	 */
     	Tensor proj ;
+
+	/** The 3-d covariant degenerated 2-metric on the surface*/
+ 
+	Sym_tensor qq ; 
 
 	Metric qab ;  ///< Induced metric on the 2-surface \f$ q_{ab} \f$
         /** Extrinsic curvature of the 2-surface in the 3-slice.
@@ -158,6 +169,9 @@ class Spheroid {
 
 	/// Returns the symmetric tensor \f$ H_{ab} \f$
 	const Sym_tensor& get_hh() const {return hh ; } ;
+
+	/// returns the 3-d degenerate 2-metric 
+	const Sym_tensor& get_qq() const {return qq ; } ;
 
 	/// Returns the trace \c K on the 2-surface
 	const Scalar& get_trk() const {return trk; } ;
