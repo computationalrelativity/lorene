@@ -26,6 +26,9 @@ char map_af_fait_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2006/06/09 14:58:48  j_novak
+ * Added a hack in the case of pure angular grid for the Coord xsr in the shells.
+ *
  * Revision 1.3  2003/10/15 10:34:46  e_gourgoulhon
  * Added new Coord's: drdt and stdrdp.
  *
@@ -539,10 +542,15 @@ Mtbl* map_af_fait_xsr(const Map* cvi) {
 	    case FIN: 
 	    for (k=0 ; k<ip ; k++) {
 		for (j=0 ; j<it ; j++) {
-		    for (i=0 ; i<ir ; i++) {
-			*p_r = 1. / ( alpha[l] * (g->x)[i] + beta[l] ) ;
+		    if (ir == 1) { //Some hack for angular grid case...
+			*p_r = 1 ;
 			p_r++ ;
-		    }	    // Fin de boucle sur r
+		    }
+		    else 
+			for (i=0 ; i<ir ; i++) {
+			    *p_r = 1. / ( alpha[l] * (g->x)[i] + beta[l] ) ;
+			    p_r++ ;
+			}	    // Fin de boucle sur r
 		}	// Fin de boucle sur theta
 	    }	    // Fin de boucle sur phi
 	    break ;
