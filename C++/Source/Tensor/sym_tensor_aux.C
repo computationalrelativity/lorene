@@ -32,6 +32,9 @@ char sym_tensor__aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2006/06/12 07:42:29  j_novak
+ * Fields A and tilde{B} are defined only for l>1.
+ *
  * Revision 1.6  2006/06/12 07:27:20  j_novak
  * New members concerning A and tilde{B}, dealing with the transverse part of the
  * Sym_tensor.
@@ -283,7 +286,7 @@ void Sym_tensor::set_auxiliary(const Scalar& trr, const Scalar& eta_over_r,
 			//------------//
 			
 			
-const Scalar& Sym_tensor::compute_A(Param* par) const {
+const Scalar& Sym_tensor::compute_A(bool output_ylm, Param* par) const {
 
   if (p_aaa == 0x0) {   // a new computation is necessary
 	
@@ -314,7 +317,11 @@ const Scalar& Sym_tensor::compute_A(Param* par) const {
     tilde_mu.div_r_dzpuis(dzp_resu) ;
     
     p_aaa = new Scalar( xxx().dsdr() - tilde_mu) ;
+    p_aaa->annule_l(0, 1, output_ylm) ;
   }
+
+  if (output_ylm) p_aaa->set_spectral_va().ylm() ;
+  else  p_aaa->set_spectral_va().ylm_i() ;
 
   return *p_aaa ; 
 

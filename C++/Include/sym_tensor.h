@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.35  2006/06/12 07:42:28  j_novak
+ * Fields A and tilde{B} are defined only for l>1.
+ *
  * Revision 1.34  2006/06/12 07:27:18  j_novak
  * New members concerning A and tilde{B}, dealing with the transverse part of the
  * Sym_tensor.
@@ -268,7 +271,7 @@ class Sym_tensor : public Tensor_sym {
 	mutable Scalar* p_ttt ;
 
 	/** Field \e A defined from \e X and \f$\mu\f$ insensitive to the 
-	 * longitudinal part of the \c Sym_tensor.
+	 * longitudinal part of the \c Sym_tensor (only for \f$\ell \geq 2\f$).
 	 * Its definition reads \f[
 	 * A = \frac{\partial X}{\partial r} - \frac{\mu}{r^2}.
 	 * \f] */
@@ -276,7 +279,7 @@ class Sym_tensor : public Tensor_sym {
 
 	/** Field \f$ \tilde{B}\f$ defined from \f$ h^{rr}, \eta, W\f$ and \e h
 	 * insensitive to the longitudinal part of the \c Sym_tensor.
-	 * It is defined for each multipolar momentum \f$\ell\f$ by
+	 * It is defined for each multipolar momentum \f$\ell \geq 2\f$ by
 	 * \f[ 
 	 * \tilde{B} = (\ell + 2) \frac{\partial W}{\partial r} + \ell(\ell + 2)
 	 * \frac{W}{r} - \frac{2\eta}{r^2} + \frac{(\ell +2)T}{2r(\ell + 1)}
@@ -451,11 +454,15 @@ class Sym_tensor : public Tensor_sym {
 	/// Gives the field \e T (see member \c p_ttt ).
 	const Scalar& ttt() const ;
 
-	/// Gives the field \e A (see member \c p_aaa ).
-	const Scalar& compute_A(Param* par = 0x0) const ;
+	/** Gives the field \e A (see member \c p_aaa ).
+	 * @param output_ylm a flag to control the spectral decomposition 
+	 * base of the result: if true (default) the spherical harmonics base 
+	 * is used.
+	 */
+	const Scalar& compute_A(bool output_ylm = true, Param* par = 0x0) const ;
 
 	/** Gives the field \f$\tilde{B}\f$ (see member \c p_tilde_b ).
-	 * @param output_ylm a flag to control the spectral decompoistion 
+	 * @param output_ylm a flag to control the spectral decomposition 
 	 * base of the result: if true (default) the spherical harmonics base 
 	 * is used.
 	 */
