@@ -35,6 +35,10 @@ char sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2006/06/12 07:27:20  j_novak
+ * New members concerning A and tilde{B}, dealing with the transverse part of the
+ * Sym_tensor.
+ *
  * Revision 1.19  2005/04/04 15:25:24  j_novak
  * Added new members www, xxx, ttt and the associated methods.
  *
@@ -276,6 +280,8 @@ void Sym_tensor::del_deriv() const {
 	if (p_www != 0x0) delete p_www ; 
 	if (p_xxx != 0x0) delete p_xxx ; 
 	if (p_ttt != 0x0) delete p_ttt ; 
+	if (p_aaa != 0x0) delete p_aaa ;
+	if (p_tilde_b != 0x0) delete p_tilde_b ;
 
 	set_der_0x0() ;
 	Tensor::del_deriv() ;
@@ -291,6 +297,8 @@ void Sym_tensor::set_der_0x0() const {
   p_www = 0x0 ; 
   p_xxx = 0x0 ; 
   p_ttt = 0x0 ; 
+  p_aaa = 0x0 ;
+  p_tilde_b = 0x0 ;
 
 }
 

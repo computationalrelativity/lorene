@@ -32,6 +32,10 @@ char sym_tensor__aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2006/06/12 07:27:20  j_novak
+ * New members concerning A and tilde{B}, dealing with the transverse part of the
+ * Sym_tensor.
+ *
  * Revision 1.5  2005/09/07 16:47:43  j_novak
  * Removed method Sym_tensor_trans::T_from_det_one
  * Modified Sym_tensor::set_auxiliary, so that it takes eta/r and mu/r as
@@ -66,6 +70,7 @@ char sym_tensor__aux_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "metric.h"
+#include "proto.h"
 
     
 			//--------------//
@@ -270,5 +275,159 @@ void Sym_tensor::set_auxiliary(const Scalar& trr, const Scalar& eta_over_r,
     p_www = new Scalar(w_in) ;
     p_xxx = new Scalar(x_in) ;
     p_ttt = new Scalar(t_in) ;
+
+}
+
+			//------------//
+			//     A      //
+			//------------//
+			
+			
+const Scalar& Sym_tensor::compute_A(Param* par) const {
+
+  if (p_aaa == 0x0) {   // a new computation is necessary
+	
+    // All this has a meaning only for spherical components:
+    assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
+
+    int dzp = xxx().get_dzpuis() ; 
+    int dzp_resu = ((dzp == 0) ? 2 : dzp+1) ;
+ 
+    Scalar source_mu = operator()(1,3) ; 	// h^{r ph}
+    source_mu.div_tant() ; 		// h^{r ph} / tan(th)
+    
+    // dh^{r ph}/dth + h^{r ph}/tan(th) - 1/sin(th) dh^{r th}/dphi 
+    source_mu += operator()(1,3).dsdt() - operator()(1,2).stdsdp() ; 
+    
+    // Resolution of the angular Poisson equation for mu / r
+    // -----------------------------------------------------
+    Scalar tilde_mu(*mp) ;
+    tilde_mu = 0 ;
+
+    if (dynamic_cast<const Map_af*>(mp) != 0x0) {
+	tilde_mu = source_mu.poisson_angu()  ;  
+    }
+    else {
+	assert(par != 0x0) ;
+	mp->poisson_angu(source_mu, *par, tilde_mu) ;
+    }
+    tilde_mu.div_r_dzpuis(dzp_resu) ;
+    
+    p_aaa = new Scalar( xxx().dsdr() - tilde_mu) ;
+  }
+
+  return *p_aaa ; 
+
+}
+
+			//--------------//
+			//   tilde(B)   //
+			//--------------//
+			
+			
+const Scalar& Sym_tensor::compute_tilde_B(bool output_ylm, Param* par) const {
+
+  if (p_tilde_b == 0x0) {   // a new computation is necessary
+	
+    // All this has a meaning only for spherical components:
+    assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
+
+    int dzp = operator()(1,1).get_dzpuis() ; 
+    int dzp_resu = ((dzp == 0) ? 2 : dzp+1) ;
+
+    p_tilde_b = new Scalar(*mp) ;
+
+    Scalar source_eta = operator()(1,2) ;
+    source_eta.div_tant() ;
+    source_eta += operator()(1,2).dsdt() + operator()(1,3).stdsdp() ;
+    
+    // Resolution of the angular Poisson equation for eta / r
+    // ------------------------------------------------------
+    Scalar tilde_eta(*mp) ;
+    tilde_eta = 0 ;
+
+    if (dynamic_cast<const Map_af*>(mp) != 0x0) {
+	tilde_eta = source_eta.poisson_angu() ; 
+    }
+    else {
+	assert (par != 0x0) ;
+	mp->poisson_angu(source_eta, *par, tilde_eta) ;
+    }
+ 
+    Scalar dwdr = www().dsdr() ;
+    dwdr.set_spectral_va().ylm() ;
+    Scalar wsr = www() ;
+    wsr.div_r_dzpuis(dzp_resu) ;
+    wsr.set_spectral_va().ylm() ;
+    Scalar etasr2 = tilde_eta ;
+    etasr2.div_r_dzpuis(dzp_resu) ;
+    etasr2.set_spectral_va().ylm() ;
+    Scalar dtdr = ttt().dsdr() ;
+    dtdr.set_spectral_va().ylm() ;
+    Scalar tsr = ttt() ;
+    tsr.div_r_dzpuis(dzp_resu) ;
+    tsr.set_spectral_va().ylm() ;
+    Scalar hrrsr = operator()(1,1) ;
+    hrrsr.div_r_dzpuis(dzp_resu) ;
+    hrrsr.set_spectral_va().ylm() ;
+
+    int nz = mp->get_mg()->get_nzone() ;
+
+    Base_val base(nz) ;
+
+    if (wsr.get_etat() != ETATZERO) {
+	base = wsr.get_spectral_base() ;
+    }
+    else {
+	if (etasr2.get_etat() != ETATZERO) {
+	    base = etasr2.get_spectral_base() ;
+	}
+	else {
+	    if (tsr.get_etat() != ETATZERO) {
+		base = tsr.get_spectral_base() ;
+	    }
+	    else {
+		if (hrrsr.get_etat() != ETATZERO) {
+		    base = hrrsr.get_spectral_base() ;
+		}
+		else { //Everything is zero...
+		    p_tilde_b->set_etat_zero() ;
+		    return *p_tilde_b ;
+		}
+	    }
+	}
+    }
+    
+    p_tilde_b->set_spectral_va().c_cf = new Mtbl_cf(mp->get_mg(), base) ;
+    p_tilde_b->set_spectral_va().c_cf->annule_hard() ;
+
+    int m_q, l_q, base_r ;
+    for (int lz=0; lz<nz; lz++) {
+	int np = mp->get_mg()->get_np(lz) ;
+	int nt = mp->get_mg()->get_nt(lz) ;
+	int nr = mp->get_mg()->get_nr(lz) ;
+	for (int k=0; k<np; k++)
+	    for (int j=0; j<nt; j++) {
+		base.give_quant_numbers(lz, k, j, m_q, l_q, base_r) ;
+		if ( (nullite_plm(j, nt, k, np, base) == 1) && (l_q > 1))
+		{
+		    for (int i=0; i<nr; i++) 
+			p_tilde_b->set_spectral_va().c_cf->set(lz, k, j, i)
+			    = (l_q+2)*(*dwdr.get_spectral_va().c_cf)(lz, k, j, i)
+			    + l_q*(l_q+2)*(*wsr.get_spectral_va().c_cf)(lz, k, j, i)
+			    - 2*(*etasr2.get_spectral_va().c_cf)(lz, k, j, i)
+	    + 0.5*double(l_q+2)/double(l_q+1)*(*tsr.get_spectral_va().c_cf)(lz, k, j, i)
+	    + 0.5/double(l_q+1)*(*dtdr.get_spectral_va().c_cf)(lz, k, j, i)
+	    - 1./double(l_q+1)*(*hrrsr.get_spectral_va().c_cf)(lz, k, j, i) ;
+		}
+	    }
+    }
+    p_tilde_b->set_dzpuis(dzp_resu) ;
+  } //End of p_tilde_b == 0x0    
+
+  if (output_ylm) p_tilde_b->set_spectral_va().ylm() ;
+  else  p_tilde_b->set_spectral_va().ylm_i() ;
+
+  return *p_tilde_b ; 
 
 }

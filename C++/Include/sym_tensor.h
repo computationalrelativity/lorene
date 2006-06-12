@@ -30,6 +30,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.34  2006/06/12 07:27:18  j_novak
+ * New members concerning A and tilde{B}, dealing with the transverse part of the
+ * Sym_tensor.
+ *
  * Revision 1.33  2005/11/28 14:45:14  j_novak
  * Improved solution of the Poisson tensor equation in the case of a transverse
  * tensor.
@@ -262,6 +266,25 @@ class Sym_tensor : public Tensor_sym {
 
 	/// Field \e T defined as \f$ T = T^{\theta\theta} + T^{\varphi\varphi} \f$.
 	mutable Scalar* p_ttt ;
+
+	/** Field \e A defined from \e X and \f$\mu\f$ insensitive to the 
+	 * longitudinal part of the \c Sym_tensor.
+	 * Its definition reads \f[
+	 * A = \frac{\partial X}{\partial r} - \frac{\mu}{r^2}.
+	 * \f] */
+	mutable Scalar* p_aaa ;
+
+	/** Field \f$ \tilde{B}\f$ defined from \f$ h^{rr}, \eta, W\f$ and \e h
+	 * insensitive to the longitudinal part of the \c Sym_tensor.
+	 * It is defined for each multipolar momentum \f$\ell\f$ by
+	 * \f[ 
+	 * \tilde{B} = (\ell + 2) \frac{\partial W}{\partial r} + \ell(\ell + 2)
+	 * \frac{W}{r} - \frac{2\eta}{r^2} + \frac{(\ell +2)T}{2r(\ell + 1)}
+	 * + \frac{1}{2(\ell + 1)} \frac{\partial T}{\partial r} - \frac{h^{rr}}
+	 * {(\ell + 1)r}. 
+	 * \f]
+	 */
+	mutable Scalar* p_tilde_b ;
 	
     // Constructors - Destructor :
     // -------------------------
@@ -427,6 +450,16 @@ class Sym_tensor : public Tensor_sym {
 
 	/// Gives the field \e T (see member \c p_ttt ).
 	const Scalar& ttt() const ;
+
+	/// Gives the field \e A (see member \c p_aaa ).
+	const Scalar& compute_A(Param* par = 0x0) const ;
+
+	/** Gives the field \f$\tilde{B}\f$ (see member \c p_tilde_b ).
+	 * @param output_ylm a flag to control the spectral decompoistion 
+	 * base of the result: if true (default) the spherical harmonics base 
+	 * is used.
+	 */
+	const Scalar& compute_tilde_B(bool output_ylm = true, Param* par = 0x0) const ;
 
 	
     // Mathematical operators
