@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.36  2006/06/12 13:37:23  j_novak
+ * Added bounds in l (multipolar momentum) for Sym_tensor_trans::solve_hrr.
+ *
  * Revision 1.35  2006/06/12 07:42:28  j_novak
  * Fields A and tilde{B} are defined only for l>1.
  *
@@ -610,8 +613,13 @@ class Sym_tensor_trans: public Sym_tensor {
 	 * 
 	 * @param source the l.h.s. of the above equation
 	 * @param hrr_new the solution \f$ T^{rr} \f$
+	 * @param l_min, l_max boundaries for the solution, which is calculated
+	 * for values of the  multipolar index \f$\ell \in \f$ \c [l_min,l_max] 
+	 * only. If l_max < 0 then no upper boundary (apart from that of the 
+	 * standard spectral representation).
 	 */
-	void solve_hrr(const Scalar& source, Scalar& hrr_new) const;
+	void solve_hrr(const Scalar& source, Scalar& hrr_new, int l_min=0,
+		       int l_max = -1) const;
 
  public:
 	/** Assigns the derived member \c p_tt and computes the trace so that 

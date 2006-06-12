@@ -30,6 +30,9 @@ char sym_tensor_trans_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2006/06/12 13:37:23  j_novak
+ * Added bounds in l (multipolar momentum) for Sym_tensor_trans::solve_hrr.
+ *
  * Revision 1.4  2005/11/28 14:45:17  j_novak
  * Improved solution of the Poisson tensor equation in the case of a transverse
  * tensor.
@@ -240,7 +243,8 @@ namespace {
     Matrice** t_mat ;
 }
 
-void Sym_tensor_trans::solve_hrr(const Scalar& sou_hrr, Scalar& hrr_new) const {
+void Sym_tensor_trans::solve_hrr(const Scalar& sou_hrr, Scalar& hrr_new, int l_in_min,
+				 int l_in_max) const {
 
     assert(*mp == sou_hrr.get_mp() ) ;
     assert(*mp == hrr_new.get_mp() ) ;
@@ -265,6 +269,7 @@ void Sym_tensor_trans::solve_hrr(const Scalar& sou_hrr, Scalar& hrr_new) const {
     }
     const Base_val& base = source.get_spectral_base() ;
     int l_max = base.give_lmax(*mp_aff->get_mg(), 0) ;
+    if (l_in_max < 0) l_in_max = l_max ;
 
     hrr_new.annule_hard() ;
     hrr_new.set_spectral_base(base) ;
@@ -312,10 +317,14 @@ void Sym_tensor_trans::solve_hrr(const Scalar& sou_hrr, Scalar& hrr_new) const {
     assert (t_mat != 0x0) ;
     int l_q, m_q, base_r ;
 
+    //-----------------
+    // Loop on l and m
+    //-----------------
     for (int k=0; k<np; k++)
-	for (int j=0; j<nt; j++) 
-	    if (nullite_plm(j, nt, k, np, base) == 1) {
+	for (int j=0; j<nt; j++) {
 	    base.give_quant_numbers(0, k, j, m_q, l_q, base_r) ;
+	    if ((nullite_plm(j, nt, k, np, base) == 1) 
+		&& (l_q>=l_in_min) && (l_q<=l_in_max)){
 	    assert (t_mat[l_q] != 0x0) ;
 	    Matrice& ope = *(t_mat[l_q]) ;
 	    if (need_calculation) 
@@ -483,6 +492,7 @@ void Sym_tensor_trans::solve_hrr(const Scalar& sou_hrr, Scalar& hrr_new) const {
 	}
     }
 	    } // End of nullite_plm (=> l,m loop)
+	}// Theta loop
     hrr_new.set_spectral_va().ylm_i() ;
     if (hrr_new.set_spectral_va().c != 0x0) 
 	delete hrr_new.set_spectral_va().c ;
