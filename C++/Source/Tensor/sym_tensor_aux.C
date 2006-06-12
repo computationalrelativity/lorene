@@ -32,6 +32,9 @@ char sym_tensor__aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2006/06/12 11:40:07  j_novak
+ * Better memory and spectral base handling for Sym_tensor::compute_tilde_B.
+ *
  * Revision 1.7  2006/06/12 07:42:29  j_novak
  * Fields A and tilde{B} are defined only for l>1.
  *
@@ -343,6 +346,7 @@ const Scalar& Sym_tensor::compute_tilde_B(bool output_ylm, Param* par) const {
     int dzp_resu = ((dzp == 0) ? 2 : dzp+1) ;
 
     p_tilde_b = new Scalar(*mp) ;
+    p_tilde_b->set_etat_qcq() ;
 
     Scalar source_eta = operator()(1,2) ;
     source_eta.div_tant() ;
@@ -405,7 +409,8 @@ const Scalar& Sym_tensor::compute_tilde_B(bool output_ylm, Param* par) const {
 	}
     }
     
-    p_tilde_b->set_spectral_va().c_cf = new Mtbl_cf(mp->get_mg(), base) ;
+    p_tilde_b->set_spectral_base(base) ;
+    p_tilde_b->set_spectral_va().set_etat_cf_qcq() ;
     p_tilde_b->set_spectral_va().c_cf->annule_hard() ;
 
     int m_q, l_q, base_r ;
