@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.37  2006/06/13 13:30:12  j_novak
+ * New members sol_Dirac_A and sol_Dirac_tildeB (see documentation).
+ *
  * Revision 1.36  2006/06/12 13:37:23  j_novak
  * Added bounds in l (multipolar momentum) for Sym_tensor_trans::solve_hrr.
  *
@@ -620,6 +623,48 @@ class Sym_tensor_trans: public Sym_tensor {
 	 */
 	void solve_hrr(const Scalar& source, Scalar& hrr_new, int l_min=0,
 		       int l_max = -1) const;
+
+	/** Solves a system of two coupled first-order PDEs obtained from 
+	 * the divergence-free condition (Dirac gauge) and the requirement that
+	 * the potential \e A (see \c Sym_tensor::p_aaa ) has a given value.
+	 * The system reads: \f{eqnarray*}
+	 * \frac{\partial \tilde{\mu}}{\partial r}  + \frac{3\tilde{\mu}}{r} + \left( 
+	 * \Delta_{\theta\varphi } + 2\right) X &=& 0;\\
+	 * \frac{\partial X}{\partial r} - \frac{\tilde{\mu}}{r} &=& A. \f}
+	 * Note that this is solved only for \f$\ell \geq 2\f$ and that 
+	 * \f$\tilde{\mu} = \mu / r\f$ (see \c Sym_tensor::p_mu ).
+	 *
+	 * @param aaa [input] the source \e A
+	 * @param tilde_mu [output] the solution \f$\tilde{\mu}\f$
+	 * @param xxx [output] the solution \e X
+	 */
+	void sol_Dirac_A(const Scalar& aaa, Scalar& tilde_mu, Scalar& xxx) const ;
+
+	/** Solves a system of three coupled first-order PDEs obtained from 
+	 * divergence-free conditions (Dirac gauge) and the requirement that
+	 * the potential \f$\tilde{B}\f$ (see \c Sym_tensor::p_tilde_b ) has 
+	 * a given value. The system reads: \f{eqnarray*}
+	 * \frac{\partial T^{rr}}{r} + \frac{3T^{rr}}{r} +\frac{1}{r}
+	 *  \Delta_{\theta\varphi } \tilde{\eta} &=& \frac{h}{r};\\
+	 * \frac{\partial \tilde{\eta}}{\partial r} + \frac{3\tilde{\eta}}{r} -
+	 * \frac{T^{rr}}{2r} + \left( \Delta_{\theta\varphi } + 2\right) 
+	 * \frac{W}{r} &=& -\frac{h}{2r};\\
+	 * (\ell + 2) \frac{\partial W}{\partial r} + \ell(\ell + 2)
+	 * \frac{W}{r} - \frac{2\tilde{\eta}}{r} + \frac{(\ell +2)T}{2r(\ell + 1)}
+	 * + \frac{1}{2(\ell + 1)} \frac{\partial T}{\partial r} - \frac{T^{rr}}
+	 * {(\ell + 1)r} &=& \tilde{B} - \frac{1}{2(\ell +1)} \frac{\partial h}
+	 * {\partial r} - \frac{\ell +2}{\ell +1} \frac{h}{2r}.\f}
+	 * Note that \f$\tilde{\eta} = \eta / r\f$ (for definitions, see derived
+	 * members of \c Sym_tensor).
+	 *
+	 * @param tilde_b [input] the source \f$\tilde{B}\f$
+	 * @param hh [input] the trace of the tensor
+	 * @param hrr [output] the \e rr component of the result
+	 * @param tilde_eta [output] the solution \f$\tilde{\eta}\f$
+	 * @param www [output] the solution \e W
+	 */
+	void sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh, Scalar& hrr,
+			       Scalar& tilde_eta, Scalar& www) const ;
 
  public:
 	/** Assigns the derived member \c p_tt and computes the trace so that 

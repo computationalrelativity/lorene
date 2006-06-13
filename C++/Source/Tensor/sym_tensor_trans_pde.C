@@ -30,6 +30,9 @@ char sym_tensor_trans_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2006/06/13 13:30:12  j_novak
+ * New members sol_Dirac_A and sol_Dirac_tildeB (see documentation).
+ *
  * Revision 1.5  2006/06/12 13:37:23  j_novak
  * Added bounds in l (multipolar momentum) for Sym_tensor_trans::solve_hrr.
  *
@@ -471,17 +474,9 @@ void Sym_tensor_trans::solve_hrr(const Scalar& sou_hrr, Scalar& hrr_new, int l_i
 	    }
 	}
     }
-//    cout << "l_q: " << l_q << ", determinant: " << ope.determinant() << endl ;
     ope.set_lu() ;
-    
-//    Matrice myy(ty) ;
-
     Tbl tx = ope.inverse(ty) ;
 
-//      Matrice mxx(tx) ;
-//      cout << "difference: " << 
-//  	diffrelmax((ope*mxx).get_array(), myy.get_array()) << endl ;
-    
     int compte = 0 ;
     for (int lz=0; lz<nz; lz++) {
 	int nr = mp_aff->get_mg()->get_nr(lz) ;
@@ -497,20 +492,1104 @@ void Sym_tensor_trans::solve_hrr(const Scalar& sou_hrr, Scalar& hrr_new, int l_i
     if (hrr_new.set_spectral_va().c != 0x0) 
 	delete hrr_new.set_spectral_va().c ;
     hrr_new.set_spectral_va().c = 0x0 ;
-//     double Rdes = 2*mp_aff->val_r_jk(nz-2, 1., 0, 0) ;
-//     des_profile(hrr_new, 0., Rdes, 1, 1) ;
-
-//     Scalar verif = 0.5*hrr_new.lapang() ;
-//     verif.set_spectral_va().ylm_i() ;
-//     verif += 9*hrr_new ;
-//     Scalar tmp = hrr_new.dsdr().dsdr() ;
-//     tmp.mult_r_dzpuis(2) ;
-//     tmp += 7*hrr_new.dsdr() ;
-//     tmp.mult_r_dzpuis(0) ;
-//     verif += tmp ;
-//     verif.set_spectral_va().ylm() ;
-//     verif -= source ;
-//     verif.spectral_display("sym_tensor_trans::solve_hrr: check of accuracy") ;
     
     return ;
+}
+
+void Sym_tensor_trans::sol_Dirac_A(const Scalar& aaa, Scalar& tilde_mu, Scalar& x_new) 
+    const {
+
+    const Map_af* mp_aff = dynamic_cast<const Map_af*>(mp) ;
+    assert(mp_aff != 0x0) ; //Only affine mapping for the moment
+
+    const Mg3d& mgrid = *mp_aff->get_mg() ;
+    int nz = mgrid.get_nzone() ;
+    assert(mgrid.get_type_r(0) == RARE)  ;
+    assert(mgrid.get_type_r(nz-1) == UNSURR) ;
+    int nt = mgrid.get_nt(0) ;
+    int np = mgrid.get_np(0) ;
+
+    Scalar source = aaa ;
+    Scalar source_coq = aaa ;
+    source_coq.annule_domain(0) ;
+    source_coq.annule_domain(nz-1) ;
+    source_coq.mult_r() ;
+    source.set_spectral_va().ylm() ;
+    source_coq.set_spectral_va().ylm() ;
+    Base_val base = source.get_spectral_base() ;
+    base.mult_x() ;
+
+    tilde_mu.annule_hard() ;
+    tilde_mu.set_spectral_base(base) ;
+    tilde_mu.set_spectral_va().set_etat_cf_qcq() ;
+    tilde_mu.set_spectral_va().c_cf->annule_hard() ;   
+    x_new.annule_hard() ;
+    x_new.set_spectral_base(base) ;
+    x_new.set_spectral_va().set_etat_cf_qcq() ;
+    x_new.set_spectral_va().c_cf->annule_hard() ;   
+ 
+    Mtbl_cf sol_part_mu(mgrid, base) ; sol_part_mu.annule_hard() ;
+    Mtbl_cf sol_part_x(mgrid, base) ; sol_part_x.annule_hard() ;
+    Mtbl_cf sol_hom1_mu(mgrid, base) ; sol_hom1_mu.annule_hard() ;
+    Mtbl_cf sol_hom1_x(mgrid, base) ; sol_hom1_x.annule_hard() ;
+    Mtbl_cf sol_hom2_mu(mgrid, base) ; sol_hom2_mu.annule_hard() ;
+    Mtbl_cf sol_hom2_x(mgrid, base) ; sol_hom2_x.annule_hard() ;
+
+    int l_q, m_q, base_r ;
+
+    //---------------
+    //--  NUCLEUS ---
+    //---------------
+    {int lz = 0 ;  
+    int nr = mgrid.get_nr(lz) ;
+    double alpha = mp_aff->get_alpha()[lz] ;
+    Matrice ope(2*nr, 2*nr) ;
+    ope.set_etat_qcq() ;
+	
+    for (int k=0 ; k<np+1 ; k++) {
+	for (int j=0 ; j<nt ; j++) {
+	    // quantic numbers and spectral bases
+	    donne_lm(nz, lz, j, k, base, m_q, l_q, base_r) ;
+	    if ( (nullite_plm(j, nt, k, np, base) == 1) && (l_q > 1))
+	    {
+		Diff_dsdx od(base_r, nr) ; const Matrice& md = od.get_matrice() ;
+		Diff_sx os(base_r, nr) ; const Matrice& ms = os.get_matrice() ;
+
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin,col) = md(lin,col) + 3*ms(lin,col) ;
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin,col+nr) = (2-l_q*(l_q+1))*ms(lin,col) ;
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin+nr,col) = -ms(lin,col) ;
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin+nr,col+nr) = md(lin,col) ;
+
+		ope *= 1./alpha ;
+		int ind1 = nr ;
+		for (int col=0; col<2*nr; col++) 
+		    ope.set(ind1+nr-2, col) = 0 ;
+		for (int col=0; col<2*nr; col++) {
+		    ope.set(nr-1, col) = 0 ;
+		    ope.set(2*nr-1, col) = 0 ;
+		}
+		int pari = 1 ;
+		if (base_r == R_CHEBP) {
+		    for (int col=0; col<nr; col++) {
+			ope.set(nr-1, col) = pari ;
+			ope.set(2*nr-1, col+nr) = pari ;
+			pari = - pari ;
+		    }
+		}
+		else { //In the odd case, the last coefficient must be zero!
+		    ope.set(nr-1, nr-1) = 1 ;
+		    ope.set(2*nr-1, 2*nr-1) = 1 ;
+		}
+		ope.set(ind1+nr-2, ind1) = 1 ;
+		ope.set_lu() ;
+
+		Tbl sec(2*nr) ;
+		sec.set_etat_qcq() ;
+		for (int lin=0; lin<nr; lin++)
+		    sec.set(lin) = 0 ;
+		for (int lin=0; lin<nr; lin++)
+		    sec.set(nr+lin) = (*source.get_spectral_va().c_cf)
+			(lz, k, j, lin) ;
+		sec.set(2*nr-1) = 0 ;
+		sec.set(ind1+nr-2) = 0 ;
+		Tbl sol = ope.inverse(sec) ;
+		for (int i=0; i<nr; i++) {
+		    sol_part_mu.set(lz, k, j, i) = sol(i) ;
+		    sol_part_x.set(lz, k, j, i) = sol(i+nr) ;
+		}
+		sec.annule_hard() ;
+		sec.set(ind1+nr-2) = 1 ;
+		sol = ope.inverse(sec) ;
+		for (int i=0; i<nr; i++) {
+		    sol_hom2_mu.set(lz, k, j, i) = sol(i) ;
+		    sol_hom2_x.set(lz, k, j, i) = sol(i+nr) ;
+		}
+	    }
+	}
+    }
+    }
+
+    //-------------
+    // -- Shells --
+    //-------------
+
+    for (int lz=1; lz<nz-1; lz++) {
+	int nr = mgrid.get_nr(lz) ;
+	assert(mgrid.get_nt(lz) == nt) ;
+	assert(mgrid.get_np(lz) == np) ;
+	double alpha = mp_aff->get_alpha()[lz] ;
+	double ech = mp_aff->get_beta()[lz] / alpha ;
+	Matrice ope(2*nr, 2*nr) ;
+	ope.set_etat_qcq() ;
+	
+	for (int k=0 ; k<np+1 ; k++) {
+	    for (int j=0 ; j<nt ; j++) {
+		// quantic numbers and spectral bases
+		donne_lm(nz, lz, j, k, base, m_q, l_q, base_r) ;
+		if ( (nullite_plm(j, nt, k, np, base) == 1) && (l_q > 1))
+		{
+		    Diff_xdsdx oxd(base_r, nr) ; const Matrice& mxd = oxd.get_matrice() ;
+		    Diff_dsdx od(base_r, nr) ; const Matrice& md = od.get_matrice() ;
+		    Diff_id oid(base_r, nr) ; const Matrice& mid = oid.get_matrice() ;
+
+		    for (int lin=0; lin<nr; lin++) 
+			for (int col=0; col<nr; col++) 
+			    ope.set(lin,col) = mxd(lin,col) + ech*md(lin,col) 
+				+ 3*mid(lin,col) ;
+		    for (int lin=0; lin<nr; lin++) 
+			for (int col=0; col<nr; col++) 
+			    ope.set(lin,col+nr) = (2-l_q*(l_q+1))*mid(lin,col) ;
+		    for (int lin=0; lin<nr; lin++) 
+			for (int col=0; col<nr; col++) 
+			    ope.set(lin+nr,col) = -mid(lin,col) ;
+		    for (int lin=0; lin<nr; lin++) 
+			for (int col=0; col<nr; col++) 
+			    ope.set(lin+nr,col+nr) = mxd(lin,col) + ech*md(lin,col) ;
+
+		    int ind0 = 0 ;
+		    int ind1 = nr ;
+		    for (int col=0; col<2*nr; col++) {
+			ope.set(ind0+nr-1, col) = 0 ;
+			ope.set(ind1+nr-1, col) = 0 ;
+		    }
+		    ope.set(ind0+nr-1, ind0) = 1 ;
+		    ope.set(ind1+nr-1, ind1) = 1 ;
+
+		    ope.set_lu() ;
+
+		    Tbl sec(2*nr) ;
+		    sec.set_etat_qcq() ;
+		    for (int lin=0; lin<nr; lin++)
+			sec.set(lin) = 0 ;
+		    for (int lin=0; lin<nr; lin++)
+			sec.set(nr+lin) = (*source_coq.get_spectral_va().c_cf)
+			    (lz, k, j, lin) ;
+		    sec.set(ind0+nr-1) = 0 ;
+		    sec.set(ind1+nr-1) = 0 ;
+		    Tbl sol = ope.inverse(sec) ;
+		    for (int i=0; i<nr; i++) {
+ 			sol_part_mu.set(lz, k, j, i) = sol(i) ;
+ 			sol_part_x.set(lz, k, j, i) = sol(i+nr) ;
+		    }
+		    sec.annule_hard() ;
+		    sec.set(ind0+nr-1) = 1 ;
+		    sol = ope.inverse(sec) ;
+		    for (int i=0; i<nr; i++) {
+			sol_hom1_mu.set(lz, k, j, i) = sol(i) ;
+			sol_hom1_x.set(lz, k, j, i) = sol(i+nr) ;
+		    }			
+		    sec.set(ind0+nr-1) = 0 ;
+		    sec.set(ind1+nr-1) = 1 ;
+		    sol = ope.inverse(sec) ;
+		    for (int i=0; i<nr; i++) {
+			sol_hom2_mu.set(lz, k, j, i) = sol(i) ;
+			sol_hom2_x.set(lz, k, j, i) = sol(i+nr) ;
+		    }			
+		}
+	    }
+	}
+    }
+
+    //------------------------------
+    // Compactified external domain
+    //------------------------------
+    {int lz = nz-1 ;  
+    int nr = mgrid.get_nr(lz) ;
+    assert(mgrid.get_nt(lz) == nt) ;
+    assert(mgrid.get_np(lz) == np) ;
+    double alpha = mp_aff->get_alpha()[lz] ;
+    Matrice ope(2*nr, 2*nr) ;
+    ope.set_etat_qcq() ;
+	
+    for (int k=0 ; k<np+1 ; k++) {
+	for (int j=0 ; j<nt ; j++) {
+	    // quantic numbers and spectral bases
+	    donne_lm(nz, lz, j, k, base, m_q, l_q, base_r) ;
+	    if ( (nullite_plm(j, nt, k, np, base) == 1) && (l_q > 1))
+	    {
+		Diff_dsdx od(base_r, nr) ; const Matrice& md = od.get_matrice() ;
+		Diff_sx os(base_r, nr) ; const Matrice& ms = os.get_matrice() ;
+
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin,col) = - md(lin,col) + 3*ms(lin,col) ;
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin,col+nr) = (2-l_q*(l_q+1))*ms(lin,col) ;
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin+nr,col) = -ms(lin,col) ;
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin+nr,col+nr) = -md(lin,col) ;
+
+		ope *= 1./alpha ;
+		int ind0 = 0 ;
+		int ind1 = nr ;
+		for (int col=0; col<2*nr; col++) {
+		    ope.set(ind0+nr-1, col) = 0 ;
+		    ope.set(ind1+nr-2, col) = 0 ;
+		    ope.set(ind1+nr-1, col) = 0 ;
+		}
+		for (int col=0; col<nr; col++) {
+		    ope.set(ind0+nr-1, col+ind0) = 1 ;
+		    ope.set(ind1+nr-1, col+ind1) = 1 ;
+		}
+		ope.set(ind1+nr-2, ind1+1) = 1 ;
+
+		ope.set_lu() ;
+
+		Tbl sec(2*nr) ;
+		sec.set_etat_qcq() ;
+		for (int lin=0; lin<nr; lin++)
+		    sec.set(lin) = 0 ;
+		for (int lin=0; lin<nr; lin++)
+		    sec.set(nr+lin) = (*source.get_spectral_va().c_cf)
+			(lz, k, j, lin) ;
+		sec.set(ind0+nr-1) = 0 ;
+		sec.set(ind1+nr-2) = 0 ;
+		sec.set(ind1+nr-1) = 0 ;
+ 		Tbl sol = ope.inverse(sec) ;
+		for (int i=0; i<nr; i++) {
+		    sol_part_mu.set(lz, k, j, i) = sol(i) ;
+		    sol_part_x.set(lz, k, j, i) = sol(i+nr) ;
+		}
+		sec.annule_hard() ;
+		sec.set(ind1+nr-2) = 1 ;
+		sol = ope.inverse(sec) ;
+		for (int i=0; i<nr; i++) {
+		    sol_hom1_mu.set(lz, k, j, i) = sol(i) ;
+		    sol_hom1_x.set(lz, k, j, i) = sol(i+nr) ;
+		}			
+	    }
+	}
+    }
+    }
+
+    int taille = 2*(nz-1) ;
+    Mtbl_cf& mmu = *tilde_mu.set_spectral_va().c_cf ;
+    Mtbl_cf& mw = *x_new.set_spectral_va().c_cf ;
+	
+    Tbl sec_membre(taille) ; 
+    Matrice systeme(taille, taille) ; 
+    int ligne ;  int colonne ;
+	
+    // Loop on l and m
+    //----------------
+    for (int k=0 ; k<np+1 ; k++)
+	for (int j=0 ; j<nt ; j++) {
+	    base.give_quant_numbers(0, k, j, m_q, l_q, base_r) ;
+	    if ((nullite_plm(j, nt, k, np, base) == 1) && (l_q > 1)){
+		ligne = 0 ;
+		colonne = 0 ;
+		systeme.annule_hard() ;
+		sec_membre.annule_hard() ;
+
+		//Nucleus 
+		int nr = mgrid.get_nr(0) ;
+		
+		systeme.set(ligne, colonne) = sol_hom2_mu.val_out_bound_jk(0, j, k) ;
+		sec_membre.set(ligne) = -sol_part_mu.val_out_bound_jk(0, j, k) ;
+		ligne++ ;
+
+		systeme.set(ligne, colonne) = sol_hom2_x.val_out_bound_jk(0, j, k) ;
+		sec_membre.set(ligne) = -sol_part_x.val_out_bound_jk(0, j, k) ;
+		colonne++ ;
+
+		//shells
+		for (int zone=1 ; zone<nz-1 ; zone++) {
+		    nr = mgrid.get_nr(zone) ;
+		    ligne-- ;
+
+		    //Condition at x = -1
+		    systeme.set(ligne, colonne) = 
+			- sol_hom1_mu.val_in_bound_jk(zone, j, k) ;
+		    systeme.set(ligne, colonne+1) = 
+			- sol_hom2_mu.val_in_bound_jk(zone, j, k) ;
+
+		    sec_membre.set(ligne) += sol_part_mu.val_in_bound_jk(zone, j, k) ;
+		    ligne++ ;
+
+		    systeme.set(ligne, colonne) = 
+			- sol_hom1_x.val_in_bound_jk(zone, j, k) ;
+		    systeme.set(ligne, colonne+1) = 
+			- sol_hom2_x.val_in_bound_jk(zone, j, k) ;
+
+		    sec_membre.set(ligne) += sol_part_x.val_in_bound_jk(zone, j, k) ;
+		    ligne++ ;
+
+		    // Condition at x=1
+		    systeme.set(ligne, colonne) = 
+			sol_hom1_mu.val_out_bound_jk(zone, j, k) ;
+		    systeme.set(ligne, colonne+1) = 
+			sol_hom2_mu.val_out_bound_jk(zone, j, k) ;
+
+		    sec_membre.set(ligne) -= sol_part_mu.val_out_bound_jk(zone, j, k) ;
+		    ligne++ ;
+
+		    systeme.set(ligne, colonne) = 
+			sol_hom1_x.val_out_bound_jk(zone, j, k) ;
+		    systeme.set(ligne, colonne+1) = 
+			sol_hom2_x.val_out_bound_jk(zone, j, k) ;
+
+		    sec_membre.set(ligne) -= sol_part_x.val_out_bound_jk(zone, j, k) ;
+		    
+		    colonne += 2 ;
+		}
+    
+		//Compactified external domain
+		nr = mgrid.get_nr(nz-1) ;
+
+		ligne-- ;
+
+		systeme.set(ligne, colonne) = 
+		    - sol_hom1_mu.val_in_bound_jk(nz-1, j, k) ;
+		
+		sec_membre.set(ligne) += sol_part_mu.val_in_bound_jk(nz-1, j, k) ;
+		ligne++ ;
+		
+		systeme.set(ligne, colonne) = 
+		    - sol_hom1_x.val_in_bound_jk(nz-1, j, k) ;
+		
+		sec_membre.set(ligne) += sol_part_x.val_in_bound_jk(nz-1, j, k) ;
+			
+		// Solution of the system giving the coefficients for the homogeneous 
+		// solutions
+		//-------------------------------------------------------------------
+		systeme.set_lu() ;
+		Tbl facteur = systeme.inverse(sec_membre) ;
+		int conte = 0 ;
+
+		// everything is put to the right place...
+		//----------------------------------------
+ 		nr = mgrid.get_nr(0) ; //nucleus
+ 		for (int i=0 ; i<nr ; i++) {
+		    mmu.set(0, k, j, i) = sol_part_mu(0, k, j, i)
+			+ facteur(conte)*sol_hom2_mu(0, k, j, i) ;
+		    mw.set(0, k, j, i) = sol_part_x(0, k, j, i)
+			+ facteur(conte)*sol_hom2_x(0, k, j, i) ;
+ 		}
+ 		conte++ ;
+ 		for (int zone=1 ; zone<nz-1 ; zone++) { //shells
+ 		    nr = mgrid.get_nr(zone) ;
+ 		    for (int i=0 ; i<nr ; i++) {
+		    mmu.set(zone, k, j, i) = sol_part_mu(zone, k, j, i)
+			+ facteur(conte)*sol_hom1_mu(zone, k, j, i) 
+			+ facteur(conte+1)*sol_hom2_mu(zone, k, j, i) ;
+			
+		    mw.set(zone, k, j, i) = sol_part_x(zone, k, j, i)
+			+ facteur(conte)*sol_hom1_x(zone, k, j, i) 
+			+ facteur(conte+1)*sol_hom2_x(zone, k, j, i) ;
+ 		    }
+ 		    conte+=2 ;
+ 		}
+ 		nr = mgrid.get_nr(nz-1) ; //compactified external domain
+ 		for (int i=0 ; i<nr ; i++) {
+		    mmu.set(nz-1, k, j, i) = sol_part_mu(nz-1, k, j, i)
+			+ facteur(conte)*sol_hom1_mu(nz-1, k, j, i) ;
+			
+		    mw.set(nz-1, k, j, i) = sol_part_x(nz-1, k, j, i)
+			+ facteur(conte)*sol_hom1_x(nz-1, k, j, i) ;
+		}
+
+	    } // End of nullite_plm  
+	} //End of loop on theta
+		    
+    if (tilde_mu.set_spectral_va().c != 0x0) 
+	delete tilde_mu.set_spectral_va().c ;
+    tilde_mu.set_spectral_va().c = 0x0 ;
+    tilde_mu.set_spectral_va().ylm_i() ;
+
+    if (x_new.set_spectral_va().c != 0x0) 
+	delete x_new.set_spectral_va().c ;
+    x_new.set_spectral_va().c = 0x0 ;
+    x_new.set_spectral_va().ylm_i() ;
+
+} 
+
+void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh, 
+					 Scalar& hrr, Scalar& tilde_eta, Scalar& ww) 
+    const {
+
+    const Map_af* mp_aff = dynamic_cast<const Map_af*>(mp) ;
+    assert(mp_aff != 0x0) ; //Only affine mapping for the moment
+
+    const Mg3d& mgrid = *mp_aff->get_mg() ;
+    int nz = mgrid.get_nzone() ;
+    assert(mgrid.get_type_r(0) == RARE)  ;
+    assert(mgrid.get_type_r(nz-1) == UNSURR) ;
+    int nt = mgrid.get_nt(0) ;
+    int np = mgrid.get_np(0) ;
+
+    Scalar source = tilde_b ;
+    Scalar source_coq = tilde_b ;
+    source_coq.annule_domain(0) ;
+    source_coq.annule_domain(nz-1) ;
+    source_coq.mult_r() ;
+    source.set_spectral_va().ylm() ;
+    source_coq.set_spectral_va().ylm() ;
+    Base_val base = source.get_spectral_base() ;
+    base.mult_x() ;
+
+    assert(hh.check_dzpuis(0)) ;
+    Scalar hoverr = hh ;
+    hoverr.div_r_dzpuis(2) ;
+    hoverr.set_spectral_va().ylm() ;
+    Scalar dhdr = hh.dsdr() ;
+    dhdr.set_spectral_va().ylm() ;
+    Scalar h_coq = hh ;
+    h_coq.set_spectral_va().ylm() ;
+    Scalar dh_coq = hh.dsdr() ;
+    dh_coq.mult_r_dzpuis(0) ;
+    dh_coq.set_spectral_va().ylm() ;    
+    bool hnull = (hh.get_etat() == ETATZERO) ;
+
+    hrr.set_etat_qcq() ;
+    hrr.set_spectral_base(base) ;
+    hrr.set_spectral_va().set_etat_cf_qcq() ;
+    hrr.set_spectral_va().c_cf->annule_hard() ;   
+    tilde_eta.annule_hard() ;
+    tilde_eta.set_spectral_base(base) ;
+    tilde_eta.set_spectral_va().set_etat_cf_qcq() ;
+    tilde_eta.set_spectral_va().c_cf->annule_hard() ;   
+    ww.annule_hard() ;
+    ww.set_spectral_base(base) ;
+    ww.set_spectral_va().set_etat_cf_qcq() ;
+    ww.set_spectral_va().c_cf->annule_hard() ;   
+ 
+    Mtbl_cf sol_part_hrr(mgrid, base) ; sol_part_hrr.annule_hard() ;
+    Mtbl_cf sol_part_eta(mgrid, base) ; sol_part_eta.annule_hard() ;
+    Mtbl_cf sol_part_w(mgrid, base) ; sol_part_w.annule_hard() ;
+    Mtbl_cf sol_hom1_hrr(mgrid, base) ; sol_hom1_hrr.annule_hard() ;
+    Mtbl_cf sol_hom1_eta(mgrid, base) ; sol_hom1_eta.annule_hard() ;
+    Mtbl_cf sol_hom1_w(mgrid, base) ; sol_hom1_w.annule_hard() ;
+    Mtbl_cf sol_hom2_hrr(mgrid, base) ; sol_hom2_hrr.annule_hard() ;
+    Mtbl_cf sol_hom2_eta(mgrid, base) ; sol_hom2_eta.annule_hard() ;
+    Mtbl_cf sol_hom2_w(mgrid, base) ; sol_hom2_w.annule_hard() ;
+    Mtbl_cf sol_hom3_hrr(mgrid, base) ; sol_hom3_hrr.annule_hard() ;
+    Mtbl_cf sol_hom3_eta(mgrid, base) ; sol_hom3_eta.annule_hard() ;
+    Mtbl_cf sol_hom3_w(mgrid, base) ; sol_hom3_w.annule_hard() ;
+
+    int l_q, m_q, base_r ;
+
+    //---------------
+    //--  NUCLEUS ---
+    //---------------
+    {int lz = 0 ;  
+    int nr = mgrid.get_nr(lz) ;
+    double alpha = mp_aff->get_alpha()[lz] ;
+    Matrice ope(3*nr, 3*nr) ;
+    ope.set_etat_qcq() ;
+	
+    for (int k=0 ; k<np+1 ; k++) {
+	for (int j=0 ; j<nt ; j++) {
+	    // quantic numbers and spectral bases
+	    donne_lm(nz, lz, j, k, base, m_q, l_q, base_r) ;
+	    if ( (nullite_plm(j, nt, k, np, base) == 1) && (l_q > 1))
+	    {
+		Diff_dsdx od(base_r, nr) ; const Matrice& md = od.get_matrice() ;
+		Diff_sx os(base_r, nr) ; const Matrice& ms = os.get_matrice() ;
+
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin,col) = md(lin,col) + 3*ms(lin,col) ;
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin,col+nr) = -l_q*(l_q+1)*ms(lin,col) ;
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin,col+2*nr) = 0 ;
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin+nr,col) = -0.5*ms(lin,col) ;
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin+nr,col+nr) = md(lin,col) + 3*ms(lin,col) ;
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin+nr,col+2*nr) = (2. - l_q*(l_q+1))*ms(lin,col) ;
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin+2*nr,col) = -0.5*md(lin,col)/double(l_q+1) 
+			    - 0.5*double(l_q+4)/double(l_q+1)*ms(lin,col) ;
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin+2*nr,col+nr) = -2*ms(lin,col) ;
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin+2*nr,col+2*nr) =  (l_q+2)*md(lin,col) 
+			    + l_q*(l_q+2)*ms(lin,col) ;
+
+		ope *= 1./alpha ;
+		int ind2 = 2*nr ;
+		for (int col=0; col<3*nr; col++) 
+		    if (l_q>2) ope.set(ind2+nr-2, col) = 0 ;
+		for (int col=0; col<3*nr; col++) {
+		    ope.set(nr-1, col) = 0 ;
+		    ope.set(2*nr-1, col) = 0 ;
+		    ope.set(3*nr-1, col) = 0 ;
+		}
+		int pari = 1 ;
+		if (base_r == R_CHEBP) {
+		    for (int col=0; col<nr; col++) {
+			ope.set(nr-1, col) = pari ;
+			ope.set(2*nr-1, col+nr) = pari ;
+			ope.set(3*nr-1, col+2*nr) = pari ;
+			pari = - pari ;
+		    }
+		}
+		else { //In the odd case, the last coefficient must be zero!
+		    ope.set(nr-1, nr-1) = 1 ;
+		    ope.set(2*nr-1, 2*nr-1) = 1 ;
+		    ope.set(3*nr-1, 3*nr-1) = 1 ;
+		}			
+		if (l_q>2) 
+		    ope.set(ind2+nr-2, ind2) = 1 ;
+
+//   		    cout << "l_q: " << l_q << endl ;
+//   		    cout << "determinant: " << ope.determinant() << endl ;
+		ope.set_lu() ;
+
+		Tbl sec(3*nr) ;
+		sec.set_etat_qcq() ;
+		if (hnull) {
+		    for (int lin=0; lin<2*nr; lin++)
+			sec.set(lin) = 0 ;
+		    for (int lin=0; lin<nr; lin++)
+			sec.set(2*nr+lin) = (*source.get_spectral_va().c_cf)
+			    (lz, k, j, lin) ;
+		}
+		else {
+		    for (int lin=0; lin<nr; lin++)
+			sec.set(lin) = (*hoverr.get_spectral_va().c_cf)(lz, k, j, lin) ;
+		    for (int lin=0; lin<nr; lin++)
+			sec.set(lin+nr) = -0.5*(*hoverr.get_spectral_va().c_cf)
+			    (lz, k, j, lin) ;
+		    for (int lin=0; lin<nr; lin++)
+			sec.set(2*nr+lin) = -0.5/double(l_q+1)*(
+			    (*dhdr.get_spectral_va().c_cf)(lz, k, j, lin)
+			    + (l_q+2)*(*hoverr.get_spectral_va().c_cf)(lz, k, j, lin) )
+			    + (*source.get_spectral_va().c_cf)(lz, k, j, lin) ;
+		}
+		if (l_q>2) sec.set(ind2+nr-2) = 0 ;
+		sec.set(3*nr-1) = 0 ;
+		Tbl sol = ope.inverse(sec) ;
+//   		    cout << diffrelmax(Tbl(ope*Matrice(sol)), sec) << endl ;
+//   		    int op ; cin >> op ;
+		for (int i=0; i<nr; i++) {
+		    sol_part_hrr.set(lz, k, j, i) = sol(i) ;
+		    sol_part_eta.set(lz, k, j, i) = sol(i+nr) ;
+		    sol_part_w.set(lz, k, j, i) = sol(i+2*nr) ;
+		}
+		sec.annule_hard() ;
+		if (l_q>2) {
+		    sec.set(ind2+nr-2) = 1 ;
+		    sol = ope.inverse(sec) ;
+		}
+		else { //Homogeneous solution put in by hand in the case l=2
+		    sol.annule_hard() ;
+		    sol.set(0) = 4 ;
+		    sol.set(nr) = 2 ;
+		    sol.set(2*nr) = 1 ;
+		}
+		for (int i=0; i<nr; i++) {
+		    sol_hom3_hrr.set(lz, k, j, i) = sol(i) ;
+		    sol_hom3_eta.set(lz, k, j, i) = sol(i+nr) ;
+		    sol_hom3_w.set(lz, k, j, i) = sol(i+2*nr) ;
+		}
+	    }
+	}
+    }
+    }
+
+    //-------------
+    // -- Shells --
+    //-------------
+
+    for (int lz=1; lz<nz-1; lz++) {
+	int nr = mgrid.get_nr(lz) ;
+	double alpha = mp_aff->get_alpha()[lz] ;
+	double ech = mp_aff->get_beta()[lz] / alpha ;
+	Matrice ope(3*nr, 3*nr) ;
+	ope.set_etat_qcq() ;
+	
+	for (int k=0 ; k<np+1 ; k++) {
+	    for (int j=0 ; j<nt ; j++) {
+		// quantic numbers and spectral bases
+		donne_lm(nz, lz, j, k, base, m_q, l_q, base_r) ;
+		if ( (nullite_plm(j, nt, k, np, base) == 1) && (l_q > 1))
+		{
+		    Diff_xdsdx oxd(base_r, nr) ; const Matrice& mxd = oxd.get_matrice() ;
+		    Diff_dsdx od(base_r, nr) ; const Matrice& md = od.get_matrice() ;
+		    Diff_id oid(base_r, nr) ; const Matrice& mid = oid.get_matrice() ;
+
+		    for (int lin=0; lin<nr; lin++) 
+			for (int col=0; col<nr; col++) 
+			    ope.set(lin,col) = mxd(lin,col) + ech*md(lin,col) 
+				+ 3*mid(lin,col) ;
+		    for (int lin=0; lin<nr; lin++) 
+			for (int col=0; col<nr; col++) 
+			    ope.set(lin,col+nr) = -l_q*(l_q+1)*mid(lin,col) ;
+		    for (int lin=0; lin<nr; lin++) 
+			for (int col=0; col<nr; col++) 
+			    ope.set(lin,col+2*nr) = 0 ;
+		    for (int lin=0; lin<nr; lin++) 
+			for (int col=0; col<nr; col++) 
+			    ope.set(lin+nr,col) = -0.5*mid(lin,col) ;
+		    for (int lin=0; lin<nr; lin++) 
+			for (int col=0; col<nr; col++) 
+			    ope.set(lin+nr,col+nr) = mxd(lin,col) + ech*md(lin,col) 
+				+ 3*mid(lin,col) ;
+		    for (int lin=0; lin<nr; lin++) 
+			for (int col=0; col<nr; col++) 
+			    ope.set(lin+nr,col+2*nr) = (2. - l_q*(l_q+1))*mid(lin,col) ;
+		    for (int lin=0; lin<nr; lin++) 
+			for (int col=0; col<nr; col++) 
+			    ope.set(lin+2*nr,col) = 
+				-0.5/double(l_q+1)*(mxd(lin,col) + ech*md(lin,col)
+						    + double(l_q+4)*mid(lin,col)) ;
+		    for (int lin=0; lin<nr; lin++) 
+			for (int col=0; col<nr; col++) 
+			    ope.set(lin+2*nr,col+nr) = -2*mid(lin,col) ;
+		    for (int lin=0; lin<nr; lin++) 
+			for (int col=0; col<nr; col++) 
+			    ope.set(lin+2*nr,col+2*nr) =  
+				double(l_q+2)*(mxd(lin,col) + ech*md(lin,col) 
+					       + l_q*mid(lin,col)) ;
+		    int ind0 = 0 ;
+		    int ind1 = nr ;
+		    int ind2 = 2*nr ;
+		    for (int col=0; col<3*nr; col++) {
+			ope.set(ind0+nr-1, col) = 0 ;
+			ope.set(ind1+nr-1, col) = 0 ;
+			ope.set(ind2+nr-1, col) = 0 ;
+		    }
+		    ope.set(ind0+nr-1, ind0) = 1 ;
+		    ope.set(ind1+nr-1, ind1) = 1 ;
+		    ope.set(ind2+nr-1, ind2) = 1 ;
+
+// 		    cout << "l_q: " << l_q << endl ;
+// 		    cout << "determinant: " << ope.determinant() << endl ;
+		    ope.set_lu() ;
+
+		    Tbl sec(3*nr) ;
+		    sec.set_etat_qcq() ;
+		    if (hnull) {
+			for (int lin=0; lin<2*nr; lin++)
+			    sec.set(lin) = 0 ;
+			for (int lin=0; lin<nr; lin++)
+			    sec.set(2*nr+lin) = (*source_coq.get_spectral_va().c_cf)
+				(lz, k, j, lin) ;
+		    }
+		    else {
+		    for (int lin=0; lin<nr; lin++)
+			sec.set(lin) = (*h_coq.get_spectral_va().c_cf)(lz, k, j, lin) ;
+		    for (int lin=0; lin<nr; lin++)
+			sec.set(lin+nr) = -0.5*(*h_coq.get_spectral_va().c_cf)
+			    (lz, k, j, lin) ;
+		    for (int lin=0; lin<nr; lin++)
+			sec.set(2*nr+lin) = -0.5/double(l_q+1)*(
+			    (*dh_coq.get_spectral_va().c_cf)(lz, k, j, lin)
+			    + (l_q+2)*(*h_coq.get_spectral_va().c_cf)(lz, k, j, lin) )
+			    + (*source_coq.get_spectral_va().c_cf)(lz, k, j, lin) ;
+		    }
+		    sec.set(ind0+nr-1) = 0 ;
+		    sec.set(ind1+nr-1) = 0 ;
+		    sec.set(ind2+nr-1) = 0 ;
+		    Tbl sol = ope.inverse(sec) ;
+// 		    cout << diffrelmax(Tbl(ope*Matrice(sol)), sec) << endl ;
+// 		    int we ; cin >> we ;
+		    for (int i=0; i<nr; i++) {
+ 			sol_part_hrr.set(lz, k, j, i) = sol(i) ;
+ 			sol_part_eta.set(lz, k, j, i) = sol(i+nr) ;
+ 			sol_part_w.set(lz, k, j, i) = sol(i+2*nr) ;
+		    }
+		    sec.annule_hard() ;
+		    sec.set(ind0+nr-1) = 1 ;
+		    sol = ope.inverse(sec) ;
+// 		    cout << Tbl(ope*Matrice(sol)) ;
+// 		    int op ; cin >> op ;
+		    for (int i=0; i<nr; i++) {
+			sol_hom1_hrr.set(lz, k, j, i) = sol(i) ;
+			sol_hom1_eta.set(lz, k, j, i) = sol(i+nr) ;
+			sol_hom1_w.set(lz, k, j, i) = sol(i+2*nr) ;
+		    }			
+		    sec.set(ind0+nr-1) = 0 ;
+		    sec.set(ind1+nr-1) = 1 ;
+		    sol = ope.inverse(sec) ;
+		    for (int i=0; i<nr; i++) {
+			sol_hom2_hrr.set(lz, k, j, i) = sol(i) ;
+			sol_hom2_eta.set(lz, k, j, i) = sol(i+nr) ;
+			sol_hom2_w.set(lz, k, j, i) = sol(i+2*nr) ;
+		    }			
+		    sec.set(ind1+nr-1) = 0 ;
+		    sec.set(ind2+nr-1) = 1 ;
+		    sol = ope.inverse(sec) ;
+		    for (int i=0; i<nr; i++) {
+			sol_hom3_hrr.set(lz, k, j, i) = sol(i) ;
+			sol_hom3_eta.set(lz, k, j, i) = sol(i+nr) ;
+			sol_hom3_w.set(lz, k, j, i) = sol(i+2*nr) ;
+		    }	
+		}
+	    }
+	}
+    }
+
+    //------------------------------
+    // Compactified external domain
+    //------------------------------
+    {int lz = nz-1 ;  
+    int nr = mgrid.get_nr(lz) ;
+    double alpha = mp_aff->get_alpha()[lz] ;
+    Matrice ope(3*nr, 3*nr) ;
+    ope.set_etat_qcq() ;
+	
+    for (int k=0 ; k<np+1 ; k++) {
+	for (int j=0 ; j<nt ; j++) {
+	    // quantic numbers and spectral bases
+	    donne_lm(nz, lz, j, k, base, m_q, l_q, base_r) ;
+	    if ( (nullite_plm(j, nt, k, np, base) == 1) && (l_q > 1))
+	    {
+		Diff_dsdx od(base_r, nr) ; const Matrice& md = od.get_matrice() ;
+		Diff_sx os(base_r, nr) ; const Matrice& ms = os.get_matrice() ;
+
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin,col) = - md(lin,col) + 3*ms(lin,col) ;
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin,col+nr) = -l_q*(l_q+1)*ms(lin,col) ;
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin,col+2*nr) = 0 ;
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin+nr,col) = -0.5*ms(lin,col) ;
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin+nr,col+nr) = -md(lin,col) + 3*ms(lin,col) ;
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin+nr,col+2*nr) = (2. - l_q*(l_q+1))*ms(lin,col) ;
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin+2*nr,col) =  0.5*md(lin,col)/double(l_q+1) 
+			    - 0.5*double(l_q+4)/double(l_q+1)*ms(lin,col) ;
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin+2*nr,col+nr) = -2*ms(lin,col) ;
+		for (int lin=0; lin<nr; lin++) 
+		    for (int col=0; col<nr; col++) 
+			ope.set(lin+2*nr,col+2*nr) =  -(l_q+2)*md(lin,col) 
+			    + l_q*(l_q+2)*ms(lin,col) ;
+		ope *= 1./alpha ;
+		int ind0 = 0 ;
+		int ind1 = nr ;
+		int ind2 = 2*nr ;
+		for (int col=0; col<3*nr; col++) {
+		    ope.set(ind0+nr-2, col) = 0 ;
+		    ope.set(ind0+nr-1, col) = 0 ;
+		    ope.set(ind1+nr-2, col) = 0 ;
+		    ope.set(ind1+nr-1, col) = 0 ;
+		    ope.set(ind2+nr-1, col) = 0 ;
+		}
+// 		if (l_q == 2) 
+// 		    for (int col=0; col<3*nr; col++)
+// 			ope.set(ind2+nr-2,col) = 0 ;
+		for (int col=0; col<nr; col++) {
+		    ope.set(ind0+nr-1, col+ind0) = 1 ;
+		    ope.set(ind1+nr-1, col+ind1) = 1 ;
+		    ope.set(ind2+nr-1, col+ind2) = 1 ;
+		}
+		ope.set(ind0+nr-2, ind0+1) = 1 ;
+		ope.set(ind1+nr-2, ind1+2) = 1 ;
+
+//    		    cout << "l_q: " << l_q << endl ;
+//    		    cout << "determinant: " << ope.determinant() << endl ;
+		ope.set_lu() ;
+
+		Tbl sec(3*nr) ;
+		sec.set_etat_qcq() ;
+		if (hnull) {
+		    for (int lin=0; lin<2*nr; lin++)
+			sec.set(lin) = 0 ;
+		    for (int lin=0; lin<nr; lin++)
+			sec.set(2*nr+lin) = (*source.get_spectral_va().c_cf)
+			    (lz, k, j, lin) ;
+		}
+		else {
+		    for (int lin=0; lin<nr; lin++)
+			sec.set(lin) = (*hoverr.get_spectral_va().c_cf)(lz, k, j, lin) ;
+		    for (int lin=0; lin<nr; lin++)
+			sec.set(lin+nr) = -0.5*(*hoverr.get_spectral_va().c_cf)
+			    (lz, k, j, lin) ;
+		    for (int lin=0; lin<nr; lin++)
+			sec.set(2*nr+lin) = -0.5/double(l_q+1)*(
+			    (*dhdr.get_spectral_va().c_cf)(lz, k, j, lin)
+			    + (l_q+2)*(*hoverr.get_spectral_va().c_cf)(lz, k, j, lin) )
+			    + (*source.get_spectral_va().c_cf)(lz, k, j, lin) ;
+		}
+		sec.set(ind0+nr-2) = 0 ;
+		sec.set(ind0+nr-1) = 0 ;
+		sec.set(ind1+nr-1) = 0 ;
+		sec.set(ind1+nr-2) = 0 ;
+		sec.set(ind2+nr-1) = 0 ;
+		Tbl sol = ope.inverse(sec) ;
+//  		    cout << diffrelmax(Tbl(ope*Matrice(sol)), sec) << endl ;
+//  		    int qw ; cin >> qw ;
+		for (int i=0; i<nr; i++) {
+		    sol_part_hrr.set(lz, k, j, i) = sol(i) ;
+		    sol_part_eta.set(lz, k, j, i) = sol(i+nr) ;
+		    sol_part_w.set(lz, k, j, i) = sol(i+2*nr) ;
+		}
+		sec.annule_hard() ;
+		sec.set(ind0+nr-2) = 1 ;
+		sol = ope.inverse(sec) ;
+		for (int i=0; i<nr; i++) {
+		    sol_hom1_hrr.set(lz, k, j, i) = sol(i) ;
+		    sol_hom1_eta.set(lz, k, j, i) = sol(i+nr) ;
+		    sol_hom1_w.set(lz, k, j, i) = sol(i+2*nr) ;
+		}			
+		sec.set(ind0+nr-2) = 0 ;
+		sec.set(ind1+nr-2) = 1 ;
+		sol = ope.inverse(sec) ;
+		for (int i=0; i<nr; i++) {
+		    sol_hom2_hrr.set(lz, k, j, i) = sol(i) ;
+		    sol_hom2_eta.set(lz, k, j, i) = sol(i+nr) ;
+		    sol_hom2_w.set(lz, k, j, i) = sol(i+2*nr) ;
+		}
+	    }
+	}
+    }
+    }
+
+    int taille = 3*(nz-1) ;
+    Mtbl_cf& mhrr = *hrr.set_spectral_va().c_cf ;
+    Mtbl_cf& meta = *tilde_eta.set_spectral_va().c_cf ;
+    Mtbl_cf& mw = *ww.set_spectral_va().c_cf ;
+	
+    Tbl sec_membre(taille) ; 
+    Matrice systeme(taille, taille) ; 
+    int ligne ;  int colonne ;
+	
+    // Loop on l and m
+    //----------------
+    for (int k=0 ; k<np+1 ; k++)
+	for (int j=0 ; j<nt ; j++) {
+	    base.give_quant_numbers(0, k, j, m_q, l_q, base_r) ;
+	    if ((nullite_plm(j, nt, k, np, base) == 1) && (l_q > 1)){
+		ligne = 0 ;
+		colonne = 0 ;
+		systeme.annule_hard() ;
+		sec_membre.annule_hard() ;
+
+		//Nucleus 
+		int nr = mgrid.get_nr(0) ;
+		
+		systeme.set(ligne, colonne) = sol_hom3_hrr.val_out_bound_jk(0, j, k) ;
+		sec_membre.set(ligne) = -sol_part_hrr.val_out_bound_jk(0, j, k) ;
+		ligne++ ;
+
+		systeme.set(ligne, colonne) = sol_hom3_eta.val_out_bound_jk(0, j, k) ;
+		sec_membre.set(ligne) = -sol_part_eta.val_out_bound_jk(0, j, k) ;
+		ligne++ ;
+
+		systeme.set(ligne, colonne) = sol_hom3_w.val_out_bound_jk(0, j, k) ;
+		sec_membre.set(ligne) = -sol_part_w.val_out_bound_jk(0, j, k) ;
+		colonne++ ;
+
+		//shells
+		for (int zone=1 ; zone<nz-1 ; zone++) {
+		    nr = mgrid.get_nr(zone) ;
+		    ligne -= 2 ;
+
+		    //Condition at x = -1
+		    systeme.set(ligne, colonne) = 
+			- sol_hom1_hrr.val_in_bound_jk(zone, j, k) ;
+		    systeme.set(ligne, colonne+1) = 
+			- sol_hom2_hrr.val_in_bound_jk(zone, j, k) ;
+		    systeme.set(ligne, colonne+2) = 
+			- sol_hom3_hrr.val_in_bound_jk(zone, j, k) ;
+
+		    sec_membre.set(ligne) += sol_part_hrr.val_in_bound_jk(zone, j, k) ;
+		    ligne++ ;
+
+		    systeme.set(ligne, colonne) = 
+			- sol_hom1_eta.val_in_bound_jk(zone, j, k) ;
+		    systeme.set(ligne, colonne+1) = 
+			- sol_hom2_eta.val_in_bound_jk(zone, j, k) ;
+		    systeme.set(ligne, colonne+2) = 
+			- sol_hom3_eta.val_in_bound_jk(zone, j, k) ;
+
+		    sec_membre.set(ligne) += sol_part_eta.val_in_bound_jk(zone, j, k) ;
+		    ligne++ ;
+
+		    systeme.set(ligne, colonne) = 
+			- sol_hom1_w.val_in_bound_jk(zone, j, k) ;
+		    systeme.set(ligne, colonne+1) = 
+			- sol_hom2_w.val_in_bound_jk(zone, j, k) ;
+		    systeme.set(ligne, colonne+2) = 
+			- sol_hom3_w.val_in_bound_jk(zone, j, k) ;
+
+		    sec_membre.set(ligne) += sol_part_w.val_in_bound_jk(zone, j, k) ;
+		    ligne++ ;
+
+		    // Condition at x=1
+		    systeme.set(ligne, colonne) = 
+			sol_hom1_hrr.val_out_bound_jk(zone, j, k) ;
+		    systeme.set(ligne, colonne+1) = 
+			sol_hom2_hrr.val_out_bound_jk(zone, j, k) ;
+		    systeme.set(ligne, colonne+2) = 
+			sol_hom3_hrr.val_out_bound_jk(zone, j, k) ;
+
+		    sec_membre.set(ligne) -= sol_part_hrr.val_out_bound_jk(zone, j, k) ;
+		    ligne++ ;
+
+		    systeme.set(ligne, colonne) = 
+			sol_hom1_eta.val_out_bound_jk(zone, j, k) ;
+		    systeme.set(ligne, colonne+1) = 
+			sol_hom2_eta.val_out_bound_jk(zone, j, k) ;
+		    systeme.set(ligne, colonne+2) = 
+			sol_hom3_eta.val_out_bound_jk(zone, j, k) ;
+
+		    sec_membre.set(ligne) -= sol_part_eta.val_out_bound_jk(zone, j, k) ;
+		    ligne++ ;
+
+		    systeme.set(ligne, colonne) = 
+			sol_hom1_w.val_out_bound_jk(zone, j, k) ;
+		    systeme.set(ligne, colonne+1) = 
+			sol_hom2_w.val_out_bound_jk(zone, j, k) ;
+		    systeme.set(ligne, colonne+2) = 
+			sol_hom3_w.val_out_bound_jk(zone, j, k) ;
+
+		    sec_membre.set(ligne) -= sol_part_w.val_out_bound_jk(zone, j, k) ;
+		    
+		    colonne += 3 ;
+		}
+    
+		//Compactified external domain
+		nr = mgrid.get_nr(nz-1) ;
+
+		ligne -= 2 ;
+
+		systeme.set(ligne, colonne) = 
+		    - sol_hom1_hrr.val_in_bound_jk(nz-1, j, k) ;
+		systeme.set(ligne, colonne+1) = 
+		    - sol_hom2_hrr.val_in_bound_jk(nz-1, j, k) ;
+
+		sec_membre.set(ligne) += sol_part_hrr.val_in_bound_jk(nz-1, j, k) ;
+		ligne++ ;
+
+		systeme.set(ligne, colonne) = 
+		    - sol_hom1_eta.val_in_bound_jk(nz-1, j, k) ;
+		systeme.set(ligne, colonne+1) = 
+		    - sol_hom2_eta.val_in_bound_jk(nz-1, j, k) ;
+		
+		sec_membre.set(ligne) += sol_part_eta.val_in_bound_jk(nz-1, j, k) ;
+		ligne++ ;
+		
+		systeme.set(ligne, colonne) = 
+		    - sol_hom1_w.val_in_bound_jk(nz-1, j, k) ;
+		systeme.set(ligne, colonne+1) = 
+		    - sol_hom2_w.val_in_bound_jk(nz-1, j, k) ;
+		
+		sec_membre.set(ligne) += sol_part_w.val_in_bound_jk(nz-1, j, k) ;
+			
+		// Solution of the system giving the coefficients for the homogeneous 
+		// solutions
+		//-------------------------------------------------------------------
+		systeme.set_lu() ;
+//  		cout << "l: " << l_q << ", " << systeme.determinant() << endl ;
+		Tbl facteur = systeme.inverse(sec_membre) ;
+//  		cout << diffrelmax(Tbl(systeme*Matrice(facteur)), sec_membre) << endl ;
+//   		int op ; cin >> op ;
+		int conte = 0 ;
+
+		// everything is put to the right place, the same combination of hom.
+		// solutions (with some l or -(l+1) factors) must be used for V^r
+		//-------------------------------------------------------------------
+ 		nr = mgrid.get_nr(0) ; //nucleus
+ 		for (int i=0 ; i<nr ; i++) {
+		    mhrr.set(0, k, j, i) = sol_part_hrr(0, k, j, i)
+			+ facteur(conte)*sol_hom3_hrr(0, k, j, i) ;
+		    meta.set(0, k, j, i) = sol_part_eta(0, k, j, i)
+			+ facteur(conte)*sol_hom3_eta(0, k, j, i) ;
+		    mw.set(0, k, j, i) = sol_part_w(0, k, j, i)
+			+ facteur(conte)*sol_hom3_w(0, k, j, i) ;
+ 		}
+ 		conte++ ;
+ 		for (int zone=1 ; zone<nz-1 ; zone++) { //shells
+ 		    nr = mgrid.get_nr(zone) ;
+ 		    for (int i=0 ; i<nr ; i++) {
+		    mhrr.set(zone, k, j, i) = sol_part_hrr(zone, k, j, i)
+			+ facteur(conte)*sol_hom1_hrr(zone, k, j, i) 
+			+ facteur(conte+1)*sol_hom2_hrr(zone, k, j, i) 
+			+ facteur(conte+2)*sol_hom3_hrr(zone, k, j, i) ;
+			
+		    meta.set(zone, k, j, i) = sol_part_eta(zone, k, j, i)
+			+ facteur(conte)*sol_hom1_eta(zone, k, j, i) 
+			+ facteur(conte+1)*sol_hom2_eta(zone, k, j, i) 
+			+ facteur(conte+2)*sol_hom3_eta(zone, k, j, i) ;
+			
+		    mw.set(zone, k, j, i) = sol_part_w(zone, k, j, i)
+			+ facteur(conte)*sol_hom1_w(zone, k, j, i) 
+			+ facteur(conte+1)*sol_hom2_w(zone, k, j, i) 
+			+ facteur(conte+2)*sol_hom3_w(zone, k, j, i) ;			
+ 		    }
+ 		    conte+=3 ;
+ 		}
+ 		nr = mgrid.get_nr(nz-1) ; //compactified external domain
+ 		for (int i=0 ; i<nr ; i++) {
+		    mhrr.set(nz-1, k, j, i) = sol_part_hrr(nz-1, k, j, i)
+			+ facteur(conte)*sol_hom1_hrr(nz-1, k, j, i) 
+			+ facteur(conte+1)*sol_hom2_hrr(nz-1, k, j, i) ;
+
+		    meta.set(nz-1, k, j, i) = sol_part_eta(nz-1, k, j, i)
+			+ facteur(conte)*sol_hom1_eta(nz-1, k, j, i) 
+			+ facteur(conte+1)*sol_hom2_eta(nz-1, k, j, i) ; 
+			
+		    mw.set(nz-1, k, j, i) = sol_part_w(nz-1, k, j, i)
+			+ facteur(conte)*sol_hom1_w(nz-1, k, j, i) 
+			+ facteur(conte+1)*sol_hom2_w(nz-1, k, j, i) ;
+		}
+
+	    } // End of nullite_plm  
+	} //End of loop on theta
+		    
+
+    if (hrr.set_spectral_va().c != 0x0) 
+	delete hrr.set_spectral_va().c ;
+    hrr.set_spectral_va().c = 0x0 ;
+    hrr.set_spectral_va().ylm_i() ;
+    h_coq.annule_l(2, base.give_lmax(mgrid, 0), true) ;
+    Scalar sou_l1 = 3*h_coq + dh_coq + 0.5*h_coq.lapang() ;
+    Scalar h_l1(*mp_aff) ;
+    solve_hrr(sou_l1, h_l1, 0, 1) ;
+    hrr += h_l1 ;
+
+
+    if (tilde_eta.set_spectral_va().c != 0x0) 
+	delete tilde_eta.set_spectral_va().c ;
+    tilde_eta.set_spectral_va().c = 0x0 ;
+    tilde_eta.set_spectral_va().ylm_i() ;
+    h_l1.set_spectral_va().ylm() ;
+    Scalar dmp = -h_l1.dsdr() ;
+    dmp.mult_r_dzpuis(0) ;
+    dmp += h_coq - 3*h_l1 ;
+    Scalar eta_l1 = dmp.poisson_angu() ;
+    tilde_eta += eta_l1 ;
+
+    if (ww.set_spectral_va().c != 0x0) 
+	delete ww.set_spectral_va().c ;
+    ww.set_spectral_va().c = 0x0 ;
+    ww.set_spectral_va().ylm_i() ;
+
 }
