@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2006/06/13 08:07:55  n_vasset
+ *   Addition of 2 members
+ *
  * Revision 1.4  2006/06/08 09:50:49  n_vasset
  * corrected version for coordinates transformation
  *
@@ -61,19 +64,24 @@ class Spheroid {
         ///The location of the 2-surface as \e r = \c h_surf\f$(\theta, \varphi)\f$
         Scalar h_surf ; 
 
-        /// The jacobian of the adaptation of the coordinates
+        /** The jacobian of the adaptation of coordinates
+	    (contravariant/covariant representation)*/
 
 	Tensor jac2d ;
 
- 	/** The trivial 3-d projector on the 2 last components of the triad.
-	 */
+ 	/** The 3-d projector on the 2-surface (contravariant-covariant form).
+	 **/
     	Tensor proj ;
 
 	/** The 3-d covariant degenerated 2-metric on the surface*/
  
 	Sym_tensor qq ; 
+   
+        /** The adapted normal vector field to spheroid in the 3-slice */
+ 
+        Vector ss ;
 
-	Metric qab ;  ///< Induced metric on the 2-surface \f$ q_{ab} \f$
+	Metric qab ;  /// Induced metric on the 2-surface \f$ q_{ab} \f$
         /** Extrinsic curvature of the 2-surface in the 3-slice.
 	 * \f$ H_{ab} \f$ (covariant representation)
 	 */
@@ -170,14 +178,23 @@ class Spheroid {
 	/// Returns the symmetric tensor \f$ H_{ab} \f$
 	const Sym_tensor& get_hh() const {return hh ; } ;
 
-	/// returns the 3-d degenerate 2-metric 
+	/// returns the 3-d degenerate 2-metric \f$ Q_{ab}\f$
 	const Sym_tensor& get_qq() const {return qq ; } ;
+
+	/// returns the 3-d projector on 2-surface \f$ Pi \f$
+	const Tensor& get_proj() const {return proj ; } ;
+
+	/// returns the 2-d jacobian of coordinate transformation \f$ J \f$
+	const Tensor& get_jac2d() const {return jac2d ; } ;
 
 	/// Returns the trace \c K on the 2-surface
 	const Scalar& get_trk() const {return trk; } ;
 
 	/// Returns the vector \f$ L_a \f$
 	const Vector& get_ll() const {return ll;} ;
+
+	/// Returns the vector \f$ S_a \f$
+	const Vector& get_ss() const {return ss;} ;
 
 	///Returns the symmetric tensor \f$ J_{ab} \f$
 	const Sym_tensor& get_jj() const {return jj;} ;
@@ -191,8 +208,14 @@ class Spheroid {
 	/// Sets the field \c h_surf
 	Scalar& set_hsurf() {del_deriv() ; return h_surf ; } ;
 
-	/// Sets the metric \f$ q_{ab} \f$
+	/// Sets the modified metric (non degenerated) \f$ q_{ab} \f$
 	Metric& set_qab() {del_deriv() ; return qab ; } ;
+
+	/// Sets the degenerated metric \f$ Q_{ab} \f$
+	Sym_tensor& set_qq() {del_deriv() ; return qq ; } ;
+
+	/// Sets the projector \f$ Pi  \f$
+	Tensor& set_proj() {del_deriv() ; return proj ; } ;
 
 	/// Sets the symmetric tensor \f$ H_{ab} \f$
 	Sym_tensor& set_hh() {del_deriv() ; return hh ; } ;
