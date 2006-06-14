@@ -30,6 +30,9 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2006/06/14 10:04:21  j_novak
+ * New methods sol_Dirac_l01, set_AtB_det_one and set_AtB_trace_zero.
+ *
  * Revision 1.9  2006/01/17 15:50:53  j_novak
  * Slight re-arrangment of the det=1 formula.
  *
@@ -178,6 +181,101 @@ void Sym_tensor_trans::set_WX_det_one(const Scalar& w_in, const Scalar& x_in,
             abort() ;
 	}
     }
+
+    return ;
+
+}
+
+void Sym_tensor_trans::set_AtB_det_one(const Scalar& a_in, const Scalar& tb_in,
+				      const Scalar* h_prev, double precis, int it_max ) {
+
+    // All this has a meaning only for spherical components:
+    assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
+    assert(a_in.check_dzpuis(2)) ;
+    assert(tb_in.check_dzpuis(2)) ;
+    assert(&a_in != p_aaa) ;
+    assert(&tb_in != p_tilde_b) ;
+    assert( (precis > 0.) && (it_max > 0) ) ;
+
+    //Computation of mu and X from A
+    //-------------------------------
+    Scalar mu_over_r(*mp) ;
+    Scalar x_new(*mp) ;
+    sol_Dirac_A(a_in, mu_over_r, x_new) ;
+
+    // Preparation for the iteration
+    //------------------------------
+    Scalar h_old(*mp) ;
+    if (h_prev != 0x0) 
+	h_old = *h_prev ;
+    else
+	h_old.set_etat_zero() ;
+    double lambda = 1. ;
+    Scalar hrr_new(*mp) ;
+    Scalar eta_over_r(*mp) ;
+    Scalar w_new(*mp) ;
+
+    for (int it=0; it<=it_max; it++) {
+	
+	sol_Dirac_tilde_B(tb_in, h_old, hrr_new, eta_over_r, w_new) ;
+
+	set_auxiliary(hrr_new, eta_over_r, mu_over_r, w_new, x_new, h_old - hrr_new) ;
+
+	const Sym_tensor_trans& hij = *this ;
+	Scalar h_new = (1 + hij(1,1))*( hij(2,3)*hij(2,3) - hij(2,2)*hij(3,3) )
+	    + hij(1,2)*hij(1,2)*(1 + hij(3,3)) 
+	    + hij(1,3)*hij(1,3)*(1 + hij(2,2)) 
+	    - hij(1,1)*(hij(2,2) + hij(3,3)) - 2*hij(1,2)*hij(1,3)*hij(2,3) ;
+	h_new.set_spectral_base(hrr_new.get_spectral_base()) ;
+
+	Tbl tdif = max(abs(h_new - h_old)) ;
+	double diff = max(tdif) ;
+        cout << "Sym_tensor_trans::set_AtB_det_one : " 
+	     << "iteration : " << it << " convergence on h: " 
+	     << diff << endl ; 
+        if (diff < precis) {
+ 	    set_auxiliary(hrr_new, eta_over_r, mu_over_r, w_new, x_new, 
+ 			  h_new - hrr_new) ;
+	    break ;
+	}
+        else h_old = lambda*h_new +(1-lambda)*h_old ;
+
+        if (it == it_max) {
+            cout << "Sym_tensor_trans:::set_AtB_det_one : convergence not reached \n" ;
+            cout << "  for the required accuracy (" << precis << ") ! " 
+		 << endl ;
+            abort() ;
+	}
+    }
+    return ;
+
+}
+
+void Sym_tensor_trans::set_AtB_trace_zero(const Scalar& a_in, const Scalar& tb_in) {
+
+    // All this has a meaning only for spherical components:
+    assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
+    assert(a_in.check_dzpuis(2)) ;
+    assert(tb_in.check_dzpuis(2)) ;
+    assert(&a_in != p_aaa) ;
+    assert(&tb_in != p_tilde_b) ;
+
+    //Computation of mu and X from A
+    //-------------------------------
+    Scalar mu_over_r(*mp) ;
+    Scalar x_new(*mp) ;
+    sol_Dirac_A(a_in, mu_over_r, x_new) ;
+
+    // Computation of the other potentials
+    //------------------------------------
+    Scalar hrr_new(*mp) ;
+    Scalar eta_over_r(*mp) ;
+    Scalar w_new(*mp) ;
+    Scalar zero(*mp) ;
+
+    sol_Dirac_tilde_B(tb_in, zero, hrr_new, eta_over_r, w_new) ;
+
+    set_auxiliary(hrr_new, eta_over_r, mu_over_r, w_new, x_new, -hrr_new) ;
 
     return ;
 

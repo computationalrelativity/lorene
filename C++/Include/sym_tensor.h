@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.38  2006/06/14 10:04:19  j_novak
+ * New methods sol_Dirac_l01, set_AtB_det_one and set_AtB_trace_zero.
+ *
  * Revision 1.37  2006/06/13 13:30:12  j_novak
  * New members sol_Dirac_A and sol_Dirac_tildeB (see documentation).
  *
@@ -623,7 +626,7 @@ class Sym_tensor_trans: public Sym_tensor {
 	 */
 	void solve_hrr(const Scalar& source, Scalar& hrr_new, int l_min=0,
 		       int l_max = -1) const;
-
+	
 	/** Solves a system of two coupled first-order PDEs obtained from 
 	 * the divergence-free condition (Dirac gauge) and the requirement that
 	 * the potential \e A (see \c Sym_tensor::p_aaa ) has a given value.
@@ -665,6 +668,12 @@ class Sym_tensor_trans: public Sym_tensor {
 	 */
 	void sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh, Scalar& hrr,
 			       Scalar& tilde_eta, Scalar& www) const ;
+
+	/** Solves the same system as \c Sym_tensor_trans::sol_Dirac_tilde_B
+	 * but only for \f$\ell=0,1\f$. In these particular cases, \e W =0
+	 * the system is simpler and homogeneous solutions are different.
+	 */
+	void sol_Dirac_l01(const Scalar& hh, Scalar& hrr, Scalar& tilde_eta) const ;
 
  public:
 	/** Assigns the derived member \c p_tt and computes the trace so that 
@@ -708,8 +717,8 @@ class Sym_tensor_trans: public Sym_tensor {
 	 * iteration until the relative difference in the trace between 
 	 * two steps is lower than \c precis . 
 	 *
-	 * @param htt the transverse traceless part; all components must have
-	 *            dzpuis = 2.
+	 * @param w_in the \c W potential (see \c Sym_tensor::p_www )
+	 * @param x_in the \c X potential (see \c Sym_tensor::p_xxx )
 	 * @param h_prev a pointer on a guess for the trace of \c *this; if
 	 *               null, then the iteration starts from 0.
 	 * @param precis relative difference in the trace computation to end
@@ -719,6 +728,35 @@ class Sym_tensor_trans: public Sym_tensor {
 	void set_WX_det_one(const Scalar& w_in, const Scalar& x_in, 
 			    const Scalar* h_prev = 0x0, double precis = 1.e-14, 
 			    int it_max = 100) ;
+
+	/** Assigns the derived members \c A and \f$\tilde{B}\f$.
+	 * Other derived members are deduced from the divergence-free 
+	 * condition. Finally, it computes the trace so that 
+	 * \c *this + the flat metric has a determinant equal to 1. It then
+	 * updates the components accordingly. This function makes an 
+	 * iteration until the relative difference in the trace between 
+	 * two steps is lower than \c precis . 
+	 *
+	 * @param a_in the \c A potential (see \c Sym_tensor::p_aaa )
+	 * @param tb_in the \f$\tilde{B}\f$ potential (see \c Sym_tensor::p_tilde_b )
+	 * @param h_prev a pointer on a guess for the trace of \c *this; if
+	 *               null, then the iteration starts from 0.
+	 * @param precis relative difference in the trace computation to end
+	 *               the iteration.
+	 * @param it_max maximal number of iterations.
+	 */
+	void set_AtB_det_one(const Scalar& a_in, const Scalar& tb_in, 
+			    const Scalar* h_prev = 0x0, double precis = 1.e-14, 
+			    int it_max = 100) ;
+
+	/** Assigns the derived members \c A and \f$\tilde{B}\f$.
+	 * Other derived members are deduced from the divergence-free 
+	 * and trace-free conditions.
+	 *
+	 * @param a_in the \c A potential (see \c Sym_tensor::p_aaa )
+	 * @param tb_in the \f$\tilde{B}\f$ potential (see \c Sym_tensor::p_tilde_b )
+	 */
+	void set_AtB_trace_zero(const Scalar& a_in, const Scalar& tb_in) ;
 
 	/** Computes the solution of a tensorial transverse Poisson equation
 	 *  with \c *this  \f$= S^{ij}\f$ as a source:
