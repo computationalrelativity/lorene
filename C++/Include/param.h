@@ -33,6 +33,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2006/06/15 08:15:36  j_novak
+ * Removed members linked to Qtenseur objects.
+ * Added members for Matrice objects.
+ *
  * Revision 1.7  2005/08/13 16:08:20  m_saijo
  * Corrected the documents related to the Star
  *
@@ -96,12 +100,12 @@
  */
 
 class Tbl ; 
-class Itbl ; 
+class Itbl ;
+class Matrice ; 
 class Mtbl_cf ; 
 class Map ; 
 class Cmp ; 
 class Tenseur ;
-class Qtenseur ;
 class Tensor ;
 class Scalar ; 
 class Etoile ;
@@ -152,6 +156,14 @@ class Param {
 	/// Array (size \c n_itbl_mod ) of the modifiable \c Itbl 's addresses
 	Itbl** p_itbl_mod ;	
     
+	int n_matrice ;	///< Number of \c Matrice 's 
+	/// Array (size \c n_matrice ) of the \c Matrice 's addresses
+	const Matrice** p_matrice ;	
+    
+	int n_matrice_mod ;	///< Number of modifiable \c Matrice 's 
+	/// Array (size \c n_matrice_mod ) of the modifiable \c Matrice 's addresses
+	Matrice** p_matrice_mod ;	
+    
 	int n_cmp ;	///< Number of \c Cmp 's 
 	/// Array (size \c n_cmp ) of the \c Cmp 's addresses
 	const Cmp** p_cmp ;	
@@ -167,14 +179,6 @@ class Param {
 	int n_tenseur_mod ;	///< Number of modifiable \c Tenseur 's 
 	/// Array (size \c n_tenseur_mod ) of the modifiable \c Tenseur 's addresses
 	Tenseur** p_tenseur_mod ;	
-
-	int n_qtenseur ;	///< Number of \c Qtenseur 's 
-	/// Array (size \c n_qtenseur ) of the \c Qtenseur 's addresses
-	const Qtenseur** p_qtenseur ;	
-    
-	int n_qtenseur_mod ;	///< Number of modifiable \c Qtenseur 's 
-	/// Array (size \c n_qtenseur_mod ) of the modifiable \c Qtenseur 's addresses
-	Qtenseur** p_qtenseur_mod ;	
 
 	int n_map ;	///< Number of \c Map 's 
 	/// Array (size \c n_map ) of the \c Map 's addresses
@@ -445,6 +449,54 @@ class Param {
 	 */
 	Itbl& get_itbl_mod(int position = 0) const; 
 	
+	///Returns the number of \c Matrice 's addresses in the list.
+	int get_n_matrice() const ; 
+    
+	/** Adds the address of a new \c Matrice  to the list.
+	 * 
+	 *  @param ti [input] \c Matrice  the address of which is to be stored
+	 *  @param position [input] position of the \c Matrice  in the list
+	 *			    of stored \c Matrice  addresses (default
+	 *			    value = 0)
+	 * 
+	 */
+	void add_matrice(const Matrice& ti, int position = 0) ;
+	
+	/** Returns the reference of a \c Matrice  stored in the list.
+	 * 
+	 *  @param position [input] position of the \c Matrice  in the list
+	 *			    of stored \c Matrice  addresses (default
+	 *			    value = 0)
+	 *  @return Reference to the \c Matrice  the address of which is stored at 
+	 *		    the location  \c position  in the list
+	 */
+	const Matrice& get_matrice(int position = 0) const; 
+	
+
+	///Returns the number of modifiable \c Matrice 's addresses in the list.
+	int get_n_matrice_mod() const ; 
+    
+	/** Adds the address of a new modifiable \c Matrice  to the list.
+	 * 
+	 *  @param ti [input] modifiable \c Matrice  the address of which is 
+	 *                    to be stored
+	 *  @param position [input] position of the \c Matrice  in the list
+	 *			    of stored modifiable \c Matrice  addresses 
+	 *                          (default value = 0)
+	 */
+	void add_matrice_mod(Matrice& ti, int position = 0) ;
+	
+	/** Returns the reference of a modifiable \c Matrice  stored in the list.
+	 * 
+	 *  @param position [input] position of the \c Matrice  in the list
+	 *			    of stored modifiable \c Matrice  addresses 
+	 *                          (default value = 0)
+	 *  @return Reference to the modifiable \c Matrice  the address of 
+	 *           which is stored at  the location  \c position  in the 
+	 *           list
+	 */
+	 Matrice& get_matrice_mod(int position = 0) const; 
+	
 
 	///Returns the number of \c Cmp 's addresses in the list.
 	int get_n_cmp() const ; 
@@ -542,54 +594,6 @@ class Param {
 	 *           list
 	 */
 	 Tenseur& get_tenseur_mod(int position = 0) const; 
-	
-	///Returns the number of \c Qtenseur 's addresses in the list.
-	int get_n_qtenseur() const ; 
-    
-	/** Adds the address of a new \c Qtenseur  to the list.
-	 * 
-	 *  @param ti [input] \c Qtenseur  the address of which is to be stored
-	 *  @param position [input] position of the \c Qtenseur  in the list
-	 *			    of stored \c Qtenseur  addresses (default
-	 *			    value = 0)
-	 * 
-	 */
-	void add_qtenseur(const Qtenseur& ti, int position = 0) ;
-	
-	/** Returns the reference of a \c Qtenseur  stored in the list.
-	 * 
-	 *  @param position [input] position of the \c Qtenseur  in the list
-	 *			    of stored \c Qtenseur  addresses (default
-	 *			    value = 0)
-	 *  @return Reference to the \c Qtenseur  the address of which is stored at 
-	 *		    the location  \c position  in the list
-	 */
-	const Qtenseur& get_qtenseur(int position = 0) const; 
-	
-
-	///Returns the number of modifiable \c Qtenseur 's addresses in the list.
-	int get_n_qtenseur_mod() const ; 
-    
-	/** Adds the address of a new modifiable \c Qtenseur  to the list.
-	 * 
-	 *  @param ti [input] modifiable \c Qtenseur  the address of which is 
-	 *                    to be stored
-	 *  @param position [input] position of the \c Qtenseur  in the list
-	 *			    of stored modifiable \c Qtenseur  addresses 
-	 *                          (default value = 0)
-	 */
-	void add_qtenseur_mod(Qtenseur& ti, int position = 0) ;
-	
-	/** Returns the reference of a modifiable \c Qtenseur  stored in the list.
-	 * 
-	 *  @param position [input] position of the \c Qtenseur  in the list
-	 *			    of stored modifiable \c Qtenseur  addresses 
-	 *                          (default value = 0)
-	 *  @return Reference to the modifiable \c Qtenseur  the address of 
-	 *           which is stored at  the location  \c position  in the 
-	 *           list
-	 */
-	 Qtenseur& get_qtenseur_mod(int position = 0) const; 
 	
 	///Returns the number of \c Map 's addresses in the list.
 	int get_n_map() const ; 

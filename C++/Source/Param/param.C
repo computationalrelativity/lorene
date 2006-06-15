@@ -33,6 +33,10 @@ char param_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2006/06/15 08:15:39  j_novak
+ * Removed members linked to Qtenseur objects.
+ * Added members for Matrice objects.
+ *
  * Revision 1.6  2005/08/13 16:11:44  m_saijo
  * Added storage of a Star
  *
@@ -93,8 +97,9 @@ char param_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "param.h"
-#include "qtenseur.h"
+#include "tenseur.h"
 #include "tensor.h"
+#include "matrice.h"
 
 			//------------------------//
 			//	Constructor	  //
@@ -108,12 +113,12 @@ Param::Param() : n_int(0),
 		 n_tbl_mod(0), 
 		 n_itbl(0), 
 		 n_itbl_mod(0), 
+		 n_matrice(0), 
+		 n_matrice_mod(0), 
 		 n_cmp(0), 
 		 n_cmp_mod(0), 
 		 n_tenseur(0),
 		 n_tenseur_mod(0), 
-		 n_qtenseur(0),
-		 n_qtenseur_mod(0), 
 		 n_map(0), 
 		 n_mtbl_cf(0), 
 		 n_scalar(0),
@@ -139,12 +144,12 @@ Param::~Param(){
     if (n_tbl_mod > 0)  delete [] p_tbl_mod ; 
     if (n_itbl > 0) delete [] p_itbl ; 
     if (n_itbl_mod > 0) delete [] p_itbl_mod ; 
+    if (n_matrice > 0)  delete [] p_matrice ; 
+    if (n_matrice_mod > 0)  delete [] p_matrice_mod ; 
     if (n_cmp > 0)  delete [] p_cmp ; 
     if (n_cmp_mod > 0)  delete [] p_cmp_mod ; 
     if (n_tenseur > 0) delete [] p_tenseur ; 
     if (n_tenseur_mod > 0) delete [] p_tenseur_mod ; 
-    if (n_qtenseur > 0) delete [] p_qtenseur ; 
-    if (n_qtenseur_mod > 0) delete [] p_qtenseur_mod ; 
     if (n_map > 0)  delete [] p_map ; 
     if (n_mtbl_cf > 0)  delete [] p_mtbl_cf ; 
     if (n_scalar > 0) delete [] p_scalar ; 
@@ -185,6 +190,12 @@ void Param::clean_all() {
       p_itbl_mod[i] = 0x0 ;
     }
 
+  for (int i=0; i<n_matrice_mod; i++) 
+    if (p_matrice_mod[i] != 0x0) { 
+      delete p_matrice_mod[i] ;
+      p_matrice_mod[i] = 0x0 ;
+    }
+
   for (int i=0; i<n_cmp_mod; i++) 
     if (p_cmp_mod[i] != 0x0) {
       delete p_cmp_mod[i] ;
@@ -195,12 +206,6 @@ void Param::clean_all() {
     if (p_tenseur_mod[i] != 0x0) {
       delete p_tenseur_mod[i] ;
       p_tenseur_mod[i] = 0x0 ;
-    }
-
-  for (int i=0; i<n_qtenseur_mod; i++) 
-    if (p_qtenseur_mod[i] != 0x0) {
-      delete p_qtenseur_mod[i] ;
-      p_qtenseur_mod[i] = 0x0 ;
     }
 
   for (int i=0; i<n_scalar_mod; i++) 
@@ -768,6 +773,143 @@ Itbl& Param::get_itbl_mod(int index) const {
 
 } 
 		    
+		    //------------------------------------//
+		    //		Matrice storage		  //
+		    //------------------------------------//
+
+// Total number of stored addresses
+// --------------------------------
+
+int Param::get_n_matrice() const {
+    return n_matrice ; 
+}
+
+// Addition  
+// --------
+		    
+void Param::add_matrice(const Matrice& ti, int index){
+    
+	if (index >= n_matrice) {    // p_matrice must be rescaled
+	    	    
+	    int n_matrice_nouveau = index + 1 ; 
+	    const Matrice** p_matrice_nouveau = new const Matrice*[n_matrice_nouveau] ; 
+	    
+	   
+	    // Copy of the previous addresses  
+	    for (int i=0; i<n_matrice; i++) {
+		p_matrice_nouveau[i] = p_matrice[i] ; 
+	    }
+	    
+	    // The intermediate addresses are set to 0x0
+	    for (int i=n_matrice; i<index; i++) {
+		p_matrice_nouveau[i] = 0x0 ; 
+	    }
+	    
+	    // The new address 
+	    p_matrice_nouveau[index] = &ti ; 
+	    
+	    // Update 
+	    if (n_matrice > 0) delete [] p_matrice ; 
+	    p_matrice = p_matrice_nouveau ; 
+	    n_matrice = n_matrice_nouveau ; 
+	    
+	}
+	else {
+	
+	    if (p_matrice[index] != 0x0) {
+		cout << "Param::add_matrice : the position " << index 
+		     << " is already occupied !" << endl ; 
+		abort() ; 
+	    }
+	    else{
+		p_matrice[index] = &ti ; 
+	    }
+	    
+	}   
+    
+}
+
+// Extraction 
+// ----------
+		    
+const Matrice& Param::get_matrice(int index) const {
+
+    assert(index >= 0) ;
+    assert(index < n_matrice) ; 
+    
+    return *(p_matrice[index]) ; 
+
+} 
+		    
+
+		    //------------------------------------//
+		    //	    Modifiable Matrice storage	  //
+		    //------------------------------------//
+
+// Total number of stored addresses
+// --------------------------------
+
+int Param::get_n_matrice_mod() const {
+    return n_matrice_mod ; 
+}
+
+// Addition  
+// --------
+		    
+void Param::add_matrice_mod(Matrice& ti, int index){
+    
+	if (index >= n_matrice_mod) {    // p_matrice_mod must be rescaled
+	    	    
+	    int n_matrice_nouveau = index + 1 ; 
+	    Matrice** p_matrice_nouveau = new Matrice*[n_matrice_nouveau] ; 
+	    
+	   
+	    // Copy of the previous addresses  
+	    for (int i=0; i<n_matrice_mod; i++) {
+		p_matrice_nouveau[i] = p_matrice_mod[i] ; 
+	    }
+	    
+	    // The intermediate addresses are set to 0x0
+	    for (int i=n_matrice_mod; i<index; i++) {
+		p_matrice_nouveau[i] = 0x0 ; 
+	    }
+	    
+	    // The new address 
+	    p_matrice_nouveau[index] = &ti ; 
+	    
+	    // Update 
+	    if (n_matrice_mod > 0) delete [] p_matrice_mod ; 
+	    p_matrice_mod = p_matrice_nouveau ; 
+	    n_matrice_mod = n_matrice_nouveau ; 
+	    
+	}
+	else {
+	
+	    if (p_matrice_mod[index] != 0x0) {
+		cout << "Param::add_matrice_mod : the position " << index 
+		     << " is already occupied !" << endl ; 
+		abort() ; 
+	    }
+	    else{
+		p_matrice_mod[index] = &ti ; 
+	    }
+	    
+	}   
+    
+}
+
+// Extraction 
+// ----------
+		    
+Matrice& Param::get_matrice_mod(int index) const {
+
+    assert(index >= 0) ;
+    assert(index < n_matrice_mod) ; 
+    
+    return *(p_matrice_mod[index]) ; 
+
+} 
+
 		    
 		    //------------------------------------//
 		    //		Cmp storage		  //
@@ -1045,144 +1187,6 @@ Tenseur& Param::get_tenseur_mod(int index) const {
 } 
 
 		     
-		    //------------------------------------//
-		    //		Qtenseur storage		  //
-		    //------------------------------------//
-
-// Total number of stored addresses
-// --------------------------------
-
-int Param::get_n_qtenseur() const {
-    return n_qtenseur ; 
-}
-
-// Addition  
-// --------
-		    
-void Param::add_qtenseur(const Qtenseur& ti, int index){
-    
-	if (index >= n_qtenseur) {    // p_qtenseur must be rescaled
-	    	    
-	    int n_qtenseur_nouveau = index + 1 ; 
-	    const Qtenseur** p_qtenseur_nouveau = new const Qtenseur*[n_qtenseur_nouveau] ; 
-	    
-	   
-	    // Copy of the previous addresses  
-	    for (int i=0; i<n_qtenseur; i++) {
-		p_qtenseur_nouveau[i] = p_qtenseur[i] ; 
-	    }
-	    
-	    // The intermediate addresses are set to 0x0
-	    for (int i=n_qtenseur; i<index; i++) {
-		p_qtenseur_nouveau[i] = 0x0 ; 
-	    }
-	    
-	    // The new address 
-	    p_qtenseur_nouveau[index] = &ti ; 
-	    
-	    // Update 
-	    if (n_qtenseur > 0) delete [] p_qtenseur ; 
-	    p_qtenseur = p_qtenseur_nouveau ; 
-	    n_qtenseur = n_qtenseur_nouveau ; 
-	    
-	}
-	else {
-	
-	    if (p_qtenseur[index] != 0x0) {
-		cout << "Param::add_qtenseur : the position " << index 
-		     << " is already occupied !" << endl ; 
-		abort() ; 
-	    }
-	    else{
-		p_qtenseur[index] = &ti ; 
-	    }
-	    
-	}   
-    
-}
-
-// Extraction 
-// ----------
-		    
-const Qtenseur& Param::get_qtenseur(int index) const {
-
-    assert(index >= 0) ;
-    assert(index < n_qtenseur) ; 
-    
-    return *(p_qtenseur[index]) ; 
-
-} 
-		    
-
-		    //------------------------------------//
-		    //	    Modifiable Qtenseur storage	  //
-		    //------------------------------------//
-
-// Total number of stored addresses
-// --------------------------------
-
-int Param::get_n_qtenseur_mod() const {
-    return n_qtenseur_mod ; 
-}
-
-// Addition  
-// --------
-		    
-void Param::add_qtenseur_mod(Qtenseur& ti, int index){
-    
-	if (index >= n_qtenseur_mod) {    // p_qtenseur_mod must be rescaled
-	    	    
-	    int n_qtenseur_nouveau = index + 1 ; 
-	    Qtenseur** p_qtenseur_nouveau = new Qtenseur*[n_qtenseur_nouveau] ; 
-	    
-	   
-	    // Copy of the previous addresses  
-	    for (int i=0; i<n_qtenseur_mod; i++) {
-		p_qtenseur_nouveau[i] = p_qtenseur_mod[i] ; 
-	    }
-	    
-	    // The intermediate addresses are set to 0x0
-	    for (int i=n_qtenseur_mod; i<index; i++) {
-		p_qtenseur_nouveau[i] = 0x0 ; 
-	    }
-	    
-	    // The new address 
-	    p_qtenseur_nouveau[index] = &ti ; 
-	    
-	    // Update 
-	    if (n_qtenseur_mod > 0) delete [] p_qtenseur_mod ; 
-	    p_qtenseur_mod = p_qtenseur_nouveau ; 
-	    n_qtenseur_mod = n_qtenseur_nouveau ; 
-	    
-	}
-	else {
-	
-	    if (p_qtenseur_mod[index] != 0x0) {
-		cout << "Param::add_qtenseur_mod : the position " << index 
-		     << " is already occupied !" << endl ; 
-		abort() ; 
-	    }
-	    else{
-		p_qtenseur_mod[index] = &ti ; 
-	    }
-	    
-	}   
-    
-}
-
-// Extraction 
-// ----------
-		    
-Qtenseur& Param::get_qtenseur_mod(int index) const {
-
-    assert(index >= 0) ;
-    assert(index < n_qtenseur_mod) ; 
-    
-    return *(p_qtenseur_mod[index]) ; 
-
-} 
-
-
 		    //------------------------------------//
 		    //		Map storage		  //
 		    //------------------------------------//
