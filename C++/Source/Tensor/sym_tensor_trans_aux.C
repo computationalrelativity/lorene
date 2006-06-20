@@ -30,6 +30,9 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2006/06/20 12:07:15  j_novak
+ * Improved execution speed for sol_Dirac_tildeB...
+ *
  * Revision 1.10  2006/06/14 10:04:21  j_novak
  * New methods sol_Dirac_l01, set_AtB_det_one and set_AtB_trace_zero.
  *
@@ -187,8 +190,8 @@ void Sym_tensor_trans::set_WX_det_one(const Scalar& w_in, const Scalar& x_in,
 }
 
 void Sym_tensor_trans::set_AtB_det_one(const Scalar& a_in, const Scalar& tb_in,
-				      const Scalar* h_prev, double precis, int it_max ) {
-
+				       const Scalar* h_prev, Param* par, double precis, 
+				       int it_max ) {
     // All this has a meaning only for spherical components:
     assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
     assert(a_in.check_dzpuis(2)) ;
@@ -217,7 +220,7 @@ void Sym_tensor_trans::set_AtB_det_one(const Scalar& a_in, const Scalar& tb_in,
 
     for (int it=0; it<=it_max; it++) {
 	
-	sol_Dirac_tilde_B(tb_in, h_old, hrr_new, eta_over_r, w_new) ;
+	sol_Dirac_tilde_B(tb_in, h_old, hrr_new, eta_over_r, w_new, par) ;
 
 	set_auxiliary(hrr_new, eta_over_r, mu_over_r, w_new, x_new, h_old - hrr_new) ;
 
@@ -251,7 +254,8 @@ void Sym_tensor_trans::set_AtB_det_one(const Scalar& a_in, const Scalar& tb_in,
 
 }
 
-void Sym_tensor_trans::set_AtB_trace_zero(const Scalar& a_in, const Scalar& tb_in) {
+void Sym_tensor_trans::set_AtB_trace_zero(const Scalar& a_in, const Scalar& tb_in,
+					  Param* par) {
 
     // All this has a meaning only for spherical components:
     assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
@@ -273,7 +277,7 @@ void Sym_tensor_trans::set_AtB_trace_zero(const Scalar& a_in, const Scalar& tb_i
     Scalar w_new(*mp) ;
     Scalar zero(*mp) ;
 
-    sol_Dirac_tilde_B(tb_in, zero, hrr_new, eta_over_r, w_new) ;
+    sol_Dirac_tilde_B(tb_in, zero, hrr_new, eta_over_r, w_new, par) ;
 
     set_auxiliary(hrr_new, eta_over_r, mu_over_r, w_new, x_new, -hrr_new) ;
 

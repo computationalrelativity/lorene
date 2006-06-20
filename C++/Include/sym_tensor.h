@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.39  2006/06/20 12:07:13  j_novak
+ * Improved execution speed for sol_Dirac_tildeB...
+ *
  * Revision 1.38  2006/06/14 10:04:19  j_novak
  * New methods sol_Dirac_l01, set_AtB_det_one and set_AtB_trace_zero.
  *
@@ -667,13 +670,14 @@ class Sym_tensor_trans: public Sym_tensor {
 	 * @param www [output] the solution \e W
 	 */
 	void sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh, Scalar& hrr,
-			       Scalar& tilde_eta, Scalar& www) const ;
+			       Scalar& tilde_eta, Scalar& www, Param* par=0x0) const ;
 
 	/** Solves the same system as \c Sym_tensor_trans::sol_Dirac_tilde_B
 	 * but only for \f$\ell=0,1\f$. In these particular cases, \e W =0
 	 * the system is simpler and homogeneous solutions are different.
 	 */
-	void sol_Dirac_l01(const Scalar& hh, Scalar& hrr, Scalar& tilde_eta) const ;
+	void sol_Dirac_l01(const Scalar& hh, Scalar& hrr, Scalar& tilde_eta,
+			   Param* par) const ;
 
  public:
 	/** Assigns the derived member \c p_tt and computes the trace so that 
@@ -746,8 +750,8 @@ class Sym_tensor_trans: public Sym_tensor {
 	 * @param it_max maximal number of iterations.
 	 */
 	void set_AtB_det_one(const Scalar& a_in, const Scalar& tb_in, 
-			    const Scalar* h_prev = 0x0, double precis = 1.e-14, 
-			    int it_max = 100) ;
+			     const Scalar* h_prev = 0x0, Param* par = 0x0,
+			     double precis = 1.e-14, int it_max = 100) ;
 
 	/** Assigns the derived members \c A and \f$\tilde{B}\f$.
 	 * Other derived members are deduced from the divergence-free 
@@ -756,7 +760,8 @@ class Sym_tensor_trans: public Sym_tensor {
 	 * @param a_in the \c A potential (see \c Sym_tensor::p_aaa )
 	 * @param tb_in the \f$\tilde{B}\f$ potential (see \c Sym_tensor::p_tilde_b )
 	 */
-	void set_AtB_trace_zero(const Scalar& a_in, const Scalar& tb_in) ;
+	void set_AtB_trace_zero(const Scalar& a_in, const Scalar& tb_in, Param*
+	    par = 0x0) ;
 
 	/** Computes the solution of a tensorial transverse Poisson equation
 	 *  with \c *this  \f$= S^{ij}\f$ as a source:
