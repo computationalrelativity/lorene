@@ -30,6 +30,9 @@ char sym_tensor_trans_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2006/06/21 15:42:47  j_novak
+ * Minor changes.
+ *
  * Revision 1.8  2006/06/20 12:07:15  j_novak
  * Improved execution speed for sol_Dirac_tildeB...
  *
@@ -62,6 +65,7 @@ char sym_tensor_trans_pde_C[] = "$Header$" ;
 
 // C headers
 #include <assert.h>
+#include <math.h>
 
 // Lorene headers
 #include "tensor.h"
@@ -703,7 +707,7 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
     source_coq.set_spectral_va().ylm() ;
     Base_val base = source.get_spectral_base() ;
     base.mult_x() ;
-    int lmax = base.give_lmax(mgrid, 0) ;
+    int lmax = base.give_lmax(mgrid, 0) + 1;
 
     bool need_calculation = true ;
     if (par != 0x0) {
@@ -717,14 +721,15 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
 	    if (par->get_int_mod(2) != mgrid.get_type_t() ) param_new = true ;
 	    if (par->get_int_mod(3) != mgrid.get_type_p() ) param_new = true ;
 	    if (par->get_itbl_mod(0)(0) != mgrid.get_nr(0)) param_new = true ;		 
-	    if (par->get_tbl_mod(0)(0) != mp_aff->get_alpha()[0]) param_new = true ; 
+	    if (fabs(par->get_tbl_mod(0)(0) - mp_aff->get_alpha()[0]) > 2.e-15)
+		param_new = true ; 
 	    for (int l=1; l<nz-1; l++) {
 		if (par->get_itbl_mod(0)(l) != mgrid.get_nr(l)) param_new = true ;
-		if (par->get_tbl_mod(0)(l) != mp_aff->get_beta()[l] / 
-		    mp_aff->get_alpha()[l]) param_new = true ;
+		if (fabs(par->get_tbl_mod(0)(l) - mp_aff->get_beta()[l] / 
+		    mp_aff->get_alpha()[l]) > 2.e-15) param_new = true ;
 	    }
 	    if (par->get_itbl_mod(0)(nz-1) != mgrid.get_nr(nz-1)) param_new = true ;
-	    if (par->get_tbl_mod(0)(nz-1) != mp_aff->get_alpha()[nz-1])
+	    if (fabs(par->get_tbl_mod(0)(nz-1) - mp_aff->get_alpha()[nz-1]) > 2.e-15)
 		param_new = true ; 
 	}
 	else{
@@ -798,7 +803,7 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
     Mtbl_cf sol_hom3_w(mgrid, base) ; sol_hom3_w.annule_hard() ;
 
     int l_q, m_q, base_r ;
-    Itbl mat_done(lmax+1) ;
+    Itbl mat_done(lmax) ;
 
     //---------------
     //--  NUCLEUS ---
@@ -1693,7 +1698,7 @@ void Sym_tensor_trans::sol_Dirac_l01(const Scalar& hh, Scalar& hrr, Scalar& tild
     source_coq.set_spectral_va().ylm() ;
     Base_val base = source.get_spectral_base() ;
     base.mult_x() ;
-    int lmax = base.give_lmax(mgrid, 0) ;
+    int lmax = base.give_lmax(mgrid, 0) + 1;
 
     assert (hrr.get_spectral_base() == base) ;
     assert (tilde_eta.get_spectral_base() == base) ;
@@ -1713,7 +1718,7 @@ void Sym_tensor_trans::sol_Dirac_l01(const Scalar& hh, Scalar& hrr, Scalar& tild
 	    if (&par->get_matrice_mod(0) != 0x0) need_calculation = false ;
 
     int l_q, m_q, base_r ;
-    Itbl mat_done(lmax+1) ;
+    Itbl mat_done(lmax) ;
 
     //---------------
     //--  NUCLEUS ---
