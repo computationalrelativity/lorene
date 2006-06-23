@@ -25,6 +25,9 @@ char bin_ns_bh_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2006/06/23 07:09:24  p_grandclement
+ * Addition of spinning black hole
+ *
  * Revision 1.7  2006/06/01 12:47:52  p_grandclement
  * update of the Bin_ns_bh project
  *
@@ -63,7 +66,7 @@ char bin_ns_bh_coal_C[] = "$Header$" ;
 #include "unites.h"
 #include "graphique.h"
 
-void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_mp_et, double ent_c_init, double seuil_masses, double dist, double m1, double m2, double scale_ome_local, const int sortie) {
+void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_mp_et, double ent_c_init, double seuil_masses, double dist, double m1, double m2, double spin_cible, double scale_ome_local, const int sortie) {
     
     using namespace Unites ;
     
@@ -76,7 +79,6 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
     double mass_bh =  hole.masse_adm_seul() ;
     double axe_pos = star.mp.get_ori_x() ;
     double scale_linear = (mass_ns+mass_bh)/2.*distance*omega ;
-
 
     char name_iteration[40] ;
     char name_correction[40] ;
@@ -167,12 +169,12 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
     	spin = hole.local_momentum() ;
     	if (sortie !=0) {
     		fiche_ome_local << conte << " " << hole.omega_local << endl ;	
-		fiche_spin << conte << " " << spin << endl ;
+		fiche_spin << conte << " " << spin/m1/m1 << endl ;
     	}
         
 	double conv_spin = fabs(spin-spin_old) ;
-        double error_spin = spin ;
-	double rel_diff_spin = fabs(error_spin) ;
+        double error_spin = spin - spin_cible ;
+	double rel_diff_spin = (spin_cible==0) ? fabs(error_spin) : fabs(error_spin)/spin_cible ;
 	if  ((conv_spin*2<rel_diff_spin) && (search_masses)) {
 	    double func = scale_ome_local*log((2+error_spin)/(2+2*error_spin)) ;
 	    hole.set_omega_local(hole.omega_local+func) ;

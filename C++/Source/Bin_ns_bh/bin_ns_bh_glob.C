@@ -25,6 +25,9 @@ char bin_ns_bh_glob_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2006/06/23 07:09:24  p_grandclement
+ * Addition of spinning black hole
+ *
  * Revision 1.4  2006/06/01 12:47:52  p_grandclement
  * update of the Bin_ns_bh project
  *
@@ -497,19 +500,12 @@ double Bin_ns_bh::smarr() const {
     aime.annule(star.mp.get_mg()->get_nzone()-1) ;
     aime.set_std_base() ;
     shift = shift - aime ;
-    
-    
-    Tenseur grad (star.get_nnn().derive_cov(met)) ;
-    grad.dec2_dzpuis() ;
-    grad = grad - contract(kij_cov, 1, shift, 0) ;
-    Tenseur div_grad (contract(grad.derive_con(met), 0, 1)) ;
-    
+ 
     // La matière :
     Tenseur u_euler (star.get_u_euler()) ;
     u_euler.change_triad(star.mp.get_bvect_cart()) ;
     Tenseur u_i_bas (manipule(u_euler, met)) ;
     Tenseur mat (qpig*(star.get_nnn()*(star.get_ener_euler() + star.get_s_euler()) - 2*(star.get_ener_euler()+star.get_press())*contract(u_i_bas, 0, shift, 0))) ;
-    
     
     // La partie avec la matière :
     Cmp psiq (pow(star.get_confpsi()(), 4.)) ;
@@ -529,7 +525,8 @@ double Bin_ns_bh::smarr() const {
     double hor_term = hole.mp.integrale_surface(integ_hor, hole.get_rayon()) ;	
     hor_term /= 4*M_PI ;
    
-    double m_test = hor_term + matter_term + 2*omega*moment_systeme_inf() ;
+    double m_test = hor_term + matter_term + 2*omega*moment_systeme_inf() + 
+      2*(hole.omega_local-omega)*hole.local_momentum() ;
     
     return m_test ;
     }

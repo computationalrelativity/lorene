@@ -5,5 +5,6 @@
 0.6 # relaxation
 1 #max poisson
 4 #autre truc poisson
+0.1 # spin
 0.5 #scale for modification of omega local
 

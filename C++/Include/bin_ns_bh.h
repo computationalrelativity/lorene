@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2006/06/23 07:09:22  p_grandclement
+ * Addition of spinning black hole
+ *
  * Revision 1.14  2006/06/01 12:47:50  p_grandclement
  * update of the Bin_ns_bh project
  *
@@ -308,7 +311,7 @@ class Bin_ns_bh {
 	double smarr() const ;
 	Tbl linear_momentum_systeme_inf() const ;
 	double viriel() const ;
-	void coal (double, double, int, int,  double, double, double, double, double, double, const int) ;
+	void coal (double, double, int, int,  double, double, double, double, double, double,  double, const int) ;
 	double distance_propre_axe_bh (const int nr  = 65) const ;
 	double distance_propre_axe_ns (const int nr  = 65) const ;
 	
