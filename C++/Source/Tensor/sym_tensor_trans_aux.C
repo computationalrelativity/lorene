@@ -30,6 +30,9 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2006/06/26 09:28:13  j_novak
+ * Added a forgotten initialisation in set_AtB_trace_zero().
+ *
  * Revision 1.11  2006/06/20 12:07:15  j_novak
  * Improved execution speed for sol_Dirac_tildeB...
  *
@@ -276,6 +279,7 @@ void Sym_tensor_trans::set_AtB_trace_zero(const Scalar& a_in, const Scalar& tb_i
     Scalar eta_over_r(*mp) ;
     Scalar w_new(*mp) ;
     Scalar zero(*mp) ;
+    zero.set_etat_zero() ;
 
     sol_Dirac_tilde_B(tb_in, zero, hrr_new, eta_over_r, w_new, par) ;
 
