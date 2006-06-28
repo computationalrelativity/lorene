@@ -9,6 +9,7 @@
 0 0.3   boundary condition for the lapse / value of the coefficient
 1       boundary condition for the psi
 0.03    Initial omega
+1 2.9   1 if search_masses and value of irreductible mass
 1e-5    Precision for the virial
 10      Number of steps to go from omega_init to ``real'' omega.
 10      Number of iteration when at the real omega

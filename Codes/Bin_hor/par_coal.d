@@ -1,7 +1,8 @@
 # Parameters for the binary equilibrium computation by coal
 ###################################################################
 static.d
-0.02 	Initial omega
+0.03 	Initial omega
+1 2.9	1 if search_masses and value of mass_area
 1e-6	Precision for the virial
 0.5	Relaxation	
 10	Number of steps to go from omega_init to ``real'' omega.

@@ -29,6 +29,9 @@ char init_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2006/06/28 13:36:52  f_limousin
+ * Convergence to a given irreductible mass
+ *
  * Revision 1.5  2005/03/04 09:42:02  f_limousin
  * New construction of the object Bin_hor.
  *
@@ -71,12 +74,12 @@ int main() {
     char blabla [120] ;
     ifstream param("par_init.d") ;
     
-    double  precis, relax, radius, beta, lim_nn ;
+    double  precis, relax, radius, separation, lim_nn ;
     int nz, nt, np, nr1, nrp1, bound_nn, bound_psi ;
     
     param.getline(blabla, 120) ;
     param.getline(blabla, 120) ;
-    param >> beta ; param.getline(blabla, 120) ;
+    param >> separation ; param.getline(blabla, 120) ;
     param >> nz ; param.getline(blabla, 120) ;
     param >> nt; param.ignore(1000, '\n');
     param >> np; param.ignore(1000, '\n');
@@ -101,9 +104,7 @@ int main() {
     bornes[nz] = __infinity ; 
 
     param >> precis ; param.getline(blabla, 120) ;
-    param >> relax ; param.getline(blabla, 120) ;
-    double distance = radius*beta ;
-    
+    param >> relax ; param.getline(blabla, 120) ;    
     param >> bound_nn ;
     param >> lim_nn ;  param.ignore(1000, '\n');
     param >> bound_psi ;  param.ignore(1000, '\n');
@@ -126,8 +127,8 @@ int main() {
     Map_af map_un (grid, bornes) ;
     Map_af map_deux (grid, bornes) ;
     
-    map_un.set_ori (distance/2.,0, 0) ;
-    map_deux.set_ori (-distance/2., 0, 0) ;
+    map_un.set_ori (separation/2.,0, 0) ;
+    map_deux.set_ori (-separation/2., 0, 0) ;
     map_deux.set_rot_phi (M_PI) ;
 
     int depth = 3 ;

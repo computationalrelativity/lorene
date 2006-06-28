@@ -31,6 +31,9 @@ char coal_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2006/06/28 13:36:52  f_limousin
+ * Convergence to a given irreductible mass
+ *
  * Revision 1.8  2006/05/24 16:59:08  f_limousin
  * New version
  *
@@ -75,8 +78,8 @@ int main() {
         
     char blabla [120] ;
     char nomini[120] ;
-    double omega_init, relax, precis_viriel, lim_nn ;
-    int nb_om, nb_it, bound_nn, bound_psi, bound_beta ;
+    double omega_init, relax, precis_viriel, lim_nn, mass_irr ;
+    int nb_om, nb_it, bound_nn, bound_psi, bound_beta, search_mass ;
     
     ifstream param("par_coal.d") ;
 	if ( !param.good() ) {
@@ -87,6 +90,8 @@ int main() {
     param.ignore(1000, '\n') ;
     param.getline(nomini, 80) ; 
     param >> omega_init ; param.getline(blabla, 120) ;
+    param >> search_mass ;
+    param >> mass_irr ;  param.ignore(1000, '\n');
     param >> precis_viriel ;  param.getline(blabla, 120) ;
     param >> relax ; param.getline(blabla, 120) ;
     param >> nb_om ; param.getline(blabla, 120) ;
@@ -123,10 +128,10 @@ int main() {
     bin.decouple() ;
     bin.extrinsic_curvature() ;
     
-    double beta = bin(1).get_mp().get_ori_x() - bin(2).get_mp().get_ori_x() ;
-    beta /= bin(1).get_radius() ;
-    
-    cout << "CALCUL AVEC BETA = " << beta << endl ;
+    double separation = bin(1).get_mp().get_ori_x() - 
+	bin(2).get_mp().get_ori_x() ;
+        
+    cout << "CALCUL AVEC SEPARATION = " << separation << endl ;
     
     ofstream fich_iteration("iteration.dat") ;
     fich_iteration.precision(8) ; 
@@ -149,9 +154,10 @@ int main() {
      
     cout << "step = " << step << endl ;
     double erreur = bin.coal(omega_init, relax, nb_om, nb_it, bound_nn,
-			       lim_nn, bound_psi, bound_beta, 
-			       fich_iteration, fich_correction,
-			       fich_viriel, fich_kss, step, 1) ;
+			     lim_nn, bound_psi, bound_beta, 
+			     fich_iteration, fich_correction,
+			     fich_viriel, fich_kss, step, search_mass,
+			     mass_irr, 1) ;
     step += nb_om + nb_it ;
  
     fiche_omega << omega_init << " " << erreur << endl ;
@@ -168,8 +174,9 @@ int main() {
       erreur = bin.coal (omega, relax, 1, 0, bound_nn,
 			 lim_nn, bound_psi, bound_beta, 
 			 fich_iteration, fich_correction,
-			 fich_viriel, fich_kss, step, 1) ;
-         
+			 fich_viriel, fich_kss, step, search_mass,
+			 mass_irr, 1) ;
+
       fiche_omega << omega << " " << erreur << endl ;
       
       if (fabs(erreur) < precis_viriel)

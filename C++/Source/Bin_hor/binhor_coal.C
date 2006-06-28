@@ -26,6 +26,9 @@ char binhor_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2006/06/28 13:36:09  f_limousin
+ * Convergence to a given irreductible mass
+ *
  * Revision 1.10  2006/05/24 16:56:37  f_limousin
  * Many small modifs.
  *
@@ -73,7 +76,7 @@ char binhor_coal_C[] = "$Header$" ;
 // Lorene
 #include "tensor.h"
 #include "isol_hor.h"
-//#include "graphique.h"
+#include "graphique.h"
 
 
 void Bin_hor::set_statiques (double precis, double relax, int bound_nn,
@@ -96,11 +99,7 @@ void Bin_hor::set_statiques (double precis, double relax, int bound_nn,
 
 	solve_psi (precis, relax, bound_psi) ;
 	solve_lapse (precis, relax, bound_nn, lim_nn) ;
-	/*
-	des_meridian(hole1.nn(), 1.000001, 10, "lapse", 0) ;
-	des_meridian(hole1.psi(), 1.000001, 10, "psi", 1) ;
-	des_meridian(hole1.psi()*hole1.psi()*hole1.b_tilde(), 1.000001, 10, "b_tilde", 2) ;
-	*/
+
 	double erreur = 0 ;
 	Tbl diff (diffrelmax (lapse_un_old, hole1.n_auto())) ;
 	for (int i=1 ; i<nz ; i++)
@@ -120,7 +119,8 @@ double Bin_hor::coal (double angu_vel, double relax, int nb_ome,
 		      int bound_psi, int bound_beta,
 		      ostream& fich_iteration, ostream& fich_correction,
 		      ostream& fich_viriel, ostream& fich_kss, 
-		      int step, const int sortie) {
+		      int step, int search_mass, double mass_irr, 
+		      const int sortie) {
     
   int nz = hole1.mp.get_mg()->get_nzone() ;
 
@@ -142,16 +142,23 @@ double Bin_hor::coal (double angu_vel, double relax, int nb_ome,
 	solve_psi (precis, relax, bound_psi) ;
         solve_lapse (precis, relax, bound_nn, lim_nn) ;
 	
+
+	// Convergence to the given irreductible mass 
+	if (search_mass == 1 && step >= 30) {
+	    double mass_area = sqrt(hole1.area_hor()/16/M_PI) + 
+		sqrt(hole2.area_hor()/16/M_PI) ;
+	    double error_m = (mass_irr - mass_area) / mass_irr ;
+	    double scaling_r = pow((2-error_m)/(2-2*error_m), 1.) ;
+
+	    hole1.mp.homothetie_interne(scaling_r) ;
+	    hole1.radius = hole1.radius *scaling_r ;
+	    hole2.mp.homothetie_interne(scaling_r) ;
+	    hole2.radius = hole2.radius *scaling_r ;
+	}
+
 	cout << "Angular momentum computed at the horizon : " << ang_mom_hor()
 	     << endl ;
-/*	
-	des_meridian(hole1.nn(), 1.000001, 10, "lapse", 0) ;
-	des_meridian(hole1.psi(), 1.000001, 10, "psi", 1) ;
-	des_meridian(hole1.psi()*hole1.psi()*hole1.b_tilde(), 1.000001, 10, "b_tilde", 2) ;
-	des_meridian(hole1.beta()(1), 1.000001, 10, "shift_r", 3) ;
-	des_meridian(hole1.beta()(2), 1.000001, 10, "shift_t", 4) ;
-	des_meridian(hole1.beta()(3), 1.000001, 10, "shift_p", 5) ;
-*/
+
 	double erreur = 0 ;
 	Tbl diff (diffrelmax (beta_un_old, hole1.beta_auto()(1))) ;
 		for (int i=1 ; i<nz ; i++)
@@ -203,17 +210,19 @@ double Bin_hor::coal (double angu_vel, double relax, int nb_ome,
         solve_psi (precis, relax, bound_psi) ;
         solve_lapse (precis, relax, bound_nn, lim_nn) ;
 
-        cout << "Angular momentum computed at the horizon : " << ang_mom_hor()
-             << endl ;
+	// Convergence to the given irreductible mass 
+	if (search_mass == 1 && step >= 30) {
+	    double mass_area = sqrt(hole1.area_hor()/16/M_PI) + 
+		sqrt(hole2.area_hor()/16/M_PI) ;
+	    double error_m = (mass_irr - mass_area) / mass_irr ;
+	    double scaling_r = pow((2-error_m)/(2-2*error_m), 1.) ;
 
-/*
-	des_meridian(hole1.nn(), 1.000001, 10, "lapse", 0) ;
-	des_meridian(hole1.psi(), 1.000001, 10, "psi", 1) ;
-	des_meridian(hole1.psi()*hole1.psi()*hole1.b_tilde(), 1.000001, 10, "b_tilde", 2) ;
-	des_meridian(hole1.beta()(1), 1.000001, 10, "shift_r", 3) ;
-	des_meridian(hole1.beta()(2), 1.000001, 10, "shift_t", 4) ;
-	des_meridian(hole1.beta()(3), 1.000001, 10, "shift_p", 5) ;
-*/
+	    hole1.mp.homothetie_interne(scaling_r) ;
+	    hole1.radius = hole1.radius *scaling_r ;
+	    hole2.mp.homothetie_interne(scaling_r) ;
+	    hole2.radius = hole2.radius *scaling_r ;
+	}
+
 	erreur = 0 ;
 	Tbl diff (diffrelmax (beta_un_old, hole1.beta_auto()(1))) ;
 	for (int i=1 ; i<nz ; i++)

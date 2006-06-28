@@ -29,6 +29,9 @@ char coal_seq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2006/06/28 13:36:52  f_limousin
+ * Convergence to a given irreductible mass
+ *
  * Revision 1.2  2006/05/24 16:59:08  f_limousin
  * New version
  *
@@ -58,10 +61,10 @@ int main() {
     char blabla [120] ;
     ifstream param_seq("par_seq.d") ;
     
-    double  precis, relax, radius, beta, lim_nn ;
+    double  precis, relax, radius, separ, lim_nn ;
     int nz, nt, np, nr1, nrp1, bound_nn, bound_psi ;
-    double omega_init, precis_viriel, beta_min, beta_max ;
-    int nb_om, nb_it, bound_beta, nb_conf ;
+    double omega_init, precis_viriel, separ_min, separ_max, mass_irr ;
+    int nb_om, nb_it, bound_beta, nb_conf, search_mass ;
     
     param_seq.getline(blabla, 120) ;
     param_seq.getline(blabla, 120) ;
@@ -75,13 +78,15 @@ int main() {
     param_seq >> lim_nn ;  param_seq.ignore(1000, '\n');
     param_seq >> bound_psi ;  param_seq.ignore(1000, '\n');
     param_seq >> omega_init ; param_seq.getline(blabla, 120) ;
+    param_seq >> search_mass ;
+    param_seq >> mass_irr ;  param_seq.ignore(1000, '\n');
     param_seq >> precis_viriel ;  param_seq.getline(blabla, 120) ;
     param_seq >> nb_om ; param_seq.getline(blabla, 120) ;
     param_seq >> nb_it ; param_seq.getline(blabla, 120) ;
     param_seq >> bound_beta ; param_seq.getline(blabla, 120) ;
     param_seq >> nb_conf ; param_seq.getline(blabla, 120) ;
-    param_seq >> beta_min ; param_seq.getline(blabla, 120) ;
-    param_seq >> beta_max ; param_seq.getline(blabla, 120) ;
+    param_seq >> separ_min ; param_seq.getline(blabla, 120) ;
+    param_seq >> separ_max ; param_seq.getline(blabla, 120) ;
     
     if (nb_conf <=1) {
       cout << "too small value of nb_conf" << endl ;
@@ -91,24 +96,24 @@ int main() {
     param_seq.close() ;
 
     for (int conf=0; conf<nb_conf; conf++){
-      beta = beta_min + conf * (beta_max-beta_min)/(nb_conf-1) ;
+      separ = separ_min + conf * (separ_max-separ_min)/(nb_conf-1) ;
 
       // To improve ???
-      if (beta < 16) omega_init = 0.03 ;
+      if (separ < 16) omega_init = 0.03 ;
       else omega_init = 0.015 ;
       
 
-      if (beta <= 7){ 
-	cout << "too small value of beta" << endl ;
+      if (separ <= 7){ 
+	cout << "too small value of separation" << endl ;
 	abort() ;
       }
       
-      if (beta > 30){
-        cout << "too large value of beta" << endl ;
+      if (separ > 30){
+        cout << "too large value of separation" << endl ;
         abort() ;
       }
       
-      if (beta <= 16) nz = 6 ;
+      if (separ <= 16) nz = 6 ;
       else nz = 7 ;
       
       
@@ -127,26 +132,25 @@ int main() {
       bornes[1] = 1 ;
       bornes[2] = 2 ;
       bornes[3] = 4 ;
-      if (beta >=10) bornes[4] = 8 ;
+      if (separ >=10) bornes[4] = 8 ;
       else{ 
 	bornes[4] = 6 ;
 	bornes[5] = 12 ;
       }
-      if (beta >=10 && beta <=14) bornes[5] = 16 ;
-      if (beta > 14 && beta <=16) bornes[5] = 18 ;
-      if (beta > 16 && beta <= 18){
+      if (separ >=10 && separ <= 14) bornes[5] = 16 ;
+      if (separ > 14 && separ <= 16) bornes[5] = 18 ;
+      if (separ > 16 && separ <= 18){
 	bornes[5] = 14 ;
 	bornes[6] = 28 ;
       }
-      if (beta > 18){
+      if (separ > 18){
 	bornes[5] = 16 ;
 	bornes[6] = 32 ;
       }
       bornes[nz] = __infinity ; 
       
       radius = 1. ;
-      double distance = radius*beta ;
-      
+ 
       // Type of sampling in theta and phi :
       int type_t = SYM ; 
       int type_p = NONSYM ; 
@@ -162,8 +166,8 @@ int main() {
       Map_af map_un (grid, bornes) ;
       Map_af map_deux (grid, bornes) ;
       
-      map_un.set_ori (distance/2.,0, 0) ;
-      map_deux.set_ori (-distance/2., 0, 0) ;
+      map_un.set_ori (separ/2.,0, 0) ;
+      map_deux.set_ori (-separ/2., 0, 0) ;
       map_deux.set_rot_phi (M_PI) ;
 
       cout << map_un << endl ;
@@ -173,7 +177,7 @@ int main() {
       bin.set_statiques(precis, relax, bound_nn, lim_nn, bound_psi) ;
       
       char name[40] ;
-      sprintf(name, "static_%e.d", beta) ;
+      sprintf(name, "static_%e.d", separ) ;
  
       FILE* fich = fopen(name, "w") ;
       grid.sauve(fich) ;
@@ -199,7 +203,7 @@ int main() {
       
       // Le fichier sortie pour la recherche de omega :
       char name_omega[20] ;
-      sprintf(name_omega, "omega_%e.dat", beta) ;
+      sprintf(name_omega, "omega_%e.dat", separ) ;
       ofstream fiche_omega(name_omega) ;
       fiche_omega.precision(8) ;
       
@@ -213,22 +217,22 @@ int main() {
       bin.decouple() ;
       bin.extrinsic_curvature() ;
       
-      cout << "CALCUL AVEC BETA = " << beta << endl ;
+      cout << "CALCUL AVEC SEPARATION = " << separ << endl ;
       
-      sprintf(name, "iteration_%e.dat", beta) ;
+      sprintf(name, "iteration_%e.dat", separ) ;
       ofstream fich_iteration(name) ;
       fich_iteration.precision(8) ;
 
-      sprintf(name, "correction_%e.dat", beta) ;
+      sprintf(name, "correction_%e.dat", separ) ;
       ofstream fich_correction(name) ;
       fich_correction.precision(8) ;
       
-      sprintf(name, "viriel_%e.dat", beta) ;
+      sprintf(name, "viriel_%e.dat", separ) ;
       ofstream fich_viriel(name) ;
       fich_viriel.precision(8) ;
       
 
-      sprintf(name, "kss_%e.dat", beta) ;
+      sprintf(name, "kss_%e.dat", separ) ;
       ofstream fich_kss(name) ;
       fich_kss.precision(8) ;
       
@@ -243,7 +247,9 @@ int main() {
       double erreur = bin.coal(omega_init, relax, nb_om, nb_it, bound_nn,
 			       lim_nn, bound_psi, bound_beta,
 			       fich_iteration, fich_correction,
-				 fich_viriel, fich_kss, step, 1) ;
+			       fich_viriel, fich_kss, step, search_mass,
+			       mass_irr, 1) ;
+      
       step += nb_om + nb_it ;
       
       fiche_omega << omega_init << " " << erreur << endl ;
@@ -260,8 +266,9 @@ int main() {
 	erreur = bin.coal (omega, relax, 1, 0, bound_nn,
 			   lim_nn, bound_psi, bound_beta,
 			   fich_iteration, fich_correction,
-			   fich_viriel, fich_kss, step, 1) ;
-
+			   fich_viriel, fich_kss, step, search_mass,
+			   mass_irr, 1) ;
+			   
 	fiche_omega << omega << " " << erreur << endl ;
 
 	if (fabs(erreur) < precis_viriel)
@@ -276,7 +283,7 @@ int main() {
       fich_viriel.close() ;
       fich_kss.close() ;
       
-      sprintf(name, "bin_%e.dat", beta) ;
+      sprintf(name, "bin_%e.dat", separ) ;
       FILE* fich_sortie = fopen(name, "w") ;
       grid.sauve(fich_sortie) ;
       map_un.sauve(fich_sortie) ;
@@ -286,7 +293,7 @@ int main() {
       
       fiche_omega.close() ;
 
-      sprintf(name, "resformat_%e.dat", beta) ;
+      sprintf(name, "resformat_%e.dat", separ) ;
       ofstream seqfich(name) ;
       if ( !seqfich.good() ) {
 	cout << "coal_bh : problem with opening the file resformat.d !"

@@ -33,6 +33,9 @@ char bin_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2006/06/28 13:36:09  f_limousin
+ * Convergence to a given irreductible mass
+ *
  * Revision 1.6  2006/05/24 16:56:37  f_limousin
  * Many small modifs.
  *
@@ -221,6 +224,15 @@ void Bin_hor::write_global(ostream& ost) const {
   double J_smarr = (mass_komar - horizon) / 2. / omega ;
 
   ost.precision(8) ;
+  ost << "# Grid : " << hole1.mp.get_mg()->get_nr(1) << "x" 
+      << hole1.mp.get_mg()->get_nt(1) << "x" 
+      << hole1.mp.get_mg()->get_np(1) << "    R_out(l) : " ;
+      
+  for (int ll=0; ll<hole1.mp.get_mg()->get_nzone(); ll++) {
+    ost << " " << hole1.mp.val_r(ll, 1., M_PI/2, 0) ; 
+  }
+  ost << endl ; 
+
   ost << "# beta  omega  Mass_ADM  Mass_K  M_area  J_ADM  J_hor" << endl ;
   ost << beta << " " ;
   ost << omega << " " ;

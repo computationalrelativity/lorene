@@ -29,6 +29,9 @@ char prepare_seq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2006/06/28 13:36:52  f_limousin
+ * Convergence to a given irreductible mass
+ *
  * Revision 1.4  2006/05/24 16:59:08  f_limousin
  * New version
  *
@@ -86,6 +89,7 @@ int main() {
 	    double hor_adm, adm_smarr, hor_smarr ;
 
 	    infich.ignore(1000,'\n') ; // skip first line
+	    infich.ignore(1000,'\n') ; // skip second line
 	    infich >> beta ;
 	    infich >> omega ;
 	    infich >> mass_adm ;

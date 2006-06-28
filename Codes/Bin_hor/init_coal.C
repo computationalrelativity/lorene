@@ -29,6 +29,9 @@ char init_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2006/06/28 13:36:52  f_limousin
+ * Convergence to a given irreductible mass
+ *
  * Revision 1.2  2006/05/24 16:59:08  f_limousin
  * New version
  *
@@ -58,12 +61,12 @@ int main() {
     char blabla [120] ;
     ifstream param_init("par_init.d") ;
     
-    double  precis, relax, radius, beta, lim_nn ;
-    int nz, nt, np, nr1, nrp1, bound_nn, bound_psi ;
+    double  precis, relax, radius, separation, lim_nn, mass_irr ;
+    int nz, nt, np, nr1, nrp1, bound_nn, bound_psi, search_mass ;
     
     param_init.getline(blabla, 120) ;
     param_init.getline(blabla, 120) ;
-    param_init >> beta ; param_init.getline(blabla, 120) ;
+    param_init >> separation ; param_init.getline(blabla, 120) ;
     param_init >> nz ; param_init.getline(blabla, 120) ;
     param_init >> nt; param_init.ignore(1000, '\n');
     param_init >> np; param_init.ignore(1000, '\n');
@@ -89,12 +92,11 @@ int main() {
 
     param_init >> precis ; param_init.getline(blabla, 120) ;
     param_init >> relax ; param_init.getline(blabla, 120) ;
-    double distance = radius*beta ;
     
     param_init >> bound_nn ;
     param_init >> lim_nn ;  param_init.ignore(1000, '\n');
-    param_init >> bound_psi ;  param_init.ignore(1000, '\n');
-    
+    param_init >> bound_psi ;  param_init.ignore(1000, '\n');    
+
     param_init.close() ;
     
     // Type of sampling in theta and phi :
@@ -113,8 +115,8 @@ int main() {
     Map_af map_un (grid, bornes) ;
     Map_af map_deux (grid, bornes) ;
     
-    map_un.set_ori (distance/2.,0, 0) ;
-    map_deux.set_ori (-distance/2., 0, 0) ;
+    map_un.set_ori (separation/2.,0, 0) ;
+    map_deux.set_ori (-separation/2., 0, 0) ;
     map_deux.set_rot_phi (M_PI) ;
 
     int depth = 3 ;
@@ -131,15 +133,7 @@ int main() {
     fwrite_be(&bound_psi, sizeof(int), 1, fich) ;
     fclose(fich) ;
 
-    // Drawings
-    const Coord& r = bin(1).get_mp().r ;        // r field 
-    Mtbl usr = 1 / r ;
-    Scalar unsr(bin(1).get_mp()) ;
-    unsr = usr ;
     
-    Scalar temp = 1. + unsr ;
-    temp.std_spectral_base() ;
-
     // Part of coal
     // ------------
 
@@ -157,6 +151,8 @@ int main() {
     param_coal.ignore(1000, '\n') ;
     param_coal.getline(nomini, 80) ;
     param_coal >> omega_init ; param_coal.getline(blabla, 120) ;
+    param_coal >> search_mass ;
+    param_coal >> mass_irr ;  param_coal.ignore(1000, '\n');
     param_coal >> precis_viriel ;  param_coal.getline(blabla, 120) ;
     param_coal >> relax ; param_coal.getline(blabla, 120) ;
     param_coal >> nb_om ; param_coal.getline(blabla, 120) ;
@@ -181,7 +177,7 @@ int main() {
     bin.decouple() ;
     bin.extrinsic_curvature() ;
 
-    cout << "CALCUL AVEC BETA = " << beta << endl ;
+    cout << "CALCUL AVEC SEPARATION = " << separation << endl ;
 
     ofstream fich_iteration("iteration.dat") ;
     fich_iteration.precision(8) ;
@@ -204,9 +200,10 @@ int main() {
   
     cout << "step = " << step << endl ;
     double erreur = bin.coal(omega_init, relax, nb_om, nb_it, bound_nn,
-                               lim_nn, bound_psi, bound_beta,
-                               fich_iteration, fich_correction,
-                               fich_viriel, fich_kss, step, 1) ;
+			     lim_nn, bound_psi, bound_beta,
+			     fich_iteration, fich_correction,
+			     fich_viriel, fich_kss, step, search_mass,
+			     mass_irr, 1) ;
     step += nb_om + nb_it ;
 
     fiche_omega << omega_init << " " << erreur << endl ;
@@ -223,7 +220,8 @@ int main() {
       erreur = bin.coal (omega, relax, 1, 0, bound_nn,
                          lim_nn, bound_psi, bound_beta,
                          fich_iteration, fich_correction,
-                         fich_viriel, fich_kss, step, 1) ;
+                         fich_viriel, fich_kss, step, search_mass,
+			 mass_irr, 1) ;
 
       fiche_omega << omega << " " << erreur << endl ;
 

@@ -31,6 +31,9 @@ char coal_highres_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2006/06/28 13:36:52  f_limousin
+ * Convergence to a given irreductible mass
+ *
  * Revision 1.1  2006/05/24 16:59:08  f_limousin
  * New version
  *
@@ -76,12 +79,12 @@ int main() {
     char blabla [120] ;
     ifstream param_init("par_init.d") ;
 
-    double  precis, relax, radius, beta, lim_nn ;
-    int nz, nt, np, nr1, nrp1, bound_nn, bound_psi ;
+    double  precis, relax, radius, separation, lim_nn, mass_irr ;
+    int nz, nt, np, nr1, nrp1, bound_nn, bound_psi, search_mass ;
 
     param_init.getline(blabla, 120) ;
     param_init.getline(blabla, 120) ;
-    param_init >> beta ; param_init.getline(blabla, 120) ;
+    param_init >> separation ; param_init.getline(blabla, 120) ;
     param_init >> nz ; param_init.getline(blabla, 120) ;
     param_init >> nt; param_init.ignore(1000, '\n');
     param_init >> np; param_init.ignore(1000, '\n');
@@ -107,8 +110,6 @@ int main() {
 
     param_init >> precis ; param_init.getline(blabla, 120) ;
     param_init >> relax ; param_init.getline(blabla, 120) ;
-    double distance = radius*beta ;
-
     param_init >> bound_nn ;
     param_init >> lim_nn ;  param_init.ignore(1000, '\n');
     param_init >> bound_psi ;  param_init.ignore(1000, '\n');
@@ -130,8 +131,8 @@ int main() {
     Map_af map_un (grid, bornes) ;
     Map_af map_deux (grid, bornes) ;
 
-    map_un.set_ori (distance/2.,0, 0) ;
-    map_deux.set_ori (-distance/2., 0, 0) ;
+    map_un.set_ori (separation/2.,0, 0) ;
+    map_deux.set_ori (-separation/2., 0, 0) ;
     map_deux.set_rot_phi (M_PI) ;
 
     int depth = 3 ;
@@ -164,6 +165,8 @@ int main() {
     param.ignore(1000, '\n') ;
     param.getline(nomini, 80) ; 
     param >> omega_init ; param.getline(blabla, 120) ;
+    param >> search_mass ;
+    param >> mass_irr ;  param.ignore(1000, '\n');
     param >> precis_viriel ;  param.getline(blabla, 120) ;
     param >> relax ; param.getline(blabla, 120) ;
     param >> nb_om ; param.getline(blabla, 120) ;
@@ -188,7 +191,7 @@ int main() {
     bin.decouple() ;
     bin.extrinsic_curvature() ;
         
-    cout << "CALCUL AVEC BETA = " << beta << endl ;
+    cout << "CALCUL AVEC SEPARATION = " << separation << endl ;
     
     ofstream fich_iteration("iteration.dat") ;
     fich_iteration.precision(8) ; 
@@ -211,9 +214,10 @@ int main() {
      
     cout << "step = " << step << endl ;
     double erreur = bin.coal(omega_init, relax, nb_om, nb_it, bound_nn,
-			       lim_nn, bound_psi, bound_beta, 
-			       fich_iteration, fich_correction,
-			       fich_viriel, fich_kss, step, 1) ;
+			     lim_nn, bound_psi, bound_beta, 
+			     fich_iteration, fich_correction,
+			     fich_viriel, fich_kss, step, search_mass,
+			     mass_irr, 1) ;
     step += nb_om + nb_it ;
  
     fiche_omega << omega_init << " " << erreur << endl ;
@@ -230,8 +234,9 @@ int main() {
       erreur = bin.coal (omega, relax, 1, 0, bound_nn,
 			 lim_nn, bound_psi, bound_beta, 
 			 fich_iteration, fich_correction,
-			 fich_viriel, fich_kss, step, 1) ;
-         
+			 fich_viriel, fich_kss, step, search_mass,
+			 mass_irr, 1) ;
+			          
       fiche_omega << omega << " " << erreur << endl ;
       
       if (fabs(erreur) < precis_viriel)
@@ -283,8 +288,8 @@ int main() {
     Map_af map_un_25 (grid_25, bornes) ;
     Map_af map_deux_25 (grid_25, bornes) ;
       
-    map_un_25.set_ori (distance/2.,0, 0) ;
-    map_deux_25.set_ori (-distance/2., 0, 0) ;
+    map_un_25.set_ori (separation/2.,0, 0) ;
+    map_deux_25.set_ori (-separation/2., 0, 0) ;
     map_deux_25.set_rot_phi (M_PI) ;
     
     Bin_hor bin_25 (map_un_25, map_deux_25, depth) ;
@@ -308,8 +313,9 @@ int main() {
     erreur = bin_25.coal (omega, relax, 1, 0, bound_nn,
 			  lim_nn, bound_psi, bound_beta,
 			  fich_iteration, fich_correction,
-			  fich_viriel, fich_kss, step, 1) ;
-    
+			  fich_viriel, fich_kss, step, search_mass,
+			  mass_irr, 1) ;
+			      
     boucle = true ;
     
     while (boucle) {
@@ -318,7 +324,8 @@ int main() {
       erreur = bin_25.coal (omega, relax, 1, 0, bound_nn,
 			    lim_nn, bound_psi, bound_beta,
 			    fich_iteration, fich_correction,
-			    fich_viriel, fich_kss, step, 1) ;
+			    fich_viriel, fich_kss, step, search_mass,
+			    mass_irr, 1) ;
       
       fiche_omega << omega << " " << erreur << endl ;
       
@@ -365,8 +372,8 @@ int main() {
     Map_af map_un_33 (grid_33, bornes) ;
     Map_af map_deux_33 (grid_33, bornes) ;
 
-    map_un_33.set_ori (distance/2.,0, 0) ;
-    map_deux_33.set_ori (-distance/2., 0, 0) ;
+    map_un_33.set_ori (separation/2.,0, 0) ;
+    map_deux_33.set_ori (-separation/2., 0, 0) ;
     map_deux_33.set_rot_phi (M_PI) ;
 
     Bin_hor bin_33 (map_un_33, map_deux_33, depth) ;
@@ -390,7 +397,8 @@ int main() {
     erreur = bin_33.coal (omega, relax, 1, 0, bound_nn,
                           lim_nn, bound_psi, bound_beta,
                           fich_iteration, fich_correction,
-                          fich_viriel, fich_kss, step, 1) ;
+			  fich_viriel, fich_kss, step, search_mass,
+			  mass_irr, 1) ;
 
     boucle = true ;
 
@@ -400,8 +408,9 @@ int main() {
       erreur = bin_33.coal (omega, relax, 1, 0, bound_nn,
                             lim_nn, bound_psi, bound_beta,
                             fich_iteration, fich_correction,
-                            fich_viriel, fich_kss, step, 1) ;
-
+			    fich_viriel, fich_kss, step, search_mass,
+			    mass_irr, 1) ;
+      
       fiche_omega << omega << " " << erreur << endl ;
 
       if (fabs(erreur) < precis_viriel)
@@ -447,8 +456,8 @@ int main() {
     Map_af map_un_41 (grid_41, bornes) ;
     Map_af map_deux_41 (grid_41, bornes) ;
 
-    map_un_41.set_ori (distance/2.,0, 0) ;
-    map_deux_41.set_ori (-distance/2., 0, 0) ;
+    map_un_41.set_ori (separation/2.,0, 0) ;
+    map_deux_41.set_ori (-separation/2., 0, 0) ;
     map_deux_41.set_rot_phi (M_PI) ;
 
     Bin_hor bin_41 (map_un_41, map_deux_41, depth) ;
@@ -472,8 +481,9 @@ int main() {
     erreur = bin_41.coal (omega, relax, 1, 0, bound_nn,
                           lim_nn, bound_psi, bound_beta,
                           fich_iteration, fich_correction,
-                          fich_viriel, fich_kss, step, 1) ;
-
+			  fich_viriel, fich_kss, step, search_mass,
+			  mass_irr, 1) ;
+    
     boucle = true ;
 
     while (boucle) {
@@ -482,8 +492,9 @@ int main() {
       erreur = bin_41.coal (omega, relax, 1, 0, bound_nn,
                             lim_nn, bound_psi, bound_beta,
                             fich_iteration, fich_correction,
-                            fich_viriel, fich_kss, step, 1) ;
-
+			    fich_viriel, fich_kss, step, search_mass,
+			    mass_irr, 1) ;
+                         
       fiche_omega << omega << " " << erreur << endl ;
 
       if (fabs(erreur) < precis_viriel)
@@ -527,8 +538,8 @@ int main() {
     Map_af map_un_49 (grid_49, bornes) ;
     Map_af map_deux_49 (grid_49, bornes) ;
 
-    map_un_49.set_ori (distance/2.,0, 0) ;
-    map_deux_49.set_ori (-distance/2., 0, 0) ;
+    map_un_49.set_ori (separation/2.,0, 0) ;
+    map_deux_49.set_ori (-separation/2., 0, 0) ;
     map_deux_49.set_rot_phi (M_PI) ;
 
     Bin_hor bin_49 (map_un_49, map_deux_41, depth) ;
@@ -551,8 +562,9 @@ int main() {
     erreur = bin_49.coal (omega, relax, 1, 0, bound_nn,
                           lim_nn, bound_psi, bound_beta,
                           fich_iteration, fich_correction,
-                          fich_viriel, fich_kss, step, 1) ;
-
+			  fich_viriel, fich_kss, step, search_mass,
+			  mass_irr, 1) ;
+                         
     boucle = true ;
 
     while (boucle) {
@@ -561,8 +573,9 @@ int main() {
       erreur = bin_49.coal (omega, relax, 1, 0, bound_nn,
                             lim_nn, bound_psi, bound_beta,
                             fich_iteration, fich_correction,
-                            fich_viriel, fich_kss, step, 1) ;
-
+			    fich_viriel, fich_kss, step, search_mass,
+			    mass_irr, 1) ;
+                            
       fiche_omega << omega << " " << erreur << endl ;
 
       if (fabs(erreur) < precis_viriel)

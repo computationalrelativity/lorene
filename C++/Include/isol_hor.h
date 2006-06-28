@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.49  2006/06/28 13:36:26  f_limousin
+ * Convergence to a given irreductible mass
+ *
  * Revision 1.48  2006/05/24 16:53:51  f_limousin
  * Funtion import(Bin_hor&)
  *
@@ -1048,7 +1051,8 @@ class Bin_hor {
 		     int bound_psi, int bound_beta, 
 		     ostream& fich_iteration, ostream& fich_correction,
 		     ostream& fich_viriel, ostream& fich_kss, 
-		     int step, const int sortie = 0) ;
+		     int step, int search_mass, double mass_irr, 
+		     const int sortie = 0) ;
 
 	  
 	  /**
