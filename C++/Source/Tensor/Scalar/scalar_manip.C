@@ -27,6 +27,9 @@ char scalar_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2006/06/28 07:46:41  j_novak
+ * Better treatment in the case of a domain set to zero.
+ *
  * Revision 1.11  2005/09/07 13:39:10  j_novak
  * *** empty log message ***
  *
@@ -98,14 +101,15 @@ void Scalar::annule_l (int l_min, int l_max, bool ylm_output) {
     Mtbl_cf& m_coef = *va.c_cf ;
     const Base_val& base = va.base ; 
     int l_q, m_q, base_r ;
-    for (int lz=0; lz<mp->get_mg()->get_nzone(); lz++) 
-	for (int k=0; k<mp->get_mg()->get_np(lz)+1; k++)
-	    for (int j=0; j<mp->get_mg()->get_nt(lz); j++)
-		for (int i=0; i<mp->get_mg()->get_nr(lz); i++) {
-		    base.give_quant_numbers(lz, k, j, m_q, l_q, base_r) ;
-		    if ((l_min <= l_q) && (l_q<= l_max)) 
-			m_coef.set(lz, k, j, i) = 0 ;
-		}
+    for (int lz=0; lz<mp->get_mg()->get_nzone(); lz++)
+	if (m_coef(lz).get_etat() != ETATZERO)
+	    for (int k=0; k<mp->get_mg()->get_np(lz)+1; k++)
+		for (int j=0; j<mp->get_mg()->get_nt(lz); j++)
+		    for (int i=0; i<mp->get_mg()->get_nr(lz); i++) {
+			base.give_quant_numbers(lz, k, j, m_q, l_q, base_r) ;
+			if ((l_min <= l_q) && (l_q<= l_max)) 
+			    m_coef.set(lz, k, j, i) = 0 ;
+		    }
     if (va.c != 0x0) {
 	delete va.c ;
 	va.c = 0x0 ;
