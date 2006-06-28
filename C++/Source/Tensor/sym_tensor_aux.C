@@ -32,6 +32,9 @@ char sym_tensor__aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2006/06/28 07:48:26  j_novak
+ * Better treatment of some null cases.
+ *
  * Revision 1.8  2006/06/12 11:40:07  j_novak
  * Better memory and spectral base handling for Sym_tensor::compute_tilde_B.
  *
@@ -412,6 +415,13 @@ const Scalar& Sym_tensor::compute_tilde_B(bool output_ylm, Param* par) const {
     p_tilde_b->set_spectral_base(base) ;
     p_tilde_b->set_spectral_va().set_etat_cf_qcq() ;
     p_tilde_b->set_spectral_va().c_cf->annule_hard() ;
+
+    if (dwdr.get_etat() == ETATZERO) dwdr.annule_hard() ;
+    if (wsr.get_etat() == ETATZERO) wsr.annule_hard() ;
+    if (etasr2.get_etat() == ETATZERO) etasr2.annule_hard() ;
+    if (dtdr.get_etat() == ETATZERO) dtdr.annule_hard() ;
+    if (tsr.get_etat() == ETATZERO) tsr.annule_hard() ;
+    if (hrrsr.get_etat() == ETATZERO) hrrsr.annule_hard() ;
 
     int m_q, l_q, base_r ;
     for (int lz=0; lz<nz; lz++) {

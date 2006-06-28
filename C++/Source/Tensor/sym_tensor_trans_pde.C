@@ -30,6 +30,9 @@ char sym_tensor_trans_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2006/06/28 07:48:26  j_novak
+ * Better treatment of some null cases.
+ *
  * Revision 1.9  2006/06/21 15:42:47  j_novak
  * Minor changes.
  *
@@ -698,6 +701,9 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
     int nt = mgrid.get_nt(0) ;
     int np = mgrid.get_np(0) ;
 
+    assert (tilde_b.get_etat() != ETATNONDEF) ;
+    assert (hh.get_etat() != ETATNONDEF) ;
+
     Scalar source = tilde_b ;
     Scalar source_coq = tilde_b ;
     source_coq.annule_domain(0) ;
@@ -705,7 +711,22 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
     source_coq.mult_r() ;
     source.set_spectral_va().ylm() ;
     source_coq.set_spectral_va().ylm() ;
-    Base_val base = source.get_spectral_base() ;
+    bool bnull = (tilde_b.get_etat() == ETATZERO) ;
+
+    assert(hh.check_dzpuis(0)) ;
+    Scalar hoverr = hh ;
+    hoverr.div_r_dzpuis(2) ;
+    hoverr.set_spectral_va().ylm() ;
+    Scalar dhdr = hh.dsdr() ;
+    dhdr.set_spectral_va().ylm() ;
+    Scalar h_coq = hh ;
+    h_coq.set_spectral_va().ylm() ;
+    Scalar dh_coq = hh.dsdr() ;
+    dh_coq.mult_r_dzpuis(0) ;
+    dh_coq.set_spectral_va().ylm() ;    
+    bool hnull = (hh.get_etat() == ETATZERO) ;
+
+    Base_val base = (bnull ? hoverr.get_spectral_base() : source.get_spectral_base()) ;
     base.mult_x() ;
     int lmax = base.give_lmax(mgrid, 0) + 1;
 
@@ -757,22 +778,6 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
 	else need_calculation = false ;
     }
 	    
-    assert (tilde_b.get_etat() != ETATNONDEF) ;
-    assert (hh.get_etat() != ETATNONDEF) ;
-
-    assert(hh.check_dzpuis(0)) ;
-    Scalar hoverr = hh ;
-    hoverr.div_r_dzpuis(2) ;
-    hoverr.set_spectral_va().ylm() ;
-    Scalar dhdr = hh.dsdr() ;
-    dhdr.set_spectral_va().ylm() ;
-    Scalar h_coq = hh ;
-    h_coq.set_spectral_va().ylm() ;
-    Scalar dh_coq = hh.dsdr() ;
-    dh_coq.mult_r_dzpuis(0) ;
-    dh_coq.set_spectral_va().ylm() ;    
-    bool hnull = (hh.get_etat() == ETATZERO) ;
-
     hrr.set_etat_qcq() ;
     hrr.set_spectral_base(base) ;
     hrr.set_spectral_va().set_etat_cf_qcq() ;
@@ -906,11 +911,19 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
 		    for (int lin=0; lin<nr; lin++)
 			sec.set(lin+nr) = -0.5*(*hoverr.get_spectral_va().c_cf)
 			    (lz, k, j, lin) ;
-		    for (int lin=0; lin<nr; lin++)
-			sec.set(2*nr+lin) = -0.5/double(l_q+1)*(
-			    (*dhdr.get_spectral_va().c_cf)(lz, k, j, lin)
+		    if (bnull) {
+			for (int lin=0; lin<nr; lin++)
+			    sec.set(2*nr+lin) = -0.5/double(l_q+1)*(
+				(*dhdr.get_spectral_va().c_cf)(lz, k, j, lin)
+			    + (l_q+2)*(*hoverr.get_spectral_va().c_cf)(lz, k, j, lin) ) ;
+		    }
+		    else {
+			for (int lin=0; lin<nr; lin++)
+			    sec.set(2*nr+lin) = -0.5/double(l_q+1)*(
+				(*dhdr.get_spectral_va().c_cf)(lz, k, j, lin)
 			    + (l_q+2)*(*hoverr.get_spectral_va().c_cf)(lz, k, j, lin) )
-			    + (*source.get_spectral_va().c_cf)(lz, k, j, lin) ;
+				+ (*source.get_spectral_va().c_cf)(lz, k, j, lin) ;
+		    }			
 		}
 		if (l_q>2) sec.set(ind2+nr-2) = 0 ;
 		sec.set(3*nr-1) = 0 ;
@@ -1033,11 +1046,19 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
 		    for (int lin=0; lin<nr; lin++)
 			sec.set(lin+nr) = -0.5*(*h_coq.get_spectral_va().c_cf)
 			    (lz, k, j, lin) ;
+		    if (bnull) {
+		    for (int lin=0; lin<nr; lin++)
+			sec.set(2*nr+lin) = -0.5/double(l_q+1)*(
+			    (*dh_coq.get_spectral_va().c_cf)(lz, k, j, lin)
+			    + (l_q+2)*(*h_coq.get_spectral_va().c_cf)(lz, k, j, lin) ) ;
+		    }
+		    else {
 		    for (int lin=0; lin<nr; lin++)
 			sec.set(2*nr+lin) = -0.5/double(l_q+1)*(
 			    (*dh_coq.get_spectral_va().c_cf)(lz, k, j, lin)
 			    + (l_q+2)*(*h_coq.get_spectral_va().c_cf)(lz, k, j, lin) )
 			    + (*source_coq.get_spectral_va().c_cf)(lz, k, j, lin) ;
+		    }
 		    }
 		    sec.set(ind0+nr-1) = 0 ;
 		    sec.set(ind1+nr-1) = 0 ;
@@ -1170,11 +1191,19 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
 		    for (int lin=0; lin<nr; lin++)
 			sec.set(lin+nr) = -0.5*(*hoverr.get_spectral_va().c_cf)
 			    (lz, k, j, lin) ;
+		    if (bnull) {
+		    for (int lin=0; lin<nr; lin++)
+			sec.set(2*nr+lin) = -0.5/double(l_q+1)*(
+			    (*dhdr.get_spectral_va().c_cf)(lz, k, j, lin)
+			    + (l_q+2)*(*hoverr.get_spectral_va().c_cf)(lz, k, j, lin) ) ;
+		    }
+		    else {
 		    for (int lin=0; lin<nr; lin++)
 			sec.set(2*nr+lin) = -0.5/double(l_q+1)*(
 			    (*dhdr.get_spectral_va().c_cf)(lz, k, j, lin)
 			    + (l_q+2)*(*hoverr.get_spectral_va().c_cf)(lz, k, j, lin) )
 			    + (*source.get_spectral_va().c_cf)(lz, k, j, lin) ;
+		    }
 		}
 		sec.set(ind0+nr-2) = 0 ;
 		sec.set(ind0+nr-1) = 0 ;
