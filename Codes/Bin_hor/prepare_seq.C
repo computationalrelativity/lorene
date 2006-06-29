@@ -29,6 +29,9 @@ char prepare_seq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2006/06/29 08:54:52  f_limousin
+ * Boundary conditions and grid writen in resformat.dat
+ *
  * Revision 1.5  2006/06/28 13:36:52  f_limousin
  * Convergence to a given irreductible mass
  *
@@ -90,6 +93,7 @@ int main() {
 
 	    infich.ignore(1000,'\n') ; // skip first line
 	    infich.ignore(1000,'\n') ; // skip second line
+            infich.ignore(1000,'\n') ; // skip third line
 	    infich >> beta ;
 	    infich >> omega ;
 	    infich >> mass_adm ;

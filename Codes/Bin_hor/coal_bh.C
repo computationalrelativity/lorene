@@ -31,6 +31,9 @@ char coal_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2006/06/29 08:54:51  f_limousin
+ * Boundary conditions and grid writen in resformat.dat
+ *
  * Revision 1.9  2006/06/28 13:36:52  f_limousin
  * Convergence to a given irreductible mass
  *
@@ -207,7 +210,7 @@ int main() {
 	     << endl ;
 	abort() ;
     }
-    bin.write_global(seqfich) ; 
+    bin.write_global(seqfich, lim_nn, bound_nn, bound_psi, bound_beta) ; 
     seqfich.close() ; 
 
     return EXIT_SUCCESS ;
