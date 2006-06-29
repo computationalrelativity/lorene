@@ -26,6 +26,9 @@ char binhor_equations_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2006/06/29 08:51:00  f_limousin
+ * *** empty log message ***
+ *
  * Revision 1.14  2006/05/24 16:56:37  f_limousin
  * Many small modifs.
  *
@@ -599,7 +602,7 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta) {
 
     Vector source_un (hole1.mp, CON, hole1.mp.get_bvect_spher()) ;
 
-    /*                
+    /*                    
     source_un = 2.* contract(hole1.aa(), 1, 
 			     hole1.n_auto().derive_cov(hole1.ff), 0) 
 	  -6.*contract(hole1.aa_nn[hole1.jtime], 1, 
@@ -661,7 +664,7 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta) {
 
     Vector source_deux (hole2.mp, CON, hole2.mp.get_bvect_spher()) ;
    
-    /*   
+    /*       
     source_deux = 2.* contract(hole2.aa(), 1, 
 			       hole2.n_auto().derive_cov(hole2.ff), 0) 
 	-6.*contract(hole2.aa_nn[hole2.jtime], 1, 

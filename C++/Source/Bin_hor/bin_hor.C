@@ -33,6 +33,9 @@ char bin_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2006/06/29 08:51:00  f_limousin
+ * *** empty log message ***
+ *
  * Revision 1.7  2006/06/28 13:36:09  f_limousin
  * Convergence to a given irreductible mass
  *
@@ -182,10 +185,10 @@ void Bin_hor::init_bin_hor() {
 }
 
 
-void Bin_hor::write_global(ostream& ost) const {
+void Bin_hor::write_global(ostream& ost, double lim_nn, int bound_nn,
+			   int bound_psi, int bound_beta) const {
 
-  double beta = hole1.get_mp().get_ori_x() - hole2.get_mp().get_ori_x() ;
-  beta /= hole1.get_radius() ;
+  double distance = hole1.get_mp().get_ori_x() - hole2.get_mp().get_ori_x() ;
   double mass_adm = adm_mass() ;
   double mass_komar = komar_mass() ;
   double mass_area = sqrt(hole1.area_hor()/16/M_PI) + 
@@ -232,9 +235,12 @@ void Bin_hor::write_global(ostream& ost) const {
     ost << " " << hole1.mp.val_r(ll, 1., M_PI/2, 0) ; 
   }
   ost << endl ; 
+  ost << "# bound N, lim N : " << bound_nn << " " << lim_nn 
+      << " - bound Psi : " << bound_psi << " - bound shift : " << bound_beta
+      << endl ;
 
-  ost << "# beta  omega  Mass_ADM  Mass_K  M_area  J_ADM  J_hor" << endl ;
-  ost << beta << " " ;
+  ost << "# distance  omega  Mass_ADM  Mass_K  M_area  J_ADM  J_hor" << endl ;
+  ost << distance << " " ;
   ost << omega << " " ;
   ost << mass_adm << " " ;
   ost << mass_komar << " " ;
