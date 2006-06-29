@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.50  2006/06/29 08:58:57  f_limousin
+ * Boundary conditions in argument of write_global()
+ *
  * Revision 1.49  2006/06/28 13:36:26  f_limousin
  * Convergence to a given irreductible mass
  *
@@ -937,7 +940,8 @@ class Bin_hor {
 	/** Write global quantities in a formatted file. 
 	 * This file can be read by an external program. 
 	 */
-	void write_global(ostream& ) const  ;
+	void write_global(ostream&, double lim_nn, int bound_nn, 
+			  int bound_psi, int bound_beta) const  ;
 
      /// Display
       friend ostream& operator<<(ostream& , const Bin_hor& ) ;	
