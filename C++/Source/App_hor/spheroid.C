@@ -28,8 +28,8 @@ char spheroid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.7  2006/06/13 08:07:15  n_vasset
- *  Addition of some members, modification of Ricci calculation
+ * Revision 1.8  2006/07/03 10:13:48  n_vasset
+ *  More efficient method for calculation of ricci tensor. Adding of flag issphere
  *
  * Revision 1.4  2006/06/01 11:47:50  j_novak
  * Memory error hunt.
@@ -70,8 +70,8 @@ Spheroid::Spheroid(const Map_af& map, double radius):
     ll(map, COV, map.get_bvect_spher()), 
     jj(map, COV, map.get_bvect_spher()),    
     fff(map),
-    ggg(map) 
-
+    ggg(map), 
+    issphere(true)
 {    
 
 //    Itbl type (2) ; 
@@ -88,6 +88,10 @@ Spheroid::Spheroid(const Map_af& map, double radius):
     // Setting of real index types for jacobian and projector (first contravariant, second covariant)
    jac2d.set_index_type(0) = CON ;
     proj.set_index_type(0) = CON ; 
+ 
+    jac2d.set_etat_zero() ; 
+
+ 
     h_surf = radius ;
     proj.set_etat_zero();
     hh.set_etat_zero() ;
@@ -113,7 +117,10 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
     ll(h_in.get_mp(), COV, h_in.get_mp().get_bvect_spher()), 
     jj(h_in.get_mp(), COV, h_in.get_mp().get_bvect_spher()),
     fff(h_in.get_mp()),
-    ggg(h_in.get_mp())
+    ggg(h_in.get_mp()),
+    issphere(true)
+
+ 
 
 {
     const Map& map = h_in.get_mp() ; // The 2-d 1-domain map
@@ -126,6 +133,7 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
     const Mg3d& gri3d = *map3.get_mg();
     assert(&gri2d == Kij.get_mp().get_mg()->get_angu_1dom()) ;
 
+ 
 
     int np = gri2d.get_np(0) ;
     int nt = gri2d.get_nt(0) ;
@@ -144,9 +152,10 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
     int lz = 0 ;
 
 
-    // Setting of real index types for jacobian and projector (first contravariant, second covariant)
+    // Setting of real index types forjacobian and projector(first contravariant, other covariant)
     proj.set_index_type(0) = CON; 
    jac2d.set_index_type(0) = CON; 
+
     // Copy of the 2-dimensional h_surf to a 3_d h_surf (calculus commodity, in order to match grids)
     Scalar h_surf3 (map3); 
  
@@ -300,6 +309,7 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
             qab= qab2;
 
 
+
 	    // Computation of the degenerated 3d degenerated covariant metric on the 2-surface 
 
 	  Sym_tensor qqq = contract(jac_inv, 0, contract( jac_inv, 0, (gamij.cov() - ss3d * ss3d) , 0), 1) ; 
@@ -320,6 +330,10 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
        
   
 
+
+
+
+
 	 // Computation of the trace of the extrinsic curvature of 3-slice
     Scalar trk3d = Kij.trace(gamij) ;
     trk.allocate_all() ; 
@@ -330,6 +344,13 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
 	    trk.set_grid_point(0, k, j, 0) = 
 		trk3d.get_spectral_va().val_point_jk(lz, xi, j, k) ;
 	}
+
+
+
+
+
+
+
 	 	 
     // Computation of the normalization factor of the outgoing null vector.
 
@@ -344,6 +365,12 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
 	    fff.set_grid_point(0, k, j, 0) = 
 		fff3d.get_spectral_va().val_point_jk(lz, xi, j, k) ;
 	}
+
+
+
+
+
+
 
 
     // Computation of the normalization factor of the ingoing null vector.
@@ -362,6 +389,9 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
 
 
 	
+
+
+
      
     /* Computation of the tangent part of the extrinsic curvature of
      * the 2 surface embedded in the 3 slice. The reference vector
@@ -384,6 +414,12 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
 
 	} 
  
+
+
+
+
+
+
     
 	/* computation of the tangent components of the extrinsic curvature 
          *of the 3-slice 
@@ -406,6 +442,10 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
 		jj3(l,m).get_spectral_va().val_point_jk(lz, xi, j, k) ;
  
 	} 
+
+
+
+
 
 	// Computation of 2d extrinsic curvature in the 3-slice
     
@@ -441,7 +481,7 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
 
 Spheroid::Spheroid (const Spheroid &sph_in) :h_surf(sph_in.h_surf),
                                             jac2d(sph_in.jac2d),
-                                             proj(sph_in.proj),                                     
+                                             proj(sph_in.proj),                          
                                              qq(sph_in.qq),
                                              ss (sph_in.ss),
 					     qab(sph_in.qab),
@@ -450,7 +490,8 @@ Spheroid::Spheroid (const Spheroid &sph_in) :h_surf(sph_in.h_surf),
 					     ll(sph_in.ll),
 					     jj(sph_in.jj),
 					     fff(sph_in.fff),
-                                             ggg(sph_in.ggg)
+					     ggg(sph_in.ggg), 
+                                             issphere(sph_in.issphere)
               
 {
     set_der_0x0() ; 
@@ -475,7 +516,8 @@ void Spheroid::del_deriv() const {
     if (p_theta_plus != 0x0) delete p_theta_plus ;
     if (p_theta_minus != 0x0) delete p_theta_minus ;
     if (p_shear != 0x0) delete p_shear ;
-
+    if (p_ricci != 0x0) delete p_ricci ;
+    if (p_delta != 0x0) delete p_delta ;
     set_der_0x0() ;
 }
 
@@ -486,6 +528,9 @@ void Spheroid::set_der_0x0() const {
     p_theta_plus = 0x0 ;
     p_theta_minus = 0x0 ;
     p_shear = 0x0 ;
+    p_ricci = 0x0; 
+    p_delta = 0x0;
+
 } 
 
 
@@ -493,6 +538,10 @@ void Spheroid::set_der_0x0() const {
 //---------//
 //Accessors//
 //---------//
+
+
+
+
 
 // Computation of the 2-dimensional Jacobian amplitude for the surface
 const  Scalar& Spheroid::sqrt_q() const { 
@@ -502,6 +551,10 @@ const  Scalar& Spheroid::sqrt_q() const {
     }
     return *p_sqrt_q ; 
 }
+
+
+
+
 
 // Computation of the 2-dimensional area of the surface
 
@@ -513,6 +566,10 @@ double  Spheroid::area() const {
     } 
     return *p_area;
 } 
+
+
+
+
 
 // Computation of the angular momentum of the surface (G is set to be identically one)
 
@@ -527,6 +584,12 @@ double Spheroid::angu_mom(const Vector& phi) const {
     return *p_angu_mom;
 
 }
+
+
+
+
+
+
 // Outgoing null expansion of 2-surface
 
 const Scalar &Spheroid::theta_plus() const {
@@ -538,6 +601,14 @@ const Scalar &Spheroid::theta_plus() const {
 
     return *p_theta_plus; 
 }
+
+
+
+
+
+
+
+
 // ingoing null expansion of 2-surface
 
 const Scalar& Spheroid::theta_minus() const {
@@ -550,6 +621,9 @@ const Scalar& Spheroid::theta_minus() const {
     return *p_theta_minus; 
  
 }
+
+
+
 
 // null-oriented shear of 2-surface
 
@@ -564,63 +638,255 @@ const Sym_tensor& Spheroid::shear() const {
  
 }
 
-// Ricci tensor of the 2-surface 
- 
-const Sym_tensor& Spheroid::ricci() const {
-    if (p_ricci == 0x0) {
-   	Sym_tensor riccia(h_surf.get_mp(), CON, h_surf.get_mp().get_bvect_spher()) ;
-        riccia.set_etat_zero();
-	for (int i=1; i<=3; i++)
-	    riccia.set(1,i) = 0 ;
-	Vector ei(h_surf.get_mp(), COV, h_surf.get_mp().get_bvect_spher()) ;
-	ei.set_etat_zero() ;
-        ei.std_spectral_base() ; 
-	ei.set(2) = 1 ;
-	ei.set(2).std_spectral_base() ;
-	ei.set(2).mult_cost() ;
-	ei.set(2).mult_sint() ;
-
-	// Redefinition of the adapted 3-metric from members of class spheroid
-	Sym_tensor gamij_adapt1 = qq + ss * ss ; 
-
-        Metric gamij_adapt (gamij_adapt1) ;  
 
 
- 	Tensor dei = ei.derive_con(gamij_adapt) ;
-	dei = contract(proj, 0, contract(dei,1 , proj, 1), 0) ;
-	Tensor d2ei = dei.derive_con(gamij_adapt) ;
-	d2ei = contract(proj, 0, contract(contract(d2ei, 2, proj, 1),1, proj, 1), 0) ;
-	Vector r1 = d2ei.trace(0,2) - d2ei.trace(0,1) ;
-	for (int i=1; i<=3; i++) {
-	    r1.set(i).div_sint() ;
-	    r1.set(i).div_cost() ;
-	}
-	for (int j=1; j<=3; j++){
-	    riccia.set(j,2)= r1(j);
-	}
-	
-	ei.set_etat_zero() ;
-	ei.set(3) = 1 ;
-	ei.set(3).std_spectral_base() ;
-	ei.set(3).mult_sint() ;
-
-	dei = ei.derive_con(gamij_adapt) ;
-	dei = contract(proj, 0, contract(dei,1 , proj, 1), 0) ;
 
 
-	d2ei = dei.derive_con(gamij_adapt) ;
-	d2ei = contract(proj, 0, contract(contract(d2ei, 2, proj, 1),1, proj, 1), 0) ;
- 
-	Vector r2 = d2ei.trace(0,2) - d2ei.trace(0,1) ;
-	for (int i=1; i<=3; i++) {
-	    r2.set(i).div_sint() ;
-	}
-	for (int j=1; j<=3; j++) {
-	    riccia.set(j,3) = r2(j) ;
-	}
-	p_ricci = new Sym_tensor(riccia);
+
+
+
+
+
+
+
+
+
+
+
+//-------------------------------------------//
+// Covariant flat derivative, returning a pointer.//
+//-------------------------------------------//
+
+ Tensor Spheroid::derive_cov2dflat(const Tensor& uu) const{
+
+    // Notations: suffix 0 in name <=> input tensor
+    //            suffix 1 in name <=> output tensor
+
+    int valence0 = uu.get_valence() ; 
+    int valence1 = valence0 + 1 ; 
+    int valence1m1 = valence1 - 1 ; // same as valence0, but introduced for 
+                                    // the sake of clarity
+
+
+    // Protections
+    // -----------
+      if (valence0 >= 1) {
+//	    assert(uu.get_triad() == qq.get_triad()) ; // TO CHANGE *************************
+	    }
+
+    // Creation of the result (pointer)
+    // --------------------------------
+    Tensor *resu ;
+
+    // If uu is a Scalar, the result is a vector
+    if (valence0 == 0) {
+        resu = new Vector(uu.get_mp(), COV, uu.get_mp().get_bvect_spher()) ;
     }
-    return * p_ricci;
+    else {
+
+        // Type of indices of the result :
+        Itbl tipe(valence1) ; 
+        const Itbl& tipeuu = uu.get_index_type() ;  
+        for (int id = 0; id<valence0; id++) {
+            tipe.set(id) = tipeuu(id) ;   // First indices = same as uu
+        }
+        tipe.set(valence1m1) = COV ;  // last index is the derivation index
+
+        // if uu is a Tensor_sym, the result is also a Tensor_sym:
+        const Tensor* puu = &uu ; 
+        const Tensor_sym* puus = dynamic_cast<const Tensor_sym*>(puu) ; 
+        if ( puus != 0x0 ) {    // the input tensor is symmetric
+            resu = new Tensor_sym(uu.get_mp(), valence1, tipe, *uu.get_triad(),
+                                  puus->sym_index1(), puus->sym_index2()) ;
+        }
+        else {  
+            resu = new Tensor(uu.get_mp(), valence1, tipe, *uu.get_triad()) ;  // no symmetry  
+        }
+
+    }
+
+    int ncomp1 = resu->get_n_comp() ; 
+	
+    Itbl ind1(valence1) ; // working Itbl to store the indices of resu
+    Itbl ind0(valence0) ; // working Itbl to store the indices of uu
+    Itbl ind(valence0) ;  // working Itbl to store the indices of uu
+	
+    Scalar tmp(uu.get_mp()) ;	// working scalar
+
+      // Determination of the dzpuis parameter of the result  --> dz_resu
+    // --------------------------------------------------
+        
+    int dz_resu = 0;
+
+    // (We only work here on a non-compactified shell) // 
+
+
+
+
+    // Loop on all the components of the output tensor
+    // -----------------------------------------------
+/* Note: we have here preserved all the non-useful terms in this case(typically christoffel symbols) for the sake of understandng what's going on... 
+ */
+ 
+ 
+    for (int ic=0; ic<ncomp1; ic++) {
+    
+        // indices corresponding to the component no. ic in the output tensor
+        ind1 = resu->indices(ic) ; 
+    
+        // Component no. ic:
+        Scalar& cresu = resu->set(ind1) ; 
+		
+        // Indices of the input tensor
+        for (int id = 0; id < valence0; id++) {
+            ind0.set(id) = ind1(id) ; 
+        }
+         
+        // Value of last index (derivation index)
+        int k = ind1(valence1m1) ; 
+        
+        switch (k) {
+        
+        case 1 : {  // Derivation index = r
+                    //---------------------
+	
+            cresu = 0; //(uu(ind0)).dsdr() ; 	// d/dr
+		
+            // all the connection coefficients Gamma^i_{jk} are zero for k=1
+            break ; 
+	    }   
+
+        case 2 : {  // Derivation index = theta
+                    //-------------------------
+			
+            cresu = (uu(ind0)).srdsdt() ;  // 1/r d/dtheta 
+		
+            // Loop on all the indices of uu
+            for (int id=0; id<valence0; id++) {
+		
+                switch ( ind0(id) ) {
+				
+		        case 1 : {	// Gamma^r_{l theta} V^l 
+	                        // or -Gamma^l_{r theta} V_l 
+			    /*   ind = ind0 ; 
+	            ind.set(id) = 2 ;   // l = theta
+
+	            // Division by r :
+	            tmp = uu(ind) ; 
+		    tmp.div_r_dzpuis(dz_resu) ;
+
+	            cresu -= tmp ; */
+	            break ; 
+                }
+		    		
+                case 2 : {	// Gamma^theta_{l theta} V^l 
+	                        // or -Gamma^l_{theta theta} V_l
+		    /*  ind = ind0 ; 
+	            ind.set(id) = 1 ;   // l = r
+	            tmp = uu(ind) ; 
+		    tmp.div_r_dzpuis(dz_resu) ;
+
+	            cresu += tmp ; */
+	            break ; 
+                }
+				
+                case 3 : {	// Gamma^phi_{l theta} V^l 
+	                        // or -Gamma^l_{phi theta} V_l
+	        break ; 
+                }
+				
+                default : {
+	            cerr << "Connection_fspher::p_derive_cov : index problem ! "
+	           << endl ; 
+	            abort() ;  
+                }
+                }
+
+            }
+            break ; 
+        }
+
+
+        case 3 : {  // Derivation index = phi
+                    //-----------------------
+					
+            cresu = (uu(ind0)).srstdsdp() ;  // 1/(r sin(theta)) d/dphi 	
+		
+            // Loop on all the indices of uu
+            for (int id=0; id<valence0; id++) {
+		
+                switch ( ind0(id) ) {
+				
+		       case 1 : {	// Gamma^r_{l phi} V^l 
+	                        // or -Gamma^l_{r phi} V_l 
+			/* ind = ind0 ; 
+	            ind.set(id) = 3 ;   // l = phi
+	            tmp = uu(ind) ; 
+		    tmp.div_r_dzpuis(dz_resu) ;
+
+	            cresu -= tmp ; */
+	            break ; 
+                }
+		    	
+                case 2 : {	// Gamma^theta_{l phi} V^l 
+	                        // or -Gamma^l_{theta phi} V_l
+	            ind = ind0 ; 
+	            ind.set(id) = 3 ;   // l = phi
+	            tmp = uu(ind) ; 
+		    tmp.div_r_dzpuis(dz_resu) ;
+
+	            tmp.div_tant() ; 	// division by tan(theta)
+					
+	            cresu -= tmp ; 
+	            break ; 
+                }
+				
+                case 3 : {	// Gamma^phi_{l phi} V^l 
+	                        // or -Gamma^l_{phi phi} V_l
+						
+	            ind = ind0 ; 
+// 	            ind.set(id) = 1 ;   // l = r
+// 	            tmp = uu(ind) ; 
+// 		    tmp.div_r_dzpuis(dz_resu) ;
+
+// 	            cresu += tmp ; 
+
+	            ind.set(id) = 2 ;   // l = theta
+	            tmp = uu(ind) ; 
+		    tmp.div_r_dzpuis(dz_resu) ;
+
+	            tmp.div_tant() ; 	// division by tan(theta)
+
+	            cresu += tmp ; 
+	            break ; 
+                }
+				
+                default : {
+	            cerr << "Connection_fspher::p_derive_cov : index problem ! \n"
+	            << endl ; 
+	            abort() ;  
+                }
+                }
+
+            }
+            
+            break ; 
+        }
+
+        default : {
+	    cerr << "Connection_fspher::p_derive_cov : index problem ! \n" ;
+	    abort() ;  
+        }
+
+        } // End of switch on the derivation index
+
+
+    } // End of loop on all the components of the output tensor
+
+    // C'est fini !
+    // -----------
+    return *resu ; 
+
 }
 
 void Spheroid::sauve(FILE* ) const {
@@ -629,3 +895,152 @@ void Spheroid::sauve(FILE* ) const {
     return ; 
 
 }
+
+
+
+
+
+
+
+
+// Computation of the delta coefficients
+ 
+ 
+const Tensor& Spheroid::delta() const {
+
+    // Tensor tg 
+    if (p_delta == 0x0) {
+   
+    Tensor christoflat(qab.get_mp(), 3, COV, qab.get_mp().get_bvect_spher()); 
+    christoflat.set_index_type(0) = CON; 
+    christoflat.set_etat_zero() ;
+
+    // assert(flat_met != 0x0) ; 
+   Tensor dgam = derive_cov2dflat(qab.cov()) ; 
+ 
+    for (int k=1; k<=3; k++) {
+        for (int i=1; i<=3; i++) {
+            for (int j=1; j<=i; j++) {
+                Scalar& cc= christoflat.set(k,i,j); 
+                for (int l=1; l<=3; l++) {
+                    cc += qab.con()(k,l) * ( 
+                        dgam(l,j,i) + dgam(i,l,j) - dgam(i,j,l) ) ; 
+                        
+                }
+                cc = 0.5 * cc ; 
+            }
+        }
+    }
+
+    p_delta = new Tensor (christoflat) ;
+    
+    }
+    return *p_delta; 
+}
+
+
+
+
+
+
+// Computation of global derivative on 2-sphere 
+Tensor Spheroid::derive_cov2d(const Tensor& uu) const {
+  
+    if(uu.get_valence()>=1){
+	int nbboucle =  uu.get_valence(); 
+        Tensor resu = derive_cov2dflat(uu);
+        for (int y=1; y<=nbboucle; y++){
+           
+	    int df = uu.get_index_type(y-1); 
+	    if (df == COV) {
+		resu -= contract(delta(),0, uu, y-1);
+		    }
+            else {resu += contract(delta(),1,  uu, y-1);}
+   
+	    return resu;
+    }
+    }
+    else return derive_cov2dflat(uu);  
+    
+}
+   
+
+
+
+
+
+
+
+// COmputation of the ricci tensor  
+
+  const Sym_tensor& Spheroid::ricci() const {
+
+    if (p_ricci == 0x0) {  // a new computation is necessary
+    
+	assert( issphere == true ) ;
+   Sym_tensor riccia(h_surf.get_mp(), CON, h_surf.get_mp().get_bvect_spher()) ;
+   riccia.set_etat_zero(); 
+        
+        const Tensor& d_delta = derive_cov2dflat(delta()) ; 
+                
+        for (int i=1; i<=3; i++) {
+        
+            int jmax = 3 ; 
+            
+            for (int j=1; j<=jmax; j++) {
+
+                Scalar tmp1(h_surf.get_mp()) ;
+                tmp1.set_etat_zero() ; 
+                for (int k=1; k<=3; k++) {
+                    tmp1 += d_delta(k,i,j,k) ; 
+                } 
+                
+                Scalar tmp2(h_surf.get_mp()) ;
+                tmp2.set_etat_zero() ; 
+                for (int k=1; k<=3; k++) {
+                    tmp2 += d_delta(k,i,k,j) ; 
+                } 
+                
+                Scalar tmp3(h_surf.get_mp()) ;
+                tmp3.set_etat_zero() ; 
+                for (int k=1; k<=3; k++) {
+                    for (int m=1; m<=3; m++) {
+                        tmp3 += delta()(k,k,m) * delta()(m,i,j) ; 
+                    }
+                } 
+                tmp3.dec_dzpuis() ;  // dzpuis 4 -> 3
+                
+                Scalar tmp4(h_surf.get_mp()) ;
+                tmp4.set_etat_zero() ; 
+                for (int k=1; k<=3; k++) {
+                    for (int m=1; m<=3; m++) {
+                        tmp4 += delta()(k,j,m) * delta()(m,i,k) ; 
+                    }
+                } 
+                tmp4.dec_dzpuis() ;  // dzpuis 4 -> 3
+              
+
+                riccia.set(i,j) = tmp1 - tmp2 + tmp3 - tmp4 ; 
+                  
+        
+            }
+        }
+	/* Note: Here we must take into account the fact that a round metric on a spheroid doesn't give zero as "flat" ricci part. Then a diagonal scalar term must be added. 
+	   WARNING: this only works with "round" horizons!! */ 
+ 
+   
+	for (int hi=1; hi<=3; hi++){
+ 
+	    riccia.set(hi,hi) += 2/(h_surf * h_surf) ; 
+	}
+    	p_ricci = new Sym_tensor(riccia);
+    }
+	
+    return *p_ricci ; 
+	
+}
+
+
+
+
+
