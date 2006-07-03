@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2006/07/03 10:12:51  n_vasset
+ * adding of flag isphere
+ *
  * Revision 1.5  2006/06/13 08:07:55  n_vasset
  *   Addition of 2 members
  *
@@ -108,7 +111,9 @@ class Spheroid {
 
 	Scalar ggg;
 
-
+	/** Flag to know whether the horizon is geometrically round or distorted*/
+ 
+        bool issphere ;  
 
 
     // Derived data : 
@@ -122,7 +127,9 @@ class Spheroid {
 	mutable Sym_tensor* p_shear ; ///< The shear tensor
 
         mutable Sym_tensor* p_ricci ; ///< The ricci tensor for the spheroid
-	
+        mutable Tensor* p_delta ; 
+
+
 
     // Constructors - Destructor
     // -------------------------
@@ -205,6 +212,9 @@ class Spheroid {
 	///Returns the normalization scalar \c G
 	const Scalar& get_ggg() const {return ggg;} ;
 
+        /// Returns the flag saying whether or not the horizon is geometrically round
+       const bool get_issphere() const{return issphere;}; 
+
 	/// Sets the field \c h_surf
 	Scalar& set_hsurf() {del_deriv() ; return h_surf ; } ;
 
@@ -226,6 +236,9 @@ class Spheroid {
 	/// Sets the vector \f$ L_a \f$
 	Vector& set_ll() {del_deriv() ; return ll;} ;
 
+	/// Sets the vector \f$ s_a \f$
+	Vector& set_ss() {del_deriv() ; return ss;} ;
+
 	///Sets the symmetric tensor \f$ J_{ab} \f$
 	Sym_tensor& set_jj() {del_deriv() ; return jj;} ;
 
@@ -235,6 +248,9 @@ class Spheroid {
       	///Sets the normalization factor \c G
 	Scalar& set_ggg() {del_deriv() ; return ggg;} ;
 
+        /// Sets the boolean linked to geometrical shape of the horizon
+        bool set_issphere() {del_deriv() ; return issphere; };  
+      
         /// Updates from the 3-slice data
         void update_from_tslice(const Metric& gamij, const Sym_tensor& Kij) ;
 	
@@ -272,9 +288,21 @@ class Spheroid {
 	/// Computes the shear of the 2-surface \f$ \sigma_{ab} \f$.
 	const Sym_tensor& shear () const ;
 
-        ///Coputes the Ricci tensor of the 2-surface
+        ///Computes the Ricci tensor of the 2-surface
  
 	const Sym_tensor& ricci () const; 
+
+	/// Computes the round covariant derivative on the spheroid 
+ 
+	Tensor derive_cov2dflat(const Tensor& uu) const ; 
+
+	///Computes the delta coefficients for covariant derivative
+  
+	const Tensor& delta() const; 
+
+	/// Computes the total covariant derivative on the spheroid 
+ 
+	Tensor derive_cov2d(const Tensor& uu) const ; 
 
     // Outputs
     // -------
