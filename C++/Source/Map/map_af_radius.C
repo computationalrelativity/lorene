@@ -30,8 +30,11 @@ char map_af_radius_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:27  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2006/07/05 12:36:51  n_vasset
+ * Added a test on rmin to see whether the point lies in the computational domains.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.5  1999/12/16  14:19:08  eric
  * Introduction de l'argument const Param& par dans val_lx et val_lx_jk.
@@ -100,15 +103,19 @@ void Map_af::val_lx(double rr, double, double, int& lz, double& xi) const {
 			   
     // In which domain is located r ? 
     // ----------------------------
+    assert(rr>=0) ;
     int nz = mg->get_nzone() ;
     lz = - 1 ;
     
     for (int l=0; l<nz; l++) {
         
-	double rmax = alpha[l] + beta[l] ;	
-	if (mg->get_type_r(l) == UNSURR) rmax = double(1)/rmax ; 
-		
-	if ( rr <= rmax ) { 
+	double rmax = alpha[l] + beta[l] ;
+	double rmin = beta[l] - alpha[l] ;
+	if (mg->get_type_r(l) == UNSURR) {
+	    rmin = double(1)/rmin ; 
+	    rmax = double(1)/rmax ; 
+	}		
+	if ((rr >=rmin) && ( rr <= rmax )) { 
 	    lz = l ;
 	    break ; 
 	}	
@@ -121,9 +128,12 @@ void Map_af::val_lx(double rr, double, double, int& lz, double& xi) const {
 		 " has not been found ! " 
 	      << endl ;
 	for (int l=0; l<nz; l++) {
+	    double rmin = -alpha[l] + beta[l] ;	
+	    if (mg->get_type_r(l) == UNSURR) rmin = double(1)/rmin ; 
+	    cout << "domain " << l << " :  r_min = " << rmin ; 
 	    double rmax = alpha[l] + beta[l] ;	
 	    if (mg->get_type_r(l) == UNSURR) rmax = double(1)/rmax ; 
-	    cout << "domain " << l << " :  r_max = " << rmax << endl ; 
+	    cout << " :  r_max = " << rmax << endl ; 
 	}
 	abort () ;
     }
