@@ -30,6 +30,10 @@ char map_af_radius_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2006/07/10 07:44:51  j_novak
+ * Correction of the comparison between rmin and rr (now has to be greater than
+ * some threshold).
+ *
  * Revision 1.2  2006/07/05 12:36:51  n_vasset
  * Added a test on rmin to see whether the point lies in the computational domains.
  *
@@ -103,7 +107,6 @@ void Map_af::val_lx(double rr, double, double, int& lz, double& xi) const {
 			   
     // In which domain is located r ? 
     // ----------------------------
-    assert(rr>=0) ;
     int nz = mg->get_nzone() ;
     lz = - 1 ;
     
@@ -111,11 +114,12 @@ void Map_af::val_lx(double rr, double, double, int& lz, double& xi) const {
         
 	double rmax = alpha[l] + beta[l] ;
 	double rmin = beta[l] - alpha[l] ;
+	if (mg->get_type_r(l) == RARE) rmin = 0. ;
 	if (mg->get_type_r(l) == UNSURR) {
 	    rmin = double(1)/rmin ; 
 	    rmax = double(1)/rmax ; 
 	}		
-	if ((rr >=rmin) && ( rr <= rmax )) { 
+	if ((rr - rmin >= -1.e-15*rmin) && ( rr <= rmax )) { 
 	    lz = l ;
 	    break ; 
 	}	
@@ -130,6 +134,7 @@ void Map_af::val_lx(double rr, double, double, int& lz, double& xi) const {
 	for (int l=0; l<nz; l++) {
 	    double rmin = -alpha[l] + beta[l] ;	
 	    if (mg->get_type_r(l) == UNSURR) rmin = double(1)/rmin ; 
+	    if (mg->get_type_r(l) == RARE) rmin = 0. ;
 	    cout << "domain " << l << " :  r_min = " << rmin ; 
 	    double rmax = alpha[l] + beta[l] ;	
 	    if (mg->get_type_r(l) == UNSURR) rmax = double(1)/rmax ; 
