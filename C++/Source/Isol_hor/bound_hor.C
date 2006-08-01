@@ -31,6 +31,9 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.31  2006/08/01 14:35:48  f_limousin
+ * Many small modifs
+ *
  * Revision 1.30  2006/02/22 17:02:04  f_limousin
  * Removal of warnings
  *
@@ -400,13 +403,15 @@ const Valeur Isol_hor::boundary_nn_Neu_kk(int step) const {
   
   const Vector& dnnn = nn().derive_cov(ff) ;
   double rho = 5. ;
+  
+  step = 100 ;  // Truc bidon pour eviter warning
 
   Scalar kk_rr = contract( gam().radial_vect() * gam().radial_vect(), 0, 1
 			   , k_dd(), 0, 1 ) ; 
  
   Scalar k_kerr (mp) ;
-  //  k_kerr = kappa_hor() ; 
-  k_kerr = 0.15 ;
+  k_kerr = kappa_hor() ; 
+  //k_kerr = 0.06 ;
   k_kerr.std_spectral_base() ;
   k_kerr.inc_dzpuis(2) ;
   
@@ -414,25 +419,19 @@ const Valeur Isol_hor::boundary_nn_Neu_kk(int step) const {
   k_hor =  kappa_hor() ; 
   k_hor.std_spectral_base() ;
 
-  Vector beta_tilde_d (beta().down(0, met_gamt)) ;
-  Scalar naass = 1./2. * contract( met_gamt.radial_vect() * met_gamt.radial_vect(), 0, 1
-			   , beta_tilde_d.ope_killing_conf(met_gamt) , 0, 1 ) ;
+  //  Vector beta_tilde_d (beta().down(0, met_gamt)) ;
+  //Scalar naass = 1./2. * contract( met_gamt.radial_vect() * met_gamt.radial_vect(), 0, 1, beta_tilde_d.ope_killing_conf(met_gamt) , 0, 1 ) ;
+  
+  Scalar naass = contract( met_gamt.radial_vect() * met_gamt.radial_vect(), 
+			   0, 1, aa_auto().up_down(met_gamt), 0, 1) ;
+
   Scalar traceK = 1./3. * nn() * trk() * 
-                 contract( met_gamt.radial_vect() * met_gamt.radial_vect(), 0, 1
+               contract( met_gamt.radial_vect() * met_gamt.radial_vect(), 0, 1
 			   , met_gamt.cov() , 0, 1 ) ;
-  /*
-  Scalar tmp = ( k_kerr + naass + rho * contract(gam().radial_vect(), 0,
-							nn().derive_cov(gam()), 0))/(1+rho) 
-    - gam().radial_vect()(2) * dnnn(2) - gam().radial_vect()(3) * dnnn(3)  ;
-  tmp = tmp / gam().radial_vect()(1) ;
-  */
+
   Scalar sdN (contract(gam().radial_vect(), 0, nn().derive_cov(ff), 0)) ;
 
-  //  double step_d = step ; 
-  //  double corr =   0. * ( 1 - exp (- 0.01 * step)) ; 
 
-
-  //  Scalar psi2_corr = psi() * psi()  - ( psi() * psi()  - 1 ) * exp (- relax_speed *  step) ;
 
   Scalar tmp =  psi() * psi() * ( k_kerr +  naass + 1.* traceK) 
     -  met_gamt.radial_vect()(2) * dnnn(2) 
@@ -444,17 +443,11 @@ const Valeur Isol_hor::boundary_nn_Neu_kk(int step) const {
 
 
 
-  //  Scalar sdN (contract(gam().radial_vect(), 0, nn().derive_cov(ff), 0)) ;
+
   Scalar rhs ( sdN - nn() * kk_rr) ;
   cout << "kappa_pres = " << k_kerr.val_grid_point(1, 0, 0, 0) << endl ;
   cout << "kappa_hor = " << k_hor.val_grid_point(1, 0, 0, 0) << endl ;
   cout << "sDN  = " << sdN.val_grid_point(1, 0, 0, 0) << endl ;
-  //  cout << "corr  = " << corr.val_grid_point(1, 0, 0, 0) << endl ;
-  //  cout << "corr = " << corr << endl ;
-  cout << "N = " << nn().val_grid_point(1, 0, 0, 0) << endl ;
-  cout << "kss = " << kk_rr.val_grid_point(1, 0, 0, 0) << endl ;
-  cout << "sdN - n kss = " << rhs.val_grid_point(1, 0, 0, 0) << endl ;  
-  cout << "trK = " << trk().val_grid_point(1, 0, 0, 0) << endl ;
 
   // in this case you don't have to substract any value
  
@@ -579,7 +572,7 @@ const Valeur Isol_hor::boundary_nn_Dir_eff(double cc)const {
   tmp = - nn().derive_cov(ff)(1) ;
 
   // rho = 1 is the standart case
-  double rho = 25. ;
+  double rho = 1. ;
   tmp.dec_dzpuis(2) ;
   tmp += cc * (rho -1)*nn() ;
   tmp = tmp / (rho*cc) ;
@@ -636,75 +629,27 @@ const Valeur Isol_hor::boundary_nn_Neu_eff(double cc)const  {
 const Valeur Isol_hor::boundary_nn_Dir(double cc)const {
 
   Scalar rho(mp);
-  rho = 5. ;
-
-  double a_pow = 2. ;
-
-  Scalar tmp_psia = pow( psi(), a_pow) ;
-  tmp_psia.std_spectral_base() ;
+  rho = 0. ;  // 0 is the standard case
 
   Scalar tmp(mp) ;
-  tmp = cc ; // * tmp_psia ;
-  //  tmp =   b_tilde()*psi()*psi()  ;
-  //  tmp = 1./(2*psi()) ;
-  //  tmp = - psi() * nn().dsdr() / (psi().dsdr())  ;
-
+  tmp = cc ; 
+  
   /*
-  double mm = 0.55 ;
-  double aaa = pow(2.*mm - 1., 0.5) ;
-    
-  Scalar rr (mp) ;
-  rr = mp.r ;
-  Scalar cost(mp) ;
-  cost = mp.cost ;
-  
-  Scalar facteur (mp) ;
-  facteur = 2.*mm*rr / (rr*rr + aaa*aaa*cost*cost) ;
-  facteur.set_domain(0) = 1. ;
-  facteur.set_outer_boundary(nz-1, 0.) ;
-  facteur.std_spectral_base() ;
-  
-  // Lapse 
-  // --------
-  
-  Scalar lapse (mp) ;
-  lapse = pow(1.+facteur, -0.5) ;
-  lapse.std_spectral_base() ;
-
-  tmp = lapse  ;
+  if (b_tilde().val_grid_point(1, 0, 0, 0) < 0.08)
+    tmp = 0.25   ;
+  else {
+    cout << "OK" << endl ;
+    //   des_profile(nn(), 0, 20, M_PI/2, M_PI) ;
+    rho = 5. ;
+    tmp =   b_tilde()*psi()*psi() ;
+  }
   */
+  
+  //tmp = 1./(2*psi()) ;
+  //  tmp = - psi() * nn().dsdr() / (psi().dsdr())  ;
 
   // We  have substracted 1, since we solve for zero condition at infinity 
   //and then we add 1 to the solution  
-
-  Scalar kk_rr = contract( gam().radial_vect() * gam().radial_vect(), 0, 1
-			   , k_dd(), 0, 1 ) ; 
- 
-  Scalar k_kerr (mp) ;
-  //  k_kerr = kappa_hor() ; 
-  k_kerr = 0.15 ;
-  k_kerr.std_spectral_base() ;
-  k_kerr.inc_dzpuis(2) ;
-  
-  Scalar k_hor (mp) ;
-  k_hor =  kappa_hor() ; 
-  k_hor.std_spectral_base() ;
-
-
-
-
-  Scalar sdN (contract(gam().radial_vect(), 0, nn().derive_cov(ff), 0)) ;
-  Scalar rhs ( sdN - nn() * kk_rr) ;
-  cout << "hola " << endl ;
-  cout << "kappa_pres = " << k_kerr.val_grid_point(1, 0, 0, 0) << endl ;
-  cout << "kappa_hor = " << k_hor.val_grid_point(1, 0, 0, 0) << endl ;
-  cout << "sDN  = " << sdN.val_grid_point(1, 0, 0, 0) << endl ;
-  cout << "N = " << nn().val_grid_point(1, 0, 0, 0) << endl ;
-  cout << "kss = " << kk_rr.val_grid_point(1, 0, 0, 0) << endl ;
-  cout << "sdN - n kss = " << rhs.val_grid_point(1, 0, 0, 0) << endl ;  
-  cout << "trK = " << trk().val_grid_point(1, 0, 0, 0) << endl ;
-
-
 
   tmp = (tmp + rho * nn())/(1 + rho) ;
 
@@ -1413,100 +1358,119 @@ const Vector Isol_hor::vv_bound_cart(double om) const{
 }
 
 
-const Vector Isol_hor::vv_bound_cart_bin(double om) const{
+const Vector Isol_hor::vv_bound_cart_bin(double om, int jj) const{
 
-  // Preliminaries
-  //--------------
+  // Les alignemenents pour le signe des CL.
+  double orientation = mp.get_rot_phi() ;
+  assert ((orientation == 0) || (orientation == M_PI)) ;
+  int aligne = (orientation == 0) ? 1 : -1 ;
+  
+  Vector angular (mp, CON, mp.get_bvect_cart()) ;
+  Scalar yya (mp) ;
+  yya = mp.ya ;
+  Scalar xxa (mp) ;
+  xxa = mp.xa ;
+  
+  angular.set(1) = aligne * om * yya ;
+  angular.set(2) = - aligne * om * xxa ;
+  angular.set(3).annule_hard() ;
+  
+  angular.set(1).set_spectral_va()
+    .set_base(*(mp.get_mg()->std_base_vect_cart()[0])) ;
+  angular.set(2).set_spectral_va()
+    .set_base(*(mp.get_mg()->std_base_vect_cart()[1])) ;
+  angular.set(3).set_spectral_va()
+    .set_base(*(mp.get_mg()->std_base_vect_cart()[2])) ;
+  
+  angular.change_triad(mp.get_bvect_spher()) ;
+  
+  // HH_tilde
+  Vector s_tilde =  met_gamt.radial_vect() ;
+  
+  Scalar hh_tilde = contract(s_tilde.derive_cov(met_gamt), 0, 1) ;
+  hh_tilde.dec_dzpuis(2) ;
+  
+  Scalar btilde = b_tilde() - contract(angular, 0, s_tilde.up_down(met_gamt), 0) ;
+  
+  // Tangential part of the shift
+  Vector tmp_vect = btilde * s_tilde ;
+  
+  // Value of kss
+  // --------------
+  
+  Scalar kss (mp) ;
+    kss = - 0.26 ;
+  kss.std_spectral_base() ;
+  kss.inc_dzpuis(2) ;
+  
+  // Apparent horizon boundary condition
+  // -----------------------------------
 
-    Scalar cosp (mp) ;
-    cosp = mp.cosp ;
-    Scalar cost (mp) ;
-    cost = mp.cost ;
-    Scalar sinp (mp) ;
-    sinp = mp.sinp ;
-    Scalar sint (mp) ;
-    sint = mp.sint ;
+  
+  // kss frome a fich
 
-    Scalar dep_phi (mp) ;
-    dep_phi = 0.0*sint*cosp ;
+  // Construction of the binary
+  // --------------------------
+  
+  int depth_s = 3 ;
+  char* name_fich = "/home/francois/resu/bin_hor/Test/b11_9x9x8/bin.dat" ;
+  
+  FILE* fich_s = fopen(name_fich, "r") ;
+  Mg3d grid_s (fich_s) ;
+  Map_af map_un_s (grid_s, fich_s) ;
+  Map_af map_deux_s (grid_s, fich_s) ;
+  Bin_hor bin (map_un_s, map_deux_s, fich_s, true, depth_s) ;
+  fclose(fich_s) ;
+  
+  // Inititialisation of fields :
+  // ---------------------------- 
+  
+  bin.set(1).n_comp (bin(2)) ;
+  bin.set(1).psi_comp (bin(2)) ;
+  bin.set(2).n_comp (bin(1)) ;
+  bin.set(2).psi_comp (bin(1)) ;
+  bin.decouple() ;
+  bin.extrinsic_curvature() ;
+  
+  kss = contract(bin(jj).k_dd(), 0, 1, bin(jj).gam().radial_vect()*
+		 bin(jj).gam().radial_vect(), 0, 1) ;
 
-    // Les alignemenents pour le signe des CL.
-    double orientation = mp.get_rot_phi() ;
-    assert ((orientation == 0) || (orientation == M_PI)) ;
-    int aligne = (orientation == 0) ? 1 : -1 ;
 
-    Vector angular (mp, CON, mp.get_bvect_cart()) ;
-    Scalar yya (mp) ;
-    yya = mp.ya ;
-    Scalar xxa (mp) ;
-    xxa = mp.xa ;
+  /*
+  kss = (contract(gam().radial_vect(), 0, nn().derive_cov(ff), 0)
+	 - 0.1) / nn() ;
+  kss.inc_dzpuis(2) ;
+  */
 
-    angular.set(1) = aligne * om * yya * (1 + dep_phi) ;
-    angular.set(2) = - aligne * om * xxa * (1 + dep_phi) ;
-    angular.set(3).annule_hard() ;
-
-    angular.set(1).set_spectral_va()
-	.set_base(*(mp.get_mg()->std_base_vect_cart()[0])) ;
-    angular.set(2).set_spectral_va()
-	.set_base(*(mp.get_mg()->std_base_vect_cart()[1])) ;
-    angular.set(3).set_spectral_va()
-	.set_base(*(mp.get_mg()->std_base_vect_cart()[2])) ;
-
-    angular.change_triad(mp.get_bvect_spher()) ;
-
-    // HH_tilde
-    Vector s_tilde =  met_gamt.radial_vect() ;
-
-    Scalar hh_tilde = contract(s_tilde.derive_cov(met_gamt), 0, 1) ;
-    hh_tilde.dec_dzpuis(2) ;
-
-    Scalar btilde = b_tilde() + contract(angular, 0, s_tilde.up_down(met_gamt), 0) ;
-    
-    // Tangential part of the shift
-    Vector tmp_vect = btilde * s_tilde ;
-    
-    // Value of kss
-    // --------------
-    
-    Scalar kss (mp) ;
-//  kss = (contract(gam().radial_vect(), 0, nn().derive_cov(ff), 0) - 
-    // 1.*kappa_hor()) / nn() ;
-//	 0.17 ) / nn() ;
-//  kss = - psi() * abs(contract(gam().radial_vect(), 0, nn().derive_cov(ff), 0)) ;
-    kss = - 0.3 ;
-    
-    kss.std_spectral_base() ;
-    kss.inc_dzpuis(2) ;
-    
-    cout << "kappa_hor = " << kappa_hor() << endl ;
-    
-    // beta^r component
-    //-----------------
-    double rho = 5. ; // rho>1 ; rho=1 "pure Dirichlet" version
-    Scalar beta_r_corr = (rho - 1) * btilde * hh_tilde;
-    beta_r_corr.inc_dzpuis(2) ;
-    Scalar nn_KK = nn() * trk() ;
-    nn_KK.inc_dzpuis(2) ;
-    
-    beta_r_corr.set_dzpuis(2) ;
-    nn_KK.set_dzpuis(2) ;
-    
-    Scalar b_tilde_new (mp) ;
-    b_tilde_new = 2 * contract(s_tilde, 0, btilde.derive_cov(ff), 0)
-	+ beta_r_corr - 3 * nn() * kss + nn_KK ;
-
-    b_tilde_new = b_tilde_new / (hh_tilde * rho) ;
-    
-    b_tilde_new.dec_dzpuis(2) ;
-    
-    tmp_vect.set(1) = b_tilde_new * s_tilde(1) - angular(1) ;
-    tmp_vect.set(2) = b_tilde_new * s_tilde(2) - angular(2) ;
-    tmp_vect.set(3) = b_tilde_new * s_tilde(3) - angular(3) ; 
-    
-    tmp_vect.change_triad(mp.get_bvect_cart() ) ;
-    
-    return tmp_vect ;
-    
+  cout << "kappa_hor = " << kappa_hor() << endl ;
+  
+  // beta^r component
+  //-----------------
+  double rho = 5. ; // rho=0 "pure Dirichlet" version
+  Scalar beta_r_corr = rho * btilde * hh_tilde;
+  beta_r_corr.inc_dzpuis(2) ;
+  Scalar nn_KK = nn() * trk() ;
+  nn_KK.inc_dzpuis(2) ;
+  
+  beta_r_corr.set_dzpuis(2) ;
+  nn_KK.set_dzpuis(2) ;
+  
+  Scalar b_tilde_new (mp) ;
+  b_tilde_new = 2 * contract(s_tilde, 0, btilde.derive_cov(ff), 0)
+    + beta_r_corr - 3 * nn() * kss + nn_KK ;
+  
+  b_tilde_new = b_tilde_new / (hh_tilde * (rho+1)) ;
+  
+  b_tilde_new.dec_dzpuis(2) ;
+  
+  tmp_vect.set(1) = b_tilde_new * s_tilde(1) + angular(1) ;
+  tmp_vect.set(2) = b_tilde_new * s_tilde(2) + angular(2) ;
+  tmp_vect.set(3) = b_tilde_new * s_tilde(3) + angular(3) ; 
+  
+  tmp_vect.change_triad(mp.get_bvect_cart() ) ;
+  
+  return tmp_vect ;
+  
 }
 
 
@@ -1592,7 +1556,7 @@ const Valeur Isol_hor:: boundary_vv_z(double om)const {
 // Component x of boundary value of V^i
 //-------------------------------------
 
-const Valeur Isol_hor:: boundary_vv_x_bin(double om)const {
+const Valeur Isol_hor:: boundary_vv_x_bin(double om, int jj)const {
 
     int nnp = mp.get_mg()->get_np(1) ;
     int nnt = mp.get_mg()->get_nt(1) ;
@@ -1603,7 +1567,7 @@ const Valeur Isol_hor:: boundary_vv_x_bin(double om)const {
 
     lim_x = 1 ;  // Juste pour affecter dans espace des configs ;
 
-    Scalar vv_x = vv_bound_cart_bin(om)(1) ;
+    Scalar vv_x = vv_bound_cart_bin(om, jj)(1) ;
 
     for (int k=0 ; k<nnp ; k++)
 	for (int j=0 ; j<nnt ; j++)
@@ -1619,7 +1583,7 @@ const Valeur Isol_hor:: boundary_vv_x_bin(double om)const {
 // Component y of boundary value of V^i
 //--------------------------------------
 
-const Valeur Isol_hor:: boundary_vv_y_bin(double om)const {
+const Valeur Isol_hor:: boundary_vv_y_bin(double om, int jj)const {
 
     int nnp = mp.get_mg()->get_np(1) ;
     int nnt = mp.get_mg()->get_nt(1) ;
@@ -1630,7 +1594,7 @@ const Valeur Isol_hor:: boundary_vv_y_bin(double om)const {
 
     lim_y = 1 ;  // Juste pour affecter dans espace des configs ;
 
-    Scalar vv_y = vv_bound_cart_bin(om)(2) ;
+    Scalar vv_y = vv_bound_cart_bin(om, jj)(2) ;
 
     for (int k=0 ; k<nnp ; k++)
 	for (int j=0 ; j<nnt ; j++)
@@ -1645,7 +1609,7 @@ const Valeur Isol_hor:: boundary_vv_y_bin(double om)const {
 // Component z of boundary value of V^i
 //-------------------------------------
 
-const Valeur Isol_hor:: boundary_vv_z_bin(double om)const {
+const Valeur Isol_hor:: boundary_vv_z_bin(double om, int jj)const {
 
     int nnp = mp.get_mg()->get_np(1) ;
     int nnt = mp.get_mg()->get_nt(1) ;
@@ -1656,7 +1620,7 @@ const Valeur Isol_hor:: boundary_vv_z_bin(double om)const {
 
     lim_z = 1 ;   // Juste pour affecter dans espace des configs ;
 
-    Scalar vv_z = vv_bound_cart_bin(om)(3) ;
+    Scalar vv_z = vv_bound_cart_bin(om, jj)(3) ;
 
     for (int k=0 ; k<nnp ; k++)
 	for (int j=0 ; j<nnt ; j++)
