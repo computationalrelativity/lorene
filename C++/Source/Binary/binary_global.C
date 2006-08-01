@@ -31,6 +31,9 @@ char binary_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2006/08/01 14:26:50  f_limousin
+ * Small changes
+ *
  * Revision 1.14  2006/04/11 14:25:15  f_limousin
  * New version of the code : improvement of the computation of some
  * critical sources, estimation of the dirac gauge, helical symmetry...
@@ -497,7 +500,7 @@ const Tbl& Binary::angu_mom() const {
 		// --------------------------------
 		
 		double r0 = mp.val_r(nzm1-1, 1, 0, 0) ;
-		double sigma = 3.*r0 ;
+		double sigma = 1.*r0 ;
 		
 		Scalar rr (mp) ;
 		rr = mp.r ;

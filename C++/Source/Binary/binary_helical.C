@@ -31,6 +31,9 @@ char binary_helical_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2006/08/01 14:26:50  f_limousin
+ * Small changes
+ *
  * Revision 1.2  2006/06/05 17:05:57  f_limousin
  * *** empty log message ***
  *
@@ -602,7 +605,7 @@ void Binary::helical(){
     cout << "L2 norm of L_k K^{ab} " << endl ;
     Scalar determinant (pow(star1.get_gamma().determinant(), 0.5)) ;
     determinant.std_spectral_base() ;
-    Scalar resu(contract(lie_kij_tot, 0, 1, 
+    Scalar resu(2.*contract(lie_kij_tot, 0, 1, 
 			 lie_kij_tot.up_down(star1.gamma), 0, 1)
 		*determinant) ;
     Tbl integral (nz) ;
