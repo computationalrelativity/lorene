@@ -29,6 +29,9 @@ char star_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.27  2006/08/01 14:26:01  f_limousin
+ * Display
+ *
  * Revision 1.26  2006/05/31 09:26:04  f_limousin
  * Modif. of the size of the different domains
  *
@@ -1191,13 +1194,13 @@ void Star_bin::equilibrium(double ent_c, int mermax, int mermax_potvit,
 		    cout << "max source2" << endl 
 			 << max(source_2(i,j)) << endl ;
 		    cout << "source3a" << endl 
-			 << norme(source_3a/(nr*nt*np)) << endl ;
+			 << norme(source_3a(i,j)/(nr*nt*np)) << endl ;
 		    cout << "max source3a" << endl 
-			 << max(source_3a) << endl ;
+			 << max(source_3a(i,j)) << endl ;
                     cout << "source3b" << endl
-                         << norme(source_3b/(nr*nt*np)) << endl ;
+                         << norme(source_3b(i,j)/(nr*nt*np)) << endl ;
                     cout << "max source3b" << endl
-                         << max(source_3b) << endl ;
+                         << max(source_3b(i,j)) << endl ;
  		    cout << "source4" << endl 
 			 << norme(source_4(i,j)/(nr*nt*np)) << endl ;
 		    cout << "max source4" << endl 
