@@ -26,6 +26,9 @@ char binhor_equations_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2006/08/01 14:37:19  f_limousin
+ * New version
+ *
  * Revision 1.15  2006/06/29 08:51:00  f_limousin
  * *** empty log message ***
  *
@@ -223,9 +226,9 @@ void Bin_hor::solve_lapse (double precision, double relax, int bound_nn,
 
 	case 0 : {
 
-	    lim_un = hole1.boundary_nn_Dir(lim_nn) ;
-	    lim_deux = hole2.boundary_nn_Dir(lim_nn) ;
- 
+	  lim_un = hole1.boundary_nn_Dir(lim_nn) ;
+	  lim_deux = hole2.boundary_nn_Dir(lim_nn) ;
+	   
 	    n_un_temp = n_un_temp - 1./2. ;
 	    n_deux_temp = n_deux_temp - 1./2. ;
  
@@ -762,13 +765,13 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta) {
 	}
 	case 1 : {
 	    
-	    lim_x_un = hole1.boundary_vv_x_bin(omega) ;
-	    lim_y_un = hole1.boundary_vv_y_bin(omega) ;
-	    lim_z_un = hole1.boundary_vv_z_bin(omega) ;
+	    lim_x_un = hole1.boundary_vv_x_bin(omega, 1) ;
+	    lim_y_un = hole1.boundary_vv_y_bin(omega, 1) ;
+	    lim_z_un = hole1.boundary_vv_z_bin(omega, 1) ;
 	    
-	    lim_x_deux = hole2.boundary_vv_x_bin(omega) ;
-	    lim_y_deux = hole2.boundary_vv_y_bin(omega) ;
-	    lim_z_deux = hole2.boundary_vv_z_bin(omega) ;
+	    lim_x_deux = hole2.boundary_vv_x_bin(omega, 2) ;
+	    lim_y_deux = hole2.boundary_vv_y_bin(omega, 2) ;
+	    lim_z_deux = hole2.boundary_vv_z_bin(omega, 2) ;
 	    break ;
 	}
 

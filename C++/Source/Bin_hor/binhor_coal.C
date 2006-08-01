@@ -26,6 +26,9 @@ char binhor_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2006/08/01 14:37:19  f_limousin
+ * New version
+ *
  * Revision 1.11  2006/06/28 13:36:09  f_limousin
  * Convergence to a given irreductible mass
  *
@@ -100,6 +103,8 @@ void Bin_hor::set_statiques (double precis, double relax, int bound_nn,
 	solve_psi (precis, relax, bound_psi) ;
 	solve_lapse (precis, relax, bound_nn, lim_nn) ;
 
+	//	des_profile(hole1.nn(), 0, 20, M_PI/2, M_PI) ;
+
 	double erreur = 0 ;
 	Tbl diff (diffrelmax (lapse_un_old, hole1.n_auto())) ;
 	for (int i=1 ; i<nz ; i++)
@@ -135,13 +140,17 @@ double Bin_hor::coal (double angu_vel, double relax, int nb_ome,
 	homme += inc_homme ;
 	set_omega (homme) ;
 	Scalar beta_un_old (hole1.beta_auto()(1)) ;
-	
-        solve_shift (precis, relax, bound_beta) ;
+
+	//	des_profile(hole1.nn(), 0, 20, M_PI/2, M_PI) ;
+
+       solve_shift (precis, relax, bound_beta) ;
         extrinsic_curvature() ;
 
 	solve_psi (precis, relax, bound_psi) ;
         solve_lapse (precis, relax, bound_nn, lim_nn) ;
 	
+
+	des_profile(hole1.nn(), 0, 35, M_PI/2, M_PI) ;
 
 	// Convergence to the given irreductible mass 
 	if (search_mass == 1 && step >= 30) {

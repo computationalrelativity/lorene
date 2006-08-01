@@ -33,6 +33,9 @@ char bin_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2006/08/01 14:37:19  f_limousin
+ * New version
+ *
  * Revision 1.8  2006/06/29 08:51:00  f_limousin
  * *** empty log message ***
  *
@@ -206,16 +209,73 @@ void Bin_hor::write_global(ostream& ost, double lim_nn, int bound_nn,
   // Verification of Smarr :
   // -----------------------
 
+    // Les alignemenents pour le signe des CL.
+  double orientation1 = hole1.mp.get_rot_phi() ;
+  assert ((orientation1 == 0) || (orientation1 == M_PI)) ;
+  int aligne1 = (orientation1 == 0) ? 1 : -1 ;
+  
+  Vector angular1 (hole1.mp, CON, hole1.mp.get_bvect_cart()) ;
+  Scalar yya1 (hole1.mp) ;
+  yya1 = hole1.mp.ya ;
+  Scalar xxa1 (hole1.mp) ;
+  xxa1 = hole1.mp.xa ;
+  
+  angular1.set(1) = aligne1 * omega * yya1 ;
+  angular1.set(2) = - aligne1 * omega * xxa1 ;
+  angular1.set(3).annule_hard() ;
+  
+  angular1.set(1).set_spectral_va()
+    .set_base(*(hole1.mp.get_mg()->std_base_vect_cart()[0])) ;
+  angular1.set(2).set_spectral_va()
+    .set_base(*(hole1.mp.get_mg()->std_base_vect_cart()[1])) ;
+  angular1.set(3).set_spectral_va()
+    .set_base(*(hole1.mp.get_mg()->std_base_vect_cart()[2])) ;
+  
+  angular1.change_triad(hole1.mp.get_bvect_spher()) ;
+
+
+  double orientation2 = hole2.mp.get_rot_phi() ;
+  assert ((orientation2 == 0) || (orientation2 == M_PI)) ;
+  int aligne2 = (orientation2 == 0) ? 1 : -1 ;
+  
+  Vector angular2 (hole2.mp, CON, hole2.mp.get_bvect_cart()) ;
+  Scalar yya2 (hole2.mp) ;
+  yya2 = hole2.mp.ya ;
+  Scalar xxa2 (hole2.mp) ;
+  xxa2 = hole2.mp.xa ;
+  
+  angular2.set(1) = aligne2 * omega * yya2 ;
+  angular2.set(2) = - aligne2 * omega * xxa2 ;
+  angular2.set(3).annule_hard() ;
+  
+  angular2.set(1).set_spectral_va()
+    .set_base(*(hole2.mp.get_mg()->std_base_vect_cart()[0])) ;
+  angular2.set(2).set_spectral_va()
+    .set_base(*(hole2.mp.get_mg()->std_base_vect_cart()[1])) ;
+  angular2.set(3).set_spectral_va()
+    .set_base(*(hole2.mp.get_mg()->std_base_vect_cart()[2])) ;
+  
+  angular2.change_triad(hole2.mp.get_bvect_spher()) ;
+
+
+  Scalar btilde1 (hole1.b_tilde() - 
+ contract(angular1, 0, hole1.tgam().radial_vect().up_down(hole1.tgam()), 0)) ;
+  Scalar btilde2 (hole2.b_tilde() - 
+ contract(angular2, 0, hole2.tgam().radial_vect().up_down(hole2.tgam()), 0)) ;
+  
+
+
+
   Vector integrand_un (hole1.mp, COV, hole1.mp.get_bvect_spher()) ;
   integrand_un = hole1.nn().derive_cov(hole1.ff)*pow(hole1.psi(), 2)
-    - hole1.nn()*contract(hole1.k_dd(), 1,
-			   hole1.gam().radial_vect(), 0)*pow(hole1.psi(), 2) ;
+    - btilde1*contract(hole1.k_dd(), 1,
+			   hole1.tgam().radial_vect(), 0)*pow(hole1.psi(), 2) ;
   integrand_un.std_spectral_base() ;
  
   Vector integrand_deux (hole2.mp, COV, hole2.mp.get_bvect_spher()) ;
   integrand_deux = hole2.nn().derive_cov(hole2.ff)*pow(hole2.psi(), 2)
-    - hole2.nn()*contract(hole2.k_dd(), 1,
-			   hole2.gam().radial_vect(), 0)*pow(hole2.psi(), 2) ;
+    - btilde2*contract(hole2.k_dd(), 1,
+			   hole2.tgam().radial_vect(), 0)*pow(hole2.psi(), 2) ;
   integrand_deux.std_spectral_base() ;
  
   double horizon = hole1.mp.integrale_surface(integrand_un(1),
