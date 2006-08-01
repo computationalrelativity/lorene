@@ -1,22 +1,22 @@
 ## Parameters for coal_seq
 #######################################################
 17       nt: number of points in theta (the same in each domain)
-16       np: number of points in phi   (the same in each domain)
+40       np: number of points in phi   (the same in each domain)
 25       nr: number of points in r in the first domain
 25       nr: number of points in r in all the other domains
 1e-6    Convergence treashold
 0.5     Relaxation
-0 0.3   boundary condition for the lapse / value of the coefficient
+1 0.3   boundary condition for the lapse / value of the coefficient
 1       boundary condition for the psi
 0.03    Initial omega
-1 2.9   1 if search_masses and value of irreductible mass
-1e-5    Precision for the virial
+1 2.6   1 if search_masses and value of irreductible mass
+1e-6    Precision for the virial
 10      Number of steps to go from omega_init to ``real'' omega.
 10      Number of iteration when at the real omega
 0       boundary condition for the shift
-13	number of configurations to compute
+4	number of configurations to compute
 8	closest congiguration (value of beta)
-20	more distant configuration (value of beta)
+11	more distant configuration (value of beta)
 
 ########################################################
 For the lapse :

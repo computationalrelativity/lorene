@@ -29,6 +29,9 @@ char prepare_seq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2006/08/01 14:13:42  f_limousin
+ * New version...
+ *
  * Revision 1.6  2006/06/29 08:54:52  f_limousin
  * Boundary conditions and grid writen in resformat.dat
  *
@@ -65,7 +68,7 @@ int main() {
     
     ofstream outfich("sequence.dat") ; 
 
-    outfich << "# Beta  omega  M_ADM  M_Komar  M_area  J_ADM  J_hor  M_ADM/M_area  J_ADM/M_area2  omega * M_area  M_ADM/M_ih  J_ADM/M_ih2  omega * M_ih  hor-adm   adm-smarr   hor-smarr "  << endl ; 
+    outfich << "# Beta  omega  m*Omega  Eb/mu  J/(mu*m)"  << endl ; 
 
     //-------------------------------------------------------
     //  Loop of the files seq.d
@@ -92,8 +95,8 @@ int main() {
 	    double hor_adm, adm_smarr, hor_smarr ;
 
 	    infich.ignore(1000,'\n') ; // skip first line
-	    infich.ignore(1000,'\n') ; // skip second line
-            infich.ignore(1000,'\n') ; // skip third line
+	    //	    infich.ignore(1000,'\n') ; // skip second line
+            //infich.ignore(1000,'\n') ; // skip third line
 	    infich >> beta ;
 	    infich >> omega ;
 	    infich >> mass_adm ;
@@ -115,11 +118,6 @@ int main() {
 	    infich >> madm_area ;
 	    infich >> jadm_area2 ;
 	    infich >> omega_marea ;
-	    infich.ignore(1000,'\n') ;
-            infich.ignore(1000,'\n') ;
-	    infich >> hor_adm ;
-            infich >> adm_smarr ;
-            infich >> hor_smarr ;
 
 	    infich.close() ; 
 
@@ -142,20 +140,11 @@ int main() {
 	    outfich.precision(8) ;
 	    outfich << beta << " " ;
 	    outfich << omega << " " ;
-	    outfich << mass_adm << " " ;
-	    outfich << mass_komar << " " ;
-	    outfich << mass_area << " " ;
-	    outfich << j_adm << " " ;
-	    outfich << j_hor << " " ;
-	    outfich << madm_area << " " ;
-	    outfich << jadm_area2 << " " ;
-	    outfich << omega_marea << " "  ;
-	    outfich << mass_adm/mass_ih << " " ;
-	    outfich << j_adm/mass_ih/mass_ih << " " ;
-	    outfich << omega*mass_ih << " " ;
-	    outfich << hor_adm << " " ;
-            outfich << adm_smarr << " " ;
-            outfich << hor_smarr << endl ;
+	    outfich << mass_area*omega << " " ;
+	    outfich << (mass_adm-mass_area)/mass_area*4. << " " ;
+	    outfich << j_adm/(mass_area*mass_area)*4. << endl ;
+	    
+
 
 	    //-----------------------------------------------------
 	    //  ***** End of modifiable part ***** 

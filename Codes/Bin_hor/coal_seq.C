@@ -29,6 +29,9 @@ char coal_seq_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2006/08/01 14:13:41  f_limousin
+ * New version...
+ *
  * Revision 1.4  2006/06/29 08:54:52  f_limousin
  * Boundary conditions and grid writen in resformat.dat
  *
@@ -204,12 +207,6 @@ int main() {
       // Part of coal
       // ------------
       
-      // Le fichier sortie pour la recherche de omega :
-      char name_omega[20] ;
-      sprintf(name_omega, "omega_%e.dat", separ) ;
-      ofstream fiche_omega(name_omega) ;
-      fiche_omega.precision(8) ;
-      
       bin.set_omega(0) ;
       bin.set(1).n_comp (bin(2)) ;
       bin.set(1).psi_comp (bin(2)) ;
@@ -254,8 +251,7 @@ int main() {
 			       mass_irr, 1) ;
       
       step += nb_om + nb_it ;
-      
-      fiche_omega << omega_init << " " << erreur << endl ;
+     
       
       // Convergence to the true Omega
       // ------------------------------
@@ -266,15 +262,22 @@ int main() {
       while (boucle) {
 
 	omega = omega * pow((2-erreur)/(2-2*erreur), 1.) ;
+
+	Scalar beta_old (bin(1).beta_auto()(1)) ;
+
 	erreur = bin.coal (omega, relax, 1, 0, bound_nn,
 			   lim_nn, bound_psi, bound_beta,
 			   fich_iteration, fich_correction,
 			   fich_viriel, fich_kss, step, search_mass,
 			   mass_irr, 1) ;
 			   
-	fiche_omega << omega << " " << erreur << endl ;
+	double erreur_it = 0 ;
+	Tbl diff (diffrelmax (beta_old, bin(1).beta_auto()(1))) ;
+	for (int i=1 ; i<bin(1).get_mp().get_mg()->get_nzone() ; i++)
+	  if (diff(i) > erreur_it)
+	    erreur_it = diff(i) ;
 
-	if (fabs(erreur) < precis_viriel)
+	if (fabs(erreur) < precis_viriel && erreur_it < precis_viriel)
 	  boucle = false ;
 
 	step += 1 ;
@@ -294,8 +297,7 @@ int main() {
       bin.sauve(fich_sortie, true) ;
       fclose(fich_sortie) ;
       
-      fiche_omega.close() ;
-
+   
       sprintf(name, "resformat_%e.dat", separ) ;
       ofstream seqfich(name) ;
       if ( !seqfich.good() ) {
