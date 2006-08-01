@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.51  2006/08/01 14:36:25  f_limousin
+ * New argument for the functions vv_bound_cart_bin( )
+ *
  * Revision 1.50  2006/06/29 08:58:57  f_limousin
  * Boundary conditions in argument of write_global()
  *
@@ -771,7 +774,7 @@ class Isol_hor : public Time_slice_conf {
 
   ///  Vector \f$  V^i \f$ for boundary conditions in cartesian for 
   /// binary systems.
-  const Vector vv_bound_cart_bin(double om) const ;
+  const Vector vv_bound_cart_bin(double om, int hole = 0) const ;
 
   /// Component x of boundary value of \f$  V^i \f$
   const Valeur boundary_vv_x(double om) const ;
@@ -783,13 +786,13 @@ class Isol_hor : public Time_slice_conf {
   const Valeur boundary_vv_z(double om) const ;
 
   /// Component x of boundary value of \f$  V^i \f$
-  const Valeur boundary_vv_x_bin(double om) const ;
+  const Valeur boundary_vv_x_bin(double om, int hole = 0) const ;
 
   /// Component y of boundary value of \f$  V^i \f$
-  const Valeur boundary_vv_y_bin(double om) const ;
+  const Valeur boundary_vv_y_bin(double om, int hole = 0) const ;
 
   /// Component z of boundary value of \f$  V^i \f$
-  const Valeur boundary_vv_z_bin(double om) const ;
+  const Valeur boundary_vv_z_bin(double om, int hole = 0) const ;
 
   /// Neumann boundary condition for \c b_tilde
   const Valeur boundary_b_tilde_Neu() const ;
