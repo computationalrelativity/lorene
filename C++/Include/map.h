@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.48  2006/08/31 12:10:51  j_novak
+ * More comments for Map_af::avance_dalembert().
+ *
  * Revision 1.47  2006/05/26 09:00:09  j_novak
  * New members for multiplication or division by cos(theta).
  *
@@ -1382,7 +1385,7 @@ class Map {
 
 	/** Performs one time-step integration of the d'Alembert scalar equation
 	 *   @param par [input/output] possible parameters to control the
-	 *   resolution of the Poisson equation. See the actual implementation 
+	 *   resolution of the wave equation. See the actual implementation 
 	 *   in the derived class of \c Map for documentation. Note that, 
 	 *   at least, param must contain the time step as first \c double  
 	 *   parameter.
@@ -2449,7 +2452,11 @@ class Map_af : public Map_radial {
 	 *   \c par.get_int_mod(0)  : [input/output] set to 0 at first
 	 *   call, is used as a working flag after (must not be modified after
 	 *   first call)\\
-	 *   \c par.get_Cmp_mod(0)  : [input] (optional) if the wave 
+	 *   \c par.get_int(1)  : [input] (optional) if present, a shift of
+	 *   -1 is done in the multipolar spectrum in terms of \f$\ell\f$. 
+	 *   The value of this variable gives the minimal value of (the shifted)
+	 *   \f$\ell\f$ for which the wave equation is solved.\\
+	 *   \c par.get_tensor_mod(0)  : [input] (optional) if the wave 
 	 *   equation is on a curved space-time, this is the potential in front
 	 *   of the Laplace operator. It has to be updated at every time-step
 	 *   (for a potential depending on time).\\
