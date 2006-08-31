@@ -30,6 +30,9 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2006/08/31 12:13:22  j_novak
+ * Added an argument of type Param to Sym_tensor_trans::sol_Dirac_A().
+ *
  * Revision 1.12  2006/06/26 09:28:13  j_novak
  * Added a forgotten initialisation in set_AtB_trace_zero().
  *
@@ -81,6 +84,7 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 
 // Lorene headers
 #include "tensor.h"
+#include "param.h"
 
 void Sym_tensor_trans::set_hrr_mu_det_one(const Scalar& hrr, const Scalar& mu_in,
 					  double precis, int it_max ) {
@@ -207,7 +211,7 @@ void Sym_tensor_trans::set_AtB_det_one(const Scalar& a_in, const Scalar& tb_in,
     //-------------------------------
     Scalar mu_over_r(*mp) ;
     Scalar x_new(*mp) ;
-    sol_Dirac_A(a_in, mu_over_r, x_new) ;
+    sol_Dirac_A(a_in, mu_over_r, x_new, par) ;
 
     // Preparation for the iteration
     //------------------------------
@@ -271,7 +275,7 @@ void Sym_tensor_trans::set_AtB_trace_zero(const Scalar& a_in, const Scalar& tb_i
     //-------------------------------
     Scalar mu_over_r(*mp) ;
     Scalar x_new(*mp) ;
-    sol_Dirac_A(a_in, mu_over_r, x_new) ;
+    sol_Dirac_A(a_in, mu_over_r, x_new, par) ;
 
     // Computation of the other potentials
     //------------------------------------

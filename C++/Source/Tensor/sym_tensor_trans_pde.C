@@ -30,6 +30,9 @@ char sym_tensor_trans_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2006/08/31 12:13:22  j_novak
+ * Added an argument of type Param to Sym_tensor_trans::sol_Dirac_A().
+ *
  * Revision 1.10  2006/06/28 07:48:26  j_novak
  * Better treatment of some null cases.
  *
@@ -254,8 +257,8 @@ Sym_tensor_trans Sym_tensor_trans::poisson(const Scalar* h_guess) const {
     return resu ;   
 }
 
-void Sym_tensor_trans::sol_Dirac_A(const Scalar& aaa, Scalar& tilde_mu, Scalar& x_new) 
-    const {
+void Sym_tensor_trans::sol_Dirac_A(const Scalar& aaa, Scalar& tilde_mu, Scalar& x_new,
+				   const Param*) const {
 
     const Map_af* mp_aff = dynamic_cast<const Map_af*>(mp) ;
     assert(mp_aff != 0x0) ; //Only affine mapping for the moment
@@ -1527,7 +1530,7 @@ void Sym_tensor_trans::solve_hrr(const Scalar& sou_hrr, Scalar& hrr_new, int l_i
     //-----------------
     // Loop on l and m
     //-----------------
-    for (int k=0; k<np; k++)
+    for (int k=0; k<np+1; k++)
 	for (int j=0; j<nt; j++) {
 	    base.give_quant_numbers(0, k, j, m_q, l_q, base_r) ;
 	    if ((nullite_plm(j, nt, k, np, base) == 1) 

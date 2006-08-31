@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.40  2006/08/31 12:13:21  j_novak
+ * Added an argument of type Param to Sym_tensor_trans::sol_Dirac_A().
+ *
  * Revision 1.39  2006/06/20 12:07:13  j_novak
  * Improved execution speed for sol_Dirac_tildeB...
  *
@@ -644,7 +647,8 @@ class Sym_tensor_trans: public Sym_tensor {
 	 * @param tilde_mu [output] the solution \f$\tilde{\mu}\f$
 	 * @param xxx [output] the solution \e X
 	 */
-	void sol_Dirac_A(const Scalar& aaa, Scalar& tilde_mu, Scalar& xxx) const ;
+	void sol_Dirac_A(const Scalar& aaa, Scalar& tilde_mu, Scalar& xxx,
+			 const Param* par = 0x0) const ;
 
 	/** Solves a system of three coupled first-order PDEs obtained from 
 	 * divergence-free conditions (Dirac gauge) and the requirement that
