@@ -32,6 +32,9 @@ char sym_tensor__aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2006/08/31 12:12:43  j_novak
+ * Correction of a small mistake in a phi loop.
+ *
  * Revision 1.9  2006/06/28 07:48:26  j_novak
  * Better treatment of some null cases.
  *
@@ -428,7 +431,7 @@ const Scalar& Sym_tensor::compute_tilde_B(bool output_ylm, Param* par) const {
 	int np = mp->get_mg()->get_np(lz) ;
 	int nt = mp->get_mg()->get_nt(lz) ;
 	int nr = mp->get_mg()->get_nr(lz) ;
-	for (int k=0; k<np; k++)
+	for (int k=0; k<np+1; k++)
 	    for (int j=0; j<nt; j++) {
 		base.give_quant_numbers(lz, k, j, m_q, l_q, base_r) ;
 		if ( (nullite_plm(j, nt, k, np, base) == 1) && (l_q > 1))
