@@ -25,6 +25,9 @@ char map_af_dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2006/08/31 08:56:37  j_novak
+ * Added the possibility to have a shift in the quantum number l in the operator.
+ *
  * Revision 1.13  2004/06/08 14:01:27  j_novak
  * *** empty log message ***
  *
@@ -101,8 +104,6 @@ char map_af_dalembert_C[] = "$Header$" ;
 
 //**************************************************************************
 
-
-
 void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar& fjm1,
 		       const Scalar& source) const {
     
@@ -115,7 +116,7 @@ void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar&
     assert(fjp1.get_mp().get_mg() == mg) ;
 
     assert(par.get_n_double() == 1) ;
-    assert(par.get_n_int() == 1) ;
+    assert(par.get_n_int() >= 1) ;
     assert(par.get_n_int_mod() == 1) ;
     int& nap = par.get_int_mod() ;
     assert ((nap == 0) || (par.get_n_tbl_mod() > 1)) ;
@@ -211,7 +212,7 @@ void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar&
 	  a3.set(lz) = xm1/pm1+x1/p1-x0/p0 ;
 	}
 
-	for (int k=0; k<mg->get_np(lz); k++) 
+	for (int k=0; k<mg->get_np(lz)+2; k++) 
 	  for (int j=0; j<mg->get_nt(lz); j++) 
 	    for (int i=0; i<nr; i++)
 	      mime.set_grid_point(lz, k, j, i) = a1(lz) + erre(lz, 0, 0, i)*
@@ -233,13 +234,43 @@ void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar&
       sigma += (dt*dt) * source ;
       if (ced) sigma.annule_domain(nz-1) ;
       sigma += (0.5*dt*dt)*fjm1.laplacian() ;
+      if (par.get_n_int() > 1) { //there is a shift in the quantum number l
+	  int dl = -1 ;
+	  int l_min = par.get_int(1) ;
+	  sigma.set_spectral_va().ylm() ;      
+	  Scalar tmp = fjm1 ;
+	  if (ced) tmp.annule_domain(nz-1) ;
+	  tmp.div_r() ; tmp.div_r() ; // f^(J-1) / r^2
+	  tmp.set_spectral_va().ylm() ;
+	  const Base_val& base = tmp.get_spectral_base() ;
+	  int l_q, m_q, baser ;
+	
+	  for (int lz=0; lz<nz-1; lz++) {
+	      int nt = mg->get_nt(lz) ;
+	      int np = mg->get_np(lz) ;
+	      for (int k=0; k<np+2; k++) 
+		  for (int j=0; j<nt; j++) {
+		      base.give_quant_numbers(lz, k, j, m_q, l_q, baser) ;
+		      if ((nullite_plm(j, nt, k, np, base) == 1) && (l_q+dl >= l_min) ) {
+			  for (int i=0; i<mg->get_nr(lz); i++) {
+			      sigma.set_spectral_va().c_cf->set(lz, k, j, i) -=
+			      0.5*dt*dt*dl*(2*l_q + dl +1)
+				  *(*tmp.get_spectral_va().c_cf)(lz, k, j, i) ;
+			  }
+		      }
+		  }
+	  }
+	  if (sigma.get_spectral_va().c != 0x0) {
+	      delete sigma.set_spectral_va().c ;
+	      sigma.set_spectral_va().c = 0x0 ;
+	  }
+      }
     }
     if (ced) sigma.annule_domain(nz-1) ;
 
     //--------------------------------------------
     // The operator reads
     // Id - 0.5dt^2*(a1 + a2 r + a3 r^2)Laplacian
-    //
     //--------------------------------------------
     for (int i=0; i<nz; i++) {
 	coeff->set(1,i) = a1(i) ; 
@@ -257,17 +288,14 @@ void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar&
 
     // Defining the boundary conditions
     // --------------------------------
-
     double R = this->val_r(nz0-1, 1., 0., 0.) ;
     int nr = mg->get_nr(nz0-1) ;
     int nt = mg->get_nt(nz0-1) ;
     int np2 = mg->get_np(nz0-1) + 2;
 
-
     // For each pair of quantic numbers l, m one the result must satisfy
     // bc1 * f_{l,m} (R) + bc2 * f_{l,m}'(R) = tbc3_{l,m}
     // Memory is allocated for the parameter (par) at first call
-
     double* bc1 ;
     double* bc2 ;
     Tbl* tbc3 ;
@@ -352,7 +380,6 @@ void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar&
       if (ced) souphi.annule(nz-1) ;
       souphi.coef() ;
       souphi.ylm() ;
-      souphi = 4*dt*dt*souphi.lapang() ; 
 
       bool zero = (souphi.get_etat() == ETATZERO) ;
       if (zero) {
@@ -364,13 +391,14 @@ void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar&
 
       int l_s, m_s, base_r ;
       double val ;
+      int dl = (par.get_n_int() > 1) ? -1 : 0 ;
       for (int k=0; k<np2; k++) {
 	for (int j=0; j<nt; j++) {
 	  donne_lm(nz, nz0-1, j, k, souphi.base, m_s, l_s, base_r) ;
+	  l_s += dl ;
 	  val = 0. ;
 	  if (!zero)
-	    for (int i=0; i<nr; i++)
-	      val += (*souphi.c_cf)(nz0-1,k,j,i) ;
+	      val = -4*dt*dt*l_s*(l_s+1)*souphi.c_cf->val_out_bound_jk(nz0-1, j, k) ;
 	  double multi = 8*R*R + dt*dt*(6+3*l_s*(l_s+1)) + 12*R*dt ;
 	  val = ( 16*R*R*(*phij)(k,j) -
 		  (multi-24*R*dt)*(*phijm1)(k,j) 
@@ -414,29 +442,21 @@ void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar&
     }
 
     // Spherical harmonic expansion of the source
-    // ------------------------------------------
-    
+    // ------------------------------------------    
     Valeur& sourva = sigma.set_spectral_va() ; 
 
     // Spectral coefficients of the source
     assert(sourva.get_etat() == ETATQCQ) ; 
-    
-    sourva.coef() ; 
     sourva.ylm() ;			// spherical harmonic transforms 
-
 
     // Final result returned as a Scalar
     // ------------------------------
-    
     fjp1.set_etat_zero() ;  // to call Scalar::del_t().
-
     fjp1.set_etat_qcq() ; 
     
     // Call to the Mtbl_cf version
     // ---------------------------
     fjp1.set_spectral_va() = sol_dalembert(par, *this, *(sourva.c_cf) ) ;
-    
-
     fjp1.set_spectral_va().ylm_i() ; // Back to standard basis.	 
 
     if (ced) {

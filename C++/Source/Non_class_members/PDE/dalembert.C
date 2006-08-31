@@ -25,6 +25,9 @@ char dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2006/08/31 08:56:40  j_novak
+ * Added the possibility to have a shift in the quantum number l in the operator.
+ *
  * Revision 1.8  2004/10/05 15:44:21  j_novak
  * Minor speed enhancements.
  *
@@ -109,7 +112,14 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
   assert (par.get_n_double() > 0) ;
   assert (par.get_n_tbl_mod() > 1) ;
   
-    
+  //Is there a shift in the quantum number l?
+  int dl = 0 ;  //value of the shift
+  int l_min = 0 ; //the wave equation is solved only for l+dl >= l_min
+  if (par.get_n_int() > 1) {
+      dl = -1 ;
+      l_min = par.get_int(1) ;
+  }
+
   // Bases spectrales
   const Base_val& base = source.base ;
   
@@ -144,194 +154,188 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
   Tbl* tbc3 = &par.get_tbl_mod(1) ;
   
   for (int l=0 ; l<nz ; l++) {
-    solution_part.t[l]->set_etat_qcq() ;
-    solution_hom_un.t[l]->set_etat_qcq() ;
-    solution_hom_deux.t[l]->set_etat_qcq() ;
-  }
-  
-  int lz = 0 ;
-  
+    solution_part.t[l]->annule_hard() ;
+    solution_hom_un.t[l]->annule_hard() ;
+    solution_hom_deux.t[l]->annule_hard() ;
+  }  
   
   //---------------
   //--  NUCLEUS ---
   //---------------
-  
+  int lz = 0 ;
   nr = source.get_mg()->get_nr(lz) ;
+  so = new Tbl(nr) ;
   
   alpha = mapping.get_alpha()[lz] ;
   
   for (int k=0 ; k<np+1 ; k++) {
-    for (int j=0 ; j<nt ; j++) {
-      if (nullite_plm(j, nt, k, np, base) == 1) 
-	{
+      for (int j=0 ; j<nt ; j++) {
 	  // quantic numbers and spectral bases
-	  donne_lm(nz, lz, j, k, base, m_quant, l_quant, base_r) ;
-
-	  //Calculation of the coefficients of the operator
-	  par.get_tbl_mod().set(4,lz) = 2*par.get_tbl_mod()(2,lz) ;
-	  par.get_tbl_mod().set(5,lz) = 2*par.get_tbl_mod()(3,lz) ;
-	  par.get_tbl_mod().set(6,lz) = 2*par.get_tbl_mod()(1,lz) ;
-	  par.get_tbl_mod().set(7,lz) = 
-	    -l_quant*(l_quant+1)*par.get_tbl_mod()(3,lz) ;
-	  par.get_tbl_mod().set(8,lz) = 
-	    -l_quant*(l_quant+1)*par.get_tbl_mod()(2,lz) ;
-	  par.get_tbl_mod().set(9,lz) = 
-	    -l_quant*(l_quant+1)*par.get_tbl_mod()(1,lz) ;
+	  base.give_quant_numbers(lz, k, j, m_quant, l_quant, base_r) ;
+	  l_quant += dl ;
+	  if ( (nullite_plm(j, nt, k, np, base) == 1) && (l_quant >=l_min) )
+	  {
+	      //Calculation of the coefficients of the operator
+	      par.get_tbl_mod().set(4,lz) = 2*par.get_tbl_mod()(2,lz) ;
+	      par.get_tbl_mod().set(5,lz) = 2*par.get_tbl_mod()(3,lz) ;
+	      par.get_tbl_mod().set(6,lz) = 2*par.get_tbl_mod()(1,lz) ;
+	      par.get_tbl_mod().set(7,lz) = 
+		  -l_quant*(l_quant+1)*par.get_tbl_mod()(3,lz) ;
+	      par.get_tbl_mod().set(8,lz) = 
+		  -l_quant*(l_quant+1)*par.get_tbl_mod()(2,lz) ;
+	      par.get_tbl_mod().set(9,lz) = 
+		  -l_quant*(l_quant+1)*par.get_tbl_mod()(1,lz) ;
 	  
-	  Matrice operateur(nr,nr) ;
+	      Matrice operateur(nr,nr) ;
+	      
+	      get_operateur_dal(par, lz, base_r, type_dal, operateur) ;
+	      
+	      // Getting the particular solution
+	      so->set_etat_qcq() ;
+	      for (int i=0 ; i<nr ; i++)
+		  so->set(i) = source(lz, k, j, i) ;
+	      if ((type_dal == ORDRE1_LARGE) || (type_dal == O2DEGE_LARGE)
+		  || (type_dal == O2NOND_LARGE))
+		  so->set(nr-1) = 0 ;
+	      sol_part = new Tbl(dal_inverse(base_r, type_dal, operateur, 
+					     *so, true)) ;
+	      
+	      // Getting the homogeneous solution
+	      sol_hom = new Tbl(dal_inverse(base_r, type_dal, operateur, 
+					    *so, false)) ;
+	      
+	      // Putting to Mtbl_cf
+	      for (int i=0 ; i<nr ; i++) {
+		  solution_part.set(lz, k, j, i) = (*sol_part)(i) ;
+		  solution_hom_un.set(lz, k, j, i) = (*sol_hom)(i) ;
+		  solution_hom_deux.set(lz, k, j, i) = 0. ; 
+	      }
 	  
-	  get_operateur_dal(par, lz, base_r, type_dal, operateur) ;
-
-	  // Getting the particular solution
-	  so = new Tbl(nr) ;
-	  so->set_etat_qcq() ;
-	  for (int i=0 ; i<nr ; i++)
-	    so->set(i) = source(lz, k, j, i) ;
-	  if ((type_dal == ORDRE1_LARGE) || (type_dal == O2DEGE_LARGE)
-	      || (type_dal == O2NOND_LARGE))
-	    so->set(nr-1) = 0 ;
-	  sol_part = new Tbl(dal_inverse(base_r, type_dal, operateur, 
-					 *so, true)) ;
-	  
-	  // Getting the homogeneous solution
-	  sol_hom = new Tbl(dal_inverse(base_r, type_dal, operateur, 
-					*so, false)) ;
-	  
-	  
-	  // Putting to Mtbl_cf
-	  
-	  for (int i=0 ; i<nr ; i++) {
-	    solution_part.set(lz, k, j, i) = (*sol_part)(i) ;
-	    solution_hom_un.set(lz, k, j, i) = (*sol_hom)(i) ;
-	    solution_hom_deux.set(lz, k, j, i) = 0. ; 
-	  }
-	  
-	  // If only one zone, the BC is set
-	  if (nz0 == 1) {
-
-	    int base_pipo = 0 ;
-	    double part, dpart, hom, dhom;
-	    Tbl der_part(3,1,nr) ;
-	    der_part.set_etat_qcq() ;
-	    for (int i=0; i<nr; i++) 
-	      der_part.set(0,0,i) = (*sol_part)(i) ;
-	    Tbl der_hom(3,1,nr) ;
-	    der_hom.set_etat_qcq() ;
-	    for (int i=0; i<nr; i++) 
-	      der_hom.set(0,0,i) = (*sol_hom)(i) ;
-
-	    if (base_r == R_CHEBP) {
-	      som_r_chebp(sol_part->t, nr, 1, 1, 1., &part) ;
-	      _dsdx_r_chebp(&der_part, base_pipo) ;
-	      som_r_chebi(der_part.t, nr, 1, 1, 1., &dpart) ;
-	      som_r_chebp(sol_hom->t, nr, 1, 1, 1., &hom) ;
-	      _dsdx_r_chebp(&der_hom, base_pipo) ;
-	      som_r_chebi(der_hom.t, nr, 1, 1, 1., &dhom) ;
-	    }
-	    else {
-	      som_r_chebi(sol_part->t, nr, 1, 1, 1., &part) ;
-	      _dsdx_r_chebi(&der_part, base_pipo) ;
-	      som_r_chebp(der_part.t, nr, 1, 1, 1., &dpart) ;
-	      som_r_chebi(sol_hom->t, nr, 1, 1, 1., &hom) ;
-	      _dsdx_r_chebi(&der_hom, base_pipo) ;
-	      som_r_chebp(der_hom.t, nr, 1, 1, 1., &dhom) ;
-	    }
+	      // If only one zone, the BC is set
+	      if (nz0 == 1) {
+		  
+		  int base_pipo = 0 ;
+		  double part, dpart, hom, dhom;
+		  Tbl der_part(3,1,nr) ;
+		  der_part.set_etat_qcq() ;
+		  for (int i=0; i<nr; i++) 
+		      der_part.set(0,0,i) = (*sol_part)(i) ;
+		  Tbl der_hom(3,1,nr) ;
+		  der_hom.set_etat_qcq() ;
+		  for (int i=0; i<nr; i++) 
+		      der_hom.set(0,0,i) = (*sol_hom)(i) ;
+		  
+		  if (base_r == R_CHEBP) {
+		      som_r_chebp(sol_part->t, nr, 1, 1, 1., &part) ;
+		      _dsdx_r_chebp(&der_part, base_pipo) ;
+		      som_r_chebi(der_part.t, nr, 1, 1, 1., &dpart) ;
+		      som_r_chebp(sol_hom->t, nr, 1, 1, 1., &hom) ;
+		      _dsdx_r_chebp(&der_hom, base_pipo) ;
+		      som_r_chebi(der_hom.t, nr, 1, 1, 1., &dhom) ;
+		  }
+		  else {
+		      som_r_chebi(sol_part->t, nr, 1, 1, 1., &part) ;
+		      _dsdx_r_chebi(&der_part, base_pipo) ;
+		      som_r_chebp(der_part.t, nr, 1, 1, 1., &dpart) ;
+		      som_r_chebi(sol_hom->t, nr, 1, 1, 1., &hom) ;
+		      _dsdx_r_chebi(&der_hom, base_pipo) ;
+		      som_r_chebp(der_hom.t, nr, 1, 1, 1., &dhom) ;
+		  }
 	    
-	    part = part*(*bc1) + dpart*(*bc2)/alpha ;
-	    hom = hom*(*bc1) + dhom*(*bc2)/alpha ;
-	    double lambda = ((*tbc3)(k,j) - part) / hom ;
-	    for (int i=0 ; i<nr ; i++)
-	      resultat.set(lz, k, j, i) = 
-		solution_part(lz, k, j, i)
-		+lambda*solution_hom_un(lz, k, j, i) ; 
-	  }
-	  
-	  delete so ;
-	  delete sol_hom ;
-	  delete sol_part ;
-	}
-    }
-  }  
+		  part = part*(*bc1) + dpart*(*bc2)/alpha ;
+		  hom = hom*(*bc1) + dhom*(*bc2)/alpha ;
+		  double lambda = ((*tbc3)(k,j) - part) / hom ;
+		  for (int i=0 ; i<nr ; i++)
+		      resultat.set(lz, k, j, i) = 
+			  solution_part(lz, k, j, i)
+			  +lambda*solution_hom_un(lz, k, j, i) ; 
+	      }
+	      
+	      delete sol_hom ;
+	      delete sol_part ;
+	  } // nullite_plm
+      } // theta loop
+  } // phi loop  
+  delete so ;
 
   //---------------------
   //--      SHELLS     --
   //---------------------
   for (lz=1 ; lz<nz0 ; lz++) {
     nr = source.get_mg()->get_nr(lz) ;
-    
+    so = new Tbl(nr) ;
     alpha = mapping.get_alpha()[lz] ;
     beta = mapping.get_beta()[lz] ;
     
     for (int k=0 ; k<np+1 ; k++)
-      for (int j=0 ; j<nt ; j++) 
-	if (nullite_plm(j, nt, k, np, base) == 1)
-	  {
-	    // calcul des nombres quantiques :
-	    donne_lm(nz, lz, j, k, base, m_quant, l_quant, base_r) ;
+	for (int j=0 ; j<nt ; j++) {
+	    // quantic numbers and spectral bases
+	    base.give_quant_numbers(lz, k, j, m_quant, l_quant, base_r) ;
+	    l_quant += dl ;
+	    if ( (nullite_plm(j, nt, k, np, base) == 1) && (l_quant >=l_min) )
+	    {
+		//Calculation of the coefficients of the operator
+		par.get_tbl_mod().set(4,lz) = 2*par.get_tbl_mod()(2,lz) ;
+		par.get_tbl_mod().set(5,lz) = 2*par.get_tbl_mod()(3,lz) ;
+		par.get_tbl_mod().set(6,lz) = 2*par.get_tbl_mod()(1,lz) ;
+		par.get_tbl_mod().set(7,lz) = 
+		    -l_quant*(l_quant+1)*par.get_tbl_mod()(3,lz) ;
+		par.get_tbl_mod().set(8,lz) = 
+		    -l_quant*(l_quant+1)*par.get_tbl_mod()(2,lz) ;
+		par.get_tbl_mod().set(9,lz) = 
+		    -l_quant*(l_quant+1)*par.get_tbl_mod()(1,lz) ;
+		
+		Matrice operateur(nr,nr) ;
+		
+		get_operateur_dal(par, lz, base_r, type_dal, operateur) ;
+		
+		// Calcul DES DEUX SH
+		so->set_etat_qcq() ;
+		for (int i=0; i<nr; i++) so->set(i) = 0. ;
+		so->set(nr-2) = 1. ;
+		sol_hom = new Tbl(dal_inverse(base_r, type_dal, operateur, *so,
+					      false)) ;
+		so->set(nr-2) = 0. ;
+		so->set(nr-1) = 1. ;
+		sol_hom2 = new Tbl(dal_inverse(base_r, type_dal, operateur, *so,
+					       false)) ;
+		
+		// Calcul de la SP
+		double *tmp = new double[nr] ;
+		for (int i=0 ; i<nr ; i++)
+		    tmp[i] = source(lz, k, j, i) ;
+		if ((type_dal == O2DEGE_SMALL) || (type_dal == O2DEGE_LARGE)) {
+		    for (int i=0; i<nr; i++) so->set(i) = beta*tmp[i] ;
+		    multx_1d(nr, &tmp, R_CHEB) ;
+		    for (int i=0; i<nr; i++) so->set(i) += alpha*tmp[i] ;
+		}
+		else {
+		    for (int i=0; i<nr; i++) so->set(i) = beta*beta*tmp[i] ;
+		    multx_1d(nr, &tmp, R_CHEB) ;
+		    for (int i=0; i<nr; i++) so->set(i) += 2*alpha*beta*tmp[i] ;
+		    multx_1d(nr, &tmp, R_CHEB) ;
+		    for (int i=0; i<nr; i++) so->set(i) += alpha*alpha*tmp[i] ;
+		}
+		so->set(nr-2) = 0. ;
+		so->set(nr-1) = 0. ;
+		
+		sol_part = new Tbl (dal_inverse(base_r, type_dal, operateur, 
+						*so, true)) ;		
+		// Rangement
+		for (int i=0 ; i<nr ; i++) {
+		    solution_part.set(lz, k, j, i) = (*sol_part)(i) ;
+		    solution_hom_un.set(lz, k, j, i) = (*sol_hom)(i) ;
+		    solution_hom_deux.set(lz, k, j, i) = (*sol_hom2)(i) ;
+		}
 	    
-	    //Calculation of the coefficients of the operator
-	    par.get_tbl_mod().set(4,lz) = 2*par.get_tbl_mod()(2,lz) ;
-	    par.get_tbl_mod().set(5,lz) = 2*par.get_tbl_mod()(3,lz) ;
-	    par.get_tbl_mod().set(6,lz) = 2*par.get_tbl_mod()(1,lz) ;
-	    par.get_tbl_mod().set(7,lz) = 
-	      -l_quant*(l_quant+1)*par.get_tbl_mod()(3,lz) ;
-	    par.get_tbl_mod().set(8,lz) = 
-	      -l_quant*(l_quant+1)*par.get_tbl_mod()(2,lz) ;
-	    par.get_tbl_mod().set(9,lz) = 
-	      -l_quant*(l_quant+1)*par.get_tbl_mod()(1,lz) ;
-	  
-	    Matrice operateur(nr,nr) ;
-
-	    get_operateur_dal(par, lz, base_r, type_dal, operateur) ;
-	    
-	    // Calcul DES DEUX SH
-	    so = new Tbl(nr) ;
-	    so->set_etat_qcq() ;
-	    for (int i=0; i<nr; i++) so->set(i) = 0. ;
-	    so->set(nr-2) = 1. ;
-	    sol_hom = new Tbl(dal_inverse(base_r, type_dal, operateur, *so,
-					  false)) ;
-	    so->set(nr-2) = 0. ;
-	    so->set(nr-1) = 1. ;
-	    sol_hom2 = new Tbl(dal_inverse(base_r, type_dal, operateur, *so,
-					  false)) ;
-	    
-	    // Calcul de la SP
-	    double *tmp = new double[nr] ;
-	    for (int i=0 ; i<nr ; i++)
-	      tmp[i] = source(lz, k, j, i) ;
-	    if ((type_dal == O2DEGE_SMALL) || (type_dal == O2DEGE_LARGE)) {
-	      for (int i=0; i<nr; i++) so->set(i) = beta*tmp[i] ;
-	      multx_1d(nr, &tmp, R_CHEB) ;
-	      for (int i=0; i<nr; i++) so->set(i) += alpha*tmp[i] ;
+		delete [] tmp ;
+		delete sol_hom ;
+		delete sol_hom2 ;
+		delete sol_part ;
 	    }
-	    else {
-	      for (int i=0; i<nr; i++) so->set(i) = beta*beta*tmp[i] ;
-	      multx_1d(nr, &tmp, R_CHEB) ;
-	      for (int i=0; i<nr; i++) so->set(i) += 2*alpha*beta*tmp[i] ;
-	      multx_1d(nr, &tmp, R_CHEB) ;
-	      for (int i=0; i<nr; i++) so->set(i) += alpha*alpha*tmp[i] ;
-	    }
-	    so->set(nr-2) = 0. ;
-	    so->set(nr-1) = 0. ;
-	    
-	    sol_part = new Tbl (dal_inverse(base_r, type_dal, operateur, 
-					    *so, true)) ;
-
-	    // Rangement
-	    for (int i=0 ; i<nr ; i++) {
-	      solution_part.set(lz, k, j, i) = (*sol_part)(i) ;
-	      solution_hom_un.set(lz, k, j, i) = (*sol_hom)(i) ;
-	      solution_hom_deux.set(lz, k, j, i) = (*sol_hom2)(i) ;
-	    }
-	    
-	    delete [] tmp ;
-	    delete so ;
-	    delete sol_hom ;
-	    delete sol_hom2 ;
-	    delete sol_part ;
-	  }
-  }
+	} // theta loop
+    delete so ;
+  } // domain loop
   if (nz0 > 1) {
     //--------------------------------------------------------------------
     //
@@ -348,143 +352,144 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
     int inf = (nz0>2) ? 2 : 1 ;
     for (int k=0; k<np+1; k++) {
       for (int j=0; j<nt; j++) {
-	if (nullite_plm(j, nt, k, np, base)) {
 	  // To get the r basis in the nucleus
-	  donne_lm (nz, 0, j, k, base, m_quant, l_quant, base_r) ;
-	  assert ((base_r == R_CHEBP)||(base_r == R_CHEBI)) ;
-	  int parite = (base_r == R_CHEBP) ? 0 : 1 ;
-	  int l ; 
-	  int c ;
-	  double xx = 0.;
-	  for (l=0; l<taille; l++) 
-	    for (c=0; c<taille; c++) systeme.set(l,c) = xx ;
-	  for (l=0; l<taille; l++) deuz.set(l) = xx ;
+	  base.give_quant_numbers(0, k, j, m_quant, l_quant, base_r) ;
+	  if ( (nullite_plm(j, nt, k, np, base)) && (l_quant + dl >= l_min) ) {
+	      assert ((base_r == R_CHEBP)||(base_r == R_CHEBI)) ;
+	      int parite = (base_r == R_CHEBP) ? 0 : 1 ;
+	      int l, c ; 
+	      double xx = 0.;
+	      for (l=0; l<taille; l++) 
+		  for (c=0; c<taille; c++) systeme.set(l,c) = xx ;
+	      for (l=0; l<taille; l++) deuz.set(l) = xx ;
 	  
-	  //---------
-	  // Nucleus
-	  //---------
-	  nr = source.get_mg()->get_nr(0) ;
-	  alpha = mapping.get_alpha()[0] ;
-	  l=0 ; c=0 ;
-	  for (int i=0; i<nr; i++) 
-	    systeme.set(l,c) += solution_hom_un(0, k, j, i) ;
-
-	  for (int i=0; i<nr; i++) deuz.set(l) -= solution_part(0, k, j, i) ;
-
-	  l++ ;
-	  xx = 0. ;
-	  for (int i=0; i<nr; i++)
-	      xx +=(2*i+parite)*(2*i+parite)
-		*solution_hom_un(0, k, j, i) ;
-	  systeme.set(l,c) += xx/alpha ;
-	  xx = 0. ; 
-	  for (int i=0; i<nr; i++) xx -= (2*i+parite)*
-				     (2*i+parite)*solution_part(0, k, j, i) ;
-	  deuz.set(l) += xx/alpha ;
-	  
-	  //----------
-	  //  Shells
-	  //----------
-	  for (lz=1; lz<nz0; lz++) {
-	    nr = source.get_mg()->get_nr(lz) ;
-	    alpha = mapping.get_alpha()[lz] ;
-	    l-- ; 
-	    c = l+1 ;
-	    for (int i=0; i<nr; i++) 
-	      if (i%2 == 0)
-		systeme.set(l,c) -= solution_hom_un(lz, k, j, i) ;
-	      else
-		systeme.set(l,c) += solution_hom_un(lz, k, j, i) ;
-	    c++ ;
-	    for (int i=0; i<nr; i++) 
-	      if (i%2 == 0)
-		systeme.set(l,c) -= solution_hom_deux(lz, k, j, i) ;
-	      else
-		systeme.set(l,c) += solution_hom_deux(lz, k, j, i) ;
-	    for (int i=0; i<nr; i++) 
-	      if (i%2 == 0) deuz.set(l) += solution_part(lz, k, j, i) ;
-	      else deuz.set(l) -= solution_part(lz, k, j, i) ;
-	    
-	    l++ ; c-- ;
-	    xx = 0. ;
-	    for (int i=0; i<nr; i++) 
-	      if (i%2 == 0)
-		xx += i*i*solution_hom_un(lz, k, j, i) ;
-	      else
-		xx -= i*i*solution_hom_un(lz, k, j, i) ;
-	    systeme.set(l,c) += xx/alpha ;
-	    c++ ;
-	    xx = 0. ;
-	    for (int i=0; i<nr; i++) 
-	      if (i%2 == 0)
-		xx += i*i*solution_hom_deux(lz, k, j, i) ;
-	      else
-		xx -= i*i*solution_hom_deux(lz, k, j, i) ;
-	    systeme.set(l,c) += xx/alpha ;
-	    xx = 0. ;
-	    for (int i=0; i<nr; i++) 
-	      if (i%2 == 0) xx -= i*i*solution_part(lz, k, j, i) ;
-	      else xx += i*i*solution_part(lz, k, j, i) ;
-	    deuz.set(l) += xx/alpha ;
-
-	    l++ ; c--;
-	    if (lz == nz0-1) { // Last domain, the outer BC is set
-	      for (int i=0; i<nr; i++) systeme.set(l,c) +=
-		((*bc1)+(*bc2)*i*i/alpha)*solution_hom_un(lz, k, j, i) ;
-	      c++ ;
-	      for (int i=0; i<nr; i++) systeme.set(l,c) +=
-		((*bc1)+(*bc2)*i*i/alpha)*solution_hom_deux(lz, k, j, i) ;
-	      for (int i=0; i<nr; i++) deuz.set(l) -=
-		((*bc1)+(*bc2)*i*i/alpha)*solution_part(lz, k, j, i) ;
-	      deuz.set(l) += (*tbc3)(k,j) ;
-	    }
-	    else { // At least one more shell
+	      //---------
+	      // Nucleus
+	      //---------
+	      nr = source.get_mg()->get_nr(0) ;
+	      alpha = mapping.get_alpha()[0] ;
+	      l=0 ; c=0 ;
 	      for (int i=0; i<nr; i++) 
-		systeme.set(l,c) += solution_hom_un(lz, k, j, i) ;
-	      c++ ;
-	      for (int i=0; i<nr; i++) 
-		systeme.set(l,c) += solution_hom_deux(lz, k, j, i) ;
-	      for (int i=0; i<nr; i++) 
-		deuz.set(l) -= solution_part(lz, k, j, i) ;
-	      l++ ; c-- ;
+		  systeme.set(l,c) += solution_hom_un(0, k, j, i) ;
+	      for (int i=0; i<nr; i++) deuz.set(l) -= solution_part(0, k, j, i) ;
+	      
+	      l++ ;
 	      xx = 0. ;
-	      for (int i=0; i<nr; i++) xx += i*i*solution_hom_un(lz, k, j, i) ;
+	      for (int i=0; i<nr; i++)
+		  xx +=(2*i+parite)*(2*i+parite)
+		      *solution_hom_un(0, k, j, i) ;
 	      systeme.set(l,c) += xx/alpha ;
-	      c++ ;
-	      xx = 0. ;
-	      for (int i=0; i<nr; i++) 
-		xx += i*i*solution_hom_deux(lz, k, j, i) ;
-	      systeme.set(l,c) += xx/alpha ;
-	      xx = 0. ;
-	      for (int i=0; i<nr; i++) 
-		xx -= i*i*solution_part(lz, k, j, i) ;	 
+	      xx = 0. ; 
+	      for (int i=0; i<nr; i++) xx -= (2*i+parite)*
+					   (2*i+parite)*solution_part(0, k, j, i) ;
 	      deuz.set(l) += xx/alpha ;
-	    }
-	  }
-
-	  //--------------------------------------
-	  //   Solution of the linear system
-	  //--------------------------------------
 	  
-	  systeme.set_band(sup, inf) ;
-	  systeme.set_lu() ;
-	  Tbl facteur(systeme.inverse(deuz)) ;
+	      //----------
+	      //  Shells
+	      //----------
+	      for (lz=1; lz<nz0; lz++) {
+		  nr = source.get_mg()->get_nr(lz) ;
+		  alpha = mapping.get_alpha()[lz] ;
+		  l-- ; 
+		  c = l+1 ;
+		  for (int i=0; i<nr; i++) 
+		      if (i%2 == 0)
+			  systeme.set(l,c) -= solution_hom_un(lz, k, j, i) ;
+		      else
+			  systeme.set(l,c) += solution_hom_un(lz, k, j, i) ;
+		  c++ ;
+		  for (int i=0; i<nr; i++) 
+		      if (i%2 == 0)
+			  systeme.set(l,c) -= solution_hom_deux(lz, k, j, i) ;
+		      else
+			  systeme.set(l,c) += solution_hom_deux(lz, k, j, i) ;
+		  for (int i=0; i<nr; i++) 
+		      if (i%2 == 0) deuz.set(l) += solution_part(lz, k, j, i) ;
+		      else deuz.set(l) -= solution_part(lz, k, j, i) ;
+		  
+		  l++ ; c-- ;
+		  xx = 0. ;
+		  for (int i=0; i<nr; i++) 
+		      if (i%2 == 0)
+			  xx += i*i*solution_hom_un(lz, k, j, i) ;
+		      else
+			  xx -= i*i*solution_hom_un(lz, k, j, i) ;
+		  systeme.set(l,c) += xx/alpha ;
+		  c++ ;
+		  xx = 0. ;
+		  for (int i=0; i<nr; i++) 
+		      if (i%2 == 0)
+			  xx += i*i*solution_hom_deux(lz, k, j, i) ;
+		      else
+			  xx -= i*i*solution_hom_deux(lz, k, j, i) ;
+		  systeme.set(l,c) += xx/alpha ;
+		  xx = 0. ;
+		  for (int i=0; i<nr; i++) 
+		      if (i%2 == 0) xx -= i*i*solution_part(lz, k, j, i) ;
+		      else xx += i*i*solution_part(lz, k, j, i) ;
+		  deuz.set(l) += xx/alpha ;
+		  
+		  l++ ; c--;
+		  if (lz == nz0-1) { // Last domain, the outer BC is set
+		      for (int i=0; i<nr; i++) 
+			  systeme.set(l,c) +=
+			      ((*bc1)+(*bc2)*i*i/alpha)*solution_hom_un(lz, k, j, i) ;
+		      c++ ;
+		      for (int i=0; i<nr; i++) 
+			  systeme.set(l,c) +=
+			      ((*bc1)+(*bc2)*i*i/alpha)*solution_hom_deux(lz, k, j, i) ;
+		      for (int i=0; i<nr; i++) 
+			  deuz.set(l) -=
+			      ((*bc1)+(*bc2)*i*i/alpha)*solution_part(lz, k, j, i) ;
+		      deuz.set(l) += (*tbc3)(k,j) ;
+		  }
+		  else { // At least one more shell
+		      for (int i=0; i<nr; i++) 
+			  systeme.set(l,c) += solution_hom_un(lz, k, j, i) ;
+		      c++ ;
+		      for (int i=0; i<nr; i++) 
+			  systeme.set(l,c) += solution_hom_deux(lz, k, j, i) ;
+		      for (int i=0; i<nr; i++) 
+			  deuz.set(l) -= solution_part(lz, k, j, i) ;
+		      l++ ; c-- ;
+		      xx = 0. ;
+		      for (int i=0; i<nr; i++) xx += i*i*solution_hom_un(lz, k, j, i) ;
+		      systeme.set(l,c) += xx/alpha ;
+		      c++ ;
+		      xx = 0. ;
+		      for (int i=0; i<nr; i++) 
+			  xx += i*i*solution_hom_deux(lz, k, j, i) ;
+		      systeme.set(l,c) += xx/alpha ;
+		      xx = 0. ;
+		      for (int i=0; i<nr; i++) 
+			  xx -= i*i*solution_part(lz, k, j, i) ;	 
+		      deuz.set(l) += xx/alpha ;
+		  }
+	      }
 
-	  //Linear Combination in the nucleus
-	  nr = source.get_mg()->get_nr(0) ;
-	  for (int i=0; i<nr; i++) 
-	    resultat.set(0, k, j, i) = solution_part(0, k, j, i) 
-	      + facteur(0)*solution_hom_un(0, k, j, i) ;
+	      //--------------------------------------
+	      //   Solution of the linear system
+	      //--------------------------------------
 	  
-	  //Linear combination in the shells
-	  for (lz=1; lz<nz0; lz++) {
-	    nr = source.get_mg()->get_nr(lz) ;
-	    for (int i=0; i<nr; i++) 
-	      resultat.set(lz, k, j, i) = solution_part(lz, k, j, i) 
-		+ facteur(2*lz-1)*solution_hom_un(lz, k, j, i) 
-		+ facteur(2*lz)*solution_hom_deux(lz, k, j, i) ;
-	  }
-	}
+	      systeme.set_band(sup, inf) ;
+	      systeme.set_lu() ;
+	      Tbl facteur(systeme.inverse(deuz)) ;
+	      
+	      //Linear Combination in the nucleus
+	      nr = source.get_mg()->get_nr(0) ;
+	      for (int i=0; i<nr; i++) 
+		  resultat.set(0, k, j, i) = solution_part(0, k, j, i) 
+		      + facteur(0)*solution_hom_un(0, k, j, i) ;
+	      
+	      //Linear combination in the shells
+	      for (lz=1; lz<nz0; lz++) {
+		  nr = source.get_mg()->get_nr(lz) ;
+		  for (int i=0; i<nr; i++) 
+		      resultat.set(lz, k, j, i) = solution_part(lz, k, j, i) 
+			  + facteur(2*lz-1)*solution_hom_un(lz, k, j, i) 
+			  + facteur(2*lz)*solution_hom_deux(lz, k, j, i) ;
+	      }
+	  }	       
       } //End of j/theta loop   
     } //End of k/phi loop 
   } //End of case nz0>1
