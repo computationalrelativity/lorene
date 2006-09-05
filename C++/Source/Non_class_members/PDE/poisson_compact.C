@@ -25,6 +25,9 @@ char poisson_compact_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2006/09/05 13:39:46  p_grandclement
+ * update of the bin_ns_bh project
+ *
  * Revision 1.2  2002/10/16 14:37:12  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -79,7 +82,7 @@ Mtbl_cf sol_poisson_compact(const Mtbl_cf& source, double a, double b,
     assert (b<0) ;
     
     // Les tableaux de stockage :
-    const int nmax = 50 ;
+    const int nmax = 200 ;
     static Matrice* tab_op[nmax] ;
     static int nb_deja_fait = 0 ;
     static int l_deja_fait[nmax] ;

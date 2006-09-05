@@ -32,6 +32,9 @@ char map_et_adapt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2006/09/05 13:39:45  p_grandclement
+ * update of the bin_ns_bh project
+ *
  * Revision 1.6  2006/05/17 13:27:12  j_novak
  * Removed strange character on line 534.
  *
@@ -50,7 +53,7 @@ char map_et_adapt_C[] = "$Header$" ;
  * Revision 1.1.1.1  2001/11/20 15:19:27  e_gourgoulhon
  * LORENE
  *
- * Revision 2.6  2000/11/10  15:19:30  eric
+ * Revision 2.6  2000/11/10  15:19:300  eric
  * Appel de Valeur::equipot_outward plutot que Valeur::equipot
  *   dans la determination des isopotentielles.
  *
@@ -533,8 +536,8 @@ void Map_et::adapt(const Cmp& ent, const Param& par, int nbr_filtre) {
       ff.set_etat_cf_qcq() ;
       gg.set_etat_cf_qcq() ;
       for (int l=0 ; l<nzadapt+1 ; l++)
-	for (int k=0 ; k<np ; k++) 
-	  for (int j=nt-nbr_filtre ; j<nt ; j++) {
+	for (int k=np-nbr_filtre ; k<np ; k++) 
+	  for (int j=0 ; j<nt ; j++) {
 	    if (ff.c_cf->t[l]->get_etat() != ETATZERO)
 	      ff.c_cf->set(l, k,j,0) = 0 ;
 	  

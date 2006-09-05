@@ -31,6 +31,9 @@ char et_bin_nsbh_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2006/09/05 13:39:45  p_grandclement
+ * update of the bin_ns_bh project
+ *
  * Revision 1.9  2006/06/01 12:47:53  p_grandclement
  * update of the Bin_ns_bh project
  *
@@ -259,7 +262,7 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 	   } 
 	   
 	   // On adapte :  
-	   mp.adapt(ent(), par_adapt) ;
+	   mp.adapt(ent(), par_adapt, 4) ;
 	   mp_prev.homothetie(alpha_r) ;
 
 	   for (int l=nzet ; l<nz-1 ; l++)

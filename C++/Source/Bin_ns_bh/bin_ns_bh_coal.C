@@ -25,6 +25,9 @@ char bin_ns_bh_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2006/09/05 13:39:43  p_grandclement
+ * update of the bin_ns_bh project
+ *
  * Revision 1.8  2006/06/23 07:09:24  p_grandclement
  * Addition of spinning black hole
  *
@@ -162,6 +165,7 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
     mass_ns = star.mass_b() ;
     double spin_old ;
     double spin = 1;
+    bool adapt = true ;
 
     while (loop) {
       
@@ -200,7 +204,7 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
 	diff.set_etat_qcq() ;
 	int ite ;
 
-	bool adapt = true  ;
+
  	star.equilibrium_nsbh (adapt, ent_c, ite, itemax_equil, itemax_mp_et, relax, itemax_mp_et, relax,  diff) ;
 
 	hole.update_metric(star) ;    
@@ -287,7 +291,7 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
 	double convergence = fabs(mass_ns - old_mass_ns)/mass_ns ;
 	double rel_diff = fabs(error_m2) ;
 	if ((search_masses) && (convergence*2 < rel_diff)) {
-	      double scaling_ent = pow((2-error_m2)/(2-2*error_m2), 2) ;
+	      double scaling_ent = pow((2-error_m2)/(2-2*error_m2), 1) ;
 	      ent_c *= scaling_ent ;	
 	    
 	}
@@ -295,6 +299,9 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
 
 	
 	cout << "PAS TOTAL : " << conte << " DIFFERENCE : " << erreur << endl ;
+	//if (erreur < 1e-4)
+	  //adapt = false ;
+
 	if (erreur < precis)
 	    loop = false ;
 	conte ++ ;
