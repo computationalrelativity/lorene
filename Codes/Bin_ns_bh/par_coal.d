@@ -1,10 +1,9 @@
-25   # Coordinate distance
-5. 1. #Masses BH NS (in solar mass)
-1.e-3 #Treshold to converge to the masses
-1e-8 #precision
+10.0   # Coordinate distance between the objects
+7. 1.50912 #Masses BH (irreducible mass) NS (baryonic mass) (in solar mass)
+1.e-3 #Treshold to start the convergence to the right masses
+1e-7 #overall precision
 0.6 # relaxation
 1 #max poisson
-4 #autre truc poisson
-0.1 # spin
-0.5 #scale for modification of omega local
-
+4 #other stuff poisson
+0. # Spin of the BH
+0.2 # scale to modify the local rotation rate of the BH

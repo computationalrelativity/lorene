@@ -29,6 +29,9 @@ char init_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2006/09/06 11:52:46  p_grandclement
+ * Update of the Bin_ns_bh codes
+ *
  * Revision 1.6  2006/04/27 09:12:34  p_grandclement
  * First try at irrotational black holes
  *
@@ -307,7 +310,7 @@ int  main(){
     
     bibi.init_auto() ;   
     int ite ;
-    bibi.pseudo_misner (ite, 200, 0.5, precis) ;
+    bibi.pseudo_misner (ite, 200, 0.7, precis) ;
  
   
     cout << endl

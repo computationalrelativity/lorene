@@ -29,8 +29,8 @@ char coal_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.9  2006/06/23 07:09:25  p_grandclement
- * Addition of spinning black hole
+ * Revision 1.10  2006/09/06 11:52:46  p_grandclement
+ * Update of the Bin_ns_bh codes
  *
  * Revision 1.8  2006/06/01 12:47:54  p_grandclement
  * update of the Bin_ns_bh project
@@ -89,7 +89,7 @@ int main(int argc, char** argv) {
      //	    Parameters of the computation
      //------------------------------------------------------------------
     char blabla[120] ;
-    double distance, precis, relax, search, m1, m2, scale_ome_local, spin ;
+    double distance, precis, relax, search, m1, m2, scale_ome_local, spin, mirr ;
     int itemax_equil, itemax_mp_et ;
 
     char* name_fich = argv[1] ;
@@ -146,11 +146,13 @@ int main(int argc, char** argv) {
     
     // Masses in good units :
     m1 *= ggrav*msol ;
-    m2 *= msol ;
+    m2 *= msol ;  
     spin *= m1*m1 ;
+    mirr = sqrt(0.5*(m1*m1+sqrt(m1*m1*m1*m1-spin*spin))) ;
+  
 
     double ent_c_init = bin.get_ns().get_ent()()(0,0,0,0) ;
-    bin.coal (precis, relax, itemax_equil, itemax_mp_et, ent_c_init, search, distance, m1, m2, spin, scale_ome_local, 1) ;
+    bin.coal (precis, relax, itemax_equil, itemax_mp_et, ent_c_init, search, distance, mirr, m2, spin, scale_ome_local, 1) ;
 
     // On sauve
     char name[20] ;
