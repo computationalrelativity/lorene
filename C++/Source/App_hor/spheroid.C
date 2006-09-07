@@ -28,6 +28,9 @@ char spheroid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2006/09/07 08:39:45  j_novak
+ * Minor changes.
+ *
  * Revision 1.8  2006/07/03 10:13:48  n_vasset
  *  More efficient method for calculation of ricci tensor. Adding of flag issphere
  *
@@ -961,7 +964,8 @@ Tensor Spheroid::derive_cov2d(const Tensor& uu) const {
     }
     }
     else return derive_cov2dflat(uu);  
-    
+
+    return derive_cov2dflat(uu); // to avoid warnings...
 }
    
 

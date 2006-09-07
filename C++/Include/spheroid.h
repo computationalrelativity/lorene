@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2006/09/07 08:39:43  j_novak
+ * Minor changes.
+ *
  * Revision 1.6  2006/07/03 10:12:51  n_vasset
  * adding of flag isphere
  *
@@ -213,7 +216,7 @@ class Spheroid {
 	const Scalar& get_ggg() const {return ggg;} ;
 
         /// Returns the flag saying whether or not the horizon is geometrically round
-       const bool get_issphere() const{return issphere;}; 
+	bool get_issphere() const{return issphere;}; 
 
 	/// Sets the field \c h_surf
 	Scalar& set_hsurf() {del_deriv() ; return h_surf ; } ;
