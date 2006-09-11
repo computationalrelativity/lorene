@@ -17,16 +17,16 @@ CXX 	 = cxx
 
 # Options for the C++ compiler to produce the optimized library:
 # -------------------------------------------------------------
-CXXFLAGS = -w0 -ieee -O2 -DNDEBUG
+CXXFLAGS = -w0 -ieee -O2 -DNDEBUG -tweak
 
 # Options for the C++ compiler to produce the library for debugging:
 # -----------------------------------------------------------------
-CXXFLAGS_G = -w0 -ieee -g
+CXXFLAGS_G = -w0 -ieee -g -tweak
 
 # Path for the include files:
 # --------------------------
 INC	= -I$(HOME_LORENE)/C++/Include -I/usr/include/cxx \
-	  -I$(HOME_LORENE)/C++/Include_extra \
+	  -I$(HOME_LORENE)/C++/Include_extra -I/usr/local/include \
 	  -I$(HOME_LORENE)/Export/C++/Include
 
 # Converting archives to random libraries (if required, otherwise just ls)
@@ -68,7 +68,7 @@ FFT_DIR = FFT991
 
 # C, C++ library, mathematical library and Fortran library
 # ---------------------------------------------------------
-LIB_CXX = -lcxx -lcxxstd -lfor -lm -lc
+LIB_CXX = -lcxx -lcxxstd -lUfor -lfor -lm -lc
 
 # Linear Algebra Package (LAPACK) library
 # ---------------------------------------
@@ -77,11 +77,10 @@ LIB_LAPACK = -ldxml
 
 # Graphical libraries: PGPLOT and X11
 # -----------------------------------
-LIB_PGPLOT = -L/usr/local/lib -lcpgplot -lpgplot
-
+LIB_PGPLOT = -L/usr/local/lib -lcpgplot -lpgplot -lX11
 
 # GNU scientific library
 # -----------------------------------
-LIB_GSL = -lgsl -lgslcblas
+LIB_GSL = -L/usr/local/lib -lgsl -lgslcblas
 
 

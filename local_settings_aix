@@ -33,8 +33,8 @@ CXXFLAGS_G = -g -q64 -D__aix -qrtti
 
 # Path for the include files:
 # --------------------------
-INC	= -I$(HOME_LORENE)/C++/Include -I/usr/include/xlC \
-	  -I$(HOME_LORENE)/C++/Include_extra -I/usr/vacpp/include \
+INC	= -I$(HOME_LORENE)/C++/Include  \
+	  -I$(HOME_LORENE)/C++/Include_extra  \
 	  -I$(HOME_LORENE)/Export/C++/Include
 
 # Converting archives to random libraries (if required, otherwise just ls)
@@ -69,8 +69,8 @@ F77FLAGS_G = -g  -qfixed=128 -q64
 # if yours does not support the -M option try to figure out
 # how to output dependencies file, or use makedepend (2nd line)
 #--------------------------------------------------------------
-#MAKEDEPEND = xlC_r $(CXXFLAGS_G) $(INC) -M >> $(df).d $<
-MAKEDEPEND = touch $(df).d && makedepend $(INC) -f $(df).d $<
+MAKEDEPEND = xlC_r $(CXXFLAGS_G) $(INC) -E -M -MF$(df).d $< > out.txt && rm -f out.txt
+#MAKEDEPEND = touch $(df).d && makedepend $(INC) -I/usr/vacpp/include-f $(df).d $<
 DEPDIR = .deps
 
 #===============================#
