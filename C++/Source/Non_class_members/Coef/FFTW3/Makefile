@@ -7,26 +7,23 @@ BIN_TOOLS = $(HOME_LORENE)/bin
 SRC	= *.C
 
 install: $(SRC) Objects Objects_g
-	touch Dependencies
-	makedepend -f Dependencies $(INCDEP) $(INC) $(SRC)  # determines the dependencies
+	mkdir -p $(DEPDIR)
 	echo *C | $(BIN_TOOLS)/pointCpointo > List_obj     # list of *.o files
 	mv Objects_g/*.o .
 	mv _rien.o Objects_g
-	make -f Makefile_lib_g
+	$(MAKE) -f Makefile_lib_g
 	mv *.o Objects_g
 	mv Objects/*.o .
 	mv _rien.o Objects
-	make -f Makefile_lib
+	$(MAKE) -f Makefile_lib
 	mv *.o Objects
 
 uninstall:
 	rm -f *.o
-	rm Dependencies
-	touch Dependencies.bak
-	rm Dependencies.bak
 	rm List_obj
 	rm -fr Objects	
 	rm -fr Objects_g
+	rm -fr $(DEPDIR)
 
 Objects:
 	mkdir Objects

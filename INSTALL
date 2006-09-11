@@ -22,6 +22,8 @@ See also the file INSTALL_linux for some features specific to Linux.
   0.1/ Softwares absolutely required by LORENE:
        ----------------------------------------
 
+gmake: the GNU make utility
+
 a C++ compiler: any compiler compliant to the ISO norm of C++ should be able
     to compile LORENE
 
@@ -58,6 +60,8 @@ GSL  (GNU Scientific Library): LORENE uses the GSL library to compute Bessel
     If you are using Linux, note that GSL comes along with many Linux
     distributions.
 
+your C compiler / preprocessor must support a "-M" option to output a
+     dependency file, or use  
 makedepend: to create dependencies in makefiles. On Linux systems, makedepend 
     comes along with X11 development packages (for instance libxorg-x11-devel 
     in Mandriva 2006 or xorg-x11-devel in SuSE 9.2)
@@ -193,7 +197,7 @@ FORTRAN FFT, changing the FFT_DIR variable from FFT991 to FFTW3.
 The compilation of Lorene is launched via the command (in the HOME_LORENE
 directory)
 
-   	make
+   	gmake
 
 This will first create the Lorene documentation, including the HTML
 reference guide, provided Doxygen is installed on your system (see the 
@@ -207,10 +211,10 @@ If you run into trouble during the compilation, you can clean the C++ directory,
 leaving only the sources as downloaded by the CVS checkout command, by
 
 	cd $HOME_LORENE/C++
-	make uninstall
+	gmake uninstall
 	
 Then, you can fix the problem (e.g. add a path for include file in
-local_settings), and perform the make command again.
+local_settings), and perform the gmake command again.
 
 
 
@@ -220,7 +224,7 @@ local_settings), and perform the make command again.
 If everything went well with the compilation, you can check the link with
 LAPACK and PGPLOT libraries with
 
-	make test
+	gmake test
 
 This will produce three executables:
 
@@ -237,7 +241,7 @@ You should therefore run from time to time the commands
 
 	cd $HOME_LORENE
 	cvs update -d
-	make
+	gmake
 
 to get the latest version of LORENE. 
 The script $HOME_LORENE/lorene_up contains the above commands, so 
@@ -252,6 +256,6 @@ To restore the Lorene directory in the state it was just prior to step 4/
 (compilation), type
 
 	cd $HOME_LORENE
-	make uninstall
+	gmake uninstall
 	
 

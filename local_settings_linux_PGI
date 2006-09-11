@@ -8,15 +8,6 @@
 ###############################################################
 
 #===============================#
-#           MAKEDEPEND	        #
-#===============================#
-
-# Path for makedepend commands:
-# WARNING: this path may be very system (and version)-dependent
-INCDEP	= -I/opt/pgi/linux86/5.1/include/
-INCDEP	= -I/usr/include/g++-3
-
-#===============================#
 #           COMPILERS		#
 #===============================#
 
@@ -37,7 +28,8 @@ CXXFLAGS_G =  -g
 # --------------------------
 INC	= -I$(HOME_LORENE)/C++/Include \
           -I$(HOME_LORENE)/C++/Include_extra \
-	  -I/opt/pgi/linux86/5.1/include
+	  -I/opt/pgi/linux86/5.1/include \
+	  -I$(HOME_LORENE)/Export/C++/Include
 
 # Converting archives to random libraries (if required, otherwise just ls)
 # ------------------------------------------------------------------------
@@ -56,16 +48,28 @@ F77FLAGS = -O2
 # ------------------------------------------------------------------------
 F77FLAGS_G = -g
 
-# Type of FFT used: FFT991 in Fortran coming with Lorene
-#		    FFTW3 library (must be installed separately)
-# -------------------------------------------------------------------
-FFT_DIR = FFT991
+#===============================#
+#           MAKEDEPEND	        #
+#===============================#
+
+# First line uses the C precompiler (usually called cpp)
+# if yours does not support the -M option try to figure out
+# how to output dependencies file, or use makedepend (2nd line)
+#--------------------------------------------------------------
+#MAKEDEPEND = cpp $(INC) -M >> $(df).d $<
+MAKEDEPEND = touch $(df).d && makedepend $(INC) -f $(df).d $<
+DEPDIR = .deps
 
 #===============================#
 #      SYSTEM LIBRARIES		#
 #===============================#
 
-# C, C++ libarary, mathematical library and Fortran library
+# FFT library :   FFT991 in Fortran coming with Lorene
+#		  FFTW3 library (must be installed separately)
+# -------------------------------------------------------------------
+FFT_DIR = FFT991
+
+# C, C++ library, mathematical library and Fortran library
 # ---------------------------------------------------------
 ifeq ($(FFT_DIR),FFTW3)
 LIB_CXX = -lfftw3 -lpgftnrtl -lpgf90rtl -lpgf90 -lpgf90_rpm1 \

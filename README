@@ -38,7 +38,7 @@ where $HOME_LORENE stands for the path of directory Lorene (see file INSTALL).
 The LaTeX version of this manual can be produced as follows:
 	
 	cd $HOME_LORENE/Doc
-	make refguide.dvi
+	gmake refguide.dvi
 
 
 Using LORENE
@@ -81,7 +81,7 @@ You should therefore run from time to time the commands
 
 	cd $HOME_LORENE
 	cvs update -d
-	make
+	gmake
 
 to get the latest version of LORENE.
 The script $HOME_LORENE/lorene_up contains the above commands, so

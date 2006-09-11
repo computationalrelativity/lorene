@@ -23,6 +23,6 @@
  * 
  
 To generate the HTML documentation, simply type
-    make doc
+    gmake doc
 (this assumes that doxygen is installed on your system).
 Then open the file Doc/html/index.html in a web browser. 

@@ -8,16 +8,6 @@
 ###############################################################
 
 #===============================#
-#           MAKEDEPEND          #
-#===============================#
-
-# Flag for makedepend commands:
-# WARNING: this flag should only be used in conjunction with the CXXFLAG
-# otherwise (C++ compliant cimpiler) see local_settings_linux file
-INCDEP  = -I/usr/freeware/lib/gcc-lib/mips-sgi-irix6.5/3.3/include/c++/ \
--I/usr/freeware/lib/gcc-lib/mips-sgi-irix6.5/3.3/include/c++/mips-sgi-irix6.5/
-
-#===============================#
 #           COMPILERS		#
 #===============================#
 
@@ -36,7 +26,8 @@ CXXFLAGS_G = -Wall -Wconversion -Woverloaded-virtual -g
 # Path for the include files:
 # --------------------------
 INC	= -I$(HOME_LORENE)/C++/Include \
-		-I$(HOME_LORENE)/C++/Include_extra
+		-I$(HOME_LORENE)/C++/Include_extra \
+	  -I$(HOME_LORENE)/Export/C++/Include
 
 # Converting archives to random libraries (if required, otherwise just ls)
 # ------------------------------------------------------------------------
@@ -54,16 +45,28 @@ F77FLAGS = -n32 -mips4 -O2 -OPT:Olimit=3500 -extend_source
 # ------------------------------------------------------------------------
 F77FLAGS_G = -n32 -g -static -mips4 -O0 -extend_source
 
-# Type of FFT used: FFT991 in Fortran coming with Lorene
-#		    FFTW3 library (must be installed separately)
-# -------------------------------------------------------------------
-FFT_DIR = FFT991
+#===============================#
+#           MAKEDEPEND	        #
+#===============================#
+
+# First line uses the C precompiler (usually called cpp)
+# if yours does not support the -M option try to figure out
+# how to output dependencies file, or use makedepend (2nd line)
+#--------------------------------------------------------------
+MAKEDEPEND = g++ $(INC) -M >> $(df).d $<
+#MAKEDEPEND = touch $(df).d && makedepend $(INC) -f $(df).d $<
+DEPDIR = .deps
 
 #===============================#
 #      SYSTEM LIBRARIES		#
 #===============================#
 
-# C, C++ libarary, mathematical library and Fortran library
+# FFT library :   FFT991 in Fortran coming with Lorene
+#		  FFTW3 library (must be installed separately)
+# ---------------------------------------------------------------
+FFT_DIR = FFT991
+
+# C, C++ library, mathematical library and Fortran library
 # ---------------------------------------------------------
 LIB_CXX = -lm -L/usr/lib32 -lftn
 

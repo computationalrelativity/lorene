@@ -24,18 +24,18 @@ rotstar_dirac_diff: Code for differentially rotating stars in GR
 
 Typing
 
-	make name_of_main_code
+	gmake name_of_main_code
 
 where name_of_main_code = rotstar, rotdiff, rotseq or rotstar_dirac, 
 rotstar_dirac_diff will produce the executable in a non-optimized version 
 for debugging purposes.  To get an optimized version for production purposes 
 type instead
 
-	make -f Makefile_O2 name_of_main_code
+	gmake -f Makefile_O2 name_of_main_code
 
 You can clear everything by
 
-	make uninstall
+	gmake uninstall
 
 
 3/ Input parameters

@@ -11,7 +11,7 @@ read_bin_ns: code for reading a binary file containing data from a spectral comp
 To produce the documentation, type
 
         cd Doc
-        make
+        gmake
 
 Then you can either read the HTML version by
 
@@ -29,17 +29,17 @@ If not, you can nevertheless access to the online documentation in
 
 Typing
 
-	make
+	gmake
 
 will produce the executable read_bin_ns in a non-optimized version for
 debugging purposes. To get an optimized version for production purposes
 type instead
 
-	make -f Makefile_O2
+	gmake -f Makefile_O2
 
 You can clear everything by
 
-	make uninstall
+	gmake uninstall
 
 
 4/ Input parameters

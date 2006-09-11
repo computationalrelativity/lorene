@@ -5,27 +5,24 @@ include $(HOME_LORENE)/local_settings		  # defines which compiler,...
 BIN_TOOLS = $(HOME_LORENE)/bin
 
 SRC	= *.C
-INCEXP	  = $(INCDEP) $(INC) -I$(HOME_LORENE)/Export/C++/Include
 
 install: $(SRC) Objects Objects_g
-	touch Dependencies
-	makedepend -f Dependencies $(INCEXP) $(SRC)  # determines the dependencies
+	mkdir -p $(DEPDIR)
 	echo *C | $(BIN_TOOLS)/pointCpointo > List_obj     # list of *.o files
 	mv Objects_g/*.o .
-	make -f Makefile_lib_g
+	$(MAKE) -f Makefile_lib_g
 	mv *.o Objects_g
 	mv Objects/*.o .
-	make -f Makefile_lib
+	$(MAKE) -f Makefile_lib
 	touch $(HOME_LORENE)/Lib/date_mark
 	mv *.o Objects
 
 uninstall:
-	rm Dependencies
-	touch Dependencies.bak
-	rm Dependencies.bak
+	rm -f *.o
 	rm List_obj
 	rm -fr Objects	
 	rm -fr Objects_g
+	rm -fr $(DEPDIR)
 
 Objects:
 	mkdir Objects
