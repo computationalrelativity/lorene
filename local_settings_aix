@@ -34,8 +34,7 @@ CXXFLAGS_G = -g -q64 -D__aix -qrtti
 # Path for the include files:
 # --------------------------
 INC	= -I$(HOME_LORENE)/C++/Include  \
-	  -I$(HOME_LORENE)/C++/Include_extra  \
-	  -I$(HOME_LORENE)/Export/C++/Include
+	  -I$(HOME_LORENE)/C++/Include_extra 
 
 # Converting archives to random libraries (if required, otherwise just ls)
 # ------------------------------------------------------------------------

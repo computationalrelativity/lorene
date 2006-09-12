@@ -31,6 +31,10 @@ char bin_ns_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2006/09/12 08:04:07  j_novak
+ * Removal of the include path Export/C++/Include, updating of the relevant
+ * source files in Export/C++/Source.
+ *
  * Revision 1.4  2004/04/29 20:29:18  e_gourgoulhon
  * Corrected a bug in the computation of ener_spec.
  *
@@ -48,7 +52,7 @@ char bin_ns_aux_C[] = "$Header$" ;
  *
  */
 
-#include "bin_ns.h"
+#include "../Include/bin_ns.h"
 
 // C headers
 #include <string.h>

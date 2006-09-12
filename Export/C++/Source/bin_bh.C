@@ -29,6 +29,10 @@ char bin_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2006/09/12 08:04:05  j_novak
+ * Removal of the include path Export/C++/Include, updating of the relevant
+ * source files in Export/C++/Source.
+ *
  * Revision 1.2  2002/03/20 08:24:56  e_gourgoulhon
  * Added the derivatives of Psi.
  *
@@ -42,7 +46,7 @@ char bin_bh_C[] = "$Header$" ;
  */
 
 
-#include "bin_bh.h"
+#include "../Include/bin_bh.h"
 
 		    //-----------------------------------------//
 		    //	    Constructor from a binary file     //

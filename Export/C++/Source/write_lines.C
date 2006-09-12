@@ -29,6 +29,10 @@ char write_lines_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2006/09/12 08:04:07  j_novak
+ * Removal of the include path Export/C++/Include, updating of the relevant
+ * source files in Export/C++/Source.
+ *
  * Revision 1.2  2003/01/09 11:08:00  j_novak
  * headcpp.h is now compliant with C++ norm.
  * The include files have been ordered, as well as the local_settings_linux
@@ -41,15 +45,7 @@ char write_lines_C[] = "$Header$" ;
  *
  */
 
-#ifdef OBSOLETE_HEADERS
-
-#include <iostream.h>
-
-#else
-
-#include <iostream>
-using namespace std ;
-#endif
+#include "headcpp.h"
 
 void write_lines(ostream& fich, int dpl, const double* pdata, int np) {
 

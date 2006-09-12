@@ -30,6 +30,10 @@ char bin_bh_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2006/09/12 08:04:06  j_novak
+ * Removal of the include path Export/C++/Include, updating of the relevant
+ * source files in Export/C++/Source.
+ *
  * Revision 1.4  2006/04/27 09:12:35  p_grandclement
  * First try at irrotational black holes
  *
@@ -49,7 +53,7 @@ char bin_bh_aux_C[] = "$Header$" ;
  */
 
 
-#include "bin_bh.h"
+#include "../Include/bin_bh.h"
 
 // C headers
 #include <math.h>

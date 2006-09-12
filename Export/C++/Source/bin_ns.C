@@ -31,6 +31,10 @@ char bin_ns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2006/09/12 08:04:06  j_novak
+ * Removal of the include path Export/C++/Include, updating of the relevant
+ * source files in Export/C++/Source.
+ *
  * Revision 1.1  2002/01/11 17:03:02  e_gourgoulhon
  * Exportation of binary neutron stars configuration to a Cartesian grid
  *
@@ -39,7 +43,7 @@ char bin_ns_C[] = "$Header$" ;
  *
  */
 
-#include "bin_ns.h"
+#include "../Include/bin_ns.h"
 
 void write_lines(ostream& fich, int dpl, const double* pdata, int np) ;
 

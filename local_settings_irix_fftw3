@@ -27,8 +27,7 @@ CXXFLAGS_G = -n32 -g -mips4 -LANG:std -no_auto_include
 # Path for the include files:
 # --------------------------
 INC	= -I$(HOME_LORENE)/C++/Include -I/usr/include/CC \
-		-I$(HOME_LORENE)/C++/Include_extra -I/Octane/freeware/include \
-	  -I$(HOME_LORENE)/Export/C++/Include		
+		-I$(HOME_LORENE)/C++/Include_extra -I/Octane/freeware/include
 
 # Converting archives to random libraries (if required, otherwise just ls)
 # ------------------------------------------------------------------------

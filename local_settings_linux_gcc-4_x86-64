@@ -35,8 +35,7 @@ CXXFLAGS_G = -m64 -mtune=athlon64 -g -pedantic -Wall -W -Wundef -Wshadow -Wcast-
 # Path for the include files:
 # --------------------------
 INC	= -I$(HOME_LORENE)/C++/Include \
-          -I$(HOME_LORENE)/C++/Include_extra \
-	  -I$(HOME_LORENE)/Export/C++/Include
+          -I$(HOME_LORENE)/C++/Include_extra 
 
 # Converting archives to random libraries (if required, otherwise just ls)
 # ------------------------------------------------------------------------

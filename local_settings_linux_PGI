@@ -28,8 +28,7 @@ CXXFLAGS_G =  -g
 # --------------------------
 INC	= -I$(HOME_LORENE)/C++/Include \
           -I$(HOME_LORENE)/C++/Include_extra \
-	  -I/opt/pgi/linux86/5.1/include \
-	  -I$(HOME_LORENE)/Export/C++/Include
+	  -I/opt/pgi/linux86/5.1/include 
 
 # Converting archives to random libraries (if required, otherwise just ls)
 # ------------------------------------------------------------------------
