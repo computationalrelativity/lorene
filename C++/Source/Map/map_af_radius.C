@@ -30,6 +30,9 @@ char map_af_radius_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2006/09/13 13:59:21  j_novak
+ * Higher tolerance thereshold for Map_af::val_lx
+ *
  * Revision 1.3  2006/07/10 07:44:51  j_novak
  * Correction of the comparison between rmin and rr (now has to be greater than
  * some threshold).
@@ -119,7 +122,7 @@ void Map_af::val_lx(double rr, double, double, int& lz, double& xi) const {
 	    rmin = double(1)/rmin ; 
 	    rmax = double(1)/rmax ; 
 	}		
-	if ((rr - rmin >= -1.e-15*rmin) && ( rr <= rmax )) { 
+	if ((rr - rmin >= -1.e-14*rmin) && ( rr <= rmax )) { 
 	    lz = l ;
 	    break ; 
 	}	
