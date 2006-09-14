@@ -32,8 +32,11 @@ char et_rot_hydro_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:28  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2006/09/14 07:37:47  j_novak
+ * Removal of a test on u_euler.
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:28  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.6  2000/10/12  15:36:06  eric
  * Le test sur u_euler est desormais effectue sur la totalite de u_euler
@@ -95,46 +98,6 @@ void Etoile_rot::hydro_euler(){
     u_euler = ( u_euler - shift ) / nnn ; 
 
     u_euler.set_std_base() ;	// sets the standard bases for spectral expansions
-
-//## Test
-    Tenseur utest(mp, 1, CON, mp.get_bvect_spher()) ; 
-    utest.set_etat_qcq() ; 
-    
-    utest.set(0) = 0 ;	    // Spherical components of solid rotation
-    utest.set(1) = 0 ;
-    utest.set(2) = ( omega - nphi() ) / nnn();
-
-    utest.set(2).annule(nzm1) ; 
-    utest.set(2).std_base_scal() ;
-    utest.set(2).mult_rsint() ;	    //  Multiplication by r sin(theta)
-    
-    utest.set_triad( mp.get_bvect_spher() ) ; 
-
-    utest.change_triad( mp.get_bvect_cart() ) ; 
-    
-    for (int i=0; i<3; i++) {
-	Valeur& uu = u_euler.set(i).va ;
-	Valeur& ut = utest.set(i).va ;
-	
-	if (uu.get_etat() != ETATZERO) {
-	    uu.coef() ; 
-	    
-	    if (ut.get_etat() == ETATZERO) {
-		ut.set_etat_cf_qcq() ; 
-		*(ut.c_cf) = 0 ; 
-		ut.c_cf->base = uu.c_cf->base ; 
-	    }
-	    else {
-		ut.coef() ; 
-	    }
-	    
-	    Mtbl_cf diff = *(uu.c_cf) - *(ut.c_cf) ;
-	    cout << "Etoile_rot::hydro_euler: test u_euler(" << i << ") : " 
-		 << max( abs(diff) )(0) << endl ; 
-	
-	}
-    }
-//##
 
     if ( (u_euler(0).get_etat() == ETATZERO) &&
 	 (u_euler(1).get_etat() == ETATZERO) &&
