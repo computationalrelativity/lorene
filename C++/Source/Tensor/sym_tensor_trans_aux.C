@@ -30,6 +30,9 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2006/09/15 08:48:01  j_novak
+ * Suppression of some messages in the optimized version.
+ *
  * Revision 1.13  2006/08/31 12:13:22  j_novak
  * Added an argument of type Param to Sym_tensor_trans::sol_Dirac_A().
  *
@@ -178,9 +181,11 @@ void Sym_tensor_trans::set_WX_det_one(const Scalar& w_in, const Scalar& x_in,
 
 	Tbl tdif = max(abs(h_new - h_old)) ;
 	double diff = max(tdif) ;
+#ifndef NDEBUG
         cout << "Sym_tensor_trans::set_WX_det_one : " 
 	     << "iteration : " << it << " convergence on h: " 
 	     << diff << endl ; 
+#endif
         if (diff < precis) break ;
         else h_old = lambda*h_new +(1-lambda)*h_old ;
 
@@ -240,9 +245,11 @@ void Sym_tensor_trans::set_AtB_det_one(const Scalar& a_in, const Scalar& tb_in,
 
 	Tbl tdif = max(abs(h_new - h_old)) ;
 	double diff = max(tdif) ;
+#ifndef NDEBUG
         cout << "Sym_tensor_trans::set_AtB_det_one : " 
 	     << "iteration : " << it << " convergence on h: " 
 	     << diff << endl ; 
+#endif
         if (diff < precis) {
  	    set_auxiliary(hrr_new, eta_over_r, mu_over_r, w_new, x_new, 
  			  h_new - hrr_new) ;

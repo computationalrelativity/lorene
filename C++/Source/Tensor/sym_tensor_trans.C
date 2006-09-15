@@ -32,6 +32,9 @@ char sym_tensor_trans_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2006/09/15 08:48:01  j_novak
+ * Suppression of some messages in the optimized version.
+ *
  * Revision 1.14  2005/01/03 12:37:08  j_novak
  * Sym_tensor_trans::trace_from_det_one : modified the test on hijtt to
  * be compatible with older compilers.
@@ -344,8 +347,10 @@ void Sym_tensor_trans::trace_from_det_one(const Sym_tensor_tt& hijtt,
         set_tt_trace(hijtt, htrace) ; 
 
         double diff = max(max(abs(htrace - htrace_prev))) ;
+#ifndef NDEBUG
         cout << "Sym_tensor_trans::trace_from_det_one : " 
 	     << "iteration : " << it << " convergence on trace(h): " << diff << endl ;
+#endif
         if (diff < precis) break ;
         else htrace_prev = htrace ;
 
