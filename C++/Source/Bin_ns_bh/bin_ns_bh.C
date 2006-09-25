@@ -29,6 +29,9 @@ char bin_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2006/09/25 10:01:49  p_grandclement
+ * Addition of N-dimensional Tbl
+ *
  * Revision 1.10  2006/03/30 07:33:45  p_grandclement
  * *** empty log message ***
  *
@@ -115,10 +118,10 @@ Bin_ns_bh::Bin_ns_bh(const Bin_ns_bh& bibi)
 
 // Constructor from a file
 // -----------------------
-Bin_ns_bh::Bin_ns_bh(Map& mp_ns, const Eos& eos, Map_af& mp_bh, FILE* fich)
+Bin_ns_bh::Bin_ns_bh(Map& mp_ns, const Eos& eos, Map_af& mp_bh, FILE* fich, bool old)
 		: ref_triad(0., "Absolute frame Cartesian basis"),
-		  star(mp_ns, eos, ref_triad, fich),
-		  hole(mp_bh, fich) {
+		  star(mp_ns, eos, ref_triad, fich, old),
+		  hole(mp_bh, fich, old) {
 
     // omega and x_axe are read in the file:
     fread_be(&omega, sizeof(double), 1, fich) ;

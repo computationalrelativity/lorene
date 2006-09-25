@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2006/09/25 10:01:45  p_grandclement
+ * Addition of N-dimensional Tbl
+ *
  * Revision 1.9  2004/12/02 09:33:04  p_grandclement
  * *** empty log message ***
  *
@@ -121,9 +124,11 @@
 
 #include "type_parite.h"
 #include "dim_tbl.h"
+#include "itbl.h"
 
 class Grille3d ;
 class Matrice ;
+
 
 /**
  * Basic array class.
@@ -192,6 +197,11 @@ class Tbl {
 	 *		  Will be assigned to \c dim.dim[0].
 	 */ 
 	Tbl(int size2, int size1, int size0) ;		
+	/**
+	 * N-dimensional constructor 
+	 * @param sizes  [input] the sizes of each dimensions 
+	 */
+	Tbl(Itbl sizes) ;	
 	
 	explicit Tbl(const Grille3d& grid) ; ///< Constructor from a 3D grid
 	explicit Tbl(const Dim_tbl& dim) ;	 ///< Constructor from a \c Dim_tbl
@@ -331,6 +341,41 @@ class Tbl {
 		return zero ; 
 	    }
 	    else return t[dim.dim[1]*dim.dim[0]*k + dim.dim[0]*j + i] ;
+	};
+
+	/// Read/write of a particular element (multi-dimensional case)
+	double& set(const Itbl place) {
+	    int n = place.get_dim(0) ;
+	    assert (n == dim.ndim) ;
+	    for (int i=0 ; i<n ; i++)
+	        assert( (place(i)>=0) && (place(i)<dim.dim[0]) ) ;
+	    int pos = 0 ;
+	    for (int d=n-1 ; d>=0 ; d--) {
+	         pos*=dim.dim[d] ;
+		 pos += place(d) ;
+	    }
+	    return t[pos] ;
+	};
+
+	/// Read-only of a particular element (index \c (k,j,i)) (multi-dimensional case)
+	double operator()(const Itbl place) const {
+	    assert(etat != ETATNONDEF) ;
+	    int n = place.get_dim(0) ;
+	    assert (n == dim.ndim) ;
+	    for (int i=0 ; i<n ; i++)
+	        assert( (place(i)>=0) && (place(i)<dim.dim[0]) ) ;
+	    if (etat == ETATZERO) {
+		double zero = 0. ;
+		return zero ; 
+	    }
+	    else {
+	    	int pos = 0 ;
+	    	for (int d=n-1 ; d>=0 ; d--) {
+	            pos*=dim.dim[d] ;
+		    pos += place(d) ;
+	        }
+	        return t[pos] ;
+	    }
 	};
 
     // Extraction of information

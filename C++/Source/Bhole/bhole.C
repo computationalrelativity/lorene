@@ -32,6 +32,9 @@ char bhole_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2006/09/25 10:01:48  p_grandclement
+ * Addition of N-dimensional Tbl
+ *
  * Revision 1.10  2006/06/01 12:47:51  p_grandclement
  * update of the Bin_ns_bh project
  *
@@ -478,8 +481,9 @@ Bhole::Bhole(Map_af& mpi, FILE* fich, bool old) :
 			tkij_auto (mpi, 2, CON,  mpi.get_bvect_cart()) , 
 			tkij_tot (mpi, 2, CON,  mpi.get_bvect_cart()) , 
 			decouple (mpi) {
-
+			
 	fread_be(&omega, sizeof(double), 1, fich) ;
+	
 	if (!old) {
 		fread_be(&omega_local, sizeof(double), 1, fich) ;
 		fread_be(&rot_state, sizeof(int), 1, fich) ;

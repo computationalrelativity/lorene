@@ -30,6 +30,9 @@ char et_bin_nsbh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2006/09/25 10:01:49  p_grandclement
+ * Addition of N-dimensional Tbl
+ *
  * Revision 1.9  2006/06/01 12:47:53  p_grandclement
  * update of the Bin_ns_bh project
  *
@@ -161,7 +164,7 @@ Et_bin_nsbh::Et_bin_nsbh(const Et_bin_nsbh& et)
 // Constructor from a file
 // -----------------------
 Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, const Eos& eos_i,
-			 const Base_vect& ref_triad_i, FILE* fich)
+			 const Base_vect& ref_triad_i, FILE* fich, bool old)
     : Etoile_bin(mp_i, eos_i, ref_triad_i, fich),
       n_auto(mp_i),
       n_comp(mp_i),
@@ -179,7 +182,7 @@ Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, const Eos& eos_i,
       tkij_tot(mp_i, 2, CON, ref_triad_i),
       ssjm1_lapse(mp_i),
       ssjm1_confpsi(mp_i) {
-
+    
     // Construct from data in Etoile_bin
     Cmp n_from_file (mp_i, *(mp_i.get_mg()), fich) ;
     n_auto.set_etat_qcq() ;
@@ -188,10 +191,12 @@ Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, const Eos& eos_i,
     Cmp psi_from_file (mp_i, *(mp_i.get_mg()), fich) ;
     confpsi_auto.set_etat_qcq() ;
     confpsi_auto.set() = psi_from_file ;
-
-    Tenseur shift_auto_file (mp, ref_triad_i, fich) ;
-    shift_auto = shift_auto_file ;
-	
+    
+    if (!old) {
+    	Tenseur shift_auto_file (mp, ref_triad_i, fich) ;
+    	shift_auto = shift_auto_file ;
+    }
+    
     // All other fields are initialized to zero or some constants :
     // ----------------------------------------------------------
     n_comp = 0.5 ;
@@ -209,18 +214,17 @@ Et_bin_nsbh::Et_bin_nsbh(Map& mp_i, const Eos& eos_i,
     taij_tot.set_etat_zero() ;
     tkij_auto.set_etat_zero() ;
     tkij_tot.set_etat_zero() ;
-
+ 
     // Read of the saved fields :
     Cmp ssjm1_lapse_file(mp_i, *(mp_i.get_mg()), fich) ;
     ssjm1_lapse = ssjm1_lapse_file ;
-
+   
     Cmp ssjm1_confpsi_file(mp_i, *(mp_i.get_mg()), fich) ;
     ssjm1_confpsi = ssjm1_confpsi_file ;
     
     // Pointers of derived quantities initialized to zero
     // --------------------------------------------------
     set_der_0x0() ;
-
 }
 
                             //------------//

@@ -33,6 +33,9 @@ char tbl_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2006/09/25 10:01:50  p_grandclement
+ * Addition of N-dimensional Tbl
+ *
  * Revision 1.7  2003/11/03 13:53:20  j_novak
  * Yet another efficiency improvement.
  *
@@ -115,6 +118,7 @@ char tbl_C[] = "$Header$" ;
 #include <math.h>
 
 // headers Lorene
+#include "itbl.h"
 #include "tbl.h"
 #include "grilles.h"
 #include "matrice.h"
@@ -139,7 +143,21 @@ Tbl::Tbl(int n2, int n1, int n0) : etat(ETATNONDEF), dim(n2, n1, n0), t(0x0) {}
 Tbl::Tbl(const Grille3d& g) : etat(ETATNONDEF), 
 			      dim(g.get_np(), g.get_nt(), g.get_nr()), 
 			      t(0x0) {}
-
+			      
+// Constructeur a partir d'un Itbl
+Tbl::Tbl(Itbl sizes) : etat(ETATNONDEF), 
+			      dim(1), 
+			      t(0x0) {
+			      
+	int n = sizes.get_dim(0) ;
+	int* dims = new int[n] ;
+	for (int i=0 ; i<n ; i++)
+	    dims[i] = sizes(i) ;
+	Dim_tbl new_dim (n, dims) ;
+	dim = new_dim ;	
+	delete [] dims ;
+}
+			      
 // Constructeur a partir d'un Dim_tbl
 Tbl::Tbl(const Dim_tbl& dt) : etat(ETATNONDEF), dim(dt), t(0x0) {}
 

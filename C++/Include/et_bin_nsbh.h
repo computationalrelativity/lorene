@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2006/09/25 10:01:45  p_grandclement
+ * Addition of N-dimensional Tbl
+ *
  * Revision 1.7  2006/06/01 12:47:50  p_grandclement
  * update of the Bin_ns_bh project
  *
@@ -192,7 +195,7 @@ class Et_bin_nsbh : public Etoile_bin {
      *        {\tt sauve})
      */
     Et_bin_nsbh(Map& mp_i, const Eos& eos_i, const Base_vect& ref_triad_i,
-		FILE* fich) ;    		
+		FILE* fich, bool old = false) ;    		
 
     virtual ~Et_bin_nsbh() ;			/// Destructor
  

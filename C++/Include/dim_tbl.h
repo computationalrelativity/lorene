@@ -33,6 +33,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2006/09/25 10:01:45  p_grandclement
+ * Addition of N-dimensional Tbl
+ *
  * Revision 1.4  2004/03/22 13:12:40  j_novak
  * Modification of comments to use doxygen instead of doc++
  *
@@ -142,7 +145,14 @@ class Dim_tbl {
 	 *		  Will be assigned to \c dim[0].
 	 */ 
 	Dim_tbl(int size2, int size1, int size0) ; 
-
+	
+	/**
+	 * N_dimensional constructor
+	 * @param n [input] number of dimensions.
+	 * @param sizes [input] array of the dimensions.
+	 */ 
+	Dim_tbl(int n, int* sizes) ; 
+	
 	Dim_tbl(const Dim_tbl & ) ; ///< Copy constructor
 
 	/// Constructor from a file (see \c sauve(FILE*) )	

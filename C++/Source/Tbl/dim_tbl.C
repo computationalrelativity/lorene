@@ -33,6 +33,9 @@ char dim_tbl[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2006/09/25 10:01:50  p_grandclement
+ * Addition of N-dimensional Tbl
+ *
  * Revision 1.3  2002/10/16 14:37:13  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -108,6 +111,18 @@ Dim_tbl::Dim_tbl(int k, int j, int i) : ndim(3) {
     taille = i * j * k ;
 }
 	
+// N-dimensional constructor
+Dim_tbl::Dim_tbl(int n, int* sizes) : ndim(n) {
+    for (int i=0 ; i<ndim ; i++)
+        assert(sizes[i] > 0) ;
+    dim = new int[ndim] ;
+    taille = 1 ;
+    for (int i=0 ; i<ndim ; i++) {
+    	dim[i] = sizes[i] ;
+	taille *= sizes[i] ;
+    }
+}
+
 // Copy
 Dim_tbl::Dim_tbl(const Dim_tbl & titi) : ndim(titi.ndim) {
     dim = new int[ndim] ;

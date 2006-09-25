@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2006/09/25 10:01:45  p_grandclement
+ * Addition of N-dimensional Tbl
+ *
  * Revision 1.15  2006/06/23 07:09:22  p_grandclement
  * Addition of spinning black hole
  *
@@ -184,7 +187,7 @@ class Bin_ns_bh {
 	 * @param fich	input file (must have been created by the function
 	 *	{\tt sauve})
 	 */
-	Bin_ns_bh(Map& mp_ns, const Eos& eos, Map_af& mp_bh, FILE* fich) ;
+	Bin_ns_bh(Map& mp_ns, const Eos& eos, Map_af& mp_bh, FILE* fich, bool old = false) ;
 
 	virtual ~Bin_ns_bh() ;			/// Destructor
 
