@@ -33,6 +33,9 @@ char dim_tbl[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2006/09/26 07:21:07  p_grandclement
+ * Minor change in the indices
+ *
  * Revision 1.4  2006/09/25 10:01:50  p_grandclement
  * Addition of N-dimensional Tbl
  *
@@ -118,7 +121,7 @@ Dim_tbl::Dim_tbl(int n, int* sizes) : ndim(n) {
     dim = new int[ndim] ;
     taille = 1 ;
     for (int i=0 ; i<ndim ; i++) {
-    	dim[i] = sizes[i] ;
+    	dim[i] = sizes[ndim-i-1] ;
 	taille *= sizes[i] ;
     }
 }
