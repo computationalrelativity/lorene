@@ -29,6 +29,9 @@ char gval_from_spectral_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2006/10/02 07:41:03  j_novak
+ * Corrected an error in the case r=0, when exporting to a cartesian grid.
+ *
  * Revision 1.6  2005/06/23 13:44:18  j_novak
  * Removed some old comments.
  *
@@ -108,7 +111,7 @@ double* Gval_cart::somme_spectrale2(const Scalar& meudon) const {
     double xx2 = (x->t[ix])*(x->t[ix]) ;
     for (int iz=nfantome; iz<nzv; iz++) {
       rr = sqrt((zr->t[iz])*(zr->t[iz]) + xx2) ;
-      theta = acos((zr->t[iz])/rr) ;
+      theta = (rr != 0. ? acos((zr->t[iz])/rr) : 0) ;
       mp.val_lx(rr, theta, phi, l, xi0) ;
       resu[inum] = meudon.get_spectral_va().val_point(l, xi0, theta, phi) ;
       inum++ ;
@@ -166,8 +169,8 @@ double* Gval_cart::somme_spectrale3(const Scalar& meudon) const{
       double xx2 = xx*xx ;
       for (int iz=nfantome; iz<nzv; iz++) {
 	rr = sqrt((zr->t[iz])*(zr->t[iz]) + xx2 + yy2) ;
-	theta = acos((zr->t[iz])/rr) ;
-	phi = atan2(yy, xx) ; // return value in [-M_PI,M_PI], should work
+	theta = (rr != 0. ? acos((zr->t[iz])/rr) : 0. );
+	phi = (rr != 0. ? atan2(yy, xx) : 0. ) ; // return value in [-M_PI,M_PI], should work
 	mp.val_lx(rr, theta, phi, l, xi0) ;
 	resu[inum] = meudon.get_spectral_va().val_point(l, xi0, theta, phi) ;
 	inum++ ;
