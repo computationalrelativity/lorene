@@ -30,6 +30,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.41  2006/10/24 13:03:17  j_novak
+ * New methods for the solution of the tensor wave equation. Perhaps, first
+ * operational version...
+ *
  * Revision 1.40  2006/08/31 12:13:21  j_novak
  * Added an argument of type Param to Sym_tensor_trans::sol_Dirac_A().
  *
@@ -299,7 +303,7 @@ class Sym_tensor : public Tensor_sym {
 	 * \tilde{B} = (\ell + 2) \frac{\partial W}{\partial r} + \ell(\ell + 2)
 	 * \frac{W}{r} - \frac{2\eta}{r^2} + \frac{(\ell +2)T}{2r(\ell + 1)}
 	 * + \frac{1}{2(\ell + 1)} \frac{\partial T}{\partial r} - \frac{h^{rr}}
-	 * {(\ell + 1)r}. 
+	 * {(\ell + 1)r}.
 	 * \f]
 	 */
 	mutable Scalar* p_tilde_b ;
@@ -483,6 +487,20 @@ class Sym_tensor : public Tensor_sym {
 	 */
 	const Scalar& compute_tilde_B(bool output_ylm = true, Param* par = 0x0) const ;
 
+	/** Gives the field \f$\tilde{B}\f$ (see member \c p_tilde_b )
+	 * associated with the TT-part of the \c Sym_tensor .
+	 * @param output_ylm a flag to control the spectral decomposition 
+	 * base of the result: if true (default) the spherical harmonics base 
+	 * is used.
+	 */
+	Scalar compute_tilde_B_tt(bool output_ylm = true, Param* par = 0x0) const ;
+
+ protected:
+	/** Computes \f$\tilde{B}\f$ (see \c Sym_tensor::p_tilde_b ) from its
+	 * transverse-traceless part and the trace.
+	 */
+	Scalar get_tilde_B_from_TT_trace(const Scalar& tilde_B_tt_in, const Scalar&
+	    trace) const ;
 	
     // Mathematical operators
     // ----------------------
@@ -646,9 +664,10 @@ class Sym_tensor_trans: public Sym_tensor {
 	 * @param aaa [input] the source \e A
 	 * @param tilde_mu [output] the solution \f$\tilde{\mu}\f$
 	 * @param xxx [output] the solution \e X
+	 * @param par_bc [input] \c Param to control the boundary conditions
 	 */
 	void sol_Dirac_A(const Scalar& aaa, Scalar& tilde_mu, Scalar& xxx,
-			 const Param* par = 0x0) const ;
+			 const Param* par_bc = 0x0) const ;
 
 	/** Solves a system of three coupled first-order PDEs obtained from 
 	 * divergence-free conditions (Dirac gauge) and the requirement that
@@ -672,16 +691,20 @@ class Sym_tensor_trans: public Sym_tensor {
 	 * @param hrr [output] the \e rr component of the result
 	 * @param tilde_eta [output] the solution \f$\tilde{\eta}\f$
 	 * @param www [output] the solution \e W
+	 * @param par_bc [input] \c Param to control the boundary conditions
+	 * @param par_mat [input/output] \c Param in which the operator matrix is
+	 *                stored.
 	 */
 	void sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh, Scalar& hrr,
-			       Scalar& tilde_eta, Scalar& www, Param* par=0x0) const ;
+			       Scalar& tilde_eta, Scalar& www, Param* par_bc=0x0,
+			       Param* par_mat=0x0) const ;
 
 	/** Solves the same system as \c Sym_tensor_trans::sol_Dirac_tilde_B
 	 * but only for \f$\ell=0,1\f$. In these particular cases, \e W =0
 	 * the system is simpler and homogeneous solutions are different.
 	 */
 	void sol_Dirac_l01(const Scalar& hh, Scalar& hrr, Scalar& tilde_eta,
-			   Param* par) const ;
+			   Param* par_mat) const ;
 
  public:
 	/** Assigns the derived member \c p_tt and computes the trace so that 
@@ -737,7 +760,8 @@ class Sym_tensor_trans: public Sym_tensor {
 			    const Scalar* h_prev = 0x0, double precis = 1.e-14, 
 			    int it_max = 100) ;
 
-	/** Assigns the derived members \c A and \f$\tilde{B}\f$.
+	/** Assigns the derived member \c A and computes \f$\tilde{B}\f$ 
+	 * from its TT-part (see \c Sym_tensor::compute_tilde_B_tt() ).
 	 * Other derived members are deduced from the divergence-free 
 	 * condition. Finally, it computes the trace so that 
 	 * \c *this + the flat metric has a determinant equal to 1. It then
@@ -746,26 +770,28 @@ class Sym_tensor_trans: public Sym_tensor {
 	 * two steps is lower than \c precis . 
 	 *
 	 * @param a_in the \c A potential (see \c Sym_tensor::p_aaa )
-	 * @param tb_in the \f$\tilde{B}\f$ potential (see \c Sym_tensor::p_tilde_b )
+	 * @param tbtt_in the TT-part of \f$\tilde{B}\f$ potential 
+	 *   (see \c Sym_tensor::p_tilde_b and \c Sym_tensor::compute_tilde_B_tt() )
 	 * @param h_prev a pointer on a guess for the trace of \c *this; if
 	 *               null, then the iteration starts from 0.
 	 * @param precis relative difference in the trace computation to end
 	 *               the iteration.
 	 * @param it_max maximal number of iterations.
 	 */
-	void set_AtB_det_one(const Scalar& a_in, const Scalar& tb_in, 
-			     const Scalar* h_prev = 0x0, Param* par = 0x0,
-			     double precis = 1.e-14, int it_max = 100) ;
+	void set_AtBtt_det_one(const Scalar& a_in, const Scalar& tbtt_in, 
+			       const Scalar* h_prev = 0x0, Param* par_bc = 0x0,
+			       Param* par_mat = 0x0, double precis = 1.e-14, 
+			       int it_max = 100) ;
 
-	/** Assigns the derived members \c A and \f$\tilde{B}\f$.
-	 * Other derived members are deduced from the divergence-free 
-	 * and trace-free conditions.
+	/** Assigns the derived members \c A , \f$\tilde{B}\f$ and the trace.
+	 * Other derived members are deduced from the divergence-free condition.
 	 *
 	 * @param a_in the \c A potential (see \c Sym_tensor::p_aaa )
 	 * @param tb_in the \f$\tilde{B}\f$ potential (see \c Sym_tensor::p_tilde_b )
+	 * @param trace the trace of the \c Sym_tensor.
 	 */
-	void set_AtB_trace_zero(const Scalar& a_in, const Scalar& tb_in, Param*
-	    par = 0x0) ;
+	void set_AtB_trace(const Scalar& a_in, const Scalar& tb_in, const 
+			   Scalar& trace, Param* par_bc = 0x0, Param* par_mat = 0x0) ;
 
 	/** Computes the solution of a tensorial transverse Poisson equation
 	 *  with \c *this  \f$= S^{ij}\f$ as a source:
@@ -929,11 +955,22 @@ class Sym_tensor_tt: public Sym_tensor_trans {
 			Param* par1 = 0x0, Param* par2 = 0x0, 
 			Param* par3 = 0x0) ; 
 
+	/** Assigns the derived members \c A and \f$\tilde{B}\f$.
+	 * Other derived members are deduced from the divergence-and trace-free 
+	 * conditions.
+	 *
+	 * @param a_in the \c A potential (see \c Sym_tensor::p_aaa )
+	 * @param tb_in the \f$\tilde{B}\f$ potential (see \c Sym_tensor::p_tilde_b )
+	 */
+	void set_A_tildeB(const Scalar& a_in, const Scalar& tb_in, Param* par_bc = 0x0,
+			  Param* par_mat = 0x0) ;
+
 	// Computational methods
 	// ---------------------
 	
 	public:
-	/** Gives the field \f$\chi\f$ such that the component \f$h^{rr} = \frac{\chi}{r^2}\f$.
+	/** Gives the field \f$\chi\f$ such that the component 
+	 * \f$h^{rr} = \frac{\chi}{r^2}\f$.
 	 */
 	const Scalar& khi() const ;
 	

@@ -32,6 +32,10 @@ char sym_tensor__aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2006/10/24 13:03:19  j_novak
+ * New methods for the solution of the tensor wave equation. Perhaps, first
+ * operational version...
+ *
  * Revision 1.10  2006/08/31 12:12:43  j_novak
  * Correction of a small mistake in a phi loop.
  *
@@ -456,3 +460,110 @@ const Scalar& Sym_tensor::compute_tilde_B(bool output_ylm, Param* par) const {
   return *p_tilde_b ; 
 
 }
+
+Scalar Sym_tensor::compute_tilde_B_tt(bool output_ylm, Param* par) const {
+
+    Scalar resu = compute_tilde_B(true, par) ;
+    if (resu.get_etat() == ETATZERO) return resu ;
+    else {
+	assert(resu.get_etat() == ETATQCQ) ;
+	assert(resu.get_spectral_va().c_cf != 0x0) ;
+	int dzp = operator()(1,1).get_dzpuis() ; 
+	int dzp_resu = ((dzp == 0) ? 2 : dzp+1) ;
+	
+	Scalar hsr = operator()(1,1) + ttt() ;
+	if (hsr.get_etat() == ETATZERO) return resu ;
+	Scalar dhdr = hsr.dsdr() ;
+	dhdr.set_spectral_va().ylm() ;
+	hsr.div_r_dzpuis(dzp_resu) ;
+	hsr.set_spectral_va().ylm() ;
+	
+	int nz = mp->get_mg()->get_nzone() ;
+
+	const Base_val& base = resu.get_spectral_base() ;
+    
+	if (dhdr.get_etat() == ETATZERO) dhdr.annule_hard() ;
+
+	int m_q, l_q, base_r ;
+	for (int lz=0; lz<nz; lz++) {
+	    int np = mp->get_mg()->get_np(lz) ;
+	int nt = mp->get_mg()->get_nt(lz) ;
+	int nr = mp->get_mg()->get_nr(lz) ;
+	for (int k=0; k<np+1; k++)
+	    for (int j=0; j<nt; j++) {
+		base.give_quant_numbers(lz, k, j, m_q, l_q, base_r) ;
+		if ( (nullite_plm(j, nt, k, np, base) == 1) && (l_q > 1))
+		{
+		    for (int i=0; i<nr; i++) 
+			resu.set_spectral_va().c_cf->set(lz, k, j, i)
+	    -= 	0.5*(*hsr.get_spectral_va().c_cf)(lz, k, j, i)
+	      + 0.5/double(l_q+1)*(*dhdr.get_spectral_va().c_cf)(lz, k, j, i);
+		}
+	    }
+	}
+	resu.set_dzpuis(dzp_resu) ;
+    } //End of resu != 0    
+
+  if (output_ylm) resu.set_spectral_va().ylm() ;
+  else  resu.set_spectral_va().ylm_i() ;
+
+  return resu ; 
+
+}
+
+Scalar Sym_tensor::get_tilde_B_from_TT_trace(const Scalar& tbtt, const Scalar&
+    tras) const {
+    
+    // All this has a meaning only for spherical components:
+    assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
+
+    Scalar resu = tbtt ;
+    if (resu.get_etat() == ETATZERO) {
+	if (tras.get_etat() == ETATZERO) return resu ;
+	else {
+	    resu.annule_hard() ;
+	    Base_val base = tras.get_spectral_base() ;
+	    base.mult_x() ;
+	    resu.set_spectral_base(base) ;
+	}
+    }
+    resu.set_spectral_va().ylm() ;
+    int dzp = operator()(1,1).get_dzpuis() ; 
+    int dzp_resu = ((dzp == 0) ? 2 : dzp+1) ;
+    
+    Scalar hsr = tras ;
+    if (hsr.get_etat() == ETATZERO) return resu ;
+    else {
+	Scalar dhdr = hsr.dsdr() ;
+	if (dhdr.get_etat() == ETATZERO) dhdr.annule_hard() ;
+	dhdr.set_spectral_va().ylm() ;
+	hsr.div_r_dzpuis(dzp_resu) ;
+	hsr.set_spectral_va().ylm() ;
+	
+	int nz = mp->get_mg()->get_nzone() ;	
+	const Base_val& base = resu.get_spectral_base() ;    
+
+	int m_q, l_q, base_r ;
+	for (int lz=0; lz<nz; lz++) {
+	    if ((*resu.get_spectral_va().c_cf)(lz).get_etat() == ETATZERO)
+		resu.get_spectral_va().c_cf->set(lz).annule_hard() ;
+	    int np = mp->get_mg()->get_np(lz) ;
+	    int nt = mp->get_mg()->get_nt(lz) ;
+	    int nr = mp->get_mg()->get_nr(lz) ;
+	    for (int k=0; k<np+1; k++)
+		for (int j=0; j<nt; j++) {
+		    base.give_quant_numbers(lz, k, j, m_q, l_q, base_r) ;
+		    if ( (nullite_plm(j, nt, k, np, base) == 1) && (l_q > 1))
+		    {
+			for (int i=0; i<nr; i++) 
+			    resu.set_spectral_va().c_cf->set(lz, k, j, i)
+	    += 	0.5*(*hsr.get_spectral_va().c_cf)(lz, k, j, i)
+	      + 0.5/double(l_q+1)*(*dhdr.get_spectral_va().c_cf)(lz, k, j, i);
+		    }
+		}
+	}
+	resu.set_dzpuis(dzp_resu) ;
+    } //End of trace != 0    
+    return resu ;
+}
+

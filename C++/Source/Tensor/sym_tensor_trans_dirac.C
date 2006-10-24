@@ -30,6 +30,10 @@ char sym_tensor_trans_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2006/10/24 13:03:19  j_novak
+ * New methods for the solution of the tensor wave equation. Perhaps, first
+ * operational version...
+ *
  * Revision 1.1  2006/09/05 15:38:45  j_novak
  * The fuctions sol_Dirac... are in a seperate file, with new parameters to
  * control the boundary conditions.
@@ -56,7 +60,7 @@ char sym_tensor_trans_dirac_C[] = "$Header$" ;
 //----------------------------------------------------------------------------------
 
 void Sym_tensor_trans::sol_Dirac_A(const Scalar& aaa, Scalar& tilde_mu, Scalar& x_new,
-				   const Param* par) const {
+				   const Param* par_bc) const {
 
     const Map_af* mp_aff = dynamic_cast<const Map_af*>(mp) ;
     assert(mp_aff != 0x0) ; //Only affine mapping for the moment
@@ -73,13 +77,15 @@ void Sym_tensor_trans::sol_Dirac_A(const Scalar& aaa, Scalar& tilde_mu, Scalar& 
     int nzm1 = nz - 1 ;
     bool ced = (mgrid.get_type_r(nzm1) == UNSURR) ;
     int n_shell = ced ? nz-2 : nzm1 ;
-    int nz_bc = (par->get_n_int() > 0) ? par->get_int() : nzm1 ;
+    int nz_bc = nzm1 ;
+    if (par_bc != 0x0)
+	if (par_bc->get_n_int() > 0) nz_bc = par_bc->get_int() ;
     n_shell = (nz_bc < n_shell ? nz_bc : n_shell) ;
     bool cedbc = (ced && (nz_bc == nzm1)) ; 
 #ifndef NDEBUG
     if (!cedbc) {
-	assert(par->get_n_tbl() >= 2) ;
-	assert(par->get_n_double() >= 4) ;
+	assert(par_bc != 0x0) ;
+	assert(par_bc->get_n_tbl_mod() >= 3) ;
     }
 #endif
     int nt = mgrid.get_nt(0) ;
@@ -356,16 +362,24 @@ void Sym_tensor_trans::sol_Dirac_A(const Scalar& aaa, Scalar& tilde_mu, Scalar& 
     Matrice systeme(taille, taille) ; 
     int ligne ;  int colonne ;
     Tbl pipo(1) ;
-    const Tbl& mub = (cedbc ? pipo : par->get_tbl(1) );
-    double aa = (cedbc ? 0 : par->get_double(2)) ;
-    double bb = (cedbc ? 0 : par->get_double(3)) ;
+    const Tbl& mub = (cedbc ? pipo : par_bc->get_tbl_mod(2) );
+    double c_mu = (cedbc ? 0 : par_bc->get_tbl_mod(0)(0) ) ;
+    double d_mu = (cedbc ? 0 : par_bc->get_tbl_mod(0)(1) ) ;
+    double c_x = (cedbc ? 0 : par_bc->get_tbl_mod(0)(2) ) ;
+    double d_x = (cedbc ? 0 : par_bc->get_tbl_mod(0)(3) ) ;
     Mtbl_cf dhom1_mu = sol_hom1_mu ; 
     Mtbl_cf dhom2_mu = sol_hom2_mu ; 
     Mtbl_cf dpart_mu = sol_part_mu ; 
+    Mtbl_cf dhom1_x = sol_hom1_x ; 
+    Mtbl_cf dhom2_x = sol_hom2_x ; 
+    Mtbl_cf dpart_x = sol_part_x ; 
     if (!cedbc) {
 	dhom1_mu.dsdx() ;
 	dhom2_mu.dsdx() ;
 	dpart_mu.dsdx() ;
+	dhom1_x.dsdx() ;
+	dhom2_x.dsdx() ;
+	dpart_x.dsdx() ;
     }
 	
     // Loop on l and m
@@ -434,7 +448,6 @@ void Sym_tensor_trans::sol_Dirac_A(const Scalar& aaa, Scalar& tilde_mu, Scalar& 
 		//Last  domain	 
 		nr = mgrid.get_nr(nz_bc) ;
 		double alpha = mp_aff->get_alpha()[nz_bc] ;
-		double Rout = alpha + mp_aff->get_beta()[nz_bc] ;
 		ligne-- ;
 		    
 		//Condition at x = -1
@@ -456,15 +469,21 @@ void Sym_tensor_trans::sol_Dirac_A(const Scalar& aaa, Scalar& tilde_mu, Scalar& 
 
 		if (!cedbc) {// Special condition at x=1
 		systeme.set(ligne, colonne) = 
-		    aa*sol_hom1_mu.val_out_bound_jk(nz_bc, j, k) 
-		    + bb*dhom1_mu.val_out_bound_jk(nz_bc, j, k) / alpha ;
+		    c_mu*sol_hom1_mu.val_out_bound_jk(nz_bc, j, k) 
+		    + d_mu*dhom1_mu.val_out_bound_jk(nz_bc, j, k) / alpha 
+		    + c_x*sol_hom1_x.val_out_bound_jk(nz_bc, j, k) 
+		    + d_x*dhom1_x.val_out_bound_jk(nz_bc, j, k) / alpha ;
 		systeme.set(ligne, colonne+1) = 
-		    aa*sol_hom2_mu.val_out_bound_jk(nz_bc, j, k) 
-		    + bb*dhom2_mu.val_out_bound_jk(nz_bc, j, k) / alpha ;
+		    c_mu*sol_hom2_mu.val_out_bound_jk(nz_bc, j, k) 
+		    + d_mu*dhom2_mu.val_out_bound_jk(nz_bc, j, k) / alpha
+		    + c_x*sol_hom2_x.val_out_bound_jk(nz_bc, j, k) 
+		    + d_x*dhom2_x.val_out_bound_jk(nz_bc, j, k) / alpha ;
 
-		sec_membre.set(ligne) -= aa*sol_part_mu.val_out_bound_jk(nz_bc, j, k) 
-		    + bb*dpart_mu.val_out_bound_jk(nz_bc, j, k)/alpha
-		    - mub(k, j) / Rout ;
+		sec_membre.set(ligne) -= c_mu*sol_part_mu.val_out_bound_jk(nz_bc, j, k) 
+		    + d_mu*dpart_mu.val_out_bound_jk(nz_bc, j, k)/alpha
+		    + c_x*sol_part_mu.val_out_bound_jk(nz_bc, j, k) 
+		    + d_x*dpart_mu.val_out_bound_jk(nz_bc, j, k)/alpha
+		    - mub(k, j) ;
 		}
 
 		// Solution of the system giving the coefficients for the homogeneous 
@@ -531,8 +550,7 @@ void Sym_tensor_trans::sol_Dirac_A(const Scalar& aaa, Scalar& tilde_mu, Scalar& 
 
 void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh, 
 					 Scalar& hrr, Scalar& tilde_eta, Scalar& ww,
-					 Param* par) 
-    const {
+					 Param* par_bc, Param* par_mat) const {
 
     const Map_af* mp_aff = dynamic_cast<const Map_af*>(mp) ;
     assert(mp_aff != 0x0) ; //Only affine mapping for the moment
@@ -549,13 +567,16 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
     int nzm1 = nz - 1 ;
     bool ced = (mgrid.get_type_r(nzm1) == UNSURR) ;
     int n_shell = ced ? nz-2 : nzm1 ;
-    int nz_bc = (par->get_n_int() > 0) ? par->get_int() : nzm1 ;
+    int nz_bc = nzm1 ;
+    if (par_bc != 0x0)
+	if (par_bc->get_n_int() > 0)
+	    nz_bc = par_bc->get_int() ;
     n_shell = (nz_bc < n_shell ? nz_bc : n_shell) ;
     bool cedbc = (ced && (nz_bc == nzm1)) ; 
 #ifndef NDEBUG
     if (!cedbc) {
-	assert(par->get_n_tbl() >= 1) ;
-	assert(par->get_n_double() >= 2) ;
+	assert(par_bc != 0x0) ;
+	assert(par_bc->get_n_tbl_mod() >= 2) ;
     }
 #endif
     int nt = mgrid.get_nt(0) ;
@@ -591,45 +612,47 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
     int lmax = base.give_lmax(mgrid, 0) + 1;
 
     bool need_calculation = true ;
-    if (par != 0x0) {
+    if (par_mat != 0x0) {
 	bool param_new = false ;
-	if ((par->get_n_int_mod() >= 4)
-	    &&(par->get_n_tbl_mod()>=1)
-	    &&(par->get_n_matrice_mod()>=1)
-	    &&(par->get_n_itbl_mod()>=1)) {
-	    if (par->get_int_mod(0) != nz) param_new = true ;
-	    if (par->get_int_mod(1) != lmax) param_new = true ;
-	    if (par->get_int_mod(2) != mgrid.get_type_t() ) param_new = true ;
-	    if (par->get_int_mod(3) != mgrid.get_type_p() ) param_new = true ;
-	    if (par->get_itbl_mod(0)(0) != mgrid.get_nr(0)) param_new = true ;		 
-	    if (fabs(par->get_tbl_mod(0)(0) - mp_aff->get_alpha()[0]) > 2.e-15)
+	if ((par_mat->get_n_int_mod() >= 4)
+	    &&(par_mat->get_n_tbl_mod()>=1)
+	    &&(par_mat->get_n_matrice_mod()>=1)
+	    &&(par_mat->get_n_itbl_mod()>=1)) {
+	    if (par_mat->get_int_mod(0) < nz_bc) param_new = true ;
+	    if (par_mat->get_int_mod(1) != lmax) param_new = true ;
+	    if (par_mat->get_int_mod(2) != mgrid.get_type_t() ) param_new = true ;
+	    if (par_mat->get_int_mod(3) != mgrid.get_type_p() ) param_new = true ;
+	    if (par_mat->get_itbl_mod(0)(0) != mgrid.get_nr(0)) param_new = true ;
+	    if (fabs(par_mat->get_tbl_mod(0)(0) - mp_aff->get_alpha()[0]) > 2.e-15)
 		param_new = true ; 
-	    for (int l=1; l<nzm1; l++) {
-		if (par->get_itbl_mod(0)(l) != mgrid.get_nr(l)) param_new = true ;
-		if (fabs(par->get_tbl_mod(0)(l) - mp_aff->get_beta()[l] / 
+	    for (int l=1; l<= n_shell; l++) {
+		if (par_mat->get_itbl_mod(0)(l) != mgrid.get_nr(l)) param_new = true ;
+		if (fabs(par_mat->get_tbl_mod(0)(l) - mp_aff->get_beta()[l] / 
 		    mp_aff->get_alpha()[l]) > 2.e-15) param_new = true ;
 	    }
-	    if (par->get_itbl_mod(0)(nzm1) != mgrid.get_nr(nzm1)) param_new = true ;
-	    if (fabs(par->get_tbl_mod(0)(nzm1) - mp_aff->get_alpha()[nzm1]) > 2.e-15)
+	    if (ced) {
+	    if (par_mat->get_itbl_mod(0)(nzm1) != mgrid.get_nr(nzm1)) param_new = true ;
+	    if (fabs(par_mat->get_tbl_mod(0)(nzm1) - mp_aff->get_alpha()[nzm1]) > 2.e-15)
 		param_new = true ; 
+	    }
 	}
 	else{
 	    param_new = true ;
 	}
 	if (param_new) {
-	    par->clean_all() ;
-	    par->add_int_mod(*(new int(nz)), 0) ;
-	    par->add_int_mod(*(new int(lmax)), 1) ;
-	    par->add_int_mod(*(new int(mgrid.get_type_t())), 2) ;
-	    par->add_int_mod(*(new int(mgrid.get_type_p())), 3) ;
+	    par_mat->clean_all() ;
+	    par_mat->add_int_mod(*(new int(nz_bc)), 0) ;
+	    par_mat->add_int_mod(*(new int(lmax)), 1) ;
+	    par_mat->add_int_mod(*(new int(mgrid.get_type_t())), 2) ;
+	    par_mat->add_int_mod(*(new int(mgrid.get_type_p())), 3) ;
 	    Itbl* pnr = new Itbl(nz) ;
 	    pnr->set_etat_qcq() ;
-	    par->add_itbl_mod(*pnr) ;
+	    par_mat->add_itbl_mod(*pnr) ;
 	    for (int l=0; l<nz; l++)
 		pnr->set(l) = mgrid.get_nr(l) ;
 	    Tbl* palpha = new Tbl(nz) ;
 	    palpha->set_etat_qcq() ;
-	    par->add_tbl_mod(*palpha) ;
+	    par_mat->add_tbl_mod(*palpha) ;
 	    palpha->set(0) = mp_aff->get_alpha()[0] ;
 	    for (int l=1; l<nzm1; l++)
 		palpha->set(l) = mp_aff->get_beta()[l] / mp_aff->get_alpha()[l] ;
@@ -651,7 +674,7 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
     ww.set_spectral_va().set_etat_cf_qcq() ;
     ww.set_spectral_va().c_cf->annule_hard() ;   
 
-    sol_Dirac_l01(hh, hrr, tilde_eta, par) ;
+    sol_Dirac_l01(hh, hrr, tilde_eta, par_mat) ;
     tilde_eta.annule_l(0,0, true) ;
  
     Mtbl_cf sol_part_hrr(mgrid, base) ; sol_part_hrr.annule_hard() ;
@@ -678,7 +701,7 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
     double alpha = mp_aff->get_alpha()[lz] ;
     Matrice ope(3*nr, 3*nr) ;
     int ind2 = 2*nr ;
-    if (need_calculation && (par != 0x0)) mat_done.annule_hard() ;
+    if (need_calculation && (par_mat != 0x0)) mat_done.annule_hard() ;
 		
     for (int k=0 ; k<np+1 ; k++) {
 	for (int j=0 ; j<nt ; j++) {
@@ -746,15 +769,15 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
 			ope.set(ind2+nr-2, ind2) = 1 ;
 		    
 		    ope.set_lu() ;
-		    if ((par != 0x0) && (mat_done(l_q) == 0)) {
+		    if ((par_mat != 0x0) && (mat_done(l_q) == 0)) {
 			Matrice* pope = new Matrice(ope) ;
-			par->add_matrice_mod(*pope, lz*lmax + l_q) ;
+			par_mat->add_matrice_mod(*pope, lz*lmax + l_q) ;
 			mat_done.set(l_q) = 1 ;
 		    }
 		} //End of case when a calculation is needed
 
-		const Matrice& oper = (par == 0x0 ? ope : 
-				       par->get_matrice_mod(lz*lmax + l_q) ) ;
+		const Matrice& oper = (par_mat == 0x0 ? ope : 
+				       par_mat->get_matrice_mod(lz*lmax + l_q) ) ;
 		Tbl sec(3*nr) ;
 		sec.set_etat_qcq() ;
 		if (hnull) {
@@ -818,7 +841,7 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
     //-------------
 
     for (int lz=1; lz<= n_shell; lz++) {
-	if (need_calculation && (par != 0x0)) mat_done.annule_hard() ;
+	if (need_calculation && (par_mat != 0x0)) mat_done.annule_hard() ;
 	int nr = mgrid.get_nr(lz) ;
 	int ind0 = 0 ;
 	int ind1 = nr ;
@@ -881,14 +904,14 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
 		    ope.set(ind2+nr-1, ind2) = 1 ;
 
 		    ope.set_lu() ;
-		    if ((par != 0x0) && (mat_done(l_q) == 0)) {
+		    if ((par_mat != 0x0) && (mat_done(l_q) == 0)) {
 			Matrice* pope = new Matrice(ope) ;
-			par->add_matrice_mod(*pope, lz*lmax + l_q) ;
+			par_mat->add_matrice_mod(*pope, lz*lmax + l_q) ;
 			mat_done.set(l_q) = 1 ;
 		    }
 		    } //End of case when a calculation is needed
-		    const Matrice& oper = (par == 0x0 ? ope : 
-				       par->get_matrice_mod(lz*lmax + l_q) ) ;
+		    const Matrice& oper = (par_mat == 0x0 ? ope : 
+				       par_mat->get_matrice_mod(lz*lmax + l_q) ) ;
 		    Tbl sec(3*nr) ;
 		    sec.set_etat_qcq() ;
 		    if (hnull) {
@@ -960,7 +983,7 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
     // Compactified external domain
     //------------------------------
     if (cedbc) {int lz = nzm1 ;  
-    if (need_calculation && (par != 0x0)) mat_done.annule_hard() ;
+    if (need_calculation && (par_mat != 0x0)) mat_done.annule_hard() ;
     int nr = mgrid.get_nr(lz) ;
     int ind0 = 0 ;
     int ind1 = nr ;
@@ -1024,14 +1047,14 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
 		ope.set(ind1+nr-2, ind1+2) = 1 ;
 
 		ope.set_lu() ;
-		if ((par != 0x0) && (mat_done(l_q) == 0)) {
+		if ((par_mat != 0x0) && (mat_done(l_q) == 0)) {
 		    Matrice* pope = new Matrice(ope) ;
-		    par->add_matrice_mod(*pope, lz*lmax + l_q) ;
+		    par_mat->add_matrice_mod(*pope, lz*lmax + l_q) ;
 		    mat_done.set(l_q) = 1 ;
 		}
 		} //End of case when a calculation is needed
-		const Matrice& oper = (par == 0x0 ? ope : 
-				       par->get_matrice_mod(lz*lmax + l_q) ) ;
+		const Matrice& oper = (par_mat == 0x0 ? ope : 
+				       par_mat->get_matrice_mod(lz*lmax + l_q) ) ;
 
 		Tbl sec(3*nr) ;
 		sec.set_etat_qcq() ;
@@ -1104,18 +1127,30 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
     Matrice systeme(taille, taille) ; 
     int ligne ;  int colonne ;
     Tbl pipo(1) ;
-    const Tbl& hrrb = (cedbc ? pipo : par->get_tbl() );
-    double aa = (cedbc ? 0 : par->get_double()) ;
-    double bb = (cedbc ? 0 : par->get_double(1)) ;
+    const Tbl& hrrb = (cedbc ? pipo : par_bc->get_tbl_mod(1) );
+    double chrr = (cedbc ? 0 : par_bc->get_tbl_mod()(4) ) ;
+    double dhrr = (cedbc ? 0 : par_bc->get_tbl_mod()(5) ) ;
+    double ceta = (cedbc ? 0 : par_bc->get_tbl_mod()(6) ) ;
+    double deta = (cedbc ? 0 : par_bc->get_tbl_mod()(7) ) ;
+    double cw = (cedbc ? 0 : par_bc->get_tbl_mod()(8) ) ;
+    double dw = (cedbc ? 0 : par_bc->get_tbl_mod()(9) ) ;
     Mtbl_cf dhom1_hrr = sol_hom1_hrr ; 
     Mtbl_cf dhom2_hrr = sol_hom2_hrr ; 
     Mtbl_cf dhom3_hrr = sol_hom3_hrr ; 
     Mtbl_cf dpart_hrr = sol_part_hrr ; 
+    Mtbl_cf dhom1_eta = sol_hom1_eta ; 
+    Mtbl_cf dhom2_eta = sol_hom2_eta ; 
+    Mtbl_cf dhom3_eta = sol_hom3_eta ; 
+    Mtbl_cf dpart_eta = sol_part_eta ; 
+    Mtbl_cf dhom1_w = sol_hom1_w ; 
+    Mtbl_cf dhom2_w = sol_hom2_w ; 
+    Mtbl_cf dhom3_w = sol_hom3_w ; 
+    Mtbl_cf dpart_w = sol_part_w ; 
     if (!cedbc) {
-	dhom1_hrr.dsdx() ;
-	dhom2_hrr.dsdx() ;
-	dhom3_hrr.dsdx() ;
-	dpart_hrr.dsdx() ;
+	dhom1_hrr.dsdx() ; dhom1_eta.dsdx() ; dhom1_w.dsdx() ;
+	dhom2_hrr.dsdx() ; dhom2_eta.dsdx() ; dhom2_w.dsdx() ;
+	dhom3_hrr.dsdx() ; dhom3_eta.dsdx() ; dhom3_w.dsdx() ;
+	dpart_hrr.dsdx() ; dpart_eta.dsdx() ; dpart_w.dsdx() ;
     }
 	
     // Loop on l and m
@@ -1216,7 +1251,6 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
 		//Last domain
 		nr = mgrid.get_nr(nz_bc) ;
 		double alpha = mp_aff->get_alpha()[nz_bc] ;
-		double Rout = alpha + mp_aff->get_beta()[nz_bc] ;
 		ligne -= 2 ;
 
 		//Condition at x = -1
@@ -1252,18 +1286,34 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
 
 		if (!cedbc) {//Special condition at x=1
 		systeme.set(ligne, colonne) = 
-		    aa*sol_hom1_hrr.val_out_bound_jk(nz_bc, j, k) 
-		    + bb*dhom1_hrr.val_out_bound_jk(nz_bc, j, k) / alpha ;
+		    chrr*sol_hom1_hrr.val_out_bound_jk(nz_bc, j, k) 
+		    + dhrr*dhom1_hrr.val_out_bound_jk(nz_bc, j, k) / alpha 
+		    + ceta*sol_hom1_eta.val_out_bound_jk(nz_bc, j, k) 
+		    + deta*dhom1_eta.val_out_bound_jk(nz_bc, j, k) / alpha 
+		    + cw*sol_hom1_w.val_out_bound_jk(nz_bc, j, k) 
+		    + dw*dhom1_w.val_out_bound_jk(nz_bc, j, k) / alpha ;
 		systeme.set(ligne, colonne+1) = 
-		    aa*sol_hom2_hrr.val_out_bound_jk(nz_bc, j, k) 
-		    + bb*dhom2_hrr.val_out_bound_jk(nz_bc, j, k) / alpha ;
+		    chrr*sol_hom2_hrr.val_out_bound_jk(nz_bc, j, k) 
+		    + dhrr*dhom2_hrr.val_out_bound_jk(nz_bc, j, k) / alpha 
+		    + ceta*sol_hom2_eta.val_out_bound_jk(nz_bc, j, k) 
+		    + deta*dhom2_eta.val_out_bound_jk(nz_bc, j, k) / alpha 
+		    + cw*sol_hom2_w.val_out_bound_jk(nz_bc, j, k) 
+		    + dw*dhom2_w.val_out_bound_jk(nz_bc, j, k) / alpha ;
 		systeme.set(ligne, colonne+2) = 
-		    aa*sol_hom3_hrr.val_out_bound_jk(nz_bc, j, k) 
-		    + bb*dhom3_hrr.val_out_bound_jk(nz_bc, j, k) / alpha ;
-		
-		sec_membre.set(ligne) -= aa*sol_part_hrr.val_out_bound_jk(nz_bc, j, k) 
-		    + bb*dpart_hrr.val_out_bound_jk(nz_bc, j, k)/alpha 
-		    - hrrb(k, j) / (Rout*Rout) ;
+		    chrr*sol_hom3_hrr.val_out_bound_jk(nz_bc, j, k) 
+		    + dhrr*dhom3_hrr.val_out_bound_jk(nz_bc, j, k) / alpha 
+		    + ceta*sol_hom3_eta.val_out_bound_jk(nz_bc, j, k) 
+		    + deta*dhom3_eta.val_out_bound_jk(nz_bc, j, k) / alpha 
+		    + cw*sol_hom3_w.val_out_bound_jk(nz_bc, j, k) 
+		    + dw*dhom3_w.val_out_bound_jk(nz_bc, j, k) / alpha ;
+
+		sec_membre.set(ligne) -= chrr*sol_part_hrr.val_out_bound_jk(nz_bc, j, k) 
+		    + dhrr*dpart_hrr.val_out_bound_jk(nz_bc, j, k)/alpha 
+		    + ceta*sol_part_eta.val_out_bound_jk(nz_bc, j, k) 
+		    + deta*dpart_eta.val_out_bound_jk(nz_bc, j, k)/alpha 
+		    + cw*sol_part_w.val_out_bound_jk(nz_bc, j, k) 
+		    + dw*dpart_w.val_out_bound_jk(nz_bc, j, k)/alpha 
+		    - hrrb(k, j)  ;
 		}
 			
 		// Solution of the system giving the coefficients for the homogeneous 
@@ -1343,7 +1393,7 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
 }
 
 void Sym_tensor_trans::sol_Dirac_l01(const Scalar& hh, Scalar& hrr, Scalar& tilde_eta,
-				     Param* par) const {
+				     Param* par_mat) const {
 
     const Map_af* mp_aff = dynamic_cast<const Map_af*>(mp) ;
     assert(mp_aff != 0x0) ; //Only affine mapping for the moment
@@ -1384,9 +1434,9 @@ void Sym_tensor_trans::sol_Dirac_l01(const Scalar& hh, Scalar& hrr, Scalar& tild
     Mtbl_cf sol_hom2_eta(mgrid, base) ; sol_hom2_eta.annule_hard() ;
 
     bool need_calculation = true ;
-    if (par != 0x0)
-	if (par->get_n_matrice_mod() > 0) 
-	    if (&par->get_matrice_mod(0) != 0x0) need_calculation = false ;
+    if (par_mat != 0x0)
+	if (par_mat->get_n_matrice_mod() > 0) 
+	    if (&par_mat->get_matrice_mod(0) != 0x0) need_calculation = false ;
 
     int l_q, m_q, base_r ;
     Itbl mat_done(lmax) ;
@@ -1398,7 +1448,7 @@ void Sym_tensor_trans::sol_Dirac_l01(const Scalar& hh, Scalar& hrr, Scalar& tild
     int nr = mgrid.get_nr(lz) ;
     double alpha = mp_aff->get_alpha()[lz] ;
     Matrice ope(2*nr, 2*nr) ;
-    if (need_calculation && (par != 0x0)) mat_done.annule_hard() ;
+    if (need_calculation && (par_mat != 0x0)) mat_done.annule_hard() ;
 
     for (int k=0 ; k<np+1 ; k++) {
 	for (int j=0 ; j<nt ; j++) {
@@ -1442,15 +1492,15 @@ void Sym_tensor_trans::sol_Dirac_l01(const Scalar& hh, Scalar& hrr, Scalar& tild
 		    }
 		    
 		    ope.set_lu() ;
-		    if ((par != 0x0) && (mat_done(l_q) == 0)) {
+		    if ((par_mat != 0x0) && (mat_done(l_q) == 0)) {
 			Matrice* pope = new Matrice(ope) ;
-			par->add_matrice_mod(*pope, lz*lmax + l_q) ;
+			par_mat->add_matrice_mod(*pope, lz*lmax + l_q) ;
 			mat_done.set(l_q) = 1 ;
 		    }
 		} //End of case when a calculation is needed
 
-		const Matrice& oper = (par == 0x0 ? ope : 
-				       par->get_matrice_mod(lz*lmax + l_q) ) ;
+		const Matrice& oper = (par_mat == 0x0 ? ope : 
+				       par_mat->get_matrice_mod(lz*lmax + l_q) ) ;
 		Tbl sec(2*nr) ;
 		sec.set_etat_qcq() ;
 		for (int lin=0; lin<nr; lin++)
@@ -1486,7 +1536,7 @@ void Sym_tensor_trans::sol_Dirac_l01(const Scalar& hh, Scalar& hrr, Scalar& tild
     //-------------
 
     for (int lz=1; lz<nz-1; lz++) {
-	if (need_calculation && (par != 0x0)) mat_done.annule_hard() ;
+	if (need_calculation && (par_mat != 0x0)) mat_done.annule_hard() ;
 	int nr = mgrid.get_nr(lz) ;
 	int ind0 = 0 ;
 	int ind1 = nr ;
@@ -1530,14 +1580,14 @@ void Sym_tensor_trans::sol_Dirac_l01(const Scalar& hh, Scalar& hrr, Scalar& tild
 		    ope.set(ind1+nr-1, ind1) = 1 ;
 
 		    ope.set_lu() ;
-		    if ((par != 0x0) && (mat_done(l_q) == 0)) {
+		    if ((par_mat != 0x0) && (mat_done(l_q) == 0)) {
 			Matrice* pope = new Matrice(ope) ;
-			par->add_matrice_mod(*pope, lz*lmax + l_q) ;
+			par_mat->add_matrice_mod(*pope, lz*lmax + l_q) ;
 			mat_done.set(l_q) = 1 ;
 		    }
 		    } //End of case when a calculation is needed
-		    const Matrice& oper = (par == 0x0 ? ope : 
-				       par->get_matrice_mod(lz*lmax + l_q) ) ;
+		    const Matrice& oper = (par_mat == 0x0 ? ope : 
+				       par_mat->get_matrice_mod(lz*lmax + l_q) ) ;
 		    Tbl sec(2*nr) ;
 		    sec.set_etat_qcq() ;
 		    for (int lin=0; lin<nr; lin++)
@@ -1577,7 +1627,7 @@ void Sym_tensor_trans::sol_Dirac_l01(const Scalar& hh, Scalar& hrr, Scalar& tild
     // Compactified external domain
     //------------------------------
     {int lz = nz-1 ;  
-    if (need_calculation && (par != 0x0)) mat_done.annule_hard() ;
+    if (need_calculation && (par_mat != 0x0)) mat_done.annule_hard() ;
     int nr = mgrid.get_nr(lz) ;
     int ind0 = 0 ;
     int ind1 = nr ;
@@ -1624,14 +1674,14 @@ void Sym_tensor_trans::sol_Dirac_l01(const Scalar& hh, Scalar& hrr, Scalar& tild
 		ope.set(ind1+nr-2, ind1+1) = 1 ;
 
 		ope.set_lu() ;
-		if ((par != 0x0) && (mat_done(l_q) == 0)) {
+		if ((par_mat != 0x0) && (mat_done(l_q) == 0)) {
 		    Matrice* pope = new Matrice(ope) ;
-		    par->add_matrice_mod(*pope, lz*lmax + l_q) ;
+		    par_mat->add_matrice_mod(*pope, lz*lmax + l_q) ;
 		    mat_done.set(l_q) = 1 ;
 		}
 		} //End of case when a calculation is needed
-		const Matrice& oper = (par == 0x0 ? ope : 
-				       par->get_matrice_mod(lz*lmax + l_q) ) ;
+		const Matrice& oper = (par_mat == 0x0 ? ope : 
+				       par_mat->get_matrice_mod(lz*lmax + l_q) ) ;
 		Tbl sec(2*nr) ;
 		sec.set_etat_qcq() ;
 		for (int lin=0; lin<nr; lin++)

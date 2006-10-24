@@ -32,6 +32,10 @@ char sym_tensor_tt_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2006/10/24 13:03:19  j_novak
+ * New methods for the solution of the tensor wave equation. Perhaps, first
+ * operational version...
+ *
  * Revision 1.15  2005/04/01 14:28:32  j_novak
  * Members p_eta and p_mu are now defined in class Sym_tensor.
  *
@@ -469,7 +473,18 @@ void Sym_tensor_tt::update(int dzp, Param* par1, Param* par2) {
 }			
 
 
+			//-----------------//
+			//  set_A_tilde_B  //
+			//-----------------//
 
+void Sym_tensor_tt::set_A_tildeB(const Scalar& a_in, const Scalar& tb_in, 
+				 Param* par_bc, Param* par_mat) {
+
+    Scalar zero(*mp) ;
+    zero.set_etat_zero() ;
+    set_AtB_trace(a_in, tb_in, zero, par_bc, par_mat) ;
+    return ;
+}
 
 
 

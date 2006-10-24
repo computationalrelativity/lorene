@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2005  Jerome Novak
+ *   Copyright (c) 2005-2006  Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,10 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2006/10/24 13:03:19  j_novak
+ * New methods for the solution of the tensor wave equation. Perhaps, first
+ * operational version...
+ *
  * Revision 1.14  2006/09/15 08:48:01  j_novak
  * Suppression of some messages in the optimized version.
  *
@@ -86,7 +90,7 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 #include <assert.h>
 
 // Lorene headers
-#include "tensor.h"
+#include "metric.h"
 #include "param.h"
 
 void Sym_tensor_trans::set_hrr_mu_det_one(const Scalar& hrr, const Scalar& mu_in,
@@ -201,64 +205,79 @@ void Sym_tensor_trans::set_WX_det_one(const Scalar& w_in, const Scalar& x_in,
 
 }
 
-void Sym_tensor_trans::set_AtB_det_one(const Scalar& a_in, const Scalar& tb_in,
-				       const Scalar* h_prev, Param* par, double precis, 
-				       int it_max ) {
+void Sym_tensor_trans::set_AtBtt_det_one(const Scalar& a_in, const Scalar& tbtt_in,
+					 const Scalar* h_prev, Param* par_bc, 
+					 Param* par_mat, double precis, 
+					 int it_max ) {
     // All this has a meaning only for spherical components:
     assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
     assert(a_in.check_dzpuis(2)) ;
-    assert(tb_in.check_dzpuis(2)) ;
+    assert(tbtt_in.check_dzpuis(2)) ;
     assert(&a_in != p_aaa) ;
-    assert(&tb_in != p_tilde_b) ;
+    assert(&tbtt_in != p_tilde_b) ;
     assert( (precis > 0.) && (it_max > 0) ) ;
 
     //Computation of mu and X from A
     //-------------------------------
     Scalar mu_over_r(*mp) ;
     Scalar x_new(*mp) ;
-    sol_Dirac_A(a_in, mu_over_r, x_new, par) ;
+    sol_Dirac_A(a_in, mu_over_r, x_new, par_bc) ;
 
     // Preparation for the iteration
     //------------------------------
     Scalar h_old(*mp) ;
     if (h_prev != 0x0) 
 	h_old = *h_prev ;
-    else
+    else 
 	h_old.set_etat_zero() ;
     double lambda = 1. ;
+    Scalar zero(*mp) ;
+    zero.set_etat_zero() ;
+
+    Scalar hrr_tt(*mp) ;
+    Scalar eta_sr_tt(*mp) ;
+    Scalar w_tt(*mp) ;
+    sol_Dirac_tilde_B(tbtt_in, zero, hrr_tt, eta_sr_tt, w_tt, par_bc, par_mat) ;
+
     Scalar hrr_new(*mp) ;
     Scalar eta_over_r(*mp) ;
     Scalar w_new(*mp) ;
 
     for (int it=0; it<=it_max; it++) {
+	Scalar tilde_B = get_tilde_B_from_TT_trace(zero, h_old) ;
+	sol_Dirac_tilde_B(tilde_B, h_old, hrr_new, eta_over_r, w_new, 0x0, par_mat) ;
 	
-	sol_Dirac_tilde_B(tb_in, h_old, hrr_new, eta_over_r, w_new, par) ;
-
-	set_auxiliary(hrr_new, eta_over_r, mu_over_r, w_new, x_new, h_old - hrr_new) ;
+	set_auxiliary(hrr_new+hrr_tt, eta_over_r+eta_sr_tt, mu_over_r, 
+		      w_new+w_tt, x_new, h_old - hrr_new-hrr_tt) ;
 
 	const Sym_tensor_trans& hij = *this ;
 	Scalar h_new = (1 + hij(1,1))*( hij(2,3)*hij(2,3) - hij(2,2)*hij(3,3) )
 	    + hij(1,2)*hij(1,2)*(1 + hij(3,3)) 
 	    + hij(1,3)*hij(1,3)*(1 + hij(2,2)) 
 	    - hij(1,1)*(hij(2,2) + hij(3,3)) - 2*hij(1,2)*hij(1,3)*hij(2,3) ;
-	h_new.set_spectral_base(hrr_new.get_spectral_base()) ;
+	h_new.set_spectral_base(hrr_tt.get_spectral_base()) ;
 
-	Tbl tdif = max(abs(h_new - h_old)) ;
-	double diff = max(tdif) ;
+	double diff = max(max(abs(h_new - h_old))) ;
 #ifndef NDEBUG
         cout << "Sym_tensor_trans::set_AtB_det_one : " 
 	     << "iteration : " << it << " convergence on h: " 
 	     << diff << endl ; 
 #endif
         if (diff < precis) {
- 	    set_auxiliary(hrr_new, eta_over_r, mu_over_r, w_new, x_new, 
- 			  h_new - hrr_new) ;
+  	    set_auxiliary(hrr_new+hrr_tt, eta_over_r+eta_sr_tt, mu_over_r, 
+		      w_new+w_tt, x_new, h_old - hrr_new-hrr_tt) ;
+	    if (p_aaa != 0x0) delete p_aaa ;
+	    p_aaa = new Scalar(a_in) ;
+	    if (p_tilde_b != 0x0) delete p_tilde_b ;
+	    p_tilde_b = new Scalar(tilde_B + tbtt_in) ;
 	    break ;
 	}
-        else h_old = lambda*h_new +(1-lambda)*h_old ;
+        else {
+	    h_old = lambda*h_new +(1-lambda)*h_old ;
+	}
 
         if (it == it_max) {
-            cout << "Sym_tensor_trans:::set_AtB_det_one : convergence not reached \n" ;
+            cout << "Sym_tensor_trans:::set_AtBtt_det_one : convergence not reached \n" ;
             cout << "  for the required accuracy (" << precis << ") ! " 
 		 << endl ;
             abort() ;
@@ -268,13 +287,14 @@ void Sym_tensor_trans::set_AtB_det_one(const Scalar& a_in, const Scalar& tb_in,
 
 }
 
-void Sym_tensor_trans::set_AtB_trace_zero(const Scalar& a_in, const Scalar& tb_in,
-					  Param* par) {
+void Sym_tensor_trans::set_AtB_trace(const Scalar& a_in, const Scalar& tb_in,
+				     const Scalar& hh, Param* par_bc, Param* par_mat) {
 
     // All this has a meaning only for spherical components:
     assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
     assert(a_in.check_dzpuis(2)) ;
     assert(tb_in.check_dzpuis(2)) ;
+    assert(hh.check_dzpuis(0)) ;
     assert(&a_in != p_aaa) ;
     assert(&tb_in != p_tilde_b) ;
 
@@ -282,19 +302,21 @@ void Sym_tensor_trans::set_AtB_trace_zero(const Scalar& a_in, const Scalar& tb_i
     //-------------------------------
     Scalar mu_over_r(*mp) ;
     Scalar x_new(*mp) ;
-    sol_Dirac_A(a_in, mu_over_r, x_new, par) ;
+    sol_Dirac_A(a_in, mu_over_r, x_new, par_bc) ;
 
     // Computation of the other potentials
     //------------------------------------
     Scalar hrr_new(*mp) ;
     Scalar eta_over_r(*mp) ;
     Scalar w_new(*mp) ;
-    Scalar zero(*mp) ;
-    zero.set_etat_zero() ;
 
-    sol_Dirac_tilde_B(tb_in, zero, hrr_new, eta_over_r, w_new, par) ;
+    sol_Dirac_tilde_B(tb_in, hh, hrr_new, eta_over_r, w_new, par_bc, par_mat) ;
 
-    set_auxiliary(hrr_new, eta_over_r, mu_over_r, w_new, x_new, -hrr_new) ;
+    set_auxiliary(hrr_new, eta_over_r, mu_over_r, w_new, x_new, hh - hrr_new) ;
+    if (p_aaa != 0x0) delete p_aaa ;
+    p_aaa = new Scalar(a_in) ;
+    if (p_tilde_b != 0x0) delete p_tilde_b ;
+    p_tilde_b = new Scalar(tb_in) ;
 
     return ;
 
