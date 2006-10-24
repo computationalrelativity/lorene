@@ -32,6 +32,10 @@ char sym_tensor__aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2006/10/24 14:52:38  j_novak
+ * The Mtbl corresponding to the physical space is destroyed after the
+ * calculation of tilde_B(tt), to get the updated result.
+ *
  * Revision 1.11  2006/10/24 13:03:19  j_novak
  * New methods for the solution of the tensor wave equation. Perhaps, first
  * operational version...
@@ -502,6 +506,9 @@ Scalar Sym_tensor::compute_tilde_B_tt(bool output_ylm, Param* par) const {
 	    }
 	}
 	resu.set_dzpuis(dzp_resu) ;
+	if (resu.set_spectral_va().c != 0x0) 
+	    delete resu.set_spectral_va().c ;
+	resu.set_spectral_va().c = 0x0 ;
     } //End of resu != 0    
 
   if (output_ylm) resu.set_spectral_va().ylm() ;
@@ -563,6 +570,9 @@ Scalar Sym_tensor::get_tilde_B_from_TT_trace(const Scalar& tbtt, const Scalar&
 		}
 	}
 	resu.set_dzpuis(dzp_resu) ;
+	if (resu.set_spectral_va().c != 0x0) 
+	    delete resu.set_spectral_va().c ;
+	resu.set_spectral_va().c = 0x0 ;
     } //End of trace != 0    
     return resu ;
 }
