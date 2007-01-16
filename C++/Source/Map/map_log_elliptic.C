@@ -25,6 +25,10 @@ char map_log_elliptic_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2007/01/16 15:08:07  n_vasset
+ * New constructor, usn Scalar on mono-domain angular grid for boundary,
+ * for function sol_elliptic_boundary()
+ *
  * Revision 1.3  2005/06/09 07:57:32  f_limousin
  * Implement a new function sol_elliptic_boundary() and
  * Vector::poisson_boundary(...) which solve the vectorial poisson
@@ -114,7 +118,7 @@ void Map_log::sol_elliptic(Param_elliptic& ope_var, const Scalar& source,
 
 
          //--------------------------------------------------
-         //		General elliptic solver with boundary
+         //		General elliptic solver with boundary as Mtbl_cf
          //--------------------------------------------------
 
 
@@ -172,6 +176,90 @@ void Map_log::sol_elliptic_boundary(Param_elliptic& ope_var, const Scalar& sourc
 }
 
    
+         //--------------------------------------------------
+         //		General elliptic solver with boundary as Scalar
+         //--------------------------------------------------
+
+
+void Map_log::sol_elliptic_boundary(Param_elliptic& ope_var, const Scalar& source, 
+			   Scalar& pot, const Scalar& bound, 
+			   double fact_dir, double fact_neu) const {
+    
+  assert(source.get_etat() != ETATNONDEF) ; 
+  assert(source.get_mp().get_mg() == mg) ; 
+  assert(pot.get_mp().get_mg() == mg) ; 
+  
+  assert(source.check_dzpuis(2) || source.check_dzpuis(3) || 
+	 source.check_dzpuis(4)) ; 
+  // Spherical harmonic expansion of the source
+  // ------------------------------------------
+  
+  const Valeur& sourva = source.get_spectral_va() ; 
+  
+  if (sourva.get_etat() == ETATZERO) {
+    pot.set_etat_zero() ;
+    return ;  
+    }
+  
+  // Spectral coefficients of the source
+  assert(sourva.get_etat() == ETATQCQ) ; 
+  
+  Valeur rho(sourva.get_mg()) ; 
+  sourva.coef() ; 
+  rho = *(sourva.c_cf) ;	// copy of the coefficients of the source
+  
+  rho.ylm() ;			// spherical harmonic transforms 
+    
+  // On met les bonnes bases dans le changement de variable 
+  // de ope_var :
+  ope_var.var_F.set_spectral_va().coef() ;
+  ope_var.var_F.set_spectral_va().ylm() ;
+  ope_var.var_G.set_spectral_va().coef() ;
+  ope_var.var_G.set_spectral_va().ylm() ;
+
+  // Call to the Mtbl_cf version
+  // ---------------------------
+    Scalar bbound = bound;
+  bbound.set_spectral_va().ylm() ;
+  const Map& mapp = bbound.get_mp();
+ 
+  const Mg3d& gri2d = *mapp.get_mg();
+
+  assert(&gri2d == source.get_mp().get_mg()->get_angu_1dom()) ;
+  
+  Mtbl_cf bound2 (gri2d , bbound.get_spectral_base()) ;
+  bound2.annule_hard() ;  
+
+  if (bbound.get_etat() != ETATZERO){ 
+ 
+      int nr = gri2d.get_nr(0) ;
+      int nt = gri2d.get_nt(0) ; 
+      int np = gri2d.get_np(0) ; 
+       
+	  for(int k=0; k<np+2; k++)
+	      for (int j=0; j<=nt-1; j++)
+		  for(int xi=0; xi<= nr-1; xi++)
+		  {
+  bound2.set(0, k , j , xi) = (*bbound.get_spectral_va().c_cf)(0, k, j, xi) ;   
+  }
+  }  
+ 
+  
+  Mtbl_cf resu = elliptic_solver_boundary (ope_var, *(rho.c_cf), bound2, 
+					   fact_dir, fact_neu) ;
+  // Final result returned as a Scalar
+  // ---------------------------------
+  
+  pot.set_etat_zero() ;  // to call Scalar::del_t().
+  
+  pot.set_etat_qcq() ; 
+  
+  pot.set_spectral_va() = resu ;
+  pot.set_spectral_va().ylm_i() ; // On repasse en base standard.	    
+  
+  pot.set_dzpuis(0) ; 
+}
+
   
             //------------------------------------------------
 	   //		General elliptic solver with no zec
