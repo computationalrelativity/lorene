@@ -36,6 +36,10 @@ char scalar_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2007/01/16 15:10:00  n_vasset
+ *  New function sol_elliptic_boundary, with Scalar on mono domain
+ *  angular grid as boundary
+ *
  * Revision 1.17  2005/11/30 11:09:09  p_grandclement
  * Changes for the Bin_ns_bh project
  *
@@ -266,6 +270,33 @@ fact_dir, fact_neu ) ;
 
   return (res) ;
 }
+
+
+Scalar Scalar::sol_elliptic_boundary(Param_elliptic& ope_var, const Scalar& bound,
+double fact_dir, double fact_neu) const {
+
+  // Right now, only applicable with affine mapping or log one
+  const Map_af* map_affine = dynamic_cast <const Map_af*> (mp) ;
+  const Map_log* map_log = dynamic_cast <const Map_log*> (mp) ;
+
+  if ((map_affine == 0x0) && (map_log == 0x0))  {
+    cout << "sol_elliptic only defined for affine or log mapping" << endl ;
+    abort() ;
+  }
+  
+  Scalar res (*mp) ;
+  res.set_etat_qcq() ;
+  
+  if (map_affine != 0x0)
+    map_affine->sol_elliptic_boundary (ope_var, *this, res,  bound,
+fact_dir, fact_neu ) ;
+  else
+    map_log->sol_elliptic_boundary (ope_var, *this, res,  bound,
+fact_dir, fact_neu ) ;
+
+  return (res) ;
+}
+
 
      
 		    //-----------------------------------//
