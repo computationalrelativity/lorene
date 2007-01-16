@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.36  2007/01/16 15:05:59  n_vasset
+ * New constructor (taking a Scalar in mono-domain angular grid for
+ * boundary) for function sol_elliptic_boundary
+ *
  * Revision 1.35  2005/06/09 07:56:25  f_limousin
  * Implement a new function sol_elliptic_boundary() and
  * Vector::poisson_boundary(...) which solve the vectorial poisson
@@ -526,7 +530,8 @@ class Vector: public Tensor {
 			  const Mtbl_cf& limit_eta, const Mtbl_cf& limit_mu, 
 			  int num_front, double fact_dir, double fact_neu,
 			  Vector& resu) const ;
-  
+ 
+
     /**Solves the vector Poisson equation with \c *this  as a source 
      * with a boundary condition on the excised sphere.
      * 
@@ -539,6 +544,11 @@ class Vector: public Tensor {
      * @param lambda [input] \f$\lambda\f$.
      * @param resu [output] the solution \f$N^i\f$.
      */
+    void poisson_boundary2(double lam, Vector& resu, const Mtbl_cf bound_vr, const Mtbl_cf bound_eta, const Mtbl_cf bound_mu, double dir_vr, double neum_vr, double dir_eta, double neum_eta, double dir_mu, double neum_mu ) const ;
+ 
+    // Alternative 2 to previous vectorial poisson solver; this uses methode 6 for vectorial solving, updated version.
+
+ 
     Vector poisson_dirichlet(double lambda, const Valeur& limit_vr, 
 			  const Valeur& limit_vt, const Valeur& limit_vp, 
 			  int num_front) const ;

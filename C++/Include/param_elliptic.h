@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2007/01/16 15:05:59  n_vasset
+ * New constructor (taking a Scalar in mono-domain angular grid for
+ * boundary) for function sol_elliptic_boundary
+ *
  * Revision 1.17  2005/11/30 11:09:03  p_grandclement
  * Changes for the Bin_ns_bh project
  *
@@ -353,6 +357,10 @@ class Param_elliptic {
   friend void Map_af::sol_elliptic(Param_elliptic&, const Scalar&, Scalar&) const ;
   friend void Map_af::sol_elliptic_boundary(Param_elliptic&, const Scalar&, Scalar&, const Mtbl_cf& , 
 					    double , double ) const ;
+  friend void Map_af::sol_elliptic_boundary(Param_elliptic&, const Scalar&, Scalar&, const Scalar& , 
+					    double , double ) const ;
+
+
   friend void Map_af::sol_elliptic_no_zec(Param_elliptic&, const Scalar&, Scalar&, double) const ;
   friend void Map_af::sol_elliptic_only_zec(Param_elliptic&, const Scalar&, Scalar&, double) const ;
   friend void Map_af::sol_elliptic_sin_zec(Param_elliptic&, const Scalar&, Scalar&, double, double&, double) const ;
@@ -364,6 +372,11 @@ class Param_elliptic {
   friend void Map_log::sol_elliptic(Param_elliptic&, const Scalar&, Scalar&) const ;
   friend void Map_log::sol_elliptic_boundary(Param_elliptic&, const Scalar&, Scalar&, const Mtbl_cf&, 
 					     double, double) const ;
+ 
+ friend void Map_log::sol_elliptic_boundary(Param_elliptic&, const Scalar&, Scalar&, const Scalar&, 
+					     double, double) const ;
+
+
   friend void Map_log::sol_elliptic_no_zec(Param_elliptic&, const Scalar&, Scalar&, double) const ;
 } ;
 

@@ -38,6 +38,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.78  2007/01/16 15:05:59  n_vasset
+ * New constructor (taking a Scalar in mono-domain angular grid for
+ * boundary) for function sol_elliptic_boundary
+ *
  * Revision 1.77  2006/05/26 09:00:09  j_novak
  * New members for multiplication or division by cos(theta).
  *
@@ -1367,6 +1371,13 @@ class Scalar : public Tensor {
 
    **/
   Scalar sol_elliptic_boundary(Param_elliptic& params, const Mtbl_cf& bound,
+			       double fact_dir, double fact_neu) const ;
+ 
+  /** Resolution of general elliptic equation, with inner boundary conditions as Scalars
+   * on mono-domain angulare grids
+   **/
+
+  Scalar sol_elliptic_boundary(Param_elliptic& params, const Scalar& bound,
 			       double fact_dir, double fact_neu) const ;
  
 

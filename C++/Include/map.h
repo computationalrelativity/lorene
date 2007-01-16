@@ -39,6 +39,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.49  2007/01/16 15:05:59  n_vasset
+ * New constructor (taking a Scalar in mono-domain angular grid for
+ * boundary) for function sol_elliptic_boundary
+ *
  * Revision 1.48  2006/08/31 12:10:51  j_novak
  * More comments for Map_af::avance_dalembert().
  *
@@ -2341,6 +2345,13 @@ class Map_af : public Map_radial {
 			   const Scalar& so,  Scalar& uu, const Mtbl_cf& bound, 
 			   double fact_dir, double fact_neu ) const ;
 
+        /**
+         * General elliptic solver including inner boundary conditions, with
+         * boundary given as a Scalar on mono-domain angular grid
+        **/
+	void sol_elliptic_boundary (Param_elliptic& params, 
+			   const Scalar& so,  Scalar& uu, const Scalar& bound, 
+			   double fact_dir, double fact_neu ) const ;
 
 	/**
 	 * General elliptic solver.
@@ -3458,6 +3469,15 @@ class Map_log : public Map_radial {
 	 **/
 	void sol_elliptic_boundary (Param_elliptic& params, 
 			   const Scalar& so,  Scalar& uu, const Mtbl_cf& bound, 
+			   double fact_dir, double fact_neu ) const ;
+
+        /** General elliptic solver including inner boundary conditions, the bound being 
+	 * given as a Scalar on a mono-domain angular grid.
+         **/
+
+
+	void sol_elliptic_boundary (Param_elliptic& params, 
+			   const Scalar& so,  Scalar& uu, const Scalar& bound, 
 			   double fact_dir, double fact_neu ) const ;
 
 
