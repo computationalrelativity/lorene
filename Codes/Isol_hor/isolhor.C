@@ -30,6 +30,9 @@ char isolhor_C[] = "$Header$" ;
 /* 
  * $Id$
  * $Log$
+ * Revision 1.34  2007/01/22 14:49:53  jl_jaramillo
+ * versions ok for running tests
+ *
  * Revision 1.33  2006/02/22 16:32:14  jl_jaramillo
  * dynamical relaxation
  *
@@ -641,11 +644,11 @@ int main() {
     isolhor.set_boost_x(boost_x) ;
     isolhor.set_boost_z(boost_z) ;
 
-    //   isolhor.init_data(bound_nn, lim_nn, bound_psi, bound_beta, solve_lapse,
-    //	      solve_psi, solve_shift, seuil, relax_nn, relax_psi, relax_beta, niter) ;
+    isolhor.init_data(bound_nn, lim_nn, bound_psi, bound_beta, solve_lapse,
+		      solve_psi, solve_shift, seuil, relax_nn, relax_psi, relax_beta, niter) ;
 
-    isolhor.init_data_CTS_gen(bound_nn, lim_nn, bound_psi, bound_beta, solve_lapse,
-     		      solve_psi, solve_shift, seuil, relax_nn, relax_psi, relax_beta, niter, -1., 4.) ;
+    //    isolhor.init_data_CTS_gen(bound_nn, lim_nn, bound_psi, bound_beta, solve_lapse,
+    //      solve_psi, solve_shift, seuil, relax_nn, relax_psi, relax_beta, niter, -1., 4.) ;
 
    
 

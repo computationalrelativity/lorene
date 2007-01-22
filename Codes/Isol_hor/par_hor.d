@@ -13,7 +13,7 @@
 20000	maximum of iterations
 0.01	angular velocity
 0. 0.	boost velocity in x direction / z direction
-3 0.2	boundary condition for the lapse / value of the coefficient
+0 0.2	boundary condition for the lapse / value of the coefficient
 1	boundary condition for psi
 0	boundary condition for the shift
 1	1 = solve for the lapse / 0 : not 
