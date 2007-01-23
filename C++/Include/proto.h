@@ -35,6 +35,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.33  2007/01/23 17:08:43  j_novak
+ * New function pois_vect_r0.C to solve the l=0 part of the vector Poisson
+ * equation, which involves only the r-component.
+ *
  * Revision 1.32  2006/04/27 09:12:29  p_grandclement
  * First try at irrotational black holes
  *
@@ -725,6 +729,8 @@ Mtbl_cf elliptic_solver_fixe_der_zero  (double,
 					    const Param_elliptic&, 
 					    const Mtbl_cf&) ;
 
+// Solution de la composante r de Poisson vectoriel, pour l=0 uniquement
+Scalar pois_vect_r0(const Scalar& ) ; 
 
 // Regularisation du shift :
 double regle (Tenseur& shift_auto, const Tenseur& shift_comp, double omega, double) ;

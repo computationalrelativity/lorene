@@ -30,6 +30,10 @@ char vector_poisson_block_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2007/01/23 17:08:46  j_novak
+ * New function pois_vect_r0.C to solve the l=0 part of the vector Poisson
+ * equation, which involves only the r-component.
+ *
  * Revision 1.3  2005/12/30 13:39:38  j_novak
  * Changed the Galerkin base in the nucleus to (hopefully) stabilise the solver
  * when used in an iteration. Similar changes in the CED too.
@@ -81,9 +85,26 @@ void Vector::poisson_block(double lam, Vector& resu) const {
   assert(mg.get_type_r(0) == RARE) ;
   assert(mg.get_type_r(nzm1) == UNSURR) ;
   Scalar S_r = *cmp[0] ;
-  if (S_r.get_etat() == ETATZERO) S_r.annule_hard() ;
   Scalar S_eta = eta() ;
-  if (S_eta.get_etat() == ETATZERO) S_eta.annule_hard() ;
+  Scalar het(*mpaff) ; 
+  Scalar vr(*mpaff) ; 
+ bool all_zero = false ;
+  if (S_r.get_etat() == ETATZERO) {
+      if (S_eta.get_etat() == ETATZERO) {
+	  vr.set_etat_zero() ;
+	  het.set_etat_zero() ;
+	  all_zero = true ;
+      }
+      else {
+	  S_r.annule_hard() ;
+	  S_r.set_spectral_base(S_eta.get_spectral_base()) ;
+      }
+  }
+  if ((S_eta.get_etat() == ETATZERO)&&(!all_zero)) {
+      S_eta.annule_hard() ;
+      S_eta.set_spectral_base(S_r.get_spectral_base()) ;
+  }
+  if (!all_zero) {
   S_r.set_spectral_va().ylm() ;
   S_eta.set_spectral_va().ylm() ;
   const Base_val& base = S_eta.get_spectral_va().base ;
@@ -93,12 +114,12 @@ void Vector::poisson_block(double lam, Vector& resu) const {
   Mtbl_cf solution_hom_deux(mg, base) ; solution_hom_deux.annule_hard() ;
   Mtbl_cf solution_hom_trois(mg, base) ; solution_hom_trois.annule_hard() ;
   Mtbl_cf solution_hom_quatre(mg, base) ; solution_hom_quatre.annule_hard() ;
-
+ 
+  // Solution of the l=0 part for Vr
+  //---------------------------------
   Scalar sou_l0 = (*cmp[0]) / (1. + lam) ;
-  Param_elliptic param_l0(sou_l0) ;
-  for (int l=0; l<nz; l++)
-      param_l0.set_poisson_vect_r(l, true) ;
-  Scalar vrl0 = sou_l0.sol_elliptic(param_l0) ;
+  sou_l0.set_spectral_va().ylm() ;
+  Scalar vrl0 = pois_vect_r0(sou_l0) ;
 
   // Build-up & inversion of the system for (eta, V^r) in each domain
   //-----------------------------------------------------------------
@@ -117,7 +138,7 @@ void Vector::poisson_block(double lam, Vector& resu) const {
   for (int k=0 ; k<np+1 ; k++) {
       for (int j=0 ; j<nt ; j++) { 
 	  base.give_quant_numbers(0, k, j, m_q, l_q, base_r) ;
-	  if ( (nullite_plm(j, nt, k, np, base) == 1) && (l_q != 0) ) {
+	  if ( (nullite_plm(j, nt, k, np, base) == 1) && (l_q > 0) ) {
 	      int aa = 0 ; int bb = 0 ;  int nr0 = 0 ;
 	      if (base_r == R_CHEBP) {
 		  nr0 = nr-1 ;
@@ -459,12 +480,12 @@ void Vector::poisson_block(double lam, Vector& resu) const {
   //-------------------------------
 
   // Resulting V^r & eta
-  Scalar vr(*mpaff) ; vr.set_etat_qcq() ;
+  vr.set_etat_qcq() ;
   vr.set_spectral_base(base) ;
   vr.set_spectral_va().set_etat_cf_qcq() ;
   Mtbl_cf& cf_vr = *vr.set_spectral_va().c_cf ;
   cf_vr.annule_hard() ;
-  Scalar het(*mpaff) ; het.set_etat_qcq() ;
+  het.set_etat_qcq() ;
   het.set_spectral_base(base) ;
   het.set_spectral_va().set_etat_cf_qcq() ;
   Mtbl_cf& cf_eta = *het.set_spectral_va().c_cf ;
@@ -738,9 +759,9 @@ void Vector::poisson_block(double lam, Vector& resu) const {
   vr.set_spectral_va().ylm_i() ;
   vr += vrl0 ;
   het.set_spectral_va().ylm_i() ;
-
+  }
   resu.set_vr_eta_mu(vr, het, mu().poisson()) ;
 
   return ;
-
+  
 }
