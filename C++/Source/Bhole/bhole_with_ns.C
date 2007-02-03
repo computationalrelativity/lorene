@@ -25,6 +25,9 @@ char bhole_with_ns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2007/02/03 07:46:30  p_grandclement
+ * Addition of term kss for psi BC
+ *
  * Revision 1.8  2006/04/27 09:12:31  p_grandclement
  * First try at irrotational black holes
  *
@@ -145,13 +148,36 @@ void Bhole::solve_psi_with_ns (double relax) {
     Valeur limite (mp.get_mg()->get_angu()) ;
     limite = 1 ;
 
+
     int np = mp.get_mg()->get_np(1) ;
     int nt = mp.get_mg()->get_nt(1) ;
 
+    double* vec_s = new double[3] ;
+    Mtbl tet_mtbl (mp.get_mg()) ;
+    tet_mtbl = mp.tet ;
+    Mtbl phi_mtbl (mp.get_mg()) ;
+    phi_mtbl = mp.phi ;
+
     for (int k=0 ; k<np ; k++) 
-      for (int j=0 ; j<nt ; j++)
+      for (int j=0 ; j<nt ; j++) {
+	
+	double tet = tet_mtbl(1,k,j,0) ;
+        double phi = phi_mtbl(1,k,j,0) ;
+        vec_s[0] = cos(phi)*sin(tet) ;
+	vec_s[1] = sin(phi)*sin(tet) ;
+	vec_s[2] = cos(tet) ;
+	double part_ss = 0 ;
+	if (tkij_tot.get_etat()==ETATQCQ) 
+	for (int m=0 ; m<3 ; m++)
+		for (int n=0 ; n<3 ; n++)
+			part_ss += vec_s[m]*vec_s[n]*tkij_tot(m,n)(1,k,j,0) ;
+	part_ss *= pow(psi_tot()(1,k,j,0),3.)/2. ;
+
+
 	limite.set(0, k, j, 0) = -0.5/rayon*psi_tot()(1, k, j, 0) -
-	  psi_comp().dsdr()(1, k, j, 0) ;
+	  psi_comp().dsdr()(1, k, j, 0) - part_ss ;
+}
+
 
     limite.std_base_scal() ;
     
