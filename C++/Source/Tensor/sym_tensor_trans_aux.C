@@ -30,6 +30,10 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2007/03/20 12:20:56  j_novak
+ * In Sym_tensor_trans::set_AtBtt_det_one(), the trace is stored in the resulting
+ * object.
+ *
  * Revision 1.15  2006/10/24 13:03:19  j_novak
  * New methods for the solution of the tensor wave equation. Perhaps, first
  * operational version...
@@ -270,6 +274,8 @@ void Sym_tensor_trans::set_AtBtt_det_one(const Scalar& a_in, const Scalar& tbtt_
 	    p_aaa = new Scalar(a_in) ;
 	    if (p_tilde_b != 0x0) delete p_tilde_b ;
 	    p_tilde_b = new Scalar(tilde_B + tbtt_in) ;
+	    if (p_trace != 0x0) delete p_trace ;
+	    p_trace = new Scalar(h_old) ;
 	    break ;
 	}
         else {
