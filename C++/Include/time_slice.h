@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2007/03/21 14:51:48  j_novak
+ * Introduction of potentials A and tilde(B) of h^{ij} into Tslice_dirac_max.
+ *
  * Revision 1.23  2005/03/28 19:44:00  f_limousin
  * Function tgam() is now virtual.
  *
@@ -890,6 +893,18 @@ class Tslice_dirac_max : public Time_slice_conf {
    */
   mutable Evolution_std<Scalar> mu_evol ;
 
+  /** The potential \e A of \f$ \bar{h}^{ij} \f$.
+   *
+   * See the documentation of \c Sym_tensor for details.
+   */
+  mutable Evolution_std<Scalar> potA_evol ;
+  
+  /** The potential \f$\tilde{B}\f$ of \f$ \bar{h}^{ij} \f$.
+   *
+   * See the documentation of \c Sym_tensor_tt for details.
+   */
+  mutable Evolution_std<Scalar> tildeB_evol ;
+
   /// The trace, with respect to the flat metric \c ff , of \f$ h^{ij} \f$.
   mutable Evolution_std<Scalar> trh_evol ;
 
@@ -1036,6 +1051,16 @@ class Tslice_dirac_max : public Time_slice_conf {
 	 */
 	virtual void set_khi_mu(const Scalar& khi_in, const Scalar& mu_in) ; 
 
+	/** Sets the potentials \e A and \f$\tilde{B}\f$
+         * of the TT part \f$ \bar{h}^{ij} \f$ of \f$ h^{ij} \f$
+	 * (see the documentation of \c Sym_tensor for details).
+         * The value of \f$ h^{ij} \f$ is then deduced from the
+         * unimodularity condition on the conformal metric.
+         * Sets the value at the current time step (\c jtime ).
+	 */
+	virtual void set_A_tildeB(const Scalar& potA_in, const Scalar& tildeB_in,
+				  Param* par_bc=0x0, Param* par_mat=0x0) ; 
+
 	/** Sets the trace, with respect to the flat metric 
 	 * \c ff , of \f$ h^{ij} \f$.
          * Sets the value at the current time step (\c jtime ).
@@ -1159,6 +1184,15 @@ class Tslice_dirac_max : public Time_slice_conf {
          */
         void hh_det_one(int j) const ; 
 
+        /** Computes \f$ h^{ij} \f$ from the values of \e A and 
+         * \f$\tilde{B}\f$ and using the condition 
+         * \f$\det\tilde\gamma^{ij} = \det f^{ij} \f$, which fixes the
+         * trace of \f$ h^{ij} \f$.
+         * @param j time step at which the computation of \f$ h^{ij} \f$
+         *      is required.
+         */
+        void hh_det_one_AB(int j, Param* par_bc = 0x0, Param* par_mat = 0x0) const ; 
+
     // Accessors
     // ---------
     public:
@@ -1199,6 +1233,18 @@ class Tslice_dirac_max : public Time_slice_conf {
          * Returns the value at the current time step (\c jtime ).
 	 */
 	virtual const Scalar& mu() const ;
+	
+	/** Returns the potential \e A of \f$ \bar{h}^{ij} \f$.
+	 * See the documentation of \c Sym_tensor for details.
+         * Returns the value at the current time step (\c jtime ).
+	 */
+	virtual const Scalar& potA() const ; 
+
+	/** Returns the potential \f$\tilde{B}\f$ of \f$ \bar{h}^{ij} \f$.
+	 * See the documentation of \c Sym_tensor_tt for details.
+         * Returns the value at the current time step (\c jtime ).
+	 */
+	virtual const Scalar& tildeB() const ;
 	
 	/** Computes the trace \c h, with respect to the flat metric 
 	 * \c ff , of \f$ h^{ij} \f$. 

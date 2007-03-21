@@ -30,6 +30,9 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2007/03/21 14:51:50  j_novak
+ * Introduction of potentials A and tilde(B) of h^{ij} into Tslice_dirac_max.
+ *
  * Revision 1.16  2004/12/28 14:21:48  j_novak
  * Added the method Sym_tensor_trans::trace_from_det_one
  *
@@ -122,6 +125,8 @@ Tslice_dirac_max::Tslice_dirac_max(const Scalar& lapse_in, const Vector& shift_i
 		     0*lapse_in, depth_in), 
     khi_evol(hh_in.tt_part().khi(), depth_in), 
     mu_evol(hh_in.tt_part().mu(), depth_in),
+    potA_evol(hh_in.compute_A(), depth_in), 
+    tildeB_evol(hh_in.compute_tilde_B_tt(), depth_in),
     trh_evol(hh_in.the_trace(), depth_in) { }
                  
 
@@ -133,6 +138,8 @@ Tslice_dirac_max::Tslice_dirac_max(const Map& mp, const Base_vect& triad,
         : Time_slice_conf(mp, triad, ff_in, depth_in),
           khi_evol(depth_in),   
           mu_evol(depth_in),   
+          potA_evol(depth_in),   
+          tildeB_evol(depth_in),   
           trh_evol(depth_in) {
 
     double time_init = the_time[jtime] ; 
@@ -144,6 +151,12 @@ Tslice_dirac_max::Tslice_dirac_max(const Map& mp, const Base_vect& triad,
     
     // mu identically zero:
     mu_evol.update(tmp, jtime, time_init) ; 
+    
+    // A identically zero:
+    potA_evol.update(tmp, jtime, time_init) ; 
+    
+    // tildeB identically zero:
+    tildeB_evol.update(tmp, jtime, time_init) ; 
     
     // tr h identically zero:
     trh_evol.update(tmp, jtime, time_init) ; 
@@ -160,6 +173,8 @@ Tslice_dirac_max::Tslice_dirac_max(const Map& mp, const Base_vect& triad,
         : Time_slice_conf(mp, triad, ff_in, fich, true, depth_in),
           khi_evol(depth_in),   
           mu_evol(depth_in),   
+          potA_evol(depth_in),   
+          tildeB_evol(depth_in),   
           trh_evol(depth_in) {
 
     if (partial_read) {
@@ -194,10 +209,30 @@ Tslice_dirac_max::Tslice_dirac_max(const Map& mp, const Base_vect& triad,
         }
     }
 
+    // A
+    for (int j=jmin; j<=jtime; j++) {
+        fread_be(&indicator, sizeof(int), 1, fich) ;	
+        if (indicator == 1) {
+            Scalar potA_file(mp, *(mp.get_mg()), fich) ; 
+            potA_evol.update(potA_file, j, the_time[j]) ; 
+        }
+    }
+
+    // tildeB
+    for (int j=jmin; j<=jtime; j++) {
+        fread_be(&indicator, sizeof(int), 1, fich) ;	
+        if (indicator == 1) {
+            Scalar tildeB_file(mp, *(mp.get_mg()), fich) ; 
+            tildeB_evol.update(tildeB_file, j, the_time[j]) ; 
+        }
+    }
+
     // h^ij is computed from the values of khi and mu
     // ----------------------------------------------
     for (int j=jmin; j<=jtime; j++) {
         if ( khi_evol.is_known(j) && mu_evol.is_known(j) ) hh_det_one(j) ;
+	else //## determine BCs and par_bc!!
+	    if ( potA_evol.is_known(j) && tildeB_evol.is_known(j) ) hh_det_one_AB(j) ;
     }
     
 }
@@ -211,6 +246,8 @@ Tslice_dirac_max::Tslice_dirac_max(const Tslice_dirac_max& tin)
                     : Time_slice_conf(tin), 
                       khi_evol(tin.khi_evol), 
                       mu_evol(tin.mu_evol),
+                      potA_evol(tin.potA_evol), 
+                      tildeB_evol(tin.tildeB_evol),
                       trh_evol(tin.trh_evol) { }
                       
                       
@@ -231,6 +268,8 @@ void Tslice_dirac_max::operator=(const Tslice_dirac_max& tin) {
 
     khi_evol = tin.khi_evol ; 
     mu_evol = tin.mu_evol ; 
+    potA_evol = tin.potA_evol ; 
+    tildeB_evol = tin.tildeB_evol ; 
     trh_evol = tin.trh_evol ; 
        
 }
@@ -243,6 +282,8 @@ void Tslice_dirac_max::set_hh(const Sym_tensor& hh_in) {
     // Reset of quantities depending on h^{ij}:
     khi_evol.downdate(jtime) ; 
     mu_evol.downdate(jtime) ; 
+    potA_evol.downdate(jtime) ; 
+    tildeB_evol.downdate(jtime) ; 
     trh_evol.downdate(jtime) ; 
          
 }
@@ -273,7 +314,7 @@ void Tslice_dirac_max::initial_data_cts(const Sym_tensor& uu,
 
         if (vanishing_uu) {  // Case dh^{ij}/dt = 0
                              // --------------------
-            // khi and mu are actually not computed but read from the
+            // khi, mu, A and tildeB are actually not computed but read from the
             // value of hh at jtime. 
             khi_evol.update(
              hh_evol[jtime].transverse(ff,0x0,method_poisson_vect).tt_part().khi(),
@@ -281,6 +322,8 @@ void Tslice_dirac_max::initial_data_cts(const Sym_tensor& uu,
             mu_evol.update(
              hh_evol[jtime].transverse(ff,0x0,method_poisson_vect).tt_part().mu(),
                            j, the_time[j]) ;
+            potA_evol.update(hh_evol[jtime].compute_A(), j, the_time[j]) ;
+            tildeB_evol.update(hh_evol[jtime].compute_tilde_B_tt(), j, the_time[j]) ;
         }
         else {          // Case dh^{ij}/dt != 0
                         // --------------------
@@ -300,6 +343,14 @@ void Tslice_dirac_max::initial_data_cts(const Sym_tensor& uu,
             tmp = hhtmp.transverse(ff,0x0,method_poisson_vect).tt_part().mu() ;
             tmp.annule_domain(nz-1) ; //##
             mu_evol.update(tmp, j, the_time[j]) ;
+
+            tmp = hhtmp.compute_A() ;
+            tmp.annule_domain(nz-1) ;
+            potA_evol.update(tmp, j, the_time[j]) ;
+
+            tmp = hhtmp.compute_tilde_B_tt() ;
+            tmp.annule_domain(nz-1) ; //##
+            tildeB_evol.update(tmp, j, the_time[j]) ;
         }
 
     }
@@ -316,12 +367,19 @@ void Tslice_dirac_max::initial_data_cts(const Sym_tensor& uu,
         hh_evol[jtime].transverse(ff,0x0,method_poisson_vect).tt_part().mu(),
                            jtime, the_time[jtime]) ;
     
+    potA_evol.update(hh_evol[jtime].compute_A(), jtime, the_time[jtime]) ;
+    mu_evol.update(hh_evol[jtime].compute_tilde_B_tt(), jtime, the_time[jtime]) ;
+    
     cout << endl << 
-    "Tslice_dirac_max::initial_data_cts : variation of khi and mu for J = " 
+    "Tslice_dirac_max::initial_data_cts : variation of khi, mu, A and tilde(B) for J = " 
     << jtime << " :\n" ;  
     maxabs(khi_evol[jtime] - khi_evol[jtime-1], "khi^J - khi^{J-1}") ; 
     
     maxabs(mu_evol[jtime] - mu_evol[jtime-1], "mu^J - mu^{J-1}") ; 
+    
+    maxabs(potA_evol[jtime] - potA_evol[jtime-1], "A^J - A^{J-1}") ; 
+    
+    maxabs(tildeB_evol[jtime] - tildeB_evol[jtime-1], "tilde(B)^J - tilde(B)^{J-1}") ; 
     
     // Reset of derived quantities (at the new time step jtime)
     // ---------------------------
@@ -339,9 +397,7 @@ void Tslice_dirac_max::set_khi_mu(const Scalar& khi_in, const Scalar& mu_in) {
 
     hh_det_one(jtime) ;
     
-    
 } 
-
 
 void Tslice_dirac_max::set_trh(const Scalar& trh_in) {
 
@@ -407,6 +463,10 @@ void Tslice_dirac_max::hh_det_one(int j0) const {
     
     hh_evol.update(hh_new, j0, the_time[j0]) ;
     
+    // Update of A and tlde(B)
+    potA_evol.update(hij.compute_A(), jtime, the_time[jtime]) ; 
+    tildeB_evol.update(hij.compute_tilde_B_tt(), jtime, the_time[jtime]) ; 
+      
     if (j0 == jtime) {
         // Reset of quantities depending on h^{ij}:
         if (p_tgamma != 0x0) {
@@ -532,6 +592,25 @@ const Scalar& Tslice_dirac_max::mu() const {
 
 }
 
+const Scalar& Tslice_dirac_max::potA() const {
+
+    if (!( potA_evol.is_known(jtime) ) ) {
+      cout << "Error: potA_evol is not konwn at time : " << jtime << '\n' ;
+      cout << "Better not use the value deduced from hh!" << endl ;
+      abort() ;
+    }
+    return potA_evol[jtime] ;
+} 
+
+const Scalar& Tslice_dirac_max::tildeB() const {
+
+    if (!( tildeB_evol.is_known(jtime) ) ) {
+      cout << "Error: tildeB_evol is not konwn at time : " << jtime << '\n' ;
+      cout << "Better not use the value deduced from hh!" << endl ;
+      abort() ;
+    }
+    return tildeB_evol[jtime] ;
+}
 
 const Scalar& Tslice_dirac_max::trh() const {
 
@@ -563,6 +642,12 @@ ostream& Tslice_dirac_max::operator>>(ostream& flux) const {
     }
     if (mu_evol.is_known(jtime)) {
         maxabs( mu_evol[jtime], "Mu", flux) ;
+    }
+    if (potA_evol.is_known(jtime)) {
+        maxabs( potA_evol[jtime], "A", flux) ;
+    }
+    if (tildeB_evol.is_known(jtime)) {
+        maxabs( tildeB_evol[jtime], "tilde(B)", flux) ;
     }
     if (trh_evol.is_known(jtime)) {
         maxabs( trh_evol[jtime], "tr h", flux) ;
@@ -606,6 +691,22 @@ void Tslice_dirac_max::sauve(FILE* fich, bool partial_save) const {
         int indicator = (mu_evol.is_known(j)) ? 1 : 0 ; 
         fwrite_be(&indicator, sizeof(int), 1, fich) ;
         if (indicator == 1) mu_evol[j].sauve(fich) ; 
+    }
+    
+    // A
+    potA() ;     // forces the update at the current time step
+    for (int j=jmin; j<=jtime; j++) {
+        int indicator = (potA_evol.is_known(j)) ? 1 : 0 ; 
+        fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        if (indicator == 1) potA_evol[j].sauve(fich) ; 
+    }
+
+    // tildeB
+    tildeB() ;     // forces the update at the current time step
+    for (int j=jmin; j<=jtime; j++) {
+        int indicator = (tildeB_evol.is_known(j)) ? 1 : 0 ; 
+        fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        if (indicator == 1) tildeB_evol[j].sauve(fich) ; 
     }
     
 }
