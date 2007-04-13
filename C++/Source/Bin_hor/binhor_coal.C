@@ -26,6 +26,10 @@ char binhor_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2007/04/13 15:28:55  f_limousin
+ * Lots of improvements, generalisation to an arbitrary state of
+ * rotation, implementation of the spatial metric given by Samaya.
+ *
  * Revision 1.12  2006/08/01 14:37:19  f_limousin
  * New version
  *
@@ -85,43 +89,44 @@ char binhor_coal_C[] = "$Header$" ;
 void Bin_hor::set_statiques (double precis, double relax, int bound_nn,
 			     double lim_nn, int bound_psi) {
     
-    int nz = hole1.mp.get_mg()->get_nzone() ;
+  int nz = hole1.mp.get_mg()->get_nzone() ;
     
-    set_omega(0) ;
-    init_bin_hor() ;
-    hole1.init_met_trK() ;
-    hole2.init_met_trK() ;
-    extrinsic_curvature() ;
+  set_omega(0) ;
+  hole1.init_met_trK() ;
+  hole2.init_met_trK() ;
+  init_bin_hor() ;
+  extrinsic_curvature() ;
       
-    int indic = 1 ;
-    int conte = 0 ;
+  int indic = 1 ;
+  int conte = 0 ;
  
-    cout << "Static black holes : " << endl ;
-    while (indic == 1) {
-	Scalar lapse_un_old (hole1.n_auto()) ;
+  cout << "Static black holes : " << endl ;
+  while (indic == 1) {
+    Scalar lapse_un_old (hole1.n_auto) ;
 
-	solve_psi (precis, relax, bound_psi) ;
-	solve_lapse (precis, relax, bound_nn, lim_nn) ;
+    solve_psi (precis, relax, bound_psi) ;
+    solve_lapse (precis, relax, bound_nn, lim_nn) ;
 
-	//	des_profile(hole1.nn(), 0, 20, M_PI/2, M_PI) ;
+    //	des_profile(hole1.nn(), 0, 20, M_PI/2, M_PI) ;
 
-	double erreur = 0 ;
-	Tbl diff (diffrelmax (lapse_un_old, hole1.n_auto())) ;
-	for (int i=1 ; i<nz ; i++)
-	    if (diff(i) > erreur)
-		erreur = diff(i) ;
+    double erreur = 0 ;
+    Tbl diff (diffrelmax (lapse_un_old, hole1.n_auto)) ;
+    for (int i=1 ; i<nz ; i++)
+      if (diff(i) > erreur)
+	erreur = diff(i) ;
 	
-	cout << "Step : " << conte << " Difference : " << erreur << endl ;
+    cout << "Step : " << conte << " Difference : " << erreur << endl ;
 	
-	if (erreur < precis)
-	    indic = -1 ;
-	conte ++ ;
-    }
+    if (erreur < precis)
+      indic = -1 ;
+    conte ++ ;
+  }
 }
 
 double Bin_hor::coal (double angu_vel, double relax, int nb_ome,
 		      int nb_it, int bound_nn, double lim_nn, 
-		      int bound_psi, int bound_beta,
+		      int bound_psi, int bound_beta, double omega_eff,
+		      double alpha,
 		      ostream& fich_iteration, ostream& fich_correction,
 		      ostream& fich_viriel, ostream& fich_kss, 
 		      int step, int search_mass, double mass_irr, 
@@ -131,148 +136,158 @@ double Bin_hor::coal (double angu_vel, double relax, int nb_ome,
 
   double precis = 1e-7 ;
     
-    // LOOP INCREASING OMEGA  : 
-    cout << "OMEGA INCREASED STEP BY STEP." << endl ;
-    double homme = get_omega() ;
-    double inc_homme = (angu_vel - homme)/nb_ome ;
-    for (int pas = 0 ; pas <nb_ome ; pas ++) {
+  // LOOP INCREASING OMEGA  : 
+  cout << "OMEGA INCREASED STEP BY STEP." << endl ;
+  double homme = get_omega() ;
+  double inc_homme = (angu_vel - homme)/nb_ome ;
+  for (int pas = 0 ; pas <nb_ome ; pas ++) {
+      
+    bool verif = false ;
+    if (omega_eff == alpha*homme ) verif = true ;
+      
+    homme += inc_homme ;
+    set_omega (homme) ;
+    if (verif)
+      omega_eff = alpha*homme ;
+    Scalar beta_un_old (hole1.beta_auto(1)) ;
+      
+    solve_shift (precis, relax, bound_beta, omega_eff) ;
+    extrinsic_curvature() ;
+
+    solve_psi (precis, relax, bound_psi) ;
+    solve_lapse (precis, relax, bound_nn, lim_nn) ;
 	
-	homme += inc_homme ;
-	set_omega (homme) ;
-	Scalar beta_un_old (hole1.beta_auto()(1)) ;
-
-	//	des_profile(hole1.nn(), 0, 20, M_PI/2, M_PI) ;
-
-       solve_shift (precis, relax, bound_beta) ;
-        extrinsic_curvature() ;
-
-	solve_psi (precis, relax, bound_psi) ;
-        solve_lapse (precis, relax, bound_nn, lim_nn) ;
+    // Convergence to the given irreductible mass 
+    if (search_mass == 1 && step >= 30) {
+      double mass_area = sqrt(hole1.area_hor()/16/M_PI) + 
+	sqrt(hole2.area_hor()/16/M_PI) ;
+      double error_m = (mass_irr - mass_area) / mass_irr ;
+      double scaling_r = pow((2-error_m)/(2-2*error_m), 1.) ;
+      hole1.mp.homothetie_interne(scaling_r) ;
+      hole1.radius = hole1.radius *scaling_r ;
+      hole2.mp.homothetie_interne(scaling_r) ;
+      hole2.radius = hole2.radius *scaling_r ;
 	
-
-	des_profile(hole1.nn(), 0, 35, M_PI/2, M_PI) ;
-
-	// Convergence to the given irreductible mass 
-	if (search_mass == 1 && step >= 30) {
-	    double mass_area = sqrt(hole1.area_hor()/16/M_PI) + 
-		sqrt(hole2.area_hor()/16/M_PI) ;
-	    double error_m = (mass_irr - mass_area) / mass_irr ;
-	    double scaling_r = pow((2-error_m)/(2-2*error_m), 1.) ;
-
-	    hole1.mp.homothetie_interne(scaling_r) ;
-	    hole1.radius = hole1.radius *scaling_r ;
-	    hole2.mp.homothetie_interne(scaling_r) ;
-	    hole2.radius = hole2.radius *scaling_r ;
-	}
-
-	cout << "Angular momentum computed at the horizon : " << ang_mom_hor()
-	     << endl ;
-
-	double erreur = 0 ;
-	Tbl diff (diffrelmax (beta_un_old, hole1.beta_auto()(1))) ;
-		for (int i=1 ; i<nz ; i++)
-	    if (diff(i) > erreur)
-		erreur = diff(i) ;
-
-	// Saving ok K_{ij}s^is^j
-	// -----------------------
+      // Update of the different metrics (another possibility would 
+      // be to set all derived quantities to 0x0, especially
+      // the connection p_connect
+      hole1.ff = hole1.mp.flat_met_spher() ;
+      hole1.tgam = hole1.mp.flat_met_spher() ;
+      hole2.ff = hole2.mp.flat_met_spher() ;
+      hole2.tgam = hole1.mp.flat_met_spher() ;
 	
-	Scalar kkss (contract(hole1.k_dd(), 0, 1, hole1.gam().radial_vect()*
-		     hole1.gam().radial_vect(), 0, 1)) ;
-	double max_kss = kkss.val_grid_point(1, 0, 0, 0) ;
-	double min_kss = kkss.val_grid_point(1, 0, 0, 0) ;
-	int nnp = hole1.mp.get_mg()->get_np(1) ;
-	int nnt = hole2.mp.get_mg()->get_nt(1) ;
-	for (int k=0 ; k<nnp ; k++)
-	    for (int j=0 ; j<nnt ; j++){
-		if (kkss.val_grid_point(1, k, j, 0) > max_kss)
-		    max_kss = kkss.val_grid_point(1, k, j, 0) ;
-		if (kkss.val_grid_point(1, k, j, 0) < min_kss)
-		    min_kss = kkss.val_grid_point(1, k, j, 0) ;
-	    }
+    }
+      
+    cout << "Angular momentum computed at the horizon : " << ang_mom_hor()
+	 << endl ;
+      
+    double erreur = 0 ;
+    Tbl diff (diffrelmax (beta_un_old, hole1.beta_auto(1))) ;
+    for (int i=1 ; i<nz ; i++)
+      if (diff(i) > erreur)
+	erreur = diff(i) ;
+      
+    // Saving ok K_{ij}s^is^j
+    // -----------------------
+	
+    Scalar kkss (contract(hole1.get_k_dd(), 0, 1, 
+			  hole1.get_gam().radial_vect()*
+			  hole1.get_gam().radial_vect(), 0, 1)) ;
+    double max_kss = kkss.val_grid_point(1, 0, 0, 0) ;
+    double min_kss = kkss.val_grid_point(1, 0, 0, 0) ;
+    int nnp = hole1.mp.get_mg()->get_np(1) ;
+    int nnt = hole2.mp.get_mg()->get_nt(1) ;
+    for (int k=0 ; k<nnp ; k++)
+      for (int j=0 ; j<nnt ; j++){
+	if (kkss.val_grid_point(1, k, j, 0) > max_kss)
+	  max_kss = kkss.val_grid_point(1, k, j, 0) ;
+	if (kkss.val_grid_point(1, k, j, 0) < min_kss)
+	  min_kss = kkss.val_grid_point(1, k, j, 0) ;
+      }
 
-	if (sortie != 0) {
-	  fich_iteration << step << " " << log10(erreur) << " " << homme << endl ;
-	  fich_correction << step << " " << log10(hole1.regul) << " " << homme << endl ;
-//	  fich_viriel << step << " " << log10(fabs(viriel())) << " " << homme << endl ;
-	  fich_viriel << step << " " << viriel() << " " << homme << endl ;
-	  fich_kss << step << " " << max_kss << " " << min_kss << endl ;
-	    }
+    if (sortie != 0) {
+      fich_iteration << step << " " << log10(erreur) << " " << homme << endl ;
+      fich_correction << step << " " << log10(hole1.regul) << " " << homme << endl ;
+      //	  fich_viriel << step << " " << log10(fabs(viriel())) << " " << homme << endl ;
+      fich_viriel << step << " " << viriel() << " " << homme << " " << hole1.omega_hor() - alpha*homme << " " << omega_eff << endl ;
+      fich_kss << step << " " << max_kss << " " << min_kss << endl ;
+    }
 	    
-	cout << "STEP : " << step << " DIFFERENCE : " << erreur << endl ;
-	step ++ ;
-    }
+    cout << "STEP : " << step << " DIFFERENCE : " << erreur << endl ;
+    step ++ ;
+  }
     
-    // LOOP WITH FIXED OMEGA :
+  // LOOP WITH FIXED OMEGA :
 
-    if (nb_it !=0)
-      cout << "OMEGA FIXED" << endl ;
-    double erreur ;
+  if (nb_it !=0)
+    cout << "OMEGA FIXED" << endl ;
+  double erreur ;
 
-    for (int pas = 0 ; pas <nb_it ; pas ++) {
+  for (int pas = 0 ; pas <nb_it ; pas ++) {
 	
-	Scalar beta_un_old (hole1.beta_auto()(1)) ;
+    Scalar beta_un_old (hole1.beta_auto(1)) ;
 
-        solve_shift (precis, relax, bound_beta) ;
-        extrinsic_curvature() ;
+    solve_shift (precis, relax, bound_beta, omega_eff) ;
+    extrinsic_curvature() ;
 
-        solve_psi (precis, relax, bound_psi) ;
-        solve_lapse (precis, relax, bound_nn, lim_nn) ;
+    solve_psi (precis, relax, bound_psi) ;
+    solve_lapse (precis, relax, bound_nn, lim_nn) ;
 
-	// Convergence to the given irreductible mass 
-	if (search_mass == 1 && step >= 30) {
-	    double mass_area = sqrt(hole1.area_hor()/16/M_PI) + 
-		sqrt(hole2.area_hor()/16/M_PI) ;
-	    double error_m = (mass_irr - mass_area) / mass_irr ;
-	    double scaling_r = pow((2-error_m)/(2-2*error_m), 1.) ;
-
-	    hole1.mp.homothetie_interne(scaling_r) ;
-	    hole1.radius = hole1.radius *scaling_r ;
-	    hole2.mp.homothetie_interne(scaling_r) ;
-	    hole2.radius = hole2.radius *scaling_r ;
-	}
-
-	erreur = 0 ;
-	Tbl diff (diffrelmax (beta_un_old, hole1.beta_auto()(1))) ;
-	for (int i=1 ; i<nz ; i++)
-	    if (diff(i) > erreur)
-		erreur = diff(i) ;
-
-	// Saving ok K_{ij}s^is^j
-	// -----------------------
-	
-	Scalar kkss (contract(hole1.k_dd(), 0, 1, hole1.gam().radial_vect()*
-		     hole1.gam().radial_vect(), 0, 1)) ;
-	double max_kss = kkss.val_grid_point(1, 0, 0, 0) ;
-	double min_kss = kkss.val_grid_point(1, 0, 0, 0) ;
-	int nnp = hole1.mp.get_mg()->get_np(1) ;
-	int nnt = hole2.mp.get_mg()->get_nt(1) ;
-	for (int k=0 ; k<nnp ; k++)
-	    for (int j=0 ; j<nnt ; j++){
-		if (kkss.val_grid_point(1, k, j, 0) > max_kss)
-		    max_kss = kkss.val_grid_point(1, k, j, 0) ;
-		if (kkss.val_grid_point(1, k, j, 0) < min_kss)
-		    min_kss = kkss.val_grid_point(1, k, j, 0) ;
-	    }
-
-	
-	if (sortie != 0) {
-	  fich_iteration << step << " " << log10(erreur) << " " << homme << endl ;
-	  fich_correction << step << " " << log10(hole1.regul) << " " << homme << endl ;
-//	  fich_viriel << step << " " << log10(fabs(viriel())) << " " << homme << endl ;
-	  fich_viriel << step << " " << viriel() << " " << homme << endl ;
-	  fich_kss << step << " " << max_kss << " " << min_kss << endl ;
+    // Convergence to the given irreductible mass 
+    if (search_mass == 1 && step >= 30) {
+      double mass_area = sqrt(hole1.area_hor()/16/M_PI) + 
+	sqrt(hole2.area_hor()/16/M_PI) ;
+      double error_m = (mass_irr - mass_area) / mass_irr ;
+      double scaling_r = pow((2-error_m)/(2-2*error_m), 1.) ;
+	  
+      hole1.mp.homothetie_interne(scaling_r) ;
+      hole1.radius = hole1.radius *scaling_r ;
+      hole2.mp.homothetie_interne(scaling_r) ;
+      hole2.radius = hole2.radius *scaling_r ;
     }
 
-	cout << "STEP : " << step << " DIFFERENCE : " << erreur << endl ;
- 	step ++ ;
-   }
+    erreur = 0 ;
+    Tbl diff (diffrelmax (beta_un_old, hole1.beta_auto(1))) ;
+    for (int i=1 ; i<nz ; i++)
+      if (diff(i) > erreur)
+	erreur = diff(i) ;
 
-    if (nb_it != 0){
-      fich_iteration << "#----------------------------"  << endl ;
-      fich_correction << "#-----------------------------" << endl ;
-      fich_viriel << "#------------------------------"  << endl ;
+    // Saving ok K_{ij}s^is^j
+    // -----------------------
+	
+    Scalar kkss (contract(hole1.get_k_dd(), 0, 1, 
+			  hole1.get_gam().radial_vect()*
+			  hole1.get_gam().radial_vect(), 0, 1)) ;
+    double max_kss = kkss.val_grid_point(1, 0, 0, 0) ;
+    double min_kss = kkss.val_grid_point(1, 0, 0, 0) ;
+    int nnp = hole1.mp.get_mg()->get_np(1) ;
+    int nnt = hole2.mp.get_mg()->get_nt(1) ;
+    for (int k=0 ; k<nnp ; k++)
+      for (int j=0 ; j<nnt ; j++){
+	if (kkss.val_grid_point(1, k, j, 0) > max_kss)
+	  max_kss = kkss.val_grid_point(1, k, j, 0) ;
+	if (kkss.val_grid_point(1, k, j, 0) < min_kss)
+	  min_kss = kkss.val_grid_point(1, k, j, 0) ;
+      }
+
+	
+    if (sortie != 0) {
+      fich_iteration << step << " " << log10(erreur) << " " << homme << endl ;
+      fich_correction << step << " " << log10(hole1.regul) << " " << homme << endl ;
+      //	  fich_viriel << step << " " << log10(fabs(viriel())) << " " << homme << endl ;
+      fich_viriel << step << " " << viriel() << " " << homme << " " << hole1.omega_hor() - alpha*homme << " " << omega_eff << endl ;
+      fich_kss << step << " " << max_kss << " " << min_kss << endl ;
     }
 
-    return viriel() ;
+    cout << "STEP : " << step << " DIFFERENCE : " << erreur << endl ;
+    step ++ ;
+  }
+
+  if (nb_it != 0){
+    fich_iteration << "#----------------------------"  << endl ;
+    fich_correction << "#-----------------------------" << endl ;
+    fich_viriel << "#------------------------------"  << endl ;
+  }
+
+  return viriel() ;
 }

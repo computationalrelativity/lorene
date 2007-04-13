@@ -30,6 +30,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.52  2007/04/13 15:29:44  f_limousin
+ * Lots of improvements, generalisation to an arbitrary state of
+ * rotation, implementation of the spatial metric given by Samaya.
+ *
  * Revision 1.51  2006/08/01 14:36:25  f_limousin
  * New argument for the functions vv_bound_cart_bin( )
  *
@@ -881,16 +885,460 @@ class Isol_hor : public Time_slice_conf {
  */
 
 
+
+class Single_hor {
+
+  // Data : 
+  // -----
+ protected: 
+  /// Affine mapping.
+  Map_af& mp ;  
+
+  /// Number of zones.
+  int nz ;
+
+  /// Radius of the horizon in LORENE's units.
+  double radius ; 
+
+  /// Angular velocity in LORENE's units.
+  double omega ; 
+  
+  /// Intensity of the correction on the shift vector. 
+  double regul ; 
+
+  /// Lapse function \f$ N_{auto} \f$.
+  Scalar n_auto ; 
+
+  /// Lapse function \f$ N_{comp} \f$.
+  Scalar n_comp ; 
+
+  /// Lapse function \f$ N \f$.
+  Scalar nn ; 
+
+  /// Conformal factor \f$ \Psi_{auto} \f$.
+  Scalar psi_auto ; 
+
+  /// Conformal factor \f$ \Psi_{comp} \f$.
+  Scalar psi_comp ; 
+
+  /// Conformal factor \f$ \Psi \f$.
+  Scalar psi ; 
+
+  /// Conformal factor \f$ \Psi^4 \f$.
+  mutable Scalar* p_psi4 ; 
+
+  /// Covariant derivative 
+  /// of the lapse with respect to the flat metric \f$ \overline\nabla_i N \f$.
+  Vector dn ; 
+
+  /// Covariant derivative
+  /// of the conformal factor \f$ \overline\nabla_i \Psi \f$.
+  Vector dpsi ;   
+
+  /// Shift function \f$ \beta^i_{auto} \f$.
+  Vector beta_auto ; 
+
+  /// Shift function \f$ \beta^i_{comp} \f$.
+  Vector beta_comp ; 
+
+  /// Shift function \f$ \beta^i \f$.
+  Vector beta ; 
+
+  /// Spatial metric \f$ \gamma \f$.
+  mutable Metric* p_gam ;
+
+  /** Components \f$ A^{ij}_{auto} \f$
+   * of the conformal representation of the traceless part
+   * of the extrinsic curvature:
+   */        
+  Sym_tensor aa_auto ; 
+
+  /** Components \f$ A^{ij}_{comp} \f$
+   * of the conformal representation of the traceless part
+   * of the extrinsic curvature:
+   */        
+  Sym_tensor aa_comp ;
+ 
+  /** Components \f$ A^{ij} \f$
+   * of the conformal representation of the traceless part
+   * of the extrinsic curvature:
+   */        
+  Sym_tensor aa ; 
+
+  /// Components \f$ K^{ij} \f$ of the extrinsic curvature:           
+  mutable Sym_tensor* p_k_dd ; 
+
+  /// 3 metric tilde
+  Metric tgam ;
+  
+  /// 3 metric flat
+  Metric_flat ff ;
+  
+  /// Deviation metric
+  Sym_tensor hh ;
+  
+  /// Time derivative of the 3-metric tilde
+  Sym_tensor gamt_point ;
+  
+  /// Trace of the extrinsic curvature
+  Scalar trK ;
+    
+  /// Time derivative of the trace of the extrinsic curvature 
+  Scalar trK_point ;
+
+  /**
+   * Function used to construct \f$ A^{ij}_{auto} \f$
+   * from the total \f$A^{ij}\f$. Only used for a binary system.
+   * 
+   * Mainly this \c Scalar  is 1 around the hole and 0 around the companion
+   * and the sum of \c decouple for the hole and his companion is 1 
+   * everywhere.
+   */
+  Scalar decouple ;
+
+  // Constructors - Destructor
+  // -------------------------
+ public:
+
+  /** Standard constructor
+   *  @param mpi affine mapping
+   */
+  Single_hor(Map_af& mpi) ;
+ 
+/// Copy constructor
+  Single_hor(const Single_hor& ) ;  
+
+  /**  Constructor from a binary file
+   *  @param mpi affine mapping
+   *  @param fich file containing the saved \c isol_hor
+   *  @param partial_read indicates whether the full object must be read in 
+   *                      file or whether the final construction is devoted 
+   *                      to a constructor of a derived class
+   */
+  Single_hor (Map_af& mp, FILE* fich) ;  
+  
+/// Destructor
+  virtual ~Single_hor() ;			
+  
+
+  // Mutators / assignment
+  // ---------------------
+ public:
+  /// Assignment to another Single_hor
+  void operator=(const Single_hor&) ;	
+	
+
+ public:
+  /// Returns the mapping (readonly).
+  const Map_af& get_mp() const {return mp;} ; 
+  
+  /// Read/write of the mapping
+  Map_af& set_mp() {return mp; } ;
+
+  /**
+   * Returns the radius of the horizon.
+   */
+  double get_radius() const {return radius;} ;
+  
+  /**
+   * Sets the radius of the horizon to \c rad .
+   */
+  void set_radius(double rad) {radius = rad ;} ;
+	
+  /**
+   * Returns the angular velocity.
+   */
+  double get_omega() const {return omega ;} ;
+  /**
+   * Sets the angular velocity to \c ome .
+   */
+  void set_omega(double ome) {omega = ome ;} ;
+
+  // Memory management
+  // -----------------
+ protected:
+  
+  /// Deletes all the derived quantities
+  void del_deriv() const ; 
+  
+  /// Sets to \c 0x0 all the pointers on derived quantities
+  void set_der_0x0() const ; 
+  
+
+  
+  // Accessors
+  // ---------
+ public:
+
+  /// Lapse function \f$ N_{auto} \f$ 
+  const Scalar& get_n_auto() const ;
+
+  /// Lapse function \f$ N_{comp} \f$ 
+  const Scalar& get_n_comp() const ;
+
+  /// Lapse function \f$ N\f$ 
+  const Scalar& get_nn() const ;
+
+  /// Conformal factor \f$ \Psi_{auto} \f$  
+  const Scalar& get_psi_auto() const ;
+
+  /// Conformal factor \f$ \Psi_{comp} \f$ 
+  const Scalar& get_psi_comp() const ;
+
+  /// Conformal factor \f$ \Psi \f$ 
+  const Scalar& get_psi() const ;
+
+  /// Conformal factor \f$ \Psi^4 \f$ 
+  const Scalar& get_psi4() const ;
+
+  /// Covariant derivative of the lapse function \f$ \overline\nabla_i N \f$ 
+  const Vector& get_dn() const ;
+
+  /// Covariant derivative with respect to the flat metric
+  /// of the conformal factor \f$ \overline\nabla_i \Psi \f$
+  const Vector& get_dpsi() const ;
+
+  /// Shift function \f$ \beta^i_{auto} \f$ 
+  const Vector& get_beta_auto() const ;
+
+  /// Shift function \f$ \beta^i_{comp} \f$ 
+  const Vector& get_beta_comp() const ;
+
+  /// Shift function \f$ \beta^i \f$ 
+  const Vector& get_beta() const ;
+
+  /** Conformal representation \f$ A^{ij}_{auto} \f$ of the traceless part
+   * of the extrinsic curvature:
+   */        
+  const Sym_tensor& get_aa_auto() const ; 
+
+  /** Conformal representation \f$ A^{ij}_{comp} \f$ of the traceless part
+   * of the extrinsic curvature:
+   */        
+  const Sym_tensor& get_aa_comp() const ; 
+
+  /** Conformal representation \f$ A^{ij} \f$ of the traceless part
+   * of the extrinsic curvature:
+   */        
+  const Sym_tensor& get_aa() const ; 
+
+  /** Conformal metric 
+   * \f$ \tilde\gamma_{ij} = \Psi^{-4} \gamma_{ij} \f$
+   */        
+  const Metric& get_tgam() const {return tgam ;}
+
+  /** metric \f$ \gamma_{ij} \f$
+   */        
+  const Metric& get_gam() const ;
+
+  /**  k_dd
+   */        
+  const Sym_tensor& get_k_dd() const ;
+
+  /**
+   * Returns the function used to construct \c tkij_auto  from \c tkij_tot .
+   */
+  const Scalar get_decouple() const {return decouple ;}
+
+
+ public:
+  /**
+   * Imports the part of \e N  due to the companion hole \c comp . The 
+   * total \e N  is then calculated.
+   * 
+   * It also imports the covariant derivative of \e N  and construct 
+   * the total \f$\nabla_i N\f$.
+   */
+  void n_comp_import (const Single_hor& comp) ;
+  
+  /**
+   * Imports the part of \f$\Psi\f$ due to the companion hole \c comp . The 
+   * total \f$\Psi\f$ is then calculated.
+   * 
+   * It also imports the covariant derivative of \f$\Psi\f$ and construct 
+   * the total \f$\nabla_i \Psi\f$.
+   */
+  void psi_comp_import (const Single_hor& comp) ;
+
+  /**
+   * Imports the part of \f$\beta^i\f$ due to the companion hole \c comp. The 
+   * total \f$\beta^i\f$ is then calculated.
+   * 
+   */
+  void beta_comp_import (const Single_hor& comp) ;
+
+  /**
+   * Computes the viriel error, that is the difference between the ADM 
+   * and the Komar 
+   * masses,  calculated by the asymptotic behaviours of 
+   * respectively \f$\Psi\f$ and \e N .
+   * 
+   * \b WARNING  this should only be used for an isolated black hole.
+   */
+  double viriel_seul () const ;
+
+  /**
+   * Sets the values of the fields to :
+   * \li \c n_auto  \f$= \frac{1}{2}-2\frac{a}{r}\f$
+   * \li \c n_comp   \f$= \frac{1}{2}\f$
+   * \li \c psi_auto  \f$= \frac{1}{2}+\frac{a}{r}\f$
+   * \li \c psi_comp   \f$= \frac{1}{2}\f$
+   * 
+   * \e a  being the radius of the hole, the other fields being set to zero.
+   */
+  void init_bhole () ;
+  
+  /**
+   * Sets the 3-metric tilde to the flat metric and gamt_point,
+   * trK and trK_point to zero.
+   */
+
+  void init_met_trK() ;
+
+  /**
+   * Initiates for a single black hole.
+   * 
+   * \b WARNING  It supposes that the boost is zero and should only be 
+   * used for an isolated black hole..
+   */
+  void init_bhole_seul () ;
+
+  /** Sets the conformal factor \f$ \Psi \f$ relating the
+   * physical metric \f$ \gamma_{ij} \f$ to the conformal one:
+   * \f$ \gamma_{ij} = \Psi^4 \tilde\gamma_{ij} \f$. 
+   * \f$ \Psi \f$ is defined by
+   *  \f[ \Psi := \left( \frac{\det\gamma_{ij}}{\det f_{ij}} 
+   *      \right) ^{1/12} \f] 
+   * Sets the value at the current time step (\c jtime ) and
+   * delete all quantities which depend on \f$ \Psi \f$.
+   */
+
+  void set_psi_auto(const Scalar& psi_in) ; 
+
+  /// Sets the lapse
+  void set_n_auto(const Scalar& nn_in) ; 
+  
+  /// Sets the shift
+  void set_beta_auto(const Scalar& shift_in) ; 
+
+  /// Sets aa_auto
+  void set_aa_auto(const Scalar& aa_auto_in) ; 
+
+  /// Sets aa_comp
+  void set_aa_comp(const Scalar& aa_comp_in) ; 
+
+  /// Sets aa
+  void set_aa(const Scalar& aa_in) ; 
+
+
+  // Physical parameters
+  //--------------------
+ public:
+ 
+
+  /// Radial component of the shift with respect to the conformal metric
+  const Scalar b_tilde() const ;
+
+  /// Element of area of the horizon 
+  const Scalar darea_hor() const ;
+
+  /// Area of the horizon 
+  double area_hor() const ;
+
+  /// Radius of the horizon 
+  double radius_hor() const ;
+  
+  /// Angular momentum (modulo)  
+  double ang_mom_hor() const ;
+  
+  ///   Mass computed at the horizon     
+  double mass_hor() const ;
+  
+  /// Surface gravity   
+  double kappa_hor() const ;
+  
+  /// Orbital velocity    
+  double omega_hor() const ;
+  
+  /// ADM angular Momentum    
+  double ang_mom_adm() const ;
+
+  /// Expansion of the outgoing null normal (\f$ \bf n + \bf s \f$)
+  Scalar expansion() const ;
+
+  
+  // BOUNDARY CONDITIONS
+  //--------------------
+
+  /// Neumann boundary condition for  \f$ \Psi \f
+  const Valeur boundary_psi_app_hor() const ;
+
+  /// Dirichlet boundary condition for \c N 
+  /// \f$ \partial_r N + a N = 0 \f$ 
+  const Valeur boundary_nn_Dir(double aa) const ;
+
+  /// Neumann boundary condition on nn 
+  ///  \f$ \partial_r N + a N = 0 \f$ 
+  const Valeur boundary_nn_Neu(double aa) const ;	
+  
+  /// Component x of boundary value of \f$ \beta \f$
+  const Valeur boundary_beta_x(double om_orb, double om_loc) const ;
+  
+  /// Component y of boundary value of \f$ \beta \f$
+  const Valeur boundary_beta_y(double om_orb, double om_loc) const ;
+  
+  /// Component z of boundary value of \f$ \beta \f$
+  const Valeur boundary_beta_z() const ;
+
+  
+  /**
+   * Corrects \c shift_auto  in such a way that the total \f$A^{ij}\f$ is 
+   * equal to zero in the horizon,  which should ensure the regularity 
+   * of \f$K^{ij}\f$.
+   * 
+   * \b WARNING :  this should only be used for a black hole in 
+   * a binary system \c Bin_hor.
+   * 
+   * @param comp [input]: the part of \f$\beta^i\f$ generated by the companion 
+   * hole.
+   */
+  double regularisation (const Vector& shift_auto, const Vector& shift_comp, 
+			 double ang_vel) ;
+
+  /**
+   * Corrects the shift in the innermost shell, so that it remains \f$
+   * {\mathcal{C}}^2\f$ and that \f$A^{ij}\f$ equals zero on the horizon.
+   * 
+   * return  the relative difference between the shift before
+   * and after the regularisation.
+   * 
+   * \b WARNING  this should only be used for an isolated black hole.
+   */
+  double regularise_one() ;  
+
+  public :
+    /** Total or partial saves in a binary file.
+     *  
+     *  @param fich binary file 
+     *  @param partial_save indicates whether the whole object must be
+     *      saved.
+     */
+    virtual void sauve(FILE* fich) const ; 
+    
+  friend class Bin_hor ; /// Binary systems 
+
+};
+
 class Bin_hor {
     
     // data :
     private:
 	// lThe two black holes
-	Isol_hor hole1 ;	///< Black hole one
-	Isol_hor hole2 ;	///< Black hole two
+	Single_hor hole1 ;	///< Black hole one
+	Single_hor hole2 ;	///< Black hole two
 	
 	///Array on the black holes
-	Isol_hor* holes[2] ; 
+	Single_hor* holes[2] ; 
 	
 	double omega ;	///< Angular velocity
 	
@@ -904,7 +1352,7 @@ class Bin_hor {
 	 *  = \c depth_in - 1. \c scheme_order can be changed 
 	 *  afterwards by the method \c set_scheme_order(int).
 	 */
-	Bin_hor(Map_af& mp1, Map_af& mp2, int depth_in) ; 
+	Bin_hor(Map_af& mp1, Map_af& mp2) ; 
 
 	Bin_hor(const Bin_hor& ) ;	///< Copy constructor
 
@@ -920,34 +1368,24 @@ class Bin_hor {
 	 *  = \c depth_in - 1. \c scheme_order can be changed 
 	 *  afterwards by the method \c set_scheme_order(int).
 	 */
-	Bin_hor (Map_af& mp1, Map_af& mp2, FILE* fich, 
-		 bool partial_read, int depth_in = 3) ;  
+	Bin_hor (Map_af& mp1, Map_af& mp2, FILE* fich) ;  
 	
 	virtual ~Bin_hor() ;  ///< Destructor
 	
-	// Outputs
-	// -------
-      private:
-	/// Operator >> (function called by the operator<<). 
-	ostream& operator>>(ostream& ) const ;	
-
-      public :
+     public :
 	  /** Total or partial saves in a binary file.
 	   *  
 	   *  @param fich binary file 
 	   *  @param partial_save indicates whether the whole object must be
 	   *      saved.
 	   */
-	  void sauve(FILE* fich, bool partial_save) const ; 
+	  void sauve(FILE* fich) const ; 
       
 	/** Write global quantities in a formatted file. 
 	 * This file can be read by an external program. 
 	 */
 	void write_global(ostream&, double lim_nn, int bound_nn, 
-			  int bound_psi, int bound_beta) const  ;
-
-     /// Display
-      friend ostream& operator<<(ostream& , const Bin_hor& ) ;	
+			  int bound_psi, int bound_beta, double alpha) const  ;
 
        public:
 	
@@ -957,7 +1395,7 @@ class Bin_hor {
 	 * Read/write of a component of the system. \c i  must be equal to
 	 * 1 or 2.
 	 */
-	Isol_hor& set(int i) 
+	Single_hor& set(int i) 
 	    { assert( (i==1) || (i==2) ); 
 	      return *holes[i-1] ;} ; 
 	/**
@@ -971,7 +1409,7 @@ class Bin_hor {
 	/**
 	 * Read only of a component of the system. \c i must be equal to
 	 * 1 or 2.
-	 */	const Isol_hor& operator()(int i) const 
+	 */	const Single_hor& operator()(int i) const 
 	    { assert( (i==1) || (i==2) ); 
 	      return *holes[i-1] ;} ;
 	      
@@ -1055,7 +1493,8 @@ class Bin_hor {
 	  */
 	double coal (double ang_vel, double relax, int nb_om,
 		     int nb_it, int bound_nn, double lim_nn, 
-		     int bound_psi, int bound_beta, 
+		     int bound_psi, int bound_beta, double omega_eff, 
+		     double alpha,
 		     ostream& fich_iteration, ostream& fich_correction,
 		     ostream& fich_viriel, ostream& fich_kss, 
 		     int step, int search_mass, double mass_irr, 
@@ -1106,7 +1545,8 @@ class Bin_hor {
 	   * @param bound_beta [input] : type of the boundary condition at the
 	   * horizon.
 	   */
-	  void solve_shift (double precis, double relax, int bound_beta) ;
+	  void solve_shift (double precis, double relax, int bound_beta,
+			    double omega_eff) ;
 	
 	  /**
 	   * Function to initialize a Bin_hor from a solution 
@@ -1142,9 +1582,29 @@ class Bin_hor {
 	   * along the x axis.
 	   * @param nr [input] : number of points used for the calculation.
 	   */
-	  double proper_distance(const int nr = 65) const ;	
+	  double proper_distance(const int nr = 65) const ;
+
+	  /**
+	   * Calculation of the hole1 part  of the Post-Newtonian 
+	   * correction to \f$h^{ij}\f$
+	   */
+	  Sym_tensor hh_Nissanke_hole1 () ;
+	  
+	  /**
+	   * Calculation of the hole2 part  of the Post-Newtonian 
+	   * correction to \f$h^{ij}\f$
+	   */
+	  Sym_tensor hh_Nissanke_hole2 () ;
+
+	  /**
+	   * Calculation of the Post-Newtonian  correction to \f$h^{ij}\f$
+	   */
+	  void set_hh_Nissanke () ;
+
+
+
 } ;
 
 
-
 #endif
+

@@ -29,6 +29,10 @@ char init_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2007/04/13 15:30:58  f_limousin
+ * Lots of improvements, generalisation to an arbitrary state of
+ * rotation, implementation of the spatial metric given by Samaya.
+ *
  * Revision 1.6  2006/06/28 13:36:52  f_limousin
  * Convergence to a given irreductible mass
  *
@@ -131,15 +135,14 @@ int main() {
     map_deux.set_ori (-separation/2., 0, 0) ;
     map_deux.set_rot_phi (M_PI) ;
 
-    int depth = 3 ;
-    Bin_hor bin (map_un, map_deux, depth) ;
+    Bin_hor bin (map_un, map_deux) ;
     bin.set_statiques(precis, relax, bound_nn, lim_nn, bound_psi) ;
     
     FILE* fich = fopen("static.d", "w") ;
     grid.sauve(fich) ;
     map_un.sauve(fich) ;
     map_deux.sauve(fich) ;
-    bin.sauve(fich, true) ;
+    bin.sauve(fich) ;
     fwrite_be(&bound_nn, sizeof(int), 1, fich) ;
     fwrite_be (&lim_nn, sizeof(double), 1, fich) ;
     fwrite_be(&bound_psi, sizeof(int), 1, fich) ;

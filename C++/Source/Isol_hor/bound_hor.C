@@ -31,6 +31,10 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.32  2007/04/13 15:28:35  f_limousin
+ * Lots of improvements, generalisation to an arbitrary state of
+ * rotation, implementation of the spatial metric given by Samaya.
+ *
  * Revision 1.31  2006/08/01 14:35:48  f_limousin
  * Many small modifs
  *
@@ -1359,7 +1363,7 @@ const Vector Isol_hor::vv_bound_cart(double om) const{
 
 
 const Vector Isol_hor::vv_bound_cart_bin(double om, int jj) const{
-
+  /*
   // Les alignemenents pour le signe des CL.
   double orientation = mp.get_rot_phi() ;
   assert ((orientation == 0) || (orientation == M_PI)) ;
@@ -1412,35 +1416,28 @@ const Vector Isol_hor::vv_bound_cart_bin(double om, int jj) const{
   // Construction of the binary
   // --------------------------
   
-  int depth_s = 3 ;
   char* name_fich = "/home/francois/resu/bin_hor/Test/b11_9x9x8/bin.dat" ;
   
   FILE* fich_s = fopen(name_fich, "r") ;
   Mg3d grid_s (fich_s) ;
   Map_af map_un_s (grid_s, fich_s) ;
   Map_af map_deux_s (grid_s, fich_s) ;
-  Bin_hor bin (map_un_s, map_deux_s, fich_s, true, depth_s) ;
+  Bin_hor bin (map_un_s, map_deux_s, fich_s) ;
   fclose(fich_s) ;
   
   // Inititialisation of fields :
   // ---------------------------- 
   
-  bin.set(1).n_comp (bin(2)) ;
-  bin.set(1).psi_comp (bin(2)) ;
-  bin.set(2).n_comp (bin(1)) ;
-  bin.set(2).psi_comp (bin(1)) ;
+  bin.set(1).n_comp_import (bin(2)) ;
+  bin.set(1).psi_comp_import (bin(2)) ;
+  bin.set(2).n_comp_import (bin(1)) ;
+  bin.set(2).psi_comp_import (bin(1)) ;
   bin.decouple() ;
   bin.extrinsic_curvature() ;
   
-  kss = contract(bin(jj).k_dd(), 0, 1, bin(jj).gam().radial_vect()*
-		 bin(jj).gam().radial_vect(), 0, 1) ;
+  kss = contract(bin(jj).get_k_dd(), 0, 1, bin(jj).get_gam().radial_vect()*
+		 bin(jj).get_gam().radial_vect(), 0, 1) ;
 
-
-  /*
-  kss = (contract(gam().radial_vect(), 0, nn().derive_cov(ff), 0)
-	 - 0.1) / nn() ;
-  kss.inc_dzpuis(2) ;
-  */
 
   cout << "kappa_hor = " << kappa_hor() << endl ;
   
@@ -1470,7 +1467,7 @@ const Vector Isol_hor::vv_bound_cart_bin(double om, int jj) const{
   tmp_vect.change_triad(mp.get_bvect_cart() ) ;
   
   return tmp_vect ;
-  
+  */
 }
 
 

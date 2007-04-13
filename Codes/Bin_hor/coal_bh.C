@@ -31,6 +31,10 @@ char coal_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2007/04/13 15:30:58  f_limousin
+ * Lots of improvements, generalisation to an arbitrary state of
+ * rotation, implementation of the spatial metric given by Samaya.
+ *
  * Revision 1.11  2006/08/01 14:13:41  f_limousin
  * New version...
  *
@@ -84,7 +88,7 @@ int main() {
         
     char blabla [120] ;
     char nomini[120] ;
-    double omega_init, relax, precis_viriel, lim_nn, mass_irr ;
+    double omega_init, relax, precis_viriel, lim_nn, mass_irr, alpha ;
     int nb_om, nb_it, bound_nn, bound_psi, bound_beta, search_mass ;
     
     ifstream param("par_coal.d") ;
@@ -103,31 +107,31 @@ int main() {
     param >> nb_om ; param.getline(blabla, 120) ;
     param >> nb_it ; param.getline(blabla, 120) ;
     param >> bound_beta ; param.getline(blabla, 120) ;    
+    param >> alpha ; param.getline(blabla, 120) ;    
 
     param.close() ;
     
-    int depth = 3 ;
-
     FILE* fich = fopen(nomini, "r") ;
     Mg3d grid (fich) ;
     Map_af map_un (grid, fich) ;
     Map_af map_deux (grid, fich) ;
-    Bin_hor bin(map_un, map_deux, fich, true, depth) ;
+    Bin_hor bin(map_un, map_deux, fich) ;
     fread_be(&bound_nn, sizeof(int), 1, fich) ;	
     fread_be(&lim_nn, sizeof(double), 1, fich) ;
     fread_be(&bound_psi, sizeof(int), 1, fich) ;	
     fclose(fich) ;
     
     bin.set_omega(0) ;
-    bin.set(1).n_comp (bin(2)) ;
-    bin.set(1).psi_comp (bin(2)) ;
-    bin.set(1).beta_comp (bin(2)) ;
-    bin.set(2).n_comp (bin(1)) ;
-    bin.set(2).psi_comp (bin(1)) ;
-    bin.set(2).beta_comp (bin(1)) ;
+    bin.set(1).n_comp_import (bin(2)) ;
+    bin.set(1).psi_comp_import (bin(2)) ;
+    bin.set(1).beta_comp_import (bin(2)) ;
+    bin.set(2).n_comp_import (bin(1)) ;
+    bin.set(2).psi_comp_import (bin(1)) ;
+    bin.set(2).beta_comp_import (bin(1)) ;
     bin.decouple() ;
     bin.extrinsic_curvature() ;
-    
+   
+
     double separation = bin(1).get_mp().get_ori_x() - 
 	bin(2).get_mp().get_ori_x() ;
         
@@ -152,9 +156,11 @@ int main() {
 
     int step = 0 ;
      
+    double omega_eff = alpha * omega_init ;
+
     cout << "step = " << step << endl ;
     double erreur = bin.coal(omega_init, relax, nb_om, nb_it, bound_nn,
-			     lim_nn, bound_psi, bound_beta, 
+			     lim_nn, bound_psi, bound_beta, omega_eff, alpha,
 			     fich_iteration, fich_correction,
 			     fich_viriel, fich_kss, step, search_mass,
 			     mass_irr, 1) ;
@@ -170,16 +176,24 @@ int main() {
       
       omega = omega * pow((2-erreur)/(2-2*erreur), 1.) ;
       
-      Scalar beta_old (bin(1).beta_auto()(1)) ;
+      double om_loc = bin(1).omega_hor() ;
+      double diff_om = alpha * omega - om_loc ;
+
+      if (omega_eff != 0)
+	omega_eff = omega_eff * pow((2-diff_om)/(2-2*diff_om), 4.) ;
+      else 
+	omega_eff = 0.5*diff_om ;
+
+      Scalar beta_old (bin(1).get_beta_auto()(1)) ;
 
       erreur = bin.coal (omega, relax, 1, 0, bound_nn,
-			 lim_nn, bound_psi, bound_beta, 
+			 lim_nn, bound_psi, bound_beta, omega_eff, alpha,
 			 fich_iteration, fich_correction,
 			 fich_viriel, fich_kss, step, search_mass,
 			 mass_irr, 1) ;
 
       double erreur_it = 0 ;
-      Tbl diff (diffrelmax (beta_old, bin(1).beta_auto()(1))) ;
+      Tbl diff (diffrelmax (beta_old, bin(1).get_beta_auto()(1))) ;
       for (int i=1 ; i<bin(1).get_mp().get_mg()->get_nzone() ; i++)
 	if (diff(i) > erreur_it)
 	  erreur_it = diff(i) ;
@@ -192,7 +206,6 @@ int main() {
 
     }
 
-
     fich_iteration.close() ;
     fich_correction.close() ;
     fich_viriel.close() ;
@@ -202,7 +215,7 @@ int main() {
     grid.sauve(fich_sortie) ;
     map_un.sauve(fich_sortie) ;
     map_deux.sauve(fich_sortie) ;
-    bin.sauve(fich_sortie, true) ;
+    bin.sauve(fich_sortie) ;
     fclose(fich_sortie) ;
     
 
@@ -212,7 +225,7 @@ int main() {
 	     << endl ;
 	abort() ;
     }
-    bin.write_global(seqfich, lim_nn, bound_nn, bound_psi, bound_beta) ; 
+    bin.write_global(seqfich, lim_nn, bound_nn, bound_psi, bound_beta, alpha) ; 
     seqfich.close() ; 
 
     return EXIT_SUCCESS ;

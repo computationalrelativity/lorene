@@ -26,6 +26,10 @@ char binhor_kij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2007/04/13 15:28:55  f_limousin
+ * Lots of improvements, generalisation to an arbitrary state of
+ * rotation, implementation of the spatial metric given by Samaya.
+ *
  * Revision 1.8  2006/05/24 16:56:37  f_limousin
  * Many small modifs.
  *
@@ -77,7 +81,6 @@ char binhor_kij_C[] = "$Header$" ;
 void Bin_hor::extrinsic_curvature () {
     
 
-    double ttime = hole1.the_time[hole1.jtime] ;
     int nnt = hole1.mp.get_mg()->get_nt(1) ;
     int nnp = hole1.mp.get_mg()->get_np(1) ;
     
@@ -85,7 +88,7 @@ void Bin_hor::extrinsic_curvature () {
     check = 0 ;
     for (int k=0; k<nnp; k++)
 	for (int j=0; j<nnt; j++){
-	    if ((hole1.n_auto()+hole1.n_comp()).val_grid_point(1, k, j , 0) < 1e-4){
+	    if ((hole1.n_auto+hole1.n_comp).val_grid_point(1, k, j , 0) < 1e-4){
 		check = 1 ;
 		break ;
 	    }
@@ -98,12 +101,12 @@ void Bin_hor::extrinsic_curvature () {
       
       // Computation of A^{ij}_auto
       
-      aa_auto_un = ( hole1.beta_auto().ope_killing_conf(hole1.met_gamt) + 
-		      hole1.gamt_point*hole1.decouple ) / (2.* hole1.nn()) ; 
+      aa_auto_un = ( hole1.beta_auto.ope_killing_conf(hole1.tgam) + 
+		     hole1.gamt_point*hole1.decouple ) / (2.* hole1.nn) ; 
       
-      aa_auto_deux = ( hole2.beta_auto().ope_killing_conf(hole2.met_gamt) + 
-		       hole2.gamt_point*hole2.decouple ) / (2.* hole2.nn()) ;      
-      
+      aa_auto_deux = ( hole2.beta_auto.ope_killing_conf(hole2.tgam) + 
+		       hole2.gamt_point*hole2.decouple ) / (2.* hole2.nn) ;  
+          
       
       aa_auto_un.change_triad(hole1.mp.get_bvect_cart()) ;
       aa_auto_deux.change_triad(hole2.mp.get_bvect_cart()) ;
@@ -119,10 +122,9 @@ void Bin_hor::extrinsic_curvature () {
       aa_auto_un.change_triad(hole1.mp.get_bvect_spher()) ;
       aa_auto_deux.change_triad(hole2.mp.get_bvect_spher()) ;
       
-      hole1.aa_auto_evol.update(aa_auto_un, hole1.jtime, ttime) ;
-      hole2.aa_auto_evol.update(aa_auto_deux, hole2.jtime, ttime) ;
-      
-      
+      hole1.aa_auto = aa_auto_un ;
+      hole2.aa_auto = aa_auto_deux ;
+    
       
       // Computation of A^{ij}_comp
       
@@ -174,10 +176,10 @@ void Bin_hor::extrinsic_curvature () {
        Sym_tensor aa_comp_deux_zec (hole2.mp, CON, hole2.mp.get_bvect_spher()) ;
        aa_comp_deux_zec.set_etat_qcq() ;
 
-       aa_comp_un_zec = ( hole1.beta_comp().ope_killing_conf(hole1.met_gamt) +
+       aa_comp_un_zec = ( hole1.beta_comp().ope_killing_conf(hole1.tgam) +
 		  hole1.gamt_point*(1.-hole1.decouple) ) / (2.* hole1.nn()) ;
 
-       aa_comp_deux_zec =( hole2.beta_comp().ope_killing_conf(hole2.met_gamt) +
+       aa_comp_deux_zec =( hole2.beta_comp().ope_killing_conf(hole2.tgam) +
 		hole2.gamt_point*(1.-hole2.decouple) ) / (2.* hole2.nn()) ;
 
        for (int i=1 ; i<=3 ; i++)
@@ -192,28 +194,21 @@ void Bin_hor::extrinsic_curvature () {
 	   }
        */      
 
-       hole1.aa_comp_evol.update(aa_comp_un, hole1.jtime, ttime) ;
-       hole2.aa_comp_evol.update(aa_comp_deux, hole2.jtime, ttime) ;
-       
+       hole1.aa_comp = aa_comp_un ;
+       hole2.aa_comp = aa_comp_deux ;
        
        // Computation of A^{ij}_ total
-       hole1.aa_evol.update(hole1.aa_auto() + hole1.aa_comp(), 
-			    hole1.jtime, ttime) ;
-       hole2.aa_evol.update(hole2.aa_auto() + hole2.aa_comp(), 
-			    hole2.jtime, ttime) ;
-       hole1.aa_nn.update((hole1.aa_auto() + hole1.aa_comp())*2.*hole1.nn(), 
-			    hole1.jtime, ttime) ;
-       hole2.aa_nn.update((hole2.aa_auto() + hole2.aa_comp())*2.*hole2.nn(), 
-			    hole2.jtime, ttime) ;
-       
+       hole1.aa = hole1.aa_auto + hole1.aa_comp ;
+       hole2.aa = hole2.aa_auto + hole2.aa_comp ;
+      
     }
    else {
 
        // Computation of A^{ij}_auto
 
-       aa_auto_un = ( hole1.beta_auto().ope_killing_conf(hole1.met_gamt) + 
+       aa_auto_un = ( hole1.beta_auto.ope_killing_conf(hole1.tgam) + 
 		      hole1.gamt_point*hole1.decouple ) ;            
-       aa_auto_deux = ( hole2.beta_auto().ope_killing_conf(hole2.met_gamt) + 
+       aa_auto_deux = ( hole2.beta_auto.ope_killing_conf(hole2.tgam) + 
 			hole2.gamt_point*hole2.decouple ) ;          
        
        aa_auto_un.change_triad(hole1.mp.get_bvect_cart()) ;
@@ -277,9 +272,6 @@ void Bin_hor::extrinsic_curvature () {
        
        temp_aa_tot1.change_triad(hole1.mp.get_bvect_spher()) ;
        temp_aa_tot2.change_triad(hole2.mp.get_bvect_spher()) ;
-       hole1.aa_nn.update(temp_aa_tot1, hole1.jtime, ttime) ;
-       hole2.aa_nn.update(temp_aa_tot2, hole2.jtime, ttime) ;
-
 
        // Regularisation
        // --------------
@@ -290,11 +282,11 @@ void Bin_hor::extrinsic_curvature () {
       int nz_un = hole1.mp.get_mg()->get_nzone() ;
       int nz_deux = hole2.mp.get_mg()->get_nzone() ;
       
-      Scalar ntot_un (hole1.n_auto()+hole1.n_comp()) ;
+      Scalar ntot_un (hole1.n_auto+hole1.n_comp) ;
       ntot_un = division_xpun (ntot_un, 0) ;
       ntot_un.raccord(1) ;
       
-      Scalar ntot_deux (hole2.n_auto()+hole2.n_comp()) ;
+      Scalar ntot_deux (hole2.n_auto+hole2.n_comp) ;
       ntot_deux = division_xpun (ntot_deux, 0) ;
       ntot_deux.raccord(1) ;
       
@@ -451,8 +443,8 @@ void Bin_hor::extrinsic_curvature () {
       aa_un.change_triad(hole1.mp.get_bvect_spher()) ;
       aa_deux.change_triad(hole2.mp.get_bvect_spher()) ;
 
-      hole1.aa_evol.update(aa_un, hole1.jtime, ttime) ;
-      hole2.aa_evol.update(aa_deux, hole2.jtime, ttime) ;
+      hole1.aa = aa_un ;
+      hole2.aa = aa_deux ;
 
       aa_auto_un.change_triad(hole1.mp.get_bvect_spher()) ;
       aa_auto_deux.change_triad(hole2.mp.get_bvect_spher()) ;
@@ -463,13 +455,10 @@ void Bin_hor::extrinsic_curvature () {
 	      aa_auto_deux.set(lig, col) = aa_deux(lig, col)*hole2.decouple ;
 	  }
 
-      hole1.aa_auto_evol.update(aa_auto_un, hole1.jtime, ttime) ;
-      hole2.aa_auto_evol.update(aa_auto_deux, hole2.jtime, ttime) ;
+      hole1.aa_auto = aa_auto_un ;
+      hole2.aa_auto = aa_auto_deux ;
 
    }
-
-    Sym_tensor temp (hole1.aa()) ;
-    temp.change_triad(hole1.mp.get_bvect_cart()) ;
 
 }   
 

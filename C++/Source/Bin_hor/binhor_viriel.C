@@ -26,6 +26,10 @@ char binhor_viriel_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2007/04/13 15:28:55  f_limousin
+ * Lots of improvements, generalisation to an arbitrary state of
+ * rotation, implementation of the spatial metric given by Samaya.
+ *
  * Revision 1.2  2005/04/08 12:35:07  f_limousin
  * Just to avoid warnings...
  *
@@ -43,12 +47,12 @@ char binhor_viriel_C[] = "$Header$" ;
 #include "tensor.h"
 #include "isol_hor.h"
 
-double Isol_hor::viriel_seul () const{
+double Single_hor::viriel_seul () const{
     
     int nz1 = mp.get_mg()->get_nzone() ;
 	    
-    Valeur** devel_psi (psi_auto().asymptot(1)) ;
-    Valeur** devel_n (n_auto().asymptot(1)) ;
+    Valeur** devel_psi (psi_auto.asymptot(1)) ;
+    Valeur** devel_n (n_auto.asymptot(1)) ;
     
     double erreur = (2*(*devel_psi[1])(nz1-1, 0, 0, 0)
 	+ (*devel_n[1])(nz1-1, 0, 0, 0))/fabs ((*devel_n[1])(nz1-1, 0, 0, 0)) ;
@@ -62,10 +66,10 @@ double Bin_hor::viriel () const{
     int nz_un = hole1.mp.get_mg()->get_nzone() ;
     int nz_deux = hole2.mp.get_mg()->get_nzone() ;
     
-    Valeur** devel_psi_un (hole1.psi_auto().asymptot(1)) ;
-    Valeur** devel_psi_deux (hole2.psi_auto().asymptot(1)) ;
-    Valeur** devel_n_un (hole1.n_auto().asymptot(1)) ;
-    Valeur** devel_n_deux (hole2.n_auto().asymptot(1)) ;
+    Valeur** devel_psi_un (hole1.psi_auto.asymptot(1)) ;
+    Valeur** devel_psi_deux (hole2.psi_auto.asymptot(1)) ;
+    Valeur** devel_n_un (hole1.n_auto.asymptot(1)) ;
+    Valeur** devel_n_deux (hole2.n_auto.asymptot(1)) ;
     
     double res = 
 	(2*(*devel_psi_un[1])(nz_un-1, 0, 0, 0)+

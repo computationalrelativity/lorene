@@ -29,6 +29,10 @@ char init_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2007/04/13 15:30:58  f_limousin
+ * Lots of improvements, generalisation to an arbitrary state of
+ * rotation, implementation of the spatial metric given by Samaya.
+ *
  * Revision 1.5  2006/08/01 14:13:41  f_limousin
  * New version...
  *
@@ -125,15 +129,14 @@ int main() {
     map_deux.set_ori (-separation/2., 0, 0) ;
     map_deux.set_rot_phi (M_PI) ;
 
-    int depth = 3 ;
-    Bin_hor bin (map_un, map_deux, depth) ;
+    Bin_hor bin (map_un, map_deux) ;
     bin.set_statiques(precis, relax, bound_nn, lim_nn, bound_psi) ;
     
     FILE* fich = fopen("static.d", "w") ;
     grid.sauve(fich) ;
     map_un.sauve(fich) ;
     map_deux.sauve(fich) ;
-    bin.sauve(fich, true) ;
+    bin.sauve(fich) ;
     fwrite_be(&bound_nn, sizeof(int), 1, fich) ;
     fwrite_be (&lim_nn, sizeof(double), 1, fich) ;
     fwrite_be(&bound_psi, sizeof(int), 1, fich) ;
@@ -168,12 +171,12 @@ int main() {
     param_coal.close() ;
 
     bin.set_omega(0) ;
-    bin.set(1).n_comp (bin(2)) ;
-    bin.set(1).psi_comp (bin(2)) ;
-    bin.set(1).beta_comp (bin(2)) ;
-    bin.set(2).n_comp (bin(1)) ;
-    bin.set(2).psi_comp (bin(1)) ;
-    bin.set(2).beta_comp (bin(1)) ;
+    bin.set(1).n_comp_import (bin(2)) ;
+    bin.set(1).psi_comp_import (bin(2)) ;
+    bin.set(1).beta_comp_import (bin(2)) ;
+    bin.set(2).n_comp_import (bin(1)) ;
+    bin.set(2).psi_comp_import (bin(1)) ;
+    bin.set(2).beta_comp_import (bin(1)) ;
     bin.decouple() ;
     bin.extrinsic_curvature() ;
 
@@ -216,7 +219,7 @@ int main() {
 
       omega = omega * pow((2-erreur)/(2-2*erreur), 1.) ;
   
-      Scalar beta_old (bin(1).beta_auto()(1)) ;
+      Scalar beta_old (bin(1).get_beta_auto()(1)) ;
 
       erreur = bin.coal (omega, relax, 1, 0, bound_nn,
                          lim_nn, bound_psi, bound_beta,
@@ -225,7 +228,7 @@ int main() {
 			 mass_irr, 1) ;
  
      double erreur_it = 0 ;
-      Tbl diff (diffrelmax (beta_old, bin(1).beta_auto()(1))) ;
+      Tbl diff (diffrelmax (beta_old, bin(1).get_beta_auto()(1))) ;
       for (int i=1 ; i<bin(1).get_mp().get_mg()->get_nzone() ; i++)
         if (diff(i) > erreur_it)
           erreur_it = diff(i) ;
@@ -247,7 +250,7 @@ int main() {
     grid.sauve(fich_sortie) ;
     map_un.sauve(fich_sortie) ;
     map_deux.sauve(fich_sortie) ;
-    bin.sauve(fich_sortie, true) ;
+    bin.sauve(fich_sortie) ;
     fclose(fich_sortie) ;
 
     ofstream seqfich("resformat.dat") ;

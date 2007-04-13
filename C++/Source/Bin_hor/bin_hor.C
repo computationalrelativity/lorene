@@ -33,6 +33,10 @@ char bin_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2007/04/13 15:28:55  f_limousin
+ * Lots of improvements, generalisation to an arbitrary state of
+ * rotation, implementation of the spatial metric given by Samaya.
+ *
  * Revision 1.9  2006/08/01 14:37:19  f_limousin
  * New version
  *
@@ -83,8 +87,8 @@ char bin_hor_C[] = "$Header$" ;
 // Standard constructor
 // --------------------
 
-Bin_hor::Bin_hor (Map_af& mp1, Map_af& mp2, int depth_in) :
-	hole1(mp1, depth_in), hole2(mp2, depth_in), omega(0){
+Bin_hor::Bin_hor (Map_af& mp1, Map_af& mp2) :
+	hole1(mp1), hole2(mp2), omega(0){
 
     holes[0] = &hole1 ;
     holes[1] = &hole2 ;
@@ -103,10 +107,9 @@ Bin_hor::Bin_hor (const Bin_hor& source) :
 // Constructor from a file
 // -----------------------
     
-Bin_hor::Bin_hor(Map_af& mp1, Map_af& mp2, FILE* fich, 
-		   bool partial_read, int depth_in)
-    : hole1(mp1, fich, partial_read, depth_in),
-      hole2(mp2, fich, partial_read, depth_in),
+Bin_hor::Bin_hor(Map_af& mp1, Map_af& mp2, FILE* fich)
+    : hole1(mp1, fich),
+      hole2(mp2, fich),
       omega(0) {
 
     fread_be(&omega, sizeof(double), 1, fich) ;
@@ -133,40 +136,15 @@ void Bin_hor::operator= (const Bin_hor& source) {
     omega = source.omega ;
 }
 
-                //------------------//
-                //      output      //
-                //------------------//
-
-// Printing
-// --------
-ostream& operator<<(ostream& flux, const Bin_hor& bibi)  {
-    bibi >> flux ;
-    return flux ;
-}
-    
-ostream& Bin_hor::operator>>(ostream& flux) const {
-
-    flux << "black hole 1" << '\n' ;
-    flux << "----------------------------" << '\n' ;
-    flux << hole1 << '\n' << '\n' ;
-    flux << "black hole 2" << '\n' ;
-    flux << "----------------------------" << '\n' ;
-    flux << hole2 << '\n' << '\n' ;
-    
-    cout << "orbital angular velocity  : " << omega << '\n' ;
-
-    return flux ;
-
-}
 
                 //--------------------------//
                 //      Save in a file      //
                 //--------------------------//
 
-void Bin_hor::sauve(FILE* fich, bool partial_save) const {
+void Bin_hor::sauve(FILE* fich) const {
 
-    hole1.sauve(fich, partial_save) ;
-    hole2.sauve(fich, partial_save) ;
+    hole1.sauve(fich) ;
+    hole2.sauve(fich) ;
     fwrite_be (&omega, sizeof(double), 1, fich) ;
    
 }
@@ -178,18 +156,20 @@ void Bin_hor::init_bin_hor() {
     hole1.init_bhole() ;
     hole2.init_bhole() ;
     
-    hole1.psi_comp(hole2) ;
-    hole2.psi_comp(hole1) ;
+    hole1.psi_comp_import(hole2) ;
+    hole2.psi_comp_import(hole1) ;
     
-    hole1.n_comp(hole2) ;
-    hole2.n_comp(hole1) ;
+    hole1.n_comp_import(hole2) ;
+    hole2.n_comp_import(hole1) ;
     
     decouple() ;
+    extrinsic_curvature() ;
+
 }
 
 
 void Bin_hor::write_global(ostream& ost, double lim_nn, int bound_nn,
-			   int bound_psi, int bound_beta) const {
+			   int bound_psi, int bound_beta, double alpha) const {
 
   double distance = hole1.get_mp().get_ori_x() - hole2.get_mp().get_ori_x() ;
   double mass_adm = adm_mass() ;
@@ -259,23 +239,23 @@ void Bin_hor::write_global(ostream& ost, double lim_nn, int bound_nn,
 
 
   Scalar btilde1 (hole1.b_tilde() - 
- contract(angular1, 0, hole1.tgam().radial_vect().up_down(hole1.tgam()), 0)) ;
+ contract(angular1, 0, hole1.tgam.radial_vect().up_down(hole1.tgam), 0)) ;
   Scalar btilde2 (hole2.b_tilde() - 
- contract(angular2, 0, hole2.tgam().radial_vect().up_down(hole2.tgam()), 0)) ;
+ contract(angular2, 0, hole2.tgam.radial_vect().up_down(hole2.tgam), 0)) ;
   
 
 
 
   Vector integrand_un (hole1.mp, COV, hole1.mp.get_bvect_spher()) ;
-  integrand_un = hole1.nn().derive_cov(hole1.ff)*pow(hole1.psi(), 2)
-    - btilde1*contract(hole1.k_dd(), 1,
-			   hole1.tgam().radial_vect(), 0)*pow(hole1.psi(), 2) ;
+  integrand_un = hole1.nn.derive_cov(hole1.ff)*pow(hole1.psi, 2)
+    - btilde1*contract(hole1.get_k_dd(), 1,
+			   hole1.tgam.radial_vect(), 0)*pow(hole1.psi, 2) ;
   integrand_un.std_spectral_base() ;
  
   Vector integrand_deux (hole2.mp, COV, hole2.mp.get_bvect_spher()) ;
-  integrand_deux = hole2.nn().derive_cov(hole2.ff)*pow(hole2.psi(), 2)
-    - btilde2*contract(hole2.k_dd(), 1,
-			   hole2.tgam().radial_vect(), 0)*pow(hole2.psi(), 2) ;
+  integrand_deux = hole2.nn.derive_cov(hole2.ff)*pow(hole2.psi, 2)
+    - btilde2*contract(hole2.get_k_dd(), 1,
+			   hole2.tgam.radial_vect(), 0)*pow(hole2.psi, 2) ;
   integrand_deux.std_spectral_base() ;
  
   double horizon = hole1.mp.integrale_surface(integrand_un(1),
@@ -297,7 +277,7 @@ void Bin_hor::write_global(ostream& ost, double lim_nn, int bound_nn,
   ost << endl ; 
   ost << "# bound N, lim N : " << bound_nn << " " << lim_nn 
       << " - bound Psi : " << bound_psi << " - bound shift : " << bound_beta
-      << endl ;
+      << " alpha = " << alpha << endl ;
 
   ost << "# distance  omega  Mass_ADM  Mass_K  M_area  J_ADM  J_hor" << endl ;
   ost << distance << " " ;

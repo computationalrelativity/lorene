@@ -26,6 +26,10 @@ char binhor_glob_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2007/04/13 15:28:55  f_limousin
+ * Lots of improvements, generalisation to an arbitrary state of
+ * rotation, implementation of the spatial metric given by Samaya.
+ *
  * Revision 1.7  2006/05/24 16:56:37  f_limousin
  * Many small modifs.
  *
@@ -71,10 +75,11 @@ char binhor_glob_C[] = "$Header$" ;
 
 double Bin_hor::adm_mass() const {
  
-   Vector dpsi_un (hole1.psi_auto().derive_con(hole1.ff)) ;
-    Vector dpsi_deux (hole2.psi_auto().derive_con(hole2.ff)) ;
-
-    Vector ww (0.125*(hole1.hdirac() - (hole1.hh().trace(hole1.ff)).
+   Vector dpsi_un (hole1.psi_auto.derive_con(hole1.ff)) ;
+    Vector dpsi_deux (hole2.psi_auto.derive_con(hole2.ff)) ;
+    
+    Tensor hdirac1 (contract((hole1.hh).derive_cov(hole1.ff),0,2)) ;
+    Vector ww (0.125*(hdirac1 - (hole1.hh.trace(hole1.ff)).
 		      derive_con(hole1.ff))) ;
 
     double inf = hole1.mp.val_r(hole1.mp.get_mg()->get_nzone()-1, 1., 0., 0.) ;
@@ -88,10 +93,10 @@ double Bin_hor::adm_mass() const {
 
 double Bin_hor::komar_mass() const {
 
-    Vector dnn_un (hole1.n_auto().derive_con(hole1.ff)) ;
-    Vector dnn_deux (hole2.n_auto().derive_con(hole2.ff)) ;
+    Vector dnn_un (hole1.n_auto.derive_con(hole1.ff)) ;
+    Vector dnn_deux (hole2.n_auto.derive_con(hole2.ff)) ;
     
-    Vector ww (contract(hole1.hh(), 1, hole1.nn().derive_cov(hole1.ff), 0)) ;
+    Vector ww (contract(hole1.hh, 1, hole1.nn.derive_cov(hole1.ff), 0)) ;
 	       
     double inf = hole1.mp.val_r(hole1.mp.get_mg()->get_nzone()-1, 1., 0., 0.) ;
 
@@ -124,7 +129,7 @@ double Bin_hor::ang_mom_hor() const {
 	ya_un = hole1.mp.ya ;
 	ya_un.std_spectral_base() ;
 	
-	Sym_tensor tkij_un (hole1.aa()) ;
+	Sym_tensor tkij_un (hole1.aa) ;
 	tkij_un.change_triad(hole1.mp.get_bvect_cart()) ;
 
 	Vector vecteur_un (hole1.mp, CON, hole1.mp.get_bvect_cart()) ;
@@ -134,7 +139,7 @@ double Bin_hor::ang_mom_hor() const {
 	vecteur_un.annule_domain(hole1.mp.get_mg()->get_nzone()-1) ;
 	vecteur_un.change_triad (hole1.mp.get_bvect_spher()) ;
 	
-	Scalar integrant_un (hole1.psi4()*hole1.psi()*hole1.psi()
+	Scalar integrant_un (hole1.get_psi4()*hole1.psi*hole1.psi
 			     *vecteur_un(1)) ;
 	double moment_un = hole1.mp.integrale_surface
 	    (integrant_un, hole1.radius+1e-12)/8/M_PI ;
@@ -148,7 +153,7 @@ double Bin_hor::ang_mom_hor() const {
 	ya_deux = hole2.mp.ya ;
 	ya_deux.std_spectral_base() ;
 	
-	Sym_tensor tkij_deux (hole2.aa()) ;
+	Sym_tensor tkij_deux (hole2.aa) ;
 	tkij_deux.change_triad(hole2.mp.get_bvect_cart()) ;
 
 	Vector vecteur_deux (hole2.mp, CON, hole2.mp.get_bvect_cart()) ;
@@ -158,7 +163,7 @@ double Bin_hor::ang_mom_hor() const {
 	vecteur_deux.annule_domain(hole2.mp.get_mg()->get_nzone()-1) ;
 	vecteur_deux.change_triad (hole2.mp.get_bvect_spher()) ;
 	
-	Scalar integrant_deux (hole2.psi4()*hole2.psi()*hole2.psi()
+	Scalar integrant_deux (hole2.get_psi4()*hole2.psi*hole2.psi
 			       *vecteur_deux(1)) ;
 	double moment_deux = hole2.mp.integrale_surface
 	    (integrant_deux, hole2.radius+1e-12)/8/M_PI ;
@@ -211,8 +216,8 @@ double Bin_hor::ang_mom_adm() const {
 	Vector shift_un (mapping, CON, mapping.get_bvect_cart()) ;
 	Vector shift_deux (mapping, CON, mapping.get_bvect_cart()) ;
 	
-	Vector beta_un (hole1.beta_auto()) ;
-	Vector beta_deux (hole2.beta_auto()) ;
+	Vector beta_un (hole1.beta_auto) ;
+	Vector beta_deux (hole2.beta_auto) ;
 	beta_un.change_triad(hole1.mp.get_bvect_cart()) ;
 	beta_deux.change_triad(hole2.mp.get_bvect_cart()) ;
 	
