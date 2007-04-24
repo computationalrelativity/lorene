@@ -25,6 +25,9 @@ char bhole_with_ns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2007/04/24 20:14:04  f_limousin
+ * Implementation of Dirichlet and Neumann BC for the lapse
+ *
  * Revision 1.9  2007/02/03 07:46:30  p_grandclement
  * Addition of term kss for psi BC
  *
@@ -73,9 +76,10 @@ char bhole_with_ns_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "et_bin_nsbh.h"
 #include "graphique.h"
+#include "scalar.h"
 
 //Resolution pour le lapse pour 1 seul trou
-void Bhole::solve_lapse_with_ns (double relax) {
+void Bhole::solve_lapse_with_ns (double relax, int bound_nn, double lim_nn) {
     
     assert ((relax>0) && (relax<=1)) ;
     
@@ -100,24 +104,42 @@ void Bhole::solve_lapse_with_ns (double relax) {
     (-2*flat_scalar_prod(psi_auto.gradient(), grad_n_tot)()/psi_tot()
 	+psiq*n_tot()*kk()) ;
     source.std_base_scal() ;    
-  
-    // On resout pour N-1/2 :
-   
-    Valeur limite (mp.get_mg()->get_angu()) ;
-    limite = -0.5 ;
-    int np = mp.get_mg()->get_np(1) ;
-    int nt = mp.get_mg()->get_nt(1) ;
-    for (int k=0 ; k<np ; k++) 
-      for (int j=0 ; j<nt ; j++)
-	limite.set(0,k,j,0) -= n_comp() (1, k, j, 0) + (1-relax)*(n_auto()(1,k,j,0)-0.5) ;
-	
-    limite.std_base_scal() ;
-    limite = limite/relax ;
-    
-    Cmp soluce (source.poisson_dirichlet(limite, 0)) ;
       
-    n_auto.set() = relax*soluce + (1-relax)*(lapse_old-0.5) + 0.5 ; 
-    n_auto.set().raccord(1) ;
+    Cmp soluce(n_auto()) ;
+    
+    if (bound_nn == 0){
+      // Dirichlet
+      Valeur limite (mp.get_mg()->get_angu()) ;
+      limite = -0.5 + lim_nn ;
+      int np = mp.get_mg()->get_np(1) ;
+      int nt = mp.get_mg()->get_nt(1) ;
+      for (int k=0 ; k<np ; k++) 
+	for (int j=0 ; j<nt ; j++)
+	limite.set(0,k,j,0) -= n_comp() (1, k, j, 0) ;
+      limite.std_base_scal() ;
+
+      soluce = source.poisson_dirichlet(limite, 0) ;
+    }
+    else {
+      assert(bound_nn == 1);
+      // Neumann
+      Valeur limite (mp.get_mg()->get_angu()) ;
+      limite.annule_hard() ;
+      int np = mp.get_mg()->get_np(1) ;
+      int nt = mp.get_mg()->get_nt(1) ;
+      for (int k=0 ; k<np ; k++) 
+	for (int j=0 ; j<nt ; j++)
+	limite.set(0,k,j,0) -= n_tot()(1, k, j, 0)/psi_tot()(1,k,j,0)*
+	  psi_tot().dsdr()(1,k,j,0) ;
+      limite.std_base_scal() ;
+      
+      soluce = source.poisson_neumann(limite, 0) ;
+    }
+
+    soluce = soluce + 0.5 ;
+
+    n_auto.set() = relax*soluce + (1-relax)*lapse_old ; 
+    n_auto.set().raccord(3) ;
 }
 
 // Resolution sur Psi :
@@ -171,7 +193,7 @@ void Bhole::solve_psi_with_ns (double relax) {
 	for (int m=0 ; m<3 ; m++)
 		for (int n=0 ; n<3 ; n++)
 			part_ss += vec_s[m]*vec_s[n]*tkij_tot(m,n)(1,k,j,0) ;
-	part_ss *= pow(psi_tot()(1,k,j,0),3.)/2. ;
+	part_ss *= pow(psi_tot()(1,k,j,0),3.)/4. ;
 
 
 	limite.set(0, k, j, 0) = -0.5/rayon*psi_tot()(1, k, j, 0) -
@@ -183,14 +205,16 @@ void Bhole::solve_psi_with_ns (double relax) {
     
     Cmp soluce (source.poisson_neumann(limite, 0)) ;
     soluce = soluce + 1./2. ;
-    soluce.raccord(1) ;
     
     psi_auto.set() = relax*soluce + (1-relax)*psi_old ;    
+    psi_auto.set().raccord(3) ;
+
 }
 
 // Le shift. Processus iteratif pour cause de CL.
 void Bhole::solve_shift_with_ns (const Et_bin_nsbh& ns, 
-				 double precision, double relax) {
+				 double precision, double relax,
+				 int bound_nn, double lim_nn) {
     
     assert (precision > 0) ;
     assert ((relax>0) && (relax<=1)) ;
@@ -240,6 +264,10 @@ void Bhole::solve_shift_with_ns (const Et_bin_nsbh& ns,
     Mtbl Zabs (mp.get_mg()) ;
     Zabs = mp.za ;
     
+    Mtbl tet_mtbl (mp.get_mg()) ;
+    tet_mtbl = mp.tet ;
+    Mtbl phi_mtbl (mp.get_mg()) ;
+    phi_mtbl = mp.phi ;
 
     // Les bases pour les conditions limites :
     Base_val** bases = mp.get_mg()->std_base_vect_cart() ;
@@ -254,22 +282,32 @@ void Bhole::solve_shift_with_ns (const Et_bin_nsbh& ns,
     for (int k=0 ; k<np ; k++)
       for (int j=0 ; j<nt ; j++) {
 
+	double tet = tet_mtbl(1,k,j,0) ;
+        double phy = phi_mtbl(1,k,j,0) ;
+
 	xabs = Xabs (1, k, j, 0) ;
 	yabs = Yabs (1, k, j, 0) ;
 	zabs = Zabs (1, k, j, 0) ;
 	
 	ns.get_mp().convert_absolute (xabs, yabs, zabs, air, theta, phi) ;
 	
-	lim_x.set(0, k, j, 0) = omega*Yabs(0, 0, 0, 0) + omega_local*y_mtbl(1,k,j,0) - 
-	  ns.get_shift_auto()(0).val_point(air, theta, phi) ;
+	lim_x.set(0, k, j, 0) = omega*Yabs(0, 0, 0, 0) + 
+	  omega_local*y_mtbl(1,k,j,0) - 
+	  ns.get_shift_auto()(0).val_point(air, theta, phi) +
+	  n_tot()(1,k,j,0)/psi_tot()(1,k,j,0)/psi_tot()(1,k,j,0)*
+	  cos(phy)*sin(tet) ;
 	lim_x.base = *bases[0] ;
 	
 	
-	lim_y.set(0, k, j, 0) = -omega*Xabs(0, 0, 0, 0) - omega_local*x_mtbl(1,k,j,0) - 
-	  ns.get_shift_auto()(1).val_point(air, theta, phi) ;
+	lim_y.set(0, k, j, 0) = -omega*Xabs(0, 0, 0, 0) - 
+	  omega_local*x_mtbl(1,k,j,0) - 
+	  ns.get_shift_auto()(1).val_point(air, theta, phi) +
+	  n_tot()(1,k,j,0)/psi_tot()(1,k,j,0)/psi_tot()(1,k,j,0)*
+	  sin(phy)*sin(tet) ;
 	
 	lim_z.set(0, k, j, 0) = - 
-	  ns.get_shift_auto()(2).val_point(air, theta, phi) ;
+	  ns.get_shift_auto()(2).val_point(air, theta, phi) +
+	  n_tot()(1,k,j,0)/psi_tot()(1,k,j,0)/psi_tot()(1,k,j,0)*cos(tet) ;
       }
 
     lim_x.base = *bases[0] ;
@@ -286,30 +324,56 @@ void Bhole::solve_shift_with_ns (const Et_bin_nsbh& ns,
 			   lim_z, 0, precision, 20) ;
    
     shift_auto = relax*shift_auto + (1-relax)*shift_old ;
-    regul = regle (shift_auto, ns.get_shift_auto(), omega, omega_local) ;
+
+    for (int i=0; i<3; i++)
+      shift_auto.set(i).raccord(3) ;
+
+
+    // Regularisation of the shift if necessary
+    // -----------------------------------------    
+    if (bound_nn == 0 && lim_nn == 0)
+      regul = regle (shift_auto, ns.get_shift_auto(), omega, omega_local) ;  
+    else 
+      regul = 0. ;
+    
 }
 
 
 void Bhole::equilibrium (const Et_bin_nsbh& comp, 
-			   double precision, double relax) {
+			 double precision, double relax,
+			 int bound_nn, double lim_nn) {
 
   // Solve for the lapse :
-  solve_lapse_with_ns (relax) ;
+  solve_lapse_with_ns (relax, bound_nn, lim_nn) ;
 
   // Solve for the conformal factor :
   solve_psi_with_ns (relax) ;
 
   if (omega != 0) 
   // Solve for the shift vector :
-  	solve_shift_with_ns (comp, precision, relax) ;
+  	solve_shift_with_ns (comp, precision, relax, bound_nn, lim_nn) ;
+  
 }
 
   
-
-
 void Bhole::update_metric (const Et_bin_nsbh& comp) {
+
 	fait_n_comp(comp) ;
 	fait_psi_comp(comp) ;
+	/*	
+	Scalar lapse_auto (n_auto()) ;
+	Scalar lapse_tot (n_tot()) ;
+	Scalar lapse_comp (n_comp()) ;
+	des_meridian(lapse_auto, 0, 7, "n_auto", 0) ;
+	des_meridian(lapse_comp, 0, 7, "n_comp", 11) ;
+	des_meridian(lapse_tot, 0, 7, "n_tot", 1) ;
+
+	Scalar psiauto (psi_auto()) ;
+	Scalar psitot (psi_tot()) ;
+	des_meridian(psiauto, 0, 7, "psi_auto", 2) ;
+	des_meridian(psitot, 0, 7, "psi_tot", 3) ;
+	*/
+
 }
 
   

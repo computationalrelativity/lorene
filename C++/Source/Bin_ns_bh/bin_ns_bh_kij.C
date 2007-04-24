@@ -29,6 +29,9 @@ char bin_ns_bh_kij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2007/04/24 20:13:53  f_limousin
+ * Implementation of Dirichlet and Neumann BC for the lapse
+ *
  * Revision 1.4  2005/12/01 12:59:10  p_grandclement
  * Files for bin_ns_bh project
  *
@@ -229,7 +232,7 @@ void Bin_ns_bh::fait_decouple () {
 //********************************************************
 //calcul de kij total. (la regularisation ayant ete faite)
 //********************************************************
-void Bin_ns_bh::fait_tkij () {
+void Bin_ns_bh::fait_tkij (int bound_nn, double lim_nn) {
     
   fait_decouple() ;
   
@@ -261,21 +264,93 @@ void Bin_ns_bh::fait_tkij () {
   }
   else {
     
-    hole.tkij_tot.set_etat_qcq() ;
-    star.tkij_tot.set_etat_qcq() ;
-    
-    // On construit a_ij a partir du shift ...
-    // taij tot doit etre nul sur l'horizon.
-    hole.fait_taij_auto () ;  
-    star.fait_taij_auto() ;
-   
-    // On trouve les trucs du compagnon
-    hole.taij_comp.set_etat_qcq() ;
-    // Pas de membre pour NS
-    Tenseur_sym ns_taij_comp (star.mp, 2, CON, ref_triad) ;
-    ns_taij_comp.set_etat_qcq() ;
-    
-    Tenseur_sym copie_ns (star.taij_auto) ;
+    if (bound_nn == 0 && lim_nn == 0){
+      
+      hole.fait_taij_auto () ;  
+      star.fait_taij_auto() ;
+
+      // On trouve les trucs du compagnon
+      hole.taij_comp.set_etat_qcq() ;
+      // Pas de membre pour NS
+      Tenseur_sym ns_taij_comp (star.mp, 2, CON, ref_triad) ;
+      ns_taij_comp.set_etat_qcq() ;
+      
+      Tenseur_sym copie_ns (star.taij_auto) ;
+      copie_ns.dec2_dzpuis() ;
+      Tenseur_sym copie_bh (hole.taij_auto) ;
+      copie_bh.dec2_dzpuis() ;
+      
+      // Les importations :
+      if (hole.taij_auto.get_etat() == ETATZERO)
+	ns_taij_comp.set_etat_zero() ;
+      else {
+	ns_taij_comp.set(0, 0).import(copie_bh(0, 0)) ;
+	ns_taij_comp.set(0, 1).import(copie_bh(0, 1)) ;
+	ns_taij_comp.set(0, 2).import(copie_bh(0, 2)) ;
+	ns_taij_comp.set(1, 1).import(copie_bh(1, 1)) ;
+	ns_taij_comp.set(1, 2).import(copie_bh(1, 2)) ;
+	ns_taij_comp.set(2, 2).import(copie_bh(2, 2)) ;
+	ns_taij_comp.set_triad(*copie_bh.get_triad()) ;
+	ns_taij_comp.change_triad(star.ref_triad) ;
+      }
+      
+      if (star.taij_auto.get_etat() == ETATZERO)
+	hole.taij_comp.set_etat_zero() ;
+      else {
+	hole.taij_comp.set(0, 0).import(copie_ns(0, 0)) ;
+	hole.taij_comp.set(0, 1).import(copie_ns(0, 1)) ;
+	hole.taij_comp.set(0, 2).import(copie_ns(0, 2)) ;
+	hole.taij_comp.set(1, 1).import(copie_ns(1, 1)) ;
+	hole.taij_comp.set(1, 2).import(copie_ns(1, 2)) ;
+	hole.taij_comp.set(2, 2).import(copie_ns(2, 2)) ;
+	hole.taij_comp.set_triad(*copie_ns.get_triad()) ;
+	hole.taij_comp.change_triad (hole.mp.get_bvect_cart()) ;
+      }
+      
+      hole.taij_comp.set_std_base() ;
+      ns_taij_comp.set_std_base() ;
+      hole.taij_comp.inc2_dzpuis() ;
+      ns_taij_comp.inc2_dzpuis() ;
+      
+      // Et enfin les trucs totaux...
+      hole.taij_tot = hole.taij_auto + hole.taij_comp ;
+      Tenseur_sym ns_taij_tot (star.taij_auto + ns_taij_comp) ;
+      star.taij_tot = ns_taij_tot ;
+      
+      // Computation of tkij
+      star.tkij_tot.set_etat_qcq() ;
+      star.tkij_auto.set_etat_qcq() ;
+      star.tkij_comp.set_etat_qcq() ;
+      hole.tkij_tot.set_etat_qcq() ;
+      hole.tkij_auto.set_etat_qcq() ;
+      
+      for (int i = 0 ; i<3 ; i++)
+	for (int j = i ; j<3 ; j++) {
+	  star.tkij_tot.set(i,j) = 0.5*star.taij_tot(i,j)/star.nnn() ;
+	  star.tkij_auto.set(i,j) = 0.5*star.taij_auto(i,j)/star.nnn() ;
+	  star.tkij_comp.set(i,j) = 0.5*ns_taij_comp(i,j)/star.nnn() ;
+	  hole.tkij_tot.set(i,j) = 0.5*hole.taij_tot(i,j)/hole.n_tot() ;
+	  hole.tkij_auto.set(i,j) = 0.5*hole.taij_auto(i,j)/hole.n_tot() ;
+	}
+
+    }
+    else {
+      
+      hole.tkij_tot.set_etat_qcq() ;
+      star.tkij_tot.set_etat_qcq() ;
+      
+      // On construit a_ij a partir du shift ...
+      // taij tot doit etre nul sur l'horizon.
+      hole.fait_taij_auto () ;  
+      star.fait_taij_auto() ;
+      
+      // On trouve les trucs du compagnon
+      hole.taij_comp.set_etat_qcq() ;
+      // Pas de membre pour NS
+      Tenseur_sym ns_taij_comp (star.mp, 2, CON, ref_triad) ;
+      ns_taij_comp.set_etat_qcq() ;
+      
+      Tenseur_sym copie_ns (star.taij_auto) ;
     copie_ns.dec2_dzpuis() ;
     Tenseur_sym copie_bh (hole.taij_auto) ;
     copie_bh.dec2_dzpuis() ;
@@ -400,7 +475,7 @@ void Bin_ns_bh::fait_tkij () {
 	star.tkij_tot.set(lig, col) = auxi_ns ;
 	hole.tkij_tot.set(lig, col) = auxi_bh ;
       }
-   
+
     star.tkij_tot.set_std_base() ;
     hole.tkij_tot.set_std_base() ;
     star.tkij_tot.inc2_dzpuis() ;
@@ -428,6 +503,8 @@ void Bin_ns_bh::fait_tkij () {
     star.tkij_auto.set_std_base() ;
     star.tkij_comp.set_std_base() ;
     hole.tkij_auto.set_std_base() ;
+
+    }
 
     // On doit mettre a jour les champs akcar de NS :
     star.akcar_auto.set_etat_qcq() ; 

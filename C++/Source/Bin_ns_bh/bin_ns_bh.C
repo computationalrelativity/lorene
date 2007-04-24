@@ -29,6 +29,9 @@ char bin_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2007/04/24 20:13:53  f_limousin
+ * Implementation of Dirichlet and Neumann BC for the lapse
+ *
  * Revision 1.11  2006/09/25 10:01:49  p_grandclement
  * Addition of N-dimensional Tbl
  *
@@ -305,7 +308,7 @@ void Bin_ns_bh::init_auto () {
 	// Affectation to another Bin_ns_bh
 	//**********************************
 
-void Bin_ns_bh::affecte(const Bin_ns_bh& so) {
+void Bin_ns_bh::affecte(const Bin_ns_bh& so, int bound_nn, double lim_nn) {
         
 	// Kinematic quantities :
 	star.nzet = so.star.nzet ;
@@ -346,7 +349,7 @@ void Bin_ns_bh::affecte(const Bin_ns_bh& so) {
 	map_et->homothetie (rmax/old_r) ;
 	
 	star.ent.allocate_all() ;
-	star.ent.set().import_symy(star.nzet, so.star.ent()) ;
+	star.ent.set().import(star.nzet, so.star.ent()) ;
 	star.ent.set_std_base() ;
 	
     Param par_adapt ; 
@@ -384,14 +387,14 @@ void Bin_ns_bh::affecte(const Bin_ns_bh& so) {
     mp_prev.homothetie(alpha_r) ;
     map_et->reevaluate_symy (&mp_prev, star.nzet, star.ent.set()) ;
         
-    star.ent.set().import_symy(star.nzet, so.star.ent()) ;
+    star.ent.set().import(star.nzet, so.star.ent()) ;
     
      // The BH part :
 	// Lapse :
 	hole.n_auto.allocate_all() ;
 	Cmp auxi_n (so.hole.n_auto()) ;
 	auxi_n.raccord(1) ;
-	hole.n_auto.set().import_symy(auxi_n) ;
+	hole.n_auto.set().import(auxi_n) ;
 	hole.n_auto.set().std_base_scal() ;
 	hole.n_auto.set().raccord(1) ;
 	
@@ -399,7 +402,7 @@ void Bin_ns_bh::affecte(const Bin_ns_bh& so) {
 	hole.psi_auto.allocate_all() ;
 	Cmp auxi_psi (so.hole.psi_auto()) ;
 	auxi_psi.raccord(1) ;
-	hole.psi_auto.set().import_symy(auxi_psi) ;
+	hole.psi_auto.set().import(auxi_psi) ;
 	hole.psi_auto.set().std_base_scal() ;
 	hole.psi_auto.set().raccord(1) ;
 	
@@ -408,28 +411,28 @@ void Bin_ns_bh::affecte(const Bin_ns_bh& so) {
 	Tenseur auxi_shift (so.hole.shift_auto) ;
 	for (int i=0 ; i<3 ; i++)
 	    auxi_shift.set(i).raccord(1) ;
-	hole.shift_auto.set(0).import_asymy (auxi_shift(0)) ;
-	hole.shift_auto.set(1).import_symy (auxi_shift(1)) ;
-	hole.shift_auto.set(2).import_asymy (auxi_shift(2)) ;
+	hole.shift_auto.set(0).import(auxi_shift(0)) ;
+	hole.shift_auto.set(1).import(auxi_shift(1)) ;
+	hole.shift_auto.set(2).import(auxi_shift(2)) ;
 	hole.shift_auto.set_std_base() ;
 	
 	// The NS part :
 	star.n_auto.allocate_all() ;
-	star.n_auto.set().import_symy(so.star.n_auto()) ;
+	star.n_auto.set().import(so.star.n_auto()) ;
 	star.n_auto.set().std_base_scal() ;
 	
 	// Psi :
 	star.confpsi_auto.allocate_all() ;
-	star.confpsi_auto.set().import_symy(so.star.confpsi_auto()) ;
+	star.confpsi_auto.set().import(so.star.confpsi_auto()) ;
 	star.confpsi_auto.set().std_base_scal() ;
 	// Shift :
 	star.w_shift.allocate_all() ;
-	star.w_shift.set(0).import_asymy (so.star.w_shift(0)) ;
-	star.w_shift.set(1).import_symy (so.star.w_shift(1)) ;
-	star.w_shift.set(2).import_asymy (so.star.w_shift(2)) ;
+	star.w_shift.set(0).import(so.star.w_shift(0)) ;
+	star.w_shift.set(1).import(so.star.w_shift(1)) ;
+	star.w_shift.set(2).import(so.star.w_shift(2)) ;
 	star.w_shift.set_std_base() ;
 	star.khi_shift.allocate_all() ;
-	star.khi_shift.set().import_asymy(so.star.khi_shift()) ;
+	star.khi_shift.set().import(so.star.khi_shift()) ;
  	star.khi_shift.set().std_base_scal() ;
 	star.fait_shift_auto() ;
 	
@@ -437,9 +440,9 @@ void Bin_ns_bh::affecte(const Bin_ns_bh& so) {
 	copie_dpsi.set(2).dec2_dzpuis() ;
 	if (so.star.is_irrotational()) {
 		star.d_psi.allocate_all() ;
-	        star.d_psi.set(0).import_asymy(star.nzet, copie_dpsi(0)) ;
-		star.d_psi.set(1).import_symy(star.nzet, copie_dpsi(1)) ;
-		star.d_psi.set(2).import_asymy(star.nzet, copie_dpsi(2)) ;
+	        star.d_psi.set(0).import(star.nzet, copie_dpsi(0)) ;
+		star.d_psi.set(1).import(star.nzet, copie_dpsi(1)) ;
+		star.d_psi.set(2).import(star.nzet, copie_dpsi(2)) ;
 		star.d_psi.set_std_base() ;
 	}
 	
@@ -449,7 +452,7 @@ void Bin_ns_bh::affecte(const Bin_ns_bh& so) {
 	hole.update_metric(star) ;    
         star.update_metric(hole) ;
 	star.update_metric_der_comp(hole) ;
-	fait_tkij() ;
+	fait_tkij(bound_nn, lim_nn) ;
 	
 	star.kinematics(omega, x_axe) ;
 	star.equation_of_state() ;

@@ -29,6 +29,9 @@ char init_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2007/04/24 20:17:32  f_limousin
+ * Implementation of Dirichlet and Neumann BC for the lapse
+ *
  * Revision 1.7  2006/09/06 11:52:46  p_grandclement
  * Update of the Bin_ns_bh codes
  *
@@ -73,7 +76,7 @@ char init_ns_bh_C[] = "$Header$" ;
 #include "nbr_spx.h"
 #include "eos.h"
 #include "unites.h"
-#include "graphique.h"
+//#include "graphique.h"
 
 int  main(){
 
@@ -232,17 +235,19 @@ int  main(){
     fich.getline(blabla, 80) ;
     fich.getline(blabla, 80) ;
 
-    double separ ;
+    double separ, lim_nn ;
     fich >> separ; fich.getline(blabla, 80) ;
     separ *= km ;	// translation in Lorene units
 
-    int irrot_i ;
+    int irrot_i, bound_nn ;
     int state_rot_bh ;
     double ent_c ;
     fich >> ent_c ; fich.getline(blabla, 80) ;
     fich >> irrot_i ; fich.getline(blabla, 80) ;
     fich >> state_rot_bh ; fich.getline(blabla, 80) ;
     bool irrot_ns = (irrot_i == 1) ;
+    fich >> bound_nn ; 
+    fich >> lim_nn ; fich.getline(blabla, 80) ;
 
     fich.close() ;
 
@@ -310,7 +315,7 @@ int  main(){
     
     bibi.init_auto() ;   
     int ite ;
-    bibi.pseudo_misner (ite, 200, 0.7, precis) ;
+    bibi.pseudo_misner (ite, 200, 0.7, precis, bound_nn, lim_nn) ;
  
   
     cout << endl

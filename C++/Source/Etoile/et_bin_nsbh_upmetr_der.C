@@ -31,6 +31,9 @@ char et_bin_nsbh_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2007/04/24 20:14:45  f_limousin
+ * Implementation of Dirichlet and Neumann BC for the lapse
+ *
  * Revision 1.4  2005/10/18 13:12:33  p_grandclement
  * update of the mixted binary codes
  *
@@ -79,9 +82,9 @@ void Et_bin_nsbh::update_metric_der_comp(const Bhole& comp) {
 	// 2/ Interpolation of the result
 
 	d_n_comp.set_etat_qcq() ;
-	(d_n_comp.set(0)).import_symy( dncomp(0) ) ;  // d/dx sym.
-	(d_n_comp.set(1)).import_asymy( dncomp(1) ) ; // d/dy antisym.
-	(d_n_comp.set(2)).import_symy( dncomp(2) ) ;  // d/dz sym.
+	(d_n_comp.set(0)).import( dncomp(0) ) ;  // d/dx sym.
+	(d_n_comp.set(1)).import( dncomp(1) ) ; // d/dy antisym.
+	(d_n_comp.set(2)).import( dncomp(2) ) ;  // d/dz sym.
 
     }
     d_n_comp.set_std_base() ;
@@ -106,9 +109,9 @@ void Et_bin_nsbh::update_metric_der_comp(const Bhole& comp) {
 
 	d_confpsi_comp.set_etat_qcq() ;
 
-	(d_confpsi_comp.set(0)).import_symy(dpsicomp(0) ) ;  // d/dx sym.
-	(d_confpsi_comp.set(1)).import_asymy(dpsicomp(1) ) ; // d/dy antisym.
-	(d_confpsi_comp.set(2)).import_symy(dpsicomp(2) ) ;  // d/dz sym.
+	(d_confpsi_comp.set(0)).import(dpsicomp(0) ) ;  // d/dx sym.
+	(d_confpsi_comp.set(1)).import(dpsicomp(1) ) ; // d/dy antisym.
+	(d_confpsi_comp.set(2)).import(dpsicomp(2) ) ;  // d/dz sym.
 
     }
 

@@ -29,6 +29,9 @@ char coal_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2007/04/24 20:17:32  f_limousin
+ * Implementation of Dirichlet and Neumann BC for the lapse
+ *
  * Revision 1.10  2006/09/06 11:52:46  p_grandclement
  * Update of the Bin_ns_bh codes
  *
@@ -105,6 +108,21 @@ int main(int argc, char** argv) {
     fpar >> scale_ome_local ; fpar.getline(blabla, 120) ;
     fpar.close() ;
     
+    double lim_nn,  ;
+    int bound_nn ;
+    ifstream finit("par_init.d") ;
+    finit.getline(blabla, 80) ;
+    finit.getline(blabla, 80) ;
+    finit.getline(blabla, 80) ;
+    finit.getline(blabla, 80) ;
+    finit.getline(blabla, 80) ;
+    finit.getline(blabla, 80) ;
+    finit >> bound_nn ; 
+    finit >> lim_nn ; finit.getline(blabla, 80) ;
+    finit.close() ;
+
+    cout << "bound_nn = " << bound_nn << ", lim_nn = " << lim_nn << endl ;
+
     //------------------------------------------------------------------
     //	    Read of the initial conditions
     //------------------------------------------------------------------
@@ -134,7 +152,7 @@ int main(int argc, char** argv) {
     // ---------------------------------------------------
     bin.set_ns().update_metric_der_comp (bin.get_bh()) ;
     bin.set_bh().update_metric (bin.get_ns()) ;
-    bin.fait_tkij() ;
+    bin.fait_tkij(bound_nn, lim_nn) ;
    
     // Initialisation of hydro quantities for NS
     // -----------------------------------------
@@ -152,7 +170,7 @@ int main(int argc, char** argv) {
   
 
     double ent_c_init = bin.get_ns().get_ent()()(0,0,0,0) ;
-    bin.coal (precis, relax, itemax_equil, itemax_mp_et, ent_c_init, search, distance, mirr, m2, spin, scale_ome_local, 1) ;
+    bin.coal (precis, relax, itemax_equil, itemax_mp_et, ent_c_init, search, distance, mirr, m2, spin, scale_ome_local, 1, bound_nn, lim_nn) ;
 
     // On sauve
     char name[20] ;

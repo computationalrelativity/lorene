@@ -28,6 +28,9 @@ char lit_bin_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2007/04/24 20:17:32  f_limousin
+ * Implementation of Dirichlet and Neumann BC for the lapse
+ *
  * Revision 1.6  2006/09/06 11:52:46  p_grandclement
  * Update of the Bin_ns_bh codes
  *
@@ -141,6 +144,21 @@ int main(int argc, char** argv) {
     cout << "NS grav. mass   : " << Mg_ns/msol << " solar mass" << endl ;
     cout << "Deformation     : " << ki << endl ;
     
+
+    // Computation of quantities at some SPEC collocation points
+    // ----------------------------------------------------------
+
+    cout << "Centre du trou noir : " << bibi.get_bh().get_mp().get_ori_x()
+	 << endl ;
+    cout << "Centre de l'EN : " << bibi.get_ns().get_mp().get_ori_x()
+         << endl ;
+    
+    cout << "Omega = " << bibi.get_omega()*f_unit << " Hz" << endl ;
+    //Eos_poly& eos_NS = dynamic_cast<Eos_poly&>(bibi.get_ns().get_eos()) ; 
+    //cout << "Gamma = " << eos_NS.get_gam() << endl ;
+    //cout << "Kappa = " << eos_NS.get_kap() << endl ;
+    
+  
     double x_bh = bibi.get_bh().get_mp().get_ori_x() ;
     double x_ns = bibi.get_ns().get_mp().get_ori_x() ;
     double centre = (x_ns+x_bh)/2 ;
@@ -164,6 +182,6 @@ int main(int argc, char** argv) {
         p2.dec2_dzpuis() ;
 	des_coupe_bin_z (p1, p2, 0, centre-taille, centre+taille, -taille, taille, "A_ij") ;
       }
-   
+      
     return EXIT_SUCCESS; 
 }

@@ -25,6 +25,9 @@ char bin_ns_bh_coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2007/04/24 20:13:53  f_limousin
+ * Implementation of Dirichlet and Neumann BC for the lapse
+ *
  * Revision 1.9  2006/09/05 13:39:43  p_grandclement
  * update of the bin_ns_bh project
  *
@@ -69,7 +72,11 @@ char bin_ns_bh_coal_C[] = "$Header$" ;
 #include "unites.h"
 #include "graphique.h"
 
-void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_mp_et, double ent_c_init, double seuil_masses, double dist, double m1, double m2, double spin_cible, double scale_ome_local, const int sortie) {
+void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, 
+		      int itemax_mp_et, double ent_c_init, double seuil_masses,
+		      double dist, double m1, double m2, double spin_cible, 
+		      double scale_ome_local, const int sortie, int bound_nn,
+		      double lim_nn) {
     
     using namespace Unites ;
     
@@ -172,15 +179,17 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
       spin_old = spin ;
     	spin = hole.local_momentum() ;
     	if (sortie !=0) {
-    		fiche_ome_local << conte << " " << hole.omega_local << endl ;	
+    		fiche_ome_local << conte << " " << hole.omega_local << endl ;
 		fiche_spin << conte << " " << spin/m1/m1 << endl ;
     	}
         
 	double conv_spin = fabs(spin-spin_old) ;
         double error_spin = spin - spin_cible ;
-	double rel_diff_spin = (spin_cible==0) ? fabs(error_spin) : fabs(error_spin)/spin_cible ;
-	if  ((conv_spin*2<rel_diff_spin) && (search_masses)) {
-	    double func = scale_ome_local*log((2+error_spin)/(2+2*error_spin)) ;
+	double rel_diff_spin = (spin_cible==0) ? fabs(error_spin) : 
+	  fabs(error_spin)/spin_cible ;
+	if  ((conv_spin*2<rel_diff_spin) && (search_masses) && 
+	     hole.get_rot_state() != COROT) {
+	    double func = scale_ome_local*log((2+error_spin)/(2+2*error_spin));
 	    hole.set_omega_local(hole.omega_local+func) ;
 	}
 
@@ -205,11 +214,12 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
 	int ite ;
 
 
- 	star.equilibrium_nsbh (adapt, ent_c, ite, itemax_equil, itemax_mp_et, relax, itemax_mp_et, relax,  diff) ;
+ 	star.equilibrium_nsbh (adapt, ent_c, ite, itemax_equil, itemax_mp_et, 
+			       relax, itemax_mp_et, relax, diff) ;
 
 	hole.update_metric(star) ;    
 	
-	hole.equilibrium (star, precis, relax) ;
+	hole.equilibrium (star, precis, relax, bound_nn, lim_nn) ;
         cout << "Apres equilibrium" << endl ;   
 	
         star.update_metric(hole) ;
@@ -217,7 +227,7 @@ void Bin_ns_bh::coal (double precis, double relax, int itemax_equil, int itemax_
 	
 	star.update_metric_der_comp(hole) ;
 	cout << "Apres star::update_metric_der_comp" << endl ;	
-	fait_tkij() ;
+	fait_tkij(bound_nn, lim_nn) ;
 	cout << "Apres Bin_ns_bh::fait_tkij" << endl ;     
 	
 	erreur = 0 ;

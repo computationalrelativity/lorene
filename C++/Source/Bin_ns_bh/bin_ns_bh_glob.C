@@ -25,6 +25,9 @@ char bin_ns_bh_glob_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2007/04/24 20:13:53  f_limousin
+ * Implementation of Dirichlet and Neumann BC for the lapse
+ *
  * Revision 1.5  2006/06/23 07:09:24  p_grandclement
  * Addition of spinning black hole
  *
@@ -95,8 +98,27 @@ double Bin_ns_bh::adm_systeme_volume() const {
     integ_bh.annule(0) ;
     integ_bh.std_base_scal() ;
     
-    Cmp integ_hor (hole.psi_tot()) ;
-    
+    Cmp integ_hor1 (hole.psi_tot()) ;
+
+    Cmp tet (hole.mp) ;
+    tet = hole.mp.tet ;
+    Cmp phi (hole.mp) ;
+    phi = hole.mp.phi ;
+    Tenseur rad (hole.mp, 1, COV, hole.mp.get_bvect_cart()) ;
+    rad.set_etat_qcq() ;
+    rad.set(0) = cos(phi)*sin(tet) ;
+    rad.set(1) = sin(phi)*sin(tet) ;
+    rad.set(2) = cos(tet) ;
+
+    Cmp integ_hor2 (hole.mp) ;
+    integ_hor2.annule_hard() ;
+    integ_hor2.set_dzpuis(2) ;
+    for (int m=0 ; m<3 ; m++)
+      for (int n=0 ; n<3 ; n++)
+	integ_hor2 += rad(m)*rad(n)*hole.tkij_tot(m,n) ;
+    integ_hor2 *= pow(hole.psi_tot(),3.)/4. ;
+    integ_hor2.std_base_scal() ;
+
     Tenseur auxi_ns (flat_scalar_prod(star.tkij_tot, star.tkij_auto)) ;
     Tenseur kk_ns (star.mp) ;
     kk_ns = 0 ;
@@ -113,7 +135,8 @@ double Bin_ns_bh::adm_systeme_volume() const {
     integ_matter.std_base_scal() ;
     
     double masse = (integ_bh.integrale()+integ_ns.integrale())/16/M_PI  + 
-    	hole.mp.integrale_surface(integ_hor, hole.rayon)/hole.rayon/4/M_PI 
+    	hole.mp.integrale_surface(integ_hor1, hole.rayon)/hole.rayon/4/M_PI +
+    	hole.mp.integrale_surface(integ_hor2, hole.rayon)/2/M_PI 
 	+ integ_matter.integrale()*ggrav ;
 	
     return masse ;
@@ -172,15 +195,15 @@ double Bin_ns_bh::moment_systeme_inf() const {
 	shift_deux.set_etat_qcq() ;
 	
 	shift_un.set_triad (*hole.shift_auto.get_triad()) ;
-	shift_un.set(0).import_asymy(hole.shift_auto(0)) ;
-	shift_un.set(1).import_symy(hole.shift_auto(1)) ;
-	shift_un.set(2).import_asymy(hole.shift_auto(2)) ;
+	shift_un.set(0).import(hole.shift_auto(0)) ;
+	shift_un.set(1).import(hole.shift_auto(1)) ;
+	shift_un.set(2).import(hole.shift_auto(2)) ;
 	shift_un.change_triad (mapping.get_bvect_cart()) ;
 	
 	shift_deux.set_triad (*star.shift_auto.get_triad()) ;
-	shift_deux.set(0).import_asymy(star.shift_auto(0)) ;
-	shift_deux.set(1).import_symy(star.shift_auto(1)) ;
-	shift_deux.set(2).import_asymy(star.shift_auto(2)) ;
+	shift_deux.set(0).import(star.shift_auto(0)) ;
+	shift_deux.set(1).import(star.shift_auto(1)) ;
+	shift_deux.set(2).import(star.shift_auto(2)) ;
 	shift_deux.change_triad(mapping.get_bvect_cart()) ;
 	
 	Tenseur shift_tot (shift_un+shift_deux) ;
@@ -309,15 +332,15 @@ Tbl Bin_ns_bh::linear_momentum_systeme_inf() const {
 	shift_deux.set_etat_qcq() ;
 	
 	shift_un.set_triad (*hole.shift_auto.get_triad()) ;
-	shift_un.set(0).import_asymy(hole.shift_auto(0)) ;
-	shift_un.set(1).import_symy(hole.shift_auto(1)) ;
-	shift_un.set(2).import_asymy(hole.shift_auto(2)) ;
+	shift_un.set(0).import(hole.shift_auto(0)) ;
+	shift_un.set(1).import(hole.shift_auto(1)) ;
+	shift_un.set(2).import(hole.shift_auto(2)) ;
 	shift_un.change_triad (mapping.get_bvect_cart()) ;
 	
 	shift_deux.set_triad (*star.shift_auto.get_triad()) ;
-	shift_deux.set(0).import_asymy(star.shift_auto(0)) ;
-	shift_deux.set(1).import_symy(star.shift_auto(1)) ;
-	shift_deux.set(2).import_asymy(star.shift_auto(2)) ;
+	shift_deux.set(0).import(star.shift_auto(0)) ;
+	shift_deux.set(1).import(star.shift_auto(1)) ;
+	shift_deux.set(2).import(star.shift_auto(2)) ;
 	shift_deux.change_triad(mapping.get_bvect_cart()) ;
 	
 	shift_un.set_std_base() ;
@@ -518,8 +541,27 @@ double Bin_ns_bh::smarr() const {
     double matter_term = integ_matter.integrale()*qpig/4/M_PI ;
     
     // Integrale sur horizon :
-    Cmp integ_hor (hole.get_n_tot()().dsdr()*
-	pow(hole.get_psi_tot()(), 2)) ;
+    Cmp tet (hole.mp) ;
+    tet = hole.mp.tet ;
+    Cmp phi (hole.mp) ;
+    phi = hole.mp.phi ;
+    Tenseur rad (hole.mp, 1, COV, hole.mp.get_bvect_cart()) ;
+    rad.set_etat_qcq() ;
+    rad.set(0) = cos(phi)*sin(tet) ;
+    rad.set(1) = sin(phi)*sin(tet) ;
+    rad.set(2) = cos(tet) ;
+
+    Cmp temp (hole.mp) ;
+    temp.annule_hard() ;
+    temp.set_dzpuis(2) ;
+    for (int m=0 ; m<3 ; m++)
+      for (int n=0 ; n<3 ; n++)
+	temp += rad(m)*rad(n)*hole.tkij_tot(m,n) ;
+    temp *= pow(hole.psi_tot(),2.) ;
+    temp.std_base_scal() ;
+
+    Cmp integ_hor ((hole.get_n_tot()().dsdr()-hole.get_n_tot()()*temp)
+		   *pow(hole.get_psi_tot()(), 2)) ;
     integ_hor.std_base_scal() ;
     integ_hor.raccord(1) ;
     double hor_term = hole.mp.integrale_surface(integ_hor, hole.get_rayon()) ;	

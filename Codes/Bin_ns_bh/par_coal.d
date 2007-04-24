@@ -1,7 +1,7 @@
 10.0   # Coordinate distance between the objects
 7. 1.50912 #Masses BH (irreducible mass) NS (baryonic mass) (in solar mass)
-1.e-3 #Treshold to start the convergence to the right masses
-1e-7 #overall precision
+1.e-10 #Treshold to start the convergence to the right masses
+1e-6 #overall precision
 0.6 # relaxation
 1 #max poisson
 4 #other stuff poisson

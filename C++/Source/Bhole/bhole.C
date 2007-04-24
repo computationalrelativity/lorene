@@ -32,6 +32,9 @@ char bhole_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2007/04/24 20:14:04  f_limousin
+ * Implementation of Dirichlet and Neumann BC for the lapse
+ *
  * Revision 1.11  2006/09/25 10:01:48  p_grandclement
  * Addition of N-dimensional Tbl
  *
@@ -300,7 +303,11 @@ void Bhole::fait_n_comp (const Et_bin_nsbh& comp) {
     int same_orient = (orientation == orientation_comp) ? 1 : -1 ;
     
     n_comp.set_etat_qcq() ;
-    n_comp.set().import_symy(comp.get_n_auto()()) ;
+    if (regul == 0)
+      n_comp.set().import(comp.get_n_auto()()) ;
+    else
+      n_comp.set().import_symy(comp.get_n_auto()()) ;
+      
     n_comp.set_std_base() ;
     
     n_tot = n_comp + n_auto ;
@@ -310,9 +317,16 @@ void Bhole::fait_n_comp (const Et_bin_nsbh& comp) {
     Tenseur auxi (comp.get_d_n_auto()) ;
     auxi.dec2_dzpuis() ;
     grad_comp.set_etat_qcq() ;
-    grad_comp.set(0).import_symy(same_orient*auxi(0)) ;
-    grad_comp.set(1).import_asymy(same_orient*auxi(1)) ;
-    grad_comp.set(2).import_symy(auxi(2)) ;
+    if (regul == 0){
+      grad_comp.set(0).import(same_orient*auxi(0)) ;
+      grad_comp.set(1).import(same_orient*auxi(1)) ;
+      grad_comp.set(2).import(auxi(2)) ;
+    }
+    else{
+      grad_comp.set(0).import_symy(same_orient*auxi(0)) ;
+      grad_comp.set(1).import_asymy(same_orient*auxi(1)) ;
+      grad_comp.set(2).import_symy(auxi(2)) ;
+    }
     grad_comp.set_std_base() ;
     grad_comp.inc2_dzpuis() ;
     
@@ -331,7 +345,10 @@ void Bhole::fait_psi_comp (const Et_bin_nsbh& comp) {
     int same_orient = (orientation == orientation_comp) ? 1 : -1 ;
     
     psi_comp.set_etat_qcq() ;
-    psi_comp.set().import_symy(comp.get_confpsi_auto()()) ;
+    if (regul == 0)
+      psi_comp.set().import(comp.get_confpsi_auto()()) ;
+    else
+      psi_comp.set().import_symy(comp.get_confpsi_auto()()) ;
     psi_comp.set_std_base() ;
     
     psi_tot = psi_comp + psi_auto ;
@@ -341,9 +358,16 @@ void Bhole::fait_psi_comp (const Et_bin_nsbh& comp) {
     Tenseur auxi (comp.get_d_confpsi_auto()) ;
     auxi.dec2_dzpuis() ;
     grad_comp.set_etat_qcq() ;
-    grad_comp.set(0).import_symy(same_orient*auxi(0)) ;
-    grad_comp.set(1).import_asymy(same_orient*auxi(1)) ;
-    grad_comp.set(2).import_symy(auxi(2)) ;
+    if (regul == 0){
+      grad_comp.set(0).import(same_orient*auxi(0)) ;
+      grad_comp.set(1).import(same_orient*auxi(1)) ;
+      grad_comp.set(2).import(auxi(2)) ;
+    }
+    else{
+      grad_comp.set(0).import_symy(same_orient*auxi(0)) ;
+      grad_comp.set(1).import_asymy(same_orient*auxi(1)) ;
+      grad_comp.set(2).import_symy(auxi(2)) ;
+    }
     grad_comp.set_std_base() ;
     grad_comp.inc2_dzpuis() ;
     

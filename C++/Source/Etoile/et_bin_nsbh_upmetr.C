@@ -31,6 +31,9 @@ char et_bin_nsbh_upmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2007/04/24 20:14:45  f_limousin
+ * Implementation of Dirichlet and Neumann BC for the lapse
+ *
  * Revision 1.2  2005/08/29 15:10:17  p_grandclement
  * Addition of things needed :
  *   1) For BBH with different masses
@@ -65,7 +68,7 @@ void Et_bin_nsbh::update_metric(const Bhole& comp) {
     }
     else{
 	n_comp.set_etat_qcq() ;
-	(n_comp.set()).import_symy( comp.get_n_auto()() ) ;
+	(n_comp.set()).import( comp.get_n_auto()() ) ;
 	n_comp.set_std_base() ;   // set the bases for spectral expansions
     }
 
@@ -76,7 +79,7 @@ void Et_bin_nsbh::update_metric(const Bhole& comp) {
     }
     else{
 	confpsi_comp.set_etat_qcq() ;
-	(confpsi_comp.set()).import_symy( comp.get_psi_auto()() ) ;
+	(confpsi_comp.set()).import( comp.get_psi_auto()() ) ;
 	confpsi_comp.set_std_base() ; // set the bases for spectral expansions
     }
 
@@ -88,9 +91,9 @@ void Et_bin_nsbh::update_metric(const Bhole& comp) {
     else{
 	shift_comp.set_etat_qcq() ;
 
-	(shift_comp.set(0)).import_asymy( comp.get_shift_auto()(0) ) ;  // N^x antisym
-	(shift_comp.set(1)).import_symy( comp.get_shift_auto()(1) ) ;   // N^y sym.
-	(shift_comp.set(2)).import_asymy( comp.get_shift_auto()(2) ) ;  // N^z anisym
+	(shift_comp.set(0)).import( comp.get_shift_auto()(0) ) ;  // N^x antisym
+	(shift_comp.set(1)).import( comp.get_shift_auto()(1) ) ;   // N^y sym.
+	(shift_comp.set(2)).import( comp.get_shift_auto()(2) ) ;  // N^z anisym
 
 	shift_comp.set_std_base() ;   // set the bases for spectral expansions
     }

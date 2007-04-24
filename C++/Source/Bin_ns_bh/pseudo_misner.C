@@ -23,6 +23,9 @@ char pseudo_misner_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2007/04/24 20:13:53  f_limousin
+ * Implementation of Dirichlet and Neumann BC for the lapse
+ *
  * Revision 1.1  2005/09/09 09:00:02  p_grandclement
  * add pseudo_misner
  *
@@ -46,7 +49,8 @@ char pseudo_misner_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "unites.h"
 
-void Bin_ns_bh::pseudo_misner (int& ite, int itemax, double relax, double precis) {
+void Bin_ns_bh::pseudo_misner (int& ite, int itemax, double relax, 
+			       double precis, int bound_nn, double lim_nn) {
 			    
     using namespace Unites ;
  
@@ -110,7 +114,7 @@ void Bin_ns_bh::pseudo_misner (int& ite, int itemax, double relax, double precis
 	
 	// Trou noir :
 	hole.update_metric (star) ;
-	hole.solve_lapse_with_ns (relax) ;
+	hole.solve_lapse_with_ns (relax, bound_nn, lim_nn) ;
 	//erreur = max(diffrelmax(hole.n_auto(), n_auto_hole())) ;
 	
 	hole.solve_psi_with_ns (relax) ;

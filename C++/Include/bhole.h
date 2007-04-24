@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2007/04/24 20:15:30  f_limousin
+ * Implementation of Dirichlet and Neumann BC for the lapse
+ *
  * Revision 1.15  2006/04/27 09:12:29  p_grandclement
  * First try at irrotational black holes
  *
@@ -624,7 +627,8 @@ class Bhole {
 	 * \b WARNING  this should only be used for BH in a \c Bin_ns_bh .
 	 */
 	
-	void solve_lapse_with_ns (double relax) ;
+	void solve_lapse_with_ns (double relax, int bound_nn, 
+				  double lim_nn) ;
 	
 	/**
 	 * Solves the equation for \f$\Psi\f$~:
@@ -658,9 +662,11 @@ class Bhole {
 	 * \b WARNING  this should only be used for BH in a \c Bin_ns_bh .
 	 */
 	void solve_shift_with_ns (const Et_bin_nsbh& ns, 
-			       double precis, double relax) ;
+				  double precis, double relax,
+				  int bound_nn, double lim_nn) ;
 	
-	void equilibrium (const Et_bin_nsbh& ns, double precis, double relax) ;
+	void equilibrium (const Et_bin_nsbh& ns, double precis, double relax,
+			  int bound_nn, double lim_nn) ;
 	void update_metric (const Et_bin_nsbh& ns) ;
         
 	

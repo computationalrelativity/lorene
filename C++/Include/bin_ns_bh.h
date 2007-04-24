@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2007/04/24 20:15:30  f_limousin
+ * Implementation of Dirichlet and Neumann BC for the lapse
+ *
  * Revision 1.16  2006/09/25 10:01:45  p_grandclement
  * Addition of N-dimensional Tbl
  *
@@ -267,7 +270,7 @@ class Bin_ns_bh {
 	/** Computation of the extrinsic curvature tensor for both
 	 * {\tt star} and {\tt bhole}.
 	 **/
-	void fait_tkij() ;
+	void fait_tkij(int bound_nn, double lim_nn) ;
 
     // Computational routines
     // ----------------------
@@ -304,8 +307,8 @@ class Bin_ns_bh {
 	void analytical_shift() ;
 
 	void init_auto () ;
-	void affecte (const Bin_ns_bh&) ;
-	void pseudo_misner (int&, int, double, double) ;
+	void affecte (const Bin_ns_bh&, int bound_nn, double lim_nn) ;
+	void pseudo_misner (int&, int, double, double, int, double) ;
 	double adm_systeme() const ;
 	double adm_systeme_volume() const ;
 	double komar_systeme() const ;
@@ -314,7 +317,7 @@ class Bin_ns_bh {
 	double smarr() const ;
 	Tbl linear_momentum_systeme_inf() const ;
 	double viriel() const ;
-	void coal (double, double, int, int,  double, double, double, double, double, double,  double, const int) ;
+	void coal (double, double, int, int,  double, double, double, double, double, double,  double, const int, int, double) ;
 	double distance_propre_axe_bh (const int nr  = 65) const ;
 	double distance_propre_axe_ns (const int nr  = 65) const ;
 	
