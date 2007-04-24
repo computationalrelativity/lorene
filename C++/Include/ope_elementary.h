@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2007/04/24 09:04:11  p_grandclement
+ * Addition of an operator for the vortons
+ *
  * Revision 1.9  2004/12/23 16:30:14  j_novak
  * New files and class for the solution of the rr component of the tensor Poisson
  * equation.
@@ -257,6 +260,26 @@ class Ope_elementary {
   /// Returns \c base_r}. 
   int get_base_r() const {return base_r ;} ;
 
+  /// Returns the matrix representation.
+   Matrice get_ope_mat() {
+	if (ope_mat ==0x0)
+		do_ope_mat() ;
+	return *ope_mat ;
+}
+
+  /// Returns the banded matrix representation.
+   Matrice get_ope_cl() {
+	if (ope_cl ==0x0)
+		do_ope_cl() ;
+	return *ope_cl ;
+} 
+ 
+  /// Returns the non degenerate matrix representation.
+   Matrice get_non_dege() {
+	if (non_dege ==0x0)
+		do_non_dege() ;
+	return *non_dege ;
+}
  private:
   /**
    * Computes the matrix of the operator.
@@ -919,6 +942,72 @@ class Ope_helmholtz_minus_pseudo_1d : public Ope_elementary {
 
   /// Returns the mass term
   double get_masse() {return masse;} ;
+
+ private:
+  /**
+   * Computes the matrix of the operator.
+   **/
+  virtual void do_ope_mat() const ;
+  /**
+   * Computes the banded-matrix of the operator.
+   **/
+  virtual void do_ope_cl() const ;
+  /**
+   * Computes the non-degenerated matrix of the operator.
+   **/
+  virtual void do_non_dege() const ;  
+  
+ public:
+  /**
+   * Computes the particular solution, given the source \c so .
+   **/
+  virtual Tbl get_solp(const Tbl& so) const ;
+  /**
+   * Computes the homogeneous solutions(s).
+   **/
+  virtual Tbl get_solh() const ;
+  /**
+   * Increases the quatum number \e l by one unit.
+   **/
+  virtual void inc_l_quant() ;
+  /**
+   * Decreases the quatum number \e l by one unit.
+   **/
+  virtual void dec_l_quant() ;
+} ;
+
+/**
+ * Class for the operator appearing for the vortons
+ *
+ * It is implemented in the shells and the compactified domain
+ **/
+
+class Ope_vorton : public Ope_elementary {
+
+ protected:
+  int l_quant ; ///< quantum number
+  int dzpuis ; ///< the associated dzpuis, if in the compactified domain. 
+  
+ public:
+  /**
+   * Standard constructor.
+   * 
+   * @param nbr [input] number of radial points.
+   * @param baser [input] radial basis of decomposition.
+   * @param alf [input] parameter \f$\alpha\f$ of the mapping.
+   * @param bet [input] parameter \f$\beta\f$ of the mapping.
+   * @param lq [input] quantum number \e l .
+   * @param dz [input] dzpuis of the source.
+   **/
+  Ope_vorton (int nbr, int baser, double alf, double bet, int lq, int dz) ;
+  Ope_vorton (const Ope_vorton&) ; ///< Constructor by copy
+  virtual ~Ope_vorton() ; ///< Destructor
+
+  /// Returns the associated dzpuis, if in the compactified domain.
+  int get_dzpuis() {return dzpuis ;} ;
+
+  /// Returns the quantum number \e l
+  int get_lquant() {return l_quant;} ;
 
  private:
   /**

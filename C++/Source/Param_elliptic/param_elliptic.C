@@ -23,6 +23,9 @@ char param_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2007/04/24 09:04:13  p_grandclement
+ * Addition of an operator for the vortons
+ *
  * Revision 1.17  2005/05/12 09:49:44  j_novak
  * Temptative treatment of the case where the source is null in the CED (putting
  * dzpuis to 4). May be a bad idea...
@@ -676,6 +679,75 @@ void Param_elliptic::set_sec_order (int zone, double a, double b, double c){
 	  conte ++ ;
 	}
     }
+  }
+}
+
+void Param_elliptic::set_ope_vorton (int zone, Scalar& source) {
+  
+  source.set_spectral_va().coef() ;
+  source.set_spectral_va().ylm() ;
+
+  int nz = get_mp().get_mg()->get_nzone() ;
+  int nr ;
+  int conte = 0 ;
+  int m_quant, base_r_1d, l_quant ;
+  int dzpuis = source.get_dzpuis() ;
+
+  switch (type_map) {
+
+  case MAP_AFF:
+ 
+    for (int l=0 ; l<nz ; l++) {
+      int dz = (l==nz-1) ? dzpuis : 0 ;
+      nr = get_mp().get_mg()->get_nr(l) ;
+      
+      for (int k=0 ; k<get_mp().get_mg()->get_np(l)+1 ; k++)
+	for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
+	  if (l==zone) {
+	    if (operateurs[conte] != 0x0) {	    
+	      delete operateurs[conte] ;
+	      source.get_spectral_va().base.give_quant_numbers 
+		(l, k, j, m_quant, l_quant, base_r_1d) ;
+	      operateurs[conte] = new Ope_vorton (nr, base_r_1d, get_alpha(l), 
+							   get_beta(l), l_quant, dz) ;
+	    }
+	  }
+	  conte ++ ;
+	}
+    }
+    break ;
+    
+  case MAP_LOG :
+    if (mp_log->get_type(zone) != AFFINE) {
+      cout << "Operator not define with LOG mapping..." << endl ;
+      abort() ;
+    }
+    else {
+      for (int l=0 ; l<nz ; l++) {
+	int dz = (l==nz-1) ? dzpuis : 0 ;
+	nr = get_mp().get_mg()->get_nr(l) ;
+	
+	for (int k=0 ; k<get_mp().get_mg()->get_np(l)+1 ; k++)
+	  for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
+	    if (l==zone) {
+	      if (operateurs[conte] != 0x0) {	    
+		delete operateurs[conte] ;
+		source.get_spectral_va().base.give_quant_numbers 
+		  (l, k, j, m_quant, l_quant, base_r_1d) ;
+		operateurs[conte] = new Ope_vorton (nr, base_r_1d,
+							     get_alpha(l), get_beta(l), l_quant, dz) ;
+	      }
+	    }
+	    conte ++ ;
+	  }
+      }
+    }
+    break ;
+    
+  default :
+    cout << "Unkown mapping in set_ope_vorton" << endl ;
+    abort() ;
+    break ;
   }
 }
 

@@ -18,7 +18,7 @@
  *
  */
 
-char ope_sec_order_C[] = "$Header $" ;
+char ope_sec_order_C[] = "$Header$" ;
 
 /*
  * $Id$

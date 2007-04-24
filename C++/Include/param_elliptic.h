@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2007/04/24 09:04:11  p_grandclement
+ * Addition of an operator for the vortons
+ *
  * Revision 1.18  2007/01/16 15:05:59  n_vasset
  * New constructor (taking a Scalar in mono-domain angular grid for
  * boundary) for function sol_elliptic_boundary
@@ -238,7 +241,14 @@ class Param_elliptic {
     * @param c [input] : the parameter \f$c\f$.
     **/
   void set_sec_order (int zone, double a, double b, double c) ;
-  
+   
+   /**
+    * Set the operator to \f$\Delta - 2\partial /\partial r\f$ in one domain (not implemented in the nucleus).
+    *
+    * @param zone [input] : the domain.
+    * @param so [input] : the source (used only to get the right basis).
+    **/
+  void set_ope_vorton (int zone, Scalar& so) ;
    /**
     * Sets the operator to \f$\Delta + \frac{2}{r} \frac{\partial}{\partial r} 
     * + \frac{2 - l(l+1)}{r^2} \f$ in all domains, for \f$ l \not= 0 \f$; 

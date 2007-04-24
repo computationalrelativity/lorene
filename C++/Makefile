@@ -47,6 +47,7 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Ope_elementary/Ope_helmholtz_minus_2d; $(MAKE)
 	cd Source/Ope_elementary/Ope_poisson_pseudo_1d; $(MAKE)
 	cd Source/Ope_elementary/Ope_helmholtz_minus_pseudo_1d; $(MAKE)
+	cd Source/Ope_elementary/Ope_vorton; $(MAKE)
 	cd Source/Param; $(MAKE)
 	cd Source/Param_elliptic; $(MAKE)
 	cd Source/Star; $(MAKE)
