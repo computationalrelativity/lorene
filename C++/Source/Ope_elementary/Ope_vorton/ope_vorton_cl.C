@@ -73,12 +73,12 @@ Matrice _cl_vorton_r_cheb (const Matrice& source, int) {
 	       //--  R_CHEBU   -----
 	      //-------------------
 
-Matrice _cl_vorton_r_chebu_quatre (const Matrice &source) {
-	 
+Matrice _cl_vorton_r_chebu_trois (const Matrice &source) {
+
     int n = source.get_dim(0) ;
-    assert (n == source.get_dim(1)) ;
-     Matrice barre(source) ;
-  
+    assert (n == source.get_dim(1)) ; 
+ 
+    Matrice barre(source) ;
     int dirac = 1 ;
     for (int i=0 ; i<n-2 ; i++) {
 	for (int j=0 ; j<n ; j++)
@@ -90,16 +90,12 @@ Matrice _cl_vorton_r_chebu_quatre (const Matrice &source) {
     for (int i=0 ; i<n-4 ; i++)
 	for (int j=0 ; j<n ; j++)
 	    tilde.set(i, j) = (barre(i, j)-barre(i+2, j)) ;
-	    
-    Matrice prime(tilde) ;
-    for (int i=0 ; i<n-4 ; i++)
-	for (int j=0 ; j<n ; j++)
-	    prime.set(i, j) = (tilde(i, j)-tilde(i+1, j)) ;
     
-    Matrice res(prime) ;
+    Matrice res(tilde) ;
     for (int i=0 ; i<n-4 ; i++)
 	for (int j=0 ; j<n ; j++)
-	    res.set(i, j) = (prime(i, j)-prime(i+2, j)) ;
+	    res.set(i, j) = (tilde(i, j)+tilde(i+1, j)) ;
+
     return res ;
 }
     
@@ -111,8 +107,8 @@ Matrice _cl_vorton_r_chebu (const Matrice &source, int puis) {
     res.set_etat_qcq() ;
     
     switch (puis) {
-	case 4 :
-	    res = _cl_vorton_r_chebu_quatre(source) ;
+	case 3 :
+	    res = _cl_vorton_r_chebu_trois(source) ;
 	    break ;
 	default :
 	    abort() ;

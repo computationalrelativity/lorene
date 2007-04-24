@@ -48,7 +48,7 @@ Tbl _solh_vorton_pas_prevu (int, int, double, double, Tbl&) {
 
 Tbl _solh_vorton_r_chebu (int n, int l, double alpha, double, Tbl& val_lim) {
 
-  double l_one = -double(2*l+1)/2. ;
+  double l_one = -double(l) ;
   double rminus = -0.5/alpha ;
 
   Tbl res(1, n) ;
@@ -67,12 +67,12 @@ Tbl _solh_vorton_r_chebu (int n, int l, double alpha, double, Tbl& val_lim) {
   cfrcheb(deg, deg, coloc, deg, coloc) ;
   for (int i=0 ; i<n ;i++)
     res.set(0, i) = coloc[i] ;
-        
+
   delete [] coloc ;
   delete [] deg ;
    
   val_lim.set(0,0) = pow(rminus, l_one) ;
-  val_lim.set(0,1) = l_one*pow(rminus, l_one-1) ;
+  val_lim.set(0,1) = l_one*pow(rminus, l_one-1.) ;
   val_lim.set(0,2) = 0. ;
   val_lim.set(0,3) = 0. ;
   val_lim  /= sqrt(double(2)) ;
@@ -88,8 +88,8 @@ Tbl _solh_vorton_r_chebu (int n, int l, double alpha, double, Tbl& val_lim) {
 Tbl _solh_vorton_r_cheb (int n, int l, double alpha, double beta, Tbl& val_lim) {
 
 
-  double l_one = double(2*l+1)/2. ;
-  double l_two = -l_one ;
+  double l_one = double(l+1) ;
+  double l_two = double(-l) ;
   double rminus = beta - alpha ;
   double rplus = beta + alpha ;
 

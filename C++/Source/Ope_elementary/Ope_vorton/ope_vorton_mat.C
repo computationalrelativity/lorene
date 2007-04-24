@@ -48,20 +48,22 @@ Matrice _vorton_mat_pas_prevu(int, double, double, int, int) {
 		    //--   CAS R_CHEBU   -----
 		    //------------------------
 
-Matrice _vorton_mat_r_chebu_quatre (int n, int lq) {
-    Diff_dsdx2 dd(R_CHEBU, n) ;
-    Diff_sxdsdx sxd(R_CHEBU, n) ;
-    Diff_sx2 xx(R_CHEBU, n) ;
+Matrice _vorton_mat_r_chebu_trois (int n, int lq) {
 
-    return (dd-2*sxd-lq*(lq+1)*xx) ;
+
+    Diff_xdsdx2 xdd(R_CHEBU, n) ;
+    Diff_dsdx d(R_CHEBU, n) ;
+    Diff_sx sx(R_CHEBU, n) ;
+
+    return (xdd+2*d-lq*(lq+1)*sx) ;
 }
 
 Matrice _vorton_mat_r_chebu (int n, double, double, int lq, int dz) {
     Matrice res(n, n) ;
     res.set_etat_qcq() ;
     switch (dz) {
-	case 4 :
-	    res = _vorton_mat_r_chebu_quatre (n, lq) ;
+	case 3 :
+	    res = _vorton_mat_r_chebu_trois (n, lq) ;
 	    break ;
 	default :
 	    abort() ;

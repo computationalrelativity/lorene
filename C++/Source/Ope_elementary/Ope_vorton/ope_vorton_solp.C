@@ -69,11 +69,9 @@ Tbl _cl_vorton_r_cheb (const Tbl& source, int) {
 	       //--  R_CHEBU   -----
 	      //-------------------
 
-Tbl _cl_vorton_r_chebu_quatre (const Tbl &source) {
-	 
+Tbl _cl_vorton_r_chebu_trois (const Tbl &source) {
     int n = source.get_dim(0) ;
     Tbl barre(source) ;
-  
     int dirac = 1 ;
     for (int i=0 ; i<n-2 ; i++) {
 	     barre.set(i) = ((1+dirac)*source(i)-source(i+2)) ;
@@ -83,14 +81,10 @@ Tbl _cl_vorton_r_chebu_quatre (const Tbl &source) {
     Tbl tilde(barre) ;
     for (int i=0 ; i<n-4 ; i++)
 	    tilde.set(i) = (barre(i)-barre(i+2)) ;
-	    
-    Tbl prime(tilde) ;
-    for (int i=0 ; i<n-4 ; i++)
-	    prime.set(i) = (tilde(i)-tilde(i+1)) ;
     
-    Tbl res(prime) ;
+    Tbl res(tilde) ;
     for (int i=0 ; i<n-4 ; i++)
-	    res.set(i) = (prime(i)-prime(i+2)) ;
+	    res.set(i) = (tilde(i)+tilde(i+1)) ;
     return res ;
 }
 
@@ -100,8 +94,8 @@ Tbl _cl_vorton_r_chebu (const Tbl& source, int puis) {
   res.set_etat_qcq() ;
    
    switch (puis) {
-	case 4 :
-	    res = _cl_vorton_r_chebu_quatre(source) ;
+	case 3 :
+	    res = _cl_vorton_r_chebu_trois(source) ;
 	    break ;
 	default :
 	    abort() ;
@@ -155,20 +149,20 @@ Tbl _solp_vorton_pas_prevu (const Matrice &, const Matrice &,
 	       //--  R_CHEBU   -----
 	      //-------------------
 
-Tbl _solp_vorton_r_chebu_quatre (const Matrice &lap, const Matrice &nondege, 
+Tbl _solp_vorton_r_chebu_trois (const Matrice &lap, const Matrice &nondege, 
 			       const Tbl &source, double alpha) {
   
   int n = lap.get_dim(0) ;	  
   int dege = n-nondege.get_dim(0) ;;
-  assert (dege==3) ;
+  assert ((dege==2) || (dege==1)) ;
 
-  Tbl source_aux (alpha*alpha*cl_vorton (source, 4, R_CHEB)) ;
-  
+  Tbl source_aux (alpha*cl_vorton (source, 3, R_CHEBU)) ;
+
   Tbl so(n-dege) ;
   so.set_etat_qcq() ;
   for (int i=0 ; i<n-dege ; i++)
     so.set(i) = source_aux(i) ;
- 
+
   Tbl auxi(nondege.inverse(so)) ;
 
   Tbl res(n) ;
@@ -178,15 +172,14 @@ Tbl _solp_vorton_r_chebu_quatre (const Matrice &lap, const Matrice &nondege,
   
   for (int i=0 ; i<dege ; i++)
     res.set(i) = 0 ;
- ;
-  double somme = 0 ;
-  for (int i=0 ; i<n ; i++)
-	somme += i*i*res(i) ;
-  double somme_deux = somme ;
-  for (int i=0 ; i<n ; i++)
-	somme_deux -= res(i) ;
-  res.set(1) = -somme ;
-  res.set(0) = somme_deux ;
+  
+  if (dege==2) {
+      double somme = 0 ;
+      for (int i=0 ; i<n ; i++)
+	  somme -= res(i) ;
+  res.set(0) = somme ;
+  }
+
   return res ;
 }
 
@@ -198,8 +191,8 @@ Tbl _solp_vorton_r_chebu (const Matrice &lap, const Matrice &nondege,
   res.set_etat_qcq() ;
    
    switch (puis) {
-	case 4 :
-	    res = _solp_vorton_r_chebu_quatre(lap, nondege, source, alpha) ;
+	case 3 :
+	    res = _solp_vorton_r_chebu_trois(lap, nondege, source, alpha) ;
 	    break ;
 	default :
 	    abort() ;
@@ -218,10 +211,15 @@ Tbl _solp_vorton_r_cheb (const Matrice &lap, const Matrice &nondege,
   int n = lap.get_dim(0) ;	  
   int dege = n-nondege.get_dim(0) ;
   assert (dege ==2) ;
-  
-  Tbl source_aux (cl_vorton (source, dz, R_CHEB)) ;
-  for (int i=0 ; i<n ; i++)
-	source_aux.set(i) *= (beta - alpha*cos(M_PI*i/(n-1)))*(beta - alpha*cos(M_PI*i/(n-1))) ; 
+    
+  Tbl source_aux(source*alpha*alpha) ;
+  Tbl xso(source_aux) ;
+  Tbl xxso(source_aux) ;
+  multx_1d(n, &xso.t, R_CHEB) ;
+  multx_1d(n, &xxso.t, R_CHEB) ;
+  multx_1d(n, &xxso.t, R_CHEB) ;
+  source_aux = beta*beta/alpha/alpha*source_aux+2*beta/alpha*xso+xxso ;
+  source_aux = cl_vorton (source_aux, dz, R_CHEB) ;
 
   Tbl so(n-dege) ;
   so.set_etat_qcq() ;
@@ -270,6 +268,6 @@ Tbl Ope_vorton::get_solp (const Tbl& so) const {
   sp_minus = valeurs(1) ;
   dsp_plus = valeurs(2) ;
   dsp_minus = valeurs(3) ;
-  
+
   return res ;
 }

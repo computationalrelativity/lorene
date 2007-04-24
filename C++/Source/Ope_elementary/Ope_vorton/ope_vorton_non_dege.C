@@ -35,7 +35,7 @@ char ope_vorton_non_dege_C[] = "$Header$" ;
 	       //-- Pas prevu   ----
 	      //-------------------
 
-Matrice _vorton_non_dege_pas_prevu (const Matrice& so, int) {
+Matrice _vorton_non_dege_pas_prevu (const Matrice& so, int, int) {
   cout << "vorton non dege : not implemented" << endl ;
   abort() ;
   exit(-1) ;
@@ -46,7 +46,7 @@ Matrice _vorton_non_dege_pas_prevu (const Matrice& so, int) {
 	       //--  R_CHEB   ------
 	      //-------------------
 
-Matrice _vorton_non_dege_r_cheb (const Matrice& source, int) {
+Matrice _vorton_non_dege_r_cheb (const Matrice& source, int, int) {
 
   int n = source.get_dim(0) ;
   int non_dege = 2 ;
@@ -66,25 +66,37 @@ Matrice _vorton_non_dege_r_cheb (const Matrice& source, int) {
 	     	//-------------------
 	       //--  R_CHEBU   -----
 	      //-------------------
-Matrice _vorton_non_dege_r_chebu_quatre (const Matrice &lap) {
+Matrice _vorton_non_dege_r_chebu_trois (const Matrice &lap, int l) {
     
     int n = lap.get_dim(0) ;
-    Matrice res(n-3, n-3) ;
-    res.set_etat_qcq() ;
-    for (int i=0 ;i<n-3 ; i++)
-	for (int j=0 ; j<n-3 ; j++)
-		res.set(i, j) = lap(i, j+3) ;
-	
-    res.set_band(2, 1) ;
-     res.set_lu() ;
+    if (l==0) {
+	Matrice res(n-1, n-1) ;
+	res.set_etat_qcq() ;
+	for (int i=0 ; i<n-1 ; i++)
+	    for (int j=0 ; j<n-1 ; j++)
+		res.set(i, j) = lap(i, j+1) ;
+	res.set_band(3, 0) ;
+	res.set_lu() ;
 	return res ;
+    }
+    else {
+	Matrice res(n-2, n-2) ;
+	res.set_etat_qcq() ;
+	for (int i=0 ;i<n-2 ; i++)
+	    for (int j=0 ; j<n-2 ; j++)
+		res.set(i, j) = lap(i, j+2) ;
+	
+	res.set_band(2, 1) ;
+	res.set_lu() ;
+	return res ;
+	} 
 }	      
 
-Matrice _vorton_non_dege_r_chebu (const Matrice &lap, int puis) {
+Matrice _vorton_non_dege_r_chebu (const Matrice &lap, int l, int puis) {
 
     switch (puis) {
-	case 4 :
-	    return _vorton_non_dege_r_chebu_quatre (lap) ;
+	case 3 :
+	    return _vorton_non_dege_r_chebu_trois (lap, l) ;
 	default :
 	    abort() ;
 	    exit(-1) ;
@@ -100,7 +112,7 @@ void Ope_vorton::do_non_dege() const {
     delete non_dege ;
   
   // Routines de derivation
-  static Matrice (*vorton_non_dege[MAX_BASE])(const Matrice&, int);
+  static Matrice (*vorton_non_dege[MAX_BASE])(const Matrice&, int, int);
   static int nap = 0 ;
   
   // Premier appel
@@ -113,5 +125,5 @@ void Ope_vorton::do_non_dege() const {
     vorton_non_dege[R_CHEB >> TRA_R] = _vorton_non_dege_r_cheb ; 
     vorton_non_dege[R_CHEBU >> TRA_R] = _vorton_non_dege_r_chebu ;
   }
-  non_dege = new Matrice(vorton_non_dege[base_r](*ope_cl, dzpuis)) ;
+  non_dege = new Matrice(vorton_non_dege[base_r](*ope_cl, l_quant, dzpuis)) ;
 }
