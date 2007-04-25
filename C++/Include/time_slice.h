@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.25  2007/04/25 15:20:59  j_novak
+ * Corrected an error in the initialization of tildeB in
+ * Tslice_dirac_max::initial_dat_cts. + New method for solve_hij_AB.
+ *
  * Revision 1.24  2007/03/21 14:51:48  j_novak
  * Introduction of potentials A and tilde(B) of h^{ij} into Tslice_dirac_max.
  *
@@ -1139,6 +1143,35 @@ class Tslice_dirac_max : public Time_slice_conf {
     virtual void solve_hij(Param& par_khi, Param& par_mu,
                            Scalar& khi_new, Scalar& mu_new,
                            int method_poisson, 
+                           const char* graph_device = 0x0, 
+                           const Sym_tensor* strain_tensor = 0x0) const ; 
+        
+    /** Solves the evolution equation for the deviation \f$ h^{ij} \f$ 
+     * of the conformal metric \f$ \tilde\gamma^{ij} \f$ from 
+     * the flat metric \f$ f^{ij} \f$ 
+     *  @param par_A [input/output] : parameters for the d'Alembert equation 
+     *          for the potential \e A
+     *  @param par_B [input/output] : parameters for the d'Alembert equation 
+     *          for \f$\tilde{B}\f$. A flag set to 1 must be put at position 1
+     *          to take into account the shift in the multipole momenta.
+     *  @param A_new [output] : solution \f$A_{\rm new}\f$ at the next
+     *      time step 
+     *  @param B_new [output] : solution \f$\tilde{B}_{\rm new}\f$ at the next
+     *      time step 
+     *  @param method_poisson method to be used for solving 
+     *      vector Poisson equation to get the transverse part of the 
+     *      source for \f$ h^{ij} \f$ , see 
+     *      \c Vector::poisson(double, const Metric_flat&, int) const.  
+     *  @param graph_device [input] : name of type of graphical device: 0x0 
+     *      (default value) will result in interactive choice; 
+     *      "/xwin" in X-Window display and "/n" in no output.
+     *  @param strain_tensor [input] : a pointer on the strain_tensor 
+     *      \f$ S^{ij} \f$ measured by the Eulerian observer of 4-velocity 
+     *      \f$\mbox{\boldmath{$n $}}\f$ ; if this is the null pointer
+     *      (default value), it is assumed that \f$ S_{ij} \f$ = 0 (vacuum).  
+     */
+    virtual void solve_hij_AB(Param& par_A, Param& par_B,
+                           Scalar& A_new, Scalar& B_new,
                            const char* graph_device = 0x0, 
                            const Sym_tensor* strain_tensor = 0x0) const ; 
         

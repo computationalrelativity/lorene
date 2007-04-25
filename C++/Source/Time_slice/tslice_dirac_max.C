@@ -30,6 +30,10 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2007/04/25 15:21:01  j_novak
+ * Corrected an error in the initialization of tildeB in
+ * Tslice_dirac_max::initial_dat_cts. + New method for solve_hij_AB.
+ *
  * Revision 1.17  2007/03/21 14:51:50  j_novak
  * Introduction of potentials A and tilde(B) of h^{ij} into Tslice_dirac_max.
  *
@@ -368,7 +372,7 @@ void Tslice_dirac_max::initial_data_cts(const Sym_tensor& uu,
                            jtime, the_time[jtime]) ;
     
     potA_evol.update(hh_evol[jtime].compute_A(), jtime, the_time[jtime]) ;
-    mu_evol.update(hh_evol[jtime].compute_tilde_B_tt(), jtime, the_time[jtime]) ;
+    tildeB_evol.update(hh_evol[jtime].compute_tilde_B_tt(), jtime, the_time[jtime]) ;
     
     cout << endl << 
     "Tslice_dirac_max::initial_data_cts : variation of khi, mu, A and tilde(B) for J = " 
