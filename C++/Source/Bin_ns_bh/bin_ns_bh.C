@@ -29,6 +29,9 @@ char bin_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2007/04/26 14:14:59  f_limousin
+ * The function fait_tkij now have default values for bound_nn and lim_nn
+ *
  * Revision 1.12  2007/04/24 20:13:53  f_limousin
  * Implementation of Dirichlet and Neumann BC for the lapse
  *
@@ -308,7 +311,7 @@ void Bin_ns_bh::init_auto () {
 	// Affectation to another Bin_ns_bh
 	//**********************************
 
-void Bin_ns_bh::affecte(const Bin_ns_bh& so, int bound_nn, double lim_nn) {
+void Bin_ns_bh::affecte(const Bin_ns_bh& so) {
         
 	// Kinematic quantities :
 	star.nzet = so.star.nzet ;
@@ -452,7 +455,7 @@ void Bin_ns_bh::affecte(const Bin_ns_bh& so, int bound_nn, double lim_nn) {
 	hole.update_metric(star) ;    
         star.update_metric(hole) ;
 	star.update_metric_der_comp(hole) ;
-	fait_tkij(bound_nn, lim_nn) ;
+	fait_tkij() ;
 	
 	star.kinematics(omega, x_axe) ;
 	star.equation_of_state() ;

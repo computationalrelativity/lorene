@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2007/04/26 14:14:59  f_limousin
+ * The function fait_tkij now have default values for bound_nn and lim_nn
+ *
  * Revision 1.17  2007/04/24 20:15:30  f_limousin
  * Implementation of Dirichlet and Neumann BC for the lapse
  *
@@ -270,7 +273,7 @@ class Bin_ns_bh {
 	/** Computation of the extrinsic curvature tensor for both
 	 * {\tt star} and {\tt bhole}.
 	 **/
-	void fait_tkij(int bound_nn, double lim_nn) ;
+	void fait_tkij(int bound_nn = -1, double lim_nn = 0) ;
 
     // Computational routines
     // ----------------------
@@ -307,7 +310,7 @@ class Bin_ns_bh {
 	void analytical_shift() ;
 
 	void init_auto () ;
-	void affecte (const Bin_ns_bh&, int bound_nn, double lim_nn) ;
+	void affecte (const Bin_ns_bh&) ;
 	void pseudo_misner (int&, int, double, double, int, double) ;
 	double adm_systeme() const ;
 	double adm_systeme_volume() const ;

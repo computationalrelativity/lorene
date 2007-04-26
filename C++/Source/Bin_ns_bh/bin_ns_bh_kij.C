@@ -29,6 +29,9 @@ char bin_ns_bh_kij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2007/04/26 14:14:59  f_limousin
+ * The function fait_tkij now have default values for bound_nn and lim_nn
+ *
  * Revision 1.6  2007/04/26 13:16:23  f_limousin
  * Correction of an error in the computation of grad_n_tot and grad_psi_tot
  *
@@ -266,6 +269,20 @@ void Bin_ns_bh::fait_tkij (int bound_nn, double lim_nn) {
     star.akcar_auto.set_etat_zero() ;
   }
   else {
+
+    if (bound_nn < 0){
+      int nnt = hole.mp.get_mg()->get_nt(1) ;
+      int nnp = hole.mp.get_mg()->get_np(1) ;
+      
+      for (int k=0; k<nnp; k++)
+	for (int j=0; j<nnt; j++){
+	  if (fabs((hole.n_auto+hole.n_comp)()(1, k, j , 0)) < 1e-2){
+	    bound_nn = 0 ;
+	    lim_nn = 0. ;
+	    break ;
+	  }
+	}
+    }  
     
     if (bound_nn != 0 || lim_nn != 0){
       
