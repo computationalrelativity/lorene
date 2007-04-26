@@ -29,6 +29,9 @@ char bin_ns_bh_kij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2007/04/26 13:16:23  f_limousin
+ * Correction of an error in the computation of grad_n_tot and grad_psi_tot
+ *
  * Revision 1.5  2007/04/24 20:13:53  f_limousin
  * Implementation of Dirichlet and Neumann BC for the lapse
  *
@@ -264,7 +267,7 @@ void Bin_ns_bh::fait_tkij (int bound_nn, double lim_nn) {
   }
   else {
     
-    if (bound_nn == 0 && lim_nn == 0){
+    if (bound_nn != 0 || lim_nn != 0){
       
       hole.fait_taij_auto () ;  
       star.fait_taij_auto() ;

@@ -32,6 +32,9 @@ char bhole_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2007/04/26 13:16:21  f_limousin
+ * Correction of an error in the computation of grad_n_tot and grad_psi_tot
+ *
  * Revision 1.12  2007/04/24 20:14:04  f_limousin
  * Implementation of Dirichlet and Neumann BC for the lapse
  *
@@ -295,12 +298,6 @@ void Bhole::fait_psi_comp (const Bhole& comp) {
 
 // Importe le lapse du compagnon (NS case)
 void Bhole::fait_n_comp (const Et_bin_nsbh& comp) {
-     // Alignes ou non ?
-    double orientation = mp.get_rot_phi() ;
-    assert ((orientation==0) || (orientation==M_PI)) ;
-    double orientation_comp = comp.get_mp().get_rot_phi() ;
-    assert ((orientation_comp==0) || (orientation_comp==M_PI)) ;
-    int same_orient = (orientation == orientation_comp) ? 1 : -1 ;
     
     n_comp.set_etat_qcq() ;
     if (regul == 0)
@@ -318,17 +315,19 @@ void Bhole::fait_n_comp (const Et_bin_nsbh& comp) {
     auxi.dec2_dzpuis() ;
     grad_comp.set_etat_qcq() ;
     if (regul == 0){
-      grad_comp.set(0).import(same_orient*auxi(0)) ;
-      grad_comp.set(1).import(same_orient*auxi(1)) ;
+      grad_comp.set(0).import(auxi(0)) ;
+      grad_comp.set(1).import(auxi(1)) ;
       grad_comp.set(2).import(auxi(2)) ;
     }
     else{
-      grad_comp.set(0).import_symy(same_orient*auxi(0)) ;
-      grad_comp.set(1).import_asymy(same_orient*auxi(1)) ;
+      grad_comp.set(0).import_symy(auxi(0)) ;
+      grad_comp.set(1).import_asymy(auxi(1)) ;
       grad_comp.set(2).import_symy(auxi(2)) ;
     }
     grad_comp.set_std_base() ;
     grad_comp.inc2_dzpuis() ;
+    grad_comp.set_triad( *(auxi.get_triad()) ) ;
+    grad_comp.change_triad(mp.get_bvect_cart()) ;
     
     grad_n_tot = n_auto.gradient() + grad_comp ;
 }
@@ -336,13 +335,6 @@ void Bhole::fait_n_comp (const Et_bin_nsbh& comp) {
 // Importe le facteur conforme du compagnon (Bhole case)
 
 void Bhole::fait_psi_comp (const Et_bin_nsbh& comp) {
-  
-    // Alignes ou non ?
-    double orientation = mp.get_rot_phi() ;
-    assert ((orientation==0) || (orientation==M_PI)) ;
-    double orientation_comp = comp.get_mp().get_rot_phi() ;
-    assert ((orientation_comp==0) || (orientation_comp==M_PI)) ;
-    int same_orient = (orientation == orientation_comp) ? 1 : -1 ;
     
     psi_comp.set_etat_qcq() ;
     if (regul == 0)
@@ -359,18 +351,20 @@ void Bhole::fait_psi_comp (const Et_bin_nsbh& comp) {
     auxi.dec2_dzpuis() ;
     grad_comp.set_etat_qcq() ;
     if (regul == 0){
-      grad_comp.set(0).import(same_orient*auxi(0)) ;
-      grad_comp.set(1).import(same_orient*auxi(1)) ;
+      grad_comp.set(0).import(auxi(0)) ;
+      grad_comp.set(1).import(auxi(1)) ;
       grad_comp.set(2).import(auxi(2)) ;
     }
     else{
-      grad_comp.set(0).import_symy(same_orient*auxi(0)) ;
-      grad_comp.set(1).import_asymy(same_orient*auxi(1)) ;
+      grad_comp.set(0).import_symy(auxi(0)) ;
+      grad_comp.set(1).import_asymy(auxi(1)) ;
       grad_comp.set(2).import_symy(auxi(2)) ;
     }
     grad_comp.set_std_base() ;
     grad_comp.inc2_dzpuis() ;
-    
+    grad_comp.set_triad( *(auxi.get_triad()) ) ;
+    grad_comp.change_triad(mp.get_bvect_cart()) ;
+        
     grad_psi_tot = psi_auto.gradient() + grad_comp ;
 }
 
