@@ -30,6 +30,10 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2007/04/27 13:52:55  j_novak
+ * In method Sym_tensor_trans::set_AtBtt_det_one(), the member p_tt (the TT-part)
+ * is updated.
+ *
  * Revision 1.16  2007/03/20 12:20:56  j_novak
  * In Sym_tensor_trans::set_AtBtt_det_one(), the trace is stored in the resulting
  * object.
@@ -242,6 +246,8 @@ void Sym_tensor_trans::set_AtBtt_det_one(const Scalar& a_in, const Scalar& tbtt_
     Scalar eta_sr_tt(*mp) ;
     Scalar w_tt(*mp) ;
     sol_Dirac_tilde_B(tbtt_in, zero, hrr_tt, eta_sr_tt, w_tt, par_bc, par_mat) ;
+    Sym_tensor_tt hijtt(*mp, *triad, *met_div) ;
+    hijtt.set_auxiliary(hrr_tt, eta_sr_tt, mu_over_r, w_tt, x_new, zero) ;
 
     Scalar hrr_new(*mp) ;
     Scalar eta_over_r(*mp) ;
@@ -276,6 +282,8 @@ void Sym_tensor_trans::set_AtBtt_det_one(const Scalar& a_in, const Scalar& tbtt_
 	    p_tilde_b = new Scalar(tilde_B + tbtt_in) ;
 	    if (p_trace != 0x0) delete p_trace ;
 	    p_trace = new Scalar(h_old) ;
+	    if (p_tt != 0x0) delete p_tt ;
+	    p_tt = new Sym_tensor_tt(hijtt) ;
 	    break ;
 	}
         else {
