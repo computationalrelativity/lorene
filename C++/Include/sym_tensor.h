@@ -30,12 +30,15 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.42  2007/05/04 16:43:50  n_vasset
+ * adding of functions sol_Dirac_BC2 and sol_Dirac_A2
+ *
  * Revision 1.41  2006/10/24 13:03:17  j_novak
  * New methods for the solution of the tensor wave equation. Perhaps, first
  * operational version...
  *
  * Revision 1.40  2006/08/31 12:13:21  j_novak
- * Added an argument of type Param to Sym_tensor_trans::sol_Dirac_A().
+ * Added an argument of type Param to Sym_tensor_trans::sol_  rac_A().
  *
  * Revision 1.39  2006/06/20 12:07:13  j_novak
  * Improved execution speed for sol_Dirac_tildeB...
@@ -307,7 +310,9 @@ class Sym_tensor : public Tensor_sym {
 	 * \f]
 	 */
 	mutable Scalar* p_tilde_b ;
-	
+
+
+
     // Constructors - Destructor :
     // -------------------------
 	
@@ -357,6 +362,21 @@ class Sym_tensor : public Tensor_sym {
 	Sym_tensor(const Map& map, const Base_vect& triad_i, FILE* fich) ;
 
 	virtual ~Sym_tensor() ;    ///< Destructor
+
+      
+
+	//  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        
+/* 	// To be changed: same equation as above, but with inner boundary conditions */
+/*         // on mu */
+
+
+/* 	void sol_Dirac_A2(const Scalar& aaa, Scalar& tilde_mu, Scalar& x_new, */
+/* 			  Scalar bound_mu, double dir, double neum, const Param* par_bc); */
+
+	//  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	
+
 	
     // Memory management
     // -----------------
@@ -414,6 +434,7 @@ class Sym_tensor : public Tensor_sym {
     // Computation of derived members
     // ------------------------------
     public:
+
 
 	/**Returns the divergence of \c this  with respect to a \c Metric .
 	 * The indices are assumed to be contravariant.
@@ -669,6 +690,7 @@ class Sym_tensor_trans: public Sym_tensor {
 	void sol_Dirac_A(const Scalar& aaa, Scalar& tilde_mu, Scalar& xxx,
 			 const Param* par_bc = 0x0) const ;
 
+
 	/** Solves a system of three coupled first-order PDEs obtained from 
 	 * divergence-free conditions (Dirac gauge) and the requirement that
 	 * the potential \f$\tilde{B}\f$ (see \c Sym_tensor::p_tilde_b ) has 
@@ -707,6 +729,40 @@ class Sym_tensor_trans: public Sym_tensor {
 			   Param* par_mat) const ;
 
  public:
+
+
+        
+	/** Same resolution as sol_Dirac_A, but with inner boundary conditions added. 
+	 *For now, only Robyn-type boundary conditions on \f$\frac {\mu}  {r} \f$ can be imposed.
+	 */
+
+
+	void sol_Dirac_A2(const Scalar& aaa, Scalar& tilde_mu, Scalar& x_new,
+		 	  Scalar bound_mu, double dir, double neum, const Param* par_bc);
+ 
+       
+
+	/** Same resolution as sol_Dirac_tilde_B, but with inner boundary conditions added.
+         *  The difference is here, one has to put B and C values in (and not only  \f$\tilde{B}\f$).
+         * For now, only Robyn-type boundary conditions on \f$ h^{rr} \f$ can be imposed.
+	 */
+
+ 	void sol_Dirac_BC2(const Scalar& bb, const Scalar& cc, const Scalar& hh, 
+	 			Scalar& hrr, Scalar& tilde_eta, Scalar& ww, Scalar bound_eta,double dir, double neum, double rhor, Param* par_bc, Param* par_mat); 
+ 
+	 // To be changed: solvin' the electric system for l=0 and l=1 only (simpler case).
+   
+ 	void sol_Dirac_l01_2(const Scalar& hh, Scalar& hrr, Scalar& tilde_eta,
+		 	   Param* par_mat) ;
+
+        /** Finds spectral potentials A, B, C of solution of an tensorial TT elliptic equation, 
+	 *  given the source. 
+	 **/
+ 
+	void sol_elliptic_ABC(Sym_tensor& source, Scalar aaa, Scalar bbb, Scalar ccc) ;
+
+
+
 	/** Assigns the derived member \c p_tt and computes the trace so that 
 	 * \c *this + the flat metric has a determinant equal to 1. It then
 	 * updates the components accordingly, with a \c dzpuis = 2. 
