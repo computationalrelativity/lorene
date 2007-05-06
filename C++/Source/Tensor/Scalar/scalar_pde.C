@@ -36,6 +36,9 @@ char scalar_pde_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2007/05/06 10:48:15  p_grandclement
+ * Modification of a few operators for the vorton project
+ *
  * Revision 1.18  2007/01/16 15:10:00  n_vasset
  *  New function sol_elliptic_boundary, with Scalar on mono domain
  *  angular grid as boundary
@@ -353,8 +356,7 @@ Scalar Scalar::sol_elliptic_only_zec(Param_elliptic& ope_var, double val) const 
                     //        matching with sin(r)/r     //
 		    //-----------------------------------//
 
-Scalar Scalar::sol_elliptic_sin_zec(Param_elliptic& ope_var, 
-				    double freq, double& ampli, double phase) 
+Scalar Scalar::sol_elliptic_sin_zec(Param_elliptic& ope_var, double* amplis, double* phases) 
   const {
 
   // Right now, only applicable with affine mapping
@@ -368,7 +370,7 @@ Scalar Scalar::sol_elliptic_sin_zec(Param_elliptic& ope_var,
   Scalar res (*mp) ;
   res.set_etat_qcq() ;
   
-  map_affine->sol_elliptic_sin_zec (ope_var, *this, res, freq, ampli, phase) ;
+  map_affine->sol_elliptic_sin_zec (ope_var, *this, res, amplis, phases) ;
 
   return (res) ;
 }

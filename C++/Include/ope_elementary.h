@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2007/05/06 10:48:08  p_grandclement
+ * Modification of a few operators for the vorton project
+ *
  * Revision 1.10  2007/04/24 09:04:11  p_grandclement
  * Addition of an operator for the vortons
  *
@@ -439,6 +442,7 @@ class Ope_helmholtz_minus : public Ope_elementary {
 class Ope_helmholtz_plus : public Ope_elementary {
 
  protected:
+  int lq ; ///< The quantum number \e l
   double masse ; ///< The mass parameter \e m .
 
  public:
@@ -446,12 +450,13 @@ class Ope_helmholtz_plus : public Ope_elementary {
    * Standard constructor.
    * 
    * @param nbr [input] number of radial points.
-   * @param baser [input] radial basis of decomposition.
+   * @param baser [input] radial basis of decomposition.  
+   * @param lq [input] the quatum number \e l.
    * @param alf [input] parameter \f$\alpha\f$ of the mapping.
    * @param bet [input] parameter \f$\beta\f$ of the mapping.
    * @param mas [input] mass parameter \e m .
    **/
-  Ope_helmholtz_plus (int nbr, int baser, double alf, double bet, 
+  Ope_helmholtz_plus (int nbr, int baser, int lq, double alf, double bet, 
 		      double mas) ;
   Ope_helmholtz_plus (const Ope_helmholtz_plus&) ; ///< Constructor by copy
   virtual ~Ope_helmholtz_plus() ; ///< Destructor

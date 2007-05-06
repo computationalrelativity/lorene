@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.79  2007/05/06 10:48:08  p_grandclement
+ * Modification of a few operators for the vorton project
+ *
  * Revision 1.78  2007/01/16 15:05:59  n_vasset
  * New constructor (taking a Scalar in mono-domain angular grid for
  * boundary) for function sol_elliptic_boundary
@@ -1415,16 +1418,13 @@ class Scalar : public Tensor {
   /**
    * General elliptic solver.
    * The equation is not solved in the compactified domain and the 
-   * matching is done with a solution of the type 
-   * \f$\frac{\sin \left( f r + \pi/2 \right)}{r}\f$
+   * matching is done with an homogeneous solution.
    * @param params [input] the operators and variables to be used.
-   * @param freq [input] : the frequency \f$f\f$.
    * @param coef [output] : coefficient of the oscillatory solution 
    * in the external domain.
-   * @param phase [output] : phase that minimizes \c coef .
+   * @param phases [output] : phases (i.e. choice of the homogeneous solution to match with).
    **/
-  Scalar sol_elliptic_sin_zec(Param_elliptic& params, double freq, double& coef, 
-				double phase = 1.5707963267948966) const ;
+  Scalar sol_elliptic_sin_zec(Param_elliptic& params, double* coefs, double* phases) const ;
 
    
   /**

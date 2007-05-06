@@ -51,7 +51,7 @@ Tbl _solh_vorton_r_chebu (int n, int l, double alpha, double, Tbl& val_lim) {
   double l_one = -double(l) ;
   double rminus = -0.5/alpha ;
 
-  Tbl res(1, n) ;
+  Tbl res(n) ;
   res.set_etat_qcq() ;
   double* coloc = new double[n] ;
   
@@ -66,7 +66,7 @@ Tbl _solh_vorton_r_chebu (int n, int l, double alpha, double, Tbl& val_lim) {
 	
   cfrcheb(deg, deg, coloc, deg, coloc) ;
   for (int i=0 ; i<n ;i++)
-    res.set(0, i) = coloc[i] ;
+    res.set(i) = coloc[i] ;
 
   delete [] coloc ;
   delete [] deg ;
@@ -153,16 +153,17 @@ Tbl Ope_vorton::get_solh () const {
     solh_vorton[R_CHEBU >> TRA_R] = _solh_vorton_r_chebu ;
   }
 
-  Tbl val_lim (2,4) ;
+  Tbl val_lim (2 ,4) ;
   val_lim.set_etat_qcq() ;
   Tbl res(solh_vorton[base_r](nr,l_quant, alpha, beta, val_lim)) ;
+
 
   s_one_minus  = val_lim(0,0) ;
   ds_one_minus = val_lim(0,1) ;
   s_one_plus   = val_lim(0,2) ;
   ds_one_plus  = val_lim(0,3) ;
 
-  if (val_lim.get_dim(1)>1) {
+  if (res.get_ndim()>1) {
      s_two_minus  = val_lim(1,0) ;
      ds_two_minus = val_lim(1,1) ;
      s_two_plus   = val_lim(1,2) ;

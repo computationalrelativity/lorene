@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2007/05/06 10:48:08  p_grandclement
+ * Modification of a few operators for the vorton project
+ *
  * Revision 1.19  2007/04/24 09:04:11  p_grandclement
  * Addition of an operator for the vortons
  *
@@ -204,8 +207,9 @@ class Param_elliptic {
     *
     * @param zone [input] : the domain.
     * @param mas [input] : the masse \f$m\f$.
+    * @param so [input] : the source (used only to get the right basis).
     **/
-  void set_helmholtz_plus (int zone, double mas) ; 
+  void set_helmholtz_plus (int zone, double mas, Scalar& so) ; 
  
   /**
    * Set everything to do a 2d-Poisson, with or without l=0 (not put by default...)
@@ -360,7 +364,7 @@ class Param_elliptic {
   friend Mtbl_cf elliptic_solver_only_zec  
     (const Param_elliptic&, const Mtbl_cf&, double) ;
   friend Mtbl_cf elliptic_solver_sin_zec  
-    (const Param_elliptic&, const Mtbl_cf&, double, double&, double) ;
+    (const Param_elliptic&, const Mtbl_cf&, double*, double*) ;
   friend Mtbl_cf elliptic_solver_fixe_der_zero  
     (double, const Param_elliptic&, const Mtbl_cf&) ;
 
@@ -373,7 +377,7 @@ class Param_elliptic {
 
   friend void Map_af::sol_elliptic_no_zec(Param_elliptic&, const Scalar&, Scalar&, double) const ;
   friend void Map_af::sol_elliptic_only_zec(Param_elliptic&, const Scalar&, Scalar&, double) const ;
-  friend void Map_af::sol_elliptic_sin_zec(Param_elliptic&, const Scalar&, Scalar&, double, double&, double) const ;
+  friend void Map_af::sol_elliptic_sin_zec(Param_elliptic&, const Scalar&, Scalar&, double*, double*) const ;
   friend void Map_af::sol_elliptic_fixe_der_zero(double, Param_elliptic&, const Scalar&, Scalar&) const ;
 
   friend void Map_af::sol_elliptic_2d(Param_elliptic&, const Scalar&, Scalar&) const ;

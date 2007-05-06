@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.34  2007/05/06 10:48:08  p_grandclement
+ * Modification of a few operators for the vorton project
+ *
  * Revision 1.33  2007/01/23 17:08:43  j_novak
  * New function pois_vect_r0.C to solve the l=0 part of the vector Poisson
  * equation, which involves only the r-component.
@@ -464,13 +467,13 @@ Tbl solp_helmholtz_minus (const Matrice&, const Matrice&, const Tbl&,
 Tbl solh_helmholtz_minus (int, int, double, double, double, int) ;
 
 // Routines helmholtz plus :
-Matrice helmholtz_plus_mat(int , double , double , double, int ) ;
+Matrice helmholtz_plus_mat(int , int, double , double , double, int ) ;
 Matrice cl_helmholtz_plus (const Matrice&, int) ;
 Tbl cl_helmholtz_plus (const Tbl&, int) ;
 Matrice prepa_helmholtz_plus_nondege (const Matrice&, int) ;
 Tbl solp_helmholtz_plus (const Matrice&, const Matrice&, const Tbl&, 
 			  double, double, int) ;
-Tbl solh_helmholtz_plus (int, double, double, double, int) ;
+Tbl solh_helmholtz_plus (int, int, double, double, double, int) ;
 
 
 //Routines de calcul des valeurs limites 
@@ -723,8 +726,7 @@ Mtbl_cf elliptic_solver_no_zec  (const Param_elliptic&, const Mtbl_cf&,
 				 double val) ;
 Mtbl_cf elliptic_solver_only_zec  (const Param_elliptic&, const Mtbl_cf&, 
 				 double val) ;
-Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic&, const Mtbl_cf&, 
-				 double, double&, double) ;
+Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic&, const Mtbl_cf&, double*, double*) ;
 Mtbl_cf elliptic_solver_fixe_der_zero  (double, 
 					    const Param_elliptic&, 
 					    const Mtbl_cf&) ;

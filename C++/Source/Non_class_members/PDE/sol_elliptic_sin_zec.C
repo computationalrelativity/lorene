@@ -20,6 +20,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2007/05/06 10:48:12  p_grandclement
+ * Modification of a few operators for the vorton project
+ *
  * Revision 1.4  2005/11/30 11:09:08  p_grandclement
  * Changes for the Bin_ns_bh project
  *
@@ -47,6 +50,7 @@ char sol_elliptic_sin_zec_C[] = "$Header$" ;
 // Header C : 
 #include <stdlib.h>
 #include <math.h>
+#include <gsl/gsl_sf_bessel.h>
 
 // Headers Lorene :
 #include "tbl.h"
@@ -60,7 +64,7 @@ char sol_elliptic_sin_zec_C[] = "$Header$" ;
 	  //----------------------------------------------
 
 Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic& ope_var, 
-				  const Mtbl_cf& source, double freq, double& ampli, double phase) {
+				  const Mtbl_cf& source, double* amplis, double* phases) {
 
   // Verifications d'usage sur les zones
   int nz = source.get_mg()->get_nzone() ;
@@ -131,20 +135,17 @@ Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic& ope_var,
 	conte ++ ;
       }
   }
-
-
   
   //-------------------------------------------------
   // ON EST PARTI POUR LE RACCORD (Be carefull ....)
   //-------------------------------------------------
   
   // C'est pas simple toute cette sombre affaire...
-  // POUR LE MOMENT QUE LE CAS l==0 ;
   // Que le cas meme nombre de points dans chaque domaines...
 
   int start = 0 ;
-  for (int k=0 ; k<1 ; k++)
-    for (int j=0 ; j<1 ; j++) {
+  for (int k=0 ; k< source.get_mg()->get_np(0)+1; k++)
+    for (int j=0 ; j<source.get_mg()->get_nt(0) ; j++) {
       if (ope_var.operateurs[start] != 0x0) {
 	
 	int taille = 2*nz - 2 ;
@@ -230,17 +231,14 @@ Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic& ope_var,
 	int nt_prec = source.get_mg()->get_nt(nz-2) ;
 	conte += (np_prec+1)*nt_prec ;
 	
-	double rlim = -1./2./ope_var.operateurs[conte]->get_alpha() ;
-	
-	systeme.set(taille-2, taille-1) = 
-	  -ope_var.G_minus(nz-1) * 
-	  sin(freq*rlim+phase)/rlim ;
-	
-	systeme.set(taille-1, taille-1) = 
-	  -ope_var.dG_minus(nz-1)*
-	  sin(freq*rlim+phase)/rlim-  
-	  ope_var.G_minus(nz-1)* 
-	  (freq*cos(freq*rlim+phase)-sin(freq*rlim+phase)/rlim)/rlim ;
+	// On recupere la valeur de la sh : 
+	double val_sh = cos(phases[start])*ope_var.operateurs[nz-2]->val_sh_one_plus()
+			+ sin(phases[start])*ope_var.operateurs[nz-2]->val_sh_two_plus() ;
+	double der_sh = cos(phases[start])*ope_var.operateurs[nz-2]->der_sh_one_plus()
+			+ sin(phases[start])*ope_var.operateurs[nz-2]->der_sh_two_plus() ;
+
+	systeme.set(taille-2, taille-1) = -ope_var.G_minus(nz-1) * val_sh ;
+	systeme.set(taille-1, taille-1) = -ope_var.dG_minus(nz-1)*val_sh-ope_var.G_minus(nz-1)*der_sh ;
 
 	// On resout le systeme ...
 	if (taille > 2)
@@ -251,7 +249,7 @@ Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic& ope_var,
 	systeme.set_lu() ;
 	Tbl facteur (systeme.inverse(sec_membre)) ;
 
-	ampli = facteur(taille-1) ;
+	amplis[start] = facteur(taille-1) ;
 
 	// On range tout ca :
 	// Noyau 

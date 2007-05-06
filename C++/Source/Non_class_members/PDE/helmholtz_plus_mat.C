@@ -25,6 +25,9 @@ char helmholtz_plus_mat_C[] = "$$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2007/05/06 10:48:12  p_grandclement
+ * Modification of a few operators for the vorton project
+ *
  * Revision 1.3  2004/01/15 09:15:37  p_grandclement
  * Modification and addition of the Helmholtz operators
  *
@@ -48,7 +51,7 @@ char helmholtz_plus_mat_C[] = "$$" ;
                      // Routine pour les cas non prevus -- 
                      //-----------------------------------
 
-Matrice _helmholtz_plus_mat_pas_prevu(int, double, double, double) {
+Matrice _helmholtz_plus_mat_pas_prevu(int, int, double, double, double) {
   cout << "Helmholtz plus : base not implemented..." << endl ;
   abort() ;
   exit(-1) ;
@@ -63,7 +66,7 @@ Matrice _helmholtz_plus_mat_pas_prevu(int, double, double, double) {
 		   //--------------------------
 		    
 
-Matrice _helmholtz_plus_mat_r_chebp (int n, double alpha, double, 
+Matrice _helmholtz_plus_mat_r_chebp (int n, int lq, double alpha, double, 
 				     double masse) {
   assert (masse > 0) ;
  
@@ -73,7 +76,9 @@ Matrice _helmholtz_plus_mat_r_chebp (int n, double alpha, double,
   xd.set_etat_qcq() ;
   Matrice xx(n, n) ;
   xx.set_etat_qcq() ;
-  
+  Matrice sx2(n, n) ;
+  sx2.set_etat_qcq() ;
+
   double* vect  = new double[n] ;
   
   for (int i=0 ; i<n ; i++) {
@@ -93,7 +98,16 @@ Matrice _helmholtz_plus_mat_r_chebp (int n, double alpha, double,
     for (int j=0 ; j<n ; j++)
       xd.set(j, i) = vect[j] ;  
   }
-  
+   
+  for (int i=0 ; i<n ; i++) {
+    for (int j=0 ; j<n ; j++)
+      vect[j] = 0 ;
+    vect[i] = 1 ;
+    sx2_1d (n, &vect, R_CHEBP) ;
+    for (int j=0 ; j<n ; j++)
+      sx2.set(j, i) = vect[j] ;  
+  }
+
   for (int i=0 ; i<n ; i++) {
     for (int j=0 ; j<n ; j++)
       xx.set(i,j) = 0 ;
@@ -103,7 +117,7 @@ Matrice _helmholtz_plus_mat_r_chebp (int n, double alpha, double,
   delete [] vect ;
     
   Matrice res(n, n) ;
-  res = dd+2*xd+masse*masse*alpha*alpha*xx ;
+  res = dd+2*xd-lq*(lq+1)*sx2+masse*masse*alpha*alpha*xx ;
   
   return res ;
 }
@@ -113,7 +127,7 @@ Matrice _helmholtz_plus_mat_r_chebp (int n, double alpha, double,
 		    //--   CAS R_CHEB   -----
 		    //------------------------
 
-Matrice _helmholtz_plus_mat_r_cheb (int n, double alpha, double beta, 
+Matrice _helmholtz_plus_mat_r_cheb (int n, int lq, double alpha, double beta, 
 				     double masse) {
 
   
@@ -126,7 +140,9 @@ Matrice _helmholtz_plus_mat_r_cheb (int n, double alpha, double beta,
   dd.set_etat_qcq() ;
   Matrice xd(n, n) ;
   xd.set_etat_qcq() ;
-  
+  Matrice xx(n, n) ;
+  xx.set_etat_qcq() ;
+
   double* vect = new double[n] ;
   
   for (int i=0 ; i<n ; i++) {
@@ -180,11 +196,20 @@ Matrice _helmholtz_plus_mat_r_cheb (int n, double alpha, double beta,
     for (int j=0 ; j<n ; j++)
       xd.set(j, i) += vect[j] ;
   }
-  
+
+  for (int i=0 ; i<n ; i++) {
+      for (int j=0 ; j<n ; j++)
+	vect[j] = 0 ;
+      vect[i] = 1 ;
+      sx2_1d (n, &vect, R_CHEB) ;
+      for (int j=0 ; j<n ; j++)
+	xx.set(j, i) = vect[j] ;
+    }
+
   delete [] vect ;
   
   Matrice res(n, n) ;
-  res = dd+2*xd ; 
+  res = dd+2*xd - lq*(lq+1)*xx;  
 
   return res ;
 }
@@ -194,12 +219,12 @@ Matrice _helmholtz_plus_mat_r_cheb (int n, double alpha, double beta,
 		//- La routine a appeler  ---
 	        //----------------------------
 
-Matrice helmholtz_plus_mat(int n, double alpha, double beta, double masse, 
+Matrice helmholtz_plus_mat(int n, int lq, double alpha, double beta, double masse, 
 			    int base_r)
 {
   
   // Routines de derivation
-  static Matrice (*helmholtz_plus_mat[MAX_BASE])(int, double, double, double);
+  static Matrice (*helmholtz_plus_mat[MAX_BASE])(int, int, double, double, double);
   static int nap = 0 ;
   
   // Premier appel
@@ -213,7 +238,7 @@ Matrice helmholtz_plus_mat(int n, double alpha, double beta, double masse,
     helmholtz_plus_mat[R_CHEBP >> TRA_R] = _helmholtz_plus_mat_r_chebp ;
   }
   
-  Matrice res(helmholtz_plus_mat[base_r](n, alpha, beta, masse)) ;
+  Matrice res(helmholtz_plus_mat[base_r](n, lq, alpha, beta, masse)) ;
   return res ;
 }
 

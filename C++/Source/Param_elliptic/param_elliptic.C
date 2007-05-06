@@ -23,6 +23,9 @@ char param_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2007/05/06 10:48:14  p_grandclement
+ * Modification of a few operators for the vorton project
+ *
  * Revision 1.18  2007/04/24 09:04:13  p_grandclement
  * Addition of an operator for the vortons
  *
@@ -398,11 +401,15 @@ void Param_elliptic::set_helmholtz_minus (int zone, double masse, Scalar& source
   }
 }
 
-void Param_elliptic::set_helmholtz_plus (int zone, double masse) {
-   
+void Param_elliptic::set_helmholtz_plus (int zone, double masse, Scalar& source) {
+  
+  source.set_spectral_va().coef() ;
+  source.set_spectral_va().ylm() ;
+
   int nz = get_mp().get_mg()->get_nzone() ;
   int nr ;
   int conte = 0 ;
+  int m_quant, base_r_1d, l_quant ;
 
   switch (type_map) {
 
@@ -414,15 +421,18 @@ void Param_elliptic::set_helmholtz_plus (int zone, double masse) {
       
       for (int k=0 ; k<get_mp().get_mg()->get_np(l)+1 ; k++)
 	for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
-	  if ((operateurs[conte] != 0x0) && (l==zone)) {
-	    int old_base = operateurs[conte]->get_base_r() ;
+	  if (l==zone) {
+	    if (operateurs[conte] != 0x0) {	
+		int old_base = operateurs[conte]->get_base_r() ;
 	    // PROVISOIRE, DANS LE NOYAU SEUL LE CAS SPHERIQUE EST IMPLEMENTE
-	    if ((old_base != R_CHEBI)) {
+	    if ((old_base != R_CHEBI)) {    
 	      delete operateurs[conte] ;
-	      operateurs[conte] = new Ope_helmholtz_plus (nr, old_base, 
-							   get_alpha(l), 
-							   get_beta(l), masse) ;
+	      source.get_spectral_va().base.give_quant_numbers 
+		(l, k, j, m_quant, l_quant, base_r_1d) ;
+	      operateurs[conte] = new Ope_helmholtz_plus (nr, base_r_1d, l_quant, get_alpha(l), 
+							   get_beta(l) , masse) ;
 	    }
+		}
 	  }
 	  conte ++ ;
 	}
@@ -441,15 +451,18 @@ void Param_elliptic::set_helmholtz_plus (int zone, double masse) {
 	
 	for (int k=0 ; k<get_mp().get_mg()->get_np(l)+1 ; k++)
 	  for (int j=0 ; j<get_mp().get_mg()->get_nt(l) ; j++) {
-	    if ((operateurs[conte] != 0x0) && (l==zone)) {
-	      int old_base = operateurs[conte]->get_base_r() ;
-	      // PROVISOIRE, DANS LE NOYAU SEUL LE CAS SPHERIQUE EST IMPLEMENTE
-	      if ((old_base != R_CHEBI)) {
-		delete operateurs[conte] ;
-		operateurs[conte] = new Ope_helmholtz_plus (nr, old_base, 
-							     get_alpha(l), 
-							     get_beta(l), masse) ;
+	    if (l==zone) {
+	      if (operateurs[conte] != 0x0) {
+		int old_base = operateurs[conte]->get_base_r() ;
+	    // PROVISOIRE, DANS LE NOYAU SEUL LE CAS SPHERIQUE EST IMPLEMENTE
+	    	if ((old_base != R_CHEBI)) {	    
+			delete operateurs[conte] ;
+			source.get_spectral_va().base.give_quant_numbers 
+		  		(l, k, j, m_quant, l_quant, base_r_1d) ;
+			operateurs[conte] = new Ope_helmholtz_plus (nr, base_r_1d, l_quant,
+							     get_alpha(l), get_beta(l), masse) ;
 	      }
+		}
 	    }
 	    conte ++ ;
 	  }
@@ -458,7 +471,7 @@ void Param_elliptic::set_helmholtz_plus (int zone, double masse) {
     break ;
     
   default :
-    cout << "Unkown mapping in set_helmhotz_plus" << endl ;
+    cout << "Unkown mapping in set_helmhotz_minus" << endl ;
     abort() ;
     break ;
   }

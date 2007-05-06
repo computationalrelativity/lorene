@@ -23,6 +23,9 @@ char ope_helmholtz_plus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2007/05/06 10:48:13  p_grandclement
+ * Modification of a few operators for the vorton project
+ *
  * Revision 1.4  2004/01/15 09:15:38  p_grandclement
  * Modification and addition of the Helmholtz operators
  *
@@ -46,14 +49,14 @@ char ope_helmholtz_plus_C[] = "$Header$" ;
 #include "ope_elementary.h"
 
 // Standard constructor :
-Ope_helmholtz_plus::Ope_helmholtz_plus (int nbr, int base, double alf, 
+Ope_helmholtz_plus::Ope_helmholtz_plus (int nbr, int base, int lquant, double alf, 
 					  double bet, double mas): 
-  Ope_elementary(nbr, base, alf, bet), masse (mas) {
+  Ope_elementary(nbr, base, alf, bet), lq(lquant), masse (mas) {
 }
 
 // Constructor by copy :
 Ope_helmholtz_plus::Ope_helmholtz_plus (const Ope_helmholtz_plus& so) : 
-  Ope_elementary(so), masse (so.masse) {
+  Ope_elementary(so), lq (so.lq), masse (so.masse) {
 }
 
 // Destructor :
@@ -65,7 +68,7 @@ void Ope_helmholtz_plus::do_ope_mat() const {
     delete ope_mat ;
 
   ope_mat = new Matrice 
-    (helmholtz_plus_mat(nr, alpha, beta, masse, base_r)) ;
+    (helmholtz_plus_mat(nr, lq, alpha, beta, masse, base_r)) ;
 }
 
 void Ope_helmholtz_plus::do_ope_cl() const {
@@ -108,49 +111,42 @@ Tbl Ope_helmholtz_plus::get_solp (const Tbl& so) const {
 
 Tbl Ope_helmholtz_plus::get_solh() const {
 
-  double rminus, rplus ;
+  Tbl res (solh_helmholtz_plus (nr, lq, alpha, beta, masse, base_r)) ;
+   
+  // Un peu tricky...
+  if (res.get_ndim() == 1) {
+    Tbl val_lim (val_solp (res, alpha, base_r)) ;
 
-  // Pas tres joli pour le moment ...
-  switch (base_r) {
-  case R_CHEB:
+    s_one_plus   = val_lim(0) ;
+    s_one_minus  = val_lim(1) ; 
+    ds_one_plus  = val_lim(2) ;
+    ds_one_minus = val_lim(3) ;
 
-    // SH_one est sin(masse*r)/r :
-    rminus = beta - alpha ;
-    rplus = beta + alpha ;
-    
-    s_one_minus = sin(masse*rminus)/rminus/sqrt(double(2)) ;
-    ds_one_minus = (masse*cos(masse*rminus)-sin(masse*rminus)/rminus)/
-      rminus/sqrt(double(2)) ;
-    s_one_plus = sin(masse*rplus)/rplus/sqrt(double(2)) ;
-    ds_one_plus = (masse*cos(masse*rplus)-sin(masse*rplus)/rplus)/
-      rplus/sqrt(double(2)) ;
-    
-    // Sh two est cos(masse*r)/r :
-    s_two_minus = cos(masse*rminus)/rminus/sqrt(double(2)) ;
-    ds_two_minus = (-masse*sin(masse*rminus)-cos(masse*rminus)/rminus)/
-      rminus/sqrt(double(2)) ;
-    s_two_plus = cos(masse*rplus)/rplus/sqrt(double(2)) ;
-    ds_two_plus = (-masse*sin(masse*rplus)-cos(masse*rplus)/rplus)/
-      rplus/sqrt(double(2)) ;
-    break ;
-    
-  case R_CHEBP:
-    // SH_one est sin(masse*r)/r :
-    rminus = 0 ;
-    rplus = alpha ;
-    
-    s_one_minus = masse/sqrt(double(2)) ;
-    ds_one_minus = 0 ;
-    s_one_plus = sin(masse*rplus)/rplus/sqrt(double(2)) ;
-    ds_one_plus = (masse*cos(masse*rplus)-sin(masse*rplus)/rplus)/
-      rplus/sqrt(double(2)) ;
-    break ;
-  default:
-    cout << "Base unknown in Ope_helmholtz_plus::get_solh" << endl ;
-    abort() ;
-    break ;
   }
-  return solh_helmholtz_plus (nr, alpha, beta, masse, base_r) ;
+  else {
+    Tbl auxi (nr) ;
+    auxi.set_etat_qcq() ;
+    for (int i=0 ; i<nr ; i++)
+      auxi.set(i) = res(0,i) ;
+
+    Tbl val_one  (val_solp (auxi, alpha, base_r)) ; 
+   
+    s_one_plus   = val_one(0) ;
+    s_one_minus  = val_one(1) ; 
+    ds_one_plus  = val_one(2) ;
+    ds_one_minus = val_one(3) ;
+
+    for (int i=0 ; i<nr ; i++)
+      auxi.set(i) = res(1,i) ;
+
+    Tbl val_two  (val_solp (auxi, alpha, base_r)) ;
+
+    s_two_plus   = val_two(0) ;
+    s_two_minus  = val_two(1) ; 
+    ds_two_plus  = val_two(2) ;
+    ds_two_minus = val_two(3) ;   
+  }
+  return res ;
 }
 
 

@@ -26,6 +26,9 @@ char map_af_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2007/05/06 10:48:11  p_grandclement
+ * Modification of a few operators for the vorton project
+ *
  * Revision 1.10  2007/01/16 15:08:07  n_vasset
  * New constructor, usn Scalar on mono-domain angular grid for boundary,
  * for function sol_elliptic_boundary()
@@ -414,8 +417,7 @@ void Map_af::sol_elliptic_only_zec(Param_elliptic& ope_var,
 	  //----------------------------------------------
 
 void Map_af::sol_elliptic_sin_zec(Param_elliptic& ope_var, 
-				  const Scalar& source, Scalar& pot, 
-				  double freq, double& ampli, double phase) const {
+				  const Scalar& source, Scalar& pot, double* amplis, double* phases) const {
     
   assert(source.get_etat() != ETATNONDEF) ; 
   assert(source.get_mp().get_mg() == mg) ; 
@@ -451,8 +453,7 @@ void Map_af::sol_elliptic_sin_zec(Param_elliptic& ope_var,
 
   // Call to the Mtbl_cf version
   // ---------------------------
-  Mtbl_cf resu = elliptic_solver_sin_zec (ope_var, *(rho.c_cf), 
-  					freq, ampli, phase) ;
+  Mtbl_cf resu = elliptic_solver_sin_zec (ope_var, *(rho.c_cf), amplis, phases) ;
   
   // Final result returned as a Scalar
   // ---------------------------------

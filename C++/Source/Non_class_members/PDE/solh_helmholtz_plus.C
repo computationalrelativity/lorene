@@ -26,6 +26,9 @@ char solh_helmholtz_plusC[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2007/05/06 10:48:12  p_grandclement
+ * Modification of a few operators for the vorton project
+ *
  * Revision 1.2  2004/01/15 09:15:37  p_grandclement
  * Modification and addition of the Helmholtz operators
  *
@@ -41,6 +44,7 @@ char solh_helmholtz_plusC[] = "$Header $" ;
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <gsl/gsl_sf_bessel.h>
 
 #include "proto.h"
 #include "matrice.h"
@@ -51,7 +55,7 @@ char solh_helmholtz_plusC[] = "$Header $" ;
 	         //------------------------------------
 		// Routine pour les cas non prevus --
 		//------------------------------------
-Tbl _solh_helmholtz_plus_pas_prevu (int, double, double, double) {
+Tbl _solh_helmholtz_plus_pas_prevu (int, int, double, double, double) {
 
   cout << "Homogeneous solution not implemented in hemlholtz_plus : "<< endl ;
   abort() ;
@@ -66,7 +70,7 @@ Tbl _solh_helmholtz_plus_pas_prevu (int, double, double, double) {
 	       //--  R_CHEB   ------
 	      //-------------------
 
-Tbl _solh_helmholtz_plus_r_cheb (int n, double alpha, double beta, 
+Tbl _solh_helmholtz_plus_r_cheb (int n, int lq, double alpha, double beta, 
 				  double masse) {
   
   assert (masse > 0) ;
@@ -83,7 +87,7 @@ Tbl _solh_helmholtz_plus_r_cheb (int n, double alpha, double beta,
   // First SH
   for (int i=0 ; i<n ; i++){
     double air = alpha*(-cos(M_PI*i/(n-1))) + beta ;
-    coloc[i] = sin(masse*air)/air ;
+    coloc[i] = -gsl_sf_bessel_jl(lq, masse*air) ;
   }
   
   cfrcheb(deg, deg, coloc, deg, coloc) ;
@@ -93,7 +97,7 @@ Tbl _solh_helmholtz_plus_r_cheb (int n, double alpha, double beta,
   // Second SH
   for (int i=0 ; i<n ; i++){
     double air = alpha*(-cos(M_PI*i/(n-1))) + beta ;
-    coloc[i] = cos(masse*air)/air ;
+    coloc[i] = -gsl_sf_bessel_yl (lq, masse*air) ;
   }
   
   cfrcheb(deg, deg, coloc, deg, coloc) ;
@@ -110,7 +114,7 @@ Tbl _solh_helmholtz_plus_r_cheb (int n, double alpha, double beta,
 	       //--  R_CHEBP   -----
 	      //-------------------
 
-Tbl _solh_helmholtz_plus_r_chebp (int n, double alpha, double, 
+Tbl _solh_helmholtz_plus_r_chebp (int n, int lq, double alpha, double, 
 				  double masse) {
   
   assert (masse > 0) ;
@@ -125,11 +129,10 @@ Tbl _solh_helmholtz_plus_r_chebp (int n, double alpha, double,
   deg[2] = n ;
   
   // SH
-  for (int i=1 ; i<n ; i++){
+  for (int i=0 ; i<n ; i++){
     double air = alpha*sin(M_PI*i/2/(n-1)) ;
-    coloc[i] = sin(masse*air)/air ;
+    coloc[i] = -gsl_sf_bessel_jl(lq, masse*air) ;
   }
-  coloc[0] = masse ;
 
   cfrchebp(deg, deg, coloc, deg, coloc) ;
   for (int i=0 ; i<n ;i++)
@@ -146,11 +149,11 @@ Tbl _solh_helmholtz_plus_r_chebp (int n, double alpha, double,
 	      //-------------------
 	      
 	      
-Tbl solh_helmholtz_plus (int n, double alpha, double beta, 
+Tbl solh_helmholtz_plus (int n, int lq, double alpha, double beta, 
 			  double masse, int base_r) {
 
   // Routines de derivation
-  static Tbl (*solh_helmholtz_plus[MAX_BASE])(int, double, double, double) ;
+  static Tbl (*solh_helmholtz_plus[MAX_BASE])(int, int, double, double, double) ;
   static int nap = 0 ;
   
   // Premier appel
@@ -164,6 +167,6 @@ Tbl solh_helmholtz_plus (int n, double alpha, double beta,
     solh_helmholtz_plus[R_CHEBP >> TRA_R] = _solh_helmholtz_plus_r_chebp ;
   }
     
-  Tbl res(solh_helmholtz_plus[base_r](n, alpha, beta, masse)) ;
+  Tbl res(solh_helmholtz_plus[base_r](n, lq, alpha, beta, masse)) ;
   return res ;
 }
