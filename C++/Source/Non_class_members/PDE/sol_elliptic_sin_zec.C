@@ -20,6 +20,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2007/05/08 07:08:30  p_grandclement
+ * *** empty log message ***
+ *
  * Revision 1.5  2007/05/06 10:48:12  p_grandclement
  * Modification of a few operators for the vorton project
  *
@@ -158,7 +161,6 @@ Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic& ope_var,
 	sec_membre.set_etat_qcq() ;
 	for (int i=0 ; i<taille ; i++)
 	  sec_membre.set(i) = 0 ;
-	
 	//---------
 	//  Noyau :
 	//---------
@@ -179,7 +181,6 @@ Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic& ope_var,
 	//----------
 	// SHELLS :
 	//----------
-	
 	
 	for (int l=1 ; l<nz-1 ; l++) {
 	
@@ -217,28 +218,27 @@ Mtbl_cf elliptic_solver_sin_zec  (const Param_elliptic& ope_var,
 	  systeme.set(2*l+1, 2*l) =
 	    ope_var.dG_plus(l)*ope_var.operateurs[conte]->val_sh_two_plus()+
 	    ope_var.G_plus(l)*ope_var.operateurs[conte]->der_sh_two_plus() ;
-	  
+
 	  sec_membre.set(2*l) -=  ope_var.F_plus(l,k,j) + 
 	    ope_var.G_plus(l) * ope_var.operateurs[conte]->val_sp_plus();
-	  
+
 	  sec_membre.set(2*l+1) -=  ope_var.dF_plus(l,k,j) + 
-	    ope_var.dG_plus(l) * ope_var.operateurs[conte]->val_sp_plus() + 
-	    ope_var.G_plus(l) * ope_var.operateurs[conte]->der_sp_plus() ;
+	         ope_var.dG_plus(l) * ope_var.operateurs[conte]->val_sp_plus() + 
+	         ope_var.G_plus(l) * ope_var.operateurs[conte]->der_sp_plus() ;	
+
 	}
 
-	// LA PSEUDO ZEC :
-	int np_prec = source.get_mg()->get_np(nz-2) ;
-	int nt_prec = source.get_mg()->get_nt(nz-2) ;
-	conte += (np_prec+1)*nt_prec ;
-	
 	// On recupere la valeur de la sh : 
-	double val_sh = cos(phases[start])*ope_var.operateurs[nz-2]->val_sh_one_plus()
-			+ sin(phases[start])*ope_var.operateurs[nz-2]->val_sh_two_plus() ;
-	double der_sh = cos(phases[start])*ope_var.operateurs[nz-2]->der_sh_one_plus()
-			+ sin(phases[start])*ope_var.operateurs[nz-2]->der_sh_two_plus() ;
+	double val_sh = cos(phases[start])*ope_var.operateurs[conte]->val_sh_one_plus()
+			+ sin(phases[start])*ope_var.operateurs[conte]->val_sh_two_plus() ;
+	double der_sh = cos(phases[start])*ope_var.operateurs[conte]->der_sh_one_plus()
+			+ sin(phases[start])*ope_var.operateurs[conte]->der_sh_two_plus() ;
 
-	systeme.set(taille-2, taille-1) = -ope_var.G_minus(nz-1) * val_sh ;
-	systeme.set(taille-1, taille-1) = -ope_var.dG_minus(nz-1)*val_sh-ope_var.G_minus(nz-1)*der_sh ;
+	systeme.set(taille-2, taille-1) = -ope_var.G_minus(nz-1) * val_sh  ;
+	systeme.set(taille-1, taille-1) =  -ope_var.dG_minus(nz-1)*val_sh- ope_var.G_minus(nz-1)*der_sh ;
+
+	sec_membre.set(taille-2) += ope_var.F_minus(nz-1,k,j) ;
+	sec_membre.set(taille-1) += ope_var.dF_minus(nz-1,k,j) ;
 
 	// On resout le systeme ...
 	if (taille > 2)
