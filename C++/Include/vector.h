@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.37  2007/05/11 11:38:16  n_vasset
+ * Added poisson_boundary2.C routine
+ *
  * Revision 1.36  2007/01/16 15:05:59  n_vasset
  * New constructor (taking a Scalar in mono-domain angular grid for
  * boundary) for function sol_elliptic_boundary
@@ -532,21 +535,12 @@ class Vector: public Tensor {
 			  Vector& resu) const ;
  
 
-    /**Solves the vector Poisson equation with \c *this  as a source 
-     * with a boundary condition on the excised sphere.
-     * 
-     * The equation solved is \f$\Delta N^i +\lambda \nabla^i 
-     * \nabla_k N^k = S^i\f$.
-     * \c *this  must be given with \c dzpuis  = 4.
-     * It uses the Helmholtz decomposition (see documentation of
-     * \c p_potential )
-     *
-     * @param lambda [input] \f$\lambda\f$.
-     * @param resu [output] the solution \f$N^i\f$.
+    /**Alternative to previous poisson_boundary method for vectors ; this uses method 6 for vectorial solving, updated version (as in the poisson_vector_block routine).
+     * Boundary arguments are here required as scalar fields.
      */
-    void poisson_boundary2(double lam, Vector& resu, const Mtbl_cf bound_vr, const Mtbl_cf bound_eta, const Mtbl_cf bound_mu, double dir_vr, double neum_vr, double dir_eta, double neum_eta, double dir_mu, double neum_mu ) const ;
+    void poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar boundeta, Scalar boundmu, double dir_vr, double neum_vr, double dir_eta, double neum_eta, double dir_mu, double neum_mu ) const ;
  
-    // Alternative 2 to previous vectorial poisson solver; this uses methode 6 for vectorial solving, updated version.
+    
 
  
     Vector poisson_dirichlet(double lambda, const Valeur& limit_vr, 
