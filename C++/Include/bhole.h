@@ -32,6 +32,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2007/05/15 12:44:18  p_grandclement
+ * Scalar version of reevaluate
+ *
  * Revision 1.16  2007/04/24 20:15:30  f_limousin
  * Implementation of Dirichlet and Neumann BC for the lapse
  *
@@ -267,6 +270,7 @@ class Bhole {
 	double omega ; ///< Angular velocity in LORENE's units.
 	double omega_local ; ///< local angular velocity
 	int rot_state ; ///< State of rotation
+	double lapse_hori ; /// Lapse on the horizon
 	
 	/**
 	 * Cartesian components of the boost in the reference frame.
@@ -460,6 +464,8 @@ class Bhole {
 	
 	Cmp& set_n_auto() {return n_auto.set() ;}
 	Cmp& set_psi_auto() {return psi_auto.set() ;}
+	
+	void set_lapse_hori(double xx) {lapse_hori = xx;} 
     public:
 	
 	/**

@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.51  2007/05/15 12:44:18  p_grandclement
+ * Scalar version of reevaluate
+ *
  * Revision 1.50  2007/05/06 10:48:08  p_grandclement
  * Modification of a few operators for the vorton project
  *
@@ -901,7 +904,36 @@ class Map {
 	virtual void reevaluate_symy(const Map* mp_prev, int nzet, 
 				Cmp& uu) const = 0 ; 
 
+       /** Recomputes the values of a \c Scalar  at the collocation points 
+	 *  after a change in the mapping. 
+	 *  @param mp_prev [input] Previous value of the mapping. 
+	 *  @param nzet [input] Number of domains where the computation 
+	 *    must be done: the computation is performed for the domains
+	 *    of index \f$0\le {\tt l} \le {\tt nzet-1}\f$; \c uu  is set
+	 *    to zero in the other domains. 
+	 *  @param uu [input/output] input : \c Scalar  previously computed on 
+	 *			     the mapping \c *mp_prev ; ouput :
+	 *			     values of (logically) the same \c Scalae
+	 *			     at the grid points defined by \c *this. 
+	 */
+	virtual void reevaluate(const Map* mp_prev, int nzet, 
+				Scalar& uu) const = 0 ; 
 
+	/** Recomputes the values of a \c Scalar at the collocation points 
+	 *  after a change in the mapping. 
+	 *  Case where the \c Scalar  is symmetric with respect the plane y=0.
+	 *  @param mp_prev [input] Previous value of the mapping. 
+	 *  @param nzet [input] Number of domains where the computation 
+	 *    must be done: the computation is performed for the domains
+	 *    of index \f$0\le {\tt l} \le {\tt nzet-1}\f$; \c uu is set
+	 *    to zero in the other domains. 
+	 *  @param uu [input/output] input : \c Scalar  previously computed on 
+	 *			     the mapping \c *mp_prev ; ouput :
+	 *			     values of (logically) the same \c Scalar 
+	 *			     at the grid points defined by \c *this. 
+	 */
+	virtual void reevaluate_symy(const Map* mp_prev, int nzet, 
+				Scalar& uu) const = 0 ; 
 
     // Differential operators:
     // ----------------------
@@ -1642,6 +1674,36 @@ class Map_radial : public Map {
 	 *			     at the grid points defined by \c *this. 
 	 */
 	virtual void reevaluate_symy(const Map* mp_prev, int nzet, Cmp& uu) 
+				    const ; 
+	
+         /** Recomputes the values of a \c Scalar at the collocation points 
+	 *  after a change in the mapping. 
+	 *  @param mp_prev [input] Previous value of the mapping. 
+	 *  @param nzet [input] Number of domains where the computation 
+	 *    must be done: the computation is performed for the domains
+	 *    of index \f$0\le {\tt l} \le {\tt nzet-1}\f$; \c uu  is set
+	 *    to zero in the other domains. 
+	 *  @param uu [input/output] input : \c Scalar previously computed on 
+	 *			     the mapping \c *mp_prev ; ouput :
+	 *			     values of (logically) the same \c Scalar
+	 *			     at the grid points defined by \c *this. 
+	 */
+	virtual void reevaluate(const Map* mp_prev, int nzet, Scalar& uu) const ; 
+
+	/** Recomputes the values of a \c Scalar at the collocation points 
+	 *  after a change in the mapping. 
+	 *  Case where the \c Scalar is symmetric with respect to the plane y=0.
+	 *  @param mp_prev [input] Previous value of the mapping. 
+	 *  @param nzet [input] Number of domains where the computation 
+	 *    must be done: the computation is performed for the domains
+	 *    of index \f$0\le {\tt l} \le {\tt nzet-1}\f$; \c uu  is set
+	 *    to zero in the other domains. 
+	 *  @param uu [input/output] input : \c Scalar previously computed on 
+	 *			     the mapping \c *mp_prev ; ouput :
+	 *			     values of (logically) the same \c Scalar
+	 *			     at the grid points defined by \c *this. 
+	 */
+	virtual void reevaluate_symy(const Map* mp_prev, int nzet, Scalar& uu) 
 				    const ; 
 
     // Various linear operators
@@ -2917,7 +2979,7 @@ class Map_et : public Map_radial {
 	 *				will be multiplied \\
 	 *   \c par.get_tbl(0)  : array of values of the field \c ent  to
 	 *			     define the isosurfaces. 
-	 *  @param par [input] Number of the last coefficients in \f$\theta\f$ set to zero.
+	 *  @param nbr\_filtre [input] Number of the last coefficients in \f$\varphi\f$ set to zero.
 	 */
 	virtual void adapt(const Cmp& ent, const Param& par, int nbr_filtre = 0)  ; 
 
