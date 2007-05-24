@@ -30,6 +30,9 @@ char tslice_dirax_max_setAB_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2007/05/24 12:10:41  j_novak
+ * Update of khi_evol and mu_evol.
+ *
  * Revision 1.2  2007/04/25 15:21:01  j_novak
  * Corrected an error in the initialization of tildeB in
  * Tslice_dirac_max::initial_dat_cts. + New method for solve_hij_AB.
@@ -75,6 +78,12 @@ void Tslice_dirac_max::hh_det_one_AB(int j0, Param* par_bc, Param* par_mat) cons
     const Scalar* ptrace = 0x0 ;
     if (trh_evol.is_known(j0-1)) ptrace = &trh_evol[j0-1] ;
     hij.set_AtBtt_det_one(potA_evol[j0], tildeB_evol[j0], ptrace, par_bc, par_mat) ;
+
+    Scalar khi_new = hij.tt_part()(1,1) ;
+    khi_new.mult_r() ;
+    khi_new.mult_r() ;
+    khi_evol.update(khi_new, j0, the_time[j0]) ;
+    mu_evol.update(hij.tt_part().mu(), j0, the_time[j0]) ;
 
     // Result set to trh_evol and hh_evol
     // ----------------------------------
