@@ -30,6 +30,9 @@ char tslice_dirax_max_setAB_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2007/06/05 07:38:37  j_novak
+ * Better treatment of dzpuis for A and tilde(B) potentials. Some errors in the bases manipulation have been also corrected.
+ *
  * Revision 1.3  2007/05/24 12:10:41  j_novak
  * Update of khi_evol and mu_evol.
  *
@@ -95,9 +98,8 @@ void Tslice_dirac_max::hh_det_one_AB(int j0, Param* par_bc, Param* par_mat) cons
 
     // Temporary Sym_tensor with longitudinal part set to zero : 
     Sym_tensor hh_new(mp, CON, *(ff.get_triad())) ;
-    
-    hh_new.set_longit_trans(wzero, hij) ;
-    
+        hh_new = hij ;
+
     hh_evol.update(hh_new, j0, the_time[j0]) ;
     
     if (j0 == jtime) {
@@ -368,20 +370,20 @@ void Tslice_dirac_max::solve_hij_AB(Param& par_A, Param& par_B,
     // Resolution of wave equation for h
     //=============================================
     
-  Scalar A_source = source_hh.compute_A() ; 
+  Scalar A_source = source_hh.compute_A(true) ; 
 //  A_source.annule_extern_cn(nz-2, 1) ;  
 //    filtre_l(A_source, 0, 1, true) ;
 //    A_source.filtre_r(nfiltre) ;
   A_new = potA_evol[jtime].avance_dalembert(par_A, potA_evol[jtime-1], A_source) ;
 //    filtre_l(A_new, 0, 1) ;
-  A_new.set_spectral_va().ylm_i() ;
+//  A_new.set_spectral_va().ylm_i() ;
   maxabs(A_new - potA_evol[jtime], "Variation of A") ;  
   
-  Scalar B_source = source_hh.compute_tilde_B_tt() ;      
+  Scalar B_source = source_hh.compute_tilde_B_tt(true) ;      
 //  filtre_l(B_source, 0, 1) ;
   B_new = tildeB_evol[jtime].avance_dalembert(par_B, tildeB_evol[jtime-1], B_source) ;
 //    filtre_l(B_new, 0, 1) ;
-  B_new.set_spectral_va().ylm_i() ;
+//  B_new.set_spectral_va().ylm_i() ;
   maxabs(B_new - tildeB_evol[jtime], "Variation of tilde(B)") ;  
                                         
 }

@@ -30,6 +30,9 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2007/06/05 07:38:37  j_novak
+ * Better treatment of dzpuis for A and tilde(B) potentials. Some errors in the bases manipulation have been also corrected.
+ *
  * Revision 1.18  2007/04/25 15:21:01  j_novak
  * Corrected an error in the initialization of tildeB in
  * Tslice_dirac_max::initial_dat_cts. + New method for solve_hij_AB.
@@ -129,9 +132,28 @@ Tslice_dirac_max::Tslice_dirac_max(const Scalar& lapse_in, const Vector& shift_i
 		     0*lapse_in, depth_in), 
     khi_evol(hh_in.tt_part().khi(), depth_in), 
     mu_evol(hh_in.tt_part().mu(), depth_in),
-    potA_evol(hh_in.compute_A(), depth_in), 
-    tildeB_evol(hh_in.compute_tilde_B_tt(), depth_in),
-    trh_evol(hh_in.the_trace(), depth_in) { }
+    potA_evol(depth_in), tildeB_evol(depth_in),
+    trh_evol(hh_in.the_trace(), depth_in) 
+{
+    Scalar tmp = hh_in.compute_A(true) ;
+    assert (tmp.get_etat() != ETATNONDEF) ;
+    if (tmp.get_etat() != ETATZERO) {
+	int nz = tmp.get_mp().get_mg()->get_nzone() ;
+	assert(tmp.get_mp().get_mg()->get_type_r(nz-1) == UNSURR) ;
+	tmp.annule_domain(nz-1) ;
+    }
+    tmp.set_dzpuis(0) ;
+    potA_evol.update(tmp, 0, the_time[0]) ;
+    tmp = hh_in.compute_tilde_B_tt(true) ;
+    assert (tmp.get_etat() != ETATNONDEF) ;
+    if (tmp.get_etat() != ETATZERO) {
+	int nz = tmp.get_mp().get_mg()->get_nzone() ;
+	assert(tmp.get_mp().get_mg()->get_type_r(nz-1) == UNSURR) ;
+	tmp.annule_domain(nz-1) ;
+    }
+    tmp.set_dzpuis(0) ;
+    tildeB_evol.update(tmp, 0, the_time[0]) ;
+}
                  
 
 // Constructor as standard time slice of flat spacetime (Minkowski) 
@@ -304,7 +326,6 @@ void Tslice_dirac_max::initial_data_cts(const Sym_tensor& uu,
                                       method_poisson_vect, graph_device, 
                                       p_ener_dens, p_mom_dens, p_trace_stress) ;
 
-    
     // Setting khi and mu for j < jtime, taking into account u^{ij} = dh^{ij}/dt
     //--------------------------------------------------------------------------
     for (int j = jtime-depth+1 ; j < jtime; j++) {
@@ -326,8 +347,24 @@ void Tslice_dirac_max::initial_data_cts(const Sym_tensor& uu,
             mu_evol.update(
              hh_evol[jtime].transverse(ff,0x0,method_poisson_vect).tt_part().mu(),
                            j, the_time[j]) ;
-            potA_evol.update(hh_evol[jtime].compute_A(), j, the_time[j]) ;
-            tildeB_evol.update(hh_evol[jtime].compute_tilde_B_tt(), j, the_time[j]) ;
+	    Scalar tmp = hh_evol[jtime].compute_A(true) ;
+	    assert (tmp.get_etat() != ETATNONDEF) ;
+	    if (tmp.get_etat() != ETATZERO) {
+		int nz = tmp.get_mp().get_mg()->get_nzone() ;
+		assert(tmp.get_mp().get_mg()->get_type_r(nz-1) == UNSURR) ;
+		tmp.annule_domain(nz-1) ;
+	    }
+	    tmp.set_dzpuis(0) ;
+            potA_evol.update(tmp, j, the_time[j]) ;
+	    tmp = hh_evol[jtime].compute_tilde_B_tt(true) ;
+	    assert (tmp.get_etat() != ETATNONDEF) ;
+	    if (tmp.get_etat() != ETATZERO) {
+		int nz = tmp.get_mp().get_mg()->get_nzone() ;
+		assert(tmp.get_mp().get_mg()->get_type_r(nz-1) == UNSURR) ;
+		tmp.annule_domain(nz-1) ;
+	    }
+	    tmp.set_dzpuis(0) ;
+            tildeB_evol.update(tmp, j, the_time[j]) ;
         }
         else {          // Case dh^{ij}/dt != 0
                         // --------------------
@@ -348,12 +385,14 @@ void Tslice_dirac_max::initial_data_cts(const Sym_tensor& uu,
             tmp.annule_domain(nz-1) ; //##
             mu_evol.update(tmp, j, the_time[j]) ;
 
-            tmp = hhtmp.compute_A() ;
+            tmp = hhtmp.compute_A(true) ;
             tmp.annule_domain(nz-1) ;
+	    tmp.set_dzpuis(0) ;
             potA_evol.update(tmp, j, the_time[j]) ;
 
-            tmp = hhtmp.compute_tilde_B_tt() ;
+            tmp = hhtmp.compute_tilde_B_tt(true) ;
             tmp.annule_domain(nz-1) ; //##
+	    tmp.set_dzpuis(0) ;
             tildeB_evol.update(tmp, j, the_time[j]) ;
         }
 
@@ -371,8 +410,24 @@ void Tslice_dirac_max::initial_data_cts(const Sym_tensor& uu,
         hh_evol[jtime].transverse(ff,0x0,method_poisson_vect).tt_part().mu(),
                            jtime, the_time[jtime]) ;
     
-    potA_evol.update(hh_evol[jtime].compute_A(), jtime, the_time[jtime]) ;
-    tildeB_evol.update(hh_evol[jtime].compute_tilde_B_tt(), jtime, the_time[jtime]) ;
+    Scalar tmp = hh_evol[jtime].compute_A(true) ;
+    assert (tmp.get_etat() != ETATNONDEF) ;
+    if (tmp.get_etat() != ETATZERO) {
+	int nz = tmp.get_mp().get_mg()->get_nzone() ;
+	assert(tmp.get_mp().get_mg()->get_type_r(nz-1) == UNSURR) ;
+	tmp.annule_domain(nz-1) ;
+    }
+    tmp.set_dzpuis(0) ;
+    potA_evol.update(tmp, jtime, the_time[jtime]) ;
+    tmp = hh_evol[jtime].compute_tilde_B_tt(true) ;
+    assert (tmp.get_etat() != ETATNONDEF) ;
+    if (tmp.get_etat() != ETATZERO) {
+	int nz = tmp.get_mp().get_mg()->get_nzone() ;
+	assert(tmp.get_mp().get_mg()->get_type_r(nz-1) == UNSURR) ;
+	tmp.annule_domain(nz-1) ;
+    }
+    tmp.set_dzpuis(0) ;
+    tildeB_evol.update(tmp, jtime, the_time[jtime]) ;
     
     cout << endl << 
     "Tslice_dirac_max::initial_data_cts : variation of khi, mu, A and tilde(B) for J = " 
@@ -440,9 +495,9 @@ void Tslice_dirac_max::hh_det_one(int j0) const {
 
     // khi and mu are smoothly mached to a zero value in the CED
     Scalar khi0 = khi_evol[j0] ; 
-    khi0.annule_extern_cn(nzm2, 4) ;     
+    khi0.annule_extern_cn(nzm2, 2) ;     
     Scalar mu0 = mu_evol[j0] ;       
-    mu0.annule_extern_cn(nzm2, 4) ;     
+    mu0.annule_extern_cn(nzm2, 2) ;     
 
     // The TT part of h^{ij}, which stays unchanged during the computation :
     Sym_tensor_tt hijtt(mp, *(ff.get_triad()), ff) ;
@@ -451,10 +506,12 @@ void Tslice_dirac_max::hh_det_one(int j0) const {
     // The representation of h^{ij} as an object of class Sym_tensor_trans :
     Sym_tensor_trans hij(mp, *(ff.get_triad()), ff) ;
     hij.trace_from_det_one(hijtt) ;
-
+ 
     // Result set to trh_evol and hh_evol
     // ----------------------------------
-    trh_evol.update(hij.the_trace(), j0, the_time[j0]) ;
+    Scalar tmp = hij.the_trace() ;
+    tmp.dec_dzpuis(4) ;
+    trh_evol.update(tmp, j0, the_time[j0]) ;
     
     // The longitudinal part of h^{ij}, which is zero by virtue of Dirac gauge :
     Vector wzero(mp, CON,  *(ff.get_triad())) ; 
@@ -468,8 +525,14 @@ void Tslice_dirac_max::hh_det_one(int j0) const {
     hh_evol.update(hh_new, j0, the_time[j0]) ;
     
     // Update of A and tlde(B)
-    potA_evol.update(hij.compute_A(), jtime, the_time[jtime]) ; 
-    tildeB_evol.update(hij.compute_tilde_B_tt(), jtime, the_time[jtime]) ; 
+    tmp = hijtt.compute_A(true) ;
+    tmp.annule_domain(nzm2+1)  ;
+    tmp.set_dzpuis(0) ;
+    potA_evol.update(tmp, jtime, the_time[jtime]) ; 
+    tmp = hijtt.compute_tilde_B_tt(true) ;
+    tmp.annule_domain(nzm2+1)  ;
+    tmp.set_dzpuis(0) ;
+    tildeB_evol.update(tmp, jtime, the_time[jtime]) ; 
       
     if (j0 == jtime) {
         // Reset of quantities depending on h^{ij}:
