@@ -25,6 +25,9 @@ char comb_lin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2007/06/06 07:43:28  p_grandclement
+ * nmax increased to 200
+ *
  * Revision 1.5  2004/02/09 09:33:56  j_novak
  * Minor modif.
  *
@@ -140,7 +143,7 @@ Matrice _cl_r_cheb (const Matrice &source, int l, double echelle, int) {
     int n = source.get_dim(0) ;assert (n == source.get_dim(1)) ;
     
                 
-   const int nmax = 100 ; // Nombre de Matrices stockees
+   const int nmax = 200 ; // Nombre de Matrices stockees
    static Matrice* tab[nmax] ;  // les matrices calculees
    static int nb_dejafait = 0 ; // nbre de matrices calculees
    static int l_dejafait[nmax] ;
@@ -209,7 +212,7 @@ Matrice _cl_r_chebp (const Matrice &source, int l, double, int) {
     int n = source.get_dim(0) ;
     assert (n == source.get_dim(1)) ;
     
-   const int nmax = 100 ; // Nombre de Matrices stockees
+   const int nmax = 200 ; // Nombre de Matrices stockees
    static Matrice* tab[nmax] ;  // les matrices calculees
    static int nb_dejafait = 0 ; // nbre de matrices calculees
    static int l_dejafait[nmax] ;
@@ -271,7 +274,7 @@ Matrice _cl_r_chebi (const Matrice &source, int l, double, int) {
     assert (n == source.get_dim(1)) ;
     
        
-   const int nmax = 100 ; // Nombre de Matrices stockees
+   const int nmax = 200 ; // Nombre de Matrices stockees
    static Matrice* tab[nmax] ;  // les matrices calculees
    static int nb_dejafait = 0 ; // nbre de matrices calculees
    static int l_dejafait[nmax] ;

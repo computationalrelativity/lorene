@@ -25,6 +25,9 @@ char laplacien_mat_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2007/06/06 07:43:28  p_grandclement
+ * nmax increased to 200
+ *
  * Revision 1.7  2005/01/27 10:19:43  j_novak
  * Now using Diff operators to build the matrices.
  *
@@ -153,7 +156,7 @@ Matrice _laplacien_mat_pas_prevu(int n, int l, double echelle, int puis) {
 
 Matrice _laplacien_mat_r_chebp (int n, int l, double, int) {
    
-   const int nmax = 100 ;// Nombre de Matrices stockees
+   const int nmax = 200 ;// Nombre de Matrices stockees
    static Matrice* tab[nmax] ;  // les matrices calculees
    static int nb_dejafait = 0 ; // nbre de matrices calculees
    static int l_dejafait[nmax] ;
@@ -200,7 +203,7 @@ Matrice _laplacien_mat_r_chebp (int n, int l, double, int) {
 
 Matrice _laplacien_mat_r_chebi (int n, int l, double, int) {
    
-   const int nmax = 100 ;// Nombre de Matrices stockees
+   const int nmax = 200 ;// Nombre de Matrices stockees
    static Matrice* tab[nmax] ;  // les matrices calculees
    static int nb_dejafait = 0 ; // nbre de matrices calculees
    static int l_dejafait[nmax] ;
