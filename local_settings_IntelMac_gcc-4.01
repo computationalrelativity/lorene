@@ -1,0 +1,120 @@
+###############################################################
+#
+#  Edit the following lines according to your implementation.
+#
+#  The environment variable HOME_LORENE (root directory for the
+#    Lorene implementation) must be have been already defined.
+#
+#
+#  Requirements for Macintosh OS X Tiger (intel) to use LORENE
+#
+#  (1) Install the software FINK, XCode (Developer Tools)
+#           http://fink.sourceforge.net/
+#  (2) Install the following packages 
+#      (Unstable distribution is necessary at this moment)
+#      cpp4, doxygen, dx, fftw3, gsl, make, pgplot, tetex  
+#  (3) Activate GNU make by adding a link at /usr/bin
+#      ln -s /sw/bin/make /usr/bin/gmake
+#
+###############################################################
+
+#===============================#
+#           COMPILERS		#
+#===============================#
+
+# C++ compiler:
+# ------------
+CXX 	 = /usr/bin/g++
+
+# Options for the C++ compiler to produce the optimized library:
+# -------------------------------------------------------------
+CXXFLAGS = -O2 -DNDEBUG -Wall -W -Wundef -Wshadow -Wcast-qual \
+  -Wcast-align -Wconversion -Winline \
+  -Wabi -Wold-style-cast -Woverloaded-virtual \
+  -framework vecLib -m386
+# The combination -pedantic and -I/usr/include/architecture/i386 seems
+# to conflict with each other
+
+# Options for the C++ compiler to produce the library for debugging:
+# -----------------------------------------------------------------
+CXXFLAGS_G = -g -Wall -W -Wundef -Wshadow -Wcast-qual \
+  -Wcast-align -Wconversion -Winline \
+  -Wabi -Wold-style-cast -Woverloaded-virtual \
+  -framework vecLib -m386
+# The combination -pedantic and -I/usr/include/architecture/i386 seems 
+# to conflict with each other
+
+# Path for the include files:
+# --------------------------
+INC	= -I$(HOME_LORENE)/C++/Include \
+  -I$(HOME_LORENE)/C++/Include_extra \
+  -I/usr/include/c++/4.0.0 -I/usr/include/c++/4.0.0/i686-apple-darwin8 \
+  -I/usr/include/architecture/i386 \
+  -I/System/Library/Frameworks/vecLib.framework/Versions/Current/Headers \
+  -I/sw/include
+
+# Converting archives to random libraries (if required, otherwise just ls)
+# ------------------------------------------------------------------------
+RANLIB = ranlib
+
+# Fortran 77 compiler:
+# -------------------
+F77 	 = /sw/bin/gfortran
+
+# Options for the Fortran 77 compiler to produce the optimized library:
+# ---------------------------------------------------------------------
+F77FLAGS = -ffixed-form -ffixed-line-length-none -O2 -framework vecLib
+
+# Options for the Fortran 77 compiler to produce the library for debugging:
+# ------------------------------------------------------------------------
+F77FLAGS_G = -ffixed-form -ffixed-line-length-none -g -framework vecLib
+
+#===============================#
+#           MAKEDEPEND	        #
+#===============================#
+
+# First line uses the C precompiler (usually called cpp)
+# if yours does not support the -M option try to figure out
+# how to output dependencies file, or use makedepend (2nd line)
+#--------------------------------------------------------------
+#MAKEDEPEND = cpp $(INC) -M >> $(df).d $<
+MAKEDEPEND = touch $(df).d && makedepend $(INC) -f $(df).d $<
+DEPDIR = .deps
+
+#===============================#
+#      SYSTEM LIBRARIES		#
+#===============================#
+
+# FFT library :   FFT991 in Fortran coming with Lorene
+#		  FFTW3 library (must be installed separately)
+# ---------------------------------------------------------------
+FFT_DIR = FFTW3
+
+# C, C++ library, mathematical library and Fortran library
+# ---------------------------------------------------------
+ifeq ($(FFT_DIR),FFTW3)
+LIB_CXX = -L/sw/lib -L/sw/lib/gcc4.2/lib -lfftw3 -lgfortran -lstdc++ -lm
+else
+LIB_CXX = -L/sw/lib/gcc4.2/lib -lgfortran -lstdc++ -lm
+endif
+
+# Linear Algebra Package (LAPACK) library 
+#   (Using the libraries included in the Developer Tools)
+# ---------------------------------------
+LIB_LAPACK = \
+  -L/System/Library/Frameworks/vecLib.framework/Versions/Current \
+  -llapack -lblas
+
+# Graphical libraries: PGPLOT and X11 (Aquaterm)
+#   (1) pgplot is installed in /sw/lib
+#   (2) Requires the following option to adjust pgplot
+#       -framework Foundation -framework AppKit -laquaterm
+# -----------------------------------
+LIB_PGPLOT = -L/usr/X11R6/lib -L/sw/lib -L/sw/lib/pgplot \
+             -lcpgplot -lpgplot -lpng -lX11 -framework Foundation \
+             -framework AppKit -laquaterm -lg95
+
+# GNU scientific library
+#   (1) gsl is installed in /sw/lib
+# -----------------------------------
+LIB_GSL = -L/sw/lib -lgsl -lgslcblas
