@@ -89,6 +89,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2007/06/16 22:19:23  m_saijo
+ * Add the case __i386__ for supporting Intel Mac.
+ *
  * Revision 1.3  2003/02/05 13:51:40  e_gourgoulhon
  * Added the case __ppc__ for MacOS X.
  *
@@ -144,7 +147,12 @@
 #include <math.h>
 #define __infinity INFINITY
 #else
+#ifdef __i386__
+#include <math.h>
+#define __infinity INFINITY
+#else
 extern double __infinity ;
+#endif
 #endif
 #endif
 #endif
