@@ -34,6 +34,9 @@ char star_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2007/06/21 19:53:47  k_taniguchi
+ * Addition of p_ray_eq_3pis2
+ *
  * Revision 1.15  2005/09/14 12:30:52  f_limousin
  * Saving of fields lnq and logn in class Star.
  *
@@ -282,6 +285,7 @@ void Star::del_deriv() const {
     if (p_ray_eq != 0x0) delete p_ray_eq ; 
     if (p_ray_eq_pis2 != 0x0) delete p_ray_eq_pis2 ; 
     if (p_ray_eq_pi != 0x0) delete p_ray_eq_pi ; 
+    if (p_ray_eq_3pis2 != 0x0) delete p_ray_eq_3pis2 ;
     if (p_ray_pole != 0x0) delete p_ray_pole ; 
     if (p_l_surf != 0x0) delete p_l_surf ; 
     if (p_xi_surf != 0x0) delete p_xi_surf ; 
@@ -299,6 +303,7 @@ void Star::set_der_0x0() const {
     p_ray_eq = 0x0 ; 
     p_ray_eq_pis2 = 0x0 ; 
     p_ray_eq_pi = 0x0 ; 
+    p_ray_eq_3pis2 = 0x0 ;
     p_ray_pole = 0x0 ; 
     p_l_surf = 0x0 ; 
     p_xi_surf = 0x0 ; 
