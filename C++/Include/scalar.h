@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.80  2007/06/21 19:56:36  k_taniguchi
+ * Introduction of another filtre_r.
+ *
  * Revision 1.79  2007/05/06 10:48:08  p_grandclement
  * Modification of a few operators for the vorton project
  *
@@ -891,6 +894,11 @@ class Scalar : public Tensor {
    *  domains.
    */
   void filtre_r (int* nn) ;
+
+  /**
+   * Sets the \c n  last coefficients in \e r  to 0 in the domain \c nzone .
+   */
+  void filtre_r (int n, int nzone) ;
 
   /**
    * Sets all the multipolar components between \c l_min and \c l_max
