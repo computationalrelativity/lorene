@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2007/06/21 19:48:25  k_taniguchi
+ * Introduction of a method to compute ray_eq_3pis2.
+ *
  * Revision 1.22  2006/05/31 09:25:47  f_limousin
  * Modif. of the size of the different domains
  *
@@ -212,6 +215,9 @@ class Star {
 	/// Coordinate radius at \f$\phi=\pi\f$, \f$\theta=\pi/2\f$. 
 	mutable double* p_ray_eq_pi ;
 	
+	/// Coordinate radius at \f$\phi=3\pi/2\f$, \f$\theta=\pi/2\f$. 
+	mutable double* p_ray_eq_3pis2 ;
+
 	/// Coordinate radius at \f$\theta=0\f$. 
 	mutable double* p_ray_pole ;
 	
@@ -389,6 +395,9 @@ class Star {
 	/// Coordinate radius at \f$\phi=\pi\f$, \f$\theta=\pi/2\f$ [r_unit].
 	double ray_eq_pi() const ; 
 	
+	/// Coordinate radius at \f$\phi=3\pi/2\f$, \f$\theta=\pi/2\f$ [r_unit].
+	double ray_eq_3pis2() const ;
+
 	/// Coordinate radius at \f$\theta=0\f$ [r_unit]. 
 	double ray_pole() const ; 
     
