@@ -27,6 +27,9 @@ char scalar_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2007/06/21 20:00:00  k_taniguchi
+ * Addition of the method filtre_r (int n, int nz)
+ *
  * Revision 1.12  2006/06/28 07:46:41  j_novak
  * Better treatment in the case of a domain set to zero.
  *
@@ -184,6 +187,37 @@ void Scalar::filtre_r (int* nn) {
 	    va.c = 0x0 ;
 	}
     
+}
+
+
+/*
+ * Annule les n derniers coefficients en r dans zone nz
+ */
+
+void Scalar::filtre_r (int n, int nz) {
+    assert (etat != ETATNONDEF) ;
+    if ( (etat == ETATZERO) || (etat == ETATUN) )
+	return ;
+    
+    del_deriv() ;
+    
+    va.coef() ;
+    va.set_etat_cf_qcq() ;
+    int nr = mp->get_mg()->get_nr(nz) ; 
+    int nt = mp->get_mg()->get_nt(nz) ; 
+    int np = mp->get_mg()->get_np(nz) ; 
+
+    for (int k=0 ; k<np+1 ; k++)
+        if (k!=1)
+	    for (int j=0 ; j<nt ; j++)
+	        for (int i=nr-1; i>nr-1-n ; i--)
+		    va.c_cf->set(nz, k, j, i) = 0 ;
+
+    if (va.c != 0x0) {
+        delete va.c ;
+	va.c = 0x0 ;
+    }
+
 }
 
 
