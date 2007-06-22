@@ -1,0 +1,23 @@
+SHELL=/bin/sh
+
+include $(HOME_LORENE)/local_settings		  # defines which compiler,...
+df = $(DEPDIR)/$(*F)
+
+include List_obj 		# defines OBJ as the list of object files
+
+LIB	  = $(HOME_LORENE)/Lib
+
+$(LIB)/date_mark : $(OBJ)
+	ar -rv $(LIB)/liblorene_g.a  $?
+	$(RANLIB) $(LIB)/liblorene_g.a
+	
+%.o: %.C
+	@$(MAKEDEPEND); \
+	cp $(df).d $(df).P; \
+	sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
+	-e '/^$$/ d' -e 's/$$/ :/' < $(df).d >> $(df).P; \
+	rm -f $(df).d
+	$(CXX) -c $(CXXFLAGS_G) $(INC) $<
+
+-include $(OBJ:%.o=$(DEPDIR)/%.P)
+
