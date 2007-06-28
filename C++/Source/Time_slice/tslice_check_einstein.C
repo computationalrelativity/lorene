@@ -30,6 +30,9 @@ char tslice_check_einstein_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2007/06/28 14:40:36  j_novak
+ * Dynamical check: the fields in the last domain are set to zero to avoid dzpuis problems
+ *
  * Revision 1.4  2004/05/12 15:24:20  e_gourgoulhon
  * Reorganized the #include 's, taking into account that
  * time_slice.h contains now an #include "metric.h".
@@ -129,8 +132,10 @@ Tbl Time_slice::check_dynamical_equations(const Sym_tensor* strain_tensor,
 
   bool vacuum = ( ( strain_tensor == 0x0 ) && ( energy_density == 0x0 ) ) ;
 
-  Sym_tensor dyn_lhs = k_dd_evol.time_derive(jtime, scheme_order) 
-    - k_dd().derive_lie(beta()) ;
+  Sym_tensor dyn_lhs = k_dd_evol.time_derive(jtime, scheme_order) ;
+  int nz = dyn_lhs.get_mp().get_mg()->get_nzone() ;
+  dyn_lhs.annule_domain(nz-1) ;
+  dyn_lhs = dyn_lhs - k_dd().derive_lie(beta()) ;
   
   const Sym_tensor* matter ;
   if (vacuum) 
@@ -159,9 +164,11 @@ Tbl Time_slice::check_dynamical_equations(const Sym_tensor* strain_tensor,
     if (new_s) delete sij ;
   }
 
-  Sym_tensor dyn_rhs = nn()*( (gam().ricci() + trk()*k_dd() + qpig * (*matter))
-			      - 2*contract(k_dd(), 1, k_dd().up(0, gam()), 0) )
-    - nn().derive_cov(gam()).derive_cov(gam()) ;
+  Sym_tensor dyn_rhs = nn()*( (gam().ricci() + trk()*k_dd() + qpig * (*matter))) ;
+  dyn_rhs.annule_domain(nz-1) ;
+  dyn_rhs = dyn_rhs - 2*nn()*contract(k_dd(), 1, k_dd().up(0, gam()), 0)  ;
+  dyn_rhs.annule_domain(nz-1) ;
+  dyn_rhs = dyn_rhs - nn().derive_cov(gam()).derive_cov(gam()) ;
     
   cout << endl ;
 
