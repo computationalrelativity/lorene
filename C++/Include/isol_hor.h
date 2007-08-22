@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.53  2007/08/22 16:10:37  f_limousin
+ * Correction of many errors in binhor_hh.C
+ *
  * Revision 1.52  2007/04/13 15:29:44  f_limousin
  * Lots of improvements, generalisation to an arbitrary state of
  * rotation, implementation of the spatial metric given by Samaya.
@@ -1588,18 +1591,18 @@ class Bin_hor {
 	   * Calculation of the hole1 part  of the Post-Newtonian 
 	   * correction to \f$h^{ij}\f$
 	   */
-	  Sym_tensor hh_Nissanke_hole1 () ;
+	  Sym_tensor hh_Samaya_hole1() ;
 	  
 	  /**
 	   * Calculation of the hole2 part  of the Post-Newtonian 
 	   * correction to \f$h^{ij}\f$
 	   */
-	  Sym_tensor hh_Nissanke_hole2 () ;
+	  Sym_tensor hh_Samaya_hole2() ;
 
 	  /**
 	   * Calculation of the Post-Newtonian  correction to \f$h^{ij}\f$
 	   */
-	  void set_hh_Nissanke () ;
+	  void set_hh_Samaya() ;
 
 
 
