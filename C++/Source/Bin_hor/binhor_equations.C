@@ -26,6 +26,9 @@ char binhor_equations_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2007/08/22 16:12:33  f_limousin
+ * Changed the name of the function computing \tilde{\gamma}_{ij}
+ *
  * Revision 1.17  2007/04/13 15:28:55  f_limousin
  * Lots of improvements, generalisation to an arbitrary state of
  * rotation, implementation of the spatial metric given by Samaya.
@@ -140,7 +143,7 @@ void Bin_hor::solve_lapse (double precision, double relax, int bound_nn,
 		    .derive_con(hole1.ff), 0)/hole1.psi ;
     */
     
-    source_un += hole1.get_psi4()*( hole1.nn*( aa_quad_un + 0.3333333333333333 * 
+    source_un = hole1.get_psi4()*( hole1.nn*( aa_quad_un + 0.3333333333333333 * 
 					    hole1.trK*hole1.trK*hole1.decouple)
 			       - hole1.trK_point*hole1.decouple )     
 
@@ -152,6 +155,7 @@ void Bin_hor::solve_lapse (double precision, double relax, int bound_nn,
 
     - contract(hdirac1, 0, hole1.n_auto.derive_cov(hole1.ff), 0) ; 
 
+
     Scalar tmp_un (hole1.mp) ;
     
     tmp_un = hole1.get_psi4()* contract(hole1.beta_auto, 0, hole1.trK.
@@ -160,10 +164,9 @@ void Bin_hor::solve_lapse (double precision, double relax, int bound_nn,
 		    .derive_cov(hole1.ff), 0, 1 ) ;
         
     tmp_un.inc_dzpuis() ; // dzpuis: 3 -> 4
-  	   
+
     source_un += tmp_un ;
-//    source_un.std_spectral_base() ;
-    
+
 
     // Source 2
     // ---------
@@ -199,7 +202,6 @@ void Bin_hor::solve_lapse (double precision, double relax, int bound_nn,
     tmp_deux.inc_dzpuis() ; // dzpuis: 3 -> 4
   	   
     source_deux += tmp_deux ;
-//    source_deux.std_spectral_base() ;
     
     cout << "source lapse" << endl << norme(source_un) << endl ;
 
@@ -430,7 +432,7 @@ void Bin_hor::solve_psi (double precision, double relax, int bound_psi) {
     hole1.set_der_0x0() ;
     hole2.set_der_0x0() ;
 
-    set_hh_Nissanke() ;
+    set_hh_Samaya() ;
 
 }
 
