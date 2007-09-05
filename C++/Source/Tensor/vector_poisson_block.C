@@ -30,6 +30,11 @@ char vector_poisson_block_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2007/09/05 12:35:18  j_novak
+ * Homogeneous solutions are no longer obtained through the analytic formula, but
+ * by solving (again) the operator system with almost zero as r.h.s. This is to
+ * lower the condition number of the matching system.
+ *
  * Revision 1.4  2007/01/23 17:08:46  j_novak
  * New function pois_vect_r0.C to solve the l=0 part of the vector Poisson
  * equation, which involves only the r-component.
@@ -56,6 +61,7 @@ char vector_poisson_block_C[] = "$Header$" ;
 #include "diff.h"
 #include "param_elliptic.h"
 #include "proto.h"
+#include "graphique.h"
 
 void Vector::poisson_block(double lam, Vector& resu) const {
 
@@ -110,10 +116,14 @@ void Vector::poisson_block(double lam, Vector& resu) const {
   const Base_val& base = S_eta.get_spectral_va().base ;
   Mtbl_cf sol_part_eta(mg, base) ; sol_part_eta.annule_hard() ;
   Mtbl_cf sol_part_vr(mg, base) ; sol_part_vr.annule_hard() ;
-  Mtbl_cf solution_hom_un(mg, base) ; solution_hom_un.annule_hard() ;
-  Mtbl_cf solution_hom_deux(mg, base) ; solution_hom_deux.annule_hard() ;
-  Mtbl_cf solution_hom_trois(mg, base) ; solution_hom_trois.annule_hard() ;
-  Mtbl_cf solution_hom_quatre(mg, base) ; solution_hom_quatre.annule_hard() ;
+  Mtbl_cf sol_hom_un_eta(mg, base) ; sol_hom_un_eta.annule_hard() ;
+  Mtbl_cf sol_hom_deux_eta(mg, base) ; sol_hom_deux_eta.annule_hard() ;
+  Mtbl_cf sol_hom_trois_eta(mg, base) ; sol_hom_trois_eta.annule_hard() ;
+  Mtbl_cf sol_hom_quatre_eta(mg, base) ; sol_hom_quatre_eta.annule_hard() ;
+  Mtbl_cf sol_hom_un_vr(mg, base) ; sol_hom_un_vr.annule_hard() ;
+  Mtbl_cf sol_hom_deux_vr(mg, base) ; sol_hom_deux_vr.annule_hard() ;
+  Mtbl_cf sol_hom_trois_vr(mg, base) ; sol_hom_trois_vr.annule_hard() ;
+  Mtbl_cf sol_hom_quatre_vr(mg, base) ; sol_hom_quatre_vr.annule_hard() ;
  
   // Solution of the l=0 part for Vr
   //---------------------------------
@@ -141,7 +151,7 @@ void Vector::poisson_block(double lam, Vector& resu) const {
 	  if ( (nullite_plm(j, nt, k, np, base) == 1) && (l_q > 0) ) {
 	      int aa = 0 ; int bb = 0 ;  int nr0 = 0 ;
 	      if (base_r == R_CHEBP) {
-		  nr0 = nr-1 ;
+		  nr0 = nr - 1 ;
 		  aa = 0 ; bb = 1 ;
 	      }
 	      else {
@@ -202,7 +212,7 @@ void Vector::poisson_block(double lam, Vector& resu) const {
 		      op2.set(i,col+nr0) = (aa*col+bb)*oper(i,col+nr+1)
 			  + (aa*(col+1)+bb)*oper(i,col+nr) ;
 	      }
-
+	      
 	      for (int i=nr0; i<nrtot; i++) {
 		  for (int col=0; col<nr0;col++) 
 		      op2.set(i,col) = (aa*col+bb)*oper(i+d0,col+1) 
@@ -211,55 +221,96 @@ void Vector::poisson_block(double lam, Vector& resu) const {
 		      op2.set(i,col+nr0) = (aa*col+bb)*oper(i+d0,col+nr+1)
 			  + (aa*(col+1)+bb)*oper(i+d0,col+nr) ;
 	      }
- 	      op2.set_lu() ;
+	      op2.set_lu() ;
 
-	      // Filling the r.h.s
-	      //------------------
-	      for (int i=0; i<nr0; i++)  //eq.1
-		  sec_membre.set(i) = (*S_eta.get_spectral_va().c_cf)(0, k, j, i) ;
-	      if (!pb_eta) sec_membre.set(nr0-1) = 0 ;
-	      for (int i=0; i<nr0; i++) //eq.2
-		  sec_membre.set(i+nr0) 
-		      = (*S_r.get_spectral_va().c_cf)(0, k, j, i) ;
-	      if ((l_q > 2)||pb_eta) sec_membre.set(nrtot-1) = 0 ;
+ 	      // Filling the r.h.s
+ 	      //------------------
+ 	      for (int i=0; i<nr0; i++)  //eq.1
+ 		  sec_membre.set(i) = (*S_eta.get_spectral_va().c_cf)(0, k, j, i) ;
+ 	      if (!pb_eta) sec_membre.set(nr0-1) = 0 ;
+ 	      for (int i=0; i<nr0; i++) //eq.2
+ 		  sec_membre.set(i+nr0) 
+ 		      = (*S_r.get_spectral_va().c_cf)(0, k, j, i) ;
+ 	      if ((l_q > 2)||pb_eta) sec_membre.set(nrtot-1) = 0 ;
 
-	      // Inversion of the "big" operator
-	      //--------------------------------
-	      Tbl big_res = op2.inverse(sec_membre) ;
-	      Tbl res_eta(nr) ;	 res_eta.set_etat_qcq() ;
-	      Tbl res_vr(nr) ;  res_vr.set_etat_qcq() ;
+ 	      // Inversion of the "big" operator
+ 	      //--------------------------------
+ 	      Tbl big_res = op2.inverse(sec_membre) ;
 	      
-	      // Putting coefficients of eta and Vr to individual arrays
-	      //--------------------------------------------------------
-	      res_eta.set(0) = (aa+bb)*big_res(0) ;
+ 	      // Putting coefficients of eta and Vr to individual arrays
+ 	      //--------------------------------------------------------
+ 	      sol_part_eta.set(0, k, j, 0) = (aa+bb)*big_res(0) ;
 	      for (int i=1; i<nr0; i++)
-		  res_eta.set(i) = (aa*(i-1)+bb)*big_res(i-1) 
+		  sol_part_eta.set(0, k, j, i) = (aa*(i-1)+bb)*big_res(i-1) 
 		      + (aa*(i+1)+bb)*big_res(i);
-	      res_eta.set(nr0) = big_res(nr0-1)*(aa*(nr0-1) + bb) ;
-	      res_vr.set(0) = (aa+bb)*big_res(nr0) ;
+	      sol_part_eta.set(0, k, j, nr0) = big_res(nr0-1)*(aa*(nr0-1) + bb) ;
+	      sol_part_vr.set(0, k, j, 0) = (aa+bb)*big_res(nr0) ;
 	      for (int i=1; i<nr0; i++)
-		  res_vr.set(i) = (aa*(i-1)+bb)*big_res(nr0+i-1) 
+		  sol_part_vr.set(0, k, j, i) = (aa*(i-1)+bb)*big_res(nr0+i-1) 
 		      + (aa*(i+1)+bb)*big_res(nr0+i);
-	      res_vr.set(nr0) = big_res(nrtot-1)*(aa*(nr0-1)+bb) ;
+	      sol_part_vr.set(0, k, j, nr0) = big_res(nrtot-1)*(aa*(nr0-1)+bb) ;
 	      if (base_r == R_CHEBI) {
-		  res_eta.set(nr-1) = 0 ;
-		  res_vr.set(nr-1) = 0 ;
+		  sol_part_eta.set(0, k, j, nr-1) = 0 ;
+		  sol_part_vr.set(0, k, j, nr-1) = 0 ;
 	      }
 
-	      // Homogeneous solution (only r^(l-1) and r^(l+1) in the nucleus)
-	      Tbl sol_hom1 = solh(nr, l_q-1, 0., base_r) ;
-	      Tbl sol_hom2 = solh(nr, l_q+1, 0., base_r) ;
-	      for (int i=0 ; i<nr ; i++) {
-		  sol_part_eta.set(0, k, j, i) = res_eta(i) ;
-		  sol_part_vr.set(0, k, j, i) = res_vr(i) ;
-		  solution_hom_un.set(0, k, j, i) = sol_hom1(i) ;
-		  solution_hom_deux.set(0, k, j, i) = 0. ; 
-		  solution_hom_trois.set(0, k, j, i) = sol_hom2(i) ; 
-		  solution_hom_quatre.set(0, k, j, i) = 0. ; 
+ 	      // Homogeneous solutions (only r^(l-1) and r^(l+1) in the nucleus)
+	      if (l_q<=2) {
+		  double fac_eta = lam*double(l_q+3) + 2. ;
+		  double fac_vr = double(l_q+1)*(lam*l_q - 2.) ;
+		  Tbl sol_hom1 = solh(nr, l_q-1, 0., base_r) ;
+		  Tbl sol_hom2 = solh(nr, l_q+1, 0., base_r) ;
+		  for (int i=0 ; i<nr ; i++) {
+		      sol_hom_un_eta.set(0, k, j, i) = sol_hom1(i) ;
+		      sol_hom_un_vr.set(0, k, j, i) = l_q*sol_hom1(i) ;
+		      sol_hom_trois_eta.set(0, k, j, i) = fac_eta*sol_hom2(i) ; 
+		      sol_hom_trois_vr.set(0, k, j, i) = fac_vr*sol_hom2(i) ; 
+		  }
+	      }
+	      else {
+		  for (int i=0; i<nrtot; i++) sec_membre.set(i) = 0 ;
+		  // First homogeneous sol.
+		  sec_membre.set(nr0-1) = 1 ;
+		  big_res = op2.inverse(sec_membre) ;
+
+		  sol_hom_un_eta.set(0, k, j, 0) = (aa+bb)*big_res(0) ;
+		  for (int i=1; i<nr0; i++)
+		      sol_hom_un_eta.set(0, k, j, i) = (aa*(i-1)+bb)*big_res(i-1) 
+			  + (aa*(i+1)+bb)*big_res(i);
+		  sol_hom_un_eta.set(0, k, j, nr0) = big_res(nr0-1)*(aa*(nr0-1) + bb) ;
+		  sol_hom_un_vr.set(0, k, j, 0) = (aa+bb)*big_res(nr0) ;
+		  for (int i=1; i<nr0; i++)
+		      sol_hom_un_vr.set(0, k, j, i) = (aa*(i-1)+bb)*big_res(nr0+i-1) 
+			  + (aa*(i+1)+bb)*big_res(nr0+i);
+		  sol_hom_un_vr.set(0, k, j, nr0) = big_res(nrtot-1)*(aa*(nr0-1)+bb) ;
+		  if (base_r == R_CHEBI) {
+		      sol_hom_un_eta.set(0, k, j, nr-1) = 0 ;
+		      sol_hom_un_vr.set(0, k, j, nr-1) = 0 ;
+		  }
+
+		  sec_membre.set(nr0-1) = 0 ;
+		  sec_membre.set(nrtot-1) = 1 ;
+		  big_res = op2.inverse(sec_membre) ;
+
+		  sol_hom_trois_eta.set(0, k, j, 0) = (aa+bb)*big_res(0) ;
+		  for (int i=1; i<nr0; i++)
+		      sol_hom_trois_eta.set(0, k, j, i) = (aa*(i-1)+bb)*big_res(i-1) 
+			  + (aa*(i+1)+bb)*big_res(i);
+		  sol_hom_trois_eta.set(0, k, j, nr0) = big_res(nr0-1)*(aa*(nr0-1)+bb) ;
+		  sol_hom_trois_vr.set(0, k, j, 0) = (aa+bb)*big_res(nr0) ;
+		  for (int i=1; i<nr0; i++)
+		      sol_hom_trois_vr.set(0, k, j, i) = (aa*(i-1)+bb)*big_res(nr0+i-1) 
+			  + (aa*(i+1)+bb)*big_res(nr0+i);
+		  sol_hom_trois_vr.set(0, k, j, nr0) = big_res(nrtot-1)*(aa*(nr0-1)+bb) ;
+		  if (base_r == R_CHEBI) {
+		      sol_hom_trois_eta.set(0, k, j, nr-1) = 0 ;
+		      sol_hom_trois_vr.set(0, k, j, nr-1) = 0 ;
+		  }
+		  
 	      }
 	  }
       }
-  }	    
+  }    
 
 
   // Shells
@@ -283,7 +334,7 @@ void Vector::poisson_block(double lam, Vector& resu) const {
 	      int dege2 = 2 ;  //degeneracy of eq.2
 	      int nr_eq1 = nr - dege1 ; //Eq.1 is for eta
 	      int nr_eq2 = nr - dege2 ; //Eq.2 is for V^r
-	      int nrtot = nr_eq1 + nr_eq2 ;
+	      int nrtot = 2*nr ;
 	      Matrice oper(nrtot, nrtot) ; oper.set_etat_qcq() ;
 	      Tbl sec_membre(nrtot) ; sec_membre.set_etat_qcq() ;
 	      Diff_x2dsdx2 x2d2(base_r, nr); const Matrice& m2d2 = x2d2.get_matrice() ;
@@ -296,27 +347,46 @@ void Vector::poisson_block(double lam, Vector& resu) const {
 	      // Building the operator
 	      //----------------------
 	      for (int lin=0; lin<nr_eq1; lin++) { 
-		  for (int col=dege1; col<nr; col++) 
-		      oper.set(lin,col-dege1) 
+		  for (int col=0; col<nr; col++) 
+		      oper.set(lin,col) 
 			  = m2d2(lin,col) + 2*ech*mxd2(lin,col) + ech*ech*md2(lin,col) 
 			  + 2*(mxd(lin,col) + ech*md(lin,col)) 
 			  - (lam+1)*l_q*(l_q+1)*mid(lin,col) ;
-		  for (int col=dege2; col<nr; col++) 
-		      oper.set(lin,col-dege2+nr_eq1) 
-			  = lam*(mxd(lin,col) + ech*md(lin,col)) + 2*(1+lam)*mid(lin,col) ; 
+		  for (int col=0; col<nr; col++) 
+		      oper.set(lin,col+nr) 
+			  = lam*(mxd(lin,col) + ech*md(lin,col)) 
+			  + 2*(1+lam)*mid(lin,col) ; 
 	      }
+	      oper.set(nr_eq1, 0) = 1 ;
+	      for (int col=1; col<2*nr; col++) 
+		  oper.set(nr_eq1, col) = 0 ;
+	      oper.set(nr_eq1+1, 0) = 0 ;
+	      oper.set(nr_eq1+1, 1) = 1 ;
+	      for (int col=2; col<2*nr; col++) 
+		  oper.set(nr_eq1+1, col) = 0 ;
 	      for (int lin=0; lin<nr_eq2; lin++) {
-		  for (int col=dege1; col<nr; col++)
-		      oper.set(lin+nr_eq1,col-dege1) 
+		  for (int col=0; col<nr; col++)
+		      oper.set(lin+nr,col) 
 			  = -l_q*(l_q+1)*(lam*(mxd(lin,col) + ech*md(lin,col))
 					  - (lam+2)*mid(lin,col)) ;
-		  for (int col=dege2; col<nr; col++)
-		      oper.set(lin+nr_eq1, col-dege2+nr_eq1) 
+		  for (int col=0; col<nr; col++)
+		      oper.set(lin+nr, col+nr) 
 			  = (lam+1)*(m2d2(lin,col) + 2*ech*mxd2(lin,col) 
 				     + ech*ech*md2(lin,col) 
 				     + 2*(mxd(lin,col) + ech*md(lin,col)))
-			  -(2*(lam+1)+l_q*(l_q+1))*mid(lin,col) ;
+			  -(2*(lam+1)+l_q*(l_q+1))*mid(lin,col) ;		  
 	      }
+	      for (int col=0; col<nr; col++) 
+		  oper.set(nr+nr_eq2, col) = 0 ;
+	      oper.set(nr+nr_eq2, nr) = 1 ;
+	      for (int col=nr+1; col<2*nr; col++) 
+		  oper.set(nr+nr_eq2, col) = 0 ;
+	      for (int col=0; col<nr+1; col++) 
+		  oper.set(nr+nr_eq2+1, col) = 0 ;
+	      oper.set(nr+nr_eq2+1, nr+1) = 1 ;
+	      for (int col=nr+2; col<2*nr; col++) 
+		  oper.set(nr+nr_eq2+1, col) = 0 ;
+
 	      oper.set_lu() ;
 	      
 	      // Filling the r.h.s
@@ -335,38 +405,53 @@ void Vector::poisson_block(double lam, Vector& resu) const {
 	      for (int i=0; i<nr_eq1; i++) 
 		  sec_membre.set(i) = alpha*(alpha*x2seta(i) + 2*beta*xseta(i))
 		      + beta*beta*seta(i);
+	      sec_membre.set(nr_eq1) = 0 ;
+	      sec_membre.set(nr_eq1+1) = 0 ;
 	      for (int i=0; i<nr_eq2; i++)
-		  sec_membre.set(i+nr_eq1) = beta*beta*sr(i) 
+		  sec_membre.set(i+nr) = beta*beta*sr(i) 
 		      + alpha*(alpha*x2sr(i) + 2*beta*xsr(i)) ;
+	      sec_membre.set(nr+nr_eq2) = 0 ;
+	      sec_membre.set(nr+nr_eq2+1) = 0 ;
 
 	      // Inversion of the "big" operator
 	      //--------------------------------
 	      Tbl big_res = oper.inverse(sec_membre) ;
-	      Tbl res_eta(nr) ;	 res_eta.set_etat_qcq() ;
-	      Tbl res_vr(nr) ;  res_vr.set_etat_qcq() ;
-		  
-	      // Putting coefficients of h and v to individual arrays
-	      //-----------------------------------------------------
-	      for (int i=0; i<dege1; i++)
-		  res_eta.set(i) = 0 ;
-	      for (int i=dege1; i<nr; i++)
-		  res_eta.set(i) = big_res(i-dege1) ;
-	      for (int i=0; i<dege2; i++)
-		  res_vr.set(i) = 0 ;
-	      for (int i=dege2; i<nr; i++)
-		  res_vr.set(i) = big_res(i-dege2+nr_eq1) ;
-
-	      //homogeneous solutions
-	      Tbl sol_hom1 = solh(nr, l_q-1, ech, base_r) ;
-	      Tbl sol_hom2 = solh(nr, l_q+1, ech, base_r) ;
-	      for (int i=0 ; i<nr ; i++) {
-		  sol_part_eta.set(zone, k, j, i) = res_eta(i) ;
-		  sol_part_vr.set(zone, k, j, i) = res_vr(i) ;
-		  solution_hom_un.set(zone, k, j, i) = sol_hom1(0,i) ;
-		  solution_hom_deux.set(zone, k, j, i) = sol_hom2(1,i) ;
-		  solution_hom_trois.set(zone, k, j, i) = sol_hom2(0,i) ;
-		  solution_hom_quatre.set(zone, k, j, i) = sol_hom1(1,i) ;
+	      for (int i=0; i<nr; i++) {
+		  sol_part_eta.set(zone, k, j, i) = big_res(i) ;
+		  sol_part_vr.set(zone, k, j, i) = big_res(nr+i) ;		  
 	      }
+		  
+	      // Getting the homogeneous solutions
+	      //----------------------------------
+	      sec_membre.annule_hard() ;
+	      sec_membre.set(nr_eq1) = 1 ;
+	      big_res = oper.inverse(sec_membre) ;
+	      for (int i=0 ; i<nr ; i++) {
+		  sol_hom_un_eta.set(zone, k, j, i) = big_res(i) ;
+		  sol_hom_un_vr.set(zone, k, j, i) = big_res(nr+i) ;
+	      }
+	      sec_membre.set(nr_eq1) = 0 ;
+	      sec_membre.set(nr_eq1+1) = 1 ;
+	      big_res = oper.inverse(sec_membre) ;
+	      for (int i=0 ; i<nr ; i++) {
+		  sol_hom_deux_eta.set(zone, k, j, i) = big_res(i) ;
+		  sol_hom_deux_vr.set(zone, k, j, i) = big_res(nr+i) ;
+	      }
+	      sec_membre.set(nr_eq1+1) = 0 ;
+	      sec_membre.set(nr+nr_eq2) = 1 ;
+	      big_res = oper.inverse(sec_membre) ;
+	      for (int i=0 ; i<nr ; i++) {
+		  sol_hom_trois_eta.set(zone, k, j, i) = big_res(i) ;
+		  sol_hom_trois_vr.set(zone, k, j, i) = big_res(nr+i) ;
+	      }
+	      sec_membre.set(nr+nr_eq2) = 0 ;
+	      sec_membre.set(nr+nr_eq2+1) = 1 ;
+	      big_res = oper.inverse(sec_membre) ;
+	      for (int i=0 ; i<nr ; i++) {
+		  sol_hom_quatre_eta.set(zone, k, j, i) = big_res(i) ;
+		  sol_hom_quatre_vr.set(zone, k, j, i) = big_res(nr+i) ;
+	      }
+
 	  } 
       }
       }
@@ -379,7 +464,7 @@ void Vector::poisson_block(double lam, Vector& resu) const {
   assert(np == mg.get_np(nzm1)) ;
   alpha = mpaff->get_alpha()[nzm1] ; alp2 = alpha*alpha ;
   assert (nr > 4) ;
-
+  
   // Loop on l and m
   //----------------
   for (int k=0 ; k<np+1 ; k++) {
@@ -388,13 +473,9 @@ void Vector::poisson_block(double lam, Vector& resu) const {
 	  if ( (nullite_plm(j, nt, k, np, base) == 1) && (l_q != 0) ) {
 	      int dege1 = 3; //degeneracy of eq.1
 	      int dege2 = (l_q == 1 ? 2 : 3); //degeneracy of eq.2
-	      if ( fabs( lam*double(l_q+3) + 2 ) < 0.01) {
-		  dege1 = dege2 ;
-		  dege2 = 3 ;
-	      }
 	      int nr_eq1 = nr - dege1 ; //Eq.1 is for eta
 	      int nr_eq2 = nr - dege2 ; //Eq.2 is the div-free condition
-	      int nrtot = nr_eq1 + nr_eq2 ;
+	      int nrtot = 2*nr ;
 	      Matrice oper(nrtot, nrtot) ; oper.set_etat_qcq() ;
 	      Tbl sec_membre(nrtot) ; sec_membre.set_etat_qcq() ;
 	      Diff_dsdx2 d2(base_r, nr) ; const Matrice& md2 = d2.get_matrice() ;
@@ -404,22 +485,52 @@ void Vector::poisson_block(double lam, Vector& resu) const {
 	      // Building the operator
 	      //----------------------
 	      for (int lin=0; lin<nr_eq1; lin++) { 
-		  for (int col=dege1; col<nr; col++) 
-		      oper.set(lin,col-dege1) 
+		  for (int col=0; col<nr; col++) 
+		      oper.set(lin,col) 
 			  = (md2(lin,col) - (lam+1)*l_q*(l_q+1)*ms2(lin,col))/alp2 ;
-			  for (int col=dege2; col<nr; col++) 
-			      oper.set(lin,col-dege2+nr_eq1) = 
+			  for (int col=0; col<nr; col++) 
+			      oper.set(lin,col+nr) = 
 				  (-lam*mxd(lin,col) + 2*(1+lam)*ms2(lin,col)) / alp2 ;
 	      }
+	      for (int col=0; col<nr; col++)
+		  oper.set(nr_eq1, col) = 1 ;
+	      for (int col=nr; col<nrtot; col++)
+		  oper.set(nr_eq1, col) = 0 ;
+	      int pari = -1 ;
+	      for (int col=0; col<nr; col++) {
+		  oper.set(nr_eq1+1, col) = pari*col*col ;
+		  pari = pari ;
+	      }
+	      for (int col=nr; col<nrtot; col++)
+		  oper.set(nr_eq1+1, col) = 0 ;
+	      oper.set(nr_eq1+2, 0) = 1 ;
+	      for (int col=1; col<nrtot; col++)
+		  oper.set(nr_eq1+2, col) = 0 ;
 	      for (int lin=0; lin<nr_eq2; lin++) {
-		  for (int col=dege1; col<nr; col++)
-		      oper.set(lin+nr_eq1,col-dege1) 
-			  = (l_q*(l_q+1)*(lam*mxd(lin,col) 
-					  + (lam+2)*ms2(lin,col))) / alp2 ;
-		  for (int col=dege2; col<nr; col++)
-		      oper.set(lin+nr_eq1, col-dege2+nr_eq1) 
-			  = ((lam+1)*md2(lin,col) 
+		  for (int col=0; col<nr; col++)
+		      oper.set(lin+nr,col) = (l_q*(l_q+1)*(lam*mxd(lin,col) 
+			       + (lam+2)*ms2(lin,col))) / alp2 ;
+		  for (int col=0; col<nr; col++)
+		      oper.set(lin+nr, col+nr) = ((lam+1)*md2(lin,col) 
 			     - (2*(lam+1) + l_q*(l_q+1))*ms2(lin,col)) / alp2 ;
+	      }
+	      for (int col=0; col<nr; col++)
+		  oper.set(nr+nr_eq2, col) = 0 ;
+	      for (int col=nr; col<nrtot; col++)
+		  oper.set(nr+nr_eq2, col) = 1 ;
+	      for (int col=0; col<nr; col++)
+		  oper.set(nr+nr_eq2+1, col) = 0 ;
+	      pari = -1 ;
+	      for (int col=0; col<nr; col++) {
+		  oper.set(nr+nr_eq2+1, nr+col) = pari*col*col ;
+		  pari = pari ;
+	      }
+	      if (l_q > 1) {
+		  for (int col=0; col<nr; col++)
+		      oper.set(nr+nr_eq2+2, col) = 0 ;
+		  oper.set(nr+nr_eq2+2, nr) = 1 ;
+		  for (int col=nr+1; col<nrtot; col++)
+		      oper.set(nr+nr_eq2+2, col) = 0 ;
 	      }
 	      oper.set_lu() ;
 
@@ -427,52 +538,53 @@ void Vector::poisson_block(double lam, Vector& resu) const {
 	      //------------------
 	      for (int i=0; i<nr_eq1; i++) 
 		  sec_membre.set(i) = (*S_eta.get_spectral_va().c_cf)(nzm1, k, j, i) ;
+	      for (int i=nr_eq1; i<nr; i++)
+		  sec_membre.set(i) = 0 ;
 	      for (int i=0; i<nr_eq2; i++)
-		  sec_membre.set(i+nr_eq1) =(*S_r.get_spectral_va().c_cf)(nzm1, k, j, i);
+		  sec_membre.set(i+nr) =(*S_r.get_spectral_va().c_cf)(nzm1, k, j, i);
+	      for (int i=nr_eq2; i<nr; i++)
+		  sec_membre.set(nr+i) = 0 ;
 	      Tbl big_res = oper.inverse(sec_membre) ;
- 	      Tbl res_eta(nr) ;	 res_eta.set_etat_qcq() ;
- 	      Tbl res_vr(nr) ;  res_vr.set_etat_qcq() ;
 		  
 	      // Putting coefficients of h and v to individual arrays
 	      //-----------------------------------------------------
-	      for (int i=0; i<dege1; i++)
-		  res_eta.set(i) = 0 ;
-	      for (int i=dege1; i<nr; i++)
-		  res_eta.set(i) = big_res(i-dege1) ;
-	      for (int i=0; i<dege2; i++)
-		  res_vr.set(i) = 0 ;
-	      for (int i=dege2; i<nr; i++)
-		  res_vr.set(i) = big_res(i-dege2+nr_eq1) ;
-	      double somme = 0 ;
-	      for (int i=0 ; i<nr ; i++)
-		  somme += i*i*res_eta(i) ;
-	      double somme_deux = somme ;
-	      for (int i=0 ; i<nr ; i++)
-		  somme_deux -= res_eta(i) ;
-	      res_eta.set(1) = -somme ;
-	      res_eta.set(0) = somme_deux ;
-	      somme = 0 ;
-	      for (int i=0 ; i<nr ; i++)
-		  somme += i*i*res_vr(i) ;
-	      somme_deux = somme ;
-	      for (int i=0 ; i<nr ; i++)
-		  somme_deux -= res_vr(i) ;
-	      res_vr.set(1) = -somme ;
-	      res_vr.set(0) = somme_deux ;
-
-
-	      // Homogeneous solution (only 1/r^(l+2) and 1/r^l in the CED)
-	      Tbl sol_hom1 = solh(nr, l_q-1, 0., base_r) ;
-	      Tbl sol_hom2 = solh(nr, l_q+1, 0., base_r) ;
-	      for (int i=0 ; i<nr ; i++) {
-		  sol_part_eta.set(nzm1, k, j, i) = res_eta(i) ;
-		  sol_part_vr.set(nzm1, k, j, i) = res_vr(i) ;
-		  solution_hom_un.set(nzm1, k, j, i) = 0. ;
-		  solution_hom_deux.set(nzm1, k, j, i) = sol_hom2(i) ;
-		  solution_hom_trois.set(nzm1, k, j, i) = 0. ;
-		  solution_hom_quatre.set(nzm1, k, j, i) = sol_hom1(i) ;
+	      for (int i=0; i<nr; i++) {
+		  sol_part_eta.set(nzm1, k, j, i) = big_res(i) ;
+		  sol_part_vr.set(nzm1, k, j, i) = big_res(i+nr) ;
 	      }
-	  }	    
+
+	      // Homogeneous solutions (only 1/r^(l+2) and 1/r^l in the CED)
+	      //------------------------------------------------------------
+	      if (l_q == 1) {		  
+		  Tbl sol_hom1 = solh(nr, 0, 0., base_r) ;
+		  Tbl sol_hom2 = solh(nr, 2, 0., base_r) ;
+		  double fac_eta = lam + 2. ;
+		  double fac_vr = 2*lam + 2. ;
+		  for (int i=0 ; i<nr ; i++) {
+		      sol_hom_deux_eta.set(nzm1, k, j, i) = sol_hom2(i) ;
+		      sol_hom_quatre_eta.set(nzm1, k, j, i) = fac_eta*sol_hom1(i) ;
+		      sol_hom_deux_vr.set(nzm1, k, j, i) = -2*sol_hom2(i) ;
+		      sol_hom_quatre_vr.set(nzm1, k, j, i) = fac_vr*sol_hom1(i) ;
+		  }
+	      }
+	      else {
+		  sec_membre.annule_hard() ;
+		  sec_membre.set(nr-1) = 1 ;
+		  big_res = oper.inverse(sec_membre) ;
+
+		  for (int i=0; i<nr; i++) {
+		      sol_hom_deux_eta.set(nzm1, k, j, i) = big_res(i) ;
+		      sol_hom_deux_vr.set(nzm1, k, j, i) = big_res(nr+i) ;
+		  }
+		  sec_membre.set(nr-1) = 0 ;
+		  sec_membre.set(2*nr-1) = 1 ;
+		  big_res = oper.inverse(sec_membre) ;
+		  for (int i=0; i<nr; i++) {
+		      sol_hom_quatre_eta.set(nzm1, k, j, i) = big_res(i) ;
+		      sol_hom_quatre_vr.set(nzm1, k, j, i) = big_res(nr+i) ;
+		  }
+	      }
+	  } 
       }
   }
 
@@ -503,168 +615,160 @@ void Vector::poisson_block(double lam, Vector& resu) const {
 	  base.give_quant_numbers(0, k, j, m_q, l_q, base_r) ;
 	  if ((nullite_plm(j, nt, k, np, base) == 1)&&(l_q != 0)) {
 		
-	      double f3_eta = lam*double(l_q) + 3.*lam + 2. ;
-	      double f4_eta = 2. + 2.*lam - lam*double(l_q) ;
-	      double f3_vr = double(l_q+1)*(lam*double(l_q) - 2.) ;
-	      double f4_vr = double(l_q)*(lam*double(l_q) + lam + 2.) ;
 	      ligne = 0 ;
 	      colonne = 0 ;
+	      systeme.annule_hard() ;
 	      sec_membre.annule_hard() ;
-	      for (int l=0; l<taille; l++) 
-		  for (int c=0; c<taille; c++)
-		      systeme.set(l,c) = 0 ;
+
 	      //Nucleus 
 	      nr = mg.get_nr(0) ;
 	      alpha = mpaff->get_alpha()[0] ;
-	      // value of x^(l-1) at 1 ...
-	      systeme.set(ligne, colonne) = 1. ;
-	      // value of x^(l+1) at 1 ...
-	      systeme.set(ligne, colonne+1) = f3_eta ;
-	      for (int i=0 ; i<nr ; i++)
-		  sec_membre.set(ligne) -= sol_part_eta(0, k, j, i) ;
+	      // value of at x=1 of eta ...
+	      systeme.set(ligne, colonne) = sol_hom_un_eta.val_out_bound_jk(0, j, k) ;
+	      systeme.set(ligne, colonne+1) = sol_hom_trois_eta.val_out_bound_jk(0, j, k) ;
+	      sec_membre.set(ligne) = -sol_part_eta.val_out_bound_jk(0, j, k) ;
 	      ligne++ ;
 	      // ... and of its couterpart for V^r
-	      systeme.set(ligne, colonne) = l_q;
-	      systeme.set(ligne, colonne+1) = f3_vr ;
-	      for (int i=0; i<nr; i++)
-		  sec_membre.set(ligne) -= sol_part_vr(0,k,j,i) ; 
-	      ligne++ ; //derivatives
-	      // derivative of x^(l-1) at 1 ...
-	      systeme.set(ligne, colonne) = double(l_q-1)/alpha ;
-	      // derivative of x^(l+1) at 1 ...
-	      systeme.set(ligne, colonne+1) = f3_eta*double(l_q+1)/alpha ;
-	      if (base_r == R_CHEBP)
-		  for (int i=0 ; i<nr ; i++)
-		      sec_membre.set(ligne) -= 4*i*i/alpha * sol_part_eta(0, k, j, i) ;
-	      else
-		  for (int i=0 ; i<nr ; i++)
-		      sec_membre.set(ligne) -= 
-			  (2*i+1)*(2*i+1)/alpha * sol_part_eta(0, k, j, i) ;
+	      systeme.set(ligne, colonne) = sol_hom_un_vr.val_out_bound_jk(0, j, k) ;
+	      systeme.set(ligne, colonne+1) = sol_hom_trois_vr.val_out_bound_jk(0, j, k) ;
+	      sec_membre.set(ligne) = -sol_part_vr.val_out_bound_jk(0,j,k) ; 
+	      ligne++ ; 
+
+              //derivatives
+	      int pari = (base_r == R_CHEBP ? 0 : 1) ;
+	      for (int i=0; i<nr; i++) {
+		  systeme.set(ligne, colonne) 
+		      += (2*i+pari)*(2*i+pari)*sol_hom_un_eta(0, k, j, i)/alpha ;
+		  systeme.set(ligne, colonne+1) 
+		      += (2*i+pari)*(2*i+pari)*sol_hom_trois_eta(0, k, j, i)/alpha ;
+		  sec_membre.set(ligne) 
+		      -= (2*i+pari)*(2*i+pari)* sol_part_eta(0, k, j, i)/alpha ;
+	      }
 	      ligne++ ;
 	      // ... and of its couterpart for V^r
-	      systeme.set(ligne, colonne) = l_q*double(l_q-1)/alpha ;
-	      systeme.set(ligne, colonne+1) = f3_vr*double(l_q+1)/alpha ;
-	      if (base_r == R_CHEBP)
-		  for (int i=0 ; i<nr ; i++)
-		      sec_membre.set(ligne) -= 4*i*i/alpha * sol_part_vr(0, k, j, i) ;
-	      else
-		  for (int i=0 ; i<nr ; i++)
-		      sec_membre.set(ligne) -= 
-			  (2*i+1)*(2*i+1)/alpha * sol_part_vr(0, k, j, i) ;
+	      for (int i=0; i<nr; i++) {
+		  systeme.set(ligne, colonne) 
+		      += (2*i+pari)*(2*i+pari)*sol_hom_un_vr(0, k, j, i)/alpha ;
+		  systeme.set(ligne, colonne+1) 
+		      += (2*i+pari)*(2*i+pari)*sol_hom_trois_vr(0, k, j, i)/alpha ;
+		  sec_membre.set(ligne) 
+		      -= (2*i+pari)*(2*i+pari)* sol_part_vr(0, k, j, i)/alpha ;
+	      }
 	      colonne += 2 ; 
 
       	      //shells
 	      for (int zone=1 ; zone<nzm1 ; zone++) {
 		  nr = mg.get_nr(zone) ;
 		  alpha = mpaff->get_alpha()[zone] ;
-		  double echelle = mpaff->get_beta()[zone]/alpha ;
 		  ligne -= 3 ;
-		  //value of (x+echelle)^(l-1) at -1 
-		  systeme.set(ligne, colonne) = -pow(echelle-1., double(l_q-1)) ;
-		  // value of 1/(x+echelle) ^(l+2) at -1 
-		  systeme.set(ligne, colonne+1) = -1/pow(echelle-1., double(l_q+2)) ;
-		  //value of (x+echelle)^(l+1) at -1 
-		  systeme.set(ligne, colonne+2) = -f3_eta*pow(echelle-1., double(l_q+1));
-		  // value of 1/(x+echelle) ^l at -1 
-		  systeme.set(ligne, colonne+3) = -f4_eta/pow(echelle-1., double(l_q)) ;
-		  for (int i=0 ; i<nr ; i++)
-		      if (i%2 == 0)
-			  sec_membre.set(ligne) += sol_part_eta(zone, k, j, i) ;
-		      else sec_membre.set(ligne) -= sol_part_eta(zone, k, j, i) ;
+		  systeme.set(ligne, colonne) 
+		      = -sol_hom_un_eta.val_in_bound_jk(zone, j, k)  ;
+		  systeme.set(ligne, colonne+1) 
+		      = -sol_hom_deux_eta.val_in_bound_jk(zone, j, k)  ;
+		  systeme.set(ligne, colonne+2) 
+		      = -sol_hom_trois_eta.val_in_bound_jk(zone, j, k)  ;
+		  systeme.set(ligne, colonne+3) 
+		      = -sol_hom_quatre_eta.val_in_bound_jk(zone, j, k)  ;
+		  sec_membre.set(ligne) += sol_part_eta.val_in_bound_jk(zone, j, k) ;
 		  ligne++ ;
 		  // ... and their couterparts for V^r
-		  systeme.set(ligne, colonne) = -l_q*pow(echelle-1., double(l_q-1)) ;
-		  systeme.set(ligne, colonne+1) = (l_q+1)/pow(echelle-1., double(l_q+2));
-		  systeme.set(ligne, colonne+2) = -f3_vr*pow(echelle-1., double(l_q+1)) ;
-		  systeme.set(ligne, colonne+3) = -f4_vr/pow(echelle-1., double(l_q));
- 		  for (int i=0 ; i<nr ; i++)
-		      if (i%2 == 0)
-			  sec_membre.set(ligne) += sol_part_vr(zone, k, j, i) ;
-		      else sec_membre.set(ligne) -= sol_part_vr(zone, k, j, i) ;
+		  systeme.set(ligne, colonne) 
+		      = -sol_hom_un_vr.val_in_bound_jk(zone, j, k)  ;
+		  systeme.set(ligne, colonne+1) 
+		      = -sol_hom_deux_vr.val_in_bound_jk(zone, j, k)  ;
+		  systeme.set(ligne, colonne+2) 
+		      = -sol_hom_trois_vr.val_in_bound_jk(zone, j, k)  ;
+		  systeme.set(ligne, colonne+3) 
+		      = -sol_hom_quatre_vr.val_in_bound_jk(zone, j, k)  ;
+		  sec_membre.set(ligne) += sol_part_vr.val_in_bound_jk(zone, j, k) ;
 		  ligne++ ;
 
 		  //derivative of (x+echelle)^(l-1) at -1 
-		  systeme.set(ligne, colonne) 
-		      = -(l_q-1)*pow(echelle-1., double(l_q-2))/alpha ;
-		  // derivative of 1/(x+echelle) ^(l+2) at -1 
-		  systeme.set(ligne, colonne+1) 
-		      = (l_q+2)/pow(echelle-1., double(l_q+3))/alpha ;
-		  // derivative of (x+echelle)^(l+1) at -1 
-		  systeme.set(ligne, colonne+2) 
-		      = -f3_eta*(l_q+1)*pow(echelle-1., double(l_q))/alpha;
-		  // derivative of 1/(x+echelle) ^l at -1 
-		  systeme.set(ligne, colonne+3) 
-		      = (f4_eta*l_q/pow(echelle-1., double(l_q+1)))/alpha ;
-		  for (int i=0 ; i<nr ; i++)
-		      if (i%2 == 0) sec_membre.set(ligne) 
-					-= i*i/alpha*sol_part_eta(zone, k, j, i) ;
-		      else sec_membre.set(ligne) +=
-			       i*i/alpha*sol_part_eta(zone, k, j, i) ;
+		  pari = -1 ;
+		  for (int i=0; i<nr; i++) {
+		      systeme.set(ligne, colonne) 
+			  -= pari*i*i*sol_hom_un_eta(zone, k, j, i)/alpha ;
+		      systeme.set(ligne, colonne+1) 
+			  -= pari*i*i*sol_hom_deux_eta(zone, k, j, i)/alpha ;
+		      systeme.set(ligne, colonne+2) 
+			  -= pari*i*i*sol_hom_trois_eta(zone, k, j, i)/alpha ;
+		      systeme.set(ligne, colonne+3) 
+			  -= pari*i*i*sol_hom_quatre_eta(zone, k, j, i)/alpha ;
+		      sec_membre.set(ligne) 
+			  += pari*i*i* sol_part_eta(zone, k, j, i)/alpha ;
+		      pari = -pari ;
+		  }
 		  ligne++ ;
 		  // ... and their couterparts for V^r
-		  systeme.set(ligne, colonne) 
-		      = -l_q*(l_q-1)*pow(echelle-1., double(l_q-2))/alpha ;
-		  systeme.set(ligne, colonne+1) 
-		      = -(l_q+1)*(l_q+2)/pow(echelle-1., double(l_q+3))/alpha ;
-		  systeme.set(ligne, colonne+2) 
-		      = -f3_vr*(l_q+1)*pow(echelle-1., double(l_q))/alpha ;
-		  systeme.set(ligne, colonne+3) 
-		      = (f4_vr*l_q/pow(echelle-1., double(l_q+1)))/alpha ;
-		  for (int i=0 ; i<nr ; i++)
-		      if (i%2 == 0) sec_membre.set(ligne) 
-					-= i*i/alpha*sol_part_vr(zone, k, j, i) ;
-		      else sec_membre.set(ligne) +=
-			       i*i/alpha*sol_part_vr(zone, k, j, i) ;
+		  pari = -1 ;
+		  for (int i=0; i<nr; i++) {
+		      systeme.set(ligne, colonne) 
+			  -= pari*i*i*sol_hom_un_vr(zone, k, j, i)/alpha ;
+		      systeme.set(ligne, colonne+1) 
+			  -= pari*i*i*sol_hom_deux_vr(zone, k, j, i)/alpha ;
+		      systeme.set(ligne, colonne+2) 
+			  -= pari*i*i*sol_hom_trois_vr(zone, k, j, i)/alpha ;
+		      systeme.set(ligne, colonne+3) 
+			  -= pari*i*i*sol_hom_quatre_vr(zone, k, j, i)/alpha ;
+		      sec_membre.set(ligne) 
+			  += pari*i*i* sol_part_vr(zone, k, j, i)/alpha ;
+		      pari = -pari ;
+		  }
 		  ligne++ ;
 			
-		  //value of (x+echelle)^(l-1) at 1 
-		  systeme.set(ligne, colonne) = pow(echelle+1., double(l_q-1)) ;
-		  // value of 1/(x+echelle) ^(l+2) at 1 
-		  systeme.set(ligne, colonne+1) = 1./pow(echelle+1., double(l_q+2)) ;
-		  //value of (x+echelle)^(l+1) at 1 
-		  systeme.set(ligne, colonne+2) = f3_eta*pow(echelle+1., double(l_q+1));
-		  // value of 1/(x+echelle) ^l at 1 
-		  systeme.set(ligne, colonne+3) = f4_eta/pow(echelle+1., double(l_q)) ;
-		  for (int i=0 ; i<nr ; i++)
-		      sec_membre.set(ligne) -= sol_part_eta(zone, k, j, i) ;
-		  ligne++ ;
-		  // ... and their couterparts for V^r
-		  systeme.set(ligne, colonne) = l_q*pow(echelle+1., double(l_q-1)) ;
-		  systeme.set(ligne, colonne+1) 
-		      = -double(l_q+1) / pow(echelle+1., double(l_q+2));
-		  systeme.set(ligne, colonne+2) = f3_vr*pow(echelle+1., double(l_q+1)) ;
-		  systeme.set(ligne, colonne+3) = f4_vr/pow(echelle+1., double(l_q));
- 		  for (int i=0 ; i<nr ; i++)
-		      sec_membre.set(ligne) -= sol_part_vr(zone, k, j, i) ;
-		  ligne++ ;
-
-		  //derivative of (x+echelle)^(l-1) at 1 
 		  systeme.set(ligne, colonne) 
-		      = (l_q-1) * pow(echelle+1., double(l_q-2))/alpha ;
-		  // derivative of 1/(x+echelle) ^(l+2) at 1 
+		      += sol_hom_un_eta.val_out_bound_jk(zone, j, k)  ;
 		  systeme.set(ligne, colonne+1) 
-		      = -(l_q+2) / pow(echelle+1., double(l_q+3))/alpha ;
-		  // derivative of (x+echelle)^(l+1) at 1 
+		      += sol_hom_deux_eta.val_out_bound_jk(zone, j, k)  ;
 		  systeme.set(ligne, colonne+2) 
-		      = f3_eta*(l_q+1) * pow(echelle+1., double(l_q))/alpha;
-		  // derivative of 1/(x+echelle) ^l at 1 
+		      += sol_hom_trois_eta.val_out_bound_jk(zone, j, k)  ;
 		  systeme.set(ligne, colonne+3) 
-		      = -f4_eta*l_q / pow(echelle+1., double(l_q+1))/alpha ;
-		  for (int i=0 ; i<nr ; i++)
-		      sec_membre.set(ligne) -= i*i/alpha*sol_part_eta(zone, k, j, i) ;
+		      += sol_hom_quatre_eta.val_out_bound_jk(zone, j, k)  ;
+		  sec_membre.set(ligne) -= sol_part_eta.val_out_bound_jk(zone, j, k) ;
 		  ligne++ ;
 		  // ... and their couterparts for V^r
 		  systeme.set(ligne, colonne) 
-		      = l_q*(l_q-1) * pow(echelle+1., double(l_q-2))/alpha ;
+		      += sol_hom_un_vr.val_out_bound_jk(zone, j, k)  ;
 		  systeme.set(ligne, colonne+1) 
-		      = (l_q+1)*(l_q+2) / pow(echelle+1., double(l_q+3))/alpha ;
+		      += sol_hom_deux_vr.val_out_bound_jk(zone, j, k)  ;
 		  systeme.set(ligne, colonne+2) 
-		      = f3_vr*(l_q+1) * pow(echelle+1., double(l_q))/alpha ;
+		      += sol_hom_trois_vr.val_out_bound_jk(zone, j, k)  ;
 		  systeme.set(ligne, colonne+3) 
-		      = -f4_vr*l_q / pow(echelle+1., double(l_q+1))/alpha ;
-		  for (int i=0 ; i<nr ; i++)
-		      sec_membre.set(ligne) -= i*i/alpha*sol_part_vr(zone, k, j, i) ;
+		      += sol_hom_quatre_vr.val_out_bound_jk(zone, j, k)  ;
+		  sec_membre.set(ligne) -= sol_part_vr.val_out_bound_jk(zone, j, k) ;
+		  ligne++ ;
 
+		  //derivative at 1 
+		  pari = 1 ;
+		  for (int i=0; i<nr; i++) {
+		      systeme.set(ligne, colonne) 
+			  += pari*i*i*sol_hom_un_eta(zone, k, j, i)/alpha ;
+		      systeme.set(ligne, colonne+1) 
+			  += pari*i*i*sol_hom_deux_eta(zone, k, j, i)/alpha ;
+		      systeme.set(ligne, colonne+2) 
+			  += pari*i*i*sol_hom_trois_eta(zone, k, j, i)/alpha ;
+		      systeme.set(ligne, colonne+3) 
+			  += pari*i*i*sol_hom_quatre_eta(zone, k, j, i)/alpha ;
+		      sec_membre.set(ligne) 
+			  -= pari*i*i* sol_part_eta(zone, k, j, i)/alpha ;
+		      pari = pari ;
+		  }
+		  ligne++ ;
+		  // ... and their couterparts for V^r
+		  pari = 1 ;
+		  for (int i=0; i<nr; i++) {
+		      systeme.set(ligne, colonne) 
+			  += pari*i*i*sol_hom_un_vr(zone, k, j, i)/alpha ;
+		      systeme.set(ligne, colonne+1) 
+			  += pari*i*i*sol_hom_deux_vr(zone, k, j, i)/alpha ;
+		      systeme.set(ligne, colonne+2) 
+			  += pari*i*i*sol_hom_trois_vr(zone, k, j, i)/alpha ;
+		      systeme.set(ligne, colonne+3) 
+			  += pari*i*i*sol_hom_quatre_vr(zone, k, j, i)/alpha ;
+		      sec_membre.set(ligne) 
+			  -= pari*i*i* sol_part_vr(zone, k, j, i)/alpha ;
+		      pari = pari ;
+		  }
 		  colonne += 4 ;
 	      }		    
 	      //Compactified external domain
@@ -673,39 +777,42 @@ void Vector::poisson_block(double lam, Vector& resu) const {
 	      alpha = mpaff->get_alpha()[nzm1] ;
 	      ligne -= 3 ;
 	      //value of (x-1)^(l+2) at -1 :
-	      systeme.set(ligne, colonne) = -pow(-2, double(l_q+2)) ;
-	      //value of (x-1)^l at -1 :
-	      systeme.set(ligne, colonne+1) = -f4_eta*pow(-2, double(l_q)) ;
-	      for (int i=0 ; i<nr ; i++)
-		  if (i%2 == 0) sec_membre.set(ligne) += sol_part_eta(nzm1, k, j, i) ;
-		  else sec_membre.set(ligne) -= sol_part_eta(nzm1, k, j, i) ;
+	      systeme.set(ligne, colonne) 
+		  -= sol_hom_deux_eta.val_in_bound_jk(nzm1, j, k) ;
+	      systeme.set(ligne, colonne+1) 
+		  -= sol_hom_quatre_eta.val_in_bound_jk(nzm1, j, k) ;
+	      sec_membre.set(ligne) += sol_part_eta.val_in_bound_jk(nzm1, j, k) ;
 	      //... and of its couterpart for V^r
-	      systeme.set(ligne+1, colonne) = double(l_q+1)*pow(-2, double(l_q+2)) ;
-	      systeme.set(ligne+1, colonne+1) = -f4_vr*pow(-2, double(l_q)) ;
-	      for (int i=0 ; i<nr ; i++)
-		  if (i%2 == 0) sec_membre.set(ligne+1) += sol_part_vr(nzm1, k, j, i) ;
-		  else sec_membre.set(ligne+1) -= sol_part_vr(nzm1, k, j, i) ;
+	      systeme.set(ligne+1, colonne) 
+		  -= sol_hom_deux_vr.val_in_bound_jk(nzm1, j, k) ;
+	      systeme.set(ligne+1, colonne+1) 
+		  -= sol_hom_quatre_vr.val_in_bound_jk(nzm1, j, k) ;
+	      sec_membre.set(ligne+1) += sol_part_vr.val_in_bound_jk(nzm1, j, k) ;
 			
 	      ligne += 2 ;
 	      //derivative of (x-1)^(l+2) at -1 :
-	      systeme.set(ligne, colonne) = alpha*(l_q+2)*pow(-2, double(l_q+3)) ;
-	      //derivative of (x-1)^l at -1 :
-	      systeme.set(ligne, colonne+1) = alpha*l_q*f4_eta*pow(-2, double(l_q+1)) ;
-	      for (int i=0 ; i<nr ; i++)
-		  if (i%2 == 0) sec_membre.set(ligne) 
-				    -= -4*alpha*i*i*sol_part_eta(nzm1, k, j, i) ;
-		  else sec_membre.set(ligne) 
-			   += -4*alpha*i*i*sol_part_eta(nzm1, k, j, i) ;
-	      //... and of its couterpart for V^r
-	      systeme.set(ligne+1, colonne) 
-		  = -alpha*double((l_q+1)*(l_q+2))*pow(-2, double(l_q+3)) ;
-	      systeme.set(ligne+1, colonne+1) 
-		  = alpha*double(l_q)*f4_vr*pow(-2, double(l_q+1)) ;
-	      for (int i=0 ; i<nr ; i++)
-		  if (i%2 == 0) sec_membre.set(ligne+1) 
-				    -= -4*alpha*i*i*sol_part_vr(nzm1, k, j, i) ;
-		  else sec_membre.set(ligne+1) 
-			   += -4*alpha*i*i*sol_part_vr(nzm1, k, j, i) ;
+		  pari = 1 ;
+		  for (int i=0; i<nr; i++) {
+		      systeme.set(ligne, colonne) 
+			  -= 4*alpha*pari*i*i*sol_hom_deux_eta(nzm1, k, j, i) ;
+		      systeme.set(ligne, colonne+1) 
+			  -= 4*alpha*pari*i*i*sol_hom_quatre_eta(nzm1, k, j, i) ;
+		      sec_membre.set(ligne) 
+			  += 4*alpha*pari*i*i* sol_part_eta(nzm1, k, j, i) ;
+		      pari = -pari ;
+		  }
+		  ligne++ ;
+		  // ... and their couterparts for V^r
+		  pari = 1 ;
+		  for (int i=0; i<nr; i++) {
+		      systeme.set(ligne, colonne) 
+			  -= 4*alpha*pari*i*i*sol_hom_deux_vr(nzm1, k, j, i) ;
+		      systeme.set(ligne, colonne+1) 
+			  -= 4*alpha*pari*i*i*sol_hom_quatre_vr(nzm1, k, j, i) ;
+		      sec_membre.set(ligne) 
+			  += 4*alpha*pari*i*i* sol_part_vr(nzm1, k, j, i) ;
+		      pari = -pari ;
+		  }
 			
 	      // Solution of the system giving the coefficients for the homogeneous 
 	      // solutions
@@ -720,11 +827,11 @@ void Vector::poisson_block(double lam, Vector& resu) const {
 	      nr = mg.get_nr(0) ; //nucleus
 	      for (int i=0 ; i<nr ; i++) {
 		  cf_eta.set(0, k, j, i) = sol_part_eta(0, k, j, i)
-		      +facteurs(conte)*solution_hom_un(0, k, j, i) 
-		      +facteurs(conte+1)*f3_eta*solution_hom_trois(0, k, j, i) ;
+		      +facteurs(conte)*sol_hom_un_eta(0, k, j, i) 
+		      +facteurs(conte+1)*sol_hom_trois_eta(0, k, j, i) ;
 		  cf_vr.set(0, k, j, i) = sol_part_vr(0, k, j, i)
-		      +double(l_q)*facteurs(conte)*solution_hom_un(0, k, j, i) 
-		      +facteurs(conte+1)*f3_vr*solution_hom_trois(0, k, j, i) ;
+		      +facteurs(conte)*sol_hom_un_vr(0, k, j, i) 
+		      +facteurs(conte+1)*sol_hom_trois_vr(0, k, j, i) ;
 	      }
 	      conte += 2 ;
 	      for (int zone=1 ; zone<nzm1 ; zone++) { //shells
@@ -732,26 +839,26 @@ void Vector::poisson_block(double lam, Vector& resu) const {
 		  for (int i=0 ; i<nr ; i++) {
 		      cf_eta.set(zone, k, j, i) = 
 			  sol_part_eta(zone, k, j, i)
-			  +facteurs(conte)*solution_hom_un(zone, k, j, i) 
-			  +facteurs(conte+1)*solution_hom_deux(zone, k, j, i) 
-			  +facteurs(conte+2)*f3_eta*solution_hom_trois(zone, k, j, i) 
-			  +facteurs(conte+3)*f4_eta*solution_hom_quatre(zone, k, j, i) ;
+			  +facteurs(conte)*sol_hom_un_eta(zone, k, j, i) 
+			  +facteurs(conte+1)*sol_hom_deux_eta(zone, k, j, i) 
+			  +facteurs(conte+2)*sol_hom_trois_eta(zone, k, j, i) 
+			  +facteurs(conte+3)*sol_hom_quatre_eta(zone, k, j, i) ;
 		      cf_vr.set(zone, k, j, i) = sol_part_vr(zone, k, j, i)
-			  +double(l_q)*facteurs(conte)*solution_hom_un(zone, k, j, i) 
-			  -double(l_q+1)*facteurs(conte+1)*solution_hom_deux(zone, k, j, i) 
-			  +f3_vr*facteurs(conte+2)*solution_hom_trois(zone, k, j, i) 
-			  +f4_vr*facteurs(conte+3)*solution_hom_quatre(zone, k, j, i) ;
+			  +facteurs(conte)*sol_hom_un_vr(zone, k, j, i) 
+			  +facteurs(conte+1)*sol_hom_deux_vr(zone, k, j, i) 
+			  +facteurs(conte+2)*sol_hom_trois_vr(zone, k, j, i) 
+			  +facteurs(conte+3)*sol_hom_quatre_vr(zone, k, j, i) ;
 		  }
 		  conte+=4 ;
 	      }
 	      nr = mg.get_nr(nz-1) ; //compactified external domain
 	      for (int i=0 ; i<nr ; i++) {
 		  cf_eta.set(nzm1, k, j, i) = sol_part_eta(nzm1, k, j, i)
-		      +facteurs(conte)*solution_hom_deux(nzm1, k, j, i) 
-		      +f4_eta*facteurs(conte+1)*solution_hom_quatre(nzm1, k, j, i) ;
+		      +facteurs(conte)*sol_hom_deux_eta(nzm1, k, j, i) 
+		      +facteurs(conte+1)*sol_hom_quatre_eta(nzm1, k, j, i) ;
 		  cf_vr.set(nzm1, k, j, i) = sol_part_vr(nzm1, k, j, i)
-		      -double(l_q+1)*facteurs(conte)*solution_hom_deux(nzm1, k, j, i) 
-		      +f4_vr*facteurs(conte+1)*solution_hom_quatre(nzm1, k, j, i) ;
+		      +facteurs(conte)*sol_hom_deux_vr(nzm1, k, j, i) 
+		      +facteurs(conte+1)*sol_hom_quatre_vr(nzm1, k, j, i) ;
 
 	      }
 	  } // End of nullite_plm  
