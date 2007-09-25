@@ -44,7 +44,6 @@ char vector_poisson_boundary2_C[] = "$Header$" ;
 #include "param_elliptic.h"
 #include "proto.h"
 #include "graphique.h"
-#include "map.h"
 #include "utilitaires.h"
 
 
