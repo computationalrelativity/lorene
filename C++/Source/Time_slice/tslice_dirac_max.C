@@ -30,6 +30,9 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2007/09/25 16:54:11  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.20  2007/09/25 16:52:15  j_novak
  * *** empty log message ***
  *
@@ -139,7 +142,7 @@ Tslice_dirac_max::Tslice_dirac_max(const Scalar& lapse_in, const Vector& shift_i
     trh_evol(hh_in.the_trace(), depth_in) 
 {
     Scalar tmp = hh_in.compute_A(true) ;
-    assert (tmp.get_etat() != ETATNONDEF) ;
+    assert (tmp.get_etat() != ETATNONDEF);
     if (tmp.get_etat() != ETATZERO) {
 	int nz = tmp.get_mp().get_mg()->get_nzone() ;
 	assert(tmp.get_mp().get_mg()->get_type_r(nz-1) == UNSURR) ;
