@@ -30,6 +30,9 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2007/09/25 16:52:15  j_novak
+ * *** empty log message ***
+ *
  * Revision 1.19  2007/06/05 07:38:37  j_novak
  * Better treatment of dzpuis for A and tilde(B) potentials. Some errors in the bases manipulation have been also corrected.
  *
@@ -144,7 +147,7 @@ Tslice_dirac_max::Tslice_dirac_max(const Scalar& lapse_in, const Vector& shift_i
     }
     tmp.set_dzpuis(0) ;
     potA_evol.update(tmp, 0, the_time[0]) ;
-    tmp = hh_in.compute_tilde_B_tt(true) ;
+    tmp = hh_in.compute_tilde_B_tt(true)  ;
     assert (tmp.get_etat() != ETATNONDEF) ;
     if (tmp.get_etat() != ETATZERO) {
 	int nz = tmp.get_mp().get_mg()->get_nzone() ;
