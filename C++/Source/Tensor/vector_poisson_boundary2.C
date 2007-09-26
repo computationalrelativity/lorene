@@ -1,12 +1,12 @@
 /*
- *  Method for vector Poisson equation inverting eqs. for V^r and eta as a block.
- *  Space considered is R3 minus a ball.
+ *  Method for vector Poisson equation inverting eqs. for V^r and eta as a block, with inner boundary conditions on the first shell. 
+ *
  *    (see file vector.h for documentation).
  *
  */
 
 /*
- *   Copyright (c) 2007  Jerome Novak
+ *   Copyright (c) 2005  Jerome Novak
  *
  *   This file is part of LORENE.
  *
@@ -27,9 +27,30 @@
 
 char vector_poisson_boundary2_C[] = "$Header$" ;
 
-/* 
+/*
+ * $Id$
+ * $Log$
+ * Revision 1.5  2007/09/26 14:13:15  n_vasset
+ * *** empty log message ***
  *
- * * $Header$
+ * Revision 1.5  2007/09/05 12:35:18  j_novak
+ * Homogeneous solutions are no longer obtained through the analytic formula, but
+ * by solving (again) the operator system with almost zero as r.h.s. This is to
+ * lower the condition number of the matching system.
+ *
+ * Revision 1.4  2007/01/23 17:08:46  j_novak
+ * New function pois_vect_r0.C to solve the l=0 part of the vector Poisson
+ * equation, which involves only the r-component.
+ *
+ * Revision 1.3  2005/12/30 13:39:38  j_novak
+ * Changed the Galerkin base in the nucleus to (hopefully) stabilise the solver
+ * when used in an iteration. Similar changes in the CED too.
+ *
+ * Revision 1.2  2005/02/15 15:43:18  j_novak
+ * First version of the block inversion for the vector Poisson equation (method 6).
+ *
+ *
+ * $Header$
  *
  */
 
@@ -44,6 +65,7 @@ char vector_poisson_boundary2_C[] = "$Header$" ;
 #include "param_elliptic.h"
 #include "proto.h"
 #include "graphique.h"
+#include "map.h"
 #include "utilitaires.h"
 
 
@@ -68,18 +90,15 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
      }
 
 
-
      // Extraction of Mtbl_cf objects from boundary informations; 
      Scalar bound_vr2 = boundvr; 
      bound_vr2.set_spectral_va().ylm(); 
      Scalar bound_eta2 = boundeta; 
      bound_eta2.set_spectral_va().ylm();
-     Scalar bound_mu2 = boundmu; bound_mu2.set_spectral_va().ylm();
-     // Necessaire pour poisoon_dirichlet:
-     Valeur vbound_mu2 = bound_mu2.get_spectral_va();
-
-
-     
+     Scalar bound_mu2 = boundmu;
+     bound_mu2.set_spectral_va().ylm();
+  
+        
      const  Mtbl_cf *bound_vr = bound_vr2.get_spectral_va().c_cf; 
      const  Mtbl_cf *bound_mu = bound_mu2.get_spectral_va().c_cf;
      const Mtbl_cf *bound_eta = bound_eta2.get_spectral_va().c_cf;
@@ -107,10 +126,6 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
 	  S_eta.set_spectral_base(S_r.get_spectral_base()) ;
 	  // A little bit stupid for the moment; 
 	  // But calculation HAS to be made even with zero-source!!
-
-// 	  vr.set_etat_zero() ;
-// 	  het.set_etat_zero() ;
-// 	  all_zero = true ;
       }
       else {
 	  S_r.annule_hard() ;
@@ -146,16 +161,11 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
       param_l0.set_poisson_vect_r(l, true) ;
   }
 
-
    Scalar vrl0 = sou_l0.sol_elliptic_boundary(param_l0, *bound_vr, 1., 0.) ;
-
-
 
   // Build-up & inversion of the system for (eta, V^r) in each domain (except for the nucleus!)
   //-----------------------------------------------------------------
 
-  // Nucleus
-  //--------
   int nr = mg.get_nr(1) ;
   int nt = mg.get_nt(1) ;
   int np = mg.get_np(1) ;
@@ -164,175 +174,6 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
 
  
   int l_q = 0 ; int m_q = 0; int base_r = 0 ;
-
-//   // Loop on l and m
-//   //----------------
-//   for (int k=0 ; k<np+1 ; k++) {
-//       for (int j=0 ; j<nt ; j++) { 
-// 	  base.give_quant_numbers(0, k, j, m_q, l_q, base_r) ;
-// 	  if ( (nullite_plm(j, nt, k, np, base) == 1) && (l_q > 0) ) {
-// 	      int aa = 0 ; int bb = 0 ;  int nr0 = 0 ;
-// 	      if (base_r == R_CHEBP) {
-// 		  nr0 = nr - 1 ;
-// 		  aa = 0 ; bb = 1 ;
-// 	      }
-// 	      else {
-// 		  assert (base_r == R_CHEBI) ;
-// 		  nr0 = nr - 2 ;
-// 		  aa = 2 ; bb = 1 ;
-// 	      }
-// 	      int d0 = nr - nr0 ;
-// 	      int nrtot = 2*nr0 ;
-// 	      Matrice oper(2*nr, 2*nr) ; oper.set_etat_qcq() ;
-// 	      Tbl sec_membre(nrtot) ; sec_membre.set_etat_qcq() ;
-// 	      Diff_dsdx2 d2(base_r, nr) ; const Matrice& md2 = d2.get_matrice() ;
-// 	      Diff_sxdsdx xd(base_r, nr) ; const Matrice& mxd = xd.get_matrice() ;
-// 	      Diff_sx2 s2(base_r, nr) ; const Matrice& ms2 = s2.get_matrice() ;
-
-// 	      // Building the operator
-// 	      //----------------------
-// 	      for (int lin=0; lin<nr; lin++) { //eq.1 
-// 		  for (int col=0; col<nr; col++) 
-// 		      oper.set(lin,col) = 
-// 			  (md2(lin,col) + 2*mxd(lin,col) 
-// 			   -(lam+1)*l_q*(l_q+1)*ms2(lin,col)) / alp2 ;
-// 		  for (int col=0; col<nr; col++) 
-// 		      oper.set(lin,col+nr) = 
-// 			  (lam*mxd(lin,col) + 2*(1+lam)*ms2(lin,col)) / alp2 ;
-// 	      }
-// 	      for (int lin=0; lin<nr; lin++) { //eq.2
-// 		  for (int col=0; col<nr; col++)
-// 		      oper.set(lin+nr,col) = 
-// 			  (-lam*l_q*(l_q+1)*mxd(lin,col) 
-// 			   +(lam+2)*l_q*(l_q+1)*ms2(lin,col)) / alp2 ;
-// 		  for (int col=0; col<nr; col++)
-// 		      oper.set(lin+nr, col+nr) = 
-// 			  ((lam+1)*(md2(lin,col) + 2*mxd(lin,col)) 
-// 			   - (2*(lam+1) + l_q*(l_q+1))*ms2(lin,col)) / alp2 ;
-// 	      }
-// 	      bool pb_eta = ( ( fabs( lam*double(l_q+3) + 2 ) < 0.01) && (l_q <=2) ) ;
-// 	      if (!pb_eta) {
-// 		  for (int col=0; col<nr; col++) 
-// 		      oper.set(nr0-1, col) = 1 ;
-// 		  for (int col=0; col<nr; col++) 
-// 		      oper.set(nr0-1,nr+col) = 0 ;		  
-// 	      }
-// 	      if ((l_q > 2)||pb_eta) {
-// 		  for (int col=0; col<nr; col++) 
-// 		      oper.set(nr+nr0-1, col) = 0 ;
-// 		  for (int col=0; col<nr; col++) 
-// 		      oper.set(nr+nr0-1,nr+col) = 1 ;		  
-// 	      }
-
-// 	      Matrice op2(nrtot, nrtot) ;
-// 	      op2.set_etat_qcq() ;
-// 	      for (int i=0; i<nr0; i++) {
-// 		  for (int col=0; col<nr0;col++) 
-// 		      op2.set(i,col) = (aa*col+bb)*oper(i,col+1) 
-// 			  + (aa*(col+1)+bb)*oper(i,col) ;
-// 		  for (int col=0; col<nr0;col++) 
-// 		      op2.set(i,col+nr0) = (aa*col+bb)*oper(i,col+nr+1)
-// 			  + (aa*(col+1)+bb)*oper(i,col+nr) ;
-// 	      }
-	      
-// 	      for (int i=nr0; i<nrtot; i++) {
-// 		  for (int col=0; col<nr0;col++) 
-// 		      op2.set(i,col) = (aa*col+bb)*oper(i+d0,col+1) 
-// 			  + (aa*(col+1)+bb)*oper(i+d0,col) ;
-// 		  for (int col=0; col<nr0;col++) 
-// 		      op2.set(i,col+nr0) = (aa*col+bb)*oper(i+d0,col+nr+1)
-// 			  + (aa*(col+1)+bb)*oper(i+d0,col+nr) ;
-// 	      }
-// 	      op2.set_lu() ;
-
-//  	      // Filling the r.h.s
-//  	      //------------------
-//  	      for (int i=0; i<nr0; i++)  //eq.1
-//  		  sec_membre.set(i) = (*S_eta.get_spectral_va().c_cf)(0, k, j, i) ;
-//  	      if (!pb_eta) sec_membre.set(nr0-1) = 0 ;
-//  	      for (int i=0; i<nr0; i++) //eq.2
-//  		  sec_membre.set(i+nr0) 
-//  		      = (*S_r.get_spectral_va().c_cf)(0, k, j, i) ;
-//  	      if ((l_q > 2)||pb_eta) sec_membre.set(nrtot-1) = 0 ;
-
-//  	      // Inversion of the "big" operator
-//  	      //--------------------------------
-//  	      Tbl big_res = op2.inverse(sec_membre) ;
-	      
-//  	      // Putting coefficients of eta and Vr to individual arrays
-//  	      //--------------------------------------------------------
-//  	      sol_part_eta.set(0, k, j, 0) = (aa+bb)*big_res(0) ;
-// 	      for (int i=1; i<nr0; i++)
-// 		  sol_part_eta.set(0, k, j, i) = (aa*(i-1)+bb)*big_res(i-1) 
-// 		      + (aa*(i+1)+bb)*big_res(i);
-// 	      sol_part_eta.set(0, k, j, nr0) = big_res(nr0-1)*(aa*(nr0-1) + bb) ;
-// 	      sol_part_vr.set(0, k, j, 0) = (aa+bb)*big_res(nr0) ;
-// 	      for (int i=1; i<nr0; i++)
-// 		  sol_part_vr.set(0, k, j, i) = (aa*(i-1)+bb)*big_res(nr0+i-1) 
-// 		      + (aa*(i+1)+bb)*big_res(nr0+i);
-// 	      sol_part_vr.set(0, k, j, nr0) = big_res(nrtot-1)*(aa*(nr0-1)+bb) ;
-// 	      if (base_r == R_CHEBI) {
-// 		  sol_part_eta.set(0, k, j, nr-1) = 0 ;
-// 		  sol_part_vr.set(0, k, j, nr-1) = 0 ;
-// 	      }
-
-//  	      // Homogeneous solutions (only r^(l-1) and r^(l+1) in the nucleus)
-// 	      if (l_q<=2) {
-// 		  double fac_eta = lam*double(l_q+3) + 2. ;
-// 		  double fac_vr = double(l_q+1)*(lam*l_q - 2.) ;
-// 		  Tbl sol_hom1 = solh(nr, l_q-1, 0., base_r) ;
-// 		  Tbl sol_hom2 = solh(nr, l_q+1, 0., base_r) ;
-// 		  for (int i=0 ; i<nr ; i++) {
-// 		      sol_hom_un_eta.set(0, k, j, i) = sol_hom1(i) ;
-// 		      sol_hom_un_vr.set(0, k, j, i) = l_q*sol_hom1(i) ;
-// 		      sol_hom_trois_eta.set(0, k, j, i) = fac_eta*sol_hom2(i) ; 
-// 		      sol_hom_trois_vr.set(0, k, j, i) = fac_vr*sol_hom2(i) ; 
-// 		  }
-// 	      }
-// 	      else {
-// 		  for (int i=0; i<nrtot; i++) sec_membre.set(i) = 0 ;
-// 		  // First homogeneous sol.
-// 		  sec_membre.set(nr0-1) = 1 ;
-// 		  big_res = op2.inverse(sec_membre) ;
-
-// 		  sol_hom_un_eta.set(0, k, j, 0) = (aa+bb)*big_res(0) ;
-// 		  for (int i=1; i<nr0; i++)
-// 		      sol_hom_un_eta.set(0, k, j, i) = (aa*(i-1)+bb)*big_res(i-1) 
-// 			  + (aa*(i+1)+bb)*big_res(i);
-// 		  sol_hom_un_eta.set(0, k, j, nr0) = big_res(nr0-1)*(aa*(nr0-1) + bb) ;
-// 		  sol_hom_un_vr.set(0, k, j, 0) = (aa+bb)*big_res(nr0) ;
-// 		  for (int i=1; i<nr0; i++)
-// 		      sol_hom_un_vr.set(0, k, j, i) = (aa*(i-1)+bb)*big_res(nr0+i-1) 
-// 			  + (aa*(i+1)+bb)*big_res(nr0+i);
-// 		  sol_hom_un_vr.set(0, k, j, nr0) = big_res(nrtot-1)*(aa*(nr0-1)+bb) ;
-// 		  if (base_r == R_CHEBI) {
-// 		      sol_hom_un_eta.set(0, k, j, nr-1) = 0 ;
-// 		      sol_hom_un_vr.set(0, k, j, nr-1) = 0 ;
-// 		  }
-
-// 		  sec_membre.set(nr0-1) = 0 ;
-// 		  sec_membre.set(nrtot-1) = 1 ;
-// 		  big_res = op2.inverse(sec_membre) ;
-
-// 		  sol_hom_trois_eta.set(0, k, j, 0) = (aa+bb)*big_res(0) ;
-// 		  for (int i=1; i<nr0; i++)
-// 		      sol_hom_trois_eta.set(0, k, j, i) = (aa*(i-1)+bb)*big_res(i-1) 
-// 			  + (aa*(i+1)+bb)*big_res(i);
-// 		  sol_hom_trois_eta.set(0, k, j, nr0) = big_res(nr0-1)*(aa*(nr0-1)+bb) ;
-// 		  sol_hom_trois_vr.set(0, k, j, 0) = (aa+bb)*big_res(nr0) ;
-// 		  for (int i=1; i<nr0; i++)
-// 		      sol_hom_trois_vr.set(0, k, j, i) = (aa*(i-1)+bb)*big_res(nr0+i-1) 
-// 			  + (aa*(i+1)+bb)*big_res(nr0+i);
-// 		  sol_hom_trois_vr.set(0, k, j, nr0) = big_res(nrtot-1)*(aa*(nr0-1)+bb) ;
-// 		  if (base_r == R_CHEBI) {
-// 		      sol_hom_trois_eta.set(0, k, j, nr-1) = 0 ;
-// 		      sol_hom_trois_vr.set(0, k, j, nr-1) = 0 ;
-// 		  }
-		  
-// 	      }
-// 	  }
-//       }
-//  }    
 
 
   // Shells
@@ -642,47 +483,10 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
 	      systeme.annule_hard() ;
 	      sec_membre.annule_hard() ;
 
-// 	      //Nucleus 
-// 	      nr = mg.get_nr(0) ;
-// 	      alpha = mpaff->get_alpha()[0] ;
-// 	      // value of at x=1 of eta ...
-// 	      systeme.set(ligne, colonne) = sol_hom_un_eta.val_out_bound_jk(0, j, k) ;
-// 	      systeme.set(ligne, colonne+1) = sol_hom_trois_eta.val_out_bound_jk(0, j, k) ;
-// 	      sec_membre.set(ligne) = -sol_part_eta.val_out_bound_jk(0, j, k) ;
-// 	      ligne++ ;
-// 	      // ... and of its couterpart for V^r
-// 	      systeme.set(ligne, colonne) = sol_hom_un_vr.val_out_bound_jk(0, j, k) ;
-// 	      systeme.set(ligne, colonne+1) = sol_hom_trois_vr.val_out_bound_jk(0, j, k) ;
-// 	      sec_membre.set(ligne) = -sol_part_vr.val_out_bound_jk(0,j,k) ; 
-// 	      ligne++ ; 
-
-//               //derivatives
-// 	      int pari = (base_r == R_CHEBP ? 0 : 1) ;
-// 	      for (int i=0; i<nr; i++) {
-// 		  systeme.set(ligne, colonne) 
-// 		      += (2*i+pari)*(2*i+pari)*sol_hom_un_eta(0, k, j, i)/alpha ;
-// 		  systeme.set(ligne, colonne+1) 
-// 		      += (2*i+pari)*(2*i+pari)*sol_hom_trois_eta(0, k, j, i)/alpha ;
-// 		  sec_membre.set(ligne) 
-// 		      -= (2*i+pari)*(2*i+pari)* sol_part_eta(0, k, j, i)/alpha ;
-// 	      }
-// 	      ligne++ ;
-// 	      // ... and of its couterpart for V^r
-// 	      for (int i=0; i<nr; i++) {
-// 		  systeme.set(ligne, colonne) 
-// 		      += (2*i+pari)*(2*i+pari)*sol_hom_un_vr(0, k, j, i)/alpha ;
-// 		  systeme.set(ligne, colonne+1) 
-// 		      += (2*i+pari)*(2*i+pari)*sol_hom_trois_vr(0, k, j, i)/alpha ;
-// 		  sec_membre.set(ligne) 
-// 		      -= (2*i+pari)*(2*i+pari)* sol_part_vr(0, k, j, i)/alpha ;
-// 	      }
-// 	      colonne += 2 ; 
-
       	      //shell 1 (boundary condition)
 	      int zone = 1;
 		  nr = mg.get_nr(zone) ;
 		  alpha = mpaff->get_alpha()[zone] ;
-	// 	  ligne -= 3 ;
 		  // Here we prepare for a Robyn-type boundary condition on eta. 
 		  // Parameters are dir_eta and neum_eta
 		  systeme.set(ligne, colonne) 
@@ -698,8 +502,6 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
 
 
 		  sec_membre.set(ligne) += dir_eta* sol_part_eta.val_in_bound_jk(zone, j, k) ;
-		  //  ligne++ ;
-
 
 		  int pari = -1 ;
 		  for (int i=0; i<nr; i++) {
@@ -731,8 +533,6 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
 		  systeme.set(ligne, colonne+3) 
 		      = -dir_vr*sol_hom_quatre_vr.val_in_bound_jk(zone, j, k)  ;
 		  sec_membre.set(ligne) += dir_vr*sol_part_vr.val_in_bound_jk(zone, j, k) ;
-		  // ligne++ ;
-
 	
 	
 		  pari = -1 ;
@@ -813,10 +613,10 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
 		  }
 		  colonne += 4 ;
 
-		  // Other shells (WARNING! mapping must contain at least two shells!!)
+		  // Other shells ( mapping must contain at least two shells!!)
 		  if ( nz <= 2){
 		    cout <<"WARNING!! Mapping must contain at least 2 shells!!" << endl;}
-		  for (zone=2 ; zone<nzm1 ; zone++) {
+		  for (int zone=2 ; zone<nzm1 ; zone++) {
 
 	  nr = mg.get_nr(zone) ;
 		  alpha = mpaff->get_alpha()[zone] ;
@@ -951,8 +751,7 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
 	      sec_membre.set(ligne+1) += sol_part_vr.val_in_bound_jk(nzm1, j, k) ;
 			
 	      ligne += 2 ;
-	      //derivative of (x-1)^(l+2) at -1 :
-		  pari = 1 ;
+	      pari = 1 ;
 		  for (int i=0; i<nr; i++) {
 		      systeme.set(ligne, colonne) 
 			  -= 4*alpha*pari*i*i*sol_hom_deux_eta(nzm1, k, j, i) ;
@@ -990,8 +789,8 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
 		cf_eta.set(0, k, j, i) = 0.;
 		cf_vr.set(0, k, j, i) = 0.;
 	      }
-	 //      conte += 2 ;
-	      for (zone=1 ;zone<nzm1 ; zone++) { //shells
+
+	      for (int zone=1 ; zone<nzm1 ; zone++) { //shells
 		  nr = mg.get_nr(zone) ;
 		  for (int i=0 ; i<nr ; i++) {
 		      cf_eta.set(zone, k, j, i) = 
@@ -1036,43 +835,6 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
   
 
     resu.set_vr_eta_mu(vr, het, mu().sol_elliptic_boundary(param_mu, (*bound_mu), dir_mu , neum_mu)) ;
-    //  resu.set_vr_eta_mu(vr, het, mu().poisson_dirichlet(vbound_mu2, 0)) ;
-
-
- 
-    Scalar mu2 =  mu().sol_elliptic_boundary(param_mu, *bound_mu, dir_mu , neum_mu);
-    Scalar mu3 = mu2.laplacian();
-
-
-  Scalar mu2b = mu().poisson_dirichlet(vbound_mu2, 0);
-  Scalar mu3b = mu2b.laplacian();
- 
- 
-  cout << "tests de résolution de l'équation en mu seule" << endl;
-   
-  cout << "difference absolue pour resolution" << endl;
- 
-  //  maxabs (mu() - mu3); 
- 
-  maxabs(mu() - mu3);
- 
-
-  cout << "decomposition spectrale de la condition aux bords" << endl;
- 
-  bound_mu->display();  
- 
-  cout << "solution obtenue" << endl;
-  //  mu2.set_spectral_va().ylm();
-  //  mu2.spectral_display();
- 
-  mu2.set_spectral_va().ylm();
-  mu2.spectral_display();
-
-
-
-
-
-  // resu.set_vr_eta_mu(vr, het, mu().poisson()) ;
 
   return ;
   
