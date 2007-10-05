@@ -30,6 +30,9 @@ char map_af_integ_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2007/10/05 15:56:19  j_novak
+ * Addition of new bases for the non-symmetric case in theta.
+ *
  * Revision 1.4  2003/12/19 16:21:43  j_novak
  * Shadow hunt
  *
@@ -127,32 +130,44 @@ Tbl* Map_af::integrale(const Cmp& ci) const {
 	    
 	    switch (base_t) {
 	    
-	    case T_COS_P: case T_COSSIN_CP: {
-		if (nt > nt_cp_pre) {  // Initialization of factors for summation
-		    nt_cp_pre = nt ;
-		    cx_tcp = static_cast<double*>(realloc(cx_tcp, nt*sizeof(double))) ;
+		case T_COS_P: case T_COSSIN_CP: {
+		    if (nt > nt_cp_pre) {  // Initialization of factors for summation
+			nt_cp_pre = nt ;
+			cx_tcp 
+			    = static_cast<double*>(realloc(cx_tcp, nt*sizeof(double))) ;
+			for (int j=0 ; j<nt ; j++) {
+			    cx_tcp[j] = 2./(1. - 4.*j*j) ;  // Factor 2 symmetry
+			}
+		    }
+		    
+		    // Summation : 
+		    for (int i=0 ; i<nr ; i++) s_tr[i] = 0 ;
 		    for (int j=0 ; j<nt ; j++) {
-			cx_tcp[j] = 2./(1. - 4.*j*j) ;  // Factor 2 symmetry
+			for (int i=0 ; i<nr ; i++) {
+			    s_tr[i] += cx_tcp[j] * x_spec[i] ;
+			}
+			x_spec += nr ;	// Next theta
 		    }
+		    break ;
 		}
-	
-		// Summation : 
-		for (int i=0 ; i<nr ; i++) s_tr[i] = 0 ;
-		for (int j=0 ; j<nt ; j++) {
-		    for (int i=0 ; i<nr ; i++) {
-			s_tr[i] += cx_tcp[j] * x_spec[i] ;
+		case T_COSSIN_C: {
+		    // Summation : 
+		    for (int i=0 ; i<nr ; i++) s_tr[i] = 0 ;
+		    for (int j=0 ; j<nt ; j++) {
+			if ((j%2)==0)
+			    for (int i=0 ; i<nr ; i++) {
+				s_tr[i] += (2. / (1.-j*j)) * x_spec[i] ;
+			    }
+			x_spec += nr ;	// Next theta
 		    }
-		x_spec += nr ;	// Next theta
+		    break ;		    
 		}
-		break ;
-	    }
-	    
-	    default: {
-		cout << "Map_af::integrale: unknown theta basis ! " << endl ;
-		abort () ;
-		break ;
-	    }
-	    
+		default: {
+		    cout << "Map_af::integrale: unknown theta basis ! " << endl ;
+		    abort () ;
+		    break ;
+		}
+		    
 	    }	// End of the various cases on base_t
 
 	    // ----------------
@@ -165,7 +180,7 @@ Tbl* Map_af::integrale(const Cmp& ci) const {
 	    double som_c = 0 ;
 	
 	    switch(base_r) {
-	    case R_CHEBP: case R_CHEBPIM_P: {
+	    case R_CHEBP: case R_CHEBPIM_P: case R_CHEBPI_P :{
 		assert(beta[l] == 0) ;
 		if (nr > nr_p_pre) {  // Initialization of factors for summation
 		    nr_p_pre = nr ;

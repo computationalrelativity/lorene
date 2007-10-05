@@ -25,6 +25,9 @@ char map_af_integ_surf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2007/10/05 15:56:19  j_novak
+ * Addition of new bases for the non-symmetric case in theta.
+ *
  * Revision 1.3  2004/03/10 12:43:06  jl_jaramillo
  * Treatment of case ETATUN in surface integrals for Scalar's.
  *
@@ -121,6 +124,12 @@ double Map_af::integrale_surface (const Cmp& ci, double rayon) const {
 	    case R_CHEBU :
 		som_r_chebu (coef, nr, 1, 1, xi, auxi) ;
 		break ;
+	    case R_CHEBPI_P :
+		som_r_chebpi_p (coef, nr, 1, 1, xi, auxi) ;
+		break ;
+	    case R_CHEBPI_I :
+		som_r_chebpi_i (coef, nr, 1, 1, xi, auxi) ;
+		break ;
 	    case R_CHEBPIM_P :
 		som_r_chebpim_p (coef, nr, 1, 1, xi, auxi) ;
 		break ;
@@ -144,6 +153,8 @@ double Map_af::integrale_surface (const Cmp& ci, double rayon) const {
 	    break ;
 	case T_COSSIN_CI :
 	    result = 0 ;
+	    break ;
+	case T_COSSIN_C :
 	    break ;
 	default :
 	    cout << "base_t cas non prevu dans Map_af::integrale_surface" << endl ;
@@ -273,7 +284,30 @@ double Map_af::integrale_surface (const Scalar& ci, double rayon) const {
     double result = 0 ;
     double* coef = new double [nr] ;
     double* auxi = new double[1] ;
+
+    double fac_even = 1 ;
+    double fac_odd = 1 ;
+    double fac_sym = 2 ;
      
+    switch (base_t) {
+	case T_COS_P :
+	    break ;
+	case T_COSSIN_CP :
+	    break ;
+	case T_COSSIN_CI :
+	    fac_even = 0. ;
+	    fac_odd = 0. ;
+	    break ;
+	case T_COSSIN_C :
+	    fac_odd = 0. ;
+	    fac_sym = 1. ;
+	    break ;
+	default :
+	    cout << "base_t cas non prevu dans Map_af::integrale_surface" << endl ;
+	    abort() ;
+	    break ;
+    }
+    
     for (int j=0 ; j<nt ; j++) {
 	for (int i=0 ; i<nr ; i++)
 	    coef[i] = (*ci.get_spectral_va().c_cf)(l, 0, j, i) ;
@@ -292,6 +326,12 @@ double Map_af::integrale_surface (const Scalar& ci, double rayon) const {
 	    case R_CHEBU :
 		som_r_chebu (coef, nr, 1, 1, xi, auxi) ;
 		break ;
+	    case R_CHEBPI_P :
+		som_r_chebpi_p (coef, nr, 1, 1, xi, auxi) ;
+		break ;
+	    case R_CHEBPI_I :
+		som_r_chebpi_i (coef, nr, 1, 1, xi, auxi) ;
+		break ;
 	    case R_CHEBPIM_P :
 		som_r_chebpim_p (coef, nr, 1, 1, xi, auxi) ;
 		break ;
@@ -302,26 +342,24 @@ double Map_af::integrale_surface (const Scalar& ci, double rayon) const {
 		som_r_pas_prevu (coef, nr, 1, 1, xi, auxi) ;
 		break ;
 	}
-	result += 2 * (*auxi)/(1-4*j*j) ;
+	if (j==1) {
+	    if (fac_odd == 0.) continue ;
+	    else {
+		assert(fac_sym != 1) ;
+		result += 2 * fac_odd * (*auxi)/(1-fac_sym*fac_sym*j*j) ;
+	    }
 	}
+	else {
+	    if ((j%2) == 0)
+		result += 2 * fac_even * (*auxi)/(1-fac_sym*fac_sym*j*j) ;
+	    else
+		result += 2 * fac_odd * (*auxi)/(1-fac_sym*fac_sym*j*j) ;
+	}
+    }
 	
     delete [] auxi ;
     delete [] coef ;
 	
-    switch (base_t) {
-	case T_COS_P :
-	    break ;
-	case T_COSSIN_CP :
-	    break ;
-	case T_COSSIN_CI :
-	    result = 0 ;
-	    break ;
-	default :
-	    cout << "base_t cas non prevu dans Map_af::integrale_surface" << endl ;
-	    abort() ;
-	    break ;
-    }
-    
      switch (base_p) {
 	case P_COSSIN :
 	    result *= 2*rayon*rayon*M_PI ;
@@ -364,6 +402,28 @@ double Map_af::integrale_surface_infini (const Scalar& ci) const {
     double* coef = new double [nr] ;
     double* auxi = new double[1] ;
       
+    double fac_even = 1 ;
+    double fac_odd = 1 ;
+    double fac_sym = 2 ;
+     
+    switch (base_t) {
+	case T_COS_P :
+	    break ;
+	case T_COSSIN_CP :
+	    break ;
+	case T_COSSIN_CI :
+	    fac_even = 0. ;
+	    fac_odd = 0. ;
+	    break ;
+	case T_COSSIN_C :
+	    fac_odd = 0. ;
+	    fac_sym = 1. ;
+	    break ;
+	default :
+	    cout << "base_t cas non prevu dans Map_af::integrale_surface_infini" << endl ;
+	    abort() ;
+	    break ;
+    }
     for (int j=0 ; j<nt ; j++) {
 	for (int i=0 ; i<nr ; i++)
 	    coef[i] = (*ci.get_spectral_va().c_cf)(nz-1, 0, j, i) ;
@@ -376,25 +436,23 @@ double Map_af::integrale_surface_infini (const Scalar& ci) const {
 		som_r_pas_prevu (coef, nr, 1, 1, 1, auxi) ;
 		break ;
 	}
-	result += 2 * (*auxi)/(1-4*j*j) ;
+	if (j==1) {
+	    if (fac_odd == 0.) continue ;
+	    else {
+		assert(fac_sym != 1) ;
+		result += 2 * fac_odd * (*auxi)/(1-fac_sym*fac_sym*j*j) ;
+	    }
 	}
+	else {
+	    if ((j%2) == 0)
+		result += 2 * fac_even * (*auxi)/(1-fac_sym*fac_sym*j*j) ;
+	    else
+		result += 2 * fac_odd * (*auxi)/(1-fac_sym*fac_sym*j*j) ;
+	}
+    }
 	
     delete [] auxi ;
     delete [] coef ;
-    
-    switch (base_t) {
-	case T_COS_P :
-	    break ;
-	case T_COSSIN_CP :
-	    break ;
-	case T_COSSIN_CI :
-	    result = 0 ;
-	    break ;
-	default :
-	    cout << "base_t cas non prevu dans Map_af::integrale_surface_infini" << endl ;
-	    abort() ;
-	    break ;
-    }
     
      switch (base_p) {
 	case P_COSSIN :
