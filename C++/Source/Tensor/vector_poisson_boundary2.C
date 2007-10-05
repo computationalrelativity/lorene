@@ -30,6 +30,9 @@ char vector_poisson_boundary2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2007/10/05 13:06:52  j_novak
+ * Minor modif.
+ *
  * Revision 1.5  2007/09/26 14:13:15  n_vasset
  * *** empty log message ***
  *
@@ -616,7 +619,7 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
 		  // Other shells ( mapping must contain at least two shells!!)
 		  if ( nz <= 2){
 		    cout <<"WARNING!! Mapping must contain at least 2 shells!!" << endl;}
-		  for (int zone=2 ; zone<nzm1 ; zone++) {
+		  for (zone=2 ; zone<nzm1 ; zone++) {
 
 	  nr = mg.get_nr(zone) ;
 		  alpha = mpaff->get_alpha()[zone] ;
@@ -790,7 +793,7 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
 		cf_vr.set(0, k, j, i) = 0.;
 	      }
 
-	      for (int zone=1 ; zone<nzm1 ; zone++) { //shells
+	      for (zone=1 ; zone<nzm1 ; zone++) { //shells
 		  nr = mg.get_nr(zone) ;
 		  for (int i=0 ; i<nr ; i++) {
 		      cf_eta.set(zone, k, j, i) = 
