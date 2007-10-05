@@ -25,6 +25,10 @@ char op_mult_st_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2007/10/05 12:37:20  j_novak
+ * Corrected a few errors in the theta-nonsymmetric case (bases T_COSSIN_C and
+ * T_COSSIN_S).
+ *
  * Revision 1.3  2005/02/16 15:29:28  m_forot
  * Correct T_COSSIN_S and T_COSSIN_C cases
  *
@@ -1307,9 +1311,12 @@ void _mult_st_t_cossin_c(Tbl* tb, int & b)
   }   // Fin de la boucle sur theta
   // j = 0
   xci -= nr ;
+  for (int i=0; i<nr; i++) {
+      xco[i] += 0.5*xci[i] ;
+  }
   xco -= nr ;
   for (int i = 0; i<nr; i++) {
-    xco[i] = 0.0 ;
+    xco[i] = 0. ;
   }
   // Positionnement phi suivant
   xci += nr*nt ;
@@ -1353,9 +1360,12 @@ void _mult_st_t_cossin_c(Tbl* tb, int & b)
       }   // Fin de la boucle sur theta
       // j = 0
       xci -= nr ;
+      for (int i=0; i<nr; i++) {
+	  xco[i] += 0.5*xci[i] ;
+      }
       xco -= nr ;
       for (int i = 0; i<nr; i++) {
-	xco[i] = 0.0 ;
+	xco[i] = 0. ;
       }
       // Positionnement phi suivant
       xci += nr*nt ;
@@ -1547,6 +1557,9 @@ void _mult_st_t_cossin_s(Tbl* tb, int & b)
 	} 
       }   // Fin de la boucle sur theta
       xci -= nr ;
+      for (int i=0; i<nr; i++) {
+	  xco[i] += 0.5*xci[i] ;
+      }
       xco -= nr ;
       for (int i=0; i<nr; i++) {
 	xco[i] = 0. ;

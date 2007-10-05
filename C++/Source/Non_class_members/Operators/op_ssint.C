@@ -37,6 +37,10 @@ char op_ssint_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2007/10/05 12:37:20  j_novak
+ * Corrected a few errors in the theta-nonsymmetric case (bases T_COSSIN_C and
+ * T_COSSIN_S).
+ *
  * Revision 1.4  2005/02/16 15:29:48  m_forot
  * Correct T_COSSIN_S and T_COSSIN_C cases
  *
@@ -1217,7 +1221,7 @@ void _ssint_t_cossin_c(Tbl* tb, int & b)
 	}
 	
 	// j suivants
-	for (int j=nt-2 ; j >= 0 ; j--) {
+	for (int j=nt-2 ; j >0 ; j--) {
 	  int l = j % 2 ;
 	  // Positionnement
 	  xci -= nr ;
@@ -1229,6 +1233,12 @@ void _ssint_t_cossin_c(Tbl* tb, int & b)
 	    xco[i] = somN[i]*(1-l)+somP[i]*l ; 
 	  }	// Fin de la boucle sur r
 	}   // Fin de la boucle sur theta
+	// j = 0 sin(0*theta)
+	xci -= nr ;
+	xco -= nr ;
+	for (int i=0 ; i<nr ; i++) {
+	  xco[i] = 0 ;
+	}
 	// Positionnement phi suivant
 
 	xci += nr*nt ;
@@ -1244,11 +1254,13 @@ void _ssint_t_cossin_c(Tbl* tb, int & b)
 	
 	// Dernier j: j = nt-1
 	// Positionnement
+	double fac_j0 = 0 ;
 	if (m == 0) {
 	  cx = -2 ;
 	    }
 	else {
 	  cx = 2 ;
+	  fac_j0 = 0.5 ;
 	}
 	xco += nr * (nt-1) ;
 	xci += nr * (nt-1) ;
@@ -1274,9 +1286,9 @@ void _ssint_t_cossin_c(Tbl* tb, int & b)
 	    }	// Fin de la boucle sur r
 	}   // Fin de la boucle sur theta
 
-	// Normalisation du premier theta dans le cas sin(impair)
+	// Normalisation du premier theta dans le cas sin, mise a zero dans le cas cos
 	for (int i=0 ; i<nr ; i++) {
-	  xco[i] *= .5 ;
+	  xco[i] *= fac_j0 ;
 	}
 	
 	// Positionnement phi suivant
@@ -1393,8 +1405,10 @@ void _ssint_t_cossin_s(Tbl* tb, int & b)
 	    xco[i] = somN[i]*(1-l)+somP[i]*l ; 
 	  }	// Fin de la boucle sur r
 	}   // Fin de la boucle sur theta
+	for (int i=0 ; i<nr ; i++) {
+	  xco[i] *= .5 ;
+	}
 	// Positionnement phi suivant
-
 	xci += nr*nt ;
 	xco += nr*nt ;
 
@@ -1439,7 +1453,7 @@ void _ssint_t_cossin_s(Tbl* tb, int & b)
 	    }	// Fin de la boucle sur r
 	}   // Fin de la boucle sur theta
 
-	// Normalisation du premier theta dans le cas sin(impair)
+	// Normalisation du premier theta
 	for (int i=0 ; i<nr ; i++) {
 	  xco[i] *= .5 ;
 	}

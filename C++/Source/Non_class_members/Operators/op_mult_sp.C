@@ -35,6 +35,10 @@ char op_mult_sp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2007/10/05 12:37:20  j_novak
+ * Corrected a few errors in the theta-nonsymmetric case (bases T_COSSIN_C and
+ * T_COSSIN_S).
+ *
  * Revision 1.2  2004/11/23 15:16:01  m_forot
  *
  * Added the bases for the cases without any equatorial symmetry
@@ -105,12 +109,10 @@ void _mult_sp_p_cossin(Tbl* tb, int& base) {
 	}
 
         case R_CHEBPI_P : {
-	    base_r = R_CHEBPI_I ; 
 	    break ; 
 	}
 	
 	case R_CHEBPI_I : {
-	    base_r = R_CHEBPI_P ; 
 	    break ; 	    
 	}  
 	  

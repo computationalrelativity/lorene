@@ -25,6 +25,10 @@ char op_scost_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2007/10/05 12:37:20  j_novak
+ * Corrected a few errors in the theta-nonsymmetric case (bases T_COSSIN_C and
+ * T_COSSIN_S).
+ *
  * Revision 1.3  2005/02/16 15:29:40  m_forot
  * Correct T_COSSIN_S and T_COSSIN_C cases
  *
@@ -1215,23 +1219,22 @@ void _scost_t_cossin_sp(Tbl* tb, int & b)
 			//----------------------
 			// cas T_COSSIN_C
 			//----------------------
-void _scost_t_cossin_c(Tbl* tb, int & b)
-{
+void _scost_t_cossin_c(Tbl* tb, int & b) {
 
     // Peut-etre rien a faire ?
     if (tb->get_etat() == ETATZERO) {
 	int base_r = b & MSQ_R ;
 	int base_p = b & MSQ_P ;
 	switch(base_r){
-	case(R_CHEBPI_P):
-	  b = R_CHEBPI_I | base_p | T_COSSIN_C ;
-	  break ;
-	case(R_CHEBPI_I):
-	  b = R_CHEBPI_P | base_p | T_COSSIN_C ;
-	  break ;  
-	default:
-	  b = base_r | base_p | T_COSSIN_C ;
-	  break;
+	    case(R_CHEBPI_P):
+		b = R_CHEBPI_I | base_p | T_COSSIN_C ;
+		break ;
+	    case(R_CHEBPI_I):
+		b = R_CHEBPI_P | base_p | T_COSSIN_C ;
+		break ;  
+	    default:
+		b = base_r | base_p | T_COSSIN_C ;
+		break;
 	}
 	return ;
     }
@@ -1248,14 +1251,12 @@ void _scost_t_cossin_c(Tbl* tb, int & b)
     // zone de travail
     double* somP = new double [nr] ;
     double* somN = new double [nr] ;
-
+    
     // pt. sur le tableau de double resultat
     double* xo = new double[(tb->dim).taille] ;
     
     // Initialisation a zero :
-    for (int i=0; i<(tb->dim).taille; i++) {
-	xo[i] = 0 ; 
-    }
+    for (int i=0; i<(tb->dim).taille; i++) xo[i] = 0 ; 
     
     // On y va...
     double* xi = tb->t ;
@@ -1264,51 +1265,56 @@ void _scost_t_cossin_c(Tbl* tb, int & b)
     
     // k = 0
 	
-	// Dernier j: j = nt-1
+    // Dernier j: j = nt-1
+    // Positionnement
+    xci += nr * (nt-1) ;
+    xco += nr * (nt-1) ;
+    
+    // Initialisation de som 
+    for (int i=0 ; i<nr ; i++) {
+	somP[i] = 0. ;
+	somN[i] = 0. ;
+	xco[i] = 0. ;	// mise a zero du dernier coef en theta
+    }
+    
+    // j suivants
+    for (int j=nt-2 ; j >= 0 ; j--) {
 	// Positionnement
-	xci += nr * (nt-1) ;
-	xco += nr * (nt-1) ;
-	
-	// Initialisation de som 
-	for (int i=0 ; i<nr ; i++) {
-	    somP[i] = 0. ;
-	    somN[i] = 0. ;
-	    xco[i] = 0. ;	// mise a zero du dernier coef en theta
-	}
-	
-	// j suivants
-	for (int j=nt-2 ; j >= 0 ; j--) {
-	  int l = j % 2 ;
-	    // Positionnement
-	    xci -= nr ;
-	    xco -= nr ;
-	    // Calcul
-	    for (int i=0 ; i<nr ; i++ ) {
-	      if(l==1) somN[i] += 2*xci[i] ;
-	      else somP[i] += 2*xci[i] ;
-	      xco[i] = somN[i]*(1-l)+somP[i]*l ;
-	      somP[i] = -somP[i] ;
-	      somN[i] = -somN[i] ;
-	    }	// Fin de la boucle sur r
-	}   // Fin de la boucle sur theta
-	// Positionnement phi suivant
-
-	xci += nr*nt ;
-	xco += nr*nt ;
-
+	xci -= nr ;
+	xco -= nr ;
+	// Calcul
+	for (int i=0 ; i<nr ; i++ ) {
+	    if((j%2) == 1) {
+		somN[i] = -somN[i] ;
+		somN[i] += 2*xci[i] ;
+		xco[i] = somP[i] ;
+	    }
+	    else {
+		somP[i] = -somP[i] ;
+		somP[i] += 2*xci[i] ; 
+		xco[i] = somN[i] ;
+	    }
+	}	// Fin de la boucle sur r
+    }   // Fin de la boucle sur theta
+    // j=0 : le facteur 2...
+    for (int i=0 ; i<nr ; i++) xco[i] *= .5 ;
+ 
+    // Positionnement phi suivant   
+    xci += nr*nt ;
+    xco += nr*nt ;
+    
     // k=1
     xci += nr*nt ;
     xco += nr*nt ;
     
     // k >= 2
     for (int k=2 ; k<np+1 ; k++) {
-   
+	
       	// Dernier j: j = nt-1
 	// Positionnement
-	
 	xco += nr * (nt-1) ;
 	xci += nr * (nt-1) ;
-
+	
 	// Initialisation de som
 	for (int i=0 ; i<nr ; i++) {
 	    somP[i] = 0. ;
@@ -1318,32 +1324,32 @@ void _scost_t_cossin_c(Tbl* tb, int & b)
 	
 	// j suivants
 	for (int j=nt-2 ; j >= 0 ; j--) {
-	  int l = j % 2 ;
 	    // Positionnement
 	    xci -= nr ;
 	    xco -= nr ;
 	    // Calcul	   
 	    for (int i=0 ; i<nr ; i++ ) {
-	      if(l==1) somN[i] += 2 * xci[i] ;
-	      else somP[i] += 2 * xci[i] ;
-	      xco[i] = somN[i]*(1-l)+somP[i]*l ;
-	      somP[i] = -somP[i];
-	      somN[i] = -somN[i];
+		if((j%2) == 1) {
+		    somN[i] = -somN[i];
+		    somN[i] += 2 * xci[i] ;
+		    xco[i] = somP[i] ;
+		}
+		else {
+		    somP[i] = -somP[i];
+		    somP[i] += 2 * xci[i] ;
+		    xco[i] = somN[i];
+		}
 	    }	// Fin de la boucle sur r
 	}   // Fin de la boucle sur theta
-
-	// Normalisation du premier theta dans le cas sin(impair)
-	for (int i=0 ; i<nr ; i++) {
-	  xco[i] *= .5 ;
-	}
+	double fac_m = ( (k/2)%2 == 1 ? 0. : 0.5) ;
+	// j=0 : sin(0*theta) ou facteur 2, suivant la parite de m
+	for (int i=0 ; i<nr ; i++) xco[i] *= fac_m ;
 	
 	// Positionnement phi suivant
-      
 	xci += nr*nt ;
 	xco += nr*nt ;
-	
     }	// Fin de la boucle sur phi
- 
+    
     // On remet les choses la ou il faut
     delete [] tb->t ;
     tb->t = xo ;
@@ -1351,43 +1357,42 @@ void _scost_t_cossin_c(Tbl* tb, int & b)
     //Menage
     delete [] somP ;
     delete [] somN ;
-
+    
     // base de developpement
     int base_r = b & MSQ_R ;
     int base_p = b & MSQ_P ;
     switch(base_r){
-    case(R_CHEBPI_P):
-      b = R_CHEBPI_I | base_p | T_COSSIN_C ;
-      break ;
-    case(R_CHEBPI_I):
-      b = R_CHEBPI_P | base_p | T_COSSIN_C ;
-      break ;  
-    default:
-      b = base_r | base_p | T_COSSIN_C ;
-      break;
+	case(R_CHEBPI_P):
+	    b = R_CHEBPI_I | base_p | T_COSSIN_C ;
+	    break ;
+	case(R_CHEBPI_I):
+	    b = R_CHEBPI_P | base_p | T_COSSIN_C ;
+	    break ;  
+	default:
+	    b = base_r | base_p | T_COSSIN_C ;
+	    break;
     }
-  }
+}
 
 			//---------------------	
 			// cas T_COSSIN_S
 			//----------------
-void _scost_t_cossin_s(Tbl* tb, int & b)
-{
+void _scost_t_cossin_s(Tbl* tb, int & b) {
 
     // Peut-etre rien a faire ?
     if (tb->get_etat() == ETATZERO) {
 	int base_r = b & MSQ_R ;
 	int base_p = b & MSQ_P ;
 	switch(base_r){
-	case(R_CHEBPI_P):
-	  b = R_CHEBPI_I | base_p | T_COSSIN_S ;
-	  break ;
-	case(R_CHEBPI_I):
-	  b = R_CHEBPI_P | base_p | T_COSSIN_S ;
-	  break ;  
-	default:
-	  b = base_r | base_p | T_COSSIN_S ;
-	  break;
+	    case(R_CHEBPI_P):
+		b = R_CHEBPI_I | base_p | T_COSSIN_S ;
+		break ;
+	    case(R_CHEBPI_I):
+		b = R_CHEBPI_P | base_p | T_COSSIN_S ;
+		break ;  
+	    default:
+		b = base_r | base_p | T_COSSIN_S ;
+		break;
 	}
 	return ;
     }
@@ -1409,9 +1414,7 @@ void _scost_t_cossin_s(Tbl* tb, int & b)
     double* xo = new double[(tb->dim).taille] ;
     
     // Initialisation a zero :
-    for (int i=0; i<(tb->dim).taille; i++) {
-	xo[i] = 0 ; 
-    }
+    for (int i=0; i<(tb->dim).taille; i++) xo[i] = 0 ; 
     
     // On y va...
     double* xi = tb->t ;
@@ -1419,49 +1422,54 @@ void _scost_t_cossin_s(Tbl* tb, int & b)
     double* xco = xo ;	//  courants
     
     // k = 0
-   	
-	// Dernier j: j = nt-1
+    
+    // Dernier j: j = nt-1
+    // Positionnement
+    xci += nr * (nt-1) ;
+    xco += nr * (nt-1) ;
+	
+    // Initialisation de som 
+    for (int i=0 ; i<nr ; i++) {
+	somP[i] = 0. ;
+	somN[i] = 0. ;
+	xco[i] = 0. ;	// mise a zero du dernier coef en theta
+    }
+	
+    // j suivants
+    for (int j=nt-2 ; j >= 0 ; j--) {
 	// Positionnement
-	xci += nr * (nt-1) ;
-	xco += nr * (nt-1) ;
-	
-	// Initialisation de som 
-	for (int i=0 ; i<nr ; i++) {
-	    somP[i] = 0. ;
-	    somN[i] = 0. ;
-	    xco[i] = 0. ;	// mise a zero du dernier coef en theta
-	}
-	
-	// j suivants
-	for (int j=nt-2 ; j >= 0 ; j--) {
-	  int l = j % 2 ;
-	    // Positionnement
-	    xci -= nr ;
-	    xco -= nr ;
-	    // Calcul
-	    for (int i=0 ; i<nr ; i++ ) {
-	      if(l==1) somN[i] += 2*xci[i] ;
-	      else somP[i] += 2*xci[i] ;
-	      xco[i] = somN[i]*(1-l)+somP[i]*l ;
-	      somP[i] = -somP[i] ;
-	      somN[i] = -somN[i] ;
-	    }	// Fin de la boucle sur r
-	}   // Fin de la boucle sur theta
-	// Positionnement phi suivant
-
-	xci += nr*nt ;
-	xco += nr*nt ;
-
+	xci -= nr ;
+	xco -= nr ;
+	// Calcul
+	for (int i=0 ; i<nr ; i++ ) {
+	    if((j%2) == 1) {
+		somN[i] = -somN[i] ;
+		somN[i] += 2*xci[i] ;
+		xco[i] = somP[i] ;
+	    }
+	    else {
+		somP[i] = -somP[i] ;
+		somP[i] += 2*xci[i] ;		  
+		xco[i] = somN[i] ;
+	    }
+	}	// Fin de la boucle sur r
+    }   // Fin de la boucle sur theta
+	// j=0 : sin(0*theta)
+    for (int i=0 ; i<nr ; i++) xco[i] = 0. ;
+   
+    // Positionnement phi suivant
+    xci += nr*nt ;
+    xco += nr*nt ;
+    
     // k=1
     xci += nr*nt ;
     xco += nr*nt ;
     
     // k >= 2
     for (int k=2 ; k<np+1 ; k++) {
-   
+	
       	// Dernier j: j = nt-1
 	// Positionnement
-	
 	xco += nr * (nt-1) ;
 	xci += nr * (nt-1) ;
 
@@ -1474,32 +1482,34 @@ void _scost_t_cossin_s(Tbl* tb, int & b)
 	
 	// j suivants
 	for (int j=nt-2 ; j >= 0 ; j--) {
-	  int l = j % 2 ;
 	    // Positionnement
 	    xci -= nr ;
 	    xco -= nr ;
 	    // Calcul	   
 	    for (int i=0 ; i<nr ; i++ ) {
-	      if(l==1) somN[i] += 2 * xci[i] ;
-	      else somP[i] += 2 * xci[i] ;
-	      xco[i] = somN[i]*(1-l)+somP[i]*l ;
-	      somP[i] = -somP[i];
-	      somN[i] = -somN[i];
+		if((j%2) == 1) {
+		  somN[i] = -somN[i] ;
+		  somN[i] += 2*xci[i] ;
+		  xco[i] = somP[i] ;
+	      }
+	      else {
+		  somP[i] = -somP[i] ;
+		  somP[i] += 2*xci[i] ;		  
+		  xco[i] = somN[i] ;
+	      }
 	    }	// Fin de la boucle sur r
 	}   // Fin de la boucle sur theta
-
-	// Normalisation du premier theta dans le cas sin(impair)
-	for (int i=0 ; i<nr ; i++) {
-	  xco[i] *= .5 ;
-	}
+	
+	double fac_m = ( (k/2)%2 == 0 ? 0. : 0.5) ;
+	// j=0 : sin(0*theta) ou facteur 2, suivant la parite de m
+	for (int i=0 ; i<nr ; i++) xco[i] *= fac_m ;
 	
 	// Positionnement phi suivant
-      
 	xci += nr*nt ;
 	xco += nr*nt ;
-	
+  
     }	// Fin de la boucle sur phi
- 
+    
     // On remet les choses la ou il faut
     delete [] tb->t ;
     tb->t = xo ;
@@ -1507,20 +1517,19 @@ void _scost_t_cossin_s(Tbl* tb, int & b)
     //Menage
     delete [] somP ;
     delete [] somN ;
-
+    
     // base de developpement
     int base_r = b & MSQ_R ;
     int base_p = b & MSQ_P ;
     switch(base_r){
-    case(R_CHEBPI_P):
-      b = R_CHEBPI_I | base_p | T_COSSIN_S ;
-      break ;
-    case(R_CHEBPI_I):
-      b = R_CHEBPI_P | base_p | T_COSSIN_S ;
-      break ;  
-    default:
-      b = base_r | base_p | T_COSSIN_S ;
-      break;
+	case(R_CHEBPI_P):
+	    b = R_CHEBPI_I | base_p | T_COSSIN_S ;
+	    break ;
+	case(R_CHEBPI_I):
+	    b = R_CHEBPI_P | base_p | T_COSSIN_S ;
+	    break ;  
+	default:
+	    b = base_r | base_p | T_COSSIN_S ;
+	    break;
     }
 }
- 
