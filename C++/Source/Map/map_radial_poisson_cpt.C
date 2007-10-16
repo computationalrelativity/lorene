@@ -11,7 +11,8 @@
  */
 
 /*
- *   Copyright (c) 2000-2001 Eric Gourgoulhon
+ *   Copyright (c) 2000-2007 Eric Gourgoulhon
+ *   Copyright (c) 2007 Michal Bejger
  *   Copyright (c) 2000-2001 Philippe Grandclement
  *   Copyright (c) 2001 Keisuke Taniguchi
  *
@@ -39,6 +40,9 @@ char map_radial_poisson_cpt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2007/10/16 21:53:13  e_gourgoulhon
+ * Added new function poisson_compact (multi-domain version)
+ *
  * Revision 1.3  2003/10/03 15:58:48  j_novak
  * Cleaning of some headers
  *
@@ -123,12 +127,18 @@ char map_radial_poisson_cpt_C[] = "$Header$" ;
 #include "tenseur.h"
 #include "param.h"
 #include "proto.h"
+#include "graphique.h"
+#include "utilitaires.h"
 
-// Local prototype
-Mtbl_cf sol_poisson_compact(const Mtbl_cf& source, double a, double b, 
-			    bool reamorce) ;
-			   
-//*****************************************************************************
+// Local prototypes
+Mtbl_cf sol_poisson_compact(const Mtbl_cf&, double, double, bool) ;
+Mtbl_cf sol_poisson_compact(const Map_af&, const Mtbl_cf&, const Tbl&, 
+	const Tbl&, bool) ;  
+
+
+	/////////////////////////////
+	//	Single domain version  //
+	/////////////////////////////
 
 void Map_radial::poisson_compact(const Cmp& source, const Cmp& aa, 
 				 const Tenseur& bb, const Param& par, 
@@ -417,7 +427,313 @@ void Map_radial::poisson_compact(const Cmp& source, const Cmp& aa,
     
 //==========================================================================
 //			    End of iteration 
-//==========================================================================
-        
+//==========================================================================        
 					 
 }
+
+
+
+	/////////////////////////////
+	//	Multi domain version  //
+	/////////////////////////////
+
+
+void Map_radial::poisson_compact(int nzet, const Cmp& source, const Cmp& aa, 
+				 const Tenseur& bb, const Param& par, 
+				 Cmp& psi) const {
+	
+	if (nzet == 1) {
+		poisson_compact(source, aa, bb, par, psi) ;
+		return ; 
+	}
+
+	if (nzet > 2) {
+		cout << "Map_radial::poisson_compact : the case of a number of domains (nzet)"
+		<< endl << "  larger than 2 is not treated yet !" << endl ; 
+		abort() ; 
+	}
+
+    // Protections
+    // -----------
+    
+    assert(source.get_etat() != ETATNONDEF) ; 
+    assert(aa.get_etat() != ETATNONDEF) ; 
+    assert(bb.get_etat() != ETATNONDEF) ; 
+    assert(aa.get_mp() == source.get_mp()) ; 
+    assert(bb.get_mp() == source.get_mp()) ; 
+    assert(psi.get_mp() == source.get_mp()) ; 
+    
+    
+    // The components of vector b must be given in the spherical basis
+    //  associated with the mapping : 
+    assert(*(bb.get_triad()) == bvect_spher) ; 
+
+    // Maybe nothing to do ?
+    // ---------------------
+    
+	if ( source.get_etat() == ETATZERO ) {	
+		psi.set_etat_zero() ; 
+		return ; 
+	}	
+	
+    // Computation parameters
+    // ----------------------
+    int nitermax = par.get_int() ; 
+    int& niter = par.get_int_mod() ; 
+    double precis = par.get_double(0) ; 
+    double relax = par.get_double(1) ; 
+    double unmrelax = 1. - relax ; 
+
+	// Auxiliary affine mapping
+    Map_af mpaff(*this) ; 
+
+	// Coefficients to fit the profiles of aa and bb in each domain
+	// ------------------------------------------------------------
+	Tbl ac(nzet,3) ; 
+	ac.annule_hard() ;	// initialization to zero 
+	Tbl bc(nzet,3) ; 
+	bc.annule_hard() ; // initialization to zero 
+
+	Valeur ap = aa.va ;
+	Valeur bp = bb(0).va ;
+
+	// Coefficients in the nucleus
+	int nrm1 = mg->get_nr(0) - 1 ; 
+	ac.set(0,0) = ap(0,0,0,0) ;
+	ac.set(0,2) = ap(0,0,0,nrm1) - ac(0,0) ; 
+	
+	bc.set(0,1) = bp(0,0,0,nrm1) ; 
+
+	// Coefficients in the intermediate shells
+	for (int lz=1; lz<nzet-1; lz++) {
+		nrm1 = mg->get_nr(lz) - 1 ; 
+		ac.set(lz,0) = 0.5 * ( ap(lz,0,0,nrm1) + ap(lz,0,0,0) ) ; 
+		ac.set(lz,1) = 0.5 * ( ap(lz,0,0,nrm1) - ap(lz,0,0,0) ) ; 
+
+		bc.set(lz,0) = 0.5 * ( bp(lz,0,0,nrm1) + bp(lz,0,0,0) ) ; 
+		bc.set(lz,1) = 0.5 * ( bp(lz,0,0,nrm1) - bp(lz,0,0,0) ) ; 
+	}
+
+	// Coefficients in the external shell
+	int lext = nzet - 1 ; 
+	nrm1 = mg->get_nr(lext) - 1 ; 
+	ac.set(lext,0) = 0.5 * ap(lext,0,0,0) ; 
+	ac.set(lext,1) = - ac(lext,0) ; 
+
+	bc.set(lext,0) = 0.5 * ( bp(lext,0,0,nrm1) + bp(lext,0,0,0) ) ; 
+	bc.set(lext,1) = 0.5 * ( bp(lext,0,0,nrm1) - bp(lext,0,0,0) ) ;   
+
+	cout << "ac : " << ac << endl ; 
+	cout << "bc : " << bc << endl ; 
+
+	// Prefactor of Lap_xi(Psi) and dPsi/dxi
+	// -------------------------------------
+
+	Mtbl ta(mg) ;
+	Mtbl tb(mg) ;
+	ta.annule_hard() ; 
+	tb.annule_hard() ; 
+	for (int lz=0; lz<nzet; lz++) {
+		const double* xi = mg->get_grille3d(lz)->x ;
+		double* tta = ta.set(lz).t ; 
+		double* ttb = tb.set(lz).t ; 
+		int np = mg->get_np(lz) ; 
+		int nt = mg->get_nt(lz) ; 
+		int nr = mg->get_nr(lz) ; 
+		int pt = 0 ; 
+		for (int k=0; k<np; k++) {
+			for (int j=0; j<nt; j++) {
+				for (int i=0; i<nr; i++) {
+					tta[pt] = ac(lz,0) + xi[i] * (ac(lz,1) + ac(lz,2) * xi[i]) ;
+					ttb[pt] = bc(lz,0) + xi[i] * (bc(lz,1) + bc(lz,2) * xi[i]) ;
+					pt++ ;  
+				}
+			}
+		}
+	}
+
+// Verification
+// 	cout << "Map :" << *(aa.get_mp()) << endl ; 
+// 	Cmp tverif(*this) ; 
+// 	tverif = ap ;
+// 	tverif.std_base_scal() ;  
+// 	des_profile(tverif,0., 4., 0., 0.) ; 
+// 	tverif = ta ; 
+// 	tverif.std_base_scal() ;  
+// 	des_profile(tverif,0., 4., 0., 0.) ; 
+// 
+// 	tverif = bp ;
+// 	tverif.std_base_scal() ;  
+// 	des_profile(tverif,0., 4., 0., 0.) ; 
+// 	tverif = tb ; 
+// 	tverif.std_base_scal() ;  
+// 	des_profile(tverif,0., 4., 0., 0.) ; 
+
+	
+
+    // Everything is set to zero except inside the star
+    // -------------------------------------------------
+
+    int nz = mg->get_nzone() ;
+
+    psi.annule(nzet, nz-1) ; 
+
+    // Auxilary quantities
+    // -------------------
+    Cmp psi_jm1 = psi ; 
+    Cmp b_grad_psi(this) ; 
+    Valeur sour_j(*mg) ; 
+    Valeur aux_psi(*mg) ;		
+    Valeur lap_xi_psi(*mg) ; 
+    Valeur oper_psi(*mg) ; 
+    Valeur dpsi(*mg) ; 
+    Valeur d2psi(*mg) ; 
+
+    Valeur& vpsi = psi.va ; 
+
+//==========================================================================
+//			    Start of iteration 
+//==========================================================================
+
+    Tbl tdiff(nz) ; 
+    double diff ; 
+    niter = 0 ; 
+ 
+    
+    do {
+    
+	// Computation of the source for sol_poisson_compact
+	// -------------------------------------------------
+
+ 	b_grad_psi = bb(0) % psi.dsdr() + bb(1) % psi.srdsdt() + bb(2) % psi.srstdsdp() ; 
+
+//?? 
+ 	vpsi.ylm() ;	// Expansion of psi onto spherical harmonics
+
+	// Effective source : 
+
+	Cmp lap_zeta(mpaff) ; 
+	mpaff.laplacien(psi, 0, lap_zeta) ; 
+
+	Cmp grad_zeta(mpaff) ;
+	mpaff.dsdr(psi, grad_zeta) ; 
+
+	sour_j = source.va 
+			+ ta * lap_zeta.va - aa.va * (psi.laplacien()).va
+		    + tb * grad_zeta.va - b_grad_psi.va ; 
+			   
+	sour_j.std_base_scal() ; 
+	sour_j.coef() ; 
+	sour_j.ylm() ;	    // Spherical harmonics expansion 
+
+
+	// The term l=0 of the effective source is set to zero : 
+	// ---------------------------------------------------
+
+	for (int lz=0; lz<nzet; lz++) {
+		double somlzero = 0 ; 
+    	for (int i=0; i<mg->get_nr(lz); i++) {
+	    	somlzero += fabs( (*(sour_j.c_cf))(lz, 0, 0, i) ) ; 
+	    	(sour_j.c_cf)->set(lz, 0, 0, i) = 0 ;  
+		}
+		if (somlzero > 1.e-10) {
+	    	cout << "### WARNING : Map_radial::poisson_compact : " << endl
+		 	<< " domain no. " << lz << " : the l=0 part of the effective source is > 1.e-10  : "
+		 	<< somlzero << endl ; 
+		}
+	}
+
+	// Resolution of the equation 
+	//----------------------------
+	
+	bool reamorce = (niter == 0) ;
+	
+	assert(sour_j.c_cf != 0x0) ; 
+	
+	psi.set_etat_zero() ;  // to call Cmp::del_deriv().
+	psi.set_etat_qcq() ;
+	
+	vpsi = sol_poisson_compact(mpaff, *(sour_j.c_cf), ac, bc, reamorce) ;
+
+	// Test: has the equation been correctly solved ?
+	// ---------------------------------------------
+	
+	mpaff.laplacien(psi, 0, lap_zeta) ; 
+	mpaff.dsdr(psi, grad_zeta) ; 
+
+	oper_psi = ta * lap_zeta.va + tb * grad_zeta.va ; 
+	oper_psi.std_base_scal() ; 
+	oper_psi.coef() ; 
+	oper_psi.ylm() ;			
+
+	Mtbl_cf diff_opsou = *oper_psi.c_cf - *sour_j.c_cf ; 
+		//cout << " Coef of oper_psi - sour_j : " << endl ; 
+		// diff_opsou.affiche_seuil(cout, 4, 1.e-11) ; 
+	
+	cout << "poisson_compact:  step " << niter << " : " << endl ;  
+	for (int lz=0; lz<nzet; lz++) {
+		double maxc = fabs( max(*(vpsi.c_cf))(lz) ) ; 
+		double minc = fabs( min(*(vpsi.c_cf))(lz) ) ; 
+		double max_abs_psi = ( maxc > minc ) ? maxc : minc ; 	
+
+		maxc = fabs( max(*(sour_j.c_cf))(lz) ) ; 
+		minc = fabs( min(*(sour_j.c_cf))(lz) ) ; 
+		double max_abs_sou = ( maxc > minc ) ? maxc : minc ; 	
+
+		maxc = fabs( max(diff_opsou)(lz) ) ; 
+		minc = fabs( min(diff_opsou)(lz) ) ; 
+		double max_abs_diff = ( maxc > minc ) ? maxc : minc ; 	
+
+		cout << "  lz = " << lz << " : max |psi| |sou| |oper(psi)-sou|: " 
+	     << max_abs_psi << "  " << max_abs_sou << "  "  
+	     << max_abs_diff << endl ; 
+	}
+
+	// Relaxation : 
+	// -----------
+	
+	vpsi.ylm_i() ;    // Inverse spherical harmonics transform
+
+	psi = relax * psi + unmrelax * psi_jm1 ; 
+
+	tdiff = diffrel(psi, psi_jm1) ; 
+
+	diff = max(tdiff) ;
+
+	cout << "   Relative difference psi^J <-> psi^{J-1} :    " 
+	     << tdiff << endl ;
+
+	// Updates for the next iteration
+	// -------------------------------    
+
+	psi_jm1 = psi ;
+	niter++ ; 
+
+    }	// End of iteration 
+    while ( (diff > precis) && (niter < nitermax) ) ;
+    
+//==========================================================================
+//			    End of iteration 
+//==========================================================================        
+
+	psi.annule(nzet, nz-1) ; 
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
