@@ -39,6 +39,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.52  2007/10/16 21:52:10  e_gourgoulhon
+ * Added method poisson_compact for multi-domains.
+ *
  * Revision 1.51  2007/05/15 12:44:18  p_grandclement
  * Scalar version of reevaluate
  *
@@ -1294,7 +1297,8 @@ class Map {
 				     Cmp& source_div) const = 0 ;
 
 	/** Resolution of the elliptic equation 
-	 * \f$ a \Delta\psi + {\bf b} \cdot \nabla \psi = \sigma\f$.
+	 * \f$ a \Delta\psi + {\bf b} \cdot \nabla \psi = \sigma\f$
+	 * in the case where the stellar interior is covered by a single domain.
 	 * 
 	 * @param source [input] source \f$\sigma\f$ of the above equation
 	 * @param aa [input] factor \e a  in the above equation
@@ -1306,6 +1310,24 @@ class Map {
 	 *	\f$\psi(0)=0\f$.  
 	 */ 
 	virtual void poisson_compact(const Cmp& source, const Cmp& aa, 
+				     const Tenseur& bb, const Param& par, 
+				     Cmp& psi) const = 0 ;
+
+	/** Resolution of the elliptic equation 
+	 * \f$ a \Delta\psi + {\bf b} \cdot \nabla \psi = \sigma\f$
+	 * in the case of a multidomain stellar interior.
+	 * 
+	 * @param nzet [input] number of domains covering the stellar interior
+	 * @param source [input] source \f$\sigma\f$ of the above equation
+	 * @param aa [input] factor \e a  in the above equation
+	 * @param bb [input] vector \e \b b in the above equation
+	 * @param par [input/output] possible parameters to control the
+	 *   resolution of the equation. See the actual implementation 
+	 *   in the derived class of \c Map for documentation. 
+	 * @param psi [input/output] solution \f$\psi\f$ which satisfies
+	 *	\f$\psi(0)=0\f$.  
+	 */ 
+	virtual void poisson_compact(int nzet, const Cmp& source, const Cmp& aa, 
 				     const Tenseur& bb, const Param& par, 
 				     Cmp& psi) const = 0 ;
 
@@ -1889,7 +1911,8 @@ class Map_radial : public Map {
     // --------------
     public:
 	/** Resolution of the elliptic equation 
-	 * \f$ a \Delta\psi + {\bf b} \cdot \nabla \psi = \sigma\f$.
+	 * \f$ a \Delta\psi + {\bf b} \cdot \nabla \psi = \sigma\f$
+	 * in the case where the stellar interior is covered by a single domain.
 	 * 
 	 * @param source [input] source \f$\sigma\f$ of the above equation
 	 * @param aa [input] factor \e a  in the above equation
@@ -1912,6 +1935,25 @@ class Map_radial : public Map {
 	virtual void poisson_compact(const Cmp& source, const Cmp& aa, 
 				     const Tenseur& bb, const Param& par, 
 				     Cmp& psi) const ;
+
+	/** Resolution of the elliptic equation 
+	 * \f$ a \Delta\psi + {\bf b} \cdot \nabla \psi = \sigma\f$
+	 * in the case of a multidomain stellar interior.
+	 * 
+	 * @param nzet [input] number of domains covering the stellar interior
+	 * @param source [input] source \f$\sigma\f$ of the above equation
+	 * @param aa [input] factor \e a  in the above equation
+	 * @param bb [input] vector \e \b b in the above equation
+	 * @param par [input/output] possible parameters to control the
+	 *   resolution of the equation. See the actual implementation 
+	 *   in the derived class of \c Map for documentation. 
+	 * @param psi [input/output] solution \f$\psi\f$ which satisfies
+	 *	\f$\psi(0)=0\f$.  
+	 */ 
+	virtual void poisson_compact(int nzet, const Cmp& source, const Cmp& aa, 
+				     const Tenseur& bb, const Param& par, 
+				     Cmp& psi) const ;
+
 };
 
 
