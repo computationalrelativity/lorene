@@ -3,6 +3,7 @@ SHELL=/bin/sh
 include $(HOME_LORENE)/local_settings		  # defines which compiler,...
 
 LIB_G = -L$(HOME_LORENE)/Lib -llorene_g -llorenef77_g 
+LIBLOR = $(HOME_LORENE)/Lib/liblorene_g.a $(HOME_LORENE)/Lib/liblorenef77_g.a 
 
 .SUFFIXES : .o .C
 
@@ -34,31 +35,31 @@ SRC7 = prepare_seq.C
 OBJ7 = $(SRC7:.C=.o)
 EXE7 = $(SRC7:.C=)
 
-$(EXE1): $(OBJ1)
+$(EXE1): $(OBJ1) $(LIBLOR) 
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
-$(EXE2): $(OBJ2)
+$(EXE2): $(OBJ2) $(LIBLOR) 
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ2) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
-$(EXE3): $(OBJ3)
+$(EXE3): $(OBJ3) $(LIBLOR) 
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ3) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
-$(EXE4): $(OBJ4)
+$(EXE4): $(OBJ4) $(LIBLOR) 
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ4) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
-$(EXE5): $(OBJ5)
+$(EXE5): $(OBJ5) $(LIBLOR) 
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ5) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
-$(EXE6): $(OBJ6)
+$(EXE6): $(OBJ6) $(LIBLOR) 
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ6) $(LIB_G) $(LIB_LAPACK) \
 					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
-$(EXE7): $(OBJ7)
+$(EXE7): $(OBJ7) $(LIBLOR) 
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ7) $(LIB_G) 
 
 .C.o:
