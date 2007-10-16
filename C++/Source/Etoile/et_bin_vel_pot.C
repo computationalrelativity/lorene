@@ -33,6 +33,10 @@ char et_bin_vel_pot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2007/10/16 21:56:26  e_gourgoulhon
+ * Can deal with more than one domain into the star,
+ * thanks to the new function Map_radial::poisson_compact.
+ *
  * Revision 1.12  2005/10/18 13:12:33  p_grandclement
  * update of the mixted binary codes
  *
@@ -122,6 +126,7 @@ char et_bin_vel_pot_C[] = "$Header$" ;
 #include "eos.h"
 #include "param.h"
 #include "et_bin_nsbh.h"
+#include "utilitaires.h"
 
 // Local prototype
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
@@ -385,6 +390,8 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
 
   }  // End of strange stars case
 
+//=============================================================================
+
   else {
     
     int nzm1 = mp.get_mg()->get_nzone() - 1 ;    
@@ -433,8 +440,6 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
 	dndh_log.set(l) = 1 ; 
     }
     
-    double erreur ;				
-   
     Tenseur zeta_h( ent() / dndh_log ) ;
     zeta_h.set_std_base() ;
     
@@ -484,8 +489,8 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
     }
     
     source.set().va.ylm() ;
-      
-    mp.poisson_compact(source(), zeta_h(), bb, par, psi0.set() ) ;
+    
+    mp.poisson_compact(nzet, source(), zeta_h(), bb, par, psi0.set() ) ;
 
     //---------------------------------------------------
     // Check of the solution  
@@ -497,13 +502,16 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
 	
     source.set().va.ylm_i() ;
 	
-    erreur = diffrel(oper, source())(0) ; 
-	
-    cout << "Check of the resolution of the continuity equation : " 
-	 << endl ; 
-    cout << "norme(source) : " << norme(source())(0) 
-	 << "    diff oper/source : " << erreur << endl ; 
-	
+    cout << "Check of the resolution of the continuity equation : "  << endl ; 
+    Tbl terr = diffrel(oper, source()) ;
+	double erreur = 0 ; 
+	for (int l=0; l<nzet; l++) { 
+		double err = terr(l) ; 
+    	cout << " domain " << l << " : norme(source) : " << norme(source())(l) 
+	 		<< "    relative error : " << err << endl ;
+		if (err > erreur) erreur = err ; 
+	} 
+	// arrete() ; 
     
    //--------------------------------
    // Computation of grad(psi)
