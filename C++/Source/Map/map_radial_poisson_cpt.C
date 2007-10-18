@@ -40,6 +40,11 @@ char map_radial_poisson_cpt_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2007/10/18 08:19:32  e_gourgoulhon
+ * Suppression of the abort for nzet > 2 : the function should be able
+ * to treat an arbitrary number of domains inside the star.
+ * NB: tested only for nzet = 2.
+ *
  * Revision 1.4  2007/10/16 21:53:13  e_gourgoulhon
  * Added new function poisson_compact (multi-domain version)
  *
@@ -447,11 +452,6 @@ void Map_radial::poisson_compact(int nzet, const Cmp& source, const Cmp& aa,
 		return ; 
 	}
 
-	if (nzet > 2) {
-		cout << "Map_radial::poisson_compact : the case of a number of domains (nzet)"
-		<< endl << "  larger than 2 is not treated yet !" << endl ; 
-		abort() ; 
-	}
 
     // Protections
     // -----------
@@ -569,7 +569,6 @@ void Map_radial::poisson_compact(int nzet, const Cmp& source, const Cmp& aa,
 // 	tverif.std_base_scal() ;  
 // 	des_profile(tverif,0., 4., 0., 0.) ; 
 
-	
 
     // Everything is set to zero except inside the star
     // -------------------------------------------------
