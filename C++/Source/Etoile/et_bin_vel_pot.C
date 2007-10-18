@@ -33,6 +33,10 @@ char et_bin_vel_pot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2007/10/18 14:26:43  e_gourgoulhon
+ * Changed the call to Eos::der_nbar_ent in order to allow for MEos type
+ * of equation of state.
+ *
  * Revision 1.13  2007/10/16 21:56:26  e_gourgoulhon
  * Can deal with more than one domain into the star,
  * thanks to the new function Map_radial::poisson_compact.
@@ -432,7 +436,19 @@ double Etoile_bin::velocity_potential(int mermax, double precis, double relax) {
     // Source and coefficients a,b for poisson_compact (idenpendent from psi0)
     //-------------------------------------------------
     
-    Cmp dndh_log = eos.der_nbar_ent(ent(), nzet) ; 
+    Cmp dndh_log(mp) ; 
+	dndh_log = 0 ; 
+
+	for (int l=0; l<nzet; l++) {
+
+        Param par ;       // Paramater for multi-domain equation of state
+        par.add_int(l) ;
+
+        dndh_log = dndh_log +  eos.der_nbar_ent(ent(), 1, l, &par) ;
+
+    }
+	
+    // Cmp dndh_log = eos.der_nbar_ent(ent(), nzet) ; 
 
     // In order to avoid any division by zero in the computation of zeta_h
     //  the value of dndh_log is set to 1 in the external domains:
