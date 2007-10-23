@@ -32,6 +32,9 @@ char mtbl_cf_val_point_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2007/10/23 17:15:13  j_novak
+ * Added the bases T_COSSIN_C and T_COSSIN_S
+ *
  * Revision 1.8  2006/06/06 14:57:01  j_novak
  * Summation functions for angular coefficients at xi=+/-1.
  *
@@ -351,6 +354,8 @@ static int premier_appel = 1 ;
 		break ;
 	    } 
 	    
+	    case T_COSSIN_C : 
+	    case T_COSSIN_S : 
 	    case T_COSSIN_SP : 
 	    case T_COSSIN_SI : 
 	    case T_COSSIN_CI : 

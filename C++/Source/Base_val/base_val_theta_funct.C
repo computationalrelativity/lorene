@@ -33,6 +33,9 @@ char base_val_theta_funct_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2007/10/23 17:15:12  j_novak
+ * Added the bases T_COSSIN_C and T_COSSIN_S
+ *
  * Revision 1.5  2006/05/30 08:30:12  n_vasset
  * Implementation of sine-like bases (T_SIN_P, T_SIN_I, T_COSSIN_SI, etc...).
  *
@@ -134,6 +137,8 @@ const Tbl& Base_val::theta_functions(int l, int nt) const {
 	dim2[T_COSSIN_CI >> TRA_T] = 2 ;
 	dim2[T_COSSIN_SP >> TRA_T] = 2 ;
 	dim2[T_COSSIN_SI >> TRA_T] = 2 ;
+	dim2[T_COSSIN_C >> TRA_T] = 2 ;
+	dim2[T_COSSIN_S >> TRA_T] = 2 ;
 
     }
 
