@@ -113,6 +113,7 @@ uninstall:
 	cd Source/Ope_elementary/Ope_poisson_pseudo_1d; $(MAKE) -i uninstall
 	cd Source/Ope_elementary/Ope_helmholtz_minus_2d; $(MAKE) -i uninstall
 	cd Source/Ope_elementary/Ope_helmholtz_minus_pseudo_1d; $(MAKE) -i uninstall
+	cd Source/Ope_elementary/Ope_vorton; $(MAKE) -i uninstall
 	cd Source/Param; $(MAKE) -i uninstall
 	cd Source/Param_elliptic; $(MAKE) -i uninstall
 	cd Source/Star; $(MAKE) -i uninstall
