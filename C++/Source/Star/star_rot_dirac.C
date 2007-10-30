@@ -30,6 +30,9 @@ char star_rot_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2007/10/30 16:55:23  j_novak
+ * Completed the input/ouput to a file
+ *
  * Revision 1.3  2005/02/09 13:37:37  lm_lin
  *
  * Add pointers p_tsw, p_aplat, and p_r_circ; add more screen output
@@ -129,13 +132,13 @@ Star_rot_Dirac::Star_rot_Dirac(const Star_rot_Dirac& star)
 }
 
 
-//Constructor from a file //## to be more general...
+//Constructor from a file 
 //------------------------
 Star_rot_Dirac::Star_rot_Dirac(Map& mpi, const Eos& eos_i, FILE* fich)
                   : Star(mpi, eos_i, fich),
 		    psi4(mpi),
 		    psi2(mpi),
-		    qqq(mpi),
+		    qqq(mpi, *(mpi.get_mg()), fich),
 		    ln_psi(mpi),
 		    j_euler(mpi, CON, mpi.get_bvect_spher()),
 		    v2(mpi),
@@ -144,33 +147,22 @@ Star_rot_Dirac::Star_rot_Dirac(Map& mpi, const Eos& eos_i, FILE* fich)
 		    aa(mpi, CON, mpi.get_bvect_spher()),
 		    taa(mpi, COV, mpi.get_bvect_spher()),
 		    aa_quad(mpi),
-		    hh(mpi, mpi.get_bvect_spher(), flat)
+		    hh(mpi, mpi.get_bvect_spher(), flat, fich)
 {
 
   // Star_rot_Dirac parameter
   //-------------------------
 
-  // omega is read in the file:
+  // Metric fields are read in the file:
   fread_be(&omega, sizeof(double), 1, fich) ;
+  Vector shift_tmp(mpi, mpi.get_bvect_spher(), fich) ;
+  beta = shift_tmp ;
 
+  equation_of_state() ;
 
-  // Initialized to a static state
-  //------------------------------
-  
-  v2 = 0 ;
-  j_euler.set_etat_zero() ;
+  hydro_euler() ;
 
-  // Initialized to a flat case
-  //---------------------------
-
-  psi4 = 1 ;
-  psi2 = 1 ;
-  qqq = 1 ;
-  ln_psi = 0 ;
-  aa.set_etat_zero() ;
-  taa.set_etat_zero() ;
-  aa_quad.set_etat_zero() ;
-  hh.set_etat_zero() ;
+  update_metric() ;
 
   // Pointers of derived quantities initialized to zero 
   //----------------------------------------------------
@@ -278,9 +270,10 @@ void Star_rot_Dirac::sauve(FILE* fich) const {
 
       Star::sauve(fich) ;
 
+      qqq.sauve(fich) ;
+      hh.sauve(fich) ;
       fwrite_be(&omega, sizeof(double), 1, fich) ;
-
-      // What else to save? //## to be more general ...
+      beta.sauve(fich) ;
 
 }
 
