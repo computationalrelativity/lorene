@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.81  2007/10/31 10:33:11  j_novak
+ * Added exponential filters to smooth Gibbs-type phenomena.
+ *
  * Revision 1.80  2007/06/21 19:56:36  k_taniguchi
  * Introduction of another filtre_r.
  *
@@ -899,6 +902,29 @@ class Scalar : public Tensor {
    * Sets the \c n  last coefficients in \e r  to 0 in the domain \c nzone .
    */
   void filtre_r (int n, int nzone) ;
+
+  /**
+   * Applies an exponential filter to the spectral coefficients in the radial direction.
+   * The filter is of the type: \f$ \forall n\leq N,\, b_n = \sigma(n/N ) a_n\f$, with 
+   * \f$ \sigma(x) = \exp\left( -\ln (10^\alpha ) x^{2p} \right) \f$ and \e N the number 
+   * of radial coefficients.
+   * @param lzmin, lzmax [input] the indices of the domain where the filter is applied 
+   *                              (in [\c lzmin , \c lzmax ])
+   * @param p [input] the order of the filter
+   * @param alpha [input] \f$\alpha\f$ appearing in the above formula.
+   */
+  void exponential_filter_r(int lzmin, int lzmax, int p, 
+			    double alpha= -16.) ;
+
+  /**
+   * Applies an exponential filter to the spectral coefficients in the angular directions.
+   * The filter is of the type: 
+   * \f$ \forall \ell \leq \ell_{\rm max},\, \forall m,\, b_{\ell m} = \sigma(\ell/\ell_{\rm max} ) a_{\ell m}\f$, with 
+   * \f$ \sigma(x) \f$ defined for \c Scalar::exponential_filter_r and 
+   * \f$\ell_{\rm max}\f$ the number of spherical harmonics used.
+   */
+  void exponential_filter_ylm(int lzmin, int lzmax, int p, 
+			    double alpha= -16.) ;
 
   /**
    * Sets all the multipolar components between \c l_min and \c l_max
@@ -1789,6 +1815,19 @@ Tbl diffrel(const Scalar& a, const Scalar& b) ;
  *	   in domain no. \c l . 
  */
 Tbl diffrelmax(const Scalar& a, const Scalar& b) ; 
+
+/**
+ * Applies an exponential filter in radial direction in all domains.
+ * (see \c Scalar:exponential_filter_r ). Note that this may cause 
+ * regularity problems at the origin if applied in a nucleus.
+ */
+void exp_filter_r_all_domains(Scalar& ss, int p, double alpha=-16.) ;
+
+/**
+ * Applies an exponential filter in angular directions in all domains.
+ * (see \c Scalar:exponential_filter_ylm ).
+ */
+void exp_filter_ylm_all_domains(Scalar& ss, int p, double alpha=-16.) ;
 
 /** @} */
 #endif
