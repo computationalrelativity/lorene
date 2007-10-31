@@ -23,11 +23,14 @@
  *
  */
 
-char exp_filter_C[] = "$Header$" ;
+char scalar_exp_filter_C[] = "$Header$" ;
 
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2007/10/31 10:50:16  j_novak
+ * Testing whether the coefficients are zero in a given domain.
+ *
  * Revision 1.1  2007/10/31 10:33:13  j_novak
  * Added exponential filters to smooth Gibbs-type phenomena.
  *
@@ -59,16 +62,17 @@ void Scalar::exponential_filter_r(int lzmin, int lzmax, int p,
     assert(alpha < 0.) ;
     double alp = log(pow(10., alpha)) ;
     
-    for (int lz=lzmin; lz<=lzmax; lz++) 
-	for (int k=0; k<mgrid.get_np(lz); k++) 
-	    for (int j=0; j<mgrid.get_nt(lz); j++) {
-		int nr = mgrid.get_nr(lz) ;
-		for (int i=0; i<nr; i++) {
-		    double eta = double(i)/double(nr) ;
-		    va.c_cf->set(lz, k, j, i) *= exp(alp*pow(eta, 2*p)) ;
+    for (int lz=lzmin; lz<=lzmax; lz++) {
+	if ((*va.c_cf)(lz).get_etat() == ETATQCQ) 
+	    for (int k=0; k<mgrid.get_np(lz); k++) 
+		for (int j=0; j<mgrid.get_nt(lz); j++) {
+		    int nr = mgrid.get_nr(lz) ;
+		    for (int i=0; i<nr; i++) {
+			double eta = double(i)/double(nr) ;
+			va.c_cf->set(lz, k, j, i) *= exp(alp*pow(eta, 2*p)) ;
+		    }
 		}
-	    }
-
+    }
      if (va.c != 0x0) {
  	delete va.c ;
  	va.c = 0x0 ;
@@ -101,23 +105,24 @@ void Scalar::exponential_filter_ylm(int lzmin, int lzmax, int p,
     const Base_val& base = va.base ;
     int l_q, m_q, base_r ;
     
-    for (int lz=lzmin; lz<=lzmax; lz++) {
-	int np = mgrid.get_np(lz) ;
-	int nt = mgrid.get_nt(lz) ;
-	int nr = mgrid.get_nr(lz) ;
-	int lmax = base.give_lmax(mgrid, lz) ; 
-	for (int k=0; k<np; k++) 
-	    for (int j=0; j<nt; j++) {
-		base.give_quant_numbers(lz, k, j, m_q, l_q, base_r) ;
-		if (nullite_plm(j, nt, k, np, base) == 1 ) {
-		    double eta = double(l_q) / double(lmax) ;
-		    double sigma = exp(alp*pow(eta, 2*p)) ;
-		    for (int i=0; i<nr; i++) 
-			va.c_cf->set(lz, k, j, i) *= sigma ;
+    for (int lz=lzmin; lz<=lzmax; lz++) 
+	if ((*va.c_cf)(lz).get_etat() == ETATQCQ) {
+	    int np = mgrid.get_np(lz) ;
+	    int nt = mgrid.get_nt(lz) ;
+	    int nr = mgrid.get_nr(lz) ;
+	    int lmax = base.give_lmax(mgrid, lz) ; 
+	    for (int k=0; k<np; k++) 
+		for (int j=0; j<nt; j++) {
+		    base.give_quant_numbers(lz, k, j, m_q, l_q, base_r) ;
+		    if (nullite_plm(j, nt, k, np, base) == 1 ) {
+			double eta = double(l_q) / double(lmax) ;
+			double sigma = exp(alp*pow(eta, 2*p)) ;
+			for (int i=0; i<nr; i++) 
+			    va.c_cf->set(lz, k, j, i) *= sigma ;
+		    }
 		}
-	    }
-    }
-
+	}
+    
     va.ylm_i() ;
     if (va.c != 0x0) {
  	delete va.c ;
