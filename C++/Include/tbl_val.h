@@ -31,6 +31,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2007/11/02 15:45:56  j_novak
+ * Added an ugly method "append_array", which substitutes the argument to the
+ * main array t.
+ *
  * Revision 1.7  2005/06/22 09:09:38  lm_lin
  *
  * Grid wedding: convert from the old C++ object "Cmp" to "Scalar".
@@ -155,6 +159,12 @@ class Tbl_val {
    */
   void set_etat_qcq() ;	    	
     
+  /**
+   * Appends an array of doubles as the main array \c t of \c this 
+   * (\b DO \b NOT use it, unless you \b REALLY know how it works).
+   */
+  void append_array(double* t_in) ;
+
   /**
    * Sets the \c Tbl_val to zero in a hard way. 
    * 1/ Sets the logical state to \c ETATQCQ , i.e. to an ordinary state.

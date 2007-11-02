@@ -32,6 +32,10 @@ char TBL_VAL_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2007/11/02 15:45:58  j_novak
+ * Added an ugly method "append_array", which substitutes the argument to the
+ * main array t.
+ *
  * Revision 1.3  2002/10/16 14:37:15  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -319,6 +323,12 @@ void Tbl_val::annule_hard() {
   etat = ETATQCQ ;
 }
 
+void Tbl_val::append_array(double* t_in) {
+    assert (t_in != 0x0) ;
+    del_t() ;
+    t = t_in ;
+    etat = ETATQCQ ;
+}
 
 			//------------------------//
 			//	Display		  //
