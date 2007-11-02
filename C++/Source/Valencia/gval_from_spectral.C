@@ -29,6 +29,9 @@ char gval_from_spectral_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2007/11/02 16:49:12  j_novak
+ * Suppression of intermediate array for spectral summation.
+ *
  * Revision 1.7  2006/10/02 07:41:03  j_novak
  * Corrected an error in the case r=0, when exporting to a cartesian grid.
  *
@@ -68,12 +71,16 @@ char gval_from_spectral_C[] = "$Header$" ;
                  // Sommation depuis une grille spectrale
                  //--------------------------------------
 
-double* Grille_val::somme_spectrale1(const Scalar& meudon) const {
+void Grille_val::somme_spectrale1(const Scalar& meudon, double* resu, int taille_in) const {
 
   int taille = dim.dim[0]+2*nfantome ;
+  if (taille != taille_in) {
+      cout << "Gval_spher::somme_spectral2():\n" ;
+      cout << "grid size incompatible with array size... exiting!" << endl ;
+      abort() ;
+  }
   int nrv = dim.dim[0]+nfantome ;
   const Map& mp = meudon.get_mp() ;
-  double* resu = new double[taille] ;
   int l ;
   double xi ;
   for (int i=0; i<nfantome; i++) resu[i] = 0 ;
@@ -82,17 +89,20 @@ double* Grille_val::somme_spectrale1(const Scalar& meudon) const {
     resu[i] = meudon.get_spectral_va().val_point_jk(l, xi, 0, 0) ;
   }
   for (int i=nrv; i<taille; i++) resu[i] = 0 ;
-  return resu ;
 }
  
-double* Gval_cart::somme_spectrale2(const Scalar& meudon) const {
+void Gval_cart::somme_spectrale2(const Scalar& meudon, double* resu, int taille_in) const {
   int nzv = dim.dim[0] + nfantome ;
   int nxv = dim.dim[1] + nfantome ;
   int nzv2 = dim.dim[0] + 2*nfantome ;
   int nxv2 = dim.dim[1] + 2*nfantome ;
   int taille = nxv2*nzv2 ;
+  if (taille != taille_in) {
+      cout << "Gval_spher::somme_spectral2():\n" ;
+      cout << "grid size incompatible with array size... exiting!" << endl ;
+      abort() ;
+  }
   const Map& mp = meudon.get_mp() ;
-  double* resu = new double[taille] ;
   int l ;
   double xi0, rr, theta ;
   double phi = 0 ;
@@ -127,10 +137,9 @@ double* Gval_cart::somme_spectrale2(const Scalar& meudon) const {
       inum++ ;
     }
   }  
-  return resu ;
 }
 
-double* Gval_cart::somme_spectrale3(const Scalar& meudon) const{
+void Gval_cart::somme_spectrale3(const Scalar& meudon, double* resu, int taille_in) const{
   int nzv = dim.dim[0] + nfantome ;
   int nxv = dim.dim[1] + nfantome ;
   int nyv = dim.dim[2] + nfantome ;
@@ -138,8 +147,12 @@ double* Gval_cart::somme_spectrale3(const Scalar& meudon) const{
   int nxv2 = dim.dim[1] + 2*nfantome ;
   int nyv2 = dim.dim[2] + 2*nfantome ;
   int taille = nyv2*nxv2*nzv2 ;
+  if (taille != taille_in) {
+      cout << "Gval_spher::somme_spectral2():\n" ;
+      cout << "grid size incompatible with array size... exiting!" << endl ;
+      abort() ;
+  }
   const Map& mp = meudon.get_mp() ;
-  double* resu = new double[taille] ;
   int l ;
   double xi0, rr, theta, phi ;
   int inum = 0 ;
@@ -195,10 +208,9 @@ double* Gval_cart::somme_spectrale3(const Scalar& meudon) const{
       }
     }
   }
-  return resu ;
 }
 
-double* Gval_spher::somme_spectrale2(const Scalar& meudon) const {
+void Gval_spher::somme_spectrale2(const Scalar& meudon, double* resu, int taille_in) const {
 
     assert (dim.ndim >=2) ;
   int nrv = dim.dim[0] + nfantome ;
@@ -206,8 +218,12 @@ double* Gval_spher::somme_spectrale2(const Scalar& meudon) const {
   int nrv2 = dim.dim[0] + 2*nfantome ;
   int ntv2 = dim.dim[1] + 2*nfantome ;
   int taille = ntv2*nrv2 ;
+  if (taille != taille_in) {
+      cout << "Gval_spher::somme_spectral2():\n" ;
+      cout << "grid size incompatible with array size... exiting!" << endl ;
+      abort() ;
+  }
   const Map& mp = meudon.get_mp() ;
-  double* resu = new double[taille] ;
   int l ;
   double xi, rr, theta ;
   double phi0 = 0 ;
@@ -241,7 +257,6 @@ double* Gval_spher::somme_spectrale2(const Scalar& meudon) const {
       inum++ ;
     }
   }  
-  return resu ;
 }
 
 double* Gval_spher::somme_spectrale2ri(const Scalar& meudon) const {
@@ -332,7 +347,7 @@ double* Gval_spher::somme_spectrale2ti(const Scalar& meudon) const {
   return resu ;
 }
 
-double* Gval_spher::somme_spectrale3(const Scalar& meudon) const{
+void Gval_spher::somme_spectrale3(const Scalar& meudon, double* resu, int taille_in) const{
 
   assert(meudon.get_etat() == ETATQCQ) ;
   meudon.get_spectral_va().coef() ;
@@ -348,6 +363,11 @@ double* Gval_spher::somme_spectrale3(const Scalar& meudon) const{
   int ntv2 = dim.dim[1] + 2*nfantome ;
   int npv2 = dim.dim[2] + 2*nfantome ;
   int taille = npv2*ntv2*nrv2 ;
+  if (taille != taille_in) {
+      cout << "Gval_spher::somme_spectral2():\n" ;
+      cout << "grid size incompatible with array size... exiting!" << endl ;
+      abort() ;
+  }
   const Map& mp = meudon.get_mp() ;
 #ifndef NDEBUG
   const Map_af* mpaff = dynamic_cast<const Map_af*>(&mp) ;
@@ -435,7 +455,6 @@ double* Gval_spher::somme_spectrale3(const Scalar& meudon) const{
   double* expmk = 0x0 ;
   initialize_spectral_phi(mp, meudon.get_spectral_va().get_base(), expmk) ;
   p_func = expmk ;
-  double* resu = new double[taille] ;
   p_coef = resu ;
   for (int ip=0; ip<nfantome; ip++) {
     for (int it=0; it<ntv2; it++) {
@@ -491,7 +510,6 @@ double* Gval_spher::somme_spectrale3(const Scalar& meudon) const{
   }
   delete [] expmk ;
   delete [] beta ;
-  return resu ;
 }
 
 

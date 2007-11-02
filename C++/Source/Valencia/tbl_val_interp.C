@@ -32,6 +32,9 @@ char TBL_VAL_INTER_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2007/11/02 16:49:12  j_novak
+ * Suppression of intermediate array for spectral summation.
+ *
  * Revision 1.8  2005/06/23 13:40:08  j_novak
  * The tests on the number of dimensions have been changed to handle better the
  * axisymmetric case.
@@ -311,14 +314,12 @@ void Tbl_val::from_spectral(const Scalar& meudon, int lmax, int lmin,
     switch (gval->get_ndim()) {
       
     case 1: {
-      delete [] t ;
-      t = gval->somme_spectrale1(meudon) ;
+      gval->somme_spectrale1(meudon, t, get_taille()) ;
     break ;
     }
     
     case 2: {
-      delete [] t ;
-      t = gval->somme_spectrale2(meudon) ;
+      gval->somme_spectrale2(meudon, t, get_taille()) ;
       if (interfr) {
 	delete [] tzri ;
 	const Gval_spher* gvs = dynamic_cast<const Gval_spher*>(gval) ; //## A modifier
@@ -335,8 +336,7 @@ void Tbl_val::from_spectral(const Scalar& meudon, int lmax, int lmin,
     }
     
     case 3: {
-      delete [] t ;
-      t = gval->somme_spectrale3(meudon) ;
+      gval->somme_spectrale3(meudon, t, get_taille()) ;
       break ;
     }
     

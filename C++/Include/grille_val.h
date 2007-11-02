@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2007/11/02 16:49:12  j_novak
+ * Suppression of intermediate array for spectral summation.
+ *
  * Revision 1.7  2005/06/22 09:09:38  lm_lin
  *
  * Grid wedding: convert from the old C++ object "Cmp" to "Scalar".
@@ -278,18 +281,18 @@ class Grille_val {
  protected:
   /**
    * Makes the sommation of the spectral basis functions to know
-   * the values of the function described by the \c Cmp  meudon 
+   * the values of the function described by the \c Scalar meudon 
    * at the points of the 1D Godunov grid \c this .
-   * The result is an array of all the values of the function at \c this  
-   * grid points.
+   * The result is an array \c t of size \c taille of all the values of 
+   * the function at \c this grid points. 
    */
-  double* somme_spectrale1(const Scalar& meudon) const ;
+  void somme_spectrale1(const Scalar& meudon, double* t, int taille) const ;
 
   /// Same as before but for the 2D case
-  virtual double* somme_spectrale2(const Scalar& meudon) const = 0 ;
+  virtual void somme_spectrale2(const Scalar& meudon, double* t, int taille) const = 0 ;
 
   /// Same as before but for the 3D case
-  virtual double* somme_spectrale3(const Scalar& meudon) const = 0 ;
+  virtual void somme_spectrale3(const Scalar& meudon, double* t, int taille) const = 0 ;
   
 };
 ostream& operator<<(ostream& , const Grille_val& ) ;	
@@ -537,15 +540,15 @@ class Gval_cart : public Grille_val {
  protected:
   /**
    * Makes the sommation of the spectral basis functions to know
-   * the values of the function described by the \c Cmp  meudon 
+   * the values of the function described by the \c Scalar meudon 
    * at the points of the 2D Godunov grid \c this .
-   * The result is an array of all the values of the function at \c this  
-   * grid points.
+   * The result is an array \c t of size \c taille of all the values 
+   * of the function at \c this grid points.
    */
-  virtual double* somme_spectrale2(const Scalar& meudon) const  ;
+  virtual void somme_spectrale2(const Scalar& meudon, double* t, int taille) const  ;
 
   /// Same as before but for the 3D case
-  virtual double* somme_spectrale3(const Scalar& meudon) const  ;
+  virtual void somme_spectrale3(const Scalar& meudon, double* t, int taille) const  ;
 };
 
 		    //------------------------------------//
@@ -742,12 +745,12 @@ class Gval_spher : public Grille_val {
  protected:
   /**
    * Makes the sommation of the spectral basis functions to know
-   * the values of the function described by the \c Cmp  meudon 
+   * the values of the function described by the \c Scalar meudon 
    * at the points of the 2D Godunov grid \c this .
-   * The result is an array of all the values of the function at \c this  
-   * grid points.
+   * The result is an array \c t of size \c taille of all the values 
+   * of the function at \c this grid points.
    */
-  virtual double* somme_spectrale2(const Scalar& meudon) const  ;
+  virtual void somme_spectrale2(const Scalar& meudon, double* t, int taille) const  ;
 
   /// Same as before but at radial grid interfaces
   double* somme_spectrale2ri(const Scalar& meudon) const ;
@@ -756,7 +759,7 @@ class Gval_spher : public Grille_val {
   double* somme_spectrale2ti(const Scalar& meudon) const ;
 
   /// Same as before but for the 3D case
-  virtual double* somme_spectrale3(const Scalar& meudon) const  ;
+  virtual void somme_spectrale3(const Scalar& meudon, double* t, int taille) const  ;
 
   void initialize_spectral_r(const Map& mp, const Base_val& base, int*& idom, 
 			     double*& chebnri) const ;
