@@ -30,6 +30,11 @@ char strot_dirac_hydro_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2007/11/06 16:23:59  j_novak
+ * Added the flag spectral_filter giving the order of possible spectral filtering
+ * of the hydro sources of metric equations (some members *_euler). The filtering
+ * is done in strot_dirac_hydro, if this flag is non-zero.
+ *
  * Revision 1.3  2005/03/14 14:01:34  j_novak
  * u_euler is now defined on all the grid.
  *
@@ -89,32 +94,51 @@ void Star_rot_Dirac::hydro_euler(){
   ener_euler = gam_euler*gam_euler*(ener + press) - press ;
 
   ener_euler.std_spectral_base() ;
-
-
+  if (spectral_filter > 0) {
+      ener_euler.exponential_filter_r(1, nzet-1, spectral_filter) ;
+  }
   // j_euler (momentum density 3-vector w.r.t. the Eulerian observer)
   // ----------------------------------------------------------------
 
   j_euler = (ener_euler + press)*u_euler ;
-
   j_euler.std_spectral_base() ;
 
+  if (spectral_filter > 0) {
+      Scalar zero(mp) ;
+      zero.set_etat_zero() ;
+      Scalar mu_euler = j_euler.mu() ;
+      mu_euler.exponential_filter_r(1, nzet-1, spectral_filter) ;
+      j_euler.set_vr_eta_mu(zero, zero, mu_euler) ;
+  }
 
   // s_euler (trace of the stress tensor w.r.t. the Eulerian observer)
   // ----------------------------------------------------------------
 
   s_euler = (ener_euler + press)*v2 + 3*press ;
-
   s_euler.std_spectral_base() ;
-
-
+  if (spectral_filter > 0) {
+      s_euler.exponential_filter_r(1, nzet-1, spectral_filter) ;
+  }
   // stress_euler (stress tensor w.r.t. the Eulerian observer)
   // ---------------------------------------------------------
 
 
   stress_euler = (ener_euler + press)*u_euler*u_euler + press*gamma.con() ;
-
   stress_euler.std_spectral_base() ;
-
+  if (spectral_filter > 0) {
+      Scalar zero(mp) ;
+      zero.set_etat_zero() ;
+      Scalar srr = stress_euler(1,1) ;
+      Scalar eta_euler = stress_euler.eta() ;
+      eta_euler.div_r() ;
+      Scalar www_euler = stress_euler.www() ;
+      Scalar ttt_euler = stress_euler.ttt() ;
+      srr.exponential_filter_r(1, nzet-1, spectral_filter) ;
+      eta_euler.exponential_filter_r(1, nzet-1, spectral_filter) ;
+      www_euler.exponential_filter_r(1, nzet-1, spectral_filter) ;
+      ttt_euler.exponential_filter_r(1, nzet-1, spectral_filter) ;
+      stress_euler.set_auxiliary(srr, eta_euler, zero, www_euler, zero, ttt_euler) ;
+  }
 
   // The derived quantities are obsolete
   // ------------------------------------

@@ -46,8 +46,15 @@ class Star_rot_Dirac : public Star {
 
     // Data : 
     // -----
-    protected:
-
+ protected:
+       /**
+	* Spectral exponential filtering order.
+	* If 0, no filtering is done (see also \c Scalar::exponential_filter_r).
+	* Filtering is performed only in shells containing matter, i.e. for
+	* domain numbers \e l such that \f$0 < l <\f$ \c nzet .
+	*/
+       int spectral_filter ;
+    
        double omega ;  ///< Rotation angular velocity (\c [f_unit] )
 
        // Quantities related to the conformal factor and lapse
@@ -114,9 +121,9 @@ class Star_rot_Dirac : public Star {
 	 * @param mp_i Mapping on which the star will be defined
 	 * @param nzet_i Number of domains occupied by the star
          * @param eos_i Equation of state of the stellar matter
-	 *
+	 * @param filter order for spectral exponential filtering
 	 */
-       Star_rot_Dirac(Map& mp_i, int nzet_i, const Eos& eos_i) ;  
+       Star_rot_Dirac(Map& mp_i, int nzet_i, const Eos& eos_i, int filter=0) ;  
 
        Star_rot_Dirac(const Star_rot_Dirac& ) ; ///< Copy constructor
 
@@ -160,6 +167,9 @@ class Star_rot_Dirac : public Star {
     // Accessors
     // ---------
     public:
+       
+       /// Returns the filtering order
+       int spectral_filter_order() const {return spectral_filter;};
 
        /** 
 	* Returns the rotation angular velocity \f$\Omega\f$

@@ -31,6 +31,11 @@ char rotstar_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2007/11/06 16:24:00  j_novak
+ * Added the flag spectral_filter giving the order of possible spectral filtering
+ * of the hydro sources of metric equations (some members *_euler). The filtering
+ * is done in strot_dirac_hydro, if this flag is non-zero.
+ *
  * Revision 1.3  2005/03/25 13:53:34  j_novak
  * Added drawings of various fields.
  *
@@ -81,7 +86,7 @@ int main(){
 
     int mer_max, mer_rot, mer_change_omega, mer_fix_omega, 
 	delta_mer_kep, mer_mass, mermax_poisson, graph, nz, nzet, nzadapt,
-	nt, np, mer_triax ; 
+	nt, np, mer_triax, filter_order ; 
     double ent_c, freq_si, fact_omega, mbar_wanted, precis, freq_ini_si, 
 	   thres_adapt, aexp_mass, relax, relax_poisson, ampli_triax, 
 	   precis_adapt ;  
@@ -138,7 +143,7 @@ int main(){
     for (int l=0; l<nzet-1; l++) {
     	fich >> ent_limit.set(l) ; fich.getline(blabla, 120) ;
     }
-
+    fich >> filter_order ;
 
     fich.close();
 
@@ -257,7 +262,7 @@ int main(){
     //		Construction of the star
     //-----------------------------------------------------------------------
     
-    Star_rot_Dirac star(mp, nzet, eos) ; 
+    Star_rot_Dirac star(mp, nzet, eos, filter_order) ; 
     
 
     //-----------------------------------------------------------------------

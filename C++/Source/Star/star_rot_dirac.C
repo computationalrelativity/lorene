@@ -30,6 +30,11 @@ char star_rot_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2007/11/06 16:23:59  j_novak
+ * Added the flag spectral_filter giving the order of possible spectral filtering
+ * of the hydro sources of metric equations (some members *_euler). The filtering
+ * is done in strot_dirac_hydro, if this flag is non-zero.
+ *
  * Revision 1.5  2007/11/06 10:15:19  j_novak
  * Change the order of updates in the constructor from a file, to avoid
  * inconsistencies.
@@ -71,8 +76,9 @@ char star_rot_dirac_C[] = "$Header$" ;
 
 // Standard constructor
 //-------------------------
-Star_rot_Dirac::Star_rot_Dirac(Map& mpi, int nzet_i, const Eos& eos_i)
+Star_rot_Dirac::Star_rot_Dirac(Map& mpi, int nzet_i, const Eos& eos_i, int filter)
                    : Star(mpi, nzet_i, eos_i),
+		     spectral_filter(filter),
 		     psi4(mpi),
 		     psi2(mpi),
 		     qqq(mpi),
@@ -86,6 +92,8 @@ Star_rot_Dirac::Star_rot_Dirac(Map& mpi, int nzet_i, const Eos& eos_i)
 		     aa_quad(mpi),
 		     hh(mpi, mpi.get_bvect_spher(), flat) 
 {
+    assert (spectral_filter>=0) ;
+    assert (spectral_filter<1000) ;
 
   // Initialization to a static state
   omega = 0 ;
@@ -114,6 +122,7 @@ Star_rot_Dirac::Star_rot_Dirac(Map& mpi, int nzet_i, const Eos& eos_i)
 //-----------------
 Star_rot_Dirac::Star_rot_Dirac(const Star_rot_Dirac& star)
                    : Star(star),
+		     spectral_filter(star.spectral_filter),
 		     psi4(star.psi4),
 		     psi2(star.psi2),
 		     qqq(star.qqq),
@@ -157,6 +166,8 @@ Star_rot_Dirac::Star_rot_Dirac(Map& mpi, const Eos& eos_i, FILE* fich)
   // Pointers of derived quantities initialized to zero 
   //----------------------------------------------------
   set_der_0x0() ;
+
+  fread_be(&spectral_filter, sizeof(int), 1, fich) ;
 
   // Metric fields are read in the file:
   fread_be(&omega, sizeof(double), 1, fich) ;
@@ -244,6 +255,7 @@ void Star_rot_Dirac::operator=(const Star_rot_Dirac& star) {
      Star::operator=(star) ;
 
      // Assignment of proper quantities of class Star_rot_Dirac
+     spectral_filter = star.spectral_filter ;
      omega = star.omega ;
      psi4 = star.psi4 ;
      psi2 = star.psi2 ;
@@ -276,6 +288,7 @@ void Star_rot_Dirac::sauve(FILE* fich) const {
 
       qqq.sauve(fich) ;
       hh.sauve(fich) ;
+      fwrite_be(&spectral_filter, sizeof(int), 1, fich) ;
       fwrite_be(&omega, sizeof(double), 1, fich) ;
       beta.sauve(fich) ;
 
@@ -297,6 +310,9 @@ ostream& Star_rot_Dirac::operator>>(ostream& ost) const {
      ost << endl ;
      ost << "Uniformly rotating star" << endl ;
      ost << "-----------------------" << endl ;
+     if (spectral_filter > 0)
+	 ost << "hydro sources of equations are filtered\n"
+	     << "with " << spectral_filter << "-order exponential filter" << endl ;
 
      double freq = omega/ (2.*M_PI) ;
      ost << "Omega : " << omega * f_unit
