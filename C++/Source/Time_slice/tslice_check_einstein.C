@@ -30,6 +30,9 @@ char tslice_check_einstein_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2007/11/06 11:53:34  j_novak
+ * Use of contravariant version of the 3+1 equations.
+ *
  * Revision 1.5  2007/06/28 14:40:36  j_novak
  * Dynamical check: the fields in the last domain are set to zero to avoid dzpuis problems
  *
@@ -78,11 +81,11 @@ Tbl Time_slice::check_hamiltonian_constraint(const Scalar* energy_density,
   else
     matter = energy_density ;
 
-  cout << endl ;
+  ost << endl ;
 
-  Tbl resu = diffrelmax(field, (4*qpig) * (*matter), 
+  Tbl resu = maxabs(field - (4*qpig) * (*matter), 
 			"Check of the Hamiltonian constraint", ost ) ;
-  cout << endl ;
+  ost << endl ;
 
   if (vacuum) delete matter ;
 
@@ -96,27 +99,23 @@ Tbl Time_slice::check_momentum_constraint(const Vector* momentum_density,
   
   bool vacuum = ( momentum_density == 0x0 ) ;
   
-  Vector field = - trk().derive_cov(gam()) ;
+  Vector field = k_uu().divergence(gam()) - trk().derive_con(gam()) ;
 
-  if (k_uu_evol.is_known(jtime)) 
-    field += k_uu().down(0, gam()).divergence(gam()) ;
-  else
-    field += k_dd().up(1, gam()).divergence(gam()) ;
 
   const Vector* matter ;
   if (vacuum) 
     matter = new Vector (0*field) ;
   else {
-    assert (momentum_density->get_index_type(0) == COV) ;
+    assert (momentum_density->get_index_type(0) == CON) ;
     matter = momentum_density ;
   }
   
-  cout << endl ;
+  ost << endl ;
 
-  Tbl resu = diffrelmax(field, (2*qpig) * (*matter), 
+  Tbl resu = maxabs(field - (2*qpig) * (*matter), 
 			"Check of the momentum constraint", ost ) ;
 
-  cout << endl ;
+  ost << endl ;
 
   if (vacuum) delete matter ;
 
@@ -135,7 +134,7 @@ Tbl Time_slice::check_dynamical_equations(const Sym_tensor* strain_tensor,
   Sym_tensor dyn_lhs = k_dd_evol.time_derive(jtime, scheme_order) ;
   int nz = dyn_lhs.get_mp().get_mg()->get_nzone() ;
   dyn_lhs.annule_domain(nz-1) ;
-  dyn_lhs = dyn_lhs - k_dd().derive_lie(beta()) ;
+  dyn_lhs = (dyn_lhs - k_dd().derive_lie(beta())).up_down(gam()) ;
   
   const Sym_tensor* matter ;
   if (vacuum) 
@@ -158,24 +157,25 @@ Tbl Time_slice::check_dynamical_equations(const Sym_tensor* strain_tensor,
       else
 	sij = strain_tensor ;
     }
-    matter = new Sym_tensor( (sij->trace(gam()) - *ener)*gam().cov() 
+    matter = new Sym_tensor( (sij->trace(gam()) - *ener)*gam().con() 
 			      - 2*(*sij) ) ;
     if (new_e) delete ener ;
     if (new_s) delete sij ;
   }
 
-  Sym_tensor dyn_rhs = nn()*( (gam().ricci() + trk()*k_dd() + qpig * (*matter))) ;
+  Sym_tensor dyn_rhs = nn()*( (gam().ricci().up_down(gam()) + trk()*k_uu() 
+						     + qpig * (*matter))) ;
   dyn_rhs.annule_domain(nz-1) ;
-  dyn_rhs = dyn_rhs - 2*nn()*contract(k_dd(), 1, k_dd().up(0, gam()), 0)  ;
+  dyn_rhs = dyn_rhs - 2*nn()*contract(k_uu(), 1, k_dd().up(0, gam()), 1)  ;
   dyn_rhs.annule_domain(nz-1) ;
-  dyn_rhs = dyn_rhs - nn().derive_cov(gam()).derive_cov(gam()) ;
+  dyn_rhs = dyn_rhs - nn().derive_con(gam()).derive_con(gam()) ;
     
-  cout << endl ;
+  ost << endl ;
 
-  Tbl resu_tmp = diffrelmax(dyn_lhs, dyn_rhs, 
+  Tbl resu_tmp = maxabs(dyn_lhs - dyn_rhs, 
 			"Check of the dynamical equations", ost ) ;
 
-  cout << endl ;
+  ost << endl ;
 
   if (vacuum) delete matter ;
 
