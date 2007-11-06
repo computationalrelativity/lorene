@@ -25,6 +25,10 @@ char map_af_dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2007/11/06 14:42:20  j_novak
+ * Copy of field at previous time-steps to local variables to deal with the
+ * dzpuis.
+ *
  * Revision 1.14  2006/08/31 08:56:37  j_novak
  * Added the possibility to have a shift in the quantum number l in the operator.
  *
@@ -126,9 +130,13 @@ void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar&
     int nz0 = (ced ? nz - 1 : nz) ;
     double dt = par.get_double() ;
 
-    Scalar sigma = 2*fj - fjm1 ; // The source (first part) 
-    if (ced) sigma.annule_domain(nz-1) ;
-    
+    Scalar fj_local = fj ;
+    Scalar fjm1_local = fjm1 ;
+    if (ced) {
+	fj_local.annule_domain(nz-1) ;
+	fjm1_local.annule_domain(nz-1) ;
+    }
+    Scalar sigma = 2*fj_local - fjm1_local ; // The source (first part)     
 
     // Coefficients
     //-------------
@@ -224,22 +232,21 @@ void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar&
   	mime.set_domain(lz) += offset ;
       }
 
-      Scalar reste = (*metri - mime)*fj.laplacian() ;
+      Scalar reste = (*metri - mime)*fj_local.laplacian() ;
       if (ced) reste.annule_domain(nz-1) ;
       sigma += (dt*dt)*(source + reste) ;
       if (ced) sigma.annule_domain(nz-1) ;
-      sigma +=  (0.5*dt*dt)*mime*fjm1.laplacian() ; //Source (2nd part)
+      sigma +=  (0.5*dt*dt)*mime*fjm1_local.laplacian() ; //Source (2nd part)
     }
     else {
       sigma += (dt*dt) * source ;
       if (ced) sigma.annule_domain(nz-1) ;
-      sigma += (0.5*dt*dt)*fjm1.laplacian() ;
+      sigma += (0.5*dt*dt)*fjm1_local.laplacian() ;
       if (par.get_n_int() > 1) { //there is a shift in the quantum number l
 	  int dl = -1 ;
 	  int l_min = par.get_int(1) ;
 	  sigma.set_spectral_va().ylm() ;      
-	  Scalar tmp = fjm1 ;
-	  if (ced) tmp.annule_domain(nz-1) ;
+	  Scalar tmp = fjm1_local ;
 	  tmp.div_r() ; tmp.div_r() ; // f^(J-1) / r^2
 	  tmp.set_spectral_va().ylm() ;
 	  const Base_val& base = tmp.get_spectral_base() ;
@@ -340,7 +347,7 @@ void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar&
       break ;
     case 1:  { // Outgoing wave condition (f(t,r) = 1/r S(t-r/c))
       Valeur bound3(mg) ;
-      bound3 = R*(4*fj.get_spectral_va() - fjm1.get_spectral_va()) ;
+      bound3 = R*(4*fj_local.get_spectral_va() - fjm1_local.get_spectral_va()) ;
       if (bound3.get_etat() == ETATZERO) {
 	*bc1 = 3*R + 2*dt ;
 	*bc2 = 2*R*dt ;
@@ -348,7 +355,6 @@ void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar&
       }
       else {
 	if (nz0>1) bound3.annule(0,nz0-2) ;
-	if (ced) bound3.annule(nz-1) ;
 
 	bound3.coef() ;
 	bound3.ylm() ;
@@ -375,9 +381,8 @@ void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar&
      *****************************************************************/
      case 2: { 
       Valeur souphi(mg) ;
-      souphi = fj.get_spectral_va()/R - fj.dsdr().get_spectral_va() ;
+      souphi = fj_local.get_spectral_va()/R - fj_local.dsdr().get_spectral_va() ;
       if (nz0>1) souphi.annule(0,nz0-2) ;
-      if (ced) souphi.annule(nz-1) ;
       souphi.coef() ;
       souphi.ylm() ;
 
@@ -410,12 +415,10 @@ void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar&
       Valeur bound3(mg) ;
       *bc1 = 3*R + 2*dt ;
       *bc2 = 2*R*dt ;
-      bound3 = R*(4*fj.get_spectral_va() - fjm1.get_spectral_va()) ;
+      bound3 = R*(4*fj_local.get_spectral_va() - fjm1_local.get_spectral_va()) ;
       if (bound3.get_etat() == ETATZERO) *tbc3 = 0 ;
       else {
 	if (nz0 > 1) bound3.annule(0,nz0-2) ;
-	if (ced) bound3.annule(nz-1) ;
-
 	bound3.coef() ;
 	bound3.ylm() ;
 	tbc3->set_etat_qcq() ;
@@ -466,6 +469,7 @@ void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar&
         else {
             fjp1.set_domain(nz-1) = fj.domain(nz-1) ;
         }
+	fjp1.set_dzpuis(fj.get_dzpuis()) ;
     }
 }
 
