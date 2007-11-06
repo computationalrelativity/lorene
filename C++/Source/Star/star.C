@@ -34,6 +34,9 @@ char star_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2007/11/06 16:22:03  j_novak
+ * The data member stress_euler is now a Sym_tensor instead of a Tensor.
+ *
  * Revision 1.16  2007/06/21 19:53:47  k_taniguchi
  * Addition of p_ray_eq_3pis2
  *
@@ -116,7 +119,7 @@ Star::Star(Map& mpi, int nzet_i, const Eos& eos_i)
 		   s_euler(mpi), 
 		   gam_euler(mpi), 
 		   u_euler(mpi, CON, mp.get_bvect_spher()), 
-		   stress_euler(mpi, 2, CON, mp.get_bvect_spher()),
+		   stress_euler(mpi, CON, mp.get_bvect_spher()),
 		   logn(mpi), 
 		   nn(mpi), 
 		   beta(mpi, CON, mp.get_bvect_spher()),
@@ -214,7 +217,7 @@ Star::Star(Map& mpi, const Eos& eos_i, FILE* fich)
 		   s_euler(mpi), 
 		   gam_euler(mpi), 
 		   u_euler(mpi, CON, mp.get_bvect_spher()), 
-		   stress_euler(mpi, 2, CON, mp.get_bvect_spher()), 
+		   stress_euler(mpi, CON, mp.get_bvect_spher()), 
 		   logn(mpi, *(mpi.get_mg()), fich), 
 		   nn(mpi), 
 		   beta(mpi, CON, mp.get_bvect_spher()),

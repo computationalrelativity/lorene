@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2007/11/06 16:22:03  j_novak
+ * The data member stress_euler is now a Sym_tensor instead of a Tensor.
+ *
  * Revision 1.23  2007/06/21 19:48:25  k_taniguchi
  * Introduction of a method to compute ray_eq_3pis2.
  *
@@ -178,7 +181,7 @@ class Star {
 	/** Spatial part of the stress-energy tensor with respect
 	 * to the Eulerian observer. 
 	 */
-	Tensor stress_euler ;
+	Sym_tensor stress_euler ;
 	
 	// Metric potentials
 	// -----------------
