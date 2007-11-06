@@ -30,6 +30,10 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2007/11/06 14:47:07  j_novak
+ * New constructor from a rotating star in Dirac gauge (class Star_rot_Dirac).
+ * Evolution can take into account matter terms.
+ *
  * Revision 1.13  2004/06/14 20:51:37  e_gourgoulhon
  * Method solve_hij has now argument method_poisson.
  * Its value is set **provisory** to 1 (instead of method_poisson_vect !).
@@ -94,7 +98,9 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
                               int niter_elliptic, double relax, 
                               int check_mod, int save_mod,
                               int method_poisson_vect, int nopause,  
-                              const char* graph_device) {
+                              const char* graph_device, const Scalar* ener_euler,
+			      const Vector* mom_euler, const Scalar* s_euler,
+			      const Sym_tensor* strain_euler) {
 
     // Parameters for the d'Alembert equations
     // ----------------------------------------
@@ -274,7 +280,7 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
         // ----------------------------------
         
         solve_hij(par_khi, par_mu, khi_new, mu_new, 1, 
-                  graph_device) ;
+                  graph_device, strain_euler) ;
 //##        solve_hij(par_khi, par_mu, khi_new, mu_new, method_poisson_vect, 
 //                  graph_device) ;
         
@@ -310,9 +316,9 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
             des_meridian(aa()(3,3), 0., ray_des, "A\\u\\gf\\gf\\d", ngraph0+2,
                          graph_device) ; 
 
-            n_new = solve_n() ; 
-            q_new = solve_q() ; 
-            beta_new = solve_beta(0x0, method_poisson_vect) ; 
+            n_new = solve_n(ener_euler, s_euler) ; 
+            q_new = solve_q(s_euler) ; 
+            beta_new = solve_beta(mom_euler, method_poisson_vect) ; 
     
             n_new = relax * n_new + (1.-relax) * nn() ; 
             q_new = relax * q_new + (1.-relax) * qq() ; 

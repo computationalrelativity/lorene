@@ -30,6 +30,10 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2007/11/06 14:47:07  j_novak
+ * New constructor from a rotating star in Dirac gauge (class Star_rot_Dirac).
+ * Evolution can take into account matter terms.
+ *
  * Revision 1.21  2007/09/25 16:54:11  j_novak
  * *** empty log message ***
  *
@@ -269,7 +273,51 @@ Tslice_dirac_max::Tslice_dirac_max(const Map& mp, const Base_vect& triad,
     
 }
 
+// Constructor from a rotating star             
+// --------------------------------
 
+Tslice_dirac_max::Tslice_dirac_max(const Star_rot_Dirac& star, double pdt, int depth_in) 
+    : Time_slice_conf(star.get_nn(), star.get_beta(), star.get_mp().flat_met_spher(),
+		      exp(star.get_ln_psi()), star.get_hh(), star.get_aa(),
+		      0.*star.get_nn(), depth_in),
+          khi_evol(depth_in),   
+          mu_evol(depth_in),   
+          potA_evol(depth_in),   
+          tildeB_evol(depth_in),   
+          trh_evol(depth_in) {
+    Scalar tmp = psi_evol[jtime] ;
+    tmp.std_spectral_base() ;
+    psi_evol.downdate(jtime) ;
+    psi_evol.update(tmp, jtime, the_time[jtime]) ;
+    Scalar A_in = star.get_hh().compute_A() ;
+    Scalar tildeB_in = star.get_hh().compute_tilde_B_tt() ;
+    tildeB_evol.update(tildeB_in, jtime, the_time[jtime]) ;
+    potA_evol.update(A_in, jtime, the_time[jtime]) ;
+    hh_det_one_AB(jtime) ;
+    k_dd() ;
+
+    // Update of various fields
+    // -------------------------
+    double ttime1 = the_time[jtime] ; 
+    int jtime1 = jtime ; 
+    for (int j=1; j < depth; j++) {
+        jtime1++ ; 
+        ttime1 += pdt ; 
+        psi_evol.update(psi_evol[jtime], jtime1, ttime1) ;  
+        n_evol.update(n_evol[jtime], jtime1, ttime1) ;  
+        beta_evol.update(beta_evol[jtime], jtime1, ttime1) ;  
+        hh_evol.update(hh_evol[jtime], jtime1, ttime1) ;
+        trk_evol.update(trk_evol[jtime], jtime1, ttime1) ;
+	khi_evol.update(psi_evol[jtime], jtime1, ttime1) ;
+	mu_evol.update(mu_evol[jtime], jtime1, ttime1) ;
+	potA_evol.update(potA_evol[jtime], jtime1, ttime1) ;
+	tildeB_evol.update(tildeB_evol[jtime], jtime1, ttime1) ;
+	trh_evol.update(trh_evol[jtime], jtime1, ttime1) ;
+	k_dd_evol.update(k_dd_evol[jtime], jtime1, ttime1) ;
+        the_time.update(ttime1, jtime1, ttime1) ;         
+    } 
+    jtime += depth - 1 ; 
+}
 
 // Copy constructor
 // ----------------

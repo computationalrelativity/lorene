@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.26  2007/11/06 14:47:06  j_novak
+ * New constructor from a rotating star in Dirac gauge (class Star_rot_Dirac).
+ * Evolution can take into account matter terms.
+ *
  * Revision 1.25  2007/04/25 15:20:59  j_novak
  * Corrected an error in the initialization of tildeB in
  * Tslice_dirac_max::initial_dat_cts. + New method for solve_hij_AB.
@@ -140,7 +144,7 @@ class Param ;
 
 #include "headcpp.h"
 
-#include "metric.h"
+#include "star_rot_dirac.h"
 #include "evolution.h"
 
                     //---------------------------//
@@ -980,9 +984,12 @@ class Tslice_dirac_max : public Time_slice_conf {
                      const Metric_flat& ff_in, FILE* fich, 
                      bool partial_read, int depth_in = 3) ; 
 
-	Tslice_dirac_max(const Tslice_dirac_max& ) ;   ///< Copy constructor
+    /// Construnction of a stationary slice from a rotating star
+    Tslice_dirac_max(const Star_rot_Dirac& star, double pdt, int depth_in = 3) ;
 
-	virtual ~Tslice_dirac_max() ;			///< Destructor
+    Tslice_dirac_max(const Tslice_dirac_max& ) ;   ///< Copy constructor
+
+    virtual ~Tslice_dirac_max() ;			///< Destructor
  
 
     // Mutators / assignment
@@ -1199,7 +1206,9 @@ class Tslice_dirac_max : public Time_slice_conf {
     void evolve(double pdt, int nb_time_steps, int niter_elliptic,
                 double relax_elliptic, int check_mod, int save_mod,
                 int method_poisson_vect = 1, int nopause = 1, 
-                const char* graph_device = 0x0) ; 
+                const char* graph_device = 0x0, const Scalar* ener_euler = 0x0,
+		const Vector* mom_euler = 0x0, const Scalar* s_euler = 0x0,
+		const Sym_tensor* strain_euler = 0x0) ; 
         
     /** Returns the ADM mass at (geometrical units) the current step.
      * Moreover this method updates \c adm_mass_evol if
