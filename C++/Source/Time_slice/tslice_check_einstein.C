@@ -30,6 +30,9 @@ char tslice_check_einstein_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2007/11/06 12:10:56  j_novak
+ * Corrected some mistakes.
+ *
  * Revision 1.6  2007/11/06 11:53:34  j_novak
  * Use of contravariant version of the 3+1 equations.
  *
@@ -131,10 +134,11 @@ Tbl Time_slice::check_dynamical_equations(const Sym_tensor* strain_tensor,
 
   bool vacuum = ( ( strain_tensor == 0x0 ) && ( energy_density == 0x0 ) ) ;
 
-  Sym_tensor dyn_lhs = k_dd_evol.time_derive(jtime, scheme_order) ;
+  Sym_tensor dyn_lhs = (k_dd_evol.time_derive(jtime, scheme_order)).up_down(gam()) ;
   int nz = dyn_lhs.get_mp().get_mg()->get_nzone() ;
   dyn_lhs.annule_domain(nz-1) ;
-  dyn_lhs = (dyn_lhs - k_dd().derive_lie(beta())).up_down(gam()) ;
+  dyn_lhs = dyn_lhs - k_dd().derive_lie(beta()).up_down(gam())  ;
+  dyn_lhs.annule_domain(nz-1) ;
   
   const Sym_tensor* matter ;
   if (vacuum) 
@@ -169,6 +173,7 @@ Tbl Time_slice::check_dynamical_equations(const Sym_tensor* strain_tensor,
   dyn_rhs = dyn_rhs - 2*nn()*contract(k_uu(), 1, k_dd().up(0, gam()), 1)  ;
   dyn_rhs.annule_domain(nz-1) ;
   dyn_rhs = dyn_rhs - nn().derive_con(gam()).derive_con(gam()) ;
+  dyn_rhs.annule_domain(nz-1) ;
     
   ost << endl ;
 
