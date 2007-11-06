@@ -30,6 +30,10 @@ char star_rot_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2007/11/06 10:15:19  j_novak
+ * Change the order of updates in the constructor from a file, to avoid
+ * inconsistencies.
+ *
  * Revision 1.4  2007/10/30 16:55:23  j_novak
  * Completed the input/ouput to a file
  *
@@ -150,23 +154,23 @@ Star_rot_Dirac::Star_rot_Dirac(Map& mpi, const Eos& eos_i, FILE* fich)
 		    hh(mpi, mpi.get_bvect_spher(), flat, fich)
 {
 
-  // Star_rot_Dirac parameter
-  //-------------------------
+  // Pointers of derived quantities initialized to zero 
+  //----------------------------------------------------
+  set_der_0x0() ;
 
   // Metric fields are read in the file:
   fread_be(&omega, sizeof(double), 1, fich) ;
   Vector shift_tmp(mpi, mpi.get_bvect_spher(), fich) ;
   beta = shift_tmp ;
 
+  update_metric() ;
+
   equation_of_state() ;
 
   hydro_euler() ;
 
-  update_metric() ;
 
-  // Pointers of derived quantities initialized to zero 
-  //----------------------------------------------------
-  set_der_0x0() ;
+
 
 }
 
