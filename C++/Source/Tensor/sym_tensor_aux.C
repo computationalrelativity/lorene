@@ -32,6 +32,9 @@ char sym_tensor__aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2007/11/27 15:49:51  n_vasset
+ * new function compute_tilde_C in class sym_tensor
+ *
  * Revision 1.12  2006/10/24 14:52:38  j_novak
  * The Mtbl corresponding to the physical space is destroyed after the
  * calculation of tilde_B(tt), to get the updated result.
@@ -577,3 +580,124 @@ Scalar Sym_tensor::get_tilde_B_from_TT_trace(const Scalar& tbtt, const Scalar&
     return resu ;
 }
 
+
+			//--------------//
+			//   tilde(C)   //
+			//--------------//
+			
+			
+const Scalar& Sym_tensor::compute_tilde_C(bool output_ylm, Param* par) const {
+
+  if (p_tilde_c == 0x0) {   // a new computation is necessary
+	
+    // All this has a meaning only for spherical components:
+    assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
+
+    int dzp = operator()(1,1).get_dzpuis() ; 
+    int dzp_resu = ((dzp == 0) ? 2 : dzp+1) ;
+
+    p_tilde_c = new Scalar(*mp) ;
+    p_tilde_c->set_etat_qcq() ;
+
+    Scalar source_eta = operator()(1,2) ;
+    source_eta.div_tant() ;
+    source_eta += operator()(1,2).dsdt() + operator()(1,3).stdsdp() ;
+    
+    // Resolution of the angular Poisson equation for eta / r
+    // ------------------------------------------------------
+    Scalar tilde_eta(*mp) ;
+    tilde_eta = 0 ;
+
+    if (dynamic_cast<const Map_af*>(mp) != 0x0) {
+	tilde_eta = source_eta.poisson_angu() ; 
+    }
+    else {
+	assert (par != 0x0) ;
+	mp->poisson_angu(source_eta, *par, tilde_eta) ;
+    }
+ 
+    Scalar dwdr = www().dsdr() ;
+    dwdr.set_spectral_va().ylm() ;
+    Scalar wsr = www() ;
+    wsr.div_r_dzpuis(dzp_resu) ;
+    wsr.set_spectral_va().ylm() ;
+    Scalar etasr2 = tilde_eta ;
+    etasr2.div_r_dzpuis(dzp_resu) ;
+    etasr2.set_spectral_va().ylm() ;
+    Scalar dtdr = ttt().dsdr() ;
+    dtdr.set_spectral_va().ylm() ;
+    Scalar tsr = ttt() ;
+    tsr.div_r_dzpuis(dzp_resu) ;
+    tsr.set_spectral_va().ylm() ;
+    Scalar hrrsr = operator()(1,1) ;
+    hrrsr.div_r_dzpuis(dzp_resu) ;
+    hrrsr.set_spectral_va().ylm() ;
+
+    int nz = mp->get_mg()->get_nzone() ;
+
+    Base_val base(nz) ;
+
+    if (wsr.get_etat() != ETATZERO) {
+	base = wsr.get_spectral_base() ;
+    }
+    else {
+	if (etasr2.get_etat() != ETATZERO) {
+	    base = etasr2.get_spectral_base() ;
+	}
+	else {
+	    if (tsr.get_etat() != ETATZERO) {
+		base = tsr.get_spectral_base() ;
+	    }
+	    else {
+		if (hrrsr.get_etat() != ETATZERO) {
+		    base = hrrsr.get_spectral_base() ;
+		}
+		else { //Everything is zero...
+		    p_tilde_c->set_etat_zero() ;
+		    return *p_tilde_c ;
+		}
+	    }
+	}
+    }
+    
+    p_tilde_c->set_spectral_base(base) ;
+    p_tilde_c->set_spectral_va().set_etat_cf_qcq() ;
+    p_tilde_c->set_spectral_va().c_cf->annule_hard() ;
+
+    if (dwdr.get_etat() == ETATZERO) dwdr.annule_hard() ;
+    if (wsr.get_etat() == ETATZERO) wsr.annule_hard() ;
+    if (etasr2.get_etat() == ETATZERO) etasr2.annule_hard() ;
+    if (dtdr.get_etat() == ETATZERO) dtdr.annule_hard() ;
+    if (tsr.get_etat() == ETATZERO) tsr.annule_hard() ;
+    if (hrrsr.get_etat() == ETATZERO) hrrsr.annule_hard() ;
+
+    int m_q, l_q, base_r ;
+    for (int lz=0; lz<nz; lz++) {
+	int np = mp->get_mg()->get_np(lz) ;
+	int nt = mp->get_mg()->get_nt(lz) ;
+	int nr = mp->get_mg()->get_nr(lz) ;
+	for (int k=0; k<np+1; k++)
+	    for (int j=0; j<nt; j++) {
+		base.give_quant_numbers(lz, k, j, m_q, l_q, base_r) ;
+		if ( (nullite_plm(j, nt, k, np, base) == 1) && (l_q > 1))
+		{
+		    for (int i=0; i<nr; i++) 
+			p_tilde_c->set_spectral_va().c_cf->set(lz, k, j, i)
+			    = - (l_q - 1)*(*dwdr.get_spectral_va().c_cf)(lz, k, j, i)
+			    +  (l_q + 1)*(l_q - 1)*(*wsr.get_spectral_va().c_cf)(lz, k, j, i)
+			    - 2*(*etasr2.get_spectral_va().c_cf)(lz, k, j, i)
+	    + 0.5*double(l_q-1)/double(l_q)*(*tsr.get_spectral_va().c_cf)(lz, k, j, i)
+	    - 0.5/double(l_q)*(*dtdr.get_spectral_va().c_cf)(lz, k, j, i)
+	    + 1./double(l_q)*(*hrrsr.get_spectral_va().c_cf)(lz, k, j, i) ;
+		}
+	    }
+    }
+    p_tilde_c->set_dzpuis(dzp_resu) ;
+  } //End of p_tilde_c == 0x0    
+
+  if (output_ylm) p_tilde_c->set_spectral_va().ylm() ;
+  else  p_tilde_c->set_spectral_va().ylm_i() ;
+
+  return *p_tilde_c ; 
+
+}
