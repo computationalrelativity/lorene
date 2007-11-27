@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.43  2007/11/27 15:48:52  n_vasset
+ * New member p_tilde_c for class Sym_tensor
+ *
  * Revision 1.42  2007/05/04 16:43:50  n_vasset
  * adding of functions sol_Dirac_BC2 and sol_Dirac_A2
  *
@@ -311,6 +314,21 @@ class Sym_tensor : public Tensor_sym {
 	 */
 	mutable Scalar* p_tilde_b ;
 
+	/** Field \f$ \tilde{C}\f$ defined from \f$ h^{rr}, \eta, W\f$ and \e h
+	 * insensitive to the longitudinal part of the \c Sym_tensor.
+	 * It is defined for each multipolar momentum \f$\ell \geq 2\f$ by
+	 * \f[ 
+	 * \tilde{C} = - (\ell - 1) \frac{\partial W}{\partial r} + (\ell + 1)(\ell - 1)
+	 * \frac{W}{r} - \frac{2\eta}{r^2} + \frac{(\ell - 1)T}{2r\ell}
+	 * - \frac{1}{2 \ell } \frac{\partial T}{\partial r} - \frac{h^{rr}}
+	 * {\ell r}.
+	 * \f]
+	 */
+	mutable Scalar* p_tilde_c ;
+
+
+     
+
 
 
     // Constructors - Destructor :
@@ -515,6 +533,17 @@ class Sym_tensor : public Tensor_sym {
 	 * is used.
 	 */
 	Scalar compute_tilde_B_tt(bool output_ylm = true, Param* par = 0x0) const ;
+
+	/** Gives the field \f$\tilde{C}\f$ (see member \c p_tilde_c ).
+	 * @param output_ylm a flag to control the spectral decomposition 
+	 * base of the result: if true (default) the spherical harmonics base 
+	 * is used.
+	 */
+	const Scalar& compute_tilde_C(bool output_ylm = true, Param* par = 0x0) const ;
+
+
+
+
 
  protected:
 	/** Computes \f$\tilde{B}\f$ (see \c Sym_tensor::p_tilde_b ) from its
