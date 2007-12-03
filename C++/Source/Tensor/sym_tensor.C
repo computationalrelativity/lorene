@@ -35,6 +35,9 @@ char sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.21  2007/12/03 13:00:00  n_vasset
+ * Adjusting memory management for new member p_tilde_c
+ *
  * Revision 1.20  2006/06/12 07:27:20  j_novak
  * New members concerning A and tilde{B}, dealing with the transverse part of the
  * Sym_tensor.
@@ -282,7 +285,8 @@ void Sym_tensor::del_deriv() const {
 	if (p_ttt != 0x0) delete p_ttt ; 
 	if (p_aaa != 0x0) delete p_aaa ;
 	if (p_tilde_b != 0x0) delete p_tilde_b ;
-
+	if (p_tilde_c != 0x0) delete p_tilde_c ;
+        
 	set_der_0x0() ;
 	Tensor::del_deriv() ;
 
@@ -299,7 +303,7 @@ void Sym_tensor::set_der_0x0() const {
   p_ttt = 0x0 ; 
   p_aaa = 0x0 ;
   p_tilde_b = 0x0 ;
-
+  p_tilde_c = 0x0 ;
 }
 
 
