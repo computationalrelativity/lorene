@@ -32,6 +32,9 @@ char mtbl_cf_val_point_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2007/12/11 15:28:16  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.9  2007/10/23 17:15:13  j_novak
  * Added the bases T_COSSIN_C and T_COSSIN_S
  *
@@ -124,6 +127,7 @@ static int premier_appel = 1 ;
 	som_r[R_CHEBPIM_I >> TRA_R] = som_r_chebpim_i ;
 	som_r[R_CHEBPI_P >> TRA_R] = som_r_chebpi_p ;
 	som_r[R_CHEBPI_I >> TRA_R] = som_r_chebpi_i ;
+	som_r[R_JACO02 >> TRA_R] = som_r_jaco02 ;
 
 	som_tet[T_COS >> TRA_T] = som_tet_cos ;
 	som_tet[T_SIN >> TRA_T] = som_tet_sin ;

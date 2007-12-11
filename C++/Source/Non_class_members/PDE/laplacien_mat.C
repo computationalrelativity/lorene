@@ -25,6 +25,9 @@ char laplacien_mat_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2007/12/11 15:28:22  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.8  2007/06/06 07:43:28  p_grandclement
  * nmax increased to 200
  *
@@ -111,13 +114,15 @@ char laplacien_mat_C[] = "$Header$" ;
 #include "proto.h"
 
 /*
- * Routine caluclant l'operateur suivant :
+ * Routine calculant l'operateur suivant :
  * 
  * -R_CHEB : r^2d2sdx2+2*rdsdx-l*(l+1)Id
  * 
  * -R_CHEBP et R_CHEBI : d2sdx2+2/r dsdx-l(l+1)/r^2
- * 
+ * 	
  * -R_CHEBU : d2sdx2-l(l+1)/x^2
+ * 
+ * -R_JACO02 : d2sdx2 + 2/r dsdx - l(l+1)/r^2
  * 
  * Entree :
  *	-n nbre de points en r
@@ -146,6 +151,52 @@ Matrice _laplacien_mat_pas_prevu(int n, int l, double echelle, int puis) {
     exit(-1) ;
     Matrice res(1, 1) ;
     return res;
+}
+
+
+		   //-------------------------
+		   //--   CAS R_JACO02   -----
+		   //-------------------------
+		    
+
+Matrice _laplacien_mat_r_jaco02 (int n, int l, double, int) {
+   
+   const int nmax = 200 ;// Nombre de Matrices stockees
+   static Matrice* tab[nmax] ;  // les matrices calculees
+   static int nb_dejafait = 0 ; // nbre de matrices calculees
+   static int l_dejafait[nmax] ;
+   static int nr_dejafait[nmax] ;
+    
+   int indice = -1 ;
+   
+   // On determine si la matrice a deja ete calculee :
+   for (int conte=0 ; conte<nb_dejafait ; conte ++)
+    if ((l_dejafait[conte] == l) && (nr_dejafait[conte] == n))
+	indice = conte ;
+    
+   // Calcul a faire : 
+   if (indice  == -1) {
+       if (nb_dejafait >= nmax) {
+	   cout << "_laplacien_mat_r_jaco02 : trop de matrices" << endl ;
+	   abort() ;
+	   exit (-1) ;
+       }
+       
+
+    l_dejafait[nb_dejafait] = l ;
+    nr_dejafait[nb_dejafait] = n ;
+    
+    Diff_dsdx2 d2(R_JACO02, n) ;
+    Diff_sxdsdx sxd(R_JACO02, n) ;
+    Diff_sx2 sx2(R_JACO02, n) ;
+    
+    tab[nb_dejafait] = new Matrice(d2 + 2.*sxd -(l*(l+1))*sx2) ;
+
+    indice = nb_dejafait ;
+    nb_dejafait ++ ;	
+   }
+    
+   return *tab[indice] ;
 }
 
 
@@ -515,6 +566,7 @@ Matrice laplacien_mat(int n, int l, double echelle, int puis, int base_r)
 	laplacien_mat[R_CHEBU >> TRA_R] = _laplacien_mat_r_chebu ;
 	laplacien_mat[R_CHEBP >> TRA_R] = _laplacien_mat_r_chebp ;
 	laplacien_mat[R_CHEBI >> TRA_R] = _laplacien_mat_r_chebi ;
+	laplacien_mat[R_JACO02 >> TRA_R] = _laplacien_mat_r_jaco02 ;
     }
     
     return laplacien_mat[base_r](n, l, echelle, puis) ;

@@ -26,6 +26,9 @@ char map_af_fait_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2007/12/11 15:28:14  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.4  2006/06/09 14:58:48  j_novak
  * Added a hack in the case of pure angular grid for the Coord xsr in the shells.
  *
@@ -110,7 +113,7 @@ Mtbl* map_af_fait_r(const Map* cvi) {
 	double* p_r = tb->t ;
 	
 	switch(mg->get_type_r(l)) {
-	    case FIN: case RARE:
+	    case FIN: case RARE: case FINJAC :
 	    for (k=0 ; k<ip ; k++) {
 		for (j=0 ; j<it ; j++) {
 		    for (i=0 ; i<ir ; i++) {

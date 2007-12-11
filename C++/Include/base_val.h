@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2007/12/11 15:28:05  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.14  2005/09/07 13:09:48  j_novak
  * New method for determining the highest multipole that can be described on a 3D
  * grid.
@@ -198,8 +201,10 @@ class Mg3d ;
  *   \li \c R_CHEBPIM_I (0x00000007) : Odd (resp. even) Chebyshev
  *	     polynomials for \e m even (resp. odd) (\e r -sampling: \c RARE ) ;
  *   \li \c R_CHEBU  (0x00000008) : Chebyshev polynomials 
- *					    (\e r -sampling: \c UNSURR ).
- * 
+ *					    (\e r -sampling: \c UNSURR ) ;
+ *   \li \c R_JACO02 (0x0000000b) : Jacobi(0,2) polynomials 
+ *                                          (\e r -sampling: \c FINJAC).
+ *
  * The basis functions for expansion with respect to the co-latitude coordinate 
  * \f$\theta\f$ are coded as follows, \e m being the order of the Fourier expansion 
  * in \f$\phi\f$:  

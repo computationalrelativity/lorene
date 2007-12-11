@@ -30,6 +30,9 @@ char diff_xdsdx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2007/12/11 15:28:11  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.2  2005/01/11 15:16:10  j_novak
  * More Diff operators.
  *
@@ -48,6 +51,8 @@ char diff_xdsdx_C[] = "$Header$" ;
 // Lorene headers
 #include "diff.h"
 #include "proto.h"
+
+void xpundsdx_1d(int, double**, int) ;
 
 namespace {
     int nap = 0 ;
@@ -112,17 +117,31 @@ const Matrice& Diff_xdsdx::get_matrice() const {
 	    for (int j=0; j<npoints; j++)
 		vect[j] = 0. ;
 	    vect[i] = 1. ;
-	    if (base != R_CHEBU) {
-		xdsdx_1d(npoints, &vect, base << TRA_R) ;
-		for (int j=0; j<npoints; j++)
+
+	switch (base) {
+
+	    case R_JACO02 : {
+		xpundsdx_1d(npoints, &vect, base << TRA_R) ;
+		for (int j=0 ; j<npoints; j++)
 		    resu.set(j,i) = vect[j] ;
-	    }
-	    else {
+		}
+		break ;
+	
+	    case R_CHEBU : {
 		dsdx_1d(npoints, &vect, R_CHEBU) ;
 		mult_xm1_1d_cheb(npoints, vect, cres) ;
 		for (int j=0; j<npoints; j++)
 		    resu.set(j,i) = cres[j] ;
-	    }
+		}
+		break ;
+
+	    default : {
+		xdsdx_1d(npoints, &vect, base << TRA_R) ;
+		for (int j=0; j<npoints; j++)
+		    resu.set(j,i) = vect[j] ;
+		}
+		break ;
+	    }	
 	}
 	delete [] vect ;
 	delete [] cres ;

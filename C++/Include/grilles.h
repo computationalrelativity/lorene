@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2007/12/11 15:28:05  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.15  2006/05/17 13:17:02  j_novak
  * New member g_angu_1dom, the one-domain angular grid associated with the
  * current grid.
@@ -175,9 +178,9 @@ class Grille3d {
 	const int nt ;	///< Number of points in \f$\theta\f$
 	const int np ;	///< Number of points in \f$\phi\f$
 
-	int type_r ;	///< Type of sampling in \e r (\f$\xi\f$) (\c RARE, FIN, UNSURR)
-	int type_t ;	///< Type of sampling in \f$\theta\f$ (\c SYM, NONSYM)
-	int type_p ;	///< Type of sampling in \f$\phi\f$ (\c SYM, NONSYM)
+	int type_r ;	///< Type of sampling in \e r (\f$\xi\f$) (\c RARE,\c FIN,\c UNSURR,\c FINJAC)
+	int type_t ;	///< Type of sampling in \f$\theta\f$ (\c SYM,\c NONSYM)
+	int type_p ;	///< Type of sampling in \f$\phi\f$ (\c SYM,\c NONSYM)
     public:
 	/// Array of values of \f$\xi\f$ at the \c nr collocation points
 	double* x ;	
@@ -432,6 +435,76 @@ class Grille3d_i2p : public Grille3d {
 	~Grille3d_i2p() ; ///< Destructor
 };
 
+// cas fin de jacobi + sans symetrie
+// ---------------------------------
+/**
+ * 3D grid using Jacobi(0,2) polynomials
+ * for a spherical kernel without symmetry.
+ * It contains only a constructor and a destructor. 
+ * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi]\f$ and 
+ * \f$\phi \in [0,2\pi[\f$.
+ *
+ * @version #$Id$#
+ */
+class Grille3d_fj : public Grille3d {
+    public:
+	Grille3d_fj(int n_r, int n_t, int n_p) ; ///< Constructor
+	~Grille3d_fj() ; ///< Destructor
+};
+
+// cas fin de jacobi + symetrie equatoriale
+// ----------------------------------------
+/**
+ * 3D grid using Jacobi(0,2) polynomials 
+ * for a spherical kernel with equatorial symmetry 
+ * \f$z \rightarrow -z\f$.
+ * This class contains only a constructor and a destructor. 
+ * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi/2]\f$ and 
+ * \f$\phi \in [0,2\pi[\f$.
+ *
+ * @version #$Id$#
+ */
+class Grille3d_fjeq : public Grille3d {
+    public:
+	Grille3d_fjeq(int n_r, int n_t, int n_p) ; ///< Constructor
+	~Grille3d_fjeq() ; ///< Destructor
+};
+
+// cas fin de jacobi supersymetrique
+// ---------------------------------
+/**
+ * 3D grid using Jacobi(0,2) polynomials 
+ * for a spherical kernel with super-symmetry 
+ * \f$(x,y) \rightarrow (-x,-y)\f$.
+ * This class contains only a constructor and a destructor. 
+ * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi/2]\f$ and 
+ * \f$\phi \in [0,\pi[\f$.
+ *
+ * @version #$Id$#
+ */
+class Grille3d_fjs : public Grille3d {
+    public:
+	Grille3d_fjs(int n_r, int n_t, int n_p) ; ///< Constructor
+	~Grille3d_fjs() ; ///< Destructor
+};
+
+// cas fin de jacobi + 2 phi
+// -------------------------
+/**
+ * 3D grid using Jacobi(0,2) polynomials 
+ * for a spherical kernel with only even harmonics in \f$\phi\f$. 
+ * This class contains only a constructor and a destructor. 
+ * Coordinates ranges are: \f$\xi \in [-1,1]\f$, \f$\theta \in [0,\pi]\f$ and 
+ * \f$\phi \in [0,\pi[\f$.
+ *
+ * @version #$Id$#
+ */
+class Grille3d_fj2p : public Grille3d {
+    public:
+	Grille3d_fj2p(int n_r, int n_t, int n_p) ; ///< Constructor
+	~Grille3d_fj2p() ; ///< Destructor
+};
+
 //@}
 
 		    	//---------------//
@@ -467,7 +540,7 @@ class Mg3d {
 	int* np ;	///< Array (size: \c nzone) of nb. of points in \f$\phi\f$
 	
 	/** Array (size: \c nzone) of type of sampling in \e r (\f$\xi\f$) 
-     *(\c RARE,\c FIN, \c UNSURR)
+     *(\c RARE,\c FIN, c UNSURR,\c FINJAC)
      */
 	int* type_r ;	
 	/// Type of sampling in \f$\theta\f$ (\c SYM, \c NONSYM)
@@ -607,6 +680,8 @@ class Mg3d {
      * in domain no.\e l : \n
      *   \c RARE : \f$\xi\in[0,1]\f$ : rarefied at the origin  \n
      *   \c FIN : \f$\xi\in[-1,1]\f$ :  dense at the two extremities \n
+     *   \c FINJAC : \f$\xi\in[-1,1]\f$ : dense at the two extremities,
+     *      using Jacobi(0,2) polynomials \n
      *   \c UNSURR : \f$\xi\in[-1,1]\f$ : dense at the two extremities, 
      *      in view of using \f$u=1/r\f$ as radial variable 
      */

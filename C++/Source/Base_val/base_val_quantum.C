@@ -25,6 +25,9 @@ char base_val_quantum_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2007/12/11 15:28:09  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.4  2005/09/07 13:09:50  j_novak
  * New method for determining the highest multipole that can be described on a 3D
  * grid.
@@ -205,6 +208,10 @@ void Base_val::give_quant_numbers (int l, int k, int j,
   switch (base_r) {
   case R_CHEB :
     base_r_1d = R_CHEB ;
+    break ;
+
+  case R_JACO02 :
+    base_r_1d = R_JACO02 ;
     break ;
     
   case R_CHEBP :

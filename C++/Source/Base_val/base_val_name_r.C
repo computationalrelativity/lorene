@@ -30,6 +30,9 @@ char base_val_name_r_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2007/12/11 15:28:09  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.2  2004/11/23 15:08:01  m_forot
  * Added the bases for the cases without any equatorial symmetry
  * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
@@ -59,6 +62,7 @@ void basename_r_chebpim_p(int, int, int, char*) ;
 void basename_r_chebpim_i(int, int, int, char*) ; 
 void basename_r_chebpi_p(int, int, int, char*) ; 
 void basename_r_chebpi_i(int, int, int, char*) ; 
+void basename_r_jaco02(int, int, int, char*) ;
 
 			//----------------------------//
 			//      Base_val method       //
@@ -89,7 +93,7 @@ void Base_val::name_r(int l, int k, int j, int i, char* name) const {
 		vbasename_r[R_CHEBU >> TRA_R] = basename_r_cheb ;
 		vbasename_r[R_CHEBPI_P >> TRA_R] = basename_r_chebpi_p ;
 		vbasename_r[R_CHEBPI_I >> TRA_R] = basename_r_chebpi_i ;
-
+		vbasename_r[R_JACO02 >> TRA_R] = basename_r_jaco02 ;
     }
 	
 	// Call to the function adapted to the basis in domain l
@@ -220,7 +224,17 @@ void basename_r_chebpi_i(int , int j, int i, char* name) {
 }	
 
 
+void basename_r_jaco02(int, int, int i, char* name) {
 
+	assert( i>=0 ) ; 
+
+	strcpy(name, "J") ; 
+		
+	char cxr[4] ;
+	assert( i < 1000) ; 
+	sprintf(cxr, "%d", i) ; 
+	strcat(name, cxr) ; 
+}	
 
 
 

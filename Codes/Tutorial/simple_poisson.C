@@ -28,6 +28,9 @@ char simple_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2007/12/11 15:28:27  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.4  2005/03/25 20:29:57  e_gourgoulhon
  * Use of new graphical routines for Scalar and Vector.
  *
@@ -119,8 +122,11 @@ int main() {
                                  // to the standard ones for a scalar field
 
     cout << source << endl ;    // prints to screen 
-    
+
+       
     source.spectral_display() ;     // prints the spectral expansions
+
+
     
     // 1-D visualization via PGPLOT
     // ----------------------------

@@ -1,4 +1,4 @@
-/*
+	/*
  *   Copyright (c) 2004 Jerome Novak
  *
  *   This file is part of LORENE.
@@ -25,6 +25,9 @@ char dsdx_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2007/12/11 15:28:18  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.3  2006/04/10 15:19:20  j_novak
  * New definition of 1D operators dsdx and sx in the nucleus (bases R_CHEBP and
  * R_CHEBI).
@@ -40,6 +43,7 @@ char dsdx_1d_C[] = "$Header$" ;
  *
  */
 
+#include <math.h>
 #include <stdlib.h>
 #include "type_parite.h"
 #include "headcpp.h"
@@ -90,6 +94,27 @@ void _dsdx_1d_r_chebu(int nr,  double* tb, double *xo)
       xo[i] = som ;
     }	// Fin de la deuxieme boucle sur r
     xo[0] *= .5 ;
+
+}
+
+
+			//----------------
+			// cas R_JACO02 --
+			//----------------
+
+void _dsdx_1d_r_jaco02(int nr,  double* tb, double *xo)
+{
+
+    double som ;
+	    
+    xo[nr-1] = 0 ;
+    for (int i = 0 ; i < nr-1 ; i++ ) {
+      som = 0 ;
+	for ( int j = i+1 ; j < nr ; j++ ) {
+	som += (1 - pow((-1),(j-i))*(i+1)*(i+2)/double((j+1)*(j+2)))*tb[j] ;
+	}  // Fin de la boucle auxiliaire
+      xo[i] = (i+1.5)*som ;
+    }	// Fin de la boucle sur R
 
 }
 
@@ -153,6 +178,7 @@ void dsdx_1d(int nr, double** tb, int base_r)
 	dsdx_1d[R_CHEBP >> TRA_R] = _dsdx_1d_r_chebp ;
 	dsdx_1d[R_CHEBI >> TRA_R] = _dsdx_1d_r_chebi ;
 	dsdx_1d[R_CHEB >> TRA_R] = _dsdx_1d_r_cheb ;
+	dsdx_1d[R_JACO02 >> TRA_R] = _dsdx_1d_r_jaco02 ;
 
     }
     

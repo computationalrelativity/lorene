@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2007/12/11 15:28:05  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.6  2004/11/04 15:40:14  e_gourgoulhon
  * Added definition of symbol T_LEG.
  *
@@ -98,6 +101,7 @@
 #define	    RARE    1
 #define	    FIN	    0
 #define	    UNSURR  2
+#define     FINJAC  3
 
 /* Symetries en theta */
 /* ------------------ */
@@ -146,6 +150,8 @@
 #define	    R_RLCHEB_PP	0x00000009	
 /// \f$r^l\f$.Cheb. pair, l pair ou impair suivant m
 #define	    R_RLCHEB_P	0x0000000a	
+/// base de Jacobi(0,2) ordinaire (finjac)
+#define     R_JACO02    0x0000000b
 
     /* Theta */
 /// dev. cos-sin alternes, cos pour m=0 

@@ -30,6 +30,9 @@ char map_af_radius_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2007/12/11 15:28:14  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.4  2006/09/13 13:59:21  j_novak
  * Higher tolerance thereshold for Map_af::val_lx
  *
@@ -83,7 +86,7 @@ double Map_af::val_r(int l, double xi, double, double) const {
 
     switch( mg->get_type_r(l) ) {
 
-	case FIN: case RARE: {
+	case FIN: case RARE: case FINJAC : {
 	    resu = alpha[l] * xi + beta[l] ;
 	    break ;
 	}
@@ -151,7 +154,7 @@ void Map_af::val_lx(double rr, double, double, int& lz, double& xi) const {
 
     switch( mg->get_type_r(lz) ) {
 
-	case FIN: case RARE: {
+	case FIN: case RARE: case FINJAC : {
 	    xi = ( rr - beta[lz] ) / alpha[lz]  ;
 	    break ;
 	}

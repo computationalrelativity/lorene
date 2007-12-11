@@ -30,6 +30,9 @@ char valeur_coef_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2007/12/11 15:28:25  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.6  2004/11/23 15:17:19  m_forot
  * Added the bases for the cases without any equatorial symmetry
  *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
@@ -132,7 +135,8 @@ void Valeur::coef() const {
 	coef_r[R_CHEBPIM_P >> TRA_R] = cfrchebpimp ;	    
 	coef_r[R_CHEBPIM_I >> TRA_R] = cfrchebpimi ;	    
 	coef_r[R_CHEBPI_P >> TRA_R] = cfrchebpip ;	    
-	coef_r[R_CHEBPI_I >> TRA_R] = cfrchebpii ;	    
+	coef_r[R_CHEBPI_I >> TRA_R] = cfrchebpii ;
+	coef_r[R_JACO02 >> TRA_R] = cfrjaco02 ;
 
 	coef_t[NONDEF] = base_non_def_t ;
 	coef_t[T_COS >> TRA_T] = cftcos ;
@@ -276,7 +280,6 @@ void Valeur::coef() const {
 	// --------------------
 	if ( nr > 1 ) {
 	    assert( admissible_fft(nr-1) ) ; 
-	
 	    coef_r[base_r](deg, dim, (cf->t), dim, (cf->t)) ;
 	}
 	   

@@ -30,6 +30,9 @@ char diff_x2dsdx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2007/12/11 15:28:11  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.1  2005/01/11 15:16:10  j_novak
  * More Diff operators.
  *
@@ -48,6 +51,8 @@ char diff_x2dsdx_C[] = "$Header$" ;
 // Lorene headers
 #include "diff.h"
 #include "proto.h"
+
+void mult2_xp1_1d(int, double**, int) ;
 
 namespace {
     int nap = 0 ;
@@ -119,6 +124,11 @@ const Matrice& Diff_x2dsdx::get_matrice() const {
 		mult2_xm1_1d_cheb(npoints, vect, cres) ;
 		for (int j=0; j<npoints; j++)
 		    resu.set(j,i) = cres[j] ;
+	    }
+	    else if (base ==  R_JACO02) {
+		mult2_xp1_1d(npoints, &vect, base << TRA_R) ;
+		for (int j=0; j<npoints; j++)
+		    resu.set(j,i) = vect[j];
 	    }
 	    else {
 		multx2_1d(npoints, &vect, base << TRA_R) ;

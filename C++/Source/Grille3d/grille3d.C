@@ -31,6 +31,9 @@ char grille3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2007/12/11 15:28:13  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.2  2002/10/16 14:36:36  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -83,6 +86,7 @@ char grille3d_C[] = "$Header$" ;
 
 #include "grilles.h"
 #include "type_parite.h"
+#include "proto.h"
 
 		    	//-------------//
 		    	// Mono-grille //
@@ -573,3 +577,172 @@ Grille3d_is::~Grille3d_is() { }		// ne fait rien (c'est le destructeur
 					// fait tout. 
 
 
+		
+
+
+                     // Cas fin de jacobi + sans symetrie
+
+// Constructeur
+//-------------
+Grille3d_fj::Grille3d_fj(int nrs, int nts, int nps) 
+    : Grille3d(nrs, nts, nps)
+{
+
+    // Cette grille n'a pas de sens si np = 1
+    assert(nps != 1) ;	// ??
+
+    double xx ;
+    double* yy ;
+
+      type_r = FINJAC ; 	// echantillonnage radial fin avec Jacobi     
+      type_t = NONSYM ;  	// echantillonnage en theta sur [0, pi] 
+      type_p = NONSYM ;  	// echantillonnage en phi sur [0, 2 pi[
+
+    // Partie radiale
+      yy = 0;
+      if (nr>1) { yy = pointsgausslobatto(nr-1); }
+      for (int i=0 ; i<nr ; i++) {
+    	x[i] = yy[i] ;
+    }
+
+    // Partie en theta
+    xx = M_PI/double(nt-1) ;
+    for (int i=0 ; i<nt ; i++) {
+	tet[i] = xx*i ;
+    }
+    // Partie longitudinale
+    xx = 2.*M_PI/double(np) ;
+    for (int i=0 ; i<np ; i++) {
+	phi[i] = xx*i ;
+    }
+}
+
+// Destructeur 
+//-------------
+Grille3d_fj::~Grille3d_fj() { }	// ne fait rien (c'est le destructeur
+				// de la classe de base, Grille3d, qui 
+				// fait tout. 
+
+
+
+// cas fin de jacobi + symetrie equatoriale 
+
+// Constructeur
+//-------------
+Grille3d_fjeq::Grille3d_fjeq(int nrs, int nts, int nps) 
+    : Grille3d(nrs, nts, nps)
+{
+
+    double xx ;
+    double* yy ;
+    
+
+    type_r = FINJAC ;	// echantillonnage radial fin avec Jacobi   
+    type_t = SYM ;	// echantillonnage en theta sur [0, pi/2] 
+    type_p = NONSYM ;	// echantillonnage en phi sur [0, 2 pi[
+
+    // Partie radiale
+    yy = 0 ;
+    if (nr>1) yy = pointsgausslobatto(nr-1);
+      for (int i=0 ; i<nr ; i++) {
+    	x[i] = yy[i] ;
+    }
+    // Partie en theta
+    xx = M_PI/double(2*(nt-1)) ;
+    for (int i=0 ; i<nt ; i++) {
+	tet[i] = xx*i ;
+    }
+    // Partie longitudinale
+    xx = 2.*M_PI/double(np) ;
+    for (int i=0 ; i<np ; i++) {
+	phi[i] = xx*i ;
+    }
+}
+
+// Destructeur 
+//-------------
+Grille3d_fjeq::~Grille3d_fjeq() { }	// ne fait rien (c'est le destructeur
+					// de la classe de base, Grille3d, qui 
+					// fait tout. 
+
+
+
+// cas fin de jacobi + 2 phi
+
+// Constructeur
+//-------------
+Grille3d_fj2p::Grille3d_fj2p(int nrs, int nts, int nps) 
+    : Grille3d(nrs, nts, nps)
+{
+
+    double* yy ;
+    double xx ;
+
+    type_r = FINJAC ;	// echantillonnage radial fin avec Jacobi   
+    type_t = NONSYM ;	// echantillonnage en theta sur [0,pi] 
+    type_p = SYM ;	// echantillonnage en phi sur [0,pi[
+
+    // Partie radiale
+    yy = 0 ;
+    if (nr>1) { yy = pointsgausslobatto(nr-1); }
+      for (int i=0 ; i<nr ; i++) {
+    	x[i] = yy[i] ;
+    }
+    // Partie en theta
+    xx = M_PI/double(nt-1) ;
+    for (int i=0 ; i<nt ; i++) {
+	tet[i] = xx*i ;
+    }
+    // Partie longitudinale
+    xx = M_PI/double(np) ;
+    for (int i=0 ; i<np ; i++) {
+	phi[i] = xx*i ;
+    }
+}
+
+// Destructeur 
+//-------------
+Grille3d_fj2p::~Grille3d_fj2p() { }	// ne fait rien (c'est le destructeur
+					// de la classe de base, Grille3d, qui 
+					// fait tout. 
+
+
+
+// cas fin de jacobi supersymetrique
+
+// Constructeur
+//-------------
+Grille3d_fjs::Grille3d_fjs(int nrs, int nts, int nps) 
+    : Grille3d(nrs, nts, nps)
+{
+
+    double xx ;
+    double* yy ;
+
+    type_r = FINJAC ;	// echantillonnage radial fin avec Jacobi   
+    type_t = SYM ;	// echantillonnage en theta sur [0,pi/2] 
+    type_p = SYM ;	// echantillonnage en phi sur [0,pi[
+
+    // Partie radiale
+    yy = 0 ;
+    if (nr>1) { yy = pointsgausslobatto(nr-1); }
+      for (int i=0 ; i<nr ; i++) {
+    	x[i] = yy[i] ;
+    }
+    // Partie en theta
+    xx = M_PI/double(2*(nt-1)) ;
+    for (int i=0 ; i<nt ; i++) {
+	tet[i] = xx*i ;
+    }
+    // Partie longitudinale
+    xx = M_PI/double(np) ;
+    for (int i=0 ; i<np ; i++) {
+	phi[i] = xx*i ;
+    }
+}
+
+// Destructeur 
+//-------------
+Grille3d_fjs::~Grille3d_fjs() { }	// ne fait rien (c'est le destructeur
+					// de la classe de base, Grille3d, qui 
+					// fait tout. 

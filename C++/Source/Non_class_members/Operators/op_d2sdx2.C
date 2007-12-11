@@ -37,6 +37,9 @@ char op_d2sdx2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2007/12/11 15:28:18  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.2  2004/11/23 15:16:01  m_forot
  *
  * Added the bases for the cases without any equatorial symmetry
@@ -73,6 +76,8 @@ char op_d2sdx2_C[] = "$Header$" ;
 
 // Fichier includes
 #include "tbl.h"
+
+void d2sdx2_1d(int, double**, int);
 
 // Prototypage
 void c_est_pas_fait(char * ) ;
@@ -991,3 +996,94 @@ void _d2sdx2_r_chebpi_i(Tbl *tb, int & )
     // base de developpement
     // inchangee
 }
+
+
+
+
+// cas R_JACO02
+//-----------
+void _d2sdx2_r_jaco02(Tbl *tb, int & )
+{
+
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	return ;
+    }
+    
+    // Protection
+    assert(tb->get_etat() == ETATQCQ) ;
+    
+    // Pour le confort
+    int nr = (tb->dim).dim[0] ;	    // Nombre
+    int nt = (tb->dim).dim[1] ;	    //	 de points
+    int np = (tb->dim).dim[2] ;	    //	    physiques REELS
+    np = np - 2 ;		    // Nombre de points physiques
+    
+    // Variables statiques
+    static double* cx1 = 0x0 ;
+    static double* cx2 = 0x0 ;
+    static double* cx3 = 0x0 ;
+    static int nr_pre = 0 ;
+
+    // Test sur np pour initialisation eventuelle
+    if (nr > nr_pre) {
+	nr_pre = nr ;
+	if (cx1 != 0x0) delete [] cx1 ;
+	if (cx2 != 0x0) delete [] cx2 ;
+	if (cx3 != 0x0) delete [] cx3 ;
+	cx1 = new double [nr] ;
+	cx2 = new double [nr] ;
+	cx3 = new double [nr] ;  
+    
+	for (int i=0 ; i<nr ; i++) {
+	    cx1[i] =  (i+2)*(i+2)*(i+2) ;
+	    cx2[i] =  (i+2) ;
+	    cx3[i] =  i*i ;
+	}
+    }
+    
+    // pt. sur le tableau de double resultat
+    double* xo = new double[(tb->dim).taille] ;
+    
+    // Initialisation a zero :
+    for (int i=0; i<(tb->dim).taille; i++) {
+	xo[i] = 0 ; 
+    }
+    
+    // On y va...
+    double* xi = tb->t ;
+    double* xci = xi ;	// Pointeurs
+    double* xco = xo ;	//  courants
+    
+    for (int k=0 ; k<np+1 ; k++) 
+	if (k == 1)  {
+		xci += nr*nt ;
+		xco += nr*nt ;
+		}
+	else {
+	for (int j=0 ; j<nt ; j++) {
+
+	    double** tb1 = new double*[nr] ;
+	    for (int i = 0 ; i<nr ; i++ ) {
+		*tb1[i]=xci[i] ;
+		}
+	    d2sdx2_1d(nr,tb1,R_JACO02 >> TRA_R) ;
+	    for (int i = 0 ; i<nr ; i++ ) {
+		xco[i] = *tb1[i] ;
+		}
+	    delete [] (*tb1) ;		
+	    
+	    xci += nr ;
+	    xco += nr ;
+	}   // Fin de la boucle sur theta
+    }	// Fin de la boucle sur phi
+    
+    // On remet les choses la ou il faut
+    delete [] tb->t ;
+    tb->t = xo ;
+    
+    // base de developpement
+    // inchangee
+}
+
+

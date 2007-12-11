@@ -31,6 +31,9 @@ char mg3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2007/12/11 15:28:15  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.12  2006/05/17 13:17:03  j_novak
  * New member g_angu_1dom, the one-domain angular grid associated with the
  * current grid.
@@ -170,6 +173,10 @@ Mg3d::Mg3d(int nz,
 			    g[i] = new
 			     Grille3d_feq(nbr[i], nbt[i], nbp[i]) ;
 			    break ;
+			case FINJAC :   // echantillonnage fin avec Jacobi
+			    g[i] = new
+			     Grille3d_fjeq(nbr[i], nbt[i], nbp[i]) ;
+			    break ;
 			case RARE :    // echantillonnage rarefie
 			    g[i] = new
 			     Grille3d_req(nbr[i], nbt[i], nbp[i]) ;
@@ -194,6 +201,10 @@ Mg3d::Mg3d(int nz,
 			case FIN :    // echantillonnage fin
 			    g[i] = new
 			     Grille3d_f(nbr[i], nbt[i], nbp[i]) ;
+			    break ;
+			case FINJAC :   // echantillonnage fin avec Jacobi
+			    g[i] = new 
+			     Grille3d_fj(nbr[i], nbt[i], nbp[i]) ;
 			    break ;
 			case RARE :    // echantillonnage rarefie
 			    g[i] = new
@@ -233,6 +244,10 @@ Mg3d::Mg3d(int nz,
 			    g[i] = new
 			     Grille3d_fs(nbr[i], nbt[i], nbp[i]) ;
 			    break ;
+			case FINJAC :    // echantillonnage fin avec Jacobi
+			    g[i] = new
+			     Grille3d_fjs(nbr[i], nbt[i], nbp[i]) ;
+			    break ;
 			case RARE :    // echantillonnage rarefie
 			    g[i] = new
 			     Grille3d_rs(nbr[i], nbt[i], nbp[i]) ;
@@ -257,6 +272,10 @@ Mg3d::Mg3d(int nz,
 			case FIN :    // echantillonnage fin
 			    g[i] = new
 			     Grille3d_f2p(nbr[i], nbt[i], nbp[i]) ;
+			    break ;
+			case FINJAC :   // echantillonnage fin avec Jacobi
+			    g[i] = new
+			     Grille3d_fj2p(nbr[i], nbt[i], nbp[i]) ;
 			    break ;
 			case RARE :    // echantillonnage rarefie
 			    g[i] = new
@@ -528,6 +547,10 @@ Mg3d::Mg3d(FILE* fd)
 			    g[i] = new
 			     Grille3d_feq(nr[i], nt[i], np[i]) ;
 			    break ;
+			case FINJAC :    // echantillonage fin avec Jacobi
+			    g[i] = new
+			     Grille3d_fjeq(nr[i], nt[i], np[i]);
+			    break ;
 			case RARE :    // echantillonnage rarefie
 			    g[i] = new
 			     Grille3d_req(nr[i], nt[i], np[i]) ;
@@ -552,6 +575,10 @@ Mg3d::Mg3d(FILE* fd)
 			case FIN :    // echantillonnage fin
 			    g[i] = new
 			     Grille3d_f(nr[i], nt[i], np[i]) ;
+			    break ;
+			case FINJAC :    // echantillonnage fin avec Jacobi
+			    g[i] = new
+			     Grille3d_fj(nr[i], nt[i], np[i]) ;
 			    break ;
 			case RARE :    // echantillonnage rarefie
 			    g[i] = new
@@ -591,6 +618,10 @@ Mg3d::Mg3d(FILE* fd)
 			    g[i] = new
 			     Grille3d_fs(nr[i], nt[i], np[i]) ;
 			    break ;
+			case FINJAC :    // echantillonnage fin avec Jacobi
+			    g[i] = new
+			     Grille3d_fjs(nr[i], nt[i], np[i]) ;
+			    break ;
 			case RARE :    // echantillonnage rarefie
 			    g[i] = new
 			     Grille3d_rs(nr[i], nt[i], np[i]) ;
@@ -615,6 +646,10 @@ Mg3d::Mg3d(FILE* fd)
 			case FIN :    // echantillonnage fin
 			    g[i] = new
 			     Grille3d_f2p(nr[i], nt[i], np[i]) ;
+			    break ;
+			case FINJAC :     // echantillonnage fin avec Jacobi
+			    g[i] = new
+			     Grille3d_fj2p(nr[i], nt[i], np[i]);
 			    break ;
 			case RARE :    // echantillonnage rarefie
 			    g[i] = new
@@ -701,8 +736,8 @@ void Mg3d::sauve(FILE* fd) const {
 
 // Operateur <<
 ostream& operator<<(ostream& o, const Mg3d& g) {
-    char* tr[3] ;
-    tr[FIN] = "FIN" ; tr[RARE] = "RARE" ; tr[UNSURR] = "UNSURR" ;
+    char* tr[4] ;
+    tr[FIN] = "FIN" ; tr[RARE] = "RARE" ; tr[UNSURR] = "UNSURR" ; tr[FINJAC] = "FINJAC" ;
     char* tang[2] ;
     tang[NONSYM] = "NONSYM" ; tang[SYM] = "SYM" ;
     o << "Number of domains: " << g.nzone << endl ;

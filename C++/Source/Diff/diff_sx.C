@@ -30,6 +30,9 @@ char diff_sx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2007/12/11 15:28:11  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.2  2006/04/10 15:20:52  j_novak
  * Operators dsdx and sx can now be used in the nucleus.
  *
@@ -48,6 +51,8 @@ char diff_sx_C[] = "$Header$" ;
 // Lorene headers
 #include "diff.h"
 #include "proto.h"
+
+void sxpun_1d(int, double**, int) ;
 
 namespace {
     int nap = 0 ;
@@ -113,9 +118,16 @@ const Matrice& Diff_sx::get_matrice() const {
 	    for (int j=0; j<npoints; j++)
 		vect[j] = 0. ;
 	    vect[i] = 1. ;
+	    if (base == R_JACO02) {
+	    sxpun_1d(npoints, &vect, base << TRA_R) ;
+	    for (int j=0; j<npoints; j++)  
+		resu.set(j,i)=vect[j];
+	    }
+	    else {
 	    sx_1d(npoints, &vect, base << TRA_R) ;
 	    for (int j=0; j<npoints; j++)
 		resu.set(j,i) = vect[j] ;
+	    }
 	}
 	delete [] vect ;
     }

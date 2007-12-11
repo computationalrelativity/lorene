@@ -25,6 +25,9 @@ char d2sdx2_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2007/12/11 15:28:18  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.3  2002/10/16 15:05:54  j_novak
  * *** empty log message ***
  *
@@ -45,7 +48,7 @@ char d2sdx2_1d_C[] = "$Header$" ;
  * Correction termes 0 (/2)
  *
  * Revision 2.1  1999/07/08  09:53:13  phil
- * correction gestion memeoire
+ * correction gestion memoire
  *
  * Revision 2.0  1999/07/07  10:15:26  phil
  * *** empty log message ***
@@ -58,6 +61,7 @@ char d2sdx2_1d_C[] = "$Header$" ;
 #include <stdlib.h>
 #include "type_parite.h"
 #include "headcpp.h"
+#include "proto.h"
 
 /*
  * Routine appliquant l'operateur d2sdx2.
@@ -187,6 +191,20 @@ void _d2sdx2_1d_r_cheb(int nr, double* tb, double *xo)
 	   
 }
 
+			  //----------------
+			 // cas R_JACO02 --
+			//----------------
+
+void _d2sdx2_1d_r_jaco02(int nr, double* tb, double *xo)
+{
+	dsdx_1d(nr, &tb, R_JACO02 >> TRA_R) ;
+	dsdx_1d(nr, &tb, R_JACO02 >> TRA_R) ;
+	for (int i = 0 ;  i<nr ; i++) {
+		xo[i] = tb[i] ;
+	}
+}
+
+
 			//-----------------
 			// cas R_CHEBP ---
 			//----------------
@@ -298,6 +316,7 @@ void d2sdx2_1d(int nr, double** tb, int base_r)
 	d2sdx2_1d[R_CHEBU >> TRA_R] = _d2sdx2_1d_r_chebu ;
 	d2sdx2_1d[R_CHEBP >> TRA_R] = _d2sdx2_1d_r_chebp ;
 	d2sdx2_1d[R_CHEBI >> TRA_R] = _d2sdx2_1d_r_chebi ;
+	d2sdx2_1d[R_JACO02 >> TRA_R] = _d2sdx2_1d_r_jaco02 ;
     }
     
     double *result = new double[nr] ;

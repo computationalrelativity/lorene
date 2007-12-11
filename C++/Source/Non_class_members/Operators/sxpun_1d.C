@@ -25,6 +25,9 @@ char sxpun_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2007/12/11 15:28:21  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.2  2002/10/16 14:37:07  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -42,6 +45,7 @@ char sxpun_1d_C[] = "$Header$" ;
 
 
 #include <stdlib.h>
+#include <math.h>
 
 #include "tbl.h"
 #include "type_parite.h"
@@ -49,11 +53,12 @@ char sxpun_1d_C[] = "$Header$" ;
 /*
  * Operateur :
  *  -R_CHEB : (f-f(-1))/(x+1)
+ *  -R_JACO02 : (f-f(-1))/(x+1)
  * 
- * 
+ *
  * Entree : coefficients de f dans tb
  *	    nr : nombre de points en r
- * Sortie : coeffieicient du resultat dans tb
+ * Sortie : coefficient du resultat dans tb
  * 
  * 
  */
@@ -98,6 +103,25 @@ void _sxpun_1d_r_cheb (int nr, double* tb, double *xo)
     xo[0] = tb[0]-xo[1]/2.-somme ;
 }
 
+
+			//---------------
+			// cas R_JACO02 -
+			//---------------
+
+void _sxpun_1d_r_jaco02 (int nr, double* tb, double *xo)
+{
+    
+    xo[nr-1] = 0 ;
+    double somme ;
+    for (int i = 0 ; i < nr-1 ; i++) {
+	somme = 0 ;
+	for (int j = i+1 ; j < nr ; j++) {
+	somme += pow((-1),(j-1-i))*((j+1)*(j+2)/double((i+1)*(i+2))-(i+1)*(i+2)/double((j+1)*(j+2)))*tb[j] ;
+	}
+	xo[i] = (2*i+3)/double(4)*somme ;
+    }
+}
+
 		    //----------------------------
 		    // La routine a appeler   ----
 		    //----------------------------
@@ -118,6 +142,7 @@ static int nap = 0 ;
 	}
 	// Les routines existantes
 	sxpun_1d[R_CHEB >> TRA_R] = _sxpun_1d_r_cheb ;
+	sxpun_1d[R_JACO02 >> TRA_R] = _sxpun_1d_r_jaco02 ;
 	}
     
     double *result = new double[nr] ;

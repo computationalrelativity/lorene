@@ -30,6 +30,9 @@ char diff_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2007/12/11 15:28:11  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.2  2005/02/09 09:53:24  j_novak
  * Removed irrelevant asserts on number of points.
  *
@@ -82,6 +85,10 @@ ostream& operator<<(ostream& ost, const Diff& ope) {
 
 	case R_CHEB >> TRA_R :
 	    ost << "Chebyshev polynomials (R_CHEB)"  ;
+	    break ;
+
+	case R_JACO02 >> TRA_R :
+	    ost << "Jacobi(0,2) polynomials (R_JACO02)" ;
 	    break ;
 
 	case R_CHEBP >> TRA_R :

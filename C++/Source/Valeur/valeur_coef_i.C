@@ -31,6 +31,9 @@ char valeur_coef_i_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2007/12/11 15:28:25  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.8  2004/11/23 15:17:19  m_forot
  * Added the bases for the cases without any equatorial symmetry
  *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
@@ -136,6 +139,7 @@ void Valeur::coef_i() const {
 	invcf_r[R_CHEBPIM_I >> TRA_R] = circhebpimi ;	    
 	invcf_r[R_CHEBPI_P >> TRA_R] = circhebpip ;	    
 	invcf_r[R_CHEBPI_I >> TRA_R] = circhebpii ;	    
+	invcf_r[R_JACO02 >> TRA_R] = cirjaco02 ;
 
 	invcf_t[NONDEF] = ibase_non_def_t ;
 	invcf_t[T_COS >> TRA_T] = citcos ;

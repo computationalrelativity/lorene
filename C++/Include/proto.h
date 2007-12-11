@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.35  2007/12/11 15:28:05  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.34  2007/05/06 10:48:08  p_grandclement
  * Modification of a few operators for the vorton project
  *
@@ -366,6 +369,12 @@ double int1d_chebp(int, const double* ) ;
 double int1d_chebi(int, const double* ) ;
 double int1d_cheb(int, const double* ) ;
 
+double* jacobi(int, double) ;
+double* pointsgausslobatto(int) ;
+Tbl jacobipointsgl(int) ;
+double* coeffjaco(int, double*) ;
+void cfrjaco02(const int*, const int*, double*, const int*, double*);
+
 // Routines calcul de coef inverse
 void cipcossin(const int* , const int* , const int* , double* , double* ) ;
 void citcosp(const int*, const int*, double*, const int*, double*) ;
@@ -388,6 +397,7 @@ void circhebp(const int*, const int*, double*, const int*, double*) ;
 void circhebi(const int*, const int*, double*, const int*, double*) ;
 void circhebpimp(const int*, const int*, double*, const int*, double*) ;
 void circhebpimi(const int*, const int*, double*, const int*, double*) ;
+void cirjaco02(const int*, const int*, double* , const int*, double*) ;
 
 // Routines calculant la matrice du laplacien
 Matrice _laplacien_mat_pas_prevu(int, int, double, int) ;
@@ -501,6 +511,7 @@ void dsdx_1d(int, double** , int) ;
 void _multx_1d_pas_prevu(int, double*, double* ) ;
 void _multx_1d_r_cheb(int, double*, double* ) ;
 void multx_1d(int, double **, int) ;
+void multxpun_1d(int, double **, int) ;
 
 void _sx_1d_pas_prevu(int, double*, double* ) ;
 void _sx_1d_r_chebi(int, double*, double* ) ;
@@ -570,6 +581,8 @@ void som_r_chebu_asymy
 void som_r_chebpim_p_asymy
     (double*, const int, const int, const int, const double, double*) ;
 void som_r_chebpim_i_asymy
+    (double*, const int, const int, const int, const double, double*) ;
+void som_r_jaco02
     (double*, const int, const int, const int, const double, double*) ;
     
 // Les sommations en theta :
@@ -641,7 +654,7 @@ void _multx2_1d_r_chebp(int, double* , double *);
 void _multx2_1d_r_chebi(int, double* , double *);
 void _multx2_1d_pas_prevu(int, double* , double *);
 
-// division pas (x+1)
+// division par (x+1)
 void sxpun_1d(int, double **, int)	;
 void _sxpun_1d_r_cheb(int, double* , double *);
 void _sxpun_1d_pas_prevu(int, double* , double *);

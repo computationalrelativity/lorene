@@ -33,6 +33,9 @@ char map_af_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2007/12/11 15:28:14  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.9  2006/04/25 07:21:59  p_grandclement
  * Various changes for the NS_BH project
  *
@@ -178,6 +181,12 @@ Map_af::Map_af(const Mg3d& mgrille, const double* bornes) : Map_radial(mgrille)
 	    }
 	    
 	    case FIN:	{
+		alpha[l] = (bornes[l+1] - bornes[l]) * .5 ;
+		beta[l] = (bornes[l+1] + bornes[l]) * .5 ;
+		break ;
+	    }
+	      
+	    case FINJAC: {
 		alpha[l] = (bornes[l+1] - bornes[l]) * .5 ;
 		beta[l] = (bornes[l+1] + bornes[l]) * .5 ;
 		break ;

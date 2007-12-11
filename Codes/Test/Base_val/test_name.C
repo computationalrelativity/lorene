@@ -29,6 +29,9 @@ char test_name_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2007/12/11 15:28:26  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.1  2003/10/19 20:03:28  e_gourgoulhon
  * First version
  *
@@ -49,7 +52,7 @@ int main() {
 	int nz = 3 ; 
 	Base_val base(nz) ; 
 	
-	base.set_base_r(0, R_CHEBU) ; 
+	base.set_base_r(0, R_JACO02) ; 
 	
 	base.set_base_t(T_LEG_II) ; 
 

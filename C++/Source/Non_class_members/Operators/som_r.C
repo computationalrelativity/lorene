@@ -41,6 +41,9 @@ char som_r_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2007/12/11 15:28:18  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.6  2006/05/17 13:15:19  j_novak
  * Added a test for the pure angular grid case (nr=1), in the shell.
  *
@@ -90,6 +93,7 @@ char som_r_C[] = "$Header$" ;
 #include <stdlib.h>
 
 #include "headcpp.h"
+#include "proto.h"
 			//-------------------
 			//- Cas Non-Prevu ---
 			//-------------------
@@ -583,3 +587,56 @@ double* po = trtp ;	    // pointeur courant sur la sortie
     
 }
 
+			//----------------
+			//- Cas R_JACO02 -
+			//----------------
+
+void som_r_jaco02
+    (double* ti, const int nr, const int nt, const int np, const double x, 
+    double* trtp) {
+
+// Variables diverses
+int i, j, k ;
+double* pi = ti ;	    // pointeur courant sur l'entree
+double* po = trtp ;	    // pointeur courant sur la sortie
+    
+    // Valeurs des polynomes de Jacobi(0,2) au point x demande
+    double* jaco = new double [nr] ;
+    jaco = jacobi(nr-1,x) ;
+    
+    // Sommation pour le premier phi, k=0
+    for (j=0 ; j<nt ; j++) {
+	*po = 0 ;
+	// Sommation sur r
+	for (i=0 ; i<nr ; i++) {
+	    *po += (*pi) * jaco[i] ;
+	    pi++ ;  // R suivant
+	}
+	po++ ;	    // Theta suivant
+    }
+    
+    if (np > 1) {	
+
+    // On saute le deuxieme phi (sin(0)), k=1
+    pi += nr*nt ;
+    po += nt ;
+    
+    // Sommation sur les phi suivants (pour k=2,...,np)
+    for (k=2 ; k<np+1 ; k++) {
+	for (j=0 ; j<nt ; j++) {
+	    // Sommation sur r
+	    *po = 0 ;
+	    for (i=0 ; i<nr ; i++) {
+		*po += (*pi) * jaco[i] ;
+		pi++ ;	// R suivant
+	    }
+	    po++ ;	// Theta suivant
+	}
+    }
+    
+    }	// fin du cas np > 1 
+
+    // Menage
+    delete [] jaco ;
+
+}

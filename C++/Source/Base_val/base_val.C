@@ -34,6 +34,9 @@ char base_val_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2007/12/11 15:28:09  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.8  2004/12/17 13:35:01  m_forot
  * Add the case T_LEG
  *
@@ -230,10 +233,11 @@ ostream& operator<<(ostream& o, const Base_val & bi) {
     nom_r[R_CHEBI >> TRA_R] =     "R_CHEBI    " ; 
     nom_r[R_CHEBPIM_P >> TRA_R] = "R_CHEBPIM_P" ; 
     nom_r[R_CHEBPIM_I >> TRA_R] = "R_CHEBPIM_I" ; 
-    nom_r[R_CHEBPI_P >> TRA_R] = "R_CHEBPI_P" ; 
-    nom_r[R_CHEBPI_I >> TRA_R] = "R_CHEBPI_I" ; 
-    
-    nom_t[T_COS >> TRA_T] =     "T_COS    " ; 
+    nom_r[R_CHEBPI_P >> TRA_R] =  "R_CHEBPI_P " ; 
+    nom_r[R_CHEBPI_I >> TRA_R] =  "R_CHEBPI_I " ; 
+    nom_r[R_JACO02 >> TRA_R] =    "R_JACO02   " ;
+  
+    nom_t[T_COS >> TRA_T] =       "T_COS      " ; 
     nom_t[T_COS_P >> TRA_T] =     "T_COS_P    " ; 
     nom_t[T_COS_I >> TRA_T] =     "T_COS_I    " ; 
     nom_t[T_SIN_P >> TRA_T] =     "T_SIN_P    " ; 
@@ -242,19 +246,19 @@ ostream& operator<<(ostream& o, const Base_val & bi) {
     nom_t[T_COSSIN_SI >> TRA_T] = "T_COSSIN_SI" ;
     nom_t[T_COSSIN_SP >> TRA_T] = "T_COSSIN_SP" ;
     nom_t[T_COSSIN_CI >> TRA_T] = "T_COSSIN_CI" ;
-    nom_t[T_COSSIN_C >> TRA_T] = "T_COSSIN_C" ;
-    nom_t[T_COSSIN_S >> TRA_T] = "T_COSSIN_S" ;
-    nom_t[T_LEG >> TRA_T] =     "T_LEG    " ;
+    nom_t[T_COSSIN_C >> TRA_T] =  "T_COSSIN_C " ;
+    nom_t[T_COSSIN_S >> TRA_T] =  "T_COSSIN_S " ;
+    nom_t[T_LEG >> TRA_T] =       "T_LEG      " ;
     nom_t[T_LEG_P >> TRA_T] =     "T_LEG_P    " ;
     nom_t[T_LEG_PP >> TRA_T] =    "T_LEG_PP   " ;
     nom_t[T_LEG_I >> TRA_T] =     "T_LEG_I    " ;
     nom_t[T_LEG_IP >> TRA_T] =    "T_LEG_IP   " ;
     nom_t[T_LEG_PI >> TRA_T] =    "T_LEG_PI   " ;
     nom_t[T_LEG_II >> TRA_T] =    "T_LEG_II   " ;
-    nom_t[T_CL_COS_P >> TRA_T] = "T_CL_COS_P  " ;
-    nom_t[T_CL_SIN_P >> TRA_T] = "T_CL_SIN_P  " ;
-    nom_t[T_CL_COS_I >> TRA_T] = "T_CL_COS_I  " ;
-    nom_t[T_CL_SIN_I >> TRA_T] = "T_CL_SIN_I  " ;
+    nom_t[T_CL_COS_P >> TRA_T] =  "T_CL_COS_P " ;
+    nom_t[T_CL_SIN_P >> TRA_T] =  "T_CL_SIN_P " ;
+    nom_t[T_CL_COS_I >> TRA_T] =  "T_CL_COS_I " ;
+    nom_t[T_CL_SIN_I >> TRA_T] =  "T_CL_SIN_I " ;
 
     nom_p[P_COSSIN >> TRA_P] =    "P_COSSIN   " ;
     nom_p[P_COSSIN_P >> TRA_P] =  "P_COSSIN_P " ;

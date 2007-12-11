@@ -25,6 +25,9 @@ char sx2_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2007/12/11 15:28:18  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.2  2002/10/16 14:36:59  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -151,7 +154,6 @@ void _sxm12_1d_r_chebu(int nr, double* tb, double *xo) {
     for (int i=0 ; i<nr ; i++)
 	xo[i] = tb[i] ;
 }  
-
 
 		    //----------------------
 		    // La routine a appeler

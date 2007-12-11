@@ -30,6 +30,9 @@ char diff_xdsdx2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2007/12/11 15:28:11  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.1  2005/01/10 16:34:52  j_novak
  * New class for 1D mono-domain differential operators.
  *
@@ -45,6 +48,8 @@ char diff_xdsdx2_C[] = "$Header$" ;
 // Lorene headers
 #include "diff.h"
 #include "proto.h"
+
+void multxpun_1d(int, double**, int) ;
 
 namespace {
     int nap = 0 ;
@@ -116,6 +121,11 @@ const Matrice& Diff_xdsdx2::get_matrice() const {
 		mult_xm1_1d_cheb(npoints, vect, cres) ;
 		for (int j=0; j<npoints; j++)
 		    resu.set(j,i) = cres[j] ;
+	    }
+	    else if (base == R_JACO02) {
+		multxpun_1d(npoints, &vect, base << TRA_R) ;
+		for (int j=0; j<npoints; j++)
+		    resu.set(j,i) = vect[j] ;
 	    }
 	    else {
 		multx_1d(npoints, &vect, base << TRA_R) ;

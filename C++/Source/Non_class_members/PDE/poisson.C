@@ -26,6 +26,9 @@ char poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2007/12/11 15:28:23  jl_cornou
+ * Jacobi(0,2) polynomials partially implemented
+ *
  * Revision 1.4  2004/10/05 15:44:21  j_novak
  * Minor speed enhancements.
  *
@@ -166,7 +169,7 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis,
     // Verifications d'usage sur les zones
     int nz = source.get_mg()->get_nzone() ;
     assert (nz>1) ;
-    assert (source.get_mg()->get_type_r(0) == RARE) ;
+    assert ((source.get_mg()->get_type_r(0) == RARE) || (source.get_mg()->get_type_r(0) == FINJAC)) ;
     assert (source.get_mg()->get_type_r(nz-1) == UNSURR) ;
     for (int l=1 ; l<nz-1 ; l++)
 	assert(source.get_mg()->get_type_r(l) == FIN) ;
@@ -475,6 +478,10 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis,
 			ligne++ ;
 			// on prend les derivees que si Plm existe 
 			//dans la zone suivante
+
+
+
+// Grosses modifications en perspective
 			
 			if (indic[1] == 1) {
 			    // derivee de x^l en 1 :
