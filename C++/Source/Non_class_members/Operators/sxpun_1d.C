@@ -25,8 +25,8 @@ char sxpun_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.3  2007/12/11 15:28:21  jl_cornou
- * Jacobi(0,2) polynomials partially implemented
+ * Revision 1.4  2007/12/12 09:56:57  jl_cornou
+ * *** empty log message ***
  *
  * Revision 1.2  2002/10/16 14:37:07  j_novak
  * Reorganization of #include instructions of standard C++, in order to
