@@ -25,6 +25,9 @@ char solp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2007/12/12 12:30:49  jl_cornou
+ * *** empty log message ***
+ *
  * Revision 1.6  2004/10/05 15:44:21  j_novak
  * Minor speed enhancements.
  *
@@ -126,7 +129,7 @@ char solp_C[] = "$Header$" ;
 		//------------------------------------
 Tbl _solp_pas_prevu (const Matrice &lap, const Matrice &nondege, double alpha, 
 		    double beta, const Tbl &source, int puis) {
-    cout << " Solution homogene pas prevue ..... : "<< endl ;
+    cout << " Solution particuliere pas prevue ..... : "<< endl ;
     cout << " Laplacien : " << endl << lap << endl ;
     cout << " Non degenere  : " << endl << nondege << endl ;
     cout << " Source : " << &source << endl ;
@@ -177,7 +180,38 @@ Tbl _solp_r_cheb (const Matrice &lap, const Matrice &nondege, double alpha,
     return res ;
 }
 	
+		//-------------------
+	       //--  R_JACO02 ------
+	      //-------------------
+
+Tbl _solp_r_jaco02 (const Matrice &lap, const Matrice &nondege, double alpha, 
+		  double beta, const Tbl &source, int) {
+    
+    int n = lap.get_dim(0) ;	  
+    int dege = n-nondege.get_dim(0) ;
+    assert (dege ==2) ;
+    
+    Tbl source_aux(source*alpha*alpha) ;
+    source_aux = combinaison(source_aux, 0, R_JACO02) ;
 	
+    Tbl so(n-dege) ;
+    so.set_etat_qcq() ;
+    for (int i=0 ; i<n-dege ; i++)
+	so.set(i) = source_aux(i) ;
+	
+    Tbl auxi(nondege.inverse(so)) ;
+	
+    Tbl res(n) ;
+    res.set_etat_qcq() ;
+    for (int i=dege ; i<n ; i++)
+	res.set(i) = auxi(i-dege) ;
+	    
+    for (int i=0 ; i<dege ; i++)
+	res.set(i) = 0 ;
+    return res ;
+}
+	
+
 		//-------------------
 	       //--  R_CHEBP   -----
 	      //-------------------
@@ -467,6 +501,7 @@ Tbl solp(const Matrice &lap, const Matrice &nondege, double alpha,
 	solp[R_CHEBU >> TRA_R] = _solp_r_chebu ;
 	solp[R_CHEBP >> TRA_R] = _solp_r_chebp ;
 	solp[R_CHEBI >> TRA_R] = _solp_r_chebi ;
+	solp[R_JACO02 >> TRA_R] = _solp_r_jaco02 ;
     }
     
     return solp[base_r](lap, nondege, alpha, beta, source, puis) ;

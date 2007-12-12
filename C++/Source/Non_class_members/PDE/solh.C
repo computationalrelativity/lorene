@@ -25,6 +25,9 @@ char solh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2007/12/12 12:30:49  jl_cornou
+ * *** empty log message ***
+ *
  * Revision 1.4  2004/10/05 15:44:21  j_novak
  * Minor speed enhancements.
  *
@@ -224,6 +227,103 @@ Tbl _solh_r_cheb (int n, int l, double echelle) {
    return *tab[indice] ;
 }	
 	
+
+		//-------------------
+	       //--  R_JACO02 ------
+	      //-------------------
+
+Tbl _solh_r_jaco02 (int n, int l, double echelle) {
+                
+   const int nmax = 200 ; // Nombre de Tbl stockes
+   static Tbl* tab[nmax] ;  // les Tbl calcules
+   static int nb_dejafait = 0 ; // nbre de Tbl calcules
+   static int l_dejafait[nmax] ;
+   static int nr_dejafait[nmax] ;
+   static double vieux_echelle = 0;
+   
+   // Si on a change l'echelle : on detruit tout :
+   if (vieux_echelle != echelle) {
+       for (int i=0 ; i<nb_dejafait ; i++) {
+	   l_dejafait[i] = -1 ;
+	   nr_dejafait[i] = -1 ;
+	   delete tab[i] ;
+       }
+	nb_dejafait = 0 ;
+	vieux_echelle = echelle ;
+   }
+      
+   int indice = -1 ;
+   
+   // On determine si la matrice a deja ete calculee :
+   for (int conte=0 ; conte<nb_dejafait ; conte ++)
+    if ((l_dejafait[conte] == l) && (nr_dejafait[conte] == n))
+	indice = conte ;
+    
+   // Calcul a faire : 
+   if (indice  == -1) {
+       if (nb_dejafait >= nmax) {
+	   cout << "_solh_r_jaco02 : trop de Tbl" << endl ;
+	   abort() ;
+	   exit (-1) ;
+       }
+       
+    	
+    l_dejafait[nb_dejafait] = l ;
+    nr_dejafait[nb_dejafait] = n ;
+    	
+  //  assert (l < n) ;
+    
+    tab[nb_dejafait] = new Tbl(2, n) ;
+    Tbl* pres = tab[nb_dejafait] ;
+    pres->set_etat_qcq() ;
+    double* coloc = new double[n] ;
+    
+    int * deg = new int[3] ;
+    deg[0] = 1 ; 
+    deg[1] = 1 ;
+    deg[2] = n ;
+    
+
+    double* zeta = pointsgausslobatto(n) ;
+    //Construction de la premiere solution homogene :
+    // cad celle polynomiale.
+    
+    if (l==0) {
+	pres->set(0, 0) = 1 ;
+	for (int i=1 ; i<n ; i++)
+	    pres->set(0, i) = 0 ;
+	    }
+    else {
+	for (int i=0 ; i<n ; i++)
+	    coloc[i] = pow((echelle-zeta[i]), double(l)) ;
+	
+	cfrjaco02(deg, deg, coloc, deg, coloc) ;
+	for (int i=0 ; i<n ;i++)
+	    pres->set(0, i) = coloc[i] ;
+	}
+    
+    
+    // construction de la seconde solution homogene :
+    // cad celle fractionnelle.
+    for (int i=0 ; i<n ; i++)
+	coloc[i] = 1/pow((echelle-zeta[i]), double(l+1)) ;
+	
+    cfrjaco02(deg, deg, coloc, deg, coloc) ;
+    for (int i=0 ; i<n ;i++)
+	pres->set(1, i) = coloc[i] ;	
+    
+    
+    delete [] coloc ;
+    delete [] deg ;
+    indice = nb_dejafait ;
+    nb_dejafait ++ ;
+   }
+   
+   return *tab[indice] ;
+}	
+
+
+
 		//-------------------
 	       //--  R_CHEBP  ------
 	      //-------------------
@@ -447,6 +547,7 @@ Tbl solh(int n, int l, double echelle, int base_r) {
 	solh[R_CHEBU >> TRA_R] = _solh_r_chebu ;
 	solh[R_CHEBP >> TRA_R] = _solh_r_chebp ;
 	solh[R_CHEBI >> TRA_R] = _solh_r_chebi ;
+	solh[R_JACO02 >> TRA_R] = _solh_r_jaco02 ;
     }
     
     return solh[base_r](n, l, echelle) ;

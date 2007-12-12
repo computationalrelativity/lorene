@@ -25,6 +25,9 @@ char comb_lin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2007/12/12 12:30:48  jl_cornou
+ * *** empty log message ***
+ *
  * Revision 1.6  2007/06/06 07:43:28  p_grandclement
  * nmax increased to 200
  *
@@ -201,6 +204,72 @@ Matrice _cl_r_cheb (const Matrice &source, int l, double echelle, int) {
     else
 	return *tab[indice] ;  
 }
+
+
+		//-------------------
+	       //--  R_JACO02 ------
+	      //-------------------
+
+Matrice _cl_r_jaco02 (const Matrice &source, int l, double echelle, int) {
+    int n = source.get_dim(0) ;assert (n == source.get_dim(1)) ;
+    
+                
+   const int nmax = 200 ; // Nombre de Matrices stockees
+   static Matrice* tab[nmax] ;  // les matrices calculees
+   static int nb_dejafait = 0 ; // nbre de matrices calculees
+   static int l_dejafait[nmax] ;
+   static int nr_dejafait[nmax] ;
+   static double vieux_echelle = 0 ;
+   
+   // Si on a change l'echelle : on detruit tout :
+   if (vieux_echelle != echelle) {
+       for (int i=0 ; i<nb_dejafait ; i++) {
+	   l_dejafait[i] = -1 ;
+	   nr_dejafait[i] = -1 ;
+	   delete tab[i] ;
+       }
+       nb_dejafait = 0 ;
+       vieux_echelle = echelle ;
+   }
+      
+   int indice = -1 ;
+   
+   // On determine si la matrice a deja ete calculee :
+   for (int conte=0 ; conte<nb_dejafait ; conte ++)
+    if ((l_dejafait[conte] == l) && (nr_dejafait[conte] == n))
+	indice = conte ;
+    
+   // Calcul a faire : 
+   if (indice  == -1) {
+       if (nb_dejafait >= nmax) {
+	   cout << "_cl_r_jaco02 : trop de matrices" << endl ;
+	   abort() ;
+	   exit (-1) ;
+       }
+       
+    l_dejafait[nb_dejafait] = l ;
+    nr_dejafait[nb_dejafait] = n ;
+    
+    Matrice barre(source) ;
+    for (int i=0 ; i<n ; i++) {
+	for (int j=i ; j<n ; j++)
+	    barre.set(i, j) = source(i, j) ;
+    }
+    
+    Matrice res(barre) ;
+    for (int i=0 ; i<n ; i++)
+	for (int j=i ; j<n ; j++)
+	    res.set(i, j) = barre(i, j);
+    tab[nb_dejafait] = new Matrice(res) ;
+    nb_dejafait ++ ;	
+    return res ;
+    }
+    
+    // Cas ou le calcul a deja ete effectue :
+    else
+	return *tab[indice] ;  
+}
+
 
 		//-------------------
 	       //--  R_CHEBP   -----
@@ -618,6 +687,7 @@ Matrice combinaison (const Matrice &source, int l, double echelle, int puis, int
 	combinaison[R_CHEBU >> TRA_R] = _cl_r_chebu ;
 	combinaison[R_CHEBP >> TRA_R] = _cl_r_chebp ;
 	combinaison[R_CHEBI >> TRA_R] = _cl_r_chebi ;
+	combinaison[R_JACO02 >> TRA_R] = _cl_r_jaco02 ;
     }
     
     Matrice res(combinaison[base_r](source, l, echelle, puis)) ;
@@ -660,6 +730,26 @@ Tbl _cl_r_cheb (const Tbl &source, int) {
 	    res.set(i) = barre(i)-barre(i+2) ;
    return res ;        
 }
+
+
+		//-------------------
+	       //--  R_JACO02 ------
+	      //-------------------
+
+Tbl _cl_r_jaco02 (const Tbl &source, int) {
+    Tbl barre(source) ;
+    int n = source.get_dim(0) ;
+    
+    for (int i=0 ; i<n ; i++) {
+	    barre.set(i) = source(i) ;
+    }
+    
+    Tbl res(barre) ;
+    for (int i=0 ; i<n ; i++)
+	    res.set(i) = barre(i);
+   return res ;        
+}
+
 
 		//-------------------
 	       //--  R_CHEBP   -----
@@ -852,6 +942,7 @@ Tbl combinaison (const Tbl &source, int puis, int base_r) {
 	combinaison[R_CHEBU >> TRA_R] = _cl_r_chebu ;
 	combinaison[R_CHEBP >> TRA_R] = _cl_r_chebp ;
 	combinaison[R_CHEBI >> TRA_R] = _cl_r_chebi ;
+	combinaison[R_JACO02 >> TRA_R] = _cl_r_jaco02 ;
     }
     
     Tbl res(combinaison[base_r](source, puis)) ;

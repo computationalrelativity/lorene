@@ -25,6 +25,9 @@ char prepa_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2007/12/12 12:30:48  jl_cornou
+ * *** empty log message ***
+ *
  * Revision 1.5  2004/02/20 10:55:23  j_novak
  * The versions dzpuis 5 -> 3 has been improved and polished. Should be
  * operational now...
@@ -216,7 +219,72 @@ Matrice _prepa_nondege_r_cheb (const Matrice &lap, int l, double echelle, int) {
 }
 
 
+	     	//-------------------
+	       //--  R_JACO02  -----
+	      //-------------------
 
+Matrice _prepa_nondege_r_jaco02 (const Matrice &lap, int l, double echelle, int) {
+    
+    
+    int n = lap.get_dim(0) ;
+    
+   const int nmax = 200 ; // Nombre de Matrices stockees
+   static Matrice* tab[nmax] ;  // les matrices calculees
+   static int nb_dejafait = 0 ; // nbre de matrices calculees
+   static int l_dejafait[nmax] ;
+   static int nr_dejafait[nmax] ;
+   static double vieux_echelle = 0;
+   
+   // Si on a change l'echelle : on detruit tout :
+   if (vieux_echelle != echelle) {
+       for (int i=0 ; i<nb_dejafait ; i++) {
+	   l_dejafait[i] = -1 ;
+	   nr_dejafait[i] = -1 ;
+	   delete tab[i] ;	 
+       }
+	vieux_echelle = echelle ;
+	 nb_dejafait = 0 ;
+   }
+      
+   int indice = -1 ;
+   
+   // On determine si la matrice a deja ete calculee :
+   for (int conte=0 ; conte<nb_dejafait ; conte ++)
+    if ((l_dejafait[conte] == l) && (nr_dejafait[conte] == n))
+	indice = conte ;
+    
+   // Calcul a faire : 
+   if (indice  == -1) {
+       if (nb_dejafait >= nmax) {
+	   cout << "_prepa_nondege_r_jaco02 : trop de matrices" << endl ;
+	   abort() ;
+	   exit (-1) ;
+       }
+       
+    	
+    l_dejafait[nb_dejafait] = l ;
+    nr_dejafait[nb_dejafait] = n ;
+    
+    
+    //assert (l<n) ;
+    
+    Matrice res(n-2, n-2) ;
+    res.set_etat_qcq() ;
+    for (int i=0 ; i<n-2 ; i++)
+	for (int j=0 ; j<n-2 ; j++)
+	    res.set(i, j) = lap(i, j+2) ;
+	
+    res.set_band(2, 2) ;
+    res.set_lu() ;
+    tab[nb_dejafait] = new Matrice(res) ;
+    nb_dejafait ++ ;
+    return res ;
+    } 
+    
+    // Cas ou le calcul a deja ete effectue :
+    else
+	return *tab[indice] ;  
+}
 
 	     	//------------------
 	       //--  R_CHEBP   ----
@@ -633,6 +701,7 @@ Matrice prepa_nondege(const Matrice &lap, int l, double echelle, int puis, int b
 	prepa_nondege[R_CHEBU >> TRA_R] = _prepa_nondege_r_chebu ;
 	prepa_nondege[R_CHEBP >> TRA_R] = _prepa_nondege_r_chebp ;
 	prepa_nondege[R_CHEBI >> TRA_R] = _prepa_nondege_r_chebi ;
+	prepa_nondege[R_JACO02 >> TRA_R] = _prepa_nondege_r_jaco02 ;
     }
     
     Matrice res(prepa_nondege[base_r](lap, l, echelle, puis)) ;

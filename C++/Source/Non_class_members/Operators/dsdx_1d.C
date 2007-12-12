@@ -25,6 +25,9 @@ char dsdx_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2007/12/12 12:30:48  jl_cornou
+ * *** empty log message ***
+ *
  * Revision 1.4  2007/12/11 15:28:18  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -111,7 +114,7 @@ void _dsdx_1d_r_jaco02(int nr,  double* tb, double *xo)
     for (int i = 0 ; i < nr-1 ; i++ ) {
       som = 0 ;
 	for ( int j = i+1 ; j < nr ; j++ ) {
-	som += (1 - pow((-1),(j-i))*(i+1)*(i+2)/double((j+1)*(j+2)))*tb[j] ;
+	som += (1 - pow(double(-1),(j-i))*(i+1)*(i+2)/double((j+1)*(j+2)))*tb[j] ;
 	}  // Fin de la boucle auxiliaire
       xo[i] = (i+1.5)*som ;
     }	// Fin de la boucle sur R
