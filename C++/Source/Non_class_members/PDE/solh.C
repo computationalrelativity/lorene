@@ -25,6 +25,9 @@ char solh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2007/12/13 15:48:46  jl_cornou
+ * *** empty log message ***
+ *
  * Revision 1.5  2007/12/12 12:30:49  jl_cornou
  * *** empty log message ***
  *
@@ -284,7 +287,7 @@ Tbl _solh_r_jaco02 (int n, int l, double echelle) {
     deg[2] = n ;
     
 
-    double* zeta = pointsgausslobatto(n) ;
+    double* zeta = pointsgausslobatto(n-1) ;
     //Construction de la premiere solution homogene :
     // cad celle polynomiale.
     
@@ -295,7 +298,7 @@ Tbl _solh_r_jaco02 (int n, int l, double echelle) {
 	    }
     else {
 	for (int i=0 ; i<n ; i++)
-	    coloc[i] = pow((echelle-zeta[i]), double(l)) ;
+	    coloc[i] = pow((echelle + zeta[i]), double(l)) ;
 	
 	cfrjaco02(deg, deg, coloc, deg, coloc) ;
 	for (int i=0 ; i<n ;i++)
@@ -306,7 +309,7 @@ Tbl _solh_r_jaco02 (int n, int l, double echelle) {
     // construction de la seconde solution homogene :
     // cad celle fractionnelle.
     for (int i=0 ; i<n ; i++)
-	coloc[i] = 1/pow((echelle-zeta[i]), double(l+1)) ;
+	coloc[i] = 1/pow((echelle + zeta[i]), double(l+1)) ;
 	
     cfrjaco02(deg, deg, coloc, deg, coloc) ;
     for (int i=0 ; i<n ;i++)

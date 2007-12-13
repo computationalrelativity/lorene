@@ -113,25 +113,25 @@ int i, j, k ;
     
 // Tests de dimension:
     if (nr > n3f) {
-	cout << "cfrcheb: nr > n3f : nr = " << nr << " ,  n3f = " 
+	cout << "cfrjaco02: nr > n3f : nr = " << nr << " ,  n3f = " 
 	<< n3f << endl ;
 	abort () ;
 	exit(-1) ;
     }
     if (nr > n3c) {
-	cout << "cfrcheb: nr > n3c : nr = " << nr << " ,  n3c = " 
+	cout << "cfrjaco02: nr > n3c : nr = " << nr << " ,  n3c = " 
 	<< n3c << endl ;
 	abort () ;
 	exit(-1) ;
     }
     if (n1f > n1c) {
-	cout << "cfrcheb: n1f > n1c : n1f = " << n1f << " ,  n1c = " 
+	cout << "cfrjaco02: n1f > n1c : n1f = " << n1f << " ,  n1c = " 
 	<< n1c << endl ;
 	abort () ;
 	exit(-1) ;
     }
     if (n2f > n2c) {
-	cout << "cfrcheb: n2f > n2c : n2f = " << n2f << " ,  n2c = " 
+	cout << "cfrjaco02: n2f > n2c : n2f = " << n2f << " ,  n2c = " 
 	<< n2c << endl ;
 	abort () ;
 	exit(-1) ;

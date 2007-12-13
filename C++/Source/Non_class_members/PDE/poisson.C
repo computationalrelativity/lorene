@@ -26,6 +26,9 @@ char poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2007/12/13 15:48:46  jl_cornou
+ * *** empty log message ***
+ *
  * Revision 1.5  2007/12/11 15:28:23  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -260,8 +263,14 @@ Mtbl_cf sol_poisson(const Map_af& mapping, const Mtbl_cf& source, int dzpuis,
 	    for (int i=0 ; i<nr ; i++) {
 		solution_part.set(0, k, j, i) = (*sol_part)(i) ;
 		if (match) {
-		  solution_hom_un.set(0, k, j, i) = (*sol_hom)(i) ;
-		  solution_hom_deux.set(0, k, j, i) = 0. ; 
+			if (base_r == R_JACO02) {
+			    solution_hom_un.set(0, k, j, i) = (*sol_hom)(0, i) ;
+		      	    solution_hom_deux.set(0, k, j, i) = (*sol_hom)(1, i) ;
+			}
+			else {
+			    solution_hom_un.set(0, k, j, i) = (*sol_hom)(i) ;
+		  	    solution_hom_deux.set(0, k, j, i) = 0. ;
+			}
 		}
 	    }	    
 	    

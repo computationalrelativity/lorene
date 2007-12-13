@@ -70,7 +70,6 @@ double* pointsgausslobatto(int n) {
   }
   
   pointsgl[n] = 1 ;
-	for (i = 0 ; i < n+1 ; i++) {
-	}
+	
   return pointsgl ;
 }
