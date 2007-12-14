@@ -25,7 +25,7 @@ char poisson_tau_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.5  2007/12/13 15:48:46  jl_cornou
+ * Revision 1.6  2007/12/14 10:19:34  jl_cornou
  * *** empty log message ***
  *
  * Revision 1.4  2005/11/24 14:07:54  j_novak

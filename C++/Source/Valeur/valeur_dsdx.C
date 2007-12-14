@@ -34,6 +34,9 @@ char valeur_dsdx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2007/12/14 10:19:35  jl_cornou
+ * *** empty log message ***
+ *
  * Revision 1.2  2004/11/23 15:17:19  m_forot
  * Added the bases for the cases without any equatorial symmetry
  *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
@@ -87,6 +90,7 @@ void _dsdx_r_chebpim_p(Tbl *, int &) ;
 void _dsdx_r_chebpim_i(Tbl *, int &) ;
 void _dsdx_r_chebpi_p(Tbl *, int &) ;
 void _dsdx_r_chebpi_i(Tbl *, int &) ;
+void _dsdx_r_jaco02(Tbl *, int &) ;
 
 // Version membre d'un Valeur
 // --------------------------
@@ -154,6 +158,7 @@ static int nap = 0 ;
 	_dsdx[R_CHEBPIM_I >> TRA_R] = _dsdx_r_chebpim_i ;
 	_dsdx[R_CHEBPI_P >> TRA_R] = _dsdx_r_chebpi_p ;
 	_dsdx[R_CHEBPI_I >> TRA_R] = _dsdx_r_chebpi_i ;
+	_dsdx[R_JACO02 >> TRA_R] = _dsdx_r_jaco02 ;
     }
 
     //- Debut de la routine -

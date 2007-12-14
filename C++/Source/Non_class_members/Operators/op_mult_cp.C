@@ -35,6 +35,9 @@ char op_mult_cp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2007/12/14 10:19:33  jl_cornou
+ * *** empty log message ***
+ *
  * Revision 1.3  2007/10/05 12:37:20  j_novak
  * Corrected a few errors in the theta-nonsymmetric case (bases T_COSSIN_C and
  * T_COSSIN_S).
@@ -118,6 +121,10 @@ void _mult_cp_p_cossin(Tbl* tb, int& base) {
 	
 	case R_CHEB : {
 	    break ; 
+	}
+
+	case R_JACO02 : {
+	    break ;
 	}
 	
 	case R_CHEBU : {

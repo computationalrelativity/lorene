@@ -34,6 +34,9 @@ char valeur_sx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2007/12/14 10:19:35  jl_cornou
+ * *** empty log message ***
+ *
  * Revision 1.2  2004/11/23 15:17:19  m_forot
  * Added the bases for the cases without any equatorial symmetry
  *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
@@ -82,6 +85,7 @@ void _sxm1_cheb(Tbl *, int&) ;
 void _sx_identite (Tbl *, int &) ;
 void _sx_r_chebpi_p(Tbl *, int &) ;
 void _sx_r_chebpi_i(Tbl *, int &) ;
+void _sxpun_r_jaco02(Tbl *, int &) ;
 
 // Version membre d'un Valeur
 // --------------------------
@@ -150,6 +154,7 @@ static int nap = 0 ;
 	_sx[R_CHEBPIM_I >> TRA_R] = _sx_r_chebpim_i ;
 	_sx[R_CHEBPI_P >> TRA_R] = _sx_r_chebpi_p ;
 	_sx[R_CHEBPI_I >> TRA_R] = _sx_r_chebpi_i ;
+	_sx[R_JACO02 >> TRA_R] = _sxpun_r_jaco02 ;
     }
 
     //- Debut de la routine -

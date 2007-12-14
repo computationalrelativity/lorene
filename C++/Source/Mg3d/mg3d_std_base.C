@@ -30,6 +30,9 @@ char mg3d_std_base_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2007/12/14 10:19:32  jl_cornou
+ * *** empty log message ***
+ *
  * Revision 1.6  2005/10/25 08:56:37  p_grandclement
  * addition of std_spectral_base in the case of odd functions near the origin
  *
@@ -174,6 +177,15 @@ Base_val** Mg3d::std_base_vect_cart() const {
 		    base3 = base3 | R_CHEB  ;  
 		    break ;
 
+		    case FINJAC : 			 
+// echantillonnage fin de Jacobi
+		    
+		    base1 = base1 | R_JACO02  ;  
+		    base2 = base2 | R_JACO02  ;  
+		    base3 = base3 | R_JACO02  ;  
+		    break ;
+
+
 		    case RARE : 		 
 // echantillonnage rarefie
 
@@ -222,6 +234,14 @@ Base_val** Mg3d::std_base_vect_cart() const {
 		    base1 = base1 | R_CHEB  ;  
 		    base2 = base2 | R_CHEB  ;  
 		    base3 = base3 | R_CHEB  ;  
+		    break ;
+
+		    case FINJAC : 			 
+// echantillonnage fin de Jacobi
+		    
+		    base1 = base1 | R_JACO02  ;  
+		    base2 = base2 | R_JACO02  ;  
+		    base3 = base3 | R_JACO02  ;  
 		    break ;
 
 		    case RARE : 		 
@@ -306,6 +326,14 @@ Base_val** Mg3d::std_base_vect_cart() const {
 		    base1 = base1 | R_CHEB  ;  
 		    base2 = base2 | R_CHEB  ;  
 		    base3 = base3 | R_CHEB  ;  
+		    break ;
+
+		    case FINJAC : 			 
+// echantillonnage fin de Jacobi
+		    
+		    base1 = base1 | R_JACO02  ;  
+		    base2 = base2 | R_JACO02  ;  
+		    base3 = base3 | R_JACO02  ;  
 		    break ;
 
 		    case RARE : 		 
@@ -443,6 +471,14 @@ Base_val** Mg3d::std_base_vect_spher() const {
 	  base3 = base3 | R_CHEB  ;  
 	  break ;
 
+		    case FINJAC : 			 
+// echantillonnage fin de Jacobi
+		    
+		    base1 = base1 | R_JACO02  ;  
+		    base2 = base2 | R_JACO02  ;  
+		    base3 = base3 | R_JACO02  ;  
+		    break ;
+
 	case RARE : 		 
 // echantillonnage rarefie
 
@@ -491,6 +527,14 @@ Base_val** Mg3d::std_base_vect_spher() const {
 	  base2 = base2 | R_CHEB  ;  
 	  base3 = base3 | R_CHEB  ;  
 	  break ;
+
+		    case FINJAC : 			 
+// echantillonnage fin de Jacobi
+		    
+		    base1 = base1 | R_JACO02  ;  
+		    base2 = base2 | R_JACO02  ;  
+		    base3 = base3 | R_JACO02  ;  
+		    break ;
 
 	case RARE : 		 
 // echantillonnage rarefie
@@ -568,6 +612,14 @@ Base_val** Mg3d::std_base_vect_spher() const {
 	  base2 = base2 | R_CHEB  ;  
 	  base3 = base3 | R_CHEB  ;  
 	  break ;
+
+		    case FINJAC : 			 
+// echantillonnage fin de Jacobi
+		    
+		    base1 = base1 | R_JACO02  ;  
+		    base2 = base2 | R_JACO02  ;  
+		    base3 = base3 | R_JACO02  ;  
+		    break ;
 
 	case RARE : 		 
 // echantillonnage rarefie

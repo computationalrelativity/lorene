@@ -26,6 +26,9 @@ char map_af_fait_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2007/12/14 10:19:30  jl_cornou
+ * *** empty log message ***
+ *
  * Revision 1.5  2007/12/11 15:28:14  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -541,6 +544,22 @@ Mtbl* map_af_fait_xsr(const Map* cvi) {
 		}	// Fin de boucle sur theta
 	    }	    // Fin de boucle sur phi
 	    break ; 
+
+	    case FINJAC:
+	    for (k=0 ; k<ip ; k++) {
+		for (j=0 ; j<it ; j++) {
+		    if (ir == 1) { //Some hack for angular grid case...
+			*p_r = 1 ;
+			p_r++ ;
+		    }
+		    else 
+			for (i=0 ; i<ir ; i++) {
+			    *p_r = 1. / ( alpha[l] * (g->x)[i] + beta[l] ) ;
+			    p_r++ ;
+			}    // Fin de boucle sur r
+		}	// Fin de boucle sur theta
+	    }	    // Fin de boucle sur phi
+	    break ; 
 	
 	    case FIN: 
 	    for (k=0 ; k<ip ; k++) {
@@ -613,7 +632,7 @@ Mtbl* map_af_fait_dxdr(const Map* cvi) {
 	
 	switch(mg->get_type_r(l)) {
 	
-	    case FIN: case RARE: 
+	    case FIN: case RARE: case FINJAC :
 	    for (k=0 ; k<ip ; k++) {
 		for (j=0 ; j<it ; j++) {
 		    for (i=0 ; i<ir ; i++) {
