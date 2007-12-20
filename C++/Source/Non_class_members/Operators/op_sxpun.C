@@ -37,6 +37,9 @@ char op_sxpun_C[] = "$Header$" ;
  /*
  * $Id$
  * $Log$
+ * Revision 1.2  2007/12/20 09:11:08  jl_cornou
+ * Correction of an error in op_sxpun about Jacobi(0,2) polynomials
+ *
  * Revision 1.1  2007/12/11 15:42:23  jl_cornou
  * Premiere version des fonctions liees aux polynomes de Jacobi(0,2)
  *
@@ -105,6 +108,7 @@ void _sxpun_r_jaco02(Tbl* tb, int& base)
 	return ;
     }
     
+
     // Pour le confort
     int nr = (tb->dim).dim[0] ;	    // Nombre
     int nt = (tb->dim).dim[1] ;	    //	 de points
@@ -141,8 +145,8 @@ void _sxpun_r_jaco02(Tbl* tb, int& base)
     		double somme ;
     		for (int i = 0 ; i < nr-1 ; i++) {
 			somme = 0 ;
-			for (int m = i+1 ; j < nr ; j++) {
-			somme += pow((-1),(m-1-i))*((m+1)*(m+2)/((i+1)*(i+2))-(i+1)*(i+2)/((m+1)*(m+2)))*xci[m] ;
+			for (int m = i+1 ; m < nr ; m++) {
+			somme += pow((-1),(m-1-i))*((m+1)*(m+2)/double((i+1)*(i+2))-(i+1)*(i+2)/double((m+1)*(m+2)))*xci[m] ;
 			}
 		xco[i] = (2*i+3)/double(4)*somme ;
 		}	
@@ -158,6 +162,5 @@ void _sxpun_r_jaco02(Tbl* tb, int& base)
     
     // base de developpement
     // inchangée
-
 }
 

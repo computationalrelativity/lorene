@@ -30,6 +30,9 @@ char map_af_primr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2007/12/20 09:11:05  jl_cornou
+ * Correction of an error in op_sxpun about Jacobi(0,2) polynomials
+ *
  * Revision 1.3  2004/07/26 16:02:23  j_novak
  * Added a flag to specify whether the primitive should be zero either at r=0
  * or at r going to infinity.
@@ -56,7 +59,7 @@ void _primr_r_chebp(const Tbl&, int, const Tbl&, Tbl&, int&, Tbl&) ;
 void _primr_r_chebi(const Tbl&, int, const Tbl&, Tbl&, int&, Tbl&) ; 
 void _primr_r_chebpim_p(const Tbl&, int, const Tbl&, Tbl&, int&, Tbl&) ; 
 void _primr_r_chebpim_i(const Tbl&, int, const Tbl&, Tbl&, int&, Tbl&) ; 
-
+void _primr_r_jaco02(const Tbl&, int, const Tbl&, Tbl&, int&, Tbl&) ;
 
 void Map_af::primr(const Scalar& uu, Scalar& resu, bool null_infty) const {
 
@@ -76,6 +79,7 @@ void Map_af::primr(const Scalar& uu, Scalar& resu, bool null_infty) const {
 	    prim_domain[R_CHEBI >> TRA_R] = _primr_r_chebi ;
 	    prim_domain[R_CHEBPIM_P >> TRA_R] = _primr_r_chebpim_p ;
 	    prim_domain[R_CHEBPIM_I >> TRA_R] = _primr_r_chebpim_i ;
+	    prim_domain[R_JACO02 >> TRA_R] = _primr_r_jaco02 ;
 
         first_call = false ; 
     }

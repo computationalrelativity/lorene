@@ -32,6 +32,9 @@ char mtbl_cf_val_point_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2007/12/20 09:11:08  jl_cornou
+ * Correction of an error in op_sxpun about Jacobi(0,2) polynomials
+ *
  * Revision 1.10  2007/12/11 15:28:16  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -259,6 +262,7 @@ static int premier_appel = 1 ;
 	som_r[R_CHEBPIM_I >> TRA_R] = som_r_chebpim_i ;
 	som_r[R_CHEBPI_P >> TRA_R] = som_r_chebpi_p ;
 	som_r[R_CHEBPI_I >> TRA_R] = som_r_chebpi_i ;
+	som_r[R_JACO02 >> TRA_R] = som_r_jaco02 ;
 
     }	// fin des operations de premier appel
 
@@ -408,7 +412,7 @@ double Mtbl_cf::val_out_bound_jk(int l, int j0, int k0) const {
     int base_r = (base.b[l] & MSQ_R) >> TRA_R ;
     assert((base_r == R_CHEB) || (base_r == R_CHEBU) || (base_r == R_CHEBP)
 	   || (base_r == R_CHEBI) || (base_r == R_CHEBPIM_P) || (base_r == R_CHEBPIM_I)
-	   || (base_r == R_CHEBPI_P) || (base_r == R_CHEBPI_I)) ;
+	   || (base_r == R_CHEBPI_P) || (base_r == R_CHEBPI_I) || (base_r == R_JACO02)) ;
 #endif
 
     int nr = mg->get_nr(l) ;

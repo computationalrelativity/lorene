@@ -26,6 +26,9 @@ char map_af_fait_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2007/12/20 09:11:04  jl_cornou
+ * Correction of an error in op_sxpun about Jacobi(0,2) polynomials
+ *
  * Revision 1.6  2007/12/14 10:19:30  jl_cornou
  * *** empty log message ***
  *
@@ -548,15 +551,10 @@ Mtbl* map_af_fait_xsr(const Map* cvi) {
 	    case FINJAC:
 	    for (k=0 ; k<ip ; k++) {
 		for (j=0 ; j<it ; j++) {
-		    if (ir == 1) { //Some hack for angular grid case...
-			*p_r = 1 ;
+		    for (i=0 ; i<ir ; i++) {
+			*p_r = 1. / alpha[l] ;
 			p_r++ ;
-		    }
-		    else 
-			for (i=0 ; i<ir ; i++) {
-			    *p_r = 1. / ( alpha[l] * (g->x)[i] + beta[l] ) ;
-			    p_r++ ;
-			}    // Fin de boucle sur r
+		    }	    // Fin de boucle sur r
 		}	// Fin de boucle sur theta
 	    }	    // Fin de boucle sur phi
 	    break ; 

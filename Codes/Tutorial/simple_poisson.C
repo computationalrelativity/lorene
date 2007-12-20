@@ -28,6 +28,9 @@ char simple_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2007/12/20 09:11:10  jl_cornou
+ * Correction of an error in op_sxpun about Jacobi(0,2) polynomials
+ *
  * Revision 1.5  2007/12/11 15:28:27  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -113,7 +116,7 @@ int main() {
 
     Scalar source(map) ;  // construction of an object of Lorene class Scalar
     
-    source = 2* exp( - r*r ) * (1 + x + x*y) ; 
+    source = 2* exp( - r*r ) * (1 + x + x*y) ;  
     
     source.annule_domain(nz-1) ; // The source is set to zero in the last
                                  // domain 

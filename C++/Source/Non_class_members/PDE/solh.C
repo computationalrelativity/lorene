@@ -25,6 +25,9 @@ char solh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2007/12/20 09:11:09  jl_cornou
+ * Correction of an error in op_sxpun about Jacobi(0,2) polynomials
+ *
  * Revision 1.6  2007/12/13 15:48:46  jl_cornou
  * *** empty log message ***
  *
@@ -105,7 +108,7 @@ char solh_C[] = "$Header$" ;
 
 /*
  * 
- * Renvoie une ou 2 solution homogene
+ * Renvoie une ou 2 solutions homogenes
  *  Si base_r = R_CHEB deux solutions (x+echelle)^l dans (0, *) et
  *				1/(x+echelle)^(l+1) dans (1, *)
  *  Si base_r = R_CHEBU 1 solution (x-1)^l+1 dans (*) 

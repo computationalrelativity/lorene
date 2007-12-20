@@ -37,6 +37,9 @@ char op_dsdx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2007/12/20 09:11:08  jl_cornou
+ * Correction of an error in op_sxpun about Jacobi(0,2) polynomials
+ *
  * Revision 1.4  2007/12/11 15:28:18  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -830,9 +833,9 @@ void _dsdx_r_jaco02(Tbl *tb, int & )
 		    
 		      som = 0 ;
 		      for (int m = i+1 ; m < nr ; m++ ) {
-			som += (1-pow((-1),(m-i))*(i+1)*(i+2)/((m+1)*(m+2)))* xci[m] ;
+			som += (1-pow((-1),(m-i))*(i+1)*(i+2)/double((m+1)*(m+2)))* xci[m] ;
 		      } // Fin de la boucle annexe
-			xco[i] = (i+3/2)*som ;
+			xco[i] = (i+1.5)*som ;
 		    }// Fin de la boucle sur r
 		    		    
 		    xci += nr ;

@@ -33,6 +33,9 @@ char map_af_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2007/12/20 09:11:04  jl_cornou
+ * Correction of an error in op_sxpun about Jacobi(0,2) polynomials
+ *
  * Revision 1.10  2007/12/11 15:28:14  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -210,51 +213,6 @@ Map_af::Map_af(const Mg3d& mgrille, const double* bornes) : Map_radial(mgrille)
     }	    // Fin de la boucle sur zone
 }
 
-// Constructor from a grid
-// -----------------------
-Map_af::Map_af(const Mg3d& mgrille, const Tbl& bornes) : Map_radial(mgrille)
-{
-    // Les coordonnees et les derivees du changement de variable
-    set_coord() ; 
-    
-    // Les bornes
-    int nzone = mg->get_nzone() ;
-    
-    alpha = new double[nzone] ;
-    beta = new double[nzone] ;
-
-    for (int l=0 ; l<nzone ; l++) {
-	switch (mg->get_type_r(l)) {
-	    case RARE:	{
-		alpha[l] = bornes(l+1) - bornes(l) ;
-		beta[l] = bornes(l) ;
-		break ; 
-	    }
-	    
-	    case FIN:	{
-		alpha[l] = (bornes(l+1) - bornes(l)) * .5 ;
-		beta[l] = (bornes(l+1) + bornes(l)) * .5 ;
-		break ;
-	    }
-	    
-	    case UNSURR: {
-	    	assert (l==nzone-1) ;
-		double umax = 1./bornes(l) ;
-		double umin = 0 ;
-		alpha[l] = (umin - umax) * .5 ;  // u est une fonction decroissante
-		beta[l] = (umin + umax) * .5 ;   //  de l'indice i en r
-		break ;
-	    }
-	    
-	    default:	{
-		cout << "Map_af::Map_af: unkown type_r ! " << endl ;
-		abort () ;
-		break ;
-	    }
-	    
-	}
-    }	    // Fin de la boucle sur zone
-}
 
 // Copy constructor 
 // ----------------
