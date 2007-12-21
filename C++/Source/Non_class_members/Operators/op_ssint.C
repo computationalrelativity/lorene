@@ -37,6 +37,9 @@ char op_ssint_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2007/12/21 10:43:38  j_novak
+ * Corrected some bugs in the case nt=1 (1 point in theta).
+ *
  * Revision 1.5  2007/10/05 12:37:20  j_novak
  * Corrected a few errors in the theta-nonsymmetric case (bases T_COSSIN_C and
  * T_COSSIN_S).
@@ -248,9 +251,11 @@ void _ssint_t_sin_p(Tbl* tb, int & b)
 	    som[i] = 0. ;
 	    xco[i] = 0. ;
 	}
-    xco -= nr ;
-    for (int i=0 ; i<nr ; i++) xco[i] = 0 ;
-	
+    if (nt > 1) {
+	xco -= nr ;
+	for (int i=0 ; i<nr ; i++) xco[i] = 0 ;
+    }
+
     // j suivants
     for (int j=nt-2 ; j >= 1 ; j--) {
 	    // Positionnement

@@ -25,6 +25,9 @@ char op_mult_st_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2007/12/21 10:43:37  j_novak
+ * Corrected some bugs in the case nt=1 (1 point in theta).
+ *
  * Revision 1.4  2007/10/05 12:37:20  j_novak
  * Corrected a few errors in the theta-nonsymmetric case (bases T_COSSIN_C and
  * T_COSSIN_S).
@@ -145,13 +148,14 @@ void _mult_st_t_cos_p(Tbl* tb, int & b)
       som[i] = -0.5*xci[i] ;
     }	// Fin de la boucle sur r
   }   // Fin de la boucle sur theta
-  // j = 0 
-  xci -= nr ;
-  xco -= nr ;
-  for (int i=0 ; i<nr ; i++ ) {
-    xco[i] = som[i]+xci[i] ;
-  }	// Fin de la boucle sur r
-  
+  if (nt > 1) {
+      // j = 0 
+      xci -= nr ;
+      xco -= nr ;
+      for (int i=0 ; i<nr ; i++ ) {
+	  xco[i] = som[i]+xci[i] ;
+      }	// Fin de la boucle sur r
+  }
   // Positionnement phi suivant
   xci += nr*nt ;
   xco += nr*nt ;
@@ -274,13 +278,14 @@ void _mult_st_t_sin_p(Tbl* tb, int & b)
       som[i] = 0.5*xci[i] ;
     }	// Fin de la boucle sur r
   }   // Fin de la boucle sur theta
-  // j = 0
-  xci -= nr ;
-  xco -= nr  ;
-  for (int i =0; i<nr ; i++) {
-    xco[i] = som[i] ;
+  if (nt > 1) {
+      // j = 0
+      xci -= nr ;
+      xco -= nr  ;
+      for (int i =0; i<nr ; i++) {
+	  xco[i] = som[i] ;
+      }
   }
-  
   // Positionnement phi suivant
   xci += nr*nt ;
   xco += nr*nt ;
