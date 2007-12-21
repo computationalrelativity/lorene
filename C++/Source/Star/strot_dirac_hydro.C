@@ -30,6 +30,9 @@ char strot_dirac_hydro_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2007/12/21 16:07:49  j_novak
+ * Use of direct filtering of Vector and Sym_tensor.
+ *
  * Revision 1.4  2007/11/06 16:23:59  j_novak
  * Added the flag spectral_filter giving the order of possible spectral filtering
  * of the hydro sources of metric equations (some members *_euler). The filtering
@@ -104,11 +107,7 @@ void Star_rot_Dirac::hydro_euler(){
   j_euler.std_spectral_base() ;
 
   if (spectral_filter > 0) {
-      Scalar zero(mp) ;
-      zero.set_etat_zero() ;
-      Scalar mu_euler = j_euler.mu() ;
-      mu_euler.exponential_filter_r(1, nzet-1, spectral_filter) ;
-      j_euler.set_vr_eta_mu(zero, zero, mu_euler) ;
+      j_euler.exponential_filter_r(1, nzet-1, spectral_filter) ;
   }
 
   // s_euler (trace of the stress tensor w.r.t. the Eulerian observer)
@@ -126,18 +125,7 @@ void Star_rot_Dirac::hydro_euler(){
   stress_euler = (ener_euler + press)*u_euler*u_euler + press*gamma.con() ;
   stress_euler.std_spectral_base() ;
   if (spectral_filter > 0) {
-      Scalar zero(mp) ;
-      zero.set_etat_zero() ;
-      Scalar srr = stress_euler(1,1) ;
-      Scalar eta_euler = stress_euler.eta() ;
-      eta_euler.div_r() ;
-      Scalar www_euler = stress_euler.www() ;
-      Scalar ttt_euler = stress_euler.ttt() ;
-      srr.exponential_filter_r(1, nzet-1, spectral_filter) ;
-      eta_euler.exponential_filter_r(1, nzet-1, spectral_filter) ;
-      www_euler.exponential_filter_r(1, nzet-1, spectral_filter) ;
-      ttt_euler.exponential_filter_r(1, nzet-1, spectral_filter) ;
-      stress_euler.set_auxiliary(srr, eta_euler, zero, www_euler, zero, ttt_euler) ;
+      stress_euler.exponential_filter_r(1, nzet-1, spectral_filter) ;
   }
 
   // The derived quantities are obsolete
