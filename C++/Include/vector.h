@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.38  2007/12/21 16:06:16  j_novak
+ * Methods to filter Tensor, Vector and Sym_tensor objects.
+ *
  * Revision 1.37  2007/05/11 11:38:16  n_vasset
  * Added poisson_boundary2.C routine
  *
@@ -330,6 +333,23 @@ class Vector: public Tensor {
 	 * of contravariant vectors.	
 	 */
 	const Vector_divfree& div_free(const Metric& ) const;
+
+	/** Applies exponential filters to all components 
+	 * (see \c Scalar::exponential_filter_r ). Does a loop for Cartesian 
+	 * components, and works in terms of the r-component, \f$\eta\f$ and
+	 * \f$\mu\f$ for spherical components.
+	 */
+	virtual void  exponential_filter_r(int lzmin, int lzmax, int p, 
+			    double alpha= -16.) ;
+
+	/** Applies exponential filters to all components 
+	 * (see \c Scalar::exponential_filter_ylm ). Does a loop for Cartesian 
+	 * components, and works in terms of the r-component, \f$\eta\f$ and
+	 * \f$\mu\f$ for spherical components. 
+	 */
+	virtual void exponential_filter_ylm(int lzmin, int lzmax, int p, 
+			    double alpha= -16.) ;
+
 	
     // Accessors
     // ---------
@@ -535,7 +555,9 @@ class Vector: public Tensor {
 			  Vector& resu) const ;
  
 
-    /**Alternative to previous poisson_boundary method for vectors ; this uses method 6 for vectorial solving, updated version (as in the poisson_vector_block routine).
+    /**Alternative to previous poisson_boundary method for vectors ; 
+     * this uses method 6 for vectorial solving, updated version 
+     * (as in the poisson_vector_block routine). 
      * Boundary arguments are here required as scalar fields.
      */
     void poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar boundeta, Scalar boundmu, double dir_vr, double neum_vr, double dir_eta, double neum_eta, double dir_mu, double neum_mu ) const ;

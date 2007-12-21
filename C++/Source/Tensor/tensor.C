@@ -34,6 +34,9 @@ char tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.39  2007/12/21 16:07:08  j_novak
+ * Methods to filter Tensor, Vector and Sym_tensor objects.
+ *
  * Revision 1.38  2005/10/25 08:56:38  p_grandclement
  * addition of std_spectral_base in the case of odd functions near the origin
  *
@@ -1048,6 +1051,31 @@ const Tensor& Tensor::divergence(const Metric& metre) const {
   return *p_divergence[j] ;
 }
 
+void Tensor::exponential_filter_r(int lzmin, int lzmax, int p, 
+			  double alpha) {
+    if( triad->identify() == (mp->get_bvect_cart()).identify() ) 
+	for (int i=0; i<n_comp; i++)
+	    cmp[i]->exponential_filter_r(lzmin, lzmax, p, alpha) ;
+    else {
+	cout << "Tensor::exponential_filter_r : " << endl ;
+	cout << "Only Cartesian triad is implemented!" << endl ;
+	cout << "Exiting..." << endl ;
+	abort() ;
+    }
+}
+
+void Tensor::exponential_filter_ylm(int lzmin, int lzmax, int p, 
+			  double alpha) {
+    if( triad->identify() == (mp->get_bvect_cart()).identify() ) 
+	for (int i=0; i<n_comp; i++)
+	    cmp[i]->exponential_filter_ylm(lzmin, lzmax, p, alpha) ;
+    else {
+	cout << "Tensor::exponential_filter_ylm : " << endl ;
+	cout << "Only Cartesian triad is implemented!" << endl ;
+	cout << "Exiting..." << endl ;
+	abort() ;
+    }
+}
 
 
 

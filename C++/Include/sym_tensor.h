@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.44  2007/12/21 16:06:16  j_novak
+ * Methods to filter Tensor, Vector and Sym_tensor objects.
+ *
  * Revision 1.43  2007/11/27 15:48:52  n_vasset
  * New member p_tilde_c for class Sym_tensor
  *
@@ -448,6 +451,22 @@ class Sym_tensor : public Tensor_sym {
 	void set_auxiliary( const Scalar& trr, const Scalar& eta_over_r, const
 			    Scalar& mu_over_r, const Scalar& www, const Scalar&
 			    xxx, const Scalar& ttt ) ;
+
+	/** Applies exponential filters to all components 
+	 * (see \c Scalar::exponential_filter_r ). Does a loop for Cartesian 
+	 * components, and works in terms of the rr-component, \f$\eta\f$,
+	 * \f$\mu\f$, \c W, \c X, \c T for spherical components.
+	 */
+	virtual void  exponential_filter_r(int lzmin, int lzmax, int p, 
+			    double alpha= -16.) ;
+
+	/** Applies exponential filters to all components 
+	 * (see \c Scalar::exponential_filter_ylm ). Does a loop for Cartesian 
+	 * components, and works in terms of the r-component, \f$\eta\f$,
+	 * \f$\mu\f$, \c W, \c X, \c T for spherical components. 
+	 */
+	virtual void exponential_filter_ylm(int lzmin, int lzmax, int p, 
+			    double alpha= -16.) ;
 
     // Computation of derived members
     // ------------------------------

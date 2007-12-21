@@ -32,6 +32,9 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.26  2007/12/21 16:07:08  j_novak
+ * Methods to filter Tensor, Vector and Sym_tensor objects.
+ *
  * Revision 1.25  2005/02/14 13:01:50  j_novak
  * p_eta and p_mu are members of the class Vector. Most of associated functions
  * have been moved from the class Vector_divfree to the class Vector.
@@ -763,3 +766,36 @@ double Vector::flux(double radius, const Metric& met) const {
     return resu ; 
 }
 
+void Vector::exponential_filter_r(int lzmin, int lzmax, int p, 
+			  double alpha) {
+    if( triad->identify() == (mp->get_bvect_cart()).identify() ) 
+	for (int i=0; i<n_comp; i++)
+	    cmp[i]->exponential_filter_r(lzmin, lzmax, p, alpha) ;
+    else {
+	assert( triad->identify() == (mp->get_bvect_spher()).identify()) ;
+	Scalar vr_tmp = operator()(1) ; 
+	vr_tmp.exponential_filter_r(lzmin, lzmax, p, alpha) ;
+	Scalar eta_tmp = eta() ;
+	eta_tmp.exponential_filter_r(lzmin, lzmax, p, alpha) ;
+	Scalar mu_tmp = mu() ;
+	mu_tmp.exponential_filter_r(lzmin, lzmax, p, alpha) ;
+	set_vr_eta_mu(vr_tmp, eta_tmp, mu_tmp) ;
+    }
+}
+
+void Vector::exponential_filter_ylm(int lzmin, int lzmax, int p, 
+			  double alpha) {
+    if( triad->identify() == (mp->get_bvect_cart()).identify() ) 
+	for (int i=0; i<n_comp; i++)
+	    cmp[i]->exponential_filter_ylm(lzmin, lzmax, p, alpha) ;
+    else {
+	assert( triad->identify() == (mp->get_bvect_spher()).identify()) ;
+	Scalar vr_tmp = operator()(1) ; 
+	vr_tmp.exponential_filter_ylm(lzmin, lzmax, p, alpha) ;
+	Scalar eta_tmp = eta() ;
+	eta_tmp.exponential_filter_ylm(lzmin, lzmax, p, alpha) ;
+	Scalar mu_tmp = mu() ;
+	mu_tmp.exponential_filter_ylm(lzmin, lzmax, p, alpha) ;
+	set_vr_eta_mu(vr_tmp, eta_tmp, mu_tmp) ;
+    }
+}

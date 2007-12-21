@@ -35,6 +35,9 @@ char sym_tensor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.22  2007/12/21 16:07:08  j_novak
+ * Methods to filter Tensor, Vector and Sym_tensor objects.
+ *
  * Revision 1.21  2007/12/03 13:00:00  n_vasset
  * Adjusting memory management for new member p_tilde_c
  *
@@ -433,3 +436,52 @@ Sym_tensor* Sym_tensor::inverse() const {
 
 }
 
+void Sym_tensor::exponential_filter_r(int lzmin, int lzmax, int p, 
+			  double alpha) {
+    if( triad->identify() == (mp->get_bvect_cart()).identify() ) 
+	for (int i=0; i<n_comp; i++)
+	    cmp[i]->exponential_filter_r(lzmin, lzmax, p, alpha) ;
+    else {
+	assert( triad->identify() == (mp->get_bvect_spher()).identify()) ;
+	Scalar srr_tmp = operator()(1,1) ; 
+	srr_tmp.exponential_filter_r(lzmin, lzmax, p, alpha) ;
+	Scalar eta_tmp = eta() ;
+	eta_tmp.div_r() ; //## to change one day...
+	eta_tmp.exponential_filter_r(lzmin, lzmax, p, alpha) ;
+	Scalar mu_tmp = mu() ;
+	mu_tmp.div_r() ; //## to change one day...
+	mu_tmp.exponential_filter_r(lzmin, lzmax, p, alpha) ;
+	Scalar w_tmp = www() ;
+	w_tmp.exponential_filter_r(lzmin, lzmax, p, alpha) ;
+	Scalar x_tmp = xxx() ;
+	x_tmp.exponential_filter_r(lzmin, lzmax, p, alpha) ;
+	Scalar t_tmp = ttt() ;
+	t_tmp.exponential_filter_r(lzmin, lzmax, p, alpha) ;
+	set_auxiliary(srr_tmp, eta_tmp, mu_tmp, w_tmp, x_tmp, t_tmp) ;
+    }
+}
+
+void Sym_tensor::exponential_filter_ylm(int lzmin, int lzmax, int p, 
+			  double alpha) {
+    if( triad->identify() == (mp->get_bvect_cart()).identify() ) 
+	for (int i=0; i<n_comp; i++)
+	    cmp[i]->exponential_filter_ylm(lzmin, lzmax, p, alpha) ;
+    else {
+	assert( triad->identify() == (mp->get_bvect_spher()).identify()) ;
+	Scalar srr_tmp = operator()(1,1) ; 
+	srr_tmp.exponential_filter_ylm(lzmin, lzmax, p, alpha) ;
+	Scalar eta_tmp = eta() ;
+	eta_tmp.div_r() ; //## to change one day...
+	eta_tmp.exponential_filter_ylm(lzmin, lzmax, p, alpha) ;
+	Scalar mu_tmp = mu() ;
+	mu_tmp.div_r() ; //## to change one day...
+	mu_tmp.exponential_filter_ylm(lzmin, lzmax, p, alpha) ;
+	Scalar w_tmp = www() ;
+	w_tmp.exponential_filter_ylm(lzmin, lzmax, p, alpha) ;
+	Scalar x_tmp = xxx() ;
+	x_tmp.exponential_filter_ylm(lzmin, lzmax, p, alpha) ;
+	Scalar t_tmp = ttt() ;
+	t_tmp.exponential_filter_ylm(lzmin, lzmax, p, alpha) ;
+	set_auxiliary(srr_tmp, eta_tmp, mu_tmp, w_tmp, x_tmp, t_tmp) ;
+    }
+}

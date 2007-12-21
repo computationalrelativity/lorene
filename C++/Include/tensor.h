@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.57  2007/12/21 16:06:16  j_novak
+ * Methods to filter Tensor, Vector and Sym_tensor objects.
+ *
  * Revision 1.56  2006/06/07 14:08:58  j_novak
  * New methods set_index_type( / int).
  *
@@ -650,7 +653,20 @@ class Tensor {
 	 */
 	virtual void inc_dzpuis(int inc = 1) ; 
 	
-    
+	/** Applies exponential filters to all components 
+	 * (see \c Scalar::exponential_filter_r ). Works only for Cartesian 
+	 * components.
+	 */
+	virtual void  exponential_filter_r(int lzmin, int lzmax, int p, 
+			    double alpha= -16.) ;
+
+	/** Applies exponential filters to all components 
+	 * (see \c Scalar::exponential_filter_ylm ). Works only for Cartesian 
+	 * components.
+	 */
+	virtual void exponential_filter_ylm(int lzmin, int lzmax, int p, 
+			    double alpha= -16.) ;
+
     // Computational methods
     // ---------------------
     

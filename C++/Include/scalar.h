@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.82  2007/12/21 16:06:16  j_novak
+ * Methods to filter Tensor, Vector and Sym_tensor objects.
+ *
  * Revision 1.81  2007/10/31 10:33:11  j_novak
  * Added exponential filters to smooth Gibbs-type phenomena.
  *
@@ -913,7 +916,7 @@ class Scalar : public Tensor {
    * @param p [input] the order of the filter
    * @param alpha [input] \f$\alpha\f$ appearing in the above formula.
    */
-  void exponential_filter_r(int lzmin, int lzmax, int p, 
+  virtual void exponential_filter_r(int lzmin, int lzmax, int p, 
 			    double alpha= -16.) ;
 
   /**
@@ -923,7 +926,7 @@ class Scalar : public Tensor {
    * \f$ \sigma(x) \f$ defined for \c Scalar::exponential_filter_r and 
    * \f$\ell_{\rm max}\f$ the number of spherical harmonics used.
    */
-  void exponential_filter_ylm(int lzmin, int lzmax, int p, 
+  virtual void exponential_filter_ylm(int lzmin, int lzmax, int p, 
 			    double alpha= -16.) ;
 
   /**
