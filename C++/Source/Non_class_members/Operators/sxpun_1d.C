@@ -25,6 +25,9 @@ char sxpun_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2007/12/21 13:59:02  j_novak
+ * Suppression of call to pow(-1, something).
+ *
  * Revision 1.4  2007/12/12 09:56:57  jl_cornou
  * *** empty log message ***
  *
@@ -116,7 +119,8 @@ void _sxpun_1d_r_jaco02 (int nr, double* tb, double *xo)
     for (int i = 0 ; i < nr-1 ; i++) {
 	somme = 0 ;
 	for (int j = i+1 ; j < nr ; j++) {
-	somme += pow((-1),(j-1-i))*((j+1)*(j+2)/double((i+1)*(i+2))-(i+1)*(i+2)/double((j+1)*(j+2)))*tb[j] ;
+	  int signe = ((j-1-i)%2 == 0 ? 1 : -1) ;
+	somme += signe*((j+1)*(j+2)/double((i+1)*(i+2))-(i+1)*(i+2)/double((j+1)*(j+2)))*tb[j] ;
 	}
 	xo[i] = (2*i+3)/double(4)*somme ;
     }

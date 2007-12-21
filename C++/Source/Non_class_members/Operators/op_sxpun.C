@@ -37,6 +37,9 @@ char op_sxpun_C[] = "$Header$" ;
  /*
  * $Id$
  * $Log$
+ * Revision 1.3  2007/12/21 13:59:02  j_novak
+ * Suppression of call to pow(-1, something).
+ *
  * Revision 1.2  2007/12/20 09:11:08  jl_cornou
  * Correction of an error in op_sxpun about Jacobi(0,2) polynomials
  *
@@ -146,7 +149,8 @@ void _sxpun_r_jaco02(Tbl* tb, int& base)
     		for (int i = 0 ; i < nr-1 ; i++) {
 			somme = 0 ;
 			for (int m = i+1 ; m < nr ; m++) {
-			somme += pow((-1),(m-1-i))*((m+1)*(m+2)/double((i+1)*(i+2))-(i+1)*(i+2)/double((m+1)*(m+2)))*xci[m] ;
+			int signe = ((m-1-i)%2 == 0 ? 1 : -1) ; 
+			somme += signe*((m+1)*(m+2)/double((i+1)*(i+2))-(i+1)*(i+2)/double((m+1)*(m+2)))*xci[m] ;
 			}
 		xco[i] = (2*i+3)/double(4)*somme ;
 		}	

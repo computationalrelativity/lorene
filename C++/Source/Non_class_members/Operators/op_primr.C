@@ -29,6 +29,9 @@ char op_primr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2007/12/21 13:59:02  j_novak
+ * Suppression of call to pow(-1, something).
+ *
  * Revision 1.6  2007/12/11 15:28:18  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -944,7 +947,10 @@ void _primr_r_jaco02(const Tbl& tin, int bin, const Tbl& valm1, Tbl& tout,
                 // provided value at xi = - 1 : 
 
                 double som = -3*xco[1] ; 
-                for (int i=2; i<nr; i++) som += xco[i]*pow(-1,i)*(i+1)*(i+2)/double(2) ; 
+                for (int i=2; i<nr; i++) {
+			int signe = (i%2 == 0 ? 1 : -1) ; 
+			som += xco[i]*signe*(i+1)*(i+2)/double(2) ; 
+		}
                 xco[0] = valm1(k,j) - som ;                 
 
                 // Value of primitive at xi = + 1 : 

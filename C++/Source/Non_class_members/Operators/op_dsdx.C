@@ -37,6 +37,9 @@ char op_dsdx_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2007/12/21 13:59:02  j_novak
+ * Suppression of call to pow(-1, something).
+ *
  * Revision 1.5  2007/12/20 09:11:08  jl_cornou
  * Correction of an error in op_sxpun about Jacobi(0,2) polynomials
  *
@@ -833,7 +836,8 @@ void _dsdx_r_jaco02(Tbl *tb, int & )
 		    
 		      som = 0 ;
 		      for (int m = i+1 ; m < nr ; m++ ) {
-			som += (1-pow((-1),(m-i))*(i+1)*(i+2)/double((m+1)*(m+2)))* xci[m] ;
+			int signe = ((m-i)%2 == 0 ? 1 : -1) ; 
+			som += (1-signe*(i+1)*(i+2)/double((m+1)*(m+2)))* xci[m] ;
 		      } // Fin de la boucle annexe
 			xco[i] = (i+1.5)*som ;
 		    }// Fin de la boucle sur r
