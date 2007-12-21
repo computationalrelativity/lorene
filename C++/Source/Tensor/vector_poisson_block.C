@@ -30,6 +30,9 @@ char vector_poisson_block_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2007/12/21 10:45:06  j_novak
+ * Better treatment of spherical symmetry
+ *
  * Revision 1.5  2007/09/05 12:35:18  j_novak
  * Homogeneous solutions are no longer obtained through the analytic formula, but
  * by solving (again) the operator system with almost zero as r.h.s. This is to
@@ -88,6 +91,8 @@ void Vector::poisson_block(double lam, Vector& resu) const {
     //---------------------
   const Mg3d& mg = *mpaff->get_mg() ;
   int nz = mg.get_nzone() ; int nzm1 = nz - 1;
+  int nt = mg.get_nt(0) ;
+  int np = mg.get_np(0) ;
   assert(mg.get_type_r(0) == RARE) ;
   assert(mg.get_type_r(nzm1) == UNSURR) ;
   Scalar S_r = *cmp[0] ;
@@ -95,22 +100,22 @@ void Vector::poisson_block(double lam, Vector& resu) const {
   Scalar het(*mpaff) ; 
   Scalar vr(*mpaff) ; 
  bool all_zero = false ;
-  if (S_r.get_etat() == ETATZERO) {
-      if (S_eta.get_etat() == ETATZERO) {
-	  vr.set_etat_zero() ;
-	  het.set_etat_zero() ;
-	  all_zero = true ;
-      }
-      else {
-	  S_r.annule_hard() ;
-	  S_r.set_spectral_base(S_eta.get_spectral_base()) ;
-      }
-  }
-  if ((S_eta.get_etat() == ETATZERO)&&(!all_zero)) {
-      S_eta.annule_hard() ;
-      S_eta.set_spectral_base(S_r.get_spectral_base()) ;
-  }
-  if (!all_zero) {
+ if (S_r.get_etat() == ETATZERO) {
+     if (S_eta.get_etat() == ETATZERO) {
+	 vr.set_etat_zero() ;
+	 het.set_etat_zero() ;
+	 all_zero = true ;
+     }
+     else {
+	 S_r.annule_hard() ;
+	 S_r.set_spectral_base(S_eta.get_spectral_base()) ;
+     }
+ }
+ if ((S_eta.get_etat() == ETATZERO)&&(!all_zero)) {
+     S_eta.annule_hard() ;
+     S_eta.set_spectral_base(S_r.get_spectral_base()) ;
+ }
+ if (!all_zero) {
   S_r.set_spectral_va().ylm() ;
   S_eta.set_spectral_va().ylm() ;
   const Base_val& base = S_eta.get_spectral_va().base ;
@@ -137,8 +142,6 @@ void Vector::poisson_block(double lam, Vector& resu) const {
   // Nucleus
   //--------
   int nr = mg.get_nr(0) ;
-  int nt = mg.get_nt(0) ;
-  int np = mg.get_np(0) ;
   double alpha = mpaff->get_alpha()[0] ; double alp2 = alpha*alpha ;
   double beta = mpaff->get_beta()[0] ;
   int l_q = 0 ; int m_q = 0; int base_r = 0 ;
@@ -866,9 +869,13 @@ void Vector::poisson_block(double lam, Vector& resu) const {
   vr.set_spectral_va().ylm_i() ;
   vr += vrl0 ;
   het.set_spectral_va().ylm_i() ;
-  }
-  resu.set_vr_eta_mu(vr, het, mu().poisson()) ;
-
-  return ;
+ }
+ resu.set_vr_eta_mu(vr, het, mu().poisson()) ;
+ if ((nt==1)&&(np==1)) {
+     resu.set(2).set_etat_zero() ;
+     resu.set(3).set_etat_zero() ;
+ }
+ 
+ return ;
   
 }
