@@ -29,6 +29,9 @@ char gval_from_spectral_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2007/12/21 10:46:29  j_novak
+ * In "from_spectral..." functions: better treatment of ETATZERO case.
+ *
  * Revision 1.8  2007/11/02 16:49:12  j_novak
  * Suppression of intermediate array for spectral summation.
  *
@@ -377,8 +380,9 @@ void Gval_spher::somme_spectrale3(const Scalar& meudon, double* resu, int taille
   assert (mg->get_type_t() == SYM) ;
   int ntm = mg->get_nt(0) ;
   int npm = mg->get_np(0) ;
+  int nz = mg->get_nzone() ;
 #ifndef NDEBUG
-  for (int lz=1; lz<mg->get_nzone(); lz++) { 
+  for (int lz=1; lz<nz; lz++) { 
     assert (ntm == mg->get_nt(lz)) ; //Same angular grids in all domains...
     assert (npm == mg->get_np(lz)) ;
   }
@@ -393,12 +397,24 @@ void Gval_spher::somme_spectrale3(const Scalar& meudon, double* resu, int taille
   initialize_spectral_r(mp, meudon.get_spectral_va().get_base(), idom, chebnri) ;
   double* p_func = chebnri ;
   Mtbl_cf& mtbcf = *meudon.get_spectral_va().c_cf ;
-
+  double** coefm = new double*[nz] ;
+  for (int lz=0; lz<nz; lz++) {
+      assert((mtbcf.t[lz])->get_etat() != ETATNONDEF) ;
+      coefm[lz] = (mtbcf.t[lz])->t ;
+      if (coefm[lz] == 0x0) {
+	  int sizem = mg->get_nr(lz)*ntm*(npm+2) ;
+	  coefm[lz] = new double[sizem] ;
+	  double* pcf = coefm[lz] ;
+	  for (int i=0; i<sizem; i++)
+	      pcf[i] = 0. ;
+      }
+  }
+ 
   //First partial summation
   //-----------------------
   for (int irv=0; irv<nrv0; irv++) {
     int lz = idom[irv] ;
-    double* tbcf = (mtbcf.t[lz])->t ;
+    double* tbcf = coefm[lz] ;
     int nrm = mg->get_nr(lz) ;
     for (int mpm=0; mpm<npm+2; mpm++) {
       for (int ltm=0; ltm<ntm; ltm++) {
@@ -415,6 +431,10 @@ void Gval_spher::somme_spectrale3(const Scalar& meudon, double* resu, int taille
     }
   }
 
+  for (int lz=0; lz<nz; lz++) {
+      if ((mtbcf.t[lz])->t == 0x0) delete [] coefm[lz] ;
+  }
+  delete [] coefm ;
   delete [] chebnri ;
   delete [] idom ;
 

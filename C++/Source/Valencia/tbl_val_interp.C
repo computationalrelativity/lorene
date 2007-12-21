@@ -32,6 +32,9 @@ char TBL_VAL_INTER_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2007/12/21 10:46:29  j_novak
+ * In "from_spectral..." functions: better treatment of ETATZERO case.
+ *
  * Revision 1.9  2007/11/02 16:49:12  j_novak
  * Suppression of intermediate array for spectral summation.
  *
@@ -304,7 +307,7 @@ void Tbl_val::from_spectral(const Scalar& meudon, int lmax, int lmin,
   }
 
   if (meudon.get_etat() == ETATZERO) {
-    set_etat_zero() ;
+    annule_hard() ;
     return ;
   }
   else {
