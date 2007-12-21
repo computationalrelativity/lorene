@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 1999-2002 Eric Gourgoulhon
+ *   Copyright (c) 2007 Jean-Louis Cornou
  *
  *   This file is part of LORENE.
  *
@@ -86,36 +86,11 @@ char cirjaco02_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2007/12/21 12:41:46  j_novak
+ * Removed the #include<fftw3.h> not needed here. Corrected headers.
+ *
  * Revision 1.1  2007/12/11 15:42:21  jl_cornou
  * Premiere version des fonctions liees aux polynomes de Jacobi(0,2)
- *
- * Revision 1.1  2004/12/21 17:06:02  j_novak
- * Added all files for using fftw3.
- *
- * Revision 1.5  2003/01/31 10:31:23  e_gourgoulhon
- * Suppressed the directive #include <malloc.h> for malloc is defined
- * in <stdlib.h>
- *
- * Revision 1.4  2002/10/16 14:36:53  j_novak
- * Reorganization of #include instructions of standard C++, in order to
- * use experimental version 3 of gcc.
- *
- * Revision 1.3  2002/09/09 14:04:22  e_gourgoulhon
- *
- * Correction of an error : fft991_  ->  F77_fft991
- *
- * Revision 1.2  2002/09/09 13:00:40  e_gourgoulhon
- * Modification of declaration of Fortran 77 prototypes for
- * a better portability (in particular on IBM AIX systems):
- * All Fortran subroutine names are now written F77_* and are
- * defined in the new file C++/Include/proto_f77.h.
- *
- * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
- * LORENE
- *
- * Revision 2.0  1999/02/22  15:43:47  hyc
- * *** empty log message ***
- *
  *
  * $Header$
  *
@@ -124,7 +99,6 @@ char cirjaco02_C[] = "$Header$" ;
 // headers du C
 #include <assert.h>
 #include <stdlib.h>
-#include <fftw3.h>
 
 //Lorene prototypes
 #include "tbl.h"
