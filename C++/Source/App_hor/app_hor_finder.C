@@ -30,6 +30,9 @@ char app_hor_finder_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2008/01/08 13:56:54  j_novak
+ * Minor modif.
+ *
  * Revision 1.7  2007/10/23 12:26:08  j_novak
  * Added a test for the case where there is no AH, h(theta,phi) is then going out of the grid
  *
@@ -72,11 +75,13 @@ char app_hor_finder_C[] = "$Header$" ;
 
 // Lorene headers
 #include "app_hor.h"
+#include "graphique.h"
 
 
 bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& ex_fcn,
-	       double a_axis, double b_axis, double c_axis, bool printout, 
-	       double tol, double tol_exp, int it_max, int it_relax, double relax_fac)
+	       double a_axis, double b_axis, double c_axis, bool print, 
+	       double precis, double precis_exp, int step_max, int step_relax, 
+	       double relax)
 {
 
     bool ah_flag = false ;
@@ -92,7 +97,7 @@ bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& e
   const Coord& rr = map.r ;
   const Coord& theta = map.tet ;
   const Coord& phi = map.phi ;
-  const Coord& costh = map.cost ;
+  const Coord& costh = map.cost ; 
   const Coord& cosph = map.cosp ;
   const Coord& sinth = map.sint ;
   const Coord& sinph = map.sinp ;
@@ -134,23 +139,18 @@ bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& e
 
   for (int l=0; l<nz; l++) {
     
-    int imax = mg->get_nr(l) ;
     int jmax = mg->get_nt(l) ;
     int kmax = mg->get_np(l) ;
 
     for (int k=0; k<kmax; k++) {
-      for (int j=0; j<jmax; j++) {
-	for (int i=0; i<imax; i++) {
-		      
-	  h_guess.set(l,k,j,0)  = h_tmp.val_grid_point(l,k,j,i) ; 
-		      
-	}
+      for (int j=0; j<jmax; j++) {		      
+	  h_guess.set(l,k,j,0)  = h_tmp.val_grid_point(l,k,j,0) ; 		      
       }
     }
   }
 
   h_guess.std_base_scal() ;
-
+ 
   h = h_guess ;    // initialize h to h_guess 
   h.std_base_scal() ;
 
@@ -178,17 +178,6 @@ bool ah_finder(const Metric& gamma, const Sym_tensor& k_dd, Valeur& h, Scalar& e
   // Normal unit vector of the level set surface F = r - h(\theta,phi)
   Vector s_unit(map, CON, bspher) ; 
 
-  // Parameters to control the iteration
-  //------------------------------------
-
-  bool print = printout ;   // Do screen printout during iterations? 
-  double precis = tol ;     // precision to quit the iteration
-  double precis_exp = tol_exp ;  // maximum error of the expansion on the AH
-  int step_max = it_max ;   // maximum number of iteration
-  int step_relax = it_relax ;  // number of iteration starting from which 
-                               // to do relaxation
-
-  double relax = relax_fac ;  // relaxation factor; relax=1 no relaxation
   double relax_prev = double(1) - relax ; 
   double diff_exfcn = 1. ;
   Tbl diff_h(nz) ;
