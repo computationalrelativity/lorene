@@ -31,6 +31,9 @@ char grille3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2008/01/08 13:53:29  j_novak
+ * Special treatment of the case nt=1.
+ *
  * Revision 1.3  2007/12/11 15:28:13  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -135,7 +138,8 @@ Grille3d_r::Grille3d_r(int nrs, int nts, int nps)
 	x[i] = sin(xx*i) ;
     }
     // Partie en theta
-    xx = M_PI/double(nt-1) ;
+    if (nt > 1) 
+	xx = M_PI/double(nt-1) ;
     for (int i=0 ; i<nt ; i++) {
 	tet[i] = xx*i ;
     }
@@ -176,7 +180,8 @@ Grille3d_f::Grille3d_f(int nrs, int nts, int nps)
 	x[i] = -cos(xx*i) ;
     }
     // Partie en theta
-    xx = M_PI/double(nt-1) ;
+    if (nt > 1) 
+	xx = M_PI/double(nt-1) ;
     for (int i=0 ; i<nt ; i++) {
 	tet[i] = xx*i ;
     }
@@ -216,7 +221,8 @@ Grille3d_i::Grille3d_i(int nrs, int nts, int nps)
 	x[i] = -cos(xx*i) ;
     }
     // Partie en theta
-    xx = M_PI/double(nt-1) ;
+    if (nt > 1) 
+	xx = M_PI/double(nt-1) ;
     for (int i=0 ; i<nt ; i++) {
 	tet[i] = xx*i ;
     }
@@ -254,7 +260,8 @@ Grille3d_req::Grille3d_req(int nrs, int nts, int nps)
 	x[i] = sin(xx*i) ;
     }
     // Partie en theta
-    xx = M_PI/double(2*(nt-1)) ;
+    if (nt > 1) 
+	xx = M_PI/double(2*(nt-1)) ;
     for (int i=0 ; i<nt ; i++) {
 	tet[i] = xx*i ;
     }
@@ -293,7 +300,8 @@ Grille3d_feq::Grille3d_feq(int nrs, int nts, int nps)
 	x[i] = -cos(xx*i) ;
     }
     // Partie en theta
-    xx = M_PI/double(2*(nt-1)) ;
+    if (nt > 1) 
+	xx = M_PI/double(2*(nt-1)) ;
     for (int i=0 ; i<nt ; i++) {
 	tet[i] = xx*i ;
     }
@@ -331,7 +339,8 @@ Grille3d_ieq::Grille3d_ieq(int nrs, int nts, int nps)
 	x[i] = -cos(xx*i) ;
     }
     // Partie en theta
-    xx = M_PI/double(2*(nt-1)) ;
+    if (nt > 1) 
+	xx = M_PI/double(2*(nt-1)) ;
     for (int i=0 ; i<nt ; i++) {
 	tet[i] = xx*i ;
     }
@@ -369,7 +378,8 @@ Grille3d_r2p::Grille3d_r2p(int nrs, int nts, int nps)
 	x[i] = sin(xx*i) ;
     }
     // Partie en theta
-    xx = M_PI/double(nt-1) ;
+    if (nt > 1) 
+	xx = M_PI/double(nt-1) ;
     for (int i=0 ; i<nt ; i++) {
 	tet[i] = xx*i ;
     }
@@ -407,7 +417,8 @@ Grille3d_f2p::Grille3d_f2p(int nrs, int nts, int nps)
 	x[i] = -cos(xx*i) ;
     }
     // Partie en theta
-    xx = M_PI/double(nt-1) ;
+    if (nt > 1) 
+	xx = M_PI/double(nt-1) ;
     for (int i=0 ; i<nt ; i++) {
 	tet[i] = xx*i ;
     }
@@ -445,7 +456,8 @@ Grille3d_i2p::Grille3d_i2p(int nrs, int nts, int nps)
 	x[i] = -cos(xx*i) ;
     }
     // Partie en theta
-    xx = M_PI/double(nt-1) ;
+    if (nt > 1) 
+	xx = M_PI/double(nt-1) ;
     for (int i=0 ; i<nt ; i++) {
 	tet[i] = xx*i ;
     }
@@ -483,7 +495,8 @@ Grille3d_rs::Grille3d_rs(int nrs, int nts, int nps)
 	x[i] = sin(xx*i) ;
     }
     // Partie en theta
-    xx = M_PI/double(2*(nt-1)) ;
+    if (nt > 1) 
+	xx = M_PI/double(2*(nt-1)) ;
     for (int i=0 ; i<nt ; i++) {
 	tet[i] = xx*i ;
     }
@@ -521,7 +534,8 @@ Grille3d_fs::Grille3d_fs(int nrs, int nts, int nps)
 	x[i] = -cos(xx*i) ;
     }
     // Partie en theta
-    xx = M_PI/double(2*(nt-1)) ;
+    if (nt > 1) 
+	xx = M_PI/double(2*(nt-1)) ;
     for (int i=0 ; i<nt ; i++) {
 	tet[i] = xx*i ;
     }
@@ -559,7 +573,8 @@ Grille3d_is::Grille3d_is(int nrs, int nts, int nps)
 	x[i] = -cos(xx*i) ;
     }
     // Partie en theta
-    xx = M_PI/double(2*(nt-1)) ;
+    if (nt > 1) 
+	xx = M_PI/double(2*(nt-1)) ;
     for (int i=0 ; i<nt ; i++) {
 	tet[i] = xx*i ;
     }
@@ -606,7 +621,8 @@ Grille3d_fj::Grille3d_fj(int nrs, int nts, int nps)
     }
 
     // Partie en theta
-    xx = M_PI/double(nt-1) ;
+    if (nt > 1) 
+	xx = M_PI/double(nt-1) ;
     for (int i=0 ; i<nt ; i++) {
 	tet[i] = xx*i ;
     }
@@ -648,7 +664,8 @@ Grille3d_fjeq::Grille3d_fjeq(int nrs, int nts, int nps)
     	x[i] = yy[i] ;
     }
     // Partie en theta
-    xx = M_PI/double(2*(nt-1)) ;
+    if (nt > 1) 
+	xx = M_PI/double(2*(nt-1)) ;
     for (int i=0 ; i<nt ; i++) {
 	tet[i] = xx*i ;
     }
@@ -689,7 +706,8 @@ Grille3d_fj2p::Grille3d_fj2p(int nrs, int nts, int nps)
     	x[i] = yy[i] ;
     }
     // Partie en theta
-    xx = M_PI/double(nt-1) ;
+    if (nt > 1) 
+	xx = M_PI/double(nt-1) ;
     for (int i=0 ; i<nt ; i++) {
 	tet[i] = xx*i ;
     }
@@ -730,7 +748,8 @@ Grille3d_fjs::Grille3d_fjs(int nrs, int nts, int nps)
     	x[i] = yy[i] ;
     }
     // Partie en theta
-    xx = M_PI/double(2*(nt-1)) ;
+    if (nt > 1) 
+	xx = M_PI/double(2*(nt-1)) ;
     for (int i=0 ; i<nt ; i++) {
 	tet[i] = xx*i ;
     }
