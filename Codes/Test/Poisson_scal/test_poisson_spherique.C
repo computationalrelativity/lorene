@@ -29,6 +29,9 @@ char test_poisson_spherique_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2008/01/28 16:08:47  j_novak
+ * Changed return type of main from void to int
+ *
  * Revision 1.2  2003/01/09 11:07:55  j_novak
  * headcpp.h is now compliant with C++ norm.
  * The include files have been ordered, as well as the local_settings_linux
@@ -62,7 +65,7 @@ char test_poisson_spherique_C[] = "$Header$" ;
 #include <stdio.h>
 #include <math.h>
 
-void main() { 
+int main() { 
     int symetrie = SYM ;
     int puis_zec = 2 ;
     
