@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2004-2005 Francois Limousin
+ *   Copyright- (c) 2004-2005 Francois Limousin
  *                           Jose-Luis Jaramillo
  *
  *   This file is part of LORENE.
@@ -26,6 +26,9 @@ char binhor_equations_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2008/02/06 18:20:02  f_limousin
+ * Fixed an error in the triad
+ *
  * Revision 1.18  2007/08/22 16:12:33  f_limousin
  * Changed the name of the function computing \tilde{\gamma}_{ij}
  *
@@ -432,7 +435,7 @@ void Bin_hor::solve_psi (double precision, double relax, int bound_psi) {
     hole1.set_der_0x0() ;
     hole2.set_der_0x0() ;
 
-    set_hh_Samaya() ;
+    //set_hh_Samaya() ;
 
 }
 
@@ -659,6 +662,7 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta,
 
     Vector beta1_new (hole1.mp, CON, hole1.mp.get_bvect_spher()) ;
     Vector beta2_new (hole2.mp, CON, hole2.mp.get_bvect_spher()) ;
+    
 
     // Construction of Omega d/dphi
     // ----------------------------
@@ -668,7 +672,7 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta,
     yya1 = hole1.mp.ya ;
     Scalar xxa1 (hole1.mp) ;
     xxa1 = hole1.mp.xa ;
-    
+   
     if (fabs(hole1.mp.get_rot_phi()) < 1e-10){ 
       omdsdp1.set(1) = - omega * yya1 ;
       omdsdp1.set(2) = omega * xxa1 ;
@@ -688,7 +692,7 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta,
       .set_base(*(hole1.mp.get_mg()->std_base_vect_cart()[2])) ;
     
     omdsdp1.annule_domain(nz-1) ;
-    
+    omdsdp1.change_triad(hole1.mp.get_bvect_spher()) ;
 
 
     Vector omdsdp2 (hole2.mp, CON, hole2.mp.get_bvect_cart()) ;
@@ -716,8 +720,7 @@ void Bin_hor::solve_shift (double precision, double relax, int bound_beta,
       .set_base(*(hole2.mp.get_mg()->std_base_vect_cart()[2])) ;
     
     omdsdp2.annule_domain(nz-1) ;
-    
-
+    omdsdp2.change_triad(hole2.mp.get_bvect_spher()) ;
 
     // New shift
     beta1_new = relax*(beta1+hole1.decouple*omdsdp1) + (1-relax)*beta_un_old ;
