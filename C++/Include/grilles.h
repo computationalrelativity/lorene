@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2008/02/18 13:53:37  j_novak
+ * Removal of special indentation instructions.
+ *
  * Revision 1.16  2007/12/11 15:28:05  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -144,7 +147,6 @@
 #include <stdlib.h>
 #include "headcpp.h"
 
-#include "indent.h"
 #include "type_parite.h"
 
 class Base_val ; 

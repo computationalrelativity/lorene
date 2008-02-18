@@ -25,6 +25,9 @@ char comb_lin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2008/02/18 13:53:42  j_novak
+ * Removal of special indentation instructions.
+ *
  * Revision 1.7  2007/12/12 12:30:48  jl_cornou
  * *** empty log message ***
  *
@@ -106,9 +109,7 @@ char comb_lin_C[] = "$Header$" ;
 #include <math.h>
 
 #include "matrice.h"
-#include "tbl.h"
 #include "type_parite.h"
-#include "indent.h"
 #include "proto.h"
 
 /*   FONCTIONS FAISANT DES COMBINAISONS LINEAIRES DES LIGNES.

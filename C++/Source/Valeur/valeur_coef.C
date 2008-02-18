@@ -30,6 +30,9 @@ char valeur_coef_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2008/02/18 13:53:51  j_novak
+ * Removal of special indentation instructions.
+ *
  * Revision 1.7  2007/12/11 15:28:25  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -91,6 +94,7 @@ char valeur_coef_C[] = "$Header$" ;
  * $Header$
  *
  */
+#include<cmath>
 
 // Header Lorene
 #include "mtbl.h"
@@ -282,6 +286,15 @@ void Valeur::coef() const {
 	    assert( admissible_fft(nr-1) ) ; 
 	    coef_r[base_r](deg, dim, (cf->t), dim, (cf->t)) ;
 	}
+	double coef_max = max(abs(*cf)) ;
+	int taille = nr_c*nt_c*np_c ;
+	double petit = 3.e-16*coef_max ;
+	double* pc = cf->t ;
+	for (int i=0; i<taille; i++) {
+	    if (fabs(*pc)<petit) *pc = 0.e0 ;
+	    pc++ ;
+	}
+	
 	   
     }  // fin de la boucle sur les differentes zones
     

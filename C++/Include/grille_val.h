@@ -31,6 +31,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2008/02/18 13:53:37  j_novak
+ * Removal of special indentation instructions.
+ *
  * Revision 1.8  2007/11/02 16:49:12  j_novak
  * Suppression of intermediate array for spectral summation.
  *
@@ -66,7 +69,6 @@
 
 #include <assert.h>
 #include <math.h>
-#include "indent.h"
 #include "tensor.h"
 
 /**

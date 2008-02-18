@@ -26,6 +26,9 @@ char solh_helmholtz_plusC[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2008/02/18 13:53:43  j_novak
+ * Removal of special indentation instructions.
+ *
  * Revision 1.3  2007/05/06 10:48:12  p_grandclement
  * Modification of a few operators for the vorton project
  *
@@ -48,11 +51,9 @@ char solh_helmholtz_plusC[] = "$Header $" ;
 
 #include "proto.h"
 #include "matrice.h"
-#include "tbl.h"
 #include "type_parite.h"
-#include "indent.h"
 
-	         //------------------------------------
+                //------------------------------------
 		// Routine pour les cas non prevus --
 		//------------------------------------
 Tbl _solh_helmholtz_plus_pas_prevu (int, int, double, double, double) {

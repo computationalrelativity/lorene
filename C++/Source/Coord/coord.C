@@ -33,6 +33,9 @@ char coord_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2008/02/18 13:53:39  j_novak
+ * Removal of special indentation instructions.
+ *
  * Revision 1.2  2002/10/16 14:36:34  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -59,7 +62,6 @@ char coord_C[] = "$Header$" ;
 // Fichier includes
 #include <stdlib.h>
 #include <stdio.h>
-#include "indent.h"
 #include "coord.h"
 #include "mtbl.h"
 
@@ -95,8 +97,8 @@ ostream& operator<<(ostream& o, const Coord & ci) {
 	o << "La coordonnee n'est pas a jour, je la fais." << endl ;
 	ci.fait() ;
     }
-    o << "Coordonnee: " << incindent << iendl ;
-    o << *(ci.c) << decindent << endl ;
+    o << "Coordonnee: " << endl ;
+    o << *(ci.c) << endl ;
     return o ;
 }
     

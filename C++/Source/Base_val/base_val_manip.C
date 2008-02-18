@@ -25,6 +25,9 @@ char base_val_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2008/02/18 13:53:38  j_novak
+ * Removal of special indentation instructions.
+ *
  * Revision 1.6  2004/11/23 15:08:00  m_forot
  * Added the bases for the cases without any equatorial symmetry
  * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
@@ -66,7 +69,6 @@ char base_val_manip_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "headcpp.h"
-#include "indent.h"
 #include "type_parite.h"
 #include "base_val.h"
 

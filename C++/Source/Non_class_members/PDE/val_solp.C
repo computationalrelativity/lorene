@@ -25,6 +25,9 @@ char val_solp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2008/02/18 13:53:45  j_novak
+ * Removal of special indentation instructions.
+ *
  * Revision 1.3  2004/08/24 09:14:44  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -51,9 +54,7 @@ char val_solp_C[] = "$Header$" ;
 
 #include "proto.h"
 #include "matrice.h"
-#include "tbl.h"
 #include "type_parite.h"
-#include "indent.h"
 
 
 		//------------------------------------

@@ -33,6 +33,9 @@ char tbl_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2008/02/18 13:53:47  j_novak
+ * Removal of special indentation instructions.
+ *
  * Revision 1.8  2006/09/25 10:01:50  p_grandclement
  * Addition of N-dimensional Tbl
  *
@@ -388,16 +391,16 @@ ostream& operator<<(ostream& o, const Tbl& t) {
 	o << t.get_dim(i) << " x " ;
     } 
     o << t.get_dim(ndim-1) << "  =  " << t.get_taille() 
-      << incindent << iendl ;
+      << endl ;
 
 
     if (t.get_etat() == ETATZERO) {
-	o << "Identically ZERO" << decindent << iendl ;
+	o << "Identically ZERO" << endl ;
 	return o ;
     }
 
     if (t.get_etat() == ETATNONDEF) {
-	o << "UNDEFINED STATE" << decindent << iendl ;
+	o << "UNDEFINED STATE" << endl ;
 	return o ;
     }
 
@@ -408,36 +411,36 @@ ostream& operator<<(ostream& o, const Tbl& t) {
 	    for (int i=0 ; i<t.get_dim(0) ; i++) {
 		o << " " << t(i)  ;
 	    }
-	    o << decindent << endl ;
+	    o << endl ;
 	    break ;
 	}
 
 
 	case 2 : {
 	    for (int j=0 ; j<t.get_dim(1) ; j++) {
-		o << " j = " << j << " : " << incindent << iendl ;
+		o << " j = " << j << " : " << endl ;
 		for (int i=0 ; i<t.get_dim(0) ; i++) {
 		    o << " " << t(j, i)  ;
 		}
-		o << decindent << iendl ;
+		o << endl ;
 	    }
-	    o << decindent << endl ;
+	    o << endl ;
 	    break ;
 	}
 		
 	case 3 : {
 	    for (int k=0 ; k<t.get_dim(2) ; k++) {
-		o << "k = " << k << " : " << incindent << iendl ;
+		o << "k = " << k << " : " << endl ;
 		for (int j=0 ; j<t.get_dim(1) ; j++) {
-		    o << "j = " << j << " : " << incindent ;
+		    o << "j = " << j << " : "  ;
 		    for (int i=0 ; i<t.get_dim(0) ; i++) {
 			o << " " << t(k, j, i)  ;
 		    }
-		    o << decindent << iendl ;
+		    o << endl ;
 		}
-		o << decindent << iendl ;
+		o << endl ;
 	    }
-	    o << decindent << endl ;
+	    o << endl ;
 	    break ;
 	}
 		

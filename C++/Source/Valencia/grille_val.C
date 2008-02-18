@@ -32,6 +32,9 @@ char Grille_val_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2008/02/18 13:53:48  j_novak
+ * Removal of special indentation instructions.
+ *
  * Revision 1.4  2003/12/19 15:05:14  j_novak
  * Trying to avoid shadowed variables
  *
@@ -246,8 +249,8 @@ ostream& Grille_val::operator>>(ostream& o) const {
     if (ndim-i == 3) o << " x " ;
     if (ndim-i == 2) o << " x " ;
   } 
-  o << dim.dim[0] << iendl ;
-  o << nfant << " hidden cells on each side " << iendl ;
+  o << dim.dim[0] << endl ;
+  o << nfant << " hidden cells on each side " << endl ;
   return o ;
 }
     
@@ -447,7 +450,7 @@ ostream& Gval_cart::operator>>(ostream& o) const {
   switch (ndim) {
 
   case 1 : {
-    o << "Z nodes: " << iendl ;
+    o << "Z nodes: " << endl ;
     for (int i=0; i<dim.dim[0]; i++) {
       o << zr->set(i+nfantome) << " " ;
     }
@@ -457,13 +460,13 @@ ostream& Gval_cart::operator>>(ostream& o) const {
   
   
   case 2 : {
-    o << "X nodes: " << iendl ;
+    o << "X nodes: " << endl ;
     for (int j=0 ; j<dim.dim[1] ; j++) {
       o << " " << x->set(j+nfantome) ;
     }
     o << endl ;
     
-    o << "Z nodes: " << iendl ;
+    o << "Z nodes: " << endl ;
     
     for (int i=0 ; i<dim.dim[0] ; i++) {
       o << " " << zr->set(i+nfantome) ;
@@ -473,19 +476,19 @@ ostream& Gval_cart::operator>>(ostream& o) const {
   }
   
   case 3 : {
-    o << "Y nodes: " << iendl ;
+    o << "Y nodes: " << endl ;
     for (int k=0 ; k<dim.dim[2] ; k++) {
       o << " " << y->set(k+nfantome) ;
     }
     o << endl ;
 
-    o << "X nodes: " << iendl ;
+    o << "X nodes: " << endl ;
     for (int j=0 ; j<dim.dim[1] ; j++) {
       o << " " << x->set(j+nfantome) ;
     }
     o << endl ;
     
-    o << "Z nodes: " << iendl ;
+    o << "Z nodes: " << endl ;
     
     for (int i=0 ; i<dim.dim[0] ; i++) {
       o << " " << zr->set(i+nfantome) ;
@@ -670,7 +673,7 @@ ostream& Gval_spher::operator>>(ostream& o) const {
   switch (ndim) {
 
   case 1 : {
-    o << "R nodes: " << iendl ;
+    o << "R nodes: " << endl ;
     for (int i=0; i<dim.dim[0]; i++) {
       o << zr->set(i+nfantome) << " " ;
     }
@@ -680,13 +683,13 @@ ostream& Gval_spher::operator>>(ostream& o) const {
   
   
   case 2 : {
-    o << "THETA nodes: " << iendl ;
+    o << "THETA nodes: " << endl ;
     for (int j=0 ; j<dim.dim[1] ; j++) {
       o << " " << tet->set(j+nfantome) ;
     }
     o << endl ;
     
-    o << "R nodes: " << iendl ;
+    o << "R nodes: " << endl ;
     
     for (int i=0 ; i<dim.dim[0] ; i++) {
       o << " " << zr->set(i+nfantome) ;
@@ -696,19 +699,19 @@ ostream& Gval_spher::operator>>(ostream& o) const {
   }
   
   case 3 : {
-    o << "PHI nodes: " << iendl ;
+    o << "PHI nodes: " << endl ;
     for (int k=0 ; k<dim.dim[2] ; k++) {
       o << " " << phi->set(k+nfantome) ;
     }
     o << endl ;
 
-    o << "THETA nodes: " << iendl ;
+    o << "THETA nodes: " << endl ;
     for (int j=0 ; j<dim.dim[1] ; j++) {
       o << " " << tet->set(j+nfantome) ;
     }
     o << endl ;
     
-    o << "R nodes: " << iendl ;
+    o << "R nodes: " << endl ;
     
     for (int i=0 ; i<dim.dim[0] ; i++) {
       o << " " << zr->set(i+nfantome) ;

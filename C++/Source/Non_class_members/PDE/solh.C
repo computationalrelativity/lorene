@@ -25,6 +25,9 @@ char solh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2008/02/18 13:53:43  j_novak
+ * Removal of special indentation instructions.
+ *
  * Revision 1.7  2007/12/20 09:11:09  jl_cornou
  * Correction of an error in op_sxpun about Jacobi(0,2) polynomials
  *
@@ -101,9 +104,7 @@ char solh_C[] = "$Header$" ;
 
 #include "proto.h"
 #include "matrice.h"
-#include "tbl.h"
 #include "type_parite.h"
-#include "indent.h"
 
 
 /*

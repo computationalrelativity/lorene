@@ -25,6 +25,9 @@ char comb_lin_helmholtz_minusC[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2008/02/18 13:53:42  j_novak
+ * Removal of special indentation instructions.
+ *
  * Revision 1.3  2004/08/24 09:14:44  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -50,9 +53,7 @@ char comb_lin_helmholtz_minusC[] = "$Header $" ;
 #include <math.h>
 
 #include "matrice.h"
-#include "tbl.h"
 #include "type_parite.h"
-#include "indent.h"
 #include "proto.h"
 
 

@@ -32,6 +32,9 @@ char TBL_VAL_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2008/02/18 13:53:48  j_novak
+ * Removal of special indentation instructions.
+ *
  * Revision 1.4  2007/11/02 15:45:58  j_novak
  * Added an ugly method "append_array", which substitutes the argument to the
  * main array t.
@@ -350,15 +353,15 @@ ostream& operator<<(ostream& o, const Tbl_val& t) {
     if (ndim-i == 2) o << "(X)" << " x " ;
   } 
   o << t.get_dim(0) << "(Z)" << " + " << t.gval->get_fantome() << 
-    " hidden cells on each side =  " << t.get_taille() << iendl ;
+    " hidden cells on each side =  " << t.get_taille() << endl ;
   
   if (t.get_etat() == ETATZERO) {
-    o << "Identically ZERO" << decindent << iendl ;
+    o << "Identically ZERO" << endl ;
     return o ;
   }
   
   if (t.get_etat() == ETATNONDEF) {
-    o << "UNDEFINED STATE" << decindent << iendl ;
+    o << "UNDEFINED STATE" << endl ;
     return o ;
   }
   
@@ -369,36 +372,36 @@ ostream& operator<<(ostream& o, const Tbl_val& t) {
     for (int i=0 ; i<t.get_dim(0) ; i++) {
       o << " " << t(i)  ;
     }
-    o << decindent << endl ;
+    o << endl ;
     break ;
   }
   
   
   case 2 : {
     for (int j=0 ; j<t.get_dim(1) ; j++) {
-      o << " J_x " << j << " : " << incindent << iendl ;
+      o << " J_x " << j << " : " << endl ;
       for (int i=0 ; i<t.get_dim(0) ; i++) {
 	o << " " << t(j, i)  ;
       }
-      o << decindent << iendl ;
+      o << endl ;
     }
-    o << decindent << endl ;
+    o << endl ;
     break ;
   }
   
   case 3 : {
     for (int k=0 ; k<t.get_dim(2) ; k++) {
-      o << " K_y = " << k << " : " << incindent << iendl ;
+      o << " K_y = " << k << " : " << endl ;
       for (int j=0 ; j<t.get_dim(1) ; j++) {
-	o << " J_x = " << j << " : " << incindent ;
+	o << " J_x = " << j << " : "  ;
 	for (int i=0 ; i<t.get_dim(0) ; i++) {
 	  o << " " << t(k, j, i)  ;
 	}
-	o << decindent << iendl ;
+	o << endl ;
       }
-      o << decindent << iendl ;
+      o << endl ;
     }
-    o << decindent << endl ;
+    o << endl ;
     break ;
   }
   

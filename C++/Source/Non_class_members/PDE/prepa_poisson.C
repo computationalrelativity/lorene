@@ -25,6 +25,9 @@ char prepa_poisson_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2008/02/18 13:53:43  j_novak
+ * Removal of special indentation instructions.
+ *
  * Revision 1.6  2007/12/12 12:30:48  jl_cornou
  * *** empty log message ***
  *
@@ -110,9 +113,7 @@ char prepa_poisson_C[] = "$Header$" ;
 #include <math.h>
 
 #include "matrice.h"
-#include "tbl.h"
 #include "type_parite.h"
-#include "indent.h"
 #include "proto.h"
 
 /*

@@ -25,6 +25,9 @@ char val_solh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2008/02/18 13:53:45  j_novak
+ * Removal of special indentation instructions.
+ *
  * Revision 1.2  2003/12/11 15:37:09  p_grandclement
  * sqrt(2) ----> sqrt(double(2))
  *
@@ -43,9 +46,7 @@ char val_solh_C[] = "$Header$" ;
 
 #include "proto.h"
 #include "matrice.h"
-#include "tbl.h"
 #include "type_parite.h"
-#include "indent.h"
 
 
 		//------------------------------------

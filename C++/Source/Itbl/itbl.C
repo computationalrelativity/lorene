@@ -33,6 +33,9 @@ char itbl_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2008/02/18 13:53:40  j_novak
+ * Removal of special indentation instructions.
+ *
  * Revision 1.5  2003/10/12 20:34:47  e_gourgoulhon
  * Suppressed the call to set_etat_zero() in the 1D constructor with
  * dimension 0, and replaced it by etat = ETATZERO.
@@ -75,7 +78,6 @@ char itbl_C[] = "$Header$" ;
 
 // headers Lorene
 #include "itbl.h"
-#include "indent.h"
 #include "utilitaires.h"
 
 
@@ -288,15 +290,15 @@ ostream& operator<<(ostream& o, const Itbl& t) {
     for (int i = 0; i<ndim-1; i++) {
 	o << t.get_dim(i) << " x " ;
     } 
-    o << t.get_dim(ndim-1) << incindent << iendl ;
+    o << t.get_dim(ndim-1) << endl ;
 
     if (t.get_etat() == ETATZERO) {
-	o << "Identically ZERO" << decindent << iendl ;
+	o << "Identically ZERO" << endl ;
 	return o ;
     }
 
     if (t.get_etat() == ETATNONDEF) {
-	o << "UNDEFINED STATE" << decindent << iendl ;
+	o << "UNDEFINED STATE" << endl ;
 	return o ;
     }
 
@@ -307,36 +309,36 @@ ostream& operator<<(ostream& o, const Itbl& t) {
 	    for (int i=0 ; i<t.get_dim(0) ; i++) {
 		o << " " << t(i)  ;
 	    }
-	    o << decindent << endl ;
+	    o << endl ;
 	    break ;
 	}
 
 
 	case 2 : {
 	    for (int j=0 ; j<t.get_dim(1) ; j++) {
-		o << " J = " << j << " : " << incindent << iendl ;
+		o << " J = " << j << " : " << endl ;
 		for (int i=0 ; i<t.get_dim(0) ; i++) {
 		    o << " " << t(j, i)  ;
 		}
-		o << decindent << iendl ;
+		o << endl ;
 	    }
-	    o << decindent << endl ;
+	    o << endl ;
 	    break ;
 	}
 		
 	case 3 : {
 	    for (int k=0 ; k<t.get_dim(2) ; k++) {
-		o << " K = " << k << " : " << incindent << iendl ;
+		o << " K = " << k << " : " << endl ;
 		for (int j=0 ; j<t.get_dim(1) ; j++) {
-		    o << " J = " << j << " : " << incindent ;
+		    o << " J = " << j << " : "  ;
 		    for (int i=0 ; i<t.get_dim(0) ; i++) {
 			o << " " << t(k, j, i)  ;
 		    }
-		    o << decindent << iendl ;
+		    o << endl ;
 		}
-		o << decindent << iendl ;
+		o << endl ;
 	    }
-	    o << decindent << endl ;
+	    o << endl ;
 	    break ;
 	}
 		

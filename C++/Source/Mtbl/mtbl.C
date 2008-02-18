@@ -33,6 +33,9 @@ char mtbl_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2008/02/18 13:53:40  j_novak
+ * Removal of special indentation instructions.
+ *
  * Revision 1.5  2002/10/16 14:36:43  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -358,20 +361,20 @@ ostream& operator<<(ostream& o, const Mtbl& mt) {
     int nzone = mt.get_nzone() ;
     o.precision(4);
     o.setf(ios::showpoint);
-    o << "*** Mtbl " << nzone << " domains" << incindent << iendl ;
+    o << "*** Mtbl " << nzone << " domains" << endl ;
 
     if (mt.get_etat() == ETATZERO) {
-	o << "Logically NULL" << iendl ;
+	o << "Logically NULL" << endl ;
     }
     else {
 	for (int l=0 ; l<nzone ; l++) {
-	    o << " Domain #" << l << incindent << iendl ;
+	    o << " Domain #" << l << endl ;
 	    o << *(mt.t[l]) ;
-	    o << decindent << iendl ;
+	    o << endl ;
 	}
     }
 
-    o << decindent << iendl ;
+    o << endl ;
     return o ;
 }
 

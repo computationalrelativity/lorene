@@ -25,6 +25,9 @@ char dal_inverse_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2008/02/18 13:53:43  j_novak
+ * Removal of special indentation instructions.
+ *
  * Revision 1.5  2004/10/05 15:44:21  j_novak
  * Minor speed enhancements.
  *
@@ -57,7 +60,6 @@ char dal_inverse_C[] = "$Header$" ;
 //Headers LORENE
 #include "param.h"
 #include "matrice.h"
-#include "indent.h"
 #include "proto.h"
 
 /***************************************************************************

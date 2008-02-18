@@ -33,6 +33,9 @@ char mtbl_cf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2008/02/18 13:53:41  j_novak
+ * Removal of special indentation instructions.
+ *
  * Revision 1.5  2003/10/19 19:51:23  e_gourgoulhon
  * Access to Base_val::nzone now via the method Base_val::get_nzone().
  *
@@ -359,23 +362,23 @@ ostream& operator<<(ostream& o, const Mtbl_cf& mt) {
     int nzone = mt.get_nzone() ;
     o.precision(4);
     o.setf(ios::showpoint);
-    o << "*** MTBL_CF " << nzone << " domains" << incindent << iendl ;
+    o << "*** MTBL_CF " << nzone << " domains" << endl ;
 
-    o << mt.base << iendl ; 
+    o << mt.base << endl ; 
 
-    o << "Values of the coefficients : " << iendl ; 
+    o << "Values of the coefficients : " << endl ; 
     if (mt.get_etat() == ETATZERO) {
-	o << "Logically NUL" << iendl ;
+	o << "Logically NUL" << endl ;
     }
     else {
 	for (int l=0 ; l<nzone ; l++) {
-	    o << " Domain #" << l << incindent << iendl ;
+	    o << " Domain #" << l << endl ;
 	    o << *(mt.t[l]) ;
-	    o << decindent << iendl ;
+	    o << endl ;
 	}
     }
 
-    o << decindent << iendl ;
+    o << endl ;
     return o ;
 }
 

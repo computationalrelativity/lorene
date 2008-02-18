@@ -25,6 +25,9 @@ char solh_helmholtz_minusC[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2008/02/18 13:53:43  j_novak
+ * Removal of special indentation instructions.
+ *
  * Revision 1.4  2004/08/24 10:11:12  p_grandclement
  * Correction of the includes of gsl
  *
@@ -55,12 +58,10 @@ char solh_helmholtz_minusC[] = "$Header $" ;
 
 #include "proto.h"
 #include "matrice.h"
-#include "tbl.h"
 #include "type_parite.h"
-#include "indent.h"
 
 
-	//------------------------------------
+                //------------------------------------
 		// Routine pour les cas non prevus --
 		//------------------------------------
 Tbl _solh_helmholtz_minus_pas_prevu (int, int, double, double, double) {

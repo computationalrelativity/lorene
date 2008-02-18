@@ -34,6 +34,9 @@ char base_val_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2008/02/18 13:53:38  j_novak
+ * Removal of special indentation instructions.
+ *
  * Revision 1.9  2007/12/11 15:28:09  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -111,7 +114,6 @@ char base_val_C[] = "$Header$" ;
 
 // Headers Lorene
 #include "headcpp.h"
-#include "indent.h"
 #include "type_parite.h"
 #include "base_val.h"
 #include "utilitaires.h"
@@ -270,17 +272,17 @@ ostream& operator<<(ostream& o, const Base_val & bi) {
 
     // Intro - Nombre de zones
     int nzone = bi.nzone ;
-    o << "Bases of spectral expansions: " << incindent ;
+    o << "Bases of spectral expansions: "  ;
     for (int l=0 ; l<nzone ; l++) {
 	int base_r = (bi.b[l] & MSQ_R) >> TRA_R ;
 	int base_t = (bi.b[l] & MSQ_T) >> TRA_T  ;
 	int base_p = (bi.b[l] & MSQ_P) >> TRA_P ;
-	o << iendl ;
+	o << endl ;
 	o << "Domain #" << l << " : r: " << nom_r[base_r] 
 	    << ",  theta: " << nom_t[base_t] 
 	    << ",  phi: " << nom_p[base_p] ;
     }
-    o << decindent << decindent << iendl ;
+    o << endl ;
 
     //Termine
     return o ;

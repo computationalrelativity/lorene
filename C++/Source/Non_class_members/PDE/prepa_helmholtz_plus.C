@@ -25,6 +25,9 @@ char prepa_helmholtz_plus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2008/02/18 13:53:43  j_novak
+ * Removal of special indentation instructions.
+ *
  * Revision 1.2  2004/01/15 09:15:37  p_grandclement
  * Modification and addition of the Helmholtz operators
  *
@@ -42,9 +45,7 @@ char prepa_helmholtz_plus_C[] = "$Header$" ;
 #include <math.h>
 
 #include "matrice.h"
-#include "tbl.h"
 #include "type_parite.h"
-#include "indent.h"
 #include "proto.h"
 
 
