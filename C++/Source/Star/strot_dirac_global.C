@@ -30,6 +30,9 @@ char strot_dirac_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2008/02/18 13:51:20  j_novak
+ * Change of a dzpuis
+ *
  * Revision 1.6  2005/03/25 14:11:49  j_novak
  * In the 1D case, GRV2 returns -1 (because of a problem in integral2d).
  *
@@ -224,7 +227,7 @@ double Star_rot_Dirac::grv2() const {
       
       Scalar term_3 = gamma.con()(2,2) * logn.dsdt() * logn.dsdt() ;
       
-      term_3.div_r_dzpuis(4) ;
+      term_3.div_r_dzpuis(2) ;
       term_3.div_r_dzpuis(4) ;
       
       sou_tmp += term_2 + term_3 ;
