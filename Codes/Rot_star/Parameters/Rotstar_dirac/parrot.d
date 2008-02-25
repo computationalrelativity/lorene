@@ -35,4 +35,4 @@
 17	2.	<-   nr   &   min(r)  in domain 3
 0.08	enthalpy defining boundary between domains 0 and 1
 2	order of spectral filtering (for rotstar_dirac). 0 means no filtering.
-25	freq_si mer_hij : step at which the equation for h^{ij} is started being solved (put ~1000 for CFC)
+25	mer_hij : step at which the equation for h^{ij} is started being solved (put ~1000 for CFC)
