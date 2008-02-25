@@ -10,7 +10,7 @@
 10      mer_rot : step at which the rotation is switched on
 550.    freq_ini_si : initial rotation frequency [Hz] (switched on at mer = mer_rot)
 10      mer_change_omega : step at which f is changed to reach freq_si
-20      mer_fix_omega : step at which f must have reached freq_si
+20	mer_fix_omega : step at which f must have reached 
 1      delta_mer_kep : number of steps after mer_fix_omega to search for Kepler.
 0.3    thres_adapt : threhold on (dH/dr_eq)/dH/dr_pole) for the mapping adaptation
 1800    mer_triax : step at which the 3-D perturbation is switched on
@@ -35,3 +35,4 @@
 17	2.	<-   nr   &   min(r)  in domain 3
 0.08	enthalpy defining boundary between domains 0 and 1
 2	order of spectral filtering (for rotstar_dirac). 0 means no filtering.
+25	freq_si mer_hij : step at which the equation for h^{ij} is started being solved (put ~1000 for CFC)

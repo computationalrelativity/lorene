@@ -31,6 +31,10 @@ char rotstar_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2008/02/25 10:40:54  j_novak
+ * Added the flag mer_hij to control the step from which the equation for h^{ij}
+ * is being solved.
+ *
  * Revision 1.4  2007/11/06 16:24:00  j_novak
  * Added the flag spectral_filter giving the order of possible spectral filtering
  * of the hydro sources of metric equations (some members *_euler). The filtering
@@ -55,13 +59,11 @@ char rotstar_dirac_C[] = "$Header$" ;
 
 // headers Lorene
 #include "star_rot_dirac.h"
+#include "cmp.h"
 #include "eos.h"
-#include "utilitaires.h"
 #include "graphique.h"
 #include "nbr_spx.h"
 #include "unites.h"
-#include "cmp.h"	    
-
 
 // Local prototype (for drawings only)
 Cmp raccord_c1(const Cmp& uu, int l1) ; 
@@ -86,7 +88,7 @@ int main(){
 
     int mer_max, mer_rot, mer_change_omega, mer_fix_omega, 
 	delta_mer_kep, mer_mass, mermax_poisson, graph, nz, nzet, nzadapt,
-	nt, np, mer_triax, filter_order ; 
+	nt, np, mer_triax, filter_order, mer_hij ; 
     double ent_c, freq_si, fact_omega, mbar_wanted, precis, freq_ini_si, 
 	   thres_adapt, aexp_mass, relax, relax_poisson, ampli_triax, 
 	   precis_adapt ;  
@@ -104,7 +106,7 @@ int main(){
     fich >> mer_rot ; fich.getline(blabla, 120) ;
     fich >> freq_ini_si ; fich.getline(blabla, 120) ;
     fich >> mer_change_omega ; fich.getline(blabla, 120) ;
-    fich >> mer_fix_omega ; fich.getline(blabla, 120) ;
+    fich >> mer_fix_omega ; fich.getline(blabla, 200) ;
     fich >> delta_mer_kep ; fich.getline(blabla, 120) ;
     fich >> thres_adapt ; fich.getline(blabla, 120) ;
     fich >> mer_triax ; fich.getline(blabla, 120) ;
@@ -143,7 +145,8 @@ int main(){
     for (int l=0; l<nzet-1; l++) {
     	fich >> ent_limit.set(l) ; fich.getline(blabla, 120) ;
     }
-    fich >> filter_order ;
+    fich >> filter_order ; fich.getline(blabla, 120) ;
+    fich >> mer_hij ;fich.getline(blabla, 120) ;
 
     fich.close();
 
@@ -298,7 +301,7 @@ int main(){
     double omega = 2 * M_PI * freq_si / f_unit ; 
     double omega_ini = 2 * M_PI * freq_ini_si / f_unit ; 
 
-    Itbl icontrol(6) ;
+    Itbl icontrol(7) ;
     icontrol.set_etat_qcq() ; 
     icontrol.set(0) = mer_max ; 
     icontrol.set(1) = mer_rot ; 
@@ -306,6 +309,7 @@ int main(){
     icontrol.set(3) = mer_fix_omega ; 
     icontrol.set(4) = mer_mass ; 
     icontrol.set(5) = delta_mer_kep ; 
+    icontrol.set(6) = mer_hij ;
     
     Tbl control(3) ; 
     control.set_etat_qcq() ; 

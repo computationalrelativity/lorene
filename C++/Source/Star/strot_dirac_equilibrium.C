@@ -30,6 +30,10 @@ char strot_dirac_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2008/02/25 10:40:52  j_novak
+ * Added the flag mer_hij to control the step from which the equation for h^{ij}
+ * is being solved.
+ *
  * Revision 1.9  2006/03/14 15:18:21  lm_lin
  *
  * Add convergence to a given baryon mass.
@@ -120,6 +124,7 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
   int mer_fix_omega = icontrol(3) ; 
   int mer_mass = icontrol(4) ; 
   int delta_mer_kep = icontrol(5) ; 
+  int mer_hij = icontrol(6) ;
   
   // Protections:
   if (mer_change_omega < mer_rot) {
@@ -436,7 +441,7 @@ void Star_rot_Dirac::equilibrium(double ent_c, double omega0,
 
  Sym_tensor_trans hij_new(mp, mp.get_bvect_spher(), flat) ;
 
- if (mer > mer_fix_omega )
+ if (mer > mer_hij )
    solve_hij( hij_new ) ;
  else
    hij_new.set_etat_zero() ;
