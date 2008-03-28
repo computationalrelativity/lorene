@@ -15,7 +15,7 @@
 # ------------
 CXX 	 = CC
 
-# Options for the C++  compiler  to produce the  optimized  library:
+# Options for the C++  compiler  to produce the  optimized  library :
 # -------------------------------------------------------------
 CXXFLAGS = -n32 -mips4 -O2 -OPT:Olimit=0 -LANG:ansi-for-init-scope=on \
 	  -fullwarn -ptv -DNDEBUG -DOBSOLETE_HEADERS 
