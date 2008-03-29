@@ -51,7 +51,7 @@ F77FLAGS_G = -g -132
 #           MAKEDEPEND	        #
 #===============================#
 
-# First line uses the C precompiler (usually called cpp)
+# First line uses  the C precompiler (usually called cpp)
 # if yours does not support the -M option try to figure out
 # how to output dependencies file, or use makedepend (2nd line)
 #--------------------------------------------------------------
