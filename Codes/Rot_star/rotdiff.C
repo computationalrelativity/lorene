@@ -29,6 +29,9 @@ char rotdiff_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2008/05/08 12:02:35  j_novak
+ * saving parameters for rotation profiles definitions
+ *
  * Revision 1.5  2004/03/25 12:35:44  j_novak
  * now using namespace Unites
  *
@@ -469,6 +472,7 @@ int main(){
 	star.get_mp().get_mg()->sauve(fresu) ;		// writing of the grid
 	star.get_mp().sauve(fresu) ;                // writing of the mapping
 	star.get_eos().sauve(fresu) ;  				// writing of the EOS
+	parfrot.sauve(fresu) ;             // writing parameters for rotation function
 	star.sauve(fresu) ;                         // writing of the star
 	
 	fclose(fresu) ;
