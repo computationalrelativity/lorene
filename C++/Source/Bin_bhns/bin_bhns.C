@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2005-2006 Keisuke Taniguchi
+ *   Copyright (c) 2005-2007 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,10 @@ char bin_bhns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/05/15 18:58:01  k_taniguchi
+ * Change of some parameters and introduction of new
+ * global quantities.
+ *
  * Revision 1.1  2007/06/22 01:08:53  k_taniguchi
  * *** empty log message ***
  *
@@ -58,10 +62,10 @@ char bin_bhns_C[] = "$Header$" ;
 // --------------------
 Bin_bhns::Bin_bhns(Map& mp_bh, Map& mp_ns, int nzet_i, const Eos& eos_i,
 		   bool irrot_ns, bool kerrschild_i,
-		   bool bc_lapse_nd, bool bc_lapse_fs, bool irrot_bh,
+		   bool bc_lapconf_nd, bool bc_lapconf_fs, bool irrot_bh,
 		   double massbh)
       : ref_triad(0., "Absolute frame Cartesian basis"),
-	hole(mp_bh, kerrschild_i, bc_lapse_nd, bc_lapse_fs, irrot_bh, massbh),
+	hole(mp_bh,kerrschild_i,bc_lapconf_nd,bc_lapconf_fs,irrot_bh, massbh),
 	star(mp_ns, nzet_i, eos_i, irrot_ns)
 {
 
@@ -130,11 +134,14 @@ Bin_bhns::~Bin_bhns()
 
 void Bin_bhns::del_deriv() const {
 
-    if (p_mass_adm_bhns != 0x0) delete p_mass_adm_bhns ;
-    if (p_mass_kom_bhns != 0x0) delete p_mass_kom_bhns ;
+    if (p_mass_adm_bhns_surf != 0x0) delete p_mass_adm_bhns_surf ;
+    if (p_mass_adm_bhns_vol != 0x0) delete p_mass_adm_bhns_vol ;
+    if (p_mass_kom_bhns_surf != 0x0) delete p_mass_kom_bhns_surf ;
+    if (p_mass_kom_bhns_vol != 0x0) delete p_mass_kom_bhns_vol ;
     if (p_line_mom_bhns != 0x0) delete p_line_mom_bhns ;
     if (p_angu_mom_bhns != 0x0) delete p_angu_mom_bhns ;
-    if (p_virial_bhns != 0x0) delete p_virial_bhns ;
+    if (p_virial_bhns_surf != 0x0) delete p_virial_bhns_surf ;
+    if (p_virial_bhns_vol != 0x0) delete p_virial_bhns_vol ;
     if (p_xa_barycenter != 0x0) delete p_xa_barycenter ;
     if (p_ya_barycenter != 0x0) delete p_ya_barycenter ;
     if (p_omega_two_points != 0x0) delete p_omega_two_points ;
@@ -147,11 +154,14 @@ void Bin_bhns::del_deriv() const {
 
 void Bin_bhns::set_der_0x0() const {
 
-    p_mass_adm_bhns = 0x0 ;
-    p_mass_kom_bhns = 0x0 ;
+    p_mass_adm_bhns_surf = 0x0 ;
+    p_mass_adm_bhns_vol = 0x0 ;
+    p_mass_kom_bhns_surf = 0x0 ;
+    p_mass_kom_bhns_vol = 0x0 ;
     p_line_mom_bhns = 0x0 ;
     p_angu_mom_bhns = 0x0 ;
-    p_virial_bhns = 0x0 ;
+    p_virial_bhns_surf = 0x0 ;
+    p_virial_bhns_vol = 0x0 ;
     p_xa_barycenter = 0x0 ;
     p_ya_barycenter = 0x0 ;
     p_omega_two_points = 0x0 ;
@@ -331,6 +341,7 @@ void Bin_bhns::display_poly(ostream& ost) const {
 	ost << "  Omega :        " << omega * t_poly << endl ;
 	ost << "  Omega M_irr :  "
 	    << omega * t_poly * hole.mass_irr_bhns() / m_poly << endl ;
+	ost << "  Omega_spin :   " << hole.get_omega_spin() * t_poly << endl ;
 	ost << "  M_irr :        " << hole.mass_irr_bhns() / m_poly << endl ;
 	ost << "  M_bh :         " << hole.get_mass_bh() / m_poly << endl ;
 	ost << "  R_ah :         " << hole.rad_ah() / r_poly << endl ;
