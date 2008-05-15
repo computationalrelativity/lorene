@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2005-2006 Keisuke Taniguchi
+ *   Copyright (c) 2005-2007 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,9 @@ char bin_bhns_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/05/15 18:59:27  k_taniguchi
+ * Introduction of new global quantities.
+ *
  * Revision 1.1  2007/06/22 01:09:31  k_taniguchi
  * *** empty log message ***
  *
@@ -55,13 +58,127 @@ char bin_bhns_global_C[] = "$Header$" ;
                //          ADM mass          //
                //----------------------------//
 
-double Bin_bhns::mass_adm_bhns() const {
+double Bin_bhns::mass_adm_bhns_surf() const {
 
     // Fundamental constants and units
     // -------------------------------
     using namespace Unites ;
 
-    if (p_mass_adm_bhns == 0x0) {   // a new computation is required
+    if (p_mass_adm_bhns_surf == 0x0) {   // a new computation is required
+
+        double madm ;
+
+	const Map& mp_bh = hole.get_mp() ;
+        const Map& mp_ns = star.get_mp() ;
+
+	Map_af mp_aff(mp_bh) ;
+	Map_af mp_ns_aff(mp_ns) ;
+
+	Scalar rr(mp_bh) ;
+	rr = mp_bh.r ;
+	rr.std_spectral_base() ;
+
+	double mass = ggrav * hole.get_mass_bh() ;
+
+	if (hole.is_kerrschild()) {
+
+	  cout << "!!!!! WARNING: Not yet available !!!!!" << endl ;
+	  abort() ;
+
+	}
+	else { // Isotropic coordinates with the maximal slicing
+
+	  //-------------------------------------
+	  //     Integration over the BH map
+	  //-------------------------------------
+
+	  // Sets C/M^2 for each case of the lapse boundary condition
+	  // --------------------------------------------------------
+	  double cc ;
+
+	  if (hole.has_bc_lapconf_nd()) {  // Neumann boundary condition
+	      if (hole.has_bc_lapconf_fs()) {  // First condition
+	          // d(\alpha \psi)/dr = 0
+	          // ---------------------
+	          cc = 2. * (sqrt(13.) - 1.) / 3. ;
+	      }
+	      else {  // Second condition
+	          // d(\alpha \psi)/dr = (\alpha \psi)/(2 rah)
+	          // -----------------------------------------
+	          cc = 4. / 3. ;
+	      }
+	  }
+	  else {  // Dirichlet boundary condition
+	      if (hole.has_bc_lapconf_fs()) {  // First condition
+	          // (\alpha \psi) = 1/2
+	          // -------------------
+		  cout << "!!!!! WARNING: Not yet prepared !!!!!" << endl ;
+		  abort() ;
+	      }
+	      else {  // Second condition
+	          // (\alpha \psi) = 1/sqrt(2.) \psi_KS
+	          // ----------------------------------
+		  cout << "!!!!! WARNING: Not yet prepared !!!!!" << endl ;
+		  abort() ;
+		  //	          cc = 2. * sqrt(2.) ;
+	      }
+	  }
+
+	  Scalar r_are(mp_bh) ;
+	  r_are = hole.r_coord(hole.has_bc_lapconf_nd(),
+			       hole.has_bc_lapconf_fs()) ;
+	  r_are.std_spectral_base() ;
+
+	  // ADM mass by surface integral at infinity : dzpuis should be 2
+	  // ----------------------------------------
+	  const Scalar& confo_bh_auto_rs = hole.get_confo_auto_rs() ;
+
+	  Scalar lldconf_iso = confo_bh_auto_rs.dsdr() ;  // dzpuis = 2
+	  lldconf_iso.std_spectral_base() ;
+
+	  Scalar anoth(mp_bh) ;
+	  anoth = 0.5 * sqrt(r_are)
+	    * (sqrt(1. -2.*mass/r_are/rr + cc*cc*pow(mass/r_are/rr,4.))
+	       - 1.) / rr ;
+	  anoth.std_spectral_base() ;
+	  anoth.annule_domain(0) ;
+	  anoth.raccord(1) ;
+	  anoth.inc_dzpuis(2) ;
+
+	  const Scalar& confo_ns_auto = star.get_confo_auto() ;
+
+	  Scalar lldconf_ns = confo_ns_auto.dsdr() ;  // dzpuis = 2
+	  lldconf_ns.std_spectral_base() ;
+
+	  madm =
+	    - 2.*(mp_aff.integrale_surface_infini(lldconf_iso+anoth))/qpig
+	    - 2.*(mp_ns_aff.integrale_surface_infini(lldconf_ns))/qpig ;
+
+	  cout << "ADM mass (surface) :   " << madm / msol << " [Mo]"
+	       << endl ;
+
+	}
+
+	p_mass_adm_bhns_surf = new double( madm ) ;
+
+    }
+
+    return *p_mass_adm_bhns_surf ;
+
+}
+
+
+               //----------------------------//
+               //          ADM mass          //
+               //----------------------------//
+
+double Bin_bhns::mass_adm_bhns_vol() const {
+
+    // Fundamental constants and units
+    // -------------------------------
+    using namespace Unites ;
+
+    if (p_mass_adm_bhns_vol == 0x0) {   // a new computation is required
 
         double madm ;
 	double integ_bh_s ;
@@ -103,8 +220,8 @@ double Bin_bhns::mass_adm_bhns() const {
 
 	Vector ll(mp_bh, CON, mp_bh.get_bvect_cart()) ;
 	ll.set_etat_qcq() ;
-	ll.set(1) = st * cp ;
-	ll.set(2) = st * sp ;
+	ll.set(1) = st % cp ;
+	ll.set(2) = st % sp ;
 	ll.set(3) = ct ;
 	ll.std_spectral_base() ;
 
@@ -130,17 +247,17 @@ double Bin_bhns::mass_adm_bhns() const {
 	llshift_auto.std_spectral_base() ;
 
 	Scalar lldllsh = llshift_auto.dsdr()
-	  + ll(1) * (ll(1) * dshift_comp(1,1) + ll(2) * dshift_comp(1,2)
-		     + ll(3) * dshift_comp(1,3))
-	  + ll(2) * (ll(1) * dshift_comp(2,1) + ll(2) * dshift_comp(2,2)
-		     + ll(3) * dshift_comp(2,3))
-	  + ll(3) * (ll(1) * dshift_comp(3,1) + ll(2) * dshift_comp(3,2)
-		     + ll(3) * dshift_comp(3,3)) ;  // dzpuis = 2
+	  + ll(1) * (ll(1) % dshift_comp(1,1) + ll(2) % dshift_comp(1,2)
+		     + ll(3) % dshift_comp(1,3))
+	  + ll(2) * (ll(1) % dshift_comp(2,1) + ll(2) % dshift_comp(2,2)
+		     + ll(3) % dshift_comp(2,3))
+	  + ll(3) * (ll(1) % dshift_comp(3,1) + ll(2) % dshift_comp(3,2)
+		     + ll(3) % dshift_comp(3,3)) ;  // dzpuis = 2
 	lldllsh.std_spectral_base() ;
 
-	const Scalar& lapse_bh = hole.get_lapse_tot() ;
-	const Scalar& lapse_bh_auto_rs = hole.get_lapse_auto_rs() ;
-	const Scalar& lapse_bh_comp = hole.get_lapse_comp() ;
+	const Scalar& lapconf_bh = hole.get_lapconf_tot() ;
+	const Scalar& lapconf_bh_auto_rs = hole.get_lapconf_auto_rs() ;
+	const Scalar& lapconf_bh_comp = hole.get_lapconf_comp() ;
 	const Scalar& confo_bh = hole.get_confo_tot() ;
 	const Scalar& confo_bh_auto = hole.get_confo_auto() ;
 	const Scalar& confo_bh_comp = hole.get_confo_comp() ;
@@ -157,14 +274,18 @@ double Bin_bhns::mass_adm_bhns() const {
 
 	const Scalar& taij_quad_auto_ns = star.get_taij_quad_auto() ;
 
-	Scalar lldconf = confo_bh_auto.dsdr() + ll(1)*dconfo_bh_comp(1)
-	  + ll(2)*dconfo_bh_comp(2) + ll(3)*dconfo_bh_comp(3) ;  // dzpuis = 2
+	Scalar lldconf = confo_bh_auto.dsdr() + ll(1)%dconfo_bh_comp(1)
+	  + ll(2)%dconfo_bh_comp(2) + ll(3)%dconfo_bh_comp(3) ;  // dzpuis = 2
 	lldconf.std_spectral_base() ;
 
 	double mass = ggrav * hole.get_mass_bh() ;
 
 	if (hole.is_kerrschild()) {
 
+	  cout << "!!!!! WARNING: Not yet available !!!!!" << endl ;
+	  abort() ;
+
+	  /*
 	  Scalar lap_bh(mp_bh) ;
 	  lap_bh = 1./sqrt(1.+2.*mass/rr) ;
 	  lap_bh.std_spectral_base() ;
@@ -272,7 +393,7 @@ double Bin_bhns::mass_adm_bhns() const {
 
 	  cout << "Another ADM mass :   " << mmm / msol << " [Mo]"
 	       << endl ;
-
+	  */
 	}
 	else { // Isotropic coordinates with the maximal slicing
 
@@ -284,34 +405,37 @@ double Bin_bhns::mass_adm_bhns() const {
 	  // --------------------------------------------------------
 	  double cc ;
 
-	  if (hole.has_bc_lapse_nd()) {  // Neumann boundary condition
-	      if (hole.has_bc_lapse_fs()) {  // First condition
-	          // d\alpha/dr = 0
-	          // --------------
-	          cc = 2. ;
+	  if (hole.has_bc_lapconf_nd()) {  // Neumann boundary condition
+	      if (hole.has_bc_lapconf_fs()) {  // First condition
+	          // d(\alpha \psi)/dr = 0
+	          // ---------------------
+	          cc = 2. * (sqrt(13.) - 1.) / 3. ;
 	      }
 	      else {  // Second condition
-	          // d\alpha/dr = \alpha/(2 rah)
-	          // ---------------------------
-	          cc = 0.5 * (sqrt(17.) - 1.) ;
+	          // d(\alpha \psi)/dr = (\alpha \psi)/(2 rah)
+	          // -----------------------------------------
+	          cc = 4. / 3. ;
 	      }
 	  }
 	  else {  // Dirichlet boundary condition
-	      if (hole.has_bc_lapse_fs()) {  // First condition
-	          // \alpha = 1/2
-	          // ------------
-	          cc = 2. ;
+	      if (hole.has_bc_lapconf_fs()) {  // First condition
+	          // (\alpha \psi) = 1/2
+	          // -------------------
+		  cout << "!!!!! WARNING: Not yet prepared !!!!!" << endl ;
+		  abort() ;
 	      }
 	      else {  // Second condition
-	          // \alpha = 1/sqrt(2.)
-	          // -------------------
-	          cc = 2. * sqrt(2.) ;
+	          // (\alpha \psi) = 1/sqrt(2.) \psi_KS
+	          // ----------------------------------
+		  cout << "!!!!! WARNING: Not yet prepared !!!!!" << endl ;
+		  abort() ;
+		  //	          cc = 2. * sqrt(2.) ;
 	      }
 	  }
 
 	  Scalar r_are(mp_bh) ;
-	  r_are = hole.r_coord(hole.has_bc_lapse_nd(),
-			       hole.has_bc_lapse_fs()) ;
+	  r_are = hole.r_coord(hole.has_bc_lapconf_nd(),
+			       hole.has_bc_lapconf_fs()) ;
 	  r_are.std_spectral_base() ;
 
 	  // Surface integral <- dzpuis should be 0
@@ -323,11 +447,11 @@ double Bin_bhns::mass_adm_bhns() const {
 	  lldllsh_zero.dec_dzpuis(2) ;
 
 	  source_bh_surf = confo_bh / rr
-	    - pow(confo_bh, 3.) * (divshift_zero - 3.*lldllsh_zero)
-	    /6./lapse_bh
-	    - pow(confo_bh, 3.) * mass * mass * cc
+	    - pow(confo_bh, 4.) * (divshift_zero - 3.*lldllsh_zero)
+	    /6./lapconf_bh
+	    - pow(confo_bh, 4.) * mass * mass * cc
 	    * sqrt(1. -2.*mass/r_are/rr + cc*cc*pow(mass/r_are/rr,4.))
-	    / lapse_bh / pow(r_are*rr,3.) ;
+	    / lapconf_bh / pow(r_are*rr,3.) ;
 
 	  source_bh_surf.std_spectral_base() ;
 	  source_bh_surf.annule_domain(0) ;
@@ -338,16 +462,16 @@ double Bin_bhns::mass_adm_bhns() const {
 	  // Volume integral <- dzpuis should be 4
 	  // -------------------------------------
 	  Scalar sou_bh1(mp_bh) ;
-	  sou_bh1 = 1.5 * pow(confo_bh,5.) * pow(mass*mass*cc,2.)
+	  sou_bh1 = 1.5 * pow(confo_bh,7.) * pow(mass*mass*cc,2.)
 	    * (1. - 2.*mass/r_are/rr + cc*cc*pow(mass/r_are/rr,4.))
-	    / lapse_bh / lapse_bh / pow(r_are*rr,6.) ;
+	    / lapconf_bh / lapconf_bh / pow(r_are*rr,6.) ;
 	  sou_bh1.std_spectral_base() ;
 	  sou_bh1.inc_dzpuis(4) ;
 
 	  source_bh_volm = 0.25 * taij_quad_auto_bh / pow(confo_bh,7.)
 	    + 0.25 * taij_quad_comp_bh
-	    * (pow(confo_bh/(confo_bh_comp+0.5),5.)
-	       *pow((lapse_bh_comp+0.5)/lapse_bh,2.)
+	    * (pow(confo_bh/(confo_bh_comp+0.5),7.)
+	       *pow((lapconf_bh_comp+0.5)/lapconf_bh,2.)
 	       - 1.) / pow(confo_bh_comp+0.5,7.)
 	    + sou_bh1 ;
 
@@ -384,62 +508,152 @@ double Bin_bhns::mass_adm_bhns() const {
 	  //------------------
 	  madm = (integ_bh_s + integ_bh_v) / qpig + integ_ns_v ;
 
-	  cout << "ADM mass :           " << madm / msol << " [Mo]"
-	       << endl ;
-
-	  // ADM mass by surface integral at infinity : dzpuis should be 2
-	  // ----------------------------------------
-	  const Scalar& confo_bh_auto_rs = hole.get_confo_auto_rs() ;
-	  /*
-	  Scalar lldconf_iso = confo_bh_auto_rs.dsdr()
-	    + ll(1)*dconfo_bh_comp(1)
-	    + ll(2)*dconfo_bh_comp(2)
-	    + ll(3)*dconfo_bh_comp(3) ;  // dzpuis = 2
-	  lldconf_iso.std_spectral_base() ;
-	  */
-
-	  Scalar lldconf_iso = confo_bh_auto_rs.dsdr() ;  // dzpuis = 2
-	  lldconf_iso.std_spectral_base() ;
-
-	  Scalar anoth(mp_bh) ;
-	  anoth = 0.5 * sqrt(r_are)
-	    * (sqrt(1. -2.*mass/r_are/rr + cc*cc*pow(mass/r_are/rr,4.))
-	       - 1.) / rr ;
-	  anoth.std_spectral_base() ;
-	  anoth.annule_domain(0) ;
-	  anoth.inc_dzpuis(2) ;
-
-	  Scalar lldconf_ns = confo_ns_auto.dsdr() ;  // dzpuis = 2
-	  lldconf_ns.std_spectral_base() ;
-
-	  double mmm =
-	    - 2.*(mp_aff.integrale_surface_infini(lldconf_iso+anoth))/qpig
-	    - 2.*(mp_ns_aff.integrale_surface_infini(lldconf_ns))/qpig ;
-
-	  cout << "Another ADM mass :   " << mmm / msol << " [Mo]"
+	  cout << "ADM mass (volume) :    " << madm / msol << " [Mo]"
 	       << endl ;
 
 	}
 
-	p_mass_adm_bhns = new double( madm ) ;
+	p_mass_adm_bhns_vol = new double( madm ) ;
 
     }
 
-    return *p_mass_adm_bhns ;
+    return *p_mass_adm_bhns_vol ;
 
 }
+
+
 
                //------------------------------//
                //          Komar mass          //
                //------------------------------//
 
-double Bin_bhns::mass_kom_bhns() const {
+double Bin_bhns::mass_kom_bhns_surf() const {
 
     // Fundamental constants and units
     // -------------------------------
     using namespace Unites ;
 
-    if (p_mass_kom_bhns == 0x0) {   // a new computation is required
+    if (p_mass_kom_bhns_surf == 0x0) {   // a new computation is required
+
+        double mkom ;
+
+	const Map& mp_bh = hole.get_mp() ;
+        const Map& mp_ns = star.get_mp() ;
+
+	Map_af mp_aff(mp_bh) ;
+	Map_af mp_ns_aff(mp_ns) ;
+
+	Scalar rr(mp_bh) ;
+	rr = mp_bh.r ;
+	rr.std_spectral_base() ;
+
+	double mass = ggrav * hole.get_mass_bh() ;
+
+	if (hole.is_kerrschild()) {
+
+	  cout << "!!!!! WARNING: Not yet available !!!!!" << endl ;
+	  abort() ;
+
+	}
+	else { // Isotropic coordinates with the maximal slicing
+
+	  //-------------------------------------
+	  //     Integration over the BH map
+	  //-------------------------------------
+
+	  // Sets C/M^2 for each case of the lapse boundary condition
+	  // --------------------------------------------------------
+	  double cc ;
+
+	  if (hole.has_bc_lapconf_nd()) {  // Neumann boundary condition
+	      if (hole.has_bc_lapconf_fs()) {  // First condition
+	          // d(\alpha \psi)/dr = 0
+	          // ---------------------
+	          cc = 2. * (sqrt(13.) - 1.) / 3. ;
+	      }
+	      else {  // Second condition
+	          // d(\alpha \psi)/dr = (\alpha \psi)/(2 rah)
+	          // -----------------------------------------
+	          cc = 4. / 3. ;
+	      }
+	  }
+	  else {  // Dirichlet boundary condition
+	      if (hole.has_bc_lapconf_fs()) {  // First condition
+	          // (\alpha \psi) = 1/2
+	          // -------------------
+		  cout << "!!!!! WARNING: Not yet prepared !!!!!" << endl ;
+		  abort() ;
+	      }
+	      else {  // Second condition
+	          // (\alpha \psi) = 1/sqrt(2.) \psi_KS
+	          // ----------------------------------
+		  cout << "!!!!! WARNING: Not yet prepared !!!!!" << endl ;
+		  abort() ;
+		  //	          cc = 2. * sqrt(2.) ;
+	      }
+	  }
+
+	  Scalar r_are(mp_bh) ;
+	  r_are = hole.r_coord(hole.has_bc_lapconf_nd(),
+			       hole.has_bc_lapconf_fs()) ;
+	  r_are.std_spectral_base() ;
+
+	  // Komar mass by surface integral at infinity : dzpuis should be 2
+	  // ------------------------------------------
+	  const Scalar& lapconf_bh_auto_rs = hole.get_lapconf_auto_rs() ;
+	  const Scalar& confo_bh_auto_rs = hole.get_confo_auto_rs() ;
+
+	  Scalar lldlap_bh(mp_bh) ;
+	  lldlap_bh = lapconf_bh_auto_rs.dsdr()
+	    - confo_bh_auto_rs.dsdr() ; // dzpuis = 2
+	  lldlap_bh.std_spectral_base() ;
+
+	  Scalar anoth(mp_bh) ;
+	  anoth = sqrt(r_are) * (1. - 1.5 *cc*cc*pow(mass/r_are/rr,4.)
+				 - sqrt(1. - 2.*mass/r_are/rr
+					+ cc*cc*pow(mass/r_are/rr,4.))) / rr ;
+	  anoth.std_spectral_base() ;
+	  anoth.annule_domain(0) ;
+	  anoth.raccord(1) ;
+	  anoth.inc_dzpuis(2) ;
+
+	  const Scalar& lapconf_ns_auto = star.get_lapconf_auto() ;
+	  const Scalar& confo_ns_auto = star.get_confo_auto() ;
+
+	  Scalar lldlap_ns(mp_ns) ;
+	  lldlap_ns = lapconf_ns_auto.dsdr() - confo_ns_auto.dsdr() ;
+	  lldlap_ns.std_spectral_base() ; // dzpuis = 2
+
+	  mkom =
+	    (mp_aff.integrale_surface_infini(lldlap_bh+anoth))/qpig
+	    + (mp_ns_aff.integrale_surface_infini(lldlap_ns))/qpig ;
+
+	  cout << "Komar mass (surface) : " << mkom / msol << " [Mo]"
+	       << endl ;
+
+	}
+
+	p_mass_kom_bhns_surf = new double( mkom ) ;
+
+    }
+
+    return *p_mass_kom_bhns_surf ;
+
+}
+
+
+
+               //------------------------------//
+               //          Komar mass          //
+               //------------------------------//
+
+double Bin_bhns::mass_kom_bhns_vol() const {
+
+    // Fundamental constants and units
+    // -------------------------------
+    using namespace Unites ;
+
+    if (p_mass_kom_bhns_vol == 0x0) {   // a new computation is required
 
         double mkom ;
 	double integ_bh_s ;
@@ -481,15 +695,15 @@ double Bin_bhns::mass_kom_bhns() const {
 
 	Vector ll(mp_bh, CON, mp_bh.get_bvect_cart()) ;
 	ll.set_etat_qcq() ;
-	ll.set(1) = st * cp ;
-	ll.set(2) = st * sp ;
+	ll.set(1) = st % cp ;
+	ll.set(2) = st % sp ;
 	ll.set(3) = ct ;
 	ll.std_spectral_base() ;
 
-	const Scalar& lapse_bh = hole.get_lapse_tot() ;
-	const Scalar& lapse_bh_auto_rs = hole.get_lapse_auto_rs() ;
-	const Scalar& lapse_bh_comp = hole.get_lapse_comp() ;
-	const Vector& dlapse_bh_comp = hole.get_d_lapse_comp() ;
+	const Scalar& lapconf_bh = hole.get_lapconf_tot() ;
+	const Scalar& lapconf_bh_auto_rs = hole.get_lapconf_auto_rs() ;
+	const Scalar& lapconf_bh_comp = hole.get_lapconf_comp() ;
+	const Vector& dlapconf_bh_comp = hole.get_d_lapconf_comp() ;
 	const Scalar& confo_bh = hole.get_confo_tot() ;
 	const Scalar& confo_bh_auto_rs = hole.get_confo_auto_rs() ;
 	const Scalar& confo_bh_comp = hole.get_confo_comp() ;
@@ -500,43 +714,86 @@ double Bin_bhns::mass_kom_bhns() const {
 	const Scalar& taij_quad_auto_bh = hole.get_taij_quad_auto() ;
 	const Scalar& taij_quad_comp_bh = hole.get_taij_quad_comp() ;
 
-	const Scalar& lapse_ns = star.get_lapse_tot() ;
-	const Scalar& psi4_ns = star.get_psi4() ;
+	const Vector& shift_auto_rs = hole.get_shift_auto_rs() ;
+	const Vector& shift_comp = hole.get_shift_comp() ;
+	const Tensor& dshift_comp = hole.get_d_shift_comp() ;
+
+	Scalar divshift(mp_bh) ;  // dzpuis = 2
+	divshift = shift_auto_rs(1).deriv(1) + shift_auto_rs(2).deriv(2)
+	  + shift_auto_rs(3).deriv(3) + dshift_comp(1,1)
+	  + dshift_comp(2,2) + dshift_comp(3,3) ;
+	divshift.std_spectral_base() ;
+
+	Scalar llshift_auto(mp_bh) ;   // dzpuis = 0
+        llshift_auto = ll(1)%shift_auto_rs(1) + ll(2)%shift_auto_rs(2)
+          + ll(3)%shift_auto_rs(3) ;
+        llshift_auto.std_spectral_base() ;
+
+	Scalar lldllsh = llshift_auto.dsdr()
+          + ll(1) * (ll(1) % dshift_comp(1,1) + ll(2) % dshift_comp(1,2)
+                     + ll(3) % dshift_comp(1,3))
+          + ll(2) * (ll(1) % dshift_comp(2,1) + ll(2) % dshift_comp(2,2)
+                     + ll(3) % dshift_comp(2,3))
+          + ll(3) * (ll(1) % dshift_comp(3,1) + ll(2) % dshift_comp(3,2)
+                     + ll(3) % dshift_comp(3,3)) ;  // dzpuis = 2
+        lldllsh.std_spectral_base() ;
+
+	const Scalar& lapconf_ns = star.get_lapconf_tot() ;
 	const Scalar& ener_euler = star.get_ener_euler() ;
 	const Scalar& s_euler = star.get_s_euler() ;
 
 	const Scalar& confo_ns = star.get_confo_tot() ;
-	const Scalar& lapse_ns_auto = star.get_lapse_auto() ;
+	const Scalar& lapconf_ns_auto = star.get_lapconf_auto() ;
 	const Scalar& confo_ns_auto = star.get_confo_auto() ;
 	const Vector& dconfo_ns_comp = star.get_d_confo_comp() ;
 	const Scalar& taij_quad_auto_ns = star.get_taij_quad_auto() ;
 
-	Scalar lldlap = lapse_bh_auto_rs.dsdr() + ll(1)*dlapse_bh_comp(1)
-	  + ll(2)*dlapse_bh_comp(2) + ll(3)*dlapse_bh_comp(3) ;  // dzpuis = 2
-	lldlap.std_spectral_base() ;
+	const Vector& dlapconf_bh_auto_rs = hole.get_d_lapconf_auto_rs() ;
+	/*
+	Vector dlc_bh_auto_rs(mp_bh, COV, mp_bh.get_bvect_cart()) ;
+	dlc_bh_auto_rs.set_etat_qcq() ;
+	for (int i=1; i<=3; i++) {
+	  dlc_bh_auto_rs.set(i) = lapconf_bh_auto_rs.deriv(i) ;
+	}
+	dlc_bh_auto_rs.std_spectral_base() ;
+	*/
 
-	Scalar dlapdlcf(mp_bh) ;  // dzpuis = 4
-	dlapdlcf = ( (lapse_bh_auto_rs.deriv(1)+dlapse_bh_comp(1))
-		     *(confo_bh_auto_rs.deriv(1)+dconfo_bh_comp(1))
-		     + (lapse_bh_auto_rs.deriv(2)+dlapse_bh_comp(2))
-		     *(confo_bh_auto_rs.deriv(2)+dconfo_bh_comp(2))
-		     + (lapse_bh_auto_rs.deriv(3)+dlapse_bh_comp(3))
-		     *(confo_bh_auto_rs.deriv(3)+dconfo_bh_comp(3)) )
-	  /confo_bh ;
-	dlapdlcf.std_spectral_base() ;
+	const Vector& dconfo_bh_auto_rs = hole.get_d_confo_auto_rs() ;
+	/*
+	Vector dc_bh_auto_rs(mp_bh, COV, mp_bh.get_bvect_cart()) ;
+	dc_bh_auto_rs.set_etat_qcq() ;
+	for (int i=1; i<=3; i++) {
+	  dc_bh_auto_rs.set(i) = confo_bh_auto_rs.deriv(i) ;
+	}
+	dc_bh_auto_rs.std_spectral_base() ;
+	*/
 
-	Scalar lldlconf(mp_bh) ;  // dzpuis = 2
-	lldlconf = (ll(1)*(confo_bh_auto_rs.deriv(1)+dconfo_bh_comp(1))
-		    + ll(2)*(confo_bh_auto_rs.deriv(2)+dconfo_bh_comp(2))
-		    + ll(3)*(confo_bh_auto_rs.deriv(3)+dconfo_bh_comp(3))
-		    ) / confo_bh ;
+	const Vector& dlapconf_ns_auto = star.get_d_lapconf_auto() ;
+	/*
+	Vector dlc_ns_auto(mp_ns, COV, mp_ns.get_bvect_cart()) ;
+	dlc_ns_auto.set_etat_qcq() ;
+	for (int i=1; i<=3; i++) {
+	  dlc_ns_auto.set(i) = lapconf_ns_auto.deriv(i) ;
+	}
+	dlc_ns_auto.std_spectral_base() ;
+	*/
 
-	lldlconf.std_spectral_base() ;
-
+	const Vector& dconfo_ns_auto = star.get_d_confo_auto() ;
+	/*
+	Vector dc_ns_auto(mp_ns, COV, mp_ns.get_bvect_cart()) ;
+	dc_ns_auto.set_etat_qcq() ;
+	for (int i=1; i<=3; i++) {
+	  dc_ns_auto.set(i) = confo_ns_auto.deriv(i) ;
+	}
+	dc_ns_auto.std_spectral_base() ;
+	*/
 	double mass = ggrav * hole.get_mass_bh() ;
 
 	if (hole.is_kerrschild()) {
 
+	  cout << "!!!!! WARNING: Not yet available !!!!!" << endl ;
+	  abort() ;
+	  /*
 	  const Vector& shift_auto_rs = hole.get_shift_auto_rs() ;
 	  const Vector& shift_comp = hole.get_shift_comp() ;
 
@@ -655,7 +912,7 @@ double Bin_bhns::mass_kom_bhns() const {
 	    + (mp_aff.integrale_surface_infini(lldlap))/qpig ;
 
 	  cout << "Another Komar mass : " << mmm / msol << " [Mo]"  << endl ;
-
+	  */
 	}
 	else { // Isotropic coordinates with the maximal slicing
 
@@ -667,66 +924,109 @@ double Bin_bhns::mass_kom_bhns() const {
 	  // --------------------------------------------------------
 	  double cc ;
 
-	  if (hole.has_bc_lapse_nd()) {  // Neumann boundary condition
-	      if (hole.has_bc_lapse_fs()) {  // First condition
-	          // d\alpha/dr = 0
-	          // --------------
-	          cc = 2. ;
+	  if (hole.has_bc_lapconf_nd()) {  // Neumann boundary condition
+	      if (hole.has_bc_lapconf_fs()) {  // First condition
+	          // d(\alpha \psi)/dr = 0
+	          // ---------------------
+	          cc = 2. * (sqrt(13.) - 1.) / 3. ;
 	      }
 	      else {  // Second condition
-	          // d\alpha/dr = \alpha/(2 rah)
-	          // ---------------------------
-	          cc = 0.5 * (sqrt(17.) - 1.) ;
+	          // d(\alpha \psi)/dr = (\alpha \psi)/(2 rah)
+	          // -----------------------------------------
+	          cc = 4. / 3. ;
 	      }
 	  }
 	  else {  // Dirichlet boundary condition
-	      if (hole.has_bc_lapse_fs()) {  // First condition
-	          // \alpha = 1/2
-	          // ------------
-	          cc = 2. ;
+	      if (hole.has_bc_lapconf_fs()) {  // First condition
+	          // (\alpha \psi) = 1/2
+	          // -------------------
+		  cout << "!!!!! WARNING: Not yet prepared !!!!!" << endl ;
+		  abort() ;
 	      }
 	      else {  // Second condition
-	          // \alpha = 1/sqrt(2.)
-	          // -------------------
-	          cc = 2. * sqrt(2.) ;
+	          // (\alpha \psi) = 1/sqrt(2.) \psi_KS
+	          // ----------------------------------
+		  cout << "!!!!! WARNING: Not yet prepared !!!!!" << endl ;
+		  abort() ;
+		  //	          cc = 2. * sqrt(2.) ;
 	      }
 	  }
 
 	  Scalar r_are(mp_bh) ;
-	  r_are = hole.r_coord(hole.has_bc_lapse_nd(),
-			       hole.has_bc_lapse_fs()) ;
+	  r_are = hole.r_coord(hole.has_bc_lapconf_nd(),
+			       hole.has_bc_lapconf_fs()) ;
 	  r_are.std_spectral_base() ;
+
+	  Scalar lldlapconf_is(mp_bh) ;
+	  lldlapconf_is = ll(1)%dlapconf_bh_auto_rs(1)
+	    + ll(2)%dlapconf_bh_auto_rs(2) + ll(3)%dlapconf_bh_auto_rs(3)
+	    + ll(1)%dlapconf_bh_comp(1) + ll(2)%dlapconf_bh_comp(2)
+	    + ll(3)%dlapconf_bh_comp(3) ;
+	  // dzpuis = 2
+	  lldlapconf_is.std_spectral_base() ;
 
 	  // Surface integral <- dzpuis should be 0
 	  // --------------------------------------
+	  Scalar divshift_zero(divshift) ;
+	  divshift_zero.dec_dzpuis(2) ;
 
-	  if (hole.has_bc_lapse_nd()) {  // Neumann boundary condition
-	      if (hole.has_bc_lapse_fs()) {  // First condition
+	  Scalar lldllsh_zero(lldllsh) ;
+	  lldllsh_zero.dec_dzpuis(2) ;
 
-		source_bh_surf = 0. ;
+	  Scalar sou_bh_s_psi(mp_bh) ;
+	  sou_bh_s_psi = 0.5 * confo_bh / rr
+	    - pow(confo_bh, 4.) * (divshift_zero - 3.*lldllsh_zero)
+	    / 12. / lapconf_bh
+	    - 0.5 * pow(confo_bh, 4.) * mass * mass * cc
+	    * sqrt(1. -2.*mass/r_are/rr + cc*cc*pow(mass/r_are/rr,4.))
+	    / lapconf_bh / pow(r_are*rr,3.) ;
+
+	  sou_bh_s_psi.std_spectral_base() ;
+	  sou_bh_s_psi.annule_domain(0) ;
+	  sou_bh_s_psi.raccord(1) ;
+
+	  if (hole.has_bc_lapconf_nd()) {  // Neumann boundary condition
+	      if (hole.has_bc_lapconf_fs()) {  // First condition
+
+		source_bh_surf = sou_bh_s_psi ;
+
 		source_bh_surf.std_spectral_base() ;
+		source_bh_surf.annule_domain(0) ;
+		source_bh_surf.raccord(1) ;
 
 	      }
 	      else {
 
-		source_bh_surf = 0.5 * lapse_bh / rr ;
+		Scalar sou_bh_s1(mp_bh) ;
+		sou_bh_s1 = 0.5 * lapconf_bh / rr ;
+		sou_bh_s1.std_spectral_base() ;
+		sou_bh_s1.annule_domain(0) ;
+		sou_bh_s1.raccord(1) ;
+
+		source_bh_surf = sou_bh_s1 + sou_bh_s_psi ;
+
 		source_bh_surf.std_spectral_base() ;
+		source_bh_surf.annule_domain(0) ;
+		source_bh_surf.raccord(1) ;
 
 	      }
 	  }
 	  else {
 
 	      Scalar sou_bh_s1(mp_bh) ;
-	      sou_bh_s1 = lldlap ;
+	      sou_bh_s1 = lldlapconf_is ;
 	      sou_bh_s1.std_spectral_base() ;
 	      sou_bh_s1.dec_dzpuis(2) ;
 
 	      Scalar sou_bh_s2(mp_bh) ;
-	      sou_bh_s2 = (mass/r_are/rr - 2.*cc*cc*pow(mass/r_are/rr,4.))
-		/ rr ;
+	      sou_bh_s2 = 0.5 * sqrt(r_are)
+		* (1. - 3.*cc*cc*pow(mass/r_are/rr,4.)
+		   -sqrt(1. - 2.*mass/r_are/rr
+			 + cc*cc*pow(mass/r_are/rr,4.))) / rr ;
+
 	      sou_bh_s2.std_spectral_base() ;
 
-	      source_bh_surf = sou_bh_s1 + sou_bh_s2 ;
+	      source_bh_surf = sou_bh_s1 + sou_bh_s2 + sou_bh_s_psi ;
 
 	      source_bh_surf.std_spectral_base() ;
 	      source_bh_surf.annule_domain(0) ;
@@ -738,68 +1038,35 @@ double Bin_bhns::mass_kom_bhns() const {
 
 	  // Volume integral <- dzpuis should be 4
 	  // -------------------------------------
-	  Scalar lldlap_is = (lapse_bh_auto_rs.dsdr()
-			      + ll(1)*dlapse_bh_comp(1)
-			      + ll(2)*dlapse_bh_comp(2)
-			      + ll(3)*dlapse_bh_comp(3));  // dzpuis = 2
-	  lldlap_is.std_spectral_base() ;
-
-	  Scalar dlapdlcf_is(mp_bh) ;  // dzpuis = 4
-	  dlapdlcf_is = ( lapse_bh_auto_rs.deriv(1)
-			  *(confo_bh_auto_rs.deriv(1)+dconfo_bh_comp(1))
-			  + lapse_bh_auto_rs.deriv(2)
-			  *(confo_bh_auto_rs.deriv(2)+dconfo_bh_comp(2))
-			  + lapse_bh_auto_rs.deriv(3)
-			  *(confo_bh_auto_rs.deriv(3)+dconfo_bh_comp(3))
-			  + dlapse_bh_comp(1) * confo_bh_auto_rs.deriv(1)
-			  + dlapse_bh_comp(2) * confo_bh_auto_rs.deriv(2)
-			  + dlapse_bh_comp(3) * confo_bh_auto_rs.deriv(3) )
-	    /confo_bh ;
-	  dlapdlcf_is.std_spectral_base() ;
-
 	  Scalar sou_bh1(mp_bh) ;
-	  sou_bh1 = 6. * pow(confo_bh,4.) * pow(mass*mass*cc,2.)
+	  sou_bh1 = 0.75 * pow(mass*mass*cc,2.)
 	    * (1. - 2.*mass/r_are/rr + cc*cc*pow(mass/r_are/rr,4.))
-	    / lapse_bh / pow(r_are*rr,6.) ;
+	    * (7.*pow(confo_bh,6.)/lapconf_bh
+	       + pow(confo_bh,7.)/lapconf_bh/lapconf_bh)
+	    / pow(r_are*rr,6.) ;
+
 	  sou_bh1.std_spectral_base() ;
 	  sou_bh1.inc_dzpuis(4) ;
 
-	  Scalar tmp(mp_bh) ;
-	  tmp = sqrt(1. - 2.*mass/r_are/rr + cc*cc*pow(mass/r_are/rr,4.)) ;
-	  tmp.std_spectral_base() ;
-
 	  Scalar sou_bh2(mp_bh) ;
-	  sou_bh2 = -sqrt(r_are) * (tmp - 1.) * lldlap_is / rr / confo_bh ;
+	  sou_bh2 = 0.125 * (7.*lapconf_bh/pow(confo_bh,8.)
+			     + 1./pow(confo_bh,7.)) * taij_quad_auto_bh ;
+
 	  sou_bh2.std_spectral_base() ;
-	  sou_bh2.inc_dzpuis(2) ;
 
 	  Scalar sou_bh3(mp_bh) ;
-	  sou_bh3 = -2. * (mass/r_are/rr - 2.*cc*cc*pow(mass/r_are/rr,4.))
-	    * lldlconf / rr ;
+	  sou_bh3 = 0.125 * (7.*((lapconf_bh_comp+0.5)/lapconf_bh
+				 * pow(confo_bh/(confo_bh_comp+0.5),6.) - 1.)
+			     * (lapconf_bh_comp+0.5)
+			     / pow(confo_bh_comp+0.5,8.)
+			     + (pow(confo_bh/(confo_bh_comp+0.5),7.)
+				*pow((lapconf_bh_comp+0.5)/lapconf_bh,2.)
+				- 1.) / pow(confo_bh_comp+0.5,7))
+	    * taij_quad_comp_bh ;
+
 	  sou_bh3.std_spectral_base() ;
-	  sou_bh3.inc_dzpuis(2) ;
 
-	  Scalar sou_bh4(mp_bh) ;
-	  sou_bh4 = -sqrt(r_are) * (tmp - 1.)
-	    * (mass/r_are/rr - 2.*cc*cc*pow(mass/r_are/rr,4.))
-	    / rr / rr / confo_bh ;
-	  sou_bh4.std_spectral_base() ;
-	  sou_bh4.inc_dzpuis(4) ;
-
-	  Scalar sou_bh5(mp_bh) ;
-	  sou_bh5 = -2. * (1. - confo_bh / (confo_bh_comp+0.5))
-	    * (dlapse_bh_comp(1) * dconfo_bh_comp(1)
-	       + dlapse_bh_comp(2) * dconfo_bh_comp(2)
-	       + dlapse_bh_comp(3) * dconfo_bh_comp(3)) /confo_bh ;
-	  sou_bh5.std_spectral_base() ;
-
-	  source_bh_volm = lapse_bh * taij_quad_auto_bh / pow(confo_bh,8.)
-	    + (lapse_bh_comp+0.5) * taij_quad_comp_bh
-	    * (pow(confo_bh/(confo_bh_comp+0.5),4.)
-	       *(lapse_bh_comp+0.5)/lapse_bh - 1.) / pow(confo_bh_comp+0.5,8.)
-	    - 2. * dlapdlcf_is + sou_bh1 + sou_bh2 + sou_bh3 + sou_bh4
-	    + sou_bh5 ;
-
+	  source_bh_volm = sou_bh1 + sou_bh2 + sou_bh3 ;
 	  source_bh_volm.std_spectral_base() ;
 	  source_bh_volm.annule_domain(0) ;
 
@@ -812,22 +1079,18 @@ double Bin_bhns::mass_kom_bhns() const {
 	  // Volume integral <- dzpuis should be 4
 	  // -------------------------------------
 	  Scalar sou_ns1(mp_ns) ;
-	  sou_ns1 = lapse_ns * psi4_ns * (ener_euler + s_euler) ;
+	  sou_ns1 = 0.5 * pow(confo_ns,4.) * (lapconf_ns + confo_ns)
+	    * ener_euler + lapconf_ns * pow(confo_ns,4.) * s_euler ;
 	  sou_ns1.std_spectral_base() ;
 	  sou_ns1.inc_dzpuis(4) ;
 
 	  Scalar sou_ns2(mp_ns) ;
-	  sou_ns2 = (lapse_ns_auto+0.5) * taij_quad_auto_ns
-	    / pow(confo_ns_auto+0.5, 8.) / qpig ;
+	  sou_ns2 = 0.125 * (7.*(lapconf_ns_auto+0.5)/(confo_ns_auto+0.5)
+			     + 1.) * taij_quad_auto_ns
+	    / pow(confo_ns_auto+0.5, 7.) / qpig ;
 	  sou_ns2.std_spectral_base() ;
 
-	  Scalar sou_ns3(mp_ns) ;
-	  sou_ns3 = -2. * ( lapse_ns_auto.deriv(1)*confo_ns_auto.deriv(1)
-			    + lapse_ns_auto.deriv(2)*confo_ns_auto.deriv(2)
-			    + lapse_ns_auto.deriv(3)*confo_ns_auto.deriv(3) )
-	    / (confo_ns_auto+0.5) / qpig ;
-
-	  source_ns_volm = sou_ns1 + sou_ns2 + sou_ns3 ;
+	  source_ns_volm = sou_ns1 + sou_ns2 ;
 	  source_ns_volm.std_spectral_base() ;
 
 	  integ_ns_v = source_ns_volm.integrale() ;
@@ -842,36 +1105,16 @@ double Bin_bhns::mass_kom_bhns() const {
 	  //--------------------
 	  mkom = (integ_bh_s + integ_bh_v) / qpig + integ_ns_v ;
 
-	  cout << "Komar mass :         " << mkom / msol << " [Mo]"
-	       << endl ;
-
-	  // Komar mass by surface integral at infinity : dzpuis should be 2
-	  // ------------------------------------------
-	  Scalar lldlap_bh = lapse_bh_auto_rs.dsdr() ; // dzpuis = 2
-	  lldlap_bh.std_spectral_base() ;
-
-	  Scalar anoth(mp_bh) ;
-	  anoth = (mass/r_are/rr - 2.*cc*cc*pow(mass/r_are/rr,4.)) / rr ;
-	  anoth.std_spectral_base() ;
-	  anoth.inc_dzpuis(2) ;
-
-	  Scalar lldlap_ns = lapse_ns_auto.dsdr() ; // dzpuis = 2
-	  lldlap_ns.std_spectral_base() ;
-
-	  double mmm =
-	    (mp_aff.integrale_surface_infini(lldlap_bh+anoth))/qpig
-	    + (mp_ns_aff.integrale_surface_infini(lldlap_ns))/qpig ;
-
-	  cout << "Another Komar mass : " << mmm / msol << " [Mo]"
+	  cout << "Komar mass (volume) :  " << mkom / msol << " [Mo]"
 	       << endl ;
 
 	}
 
-	p_mass_kom_bhns = new double( mkom ) ;
+	p_mass_kom_bhns_vol = new double( mkom ) ;
 
     }
 
-    return *p_mass_kom_bhns ;
+    return *p_mass_kom_bhns_vol ;
 
 }
 
@@ -1227,8 +1470,8 @@ const Tbl& Bin_bhns::line_mom_bhns() const {
 
 	  Vector ll(mp_bh, CON, mp_bh.get_bvect_cart()) ;
 	  ll.set_etat_qcq() ;
-	  ll.set(1) = st * cp ;
-	  ll.set(2) = st * sp ;
+	  ll.set(1) = st % cp ;
+	  ll.set(2) = st % sp ;
 	  ll.set(3) = ct ;
 	  ll.std_spectral_base() ;
 
@@ -1415,8 +1658,8 @@ const Tbl& Bin_bhns::angu_mom_bhns() const {
 
 	Vector ll(mp_bh, CON, mp_bh.get_bvect_cart()) ;
 	ll.set_etat_qcq() ;
-	ll.set(1) = st * cp ;
-	ll.set(2) = st * sp ;
+	ll.set(1) = st % cp ;
+	ll.set(2) = st % sp ;
 	ll.set(3) = ct ;
 	ll.std_spectral_base() ;
 
@@ -1708,37 +1951,41 @@ const Tbl& Bin_bhns::angu_mom_bhns() const {
 	  // --------------------------------------------------------
 	  double cc ;
 
-	  if (hole.has_bc_lapse_nd()) {  // Neumann boundary condition
-	      if (hole.has_bc_lapse_fs()) {  // First condition
-	          // d\alpha/dr = 0
-	          // --------------
-	          cc = 2. ;
+	  if (hole.has_bc_lapconf_nd()) {  // Neumann boundary condition
+	      if (hole.has_bc_lapconf_fs()) {  // First condition
+	          // d(\alpha \psi)/dr = 0
+	          // ---------------------
+	          cc = 2. * (sqrt(13.) - 1.) / 3. ;
 	      }
 	      else {  // Second condition
-	          // d\alpha/dr = \alpha/(2 rah)
-	          // ---------------------------
-	          cc = 0.5 * (sqrt(17.) - 1.) ;
+	          // d(\alpha \psi)/dr = (\alpha \psi)/(2 rah)
+	          // -----------------------------------------
+	          cc = 4. / 3. ;
 	      }
 	  }
 	  else {  // Dirichlet boundary condition
-	      if (hole.has_bc_lapse_fs()) {  // First condition
-	          // \alpha = 1/2
-	          // ------------
-	          cc = 2. ;
+	      if (hole.has_bc_lapconf_fs()) {  // First condition
+	          // (\alpha \psi) = 1/2
+	          // -------------------
+		  cout << "!!!!! WARNING: Not yet prepared !!!!!" << endl ;
+		  abort() ;
 	      }
 	      else {  // Second condition
-	          // \alpha = 1/sqrt(2.)
-	          // -------------------
-	          cc = 2. * sqrt(2.) ;
+	          // (\alpha \psi) = 1/sqrt(2.) \psi_KS
+	          // ----------------------------------
+		  cout << "!!!!! WARNING: Not yet prepared !!!!!" << endl ;
+		  abort() ;
+		  //	          cc = 2. * sqrt(2.) ;
 	      }
 	  }
 
 	  Scalar r_are(mp_bh) ;
-	  r_are = hole.r_coord(hole.has_bc_lapse_nd(),
-			       hole.has_bc_lapse_fs()) ;
+	  r_are = hole.r_coord(hole.has_bc_lapconf_nd(),
+			       hole.has_bc_lapconf_fs()) ;
 	  r_are.std_spectral_base() ;
 
-	  const Scalar& lapse_bh = hole.get_lapse_tot() ;
+	  const Scalar& lapconf_bh = hole.get_lapconf_tot() ;
+	  const Scalar& confo_bh = hole.get_confo_tot() ;
 	  const Sym_tensor& taij_rs = hole.get_taij_tot_rs() ;
 
 	  Vector jbh_rs_x(mp_bh, CON, mp_bh.get_bvect_cart()) ;
@@ -1763,9 +2010,9 @@ const Tbl& Bin_bhns::angu_mom_bhns() const {
 	  jbh_rs_z.std_spectral_base() ;
 
 	  Scalar tmp(mp_bh) ;
-	  tmp = - 2. * mass * mass * cc * pow(confo_bh,6.)
+	  tmp = - 2. * mass * mass * cc * pow(confo_bh,7.)
 	    * sqrt(1. - 2.*mass/r_are/rr + cc*cc*pow(mass/r_are/rr,4.))
-	    / lapse_bh / pow(r_are*rr,3.) ;
+	    / lapconf_bh / pow(r_are*rr,3.) ;
 	  tmp.std_spectral_base() ;
 
 	  //-------------//
@@ -1779,13 +2026,13 @@ const Tbl& Bin_bhns::angu_mom_bhns() const {
 	  // Surface integral <- dzpuis should be 0
 	  // --------------------------------------
 	  Scalar sou_bh_sx1(mp_bh) ;
-	  sou_bh_sx1 = jbh_rs_x(1)*ll(1) + jbh_rs_x(2)*ll(2)
-	    + jbh_rs_x(3)*ll(3) ;
+	  sou_bh_sx1 = jbh_rs_x(1)%ll(1) + jbh_rs_x(2)%ll(2)
+	    + jbh_rs_x(3)%ll(3) ;
 	  sou_bh_sx1.std_spectral_base() ;
 	  sou_bh_sx1.dec_dzpuis(2) ;  // dzpuis : 2 -> 0
 
 	  Scalar sou_bh_sx2(mp_bh) ;
-	  sou_bh_sx2 = tmp * (yy_bh * ll(3) - zz_bh * ll(2)) ;
+	  sou_bh_sx2 = tmp * (yy_bh % ll(3) - zz_bh % ll(2)) ;
 	  sou_bh_sx2.std_spectral_base() ;
 
 	  source_bh_surf = sou_bh_sx1 + sou_bh_sx2 ;
@@ -1824,13 +2071,13 @@ const Tbl& Bin_bhns::angu_mom_bhns() const {
 	  // Surface integral <- dzpuis should be 0
 	  // --------------------------------------
 	  Scalar sou_bh_sy1(mp_bh) ;
-	  sou_bh_sy1 = jbh_rs_y(1)*ll(1) + jbh_rs_y(2)*ll(2)
-	    + jbh_rs_y(3)*ll(3) ;
+	  sou_bh_sy1 = jbh_rs_y(1)%ll(1) + jbh_rs_y(2)%ll(2)
+	    + jbh_rs_y(3)%ll(3) ;
 	  sou_bh_sy1.std_spectral_base() ;
 	  sou_bh_sy1.dec_dzpuis(2) ;  // dzpuis : 2 -> 0
 
 	  Scalar sou_bh_sy2(mp_bh) ;
-	  sou_bh_sy2 = tmp * (zz_bh * ll(1) - xx_bh * ll(3)) ;
+	  sou_bh_sy2 = tmp * (zz_bh % ll(1) - xx_bh % ll(3)) ;
 	  sou_bh_sy2.std_spectral_base() ;
 
 	  source_bh_surf = sou_bh_sy1 + sou_bh_sy2 ;
@@ -1869,13 +2116,13 @@ const Tbl& Bin_bhns::angu_mom_bhns() const {
 	  // Surface integral <- dzpuis should be 0
 	  // --------------------------------------
 	  Scalar sou_bh_sz1(mp_bh) ;
-	  sou_bh_sz1 = jbh_rs_z(1)*ll(1) + jbh_rs_z(2)*ll(2)
-	    + jbh_rs_z(3)*ll(3) ;
+	  sou_bh_sz1 = jbh_rs_z(1)%ll(1) + jbh_rs_z(2)%ll(2)
+	    + jbh_rs_z(3)%ll(3) ;
 	  sou_bh_sz1.std_spectral_base() ;
 	  sou_bh_sz1.dec_dzpuis(2) ;  // dzpuis : 2 -> 0
 
 	  Scalar sou_bh_sz2(mp_bh) ;
-	  sou_bh_sz2 = tmp * (xx_bh * ll(2) - yy_bh * ll(1)) ;
+	  sou_bh_sz2 = tmp * (xx_bh % ll(2) - yy_bh % ll(1)) ;
 	  sou_bh_sz2.std_spectral_base() ;
 
 	  source_bh_surf = sou_bh_sz1 + sou_bh_sz2 ;
@@ -1915,20 +2162,34 @@ const Tbl& Bin_bhns::angu_mom_bhns() const {
                //          Error on the virial theorem          //
                //-----------------------------------------------//
 
-double Bin_bhns::virial_bhns() const {
+double Bin_bhns::virial_bhns_surf() const {
 
-    if (p_virial_bhns == 0x0) {   // a new computation is required
+    if (p_virial_bhns_surf == 0x0) {   // a new computation is required
 
-      double virial = 1. - mass_kom_bhns() / mass_adm_bhns() ;
+      double virial = 1. - mass_kom_bhns_surf() / mass_adm_bhns_surf() ;
 
-      p_virial_bhns = new double( virial ) ;
+      p_virial_bhns_surf = new double( virial ) ;
 
     }
 
-    return *p_virial_bhns ;
+    return *p_virial_bhns_surf ;
 
 }
 
+
+double Bin_bhns::virial_bhns_vol() const {
+
+    if (p_virial_bhns_vol == 0x0) {   // a new computation is required
+
+      double virial = 1. - mass_kom_bhns_vol() / mass_adm_bhns_vol() ;
+
+      p_virial_bhns_vol = new double( virial ) ;
+
+    }
+
+    return *p_virial_bhns_vol ;
+
+}
 
                //--------------------------------------------------//
                //          X coordinate of the barycenter          //
