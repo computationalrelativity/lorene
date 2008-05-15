@@ -4,7 +4,7 @@
  */
 
 /*
- *   Copyright (c) 2005-2006 Keisuke Taniguchi
+ *   Copyright (c) 2005-2007 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/05/15 18:50:06  k_taniguchi
+ * Addition of new global quantities.
+ *
  * Revision 1.1  2007/06/22 01:03:50  k_taniguchi
  * *** empty log message ***
  *
@@ -83,11 +86,25 @@ class Bin_bhns {
     // Derived data : 
     // ------------
     protected:
-	/// Total ADM mass of the system
-	mutable double* p_mass_adm_bhns ;
+	/** Total ADM mass of the system calculated by the surface integral
+	 *  at infinity
+	 */
+	mutable double* p_mass_adm_bhns_surf ;
 
-	/// Total Komar mass of the system
-	mutable double* p_mass_kom_bhns ;
+	/** Total ADM mass of the system calculated by the volume integral
+	 *  and the surface integral at the apparent horizon
+	 */
+	mutable double* p_mass_adm_bhns_vol ;
+
+	/** Total Komar mass of the system calculated by the surface integral
+	 *  at infinity
+	 */
+	mutable double* p_mass_kom_bhns_surf ;
+
+	/** Total Komar mass of the system calculated by the volume integral
+	 *  and the surface integral at the apparent horizon
+	 */
+	mutable double* p_mass_kom_bhns_vol ;
 
 	/// Total linear momentum of the system
 	mutable Tbl* p_line_mom_bhns ;
@@ -95,8 +112,15 @@ class Bin_bhns {
 	/// Total angular momentum of the system
 	mutable Tbl* p_angu_mom_bhns ;
 
-	/// Virial theorem error
-	mutable double* p_virial_bhns ;
+	/** Virial theorem error calculated by the ADM mass and the Komar
+	 *  mass of the surface integral at infinity
+	 */
+	mutable double* p_virial_bhns_surf ;
+
+	/** Virial theorem error calculated by the ADM mass and the Komar
+	 *  mass of the volume integral
+	 */
+	mutable double* p_virial_bhns_vol ;
 
 	/// Absolute coordinate X of the barycenter of the baryon density
 	mutable double* p_xa_barycenter ;
@@ -237,10 +261,14 @@ class Bin_bhns {
     public:
 
 	/// Total ADM mass
-	double mass_adm_bhns() const ;
+	double mass_adm_bhns_surf() const ;
+
+	double mass_adm_bhns_vol() const ;
 
 	/// Total Komar mass
-	double mass_kom_bhns() const ;
+	double mass_kom_bhns_surf() const ;
+
+	double mass_kom_bhns_vol() const ;
 
 	/** Total linear momentum.
 	 *
@@ -263,7 +291,12 @@ class Bin_bhns {
 	/** Estimates the relative error on the virial theorem
 	 *  $|1 - M_{\rm Komar} / M_{\rm ADM}|$
 	 */
-	double virial_bhns() const ;
+	double virial_bhns_surf() const ;
+
+	/** Estimates the relative error on the virial theorem
+	 *  $|1 - M_{\rm Komar} / M_{\rm ADM}|$
+	 */
+	double virial_bhns_vol() const ;
 
 	/// Absolute coordinate X of the barycenter of the baryon density
 	double xa_barycenter() const ;
