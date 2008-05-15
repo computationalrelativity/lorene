@@ -7,7 +7,7 @@
  */
 
 /*
- *   Copyright (c) 2006 Keisuke Taniguchi
+ *   Copyright (c) 2006-2007 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -31,6 +31,9 @@ char star_bhns_omega_tp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/05/15 19:00:27  k_taniguchi
+ * Change of some parameters.
+ *
  * Revision 1.1  2007/06/22 01:10:00  k_taniguchi
  * *** empty log message ***
  *
@@ -64,7 +67,8 @@ double Bin_bhns::omega_two_points() const {
 
         double omega_two ;
 
-	const Scalar& lapse = star.get_lapse_tot() ;
+	const Scalar& lapconf = star.get_lapconf_tot() ;
+	const Scalar& confo = star.get_confo_tot() ;
 	const Scalar& psi4 = star.get_psi4() ;
 	const Vector& shift = star.get_shift_tot() ;
 	const Scalar& gam = star.get_gam() ;
@@ -76,14 +80,18 @@ double Bin_bhns::omega_two_points() const {
 
 	double psi4_a = psi4.val_grid_point(0,ka,jj,ii) ;
 	double psi4_b = psi4.val_grid_point(0,kb,jj,ii) ;
+	double con2_a = confo.val_grid_point(0,ka,jj,ii)
+	  * confo.val_grid_point(0,ka,jj,ii) ;
+	double con2_b = confo.val_grid_point(0,kb,jj,ii)
+	  * confo.val_grid_point(0,kb,jj,ii) ;
 	double gam2_a = gam.val_grid_point(0,ka,jj,ii)
 	  * gam.val_grid_point(0,ka,jj,ii) ;
 	double gam2_b = gam.val_grid_point(0,kb,jj,ii)
 	  * gam.val_grid_point(0,kb,jj,ii) ;
-	double lap2_a = lapse.val_grid_point(0,ka,jj,ii)
-	  * lapse.val_grid_point(0,ka,jj,ii) ;
-	double lap2_b = lapse.val_grid_point(0,kb,jj,ii)
-	  * lapse.val_grid_point(0,kb,jj,ii) ;
+	double lap2_a = lapconf.val_grid_point(0,ka,jj,ii)
+	  * lapconf.val_grid_point(0,ka,jj,ii) ;
+	double lap2_b = lapconf.val_grid_point(0,kb,jj,ii)
+	  * lapconf.val_grid_point(0,kb,jj,ii) ;
 	double shiftx_a = shift(1).val_grid_point(0,ka,jj,ii) ;
 	double shiftx_b = shift(1).val_grid_point(0,kb,jj,ii) ;
 	double shifty_a = shift(2).val_grid_point(0,ka,jj,ii) ;
@@ -99,6 +107,9 @@ double Bin_bhns::omega_two_points() const {
 
 	if (hole.is_kerrschild()) {
 
+	    cout << "!!!!! WARNING: Not yet available !!!!!" << endl ;
+	    abort() ;
+	    /*
 	    double y_separ = (star.get_mp()).get_ori_y() ;
 	    double xbh_rot = (hole.get_mp()).get_ori_x() - x_rot ;
 	    double mass = ggrav * hole.get_mass_bh() ;
@@ -164,7 +175,7 @@ double Bin_bhns::omega_two_points() const {
 		omega_two = omega_1 ;
 
 	    }
-
+	    */
 	}
 	else {  // Isotropic coordinates with the maximal slicing
 
@@ -183,7 +194,7 @@ double Bin_bhns::omega_two_points() const {
 	    double aaa = psi4_a * gam2_a * ua - psi4_b * gam2_b * ub ;
 	    double bbb = psi4_a * gam2_a * ta - psi4_b * gam2_b * tb ;
 	    double ccc = psi4_a * gam2_a * sa - psi4_b * gam2_b * sb
-	      - lap2_a * gam2_a + lap2_b * gam2_b ;
+	      - lap2_a * gam2_a / con2_a + lap2_b * gam2_b / con2_b ;
 
 	    // Term inside the square root : ddd = bbb*bbb - aaa*ccc
 	    // -----------------------------------------------------

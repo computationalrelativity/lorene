@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2005-2006 Keisuke Taniguchi
+ *   Copyright (c) 2005-2007 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,9 @@ char hole_bhns_extr_curv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/05/15 19:05:49  k_taniguchi
+ * Change of some parameters.
+ *
  * Revision 1.1  2007/06/22 01:24:56  k_taniguchi
  * *** empty log message ***
  *
@@ -83,8 +86,8 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
 
     Vector ll(mp, CON, mp.get_bvect_cart()) ;
     ll.set_etat_qcq() ;
-    ll.set(1) = st * cp ;
-    ll.set(2) = st * sp ;
+    ll.set(1) = st % cp ;
+    ll.set(2) = st % sp ;
     ll.set(3) = ct ;
     ll.std_spectral_base() ;
 
@@ -133,7 +136,8 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
 
 	for (int i=1; i<=3; i++) {
 	    for (int j=1; j<=3; j++) {
-	        curv_taij.set(i,j) = -2. * lapse_auto_bh * lapse_auto_bh * mass
+	        curv_taij.set(i,j) =
+		  -2. * lapconf_auto_bh * lapconf_auto_bh * mass
 		  * (ll(i) * (shift_auto_rs(j).dsdr()
 			      + ll(1)*d_shift_comp(1,j)
 			      + ll(2)*d_shift_comp(2,j)
@@ -153,11 +157,12 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
 
 	for (int i=1; i<=3; i++) {
 	    for (int j=1; j<=3; j++) {
-	        resi_taij.set(i,j) = 2. * lapse_auto_bh * lapse_auto_bh * mass
+	        resi_taij.set(i,j) =
+		  2. * lapconf_auto_bh * lapconf_auto_bh * mass
 		  * ( ll(i) * (shift_auto_rs(j) + shift_comp(j))
 		      + ll(j) * (shift_auto_rs(i) + shift_comp(i))
 		      + ( flat.con()(i,j)
-			  - lapse_auto_bh*lapse_auto_bh
+			  - lapconf_auto_bh*lapconf_auto_bh
 			  *(9.+14.*mass/rr)*ll(i)*ll(j) )
 		      * ( ll(1) * (shift_auto_rs(1) + shift_comp(1))
 			  + ll(2) * (shift_auto_rs(2) + shift_comp(2))
@@ -169,8 +174,8 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
 	resi_taij.std_spectral_base() ;
 	resi_taij.inc_dzpuis(2) ;
 
-	taij_tot_rs = 0.5 * pow(confo_tot, 6.)
-	  * (flat_taij + curv_taij + resi_taij) / lapse_tot ;
+	taij_tot_rs = 0.5 * pow(confo_tot, 7.)
+	  * (flat_taij + curv_taij + resi_taij) / lapconf_tot ;
 
 	taij_tot_rs.std_spectral_base() ;
 	taij_tot_rs.annule_domain(0) ;
@@ -179,14 +184,14 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
 
 	for (int i=1; i<=3; i++) {
 	    for (int j=1; j<=3; j++) {
-	        taij_tot_rot.set(i,j) = pow(confo_tot,6.)
-		  * lapse_auto_bh * lapse_auto_bh * mass
+	        taij_tot_rot.set(i,j) = pow(confo_tot,7.)
+		  * lapconf_auto_bh * lapconf_auto_bh * mass
 		  * ( ll(i) * uv(j) + ll(j) * uv(i)
 		      + ( flat.con()(i,j)
-			  - lapse_auto_bh*lapse_auto_bh
+			  - lapconf_auto_bh*lapconf_auto_bh
 			  *(9.+14.*mass/rr)*ll(i)*ll(j) )
 		      * (ll(2)*orb_rot_x - ll(1)*orb_rot_y) / 3. )
-		  / lapse_tot / rr / rr ;
+		  / lapconf_tot / rr / rr ;
 	    }
 	}
 
@@ -198,11 +203,11 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
 
 	for (int i=1; i<=3; i++) {
 	    for (int j=1; j<=3; j++) {
-	        taij_tot_bh.set(i,j) = 2. * pow(confo_tot,6.)
-		  * pow(lapse_auto_bh,6.) * mass * (2.+3.*mass/rr)
+	        taij_tot_bh.set(i,j) = 2. * pow(confo_tot,7.)
+		  * pow(lapconf_auto_bh,6.) * mass * (2.+3.*mass/rr)
 		  * ( (1.+2.*mass/rr)*flat.con()(i,j)
 		      - (3.+2.*mass/rr) * ll(i) * ll(j) )
-		  / 3. / lapse_tot / rr / rr ;
+		  / 3. / lapconf_tot / rr / rr ;
 	    }
 	}
 
@@ -296,7 +301,7 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
 
 	for (int i=1; i<=3; i++) {
 	    for (int j=1; j<=3; j++) {
-	        tmp2.set(i,j) = 2. * mass * lapse_auto_bh * lapse_auto_bh
+	        tmp2.set(i,j) = 2. * mass * lapconf_auto_bh * lapconf_auto_bh
 		  * ( ll(1) * (shift_auto_rs(1) + shift_comp(1))
 		      + ll(2) * (shift_auto_rs(2) + shift_comp(2))
 		      + ll(3) * (shift_auto_rs(3) + shift_comp(3)) )
@@ -311,8 +316,8 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
 	Sym_tensor taij_down_rs(mp, COV, mp.get_bvect_cart()) ;
 	taij_down_rs.set_etat_qcq() ;
 
-	taij_down_rs = 0.5 * pow(confo_tot,6.)
-	  * (flat_dshift + curv_dshift + tmp1 + tmp2) / lapse_tot ;
+	taij_down_rs = 0.5 * pow(confo_tot,7.)
+	  * (flat_dshift + curv_dshift + tmp1 + tmp2) / lapconf_tot ;
 
 	taij_down_rs.std_spectral_base() ;
 	taij_down_rs.annule_domain(0) ;
@@ -322,12 +327,12 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
 
 	for (int i=1; i<=3; i++) {
 	    for (int j=1; j<=3; j++) {
-	      taij_down_rot.set(i,j) = mass * pow(confo_tot,6.)
+	      taij_down_rot.set(i,j) = mass * pow(confo_tot,7.)
 		* ( ll(j)*uv(i) + ll(i)*uv(j)
-		    + lapse_auto_bh * lapse_auto_bh
+		    + lapconf_auto_bh * lapconf_auto_bh
 		    * (ll(2)*orb_rot_x - ll(1)*orb_rot_y)
 		    * ( flat.cov()(i,j) - (9.+16.*mass/rr)*ll(i)*ll(j) ) / 3.
-		    ) / lapse_tot / rr / rr ;
+		    ) / lapconf_tot / rr / rr ;
 	    }
 	}
 	taij_down_rot.std_spectral_base() ;
@@ -339,10 +344,10 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
 
 	for (int i=1; i<=3; i++) {
 	    for (int j=1; j<=3; j++) {
-	      taij_down_bh.set(i,j) = 2. * mass * pow(confo_tot,6.)
-		* pow(lapse_auto_bh,4.) * (2.+3.*mass/rr)
+	      taij_down_bh.set(i,j) = 2. * mass * pow(confo_tot,7.)
+		* pow(lapconf_auto_bh,4.) * (2.+3.*mass/rr)
 		* (flat.cov()(i,j) - (3.+4.*mass/rr) * ll(i) * ll(j))
-		/ 3. / lapse_auto / rr / rr ;
+		/ 3. / lapconf_auto / rr / rr ;
 	    }
 	}
 	taij_down_bh.std_spectral_base() ;
@@ -373,22 +378,22 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
 	taij_quad_tot_rs = taij_quad_rstot + taij_quad_rsrotbh ;
 	taij_quad_tot_rs.std_spectral_base() ;
 
-	taij_quad_tot_rot = 8.*mass*mass*pow(confo_tot,12.)
-	  * pow(lapse_auto_bh,6.) * (2.+3.*mass/rr)
+	taij_quad_tot_rot = 8.*mass*mass*pow(confo_tot,14.)
+	  * pow(lapconf_auto_bh,6.) * (2.+3.*mass/rr)
 	  * (ll(2)*orb_rot_x - ll(1)*orb_rot_y)
-	  / 3. / lapse_tot / lapse_tot / pow(rr,4.)
-	  + 2.*mass*mass*pow(confo_tot,12.)*pow(lapse_auto_bh,4.)
+	  / 3. / lapconf_tot / lapconf_tot / pow(rr,4.)
+	  + 2.*mass*mass*pow(confo_tot,14.)*pow(lapconf_auto_bh,4.)
 	  * (3.*(1.+2.*mass/rr)*(orb_rot_x*orb_rot_x+orb_rot_y*orb_rot_y)
 	     -2.*(1.+3.*mass/rr)*(ll(2)*orb_rot_x-ll(1)*orb_rot_y)
 	     *(ll(2)*orb_rot_x-ll(1)*orb_rot_y))
-	  / 3. / lapse_tot / lapse_tot / pow(rr,4.) ;
+	  / 3. / lapconf_tot / lapconf_tot / pow(rr,4.) ;
 
 	taij_quad_tot_rot.std_spectral_base() ;
 	taij_quad_tot_rot.inc_dzpuis(4) ;
 
-	taij_quad_tot_bh = 8.*mass*mass*pow(confo_tot,12.)
-	  * pow(lapse_auto_bh,8.) * (2.+3.*mass/rr) * (2.+3.*mass/rr)
-	  / 3. / lapse_tot / lapse_tot / pow(rr,4.) ;
+	taij_quad_tot_bh = 8.*mass*mass*pow(confo_tot,14.)
+	  * pow(lapconf_auto_bh,8.) * (2.+3.*mass/rr) * (2.+3.*mass/rr)
+	  / 3. / lapconf_tot / lapconf_tot / pow(rr,4.) ;
 
 	taij_quad_tot_bh.std_spectral_base() ;
 	taij_quad_tot_bh.inc_dzpuis(4) ;
@@ -404,33 +409,36 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
         // --------------------------------------------------------
         double cc ;
 
-	if (bc_lapse_nd) {  // Neumann boundary condition
-	    if (bc_lapse_fs) {  // First condition
-	        // d\alpha/dr = 0
-	        // --------------
-	        cc = 2. ;
+	if (bc_lapconf_nd) {  // Neumann boundary condition
+	    if (bc_lapconf_fs) {  // First condition
+	        // d(\alpha \psi)/dr = 0
+	        // ---------------------
+	        cc = 2. * (sqrt(13.) - 1.) / 3. ;
 	    }
 	    else {  // Second condition
-	        // d\alpha/dr = \alpha/(2 rah)
-	        // ---------------------------
-	        cc = 0.5 * (sqrt(17.) - 1.) ;
+	        // d(\alpha \psi)/dr = (\alpha \psi)/(2 rah)
+	        // -----------------------------------------
+	        cc = 4. / 3. ;
 	    }
 	}
 	else {  // Dirichlet boundary condition
-	    if (bc_lapse_fs) {  // First condition
-	        // \alpha = 1/2
-	        // ------------
-	        cc = 2. ;
+	    if (bc_lapconf_fs) {  // First condition
+	        // (\alpha \psi) = 1/2
+	        // -------------------
+	        cout << "!!!!! WARNING: Not yet prepared !!!!!" << endl ;
+		abort() ;
 	    }
 	    else {  // Second condition
-	        // \alpha = 1/sqrt(2.)
-	        // -------------------
-	        cc = 2. * sqrt(2.) ;
+	        // (\alpha \psi) = 1/sqrt(2.) \psi_KS
+	        // ----------------------------------
+	        cout << "!!!!! WARNING: Not yet prepared !!!!!" << endl ;
+		abort() ;
+		//	        cc = 2. * sqrt(2.) ;
 	    }
 	}
 
 	Scalar r_are(mp) ;
-	r_are = r_coord(bc_lapse_nd, bc_lapse_fs) ;
+	r_are = r_coord(bc_lapconf_nd, bc_lapconf_fs) ;
 	r_are.std_spectral_base() ;
 
         // Computation of \tilde{A}^{ij}
@@ -444,36 +452,57 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
 	        flat_taij.set(i,j) = shift_auto_rs(j).deriv(i)
 		  + shift_auto_rs(i).deriv(j) + d_shift_comp(i,j)
 		  + d_shift_comp(j,i)
-		  - 2. * divshift * flat.con()(i,j) / 3. ;
+		  - 2. * divshift % flat.con()(i,j) / 3. ;
 	    }
 	}
 
 	flat_taij.std_spectral_base() ;
 
-	taij_tot_rs = 0.5 * pow(confo_tot, 6.) * flat_taij / lapse_tot ;
+	taij_tot_rs = 0.5 * pow(confo_tot, 7.) * flat_taij / lapconf_tot ;
 
 	taij_tot_rs.std_spectral_base() ;
 	taij_tot_rs.annule_domain(0) ;
+
+	if (taij_tot_rs(1,2).get_etat() == ETATQCQ) {
+	  for (int i=1; i<=3; i++) {
+	    for (int j=1; j<=3; j++) {
+	      taij_tot_rs.set(i,j).raccord(1) ;
+	    }
+	  }
+	}
 
 	taij_tot_bh.set_etat_qcq() ;
 
 	for (int i=1; i<=3; i++) {
 	    for (int j=1; j<=3; j++) {
-	        taij_tot_bh.set(i,j) = pow(confo_tot,6.)*mass*mass*cc
+	        taij_tot_bh.set(i,j) = pow(confo_tot,7.)*mass*mass*cc
 		  * sqrt(1. - 2.*mass/r_are/rr + cc*cc*pow(mass/r_are/rr,4.))
-		  * (flat.con()(i,j) - 3.*ll(i)*ll(j)) / lapse_tot
+		  * (flat.con()(i,j) - 3.*ll(i)*ll(j)) / lapconf_tot
 		  / pow(r_are*rr,3.) ;
 	    }
 	}
 
 	taij_tot_bh.std_spectral_base() ;
 	taij_tot_bh.annule_domain(0) ;
+
+	for (int i=1; i<=3; i++) {
+	  for (int j=1; j<=3; j++) {
+	    taij_tot_bh.set(i,j).raccord(1) ;
+	  }
+	}
+
 	taij_tot_bh.inc_dzpuis(2) ;
 
 	taij_tot = taij_tot_rs + taij_tot_bh ;
 
 	taij_tot.std_spectral_base() ;
 	taij_tot.annule_domain(0) ;
+
+	for (int i=1; i<=3; i++) {
+	  for (int j=1; j<=3; j++) {
+	    taij_tot.set(i,j).raccord(1) ;
+	  }
+	}
 
 	for (int i=1; i<=3; i++) {
 	    for (int j=1; j<=3; j++) {
@@ -497,23 +526,36 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
 	    for (int j=1; j<=3; j++) {
 	        flat_taij_auto_rs.set(i,j) = shift_auto_rs(j).deriv(i)
 		  + shift_auto_rs(i).deriv(j)
-		  - 2. * divshift_auto * flat.con()(i,j) / 3. ;
+		  - 2. * divshift_auto % flat.con()(i,j) / 3. ;
 	    }
 	}
 
 	flat_taij_auto_rs.std_spectral_base() ;
 
-	taij_auto_rs = 0.5 * pow(confo_tot, 6.) * flat_taij_auto_rs
-	  / lapse_tot ;
+	taij_auto_rs = 0.5 * pow(confo_tot, 7.) * flat_taij_auto_rs
+	  / lapconf_tot ;
 
 	taij_auto_rs.std_spectral_base() ;
 	taij_auto_rs.annule_domain(0) ;
+
+	if (taij_auto_rs(1,2).get_etat() == ETATQCQ) {
+	  for (int i=1; i<=3; i++) {
+	    for (int j=1; j<=3; j++) {
+	      taij_auto_rs.set(i,j).raccord(1) ;
+	    }
+	  }
+	}
 
 	taij_auto = taij_auto_rs + taij_tot_bh ;
 
 	taij_auto.std_spectral_base() ;
 	taij_auto.annule_domain(0) ;
 
+	for (int i=1; i<=3; i++) {
+	  for (int j=1; j<=3; j++) {
+	    taij_auto.set(i,j).raccord(1) ;
+	  }
+	}
 
 	// Computation of \tilde{A}_{NS}^{ij}
 	// ----------------------------------
@@ -530,18 +572,25 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
 	    for (int j=1; j<=3; j++) {
 	        flat_taij_comp.set(i,j) = d_shift_comp(i,j)
 		  + d_shift_comp(j,i)
-		  - 2. * divshift_comp * flat.con()(i,j) / 3. ;
+		  - 2. * divshift_comp % flat.con()(i,j) / 3. ;
 	    }
 	}
 
 	flat_taij_comp.std_spectral_base() ;
 
-	taij_comp = 0.5 * pow(confo_comp+0.5, 6.) * flat_taij_comp
-	  / (lapse_comp+0.5) ;
+	taij_comp = 0.5 * pow(confo_comp+0.5, 7.) * flat_taij_comp
+	  / (lapconf_comp+0.5) ;
 
 	taij_comp.std_spectral_base() ;
 	taij_comp.annule_domain(0) ;
 
+	if (taij_comp(1,2).get_etat() == ETATQCQ) {
+	  for (int i=1; i<=3; i++) {
+	    for (int j=1; j<=3; j++) {
+	      taij_comp.set(i,j).raccord(1) ;
+	    }
+	  }
+	}
 
 	// Computation of \tilde{A}^{ij} \tilde{A}_{ij}
 	// --------------------------------------------
@@ -571,7 +620,7 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
 	Sym_tensor taij_down_rs(mp, COV, mp.get_bvect_cart()) ;
 	taij_down_rs.set_etat_qcq() ;
 
-	taij_down_rs = 0.5 * pow(confo_tot, 6.) * flat_dshift / lapse_tot ;
+	taij_down_rs = 0.5 * pow(confo_tot, 7.) * flat_dshift / lapconf_tot ;
 
 	taij_down_rs.std_spectral_base() ;
 	taij_down_rs.annule_domain(0) ;
@@ -581,14 +630,21 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
 
 	for (int i=1; i<=3; i++) {
 	    for (int j=1; j<=3; j++) {
-	        taij_down_bh.set(i,j) = pow(confo_tot,6.)*mass*mass*cc
+	        taij_down_bh.set(i,j) = pow(confo_tot,7.)*mass*mass*cc
 		  * sqrt(1. - 2.*mass/r_are/rr + cc*cc*pow(mass/r_are/rr,4.))
-		  * (flat.cov()(i,j) - 3.*ll(i)*ll(j)) / lapse_tot
+		  * (flat.cov()(i,j) - 3.*ll(i)%ll(j)) / lapconf_tot
 		  / pow(r_are*rr,3.) ;
 	    }
 	}
 	taij_down_bh.std_spectral_base() ;
 	taij_down_bh.annule_domain(0) ;
+
+	for (int i=1; i<=3; i++) {
+	  for (int j=1; j<=3; j++) {
+	    taij_down_bh.set(i,j).raccord(1) ;
+	  }
+	}
+
 	taij_down_bh.inc_dzpuis(2) ;
 
 	Scalar taij_quad_rstot(mp) ;
@@ -596,7 +652,7 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
 
 	for (int i=1; i<=3; i++) {
 	    for (int j=1; j<=3; j++) {
-	        taij_quad_rstot += taij_down_rs(i,j) * taij_tot(i,j) ;
+	        taij_quad_rstot += taij_down_rs(i,j) % taij_tot(i,j) ;
 	    }
 	}
 	taij_quad_rstot.std_spectral_base() ;
@@ -606,7 +662,7 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
 
 	for (int i=1; i<=3; i++) {
 	    for (int j=1; j<=3; j++) {
-	        taij_quad_rsbh += taij_tot_rs(i,j) * taij_down_bh(i,j) ;
+	        taij_quad_rsbh += taij_tot_rs(i,j) % taij_down_bh(i,j) ;
 	    }
 	}
 	taij_quad_rsbh.std_spectral_base() ;
@@ -617,16 +673,19 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
 	taij_quad_tot_rot = 0. ;
 	taij_quad_tot_rot.std_spectral_base() ;
 
-	taij_quad_tot_bh = 6.*pow(confo_tot,12.)*pow(mass*mass*cc,2.)
+	taij_quad_tot_bh = 6.*pow(confo_tot,14.)*pow(mass*mass*cc,2.)
 	  * (1. - 2.*mass/r_are/rr + cc*cc*pow(mass/r_are/rr,4.))
-	  / lapse_tot / lapse_tot / pow(r_are*rr, 6.) ;
+	  / lapconf_tot / lapconf_tot / pow(r_are*rr, 6.) ;
 	taij_quad_tot_bh.std_spectral_base() ;
 	taij_quad_tot_bh.annule_domain(0) ;
+	taij_quad_tot_bh.raccord(1) ;
+
 	taij_quad_tot_bh.inc_dzpuis(4) ;
 
 	taij_quad_tot = taij_quad_tot_rs + taij_quad_tot_bh ;
 	taij_quad_tot.std_spectral_base() ;
-
+	taij_quad_tot.annule_domain(0) ;
+	taij_quad_tot.raccord(1) ;
 
 	// -------------------------
 	Scalar taij_quad_auto1(mp) ;
@@ -635,8 +694,8 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
 	    for (int j=1; j<=3; j++) {
 	        taij_quad_auto1 += taij_auto_rs(i,j)
 		  * (taij_down_rs(i,j)
-		     + pow(confo_tot/(confo_comp+0.5),6.)*(lapse_comp+0.5)
-		     * taij_comp(i,j) / lapse_tot) ;
+		     + pow(confo_tot/(confo_comp+0.5),7.)*(lapconf_comp+0.5)
+		     * taij_comp(i,j) / lapconf_tot) ;
 	    }
 	}
 	taij_quad_auto1.std_spectral_base() ;
@@ -645,13 +704,17 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
 	taij_quad_auto2 = 0. ;
 	for (int i=1; i<=3; i++) {
 	    for (int j=1; j<=3; j++) {
-	        taij_quad_auto2 += taij_tot_bh(i,j) * taij_down_rs(i,j) ;
+	        taij_quad_auto2 += taij_tot_bh(i,j) % taij_down_rs(i,j) ;
 	    }
 	}
 	taij_quad_auto2.std_spectral_base() ;
 
 	taij_quad_auto = taij_quad_auto1 + 2.*taij_quad_auto2 ;
 	taij_quad_auto.std_spectral_base() ;
+	taij_quad_auto.annule_domain(0) ;
+	if (taij_quad_auto.get_etat() == ETATQCQ) {
+	    taij_quad_auto.raccord(1) ;
+	}
 
 	// Computation of \tilde{A}_{NS}^{ij} \tilde{A}^{NS}_{ij}
 	// ------------------------------------------------------
@@ -659,7 +722,7 @@ void Hole_bhns::extr_curv_bhns(double omega_orb, double x_rot, double y_rot) {
 	taij_quad_comp = 0. ;
 	for (int i=1; i<=3; i++) {
 	    for (int j=1; j<=3; j++) {
-	      taij_quad_comp += taij_comp(i,j) * taij_comp(i,j) ;
+	      taij_quad_comp += taij_comp(i,j) % taij_comp(i,j) ;
 	    }
 	}
 	taij_quad_comp.std_spectral_base() ;

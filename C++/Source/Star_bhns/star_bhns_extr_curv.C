@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2005-2006 Keisuke Taniguchi
+ *   Copyright (c) 2005-2007 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,9 @@ char star_bhns_extr_curv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/05/15 19:14:24  k_taniguchi
+ * Change of some parameters.
+ *
  * Revision 1.1  2007/06/22 01:31:05  k_taniguchi
  * *** empty log message ***
  *
@@ -69,8 +72,8 @@ void Star_bhns::extr_curv_bhns() {
     }
     flat_taij.std_spectral_base() ;
 
-    taij_auto = 0.5 * pow(confo_auto+0.5, 6.) * flat_taij
-      / (lapse_auto+0.5) ;
+    taij_auto = 0.5 * pow(confo_auto+0.5, 7.) * flat_taij
+      / (lapconf_auto+0.5) ;
     taij_auto.std_spectral_base() ;
 
 
@@ -83,13 +86,13 @@ void Star_bhns::extr_curv_bhns() {
     for (int i=1; i<=3; i++) {
         for (int j=1; j<=3; j++) {
 	    flat_dshift.set(i,j) =
-	      flat.cov()(j,1) * d_shift_auto(i,1)
-	      + flat.cov()(j,2) * d_shift_auto(i,2)
-	      + flat.cov()(j,3) * d_shift_auto(i,3)
-	      + flat.cov()(i,1) * d_shift_auto(j,1)
-	      + flat.cov()(i,2) * d_shift_auto(j,2)
-	      + flat.cov()(i,3) * d_shift_auto(j,3)
-	      - 2. * divshift * flat.cov()(i,j) / 3. ;
+	      flat.cov()(j,1) % d_shift_auto(i,1)
+	      + flat.cov()(j,2) % d_shift_auto(i,2)
+	      + flat.cov()(j,3) % d_shift_auto(i,3)
+	      + flat.cov()(i,1) % d_shift_auto(j,1)
+	      + flat.cov()(i,2) % d_shift_auto(j,2)
+	      + flat.cov()(i,3) % d_shift_auto(j,3)
+	      - 2. * divshift % flat.cov()(i,j) / 3. ;
 	}
     }
     flat_dshift.std_spectral_base() ;
@@ -97,15 +100,15 @@ void Star_bhns::extr_curv_bhns() {
     Sym_tensor taij_down(mp, COV, mp.get_bvect_cart()) ;
     taij_down.set_etat_qcq() ;
 
-    taij_down = 0.5 * pow(confo_auto+0.5, 6.) * flat_dshift
-      / (lapse_auto+0.5) ;
+    taij_down = 0.5 * pow(confo_auto+0.5, 7.) * flat_dshift
+      / (lapconf_auto+0.5) ;
     taij_down.std_spectral_base() ;
 
     taij_quad_auto = 0. ;
 
     for (int i=1; i<=3; i++) {
         for (int j=1; j<=3; j++) {
-	    taij_quad_auto += taij_down(i,j) * taij_auto(i,j) ;
+	    taij_quad_auto += taij_down(i,j) % taij_auto(i,j) ;
 	}
     }
 

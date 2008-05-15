@@ -7,7 +7,7 @@
  */
 
 /*
- *   Copyright (c) 2006 Keisuke Taniguchi
+ *   Copyright (c) 2006-2007 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -31,6 +31,9 @@ char star_bhns_upmetr_der_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/05/15 19:18:17  k_taniguchi
+ * Change of some parameters.
+ *
  * Revision 1.1  2007/06/22 01:32:55  k_taniguchi
  * *** empty log message ***
  *
@@ -52,26 +55,26 @@ char star_bhns_upmetr_der_C[] = "$Header$" ;
 
 void Star_bhns::update_met_der_comp_bhns(const Hole_bhns& hole) {
 
-    // Computation of d_lapse_comp
-    // ---------------------------
+    // Computation of d_lapconf_comp
+    // -----------------------------
 
-    if ( (hole.get_d_lapse_auto())(1).get_etat() == ETATZERO ) {
-        assert( (hole.get_d_lapse_auto())(2).get_etat() == ETATZERO ) ;
-	assert( (hole.get_d_lapse_auto())(3).get_etat() == ETATZERO ) ;
+    if ( (hole.get_d_lapconf_auto())(1).get_etat() == ETATZERO ) {
+        assert( (hole.get_d_lapconf_auto())(2).get_etat() == ETATZERO ) ;
+	assert( (hole.get_d_lapconf_auto())(3).get_etat() == ETATZERO ) ;
 
-	d_lapse_comp.set_etat_zero() ;
+	d_lapconf_comp.set_etat_zero() ;
     }
     else {
-        d_lapse_comp.set_etat_qcq() ;
-	Vector comp_dlapse( hole.get_d_lapse_auto() ) ;
-	comp_dlapse.dec_dzpuis(2) ; // dzpuis : 2 -> 0 for import
+        d_lapconf_comp.set_etat_qcq() ;
+	Vector comp_dlapconf( hole.get_d_lapconf_auto() ) ;
+	comp_dlapconf.dec_dzpuis(2) ; // dzpuis : 2 -> 0 for import
 
-	(d_lapse_comp.set(1)).import( comp_dlapse(1) ) ;
-	(d_lapse_comp.set(2)).import( comp_dlapse(2) ) ;
-	(d_lapse_comp.set(3)).import( comp_dlapse(3) ) ;
+	(d_lapconf_comp.set(1)).import( comp_dlapconf(1) ) ;
+	(d_lapconf_comp.set(2)).import( comp_dlapconf(2) ) ;
+	(d_lapconf_comp.set(3)).import( comp_dlapconf(3) ) ;
 
-	d_lapse_comp.std_spectral_base() ;
-	d_lapse_comp.inc_dzpuis(2) ;  // dzpuis : 0 -> 2
+	d_lapconf_comp.std_spectral_base() ;
+	d_lapconf_comp.inc_dzpuis(2) ;  // dzpuis : 0 -> 2
     }
 
 

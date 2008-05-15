@@ -7,7 +7,7 @@
  */
 
 /*
- *   Copyright (c) 2005-2006 Keisuke Taniguchi
+ *   Copyright (c) 2005-2007 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -31,6 +31,9 @@ char star_bhns_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/05/15 19:13:45  k_taniguchi
+ * Change of some parameters.
+ *
  * Revision 1.1  2007/06/22 01:30:45  k_taniguchi
  * *** empty log message ***
  *
@@ -52,7 +55,7 @@ char star_bhns_equilibrium_C[] = "$Header$" ;
 #include "tenseur.h"
 #include "utilitaires.h"
 #include "unites.h"
-#include "graphique.h"
+//#include "graphique.h"
 
 void Star_bhns::equilibrium_bhns(double ent_c, const double& mass_bh,
 				 const double& sepa, bool kerrschild,
@@ -91,7 +94,7 @@ void Star_bhns::equilibrium_bhns(double ent_c, const double& mass_bh,
 
     double& diff_ent = diff.set(0) ;
     double& diff_vel_pot = diff.set(1) ;
-    double& diff_lapse = diff.set(2) ;
+    double& diff_lapconf = diff.set(2) ;
     double& diff_confo = diff.set(3) ;
     double& diff_shift_x = diff.set(4) ;
     double& diff_shift_y = diff.set(5) ;
@@ -147,24 +150,24 @@ void Star_bhns::equilibrium_bhns(double ent_c, const double& mass_bh,
     par_adapt.add_tbl(ent_limit, 0) ;  // array of values of the field ent
                                        // to define the isosurfaces
 
-    Cmp ssjm1lapse(ssjm1_lapse) ;
+    Cmp ssjm1lapconf(ssjm1_lapconf) ;
     Cmp ssjm1confo(ssjm1_confo) ;
 
-    ssjm1lapse.set_etat_qcq() ;
+    ssjm1lapconf.set_etat_qcq() ;
     ssjm1confo.set_etat_qcq() ;
 
     double precis_poisson = 1.e-14 ;
 
-    // Parameters for the function Scalar::poisson for lapse_auto
-    // ----------------------------------------------------------
+    // Parameters for the function Scalar::poisson for lapconf_auto
+    // ------------------------------------------------------------
 
-    Param par_lapse ;
+    Param par_lapconf ;
 
-    par_lapse.add_int(mermax_poisson, 0) ;    // maximum number of iterations
-    par_lapse.add_double(relax_poisson, 0) ;  // relaxation parameter
-    par_lapse.add_double(precis_poisson, 1) ; // required precision
-    par_lapse.add_int_mod(niter, 0) ;  // number of iterations actually used
-    par_lapse.add_cmp_mod( ssjm1lapse ) ;
+    par_lapconf.add_int(mermax_poisson, 0) ;    // maximum number of iterations
+    par_lapconf.add_double(relax_poisson, 0) ;  // relaxation parameter
+    par_lapconf.add_double(precis_poisson, 1) ; // required precision
+    par_lapconf.add_int_mod(niter, 0) ;  // number of iterations actually used
+    par_lapconf.add_cmp_mod( ssjm1lapconf ) ;
 
     // Parameters for the function Scalar::poisson for confo_auto
     // ----------------------------------------------------------
@@ -201,11 +204,11 @@ void Star_bhns::equilibrium_bhns(double ent_c, const double& mass_bh,
 
     Scalar ent_jm1 = ent ;  // Enthalpy at previous step
 
-    Scalar lapse_m1(mp) ;  // = lapse_auto - 0.5
+    Scalar lapconf_m1(mp) ;  // = lapconf_auto - 0.5
     Scalar confo_m1(mp) ;  // = confo_auto - 0.5
 
-    Scalar source_lapse(mp) ; // Source term in the equation for lapse_auto
-    source_lapse.set_etat_qcq() ;
+    Scalar source_lapconf(mp) ; // Source term in the equation for lapconf_auto
+    source_lapconf.set_etat_qcq() ;
     Scalar source_confo(mp) ; // Source term in the equation for confo_auto
     source_confo.set_etat_qcq() ;
     Vector source_shift(mp, CON, mp.get_bvect_cart()) ; // Source term 
@@ -244,10 +247,12 @@ void Star_bhns::equilibrium_bhns(double ent_c, const double& mass_bh,
 	// takes the requested value ent_b at the stellar surface
 
 	// Values at the center of the star:
-	// lapse_auto = lapse_auto=0(r->infty) + 0.5
-	// The term lapse_auto=0(r->infty) should be rescaled.
-	double lapse_auto_c = lapse_auto.val_grid_point(0,0,0,0) - 0.5 ;
-	double lapse_comp_c = lapse_comp.val_grid_point(0,0,0,0) ;
+	// lapconf_auto = lapconf_auto=0(r->infty) + 0.5
+	// The term lapconf_auto=0(r->infty) should be rescaled.
+	double lapconf_auto_c = lapconf_auto.val_grid_point(0,0,0,0) - 0.5 ;
+	double lapconf_comp_c = lapconf_comp.val_grid_point(0,0,0,0) ;
+
+	double confo_c = confo_tot.val_grid_point(0,0,0,0) ;
 
 	double gam_c = gam.val_grid_point(0,0,0,0) ;
 	double gam0_c = gam0.val_grid_point(0,0,0,0) ;
@@ -264,19 +269,23 @@ void Star_bhns::equilibrium_bhns(double ent_c, const double& mass_bh,
 	for (int k=0; k<mg->get_np(l_b); k++) {
 	    for (int j=0; j<mg->get_nt(l_b); j++) {
 
-		double lapse_auto_b = lapse_auto.val_grid_point(l_b,k,j,i_b)
-		  - 0.5 ;
-		double lapse_comp_b = lapse_comp.val_grid_point(l_b,k,j,i_b) ;
+		double lapconf_auto_b =
+		  lapconf_auto.val_grid_point(l_b,k,j,i_b) - 0.5 ;
+		double lapconf_comp_b =
+		  lapconf_comp.val_grid_point(l_b,k,j,i_b) ;
+
+		double confo_b = confo_tot.val_grid_point(l_b,k,j,i_b) ;
 
 		double gam_b = gam.val_grid_point(l_b,k,j,i_b) ;
 		double gam0_b = gam0.val_grid_point(l_b,k,j,i_b) ;
 
-		double aaa = (gam0_c*gam_b*hhh_b) / (gam0_b*gam_c*hhh_c) ;
+		double aaa = (gam0_c*gam_b*hhh_b*confo_c)
+		  / (gam0_b*gam_c*hhh_c*confo_b) ;
 
 		// See Eq (100) from Gourgoulhon et al. (2001)
-		double alpha_r2_jk = (aaa * lapse_comp_b - lapse_comp_c
+		double alpha_r2_jk = (aaa * lapconf_comp_b - lapconf_comp_c
 				      + 0.5 * (aaa - 1.))
-		  / (lapse_auto_c - aaa * lapse_auto_b ) ;
+		  / (lapconf_auto_c - aaa * lapconf_auto_b ) ;
 
 		if (alpha_r2_jk > alpha_r2) {
 		    alpha_r2 = alpha_r2_jk ;
@@ -291,35 +300,37 @@ void Star_bhns::equilibrium_bhns(double ent_c, const double& mass_bh,
 	cout << "k_b, j_b, alpha_r: " << k_b << "  " << j_b << "  "
 	     << alpha_r << endl ;
 
-	// New value of lapse_auto
-	// ----------------------
+	// New value of lapconf_auto
+	// -------------------------
 
-	lapse_auto = alpha_r2 * (lapse_auto - 0.5) + 0.5 ;
-	Scalar lapse_tot_tmp = lapse_auto + lapse_comp ;
-	lapse_tot_tmp.std_spectral_base() ;
+	lapconf_auto = alpha_r2 * (lapconf_auto - 0.5) + 0.5 ;
+	Scalar lapconf_tot_tmp = lapconf_auto + lapconf_comp ;
+	lapconf_tot_tmp.std_spectral_base() ;
 
+	/*
 	confo_auto = alpha_r2 * (confo_auto - 0.5) + 0.5 ;
 	Scalar confo_tot_tmp = confo_auto + confo_comp ;
 	confo_tot_tmp.std_spectral_base() ;
-
+	*/
 	//------------------------------------------------------------
 	// Change the values of the inner points of the second domain
 	// by those of the outer points of the first domain
 	//------------------------------------------------------------
 
-	lapse_auto.set_spectral_va().smooth(nzet,lapse_auto.set_spectral_va()) ;
+	lapconf_auto.set_spectral_va().smooth(nzet,lapconf_auto.set_spectral_va()) ;
 
 	//--------------------------------------------
 	// First integral  -->  enthalpy in all space
 	// See Eq (98) from Gourgoulhon et al. (2001)
 	//--------------------------------------------
 
-	double log_lapse_c = log(lapse_tot_tmp.val_grid_point(0,0,0,0)) ;
+	double log_lapconf_c = log(lapconf_tot_tmp.val_grid_point(0,0,0,0)) ;
+	double log_confo_c = log(confo_tot.val_grid_point(0,0,0,0)) ;
 	double loggam_c = loggam.val_grid_point(0,0,0,0) ;
 	double pot_centri_c = pot_centri.val_grid_point(0,0,0,0) ;
 
-	ent = (ent_c + log_lapse_c + loggam_c + pot_centri_c)
-	  - log(lapse_tot_tmp) - loggam - pot_centri ;
+	ent = (ent_c + log_lapconf_c - log_confo_c + loggam_c + pot_centri_c)
+	  - log(lapconf_tot_tmp) + log(confo_tot) - loggam - pot_centri ;
 	ent.std_spectral_base() ;
 
 
@@ -441,7 +452,7 @@ void Star_bhns::equilibrium_bhns(double ent_c, const double& mass_bh,
 
 	    }  // End of i loop
 
-	  }  // End of (nz - 5) loop
+	  }  // End of (nz > 5) loop
 
 	}  // End of (nz > 4) loop
 
@@ -507,72 +518,67 @@ void Star_bhns::equilibrium_bhns(double ent_c, const double& mass_bh,
 	diff_phi_min = azimu_min ;
 	diff_radius = rad_chi_min ;
 
-	//---------------------------------
-	// Poisson equation for lapse_auto
-	//---------------------------------
+	//-----------------------------------
+	// Poisson equation for lapconf_auto
+	//-----------------------------------
 
 	// Source
 	//--------
 
 	Scalar sou_lap1(mp) ;  // dzpuis = 0
-	sou_lap1 = qpig * lapse_tot * psi4 * (ener_euler + s_euler) ;
-	//	sou_lap1 = qpig * lapse_tot_tmp * psi4 * (ener_euler + s_euler) ;
+	sou_lap1 = qpig * lapconf_tot_tmp * pow(confo_tot,4.)
+	  * (0.5*ener_euler + s_euler) ;
+
 	sou_lap1.std_spectral_base() ;
 	sou_lap1.annule(nzet,nz-1) ;
 	sou_lap1.inc_dzpuis(4) ;  // dzpuis : 0 -> 4
 
 	Scalar sou_lap2(mp) ;  // dzpuis = 4
-	sou_lap2 =  (lapse_auto+0.5) * taij_quad_auto
+	sou_lap2 =  0.875 * (lapconf_auto+0.5) * taij_quad_auto
 	  / pow(confo_auto+0.5,8.) ;
 	sou_lap2.std_spectral_base() ;
 
-	Scalar sou_lap3(mp) ;  // dzpuis = 4
-	sou_lap3 = -2. * (d_lapse_auto(1)*d_confo_auto(1)
-			  + d_lapse_auto(2)*d_confo_auto(2)
-			  + d_lapse_auto(3)*d_confo_auto(3))
-	  / (confo_auto+0.5) ;
-	sou_lap3.std_spectral_base() ;
+	source_lapconf = sou_lap1 + sou_lap2 ;
 
-	source_lapse = sou_lap1 + sou_lap2 + sou_lap3 ;
-
-	source_lapse.std_spectral_base() ;
+	source_lapconf.std_spectral_base() ;
 	//	source_lapse.annule(nzet,nz-1) ;
 
 	if (filter_r != 0) {
-	    if (source_lapse.get_etat() != ETATZERO) {
-	        source_lapse.filtre(filter_r) ;
+	    if (source_lapconf.get_etat() != ETATZERO) {
+	        source_lapconf.filtre(filter_r) ;
 		//	        source_lapse.filtre_r(filter_r,0) ;
 	    }
 	}
 
-	assert(source_lapse.get_dzpuis() == 4) ;
+	assert(source_lapconf.get_dzpuis() == 4) ;
 
-	// Resolution of the Poisson equation (Outer BC : lapse_m1 -> 0)
+	// Resolution of the Poisson equation (Outer BC : lapconf_m1 -> 0)
 	// ----------------------------------
 
-	lapse_m1.set_etat_qcq() ;
-	lapse_m1 = lapse_auto - 0.5 ;
-	source_lapse.poisson(par_lapse, lapse_m1) ;
-	ssjm1_lapse = ssjm1lapse ;
+	lapconf_m1.set_etat_qcq() ;
+	lapconf_m1 = lapconf_auto - 0.5 ;
+	source_lapconf.poisson(par_lapconf, lapconf_m1) ;
+	ssjm1_lapconf = ssjm1lapconf ;
 
 	// Check: has the Poisson equation been correctly solved ?
 	// -------------------------------------------------------
 
-	Tbl tdiff_lapse = diffrel(lapse_m1.laplacian(), source_lapse) ;
+	Tbl tdiff_lapconf = diffrel(lapconf_m1.laplacian(), source_lapconf) ;
 	cout <<
-	  "Relative error in the resolution of the equation for lapse_auto : "
+	  "Relative error in the resolution of the equation for lapconf_auto : "
 	     << endl ;
 	for (int l=0; l<nz; l++) {
-	    cout << tdiff_lapse(l) << "  " ;
+	    cout << tdiff_lapconf(l) << "  " ;
 	}
 	cout << endl ;
-	diff_lapse = max(abs(tdiff_lapse)) ;
+	diff_lapconf = max(abs(tdiff_lapconf)) ;
 
-	// Re-construction of the lapse function
-	// -------------------------------------
-	lapse_auto = lapse_m1 + 0.5 ; // lapse_tot = lapse_auto + lapse_comp
-	                              // lapse_auto, _comp -> 0.5 (r -> inf)
-	                              // lapse_tot -> 1 (r -> inf)
+	// Re-construction of the lapconf function
+	// ---------------------------------------
+	lapconf_auto = lapconf_m1 + 0.5 ;
+	          // lapconf_tot = lapconf_auto + lapconf_comp
+	          // lapconf_auto, _comp -> 0.5 (r -> inf)
+	          // lapconf_tot -> 1 (r -> inf)
 
 	//---------------------------------
 	// Poisson equation for confo_auto
@@ -582,7 +588,7 @@ void Star_bhns::equilibrium_bhns(double ent_c, const double& mass_bh,
 	//--------
 
 	Scalar sou_con1(mp) ;  // dzpuis = 0
-	sou_con1 = - 0.5 * qpig * psi4 * confo_tot * ener_euler ;
+	sou_con1 = - 0.5 * qpig * pow(confo_tot,5.) * ener_euler ;
 	sou_con1.std_spectral_base() ;
 	sou_con1.annule(nzet,nz-1) ;
 	sou_con1.inc_dzpuis(4) ;  // dzpuis : 0 -> 4
@@ -639,29 +645,15 @@ void Star_bhns::equilibrium_bhns(double ent_c, const double& mass_bh,
 	// Source
 	// ------
 
-	Scalar psi4_tmp(mp) ;
-	psi4_tmp = pow(confo_tot_tmp, 4.) ;
-	psi4_tmp.std_spectral_base() ;
-
 	Vector sou_shif1(mp, CON, mp.get_bvect_cart()) ;  // dzpuis = 0
 	sou_shif1.set_etat_qcq() ;
 
 	for (int i=1; i<=3; i++) {
-	    sou_shif1.set(i) = 4.*qpig * lapse_tot_tmp * psi4_tmp
+	    sou_shif1.set(i) = 4.*qpig * lapconf_tot_tmp
+	      * pow(confo_tot, 3.)
 	      * (ener_euler + press) * u_euler(i) ;
 	}
-	/*
-	for (int i=1; i<=3; i++) {
-	    sou_shif1.set(i) = 4.*qpig * lapse_tot_tmp * psi4
-	      * (ener_euler + press) * u_euler(i) ;
-	}
-	*/
-	/*
-	for (int i=1; i<=3; i++) {
-	    sou_shif1.set(i) = 4.*qpig * lapse_tot * psi4
-	      * (ener_euler + press) * u_euler(i) ;
-	}
-	*/
+
 	sou_shif1.std_spectral_base() ;
 	sou_shif1.annule(nzet, nz-1) ;
 
@@ -673,16 +665,16 @@ void Star_bhns::equilibrium_bhns(double ent_c, const double& mass_bh,
 	sou_shif2.set_etat_qcq() ;
 	for (int i=1; i<=3; i++) {
 	    sou_shif2.set(i) = 2. *
-	      (taij_auto(i,1)*(d_lapse_auto(1)
-			       -6.*(lapse_auto+0.5)*d_confo_auto(1)
+	      (taij_auto(i,1)*(d_lapconf_auto(1)
+			       -7.*(lapconf_auto+0.5)*d_confo_auto(1)
 			       /(confo_auto+0.5))
-	       +taij_auto(i,2)*(d_lapse_auto(2)
-				-6.*(lapse_auto+0.5)*d_confo_auto(2)
+	       +taij_auto(i,2)*(d_lapconf_auto(2)
+				-7.*(lapconf_auto+0.5)*d_confo_auto(2)
 				/(confo_auto+0.5))
-	       +taij_auto(i,3)*(d_lapse_auto(3)
-				-6.*(lapse_auto+0.5)*d_confo_auto(3)
+	       +taij_auto(i,3)*(d_lapconf_auto(3)
+				-7.*(lapconf_auto+0.5)*d_confo_auto(3)
 				/(confo_auto+0.5))
-	       ) / pow(confo_auto+0.5,6.) ;
+	       ) / pow(confo_auto+0.5,7.) ;
 	}
 	sou_shif2.std_spectral_base() ;
 
@@ -805,6 +797,29 @@ void Star_bhns::equilibrium_bhns(double ent_c, const double& mass_bh,
 
 	ent_jm1 = ent ;
 
+	/*
+	des_profile( lapconf_auto, 0., 10.,
+		     M_PI/2., M_PI, "Self lapconf function of NS",
+		     "Lapconf (theta=pi/2, phi=0)" ) ;
+
+	des_profile( lapconf_tot, 0., 10.,
+		     M_PI/2., M_PI, "Total lapconf function seen by NS",
+		     "Lapconf (theta=pi/2, phi=0)" ) ;
+
+	des_profile( confo_auto, 0., 10.,
+		     M_PI/2., M_PI, "Self conformal factor of NS",
+		     "Confo (theta=pi/2, phi=0)" ) ;
+
+	des_profile( confo_tot, 0., 10.,
+		     M_PI/2., M_PI, "Total conformal factor seen by NS",
+		     "Confo (theta=pi/2, phi=0)" ) ;
+
+	des_coupe_vect_z( shift_auto, 0., -3., 0.5, 3,
+			  "Self shift vector of NS") ;
+
+	des_coupe_vect_z( shift_tot, 0., -3., 0.5, 3,
+			  "Total shift vector seen by NS") ;
+	*/
     } // End of main loop
 
     //=========================================================

@@ -7,7 +7,7 @@
  */
 
 /*
- *   Copyright (c) 2005-2006 Keisuke Taniguchi
+ *   Copyright (c) 2005-2007 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -31,6 +31,9 @@ char hole_bhns_upmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/05/15 19:08:15  k_taniguchi
+ * Change of some parameters.
+ *
  * Revision 1.1  2007/06/22 01:25:31  k_taniguchi
  * *** empty log message ***
  *
@@ -67,16 +70,16 @@ void Hole_bhns::update_metric_bhns(const Star_bhns& star,
 
     double mass = ggrav * mass_bh ;
 
-    // Lapse function
-    // --------------
+    // Lapconf function
+    // ----------------
 
-    if ( (star.get_lapse_auto()).get_etat() == ETATZERO ) {
-        lapse_comp.set_etat_zero() ;
+    if ( (star.get_lapconf_auto()).get_etat() == ETATZERO ) {
+        lapconf_comp.set_etat_zero() ;
     }
     else {
-        lapse_comp.set_etat_qcq() ;
-	lapse_comp.import( star.get_lapse_auto() ) ;
-	lapse_comp.std_spectral_base() ;
+        lapconf_comp.set_etat_qcq() ;
+	lapconf_comp.import( star.get_lapconf_auto() ) ;
+	lapconf_comp.std_spectral_base() ;
     }
 
     // Shift vector
@@ -117,13 +120,14 @@ void Hole_bhns::update_metric_bhns(const Star_bhns& star,
 	confo_comp.std_spectral_base() ;
     }
 
-    //--------------------------------------------------
-    // Relaxation on lapse_comp, shift_comp, confo_comp
-    //--------------------------------------------------
+    //----------------------------------------------------
+    // Relaxation on lapconf_comp, shift_comp, confo_comp
+    //----------------------------------------------------
 
     double relax_jm1 = 1. - relax ;
 
-    lapse_comp = relax * lapse_comp + relax_jm1 * (hole_prev.lapse_comp) ;
+    lapconf_comp = relax * lapconf_comp
+      + relax_jm1 * (hole_prev.lapconf_comp) ;
 
     shift_comp = relax * shift_comp + relax_jm1 * (hole_prev.shift_comp) ;
 
@@ -150,8 +154,8 @@ void Hole_bhns::update_metric_bhns(const Star_bhns& star,
 
     Vector ll(mp, CON, mp.get_bvect_cart()) ;
     ll.set_etat_qcq() ;
-    ll.set(1) = st * cp ;
-    ll.set(2) = st * sp ;
+    ll.set(1) = st % cp ;
+    ll.set(2) = st % sp ;
     ll.set(3) = ct ;
     ll.std_spectral_base() ;
 
@@ -162,15 +166,15 @@ void Hole_bhns::update_metric_bhns(const Star_bhns& star,
         // Metric quantities from the analytic solution
         //----------------------------------------------
 
-	lapse_auto_bh = 1. / sqrt(1.+2.*mass/rr) ;
-	lapse_auto_bh.std_spectral_base() ;
-	lapse_auto_bh.annule_domain(0) ;
-	lapse_auto_bh.raccord(1) ;
+	lapconf_auto_bh = 1. / sqrt(1.+2.*mass/rr) ;
+	lapconf_auto_bh.std_spectral_base() ;
+	lapconf_auto_bh.annule_domain(0) ;
+	lapconf_auto_bh.raccord(1) ;
 
 	confo_auto_bh = 1. ;
 	confo_auto_bh.std_spectral_base() ;
 
-	shift_auto_bh = 2. * lapse_auto_bh * lapse_auto_bh * mass * ll / rr ;
+	shift_auto_bh = 2. * lapconf_auto_bh*lapconf_auto_bh*mass * ll / rr ;
 	shift_auto_bh.std_spectral_base() ;
 	shift_auto_bh.annule_domain(0) ;
 
@@ -178,23 +182,23 @@ void Hole_bhns::update_metric_bhns(const Star_bhns& star,
 	// Derivative of metric quantities
 	//---------------------------------
 
-	d_lapse_auto_rs.set_etat_qcq() ;
+	d_lapconf_auto_rs.set_etat_qcq() ;
 	for (int i=1; i<=3; i++)
-	    d_lapse_auto_rs.set(i) = lapse_auto_rs.deriv(i) ;
+	    d_lapconf_auto_rs.set(i) = lapconf_auto_rs.deriv(i) ;
 
-	d_lapse_auto_rs.std_spectral_base() ;
+	d_lapconf_auto_rs.std_spectral_base() ;
 
-	d_lapse_auto_bh.set_etat_qcq() ;
+	d_lapconf_auto_bh.set_etat_qcq() ;
 	for (int i=1; i<=3; i++) {
-	    d_lapse_auto_bh.set(i) = pow(lapse_auto_bh,3.) * mass * ll(i)
+	    d_lapconf_auto_bh.set(i) = pow(lapconf_auto_bh,3.) * mass * ll(i)
 	      / rr / rr ;
 	}
-	d_lapse_auto_bh.std_spectral_base() ;
-	d_lapse_auto_bh.annule_domain(0) ;
-	d_lapse_auto_bh.inc_dzpuis(2) ;
+	d_lapconf_auto_bh.std_spectral_base() ;
+	d_lapconf_auto_bh.annule_domain(0) ;
+	d_lapconf_auto_bh.inc_dzpuis(2) ;
 
-	d_lapse_auto = d_lapse_auto_rs + d_lapse_auto_bh ;
-	d_lapse_auto.std_spectral_base() ;
+	d_lapconf_auto = d_lapconf_auto_rs + d_lapconf_auto_bh ;
+	d_lapconf_auto.std_spectral_base() ;
 
 	d_shift_auto_rs.set_etat_qcq() ;
 	for (int i=1; i<=3; i++) {
@@ -208,9 +212,10 @@ void Hole_bhns::update_metric_bhns(const Star_bhns& star,
 	d_shift_auto_bh.set_etat_qcq() ;
 	for (int i=1; i<=3; i++) {
 	    for (int j=1; j<=3; j++) {
-	        d_shift_auto_bh.set(i,j) = 2.*lapse_auto_bh*lapse_auto_bh*mass
+	        d_shift_auto_bh.set(i,j) = 2.*lapconf_auto_bh
+		  *lapconf_auto_bh*mass
 		  * (flat.con()(i,j)
-		     - 2.*lapse_auto_bh*lapse_auto_bh*(1.+mass/rr)
+		     - 2.*lapconf_auto_bh*lapconf_auto_bh*(1.+mass/rr)
 		     * ll(i) * ll(j))
 		  / rr / rr ;
 	    }
@@ -244,28 +249,31 @@ void Hole_bhns::update_metric_bhns(const Star_bhns& star,
         // --------------------------------------------------------
         double cc ;
 
-	if (bc_lapse_nd) {  // Neumann boundary condition
-	    if (bc_lapse_fs) {  // First condition
-	        // d\alpha/dr = 0
-	        // --------------
-	        cc = 2. ;
+	if (bc_lapconf_nd) {  // Neumann boundary condition
+	    if (bc_lapconf_fs) {  // First condition
+	        // d(\alpha \psi)/dr = 0
+	        // ---------------------
+	        cc = 2. * (sqrt(13.) - 1.) / 3. ;
 	    }
 	    else {  // Second condition
-	        // d\alpha/dr = \alpha/(2 rah)
-	        // ---------------------------
-	        cc = 0.5 * (sqrt(17.) - 1.) ;
+	        // d(\alpha \psi)/dr = (\alpha \psi)/(2 rah)
+	        // -----------------------------------------
+	        cc = 4. / 3. ;
 	    }
 	}
 	else {  // Dirichlet boundary condition
-	    if (bc_lapse_fs) {  // First condition
-	        // \alpha = 1/2
-	        // ------------
-	        cc = 2. ;
+	    if (bc_lapconf_fs) {  // First condition
+	        // (\alpha \psi) = 1/2
+	        // -------------------
+	        cout << "!!!!! WARNING: Not yet prepared !!!!!" << endl ;
+		abort() ;
 	    }
 	    else {  // Second condition
-	        // \alpha = 1/sqrt(2.)
-	        // -------------------
-	        cc = 2. * sqrt(2.) ;
+	        // (\alpha \psi)  = 1/sqrt(2.) \psi_KS
+	        // -----------------------------------
+	        cout << "!!!!! WARNING: Not yet prepared !!!!!" << endl ;
+		abort() ;
+		//	        cc = 2. * sqrt(2.) ;
 	    }
 	}
 
@@ -274,14 +282,14 @@ void Hole_bhns::update_metric_bhns(const Star_bhns& star,
         //----------------------------------------------
 
 	Scalar r_are(mp) ;
-	r_are = r_coord(bc_lapse_nd, bc_lapse_fs) ;
+	r_are = r_coord(bc_lapconf_nd, bc_lapconf_fs) ;
 	r_are.std_spectral_base() ;
 
-	lapse_auto_bh = sqrt(1. - 2.*mass/r_are/rr
-			     + cc*cc*pow(mass/r_are/rr, 4.)) ;
-	lapse_auto_bh.std_spectral_base() ;
-	lapse_auto_bh.annule_domain(0) ;
-	lapse_auto_bh.raccord(1) ;
+	lapconf_auto_bh = sqrt(1. - 2.*mass/r_are/rr
+			       + cc*cc*pow(mass/r_are/rr, 4.)) * sqrt(r_are) ;
+	lapconf_auto_bh.std_spectral_base() ;
+	lapconf_auto_bh.annule_domain(0) ;
+	lapconf_auto_bh.raccord(1) ;
 
 	confo_auto_bh = sqrt(r_are) ;
 	confo_auto_bh.std_spectral_base() ;
@@ -298,26 +306,31 @@ void Hole_bhns::update_metric_bhns(const Star_bhns& star,
 	// Derivative of metric quantities
 	//---------------------------------
 
-	d_lapse_auto_rs.set_etat_qcq() ;
+	d_lapconf_auto_rs.set_etat_qcq() ;
 	for (int i=1; i<=3; i++)
-	    d_lapse_auto_rs.set(i) = lapse_auto_rs.deriv(i) ;
+	    d_lapconf_auto_rs.set(i) = lapconf_auto_rs.deriv(i) ;
 
-	d_lapse_auto_rs.std_spectral_base() ;
+	d_lapconf_auto_rs.std_spectral_base() ;
 
-	d_lapse_auto_bh.set_etat_qcq() ;
+	d_lapconf_auto_bh.set_etat_qcq() ;
 	for (int i=1; i<=3; i++) {
-	    d_lapse_auto_bh.set(i) =
-	      (mass/r_are/rr - 2.*cc*cc*pow(mass/r_are/rr,4.)) * ll(i) / rr ;
+	    d_lapconf_auto_bh.set(i) = sqrt(r_are)
+	      * (mass/r_are/rr - 2.*cc*cc*pow(mass/r_are/rr,4.))
+	      * ll(i) / rr
+	      + 0.5 * sqrt(r_are)
+	      * (sqrt(1. - 2.*mass/r_are/rr + cc*cc*pow(mass/r_are/rr,4.))-1.)
+	      * sqrt(1. - 2.*mass/r_are/rr + cc*cc*pow(mass/r_are/rr,4.))
+	      * ll(i) / rr ;
 	}
-	d_lapse_auto_bh.std_spectral_base() ;
-	d_lapse_auto_bh.annule_domain(0) ;
-	d_lapse_auto_bh.inc_dzpuis(2) ;
+	d_lapconf_auto_bh.std_spectral_base() ;
+	d_lapconf_auto_bh.annule_domain(0) ;
+	d_lapconf_auto_bh.inc_dzpuis(2) ;
 
-	d_lapse_auto = d_lapse_auto_rs + d_lapse_auto_bh ;
-	d_lapse_auto.std_spectral_base() ;
-	d_lapse_auto.annule_domain(0) ;
+	d_lapconf_auto = d_lapconf_auto_rs + d_lapconf_auto_bh ;
+	d_lapconf_auto.std_spectral_base() ;
+	d_lapconf_auto.annule_domain(0) ;
 	for (int i=1; i<=3; i++)
-	    d_lapse_auto.set(i).raccord(1) ;
+	    d_lapconf_auto.set(i).raccord(1) ;
 
 	d_shift_auto_rs.set_etat_qcq() ;
 	for (int i=1; i<=3; i++) {
@@ -380,15 +393,15 @@ void Hole_bhns::update_metric_bhns(const Star_bhns& star,
     // Total metric quantities
     //-------------------------
 
-    lapse_auto = lapse_auto_rs + lapse_auto_bh ;
-    lapse_auto.std_spectral_base() ;
-    lapse_auto.annule_domain(0) ;
-    lapse_auto.raccord(1) ;
+    lapconf_auto = lapconf_auto_rs + lapconf_auto_bh ;
+    lapconf_auto.std_spectral_base() ;
+    lapconf_auto.annule_domain(0) ;
+    lapconf_auto.raccord(1) ;
 
-    lapse_tot = lapse_auto_rs + lapse_auto_bh + lapse_comp ;
-    lapse_tot.std_spectral_base() ;
-    lapse_tot.annule_domain(0) ;
-    lapse_tot.raccord(1) ;
+    lapconf_tot = lapconf_auto_rs + lapconf_auto_bh + lapconf_comp ;
+    lapconf_tot.std_spectral_base() ;
+    lapconf_tot.annule_domain(0) ;
+    lapconf_tot.raccord(1) ;
 
     shift_auto = shift_auto_rs + shift_auto_bh ;
     shift_auto.std_spectral_base() ;
@@ -413,6 +426,12 @@ void Hole_bhns::update_metric_bhns(const Star_bhns& star,
     confo_tot.std_spectral_base() ;
     confo_tot.annule_domain(0) ;
     confo_tot.raccord(1) ;
+
+    lapse_auto = lapconf_auto / confo_tot ;
+    lapse_auto.std_spectral_base() ;
+
+    lapse_tot = lapconf_tot / confo_tot ;
+    lapse_tot.std_spectral_base() ;
 
     // The derived quantities are obsolete
     // -----------------------------------

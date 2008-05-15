@@ -7,7 +7,7 @@
  */
 
 /*
- *   Copyright (c) 2005 Keisuke Taniguchi
+ *   Copyright (c) 2005,2007 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -31,6 +31,9 @@ char star_bhns_upmetr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/05/15 19:17:39  k_taniguchi
+ * Change of some parameters.
+ *
  * Revision 1.1  2007/06/22 01:32:37  k_taniguchi
  * *** empty log message ***
  *
@@ -60,16 +63,16 @@ void Star_bhns::update_metric_bhns(const Hole_bhns& hole,
 
     const Map& mp_bh (hole.get_mp()) ;
 
-    // Lapse function
-    // --------------
+    // Lapconf function
+    // ----------------
 
-    if ( (hole.get_lapse_auto()).get_etat() == ETATZERO ) {
-        lapse_comp.set_etat_zero() ;
+    if ( (hole.get_lapconf_auto()).get_etat() == ETATZERO ) {
+        lapconf_comp.set_etat_zero() ;
     }
     else {
-        lapse_comp.set_etat_qcq() ;
-	lapse_comp.import( hole.get_lapse_auto() ) ;
-	lapse_comp.std_spectral_base() ;
+        lapconf_comp.set_etat_qcq() ;
+	lapconf_comp.import( hole.get_lapconf_auto() ) ;
+	lapconf_comp.std_spectral_base() ;
     }
 
     // Shift vector
@@ -110,14 +113,14 @@ void Star_bhns::update_metric_bhns(const Hole_bhns& hole,
 	confo_comp.std_spectral_base() ;
     }
 
-    //--------------------------------------------------
-    // Relaxation on lapse_comp, shift_comp, confo_comp
-    //--------------------------------------------------
+    //----------------------------------------------------
+    // Relaxation on lapconf_comp, shift_comp, confo_comp
+    //----------------------------------------------------
 
     double relax_met_comp_jm1 = 1. - relax_met_comp ;
 
-    lapse_comp = relax_met_comp * lapse_comp
-      + relax_met_comp_jm1 * (star_prev.lapse_comp) ;
+    lapconf_comp = relax_met_comp * lapconf_comp
+      + relax_met_comp_jm1 * (star_prev.lapconf_comp) ;
 
     shift_comp = relax_met_comp * shift_comp
       + relax_met_comp_jm1 * (star_prev.shift_comp) ;
@@ -129,8 +132,8 @@ void Star_bhns::update_metric_bhns(const Hole_bhns& hole,
     // Total metric quantities
     //-------------------------
 
-    lapse_tot = lapse_auto + lapse_comp ;
-    lapse_tot.std_spectral_base() ;
+    lapconf_tot = lapconf_auto + lapconf_comp ;
+    lapconf_tot.std_spectral_base() ;
 
     shift_tot = shift_auto + shift_comp ;
     shift_tot.std_spectral_base() ;
@@ -141,15 +144,21 @@ void Star_bhns::update_metric_bhns(const Hole_bhns& hole,
     psi4 = pow(confo_tot, 4.) ;
     psi4.std_spectral_base() ;
 
+    lapse_auto = lapconf_auto / confo_tot ;
+    lapse_auto.std_spectral_base() ;
+
+    lapse_tot = lapconf_tot / confo_tot ;
+    lapse_tot.std_spectral_base() ;
+
     //---------------------------------
     // Derivative of metric quantities
     //---------------------------------
 
-    d_lapse_auto.set_etat_qcq() ;
+    d_lapconf_auto.set_etat_qcq() ;
     for (int i=1; i<=3; i++)
-        d_lapse_auto.set(i) = lapse_auto.deriv(i) ;
+        d_lapconf_auto.set(i) = lapconf_auto.deriv(i) ;
 
-    d_lapse_auto.std_spectral_base() ;
+    d_lapconf_auto.std_spectral_base() ;
 
     d_shift_auto.set_etat_qcq() ;
     for (int i=1; i<=3; i++) {

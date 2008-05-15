@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2005 Keisuke Taniguchi
+ *   Copyright (c) 2005,2007 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,9 @@ char star_bhns_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/05/15 19:16:54  k_taniguchi
+ * Change of some parameters.
+ *
  * Revision 1.1  2007/06/22 01:32:19  k_taniguchi
  * *** empty log message ***
  *
@@ -80,8 +83,8 @@ void Star_bhns::equil_spher_bhns(double ent_c, double precis) {
     equation_of_state() ;
 
     // Initial metric
-    lapse_auto = 1. ;
-    lapse_auto.std_spectral_base() ;
+    lapconf_auto = 1. ;
+    lapconf_auto.std_spectral_base() ;
     confo_auto = 1. ;
     confo_auto.std_spectral_base() ;
 
@@ -98,17 +101,12 @@ void Star_bhns::equil_spher_bhns(double ent_c, double precis) {
     ent_jm1.std_spectral_base() ;
     ent_jm1.annule(nzet, nz-1) ;
 
-    Scalar source_lapse(mp) ;
+    Scalar source_lapconf(mp) ;
     Scalar source_confo(mp) ;
-    Scalar lapse_mat_m1(mp) ;
-    Scalar lapse_quad_m1(mp) ;
+    Scalar lapconf_auto_m1(mp) ;
     Scalar confo_auto_m1(mp) ;
-    lapse_mat_m1 = 0. ;
-    lapse_quad_m1 = 0. ;
+    lapconf_auto_m1 = 0. ;
     confo_auto_m1 = 0. ;
-    Scalar lconfo(mp) ;
-    Scalar dlapse(mp) ;
-    Scalar dlconf(mp) ;
 
     double diff_ent = 1. ;
     int mermax = 200 ;  // Maximum number of iterations
@@ -126,50 +124,26 @@ void Star_bhns::equil_spher_bhns(double ent_c, double precis) {
       cout << "alpha_r: " << alpha_r << endl ;
       cout << "diff_ent = " << diff_ent << endl ;
 
-      //---------------------------------------------------
-      // Resolution of Poisson equation for lapse function
-      //---------------------------------------------------
+      //----------------------------------------------------
+      // Resolution of Poisson equation for lapconf function
+      //----------------------------------------------------
 
-      // Matter part of lapse
-      // --------------------
-      source_lapse = lapse_auto * pow(confo_auto,4.) * (ener + 3.*press) ;
+      // Matter part of lapconf
+      // ----------------------
+      source_lapconf = qpig * lapconf_auto * pow(confo_auto,4.)
+	* (0.5*ener + 3.*press) ;
 
-      source_lapse.inc_dzpuis(4-source_lapse.get_dzpuis()) ;
-      source_lapse.std_spectral_base() ;
+      source_lapconf.inc_dzpuis(4-source_lapconf.get_dzpuis()) ;
+      source_lapconf.std_spectral_base() ;
 
-      Cmp sou_lap_mat(source_lapse) ;
-      Cmp lap_mat_cmp(lapse_mat_m1) ;
-      lap_mat_cmp.set_etat_qcq() ;
+      Cmp sou_lapconf(source_lapconf) ;
+      Cmp lapconf_cmp(lapconf_auto_m1) ;
+      lapconf_cmp.set_etat_qcq() ;
 
-      mpaff.poisson(sou_lap_mat, par_nul, lap_mat_cmp) ;
-
-      // Re-construction of a scalar
-      lapse_mat_m1 = lap_mat_cmp ;
-
-      // Quadratic part of lapse
-      // -----------------------
-      confo_auto.set_etat_qcq() ;
-      lconfo = log(confo_auto) ;
-      lconfo.std_spectral_base() ;
-
-      lapse_auto.set_etat_qcq() ;
-      lconfo.set_etat_qcq() ;
-
-      mpaff.dsdr(lapse_auto, dlapse) ;
-      mpaff.dsdr(lconfo, dlconf) ;
-
-      source_lapse = - 2. * dlapse * dlconf ;
-      source_lapse.inc_dzpuis(4-source_lapse.get_dzpuis()) ;
-      source_lapse.std_spectral_base() ;
-
-      Cmp sou_lap_quad(source_lapse) ;
-      Cmp lap_quad_cmp(lapse_quad_m1) ;
-      lap_quad_cmp.set_etat_qcq() ;
-
-      mpaff.poisson(sou_lap_quad, par_nul, lap_quad_cmp) ;
+      mpaff.poisson(sou_lapconf, par_nul, lapconf_cmp) ;
 
       // Re-construction of a scalar
-      lapse_quad_m1 = lap_quad_cmp ;
+      lapconf_auto_m1 = lapconf_cmp ;
 
       //-------------------------------------
       // Computation of the new radial scale
@@ -178,15 +152,15 @@ void Star_bhns::equil_spher_bhns(double ent_c, double precis) {
       double exp_ent_c = exp(ent_c) ;
       double exp_ent_b = exp(ent_b) ;
 
-      double lap_mat_c = lapse_mat_m1.val_grid_point(0,0,0,0) ;
-      double lap_mat_b = lapse_mat_m1.val_grid_point(l_b,k_b,j_b,i_b) ;
+      double lap_auto_c = lapconf_auto_m1.val_grid_point(0,0,0,0) ;
+      double lap_auto_b = lapconf_auto_m1.val_grid_point(l_b,k_b,j_b,i_b) ;
 
-      // +1 comes from the total lapse
-      double lap_quad_c = lapse_quad_m1.val_grid_point(0,0,0,0) + 1. ;
-      double lap_quad_b = lapse_quad_m1.val_grid_point(l_b,k_b,j_b,i_b) + 1. ;
+      double confo_c = confo_auto.val_grid_point(0,0,0,0) ;
+      double confo_b = confo_auto.val_grid_point(l_b,k_b,j_b,i_b) ;
 
-      double alpha_r2 = (exp_ent_b*lap_quad_b - exp_ent_c*lap_quad_c)
-	/ ( qpig*(exp_ent_c*lap_mat_c - exp_ent_b*lap_mat_b) ) ;
+      double alpha_r2 = (exp_ent_b*confo_c - exp_ent_c*confo_b)
+	/ ( exp_ent_c*confo_b*lap_auto_c
+	    - exp_ent_b*confo_c*lap_auto_b )  ;
 
       alpha_r = sqrt(alpha_r2) ;
 
@@ -197,13 +171,15 @@ void Star_bhns::equil_spher_bhns(double ent_c, double precis) {
       // First integral
       //----------------
 
-      // Lapse function
-      lapse_mat_m1 = alpha_r2 * qpig * lapse_mat_m1 ;
-      lapse_auto = lapse_mat_m1 + lapse_quad_m1 + 1. ;
+      // Lapconf function
+      lapconf_auto_m1 = alpha_r2 * lapconf_auto_m1 ;
+      lapconf_auto = lapconf_auto_m1 + 1. ;
 
       // Enthalpy in all space
-      double lap_c = lapse_auto.val_grid_point(0,0,0,0) ;
-      ent = ent_c + log(lap_c) - log(lapse_auto) ;
+      double lapconfo_c = lapconf_auto.val_grid_point(0,0,0,0) ;
+      confo_c = confo_auto.val_grid_point(0,0,0,0) ;
+      ent = ent_c + log(lapconfo_c) - log(confo_c)
+	- log(lapconf_auto) + log(confo_auto) ;
       ent.std_spectral_base() ;
 
       //-------------------
@@ -264,6 +240,8 @@ void Star_bhns::equil_spher_bhns(double ent_c, double precis) {
       u_euler.set(i) = 0 ;
 
     // ... metric
+    lapconf_tot = lapconf_auto ;
+    lapse_auto = lapconf_auto / confo_auto ;
     lapse_tot = lapse_auto ;
     confo_tot = confo_auto ;
     psi4 = pow(confo_auto, 4.) ;
@@ -307,6 +285,17 @@ void Star_bhns::equil_spher_bhns(double ent_c, double precis) {
 
     //... Gravitational term
     Scalar tmp1(mp) ;
+    tmp1 = confo_auto.dsdr() ;
+    tmp1.std_spectral_base() ;
+
+    Scalar tmp2(mp) ;
+    tmp2 = confo_auto * lapconf_auto.dsdr() / lapconf_auto  - tmp1 ;
+    tmp2.std_spectral_base() ;
+
+    source = 2. * tmp1 * tmp1 - tmp2 * tmp2 ;
+
+    /*
+    Scalar tmp1(mp) ;
     tmp1 = log(lapse_auto) ;
     tmp1.std_spectral_base() ;
 
@@ -316,6 +305,7 @@ void Star_bhns::equil_spher_bhns(double ent_c, double precis) {
 
     source = confo_auto * confo_auto
       * ( 2. * tmp2.dsdr() * tmp2.dsdr() - tmp1.dsdr() * tmp1.dsdr() ) ;
+    */
     source.std_spectral_base() ;	    
     double vir_grav = source.integrale() ;
 

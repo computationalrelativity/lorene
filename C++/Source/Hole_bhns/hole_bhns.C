@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2005-2006 Keisuke Taniguchi
+ *   Copyright (c) 2005-2007 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,9 @@ char hole_bhns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/05/15 19:03:00  k_taniguchi
+ * Change of some parameters.
+ *
  * Revision 1.1  2007/06/22 01:24:16  k_taniguchi
  * *** empty log message ***
  *
@@ -58,18 +61,20 @@ char hole_bhns_C[] = "$Header$" ;
 Hole_bhns::Hole_bhns(Map& mp_i, bool kerrschild_i, bool bc_nd_i,
 		     bool bc_fs_i, bool irrot_i, double massbh)
       : Black_hole(mp_i, kerrschild_i, massbh),
-	bc_lapse_nd(bc_nd_i),
-	bc_lapse_fs(bc_fs_i),
+	bc_lapconf_nd(bc_nd_i),
+	bc_lapconf_fs(bc_fs_i),
 	irrotational(irrot_i),
-	lapse_auto_rs(mp_i),
-	lapse_auto_bh(mp_i),
+	lapconf_auto_rs(mp_i),
+	lapconf_auto_bh(mp_i),
+	lapconf_auto(mp_i),
+	lapconf_comp(mp_i),
+	lapconf_tot(mp_i),
 	lapse_auto(mp_i),
-	lapse_comp(mp_i),
 	lapse_tot(mp_i),
-	d_lapse_auto_rs(mp_i, COV, mp_i.get_bvect_cart()),
-	d_lapse_auto_bh(mp_i, COV, mp_i.get_bvect_cart()),
-	d_lapse_auto(mp_i, COV, mp_i.get_bvect_cart()),
-	d_lapse_comp(mp_i, COV, mp_i.get_bvect_cart()),
+	d_lapconf_auto_rs(mp_i, COV, mp_i.get_bvect_cart()),
+	d_lapconf_auto_bh(mp_i, COV, mp_i.get_bvect_cart()),
+	d_lapconf_auto(mp_i, COV, mp_i.get_bvect_cart()),
+	d_lapconf_comp(mp_i, COV, mp_i.get_bvect_cart()),
 	shift_auto_rs(mp_i, CON, mp_i.get_bvect_cart()),
 	shift_auto_bh(mp_i, CON, mp_i.get_bvect_cart()),
 	shift_auto(mp_i, CON, mp_i.get_bvect_cart()),
@@ -103,25 +108,29 @@ Hole_bhns::Hole_bhns(Map& mp_i, bool kerrschild_i, bool bc_nd_i,
 	taij_quad_comp(mp_i)
 {
 
-    // Pointers of derived quantities initialized to zero :
-    set_der_0x0() ;
+    omega_spin = 0. ;
 
     // The metric quantities are initialized to the flat one or zero
-    lapse_auto_rs = 0. ;
-    lapse_auto_rs.std_spectral_base() ;
-    lapse_auto_bh = 1. ;
-    lapse_auto_bh.std_spectral_base() ;
+    lapconf_auto_rs = 0. ;
+    lapconf_auto_rs.std_spectral_base() ;
+    lapconf_auto_bh = 1. ;
+    lapconf_auto_bh.std_spectral_base() ;
+    lapconf_auto = 1. ;
+    lapconf_auto.std_spectral_base() ;
+    lapconf_comp = 0. ;
+    lapconf_comp.std_spectral_base() ;
+    lapconf_tot = 1. ;
+    lapconf_tot.std_spectral_base() ;
+
     lapse_auto = 1. ;
     lapse_auto.std_spectral_base() ;
-    lapse_comp = 0. ;
-    lapse_comp.std_spectral_base() ;
     lapse_tot = 1. ;
     lapse_tot.std_spectral_base() ;
 
-    d_lapse_auto_rs.set_etat_zero() ;
-    d_lapse_auto_bh.set_etat_zero() ;
-    d_lapse_auto.set_etat_zero() ;
-    d_lapse_comp.set_etat_zero() ;
+    d_lapconf_auto_rs.set_etat_zero() ;
+    d_lapconf_auto_bh.set_etat_zero() ;
+    d_lapconf_auto.set_etat_zero() ;
+    d_lapconf_comp.set_etat_zero() ;
 
     shift_auto_rs.set_etat_zero() ;
     shift_auto_bh.set_etat_zero() ;
@@ -171,24 +180,30 @@ Hole_bhns::Hole_bhns(Map& mp_i, bool kerrschild_i, bool bc_nd_i,
     taij_quad_comp = 0. ;
     taij_quad_comp.std_spectral_base() ;
 
+    // Pointers of derived quantities initialized to zero :
+    set_der_0x0() ;
+
 }
 
 // Copy constructor
 // ----------------
 Hole_bhns::Hole_bhns(const Hole_bhns& hole)
       : Black_hole(hole),
-	bc_lapse_nd(hole.bc_lapse_nd),
-	bc_lapse_fs(hole.bc_lapse_fs),
+	bc_lapconf_nd(hole.bc_lapconf_nd),
+	bc_lapconf_fs(hole.bc_lapconf_fs),
 	irrotational(hole.irrotational),
-	lapse_auto_rs(hole.lapse_auto_rs),
-	lapse_auto_bh(hole.lapse_auto_bh),
+	omega_spin(hole.omega_spin),
+	lapconf_auto_rs(hole.lapconf_auto_rs),
+	lapconf_auto_bh(hole.lapconf_auto_bh),
+	lapconf_auto(hole.lapconf_auto),
+	lapconf_comp(hole.lapconf_comp),
+	lapconf_tot(hole.lapconf_tot),
 	lapse_auto(hole.lapse_auto),
-	lapse_comp(hole.lapse_comp),
 	lapse_tot(hole.lapse_tot),
-	d_lapse_auto_rs(hole.d_lapse_auto_rs),
-	d_lapse_auto_bh(hole.d_lapse_auto_bh),
-	d_lapse_auto(hole.d_lapse_auto),
-	d_lapse_comp(hole.d_lapse_comp),
+	d_lapconf_auto_rs(hole.d_lapconf_auto_rs),
+	d_lapconf_auto_bh(hole.d_lapconf_auto_bh),
+	d_lapconf_auto(hole.d_lapconf_auto),
+	d_lapconf_comp(hole.d_lapconf_comp),
 	shift_auto_rs(hole.shift_auto_rs),
 	shift_auto_bh(hole.shift_auto_bh),
 	shift_auto(hole.shift_auto),
@@ -228,15 +243,17 @@ Hole_bhns::Hole_bhns(const Hole_bhns& hole)
 // -----------------------
 Hole_bhns::Hole_bhns(Map& mp_i, FILE* fich)
       : Black_hole(mp_i, fich),
-	lapse_auto_rs(mp_i, *(mp_i.get_mg()), fich),
-	lapse_auto_bh(mp_i),
+	lapconf_auto_rs(mp_i, *(mp_i.get_mg()), fich),
+	lapconf_auto_bh(mp_i),
+	lapconf_auto(mp_i),
+	lapconf_comp(mp_i),
+	lapconf_tot(mp_i),
 	lapse_auto(mp_i),
-	lapse_comp(mp_i),
 	lapse_tot(mp_i),
-	d_lapse_auto_rs(mp_i, COV, mp_i.get_bvect_cart()),
-	d_lapse_auto_bh(mp_i, COV, mp_i.get_bvect_cart()),
-	d_lapse_auto(mp_i, COV, mp_i.get_bvect_cart()),
-	d_lapse_comp(mp_i, COV, mp_i.get_bvect_cart()),
+	d_lapconf_auto_rs(mp_i, COV, mp_i.get_bvect_cart()),
+	d_lapconf_auto_bh(mp_i, COV, mp_i.get_bvect_cart()),
+	d_lapconf_auto(mp_i, COV, mp_i.get_bvect_cart()),
+	d_lapconf_comp(mp_i, COV, mp_i.get_bvect_cart()),
 	shift_auto_rs(mp_i, mp_i.get_bvect_cart(), fich),
 	shift_auto_bh(mp_i, CON, mp_i.get_bvect_cart()),
 	shift_auto(mp_i, CON, mp_i.get_bvect_cart()),
@@ -270,26 +287,34 @@ Hole_bhns::Hole_bhns(Map& mp_i, FILE* fich)
 	taij_quad_comp(mp_i)
 {
 
-    fread(&bc_lapse_nd, sizeof(bool), 1, fich) ;
-    fread(&bc_lapse_fs, sizeof(bool), 1, fich) ;
+    // bc_lapconf_nd, bc_lapconf_fs, irrotational, and omega_spin
+    // are read from the file
+    fread(&bc_lapconf_nd, sizeof(bool), 1, fich) ;
+    fread(&bc_lapconf_fs, sizeof(bool), 1, fich) ;
     fread(&irrotational, sizeof(bool), 1, fich) ;
+    fread(&omega_spin, sizeof(double), 1, fich) ;
 
     // All other quantities are initialized to zero
     // --------------------------------------------
 
-    lapse_auto_bh = 1. ;
-    lapse_auto_bh.std_spectral_base() ;
+    lapconf_auto_bh = 1. ;
+    lapconf_auto_bh.std_spectral_base() ;
+    lapconf_auto = 1. ;
+    lapconf_auto.std_spectral_base() ;
+    lapconf_comp = 0. ;
+    lapconf_comp.std_spectral_base() ;
+    lapconf_tot = 1. ;
+    lapconf_tot.std_spectral_base() ;
+
     lapse_auto = 1. ;
     lapse_auto.std_spectral_base() ;
-    lapse_comp = 0. ;
-    lapse_comp.std_spectral_base() ;
     lapse_tot = 1. ;
     lapse_tot.std_spectral_base() ;
 
-    d_lapse_auto_rs.set_etat_zero() ;
-    d_lapse_auto_bh.set_etat_zero() ;
-    d_lapse_auto.set_etat_zero() ;
-    d_lapse_comp.set_etat_zero() ;
+    d_lapconf_auto_rs.set_etat_zero() ;
+    d_lapconf_auto_bh.set_etat_zero() ;
+    d_lapconf_auto.set_etat_zero() ;
+    d_lapconf_comp.set_etat_zero() ;
 
     shift_auto_bh.set_etat_zero() ;
     shift_auto.set_etat_zero() ;
@@ -362,6 +387,7 @@ void Hole_bhns::del_deriv() const {
     Black_hole::del_deriv() ;
 
     if (p_mass_irr_bhns != 0x0) delete p_mass_irr_bhns ;
+    if (p_spin_am_bhns != 0x0) delete p_spin_am_bhns ;
 
     set_der_0x0() ;
 
@@ -372,6 +398,7 @@ void Hole_bhns::set_der_0x0() const {
     Black_hole::set_der_0x0() ;
 
     p_mass_irr_bhns = 0x0 ;
+    p_spin_am_bhns = 0x0 ;
 
 }
 
@@ -388,18 +415,21 @@ void Hole_bhns::operator=(const Hole_bhns& hole) {
     Black_hole::operator=(hole) ;
 
     // Assignment of proper quantities of class Hole_bhns
-    bc_lapse_nd = hole.bc_lapse_nd ;
-    bc_lapse_fs = hole.bc_lapse_fs ;
+    bc_lapconf_nd = hole.bc_lapconf_nd ;
+    bc_lapconf_fs = hole.bc_lapconf_fs ;
     irrotational = hole.irrotational ;
-    lapse_auto_rs = hole.lapse_auto_rs ;
-    lapse_auto_bh = hole.lapse_auto_bh ;
+    omega_spin = hole.omega_spin ;
+    lapconf_auto_rs = hole.lapconf_auto_rs ;
+    lapconf_auto_bh = hole.lapconf_auto_bh ;
+    lapconf_auto = hole.lapconf_auto ;
+    lapconf_comp = hole.lapconf_comp ;
+    lapconf_tot = hole.lapconf_tot ;
     lapse_auto = hole.lapse_auto ;
-    lapse_comp = hole.lapse_comp ;
     lapse_tot = hole.lapse_tot ;
-    d_lapse_auto_rs = hole.d_lapse_auto_rs ;
-    d_lapse_auto_bh = hole.d_lapse_auto_bh ;
-    d_lapse_auto = hole.d_lapse_auto ;
-    d_lapse_comp = hole.d_lapse_comp ;
+    d_lapconf_auto_rs = hole.d_lapconf_auto_rs ;
+    d_lapconf_auto_bh = hole.d_lapconf_auto_bh ;
+    d_lapconf_auto = hole.d_lapconf_auto ;
+    d_lapconf_comp = hole.d_lapconf_comp ;
     shift_auto_rs = hole.shift_auto_rs ;
     shift_auto_bh = hole.shift_auto_bh ;
     shift_auto = hole.shift_auto ;
@@ -437,17 +467,38 @@ void Hole_bhns::operator=(const Hole_bhns& hole) {
 }
 
 
-Scalar& Hole_bhns::set_lapse_auto_bh() {
+Scalar& Hole_bhns::set_lapconf_auto_rs() {
 
     del_deriv() ;
-    return lapse_auto_bh ;
+    return lapconf_auto_rs ;
 
 }
 
-Scalar& Hole_bhns::set_lapse_auto_rs() {
+Scalar& Hole_bhns::set_lapconf_auto_bh() {
 
     del_deriv() ;
-    return lapse_auto_rs ;
+    return lapconf_auto_bh ;
+
+}
+
+Scalar& Hole_bhns::set_lapconf_auto() {
+
+    del_deriv() ;
+    return lapconf_auto ;
+
+}
+
+Scalar& Hole_bhns::set_lapconf_comp() {
+
+    del_deriv() ;
+    return lapconf_comp ;
+
+}
+
+Scalar& Hole_bhns::set_lapconf_tot() {
+
+    del_deriv() ;
+    return lapconf_tot ;
 
 }
 
@@ -458,13 +509,6 @@ Scalar& Hole_bhns::set_lapse_auto() {
 
 }
 
-Scalar& Hole_bhns::set_lapse_comp() {
-
-    del_deriv() ;
-    return lapse_comp ;
-
-}
-
 Scalar& Hole_bhns::set_lapse_tot() {
 
     del_deriv() ;
@@ -472,17 +516,17 @@ Scalar& Hole_bhns::set_lapse_tot() {
 
 }
 
-Vector& Hole_bhns::set_shift_auto_bh() {
-
-    del_deriv() ;
-    return shift_auto_bh ;
-
-}
-
 Vector& Hole_bhns::set_shift_auto_rs() {
 
     del_deriv() ;
     return shift_auto_rs ;
+
+}
+
+Vector& Hole_bhns::set_shift_auto_bh() {
+
+    del_deriv() ;
+    return shift_auto_bh ;
 
 }
 
@@ -553,13 +597,14 @@ void Hole_bhns::sauve(FILE* fich) const {
 
     Black_hole::sauve(fich) ;
 
-    lapse_auto_rs.sauve(fich) ;
+    lapconf_auto_rs.sauve(fich) ;
     shift_auto_rs.sauve(fich) ;
     confo_auto_rs.sauve(fich) ;
 
-    fwrite(&bc_lapse_nd, sizeof(bool), 1, fich) ;
-    fwrite(&bc_lapse_fs, sizeof(bool), 1, fich) ;
+    fwrite(&bc_lapconf_nd, sizeof(bool), 1, fich) ;
+    fwrite(&bc_lapconf_fs, sizeof(bool), 1, fich) ;
     fwrite(&irrotational, sizeof(bool), 1, fich) ;
+    fwrite(&omega_spin, sizeof(double), 1, fich) ;
 
 }
 
@@ -583,6 +628,8 @@ ostream& Hole_bhns::operator>>(ostream& ost) const {
 	<< mass_bh / msol << " [Mo]" << endl ;
     ost << "Radius of the apparent horison : "
 	<< rad_ah() / km << " [km]" << endl ;
+    ost << "Spin angular velocity :          "
+	<< omega_spin * f_unit << " [rad/s]" << endl ;
     ost << "Lapse function on the AH :       "
 	<< lapse_tot.val_grid_point(1,0,nt-1,0) << endl ;
     ost << "Conformal factor on the AH :     "
@@ -609,8 +656,8 @@ void Hole_bhns::relax_bhns(const Hole_bhns& hole_prev,
 
     if ( (mer != 0) && (mer % fmer_met == 0)) {
 
-        lapse_auto_rs = relax_met * lapse_auto_rs
-	    + relax_met_jm1 * hole_prev.lapse_auto_rs ;
+        lapconf_auto_rs = relax_met * lapconf_auto_rs
+	    + relax_met_jm1 * hole_prev.lapconf_auto_rs ;
 
 	shift_auto_rs = relax_met * shift_auto_rs
 	    + relax_met_jm1 * hole_prev.shift_auto_rs ;

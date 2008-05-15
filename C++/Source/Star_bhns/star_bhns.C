@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2005-2006 Keisuke Taniguchi
+ *   Copyright (c) 2005-2007 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,9 @@ char star_bhns_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/05/15 19:12:38  k_taniguchi
+ * Change of some parameters.
+ *
  * Revision 1.1  2007/06/22 01:30:10  k_taniguchi
  * *** empty log message ***
  *
@@ -72,11 +75,13 @@ Star_bhns::Star_bhns(Map& mp_i, int nzet_i, const Eos& eos_i, bool irrot_i)
 	gam(mp_i),
 	gam0(mp_i),
 	pot_centri(mp_i),
+        lapconf_auto(mp_i),
+	lapconf_comp(mp_i),
+	lapconf_tot(mp_i),
         lapse_auto(mp_i),
-	lapse_comp(mp_i),
 	lapse_tot(mp_i),
-	d_lapse_auto(mp_i, COV, mp_i.get_bvect_cart()),
-	d_lapse_comp(mp_i, COV, mp_i.get_bvect_cart()),
+	d_lapconf_auto(mp_i, COV, mp_i.get_bvect_cart()),
+	d_lapconf_comp(mp_i, COV, mp_i.get_bvect_cart()),
 	shift_auto(mp_i, CON, mp_i.get_bvect_cart()),
 	shift_comp(mp_i, CON, mp_i.get_bvect_cart()),
 	shift_tot(mp_i, CON, mp_i.get_bvect_cart()),
@@ -91,7 +96,7 @@ Star_bhns::Star_bhns(Map& mp_i, int nzet_i, const Eos& eos_i, bool irrot_i)
 	taij_auto(mp_i, CON, mp_i.get_bvect_cart()),
 	taij_quad_auto(mp_i),
 	flat(mp_i, mp_i.get_bvect_cart()),
-	ssjm1_lapse(mp_i),
+	ssjm1_lapconf(mp_i),
 	ssjm1_confo(mp_i),
 	ssjm1_khi(mp_i),
 	ssjm1_wshift(mp_i, CON, mp_i.get_bvect_cart())
@@ -119,14 +124,18 @@ Star_bhns::Star_bhns(Map& mp_i, int nzet_i, const Eos& eos_i, bool irrot_i)
     pot_centri = 0. ;
     pot_centri.std_spectral_base() ;
 
+    lapconf_auto = 1. ;
+    lapconf_auto.std_spectral_base() ;
+    lapconf_comp = 0. ;
+    lapconf_comp.std_spectral_base() ;
+    lapconf_tot = 1. ;
+    lapconf_tot.std_spectral_base() ;
     lapse_auto = 1. ;
     lapse_auto.std_spectral_base() ;
-    lapse_comp = 0. ;
-    lapse_comp.std_spectral_base() ;
     lapse_tot = 1. ;
     lapse_tot.std_spectral_base() ;
-    d_lapse_auto.set_etat_zero() ;
-    d_lapse_comp.set_etat_zero() ;
+    d_lapconf_auto.set_etat_zero() ;
+    d_lapconf_comp.set_etat_zero() ;
     shift_auto.set_etat_zero() ;
     shift_comp.set_etat_zero() ;
     shift_tot.set_etat_zero() ;
@@ -147,8 +156,8 @@ Star_bhns::Star_bhns(Map& mp_i, int nzet_i, const Eos& eos_i, bool irrot_i)
     taij_quad_auto = 0. ;
     taij_quad_auto.std_spectral_base() ;
 
-    ssjm1_lapse = 0. ;
-    ssjm1_lapse.std_spectral_base() ;
+    ssjm1_lapconf = 0. ;
+    ssjm1_lapconf.std_spectral_base() ;
     ssjm1_confo = 0. ;
     ssjm1_confo.std_spectral_base() ;
     ssjm1_khi = 0. ;
@@ -171,11 +180,13 @@ Star_bhns::Star_bhns(const Star_bhns& star)
 	gam(star.gam),
 	gam0(star.gam0),
 	pot_centri(star.pot_centri),
+	lapconf_auto(star.lapconf_auto),
+	lapconf_comp(star.lapconf_comp),
+	lapconf_tot(star.lapconf_tot),
 	lapse_auto(star.lapse_auto),
-	lapse_comp(star.lapse_comp),
 	lapse_tot(star.lapse_tot),
-	d_lapse_auto(star.d_lapse_auto),
-	d_lapse_comp(star.d_lapse_comp),
+	d_lapconf_auto(star.d_lapconf_auto),
+	d_lapconf_comp(star.d_lapconf_comp),
 	shift_auto(star.shift_auto),
 	shift_comp(star.shift_comp),
 	shift_tot(star.shift_tot),
@@ -190,7 +201,7 @@ Star_bhns::Star_bhns(const Star_bhns& star)
 	taij_auto(star.taij_auto),
 	taij_quad_auto(star.taij_quad_auto),
 	flat(star.flat),
-	ssjm1_lapse(star.ssjm1_lapse),
+	ssjm1_lapconf(star.ssjm1_lapconf),
 	ssjm1_confo(star.ssjm1_confo),
 	ssjm1_khi(star.ssjm1_khi),
 	ssjm1_wshift(star.ssjm1_wshift)
@@ -211,11 +222,13 @@ Star_bhns::Star_bhns(Map& mp_i, const Eos& eos_i, FILE* fich)
 	gam(mp_i),
 	gam0(mp_i),
 	pot_centri(mp_i),
-	lapse_auto(mp_i, *(mp_i.get_mg()), fich),
-	lapse_comp(mp_i),
+	lapconf_auto(mp_i, *(mp_i.get_mg()), fich),
+	lapconf_comp(mp_i),
+	lapconf_tot(mp_i),
+	lapse_auto(mp_i),
 	lapse_tot(mp_i),
-	d_lapse_auto(mp_i, COV, mp_i.get_bvect_cart()),
-	d_lapse_comp(mp_i, COV, mp_i.get_bvect_cart()),
+	d_lapconf_auto(mp_i, COV, mp_i.get_bvect_cart()),
+	d_lapconf_comp(mp_i, COV, mp_i.get_bvect_cart()),
 	shift_auto(mp_i, mp_i.get_bvect_cart(), fich),
 	shift_comp(mp_i, CON, mp_i.get_bvect_cart()),
 	shift_tot(mp_i, CON, mp_i.get_bvect_cart()),
@@ -230,7 +243,7 @@ Star_bhns::Star_bhns(Map& mp_i, const Eos& eos_i, FILE* fich)
 	taij_auto(mp_i, CON, mp_i.get_bvect_cart()),
 	taij_quad_auto(mp_i),
 	flat(mp_i, mp_i.get_bvect_cart()),
-	ssjm1_lapse(mp_i, *(mp_i.get_mg()), fich),
+	ssjm1_lapconf(mp_i, *(mp_i.get_mg()), fich),
 	ssjm1_confo(mp_i, *(mp_i.get_mg()), fich),
 	ssjm1_khi(mp_i, *(mp_i.get_mg()), fich),
 	ssjm1_wshift(mp_i, mp_i.get_bvect_cart(), fich)
@@ -269,12 +282,16 @@ Star_bhns::Star_bhns(Map& mp_i, const Eos& eos_i, FILE* fich)
     pot_centri = 0. ;
     pot_centri.std_spectral_base() ;
 
-    lapse_comp = 0. ;
-    lapse_comp.std_spectral_base() ;
+    lapconf_comp = 0. ;
+    lapconf_comp.std_spectral_base() ;
+    lapconf_tot = 1. ;
+    lapconf_tot.std_spectral_base() ;
+    lapse_auto = 1. ;
+    lapse_auto.std_spectral_base() ;
     lapse_tot = 1. ;
     lapse_tot.std_spectral_base() ;
-    d_lapse_auto.set_etat_zero() ;
-    d_lapse_comp.set_etat_zero() ;
+    d_lapconf_auto.set_etat_zero() ;
+    d_lapconf_comp.set_etat_zero() ;
     shift_comp.set_etat_zero() ;
     shift_tot.set_etat_zero() ;
     d_shift_auto.set_etat_zero() ;
@@ -357,11 +374,13 @@ void Star_bhns::operator=(const Star_bhns& star) {
     gam = star.gam ;
     gam0 = star.gam0 ;
     pot_centri = star.pot_centri ;
+    lapconf_auto = star.lapconf_auto ;
+    lapconf_comp = star.lapconf_comp ;
+    lapconf_tot = star.lapconf_tot ;
     lapse_auto = star.lapse_auto ;
-    lapse_comp = star.lapse_comp ;
     lapse_tot = star.lapse_tot ;
-    d_lapse_auto = star.d_lapse_auto ;
-    d_lapse_comp = star.d_lapse_comp ;
+    d_lapconf_auto = star.d_lapconf_auto ;
+    d_lapconf_comp = star.d_lapconf_comp ;
     shift_auto = star.shift_auto ;
     shift_comp = star.shift_comp ;
     shift_tot = star.shift_tot ;
@@ -376,7 +395,7 @@ void Star_bhns::operator=(const Star_bhns& star) {
     taij_auto = star.taij_auto ;
     taij_quad_auto = star.taij_quad_auto ;
     flat = star.flat ;
-    ssjm1_lapse = star.ssjm1_lapse ;
+    ssjm1_lapconf = star.ssjm1_lapconf ;
     ssjm1_confo = star.ssjm1_confo ;
     ssjm1_khi = star.ssjm1_khi ;
     ssjm1_wshift = star.ssjm1_wshift ;
@@ -392,17 +411,17 @@ Scalar& Star_bhns::set_pot_centri() {
 
 }
 
-Scalar& Star_bhns::set_lapse_auto() {
+Scalar& Star_bhns::set_lapconf_auto() {
 
     del_deriv() ;
-    return lapse_auto ;
+    return lapconf_auto ;
 
 }
 
-Scalar& Star_bhns::set_lapse_comp() {
+Scalar& Star_bhns::set_lapconf_comp() {
 
     del_deriv() ;
-    return lapse_comp ;
+    return lapconf_comp ;
 
 }
 
@@ -445,11 +464,11 @@ void Star_bhns::sauve(FILE* fich) const {
 
     Star::sauve(fich) ;
 
-    lapse_auto.sauve(fich) ;
+    lapconf_auto.sauve(fich) ;
     shift_auto.sauve(fich) ;
     confo_auto.sauve(fich) ;
 
-    ssjm1_lapse.sauve(fich) ;
+    ssjm1_lapconf.sauve(fich) ;
     ssjm1_confo.sauve(fich) ;
     ssjm1_khi.sauve(fich) ;
     ssjm1_wshift.sauve(fich) ;
@@ -575,8 +594,8 @@ void Star_bhns::relax_bhns(const Star_bhns& star_prev, double relax_ent,
 
     if ( (mer != 0) && (mer % fmer_met == 0)) {
 
-        lapse_auto = relax_met * lapse_auto
-	    + relax_met_jm1 * star_prev.lapse_auto ;
+        lapconf_auto = relax_met * lapconf_auto
+	    + relax_met_jm1 * star_prev.lapconf_auto ;
 
 	shift_auto = relax_met * shift_auto
 	    + relax_met_jm1 * star_prev.shift_auto ;

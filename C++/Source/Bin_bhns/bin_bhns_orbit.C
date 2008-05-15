@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2005-2006 Keisuke Taniguchi
+ *   Copyright (c) 2005-2007 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,9 @@ char bin_bhns_orbit_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/05/15 19:01:28  k_taniguchi
+ * Change of some parameters.
+ *
  * Revision 1.1  2007/06/22 01:10:20  k_taniguchi
  * *** empty log message ***
  *
@@ -65,31 +68,31 @@ void Bin_bhns::orbit_omega(double fact_omeg_min, double fact_omeg_max) {
       // Evaluation of various quantities at the center of the neutron star
       //--------------------------------------------------------------------
 
-      double dnulg, p4sl2, dp4sl2 ;
+      double dnulg, p6sl2, dp6sl2 ;
       double shiftx, shifty, dshiftx, dshifty, shift2, dshift2 ;
       double x_orb, y_orb, y_separ, xbh_orb, mhsr ;
 
       const Map& mp = star.get_mp() ;
 
-      const Scalar& lapse = star.get_lapse_tot() ;
-      const Scalar& lapse_auto = star.get_lapse_auto() ;
-      const Scalar& psi4 = star.get_psi4() ;
+      const Scalar& lapconf = star.get_lapconf_tot() ;
+      const Scalar& lapconf_auto = star.get_lapconf_auto() ;
       const Scalar& confo = star.get_confo_tot() ;
       const Scalar& confo_auto = star.get_confo_auto() ;
       const Scalar& loggam = star.get_loggam() ;
       const Vector& shift = star.get_shift_tot() ;
       const Vector& shift_auto = star.get_shift_auto() ;
 
-      const Vector& dlapse_comp = star.get_d_lapse_comp() ;
+      const Vector& dlapconf_comp = star.get_d_lapconf_comp() ;
       const Vector& dconfo_comp = star.get_d_confo_comp() ;
       const Tensor& dshift_comp = star.get_d_shift_comp() ;
 
       const double& massbh = hole.get_mass_bh() ;
       double mass = ggrav * massbh ;
 
-      //------------------------------------------------------------------
-      // Calculation of d/dX( ln(lapse) + ln(Gamma) ) at the center of NS
-      //------------------------------------------------------------------
+      //----------------------------------------------------------
+      // Calculation of d/dX( ln(lapconf) - ln(psi) + ln(Gamma) )
+      //  at the center of NS
+      //----------------------------------------------------------
 
       // Factor to translate x --> X
       double factx ;
@@ -112,35 +115,39 @@ void Bin_bhns::orbit_omega(double fact_omeg_min, double fact_omeg_max) {
       tmp1.std_spectral_base() ;
 
       // d/dX tmp1
-      dnulg = factx * ( ((lapse_auto.dsdx()).val_grid_point(0,0,0,0)
-			 + dlapse_comp(1).val_grid_point(0,0,0,0))
-			/ lapse.val_grid_point(0,0,0,0)
+      dnulg = factx * ( ((lapconf_auto.dsdx()).val_grid_point(0,0,0,0)
+			 + dlapconf_comp(1).val_grid_point(0,0,0,0))
+			/ lapconf.val_grid_point(0,0,0,0)
+			- ((confo_auto.dsdx()).val_grid_point(0,0,0,0)
+			   + dconfo_comp(1).val_grid_point(0,0,0,0))
+			/ confo.val_grid_point(0,0,0,0)
 			+ (tmp1.dsdx()).val_grid_point(0,0,0,0) ) ;
 
 
-      //--------------------------------------------------
-      // Calculation of psi^4/lapse^2 at the center of NS
-      //--------------------------------------------------
+      //----------------------------------------------------
+      // Calculation of psi^6/lapconf^2 at the center of NS
+      //----------------------------------------------------
 
-      double lap_c = lapse.val_grid_point(0,0,0,0) ;
-      double psi4_c = psi4.val_grid_point(0,0,0,0) ;
+      double lapconf_c = lapconf.val_grid_point(0,0,0,0) ;
+      double confo_c = confo.val_grid_point(0,0,0,0) ;
 
-      p4sl2 = psi4_c / lap_c / lap_c ;
+      p6sl2 = pow(confo_c,6.) / lapconf_c / lapconf_c ;
 
 
-      //--------------------------------------------------------
-      // Calculation of d/dX(psi^4/lapse^2) at the center of NS
-      //--------------------------------------------------------
+      //----------------------------------------------------------
+      // Calculation of d/dX(psi^6/lapconf^2) at the center of NS
+      //----------------------------------------------------------
 
-      double dlap_c = factx * ((lapse_auto.dsdx()).val_grid_point(0,0,0,0)
-			       + dlapse_comp(1).val_grid_point(0,0,0,0) ) ;
+      double dlapconf_c = factx *
+	( (lapconf_auto.dsdx()).val_grid_point(0,0,0,0)
+	  + dlapconf_comp(1).val_grid_point(0,0,0,0) ) ;
 
-      double dpsi4_c = 4. * factx * psi4.val_grid_point(0,0,0,0)
+      double dpsi6_c = 6. * factx * pow(confo_c,5.)
 	* ((confo_auto.dsdx()).val_grid_point(0,0,0,0)
-	   + dconfo_comp(1).val_grid_point(0,0,0,0))
-	/ confo.val_grid_point(0,0,0,0) ;
+	   + dconfo_comp(1).val_grid_point(0,0,0,0)) ;
 
-      dp4sl2 = (dpsi4_c - 2.*psi4_c*dlap_c/lap_c) / lap_c / lap_c ;
+      dp6sl2 = (dpsi6_c - 2.*pow(confo_c,6.)*dlapconf_c/lapconf_c)
+	/ lapconf_c / lapconf_c ;
 
 
       //--------------------------------------------------------
@@ -211,10 +218,10 @@ void Bin_bhns::orbit_omega(double fact_omeg_min, double fact_omeg_max) {
 
       cout << "Bin_bhns::orbit_omega: central d(log(lap)+log(Gam))/dX : "
 	   << dnulg << endl ;
-      cout << "Bin_bhns::orbit_omega: central psi^4/lapse^2 :           "
-	   << p4sl2 << endl ;
-      cout << "Bin_bhns::orbit_omega: central d(psi^4/lapse^2)/dX :     "
-	   << dp4sl2 << endl ;
+      cout << "Bin_bhns::orbit_omega: central psi^6/lapconf^2 :         "
+	   << p6sl2 << endl ;
+      cout << "Bin_bhns::orbit_omega: central d(psi^6/lapconf^2)/dX :   "
+	   << dp6sl2 << endl ;
       cout << "Bin_bhns::orbit_omega: central shift^X :                 "
 	   << shiftx << endl ;
       cout << "Bin_bhns::orbit_omega: central shift^Y :                 "
@@ -235,8 +242,8 @@ void Bin_bhns::orbit_omega(double fact_omeg_min, double fact_omeg_max) {
 
       Param parorb ;
       parorb.add_double(dnulg, 0) ;
-      parorb.add_double(p4sl2, 1) ;
-      parorb.add_double(dp4sl2, 2) ;
+      parorb.add_double(p6sl2, 1) ;
+      parorb.add_double(dp6sl2, 2) ;
       parorb.add_double(shiftx, 3) ;
       parorb.add_double(shifty, 4) ;
       parorb.add_double(dshiftx, 5) ;
@@ -334,28 +341,28 @@ void Bin_bhns::orbit_omega(double fact_omeg_min, double fact_omeg_max) {
       // Evaluation of various quantities at the center of the neutron star
       //--------------------------------------------------------------------
 
-      double dnulg, p4sl2, dp4sl2 ;
+      double dnulg, p6sl2, dp6sl2 ;
       double shiftx, shifty, dshiftx, dshifty, shift2, dshift2 ;
       double x_orb, y_orb ;
 
       const Map& mp = star.get_mp() ;
 
-      const Scalar& lapse = star.get_lapse_tot() ;
-      const Scalar& lapse_auto = star.get_lapse_auto() ;
-      const Scalar& psi4 = star.get_psi4() ;
+      const Scalar& lapconf = star.get_lapconf_tot() ;
+      const Scalar& lapconf_auto = star.get_lapconf_auto() ;
       const Scalar& confo = star.get_confo_tot() ;
       const Scalar& confo_auto = star.get_confo_auto() ;
       const Scalar& loggam = star.get_loggam() ;
       const Vector& shift = star.get_shift_tot() ;
       const Vector& shift_auto = star.get_shift_auto() ;
 
-      const Vector& dlapse_comp = star.get_d_lapse_comp() ;
+      const Vector& dlapconf_comp = star.get_d_lapconf_comp() ;
       const Vector& dconfo_comp = star.get_d_confo_comp() ;
       const Tensor& dshift_comp = star.get_d_shift_comp() ;
 
-      //------------------------------------------------------------------
-      // Calculation of d/dX( ln(lapse) + ln(Gamma) ) at the center of NS
-      //------------------------------------------------------------------
+      //----------------------------------------------------------
+      // Calculation of d/dX( ln(lapconf) - ln(psi) + ln(Gamma) )
+      //  at the center of NS
+      //----------------------------------------------------------
 
       // Factor to translate x --> X
       double factx ;
@@ -378,35 +385,39 @@ void Bin_bhns::orbit_omega(double fact_omeg_min, double fact_omeg_max) {
       tmp1.std_spectral_base() ;
 
       // d/dX tmp1
-      dnulg = factx * ( ((lapse_auto.dsdx()).val_grid_point(0,0,0,0)
-			 + dlapse_comp(1).val_grid_point(0,0,0,0))
-			/ lapse.val_grid_point(0,0,0,0)
+      dnulg = factx * ( ((lapconf_auto.dsdx()).val_grid_point(0,0,0,0)
+			 + dlapconf_comp(1).val_grid_point(0,0,0,0))
+			/ lapconf.val_grid_point(0,0,0,0)
+			- ((confo_auto.dsdx()).val_grid_point(0,0,0,0)
+			 + dconfo_comp(1).val_grid_point(0,0,0,0))
+			/ confo.val_grid_point(0,0,0,0)
 			+ (tmp1.dsdx()).val_grid_point(0,0,0,0) ) ;
 
 
-      //--------------------------------------------------
-      // Calculation of psi^4/lapse^2 at the center of NS
-      //--------------------------------------------------
+      //----------------------------------------------------
+      // Calculation of psi^6/lapconf^2 at the center of NS
+      //----------------------------------------------------
 
-      double lap_c = lapse.val_grid_point(0,0,0,0) ;
-      double psi4_c = psi4.val_grid_point(0,0,0,0) ;
+      double lapconf_c = lapconf.val_grid_point(0,0,0,0) ;
+      double confo_c = confo.val_grid_point(0,0,0,0) ;
 
-      p4sl2 = psi4_c / lap_c / lap_c ;
+      p6sl2 = pow(confo_c,6.) / lapconf_c / lapconf_c ;
 
 
-      //--------------------------------------------------------
-      // Calculation of d/dX(psi^4/lapse^2) at the center of NS
-      //--------------------------------------------------------
+      //----------------------------------------------------------
+      // Calculation of d/dX(psi^6/lapconf^2) at the center of NS
+      //----------------------------------------------------------
 
-      double dlap_c = factx * ( (lapse_auto.dsdx()).val_grid_point(0,0,0,0)
-				+ dlapse_comp(1).val_grid_point(0,0,0,0) ) ;
+      double dlapconf_c = factx *
+	( (lapconf_auto.dsdx()).val_grid_point(0,0,0,0)
+	  + dlapconf_comp(1).val_grid_point(0,0,0,0) ) ;
 
-      double dpsi4_c = 4. * factx * psi4.val_grid_point(0,0,0,0)
-	* ( (confo_auto.dsdx()).val_grid_point(0,0,0,0)
-	    + dconfo_comp(1).val_grid_point(0,0,0,0) )
-	/ confo.val_grid_point(0,0,0,0) ;
+      double dpsi6_c = 6. * factx * pow(confo_c,5.)
+	* ((confo_auto.dsdx()).val_grid_point(0,0,0,0)
+	   + dconfo_comp(1).val_grid_point(0,0,0,0)) ;
 
-      dp4sl2 = (dpsi4_c - 2.*psi4_c*dlap_c/lap_c) / lap_c / lap_c ;
+      dp6sl2 = (dpsi6_c - 2.*pow(confo_c,6.)*dlapconf_c/lapconf_c)
+	/ lapconf_c / lapconf_c ;
 
 
       //--------------------------------------------------------
@@ -469,10 +480,10 @@ void Bin_bhns::orbit_omega(double fact_omeg_min, double fact_omeg_max) {
 
       cout << "Bin_bhns::orbit_omega: central d(log(lap)+log(Gam))/dX : "
 	   << dnulg << endl ;
-      cout << "Bin_bhns::orbit_omega: central psi^4/lapse^2 :           "
-	   << p4sl2 << endl ;
-      cout << "Bin_bhns::orbit_omega: central d(psi^4/lapse^2)/dX :     "
-	   << dp4sl2 << endl ;
+      cout << "Bin_bhns::orbit_omega: central psi^6/lapconf^2 :         "
+	   << p6sl2 << endl ;
+      cout << "Bin_bhns::orbit_omega: central d(psi^6/lapconf^2)/dX :   "
+	   << dp6sl2 << endl ;
       cout << "Bin_bhns::orbit_omega: central shift^X :                 "
 	   << shiftx << endl ;
       cout << "Bin_bhns::orbit_omega: central shift^Y :                 "
@@ -493,8 +504,8 @@ void Bin_bhns::orbit_omega(double fact_omeg_min, double fact_omeg_max) {
 
       Param parorb ;
       parorb.add_double(dnulg, 0) ;
-      parorb.add_double(p4sl2, 1) ;
-      parorb.add_double(dp4sl2, 2) ;
+      parorb.add_double(p6sl2, 1) ;
+      parorb.add_double(dp6sl2, 2) ;
       parorb.add_double(shiftx, 3) ;
       parorb.add_double(shifty, 4) ;
       parorb.add_double(dshiftx, 5) ;
@@ -590,8 +601,8 @@ void Bin_bhns::orbit_omega(double fact_omeg_min, double fact_omeg_max) {
 double func_binbhns_orbit_ks(double om, const Param& parorb) {
 
     double dnulg = parorb.get_double(0) ;
-    double p4sl2 = parorb.get_double(1) ;
-    double dp4sl2 = parorb.get_double(2) ;
+    double p6sl2 = parorb.get_double(1) ;
+    double dp6sl2 = parorb.get_double(2) ;
     double shiftx = parorb.get_double(3) ;
     double shifty = parorb.get_double(4) ;
     double dshiftx = parorb.get_double(5) ;
@@ -625,8 +636,8 @@ double func_binbhns_orbit_ks(double om, const Param& parorb) {
       * (shiftx*x_separ + shifty*y_separ) ;
 
     double dlngam0 =
-      ( 0.5 * dp4sl2 * bpb
-	+ p4sl2 * (0.5*dshift2
+      ( 0.5 * dp6sl2 * bpb
+	+ p6sl2 * (0.5*dshift2
 		   + om * (shifty - dshiftx*y_orb + dshifty*x_orb)
 		   + om2 * x_orb
 		   - mhsr * x_separ * (x_separ*shiftx+y_separ*shifty)
@@ -642,7 +653,7 @@ double func_binbhns_orbit_ks(double om, const Param& parorb) {
 							   +y_separ*dshifty) )
 		   - 3. * mhsr * om2 * x_separ * y_separ * y_separ * xbh_orb
 		   * xbh_orb)
-	) / (1 - p4sl2 * bpb) ;
+	) / (1 - p6sl2 * bpb) ;
 
     return dnulg - dlngam0 ;
 
@@ -651,8 +662,8 @@ double func_binbhns_orbit_ks(double om, const Param& parorb) {
 double func_binbhns_orbit_is(double om, const Param& parorb) {
 
     double dnulg = parorb.get_double(0) ;
-    double p4sl2 = parorb.get_double(1) ;
-    double dp4sl2 = parorb.get_double(2) ;
+    double p6sl2 = parorb.get_double(1) ;
+    double dp6sl2 = parorb.get_double(2) ;
     double shiftx = parorb.get_double(3) ;
     double shifty = parorb.get_double(4) ;
     double dshiftx = parorb.get_double(5) ;
@@ -667,12 +678,12 @@ double func_binbhns_orbit_is(double om, const Param& parorb) {
     double bpb = om2 * (x_orb * x_orb + y_orb * y_orb)
       + 2. * om * (shifty * x_orb - shiftx * y_orb) + shift2 ;
 
-    double dlngam0 = ( 0.5 * dp4sl2 * bpb
-		       + p4sl2 * (0.5*dshift2
+    double dlngam0 = ( 0.5 * dp6sl2 * bpb
+		       + p6sl2 * (0.5*dshift2
 				  + om *
 				  (shifty - dshiftx*y_orb + dshifty*x_orb)
 				  + om2 * x_orb)
-		       ) / (1 - p4sl2 * bpb) ;
+		       ) / (1 - p6sl2 * bpb) ;
 
     return dnulg - dlngam0 ;
 
