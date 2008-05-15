@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2005-2006 Keisuke Taniguchi
+ *   Copyright (c) 2005-2007 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,9 @@ char star_bhns_kinema_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/05/15 19:16:06  k_taniguchi
+ * Change of a parameter.
+ *
  * Revision 1.1  2007/06/22 01:32:00  k_taniguchi
  * *** empty log message ***
  *
@@ -91,7 +94,7 @@ void Star_bhns::kinema_bhns(bool kerrschild, const double& mass_bh,
     // 2/ Addition of shift_tot and division by lapse
 
     for (int i=1; i<=3; i++) {
-        bsn.set(i) = ( bsn(i) + shift_tot(i) ) / lapse_tot ;
+        bsn.set(i) = confo_tot * ( bsn(i) + shift_tot(i) ) / lapconf_tot ;
     }
     bsn.std_spectral_base() ;
     bsn.annule_domain(nzm1) ;
