@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2005-2006 Keisuke Taniguchi
+ *   Copyright (c) 2005-2007 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,9 @@ char blackhole_extr_curv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/05/15 19:27:14  k_taniguchi
+ * Change of some parameters.
+ *
  * Revision 1.1  2007/06/22 01:19:32  k_taniguchi
  * *** empty log message ***
  *
@@ -104,6 +107,12 @@ void Black_hole::extr_curv_bh() {
 
 	flat_taij.std_spectral_base() ;
 
+	Scalar lapse_bh(mp) ;
+	lapse_bh = 1. / sqrt(1. + 2. * mass / rr) ;
+	lapse_bh.std_spectral_base() ;
+	lapse_bh.annule_domain(0) ;
+	lapse_bh.raccord(1) ;
+
 	Sym_tensor curv_taij(mp, CON, mp.get_bvect_cart()) ;
 	curv_taij.set_etat_qcq() ;
 
@@ -135,8 +144,8 @@ void Black_hole::extr_curv_bh() {
 	resi_taij.std_spectral_base() ;
 	resi_taij.inc_dzpuis(2) ;
 
-	taij_rs = 0.5 * pow(confo, 6.)
-	  * (flat_taij + curv_taij + resi_taij) / lapse ;
+	taij_rs = 0.5 * pow(confo, 7.)
+	  * (flat_taij + curv_taij + resi_taij) / lapconf ;
 
 	taij_rs.std_spectral_base() ;
 	taij_rs.annule_domain(0) ;
@@ -149,7 +158,7 @@ void Black_hole::extr_curv_bh() {
 	        taij_bh.set(i,j) = 2.*pow(lapse_bh,6.)*mass*(2.+3.*mass/rr)
 		  *( (1.+2.*mass/rr) * flat.con()(i,j)
 		     - (3.+2.*mass/rr) * ll(i) * ll(j) )
-		  *pow(confo, 6.)/lapse/3./rr/rr ;
+		  *pow(confo, 7.)/lapconf/3./rr/rr ;
 	    }
 	}
 
@@ -271,8 +280,8 @@ void Black_hole::extr_curv_bh() {
 	Sym_tensor taij_rs_down(mp, COV, mp.get_bvect_cart()) ;
 	taij_rs_down.set_etat_qcq() ;
 
-	taij_rs_down = 0.5 * pow(confo, 6.)
-	  * (flat_dshift + curv_dshift + tmp1 + tmp2) / lapse ;
+	taij_rs_down = 0.5 * pow(confo, 7.)
+	  * (flat_dshift + curv_dshift + tmp1 + tmp2) / lapconf ;
 
 	taij_rs_down.std_spectral_base() ;
 	taij_rs_down.annule_domain(0) ;
@@ -283,8 +292,8 @@ void Black_hole::extr_curv_bh() {
 	for (int i=1; i<=3; i++) {
 	    for (int j=1; j<=3; j++) {
 	      taij_bh_down.set(i,j) = 2.*pow(lapse_bh,4.)*mass*(2.+3.*mass/rr)
-		*pow(confo,6.)*(flat.cov()(i,j)-(3.+4.*mass/rr)*ll(i)*ll(j))
-		/lapse/3./rr/rr ;
+		*pow(confo,7.)*(flat.cov()(i,j)-(3.+4.*mass/rr)*ll(i)*ll(j))
+		/lapconf/3./rr/rr ;
 	    }
 	}
 
@@ -354,8 +363,8 @@ void Black_hole::extr_curv_bh() {
 	taij_quad_rs.std_spectral_base() ;
 
 	Scalar taij_quad_bh(mp) ;
-	taij_quad_bh = 8.*pow(lapse_bh,8.)*mass*mass*(2.+3.*mass/rr)
-	  *(2.+3.*mass/rr)*pow(confo,12.)/3./pow(rr,4.)/lapse/lapse ;
+	taij_quad_bh = 8.*pow(lapse_bh,10.)*mass*mass*(2.+3.*mass/rr)
+	  *(2.+3.*mass/rr)*pow(confo,12.)/3./pow(rr,4.)/lapconf/lapconf ;
 	taij_quad_bh.std_spectral_base() ;
 	taij_quad_bh.inc_dzpuis(4) ;
 
@@ -397,7 +406,7 @@ void Black_hole::extr_curv_bh() {
 
 	flat_taij.std_spectral_base() ;
 
-	taij = 0.5 * pow(confo, 6.) * flat_taij / lapse ;
+	taij = 0.5 * pow(confo, 7.) * flat_taij / lapconf ;
 
 	taij.std_spectral_base() ;
 	taij.annule_domain(0) ;
@@ -426,8 +435,8 @@ void Black_hole::extr_curv_bh() {
 
 	for (int i=1; i<=3; i++) {
 	    for (int j=1; j<=3; j++) {
-	      taij_down.set(i,j) = 0.5 * pow(confo, 6.) * flat_dshift(i,j)
-		  / lapse ;
+	      taij_down.set(i,j) = 0.5 * pow(confo, 7.) * flat_dshift(i,j)
+		  / lapconf ;
 	    }
 	}
 

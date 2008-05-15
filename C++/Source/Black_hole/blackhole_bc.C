@@ -7,7 +7,7 @@
  */
 
 /*
- *   Copyright (c) 2005-2006 Keisuk Taniguchi
+ *   Copyright (c) 2005-2007 Keisuk Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -31,6 +31,9 @@ char blackhole_bc_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/05/15 19:25:43  k_taniguchi
+ * Change of some parameters.
+ *
  * Revision 1.1  2007/06/22 01:18:23  k_taniguchi
  * *** empty log message ***
  *
@@ -55,7 +58,7 @@ char blackhole_bc_C[] = "$Header$" ;
                     //     Inner boundary condition     //
                     //----------------------------------//
 
-const Valeur Black_hole::bc_lapse(bool neumann, bool first) const {
+const Valeur Black_hole::bc_lapconf(bool neumann, bool first) const {
 
     // Fundamental constants and units
     // -------------------------------
@@ -67,6 +70,10 @@ const Valeur Black_hole::bc_lapse(bool neumann, bool first) const {
 
     if (kerrschild) {
 
+        cout << "!!!!! WARNING: Not yet available !!!!!" << endl ;
+	abort() ;
+
+	/*
         if (neumann) {
 
 	    if (first) {
@@ -108,6 +115,7 @@ const Valeur Black_hole::bc_lapse(bool neumann, bool first) const {
 
 	    }
 	}
+	*/
     }
     else {  // Isotropic coordinates with the maximal slicing
 
@@ -115,7 +123,7 @@ const Valeur Black_hole::bc_lapse(bool neumann, bool first) const {
 
 	    if (first) {
 
-	        bc = 0. ;  // dlapse/dr = 0
+	        bc = 0. ;  // d(lapconf)/dr = 0
 
 	    }
 	    else {
@@ -129,8 +137,8 @@ const Valeur Black_hole::bc_lapse(bool neumann, bool first) const {
 
 		Scalar tmp(mp) ;
 
-		tmp = 0.5 * lapse / rr ;
-		// dlapse/dr = lapse/2/rah
+		tmp = 0.5 * lapconf / rr ;
+		// d(lapconf)/dr = lapconf/2/rah
 
 		bc = 1. ;
 		for (int j=0; j<nt; j++) {
@@ -147,12 +155,36 @@ const Valeur Black_hole::bc_lapse(bool neumann, bool first) const {
 
 	    if (first) {
 
-	        bc = - 0.5 ;  // lapse = 0.5
+	        cout << "!!!!! WARNING: Not yet prepared !!!!!" << endl ;
+		abort() ;
+		//	        bc = - 0.5 ;  // lapconf = 0.5
 
 	    }
 	    else {
 
-	        bc = 1./sqrt(2.) - 1. ;  // lapse = 1./sqrt(2.)
+	        cout << "!!!!! WARNING: Not yet prepared !!!!!" << endl ;
+		abort() ;
+	        /*
+	        Scalar r_are(mp) ;
+		r_are = r_coord(neumann, first) ;
+		r_are.std_spectral_base() ;
+		r_are.annule_domain(0) ;
+		r_are.raccord(1) ;
+
+		int nt = mg->get_nt(0) ;
+		int np = mg->get_np(0) ;
+
+		Scalar tmp(mp) ;
+
+		tmp = sqrt(0.5*r_are) - 1. ;  // lapse = 1./sqrt(2.)
+
+		bc = 1. ;
+		for (int j=0; j<nt; j++) {
+		    for (int k=0; k<np; k++) {
+		        bc.set(0,k,j,0) = tmp.val_grid_point(1,k,j,0) ;
+		    }
+		}
+		*/
 
 	    }
 
@@ -195,14 +227,18 @@ const Valeur Black_hole::bc_shift_x(double omega_r) const {
 
     if (kerrschild) {
 
+        cout << "!!!!! WARNING: Not yet available !!!!!" << endl ;
+	abort() ;
+	/*
         tmp = lapse_bh * (lapse / confo / confo) * st * cp
 	  - omega_r * yy - shift_bh(1) ;
+	*/
 
 	//        tmp = lap_bh * lap_bh * st * cp - omega_r * yy ;
     }
     else {  // Isotropic coordinates with the maximal slicing
 
-        tmp = (lapse / confo / confo) * st * cp - omega_r * yy ;
+        tmp = lapconf / pow(confo, 3.) * st * cp - omega_r * yy ;
 
     }
 
@@ -258,14 +294,17 @@ const Valeur Black_hole::bc_shift_y(double omega_r) const {
 
     if (kerrschild) {
 
+        cout << "!!!!! WARNING: Not yet available !!!!!" << endl ;
+	abort() ;
+	/*
         tmp = lapse_bh * (lapse / confo / confo) * st * sp
 	  + omega_r * xx - shift_bh(2) ;
-
+	*/
 	//        tmp = lap_bh * lap_bh * st * sp + omega_r * xx ;
     }
     else {
 
-        tmp = (lapse / confo / confo) * st * sp + omega_r * xx ;
+        tmp = lapconf / pow(confo, 3.) * st * sp + omega_r * xx ;
 
     }
 
@@ -315,14 +354,17 @@ const Valeur Black_hole::bc_shift_z() const {
 
     if (kerrschild) {
 
+        cout << "!!!!! WARNING: Not yet available !!!!!" << endl ;
+	abort() ;
+	/*
         tmp = lapse_bh * (lapse / confo / confo) * ct
 	  - shift_bh(3) ;
-
+	*/
         //        tmp = lap_bh * lap_bh * ct ;
     }
     else {
 
-        tmp = (lapse / confo / confo) * ct ;
+        tmp = lapconf / pow(confo, 3.) * ct ;
 
     }
 
@@ -384,7 +426,10 @@ const Valeur Black_hole::bc_confo() const {
 
     if (kerrschild) { // Assumes that r_BH = 1.
 
-        Scalar divshift(mp) ;
+        cout << "!!!!! WARNING: Not yet available !!!!!" << endl ;
+	abort() ;
+	/*
+	Scalar divshift(mp) ;
 	divshift = shift_rs(1).deriv(1) + shift_rs(2).deriv(2)
 	  + shift_rs(3).deriv(3) ;
 	divshift.std_spectral_base() ;
@@ -411,7 +456,7 @@ const Valeur Black_hole::bc_confo() const {
 	tmp4.set_dzpuis(tmp5.get_dzpuis()) ;
 
         tmp = tmp5 + pow(confo,3.)*(tmp1+tmp2+tmp3+tmp4)/12./lapse/lapse_bh ;
-
+	*/
 	//	tmp = -0.5 * (1. - 2. * mass / rr) / rr ;
 
     }
@@ -437,7 +482,7 @@ const Valeur Black_hole::bc_confo() const {
 	tmp1.set_dzpuis(tmp5.get_dzpuis()) ;
 	tmp2.set_dzpuis(tmp5.get_dzpuis()) ;
 
-	tmp = tmp5 + pow(confo, 3.) * (tmp1 + tmp2) / 12. / lapse ;
+	tmp = tmp5 + pow(confo, 4.) * (tmp1 + tmp2) / 12. / lapconf ;
 
     }
 

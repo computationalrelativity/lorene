@@ -7,7 +7,7 @@
  */
 
 /*
- *   Copyright (c) 2005-2006 Keisuke Taniguchi
+ *   Copyright (c) 2005-2007 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -31,6 +31,9 @@ char blackhole_static_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/05/15 19:31:17  k_taniguchi
+ * Change of some parameters.
+ *
  * Revision 1.1  2007/06/22 01:20:50  k_taniguchi
  * *** empty log message ***
  *
@@ -88,12 +91,12 @@ void Black_hole::static_bh(bool neumann, bool first) {
 
     if (kerrschild) {
 
-        // Lapse function
-        // --------------
-        lapse = 1./sqrt(1.+2.*mass/rr) ;
-	lapse.annule_domain(0) ;
-	lapse.std_spectral_base() ;
-	lapse.raccord(1) ;
+        // Lapconf function
+        // ----------------
+        lapconf = 1./sqrt(1.+2.*mass/rr) ;
+	lapconf.annule_domain(0) ;
+	lapconf.std_spectral_base() ;
+	lapconf.raccord(1) ;
 
 	// Conformal factor
 	// ----------------
@@ -103,7 +106,7 @@ void Black_hole::static_bh(bool neumann, bool first) {
 	// Shift vector
 	// ------------
 	for (int i=1; i<=3; i++)
-            shift.set(i) = 2. * mass * lapse % lapse % ll(i) / rr ;
+            shift.set(i) = 2. * mass * lapconf % lapconf % ll(i) / rr ;
 
 	shift.annule_domain(0) ;
 	shift.std_spectral_base() ;
@@ -116,49 +119,58 @@ void Black_hole::static_bh(bool neumann, bool first) {
         double cc ;
 
 	if (neumann) {  // Neumann boundary condition
-	  if (first) {  // First condition
-	    // d\alpha/dr = 0
-	    // --------------
-	    cc = 2. ;
-	  }
-	  else {  // Second condition
-	    // d\alpha/dr = \alpha/(2 rah)
-	    // ---------------------------
-	    cc = 0.5 * (sqrt(17.) - 1.) ;
-	  }
+	    if (first) {  // First condition
+	      // d(\alpha \psi)/dr = 0
+	      // ---------------------
+	      cc = 2. * (sqrt(13.) - 1.) / 3. ;
+	    }
+	    else {  // Second condition
+	      // d(\alpha \psi)/dr = (\alpha \psi)/(2 rah)
+	      // -----------------------------------------
+	      cc = 4. / 3. ;
+	}
 	}
 	else {  // Dirichlet boundary condition
-	  if (first) {  // First condition
-	    // \alpha = 1/2
-	    // ------------
-	    cc = 2. ;
-	  }
-	  else {  // Second condition
-	    // \alpha = 1/sqrt(2.)
-	    // -------------------
-	    cc = 2. * sqrt(2.) ;
-	  }
+	    if (first) {  // First condition
+	      // (\alpha \psi) = 1/2
+	      // -------------------
+	      cout << "!!!!! WARNING: Not yet prepared !!!!!" << endl ;
+	      abort() ;
+	    }
+	    else {  // Second condition
+	      // (\alpha \psi) = 1/sqrt(2.) \psi_KS
+	      // ----------------------------------
+	      cout << "!!!!! WARNING: Not yet prepared !!!!!" << endl ;
+	      abort() ;
+	    }
 	}
 
         Scalar r_are(mp) ;
 	r_are = r_coord(neumann, first) ;
 	r_are.std_spectral_base() ;
 
-        // Lapse function
-        // --------------
-	lapse = sqrt(1. - 2.*mass/r_are/rr
-		     + cc*cc*pow(mass/r_are/rr,4.)) ;
+        // Lapconf function
+        // ----------------
+	lapconf = sqrt(1. - 2.*mass/r_are/rr
+		       + cc*cc*pow(mass/r_are/rr,4.)) * sqrt(r_are) ;
 
-	lapse.annule_domain(0) ;
-	lapse.std_spectral_base() ;
-	lapse.raccord(1) ;
+	lapconf.std_spectral_base() ;
+	lapconf.annule_domain(0) ;
+	lapconf.raccord(1) ;
 
         // Conformal factor
 	// ----------------
 	confo = sqrt(r_are) ;
-	confo.annule_domain(0) ;
 	confo.std_spectral_base() ;
+	confo.annule_domain(0) ;
 	confo.raccord(1) ;
+
+	// Lapse function
+	// --------------
+	lapse = lapconf / confo ;
+	lapse.std_spectral_base() ;
+	lapse.annule_domain(0) ;
+	lapse.raccord(1) ;
 
         // Shift vector
 	// ------------

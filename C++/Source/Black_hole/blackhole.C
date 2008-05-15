@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2005-2006 Keisuke Taniguchi
+ *   Copyright (c) 2005-2007 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,9 @@ char blackhole_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/05/15 19:25:07  k_taniguchi
+ * Change of some parameters.
+ *
  * Revision 1.1  2007/06/22 01:18:47  k_taniguchi
  * *** empty log message ***
  *
@@ -59,9 +62,10 @@ Black_hole::Black_hole(Map& mp_i, bool kerrschild_i, double massbh)
       : mp(mp_i),
 	kerrschild(kerrschild_i),
 	mass_bh(massbh),
+	lapconf(mp_i),
+	lapconf_rs(mp_i),
+	lapconf_bh(mp_i),
 	lapse(mp_i),
-	lapse_rs(mp_i),
-	lapse_bh(mp_i),
 	shift(mp_i, CON, mp_i.get_bvect_cart()),
 	shift_rs(mp_i, CON, mp_i.get_bvect_cart()),
 	shift_bh(mp_i, CON, mp_i.get_bvect_cart()),
@@ -76,12 +80,14 @@ Black_hole::Black_hole(Map& mp_i, bool kerrschild_i, double massbh)
     set_der_0x0() ;
 
     // The metric quantities are initialized to the flat one
+    lapconf = 1. ;
+    lapconf.std_spectral_base() ;
+    lapconf_rs = 0. ;
+    lapconf_rs.std_spectral_base() ;
+    lapconf_bh = 1. ;
+    lapconf_bh.std_spectral_base() ;
     lapse = 1. ;
     lapse.std_spectral_base() ;
-    lapse_rs = 0. ;
-    lapse_rs.std_spectral_base() ;
-    lapse_bh = 1. ;
-    lapse_bh.std_spectral_base() ;
     shift.set_etat_zero() ;
     shift_rs.set_etat_zero() ;
     shift_bh.set_etat_zero() ;
@@ -103,9 +109,10 @@ Black_hole::Black_hole(const Black_hole& bh)
       : mp(bh.mp),
 	kerrschild(bh.kerrschild),
 	mass_bh(bh.mass_bh),
+	lapconf(bh.lapconf),
+	lapconf_rs(bh.lapconf_rs),
+	lapconf_bh(bh.lapconf_bh),
 	lapse(bh.lapse),
-	lapse_rs(bh.lapse_rs),
-	lapse_bh(bh.lapse_bh),
 	shift(bh.shift),
 	shift_rs(bh.shift_rs),
 	shift_bh(bh.shift_bh),
@@ -124,9 +131,10 @@ Black_hole::Black_hole(const Black_hole& bh)
 // -----------------------
 Black_hole::Black_hole(Map& mp_i, FILE* fich)
       : mp(mp_i),
+	lapconf(mp_i),
+	lapconf_rs(mp_i, *(mp_i.get_mg()), fich),
+	lapconf_bh(mp_i),
 	lapse(mp_i),
-	lapse_rs(mp_i, *(mp_i.get_mg()), fich),
-	lapse_bh(mp_i),
 	shift(mp_i, CON, mp_i.get_bvect_cart()),
 	shift_rs(mp_i, mp_i.get_bvect_cart(), fich),
 	shift_bh(mp_i, CON, mp_i.get_bvect_cart()),
@@ -144,10 +152,12 @@ Black_hole::Black_hole(Map& mp_i, FILE* fich)
 
     // All other fields are initialized to zero or some values
     // -------------------------------------------------------
-    lapse = lapse_rs ;
-    lapse.std_spectral_base() ;
-    lapse_bh = 0. ;
-    lapse_bh.std_spectral_base() ;
+    lapconf = lapconf_rs ;
+    lapconf.std_spectral_base() ;
+    lapconf_bh = 0. ;
+    lapconf_bh.std_spectral_base() ;
+
+    lapse = lapconf / confo ;
 
     shift = shift_rs ;
     shift.std_spectral_base() ;
@@ -215,9 +225,10 @@ void Black_hole::operator=(const Black_hole& bh) {
 
     kerrschild = bh.kerrschild ;
     mass_bh = bh.mass_bh ;
+    lapconf = bh.lapconf ;
+    lapconf_rs = bh.lapconf_rs ;
+    lapconf_bh = bh.lapconf_bh ;
     lapse = bh.lapse ;
-    lapse_rs = bh.lapse_rs ;
-    lapse_bh = bh.lapse_bh ;
     shift = bh.shift ;
     shift_rs = bh.shift_rs ;
     shift_bh = bh.shift_bh ;
@@ -241,7 +252,7 @@ void Black_hole::operator=(const Black_hole& bh) {
 // --------------
 void Black_hole::sauve(FILE* fich) const {
 
-    lapse_rs.sauve(fich) ;
+    lapconf_rs.sauve(fich) ;
     shift_rs.sauve(fich) ;
     confo.sauve(fich) ;
 
@@ -276,6 +287,8 @@ ostream& Black_hole::operator>>(ostream& ost) const {
 	ost << "---------------------------" << endl ;
     }
 
+    ost << "lapconf on the AH :  "
+	<< lapconf.val_grid_point(1,0,nt-1,0) << endl ;
     ost << "lapse on the AH :    "
 	<< lapse.val_grid_point(1,0,nt-1,0) << endl ;
     ost << "shift(1) on the AH : "

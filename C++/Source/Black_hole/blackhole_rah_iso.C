@@ -7,7 +7,7 @@
  */
 
 /*
- *   Copyright (c) 2006 Keisuke Taniguchi
+ *   Copyright (c) 2006-2007 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -31,6 +31,9 @@ char blackhole_rah_iso_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/05/15 19:30:35  k_taniguchi
+ * Change of some parameters.
+ *
  * Revision 1.1  2007/06/22 01:20:13  k_taniguchi
  * *** empty log message ***
  *
@@ -64,35 +67,28 @@ double Black_hole::rah_iso(bool neumann, bool first) const {
 
     if (neumann) {  // Neumann boundary condition
         if (first) {  // First condition
-
-	  // d\alpha/dr = 0
-	  // --------------
-	  cc = 2. ;
-
+	  // d(\alpha \psi)/dr = 0
+	  // ---------------------
+	  cc = 2. * (sqrt(13.) - 1.) / 3. ;
 	}
 	else {  // Second condition
-
-	  // d\alpha/dr = \alpha/(2 rah)
-	  // ---------------------------
-	  cc = 0.5 * (sqrt(17.) - 1.) ;
-
-	  //	  cc = 0.5 * (sqrt(17.) + 1.) ;
+	  // d(\alpha \psi)/dr = (\alpha \psi)/(2 rah)
+	  // -----------------------------------------
+	  cc = 4. / 3. ;
 	}
     }
     else {  // Dirichlet boundary condition
        if (first) {  // First condition
-
-	 // \alpha = 1/2
-	 // ------------
-	 cc = 2. ;
-
+	 // (\alpha \psi) = 1/2
+	 // -------------------
+	 cout << "!!!!! WARNING: Not yet prepared !!!!!" << endl ;
+	 abort() ;
        }
        else {  // Second condition
-
-	 // \alpha = 1/sqrt(2.)
-	 // -------------------
-	 cc = 2. * sqrt(2.) ;
-
+	 // (\alpha \psi) = 1/sqrt(2.) \psi_KS
+	 // ----------------------------------
+	 cout << "!!!!! WARNING: Not yet prepared !!!!!" << endl ;
+	 abort() ;
        }
     }
 

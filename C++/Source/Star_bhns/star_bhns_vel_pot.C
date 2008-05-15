@@ -7,7 +7,7 @@
  */
 
 /*
- *   Copyright (c) 2005-2006 Keisuke Taniguchi
+ *   Copyright (c) 2005-2007 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -31,6 +31,9 @@ char star_bhns_vel_pot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/05/15 19:20:29  k_taniguchi
+ * Change of some parameters.
+ *
  * Revision 1.1  2007/06/22 01:33:14  k_taniguchi
  * *** empty log message ***
  *
@@ -116,106 +119,19 @@ double Star_bhns::velo_pot_bhns(const double& mass_bh, const double& sepa,
     double erreur ;
 
     Scalar source(mp) ;
-    Vector bb(mp, CON, mp.get_bvect_cart()) ;
+    Vector bb(mp, CON, mp.get_bvect_spher()) ;
     Metric_flat flat_spher( mp.flat_met_spher() ) ;
 
     if (kerrschild) {
 
-        double mass = ggrav * mass_bh ;
-
-	Scalar xx(mp) ;
-	xx = mp.x ;
-	xx.std_spectral_base() ;
-	Scalar yy(mp) ;
-	yy = mp.y ;
-	yy.std_spectral_base() ;
-	Scalar zz(mp) ;
-	zz = mp.z ;
-	zz.std_spectral_base() ;
-
-	double yns = mp.get_ori_y() ;
-
-	Scalar rbh(mp) ;
-	rbh = sqrt( (xx+sepa)*(xx+sepa) + (yy+yns)*(yy+yns) + zz*zz ) ;
-	rbh.std_spectral_base() ;
-
-	Vector ll(mp, CON, mp.get_bvect_cart()) ;
-	ll.set_etat_qcq() ;
-	ll.set(1) = (xx+sepa) / rbh ;
-	ll.set(2) = (yy+yns) / rbh ;
-	ll.set(3) = zz / rbh ;
-	ll.std_spectral_base() ;
-
-	Scalar msr(mp) ;
-	msr = mass / rbh ;
-	msr.std_spectral_base() ;
-
-	Scalar lap_bh(mp) ;
-	lap_bh = 1./sqrt(1.+2.*msr) ;
-	lap_bh.std_spectral_base() ;
-
-	Scalar lnlappsi(mp) ;
-	lnlappsi = log( lapse_tot * confo_tot * confo_tot ) ;
-	lnlappsi.std_spectral_base() ;
-
-	bb = (1. - zeta_h) * ent.derive_con(flat_spher)
-	  + zeta_h * lnlappsi.derive_con(flat_spher) ;
-
-	Vector dentmb(mp, COV, mp.get_bvect_cart()) ;
-	dentmb.set_etat_qcq() ;
-	for (int i=1; i<=3; i++) {
-	    dentmb.set(i) = ent.deriv(i)
-	      - (d_lapse_auto(i) + d_lapse_comp(i)) / lapse_tot
-	      - 2. * (d_confo_auto(i) + d_confo_comp(i)) / confo_tot ;
-	}
-	dentmb.std_spectral_base() ;
-
-	Scalar lldpsi0(mp) ;
-	lldpsi0 = ll(1)*psi0.deriv(1) + ll(2)*psi0.deriv(2)
-	  + ll(3)*psi0.deriv(3) ;
-	lldpsi0.std_spectral_base() ;
-
-	Scalar lldlldpsi0(mp) ;
-	lldlldpsi0 = ll(1)*lldpsi0.deriv(1) + ll(2)*lldpsi0.deriv(2)
-	  + ll(3)*lldpsi0.deriv(3) ;
-	lldlldpsi0.std_spectral_base() ;
-
-	Scalar llvorb(mp) ;
-	llvorb = ll(1)*v_orb(1) + ll(2)*v_orb(2) + ll(3)*v_orb(3) ;
-	llvorb.std_spectral_base() ;
-
-	Scalar lldent(mp) ;
-	lldent = ll(1)*ent.deriv(1) + ll(2)*ent.deriv(2)
-	  + ll(3)*ent.deriv(3) ;
-	lldent.std_spectral_base() ;
-
-	Scalar lldlnlappsi(mp) ;
-	lldlnlappsi = ll(1)*((d_lapse_auto(1)+d_lapse_comp(1))/lapse_tot
-			     +2.*(d_confo_auto(1)+d_confo_comp(1))/confo_tot)
-	  + ll(2)*((d_lapse_auto(2)+d_lapse_comp(2))/lapse_tot
-		   +2.*(d_confo_auto(2)+d_confo_comp(2))/confo_tot)
-	  + ll(3)*((d_lapse_auto(3)+d_lapse_comp(3))/lapse_tot
-		   +2.*(d_confo_auto(3)+d_confo_comp(3))/confo_tot) ;
-
-	lldlnlappsi.std_spectral_base() ;
-
-	source = contract(www - v_orb, 0, ent.derive_cov(flat), 0)
-	  + zeta_h*(contract(v_orb, 0, dentmb, 0)
-		    +contract(www/gam_euler, 0, gam_euler.derive_cov(flat), 0)
-		    )
-	  + 2. * zeta_h * lap_bh * lap_bh * msr * lldlldpsi0
-	  + (2.*lap_bh*lap_bh*msr*( (1.-zeta_h)*lldent + zeta_h*lldlnlappsi )
-	     + zeta_h*pow(lap_bh,4.)*msr*(3.+8.*msr)/rbh)*(lldpsi0 + llvorb)
-	  + 2.*zeta_h*psi4*hhh*gam_euler*pow(lap_bh,3.)
-	  *msr*(1.+3.*msr)/rbh ;
-
-	source.annule(nzet, nzm1) ;
+        cout << "!!!!! WARNING: Not yet available !!!!!" << endl ;
+	abort() ;
 
     }  // End of Kerr-Schild
     else {  // Isotropic coordinates with the maximal slicing
 
         Scalar lnlappsi(mp) ;
-	lnlappsi = log( lapse_tot * confo_tot * confo_tot ) ;
+	lnlappsi = log( lapconf_tot * confo_tot ) ;
 	lnlappsi.std_spectral_base() ;
 
 	bb = (1. - zeta_h) * ent.derive_con(flat_spher)
@@ -225,8 +141,8 @@ double Star_bhns::velo_pot_bhns(const double& mass_bh, const double& sepa,
 	dentmb.set_etat_qcq() ;
 	for (int i=1; i<=3; i++) {
 	    dentmb.set(i) = ent.deriv(i)
-	      - (d_lapse_auto(i) + d_lapse_comp(i)) / lapse_tot
-	      - 2. * (d_confo_auto(i) + d_confo_comp(i)) / confo_tot ;
+	      - (d_lapconf_auto(i) + d_lapconf_comp(i)) / lapconf_tot
+	      - (d_confo_auto(i) + d_confo_comp(i)) / confo_tot ;
 	}
 	dentmb.std_spectral_base() ;
 

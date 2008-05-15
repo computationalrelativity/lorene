@@ -6,7 +6,7 @@
  */
 
 /*
- *   Copyright (c) 2005-2006 Keisuke Taniguchi
+ *   Copyright (c) 2005-2007 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
  *
@@ -30,6 +30,9 @@ char blackhole_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/05/15 19:28:03  k_taniguchi
+ * Change of some parameters.
+ *
  * Revision 1.1  2007/06/22 01:19:51  k_taniguchi
  * *** empty log message ***
  *
@@ -135,6 +138,9 @@ double Black_hole::mass_adm() const {
 
 	if (kerrschild) {
 
+	  cout << "!!!!! WARNING: Not yet available !!!!!" << endl ;
+	  abort() ;
+	  /*
 	  Scalar divshf(mp) ;
 	  divshf = shift_rs(1).deriv(1) + shift_rs(2).deriv(2)
 	    + shift_rs(3).deriv(3) ;
@@ -208,7 +214,7 @@ double Black_hole::mass_adm() const {
 	    - 2.*(mp_aff.integrale_surface_infini(lldconf))/qpig ;
 
 	  cout << "Another ADM mass :   " << mmm / msol << endl ;
-
+	  */
 	}
 	else {  // Isotropic coordinates with the maximal slicing
 
@@ -229,7 +235,7 @@ double Black_hole::mass_adm() const {
 	  // Surface integral
 	  // ----------------
 	  source_surf = confo/rr
-	    - pow(confo,3.) * (divshf - 3.*lldllsh) / lapse / 6. ;
+	    - pow(confo,4.) * (divshf - 3.*lldllsh) / lapconf / 6. ;
 
 	  source_surf.std_spectral_base() ;
 	  source_surf.annule_domain(0) ;
@@ -313,18 +319,18 @@ double Black_hole::mass_kom() const {
 	ll.set(3) = ct ;
 	ll.std_spectral_base() ;
 
-	Scalar lconfo = log(confo) ;
-	lconfo.std_spectral_base() ;
-
 	Vector dlcnf(mp, CON, mp.get_bvect_cart()) ;
 	dlcnf.set_etat_qcq() ;
 	for (int i=1; i<=3; i++)
-	  dlcnf.set(i) = lconfo.deriv(i) ;
+	  dlcnf.set(i) = confo.deriv(i) / confo ;
 
 	dlcnf.std_spectral_base() ;
 
 	if (kerrschild) {
 
+	  cout << "!!!!! WARNING: Not yet available !!!!!" << endl ;
+	  abort() ;
+	  /*
 	  Scalar llshift(mp) ;
 	  llshift = ll(1)%shift_rs(1) + ll(2)%shift_rs(2)
 	    + ll(3)%shift_rs(3) ;
@@ -424,13 +430,14 @@ double Black_hole::mass_kom() const {
 	    / qpig ;
 
 	  cout << "Another Komar mass : " << mmm / msol << endl ;
-
+	  */
 	}
 	else {  // Isotropic coordinates with the maximal slicing
 
 	  // Surface integral
 	  // ----------------
-	  Scalar lldlap = lapse.dsdr() ;
+	  Scalar lldlap = lapconf.dsdr() / confo
+	    - lapconf * confo.dsdr() / confo / confo ;
 	  lldlap.std_spectral_base() ;
 
 	  source_surf = lldlap ;
@@ -448,11 +455,12 @@ double Black_hole::mass_kom() const {
 	  dlap.set_etat_qcq() ;
 
 	  for (int i=1; i<=3; i++)
-	    dlap.set(i) = lapse.deriv(i) ;
+	    dlap.set(i) = lapconf.deriv(i) / confo
+	      - lapconf * confo.deriv(i) / confo / confo ;
 
 	  dlap.std_spectral_base() ;
 
-	  source_volm = lapse % taij_quad / pow(confo,8.)
+	  source_volm = lapconf % taij_quad / pow(confo,9.)
 	    - 2.*(dlap(1)%dlcnf(1) + dlap(2)%dlcnf(2) + dlap(3)%dlcnf(3)) ;
 
 	  source_volm.std_spectral_base() ;
