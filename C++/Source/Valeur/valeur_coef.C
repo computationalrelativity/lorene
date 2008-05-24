@@ -30,6 +30,9 @@ char valeur_coef_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2008/05/24 15:09:02  j_novak
+ * Getting back to previous version, the new one was an error.
+ *
  * Revision 1.9  2008/05/24 15:05:22  j_novak
  * New method Scalar::match_tau to match the output of an explicit time-marching scheme with the tau method.
  *
@@ -288,16 +291,7 @@ void Valeur::coef() const {
 	if ( nr > 1 ) {
 	    assert( admissible_fft(nr-1) ) ; 
 	    coef_r[base_r](deg, dim, (cf->t), dim, (cf->t)) ;
-	}
- 	double coef_max = max(abs(*cf)) ;
- 	int taille = nr_c*nt_c*np_c ;
- 	double petit = 3.e-16*coef_max ;
- 	double* pc = cf->t ;
- 	for (int i=0; i<taille; i++) {
- 	    if (fabs(*pc)<petit) *pc = 0.e0 ;
- 	    pc++ ;
- 	}
-	
+	}	
 	   
     }  // fin de la boucle sur les differentes zones
     
