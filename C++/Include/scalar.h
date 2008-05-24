@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.83  2008/05/24 15:05:22  j_novak
+ * New method Scalar::match_tau to match the output of an explicit time-marching scheme with the tau method.
+ *
  * Revision 1.82  2007/12/21 16:06:16  j_novak
  * Methods to filter Tensor, Vector and Sym_tensor objects.
  *
@@ -983,6 +986,16 @@ class Scalar : public Tensor {
    * Matching of the external domain with the outermost shell
    */
   void raccord_externe(int puis, int nbre, int lmax) ;
+
+  /**
+   * Method for matching accross domains and imposing boundary condition.
+   * Matching of the field represented by \c this accross domains and imposition of the
+   * boundary condition using the tau method.
+   * @param par_bc [input] \c Param to control the boundary conditions
+   * @param par_mat [input/output] optional \c Param in which the matching matrices are
+   *                stored (together with their LU decomposition).
+   */
+  void match_tau(Param& par_bc, Param* par_mat=0x0) ;
 
   // Outputs
   // -------
