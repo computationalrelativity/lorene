@@ -30,6 +30,10 @@ char strot_dirac_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2008/05/30 08:27:38  j_novak
+ * New global quantities rp_circ and ellipt (circumferential polar coordinate and
+ * ellipticity).
+ *
  * Revision 1.7  2008/02/18 13:51:20  j_novak
  * Change of a dzpuis
  *
@@ -338,18 +342,89 @@ double Star_rot_Dirac::r_circ() const {
 
 }
 
+
+                //--------------------//
+                //     R_circ         //
+                //--------------------//
+
+double Star_rot_Dirac::rp_circ() const {
+
+    if (p_rp_circ ==0x0) {  // a new computation is required
+	const Mg3d& mg = *mp.get_mg() ;
+	int nz = mg.get_nzone() ;
+	assert(nz>2) ;
+	int np = mg.get_np(0) ;
+	if (np != 1) {
+	    cout << "The polar circumferential radius is only well defined\n"
+		 << "with np = 1!" << endl ;
+	    abort() ;
+	}
+	int nt = mg.get_nt(0) ;
+	Sym_tensor gam = gamma.cov() ;
+	const Coord& tet = mp.tet ;
+	Scalar rrr(mp) ;
+	rrr.annule_hard() ;
+	rrr.annule(nzet,nz-1) ;
+	double phi = 0 ;
+	for (int j=0; j<nt; j++) {
+	    double theta = (+tet)(0, 0, j, 0) ;
+	    double erre = 
+		mp.val_r(l_surf()(0,j), xi_surf()(0, j), theta, phi) ;
+	    for (int lz=0; lz<nzet; lz++) {
+		int nrz = mg.get_nr(lz) ;
+		for (int i=0; i<nrz; i++) {
+		    rrr.set_grid_point(lz, 0, j, i) = erre ; 
+		}
+	    }
+	}
+	rrr.std_spectral_base() ;
+	Scalar drrr = rrr.dsdt() ;
+
+	Scalar fff(mp) ;
+	fff.annule_hard() ;
+	fff.annule(nzet,nz-1) ;
+	for (int j=0; j<nt; j++) {
+	    double theta = (+tet)(0, 0, j, 0) ;
+	    int ls = l_surf()(0, j) ;
+	    double xs = xi_surf()(0, j) ;
+	    double grr = gam(1,1).get_spectral_va().val_point_jk(ls, xs, j, 0) ;
+	    double grt = gam(1,2).get_spectral_va().val_point_jk(ls, xs, j, 0) ;
+	    double gtt = gam(2,2).get_spectral_va().val_point_jk(ls, xs, j, 0) ;
+	    double rr = mp.val_r(ls, xs, theta, phi) ;
+	    double dr = drrr.get_spectral_va().val_point_jk(ls, xs, j, 0) ;
+	    for (int i=0; i< mg.get_nr(1); i++) {
+		fff.set_grid_point(1, 0, j, i) 
+		    = sqrt(grr*dr*dr + 2*grt*rr*dr + gtt*rr*rr) ;
+	    }
+// 		cout << 0.5*double(j)*M_PI/double(nt-1) << '\t' << fff.val_grid_point(1, 0, j, 0) << endl ;
+		   
+//  	    cout << "j= " << j << endl ;
+//  	    cout << grr << ", " << grt << " , " << gtt << endl ;
+//  	    cout << dr << ", " << rr << ", " << fff.val_grid_point(1, 0, j, 0) << endl ;
+	}
+	fff.std_spectral_base() ;
+	fff.set_spectral_va().coef() ;
+	p_rp_circ = new double((*fff.get_spectral_va().c_cf)(1, 0, 0, 0)) ;      
+    }
+    return *p_rp_circ ;
+}
+
                 //--------------------------//
                 //       Flattening         //
                 //--------------------------//
 
 double Star_rot_Dirac::aplat() const {
 
-  if (p_aplat == 0x0) {   // a new computation is required
+  return ray_pole() / ray_eq() ;
 
-    p_aplat = new double( ray_pole() / ray_eq() ) ;
+}
 
-  }
+                //--------------------------//
+                //       Ellipticity        //
+                //--------------------------//
 
-  return *p_aplat ;
+double Star_rot_Dirac::ellipt() const {
+
+  return sqrt(1. - (rp_circ()*rp_circ())/(r_circ()*r_circ())) ;
 
 }

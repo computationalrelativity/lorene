@@ -106,8 +106,8 @@ class Star_rot_Dirac : public Star {
        mutable double* p_grv2 ; ///< Error on the virial identity GRV2.
        mutable double* p_grv3 ; ///< Error on the virial identity GRV3.
        mutable double* p_tsw ; ///< Ratio T/W.
-       mutable double* p_aplat ; ///Flattening r_pole/r_eq.
-       mutable double* p_r_circ ; ///<Circumferential radius.
+       mutable double* p_r_circ ; ///<Circumferential equatorial radius.
+       mutable double* p_rp_circ ; ///<Circumferential polar radius.
 
 
     // Constructors - Destructor
@@ -267,7 +267,15 @@ class Star_rot_Dirac : public Star {
        virtual double grv3() const ; ///< Error on the virial identity GRV3
        virtual double tsw() const ; ///< Ratio T/W
        virtual double aplat() const ; ///< Flattening r_pole/r_eq
-       virtual double r_circ() const ; ///< Circumferential radius. 
+       virtual double r_circ() const ; ///< Circumferential equatorial radius. 
+       virtual double rp_circ() const ; ///< Circumferential polar radius. 
+       /**
+	* Ellipticity \e e.
+	* Defined as \f$ e = \sqrt{1 - \left( \frac{R^c_e}{R^c_p} \right)^2} \f$,
+	* where \f$R^c_e\f$ and \f$R^c_p\f$ are, respectively, the equatorial 
+	* and polar circumferential radius, given by \c r_circ() and \c rp_circ().
+	*/
+       virtual double ellipt() const ;
 
 
 

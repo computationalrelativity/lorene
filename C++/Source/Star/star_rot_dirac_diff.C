@@ -225,10 +225,12 @@ ostream& Star_rot_Dirac_diff::operator>>(ostream& ost) const {
 
      ost << "Circumferential equatorial radius R_circ :     "
 	 << r_circ()/km << " km" << '\n';
+     ost << "Circumferential polar radius Rp_circ :     "
+	 << rp_circ()/km << " km" << endl ;
      ost << "Coordinate equatorial radius r_eq : " << ray_eq()/km << " km"
-	 << '\n';
-     ost << "Flattening r_pole/r_eq :  " << aplat() << '\n';
-
+	 << endl ;
+     ost << "Flattening r_pole/r_eq :  " << aplat() << endl ;
+     ost << "Ellipticity sqrt(1-(Rp_circ/R_circ)^2) :  " << ellipt() << endl ;
      double compact = qpig/(4.*M_PI) * mass_g() / r_circ() ;
      ost << "Compaction parameter M_g / R_circ : " << compact << '\n'; 
      

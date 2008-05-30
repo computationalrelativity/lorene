@@ -30,6 +30,10 @@ char star_rot_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2008/05/30 08:27:38  j_novak
+ * New global quantities rp_circ and ellipt (circumferential polar coordinate and
+ * ellipticity).
+ *
  * Revision 1.6  2007/11/06 16:23:59  j_novak
  * Added the flag spectral_filter giving the order of possible spectral filtering
  * of the hydro sources of metric equations (some members *_euler). The filtering
@@ -207,8 +211,8 @@ void Star_rot_Dirac::del_deriv() const {
        if (p_grv2 != 0x0) delete p_grv2 ;
        if (p_grv3 != 0x0) delete p_grv3 ;
        if (p_tsw != 0x0) delete p_tsw ;
-       if (p_aplat != 0x0) delete p_aplat ; 
        if (p_r_circ != 0x0) delete p_r_circ ;
+       if (p_rp_circ != 0x0) delete p_rp_circ ;
 
        set_der_0x0() ;
 
@@ -223,8 +227,8 @@ void Star_rot_Dirac::set_der_0x0() const {
        p_grv2 = 0x0 ;
        p_grv3 = 0x0 ;
        p_tsw = 0x0 ;
-       p_aplat = 0x0 ;
        p_r_circ = 0x0 ;
+       p_rp_circ = 0x0 ;
 
 }
 
@@ -342,9 +346,12 @@ ostream& Star_rot_Dirac::operator>>(ostream& ost) const {
      ost << "Ratio T/W :              " << tsw() << endl ;
      ost << "Circumferential equatorial radius R_circ :     "
 	 << r_circ()/km << " km" << endl ;
+     ost << "Circumferential polar radius Rp_circ :     "
+	 << rp_circ()/km << " km" << endl ;
      ost << "Coordinate equatorial radius r_eq : " << ray_eq()/km << " km"
 	 << endl ;
      ost << "Flattening r_pole/r_eq :  " << aplat() << endl ;
+     ost << "Ellipticity sqrt(1-(Rp_circ/R_circ)^2) :  " << ellipt() << endl ;
 
      double compact = qpig/(4.*M_PI) * mass_g() / r_circ() ;
      ost << "Compaction parameter M_g / R_circ : " << compact << endl ; 
