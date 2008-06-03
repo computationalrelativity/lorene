@@ -28,6 +28,9 @@ char spheroid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2008/06/03 14:31:28  n_vasset
+ * dzpuis corrections (provisory). New function mass implemented.
+ *
  * Revision 1.9  2006/09/07 08:39:45  j_novak
  * Minor changes.
  *
@@ -164,14 +167,22 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
  
     h_surf3.allocate_all();
     h_surf3.std_spectral_base();
-    for (int f= 0; f< nz; f++)
+    for (int f= 0; f<nz; f++)
         for (int k=0; k<np3; k++)
 	for (int j=0; j<nt3; j++) {
 	    for (int l=0; l<nr3; l++) {
 		
 		h_surf3.set_grid_point(f,k,j,l) = h_surf.val_grid_point(0,k,j,0);
+	
 	    }
 	}
+
+
+
+ 
+
+ 
+
 
     /* Computation of the jacobian projector linked to the mapping from the
        spheroid to a coordinate sphere. All quantities will then be calculated
@@ -232,25 +243,44 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
     ss3dcon =  ss3dcon / sqrt (ssnorm) ; 
     ss3d.std_spectral_base();
     ss3dcon.std_spectral_base();
+
+
+    // Provisory handling of dzpuis problems 
+       h_surf3.annule_domain(nz-1);
+    for (int ii=1; ii <=3; ii++){
+    ss3d.set(ii).dec_dzpuis(ss3d(ii).get_dzpuis());
+ ss3dcon.set(ii).dec_dzpuis(ss3dcon(ii).get_dzpuis());
+    }
+
+    for (int ii=1; ii <=3; ii++)
+      for (int jjy = 1; jjy <=3; jjy ++){
+    jac_inv.set(ii, jjy).dec_dzpuis(jac_inv(ii, jjy).get_dzpuis());
+   jac.set(ii, jjy).dec_dzpuis(jac(ii, jjy).get_dzpuis());
+      }
+
+    // End of dzpuis handling.
+
+
     Sym_tensor sxss3d = ss3d * ss3d ;
     Sym_tensor sxss3dcon = ss3dcon * ss3dcon ; 
     Vector ss3 (Kij.get_mp(), COV, Kij.get_mp().get_bvect_spher()) ;
     Vector ss3con(Kij.get_mp(), CON, Kij.get_mp().get_bvect_spher()) ;
 
-       ss3 = contract(jac_inv, 0, ss3d, 0); 
-    ss.allocate_all() ; 
-    ss.std_spectral_base();
 
-             for (int l=1; l<4; l++)
-              for (int k=0; k<np; k++)
-        	for (int j=0; j<nt; j++)
- {
-	    mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0), j, k, pipo,
-				   lz, xi) ;
-	    ss.set(l).set_grid_point(0, k, j, 0) = 
-		ss3(l).get_spectral_va().val_point_jk(lz, xi, j, k) ;
-	}
-    
+ss3 = contract(jac_inv, 0, ss3d, 0); 
+ss.allocate_all() ; 
+ss.std_spectral_base();
+
+for (int l=1; l<4; l++)
+  for (int k=0; k<np; k++)
+    for (int j=0; j<nt; j++)
+{
+  mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0), j, k, pipo,
+		    lz, xi) ;
+  ss.set(l).set_grid_point(0, k, j, 0) = 
+    ss3(l).get_spectral_va().val_point_jk(lz, xi, j, k) ;
+}
+
 
 
 		    // Computation of the 3-d projector on the 2-sphere
@@ -516,6 +546,7 @@ void Spheroid::del_deriv() const {
     if (p_sqrt_q != 0x0) delete p_sqrt_q ;
     if (p_area != 0x0) delete p_area ;
     if (p_angu_mom != 0x0) delete p_angu_mom ;
+    if (p_mass != 0x0) delete p_mass ;
     if (p_theta_plus != 0x0) delete p_theta_plus ;
     if (p_theta_minus != 0x0) delete p_theta_minus ;
     if (p_shear != 0x0) delete p_shear ;
@@ -528,6 +559,7 @@ void Spheroid::set_der_0x0() const {
     p_sqrt_q = 0x0 ;
     p_area = 0x0 ;
     p_angu_mom = 0x0 ;
+    p_mass = 0x0 ;
     p_theta_plus = 0x0 ;
     p_theta_minus = 0x0 ;
     p_shear = 0x0 ;
@@ -589,6 +621,18 @@ double Spheroid::angu_mom(const Vector& phi) const {
 }
 
 
+double Spheroid::mass(const Vector& phi) const {
+  if (p_mass == 0x0) {
+    assert( issphere == true ) ;
+    double rayon= h_surf.val_grid_point (0,0,0,0); // We suppose here h_surf to be a constant value(flag issphere true)
+
+    p_mass = new double ((1/(2.*rayon))*sqrt(rayon*rayon*rayon*rayon + 4.*angu_mom(phi)*angu_mom(phi)));
+
+}
+  return *p_mass;
+
+}
+
 
 
 
@@ -633,7 +677,7 @@ const Scalar& Spheroid::theta_minus() const {
 const Sym_tensor& Spheroid::shear() const { 
 
     if (p_shear == 0x0) {
-        p_shear = new Sym_tensor(fff*(jj + hh - (qab.cov()/2) *(hh.trace() - jj.trace()))) ;
+      p_shear = new Sym_tensor(fff*(jj - hh));// - (qab.cov()/2) *(hh.trace() - jj.trace()))) ;  // Reverifier serieusement cette formule.
 	p_shear->std_spectral_base() ;
     }
 
