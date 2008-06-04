@@ -28,8 +28,8 @@ char spheroid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.10  2008/06/03 14:31:28  n_vasset
- * dzpuis corrections (provisory). New function mass implemented.
+ * Revision 1.11  2008/06/04 12:31:23  n_vasset
+ * New functions multipole_mass and multipole_angu. first version.
  *
  * Revision 1.9  2006/09/07 08:39:45  j_novak
  * Minor changes.
@@ -547,6 +547,8 @@ void Spheroid::del_deriv() const {
     if (p_area != 0x0) delete p_area ;
     if (p_angu_mom != 0x0) delete p_angu_mom ;
     if (p_mass != 0x0) delete p_mass ;
+    if (p_multipole_mass != 0x0) delete p_multipole_mass ;
+    if (p_multipole_angu != 0x0) delete p_multipole_angu ;
     if (p_theta_plus != 0x0) delete p_theta_plus ;
     if (p_theta_minus != 0x0) delete p_theta_minus ;
     if (p_shear != 0x0) delete p_shear ;
@@ -560,6 +562,8 @@ void Spheroid::set_der_0x0() const {
     p_area = 0x0 ;
     p_angu_mom = 0x0 ;
     p_mass = 0x0 ;
+    p_multipole_mass = 0x0;
+    p_multipole_angu = 0x0;
     p_theta_plus = 0x0 ;
     p_theta_minus = 0x0 ;
     p_shear = 0x0 ;
@@ -633,6 +637,111 @@ double Spheroid::mass(const Vector& phi) const {
 
 }
 
+
+
+double Spheroid::multipole_mass(const int order, const Vector& phi) const{
+  if (p_multipole_mass == 0x0) {
+  assert( issphere == true ) ;
+  const Map_af& mp_ang = dynamic_cast<const Map_af&>(h_surf.get_mp()) ;
+  double rayon= h_surf.val_grid_point (0,0,0,0); // We suppose here h_surf to be a constant value(flag issphere true)
+  // Multiplicative factor before integral.
+  double factor = mass(phi)/(8. * M_PI);
+  if (order >0)
+    { for (int compte=0; compte <=order -1; compte++)
+      factor = factor*rayon;
+    }
+  // Calculus of legendre polynomial of order n, as function of cos(theta)
+  Scalar Pn(mp_ang); Pn=1; Pn.std_spectral_base();
+  if (order >0)
+    { Pn.mult_cost();     
+    }
+  if (order >1)
+   { Scalar Pnold(mp_ang); Pnold = 1; Pnold.std_spectral_base();
+
+    for (int nn=1; nn<order; nn++){
+  
+      Scalar Pnnew = (2.*nn +1.)*Pn;
+      Pnnew.mult_cost();
+      Pnnew = Pnnew - nn*Pnold;
+      Pnnew = Pnnew/(double(nn) + 1.);
+ 
+      Pnold = Pn;
+      Pn = Pnnew;
+
+      }
+   }
+
+  // Calculus of Ricci Scalar over the surface
+  Scalar ricciscal(mp_ang);
+  ricciscal = 2.*ricci()(2,2)/qab.cov()(2,2); // As it is 2-dimensional, ricci tensor is only proportional to ricci scalar.
+
+
+  // Computation of the multipole;
+
+  p_multipole_mass = new double (factor*mp_ang.integrale_surface((sqrt_q()) * h_surf *h_surf*ricciscal*Pn, 1)) ;
+  
+  }
+
+  return *p_multipole_mass;
+}
+
+
+
+double Spheroid::multipole_angu(const int order, const Vector& phi) const{
+  if (p_multipole_angu == 0x0) {
+  assert( issphere == true ) ;
+  assert (order >=1) ;
+  const Map_af& mp_ang = dynamic_cast<const Map_af&>(h_surf.get_mp()) ;
+  double rayon= h_surf.val_grid_point (0,0,0,0); // We suppose here h_surf to be a constant value(flag issphere true)
+   // Multiplicative factor before integral.
+  double factor = 1./(8. * M_PI);
+  if (order >1)
+    { for (int compte=0; compte <=order -2; compte++)
+      factor = factor*rayon;
+  }
+
+  // Calculus of legendre polynomial of order n, as function of cos(theta)
+  Scalar Pn(mp_ang); Pn=1; Pn.std_spectral_base();
+  Scalar dPn = Pn;
+
+  Pn.mult_cost();     
+  
+  if (order >1)
+   
+   { Scalar Pnold(mp_ang); Pnold = 1; Pnold.std_spectral_base();
+
+    for (int nn=1; nn<order; nn++){
+  
+      Scalar Pnnew = (2.*nn +1.)*Pn;
+      Pnnew.mult_cost();
+      Pnnew = Pnnew - nn*Pnold;
+      Pnnew = Pnnew/(double(nn) + 1.);
+ 
+      Pnold = Pn;
+      Pn = Pnnew; // Pn is now P(n+1)
+
+      }
+
+    //  Calculus of functional derivative of order N legendre polynomial.
+    
+    dPn = Pn; dPn.mult_cost(); dPn = dPn - Pnold; dPn = double(order)*dPn;
+    
+    Scalar quotient(mp_ang); quotient = 1.; quotient.std_spectral_base();
+    quotient.mult_cost(); quotient.mult_cost(); quotient = quotient -1.;
+    
+    dPn = dPn/quotient; 
+
+   }
+
+  // Computation of the multipole;
+  Scalar tmp = contract(ll,0, contract (jac2d, 1,phi,0), 0 );
+
+  p_multipole_angu = new double (factor*mp_ang.integrale_surface((sqrt_q()) * h_surf *h_surf*tmp*dPn, 1)) ;  
+   
+  }
+  return *p_multipole_angu;
+  
+}
 
 
 
@@ -1079,7 +1188,7 @@ Tensor Spheroid::derive_cov2d(const Tensor& uu) const {
    
 	for (int hi=1; hi<=3; hi++){
  
-	    riccia.set(hi,hi) += 2/(h_surf * h_surf) ; 
+	  riccia.set(hi,hi) += 2/(h_surf * h_surf) ; // Plutot 1/hsurf^2, non? 
 	}
     	p_ricci = new Sym_tensor(riccia);
     }
