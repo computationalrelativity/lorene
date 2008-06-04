@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2008/06/04 12:31:56  n_vasset
+ * new functions multipole_mass and multipole_angu.
+ *
  * Revision 1.8  2008/06/03 14:32:23  n_vasset
  * dzpuis corrections (provisory). New function mass implemented.
  *
@@ -129,6 +132,8 @@ class Spheroid {
 	mutable double* p_area ;   ///< The area of the 2-surface
 	mutable double* p_angu_mom ; ///< The angular momentum
 	mutable double* p_mass ; ///< Mass defined from angular momentum
+	mutable double* p_multipole_mass ;///< Mass multipole for the spheroid.
+	mutable double* p_multipole_angu ;///< Angular momentum multipole for the spheroid.
 	mutable Scalar* p_theta_plus ; ///< Null outgoing expansion
 	mutable Scalar* p_theta_minus ; ///< Null ingoing expansion
 	mutable Sym_tensor* p_shear ; ///< The shear tensor
@@ -287,13 +292,26 @@ class Spheroid {
 	double angu_mom(const Vector& phi) const ;
 
 	/** Computes the mass as defined from the calculus of angular momentum,
-	 * done with respect to a divergence free tangent vector field phi.
+	 * done with respect to a divergence free tangent vector field \f$ phi \f$.
 	 * Spheroid has to be a real sphere (flag issphere true), of constant radius \f[R_{s} \f].
 	 * defined as \f[ M = \frac{1}{2 R_{s}} \sqrt{R_{s}^{4} + 4{\cal J}^{2}} \f]
          */
 
 	double mass(const Vector& phi) const;
 
+	/** Computes the mass multipole of a given order for the spheroid,
+	 * assumed to be spherical.
+	 */
+
+	double multipole_mass(const int order, const Vector& phi) const;
+
+
+	/** Computes the angular multipole of a given order for the spheroid,
+	 * assumed to be spherical. \f$ phi \f$ is a divergence free tangent vector field.
+	 * order has to be strictly higher than zero (no topological defects here...)
+	 */
+
+	double multipole_angu(const int order, const Vector& phi) const;
 
 	/// Computes the outgoing null expansion \f$ \theta_+ \f$.
         const Scalar& theta_plus() const ;
