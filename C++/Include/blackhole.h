@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2008/07/02 20:41:40  k_taniguchi
+ * Addition of the routines to compute angular momentum
+ *  and modification of the argument of equilibrium_spher.
+ *
  * Revision 1.2  2008/05/15 18:53:37  k_taniguchi
  * Change of some parameters and introduction of some
  * computational routines.
@@ -148,6 +152,11 @@ class Black_hole {
 
 	mutable double* p_rad_ah ; /// Radius of the apparent horizon
 
+	mutable double* p_spin_am_bh ; /// Spin angular momentum
+
+	/// Total angular momentum of the black hole
+	mutable Tbl* p_angu_mom_bh ;
+
     // Constructors - Destructor
     // -------------------------
     public:
@@ -254,6 +263,21 @@ class Black_hole {
 	/// Radius of the apparent horizon
 	virtual double rad_ah() const ;
 
+	/// Spin angular momentum
+	double spin_am_bh(bool bclapconf_nd, bool bclapconf_fs,
+			  const Tbl& xi_i, const double& phi_i,
+			  const double& theta_i, const int& nrk_phi,
+			  const int& nrk_theta) const ;
+
+	/** Total angular momentum.
+	 *
+	 *  @return 1-D {\tt Tbl} of size 3, according to \\
+	 *   {\tt angu\_mom()(0)} = $J^x$, \\
+	 *   {\tt angu\_mom()(1)} = $J^y$, \\
+	 *   {\tt angu\_mom()(2)} = $J^z$.
+	 */
+	const Tbl& angu_mom_bh() const ;
+
     // Computational routines
     // ----------------------
     public:
@@ -294,13 +318,19 @@ class Black_hole {
 	 *                 the dirichlet one for the lapse
 	 *  @param first [input] \c true  for the first type of bc,
 	 *               \c false  for the second type
+	 *  @param spin_omega [input] spin parameter of the black hole
 	 *  @param precis [input] threshold in the relative difference of
 	 *                a metric quantity between two succesive steps
 	 *                to stop the iterative procedure
 	 *                (default value: 1.e-14)
+	 *  @param precis_shift [input] threshold in the relative difference
+	 *                of the shift vector between two succesive steps
+	 *                to stop the iterative procedure
+	 *                (default value: 1.e-8)
 	 */
-	void equilibrium_spher(bool neumann, bool first,
-			       double precis = 1.e-14) ;
+	void equilibrium_spher(bool neumann, bool first, double spin_omega,
+			       double precis = 1.e-14,
+			       double precis_shift = 1.e-8) ;
 
 	/** Sets the metric quantities to a spherical, static blach-hole
 	 *  analytic solution
