@@ -30,6 +30,9 @@ char blackhole_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2008/07/02 20:45:58  k_taniguchi
+ * Addition of routines to compute angular momentum.
+ *
  * Revision 1.2  2008/05/15 19:28:03  k_taniguchi
  * Change of some parameters.
  *
@@ -52,9 +55,9 @@ char blackhole_global_C[] = "$Header$" ;
 #include "unites.h"
 #include "utilitaires.h"
 
-                    //-----------------------------------------//
-                    //          Irreducible mass of BH         //
-                    //-----------------------------------------//
+               //-----------------------------------------//
+               //          Irreducible mass of BH         //
+               //-----------------------------------------//
 
 double Black_hole::mass_irr() const {
 
@@ -72,7 +75,7 @@ double Black_hole::mass_irr() const {
 
 	double radius_ah = mp.val_r(1,-1.,M_PI/2.,0.) ;
 
-	Map_af& mp_aff= dynamic_cast<Map_af&>(mp) ;
+	Map_af mp_aff(mp) ;
 
 	double a_ah = mp_aff.integrale_surface(psi4, radius_ah) ;
 	double mirr = sqrt(a_ah/16./M_PI) / ggrav ;
@@ -103,7 +106,7 @@ double Black_hole::mass_adm() const {
 	double integ_v ;
 
 	double radius_ah = mp.val_r(1,-1.,M_PI/2.,0.) ;
-	Map_af& mp_aff= dynamic_cast<Map_af&>(mp) ;
+	Map_af mp_aff(mp) ;
 
 	Scalar source_surf(mp) ;
 	source_surf.set_etat_qcq() ;
@@ -289,7 +292,7 @@ double Black_hole::mass_kom() const {
 	double integ_v ;
 
 	double radius_ah = mp.val_r(1,-1.,M_PI/2.,0.) ;
-	Map_af& mp_aff= dynamic_cast<Map_af&>(mp) ;
+	Map_af mp_aff(mp) ;
 
 	Scalar source_surf(mp) ;
 	source_surf.set_etat_qcq() ;
@@ -487,6 +490,11 @@ double Black_hole::mass_kom() const {
 
 }
 
+
+               //------------------------------------//
+               //          Apparent horizon          //
+               //------------------------------------//
+
 double Black_hole::rad_ah() const {
 
     if (p_rad_ah == 0x0) {   // a new computation is required
@@ -502,5 +510,301 @@ double Black_hole::rad_ah() const {
     }
 
     return *p_rad_ah ;
+
+}
+
+
+          //-------------------------------------------//
+          //     Quasi-local spin angular momentum     //
+          //-------------------------------------------//
+
+double Black_hole::spin_am_bh(bool bclapconf_nd, bool bclapconf_fs,
+			      const Tbl& xi_i, const double& phi_i,
+			      const double& theta_i, const int& nrk_phi,
+			      const int& nrk_theta) const {
+
+    // Fundamental constants and units
+    // -------------------------------
+    using namespace Unites ;
+
+    if (p_spin_am_bh == 0x0) {   // a new computation is required
+
+	Scalar st(mp) ;
+	st = mp.sint ;
+	st.std_spectral_base() ;
+	Scalar ct(mp) ;
+	ct = mp.cost ;
+	ct.std_spectral_base() ;
+	Scalar sp(mp) ;
+	sp = mp.sinp ;
+	sp.std_spectral_base() ;
+	Scalar cp(mp) ;
+	cp = mp.cosp ;
+	cp.std_spectral_base() ;
+
+	Vector ll(mp, CON, mp.get_bvect_cart()) ;
+	ll.set_etat_qcq() ;
+	ll.set(1) = st % cp ;
+	ll.set(2) = st % sp ;
+	ll.set(3) = ct ;
+	ll.std_spectral_base() ;
+
+	double radius_ah = mp.val_r(1,-1.,M_PI/2.,0.) ;
+
+	if (kerrschild) {
+
+	  cout << "Not yet prepared!!!" << endl ;
+	  abort() ;
+
+	}
+	else {  // Isotropic coordinates
+
+	  // Killing vector of the spherical components
+	  Vector killing_spher(mp, COV, mp.get_bvect_spher()) ;
+	  killing_spher.set_etat_qcq() ;
+	  killing_spher = killing_vect_bh(xi_i, phi_i, theta_i,
+					  nrk_phi, nrk_theta) ;
+	  killing_spher.std_spectral_base() ;
+
+	  killing_spher.set(2) = confo * confo * radius_ah * killing_spher(2) ;
+	  killing_spher.set(3) = confo * confo * radius_ah * killing_spher(3) ;
+	  // killing_spher(3) is already divided by sin(theta)
+	  killing_spher.std_spectral_base() ;
+
+	  // Killing vector of the Cartesian components
+	  Vector killing(mp, COV, mp.get_bvect_cart()) ;
+	  killing.set_etat_qcq() ;
+
+	  killing.set(1) = (killing_spher(2) * ct * cp - killing_spher(3) * sp)
+	    / radius_ah  ;
+	  killing.set(2) = (killing_spher(2) * ct * sp + killing_spher(3) * cp)
+	    / radius_ah ;
+	  killing.set(3) = - killing_spher(2) * st / radius_ah ;
+	  killing.std_spectral_base() ;
+
+	  // Surface integral <- dzpuis should be 0
+	  // --------------------------------------
+	  // Source terms in the surface integral
+	  Scalar source_1(mp) ;
+	  source_1 = (ll(1) * (taij(1,1) * killing(1)
+			       + taij(1,2) * killing(2)
+			       + taij(1,3) * killing(3))
+		      + ll(2) * (taij(2,1) * killing(1)
+				 + taij(2,2) * killing(2)
+				 + taij(2,3) * killing(3))
+		      + ll(3) * (taij(3,1) * killing(1)
+				 + taij(3,2) * killing(2)
+				 + taij(3,3) * killing(3)))
+	    / pow(confo, 4.) ;
+	  source_1.std_spectral_base() ;
+	  source_1.dec_dzpuis(2) ;  // dzpuis : 2 -> 0
+
+	  Scalar source_surf(mp) ;
+	  source_surf = source_1 ;
+	  source_surf.std_spectral_base() ;
+	  source_surf.annule_domain(0) ;
+	  source_surf.raccord(1) ;
+
+	  Map_af mp_aff(mp) ;
+
+	  double spin = mp_aff.integrale_surface(source_surf, radius_ah) ;
+	  double spin_angmom = 0.5 * spin / qpig ;
+
+	  p_spin_am_bh = new double( spin_angmom ) ;
+
+	}
+
+    }
+
+    return *p_spin_am_bh ;
+
+}
+
+          //------------------------------------------//
+          //          Total angular momentum          //
+          //------------------------------------------//
+
+const Tbl& Black_hole::angu_mom_bh() const {
+
+    // Fundamental constants and units
+    // -------------------------------
+    using namespace Unites ;
+
+    if (p_angu_mom_bh == 0x0) {   // a new computation is required
+
+        p_angu_mom_bh = new Tbl(3) ;
+	p_angu_mom_bh->annule_hard() ;  // fills the double array with zeros
+
+	double integ_bh_s_x ;
+	double integ_bh_s_y ;
+	double integ_bh_s_z ;
+
+	double radius_ah = mp.val_r(1,-1.,M_PI/2.,0.) ;
+	Map_af mp_aff(mp) ;
+
+	Scalar xx(mp) ;
+	xx = mp.x ;
+	xx.std_spectral_base() ;
+	Scalar yy(mp) ;
+	yy = mp.y ;
+	yy.std_spectral_base() ;
+	Scalar zz(mp) ;
+	zz = mp.z ;
+	zz.std_spectral_base() ;
+
+	Scalar st(mp) ;
+	st = mp.sint ;
+	st.std_spectral_base() ;
+	Scalar ct(mp) ;
+	ct = mp.cost ;
+	ct.std_spectral_base() ;
+	Scalar sp(mp) ;
+	sp = mp.sinp ;
+	sp.std_spectral_base() ;
+	Scalar cp(mp) ;
+	cp = mp.cosp ;
+	cp.std_spectral_base() ;
+
+	Vector ll(mp, CON, mp.get_bvect_cart()) ;
+	ll.set_etat_qcq() ;
+	ll.set(1) = st % cp ;
+	ll.set(2) = st % sp ;
+	ll.set(3) = ct ;
+	ll.std_spectral_base() ;
+
+	Vector jbh_x(mp, CON, mp.get_bvect_cart()) ;
+	jbh_x.set_etat_qcq() ;
+	for (int i=1; i<=3; i++)
+	  jbh_x.set(i) = yy * taij(3,i) - zz * taij(2,i) ;
+
+	jbh_x.std_spectral_base() ;
+
+	Vector jbh_y(mp, CON, mp.get_bvect_cart()) ;
+	jbh_y.set_etat_qcq() ;
+	for (int i=1; i<=3; i++)
+	  jbh_y.set(i) = zz * taij(1,i) - xx * taij(3,i) ;
+
+	jbh_y.std_spectral_base() ;
+
+	Vector jbh_z(mp, CON, mp.get_bvect_cart()) ;
+	jbh_z.set_etat_qcq() ;
+	for (int i=1; i<=3; i++)
+	  jbh_z.set(i) = xx * taij(2,i) - yy * taij(1,i) ;
+
+	jbh_z.std_spectral_base() ;
+
+	/*
+	if (kerrschild) {
+
+	  cout << "Not yet prepared!!!" << endl ;
+	  abort() ;
+
+	}
+	else {  // Isotropic coordinates
+
+	  // Sets C/M^2 for each case of the lapse boundary condition
+	  // --------------------------------------------------------
+	  double cc ;
+
+	  if (bclapconf_nd) {  // Neumann boundary condition
+	    if (bclapconf_fs) {  // First condition
+	      // d(\alpha \psi)/dr = 0
+	      // ---------------------
+	      cc = 2. * (sqrt(13.) - 1.) / 3. ;
+	    }
+	    else {  // Second condition
+	      // d(\alpha \psi)/dr = (\alpha \psi)/(2 rah)
+	      // -----------------------------------------
+	      cc = 4. / 3. ;
+	    }
+	  }
+	  else {  // Dirichlet boundary condition
+	    if (bclapconf_fs) {  // First condition
+	      // (\alpha \psi) = 1/2
+	      // -------------------
+	      cout << "!!!!! WARNING: Not yet prepared !!!!!" << endl ;
+	      abort() ;
+	    }
+	    else {  // Second condition
+	      // (\alpha \psi) = 1/sqrt(2.) \psi_KS
+	      // ----------------------------------
+	      cout << "!!!!! WARNING: Not yet prepared !!!!!" << endl ;
+	      abort() ;
+	    }
+	  }
+
+	  Scalar r_are(mp) ;
+	  r_are = r_coord(bclapconf_nd, bclapconf_fs) ;
+	  r_are.std_spectral_base() ;
+
+	}
+	*/
+
+	//-------------//
+	// X component //
+	//-------------//
+
+	//-------------------------------------
+	//     Integration over the BH map
+	//-------------------------------------
+
+	// Surface integral <- dzpuis should be 0
+	// --------------------------------------
+	Scalar sou_bh_sx(mp) ;
+	sou_bh_sx = jbh_x(1)%ll(1) + jbh_x(2)%ll(2) + jbh_x(3)%ll(3) ;
+	sou_bh_sx.std_spectral_base() ;
+	sou_bh_sx.dec_dzpuis(2) ;  // dzpuis : 2 -> 0
+	sou_bh_sx.annule_domain(0) ;
+	sou_bh_sx.raccord(1) ;
+
+	integ_bh_s_x = mp_aff.integrale_surface(sou_bh_sx, radius_ah) ;
+
+	p_angu_mom_bh->set(0) = 0.5 * integ_bh_s_x / qpig ;
+
+	//-------------//
+	// Y component //
+	//-------------//
+
+	//-------------------------------------
+	//     Integration over the BH map
+	//-------------------------------------
+
+	// Surface integral <- dzpuis should be 0
+	// --------------------------------------
+	Scalar sou_bh_sy(mp) ;
+	sou_bh_sy = jbh_y(1)%ll(1) + jbh_y(2)%ll(2) + jbh_y(3)%ll(3) ;
+	sou_bh_sy.std_spectral_base() ;
+	sou_bh_sy.dec_dzpuis(2) ;  // dzpuis : 2 -> 0
+	sou_bh_sy.annule_domain(0) ;
+	sou_bh_sy.raccord(1) ;
+
+	integ_bh_s_y = mp_aff.integrale_surface(sou_bh_sy, radius_ah) ;
+
+	p_angu_mom_bh->set(1) = 0.5 * integ_bh_s_y / qpig ;
+
+	//-------------//
+	// Z component //
+	//-------------//
+
+	//-------------------------------------
+	//     Integration over the BH map
+	//-------------------------------------
+
+	// Surface integral <- dzpuis should be 0
+	// --------------------------------------
+	Scalar sou_bh_sz(mp) ;
+	sou_bh_sz = jbh_z(1)%ll(1) + jbh_z(2)%ll(2) + jbh_z(3)%ll(3) ;
+	sou_bh_sz.std_spectral_base() ;
+	sou_bh_sz.dec_dzpuis(2) ;  // dzpuis : 2 -> 0
+	sou_bh_sz.annule_domain(0) ;
+	sou_bh_sz.raccord(1) ;
+
+	integ_bh_s_z = mp_aff.integrale_surface(sou_bh_sz, radius_ah) ;
+
+	p_angu_mom_bh->set(2) = 0.5 * integ_bh_s_z / qpig ;
+
+    }
+
+    return *p_angu_mom_bh ;
 
 }
