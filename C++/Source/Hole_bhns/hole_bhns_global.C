@@ -30,6 +30,9 @@ char hole_bhns_global_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2008/07/02 21:10:15  k_taniguchi
+ * A bug removed.
+ *
  * Revision 1.2  2008/05/15 19:07:26  k_taniguchi
  * Introduction of the quasilocal spin angular momentum.
  *
@@ -178,17 +181,19 @@ double Hole_bhns::spin_am_bhns(const Tbl& xi_i, const double& phi_i,
 				       nrk_phi, nrk_theta) ;
 	  killing_spher.std_spectral_base() ;
 
-	  // Division by sin(theta)
-	  Scalar tmp = killing_spher(3) ;
-	  tmp.std_spectral_base() ;
-	  tmp.div_sint() ;
+	  killing_spher.set(2) = confo_tot * confo_tot * radius_ah
+	    * killing_spher(2) ;
+	  killing_spher.set(3) = confo_tot * confo_tot * radius_ah
+	    * killing_spher(3) ;
+	  // killing_spher(3) is already divided by sin(theta)
+	  killing_spher.std_spectral_base() ;
 
 	  // Killing vector of the Cartesian components
 	  Vector killing(mp, COV, mp.get_bvect_cart()) ;
 	  killing.set_etat_qcq() ;
-	  killing.set(1) = (killing_spher(2) * ct * cp - tmp * sp)
+	  killing.set(1) = (killing_spher(2) * ct * cp - killing_spher(3) * sp)
 	    / radius_ah ;
-	  killing.set(2) = (killing_spher(2) * ct * sp + tmp * cp)
+	  killing.set(2) = (killing_spher(2) * ct * sp + killing_spher(3) * cp)
 	    / radius_ah ;
 	  killing.set(3) = - killing_spher(2) * st / radius_ah ;
 	  killing.std_spectral_base() ;
