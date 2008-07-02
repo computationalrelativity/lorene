@@ -30,6 +30,9 @@ char blackhole_eq_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2008/07/02 20:42:53  k_taniguchi
+ * Modification of the argument and so on.
+ *
  * Revision 1.2  2008/05/15 19:26:30  k_taniguchi
  * Change of some parameters.
  *
@@ -57,7 +60,9 @@ char blackhole_eq_spher_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "graphique.h"
 
-void Black_hole::equilibrium_spher(bool neumann, bool first, double precis) {
+void Black_hole::equilibrium_spher(bool neumann, bool first,
+				   double spin_omega, double precis,
+				   double precis_shift) {
 
     // Fundamental constants and units
     // -------------------------------
@@ -179,26 +184,38 @@ void Black_hole::equilibrium_spher(bool neumann, bool first, double precis) {
 	r_are.std_spectral_base() ;
 	r_are.annule_domain(0) ;
 	r_are.raccord(1) ;
-
+	/*
 	cout << "r_are:" << endl ;
 	for (int l=0; l<nz; l++) {
 	  cout << r_are.val_grid_point(l,0,0,0) << endl ;
 	}
+	*/
 
+	// Exact, non-spinning case
+	/*
 	lapconf = sqrt(1. - 2.*mass/r_are/rr
+		       + cc*cc*pow(mass/r_are/rr,4.))
+	  * sqrt(r_are) ;
+	*/
+	lapconf = sqrt(1. - 1.9*mass/r_are/rr
 		       + cc*cc*pow(mass/r_are/rr,4.))
 	  * sqrt(r_are) ;
 	lapconf.std_spectral_base() ;
 	lapconf.annule_domain(0) ;
 	lapconf.raccord(1) ;
 
+	/*
 	lapse = sqrt(1. - 2.*mass/r_are/rr
+		     + cc*cc*pow(mass/r_are/rr,4.)) ;
+	*/
+	lapse = sqrt(1. - 1.9*mass/r_are/rr
 		     + cc*cc*pow(mass/r_are/rr,4.)) ;
 	lapse.std_spectral_base() ;
 	lapse.annule_domain(0) ;
 	lapse.raccord(1) ;
 
-	confo = sqrt(r_are) ;
+	//	confo = sqrt(r_are) ;
+	confo = sqrt(0.9*r_are) ;
 	confo.std_spectral_base() ;
 	confo.annule_domain(0) ;
 	confo.raccord(1) ;
@@ -270,7 +287,7 @@ void Black_hole::equilibrium_spher(bool neumann, bool first, double precis) {
 	 (diff_sx > precis) || (diff_sy > precis) || (diff_sz > precis)
 	   && (mer < mermax); mer++) {
     */
-    for (int mer=0; (diff_lp > precis) && (mer < mermax); mer++) {
+    for (int mer=0; (diff_lp > precis) && (diff_cf > precis) && (diff_sx > precis) && (diff_sy > precis) && (diff_sz > precis) && (mer < mermax); mer++) {
 
         cout << "--------------------------------------------------" << endl ;
 	cout << "step: " << mer << endl ;
@@ -494,8 +511,8 @@ void Black_hole::equilibrium_spher(bool neumann, bool first, double precis) {
 	    resu_p.set(i) = Cmp(shift_jm1(i+1)) ;
 	}
 
-	bc_shif_x = bc_shift_x(0.) ;  // Non-rotating BH
-	bc_shif_y = bc_shift_y(0.) ;  // Non-rotating BH
+	bc_shif_x = bc_shift_x(spin_omega) ;  // Rotating BH
+	bc_shif_y = bc_shift_y(spin_omega) ;  // Rotating BH
 	bc_shif_z = bc_shift_z() ;
 	/*
 	cout << bc_shif_x << endl ;
@@ -507,7 +524,7 @@ void Black_hole::equilibrium_spher(bool neumann, bool first, double precis) {
 	*/
 	poisson_vect_frontiere(1./3., source_p, resu_p,
 			       bc_shif_x, bc_shif_y, bc_shif_z,
-			       0, precis, 20) ;
+			       0, precis_shift, 14) ;
 
 
 	if (kerrschild) {
@@ -545,19 +562,6 @@ void Black_hole::equilibrium_spher(bool neumann, bool first, double precis) {
 	//  Relative difference in the metric quantities  //
 	//------------------------------------------------//
 
-	if (kerrschild) {
-
-	    cout << "Mass_bh : " << mass_bh / msol << " [M_sol]" << endl ;
-	    double rad_apphor = rad_ah() ;
-	    cout << "        : " <<  0.5 * rad_apphor / ggrav / msol
-		 << " [M_sol]" << endl ;
-
-	}
-	else {  // Isotropic coordinates with the maximal slicing
-
-	    cout << "Mass_bh : " << mass_bh / msol << " [M_sol]" << endl ;
-
-	}
 	/*
 	des_profile( lapse, 0., 20, M_PI/2., 0.,
 		     "Lapse function of BH",
@@ -701,8 +705,24 @@ void Black_hole::equilibrium_spher(bool neumann, bool first, double precis) {
 	}
 	diff_sz /= nz ;
 
-	// Next step
-	// ---------
+	// Mass
+	if (kerrschild) {
+
+	    cout << "Mass_bh : " << mass_bh / msol << " [M_sol]" << endl ;
+	    double rad_apphor = rad_ah() ;
+	    cout << "        : " <<  0.5 * rad_apphor / ggrav / msol
+		 << " [M_sol]" << endl ;
+
+	}
+	else {  // Isotropic coordinates with the maximal slicing
+
+	    cout << "Mass_bh :                " << mass_bh / msol
+		 << " [M_sol]" << endl ;
+
+	}
+
+	// ADM mass, Komar mass
+	// --------------------
 
 	double irr_gm, adm_gm, kom_gm ;
 	irr_gm = mass_irr() / mass_bh - 1. ;
@@ -745,6 +765,7 @@ void Black_hole::equilibrium_spher(bool neumann, bool first, double precis) {
 		     "Shift vector (X) of BH",
 		     "Shift (theta=pi/2, phi=0)" ) ;
 	*/
+
     }  // End of iteration loop
 
     //====================================//
@@ -844,7 +865,7 @@ void Black_hole::equilibrium_spher(bool neumann, bool first, double precis) {
 		      "Delta Shift vector of BH") ;
     */
 
-    // Relative difference in the lapse function
+    // Relative difference in the lapconf function
     Tbl diff_lapconf_exact = diffrel(lapconf, lapconf_exact) ;
     diff_lapconf_exact.set(0) = 0. ;
     cout << "Relative difference in the lapconf function   : " << endl ;
