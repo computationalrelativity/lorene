@@ -30,6 +30,9 @@ char hole_bhns_killing_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/07/02 21:01:11  k_taniguchi
+ * A bug removed.
+ *
  * Revision 1.1  2008/05/15 19:09:53  k_taniguchi
  * *** empty log message ***
  *
@@ -153,7 +156,7 @@ Vector Hole_bhns::killing_vect(const Tbl& xi_i, const double& phi_i,
 	st.std_spectral_base() ;
 
 	Scalar source_phi(mp) ;
-	source_phi = pow(confo_tot, 4.) * rr * rr * st / xi_phi ;
+	source_phi = pow(confo_tot, 2.) * rr * st / xi_phi ;
 	source_phi.std_spectral_base() ;
 
 	double rah = rad_ah() ;
@@ -284,7 +287,7 @@ Vector Hole_bhns::killing_vect(const Tbl& xi_i, const double& phi_i,
 
 	double check_norm1 = 0. ;
 	double check_norm2 = 0. ;
-	source_phi = pow(confo_tot, 4.) * rr * rr * st / killing(3) ;
+	source_phi = pow(confo_tot, 2.) * rr * st / killing(3) ;
 	source_phi.std_spectral_base() ;
 
 	for (int i=0; i<mm; i++) {
@@ -364,14 +367,18 @@ Vector Hole_bhns::killing_vect(const Tbl& xi_i, const double& phi_i,
 
 	// D_i xi^i = 0
 	Scalar xitst(mp) ;
-	xitst = killing(2) * st ;
+	xitst = pow(confo_tot, 2.) * rr * st * killing(2) ;
 	xitst.std_spectral_base() ;
 
 	Scalar dxitstdt(mp) ;
 	dxitstdt = xitst.dsdt() ;
 
+	Scalar xip(mp) ;
+	xip = pow(confo_tot, 2.) * rr * killing(3) ;
+	xip.std_spectral_base() ;
+
 	Scalar dxipdp(mp) ;
-	dxipdp = killing(3).stdsdp() ;
+	dxipdp = xip.stdsdp() ;
 
 	Scalar dxi(mp) ;
 	dxi = dxitstdt + st * dxipdp ;
@@ -409,14 +416,18 @@ Vector Hole_bhns::killing_vect(const Tbl& xi_i, const double& phi_i,
 
 	// e^{ij} D_i \xi_j = 2L
 	Scalar xipst(mp) ;
-	xipst = killing(3) * st ;
+	xipst = pow(confo_tot, 2.) * rr * st * killing(3) ;
 	xipst.std_spectral_base() ;
 
 	Scalar dxipstdt(mp) ;
 	dxipstdt = xipst.dsdt() ;
 
+	Scalar xit(mp) ;
+	xit = pow(confo_tot, 2.) * rr * killing(2) ;
+	xit.std_spectral_base() ;
+
 	Scalar dxitdp(mp) ;
-	dxitdp = killing(2).stdsdp() ;
+	dxitdp = xit.stdsdp() ;
 
 	Scalar dxi2l(mp) ;
 	dxi2l = dxipstdt - st * dxitdp
