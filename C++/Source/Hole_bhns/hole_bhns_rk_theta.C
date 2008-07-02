@@ -31,6 +31,9 @@ char hole_bhns_rk_theta_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/07/02 20:49:05  k_taniguchi
+ * Typos removed.
+ *
  * Revision 1.1  2008/05/15 19:11:01  k_taniguchi
  * *** empty log message ***
  *
@@ -63,7 +66,7 @@ Tbl Hole_bhns::runge_kutta_theta(const Tbl& xi_i, const double& theta_i,
     const Mg3d* mg = mp.get_mg() ;
     int nt = mg->get_nt(1) ;
 
-    Tbl xi_f(3) ;  // xi_f(0)=xi_bar{theta}, xi_f(1)=xi_bar{phi}, xi_f(2)=L
+    Tbl xi_f(3) ;  // xi_f(0)=xi_hat{theta}, xi_f(1)=xi_hat{phi}, xi_f(2)=L
     xi_f.set_etat_qcq() ;
 
     if (kerrschild) {
@@ -75,8 +78,8 @@ Tbl Hole_bhns::runge_kutta_theta(const Tbl& xi_i, const double& theta_i,
     else {  // Isotropic coordinates
 
       // Initial data at phi on the equator
-      double xi_t0 = xi_i(0) ;  // xi_bar{theta}
-      double xi_p0 = xi_i(1) ;  // xi_bar{phi}
+      double xi_t0 = xi_i(0) ;  // xi_hat{theta}
+      double xi_p0 = xi_i(1) ;  // xi_hat{phi}
       double xi_l0 = xi_i(2) ;  // L
       double theta0 = theta_i ;
 
