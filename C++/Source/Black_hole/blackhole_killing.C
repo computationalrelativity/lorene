@@ -30,6 +30,9 @@ char blackhole_killing_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/07/02 20:45:07  k_taniguchi
+ * A bug removed.
+ *
  * Revision 1.1  2008/05/15 19:33:12  k_taniguchi
  * *** empty log message ***
  *
@@ -174,7 +177,7 @@ Vector Black_hole::killing_vect_bh(const Tbl& xi_i, const double& phi_i,
 	st.std_spectral_base() ;
 
 	Scalar source_phi(mp) ;
-	source_phi = pow(confo, 4.) * rr * rr * st / xi_phi ;
+	source_phi = pow(confo, 2.) * rr * st / xi_phi ;
 	source_phi.std_spectral_base() ;
 
 	double rah = rad_ah() ;
@@ -299,7 +302,7 @@ Vector Black_hole::killing_vect_bh(const Tbl& xi_i, const double& phi_i,
 	// -----------------------
 
 	double check_norm = 0. ;
-	source_phi = pow(confo, 4.) * rr * rr * st / killing(3) ;
+	source_phi = pow(confo, 2.) * rr * st / killing(3) ;
 	source_phi.std_spectral_base() ;
 
 	for (int i=0; i<mm; i++) {
