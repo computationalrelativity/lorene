@@ -30,6 +30,9 @@ char blackhole_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2008/07/03 14:55:26  k_taniguchi
+ * Addition of the angular momentum.
+ *
  * Revision 1.2  2008/05/15 19:25:07  k_taniguchi
  * Change of some parameters.
  *
@@ -198,6 +201,8 @@ void Black_hole::del_deriv() const {
     if (p_mass_adm != 0x0) delete p_mass_adm ;
     if (p_mass_kom != 0x0) delete p_mass_kom ;
     if (p_rad_ah != 0x0) delete p_rad_ah ;
+    if (p_spin_am_bh != 0x0) delete p_spin_am_bh ;
+    if (p_angu_mom_bh != 0x0) delete p_angu_mom_bh ;
 
     set_der_0x0() ;
 
@@ -209,6 +214,8 @@ void Black_hole::set_der_0x0() const {
     p_mass_adm = 0x0 ;
     p_mass_kom = 0x0 ;
     p_rad_ah = 0x0 ;
+    p_spin_am_bh = 0x0 ;
+    p_angu_mom_bh = 0x0 ;
 
 }
 
