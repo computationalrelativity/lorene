@@ -31,6 +31,9 @@ char blackhole_bc_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2008/07/03 14:53:47  k_taniguchi
+ * Modification of a signature in bc_shift_x and bc_shift_y.
+ *
  * Revision 1.2  2008/05/15 19:25:43  k_taniguchi
  * Change of some parameters.
  *
@@ -238,7 +241,10 @@ const Valeur Black_hole::bc_shift_x(double omega_r) const {
     }
     else {  // Isotropic coordinates with the maximal slicing
 
-        tmp = lapconf / pow(confo, 3.) * st * cp - omega_r * yy ;
+        // Note: the signature of omega_r is opposite to that in the
+        // binary case because of the direction of the spin
+        tmp = lapconf / pow(confo, 3.) * st * cp + omega_r * yy ;
+	//	tmp = lapconf / pow(confo, 3.) * st * cp - omega_r * yy ;
 
     }
 
@@ -304,7 +310,10 @@ const Valeur Black_hole::bc_shift_y(double omega_r) const {
     }
     else {
 
-        tmp = lapconf / pow(confo, 3.) * st * sp + omega_r * xx ;
+        // Note: the signature of omega_r is opposite to that in the
+        // binary case because of the direction of the spin
+        tmp = lapconf / pow(confo, 3.) * st * sp - omega_r * xx ;
+	//        tmp = lapconf / pow(confo, 3.) * st * sp + omega_r * xx ;
 
     }
 
