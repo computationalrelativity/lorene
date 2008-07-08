@@ -25,6 +25,9 @@ char solh_helmholtz_minusC[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2008/07/08 11:45:28  p_grandclement
+ * Add helmholtz_minus in the nucleus
+ *
  * Revision 1.5  2008/02/18 13:53:43  j_novak
  * Removal of special indentation instructions.
  *
@@ -117,6 +120,70 @@ Tbl _solh_helmholtz_minus_r_cheb (int n, int lq, double alpha, double beta,
   delete [] coloc ;
   return res ;
 }
+		//-------------------
+	       //--  R_CHEBP   ------
+	      //-------------------
+
+Tbl _solh_helmholtz_minus_r_chebp (int n, int lq, double alpha, double, 
+				  double masse) {
+  
+  assert (masse > 0) ;
+  
+  Tbl res(1,n) ;
+  res.set_etat_qcq() ;
+  double* coloc = new double[n] ;
+    
+  int * deg = new int[3] ;
+  deg[0] = 1 ; 
+  deg[1] = 1 ;
+  deg[2] = n ;
+  
+  // First SH
+  for (int i=0 ; i<n ; i++){
+    double air = alpha*(sin(M_PI*i/2./(n-1))) ;
+    coloc[i] = gsl_sf_bessel_il_scaled (lq, masse*air)/exp(-masse*air) ;
+  }
+
+  cfrchebp(deg, deg, coloc, deg, coloc) ;
+  for (int i=0 ; i<n ;i++)
+    res.set(0,i) = coloc[i] ;
+
+  delete [] deg ;
+  delete [] coloc ;
+  return res ;
+}
+		//-------------------
+	       //--  R_CHEBI   ------
+	      //-------------------
+
+Tbl _solh_helmholtz_minus_r_chebi (int n, int lq, double alpha, double, 
+				  double masse) {
+  
+  assert (masse > 0) ;
+  
+  Tbl res(1,n) ;
+  res.set_etat_qcq() ;
+  double* coloc = new double[n] ;
+    
+  int * deg = new int[3] ;
+  deg[0] = 1 ; 
+  deg[1] = 1 ;
+  deg[2] = n ;
+  
+  // First SH
+  for (int i=0 ; i<n ; i++){
+    double air = alpha*(sin(M_PI*i/2./(n-1))) ;
+    coloc[i] = gsl_sf_bessel_il_scaled (lq, masse*air)/exp(-masse*air) ;
+  }
+
+  cfrchebi(deg, deg, coloc, deg, coloc) ;
+  for (int i=0 ; i<n ;i++)
+    res.set(0,i) = coloc[i] ;
+
+  delete [] deg ;
+  delete [] coloc ;
+  return res ;
+}
 
 		//-------------------
 	       //--  R_CHEBU  ------
@@ -173,6 +240,8 @@ Tbl solh_helmholtz_minus (int n, int lq, double alpha, double beta,
     // Les routines existantes
     solh_helmholtz_minus[R_CHEB >> TRA_R] = _solh_helmholtz_minus_r_cheb ;
     solh_helmholtz_minus[R_CHEBU >> TRA_R] = _solh_helmholtz_minus_r_chebu ;
+    solh_helmholtz_minus[R_CHEBP >> TRA_R] = _solh_helmholtz_minus_r_chebp ;
+    solh_helmholtz_minus[R_CHEBI >> TRA_R] = _solh_helmholtz_minus_r_chebi ;
   }
     
   Tbl res(solh_helmholtz_minus[base_r](n, lq, alpha, beta, masse)) ;

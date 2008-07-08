@@ -25,6 +25,9 @@ char solp_helmholtz_minus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2008/07/08 11:45:28  p_grandclement
+ * Add helmholtz_minus in the nucleus
+ *
  * Revision 1.4  2008/02/18 13:53:45  j_novak
  * Removal of special indentation instructions.
  *
@@ -140,6 +143,66 @@ Tbl _solp_helmholtz_minus_r_cheb (const Matrice &lap, const Matrice &nondege,
 }
 
 
+          	//-------------------
+	       //--  R_CHEBP   -----
+	      //-------------------
+Tbl _solp_helmholtz_minus_r_chebp (const Matrice &lap, const Matrice &nondege, 
+				const Tbl &source, double alpha, double) {
+  
+  int n = lap.get_dim(0) ;	  
+  int dege = n-nondege.get_dim(0) ;
+  assert (dege ==1) ;
+  
+  Tbl source_aux(source*alpha*alpha) ;
+  source_aux = cl_helmholtz_minus (source_aux, R_CHEBP) ;
+  
+  Tbl so(n-dege) ;
+  so.set_etat_qcq() ;
+  for (int i=0 ; i<n-dege ; i++)
+    so.set(i) = source_aux(i) ;
+ 
+  Tbl auxi(nondege.inverse(so)) ;
+
+  Tbl res(n) ;
+  res.set_etat_qcq() ;
+  for (int i=dege ; i<n ; i++)
+    res.set(i) = auxi(i-dege) ;
+  
+  for (int i=0 ; i<dege ; i++)
+    res.set(i) = 0 ;
+  return res ;
+}
+
+    		//-------------------
+	       //--  R_CHEBI   -----
+	      //-------------------
+Tbl _solp_helmholtz_minus_r_chebi (const Matrice &lap, const Matrice &nondege, 
+				const Tbl &source, double alpha, double) {
+  
+  int n = lap.get_dim(0) ;	  
+  int dege = n-nondege.get_dim(0) ;
+  assert (dege ==1) ;
+  
+  Tbl source_aux(source*alpha*alpha) ;
+  source_aux = cl_helmholtz_minus (source_aux, R_CHEBI) ;
+  
+  Tbl so(n-dege) ;
+  so.set_etat_qcq() ;
+  for (int i=0 ; i<n-dege ; i++)
+    so.set(i) = source_aux(i) ;
+ 
+  Tbl auxi(nondege.inverse(so)) ;
+
+  Tbl res(n) ;
+  res.set_etat_qcq() ;
+  for (int i=dege ; i<n ; i++)
+    res.set(i) = auxi(i-dege) ;
+  
+  for (int i=0 ; i<dege ; i++)
+    res.set(i) = 0 ;
+  return res ;
+}
+
 	      	//-------------------
 	       //--  Fonction   ----
 	      //-------------------
@@ -163,6 +226,8 @@ Tbl solp_helmholtz_minus (const Matrice &lap, const Matrice &nondege,
     // Les routines existantes
     solp_helmholtz_minus[R_CHEB >> TRA_R] = _solp_helmholtz_minus_r_cheb ;
     solp_helmholtz_minus[R_CHEBU >> TRA_R] = _solp_helmholtz_minus_r_chebu ;
+    solp_helmholtz_minus[R_CHEBP >> TRA_R] = _solp_helmholtz_minus_r_chebp ;
+    solp_helmholtz_minus[R_CHEBI >> TRA_R] = _solp_helmholtz_minus_r_chebi ;
   }
   
   Tbl res(solp_helmholtz_minus[base_r] (lap, nondege, source, alpha, beta)) ;

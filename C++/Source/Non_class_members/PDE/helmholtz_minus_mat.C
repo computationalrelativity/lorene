@@ -25,6 +25,9 @@ char helmholtz_minus_mat_C[] = "$$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2008/07/08 11:45:28  p_grandclement
+ * Add helmholtz_minus in the nucleus
+ *
  * Revision 1.4  2004/08/24 09:14:44  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -51,6 +54,7 @@ char helmholtz_minus_mat_C[] = "$$" ;
 #include "matrice.h"
 #include "type_parite.h"
 #include "proto.h"
+#include "diff.h"
 
                      //-----------------------------------
                      // Routine pour les cas non prevus -- 
@@ -201,6 +205,42 @@ Matrice _helmholtz_minus_mat_r_cheb (int n, int lq, double alpha, double beta,
   return res ;
 }
 
+
+		   //-------------------------
+		   //--   CAS R_CHEBP    -----
+		   //--------------------------
+		    
+
+Matrice _helmholtz_minus_mat_r_chebp (int n, int l, double alpha, double, double masse) {
+   
+    
+    Diff_dsdx2 d2(R_CHEBP, n) ;
+    Diff_sxdsdx sxd(R_CHEBP, n) ;
+    Diff_sx2 sx2(R_CHEBP, n) ;
+    Diff_id xx (R_CHEBP, n) ;
+    
+    return Matrice(d2 + 2.*sxd -(l*(l+1))*sx2 -masse*masse*alpha*alpha*xx) ;
+}
+
+
+
+		   //------------------------
+		   //--   CAS R_CHEBI    ----
+		   //------------------------
+		    
+
+Matrice _helmholtz_minus_mat_r_chebi (int n, int l, double alpha, double, double masse) {
+   
+  
+    Diff_dsdx2 d2(R_CHEBI, n) ;
+    Diff_sxdsdx sxd(R_CHEBI, n) ;
+    Diff_sx2 sx2(R_CHEBI, n) ;
+    Diff_id xx(R_CHEBI, n) ;
+
+    return Matrice(d2 + 2.*sxd - (l*(l+1))*sx2- masse*masse*alpha*alpha*xx) ;
+}
+
+
 	
                 //--------------------------
 		//- La routine a appeler  ---
@@ -224,7 +264,9 @@ Matrice helmholtz_minus_mat(int n, int lq,
     }
     // Les routines existantes
     helmholtz_minus_mat[R_CHEB >> TRA_R] = _helmholtz_minus_mat_r_cheb ;
-    helmholtz_minus_mat[R_CHEBU >> TRA_R] = _helmholtz_minus_mat_r_chebu ;
+    helmholtz_minus_mat[R_CHEBU >> TRA_R] = _helmholtz_minus_mat_r_chebu ;	
+    helmholtz_minus_mat[R_CHEBP >> TRA_R] = _helmholtz_minus_mat_r_chebp ;
+    helmholtz_minus_mat[R_CHEBI >> TRA_R] = _helmholtz_minus_mat_r_chebi ;
   }
   
   Matrice res(helmholtz_minus_mat[base_r](n, lq, alpha, beta, masse)) ;

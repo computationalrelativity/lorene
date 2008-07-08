@@ -25,6 +25,9 @@ char prepa_helmholtz_minus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2008/07/08 11:45:28  p_grandclement
+ * Add helmholtz_minus in the nucleus
+ *
  * Revision 1.4  2008/02/18 13:53:43  j_novak
  * Removal of special indentation instructions.
  *
@@ -109,6 +112,42 @@ Matrice _prepa_helmholtz_minus_nondege_r_chebu (const Matrice &lap) {
   res.set_lu() ;
   return res ;
 } 
+	     	//-------------------
+	       //--  R_CHEBP  -------
+	      //--------------------
+Matrice _prepa_helmholtz_minus_nondege_r_chebp (const Matrice &lap) {
+    
+  int n = lap.get_dim(0) ;
+  int non_dege = 1 ;
+  
+  Matrice res(n-non_dege, n-non_dege) ;
+  res.set_etat_qcq() ;
+  for (int i=0 ; i<n-non_dege ; i++)
+    for (int j=0 ; j<n-non_dege ; j++)
+      res.set(i, j) = lap(i, j+non_dege) ;
+  
+  res.set_band (4,1) ;
+  res.set_lu() ;
+  return res ;
+} 
+	     	//-------------------
+	       //--  R_CHEBI  -------
+	      //--------------------
+Matrice _prepa_helmholtz_minus_nondege_r_chebi (const Matrice &lap) {
+    
+  int n = lap.get_dim(0) ;
+  int non_dege = 1 ;
+  
+  Matrice res(n-non_dege, n-non_dege) ;
+  res.set_etat_qcq() ;
+  for (int i=0 ; i<n-non_dege ; i++)
+    for (int j=0 ; j<n-non_dege ; j++)
+      res.set(i, j) = lap(i, j+non_dege) ;
+  
+  res.set_band (4,1) ;
+  res.set_lu() ;
+  return res ;
+} 
 
         	//-------------------
 	       //--  Fonction   ----
@@ -132,7 +171,11 @@ Matrice prepa_helmholtz_minus_nondege(const Matrice &ope, int base_r) {
     prepa_helmholtz_minus_nondege[R_CHEB >> TRA_R] = 
       _prepa_helmholtz_minus_nondege_r_cheb ;
     prepa_helmholtz_minus_nondege[R_CHEBU >> TRA_R] = 
-      _prepa_helmholtz_minus_nondege_r_chebu ;
+      _prepa_helmholtz_minus_nondege_r_chebu ; 
+    prepa_helmholtz_minus_nondege[R_CHEBP >> TRA_R] = 
+      _prepa_helmholtz_minus_nondege_r_chebp ;
+    prepa_helmholtz_minus_nondege[R_CHEBI >> TRA_R] = 
+      _prepa_helmholtz_minus_nondege_r_chebi ;
   }
   
   Matrice res(prepa_helmholtz_minus_nondege[base_r](ope)) ;

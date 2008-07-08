@@ -25,6 +25,9 @@ char comb_lin_helmholtz_minusC[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2008/07/08 11:45:28  p_grandclement
+ * Add helmholtz_minus in the nucleus
+ *
  * Revision 1.4  2008/02/18 13:53:42  j_novak
  * Removal of special indentation instructions.
  *
@@ -129,7 +132,62 @@ Matrice _cl_helmholtz_minus_r_chebu (const Matrice& source) {
   return res ;
 } 
   
+		//-------------------
+	       //--  R_CHEBP   -----
+	      //-------------------
 
+
+Matrice _cl_helmholtz_minus_r_chebp (const Matrice &source) {
+    int n = source.get_dim(0) ;
+  assert (n==source.get_dim(1)) ;
+
+  Matrice barre(source) ;
+  
+    int dirac = 1 ;
+    for (int i=0 ; i<n-2 ; i++) {
+	for (int j=0 ; j<n ; j++)
+	    barre.set(i, j) = (1+dirac)*source(i, j)-source(i+2, j) ;
+	if (i==0) dirac = 0 ;
+    }
+
+    Matrice tilde(barre) ;
+    for (int i=0 ; i<n-4 ; i++)
+	for (int j=0 ; j<n ; j++)
+	    tilde.set(i, j) = barre(i, j)-barre(i+2, j) ;
+
+    Matrice res(tilde) ;
+    for (int i=0 ; i<n-4 ; i++)
+	for (int j=0 ; j<n ; j++)
+	    res.set(i, j) = tilde(i, j)-tilde(i+1, j) ;
+    return res ;
+}
+
+		//-------------------
+	       //--  R_CHEBI   -----
+	      //-------------------
+
+
+Matrice _cl_helmholtz_minus_r_chebi (const Matrice &source) {
+     int n = source.get_dim(0) ;
+  assert (n==source.get_dim(1)) ;
+
+ Matrice barre(source) ;
+   
+    for (int i=0 ; i<n-2 ; i++)
+	for (int j=0 ; j<n ; j++)
+	    barre.set(i, j) = source(i, j)-source(i+2, j) ;
+
+    Matrice tilde(barre) ;
+    for (int i=0 ; i<n-4 ; i++)
+	for (int j=0 ; j<n ; j++)
+	    tilde.set(i, j) = barre(i, j)-barre(i+2, j) ;    
+
+    Matrice res(tilde) ;
+    for (int i=0 ; i<n-4 ; i++)
+	for (int j=0 ; j<n ; j++)
+	    res.set(i, j) = tilde(i, j)-tilde(i+1, j) ;
+    return res ;
+}
 
                 //-------------------------
 	       //- La routine a appeler ---
@@ -150,6 +208,8 @@ Matrice cl_helmholtz_minus (const Matrice &source, int base_r) {
       // Les routines existantes
       cl_helmholtz_minus[R_CHEB >> TRA_R] = _cl_helmholtz_minus_r_cheb ;
       cl_helmholtz_minus[R_CHEBU >> TRA_R] = _cl_helmholtz_minus_r_chebu ;
+      cl_helmholtz_minus[R_CHEBP >> TRA_R] = _cl_helmholtz_minus_r_chebp ;
+      cl_helmholtz_minus[R_CHEBI >> TRA_R] = _cl_helmholtz_minus_r_chebi ;
     }
     
     Matrice res(cl_helmholtz_minus[base_r](source)) ;
@@ -222,7 +282,53 @@ Tbl _cl_helmholtz_minus_r_chebu (const Tbl& source) {
 
   return res ;
 }
+  
+		//-------------------
+	       //--  R_CHEBP   -----
+	      //-------------------
 
+
+Tbl _cl_helmholtz_minus_r_chebp (const Tbl &source) {
+   int n = source.get_dim(0) ;
+   Tbl barre(source) ;
+  
+    int dirac = 1 ;
+    for (int i=0 ; i<n-2 ; i++) {
+	    barre.set(i) = (1+dirac)*source(i)-source(i+2) ;
+	if (i==0) dirac = 0 ;
+    }
+
+    Tbl tilde(barre) ;
+    for (int i=0 ; i<n-4 ; i++)
+	    tilde.set(i) = barre(i)-barre(i+2) ;
+
+    Tbl res(tilde) ;
+    for (int i=0 ; i<n-4 ; i++)
+	    res.set(i) = tilde(i)-tilde(i+1) ;
+    return res ;
+}
+
+		//-------------------
+	       //--  R_CHEBI   -----
+	      //-------------------
+
+
+Tbl _cl_helmholtz_minus_r_chebi (const Tbl &source) {
+    int n = source.get_dim(0) ;
+  Tbl barre(source) ;
+   
+    for (int i=0 ; i<n-2 ; i++)
+	    barre.set(i) = source(i)-source(i+2) ;
+
+    Tbl tilde(barre) ;
+    for (int i=0 ; i<n-4 ; i++)
+	    tilde.set(i) = barre(i)-barre(i+2) ;    
+
+    Tbl res(tilde) ;
+    for (int i=0 ; i<n-4 ; i++)
+	    res.set(i) = tilde(i)-tilde(i+1) ;
+    return res ;
+}
 		//----------------------------
 	       //- Routine a appeler        ---
 	      //------------------------------
@@ -241,7 +347,9 @@ Tbl cl_helmholtz_minus (const Tbl &source, int base_r) {
     }
     // Les routines existantes
     cl_helmholtz_minus[R_CHEB >> TRA_R] = _cl_helmholtz_minus_r_cheb ;
-    cl_helmholtz_minus[R_CHEBU >> TRA_R] = _cl_helmholtz_minus_r_chebu ;
+    cl_helmholtz_minus[R_CHEBU >> TRA_R] = _cl_helmholtz_minus_r_chebu ; 
+    cl_helmholtz_minus[R_CHEBP >> TRA_R] = _cl_helmholtz_minus_r_chebp ;
+    cl_helmholtz_minus[R_CHEBI >> TRA_R] = _cl_helmholtz_minus_r_chebi ;
   }
     
     Tbl res(cl_helmholtz_minus[base_r](source)) ;
