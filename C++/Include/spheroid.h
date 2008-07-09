@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2008/07/09 08:48:23  n_vasset
+ * protected member zeta added.
+ *
  * Revision 1.9  2008/06/04 12:31:56  n_vasset
  * new functions multipole_mass and multipole_angu.
  *
@@ -119,6 +122,10 @@ class Spheroid {
 	 */
 
 	Scalar ggg;
+
+        /*** */
+
+	Scalar zeta;
 
 	/** Flag to know whether the horizon is geometrically round or distorted*/
  
