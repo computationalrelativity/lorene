@@ -25,6 +25,9 @@ char helmholtz_minus_mat_C[] = "$$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2008/07/09 06:51:58  p_grandclement
+ * some corrections to helmholtz minus in the nucleus
+ *
  * Revision 1.5  2008/07/08 11:45:28  p_grandclement
  * Add helmholtz_minus in the nucleus
  *
@@ -211,15 +214,52 @@ Matrice _helmholtz_minus_mat_r_cheb (int n, int lq, double alpha, double beta,
 		   //--------------------------
 		    
 
-Matrice _helmholtz_minus_mat_r_chebp (int n, int l, double alpha, double, double masse) {
+Matrice _helmholtz_minus_mat_r_chebp (int n, int lq, double alpha, double, double masse) {
    
+    if (lq==0) {
+   	Diff_dsdx2 d2(R_CHEBP, n) ;
+    	Diff_sxdsdx sxd(R_CHEBP, n) ;
+    	Diff_id xx (R_CHEBP, n) ;
     
-    Diff_dsdx2 d2(R_CHEBP, n) ;
-    Diff_sxdsdx sxd(R_CHEBP, n) ;
-    Diff_sx2 sx2(R_CHEBP, n) ;
-    Diff_id xx (R_CHEBP, n) ;
+    	return Matrice(d2 + 2.*sxd -masse*masse*alpha*alpha*xx) ;
+    }
+	else {
+	      Matrice res(n-1, n-1) ;
+  	      res.set_etat_qcq() ;
+  
+              double* vect = new double[n] ;
+ 
+              double* vect_sx2 = new double[n] ;
+	      double* vect_sxd = new double[n] ;
+              double* vect_dd = new double[n] ;
+  
+ 	     for (int i=0 ; i<n-1 ; i++) {
+    		for (int j=0 ; j<n ; j++)
+      			vect[j] = 0 ;
+    		vect[i] = 1. ;
+    		vect[i+1] = 1. ;
     
-    return Matrice(d2 + 2.*sxd -(l*(l+1))*sx2 -masse*masse*alpha*alpha*xx) ;
+		
+    	    for (int j=0 ; j<n ; j++)
+                 vect_dd[j] = vect[j] ;
+            d2sdx2_1d (n, &vect_dd, R_CHEBP) ;  // appel dans le cas chebp
+	    for (int j=0 ; j<n ; j++)
+                 vect_sxd[j] = vect[j] ;
+            sxdsdx_1d (n, &vect_sxd, R_CHEBP) ;  // appel dans le cas chebp
+	    for (int j=0 ; j<n ; j++)
+                 vect_sx2[j] = vect[j] ;
+            sx2_1d (n, &vect_sx2, R_CHEBP) ;  // appel dans le cas chebp
+		
+   	 for (int j=0 ; j<n-1 ; j++)
+		res.set(j,i) = vect_dd[j] +2*vect_sxd[j] - lq*(lq+1)*vect_sx2[j] - masse*masse*alpha*alpha*vect[j] ;
+ 	 }
+  		delete [] vect ;
+  		delete [] vect_sx2 ;
+  		delete [] vect_sxd ;
+		delete [] vect_dd ;
+
+	  return res ;
+	}
 }
 
 
@@ -229,15 +269,53 @@ Matrice _helmholtz_minus_mat_r_chebp (int n, int l, double alpha, double, double
 		   //------------------------
 		    
 
-Matrice _helmholtz_minus_mat_r_chebi (int n, int l, double alpha, double, double masse) {
+Matrice _helmholtz_minus_mat_r_chebi (int n, int lq, double alpha, double, double masse) {
    
-  
+  if (lq==1) {
     Diff_dsdx2 d2(R_CHEBI, n) ;
     Diff_sxdsdx sxd(R_CHEBI, n) ;
     Diff_sx2 sx2(R_CHEBI, n) ;
     Diff_id xx(R_CHEBI, n) ;
 
-    return Matrice(d2 + 2.*sxd - (l*(l+1))*sx2- masse*masse*alpha*alpha*xx) ;
+    return Matrice(d2 + 2.*sxd - (lq*(lq+1))*sx2- masse*masse*alpha*alpha*xx) ;
+   }
+	else {
+	      Matrice res(n-1, n-1) ;
+  	      res.set_etat_qcq() ;
+  
+              double* vect = new double[n] ;
+ 
+              double* vect_sx2 = new double[n] ;
+	      double* vect_sxd = new double[n] ;
+              double* vect_dd = new double[n] ;
+  
+ 	     for (int i=0 ; i<n-1 ; i++) {
+    		for (int j=0 ; j<n ; j++)
+      			vect[j] = 0 ;
+    		vect[i] = (2*i+3) ;
+    		vect[i+1] = (2*i+1) ;
+    
+		
+    	    for (int j=0 ; j<n ; j++)
+                 vect_dd[j] = vect[j] ;
+            d2sdx2_1d (n, &vect_dd, R_CHEBI) ;  // appel dans le cas chebi
+	    for (int j=0 ; j<n ; j++)
+                 vect_sxd[j] = vect[j] ;
+            sxdsdx_1d (n, &vect_sxd, R_CHEBI) ;  // appel dans le cas chebi
+	    for (int j=0 ; j<n ; j++)
+                 vect_sx2[j] = vect[j] ;
+            sx2_1d (n, &vect_sx2, R_CHEBI) ;  // appel dans le cas chebi
+		
+   	 for (int j=0 ; j<n-1 ; j++)
+		res.set(j,i) = vect_dd[j] +2*vect_sxd[j] - lq*(lq+1)*vect_sx2[j] - masse*masse*alpha*alpha*vect[j] ;
+ 	 }
+  		delete [] vect ;
+  		delete [] vect_sx2 ;
+  		delete [] vect_sxd ;
+		delete [] vect_dd ;
+
+	  return res ;
+	}
 }
 
 

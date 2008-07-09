@@ -23,6 +23,9 @@ char sol_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2008/07/09 06:51:58  p_grandclement
+ * some corrections to helmholtz minus in the nucleus
+ *
  * Revision 1.6  2005/01/25 15:44:20  j_novak
  * Fixed a problem in the definition of nr at the end.
  *
@@ -264,7 +267,7 @@ Mtbl_cf elliptic_solver  (const Param_elliptic& ope_var, const Mtbl_cf& source) 
 	for (int i=0 ; i<nr ; i++)
 	  resultat.set(0,k,j,i) = solution_part(0,k,j,i) 
 	    +facteur(0)*solution_hom_un(0,k,j,i) ;
-  
+
 	// Shells
 	for (int l=1 ; l<nz-1 ; l++) {
 	  nr = source.get_mg()->get_nr(l) ;

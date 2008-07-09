@@ -25,6 +25,9 @@ char solp_helmholtz_minus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2008/07/09 06:51:58  p_grandclement
+ * some corrections to helmholtz minus in the nucleus
+ *
  * Revision 1.5  2008/07/08 11:45:28  p_grandclement
  * Add helmholtz_minus in the nucleus
  *
@@ -63,7 +66,7 @@ char solp_helmholtz_minus_C[] = "$Header$" ;
 		// Routine pour les cas non prevus --
 		//------------------------------------
 Tbl _solp_helmholtz_minus_pas_prevu (const Matrice &, const Matrice &, 
-				     const Tbl &, double, double) {
+				     const Tbl &, double, double, int) {
     cout << " Solution homogene pas prevue ..... : "<< endl ;
     abort() ;
     exit(-1) ;
@@ -79,7 +82,7 @@ Tbl _solp_helmholtz_minus_pas_prevu (const Matrice &, const Matrice &,
 
 
 Tbl _solp_helmholtz_minus_r_chebu (const Matrice &lap, const Matrice &nondege, 
-				   const Tbl &source, double, double) {
+				   const Tbl &source, double, double, int) {
   
   int n = lap.get_dim(0)+2 ;	  
   int dege = n-nondege.get_dim(0) ;
@@ -101,6 +104,7 @@ Tbl _solp_helmholtz_minus_r_chebu (const Matrice &lap, const Matrice &nondege,
     res.set(i+1) += -sol(i-1)*(4*i+4) ;
     res.set(i+2) += sol(i-1)*(2*i+1) ;
   }
+
   return res ;
 }
 
@@ -109,7 +113,7 @@ Tbl _solp_helmholtz_minus_r_chebu (const Matrice &lap, const Matrice &nondege,
 	       //--  R_CHEB   -----
 	      //-------------------
 Tbl _solp_helmholtz_minus_r_cheb (const Matrice &lap, const Matrice &nondege, 
-				const Tbl &source, double alpha, double beta) {
+				const Tbl &source, double alpha, double beta, int) {
   
   int n = lap.get_dim(0) ;	  
   int dege = n-nondege.get_dim(0) ;
@@ -146,61 +150,67 @@ Tbl _solp_helmholtz_minus_r_cheb (const Matrice &lap, const Matrice &nondege,
           	//-------------------
 	       //--  R_CHEBP   -----
 	      //-------------------
-Tbl _solp_helmholtz_minus_r_chebp (const Matrice &lap, const Matrice &nondege, 
-				const Tbl &source, double alpha, double) {
-  
-  int n = lap.get_dim(0) ;	  
-  int dege = n-nondege.get_dim(0) ;
-  assert (dege ==1) ;
-  
-  Tbl source_aux(source*alpha*alpha) ;
-  source_aux = cl_helmholtz_minus (source_aux, R_CHEBP) ;
+Tbl _solp_helmholtz_minus_r_chebp (const Matrice &, const Matrice &nondege, 
+				const Tbl &source, double alpha, double, int lq) {
+
+
+  int dege = (lq==0) ? 1 : 2 ;
+  int n = nondege.get_dim(0) + dege ;
+  Tbl source_cl (cl_helmholtz_minus(source*alpha*alpha, R_CHEBP)) ;
   
   Tbl so(n-dege) ;
   so.set_etat_qcq() ;
   for (int i=0 ; i<n-dege ; i++)
-    so.set(i) = source_aux(i) ;
- 
-  Tbl auxi(nondege.inverse(so)) ;
-
-  Tbl res(n) ;
-  res.set_etat_qcq() ;
-  for (int i=dege ; i<n ; i++)
-    res.set(i) = auxi(i-dege) ;
+    so.set(i) = source_cl(i);
   
-  for (int i=0 ; i<dege ; i++)
-    res.set(i) = 0 ;
-  return res ;
+  Tbl sol (nondege.inverse(so)) ;
+    
+  Tbl res(n) ;
+  res.annule_hard() ;
+  if (dege==2) {
+  for (int i=1 ; i<n-1 ; i++) {
+    res.set(i) += sol(i-1) ;
+    res.set(i+1) += sol(i-1) ;
+  }
+}
+  else {
+	for (int i=1  ; i<n ; i++)
+		res.set(i) = sol(i-1) ;
+	}  
+return res ;
 }
 
     		//-------------------
 	       //--  R_CHEBI   -----
 	      //-------------------
-Tbl _solp_helmholtz_minus_r_chebi (const Matrice &lap, const Matrice &nondege, 
-				const Tbl &source, double alpha, double) {
+Tbl _solp_helmholtz_minus_r_chebi (const Matrice &, const Matrice &nondege, 
+				const Tbl &source, double alpha, double, int lq) {
   
-  int n = lap.get_dim(0) ;	  
-  int dege = n-nondege.get_dim(0) ;
-  assert (dege ==1) ;
-  
-  Tbl source_aux(source*alpha*alpha) ;
-  source_aux = cl_helmholtz_minus (source_aux, R_CHEBI) ;
+  int dege = (lq==1) ? 1 : 2 ;
+  int n = nondege.get_dim(0) + dege ;
+  Tbl source_cl (cl_helmholtz_minus(source*alpha*alpha, R_CHEBI)) ;
   
   Tbl so(n-dege) ;
   so.set_etat_qcq() ;
   for (int i=0 ; i<n-dege ; i++)
-    so.set(i) = source_aux(i) ;
- 
-  Tbl auxi(nondege.inverse(so)) ;
-
-  Tbl res(n) ;
-  res.set_etat_qcq() ;
-  for (int i=dege ; i<n ; i++)
-    res.set(i) = auxi(i-dege) ;
+    so.set(i) = source_cl(i);
   
-  for (int i=0 ; i<dege ; i++)
-    res.set(i) = 0 ;
-  return res ;
+  Tbl sol (nondege.inverse(so)) ;
+    
+  Tbl res(n) ;
+  res.annule_hard() ;
+  if (dege==2) {
+  for (int i=1 ; i<n-1 ; i++) {
+    res.set(i) += (2*i+3)*sol(i-1) ;
+    res.set(i+1) += (2*i+1)*sol(i-1) ;
+  }
+}
+  else {
+	for (int i=1  ; i<n ; i++)
+		res.set(i) = sol(i-1) ;
+	}  
+return res ;
+
 }
 
 	      	//-------------------
@@ -209,12 +219,12 @@ Tbl _solp_helmholtz_minus_r_chebi (const Matrice &lap, const Matrice &nondege,
 	      
 	      
 Tbl solp_helmholtz_minus (const Matrice &lap, const Matrice &nondege, 
-			  const Tbl &source, double alpha, double beta, 
+			  const Tbl &source, double alpha, double beta, int lq,
 			  int base_r) {
 
   // Routines de derivation
   static Tbl (*solp_helmholtz_minus[MAX_BASE]) (const Matrice&, const Matrice&,
-						const Tbl&, double, double) ;
+						const Tbl&, double, double, int) ;
   static int nap = 0 ;
   
   // Premier appel
@@ -230,6 +240,6 @@ Tbl solp_helmholtz_minus (const Matrice &lap, const Matrice &nondege,
     solp_helmholtz_minus[R_CHEBI >> TRA_R] = _solp_helmholtz_minus_r_chebi ;
   }
   
-  Tbl res(solp_helmholtz_minus[base_r] (lap, nondege, source, alpha, beta)) ;
+  Tbl res(solp_helmholtz_minus[base_r] (lap, nondege, source, alpha, beta, lq)) ;
   return res ;
 }

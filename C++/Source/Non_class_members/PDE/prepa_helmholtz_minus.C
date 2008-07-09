@@ -25,6 +25,9 @@ char prepa_helmholtz_minus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2008/07/09 06:51:58  p_grandclement
+ * some corrections to helmholtz minus in the nucleus
+ *
  * Revision 1.5  2008/07/08 11:45:28  p_grandclement
  * Add helmholtz_minus in the nucleus
  *
@@ -126,7 +129,7 @@ Matrice _prepa_helmholtz_minus_nondege_r_chebp (const Matrice &lap) {
     for (int j=0 ; j<n-non_dege ; j++)
       res.set(i, j) = lap(i, j+non_dege) ;
   
-  res.set_band (4,1) ;
+  res.set_band (4,2) ;
   res.set_lu() ;
   return res ;
 } 
@@ -144,7 +147,7 @@ Matrice _prepa_helmholtz_minus_nondege_r_chebi (const Matrice &lap) {
     for (int j=0 ; j<n-non_dege ; j++)
       res.set(i, j) = lap(i, j+non_dege) ;
   
-  res.set_band (4,1) ;
+  res.set_band (4,2) ;
   res.set_lu() ;
   return res ;
 } 
