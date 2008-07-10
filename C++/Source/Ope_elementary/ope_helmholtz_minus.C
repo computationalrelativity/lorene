@@ -23,6 +23,9 @@ char ope_helmholtz_minus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2008/07/10 10:59:17  p_grandclement
+ * forgot another ones
+ *
  * Revision 1.5  2004/08/24 09:14:45  p_grandclement
  * Addition of some new operators, like Poisson in 2d... It now requieres the
  * GSL library to work.
@@ -103,7 +106,7 @@ Tbl Ope_helmholtz_minus::get_solp (const Tbl& so) const {
   if (non_dege == 0x0)
     do_non_dege() ;
 
-  Tbl res(solp_helmholtz_minus (*ope_mat, *non_dege, so, alpha, beta, base_r));
+  Tbl res(solp_helmholtz_minus (*ope_mat, *non_dege, so, alpha, beta, lq, base_r));
   
   Tbl valeurs (val_solp (res, alpha, base_r)) ;
   sp_plus = valeurs(0) ;
