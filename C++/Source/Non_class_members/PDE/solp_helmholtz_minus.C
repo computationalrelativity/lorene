@@ -25,6 +25,9 @@ char solp_helmholtz_minus_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2008/07/10 11:20:33  p_grandclement
+ * mistake fixed in solh_helmholtz_minus
+ *
  * Revision 1.6  2008/07/09 06:51:58  p_grandclement
  * some corrections to helmholtz minus in the nucleus
  *
@@ -208,7 +211,8 @@ Tbl _solp_helmholtz_minus_r_chebi (const Matrice &, const Matrice &nondege,
   else {
 	for (int i=1  ; i<n ; i++)
 		res.set(i) = sol(i-1) ;
-	}  
+	}
+
 return res ;
 
 }

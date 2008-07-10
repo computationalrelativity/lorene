@@ -25,6 +25,9 @@ char solh_helmholtz_minusC[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2008/07/10 11:20:33  p_grandclement
+ * mistake fixed in solh_helmholtz_minus
+ *
  * Revision 1.6  2008/07/08 11:45:28  p_grandclement
  * Add helmholtz_minus in the nucleus
  *
@@ -129,7 +132,7 @@ Tbl _solh_helmholtz_minus_r_chebp (int n, int lq, double alpha, double,
   
   assert (masse > 0) ;
   
-  Tbl res(1,n) ;
+  Tbl res(n) ;
   res.set_etat_qcq() ;
   double* coloc = new double[n] ;
     
@@ -146,7 +149,7 @@ Tbl _solh_helmholtz_minus_r_chebp (int n, int lq, double alpha, double,
 
   cfrchebp(deg, deg, coloc, deg, coloc) ;
   for (int i=0 ; i<n ;i++)
-    res.set(0,i) = coloc[i] ;
+    res.set(i) = coloc[i] ;
 
   delete [] deg ;
   delete [] coloc ;
@@ -161,7 +164,7 @@ Tbl _solh_helmholtz_minus_r_chebi (int n, int lq, double alpha, double,
   
   assert (masse > 0) ;
   
-  Tbl res(1,n) ;
+  Tbl res(n) ;
   res.set_etat_qcq() ;
   double* coloc = new double[n] ;
     
@@ -178,7 +181,7 @@ Tbl _solh_helmholtz_minus_r_chebi (int n, int lq, double alpha, double,
 
   cfrchebi(deg, deg, coloc, deg, coloc) ;
   for (int i=0 ; i<n ;i++)
-    res.set(0,i) = coloc[i] ;
+    res.set(i) = coloc[i] ;
 
   delete [] deg ;
   delete [] coloc ;

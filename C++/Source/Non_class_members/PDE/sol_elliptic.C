@@ -23,6 +23,9 @@ char sol_elliptic_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2008/07/10 11:20:33  p_grandclement
+ * mistake fixed in solh_helmholtz_minus
+ *
  * Revision 1.7  2008/07/09 06:51:58  p_grandclement
  * some corrections to helmholtz minus in the nucleus
  *
@@ -265,8 +268,7 @@ Mtbl_cf elliptic_solver  (const Param_elliptic& ope_var, const Mtbl_cf& source) 
 	// Noyau 
 	nr = source.get_mg()->get_nr(0) ;
 	for (int i=0 ; i<nr ; i++)
-	  resultat.set(0,k,j,i) = solution_part(0,k,j,i) 
-	    +facteur(0)*solution_hom_un(0,k,j,i) ;
+	  resultat.set(0,k,j,i) = solution_part(0,k,j,i) +facteur(0)*solution_hom_un(0,k,j,i) ;
 
 	// Shells
 	for (int l=1 ; l<nz-1 ; l++) {
