@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.36  2008/07/10 10:34:35  p_grandclement
+ * forgot this one
+ *
  * Revision 1.35  2007/12/11 15:28:05  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -473,7 +476,7 @@ Matrice cl_helmholtz_minus (const Matrice&, int) ;
 Tbl cl_helmholtz_minus (const Tbl&, int) ;
 Matrice prepa_helmholtz_minus_nondege (const Matrice&, int) ;
 Tbl solp_helmholtz_minus (const Matrice&, const Matrice&, const Tbl&, 
-			  double, double, int) ;
+			  double, double, int, int) ;
 Tbl solh_helmholtz_minus (int, int, double, double, double, int) ;
 
 // Routines helmholtz plus :
