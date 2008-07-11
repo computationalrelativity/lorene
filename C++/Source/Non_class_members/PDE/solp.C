@@ -25,6 +25,9 @@ char solp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2008/07/11 13:20:54  j_novak
+ * Miscellaneous functions for the wave equation.
+ *
  * Revision 1.8  2008/02/18 13:53:44  j_novak
  * Removal of special indentation instructions.
  *
@@ -186,7 +189,7 @@ Tbl _solp_r_cheb (const Matrice &lap, const Matrice &nondege, double alpha,
 	      //-------------------
 
 Tbl _solp_r_jaco02 (const Matrice &lap, const Matrice &nondege, double alpha, 
-		  double beta, const Tbl &source, int) {
+		  double, const Tbl &source, int) {
     
     int n = lap.get_dim(0) ;	  
     int dege = n-nondege.get_dim(0) ;
