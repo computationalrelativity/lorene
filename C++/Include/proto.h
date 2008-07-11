@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.37  2008/07/11 13:20:08  j_novak
+ * Miscellaneous functions for the system wave equation.
+ *
  * Revision 1.36  2008/07/10 10:34:35  p_grandclement
  * forgot this one
  *
@@ -670,12 +673,15 @@ void _lapang_t_leg_pp(Mtbl_cf*, int) ;
 void _lapang_t_leg_i(Mtbl_cf*, int) ;
 void _lapang_t_leg(Mtbl_cf*, int) ;
 
-// Fonctions liees au dalembertien
+// Fonctions liees a la resolution des l'equation des ondes
 void get_operateur_dal(const Param&, const int&, const int&, 
 		       int&, Matrice& );
 Tbl dal_inverse(const int&, const int&, const Matrice&, const Tbl&, 
 		const bool) ;
 Mtbl_cf sol_dalembert(Param&, const Map_af&, const Mtbl_cf&) ;
+
+void runge_kutta3_wave_sys(double, const Scalar&, const Scalar&, Scalar& , Scalar& ) ;
+void evolve_outgoing_BC(double, int, const Scalar&, Scalar&, Tbl&, Tbl&, Tbl&) ;
 
 // Fonctions diverses : 
 void c_est_pas_fait(char * ) ;
