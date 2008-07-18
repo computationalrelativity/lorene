@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.39  2008/07/18 12:28:41  j_novak
+ * Corrected some mistakes.
+ *
  * Revision 1.38  2008/07/18 09:17:35  j_novak
  * New function tilde_laplacian().
  *
@@ -685,7 +688,7 @@ Mtbl_cf sol_dalembert(Param&, const Map_af&, const Mtbl_cf&) ;
 
 void runge_kutta3_wave_sys(double, const Scalar&, const Scalar&, Scalar& , Scalar&, int dl=0 ) ;
 void evolve_outgoing_BC(double, int, const Scalar&, Scalar&, Tbl&, Tbl&, Tbl&, int dl=0) ;
-void tilde_laplacian(Scalar& B_in, Scalar& tilde_lap, int dl=-1) ;
+void tilde_laplacian(const Scalar& B_in, Scalar& tilde_lap, int dl=-1) ;
 
 // Fonctions diverses : 
 void c_est_pas_fait(char * ) ;

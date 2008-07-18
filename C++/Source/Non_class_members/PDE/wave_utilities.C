@@ -28,6 +28,9 @@ char wave_utilities_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2008/07/18 12:28:41  j_novak
+ * Corrected some mistakes.
+ *
  * Revision 1.2  2008/07/18 09:17:35  j_novak
  * New function tilde_laplacian().
  *
@@ -61,6 +64,7 @@ void tilde_laplacian(const Scalar& B_in, Scalar& tilde_lap, int dl) {
     tilde_lap.dec_dzpuis() ;
     tilde_lap.set_spectral_va().ylm() ;
     Scalar B_over_r2 = B_in ;
+    B_over_r2.div_r_dzpuis(1) ;
     B_over_r2.div_r_dzpuis(2) ;
     B_over_r2.set_spectral_va().ylm() ;
 
@@ -72,7 +76,7 @@ void tilde_laplacian(const Scalar& B_in, Scalar& tilde_lap, int dl) {
 	if (B_in.domain(lz).get_etat() == ETATZERO)
 	    tilde_lap.set_domain(lz).set_etat_zero() ;
 	else {
-	    for (int k=0; k<mg.get_np(lz); k++)
+	    for (int k=0; k<mg.get_np(lz)+2; k++)
 		for (int j=0; j<mg.get_nt(lz); j++) {
 		    base.give_quant_numbers(lz, k, j, m_q, l_q, base_r) ;
 		    if (l_q > 1) {
@@ -84,6 +88,10 @@ void tilde_laplacian(const Scalar& B_in, Scalar& tilde_lap, int dl) {
 		    }
 		}
 	}
+    }
+    if (tilde_lap.get_spectral_va().c != 0x0) {
+	delete tilde_lap.set_spectral_va().c ;
+	tilde_lap.set_spectral_va().c = 0x0 ;
     }
     tilde_lap.dec_dzpuis(2) ;
     return ;
