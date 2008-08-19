@@ -25,6 +25,10 @@ char des_coupe_vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.1  2005/03/24 22:01:07  e_gourgoulhon
  * Plot of a vector field represented by a Vector.
  *
@@ -47,7 +51,7 @@ char des_coupe_vector_C[] = "$Header$" ;
 //******************************************************************************
 
 void des_coupe_vect_x(const Vector& vv, double x0, double scale, double sizefl,
-		      int nzdes, char* title, const Scalar* defsurf, double zoom, 
+		      int nzdes, const char* title, const Scalar* defsurf, double zoom, 
 		      bool draw_bound, int ny, int nz) {
 		     
     const Map& mp = vv.get_mp() ; 
@@ -79,7 +83,7 @@ void des_coupe_vect_x(const Vector& vv, double x0, double scale, double sizefl,
 
 void des_coupe_vect_x(const Vector& vv, double x0, double scale, double
 		      sizefl, double y_min, double y_max, double z_min, 
-		      double z_max, char* title, const Scalar* defsurf, 
+		      double z_max, const char* title, const Scalar* defsurf, 
 		      bool draw_bound, int ny, int nz) {
 
   using namespace Unites ;
@@ -115,25 +119,25 @@ void des_coupe_vect_x(const Vector& vv, double x0, double scale, double
 	    double r, theta, phi ; 
 	    mp.convert_absolute(x0, y, z, r, theta, phi) ; 
 	
-	    vvy[ny*j+i] = vv(2).val_point(r, theta, phi) ; 
-	    vvz[ny*j+i] = vv(3).val_point(r, theta, phi) ; 
+	    vvy[ny*j+i] = float(vv(2).val_point(r, theta, phi)) ; 
+	    vvz[ny*j+i] = float(vv(3).val_point(r, theta, phi)) ; 
 	    
 	}
     }
     
-    float ymin1 = y_min / km ;
-    float ymax1 = y_max / km ;
-    float zmin1 = z_min / km ;
-    float zmax1 = z_max / km ;
+    float ymin1 = float(y_min / km) ;
+    float ymax1 = float(y_max / km) ;
+    float zmin1 = float(z_min / km) ;
+    float zmax1 = float(z_max / km) ;
     
-    char* nomy = "y [km]" ; 
-    char* nomz = "z [km]" ; 
+    const char* nomy = "y [km]" ; 
+    const char* nomz = "z [km]" ; 
     
     if (title == 0x0) {
 	title = "" ;
     }
     
-    char* device = 0x0 ; 
+    const char* device = 0x0 ; 
     int newgraph = ( (defsurf != 0x0) || draw_bound ) ? 1 : 3 ; 
     
     des_vect(vvy, vvz, ny, nz, ymin1, ymax1, zmin1, zmax1,
@@ -181,7 +185,7 @@ void des_coupe_vect_x(const Vector& vv, double x0, double scale, double
 //******************************************************************************
 
 void des_coupe_vect_y(const Vector& vv, double y0, double scale, double sizefl,
-		      int nzdes, char* title, const Scalar* defsurf, double zoom, 
+		      int nzdes, const char* title, const Scalar* defsurf, double zoom, 
 		      bool draw_bound, int nx, int nz) {
 		     
     const Map& mp = vv.get_mp() ; 
@@ -214,7 +218,7 @@ void des_coupe_vect_y(const Vector& vv, double y0, double scale, double sizefl,
 
 void des_coupe_vect_y(const Vector& vv, double y0, double scale, double
 		      sizefl, double x_min, double x_max, double z_min, 
-		      double z_max, char* title, const Scalar* defsurf, 
+		      double z_max, const char* title, const Scalar* defsurf, 
 		      bool draw_bound, int nx, int nz) {
 		
   using namespace Unites ;
@@ -250,26 +254,26 @@ void des_coupe_vect_y(const Vector& vv, double y0, double scale, double
 	    double r, theta, phi ; 
 	    mp.convert_absolute(x, y0, z, r, theta, phi) ; 
 	
-	    vvx[nx*j+i] = vv(1).val_point(r, theta, phi) ; 
-	    vvz[nx*j+i] = vv(3).val_point(r, theta, phi) ; 
+	    vvx[nx*j+i] = float(vv(1).val_point(r, theta, phi)) ; 
+	    vvz[nx*j+i] = float(vv(3).val_point(r, theta, phi)) ; 
 	    
 	}
     }
     
-    float xmin1 = x_min / km ;
-    float xmax1 = x_max / km ;
-    float zmin1 = z_min / km ;
-    float zmax1 = z_max / km ;
+    float xmin1 = float(x_min / km) ;
+    float xmax1 = float(x_max / km) ;
+    float zmin1 = float(z_min / km) ;
+    float zmax1 = float(z_max / km) ;
     
-    char* nomx = "x [km]" ; 
-    char* nomz = "z [km]" ; 
+    const char* nomx = "x [km]" ; 
+    const char* nomz = "z [km]" ; 
     
     if (title == 0x0) {
 	title = "" ;
     }
     
 
-    char* device = 0x0 ; 
+    const char* device = 0x0 ; 
     int newgraph = ( (defsurf != 0x0) || draw_bound ) ? 1 : 3 ; 
 
     des_vect(vvx, vvz, nx, nz, xmin1, xmax1, zmin1, zmax1,
@@ -316,7 +320,7 @@ void des_coupe_vect_y(const Vector& vv, double y0, double scale, double
 //******************************************************************************
 
 void des_coupe_vect_z(const Vector& vv, double z0, double scale, double sizefl,
-		      int nzdes, char* title, const Scalar* defsurf, double zoom, 
+		      int nzdes, const char* title, const Scalar* defsurf, double zoom, 
 		      bool draw_bound, int nx, int ny) {
 		     
     const Map& mp = vv.get_mp() ; 
@@ -348,7 +352,7 @@ void des_coupe_vect_z(const Vector& vv, double z0, double scale, double sizefl,
 
 void des_coupe_vect_z(const Vector& vv, double z0, double scale, double
 		      sizefl, double x_min, double x_max, double y_min, 
-		      double y_max, char* title, const Scalar* defsurf, 
+		      double y_max, const char* title, const Scalar* defsurf, 
 		      bool draw_bound, int nx, int ny) {
 		
   using namespace Unites ;
@@ -384,25 +388,25 @@ void des_coupe_vect_z(const Vector& vv, double z0, double scale, double
 	    double r, theta, phi ; 
 	    mp.convert_absolute(x, y, z0, r, theta, phi) ; 
 	
-	    vvx[nx*j+i] = vv(1).val_point(r, theta, phi) ; 
-	    vvy[nx*j+i] = vv(2).val_point(r, theta, phi) ; 
+	    vvx[nx*j+i] = float(vv(1).val_point(r, theta, phi)) ; 
+	    vvy[nx*j+i] = float(vv(2).val_point(r, theta, phi)) ; 
 	    
 	}
     }
     
-    float ymin1 = y_min / km ;
-    float ymax1 = y_max / km ;
-    float xmin1 = x_min / km ;
-    float xmax1 = x_max / km ;
+    float ymin1 = float(y_min / km) ;
+    float ymax1 = float(y_max / km) ;
+    float xmin1 = float(x_min / km) ;
+    float xmax1 = float(x_max / km) ;
     
-    char* nomy = "y [km]" ; 
-    char* nomx = "x [km]" ; 
+    const char* nomy = "y [km]" ; 
+    const char* nomx = "x [km]" ; 
     
     if (title == 0x0) {
 	title = "" ;
     }
     
-    char* device = 0x0 ; 
+    const char* device = 0x0 ; 
     int newgraph = ( (defsurf != 0x0) || draw_bound ) ? 1 : 3 ; 
     
     des_vect(vvx, vvy, nx, ny, xmin1, xmax1, ymin1, ymax1,

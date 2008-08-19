@@ -210,7 +210,7 @@ read_variable (char *fname, char *var_name, char *fmt, void *varp)
 int 
 read_variable (char *fname, char *var_name, int &var)
 {
-  int ret = read_variable(fname, var_name, "%d", &var);
+    int ret = read_variable(fname, var_name, const_cast<char*>("%d"), &var);
 
   cout << "DEBUG: " << var_name << " = " << var <<endl;
 
@@ -221,7 +221,7 @@ int
 read_variable (char *fname, char *var_name, bool &var)
 {
   int buf;
-  int ret = read_variable(fname, var_name, "%d", &buf);
+  int ret = read_variable(fname, var_name, const_cast<char*>("%d"), &buf);
 
   var = static_cast<bool>(buf);
 
@@ -233,7 +233,7 @@ read_variable (char *fname, char *var_name, bool &var)
 int 
 read_variable (char *fname, char *var_name, double &var)
 {
-  int ret = read_variable(fname, var_name, "%lf", &var);
+    int ret = read_variable(fname, var_name, const_cast<char*>("%lf"), &var);
 
   cout << "DEBUG: " << var_name << " = " << var <<endl;
 
@@ -251,7 +251,7 @@ read_variable (char *fname, char *var_name, char **str)
       return (ERR);
     }
 
-  int ret = read_variable(fname, var_name, FMT_STRING, &cstr);
+  int ret = read_variable(fname, var_name, const_cast<char*>(FMT_STRING), &cstr);
 
   if ((ret == OK) && cstr)
     *str = cstr;

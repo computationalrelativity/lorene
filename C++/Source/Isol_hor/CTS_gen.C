@@ -51,11 +51,11 @@ char CTS_gen[] = "$Header$" ;
 #include "param.h"
 #include "vector.h"
 
-void Isol_hor::init_data_CTS_gen(int bound_nn, double lim_nn, int bound_psi, int bound_beta,
+void Isol_hor::init_data_CTS_gen(int, double, int, int,
 				int solve_lapse, int solve_psi, int solve_shift, 
 				double precis, double relax_nn ,
 				double relax_psi, double relax_beta , 
-				int niter, double a, double zeta ) {
+				int niter, double a, double ) {
 
      using namespace Unites ;
 

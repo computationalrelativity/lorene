@@ -32,6 +32,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.20  2008/08/19 06:41:59  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.19  2005/08/24 09:02:23  j_novak
  * Comments for new version of doxygen.
  *
@@ -340,8 +344,8 @@ void des_profile_mult(const float* uutab, int nprof, int nx,
  *			  \c newgraph  = 1 or 3) (default value = 1)
  */
 void des_equipot(float* uutab, int nx, int ny, float xmin, float xmax, 
-		 float ymin, float ymax, int ncour, char* nomx, char* nomy, 
-		 char* title, char* device = 0x0, int newgraph = 3, 
+		 float ymin, float ymax, int ncour, const char* nomx, const char* nomy, 
+		 const char* title, const char* device = 0x0, int newgraph = 3, 
 		 int nxpage = 1, int nypage = 1) ;
 
 /** Basic routine for plotting vector field. 
@@ -390,7 +394,7 @@ void des_equipot(float* uutab, int nx, int ny, float xmin, float xmax,
  */
 void des_vect(float* vvx, float* vvy, int nx, int ny, float xmin, float xmax, 
 		 float ymin, float ymax, double scale,  double sizefl, 
-		 char* nomx, char* nomy, char* title, char* device = 0x0, 
+		 const char* nomx, const char* nomy, const char* title, const char* device = 0x0, 
 		 int newgraph = 3, int nxpage = 1, int nypage = 1) ;
 
 
@@ -426,10 +430,10 @@ void des_vect(float* vvx, float* vvy, int nx, int ny, float xmin, float xmax,
  *			  display window (meaningfull only if 
  *			  \c newgraph  = 1 or 3) (default value = 1)
  */
-void des_domaine_x(const Map& mp, int l0, double x0, char* device = 0x0, 
+void des_domaine_x(const Map& mp, int l0, double x0, const char* device = 0x0, 
 		   int newgraph = 3, double y_min = -1, double y_max = 1, 
 		   double z_min = -1, double z_max = 1, 
-		   char* nomy = 0x0, char* nomz = 0x0, char* title = 0x0, 
+		   const char* nomy = 0x0, const char* nomz = 0x0, const char* title = 0x0, 
 		   int nxpage = 1, int nypage = 1) ;
 
 
@@ -465,10 +469,10 @@ void des_domaine_x(const Map& mp, int l0, double x0, char* device = 0x0,
  *			  display window (meaningfull only if 
  *			  \c newgraph  = 1 or 3) (default value = 1)
  */
-void des_domaine_y(const Map& mp, int l0, double y0, char* device = 0x0, 
+void des_domaine_y(const Map& mp, int l0, double y0, const char* device = 0x0, 
 		   int newgraph = 3, double x_min = -1, double x_max = 1, 
 		   double z_min = -1, double z_max = 1, 
-		   char* nomx = 0x0, char* nomz = 0x0, char* title = 0x0, 
+		   const char* nomx = 0x0, const char* nomz = 0x0, const char* title = 0x0, 
 		   int nxpage = 1, int nypage = 1) ;
 
 
@@ -504,10 +508,10 @@ void des_domaine_y(const Map& mp, int l0, double y0, char* device = 0x0,
  *			  display window (meaningfull only if 
  *			  \c newgraph  = 1 or 3) (default value = 1)
  */
-void des_domaine_z(const Map& mp, int l0, double z0, char* device = 0x0, 
+void des_domaine_z(const Map& mp, int l0, double z0, const char* device = 0x0, 
 		   int newgraph = 3, double x_min = -1, double x_max = 1, 
 		   double y_min = -1, double y_max = 1, 
-		   char* nomx = 0x0, char* nomz = 0x0, char* title = 0x0, 
+		   const char* nomx = 0x0, const char* nomz = 0x0, const char* title = 0x0, 
 		   int nxpage = 1, int nypage = 1) ;
 
 
@@ -538,7 +542,7 @@ void des_domaine_z(const Map& mp, int l0, double z0, char* device = 0x0,
  *			  \c newgraph  = 1 or 3) (default value = 1)
  */
 void des_coef(const double* cf, int n, double pzero,
-	      char* nomx, char* nomy, char* title, char* device = 0x0, 
+	      const char* nomx, const char* nomy, const char* title, const char* device = 0x0, 
 	      int newgraph = 3, int nxpage = 1, int nypage = 1) ;
 
 /** @} */
@@ -587,7 +591,7 @@ void des_coef(const double* cf, int n, double pzero,
  *			  \c newgraph  = 1 or 3) (default value = 1)
  */
 void des_coef_xi(const Valeur& uu, int l, int k, int j, double pzero = 1.e-14, 
-		 char* nomy = 0x0, char* title = 0x0, char* device = 0x0, 
+		 const char* nomy = 0x0, const char* title = 0x0, const char* device = 0x0, 
 	         int newgraph = 3, int nxpage = 1, int nypage = 1) ;
 
 
@@ -630,7 +634,7 @@ void des_coef_xi(const Valeur& uu, int l, int k, int j, double pzero = 1.e-14,
  *			  \c newgraph  = 1 or 3) (default value = 1)
  */
 void des_coef_theta(const Valeur& uu, int l, int k, int i, double pzero = 1.e-14, 
-		    char* nomy = 0x0, char* title = 0x0, char* device = 0x0, 
+		    const char* nomy = 0x0, const char* title = 0x0, const char* device = 0x0, 
 	            int newgraph = 3, int nxpage = 1, int nypage = 1) ;
 		 
 		 
@@ -673,7 +677,7 @@ void des_coef_theta(const Valeur& uu, int l, int k, int i, double pzero = 1.e-14
  *			  \c newgraph  = 1 or 3) (default value = 1)
  */
 void des_coef_phi(const Valeur& uu, int l, int j, int i, double pzero = 1.e-14, 
-		  char* nomy = 0x0, char* title = 0x0, char* device = 0x0, 
+		  const char* nomy = 0x0, const char* title = 0x0, const char* device = 0x0, 
 	          int newgraph = 3, int nxpage = 1, int nypage = 1) ;
 
 /** Plots the coefficients of the functions \f$F_l(\theta', \phi')\f$ and
@@ -720,8 +724,8 @@ void des_map_et(const Map_et& mp, int lz) ;
  * 
  */
 void des_profile(const Scalar& uu, double r_min, double r_max, 
-		     double theta, double phi, char* nomy = 0x0,  
-		     char* title = 0x0, bool draw_bound = true) ;
+		     double theta, double phi, const char* nomy = 0x0,  
+		     const char* title = 0x0, bool draw_bound = true) ;
 
 
 /** Draws the profile of a \c Scalar  along some radial axis determined by
@@ -744,8 +748,8 @@ void des_profile(const Scalar& uu, double r_min, double r_max,
  * 
  */
 void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
-		     double theta, double phi, char* nomx = 0x0, 
-		     char* nomy = 0x0, char* title= 0x0,
+		     double theta, double phi, const char* nomx = 0x0, 
+		     const char* nomy = 0x0, const char* title= 0x0,
                      bool draw_bound = true) ;
 
 
@@ -859,10 +863,10 @@ void des_meridian(const Scalar& uu, double r_min, double r_max,
  *			  display window (meaningfull only if 
  *			  \c newgraph  = 1 or 3) (default value = 1)
  */
-void des_surface_x(const Scalar& defsurf, double x0, char* device = 0x0, 
+void des_surface_x(const Scalar& defsurf, double x0, const char* device = 0x0, 
 		   int newgraph = 3, double y_min = -1, double y_max = 1, 
 		   double z_min = -1, double z_max = 1, 
-		   char* nomy = 0x0, char* nomz = 0x0, char* title = 0x0, 
+		   const char* nomy = 0x0, const char* nomz = 0x0, const char* title = 0x0, 
 		   int nxpage = 1, int nypage = 1) ;
 
 /** Basic routine for drawing a stellar surface in a plane Y=constant.
@@ -897,10 +901,10 @@ void des_surface_x(const Scalar& defsurf, double x0, char* device = 0x0,
  *			  display window (meaningfull only if 
  *			  \c newgraph  = 1 or 3) (default value = 1)
  */
-void des_surface_y(const Scalar& defsurf, double y0, char* device = 0x0, 
+void des_surface_y(const Scalar& defsurf, double y0, const char* device = 0x0, 
 		   int newgraph = 3, double x_min = -1, double x_max = 1, 
 		   double z_min = -1, double z_max = 1, 
-		   char* nomx = 0x0, char* nomz = 0x0, char* title = 0x0, 
+		   const char* nomx = 0x0, const char* nomz = 0x0, const char* title = 0x0, 
 		   int nxpage = 1, int nypage = 1) ;
 
 
@@ -936,10 +940,10 @@ void des_surface_y(const Scalar& defsurf, double y0, char* device = 0x0,
  *			  display window (meaningfull only if 
  *			  \c newgraph  = 1 or 3) (default value = 1)
  */
-void des_surface_z(const Scalar& defsurf, double z0, char* device = 0x0, 
+void des_surface_z(const Scalar& defsurf, double z0, const char* device = 0x0, 
 		   int newgraph = 3, double x_min = -1, double x_max = 1, 
 		   double y_min = -1, double y_max = 1, 
-		   char* nomx = 0x0, char* nomz = 0x0, char* title = 0x0, 
+		   const char* nomx = 0x0, const char* nomz = 0x0, const char* title = 0x0, 
 		   int nxpage = 1, int nypage = 1) ;
 
 
@@ -972,7 +976,7 @@ void des_surface_z(const Scalar& defsurf, double z0, char* device = 0x0,
  *  @param ny [input]  number of points in the Y direction (default value = 100)
  *  @param nz [input]  number of points in the Z direction (default value = 100)
  */
-void des_coupe_x(const Scalar& uu, double x0, int nzdes, char* title = 0x0, 
+void des_coupe_x(const Scalar& uu, double x0, int nzdes, const char* title = 0x0, 
 		 const Scalar* defsurf = 0x0, double zoom = 1.2, 
 		 bool draw_bound = true, int ncour = 15, int ny = 100, 
 		 int nz = 100) ; 
@@ -1005,7 +1009,7 @@ void des_coupe_x(const Scalar& uu, double x0, int nzdes, char* title = 0x0,
  *  @param nz [input]  number of points in the Z direction (default value = 100)
  */
 void des_coupe_x(const Scalar& uu, double x0, double y_min, double y_max, 
-		 double z_min, double z_max, char* title = 0x0, 
+		 double z_min, double z_max, const char* title = 0x0, 
 		 const Scalar* defsurf = 0x0, bool draw_bound = true,
 		 int ncour = 15, int ny = 100, int nz = 100) ; 
 
@@ -1038,7 +1042,7 @@ void des_coupe_x(const Scalar& uu, double x0, double y_min, double y_max,
  *  @param nx [input]  number of points in the X direction (default value = 100)
  *  @param nz [input]  number of points in the Z direction (default value = 100)
  */
-void des_coupe_y(const Scalar& uu, double y0, int nzdes, char* title = 0x0, 
+void des_coupe_y(const Scalar& uu, double y0, int nzdes, const char* title = 0x0, 
 		 const Scalar* defsurf = 0x0, double zoom = 1.2,
 		 bool draw_bound = true, int ncour = 15, int nx = 100, 
 		 int nz = 100) ; 
@@ -1070,7 +1074,7 @@ void des_coupe_y(const Scalar& uu, double y0, int nzdes, char* title = 0x0,
  *  @param nz [input]  number of points in the Z direction (default value = 100)
  */
 void des_coupe_y(const Scalar& uu, double y0, double x_min, double x_max, 
-		 double z_min, double z_max, char* title = 0x0, 
+		 double z_min, double z_max, const char* title = 0x0, 
 		 const Scalar* defsurf = 0x0, bool draw_bound = true,
 		 int ncour = 15, int nx = 100, int nz = 100) ; 
 
@@ -1103,7 +1107,7 @@ void des_coupe_y(const Scalar& uu, double y0, double x_min, double x_max,
  *  @param nx [input]  number of points in the X direction (default value = 100)
  *  @param ny [input]  number of points in the Y direction (default value = 100)
  */
-void des_coupe_z(const Scalar& uu, double z0, int nzdes, char* title = 0x0, 
+void des_coupe_z(const Scalar& uu, double z0, int nzdes, const char* title = 0x0, 
 		 const Scalar* defsurf = 0x0, double zoom = 1.2, 
 		 bool draw_bound = true, int ncour = 15, int nx = 100, 
 		 int ny = 100) ;
@@ -1135,7 +1139,7 @@ void des_coupe_z(const Scalar& uu, double z0, int nzdes, char* title = 0x0,
  *  @param ny [input]  number of points in the Y direction (default value = 100)
  */
 void des_coupe_z(const Scalar& uu, double z0, double x_min, double x_max, 
-		 double y_min, double y_max, char* title = 0x0, 
+		 double y_min, double y_max, const char* title = 0x0, 
 		 const Scalar* defsurf = 0x0, bool draw_bound = true,
 		 int ncour = 15, int nx = 100, int ny = 100) ;
 
@@ -1184,7 +1188,7 @@ void des_coupe_z(const Scalar& uu, double z0, double x_min, double x_max,
  *  @param nz [input]  number of points in the Z direction (default value = 20)
  */
 void des_coupe_vect_x(const Vector& vv, double x0, double scale, double sizefl,
-		      int nzdes, char* title = 0x0, const Scalar* defsurf = 0x0, 
+		      int nzdes, const char* title = 0x0, const Scalar* defsurf = 0x0, 
 		      double zoom = 1.2, bool draw_bound = true, 
 		      int ny = 20, int nz = 20) ; 
 
@@ -1223,7 +1227,7 @@ void des_coupe_vect_x(const Vector& vv, double x0, double scale, double sizefl,
  */
 void des_coupe_vect_x(const Vector& vv, double x0, double scale, double
 		      sizefl, double y_min, double y_max, double z_min, 
-		      double z_max, char* title = 0x0, const Scalar* defsurf = 0x0,
+		      double z_max, const char* title = 0x0, const Scalar* defsurf = 0x0,
 		      bool draw_bound = true, int ny = 20, int nz = 20) ;
 
 /** Plots a vector field in a plane Y=constant.
@@ -1261,7 +1265,7 @@ void des_coupe_vect_x(const Vector& vv, double x0, double scale, double
  *  @param nz [input]  number of points in the Z direction (default value = 20)
  */
 void des_coupe_vect_y(const Vector& vv, double y0, double scale, double sizefl,
-		      int nzdes, char* title = 0x0, const Scalar* defsurf = 0x0, 
+		      int nzdes, const char* title = 0x0, const Scalar* defsurf = 0x0, 
 		      double zoom = 1.2, bool draw_bound = true, 
 		      int nx = 20, int nz = 20) ; 
 
@@ -1300,7 +1304,7 @@ void des_coupe_vect_y(const Vector& vv, double y0, double scale, double sizefl,
  */
 void des_coupe_vect_y(const Vector& vv, double y0, double scale, double
 		      sizefl, double x_min, double x_max, double z_min, 
-		      double z_max, char* title = 0x0, const Scalar* defsurf = 0x0,
+		      double z_max, const char* title = 0x0, const Scalar* defsurf = 0x0,
 		      bool draw_bound = true, int nx = 20, int nz = 20) ;
 
 /** Plots a vector field in a plane Z=constant.
@@ -1338,7 +1342,7 @@ void des_coupe_vect_y(const Vector& vv, double y0, double scale, double
  *  @param ny [input]  number of points in the Y direction (default value = 20)
  */
 void des_coupe_vect_z(const Vector& vv, double z0, double scale, double sizefl,
-		      int nzdes, char* title = 0x0, const Scalar* defsurf = 0x0, 
+		      int nzdes, const char* title = 0x0, const Scalar* defsurf = 0x0, 
 		      double zoom = 1.2, bool draw_bound = true, 
 		      int nx = 20, int ny = 20) ; 
 
@@ -1377,7 +1381,7 @@ void des_coupe_vect_z(const Vector& vv, double z0, double scale, double sizefl,
  */
 void des_coupe_vect_z(const Vector& vv, double z0, double scale, double
 		      sizefl, double x_min, double x_max, double y_min, 
-		      double y_max, char* title = 0x0, const Scalar* defsurf = 0x0,
+		      double y_max, const char* title = 0x0, const Scalar* defsurf = 0x0,
 		      bool draw_bound = true, int nx = 20, int ny = 20) ;
 
 
@@ -1446,8 +1450,8 @@ void des_meridian(const Sym_tensor& hh, double r_min, double r_max,
  */
  
 void des_profile(const Cmp& uu, double r_min, double r_max, 
-		     double theta, double phi, char* nomy = 0x0,  
-		     char* title = 0x0 ) ;
+		     double theta, double phi, const char* nomy = 0x0,  
+		     const char* title = 0x0 ) ;
 
 
 /** Draws the profile of a \c Cmp  along some radial axis determined by
@@ -1469,8 +1473,8 @@ void des_profile(const Cmp& uu, double r_min, double r_max,
  */
  
 void des_profile(const Cmp& uu, double r_min, double r_max, double scale,
-		     double theta, double phi, char* nomx = 0x0, 
-		     char* nomy = 0x0, char* title= 0x0) ;
+		     double theta, double phi, const char* nomx = 0x0, 
+		     const char* nomy = 0x0, const char* title= 0x0) ;
 
 
 /** Draws isocontour lines of a \c Cmp  in a plane X=constant.
@@ -1501,7 +1505,7 @@ void des_profile(const Cmp& uu, double r_min, double r_max, double scale,
  *  @param ny [input]  number of points in the Y direction (default value = 100)
  *  @param nz [input]  number of points in the Z direction (default value = 100)
  */
-void des_coupe_x(const Cmp& uu, double x0, int nzdes, char* title = 0x0, 
+void des_coupe_x(const Cmp& uu, double x0, int nzdes, const char* title = 0x0, 
 		 const Cmp* defsurf = 0x0, double zoom = 1.2, 
 		 bool draw_bound = true, int ncour = 15, int ny = 100, 
 		 int nz = 100) ; 
@@ -1534,7 +1538,7 @@ void des_coupe_x(const Cmp& uu, double x0, int nzdes, char* title = 0x0,
  *  @param nz [input]  number of points in the Z direction (default value = 100)
  */
 void des_coupe_x(const Cmp& uu, double x0, double y_min, double y_max, 
-		 double z_min, double z_max, char* title = 0x0, 
+		 double z_min, double z_max, const char* title = 0x0, 
 		 const Cmp* defsurf = 0x0, bool draw_bound = true,
 		 int ncour = 15, int ny = 100, int nz = 100) ; 
 
@@ -1567,7 +1571,7 @@ void des_coupe_x(const Cmp& uu, double x0, double y_min, double y_max,
  *  @param nx [input]  number of points in the X direction (default value = 100)
  *  @param nz [input]  number of points in the Z direction (default value = 100)
  */
-void des_coupe_y(const Cmp& uu, double y0, int nzdes, char* title = 0x0, 
+void des_coupe_y(const Cmp& uu, double y0, int nzdes, const char* title = 0x0, 
 		 const Cmp* defsurf = 0x0, double zoom = 1.2,
 		 bool draw_bound = true, int ncour = 15, int nx = 100, 
 		 int nz = 100) ; 
@@ -1599,7 +1603,7 @@ void des_coupe_y(const Cmp& uu, double y0, int nzdes, char* title = 0x0,
  *  @param nz [input]  number of points in the Z direction (default value = 100)
  */
 void des_coupe_y(const Cmp& uu, double y0, double x_min, double x_max, 
-		 double z_min, double z_max, char* title = 0x0, 
+		 double z_min, double z_max, const char* title = 0x0, 
 		 const Cmp* defsurf = 0x0, bool draw_bound = true,
 		 int ncour = 15, int nx = 100, int nz = 100) ; 
 
@@ -1632,7 +1636,7 @@ void des_coupe_y(const Cmp& uu, double y0, double x_min, double x_max,
  *  @param nx [input]  number of points in the X direction (default value = 100)
  *  @param ny [input]  number of points in the Y direction (default value = 100)
  */
-void des_coupe_z(const Cmp& uu, double z0, int nzdes, char* title = 0x0, 
+void des_coupe_z(const Cmp& uu, double z0, int nzdes, const char* title = 0x0, 
 		 const Cmp* defsurf = 0x0, double zoom = 1.2, 
 		 bool draw_bound = true, int ncour = 15, int nx = 100, 
 		 int ny = 100) ;
@@ -1664,7 +1668,7 @@ void des_coupe_z(const Cmp& uu, double z0, int nzdes, char* title = 0x0,
  *  @param ny [input]  number of points in the Y direction (default value = 100)
  */
 void des_coupe_z(const Cmp& uu, double z0, double x_min, double x_max, 
-		 double y_min, double y_max, char* title = 0x0, 
+		 double y_min, double y_max, const char* title = 0x0, 
 		 const Cmp* defsurf = 0x0, bool draw_bound = true,
 		 int ncour = 15, int nx = 100, int ny = 100) ;
 
@@ -1701,7 +1705,7 @@ void des_coupe_z(const Cmp& uu, double z0, double x_min, double x_max,
  *  @param nx [input]  number of points in the X direction (default value = 100)
  *  @param nz [input]  number of points in the Z direction (default value = 100)
  */
-void des_bi_coupe_y(const Cmp& uu, double y0, int nzdes, char* title = 0x0, 
+void des_bi_coupe_y(const Cmp& uu, double y0, int nzdes, const char* title = 0x0, 
                  const Cmp* defsurf = 0x0, const Cmp* defsurf2 = 0x0, 
 		 double zoom = 1.2,
                  bool draw_bound = true, int ncour = 15, int nx = 100, 
@@ -1738,7 +1742,7 @@ void des_bi_coupe_y(const Cmp& uu, double y0, int nzdes, char* title = 0x0,
  *  @param nz [input]  number of points in the Z direction (default value = 100)
  */
 void des_bi_coupe_y(const Cmp& uu, double y0, double x_min, double x_max, 
-		 double z_min, double z_max, char* title = 0x0, 
+		 double z_min, double z_max, const char* title = 0x0, 
 		 const Cmp* defsurf = 0x0, const Cmp* defsurf2 = 0x0, 
 		 bool draw_bound = true,
 		 int ncour = 15, int nx = 100, int nz = 100) ; 
@@ -1777,7 +1781,7 @@ void des_bi_coupe_y(const Cmp& uu, double y0, double x_min, double x_max,
  *  @param nz [input]  number of points in the Z direction (default value = 100)
  */
 void des_coupe_bin_x(const Cmp& uu1, const Cmp& uu2, double x0, double y_min, 
-		     double y_max, double z_min, double z_max, char* title, 
+		     double y_max, double z_min, double z_max, const char* title, 
 		     const Cmp* defsurf1 = 0x0,  const Cmp* defsurf2 = 0x0, 
 		     bool draw_bound = true, int ncour = 15, int ny = 100, 
 		     int nz = 100) ; 
@@ -1816,7 +1820,7 @@ void des_coupe_bin_x(const Cmp& uu1, const Cmp& uu2, double x0, double y_min,
  *  @param nz [input]  number of points in the Z direction (default value = 100)
  */
 void des_coupe_bin_y(const Cmp& uu1, const Cmp& uu2, double y0, double x_min, 
-		     double x_max, double z_min, double z_max, char* title, 
+		     double x_max, double z_min, double z_max, const char* title, 
 		     const Cmp* defsurf1 = 0x0,  const Cmp* defsurf2 = 0x0, 
 		     bool draw_bound = true, int ncour = 15, int nx = 100, 
 		     int nz = 100) ; 
@@ -1855,7 +1859,7 @@ void des_coupe_bin_y(const Cmp& uu1, const Cmp& uu2, double y0, double x_min,
  *  @param ny [input]  number of points in the Y direction (default value = 100)
  */
 void des_coupe_bin_z(const Cmp& uu1, const Cmp& uu2, double z0, double x_min, 
-		     double x_max, double y_min, double y_max, char* title, 
+		     double x_max, double y_min, double y_max, const char* title, 
 		     const Cmp* defsurf1 = 0x0,  const Cmp* defsurf2 = 0x0, 
 		     bool draw_bound = true, int ncour = 15, int nx = 100, 
 		     int ny = 100) ; 
@@ -1894,10 +1898,10 @@ void des_coupe_bin_z(const Cmp& uu1, const Cmp& uu2, double z0, double x_min,
  *			  display window (meaningfull only if 
  *			  \c newgraph  = 1 or 3) (default value = 1)
  */
-void des_surface_x(const Cmp& defsurf, double x0, char* device = 0x0, 
+void des_surface_x(const Cmp& defsurf, double x0, const char* device = 0x0, 
 		   int newgraph = 3, double y_min = -1, double y_max = 1, 
 		   double z_min = -1, double z_max = 1, 
-		   char* nomy = 0x0, char* nomz = 0x0, char* title = 0x0, 
+		   const char* nomy = 0x0, const char* nomz = 0x0, const char* title = 0x0, 
 		   int nxpage = 1, int nypage = 1) ;
 
 /** Basic routine for drawing a stellar surface in a plane Y=constant.
@@ -1932,10 +1936,10 @@ void des_surface_x(const Cmp& defsurf, double x0, char* device = 0x0,
  *			  display window (meaningfull only if 
  *			  \c newgraph  = 1 or 3) (default value = 1)
  */
-void des_surface_y(const Cmp& defsurf, double y0, char* device = 0x0, 
+void des_surface_y(const Cmp& defsurf, double y0, const char* device = 0x0, 
 		   int newgraph = 3, double x_min = -1, double x_max = 1, 
 		   double z_min = -1, double z_max = 1, 
-		   char* nomx = 0x0, char* nomz = 0x0, char* title = 0x0, 
+		   const char* nomx = 0x0, const char* nomz = 0x0, const char* title = 0x0, 
 		   int nxpage = 1, int nypage = 1) ;
 
 
@@ -1971,10 +1975,10 @@ void des_surface_y(const Cmp& defsurf, double y0, char* device = 0x0,
  *			  display window (meaningfull only if 
  *			  \c newgraph  = 1 or 3) (default value = 1)
  */
-void des_surface_z(const Cmp& defsurf, double z0, char* device = 0x0, 
+void des_surface_z(const Cmp& defsurf, double z0, const char* device = 0x0, 
 		   int newgraph = 3, double x_min = -1, double x_max = 1, 
 		   double y_min = -1, double y_max = 1, 
-		   char* nomx = 0x0, char* nomz = 0x0, char* title = 0x0, 
+		   const char* nomx = 0x0, const char* nomz = 0x0, const char* title = 0x0, 
 		   int nxpage = 1, int nypage = 1) ;
 
 
@@ -2023,7 +2027,7 @@ void des_surface_z(const Cmp& defsurf, double z0, char* device = 0x0,
  *  @param nz [input]  number of points in the Z direction (default value = 20)
  */
 void des_coupe_vect_x(const Tenseur& vv, double x0, double scale, double sizefl,
-		      int nzdes, char* title = 0x0, const Cmp* defsurf = 0x0, 
+		      int nzdes, const char* title = 0x0, const Cmp* defsurf = 0x0, 
 		      double zoom = 1.2, bool draw_bound = true, 
 		      int ny = 20, int nz = 20) ; 
 
@@ -2062,7 +2066,7 @@ void des_coupe_vect_x(const Tenseur& vv, double x0, double scale, double sizefl,
  */
 void des_coupe_vect_x(const Tenseur& vv, double x0, double scale, double
 		      sizefl, double y_min, double y_max, double z_min, 
-		      double z_max, char* title = 0x0, const Cmp* defsurf = 0x0,
+		      double z_max, const char* title = 0x0, const Cmp* defsurf = 0x0,
 		      bool draw_bound = true, int ny = 20, int nz = 20) ;
 
 /** Plots a vector field in a plane Y=constant.
@@ -2100,7 +2104,7 @@ void des_coupe_vect_x(const Tenseur& vv, double x0, double scale, double
  *  @param nz [input]  number of points in the Z direction (default value = 20)
  */
 void des_coupe_vect_y(const Tenseur& vv, double y0, double scale, double sizefl,
-		      int nzdes, char* title = 0x0, const Cmp* defsurf = 0x0, 
+		      int nzdes, const char* title = 0x0, const Cmp* defsurf = 0x0, 
 		      double zoom = 1.2, bool draw_bound = true, 
 		      int nx = 20, int nz = 20) ; 
 
@@ -2139,7 +2143,7 @@ void des_coupe_vect_y(const Tenseur& vv, double y0, double scale, double sizefl,
  */
 void des_coupe_vect_y(const Tenseur& vv, double y0, double scale, double
 		      sizefl, double x_min, double x_max, double z_min, 
-		      double z_max, char* title = 0x0, const Cmp* defsurf = 0x0,
+		      double z_max, const char* title = 0x0, const Cmp* defsurf = 0x0,
 		      bool draw_bound = true, int nx = 20, int nz = 20) ;
 
 /** Plots a vector field in a plane Z=constant.
@@ -2177,7 +2181,7 @@ void des_coupe_vect_y(const Tenseur& vv, double y0, double scale, double
  *  @param ny [input]  number of points in the Y direction (default value = 20)
  */
 void des_coupe_vect_z(const Tenseur& vv, double z0, double scale, double sizefl,
-		      int nzdes, char* title = 0x0, const Cmp* defsurf = 0x0, 
+		      int nzdes, const char* title = 0x0, const Cmp* defsurf = 0x0, 
 		      double zoom = 1.2, bool draw_bound = true, 
 		      int nx = 20, int ny = 20) ; 
 
@@ -2216,7 +2220,7 @@ void des_coupe_vect_z(const Tenseur& vv, double z0, double scale, double sizefl,
  */
 void des_coupe_vect_z(const Tenseur& vv, double z0, double scale, double
 		      sizefl, double x_min, double x_max, double y_min, 
-		      double y_max, char* title = 0x0, const Cmp* defsurf = 0x0,
+		      double y_max, const char* title = 0x0, const Cmp* defsurf = 0x0,
 		      bool draw_bound = true, int nx = 20, int ny = 20) ;
 
 
@@ -2260,7 +2264,7 @@ void des_coupe_vect_z(const Tenseur& vv, double z0, double scale, double
  */
 void des_vect_bin_x(const Tenseur& vv1, const Tenseur& vv2, double x0, 
 		    double scale, double sizefl, double y_min, double y_max, 
-		    double z_min, double z_max, char* title, 
+		    double z_min, double z_max, const char* title, 
 		    const Cmp* defsurf1 = 0x0,  const Cmp* defsurf2 = 0x0, 
 		    bool draw_bound = true, int ny = 20, int nz = 20) ;
 
@@ -2305,7 +2309,7 @@ void des_vect_bin_x(const Tenseur& vv1, const Tenseur& vv2, double x0,
  */
 void des_vect_bin_y(const Tenseur& vv1, const Tenseur& vv2, double x0, 
 		    double scale, double sizefl, double x_min, double x_max, 
-		    double z_min, double z_max, char* title, 
+		    double z_min, double z_max, const char* title, 
 		    const Cmp* defsurf1 = 0x0,  const Cmp* defsurf2 = 0x0, 
 		    bool draw_bound = true, int nx = 20, int nz = 20) ;
 
@@ -2350,7 +2354,7 @@ void des_vect_bin_y(const Tenseur& vv1, const Tenseur& vv2, double x0,
  */
 void des_vect_bin_z(const Tenseur& vv1, const Tenseur& vv2, double x0, 
 		    double scale, double sizefl, double x_min, double x_max, 
-		    double y_min, double y_max, char* title, 
+		    double y_min, double y_max, const char* title, 
 		    const Cmp* defsurf1 = 0x0,  const Cmp* defsurf2 = 0x0, 
 		    bool draw_bound = true, int nx = 20, int ny = 20) ;
 

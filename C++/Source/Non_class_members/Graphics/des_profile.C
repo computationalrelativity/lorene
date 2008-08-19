@@ -29,6 +29,10 @@ char des_profile_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.7  2005/03/25 19:56:28  e_gourgoulhon
  * Added plot of domain boundaries (new arguments nbound and xbound).
  *
@@ -98,7 +102,7 @@ void des_profile(const float* uutab, int nx, float xmin, float xmax,
     float* xx = new float[nx] ; 
     float hx = (xmax-xmin)/float(nx-1) ;
     for(int i=0; i<nx; i++) {
-	xx[i] = xmin + i * hx ; 
+	xx[i] = xmin + float(i) * hx ; 
     }
          
     // Graphics display
@@ -114,7 +118,7 @@ void des_profile(const float* uutab, int nx, float xmin, float xmax,
     }
     
     // Taille des caracteres:
-    float size = 1.3 ;
+    float size = float(1.3) ;
     cpgsch(size) ;
     
     // Epaisseur des traits:
@@ -126,8 +130,8 @@ void des_profile(const float* uutab, int nx, float xmin, float xmax,
 
     // Cadre de la figure
     float uuamp = uumax - uumin ; 
-    float uumin1 = uumin - 0.05 * uuamp ; 
-    float uumax1 = uumax + 0.05 * uuamp ; 
+    float uumin1 = uumin - float(0.05) * uuamp ; 
+    float uumax1 = uumax + float(0.05) * uuamp ; 
     cpgenv(xmin, xmax, uumin1, uumax1, 0, 0 ) ; 
     cpglab(nomx,nomy,title) ;
     
@@ -207,7 +211,7 @@ void des_profile_mult(const float* uutab, int nprof, int nx,
     float* xx = new float[nx] ; 
     float hx = (xmax-xmin)/float(nx-1) ;
     for(int i=0; i<nx; i++) {
-	    xx[i] = xmin + i * hx ; 
+	xx[i] = xmin + float(i) * hx ; 
     }
          
     // Graphics display
@@ -246,7 +250,7 @@ void des_profile_mult(const float* uutab, int nprof, int nx,
     // -------
      
     // Taille des caracteres:
-    float size = 1.3 ;
+    float size = float(1.3) ;
     cpgsch(size) ;
     
     // Epaisseur des traits:
@@ -258,8 +262,8 @@ void des_profile_mult(const float* uutab, int nprof, int nx,
 
     // Cadre de la figure
     float uuamp = uumax - uumin ; 
-    float uumin1 = uumin - 0.05 * uuamp ; 
-    float uumax1 = uumax + 0.05 * uuamp ; 
+    float uumin1 = uumin - float(0.05) * uuamp ; 
+    float uumax1 = uumax + float(0.05) * uuamp ; 
     cpgsls(1) ;  
     cpgenv(xmin, xmax, uumin1, uumax1, 0, 0 ) ; 
     cpglab(nomx,nomy,title) ;
@@ -387,7 +391,7 @@ void des_profile_mult(const float* uutab, int nprof, int nx, const float* xtab,
     // -------
      
     // Taille des caracteres:
-    float size = 1.3 ;
+    float size = float(1.3) ;
     cpgsch(size) ;
     
     // Epaisseur des traits:
@@ -399,8 +403,8 @@ void des_profile_mult(const float* uutab, int nprof, int nx, const float* xtab,
 
     // Cadre de la figure
     float uuamp = uumax - uumin ; 
-    float uumin1 = uumin - 0.05 * uuamp ; 
-    float uumax1 = uumax + 0.05 * uuamp ; 
+    float uumin1 = uumin - float(0.05) * uuamp ; 
+    float uumax1 = uumax + float(0.05) * uuamp ; 
     cpgsls(1) ;  
     cpgenv(xmin, xmax, uumin1, uumax1, 0, 0 ) ; 
     cpglab(nomx,nomy,title) ;

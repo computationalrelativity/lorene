@@ -31,6 +31,10 @@ char c_est_pas_fait_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2008/08/19 06:42:01  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.3  2002/10/16 14:37:12  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -59,7 +63,7 @@ char c_est_pas_fait_C[] = "$Header$" ;
 #include"headcpp.h"
 #include <stdlib.h>
 
-void c_est_pas_fait(char * fichier) {
+void c_est_pas_fait(const char * fichier) {
 
 #ifdef NDEBUG
     cout.flush() ;

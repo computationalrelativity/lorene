@@ -31,6 +31,10 @@ char mg3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.13  2007/12/11 15:28:15  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -736,9 +740,9 @@ void Mg3d::sauve(FILE* fd) const {
 
 // Operateur <<
 ostream& operator<<(ostream& o, const Mg3d& g) {
-    char* tr[4] ;
+    const char* tr[4] ;
     tr[FIN] = "FIN" ; tr[RARE] = "RARE" ; tr[UNSURR] = "UNSURR" ; tr[FINJAC] = "FINJAC" ;
-    char* tang[2] ;
+    const char* tang[2] ;
     tang[NONSYM] = "NONSYM" ; tang[SYM] = "SYM" ;
     o << "Number of domains: " << g.nzone << endl ;
     for (int i=0 ; i< g.nzone ; i++) {

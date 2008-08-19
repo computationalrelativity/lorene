@@ -33,6 +33,10 @@ char mtbl_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.6  2008/02/18 13:53:40  j_novak
  * Removal of special indentation instructions.
  *
@@ -107,9 +111,6 @@ char mtbl_C[] = "$Header$" ;
 #include "coord.h"
 #include "type_parite.h"
 #include "utilitaires.h"
-
-// Prototypage
-void c_est_pas_fait(char * ) ;
 
 // Constructeurs
 // -------------
@@ -413,22 +414,22 @@ void Mtbl::affiche_seuil(ostream& ost, int precis,  double seuil) const {
 //-----------
 
 void Mtbl::operator+=(double ) {
-    char* f = __FILE__ ;
+    const char* f = __FILE__ ;
     c_est_pas_fait(f) ;
 }
 
 void Mtbl::operator-=(double ) {
-    char* f = __FILE__ ;
+    const char* f = __FILE__ ;
     c_est_pas_fait(f) ;
 }
 
 void Mtbl::operator*=(double ) {
-    char* f = __FILE__ ;
+    const char* f = __FILE__ ;
     c_est_pas_fait(f) ;
 }
 
 void Mtbl::operator/=(double ) {
-    char* f = __FILE__ ;
+    const char* f = __FILE__ ;
     c_est_pas_fait(f) ;
 }
 

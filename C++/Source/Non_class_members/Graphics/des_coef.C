@@ -31,6 +31,10 @@ char des_coef_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.2  2002/10/16 14:36:57  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -62,13 +66,13 @@ char des_coef_C[] = "$Header$" ;
 //******************************************************************************
  
 void des_coef(const double* cf, int n, double pzero,
-	      char* nomx, char* nomy, char* title, char* device, 
+	      const char* nomx, const char* nomy, const char* title, const char* device, 
 	      int newgraph, int nxpage, int nypage) {
 
     float xdes[2], ydes[2] ;
 
     double pzerol = log10(pzero) ; 
-    ydes[0] = pzerol ; 
+    ydes[0] = float(pzerol) ; 
 
     // Figure frame
     // ------------
@@ -103,7 +107,7 @@ void des_coef(const double* cf, int n, double pzero,
     }
 
     // Taille des caracteres:
-    float size = 1.3 ;
+    float size = float(1.3) ;
     cpgsch(size) ;
     
     // Epaisseur des traits:
@@ -114,10 +118,10 @@ void des_coef(const double* cf, int n, double pzero,
     cpgscf(2) ;
 
     // Figure frame
-    float xmin1 = xmin ; 
-    float xmax1 = xmax ; 
-    float ymin1 = ymin ; 
-    float ymax1 = ymax ; 
+    float xmin1 = float(xmin) ; 
+    float xmax1 = float(xmax) ; 
+    float ymin1 = float(ymin) ; 
+    float ymax1 = float(ymax) ; 
     cpgenv(xmin1, xmax1, ymin1, ymax1, 0, 0 ) ; 
     cpglab(nomx, nomy, title) ;
     
@@ -127,7 +131,7 @@ void des_coef(const double* cf, int n, double pzero,
 	xdes[0] = float( i ) ;
 	xdes[1] = xdes[0] ;
 	if ( fabs(cf[i]) < pzero ) {
-	    ydes[1] = pzerol ; 
+	    ydes[1] = float(pzerol) ; 
 	    lstyle = 1 ; 
 	}
 	else {

@@ -29,6 +29,10 @@ char fread_be_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2008/08/19 06:42:01  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.2  2001/12/13 15:01:19  e_gourgoulhon
  * Array bytes_big now created with a new char[]
  *
@@ -60,7 +64,7 @@ int fread_be(int* aa, int size, int nb, FILE* fich) {
 	//  or large endians
 	
 	int itest = 1 ;
-	bool little_endian = ( *( (char*) &itest ) == 1) ;
+	bool little_endian = ( *( reinterpret_cast<char*>(&itest) ) == 1) ;
 	
 	if (little_endian) {
 
@@ -71,7 +75,7 @@ int fread_be(int* aa, int size, int nb, FILE* fich) {
 		int nr = fread(bytes_big, 1, size_tot, fich) ;
 		
 		char* pbig =  bytes_big ;
-		char* plit = (char*) aa ;
+		char* plit = reinterpret_cast<char*>( aa );
 		
 		for (int j=0; j< nb; j++) {
 		
@@ -108,7 +112,7 @@ int fread_be(double* aa, int size, int nb, FILE* fich) {
 	//  or large endians
 	
 	int itest = 1 ;
-	bool little_endian = ( *( (char*) &itest ) == 1) ;
+	bool little_endian = ( *( reinterpret_cast<char*>(&itest) ) == 1) ;
 	
 	if (little_endian) {
 
@@ -119,7 +123,7 @@ int fread_be(double* aa, int size, int nb, FILE* fich) {
 		int nr = fread(bytes_big, 1, size_tot, fich) ;
 		
 		char* pbig =  bytes_big ;
-		char* plit = (char*) aa ;
+		char* plit = reinterpret_cast<char*>( aa );
 		
 		for (int j=0; j< nb; j++) {
 		

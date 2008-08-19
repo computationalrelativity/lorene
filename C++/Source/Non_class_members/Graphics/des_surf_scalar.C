@@ -29,6 +29,10 @@ char des_surf_scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.1  2005/03/24 22:01:44  e_gourgoulhon
  * Plot of a surface defined by a Scalar.
  *
@@ -56,9 +60,9 @@ double fonc_des_surf_scal_z(double, const Param&) ;
 
 //******************************************************************************
  
-void des_surface_x(const Scalar& defsurf, double x0, char* device, int newgraph, 
+void des_surface_x(const Scalar& defsurf, double x0, const char* device, int newgraph, 
 		   double y_min, double y_max, double z_min, double z_max, 
-		   char* nomy, char* nomz, char* title, int nxpage, int nypage)
+		   const char* nomy, const char* nomz, const char* title, int nxpage, int nypage)
 {
   using namespace Unites ;
 
@@ -117,8 +121,8 @@ void des_surface_x(const Scalar& defsurf, double x0, char* device, int newgraph,
 	double rho = zerosec(fonc_des_surf_scal_x, parzerosec, rhomin0, rhomax0, 
 			     precis, nitermax, niter) ;
 			       
-	yg[i] = ( rho * cos(khi) + mp.get_ori_y() ) / km ; 	    
-	zg[i] = ( rho * sin(khi) + mp.get_ori_z() ) / km ; 	    
+	yg[i] = float(( rho * cos(khi) + mp.get_ori_y() ) / km) ; 	    
+	zg[i] = float(( rho * sin(khi) + mp.get_ori_z() ) / km) ;
     }
 	
     // Graphics display
@@ -134,7 +138,7 @@ void des_surface_x(const Scalar& defsurf, double x0, char* device, int newgraph,
 	} 
 	
 	// Taille des caracteres:
-	float size = 1.3 ;
+	float size = float(1.3) ;
 	cpgsch(size) ;
     
 	// Epaisseur des traits:
@@ -143,10 +147,10 @@ void des_surface_x(const Scalar& defsurf, double x0, char* device, int newgraph,
     
 	cpgscf(2) ; // Fonte axes: caracteres romains
 	
-	float ymin1 = y_min / km ;
-	float ymax1 = y_max / km ;
-	float zmin1 = z_min / km ;
-	float zmax1 = z_max / km ;
+	float ymin1 = float(y_min / km) ;
+	float ymax1 = float(y_max / km) ;
+	float zmin1 = float(z_min / km) ;
+	float zmax1 = float(z_max / km) ;
 	
 	cpgenv(ymin1, ymax1, zmin1, zmax1, 1, 0 ) ; 
 
@@ -176,9 +180,9 @@ void des_surface_x(const Scalar& defsurf, double x0, char* device, int newgraph,
 
 //******************************************************************************
  
-void des_surface_y(const Scalar& defsurf, double y0, char* device, int newgraph, 
+void des_surface_y(const Scalar& defsurf, double y0, const char* device, int newgraph, 
 		   double x_min, double x_max, double z_min, double z_max, 
-		   char* nomx, char* nomz, char* title, int nxpage, int nypage)
+		   const char* nomx, const char* nomz, const char* title, int nxpage, int nypage)
 {
   using namespace Unites ;
 
@@ -237,8 +241,8 @@ void des_surface_y(const Scalar& defsurf, double y0, char* device, int newgraph,
 	double rho = zerosec(fonc_des_surf_scal_y, parzerosec, rhomin0, rhomax0, 
 			     precis, nitermax, niter) ;
 			       
-	xg[i] = ( rho * cos(khi) + mp.get_ori_x() ) / km ; 	    
-	zg[i] = ( rho * sin(khi) + mp.get_ori_z() ) / km ; 	    
+	xg[i] = float(( rho * cos(khi) + mp.get_ori_x() ) / km) ;
+	zg[i] = float(( rho * sin(khi) + mp.get_ori_z() ) / km) ;
     }
 	
     // Graphics display
@@ -254,7 +258,7 @@ void des_surface_y(const Scalar& defsurf, double y0, char* device, int newgraph,
 	} 
 	
 	// Taille des caracteres:
-	float size = 1.3 ;
+	float size = float(1.3) ;
 	cpgsch(size) ;
     
 	// Epaisseur des traits:
@@ -263,10 +267,10 @@ void des_surface_y(const Scalar& defsurf, double y0, char* device, int newgraph,
     
 	cpgscf(2) ; // Fonte axes: caracteres romains
 	
-	float xmin1 = x_min / km ;
-	float xmax1 = x_max / km ;
-	float zmin1 = z_min / km ;
-	float zmax1 = z_max / km ;
+	float xmin1 = float(x_min / km) ;
+	float xmax1 = float(x_max / km) ;
+	float zmin1 = float(z_min / km) ;
+	float zmax1 = float(z_max / km) ;
 	
 	cpgenv(xmin1, xmax1, zmin1, zmax1, 1, 0 ) ; 
 
@@ -296,9 +300,9 @@ void des_surface_y(const Scalar& defsurf, double y0, char* device, int newgraph,
 
 //******************************************************************************
  
-void des_surface_z(const Scalar& defsurf, double z0, char* device, int newgraph, 
+void des_surface_z(const Scalar& defsurf, double z0, const char* device, int newgraph, 
 		   double x_min, double x_max, double y_min, double y_max, 
-		   char* nomx, char* nomy, char* title, int nxpage, int nypage)
+		   const char* nomx, const char* nomy, const char* title, int nxpage, int nypage)
 {
   using namespace Unites ;
 
@@ -357,8 +361,8 @@ void des_surface_z(const Scalar& defsurf, double z0, char* device, int newgraph,
 	double rho = zerosec(fonc_des_surf_scal_z, parzerosec, rhomin0, rhomax0, 
 			     precis, nitermax, niter) ;
 			       
-	xg[i] = ( rho * cos(khi) + mp.get_ori_x() ) / km ; 	    
-	yg[i] = ( rho * sin(khi) + mp.get_ori_y() ) / km ; 	    
+	xg[i] = float(( rho * cos(khi) + mp.get_ori_x() ) / km) ;
+	yg[i] = float(( rho * sin(khi) + mp.get_ori_y() ) / km) ;
     }
 	
     // Graphics display
@@ -374,7 +378,7 @@ void des_surface_z(const Scalar& defsurf, double z0, char* device, int newgraph,
 	} 
 	
 	// Taille des caracteres:
-	float size = 1.3 ;
+	float size = float(1.3) ;
 	cpgsch(size) ;
     
 	// Epaisseur des traits:
@@ -383,10 +387,10 @@ void des_surface_z(const Scalar& defsurf, double z0, char* device, int newgraph,
     
 	cpgscf(2) ; // Fonte axes: caracteres romains
 	
-	float xmin1 = x_min / km ;
-	float xmax1 = x_max / km ;
-	float ymin1 = y_min / km ;
-	float ymax1 = y_max / km ;
+	float xmin1 = float(x_min / km) ;
+	float xmax1 = float(x_max / km) ;
+	float ymin1 = float(y_min / km) ;
+	float ymax1 = float(y_max / km) ;
 	
 	cpgenv(xmin1, xmax1, ymin1, ymax1, 1, 0 ) ; 
 

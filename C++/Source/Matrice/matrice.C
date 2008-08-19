@@ -32,6 +32,10 @@ char matrice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.16  2006/06/05 09:47:42  j_novak
  * Initialisation of the member band to zero, in order not to have messages from
  * the memory debugger.
@@ -420,7 +424,7 @@ Tbl Matrice::inverse (const Tbl& source) const {
     int n = source.get_dim(0) ;
     assert (get_dim(1) == n) ;
     int ldab, info ;
-    char* trans ;
+    const char* trans ;
     int nrhs = 1 ;
     int ldb = n ;
         
@@ -448,8 +452,8 @@ Tbl Matrice::val_propre() const {
     assert (etat != ETATNONDEF) ;
     assert (std != 0x0) ;
     
-    char* jobvl = "N" ;
-    char* jobvr = "N" ;
+    const char* jobvl = "N" ;
+    const char* jobvr = "N" ;
     
     int n = get_dim(0) ;
     assert (n == get_dim(1)) ;
@@ -498,8 +502,8 @@ Matrice Matrice::vect_propre() const {
     assert (etat != ETATNONDEF) ;
     assert (std != 0x0) ;
     
-    char* jobvl = "V" ;
-    char* jobvr = "N" ;
+    const char* jobvl = "V" ;
+    const char* jobvr = "N" ;
     
     int n = get_dim(0) ;
     assert (n == get_dim(1)) ;

@@ -30,6 +30,10 @@ char des_equipot_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.2  2002/10/16 14:36:57  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -61,8 +65,8 @@ char des_equipot_C[] = "$Header$" ;
 //******************************************************************************
 
 void des_equipot(float* uutab, int nx, int ny, float xmin, float xmax, 
-		 float ymin, float ymax, int ncour, char* nomx, char* nomy, 
-		 char* title, char* device, int newgraph, int nxpage, 
+		 float ymin, float ymax, int ncour, const char* nomx, const char* nomy, 
+		 const char* title, const char* device, int newgraph, int nxpage, 
 		 int nypage) {
 		 
     // Search for the extremal values of the field : 
@@ -82,9 +86,9 @@ void des_equipot(float* uutab, int nx, int ny, float xmin, float xmax,
     // -------------------------
  
     float* isopot = new float [ncour] ;
-    float hh = (uumax-uumin) / ncour ; 
+    float hh = (uumax-uumin) / float(ncour) ; 
     for (int i=0; i<ncour; i++) {
-	isopot[i] = uumin + hh * i ;
+	isopot[i] = uumin + hh * float(i) ;
     }
     
     // Array defining the grid for pgcont_
@@ -115,7 +119,7 @@ void des_equipot(float* uutab, int nx, int ny, float xmin, float xmax,
     }
 
     // Taille des caracteres:
-    float size = 1.3 ;
+    float size = float(1.3) ;
     cpgsch(size) ;
     
     // Epaisseur des traits:
@@ -131,7 +135,7 @@ void des_equipot(float* uutab, int nx, int ny, float xmin, float xmax,
 
     // On n'effectue le dessin que si la dynamique est suffisante
     
-    float dynamique = fabs(uumax - uumin) ; 
+    float dynamique = float(fabs(uumax - uumin)) ; 
 
     if (dynamique > 1.e-14) {
     

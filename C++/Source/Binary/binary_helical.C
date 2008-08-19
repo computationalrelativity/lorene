@@ -31,6 +31,10 @@ char binary_helical_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2008/08/19 06:41:59  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.3  2006/08/01 14:26:50  f_limousin
  * Small changes
  *
@@ -436,8 +440,8 @@ void Binary::helical(){
 		    source_5(i,j) + source_5(j,i) + source_6(i,j) ;
 		source_tot_hij.dec_dzpuis() ;
 		    
-		Scalar source3 (2.*psi4/nn * (source_3a(i,j) + source_3a(j,i)  
-				 + source_3b(i,j))) ; 
+		source3 = 2.*psi4/nn * (source_3a(i,j) + source_3a(j,i)  
+				 + source_3b(i,j)) ; 
 
 		source_tot_hij = source_tot_hij + source3 ;
 
@@ -526,9 +530,6 @@ void Binary::helical(){
     lie_aij_2.dec_dzpuis(3) ;
 		
     int nz = star1.mp.get_mg()->get_nzone() ;
-    int nr = star1.mp.get_mg()->get_nr(0) ;
-    int nt = star1.mp.get_mg()->get_nt(0) ;
-    int np = star1.mp.get_mg()->get_np(0) ;
   
     // Construction of an auxiliar grid and mapping (Last domain is at lambda)
     double* bornes = new double [6] ;

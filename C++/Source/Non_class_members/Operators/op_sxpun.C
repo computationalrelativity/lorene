@@ -37,6 +37,10 @@ char op_sxpun_C[] = "$Header$" ;
  /*
  * $Id$
  * $Log$
+ * Revision 1.4  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.3  2007/12/21 13:59:02  j_novak
  * Suppression of call to pow(-1, something).
  *
@@ -104,7 +108,7 @@ void _sxpun_identite(Tbl* , int& ) {
 			// cas R_JACO02-
 			//--------------
 
-void _sxpun_r_jaco02(Tbl* tb, int& base)
+void _sxpun_r_jaco02(Tbl* tb, int&)
     {
     // Peut-etre rien a faire ?
     if (tb->get_etat() == ETATZERO) {

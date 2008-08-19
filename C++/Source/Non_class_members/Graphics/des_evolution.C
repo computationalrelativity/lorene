@@ -30,6 +30,10 @@ char des_evolution_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.3  2004/05/20 20:29:31  e_gourgoulhon
  * Added argument 'device'.
  *
@@ -83,17 +87,17 @@ void des_evol(const Evolution<double>& uu, int j_min, int j_max,
     float* xtab = new float[npt] ;	    // Values of t at the npt points
     
     for (int j=j_min; j<=j_max; j++) {
-	uutab[j-j_min] = uu[j] ; 
+	uutab[j-j_min] = float(uu[j]) ; 
     }
 
     if (show_time) {
         for (int j=j_min; j<=j_max; j++) {
-            xtab[j-j_min] = uu.get_time(j) ; 
+            xtab[j-j_min] = float(uu.get_time(j)) ; 
         }
     }
     else{
         for (int j=j_min; j<=j_max; j++) {
-            xtab[j-j_min] = j ; 
+            xtab[j-j_min] = float(j) ; 
         }
     }
         

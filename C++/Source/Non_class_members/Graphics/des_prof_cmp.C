@@ -31,6 +31,10 @@ char des_prof_cmp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.5  2004/03/25 10:29:25  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -67,7 +71,7 @@ char des_prof_cmp_C[] = "$Header$" ;
 //******************************************************************************
 
 void des_profile(const Cmp& uu, double r_min, double r_max, 
-		     double theta, double phi, char* nomy, char* title) {
+		     double theta, double phi, const char* nomy, const char* title) {
 		
 using namespace Unites ;  
 
@@ -81,14 +85,14 @@ using namespace Unites ;
     
 	double r = hr * i + r_min ; 
 	
-	uutab[i] = uu.val_point(r, theta, phi) ; 
+	uutab[i] = float(uu.val_point(r, theta, phi)) ; 
 	
     }
     
-    float xmin = r_min / km ;
-    float xmax = r_max / km ;
+    float xmin = float(r_min / km) ;
+    float xmax = float(r_max / km) ;
     
-    char* nomx = "r [km]" ; 
+    const char* nomx = "r [km]" ; 
     
     if (title == 0x0) {
 	title = "" ;
@@ -106,7 +110,7 @@ using namespace Unites ;
 //******************************************************************************
 
 void des_profile(const Cmp& uu, double r_min, double r_max, double scale,
-		     double theta, double phi, char* nomx, char* nomy, char* title) {
+		     double theta, double phi, const char* nomx, const char* nomy, const char* title) {
 		
 
     const int npt = 400 ;   // Number of points along the axis
@@ -119,12 +123,12 @@ void des_profile(const Cmp& uu, double r_min, double r_max, double scale,
     
 	double r = hr * i + r_min ; 
 	
-	uutab[i] = uu.val_point(r, theta, phi) ; 
+	uutab[i] = float(uu.val_point(r, theta, phi)) ; 
 	
     }
     
-    float xmin = r_min * scale ;
-    float xmax = r_max * scale ;
+    float xmin = float(r_min * scale) ;
+    float xmax = float(r_max * scale) ;
     
     
     if (title == 0x0) {

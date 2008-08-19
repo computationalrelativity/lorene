@@ -25,6 +25,10 @@ char des_vect_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.3  2004/03/25 10:29:25  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -63,7 +67,7 @@ char des_vect_bin_C[] = "$Header$" ;
 
 void des_vect_bin_x(const Tenseur& vv1, const Tenseur& vv2, double x0, 
 		    double scale, double sizefl, double y_min, double y_max, 
-		    double z_min, double z_max, char* title, 
+		    double z_min, double z_max, const char* title, 
 		    const Cmp* defsurf1, const Cmp* defsurf2, 
 		    bool draw_bound, int ny, int nz) {
 		
@@ -136,25 +140,25 @@ void des_vect_bin_x(const Tenseur& vv1, const Tenseur& vv2, double x0,
 	    double vv2y = vv2(1).val_point(r, theta, phi) ; 
 	    double vv2z = vv2(2).val_point(r, theta, phi) ; 
 	     	
-	    vvy[ny*j+i] = vv1y + vv2y ; 
-	    vvz[ny*j+i] = vv1z + vv2z ; 
+	    vvy[ny*j+i] = float(vv1y + vv2y) ; 
+	    vvz[ny*j+i] = float(vv1z + vv2z) ; 
 	    
 	}
     }
     
-    float ymin1 = y_min / km ;
-    float ymax1 = y_max / km ;
-    float zmin1 = z_min / km ;
-    float zmax1 = z_max / km ;
+    float ymin1 = float(y_min / km) ;
+    float ymax1 = float(y_max / km) ;
+    float zmin1 = float(z_min / km) ;
+    float zmax1 = float(z_max / km) ;
     
-    char* nomy = "y [km]" ; 
-    char* nomz = "z [km]" ; 
+    const char* nomy = "y [km]" ; 
+    const char* nomz = "z [km]" ; 
     
     if (title == 0x0) {
 	title = "" ;
     }
     
-    char* device = 0x0 ; 
+    const char* device = 0x0 ; 
     int newgraph = ( (defsurf1 != 0x0) || (defsurf2 != 0x0) || draw_bound ) ?
 		    1 : 3 ; 
     
@@ -212,7 +216,7 @@ void des_vect_bin_x(const Tenseur& vv1, const Tenseur& vv2, double x0,
 
 void des_vect_bin_y(const Tenseur& vv1, const Tenseur& vv2, double y0, 
 		    double scale, double sizefl, double x_min, double x_max, 
-		    double z_min, double z_max, char* title, 
+		    double z_min, double z_max, const char* title, 
 		    const Cmp* defsurf1, const Cmp* defsurf2, 
 		    bool draw_bound, int nx, int nz) {
 		
@@ -284,24 +288,24 @@ void des_vect_bin_y(const Tenseur& vv1, const Tenseur& vv2, double y0,
 	    double vv2x = vv2(0).val_point(r, theta, phi) ; 
 	    double vv2z = vv2(2).val_point(r, theta, phi) ; 
 	     		
-	    vvx[nx*j+i] = vv1x + vv2x ; 
-	    vvz[nx*j+i] = vv1z + vv2z ; 
+	    vvx[nx*j+i] = float(vv1x + vv2x) ; 
+	    vvz[nx*j+i] = float(vv1z + vv2z) ; 
 	}
     }
 
-    float xmin1 = x_min / km ;
-    float xmax1 = x_max / km ;
-    float zmin1 = z_min / km ;
-    float zmax1 = z_max / km ;
+    float xmin1 = float(x_min / km) ;
+    float xmax1 = float(x_max / km) ;
+    float zmin1 = float(z_min / km) ;
+    float zmax1 = float(z_max / km) ;
     
-    char* nomx = "x [km]" ; 
-    char* nomz = "z [km]" ; 
+    const char* nomx = "x [km]" ; 
+    const char* nomz = "z [km]" ; 
     
     if (title == 0x0) {
 	title = "" ;
     }
     
-    char* device = 0x0 ; 
+    const char* device = 0x0 ; 
     int newgraph = ( (defsurf1 != 0x0) || (defsurf2 != 0x0) || draw_bound ) ?
 		    1 : 3 ; 
 
@@ -359,7 +363,7 @@ void des_vect_bin_y(const Tenseur& vv1, const Tenseur& vv2, double y0,
 
 void des_vect_bin_z(const Tenseur& vv1, const Tenseur& vv2, double z0, 
 		    double scale, double sizefl, double x_min, double x_max, 
-		    double y_min, double y_max, char* title, 
+		    double y_min, double y_max, const char* title, 
 		    const Cmp* defsurf1, const Cmp* defsurf2, 
 		    bool draw_bound, int nx, int ny) {
 		
@@ -431,24 +435,24 @@ void des_vect_bin_z(const Tenseur& vv1, const Tenseur& vv2, double z0,
 	    double vv2x = vv2(0).val_point(r, theta, phi) ; 
 	    double vv2y = vv2(1).val_point(r, theta, phi) ; 
 		
-	    vvx[nx*j+i] = vv1x + vv2x ; 
-	    vvy[nx*j+i] = vv1y + vv2y ; 
+	    vvx[nx*j+i] = float(vv1x + vv2x) ; 
+	    vvy[nx*j+i] = float(vv1y + vv2y) ; 
 	}
     }
 
-    float xmin1 = x_min / km ;
-    float xmax1 = x_max / km ;
-    float ymin1 = y_min / km ;
-    float ymax1 = y_max / km ;
+    float xmin1 = float(x_min / km) ;
+    float xmax1 = float(x_max / km) ;
+    float ymin1 = float(y_min / km) ;
+    float ymax1 = float(y_max / km) ;
     
-    char* nomx = "x [km]" ; 
-    char* nomy = "y [km]" ; 
+    const char* nomx = "x [km]" ; 
+    const char* nomy = "y [km]" ; 
     
     if (title == 0x0) {
 	title = "" ;
     }
     
-    char* device = 0x0 ; 
+    const char* device = 0x0 ; 
     int newgraph = ( (defsurf1 != 0x0) || (defsurf2 != 0x0) || draw_bound ) ?
 		    1 : 3 ; 
 

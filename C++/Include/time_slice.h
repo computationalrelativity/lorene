@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.27  2008/08/19 06:41:59  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.26  2007/11/06 14:47:06  j_novak
  * New constructor from a rotating star in Dirac gauge (class Star_rot_Dirac).
  * Evolution can take into account matter terms.
@@ -315,7 +319,7 @@ class Time_slice {
 
 	/// Sets the order of the finite-differences scheme.
 	void set_scheme_order(int ord) { 
-	  assert (0<= ord < 4) ;
+	    assert ((0<= ord)&&(ord < 4)) ;
 	  scheme_order = ord ; } ; 
 	
     // Accessors

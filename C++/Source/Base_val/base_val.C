@@ -34,6 +34,10 @@ char base_val_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2008/08/19 06:41:59  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.10  2008/02/18 13:53:38  j_novak
  * Removal of special indentation instructions.
  *
@@ -215,9 +219,9 @@ void Base_val::sauve(FILE* fd) const {
 ostream& operator<<(ostream& o, const Base_val & bi) {
   
   static bool premier_appel = true ; 
-  static char* nom_r[MAX_BASE] ;
-  static char* nom_t[MAX_BASE] ;
-  static char* nom_p[MAX_BASE] ;
+  static const char* nom_r[MAX_BASE] ;
+  static const char* nom_t[MAX_BASE] ;
+  static const char* nom_p[MAX_BASE] ;
 
   if (premier_appel) {   // First call initializations
 

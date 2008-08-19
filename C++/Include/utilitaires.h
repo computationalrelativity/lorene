@@ -32,6 +32,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2008/08/19 06:41:59  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.10  2004/09/01 09:47:55  r_prix
  * fixed/improved string-reading with read_variable(): allocates returned string
  *
@@ -344,7 +348,8 @@ void *MyMalloc (long bytes);
 /// A portable routine to determine the length of a file
 int FS_filelength (FILE *f);
 
-
+/// Helpful function to say something is not implemented yet 
+void c_est_pas_fait(const char * ) ;
     
 /** @} */
     

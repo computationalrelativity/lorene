@@ -31,6 +31,10 @@ char eos_bf_file_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.5  2003/12/05 15:09:47  r_prix
  * adapted Eos_bifluid class and subclasses to use read_variable() for
  * (formatted) file-reading.
@@ -118,7 +122,7 @@ Eos_bifluid* Eos_bifluid::eos_from_file(char *fname) {
     int identificator ; 
 
     // EOS identificator : 
-    if (read_variable (fname, "ident", identificator) != 0)
+    if (read_variable (fname, const_cast<char*>("ident"), identificator) != 0)
       {
 	cerr << "ERROR: Could not read the required variable 'ident' in " << fname << endl;
 	exit (-1);

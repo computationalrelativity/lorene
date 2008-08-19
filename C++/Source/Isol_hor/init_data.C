@@ -31,6 +31,10 @@ char init_data_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.28  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.27  2006/02/22 17:02:04  f_limousin
  * Removal of warnings
  *
@@ -1227,8 +1231,8 @@ void Isol_hor::init_data_spher(int bound_nn, double lim_nn, int bound_psi,
 
 
 
-void Isol_hor::init_data_alt(int bound_nn, double lim_nn, int bound_psi, 
-			 int bound_beta, int solve_lapse, int solve_psi,
+void Isol_hor::init_data_alt(int, double, int, 
+			 int, int solve_lapse, int solve_psi,
 			 int solve_shift, double precis, 
 			 double relax, int niter) {
 

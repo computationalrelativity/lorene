@@ -33,8 +33,12 @@ char des_map_et_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 2.4  2000/11/20  21:43:57  eric
  * Correction erreur affichage k=3 --> k=4 pour G.
@@ -81,7 +85,7 @@ void des_map_et(const Map_et& mp, int lz) {
     strcat(nomy, bslash) ; 
     strcat(nomy, "u ))" ) ;     
      
-    char* device = 0x0 ; 
+    const char* device = 0x0 ; 
     int newgraph = 1 ;	// to open the graphic device
     int nxpage = 2 ; 
     int nypage = 2 ;     

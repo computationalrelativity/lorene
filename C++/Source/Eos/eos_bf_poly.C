@@ -31,6 +31,10 @@ char eos_bf_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.19  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.18  2004/05/13 15:27:42  r_prix
  * fixed a little eos-bug also in the relativistic case (same as done already in Newt)
  *
@@ -218,16 +222,16 @@ Eos_bf_poly::Eos_bf_poly( char *fname ) :
 {
   int res = 0;
 
-  res += read_variable (fname, "gamma1", gam1);
-  res += read_variable (fname, "gamma2", gam2);
-  res += read_variable (fname, "gamma3", gam3);
-  res += read_variable (fname, "gamma4", gam4);
-  res += read_variable (fname, "gamma5", gam5);
-  res += read_variable (fname, "gamma6", gam6);
-  res += read_variable (fname, "kappa1", kap1);
-  res += read_variable (fname, "kappa2", kap2);
-  res += read_variable (fname, "kappa3", kap3);
-  res += read_variable (fname, "beta", beta);
+  res += read_variable (fname, const_cast<char*>("gamma1"), gam1);
+  res += read_variable (fname, const_cast<char*>("gamma2"), gam2);
+  res += read_variable (fname, const_cast<char*>("gamma3"), gam3);
+  res += read_variable (fname, const_cast<char*>("gamma4"), gam4);
+  res += read_variable (fname, const_cast<char*>("gamma5"), gam5);
+  res += read_variable (fname, const_cast<char*>("gamma6"), gam6);
+  res += read_variable (fname, const_cast<char*>("kappa1"), kap1);
+  res += read_variable (fname, const_cast<char*>("kappa2"), kap2);
+  res += read_variable (fname, const_cast<char*>("kappa3"), kap3);
+  res += read_variable (fname, const_cast<char*>("beta"), beta);
 
 
   if (res != 0)
@@ -240,14 +244,14 @@ Eos_bf_poly::Eos_bf_poly( char *fname ) :
 
   if (get_typeos() == 4)
     {
-      res += read_variable (fname, "relax", relax);
-      res += read_variable (fname, "precis", precis);
-      res += read_variable (fname, "ecart", ecart);
+	res += read_variable (fname, const_cast<char*>("relax"), relax);
+	res += read_variable (fname, const_cast<char*>("precis"), precis);
+	res += read_variable (fname, const_cast<char*>("ecart"), ecart);
     }
   else if (get_typeos() == 0) // analytic EOS: check if we want slow-rot-style inversion
     {
       bool slowrot = false;
-      read_variable (fname, "slow_rot_style", slowrot); // dont require this variable!
+      read_variable (fname, const_cast<char*>("slow_rot_style"), slowrot); // dont require this variable!
       if (slowrot)
 	typeos = 5;  // type=5 is reserved for (type0 + slow-rot-style)
     }

@@ -35,6 +35,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.40  2008/08/19 06:41:59  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.39  2008/07/18 12:28:41  j_novak
  * Corrected some mistakes.
  *
@@ -689,9 +693,6 @@ Mtbl_cf sol_dalembert(Param&, const Map_af&, const Mtbl_cf&) ;
 void runge_kutta3_wave_sys(double, const Scalar&, const Scalar&, Scalar& , Scalar&, int dl=0 ) ;
 void evolve_outgoing_BC(double, int, const Scalar&, Scalar&, Tbl&, Tbl&, Tbl&, int dl=0) ;
 void tilde_laplacian(const Scalar& B_in, Scalar& tilde_lap, int dl=-1) ;
-
-// Fonctions diverses : 
-void c_est_pas_fait(char * ) ;
 
 // Trucs utilises pour poisson_compact :
 Matrice lap_cpt_mat(int, int, int) ;

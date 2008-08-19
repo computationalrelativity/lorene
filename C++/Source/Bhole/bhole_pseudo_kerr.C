@@ -25,6 +25,10 @@ char bhole_pseudo_kerr_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2008/08/19 06:41:59  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.4  2004/03/25 10:28:57  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -303,8 +307,8 @@ void Bhole::regularise_seul () {
 	    Tbl norm (norme(shift_auto(comp))) ;
 	    if (norm(1) > 1e-5) {
 		Tbl diff (diffrelmax (copie, shift_auto(comp))) ;
-		if (erreur<diff(1)) ;
-		erreur = diff(1) ;
+		if (erreur<diff(1))
+		    erreur = diff(1) ;
 	    }
 	}
     regul = erreur ;

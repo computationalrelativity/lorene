@@ -33,6 +33,10 @@ char map_af_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.12  2007/12/21 11:05:33  j_novak
  * Put back the constructor from a Mg3d and a Tbl (it had disappeared?).
  *
@@ -152,15 +156,11 @@ char map_af_C[] = "$Header$" ;
 #include <math.h>
 
 // headers Lorene
-#include "coord.h"
-#include "map.h"
 #include "cmp.h"
 #include "utilitaires.h"
+#include "proto.h"
 #include "unites.h"
 
-// Local prototype:
-void c_est_pas_fait(char * ) ;
-			
 			//---------------//
 			// Constructeurs //
 			//---------------//
@@ -645,7 +645,7 @@ void Map_af::set_beta(double beta0, int l) {
 //-----------
 
 void Map_af::adapt(const Cmp&, const Param&, int) {
-    char* f = __FILE__ ;
+    const char* f = __FILE__ ;
     c_est_pas_fait(f) ;
 }
 

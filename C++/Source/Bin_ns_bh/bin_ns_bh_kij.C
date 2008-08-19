@@ -29,6 +29,10 @@ char bin_ns_bh_kij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2008/08/19 06:41:59  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.7  2007/04/26 14:14:59  f_limousin
  * The function fait_tkij now have default values for bound_nn and lim_nn
  *
@@ -250,7 +254,9 @@ void Bin_ns_bh::fait_tkij (int bound_nn, double lim_nn) {
       norme_star += max(norme(star.get_shift_auto()(i))) ;
   }
   
+#ifndef NDEBUG
   bool zero_shift_hole = (norme_hole <1e-14) ? true : false ; 
+#endif
   bool zero_shift_star = (norme_star <1e-14) ? true : false ; 
    
   assert (zero_shift_hole == zero_shift_star) ;

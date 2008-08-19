@@ -31,6 +31,10 @@ char des_prof_scalar_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.8  2005/03/25 19:57:04  e_gourgoulhon
  * Added plot of domain boundaries (new argument draw_bound).
  *
@@ -78,7 +82,7 @@ char des_prof_scalar_C[] = "$Header$" ;
 // VERSION SCALAR SANS UNITES 
 
 void des_profile(const Scalar& uu, double r_min, double r_max, 
-		     double theta, double phi, char* nomy, char* title,
+		     double theta, double phi, const char* nomy, const char* title,
                      bool draw_bound) {
   
 
@@ -92,14 +96,14 @@ void des_profile(const Scalar& uu, double r_min, double r_max,
     
 	double r = hr * i + r_min ; 
 	
-	uutab[i] = uu.val_point(r, theta, phi) ; 
+	uutab[i] = float(uu.val_point(r, theta, phi)) ; 
 	
     }
     
-    float xmin = r_min ;
-    float xmax = r_max  ;
+    float xmin = float(r_min) ;
+    float xmax = float(r_max)  ;
     
-    char* nomx = "r" ; 
+    const char* nomx = "r" ; 
     
     if (title == 0x0) {
 	title = "" ;
@@ -125,7 +129,7 @@ void des_profile(const Scalar& uu, double r_min, double r_max,
             double rb = mp.val_r(l, xi_max, theta, phi) ; 
         
             if ((rb >= r_min) && (rb <= r_max)) {
-                xbound[nbound] = rb ; 
+                xbound[nbound] = float(rb) ; 
                 nbound++ ;    
             }
         }
@@ -141,8 +145,8 @@ void des_profile(const Scalar& uu, double r_min, double r_max,
 //******************************************************************************
 
 void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
-		     double theta, double phi, char* nomx, char* nomy, 
-                     char* title, bool draw_bound) {
+		     double theta, double phi, const char* nomx, const char* nomy, 
+                     const char* title, bool draw_bound) {
 		
 
     const int npt = 400 ;   // Number of points along the axis
@@ -155,12 +159,12 @@ void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
     
 	double r = hr * i + r_min ; 
 	
-	uutab[i] = uu.val_point(r, theta, phi) ; 
+	uutab[i] = float(uu.val_point(r, theta, phi)) ; 
 	
     }
     
-    float xmin = r_min * scale ;
-    float xmax = r_max * scale ;
+    float xmin = float(r_min * scale) ;
+    float xmax = float(r_max * scale) ;
     
     
     if (title == 0x0) {
@@ -191,7 +195,7 @@ void des_profile(const Scalar& uu, double r_min, double r_max, double scale,
             double rb = mp.val_r(l, xi_max, theta, phi) ; 
         
             if ((rb >= r_min) && (rb <= r_max)) {
-                xbound[nbound] = rb ; 
+                xbound[nbound] = float(rb) ; 
                 nbound++ ;    
             }
         }
@@ -238,13 +242,13 @@ void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max,
         const Scalar& vv = *(uu[j]) ; 
 		
         for (int i=0; i<npt; i++) {
-            uutab[j*npt+i] = vv.val_point(rr[i], theta[j], phi[j]) ; 
+            uutab[j*npt+i] = float(vv.val_point(rr[i], theta[j], phi[j])) ; 
         }
     }
 
     
-    float xmin = radial_scale * r_min ;
-    float xmax = radial_scale * r_max ;
+    float xmin = float(radial_scale * r_min) ;
+    float xmax = float(radial_scale * r_max) ;
     
     if (nomx == 0x0) nomx = "r" ;
 
@@ -272,7 +276,7 @@ void des_profile_mult(const Scalar** uu, int nprof, double r_min, double r_max,
                 double rb = mp.val_r(l, xi_max, theta[j], phi[j]) ; 
         
                 if ((rb >= r_min) && (rb <= r_max)) {
-                    xbound[nbound] = rb * radial_scale ; 
+                    xbound[nbound] = float(rb * radial_scale) ; 
                     nbound++ ; 
                     if (nbound > nbound_max-1) {
                         cout << "des_profile_mult : nbound too large !" << endl ; 

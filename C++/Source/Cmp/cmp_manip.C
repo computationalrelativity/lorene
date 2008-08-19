@@ -25,6 +25,10 @@ char cmp_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2008/08/19 06:41:59  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.3  2003/10/23 09:41:27  p_grandclement
  * small modif of set_val_hor (one can work at the origin now)
  *
@@ -115,12 +119,12 @@ void Cmp::filtre_phi (int n, int nz) {
 void Cmp::set_val_inf (double val) {
     
     assert (etat != ETATNONDEF) ;
-    if (etat == ETATZERO)
+    if (etat == ETATZERO) {
 	if (val == 0)
 	    return ;
 	else
 	    annule_hard() ;
-    
+    }
     del_deriv() ;
     
     int nz = mp->get_mg()->get_nzone() ;
@@ -148,12 +152,12 @@ void Cmp::set_val_inf (double val) {
 void Cmp::set_val_hor (double val, int zone) {
     
     assert (etat != ETATNONDEF) ;
-     if (etat == ETATZERO)
+    if (etat == ETATZERO) {
 	if (val == 0)
 	    return ;
 	else
 	    annule_hard() ;
-    
+    }
     assert (zone < mp->get_mg()->get_nzone()) ;
     del_deriv() ;
     

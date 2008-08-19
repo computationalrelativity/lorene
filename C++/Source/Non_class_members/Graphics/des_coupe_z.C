@@ -25,6 +25,10 @@ char des_coupe_z_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.2  2004/03/25 10:29:25  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -75,7 +79,7 @@ char des_coupe_z_C[] = "$Header$" ;
 
 //******************************************************************************
 
-void des_coupe_z(const Cmp& uu, double z0, int nzdes, char* title, 
+void des_coupe_z(const Cmp& uu, double z0, int nzdes, const char* title, 
 		 const Cmp* defsurf, double zoom, bool draw_bound, 
 		 int ncour, int nx, int ny) {
 		     
@@ -105,7 +109,7 @@ void des_coupe_z(const Cmp& uu, double z0, int nzdes, char* title,
 
 
 void des_coupe_z(const Cmp& uu, double z0, double x_min, double x_max, 
-		 double y_min, double y_max, char* title, const Cmp* defsurf, 
+		 double y_min, double y_max, const char* title, const Cmp* defsurf, 
 		 bool draw_bound, int ncour, int nx, int ny) {
 		
   using namespace Unites ;
@@ -132,23 +136,23 @@ void des_coupe_z(const Cmp& uu, double z0, double x_min, double x_max,
 	    double r, theta, phi ; 
 	    mp.convert_absolute(x, y, z0, r, theta, phi) ; 
 		
-	    uutab[nx*j+i] = uu.val_point(r, theta, phi) ; 
+	    uutab[nx*j+i] = float(uu.val_point(r, theta, phi)) ; 
 	}
     }
     
-    float ymin1 = y_min / km ;
-    float ymax1 = y_max / km ;
-    float xmin1 = x_min / km ;
-    float xmax1 = x_max / km ;
+    float ymin1 = float(y_min / km) ;
+    float ymax1 = float(y_max / km) ;
+    float xmin1 = float(x_min / km) ;
+    float xmax1 = float(x_max / km) ;
     
-    char* nomy = "y [km]" ; 
-    char* nomx = "x [km]" ; 
+    const char* nomy = "y [km]" ; 
+    const char* nomx = "x [km]" ; 
     
     if (title == 0x0) {
 	title = "" ;
     }
     
-    char* device = 0x0 ; 
+    const char* device = 0x0 ; 
     int newgraph = ( (defsurf != 0x0) || draw_bound ) ? 1 : 3 ; 
     
     des_equipot(uutab, nx, ny, xmin1, xmax1, ymin1, ymax1, ncour, nomx, nomy,

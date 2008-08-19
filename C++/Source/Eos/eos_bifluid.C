@@ -31,6 +31,10 @@ char eos_bifluid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.15  2006/03/10 08:38:55  j_novak
  * Use of C++-style casts.
  *
@@ -166,9 +170,12 @@ Eos_bifluid::Eos_bifluid(char *fname)
 {
   int res=0;
   name = NULL;
-  res += read_variable (fname, "name", &name);
-  res += read_variable (fname, "m_1", m_1);
-  res += read_variable (fname, "m_2", m_2);
+  char* char_name = const_cast<char*>("name");
+  char* char_m1 = const_cast<char*>("m_1") ;
+  char* char_m2 = const_cast<char*>("m_2") ;
+  res += read_variable (fname, char_name, &name);
+  res += read_variable (fname, char_m1, m_1);
+  res += read_variable (fname, char_m2, m_2);
 
   if (res)
     {

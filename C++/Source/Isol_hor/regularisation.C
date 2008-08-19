@@ -26,6 +26,10 @@ char regularisation_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.9  2005/09/13 18:33:17  f_limousin
  * New function vv_bound_cart_bin(double) for computing binaries with
  * berlin condition for the shift vector.
@@ -238,8 +242,8 @@ double Isol_hor::regularise_one () {
 	    Tbl norm (norme(shift(comp))) ;
 	    if (norm(1) > 1e-5) {
 		Tbl diff (diffrelmax (copie, shift(comp))) ;
-		if (erreur<diff(1)) ;
-		erreur = diff(1) ;
+		if (erreur<diff(1)) 
+		    erreur = diff(1) ;
 	    }
 	}
     

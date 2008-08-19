@@ -31,6 +31,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2008/08/19 06:41:59  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.3  2004/12/29 12:27:35  j_novak
  * permute is now a Itbl* which array is sent directly to the LAPACK routines.
  * It is now possible to solve a general system (i.e. even if the Matrice
@@ -96,11 +100,11 @@ void F77_fftrig(double [], int *, int *) ;
 extern "C" {
 void F77_dswap(int*, double [], int*, double [], int*) ;
 void F77_dgbtrf(int*, int*, int*, int*, double[], int*, int[], int *) ;
-void F77_dgbtrs(char*, int*, int*, int*, int*,
+void F77_dgbtrs(const char*, int*, int*, int*, int*,
 			double[], int*, int[], double [], int*, int *) ;
 void F77_dgetrf(int*, int*, double[], int*, int[], int *) ;
-void F77_dgetrs(char*, int*, int*, double[], int*, int[], double [], int*, int* ) ;
-void F77_dgeev(char*, char*, int*, double[], int*, double[], double[],
+void F77_dgetrs(const char*, int*, int*, double[], int*, int[], double [], int*, int* ) ;
+void F77_dgeev(const char*, const char*, int*, double[], int*, double[], double[],
 			double[], int*, double[], int*, double[], int*, int*) ;
 void F77_dgesv(int *, int *, double [], int *, int [], double[], int *, int *) ;
 }

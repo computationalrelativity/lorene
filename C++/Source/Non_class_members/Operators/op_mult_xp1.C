@@ -25,6 +25,10 @@ char op_mult_xp1_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
  * Revision 1.1  2007/12/11 15:42:23  jl_cornou
  * Premiere version des fonctions liees aux polynomes de Jacobi(0,2)
  *
@@ -87,7 +91,7 @@ void _mult_xp1_identite(Tbl* , int& ) {
 			// cas R_JACO02 -
 			//---------------
 
-void _mult_xp1_r_jaco02(Tbl* tb, int& base)
+void _mult_xp1_r_jaco02(Tbl* tb, int& )
     {
     // Peut-etre rien a faire ?
     if (tb->get_etat() == ETATZERO) {
@@ -142,6 +146,6 @@ void _mult_xp1_r_jaco02(Tbl* tb, int& base)
     tb->t = xo ;
     
     // base de developpement
-    // inchangée
+    // inchangee
 
 }

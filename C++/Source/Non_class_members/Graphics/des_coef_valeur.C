@@ -34,8 +34,12 @@ char des_coef_valeur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.1  2001/11/20 15:19:29  e_gourgoulhon
- * Initial revision
+ * Revision 1.2  2008/08/19 06:42:00  j_novak
+ * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
+ * cast-type operations, and constant strings that must be defined as const char*
+ *
+ * Revision 1.1.1.1  2001/11/20 15:19:29  e_gourgoulhon
+ * LORENE
  *
  * Revision 1.5  2000/02/25  10:28:02  eric
  * Suppression des appels a Mtbl_cf::nettoie().
@@ -70,7 +74,7 @@ char des_coef_valeur_C[] = "$Header$" ;
 			//-------------------------//
 
 void des_coef_xi(const Valeur& uu, int l, int k, int j, double pzero, 
-		 char* nomy, char* title, char* device, 
+		 const char* nomy, const char* title, const char* device, 
 	         int newgraph, int nxpage, int nypage) {
 
     assert(uu.get_etat() != ETATNONDEF) ; 	
@@ -94,7 +98,7 @@ void des_coef_xi(const Valeur& uu, int l, int k, int j, double pzero,
 	}
     }
 
-    char* nomx = "i" ; 
+    const char* nomx = "i" ; 
 
     char title1[80] ;
     char nomy1[80] ;
@@ -149,7 +153,7 @@ void des_coef_xi(const Valeur& uu, int l, int k, int j, double pzero,
 			//------------------------------//
 
 void des_coef_theta(const Valeur& uu, int l, int k, int i, double pzero, 
-		 char* nomy, char* title, char* device, 
+		 const char* nomy, const char* title, const char* device, 
 	         int newgraph, int nxpage, int nypage) {
 
     assert(uu.get_etat() != ETATNONDEF) ; 	
@@ -173,7 +177,7 @@ void des_coef_theta(const Valeur& uu, int l, int k, int i, double pzero,
 	}
     }
 
-    char* nomx = "j" ; 
+    const char* nomx = "j" ; 
 
     char title1[80] ;
     char nomy1[80] ;
@@ -227,7 +231,7 @@ void des_coef_theta(const Valeur& uu, int l, int k, int i, double pzero,
 			//------------------------------//
 
 void des_coef_phi(const Valeur& uu, int l, int j, int i, double pzero, 
-		 char* nomy, char* title, char* device, 
+		 const char* nomy, const char* title, const char* device, 
 	         int newgraph, int nxpage, int nypage) {
 
     assert(uu.get_etat() != ETATNONDEF) ; 	
@@ -251,7 +255,7 @@ void des_coef_phi(const Valeur& uu, int l, int j, int i, double pzero,
 	}
     }
 
-    char* nomx = "k" ; 
+    const char* nomx = "k" ; 
 
     char title1[80] ;
     char nomy1[80] ;
