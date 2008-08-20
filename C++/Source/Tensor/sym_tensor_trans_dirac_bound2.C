@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/08/20 15:08:06  n_vasset
+ * Cleaning up the code...
+ *
  * Revision 1.1  2007/05/04 16:45:25  n_vasset
  * First version
  *
@@ -70,7 +73,7 @@
 //
 //----------------------------------------------------------------------------------
 
-void Sym_tensor_trans::sol_Dirac_A2(const Scalar& aaa, Scalar& tilde_mu, Scalar& x_new, Scalar bound_mu, double dir, double neum, const Param* par_bc) {
+void Sym_tensor_trans::sol_Dirac_Abound(const Scalar& aaa, Scalar& tilde_mu, Scalar& x_new, Scalar bound_mu, const Param* par_bc) {
   
   const Map_af* mp_aff = dynamic_cast<const Map_af*>(mp) ;
   assert(mp_aff != 0x0) ; //Only affine mapping for the moment
@@ -86,7 +89,10 @@ void Sym_tensor_trans::sol_Dirac_A2(const Scalar& aaa, Scalar& tilde_mu, Scalar&
     x_new = 0 ;
     return ;
   }
-  
+ 
+  double dir = 1.;
+  double neum = 0.;
+ 
   // On suppose que le sym_tensor_entré est bien transverse;  
   
   //  assert ( maxabs(contract((*this).derive_cov(mets), 1, 2)) < 0.00000000000001 ) ; 

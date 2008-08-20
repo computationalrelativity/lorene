@@ -1,5 +1,5 @@
 /*
- *  Method for vector Poisson equation inverting eqs. for V^r and eta as a block, with inner boundary conditions on the first shell. 
+ *  Method for vector Poisson equation inverting eqs. for V^r and eta as a block.
  *
  *    (see file vector.h for documentation).
  *
@@ -30,11 +30,8 @@ char vector_poisson_boundary2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.6  2007/10/05 13:06:52  j_novak
- * Minor modif.
- *
- * Revision 1.5  2007/09/26 14:13:15  n_vasset
- * *** empty log message ***
+ * Revision 1.7  2008/08/20 15:07:36  n_vasset
+ * Cleaning up the code...
  *
  * Revision 1.5  2007/09/05 12:35:18  j_novak
  * Homogeneous solutions are no longer obtained through the analytic formula, but
@@ -93,15 +90,14 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
      }
 
 
+
      // Extraction of Mtbl_cf objects from boundary informations; 
      Scalar bound_vr2 = boundvr; 
      bound_vr2.set_spectral_va().ylm(); 
      Scalar bound_eta2 = boundeta; 
      bound_eta2.set_spectral_va().ylm();
-     Scalar bound_mu2 = boundmu;
-     bound_mu2.set_spectral_va().ylm();
-  
-        
+     Scalar bound_mu2 = boundmu; bound_mu2.set_spectral_va().ylm();
+     
      const  Mtbl_cf *bound_vr = bound_vr2.get_spectral_va().c_cf; 
      const  Mtbl_cf *bound_mu = bound_mu2.get_spectral_va().c_cf;
      const Mtbl_cf *bound_eta = bound_eta2.get_spectral_va().c_cf;
@@ -119,7 +115,7 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
   Scalar S_eta = eta() ;
   Scalar het(*mpaff) ; 
   Scalar vr(*mpaff) ; 
-  bool all_zero = false ; // Artefact from R3 case; to remove eventually
+ 
   if (S_r.get_etat() == ETATZERO) {
       if (S_eta.get_etat() == ETATZERO) {
 
@@ -127,19 +123,17 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
 	  S_r.set_spectral_base(S_eta.get_spectral_base()) ;
 	  S_eta.annule_hard() ;
 	  S_eta.set_spectral_base(S_r.get_spectral_base()) ;
-	  // A little bit stupid for the moment; 
-	  // But calculation HAS to be made even with zero-source!!
       }
       else {
 	  S_r.annule_hard() ;
 	  S_r.set_spectral_base(S_eta.get_spectral_base()) ;
       }
   }
-  if ((S_eta.get_etat() == ETATZERO)&&(!all_zero)) {
+  if (S_eta.get_etat() == ETATZERO) {
       S_eta.annule_hard() ;
       S_eta.set_spectral_base(S_r.get_spectral_base()) ;
   }
-  if (!all_zero) {
+
   S_r.set_spectral_va().ylm() ;
   S_eta.set_spectral_va().ylm() ;
   const Base_val& base = S_eta.get_spectral_va().base ;
@@ -164,23 +158,24 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
       param_l0.set_poisson_vect_r(l, true) ;
   }
 
-   Scalar vrl0 = sou_l0.sol_elliptic_boundary(param_l0, *bound_vr, 1., 0.) ;
+
+   Scalar vrl0 = sou_l0.sol_elliptic_boundary(param_l0, *bound_vr, dir_vr, neum_vr) ;
+
 
   // Build-up & inversion of the system for (eta, V^r) in each domain (except for the nucleus!)
   //-----------------------------------------------------------------
+
+
+  // Shells
+  //-------
 
   int nr = mg.get_nr(1) ;
   int nt = mg.get_nt(1) ;
   int np = mg.get_np(1) ;
   double alpha = mpaff->get_alpha()[1] ; double alp2 = alpha*alpha ;
   double beta = mpaff->get_beta()[1] ;
-
  
   int l_q = 0 ; int m_q = 0; int base_r = 0 ;
-
-
-  // Shells
-  //-------
   for (int zone=1 ; zone<nzm1 ; zone++) {
       nr = mg.get_nr(zone) ; 
       assert (nr > 5) ;
@@ -450,7 +445,7 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
 		      sol_hom_quatre_vr.set(nzm1, k, j, i) = big_res(nr+i) ;
 		  }
 	      }
-	  } 
+	  }
       }
   }
 
@@ -486,38 +481,42 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
 	      systeme.annule_hard() ;
 	      sec_membre.annule_hard() ;
 
+
       	      //shell 1 (boundary condition)
-	      int zone = 1;
-		  nr = mg.get_nr(zone) ;
-		  alpha = mpaff->get_alpha()[zone] ;
+	      int zone1 = 1;
+		  nr = mg.get_nr(zone1) ;
+		  alpha = mpaff->get_alpha()[zone1] ;
+
 		  // Here we prepare for a Robyn-type boundary condition on eta. 
 		  // Parameters are dir_eta and neum_eta
 		  systeme.set(ligne, colonne) 
-		      = -dir_eta*sol_hom_un_eta.val_in_bound_jk(zone, j, k)  ;
+		      = -dir_eta*sol_hom_un_eta.val_in_bound_jk(zone1, j, k)  ;
 		  systeme.set(ligne, colonne+1) 
-		      = -dir_eta * sol_hom_deux_eta.val_in_bound_jk(zone, j, k)  ;
+		      = -dir_eta * sol_hom_deux_eta.val_in_bound_jk(zone1, j, k)  ;
 		  systeme.set(ligne, colonne+2) 
-		      = -dir_eta*sol_hom_trois_eta.val_in_bound_jk(zone, j, k)  ;
+		      = -dir_eta*sol_hom_trois_eta.val_in_bound_jk(zone1, j, k)  ;
 		  systeme.set(ligne, colonne+3) 
-		      = -dir_eta*sol_hom_quatre_eta.val_in_bound_jk(zone, j, k)  ;
+		      = -dir_eta*sol_hom_quatre_eta.val_in_bound_jk(zone1, j, k)  ;
  
  
 
 
-		  sec_membre.set(ligne) += dir_eta* sol_part_eta.val_in_bound_jk(zone, j, k) ;
+		  sec_membre.set(ligne) += dir_eta* sol_part_eta.val_in_bound_jk(zone1, j, k) ;
+
+
 
 		  int pari = -1 ;
 		  for (int i=0; i<nr; i++) {
 		      systeme.set(ligne, colonne) 
-			  -= neum_eta*pari*i*i*sol_hom_un_eta(zone, k, j, i)/alpha ;
+			  -= neum_eta*pari*i*i*sol_hom_un_eta(zone1, k, j, i)/alpha ;
 		      systeme.set(ligne, colonne+1) 
-			  -= neum_eta*pari*i*i*sol_hom_deux_eta(zone, k, j, i)/alpha ;
+			  -= neum_eta*pari*i*i*sol_hom_deux_eta(zone1, k, j, i)/alpha ;
 		      systeme.set(ligne, colonne+2) 
-			  -= neum_eta*pari*i*i*sol_hom_trois_eta(zone, k, j, i)/alpha ;
+			  -= neum_eta*pari*i*i*sol_hom_trois_eta(zone1, k, j, i)/alpha ;
 		      systeme.set(ligne, colonne+3) 
-			  -= neum_eta*pari*i*i*sol_hom_quatre_eta(zone, k, j, i)/alpha ;
+			  -= neum_eta*pari*i*i*sol_hom_quatre_eta(zone1, k, j, i)/alpha ;
 		      sec_membre.set(ligne) 
-			  += neum_eta*pari*i*i* sol_part_eta(zone, k, j, i)/alpha ;
+			  += neum_eta*pari*i*i* sol_part_eta(zone1, k, j, i)/alpha ;
 		      pari = -pari ;
 		  }
 
@@ -528,32 +527,34 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
 
 		  // ... and their couterparts for V^r
 		  systeme.set(ligne, colonne) 
-		      = - dir_vr*sol_hom_un_vr.val_in_bound_jk(zone, j, k)  ;
+		      = - dir_vr*sol_hom_un_vr.val_in_bound_jk(zone1, j, k)  ;
 		  systeme.set(ligne, colonne+1) 
-		      = - dir_vr*sol_hom_deux_vr.val_in_bound_jk(zone, j, k)  ;
+		      = - dir_vr*sol_hom_deux_vr.val_in_bound_jk(zone1, j, k)  ;
 		  systeme.set(ligne, colonne+2) 
-		      = -dir_vr*sol_hom_trois_vr.val_in_bound_jk(zone, j, k)  ;
+		      = -dir_vr*sol_hom_trois_vr.val_in_bound_jk(zone1, j, k)  ;
 		  systeme.set(ligne, colonne+3) 
-		      = -dir_vr*sol_hom_quatre_vr.val_in_bound_jk(zone, j, k)  ;
-		  sec_membre.set(ligne) += dir_vr*sol_part_vr.val_in_bound_jk(zone, j, k) ;
+		      = -dir_vr*sol_hom_quatre_vr.val_in_bound_jk(zone1, j, k)  ;
+		  sec_membre.set(ligne) += dir_vr*sol_part_vr.val_in_bound_jk(zone1, j, k) ;
+	
+
 	
 	
 		  pari = -1 ;
 		  for (int i=0; i<nr; i++) {
 		      systeme.set(ligne, colonne) 
-			  -= neum_vr*pari*i*i*sol_hom_un_vr(zone, k, j, i)/alpha ;
+			  -= neum_vr*pari*i*i*sol_hom_un_vr(zone1, k, j, i)/alpha ;
 		      systeme.set(ligne, colonne+1) 
-			  -= neum_vr*pari*i*i*sol_hom_deux_vr(zone, k, j, i)/alpha ;
+			  -= neum_vr*pari*i*i*sol_hom_deux_vr(zone1, k, j, i)/alpha ;
 		      systeme.set(ligne, colonne+2) 
-			  -= neum_vr*pari*i*i*sol_hom_trois_vr(zone, k, j, i)/alpha ;
+			  -= neum_vr*pari*i*i*sol_hom_trois_vr(zone1, k, j, i)/alpha ;
 		      systeme.set(ligne, colonne+3) 
-			  -= neum_vr*pari*i*i*sol_hom_quatre_vr(zone, k, j, i)/alpha ;
+			  -= neum_vr*pari*i*i*sol_hom_quatre_vr(zone1, k, j, i)/alpha ;
 		      sec_membre.set(ligne) 
-			  += neum_vr*pari*i*i* sol_part_vr(zone, k, j, i)/alpha ;
+			  += neum_vr*pari*i*i* sol_part_vr(zone1, k, j, i)/alpha ;
 		      pari = -pari ;
 		  }
 
-                  sec_membre.set(ligne) -= (*bound_mu).val_in_bound_jk(1,j,k);
+                  sec_membre.set(ligne) -= (*bound_vr).val_in_bound_jk(1,j,k);
 		  ligne++ ;
 
 
@@ -562,64 +563,64 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
 		  // Values in 1: beginning with solution in eta...
 			
 		  systeme.set(ligne, colonne) 
-		      += sol_hom_un_eta.val_out_bound_jk(zone, j, k)  ;
+		      += sol_hom_un_eta.val_out_bound_jk(zone1, j, k)  ;
 		  systeme.set(ligne, colonne+1) 
-		      += sol_hom_deux_eta.val_out_bound_jk(zone, j, k)  ;
+		      += sol_hom_deux_eta.val_out_bound_jk(zone1, j, k)  ;
 		  systeme.set(ligne, colonne+2) 
-		      += sol_hom_trois_eta.val_out_bound_jk(zone, j, k)  ;
+		      += sol_hom_trois_eta.val_out_bound_jk(zone1, j, k)  ;
 		  systeme.set(ligne, colonne+3) 
-		      += sol_hom_quatre_eta.val_out_bound_jk(zone, j, k)  ;
-		  sec_membre.set(ligne) -= sol_part_eta.val_out_bound_jk(zone, j, k) ;
+		      += sol_hom_quatre_eta.val_out_bound_jk(zone1, j, k)  ;
+		  sec_membre.set(ligne) -= sol_part_eta.val_out_bound_jk(zone1, j, k) ;
 		  ligne++ ;
-		  // ... and their couterparts for V^r
+		  // ... and their counterparts for V^r
 		  systeme.set(ligne, colonne) 
-		      += sol_hom_un_vr.val_out_bound_jk(zone, j, k)  ;
+		      += sol_hom_un_vr.val_out_bound_jk(zone1, j, k)  ;
 		  systeme.set(ligne, colonne+1) 
-		      += sol_hom_deux_vr.val_out_bound_jk(zone, j, k)  ;
+		      += sol_hom_deux_vr.val_out_bound_jk(zone1, j, k)  ;
 		  systeme.set(ligne, colonne+2) 
-		      += sol_hom_trois_vr.val_out_bound_jk(zone, j, k)  ;
+		      += sol_hom_trois_vr.val_out_bound_jk(zone1, j, k)  ;
 		  systeme.set(ligne, colonne+3) 
-		      += sol_hom_quatre_vr.val_out_bound_jk(zone, j, k)  ;
-		  sec_membre.set(ligne) -= sol_part_vr.val_out_bound_jk(zone, j, k) ;
+		      += sol_hom_quatre_vr.val_out_bound_jk(zone1, j, k)  ;
+		  sec_membre.set(ligne) -= sol_part_vr.val_out_bound_jk(zone1, j, k) ;
 		  ligne++ ;
 
 		  //derivative at 1 
 		  pari = 1 ;
 		  for (int i=0; i<nr; i++) {
 		      systeme.set(ligne, colonne) 
-			  += pari*i*i*sol_hom_un_eta(zone, k, j, i)/alpha ;
+			  += pari*i*i*sol_hom_un_eta(zone1, k, j, i)/alpha ;
 		      systeme.set(ligne, colonne+1) 
-			  += pari*i*i*sol_hom_deux_eta(zone, k, j, i)/alpha ;
+			  += pari*i*i*sol_hom_deux_eta(zone1, k, j, i)/alpha ;
 		      systeme.set(ligne, colonne+2) 
-			  += pari*i*i*sol_hom_trois_eta(zone, k, j, i)/alpha ;
+			  += pari*i*i*sol_hom_trois_eta(zone1, k, j, i)/alpha ;
 		      systeme.set(ligne, colonne+3) 
-			  += pari*i*i*sol_hom_quatre_eta(zone, k, j, i)/alpha ;
+			  += pari*i*i*sol_hom_quatre_eta(zone1, k, j, i)/alpha ;
 		      sec_membre.set(ligne) 
-			  -= pari*i*i* sol_part_eta(zone, k, j, i)/alpha ;
+			  -= pari*i*i* sol_part_eta(zone1, k, j, i)/alpha ;
 		      pari = pari ;
 		  }
 		  ligne++ ;
-		  // ... and their couterparts for V^r
+		  // ... and their counterparts for V^r
 		  pari = 1 ;
 		  for (int i=0; i<nr; i++) {
 		      systeme.set(ligne, colonne) 
-			  += pari*i*i*sol_hom_un_vr(zone, k, j, i)/alpha ;
+			  += pari*i*i*sol_hom_un_vr(zone1, k, j, i)/alpha ;
 		      systeme.set(ligne, colonne+1) 
-			  += pari*i*i*sol_hom_deux_vr(zone, k, j, i)/alpha ;
+			  += pari*i*i*sol_hom_deux_vr(zone1, k, j, i)/alpha ;
 		      systeme.set(ligne, colonne+2) 
-			  += pari*i*i*sol_hom_trois_vr(zone, k, j, i)/alpha ;
+			  += pari*i*i*sol_hom_trois_vr(zone1, k, j, i)/alpha ;
 		      systeme.set(ligne, colonne+3) 
-			  += pari*i*i*sol_hom_quatre_vr(zone, k, j, i)/alpha ;
+			  += pari*i*i*sol_hom_quatre_vr(zone1, k, j, i)/alpha ;
 		      sec_membre.set(ligne) 
-			  -= pari*i*i* sol_part_vr(zone, k, j, i)/alpha ;
+			  -= pari*i*i* sol_part_vr(zone1, k, j, i)/alpha ;
 		      pari = pari ;
 		  }
 		  colonne += 4 ;
 
-		  // Other shells ( mapping must contain at least two shells!!)
+		  // Other shells
 		  if ( nz <= 2){
 		    cout <<"WARNING!! Mapping must contain at least 2 shells!!" << endl;}
-		  for (zone=2 ; zone<nzm1 ; zone++) {
+		  for (int zone=2 ; zone<nzm1 ; zone++) {
 
 	  nr = mg.get_nr(zone) ;
 		  alpha = mpaff->get_alpha()[zone] ;
@@ -634,7 +635,7 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
 		      = -sol_hom_quatre_eta.val_in_bound_jk(zone, j, k)  ;
 		  sec_membre.set(ligne) += sol_part_eta.val_in_bound_jk(zone, j, k) ;
 		  ligne++ ;
-		  // ... and their couterparts for V^r
+		  // ... and their counterparts for V^r
 		  systeme.set(ligne, colonne) 
 		      = -sol_hom_un_vr.val_in_bound_jk(zone, j, k)  ;
 		  systeme.set(ligne, colonne+1) 
@@ -662,7 +663,7 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
 		      pari = -pari ;
 		  }
 		  ligne++ ;
-		  // ... and their couterparts for V^r
+		  // ... and their counterparts for V^r
 		  pari = -1 ;
 		  for (int i=0; i<nr; i++) {
 		      systeme.set(ligne, colonne) 
@@ -689,7 +690,7 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
 		      += sol_hom_quatre_eta.val_out_bound_jk(zone, j, k)  ;
 		  sec_membre.set(ligne) -= sol_part_eta.val_out_bound_jk(zone, j, k) ;
 		  ligne++ ;
-		  // ... and their couterparts for V^r
+		  // ... and their counterparts for V^r
 		  systeme.set(ligne, colonne) 
 		      += sol_hom_un_vr.val_out_bound_jk(zone, j, k)  ;
 		  systeme.set(ligne, colonne+1) 
@@ -746,7 +747,7 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
 	      systeme.set(ligne, colonne+1) 
 		  -= sol_hom_quatre_eta.val_in_bound_jk(nzm1, j, k) ;
 	      sec_membre.set(ligne) += sol_part_eta.val_in_bound_jk(nzm1, j, k) ;
-	      //... and of its couterpart for V^r
+	      //... and of its counterpart for V^r
 	      systeme.set(ligne+1, colonne) 
 		  -= sol_hom_deux_vr.val_in_bound_jk(nzm1, j, k) ;
 	      systeme.set(ligne+1, colonne+1) 
@@ -754,7 +755,8 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
 	      sec_membre.set(ligne+1) += sol_part_vr.val_in_bound_jk(nzm1, j, k) ;
 			
 	      ligne += 2 ;
-	      pari = 1 ;
+	      //derivative of (x-1)^(l+2) at -1 :
+		  pari = 1 ;
 		  for (int i=0; i<nr; i++) {
 		      systeme.set(ligne, colonne) 
 			  -= 4*alpha*pari*i*i*sol_hom_deux_eta(nzm1, k, j, i) ;
@@ -765,7 +767,7 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
 		      pari = -pari ;
 		  }
 		  ligne++ ;
-		  // ... and their couterparts for V^r
+		  // ... and their counterparts for V^r
 		  pari = 1 ;
 		  for (int i=0; i<nr; i++) {
 		      systeme.set(ligne, colonne) 
@@ -793,7 +795,7 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
 		cf_vr.set(0, k, j, i) = 0.;
 	      }
 
-	      for (zone=1 ; zone<nzm1 ; zone++) { //shells
+	      for (int zone=1 ; zone<nzm1 ; zone++) { //shells
 		  nr = mg.get_nr(zone) ;
 		  for (int i=0 ; i<nr ; i++) {
 		      cf_eta.set(zone, k, j, i) = 
@@ -825,7 +827,7 @@ void Vector::poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar 
   vr.set_spectral_va().ylm_i() ;
   vr += vrl0 ;
   het.set_spectral_va().ylm_i() ;
-  }
+
 
   
   Scalar pipo(*mpaff); 
