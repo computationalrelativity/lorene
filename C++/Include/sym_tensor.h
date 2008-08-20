@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.45  2008/08/20 14:39:53  n_vasset
+ * New Dirac solvers handling degenerate elliptic operators on excised spacetimes.
+ *
  * Revision 1.44  2007/12/21 16:06:16  j_novak
  * Methods to filter Tensor, Vector and Sym_tensor objects.
  *
@@ -386,19 +389,6 @@ class Sym_tensor : public Tensor_sym {
 
       
 
-	//  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        
-/* 	// To be changed: same equation as above, but with inner boundary conditions */
-/*         // on mu */
-
-
-/* 	void sol_Dirac_A2(const Scalar& aaa, Scalar& tilde_mu, Scalar& x_new, */
-/* 			  Scalar bound_mu, double dir, double neum, const Param* par_bc); */
-
-	//  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	
-
-	
     // Memory management
     // -----------------
     protected:
@@ -776,6 +766,8 @@ class Sym_tensor_trans: public Sym_tensor {
 	void sol_Dirac_l01(const Scalar& hh, Scalar& hrr, Scalar& tilde_eta,
 			   Param* par_mat) const ;
 
+
+
  public:
 
 
@@ -785,10 +777,18 @@ class Sym_tensor_trans: public Sym_tensor {
 	 */
 
 
-	void sol_Dirac_A2(const Scalar& aaa, Scalar& tilde_mu, Scalar& x_new,
-		 	  Scalar bound_mu, double dir, double neum, const Param* par_bc);
+	void sol_Dirac_Abound(const Scalar& aaa, Scalar& tilde_mu, Scalar& x_new,
+		 	  Scalar bound_mu, const Param* par_bc);
  
-       
+        
+	/** Same resolution as sol_Dirac_Abound, but here the boundary conditions
+	 * are the degenerate elliptic conditions encontered when solving the
+	 * Kerr problem.
+	 */
+
+
+	void sol_Dirac_A2(const Scalar& aaa, Scalar& tilde_mu, Scalar& x_new,
+		 	  Scalar bound_mu, const Param* par_bc);       
 
 	/** Same resolution as sol_Dirac_tilde_B, but with inner boundary conditions added.
          *  The difference is here, one has to put B and C values in (and not only  \f$\tilde{B}\f$).
@@ -798,10 +798,24 @@ class Sym_tensor_trans: public Sym_tensor {
  	void sol_Dirac_BC2(const Scalar& bb, const Scalar& cc, const Scalar& hh, 
 	 			Scalar& hrr, Scalar& tilde_eta, Scalar& ww, Scalar bound_eta,double dir, double neum, double rhor, Param* par_bc, Param* par_mat); 
  
-	 // To be changed: solvin' the electric system for l=0 and l=1 only (simpler case).
+
+	/** Same resolution as sol_Dirac_Abound, but here the boundary conditions
+	 * are the degenerate elliptic conditions encontered when solving the
+	 * Kerr problem.
+	 */
+
+ 	void sol_Dirac_BC3(const Scalar& bb, const Scalar& hh, 
+	 			Scalar& hrr, Scalar& tilde_eta, Scalar& ww, Scalar bound_hrr, Scalar bound_eta, Param* par_bc, Param* par_mat); 
+
+
+
+	 // Solving the electric system for l=0 and l=1 only (simpler case), with boundary conditions imposed by the degenerate elliptic system.
    
- 	void sol_Dirac_l01_2(const Scalar& hh, Scalar& hrr, Scalar& tilde_eta,
-		 	   Param* par_mat) ;
+ 	void sol_Dirac_l01_bound(const Scalar& hh, Scalar& hrr, Scalar& tilde_eta, Scalar& bound_hrr, Scalar& bound_eta, Param* par_mat) ;
+
+	// Provisory: just for compilation, to be removed
+ 	void sol_Dirac_l01_2(const Scalar& hh, Scalar& hrr, Scalar& tilde_eta, Param* par_mat) ;
+
 
         /** Finds spectral potentials A, B, C of solution of an tensorial TT elliptic equation, 
 	 *  given the source. 
