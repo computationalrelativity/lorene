@@ -28,6 +28,9 @@ char scalar_match_tau_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/08/20 13:23:43  j_novak
+ * The shift in quantum number l (e.g. for \tilde{B}) is now taken into account.
+ *
  * Revision 1.1  2008/05/24 15:05:22  j_novak
  * New method Scalar::match_tau to match the output of an explicit time-marching scheme with the tau method.
  *
@@ -65,13 +68,19 @@ void Scalar::match_tau(Param& par_bc, Param* par_mat) {
     int nz = mgrid.get_nzone() ;
     int nzm1 = nz - 1 ;
     bool ced = (mgrid.get_type_r(nzm1) == UNSURR) ;
-    assert(par_bc.get_n_int() == 2);
+    assert(par_bc.get_n_int() >= 2);
     int domain_bc = par_bc.get_int(0) ;
     bool bc_ced = ((ced) && (domain_bc == nzm1)) ;
 
     int n_conditions = par_bc.get_int(1) ;
     assert ((n_conditions==1)||(n_conditions==2)) ;
     bool derivative = (n_conditions == 2) ;
+    int dl = 0 ; int l_min = 0 ;
+    if (par_bc.get_n_int() > 2) {
+	assert(par_bc.get_n_int() == 4) ;
+	dl = par_bc.get_int(2) ;
+	l_min = par_bc.get_int(3) ;
+    }
     int nt = mgrid.get_nt(0) ;
     int np = mgrid.get_np(0) ;
     assert (par_bc.get_n_double_mod() == 2) ;
@@ -240,7 +249,8 @@ void Scalar::match_tau(Param& par_bc, Param* par_mat) {
     for (int k=0; k<np+2; k++) {
 	for (int j=0; j<nt; j++) {
 	    base.give_quant_numbers(0, k, j, m_q, l_q, base_r) ;//#0 here as domain index
-	    if (nullite_plm(j, nt, k, np, base) == 1) {
+	    if ((nullite_plm(j, nt, k, np, base) == 1)&&(l_q >= l_min)) {
+		l_q += dl ;
 		int sys_size = (l_q < 2 ? system01_size : system_size) ;
 		int nl = (l_q < 2 ? 1 : 2) ;
 		Tbl rhs(sys_size) ; rhs.annule_hard() ;
@@ -361,6 +371,11 @@ void Scalar::match_tau(Param& par_bc, Param* par_mat) {
 		    }
 		}
 	    } //End of nullite_plm
+	    else {
+		for (int lz=0; lz<=domain_bc; lz++) 
+		    for (int i=0; i<mgrid.get_nr(lz); i++) 
+			coef.set(lz, k, j, i) = 0 ;
+	    }
 	} //End of loop on j
     } //End of loop on k
 }
