@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.41  2008/08/20 11:51:25  n_vasset
+ * new functions to solve the Kerr problem, using degenerate elliptic operators
+ *
  * Revision 1.40  2008/08/19 06:41:59  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -281,8 +284,10 @@ class Cmp ;
 class Tenseur ;
 class Scalar ;
 class Tensor ;
+class Sym_tensor ;
 class Vector ;
 class Param_elliptic ;
+
 
 // Routines calcul de coefficients
 // -------------------------------
@@ -693,6 +698,26 @@ Mtbl_cf sol_dalembert(Param&, const Map_af&, const Mtbl_cf&) ;
 void runge_kutta3_wave_sys(double, const Scalar&, const Scalar&, Scalar& , Scalar&, int dl=0 ) ;
 void evolve_outgoing_BC(double, int, const Scalar&, Scalar&, Tbl&, Tbl&, Tbl&, int dl=0) ;
 void tilde_laplacian(const Scalar& B_in, Scalar& tilde_lap, int dl=-1) ;
+
+
+// Fonctions liees aux opérateurs elliptiques dégénérés: obtention d'espaces-temps de type Kerr
+
+
+ 
+void tensorelliptic ( Scalar source, Scalar& resu, double fitd1, double fit2d1, double fit0d2 = 0., double fit1d2 = 0., double fit0d3 = 0., double fit1d3 = 0.);
+ void tensorellipticBt ( Scalar source, Scalar& resu, double fitd1, double fit2d1, double fit0d2 = 0., double fit1d2 = 0., double fit0d3 = 0., double fit1d3 = 0.);
+void tensorellipticCt ( Scalar source, Scalar& resu, double fitd1, double fit2d1, double fit0d2, double fit1d2, double fit0d3, double fit1d3);
+
+
+ Sym_tensor secmembre_kerr ( const Sym_tensor& hij, const Sym_tensor& aa,const Scalar& nn,const Scalar& ppsi,const Vector& bb);
+
+ Sym_tensor boundfree_tensBC( Sym_tensor source, Vector Beta, Scalar Psi, Scalar Nn, Sym_tensor hij_guess, double precision = 1.e-9, int loopmax = 250) ;
+
+void get_kerr(double rot_par, Sym_tensor hij, Scalar nn, Scalar ppsi, Vector bb, double bound_n = 0.5, bool non_conf_flat = true, double precis = 5.e-10);
+
+// Fonctions diverses : 
+void c_est_pas_fait(char * ) ;
+
 
 // Trucs utilises pour poisson_compact :
 Matrice lap_cpt_mat(int, int, int) ;
