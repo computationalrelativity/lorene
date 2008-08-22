@@ -31,6 +31,10 @@ char rotstar_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2008/08/22 06:34:13  j_novak
+ * Now displaying \hat{A}^{ij} and \hat{A}^{ij}_{TT} (see paper by Cordero,
+ * Cerda, Dimmelmeier et al.).
+ *
  * Revision 1.5  2008/02/25 10:40:54  j_novak
  * Added the flag mer_hij to control the step from which the equation for h^{ij}
  * is being solved.
@@ -419,7 +423,7 @@ int main(){
 
 
     // Saveguard of the whole configuration
-	// ------------------------------------
+    // ------------------------------------
 
 	FILE* fresu = fopen("resu.d", "w") ;
 
@@ -429,8 +433,18 @@ int main(){
 	star.sauve(fresu) ;                         // writing of the star
 	
 	fclose(fresu) ;
-	
-	
+
+ 	Sym_tensor hat_aij = star.get_psi4()*star.get_psi2()*star.get_aa() ;
+	const Metric_flat& mets = mp.flat_met_spher() ;
+	cout << "Looking at \\hat{A}^{ij} and \\hat{A}^{ij}_{TT}: " << endl ;
+ 	Vector www = hat_aij.divergence(mets).poisson(1./3., 6) ;
+ 	Sym_tensor prueba = hat_aij - www.ope_killing_conf(mets) ;
+	Tbl maxa = maxabs(hat_aij, "Max \\hat{A}^ij") ;
+ 	Tbl maxb = maxabs(prueba, "Max. \\hat{A}^{ij}_{TT}: ") ;
+ 	Tbl maxh = maxabs(star.get_hh(), "Max. h^ij: ") ;
+	cout << "Max(A_TT)/Max(A): " << max(maxb)/max(maxa) <<endl ;
+	cout << "Max(h): " << max(maxh) <<endl ;
+
 
     // Drawings
     // --------
