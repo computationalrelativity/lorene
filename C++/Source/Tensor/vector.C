@@ -32,6 +32,9 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.27  2008/08/27 08:52:23  jl_cornou
+ * Added fonctions for angular potential A
+ *
  * Revision 1.26  2007/12/21 16:07:08  j_novak
  * Methods to filter Tensor, Vector and Sym_tensor objects.
  *
@@ -208,6 +211,7 @@ void Vector::del_deriv() const {
   for (int i=0; i<N_MET_MAX; i++) 
     del_derive_met(i) ;
   
+  if (p_A != 0x0) delete p_A ;
   if (p_eta != 0x0) delete p_eta ; 
   if (p_mu != 0x0) delete p_mu ; 
   set_der_0x0() ;
@@ -219,6 +223,7 @@ void Vector::set_der_0x0() const {
 
   for (int i=0; i<N_MET_MAX; i++) 
     set_der_met_0x0(i) ;
+  p_A = 0x0 ;
   p_eta = 0x0 ; 
   p_mu = 0x0 ; 
 

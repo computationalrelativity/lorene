@@ -32,6 +32,9 @@ char vector_etamu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/08/27 08:52:23  jl_cornou
+ * Added fonctions for angular potential A
+ *
  * Revision 1.1  2005/02/14 13:01:50  j_novak
  * p_eta and p_mu are members of the class Vector. Most of associated functions
  * have been moved from the class Vector_divfree to the class Vector.
@@ -112,6 +115,42 @@ const Scalar& Vector::mu() const {
 
 }
 
+			//-----------//
+			//    A      //
+			//-----------//
+
+const Scalar& Vector::A() const {
+	
+	
+	if (p_A == 0x0) {   // A new computation is necessary
+	
+		// All this has a meaning only for spherical components :
+#ifndef NDEBUG 
+	const Base_vect_spher* bvs = dynamic_cast<const Base_vect_spher*>(triad) ;
+	assert(bvs != 0x0) ; 
+#endif
+	
+	// p_eta doit être calculé
+	if (p_eta == 0x0) { Scalar etatmp = this->eta(); }
+
+	Scalar tmp = -*cmp[0] ;   // -V^r
+	tmp.div_r_dzpuis(2);		 // -V^r/r
+
+	Scalar eta_tilde = *p_eta ;
+	Scalar etad = eta_tilde.dsdr() ; 
+	eta_tilde.div_r_dzpuis(2);
+	etad.set_dzpuis(2);
+	tmp += etad + eta_tilde ; // d eta / dr + eta/r
+
+	p_A = new Scalar (tmp) ;
+	}
+	
+	return *p_A ;
+}
+	
+
+
+
 
 			//----------------//
 			//  update_vtvp   //
@@ -121,10 +160,10 @@ const Scalar& Vector::mu() const {
 void Vector::update_vtvp() {
 
     assert( (p_eta != 0x0) && (p_mu != 0x0) ) ; 
-    
+
     // V^theta :
     *cmp[1] = p_eta->dsdt() - p_mu->stdsdp() ; 
-    
+
     // V^phi : 
     *cmp[2] = p_eta->stdsdp() + p_mu->dsdt() ; 
     
