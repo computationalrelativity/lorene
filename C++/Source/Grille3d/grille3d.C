@@ -31,6 +31,9 @@ char grille3d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2008/08/27 08:47:38  jl_cornou
+ * Added R_JACO02 case
+ *
  * Revision 1.5  2008/01/09 14:04:03  j_novak
  * Initialization of xx
  *
@@ -634,18 +637,21 @@ Grille3d_fj::Grille3d_fj(int nrs, int nts, int nps)
     assert(nps != 1) ;	// ??
 
     double xx ;
-    double* yy ;
 
       type_r = FINJAC ; 	// echantillonnage radial fin avec Jacobi     
       type_t = NONSYM ;  	// echantillonnage en theta sur [0, pi] 
       type_p = NONSYM ;  	// echantillonnage en phi sur [0, 2 pi[
 
     // Partie radiale
-      yy = 0;
-      if (nr>1) { yy = pointsgausslobatto(nr-1); }
-      for (int i=0 ; i<nr ; i++) {
-    	x[i] = yy[i] ;
-    }
+     if (nr > 1) {
+	double* yy = pointsgausslobatto(nr-1); 
+        for (int i=0 ; i<nr ; i++) {
+		x[i] = yy[i] ;
+		}
+	delete [] yy ;
+	}
+    else 
+	x[0]=0;
 
     // Partie en theta
     if (nt > 1) 
@@ -679,19 +685,22 @@ Grille3d_fjeq::Grille3d_fjeq(int nrs, int nts, int nps)
 {
 
     double xx ;
-    double* yy ;
-    
+        
 
     type_r = FINJAC ;	// echantillonnage radial fin avec Jacobi   
     type_t = SYM ;	// echantillonnage en theta sur [0, pi/2] 
     type_p = NONSYM ;	// echantillonnage en phi sur [0, 2 pi[
 
     // Partie radiale
-    yy = 0 ;
-    if (nr>1) yy = pointsgausslobatto(nr-1);
-      for (int i=0 ; i<nr ; i++) {
-    	x[i] = yy[i] ;
-    }
+    if (nr > 1) {
+	double* yy = pointsgausslobatto(nr-1); 
+        for (int i=0 ; i<nr ; i++) {
+		x[i] = yy[i] ;
+		}
+	delete [] yy ;
+	}
+    else 
+	x[0]=0;
     // Partie en theta
     if (nt > 1) 
 	xx = M_PI/double(2*(nt-1)) ;
@@ -723,7 +732,6 @@ Grille3d_fj2p::Grille3d_fj2p(int nrs, int nts, int nps)
     : Grille3d(nrs, nts, nps)
 {
 
-    double* yy ;
     double xx ;
 
     type_r = FINJAC ;	// echantillonnage radial fin avec Jacobi   
@@ -731,11 +739,15 @@ Grille3d_fj2p::Grille3d_fj2p(int nrs, int nts, int nps)
     type_p = SYM ;	// echantillonnage en phi sur [0,pi[
 
     // Partie radiale
-    yy = 0 ;
-    if (nr>1) { yy = pointsgausslobatto(nr-1); }
-      for (int i=0 ; i<nr ; i++) {
-    	x[i] = yy[i] ;
-    }
+    if (nr > 1) {
+	double* yy = pointsgausslobatto(nr-1); 
+        for (int i=0 ; i<nr ; i++) {
+		x[i] = yy[i] ;
+		}
+	delete [] yy ;
+	}
+    else 
+	x[0]=0;
     // Partie en theta
     if (nt > 1) 
 	xx = M_PI/double(nt-1) ;
@@ -768,18 +780,23 @@ Grille3d_fjs::Grille3d_fjs(int nrs, int nts, int nps)
 {
 
     double xx ;
-    double* yy ;
-
+    
     type_r = FINJAC ;	// echantillonnage radial fin avec Jacobi   
     type_t = SYM ;	// echantillonnage en theta sur [0,pi/2] 
     type_p = SYM ;	// echantillonnage en phi sur [0,pi[
 
     // Partie radiale
-    yy = 0 ;
-    if (nr>1) { yy = pointsgausslobatto(nr-1); }
-      for (int i=0 ; i<nr ; i++) {
-    	x[i] = yy[i] ;
-    }
+    
+    
+    if (nr > 1) {
+	double* yy = pointsgausslobatto(nr-1); 
+        for (int i=0 ; i<nr ; i++) {
+		x[i] = yy[i] ;
+		}
+	delete [] yy ;
+	}
+    else 
+	x[0]=0;
     // Partie en theta
     if (nt > 1) 
 	xx = M_PI/double(2*(nt-1)) ;

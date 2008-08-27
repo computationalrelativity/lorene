@@ -32,6 +32,9 @@ char et_rot_lambda_grv2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2008/08/27 08:47:17  jl_cornou
+ * Added R_JACO02 case
+ *
  * Revision 1.3  2003/10/27 10:53:16  e_gourgoulhon
  * Changed variable name mp --> mprad in order not to shadow member mp.
  *
@@ -103,6 +106,14 @@ double Etoile_rot::lambda_grv2(const Cmp& sou_m, const Cmp& sou_q) {
 				mpaff.set_beta( double(.5) * (rmax + rmin), l) ;
 				break ;
 	    	}
+
+	    	case FINJAC:	{
+				double rmin = mprad->val_r(l, double(-1), theta0, phi0) ;
+				mpaff.set_alpha( double(.5) * (rmax - rmin), l ) ;
+				mpaff.set_beta( double(.5) * (rmax + rmin), l) ;
+				break ;
+	    	}
+
 	
 	    	case UNSURR: {
 				double rmin = mprad->val_r(l, double(-1), theta0, phi0) ;
@@ -157,6 +168,26 @@ double Etoile_rot::lambda_grv2(const Cmp& sou_m, const Cmp& sou_q) {
 				
 				break ;
 	    	}
+
+	    	case FINJAC:	{
+				double a1 = mpaff.get_alpha()[l] ;
+				double b1 = mpaff.get_beta()[l] ;
+				assert( jac.t[l]->get_etat() == ETATQCQ ) ;
+				double* tjac = jac.t[l]->t ;
+				double* const xi = mg->get_grille3d(l)->x ;
+				for (int k=0; k<mg->get_np(l); k++) {
+					for (int j=0; j<mg->get_nt(l); j++) {
+						for (int i=0; i<mg->get_nr(l); i++) {
+							*tjac = *tjac /
+									(a1 * (a1 * xi[i] + b1) ) ;
+							tjac++ ; 	
+						}
+					}
+				}				
+				
+				break ;
+	    	}
+
 	
 	    	case UNSURR: {
 	    		double a1 = mpaff.get_alpha()[l] ;

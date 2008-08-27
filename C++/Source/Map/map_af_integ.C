@@ -30,6 +30,9 @@ char map_af_integ_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2008/08/27 08:48:05  jl_cornou
+ * Added R_JACO02 case
+ *
  * Revision 1.5  2007/10/05 15:56:19  j_novak
  * Addition of new bases for the non-symmetric case in theta.
  *
@@ -229,6 +232,38 @@ Tbl* Map_af::integrale(const Cmp& ci) const {
 		double a = alpha[l] ;
 		double b = beta[l] ;
 		som = a*a*a * som_x2 + 2.*a*a*b * som_x + a*b*b * som_c ;
+		break ;
+	    }
+
+	    case R_JACO02: {
+		if (nr > nr_f_pre) {  // Initialization of factors for summation
+		    nr_f_pre = nr ;
+		    cx_rf_x2 = static_cast<double*>(realloc(cx_rf_x2, nr*sizeof(double))) ;
+		    cx_rf_x  = static_cast<double*>(realloc(cx_rf_x, nr*sizeof(double))) ;
+		    cx_rf    = static_cast<double*>(realloc(cx_rf, nr*sizeof(double))) ;
+		    double signe = 1 ;
+		    for (int i=0 ; i<nr ; i +=1 ) {
+			cx_rf_x2[i] = 0 ;
+			cx_rf_x[i] = 2*signe/double(i+1)/double(i+2);
+			cx_rf[i] = 2*signe ;
+			signe = - signe ;
+		    }
+			cx_rf_x2[0] = double(8)/double(3) ;
+		}
+	    
+		for (int i=0 ; i<nr ; i +=1 ) {
+		    som_x2 += cx_rf_x2[i] * s_tr[i] ;
+		}
+		for (int i=1 ; i<nr ; i +=1 ) {
+		    som_x += cx_rf_x[i] * s_tr[i] ;
+		}
+		for (int i=0 ; i<nr ; i +=1 ) {
+		    som_c += cx_rf[i] * s_tr[i] ;
+		}
+		double a = alpha[l] ;
+		double b = beta[l] ;
+		assert(b == a) ;
+		som = a*a*a * som_x2 + 2.*a*a*(b-a) * som_x + a*(b-a)*(b-a) * som_c ;
 		break ;
 	    }
 	    

@@ -25,6 +25,9 @@ char map_et_fait_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2008/08/27 08:48:42  jl_cornou
+ * Added R_JACO02 case
+ *
  * Revision 1.3  2003/10/15 10:38:47  e_gourgoulhon
  * Changed cast (const Map_et*) into static_cast<const Map_et*>.
  *
@@ -89,7 +92,7 @@ Mtbl* map_et_fait_r(const Map* cvi) {
 	
 	switch(mg->get_type_r(l)) {
 
-	    case FIN: case RARE: {
+	    case FIN: case RARE: case FINJAC: {
 
 	    for (int k=0 ; k<np ; k++) {
 		for (int j=0 ; j<nt ; j++) {
@@ -530,6 +533,21 @@ Mtbl* map_et_fait_xsr(const Map* cvi) {
 		}	// Fin de boucle sur theta
 	    }	    // Fin de boucle sur phi
 	    break ; 
+	    }
+
+	    case FINJAC: {
+	    for (int k=0 ; k<np ; k++) {
+		for (int j=0 ; j<nt ; j++) {
+		    for (int i=0 ; i<nr ; i++) {
+			*p_r = 1. / ( alpha[l] * ( (g->x)[i] 
+						    + aa(i) * ff(l, k, j, 0)
+						    + bb(i) * gg(l, k, j, 0)
+						) + beta[l] );
+			p_r++ ;
+		    }	    // Fin de boucle sur r
+		}	// Fin de boucle sur theta
+	    }	    // Fin de boucle sur phi
+	    break ;
 	    }
 	    
 	    case FIN: {
