@@ -30,6 +30,9 @@ char sol_Dirac_A_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.2  2008/08/27 10:55:15  jl_cornou
+ * Added the case of one zone, which is a nucleus for BC
+ *
  * Revision 1.1  2008/08/27 09:01:27  jl_cornou
  * Methods for solving Dirac systems for divergence free vectors
  *
@@ -440,6 +443,25 @@ void Vector_divfree::sol_Dirac_A(const Scalar& aaa, Scalar& tilde_vr, Scalar& ti
 		systeme.annule_hard() ;
 		sec_membre.annule_hard() ;
 
+
+		if ((nz==1)&&(mgrid.get_type_r(0) == RARE)) {
+		// Only one zone, which is a nucleus
+		int nr = mgrid.get_nr(0);
+		double alpha = mp_aff->get_alpha()[nz_bc] ;
+		systeme.set(ligne, colonne) = 
+		    c_vr*sol_hom2_vr.val_out_bound_jk(nz_bc, j, k) 
+		    + d_vr*dhom2_vr.val_out_bound_jk(nz_bc, j, k) / alpha 
+		    + c_eta*sol_hom2_eta.val_out_bound_jk(nz_bc, j, k) 
+		    + d_eta*dhom2_eta.val_out_bound_jk(nz_bc, j, k) / alpha ;
+		
+		sec_membre.set(ligne) -= c_vr*sol_part_vr.val_out_bound_jk(nz_bc, j, k) 
+		    + d_vr*dpart_vr.val_out_bound_jk(nz_bc, j, k)/alpha
+		    + c_eta*sol_part_eta.val_out_bound_jk(nz_bc, j, k) 
+		    + d_eta*dpart_eta.val_out_bound_jk(nz_bc, j, k)/alpha
+		    - mub(k, j) ;
+		}
+		else {
+		// General case, two zones at least
 		//Nucleus 
 		int nr = mgrid.get_nr(0) ;
 		
@@ -532,10 +554,7 @@ void Vector_divfree::sol_Dirac_A(const Scalar& aaa, Scalar& tilde_vr, Scalar& ti
 		    + d_eta*dpart_eta.val_out_bound_jk(nz_bc, j, k)/alpha
 		    - mub(k, j) ;
 		}
-
-		if ((j==1)&&(k==3)) 
-		cout << "mub(3,1) = " << mub(k,j) << endl ;
-		
+		}
 
 		// Solution of the system giving the coefficients for the homogeneous 
 		// solutions
@@ -547,7 +566,7 @@ void Vector_divfree::sol_Dirac_A(const Scalar& aaa, Scalar& tilde_vr, Scalar& ti
 		
 		// everything is put to the right place...
 		//----------------------------------------
- 		nr = mgrid.get_nr(0) ; //nucleus
+ 		int nr = mgrid.get_nr(0) ; //nucleus
  		for (int i=0 ; i<nr ; i++) {
 		    mvr.set(0, k, j, i) = sol_part_vr(0, k, j, i)
 			+ facteur(conte)*sol_hom2_vr(0, k, j, i) ;
