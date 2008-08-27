@@ -25,6 +25,9 @@ char map_af_dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2008/08/27 08:55:31  jl_cornou
+ * Added R_JACO02 case
+ *
  * Revision 1.15  2007/11/06 14:42:20  j_novak
  * Copy of field at previous time-steps to local variables to deal with the
  * dzpuis.
@@ -110,7 +113,8 @@ char map_af_dalembert_C[] = "$Header$" ;
 
 void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar& fjm1,
 		       const Scalar& source) const {
-    
+
+
     assert(source.get_etat() != ETATNONDEF) ; 
     assert(source.get_mp().get_mg() == mg) ; 
     assert(fj.get_etat() != ETATNONDEF) ; 
@@ -201,7 +205,7 @@ void Map_af::dalembert(Param& par, Scalar& fjp1, const Scalar& fj, const Scalar&
 	double rm1 = erre(lz, 0, 0, 0) ;
 	double x1 = xmetr.val_grid_point(lz, 0, 0, nr-1) ;
 	double xm1 = xmetr.val_grid_point(lz, 0, 0, 0) ;
-
+	
 	if (mg->get_type_r(lz) == RARE) { //In the nucleus, no a2*r
       	  a1.set(lz) = xm1 ;
     	  a2.set(lz) = 0 ;
