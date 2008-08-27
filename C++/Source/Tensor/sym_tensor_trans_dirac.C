@@ -30,6 +30,10 @@ char sym_tensor_trans_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2008/08/27 08:13:20  j_novak
+ * Correction of a mistake in the imposition of BCs in sol_Dirac_A. + Treatment of
+ * the case of BCs imposed on a nucleus (nz_bc = 0).
+ *
  * Revision 1.2  2006/10/24 13:03:19  j_novak
  * New methods for the solution of the tensor wave equation. Perhaps, first
  * operational version...
@@ -353,6 +357,10 @@ void Sym_tensor_trans::sol_Dirac_A(const Scalar& aaa, Scalar& tilde_mu, Scalar& 
     }
     }
 
+    //---------------------------------------------------------------
+    // Matching of the solutions across the domains and imposition of 
+    // boundary conditions (if no compactified domain)
+    //---------------------------------------------------------------
     int taille = 2*nz_bc + 1;
     if (cedbc) taille-- ;
     Mtbl_cf& mmu = *tilde_mu.set_spectral_va().c_cf ;
@@ -396,14 +404,15 @@ void Sym_tensor_trans::sol_Dirac_A(const Scalar& aaa, Scalar& tilde_mu, Scalar& 
 		//Nucleus 
 		int nr = mgrid.get_nr(0) ;
 		
-		systeme.set(ligne, colonne) = sol_hom2_mu.val_out_bound_jk(0, j, k) ;
-		sec_membre.set(ligne) = -sol_part_mu.val_out_bound_jk(0, j, k) ;
-		ligne++ ;
-
-		systeme.set(ligne, colonne) = sol_hom2_x.val_out_bound_jk(0, j, k) ;
-		sec_membre.set(ligne) = -sol_part_x.val_out_bound_jk(0, j, k) ;
-		colonne++ ;
-
+		if (nz_bc >0) {
+		    systeme.set(ligne, colonne) = sol_hom2_mu.val_out_bound_jk(0, j, k) ;
+		    sec_membre.set(ligne) = -sol_part_mu.val_out_bound_jk(0, j, k) ;
+		    ligne++ ;
+		    
+		    systeme.set(ligne, colonne) = sol_hom2_x.val_out_bound_jk(0, j, k) ;
+		    sec_membre.set(ligne) = -sol_part_x.val_out_bound_jk(0, j, k) ;
+		    colonne++ ;
+		}
 		//shells
 		for (int zone=1 ; zone<nz_bc ; zone++) {
 		    nr = mgrid.get_nr(zone) ;
@@ -448,31 +457,38 @@ void Sym_tensor_trans::sol_Dirac_A(const Scalar& aaa, Scalar& tilde_mu, Scalar& 
 		//Last  domain	 
 		nr = mgrid.get_nr(nz_bc) ;
 		double alpha = mp_aff->get_alpha()[nz_bc] ;
-		ligne-- ;
+		if (nz_bc>0) {
+		    ligne-- ;
 		    
-		//Condition at x = -1
-		systeme.set(ligne, colonne) = 
-		    - sol_hom1_mu.val_in_bound_jk(nz_bc, j, k) ;
-		if (!cedbc) systeme.set(ligne, colonne+1) = 
-				- sol_hom2_mu.val_in_bound_jk(nz_bc, j, k) ;
-		
-		sec_membre.set(ligne) += sol_part_mu.val_in_bound_jk(nz_bc, j, k) ;
-		ligne++ ;
+		    //Condition at x = -1
+		    systeme.set(ligne, colonne) = 
+			- sol_hom1_mu.val_in_bound_jk(nz_bc, j, k) ;
+		    if (!cedbc) systeme.set(ligne, colonne+1) = 
+				    - sol_hom2_mu.val_in_bound_jk(nz_bc, j, k) ;
 		    
-		systeme.set(ligne, colonne) = 
-		    - sol_hom1_x.val_in_bound_jk(nz_bc, j, k) ;
-		if (!cedbc) systeme.set(ligne, colonne+1) = 
-				- sol_hom2_x.val_in_bound_jk(nz_bc, j, k) ;
+		    sec_membre.set(ligne) += sol_part_mu.val_in_bound_jk(nz_bc, j, k) ;
+		    ligne++ ;
 		    
-		sec_membre.set(ligne) += sol_part_x.val_in_bound_jk(nz_bc, j, k) ;
-		ligne++ ;
-
+		    systeme.set(ligne, colonne) = 
+			- sol_hom1_x.val_in_bound_jk(nz_bc, j, k) ;
+		    if (!cedbc) systeme.set(ligne, colonne+1) = 
+				    - sol_hom2_x.val_in_bound_jk(nz_bc, j, k) ;
+		    
+		    sec_membre.set(ligne) += sol_part_x.val_in_bound_jk(nz_bc, j, k) ;
+		    ligne++ ;
+		}
 		if (!cedbc) {// Special condition at x=1
+		    if (nz_bc>0) {
 		systeme.set(ligne, colonne) = 
 		    c_mu*sol_hom1_mu.val_out_bound_jk(nz_bc, j, k) 
 		    + d_mu*dhom1_mu.val_out_bound_jk(nz_bc, j, k) / alpha 
 		    + c_x*sol_hom1_x.val_out_bound_jk(nz_bc, j, k) 
 		    + d_x*dhom1_x.val_out_bound_jk(nz_bc, j, k) / alpha ;
+		    }
+		    else {
+			assert(ligne == 0) ;
+			colonne = -1 ;
+		    }
 		systeme.set(ligne, colonne+1) = 
 		    c_mu*sol_hom2_mu.val_out_bound_jk(nz_bc, j, k) 
 		    + d_mu*dhom2_mu.val_out_bound_jk(nz_bc, j, k) / alpha
@@ -481,8 +497,8 @@ void Sym_tensor_trans::sol_Dirac_A(const Scalar& aaa, Scalar& tilde_mu, Scalar& 
 
 		sec_membre.set(ligne) -= c_mu*sol_part_mu.val_out_bound_jk(nz_bc, j, k) 
 		    + d_mu*dpart_mu.val_out_bound_jk(nz_bc, j, k)/alpha
-		    + c_x*sol_part_mu.val_out_bound_jk(nz_bc, j, k) 
-		    + d_x*dpart_mu.val_out_bound_jk(nz_bc, j, k)/alpha
+		    + c_x*sol_part_x.val_out_bound_jk(nz_bc, j, k) 
+		    + d_x*dpart_x.val_out_bound_jk(nz_bc, j, k)/alpha
 		    - mub(k, j) ;
 		}
 
@@ -1166,7 +1182,7 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
 
 		//Nucleus 
 		int nr = mgrid.get_nr(0) ;
-		
+		if (nz_bc >0 ) {
 		systeme.set(ligne, colonne) = sol_hom3_hrr.val_out_bound_jk(0, j, k) ;
 		sec_membre.set(ligne) = -sol_part_hrr.val_out_bound_jk(0, j, k) ;
 		ligne++ ;
@@ -1178,7 +1194,7 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
 		systeme.set(ligne, colonne) = sol_hom3_w.val_out_bound_jk(0, j, k) ;
 		sec_membre.set(ligne) = -sol_part_w.val_out_bound_jk(0, j, k) ;
 		colonne++ ;
-
+		}
 		//shells
 		for (int zone=1 ; zone<nz_bc ; zone++) {
 		    nr = mgrid.get_nr(zone) ;
@@ -1251,6 +1267,7 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
 		//Last domain
 		nr = mgrid.get_nr(nz_bc) ;
 		double alpha = mp_aff->get_alpha()[nz_bc] ;
+		if (nz_bc>0) {
 		ligne -= 2 ;
 
 		//Condition at x = -1
@@ -1283,8 +1300,9 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
 		
 		sec_membre.set(ligne) += sol_part_w.val_in_bound_jk(nz_bc, j, k) ;
 		ligne++ ;
-
+		}
 		if (!cedbc) {//Special condition at x=1
+		    if (nz_bc > 0) {
 		systeme.set(ligne, colonne) = 
 		    chrr*sol_hom1_hrr.val_out_bound_jk(nz_bc, j, k) 
 		    + dhrr*dhom1_hrr.val_out_bound_jk(nz_bc, j, k) / alpha 
@@ -1299,6 +1317,11 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
 		    + deta*dhom2_eta.val_out_bound_jk(nz_bc, j, k) / alpha 
 		    + cw*sol_hom2_w.val_out_bound_jk(nz_bc, j, k) 
 		    + dw*dhom2_w.val_out_bound_jk(nz_bc, j, k) / alpha ;
+		    }
+		else { // Only nucleus
+		    assert(ligne == 0) ;
+		    colonne = -2 ;
+		}
 		systeme.set(ligne, colonne+2) = 
 		    chrr*sol_hom3_hrr.val_out_bound_jk(nz_bc, j, k) 
 		    + dhrr*dhom3_hrr.val_out_bound_jk(nz_bc, j, k) / alpha 
