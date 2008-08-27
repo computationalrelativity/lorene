@@ -34,6 +34,9 @@ char valeur_d2sdx2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2008/08/27 08:52:55  jl_cornou
+ * Added Jacobi(0,2) polynomials case
+ *
  * Revision 1.2  2004/11/23 15:17:19  m_forot
  * Added the bases for the cases without any equatorial symmetry
  *  (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
@@ -90,6 +93,7 @@ void _d2sdx2_r_chebpim_p(Tbl *, int &) ;
 void _d2sdx2_r_chebpim_i(Tbl *, int &) ;
 void _d2sdx2_r_chebpi_p(Tbl *, int &) ;
 void _d2sdx2_r_chebpi_i(Tbl *, int &) ;
+void _d2sdx2_r_jaco02(Tbl *, int &) ;
 
 // Version membre d'un Valeur
 // --------------------------
@@ -156,6 +160,7 @@ static int nap = 0 ;
 	_d2sdx2[R_CHEBPIM_I >> TRA_R] = _d2sdx2_r_chebpim_i ;
 	_d2sdx2[R_CHEBPI_P >> TRA_R] = _d2sdx2_r_chebpi_p ;
 	_d2sdx2[R_CHEBPI_I >> TRA_R] = _d2sdx2_r_chebpi_i ;
+	_d2sdx2[R_JACO02 >> TRA_R] = _d2sdx2_r_jaco02 ;
     }
 
     //- Debut de la routine -

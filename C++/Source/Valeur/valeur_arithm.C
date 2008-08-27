@@ -33,6 +33,9 @@ char valeur_arithm_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2008/08/27 08:52:55  jl_cornou
+ * Added Jacobi(0,2) polynomials case
+ *
  * Revision 1.4  2005/11/17 15:19:23  e_gourgoulhon
  * Added Valeur + Mtbl and Valeur - Mtbl.
  *
@@ -1011,7 +1014,7 @@ Valeur operator%(const Valeur& t1, const Valeur& t2)
     const Mg3d& mg = *(t1.get_mg()) ; 
 
     // Grid with twice the number of points in each dimension:
-    const Mg3d& mg2 = *(mg.get_twice()) ; 
+    const Mg3d& mg2 = *(mg.get_twice()) ;  
     
     // The coefficients are required
     if (t1.c_cf == 0x0) {
@@ -1153,6 +1156,7 @@ Valeur operator%(const Valeur& t1, const Valeur& t2)
     tt1 = cc1 ; 
     tt2 = cc2 ; 
     
+
     // Multiplication (in the configuration space) on the large grids
     // --------------------------------------------------------------
     
