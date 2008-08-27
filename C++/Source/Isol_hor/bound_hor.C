@@ -31,6 +31,9 @@ char bound_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.34  2008/08/27 11:22:25  j_novak
+ * Minor modifications
+ *
  * Revision 1.33  2008/08/19 06:42:00  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -1472,6 +1475,8 @@ const Vector Isol_hor::vv_bound_cart_bin(double, int ) const{
   
   return tmp_vect ;
   */
+    Vector pipo(mp, CON, mp.get_bvect_cart()) ;
+    return pipo ;
 }
 
 

@@ -25,6 +25,9 @@ char op_mult_x_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2008/08/27 11:22:25  j_novak
+ * Minor modifications
+ *
  * Revision 1.3  2008/08/27 08:50:10  jl_cornou
  * Added Jacobi(0,2) polynomials
  *
@@ -588,7 +591,7 @@ void _mult_x_r_chebpi_i(Tbl* tb, int& base)
 			// cas R_JACO02 -
 			//---------------
 
-void _mult_x_r_jaco02(Tbl* tb, int& base)
+void _mult_x_r_jaco02(Tbl* tb, int&)
     {
     // Peut-etre rien a faire ?
     if (tb->get_etat() == ETATZERO) {
