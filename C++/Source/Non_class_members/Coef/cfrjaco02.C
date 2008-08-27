@@ -165,8 +165,7 @@ int i, j, k ;
 	    i0 = n2n3c * j + n3c * k ; // indice de depart 
 	    double* cf0 = cf + i0 ;    // tableau resultat
 
-	    double* aa = new double[nr];
-	    aa = coeffjaco(nm1,ff0) ;
+	    double* aa = coeffjaco(nm1,ff0) ;
 	    for ( i = 0; i < nr ; i++ ) {
 	      cf0[i] = aa[i];
 	    }   // fin de la boucle sur r

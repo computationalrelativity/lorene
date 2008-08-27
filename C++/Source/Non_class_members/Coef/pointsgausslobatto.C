@@ -68,6 +68,7 @@ double* pointsgausslobatto(int n) {
     }
     pointsgl[l+1] = xx[nmax-1] ;
   }
+  delete [] xx ;
   
   pointsgl[n] = 1 ;
 	
