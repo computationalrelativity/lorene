@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.39  2008/08/27 08:45:21  jl_cornou
+ * Implemented routines to solve dirac systems for divergence-free vectors
+ *
  * Revision 1.38  2007/12/21 16:06:16  j_novak
  * Methods to filter Tensor, Vector and Sym_tensor objects.
  *
@@ -217,7 +220,15 @@ class Vector: public Tensor {
 	 * \f] 
 	 */
 	mutable Scalar* p_mu ;
-	
+
+	/** Field \f$A\f$ defined by 
+	 * \f[ 
+	 *     A = {\partial \eta \over \ partial r} + { \eta \over r} - {V^r \over r}
+	 *  \f]
+	 * Insensitive to the longitudinal part of the vector, related to the curl.
+	 */
+	mutable Scalar* p_A ;
+ 	
    // Constructors - Destructor
     // -------------------------
     public:
@@ -428,6 +439,16 @@ class Vector: public Tensor {
 	 * \f] 
 	 */
 	virtual const Scalar& mu() const ;
+
+
+	/** Gives the field \f$A\f$ defined by 
+	 * \f[ 
+	 *     A = {\partial \eta \over \ partial r} + { \eta \over r} - {V^r \over r}
+	 *  \f]
+	 *  Related to the curl, A is insensitive to the longitudinal part of the vector.
+	 */
+	virtual const Scalar& A() const ;
+
 	
 	/** Computes the components \f$V^\theta\f$ and \f$V^\varphi\f$ from the
 	 *  potential \f$\eta\f$ and  \f$\mu\f$, according to:
@@ -442,6 +463,7 @@ class Vector: public Tensor {
 	 * \f] 
 	 */
 	void update_vtvp() ;
+
 	
     // Differential operators/ PDE solvers
     // -----------------------------------
@@ -745,7 +767,25 @@ class Vector_divfree: public Vector {
 	 */
 	void set_vr_mu(const Scalar& vr_i, const Scalar& mu_i) ; 
 	
+	/** Defines the components through \f$V_r\f$, \f$\eta\f$ and \f$\mu\f$.
+	 * (see members \c p_eta and \c p_mu ),
+	 *
+	 *	@param vr_i [input] r-component of the vector 
+	 *	@param eta_i [input] Angular potential \f$\eta\f$
+	 * 	@param mu_i [input] Angular potential \f$\mu\f$
+	 *
+	 */
+	void set_vr_eta_mu(const Scalar& vr_i, const Scalar& eta_i, const Scalar& mu_i) ;
 
+	/** Defines the components through potentials \f$A\f$ and \f$\mu\f$.
+	 * (see members \c p_A and \c p_mu ),
+	 * 
+	 *	@param A_i [input] Angular potential \f$A\f$
+	 * 	@param mu_i [input] Angular potential \f$\mu\f$
+	 *
+	 */
+	void set_A_mu(const Scalar& A_i, const Scalar& mu_i, const Param* par_bc) ;	
+	
 	// Computational methods
 	// ---------------------
 	public:
@@ -773,6 +813,19 @@ class Vector_divfree: public Vector {
 	 *	condition \f$\vec{W}=0\f$ at spatial infinity.
 	 */
 	Vector_divfree poisson() const ; 
+
+	/** Computes the components \f$V^r\f$ and \f$\eta\f$ from the potential
+	 *  A and the divergence-free condition, according to : 
+	 * \f[ 
+	 *      {\partial \eta \over \ partial r} + { \eta \over r} 
+	 *						- {V^r \over r} = A
+	 * \f]
+	 * \f[
+	 * 	{\partial V^r \over \partial r} + {2 V^r \over r} 
+	 * 		+ {1 \over r} \Delta_{\vartheta \varphi} \eta = 0
+	 * \f]
+	 */
+	void update_etavr() ;
 	
 	/** Computes the solution of a vectorial Poisson equation
 	 *  with \c *this  \f$= \vec{V}\f$ as a source:
@@ -784,6 +837,63 @@ class Vector_divfree: public Vector {
 	 *	condition \f$\vec{W}=0\f$ at spatial infinity.
 	 */
 	Vector_divfree poisson(Param& par) const ; 
+	protected:
+	
+	/** Solves a system of two-coupled first-order PDEs obtained from the 
+	 *  divergence-free condition and the requirement that the potential A 
+	 *  has a given value. The system reads : 
+	 * \f[ 
+	 *     {\partial \eta \over \partial r} + {\eta \over r} - {V^r \over r} = A
+	 * \f]
+	 * \f[ 
+	 *     {\partial V^r \over \partial r} + {2 V^r \over r} 
+	 * 		+ {1 \over r}\Delta_{\vartheta \varphi}\eta = 0
+	 * \f]
+	 */
+	void sol_Dirac_A(const Scalar& aaa, Scalar& eta, Scalar& vr,
+              const Param* par_bc = 0x0) const ;	
+
+	/** Solves via a tau method a system of two-coupled first-order PDEs 
+	 *  obtained from the divergence-free condition and the requirement
+	 *  that the potential A has a given value. The system reads : 
+	 * \f[ 
+	 *     {\partial \eta \over \partial r} + {\eta \over r} - {V^r \over r} = A
+	 * \f]
+	 * \f[ 
+	 *     {\partial V^r \over \partial r} + {2 V^r \over r} 
+	 * 		+ {1 \over r}\Delta_{\vartheta \varphi}\eta = 0
+	 * \f]
+	 */
+	void sol_Dirac_A_tau(const Scalar& aaa, Scalar& eta, Scalar& vr,
+              const Param* par_bc = 0x0) const ;
+
+       /** Solves via a poisson method a system of two-coupled first-order PDEs 
+	 *  obtained from the divergence-free condition and the requirement
+	 *  that the potential A has a given value. The system reads : 
+	 * \f[ 
+	 *     {\partial \eta \over \partial r} + {\eta \over r} - {V^r \over r} = A
+	 * \f]
+	 * \f[ 
+	 *     {\partial V^r \over \partial r} + {2 V^r \over r} 
+	 * 		+ {1 \over r}\Delta_{\vartheta \varphi}\eta = 0
+	 * \f]
+	 */
+	void sol_Dirac_A_poisson(const Scalar& aaa, Scalar& eta, Scalar& vr,
+              const Param* par_bc = 0x0) const ;
+
+	/** Solves a one-domain system of two-coupled first-order PDEs obtained from the 
+	 *  divergence-free condition and the requirement that the potential A 
+	 *  has a given value. The system reads : 
+	 * \f[ 
+	 *     {\partial \eta \over \partial r} + {\eta \over r} - {V^r \over r} = A
+	 * \f]
+	 * \f[ 
+	 *     {\partial V^r \over \partial r} + {2 V^r \over r} 
+	 * 		+ {1 \over r}\Delta_{\vartheta \varphi}\eta = 0
+	 * \f]
+	 */
+	void sol_Dirac_A_1z(const Scalar& aaa, Scalar& eta, Scalar& vr,
+              const Param* par_bc = 0x0) const ;	
 	
 };
 
