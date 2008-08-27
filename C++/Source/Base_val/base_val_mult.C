@@ -27,6 +27,9 @@ char base_val_mult_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2008/08/27 08:46:30  jl_cornou
+ * Added R_JACO02 base (Jacobi(0,2) polynomials)
+ *
  * Revision 1.5  2004/11/23 15:08:00  m_forot
  * Added the bases for the cases without any equatorial symmetry
  * (T_COSSIN_C, T_COSSIN_S, T_LEG, R_CHEBPI_P, R_CHEBPI_I).
@@ -463,6 +466,18 @@ Base_val operator* (const Base_val& b1, const Base_val& b2) {
 		switch (b2_r) {
 		    case R_CHEB :
 			base = base | R_CHEB ;
+			indic_r = 1 ;
+			break ;
+		    
+		    default :
+			break ;
+		}
+		break ;
+
+	    case R_JACO02 :
+		switch (b2_r) {
+		    case R_JACO02 :
+			base = base | R_JACO02 ;
 			indic_r = 1 ;
 			break ;
 		    
