@@ -28,6 +28,9 @@ char wave_utilities_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2008/08/27 08:11:47  j_novak
+ * Correction of a mistake in the index in evolve_outgoing_BC.
+ *
  * Revision 1.4  2008/08/19 06:42:00  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -147,8 +150,8 @@ void evolve_outgoing_BC(double dt, int nz_bound, const Scalar& phi, Scalar& sphi
     int nz = grid.get_nzone() ;
     assert(nz_bound < nz) ;
 #endif
-    int np2 = grid.get_np(nz_bound-1) + 2 ;
-    int nt = grid.get_nt(nz_bound-1) ;
+    int np2 = grid.get_np(nz_bound) + 2 ;
+    int nt = grid.get_nt(nz_bound) ;
     assert(xij.get_ndim() == 2) ;
     assert(xijm1.get_ndim() == 2) ;
     assert(ccc.get_ndim() == 2) ;
