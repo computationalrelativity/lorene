@@ -28,6 +28,9 @@ char test_vector_df_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2008/08/27 08:54:28  jl_cornou
+ * Added test for angular potential A
+ *
  * Revision 1.6  2003/10/29 11:06:50  e_gourgoulhon
  * dec2_dzpuis() replaced by dec_dzpuis(2).
  *
@@ -90,7 +93,7 @@ int main() {
   	assert( nz == 3 ) ;  // since the above array described only 3 domains
   
 	Map_af map(mgrid, r_limits) ; 
-  	
+
 
 	// Construction of a flat metric
 	// -----------------------------
@@ -217,14 +220,15 @@ int main() {
 	aa.set(3) = z* ( 1 + x*x - y + x + x*y + z*z ) ; 
 	aa.annule_domain(nzm1) ; 
 
-	Mtbl tced = sint*cosp / (r*r) + cost*cost / (r*r*r) ; 
-	aa.set(1).set_domain(nzm1) = tced(nzm1) ; 
 
-	tced =  1 / (r*r) + cost*cost*sint*sinp / (r*r*r) ; 
-	aa.set(2).set_domain(nzm1) = tced(nzm1) ; 
-
-	tced = cost / (r*r) + cost*sint*cosp / (r*r*r) ; 
-	aa.set(3).set_domain(nzm1) = tced(nzm1) ; 
+ 	Mtbl tced = sint*cosp / (r*r) + cost*cost / (r*r*r) ; 
+ 	aa.set(1).set_domain(nzm1) = tced(nzm1) ; 
+ 
+ 	tced =  1 / (r*r) + cost*cost*sint*sinp / (r*r*r) ; 
+ 	aa.set(2).set_domain(nzm1) = tced(nzm1) ; 
+ 
+ 	tced = cost / (r*r) + cost*sint*cosp / (r*r*r) ; 
+ 	aa.set(3).set_domain(nzm1) = tced(nzm1) ; 
 
 	aa.std_spectral_base() ; 
 	
@@ -283,7 +287,5 @@ int main() {
 	}
 	
 
-	
-	
 	return EXIT_SUCCESS ; 
 }

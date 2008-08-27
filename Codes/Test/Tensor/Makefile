@@ -7,6 +7,10 @@ LIBLOR = $(HOME_LORENE)/Lib/liblorene_g.a $(HOME_LORENE)/Lib/liblorenef77_g.a
 
 .SUFFIXES : .o .C
 
+SRC0 = test_Amu.C
+OBJ0 = $(SRC0:.C=.o)
+EXE0 = $(SRC0:.C=)
+
 SRC1 = test_connect.C
 OBJ1 = $(SRC1:.C=.o)
 EXE1 = $(SRC1:.C=)
@@ -43,6 +47,9 @@ SRC9 = test_scalar_mtbl.C
 OBJ9 = $(SRC9:.C=.o)
 EXE9 = $(SRC9:.C=)
 
+$(EXE0): $(OBJ0) $(LIBLOR) 
+	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ0) $(LIB_G) $(LIB_LAPACK) \
+					$(LIB_GSL) $(LIB_PGPLOT) $(LIB_CXX)
 
 $(EXE1): $(OBJ1) $(LIBLOR) 
 	$(CXX) -o $@ $(CXXFLAGS_G) $(OBJ1) $(LIB_G) $(LIB_LAPACK) \
@@ -84,6 +91,6 @@ all: $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5) $(EXE6) $(EXE7) $(EXE8) $(EXE9)
 	$(CXX)  -c $(CXXFLAGS_G) $(INC) $<
 
 uninstall:
-	rm -f $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5) $(OBJ6) $(OBJ7) $(OBJ8) $(OBJ9)
-	rm -f $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5) $(EXE6) $(EXE7) $(EXE8) $(EXE9)
+	rm -f $(OBJ0) $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5) $(OBJ6) $(OBJ7) $(OBJ8) $(OBJ9)
+	rm -f $(EXE0) $(EXE1) $(EXE2) $(EXE3) $(EXE4) $(EXE5) $(EXE6) $(EXE7) $(EXE8) $(EXE9)
 
