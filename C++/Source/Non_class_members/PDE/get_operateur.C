@@ -25,6 +25,9 @@ char get_operateur_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2008/08/27 08:51:15  jl_cornou
+ * Added Jacobi(0,2) polynomials
+ *
  * Revision 1.6  2005/01/27 10:19:43  j_novak
  * Now using Diff operators to build the matrices.
  *
@@ -412,6 +415,127 @@ void _get_operateur_dal_r_chebi(const Param& par, const int& lzone,
 }
 
 
+
+void _get_operateur_dal_r_jaco02(const Param& par, const int& lz, 
+int& type_dal, Matrice& operateur)
+{
+  int nr = operateur.get_dim(0) ;
+  assert (nr == operateur.get_dim(1)) ;
+  assert (par.get_n_double() > 0) ;
+  assert (par.get_n_tbl_mod() > 0) ;
+  assert ((par.get_tbl_mod()).get_dim(1) == 12 ) ;
+  assert ((par.get_tbl_mod()).get_ndim() ==2 ) ;
+
+  double dt = par.get_double(0) ;
+  dt *= 0.5*dt ;
+
+  // Copies the global coefficients to a local Tbl 
+    Tbl coeff(10) ;
+    coeff.set_etat_qcq() ;
+    coeff.set(1) = (par.get_tbl_mod())(1,lz) ;
+    coeff.set(2) = (par.get_tbl_mod())(2,lz) ;
+    coeff.set(3) = (par.get_tbl_mod())(3,lz) ;
+    coeff.set(4) = (par.get_tbl_mod())(4,lz) ;
+    coeff.set(5) = (par.get_tbl_mod())(5,lz) ;
+    coeff.set(6) = (par.get_tbl_mod())(6,lz) ;
+    coeff.set(7) = (par.get_tbl_mod())(7,lz) ;
+    coeff.set(8) = (par.get_tbl_mod())(8,lz) ;
+    coeff.set(9) = (par.get_tbl_mod())(9,lz) ;
+    double R1 = (par.get_tbl_mod())(10,lz) ;
+    double R2 = (par.get_tbl_mod())(11,lz) ;
+
+    double a00 = 0. ; double a01 = 0. ; double  a02 = 0. ; 
+    double a10 = 0. ; double a11 = 0. ; double  a12 = 0. ; 
+    double a13 = 0. ; double a20 = 0. ; double  a21 = 0. ; 
+    double a22 = 0. ; double a23 = 0. ; double  a24 = 0. ; 
+
+    bool dege = (fabs(coeff(9)) < 1.e-10) ;
+     switch (dege) {
+     case true:
+      a00 = R1 - dt*(coeff(7)*R1 + coeff(8)) ;
+      a01 = R2 - dt*R2*coeff(7) ;
+      a02 = 0 ;
+      a10 = -dt*(R1*coeff(4) + R1*R1*coeff(5) + coeff(6))/R2 ;
+      a11 = -dt*(coeff(4) + 2*R1*coeff(5)) ;
+      a12 = -dt*R2*coeff(5) ;
+      a13 = 0 ;
+      a20 = -dt*R1/(R2*R2)*(coeff(1) + R1*coeff(2) + R1*R1*coeff(3)) ;
+      a21 = -dt/R2*(coeff(1) + 2*R1*coeff(2) + 3*R1*R1*coeff(3)) ;
+      a22 = -dt*(coeff(2) + 3*R1*coeff(3)) ;
+      a23 = -dt*R2*coeff(3) ;
+      a24 = 0 ;
+      type_dal = ((0.1*(fabs(a20)+fabs(a21)+fabs(a22)+fabs(a23))*nr*nr*nr 
+ 		   < 1.) ? O2DEGE_SMALL : O2DEGE_LARGE ) ;
+       break ;
+     case false:
+      a00 = R1*R1 - dt*(coeff(7)*R1*R1 + coeff(8)*R1 + coeff(9)) ;
+      a01 = 2*R1*R2 - dt*(2*R1*R2*coeff(7) + R2*coeff(8)) ;
+      a02 = R2*R2*(1 - dt*coeff(7)) ;
+      a10 = -dt*R1/R2*(R1*coeff(4) + R1*R1*coeff(5) + coeff(6)) ;
+      a11 = -dt*(2*R1*coeff(4) + 3*R1*R1*coeff(5) + coeff(6)) ;
+      a12 = -dt*(R2*coeff(4) + 3*R1*R2*coeff(5)) ;
+      a13 = -dt*R2*R2*coeff(5) ;
+      a20 = -dt*(R1*R1)/(R2*R2)*(coeff(1) + R1*coeff(2) + R1*R1*coeff(3)) ;
+      a21 = -dt*R1/R2*(2*coeff(1) + 3*R1*coeff(2) + 4*R1*R1*coeff(3)) ;
+      a22 = -dt*(coeff(1) + 3*R1*coeff(2) + 6*R1*R1*coeff(3)) ;
+      a23 = -dt*(R2*coeff(2) + 4*R1*R2*coeff(3)) ;
+      a24 = -dt*R2*R2*coeff(3) ;
+       type_dal = ((0.1*(fabs(a20)+fabs(a21)+fabs(a22)+fabs(a23)+fabs(a24))
+ 		   *nr*nr*nr < 1.) ? O2NOND_SMALL : O2NOND_LARGE ) ;
+       break ;
+     }
+    if (fabs(a00)<1.e-15) a00 = 0 ;
+    if (fabs(a01)<1.e-15) a01 = 0 ;
+    if (fabs(a02)<1.e-15) a02 = 0 ;
+    if (fabs(a10)<1.e-15) a10 = 0 ;
+    if (fabs(a11)<1.e-15) a11 = 0 ;
+    if (fabs(a12)<1.e-15) a12 = 0 ;
+    if (fabs(a13)<1.e-15) a13 = 0 ;
+    if (fabs(a20)<1.e-15) a20 = 0 ;
+    if (fabs(a21)<1.e-15) a21 = 0 ;
+    if (fabs(a22)<1.e-15) a22 = 0 ;
+    if (fabs(a23)<1.e-15) a23 = 0 ;
+    if (fabs(a24)<1.e-15) a24 = 0 ;
+
+    
+
+    Diff_id id(R_JACO02, nr) ;
+    if (fabs(a00)>1.e-15) {
+	operateur = a00*id ;
+    }
+    else{
+	operateur.set_etat_qcq() ;
+	for (int i=0; i<nr; i++) 
+	    for (int j=0; j<nr; j++)
+		operateur.set(i,j) = 0. ;
+    }
+    Diff_mx op01(R_JACO02, nr) ; const Matrice& m01 = op01.get_matrice() ;
+    Diff_mx2 op02(R_JACO02, nr) ; const Matrice& m02 = op02.get_matrice() ;
+    Diff_dsdx op10(R_JACO02, nr) ; const Matrice& m10 = op10.get_matrice() ;
+    Diff_xdsdx op11(R_JACO02, nr) ; const Matrice& m11 = op11.get_matrice() ;
+    Diff_x2dsdx op12(R_JACO02, nr) ; const Matrice& m12 = op12.get_matrice() ;
+    Diff_x3dsdx op13(R_JACO02, nr) ; const Matrice& m13 = op13.get_matrice() ;
+    Diff_dsdx2 op20(R_JACO02, nr) ; const Matrice& m20 = op20.get_matrice() ;
+    Diff_xdsdx2 op21(R_JACO02, nr) ; const Matrice& m21 = op21.get_matrice() ;
+    Diff_x2dsdx2 op22(R_JACO02, nr) ; const Matrice& m22 = op22.get_matrice() ;
+    Diff_x3dsdx2 op23(R_JACO02, nr) ; const Matrice& m23 = op23.get_matrice() ;
+    Diff_x4dsdx2 op24(R_JACO02, nr) ; const Matrice& m24 = op24.get_matrice() ;
+
+    for (int i=0; i<nr; i++) {
+	int jmin = (i>3 ? i-3 : 0) ; 
+	int jmax = (i<nr-9 ? i+10 : nr) ;
+	for (int j=jmin ; j<jmax; j++) 
+	    operateur.set(i,j) += a01*m01(i,j) + a02*m02(i,j) 
+		+ a10*m10(i,j) + a11*m11(i,j) + a12*m12(i,j) 
+		+ a13*m13(i,j) + a20*m20(i,j) + a21*m21(i,j)
+		+ a22*m22(i,j) + a23*m23(i,j) + a24*m24(i,j) ;
+	
+    }
+}
+
+
+
+
 		 //--------------------------
 		//- La routine a appeler  ---
 	       //----------------------------
@@ -434,6 +558,7 @@ void get_operateur_dal(const Param& par, const int& lzone,
     get_operateur_dal[R_CHEB >> TRA_R] = _get_operateur_dal_r_cheb ;
     get_operateur_dal[R_CHEBP >> TRA_R] = _get_operateur_dal_r_chebp ;
     get_operateur_dal[R_CHEBI >> TRA_R] = _get_operateur_dal_r_chebi ;
+    get_operateur_dal[R_JACO02 >> TRA_R] = _get_operateur_dal_r_jaco02 ;
   }
   
   get_operateur_dal[base_r](par, lzone, type_dal, operateur) ;

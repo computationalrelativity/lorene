@@ -25,6 +25,9 @@ char poisson_tau_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2008/08/27 08:51:15  jl_cornou
+ * Added Jacobi(0,2) polynomials
+ *
  * Revision 1.6  2007/12/14 10:19:34  jl_cornou
  * *** empty log message ***
  *
@@ -120,8 +123,8 @@ Mtbl_cf sol_poisson_tau(const Map_af& mapping, const Mtbl_cf& source, int dzpuis
     
     // On bosse pour chaque l, m :
     for (int k=0 ; k<np+1 ; k++)
-      for (int j=0 ; j<nt ; j++)
-      	if (nullite_plm(j, nt, k, np, base) == 1) {
+      for (int j=0 ; j<nt ; j++) 
+	if (nullite_plm(j, nt, k, np, base) == 1) {
 	
 // 	for (int lig=0 ; lig<size ; lig++)
 //             for (int col=0 ; col< size ; col++)
@@ -392,7 +395,8 @@ Mtbl_cf sol_poisson_tau(const Map_af& mapping, const Mtbl_cf& source, int dzpuis
 		 conte ++ ;
 		}
 	}
-	}
+	
+    }
 
     return resultat ;
 }

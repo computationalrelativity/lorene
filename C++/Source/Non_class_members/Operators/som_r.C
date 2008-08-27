@@ -41,6 +41,9 @@ char som_r_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2008/08/27 08:50:10  jl_cornou
+ * Added Jacobi(0,2) polynomials
+ *
  * Revision 1.7  2007/12/11 15:28:18  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -601,8 +604,7 @@ double* pi = ti ;	    // pointeur courant sur l'entree
 double* po = trtp ;	    // pointeur courant sur la sortie
     
     // Valeurs des polynomes de Jacobi(0,2) au point x demande
-    double* jaco = new double [nr] ;
-    jaco = jacobi(nr-1,x) ;
+    double* jaco = jacobi(nr-1,x) ;
     
     // Sommation pour le premier phi, k=0
     for (j=0 ; j<nt ; j++) {

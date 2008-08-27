@@ -25,6 +25,9 @@ char sxpun_1d_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2008/08/27 08:50:10  jl_cornou
+ * Added Jacobi(0,2) polynomials
+ *
  * Revision 1.5  2007/12/21 13:59:02  j_novak
  * Suppression of call to pow(-1, something).
  *
@@ -111,7 +114,7 @@ void _sxpun_1d_r_cheb (int nr, double* tb, double *xo)
 			// cas R_JACO02 -
 			//---------------
 
-void _sxpun_1d_r_jaco02 (int nr, double* tb, double *xo)
+void _sxpun_1d_r_jaco02 (int nr, double* tb, double* xo)
 {
     
     xo[nr-1] = 0 ;

@@ -25,6 +25,9 @@ char dalembert_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2008/08/27 08:51:15  jl_cornou
+ * Added Jacobi(0,2) polynomials
+ *
  * Revision 1.9  2006/08/31 08:56:40  j_novak
  * Added the possibility to have a shift in the quantum number l in the operator.
  *
@@ -103,7 +106,7 @@ Mtbl_cf sol_dalembert(Param& par, const Map_af& mapping, const Mtbl_cf& source)
   int nz = source.get_mg()->get_nzone() ;
   bool ced = (source.get_mg()->get_type_r(nz-1) == UNSURR ) ;
   int nz0 = (ced ? nz - 1 : nz ) ;
-  assert (source.get_mg()->get_type_r(0) == RARE) ;
+  assert ((source.get_mg()->get_type_r(0) == RARE)||(source.get_mg()->get_type_r(0) == FINJAC)) ;
   for (int l=1 ; l<nz0 ; l++) {
     assert(source.get_mg()->get_type_r(l) == FIN) ;
     assert(source.get_mg()->get_nt(l) == source.get_mg()->get_nt(0)) ;

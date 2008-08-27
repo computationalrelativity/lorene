@@ -37,6 +37,9 @@ char op_d2sdx2_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2008/08/27 08:50:10  jl_cornou
+ * Added Jacobi(0,2) polynomials
+ *
  * Revision 1.3  2007/12/11 15:28:18  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -78,6 +81,7 @@ char op_d2sdx2_C[] = "$Header$" ;
 #include "tbl.h"
 
 void d2sdx2_1d(int, double**, int);
+void _d2sdx2_1d_r_jaco02(int, double*, double*) ;
 
 // Prototypage
 void c_est_pas_fait(char * ) ;
@@ -1063,15 +1067,17 @@ void _d2sdx2_r_jaco02(Tbl *tb, int & )
 	else {
 	for (int j=0 ; j<nt ; j++) {
 
-	    double** tb1 = new double*[nr] ;
-	    for (int i = 0 ; i<nr ; i++ ) {
-		*tb1[i]=xci[i] ;
+	    double* tb1 = new double[nr] ;
+		for (int m =0 ; m<nr ; m++) { 
+			tb1[m]=xci[m]; 
 		}
-	    d2sdx2_1d(nr,tb1,R_JACO02 >> TRA_R) ;
+	    double* res = new double[nr] ;
+	    _d2sdx2_1d_r_jaco02(nr,tb1,res) ;
 	    for (int i = 0 ; i<nr ; i++ ) {
-		xco[i] = *tb1[i] ;
+		xco[i] = res[i] ;
 		}
-	    delete [] (*tb1) ;		
+	    delete [] res ;
+	    delete [] tb1 ;		
 	    
 	    xci += nr ;
 	    xco += nr ;

@@ -25,6 +25,9 @@ char dal_inverse_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2008/08/27 08:51:15  jl_cornou
+ * Added Jacobi(0,2) polynomials
+ *
  * Revision 1.6  2008/02/18 13:53:43  j_novak
  * Removal of special indentation instructions.
  *
@@ -877,6 +880,59 @@ Tbl _dal_inverse_r_chebi_o2_l(const Matrice &op, const Tbl &source,
   return res ;
 }
 
+Tbl _dal_inverse_r_jaco02(const Matrice &op, const Tbl &source, 
+			      const bool part) {
+
+  // Operator and source are copied and prepared
+  Matrice barre(op) ;
+  int nr = op.get_dim(0) ;
+  Tbl aux(nr) ;
+  if (part) {
+    aux.set_etat_qcq() ;
+    aux.set(nr-2) = source(nr-2) ;
+    aux.set(nr-1) = 0 ;
+  }
+  else {
+    aux.annule_hard() ;
+    aux.set(0) = 1. ;
+  }
+
+  // Operator is put into banded form (changing the image base ...)
+
+  for (int i=0; i<nr; i++) {
+    for (int j=0; j<nr; j++) {
+      barre.set(i,j) = (op(i,j)) ;
+    }
+    if (part)
+      aux.set(i) = (source(i));
+    }
+  for (int i=0; i<nr; i++) {
+    for (int j=0; j<nr; j++) barre.set(i,j) = barre(i,j) ;
+    if (part) aux.set(i) = aux(i) ;
+  }
+    
+  // ... and changing the starting base (first and last columns are quit) ... 
+  
+  Matrice tilde(nr,nr) ;
+  tilde.set_etat_qcq() ;
+  for (int i=0; i<nr; i++) 
+    for (int j=0; j<nr;j++) 
+      tilde.set(i,j) = barre(i,j) ;
+  
+  // LU decomposition
+  tilde.set_lu() ;
+  
+  // Inversion using LAPACK
+  Tbl res0(tilde.inverse(aux)) ;
+  Tbl res(nr) ;
+  res.set_etat_qcq() ;
+  // ... finally, one has to recover the original starting base
+  for (int i=0; i<nr; i++) res.set(i) = res0(i) ;
+  
+  return res ;
+}
+
+
 
 	      	//----------------------------
 	       //--  Fonction a appeler   ---
@@ -937,7 +993,16 @@ Tbl dal_inverse(const int& base_r, const int& type_dal, const
   	  _dal_inverse_r_chebi_o2_s ;
   	dal_inverse[O2NOND_LARGE][R_CHEBI >> TRA_R] = 
   	  _dal_inverse_r_chebi_o2_l ;
-    }
+//	Only one routine pour Jacobi(0,2) polynomials
+	dal_inverse[O2DEGE_SMALL][R_JACO02 >> TRA_R] = 
+  	  _dal_inverse_r_jaco02 ;
+  	dal_inverse[O2DEGE_LARGE][R_JACO02 >> TRA_R] = 
+  	  _dal_inverse_r_jaco02 ;
+  	dal_inverse[O2NOND_SMALL][R_JACO02 >> TRA_R] = 
+  	  _dal_inverse_r_jaco02 ;
+  	dal_inverse[O2NOND_LARGE][R_JACO02 >> TRA_R] = 
+  	  _dal_inverse_r_jaco02 ;    
+}
     
     return dal_inverse[type_dal][base_r](operateur,  source, part) ;
 }

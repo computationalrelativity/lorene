@@ -25,6 +25,9 @@ char op_mult_x_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2008/08/27 08:50:10  jl_cornou
+ * Added Jacobi(0,2) polynomials
+ *
  * Revision 1.2  2004/11/23 15:16:01  m_forot
  *
  * Added the bases for the cases without any equatorial symmetry
@@ -580,3 +583,67 @@ void _mult_x_r_chebpi_i(Tbl* tb, int& base)
     int base_p = base & MSQ_P ;    
     base = base_p | base_t | R_CHEBPI_P ;
 }
+
+			//---------------
+			// cas R_JACO02 -
+			//---------------
+
+void _mult_x_r_jaco02(Tbl* tb, int& base)
+    {
+    // Peut-etre rien a faire ?
+    if (tb->get_etat() == ETATZERO) {
+	return ;
+    }
+    
+    // Pour le confort
+    int nr = (tb->dim).dim[0] ;	    // Nombre
+    int nt = (tb->dim).dim[1] ;	    //	 de points
+    int np = (tb->dim).dim[2] ;	    //	    physiques REELS
+    np = np - 2 ;		    // Nombre de points physiques
+    
+    // pt. sur le tableau de double resultat
+    double* xo = new double [tb->get_taille()];
+    
+    // Initialisation a zero :
+    for (int i=0; i<tb->get_taille(); i++) {
+	xo[i] = 0 ; 
+    }
+    
+    // On y va...
+    double* xi = tb->t ;
+    double* xci = xi ;	// Pointeurs
+    double* xco = xo ;	//  courants
+
+    int borne_phi = np + 1 ; 
+    if (np == 1) {
+	borne_phi = 1 ; 
+    }
+    
+    for (int k=0 ; k< borne_phi ; k++)
+	if (k==1) {
+	    xci += nr*nt ;
+	    xco += nr*nt ;
+	}
+	else {
+	for (int j=0 ; j<nt ; j++) {
+
+    		xco[0] = 1.5*xci[0] + 0.3*xci[1] ;
+    		for (int i = 1 ; i < nr-1 ; i++) {
+		xco[i] = i*(i+2)/double((i+1)*(2*i+1))*xci[i-1] + (i*i+3*i+3)/double((i+1)*(i+2))*xci[i] + (i+1)*(i+3)/double((i+2)*(2*i+5))*xci[i+1] ;
+    		}
+    		xco[nr-1] = (nr*nr-1)/double((nr)*(2*nr-1))*xci[nr-2] + (1+1/double((nr)*(nr+1)))*xci[nr-1] ;
+	    
+	    xci += nr ;
+	    xco += nr ;
+	}   // Fin de la boucle sur theta
+    }	// Fin de la boucle sur phi
+    
+    // On remet les choses la ou il faut
+    delete [] tb->t ;
+    tb->t = xo ;
+    
+    // base de developpement
+    // inchangée
+
+}
+
