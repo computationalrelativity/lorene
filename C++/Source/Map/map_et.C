@@ -29,6 +29,9 @@ char map_et_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2008/08/27 08:48:26  jl_cornou
+ * Added_R_JACO02 case
+ *
  * Revision 1.11  2005/11/30 11:09:07  p_grandclement
  * Changes for the Bin_ns_bh project
  *
@@ -160,6 +163,12 @@ Map_et::Map_et(const Mg3d& mgrille, const double* bornes)
 		alpha[l] = bornes[l+1] - bornes[l] ;
 		beta[l] = bornes[l] ;
 		break ; 
+	    }
+
+	    case FINJAC: {
+		alpha[l] = (bornes[l+1] - bornes[l]) * .5;
+		beta[l] = (bornes[l+1] + bornes[l]) * .5;
+		break;
 	    }
 	    
 	    case FIN:	{
@@ -647,7 +656,7 @@ void Map_et::fait_poly() {
 
     // Values in the nucleus
     // ---------------------
-    assert( mg->get_type_r(0) == RARE ) ;
+    assert( mg->get_type_r(0) == RARE || mg->get_type_r(0) == FINJAC ) ;
     
     aa[0]->set_etat_qcq() ;	    // Memory allocation for the Tbl 
     daa[0]->set_etat_qcq() ; 
