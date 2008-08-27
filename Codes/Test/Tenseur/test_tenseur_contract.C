@@ -29,6 +29,9 @@ char test_tenseur_contract_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2008/08/27 08:54:07  jl_cornou
+ * Tests for angular potential A added
+ *
  * Revision 1.3  2003/01/09 11:07:59  j_novak
  * headcpp.h is now compliant with C++ norm.
  * The include files have been ordered, as well as the local_settings_linux
@@ -59,7 +62,7 @@ char test_tenseur_contract_C[] = "$Header$" ;
 
 //******************************************************************************
 
-void main(){
+int main(){
     
     // Identification of all the subroutines called by the code : 
     
