@@ -30,6 +30,9 @@ char sym_tensor_trans_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2008/08/29 05:33:18  j_novak
+ * Minor modif.
+ *
  * Revision 1.3  2008/08/27 08:13:20  j_novak
  * Correction of a mistake in the imposition of BCs in sol_Dirac_A. + Treatment of
  * the case of BCs imposed on a nucleus (nz_bc = 0).
@@ -1421,16 +1424,16 @@ void Sym_tensor_trans::sol_Dirac_l01(const Scalar& hh, Scalar& hrr, Scalar& tild
     const Map_af* mp_aff = dynamic_cast<const Map_af*>(mp) ;
     assert(mp_aff != 0x0) ; //Only affine mapping for the moment
 
-    const Mg3d& mgrid = *mp_aff->get_mg() ;
-    int nz = mgrid.get_nzone() ;
-    assert(mgrid.get_type_r(0) == RARE)  ;
-    assert(mgrid.get_type_r(nz-1) == UNSURR) ;
-
     if (hh.get_etat() == ETATZERO) {
 	hrr.annule_hard() ;
 	tilde_eta.annule_hard() ;
 	return ;
     }
+
+    const Mg3d& mgrid = *mp_aff->get_mg() ;
+    int nz = mgrid.get_nzone() ;
+    assert(mgrid.get_type_r(0) == RARE)  ;
+    assert(mgrid.get_type_r(nz-1) == UNSURR) ;
 
     int nt = mgrid.get_nt(0) ;
     int np = mgrid.get_np(0) ;
