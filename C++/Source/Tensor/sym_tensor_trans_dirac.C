@@ -30,6 +30,9 @@ char sym_tensor_trans_dirac_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2008/08/29 13:15:22  j_novak
+ * Corrected a mistake in the case of no CED.
+ *
  * Revision 1.4  2008/08/29 05:33:18  j_novak
  * Minor modif.
  *
@@ -607,7 +610,8 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
     Scalar source = tilde_b ;
     Scalar source_coq = tilde_b ;
     source_coq.annule_domain(0) ;
-    source_coq.annule_domain(nzm1) ;
+    if (ced)
+	source_coq.annule_domain(nzm1) ;
     source_coq.mult_r() ;
     source.set_spectral_va().ylm() ;
     source_coq.set_spectral_va().ylm() ;
@@ -1171,7 +1175,6 @@ void Sym_tensor_trans::sol_Dirac_tilde_B(const Scalar& tilde_b, const Scalar& hh
 	dhom3_hrr.dsdx() ; dhom3_eta.dsdx() ; dhom3_w.dsdx() ;
 	dpart_hrr.dsdx() ; dpart_eta.dsdx() ; dpart_w.dsdx() ;
     }
-	
     // Loop on l and m
     //----------------
     for (int k=0 ; k<np+1 ; k++)
