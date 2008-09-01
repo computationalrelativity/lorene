@@ -30,6 +30,9 @@ char map_af_radius_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2008/09/01 08:12:03  j_novak
+ * Improved test on the [rmin, rmax] interval.
+ *
  * Revision 1.5  2007/12/11 15:28:14  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -68,6 +71,8 @@ char map_af_radius_C[] = "$Header$" ;
  * $Header$
  *
  */
+
+#include<math.h>
 
 // Headers Lorene
 #include "map.h"
@@ -125,7 +130,7 @@ void Map_af::val_lx(double rr, double, double, int& lz, double& xi) const {
 	    rmin = double(1)/rmin ; 
 	    rmax = double(1)/rmax ; 
 	}		
-	if ((rr - rmin >= -1.e-14*rmin) && ( rr <= rmax )) { 
+	if ((rr - rmin >= -1.e-14*fabs(rmin)) && ( rr <= rmax )) { 
 	    lz = l ;
 	    break ; 
 	}	
