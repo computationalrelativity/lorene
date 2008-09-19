@@ -28,6 +28,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2008/09/19 13:24:29  j_novak
+ * Added the third-order scheme for the time derivativre computation.
+ *
  * Revision 1.14  2004/05/14 08:51:01  p_grandclement
  * *** empty log message ***
  *
@@ -396,12 +399,7 @@ TyT Evolution<TyT>::time_derive(int j, int n) const {
 
             double dt = the_time[pos] - the_time[pos-1] ; 
 
-            // creation of the result by means of the copy constructor of 
-            // class TyT (and not from the arithmetical operation below)
-            TyT resu( (*val[pos]) ) ;   
-            
-            resu = ( resu - (*val[pos-1]) ) / dt  ;
-            return resu ;  
+            return ( (*val[pos]) - (*val[pos-1]) ) / dt  ;
             break ;
         } 
            
@@ -410,23 +408,40 @@ TyT Evolution<TyT>::time_derive(int j, int n) const {
 	  assert ( pos > 1 ) ;
 	  assert ( step[pos-2] != UNDEF_STEP ) ;
 	  double dt = the_time[pos] - the_time[pos-1] ;
-            double dt2 = the_time[pos-1] - the_time[pos-2] ;
-            if (fabs(dt2 -dt) > 1.e-13) {
+#ifndef NDEBUG
+	  double dt2 = the_time[pos-1] - the_time[pos-2] ;
+	  if (fabs(dt2 -dt) > 1.e-13) {
+	      cerr << 
+		  "Evolution<TyT>::time_derive: the current version is"
+		   << " valid only for \n"
+		   << " a constant time step !" << endl ; 
+	      abort() ;
+	  }
+#endif
+	  return ( 1.5* (*val[pos]) - 2.* (*val[pos-1]) + 0.5* (*val[pos-2]) ) / dt ;  
+	  break ;
+        } 
+	    
+        case 3 : {
+	    
+	    assert ( pos > 2 ) ;
+	    assert ( step[pos-2] != UNDEF_STEP ) ;
+	    assert ( step[pos-3] != UNDEF_STEP ) ;
+	    double dt = the_time[pos] - the_time[pos-1] ;
+#ifndef NDEBUG
+	    double dt2 = the_time[pos-1] - the_time[pos-2] ;
+	    double dt3 = the_time[pos-2] - the_time[pos-3] ;
+            if ((fabs(dt2 -dt) > 1.e-13)||(fabs(dt3 -dt2) > 1.e-13)) {
                 cerr << 
   "Evolution<TyT>::time_derive: the current version is  valid only for \n"
     << " a constant time step !" << endl ; 
                 abort() ;
             }
-
-            // creation of the result by means of the copy constructor of 
-            // class TyT (and not from the arithmetical operation below)
-            TyT resu( (*val[pos]) ) ;   
-            
-            resu = ( 1.5* resu - 2.* (*val[pos-1]) + 0.5* (*val[pos-2]) ) / dt ;
-            return resu ;  
-            break ;
-        } 
-           
+#endif
+	    return ( 11.*(*val[pos]) - 18.*(*val[pos-1]) + 9.*(*val[pos-2])
+		     - 2.*(*val[pos-3])) / (6.*dt) ;
+	    break ;
+	}
         default : {
             cerr << "Evolution<TyT>::time_derive: the case n = " << n 
                  << "  is not implemented !" << endl ; 

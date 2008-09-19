@@ -30,6 +30,9 @@ char test_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2008/09/19 13:24:30  j_novak
+ * Added the third-order scheme for the time derivativre computation.
+ *
  * Revision 1.5  2004/03/26 08:24:03  e_gourgoulhon
  * Takes into account the new setting of class Evolution.
  *
@@ -73,6 +76,7 @@ int main() {
     Evolution_full<double> aa(1.) ; 
     Evolution_std<double> bb(1., 3) ; 
     Evolution_std<double> bb1(1., 3) ; 
+    Evolution_std<double> bb3(1., 4) ; 
     
     cout << "aa[0] : " << aa[0] << endl ; 
     cout << "bb[0] : " << bb[0] << endl ; 
@@ -84,6 +88,7 @@ int main() {
     double diffa = 0 ; 
     double diffb = 0 ; 
     double diffb1 = 0 ; 
+    double diffb3 = 0 ; 
     for (int j=1; j<400; j++) {
         
         cout << "j = " << j << "  t = " << t << " :" << endl ; 
@@ -92,23 +97,31 @@ int main() {
         aa.update(f, j, t) ; 
         bb.update(f, j, t) ; 
         bb1.update(f, j, t) ; 
+        bb3.update(f, j, t) ; 
         
-        if (j>1) {
+        if (j>2) {
             double dfa = fabs( aa.time_derive(j) - df ); 
             double dfb = fabs( bb.time_derive(j) - df ); 
             double dfb1 = fabs( bb1.time_derive(j,1) - df ); 
+            double dfb3 = fabs( bb3.time_derive(j,3) - df ); 
             if (dfa>diffa) diffa = dfa ; 
             if (dfb>diffb) diffb = dfb ; 
             if (dfb1>diffb1) diffb1 = dfb1 ; 
-            cout << "Error time derivative aa, bb, bb1 : " << dfa << " " << 
-                dfb << " " << dfb1 << endl ; 
+            if (dfb3>diffb3) diffb3 = dfb3 ; 
+            cout << "Error time derivative aa, bb, bb1, bb3 : " << dfa << " " << 
+                dfb << " " << dfb1 << " " << dfb3 << endl ; 
         }
         
         t += dt ; 
     }
-    cout << endl << "Max error on time derivative aa : " << diffa << endl ; 
-    cout << "Max error on time derivative bb : " << diffb << endl ; 
-    cout << "Max error on time derivative bb1 : " << diffb1 << endl ; 
+    cout << endl << "Max error on time derivative aa (Evolution_full, 2nd-order) : " 
+	 << diffa << endl ; 
+    cout << "Max error on time derivative bb (Evolution_std, 2nd-order): " 
+	 << diffb << endl ; 
+    cout << "Max error on time derivative bb1 (Evolution_std, 1st-order) : " 
+	 << diffb1 << endl ; 
+    cout << "Max error on time derivative bb3 (Evolution_std, 3rd-order) : " 
+	 << diffb3 << endl ; 
     arrete() ; 
 
     Evolution_std<double> cc(2., 3) ; 
