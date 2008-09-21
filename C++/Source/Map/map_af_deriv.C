@@ -30,6 +30,9 @@ char map_af_deriv_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2008/09/21 13:57:21  j_novak
+ * Changed the test on the CED in the derivative.
+ *
  * Revision 1.10  2004/12/17 13:35:02  m_forot
  * Add the case T_LEG
  *
@@ -235,22 +238,21 @@ void Map_af::dsdr(const Scalar& uu, Scalar& resu) const {
       } 
     }
     else {
-      assert(mg->get_type_r(nzm1) == UNSURR) ;
-
       int dzp = uu.get_dzpuis() ;
       
       resu = uuva.dsdx() * dxdr ;
-      resu.annule_domain(nzm1) ;  // zero in the CED
+      if (mg->get_type_r(nzm1) == UNSURR) {
+	  resu.annule_domain(nzm1) ;  // zero in the CED
       
-      // Special treatment in the CED
-      Valeur tmp_ced = - uuva.dsdx() ; 
-      tmp_ced.annule(0, nz-2) ; // only non zero in the CED
-      tmp_ced.mult_xm1_zec() ; 
-      tmp_ced.set(nzm1) -= dzp * uuva(nzm1) ; 
-      
-      // Recombination shells + CED : 
-      resu.set_spectral_va() += tmp_ced ;
-      
+	  // Special treatment in the CED
+	  Valeur tmp_ced = - uuva.dsdx() ; 
+	  tmp_ced.annule(0, nz-2) ; // only non zero in the CED
+	  tmp_ced.mult_xm1_zec() ; 
+	  tmp_ced.set(nzm1) -= dzp * uuva(nzm1) ; 
+	  
+	  // Recombination shells + CED : 
+	  resu.set_spectral_va() += tmp_ced ;
+      }
       resu.set_dzpuis(dzp+1) ;         
     
     }
