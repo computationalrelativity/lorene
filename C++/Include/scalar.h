@@ -38,6 +38,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.84  2008/09/22 19:08:01  j_novak
+ * New methods to deal with boundary conditions
+ *
  * Revision 1.83  2008/05/24 15:05:22  j_novak
  * New method Scalar::match_tau to match the output of an explicit time-marching scheme with the tau method.
  *
@@ -675,6 +678,38 @@ class Scalar : public Tensor {
    *  of the component of a given \f$Y_l^m\f$.
    */
   Tbl multipole_spectrum () const ;
+
+  /** Returns the \c Tbl containing the values of angular coefficients
+   *  at the outer boundary.
+   *  @param l_dom [input] domain index
+   *  @param leave_ylm [input] flag to decide whether the coefficients 
+   *             are expressed in spherical harmonics or Fourier base
+   */
+  Tbl tbl_out_bound(int l_dom, bool leave_ylm = false) ;
+  
+  /** Returns the \c Tbl containing the values of angular coefficients
+   *  at the inner boundary.
+   *  @param l_dom [input] domain index
+   *  @param leave_ylm [input] flag to decide whether the coefficients 
+   *             are expressed in spherical harmonics or Fourier base
+   */
+  Tbl tbl_in_bound(int n, bool leave_ylm = false) ;
+  
+  /** Returns the \c Scalar containing the values of angular coefficients
+   *  at the outer boundary.
+   *  @param l_dom [input] domain index
+   *  @param leave_ylm [input] flag to decide whether the coefficients 
+   *             are expressed in spherical harmonics or Fourier base
+   */
+  Scalar scalar_out_bound(int n, bool leave_ylm = false) ;
+  
+  /** Returns the \c Scalar containing the values of angular coefficients
+   *  at the inner boundary.
+   *  @param l_dom [input] domain index
+   *  @param leave_ylm [input] flag to decide whether the coefficients 
+   *             are expressed in spherical harmonics or Fourier base
+   */
+  Scalar scalar_in_bound(int n, bool leave_ylm = false) ;
   
   // Differential operators and others
   // ---------------------------------
