@@ -26,6 +26,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.3  2008/09/22 19:08:56  j_novak
+ * Minor modifs.
+ *
  * Revision 1.2  2002/10/16 14:37:19  j_novak
  * Reorganization of #include instructions of standard C++, in order to
  * use experimental version 3 of gcc.
@@ -61,12 +64,12 @@ int main() {
     float* uutab = new float[np] ; 
     
     for (int i=0; i<np; i++) {
-	uutab[i] = a(i) ; 
+	uutab[i] = float(a(i)) ; 
     }
        
     
     float xmin = 0. ; 
-    float xmax = 2*M_PI ; 
+    float xmax = float(2*M_PI) ; 
     
     des_profile(uutab, np, xmin, xmax, "x", "sin(x)", "Test") ; 
     
