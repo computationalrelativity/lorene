@@ -31,6 +31,9 @@ char et_bin_nsbh_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2008/09/26 08:38:45  p_grandclement
+ * get rid of desaliasing
+ *
  * Revision 1.10  2006/09/05 13:39:45  p_grandclement
  * update of the bin_ns_bh project
  *
@@ -200,7 +203,7 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 	    diff_vel_pot = velocity_potential(mermax_potvit, precis_poisson, 
 					      relax_potvit) ; 
 	}
-	
+
 	// Equation de la surface
 	//if (adapt) {
 	
@@ -215,7 +218,7 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 	   double gamma_0_c = exp(-pot_centri())(0,0,0,0) ;
 	   double n_auto_c = n_auto()(0,0,0,0) ;
 	   double n_comp_c = n_comp()(0,0,0,0) ;   
-	   
+	 
 	   double alpha_square = 0 ;
 	   double constante = 0;
 	   for (int k=0; k<np; k++) {
@@ -226,11 +229,12 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 	          double gamma_0_b = exp(-pot_centri())(nzet-1,k,j,nr-1) ;
 	          double n_auto_b = n_auto()(nzet-1,k,j,nr-1) ;
 	          double n_comp_b = n_comp()(nzet-1,k,j,nr-1) ;
-		  
+  
 	   // Les solutions :
 	   double alpha_square_courant = (gamma_0_c*gamma_b*n_comp_b - hc*gamma_c*gamma_0_b*n_comp_c) /
 	                         (hc*gamma_c*gamma_0_b*n_auto_c-gamma_0_c*gamma_b*n_auto_b) ;
-	   double constante_courant = gamma_b*(n_comp_b+alpha_square_courant*n_auto_b)/gamma_0_b ;	  
+	   double constante_courant = gamma_b*(n_comp_b+alpha_square_courant*n_auto_b)/gamma_0_b ;
+
 		if (alpha_square_courant > alpha_square) {
 		    alpha_square = alpha_square_courant ; 
 		    k_b = k ; 
@@ -239,9 +243,7 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 		}
 	    }
 	}
-	
-	
-		   
+
 	   alpha_r = sqrt(alpha_square) ;
 	   cout << "Adaptation : " << k_b << " " << j_b << " " << alpha_r << endl ;
 	    
@@ -269,6 +271,7 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 	     mp.resize(l, 1./alpha_r) ;
 	   mp.reevaluate_symy (&mp_prev, nzet, ent.set()) ;
 	   
+
 
 	// Equation of state
 	//----------------------------------------------------
@@ -308,7 +311,7 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 	Tenseur confpsi_c = pow(confpsi, 5.) ;
 	
 	if (relativistic) {
-	    Tenseur tmp = flat_scalar_prod_desal(tkij_tot, tkij_auto) ;
+	    Tenseur tmp = flat_scalar_prod(tkij_tot, tkij_auto) ;
 	    Tenseur kk (mp) ;
 	    kk = 0 ;
 	    Tenseur tmp2(mp) ;
@@ -318,9 +321,9 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 		kk = kk + tmp2 ;
 	    }
 	    
-	    source = qpig * nnn % confpsi_q % (ener_euler + s_euler)
-		+ nnn % confpsi_q % kk
-		- 2.*flat_scalar_prod_desal(d_confpsi_auto+d_confpsi_comp, d_n_auto) /
+	    source = qpig * nnn * confpsi_q * (ener_euler + s_euler)
+		+ nnn * confpsi_q * kk
+		- 2.*flat_scalar_prod(d_confpsi_auto+d_confpsi_comp, d_n_auto) /
 		confpsi ;
 	}
 	else {
@@ -362,7 +365,7 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 	    // See Eq (51) from Gourgoulhon et al. (2001)
 	    // ------------------------------------------
 
-	    Tenseur tmp = flat_scalar_prod_desal(tkij_tot, tkij_auto) ;
+	    Tenseur tmp = flat_scalar_prod(tkij_tot, tkij_auto) ;
 	    Tenseur kk (mp) ;
 	    kk = 0 ;
 	    Tenseur tmp2(mp) ;
@@ -372,8 +375,8 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 		kk = kk + tmp2 ;
 	    }
 
-	    source = -0.5 * qpig * confpsi_c % ener_euler
-		- 0.125 * confpsi_c % kk ;
+	    source = -0.5 * qpig * confpsi_c * ener_euler
+		- 0.125 * confpsi_c * kk ;
 
 	    source.set_std_base() ; 	
 	    
@@ -404,11 +407,11 @@ void Et_bin_nsbh::equilibrium_nsbh(bool adapt, double ent_c, int& niter, int mer
 	    // Source
 	    // See Eq (52) from Gourgoulhon et al. (2001)
 	    // ------
-	 Tenseur vtmp = d_n_auto -6. * nnn % d_confpsi_auto / confpsi ;
-	    source_shift = 4.*qpig * nnn % confpsi_q % (ener_euler + press)
-	       % u_euler ;
+	 Tenseur vtmp = d_n_auto -6. * nnn * d_confpsi_auto / confpsi ;
+	    source_shift = 4.*qpig * nnn *confpsi_q *(ener_euler + press)
+	       * u_euler ;
         if (tkij_tot.get_etat() != ETATZERO)	    
-	source_shift = source_shift + 2.* flat_scalar_prod_desal(tkij_tot, vtmp) ;
+	source_shift = source_shift + 2.* flat_scalar_prod(tkij_tot, vtmp) ;
 	    source_shift.set_std_base() ;
 	    // Resolution of the Poisson equation 
 	    // ----------------------------------
