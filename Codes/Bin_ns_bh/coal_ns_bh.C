@@ -29,11 +29,8 @@ char coal_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.11  2007/04/24 20:17:32  f_limousin
- * Implementation of Dirichlet and Neumann BC for the lapse
- *
- * Revision 1.10  2006/09/06 11:52:46  p_grandclement
- * Update of the Bin_ns_bh codes
+ * Revision 1.12  2008/09/26 08:44:04  p_grandclement
+ * Mixted binaries with non vanishing spin
  *
  * Revision 1.8  2006/06/01 12:47:54  p_grandclement
  * update of the Bin_ns_bh project
@@ -92,7 +89,7 @@ int main(int argc, char** argv) {
      //	    Parameters of the computation
      //------------------------------------------------------------------
     char blabla[120] ;
-    double distance, precis, relax, search, m1, m2, scale_ome_local, spin, mirr ;
+    double distance, precis, relax, search, m1, m2, scale_ome_local, spin, mirr, lapse_hori ;
     int itemax_equil, itemax_mp_et ;
 
     char* name_fich = argv[1] ;
@@ -106,23 +103,9 @@ int main(int argc, char** argv) {
     fpar >> itemax_mp_et ; fpar.getline(blabla, 120) ;    
     fpar >> spin ; fpar.getline(blabla, 120) ;
     fpar >> scale_ome_local ; fpar.getline(blabla, 120) ;
+    fpar >> lapse_hori ; fpar.getline(blabla, 120) ;
     fpar.close() ;
     
-    double lim_nn,  ;
-    int bound_nn ;
-    ifstream finit("par_init.d") ;
-    finit.getline(blabla, 80) ;
-    finit.getline(blabla, 80) ;
-    finit.getline(blabla, 80) ;
-    finit.getline(blabla, 80) ;
-    finit.getline(blabla, 80) ;
-    finit.getline(blabla, 80) ;
-    finit >> bound_nn ; 
-    finit >> lim_nn ; finit.getline(blabla, 80) ;
-    finit.close() ;
-
-    cout << "bound_nn = " << bound_nn << ", lim_nn = " << lim_nn << endl ;
-
     //------------------------------------------------------------------
     //	    Read of the initial conditions
     //------------------------------------------------------------------
@@ -136,7 +119,7 @@ int main(int argc, char** argv) {
     cout << "Make an object of Bin_ns_bh" << endl ;
     Bin_ns_bh bin(mp_ns, *peos, mp_bh, fich) ;
     fclose(fich) ;
-    
+
      
     //------------------------------------------------------------------
     //	    Update of the initial conditions
@@ -152,7 +135,7 @@ int main(int argc, char** argv) {
     // ---------------------------------------------------
     bin.set_ns().update_metric_der_comp (bin.get_bh()) ;
     bin.set_bh().update_metric (bin.get_ns()) ;
-    bin.fait_tkij(bound_nn, lim_nn) ;
+    bin.fait_tkij(0, lapse_hori) ;
    
     // Initialisation of hydro quantities for NS
     // -----------------------------------------
@@ -170,7 +153,8 @@ int main(int argc, char** argv) {
   
 
     double ent_c_init = bin.get_ns().get_ent()()(0,0,0,0) ;
-    bin.coal (precis, relax, itemax_equil, itemax_mp_et, ent_c_init, search, distance, mirr, m2, spin, scale_ome_local, 1, bound_nn, lim_nn) ;
+    bin.coal (precis, relax, itemax_equil, itemax_mp_et, ent_c_init, search, distance, m1, m2, spin, 
+										scale_ome_local, 1, 0, lapse_hori) ;
 
     // On sauve
     char name[20] ;

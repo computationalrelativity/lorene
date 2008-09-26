@@ -28,8 +28,8 @@ char lit_bin_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.7  2007/04/24 20:17:32  f_limousin
- * Implementation of Dirichlet and Neumann BC for the lapse
+ * Revision 1.8  2008/09/26 08:44:04  p_grandclement
+ * Mixted binaries with non vanishing spin
  *
  * Revision 1.6  2006/09/06 11:52:46  p_grandclement
  * Update of the Bin_ns_bh codes
@@ -144,26 +144,32 @@ int main(int argc, char** argv) {
     cout << "NS grav. mass   : " << Mg_ns/msol << " solar mass" << endl ;
     cout << "Deformation     : " << ki << endl ;
     
-
-    // Computation of quantities at some SPEC collocation points
-    // ----------------------------------------------------------
-
-    cout << "Centre du trou noir : " << bibi.get_bh().get_mp().get_ori_x()
-	 << endl ;
-    cout << "Centre de l'EN : " << bibi.get_ns().get_mp().get_ori_x()
-         << endl ;
-    
-    cout << "Omega = " << bibi.get_omega()*f_unit << " Hz" << endl ;
-    //Eos_poly& eos_NS = dynamic_cast<Eos_poly&>(bibi.get_ns().get_eos()) ; 
-    //cout << "Gamma = " << eos_NS.get_gam() << endl ;
-    //cout << "Kappa = " << eos_NS.get_kap() << endl ;
-    
-  
     double x_bh = bibi.get_bh().get_mp().get_ori_x() ;
     double x_ns = bibi.get_ns().get_mp().get_ori_x() ;
     double centre = (x_ns+x_bh)/2 ;
     double taille = 1.3*(fabs (x_bh) + fabs(x_ns)) ; 
-
+  // PLOTS //
+    // Les Cmp pour annuler :
+    Cmp surface_bh (mp_bh) ;
+    surface_bh = pow(mp_bh.r, 2.)-pow(bibi.get_bh().get_rayon(), 2.) ;
+    surface_bh.annule(mg_bh.get_nzone()-1) ;
+    surface_bh.std_base_scal() ;
+    
+    Cmp surface_ns (bibi.get_ns().get_ent()()) ;
+    
+    des_coupe_bin_z (bibi.get_ns().get_n_auto()(), bibi.get_bh().get_n_auto()(), 0, x_bh-1, x_bh+1, -1, 1, "Lapse function (Z=0)", 
+    	&surface_ns, &surface_bh, 
+	false, 15, 300, 300) ;
+	
+	/*
+	taille -= 3 ;
+       Cmp p1 (bibi.get_ns().get_taij_auto()(0,0)) ;
+        p1.dec2_dzpuis() ;
+        Cmp p2 (bibi.get_bh().get_taij_auto()(0,0)) ;
+        p2.dec2_dzpuis() ;
+	des_coupe_bin_z (p1, p2, 0, centre-taille, centre+taille, -taille, taille, "A\\uXX\\d (Z=0)", &surface_ns, &surface_bh, false, 15, 300, 300) ;
+	
+    
     des_coupe_bin_z (bibi.get_ns().get_n_auto()(), bibi.get_bh().get_n_auto()(), 0, centre-taille, centre+taille, -taille, taille, "Lapse") ;
     des_coupe_bin_z (bibi.get_ns().get_confpsi_auto()(), bibi.get_bh().get_psi_auto()(), 0, centre-taille, centre+taille, -taille, taille, "Psi") ;
     Tenseur u_euler (bibi.get_ns().get_u_euler()) ;
@@ -182,6 +188,7 @@ int main(int argc, char** argv) {
         p2.dec2_dzpuis() ;
 	des_coupe_bin_z (p1, p2, 0, centre-taille, centre+taille, -taille, taille, "A_ij") ;
       }
-      
+   */
+   
     return EXIT_SUCCESS; 
 }

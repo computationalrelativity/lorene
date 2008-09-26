@@ -29,11 +29,8 @@ char init_ns_bh_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.8  2007/04/24 20:17:32  f_limousin
- * Implementation of Dirichlet and Neumann BC for the lapse
- *
- * Revision 1.7  2006/09/06 11:52:46  p_grandclement
- * Update of the Bin_ns_bh codes
+ * Revision 1.9  2008/09/26 08:44:04  p_grandclement
+ * Mixted binaries with non vanishing spin
  *
  * Revision 1.6  2006/04/27 09:12:34  p_grandclement
  * First try at irrotational black holes
@@ -76,7 +73,7 @@ char init_ns_bh_C[] = "$Header$" ;
 #include "nbr_spx.h"
 #include "eos.h"
 #include "unites.h"
-//#include "graphique.h"
+#include "graphique.h"
 
 int  main(){
 
@@ -235,20 +232,20 @@ int  main(){
     fich.getline(blabla, 80) ;
     fich.getline(blabla, 80) ;
 
-    double separ, lim_nn ;
+    double separ ;
     fich >> separ; fich.getline(blabla, 80) ;
     separ *= km ;	// translation in Lorene units
 
-    int irrot_i, bound_nn ;
+    int irrot_i ;
     int state_rot_bh ;
     double ent_c ;
     fich >> ent_c ; fich.getline(blabla, 80) ;
     fich >> irrot_i ; fich.getline(blabla, 80) ;
     fich >> state_rot_bh ; fich.getline(blabla, 80) ;
     bool irrot_ns = (irrot_i == 1) ;
-    fich >> bound_nn ; 
-    fich >> lim_nn ; fich.getline(blabla, 80) ;
-
+    double lapse_hori ;
+    fich >> lapse_hori ; fich.getline(blabla, 80) ;
+    
     fich.close() ;
 
     cout << endl << "Requested orbital separation : " << separ / km
@@ -260,19 +257,20 @@ int  main(){
 
     Bin_ns_bh bibi(mp_ns, nzet, eos, irrot_ns, mp_bh) ;
     bibi.set_bh().set_rot_state(state_rot_bh) ;
+    bibi.set_bh().set_lapse_hori(lapse_hori) ;
     
     //-----------------------------------------------------------------------
     //		Computation of two static configurations
     //-----------------------------------------------------------------------
 
-    double precis = 1.e-7 ;
+    double precis = 1.e-6 ;
 
     cout << endl << "Computation of a static configuration for the star"
 	 << endl << "=================================================" << endl ;
 
     (bibi.set_ns()).equilibrium_spher(ent_c, precis) ;
-
-    cout << endl << "Computation of a static configuration for the black hole"
+    
+  cout << endl << "Computation of a static configuration for the black hole"
 	 << endl << "=======================================================" << endl ;
 
     (bibi.set_bh()).init_bhole_seul() ;      // Initialization to some kind of Schwarzschild
@@ -315,7 +313,7 @@ int  main(){
     
     bibi.init_auto() ;   
     int ite ;
-    bibi.pseudo_misner (ite, 200, 0.7, precis, bound_nn, lim_nn) ;
+    bibi.pseudo_misner (ite, 200, 0.7, precis, 0, lapse_hori) ;
  
   
     cout << endl

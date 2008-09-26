@@ -29,6 +29,9 @@ char bin_ns_bh_kij_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2008/09/26 08:44:04  p_grandclement
+ * Mixted binaries with non vanishing spin
+ *
  * Revision 1.8  2008/08/19 06:41:59  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -353,12 +356,24 @@ void Bin_ns_bh::fait_tkij (int bound_nn, double lim_nn) {
       for (int i = 0 ; i<3 ; i++)
 	for (int j = i ; j<3 ; j++) {
 	  star.tkij_tot.set(i,j) = 0.5*star.taij_tot(i,j)/star.nnn() ;
-	  star.tkij_auto.set(i,j) = 0.5*star.taij_auto(i,j)/star.nnn() ;
-	  star.tkij_comp.set(i,j) = 0.5*ns_taij_comp(i,j)/star.nnn() ;
+	  //star.tkij_auto.set(i,j) = 0.5*star.taij_tot(i,j)/star.nnn() ;
+	  //star.tkij_comp.set(i,j) = 0.5*ns_taij_comp(i,j)/star.nnn() ;
 	  hole.tkij_tot.set(i,j) = 0.5*hole.taij_tot(i,j)/hole.n_tot() ;
-	  hole.tkij_auto.set(i,j) = 0.5*hole.taij_auto(i,j)/hole.n_tot() ;
+	  //hole.tkij_auto.set(i,j) = 0.5*hole.taij_auto(i,j)/hole.n_tot() ;
 	}
-
+    
+    for (int lig=0 ; lig<3 ; lig++)
+      for (int col=lig ; col<3 ; col++) {
+	star.tkij_auto.set(lig, col) = star.tkij_tot(lig, col)*
+	  star.decouple ;
+	star.tkij_comp.set(lig, col) = star.tkij_tot(lig, col)*
+	  (1-star.decouple) ;
+	hole.tkij_auto.set(lig, col) = hole.tkij_tot(lig, col)*
+	  hole.decouple ;
+      }
+    star.tkij_auto.set_std_base() ;
+    star.tkij_comp.set_std_base() ;
+    hole.tkij_auto.set_std_base() ;
     }
     else {
       
