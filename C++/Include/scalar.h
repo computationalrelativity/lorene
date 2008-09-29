@@ -38,6 +38,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.85  2008/09/29 13:23:51  j_novak
+ * Implementation of the angular mapping associated with an affine
+ * mapping. Things must be improved to take into account the domain index.
+ *
  * Revision 1.84  2008/09/22 19:08:01  j_novak
  * New methods to deal with boundary conditions
  *
@@ -702,14 +706,6 @@ class Scalar : public Tensor {
    *             are expressed in spherical harmonics or Fourier base
    */
   Scalar scalar_out_bound(int n, bool leave_ylm = false) ;
-  
-  /** Returns the \c Scalar containing the values of angular coefficients
-   *  at the inner boundary.
-   *  @param l_dom [input] domain index
-   *  @param leave_ylm [input] flag to decide whether the coefficients 
-   *             are expressed in spherical harmonics or Fourier base
-   */
-  Scalar scalar_in_bound(int n, bool leave_ylm = false) ;
   
   // Differential operators and others
   // ---------------------------------

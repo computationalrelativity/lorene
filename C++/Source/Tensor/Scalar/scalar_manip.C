@@ -27,6 +27,10 @@ char scalar_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2008/09/29 13:23:51  j_novak
+ * Implementation of the angular mapping associated with an affine
+ * mapping. Things must be improved to take into account the domain index.
+ *
  * Revision 1.14  2008/09/22 19:08:01  j_novak
  * New methods to deal with boundary conditions
  *
@@ -445,63 +449,19 @@ Tbl Scalar::tbl_in_bound(int l_zone, bool output_ylm) {
 }
 
 Scalar Scalar::scalar_out_bound(int l_zone, bool output_ylm) {
-    const Map_af* mp_aff = dynamic_cast<const Map_af*>(mp) ;
-    assert ( mp_aff != 0x0) ;
     if (output_ylm) va.ylm() ;
 
-    const Mg3d& g_angu = *mp->get_mg()->get_angu_1dom() ;
-    double Rb = mp_aff->val_r_jk(l_zone, 1., 0, 0) ;
-    Tbl rlim(2) ;
-    rlim.set_etat_qcq() ;
-    rlim.set(0) = Rb ;
-    rlim.set(1) = Rb ;
-    Map_af mp_angu(g_angu, rlim) ;
-
-    Scalar resu(mp_angu) ;
+    Scalar resu(mp->mp_angu(l_zone)) ;
     if (etat == ETATZERO) resu.set_etat_zero() ;
     else {
 	assert(etat == ETATQCQ) ;
 	resu.allocate_all() ;
-	int np = g_angu.get_np(0) ;
-	int nt = g_angu.get_nt(0) ;
+	int np = mp->get_mg()->get_np(l_zone) ;
+	int nt = mp->get_mg()->get_nt(l_zone) ;
 	for (int k=0; k<np; k++)
 	    for (int j=0; j<nt; j++)
 		resu.set_grid_point(0, k, j, 0) 
 		    = va.c_cf->val_out_bound_jk(l_zone, j, k) ;
-    }
-    resu.std_spectral_base() ;
-    Base_val base = resu.get_spectral_base() ;
-    base.set_base_t(va.base.get_base_t(l_zone)) ;
-    resu.set_spectral_base(base) ;
-    return resu ;
-}
-
-Scalar Scalar::scalar_in_bound(int l_zone, bool output_ylm) {
-    assert(mp->get_mg()->get_type_r(l_zone) != RARE) ;
-    const Map_af* mp_aff = dynamic_cast<const Map_af*>(mp) ;
-    assert ( mp_aff != 0x0) ;
-    if (output_ylm) va.ylm() ;
-
-    const Mg3d& g_angu = *mp->get_mg()->get_angu_1dom() ;
-    double Rb = mp_aff->val_r_jk(l_zone, -1., 0, 0) ;
-    Tbl rlim(2) ;
-    rlim.set_etat_qcq() ;
-    rlim.set(0) = Rb ;
-    rlim.set(1) = Rb ;
-    Map_af mp_angu(g_angu, rlim) ;
-
-    Scalar resu(mp_angu) ;
-    if (etat == ETATZERO) resu.set_etat_zero() ;
-    else {
-	assert(etat == ETATQCQ) ;
-	resu.allocate_all() ;
-	int np = g_angu.get_np(0) ;
-	int nt = g_angu.get_nt(0) ;
-	va.ylm() ;
-	for (int k=0; k<np; k++)
-	    for (int j=0; j<nt; j++)
-		resu.set_grid_point(0, k, j, 0) 
-		    = va.c_cf->val_in_bound_jk(l_zone, j, k) ;
     }
     resu.std_spectral_base() ;
     Base_val base = resu.get_spectral_base() ;

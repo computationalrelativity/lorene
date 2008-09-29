@@ -33,6 +33,10 @@ char map_af_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2008/09/29 13:23:51  j_novak
+ * Implementation of the angular mapping associated with an affine
+ * mapping. Things must be improved to take into account the domain index.
+ *
  * Revision 1.13  2008/08/19 06:42:00  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -640,6 +644,23 @@ void Map_af::set_beta(double beta0, int l) {
     
 }
 
+                            //------------------------------------//
+                            //    Angular part of the mapping     //
+                            //------------------------------------//
+
+const Map_af& Map_af::mp_angu(int l_zone) const {
+//## the handling of l_zone must be improved 
+    if (p_mp_angu == 0x0) {
+	const Mg3d& g_angu = (*get_mg()->get_angu_1dom()) ;
+	double Rb = val_r_jk(l_zone, 1., 0, 0) ;
+	Tbl rlim(2) ;
+	rlim.set_etat_qcq() ;
+	rlim.set(0) = Rb ;
+	rlim.set(1) = Rb ;
+	p_mp_angu = new Map_af(g_angu, rlim) ;
+    }
+    return *p_mp_angu ;
+}
 
 // To be done
 //-----------

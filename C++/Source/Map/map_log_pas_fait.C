@@ -32,6 +32,10 @@ char map_log_pas_fait_C[] = "$Header $" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2008/09/29 13:23:51  j_novak
+ * Implementation of the angular mapping associated with an affine
+ * mapping. Things must be improved to take into account the domain index.
+ *
  * Revision 1.6  2006/04/25 07:21:59  p_grandclement
  * Various changes for the NS_BH project
  *
@@ -172,3 +176,8 @@ void Map_log::poisson_tau (const Cmp&, Param&, Cmp&) const {
   pas_fait() ;
 }
 
+const Map_af& Map_log::mp_angu(int) const {
+    pas_fait() ;
+    p_mp_angu = new Map_af(*this) ;
+    return *p_mp_angu ;
+}

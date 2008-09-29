@@ -33,6 +33,10 @@ char map_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2008/09/29 13:23:51  j_novak
+ * Implementation of the angular mapping associated with an affine
+ * mapping. Things must be improved to take into account the domain index.
+ *
  * Revision 1.8  2004/01/29 08:50:03  p_grandclement
  * Modification of Map::operator==(const Map&) and addition of the surface
  * integrales using Scalar.
@@ -131,7 +135,8 @@ Map::Map(const Mg3d& mgi) : mg(&mgi),
 					"Mapping orthonormal spherical basis"), 
 			    bvect_cart(rot_phi, "Mapping Cartesian basis"),
                             p_flat_met_spher(0x0), 
-                            p_flat_met_cart(0x0) 
+                            p_flat_met_cart(0x0),
+			    p_mp_angu(0x0)
 {
         // The Coord's are constructed by the default Coord constructor
 	
@@ -149,7 +154,8 @@ Map::Map(const Map& mp) : mg(mp.mg),
 				      "Mapping orthonormal spherical basis"), 
 			  bvect_cart(rot_phi, "Mapping Cartesian basis"), 
                           p_flat_met_spher(0x0), 
-                          p_flat_met_cart(0x0) 
+                          p_flat_met_cart(0x0),
+			  p_mp_angu(0x0) 
 {
         // The Coord's are constructed by the default Coord constructor
 
@@ -165,7 +171,8 @@ Map::Map(const Mg3d& mgi, FILE* fd) : mg(&mgi),
 					"Mapping orthonormal spherical basis"), 
 				      bvect_cart(0., "Mapping Cartesian basis"), 
                                       p_flat_met_spher(0x0), 
-                                      p_flat_met_cart(0x0) 
+                                      p_flat_met_cart(0x0),
+				      p_mp_angu(0x0) 
 {
     Mg3d* mg_tmp = new Mg3d(fd) ;	// la multi-grille d'origine
     if (*mg != *mg_tmp) {
@@ -199,6 +206,7 @@ Map::Map(const Mg3d& mgi, FILE* fd) : mg(&mgi),
 Map::~Map() {
     if (p_flat_met_spher != 0x0) delete p_flat_met_spher ;
     if (p_flat_met_cart != 0x0) delete p_flat_met_cart ;
+    if (p_mp_angu != 0x0) delete p_mp_angu ;
     delete p_cmp_zero ;
 }
 
@@ -322,6 +330,7 @@ const Metric_flat& Map::flat_met_cart() const {
     return *p_flat_met_cart ;
 
 } 
+
 
 
 

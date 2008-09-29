@@ -39,6 +39,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.53  2008/09/29 13:23:51  j_novak
+ * Implementation of the angular mapping associated with an affine
+ * mapping. Things must be improved to take into account the domain index.
+ *
  * Revision 1.52  2007/10/16 21:52:10  e_gourgoulhon
  * Added method poisson_compact for multi-domains.
  *
@@ -689,6 +693,8 @@ class Map {
 	 */
 	Cmp* p_cmp_zero ; 
 
+	mutable Map_af* p_mp_angu ; ///< Pointer on the "angular" mapping.
+
     public:
 	Coord r ;	///< \e r  coordinate centered on the grid
 	Coord tet ;	///< \f$\theta\f$ coordinate centered on the grid
@@ -780,6 +786,11 @@ class Map {
 	 *  return a null \c Cmp . 
 	 */
 	const Cmp& cmp_zero() const {return *p_cmp_zero;} ;	
+
+	/** Returns the "angular" mapping for the outside of domain \c l_zone.
+	 * Valid only for the class \c Map_af.
+	 */
+	virtual const Map_af& mp_angu(int) const = 0 ;
 	
 	/** Determines the coordinates \f$(r,\theta,\phi)\f$
 	 *  corresponding to given absolute Cartesian coordinates
@@ -2054,6 +2065,11 @@ class Map_af : public Map_radial {
 
 	/// Returns the pointer on the array \c beta 
 	const double* get_beta() const ; 
+
+	/** Returns the "angular" mapping for the outside of domain \c l_zone.
+	 * Valid only for the class \c Map_af.
+	 */
+	virtual const Map_af& mp_angu(int) const ;
 	
 	/**
 	 *  Returns the value of the radial coordinate \e r  for a given
@@ -2840,6 +2856,11 @@ class Map_et : public Map_radial {
     // Extraction of information
     // -------------------------
     public:
+	/** Returns the "angular" mapping for the outside of domain \c l_zone.
+	 * Valid only for the class \c Map_af.
+	 */
+	virtual const Map_af& mp_angu(int) const ;
+	
 	/** Returns a pointer on the array \c alpha  (values of \f$\alpha\f$
 	 *   in each domain)
 	 */
@@ -3537,6 +3558,11 @@ class Map_log : public Map_radial {
 
 	virtual ~Map_log() ;	      ///< Destructor
 	
+	/** Returns the "angular" mapping for the outside of domain \c l_zone.
+	 * Valid only for the class \c Map_af.
+	 */
+	virtual const Map_af& mp_angu(int) const ;
+	
 	/// Returns \f$\alpha\f$ in the domain \c l
 	double get_alpha (int l) const {return alpha(l) ;} ;
 	/// Returns \f$\beta\f$ in the domain \c l
@@ -3573,8 +3599,6 @@ class Map_log : public Map_radial {
         /** General elliptic solver including inner boundary conditions, the bound being 
 	 * given as a Scalar on a mono-domain angular grid.
          **/
-
-
 	void sol_elliptic_boundary (Param_elliptic& params, 
 			   const Scalar& so,  Scalar& uu, const Scalar& bound, 
 			   double fact_dir, double fact_neu ) const ;

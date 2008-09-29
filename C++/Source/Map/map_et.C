@@ -29,6 +29,10 @@ char map_et_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2008/09/29 13:23:51  j_novak
+ * Implementation of the angular mapping associated with an affine
+ * mapping. Things must be improved to take into account the domain index.
+ *
  * Revision 1.12  2008/08/27 08:48:26  jl_cornou
  * Added_R_JACO02 case
  *
@@ -1029,3 +1033,14 @@ const Valeur& Map_et::get_ff() const {
 const Valeur& Map_et::get_gg() const {
     return gg ; 
 }
+
+
+// To be done
+//-----------
+const Map_af& Map_et::mp_angu(int) const {
+    const char* f = __FILE__ ;
+    c_est_pas_fait(f) ;
+    p_mp_angu = new Map_af(*this) ;
+    return *p_mp_angu ;
+}
+
