@@ -27,6 +27,9 @@ char scalar_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2008/09/30 08:35:18  j_novak
+ * Correction of forgotten call to coef()
+ *
  * Revision 1.15  2008/09/29 13:23:51  j_novak
  * Implementation of the angular mapping associated with an affine
  * mapping. Things must be improved to take into account the domain index.
@@ -414,6 +417,7 @@ void Scalar::fixe_decroissance (int puis) {
 }
 
 Tbl Scalar::tbl_out_bound(int l_zone, bool output_ylm) {
+    va.coef() ;
     if (output_ylm) va.ylm() ;
 
     int np = mp->get_mg()->get_np(l_zone) ;
@@ -432,6 +436,7 @@ Tbl Scalar::tbl_out_bound(int l_zone, bool output_ylm) {
 
 Tbl Scalar::tbl_in_bound(int l_zone, bool output_ylm) {
     assert(mp->get_mg()->get_type_r(l_zone) != RARE) ;
+    va.coef() ;
     if (output_ylm) va.ylm() ;
 
     int np = mp->get_mg()->get_np(l_zone) ;
@@ -449,6 +454,7 @@ Tbl Scalar::tbl_in_bound(int l_zone, bool output_ylm) {
 }
 
 Scalar Scalar::scalar_out_bound(int l_zone, bool output_ylm) {
+    va.coef() ;
     if (output_ylm) va.ylm() ;
 
     Scalar resu(mp->mp_angu(l_zone)) ;
