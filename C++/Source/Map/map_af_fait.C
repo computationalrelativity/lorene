@@ -26,6 +26,9 @@ char map_af_fait_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2008/10/03 09:05:29  j_novak
+ * Improved the treatment of angular mapping in the computation of xsr
+ *
  * Revision 1.7  2007/12/20 09:11:04  jl_cornou
  * Correction of an error in op_sxpun about Jacobi(0,2) polynomials
  *
@@ -563,7 +566,7 @@ Mtbl* map_af_fait_xsr(const Map* cvi) {
 	    for (k=0 ; k<ip ; k++) {
 		for (j=0 ; j<it ; j++) {
 		    if (ir == 1) { //Some hack for angular grid case...
-			*p_r = 1 ;
+			*p_r = 1. / beta[l] ;
 			p_r++ ;
 		    }
 		    else 
