@@ -27,6 +27,10 @@ char scalar_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.17  2008/10/03 09:03:52  j_novak
+ * Correction of yet another mistake (the array values in physical space was not
+ * destroyed).
+ *
  * Revision 1.16  2008/09/30 08:35:18  j_novak
  * Correction of forgotten call to coef()
  *
@@ -458,20 +462,22 @@ Scalar Scalar::scalar_out_bound(int l_zone, bool output_ylm) {
     if (output_ylm) va.ylm() ;
 
     Scalar resu(mp->mp_angu(l_zone)) ;
-    if (etat == ETATZERO) resu.set_etat_zero() ;
-    else {
-	assert(etat == ETATQCQ) ;
-	resu.allocate_all() ;
-	int np = mp->get_mg()->get_np(l_zone) ;
-	int nt = mp->get_mg()->get_nt(l_zone) ;
-	for (int k=0; k<np; k++)
-	    for (int j=0; j<nt; j++)
-		resu.set_grid_point(0, k, j, 0) 
-		    = va.c_cf->val_out_bound_jk(l_zone, j, k) ;
-    }
     resu.std_spectral_base() ;
     Base_val base = resu.get_spectral_base() ;
     base.set_base_t(va.base.get_base_t(l_zone)) ;
     resu.set_spectral_base(base) ;
+    if (etat == ETATZERO) resu.set_etat_zero() ;
+    else {
+	assert(etat == ETATQCQ) ;
+	resu.annule_hard() ;
+	int np = mp->get_mg()->get_np(l_zone) ;
+	int nt = mp->get_mg()->get_nt(l_zone) ;
+	for (int k=0; k<np+2; k++)
+	    for (int j=0; j<nt; j++)
+		resu.set_spectral_va().c_cf->set(0, k, j, 0) 
+		    = va.c_cf->val_out_bound_jk(l_zone, j, k) ;
+	delete resu.set_spectral_va().c ;
+	resu.set_spectral_va().c = 0x0 ;
+    }
     return resu ;
 }
