@@ -31,6 +31,9 @@ char valeur_coef_i_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2008/10/07 15:01:58  j_novak
+ * The case nt=1 is now treated separately.
+ *
  * Revision 1.9  2007/12/11 15:28:25  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -97,9 +100,9 @@ char valeur_coef_i_C[] = "$Header$" ;
  *
  */
 
+#include <math.h>
+
 // Header Lorene
-#include "mtbl.h"
-#include "mtbl_cf.h"
 #include "valeur.h"
 #include "proto.h"
 
@@ -253,10 +256,19 @@ void Valeur::coef_i() const {
 	
 	// Partie angulaire
 	if ( np == 1) {
-	  if (nt==1)
-	    for (int i=0 ; i<f->get_taille() ; i++)
-	      f->t[i] = trav[i] ;
-	  else {
+	    if (nt==1) {
+		for (int i=0 ; i<f->get_taille() ; i++)
+		    f->t[i] = trav[i] ;
+		if ((vbase_t == T_LEG_PP) || (vbase_t == T_LEG_PI) || 
+		    (vbase_t == T_LEG_IP) || (vbase_t == T_LEG_II) ||
+		    (vbase_t == T_LEG_P) || (vbase_t == T_LEG_I) ||
+		    (vbase_t == T_LEG)) {
+		    
+		    *f /=sqrt(2.) ;		
+		}
+	    }
+	    
+	    else {
 	    bool pair = ( (vbase_t == T_LEG_PP) || (vbase_t == T_LEG_IP)) ;
 	    bool impair = ( (vbase_t == T_LEG_PI) || (vbase_t == T_LEG_II)) ;
 	    

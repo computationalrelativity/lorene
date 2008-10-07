@@ -30,6 +30,9 @@ char valeur_coef_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2008/10/07 15:01:58  j_novak
+ * The case nt=1 is now treated separately.
+ *
  * Revision 1.10  2008/05/24 15:09:02  j_novak
  * Getting back to previous version, the new one was an error.
  *
@@ -283,6 +286,15 @@ void Valeur::coef() const {
 		  pasprevu_t(deg, dim, (cf->t), dim, (cf->t) ) ;
 	    else	    
 	      coef_t[base_t](deg, dim, (cf->t), dim, (cf->t)) ;
+	}
+	else {
+	    if ((vbase_t == T_LEG_PP) || (vbase_t == T_LEG_PI) || 
+		(vbase_t == T_LEG_IP) || (vbase_t == T_LEG_II) ||
+		(vbase_t == T_LEG_P) || (vbase_t == T_LEG_I) ||
+		(vbase_t == T_LEG)) {
+	       
+		      *c_cf->t[l] *=sqrt(2.) ;		
+	    }
 	}
 	
 
