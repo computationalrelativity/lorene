@@ -28,6 +28,9 @@ char wave_utilities_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2008/10/14 13:10:58  j_novak
+ * New function Dirichlet_BC_AtB, to compute Dirichlet boundary conditions on A and B potentials knowing them on the tensor h^{ij}.
+ *
  * Revision 1.5  2008/08/27 08:11:47  j_novak
  * Correction of a mistake in the index in evolve_outgoing_BC.
  *
@@ -50,6 +53,7 @@ char wave_utilities_C[] = "$Header$" ;
  */
 
 #include"tensor.h"
+#include"evolution.h"
 
 void tilde_laplacian(const Scalar& B_in, Scalar& tilde_lap, int dl) {
     
@@ -190,4 +194,47 @@ void evolve_outgoing_BC(double dt, int nz_bound, const Scalar& phi, Scalar& sphi
 
 }
 
+void Dirichlet_BC_AtB(const Evolution_std<Sym_tensor>& hb_evol, 
+		      const Evolution_std<Sym_tensor>& dhb_evol, Tbl& ccA, Tbl& ccB) {
 
+    int iter = hb_evol.j_max() ;
+    assert(dhb_evol.j_max() == iter) ;
+
+    Scalar mu_ddot = dhb_evol.time_derive(iter,3).mu() ;
+
+    Tbl ddmu = mu_ddot.tbl_out_bound(0, true) ;
+    int nt = ddmu.get_dim(0) ;
+    int np2 = ddmu.get_dim(1) ;
+    const Base_val& base = mu_ddot.get_spectral_base() ;
+     int l_q, m_q, base_r ;
+     ccA.annule_hard() ;
+     for (int k=0; k<np2; k++) {
+	 for (int j=0; j<nt; j++) {
+	     base.give_quant_numbers(0, k, j, m_q, l_q, base_r) ;
+	     if (l_q>1)
+		 ccA.set(k,j) = ddmu(k,j) / double(l_q*(l_q+1)-2) ;
+	 }
+     }
+
+     Scalar hrr_ddot = dhb_evol.time_derive(iter,3)(1,1) ;
+     Tbl ddhrr = hrr_ddot.tbl_out_bound(0, true) ;
+     Scalar eta_ddot = dhb_evol.time_derive(iter,3).eta() ;
+     Tbl ddeta = eta_ddot.tbl_out_bound(0, true) ;
+     const Base_val& base2 = hrr_ddot.get_spectral_base() ;
+
+     const Map& map = hrr_ddot.get_mp() ;
+     const Map_radial* mp_rad = dynamic_cast<const Map_radial*>(&map) ;
+     assert(mp_rad != 0x0) ;
+     for (int k=0; k<np2; k++) {
+	 for (int j=0; j<nt; j++) {
+	     base2.give_quant_numbers(0, k, j, m_q, l_q, base_r) ;
+	     if (l_q>1) {
+ 		 ccB.set(k,j) = (double(l_q+1)*ddeta(k,j) 
+ 				 + ddhrr(k,j)*mp_rad->val_r_jk(0, 1., j, k))
+ 		     / double((l_q+1)*(l_q-1)) ;
+	     }
+	 }
+     }
+
+}
+		      
