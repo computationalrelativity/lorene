@@ -37,6 +37,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2008/10/17 10:48:28  j_novak
+ * Increase of the macro MAX_DAL
+ *
  * Revision 1.7  2007/12/11 15:28:05  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -233,7 +236,7 @@
 /*       pour l'instant)       */
 /*******************************/
 /// Nombre max d'operateurs (pour l'instant)
-#define     MAX_DAL       6           
+#define     MAX_DAL       32           
 /// Operateur du premier ordre, \f$\delta < \delta_{crit}\f$
 #define     ORDRE1_SMALL  0x000000001 
 /// Operateur du premier ordre \f$\delta > \delta_{crit}\f$
