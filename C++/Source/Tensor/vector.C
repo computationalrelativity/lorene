@@ -32,6 +32,9 @@ char vector_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.28  2008/10/29 14:09:14  jl_cornou
+ * Spectral bases for pseudo vectors and curl added
+ *
  * Revision 1.27  2008/08/27 08:52:23  jl_cornou
  * Added fonctions for angular potential A
  *
@@ -331,6 +334,37 @@ void Vector::std_spectral_base() {
 
 }
 
+// Sets the standard spectral bases of decomposition for each component for a pseudo vector
+
+void Vector::pseudo_spectral_base() {
+
+	Base_val** bases = 0x0 ;
+
+	if ( triad->identify() == (mp->get_bvect_cart()).identify() ) {
+
+		// Cartesian case
+		bases = mp->get_mg()->pseudo_base_vect_cart() ;
+
+	}
+	else {
+		// Spherical case
+		assert( triad->identify() == (mp->get_bvect_spher()).identify()) ;
+		bases = mp->get_mg()->pseudo_base_vect_spher() ;
+	}
+	    
+	for (int i=0 ; i<3 ; i++) {
+		cmp[i]->set_spectral_base( *bases[i] ) ; 
+	}
+		
+	for (int i=0 ; i<3 ; i++) {
+		delete bases[i] ;
+	}
+	delete [] bases ;
+
+
+}
+
+
 
                     //-------------------------------//
                     //    Computational methods      //
@@ -356,6 +390,41 @@ Vector Vector::derive_lie(const Vector& vv) const {
     
     return resu ; 
     
+}
+
+const Vector_divfree Vector::curl() const {
+
+	if ( triad->identify() == (mp->get_bvect_cart()).identify() ) {
+	const Metric_flat& metc = mp->flat_met_cart() ;
+	Vector_divfree resu(*mp, mp->get_bvect_cart(), metc) ;
+	resu.set(1)= cmp[3]->dsdy() - cmp[2]->dsdz();
+	resu.set(2)= cmp[1]->dsdz() - cmp[3]->dsdx();
+	resu.set(3)= cmp[2]->dsdx() - cmp[1]->dsdy();
+	resu.pseudo_spectral_base();
+	return resu ;
+	}
+	else	{
+		assert( triad->identify() == (mp->get_bvect_spher()).identify()) ;
+		const Metric_flat& mets = mp->flat_met_spher() ;
+		Vector_divfree resu(*mp, mp->get_bvect_spher(), mets);
+		Scalar tmp = *cmp[3] ;
+		tmp.div_tant();
+		tmp += cmp[3]->dsdt();
+		tmp.div_r();
+		resu.set(1) = tmp - cmp[2]->srstdsdp() ;
+		tmp = *cmp[3] ;
+		tmp.mult_r();
+		tmp = tmp.dsdr();
+		tmp.div_r();
+		resu.set(2) = cmp[1]->srstdsdp() - tmp ;
+		tmp = *cmp[2];
+		tmp.mult_r();	
+		resu.set(3) = tmp.dsdr() - cmp[1]->dsdt() ;
+		resu.set(3).div_r(); 
+		resu.pseudo_spectral_base();
+		return resu ;
+		}
+
 }
 
 
