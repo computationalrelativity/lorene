@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.40  2008/10/29 08:19:08  jl_cornou
+ * Typo in the doxygen documentation + spectral bases for pseudo vectors added
+ * and curl
+ *
  * Revision 1.39  2008/08/27 08:45:21  jl_cornou
  * Implemented routines to solve dirac systems for divergence-free vectors
  *
@@ -412,6 +416,12 @@ class Vector: public Tensor {
 	 */
 	virtual void std_spectral_base() ; 
 
+	/**
+	 * Sets the standard spectal bases of decomposition for each component for a pseudo_vector.
+	 *
+	 */
+	virtual void pseudo_spectral_base() ; 
+
 	/** Gives the field \f$\eta\f$ such that the angular components 
 	 * \f$(V^\theta, V^\varphi)\f$ of the vector are written:
 	 * \f[
@@ -443,7 +453,7 @@ class Vector: public Tensor {
 
 	/** Gives the field \f$A\f$ defined by 
 	 * \f[ 
-	 *     A = {\partial \eta \over \ partial r} + { \eta \over r} - {V^r \over r}
+	 *     A = {\partial \eta \over \partial r} + { \eta \over r} - {V^r \over r}
 	 *  \f]
 	 *  Related to the curl, A is insensitive to the longitudinal part of the vector.
 	 */
@@ -472,6 +482,11 @@ class Vector: public Tensor {
 	 * The \c Vector  is assumed to be contravariant.
 	 */
 	const Scalar& divergence(const Metric&) const ; 
+
+	/** The curl of \c this with respect to a (flat) \c Metric .
+	 *  The \c Vector is assumed to be contravariant.
+	 */
+	const Vector_divfree curl() const ;
 
     /** Computes the Lie derivative of \c this  with respect to some
      *  vector field \c v 
