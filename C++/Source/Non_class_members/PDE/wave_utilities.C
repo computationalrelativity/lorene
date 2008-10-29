@@ -28,6 +28,9 @@ char wave_utilities_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2008/10/29 08:22:58  jl_cornou
+ * Compatibility conditions in the vector wave-equation case added
+ *
  * Revision 1.6  2008/10/14 13:10:58  j_novak
  * New function Dirichlet_BC_AtB, to compute Dirichlet boundary conditions on A and B potentials knowing them on the tensor h^{ij}.
  *
@@ -238,3 +241,38 @@ void Dirichlet_BC_AtB(const Evolution_std<Sym_tensor>& hb_evol,
 
 }
 		      
+
+void Dirichlet_BC_Amu(const Evolution_std<Vector>& vb_evol, 
+		      const Evolution_std<Vector>& dvb_evol, Tbl& ccA, Tbl& ccmu) {
+
+    int iter = vb_evol.j_max() ;
+    assert(dvb_evol.j_max() == iter) ;
+
+    Scalar vr_ddot = dvb_evol.time_derive(iter,3)(1) ;
+
+    Tbl ddvr = vr_ddot.tbl_out_bound(0, true) ;
+    int nt = ddvr.get_dim(0) ;
+    int np2 = ddvr.get_dim(1) ;
+    const Base_val& base = vr_ddot.get_spectral_base() ;
+    int l_q, m_q, base_r ;
+    ccA.annule_hard() ;
+    ccmu.annule_hard() ;
+    Scalar mu_b = vb_evol[iter].mu();
+    ccmu = mu_b.tbl_out_bound(0,true);
+    const Map& map = vr_ddot.get_mp();
+    const Map_radial* mp_rad = dynamic_cast<const Map_radial*>(&map);
+    assert(mp_rad != 0x0) ;
+     for (int k=0; k<np2; k++) {
+	 for (int j=0; j<nt; j++) {
+	     base.give_quant_numbers(0, k, j, m_q, l_q, base_r) ;
+	     if (l_q>0) {
+		 ccA.set(k,j) = ddvr(k,j)*mp_rad->val_r_jk(0, 1., j, k) / double(l_q*(l_q+1)) ;
+		}
+	    }
+	 }
+     }
+
+
+
+
+
