@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2008/10/29 08:17:51  jl_cornou
+ * Standard spectral bases for pseudo vectors added
+ *
  * Revision 1.17  2008/02/18 13:53:37  j_novak
  * Removal of special indentation instructions.
  *
@@ -791,6 +794,16 @@ class Mg3d {
 	 *  of a vector
 	 */ 
 	Base_val** std_base_vect_spher() const ;
+
+	/** Returns the standard spectral bases for the Cartesian components 
+	 *  of a pseudo-vector
+	 */ 
+	Base_val** pseudo_base_vect_cart() const ;
+
+	/** Returns the standard spectral bases for the spherical components 
+	 *  of a pseudo-vector
+	 */ 
+	Base_val** pseudo_base_vect_spher() const ;
 
 };
 ostream& operator<<(ostream& , const Mg3d & ) ;
