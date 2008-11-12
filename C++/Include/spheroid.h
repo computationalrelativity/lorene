@@ -29,6 +29,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2008/11/12 15:18:32  n_vasset
+ * New definition for the computation of Ricci scalar (instead of Ricci
+ * tensor previously)
+ *
  * Revision 1.10  2008/07/09 08:48:23  n_vasset
  * protected member zeta added.
  *
@@ -97,6 +101,9 @@ class Spheroid {
         Vector ss ;
 
 	Metric qab ;  /// Induced metric on the 2-surface \f$ q_{ab} \f$
+
+	Scalar ricci; /// The ricci scalar on the 2-surface
+
         /** Extrinsic curvature of the 2-surface in the 3-slice.
 	 * \f$ H_{ab} \f$ (covariant representation)
 	 */
@@ -144,9 +151,7 @@ class Spheroid {
 	mutable Scalar* p_theta_plus ; ///< Null outgoing expansion
 	mutable Scalar* p_theta_minus ; ///< Null ingoing expansion
 	mutable Sym_tensor* p_shear ; ///< The shear tensor
-
-        mutable Sym_tensor* p_ricci ; ///< The ricci tensor for the spheroid
-        mutable Tensor* p_delta ; 
+        mutable Tensor* p_delta ; /// The delta tensorial fields linked to Christoffel symbols
 
 
 
@@ -201,6 +206,9 @@ class Spheroid {
 	/// Returns the metric \f$ q_{ab} \f$
 	const Metric& get_qab() const {return qab ; } ;
 
+	/// Returns the 2-ricci scalar \f$ R = q^{ab}R_{ab} \f$
+	const Scalar& get_ricci() const {return ricci ; } ;
+
 	/// Returns the symmetric tensor \f$ H_{ab} \f$
 	const Sym_tensor& get_hh() const {return hh ; } ;
 
@@ -239,6 +247,9 @@ class Spheroid {
 
 	/// Sets the modified metric (non degenerated) \f$ q_{ab} \f$
 	Metric& set_qab() {del_deriv() ; return qab ; } ;
+
+	/// Sets the 2-Ricci scalar \f$ R = q^{ab}R_{ab} \f$
+	Scalar& set_ricci() {del_deriv() ; return ricci ; } ;
 
 	/// Sets the degenerated metric \f$ Q_{ab} \f$
 	Sym_tensor& set_qq() {del_deriv() ; return qq ; } ;
@@ -328,10 +339,6 @@ class Spheroid {
 
 	/// Computes the shear of the 2-surface \f$ \sigma_{ab} \f$.
 	const Sym_tensor& shear () const ;
-
-        ///Computes the Ricci tensor of the 2-surface
- 
-	const Sym_tensor& ricci () const; 
 
 	/// Computes the round covariant derivative on the spheroid 
  
