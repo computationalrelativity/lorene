@@ -34,6 +34,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.28  2008/11/14 13:51:08  e_gourgoulhon
+ * Added the parameter ent_limit to Etoile::equilibrium_spher and
+ * Etoile_bin::equilibrium.
+ *
  * Revision 1.27  2005/10/05 15:14:47  j_novak
  * Added a Param* as parameter of Etoile_rot::equilibrium
  *
@@ -595,8 +599,10 @@ class Etoile {
 	 *  @param precis [input] threshold in the relative difference between 
 	 *	the enthalpy fields of two consecutive steps
 	 *	to stop the iterative procedure (default value: 1.e-14)
+	 * @param ent_limit [input] : array of enthalpy values to be set at the boundaries between 
+	 *			the domains; if set to 0x0 (default), the initial values will be kept.
 	 */
-	virtual void equilibrium_spher(double ent_c, double precis = 1.e-14) ; 
+	virtual void equilibrium_spher(double ent_c, double precis = 1.e-14, const Tbl* ent_limit = 0x0 ) ; 
 
 	/** Computes a spherical static configuration. 
 	 *  The sources for Poisson equations are regularized
@@ -1359,12 +1365,15 @@ class Etoile_bin : public Etoile {
 	 *	    \li \c diff(5)  : Relative error in the resolution of the
 	 *			    equation for \c shift_auto  (y comp.)   
 	 *	    \li \c diff(6)  : Relative error in the resolution of the
-	 *			    equation for \c shift_auto  (z comp.)   
+	 *			    equation for \c shift_auto  (z comp.)
+	 * @param ent_limit [input] : array of enthalpy values to be set at the boundaries between 
+	 *			the domains; if set to 0x0 (default), the initial values will be kept.
 	 */
-	void equilibrium(double ent_c, int mermax, int mermax_poisson, 
+	void equilibrium(double ent_c, 
+                         int mermax, int mermax_poisson, 
 			 double relax_poisson, int mermax_potvit, 
 			 double relax_potvit, double thres_adapt, 
-			 const Tbl& fact, Tbl& diff) ;
+			 const Tbl& fact, Tbl& diff, const Tbl* ent_limit = 0x0 ) ;
 
 	/** Computes an equilibrium configuration by regularizing
 	 *  the diverging source.
@@ -1373,6 +1382,8 @@ class Etoile_bin : public Etoile {
 	 *  are held fixed during the iteration. 
 	 *  
 	 *  @param ent_c  [input] Central enthalpy
+         *  @param ent_limit is the table of enthalpy values on the domain borders
+         *  
 	 *  @param mermax [input] Maximum number of steps 
 	 *  @param mermax_poisson [input]   Maximum number of steps in 
 	 *				    Map_et::poisson
