@@ -33,6 +33,11 @@ char et_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.11  2008/11/14 13:48:06  e_gourgoulhon
+ * Added parameter pent_limit to force the enthalpy values at the
+ * boundaries between the domains, in case of more than one domain inside
+ * the star.
+ *
  * Revision 1.10  2004/09/28 15:49:23  f_limousin
  * Improve the rescaling of the domains for nzone = 4 and nzone = 5.
  *
@@ -166,10 +171,11 @@ char et_bin_equilibrium_C[] = "$Header$" ;
 #include "utilitaires.h"
 #include "unites.h"	    
 
-void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson, 
+void Etoile_bin::equilibrium(double ent_c, 
+                             int mermax, int mermax_poisson, 
 			 double relax_poisson, int mermax_potvit, 
 			 double relax_potvit, double thres_adapt,
-			 const Tbl& fact_resize, Tbl& diff) {
+			 const Tbl& fact_resize, Tbl& diff, const Tbl* pent_limit ) {
 			     
 
     // Fundamental constants and units
@@ -205,7 +211,7 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
     double& diff_shift_x = diff.set(4) ; 
     double& diff_shift_y = diff.set(5) ; 
     double& diff_shift_z = diff.set(6) ; 
-    
+
     // Parameters for the function Map_et::adapt
     // -----------------------------------------
     
@@ -222,8 +228,6 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
     double precis_secant = 1.e-14 ; 
     double alpha_r ; 
     double reg_map = 1. ; // 1 = regular mapping, 0 = contracting mapping
-
-    Tbl ent_limit(nz) ; 
 
     par_adapt.add_int(nitermax, 0) ; // maximum number of iterations to 
 				     // locate zeros by the secant method
@@ -250,10 +254,14 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
     
     par_adapt.add_double(alpha_r, 2) ;	    // factor by which all the radial 
 					    // distances will be multiplied 
+
+    // Enthalpy values for the adaptation
+    Tbl ent_limit(nzet) ; 
+    if (pent_limit != 0x0) ent_limit = *pent_limit ; 
     	   
     par_adapt.add_tbl(ent_limit, 0) ;	// array of values of the field ent 
 				        // to define the isosurfaces. 			   
-
+ 
     // Parameters for the function Map_et::poisson for logn_auto
     // ---------------------------------------------------------
 
@@ -421,12 +429,13 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	}
 
 
-
-	ent_limit.set_etat_qcq() ; 
-	for (int l=0; l<nzet; l++) {	// loop on domains inside the star
+	if (pent_limit == 0x0) {
+	  ent_limit.set_etat_qcq() ; 
+	  for (int l=0; l<nzet; l++) {	// loop on domains inside the star
 	    ent_limit.set(l) = ent()(l, k_b, j_b, i_b) ; 
+	  }
+	  ent_limit.set(nzet-1) = ent_b  ; 
 	}
-	ent_limit.set(nzet-1) = ent_b  ; 
 
 	Map_et mp_prev = mp_et ; 
 
@@ -471,7 +480,7 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 //##
 
 
-	mp.adapt(ent(), par_adapt) ; 
+	mp.adapt(ent(), par_adapt) ;
 
 	// Readjustment of the external boundary of domain l=nzet
 	// to keep a fixed ratio with respect to star's surface
@@ -496,7 +505,6 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 		double fact_resize_0 ;
 		if (fact_resize(0) > 2.4) fact_resize_0 = fact_resize(0)/2. ;
 		else fact_resize_0 = fact_resize(0)/2. + 0.5 ;
-
 
 		mp.resize(1, rr_in_1/rr_out_1 * fact_resize_0) ; 
 		mp.resize(2, rr_in_1/rr_out_2 * fact_resize(0)) ; 
@@ -523,7 +531,7 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	//----------------------------------------------------
 	// Computation of the enthalpy at the new grid points
 	//----------------------------------------------------
-	
+
 	mp_prev.homothetie(alpha_r) ; 
 	
 	mp.reevaluate_symy(&mp_prev, nzet+1, ent.set()) ; 
@@ -693,7 +701,7 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 	    double lambda_shift = double(1) / double(3) ; 
 	
 	    source_shift.poisson_vect(lambda_shift, par_poisson_vect, 
-				      shift_auto, w_shift, khi_shift) ;      
+	    			      shift_auto, w_shift, khi_shift) ;      
 
 
 	    // Check: has the equation for shift_auto been correctly solved ?
@@ -753,6 +761,44 @@ void Etoile_bin::equilibrium(double ent_c, int mermax, int mermax_poisson,
 
 	}   // End of relativistic equations	
 	
+
+    if (nzet > 1) {
+      cout.precision(10) ;
+
+      for (int ltrans = 0; ltrans < nzet-1; ltrans++) {
+	cout << endl << "Values at boundary between domains no. " << ltrans << " and " << 	ltrans+1 << " for theta = pi/2 and phi = 0 :" << endl ;
+
+	double rt1 = mp.val_r(ltrans, 1., M_PI/2, 0.) ; 
+	double rt2 = mp.val_r(ltrans+1, -1., M_PI/2, 0.) ; 
+	cout << "   Coord. r [km] (left, right, rel. diff) : " 
+	  << rt1 / km << "  " << rt2 / km << "  " << (rt2 - rt1)/rt1  << endl ; 
+  
+	int ntm1 = mg->get_nt(ltrans) - 1; 
+	int nrm1 = mg->get_nr(ltrans) - 1 ; 
+	double ent1 = ent()(ltrans, 0, ntm1, nrm1) ; 
+	double ent2 = ent()(ltrans+1, 0, ntm1, 0) ; 
+	  cout << "   Enthalpy (left, right, rel. diff) : " 
+	    << ent1 << "  " << ent2 << "  " << (ent2-ent1)/ent1  << endl ; 
+
+	double press1 = press()(ltrans, 0, ntm1, nrm1) ; 
+	double press2 = press()(ltrans+1, 0, ntm1, 0) ; 
+	  cout << "   Pressure (left, right, rel. diff) : " 
+	  << press1 << "  " << press2 << "  " << (press2-press1)/press1 << endl ; 
+
+	double nb1 = nbar()(ltrans, 0, ntm1, nrm1) ; 
+	double nb2 = nbar()(ltrans+1, 0, ntm1, 0) ; 
+	  cout << "   Baryon density (left, right, rel. diff) : " 
+	  << nb1 << "  " << nb2 << "  " << (nb2-nb1)/nb1  << endl ; 
+      }
+    }
+/*    if (mer % 10 == 0) {
+    cout << "mer = " << mer << endl ; 
+    double r_max = 1.2 * ray_eq() ; 
+    des_profile(nbar(), 0., r_max, M_PI/2, 0., "n", "Baryon density") ; 
+    des_profile(ener(), 0., r_max, M_PI/2, 0., "e", "Energy density") ; 
+    des_profile(press(), 0., r_max, M_PI/2, 0., "p", "Pressure") ; 
+    des_profile(ent(), 0., r_max, M_PI/2, 0., "H", "Enthalpy") ;   
+    }*/
 
 	//-------------------------------------------------
 	//  Relative change in enthalpy

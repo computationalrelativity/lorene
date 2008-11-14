@@ -32,6 +32,11 @@ char etoile_equil_spher_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2008/11/14 13:48:06  e_gourgoulhon
+ * Added parameter pent_limit to force the enthalpy values at the
+ * boundaries between the domains, in case of more than one domain inside
+ * the star.
+ *
  * Revision 1.4  2004/05/07 12:13:15  k_taniguchi
  * Change the position of the initialization of alpha_r.
  *
@@ -72,8 +77,10 @@ char etoile_equil_spher_C[] = "$Header$" ;
 #include "etoile.h"
 #include "param.h"
 #include "unites.h"	    
+#include "nbr_spx.h"
+#include "graphique.h"
 
-void Etoile::equilibrium_spher(double ent_c, double precis){
+void Etoile::equilibrium_spher(double ent_c, double precis, const Tbl* pent_limit){
     
     // Fundamental constants and units
     // -------------------------------
@@ -98,8 +105,7 @@ void Etoile::equilibrium_spher(double ent_c, double precis){
     
     ent = ent_c ; 
     ent.annule(nzet, nz-1) ; 
-    
-    
+        
     // Corresponding profiles of baryon density, energy density and pressure
     
     equation_of_state() ; 
@@ -201,10 +207,16 @@ void Etoile::equilibrium_spher(double ent_c, double precis){
 				/ ( qpig*(nu_mat0_b - nu_mat0_c) ) ;
 
 	alpha_r = sqrt(alpha_r2) ;
-	
-	// New radial scale
-	mpaff.homothetie( alpha_r ) ; 
 
+
+        // One domain inside the star:
+        // --------------------------- 
+	if(nzet==1) { 
+
+        mpaff.homothetie( alpha_r ) ; 
+
+        } 
+				      
 	//--------------------
 	// First integral
 	//--------------------
@@ -216,6 +228,111 @@ void Etoile::equilibrium_spher(double ent_c, double precis){
 	// Enthalpy in all space
 	double logn_c = logn()(0, 0, 0, 0) ;
 	ent = ent_c - logn() + logn_c ;
+	
+        // Two or more domains inside the star:
+        // ------------------------------------ 
+	if(nzet>1) { 
+
+    // Parameters for the function Map_et::adapt
+    // -----------------------------------------
+    
+    Param par_adapt ; 
+    int nitermax = 100 ;  
+    int niter ; 
+    int adapt_flag = 1 ;    //  1 = performs the full computation, 
+			    //  0 = performs only the rescaling by 
+			    //      the factor alpha_r
+    int nz_search = nzet + 1 ;  // Number of domains for searching the enthalpy
+				//  isosurfaces
+
+    int nzadapt = nzet ; 
+
+    //cout << "no. of domains where the ent adjustment will be done: " << nzet << endl ;
+    //cout << "ent limits: " << ent_limit << endl ; 
+
+    double precis_adapt = 1.e-14 ; 
+ 
+    double reg_map = 1. ; // 1 = regular mapping, 0 = contracting mapping
+
+    par_adapt.add_int(nitermax, 0) ;   // maximum number of iterations to
+				       // locate zeros by the secant method
+    par_adapt.add_int(nzadapt, 1) ;    // number of domains where the adjustment 
+				       // to the isosurfaces of ent is to be 
+				       // performed
+    par_adapt.add_int(nz_search, 2) ;  // number of domains to search for
+				       // the enthalpy isosurface
+    par_adapt.add_int(adapt_flag, 3) ; // 1 = performs the full computation, 
+				       // 0 = performs only the rescaling by 
+				       // the factor alpha_r
+    par_adapt.add_int(j_b, 4) ;        // theta index of the collocation point 
+			               // (theta_*, phi_*)
+    par_adapt.add_int(k_b, 5) ;        // theta index of the collocation point 
+			               // (theta_*, phi_*)
+
+    par_adapt.add_int_mod(niter, 0) ;  // number of iterations actually used in 
+				       // the secant method
+    
+    par_adapt.add_double(precis_adapt, 0) ; // required absolute precision in 
+					// the determination of zeros by 
+					// the secant method
+    par_adapt.add_double(reg_map, 1) ;  // 1. = regular mapping, 0 = contracting mapping
+    
+    par_adapt.add_double(alpha_r, 2) ;	// factor by which all the radial 
+					// distances will be multiplied 
+    	   
+    // Enthalpy values for the adaptation
+    Tbl ent_limit(nzet) ; 
+    if (pent_limit != 0x0) ent_limit = *pent_limit ; 
+    	   
+    par_adapt.add_tbl(ent_limit, 0) ;	// array of values of the field ent 
+				        // to define the isosurfaces. 			   
+
+      double* bornes = new double[nz+1] ;
+      bornes[0] = 0. ; 
+
+      for(int l=0; l<nz; l++) {
+ 
+	bornes[l+1] = mpaff.get_alpha()[l]  + mpaff.get_beta()[l] ;     
+
+      } 
+      bornes[nz] = __infinity ; 
+ 
+      Map_et mp0(*mg, bornes) ;
+ 
+        mp0 = mpaff; 
+        mp0.adapt(ent(), par_adapt) ; 
+
+        //Map_af mpaff_prev (mpaff) ; 
+
+        double alphal, betal ; 
+
+        for(int l=0; l<nz; l++) { 
+
+          alphal = mp0.get_alpha()[l] ; 
+          betal  = mp0.get_beta()[l] ;
+ 
+	  mpaff.set_alpha(alphal, l) ; 
+          mpaff.set_beta(betal, l) ;
+
+        } 
+ 
+
+        //mbtest 
+        int num_r1 = mg->get_nr(0) - 1;        
+  
+        cout << "Pressure difference:" << get_press()()(0,0,0,num_r1) - get_press()()(1,0,0,0) << endl ; 
+	cout << "Difference in enthalpies at the domain boundary:" << endl ;
+        cout << get_ent()()(0,0,0,num_r1) << endl ; 
+        cout << get_ent()()(1,0,0,0) << endl ;
+
+        cout << "Enthalpy difference: " << get_ent()()(0,0,0,num_r1) - get_ent()()(1,0,0,0) << endl ;
+
+	// Computation of the enthalpy at the new grid points
+        //----------------------------------------------------                     
+
+        //mpaff.reevaluate(&mpaff_prev, nzet+1, ent.set()) ;
+
+    } 
 
 	//---------------------
 	// Equation of state
@@ -342,5 +459,42 @@ void Etoile::equilibrium_spher(double ent_c, double precis){
     cout << "     grav. term : " << vir_grav << endl ; 
     cout << "     relative error : " << grv3 << endl ; 
     
-    
+    if (nzet > 1) {
+      cout.precision(10) ;
+
+      for (int ltrans = 0; ltrans < nzet-1; ltrans++) {
+	cout << endl << "Values at boundary between domains no. " << ltrans << " and " << 	ltrans+1 << " for theta = pi/2 and phi = 0 :" << endl ;
+
+	double rt1 = mp.val_r(ltrans, 1., M_PI/2, 0.) ; 
+	double rt2 = mp.val_r(ltrans+1, -1., M_PI/2, 0.) ; 
+	cout << "   Coord. r [km] (left, right, rel. diff) : " 
+	  << rt1 / km << "  " << rt2 / km << "  " << (rt2 - rt1)/rt1  << endl ; 
+  
+	int ntm1 = mg->get_nt(ltrans) - 1; 
+	int nrm1 = mg->get_nr(ltrans) - 1 ; 
+	double ent1 = ent()(ltrans, 0, ntm1, nrm1) ; 
+	double ent2 = ent()(ltrans+1, 0, ntm1, 0) ; 
+	  cout << "   Enthalpy (left, right, rel. diff) : " 
+	    << ent1 << "  " << ent2 << "  " << (ent2-ent1)/ent1  << endl ; 
+
+	double press1 = press()(ltrans, 0, ntm1, nrm1) ; 
+	double press2 = press()(ltrans+1, 0, ntm1, 0) ; 
+	  cout << "   Pressure (left, right, rel. diff) : " 
+	  << press1 << "  " << press2 << "  " << (press2-press1)/press1 << endl ; 
+
+	double nb1 = nbar()(ltrans, 0, ntm1, nrm1) ; 
+	double nb2 = nbar()(ltrans+1, 0, ntm1, 0) ; 
+	  cout << "   Baryon density (left, right, rel. diff) : " 
+	  << nb1 << "  " << nb2 << "  " << (nb2-nb1)/nb1  << endl ; 
+      }
+    }
+
+
+/*    double r_max = 1.2 * ray_eq() ; 
+    des_profile(nbar(), 0., r_max, M_PI/2, 0., "n", "Baryon density") ; 
+    des_profile(ener(), 0., r_max, M_PI/2, 0., "e", "Energy density") ; 
+    des_profile(press(), 0., r_max, M_PI/2, 0., "p", "Pressure") ; 
+    des_profile(ent(), 0., r_max, M_PI/2, 0., "H", "Enthalpy") ; 
+*/
+   
 }
