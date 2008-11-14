@@ -30,6 +30,10 @@ char coal_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2008/11/14 13:53:23  e_gourgoulhon
+ * Introduced the arrays ent_limit to force the enthalpy values at the
+ * boundaries between the domains inside the stars.
+ *
  * Revision 1.13  2004/09/28 15:53:25  f_limousin
  * Improve the rescaling of the domains for nzone = 4 and nzone = 5.
  *
@@ -330,8 +334,30 @@ int main(){
     Eos* peos2 = Eos::eos_from_file(fich) ; 
     
     Binaire star(mp1, *peos1, mp2, *peos2, fich) ; 
+    fclose(fich) ;
 
-    fclose(fich) ; 
+    //Tables with values of enthalpy at the borders of domains 
+
+    int nzet1 = star(1).get_nzet() ; 
+    int nzet2 = star(2).get_nzet() ; 
+
+    Tbl ent_limit1(nzet1) ; 
+    Tbl ent_limit2(nzet2) ; 
+
+    ent_limit1.set_etat_qcq() ;
+    ent_limit2.set_etat_qcq() ;
+
+    for(int j=0; j<nzet1; j++) 
+       
+      ent_limit1.set(j) = star(1).get_ent()()(j+1,0,0,0) ;
+
+    for(int j=0; j<nzet2; j++)
+
+      ent_limit2.set(j) = star(2).get_ent()()(j+1,0,0,0) ;
+  
+    Tbl* pent_limit[2] ;
+    pent_limit[0] = &ent_limit1 ; 
+    pent_limit[1] = &ent_limit2 ; 
 
     //------------------------------------------------------------------
     //	    Modification of the separation between the two stars
@@ -767,9 +793,11 @@ int main(){
 
 	// Call to Etoile_bin::equilibrium
 	// --------------------------------
+
+        //mbtest 
 	(star.set(i)).equilibrium(ent_c[i-1], mermax_eqb, mermax_poisson, 
 				  relax_poisson, mermax_potvit, relax_potvit, 
-				  thres_adapt[i-1], fact_resize[i-1], differ[i-1]) ;
+				  thres_adapt[i-1], fact_resize[i-1], differ[i-1], pent_limit[i-1]) ;
 
     }
 
@@ -785,7 +813,15 @@ int main(){
 
 	star.set(i).hydro_euler() ; 
     }    
-    
+
+ /*  if (mer % 1000 == 0) {
+    double r_max = 1.2 * star(1).ray_eq() ; 
+    des_profile(star(1).get_nbar()(), 0., r_max, M_PI/2, 0., "n", "Baryon density") ; 
+    des_profile(star(1).get_ener()(), 0., r_max, M_PI/2, 0., "e", "Energy density") ; 
+    des_profile(star(1).get_press()(), 0., r_max, M_PI/2, 0., "p", "Pressure") ; 
+    des_profile(star(1).get_ent()(), 0., r_max, M_PI/2, 0., "H", "Enthalpy") ; 
+  }
+    */
     //------------------------------------------------------------------
     //	  Change in the central enthalpy to get a fixed baryon mass
     //------------------------------------------------------------------
@@ -868,7 +904,7 @@ int main(){
  
     if ( (mer % fmer_save) == 0 ) {
 
-	FILE* fresu = fopen("resu.d", "w") ; 
+	fresu = fopen("resu.d", "w") ; 
     
 	fwrite(&mer, sizeof(int), 1, fresu) ;	// mer
 
