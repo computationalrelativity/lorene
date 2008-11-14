@@ -29,6 +29,10 @@ char init_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2008/11/14 13:54:53  e_gourgoulhon
+ * Reading in input files par_grid*.d the values for the enthalpy at the
+ * boundaries between the domains inside the stars.
+ *
  * Revision 1.4  2004/03/25 12:35:36  j_novak
  * now using namespace Unites
  *
@@ -83,15 +87,46 @@ int  main(){
     
     // system("ident init_bin") ; 
 
+    int nt, np, nz ;
+    char blabla[80] ;
+
+    ifstream fich("par_init.d") ;
+
+    //-----------------------------------------------------------------------
+    //		Physical parameters imput
+    //-----------------------------------------------------------------------
+
+    fich.getline(blabla, 80) ;
+    fich.getline(blabla, 80) ;
+
+    int relat_i ; 
+    fich >> relat_i; fich.getline(blabla, 80) ;
+    bool relat = (relat_i == 1) ; 
+
+    double separ ; 
+    fich >> separ; fich.getline(blabla, 80) ;
+    separ *= km ;	// translation in machine units
+
+    int irrot1_i, irrot2_i ; 
+    double ent_c1, ent_c2 ; 
+    fich >> ent_c1 ; fich.getline(blabla, 80) ;
+    fich >> irrot1_i ; fich.getline(blabla, 80) ;
+    bool irrot1 = (irrot1_i == 1) ; 
+    fich >> ent_c2 ; fich.getline(blabla, 80) ;
+    fich >> irrot2_i ; fich.getline(blabla, 80) ;
+    bool irrot2 = (irrot2_i == 1) ; 
+    
+    fich.close() ; 
+  
+    cout << endl << "Requested orbital separation : " << separ / km 
+	 << " km" << endl ; 
 
     //-----------------------------------------------------------------------
     //		Input data for the multi-grid no. 1
     //-----------------------------------------------------------------------
+ 
 
-    int nt, np, nz ;
-    char blabla[80] ;
-
-    ifstream fich("par_grid1.d") ;
+    fich.open("par_grid1.d") ;
     fich.getline(blabla, 80);
     fich.getline(blabla, 80);
     fich >> nz; fich.getline(blabla, 80) ;
@@ -118,14 +153,35 @@ int  main(){
     }
     bornes[nz] = __infinity ; 
 
+
+    Tbl ent_limit1(nzet1) ;
+    Tbl* pent_limit1 ; 
+    ent_limit1.set_etat_qcq() ;
+    ent_limit1.set(nzet1-1) = 0 ;         // enthalpy at the stellar surface                  
+    fich >> ent_limit1.set(0) ;
+    if ( fich.good() ) {		// to ensure backwards compatibility
+      for (int l=1; l<nzet1-1; l++) {
+	fich >> ent_limit1.set(l) ; fich.getline(blabla, 120) ;
+      }
+      pent_limit1 = &ent_limit1 ; 
+    }
+    else {
+      pent_limit1 = 0x0 ; 
+    }
+
     fich.close();
 
+    for (int l=0; l<nzet1-1; l++) {
+
+            bornes[l+1] = bornes[nzet1] * sqrt(1 - ent_limit1(l) / ent_c1) ;
+
+    }
 
     // Type of r sampling : 
     int* type_r = new int[nz];
     type_r[0] = RARE ; 
     for (int l=1; l<nz-1; l++) {
-	type_r[l] = FIN ; 
+      type_r[l] = FIN ; 
     }
     type_r[nz-1] = UNSURR ; 
     
@@ -179,17 +235,46 @@ int  main(){
     }
     bornes[nz] = __infinity ; 
 
+    Tbl ent_limit2(nzet2) ;
+    Tbl* pent_limit2 ;
+    ent_limit2.set_etat_qcq() ;
+    ent_limit2.set(nzet2-1) = 0 ;         // enthalpy at the stellar surface                  
+    fich >> ent_limit2.set(0) ;
+    if ( fich.good() ) {	// to ensure backwards compatibility
+      for (int l=1; l<nzet2-1; l++) {
+	fich >> ent_limit2.set(l) ; fich.getline(blabla, 120) ;
+      }
+      pent_limit2 = &ent_limit2 ; 
+    }
+    else {
+      pent_limit2 = 0x0 ; 
+    }
+
+
+    for (int l=0; l<nzet2-1; l++) {
+      fich >> ent_limit2.set(l) ; fich.getline(blabla, 120) ; 
+    }
+
     fich.close();
 
+    for (int l=0; l<nzet2-1; l++) {
 
-    // Type of r sampling : 
-    type_r = new int[nz];
-    type_r[0] = RARE ; 
-    for (int l=1; l<nz-1; l++) {
-	type_r[l] = FIN ; 
+           bornes[l+1] = bornes[nzet2] * sqrt(1 - ent_limit2(l) / ent_c2) ;
+
     }
-    type_r[nz-1] = UNSURR ; 
-        
+
+    // Type of r sampling :                            
+    type_r = new int[nz];
+    type_r[0] = RARE ;
+    for (int l=1; l<nz-1; l++) {
+      type_r[l] = FIN ;
+    }
+    type_r[nz-1] = UNSURR ;
+
+    // Type of sampling in theta and phi :             
+    type_t = SYM ;
+    type_p = NONSYM ;
+
     //-----------------------------------------------------------------------
     //		Construction of multi-grid 2 and mapping 2
     //-----------------------------------------------------------------------
@@ -243,36 +328,6 @@ int  main(){
 
 
     //-----------------------------------------------------------------------
-    //		Physical parameters imput
-    //-----------------------------------------------------------------------
-
-    fich.open("par_init.d") ;
-    fich.getline(blabla, 80) ;
-    fich.getline(blabla, 80) ;
-
-    int relat_i ; 
-    fich >> relat_i; fich.getline(blabla, 80) ;
-    bool relat = (relat_i == 1) ; 
-
-    double separ ; 
-    fich >> separ; fich.getline(blabla, 80) ;
-    separ *= km ;	// translation in machine units
-
-    int irrot1_i, irrot2_i ; 
-    double ent_c1, ent_c2 ; 
-    fich >> ent_c1 ; fich.getline(blabla, 80) ;
-    fich >> irrot1_i ; fich.getline(blabla, 80) ;
-    bool irrot1 = (irrot1_i == 1) ; 
-    fich >> ent_c2 ; fich.getline(blabla, 80) ;
-    fich >> irrot2_i ; fich.getline(blabla, 80) ;
-    bool irrot2 = (irrot2_i == 1) ; 
-    
-    fich.close() ; 
-  
-    cout << endl << "Requested orbital separation : " << separ / km 
-	 << " km" << endl ; 
-
-    //-----------------------------------------------------------------------
     //		Construction of a binary system
     //-----------------------------------------------------------------------
     
@@ -284,17 +339,17 @@ int  main(){
     //		Computation of two static configurations
     //-----------------------------------------------------------------------
 
-    double precis = 1.e-12 ; 
+    double precis = 1.e-14 ; 
     
     cout << endl << "Computation of a static configuration for star 1"
 	 << endl << "================================================" << endl ; 
 
-    (star.set(1)).equilibrium_spher(ent_c1, precis) ; 
+    (star.set(1)).equilibrium_spher(ent_c1, precis, pent_limit1) ; 
 
     cout << endl << "Computation of a static configuration for star 2"
 	 << endl << "================================================" << endl ; 
 
-    (star.set(2)).equilibrium_spher(ent_c2, precis) ; 
+    (star.set(2)).equilibrium_spher(ent_c2, precis, pent_limit2) ; 
 
 
     //-----------------------------------------------------------------------
