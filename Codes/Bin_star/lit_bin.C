@@ -30,6 +30,10 @@ char lit_bin_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2008/11/14 13:55:44  e_gourgoulhon
+ * Added more outputs in the case of more than one domain inside the
+ * stars.
+ *
  * Revision 1.9  2004/03/25 12:35:37  j_novak
  * now using namespace Unites
  *
@@ -264,10 +268,53 @@ int main(int argc, char** argv){
 	seqfich.close() ; 
 	
 
+     if (star(1).get_nzet() > 1) {
+      cout.precision(10) ;
+
+      for (int ltrans = 0; ltrans < star(1).get_nzet()-1; ltrans++) {
+	cout << endl << "Star 1 : values at boundary between domains no. " << ltrans << " and " << 	ltrans+1 << " for theta = pi/2 and phi = 0 :" << endl ;
+
+	double rt1 = star(1).get_mp().val_r(ltrans, 1., M_PI/2, 0.) ; 
+	double rt2 = star(1).get_mp().val_r(ltrans+1, -1., M_PI/2, 0.) ; 
+	double diff_rt = (rt2 - rt1)/rt1 ; 
+	cout << "   Coord. r [km] (left, right, rel. diff) : " 
+	  << rt1 / km << "  " << rt2 / km << "  " << diff_rt << endl ; 
+  
+	int ntm1 = star(1).get_mp().get_mg()->get_nt(ltrans) - 1; 
+	int nrm1 = star(1).get_mp().get_mg()->get_nr(ltrans) - 1 ; 
+	double ent1 = star(1).get_ent()()(ltrans, 0, ntm1, nrm1) ; 
+	double ent2 = star(1).get_ent()()(ltrans+1, 0, ntm1, 0) ; 
+	double diff_ent = (ent2-ent1)/ent1 ; 
+	  cout << "   Enthalpy (left, right, rel. diff) : " 
+	  << ent1 << "  " << ent2 << "  " << diff_ent << endl ; 
+
+	double press1 = star(1).get_press()()(ltrans, 0, ntm1, nrm1) ; 
+	double press2 = star(1).get_press()()(ltrans+1, 0, ntm1, 0) ; 
+	double diff_press = (press2-press1)/press1 ; 
+	  cout << "   Pressure (left, right, rel. diff) : " 
+	  << press1 << "  " << press2 << "  " << diff_press << endl ; 
+
+	double nb1 = star(1).get_nbar()()(ltrans, 0, ntm1, nrm1) ; 
+	double nb2 = star(1).get_nbar()()(ltrans+1, 0, ntm1, 0) ; 
+	double diff_nb = (nb2-nb1)/nb1 ; 
+	  cout << "   Baryon density (left, right, rel. diff) : " 
+	  << nb1 << "  " << nb2 << "  " << diff_nb << endl ; 
+      }
+
+    double r_max = 1.2 * star(1).ray_eq() ; 
+    des_profile(star(1).get_nbar()(), 0., r_max, M_PI/2, 0., "n", "Baryon density") ; 
+    des_profile(star(1).get_ener()(), 0., r_max, M_PI/2, 0., "e", "Energy density") ; 
+    des_profile(star(1).get_press()(), 0., r_max, M_PI/2, 0., "p", "Pressure") ; 
+    // des_profile(star(1).get_ent()(), 0., r_max, M_PI/2, 0., "H", "Enthalpy") ; 
+ 
+    }
+
 
     //==============================================================
     //  Drawings
     //==============================================================
+
+
 
     // des_explorer_symz(star, "latbin") ; 
     
@@ -351,7 +398,6 @@ int main(int argc, char** argv){
 
     des_profile (star(1).get_ent()(), 0., 2* star(1).ray_eq(), M_PI/2., M_PI/2.,  
 	"H", "H (theta=pi/2,  phi=pi/2)" ) ; 
-
 
 
     //==========================================
