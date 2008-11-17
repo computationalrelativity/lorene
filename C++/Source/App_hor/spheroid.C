@@ -28,13 +28,15 @@ char spheroid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2008/11/17 08:30:01  jl_jaramillo
+ * Nicolas's changes on multipoles. Sign correction in outgoing shear expression
+ *
  * Revision 1.13  2008/11/12 15:17:47  n_vasset
  * Bug-hunting, and new definition for computation of the Ricci scalar
  * (instead of Ricci tensor previously)
  *
  * Revision 1.12  2008/07/09 08:47:33  n_vasset
  * new version for multipole calculation. Function zeta implemented.
- *
  * Revision 1.11  2008/06/04 12:31:23  n_vasset
  * New functions multipole_mass and multipole_angu. first version.
  *
@@ -239,9 +241,6 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
 	  {
 	    mp_rad->val_lx_jk((h_surf.val_grid_point(0, k, j, 0))*1.00000000001, j, k, pipo,
 			      lz, xi) ;
-// 	    cout << "valeure de r   " << h_surf.val_grid_point(0, k, j, 0) << endl;
-// 	    cout << "lzbef  " << lz << endl;
-// 	    cout << "kksi  " << xi << endl;
 	    jac2d.set(l,m).set_grid_point(0, k, j, 0) = 
 	      jac(l,m).get_spectral_va().val_point_jk(lz, xi, j, k) ;
 
@@ -377,14 +376,9 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
 
   // Computation of the degenerated 3d degenerated covariant metric on the 2-surface 
 
-//   cout << "ss3d" << endl;
-//   cout << ss3d << endl;
- 
-  // cout << jac_inv << endl;
 
   Sym_tensor qqq = contract(jac_inv, 0, contract( jac_inv, 0, (gamij.cov() - ss3d * ss3d) , 0), 1) ; 
  
-  //  cout << qqq << endl;
 
   qq.allocate_all() ; 
   qq.std_spectral_base();
@@ -463,18 +457,20 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
   //Computation of function zeta, changing spheroid coordinates to get a round measure.
 
   Scalar ftilde = sqrt_q();
- 
+    double rayon = sqrt(area()/(4.*M_PI));
+    ftilde = -ftilde/(rayon*rayon);
   ftilde.set_spectral_va().ylm();
+
 
   Base_val base = ftilde.get_spectral_base() ;
 
-  Mtbl_cf *coefftilde = ftilde.get_spectral_va().c_cf;  int nombre = 2*nt; // Doubler en base SYM! a vérifier, voir comment gérer
+  Mtbl_cf *coefftilde = ftilde.get_spectral_va().c_cf;  int nombre = 2*nt; // Doubled in SYM base!!
 
   double *a_tilde = new double[nombre];
   
 
   lz = 0; // Now we work with 2d map associated with sqrt(q)
-  // cout << "lz" << lz << endl;
+
   
  
  
@@ -488,15 +484,12 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
 		    a_tilde[l_q] = (*coefftilde)(0, k, j, 0);
 	
 			   }}}
-	
-	Scalar zeta2(map); zeta2= 2.; zeta2.std_spectral_base();
+
+	 Scalar zeta2(map); zeta2= 3.; zeta2.std_spectral_base(); zeta2.mult_cost();
 	zeta2.set_spectral_va().ylm();
 
 		Base_val base2 = zeta2.get_spectral_base() ; 
 		Mtbl_cf *dzeta = zeta2.set_spectral_va().c_cf;
-
-		//		int zonedzeta = (*dzeta).get_mg()->get_nzone();
-
 
 		for (int k=0; k<np+1; k++)
 		  for (int j=0; j<nt; j++) {
@@ -514,11 +507,10 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
                 }
 		 }
 		  }
-
+           
+	
+		zeta2.set_spectral_va().coef();
 		zeta = zeta2;
-		zeta.std_spectral_base(); // ATTENTION!!!!!
- 
-
 
      
   /* Computation of the tangent part of the extrinsic curvature of
@@ -596,8 +588,6 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
 
 	  }
 
-       
-// Computation of the 2d ricci scalar, VIA the Gauss theorema egregium
 
  
  Tensor hh3dupdown = hh3d.up(0, gamij);
@@ -622,6 +612,7 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
  
  
  set_der_0x0() ;
+
 }
 
 
@@ -757,10 +748,9 @@ double Spheroid::mass(const Vector& phi) const {
 
 
 double Spheroid::multipole_mass(const int order, const Vector& phi) const{
-  if (p_multipole_mass == 0x0) {
+ 
     assert( issphere == true ) ;
     const Map_af& mp_ang = dynamic_cast<const Map_af&>(h_surf.get_mp()) ;
-    //    double rayon= h_surf.val_grid_point (0,0,0,0); // This is only the coordinate radius...
     double rayon = sqrt(area()/(4.*M_PI));
     // Multiplicative factor before integral.
     double factor = mass(phi)/(8. * M_PI); // To check later
@@ -788,14 +778,27 @@ double Spheroid::multipole_mass(const int order, const Vector& phi) const{
 
       }
       }
-
+ 
     // Calculus of Ricci Scalar over the surface
     Scalar ricciscal(mp_ang);
     ricciscal = get_ricci(); // As it is 2-dimensional, ricci tensor is only proportional to ricci scalar.
-
-    p_multipole_mass = new double (factor*mp_ang.integrale_surface((sqrt_q()) * h_surf *h_surf*ricciscal*Pn, 1)) ;
+    ricciscal.std_spectral_base();
+    ricciscal.set_spectral_va().ylm();
   
-  }
+    Scalar rayyon = h_surf;
+    rayyon.std_spectral_base();
+    rayyon.set_spectral_va().ylm();
+    
+    
+
+    Scalar sqq = sqrt_q();
+    Scalar integrande = sqq * rayyon *rayyon*ricciscal*Pn; integrande.std_spectral_base();
+
+    
+    p_multipole_mass = new double (factor*mp_ang.integrale_surface(integrande, 1)) ;
+    
+  
+ 
 
   return *p_multipole_mass;
 }
@@ -803,7 +806,7 @@ double Spheroid::multipole_mass(const int order, const Vector& phi) const{
 
 
 double Spheroid::multipole_angu(const int order, const Vector& phi) const{
-  if (p_multipole_angu == 0x0) {
+
     assert( issphere == true ) ;
     assert (order >=1) ;
     const Map_af& mp_ang = dynamic_cast<const Map_af&>(h_surf.get_mp()) ;
@@ -850,11 +853,14 @@ double Spheroid::multipole_angu(const int order, const Vector& phi) const{
       }
 
     // Computation of the multipole;
-    Scalar tmp = contract(ll,0, contract (jac2d, 1,phi,0), 0 );
+    Scalar tmp = contract(ll,0, contract (jac2d, 1,phi,0), 0 ); tmp.std_spectral_base();
+    Scalar tmp2 = (sqrt_q()) * h_surf *h_surf*tmp*dPn; tmp2.std_spectral_base();
 
-    p_multipole_angu = new double (factor*mp_ang.integrale_surface((sqrt_q()) * h_surf *h_surf*tmp*dPn, 1)) ;  
+     
+
+    p_multipole_angu = new double (factor*mp_ang.integrale_surface(tmp2, 1)) ;  
    
-  }
+
   return *p_multipole_angu;
   
 }
@@ -900,9 +906,13 @@ const Scalar& Spheroid::theta_minus() const {
 //outer null-oriented shear of 2-surface
 
 const Sym_tensor& Spheroid::shear() const { 
-
+  
   if (p_shear == 0x0) {
-    p_shear = new Sym_tensor(fff*(jj - hh) - (qab.cov()/2) *(hh.trace(qab) - jj.trace(qab))) ;  // Reverifier serieusement cette formule.
+     p_shear = new Sym_tensor( fff*(hh - jj) - (qab.cov()/2) *(hh.trace(qab) - jj.trace(qab))) ;  
+// This is associated with the null vector: "l = n + s";
+// For a null vector, "l = f (n + s)", multiply by the global factor "f" (e.g. the lapse "N" for "l=N(n+s)".  
+                                                                                                
+ 
     p_shear->std_spectral_base() ;
   }
 
@@ -938,7 +948,7 @@ Tensor Spheroid::derive_cov2dflat(const Tensor& uu) const{
   // Protections
   // -----------
   if (valence0 >= 1) {
-    //	    assert(uu.get_triad() == qq.get_triad()) ; // TO CHANGE *************************
+
   }
 
   // Creation of the result (pointer)
@@ -1232,6 +1242,120 @@ Tensor Spheroid::derive_cov2d(const Tensor& uu) const {
   return derive_cov2dflat(uu); // to avoid warnings...
 }
    
+
+
+
+
+
+
+
+
+// // COmputation of the ricci tensor  
+
+// const Sym_tensor& Spheroid::ricci() const {
+
+//   if (p_ricci == 0x0) {  // a new computation is necessary
+    
+//     assert( issphere == true ) ;
+//     Sym_tensor riccia(h_surf.get_mp(), CON, h_surf.get_mp().get_bvect_spher()) ;
+//     riccia.set_etat_zero(); 
+        
+//     const Tensor& d_delta = derive_cov2dflat(delta()) ; 
+                
+//     for (int i=1; i<=3; i++) {
+        
+//       int jmax = 3 ; 
+            
+//       for (int j=1; j<=jmax; j++) {
+
+// 	Scalar tmp1(h_surf.get_mp()) ;
+// 	tmp1.set_etat_zero() ; 
+// 	for (int k=1; k<=3; k++) {
+// 	  tmp1 += d_delta(k,i,j,k) ; 
+// 	} 
+                
+// 	Scalar tmp2(h_surf.get_mp()) ;
+// 	tmp2.set_etat_zero() ; 
+// 	for (int k=1; k<=3; k++) {
+// 	  tmp2 += d_delta(k,i,k,j) ; 
+// 	} 
+                
+// 	Scalar tmp3(h_surf.get_mp()) ;
+// 	tmp3.set_etat_zero() ; 
+// 	for (int k=1; k<=3; k++) {
+// 	  for (int m=1; m<=3; m++) {
+// 	    tmp3 += delta()(k,k,m) * delta()(m,i,j) ; 
+// 	  }
+// 	} 
+// 	tmp3.dec_dzpuis() ;  // dzpuis 4 -> 3
+                
+// 	Scalar tmp4(h_surf.get_mp()) ;
+// 	tmp4.set_etat_zero() ; 
+// 	for (int k=1; k<=3; k++) {
+// 	  for (int m=1; m<=3; m++) {
+// 	    tmp4 += delta()(k,j,m) * delta()(m,i,k) ; 
+// 	  }
+// 	} 
+// 	tmp4.dec_dzpuis() ;  // dzpuis 4 -> 3
+              
+
+// 	riccia.set(i,j) = tmp1 - tmp2 + tmp3 - tmp4 ; 
+                  
+        
+//       }
+//     }
+//     /* Note: Here we must take into account the fact that a round metric on a spheroid doesn't give zero as "flat" ricci part. Then a diagonal scalar term must be added. 
+//        WARNING: this only works with "round" horizons!! */ 
+ 
+//     double rayon = sqrt(area()/(4.*M_PI));
+//     Scalar rayon2  = h_surf;
+//     rayon2 = rayon;
+//     rayon2.std_spectral_base();
+    
+//     for (int hi=1; hi<=3; hi++){
+ 
+//       riccia.set(hi,hi) += 2/(rayon2 * rayon2) ; // Plutot 1/hsurf^2, non? 
+//     }
+//     p_ricci = new Sym_tensor(riccia);
+//   }
+	
+//   return *p_ricci ; 
+	
+// }
+
+
+
+
+// COmputation of the ricci tensor  
+
+// const Sym_tensor& Spheroid::ricci() const {
+
+//   if (p_ricci == 0x0) {  // a new computation is necessary
+//     Sym_tensor riccia(h_surf.get_mp(), CON, h_surf.get_mp().get_bvect_spher()) ;
+//     Sym_tensor ricci3 = gamij.ricci();
+    
+//     Sym_tensor ricci3-2d(h_surf.get_mp(), COV, h_surf.get_mp().get_bvect_spher());
+//       ricci3-2d.allocate_all() ; 
+//   ricci3-2d.std_spectral_base();
+//   for (int l=1; l<4; l++)
+//     for (int m=1; m<4; m++)     
+//       for (int k=0; k<np; k++)
+// 	for (int j=0; j<nt; j++)
+// 	  {
+// 	    mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.000000000001, j, k, pipo,
+// 			      lz, xi) ;
+// 	    ricci3-2d.set(l,m).set_grid_point(0, k, j, 0) = 
+// 	      ricci3(l,m).get_spectral_va().val_point_jk(lz, xi, j, k) ;
+
+// 	  }
+       
+
+
+//   }
+//   return *p_ricci ; 
+  
+// }
+
 
 
 
