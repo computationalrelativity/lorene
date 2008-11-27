@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.42  2008/11/27 12:12:38  j_novak
+ * New function to initialize parameters for wave equation.
+ *
  * Revision 1.41  2008/08/20 11:51:25  n_vasset
  * new functions to solve the Kerr problem, using degenerate elliptic operators
  *
@@ -698,7 +701,7 @@ Mtbl_cf sol_dalembert(Param&, const Map_af&, const Mtbl_cf&) ;
 void runge_kutta3_wave_sys(double, const Scalar&, const Scalar&, Scalar& , Scalar&, int dl=0 ) ;
 void evolve_outgoing_BC(double, int, const Scalar&, Scalar&, Tbl&, Tbl&, Tbl&, int dl=0) ;
 void tilde_laplacian(const Scalar& B_in, Scalar& tilde_lap, int dl=-1) ;
-
+void initialize_outgoing_BC(int, const Scalar& , const Scalar& , Tbl&) ;
 
 // Fonctions liees aux opérateurs elliptiques dégénérés: obtention d'espaces-temps de type Kerr
 

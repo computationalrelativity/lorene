@@ -28,6 +28,9 @@ char wave_utilities_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2008/11/27 12:12:38  j_novak
+ * New function to initialize parameters for wave equation.
+ *
  * Revision 1.7  2008/10/29 08:22:58  jl_cornou
  * Compatibility conditions in the vector wave-equation case added
  *
@@ -136,6 +139,34 @@ void runge_kutta3_wave_sys(double dt, const Scalar& fff, const Scalar& phi,
     
     return ;
 }
+
+void initialize_outgoing_BC(int nz_bound, const Scalar& phi, const Scalar& dphi, 
+			    Tbl& xij)
+{
+    Scalar source_xi = phi ;
+    source_xi.div_r_dzpuis(2) ;
+    source_xi += phi.dsdr() ;
+    source_xi.dec_dzpuis(2) ;
+    source_xi += dphi ;
+    source_xi.set_spectral_va().ylm() ;
+
+    const Base_val& base_x = source_xi.get_spectral_base() ;
+    int np2 = xij.get_dim(1) ;
+    int nt = xij.get_dim(0) ;
+    assert (source_xi.get_mp().get_mg()->get_np(nz_bound) + 2 == np2 ) ;
+    assert (source_xi.get_mp().get_mg()->get_nt(nz_bound) == nt ) ;
+
+    int l_q, m_q, base_r ;
+    for (int k=0; k<np2; k++)
+	for (int j=0; j<nt; j++) {	    
+	    base_x.give_quant_numbers(nz_bound, k, j, m_q, l_q, base_r) ;
+	    xij.set(k, j) 
+		= source_xi.get_spectral_va().c_cf->val_out_bound_jk(nz_bound, j, k) ;
+	    if (l_q == 0)
+		xij.set(k,j) = 0 ;
+	}
+}
+
 
 /* Performs one time-step integration of the quantities needed for the
  * enhanced outgoing-wave boundary condition. It DOES NOT impose the BC
