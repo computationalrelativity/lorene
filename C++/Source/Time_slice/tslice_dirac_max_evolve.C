@@ -30,9 +30,9 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
- * Revision 1.14  2007/11/06 14:47:07  j_novak
- * New constructor from a rotating star in Dirac gauge (class Star_rot_Dirac).
- * Evolution can take into account matter terms.
+ * Revision 1.15  2008/12/02 15:02:22  j_novak
+ * Implementation of the new constrained formalism, following Cordero et al. 2009
+ * paper. The evolution eqs. are solved as a first-order system. Not tested yet!
  *
  * Revision 1.13  2004/06/14 20:51:37  e_gourgoulhon
  * Method solve_hij has now argument method_poisson.
@@ -91,6 +91,7 @@ char tslice_dirac_max_evolve_C[] = "$Header$" ;
 #include "param.h"
 #include "graphique.h"
 #include "utilitaires.h"
+#include "proto.h"
 
 const Tbl& monitor_scalar(const Scalar& uu, Tbl& resu) ;
 
@@ -102,22 +103,6 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
 			      const Vector* mom_euler, const Scalar* s_euler,
 			      const Sym_tensor* strain_euler) {
 
-    // Parameters for the d'Alembert equations
-    // ----------------------------------------
-    int bc = 2 ;    // type of boundary condition : 2 = Bayliss & Turkel outgoing wave
- 
-    Param par_khi ; 
-    par_khi.add_double(pdt) ; 
-    par_khi.add_int(bc) ; 
-    int *workflag_khi = new int(0) ; // working flag 
-    par_khi.add_int_mod(*workflag_khi) ; 
-    
-    Param par_mu ; 
-    par_mu.add_double(pdt) ; 
-    par_mu.add_int(bc) ; 
-    int *workflag_mu = new int(0) ; // working flag 
-    par_mu.add_int_mod(*workflag_mu) ; 
-
     // Intermediate quantities
     // -----------------------
     const Map& map = nn().get_mp() ; 
@@ -127,13 +112,196 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
     int ngraph0 = 20 ;  // index of the first graphic device to be used
     int ngraph0_mon = 70 ;  // for monitoring global quantities
     int nz = map.get_mg()->get_nzone() ; 
-    double ray_des = 1.25 * map.val_r(nz-2, 1., 0., 0.) ; // outermost radius
-                                                          // for plots
+    int nz_bound = nz - 2 ;
+    int nt = map.get_mg()->get_nt(0) ;
+    int np = map.get_mg()->get_np(0) ;
+    int np2 = np+2 ;
+    Scalar tmp(map) ;
+#ifndef NDEBUG
+    for (int lz=1; lz<nz; lz++) {
+	assert( map.get_mg()->get_np(lz) == np ) ;
+	assert( map.get_mg()->get_nt(lz) == nt ) ;
+    }
+    assert (depth > 2) ; //## for the moment, a more flexible test should be put
+    for (int it=0; it<depth; it++) {
+	assert ( hh_evol.is_known( jtime - it ) ) ;
+	assert ( hata_evol.is_known( jtime - it ) ) ;		
+    }
+	
+#endif
+
+    // Declaration / initialization of mu and khi for hh and hata
+    //-----------------------------------------------------------
+    Evolution_std<Scalar> khi_hh_evol(depth) ;
+    Evolution_std<Scalar> mu_hh_evol(depth) ;
+    Evolution_std<Scalar> khi_a_evol(depth) ;
+    Evolution_std<Scalar> mu_a_evol(depth) ;
+    Sym_tensor_trans Tij(map, map.get_bvect_spher(), ff) ;
+    for (int j=jtime-depth+1; j<=jtime; j++) {
+	Tij = hh_evol[j] ;
+	tmp = Tij.tt_part()(1,1) ;
+	tmp.mult_r() ; tmp.mult_r() ;
+	khi_hh_evol.update( tmp, j, the_time[j] ) ;
+	mu_hh_evol.update( Tij.mu(), j, the_time[j] ) ;
+	Tij = hata_evol[j] ;
+	tmp = Tij.tt_part()(1,1) ;
+	tmp.mult_r() ; tmp.mult_r() ;
+	khi_a_evol.update( tmp, j, the_time[j] ) ;
+	mu_a_evol.update( Tij.mu(), j, the_time[j] ) ;
+    }
+
+    double Rmax = map.val_r(nz-2, 1., 0., 0.) ; // outermost radius
+    double ray_des = 1.25 * Rmax ; // for plots
+
+    // Parameters for the evolution equations
+    //---------------------------------------
+    double an = 23./12. ; 
+    double anm1 = -4./3. ; 
+    double anm2 = 5./12. ; 
+
+    Param par_A ;
+    double* l_val_A = new double(1./Rmax) ;
+    double* l_der_A = new double(1.) ;
+    par_A.add_int(nz_bound, 0) ;
+    par_A.add_int(2, 1) ; //matching of function and derivative
+    par_A.add_int(0, 2) ;// no shift in l 
+    par_A.add_int(2, 3) ; // only for l>=2
+    par_A.add_double_mod(*l_val_A, 0) ;
+    par_A.add_double_mod(*l_der_A, 1) ;
+    Tbl* tmp_Acc = new Tbl(np2, nt) ;
+    Tbl& Acc = *tmp_Acc ;
+    Acc.annule_hard() ;
+    par_A.add_tbl_mod(Acc) ;
+    Param par_mat_A_hh ;
+
+    Param par_B ;
+    double* l_val_B = new double(1./Rmax) ;
+    double* l_der_B = new double(1.) ;
+    par_B.add_int(nz_bound, 0) ;
+    par_B.add_int(2, 1) ; //matching of function and derivative
+    par_B.add_int(-1, 2) ;// shift in l for tilde{B}
+    par_B.add_int(2, 3) ; // only for l>=2
+    par_B.add_double_mod(*l_val_B, 0) ;
+    par_B.add_double_mod(*l_der_B, 1) ;
+    Tbl* tmp_Bcc = new Tbl(np2, nt) ;
+    Tbl& Bcc = *tmp_Bcc ;
+    Bcc.annule_hard() ;
+    par_B.add_tbl_mod(Bcc) ;
+    Param par_mat_B_hh ;
+
+    Tbl xij_b(np2, nt) ;
+    xij_b.set_etat_qcq() ;
+    initialize_outgoing_BC(nz_bound, B_hh_evol[jtime] , B_hata_evol[jtime], xij_b) ;
+    Tbl xijm1_b(np2, nt) ;
+    xijm1_b.set_etat_qcq() ;
+    initialize_outgoing_BC(nz_bound, B_hh_evol[jtime-1] , B_hata_evol[jtime-1], xijm1_b) ;
+
+    Tbl xij_a(np2, nt) ;
+    xij_a.set_etat_qcq() ;
+    initialize_outgoing_BC(nz_bound, A_hh_evol[jtime] , A_hata_evol[jtime], xij_a) ;
+    Tbl xijm1_a(np2, nt) ;
+    xijm1_a.set_etat_qcq() ;
+    initialize_outgoing_BC(nz_bound, A_hh_evol[jtime-1] , A_hata_evol[jtime-1], xijm1_a) ;
+
+    // Parameters for the Dirac systems
+    //---------------------------------
+
+    Param par_bc_hh ;
+    par_bc_hh.add_int(nz_bound) ;
+    Tbl* cf_b_hh = new Tbl(10) ;
+    cf_b_hh->annule_hard() ;
+    cf_b_hh->set(0) = 11*Rmax + 12*pdt ; // mu
+    cf_b_hh->set(1) = 6*Rmax*pdt ; // d mu / dr
+    cf_b_hh->set(2) = 0 ; // X
+    cf_b_hh->set(3) = 0 ; // d X / dr
+    cf_b_hh->set(4) = 11*Rmax*Rmax + 18*Rmax*pdt ; // h^rr
+    cf_b_hh->set(5) = 6*Rmax*Rmax*pdt ;  // d h^rr / dr
+    cf_b_hh->set(6) = 0 ; //eta
+    cf_b_hh->set(7) = 0 ; //d eta / dr
+    cf_b_hh->set(8) = 0 ; //W
+    cf_b_hh->set(9) = 0 ; //d W / dr
+    par_bc_hh.add_tbl_mod(*cf_b_hh, 0) ;
+    Tbl* kib_hh = new Tbl(np+1, nt) ;
+    Tbl& khib_hh = *kib_hh ;
+    khib_hh.annule_hard() ;
+    par_bc_hh.add_tbl_mod(khib_hh,1) ;
+    Tbl* mb_hh = new Tbl(np+1, nt) ;
+    Tbl& mub_hh = *mb_hh ;
+    mub_hh.annule_hard() ;
+    par_bc_hh.add_tbl_mod(mub_hh, 2) ;
+
+    Param par_mat_hh ;
+
+    Tbl xij_mu_hh(np2, nt) ;
+    xij_mu_hh.set_etat_qcq() ;
+    initialize_outgoing_BC(nz_bound, mu_hh_evol[jtime] , mu_a_evol[jtime], xij_mu_hh) ;
+    Tbl xijm1_mu_hh(np2, nt) ;
+    xijm1_mu_hh.set_etat_qcq() ;
+    initialize_outgoing_BC(nz_bound, mu_hh_evol[jtime-1] , mu_a_evol[jtime-1], 
+			   xijm1_mu_hh) ;
+
+    Tbl xij_ki_hh(np2, nt) ;
+    xij_ki_hh.set_etat_qcq() ;
+    initialize_outgoing_BC(nz_bound, khi_hh_evol[jtime] , khi_a_evol[jtime], xij_ki_hh) ;
+    Tbl xijm1_ki_hh(np2, nt) ;
+    xijm1_ki_hh.set_etat_qcq() ;
+    initialize_outgoing_BC(nz_bound, khi_hh_evol[jtime-1] , khi_a_evol[jtime-1], 
+			   xijm1_ki_hh) ;
+
+    Param par_bc_hata ;
+    par_bc_hata.add_int(nz_bound) ;
+    Tbl* cf_b_hata = new Tbl(10) ;
+    cf_b_hata->annule_hard() ;
+    cf_b_hata->set(0) = 11*Rmax + 12*pdt ; // mu
+    cf_b_hata->set(1) = 6*Rmax*pdt ; // d mu / dr
+    cf_b_hata->set(2) = 0 ; // X
+    cf_b_hata->set(3) = 0 ; // d X / dr
+    cf_b_hata->set(4) = 11*Rmax*Rmax + 18*Rmax*pdt ; // h^rr
+    cf_b_hata->set(5) =  6*Rmax*Rmax*pdt ;  // d h^rr / dr
+    cf_b_hata->set(6) = 0 ; //eta
+    cf_b_hata->set(7) = 0 ; //d eta / dr
+    cf_b_hata->set(8) = 0 ; //W
+    cf_b_hata->set(9) = 0 ; //d W / dr
+    par_bc_hata.add_tbl_mod(*cf_b_hata, 0) ;
+    Tbl* kib_hata = new Tbl(np+1, nt) ;
+    Tbl& khib_hata = *kib_hata ;
+    khib_hata.annule_hard() ;
+    par_bc_hata.add_tbl_mod(khib_hata,1) ;
+    Tbl* mb_hata = new Tbl(np+1, nt) ;
+    Tbl& mub_hata = *mb_hata ;
+    mub_hata.annule_hard() ;
+    par_bc_hata.add_tbl_mod(mub_hata, 2) ;
+
+    Param par_mat_hata ;
+
+    Tbl xij_mu_a(np2, nt) ;
+    xij_mu_a.set_etat_qcq() ;
+    initialize_outgoing_BC(nz_bound, mu_a_evol[jtime] , 
+			   mu_a_evol.time_derive(jtime, 2), xij_mu_a) ;
+    Tbl xijm1_mu_a(np2, nt) ;
+    xijm1_mu_a.set_etat_qcq() ;
+    tmp = ( mu_a_evol[jtime] - mu_a_evol[jtime-2] ) / (2.*pdt) ;
+    initialize_outgoing_BC(nz_bound, mu_a_evol[jtime-1] , tmp, xijm1_mu_a) ;
+
+    Tbl xij_ki_a(np2, nt) ;
+    xij_ki_a.set_etat_qcq() ;
+    initialize_outgoing_BC(nz_bound, khi_a_evol[jtime] , 
+			   khi_a_evol.time_derive(jtime, 2), xij_ki_a) ;
+    Tbl xijm1_ki_a(np2, nt) ;
+    xijm1_ki_a.set_etat_qcq() ;
+    tmp = ( khi_a_evol[jtime] - khi_a_evol[jtime-2] ) / (2.*pdt) ;
+    initialize_outgoing_BC(nz_bound, khi_a_evol[jtime-1] , tmp, xijm1_ki_a) ;
+
+    // Quantities at new time-step
+    //----------------------------
     Scalar n_new(map) ; 
-    Scalar q_new(map) ; 
+    Scalar psi_new(map) ; 
+    Scalar npsi_new(map) ; 
     Vector beta_new(map, CON, triad) ; 
-    Scalar khi_new(map) ; 
-    Scalar mu_new(map) ; 
+    Scalar A_hh_new(map) ; 
+    Scalar B_hh_new(map) ; 
+    Scalar A_hata_new(map) ; 
+    Scalar B_hata_new(map) ; 
     
     // Successive values of various quantities:
     // ---------------------------------------
@@ -144,17 +312,22 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
     Evolution_full<double> test_mom_constr_p ; 
     Evolution_full<Tbl> nn_monitor ;
     Evolution_full<Tbl> psi_monitor ;
-    Evolution_full<Tbl> khi_monitor ;
-    Evolution_full<Tbl> mu_monitor ;
+    Evolution_full<Tbl> A_h_monitor ;
+    Evolution_full<Tbl> B_h_monitor ;
     Evolution_full<Tbl> trh_monitor ;
     Evolution_full<Tbl> beta_monitor_maxabs ;
     Evolution_full<Tbl> hh_monitor_central ;
     Evolution_full<Tbl> hh_monitor_maxabs ;
-    Evolution_full<Tbl> aa_monitor_central ;
-    Evolution_full<Tbl> aa_monitor_maxabs ;
+    Evolution_full<Tbl> hata_monitor_central ;
+    Evolution_full<Tbl> hata_monitor_maxabs ;
+    Evolution_full<Tbl> check_evol ;
     Tbl select_scalar(6) ; 
     Tbl select_tens(6) ;
-        
+
+    Vector zero_vec( map, CON, map.get_bvect_spher() ) ;
+    zero_vec.set_etat_zero() ;
+    const Vector& hat_S = ( mom_euler == 0x0 ? zero_vec : *mom_euler ) ;
+
     // Evolution loop
     // --------------
 
@@ -168,6 +341,7 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
         << "==============================================================\n" ;
     
         cout << *this << endl ; 
+	k_dd() ;
         
         // Monitoring
         // ---------- 
@@ -183,10 +357,10 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
         psi_monitor.update(monitor_scalar(psi(), select_scalar), 
                             jtime, the_time[jtime]) ; 
         
-        khi_monitor.update(monitor_scalar(khi(), select_scalar), 
+        A_h_monitor.update(monitor_scalar(A_hh(), select_scalar), 
                             jtime, the_time[jtime]) ; 
         
-        mu_monitor.update(monitor_scalar(mu(), select_scalar), 
+        B_h_monitor.update(monitor_scalar(B_hh(), select_scalar), 
                             jtime, the_time[jtime]) ; 
         
         trh_monitor.update(monitor_scalar(trh(), select_scalar), 
@@ -201,10 +375,10 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
         hh_monitor_maxabs.update(maxabs_all_domains(hh()), 
                                     jtime, the_time[jtime]) ; 
         
-        aa_monitor_central.update(central_value(aa()), 
+        hata_monitor_central.update(central_value(hata()), 
                                     jtime, the_time[jtime]) ; 
         
-        aa_monitor_maxabs.update(maxabs_all_domains(aa()), 
+        hata_monitor_maxabs.update(maxabs_all_domains(hata()), 
                                     jtime, the_time[jtime]) ; 
         
         if (jt%check_mod == 0) {
@@ -251,25 +425,40 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
             if (jt > 0) des_evol(test_mom_constr_p, "Absolute error", 
                 "Check of momentum constraint (\\gf comp.)", ngraph0_mon+4, 
                 graph_device) ; 
-                
+               
+	    if (jt>2) {
+	    Tbl tevol = check_dynamical_equations() ;
+	    Tbl evol_check(6) ; evol_check.set_etat_qcq() ;
+	    for (int i=1; i<=3; i++) 
+		for(int j=1; j<=i; j++) {
+		    max_error = tevol(i, j, 0) ;
+		    for (int l=1; l<nz-1; l++) {
+			double xx = fabs(tevol(i,j,l)) ;
+			if (xx > max_error) max_error = xx ;
+		    }
+		    evol_check.set(i) = max_error ;
+		}
+	    check_evol.update(evol_check,  jtime, the_time[jtime]) ;
+	    }
         }
 
         if (jt%save_mod == 0) { 
             m_adm.save("adm_mass.d") ; 
             nn_monitor.save("nn_monitor.d") ;
             psi_monitor.save("psi_monitor.d") ;
-            khi_monitor.save("khi_monitor.d") ;
-            mu_monitor.save("mu_monitor.d") ;
+            A_h_monitor.save("potA_monitor.d") ;
+            B_h_monitor.save("potB_monitor.d") ;
             trh_monitor.save("trh_monitor.d") ;
             beta_monitor_maxabs.save("beta_monitor_maxabs.d") ; 
             hh_monitor_central.save("hh_monitor_central.d") ; 
             hh_monitor_maxabs.save("hh_monitor_maxabs.d") ; 
-            aa_monitor_central.save("aa_monitor_central.d") ; 
-            aa_monitor_maxabs.save("aa_monitor_maxabs.d") ; 
+            hata_monitor_central.save("hata_monitor_central.d") ; 
+            hata_monitor_maxabs.save("hata_monitor_maxabs.d") ; 
             test_ham_constr.save("test_ham_constr.d") ; 
             test_mom_constr_r.save("test_mom_constr_r.d") ; 
             test_mom_constr_t.save("test_mom_constr_t.d") ; 
             test_mom_constr_p.save("test_mom_constr_p.d") ; 
+	    check_evol.save("evol_equations.d") ;
             
             save("sigma") ;
             
@@ -278,61 +467,123 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
 
         // Resolution of hyperbolic equations
         // ----------------------------------
+	compute_sources(strain_euler) ;
+
+	A_hata_new = A_hata_evol[jtime] 
+	    + pdt*( an*source_A_hata_evol[jtime] + anm1*source_A_hata_evol[jtime-1]
+		   + anm2*source_A_hata_evol[jtime-2] ) ;
+	B_hata_new = B_hata_evol[jtime] 
+	    + pdt*( an*source_B_hata_evol[jtime] + anm1*source_B_hata_evol[jtime-1]
+		   + anm2*source_B_hata_evol[jtime-2] ) ;
+
+	A_hh_new = A_hh_evol[jtime] 
+	    + pdt*( an*source_A_hh_evol[jtime] + anm1*source_A_hh_evol[jtime-1]
+		   + anm2*source_A_hh_evol[jtime-2] ) ;
+	B_hh_new = B_hh_evol[jtime] 
+	    + pdt*( an*source_B_hh_evol[jtime] + anm1*source_B_hh_evol[jtime-1]
+		   + anm2*source_B_hh_evol[jtime-2] ) ;
+
+	Scalar bc_A = -A_hata_new ;
+	bc_A.set_spectral_va().ylm() ;
+	evolve_outgoing_BC(pdt, nz_bound, A_hh_evol[jtime], bc_A, xij_a, xijm1_a, 
+			   Acc, 0) ;
+	A_hh_new.match_tau(par_A, &par_mat_A_hh) ;
         
-        solve_hij(par_khi, par_mu, khi_new, mu_new, 1, 
-                  graph_device, strain_euler) ;
-//##        solve_hij(par_khi, par_mu, khi_new, mu_new, method_poisson_vect, 
-//                  graph_device) ;
-        
+	Scalar bc_B = -B_hata_new ;
+	bc_B.set_spectral_va().ylm() ;
+	evolve_outgoing_BC(pdt, nz_bound, B_hh_evol[jtime], bc_B, xij_b, xijm1_b, 
+			   Bcc, -1) ;
+	B_hh_new.match_tau(par_B, &par_mat_B_hh) ;
+
+	
+        // Boundary conditions for hh and hata
+	//------------------------------------
+  	Scalar sbcmu = (18*mu_hh_evol[jtime] - 9*mu_hh_evol[jtime-1] 
+			+ 2*mu_hh_evol[jtime-2]) / (6*pdt) ;
+   	sbcmu.set_spectral_va().ylm() ;
+  	evolve_outgoing_BC(pdt, nz_bound, mu_hh_evol[jtime], sbcmu, xij_mu_hh, 
+			   xijm1_mu_hh, mub_hh, 0) ;
+ 	mub_hh *= 6*pdt ;
+
+  	Scalar sbckhi = (18*khi_hh_evol[jtime] - 9*khi_hh_evol[jtime-1] 
+			 + 2*khi_hh_evol[jtime-2]) / (6*pdt) ;
+   	sbckhi.set_spectral_va().ylm() ;
+  	evolve_outgoing_BC(pdt, nz_bound, khi_hh_evol[jtime], sbckhi, xij_ki_hh, 
+			   xijm1_ki_hh, khib_hh, 0) ;
+ 	khib_hh *= 6*pdt ;
+
+  	sbcmu = (18*mu_a_evol[jtime] - 9*mu_a_evol[jtime-1] 
+			+ 2*mu_a_evol[jtime-2]) / (6*pdt) ;
+   	sbcmu.set_spectral_va().ylm() ;
+  	evolve_outgoing_BC(pdt, nz_bound, mu_a_evol[jtime], sbcmu, xij_mu_a, xijm1_mu_a, 
+ 			   mub_hata, 0) ;
+ 	mub_hata *= 6*pdt ;
+
+  	sbckhi = (18*khi_a_evol[jtime] - 9*khi_a_evol[jtime-1] 
+			 + 2*khi_a_evol[jtime-2]) / (6*pdt) ;
+   	sbckhi.set_spectral_va().ylm() ;
+  	evolve_outgoing_BC(pdt, nz_bound, khi_a_evol[jtime], sbckhi, xij_ki_a, 
+			   xijm1_ki_a, khib_hata, 0) ;
+ 	khib_hata *= 6*pdt ;
+
         // Advance in time
         // ---------------
         
         jtime++ ; 
         ttime += pdt ; 
         the_time.update(ttime, jtime, ttime) ; 
-                
-        // Setting khi_evol, mu_evol, trh_evol and hh_evol at the new time:
-        set_khi_mu(khi_new, mu_new) ;    
-        
+
+	// Setting As and Bs for h^{ij} and \hat{A}^{ij}
+        set_AB_hata(A_hata_new, B_hata_new) ;
+        set_AB_hh(A_hh_new, B_hh_new) ;
+
+	// Computation of h^{ij} at new time-step
+	hh_det_one(jtime, &par_bc_hh, &par_mat_hh) ; 	
+
         // Reset of derived quantities
         del_deriv() ;        
 
         // Resolution of elliptic equations
         // --------------------------------
         
-        // N, Q and beta at the new time are initialized by their
-        // values at previous time:
+
         
-        n_evol.update(n_evol[jtime-1], jtime, ttime) ; 
-        set_qq_del_psi(qq_evol[jtime-1]) ; 
-        beta_evol.update(beta_evol[jtime-1], jtime, ttime) ;             
-        
+	// \hat{A}^{ij} is computed at the new time-step
+	compute_X_from_momentum_constraint(hat_S, &par_bc_hata, &par_mat_hata, 
+	    niter_elliptic) ;
+	
+	// Iteration on the conformal factor
+        psi_evol.update(psi_evol[jtime-1], jtime, ttime) ; 
         for (int k = 0; k < niter_elliptic; k++) {
     
-            des_meridian(aa()(1,1), 0., ray_des, "A\\urr\\d", ngraph0, 
-                         graph_device) ; 
-            des_meridian(aa()(2,3), 0., ray_des, "A\\u\\gh\\gf\\d", ngraph0+1,
-                         graph_device) ; 
-            des_meridian(aa()(3,3), 0., ray_des, "A\\u\\gf\\gf\\d", ngraph0+2,
-                         graph_device) ; 
-
-            n_new = solve_n(ener_euler, s_euler) ; 
-            q_new = solve_q(s_euler) ; 
-            beta_new = solve_beta(mom_euler, method_poisson_vect) ; 
-    
-            n_new = relax * n_new + (1.-relax) * nn() ; 
-            q_new = relax * q_new + (1.-relax) * qq() ; 
-            beta_new = relax * beta_new + (1.-relax) * beta() ;
-        
-            maxabs(n_new - nn(), "Difference between N_new and N") ;     
-            maxabs(q_new - qq(), "Difference between Q_new and Q") ;     
-            maxabs(beta_new - beta(), "Difference between beta_new and beta") ;     
-        
-            n_evol.update(n_new, jtime, ttime) ; 
-            set_qq_del_psi(q_new) ; 
-            beta_evol.update(beta_new, jtime, ttime) ;             
-
+            psi_new = solve_psi(ener_euler) ; 
+            psi_new = relax * psi_new + (1.-relax) * psi() ; 
+               
         }
+	set_psi_del_npsi(psi_new) ;
+
+        set_npsi_del_n(npsi_evol[jtime-1]) ; 
+
+	// Iteration on N*Psi  ## play with the number of iterations...
+        npsi_evol.update(psi_evol[jtime-1], jtime, ttime) ; 
+	for (int k = 0; k < niter_elliptic; k++) {
+
+            npsi_new = solve_npsi( ener_euler, s_euler ) ; 
+            npsi_new = relax * npsi_new + (1.-relax) * npsi() ; 
+
+	}
+	set_npsi_del_n(npsi_new) ; 
+
+	// Iteration on beta ## play with the number of iterations...
+        beta_evol.update(beta_evol[jtime-1], jtime, ttime) ;             
+	for (int k = 0; k < niter_elliptic; k++) {
+
+            beta_new = solve_beta(method_poisson_vect) ; 
+            beta_new = relax * beta_new + (1.-relax) * beta() ;
+
+	}    
+	beta_evol.update(beta_new, jtime, ttime) ;             
+
                 
         des_meridian(beta()(1), 0., ray_des, "\\gb\\ur\\d", ngraph0+6,
                      graph_device) ; 
@@ -340,9 +591,11 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
                      graph_device) ; 
         des_meridian(beta()(3), 0., ray_des, "\\gb\\u\\gf\\d", ngraph0+8,
                      graph_device) ; 
-        des_meridian(khi(), 0., ray_des, "\\gx", ngraph0+9,
+        des_meridian(A_hh(), 0., ray_des, "A\\dh", ngraph0+9,
                      graph_device) ; 
-        des_meridian(mu(), 0., ray_des, "\\gm", ngraph0+10,
+        des_meridian(nn(), 0., ray_des, "N", ngraph0+9,
+                     "/xwin") ; 
+        des_meridian(B_hh(), 0., ray_des, "B\\dh", ngraph0+10,
                      graph_device) ;
         des_meridian(trh(), 0., ray_des, "tr h", ngraph0+11,
                      graph_device) ; 
@@ -357,8 +610,16 @@ void Tslice_dirac_max::evolve(double pdt, int nb_time_steps,
 
     }
 
-    par_khi.clean_all() ; 
-    par_mu.clean_all() ; 
+    par_A.clean_all() ;
+    par_B.clean_all() ;
+    par_mat_A_hh.clean_all() ;
+    par_mat_B_hh.clean_all() ;
+
+    par_bc_hh.clean_all() ;
+    par_mat_hh.clean_all() ;
+
+    par_bc_hata.clean_all() ;
+    par_mat_hata.clean_all() ;
 } 
 
 
@@ -389,6 +650,3 @@ const Tbl& monitor_scalar(const Scalar& uu, Tbl& resu) {
     
     return resu ;      
 }
-
-
-

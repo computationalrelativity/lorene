@@ -30,6 +30,10 @@ char time_slice_conf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2008/12/02 15:02:22  j_novak
+ * Implementation of the new constrained formalism, following Cordero et al. 2009
+ * paper. The evolution eqs. are solved as a first-order system. Not tested yet!
+ *
  * Revision 1.14  2004/06/24 20:36:54  e_gourgoulhon
  * Added method check_psi_dot.
  *
@@ -85,9 +89,7 @@ char time_slice_conf_C[] = "$Header$" ;
  */
 
 // C headers
-#include <stdlib.h>
 #include <assert.h>
-#include <stdio.h>
 
 // Lorene headers
 #include "time_slice.h"
@@ -105,19 +107,20 @@ char time_slice_conf_C[] = "$Header$" ;
 
 Time_slice_conf::Time_slice_conf(const Scalar& lapse_in, const Vector& shift_in,
             const Metric_flat& ff_in, const Scalar& psi_in, 
-            const Sym_tensor& hh_in, const Sym_tensor aa_in, 
+            const Sym_tensor& hh_in, const Sym_tensor& hata_in, 
             const Scalar& trk_in, int depth_in) 
                     : Time_slice(depth_in),
                       ff(ff_in),
                       psi_evol(psi_in, depth_in), 
-                      qq_evol(depth_in),
+                      npsi_evol(depth_in),
                       hh_evol(hh_in, depth_in), 
-                      aa_evol(aa_in, depth_in) {
+                      hata_evol(hata_in, depth_in),
+		      A_hata_evol(depth_in), B_hata_evol(depth_in){
 
     assert(hh_in.get_index_type(0) == CON) ; 
     assert(hh_in.get_index_type(1) == CON) ; 
-    assert(aa_in.get_index_type(0) == CON) ; 
-    assert(aa_in.get_index_type(1) == CON) ; 
+    assert(hata_in.get_index_type(0) == CON) ; 
+    assert(hata_in.get_index_type(1) == CON) ; 
 
     double time_init = the_time[jtime] ; 
 
@@ -145,6 +148,8 @@ Time_slice_conf::Time_slice_conf(const Scalar& lapse_in, const Vector& shift_in,
     n_evol.update(lapse_in, jtime, time_init) ;     
     beta_evol.update(shift_in, jtime, time_init) ; 
     trk_evol.update(trk_in, jtime, time_init) ;
+    A_hata() ;
+    B_hata() ;
     
     set_der_0x0() ;  
     
@@ -155,14 +160,15 @@ Time_slice_conf::Time_slice_conf(const Scalar& lapse_in, const Vector& shift_in,
 // --------------------------------                 
 
 Time_slice_conf::Time_slice_conf(const Scalar& lapse_in, const Vector& shift_in,
-               const Sym_tensor& gamma_in, const Sym_tensor kk_in,
+               const Sym_tensor& gamma_in, const Sym_tensor& kk_in,
                const Metric_flat& ff_in, int depth_in) 
                     : Time_slice(lapse_in, shift_in, gamma_in, kk_in, depth_in),
                       ff(ff_in),
                       psi_evol(depth_in), 
-                      qq_evol(depth_in),
+                      npsi_evol(depth_in),
                       hh_evol(depth_in), 
-                      aa_evol(depth_in) {
+                      hata_evol(depth_in),
+		      A_hata_evol(depth_in), B_hata_evol(depth_in) {
                     
     set_der_0x0() ; // put here in order not to erase p_psi4
 
@@ -180,10 +186,11 @@ Time_slice_conf::Time_slice_conf(const Scalar& lapse_in, const Vector& shift_in,
     hh_evol.update( (*p_psi4) * p_gamma->con() - ff.con(), 
                     jtime, time_init ) ; 
     
-    aa_evol.update( (*p_psi4) *( Time_slice::k_uu() 
+    hata_evol.update( tmp*tmp*(*p_psi4)*(*p_psi4) *( Time_slice::k_uu() 
                     - 0.3333333333333333 * trk_evol[jtime] * p_gamma->con() ), 
-                    jtime, time_init ) ; 
-                                
+                    jtime, time_init ) ;                   
+    A_hata() ;
+    B_hata() ;
 }
 
 // Constructor as standard time slice of flat spacetime (Minkowski)
@@ -191,12 +198,13 @@ Time_slice_conf::Time_slice_conf(const Scalar& lapse_in, const Vector& shift_in,
 
 Time_slice_conf::Time_slice_conf(const Map& mp, const Base_vect& triad, 
                                  const Metric_flat& ff_in, int depth_in) 
-        : Time_slice(mp, triad, depth_in),
-          ff(ff_in), 
-          psi_evol(depth_in), 
-          qq_evol(depth_in),
-          hh_evol(depth_in), 
-          aa_evol(depth_in) {
+    : Time_slice(mp, triad, depth_in),
+      ff(ff_in), 
+      psi_evol(depth_in), 
+      npsi_evol(depth_in),
+      hh_evol(depth_in), 
+      hata_evol(depth_in),
+      A_hata_evol(depth_in), B_hata_evol(depth_in) {
     
     double time_init = the_time[jtime] ; 
     
@@ -206,16 +214,20 @@ Time_slice_conf::Time_slice_conf(const Map& mp, const Base_vect& triad,
     tmp.std_spectral_base() ;
     psi_evol.update(tmp, jtime, time_init) ; 
     
-    // Q identically one:
-    qq_evol.update(tmp, jtime, time_init) ; 
+    // N Psi identically one:
+    npsi_evol.update(tmp, jtime, time_init) ; 
     
     // h^{ij} identically zero:
     Sym_tensor stmp(mp, CON, triad) ; 
     stmp.set_etat_zero() ; 
     hh_evol.update(stmp, jtime, time_init) ; 
     
-    // A^{ij} identically zero:
-    aa_evol.update(stmp, jtime, time_init) ; 
+    // \hat{A}^{ij} identically zero:
+    hata_evol.update(stmp, jtime, time_init) ; 
+
+    tmp.set_etat_zero() ;
+    A_hata_evol.update(tmp, jtime, time_init) ;
+    B_hata_evol.update(tmp, jtime, time_init) ;
 
     set_der_0x0() ; 
 
@@ -231,10 +243,13 @@ Time_slice_conf::Time_slice_conf(const Map& mp, const Base_vect& triad,
         : Time_slice(mp, triad, fich, true, depth_in),
           ff(ff_in), 
           psi_evol(depth_in), 
-          qq_evol(depth_in),
+          npsi_evol(depth_in),
           hh_evol(depth_in), 
-          aa_evol(depth_in) {
+          hata_evol(depth_in),
+	  A_hata_evol(depth_in), B_hata_evol(depth_in) {
 
+    // Put here, not to destroy p_vec_X
+    set_der_0x0() ; 
 
     // Reading of various fields
     // -------------------------
@@ -242,14 +257,38 @@ Time_slice_conf::Time_slice_conf(const Map& mp, const Base_vect& triad,
     int jmin = jtime - depth + 1 ; 
     int indicator ; 
 
-    // Q
+    // Psi
     for (int j=jmin; j<=jtime; j++) {
         fread_be(&indicator, sizeof(int), 1, fich) ;
         if (indicator == 1) {
-            Scalar qq_file(mp, *(mp.get_mg()), fich) ; 
-            qq_evol.update(qq_file, j, the_time[j]) ; 
+            Scalar psi_file(mp, *(mp.get_mg()), fich) ; 
+            psi_evol.update(psi_file, j, the_time[j]) ; 
+        }
+    } 
+    // hat{A}^{ij}
+    for (int j=jmin; j<=jtime; j++) {
+	fread_be(&indicator, sizeof(int), 1, fich) ;	
+	if (indicator == 1) {
+	    Sym_tensor hat_A_file(mp, triad, fich) ; 
+	    hata_evol.update( hat_A_file, j, the_time[j] ) ; 
         }
     }
+
+    //A and B...
+    for (int j=jmin; j<=jtime; j++) {
+        fread_be(&indicator, sizeof(int), 1, fich) ;
+        if (indicator == 1) {
+            Scalar A_file(mp, *(mp.get_mg()), fich) ; 
+            A_hata_evol.update(A_file, j, the_time[j]) ; 
+        }
+    } 
+    for (int j=jmin; j<=jtime; j++) {
+        fread_be(&indicator, sizeof(int), 1, fich) ;
+        if (indicator == 1) {
+            Scalar B_file(mp, *(mp.get_mg()), fich) ; 
+            B_hata_evol.update(B_file, j, the_time[j]) ; 
+        }
+    } 
 
     // Case of a full reading
     // -----------------------
@@ -259,8 +298,6 @@ Time_slice_conf::Time_slice_conf(const Map& mp, const Base_vect& triad,
         << " is not ready yet !" << endl ; 
         abort() ; 
     }
-
-    set_der_0x0() ; 
 
 } 
 
@@ -274,9 +311,11 @@ Time_slice_conf::Time_slice_conf(const Time_slice_conf& tin)
                     : Time_slice(tin), 
                       ff(tin.ff),
                       psi_evol(tin.psi_evol), 
-                      qq_evol(tin.qq_evol),
+                      npsi_evol(tin.npsi_evol),
                       hh_evol(tin.hh_evol), 
-                      aa_evol(tin.aa_evol) {
+                      hata_evol(tin.hata_evol),
+		      A_hata_evol(tin.A_hata_evol),
+		      B_hata_evol(tin.B_hata_evol){
 
     set_der_0x0() ; 
                        
@@ -301,6 +340,7 @@ void Time_slice_conf::del_deriv() const {
     if (p_psi4 != 0x0) delete p_psi4 ; 
     if (p_ln_psi != 0x0) delete p_ln_psi ; 
     if (p_hdirac != 0x0) delete p_hdirac ; 
+    if (p_vec_X != 0x0) delete p_vec_X ;
     
     set_der_0x0() ;
 
@@ -313,7 +353,8 @@ void Time_slice_conf::set_der_0x0() const {
     p_tgamma = 0x0 ; 
     p_psi4 = 0x0 ; 
     p_ln_psi = 0x0 ; 
-    p_hdirac = 0x0 ; 
+    p_hdirac = 0x0 ;
+    p_vec_X = 0x0 ;
     
 }
 
@@ -327,9 +368,11 @@ void Time_slice_conf::operator=(const Time_slice_conf& tin) {
     Time_slice::operator=(tin) ; 
 
     psi_evol = tin.psi_evol ; 
-    qq_evol = tin.qq_evol ; 
+    npsi_evol = tin.npsi_evol ; 
     hh_evol = tin.hh_evol ; 
-    aa_evol = tin.aa_evol ; 
+    hata_evol = tin.hata_evol ; 
+    A_hata_evol = tin.A_hata_evol ;
+    B_hata_evol = tin.B_hata_evol ;
        
     del_deriv() ; 
     
@@ -348,7 +391,7 @@ void Time_slice_conf::operator=(const Time_slice& tin) {
 }
 
 
-void Time_slice_conf::set_psi_del_q(const Scalar& psi_in) {
+void Time_slice_conf::set_psi_del_npsi(const Scalar& psi_in) {
 
     psi_evol.update(psi_in, jtime, the_time[jtime]) ; 
 
@@ -365,7 +408,7 @@ void Time_slice_conf::set_psi_del_q(const Scalar& psi_in) {
         delete p_gamma ; 
         p_gamma = 0x0 ; 
     }
-    qq_evol.downdate(jtime) ; 
+    npsi_evol.downdate(jtime) ; 
     gam_dd_evol.downdate(jtime) ; 
     gam_uu_evol.downdate(jtime) ; 
     adm_mass_evol.downdate(jtime) ;  
@@ -397,11 +440,11 @@ void Time_slice_conf::set_psi_del_n(const Scalar& psi_in) {
 }
 
 
-void Time_slice_conf::set_qq_del_psi(const Scalar& qq_in) {
+void Time_slice_conf::set_npsi_del_psi(const Scalar& npsi_in) {
 
-    qq_evol.update(qq_in, jtime, the_time[jtime]) ; 
+    npsi_evol.update(npsi_in, jtime, the_time[jtime]) ; 
 
-    // Reset of quantities depending on Q:
+    // Reset of quantities depending on N Psi:
     psi_evol.downdate(jtime) ; 
     if (p_psi4 != 0x0) {
         delete p_psi4 ; 
@@ -422,11 +465,11 @@ void Time_slice_conf::set_qq_del_psi(const Scalar& qq_in) {
 }
 
 
-void Time_slice_conf::set_qq_del_n(const Scalar& qq_in) {
+void Time_slice_conf::set_npsi_del_n(const Scalar& npsi_in) {
 
-    qq_evol.update(qq_in, jtime, the_time[jtime]) ; 
+    npsi_evol.update(npsi_in, jtime, the_time[jtime]) ; 
 
-    // Reset of quantities depending on Q:
+    // Reset of quantities depending on N Psi:
     n_evol.downdate(jtime) ; 
     adm_mass_evol.downdate(jtime) ;  
      
@@ -478,15 +521,48 @@ void Time_slice_conf::set_hh(const Sym_tensor& hh_in) {
 }
 
 
-void Time_slice_conf::set_aa(const Sym_tensor& aa_in) {
+void Time_slice_conf::set_hata(const Sym_tensor& hata_in) {
 
-    aa_evol.update(aa_in, jtime, the_time[jtime]) ; 
+    hata_evol.update(hata_in, jtime, the_time[jtime]) ; 
 
     // Reset of quantities depending on A^{ij}:
+    A_hata_evol.downdate(jtime) ;
+    B_hata_evol.downdate(jtime) ;
     k_dd_evol.downdate(jtime) ; 
     k_uu_evol.downdate(jtime) ; 
 
 }
+
+void Time_slice_conf::set_hata_TT(const Sym_tensor_tt& hata_tt) {
+    
+    A_hata_evol.update(hata_tt.compute_A(true), jtime, the_time[jtime]) ;
+    B_hata_evol.update(hata_tt.compute_tilde_B_tt(true), jtime, the_time[jtime]) ;
+
+    hata_evol.downdate(jtime) ;
+    // Reset of quantities depending on A^{ij}:
+    k_dd_evol.downdate(jtime) ; 
+    k_uu_evol.downdate(jtime) ; 
+}
+
+void Time_slice_conf::set_hata_from_XAB(Param* par_bc, Param* par_mat) {
+
+    assert (p_vec_X != 0x0) ;
+    assert (A_hata_evol.is_known(jtime)) ;
+    assert (B_hata_evol.is_known(jtime)) ;
+
+    const Map& mp = p_vec_X->get_mp() ;
+
+    Sym_tensor_tt hata_tt(mp, mp.get_bvect_spher(), ff) ;
+    hata_tt.set_A_tildeB(A_hata_evol[jtime], B_hata_evol[jtime], par_bc, par_mat) ;
+
+    hata_evol.update( hata_tt + p_vec_X->ope_killing_conf(ff), jtime, the_time[jtime]) ;
+
+    // Reset of quantities depending on A^{ij}:
+    k_dd_evol.downdate(jtime) ; 
+    k_uu_evol.downdate(jtime) ; 
+    
+}
+
 
                 //-----------------------------------------------//
                 //  Update of fields from base class Time_slice  //
@@ -497,9 +573,9 @@ const Scalar& Time_slice_conf::nn() const {
     if (!( n_evol.is_known(jtime) ) ) {
 
         assert( psi_evol.is_known(jtime) ) ; 
-        assert( qq_evol.is_known(jtime) ) ; 
+        assert( npsi_evol.is_known(jtime) ) ; 
         
-        n_evol.update( qq_evol[jtime] / ( psi_evol[jtime]*psi_evol[jtime] ), 
+        n_evol.update( npsi_evol[jtime] / psi_evol[jtime] , 
                         jtime, the_time[jtime] ) ; 
     }
 
@@ -548,8 +624,9 @@ const Sym_tensor& Time_slice_conf::k_uu() const {
 
     if ( ! (k_uu_evol.is_known(jtime)) ) {
        
-        k_uu_evol.update( aa()/psi4() + 0.3333333333333333* trk()* gam().con(),
-             jtime, the_time[jtime] ) ; 
+        k_uu_evol.update( hata()/(psi4()*psi4()*psi()*psi()) 
+			  + 0.3333333333333333* trk()* gam().con(),
+			  jtime, the_time[jtime] ) ; 
     }
 
     return k_uu_evol[jtime] ;
@@ -564,17 +641,38 @@ const Sym_tensor& Time_slice_conf::k_uu() const {
                 //  Update of fields from this class //
                 //-----------------------------------//
 
+const Scalar& Time_slice_conf::A_hata() const {
+
+    if ( !( A_hata_evol.is_known(jtime) ) ) {
+
+	assert( hata_evol.is_known(jtime) ) ;
+
+	A_hata_evol.update( hata_evol[jtime].compute_A(true), jtime, the_time[jtime] ) ;
+    }
+    return A_hata_evol[jtime] ;
+}
+
+const Scalar& Time_slice_conf::B_hata() const {
+
+    if ( !( B_hata_evol.is_known(jtime) ) ) {
+
+	assert( hata_evol.is_known(jtime) ) ;
+
+	B_hata_evol.update( hata_evol[jtime].compute_tilde_B_tt(true), jtime, 
+			    the_time[jtime] ) ;
+    }
+    return A_hata_evol[jtime] ;
+}
+
 
 const Scalar& Time_slice_conf::psi() const {
 
     if (!( psi_evol.is_known(jtime) ) ) {
 
         assert( n_evol.is_known(jtime) ) ; 
-        assert( qq_evol.is_known(jtime) ) ; 
+        assert( npsi_evol.is_known(jtime) ) ; 
         
-        Scalar tmp = sqrt( qq_evol[jtime] / n_evol[jtime] ) ; 
-        tmp.std_spectral_base() ;
-        psi_evol.update(tmp, jtime, the_time[jtime] ) ; 
+        psi_evol.update( npsi_evol[jtime] / n_evol[jtime] , jtime, the_time[jtime] ) ; 
     }
 
     return psi_evol[jtime] ;
@@ -606,18 +704,17 @@ const Scalar& Time_slice_conf::ln_psi() const {
 } 
 
 
-const Scalar& Time_slice_conf::qq() const {
+const Scalar& Time_slice_conf::npsi() const {
 
-    if (!( qq_evol.is_known(jtime) ) ) {
+    if (!( npsi_evol.is_known(jtime) ) ) {
         
         assert( n_evol.is_known(jtime) ) ; 
         assert( psi_evol.is_known(jtime) ) ; 
 
-        const Scalar& psij = psi_evol[jtime] ; 
-        qq_evol.update( psij*psij * n_evol[jtime], jtime, the_time[jtime] ) ; 
+        npsi_evol.update( psi_evol[jtime] * n_evol[jtime], jtime, the_time[jtime] ) ; 
     }
 
-    return qq_evol[jtime] ;
+    return npsi_evol[jtime] ;
 
 }
 
@@ -633,39 +730,40 @@ const Metric& Time_slice_conf::tgam() const {
 }
 
 
-const Sym_tensor& Time_slice_conf::hh() const {
+const Sym_tensor& Time_slice_conf::hh(Param*, Param*) const {
 
     assert( hh_evol.is_known(jtime) ) ; 
     return hh_evol[jtime] ; 
 
 }
 
+Sym_tensor Time_slice_conf::aa() const {
 
-const Sym_tensor& Time_slice_conf::aa() const {
+    return hata()/(psi4()*psi()*psi()) ; 
 
-    if( !(aa_evol.is_known(jtime)) ) {
+}
+
+
+const Sym_tensor& Time_slice_conf::hata() const {
+
+    if( !(hata_evol.is_known(jtime)) ) {
 
         assert( hh_evol.is_known(jtime) ) ; 
 
         Sym_tensor hh_point = hh_evol.time_derive(jtime, scheme_order) ; 
         hh_point.inc_dzpuis(2) ; // dzpuis : 0 -> 2
     
-    //##
-    //        int nz = nn().get_mp().get_mg()->get_nzone() ; 
-    //        hh_point.annule_domain(nz-1) ; 
-    //##
-        
         Sym_tensor resu = hh_point - hh().derive_lie(beta()) 
             - 0.6666666666666666 * beta().divergence(ff) * hh()
             + beta().ope_killing_conf(ff) ; 
 
-        resu = resu / (2*nn()) ;
+        resu = psi4()*psi()*psi() * resu / (2*nn()) ;
         
-        aa_evol.update(resu, jtime, the_time[jtime]) ;
+        hata_evol.update(resu, jtime, the_time[jtime]) ;
         
     }
      
-    return aa_evol[jtime] ; 
+    return hata_evol[jtime] ; 
 
 }
 
@@ -699,6 +797,82 @@ const Vector& Time_slice_conf::hdirac() const {
 
 }
 
+const Vector& Time_slice_conf::vec_X(int methode_poisson) const {
+
+    if (p_vec_X == 0x0) {
+	assert ( hata_evol.is_known(jtime) ) ;
+	Vector source = hata_evol[jtime].divergence(ff) ;
+        p_vec_X = new Vector( source.poisson( 1./3., methode_poisson ) ) ;
+    }
+    
+    return *p_vec_X ;     
+}
+
+void Time_slice_conf::compute_X_from_momentum_constraint
+(const Vector& hat_S, Param* par_bc, Param* par_mat, int iter_max, double precis,
+ double relax, int meth_poisson) {
+
+    // Some checks
+    assert( hat_S.get_index_type(0) == CON ) ;
+    assert( A_hata_evol.is_known(jtime) ) ;
+    assert( B_hata_evol.is_known(jtime) ) ;
+    assert( hh_evol.is_known(jtime) ) ;
+
+    // Initializations
+    //----------------
+    const Map& mp = hat_S.get_mp() ;
+    const Tensor_sym& delta = tgam().connect().get_delta() ;
+    Sym_tensor_tt hata_tt(mp, mp.get_bvect_cart(), ff) ;
+    hata_tt.set_A_tildeB( A_hata_evol[jtime], B_hata_evol[jtime], par_bc, par_mat ) ;
+    if (p_vec_X != 0x0) {
+	delete p_vec_X ;
+	p_vec_X = 0x0 ;
+    }
+
+    // Constant part of the source
+    Vector source = hat_S - contract( delta, 1, 2, hata_tt, 0, 1 ) 
+	- 2./3.*psi4()*psi()*psi()*contract( tgam().con(), 0, trk().derive_cov(ff), 0 );
+
+    p_vec_X = new Vector( source.poisson( 1./3., meth_poisson ) ) ;
+
+    // Iteration on the vector X
+    //--------------------------
+    for (int it=0; it<iter_max; it++) {
+
+	Vector fuente = source 
+	    - contract( delta, 1, 2, p_vec_X->ope_killing_conf(ff), 0, 1 ) ;
+
+	Vector X_new = fuente.poisson( 1./3., meth_poisson) ;//### check the dzpuis!
+
+	// Control of the convergence
+	double diff = max( max( abs( X_new - *p_vec_X ) ) ) ;
+
+	// Relaxation
+	(*p_vec_X) = relax*X_new + ( 1. - relax )*(*p_vec_X) ;
+
+	// If converged, gets out of the loop
+	if (diff < precis) break ;
+    }
+
+    // Update of \hat{A}^{ij} and reset of related quantities
+    hata_evol.update( hata_tt + p_vec_X->ope_killing_conf(ff), jtime, the_time[jtime] ) ;
+
+    k_dd_evol.downdate(jtime) ; 
+    k_uu_evol.downdate(jtime) ;     
+}
+
+void Time_slice_conf::set_AB_hata(const Scalar& A_in, const Scalar& B_in) {
+
+    A_hata_evol.update(A_in, jtime, the_time[jtime]) ;
+    B_hata_evol.update(B_in, jtime, the_time[jtime]) ;
+
+    hata_evol.downdate(jtime) ;
+    // Reset of quantities depending on A^{ij}:
+    k_dd_evol.downdate(jtime) ; 
+    k_uu_evol.downdate(jtime) ;     
+
+}
+
 
 void Time_slice_conf::check_psi_dot(Tbl& tlnpsi_dot, Tbl& tdiff, Tbl& tdiff_rel) const {
 
@@ -709,8 +883,8 @@ void Time_slice_conf::check_psi_dot(Tbl& tlnpsi_dot, Tbl& tdiff, Tbl& tdiff_rel)
         lnpsi_dot = psi_evol.time_derive(jtime, scheme_order) / psi() ; 
     }
     else {
-        lnpsi_dot = 0.5 * ( qq_evol.time_derive(jtime, scheme_order) / qq()
-                           - n_evol.time_derive(jtime, scheme_order) / nn() ) ; 
+        lnpsi_dot = npsi_evol.time_derive(jtime, scheme_order) / npsi()
+                           - n_evol.time_derive(jtime, scheme_order) / nn()  ; 
     }
     
     tlnpsi_dot = max(abs(lnpsi_dot)) ; 
@@ -747,14 +921,14 @@ ostream& Time_slice_conf::operator>>(ostream& flux) const {
     if (psi_evol.is_known(jtime)) {
         maxabs( psi_evol[jtime], "Psi", flux) ;
     }
-    if (qq_evol.is_known(jtime)) {
-        maxabs( qq_evol[jtime], "Q", flux) ;
+    if (npsi_evol.is_known(jtime)) {
+        maxabs( npsi_evol[jtime], "N Psi", flux) ;
     }
     if (hh_evol.is_known(jtime)) {
         maxabs( hh_evol[jtime], "h^{ij}", flux) ;
     }
-    if (aa_evol.is_known(jtime)) {
-        maxabs( aa_evol[jtime], "A^{ij}", flux) ;
+    if (hata_evol.is_known(jtime)) {
+        maxabs( hata_evol[jtime], "hat{A}^{ij}", flux) ;
     }
 
     if (p_tgamma != 0x0) flux << 
@@ -762,6 +936,7 @@ ostream& Time_slice_conf::operator>>(ostream& flux) const {
     if (p_psi4 != 0x0) maxabs( *p_psi4, "Psi^4", flux) ; 
     if (p_ln_psi != 0x0) maxabs( *p_ln_psi, "ln(Psi)", flux) ; 
     if (p_hdirac != 0x0) maxabs( *p_hdirac, "H^i", flux) ; 
+    if (p_vec_X != 0x0) maxabs( *p_vec_X, "X^i", flux) ; 
     
     return flux ; 
 
@@ -781,14 +956,37 @@ void Time_slice_conf::sauve(FILE* fich, bool partial_save) const {
     
     int jmin = jtime - depth + 1 ; 
 
-    // Q
-    qq() ;     // forces the update at the current time step
+    // Psi
+    psi() ;     // forces the update at the current time step
     for (int j=jmin; j<=jtime; j++) {
-        int indicator = (qq_evol.is_known(j)) ? 1 : 0 ; 
+        int indicator = (psi_evol.is_known(j)) ? 1 : 0 ; 
         fwrite_be(&indicator, sizeof(int), 1, fich) ;
-        if (indicator == 1) qq_evol[j].sauve(fich) ; 
+        if (indicator == 1) psi_evol[j].sauve(fich) ;
     }
-    
+
+    // hat{A}
+    hata() ;
+    for (int j=jmin; j<=jtime; j++) {
+	int indicator = ( hata_evol.is_known(j) ? 1 : 0 ) ;
+	fwrite_be(&indicator, sizeof(int), 1, fich) ;
+	if (indicator == 1) hata_evol[j].sauve(fich) ;
+    }
+
+    //A and B...
+    A_hata() ;
+    for (int j=jmin; j<=jtime; j++) {
+        int indicator = (A_hata_evol.is_known(j)) ? 1 : 0 ; 
+        fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        if (indicator == 1) A_hata_evol[j].sauve(fich) ;
+    }
+
+    B_hata() ;
+    for (int j=jmin; j<=jtime; j++) {
+        int indicator = (B_hata_evol.is_known(j)) ? 1 : 0 ; 
+        fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        if (indicator == 1) B_hata_evol[j].sauve(fich) ;
+    }	
+
     // Case of a complete save
     // -----------------------
     if (!partial_save) {
@@ -798,10 +996,3 @@ void Time_slice_conf::sauve(FILE* fich, bool partial_save) const {
     }
     
 }
-
-
-                
-                
-                
-                
-

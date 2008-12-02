@@ -30,6 +30,10 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.23  2008/12/02 15:02:22  j_novak
+ * Implementation of the new constrained formalism, following Cordero et al. 2009
+ * paper. The evolution eqs. are solved as a first-order system. Not tested yet!
+ *
  * Revision 1.22  2007/11/06 14:47:07  j_novak
  * New constructor from a rotating star in Dirac gauge (class Star_rot_Dirac).
  * Evolution can take into account matter terms.
@@ -116,8 +120,6 @@ char tslice_dirac_max_C[] = "$Header$" ;
  */
 
 // C headers
-#include <stdlib.h>
-#include <stdio.h>
 #include <assert.h>
 
 // Lorene headers
@@ -136,35 +138,14 @@ char tslice_dirac_max_C[] = "$Header$" ;
 
 Tslice_dirac_max::Tslice_dirac_max(const Scalar& lapse_in, const Vector& shift_in,
             const Metric_flat& ff_in, const Scalar& psi_in, 
-            const Sym_tensor_trans& hh_in, const Sym_tensor aa_in, 
+            const Sym_tensor_trans& hh_in, const Sym_tensor& hata_in, 
             int depth_in) 
-  : Time_slice_conf( lapse_in, shift_in, ff_in, psi_in, hh_in, aa_in, 
+  : Time_slice_conf( lapse_in, shift_in, ff_in, psi_in, hh_in, hata_in, 
 		     0*lapse_in, depth_in), 
-    khi_evol(hh_in.tt_part().khi(), depth_in), 
-    mu_evol(hh_in.tt_part().mu(), depth_in),
-    potA_evol(depth_in), tildeB_evol(depth_in),
-    trh_evol(hh_in.the_trace(), depth_in) 
-{
-    Scalar tmp = hh_in.compute_A(true) ;
-    assert (tmp.get_etat() != ETATNONDEF);
-    if (tmp.get_etat() != ETATZERO) {
-	int nz = tmp.get_mp().get_mg()->get_nzone() ;
-	assert(tmp.get_mp().get_mg()->get_type_r(nz-1) == UNSURR) ;
-	tmp.annule_domain(nz-1) ;
-    }
-    tmp.set_dzpuis(0) ;
-    potA_evol.update(tmp, 0, the_time[0]) ;
-    tmp = hh_in.compute_tilde_B_tt(true)  ;
-    assert (tmp.get_etat() != ETATNONDEF) ;
-    if (tmp.get_etat() != ETATZERO) {
-	int nz = tmp.get_mp().get_mg()->get_nzone() ;
-	assert(tmp.get_mp().get_mg()->get_type_r(nz-1) == UNSURR) ;
-	tmp.annule_domain(nz-1) ;
-    }
-    tmp.set_dzpuis(0) ;
-    tildeB_evol.update(tmp, 0, the_time[0]) ;
-}
-                 
+    A_hh_evol(depth_in), B_hh_evol(depth_in), source_A_hh_evol(depth_in), 
+    source_B_hh_evol(depth_in), source_A_hata_evol(depth_in) ,
+    source_B_hata_evol(depth_in), trh_evol(hh_in.the_trace(), depth_in) 
+{ }              
 
 // Constructor as standard time slice of flat spacetime (Minkowski) 
 // ----------------------------------------------------------------
@@ -172,31 +153,27 @@ Tslice_dirac_max::Tslice_dirac_max(const Scalar& lapse_in, const Vector& shift_i
 Tslice_dirac_max::Tslice_dirac_max(const Map& mp, const Base_vect& triad, 
                                    const Metric_flat& ff_in, int depth_in) 
         : Time_slice_conf(mp, triad, ff_in, depth_in),
-          khi_evol(depth_in),   
-          mu_evol(depth_in),   
-          potA_evol(depth_in),   
-          tildeB_evol(depth_in),   
+          A_hh_evol(depth_in), B_hh_evol(depth_in),   
+          source_A_hh_evol(depth_in), source_B_hh_evol(depth_in),   
+          source_A_hata_evol(depth_in), source_B_hata_evol(depth_in),   
           trh_evol(depth_in) {
 
     double time_init = the_time[jtime] ; 
     
-    // khi identically zero:
+    // All potentials identically zero:
     Scalar tmp(mp) ; 
     tmp.set_etat_zero() ; 
-    khi_evol.update(tmp, jtime, time_init) ; 
-    
-    // mu identically zero:
-    mu_evol.update(tmp, jtime, time_init) ; 
-    
-    // A identically zero:
-    potA_evol.update(tmp, jtime, time_init) ; 
-    
-    // tildeB identically zero:
-    tildeB_evol.update(tmp, jtime, time_init) ; 
+    A_hh_evol.update(tmp, jtime, time_init) ; 
+    B_hh_evol.update(tmp, jtime, time_init) ; 
+
+    source_A_hh_evol.update(tmp, jtime, time_init) ; 
+    source_B_hh_evol.update(tmp, jtime, time_init) ; 
+
+    source_A_hata_evol.update(tmp, jtime, time_init) ; 
+    source_B_hata_evol.update(tmp, jtime, time_init) ; 
     
     // tr h identically zero:
-    trh_evol.update(tmp, jtime, time_init) ; 
-    
+    trh_evol.update(tmp, jtime, time_init) ;     
 }   
 
 
@@ -207,10 +184,9 @@ Tslice_dirac_max::Tslice_dirac_max(const Map& mp, const Base_vect& triad,
                         const Metric_flat& ff_in, FILE* fich, 
                         bool partial_read, int depth_in) 
         : Time_slice_conf(mp, triad, ff_in, fich, true, depth_in),
-          khi_evol(depth_in),   
-          mu_evol(depth_in),   
-          potA_evol(depth_in),   
-          tildeB_evol(depth_in),   
+          A_hh_evol(depth_in), B_hh_evol(depth_in),   
+          source_A_hh_evol(depth_in), source_B_hh_evol(depth_in),   
+          source_A_hata_evol(depth_in), source_B_hata_evol(depth_in),   
           trh_evol(depth_in) {
 
     if (partial_read) {
@@ -227,50 +203,32 @@ Tslice_dirac_max::Tslice_dirac_max(const Map& mp, const Base_vect& triad,
     int jmin = jtime - depth + 1 ; 
     int indicator ; 
 
-    // khi
+    // h^{ij}
     for (int j=jmin; j<=jtime; j++) {
         fread_be(&indicator, sizeof(int), 1, fich) ;	
         if (indicator == 1) {
-            Scalar khi_file(mp, *(mp.get_mg()), fich) ; 
-            khi_evol.update(khi_file, j, the_time[j]) ; 
+            Sym_tensor hh_file(mp, triad, fich) ; 
+            hh_evol.update(hh_file, j, the_time[j]) ; 
         }
     }
 
-    // mu
+    // A - hh
     for (int j=jmin; j<=jtime; j++) {
         fread_be(&indicator, sizeof(int), 1, fich) ;	
         if (indicator == 1) {
-            Scalar mu_file(mp, *(mp.get_mg()), fich) ; 
-            mu_evol.update(mu_file, j, the_time[j]) ; 
+            Scalar A_hh_file(mp, *(mp.get_mg()), fich) ; 
+            A_hh_evol.update(A_hh_file, j, the_time[j]) ; 
         }
     }
 
-    // A
+    // B - hh
     for (int j=jmin; j<=jtime; j++) {
         fread_be(&indicator, sizeof(int), 1, fich) ;	
         if (indicator == 1) {
-            Scalar potA_file(mp, *(mp.get_mg()), fich) ; 
-            potA_evol.update(potA_file, j, the_time[j]) ; 
+            Scalar B_hh_file(mp, *(mp.get_mg()), fich) ; 
+            B_hh_evol.update(B_hh_file, j, the_time[j]) ; 
         }
-    }
-
-    // tildeB
-    for (int j=jmin; j<=jtime; j++) {
-        fread_be(&indicator, sizeof(int), 1, fich) ;	
-        if (indicator == 1) {
-            Scalar tildeB_file(mp, *(mp.get_mg()), fich) ; 
-            tildeB_evol.update(tildeB_file, j, the_time[j]) ; 
-        }
-    }
-
-    // h^ij is computed from the values of khi and mu
-    // ----------------------------------------------
-    for (int j=jmin; j<=jtime; j++) {
-        if ( khi_evol.is_known(j) && mu_evol.is_known(j) ) hh_det_one(j) ;
-	else //## determine BCs and par_bc!!
-	    if ( potA_evol.is_known(j) && tildeB_evol.is_known(j) ) hh_det_one_AB(j) ;
-    }
-    
+    }    
 }
 
 // Constructor from a rotating star             
@@ -278,23 +236,27 @@ Tslice_dirac_max::Tslice_dirac_max(const Map& mp, const Base_vect& triad,
 
 Tslice_dirac_max::Tslice_dirac_max(const Star_rot_Dirac& star, double pdt, int depth_in) 
     : Time_slice_conf(star.get_nn(), star.get_beta(), star.get_mp().flat_met_spher(),
-		      exp(star.get_ln_psi()), star.get_hh(), star.get_aa(),
+		      0.*star.get_nn(), star.get_hh(), 0.*star.get_aa(),
 		      0.*star.get_nn(), depth_in),
-          khi_evol(depth_in),   
-          mu_evol(depth_in),   
-          potA_evol(depth_in),   
-          tildeB_evol(depth_in),   
+          A_hh_evol(depth_in), B_hh_evol(depth_in),   
+          source_A_hh_evol(depth_in), source_B_hh_evol(depth_in),   
+          source_A_hata_evol(depth_in), source_B_hata_evol(depth_in),   
           trh_evol(depth_in) {
-    Scalar tmp = psi_evol[jtime] ;
+
+    Scalar tmp = exp(star.get_ln_psi()) ;
     tmp.std_spectral_base() ;
     psi_evol.downdate(jtime) ;
     psi_evol.update(tmp, jtime, the_time[jtime]) ;
-    Scalar A_in = star.get_hh().compute_A() ;
-    Scalar tildeB_in = star.get_hh().compute_tilde_B_tt() ;
-    tildeB_evol.update(tildeB_in, jtime, the_time[jtime]) ;
-    potA_evol.update(A_in, jtime, the_time[jtime]) ;
-    hh_det_one_AB(jtime) ;
-    k_dd() ;
+
+    Sym_tensor tmp2 = psi4()*psi()*psi()*star.get_aa() ;
+    hata_evol.downdate(jtime) ;
+    hata_evol.update(tmp2, jtime, the_time[jtime]) ;
+
+    A_hh() ;
+    B_hh() ;
+    A_hata() ;
+    B_hata() ;
+    compute_sources() ;
 
     // Update of various fields
     // -------------------------
@@ -308,15 +270,17 @@ Tslice_dirac_max::Tslice_dirac_max(const Star_rot_Dirac& star, double pdt, int d
         beta_evol.update(beta_evol[jtime], jtime1, ttime1) ;  
         hh_evol.update(hh_evol[jtime], jtime1, ttime1) ;
         trk_evol.update(trk_evol[jtime], jtime1, ttime1) ;
-	khi_evol.update(psi_evol[jtime], jtime1, ttime1) ;
-	mu_evol.update(mu_evol[jtime], jtime1, ttime1) ;
-	potA_evol.update(potA_evol[jtime], jtime1, ttime1) ;
-	tildeB_evol.update(tildeB_evol[jtime], jtime1, ttime1) ;
+	A_hh_evol.update(A_hh_evol[jtime], jtime1, ttime1) ;
+	B_hh_evol.update(B_hh_evol[jtime], jtime1, ttime1) ;
+	A_hata_evol.update(A_hata_evol[jtime], jtime1, ttime1) ;
+	B_hata_evol.update(B_hata_evol[jtime], jtime1, ttime1) ;
 	trh_evol.update(trh_evol[jtime], jtime1, ttime1) ;
 	k_dd_evol.update(k_dd_evol[jtime], jtime1, ttime1) ;
         the_time.update(ttime1, jtime1, ttime1) ;         
     } 
-    jtime += depth - 1 ; 
+    jtime += depth - 1 ;
+
+    initialize_sources_copy() ;
 }
 
 // Copy constructor
@@ -324,10 +288,12 @@ Tslice_dirac_max::Tslice_dirac_max(const Star_rot_Dirac& star, double pdt, int d
 
 Tslice_dirac_max::Tslice_dirac_max(const Tslice_dirac_max& tin) 
                     : Time_slice_conf(tin), 
-                      khi_evol(tin.khi_evol), 
-                      mu_evol(tin.mu_evol),
-                      potA_evol(tin.potA_evol), 
-                      tildeB_evol(tin.tildeB_evol),
+                      A_hh_evol(tin.A_hh_evol), 
+                      B_hh_evol(tin.B_hh_evol),
+                      source_A_hh_evol(tin.source_A_hh_evol), 
+                      source_B_hh_evol(tin.source_B_hh_evol),
+                      source_A_hata_evol(tin.source_A_hata_evol), 
+                      source_B_hata_evol(tin.source_B_hata_evol),
                       trh_evol(tin.trh_evol) { }
                       
                       
@@ -346,10 +312,12 @@ void Tslice_dirac_max::operator=(const Tslice_dirac_max& tin) {
 
     Time_slice_conf::operator=(tin) ; 
 
-    khi_evol = tin.khi_evol ; 
-    mu_evol = tin.mu_evol ; 
-    potA_evol = tin.potA_evol ; 
-    tildeB_evol = tin.tildeB_evol ; 
+    A_hh_evol = tin.A_hh_evol ; 
+    B_hh_evol = tin.B_hh_evol ;
+    source_A_hh_evol = tin.source_A_hh_evol ; 
+    source_B_hh_evol = tin.source_B_hh_evol ;
+    source_A_hata_evol = tin.source_A_hata_evol ; 
+    source_B_hata_evol = tin.source_B_hata_evol ;
     trh_evol = tin.trh_evol ; 
        
 }
@@ -360,10 +328,12 @@ void Tslice_dirac_max::set_hh(const Sym_tensor& hh_in) {
     Time_slice_conf::set_hh(hh_in) ; 
 
     // Reset of quantities depending on h^{ij}:
-    khi_evol.downdate(jtime) ; 
-    mu_evol.downdate(jtime) ; 
-    potA_evol.downdate(jtime) ; 
-    tildeB_evol.downdate(jtime) ; 
+    A_hh_evol.downdate(jtime) ; 
+    B_hh_evol.downdate(jtime) ; 
+    source_A_hh_evol.downdate(jtime) ; 
+    source_B_hh_evol.downdate(jtime) ; 
+    source_A_hata_evol.downdate(jtime) ; 
+    source_B_hata_evol.downdate(jtime) ; 
     trh_evol.downdate(jtime) ; 
          
 }
@@ -380,135 +350,60 @@ void Tslice_dirac_max::initial_data_cts(const Sym_tensor& uu,
                                       method_poisson_vect, graph_device, 
                                       p_ener_dens, p_mom_dens, p_trace_stress) ;
 
-    // Setting khi and mu for j < jtime, taking into account u^{ij} = dh^{ij}/dt
+    int nz = trk_in.get_mp().get_mg()->get_nzone() ;
+    // Setting khi and mu for j <= jtime, taking into account u^{ij} = dh^{ij}/dt
     //--------------------------------------------------------------------------
-    for (int j = jtime-depth+1 ; j < jtime; j++) {
+    for (int j = jtime-depth+1 ; j <= jtime; j++) {
             
-        bool vanishing_uu = true ; 
-        for (int i=1; i<=3; i++) {
-            for (int k=i; k<=3; k++) {
-                if (uu(i,k).get_etat() != ETATZERO) vanishing_uu = false ; 
-            }
-        }
+	// A and tildeB are computed from the value of hh
+	Scalar tmp = hh_evol[j].compute_A(true) ;
+	assert (tmp.get_etat() != ETATNONDEF) ;
+	if (tmp.get_etat() != ETATZERO) {
+	    assert(tmp.get_mp().get_mg()->get_type_r(nz-1) == UNSURR) ;
+	    tmp.annule_domain(nz-1) ;
+	}
+	tmp.set_dzpuis(0) ;
+	A_hh_evol.update(tmp, j, the_time[j]) ;
 
-        if (vanishing_uu) {  // Case dh^{ij}/dt = 0
-                             // --------------------
-            // khi, mu, A and tildeB are actually not computed but read from the
-            // value of hh at jtime. 
-            khi_evol.update(
-             hh_evol[jtime].transverse(ff,0x0,method_poisson_vect).tt_part().khi(),
-                           j, the_time[j]) ;
-            mu_evol.update(
-             hh_evol[jtime].transverse(ff,0x0,method_poisson_vect).tt_part().mu(),
-                           j, the_time[j]) ;
-	    Scalar tmp = hh_evol[jtime].compute_A(true) ;
-	    assert (tmp.get_etat() != ETATNONDEF) ;
-	    if (tmp.get_etat() != ETATZERO) {
-		int nz = tmp.get_mp().get_mg()->get_nzone() ;
-		assert(tmp.get_mp().get_mg()->get_type_r(nz-1) == UNSURR) ;
-		tmp.annule_domain(nz-1) ;
-	    }
-	    tmp.set_dzpuis(0) ;
-            potA_evol.update(tmp, j, the_time[j]) ;
-	    tmp = hh_evol[jtime].compute_tilde_B_tt(true) ;
-	    assert (tmp.get_etat() != ETATNONDEF) ;
-	    if (tmp.get_etat() != ETATZERO) {
-		int nz = tmp.get_mp().get_mg()->get_nzone() ;
-		assert(tmp.get_mp().get_mg()->get_type_r(nz-1) == UNSURR) ;
-		tmp.annule_domain(nz-1) ;
-	    }
-	    tmp.set_dzpuis(0) ;
-            tildeB_evol.update(tmp, j, the_time[j]) ;
-        }
-        else {          // Case dh^{ij}/dt != 0
-                        // --------------------
-            Sym_tensor hhtmp = hh_evol[j] ;
-            int nz = uu.get_mp().get_mg()->get_nzone() ; 
-            hhtmp.annule_domain(nz-1) ; 
-            for (int i=1; i<=3; i++) {
-                for (int k=i; k<=3; k++) {
-                    hhtmp.set(i,k).set_dzpuis(4) ; 
-                }
-            }
-        
-            Scalar tmp = hhtmp.transverse(ff,0x0,method_poisson_vect).tt_part().khi() ;
-            tmp.annule_domain(nz-1) ;
-            khi_evol.update(tmp, j, the_time[j]) ;
-
-            tmp = hhtmp.transverse(ff,0x0,method_poisson_vect).tt_part().mu() ;
-            tmp.annule_domain(nz-1) ; //##
-            mu_evol.update(tmp, j, the_time[j]) ;
-
-            tmp = hhtmp.compute_A(true) ;
-            tmp.annule_domain(nz-1) ;
-	    tmp.set_dzpuis(0) ;
-            potA_evol.update(tmp, j, the_time[j]) ;
-
-            tmp = hhtmp.compute_tilde_B_tt(true) ;
-            tmp.annule_domain(nz-1) ; //##
-	    tmp.set_dzpuis(0) ;
-            tildeB_evol.update(tmp, j, the_time[j]) ;
-        }
-
+	tmp = hh_evol[jtime].compute_tilde_B_tt(true) ;
+	assert (tmp.get_etat() != ETATNONDEF) ;
+	if (tmp.get_etat() != ETATZERO) {
+	    assert(tmp.get_mp().get_mg()->get_type_r(nz-1) == UNSURR) ;
+	    tmp.annule_domain(nz-1) ;
+	}
+	tmp.set_dzpuis(0) ;
+	B_hh_evol.update(tmp, j, the_time[j]) ;
     }
   
-    // Setting khi and mu for j = jtime
-    //---------------------------------
-
-    // In case khi and mu have been computed previously, the following
-    // formulae have no effect: 
-    khi_evol.update(
-        hh_evol[jtime].transverse(ff,0x0,method_poisson_vect).tt_part().khi(),
-                           jtime, the_time[jtime]) ;
-    mu_evol.update(
-        hh_evol[jtime].transverse(ff,0x0,method_poisson_vect).tt_part().mu(),
-                           jtime, the_time[jtime]) ;
-    
-    Scalar tmp = hh_evol[jtime].compute_A(true) ;
-    assert (tmp.get_etat() != ETATNONDEF) ;
-    if (tmp.get_etat() != ETATZERO) {
-	int nz = tmp.get_mp().get_mg()->get_nzone() ;
-	assert(tmp.get_mp().get_mg()->get_type_r(nz-1) == UNSURR) ;
-	tmp.annule_domain(nz-1) ;
-    }
-    tmp.set_dzpuis(0) ;
-    potA_evol.update(tmp, jtime, the_time[jtime]) ;
-    tmp = hh_evol[jtime].compute_tilde_B_tt(true) ;
-    assert (tmp.get_etat() != ETATNONDEF) ;
-    if (tmp.get_etat() != ETATZERO) {
-	int nz = tmp.get_mp().get_mg()->get_nzone() ;
-	assert(tmp.get_mp().get_mg()->get_type_r(nz-1) == UNSURR) ;
-	tmp.annule_domain(nz-1) ;
-    }
-    tmp.set_dzpuis(0) ;
-    tildeB_evol.update(tmp, jtime, the_time[jtime]) ;
-    
     cout << endl << 
-    "Tslice_dirac_max::initial_data_cts : variation of khi, mu, A and tilde(B) for J = " 
+    "Tslice_dirac_max::initial_data_cts : variation of A and tilde(B) for J = " 
     << jtime << " :\n" ;  
-    maxabs(khi_evol[jtime] - khi_evol[jtime-1], "khi^J - khi^{J-1}") ; 
+    maxabs(A_hh_evol[jtime] - A_hh_evol[jtime-1], "A(h)^J - A(h)^{J-1}") ; 
     
-    maxabs(mu_evol[jtime] - mu_evol[jtime-1], "mu^J - mu^{J-1}") ; 
+    maxabs(B_hh_evol[jtime] - B_hh_evol[jtime-1], "B(h)^J - B(h)^{J-1}") ; 
     
-    maxabs(potA_evol[jtime] - potA_evol[jtime-1], "A^J - A^{J-1}") ; 
+    maxabs(A_hata_evol[jtime] - A_hata_evol[jtime-1], "A(hat{A})^J - A(hat{A})^{J-1}") ; 
     
-    maxabs(tildeB_evol[jtime] - tildeB_evol[jtime-1], "tilde(B)^J - tilde(B)^{J-1}") ; 
+    maxabs(B_hata_evol[jtime] - B_hata_evol[jtime-1], "B(hat{A})^J - B(hat{A})^{J-1}") ; 
     
     // Reset of derived quantities (at the new time step jtime)
     // ---------------------------
     del_deriv() ; 
     
+    compute_sources() ;
+    initialize_sources_copy() ; //## should be a call to the Runge-Kutta integrator
 }
 
 
 void Tslice_dirac_max::set_khi_mu(const Scalar& khi_in, const Scalar& mu_in) {
 
-    khi_evol.update(khi_in, jtime, the_time[jtime]) ; 
-    mu_evol.update(mu_in, jtime, the_time[jtime]) ; 
-    
-    // Computation of trace h and h^{ij} to ensure det tgam_{ij} = det f_{ij} :
+    const Map& mp = khi_in.get_mp() ;
+    Sym_tensor_tt hh_tt(mp, mp.get_bvect_spher(), mp.flat_met_spher());
+    hh_tt.set_khi_mu(khi_in, mu_in) ;
+    Sym_tensor_trans hh_tmp(mp, mp.get_bvect_spher(), mp.flat_met_spher());
+    hh_tmp.trace_from_det_one(hh_tt) ;
 
-    hh_det_one(jtime) ;
+    set_hh( hh_tmp ) ;
     
 } 
 
@@ -519,7 +414,7 @@ void Tslice_dirac_max::set_trh(const Scalar& trh_in) {
         << "   this method does not check whether det(tilde gamma) = 1"
         << endl ; 
         
-    // Reset of quantities depending on mu:
+    // Reset of quantities depending on the trace:
     hh_evol.downdate(jtime) ; 
     if (p_tgamma != 0x0) {
         delete p_tgamma ;
@@ -533,108 +428,32 @@ void Tslice_dirac_max::set_trh(const Scalar& trh_in) {
         delete p_gamma ; 
         p_gamma = 0x0 ;
     }
+    source_A_hh_evol.downdate(jtime) ; 
+    source_B_hh_evol.downdate(jtime) ; 
+    source_A_hata_evol.downdate(jtime) ; 
+    source_B_hata_evol.downdate(jtime) ; 
     gam_dd_evol.downdate(jtime) ; 
     gam_uu_evol.downdate(jtime) ; 
     adm_mass_evol.downdate(jtime) ;  
      
 } 
 
-void Tslice_dirac_max::hh_det_one(int j0) const {
-
-    assert (khi_evol.is_known(j0)) ;   // The starting point
-    assert (mu_evol.is_known(j0)) ;    // of the computation 
-
-    const Map& mp = khi_evol[j0].get_mp() ;
-    int nzm2 = mp.get_mg()->get_nzone() - 2 ;
-
-    // khi and mu are smoothly mached to a zero value in the CED
-    Scalar khi0 = khi_evol[j0] ; 
-    khi0.annule_extern_cn(nzm2, 2) ;     
-    Scalar mu0 = mu_evol[j0] ;       
-    mu0.annule_extern_cn(nzm2, 2) ;     
-
-    // The TT part of h^{ij}, which stays unchanged during the computation :
-    Sym_tensor_tt hijtt(mp, *(ff.get_triad()), ff) ;
-    hijtt.set_khi_mu(khi0, mu0, 2) ;
-    
-    // The representation of h^{ij} as an object of class Sym_tensor_trans :
-    Sym_tensor_trans hij(mp, *(ff.get_triad()), ff) ;
-    hij.trace_from_det_one(hijtt) ;
- 
-    // Result set to trh_evol and hh_evol
-    // ----------------------------------
-    Scalar tmp = hij.the_trace() ;
-    tmp.dec_dzpuis(4) ;
-    trh_evol.update(tmp, j0, the_time[j0]) ;
-    
-    // The longitudinal part of h^{ij}, which is zero by virtue of Dirac gauge :
-    Vector wzero(mp, CON,  *(ff.get_triad())) ; 
-    wzero.set_etat_zero() ;                   
-
-    // Temporary Sym_tensor with longitudinal part set to zero : 
-    Sym_tensor hh_new(mp, CON, *(ff.get_triad())) ;
-    
-    hh_new.set_longit_trans(wzero, hij) ;
-    
-    hh_evol.update(hh_new, j0, the_time[j0]) ;
-    
-    // Update of A and tlde(B)
-    tmp = hijtt.compute_A(true) ;
-    tmp.annule_domain(nzm2+1)  ;
-    tmp.set_dzpuis(0) ;
-    potA_evol.update(tmp, jtime, the_time[jtime]) ; 
-    tmp = hijtt.compute_tilde_B_tt(true) ;
-    tmp.annule_domain(nzm2+1)  ;
-    tmp.set_dzpuis(0) ;
-    tildeB_evol.update(tmp, jtime, the_time[jtime]) ; 
-      
-    if (j0 == jtime) {
-        // Reset of quantities depending on h^{ij}:
-        if (p_tgamma != 0x0) {
-            delete p_tgamma ;
-            p_tgamma = 0x0 ; 
-        } 
-        if (p_hdirac != 0x0) {
-            delete p_hdirac ; 
-            p_hdirac = 0x0 ; 
-        }
-        if (p_gamma != 0x0) {
-            delete p_gamma ; 
-            p_gamma = 0x0 ;
-        }
-    }
-    gam_dd_evol.downdate(j0) ; 
-    gam_uu_evol.downdate(j0) ;
-    adm_mass_evol.downdate(j0) ;  
-         
-    // Test
-    if (j0 == jtime) {
-        maxabs(tgam().determinant() - 1, 
-        "Max. of absolute value of deviation from det tgam = 1") ; 
-    }
-    else {
-        Metric tgam_j0( ff.con() + hh_evol[j0] ) ; 
-        maxabs(tgam_j0.determinant() - 1, 
-        "Max. of absolute value of deviation from det tgam = 1") ; 
-    }
-    
-}
 
                 //----------------------------------------------------//
                 //  Update of fields from base class Time_slice_conf  //
                 //----------------------------------------------------//
 
 
-const Sym_tensor& Tslice_dirac_max::hh() const {
+const Sym_tensor& Tslice_dirac_max::hh(Param* par_bc, Param* par_mat) const {
 
     if (!( hh_evol.is_known(jtime) ) ) {
 
-        assert (khi_evol.is_known(jtime)) ;
-        assert (mu_evol.is_known(jtime)) ;
+        assert (A_hh_evol.is_known(jtime)) ;
+        assert (B_hh_evol.is_known(jtime)) ;
     
         // Computation of h^{ij} to ensure det tgam_{ij} = det f_{ij} :
 
-        hh_det_one(jtime) ;
+        hh_det_one(jtime, par_bc, par_mat) ;
     }
   
     return hh_evol[jtime] ; 
@@ -676,62 +495,27 @@ const Vector& Tslice_dirac_max::hdirac() const {
                 //  Update of fields from this class //
                 //-----------------------------------//
 
+const Scalar& Tslice_dirac_max::A_hh() const {
 
-const Scalar& Tslice_dirac_max::khi() const {
+    if (!( A_hh_evol.is_known(jtime) ) ) {
+	assert( hh_evol.is_known(jtime) ) ;
 
-    if (!( khi_evol.is_known(jtime) ) ) {
+	A_hh_evol.update( hh_evol[jtime].compute_A(true), jtime, the_time[jtime] ) ;
 
-      cout << "Error: khi_evol is not konwn at time : " << jtime << '\n' ;
-      cout << "Better not use the value deduced from hh!" << endl ;
-      abort() ;
-
-//         assert( hh_evol.is_known(jtime) ) ; 
-//         khi_evol.update( hh().transverse(ff).tt_part().khi(), 
-// 			 jtime, the_time[jtime] ) ; 
     }
-
-
-    return khi_evol[jtime] ;
-
+    return A_hh_evol[jtime] ;
 } 
 
-const Scalar& Tslice_dirac_max::mu() const {
+const Scalar& Tslice_dirac_max::B_hh() const {
 
-    if (!( mu_evol.is_known(jtime) ) ) {
+    if (!( B_hh_evol.is_known(jtime) ) ) {
+	assert( hh_evol.is_known(jtime) ) ;
 
-      cout << "Error: mu_evol is not konwn at time : " << jtime << '\n' ;
-      cout << "Better not use the value deduced from hh!" << endl ;
-      abort() ;
+	B_hh_evol.update( hh_evol[jtime].compute_tilde_B_tt(true), jtime, the_time[jtime] ) ;
 
-//         assert( hh_evol.is_known(jtime) ) ; 
-      
-//         mu_evol.update( hh().transverse(ff).tt_part().mu(), 
-// 			jtime, the_time[jtime] ) ; 
     }
-
-    return mu_evol[jtime] ;
-
-}
-
-const Scalar& Tslice_dirac_max::potA() const {
-
-    if (!( potA_evol.is_known(jtime) ) ) {
-      cout << "Error: potA_evol is not konwn at time : " << jtime << '\n' ;
-      cout << "Better not use the value deduced from hh!" << endl ;
-      abort() ;
-    }
-    return potA_evol[jtime] ;
+    return B_hh_evol[jtime] ;
 } 
-
-const Scalar& Tslice_dirac_max::tildeB() const {
-
-    if (!( tildeB_evol.is_known(jtime) ) ) {
-      cout << "Error: tildeB_evol is not konwn at time : " << jtime << '\n' ;
-      cout << "Better not use the value deduced from hh!" << endl ;
-      abort() ;
-    }
-    return tildeB_evol[jtime] ;
-}
 
 const Scalar& Tslice_dirac_max::trh() const {
 
@@ -758,17 +542,11 @@ ostream& Tslice_dirac_max::operator>>(ostream& flux) const {
 
     flux << "Dirac gauge and maximal slicing" << '\n' ;
 
-    if (khi_evol.is_known(jtime)) {
-        maxabs( khi_evol[jtime], "Khi", flux) ;
+    if (A_hh_evol.is_known(jtime)) {
+        maxabs( A_hh_evol[jtime], "A_hh", flux) ;
     }
-    if (mu_evol.is_known(jtime)) {
-        maxabs( mu_evol[jtime], "Mu", flux) ;
-    }
-    if (potA_evol.is_known(jtime)) {
-        maxabs( potA_evol[jtime], "A", flux) ;
-    }
-    if (tildeB_evol.is_known(jtime)) {
-        maxabs( tildeB_evol[jtime], "tilde(B)", flux) ;
+    if (B_hh_evol.is_known(jtime)) {
+        maxabs( B_hh_evol[jtime], "B_hh", flux) ;
     }
     if (trh_evol.is_known(jtime)) {
         maxabs( trh_evol[jtime], "tr h", flux) ;
@@ -798,38 +576,29 @@ void Tslice_dirac_max::sauve(FILE* fich, bool partial_save) const {
         
     int jmin = jtime - depth + 1 ; 
 
-    // khi
-    khi() ;     // forces the update at the current time step
+    // h^{ij}
+    assert( hh_evol.is_known(jtime) ) ;
     for (int j=jmin; j<=jtime; j++) {
-        int indicator = (khi_evol.is_known(j)) ? 1 : 0 ; 
+        int indicator = (hh_evol.is_known(j)) ? 1 : 0 ; 
         fwrite_be(&indicator, sizeof(int), 1, fich) ;
-        if (indicator == 1) khi_evol[j].sauve(fich) ; 
+        if (indicator == 1) hh_evol[j].sauve(fich) ; 
+    }	
+
+    // A_hh
+    A_hh() ;     // forces the update at the current time step
+    for (int j=jmin; j<=jtime; j++) {
+        int indicator = (A_hh_evol.is_known(j)) ? 1 : 0 ; 
+        fwrite_be(&indicator, sizeof(int), 1, fich) ;
+        if (indicator == 1) A_hh_evol[j].sauve(fich) ; 
     }
 
-    // mu
-    mu() ;     // forces the update at the current time step
+    // B_hh
+    B_hh() ;     // forces the update at the current time step
     for (int j=jmin; j<=jtime; j++) {
-        int indicator = (mu_evol.is_known(j)) ? 1 : 0 ; 
+        int indicator = (B_hh_evol.is_known(j)) ? 1 : 0 ; 
         fwrite_be(&indicator, sizeof(int), 1, fich) ;
-        if (indicator == 1) mu_evol[j].sauve(fich) ; 
+        if (indicator == 1) B_hh_evol[j].sauve(fich) ; 
     }
-    
-    // A
-    potA() ;     // forces the update at the current time step
-    for (int j=jmin; j<=jtime; j++) {
-        int indicator = (potA_evol.is_known(j)) ? 1 : 0 ; 
-        fwrite_be(&indicator, sizeof(int), 1, fich) ;
-        if (indicator == 1) potA_evol[j].sauve(fich) ; 
-    }
-
-    // tildeB
-    tildeB() ;     // forces the update at the current time step
-    for (int j=jmin; j<=jtime; j++) {
-        int indicator = (tildeB_evol.is_known(j)) ? 1 : 0 ; 
-        fwrite_be(&indicator, sizeof(int), 1, fich) ;
-        if (indicator == 1) tildeB_evol[j].sauve(fich) ; 
-    }
-    
 }
 
 

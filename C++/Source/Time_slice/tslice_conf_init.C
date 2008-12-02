@@ -30,6 +30,10 @@ char tslice_conf_init_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2008/12/02 15:02:22  j_novak
+ * Implementation of the new constrained formalism, following Cordero et al. 2009
+ * paper. The evolution eqs. are solved as a first-order system. Not tested yet!
+ *
  * Revision 1.8  2004/05/17 19:53:13  e_gourgoulhon
  * Added arguments graph_device and  method_poisson_vect.
  *
@@ -62,11 +66,7 @@ char tslice_conf_init_C[] = "$Header$" ;
  *
  */
 
-// C++ headers
-#include "headcpp.h"
-
 // C headers
-#include <stdlib.h>
 #include <assert.h>
 
 // Lorene headers
@@ -107,7 +107,7 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& uu,
     k_dd_evol.downdate(jtime) ; 
     k_uu_evol.downdate(jtime) ; 
    
-    set_aa(uu / (2.* nn()) ) ; 
+    set_hata(psi4()*psi()*psi()* uu / (2.* nn()) ) ; 
 
     const Map& map = uu.get_mp() ; 
     const Base_vect& triad = *(uu.get_triad()) ;
@@ -273,7 +273,7 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& uu,
         //      Updates for next step 
         //=============================================
 
-        set_psi_del_q(psi_jp1) ; 
+        set_psi_del_npsi(psi_jp1) ; 
      
         n_evol.update(nn_jp1, jtime, ttime) ; 
 
@@ -283,21 +283,16 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& uu,
         Sym_tensor aa_jp1 = ( beta().ope_killing_conf(tgam()) + uu ) 
                                 / (2.* nn()) ; 
         
-        //## Alternative formula:
-        // Sym_tensor aa_jp1 = ( beta().ope_killing_conf(ff) 
-        //                      - hh().derive_lie(beta())
-        //                      - 0.6666666666666666 * beta.divergence() * hh()
-        //                      + uu ) / (2.* nn()) ; 
-                             
-        set_aa(aa_jp1) ; 
-
-        // arrete() ; 
+        set_hata( aa_jp1 / (psi4()*psi()*psi()) ) ; 
 
     }
     
     //==================================================================
     // End of iteration 
     //===================================================================
+
+    A_hata() ;
+    B_hata() ;
 
     // Push forward in time to enable the computation of time derivatives
     // ------------------------------------------------------------------
@@ -311,7 +306,9 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& uu,
         n_evol.update(n_evol[jtime], jtime1, ttime1) ;  
         beta_evol.update(beta_evol[jtime], jtime1, ttime1) ;  
         hh_evol.update(hh_evol[jtime], jtime1, ttime1) ;
-        aa_evol.update(aa_evol[jtime], jtime1, ttime1) ;
+        hata_evol.update(hata_evol[jtime], jtime1, ttime1) ;
+	A_hata_evol.update(A_hata_evol[jtime], jtime1, ttime1) ;
+	B_hata_evol.update(B_hata_evol[jtime], jtime1, ttime1) ;
         trk_evol.update(trk_evol[jtime], jtime1, ttime1) ;
         the_time.update(ttime1, jtime1, ttime1) ;         
     } 
@@ -336,16 +333,3 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& uu,
     del_deriv() ; 
     
 } 
-
-
-
-
-
-
-
-
-
-
-
-
-

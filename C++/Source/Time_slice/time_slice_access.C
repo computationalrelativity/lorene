@@ -30,6 +30,10 @@ char time_slice_access_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2008/12/02 15:02:22  j_novak
+ * Implementation of the new constrained formalism, following Cordero et al. 2009
+ * paper. The evolution eqs. are solved as a first-order system. Not tested yet!
+ *
  * Revision 1.6  2004/05/12 15:24:20  e_gourgoulhon
  * Reorganized the #include 's, taking into account that
  * time_slice.h contains now an #include "metric.h".
@@ -60,7 +64,6 @@ char time_slice_access_C[] = "$Header$" ;
  */
 
 // C headers
-#include <stdlib.h>
 #include <assert.h>
 
 // Lorene headers

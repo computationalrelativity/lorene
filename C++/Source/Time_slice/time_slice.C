@@ -30,6 +30,10 @@ char time_slice_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.14  2008/12/02 15:02:21  j_novak
+ * Implementation of the new constrained formalism, following Cordero et al. 2009
+ * paper. The evolution eqs. are solved as a first-order system. Not tested yet!
+ *
  * Revision 1.13  2004/05/31 09:08:18  e_gourgoulhon
  * Method sauve and constructor from binary file are now operational.
  *
@@ -83,10 +87,7 @@ char time_slice_C[] = "$Header$" ;
  */
 
 // C headers
-#include <stdlib.h>
 #include <assert.h>
-#include <string.h>
-#include <stdio.h>
 
 // Lorene headers
 #include "time_slice.h"
@@ -102,7 +103,7 @@ char time_slice_C[] = "$Header$" ;
 // Standard constructor (Hamiltonian-like)
 // ---------------------------------------
 Time_slice::Time_slice(const Scalar& lapse_in, const Vector& shift_in,
-               const Sym_tensor& gamma_in, const Sym_tensor kk_in,
+               const Sym_tensor& gamma_in, const Sym_tensor& kk_in,
                int depth_in) 
                : depth(depth_in),
 		 scheme_order(depth_in-1),

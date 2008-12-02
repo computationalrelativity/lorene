@@ -31,6 +31,10 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.32  2008/12/02 15:02:21  j_novak
+ * Implementation of the new constrained formalism, following Cordero et al. 2009
+ * paper. The evolution eqs. are solved as a first-order system. Not tested yet!
+ *
  * Revision 1.31  2006/05/24 16:55:31  f_limousin
  * Improvement of dn_comp() and dpsi_comp()
  *
@@ -183,7 +187,7 @@ Isol_hor::Isol_hor(Map_af& mpi, const Scalar& lapse_in,
 		   const Scalar& trK_in, const Scalar& trK_point_in,
 		   const Metric_flat& ff_in, int depth_in) 	  
     : Time_slice_conf(lapse_in, shift_in, ff_in, psi_in, metgamt.con() -
-		      ff_in.con(), aa_in, trK_in, depth_in),
+		      ff_in.con(), pow(psi_in, 6)*aa_in, trK_in, depth_in),
       mp(mpi), nz(mpi.get_mg()->get_nzone()), radius ((mpi.get_alpha())[0]), 
       omega(0), boost_x(0), boost_z(0), regul(0),
       n_auto_evol(depth_in), n_comp_evol(depth_in), 
@@ -526,7 +530,7 @@ void Isol_hor::set_nn(const Scalar& nn_in) {
 
     n_evol.update(nn_in, jtime, the_time[jtime]) ;
 
-    aa_evol.downdate(jtime) ;
+    hata_evol.downdate(jtime) ;
     aa_quad_evol.downdate(jtime) ;
     k_dd_evol.downdate(jtime) ;
     k_uu_evol.downdate(jtime) ;
@@ -858,7 +862,8 @@ void Isol_hor::update_aa() {
 	}
   }
   
-  set_aa(aa_new) ;  // set aa to aa_new and delete values of 
+  Sym_tensor hata_new = aa_new*psi4()*psi()*psi() ;
+  set_hata(hata_new) ;  // set aa to aa_new and delete values of 
                     // k_uu and k_dd.
   Sym_tensor aa_dd (aa_new.up_down(met_gamt)) ;
   Scalar aquad (contract(aa_dd, 0, 1, aa_new, 0, 1)*psi4()*psi4()*psi4()) ;
@@ -1058,8 +1063,8 @@ void Isol_hor::aa_kerr_ww(double mm, double aaa) {
     des_meridian(aa()(3,2)-aij(3,2), 0., 4., "diff_aa(3,2)", 5) ;
     arrete() ;
     */
-
-    aa_evol.update(aij, jtime, the_time[jtime]) ;
+    Sym_tensor hataij = aij*psi4()*psi()*psi() ;
+    hata_evol.update(hataij, jtime, the_time[jtime]) ;
     Sym_tensor kij (aij) ;
     kij = kij * pow(gam().determinant(), -1./3.) ;
     kij.std_spectral_base() ;
@@ -1324,7 +1329,7 @@ void Isol_hor::adapt_hor(double c_min, double c_max) {
 
   k_dd_evol.downdate(jtime) ;
   psi_evol.downdate(jtime) ;
-  aa_evol.downdate(jtime) ;
+  hata_evol.downdate(jtime) ;
   aa_quad_evol.downdate(jtime) ;
   beta_evol.downdate(jtime) ;
   n_evol.downdate(jtime) ;

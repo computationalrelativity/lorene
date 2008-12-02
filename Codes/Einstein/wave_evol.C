@@ -29,6 +29,10 @@ char wave_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2008/12/02 15:02:22  j_novak
+ * Implementation of the new constrained formalism, following Cordero et al. 2009
+ * paper. The evolution eqs. are solved as a first-order system. Not tested yet!
+ *
  * Revision 1.11  2004/06/24 07:49:12  j_novak
  * Using a constructor of Mg3d with variable number of points in each domain.
  *
@@ -73,11 +77,7 @@ char wave_evol_C[] = "$Header$" ;
  *
  */
 
-// C++ headers
-#include "headcpp.h"
-
 // C headers
-#include <stdlib.h>
 #include <math.h>
 #include <string.h>
 
@@ -250,8 +250,6 @@ int main() {
     
     khi_init.std_spectral_base() ; 
     
-    //## khi_init.smooth_decay(2, 1) ; 
-
     khi_init.spectral_display("khi_init") ;   
     if (khi_init.get_etat() == ETATQCQ) 
         des_meridian(khi_init, 0., 1.25*r_limits[nz-1], "khi_init", 1, 
@@ -311,16 +309,12 @@ int main() {
         
     arrete(nopause) ; 
 
-    sigmat.khi() ;  // forces updates 
-    sigmat.mu() ;   //
+    sigmat.A_hh() ;  // forces updates 
+    sigmat.B_hh() ;   //
     sigmat.trh() ;  //   
         
     cout << "Initial data : " << sigmat << endl ;  
     cout << "ADM mass : " << sigmat.adm_mass() << endl ; 
-    
-    cout << "Test upon khi : difference between khi and khi_init : " << endl ; 
-    Scalar diff_khi = sigmat.khi() - khi_init ;
-    maxabs(diff_khi, "diff_khi") ; 
     
     // sigmat.trh().visu_section ('x', 0., -4., 4., -4., 4., "h in x=0 plane", "h_x") ;
     
@@ -367,10 +361,6 @@ int main() {
     
     maxabs(sigmat.psi() - 1., "Psi - 1") ;   
     
-    // Scalar psitest(map) ; 
-    // psitest = 1. ; 
-    // sigmat.set_psi_del_q(psitest) ; 
-
     arrete(nopause) ; 
 
     //======================================================================
