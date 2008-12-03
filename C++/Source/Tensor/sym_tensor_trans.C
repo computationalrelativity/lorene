@@ -32,6 +32,9 @@ char sym_tensor_trans_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2008/12/03 10:20:00  j_novak
+ * Modified output.
+ *
  * Revision 1.15  2006/09/15 08:48:01  j_novak
  * Suppression of some messages in the optimized version.
  *
@@ -307,11 +310,11 @@ void Sym_tensor_trans::trace_from_det_one(const Sym_tensor_tt& hijtt,
     
 #ifndef NDEBUG
   const Sym_tensor_trans* ptmp = 
-    dynamic_cast<const Sym_tensor_trans*>(&hijtt) ;
+      dynamic_cast<const Sym_tensor_trans*>(&hijtt) ;
   assert (ptmp != 0x0) ;
-    assert (ptmp != this) ;
-    for (int i=0; i<hijtt.get_n_comp(); i++)
-	assert(hijtt.cmp[i]->check_dzpuis(2)) ;
+  assert (ptmp != this) ;
+  for (int i=0; i<hijtt.get_n_comp(); i++)
+      assert(hijtt.cmp[i]->check_dzpuis(2)) ;
 #endif
     assert( (precis > 0.) && (it_max > 0) ) ;
     assert (met_div == &hijtt.get_met_div() ) ;

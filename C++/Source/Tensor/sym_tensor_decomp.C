@@ -30,6 +30,9 @@ char sym_tensor_decomp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2008/12/03 10:20:00  j_novak
+ * Modified output.
+ *
  * Revision 1.11  2004/06/17 06:56:42  e_gourgoulhon
  * Simplified code for method transverse (use of Vector::ope_killing).
  * Slight modif. of output in method longit_pot.
@@ -174,12 +177,12 @@ const Vector& Sym_tensor::longit_pot(const Metric& metre, Param* par,
 
         Vector lapw = ww.derive_con(metre).divergence(metre) 
                         + (ww.divergence(metre)).derive_con(metre) ;
-
+#ifndef NDEBUG
         cout << "## Sym_tensor::longit_pot : test of Poisson : \n" ;
         cout << 
         "  Max absolute error in each domain on the vector Poisson equation:\n" ;   
         maxabs(lapw - hhh) ; 
-  
+
 	int nz = mp->get_mg()->get_nzone() ;	    // total number of domains
 		
 	cout << "  Relative error in each domain on the vector Poisson equation:\n" ;
@@ -191,7 +194,7 @@ const Vector& Sym_tensor::longit_pot(const Metric& metre, Param* par,
 	    cout << endl ;
 	}
 	cout << endl ;
-
+#endif
     }
 
     return *p_longit_pot[jp] ;
