@@ -34,6 +34,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2008/12/03 15:21:20  j_novak
+ * New method mult_cost.
+ *
  * Revision 1.15  2007/12/11 15:28:05  jl_cornou
  * Jacobi(0,2) polynomials partially implemented
  *
@@ -503,6 +506,12 @@ class Base_val {
 	 * \f$\sin \theta\f$ multiplication.
 	 */
 	void mult_sint() ;  
+  
+	/**
+	 * The basis is transformed as with a 
+	 * \f$\cos \theta\f$ multiplication.
+	 */
+	void mult_cost() ;  
   
 	/**
 	 * The basis is transformed as with a transformation to 

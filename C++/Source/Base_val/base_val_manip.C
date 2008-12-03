@@ -25,6 +25,9 @@ char base_val_manip_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2008/12/03 15:21:21  j_novak
+ * New method mult_cost.
+ *
  * Revision 1.7  2008/02/18 13:53:38  j_novak
  * Removal of special indentation instructions.
  *
@@ -272,6 +275,48 @@ void Base_val::mult_sint() {
     break ;   
   default: 
     cout << "Wrong base in Base_val::mult_sint()!" << endl ;
+    abort() ;
+    exit(-1) ;
+    break ;
+  }  
+  return ;
+}
+
+void Base_val::mult_cost() {
+    
+  switch(get_base_t(0)) {
+  case T_COS_P:
+    set_base_t(T_COS_I) ;
+    break ;
+  case T_COS_I:
+    set_base_t(T_COS_P) ;
+    break ;
+  case T_SIN_P:
+    set_base_t(T_SIN_I) ;
+    break ;
+  case T_SIN_I:
+    set_base_t(T_SIN_P) ;
+    break ;
+  case T_COSSIN_CP:
+    set_base_t(T_COSSIN_CI) ;
+    break ;
+  case T_COSSIN_SP:
+    set_base_t(T_COSSIN_SI) ;
+    break ;
+  case T_COSSIN_CI:
+    set_base_t(T_COSSIN_CP) ;
+    break ;
+  case T_COSSIN_SI:
+    set_base_t(T_COSSIN_SP) ;
+    break ;
+  case T_COSSIN_C:
+    set_base_t(T_COSSIN_C) ;
+    break ;
+  case T_COSSIN_S:
+    set_base_t(T_COSSIN_S) ;
+    break ;   
+  default: 
+    cout << "Wrong base in Base_val::mult_cost()!" << endl ;
     abort() ;
     exit(-1) ;
     break ;
