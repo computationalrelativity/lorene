@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.41  2008/12/03 10:18:56  j_novak
+ * Method 6 is now the default for calls to vector Poisson solver.
+ *
  * Revision 1.40  2008/10/29 08:19:08  jl_cornou
  * Typo in the doxygen documentation + spectral bases for pseudo vectors added
  * and curl
@@ -527,7 +530,7 @@ class Vector: public Tensor {
      *
      * @return the solution \f$N^i\f$.
      */
-    Vector poisson(double lambda, int method = 0) const ;
+    Vector poisson(double lambda, int method = 6) const ;
      
     /**Solves the vector Poisson equation with \c *this  as a source.
      * 
@@ -551,10 +554,14 @@ class Vector: public Tensor {
      *        \li 2 : The sources is transformed to cartesian components and the 
      *            equation is solved using Shibata method (see Granclement 
      *            \e et \e al. JCPH 2001.
+     *        \li 6 : Solves for the \e r -component and \f$ \eta \f$ together in a
+     *            system, and for the \f$ \mu \f$ potential (which decouples). The
+     *            solution is then built from these fields through the method
+     *            \c Vector::set_vr_eta_mu(). It is the default method.
      *
      * @return the solution \f$N^i\f$.
      */
-    Vector poisson(double lambda, const Metric_flat& met_f, int method = 0) const ;
+    Vector poisson(double lambda, const Metric_flat& met_f, int method = 6) const ;
     
     /**Solves the vector Poisson equation with \c *this  as a source
      * and parameters controlling the solution.
@@ -572,7 +579,7 @@ class Vector: public Tensor {
      */
     
     Vector poisson(const double lambda, Param& par,
-		   int method = 0) const ;
+		   int method = 6) const ;
     
     /**Solves the vector Poisson equation with \c *this  as a source 
      * with a boundary condition on the excised sphere.
@@ -597,14 +604,16 @@ class Vector: public Tensor {
      * (as in the poisson_vector_block routine). 
      * Boundary arguments are here required as scalar fields.
      */
-    void poisson_boundary2(double lam, Vector& resu, Scalar boundvr, Scalar boundeta, Scalar boundmu, double dir_vr, double neum_vr, double dir_eta, double neum_eta, double dir_mu, double neum_mu ) const ;
- 
-    
+    void poisson_boundary2(double lam, Vector& resu, Scalar boundvr, 
+			   Scalar boundeta, Scalar boundmu, double dir_vr, 
+			   double neum_vr, double dir_eta, double neum_eta, 
+			   double dir_mu, double neum_mu ) const ;
 
  
     Vector poisson_dirichlet(double lambda, const Valeur& limit_vr, 
 			  const Valeur& limit_vt, const Valeur& limit_vp, 
 			  int num_front) const ;
+
      /**Solves the vector Poisson equation with \c *this  as a source 
      * with a boundary condition on the excised sphere.
      * 
@@ -620,6 +629,7 @@ class Vector: public Tensor {
     Vector poisson_neumann(double lambda, const Valeur& limit_vr, 
 			  const Valeur& limit_vt, const Valeur& limit_vp, 
 			  int num_front) const ;
+
     /**Solves the vector Poisson equation with \c *this  as a source 
      * with a boundary condition on the excised sphere.
      * 

@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.46  2008/12/03 10:18:56  j_novak
+ * Method 6 is now the default for calls to vector Poisson solver.
+ *
  * Revision 1.45  2008/08/20 14:39:53  n_vasset
  * New Dirac solvers handling degenerate elliptic operators on excised spacetimes.
  *
@@ -491,7 +494,7 @@ class Sym_tensor : public Tensor_sym {
          *      method \c Vector::poisson)
 	 */
 	const Sym_tensor_trans& transverse(const Metric& gam, Param* par = 0x0,
-                int method_poisson = 2) const ; 
+                int method_poisson = 6) const ; 
 
 	/** Computes the vector potential \f$W^i\f$ of
 	 * longitudinal part of the tensor (see documentation of
@@ -504,7 +507,7 @@ class Sym_tensor : public Tensor_sym {
          *      method \c Vector::poisson)
 	 */
 	const Vector& longit_pot(const Metric& gam, Param* par = 0x0,
-                int method_poisson = 2) const ; 
+                int method_poisson = 6) const ; 
 	
 	/// Gives the field \f$\eta\f$ (see member \c p_eta ).
 	virtual const Scalar& eta(Param* par = 0x0) const ;
