@@ -30,6 +30,9 @@ char time_slice_conf_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.16  2008/12/04 18:22:49  j_novak
+ * Enhancement of the dzpuis treatment + various bug fixes.
+ *
  * Revision 1.15  2008/12/02 15:02:22  j_novak
  * Implementation of the new constrained formalism, following Cordero et al. 2009
  * paper. The evolution eqs. are solved as a first-order system. Not tested yet!
@@ -535,8 +538,17 @@ void Time_slice_conf::set_hata(const Sym_tensor& hata_in) {
 
 void Time_slice_conf::set_hata_TT(const Sym_tensor_tt& hata_tt) {
     
-    A_hata_evol.update(hata_tt.compute_A(true), jtime, the_time[jtime]) ;
-    B_hata_evol.update(hata_tt.compute_tilde_B_tt(true), jtime, the_time[jtime]) ;
+    Scalar tmp = hata_tt.compute_A(true) ;
+    if (tmp.get_dzpuis() == 3)
+	tmp.dec_dzpuis() ; // dzpuis 3->2
+
+    A_hata_evol.update( tmp, jtime, the_time[jtime] ) ;
+
+    tmp = hata_tt.compute_tilde_B_tt(true) ;
+    if (tmp.get_dzpuis() == 3)
+	tmp.dec_dzpuis() ; // dzpuis 3->2
+
+    B_hata_evol.update( tmp, jtime, the_time[jtime] ) ;
 
     hata_evol.downdate(jtime) ;
     // Reset of quantities depending on A^{ij}:
@@ -554,6 +566,7 @@ void Time_slice_conf::set_hata_from_XAB(Param* par_bc, Param* par_mat) {
 
     Sym_tensor_tt hata_tt(mp, mp.get_bvect_spher(), ff) ;
     hata_tt.set_A_tildeB(A_hata_evol[jtime], B_hata_evol[jtime], par_bc, par_mat) ;
+    hata_tt.inc_dzpuis(2) ;
 
     hata_evol.update( hata_tt + p_vec_X->ope_killing_conf(ff), jtime, the_time[jtime]) ;
 
@@ -646,8 +659,11 @@ const Scalar& Time_slice_conf::A_hata() const {
     if ( !( A_hata_evol.is_known(jtime) ) ) {
 
 	assert( hata_evol.is_known(jtime) ) ;
+	Scalar tmp = hata_evol[jtime].compute_A(true) ;
+	if (tmp.get_dzpuis() == 3)
+	    tmp.dec_dzpuis() ; // dzpuis 3->2
 
-	A_hata_evol.update( hata_evol[jtime].compute_A(true), jtime, the_time[jtime] ) ;
+	A_hata_evol.update( tmp, jtime, the_time[jtime] ) ;
     }
     return A_hata_evol[jtime] ;
 }
@@ -657,9 +673,11 @@ const Scalar& Time_slice_conf::B_hata() const {
     if ( !( B_hata_evol.is_known(jtime) ) ) {
 
 	assert( hata_evol.is_known(jtime) ) ;
+	Scalar tmp = hata_evol[jtime].compute_tilde_B_tt(true) ;
+	if (tmp.get_dzpuis() == 3)
+	    tmp.dec_dzpuis() ; // dzpuis 3->2
 
-	B_hata_evol.update( hata_evol[jtime].compute_tilde_B_tt(true), jtime, 
-			    the_time[jtime] ) ;
+	B_hata_evol.update( tmp, jtime, the_time[jtime] ) ;
     }
     return A_hata_evol[jtime] ;
 }
@@ -773,13 +791,13 @@ const Scalar& Time_slice_conf::trk() const {
     if( !(trk_evol.is_known(jtime)) ) {
 
         psi() ; 
-        Scalar resu = beta().divergence(ff) 
-                + 6.*( contract(beta(), 0, ln_psi().derive_cov(ff), 0)
-                - psi_evol.time_derive(jtime, scheme_order) / psi() ) ; 
+        Scalar resu = -6*psi_evol.time_derive(jtime, scheme_order) / psi() ;
+	resu.inc_dzpuis(2) ;
+	resu += beta().divergence(ff) 
+	    + 6.*contract( beta(), 0, ln_psi().derive_cov(ff), 0 ) ;
         resu = resu / nn() ; 
         
         trk_evol.update(resu, jtime, the_time[jtime]) ;
-
     } 
     
     return trk_evol[jtime] ; 
@@ -802,28 +820,28 @@ const Vector& Time_slice_conf::vec_X(int methode_poisson) const {
     if (p_vec_X == 0x0) {
 	assert ( hata_evol.is_known(jtime) ) ;
 	Vector source = hata_evol[jtime].divergence(ff) ;
+	source.inc_dzpuis() ; // dzpuis 3-> 4
         p_vec_X = new Vector( source.poisson( 1./3., methode_poisson ) ) ;
-    }
-    
+    }    
     return *p_vec_X ;     
 }
 
 void Time_slice_conf::compute_X_from_momentum_constraint
-(const Vector& hat_S, Param* par_bc, Param* par_mat, int iter_max, double precis,
+(const Vector& hat_S, const Sym_tensor_tt& hata_tt, int iter_max, double precis,
  double relax, int meth_poisson) {
 
     // Some checks
     assert( hat_S.get_index_type(0) == CON ) ;
-    assert( A_hata_evol.is_known(jtime) ) ;
-    assert( B_hata_evol.is_known(jtime) ) ;
+#ifndef NDEBUG
+    for (int i=1; i<=3; i++)
+	for (int j=i; j<=3; j++)
+	    assert( hata_tt(i,j).get_dzpuis() == 2 ) ;
+#endif
     assert( hh_evol.is_known(jtime) ) ;
 
     // Initializations
     //----------------
-    const Map& mp = hat_S.get_mp() ;
     const Tensor_sym& delta = tgam().connect().get_delta() ;
-    Sym_tensor_tt hata_tt(mp, mp.get_bvect_cart(), ff) ;
-    hata_tt.set_A_tildeB( A_hata_evol[jtime], B_hata_evol[jtime], par_bc, par_mat ) ;
     if (p_vec_X != 0x0) {
 	delete p_vec_X ;
 	p_vec_X = 0x0 ;
@@ -842,10 +860,12 @@ void Time_slice_conf::compute_X_from_momentum_constraint
 	Vector fuente = source 
 	    - contract( delta, 1, 2, p_vec_X->ope_killing_conf(ff), 0, 1 ) ;
 
-	Vector X_new = fuente.poisson( 1./3., meth_poisson) ;//### check the dzpuis!
+	Vector X_new = fuente.poisson( 1./3., meth_poisson) ;
 
 	// Control of the convergence
-	double diff = max( max( abs( X_new - *p_vec_X ) ) ) ;
+	double diff = 0. ;
+	for (int i=1; i<=3; i++)
+	    diff += max( max( abs( X_new(i) - (*p_vec_X)(i) ) ) ) ;
 
 	// Relaxation
 	(*p_vec_X) = relax*X_new + ( 1. - relax )*(*p_vec_X) ;

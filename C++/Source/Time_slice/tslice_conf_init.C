@@ -30,6 +30,9 @@ char tslice_conf_init_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2008/12/04 18:22:49  j_novak
+ * Enhancement of the dzpuis treatment + various bug fixes.
+ *
  * Revision 1.9  2008/12/02 15:02:22  j_novak
  * Implementation of the new constrained formalism, following Cordero et al. 2009
  * paper. The evolution eqs. are solved as a first-order system. Not tested yet!
@@ -291,6 +294,7 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& uu,
     // End of iteration 
     //===================================================================
 
+    npsi_evol.update( n_evol[jtime]*psi_evol[jtime], jtime, ttime ) ;
     A_hata() ;
     B_hata() ;
 
@@ -303,6 +307,7 @@ void Time_slice_conf::initial_data_cts(const Sym_tensor& uu,
         jtime1++ ; 
         ttime1 += pdt ; 
         psi_evol.update(psi_evol[jtime], jtime1, ttime1) ;  
+        npsi_evol.update(npsi_evol[jtime], jtime1, ttime1) ;  
         n_evol.update(n_evol[jtime], jtime1, ttime1) ;  
         beta_evol.update(beta_evol[jtime], jtime1, ttime1) ;  
         hh_evol.update(hh_evol[jtime], jtime1, ttime1) ;

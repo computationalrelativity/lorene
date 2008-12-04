@@ -30,6 +30,9 @@ char tslice_dirac_max_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.24  2008/12/04 18:22:49  j_novak
+ * Enhancement of the dzpuis treatment + various bug fixes.
+ *
  * Revision 1.23  2008/12/02 15:02:22  j_novak
  * Implementation of the new constrained formalism, following Cordero et al. 2009
  * paper. The evolution eqs. are solved as a first-order system. Not tested yet!
@@ -398,13 +401,30 @@ void Tslice_dirac_max::initial_data_cts(const Sym_tensor& uu,
 void Tslice_dirac_max::set_khi_mu(const Scalar& khi_in, const Scalar& mu_in) {
 
     const Map& mp = khi_in.get_mp() ;
+
     Sym_tensor_tt hh_tt(mp, mp.get_bvect_spher(), mp.flat_met_spher());
-    hh_tt.set_khi_mu(khi_in, mu_in) ;
+    hh_tt.set_khi_mu(khi_in, mu_in, 2) ;
+
     Sym_tensor_trans hh_tmp(mp, mp.get_bvect_spher(), mp.flat_met_spher());
     hh_tmp.trace_from_det_one(hh_tt) ;
 
-    set_hh( hh_tmp ) ;
+    // Result set to trh_evol and hh_evol
+    // ----------------------------------
+    Scalar tmp = hh_tmp.the_trace() ;
+    tmp.dec_dzpuis(4) ;
+    trh_evol.update(tmp, jtime, the_time[jtime]) ;
     
+    // The longitudinal part of h^{ij}, which is zero by virtue of Dirac gauge :
+    Vector wzero(mp, CON,  *(ff.get_triad())) ; 
+    wzero.set_etat_zero() ;                   
+
+    // Temporary Sym_tensor with longitudinal part set to zero : 
+    Sym_tensor hh_new(mp, CON, *(ff.get_triad())) ;
+    
+    hh_new.set_longit_trans(wzero, hh_tmp) ;
+    
+    hh_evol.update(hh_new, jtime, the_time[jtime]) ;
+
 } 
 
 void Tslice_dirac_max::set_trh(const Scalar& trh_in) {

@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.29  2008/12/04 18:22:49  j_novak
+ * Enhancement of the dzpuis treatment + various bug fixes.
+ *
  * Revision 1.28  2008/12/02 15:02:21  j_novak
  * Implementation of the new constrained formalism, following Cordero et al. 2009
  * paper. The evolution eqs. are solved as a first-order system. Not tested yet!
@@ -856,7 +859,7 @@ class Time_slice_conf : public Time_slice {
 	 * momentum \f$ \hat{S}^i = \Psi^6 S^i \f$, using the momentum constraint.
 	 */
 	void compute_X_from_momentum_constraint
-	    (const Vector& hat_S, Param* par_bc=0x0, Param* par_mat=0x0, 
+	    (const Vector& hat_S, const Sym_tensor_tt& hata_tt, 
 	      int iter_max = 200, double precis = 1.e-12,
 	     double relax = 0.8, int methode_poisson = 6) ;
 

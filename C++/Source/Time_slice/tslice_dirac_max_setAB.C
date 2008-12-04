@@ -30,6 +30,9 @@ char tslice_dirax_max_setAB_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2008/12/04 18:22:49  j_novak
+ * Enhancement of the dzpuis treatment + various bug fixes.
+ *
  * Revision 1.5  2008/12/02 15:02:22  j_novak
  * Implementation of the new constrained formalism, following Cordero et al. 2009
  * paper. The evolution eqs. are solved as a first-order system. Not tested yet!
@@ -109,8 +112,7 @@ void Tslice_dirac_max::hh_det_one(int j0, Param* par_bc, Param* par_mat) const {
 
     // Temporary Sym_tensor with longitudinal part set to zero : 
     Sym_tensor hh_new(mp, CON, *(ff.get_triad())) ;
-        hh_new = hij ;
-
+    hh_new.set_longit_trans(wzero, hij) ;
     hh_evol.update(hh_new, j0, the_time[j0]) ;
     
     if (j0 == jtime) {
@@ -189,6 +191,9 @@ void Tslice_dirac_max::compute_sources( const Sym_tensor* p_strain_tens) const {
     Sym_tensor source_hij = hh().derive_lie(beta()) + 2*nn()*aij 
 	- beta().ope_killing_conf(ff) + 0.6666666666666667*div_beta*hh() ;
     source_hij.annule_domain(nz-1) ;
+    for (int i=1; i<=3; i++)
+	for (int j=i; j<=3; j++)
+	    source_hij.set( i, j ).set_dzpuis(0) ;
     source_A_hh_evol.update( source_hij.compute_A(true), jtime, the_time[jtime] ) ;
     source_B_hh_evol.update( source_hij.compute_tilde_B_tt(true), 
 			       jtime, the_time[jtime] ) ;
@@ -298,6 +303,10 @@ void Tslice_dirac_max::compute_sources( const Sym_tensor* p_strain_tens) const {
                                        - 0.3333333333333333 * tmp * tgam_uu ) 
                     )   ; 
 
+  source_aij.annule_domain(nz-1) ;
+  for (int i=1; i<=3; i++)
+      for (int j=i; j<=3; j++)
+	  source_aij.set(i,j).set_dzpuis(0) ;
   maxabs(source_aij, "source_aij tot") ; 
   
   source_A_hata_evol.update( source_aij.compute_A(true), jtime, the_time[jtime] ) ; 
@@ -313,12 +322,21 @@ void Tslice_dirac_max::initialize_sources_copy() const {
     assert( source_A_hata_evol.is_known(jtime) ) ;
     assert( source_B_hata_evol.is_known(jtime) ) ;
 
-    int jtime1 = jtime ; 
-    for (int j=1; j < depth; j++) {
-        jtime1-- ; 
-        source_A_hh_evol.update( source_A_hh_evol[jtime], jtime1, the_time[jtime1] ) ;  
-        source_B_hh_evol.update( source_B_hh_evol[jtime], jtime1, the_time[jtime1] ) ;  
-        source_A_hata_evol.update( source_A_hh_evol[jtime], jtime1, the_time[jtime1] ) ;
-        source_B_hata_evol.update( source_B_hh_evol[jtime], jtime1, the_time[jtime1] ) ;
+    Scalar tmp_Ah = source_A_hh_evol[jtime] ;
+    Scalar tmp_Bh = source_B_hh_evol[jtime] ;
+    Scalar tmp_Aa = source_A_hata_evol[jtime] ;
+    Scalar tmp_Ba = source_B_hata_evol[jtime] ;
+
+    source_A_hh_evol.downdate(jtime) ;
+    source_B_hh_evol.downdate(jtime) ;
+    source_A_hata_evol.downdate(jtime) ;
+    source_B_hata_evol.downdate(jtime) ;
+
+    int jtime1 = jtime - depth + 1; 
+    for (int j=jtime1; j <= jtime; j++) {
+        source_A_hh_evol.update( tmp_Ah, j, the_time[j] ) ;  
+        source_B_hh_evol.update( tmp_Bh, j, the_time[j] ) ;  
+        source_A_hata_evol.update( tmp_Aa, j, the_time[j] ) ;
+        source_B_hata_evol.update( tmp_Ba, j, the_time[j] ) ;
     } 
 }
