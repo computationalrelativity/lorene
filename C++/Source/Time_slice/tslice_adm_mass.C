@@ -31,6 +31,9 @@ char tslice_adm_mass_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2008/12/04 19:36:40  j_novak
+ * Removed old tests.
+ *
  * Revision 1.3  2004/05/12 15:24:20  e_gourgoulhon
  * Reorganized the #include 's, taking into account that
  * time_slice.h contains now an #include "metric.h".
@@ -96,11 +99,6 @@ double Time_slice_conf::adm_mass() const {
 
     if ( !(adm_mass_evol).is_known(jtime) ) {  // a new computation is necessary
     
-        //## For a test only 
-        Time_slice::adm_mass() ; 
-        Tbl tadm_tslice = adm_mass_evol[jtime] ; 
-        adm_mass_evol.downdate(jtime) ; 
-
         const Map& mp = psi().get_mp() ;
         int nz = mp.get_mg()->get_nzone() ; 
         Tbl* tmass = new Tbl(nz) ; 
@@ -114,10 +112,6 @@ double Time_slice_conf::adm_mass() const {
             tmass->set(l) = - ww.flux(radius, ff) / (2.* M_PI) ; 
         }
         
-        //## Test:
-        cout << "Time_slice_conf::adm_mass : test of the ADM mass computation: " << endl ; 
-        cout << *tmass - tadm_tslice << endl ; 
-
         adm_mass_evol.update(*tmass, jtime, the_time[jtime]) ; 
         
         delete tmass ;  
@@ -139,11 +133,6 @@ double Tslice_dirac_max::adm_mass() const {
 
     if ( !(adm_mass_evol).is_known(jtime) ) {  // a new computation is necessary
     
-        //## For a test only 
-        Time_slice_conf::adm_mass() ; 
-        Tbl tadm_tslice_conf = adm_mass_evol[jtime] ; 
-        adm_mass_evol.downdate(jtime) ; 
-
         const Map& mp = psi().get_mp() ;
         int nz = mp.get_mg()->get_nzone() ; 
         Tbl* tmass = new Tbl(nz) ; 
@@ -157,10 +146,6 @@ double Tslice_dirac_max::adm_mass() const {
             double radius = mp.val_r(l, 1., 0., 0.) ;
             tmass->set(l) = - ww.flux(radius, ff) / (2.* M_PI) ; 
         }
-        
-        //## Test:
-        cout << "Tslice_dirac_max::adm_mass: test of the ADM mass computation: " << endl ; 
-        cout << *tmass - tadm_tslice_conf << endl ; 
         
         adm_mass_evol.update(*tmass, jtime, the_time[jtime]) ; 
         
