@@ -7,7 +7,7 @@
 4000    nb_time_steps :  maximum number of time steps
 5       niter_elliptic : number of iterations in the resolution of the ellip. eq.
 0.8     relax_elliptic : relaxation factor for the elliptic equations
-4       method_poisson_vect : method for solving vectorial Poisson equations
+6       method_poisson_vect : method for solving vectorial Poisson equations
 1.e-10  precis_init : precision in the resolution of initial data equations
 1       nopause : 1 = no pause during output printing, 0 otherwise 
 0       graph : 1 = graphical outputs during the computation, 0 = no graph

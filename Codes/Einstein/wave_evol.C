@@ -29,6 +29,9 @@ char wave_evol_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2008/12/04 18:27:02  j_novak
+ * Minor modifs.
+ *
  * Revision 1.12  2008/12/02 15:02:22  j_novak
  * Implementation of the new constrained formalism, following Cordero et al. 2009
  * paper. The evolution eqs. are solved as a first-order system. Not tested yet!
@@ -276,7 +279,6 @@ int main() {
     sigmat.set_khi_mu(khi_init, mu_init) ; // the trace h = f_{ij} h^{ij]
                                            // is computed to ensure
                                            // det tgam_{ij} = f
-    
     // sigmat.hh().transverse(ff).tt_part().khi().spectral_display("khi") ; 
     // sigmat.hh().transverse(ff).tt_part().eta().spectral_display("eta") ; 
     // sigmat.hh().transverse(ff).tt_part().mu().spectral_display("mu") ; 
@@ -346,8 +348,8 @@ int main() {
     Sym_tensor_tt htest(map, otriad, ff) ;
     htest.set_khi_mu(khi_init, mu_init) ; 
 
-    Sym_tensor_tt htest2 = sigmat.hh().transverse(ff).tt_part() ; 
-    htest2.dec_dzpuis(2) ; 
+    Sym_tensor_tt htest2 = sigmat.hh().transverse(ff, 0x0, method_poisson_vect).tt_part() ;
+     htest2.dec_dzpuis(2) ; 
     
     maxabs(htest - htest2, "difference htest - htest2") ; 
     
@@ -356,8 +358,6 @@ int main() {
     
     maxabs(htest.mu() - mu_init, "htest.mu() - mu_init") ; 
     maxabs(htest2.mu() - mu_init, "htest2.mu() - mu_init") ; 
-    
-    // sigmat.set_hh(htest) ; 
     
     maxabs(sigmat.psi() - 1., "Psi - 1") ;   
     
