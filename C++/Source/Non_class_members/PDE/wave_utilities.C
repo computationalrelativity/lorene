@@ -28,6 +28,10 @@ char wave_utilities_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.9  2008/12/04 18:20:41  j_novak
+ * Better treatment of the case ETATZERO in BC initialization, and of dzpuis for
+ * evolution.
+ *
  * Revision 1.8  2008/11/27 12:12:38  j_novak
  * New function to initialize parameters for wave equation.
  *
@@ -148,23 +152,27 @@ void initialize_outgoing_BC(int nz_bound, const Scalar& phi, const Scalar& dphi,
     source_xi += phi.dsdr() ;
     source_xi.dec_dzpuis(2) ;
     source_xi += dphi ;
-    source_xi.set_spectral_va().ylm() ;
+    if (source_xi.get_etat() == ETATZERO)
+	xij.annule_hard() ;
+    else {
+	source_xi.set_spectral_va().ylm() ;
 
-    const Base_val& base_x = source_xi.get_spectral_base() ;
-    int np2 = xij.get_dim(1) ;
-    int nt = xij.get_dim(0) ;
-    assert (source_xi.get_mp().get_mg()->get_np(nz_bound) + 2 == np2 ) ;
-    assert (source_xi.get_mp().get_mg()->get_nt(nz_bound) == nt ) ;
-
-    int l_q, m_q, base_r ;
-    for (int k=0; k<np2; k++)
-	for (int j=0; j<nt; j++) {	    
-	    base_x.give_quant_numbers(nz_bound, k, j, m_q, l_q, base_r) ;
-	    xij.set(k, j) 
-		= source_xi.get_spectral_va().c_cf->val_out_bound_jk(nz_bound, j, k) ;
-	    if (l_q == 0)
-		xij.set(k,j) = 0 ;
-	}
+	const Base_val& base_x = source_xi.get_spectral_base() ;
+	int np2 = xij.get_dim(1) ;
+	int nt = xij.get_dim(0) ;
+	assert (source_xi.get_mp().get_mg()->get_np(nz_bound) + 2 == np2 ) ;
+	assert (source_xi.get_mp().get_mg()->get_nt(nz_bound) == nt ) ;
+	
+	int l_q, m_q, base_r ;
+	for (int k=0; k<np2; k++)
+	    for (int j=0; j<nt; j++) {	    
+		base_x.give_quant_numbers(nz_bound, k, j, m_q, l_q, base_r) ;
+		xij.set(k, j) 
+		    = source_xi.get_spectral_va().c_cf->val_out_bound_jk(nz_bound, j, k) ;
+		if (l_q == 0)
+		    xij.set(k,j) = 0 ;
+	    }
+    }
 }
 
 
@@ -187,6 +195,8 @@ void evolve_outgoing_BC(double dt, int nz_bound, const Scalar& phi, Scalar& sphi
 #ifndef NDEBUG
     int nz = grid.get_nzone() ;
     assert(nz_bound < nz) ;
+    assert(phi.get_etat() != ETATZERO) ;
+    assert(sphi.get_etat() != ETATZERO) ;
 #endif
     int np2 = grid.get_np(nz_bound) + 2 ;
     int nt = grid.get_nt(nz_bound) ;
@@ -202,7 +212,9 @@ void evolve_outgoing_BC(double dt, int nz_bound, const Scalar& phi, Scalar& sphi
     
     double Rmax = mp_aff->get_alpha()[nz_bound] + mp_aff->get_beta()[nz_bound] ;
     
-    Scalar source_xi = phi ; source_xi.div_r_dzpuis(2) ;
+    Scalar source_xi = phi ;
+    int dzp = ( source_xi.get_dzpuis() == 0 ? 2 : source_xi.get_dzpuis()+1 ) ;
+    source_xi.div_r_dzpuis(dzp) ;
     source_xi -= phi.dsdr() ;
     source_xi.set_spectral_va().ylm() ;
     sphi.set_spectral_va().ylm() ;
