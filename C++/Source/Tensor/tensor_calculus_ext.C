@@ -33,6 +33,9 @@ char tensor_calculus_ext_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2008/12/05 08:44:02  j_novak
+ * New flag to control the "verbosity" of maxabs.
+ *
  * Revision 1.11  2004/05/13 21:32:29  e_gourgoulhon
  * Added functions central_value, max_all_domains,
  *  min_all_domains and maxabs_all_domains.
@@ -593,7 +596,7 @@ Tbl min(const Tensor& aa, const char* comment, ostream& ost) {
 				//--------------------//
 
 
-Tbl maxabs(const Tensor& aa, const char* comment, ostream& ost) {
+Tbl maxabs(const Tensor& aa, const char* comment, ostream& ost, bool verb) {
 
         if (comment != 0x0) ost << comment << " : " << endl ; 
 
@@ -609,20 +612,22 @@ Tbl maxabs(const Tensor& aa, const char* comment, ostream& ost) {
 	
 	for (int ic=0; ic<n_comp; ic++) {
 
-		idx = aa.indices(ic) ; 
-		Tbl diff = max( abs( aa(idx) ) ) ; 
+	    idx = aa.indices(ic) ; 
+	    Tbl diff = max( abs( aa(idx) ) ) ; 
 		
+	    if (verb) {
 		if (val > 0) ost << "   Comp." ; 
 		for (int j=0 ; j<val ; j++) {
-	  		ost << " " << idx(j) ;
+		    ost << " " << idx(j) ;
       	        }
 		if (val > 0 ) ost << " : " ; 
                 else ost << "   " ; 
-		for (int l=0; l<nz; l++) {
-			ost << "  " << diff(l) ;
-			resu.set(ic, l) = diff(l) ; 
-		}
-		ost << "\n" ; 
+	    }
+	    for (int l=0; l<nz; l++) {
+		if (verb) ost << "  " << diff(l) ;
+		resu.set(ic, l) = diff(l) ; 
+	    }
+	    if (verb) ost << "\n" ; 
 		
 	}
 	
@@ -774,11 +779,11 @@ Tbl min_all_domains(const Tensor& aa, int l_excluded, const char* comment,
         //----------------------//
 
 Tbl maxabs_all_domains(const Tensor& aa, int l_excluded, const char* comment, 
-        ostream& ost) {
+        ostream& ost, bool verb) {
 
     if (comment != 0x0) ost << comment << " : " << endl ; 
 
-    Tbl maxabs_dom = maxabs(aa) ; 
+    Tbl maxabs_dom = maxabs(aa, 0x0, ost, verb) ; 
     
 	int val = aa.get_valence() ; 
 	int n_comp = aa.get_n_comp() ; 

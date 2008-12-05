@@ -36,6 +36,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.58  2008/12/05 08:44:02  j_novak
+ * New flag to control the "verbosity" of maxabs.
+ *
  * Revision 1.57  2007/12/21 16:06:16  j_novak
  * Methods to filter Tensor, Vector and Sym_tensor objects.
  *
@@ -1360,7 +1363,8 @@ Tbl min(const Tensor& aa, const char* comment = 0x0, ostream& ost = cout) ;
  *      denotes symbolically the values of \c aa  
  *	   in domain no. \c l  and for component no.\c i . 
  */
-Tbl maxabs(const Tensor& aa, const char* comment = 0x0, ostream& ost = cout) ; 
+Tbl maxabs(const Tensor& aa, const char* comment = 0x0, ostream& ost = cout, 
+	   bool verb = true) ; 
 
 
 /** Relative difference between two \c Tensor  (\f$L^1\f$ version).
@@ -1453,7 +1457,7 @@ Tbl min_all_domains(const Tensor& aa, int l_excluded = -1, const char* comment =
  *  absolute value of the various components. 
  */
 Tbl maxabs_all_domains(const Tensor& aa, int l_excluded = -1, const char* comment = 0x0, 
-    ostream& ost = cout) ; 
+    ostream& ost = cout, bool verb = true) ; 
 
 
 
