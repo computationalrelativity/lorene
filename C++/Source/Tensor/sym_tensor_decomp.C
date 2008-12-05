@@ -30,6 +30,9 @@ char sym_tensor_decomp_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.13  2008/12/05 08:45:12  j_novak
+ * Modified dzpuis treatment.
+ *
  * Revision 1.12  2008/12/03 10:20:00  j_novak
  * Modified output.
  *
@@ -74,11 +77,7 @@ char sym_tensor_decomp_C[] = "$Header$" ;
  */
 
 
-// C headers
-#include <stdlib.h>
-
 // Lorene headers
-#include "tensor.h"
 #include "metric.h"
 #include "param.h"
 
@@ -89,8 +88,9 @@ void Sym_tensor::set_longit_trans(const Vector& v_pot,
 
   const Metric& metre = ht.get_met_div() ;
 
-  *this = ht + v_pot.ope_killing(metre) ; // this has dzpuis = 2
-  dec_dzpuis(2) ; // which is decreased so to add *this to a flat metric
+  *this = ht + v_pot.ope_killing(metre) ; // this has dzpuis = 2, if v_pot not 0
+  if ((*this)(1,1).get_dzpuis() == 2) 
+      dec_dzpuis(2) ; // which is decreased so to add *this to a flat metric
 
   del_deriv() ;
 
