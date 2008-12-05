@@ -30,6 +30,9 @@ char sym_tensor_trans_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.18  2008/12/05 08:46:19  j_novak
+ * New method Sym_tensor_trans_aux::set_tt_part_det_one.
+ *
  * Revision 1.17  2007/04/27 13:52:55  j_novak
  * In method Sym_tensor_trans::set_AtBtt_det_one(), the member p_tt (the TT-part)
  * is updated.
@@ -284,6 +287,83 @@ void Sym_tensor_trans::set_AtBtt_det_one(const Scalar& a_in, const Scalar& tbtt_
 	    p_trace = new Scalar(h_old) ;
 	    if (p_tt != 0x0) delete p_tt ;
 	    p_tt = new Sym_tensor_tt(hijtt) ;
+	    p_tt->inc_dzpuis(2) ;
+	    break ;
+	}
+        else {
+	    h_old = lambda*h_new +(1-lambda)*h_old ;
+	}
+
+        if (it == it_max) {
+            cout << "Sym_tensor_trans:::set_AtBtt_det_one : convergence not reached \n" ;
+            cout << "  for the required accuracy (" << precis << ") ! " 
+		 << endl ;
+            abort() ;
+	}
+    }
+    return ;
+
+}
+
+void Sym_tensor_trans::set_tt_part_det_one(const Sym_tensor_tt& hijtt, const 
+					   Scalar* h_prev, Param* par_mat, 
+					   double precis, int it_max ) {
+    // All this has a meaning only for spherical components:
+    assert(dynamic_cast<const Base_vect_spher*>(triad) != 0x0) ; 
+    assert( (precis > 0.) && (it_max > 0) ) ;
+
+    Scalar mu_over_r = hijtt.mu() ;
+    mu_over_r.div_r() ;
+    const Scalar& x_new = hijtt.xxx() ;
+
+    // Preparation for the iteration
+    //------------------------------
+    Scalar h_old(*mp) ;
+    if (h_prev != 0x0) 
+	h_old = *h_prev ;
+    else 
+	h_old.set_etat_zero() ;
+    double lambda = 1. ;
+    Scalar zero(*mp) ;
+    zero.set_etat_zero() ;
+
+    const Scalar& hrr_tt = hijtt( 1, 1 ) ;
+    Scalar eta_sr_tt = hijtt.eta() ;
+    eta_sr_tt.div_r() ;
+    const Scalar w_tt = hijtt.www() ;
+
+    Scalar hrr_new(*mp) ;
+    Scalar eta_over_r(*mp) ;
+    Scalar w_new(*mp) ;
+
+    for (int it=0; it<=it_max; it++) {
+	Scalar tilde_B = get_tilde_B_from_TT_trace(zero, h_old) ;
+	sol_Dirac_tilde_B(tilde_B, h_old, hrr_new, eta_over_r, w_new, 0x0, par_mat) ;
+	
+	set_auxiliary(hrr_new+hrr_tt, eta_over_r+eta_sr_tt, mu_over_r, 
+		      w_new+w_tt, x_new, h_old - hrr_new-hrr_tt) ;
+
+	const Sym_tensor_trans& hij = *this ;
+	Scalar h_new = (1 + hij(1,1))*( hij(2,3)*hij(2,3) - hij(2,2)*hij(3,3) )
+	    + hij(1,2)*hij(1,2)*(1 + hij(3,3)) 
+	    + hij(1,3)*hij(1,3)*(1 + hij(2,2)) 
+	    - hij(1,1)*(hij(2,2) + hij(3,3)) - 2*hij(1,2)*hij(1,3)*hij(2,3) ;
+	h_new.set_spectral_base(hrr_tt.get_spectral_base()) ;
+
+	double diff = max(max(abs(h_new - h_old))) ;
+#ifndef NDEBUG
+        cout << "Sym_tensor_trans::set_tt_part_det_one : " 
+	     << "iteration : " << it << " convergence on h: " 
+	     << diff << endl ; 
+#endif
+        if (diff < precis) {
+  	    set_auxiliary(hrr_new+hrr_tt, eta_over_r+eta_sr_tt, mu_over_r, 
+		      w_new+w_tt, x_new, h_old - hrr_new-hrr_tt) ;
+	    if (p_trace != 0x0) delete p_trace ;
+	    p_trace = new Scalar(h_old) ;
+	    if (p_tt != 0x0) delete p_tt ;
+	    p_tt = new Sym_tensor_tt(hijtt) ;
+	    p_tt->inc_dzpuis(2) ;
 	    break ;
 	}
         else {

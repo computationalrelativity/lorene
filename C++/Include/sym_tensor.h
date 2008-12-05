@@ -30,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.47  2008/12/05 08:46:19  j_novak
+ * New method Sym_tensor_trans_aux::set_tt_part_det_one.
+ *
  * Revision 1.46  2008/12/03 10:18:56  j_novak
  * Method 6 is now the default for calls to vector Poisson solver.
  *
@@ -880,6 +883,24 @@ class Sym_tensor_trans: public Sym_tensor {
 	void set_WX_det_one(const Scalar& w_in, const Scalar& x_in, 
 			    const Scalar* h_prev = 0x0, double precis = 1.e-14, 
 			    int it_max = 100) ;
+
+	/** Assignes the TT-part of the tensor.
+	 * The trace is deduced from the divergence-free condition, through the 
+	 * Dirac system on \f$ \tilde{B} \f$, so that 
+	 * \c *this + the flat metric has a determinant equal to 1. It then
+	 * updates the components accordingly. This function makes an 
+	 * iteration until the relative difference in the trace between 
+	 * two steps is lower than \c precis . 
+	 * @param hijtt  the TT part for \c this.
+	 * @param h_prev a pointer on a guess for the trace of \c *this; if
+	 *               null, then the iteration starts from 0.
+	 * @param precis relative difference in the trace computation to end
+	 *               the iteration.
+	 * @param it_max maximal number of iterations.
+	 */
+	void set_tt_part_det_one(const Sym_tensor_tt& hijtt, const 
+				 Scalar* h_prev = 0x0, Param* par_mat = 0x0, 
+				 double precis = 1.e-14, int it_max = 100) ;
 
 	/** Assigns the derived member \c A and computes \f$\tilde{B}\f$ 
 	 * from its TT-part (see \c Sym_tensor::compute_tilde_B_tt() ).
