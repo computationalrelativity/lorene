@@ -28,6 +28,9 @@ char wave_utilities_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.10  2008/12/05 13:09:10  j_novak
+ * Minor change in tilde_laplacian.
+ *
  * Revision 1.9  2008/12/04 18:20:41  j_novak
  * Better treatment of the case ETATZERO in BC initialization, and of dzpuis for
  * evolution.
@@ -95,8 +98,9 @@ void tilde_laplacian(const Scalar& B_in, Scalar& tilde_lap, int dl) {
     int nz = mg.get_nzone() ;
     int l_q, m_q, base_r ;
     for (int lz=0; lz<nz; lz++) {
-	if (B_in.domain(lz).get_etat() == ETATZERO)
-	    tilde_lap.set_domain(lz).set_etat_zero() ;
+	if (B_in.domain(lz).get_etat() == ETATZERO) {
+	    tilde_lap.set_spectral_va().c_cf->set(lz).set_etat_zero() ;
+	}
 	else {
 	    for (int k=0; k<mg.get_np(lz)+2; k++)
 		for (int j=0; j<mg.get_nt(lz); j++) {
