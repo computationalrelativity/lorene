@@ -28,6 +28,9 @@ char spheroid_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.15  2008/12/10 13:55:55  jl_jaramillo
+ * versions developed at Meudon in November 2008
+ *
  * Revision 1.14  2008/11/17 08:30:01  jl_jaramillo
  * Nicolas's changes on multipoles. Sign correction in outgoing shear expression
  *
@@ -90,6 +93,7 @@ Spheroid::Spheroid(const Map_af& map, double radius):
   proj(map, 2, COV, map.get_bvect_spher()), 
   qq(map, COV, map.get_bvect_spher()),
   ss ( map, COV, map.get_bvect_spher ()),
+  ephi(map, CON, map.get_bvect_spher()), 
   qab(map.flat_met_spher()), 
   ricci(map),
   hh(map, COV, map.get_bvect_spher()),
@@ -121,6 +125,8 @@ Spheroid::Spheroid(const Map_af& map, double radius):
 
  
   h_surf = radius ;
+  ss.set_etat_zero();
+  ephi.set_etat_zero();
   proj.set_etat_zero();
   hh.set_etat_zero() ;
   for (int i=1; i<=3; i++)
@@ -140,6 +146,7 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
   proj(h_in.get_mp(),2, COV, h_in.get_mp().get_bvect_spher()),
   qq(h_in.get_mp(), COV, h_in.get_mp().get_bvect_spher()),
   ss (h_in.get_mp(), COV, h_in.get_mp().get_bvect_spher()),
+  ephi(h_in.get_mp(), CON, h_in.get_mp().get_bvect_spher()),
   qab(h_in.get_mp().flat_met_spher()),
   ricci(h_in.get_mp()),
   hh(h_in.get_mp(), COV, h_in.get_mp().get_bvect_spher()),
@@ -178,8 +185,11 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
 
   Param pipo ;
   double xi = 0. ;
-  int lz = 1 ;
+  int lz = 0 ;
 
+  if(nz >2){
+    lz =1;
+  }
 
   // Setting of real index types forjacobian and projector(first contravariant, other covariant)
   proj.set_index_type(0) = CON; 
@@ -199,10 +209,10 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
 	
 	}
       }
-
-   h_surf3.annule_domain(0);
-   h_surf3.annule_domain(nz - 1);
-
+  if (nz >2){
+     h_surf3.annule_domain(0);
+    h_surf3.annule_domain(nz - 1);
+  }
    //  h_surf3.std_spectral_base();
 
  
@@ -267,17 +277,21 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
   Scalar ssnorm =  contract (ss3d.up(0, gamij), 0, ss3d, 0); 
   ssnorm.std_spectral_base() ;
   ss3d =  ss3d / sqrt (ssnorm) ; 
-  ss3dcon =  ss3dcon / sqrt (ssnorm) ; 
-  ss3d.annule_domain(0);
-  ss3dcon.annule_domain(0);
-  ss3d.annule_domain(nz-1);
-  ss3dcon.annule_domain(nz -1);
+  ss3dcon =  ss3dcon / sqrt (ssnorm) ;
+  if (nz >2){
+    ss3d.annule_domain(0);
+    ss3dcon.annule_domain(0);
+    ss3d.annule_domain(nz-1);
+    ss3dcon.annule_domain(nz -1);
+  }
   ss3d.std_spectral_base();
   ss3dcon.std_spectral_base();
 
 
   // Provisory handling of dzpuis problems 
-  h_surf3.annule_domain(nz-1);
+  if (nz >2){
+   h_surf3.annule_domain(nz-1);
+  }
   for (int ii=1; ii <=3; ii++){
     ss3d.set(ii).dec_dzpuis(ss3d(ii).get_dzpuis());
     ss3dcon.set(ii).dec_dzpuis(ss3dcon(ii).get_dzpuis());
@@ -311,6 +325,32 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
 	  ss.set(l).set_grid_point(0, k, j, 0) = 
 	    ss3(l).get_spectral_va().val_point_jk(lz, xi, j, k) ;
 	}
+
+  // The vector field associated with Kiling conformal symmetry
+  
+  Vector ephi3(gamij.get_mp(), CON, gamij.get_mp().get_bvect_spher()); 
+  ephi3.set(1).annule_hard();
+  ephi3.set(2).annule_hard();
+  Scalar ephi33(gamij.get_mp()); ephi33 = 1.; ephi33.std_spectral_base();
+  ephi33.mult_r(); ephi33.mult_sint();
+  ephi3.set(3) = ephi33;
+  ephi3.std_spectral_base();
+  ephi3 = contract (jac, 1, ephi3,0);
+
+
+      ephi.allocate_all() ; 
+  ephi.std_spectral_base();
+  
+     for (int l=1; l<4; l++)
+    for (int k=0; k<np; k++)
+      for (int j=0; j<nt; j++)
+	{
+	  mp_rad->val_lx_jk(h_surf.val_grid_point(0, k, j, 0)*1.00000000001, j, k, pipo,
+			    lz, xi) ;
+	  ephi.set(l).set_grid_point(0, k, j, 0) = 
+	    ephi3(l).get_spectral_va().val_point_jk(lz, xi, j, k) ;
+	}  
+       
 
 
 
@@ -391,9 +431,12 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
 			      lz, xi) ;
 	    qq.set(l,m).set_grid_point(0, k, j, 0) = 
 	      qqq(l,m).get_spectral_va().val_point_jk(lz, xi, j, k) ;
+  
 
 	  }
        
+
+  
   
 
 
@@ -459,6 +502,7 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
   Scalar ftilde = sqrt_q();
     double rayon = sqrt(area()/(4.*M_PI));
     ftilde = -ftilde/(rayon*rayon);
+    ftilde = ftilde*h_surf*h_surf;
   ftilde.set_spectral_va().ylm();
 
 
@@ -591,12 +635,30 @@ Spheroid::Spheroid(const Scalar& h_in, const Metric& gamij, const Sym_tensor& Ki
 
  
  Tensor hh3dupdown = hh3d.up(0, gamij);
- Scalar ricciscal3 = gamij.ricci().trace(gamij); ricciscal3.annule_domain(nz-1); ricciscal3.std_spectral_base(); // Ricci scalar on the 3-surface.
- Tensor hh3dupup = hh3dupdown.up(1,gamij); hh3dupup.annule_domain(nz-1); hh3dupup.std_spectral_base();
+
+ Scalar ricciscal3 = gamij.ricci().trace(gamij);
+ if (nz>2){
+ ricciscal3.annule_domain(nz-1); ricciscal3.std_spectral_base(); // Ricci scalar on the 3-surface.
+ }
+ Tensor hh3dupup = hh3dupdown.up(1,gamij);
+ if (nz>2){
+ hh3dupup.annule_domain(nz-1); hh3dupup.std_spectral_base();
+ }
+
  Scalar ricci22 = ricciscal3 - 2.*contract(contract(gamij.ricci(), 1, ss3dcon, 0),0, ss3dcon, 0);
- ricci22.annule_domain(nz-1); ricci22.std_spectral_base();
+ if (nz >2){
+ ricci22.annule_domain(nz-1);
+ 
+ ricci22.std_spectral_base();
+ }
  ricci22 += (hh3d.trace(gamij)*hh3d.trace(gamij)) - contract(contract(hh3dupup,0, hh3d,0),0,1);
- ricci22.annule_domain(nz-1); ricci22.std_spectral_base();
+
+ if (nz >2){
+ ricci22.annule_domain(nz-1);
+ }
+  ricci22.std_spectral_base();
+
+
  
   ricci.allocate_all();
   ricci.std_spectral_base();
@@ -626,6 +688,7 @@ Spheroid::Spheroid (const Spheroid &sph_in) :h_surf(sph_in.h_surf),
 					     proj(sph_in.proj),                          
 					     qq(sph_in.qq),
 					     ss (sph_in.ss),
+					     ephi (sph_in.ephi),
 					     qab(sph_in.qab),
 					     ricci(sph_in.ricci),
 					     hh(sph_in.hh),
@@ -660,6 +723,8 @@ void Spheroid::del_deriv() const {
   if (p_mass != 0x0) delete p_mass ;
   if (p_multipole_mass != 0x0) delete p_multipole_mass ;
   if (p_multipole_angu != 0x0) delete p_multipole_angu ;
+  if (p_epsilon_A_minus_one != 0x0) delete p_epsilon_A_minus_one ;
+  if (p_epsilon_P_minus_one != 0x0) delete p_epsilon_P_minus_one ;
   if (p_theta_plus != 0x0) delete p_theta_plus ;
   if (p_theta_minus != 0x0) delete p_theta_minus ;
   if (p_shear != 0x0) delete p_shear ;
@@ -674,6 +739,8 @@ void Spheroid::set_der_0x0() const {
   p_mass = 0x0 ;
   p_multipole_mass = 0x0;
   p_multipole_angu = 0x0;
+  p_epsilon_A_minus_one = 0x0;
+  p_epsilon_P_minus_one = 0x0;
   p_theta_plus = 0x0 ;
   p_theta_minus = 0x0 ;
   p_shear = 0x0 ;
@@ -719,9 +786,11 @@ double  Spheroid::area() const {
 
 // Computation of the angular momentum of the surface (G is set to be identically one)
 
-double Spheroid::angu_mom(const Vector& phi) const {
+double Spheroid::angu_mom() const {
   if (p_angu_mom == 0x0) { 
     const Map_af& mp_ang = dynamic_cast<const Map_af&>(h_surf.get_mp()) ;
+    Vector phi(mp_ang, CON, mp_ang.get_bvect_spher());
+    phi = get_ephi();
     Scalar tmp = contract(ll,0, contract (jac2d, 1,phi,0), 0 );
     p_angu_mom = new double (mp_ang.integrale_surface((sqrt_q()*h_surf*h_surf*tmp),1)) ;
     *p_angu_mom = *p_angu_mom /(8. * M_PI) ; 
@@ -732,13 +801,10 @@ double Spheroid::angu_mom(const Vector& phi) const {
 }
 
 
-double Spheroid::mass(const Vector& phi) const {
+double Spheroid::mass() const {
   if (p_mass == 0x0) {
-    assert( issphere == true ) ;
-    double rayon_coord= h_surf.val_grid_point (0,0,0,0); // This is only the coordinate radius...
     double rayon = sqrt(area()/(4.*M_PI));
-
-    p_mass = new double ((1/(2.*rayon))*sqrt(rayon*rayon*rayon*rayon + 4.*angu_mom(phi)*angu_mom(phi)));
+    p_mass = new double ((1/(2.*rayon))*sqrt(rayon*rayon*rayon*rayon + 4.*angu_mom()*angu_mom()));
 
   }
   return *p_mass;
@@ -747,13 +813,11 @@ double Spheroid::mass(const Vector& phi) const {
 
 
 
-double Spheroid::multipole_mass(const int order, const Vector& phi) const{
- 
-    assert( issphere == true ) ;
+double Spheroid::multipole_mass(const int order) const{
     const Map_af& mp_ang = dynamic_cast<const Map_af&>(h_surf.get_mp()) ;
     double rayon = sqrt(area()/(4.*M_PI));
     // Multiplicative factor before integral.
-    double factor = mass(phi)/(8. * M_PI); // To check later
+    double factor = mass()/(8. * M_PI); // To check later
     if (order >0)
       { for (int compte=0; compte <=order -1; compte++)
 	factor = factor*rayon;
@@ -781,15 +845,12 @@ double Spheroid::multipole_mass(const int order, const Vector& phi) const{
  
     // Calculus of Ricci Scalar over the surface
     Scalar ricciscal(mp_ang);
-    ricciscal = get_ricci(); // As it is 2-dimensional, ricci tensor is only proportional to ricci scalar.
-    ricciscal.std_spectral_base();
+    ricciscal = get_ricci();
     ricciscal.set_spectral_va().ylm();
   
     Scalar rayyon = h_surf;
     rayyon.std_spectral_base();
     rayyon.set_spectral_va().ylm();
-    
-    
 
     Scalar sqq = sqrt_q();
     Scalar integrande = sqq * rayyon *rayyon*ricciscal*Pn; integrande.std_spectral_base();
@@ -805,12 +866,12 @@ double Spheroid::multipole_mass(const int order, const Vector& phi) const{
 
 
 
-double Spheroid::multipole_angu(const int order, const Vector& phi) const{
+double Spheroid::multipole_angu(const int order) const{
 
-    assert( issphere == true ) ;
     assert (order >=1) ;
     const Map_af& mp_ang = dynamic_cast<const Map_af&>(h_surf.get_mp()) ;
-
+    Vector phi(mp_ang, CON, mp_ang.get_bvect_spher());
+    phi = get_ephi();
   double rayon = sqrt(area()/(4.*M_PI));
 
     double factor = 1./(8. * M_PI);
@@ -866,6 +927,29 @@ double Spheroid::multipole_angu(const int order, const Vector& phi) const{
 }
 
 
+// Computation of the refined Penrose parameter for axisymmetric spacetimes, and its difference wrt one.
+
+double Spheroid::epsilon_A_minus_one() const {
+  if (p_epsilon_A_minus_one == 0x0) { 
+     assert (pow(mass(),4) - pow (angu_mom(),2) > 0.);
+    p_epsilon_A_minus_one = new double(area()/(8.*M_PI*(mass()*mass() + sqrt(pow(mass(),4) - pow (angu_mom(),2)))) - 1.);
+  }
+
+  return *p_epsilon_A_minus_one;
+
+}
+
+// Computation of the classical Penrose parameter, and its difference wrt one.
+// To use in replacement of epsilon_A_minus_one when the computed spacetime is not axisymmetric.
+double Spheroid::epsilon_P_minus_one() const {
+  if (p_epsilon_P_minus_one == 0x0) { 
+    assert (pow(mass(),4) - pow (angu_mom(),2) > 0.);
+    p_epsilon_P_minus_one = new double(area()/(16.*M_PI*mass()*mass()) - 1.);
+  }
+
+  return *p_epsilon_P_minus_one;
+
+}
 
 
 // Outgoing null expansion of 2-surface
