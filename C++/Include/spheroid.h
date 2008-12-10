@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2008/12/10 13:53:56  jl_jaramillo
+ * versions developed at Meudon in Novemver 2008
+ *
  * Revision 1.11  2008/11/12 15:18:32  n_vasset
  * New definition for the computation of Ricci scalar (instead of Ricci
  * tensor previously)
@@ -100,6 +103,11 @@ class Spheroid {
  
         Vector ss ;
 
+        /** The conformal Killing vector field on the 2-surface
+	    (set to by default to the axial vector associated with coordinate \f$ \varphi \f$) */
+
+	Vector ephi;
+
 	Metric qab ;  /// Induced metric on the 2-surface \f$ q_{ab} \f$
 
 	Scalar ricci; /// The ricci scalar on the 2-surface
@@ -148,6 +156,8 @@ class Spheroid {
 	mutable double* p_mass ; ///< Mass defined from angular momentum
 	mutable double* p_multipole_mass ;///< Mass multipole for the spheroid.
 	mutable double* p_multipole_angu ;///< Angular momentum multipole for the spheroid.
+	mutable double* p_epsilon_A_minus_one ; /// Refined Penrose parameter, difference wrt one.
+	mutable double* p_epsilon_P_minus_one ; /// Classical Penrose parameter, difference wrt one.
 	mutable Scalar* p_theta_plus ; ///< Null outgoing expansion
 	mutable Scalar* p_theta_minus ; ///< Null ingoing expansion
 	mutable Sym_tensor* p_shear ; ///< The shear tensor
@@ -197,6 +207,11 @@ class Spheroid {
 	/// Assignment to another Spheroid
 	void operator=(const Spheroid&) ;	
 	
+
+       	/// Assigns the conformal Killing vector field to phi.
+	void set_ephi(const Scalar&) ; 
+
+
     // Accessors
     // ---------
     public:
@@ -229,6 +244,9 @@ class Spheroid {
 
 	/// Returns the vector \f$ S_a \f$
 	const Vector& get_ss() const {return ss;} ;
+
+	/// Returns the conformal Killing symmetry vector on the 2-surface
+	const Vector& get_ephi() const {return ephi;};
 
 	///Returns the symmetric tensor \f$ J_{ab} \f$
 	const Sym_tensor& get_jj() const {return jj;} ;
@@ -307,7 +325,7 @@ class Spheroid {
 	 * {\rm d}\varphi \f]
 	 * @param  phi : the divergence-free vector field \f$ \phi \f$
 	 */
-	double angu_mom(const Vector& phi) const ;
+	double angu_mom() const ;
 
 	/** Computes the mass as defined from the calculus of angular momentum,
 	 * done with respect to a divergence free tangent vector field \f$ phi \f$.
@@ -315,21 +333,32 @@ class Spheroid {
 	 * defined as \f[ M = \frac{1}{2 R_{s}} \sqrt{R_{s}^{4} + 4{\cal J}^{2}} \f]
          */
 
-	double mass(const Vector& phi) const;
+	double mass() const;
 
 	/** Computes the mass multipole of a given order for the spheroid,
 	 * assumed to be spherical.
+	 * WARNING: For technical reasons, only even orders are supported by the code.
 	 */
 
-	double multipole_mass(const int order, const Vector& phi) const;
+	double multipole_mass(const int order) const;
 
 
 	/** Computes the angular multipole of a given order for the spheroid,
 	 * assumed to be spherical. \f$ phi \f$ is a divergence free tangent vector field.
-	 * order has to be strictly higher than zero (no topological defects here...)
+	 * WARNING:order has to be strictly higher than zero (no topological defects here...), and an odd number for technical reasons.
 	 */
 
-	double multipole_angu(const int order, const Vector& phi) const;
+	double multipole_angu(const int order) const;
+
+
+
+	/// Computation of the refined Penrose parameter for axisymmetric spacetimes, and its difference wrt one.
+        double epsilon_A_minus_one() const;
+
+	/** Computation of the classical Penrose parameter, and its difference wrt one.
+	 * To use in replacement of epsilon_A_minus_one when the computed spacetime is not axisymmetric.
+	 */
+	double epsilon_P_minus_one() const;
 
 	/// Computes the outgoing null expansion \f$ \theta_+ \f$.
         const Scalar& theta_plus() const ;
