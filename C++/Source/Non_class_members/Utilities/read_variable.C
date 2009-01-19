@@ -184,7 +184,7 @@ read_variable (char *fname, char *var_name, char *fmt, void *varp)
 
       // NOTE: varp here is supposed to be a pointer to char* !!
       char **cstr = static_cast<char**>(varp);
-      len = pos - found;  // length of string excluding \0
+      len = int(pos - found);  // length of string excluding \0
       (*cstr) = static_cast<char*>(MyMalloc(len+1)); 
       strncpy ((*cstr), found, len);
       (*cstr)[len] = '\0'; 
@@ -274,9 +274,9 @@ FS_filelength (FILE *f)
   int		pos;
   int		end;
 
-  pos = ftell (f);
+  pos = int(ftell (f));
   fseek (f, 0, SEEK_END);
-  end = ftell (f);
+  end = int(ftell (f));
   fseek (f, pos, SEEK_SET);
   
   return end;

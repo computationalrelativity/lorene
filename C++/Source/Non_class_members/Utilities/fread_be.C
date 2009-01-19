@@ -29,6 +29,9 @@ char fread_be_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2009/01/19 15:23:17  j_novak
+ * Change of some casts to avoid warnings
+ *
  * Revision 1.3  2008/08/19 06:42:01  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -72,7 +75,7 @@ int fread_be(int* aa, int size, int nb, FILE* fich) {
 
 		char* bytes_big = new char[size_tot] ;
 		
-		int nr = fread(bytes_big, 1, size_tot, fich) ;
+		int nr = int(fread(bytes_big, 1, size_tot, fich)) ;
 		
 		char* pbig =  bytes_big ;
 		char* plit = reinterpret_cast<char*>( aa );
@@ -95,7 +98,7 @@ int fread_be(int* aa, int size, int nb, FILE* fich) {
 	}
 	else {  // Big endian case: nothing to do:
 	
-		return fread(aa, size, nb, fich) ;
+	    return int(fread(aa, size, nb, fich)) ;
 	}
 		
 }
@@ -120,7 +123,7 @@ int fread_be(double* aa, int size, int nb, FILE* fich) {
 
 		char* bytes_big = new char[size_tot] ;
 
-		int nr = fread(bytes_big, 1, size_tot, fich) ;
+		int nr = int(fread(bytes_big, 1, size_tot, fich)) ;
 		
 		char* pbig =  bytes_big ;
 		char* plit = reinterpret_cast<char*>( aa );
@@ -143,7 +146,7 @@ int fread_be(double* aa, int size, int nb, FILE* fich) {
 	}
 	else {  // Big endian case: nothing to do:
 	
-		return fread(aa, size, nb, fich) ;
+	    return int(fread(aa, size, nb, fich)) ;
 	}
 		
 }

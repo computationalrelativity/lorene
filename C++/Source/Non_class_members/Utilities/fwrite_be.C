@@ -29,6 +29,9 @@ char fwrite_be_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2009/01/19 15:23:17  j_novak
+ * Change of some casts to avoid warnings
+ *
  * Revision 1.3  2008/08/19 06:42:01  j_novak
  * Minor modifications to avoid warnings with gcc 4.3. Most of them concern
  * cast-type operations, and constant strings that must be defined as const char*
@@ -87,7 +90,7 @@ int fwrite_be(const int* aa, int size, int nb, FILE* fich) {
 		}
 		
 		
-		int nx =  fwrite(bytes_big, 1, size_tot, fich) / 4 ;
+		int nx =  int(fwrite(bytes_big, 1, size_tot, fich) / 4) ;
 
 		delete [] bytes_big ; 
 		
@@ -96,7 +99,7 @@ int fwrite_be(const int* aa, int size, int nb, FILE* fich) {
 	}
 	else {  // Big endian case: nothing to do:
 	
-		return fwrite(aa, size, nb, fich) ;
+	    return int(fwrite(aa, size, nb, fich)) ;
 	}
 		
 }
@@ -136,7 +139,7 @@ int fwrite_be(const double* aa, int size, int nb, FILE* fich) {
 			
 		}
 		
-		int nx = fwrite(bytes_big, 1, size_tot, fich) / 8 ;		
+		int nx = int(fwrite(bytes_big, 1, size_tot, fich) / 8) ;		
 		delete [] bytes_big ; 
 		
 		return nx ; 
@@ -144,7 +147,7 @@ int fwrite_be(const double* aa, int size, int nb, FILE* fich) {
 	}
 	else {  // Big endian case: nothing to do:
 	
-		return fwrite(aa, size, nb, fich) ;
+	    return int(fwrite(aa, size, nb, fich)) ;
 	}
 		
 }
