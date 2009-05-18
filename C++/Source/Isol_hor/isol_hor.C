@@ -31,6 +31,9 @@ char isol_hor_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.33  2009/05/18 22:04:27  j_novak
+ * Changed pow(psi_in, 6) to psi*...*psi in the call to Time_slice_conf constructor. This is to get a well-defined basis.
+ *
  * Revision 1.32  2008/12/02 15:02:21  j_novak
  * Implementation of the new constrained formalism, following Cordero et al. 2009
  * paper. The evolution eqs. are solved as a first-order system. Not tested yet!
@@ -187,7 +190,8 @@ Isol_hor::Isol_hor(Map_af& mpi, const Scalar& lapse_in,
 		   const Scalar& trK_in, const Scalar& trK_point_in,
 		   const Metric_flat& ff_in, int depth_in) 	  
     : Time_slice_conf(lapse_in, shift_in, ff_in, psi_in, metgamt.con() -
-		      ff_in.con(), pow(psi_in, 6)*aa_in, trK_in, depth_in),
+		      ff_in.con(), psi_in*psi_in*psi_in*psi_in*psi_in*psi_in*aa_in, 
+		      trK_in, depth_in),
       mp(mpi), nz(mpi.get_mg()->get_nzone()), radius ((mpi.get_alpha())[0]), 
       omega(0), boost_x(0), boost_z(0), regul(0),
       n_auto_evol(depth_in), n_comp_evol(depth_in), 
