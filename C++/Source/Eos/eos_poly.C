@@ -31,6 +31,9 @@ char eos_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.7  2009/05/25 06:52:27  k_taniguchi
+ * Allowed the case of mu_0 != 1 for der_ener_ent_p and der_press_ent_p.
+ *
  * Revision 1.6  2003/12/10 08:58:20  r_prix
  * - added new Eos_bifluid paramter for eos-file: bool slow_rot_style
  *  to indicate if we want this particular kind of EOS-inversion (only works for
@@ -430,12 +433,12 @@ double Eos_poly::der_ener_ent_p(double ent, const Param* ) const {
     if ( ent > ent_0 ) {
 
 
-	double nn = pow( gam1sgamkap * ( exp(ent) - double(1) ),
+	double nn = pow( gam1sgamkap * ( exp(ent) - rel_mu_0 ),
 				     unsgam1 ) ;
 
 	double pp = kap * pow( nn, gam ) ;
 
-	double ee =  unsgam1 * pp + m_0 * nn ;
+	double ee =  unsgam1 * pp + mu_0 * nn ;
 
 
 	if ( ent < ent_0 + 1.e-13 ) {
@@ -443,7 +446,7 @@ double Eos_poly::der_ener_ent_p(double ent, const Param* ) const {
 		* ( double(1) + pp / ee) ;
 	}
 	else {
-	    return ent / (double(1) - exp(-ent)) / gam1
+	    return ent / (double(1) - rel_mu_0 * exp(-ent)) / gam1
 		* ( double(1) + pp / ee) ;
 	}
 
@@ -460,12 +463,12 @@ double Eos_poly::der_press_ent_p(double ent, const Param* ) const {
     
     if ( ent > double(0) ) {
 
-	if ( ent < 1.e-13 ) {
+	if ( ent < ent_0 + 1.e-13 ) {
 	    return gam * ( double(1) + ent/double(2) + ent*ent/double(12) ) 
 		    / gam1 ;
 	}
 	else{
-	    return gam * ent / (double(1) - exp(-ent)) / gam1 ;
+	    return gam * ent / (double(1) - rel_mu_0 * exp(-ent)) / gam1 ;
 	}
     }
     else{
