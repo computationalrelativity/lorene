@@ -34,6 +34,9 @@ char et_bin_equil_regu_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2009/06/15 09:26:57  k_taniguchi
+ * Improved the rescaling of the domains.
+ *
  * Revision 1.5  2004/03/25 10:29:03  j_novak
  * All LORENE's units are now defined in the namespace Unites (in file unites.h).
  *
@@ -401,19 +404,50 @@ void Etoile_bin::equil_regular(double ent_c, int mermax, int mermax_poisson,
 	// Readjustment of the external boundary of domain l=nzet
 	// to keep a fixed ratio with respect to star's surface
 	
-	int n_resize ;
+	double rr_in_1 = mp.val_r(nzet, -1., M_PI/2., 0.) ;
 
-    	if (nz > 3) {
-      	  n_resize = nz - 3 ;
-	}
-	else {
-	  n_resize = nzet ;
-	}
+	// Resizes the outer boundary of the shell including the comp. NS
+	double rr_out_nm2 = mp.val_r(nz-2, 1., M_PI/2., 0.) ;
 
-	double rr_in = mp.val_r(nzet,-1., M_PI/2, 0.) ; 
-	double rr_out = mp.val_r(n_resize,1., M_PI/2, 0.) ; 
+	mp.resize(nz-2, rr_in_1/rr_out_nm2 * fact_resize(1)) ;
 
-	mp.resize(n_resize, rr_in/rr_out * fact_resize(0)) ; 
+	// Resizes the inner boundary of the shell including the comp. NS
+	double rr_out_nm3 = mp.val_r(nz-3, 1., M_PI/2., 0.) ;
+
+	mp.resize(nz-3, rr_in_1/rr_out_nm3 * fact_resize(0)) ;
+
+	if (nz > nzet+3) {
+
+	    // Resize of the domain from 1(nzet) to N-4
+	    double rr_out_nm3_new = mp.val_r(nz-3, 1., M_PI/2., 0.) ;
+
+	    for (int i=nzet-1; i<nz-4; i++) {
+
+	        double rr_out_i = mp.val_r(i, 1., M_PI/2., 0.) ;
+
+		double rr_mid = rr_out_i
+		  + (rr_out_nm3_new - rr_out_i) / double(nz - 3 - i) ;
+
+		double rr_2timesi = 2. * rr_out_i ;
+
+		if (rr_2timesi < rr_mid) {
+
+		    double rr_out_ip1 = mp.val_r(i+1, 1., M_PI/2., 0.) ;
+
+		    mp.resize(i+1, rr_2timesi / rr_out_ip1) ;
+
+		}
+		else {
+
+		    double rr_out_ip1 = mp.val_r(i+1, 1., M_PI/2., 0.) ;
+
+		    mp.resize(i+1, rr_mid / rr_out_ip1) ;
+
+		}  // End of else
+
+	    }  // End of i loop
+
+	}  // End of (nz > nzet+3) loop
 
 //##
 //	des_coupe_z(ent(), 0., 1, "ent after adapt", &(ent()) ) ;

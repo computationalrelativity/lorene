@@ -33,6 +33,9 @@ char et_bin_equilibrium_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.12  2009/06/15 09:25:18  k_taniguchi
+ * Improved the rescaling of the domains.
+ *
  * Revision 1.11  2008/11/14 13:48:06  e_gourgoulhon
  * Added parameter pent_limit to force the enthalpy values at the
  * boundaries between the domains, in case of more than one domain inside
@@ -485,48 +488,51 @@ void Etoile_bin::equilibrium(double ent_c,
 	// Readjustment of the external boundary of domain l=nzet
 	// to keep a fixed ratio with respect to star's surface
 	
-	
-    	if (nz == 4 && nzet == 1) {
-	double rr_in_1 = mp.val_r(1,-1., M_PI/2, 0.) ; 
-	double rr_out_1 = mp.val_r(1, 1., M_PI/2, 0.) ; 
-	double rr_out_2 = mp.val_r(2, 1., M_PI/2, 0.) ; 
+	double rr_in_1 = mp.val_r(nzet, -1., M_PI/2., 0.) ;
 
-	mp.resize(1, rr_in_1/rr_out_1 * fact_resize(0)) ; 
-	mp.resize(2, rr_in_1/rr_out_2 * fact_resize(1)) ; 
-	}
-	else{
+	// Resizes the outer boundary of the shell including the comp. NS
+	double rr_out_nm2 = mp.val_r(nz-2, 1., M_PI/2., 0.) ;
 
-	    if (nz == 5 && nzet == 1) {
-		double rr_in_1 = mp.val_r(1,-1., M_PI/2, 0.) ; 
-		double rr_out_1 = mp.val_r(1, 1., M_PI/2, 0.) ; 
-		double rr_out_2 = mp.val_r(2, 1., M_PI/2, 0.) ; 
-		double rr_out_3 = mp.val_r(3, 1., M_PI/2, 0.) ; 
-		
-		double fact_resize_0 ;
-		if (fact_resize(0) > 2.4) fact_resize_0 = fact_resize(0)/2. ;
-		else fact_resize_0 = fact_resize(0)/2. + 0.5 ;
+	mp.resize(nz-2, rr_in_1/rr_out_nm2 * fact_resize(1)) ;
 
-		mp.resize(1, rr_in_1/rr_out_1 * fact_resize_0) ; 
-		mp.resize(2, rr_in_1/rr_out_2 * fact_resize(0)) ; 
-		mp.resize(3, rr_in_1/rr_out_3 * fact_resize(1)) ; 
-	    }
-	    else{		
-		int n_resize ;
-		//      	if (nz > 4) {
-		//       	  n_resize = nz - 4 ;
-		if (nz > 4) {
-		    n_resize = nz - 3 ;
+	// Resizes the inner boundary of the shell including the comp. NS
+	double rr_out_nm3 = mp.val_r(nz-3, 1., M_PI/2., 0.) ;
+
+	mp.resize(nz-3, rr_in_1/rr_out_nm3 * fact_resize(0)) ;
+
+	if (nz > nzet+3) {
+
+	    // Resize of the domain from 1(nzet) to N-4
+	    double rr_out_nm3_new = mp.val_r(nz-3, 1., M_PI/2., 0.) ;
+
+	    for (int i=nzet-1; i<nz-4; i++) {
+
+	        double rr_out_i = mp.val_r(i, 1., M_PI/2., 0.) ;
+
+		double rr_mid = rr_out_i
+		  + (rr_out_nm3_new - rr_out_i) / double(nz - 3 - i) ;
+
+		double rr_2timesi = 2. * rr_out_i ;
+
+		if (rr_2timesi < rr_mid) {
+
+		    double rr_out_ip1 = mp.val_r(i+1, 1., M_PI/2., 0.) ;
+
+		    mp.resize(i+1, rr_2timesi / rr_out_ip1) ;
+
 		}
 		else {
-		    n_resize = nzet ;
-		}
-		
-		double rr_in = mp.val_r(nzet,-1., M_PI/2, 0.) ; 
-		double rr_out = mp.val_r(n_resize,1., M_PI/2, 0.) ; 
-		
-		mp.resize(n_resize, rr_in/rr_out * fact_resize(0)) ; 
-	    }
-	}
+
+		    double rr_out_ip1 = mp.val_r(i+1, 1., M_PI/2., 0.) ;
+
+		    mp.resize(i+1, rr_mid / rr_out_ip1) ;
+
+		}  // End of else
+
+	    }  // End of i loop
+
+	}  // End of (nz > nzet+3) loop
+
 
 	//----------------------------------------------------
 	// Computation of the enthalpy at the new grid points
