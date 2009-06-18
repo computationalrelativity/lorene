@@ -31,6 +31,10 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.5  2009/06/18 18:42:13  k_taniguchi
+ * Defined a slightly modified code to determine
+ * the orbital angular velocity.
+ *
  * Revision 1.4  2003/09/15 15:09:47  e_gourgoulhon
  * Added the member function write_global.
  *
@@ -360,6 +364,40 @@ class Binaire {
 	void orbit(double fact_omeg_min, double fact_omeg_max, double& xgg1, 
 		   double& xgg2) ;
 	   
+	/** Computes the orbital angular velocity {\tt omega} and the 
+	 *  position of the rotation axis {\tt x\_axe}. 
+	 *
+	 *  @param fact_omeg_min [input] : determines the lower bound of the 
+	 *		interval {\tt [omega\_min, omega\_max]} in which 
+	 *		{\tt omega} is searched by 
+	 *		{\tt omega\_min = fact\_omeg\_min * omega}, 
+	 *		where {\tt omega} is the previous value of the 
+	 *		angular velocity 
+	 *		(typical value : {\tt fact\_omeg\_min = 0.5})
+	 *
+	 *  @param fact_omeg_max [input] : determines the higher bound of the 
+	 *		interval {\tt [omega\_min, omega\_max]} in which 
+	 *		{\tt omega} is searched by 
+	 *		{\tt omega\_max = fact\_omeg\_max * omega}, 
+	 *		where {\tt omega} is the previous value of the 
+	 *		angular velocity.
+	 *		(typical value : {\tt fact\_omeg\_max = 1.5})
+	 *
+	 *  @param mass1 [input] : baryon rest mass of NS1
+	 *
+	 *  @param mass2 [input] : baryon rest mass of NS2
+	 *
+	 *  @param xgg1 [output] : x coordinate (relative to star 1 mapping)
+	 *		    of the ``center of mass'' of star 1
+	 *
+	 *  @param xgg2 [output] : x coordinate (relative to star 2 mapping)
+	 *		    of the ``center of mass'' of star 2
+	 *
+	 */
+	void orbit_eqmass(double fact_omeg_min, double fact_omeg_max,
+			  double mass1, double mass2,
+			  double& xgg1, double& xgg2) ;
+
 	/** Sets the orbital angular velocity to some 2-PN analytical
 	 *  value (Keplerian value in the Newtonian case)
 	 */
