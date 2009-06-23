@@ -4,6 +4,7 @@
  */
 
 /*
+ *   Copyright (c) 2009 Keisuke Taniguchi
  *   Copyright (c) 2004 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
@@ -29,6 +30,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.4  2009/06/23 14:33:31  k_taniguchi
+ * Completely revised.
+ *
  * Revision 1.3  2004/05/14 11:35:17  k_taniguchi
  * Minor changes in some comments.
  *
@@ -59,16 +63,14 @@ class Cmp ;
 class Param ;
 class Eos ;
 
-		    //-------------------------------------------//
-		    //   base class Eos for multiple polytrope   //
-		    //-------------------------------------------//
+	       //-------------------------------------------//
+	       //   base class Eos for multiple polytrope   //
+	       //-------------------------------------------//
 
 /**
- * Base class for multiple polytropic equation of state.
+ * Base class for a multiple polytropic equation of state.
  *
- * This equation of state mimics some realistic, tabulated EOS.
- * Then the polytropic indices and constants of the pressure are
- * different from those of the energy density.
+ * This equation of state mimics some realistic, tabulated EOSs.
  * \ingroup (eos)
  * 
  */
@@ -78,101 +80,78 @@ class Eos_multi_poly : public Eos {
     // -----
 
     protected:
-	/// Number of domains for the pressure
-	int ndom_press ;
+	/// Number of polytropic equations of state
+	int npeos ;
 
-	/// Number of domains for the energy density
-	int ndom_epsil ;
+	/// Array (size: \c npeos) of adiabatic index \f$\gamma\f$
+	double* gamma ;
 
-	/** Array (size \c ndom_press - 1) of the number density
-	 *   at which the polytropic EOS
-	 *   for the pressure changes its index and constant
+	/** Pressure coefficient for the crust
+	 *   [unit: \f$({\rm g/cm^3})^{1-\gamma_0}\f$]
 	 */
-	double* nb_press ;
+	double kappa0 ;
 
-	/** Array (size \c ndom_epsil - 1) of the number density
-	 *   at which the polytropic EOS
-	 *   for the energy density changes its index and constant
+	/// Exponent of the pressure at the fiducial density \f$\rho_1\f$
+	double logP1 ;
+
+	/// Array (size: \c npeos - 1) of the exponent of fiducial densities
+	double* logRho ;
+
+	/** Array (size: \c npeos) of pressure coefficient \f$\kappa\f$
+	 *   [unit: \f$\rho_{\rm nuc} c^2 / n_{\rm nuc}^\gamma\f$],
+	 *   where
+	 *   \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$ and
+	 *   \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$.
 	 */
-	double* nb_epsil ;
+	double* kappa ;
 
-	/** Array (size \c ndom_press - 1) of the enthalpy
-	 *   at the points where the polytropic EOS for the pressure
-	 *   changes its index and constant
+	/** Array (size \c npeos - 1) of the number density
+	 *   at which the polytropic EOS changes its index and constant
 	 */
-	double* ent_crit_p ;
+	double* nbCrit ;
 
-	/** Array (size \c ndom_epsil - 1) of the enthalpy
-	 *   at the points where the polytropic EOS for the energy density
-	 *   changes its index and constant
+	/** Array (size \c npeos - 1) of the critical enthalpy
+	 *   at which the polytropic EOS changes its index and constant
 	 */
-	double* ent_crit_e ;
+	double* entCrit ;
 
-	/** Array (size: \c ndom_press) of adiabatic index \f$\gamma\f$
-	 *   for the pressure
+	/** Array (size \c npeos - 1) of the percentage which detemines
+	 *   the terminating enthalpy for lower density and the starting
+	 *   enthalpy for higher density
 	 */
-	double* gam_p ;
+	double* decInc ;
 
-	/** Array (size: \c ndom_press) of adiabatic index \f$\gamma\f$
-	 *   for the energy density
+	/** Individual particule mass \f$m0\f$
+	 *   [unit: \f$m_B = 1.66\ 10^{-27} \ {\rm kg}\f$].
 	 */
-	double* gam_e ;
+	double m0 ;
 
-	/** Array (size: \c ndom_press) of pressure coefficient \f$\kappa\f$
-	 *  [unit: \f$\rho_{\rm nuc} c^2 / n_{\rm nuc}^\gamma\f$]
-	 *  for the pressure, where
-	 *  \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$ and
-	 *  \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$.
-	 */
-	double* kap_p ;
-
-	/** Array (size: \c ndom_press) of pressure coefficient \f$\kappa\f$
-	 *  [unit: \f$\rho_{\rm nuc} c^2 / n_{\rm nuc}^\gamma\f$]
-	 *  for the energy density, where
-	 *  \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$ and
-	 *  \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$.
-	 */
-	double* kap_e ;
-
-	/** Individual particule mass \f$m_0\f$
-	 *  [unit: \f$m_B = 1.66\ 10^{-27} \ {\rm kg}\f$].
-	 */
-	double m_0 ;
-
-	/** Relativistic chemical potential at zero pressure
-	 *  [unit: \f$m_B c^2\f$, with \f$m_B = 1.66\ 10^{-27} \ {\rm kg}\f$].
-         * (standard value: 1)
+	/** Array (size: \c npeos) of the relativistic chemical potential
+	 *   at zero pressure
+	 *   [unit: \f$m_B c^2\f$,
+	 *          with \f$m_B = 1.66\ 10^{-27} \ {\rm kg}\f$].
+         * (The value for the EOS which covers the lowest density: 1)
         */
-        double mu_0 ;
+        double* mu0 ;
 
 
     // Constructors - Destructor
     // -------------------------
     public:
-	/** Standard constructor (sets both \c m_0 and \c mu_0 to 1).
+	/** Standard constructor (sets \c m0 to 1).
 	 *
-	 *  The individual particle mass \f$m_0\f$ is set to the mean baryon
+	 *  The individual particle mass \f$m0\f$ is set to the mean baryon
 	 *  mass \f$m_B = 1.66\ 10^{-27} \ {\rm kg}\f$.
 	 *
-	 *  @param ndom_p  number of polytropes for the pressure
-	 *  @param gamma_p  array of adiabatic index \f$\gamma\f$
-	 *         for the pressure
-	 *  @param kappa_p  array of pressure coefficient \f$\kappa\f$  
-	 *	   [unit: \f$\rho_{\rm nuc} c^2 / n_{\rm nuc}^\gamma\f$]
-	 *         for the pressure,
-	 *	   where \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
-	 *	   and \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$
-	 *  @param ndom_e  number of polytropes for the energy density
-	 *  @param gamma_e  array of adiabatic index \f$\gamma\f$
-	 *         for the energy density
-	 *  @param kappa_e  array of pressure coefficient \f$\kappa\f$  
-	 *	   [unit: \f$\rho_{\rm nuc} c^2 / n_{\rm nuc}^\gamma\f$]
-	 *         for the energy density,
-	 *	   where \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$
-	 *	   and \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$
+	 *  @param npoly  number of polytropes
+	 *  @param gamma_i  array of adiabatic index \f$\gamma\f$
+	 *  @param kappa0_i  pressure coefficient for the crust
+	 *  @param logP1_i exponent of the pressure at the fiducial density
+	 *  @param logRho_i array of the exponent of fiducial densities
+	 *  @param decInc_i array of percentage
 	 */
-	Eos_multi_poly(int ndom_p, double* gamma_p, double* kappa_p,
-		       int ndom_e, double* gamma_e, double* kappa_e) ;
+	Eos_multi_poly(int npoly, double* gamma_i, double kappa0_i,
+		       double logP1_i, double* logRho_i, double* decInc_i) ;
 
 	Eos_multi_poly(const Eos_multi_poly& ) ;     ///< Copy constructor
 
@@ -206,6 +185,9 @@ class Eos_multi_poly : public Eos {
 	/// Assignment to another \c Eos_multi_poly
 	void operator=(const Eos_multi_poly&) ;	
 
+	/// Read/write kappa
+	//	double& set_kappa(int n) ;
+
 
     // Miscellaneous
     // -------------
@@ -221,50 +203,52 @@ class Eos_multi_poly : public Eos {
 	 */
 	virtual int identify() const ;
 
-	/// Returns the number of polytropes \c ndom_press
-	int get_ndom_press() const { return ndom_press ; } ;
+	/// Returns the number of polytropes \c npeos
+	const int& get_npeos() const { return npeos ; } ;
 
-	/// Returns the number of polytropes \c ndom_epsil
-	int get_ndom_epsil() const { return ndom_epsil ; } ;
-
-	/// Returns the adiabatic index \f$\gamma\f$ for the pressure
-	double get_gam_press(int n) const { 
-	    assert(n>=0 && n<ndom_press) ;
-	    return gam_p[n] ;
+	/// Returns the adiabatic index \f$\gamma\f$
+	const double& get_gamma(int n) const { 
+	    assert(n>=0 && n<npeos) ;
+	    return gamma[n] ;
 	} ;
 
-	/// Returns the adiabatic index \f$\gamma\f$ for the energy density
-	double get_gam_epsil(int n) const { 
-	    assert(n>=0 && n<ndom_epsil) ;
-	    return gam_e[n] ;
-	} ;
+	/// Returns the pressure coefficient for the crust
+	const double& get_kappa0() const { return kappa0 ; } ;
 
-	/** Returns the pressure coefficient \f$\kappa\f$
-	 *  [unit: \f$\rho_{\rm nuc} c^2 / n_{\rm nuc}^\gamma\f$]
-	 *  for the pressure, where
-	 *  \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$ and
-	 *  \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$.
-	 */
-	double get_kap_press(int n) const { 
-	    assert(n>=0 && n<ndom_press) ;
-	    return kap_p[n] ;
+	/// Returns the exponent of the pressure at the fiducial density
+	const double& get_logP1() const { return logP1 ; } ;
+
+	/// Returns the exponent of fiducial densities
+	const double& get_logRho(int n) const {
+	    assert(n>=0 && n<npeos-1) ;
+	    return logRho[n] ;
 	} ;
 
 	/** Returns the pressure coefficient \f$\kappa\f$
-	 *  [unit: \f$\rho_{\rm nuc} c^2 / n_{\rm nuc}^\gamma\f$]
-	 *  for the energy density, where
+	 *  [unit: \f$\rho_{\rm nuc} c^2 / n_{\rm nuc}^\gamma\f$],
+	 *  where
 	 *  \f$\rho_{\rm nuc} := 1.66\ 10^{17} \ {\rm kg/m}^3\f$ and
 	 *  \f$n_{\rm nuc} := 0.1 \ {\rm fm}^{-3}\f$.
 	 */
-	double get_kap_epsil(int n) const { 
-	    assert(n>=0 && n<ndom_epsil) ;
-	    return kap_e[n] ;
+	const double& get_kappa(int n) const { 
+	    assert(n>=0 && n<npeos) ;
+	    return kappa[n] ;
+	} ;
+
+	/// Returns the critical number density
+	const double& get_nbCrit(int n) const { 
+	    assert(n>=0 && n<npeos-1) ;
+	    return nbCrit[n] ;
+	} ;
+
+	/// Returns the critical enthalpy
+	const double& get_entCrit(int n) const { 
+	    assert(n>=0 && n<npeos-1) ;
+	    return entCrit[n] ;
 	} ;
 
     protected:
-	/** Computes the auxiliary quantities \c gam1 , \c unsgam1 ,
-	 *  \c gam1sgamkap from the values of \c gam and \c kap 
-	 */
+	/// Computes the auxiliary quantities
 	void set_auxiliary() ;
 
 
@@ -341,6 +325,15 @@ class Eos_multi_poly : public Eos {
 	 */
     	virtual double der_press_ent_p(double ent, const Param* par=0x0) const ;
 
+	/** Computes the logarithmic derivative \f$d\ln p/d\ln n\f$
+	 *   from the log-enthalpy.
+	 *
+	 *  @param ent [input, unit: \f$c^2\f$] log-enthalpy \e H
+	 *
+	 *  @param par possible extra parameters of the EOS
+	 *  @return dln(p)/dln(n)
+	 */
+    	virtual double der_press_nbar_p(double ent, const Param* par=0x0) const ;
 };
 
 #endif

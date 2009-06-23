@@ -6,6 +6,7 @@
  */
 
 /*
+ *   Copyright (c) 2009 Keisuke Taniguchi
  *   Copyright (c) 2004 Keisuke Taniguchi
  *
  *   This file is part of LORENE.
@@ -30,6 +31,9 @@ char eos_multi_poly_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2009/06/23 14:34:04  k_taniguchi
+ * Completely revised.
+ *
  * Revision 1.5  2004/06/23 15:42:08  e_gourgoulhon
  * Replaced all "abs" by "fabs".
  *
@@ -61,109 +65,127 @@ char eos_multi_poly_C[] = "$Header$" ;
 #include "eos_multi_poly.h"
 #include "eos.h"
 #include "utilitaires.h"
+#include "unites.h"
 
+double logp(double, double, double, double, double, double) ;
+double dlpsdlh(double, double, double, double, double, double) ;
+double dlpsdlnb(double, double, double, double, double) ;
 
-                     //--------------------------------------//
-                     //              Constructors            //
-                     //--------------------------------------//
+//*********************************************************************
 
-Eos_multi_poly::Eos_multi_poly(int ndom_p, double* gamma_p, double* kappa_p,
-			       int ndom_e, double* gamma_e, double* kappa_e)
+               //--------------------------------------//
+               //              Constructors            //
+               //--------------------------------------//
+
+// Standard constructor
+Eos_multi_poly::Eos_multi_poly(int npoly, double* gamma_i, double kappa0_i,
+			       double logP1_i, double* logRho_i,
+			       double* decInc_i)
     : Eos("Multi-polytropic EOS"),
-      ndom_press(ndom_p), ndom_epsil(ndom_e),
-      m_0(double(1)), mu_0(double(1)) {
+      npeos(npoly), kappa0(kappa0_i), logP1(logP1_i), m0(double(1)) {
 
-    gam_p = new double [ndom_press] ;
+    assert(npeos > 1) ;
 
-    for (int l=0; l<ndom_press; l++) {
-        gam_p[l] = gamma_p[l] ;
+    gamma = new double [npeos] ;
+
+    for (int l=0; l<npeos; l++) {
+        gamma[l] = gamma_i[l] ;
     }
 
-    gam_e = new double [ndom_epsil] ;
+    logRho = new double [npeos-1] ;
 
-    for (int l=0; l<ndom_epsil; l++) {
-        gam_e[l] = gamma_e[l] ;
+    for (int l=0; l<npeos-1; l++) {
+        logRho[l] = logRho_i[l] ;
     }
 
-    kap_p = new double [ndom_press] ;
+    decInc = new double [npeos-1] ;
 
-    for (int l=0; l<ndom_press; l++) {
-        kap_p[l] = kappa_p[l] ;
-    }
-
-    kap_e = new double [ndom_epsil] ;
-
-    for (int l=0; l<ndom_epsil; l++) {
-        kap_e[l] = kappa_e[l] ;
+    for (int l=0; l<npeos-1; l++) {
+        decInc[l] = decInc_i[l] ;
     }
 
     set_auxiliary() ;
 
 }
 
+
 // Copy constructor
 Eos_multi_poly::Eos_multi_poly(const Eos_multi_poly& eosmp)
     : Eos(eosmp),
-      ndom_press(eosmp.ndom_press), ndom_epsil(eosmp.ndom_epsil),
-      m_0(eosmp.m_0), mu_0(eosmp.mu_0) {
+      npeos(eosmp.npeos), kappa0(eosmp.kappa0), logP1(eosmp.logP1),
+      m0(eosmp.m0) {
 
-    gam_p = new double [ndom_press] ;
+    gamma = new double [npeos] ;
 
-    for (int l=0; l<ndom_press; l++) {
-        gam_p[l] = eosmp.gam_p[l] ;
+    for (int l=0; l<npeos; l++) {
+        gamma[l] = eosmp.gamma[l] ;
     }
 
-    gam_e = new double [ndom_epsil] ;
+    logRho = new double [npeos-1] ;
 
-    for (int l=0; l<ndom_epsil; l++) {
-        gam_e[l] = eosmp.gam_e[l] ;
+    for (int l=0; l<npeos-1; l++) {
+        logRho[l] = eosmp.logRho[l] ;
     }
 
-    kap_p = new double [ndom_press] ;
+    kappa = new double [npeos] ;
 
-    for (int l=0; l<ndom_press; l++) {
-        kap_p[l] = eosmp.kap_p[l] ;
+    for (int l=0; l<npeos; l++) {
+        kappa[l] = eosmp.kappa[l] ;
     }
 
-    kap_e = new double [ndom_epsil] ;
+    nbCrit = new double [npeos-1] ;
 
-    for (int l=0; l<ndom_epsil; l++) {
-        kap_e[l] = eosmp.kap_e[l] ;
+    for (int l=0; l<npeos-1; l++) {
+        nbCrit[l] = eosmp.nbCrit[l] ;
     }
 
-    set_auxiliary() ;
+    entCrit = new double [npeos-1] ;
+
+    for (int l=0; l<npeos-1; l++) {
+        entCrit[l] = eosmp.entCrit[l] ;
+    }
+
+    decInc = new double [npeos-1] ;
+
+    for (int l=0; l<npeos-1; l++) {
+        decInc[l] = eosmp.decInc[l] ;
+    }
+
+    mu0 = new double [npeos] ;
+
+    for (int l=0; l<npeos; l++) {
+        mu0[l] = eosmp.mu0[l] ;
+    }
 
 }
 
 //  Constructor from a binary file
 Eos_multi_poly::Eos_multi_poly(FILE* fich) : Eos(fich) {
 
-    fread_be(&ndom_press, sizeof(int), 1, fich) ;
-    fread_be(&ndom_epsil, sizeof(int), 1, fich) ;
+    fread_be(&npeos, sizeof(int), 1, fich) ;
 
-    gam_p = new double [ndom_press] ;
+    gamma = new double [npeos] ;
 
-    for (int l=0; l<ndom_press; l++) {
-        fread_be(&gam_p[l], sizeof(double), 1, fich) ;
+    for (int l=0; l<npeos; l++) {
+        fread_be(&gamma[l], sizeof(double), 1, fich) ;
     }
 
-    gam_e = new double [ndom_epsil] ;
+    fread_be(&kappa0, sizeof(int), 1, fich) ;
+    fread_be(&logP1, sizeof(int), 1, fich) ;
 
-    for (int l=0; l<ndom_epsil; l++) {
-        fread_be(&gam_e[l], sizeof(double), 1, fich) ;
+    logRho = new double [npeos-1] ;
+
+    for (int l=0; l<npeos-1; l++) {
+        fread_be(&logRho[l], sizeof(double), 1, fich) ;
     }
 
-    kap_p = new double [ndom_press] ;
+    decInc = new double [npeos-1] ;
 
-    for (int l=0; l<ndom_press; l++) {
-        fread_be(&kap_p[l], sizeof(double), 1, fich) ;
+    for (int l=0; l<npeos-1; l++) {
+        fread_be(&decInc[l], sizeof(double), 1, fich) ;
     }
 
-    kap_e = new double [ndom_epsil] ;
-
-    for (int l=0; l<ndom_epsil; l++) {
-        fread_be(&kap_e[l], sizeof(double), 1, fich) ;
-    }
+    m0 = double(1) ;
 
     set_auxiliary() ;
 
@@ -174,32 +196,30 @@ Eos_multi_poly::Eos_multi_poly(ifstream& fich) : Eos(fich) {
 
     char blabla[80] ;
 
-    fich >> ndom_press ; fich.getline(blabla, 80) ;
-    fich >> ndom_epsil ; fich.getline(blabla, 80) ;
+    fich >> npeos ; fich.getline(blabla, 80) ;
 
-    gam_p = new double [ndom_press] ;
+    gamma = new double [npeos] ;
 
-    for (int l=0; l<ndom_press; l++) {
-        fich >> gam_p[l] ; fich.getline(blabla, 80) ;
+    for (int l=0; l<npeos; l++) {
+        fich >> gamma[l] ; fich.getline(blabla, 80) ;
     }
 
-    gam_e = new double [ndom_epsil] ;
+    fich >> kappa0 ; fich.getline(blabla, 80) ;
+    fich >> logP1 ; fich.getline(blabla, 80) ;
 
-    for (int l=0; l<ndom_epsil; l++) {
-        fich >> gam_e[l] ; fich.getline(blabla, 80) ;
+    logRho = new double [npeos-1] ;
+
+    for (int l=0; l<npeos-1; l++) {
+        fich >> logRho[l] ; fich.getline(blabla, 80) ;
     }
 
-    kap_p = new double [ndom_press] ;
+    decInc = new double [npeos-1] ;
 
-    for (int l=0; l<ndom_press; l++) {
-        fich >> kap_p[l] ; fich.getline(blabla, 80) ;
+    for (int l=0; l<npeos-1; l++) {
+        fich >> decInc[l] ; fich.getline(blabla, 80) ;
     }
 
-    kap_e = new double [ndom_epsil] ;
-
-    for (int l=0; l<ndom_epsil; l++) {
-        fich >> kap_e[l] ; fich.getline(blabla, 80) ;
-    }
+    m0 = double(1) ;
 
     set_auxiliary() ;
 
@@ -208,14 +228,13 @@ Eos_multi_poly::Eos_multi_poly(ifstream& fich) : Eos(fich) {
 // Destructor
 Eos_multi_poly::~Eos_multi_poly() {
 
-    delete [] nb_press ;
-    delete [] nb_epsil ;
-    delete [] ent_crit_p ;
-    delete [] ent_crit_e ;
-    delete [] gam_p ;
-    delete [] gam_e ;
-    delete [] kap_p ;
-    delete [] kap_e ;
+    delete [] gamma ;
+    delete [] logRho ;
+    delete [] kappa ;
+    delete [] nbCrit ;
+    delete [] entCrit ;
+    delete [] decInc ;
+    delete [] mu0 ;
 
 }
 
@@ -225,74 +244,86 @@ Eos_multi_poly::~Eos_multi_poly() {
 
 void Eos_multi_poly::operator=(const Eos_multi_poly& ) {
 
-        cout << "Eos_multi_poly::operator=  : not implemented yet !" << endl ;
-                abort() ;
+    cout << "Eos_multi_poly::operator=  : not implemented yet !" << endl ;
+    abort() ;
 
 }
 
-		  //-----------------------//
-		  //	Miscellaneous	   //
-		  //-----------------------//
+
+		     //-----------------------//
+		     //	    Miscellaneous     //
+		     //-----------------------//
 
 void Eos_multi_poly::set_auxiliary() {
 
-    nb_press = new double [ndom_press-1] ;
+    using namespace Unites ;
 
-    for (int l=0; l<ndom_press-1; l++)
-	nb_press[l] = pow( kap_p[l+1]/kap_p[l],
-			   double(1)/(gam_p[l]-gam_p[l+1]) ) ;
+    double* kappa_cgs = new double [npeos] ;
 
-    nb_epsil = new double [ndom_epsil-1] ;
+    kappa_cgs[0] = kappa0 ;
 
-    for (int l=0; l<ndom_epsil-1; l++)
-	nb_epsil[l] = pow( kap_e[l+1]/kap_e[l],
-			   double(1)/(gam_e[l]-gam_e[l+1]) ) ;
+    kappa_cgs[1] = pow(10., logP1-logRho[0]*gamma[1]) ;
 
-    ent_crit_p = new double [ndom_press-1] ;
+    if (npeos > 2) {
 
-    int i = 0 ;
-    for (int l=0; l<ndom_press-1; l++) {
-        if (nb_press[l] > nb_epsil[ndom_epsil-2]) {
-	    i = ndom_epsil - 1 ;
-	}
-	else {
-	    while (nb_press[l] > nb_epsil[i]) {
-	        i++ ;
+        kappa_cgs[2] = kappa_cgs[1]
+	  * pow(10., logRho[0]*(gamma[1]-gamma[2])) ;
+
+	if (npeos > 3) {
+
+	    for (int l=3; l<npeos; l++) {
+
+	        kappa_cgs[l] = kappa_cgs[l-1]
+		  * pow(10., logRho[l-2]*(gamma[l-1]-gamma[l])) ;
+
 	    }
-	}
-	assert(i<=ndom_epsil-1) ;
 
-        double kp_e = kap_e[i] ;
-	double gm_e = gam_e[i] ;
-        ent_crit_p[l] = log(double(1)+kp_e*pow(nb_press[l],gm_e)
-			    +kap_p[l]*pow(nb_press[l],gam_p[l]-double(1))) ;
+	}
+
     }
 
-    ent_crit_e = new double [ndom_epsil-1] ;
+    kappa = new double [npeos] ;
 
-    int j = 0 ;
-    for (int l=0; l<ndom_epsil-1; l++) {
-        if (nb_epsil[l] > nb_press[ndom_press-2]) {
-	    j = ndom_press - 1 ;
-	}
-	else {
-	    while (nb_epsil[l] > nb_press[j]) {
-	        j++ ;
-	    }
-	}
-	assert(j<=ndom_press-1) ;
+    double rhonuc_cgs = rhonuc_si * 1.e-3 ;
 
-        double kp_p = kap_p[j] ;
-	double gm_p = gam_p[j] ;
-        ent_crit_e[l] = log(double(1)+kap_e[l]*pow(nb_epsil[l],gam_e[l])
-			    +kp_p*pow(nb_epsil[l],gm_p-double(1))) ;
+    for (int l=0; l<npeos; l++) {
+        kappa[l] = kappa_cgs[l] * pow( rhonuc_cgs, gamma[l] - double(1) ) ;
+	// Conversion from cgs units to Lorene units
     }
+
+    delete [] kappa_cgs ;
+
+    mu0 = new double [npeos] ;
+    mu0[0] = double(1) ;  // We define
+
+    entCrit = new double [npeos-1] ;
+
+    nbCrit = new double [npeos-1] ;
+
+    for (int l=0; l<npeos-1; l++) {
+
+        nbCrit[l] =
+	  pow(kappa[l]/kappa[l+1], double(1)/(gamma[l+1]-gamma[l])) ;
+
+	mu0[l+1] = mu0[l]
+	  + ( kappa[l] * pow(nbCrit[l], gamma[l]-double(1))
+	      / (gamma[l]-double(1))
+	      - kappa[l+1] * pow(nbCrit[l], gamma[l+1]-double(1))
+	      / (gamma[l+1]-double(1)) ) ;
+
+	entCrit[l] = log ( mu0[l] / m0
+			   + kappa[l] * gamma[l]
+			   * pow(nbCrit[l], gamma[l]-double(1))
+			   / (gamma[l]-double(1)) / m0 ) ;
+
+    }
+
 }
 
 
-			//------------------------//
-			//  Comparison operators  //
-			//------------------------//
+               //------------------------------//
+               //     Comparison operators     //
+               //------------------------------//
 
 bool Eos_multi_poly::operator==(const Eos& eos_i) const {
     
@@ -304,54 +335,30 @@ bool Eos_multi_poly::operator==(const Eos& eos_i) const {
     }
     else{
 	
-	const Eos_multi_poly& eos = dynamic_cast<const Eos_multi_poly&>(eos_i) ; 
+	const Eos_multi_poly& eos
+	  = dynamic_cast<const Eos_multi_poly&>(eos_i) ; 
 
-	if (eos.get_ndom_press() != ndom_press) {
+	if (eos.get_npeos() != npeos) {
 	    cout << "The two Eos_multi_poly have "
-		 << "different number of domains for the pressure : "
-		 << ndom_press << " <-> " << eos.get_ndom_press() << endl ; 
+		 << "different number of polytropes : "
+		 << npeos << " <-> " << eos.get_npeos() << endl ; 
 	    resu = false ; 
 	}
 
-	if (eos.get_ndom_epsil() != ndom_epsil) {
-	    cout << "The two Eos_multi_poly have "
-		 << "different number of domains for the energy density : "
-		 << ndom_epsil << " <-> " << eos.get_ndom_epsil() << endl ; 
-	    resu = false ; 
-	}
-
-	for (int l=0; l<ndom_press; l++) {
-	    if (eos.get_gam_press(l) != gam_p[l]) {
-	        cout << "The two Eos_poly have different gamma "
-		     << "for the pressure : " << gam_p[l] << " <-> " 
-		     << eos.get_gam_press(l) << endl ;
+	for (int l=0; l<npeos; l++) {
+	    if (eos.get_gamma(l) != gamma[l]) {
+	        cout << "The two Eos_multi_poly have different gamma "
+		     << gamma[l] << " <-> " 
+		     << eos.get_gamma(l) << endl ;
 	    resu = false ;
 	    }
 	}
 
-	for (int l=0; l<ndom_epsil; l++) {
-	    if (eos.get_gam_epsil(l) != gam_e[l]) {
-	        cout << "The two Eos_poly have different gamma "
-		     << "for the energy density : " << gam_e[l] << " <-> " 
-		     << eos.get_gam_epsil(l) << endl ;
-	    resu = false ;
-	    }
-	}
-
-	for (int l=0; l<ndom_press; l++) {
-	    if (eos.get_kap_press(l) != kap_p[l]) {
-	        cout << "The two Eos_poly have different kappa "
-		     << "for the pressure : " << kap_p[l] << " <-> " 
-		     << eos.get_kap_press(l) << endl ;
-	    resu = false ;
-	    }
-	}
-
-	for (int l=0; l<ndom_epsil; l++) {
-	    if (eos.get_kap_epsil(l) != kap_e[l]) {
-	        cout << "The two Eos_poly have different kappa "
-		     << "for the energy density : " << kap_e[l] << " <-> " 
-		     << eos.get_kap_epsil(l) << endl ;
+	for (int l=0; l<npeos; l++) {
+	    if (eos.get_kappa(l) != kappa[l]) {
+	        cout << "The two Eos_multi_poly have different kappa "
+		     << kappa[l] << " <-> " 
+		     << eos.get_kappa(l) << endl ;
 	    resu = false ;
 	    }
 	}
@@ -368,58 +375,94 @@ bool Eos_multi_poly::operator!=(const Eos& eos_i) const {
        
 }
 
-                     //---------------------------------------//
-                     //              Outputs                  //
-                     //---------------------------------------//
+                     //--------------------------//
+                     //         Outputs          //
+                     //--------------------------//
 
 void Eos_multi_poly::sauve(FILE* fich) const {
 
     Eos::sauve(fich) ;
 
-    fwrite_be(&ndom_press, sizeof(int), 1, fich) ;
-    fwrite_be(&ndom_epsil, sizeof(int), 1, fich) ;
+    fwrite_be(&npeos, sizeof(int), 1, fich) ;
 
-    for (int l=0; l<ndom_press; l++) {
-        fwrite_be(&gam_p[l], sizeof(double), 1, fich) ;
+    for (int l=0; l<npeos; l++) {
+        fwrite_be(&gamma[l], sizeof(double), 1, fich) ;
     }
 
-    for (int l=0; l<ndom_epsil; l++) {
-        fwrite_be(&gam_e[l], sizeof(double), 1, fich) ;
+    fwrite_be(&kappa0, sizeof(int), 1, fich) ;
+    fwrite_be(&logP1, sizeof(int), 1, fich) ;
+
+    for (int l=0; l<npeos-1; l++) {
+        fwrite_be(&logRho[l], sizeof(double), 1, fich) ;
     }
 
-    for (int l=0; l<ndom_press; l++) {
-        fwrite_be(&kap_p[l], sizeof(double), 1, fich) ;
-    }
-
-    for (int l=0; l<ndom_epsil; l++) {
-        fwrite_be(&kap_e[l], sizeof(double), 1, fich) ;
+    for (int l=0; l<npeos-1; l++) {
+        fwrite_be(&decInc[l], sizeof(double), 1, fich) ;
     }
 
 }
 
+
 ostream& Eos_multi_poly::operator>>(ostream & ost) const {
 
+    using namespace Unites ;
+
     ost << "EOS of class Eos_multi_poly "
-	<< "(multi-domain polytropic equation of state) : " << endl ;
+	<< "(multiple polytropic equation of state) : " << endl ;
 
-    ost << "   Number of domains for the pressure       :      "
-	<< ndom_press << endl ;
+    ost << "  Number of polytropes : "
+	<< npeos << endl << endl ;
 
-    ost << "   Number of domains for the energy density :      "
-	<< ndom_epsil << endl ;
+    double rhonuc_cgs = rhonuc_si * 1.e-3 ;
 
-    for (int l=0; l<ndom_press; l++) {
-        ost << "EOS for the pressure in domain " << l << " : " << endl ;
-	ost << "----------------------------------" << endl ;
-	ost << "   gamma_press :" << gam_p[l] << endl ;
-	ost << "   kappa_press :" << kap_p[l] << endl ;
+    ost.precision(16) ;
+    for (int l=0; l<npeos; l++) {
+        ost << "  EOS in region " << l << " : " << endl ;
+	ost << "  ---------------" << endl ;
+	ost << "    gamma  : " << gamma[l] << endl ;
+	ost << "    kappa  : " << kappa[l]
+	    << " [Lorene units: rho_nuc c^2 / n_nuc^gamma]" << endl ;
+
+	double kappa_cgs = kappa[l]
+	  * pow( rhonuc_cgs, double(1) - gamma[l] ) ;
+
+	ost << "           : " << kappa_cgs
+	    << " [(g/cm^3)^{1-gamma}]" << endl ;
     }
 
-    for (int l=0; l<ndom_epsil; l++) {
-        ost << "EOS for the energy density in domain " << l << " : " << endl ;
-	ost << "----------------------------------------" << endl ;
-	ost << "   gamma_epsil :" << gam_e[l] << endl ;
-	ost << "   kappa_epsil :" << kap_e[l] << endl ;
+    ost << endl ;
+    ost << "  Exponent of the pressure at the fiducial density rho_1"
+	<< endl ;
+    ost << "  ------------------------------------------------------"
+	<< endl ;
+    ost << "    log P1 : " << logP1 << endl ;
+
+    ost << endl ;
+    ost << "  Exponent of fiducial densities" << endl ;
+    ost << "  ------------------------------" << endl ;
+    for (int l=0; l<npeos-1; l++) {
+      ost << "    log rho[" << l << "] : " << logRho[l] << endl ;
+    }
+
+    ost << endl ;
+    for (int l=0; l<npeos-1; l++) {
+        ost << "  Critical density and enthalpy between domains "
+	    << l << " and " << l+1 << " : " << endl ;
+	ost << "  -----------------------------------------------------"
+	    << endl ;
+	ost << "    num. dens. : " << nbCrit[l] << " [Lorene units: n_nuc]"
+	    << endl ;
+	ost << "    density :    " << nbCrit[l] * rhonuc_cgs << " [g/cm^3]"
+	    << endl ;
+
+	ost << "    ln(ent) :    " << entCrit[l] << endl ;
+    }
+
+    ost << endl ;
+    for (int l=0; l<npeos; l++) {
+        ost << "  Relat. chem. pot. in region " << l << " : " << endl ;
+	ost << "  -----------------------------" << endl ;
+	ost << "    mu : " << mu0[l] << " [m_B c^2]" << endl ;
     }
 
     return ost ;
@@ -427,98 +470,104 @@ ostream& Eos_multi_poly::operator>>(ostream & ost) const {
 }
 
 
-			//------------------------------//
-			//    Computational routines    //
-			//------------------------------//
+               //------------------------------------------//
+               //          Computational routines          //
+	       //------------------------------------------//
 
-// Baryon density from enthalpy
-//------------------------------
+// Baryon rest-mass density from enthalpy
+//----------------------------------------
 
 double Eos_multi_poly::nbar_ent_p(double ent, const Param* ) const {
 
-    if ( ent > double(0) ) {
+    int i = 0 ; // "i" corresponds to the number of domain
+                // i=0: gamma[0], kappa[0], i=1: gamma[1], kappa[1], .....
+                // The buffer zone is included in the next zone.
+    for (int l=0; l<npeos-1; l++) {
+        if ( ent > entCrit[l]*(double(1)-decInc[l]) ) {
+	    i++ ;
+	}
+    }
 
-        int i = 0 ;
+    double mgam1skapgam = 1. ;  // Initialization
+    if (i == 0) {
 
-	if ( ent >= ent_crit_p[ndom_press-2] ) {
-	    i = ndom_press - 1 ;
+        if ( ent > double(0) ) {
+
+	    mgam1skapgam = m0*(gamma[0]-double(1))/kappa[0]/gamma[0] ;
+
+	    return pow( mgam1skapgam*(exp(ent)-double(1)),
+			double(1)/(gamma[0]-double(1)) ) ; // mu0[0]/m0=1
+
 	}
 	else {
-	    while ( ent > ent_crit_p[i] ) {
-	        i++ ;
-	    }
+	    return double(0) ;
 	}
-	assert(i <= ndom_press-1) ;
 
-	double kap_pr = kap_p[i] ;
-	double gam_pr = gam_p[i] ;
-
-	int j = 0 ;
-
-	if ( ent >= ent_crit_e[ndom_epsil-2] ) {
-	    j = ndom_epsil - 1 ;
-	}
-	else {
-	    while ( ent > ent_crit_e[j] ) {
-	        j++ ;
-	    }
-	}
-	assert(j <= ndom_epsil-1) ;
-
-        double kap_ep = kap_e[j] ;
-	double gam_ep = gam_e[j] ;
-
-	double nb = 1. ;
-	double nb_m1 = 0. ;
-
-	// Switch the method of computation of the baryon density
-	double diff_gamma = gam_ep - gam_pr + double(1) ;
-
-	if (diff_gamma < 1.e-15) {
-	    while (fabs(1.-nb_m1/nb) > 1.e-15) {
-	        nb_m1 = nb ;
-		nb = pow( (exp(ent) - double(1))
-			  / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
-			  double(1)/(gam_pr-double(1)) ) ;
-	    }
-	}
-	else {
-	    double nb_min ;
-	    if (nb_press[i-1] > nb_epsil[j-1]) {
-	        nb_min = nb_press[i-1] ;
-	    }
-	    else {
-	        nb_min = nb_epsil[j-1] ;
-	    }
-	    double aa = nb_min ;
-	    double xx = 1. ;
-	    int m ;
-	    double yy ;
-	    double ent_value ;
-
-	    while (xx > 1.e-15) {
-
-	      ent_value = 1. ;   // Initialization
-	      xx = 0.1 * xx ;
-	      m = 0 ;
-
-	      while (ent_value > 1.e-15) {
-
-		m++ ;
-		yy = aa + m * xx ;
-		ent_value = ent
-		  - log(double(1) + kap_ep*pow(yy,gam_ep)
-			+ kap_pr*pow(yy,gam_pr-double(1))) ;
-
-	      }
-	      aa += (m - 1) * xx ;
-	    }
-	    nb = aa ;
-	}
-	return nb ;
     }
     else {
-        return 0 ;
+
+        double entSmall = entCrit[i-1]*(double(1)-decInc[i-1]) ;
+        double entLarge = entCrit[i-1]*(double(1)+decInc[i-1]) ;
+
+        if ( ent < entLarge ) {
+
+	    double log10H = log10( ent ) ;
+	    double log10HSmall = log10( entSmall ) ;
+	    double log10HLarge = log10( entLarge ) ;
+	    double dH = log10HLarge - log10HSmall ;
+	    double uu = (log10H - log10HSmall) / dH ;
+
+	    double mgam1skapgamSmall = m0*(gamma[i-1]-double(1))
+	      /kappa[i-1]/gamma[i-1] ;
+	    double mgam1skapgamLarge = m0*(gamma[i]-double(1))
+	      /kappa[i]/gamma[i] ;
+
+	    double nnSmall = pow( mgam1skapgamSmall
+				  *(exp(entSmall)-mu0[i-1]/m0),
+				  double(1)/(gamma[i-1]-double(1)) ) ;
+	    double nnLarge = pow( mgam1skapgamLarge
+				  *(exp(entLarge)-mu0[i]/m0),
+				  double(1)/(gamma[i]-double(1)) ) ;
+
+	    double ppSmall = kappa[i-1] * pow( nnSmall, gamma[i-1] ) ;
+	    double ppLarge = kappa[i] * pow( nnLarge, gamma[i] ) ;
+
+	    double eeSmall = mu0[i-1] * nnSmall
+	      + ppSmall / (gamma[i-1] - double(1)) ;
+	    double eeLarge = mu0[i] * nnLarge
+	      + ppLarge / (gamma[i] - double(1)) ;
+
+	    double log10PSmall = log10( ppSmall ) ;
+	    double log10PLarge = log10( ppLarge ) ;
+
+	    double dlpsdlhSmall = entSmall
+	      * (double(1) + eeSmall / ppSmall) ;
+	    double dlpsdlhLarge = entLarge
+	      * (double(1) + eeLarge / ppLarge) ;
+
+	    double log10PInterpolate = logp(log10PSmall, log10PLarge,
+					    dlpsdlhSmall, dlpsdlhLarge,
+					    dH, uu) ;
+
+	    double dlpsdlhInterpolate = dlpsdlh(log10PSmall, log10PLarge,
+						dlpsdlhSmall, dlpsdlhLarge,
+						dH, uu) ;
+
+	    double pp = pow(double(10), log10PInterpolate) ;
+
+	    return pp / ent * dlpsdlhInterpolate * exp(-ent) / m0 ;
+	    // Is m0 necessary?
+
+	}
+	else {
+
+	    mgam1skapgam = m0*(gamma[i]-double(1))/kappa[i]/gamma[i] ;
+
+	    return pow( mgam1skapgam*(exp(ent)-mu0[i]/m0),
+			double(1)/(gamma[i]-double(1)) ) ;
+
+	}
+
     }
 
 }
@@ -528,500 +577,585 @@ double Eos_multi_poly::nbar_ent_p(double ent, const Param* ) const {
 
 double Eos_multi_poly::ener_ent_p(double ent, const Param* ) const {
 
-    if ( ent > double(0) ) {
+    int i = 0 ; // "i" corresponds to the number of domain
+                // i=0: gamma[0], kappa[0], i=1: gamma[1], kappa[1], .....
+                // The buffer zone is included in the next zone.
+    for (int l=0; l<npeos-1; l++) {
+        if ( ent > entCrit[l]*(double(1)-decInc[l]) ) {
+	    i++ ;
+	}
+    }
 
-        int i = 0 ;
+    double mgam1skapgam = 1. ;  // Initialization
+    double nn = 0. ;  // Initialization
+    double pp = 0. ;  // Initialization
 
-	if ( ent >= ent_crit_p[ndom_press-2] ) {
-	    i = ndom_press - 1 ;
+    if (i == 0) {
+
+        if ( ent > double(0) ) {
+
+	    mgam1skapgam = m0*(gamma[0]-double(1))/kappa[0]/gamma[0] ;
+
+	    nn = pow( mgam1skapgam*(exp(ent)-double(1)),
+		      double(1)/(gamma[0]-double(1)) ) ; // mu0[0]/m0=1
+
+	    pp = kappa[0] * pow( nn, gamma[0] ) ;
+
+	    return mu0[0] * nn + pp / (gamma[0] - double(1)) ;
+
 	}
 	else {
-	    while ( ent > ent_crit_p[i] ) {
-	        i++ ;
-	    }
+	    return double(0) ;
 	}
-	assert(i <= ndom_press-1) ;
 
-	double kap_pr = kap_p[i] ;
-	double gam_pr = gam_p[i] ;
-
-	int j = 0 ;
-
-	if ( ent >= ent_crit_e[ndom_epsil-2] ) {
-	    j = ndom_epsil - 1 ;
-	}
-	else {
-	    while ( ent > ent_crit_e[j] ) {
-	        j++ ;
-	    }
-	}
-	assert(j <= ndom_epsil-1) ;
-
-        double kap_ep = kap_e[j] ;
-	double gam_ep = gam_e[j] ;
-
-	double nb = 1. ;
-	double nb_m1 = 0. ;
-
-	// Switch the method of computation of the baryon density
-	double diff_gamma = gam_ep - gam_pr + double(1) ;
-
-	if (diff_gamma < 1.e-15) {
-	    while (fabs(1.-nb_m1/nb) > 1.e-15) {
-	        nb_m1 = nb ;
-		nb = pow( (exp(ent) - double(1))
-			  / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
-			  double(1)/(gam_pr-double(1)) ) ;
-	    }
-	}
-	else {
-	    double nb_min ;
-	    if (nb_press[i-1] > nb_epsil[j-1]) {
-	        nb_min = nb_press[i-1] ;
-	    }
-	    else {
-	        nb_min = nb_epsil[j-1] ;
-	    }
-	    double aa = nb_min ;
-	    double xx = 1. ;
-	    int m ;
-	    double yy ;
-	    double ent_value ;
-
-	    while (xx > 1.e-15) {
-
-	      ent_value = 1. ;   // Initialization
-	      xx = 0.1 * xx ;
-	      m = 0 ;
-
-	      while (ent_value > 1.e-15) {
-
-		m++ ;
-		yy = aa + m * xx ;
-		ent_value = ent
-		  - log(double(1) + kap_ep*pow(yy,gam_ep)
-			+ kap_pr*pow(yy,gam_pr-double(1))) ;
-
-	      }
-	      aa += (m - 1) * xx ;
-	    }
-	    nb = aa ;
-	}
-	return nb * exp(ent) - kap_pr * pow(nb, gam_pr) ;
     }
     else {
-        return 0 ;
+
+        double entSmall = entCrit[i-1]*(double(1)-decInc[i-1]) ;
+        double entLarge = entCrit[i-1]*(double(1)+decInc[i-1]) ;
+
+        if ( ent < entLarge ) {
+
+	    double log10H = log10( ent ) ;
+	    double log10HSmall = log10( entSmall ) ;
+	    double log10HLarge = log10( entLarge ) ;
+	    double dH = log10HLarge - log10HSmall ;
+	    double uu = (log10H - log10HSmall) / dH ;
+
+	    double mgam1skapgamSmall = m0*(gamma[i-1]-double(1))
+	      /kappa[i-1]/gamma[i-1] ;
+	    double mgam1skapgamLarge = m0*(gamma[i]-double(1))
+	      /kappa[i]/gamma[i] ;
+
+	    double nnSmall = pow( mgam1skapgamSmall
+				  *(exp(entSmall)-mu0[i-1]/m0),
+				  double(1)/(gamma[i-1]-double(1)) ) ;
+	    double nnLarge = pow( mgam1skapgamLarge
+				  *(exp(entLarge)-mu0[i]/m0),
+				  double(1)/(gamma[i]-double(1)) ) ;
+
+	    double ppSmall = kappa[i-1] * pow( nnSmall, gamma[i-1] ) ;
+	    double ppLarge = kappa[i] * pow( nnLarge, gamma[i] ) ;
+
+	    double eeSmall = mu0[i-1] * nnSmall
+	      + ppSmall / (gamma[i-1] - double(1)) ;
+	    double eeLarge = mu0[i] * nnLarge
+	      + ppLarge / (gamma[i] - double(1)) ;
+
+	    double log10PSmall = log10( ppSmall ) ;
+	    double log10PLarge = log10( ppLarge ) ;
+
+	    double dlpsdlhSmall = entSmall
+	      * (double(1) + eeSmall / ppSmall) ;
+	    double dlpsdlhLarge = entLarge
+	      * (double(1) + eeLarge / ppLarge) ;
+
+	    double log10PInterpolate = logp(log10PSmall, log10PLarge,
+					    dlpsdlhSmall, dlpsdlhLarge,
+					    dH, uu) ;
+
+	    double dlpsdlhInterpolate = dlpsdlh(log10PSmall, log10PLarge,
+						dlpsdlhSmall, dlpsdlhLarge,
+						dH, uu) ;
+
+	    pp = pow(double(10), log10PInterpolate) ;
+
+	    return pp / ent * dlpsdlhInterpolate - pp ;
+
+	}
+	else {
+
+	    mgam1skapgam = m0*(gamma[i]-double(1))/kappa[i]/gamma[i] ;
+
+	    nn = pow( mgam1skapgam*(exp(ent)-mu0[i]/m0),
+		      double(1)/(gamma[i]-double(1)) ) ;
+
+	    pp = kappa[i] * pow( nn, gamma[i] ) ;
+
+	    return mu0[i] * nn + pp / (gamma[i] - double(1)) ;
+
+	}
+
     }
 
 }
+
 
 // Pressure from enthalpy
 //------------------------
 
 double Eos_multi_poly::press_ent_p(double ent, const Param* ) const {
 
-    if ( ent > double(0) ) {
+    int i = 0 ; // "i" corresponds to the number of domain
+                // i=0: gamma[0], kappa[0], i=1: gamma[1], kappa[1], .....
+                // The buffer zone is included in the next zone.
+    for (int l=0; l<npeos-1; l++) {
+        if ( ent > entCrit[l]*(double(1)-decInc[l]) ) {
+	    i++ ;
+	}
+    }
 
-        int i = 0 ;
+    double mgam1skapgam = 1. ;  // Initialization
+    double nn = 0. ;  // Initialization
 
-	if ( ent >= ent_crit_p[ndom_press-2] ) {
-	    i = ndom_press - 1 ;
+    if (i == 0) {
+
+        if ( ent > double(0) ) {
+
+	    mgam1skapgam = m0*(gamma[0]-double(1))/kappa[0]/gamma[0] ;
+
+	    nn = pow( mgam1skapgam*(exp(ent)-double(1)),
+		      double(1)/(gamma[0]-double(1)) ) ; // mu0[0]/m0=1
+
+	    return kappa[0] * pow( nn, gamma[0] ) ;
+
 	}
 	else {
-	    while ( ent > ent_crit_p[i] ) {
-	        i++ ;
-	    }
+	    return double(0) ;
 	}
-	assert(i <= ndom_press-1) ;
 
-	double kap_pr = kap_p[i] ;
-	double gam_pr = gam_p[i] ;
-
-	int j = 0 ;
-
-	if ( ent >= ent_crit_e[ndom_epsil-2] ) {
-	    j = ndom_epsil - 1 ;
-	}
-	else {
-	    while ( ent > ent_crit_e[j] ) {
-	        j++ ;
-	    }
-	}
-	assert(j <= ndom_epsil-1) ;
-
-        double kap_ep = kap_e[j] ;
-	double gam_ep = gam_e[j] ;
-
-	double nb = 1. ;
-	double nb_m1 = 0. ;
-
-	// Switch the method of computation of the baryon density
-	double diff_gamma = gam_ep - gam_pr + double(1) ;
-
-	if (diff_gamma < 1.e-15) {
-	    while (fabs(1.-nb_m1/nb) > 1.e-15) {
-	        nb_m1 = nb ;
-		nb = pow( (exp(ent) - double(1))
-			  / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
-			  double(1)/(gam_pr-double(1)) ) ;
-	    }
-	}
-	else {
-	    double nb_min ;
-	    if (nb_press[i-1] > nb_epsil[j-1]) {
-	        nb_min = nb_press[i-1] ;
-	    }
-	    else {
-	        nb_min = nb_epsil[j-1] ;
-	    }
-	    double aa = nb_min ;
-	    double xx = 1. ;
-	    int m ;
-	    double yy ;
-	    double ent_value ;
-
-	    while (xx > 1.e-15) {
-
-	      ent_value = 1. ;   // Initialization
-	      xx = 0.1 * xx ;
-	      m = 0 ;
-
-	      while (ent_value > 1.e-15) {
-
-		m++ ;
-		yy = aa + m * xx ;
-		ent_value = ent
-		  - log(double(1) + kap_ep*pow(yy,gam_ep)
-			+ kap_pr*pow(yy,gam_pr-double(1))) ;
-
-	      }
-	      aa += (m - 1) * xx ;
-	    }
-	    nb = aa ;
-	}
-	return kap_pr * pow(nb, gam_pr) ;
     }
     else {
-        return 0 ;
+
+        double entSmall = entCrit[i-1]*(double(1)-decInc[i-1]) ;
+        double entLarge = entCrit[i-1]*(double(1)+decInc[i-1]) ;
+
+        if ( ent < entLarge ) {
+
+	    double log10H = log10( ent ) ;
+	    double log10HSmall = log10( entSmall ) ;
+	    double log10HLarge = log10( entLarge ) ;
+	    double dH = log10HLarge - log10HSmall ;
+	    double uu = (log10H - log10HSmall) / dH ;
+
+	    double mgam1skapgamSmall = m0*(gamma[i-1]-double(1))
+	      /kappa[i-1]/gamma[i-1] ;
+	    double mgam1skapgamLarge = m0*(gamma[i]-double(1))
+	      /kappa[i]/gamma[i] ;
+
+	    double nnSmall = pow( mgam1skapgamSmall
+				  *(exp(entSmall)-mu0[i-1]/m0),
+				  double(1)/(gamma[i-1]-double(1)) ) ;
+	    double nnLarge = pow( mgam1skapgamLarge
+				  *(exp(entLarge)-mu0[i]/m0),
+				  double(1)/(gamma[i]-double(1)) ) ;
+
+	    double ppSmall = kappa[i-1] * pow( nnSmall, gamma[i-1] ) ;
+	    double ppLarge = kappa[i] * pow( nnLarge, gamma[i] ) ;
+
+	    double eeSmall = mu0[i-1] * nnSmall
+	      + ppSmall / (gamma[i-1] - double(1)) ;
+	    double eeLarge = mu0[i] * nnLarge
+	      + ppLarge / (gamma[i] - double(1)) ;
+
+	    double log10PSmall = log10( ppSmall ) ;
+	    double log10PLarge = log10( ppLarge ) ;
+
+	    double dlpsdlhSmall = entSmall
+	      * (double(1) + eeSmall / ppSmall) ;
+	    double dlpsdlhLarge = entLarge
+	      * (double(1) + eeLarge / ppLarge) ;
+
+	    double log10PInterpolate = logp(log10PSmall, log10PLarge,
+					    dlpsdlhSmall, dlpsdlhLarge,
+					    dH, uu) ;
+
+	    return pow(double(10), log10PInterpolate) ;
+
+	}
+	else {
+
+	    mgam1skapgam = m0*(gamma[i]-double(1))/kappa[i]/gamma[i] ;
+
+	    nn = pow( mgam1skapgam*(exp(ent)-mu0[i]/m0),
+		      double(1)/(gamma[i]-double(1)) ) ;
+
+	    return kappa[i] * pow( nn, gamma[i] ) ;
+
+	}
+
     }
 
 }
+
 
 // dln(n)/dln(H) from enthalpy
 //----------------------------
 
 double Eos_multi_poly::der_nbar_ent_p(double ent, const Param* ) const {
 
-    if ( ent > double(0) ) {
+    int i = 0 ; // "i" corresponds to the number of domain
+                // i=0: gamma[0], kappa[0], i=1: gamma[1], kappa[1], .....
+                // The buffer zone is included in the next zone.
+    for (int l=0; l<npeos-1; l++) {
+        if ( ent > entCrit[l]*(double(1)-decInc[l]) ) {
+	    i++ ;
+	}
+    }
 
-        if ( ent < 1.e-13 ) {
-	    double gam_ep = gam_e[0] ;
-	    return (double(1) + ent/double(2) + ent*ent/double(12)) / gam_ep ;
+    if (i == 0) {
+
+        if ( ent > double(0) ) {
+
+	    if ( ent < 1.e-13 ) {
+
+	        return ( double(1) + ent/double(2) + ent*ent/double(12) )
+		  / (gamma[0] - double(1)) ;
+
+	    }
+	    else {
+
+	        return ent / (double(1) - exp(-ent))
+		  / (gamma[0] - double(1)) ; // mu0[0]/m0=1
+
+	    }
+
 	}
 	else {
 
-	    int i = 0 ;
+	  return double(1) / (gamma[0] - double(1)) ;
 
-	    if ( ent >= ent_crit_p[ndom_press-2] ) {
-	        i = ndom_press - 1 ;
-	    }
-	    else {
-	        while ( ent > ent_crit_p[i] ) {
-		    i++ ;
-		}
-	    }
-	    assert(i <= ndom_press-1) ;
-
-	    double kap_pr = kap_p[i] ;
-	    double gam_pr = gam_p[i] ;
-
-	    int j = 0 ;
-
-	    if ( ent >= ent_crit_e[ndom_epsil-2] ) {
-	        j = ndom_epsil - 1 ;
-	    }
-	    else {
-	        while ( ent > ent_crit_e[j] ) {
-		    j++ ;
-		}
-	    }
-	    assert(j <= ndom_epsil-1) ;
-
-	    double kap_ep = kap_e[j] ;
-	    double gam_ep = gam_e[j] ;
-
-	    double nb = 1. ;
-	    double nb_m1 = 0. ;
-
-	    // Switch the method of computation of the baryon density
-	    double diff_gamma = gam_ep - gam_pr + double(1) ;
-
-	    if (diff_gamma < 1.e-15) {
-	        while (fabs(1.-nb_m1/nb) > 1.e-15) {
-		    nb_m1 = nb ;
-		    nb = pow( (exp(ent) - double(1))
-			      / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
-			      double(1)/(gam_pr-double(1)) ) ;
-		}
-	    }
-	    else {
-	        double nb_min ;
-		if (nb_press[i-1] > nb_epsil[j-1]) {
-		    nb_min = nb_press[i-1] ;
-		}
-		else {
-		    nb_min = nb_epsil[j-1] ;
-		}
-		double aa = nb_min ;
-		double xx = 1. ;
-		int m ;
-		double yy ;
-		double ent_value ;
-
-		while (xx > 1.e-15) {
-
-		    ent_value = 1. ;   // Initialization
-		    xx = 0.1 * xx ;
-		    m = 0 ;
-
-		    while (ent_value > 1.e-15) {
-
-		        m++ ;
-			yy = aa + m * xx ;
-			ent_value = ent
-			  - log(double(1) + kap_ep*pow(yy,gam_ep)
-				+ kap_pr*pow(yy,gam_pr-double(1))) ;
-
-		    }
-		    aa += (m - 1) * xx ;
-		}
-		nb = aa ;
-	    }
-	    return ent * exp(ent) / ( gam_ep * (exp(ent)-double(1))
-				      + kap_pr * (gam_pr-gam_ep-double(1))
-				      * pow(nb, gam_pr-double(1)) ) ;
 	}
+
     }
     else {
-        double gam_ep = gam_e[0] ;
-        return double(1) / gam_ep ;	//  to ensure continuity at ent=0
-    }
 
+        if ( ent < entCrit[i-1]*(double(1)+decInc[i-1]) ) {
+
+	    double zeta = der_press_ent_p(ent) / der_press_nbar_p(ent) ;
+
+	    return zeta ;
+
+	}
+	else {
+
+	    return ent / (double(1) - (mu0[i]/m0) * exp(-ent))
+	      / (gamma[i] - double(1)) ;
+
+	}
+
+    }
 }
+
 
 // dln(e)/dln(H) from enthalpy
 //----------------------------
 
 double Eos_multi_poly::der_ener_ent_p(double ent, const Param* ) const {
 
-    if ( ent > double(0) ) {
+    int i = 0 ; // "i" corresponds to the number of domain
+                // i=0: gamma[0], kappa[0], i=1: gamma[1], kappa[1], .....
+                // The buffer zone is included in the next zone.
+    for (int l=0; l<npeos-1; l++) {
+        if ( ent > entCrit[l]*(double(1)-decInc[l]) ) {
+	    i++ ;
+	}
+    }
 
-        if ( ent < 1.e-13 ) {
-	    double gam_ep = gam_e[0] ;
-	    double kap_ep = kap_e[0] ;
-	    double kap_pr = kap_p[0] ;
-	    double nn = pow( (exp(ent)-double(1))/(kap_pr+kap_ep),
-			     double(1)/gam_ep ) ;
+    double mgam1skapgam = 1. ;  // Initialization
+    double nn = 0. ;  // Initialization
+    double pp = 0. ;  // Initialization
+    double ee = 0. ;  // Initialization
 
-	    return (double(1) + ent/double(2) + ent*ent/double(12)) / gam_ep
-	      * ( double(1) + kap_ep*gam_ep*pow(nn, gam_ep)
-		  / ( double(1) + kap_ep*pow(nn, gam_ep) ) ) ;
+    if (i == 0) {
+
+        if ( ent > double(0) ) {
+
+	    mgam1skapgam = m0*(gamma[0]-double(1))/kappa[0]/gamma[0] ;
+
+	    nn = pow( mgam1skapgam*(exp(ent)-double(1)),
+		      double(1)/(gamma[0]-double(1)) ) ; // mu0[0]/m0=1
+
+	    pp = kappa[0] * pow( nn, gamma[0] ) ;
+
+	    ee = mu0[0] * nn + pp / (gamma[0] - double(1)) ;
+
+	    if ( ent < 1.e-13 ) {
+
+	        return ( double(1) + ent/double(2) + ent*ent/double(12) )
+		  / (gamma[0] - double(1)) * (double(1) + pp / ee) ;
+
+	    }
+	    else {
+
+	        return ent / (double(1) - exp(-ent))
+		  / (gamma[0] - double(1)) * (double(1) + pp / ee) ;
+		// mu0[0]/m0=1
+
+	    }
+
 	}
 	else {
 
-	    int i = 0 ;
+	  return double(1) / (gamma[0] - double(1)) ;
 
-	    if ( ent >= ent_crit_p[ndom_press-2] ) {
-	        i = ndom_press - 1 ;
-	    }
-	    else {
-	        while ( ent > ent_crit_p[i] ) {
-		    i++ ;
-		}
-	    }
-	    assert(i <= ndom_press-1) ;
-
-	    double kap_pr = kap_p[i] ;
-	    double gam_pr = gam_p[i] ;
-
-	    int j = 0 ;
-
-	    if ( ent >= ent_crit_e[ndom_epsil-2] ) {
-	        j = ndom_epsil - 1 ;
-	    }
-	    else {
-	        while ( ent > ent_crit_e[j] ) {
-		    j++ ;
-		}
-	    }
-	    assert(j <= ndom_epsil-1) ;
-
-	    double kap_ep = kap_e[j] ;
-	    double gam_ep = gam_e[j] ;
-
-	    double nb = 1. ;
-	    double nb_m1 = 0. ;
-
-	    // Switch the method of computation of the baryon density
-	    double diff_gamma = gam_ep - gam_pr + double(1) ;
-
-	    if (diff_gamma < 1.e-15) {
-	        while (fabs(1.-nb_m1/nb) > 1.e-15) {
-		    nb_m1 = nb ;
-		    nb = pow( (exp(ent) - double(1))
-			      / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
-			      double(1)/(gam_pr-double(1)) ) ;
-		}
-	    }
-	    else {
-	        double nb_min ;
-		if (nb_press[i-1] > nb_epsil[j-1]) {
-		    nb_min = nb_press[i-1] ;
-		}
-		else {
-		    nb_min = nb_epsil[j-1] ;
-		}
-		double aa = nb_min ;
-		double xx = 1. ;
-		int m ;
-		double yy ;
-		double ent_value ;
-
-		while (xx > 1.e-15) {
-
-		    ent_value = 1. ;   // Initialization
-		    xx = 0.1 * xx ;
-		    m = 0 ;
-
-		    while (ent_value > 1.e-15) {
-
-		        m++ ;
-			yy = aa + m * xx ;
-			ent_value = ent
-			  - log(double(1) + kap_ep*pow(yy,gam_ep)
-				+ kap_pr*pow(yy,gam_pr-double(1))) ;
-
-		    }
-		    aa += (m - 1) * xx ;
-		}
-		nb = aa ;
-	    }
-	    return ent * exp(ent) / ( gam_ep * (exp(ent)-double(1))
-				     + kap_pr * (gam_pr-gam_ep-double(1))
-				     * pow(nb, gam_pr-double(1)) )
-	      * ( double(1) + kap_ep*gam_ep*pow(nb, gam_ep)
-		  / ( double(1) + kap_ep*pow(nb, gam_ep) ) ) ;
 	}
+
     }
     else {
-        double gam_ep = gam_e[0] ;
-        return double(1) / gam_ep ;	//  to ensure continuity at ent=0
-    }
 
+        double entSmall = entCrit[i-1]*(double(1)-decInc[i-1]) ;
+        double entLarge = entCrit[i-1]*(double(1)+decInc[i-1]) ;
+
+        if ( ent < entLarge ) {
+
+	    double log10H = log10( ent ) ;
+	    double log10HSmall = log10( entSmall ) ;
+	    double log10HLarge = log10( entLarge ) ;
+	    double dH = log10HLarge - log10HSmall ;
+	    double uu = (log10H - log10HSmall) / dH ;
+
+	    double mgam1skapgamSmall = m0*(gamma[i-1]-double(1))
+	      /kappa[i-1]/gamma[i-1] ;
+	    double mgam1skapgamLarge = m0*(gamma[i]-double(1))
+	      /kappa[i]/gamma[i] ;
+
+	    double nnSmall = pow( mgam1skapgamSmall
+				  *(exp(entSmall)-mu0[i-1]/m0),
+				  double(1)/(gamma[i-1]-double(1)) ) ;
+	    double nnLarge = pow( mgam1skapgamLarge
+				  *(exp(entLarge)-mu0[i]/m0),
+				  double(1)/(gamma[i]-double(1)) ) ;
+
+	    double ppSmall = kappa[i-1] * pow( nnSmall, gamma[i-1] ) ;
+	    double ppLarge = kappa[i] * pow( nnLarge, gamma[i] ) ;
+
+	    double eeSmall = mu0[i-1] * nnSmall
+	      + ppSmall / (gamma[i-1] - double(1)) ;
+	    double eeLarge = mu0[i] * nnLarge
+	      + ppLarge / (gamma[i] - double(1)) ;
+
+	    double log10PSmall = log10( ppSmall ) ;
+	    double log10PLarge = log10( ppLarge ) ;
+
+	    double dlpsdlhSmall = entSmall
+	      * (double(1) + eeSmall / ppSmall) ;
+	    double dlpsdlhLarge = entLarge
+	      * (double(1) + eeLarge / ppLarge) ;
+
+	    double log10PInterpolate = logp(log10PSmall, log10PLarge,
+					    dlpsdlhSmall, dlpsdlhLarge,
+					    dH, uu) ;
+
+	    double dlpsdlhInterpolate = dlpsdlh(log10PSmall, log10PLarge,
+						dlpsdlhSmall, dlpsdlhLarge,
+						dH, uu) ;
+
+	    pp = pow(double(10), log10PInterpolate) ;
+
+	    ee = pp / ent * dlpsdlhInterpolate - pp ;
+
+	    double zeta = (double(1) + pp / ee) * der_press_ent_p(ent)
+	      / der_press_nbar_p(ent) ;
+
+	    return zeta ;
+
+	}
+	else {
+
+	    mgam1skapgam = m0*(gamma[i]-double(1))/kappa[i]/gamma[i] ;
+
+	    nn = pow( mgam1skapgam*(exp(ent)-mu0[i]/m0),
+		      double(1)/(gamma[i]-double(1)) ) ;
+
+	    pp = kappa[i] * pow( nn, gamma[i] ) ;
+
+	    ee = mu0[i] * nn + pp / (gamma[i] - double(1)) ;
+
+	    return ent / (double(1) - (mu0[i]/m0) * exp(-ent))
+	      / (gamma[i] - double(1)) * (double(1) + pp / ee) ;
+
+	}
+
+    }
 }
+
 
 // dln(p)/dln(H) from enthalpy
 //----------------------------
 
 double Eos_multi_poly::der_press_ent_p(double ent, const Param* ) const {
 
-    if ( ent > double(0) ) {
+    int i = 0 ; // "i" corresponds to the number of domain
+                // i=0: gamma[0], kappa[0], i=1: gamma[1], kappa[1], .....
+                // The buffer zone is included in the next zone.
+    for (int l=0; l<npeos-1; l++) {
+        if ( ent > entCrit[l]*(double(1)-decInc[l]) ) {
+	    i++ ;
+	}
+    }
 
-        if ( ent < 1.e-13 ) {
-	    double gam_ep = gam_e[0] ;
-	    double gam_pr = gam_p[0] ;
-	    return gam_pr * (double(1) + ent/double(2) + ent*ent/double(12))
-	      / gam_ep ;
+    if (i == 0) {
+
+        if ( ent > double(0) ) {
+
+	    if ( ent < 1.e-13 ) {
+
+	        return gamma[0]
+		  * ( double(1) + ent/double(2) + ent*ent/double(12) )
+		  / (gamma[0] - double(1)) ;
+
+	    }
+	    else {
+
+	        return gamma[0] * ent / (double(1) - exp(-ent))
+		  / (gamma[0] - double(1)) ; // mu0[0]/m0=1
+
+	    }
+
 	}
 	else {
 
-	    int i = 0 ;
+	  return gamma[0] / (gamma[0] - double(1)) ;
 
-	    if ( ent >= ent_crit_p[ndom_press-2] ) {
-	        i = ndom_press - 1 ;
-	    }
-	    else {
-	        while ( ent > ent_crit_p[i] ) {
-		    i++ ;
-		}
-	    }
-	    assert(i <= ndom_press-1) ;
-
-	    double kap_pr = kap_p[i] ;
-	    double gam_pr = gam_p[i] ;
-
-	    int j = 0 ;
-
-	    if ( ent >= ent_crit_e[ndom_epsil-2] ) {
-	        j = ndom_epsil - 1 ;
-	    }
-	    else {
-	        while ( ent > ent_crit_e[j] ) {
-		    j++ ;
-		}
-	    }
-	    assert(j <= ndom_epsil-1) ;
-
-	    double kap_ep = kap_e[j] ;
-	    double gam_ep = gam_e[j] ;
-
-	    double nb = 1. ;
-	    double nb_m1 = 0. ;
-
-	    // Switch the method of computation of the baryon density
-	    double diff_gamma = gam_ep - gam_pr + double(1) ;
-
-	    if (diff_gamma < 1.e-15) {
-	        while (fabs(1.-nb_m1/nb) > 1.e-15) {
-		    nb_m1 = nb ;
-		    nb = pow( (exp(ent) - double(1))
-			      / (kap_pr + kap_ep*pow(nb_m1, diff_gamma)),
-			      double(1)/(gam_pr-double(1)) ) ;
-		}
-	    }
-	    else {
-	        double nb_min ;
-		if (nb_press[i-1] > nb_epsil[j-1]) {
-		    nb_min = nb_press[i-1] ;
-		}
-		else {
-		    nb_min = nb_epsil[j-1] ;
-		}
-		double aa = nb_min ;
-		double xx = 1. ;
-		int m ;
-		double yy ;
-		double ent_value ;
-
-		while (xx > 1.e-15) {
-
-		    ent_value = 1. ;   // Initialization
-		    xx = 0.1 * xx ;
-		    m = 0 ;
-
-		    while (ent_value > 1.e-15) {
-
-		        m++ ;
-			yy = aa + m * xx ;
-			ent_value = ent
-			  - log(double(1) + kap_ep*pow(yy,gam_ep)
-				+ kap_pr*pow(yy,gam_pr-double(1))) ;
-
-		    }
-		    aa += (m - 1) * xx ;
-		}
-		nb = aa ;
-	    }
-	    return gam_pr * ent * exp(ent)
-	      / ( gam_ep * (exp(ent)-double(1))
-		  + kap_pr * (gam_pr-gam_ep-double(1))
-		  * pow(nb, gam_pr-double(1)) ) ;
 	}
+
     }
     else {
-        double gam_ep = gam_e[0] ;
-	double gam_pr = gam_p[0] ;
-        return gam_pr / gam_ep ;	//  to ensure continuity at ent=0
+
+        double entSmall = entCrit[i-1]*(double(1)-decInc[i-1]) ;
+        double entLarge = entCrit[i-1]*(double(1)+decInc[i-1]) ;
+
+        if ( ent < entLarge ) {
+
+	    double log10H = log10( ent ) ;
+	    double log10HSmall = log10( entSmall ) ;
+	    double log10HLarge = log10( entLarge ) ;
+	    double dH = log10HLarge - log10HSmall ;
+	    double uu = (log10H - log10HSmall) / dH ;
+
+	    double mgam1skapgamSmall = m0*(gamma[i-1]-double(1))
+	      /kappa[i-1]/gamma[i-1] ;
+	    double mgam1skapgamLarge = m0*(gamma[i]-double(1))
+	      /kappa[i]/gamma[i] ;
+
+	    double nnSmall = pow( mgam1skapgamSmall
+				  *(exp(entSmall)-mu0[i-1]/m0),
+				  double(1)/(gamma[i-1]-double(1)) ) ;
+	    double nnLarge = pow( mgam1skapgamLarge
+				  *(exp(entLarge)-mu0[i]/m0),
+				  double(1)/(gamma[i]-double(1)) ) ;
+
+	    double ppSmall = kappa[i-1] * pow( nnSmall, gamma[i-1] ) ;
+	    double ppLarge = kappa[i] * pow( nnLarge, gamma[i] ) ;
+
+	    double eeSmall = mu0[i-1] * nnSmall
+	      + ppSmall / (gamma[i-1] - double(1)) ;
+	    double eeLarge = mu0[i] * nnLarge
+	      + ppLarge / (gamma[i] - double(1)) ;
+
+	    double log10PSmall = log10( ppSmall ) ;
+	    double log10PLarge = log10( ppLarge ) ;
+
+	    double dlpsdlhSmall = entSmall
+	      * (double(1) + eeSmall / ppSmall) ;
+	    double dlpsdlhLarge = entLarge
+	      * (double(1) + eeLarge / ppLarge) ;
+
+	    double dlpsdlhInterpolate = dlpsdlh(log10PSmall, log10PLarge,
+						dlpsdlhSmall, dlpsdlhLarge,
+						dH, uu) ;
+	    return dlpsdlhInterpolate ;
+
+	}
+	else {
+
+	    return gamma[i] * ent / (double(1) - (mu0[i]/m0) * exp(-ent))
+	      / (gamma[i] - double(1)) ;
+
+	}
+
     }
+}
+
+
+// dln(p)/dln(n) from enthalpy
+//----------------------------
+
+double Eos_multi_poly::der_press_nbar_p(double ent, const Param* ) const {
+
+    int i = 0 ; // "i" corresponds to the number of domain
+                // i=0: gamma[0], kappa[0], i=1: gamma[1], kappa[1], .....
+                // The buffer zone is included in the next zone.
+    for (int l=0; l<npeos-1; l++) {
+        if ( ent > entCrit[l]*(double(1)-decInc[l]) ) {
+	    i++ ;
+	}
+    }
+
+    if (i == 0) {
+
+        return gamma[0] ;
+
+    }
+    else {
+
+        double entSmall = entCrit[i-1]*(double(1)-decInc[i-1]) ;
+        double entLarge = entCrit[i-1]*(double(1)+decInc[i-1]) ;
+
+        if ( ent < entLarge ) {
+
+	    double log10H = log10( ent ) ;
+	    double log10HSmall = log10( entSmall ) ;
+	    double log10HLarge = log10( entLarge ) ;
+
+	    double dlpsdlnbInterpolate = dlpsdlnb(log10HSmall, log10HLarge,
+						  gamma[i-1], gamma[i],
+						  log10H) ;
+
+	    return dlpsdlnbInterpolate ;
+
+	}
+	else {
+
+	    return gamma[i] ;
+
+	}
+
+    }
+}
+
+
+//***************************************************//
+//     Functions which appear in the computation     //
+//***************************************************//
+
+double logp(double log10PressSmall, double log10PressLarge,
+	    double dlpsdlhSmall, double dlpsdlhLarge,
+	    double dx, double u) {
+
+    double resu = log10PressSmall * (double(2) * u * u * u
+				     - double(3) * u * u + double(1))
+      + log10PressLarge * (double(3) * u * u - double(2) * u * u * u)
+      + dlpsdlhSmall * dx * (u * u * u - double(2) * u * u + u)
+      - dlpsdlhLarge * dx * (u * u - u * u * u) ;
+
+    return resu ;
+
+}
+
+double dlpsdlh(double log10PressSmall, double log10PressLarge,
+	       double dlpsdlhSmall, double dlpsdlhLarge,
+	       double dx, double u) {
+
+    double resu = double(6) * (log10PressSmall - log10PressLarge)
+      * (u * u - u) / dx
+      + dlpsdlhSmall * (double(3) * u * u - double(4) * u + double(1))
+      + dlpsdlhLarge * (double(3) * u * u - double(2) * u) ;
+
+    return resu ;
+
+}
+
+double dlpsdlnb(double log10HSmall, double log10HLarge,
+		double dlpsdlnbSmall, double dlpsdlnbLarge,
+		double log10H) {
+
+    double resu = log10H * (dlpsdlnbSmall - dlpsdlnbLarge)
+      / (log10HSmall - log10HLarge)
+      + (log10HSmall * dlpsdlnbLarge - log10HLarge * dlpsdlnbSmall)
+      / (log10HSmall - log10HLarge) ;
+
+    return resu ;
 
 }
