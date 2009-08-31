@@ -35,6 +35,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.43  2009/08/31 19:39:07  n_vasset
+ * removal of obsolete function get_kerr()
+ *
  * Revision 1.42  2008/11/27 12:12:38  j_novak
  * New function to initialize parameters for wave equation.
  *
@@ -715,8 +718,6 @@ void tensorellipticCt ( Scalar source, Scalar& resu, double fitd1, double fit2d1
  Sym_tensor secmembre_kerr ( const Sym_tensor& hij, const Sym_tensor& aa,const Scalar& nn,const Scalar& ppsi,const Vector& bb);
 
  Sym_tensor boundfree_tensBC( Sym_tensor source, Vector Beta, Scalar Psi, Scalar Nn, Sym_tensor hij_guess, double precision = 1.e-9, int loopmax = 250) ;
-
-void get_kerr(double rot_par, Sym_tensor hij, Scalar nn, Scalar ppsi, Vector bb, double bound_n = 0.5, bool non_conf_flat = true, double precis = 5.e-10);
 
 // Fonctions diverses : 
 void c_est_pas_fait(char * ) ;
