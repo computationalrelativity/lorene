@@ -28,6 +28,7 @@ install: $(LIB) $(BIN_TOOLS) $(BIN_TOOLS)/pointCpointo
 	cd Source/Grille3d; $(MAKE)
 	cd Source/Hole_bhns; $(MAKE)
 	cd Source/Isol_hor; $(MAKE)	
+	cd Source/Isol_hole; $(MAKE)
 	cd Source/Itbl; $(MAKE)
 	cd Source/Map; $(MAKE)
 	cd Source/Matrice; $(MAKE)
@@ -90,6 +91,7 @@ uninstall:
 	cd Source/Grille3d; $(MAKE) -i uninstall
 	cd Source/Hole_bhns; $(MAKE) -i uninstall
 	cd Source/Isol_hor; $(MAKE) -i uninstall
+	cd Source/Isol_hole; $(MAKE) -i uninstall
 	cd Source/Itbl; $(MAKE) -i uninstall
 	cd Source/Map; $(MAKE) -i uninstall
 	cd Source/Matrice; $(MAKE) -i uninstall
