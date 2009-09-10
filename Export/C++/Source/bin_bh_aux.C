@@ -30,6 +30,9 @@ char bin_bh_aux_C[] = "$Header$" ;
 /*
  * $Id$
  * $Log$
+ * Revision 1.6  2009/09/10 10:05:36  p_grandclement
+ * slight change to read different mass BH
+ *
  * Revision 1.5  2006/09/12 08:04:06  j_novak
  * Removal of the include path Export/C++/Include, updating of the relevant
  * source files in Export/C++/Source.
@@ -70,24 +73,34 @@ double lagrange_parabol(double x, const double* xp, const double* yp) ;
 		    //----------------------------------------//
 
 Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
-	       const double* zi, int fill, const char* filename)
+	       const double* zi, int fill, const char* filename, int mdiff)
 	       : np(nbpoints) {
 
     // Reading of data
     // ---------------
     FILE* fich = fopen(filename, "r") ;
-    Mg3d grille (fich) ;
-    Map_af map_un (grille, fich) ;
-    Map_af map_deux (grille, fich) ;
-    Bhole hole_un (map_un, fich, true) ;
-    Bhole hole_deux (map_deux, fich, true) ;
+    Mg3d* grille_1 = new Mg3d (fich) ;
+    Mg3d* grille_2 ;
+    if (mdiff)
+	grille_2 = new Mg3d(fich) ;
+    else
+	grille_2 = 0x0 ;
+    Map_af* map_un ;
+    map_un = new Map_af (*grille_1, fich) ;
+    Map_af* map_deux  ;
+    if (mdiff)
+        map_deux = new Map_af (*grille_2, fich) ;
+    else
+	map_deux = new Map_af (*grille_1, fich) ;
+    Bhole hole_un (*map_un, fich, true) ;
+    Bhole hole_deux (*map_deux, fich, true) ;
     fclose(fich) ;
 
     assert (hole_un.get_omega() == hole_deux.get_omega()) ;
 
     // Construction of the binary system
     // ---------------------------------
-    Bhole_binaire systeme (map_un, map_deux) ;
+    Bhole_binaire systeme (*map_un, *map_deux) ;
     systeme.set(1) = hole_un ;
     systeme.set(2) = hole_deux ;
     systeme.set_omega(hole_un.get_omega()) ;
@@ -110,7 +123,7 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
     radius2 = aa2 ;
 
     omega = systeme.get_omega() * aa ;
-    dist = ( map_un.get_ori_x() - map_deux.get_ori_x() ) / aa ;
+    dist = ( map_un->get_ori_x() - map_deux->get_ori_x() ) / aa ;
 
     cout << endl << "Binary system read in file : " << endl ;
     cout <<	    "---------------------------- " << endl ;
@@ -858,8 +871,11 @@ Bin_BH::Bin_BH(int nbpoints, const double* xi, const double* yi,
 
     }	// End of loop on the points
     
-
-
+    delete map_un ;
+    delete map_deux ;
+    delete grille_1 ;
+    if (mdiff)
+	    delete grille_2 ;
 }
 
 		

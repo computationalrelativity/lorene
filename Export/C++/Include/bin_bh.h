@@ -29,6 +29,9 @@
 /*
  * $Id$
  * $Log$
+ * Revision 1.8  2009/09/10 10:05:35  p_grandclement
+ * slight change to read different mass BH
+ *
  * Revision 1.7  2003/10/24 15:49:03  e_gourgoulhon
  * Updated documentation.
  *
@@ -260,7 +263,7 @@ class Bin_BH {
 	 *		spectral method. 
 	 */
 	Bin_BH(int nbpoints, const double* xi, const double* yi, 
-	       const double* zi, int fill, const char* filename) ;	
+	       const double* zi, int fill, const char* filename, int mdiff=false) ;	
 	
 
 	/** Constructor from a binary file 
