@@ -78,12 +78,15 @@ class Excision_surf {
 	mutable Scalar* p_get_BC_lapse_1 ;   ///< Source of Dirichlet boundary condition of \f$ N \f$
 	mutable Vector* p_get_BC_shift_1 ; ///< Source of Dirichlet BC for the shift vector  \f$ \beta^{i} \f$
 	mutable Scalar* p_get_BC_Npsi_1 ; ///<  Source of Neumann boundary condition on \f$ \psi \f$.
-	mutable Scalar* p_get_BC_conf_fact_2 ; ///< Source of Neumann boundary condition on \f$ \psi \f$, 
+	mutable Scalar* p_get_BC_conf_fact_2 ; ///< Source of Neumann boundary condition on \f$ \psi \f$,  
 	mutable Scalar* p_get_BC_conf_fact_3 ; ///< Source of Neumann boundary condition on \f$ \psi \f$, 
 	mutable Scalar* p_get_BC_conf_fact_4 ; ///< Source of Birichlet boundary condition on \f$ \psi \f$, 
 	mutable Scalar* p_get_BC_lapse_2 ;   ///< Source of Dirichlet boundary condition of \f$ N \f$
 	mutable Vector* p_get_BC_shift_2 ; ///< Source of Dirichlet BC for the shift vector  \f$ \beta^{i} \f$
-	mutable Scalar* p_get_BC_Npsi_2 ; ///<  Source of Neumann boundary condition on \f$ \psi \f$.
+	mutable Scalar* p_get_BC_Npsi_2 ; ///<  Source of Dirichlet boundary condition on \f$ \Npsi \f$.
+	mutable Scalar* p_get_BC_Npsi_3 ; ///<  Source of Dirichlet boundary condition on \f$ \Npsi \f$.
+	mutable Scalar* p_get_BC_Npsi_4 ; ///<  Source of Dirichlet boundary condition on \f$ \Npsi \f$.
+	mutable Scalar* p_get_BC_Npsi_5 ; ///<  Source of Neumann boundary condition on \f$ \Npsi \f$.
 
     // Constructors - Destructor
     // -------------------------
@@ -153,6 +156,9 @@ class Excision_surf {
 	/// Returns the internal number of timesteps for one iteration.
 	const double get_no_of_steps() const {return no_of_steps ;};
 
+	/// Sets a new spheroid from data
+	Spheroid& set_sph() {del_deriv() ; return sph ;};
+
 	/// Sets the value of the conformal factor
 	Scalar& set_conf_fact() {del_deriv() ; return conf_fact ; } ;
 
@@ -178,11 +184,10 @@ class Excision_surf {
     public:
 
 
-	/// Source for a Neumann BC on the conformal factor,based on the vanishing of the expansion
-	const Scalar& get_BC_conf_fact_1() const ;
+	/// Source for a Neumann BC on the conformal factor. If boolean isMOTS is false, it is based on expansion value of the spheroid or the value of exppa; it is based on zero expansion if isMOTS is true. 
+	const Scalar& get_BC_conf_fact_1(bool isMOTS = false, Scalar* exppa = 0x0) const ;
 // Source for an arbitrary Dirichlet BC on the lapse	
 	const Scalar& get_BC_lapse_1(double value) const ;
-
 // Source for a global Dirichlet BC on the shift, imposing a conformal Killing symmetry on \f$ \varphi \f$.
 	const Vector& get_BC_shift_1(double Omega) const ;
 // Source for a Dirichlet arbitrary BC on (N*Psi1)
@@ -196,11 +201,18 @@ class Excision_surf {
 /// Source for Dirichlet BC on the lapse, based on a parabolic driver towards arbitrary constant value
 	const Scalar& get_BC_lapse_2(double lapse_fin, double c_lapse_lap, double c_lapse_fi) const ;
 /// Source for a Dirichlet BC on the shift, based on a Parabolic driver; no assumptions are made except a global conformal Killing symmetry.
-	const Vector& get_BC_shift_2(double c_bb_lap, double c_bb_fin, double c_V_lap) const ;
-
+	const Vector& get_BC_shift_2(double c_bb_lap, double c_bb_fin, double c_V_lap, double epsilon) const ;
 /// Source for the Dirichlet BC on (N*Psi1), based on a parabolic driver.
 	const Scalar& get_BC_Npsi_2(double value, double c_npsi_lap, double c_npsi_fin) const ;        
 
+/// Source for the Dirichlet BC on (N*Psi1), with Kerr_Schild-like form for the lapse boundary.
+	const Scalar& get_BC_Npsi_3(double n_0, double beta) const ;      
+
+/// Source for a Dirichlet BC on (N*Psi1), fixing a constant surface gravity in space and time.
+	const Scalar& get_BC_Npsi_4(double Kappa) const ;      
+
+/// Source for a Neumann BC on (N*Psi1), fixing a constant surface gravity in space and time.
+	const Scalar& get_BC_Npsi_5(double Kappa) const ; 
     // Outputs
     // -------
     public:
